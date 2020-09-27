@@ -3155,6 +3155,7 @@ SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeS
 	UEF = rS.UEF;
 	GenTEA = rS.GenTEA;
 	GenTED = rS.GenTED;
+	CADF = rS.CADF; // @v10.8.12
 }
 
 SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeSeries::TrainNnParam & rTnnp, int stakeMode) : Strategy(),
@@ -3188,6 +3189,7 @@ SLAPI PPObjTimeSeries::StrategyResultEntry::StrategyResultEntry(const PPObjTimeS
 	UEF = rTnnp.UEF;
 	GenTEA = rTnnp.GenTEA;
 	GenTED = rTnnp.GenTED;
+	CADF = rTnnp.CADF; // @v10.8.12
 }
 
 SLAPI PPObjTimeSeries::TrendEntry::TrendEntry(uint stride, uint nominalCount) : Stride(stride), NominalCount(nominalCount), SpikeQuant_r(0.0), ErrAvg(0.0), ErrLimitByPel(0.0)
@@ -3252,6 +3254,29 @@ static FORCEINLINE double Implement_CalcSL_Short(double mdv, int prec, double pe
 	{ return round(peak * (1.0 + mdv), prec); }
 static FORCEINLINE double Implement_CalcSL_Long(double mdv, int prec, double peak)
 	{ return round(peak * (1.0 - mdv), prec); }
+
+PPObjTimeSeries::CommonTsParamBlock::CommonTsParamBlock()
+{
+}
+
+LDATETIME PPObjTimeSeries::CommonTsParamBlock::GetLastValTime() const
+{
+	return TmList.getCount() ? TmList.at(TmList.getCount()-1) : ZERODATETIME;
+}
+
+int PPObjTimeSeries::CommonTsParamBlock::Setup(const STimeSeries & rTs)
+{
+	int    ok = 1;
+	const uint tsc = rTs.GetCount();
+	uint   vec_idx = 0;
+	THROW_SL(rTs.GetValueVecIndex("close", &vec_idx));
+	THROW_SL(rTs.GetRealArray(vec_idx, 0, tsc, ValList));
+	THROW_SL(rTs.GetTimeArray(0, tsc, TmList));
+	assert(TmList.getCount() == tsc);
+	assert(ValList.getCount() == tsc);
+	CATCHZOK
+	return ok;
+}
 
 int SLAPI PPObjTimeSeries::Strategy::CalcResult2(/*const DateTimeArray & rTmList, const RealArray & rValList*/
 	const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint valueIdx, PPObjTimeSeries::StrategyResultValueEx & rV) const
@@ -3751,7 +3776,7 @@ PPObjTimeSeries::OptimalFactorRange_WithPositions & PPObjTimeSeries::OptimalFact
 SLAPI PPObjTimeSeries::Strategy::Strategy() : ID(0), InputFrameSize(0), MainFrameSize(0), Prec(0), TargetQuant(0), MaxDuckQuant(0), OptDelta2Stride(0), StakeMode(0),
 	StakeCloseMode(0), BaseFlags(0), PeakAvgQuant(0), BottomAvgQuant(0), PeakMaxQuant(0), GenSeq(0), GenPtCount(0), StakeCount(0), WinCount(0), StakeCountAtFinalSimulation(0),
 	Margin(0.0), SpikeQuant_s(0.0), SpreadAvg(0.0), TrendErrAvg(0.0), TrendErrLim(0.0), TrendErrLowLim(0.0f), MainTrendErrAvg(0.0), MainTrendErrLim(0.0), ADF(0.0f), UEF(0.0f),
-	GenTEA(0.0f), GenTED(0.0f)
+	GenTEA(0.0f), GenTED(0.0f), CADF(0.0f)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -3993,6 +4018,14 @@ void PPObjTimeSeries::StrategyContainer::SetLastValTm(LDATETIME dtm)
 	LastValTm = dtm;
 }
 
+void SLAPI PPObjTimeSeries::StrategyContainer::Setup(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel, LDATETIME lastValTm, LDATE useDataTill)
+{
+	Z();
+	SetLastValTm(lastValTm);
+	SetUseDataForStrategiesTill(useDataTill);
+	SetupByTsPacket(rTsPack, pModel);
+}
+
 void SLAPI PPObjTimeSeries::StrategyContainer::TrimByVariance(double bound)
 {
 	int   do_next = 0;
@@ -4084,11 +4117,9 @@ int SLAPI PPObjTimeSeries::StrategyContainer::IsThereSimilStrategy(uint thisIdx,
 			const uint idx = static_cast<uint>(rSelectedIdxList.get(i));
 			if(idx != thisIdx && idx < getCount()) {
 				const Strategy & r_other_s = at(idx);
-				if((r_s.BaseFlags & Strategy::bfShort) == (r_other_s.BaseFlags & Strategy::bfShort)) {
-					if(r_s.InputFrameSize != r_other_s.InputFrameSize) {
-						rSimilIdxList.add(static_cast<long>(idx));
-						yes = 1;
-					}
+				if(r_s.IsStakeSideEq(r_other_s) && r_s.InputFrameSize != r_other_s.InputFrameSize) {
+					rSimilIdxList.add(static_cast<long>(idx));
+					yes = 1;
 				}
 			}
 		}
@@ -4532,6 +4563,7 @@ int SLAPI PPObjTimeSeries::StrategyContainer::MakeConfidenceEliminationIndex(con
 				break;
 		}
 	}
+#if 0 // @20200924 {
 	else {
 	// } @20200807
 		const double max_vc = (rTssPacket.E.MaxStakeCountVariation > 0.0 && rTssPacket.E.MaxStakeCountVariation < 1.0) ? rTssPacket.E.MaxStakeCountVariation : 0.12; // @v10.8.3
@@ -4568,6 +4600,7 @@ int SLAPI PPObjTimeSeries::StrategyContainer::MakeConfidenceEliminationIndex(con
 			}
 		}
 	}
+#endif // } 0
 	return ok;
 }
 
@@ -4623,7 +4656,7 @@ int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPac
 	LongArray pos_to_remove;
 	LongArray have_analog_pos_list;
 	// @v10.7.9 {
-	if(_ssflags & gbsfEliminate100prob) {
+	/* @20200924 if(_ssflags & gbsfEliminate100prob) {
 		TSCollection <StrategyContainerChunk> strategy_chunk_list;
 		for(uint i = 0; i < _c; i++) {
 			const Strategy & r_item = at(i);
@@ -4649,7 +4682,7 @@ int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPac
 				MakeConfidenceEliminationIndex(rTssPacket, 0, &p_chunk->ScIdxList, pos_to_remove);
 			}
 		}
-	}
+	}*/
 	// } @v10.7.9 
 	{
 		for(uint i = 0; i < _c; i++) {
@@ -4810,22 +4843,39 @@ int SLAPI PPObjTimeSeries::StrategyContainer::GetInputFramSizeList(LongArray & r
 	return ok;
 }
 
-int SLAPI PPObjTimeSeries::StrategyContainer::FindIntersectionByAngle(const Strategy & rS, uint * pPos) const
+int SLAPI PPObjTimeSeries::StrategyContainer::FindAngularNearestNeighbour(const Strategy & rS, uint * pPos) const
+{
+	const double ma = rS.OptDeltaRange.GetMiddle();
+	double min_diff = SMathConst::Max;
+	uint   min_diff_idx = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		const Strategy & r_test_s = at(i);
+		if(rS.IsStakeSideEq(r_test_s) && (r_test_s.MainFrameSize == rS.MainFrameSize && static_cast<const RealRange &>(r_test_s.OptDelta2Range).IsEqual(rS.OptDelta2Range))) {
+			const double _this_diff = fabs(r_test_s.OptDeltaRange.GetMiddle() - ma);
+			if(min_diff > _this_diff) {
+				min_diff = _this_diff;
+				min_diff_idx = i+1;
+			}
+		}
+	}
+	ASSIGN_PTR(pPos, min_diff_idx-1);
+	return (min_diff_idx > 0) ? 1 : 0;
+}
+
+int SLAPI PPObjTimeSeries::StrategyContainer::FindAngularIntersection(const Strategy & rS, uint * pPos) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const Strategy & r_test_s = at(i);
-		if((r_test_s.BaseFlags & Strategy::bfShort) == (rS.BaseFlags & Strategy::bfShort)) {
-			if(r_test_s.MainFrameSize == rS.MainFrameSize && static_cast<const RealRange &>(r_test_s.OptDelta2Range).IsEqual(rS.OptDelta2Range)) {
-				RealRange ar_this;
-				RealRange ar_other;
-				ar_this.low = atan(r_test_s.OptDeltaRange.low);
-				ar_this.upp = atan(r_test_s.OptDeltaRange.upp);
-				ar_other.low = atan(rS.OptDeltaRange.low);
-				ar_other.upp = atan(rS.OptDeltaRange.upp);
-				if(ar_this.Intersect(ar_other, 0)) {
-					ASSIGN_PTR(pPos, i);
-					return 1;
-				}
+		if(rS.IsStakeSideEq(r_test_s) && (r_test_s.MainFrameSize == rS.MainFrameSize && static_cast<const RealRange &>(r_test_s.OptDelta2Range).IsEqual(rS.OptDelta2Range))) {
+			RealRange ar_this;
+			RealRange ar_other;
+			ar_this.low = atan(r_test_s.OptDeltaRange.low);
+			ar_this.upp = atan(r_test_s.OptDeltaRange.upp);
+			ar_other.low = atan(rS.OptDeltaRange.low);
+			ar_other.upp = atan(rS.OptDeltaRange.upp);
+			if(ar_this.Intersect(ar_other, 0)) {
+				ASSIGN_PTR(pPos, i);
+				return 1;
 			}
 		}
 	}
@@ -4929,6 +4979,11 @@ void SLAPI PPObjTimeSeries::TrainNnParam::Reset()
 SString & SLAPI PPObjTimeSeries::TrainNnParam::MakeFileName(SString & rBuf) const
 {
 	return rBuf.Z().Cat(Symb).CatChar('-').Cat(InputFrameSize).CatChar('-').Cat(MaxDuckQuant).Dot().Cat("fann").ToLower();
+}
+
+bool FASTCALL PPObjTimeSeries::Strategy::IsStakeSideEq(const Strategy & rS) const
+{
+	return ((BaseFlags & bfShort) == (rS.BaseFlags & bfShort));
 }
 
 double SLAPI PPObjTimeSeries::Strategy::GetWinCountRate() const { return fdivnz((double)WinCount, (double)StakeCount); }
@@ -5245,8 +5300,8 @@ int SLAPI PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 				else
 					rBuf.CatChar('?').CatChar('|');
 				rBuf.Cat(rS.OptDeltaRange, trange_fmt);
-				rBuf.CatChar('|').Cat(rS.ADF, MKSFMTD(0, 3, NMBF_FORCEPOS)); // @v10.8.9
-				rBuf.CatChar('|').Cat(rS.UEF, MKSFMTD(0, 4, 0)); // @v10.8.10
+				//rBuf.CatChar('|').Cat(rS.ADF, MKSFMTD(0, 3, NMBF_FORCEPOS)); // @v10.8.9
+				//rBuf.CatChar('|').Cat(rS.UEF, MKSFMTD(0, 4, 0)); // @v10.8.10
 			}
 			else if(rS.StakeMode == 2)
 				rBuf.Cat(*pOptFactor, trange_fmt).CatChar('|').Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
@@ -5259,8 +5314,8 @@ int SLAPI PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 		else {
 			if(rS.StakeMode == 1) {
 				rBuf.Cat(rS.OptDeltaRange, trange_fmt);
-				rBuf.CatChar('|').Cat(rS.ADF, MKSFMTD(0, 3, NMBF_FORCEPOS)); // @v10.8.9
-				rBuf.CatChar('|').Cat(rS.UEF, MKSFMTD(0, 4, 0)); // @v10.8.10
+				//rBuf.CatChar('|').Cat(rS.ADF, MKSFMTD(0, 3, NMBF_FORCEPOS)); // @v10.8.9
+				//rBuf.CatChar('|').Cat(rS.UEF, MKSFMTD(0, 4, 0)); // @v10.8.10
 			}
 			else if(rS.StakeMode == 2)
 				rBuf.Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
@@ -5632,8 +5687,7 @@ static SString & OutputStategyResultEntry(const PPObjTimeSeries::StrategyResultE
 	return rBuf;
 }
 
-int SLAPI PrcssrTsStrategyAnalyze::FindOptimalMaxDuck(const PPTimeSeriesPacket & rTsPack, 
-	/*const DateTimeArray & rTsTmList, const RealArray & rTsValList*/const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint flags, uint * pResult)
+int SLAPI PrcssrTsStrategyAnalyze::FindOptimalMaxDuck(const PPTimeSeriesPacket & rTsPack, const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint flags, uint * pResult)
 {
 	int    ok = 1;
 	const  int is_short = BIN(flags & fomdfShort);
@@ -5727,6 +5781,13 @@ int SLAPI PrcssrTsStrategyAnalyze::MakeTrendEntry(const RealArray & rValueList, 
 	}
 	CATCHZOK
 	return ok;
+}
+
+int SLAPI PrcssrTsStrategyAnalyze::MakeArVectors2(const STimeSeries & rTs, const LongArray & rFrameSizeList, 
+	const PPTssModelPacket * pTssModel, uint flags, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet)
+{
+	double partitial_trend_err_limit = ((pTssModel && pTssModel->Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) ? pTssModel->Rec.InitTrendErrLimit_ : 0.0);
+	return MakeArVectors(rTs, rFrameSizeList, flags, partitial_trend_err_limit, rTrendListSet);
 }
 
 int SLAPI PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet)
@@ -6104,7 +6165,7 @@ struct TsFindStrategiesBlock {
 				}
 			}
 			if(pRc) {
-				const  uint max_range_count = (r_tssm.OptRangeMultiLimit > 0) ? r_tssm.OptRangeMultiLimit : PPTssModel::Default_OptRangeMultiLimit;
+				const  uint max_range_count = (r_tssm.OptRangeMultiLimit > 0) ? r_tssm.OptRangeMultiLimit : 100000/*PPTssModel::Default_OptRangeMultiLimit*/;
 				const  int single_scan_algorithm = 1; // @v10.8.9 0-->1 1-->0 
 				if(single_scan_algorithm) {
 					/*double angular_step_avg = 0.0;
@@ -6666,6 +6727,33 @@ static double SLAPI EvaluateExperimentalFactor(const PPObjTimeSeries::StrategyCo
 	return result;
 }
 
+static double GetStrategyResultCADF(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rDetailList)
+{
+	double result = 0.0;
+	if(rDetailList.getCount()) {
+		RealArray listy;
+		RealArray listx;
+		for(uint i = 0; i < rDetailList.getCount(); i++) {
+			const PPObjTimeSeries::StrategyResultValueEx & r_entry = rDetailList.at(i);
+			const double e = r_entry.OptFactor;
+			listx.add(static_cast<double>(i+1/*r_entry.StartPoint*/));
+			listy.add(e);
+		}
+		assert(listx.getCount() == listy.getCount());
+		{
+			LssLin lss;
+			lss.Solve(listy.getCount(), static_cast<const double *>(listx.dataPtr()), static_cast<const double *>(listy.dataPtr()));
+			result = lss.B;
+			//trend = lss.B;
+			//sumsq = lss.SumSq;
+			//cov00 = lss.Cov00;
+			//cov01 = lss.Cov01;
+			//cov11 = lss.Cov11;
+		}
+	}
+	return result;
+}
+
 static void GetStrategyResultErrTrendRelRange(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rDetailList, RealRange & rR, double * pAvg, double * pStdDev)
 {
 	double avg = 0.0;
@@ -6806,6 +6894,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 								GetStrategyResultErrTrendRelRange(sr_detail_list, trend_err_rel_range, &trend_err_avg, &trend_err_stddev);
 								sre_best2.GenTEA = static_cast<float>(trend_err_avg);
 								sre_best2.GenTED = static_cast<float>(trend_err_stddev);
+								sre_best2.CADF = static_cast<float>(GetStrategyResultCADF(sr_detail_list)); // @v10.8.12
 							}
 							if(p_blk->P_Tsrr) {
 								sre_best2.ADF = static_cast<float>(p_blk->P_Tsrr->CalcADF(min_gen_pt, max_gen_pt)); // @v10.8.9
@@ -6848,6 +6937,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 							GetStrategyResultErrTrendRelRange(sr_detail_list, trend_err_rel_range, &trend_err_avg, &trend_err_stddev);
 							sre_test.GenTEA = static_cast<float>(trend_err_avg);
 							sre_test.GenTED = static_cast<float>(trend_err_stddev);
+							sre_test.CADF = static_cast<float>(GetStrategyResultCADF(sr_detail_list)); // @v10.8.12
 						}
 						if(p_blk->P_Tsrr) {
 							sre_test.ADF = static_cast<float>(p_blk->P_Tsrr->CalcADF(min_gen_pt, max_gen_pt)); // @v10.8.9
@@ -6875,7 +6965,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 						p_blk->P_FOut->Flush();
 					}
 				}
-				if(sre_test.StakeCount > 0 && sre_test.GetWinCountRate() > p_blk->R_TssModel.Rec.MinWinRate) {
+				if(sre_test.StakeCount > 0 && sre_test.GetWinCountRate() >= p_blk->R_TssModel.Rec.MinWinRate) { 
 					last_suited_sre = sre_test;
 					last_srridx_up = srridx_up;
 				}
@@ -6903,7 +6993,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 			//p_blk->P_SContainer->sort()
 			uint   i;
 			LongArray pos_to_remove;
-			const  uint max_strategy_count = inrangeordefault(p_blk->R_TssModel.Rec.BestSubsetDimention, 1, 1000, 4);
+			const  uint max_strategy_count = inrangeordefault(p_blk->R_TssModel.Rec.BestSubsetDimention, 1, 1000, 0);
 			p_blk->P_SContainer->MakeConfidenceEliminationIndex(p_blk->R_TssModel, max_strategy_count, 0, pos_to_remove); // @20200807 maxCount=4
 			{
 				PPObjTimeSeries::StrategyContainer temp_sc;
@@ -7022,8 +7112,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 				frame_size_list.addUnique(r_tss_model.MainFrameSizeList.get(mfsidx));
 		}
 		{
-			THROW(MakeArVectors(p_blk->R_Ts, frame_size_list, 0, 
-				((r_tss_model.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) ? r_tss_model.Rec.InitTrendErrLimit_ : 0.0), p_blk->R_Ctspb.TrendList));
+			THROW(MakeArVectors2(p_blk->R_Ts, frame_size_list, &r_tss_model, 0, p_blk->R_Ctspb.TrendList));
 			if(p_blk->P_FOut) {
 				for(uint tlsidx = 0; tlsidx < p_blk->R_Ctspb.TrendList.getCount(); tlsidx++) {
 					const PPObjTimeSeries::TrendEntry * p_trend_entry = p_blk->R_Ctspb.TrendList.at(tlsidx);
@@ -7136,7 +7225,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 													int    do_insert = 1;
 													/*{
 														uint ispos = 0;
-														if(p_blk->R_SContainer.FindIntersectionByAngle(r_s, &ispos)) {
+														if(p_blk->R_SContainer.FindAngularIntersection(r_s, &ispos)) {
 															const PPObjTimeSeries::Strategy & r_ex_s = p_blk->R_SContainer.at(ispos);
 															if(r_ex_s.StakeCount > r_s.StakeCount)
 																do_insert = 0;
@@ -7233,7 +7322,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 								int    do_insert = 1;
 								/*{
 									uint ispos = 0;
-									if(p_blk->R_SContainer.FindIntersectionByAngle(r_s, &ispos)) {
+									if(p_blk->R_SContainer.FindAngularIntersection(r_s, &ispos)) {
 										const PPObjTimeSeries::Strategy & r_ex_s = p_blk->R_SContainer.at(ispos);
 										if(r_ex_s.StakeCount > r_s.StakeCount)
 											do_insert = 0;
@@ -7840,7 +7929,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Helper_StrategyContainerDressing(const PPObjT
 	return ok;
 }
 
-int SLAPI PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, long flags, SFile & rFOutTotal, PPObjTimeSeries::StrategyResultEntry * pResult)
+int SLAPI PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, LDATE dateTill, long flags, SFile & rFOutTotal, PPObjTimeSeries::StrategyResultEntry * pResult)
 {
 	TsFindStrategiesLoopBlock * p_blk = static_cast<TsFindStrategiesLoopBlock *>(pBlk);
 	int    ok = 1;
@@ -7857,11 +7946,8 @@ int SLAPI PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, long flags, S
 	//assert(ts_tm_list.getCount() == tsc);
 	const uint tsc = p_blk->R_Ctspb.TmList.getCount();
 	const LDATETIME last_val_dtm = p_blk->R_Ctspb.TmList.get(tsc-1);
-	const LDATE date_till = checkdate(P.UseDataForStrategiesTill) ? P.UseDataForStrategiesTill : ZERODATE;
-	p_blk->R_SContainer.Z(); // @v10.8.6
-	p_blk->R_SContainer.SetLastValTm(last_val_dtm);
-	p_blk->R_SContainer.SetUseDataForStrategiesTill(date_till);
-	p_blk->R_SContainer.SetupByTsPacket(p_blk->R_TsPack, &p_blk->R_TssModel);
+	const LDATE date_till = checkdate(dateTill) ? dateTill : ZERODATE;
+	p_blk->R_SContainer.Setup(p_blk->R_TsPack, &p_blk->R_TssModel, last_val_dtm, date_till);
 	{
 		//TsFindStrategiesLoopBlock fslblk(tss_model, config, ts_pack, ts, ts_tm_list, ts_val_list, trend_list_set, scontainer, 0);
 		//fslblk.P_FOut = &f_out;
@@ -7906,7 +7992,8 @@ int SLAPI PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, long flags, S
 			SForEachVectorItem(sc_skip_due_dup, si) { p_blk->P_FOut->WriteLine(PPObjTimeSeries::StrategyToString(sc_skip_due_dup, si, 0, 0, msg_buf).CR()); }
 		}
 		sc_skip_due_dup.freeAll();
-		THROW(StrategyContainerDressing(p_blk->R_Cfg, p_blk->R_TsPack, p_blk->R_TssModel, p_blk->R_Ctspb, sc_process, sc_selection, p_blk->P_FOut));
+		// @v10.8.12 THROW(StrategyContainerDressing(p_blk->R_Cfg, p_blk->R_TsPack, p_blk->R_TssModel, p_blk->R_Ctspb, sc_process, sc_selection, p_blk->P_FOut));
+		sc_selection = sc_process; // @v10.8.12
 	}
 	if(sc_selection.getCount()) {
 		//
@@ -7920,9 +8007,6 @@ int SLAPI PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, long flags, S
 		TSVector <PPObjTimeSeries::StrategyResultValueEx> sr_detail_list; // @v10.7.10
 		sc_selection.Simulate(p_blk->R_Ctspb, p_blk->R_Cfg, 0, 0, sre, &sr_detail_list);
 		sc_selection.AccumulateFactors(sre); // @v10.8.6
-		{
-			
-		}
 		ASSIGN_PTR(pResult, sre);
 		{
 			// @v10.8.6 {
@@ -8293,402 +8377,447 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 			}
 		}
 		f_out.Flush();
+		const int do_iterate_throw_periods = 0; // @20200924 
 		for(uint i = 0; i < id_list.getCount(); i++) {
 			const PPID id = id_list.get(i);
 			PPTssModelPacket tss_model;
 			if(TsObj.GetPacket(id, &ts_pack) > 0 && GetTssModel(&ts_pack.Rec, &tss_model) > 0) {
 				STimeSeries ts;
+				SString ts_buf;
 				const LDATE date_since = checkdate(ts_pack.E.UseDataForStrategiesSince) ? ts_pack.E.UseDataForStrategiesSince : tss_model.Rec.UseDataSince;
-				const LDATE date_till = checkdate(P.UseDataForStrategiesTill) ? P.UseDataForStrategiesTill : ZERODATE;
 				const LDATE date_till2 = checkdate(P.UseDataForStrategiesTill2) ? P.UseDataForStrategiesTill2 : ZERODATE; // @v10.8.9
-				const int gtsr = GetTimeSeries(id, date_since, date_till, ts);
-				msg_buf.Z().CatChar('#').Cat(ts_pack.Rec.ID).Space().Cat(ts_pack.Rec.Name).CR();
-				tss_model.Output(temp_buf);
-				msg_buf.Cat(temp_buf);
-				f_out.WriteLine(msg_buf.CR());
-				f_out.Flush();
-				if(gtsr > 0) {
-					STimeSeries ts_2; // @v10.8.9 Серия, обрезанная по till_date2
-					GetTimeSeries(id, date_since, date_till2, ts_2); // @v10.8.9
-					{
-						f_out.WriteLine(msg_buf.Z().CR());
-						f_out.WriteLine(PPObjTimeSeries::StrategyOutput(0, 0, msg_buf).CR());
-					}
-					const uint tsc = ts.GetCount();
-					const uint tsc_2 = ts_2.GetCount();
-					const bool use_main_frame = LOGIC(tss_model.MainFrameSizeList.getCount() && tss_model.Rec.MainFrameRangeCount);
-					uint   vec_idx = 0;
-					{
-						STimeSeries::Stat st(0);
-						st.LocalDevPtCount = config.E.LocalDevPtCount;
-						THROW_SL(ts.GetValueVecIndex("close", &vec_idx));
-						ts.Analyze("close", st);
-						if(ts_pack.Rec.SpikeQuant_t <= 0.0 || (ts_pack.E.AvgLocalDeviation <= 0 && st.LocalDevAvg > 0.0) || (P.Flags & P.fForce)) {
-							ts_pack.Rec.SpikeQuant_t = st.DeltaAvg / 2.0;
-							ts_pack.E.AvgLocalDeviation = st.LocalDevAvg;
-							PPID   temp_id = id;
-							THROW(TsObj.PutPacket(&temp_id, &ts_pack, 1));
+				STimeSeries ts_2; // @v10.8.9 Серия, обрезанная по till_date2
+				GetTimeSeries(id, date_since, date_till2, ts_2); // @v10.8.9
+				if(do_iterate_throw_periods && checkdate(P.UseDataForStrategiesTill)) {
+					TSVector <LDATE> date_till_list;
+					TSCollection <PPObjTimeSeries::StrategyContainer> container_list;
+					if(ts_2.GetCount()) {
+						SUniTime ts_2_last_unitime;
+						LDATETIME ts_2_last_dtm;
+						ts_2.GetTime(ts_2.GetCount()-1, &ts_2_last_unitime);
+						ts_2_last_unitime.Get(ts_2_last_dtm);
+						if(do_iterate_throw_periods && checkdate(P.UseDataForStrategiesTill)) {
+							for(LDATE d_ = P.UseDataForStrategiesTill; d_ <= ts_2_last_dtm.d; d_ = plusdate(d_, 7))
+								date_till_list.insert(&d_);
 						}
 					}
-					{
-						PPObjTimeSeries::StrategyContainer scontainer;
-						PPObjTimeSeries::CommonTsParamBlock ctspb;
-						THROW_SL(ts.GetRealArray(vec_idx, 0, tsc, ctspb.ValList));
-						THROW_SL(ts.GetTimeArray(0, tsc, ctspb.TmList));
-						assert(ctspb.TmList.getCount() == tsc);
-						assert(ctspb.ValList.getCount() == tsc);
-						const LDATETIME last_val_dtm = ctspb.TmList.get(tsc-1);
-						if(P.Flags & P.fAnalyzeModels) {
-							scontainer.Z(); // @v10.8.6
-							scontainer.SetLastValTm(last_val_dtm);
-							scontainer.SetUseDataForStrategiesTill(date_till);
-							scontainer.SetupByTsPacket(ts_pack, &tss_model);
-							{
-								PPTssModelPacket analyze_tss_model = tss_model;
-								TSCollection <TestStrategyRawResult> tsrr_list;
-								TsFindStrategiesLoopBlock fslblk(analyze_tss_model, config, ts_pack, ts, /*ts_tm_list, ts_val_list, trend_list_set*/ctspb, scontainer, &tsrr_list);
-								fslblk.P_FOut = &f_out;
-								THROW(FindStrategiesLoop(&fslblk));
+					if(!date_till_list.getCount())
+						date_till_list.insert(checkdate(P.UseDataForStrategiesTill) ? &P.UseDataForStrategiesTill : &ZERODATE);
+					for(uint dtidx = 0; dtidx < date_till_list.getCount(); dtidx++) {
+						const LDATE date_till = date_till_list.at(dtidx);
+						const int gtsr = GetTimeSeries(id, date_since, date_till, ts);
+						PPObjTimeSeries::StrategyResultEntry sre;
+						PPObjTimeSeries::StrategyContainer * p_sc = container_list.CreateNewItem();
+						THROW(p_sc);
+						{
+							PPObjTimeSeries::CommonTsParamBlock ctspb;
+							THROW(ctspb.Setup(ts));
+							p_sc->Setup(ts_pack, &tss_model, ctspb.GetLastValTime(), date_till);
+							TsFindStrategiesLoopBlock fslblk(tss_model, config, ts_pack, ts, ctspb, *p_sc, 0);
+							fslblk.P_FOut = &f_out;
+							THROW(EvaluateStrategies(&fslblk, date_till, ((dtidx == (date_till_list.getCount()-1)) ? 0 : esfDontFinish), f_out_total, &sre));
+						}
+					}
+					f_out_total.WriteBlancLine();
+					if(container_list.getCount()) {
+						const PPObjTimeSeries::StrategyContainer * p_sc = container_list.at(container_list.getCount()-1);
+						if(p_sc) {
+							for(uint scidx = 0; scidx < p_sc->getCount(); scidx++) {
+								const PPObjTimeSeries::Strategy & r_s = p_sc->at(scidx);
+								PPObjTimeSeries::StrategyToString(*p_sc, scidx, 0, 0, ts_buf);
+								msg_buf.Z().Cat(ts_buf);
+								f_out_total.WriteLine(msg_buf.CR());
+								if(container_list.getCount() > 1) {
+									uint clidx2 = container_list.getCount()-2;
+									const PPObjTimeSeries::Strategy * p_s_prev = &r_s;
+									if(clidx2) do {
+										const PPObjTimeSeries::StrategyContainer * p_sc2 = container_list.at(--clidx2);
+										uint  nn_idx = 0;
+										if(p_sc2->FindAngularNearestNeighbour(*p_s_prev, &nn_idx)) {
+											const PPObjTimeSeries::Strategy & r_s2 = p_sc2->at(nn_idx);
+											double ang_diff = r_s2.OptDeltaRange.GetMiddle() - p_s_prev->OptDeltaRange.GetMiddle();
+											double ang_range_diff = r_s2.OptDeltaRange.GetAngularRange() - p_s_prev->OptDeltaRange.GetAngularRange();
+											PPObjTimeSeries::StrategyToString(*p_sc2, nn_idx, 0, 0, ts_buf);
+											msg_buf.Z().Tab().Cat(ts_buf).CatDiv(';', 2).Cat(ang_diff * 1E6, MKSFMTD(0, 5, 0)).CatChar('|').Cat(ang_range_diff * 1E6, MKSFMTD(0, 5, 0));
+											f_out_total.WriteLine(msg_buf.CR());
+											p_s_prev = &r_s2;
+										}
+									} while(clidx2);
+								}
 							}
 						}
-						if(P.Flags & P.fFindStrategies) {
-							if(tss_model.Rec.Flags & PPTssModel::fSeparateInpFrameSizes && tss_model.InputFrameSizeList.getCount() > 1) {
-								PPObjTimeSeries::StrategyContainer * p_best_container = 0;
-								PPObjTimeSeries::StrategyContainer aggregated_container; // @v10.8.9
-								TSCollection <PPObjTimeSeries::StrategyContainer> container_list;
-								TSVector <ForwardResultEntry> forward_result_list;
-								PPObjTimeSeries::TsDensityMap dmap;
-								for(uint ifsidx = 0; ifsidx < tss_model.InputFrameSizeList.getCount(); ifsidx++) {
-									PPObjTimeSeries::StrategyContainer * p_scontainer = container_list.CreateNewItem();
-									PPObjTimeSeries::StrategyResultEntry sre;
-									THROW_SL(p_scontainer);
-									{
-										PPTssModelPacket local_tss_model(tss_model);
-										local_tss_model.InputFrameSizeList.clear();
-										local_tss_model.InputFrameSizeList.add(tss_model.InputFrameSizeList.get(ifsidx));
-										local_tss_model.Rec.Flags &= ~PPTssModel::fSeparateInpFrameSizes;
-										p_scontainer->SetLastValTm(last_val_dtm);
-										p_scontainer->SetUseDataForStrategiesTill(date_till);
-										p_scontainer->SetupByTsPacket(ts_pack, &local_tss_model);
-										TsFindStrategiesLoopBlock fslblk(local_tss_model, config, ts_pack, ts, ctspb, *p_scontainer, 0);
-										fslblk.P_FOut = &f_out;
-										THROW(EvaluateStrategies(&fslblk, esfDontFinish, f_out_total, &sre));
-										if(checkdate(date_till) && p_scontainer->getCount()) {
-											PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-total-single.txt", temp_buf);
-											SFile f_out_total_single(temp_buf, SFile::mAppend);
-											if(f_out_total_single.IsValid()) {
-												for(uint sidx = 0; sidx < p_scontainer->getCount(); sidx++) {
-													const PPObjTimeSeries::Strategy & r_s = p_scontainer->at(sidx);
-													PPObjTimeSeries::StrategyContainer temp_sc;
-													temp_sc.SetLastValTm(last_val_dtm);
-													temp_sc.SetUseDataForStrategiesTill(date_till);
-													temp_sc.SetupByTsPacket(ts_pack, &local_tss_model);
-													temp_sc.insert(&r_s);
-													TryStrategyContainerResultCollection result_collection;
-													if(TryStrategyContainer(config, ts_pack.Rec.ID, &ts_2, &temp_sc, tscfSkipOutput, result_collection)) {
-														SString ts_buf;
-														PPObjTimeSeries::StrategyToString(temp_sc, 0, 0, 0, ts_buf);
-														if(result_collection.Atdr.StakeCount) {
-															result_collection.MakeIndex();
-															for(uint rcidx = 0; rcidx < result_collection.GetIndexCount(); rcidx++) {
-																uint   dlidx = 0;
-																const  TryStrategyContainerResult * p_ri = result_collection.GetEntryByIndex(rcidx, &dlidx);
-																if(p_ri) {
-																	PPObjTimeSeries::StrategyResultValueEx & r_dli = p_ri->DetailsList.at(dlidx);
-																	const LDATE till_date = p_ri->Sc.GetUseDataForStrategiesTill();
-																	if(checkdate(till_date) && r_dli.TmR.Start.d > till_date) {
-																		PPObjTimeSeries::TsDensityMapEntry dmap_entry;
-																		dmap_entry.TsID = ts_pack.Rec.ID;
-																		if(r_s.BaseFlags & PPObjTimeSeries::Strategy::bfShort)
-																			dmap_entry.Flags |= dmap_entry.fShort;
-																		dmap_entry.InputFrameSize = static_cast<uint16>(r_s.InputFrameSize);
-																		dmap_entry.GenCount = static_cast<uint16>(r_s.StakeCount);
-																		dmap_entry.ADF = r_s.ADF;
-																		dmap_entry.UEF = r_s.UEF;
-																		dmap_entry.GenTEA = r_s.GenTEA;
-																		dmap_entry.GenTED = r_s.GenTED;
-																		dmap_entry.TrendErrRel = r_dli.TrendErrRel;
-																		dmap_entry.AngleR.Set(atan(r_s.OptDeltaRange.low), atan(r_s.OptDeltaRange.upp)); // @v10.8.10
-																		dmap_entry.StakeCount = 1;
-																		if(r_dli.Result > 0.0)
-																			dmap_entry.WinCount = 1;
-																		else
-																			dmap_entry.LossCount = 1;
-																		dmap.insert(&dmap_entry);
-																		msg_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat(ts_buf).CatDiv(':', 2).
-																			Cat(dmap_entry.StakeCount).Space().Cat(dmap_entry.WinCount).Space().Cat(dmap_entry.LossCount).
-																			Space().Cat(r_dli.TrendErrRel, MKSFMTD(0, 4, 0));
-																		f_out_total_single.WriteLine(msg_buf.CR());
-																	}
-																}
-															}
-														}
-														else {
-															msg_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat(ts_buf).CatDiv(':', 2);
-															f_out_total_single.WriteLine(msg_buf.CR());
-														}
-													}
-												}
-												f_out_total_single.WriteBlancLine();
-											}
-										}
-										{
-											TryStrategyContainerResultCollection result_collection;
-											if(TryStrategyContainer(config, ts_pack.Rec.ID, &ts_2, p_scontainer, 0, result_collection)) {
-												if(result_collection.Atdr.StakeCount) {
-													ForwardResultEntry fre(ifsidx, result_collection.Atdr);
-													forward_result_list.insert(&fre);
-												}
-												OutputTryStrategyContainerResult(result_collection);
-											}
-										}
-									}
+					}
+				}
+				else {
+					const LDATE date_till = checkdate(P.UseDataForStrategiesTill) ? P.UseDataForStrategiesTill : ZERODATE;
+					const int gtsr = GetTimeSeries(id, date_since, date_till, ts);
+					msg_buf.Z().CatChar('#').Cat(ts_pack.Rec.ID).Space().Cat(ts_pack.Rec.Name).Space().CatEq("date_till", date_till, DATF_ISO8601).CR();
+					tss_model.Output(temp_buf);
+					msg_buf.Cat(temp_buf);
+					f_out.WriteLine(msg_buf.CR());
+					f_out.Flush();
+					if(gtsr > 0) {
+						{
+							f_out.WriteLine(msg_buf.Z().CR());
+							f_out.WriteLine(PPObjTimeSeries::StrategyOutput(0, 0, msg_buf).CR());
+						}
+						//const uint tsc = ts.GetCount();
+						//const uint tsc_2 = ts_2.GetCount();
+						const bool use_main_frame = LOGIC(tss_model.MainFrameSizeList.getCount() && tss_model.Rec.MainFrameRangeCount);
+						//uint   vec_idx = 0;
+						//THROW_SL(ts.GetValueVecIndex("close", &vec_idx));
+						{
+							STimeSeries::Stat st(0);
+							st.LocalDevPtCount = config.E.LocalDevPtCount;
+							ts.Analyze("close", st);
+							if(ts_pack.Rec.SpikeQuant_t <= 0.0 || (ts_pack.E.AvgLocalDeviation <= 0 && st.LocalDevAvg > 0.0) || (P.Flags & P.fForce)) {
+								ts_pack.Rec.SpikeQuant_t = st.DeltaAvg / 2.0;
+								ts_pack.E.AvgLocalDeviation = st.LocalDevAvg;
+								PPID   temp_id = id;
+								THROW(TsObj.PutPacket(&temp_id, &ts_pack, 1));
+							}
+						}
+						{
+							PPObjTimeSeries::StrategyContainer scontainer;
+							PPObjTimeSeries::CommonTsParamBlock ctspb;
+							THROW(ctspb.Setup(ts));
+							//const LDATETIME last_val_dtm = ctspb.TmList.get(tsc-1);
+							if(P.Flags & P.fAnalyzeModels) {
+								scontainer.Setup(ts_pack, &tss_model, ctspb.GetLastValTime(), date_till);
+								{
+									PPTssModelPacket analyze_tss_model = tss_model;
+									TSCollection <TestStrategyRawResult> tsrr_list;
+									TsFindStrategiesLoopBlock fslblk(analyze_tss_model, config, ts_pack, ts, ctspb, scontainer, &tsrr_list);
+									fslblk.P_FOut = &f_out;
+									THROW(FindStrategiesLoop(&fslblk));
 								}
-								if(dmap.getCount()) {
-									PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-total-single-2.txt", temp_buf);
-									SFile f_out_total_single(temp_buf, SFile::mAppend);
-									if(f_out_total_single.IsValid()) {
-										dmap.EntryToStr(0, 0, temp_buf);
-										f_out_total_single.WriteLine(temp_buf.CR());
-										for(uint adsi = 0; adsi < dmap.getCount(); adsi++) {
-											dmap.EntryToStr(&dmap.at(adsi), ts_pack.Rec.Symb, temp_buf);
-											f_out_total_single.WriteLine(temp_buf.CR());
-										}
-										f_out_total_single.WriteBlancLine();
-									}
-									aggregated_container.Z();
-									aggregated_container.SetLastValTm(last_val_dtm);
-									aggregated_container.SetUseDataForStrategiesTill(date_till2);
-									aggregated_container.SetupByTsPacket(ts_pack, &tss_model);
-									RealRange adf_range_;
-									RealRange adf_range_b;
-									RealRange adf_range_s;
-									adf_range_.Z();
-									adf_range_b.Z();
-									adf_range_s.Z();
-									const int factor_to_use = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel; // PPObjTimeSeries::TsDensityMapEntry::factorADF
-									int use_adf_range = 0;
-									{
-										static const struct CP {
-											int   Side;
-											int   Edge;
-											int   Factor;
-										} cplist[] = {
-											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorADF },
-											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorADF },
-											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorADF },
-											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
-											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
-											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
-											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
-											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
-											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
-											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
-											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
-											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
-											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
-											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
-											{  0,  1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
-											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
-											{  1,  1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
-											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
-											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
-											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
-										};
-										for(uint cpidx = 0; cpidx < SIZEOFARRAY(cplist); cpidx++) {
-											PPObjTimeSeries::TsDensityMap::ResultEntry re;
-											if(dmap.SearchBestRange(ts_pack.Rec.ID, cplist[cpidx].Side, cplist[cpidx].Edge, cplist[cpidx].Factor, 0.8, re) > 0) {
-												if(factor_to_use == PPObjTimeSeries::TsDensityMapEntry::factorADF) {
-													if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorADF) {
-														if(cplist[cpidx].Side == 0)
-															adf_range_b = re.FactorR;
-														else if(cplist[cpidx].Side == 1)
-															adf_range_s = re.FactorR;
-														else if(cplist[cpidx].Side == -1)
-															adf_range_ = re.FactorR;
-														use_adf_range = 1;
-													}
-												}
-												else if(factor_to_use == PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel) {
-													if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel) {
-														/*if(cplist[cpidx].Side == -1) {
-															aggregated_container.Fb.Cr[0].Crit = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel;
-															aggregated_container.Fb.Cr[0].Side = cplist[cpidx].Side;
-															aggregated_container.Fb.Cr[0].low = static_cast<float>(re.FactorR.low);
-															aggregated_container.Fb.Cr[0].upp = static_cast<float>(re.FactorR.upp);
-														}*/
-														if(cplist[cpidx].Side == 0) {
-															aggregated_container.Fb.Cr[0].Crit = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel;
-															aggregated_container.Fb.Cr[0].Side = 0;
-															aggregated_container.Fb.Cr[0].low = static_cast<float>(re.FactorR.low);
-															aggregated_container.Fb.Cr[0].upp = static_cast<float>(re.FactorR.upp);
-														}
-														else if(cplist[cpidx].Side == 1) {
-															aggregated_container.Fb.Cr[1].Crit = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel;
-															aggregated_container.Fb.Cr[1].Side = 1;
-															aggregated_container.Fb.Cr[1].low = static_cast<float>(re.FactorR.low);
-															aggregated_container.Fb.Cr[1].upp = static_cast<float>(re.FactorR.upp);
-														}
-													}
-												}
-												temp_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat((cplist[cpidx].Side < 0) ? "?" : (cplist[cpidx].Side ? "S" : "B")).Space();
-												temp_buf.Cat((cplist[cpidx].Edge < 0) ? "any       " : ((cplist[cpidx].Edge == 0) ? "from-start" : "from-end  ")).Space();
-												if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorADF)
-													temp_buf.Cat("ADF").CatCharN(' ', 8);
-												else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorUEF)
-													temp_buf.Cat("UEF").CatCharN(' ', 8);
-												else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorGenCount)
-													temp_buf.Cat("GenCount").CatCharN(' ', 3);
-												else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorGenTEA)
-													temp_buf.Cat("GenTEA").CatCharN(' ', 5);
-												else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorGenTED)
-													temp_buf.Cat("GenTED").CatCharN(' ', 5);
-												else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel)
-													temp_buf.Cat("TrendErrRel");
-												else
-													temp_buf.CatCharN('#', 11);
-												temp_buf.Space().CatChar('{').Cat(re.FactorR.low, MKSFMTD(0, 5, 0)).Dot().Dot().Cat(re.FactorR.upp, MKSFMTD(0, 5, 0)).CatChar('}');
-												temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD(0, 3, 0));
-												f_out_total_single.WriteLine(temp_buf.CR());
-											}
-										}
-										f_out_total_single.Flush();
-									}
-#if 0
-									{
-										aggregated_container.SetLastValTm(last_val_dtm);
-										aggregated_container.SetUseDataForStrategiesTill(date_till);
-										aggregated_container.SetupByTsPacket(ts_pack, &tss_model);
-										for(uint clidx = 0; clidx < container_list.getCount(); clidx++) {
-											const PPObjTimeSeries::StrategyContainer * p_sc = container_list.at(clidx);
-											if(p_sc) {
-												for(uint sidx = 0; sidx < p_sc->getCount(); sidx++) {
-													const PPObjTimeSeries::Strategy & r_s = p_sc->at(sidx);
-													aggregated_container.insert(&r_s);
-												}
-											}
-										}
-									}
-#endif // } 0
-#if 0
-									{
-										//
-										// Построение агрегированного контейнера стратегий, ограниченного диапазонами относительной ошибки регрессии
-										//
+							}
+							if(P.Flags & P.fFindStrategies) {
+								if(tss_model.Rec.Flags & PPTssModel::fSeparateInpFrameSizes && tss_model.InputFrameSizeList.getCount() > 1) {
+									PPObjTimeSeries::StrategyContainer * p_best_container = 0;
+									PPObjTimeSeries::StrategyContainer aggregated_container; // @v10.8.9
+									TSCollection <PPObjTimeSeries::StrategyContainer> container_list;
+									TSVector <ForwardResultEntry> forward_result_list;
+									PPObjTimeSeries::TsDensityMap dmap;
+									for(uint ifsidx = 0; ifsidx < tss_model.InputFrameSizeList.getCount(); ifsidx++) {
+										PPObjTimeSeries::StrategyContainer * p_scontainer = container_list.CreateNewItem();
+										PPObjTimeSeries::StrategyResultEntry sre;
+										THROW_SL(p_scontainer);
 										{
-											STimeSeries::Stat st(0);
-											st.LocalDevPtCount = config.E.LocalDevPtCount;
-											THROW_SL(ts_2.GetValueVecIndex("close", &vec_idx));
-											ts_2.Analyze("close", st);
-											if(ts_pack.Rec.SpikeQuant_t <= 0.0 || (ts_pack.E.AvgLocalDeviation <= 0 && st.LocalDevAvg > 0.0) || (P.Flags & P.fForce)) {
-												ts_pack.Rec.SpikeQuant_t = st.DeltaAvg / 2.0;
-												ts_pack.E.AvgLocalDeviation = st.LocalDevAvg;
-												PPID   temp_id = id;
-												THROW(TsObj.PutPacket(&temp_id, &ts_pack, 1));
-											}
-										}
-										THROW_SL(ts_2.GetRealArray(vec_idx, 0, tsc_2, ctspb.ValList));
-										THROW_SL(ts_2.GetTimeArray(0, tsc_2, ctspb.TmList));
-										assert(ctspb.TmList.getCount() == tsc_2);
-										assert(ctspb.ValList.getCount() == tsc_2);
-										const LDATETIME last_val_dtm_2 = ctspb.TmList.get(tsc_2-1);
-										for(uint ifsidx = 0; ifsidx < tss_model.InputFrameSizeList.getCount(); ifsidx++) {
-											PPObjTimeSeries::StrategyContainer scontainer2;
-											PPObjTimeSeries::StrategyResultEntry sre;
 											PPTssModelPacket local_tss_model(tss_model);
 											local_tss_model.InputFrameSizeList.clear();
 											local_tss_model.InputFrameSizeList.add(tss_model.InputFrameSizeList.get(ifsidx));
 											local_tss_model.Rec.Flags &= ~PPTssModel::fSeparateInpFrameSizes;
-											scontainer2.SetLastValTm(last_val_dtm_2);
-											scontainer2.SetUseDataForStrategiesTill(date_till2);
-											scontainer2.SetupByTsPacket(ts_pack, &local_tss_model);
-											TsFindStrategiesLoopBlock fslblk(local_tss_model, config, ts_pack, ts_2, ctspb, scontainer2, 0);
+											p_scontainer->Setup(ts_pack, &local_tss_model, ctspb.GetLastValTime(), date_till);
+											TsFindStrategiesLoopBlock fslblk(local_tss_model, config, ts_pack, ts, ctspb, *p_scontainer, 0);
 											fslblk.P_FOut = &f_out;
-											THROW(EvaluateStrategies(&fslblk, esfDontFinish, f_out_total, &sre));
-											for(uint sidx = 0; sidx < scontainer2.getCount(); sidx++) {
-												const PPObjTimeSeries::Strategy & r_s = scontainer2.at(sidx);
-												if(use_adf_range) {
-													if(r_s.BaseFlags & PPObjTimeSeries::Strategy::bfShort) {
-														if(adf_range_s.Check(r_s.ADF))
-															aggregated_container.insert(&r_s);
+											THROW(EvaluateStrategies(&fslblk, date_till, esfDontFinish, f_out_total, &sre));
+											if(checkdate(date_till) && p_scontainer->getCount()) {
+												PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-total-single.txt", temp_buf);
+												SFile f_out_total_single(temp_buf, SFile::mAppend);
+												if(f_out_total_single.IsValid()) {
+													for(uint sidx = 0; sidx < p_scontainer->getCount(); sidx++) {
+														const PPObjTimeSeries::Strategy & r_s = p_scontainer->at(sidx);
+														PPObjTimeSeries::StrategyContainer temp_sc;
+														temp_sc.Setup(ts_pack, &local_tss_model, ctspb.GetLastValTime(), date_till);
+														temp_sc.insert(&r_s);
+														TryStrategyContainerResultCollection result_collection;
+														if(TryStrategyContainer(config, ts_pack.Rec.ID, &ts_2, &temp_sc, tscfSkipOutput, result_collection)) {
+															PPObjTimeSeries::StrategyToString(temp_sc, 0, 0, 0, ts_buf);
+															if(result_collection.Atdr.StakeCount) {
+																result_collection.MakeIndex();
+																for(uint rcidx = 0; rcidx < result_collection.GetIndexCount(); rcidx++) {
+																	uint   dlidx = 0;
+																	const  TryStrategyContainerResult * p_ri = result_collection.GetEntryByIndex(rcidx, &dlidx);
+																	if(p_ri) {
+																		PPObjTimeSeries::StrategyResultValueEx & r_dli = p_ri->DetailsList.at(dlidx);
+																		const LDATE till_date = p_ri->Sc.GetUseDataForStrategiesTill();
+																		if(checkdate(till_date) && r_dli.TmR.Start.d > till_date) {
+																			PPObjTimeSeries::TsDensityMapEntry dmap_entry;
+																			dmap_entry.TsID = ts_pack.Rec.ID;
+																			if(r_s.BaseFlags & PPObjTimeSeries::Strategy::bfShort)
+																				dmap_entry.Flags |= dmap_entry.fShort;
+																			dmap_entry.InputFrameSize = static_cast<uint16>(r_s.InputFrameSize);
+																			dmap_entry.GenCount = static_cast<uint16>(r_s.StakeCount);
+																			dmap_entry.ADF = r_s.ADF;
+																			dmap_entry.UEF = r_s.UEF;
+																			dmap_entry.GenTEA = r_s.GenTEA;
+																			dmap_entry.GenTED = r_s.GenTED;
+																			dmap_entry.CADF = r_s.CADF; // @v10.8.12
+																			dmap_entry.TrendErrRel = r_dli.TrendErrRel;
+																			dmap_entry.AngleR.Set(atan(r_s.OptDeltaRange.low), atan(r_s.OptDeltaRange.upp)); // @v10.8.10
+																			dmap_entry.StakeCount = 1;
+																			if(r_dli.Result > 0.0)
+																				dmap_entry.WinCount = 1;
+																			else
+																				dmap_entry.LossCount = 1;
+																			dmap.insert(&dmap_entry);
+																			msg_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat(ts_buf).CatDiv(':', 2).
+																				Cat(dmap_entry.StakeCount).Space().Cat(dmap_entry.WinCount).Space().Cat(dmap_entry.LossCount).
+																				//Space().Cat(r_dli.TrendErrRel, MKSFMTD(0, 4, 0));
+																				CatDiv('|', 1).Cat(r_s.CADF*1E9, MKSFMTD(0, 12, 0));
+																			f_out_total_single.WriteLine(msg_buf.CR());
+																		}
+																	}
+																}
+															}
+															else {
+																msg_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat(ts_buf).CatDiv(':', 2);
+																f_out_total_single.WriteLine(msg_buf.CR());
+															}
+														}
 													}
-													else {
-														if(adf_range_b.Check(r_s.ADF))
-															aggregated_container.insert(&r_s);
-													}
+													f_out_total_single.WriteBlancLine();
 												}
-												else
-													aggregated_container.insert(&r_s);
+											}
+											{
+												TryStrategyContainerResultCollection result_collection;
+												if(TryStrategyContainer(config, ts_pack.Rec.ID, &ts_2, p_scontainer, 0, result_collection)) {
+													if(result_collection.Atdr.StakeCount) {
+														ForwardResultEntry fre(ifsidx, result_collection.Atdr);
+														forward_result_list.insert(&fre);
+													}
+													OutputTryStrategyContainerResult(result_collection);
+												}
 											}
 										}
 									}
-#endif
-									/*{
-										TryStrategyContainerResultCollection result_collection;
-										if(TryStrategyContainer(config, ts_pack.Rec.ID, 0, &aggregated_container, 0, result_collection)) {
-											OutputTryStrategyContainerResult(result_collection);
-											p_best_container = &aggregated_container; // ! Здесь инициализируем p_best_container - сигнал для следующего ниже условия //
+									if(dmap.getCount()) {
+										PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-total-single-2.txt", temp_buf);
+										SFile f_out_total_single(temp_buf, SFile::mAppend);
+										if(f_out_total_single.IsValid()) {
+											dmap.EntryToStr(0, 0, temp_buf);
+											f_out_total_single.WriteLine(temp_buf.CR());
+											for(uint adsi = 0; adsi < dmap.getCount(); adsi++) {
+												dmap.EntryToStr(&dmap.at(adsi), ts_pack.Rec.Symb, temp_buf);
+												f_out_total_single.WriteLine(temp_buf.CR());
+											}
+											f_out_total_single.WriteBlancLine();
 										}
-									}*/
-								}
-								if(!p_best_container && forward_result_list.getCount()) {
-									//
-									// Если существует более одного контейнера с вероятностью выигрыша более или равной 0.8
-									// то надо выбрать тот, у которого наибольшее число ставок, ибо в таком случае
-									// абсолютная вероятность выигрыша не столь важна как репрезентативность.
-									//
-									TSVector <ForwardResultEntry> fwl_selection;
-									uint    best_fwl_idx = 0;
-									double  best_fwl_rate = 0.0;
-									for(uint i = 0; i < forward_result_list.getCount(); i++) {
-										const ForwardResultEntry & r_fwe = forward_result_list.at(i);
-										double rate = fdivui(r_fwe.WinCount, r_fwe.StakeCount);
-										if(!best_fwl_idx) {
-											best_fwl_rate = rate;
-											best_fwl_idx = i+1;
+										aggregated_container.Setup(ts_pack, &tss_model, ctspb.GetLastValTime(), date_till2);
+										RealRange adf_range_;
+										RealRange adf_range_b;
+										RealRange adf_range_s;
+										adf_range_.Z();
+										adf_range_b.Z();
+										adf_range_s.Z();
+										const int factor_to_use = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel; // PPObjTimeSeries::TsDensityMapEntry::factorADF
+										int use_adf_range = 0;
+										{
+											static const struct CP {
+												int   Side;
+												int   Edge;
+												int   Factor;
+											} cplist[] = {
+												{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorADF },
+												{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorADF },
+												{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorADF },
+												{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
+												{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
+												{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
+												{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
+												{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
+												{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
+												{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
+												{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
+												{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
+												{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+												{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+												{  0,  1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+												{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+												{  1,  1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+												{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
+												{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
+												{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
+											};
+											for(uint cpidx = 0; cpidx < SIZEOFARRAY(cplist); cpidx++) {
+												PPObjTimeSeries::TsDensityMap::ResultEntry re;
+												if(dmap.SearchBestRange(ts_pack.Rec.ID, cplist[cpidx].Side, cplist[cpidx].Edge, cplist[cpidx].Factor, 0.8, re) > 0) {
+													if(factor_to_use == PPObjTimeSeries::TsDensityMapEntry::factorADF) {
+														if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorADF) {
+															if(cplist[cpidx].Side == 0)
+																adf_range_b = re.FactorR;
+															else if(cplist[cpidx].Side == 1)
+																adf_range_s = re.FactorR;
+															else if(cplist[cpidx].Side == -1)
+																adf_range_ = re.FactorR;
+															use_adf_range = 1;
+														}
+													}
+													else if(factor_to_use == PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel) {
+														if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel) {
+															/*if(cplist[cpidx].Side == -1) {
+																aggregated_container.Fb.Cr[0].Crit = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel;
+																aggregated_container.Fb.Cr[0].Side = cplist[cpidx].Side;
+																aggregated_container.Fb.Cr[0].low = static_cast<float>(re.FactorR.low);
+																aggregated_container.Fb.Cr[0].upp = static_cast<float>(re.FactorR.upp);
+															}*/
+															if(cplist[cpidx].Side == 0) {
+																aggregated_container.Fb.Cr[0].Crit = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel;
+																aggregated_container.Fb.Cr[0].Side = 0;
+																aggregated_container.Fb.Cr[0].low = static_cast<float>(re.FactorR.low);
+																aggregated_container.Fb.Cr[0].upp = static_cast<float>(re.FactorR.upp);
+															}
+															else if(cplist[cpidx].Side == 1) {
+																aggregated_container.Fb.Cr[1].Crit = PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel;
+																aggregated_container.Fb.Cr[1].Side = 1;
+																aggregated_container.Fb.Cr[1].low = static_cast<float>(re.FactorR.low);
+																aggregated_container.Fb.Cr[1].upp = static_cast<float>(re.FactorR.upp);
+															}
+														}
+													}
+													temp_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat((cplist[cpidx].Side < 0) ? "?" : (cplist[cpidx].Side ? "S" : "B")).Space();
+													temp_buf.Cat((cplist[cpidx].Edge < 0) ? "any       " : ((cplist[cpidx].Edge == 0) ? "from-start" : "from-end  ")).Space();
+													if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorADF)
+														temp_buf.Cat("ADF").CatCharN(' ', 8);
+													else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorUEF)
+														temp_buf.Cat("UEF").CatCharN(' ', 8);
+													else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorGenCount)
+														temp_buf.Cat("GenCount").CatCharN(' ', 3);
+													else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorGenTEA)
+														temp_buf.Cat("GenTEA").CatCharN(' ', 5);
+													else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorGenTED)
+														temp_buf.Cat("GenTED").CatCharN(' ', 5);
+													else if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel)
+														temp_buf.Cat("TrendErrRel");
+													else
+														temp_buf.CatCharN('#', 11);
+													temp_buf.Space().CatChar('{').Cat(re.FactorR.low, MKSFMTD(0, 5, 0)).Dot().Dot().Cat(re.FactorR.upp, MKSFMTD(0, 5, 0)).CatChar('}');
+													temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD(0, 3, 0));
+													f_out_total_single.WriteLine(temp_buf.CR());
+												}
+											}
+											f_out_total_single.Flush();
 										}
-										else if(best_fwl_rate < rate) {
-											best_fwl_rate = rate;
-											best_fwl_idx = i+1;
+	#if 0
+										{
+											aggregated_container.Setup(ts_pack, &tss_model, last_val_dtm, date_till);
+											for(uint clidx = 0; clidx < container_list.getCount(); clidx++) {
+												const PPObjTimeSeries::StrategyContainer * p_sc = container_list.at(clidx);
+												if(p_sc) {
+													for(uint sidx = 0; sidx < p_sc->getCount(); sidx++) {
+														const PPObjTimeSeries::Strategy & r_s = p_sc->at(sidx);
+														aggregated_container.insert(&r_s);
+													}
+												}
+											}
 										}
-										else if(feqeps(best_fwl_rate, rate, 1E-5)) { // При равенстве коэффициентов выигрыша предпочитаем тот результат, где больше ставок
-											if(r_fwe.StakeCount > forward_result_list.at(best_fwl_idx-1).StakeCount) {
+	#endif // } 0
+	#if 0
+										{
+											//
+											// Построение агрегированного контейнера стратегий, ограниченного диапазонами относительной ошибки регрессии
+											//
+											{
+												STimeSeries::Stat st(0);
+												st.LocalDevPtCount = config.E.LocalDevPtCount;
+												THROW_SL(ts_2.GetValueVecIndex("close", &vec_idx));
+												ts_2.Analyze("close", st);
+												if(ts_pack.Rec.SpikeQuant_t <= 0.0 || (ts_pack.E.AvgLocalDeviation <= 0 && st.LocalDevAvg > 0.0) || (P.Flags & P.fForce)) {
+													ts_pack.Rec.SpikeQuant_t = st.DeltaAvg / 2.0;
+													ts_pack.E.AvgLocalDeviation = st.LocalDevAvg;
+													PPID   temp_id = id;
+													THROW(TsObj.PutPacket(&temp_id, &ts_pack, 1));
+												}
+											}
+											THROW_SL(ts_2.GetRealArray(vec_idx, 0, tsc_2, ctspb.ValList));
+											THROW_SL(ts_2.GetTimeArray(0, tsc_2, ctspb.TmList));
+											assert(ctspb.TmList.getCount() == tsc_2);
+											assert(ctspb.ValList.getCount() == tsc_2);
+											const LDATETIME last_val_dtm_2 = ctspb.TmList.get(tsc_2-1);
+											for(uint ifsidx = 0; ifsidx < tss_model.InputFrameSizeList.getCount(); ifsidx++) {
+												PPObjTimeSeries::StrategyContainer scontainer2;
+												PPObjTimeSeries::StrategyResultEntry sre;
+												PPTssModelPacket local_tss_model(tss_model);
+												local_tss_model.InputFrameSizeList.clear();
+												local_tss_model.InputFrameSizeList.add(tss_model.InputFrameSizeList.get(ifsidx));
+												local_tss_model.Rec.Flags &= ~PPTssModel::fSeparateInpFrameSizes;
+												scontainer2.Setup(ts_pack, &local_tss_model, last_val_dtm_2, date_till2);
+												TsFindStrategiesLoopBlock fslblk(local_tss_model, config, ts_pack, ts_2, ctspb, scontainer2, 0);
+												fslblk.P_FOut = &f_out;
+												THROW(EvaluateStrategies(&fslblk, date_till, esfDontFinish, f_out_total, &sre));
+												for(uint sidx = 0; sidx < scontainer2.getCount(); sidx++) {
+													const PPObjTimeSeries::Strategy & r_s = scontainer2.at(sidx);
+													if(use_adf_range) {
+														if(r_s.BaseFlags & PPObjTimeSeries::Strategy::bfShort) {
+															if(adf_range_s.Check(r_s.ADF))
+																aggregated_container.insert(&r_s);
+														}
+														else {
+															if(adf_range_b.Check(r_s.ADF))
+																aggregated_container.insert(&r_s);
+														}
+													}
+													else
+														aggregated_container.insert(&r_s);
+												}
+											}
+										}
+	#endif
+										/*{
+											TryStrategyContainerResultCollection result_collection;
+											if(TryStrategyContainer(config, ts_pack.Rec.ID, 0, &aggregated_container, 0, result_collection)) {
+												OutputTryStrategyContainerResult(result_collection);
+												p_best_container = &aggregated_container; // ! Здесь инициализируем p_best_container - сигнал для следующего ниже условия //
+											}
+										}*/
+									}
+									if(!p_best_container && forward_result_list.getCount()) {
+										//
+										// Если существует более одного контейнера с вероятностью выигрыша более или равной 0.8
+										// то надо выбрать тот, у которого наибольшее число ставок, ибо в таком случае
+										// абсолютная вероятность выигрыша не столь важна как репрезентативность.
+										//
+										TSVector <ForwardResultEntry> fwl_selection;
+										uint    best_fwl_idx = 0;
+										double  best_fwl_rate = 0.0;
+										for(uint i = 0; i < forward_result_list.getCount(); i++) {
+											const ForwardResultEntry & r_fwe = forward_result_list.at(i);
+											double rate = fdivui(r_fwe.WinCount, r_fwe.StakeCount);
+											if(!best_fwl_idx) {
 												best_fwl_rate = rate;
 												best_fwl_idx = i+1;
 											}
-										}
-										if(rate >= 0.8)
-											fwl_selection.insert(&r_fwe);
-									}
-									if(fwl_selection.getCount()) {
-										uint    best_fwsl_idx = 0;
-										uint    best_fwsl_count = 0;
-										for(uint j = 0; j < fwl_selection.getCount(); j++) {
-											const ForwardResultEntry & r_fwe = fwl_selection.at(j);
-											if(best_fwsl_count < r_fwe.StakeCount) {
-												best_fwsl_count = r_fwe.StakeCount;
-												best_fwsl_idx = j+1;
+											else if(best_fwl_rate < rate) {
+												best_fwl_rate = rate;
+												best_fwl_idx = i+1;
 											}
+											else if(feqeps(best_fwl_rate, rate, 1E-5)) { // При равенстве коэффициентов выигрыша предпочитаем тот результат, где больше ставок
+												if(r_fwe.StakeCount > forward_result_list.at(best_fwl_idx-1).StakeCount) {
+													best_fwl_rate = rate;
+													best_fwl_idx = i+1;
+												}
+											}
+											if(rate >= 0.8)
+												fwl_selection.insert(&r_fwe);
 										}
-										if(best_fwsl_idx)
-											p_best_container = container_list.at(fwl_selection.at(best_fwsl_idx-1).Idx);
+										if(fwl_selection.getCount()) {
+											uint    best_fwsl_idx = 0;
+											uint    best_fwsl_count = 0;
+											for(uint j = 0; j < fwl_selection.getCount(); j++) {
+												const ForwardResultEntry & r_fwe = fwl_selection.at(j);
+												if(best_fwsl_count < r_fwe.StakeCount) {
+													best_fwsl_count = r_fwe.StakeCount;
+													best_fwsl_idx = j+1;
+												}
+											}
+											if(best_fwsl_idx)
+												p_best_container = container_list.at(fwl_selection.at(best_fwsl_idx-1).Idx);
+										}
+										else if(best_fwl_idx)
+											p_best_container = container_list.at(forward_result_list.at(best_fwl_idx-1).Idx);
 									}
-									else if(best_fwl_idx)
-										p_best_container = container_list.at(forward_result_list.at(best_fwl_idx-1).Idx);
+									if(p_best_container) {
+										THROW(TsObj.PutStrategies(ts_pack.Rec.ID, PPObjTimeSeries::sstSelection, p_best_container, 1)); // Сохранение отобранных стратегий в базе данных
+									}
 								}
-								if(p_best_container) {
-									THROW(TsObj.PutStrategies(ts_pack.Rec.ID, PPObjTimeSeries::sstSelection, p_best_container, 1)); // Сохранение отобранных стратегий в базе данных
+								else {
+									PPObjTimeSeries::StrategyResultEntry sre;
+									scontainer.Setup(ts_pack, &tss_model, ctspb.GetLastValTime(), date_till);
+									TsFindStrategiesLoopBlock fslblk(tss_model, config, ts_pack, ts, ctspb, scontainer, 0);
+									fslblk.P_FOut = &f_out;
+									THROW(EvaluateStrategies(&fslblk, date_till, 0, f_out_total, &sre));
 								}
-							}
-							else {
-								PPObjTimeSeries::StrategyResultEntry sre;
-								scontainer.Z(); // @v10.8.6
-								scontainer.SetLastValTm(last_val_dtm);
-								scontainer.SetUseDataForStrategiesTill(date_till);
-								scontainer.SetupByTsPacket(ts_pack, &tss_model);
-								TsFindStrategiesLoopBlock fslblk(tss_model, config, ts_pack, ts, ctspb, scontainer, 0);
-								fslblk.P_FOut = &f_out;
-								THROW(EvaluateStrategies(&fslblk, 0, f_out_total, &sre));
 							}
 						}
 					}
@@ -8791,8 +8920,7 @@ int SLAPI PrcssrTsStrategyAnalyze::AnalyzeRegression(PPID tsID)
 							frame_size_list.addUnique(tss_model.MainFrameSizeList.get(mfsidx));
 						}
 					}
-					THROW(MakeArVectors(ts, frame_size_list, 0, 
-						((tss_model.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) ? tss_model.Rec.InitTrendErrLimit_ : 0.0), trend_list_set));
+					THROW(MakeArVectors2(ts, frame_size_list, &tss_model, 0, trend_list_set));
 				}
 				{
 					uint   vec_idx = 0;
@@ -8904,8 +9032,7 @@ int SLAPI PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::C
 								pTs->GetChunkRecentCount(10000, ts_last_chunk);
 							}
 							const uint tsc_test_chunk = ts_last_chunk.GetCount();
-							THROW(MakeArVectors(*pTs, ifs_list, mavfDontSqrtErrList, 
-								((tss_model.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) ? tss_model.Rec.InitTrendErrLimit_ : 0.0), ctspb.TrendList));
+							THROW(MakeArVectors2(*pTs, ifs_list, &tss_model, mavfDontSqrtErrList, ctspb.TrendList));
 							if(tsc_test_chunk) {
 								for(uint tlsidx = 0; tlsidx < ctspb.TrendList.getCount(); tlsidx++) {
 									PPObjTimeSeries::TrendEntry * p_trend_entry = ctspb.TrendList.at(tlsidx);
@@ -8937,17 +9064,17 @@ int SLAPI PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::C
 											const double wv = p_trend_entry->ErrL.at(--weidx);
 											assert(tv == wv);
 										} while(teidx);
-										p_trend_entry->SqrtErrList(0); // see flag mavfDontSqrtErrList in MakeArVectors
+										p_trend_entry->SqrtErrList(0); // see flag mavfDontSqrtErrList in MakeArVectors2
 									}
 								}
 							}
 #else
-							THROW(MakeArVectors(*pTs, ifs_list, 0, ((tss_model.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) ? tss_model.Rec.InitTrendErrLimit_ : 0.0), ctspb.TrendList));
+							THROW(MakeArVectors2(*pTs, ifs_list, &tss_model, 0, ctspb.TrendList));
 #endif
 						}
 						{
-							TSVector <PPObjTimeSeries::StrategyResultEntry> sr_raw_list;
-							TSVector <RealRange> main_frame_range_list;
+							//TSVector <PPObjTimeSeries::StrategyResultEntry> sr_raw_list;
+							//TSVector <RealRange> main_frame_range_list;
 							THROW_SL(pTs->GetRealArray(vec_idx, 0, tsc, ctspb.ValList));
 							THROW_SL(pTs->GetTimeArray(0, tsc, ctspb.TmList));
 							assert(ctspb.TmList.getCount() == tsc);
@@ -9294,10 +9421,10 @@ int SLAPI PPObjTimeSeries::EvaluateOptimalMaxDuck(PPID id)
 		STimeSeries ts;
 		const int gtsr = ts_obj.GetTimeSeries(id, ts);
 		if(gtsr > 0) {
-			const uint tsc = ts.GetCount();
 			STimeSeries::Stat st(0);
-			uint   vec_idx = 0;
-			THROW_SL(ts.GetValueVecIndex("close", &vec_idx));
+			//const uint tsc = ts.GetCount();
+			//uint   vec_idx = 0;
+			//THROW_SL(ts.GetValueVecIndex("close", &vec_idx));
 			ts.Analyze("close", st);
 			if(ts_pack.Rec.SpikeQuant_t <= 0.0) {
 				ts_pack.Rec.SpikeQuant_t = st.DeltaAvg / 2.0;
@@ -9306,10 +9433,7 @@ int SLAPI PPObjTimeSeries::EvaluateOptimalMaxDuck(PPID id)
 			{
 				CommonTsParamBlock ctspb;
 				uint    flags = 0;
-				THROW_SL(ts.GetRealArray(vec_idx, 0, tsc, ctspb.ValList));
-				THROW_SL(ts.GetTimeArray(0, tsc, ctspb.TmList));
-				assert(ctspb.TmList.getCount() == tsc);
-				assert(ctspb.ValList.getCount() == tsc);
+				THROW(ctspb.Setup(ts));
 				THROW(prc.FindOptimalMaxDuck(ts_pack, ctspb, PrcssrTsStrategyAnalyze::fomdfEntireRange, &result_long));
 				THROW(prc.FindOptimalMaxDuck(ts_pack, ctspb, PrcssrTsStrategyAnalyze::fomdfEntireRange|PrcssrTsStrategyAnalyze::fomdfShort, &result_short));
 				if(result_long != ts_pack.Rec.OptMaxDuck) {
@@ -9610,6 +9734,13 @@ static IMPL_CMPFUNC(TsDensityMapEntry_GenTED, i1, i2)
 	return CMPSIGN(p_e1->GenTED, p_e2->GenTED);
 }
 
+static IMPL_CMPFUNC(TsDensityMapEntry_CADF, i1, i2)
+{
+	const PPObjTimeSeries::TsDensityMapEntry * p_e1 = static_cast<const PPObjTimeSeries::TsDensityMapEntry *>(i1);
+	const PPObjTimeSeries::TsDensityMapEntry * p_e2 = static_cast<const PPObjTimeSeries::TsDensityMapEntry *>(i2);
+	return CMPSIGN(p_e1->CADF, p_e2->CADF);
+}
+
 static IMPL_CMPFUNC(TsDensityMapEntry_TrendErrRel, i1, i2)
 {
 	const PPObjTimeSeries::TsDensityMapEntry * p_e1 = static_cast<const PPObjTimeSeries::TsDensityMapEntry *>(i1);
@@ -9653,9 +9784,9 @@ int SLAPI PPObjTimeSeries::TsDensityMap::EntryToStr(const TsDensityMapEntry * pE
 	int    ok = 1;
 	rBuf.Z();
 	if(!pEntry) {
-		//symb;side;frame;count;ADF;UEF;GenTEA;GenTED;ErrRel;Angle.lo;Angle.up;stake;win;loss
+		//symb;side;frame;count;ADF;UEF;GenTEA;GenTED;CADF;ErrRel;Angle.lo;Angle.up;stake;win;loss
 		rBuf.Cat("symb").Semicol().Cat("side").Semicol().Cat("frame").Semicol().Cat("count").Semicol().
-			Cat("ADF").Semicol().Cat("UEF").Semicol().Cat("GenTEA").Semicol().Cat("GenTED").Semicol().Cat("ErrRel").Semicol().
+			Cat("ADF").Semicol().Cat("UEF").Semicol().Cat("GenTEA").Semicol().Cat("GenTED").Semicol().Cat("CADF").Semicol().Cat("ErrRel").Semicol().
 			Cat("Angle.lo").Semicol().Cat("Angle.up").Semicol().
 			Cat("stake").Semicol().Cat("win").Semicol().Cat("loss");
 	}
@@ -9670,12 +9801,18 @@ int SLAPI PPObjTimeSeries::TsDensityMap::EntryToStr(const TsDensityMapEntry * pE
 			else
 				rBuf.CatChar('#').Cat(pEntry->TsID);
 		}
-		rBuf.Semicol().Cat((pEntry->Flags & TsDensityMapEntry::fShort) ? "S" : "B").Semicol().
-			Cat(pEntry->InputFrameSize).Semicol().Cat(pEntry->GenCount).Semicol().
-			Cat(pEntry->ADF, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->UEF, MKSFMTD(0, 5, 0)).Semicol().
-			Cat(pEntry->GenTEA, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->GenTED, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->TrendErrRel, MKSFMTD(0, 5, 0)).Semicol().
-			Cat(pEntry->AngleR.low, MKSFMTD(0, 12, 0)).Semicol().Cat(pEntry->AngleR.upp, MKSFMTD(0, 12, 0)).Semicol().
-			Cat(pEntry->StakeCount).Semicol().Cat(pEntry->WinCount).Semicol().Cat(pEntry->LossCount);
+		rBuf.Semicol().Cat((pEntry->Flags & TsDensityMapEntry::fShort) ? "S" : "B").
+			Semicol().Cat(pEntry->InputFrameSize).Semicol().Cat(pEntry->GenCount).
+			Semicol().Cat(pEntry->ADF, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->UEF, MKSFMTD(0, 5, 0)).
+			Semicol().Cat(pEntry->GenTEA, MKSFMTD(0, 5, 0)).
+			Semicol().Cat(pEntry->GenTED, MKSFMTD(0, 5, 0)).
+			Semicol().Cat(pEntry->CADF*1E9, MKSFMTD(0, 12, 0)).
+			Semicol().Cat(pEntry->TrendErrRel, MKSFMTD(0, 5, 0)).
+			Semicol().Cat(pEntry->AngleR.low, MKSFMTD(0, 12, 0)).
+			Semicol().Cat(pEntry->AngleR.upp, MKSFMTD(0, 12, 0)).
+			Semicol().Cat(pEntry->StakeCount).
+			Semicol().Cat(pEntry->WinCount).
+			Semicol().Cat(pEntry->LossCount);
 	}
 	return ok;
 }
@@ -9702,7 +9839,8 @@ int SLAPI PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 		fldAngleUp,
 		fldStake,
 		fldWin,
-		fldLoss
+		fldLoss,
+		fldCADF
 	};
 	PPObjTimeSeries ts_obj;
 	PPTimeSeries ts_rec;
@@ -9738,6 +9876,8 @@ int SLAPI PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 					fld_assoc_list.Add(fld_no, fldGenTEA);
 				else if(temp_buf.IsEqiAscii("GenTED"))
 					fld_assoc_list.Add(fld_no, fldGenTED);
+				else if(temp_buf.IsEqiAscii("CADF"))
+					fld_assoc_list.Add(fld_no, fldCADF);
 				else if(temp_buf.IsEqiAscii("ErrRel"))
 					fld_assoc_list.Add(fld_no, fldErrRel);
 				else if(temp_buf.IsEqiAscii("Angle.lo"))
@@ -9784,6 +9924,7 @@ int SLAPI PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 						case fldUEF:    entry.UEF = temp_buf.ToReal(); break;
 						case fldGenTEA: entry.GenTEA = temp_buf.ToReal(); break;
 						case fldGenTED: entry.GenTED = temp_buf.ToReal(); break;
+						case fldCADF:   entry.CADF = temp_buf.ToReal(); break;
 						case fldErrRel: entry.TrendErrRel = temp_buf.ToReal(); break;
 						case fldAngleLo: entry.AngleR.low = temp_buf.ToReal(); break;
 						case fldAngleUp: entry.AngleR.upp = temp_buf.ToReal(); break;
@@ -9919,10 +10060,10 @@ int SLAPI PPObjTimeSeries::TsDensityMap::SearchBestRange(PPID tsID, int side, in
 	int    ok = -1;
 	ResultEntry best_re;
 	assert(minProb > 0.0 && minProb <= 1.0);
-	assert(oneof6(factor, TsDensityMapEntry::factorADF, TsDensityMapEntry::factorTrendErrRel, TsDensityMapEntry::factorUEF, 
-		TsDensityMapEntry::factorGenCount, TsDensityMapEntry::factorGenTEA, TsDensityMapEntry::factorGenTED));
-	if(oneof6(factor, TsDensityMapEntry::factorADF, TsDensityMapEntry::factorTrendErrRel, TsDensityMapEntry::factorUEF, 
-		TsDensityMapEntry::factorGenCount, TsDensityMapEntry::factorGenTEA, TsDensityMapEntry::factorGenTED) && (minProb > 0.0 && minProb <= 1.0)) {
+	assert(oneof7(factor, TsDensityMapEntry::factorADF, TsDensityMapEntry::factorTrendErrRel, TsDensityMapEntry::factorUEF, 
+		TsDensityMapEntry::factorGenCount, TsDensityMapEntry::factorGenTEA, TsDensityMapEntry::factorGenTED, TsDensityMapEntry::factorCADF));
+	if(oneof7(factor, TsDensityMapEntry::factorADF, TsDensityMapEntry::factorTrendErrRel, TsDensityMapEntry::factorUEF, 
+		TsDensityMapEntry::factorGenCount, TsDensityMapEntry::factorGenTEA, TsDensityMapEntry::factorGenTED, TsDensityMapEntry::factorCADF) && (minProb > 0.0 && minProb <= 1.0)) {
 		TsDensityMap temp_map;
 		{
 			for(uint i = 0; i < getCount(); i++) {
@@ -9945,6 +10086,8 @@ int SLAPI PPObjTimeSeries::TsDensityMap::SearchBestRange(PPID tsID, int side, in
 				temp_map.sort(PTR_CMPFUNC(TsDensityMapEntry_GenTEA));
 			else if(factor == TsDensityMapEntry::factorGenTED)
 				temp_map.sort(PTR_CMPFUNC(TsDensityMapEntry_GenTED));
+			else if(factor == TsDensityMapEntry::factorCADF)
+				temp_map.sort(PTR_CMPFUNC(TsDensityMapEntry_CADF));
 			if(edge == 1)
 				temp_map.reverse(0, temp_map.getCount());
 			const uint _c = temp_map.getCount();
@@ -9964,6 +10107,8 @@ int SLAPI PPObjTimeSeries::TsDensityMap::SearchBestRange(PPID tsID, int side, in
 							best_re.FactorR.Set(temp_map.at(i).GenTEA, temp_map.at(last_chunk_idx).GenTEA);
 						else if(factor == TsDensityMapEntry::factorGenTED)
 							best_re.FactorR.Set(temp_map.at(i).GenTED, temp_map.at(last_chunk_idx).GenTED);
+						else if(factor == TsDensityMapEntry::factorCADF)
+							best_re.FactorR.Set(temp_map.at(i).CADF, temp_map.at(last_chunk_idx).CADF);
 						else if(factor == TsDensityMapEntry::factorTrendErrRel)
 							best_re.FactorR.Set(temp_map.at(i).TrendErrRel, temp_map.at(last_chunk_idx).TrendErrRel);
 						ok = 1;

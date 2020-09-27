@@ -367,10 +367,7 @@ int SLAPI PPExecuteContextMenu(TView * pView, uint menuID)
 				ok = 1;
 			}
 			else if(key) {
-				TEvent event;
-				event.what = TEvent::evKeyDown;
-				event.keyDown.keyCode = cmd;
-				pView->P_Owner->handleEvent(event);
+				TView::messageKeyDown(pView->P_Owner, cmd);
 				ok = 1;
 			}
 		}
@@ -5614,7 +5611,6 @@ private:
 	};
 
 	DECL_HANDLE_EVENT;
-	// @v9.6.2 virtual void draw();
 	void   Select(long x, long y);
 	void   DrawMainRect(TCanvas *, RECT *);
 	void   DrawHourText(TCanvas *);
@@ -6085,7 +6081,7 @@ int TimePickerCtrlGroup::Edit(TDialog * pDlg)
 
 /*virtual*/int TimePickerCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = (pData) ? *static_cast<const LTIME *>(pData) : ZEROTIME;
+	Data = pData ? *static_cast<const LTIME *>(pData) : ZEROTIME;
 	pDlg->setCtrlData(Ctl, &Data);
 	return 1;
 }
@@ -6155,7 +6151,7 @@ int EmailCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return 1;
 }
 
-int EmailCtrlGroup::SetLine(TDialog * pDlg)
+void EmailCtrlGroup::SetLine(TDialog * pDlg)
 {
 	SString addr_list;
 	const uint alcnt = Data.AddrList.getCount();
@@ -6169,7 +6165,6 @@ int EmailCtrlGroup::SetLine(TDialog * pDlg)
 		pDlg->setCtrlString(Ctl, addr_list);
 		pDlg->disableCtrl(Ctl, Data.AddrList.getCount() > 1);
 	}
-	return 1;
 }
 
 class EmailListDlg : public PPListDialog {

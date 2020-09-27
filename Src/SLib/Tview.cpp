@@ -77,6 +77,20 @@ void FASTCALL ZDeleteWinGdiObject(void * pHandle)
 	}
 	return p_ret;
 }
+
+/*static*/void * FASTCALL TView::messageKeyDown(TView * pReceiver, uint keyCode)
+{
+	void * p_ret = 0;
+	if(pReceiver) {
+		TEvent event;
+		event.what = TEvent::evKeyDown;
+		event.keyDown.keyCode = keyCode;
+		pReceiver->handleEvent(event);
+		if(event.what == TEvent::evNothing)
+			p_ret = event.message.infoPtr;
+	}
+	return p_ret;
+}
 //
 //
 //

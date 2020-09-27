@@ -2684,7 +2684,6 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 					{ VK_LEFT, WM_HSCROLL, SB_LINEUP },
 					{ VK_RIGHT, WM_HSCROLL, SB_LINEDOWN }
 				};
-				//#define NUMKEYS (sizeof key2scroll / sizeof key2scroll[0])
 				for(i = 0; i < SIZEOFARRAY(key2scroll); i++) {
 					if(wParam == key2scroll[i].wVirtkey) {
 						SendMessage(hWnd, key2scroll[i].iMessage, key2scroll[i].wRequest, 0L);
@@ -2711,9 +2710,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 				char kb_scan_code = LOBYTE(HIWORD(lParam));
 				if(wParam != VK_RETURN || kb_scan_code != 0x1c) {
 					char ac = SSystem::TranslateWmCharToAnsi(wParam);
-					e.what = TEvent::evKeyDown;
-					e.keyDown.keyCode = ac/*wParam*/;
-					p_view->handleEvent(e);
+					TView::messageKeyDown(p_view, ac);
 				}
 			}
 			return 0;
@@ -2733,9 +2730,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 				tp.setwparam(lParam);
 				if(p_view->ItemByPoint(tp, &hPos, &vPos)) {
 					p_view->FocusItem(hPos, vPos);
-					e.what = TEvent::evKeyDown;
-					e.keyDown.keyCode = kbShiftF10;
-					p_view->handleEvent(e);
+					TView::messageKeyDown(p_view, kbShiftF10);
 				}
 			}
 			return 0;
@@ -2794,14 +2789,14 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			break;
 		case WM_MOUSEMOVE:
 			if(p_view) {
-				int rc;
 				tp.setwparam(lParam);
 				if(wParam == 0 && hWnd == GetFocus()) {
 					if(p_view->PrevMouseCoord != tp) {
 						p_view->RegisterMouseTracking(0, 1000);
 						p_view->PrevMouseCoord = tp;
 					}
-					if((rc = p_view->IsResizePos(tp)) != 0) {
+					const int rc = p_view->IsResizePos(tp);
+					if(rc) {
 						SetCursor(p_view->ResizeCursor);
 						p_view->ResizedCol = rc;
 					}
@@ -2830,9 +2825,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 		case WM_USER+101:
 			if(p_view) {
 				if(HIWORD(wParam) == 0) {
-					e.what = TEvent::evKeyDown;
-					e.keyDown.keyCode = LOWORD(wParam);
-					p_view->handleEvent(e);
+					TView::messageKeyDown(p_view, LOWORD(wParam));
 				}
 				else if(HIWORD(wParam) == 1) {
 					e.what = TEvent::evCommand;

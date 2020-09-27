@@ -6251,7 +6251,8 @@ public:
 		int32  ObjType;
 		int32  ObjID;
 		int32  Flags;
-		uint8  Reserve[32]; // raw
+		int32  EvSubscrID;
+		uint8  Reserve[28]; // raw
 		TSLob <2048> VT;
 	} data;
 	struct Key0 {
@@ -6291,6 +6292,7 @@ public:
 	DBField ObjType;
 	DBField ObjID;
 	DBField Flags;
+	DBField EvSubscrID;
 	DBField Reserve;
 	DBField VT;
 };

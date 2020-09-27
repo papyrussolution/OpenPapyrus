@@ -2366,7 +2366,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::GetTabTitle(long tabID, SString & rBuf)
+void SLAPI PPViewGoodsRest::GetTabTitle(long tabID, SString & rBuf)
 {
 	if(tabID) {
 		LocationTbl::Rec loc_rec;
@@ -2375,7 +2375,6 @@ int SLAPI PPViewGoodsRest::GetTabTitle(long tabID, SString & rBuf)
 		else
 			rBuf.Z().Cat(tabID);
 	}
-	return 1;
 }
 
 class GoodsRestCrosstab : public Crosstab {
@@ -2396,9 +2395,10 @@ public:
 		return p_brw;
 	}
 private:
-	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+		if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
+			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 	}
 	virtual int SLAPI CalcSummary(int action, CalcSummaryBlock & rBlk)
 	{

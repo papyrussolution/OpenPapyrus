@@ -382,9 +382,10 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 				return p_brw;
 			}
 		protected:
-			virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+			virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 			{
-				return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+				if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
+					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 			}
 			PPViewPriceAnlz * P_V;
 		};
@@ -581,14 +582,11 @@ int SLAPI PPViewPriceAnlz::SetContractPrices()
 	return ok;
 }
 
-int SLAPI PPViewPriceAnlz::GetTabTitle(PPID tabID, SString & rBuf)
+void SLAPI PPViewPriceAnlz::GetTabTitle(PPID tabID, SString & rBuf)
 {
-	int    ok = -1;
-	if(tabID && P_TempTbl) {
+	rBuf.Z();
+	if(tabID && P_TempTbl)
 		GetLocationName(tabID, rBuf);
-		ok = 1;
-	}
-	return ok;
 }
 //
 // Implementation of PPALDD_PriceAnlz

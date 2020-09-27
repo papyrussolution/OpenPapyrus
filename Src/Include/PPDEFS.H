@@ -10958,6 +10958,7 @@
 	#define CTL_EVNTSUBSCR_FLAGS      (6 + IMPEXP_CTL_BIAS)
 	#define CTL_EVNTSUBSCR_OBJ        (7 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_EVNTSUBSCR_OBJ     (8 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_MSG        (9 + IMPEXP_CTL_BIAS)
 
 // Win32 Dialog Identifiers
 //

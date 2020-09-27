@@ -1302,7 +1302,7 @@ int SLAPI PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 	return ok;
 }
 
-int SLAPI PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
+void SLAPI PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 {
 	rBuf.Z();
 	if(tabID) {
@@ -1310,7 +1310,6 @@ int SLAPI PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 		dt.v = tabID;
 		ObjBudg.FormatDate(Filt.BudgetID, 0, dt, rBuf);
 	}
-	return 1;
 }
 
 /*virtual*/int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
@@ -1374,9 +1373,10 @@ int SLAPI PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 					return p_brw;
 				}
 			private:
-				virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+				virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 				{
-					return (pVal && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+					if(pVal && P_V) 
+						P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 				}
 				PPViewBudget * P_V;
 			};

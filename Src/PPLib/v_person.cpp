@@ -354,9 +354,10 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					return p_brw;
 				}
 			protected:
-				virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+				virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 				{
-					return (pVal && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+					if(pVal && P_V) 
+						P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 				}
 				PPViewPerson * P_V;
 			};
@@ -390,9 +391,9 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewPerson::GetTabTitle(long tabID, SString & rBuf) const { return GetObjectName(PPOBJ_TAG, tabID, rBuf.Z()); }
-int SLAPI PPViewPerson::ViewRelations(PPID id) { return PsnObj.EditRelationList(id); }
-int SLAPI PPViewPerson::AddRelation(PPID id) { return PsnObj.EditRelation(&id, 0, 0); }
+void SLAPI PPViewPerson::GetTabTitle(long tabID, SString & rBuf) const { GetObjectName(PPOBJ_TAG, tabID, rBuf.Z()); }
+int  SLAPI PPViewPerson::ViewRelations(PPID id) { return PsnObj.EditRelationList(id); }
+int  SLAPI PPViewPerson::AddRelation(PPID id) { return PsnObj.EditRelation(&id, 0, 0); }
 
 int SLAPI PPViewPerson::UpdateHungedAddr(PPID addrID)
 {

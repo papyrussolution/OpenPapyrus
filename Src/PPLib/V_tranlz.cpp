@@ -489,13 +489,16 @@ public:
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 		{ return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner); }
-	virtual int  SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
-		{ return (pVal && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0; }
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	{ 
+		if(pVal && P_V) 
+			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf); 
+	}
 protected:
 	PPViewTrfrAnlz * P_V;
 };
 
-int SLAPI PPViewTrfrAnlz::GetTabTitle(long tabID, SString & rBuf) const
+void SLAPI PPViewTrfrAnlz::GetTabTitle(long tabID, SString & rBuf) const
 {
 	rBuf.Z();
 	if(Filt.CtKind == TrfrAnlzFilt::ctDate) {
@@ -505,7 +508,6 @@ int SLAPI PPViewTrfrAnlz::GetTabTitle(long tabID, SString & rBuf) const
 	}
 	else if(Filt.CtKind == TrfrAnlzFilt::ctCntragent)
 		GetObjectName(PPOBJ_ARTICLE, tabID, rBuf);
-	return 1;
 }
 
 int SLAPI PPViewTrfrAnlz::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

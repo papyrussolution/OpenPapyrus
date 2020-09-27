@@ -22,15 +22,8 @@ TMenuPopup::~TMenuPopup()
 	}
 }
 
-uint TMenuPopup::GetCount() const
-{
-	return L.getCount();
-}
-
-int TMenuPopup::Add(const char * pText, int cmd)
-{
-	return Add(pText, cmd, 0);
-}
+uint TMenuPopup::GetCount() const { return L.getCount(); }
+int  TMenuPopup::Add(const char * pText, int cmd) { return Add(pText, cmd, 0); }
 
 int TMenuPopup::Add(const char * pText, int cmd, int keyCode)
 {
@@ -182,10 +175,7 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 				}
 				else if(key) {
 					P_Win->selectCtrl(sel);
-					TEvent event;
-					event.what = TEvent::evKeyDown;
-					event.keyDown.keyCode = key;
-					P_Win->handleEvent(event);
+					TView::messageKeyDown(P_Win, key);
 				}
 			}
 		}
@@ -711,13 +701,18 @@ void TWindow::showLocalMenu()
 		ToolbarItem item;
 		for(uint i = 0; Toolbar.enumItems(&i, &item);) {
 			if(item.KeyCode != TV_MENUSEPARATOR)
-				menu.Add(item.ToolTipText, item.KeyCode);
+				menu.Add(item.ToolTipText, 0, item.KeyCode);
 			else if(i < Toolbar.getItemsCount()) // Последний разделитель не заносим
 				menu.AddSeparator();
 		}
 		uint   cmd = 0;
 		uint   key = 0;
-		menu.Execute(HW, 0, &cmd, &key);
+		if(menu.Execute(HW, TMenuPopup::efRet, &cmd, &key) > 0) {
+			if(cmd)
+				TView::messageCommand(this, cmd);
+			else if(key)
+				TView::messageKeyDown(this, key);
+		}
 	}
 }
 
@@ -1654,12 +1649,8 @@ SLAPI PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			p_view->HandleKeyboardEvent(LOWORD(wParam));
 			return 0;
 		case WM_CHAR:
-			if(p_view && (wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c)) {
-				TEvent event;
-				event.what = TEvent::evKeyDown;
-				event.keyDown.keyCode = wParam;
-				p_view->handleEvent(event);
-			}
+			if(p_view && (wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c))
+				TView::messageKeyDown(p_view, wParam);
 			return 0;
 		default:
 			break;

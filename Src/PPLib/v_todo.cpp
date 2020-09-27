@@ -847,9 +847,8 @@ int SLAPI PPViewPrjTask::AddItemToTimeGrid(const PrjTaskViewItem * pItem, int rm
 	return 1;
 }
 
-int SLAPI PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
+void SLAPI PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 {
-	int    ok = -1;
 	if(P_TempTbl) {
 		TempPrjTaskTbl::Key0 k0;
 		MEMSZERO(k0);
@@ -868,12 +867,10 @@ int SLAPI PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 			}
 			else if(Filt.TabType == PrjTaskFilt::crstClientEmployer)
 				rBuf.CopyFrom(P_TempTbl->data.EmployerName);
-			ok = 1;
 		}
 		else
 			rBuf.Z();
 	}
-	return ok;
 }
 
 int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
@@ -986,10 +983,10 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 				return p_brw;
 			}
 		protected:
-			virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+			virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 			{
-				return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ?
-					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+				if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V)
+					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 			}
 			PPViewPrjTask * P_V;
 		};

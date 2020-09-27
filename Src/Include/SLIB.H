@@ -10664,9 +10664,8 @@ class ARMA {
 public:
 	SLAPI  ARMA();
 	SLAPI ~ARMA();
-
-	int    SLAPI Init(int p, int q, const double * pInitTSeries /* p items */);
-	int    SLAPI Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *);
+	void   SLAPI Init(int p, int q, const double * pInitTSeries /* p items */);
+	void   SLAPI Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *);
 	int    SLAPI Step(double);
 	double SLAPI Predict() const;
 	int    SLAPI GetModel(LVect *) const;
@@ -10904,8 +10903,8 @@ class RDI {
 public:
 	SLAPI  RDI();
 	SLAPI ~RDI();
-	int    SLAPI Init(const DblQueue * pInitQueue);
-	int    SLAPI Init(const double * pInitQueue, uint interval);
+	void   SLAPI Init(const DblQueue * pInitQueue);
+	void   SLAPI Init(const double * pInitQueue, uint interval);
 	double SLAPI StepDiff(double) const;
 	double SLAPI StepIntg(double) const;
 	int    SLAPI Step(double newVal);
@@ -10918,8 +10917,8 @@ private:
 class ARIMA : public ARMA {
 public:
 	SLAPI  ARIMA();
-	int    SLAPI Init(int p, int q, const double * pInitSeries, /* p items */ const DblQueue * pRDIInitQueue);
-	int    SLAPI Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *, const DblQueue * pRDIInitQueue);
+	void   SLAPI Init(int p, int q, const double * pInitSeries, /* p items */ const DblQueue * pRDIInitQueue);
+	void   SLAPI Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *, const DblQueue * pRDIInitQueue);
 	int    SLAPI Step(double);
 	double SLAPI Predict() const;
 private:

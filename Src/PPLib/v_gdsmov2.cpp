@@ -29,7 +29,7 @@ PPBaseFilt * SLAPI PPViewGoodsMov2::CreateFilt(void * extraPtr) const
 	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
 }
 
-/*virtual*/int SLAPI PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
+/*virtual*/void SLAPI PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
 {
 	if(opID) {
 		if(opID == -1)
@@ -39,7 +39,6 @@ PPBaseFilt * SLAPI PPViewGoodsMov2::CreateFilt(void * extraPtr) const
 		else
 			GetObjectName(PPOBJ_OPRKIND, opID, rBuf);
 	}
-	return 1;
 }
 
 class GoodsMovCrosstab : public Crosstab {
@@ -54,11 +53,11 @@ public:
 		return p_brw;
 	}
 private:
-	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+		if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
+			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 	}
-
 	PPViewGoodsMov2 * P_V;
 	PPObjGoods GObj;
 };

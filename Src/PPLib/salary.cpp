@@ -485,16 +485,17 @@ public:
 		return p_brw;
 	}
 protected:
-	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+		if(pVal && P_V) 
+			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 	}
 	PPViewSalary * P_V;
 };
 
-int SLAPI PPViewSalary::GetTabTitle(long tabID, SString & rBuf) const
+void SLAPI PPViewSalary::GetTabTitle(long tabID, SString & rBuf) const
 {
-	return GetObjectName(PPOBJ_SALCHARGE, tabID, (rBuf = 0));
+	GetObjectName(PPOBJ_SALCHARGE, tabID, rBuf.Z());
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempSalary);

@@ -1,8 +1,8 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493020
-LastAutoCodeList=1,11985;102,10172;103,10072;110,10000;111,11990;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10126;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
+LastSignatureCode=2147493038
+LastAutoCodeList=1,11985;102,10172;103,10072;110,10000;111,11990;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
 testsign1=2147483649
@@ -1331,6 +1331,7 @@ queue=2147484623
 event=2147484624
 event_pl=2147492973
 eventsubscription=2147492975
+eventsubscription_message=2147493038
 personevent=2147484625
 personevent_pl=2147484626
 port=2147484627
@@ -4380,6 +4381,7 @@ draftwroffentry=2147487359
 draftwroffentry_op=2147487360
 draftwroffentry_loc=2147487361
 draftwroffentry_flags=2147487362
+dutysched=2147493021
 dutysched_flags=2147487363
 dutysched_id=2147487364
 dutysched_name=2147487365
@@ -4387,6 +4389,12 @@ dutysched_objgroup=2147487366
 dutysched_objtype=2147487367
 dutysched_symb=2147487368
 dutysched_tag=2147487369
+dutysched_fillstaffcal=2147493022
+dutysched_countpointlist=2147493023
+dutyschedentry=2147493024
+dutyschedentry_obj=2147493025
+dutyschedentry_dtr=2147493026
+dutyschedentry_duration=2147493027
 dynamicobjs_flags=2147487370
 dynamicobjs_id=2147487371
 dynamicobjs_name=2147487372
@@ -9349,6 +9357,16 @@ eventtype_outer=2147492977
 eventtype_spcbillchange=2147492978
 eventtype_sysjournal=2147493012
 eventtype_lotexpiration=2147493013
+dvcloadingstatfilt=2147493028
+dvcloadingstatfilt_dvctype=2147493029
+dvcloadingstatfilt_dvc=2147493030
+dvcloadingstatfilt_period=2147493031
+dvcloadingstatfilt_flags=2147493032
+dvcloadingstatfilt_goodsgrp=2147493033
+dvcloadingstatfilt_goods=2147493034
+editlot=2147493035
+editlot_rcptbill=2147493036
+deletelot=2147493037
 
 [GrpSymbList]
 .N.=124
@@ -13661,6 +13679,7 @@ DVCPARAM_CHZNGTIN=7743370
 DVCPARAM_CHZNSERIAL=7743371
 DVCPARAM_CHZNPARTN=7743373
 DVCPARAM_CHZNPRODTYPE=7743372
+DVCPARAM_CHZNCID=7743375
 DVCPARAM_PAYMCCRD=7743337
 DVCPARAM_PAYMENTTERMTAG=7743338
 DVCPARAM_SUBJTERMTAG=7743339

@@ -1402,6 +1402,7 @@ public:
 	static void * FASTCALL messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command);
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * FASTCALL messageKeyDown(TView * pReceiver, uint keyCode);
 	static HFONT setFont(HWND hWnd, const char * pFontName, int height);
 	//
 	// Descr: Создает экземляр шрифта по описанию rFd.

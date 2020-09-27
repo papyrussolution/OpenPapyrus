@@ -378,8 +378,8 @@ int SMessageWindow::Move()
 					}
 					Text.Cat(buf);
 				}
-				toolt_h = h + 16; // 12-->16
-				toolt_w = w + 16; // 12-->16
+				toolt_h = h + 16; 
+				toolt_w = w + 16; 
 				ctl_rect.left = 5;
 				ctl_rect.top  = 5 + top_delta;
 				ctl_rect.right  = toolt_w -10;

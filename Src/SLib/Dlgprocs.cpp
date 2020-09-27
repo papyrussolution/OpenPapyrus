@@ -62,20 +62,17 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 	if(isPpyCodeType)
 		event.keyDown.keyCode = static_cast<uchar>(wParam);
 	else {
-		if(GetKeyState(VK_SHIFT) & 0x8000) {
+		if(GetKeyState(VK_SHIFT) & 0x8000)
 			event.keyDown.keyCode = __MapVk(wParam, 1);
-		}
 		else if(GetKeyState(VK_CONTROL) & 0x8000) {
 			if(wParam == VK_F11)
 				wParam = VK_RETURN;
 			event.keyDown.keyCode = __MapVk(wParam, 2);
 		}
-		else if(GetKeyState(VK_MENU) & 0x8000) {
+		else if(GetKeyState(VK_MENU) & 0x8000)
 			event.keyDown.keyCode = __MapVk(wParam, 3);
-		}
-		else {
+		else
 			event.keyDown.keyCode = __MapVk(wParam, 0);
-		}
 	}
 	if(event.keyDown.keyCode) {
 		handleEvent(event);
@@ -262,9 +259,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 					else {
 						if(lParam == 0) {
 							if(hiw == 0) { // from menu
-								event.what = TEvent::evKeyDown;
-								event.keyDown.keyCode = low;
-								p_dlg->handleEvent(event);
+								TView::messageKeyDown(p_dlg, low);
 							}
 							else if(hiw == 1) { // from accelerator
 								event.what = TEvent::evCommand;
@@ -320,11 +315,8 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 			break;
 		case WM_RBUTTONUP:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-			if(p_dlg && HIWORD(wParam) != 1) {
-				event.what = TEvent::evKeyDown;
-				event.keyDown.keyCode = kbShiftF10;
-				p_dlg->handleEvent(event);
-			}
+			if(p_dlg && HIWORD(wParam) != 1)
+				TView::messageKeyDown(p_dlg, kbShiftF10);
 			break;
 		case WM_MOUSEMOVE:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
@@ -358,7 +350,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 						key_cmd.State |= KeyDownCommand::stateCtrl;
 					if(GetKeyState(VK_SHIFT) & 0x8000)
 						key_cmd.State |= KeyDownCommand::stateShift;
-					key_cmd.Code = (uint16)wParam;
+					key_cmd.Code = static_cast<uint16>(wParam);
 					event.what = TEvent::evCommand;
 					event.message.command = cmWinKeyDown;
 					event.message.infoPtr = &key_cmd;
@@ -373,10 +365,9 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 				short  def_inln_id = (p_dlg->DefInputLine && GetDlgItem(hwndDlg, p_dlg->DefInputLine)) ? p_dlg->DefInputLine : 0;
 				if(def_inln_id && def_inln_id != ctrl_id) {
 					::SetFocus(GetDlgItem(hwndDlg, def_inln_id));
-					// @v9.1.5 ::SendDlgItemMessage(hwndDlg, def_inln_id, WM_SETTEXT, 0, (LPARAM)onecstr((char)LOWORD(wParam)));
-					SString temp_buf; // @v9.1.5 
-					temp_buf.CatChar((char)LOWORD(wParam)); // @v9.1.5 
-					TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), temp_buf); // @v9.1.5 
+					SString temp_buf;
+					temp_buf.CatChar(static_cast<char>(LOWORD(wParam)));
+					TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), temp_buf);
 					::SendDlgItemMessage(hwndDlg, def_inln_id, WM_KEYDOWN, VK_END, 0);
 					return 0;
 				}

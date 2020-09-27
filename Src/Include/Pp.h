@@ -1124,7 +1124,7 @@ public:
 	uint   SLAPI GetTotalColsCount() const;
 	virtual DBQuery * SLAPI CreateBrowserQuery();
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner);
-	virtual int  SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const;
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const;
 		// @<<Crosstab::SetupBrowserCtColumns
 	int    SLAPI SetupBrowserCtColumns(BrowserWindow * pBrw) const;
 		// @<<Crosstab::CreateBrowser
@@ -16130,6 +16130,39 @@ private:
 //
 //
 //
+class PPEventCore : public EventTbl {
+public:
+	enum {
+		statusUndef    = 0,
+		statusActual   = 1,
+		statusViewed   = 2,
+		statusArchived = 3
+	};
+	struct Packet {
+		SLAPI  Packet();
+		Packet & Z();
+		PPID   ID;
+		LDATETIME Dtm;
+		long   TypeID;
+		long   Status;
+		PPID   UserID;
+		PPID   GlobalUserID;
+		PPID   EvSubscrID;
+		PPObjID Oid;
+		long   Flags;
+		SString Text;
+		SBuffer ExtData;
+	};
+	SLAPI  PPEventCore();
+	int    SLAPI Put(PPID * pID, const Packet * pPack, int use_ta);
+	int    SLAPI Get(PPID id, Packet * pPack);
+private:
+	void   SLAPI PacketToRec(const Packet & rPack, EventTbl::Rec & rRec) const;
+	void   SLAPI RecToPacket(const EventTbl::Rec & rRec, Packet & rPack) const;
+};
+//
+//
+//
 struct PPEventSubscription {
 	SLAPI  PPEventSubscription();
 	int    FASTCALL IsEqual(const PPEventSubscription & rS) const;
@@ -16169,43 +16202,14 @@ public:
 	int    SLAPI SerializePacket(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI PutPacket(PPID * pID, PPEventSubscriptionPacket * pPack, int use_ta);
 	int    SLAPI GetPacket(PPID id, PPEventSubscriptionPacket * pPack);
-	int    SLAPI Detect(PPID id);
+	int    SLAPI Run();
 private:
 	int    SLAPI SerializePacket_WithoutRec(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    SLAPI Detect(PPID id, TSCollection <PPEventCore::Packet> & rEvpList);
 };
 //
 //
 //
-class PPEventCore : public EventTbl {
-public:
-	enum {
-		statusUndef    = 0,
-		statusActual   = 1,
-		statusViewed   = 2,
-		statusArchived = 3
-	};
-	struct Packet {
-		SLAPI  Packet();
-		Packet & Z();
-		PPID   ID;
-		LDATETIME Dtm;
-		long   TypeID;
-		long   Status;
-		PPID   UserID;
-		PPID   GlobalUserID;
-		PPObjID Oid;
-		long   Flags;
-		SString Text;
-		SBuffer ExtData;
-	};
-	SLAPI  PPEventCore();
-	int    SLAPI Put(PPID * pID, const Packet * pPack, int use_ta);
-	int    SLAPI Get(PPID id, Packet * pPack);
-private:
-	void   SLAPI PacketToRec(const Packet & rPack, EventTbl::Rec & rRec) const;
-	void   SLAPI RecToPacket(const EventTbl::Rec & rRec, Packet & rPack) const;
-};
-
 struct EventFilt : public PPBaseFilt {
 	SLAPI  EventFilt();
 
@@ -17057,9 +17061,9 @@ public:
 		RealArray ErrL;       // @v10.3.12 Ошибки регрессии
 	};
 	struct CommonTsParamBlock {
-		CommonTsParamBlock()
-		{
-		}
+		CommonTsParamBlock();
+		int    Setup(const STimeSeries & rTs);
+		LDATETIME GetLastValTime() const;
 		DateTimeArray TmList;
 		RealArray ValList;
 		TSCollection <TrendEntry> TrendList;
@@ -17127,7 +17131,8 @@ public:
 			factorGenTEA      = 5,
 			factorGenTED      = 6,
 			factorAngleMid    = 7, // Среднее значение углового диапазона AngleR
-			factorAngular     = 8  // Угловая дуга диапазона AngleR
+			factorAngular     = 8, // Угловая дуга диапазона AngleR
+			factorCADF        = 9 
 		};
 		enum {
 			fShort = 0x0001
@@ -17143,6 +17148,7 @@ public:
 		double UEF;
 		double GenTEA;
 		double GenTED;
+		double CADF; // @v10.8.12
 		double TrendErrRel;
 		RealRange AngleR; // @v10.8.10
 	};
@@ -17184,6 +17190,7 @@ public:
 		static double SLAPI CalcSlTpAdjustment(int prec, double averageSpreadForAdjustment);
 		SLAPI  Strategy();
 		void   SLAPI Reset();
+		bool   FASTCALL IsStakeSideEq(const Strategy & rS) const;
 		double SLAPI CalcSL(double peak, double averageSpreadForAdjustment) const;
 		double SLAPI CalcSL(double peak, double externalSpikeQuant, double averageSpreadForAdjustment) const;
 		double SLAPI CalcTP(double stakeBase, double averageSpreadForAdjustment) const;
@@ -17243,7 +17250,8 @@ public:
 		float  UEF;              // @v10.8.10 Unevenness-Factor фактор неравномерности распределения точек в зоне OpeDeltaRange
 		float  GenTEA;           // @v10.8.10 Trend-Err-Average at generating phase
 		float  GenTED;           // @v10.8.10 Trend-Err-Deviation at generating phase
-		uint8  Reserve[24];      // @v10.8.10  
+		float  CADF;             // @v10.8.12 Core-Angular-Deviation-Factor фактор отклонения протестированных результатов стратегии от центральной линии канала
+		uint8  Reserve[20];      // @v10.8.10 // @v10.8.12 [24]-->[20]
 		OptimalFactorRange OptDeltaRange;
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		StrategyResultValue V;   // Результат тестирования
@@ -17309,6 +17317,7 @@ public:
 		StrategyContainer & FASTCALL operator = (const StrategyContainer & rS);
 		int    FASTCALL Copy(const StrategyContainer & rS);
 		StrategyContainer & SLAPI Z();
+		void   SLAPI Setup(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel, LDATETIME lastValTm, LDATE useDataTill);
 		void   SLAPI SetupByTsPacket(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel);
 		void   SLAPI SetLastValTm(LDATETIME dtm);
 		void   SLAPI SetUseDataForStrategiesTill(LDATE dt);
@@ -17320,7 +17329,8 @@ public:
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
 		int    SLAPI Simulate(const CommonTsParamBlock & rCtspb, const Config & rCfg, uint insurSlDelta, uint insurTpDelta, StrategyResultEntry & rSre, TSVector <StrategyResultValueEx> * pDetailsList) const;
 		void   SLAPI AccumulateFactors(StrategyResultEntry & rSre) const;
-		int    SLAPI FindIntersectionByAngle(const Strategy & rS, uint * pPos) const;
+		int    SLAPI FindAngularIntersection(const Strategy & rS, uint * pPos) const;
+		int    SLAPI FindAngularNearestNeighbour(const Strategy & rS, uint * pPos) const;
 
 		enum {
 			scoreResult = 1,            // Сумма результата
@@ -17787,6 +17797,7 @@ private:
 		mavfDontSqrtErrList = 0x0001
 	};
 	int    SLAPI MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
+	int    SLAPI MakeArVectors2(const STimeSeries & rTs, const LongArray & rFrameSizeList, const PPTssModelPacket * pTssModel, uint flags, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	int    SLAPI MakeTrendEntry(const RealArray & rValueList, uint flags, PPObjTimeSeries::TrendEntry * pEntry, RealArray * pTempCov00List);
 	int    SLAPI Helper_StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel,
 		//const DateTimeArray & rTsTmList, const RealArray & rTsValList, const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
@@ -17801,7 +17812,7 @@ private:
 	enum {
 		esfDontFinish = 0x0001 // Не сохранять стратегии
 	};
-	int    SLAPI EvaluateStrategies(void * pBlk, long flags, SFile & rFOutTotal, PPObjTimeSeries::StrategyResultEntry * pResult);
+	int    SLAPI EvaluateStrategies(void * pBlk, LDATE dateTill, long flags, SFile & rFOutTotal, PPObjTimeSeries::StrategyResultEntry * pResult);
 	PrcssrTsStrategyAnalyzeFilt P;
 	PPObjTimeSeries TsObj;
 	mutable ACount LastStrategyId;
@@ -20910,6 +20921,7 @@ struct SlipLineParam {
 	SString ChZnGTIN;     // @v10.7.2
 	SString ChZnSerial;   // @v10.7.2
 	SString ChZnPartN;    // @v10.7.8 Номер партии в марке честный знак
+	SString ChZnCid;      // @v10.8.12 Ид предприятия для передачи в честный знак
 };
 
 struct SlipDocCommonParam {
@@ -20973,7 +20985,6 @@ public:
 	virtual SLAPI ~PPSyncCashSession();
 	int    SLAPI Init(const char * pName, const char * pPort);
 	int    SLAPI IsError() const;
-	// @v10.3.9 virtual int SLAPI InitChannel() { return -1; }
 	//
 	// Функции кассового аппарата уровня приложения //
 	//
@@ -20984,7 +20995,6 @@ public:
 	//
 	virtual int SLAPI PrintCheck(CCheckPacket * pPack, uint flags) { return -1; }
 	virtual int SLAPI PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc) { return -1; }
-	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket *, double multiplier, int departN) { return -1; }
 	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int SLAPI PrintXReport(const CSessInfo *) { return -1; }
@@ -26176,8 +26186,7 @@ struct PPDutyCountPoint { // @flat
 
 struct PPDutySchedEntry { // @flat
 	PPID   ObjID;
-	PPID   DtrID; // Ид повторения. Если DtrID == 0,
-		// то используется непосредсредственное значение Dtr.
+	PPID   DtrID; // Ид повторения. Если DtrID == 0, то используется непосредсредственное значение Dtr.
 	DateTimeRepeating Dtr;
 	long   Duration; // Продолжительность (sec)
 };
@@ -26198,7 +26207,6 @@ public:
 	struct EnumParam {
 		uint   QueuePos; // @internal
 		int    IsFirst;  // @internal Первая итерация //
-		//
 		PPID   ObjID;
 		LDATETIME Dtm;
 		long   Duration;
@@ -26227,8 +26235,8 @@ public:
 	int    SLAPI Test(const char * pOutFile) const;
 
 	PPDutySched Rec;
-	TSVector <PPDutySchedEntry> List; // @v9.8.4 TSArray-->TSVector
-	TSVector <PPDutyCountPoint> CpList; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPDutySchedEntry> List;
+	TSVector <PPDutyCountPoint> CpList;
 private:
 	int    SLAPI IsCountPoint(LDATETIME * pDtm) const;
 
@@ -26604,7 +26612,7 @@ public:
 	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration(int order);
 	int    FASTCALL NextIteration(SalaryViewItem *);
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 	int    SLAPI GetSalChargeName(PPID salChargeID, SString & rName);
 	int    SLAPI Calc(PPID postID, PPID salChargeID, int avg, const DateRange & rPeriod, double * pAmount) {return Tbl.Calc(postID, salChargeID, avg, rPeriod, pAmount);}
 	//
@@ -27140,7 +27148,7 @@ public:
 	//     1 - сформировать структуру Charry
 	//
 	int    SLAPI Transmit(PPID id, int transmitKind);
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 	int    SLAPI GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, uint what = 0); // @vmiller
 	int    SLAPI CreateAuthFile(PPID psnId);
 
@@ -31044,7 +31052,7 @@ public:
 	SLAPI ~PPViewQuot();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
-	virtual int  SLAPI GetTabTitle(long tabID, SString & rBuf);
+	virtual void SLAPI GetTabTitle(long tabID, SString & rBuf);
 
 	const  StrAssocArray & SLAPI GetQuotKindList() const;
 	int    SLAPI InitIteration();
@@ -39505,7 +39513,7 @@ public:
 	// @v9.2.2 (replaced by GoodsCore::GetGoodsCodeInAltGrp) int    SLAPI GetGoodsNumByAlterGroup(PPID goodsID, PPID grpID, long * num);
 	int    SLAPI GetTotal(GoodsRestTotal *);
 	virtual int SLAPI Print(const void *);
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf);
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf);
 	void   SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 	int    SLAPI ExportUhtt(int silent);
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle);
@@ -40369,7 +40377,7 @@ public:
 	int    SLAPI ViewArticleInfo(const BrwHdr * pHdr, int what);
 	int    SLAPI GetPayableBillList(PPID arID, PPID curID, PayableBillList * pList);
 		// @>>PPViewDebtTrnovr::GetPayableBillList_
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 	int    SLAPI GetTotal(DebtTrnovrTotal * pTotal);
 	const  PPObjBill::SubstParam & GetBillSubstBlock() const { return Bsp; }
 
@@ -41642,7 +41650,7 @@ public:
 	int    FASTCALL NextIteration(GoodsMov2ViewItem *);
 	int    SLAPI GetIterationCount(long * pNumIterations, long * pLastCount);
 	int    SLAPI EditGoods(PPID goodsID);
-	int    SLAPI GetTabTitle(long opID, SString & rBuf);
+	void   SLAPI GetTabTitle(long opID, SString & rBuf);
 	// Realy private. Used from PPALDD_GoodsMov::NextItaration()
 	int    PrintWoPacks;
 private:
@@ -42105,7 +42113,7 @@ public:
 	int    SLAPI RemoveAll();
 	int    SLAPI GetPacket(PPID id, CCheckPacket * pPack); // @<<PPViewCSess::CreateDraft
 	int    SLAPI ViewGraph();
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 	const  BVATAccmArray * GetInOutVATList() const;
 	CCheckCore * SLAPI GetCc();
 	int    SLAPI AllocInnerIterItem();
@@ -42562,7 +42570,7 @@ public:
 	int    SLAPI CalcTotal(TrfrAnlzTotal *);
 	int    SLAPI ViewGraph();
 	int    SLAPI GetBrwHdr(const void * pRow, BrwHdr *) const;
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 	void   SLAPI SetAlcRepParam(const AlcReportParam * pParam);
 	int    SLAPI NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep *);
 	int    SLAPI AllocInnerIterItem();
@@ -42952,7 +42960,7 @@ public:
 	int    SLAPI GetByID(PPID id, TempGoodsOprTbl::Rec * pRec);
 	int    SLAPI InitUniq(const SArray * pUniq);
 	void   SLAPI CopyUniq(SArray * pUniq) const;
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf);
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf);
 	void   SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 private:
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -43603,7 +43611,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PaymPlanViewItem *);
 	void   SLAPI FormatCycle(LDATE, char * pBuf, size_t bufLen);
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -44786,7 +44794,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PrjTaskViewItem *);
 	int    SLAPI GetItem(PPID id, PrjTaskViewItem * pItem);
-	int    SLAPI GetTabTitle(PPID tabID, SString & rBuf);
+	void   SLAPI GetTabTitle(PPID tabID, SString & rBuf);
 	int    SLAPI ChangeTasks(PPIDArray *);
 	int    SLAPI GetTimeGridItemText(PPID taskID, SString & rBuf);
 	int    SLAPI EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm);
@@ -44898,7 +44906,7 @@ public:
 	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PriceAnlzViewItem *);
-	int    SLAPI GetTabTitle(PPID tabID, SString & rBuf);
+	void   SLAPI GetTabTitle(PPID tabID, SString & rBuf);
 private:
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -45203,7 +45211,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(BudgetViewItem *);
 	int    SLAPI ViewTotal();
-	int    SLAPI GetTabTitle(long tabID, SString & rBuf);
+	void   SLAPI GetTabTitle(long tabID, SString & rBuf);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -51095,7 +51103,7 @@ public:
 	virtual int getData(TDialog * pDlg, void * pData);
 private:
 	virtual void handleEvent(TDialog * pDlg, TEvent & event);
-	int    SetLine(TDialog *);
+	void   SetLine(TDialog *);
 	int    Edit(TDialog *);
 
 	const uint Cm;

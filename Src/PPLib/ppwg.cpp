@@ -1,7 +1,7 @@
 // PPWG.CPP
 // Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
-//
-// Графики рабочего времени
+// @codepage UTF-8
+// Р“СЂР°С„РёРєРё СЂР°Р±РѕС‡РµРіРѕ РІСЂРµРјРµРЅРё
 //
 #include <pp.h>
 #pragma hdrstop
@@ -88,7 +88,7 @@ int SLAPI PPObjDateTimeRep::Edit(PPID * pID, void * extraPtr)
 //
 // @ModuleDef(PPObjDutySched)
 //
-IMPL_CMPFUNC(PPDutyCountPoint_Dt, i1, i2) { return CMPFUNC(LDATE, &((PPDutyCountPoint *)i1)->Dtm.d, &((PPDutyCountPoint *)i2)->Dtm.d); }
+IMPL_CMPFUNC(PPDutyCountPoint_Dt, i1, i2) { return CMPFUNC(LDATE, &static_cast<const PPDutyCountPoint *>(i1)->Dtm.d, &static_cast<const PPDutyCountPoint *>(i2)->Dtm.d); }
 
 SLAPI PPDutySchedPacket::PPDutySchedPacket()
 {
@@ -341,6 +341,7 @@ static int EditDutySchedItem(const PPDutySched * pHead, PPDutySchedEntry * pData
 }
 
 class DutySchedDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPDutySchedPacket);
 public:
 	DutySchedDialog() : PPListDialog(DLG_DUTYSCHED, CTL_DUTYSCHED_LIST)
 	{
@@ -348,8 +349,33 @@ public:
 		if(p_list && !SetupStrListBox(p_list))
 			PPError();
 	}
-	int    setDTS(const PPDutySchedPacket * pData);
-	int    getDTS(PPDutySchedPacket * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlLong(CTL_DUTYSCHED_ID, Data.Rec.ID);
+		setCtrlData(CTL_DUTYSCHED_NAME, Data.Rec.Name);
+		AddClusterAssoc(CTL_DUTYSCHED_OBJTYPE, 0, PPOBJ_ARTICLE);
+		AddClusterAssoc(CTL_DUTYSCHED_OBJTYPE, 1, PPOBJ_PERSON);
+		SetClusterData(CTL_DUTYSCHED_OBJTYPE, Data.Rec.ObjType);
+		setupObjType();
+		updateList(-1);
+		updateCountPointList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_DUTYSCHED_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		GetClusterData(CTL_DUTYSCHED_OBJTYPE, &Data.Rec.ObjType);
+		Data.Rec.ObjGroup = getCtrlLong(sel = CTLSEL_DUTYSCHED_OBJGRP);
+		THROW_PP(Data.Rec.ObjGroup, PPERR_OBJGRPNEEDED);
+		Data.Normalyze();
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
@@ -359,8 +385,6 @@ private:
 	int    setupObjType();
 	void   updateCountPointList(long pos);
 	void   fillStaffCal();
-
-	PPDutySchedPacket Data;
 };
 
 IMPL_HANDLE_EVENT(DutySchedDialog)
@@ -392,8 +416,7 @@ IMPL_HANDLE_EVENT(DutySchedDialog)
 		fillStaffCal();
 	else if(event.isCmd(cmDutySchedStaffCal)) {
 		long pos = 0, id = 0;
-		if(Data.Rec.ID && getCurItem(&pos, &id) > 0 &&
-			checkupper((uint)pos, Data.List.getCount())) {
+		if(Data.Rec.ID && getCurItem(&pos, &id) > 0 && checkupper((uint)pos, Data.List.getCount())) {
 			const PPDutySchedEntry & r_entry = Data.List.at(static_cast<uint>(pos));
 			if(Data.Rec.ObjType == PPOBJ_PERSON && r_entry.ObjID) {
 				StaffCalFilt filt;
@@ -537,35 +560,6 @@ int DutySchedDialog::setupObjType()
 	return 1;
 }
 
-int DutySchedDialog::setDTS(const PPDutySchedPacket * pData)
-{
-	Data = *pData;
-	setCtrlLong(CTL_DUTYSCHED_ID, Data.Rec.ID);
-	setCtrlData(CTL_DUTYSCHED_NAME, Data.Rec.Name);
-	AddClusterAssoc(CTL_DUTYSCHED_OBJTYPE, 0, PPOBJ_ARTICLE);
-	AddClusterAssoc(CTL_DUTYSCHED_OBJTYPE, 1, PPOBJ_PERSON);
-	SetClusterData(CTL_DUTYSCHED_OBJTYPE, Data.Rec.ObjType);
-	setupObjType();
-	updateList(-1);
-	updateCountPointList(-1);
-	return 1;
-}
-
-int DutySchedDialog::getDTS(PPDutySchedPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTL_DUTYSCHED_NAME, Data.Rec.Name);
-	THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
-	GetClusterData(CTL_DUTYSCHED_OBJTYPE, &Data.Rec.ObjType);
-	Data.Rec.ObjGroup = getCtrlLong(sel = CTLSEL_DUTYSCHED_OBJGRP);
-	THROW_PP(Data.Rec.ObjGroup, PPERR_OBJGRPNEEDED);
-	Data.Normalyze();
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 int SLAPI PPObjDutySched::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0;
@@ -594,13 +588,13 @@ int SLAPI PPObjDutySched::Edit(PPID * pID, void * extraPtr)
 struct PPWorkCalendarEntry {
 	WorkDate  Wdt;
 	//
-	// Так как рабочий день может переходить через границу суток,
-	// временной период работы представлен не временем начала и
-	// временем окончания, а временем начала и продолжительностью //
-	// Продолжительность определена в секундах.
+	// РўР°Рє РєР°Рє СЂР°Р±РѕС‡РёР№ РґРµРЅСЊ РјРѕР¶РµС‚ РїРµСЂРµС…РѕРґРёС‚СЊ С‡РµСЂРµР· РіСЂР°РЅРёС†Сѓ СЃСѓС‚РѕРє,
+	// РІСЂРµРјРµРЅРЅРѕР№ РїРµСЂРёРѕРґ СЂР°Р±РѕС‚С‹ РїСЂРµРґСЃС‚Р°РІР»РµРЅ РЅРµ РІСЂРµРјРµРЅРµРј РЅР°С‡Р°Р»Р° Рё
+	// РІСЂРµРјРµРЅРµРј РѕРєРѕРЅС‡Р°РЅРёСЏ, Р° РІСЂРµРјРµРЅРµРј РЅР°С‡Р°Р»Р° Рё РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊСЋ //
+	// РџСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РѕРїСЂРµРґРµР»РµРЅР° РІ СЃРµРєСѓРЅРґР°С….
 	//
-	LTIME  BegTm;    // Время начала      //
-	long   Duration; // Продолжительность (sec) //
+	LTIME  BegTm;    // Р’СЂРµРјСЏ РЅР°С‡Р°Р»Р°      //
+	long   Duration; // РџСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ (sec) //
 };
 
 /*

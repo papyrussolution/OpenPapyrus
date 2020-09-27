@@ -555,9 +555,10 @@ public:
 		return p_brw;
 	}
 protected:
-	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && typ == MKSTYPE(S_INT, 4) && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+		if(pVal && typ == MKSTYPE(S_INT, 4) && P_V) 
+			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 	}
 	PPViewDebtTrnovr * P_V;
 };
@@ -569,7 +570,6 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	BExtQuery * p_q = 0;
 	PPObjOprKind op_obj;
 	PPIDArray cur_list, tab_list;
-
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	ZDELETE(P_Ct);
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -761,8 +761,8 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 					r_entry.PaymList.GetAmtTypeList(&tab_list);
 					r_entry.RDbtList.GetCurList(-1L, &cur_list);
 					r_entry.RDbtList.GetAmtTypeList(&tab_list);
-					r_entry.ExpiryDebtList.GetCurList(-1L, &cur_list); // @v9.1.8
-					r_entry.ExpiryDebtList.GetAmtTypeList(&tab_list);  // @v9.1.8
+					r_entry.ExpiryDebtList.GetCurList(-1L, &cur_list);
+					r_entry.ExpiryDebtList.GetAmtTypeList(&tab_list);
 					const uint cc = cur_list.getCount();
 					const uint tc = tab_list.getCount();
 					for(uint ci = 0; ci < cc; ci++) {
@@ -864,9 +864,9 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 					if(rF.Sgb.S == SubstGrpBill::sgbObject && rF.Sgb.S2.Sgp > sgpFirstRelation) {
 						temp_list.clear();
 						ar_obj.GetRelPersonList(ar_id, (rF.Sgb.S2.Sgp - sgpFirstRelation), 1, &temp_list);
-						ArList.add(&temp_list); // @v9.9.4 addUnique-->add
+						ArList.add(&temp_list);
 					}
-					ArList.add(ar_id); // @v9.9.4 addUnique-->add
+					ArList.add(ar_id);
 				}
 			}
 		}
@@ -876,12 +876,12 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 			const PPID ar_id = full_ar_list.get(i);
 			if(ar_obj.Fetch(ar_id, &ar_rec) > 0) {
 				if(!(rF.Flags & DebtTrnovrFilt::fSkipPassive) || !ar_rec.Closed)
-					ArList.add(ar_id); // @v9.9.4 addUnique-->add
+					ArList.add(ar_id); 
 			}
 		}
 	}
 	FullArListCount = full_ar_list.getCount();
-	ArList.sortAndUndup(); // @v9.9.4 sort-->sortAndUndup
+	ArList.sortAndUndup(); 
 	IterPath = ProcessBlock::ipUndef;
 	IterN = 0;
 }
@@ -972,10 +972,8 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 			rBlk.Amount = rRec.Amount;
 			rBlk.CurID = rRec.CurID;
 			rBlk.Date  = rRec.Dt;
-			// @v9.1.8 {
 			if(rBlk.PayDate < rBlk.CurrentDate)
 				rBlk.ExpiryDebt = rBlk.Debt;
-			// } @v9.1.8
 			//
 			uint   j;
 			long   tab_id = 0;
@@ -2169,12 +2167,11 @@ int SLAPI PPViewDebtTrnovr::ViewArticleInfo(const BrwHdr * pHdr, int what)
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
+void SLAPI PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
 {
-	int    ok = 0;
 	rBuf.Z();
 	if(oneof2(Filt.CycleKind, DebtTrnovrFilt::ckExpiry, DebtTrnovrFilt::ckDelay)) {
-		const long n = (long)DaySieve.getCount();
+		const long n = DaySieve.getCountI();
 		if(tabID && tabID <= n) {
 			if(tabID == n && DaySieve.at(n-1) == MAXLONG) {
 				if(n > 1)
@@ -2185,19 +2182,16 @@ int SLAPI PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
 				rBuf.CatCharN('.', 2).Cat(DaySieve.at(tabID-1));
 			else
 				rBuf.Cat(DaySieve.at(tabID-2)+1).CatCharN('.', 2).Cat(DaySieve.at(tabID-1));
-			ok = 1;
 		}
 	}
 	else if(oneof2(Filt.CycleKind, DebtTrnovrFilt::ckShipments, DebtTrnovrFilt::ckPayments)) {
 		DateRange period;
-		if(CycleSieve.getPeriod((uint)(tabID-1), &period)) {
+		if(CycleSieve.getPeriod(static_cast<uint>(tabID-1), &period)) {
 			char temp_buf[256];
 			CycleSieve.formatCycle(period.low, temp_buf, sizeof(temp_buf));
 			rBuf = temp_buf;
-			ok = 1;
 		}
 	}
-	return ok;
 }
 //
 //

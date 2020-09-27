@@ -6,11 +6,10 @@
 #include <tv.h>
 #pragma hdrstop
 
-static const TRect _DefLwRect(0, 0, 80, 25); // @v8.8.2 60-->80
+static const TRect _DefLwRect(0, 0, 80, 25);
 
 ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDialog(_DefLwRect, pTitle), PrepareSearchLetter(0), TbId(0)
 {
-	//@v9.8.0 IsLargeListBox      = 0;
 	P_Lb = new ListWindowSmartListBox(TRect(0, 0, 11, 11), pDef);
 	setDef(pDef);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
@@ -93,7 +92,7 @@ void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 IMPL_HANDLE_EVENT(ListWindow)
 {
 	if(event.isCmd(cmExecute)) {
-		int    lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
+		const int lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
 		ComboBox * p_combo = P_Lb ? P_Lb->combo : 0;
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
 		MessageCommandToOwner(cmLBLoadDef);
@@ -169,17 +168,14 @@ IMPL_HANDLE_EVENT(ListWindow)
 	else {
 		if(TVCOMMAND) {
 			if(TVCMD == cmOK && isTreeList()) {
-				HWND   h_tlist = GetDlgItem(H(), CTL_TREELBX_TREELIST);
+				const HWND h_tlist = GetDlgItem(H(), CTL_TREELBX_TREELIST);
 				TreeView_Expand(h_tlist, TreeView_GetSelection(h_tlist), TVE_TOGGLE);
 			}
-			// @v9.8.12 { 
-			//  Специальная предохранительная мера, препятствующая разрушению окна последующим вызовом 
-			//  TDialog::handleEvent
+			// Специальная предохранительная мера, препятствующая разрушению окна последующим вызовом TDialog::handleEvent 
 			else if(TVCMD == cmCancel) {
 				if(!IsInState(sfModal))
 					clearEvent(event);
 			}
-			// } @v9.8.12 
 			else if(oneof2(TVCMD, cmLBDblClk, cmLBItemSelected))
 				event.setCmd(cmOK, 0);
 			else if(TVCMD == cmRightClick) {
@@ -206,7 +202,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 					return;
 			}
 			else if(TVCMD == cmDrawItem) {
-				HWND parent = GetParent(H());
+				const HWND parent = GetParent(H());
 				TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(parent));
 				TView::messageCommand(p_dlg, cmDrawItem, TVINFOPTR);
 			}
@@ -403,13 +399,9 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0
 	setDef(P_Def);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
-
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
-	Ptb.SetColor(clrBkgnd,  GetColorRef((P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? SClrAntiquewhite : SClrYellow)/*RGB(0xFF, 0xFF, 0x00)*/);
-	// @v9.7.12 Ptb.SetBrush(brSel,    SPaintObj::psSolid, Ptb.GetColor(clrFocus), 0);
-	// @v9.7.12 Ptb.SetBrush(brOdd,    SPaintObj::psSolid, Ptb.GetColor(clrOdd), 0);
-	// @v9.7.12 Ptb.SetBrush(brBkgnd,  SPaintObj::psSolid, Ptb.GetColor(clrBkgnd), 0);
+	Ptb.SetColor(clrBkgnd,  GetColorRef((P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? SClrAntiquewhite : SClrYellow));
 }
 
 int WordSelector::Activate()

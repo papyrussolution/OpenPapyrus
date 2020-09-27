@@ -617,19 +617,11 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_VKEYTOITEM:
 			if(wParam == VK_DOWN) {
-				if(P_Owner) {
-					TEvent t;
-					t.what = TEvent::evKeyDown;
-					t.keyDown.keyCode = kbDown;
-					P_Owner->handleEvent(t);
-				}
+				TView::messageKeyDown(P_Owner, kbDown);
 				CALLPTRMEMB(P_Combo, handleWindowsMessage(WM_COMMAND, 0, 0));
 			}
 			else if(oneof3(wParam, VK_UP, VK_PRIOR, VK_NEXT) && P_Owner) {
-				TEvent t;
-				t.what = TEvent::evKeyDown;
-				t.keyDown.keyCode = (wParam == VK_UP) ? kbUp : ((wParam == VK_PRIOR) ? kbPgUp : kbPgDn);
-				P_Owner->handleEvent(t);
+				TView::messageKeyDown(P_Owner, (wParam == VK_UP) ? kbUp : ((wParam == VK_PRIOR) ? kbPgUp : kbPgDn));
 			}
 			else if(wParam == VK_DELETE) {
 				if(P_Combo)

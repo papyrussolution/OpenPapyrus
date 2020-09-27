@@ -1,5 +1,5 @@
 // ARMA.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -15,20 +15,9 @@ SLAPI ARMA::~ARMA()
 {
 }
 
-int SLAPI ARMA::GetModel(LVect * pVect) const
-{
-	return pVect ? pVect->copy(Model) : 0;
-}
-
-int SLAPI ARMA::GetR(LMatrix * pR) const
-{
-	return pR ? pR->copy(R) : 0;
-}
-
-int SLAPI ARMA::GetPhi(LVect * pVect) const
-{
-	return pVect ? pVect->copy(Phi) : 0;
-}
+int SLAPI ARMA::GetModel(LVect * pVect) const { return pVect ? pVect->copy(Model) : 0; }
+int SLAPI ARMA::GetR(LMatrix * pR) const { return pR ? pR->copy(R) : 0; }
+int SLAPI ARMA::GetPhi(LVect * pVect) const { return pVect ? pVect->copy(Phi) : 0; }
 
 void SLAPI ARMA::GetPQ(int * pP, int * pQ) const
 {
@@ -38,10 +27,9 @@ void SLAPI ARMA::GetPQ(int * pP, int * pQ) const
 //
 // In pInitTSeries[P] most recent value has bigger index
 //
-int SLAPI ARMA::Init(int p, int q, const double * pInitTSeries)
+void SLAPI ARMA::Init(int p, int q, const double * pInitTSeries)
 {
 	LMIDX i;
-
 	P = p;
 	Q = q;
 	IterCount = 0;
@@ -53,10 +41,9 @@ int SLAPI ARMA::Init(int p, int q, const double * pInitTSeries)
 	Phi.set(0, 1L);
 	for(i = P; i >= 1; i--)
 		Phi.set(i, pInitTSeries[(size_t)(P-i)]);
-	return 1;
 }
 
-int SLAPI ARMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR)
+void SLAPI ARMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR)
 {
 	P = p;
 	Q = q;
@@ -70,7 +57,6 @@ int SLAPI ARMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, con
 		for(int i = 0; i < P+Q+1; i++)
 			R.set(i, i, ARMA_INVERTMATRIX_INIT_VAL);
 	}
-	return 1;
 }
 //
 // GainFactor = (R * Phi) / (1 + Phi(Transp) * R * Phi))
@@ -147,41 +133,24 @@ SLAPI RDI::~RDI()
 	delete P_Queue;
 }
 
-int SLAPI RDI::Init(const DblQueue * pInitQueue)
+void SLAPI RDI::Init(const DblQueue * pInitQueue)
 {
 	ZDELETE(P_Queue);
 	P_Queue = new DblQueue(*pInitQueue);
-	return P_Queue ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
 
-int SLAPI RDI::Init(const double * pInitQueue, uint interval)
+void SLAPI RDI::Init(const double * pInitQueue, uint interval)
 {
 	ZDELETE(P_Queue);
 	P_Queue = new DblQueue(interval);
 	for(uint i = 0; i < interval; i++)
 		P_Queue->push(pInitQueue[i]);
-	return 1;
 }
 
-double SLAPI RDI::StepDiff(double nextVal) const
-{
-	return (nextVal - P_Queue->get(0));
-}
-
-double SLAPI RDI::StepIntg(double diff) const
-{
-	return (P_Queue->get(0) + diff);
-}
-
-int SLAPI RDI::Step(double newVal)
-{
-	return P_Queue->push(newVal);
-}
-
-int SLAPI RDI::GetQueue(DblQueue * pQueue) const
-{
-	return (pQueue && P_Queue) ? pQueue->copy(*P_Queue) : 0;
-}
+double SLAPI RDI::StepDiff(double nextVal) const { return (nextVal - P_Queue->get(0)); }
+double SLAPI RDI::StepIntg(double diff) const { return (P_Queue->get(0) + diff); }
+int    SLAPI RDI::Step(double newVal) { return P_Queue->push(newVal); }
+int    SLAPI RDI::GetQueue(DblQueue * pQueue) const { return (pQueue && P_Queue) ? pQueue->copy(*P_Queue) : 0; }
 //
 //
 //
@@ -189,30 +158,28 @@ SLAPI ARIMA::ARIMA() : ARMA()
 {
 }
 
-int SLAPI ARIMA::Init(int p, int q, const double * pInitSeries, const DblQueue * pRDIInitQueue)
+void SLAPI ARIMA::Init(int p, int q, const double * pInitSeries, const DblQueue * pRDIInitQueue)
 {
-	int i;
 	double * p_init_series = new double[p];
 	Rdi.Init(pRDIInitQueue);
 	if(Rdi.GetSeason() > 0) {
-		for(i = 0; i < p; i++) {
+		for(int i = 0; i < p; i++) {
 			p_init_series[i] = Rdi.StepDiff(pInitSeries[i]);
 			Rdi.Step(pInitSeries[i]);
 		}
 	}
-	else
-		for(i = 0; i < p; i++)
+	else {
+		for(int i = 0; i < p; i++)
 			p_init_series[i] = pInitSeries[i];
+	}
 	ARMA::Init(p, q, p_init_series);
 	delete [] p_init_series;
-	return 1;
 }
 
-int SLAPI ARIMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR, const DblQueue * pRDIInitQueue)
+void SLAPI ARIMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR, const DblQueue * pRDIInitQueue)
 {
 	Rdi.Init(pRDIInitQueue);
 	ARMA::Init(p, q, pModel, pPhi, pR);
-	return 1;
 }
 
 int SLAPI ARIMA::Step(double val)
@@ -278,7 +245,8 @@ int SLAPI InitSeries(int P, int Q, const char * pInFileName, const char * pOutFi
 	double * p_init_series = new double[P];
 	LDATE  prev_dt = ZERODATE;
 	DataEntry entry;
-	FILE *p_in = 0, *p_out = 0;
+	FILE * p_in = 0;
+	FILE * p_out = 0;
 	if((p_in = fopen(pInFileName, "r")) == NULL || (p_out = fopen(pOutFileName, "w")) == NULL) {
 		printf("Error open file");
 		return 0;
@@ -364,12 +332,12 @@ int SLAPI TestARMA(int P, int Q, const char * pInFileName, const char * pOutFile
 
 	LVect m;
 	model.GetModel(&m);
-	m.setname("Model");
+	// @v10.8.11 m.setname("Model");
 	print(m, f_out, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 
 	fprintf(f_out, "\n\n");
 	model.GetPhi(&m);
-	m.setname("Phi");
+	// @v10.8.11 m.setname("Phi");
 	print(m, f_out, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 
 	/*
@@ -513,10 +481,10 @@ void TestArima(int P, int Q, const char * pInFileName, const char * pInFileName1
 	for(i = 0; i < tss.GetNumLags(); i++)
 		tssp.Step(i, tss.GetAutocorrel(i));
 	long interval = tssp.GetMostCommonDistance();
-	SQueue init_queue(sizeof(double), interval);
+	DblQueue init_queue(interval);
 	RDI rdi;
 	for(i = 0; i < interval && GetNextDataEntry(p_in, &entry) > 0; i++)
-		init_queue.push(&entry.Val);
+		init_queue.push(entry.Val);
 	rdi.Init(&init_queue);
 	for(i = 0; i < P && GetNextDataEntry(p_in, &entry) > 0; i++) {
 		p_init_series[i] = rdi.StepDiff(entry.Val);
@@ -547,12 +515,12 @@ void TestArima(int P, int Q, const char * pInFileName, const char * pInFileName1
 		fprintf(p_out, "\n\n");
 		LVect m;
 		model.GetModel(&m);
-		m.setname("Model");
+		// @v10.8.11 m.setname("Model");
 		print(m, p_out, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 
 		fprintf(p_out, "\n\n");
 		model.GetPhi(&m);
-		m.setname("Phi");
+		// @v10.8.11 m.setname("Phi");
 		print(m, p_out, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 	}
 	else
@@ -565,7 +533,7 @@ void TestArima(int P, int Q, const char * pInFileName, const char * pInFileName1
 void TestRdi(const char * pOutFileName)
 {
 	uint i = 0;
-	SQueue queue(sizeof(double), 7);
+	DblQueue queue(7);
 	RDI rdi;
 	FILE *p_out = 0;
 	if((p_out = fopen(pOutFileName, "w")) == NULL) {
@@ -574,11 +542,11 @@ void TestRdi(const char * pOutFileName)
 	}
 	for(i = 1; i < 8; i++) {
 		double j = i;
-		queue.push(&j);
+		queue.push(j);
 	}
 	fprintf(p_out, "Queue\n");
 	for(i = 0; i < 7; i++)
-		fprintf(p_out, "%f ", *(double *) queue.get(i));
+		fprintf(p_out, "%f ", queue.get(i));
 	rdi.Init(&queue);
 	fprintf(p_out, "\n\n Diff. Vals.\n");
 	for(i = 8; i < 11; i++) {
@@ -589,7 +557,7 @@ void TestRdi(const char * pOutFileName)
 	rdi.GetQueue(&queue);
 	fprintf(p_out, "\n\nChanged Queue\n");
 	for(i = 0; i < 7; i++)
-		fprintf(p_out, "%f ", *(double *) queue.get(i));
+		fprintf(p_out, "%f ", queue.get(i));
 	SFile::ZClose(&p_out);
 }
 

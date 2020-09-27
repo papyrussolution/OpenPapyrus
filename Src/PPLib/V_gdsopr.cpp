@@ -2038,7 +2038,7 @@ int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double 
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
+void SLAPI PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
 {
 	if(tabID) {
 		LocationTbl::Rec loc_rec;
@@ -2047,7 +2047,6 @@ int SLAPI PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
 		else
 			rBuf.Z().Cat(tabID);
 	}
-	return 1;
 }
 
 void SLAPI PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
@@ -2092,9 +2091,10 @@ public:
 		return p_brw;
 	}
 private:
-	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+		if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
+			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 	}
 	PPViewGoodsOpAnalyze * P_V;
 };

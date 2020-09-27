@@ -128,8 +128,6 @@ struct CheckStruct {
 		Tax = 0;
 		Ptt = 0; // @v10.4.1
 		Stt = 0; // @erik v10.4.12
-		// @v9.9.4 if(Text.NotEmpty())
-		// @v9.9.4 	Text.Destroy();
 		TaxSys = -1; // @v10.6.3 // @v10.6.4 0-->-1
 		Text.Z(); // @v9.9.4
 		Code.Z(); // @v9.9.4
@@ -137,6 +135,7 @@ struct CheckStruct {
 		ChZnGTIN.Z(); // @v10.7.2
 		ChZnSerial.Z(); // @v10.7.2
 		ChZnPartN.Z(); // @v10.7.8
+		ChZnCid.Z(); // @v10.8.12
 		PaymCash = 0.0;
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
@@ -158,21 +157,22 @@ struct CheckStruct {
 	// 4 	Единый сельскохозяйственный налог
 	// 5 	Патентная система налогообложения
 	// 
-	int    TaxSys; // @v10.6.3 Система налогообложения
-	int    Tax;
-	int    Ptt; // @v10.4.1 // CCheckPacket::PaymentTermTag
-	int    Stt; // @erik v10.4.12
-	SString Text;
-	SString Code; // @v9.5.7
-	SString ChZnCode; // @v10.6.12
-	SString ChZnGTIN; // @v10.7.2
-	SString ChZnSerial; // @v10.7.2
-	SString ChZnPartN;  // @v10.7.8
+	int    TaxSys;       // @v10.6.3 Система налогообложения
+	int    Tax;          //
+	int    Ptt;          // @v10.4.1 // CCheckPacket::PaymentTermTag
+	int    Stt;          // @erik v10.4.12
 	int    ChZnProdType; // @v10.7.2
 	double PaymCash;
 	double PaymBank;
 	double PaymCCrdCard;
 	double IncassAmt;
+	SString Text;
+	SString Code;        // @v9.5.7
+	SString ChZnCode;    // @v10.6.12
+	SString ChZnGTIN;    // @v10.7.2
+	SString ChZnSerial;  // @v10.7.2
+	SString ChZnPartN;   // @v10.7.8
+	SString ChZnCid;     // @v10.8.12 Ид предприятия для передачи в честный знак
 };
 
 class PiritEquip {
@@ -785,6 +785,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					default: Check.TaxSys = -1; break; // @v10.6.4 0-->-1
 				}
 			}
+			// @v10.8.12 {
+			if(pb.Get("CHZNCID", param_val) > 0)
+				Check.ChZnCid = param_val;
+			// } @v10.8.12 
 			THROW(RunCheck(0));
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
@@ -1713,12 +1717,18 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
 				else
 					CreateStr(0, in_data); // Чек отрезаем
-				//CreateStr("", in_data); // @v10.1.9 Адрес покупателя
-				//CreateStr(1, in_data); // @v10.1.9 (число) Система налогообложения
-				//CreateStr(static_cast<int>(0), in_data); // @v10.1.9 (число) Разные флаги
-				//CreateStr("", in_data); // @v10.8.11 Зарезервировано
-				//CreateStr("", in_data); // @v10.8.11 Зарезервировано
-				//CreateStr("", in_data); // @v10.8.11 Зарезервировано
+				CreateStr("", in_data); // @v10.1.9 Адрес покупателя
+				CreateStr(static_cast<int>(0), in_data); // @v10.1.9 (число) Разные флаги
+				CreateStr("", in_data); // @v10.8.11 Зарезервировано
+				CreateStr("", in_data); // @v10.8.11 Зарезервировано
+				CreateStr("", in_data); // @v10.8.11 Зарезервировано
+				// @v10.8.12 {
+				if(Check.ChZnCid.NotEmpty()) {
+					CreateStr("mdlp", in_data); // Название дополнительного реквизита пользователя
+					str.Z().Cat("cid").Cat(Check.ChZnCid).CatChar('&');
+					CreateStr("", in_data);     // Значение дополнительного реквизита пользователя
+				}
+				// } @v10.8.12
 				THROW(ExecCmd("31", in_data, out_data, r_error));
 				// gcf_result = GetCurFlags(3, flag); // @v10.2.10 @debug 
 			}

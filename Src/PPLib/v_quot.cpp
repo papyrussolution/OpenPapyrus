@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -202,10 +202,7 @@ SLAPI PPViewQuot::~PPViewQuot()
 	ZDELETE(P_Qc2);
 }
 
-const StrAssocArray & SLAPI PPViewQuot::GetQuotKindList() const
-{
-	return QuotKindList;
-}
+const StrAssocArray & SLAPI PPViewQuot::GetQuotKindList() const { return QuotKindList; }
 //
 //
 //
@@ -213,6 +210,7 @@ const StrAssocArray & SLAPI PPViewQuot::GetQuotKindList() const
 #define GRP_LOC       2
 
 class QuotFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(QuotFilt);
 public:
 	QuotFiltDialog() : TDialog(DLG_QUOTFLT), Cls(PPQuot::clsGeneral), LastAccSheetID(0), Spc(PPObjQuotKind::Special::ctrInitializeWithCache)
 	{
@@ -221,8 +219,80 @@ public:
 		SetupCalDate(CTLCAL_QUOTFLT_EFFDATE, CTL_QUOTFLT_EFFDATE);
 		SetupCalPeriod(CTLCAL_QUOTFLT_SETPRD, CTL_QUOTFLT_SETPRD);
 	}
-	int    setDTS(const QuotFilt *);
-	int    getDTS(QuotFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		AddClusterAssocDef(CTL_QUOTFLT_TYPE,  0, PPQuot::clsGeneral);
+		AddClusterAssoc(CTL_QUOTFLT_TYPE,  1, PPQuot::clsSupplDeal);
+		AddClusterAssoc(CTL_QUOTFLT_TYPE,  2, PPQuot::clsMtx);
+		AddClusterAssoc(CTL_QUOTFLT_TYPE,  3, PPQuot::clsMtxRestr);
+		AddClusterAssoc(CTL_QUOTFLT_TYPE,  4, PPQuot::clsPredictCoeff);
+		SetClusterData(CTL_QUOTFLT_TYPE, Data.QkCls);
+		SetupPPObjCombo(this, CTLSEL_QUOTFLT_QK,  PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(1));
+		SetupPPObjCombo(this, CTLSEL_QUOTFLT_CUR, PPOBJ_CURRENCY, Data.CurID, 0);
+		AddClusterAssoc(CTL_QUOTFLT_ALLLOC, 0, QuotFilt::fAllLocations);
+		SetClusterData(CTL_QUOTFLT_ALLLOC, Data.Flags);
+		AddClusterAssoc(CTL_QUOTFLT_ABSENCE, 0, QuotFilt::fOnlyAbsence);
+		AddClusterAssoc(CTL_QUOTFLT_ABSENCE, 1, QuotFilt::fAbsence);
+		SetClusterData(CTL_QUOTFLT_ABSENCE, Data.Flags);
+		AddClusterAssoc(CTL_QUOTFLT_FLAGS, 0, QuotFilt::fCrosstab);
+		SetClusterData(CTL_QUOTFLT_FLAGS, Data.Flags);
+		{
+			long  ggd = CHKXORFLAGS(Data.Flags, QuotFilt::fByGoodsOnly, QuotFilt::fByGroupOnly);
+			AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 0, 0);
+			AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 1, QuotFilt::fByGoodsOnly);
+			AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 2, QuotFilt::fByGroupOnly);
+			SetClusterData(CTL_QUOTFLT_GGRPDIFF, ggd);
+		}
+		AddClusterAssocDef(CTL_QUOTFLT_ORDER, 0, PPViewQuot::OrdByDefault);
+		AddClusterAssoc(CTL_QUOTFLT_ORDER, 1, PPViewQuot::OrdByGoods);
+		AddClusterAssoc(CTL_QUOTFLT_ORDER, 2, PPViewQuot::OrdByArGoods);
+		SetClusterData(CTL_QUOTFLT_ORDER, Data.InitOrder);
+		SetRealRangeInput(this, CTL_QUOTFLT_VALRANGE, &Data.Val);
+		GoodsFiltCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
+		setGroupData(GRP_GOODSFILT, &rec);
+		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
+		setGroupData(GRP_LOC, &loc_rec);
+		setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate);
+		SetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
+		SetupSubstGoodsCombo(this, CTLSEL_QUOTFLT_SGG, Data.Sgg); // @v10.1.2
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		GoodsFiltCtrlGroup::Rec rec;
+		LocationCtrlGroup::Rec loc_rec;
+		getCtrlData(CTLSEL_QUOTFLT_QK,  &Data.QuotKindID);
+		getCtrlData(CTLSEL_QUOTFLT_CUR, &Data.CurID);
+		getCtrlData(CTLSEL_QUOTFLT_CLIENT,    &Data.ArID);
+		GetClusterData(CTL_QUOTFLT_TYPE,      &Data.QkCls);
+		GetClusterData(CTL_QUOTFLT_ALLLOC,    &Data.Flags);
+		GetClusterData(CTL_QUOTFLT_ABSENCE,   &Data.Flags);
+		GetClusterData(CTL_QUOTFLT_FLAGS,     &Data.Flags);
+		{
+			const long ggd = GetClusterData(CTL_QUOTFLT_GGRPDIFF);
+			Data.Flags &= ~(QuotFilt::fByGoodsOnly|QuotFilt::fByGroupOnly);
+			Data.Flags |= ggd;
+		}
+		GetClusterData(CTL_QUOTFLT_ORDER,     &Data.InitOrder);
+		GetRealRangeInput(this, CTL_QUOTFLT_VALRANGE, &Data.Val);
+		getGroupData(GRP_GOODSFILT, &rec);
+		Data.GoodsGrpID = rec.GoodsGrpID;
+		Data.GoodsID = rec.GoodsID;
+		Data.EffDate = getCtrlDate(CTL_QUOTFLT_EFFDATE);
+		GetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
+		getGroupData(GRP_LOC, &loc_rec);
+		Data.LocList = loc_rec.LocList;
+		if(!Data.QuotKindID)
+			Data.Flags &= ~QuotFilt::fCrosstab;
+		if(Data.Flags & QuotFilt::fOnlyAbsence)
+			Data.Flags &= ~QuotFilt::fAbsence;
+		getCtrlData(CTLSEL_QUOTFLT_SGG, &Data.Sgg); // @v10.1.2
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
@@ -230,7 +300,6 @@ private:
 	const  PPObjQuotKind::Special Spc;
 	const  int Cls;
 	PPID   LastAccSheetID;
-	QuotFilt Data;
 };
 
 IMPL_HANDLE_EVENT(QuotFiltDialog)
@@ -339,82 +408,6 @@ void QuotFiltDialog::SetupCtrls()
 	}
 }
 
-int QuotFiltDialog::setDTS(const QuotFilt * pData)
-{
-	Data = *pData;
-	AddClusterAssocDef(CTL_QUOTFLT_TYPE,  0, PPQuot::clsGeneral);
-	AddClusterAssoc(CTL_QUOTFLT_TYPE,  1, PPQuot::clsSupplDeal);
-	AddClusterAssoc(CTL_QUOTFLT_TYPE,  2, PPQuot::clsMtx);
-	AddClusterAssoc(CTL_QUOTFLT_TYPE,  3, PPQuot::clsMtxRestr);
-	AddClusterAssoc(CTL_QUOTFLT_TYPE,  4, PPQuot::clsPredictCoeff);
-	SetClusterData(CTL_QUOTFLT_TYPE, Data.QkCls);
-	SetupPPObjCombo(this, CTLSEL_QUOTFLT_QK,  PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(1));
-	SetupPPObjCombo(this, CTLSEL_QUOTFLT_CUR, PPOBJ_CURRENCY, Data.CurID, 0);
-	AddClusterAssoc(CTL_QUOTFLT_ALLLOC, 0, QuotFilt::fAllLocations);
-	SetClusterData(CTL_QUOTFLT_ALLLOC, Data.Flags);
-	AddClusterAssoc(CTL_QUOTFLT_ABSENCE, 0, QuotFilt::fOnlyAbsence);
-	AddClusterAssoc(CTL_QUOTFLT_ABSENCE, 1, QuotFilt::fAbsence);
-	SetClusterData(CTL_QUOTFLT_ABSENCE, Data.Flags);
-	AddClusterAssoc(CTL_QUOTFLT_FLAGS, 0, QuotFilt::fCrosstab);
-	SetClusterData(CTL_QUOTFLT_FLAGS, Data.Flags);
-	{
-		long  ggd = CHKXORFLAGS(Data.Flags, QuotFilt::fByGoodsOnly, QuotFilt::fByGroupOnly);
-		AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 0, 0);
-		AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 1, QuotFilt::fByGoodsOnly);
-		AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 2, QuotFilt::fByGroupOnly);
-		SetClusterData(CTL_QUOTFLT_GGRPDIFF, ggd);
-	}
-	AddClusterAssocDef(CTL_QUOTFLT_ORDER, 0, PPViewQuot::OrdByDefault);
-	AddClusterAssoc(CTL_QUOTFLT_ORDER, 1, PPViewQuot::OrdByGoods);
-	AddClusterAssoc(CTL_QUOTFLT_ORDER, 2, PPViewQuot::OrdByArGoods);
-	SetClusterData(CTL_QUOTFLT_ORDER, Data.InitOrder);
-	SetRealRangeInput(this, CTL_QUOTFLT_VALRANGE, &Data.Val);
-	GoodsFiltCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &rec);
-	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	setGroupData(GRP_LOC, &loc_rec);
-	setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate);
-	SetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
-	SetupSubstGoodsCombo(this, CTLSEL_QUOTFLT_SGG, Data.Sgg); // @v10.1.2
-	SetupCtrls();
-	return 1;
-}
-
-int QuotFiltDialog::getDTS(QuotFilt * pData)
-{
-	int    ok = 1;
-	GoodsFiltCtrlGroup::Rec rec;
-	LocationCtrlGroup::Rec loc_rec;
-	getCtrlData(CTLSEL_QUOTFLT_QK,  &Data.QuotKindID);
-	getCtrlData(CTLSEL_QUOTFLT_CUR, &Data.CurID);
-	getCtrlData(CTLSEL_QUOTFLT_CLIENT,    &Data.ArID);
-	GetClusterData(CTL_QUOTFLT_TYPE,      &Data.QkCls);
-	GetClusterData(CTL_QUOTFLT_ALLLOC,    &Data.Flags);
-	GetClusterData(CTL_QUOTFLT_ABSENCE,   &Data.Flags);
-	GetClusterData(CTL_QUOTFLT_FLAGS,     &Data.Flags);
-	{
-		const long ggd = GetClusterData(CTL_QUOTFLT_GGRPDIFF);
-		Data.Flags &= ~(QuotFilt::fByGoodsOnly|QuotFilt::fByGroupOnly);
-		Data.Flags |= ggd;
-	}
-	GetClusterData(CTL_QUOTFLT_ORDER,     &Data.InitOrder);
-	GetRealRangeInput(this, CTL_QUOTFLT_VALRANGE, &Data.Val);
-	getGroupData(GRP_GOODSFILT, &rec);
-	Data.GoodsGrpID = rec.GoodsGrpID;
-	Data.GoodsID = rec.GoodsID;
-	Data.EffDate = getCtrlDate(CTL_QUOTFLT_EFFDATE);
-	GetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
-	getGroupData(GRP_LOC, &loc_rec);
-	Data.LocList = loc_rec.LocList;
-	if(!Data.QuotKindID)
-		Data.Flags &= ~QuotFilt::fCrosstab;
-	if(Data.Flags & QuotFilt::fOnlyAbsence)
-		Data.Flags &= ~QuotFilt::fAbsence;
-	getCtrlData(CTLSEL_QUOTFLT_SGG, &Data.Sgg); // @v10.1.2
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
-
 int SLAPI PPViewQuot::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
@@ -457,9 +450,10 @@ int SLAPI PPViewQuot::CreateCrosstab(int useTa)
 			return p_brw;
 		}
 	private:
-		virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+		virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 		{
-			return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
+			if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
+				P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 		}
 		PPViewQuot * P_V;
 	};
@@ -550,7 +544,7 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 		else if(Filt.QkCls == PPQuot::clsGeneral && Filt.QuotKindID != 0) {
 			uint   i = QuotKindList.getCount();
 			if(i) do {
-				PPID   local_qk_id = QuotKindList.Get(--i).Id;
+				const PPID local_qk_id = QuotKindList.Get(--i).Id;
 				if(local_qk_id != Filt.QuotKindID)
 					QuotKindList.AtFree(i);
 			} while(i);
@@ -1375,7 +1369,7 @@ int SLAPI PPViewQuot::UpdateTempTable(PPID goodsID, int use_ta)
 		return -1;
 }
 
-int SLAPI PPViewQuot::GetTabTitle(long tabID, SString & rBuf)
+void SLAPI PPViewQuot::GetTabTitle(long tabID, SString & rBuf)
 {
 	if(tabID) {
 		LocationTbl::Rec loc_rec;
@@ -1384,11 +1378,8 @@ int SLAPI PPViewQuot::GetTabTitle(long tabID, SString & rBuf)
 		else
 			rBuf.Z().Cat(tabID);
 	}
-	else {
-		// @v9.3.10 PPGetWord(PPWORD_ALLLOCS, 0, rBuf);
-		PPLoadString("allwarehouses", rBuf); // @v9.3.10
-	}
-	return 1;
+	else
+		PPLoadString("allwarehouses", rBuf);
 }
 
 static IMPL_DBE_PROC(dbqf_quotperiod_i)
@@ -1407,8 +1398,7 @@ static IMPL_DBE_PROC(dbqf_quotperiod_i)
 	}
 }
 
-// static
-int PPViewQuot::DynFuncPeriod = 0;
+/*static*/int PPViewQuot::DynFuncPeriod = 0;
 
 DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {

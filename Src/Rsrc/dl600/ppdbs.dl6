@@ -3631,8 +3631,9 @@ table Event {
 	long   GlobalUserID;   // 0 - for all
 	long   ObjType;        // Тип связанного с событием объекта
 	long   ObjID;          // Ид связанного с событием объекта
-	long   Flags;
-	raw    Reserve[32];
+	long   Flags;          // @flags
+	long   EvSubscrID;     // -Ref(PPOBJ_EVENTSUBSCRIPTION) Ид подписки на события, в соответствии с которой была сформирована запись
+	raw    Reserve[28];
 	blob   VT[2048];
 index:
 	ID (unique);

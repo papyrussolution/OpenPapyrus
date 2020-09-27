@@ -653,18 +653,14 @@ DBQuery * SLAPI Crosstab::CreateBrowserQuery()
 	return p_q;
 }
 
-int SLAPI Crosstab::GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+void SLAPI Crosstab::GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 {
-	int    ok = 0;
 	rBuf.Z();
 	if(pVal) {
 		char   temp_buf[256];
-		if(sttostr(typ, pVal, 0, temp_buf)) {
+		if(sttostr(typ, pVal, 0, temp_buf))
 			rBuf = temp_buf;
-			ok = 1;
-		}
 	}
-	return ok;
 }
 
 int SLAPI Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, const SString & rTitle) const
@@ -710,7 +706,8 @@ int SLAPI Crosstab::SetupBrowserCtColumns(BrowserWindow * pBrw) const
 	if(ct_val_count) {
 		SString title_buf;
 		for(uint i = 0; i < ct_val_count; i++) {
-			if(!GetTabTitle(P_CtValList->at(i), P_CtValList->getType(), title_buf))
+			GetTabTitle(P_CtValList->at(i), P_CtValList->getType(), title_buf.Z());
+			if(title_buf.Empty())
 				P_CtValList->itemToString(i, 0, title_buf);
 			Helper_SetupBrowserCtColumn(pBrw, i, title_buf);
 		}

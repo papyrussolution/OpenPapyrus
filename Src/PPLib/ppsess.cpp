@@ -3445,8 +3445,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								SString msg_buf, temp_buf;
 								DBRowId last_sj_rowid; // @v10.4.4
 								PPAdviseEventVector temp_list;
-								PhnSvcChannelStatusPool chnl_status_list; // @v9.8.11
-								PhnSvcChannelStatus chnl_status; // @v9.8.11
+								PhnSvcChannelStatusPool chnl_status_list;
+								PhnSvcChannelStatus chnl_status;
 								PPMqbClient::Envelope mqb_envelop;
 								Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 								BExtQuery * p_q = 0;
@@ -3459,7 +3459,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								SETFLAG(State, stPhnSvc, p_phnsvc_cli);
 								SETFLAG(State, stMqb, p_mqb_cli);
 								// } @v10.6.0
-								THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync)); // @v9.4.9 PPSession::odfDontInitSync
+								THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync));
 								THROW_MEM(P_Sj = new SysJournal);
 								if(use_sj_scan_alg2) {
 									SysJournalTbl::Key0 sjk0;
@@ -3680,10 +3680,10 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							}
 							DbLoginBlock LB;
 							SysJournal * P_Sj;
-							SString PhnSvcLocalUpChannelSymb; // @v9.8.11 Символ канала (каналов), по которым должны регистрироваться события подъема трубки
+							SString PhnSvcLocalUpChannelSymb;   // Символ канала (каналов), по которым должны регистрироваться события подъема трубки
 							SString PhnSvcLocalScanChannelSymb; // @v9.9.12 Символ канала (каналов), события по которым должны регистрироваться
-							PPPhoneServicePacket StartUp_PhnSvcPack; // @v9.8.11
-							PhnSvcChannelStatusPool PhnSvcStP; // @v9.8.11
+							PPPhoneServicePacket StartUp_PhnSvcPack;
+							PhnSvcChannelStatusPool PhnSvcStP;
 							PPMqbClient::InitParam StartUp_MqbParam; // @v10.5.7
 							enum {
 								stPhnSvc = 0x0001, // Устанавливается если при старте потока был инициирован клиент телефонного сервиса
@@ -3694,8 +3694,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						if(_PPConst.UseAdvEvQueue) {
 							int    cycle_ms = 0;
 							SString mqb_domain; // Имя домена для идентификации при обмене через брокера сообщений
-							const PPPhoneServicePacket * p_phnsvc_pack = 0; // @v9.8.11
-							PPPhoneServicePacket ps_pack; // @v9.8.11
+							const PPPhoneServicePacket * p_phnsvc_pack = 0;
+							PPPhoneServicePacket ps_pack; 
 							PPMqbClient::InitParam mqb_init_param; // @v10.5.7
 							PPMqbClient::InitParam * p_mqb_init_param = 0; // @v10.5.7
 							{

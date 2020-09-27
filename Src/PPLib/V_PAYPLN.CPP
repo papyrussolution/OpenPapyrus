@@ -270,9 +270,10 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 				return p_brw;
 			}
 		protected:
-			virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+			virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 			{
-				return (pVal && P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+				if(pVal && P_V) 
+					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 			}
 			PPViewPaymPlan * P_V;
 		};
@@ -388,12 +389,11 @@ void SLAPI PPViewPaymPlan::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
 
-int SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
+void SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
 {
-	int    ok = -1;
 	if(tabID && P_TempTbl) {
-		char buf[64];
-		LDATE dt;
+		char   buf[64];
+		LDATE  dt;
 		dt.v = tabID;
 		memzero(buf, sizeof(buf));
 		if(Filt.Cycl.Cycle) {
@@ -402,9 +402,7 @@ int SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
 		}
 		else
 			rBuf.Z().Cat(dt);
-		ok = 1;
 	}
-	return ok;
 }
 
 int SLAPI PPViewPaymPlan::ViewTotal()

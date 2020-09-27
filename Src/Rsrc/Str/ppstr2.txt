@@ -5402,6 +5402,7 @@ DVCPARAM_CHZNGTIN              "CHZNGTIN"       // @v10.7.2 GTIN марки че
 DVCPARAM_CHZNSERIAL            "CHZNSERIAL"     // @v10.7.2 Серия марки честный знак
 DVCPARAM_CHZNPARTN             "CHZNPARTN"      // @v10.7.8 Номер партии в марке честный знак
 DVCPARAM_CHZNPRODTYPE          "CHZNPRODTYPE"   // @v10.7.2 Тип продукта честный знак
+DVCPARAM_CHZNCID               "CHZNCID"        // @v10.8.12 Ид предприятия для передачи в честный знак
 DVCPARAM_PAYMCCRD              "PAYMCCRD"       // @v10.4.1 Оплата корпоративной кредитной картой
 DVCPARAM_PAYMENTTERMTAG        "PAYMENTTERMTAG" // @v10.4.1
 DVCPARAM_SUBJTERMTAG           "SUBJTERMTAG"    // @erik v10.4.12
@@ -6781,6 +6782,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @event                               "Событие"
 @event_pl                            "События"
 @eventsubscription                   "Подписка на событие"
+@eventsubscription_message           "Текст сообщения"
 @personevent                         "Персональная операция"
 @personevent_pl                      "Персональные операции"
 @port                                "Порт"
@@ -9997,6 +9999,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @draftwroffentry_loc                      "@{warehouse}"
 @draftwroffentry_flags                    "@{flags}"
 
+@dutysched                                "График дежурств"
 @dutysched_flags                          "@{flags}"
 @dutysched_id                             "@{id}"
 @dutysched_name                           "@{appellation}"
@@ -10004,6 +10007,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @dutysched_objtype                        "@{objects}"
 @dutysched_symb                           "@{symbol}"
 @dutysched_tag                            "@{tag}"
+@dutysched_fillstaffcal                   "Заполнить календарь"
+@dutysched_countpointlist                 "Точки отсчета"
+@dutyschedentry                           "Элемент очередности дежурств"
+@dutyschedentry_obj                       "@{object}"
+@dutyschedentry_dtr                       ""
+@dutyschedentry_duration                  ""
 @dynamicobjs_flags                        "@{flags}"
 @dynamicobjs_id                           "@{id}"
 @dynamicobjs_name                         "@{appellation}"
@@ -15356,6 +15365,18 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @eventtype_spcbillchange                      "Специфицированное изменение документа" // 3
 @eventtype_sysjournal                         "Событие системного журнала"            // 4
 @eventtype_lotexpiration                      "Истечение срока годности лота"         // 5
+
+@dvcloadingstatfilt                           "Фильтр по статистике загрузки устройств"
+@dvcloadingstatfilt_dvctype                   "@{devicetype}"
+@dvcloadingstatfilt_dvc                       "@{appellation}"
+@dvcloadingstatfilt_period                    "@{daterange}"
+@dvcloadingstatfilt_flags                     "@{flags}"
+@dvcloadingstatfilt_goodsgrp                  "@{goodsgroup}"
+@dvcloadingstatfilt_goods                     "@{ware}"
+
+@editlot                                      "Изменение лота"
+@editlot_rcptbill                             "Документ прихода"
+@deletelot                                    "Удалить лот"
 
 [121]
 1   "Вход"

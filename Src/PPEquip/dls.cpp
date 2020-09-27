@@ -79,7 +79,7 @@ int SLAPI DeviceLoadingStat::GetLastObjInfo(int dvcType, PPID dvcID, PPID objTyp
 {
 	DlsObjTbl::Key0 k0;
 	MEMSZERO(k0);
-	k0.ObjType = (int16)objType;
+	k0.ObjType = static_cast<int16>(objType);
 	k0.ObjID = objID;
 	k0.DlsID = MAXLONG;
 	while(DlsoT.search(0, &k0, spLt) && k0.ObjType == objType && k0.ObjID == objID) {

@@ -93,11 +93,10 @@ int SLAPI Sync_BillTaxArray::Add(Sync_BillTaxEntry * e)
 
 class SCS_SYNCCASH : public PPSyncCashSession {
 public:
-	SLAPI  SCS_SYNCCASH(PPID n, char * name, char * port);
+	SLAPI  SCS_SYNCCASH(PPID n, char * pName, char * pPort);
 	SLAPI ~SCS_SYNCCASH();
 	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
 	virtual int SLAPI PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
-	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI GetSummator(double * val);
@@ -111,22 +110,18 @@ public:
 	virtual int SLAPI CheckForSessionOver();
 	virtual int SLAPI PrintBnkTermReport(const char * pZCheck);
 
-	// PPCashNode NodeRec;
 	PPAbstractDevice * P_AbstrDvc;
 	StrAssocArray Arr_In;
 	StrAssocArray Arr_Out;
 private:
-	// @v10.3.9 virtual int SLAPI InitChannel() { return 1; }
 	int    SLAPI Connect(int forceKeepAlive = 0);
 	int    SLAPI AnnulateCheck();
 	int    SLAPI CheckForCash(double sum);
-	//int  SLAPI CheckForEKLZOrFMOverflow() { return 1; }
 	int    SLAPI PrintReport(int withCleaning);
 	int	   SLAPI PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
 	int    SLAPI GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArray * pAry, long * pFlags, SString & rName);
 	int    SLAPI AllowPrintOper();
 	void   SLAPI SetErrorMessage();
-	//void SLAPI WriteLogFile(PPID id);
 	void   SLAPI CutLongTail(char * pBuf);
 	void   SLAPI CutLongTail(SString & rBuf);
 	int    SLAPI LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon);
@@ -577,6 +572,11 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			const char * p_format_name = "CCheck";
 			THROW(r = P_SlipFmt->Init(p_format_name, &sdc_param));
 			if(r > 0) {
+				// @v10.8.12 {
+				SString chzn_cid;
+				if(SCn.LocID)
+					PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_cid);
+				// } @v10.8.12 
 				P_SlipFmt->InitIteration(pPack);
 				P_SlipFmt->NextIteration(line_buf, &sl_param);
 				is_format = 1;
@@ -590,6 +590,10 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
+					// @v10.8.12 {
+					if(chzn_cid.NotEmpty())
+						THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_cid)); 
+					// } @v10.8.12 
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 				}
@@ -600,6 +604,10 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
+					// @v10.8.12 {
+					if(chzn_cid.NotEmpty())
+						THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_cid)); 
+					// } @v10.8.12 
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 					PROFILE_START_S("DVCCMD_PRINTTEXT")
@@ -716,7 +724,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					else {
 						PROFILE(CheckForRibbonUsing(sl_param.Flags, Arr_In));
 						PROFILE_START_S("DVCCMD_PRINTTEXT")
-						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf.Trim((sl_param.Font > 1) ? CheckStrLen / 2 : CheckStrLen)));
+						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf.Trim((sl_param.Font > 1) ? (CheckStrLen / 2) : CheckStrLen)));
 						THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, (sl_param.Font == 1) ? DEF_FONTSIZE : sl_param.Font));
 						THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 						PROFILE_END

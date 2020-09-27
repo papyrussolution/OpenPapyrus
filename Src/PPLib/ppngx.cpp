@@ -286,7 +286,7 @@ private:
 		if(DblBlk.GetAttr(DbLoginBlock::attrDbSymb, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 			SString db_symb = temp_buf;
 			if(DblBlk.GetAttr(DbLoginBlock::attrUserName, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-				SString user_name = temp_buf;
+				const SString user_name = temp_buf;
 				DblBlk.GetAttr(DbLoginBlock::attrPassword, temp_buf);
 				login_result = DS.Login(db_symb, user_name, temp_buf, PPSession::loginfSkipLicChecking);
 				temp_buf.Obfuscate();

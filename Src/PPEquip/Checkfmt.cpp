@@ -34,6 +34,7 @@ SlipLineParam & SLAPI SlipLineParam::Z()
 	ChZnCode.Z(); // @v10.6.8
 	ChZnGTIN.Z(); // @v10.7.2
 	ChZnSerial.Z(); // @v10.7.2
+	ChZnCid.Z(); // @v10.8.12
 	return *this;
 }
 //
@@ -149,12 +150,12 @@ public:
 		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 Признак способа расчета (определяется типом товара)
 		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
 		// @v9.5.7 char   PictPath[256];
-		char   Text[256];     // @v9.5.7
-		char   Code[32];      // @v9.5.7
-		char   ChZnCode[64];  // @v10.6.8
-		char   ChZnGTIN[16];  // @v10.7.2
+		char   Text[256];       // @v9.5.7
+		char   Code[32];        // @v9.5.7
+		char   ChZnCode[64];    // @v10.6.8
+		char   ChZnGTIN[16];    // @v10.7.2
 		char   ChZnSerial[32];  // @v10.7.2
-		char   ChZnPartN[32];  // @v10.7.8
+		char   ChZnPartN[32];   // @v10.7.8
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -1487,7 +1488,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 		Goods2Tbl::Rec goods_rec;
 		do {
 			pIter->DivID = 0;
-			pIter->Qtty = pIter->Price = 0.0;
+			pIter->Qtty = 0.0;
+			pIter->Price = 0.0;
 			PTR32(pIter->ChZnCode)[0] = 0; // @v10.7.0
 			PTR32(pIter->ChZnGTIN)[0] = 0;  // @v10.7.2
 			PTR32(pIter->ChZnSerial)[0] = 0;  // @v10.7.2
@@ -1517,9 +1519,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							const double is = RunningTotal - prev_rt;
 							pIter->Qtty  = fabs(cc_item.Quantity);
 							pIter->Price = is / pIter->Qtty;
-							pIter->VatRate = 0.0; // @v9.7.1
+							pIter->VatRate = 0.0;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
-							// @v9.5.7 {
 							pIter->GoodsID = cc_item.GoodsID;
 							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
 							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
@@ -1570,31 +1571,26 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								}
 							}
 							// } @v10.6.12 
-							// } @v9.5.7
 						}
 					}
 					else if(Src == srcGoodsBill) {
 						if(GetCurBillItem(pIter, &ti)) {
 							pIter->Qtty  = R3(fabs(ti.Quantity_));
 							pIter->Price = R2(fabs(ti.NetPrice()));
-							pIter->VatRate = 0.0; // @v9.7.1
-							// @v9.5.7 {
+							pIter->VatRate = 0.0;
 							pIter->GoodsID = labs(ti.GoodsID);
 							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
 								STRNSCPY(pIter->Code, temp_buf);
-								// @v9.7.1 {
 								if(P_Od->GObj.FetchTax(pIter->GoodsID, ti.Date, 0, &tax_entry) > 0)
 									pIter->VatRate = tax_entry.GetVatRate();
-								// } @v9.7.1
 								// @v10.4.1 {
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ADVANCECERT)
 									pIter->Ptt = CCheckPacket::pttAdvance;
 								// } @v10.4.1 
 							}
-							// } @v9.5.7
 						}
 					}
 				}

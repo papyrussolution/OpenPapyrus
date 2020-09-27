@@ -1871,12 +1871,8 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 			p_desk->HandleKeyboardEvent(wParam);
 			return 0;
 		case WM_CHAR:
-			if(wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c) {
-				TEvent event;
-				event.what = TEvent::evKeyDown;
-				event.keyDown.keyCode = wParam;
-				p_desk->handleEvent(event);
-			}
+			if(wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c)
+				TView::messageKeyDown(p_desk, wParam);
 			return 0;
 		// @vmiller {
 		case WM_INPUT:

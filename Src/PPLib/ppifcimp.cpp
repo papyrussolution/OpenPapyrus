@@ -1334,15 +1334,8 @@ int32 DL6ICLS_PPUtil::PersonToObject(int32 personID, int32 accSheetID)
 	return obj_id;
 }
 
-int32 DL6ICLS_PPUtil::ObjectToWarehouse(long articleID)
-{
-	return IfcImpCheckDictionary() ? PPObjLocation::ObjToWarehouse(articleID) : 0;
-}
-
-int32 DL6ICLS_PPUtil::WarehouseToObject(int32 locID)
-{
-	return IfcImpCheckDictionary() ? PPObjLocation::WarehouseToObj(locID) : 0;
-}
+int32 DL6ICLS_PPUtil::ObjectToWarehouse(long articleID) { return IfcImpCheckDictionary() ? PPObjLocation::ObjToWarehouse(articleID) : 0; }
+int32 DL6ICLS_PPUtil::WarehouseToObject(int32 locID) { return IfcImpCheckDictionary() ? PPObjLocation::WarehouseToObj(locID) : 0; }
 
 SString & DL6ICLS_PPUtil::GetObjectName(PpyObjectIdent objType, long objID)
  {

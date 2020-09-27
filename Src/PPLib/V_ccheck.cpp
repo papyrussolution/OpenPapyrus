@@ -209,13 +209,16 @@ public:
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 		{ return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner); }
-	virtual int  SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
-		{ return (pVal && P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0; }
+	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	{ 
+		if(pVal && P_V) 
+			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf); 
+	}
 protected:
 	PPViewCCheck * P_V;
 };
 
-int SLAPI PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
+void SLAPI PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
 {
 	rBuf.Z();
 	if(Filt.CtKind == CCheckFilt::ctDate) {
@@ -223,7 +226,6 @@ int SLAPI PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
 		dt.v = tabID;
 		rBuf.Cat(dt);
 	}
-	return 1;
 }
 
 const BVATAccmArray * PPViewCCheck::GetInOutVATList() const { return P_InOutVATList; }
