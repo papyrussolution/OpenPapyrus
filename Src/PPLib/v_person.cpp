@@ -1503,7 +1503,7 @@ struct ExtRegEntry {
 	int    AttribType;
 };
 
-static SArray * SLAPI CreateExtRegList(PersonFilt * pFilt, PPID * pAttrID, int onlyRegs)
+static SArray * SLAPI CreateExtRegList(const PersonFilt * pFilt, PPID * pAttrID, int onlyRegs)
 {
 	PPID   id = 0, attr_id = 0;
 	SArray * p_ary = 0;
@@ -1578,7 +1578,7 @@ static SArray * SLAPI CreateExtRegList(PersonFilt * pFilt, PPID * pAttrID, int o
 	return p_ary;
 }
 
-static int SLAPI SetupExtRegCombo(TDialog * dlg, uint ctl, PersonFilt * pFilt, int idFromRegFilt, int onlyRegs)
+static int SLAPI SetupExtRegCombo(TDialog * dlg, uint ctl, const PersonFilt * pFilt, int idFromRegFilt, int onlyRegs)
 {
 	int    ok = 1;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
@@ -1780,13 +1780,14 @@ int SLAPI PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutE
 static int SLAPI EditRegFilt(PersonFilt * pFilt)
 {
 	class PersonFiltAdvDialog : public TDialog {
+		DECL_DIALOG_DATA(PersonFilt);
 	public:
 		PersonFiltAdvDialog() : TDialog(DLG_PFLTADVOPT)
 		{
 			SetupCalPeriod(CTLCAL_PFLTADVOPT_REGPRD,    CTL_PFLTADVOPT_REGPRD);
 			SetupCalPeriod(CTLCAL_PFLTADVOPT_EXPIRYPRD, CTL_PFLTADVOPT_EXPIRYPRD);
 		}
-		int setDTS(const PersonFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			Data.Copy(pData, 0);
 			RVALUEPTR(Reg, Data.P_RegF);
@@ -1797,7 +1798,7 @@ static int SLAPI EditRegFilt(PersonFilt * pFilt)
 			SetPeriodInput(this, CTL_PFLTADVOPT_EXPIRYPRD, &Reg.ExpiryPeriod);
 			return 1;
 		}
-		int getDTS(PersonFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTLSEL_PFLTADVOPT_REG, &Reg.RegTypeID);
 			getCtrlString(CTL_PFLTADVOPT_SERIAL, Reg.SerPattern);
@@ -1815,7 +1816,6 @@ static int SLAPI EditRegFilt(PersonFilt * pFilt)
 			return 1;
 		}
 	private:
-		PersonFilt Data;
 		RegisterFilt Reg;
 	};
 	DIALOG_PROC_BODY(PersonFiltAdvDialog, pFilt);

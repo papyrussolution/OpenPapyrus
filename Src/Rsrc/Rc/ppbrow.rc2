@@ -6292,8 +6292,8 @@ browser EVENT north(100), 1, 1, "Events", OWNER|GRID, 0
 {
 	"ID",           0, int32,        0, 10, BCO_USERPROC
 	"Time",         1, zstring(20),  0, 12, BCO_USERPROC
-	"Type",         2, int32,        0, 10, BCO_USERPROC
-	"Status",       3, int32,        0, 10, BCO_USERPROC
+	"Type",         2, zstring(48),  0, 10, BCO_USERPROC
+	"Status",       3, zstring(48),  0, 10, BCO_USERPROC
 	"Object",       4, zstring(128), 0, 10, BCO_USERPROC
 	"Text",         5, zstring(128), 0, 10, BCO_USERPROC
 }

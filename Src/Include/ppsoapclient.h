@@ -896,7 +896,8 @@ struct iSalesTransferStatus {
 		ifcUnkn = 0,
 		ifcOrder,      // ORDS
 		ifcInvoice,    // DOCL
-		ifcReceipt     // DOCS
+		ifcReceipt,    // DOCS
+		ifcReturnReq   // @v10.8.12 VDOC 
 	};
 	int    Ifc;
 	SString Ident; // Идентификатор созданного на принимающей стороне объекта (принимающая стороная отправляет iSalesTransferStatus)
@@ -906,6 +907,7 @@ typedef TSCollection <iSalesGoodsPacket> * (*ISALESGETGOODSLIST_PROC)(PPSoapClie
 typedef TSCollection <iSalesRoutePacket> * (*ISALESGETROUTELIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod);
 typedef TSCollection <iSalesBillPacket>  * (*ISALESGETORDERLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems);
 typedef TSCollection <iSalesBillPacket>  * (*ISALESGETRECEIPTLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems);
+typedef TSCollection <iSalesBillPacket>  * (*ISALESGETVDOCLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems); // @v10.8.12
 typedef TSCollection <iSalesBillDebt>    * (*ISALESGETUNCLOSEDBILLLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod);
 typedef SString * (*ISALESPUTSTOCKCOUNTING_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const TSCollection <iSalesStockCountingWhPacket> * pItems);
 typedef SString * (*ISALESPUTPRICES_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const TSCollection <iSalesPriceListPacket> * pItems);

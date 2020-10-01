@@ -90,6 +90,10 @@ struct json_t {
 	void   FASTCALL AssignText(const SString & rT);
 	int    FASTCALL Insert(const char * pTextLabel, json_t * pValue);
 	int    FASTCALL InsertString(const char * pTextLabel, const char * pStr);
+	int    FASTCALL InsertDouble(const char * pTextLabel, double val, long fmt);
+	int    FASTCALL InsertInt(const char * pTextLabel, int val);
+	int    FASTCALL InsertInt64(const char * pTextLabel, int64 val);
+	int    FASTCALL InsertNull(const char * pTextLabel);
 
 	int    Type; // the type of node
 	SString Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the json_t::tSTRING and JSON_NUMBER node types
@@ -160,13 +164,14 @@ enum json_error json_stream_parse(FILE * file, json_t ** document);
 // @param text the value's text
 // @return a pointer to the newly created JSON string value
 //
-json_t * FASTCALL json_new_string(const char *text);
+json_t * FASTCALL json_new_string(const char * text);
 //
 // Creates a new JSON number and defines it's text. The user is responsible for the number string's correctness
 // @param text the value's number
 // @return a pointer to the newly created JSON string value
 //
-json_t * json_new_number(const char *text);
+json_t * json_new_number(const char * text);
+json_t * json_new_null();
 //
 // Frees the memory appointed to the value fed as the parameter, as well as all the child nodes
 // @param value the root node of the tree being freed

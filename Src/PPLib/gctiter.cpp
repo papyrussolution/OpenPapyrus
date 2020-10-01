@@ -174,7 +174,7 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillRec(const BillTbl::Rec * pRec)
 		PPFreight freight;
 		if(pRec->Flags & BILLF_FREIGHT && P_BObj->P_Tbl->GetFreight(pRec->ID, &freight) > 0) {
 			if(Filt.Flags & OPG_BYZERODLVRADDR) {
-				if(freight.DlvrAddrID != 0)
+				if(freight.DlvrAddrID)
 					return 0;
 			}
 			else if(freight.DlvrAddrID != Filt.DlvrAddrID)

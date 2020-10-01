@@ -945,14 +945,12 @@ int SLAPI GoodsGroupIterator::Init(PPID parentID, long flags)
 	Flags    = flags;
 	IterIndex = 0;
 	List.freeAll();
-
 	int    ok = 1;
 	int    is_excl_alt_fold = 0;
 	const  size_t hs = sizeof(PPID);
 	const  size_t cs =(size_t)GRPCODESIZE;
 	char   code[cs];
 	SString grp_name;
-
 	PPID   upper_parent_id = 0;
 	Goods2Tbl::Key1 k1;
 	Goods2Tbl::Rec  grec;
@@ -1007,15 +1005,13 @@ int SLAPI GoodsGroupIterator::Init(PPID parentID, long flags)
 int SLAPI GoodsGroupIterator::Get(PPID id, SString & rBuf) const
 {
 	rBuf.Z();
-	//
 	uint   pos = 0;
 	if(List.lsearch(&id, &pos, CMPF_LONG)) {
-		rBuf = (const char *)(PTR8(List.at(pos)) + sizeof(PPID) + GRPCODESIZE);
+		rBuf = reinterpret_cast<const char *>(PTR8(List.at(pos)) + sizeof(PPID) + GRPCODESIZE);
 		return 1;
 	}
 	else
 		return -1;
-	//
 	/*
 	for(uint i = 0; i < List.getCount(); i++) {
 		const char * ptr = (const char *)List.at(i);
@@ -1031,8 +1027,8 @@ int SLAPI GoodsGroupIterator::Get(PPID id, SString & rBuf) const
 int SLAPI GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 {
 	if(IterIndex < List.getCount()) {
-		const char * ptr = (const char *)List.at(IterIndex);
-		ASSIGN_PTR(pID, *(PPID *)ptr);
+		const char * ptr = static_cast<const char *>(List.at(IterIndex));
+		ASSIGN_PTR(pID, *reinterpret_cast<const PPID *>(ptr));
 		if(Flags & fSortByCode)
 			(rBuf = ptr + sizeof(PPID)).ShiftLeftChr('@');
 		else
@@ -1072,15 +1068,13 @@ SLAPI PPGoodsReplaceNameParam::PPGoodsReplaceNameParam() : BrandID(0), GoodsGrpI
 {
 }
 
-int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack,
-	const PPGoodsReplaceNameParam * pParam, const char * pFragment, SString & rBuf)
+int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam, const char * pFragment, SString & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket gc_pack;
 	Goods2Tbl::Rec grp_rec;
-
 	PPSymbTranslator st;
 	for(const char * p = pParam->RplcPattern; p && *p;)
 		if(*p == '#') {
@@ -1222,8 +1216,7 @@ int SLAPI PPObjGoods::ReplaceName(PPGoodsPacket * pPack, const PPGoodsReplaceNam
 					if(sj_rec.Action == PPACN_OBJUPD && sj_rec.Extra > 0) {
 						SBuffer buf;
 						PPGoodsPacket hist_pack;
-						//
-						ObjVersioningCore * p_ovc = PPRef->P_OvT; // @v9.8.11
+						ObjVersioningCore * p_ovc = PPRef->P_OvT;
 						if(p_ovc && p_ovc->InitSerializeContext(1)) {
 							PPObjID oid;
 							long   vv = 0;
@@ -1238,17 +1231,6 @@ int SLAPI PPObjGoods::ReplaceName(PPGoodsPacket * pPack, const PPGoodsReplaceNam
 								}
 							}
 						}
-						/* @v9.8.11 else {
-							if(HistGoods->Search(sj_rec.Extra, &buf) > 0) {
-								if(SerializePacket_(0, &hist_pack, &buf)) {
-									if(!sstreq(hist_pack.Rec.Name, pPack->Rec.Name) || !sstreq(hist_pack.Rec.Abbr, pPack->Rec.Abbr)) {
-										STRNSCPY(pPack->Rec.Name, hist_pack.Rec.Name);
-										STRNSCPY(pPack->Rec.Abbr, hist_pack.Rec.Abbr);
-										ok = 1;
-									}
-								}
-							}
-						}*/
 					}
 				}
 			}

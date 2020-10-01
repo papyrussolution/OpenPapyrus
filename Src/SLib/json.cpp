@@ -188,6 +188,12 @@ json_t * json_new_number(const char * pText)
 	return p_new_object;
 }
 
+json_t * json_new_null()
+{
+	json_t * p_new_object = new json_t(json_t::tNULL);
+	return p_new_object;
+}
+
 void FASTCALL json_free_value(json_t ** ppValue)
 {
 	if(ppValue && *ppValue) {
@@ -286,6 +292,32 @@ int FASTCALL json_t::Insert(const char * pTextLabel, json_t * pValue)
 int FASTCALL json_t::InsertString(const char * pTextLabel, const char * pStr)
 {
 	return Insert(pTextLabel, json_new_string(pStr));
+}
+
+int FASTCALL json_t::InsertNull(const char * pTextLabel)
+{
+	return Insert(pTextLabel, json_new_null());
+}
+
+int FASTCALL json_t::InsertDouble(const char * pTextLabel, double val, long fmt)
+{
+	SString temp_buf;
+	temp_buf.Cat(val, fmt);
+	return Insert(pTextLabel, json_new_number(temp_buf));
+}
+
+int FASTCALL json_t::InsertInt(const char * pTextLabel, int val)
+{
+	SString temp_buf;
+	temp_buf.Cat(val);
+	return Insert(pTextLabel, json_new_number(temp_buf));
+}
+
+int FASTCALL json_t::InsertInt64(const char * pTextLabel, int64 val)
+{
+	SString temp_buf;
+	temp_buf.Cat(val);
+	return Insert(pTextLabel, json_new_number(temp_buf));
 }
 
 int FASTCALL json_tree_to_string(const json_t * pRoot, SString & rBuf)

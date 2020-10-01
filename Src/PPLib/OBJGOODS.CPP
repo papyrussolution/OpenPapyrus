@@ -993,21 +993,15 @@ int SLAPI PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 				DBRowId pos;
 				THROW_DB(P_Tbl->getPosition(&pos));
 				if(DoObjVer) {
-					ObjVersioningCore * p_ovc = PPRef->P_OvT; // @v9.8.11
+					ObjVersioningCore * p_ovc = PPRef->P_OvT;
 					if(p_ovc && p_ovc->InitSerializeContext(0)) {
 						SSerializeContext & r_sctx = p_ovc->GetSCtx();
-						PPObjID oid;
 						SBuffer hist_buf;
 						PPGoodsPacket old_pack;
 						THROW(GetPacket(id, &old_pack, 0) > 0);
 						THROW(SerializePacket(+1, &old_pack, hist_buf, &r_sctx, 0));
-						THROW(p_ovc->Add(&hid, oid.Set(Obj, id), &hist_buf, 0));
+						THROW(p_ovc->Add(&hid, PPObjID(Obj, id), &hist_buf, 0));
 					}
-					/* @v9.8.11
-					else if(TLP(HistGoods).IsOpened()) {
-						THROW(SerializePacket_(1, &old_pack, &hist_buf));
-						THROW(HistGoods->Insert(&hid, &hist_buf, 0));
-					}*/
 				}
 				THROW_DB(P_Tbl->getDirectForUpdate(0, 0, pos));
 				P_Tbl->copyBufTo(&rec);
@@ -1263,12 +1257,8 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			}
 			if(!is_new && DoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					PPObjID oid;
-					THROW(p_ovc->Add(&hid, oid.Set(Obj, *pID), &hist_buf, 0));
+					THROW(p_ovc->Add(&hid, PPObjID(Obj, *pID), &hist_buf, 0));
 				}
-				/* @v9.8.11 else if(TLP(HistGoods).IsOpened()) {
-					THROW(HistGoods->Insert(&hid, &hist_buf, 0));
-				}*/
 			}
 			if(!is_removing) {
 				DS.LogAction((is_new ? PPACN_OBJADD : PPACN_OBJUPD), Obj, *pID, hid, 0);
@@ -3411,12 +3401,6 @@ int SLAPI PPObjGoods::ViewVersion(PPID histID)
 			THROW(Helper_Edit(&pack.Rec.ID, &pack, pack.GetPacketKind(), 0, 1));
 			ok = 1;
 		}
-		/* @v9.8.11 else if(TLP(HistGoods).IsOpened()) {
-			THROW(HistGoods->Search(histID, &buf) > 0);
-			THROW(SerializePacket_(0, &pack, &buf));
-			THROW(Helper_Edit(&pack.Rec.ID, &pack, pack.GetPacketKind(), 0, 1));
-			ok = 1;
-		}*/
 	}
 	CATCHZOKPPERR
 	return ok;

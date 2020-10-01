@@ -375,7 +375,7 @@ private:
 		struct Gta {
 			int    GtaOp;
 			PPID   GlobalUserID;
-			PPObjID Oi;
+			PPObjID_Base Oi; // @v10.8.12 PPObjID-->PPObjID_Base
 			long   Count;
 			long   Duration;
 		};
@@ -2249,11 +2249,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							}
 							THROW_PP_S((loc_rec.Flags & LOCF_STANDALONE) || (loc_rec.OwnerID == ObjectToPerson(pack.Rec.Object, 0)), PPERR_DLVRADDNOTOWNEDBYBILLAR,
 								PsnObj.LocObj.MakeCodeString(&loc_rec, 0, temp_buf.Z()));
-							{
-								PPFreight freight;
-								freight.DlvrAddrID = P_SetBlk->U.B.DlvrLocID;
-								pack.SetFreight(&freight);
-							}
+							pack.SetFreight_DlvrAddrOnly(P_SetBlk->U.B.DlvrLocID);
 						}
 						temp_buf = P_SetBlk->U.B.Code;
 						if(temp_buf.NotEmptyS()) {

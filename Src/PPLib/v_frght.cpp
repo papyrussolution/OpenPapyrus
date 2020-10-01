@@ -369,8 +369,7 @@ int SLAPI PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFre
 			pRec->BillID     = pBillRec->ID;
 			pRec->BillDate   = pBillRec->Dt;
 			STRNSCPY(pRec->Code, pBillRec->Code);
-			// @v9.8.4 STRNSCPY(pRec->Memo, pBillRec->Memo);
-			StrPool.AddS(pBillRec->Memo, &pRec->MemoP); // @v9.8.4 
+			StrPool.AddS(pBillRec->Memo, &pRec->MemoP);
 			pRec->LocID      = pBillRec->LocID;
 			pRec->ObjectID   = pBillRec->Object;
 			pRec->Amount     = BR2(pBillRec->Amount);
@@ -382,14 +381,12 @@ int SLAPI PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFre
 			pRec->PortID     = freight.PortOfDischarge;
 			pRec->DlvrAddrID = freight.DlvrAddrID;
 			if(pRec->ShipID && TrObj.Search(pRec->ShipID, &tr_rec) > 0) {
-				// @v9.8.4 STRNSCPY(pRec->ShipName, tr_rec.Name);
-				StrPool.AddS(tr_rec.Name, &pRec->ShipNameP); // @v9.8.4 
+				StrPool.AddS(tr_rec.Name, &pRec->ShipNameP);
 			}
 			if(pRec->PortID && WObj.Fetch(pRec->PortID, &city_rec) > 0)
 				STRNSCPY(pRec->PortName, city_rec.Name);
 			if(pRec->DlvrAddrID) {
-				// @v9.5.5 LocObj.P_Tbl->GetAddress(pRec->DlvrAddrID, 0, temp_buf);
-				LocObj.GetAddress(pRec->DlvrAddrID, 0, temp_buf); // @v9.5.5
+				LocObj.GetAddress(pRec->DlvrAddrID, 0, temp_buf);
 				temp_buf.CopyTo(pRec->DlvrAddr, sizeof(pRec->DlvrAddr));
 			}
 			if(pack.Rec.ID) {

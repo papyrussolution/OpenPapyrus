@@ -555,6 +555,11 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
+		// @v10.8.12 {
+		SString chzn_cid;
+		if(SCn.LocID)
+			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_cid);
+		// } @v10.8.12 
 		THROW(Connect());
 		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(AnnulateCheck());
@@ -572,11 +577,6 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			const char * p_format_name = "CCheck";
 			THROW(r = P_SlipFmt->Init(p_format_name, &sdc_param));
 			if(r > 0) {
-				// @v10.8.12 {
-				SString chzn_cid;
-				if(SCn.LocID)
-					PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_cid);
-				// } @v10.8.12 
 				P_SlipFmt->InitIteration(pPack);
 				P_SlipFmt->NextIteration(line_buf, &sl_param);
 				is_format = 1;
@@ -590,10 +590,6 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
-					// @v10.8.12 {
-					if(chzn_cid.NotEmpty())
-						THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_cid)); 
-					// } @v10.8.12 
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 				}
@@ -604,10 +600,6 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
-					// @v10.8.12 {
-					if(chzn_cid.NotEmpty())
-						THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_cid)); 
-					// } @v10.8.12 
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 					PROFILE_START_S("DVCCMD_PRINTTEXT")
@@ -801,6 +793,12 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(amt_bnk > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk)) }
 			if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
 			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); } // @v10.4.1
+		}
+		{
+			// @v10.8.12 {
+			if(chzn_cid.NotEmpty())
+				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_cid)); 
+			// } @v10.8.12 
 		}
 		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек
 		Flags &= ~sfOpenCheck;

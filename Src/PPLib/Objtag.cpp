@@ -80,7 +80,7 @@ const char * P_ListTagValRestrict = "#LIST";
 	return ok;
 }
 
-int SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf)
+void SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf)
 {
 	rItemBuf.Z();
 	SString temp_buf(pRestrictionString);
@@ -89,7 +89,6 @@ int SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pCo
 	temp_buf = pColorString;
 	if(temp_buf.NotEmptyS() && temp_buf.C(0) == '#')
 		rItemBuf.CatChar('/').Cat(temp_buf);
-	return 1;
 }
 
 /*static*/void FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
@@ -625,7 +624,8 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 		void   SetupTagObjType()
 		{
 			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, PPOBJ_QUOTKIND, PPOBJ_GLOBALUSERACC, 
-				PPOBJ_TAXSYSTEMKIND, PPOBJ_INTERNETACCOUNT, 0); // @v10.0.05 PPOBJ_GLOBALUSERACC // @v10.6.12 PPOBJ_TAXSYSTEMKIND // @v10.7.11 PPOBJ_INTERNETACCOUNT
+				PPOBJ_TAXSYSTEMKIND, PPOBJ_INTERNETACCOUNT, PPOBJ_TRANSPORT, 0); 
+			// @v10.0.05 PPOBJ_GLOBALUSERACC // @v10.6.12 PPOBJ_TAXSYSTEMKIND // @v10.7.11 PPOBJ_INTERNETACCOUNT // @v10.8.12 PPOBJ_TRANSPORT
 			P_ObjTypeList = &LinkObjTypeList;
 			DisableClusterItem(CTL_OBJTAG_TYPE, 7, BIN(!P_ObjTypeList));
 			SetupObjType();
@@ -2741,32 +2741,36 @@ ObjTagCache::ObjTagCache() : AdvCookie(0), P_Items(0), MaxItems(0), MaxTries(8)
 	P_Items = static_cast<Entry *>(SAlloc::C(MaxItems, sizeof(Entry)));
 	if(P_Items) {
 		long   cookie = 0;
-		PPAdviseBlock adv_blk;
-		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
-		adv_blk.Action = PPACN_OBJTAGUPD;
-		adv_blk.DbPathID = DBS.GetDbPathID();
-		adv_blk.ObjType = 0;
-		adv_blk.Proc = ObjTagCache::OnSysJ;
-		adv_blk.ProcExtPtr = this;
-		DS.Advise(&cookie, &adv_blk);
-		//
-		MEMSZERO(adv_blk);
-		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
-		adv_blk.Action = PPACN_OBJTAGADD;
-		adv_blk.DbPathID = DBS.GetDbPathID();
-		adv_blk.ObjType = 0;
-		adv_blk.Proc = ObjTagCache::OnSysJ;
-		adv_blk.ProcExtPtr = this;
-		DS.Advise(&cookie, &adv_blk);
-		//
-		MEMSZERO(adv_blk);
-		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
-		adv_blk.Action = PPACN_OBJTAGRMV;
-		adv_blk.DbPathID = DBS.GetDbPathID();
-		adv_blk.ObjType = 0;
-		adv_blk.Proc = ObjTagCache::OnSysJ;
-		adv_blk.ProcExtPtr = this;
-		DS.Advise(&cookie, &adv_blk);
+		{
+			PPAdviseBlock adv_blk;
+			adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
+			adv_blk.Action = PPACN_OBJTAGUPD;
+			adv_blk.DbPathID = DBS.GetDbPathID();
+			adv_blk.ObjType = 0;
+			adv_blk.Proc = ObjTagCache::OnSysJ;
+			adv_blk.ProcExtPtr = this;
+			DS.Advise(&cookie, &adv_blk);
+		}
+		{
+			PPAdviseBlock adv_blk;
+			adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
+			adv_blk.Action = PPACN_OBJTAGADD;
+			adv_blk.DbPathID = DBS.GetDbPathID();
+			adv_blk.ObjType = 0;
+			adv_blk.Proc = ObjTagCache::OnSysJ;
+			adv_blk.ProcExtPtr = this;
+			DS.Advise(&cookie, &adv_blk);
+		}
+		{
+			PPAdviseBlock adv_blk;
+			adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
+			adv_blk.Action = PPACN_OBJTAGRMV;
+			adv_blk.DbPathID = DBS.GetDbPathID();
+			adv_blk.ObjType = 0;
+			adv_blk.Proc = ObjTagCache::OnSysJ;
+			adv_blk.ProcExtPtr = this;
+			DS.Advise(&cookie, &adv_blk);
+		}
 	}
 	else {
 		MaxItems = 0;
@@ -3124,13 +3128,11 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_rec->ObjTypeID   = PPOBJ_LOT;
 		p_rec->TagGroupID  = 0;
 		const char * p_tag_name = 0;
-		if(id == PPTAG_LOT_CLB)
-			p_tag_name = "LOT_CLB";
-		else if(id == PPTAG_LOT_SN)
-			p_tag_name = "LOT_SERIAL";
-		else
-			p_tag_name = "UNKNOWN";
-
+		switch(id) {
+			case PPTAG_LOT_CLB: p_tag_name = "LOT_CLB"; break;
+			case PPTAG_LOT_SN: p_tag_name = "LOT_SERIAL"; break;
+			default: p_tag_name = "UNKNOWN"; break;
+		}
 		// @v9.9.5 PPStringSetSCD ss;
 		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
 		r_ss.add(p_tag_name);
@@ -3159,17 +3161,13 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_rec->ObjTypeID   = PPOBJ_LOT;
 		p_rec->TagGroupID  = 0;
 		const char * p_tag_name = 0;
-		if(id == PPTAG_BILL_CREATEDTM)
-			p_tag_name = "BILL_CREATEDTM";
-		else if(id == PPTAG_BILL_CREATEDTMEND)
-			p_tag_name = "BILL_CREATEDTMEND";
-		else if(id == PPTAG_BILL_GPSCOORD)
-			p_tag_name = "BILL_GPSCOORD";
-		else if(id == PPTAG_BILL_GPSCOORDEND)
-			p_tag_name = "BILL_GPSCOORDEND";
-		else
-			p_tag_name = "UNKNOWN";
-
+		switch(id) {
+			case PPTAG_BILL_CREATEDTM: p_tag_name = "BILL_CREATEDTM"; break;
+			case PPTAG_BILL_CREATEDTMEND: p_tag_name = "BILL_CREATEDTMEND"; break;
+			case PPTAG_BILL_GPSCOORD: p_tag_name = "BILL_GPSCOORD"; break;
+			case PPTAG_BILL_GPSCOORDEND: p_tag_name = "BILL_GPSCOORDEND"; break;
+			default: p_tag_name = "UNKNOWN"; break;
+		}
 		// @v9.9.5 PPStringSetSCD ss;
 		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
 		r_ss.add(p_tag_name);
@@ -3177,13 +3175,12 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		ok = PutName(r_ss.getBuf(), p_rec);
 	}
 	else if((ok = PPRef->GetItem(PPOBJ_TAG, id, &tag)) > 0) {
-	   	p_rec->Flags       = (int16)tag.Flags;
+	   	p_rec->Flags       = static_cast<int16>(tag.Flags);
 	   	p_rec->LinkObjGrp  = tag.LinkObjGrp;
 		p_rec->TagEnumID   = tag.TagEnumID;
 		p_rec->TagDataType = tag.TagDataType;
 		p_rec->ObjTypeID   = tag.ObjTypeID;
 		p_rec->TagGroupID  = tag.TagGroupID;
-
 		// @v9.9.5 PPStringSetSCD ss;
 		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
 		r_ss.add(tag.Name);

@@ -417,8 +417,8 @@ SLAPI PPThreadLocalArea::~PPThreadLocalArea()
 	PtrVectDim = 0;
 	ZDELETE(P_ExpCtx);
 	ZDELETE(P_IfcCtx);
-	ZDELETE(P_SrDb); // @v9.7.11
-	ZDELETE(P_PhnSvcEvRespr); // @v9.8.12
+	ZDELETE(P_SrDb);
+	ZDELETE(P_PhnSvcEvRespr);
 	ZDELETE(P_MqbEvRespr); // @v10.5.7
 	ZDELETE(P_SysMntnc); // @v10.6.1
 	Sign = 0;
@@ -2199,7 +2199,6 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 	PPThreadLocalArea * p_tla = new PPThreadLocalArea;
 	ENTER_CRITICAL_SECTION
 	TlsSetValue(TlsIdx, p_tla);
-	// @v9.8.9 PPPATH_REPORTDATA
 	static const long common_path_id_list[] = { PPPATH_BIN, PPPATH_LOG, PPPATH_TEMP, PPPATH_SPII, PPPATH_SARTREDB, PPPATH_REPORTDATA, PPPATH_WORKSPACE };
 	for(uint i = 0; i < SIZEOFARRAY(common_path_id_list); i++)
 		MoveCommonPathOnInitThread(common_path_id_list[i]);
@@ -2218,7 +2217,7 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 
 void SLAPI PPSession::ReleaseThread()
 {
-	PPThreadLocalArea * p_tla = (PPThreadLocalArea *)TlsGetValue(TlsIdx);
+	PPThreadLocalArea * p_tla = static_cast<PPThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
 		ThreadList.Remove(p_tla->GetThreadID());
 		delete p_tla;
@@ -2233,16 +2232,11 @@ void SLAPI PPSession::ReleaseThread()
 //
 #define MAX_GETTLA_TRY 5
 
-PPThreadLocalArea & SLAPI PPSession::GetTLA()
-	{ return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
-const PPThreadLocalArea & SLAPI PPSession::GetConstTLA() const
-	{ return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
-int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList)
-	{ return ThreadList.GetInfoList(type, rList); }
-int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo)
-	{ return ThreadList.GetInfo(tId, rInfo); }
-int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem)
-	{ return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
+PPThreadLocalArea & SLAPI PPSession::GetTLA() { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
+const PPThreadLocalArea & SLAPI PPSession::GetConstTLA() const { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
+int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList) { return ThreadList.GetInfoList(type, rList); }
+int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo) { return ThreadList.GetInfo(tId, rInfo); }
+int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem) { return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
 
 int PPSession::SetThreadNotification(int type, const void * pData)
 {
@@ -2444,8 +2438,8 @@ struct _E {
 IMPL_CMPFUNC(_E, i1, i2)
 {
 	int    r = 0;
-	const _E * p_e1 = (const _E *)i1;
-	const _E * p_e2 = (const _E *)i2;
+	const _E * p_e1 = static_cast<const _E *>(i1);
+	const _E * p_e2 = static_cast<const _E *>(i2);
 	if((r = p_e1->MchnID.Cmp(p_e2->MchnID)) > 0)
 		return 1;
 	else if(r < 0)
@@ -4065,7 +4059,7 @@ void SLAPI PPThreadLocalArea::OnLogout()
 		ZDELETE(P_SysJ);
 	}
 	ZDELETE(P_ObjSync);
-	if(Lc.SessionID) // @v9.1.12 @fix
+	if(Lc.SessionID)
 		Sync.LogoutUser(Lc.SessionID);
 	if(SrvSess.GetState() & PPJobSrvClient::stConnected) {
 		SrvSess.Logout();
@@ -5437,7 +5431,7 @@ int PPAdviseEventQueue::Purge()
 					}
 				}
 			}
-			PPAdviseEventVector::Pack(); // @v9.8.11
+			PPAdviseEventVector::Pack();
 		}
 	}
 	return ok;
@@ -5468,6 +5462,20 @@ int SLAPI SysMaintenanceEventResponder::IsConsistent() const
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
 		const double prob_common_mqs_config = 0.000005; // @v10.7.6 0.00001-->0.000005
+		// @v10.8.12 {
+#ifdef NDEBUG
+		const double prob_event_detection   = 0.000020; 
+#else
+		const double prob_event_detection   = 0.020000;
+#endif
+		/* @construction if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_event_detection)) {
+			PROFILE_START
+			PPObjEventSubscription es_obj(0);
+			if(!es_obj.Run())
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+			PROFILE_END 
+		} */
+		// } @v10.8.12 
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_common_mqs_config)) {
 			SString logmsg_buf;
 			LDATETIME last_ev_dtm = ZERODATETIME;

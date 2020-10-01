@@ -3032,8 +3032,7 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 			}
 			else if(event.isCmd(cmObjSyncTab)) {
 				if(P_Pack) {
-					PPObjID oid;
-					ViewObjSyncTab(oid.Set(PPOBJ_BILL, P_Pack->Rec.ID));
+					ViewObjSyncTab(PPObjID(PPOBJ_BILL, P_Pack->Rec.ID));
 				}
 			}
 			else
@@ -3168,15 +3167,12 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
 				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
 			if(P_Pack) {
-				// @v9.1.10 if(oneof2(P_Pack->OprType, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT) && DS.CheckExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE)) {
-				// @v9.1.10 {
 				int    dlvr_loc_as_warehouse = 0;
 				if(oneof2(P_Pack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
 					PPOprKind op_rec;
 					if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_DLVRLOCASWH)
 						dlvr_loc_as_warehouse = 1;
 				}
-				// } @v9.1.10
 				if(dlvr_loc_as_warehouse) {
 					SetupPPObjCombo(this, CTLSEL_FREIGHT_DLVRLOC, PPOBJ_LOCATION, Data.DlvrAddrID, 0);
 				}
@@ -3232,7 +3228,6 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			enableCommand(cmFreightEditDlvrLocList, PersonObj.CheckRights(PPR_MOD));
 			return 1;
 		}
-
 		int getDTS(PPFreight * pData)
 		{
 			int    ok = 1;
@@ -4024,8 +4019,7 @@ IMPL_HANDLE_EVENT(LotInfoDialog)
 	else if(event.isCmd(cmaBack))
 		setupLinkedLot(0);
 	else if(event.isCmd(cmObjSyncTab)) {
-		PPObjID oid;
-		ViewObjSyncTab(oid.Set(PPOBJ_LOT, Data.ID));
+		ViewObjSyncTab(PPObjID(PPOBJ_LOT, Data.ID));
 	}
 	else if(event.isCmd(cmTags)) {
 		ObjTagList tag_list;

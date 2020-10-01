@@ -26,6 +26,21 @@ public:
 		SString CliAccsKey;
 		SString EndPoint; // URL для запросов
 	};
+	struct Error {
+		Error() : Code(0)
+		{
+		}
+		Error & Z()
+		{
+			Code = 0;
+			ErrCode.Z();
+			Message.Z();
+			return *this;
+		}
+		int    Code; // -1 error but numeric code is undefined
+		SString ErrCode; // text code
+		SString Message; // text message
+	};
 	struct MembershipTier {
 		struct Conditions {
 			Conditions() : TotalCashSpent(0.0), EffInvitedCount(0.0)
@@ -37,7 +52,7 @@ public:
 		MembershipTier() : Rate(0.0)
 		{
 		}
-		SString Uid;
+		S_GUID Uid;
 		SString Name;
 		double Rate;
 		Conditions C;
@@ -86,9 +101,9 @@ public:
 		Customer() : Gender(-1), DOB(ZERODATE)
 		{
 		}
-		int   Gender; // 0 - male, 1 - female
-		LDATE DOB;
-		SString Uid;
+		int    Gender; // 0 - male, 1 - female
+		LDATE  DOB;
+		S_GUID Uid;
 		SString Avatar;
 		SString DisplayName;
 		SString Phone;
@@ -121,19 +136,27 @@ public:
 	};
 	enum {
 		tstUndef = 0,
-		tstNormal
+		tstNormal,   // NORMAL
+		tstCanceled, // CANCELED
+		tstReversal  // REVERSAL
 	};
 	struct Transaction {
+		Transaction() : ID(0), Dtm(ZERODATETIME), Action(tactUndef), State(tstUndef), Points(0.0), Cash(0.0), Total(0.0), SkipLoyaltyTotal(0.0)
+		{
+		}
 		int64  ID;
 		LDATETIME Dtm;
 		int    Action; // tactXXX
 		int    State;  // tstXXX
+		SString Code;       // При создании транзакции: код, сканируемый с телефона 
+		SString BillNumber; // При создании транзакции: номер чека или документа
 		Customer Cust;
 		Ref    Cashier;
 		Ref    Branch;
 		double Points;
 		double Cash;
 		double Total;
+		double SkipLoyaltyTotal; // При создании транзакции: A part of the bill amount for which cashback is not credited and to which the discount does not apply (in currency units).
 	};
 	struct FindCustomerParam {
 		FindCustomerParam() : Total(0.0), SkipLoyaltyTotal(0.0), Flags(0)
@@ -152,6 +175,15 @@ public:
 	SLAPI  UdsGameInterface();
 	SLAPI ~UdsGameInterface();
 	int    SLAPI Setup(PPID guaID);
+	//
+	// Descr: Возвращает !0 если последний метод обращения к серверу завершился ошибкой.
+	//   По ссылке rErr возвращает состояние последней ошибки.
+	//
+	int    SLAPI IsError(Error & rErr) const
+	{
+		rErr = LastErr;
+		return BIN(LastErr.Code);
+	}
 	int    SLAPI GetSettings(Settings & rResult);        // GET https://api.uds.app/partner/v2/settings
 	int    SLAPI GetTransactionList(); // GET  https://api.uds.app/partner/v2/operations
 	int    SLAPI GetTransactionInformation(); // GET  https://api.uds.app/partner/v2/operations
@@ -169,11 +201,13 @@ public:
 	int    SLAPI GetPriceItemInformation(); // GET -s https://api.uds.app/partner/v2/goods/<id>
 private:
 	void   SLAPI PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
+	int    SLAPI ReadError(const json_t * pJs, Error & rErr) const;
 	int    SLAPI ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const;
 	int    SLAPI ReadCustomer(const json_t * pJs, Customer & rC) const;
 	int    SLAPI ReadParticipant(const json_t * pJs, Participant & rP) const;
 	int    SLAPI ReadPurchase(const json_t * pJs, Purchase & rP) const;
 	InitBlock Ib;
+	Error LastErr;
 };
 
 SLAPI UdsGameInterface::UdsGameInterface()
@@ -239,6 +273,51 @@ void SLAPI UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 	}
 }
 
+int SLAPI UdsGameInterface::ReadError(const json_t * pJs, Error & rErr) const
+{
+	int    ok = -1;
+	const  json_t * p_cur = pJs;
+	if(json_t::IsObject(p_cur)) {
+		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("errorCode")) {
+				rErr.ErrCode = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				if(rErr.ErrCode.IsEqiAscii("notFound")) {
+					rErr.Code = 404;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("badRequest")) {
+					rErr.Code = 400;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("invalidChecksum")) {
+					rErr.Code = 400;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("withdrawNotPermitted")) {
+					rErr.Code = 400;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("insufficientFunds")) {
+					rErr.Code = 400;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("priceListOnly")) {
+					rErr.Code = 400;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("purchaseByPhoneDisabled")) {
+					rErr.Code = 400;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("cashierNotFound")) {
+					rErr.Code = 404;
+				}
+				else if(rErr.ErrCode.IsEqiAscii("receiptExists")) {
+					rErr.Code = 409;
+				}
+				ok = 1;
+			}
+			else if(p_cur->Text.IsEqiAscii("message")) {
+				rErr.Message = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI UdsGameInterface::ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const
 {
 	int    ok = 1;
@@ -246,7 +325,10 @@ int SLAPI UdsGameInterface::ReadMembershipTier(const json_t * pJs, MembershipTie
 	if(p_cur->Type == json_t::tOBJECT) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("uid")) {
-				rT.Uid = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				if(json_t::IsString(p_cur->P_Child))
+					rT.Uid.FromStr(p_cur->P_Child->Text);
+				else
+					rT.Uid.Z();
 			}
 			else if(p_cur->Text.IsEqiAscii("name")) {
 				rT.Name = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
@@ -273,6 +355,7 @@ int SLAPI UdsGameInterface::ReadMembershipTier(const json_t * pJs, MembershipTie
 
 int SLAPI UdsGameInterface::GetSettings(Settings & rResult)
 {
+	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
 	SString log_buf;
@@ -299,8 +382,12 @@ int SLAPI UdsGameInterface::GetSettings(Settings & rResult)
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					json_t * p_cur = p_js_doc;
-					if(json_t::IsObject(p_cur)) {
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
+							ok = 1;
 							if(p_cur->Text.IsEqiAscii("id")) {
 								rResult.ID = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
 							}
@@ -375,7 +462,10 @@ int SLAPI UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) cons
 	if(p_cur->Type == json_t::tOBJECT) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("uid")) {
-				rC.Uid = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
+				if(json_t::IsString(p_cur->P_Child))
+					rC.Uid.FromStr(p_cur->P_Child->Text);
+				else
+					rC.Uid.Z();
 			}
 			else if(p_cur->Text.IsEqiAscii("phone")) {
 				rC.Phone = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
@@ -499,6 +589,7 @@ int SLAPI UdsGameInterface::ReadPurchase(const json_t * pJs, Purchase & rP) cons
 
 int SLAPI UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // GET https://api.uds.app/partner/v2/customers/<id>
 {
+	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
 	SString log_buf;
@@ -536,7 +627,8 @@ int SLAPI UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // G
 
 int SLAPI UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET https://api.uds.app/partner/v2/customers
 {
-	int    ok = 1;
+	LastErr.Z();
+	int    ok = -1;
 	SString temp_buf;
 	SString log_buf;
 	SString url_buf;
@@ -562,9 +654,13 @@ int SLAPI UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) /
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					json_t * p_cur = p_js_doc;
-					if(json_t::IsObject(p_cur)) {
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Text.IsEqiAscii("rows")) {
+								ok = 1;
 								if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tARRAY) {
 									for(json_t * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
 										Customer * p_new_cust = rResult.CreateNewItem();
@@ -587,6 +683,7 @@ int SLAPI UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) /
 
 int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, SString & rCode, Purchase & rPurchase)  // GET https://api.uds.app/partner/v2/customers/find
 {
+	LastErr.Z();
 	int    ok = 1;
 	/*
 		curl -H 'Accept: application/json' \
@@ -630,7 +727,10 @@ int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer 
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					json_t * p_cur = p_js_doc;
-					if(json_t::IsObject(p_cur)) {
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Text.IsEqiAscii("user")) {
 								ReadCustomer(p_cur, rC);
@@ -641,6 +741,7 @@ int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer 
 							else if(p_cur->Text.IsEqiAscii("purchase")) {
 								ReadPurchase(p_cur->P_Child, rPurchase);
 							}
+							ok = 1;
 						}
 					}
 				}
@@ -652,7 +753,7 @@ int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer 
 	return ok;
 }
 
-int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & pReplyT)  // POST https://api.uds.app/partner/v2/operations
+int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rReplyT)  // POST https://api.uds.app/partner/v2/operations
 {
 	/*
 	{
@@ -675,24 +776,72 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 		}
 	}
 	*/
+	LastErr.Z();
 	int    ok = 1;
 	SString temp_buf;
 	SString log_buf;
 	SString url_buf;
 	SString json_buf;
 	json_t * p_js_doc = 0;
+	json_t * p_json_req = 0;
 	ScURL c;
+	S_GUID tra_guid;
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
 	SFile wr_stream(ack_buf, SFile::mWrite);
 	PrepareHtmlFields(hdr_flds);
 	{
+		p_json_req = new json_t(json_t::tOBJECT);
+		if(rT.Code.NotEmpty())
+			p_json_req->InsertString("code", rT.Code);
+		if(rT.Cust.Phone.NotEmpty() || !!rT.Cust.Uid) {
+			json_t * p_js_participant = new json_t(json_t::tOBJECT);
+			if(!!rT.Cust.Uid) {
+				rT.Cust.Uid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+				p_js_participant->InsertString("uid", temp_buf);
+			}
+			else
+				p_js_participant->InsertNull("uid");
+			if(rT.Cust.Phone.NotEmpty())
+				p_js_participant->InsertString("phone", rT.Cust.Phone);
+			else
+				p_js_participant->InsertNull("phone");
+			p_json_req->Insert("participant", p_js_participant);
+		}
+		else
+			p_json_req->InsertNull("participant");
+		tra_guid.Generate();
+		tra_guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+		p_json_req->InsertString("nonce", temp_buf);
+		if(rT.Cashier.ID || rT.Cashier.Name.NotEmpty()) {
+			json_t * p_js_cashier = new json_t(json_t::tOBJECT);
+			if(rT.Cashier.ID) {
+				temp_buf.Z().Cat(rT.Cashier.ID);
+				p_js_cashier->InsertString("externalId", temp_buf);
+			}
+			if(rT.Cashier.Name.NotEmpty()) {
+				p_js_cashier->InsertString("name", rT.Cashier.Name);
+			}
+			p_json_req->Insert("cashier", p_js_cashier);
+		}
+		{
+			json_t * p_js_receipt = new json_t(json_t::tOBJECT);
+			p_js_receipt->InsertDouble("total", rT.Total, MKSFMTD(0, 2, 0));
+			p_js_receipt->InsertDouble("cash", rT.Cash, MKSFMTD(0, 2, 0));
+			p_js_receipt->InsertDouble("points", rT.Points, MKSFMTD(0, 2, 0));
+			p_js_receipt->InsertString("number", rT.BillNumber);
+			p_js_receipt->InsertDouble("skipLoyaltyTotal", rT.SkipLoyaltyTotal, MKSFMTD(0, 2, 0));
+			p_json_req->Insert("receipt", p_js_receipt);
+		}
+		THROW_SL(json_tree_to_string(p_json_req, json_buf));
+	}
+	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("operations"));
 		PPGetFilePath(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf);
 		SFile f_out_log(temp_buf, SFile::mAppend);
-		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
+		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
 		f_out_log.WriteLine(log_buf.CR());
-		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, 0/*body*/, &wr_stream));
+		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
@@ -701,17 +850,57 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 				f_out_log.WriteLine(log_buf.CR().CR());
 				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
 					json_t * p_cur = p_js_doc;
-					if(json_t::IsObject(p_cur)) {
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Text.IsEqiAscii("oneOf")) {
-								/*if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tARRAY) {
+								ok = 1;
+								if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tARRAY) {
 									for(json_t * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
-										Customer * p_new_cust = rResult.CreateNewItem();
-										if(p_new_cust) {
-											ReadCustomer(p_item, *p_new_cust);
+										if(p_item->Text.IsEqiAscii("id")) {
+											rReplyT.ID = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToInt64() : 0;
+										}
+										else if(p_item->Text.IsEqiAscii("dateCreated")) {
+										}
+										else if(p_item->Text.IsEqiAscii("action")) {
+											if(json_t::IsString(p_item->P_Child)) {
+												if(p_item->P_Child->Text.IsEqiAscii("PURCHASE")) {
+													rReplyT.Action = tactPurchase;
+												}
+											}
+										}
+										else if(p_item->Text.IsEqiAscii("state")) {
+											if(json_t::IsString(p_item->P_Child)) {
+												if(p_item->P_Child->Text.IsEqiAscii("NORMAL"))
+													rReplyT.State = tstNormal;
+												else if(p_item->P_Child->Text.IsEqiAscii("CANCELED"))
+													rReplyT.State = tstCanceled;
+												else if(p_item->P_Child->Text.IsEqiAscii("REVERSAL"))
+													rReplyT.State = tstReversal;
+											}
+										}
+										else if(p_item->Text.IsEqiAscii("points")) {
+											rReplyT.Points = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
+										}
+										else if(p_item->Text.IsEqiAscii("cash")) {
+											rReplyT.Cash = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
+										}
+										else if(p_item->Text.IsEqiAscii("total")) {
+											rReplyT.Total = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
+										}
+										else if(p_item->Text.IsEqiAscii("customer")) {
+											ReadCustomer(p_item, rReplyT.Cust);
+										}
+										else if(p_item->Text.IsEqiAscii("cashier")) {
+										}
+										else if(p_item->Text.IsEqiAscii("branch")) {
+										}
+										else if(p_item->Text.IsEqiAscii("origin")) {
 										}
 									}
-								}*/
+								}
 							}
 						}
 					}
@@ -720,6 +909,8 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 		}
 	}
 	CATCHZOK
+	delete p_js_doc;
+	delete p_json_req;
 	return ok;
 }
 
@@ -732,17 +923,35 @@ int SLAPI TestUdsInterface()
 		TSCollection <UdsGameInterface::Customer> cust_list;
 		ifc.GetSettings(s);
 		{
-			// 1099540994296
-			// +79142706592 
-			// 4f678ec3-3888-4650-af52-efa30db5699a
-			UdsGameInterface::FindCustomerParam fcp;
+			const char * p_code = "748470";
+			int fcr = 0;
 			SString cust_code;
 			UdsGameInterface::Customer cust;
 			UdsGameInterface::Purchase cust_purch;
-			fcp.Code = "259842";
-			//fcp.Phone = "+79142706592";
-			//fcp.Uid.FromStr("4f678ec3-3888-4650-af52-efa30db5699a");
-			ifc.FindCustomer(fcp, cust, cust_code, cust_purch);
+			{
+				// 1099540994296
+				// +79142706592 
+				// 4f678ec3-3888-4650-af52-efa30db5699a
+				UdsGameInterface::FindCustomerParam fcp;
+				fcp.Code = p_code;
+				//fcp.Phone = "+79142706592";
+				//fcp.Uid.FromStr("4f678ec3-3888-4650-af52-efa30db5699a");
+				fcr = ifc.FindCustomer(fcp, cust, cust_code, cust_purch);
+			}
+			if(fcr > 0) {
+				UdsGameInterface::Transaction t;
+				UdsGameInterface::Transaction reply_t;
+				t.Code = p_code;
+				t.Cust.Uid = cust.Uid;
+				t.BillNumber = "CC-TEST-307";
+				t.Cashier.ID = 101;
+				t.Cashier.Name = "Nicole";
+				t.Total = 500.0;
+				t.Cash = 500.0;
+				t.Points = 0.0;
+				t.SkipLoyaltyTotal = 0.0;
+				ifc.CreateTransaction(t, reply_t);
+			}
 		}
 		ifc.GetCustomerList(cust_list);
 		{

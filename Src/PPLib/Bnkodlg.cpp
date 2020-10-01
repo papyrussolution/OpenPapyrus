@@ -338,7 +338,7 @@ int BankingOrderDialog::setDTS(const PPBankingOrder * pData)
 {
 	int    ok = 1;
 	ushort v = 0;
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	setCtrlUInt16(CTL_BNKPAYM_WHAT, BIN(Data.Flags & BNKPAYMF_REQ));
 	setCtrlUInt16(CTL_BNKPAYM_ACCEPT, BIN(Data.Flags & BNKPAYMF_WOACCEPT));
 	setCtrlData(CTL_BNKPAYM_DT, &Data.Dt);

@@ -2953,8 +2953,8 @@ int SLAPI PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket 
 			}
 			{
 				SXml::WNode n_sg2(_doc, "SG2");
-				if(rPack.P_Freight && rPack.P_Freight->DlvrAddrID) {
-					THROW(P_Pi->GetLocGLN(rPack.P_Freight->DlvrAddrID, temp_buf));
+				if(rPack.GetDlvrAddrID()) {
+					THROW(P_Pi->GetLocGLN(rPack.GetDlvrAddrID(), temp_buf));
 				}
 				else {
 					THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf));
@@ -3848,9 +3848,9 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWrit
 				temp_dtm.Set(rBp.Rec.DueDate, ZEROTIME);
 				n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 			}
-			if(r_org_pack.P_Freight && r_org_pack.P_Freight->DlvrAddrID) {
+			if(r_org_pack.GetDlvrAddrID()) {
 				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, r_org_pack.P_Freight->DlvrAddrID));
+				THROW(WriteOwnFormatContractor(_doc, 0, r_org_pack.GetDlvrAddrID()));
 			}
 			{
 				SXml::WNode n_i2(_doc, "shipFrom");
@@ -3995,9 +3995,9 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 				SXml::WNode n_i2(_doc, "shipFrom");
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
 			}
-			if(rBp.P_Freight && rBp.P_Freight->DlvrAddrID) {
+			if(rBp.GetDlvrAddrID()) {
 				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
+				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
 			}
 		}
 		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
@@ -4145,9 +4145,9 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWr
 				SXml::WNode n_i2(_doc, "shipFrom");
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
 			}
-			if(rBp.P_Freight && rBp.P_Freight->DlvrAddrID) {
+			if(rBp.GetDlvrAddrID()) {
 				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
+				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
 			}
 		}
 		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
@@ -4346,9 +4346,9 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 				SXml::WNode n_i2(_doc, "shipFrom");
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
 			}
-			if(rBp.P_Freight && rBp.P_Freight->DlvrAddrID) {
+			if(rBp.GetDlvrAddrID()) {
 				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
+				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
 			}
 		}
 		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--номер промоакции-->

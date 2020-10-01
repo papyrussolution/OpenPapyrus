@@ -415,6 +415,7 @@ struct TimeSeries_OptEntryList_Graph_Param;
 class  UhttTagItem;
 struct GravityValue;
 struct GravityErrorDescription;
+class  PPObjEventSubscription;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1331,6 +1332,7 @@ public:
 	static int IdGetAgrmntSymbol;   // @vmiller
 	static int IdBillAgentName;     // (billID) Наименование агента по документу (извлекается из записи расширения документа)
 	static int IdRegisterText;      // (registerID) Текст описания регистрационного документа
+	static int IdObjRegisterText;   // (registerTypeID, objtype, objid) Текст описания регистрационного документа типа registerTypeID полученного по объекту {objtype, objid}
 	static int IdObjTagText;        // (tagid, objid) Текстовое представление тега объекта
 	static int IdObjTagText_NoCache; // (tagid, objid) Текстовое представление тега объекта (без посредничества кэша)
 	static int IdDateRange;         // (low, upp) Текстовое представление периода
@@ -1855,15 +1857,16 @@ int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
 //
 //
 //
-struct PPObjID { // @flat
-	PPObjID Set(PPID objType, PPID objID);
-	PPObjID & Z();
+class PPObjID_Base { // @flat @noctr
+public:
+	PPObjID_Base SLAPI Set(PPID objType, PPID objID);
+	PPObjID_Base & SLAPI Z();
 	int    SLAPI IsZero() const;
 	int    SLAPI IsEqual(PPID objType, PPID objID) const;
-	int    FASTCALL operator == (PPObjID s) const;
-	int    FASTCALL operator != (PPObjID s) const;
+	int    FASTCALL operator == (PPObjID_Base s) const;
+	int    FASTCALL operator != (PPObjID_Base s) const;
 	operator double() const;
-	PPObjID & FASTCALL operator = (double);
+	PPObjID_Base & FASTCALL operator = (double);
 	//
 	// GOODS(1204)
 	//
@@ -1874,7 +1877,23 @@ struct PPObjID { // @flat
 	PPID   Id;
 };
 
-class PPObjIDArray : public TSVector <PPObjID> { // @v9.8.4 TSArray-->TSVector
+class PPObjID : public PPObjID_Base { // @flat
+public:
+	SLAPI  PPObjID();
+	SLAPI  PPObjID(const PPObjID_Base & rS);
+	SLAPI  PPObjID(PPID objType, PPID objID);
+	PPObjID & FASTCALL operator = (const PPObjID_Base & rS);
+};
+//
+// Descr: Специализированная структура, используемая для индексации наименований
+//   объектов данных в строковых пулах.
+//
+struct PPObjNamePEntry : public PPObjID {
+	SLAPI  PPObjNamePEntry(PPID objType, PPID objID);
+	uint   NameP;
+};
+
+class PPObjIDArray : public TSVector <PPObjID> { 
 public:
 	friend class PPObjectTransmit;
 	SLAPI  PPObjIDArray();
@@ -1892,8 +1911,7 @@ private:
 //
 // ObjRestrictArray
 //
-// Descr: Список, позволяющий хранить список ссылок на объекты
-//   с дополнительными флагами. Тип объектов определяется неявно
+// Descr: Список, позволяющий хранить ссылки на объекты с дополнительными флагами. Тип объектов определяется неявно
 //   использующим контекстом.
 //   Используется в правах доступа, обобщенных объектах и др.
 // @todo DATE:12/06/2004 Объединить с LAssocArray
@@ -1905,7 +1923,7 @@ struct ObjRestrictItem { // @flat
 	long   Flags;
 };
 
-class ObjRestrictArray : public TSVector <ObjRestrictItem> { // @v9.8.4 TSArray-->TSVector
+class ObjRestrictArray : public TSVector <ObjRestrictItem> {
 public:
 	SLAPI  ObjRestrictArray();
 	SLAPI  ObjRestrictArray(const ObjRestrictArray &);
@@ -1948,8 +1966,8 @@ private:
 #define PPORF_INHERITED 0x4000 // Структура унаследована от вышестоящего объекта
 #define PPORF_DEFAULT   0x8000 // Права установлены по умолчанию (не из БД)
 //
-// @v1.9.7
-// Variable length struct
+// Descr: Дескриптор прав доступа по объекту данных 
+// Note: Variable length struct
 //
 class ObjRights { // @persistent
 public:
@@ -2934,8 +2952,8 @@ public:
 	long   Flags;               // @flags
 	StrAssocArray TagsRestrict; // @anchor
 private:
-	static int SLAPI ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf);
-	static int SLAPI MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf);
+	static int  SLAPI ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf);
+	static void SLAPI MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf);
 	int   SLAPI Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, long restrictVal) const;
 };
 //
@@ -6440,8 +6458,8 @@ private:
 	PtrEntry * P_PtrVect;
 	ErrContext * P_ErrCtx;
 	PPThread * P_AeqThrd;
-	SrDatabase * P_SrDb; // @v9.7.11
-	PhoneServiceEventResponder * P_PhnSvcEvRespr; // @v9.8.12
+	SrDatabase * P_SrDb; 
+	PhoneServiceEventResponder * P_PhnSvcEvRespr; 
 	MqbEventResponder * P_MqbEvRespr; // @v10.5.7
 	SysMaintenanceEventResponder * P_SysMntnc; // @v10.6.1
 public:
@@ -6637,9 +6655,9 @@ struct PPAdviseBlock {
 		evWaitMsg,              // Оповещать о вызове PPWaitMsg или PPWaitPercent
 		evQuartz,               // Оповещать через секундные интервалы
 		evTSessChanged,         // Оповещать об изменениях технологических сессий
-		evPsnEvChanged,         // @v8.0.3  Оповещать об изменениях персональных операций
-		evPhoneRinging,         // @v9.8.11 Телефонный сервис: звонит телефон
-		evPhoneUp,              // @v9.8.11 Телефонный сервис: поднята телефонная трубка
+		evPsnEvChanged,         // Оповещать об изменениях персональных операций
+		evPhoneRinging,         // Телефонный сервис: звонит телефон
+		evPhoneUp,              // Телефонный сервис: поднята телефонная трубка
 		evConfigChanged,        // @v10.3.1 Оповещать об изменениях конфигураций
 		evMqbMessage            // @v10.5.7 Принято сообщение от брокера сообщений
 	};
@@ -6651,8 +6669,7 @@ struct PPAdviseBlock {
 		// Если Kind==evDirtyCacheBySysJ, то Action = ACN_XXX, если Kind==evPPObjMsg, то Action = DBMSG_XXX
 	PPID   ObjType;    // Тип объекта PPObject, которому соответствует событие Action
 	long   Flags;
-	// @v8.5.3 long   ProcExtVal; // Значение, передаваемое функции Proc при извещении о возникновении события //
-	void * ProcExtPtr; // @v8.5.3 Значение, передаваемое функции Proc при извещении о возникновении события //
+	void * ProcExtPtr; // Значение, передаваемое функции Proc при извещении о возникновении события //
 	PPAdviseProc Proc; // Процедура, которая должна быть вызвана в ответ на событие Action с типом объекта ObjType.
 };
 //
@@ -8684,6 +8701,12 @@ public:
 	//
 	int    SLAPI SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList);
 	//
+	// Descr: Ищет первый встреченный регистр типа regID по объекту oid.
+	// Note: Конкретному объекту может принадлежать более одного регистра заданного типа. Эта функция вернет только первый из них.
+	//   Справедливости ради надо сказать, что множественные комбинации такого вида встречаются не часто.
+	//
+	int    SLAPI SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec);
+	//
 	// Descr: Функция аналогичная Add(), но с безусловным разрешением на дублирование номеров.
 	// Note: @really private Не следует использовть иначе, как в экстренных случаях, требущих
 	//   низкоуровневого вмешательства в управляемую уникальность нумерации в обход PPObjRegisterType
@@ -10028,7 +10051,7 @@ struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL
 	//   При расчете используется список pCreditList, хранящий информацию о движении по кредиту.
 	//   Результат возвращается по указателю pAmount.
 	//
-	int    SLAPI CalcPercent(LDATE begDt, LDATE chargeDt, const PctChargeArray * pCreditList, double * pAmount) const;
+	double SLAPI CalcPercent(LDATE begDt, LDATE chargeDt, const PctChargeArray * pCreditList) const;
 	enum {
 		fClosed  = 0x0001, // Закрытый договор
 		fPercent = 0x0010  // Процентные начисления по ренте
@@ -10142,8 +10165,7 @@ struct PPFreight {         // @persistent @store(PropertyTbl)
 	PPID   ID;             // ->Bill.ID
 	PPID   PropID;         // Const=BILLPRP_FREIGHT
 	char   Name[20];       //
-	PPID   StorageLocID;   // Место хранения. Если весь документ (например, инвентаризация) ассоциирован
-		// с одним местом хранения, то здесь оно может быть указано
+	PPID   StorageLocID;   // Место хранения. Если весь документ (например, инвентаризация) ассоциирован с одним местом хранения, то здесь оно может быть указано
 	char   Reserve[2];     // @reserve
 	PPID   DlvrAddrID;     // ->Location.ID Адрес разгрузки
 	int16  NmbOrigsBsL;    // Количество печатаемых оригиналов коносаментов
@@ -10401,6 +10423,8 @@ public:
 	//
 	int    FASTCALL GetFreight(PPFreight * pFreight) const;
 	int    FASTCALL SetFreight(const PPFreight * pFreight);
+	int    FASTCALL SetFreight_DlvrAddrOnly(PPID dlvrAddrID);
+	PPID   SLAPI GetDlvrAddrID() const;
 
 	BillTbl::Rec Rec;
 	AmtList      Amounts;
@@ -10920,6 +10944,13 @@ public:
 	// Descr: Устанавливает дополнительную статью в пакет документа (Rec.Object2). Выполняет все необходимые проверки.
 	//
 	int    SLAPI SetupObject2(PPID arID);
+	//
+	// Descr: Устанавливает в пакете специальные атрибуты, зависящие от EDI-источника документа:
+	//   -- вид EDI операции (PPEDIOP_XXX)
+	//   -- дескриптор EDI-канала (PPTAG_BILL_EDICHANNEL)
+	//   -- EDI-идентификатор документа (PPTAG_BILL_EDIIDENT)
+	//
+	void   SLAPI SetupEdiAttributes(int ediOp, const char * pEdiChannel, const char * pEdiIdent);
 	LDATE  SLAPI CalcDefaultPayDate(int paymTerm, long paymDateBase) const;
 	int    SLAPI SetupDefaultPayDate(int paymTerm, long paymDateBase);
 	//
@@ -13234,6 +13265,7 @@ public:
 // Класс, управляющий таблицами технологических сессий.
 //
 struct TSessGoodsTotal {
+	SLAPI  TSessGoodsTotal();
 	long   Count;
 	double Qtty;
 	double PhQtty;
@@ -16194,9 +16226,9 @@ public:
 	ObjIdListFilt UserList;
 };
 
-class PPObjEventSubcription : public PPObjReference { // PPOBJ_EVENTSUBSCRIPTION
+class PPObjEventSubscription : public PPObjReference { // PPOBJ_EVENTSUBSCRIPTION
 public:
-	explicit SLAPI PPObjEventSubcription(void * extraPtr);
+	explicit SLAPI PPObjEventSubscription(void * extraPtr);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	int    SLAPI EditDialog(PPEventSubscriptionPacket * pPack);
 	int    SLAPI SerializePacket(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -16241,6 +16273,7 @@ class PPViewEvent : public PPView {
 public:
 	struct BrwItem : public EventViewItem { // @flat
 		uint   TextP;
+		uint   ObjNameP;
 	};
 	SLAPI  PPViewEvent();
 	SLAPI ~PPViewEvent();
@@ -16257,13 +16290,16 @@ private:
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI MakeList(PPViewBrowser * pBrw);
 
 	PPEventCore T;
 	SArray * P_DsList;
+	ObjCollection * P_ObjColl;
 	SStrGroup StrPool;
 	EventFilt Filt;
+	TSVector <PPObjNamePEntry> ObjNameList;
 };
 //
 // Descr: Объект данных, представляющий типы системных событий.
@@ -18293,10 +18329,10 @@ public:
 #define OPKFX_MCR_GROUP        0x00000020L // Ограничение комплементарности позиций в документе модификации (общая группа)
 #define OPKFX_MCR_SUBSTSTRUC   0x00000040L // Ограничение комплементарности позиций в документе модификации (подстановочная структура)
 #define OPKFX_MCR_EQQTTY       0x00000080L // Ограничение комплементарности позиций в документе модификации (одинаковое количество)
-#define OPKFX_DSBLHALFMODIF    0x00000100L // @v9.0.0 Запрет "половинчатой" модификации. То есть, в документе модификации должны быть и вход и выход
-#define OPKFX_DLVRLOCASWH      0x00000200L // @v9.1.10 Адрес доставки в приходных (и драфт-приходных) документах трактовать как склад-получатель
-#define OPKFX_SOURCESERIAL     0x00000400L // @v9.3.6 (драфт-приходы и модификация)  Допускает выбор серийного номера исходного лота
-#define OPKFX_IGNORECLISTOP    0x00000800L // @v9.8.4 Игнорировать признак STOP контрагента при создании документа
+#define OPKFX_DSBLHALFMODIF    0x00000100L // Запрет "половинчатой" модификации. То есть, в документе модификации должны быть и вход и выход
+#define OPKFX_DLVRLOCASWH      0x00000200L // Адрес доставки в приходных (и драфт-приходных) документах трактовать как склад-получатель
+#define OPKFX_SOURCESERIAL     0x00000400L // (драфт-приходы и модификация)  Допускает выбор серийного номера исходного лота
+#define OPKFX_IGNORECLISTOP    0x00000800L // Игнорировать признак STOP контрагента при создании документа
 #define OPKFX_AUTOGENUUID      0x00001000L // @v10.0.0 Автоматически генерировать UUID документа при создании.
 #define OPKFX_WROFFTODRAFTORD  0x00002000L // @v10.0.2 Специализированная операция заказа, списываемая в драфт-документ
 #define OPKFX_PAYMENT_CASH     0x00004000L // @v10.5.9 @erik Наличный расчет по операции
@@ -18341,6 +18377,8 @@ public:
 #define OPSUBT_TRADEPLAN              8 // План торговли (драфт-операции)
 #define OPSUBT_ACCWROFF               9 // PPOPT_ACCTURN Списание по бухгалтерским счетам
 #define OPSUBT_POSCORRECTION         10 // @v10.0.0 Корректировка фискальных сумм по кассовому аппарату
+#define OPSUBT_RETURNREQ             11 // @v10.8.12 PPOPT_DRAFTRECEIPT Запрос от покупателя на возврат ранее купленного товара. 
+	// Variant of [EDI 180 Return Merchandise Authorization and Notification]
 //
 // Descr: Заголовочная запись вида операций
 //
@@ -25199,6 +25237,7 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	void   SLAPI Init();
 
 	struct NewClientDetectionItem {
+		SLAPI  NewClientDetectionItem();
 		PPObjID Oi;
 		long   Flags;
 		uint8  Reserve[12];
@@ -26861,7 +26900,7 @@ public:
 	int    SLAPI Add(long id1, long id2, LDATE dt, LTIME tm);
 	int    SLAPI Enum(uint * pPos, Item ** pItem);
 private:
-	TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
+	TSVector <Item> List;
 };
 
 struct PersonEventFilt : public PPBaseFilt {
@@ -26870,17 +26909,19 @@ struct PersonEventFilt : public PPBaseFilt {
 	enum {
 		fWithoutPair = 0x0001
 	};
-	char   ReserveStart[28];  // @anchor
-	long   Flags;             //
-	DateRange Period;         // Период обзора
-	TimeRange TmPeriod;       // Период по времени
-	int16  DayOfWeek;         // День недели
+	char   ReserveStart[20];   // @anchor
+	PPID   ExtPrmrPersonRegID; // @v10.8.12 Регистр первичной персоналии для отображения в таблице
+	PPID   ExtPrmrPersonTagID; // @v10.8.12 Тег первичной персоналии для отображения в таблице
+	long   Flags;              //
+	DateRange Period;          // Период обзора
+	TimeRange TmPeriod;        // Период по времени
+	int16  DayOfWeek;          // День недели
 	int16  Reserve;
-	PPID   PrmrID;            // Первичная персоналия //
-	PPID   ScndID;            // Вторичная персоналия //
-	SubstGrpPersonEvent Sgpe; // Параметр подстановки
-	SubstGrpDate        Sgd;  // Параметр подстановки даты
-	ObjIdListFilt PsnOpList;  // @anchor Список видов операций
+	PPID   PrmrID;             // Первичная персоналия //
+	PPID   ScndID;             // Вторичная персоналия //
+	SubstGrpPersonEvent Sgpe;  // Параметр подстановки
+	SubstGrpDate        Sgd;   // Параметр подстановки даты
+	ObjIdListFilt PsnOpList;   // @anchor Список видов операций
 };
 
 struct PersonEventViewItem : public PersonEventTbl::Rec {
@@ -27447,7 +27488,7 @@ struct SysJournalFilt : public PPBaseFilt {
 };
 
 struct SysJournalViewItem : public SysJournalTbl::Rec {
-	void   Clear();
+	SysJournalViewItem & Z();
 
 	long   ID;
 	long   GrpCount;
@@ -27455,13 +27496,6 @@ struct SysJournalViewItem : public SysJournalTbl::Rec {
 	SString ObjName; // @v9.9.0
 	SString GrpText1;
 	SString AvgEvTime;
-};
-//
-// Descr: Специализированная структура, используемя для индексации наименований
-//   объектов данных в строковых пулах.
-//
-struct PPObjNamePEntry : public PPObjID {
-	uint   NameP;
 };
 
 class PPViewSysJournal : public PPView {

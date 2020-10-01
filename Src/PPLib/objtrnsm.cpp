@@ -743,8 +743,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 	SString send_log_msg;
 	SString obj_name;
 	SString temp_buf;
-	PPObjID oi;
-	oi.Set(objType, objID);
+	PPObjID oi(objType, objID);
 	THROW_PP(DestDbDivID, PPERR_INVDESTDBDIV);
 	THROW_PP(!SyncCmpTransmit, PPERR_PPOS_NOBJTRANMODE);
 	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
@@ -1175,7 +1174,6 @@ int SLAPI PPObjectTransmit::Helper_PushObjectsToQueue(const PPObjectTransmit::He
 int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const char * pInFileName, FILE * pInStream, int use_ta)
 {
 	int    ok = 1;
-	PPObjID objid;
 	SString sys_file_name;
 	SString fmt_buf;
 	SString msg_buf;
@@ -1246,8 +1244,8 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 			}
 		}
 		{
-			TSVector <ObjSyncQueueTbl::Rec> idx_rec_list; // @v9.8.6 TSArray-->TSVector
-			for(objid.Z(); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
+			TSVector <ObjSyncQueueTbl::Rec> idx_rec_list;
+			for(PPObjID objid; EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				THROW_SL(idx_rec_list.insert(&idx_rec));
 				if(idx_rec_list.getCount() >= max_idx_recs_per_ta) {
 					THROW(Helper_PushObjectsToQueue(rHdr, sys_file_id, idx_rec_list, use_ta));
@@ -1269,7 +1267,6 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * stream, TempSyncCmpTbl * pTbl)
 {
 	int     ok = 1;
-	PPObjID objid;
 	ulong   idx;
 	ObjSyncQueueTbl::Rec idx_rec;
 	PPObjectTransmit::Header hdr;
@@ -1325,7 +1322,7 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 	if(hdr.PacketType == PPOT_SYNCCMP) {
 		if(pTbl) {
 			long count = 0;
-			for(objid.Z(); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
+			for(PPObjID objid; EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				int    skip = 0;
 				TempSyncCmpTbl::Rec sct_rec, ex_rec;
 				TempSyncCmpTbl::Key0 k0;
@@ -1576,7 +1573,6 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 	PPObjID oi_f = rItem.Oi;
 	PPCommSyncID comm_id = rItem.CommID;
 	PPObjID dont_process_pair;
-	dont_process_pair.Z();
 	SString added_buf, msg_buf;
 	SString temp_buf;
 	THROW(PPCheckUserBreak());
@@ -1974,7 +1970,6 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 	const  uint packet_type = SyncCmpTransmit ? PPOT_SYNCCMP : PPOT_OBJ;
 	if(todo && obj_count) {
 		SString wait_msg;
-		PPObjID objid;
 		ObjSyncQueueTbl::Rec rec;
 		PPObjectTransmit::Header hdr;
 		IterCounter cntr;
@@ -2009,7 +2004,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 			//
 			// До начала транзакции создадим экземляры всех необходимых объектов данных (что бы не открывать таблицы внутри транзакции).
 			//
-			for(objid.Z(); EnumObjectsByIndex(&objid, &rec) > 0;) {
+			for(PPObjID objid; EnumObjectsByIndex(&objid, &rec) > 0;) {
 				if(!(rec.Flags & PPObjPack::fNoObj)) {
 					THROW(_GetObjectPtr(objid.Obj));
 				}
@@ -2029,7 +2024,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 				if(!SyncCmpTransmit) {
 					PPObjID iter_objid;
 					for(iter_objid.Z(); EnumObjectsByIndex(&iter_objid, &rec) > 0; PPWaitPercent(cntr.Increment(), wait_msg)) {
-						objid = iter_objid; // objid внутри блока может измениться //
+						PPObjID objid = iter_objid; // objid внутри блока может измениться //
 						if(!(rec.Flags & PPObjPack::fNoObj)) {
 							DBRowId rowid;
 							PPObjPack  pack;
@@ -2065,7 +2060,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 				{
 					StringSet name_list;
 					name_list.add("$");
-					for(MEMSZERO(objid); EnumObjectsByIndex(&objid, &rec) > 0;) {
+					for(PPObjID objid; EnumObjectsByIndex(&objid, &rec) > 0;) {
 						PPObjectTransmit::IndexItem idx_item;
 						TmpTblRecToIdxItem(&rec, &idx_item);
 						if(*strip(rec.ObjName)) {

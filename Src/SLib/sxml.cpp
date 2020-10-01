@@ -34,7 +34,7 @@ static const SpcSymbEntry SpcSymbTab[] = {
 	{ '\x5b', 0, "lsq"    },  // [
 	{ '\x5c', 0, "bksl"   },  // \ +-@v7.6.4 @Muxa
 	{ '\x5d', 0, "rsq"    },  // ]
-	{ '\x59', 0, "#59"    },  // ; @v10.8.10
+	// { '\x59', 0, "#59"    },  // ; @v10.8.10
 };
 
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
@@ -76,7 +76,7 @@ int SLAPI XMLWriteSpecSymbEntities(FILE * pStream)
 		for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
 			temp_buf.Z();
 			if(SpcSymbTab[i].Amp)
-				temp_buf.CatChar('#').Cat(0x26).Semicol();
+				temp_buf.CatChar('#').Cat(0x26).Semicol(); 
 			temp_buf.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
 			fprintf(pStream, "<!ENTITY %s \"&%s\">\n", SpcSymbTab[i].str, temp_buf.cptr());
 		}
@@ -86,8 +86,6 @@ int SLAPI XMLWriteSpecSymbEntities(FILE * pStream)
 	return ok;
 }
 
-#ifndef _WIN32_WCE // {
-
 int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 {
 	int    ok = 1;
@@ -96,7 +94,7 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 		for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
 			subst.Z().CatChar('&');
 			if(SpcSymbTab[i].Amp)
-				subst.CatChar('#').Cat(0x26).Semicol();
+				subst.CatChar('#').Cat(0x26).Semicol(); 
 			subst.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
 			xmlTextWriterWriteDTDEntity(static_cast<xmlTextWriter *>(pWriter), 0, reinterpret_cast<const xmlChar *>(SpcSymbTab[i].str), 0, 0, 0, subst.ucptr());
 		}
@@ -105,8 +103,6 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 		ok = 0;
 	return ok;
 }
-
-#endif // } _WIN32_WCE
 //
 //
 //

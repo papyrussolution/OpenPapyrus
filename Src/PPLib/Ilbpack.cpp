@@ -867,10 +867,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				else
 					by_serial = 0;
 			}
-			// @v9.3.5 if(qtty == 0.0) {
-			// @v9.3.9 if(feqeps(qtty, 0.0, 1.0E-8)) { // @v9.3.5
-			// @v9.4.0 if(qtty < (-_qtty_epsilon)) { // @v9.3.9
-			if(feqeps(qtty, 0.0, _qtty_epsilon)) { // @v9.4.0
+			if(feqeps(qtty, 0.0, _qtty_epsilon)) {
 				if(flags & CILTIF_SYNC && sync_lot_id) {
 					if(_RowNSyncDiag(ilti, rows, flags)) {
 						const uint ti_pos = static_cast<uint>(rows.at(0));
@@ -884,7 +881,6 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 						}
 					}
 				}
-				// @v9.2.7 {
 				if(flags & CILTIF_CAREFULLYALIGNPRICE && rows.getCount() > 1) {
 					AmtAjustment _aa(total_src, vatrate, *pPack, rows);
 					TSVector <AmtAjustment::PossibilityRange> prl; // @v9.8.11 TSArray-->TSVector
@@ -948,7 +944,6 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 						}
 					}
 				}
-				// } @v9.2.7
 			}
 			else {
 				if(flags & CILTIF_SYNC) {
@@ -1284,7 +1279,6 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				SETIFZ(dest_loc_id, Rec.LocID);
 				dest_ar_id = main_org_ar_id;
 			}
-			// @v9.0.4 {
 			else if(GetOpType(Rec.OpID) == PPOPT_GOODSEXPEND) {
 				dest_ar_id = main_org_ar_id;
 				if(P_Freight && P_Freight->DlvrAddrID) {
@@ -1297,7 +1291,6 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					}
 				}
 			}
-			// } @v9.0.4
 		}
 		{
 			THROW(bpack.CreateBlank_WithoutCode(cvtToOpID, Rec.LinkBillID, dest_loc_id, 0));
@@ -1537,10 +1530,10 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	rPack.Rec.CurID   = Rec.CurID;
 	rPack.Rec.Amount  = BR2(Rec.Amount);
 	rPack.Rec.Flags  |= (Rec.Flags & fmask);
-	rPack.Rec.Flags2 |= (Rec.Flags2 & fmask2); // @v9.0.1
+	rPack.Rec.Flags2 |= (Rec.Flags2 & fmask2);
 	rPack.Rec.LastRByBill = Rec.LastRByBill;
 	rPack.Rec.DueDate = Rec.DueDate; // @v9.7.12 @fix - тяжелая ошибка: не передавалась дата исполнения при синхронизации
-	rPack.Rec.EdiOp   = Rec.EdiOp; // @v9.0.1
+	rPack.Rec.EdiOp   = Rec.EdiOp;
 	rPack.SetFreight(P_Freight);
 	//
 	// Calling of function CreateBlank above can automaticaly set flag BILLF_WHITELABEL.
@@ -2916,12 +2909,11 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				THROW(tra);
 				for(uint i = 0; p_pack->Lots.enumItems(&i, (void **)&p_ilti);) {
 					PPCommSyncID commid;
-					PPObjID objid;
 					if(p_ilti->LotSyncID) {
-						THROW(pCtx->RegisterDependedNonObject(objid.Set(PPOBJ_LOT, p_ilti->LotSyncID), commid, 0));
+						THROW(pCtx->RegisterDependedNonObject(PPObjID(PPOBJ_LOT, p_ilti->LotSyncID), commid, 0));
 					}
 					if(p_ilti->LotMirrID) {
-						THROW(pCtx->RegisterDependedNonObject(objid.Set(PPOBJ_LOT, p_ilti->LotMirrID), commid, 0));
+						THROW(pCtx->RegisterDependedNonObject(PPObjID(PPOBJ_LOT, p_ilti->LotMirrID), commid, 0));
 					}
 				}
 				THROW(tra.Commit());
@@ -3078,7 +3070,7 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 			ProcessObjRefInArray(PPOBJ_PERSON,   &p_fr->CaptainID, ary, replace);
 			ProcessObjRefInArray(PPOBJ_PERSON,   &p_fr->AgentID, ary, replace);
 			ProcessObjRefInArray(PPOBJ_TRANSPORT, &p_fr->ShipID, ary, replace);
-			ProcessObjRefInArray(PPOBJ_LOCATION, &p_fr->StorageLocID, ary, replace); // @v8.8.6
+			ProcessObjRefInArray(PPOBJ_LOCATION, &p_fr->StorageLocID, ary, replace);
 		}
 		for(i = 0; i < p_pack->OrderBillList.getCount(); i++) {
 			PPID & r_ord_bill_id = p_pack->OrderBillList.at(i);

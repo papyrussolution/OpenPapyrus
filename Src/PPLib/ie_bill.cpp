@@ -1826,28 +1826,18 @@ int SLAPI PPBillImporter::RunUhttImport()
 									dlvr_loc_pack.ID = 0;
 									psn_pack.AddDlvrLoc(dlvr_loc_pack);
 									THROW(PsnObj.PutPacket(&_psn_id, &psn_pack, 0));
-									if(LocObj.P_Tbl->SearchCode(LOCTYP_ADDRESS, dlvr_loc_pack.Code, &dlvr_loc_id, &dlvr_loc_pack) > 0) {
-										PPFreight freight;
-										freight.DlvrAddrID = dlvr_loc_id;
-										pack.SetFreight(&freight);
-									}
+									if(LocObj.P_Tbl->SearchCode(LOCTYP_ADDRESS, dlvr_loc_pack.Code, &dlvr_loc_id, &dlvr_loc_pack) > 0)
+										pack.SetFreight_DlvrAddrOnly(dlvr_loc_id);
 								}
-								else {
-									PPFreight freight;
-									freight.DlvrAddrID = dlvr_loc_id;
-									pack.SetFreight(&freight);
-								}
+								else
+									pack.SetFreight_DlvrAddrOnly(dlvr_loc_id);
 							}
 						}
 					}
 					if(!dlvr_loc_id && !dlvr_loc_pack.IsEmptyAddress()) {
 						dlvr_loc_pack.Flags |= LOCF_STANDALONE;
 						THROW(LocObj.PutPacket(&dlvr_loc_id, &dlvr_loc_pack, 0));
-						{
-							PPFreight freight;
-							freight.DlvrAddrID = dlvr_loc_id;
-							pack.SetFreight(&freight);
-						}
+						pack.SetFreight_DlvrAddrOnly(dlvr_loc_id);
 					}
 					for(uint j = 0; j < p_uhtt_pack->Items.getCount(); j++) {
 						const UhttBillPacket::BillItem & r_item = p_uhtt_pack->Items.at(j);
@@ -3878,17 +3868,12 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 						}
 					}
 				}
-				if(dlvr_loc_id_proof) {
-					if(op_rec.Flags & OPKF_FREIGHT) {
-						PPFreight freight;
-						freight.DlvrAddrID = dlvr_loc_id_proof;
-						pPack->SetFreight(&freight);
-					}
-				}
+				if(dlvr_loc_id_proof && op_rec.Flags & OPKF_FREIGHT)
+					pPack->SetFreight_DlvrAddrOnly(dlvr_loc_id_proof);
 			}
 			if(Flags & PPBillImporter::fEdiImpExp)
 				pPack->Rec.Flags2 |= BILLF2_DONTCLOSDRAFT;
-			pPack->Rec.EdiOp = (int16)pBill->EdiOp;
+			pPack->Rec.EdiOp = static_cast<int16>(pBill->EdiOp);
 			ok = 1;
 		}
 	}
@@ -5307,10 +5292,9 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 		}
 		{
 			PPID   dlvr_addr_id = 0;
-			if(pPack->P_Freight && pPack->P_Freight->DlvrAddrID) {
-				dlvr_addr_id = pPack->P_Freight->DlvrAddrID;
-			}
-			else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) { // @v9.7.4
+			if(pPack->GetDlvrAddrID())
+				dlvr_addr_id = pPack->GetDlvrAddrID();
+			else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) {
 				dlvr_addr_id = pPack->Rec.LocID;
 			}
 			if(dlvr_addr_id && LocObj.Search(dlvr_addr_id, &loc_rec) > 0) {
@@ -6336,7 +6320,7 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 						}
 						else {
 							consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-							consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+							consignee_loc_id = rBp.GetDlvrAddrID();
 							buyer_psn_id = consignee_psn_id;
 							shipper_psn_id = main_org_id;
 							shipper_loc_id = rBp.Rec.LocID;
@@ -6348,13 +6332,13 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 						consignee_loc_id = rBp.Rec.LocID;
 						buyer_psn_id = consignee_psn_id;
 						shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-						shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+						shipper_loc_id = rBp.GetDlvrAddrID();
 					}
 					else if(rBp.OpTypeID == PPOPT_GOODSRETURN) {
 						if(op_rec.LinkOpID) {
 							if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
 								consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-								consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								consignee_loc_id = rBp.GetDlvrAddrID();
 								buyer_psn_id = consignee_psn_id;
 								shipper_psn_id = main_org_id;
 								shipper_loc_id = rBp.Rec.LocID;
@@ -6364,7 +6348,7 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 								consignee_loc_id = rBp.Rec.LocID;
 								buyer_psn_id = consignee_psn_id;
 								shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-								shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								shipper_loc_id = rBp.GetDlvrAddrID();
 							}
 						}
 					}
@@ -6474,7 +6458,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 						}
 						else {
 							consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-							consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+							consignee_loc_id = rBp.GetDlvrAddrID();
 							buyer_psn_id = consignee_psn_id;
 							shipper_psn_id = main_org_id;
 							shipper_loc_id = rBp.Rec.LocID;
@@ -6486,13 +6470,13 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 						consignee_loc_id = rBp.Rec.LocID;
 						buyer_psn_id = consignee_psn_id;
 						shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-						shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+						shipper_loc_id = rBp.GetDlvrAddrID();
 					}
 					else if(rBp.OpTypeID == PPOPT_GOODSRETURN) {
 						if(op_rec.LinkOpID) {
 							if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
 								consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-								consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								consignee_loc_id = rBp.GetDlvrAddrID();
 								buyer_psn_id = consignee_psn_id;
 								shipper_psn_id = main_org_id;
 								shipper_loc_id = rBp.Rec.LocID;
@@ -6502,7 +6486,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 								consignee_loc_id = rBp.Rec.LocID;
 								buyer_psn_id = consignee_psn_id;
 								shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-								shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								shipper_loc_id = rBp.GetDlvrAddrID();
 							}
 						}
 					}
@@ -6597,7 +6581,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 						}
 						else {
 							consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-							consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+							consignee_loc_id = rBp.GetDlvrAddrID();
 							buyer_psn_id = consignee_psn_id;
 							shipper_psn_id = main_org_id;
 							shipper_loc_id = rBp.Rec.LocID;
@@ -6609,14 +6593,14 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 						consignee_loc_id = rBp.Rec.LocID;
 						buyer_psn_id = consignee_psn_id;
 						shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-						shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+						shipper_loc_id = rBp.GetDlvrAddrID();
 					}
 					else if(rBp.OpTypeID == PPOPT_GOODSRETURN) {
 						if(op_rec.LinkOpID) {
 							if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
 								//wb_type = wbtRetFromMe;
 								consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-								consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								consignee_loc_id = rBp.GetDlvrAddrID();
 								buyer_psn_id = consignee_psn_id;
 								shipper_psn_id = main_org_id;
 								shipper_loc_id = rBp.Rec.LocID;
@@ -6627,7 +6611,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 								consignee_loc_id = rBp.Rec.LocID;
 								buyer_psn_id = consignee_psn_id;
 								shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
-								shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								shipper_loc_id = rBp.GetDlvrAddrID();
 							}
 						}
 					}

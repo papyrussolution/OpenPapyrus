@@ -3292,7 +3292,7 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 	SString temp_buf;
 	CALLPTRMEMB(pBrw, SetTempGoodsGrp(Filt.GoodsGrpID));
 	if(P_Ct == 0) {
-		if(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) { // @v9.5.8 CalcPrognosis-->Flags2
+		if(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) {
 			if(Filt.Flags & (GoodsRestFilt::fCalcOrder | GoodsRestFilt::fNoZeroOrderOnly)) {
 				brw_id = BROWSER_GOODSRESTORDER_PRGN;
 				deficit_col = minstock_col = 6;

@@ -1208,8 +1208,6 @@ int SLAPI PPObjTSession::Correct(long sessID, int use_ta)
 	PPID   main_goods_id = 0;
 	TSessionTbl::Rec sess_rec;
 	TechTbl::Rec tec_rec;
-	TSessGoodsTotal total;
-	MEMSZERO(total);
 	THROW(CheckRights(PPR_MOD));
 	{
 		PPTransaction tra(use_ta);
@@ -1218,17 +1216,20 @@ int SLAPI PPObjTSession::Correct(long sessID, int use_ta)
 		if(sess_rec.TechID && TecObj.Fetch(sess_rec.TechID, &tec_rec) > 0)
 			main_goods_id = labs(tec_rec.GoodsID);
 		if(main_goods_id) {
+			TSessGoodsTotal total;
 			THROW(P_Tbl->CalcGoodsTotal(sessID, main_goods_id, &total));
 			if(total.Qtty != sess_rec.ActQtty) {
 				sess_rec.ActQtty = total.Qtty;
 				do_update = 1;
 			}
 		}
-		MEMSZERO(total);
-		THROW(P_Tbl->CalcGoodsTotal(sessID, 0, &total));
-		if(total.Amount != sess_rec.Amount) {
-			sess_rec.Amount = total.Amount;
-			do_update = 1;
+		{
+			TSessGoodsTotal total;
+			THROW(P_Tbl->CalcGoodsTotal(sessID, 0, &total));
+			if(total.Amount != sess_rec.Amount) {
+				sess_rec.Amount = total.Amount;
+				do_update = 1;
+			}
 		}
 		if(do_update) {
 			THROW(P_Tbl->Put(&sessID, &sess_rec, 0));
@@ -1270,8 +1271,7 @@ int SLAPI PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSess
 	return ok;
 }
 
-// private
-int SLAPI PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pGoodsIdList, int tooling)
+/*private*/int SLAPI PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pGoodsIdList, int tooling)
 {
 	int    ok = -1, r;
 	if(sessID && tecGoodsID && tecStrucID) {
@@ -2048,9 +2048,8 @@ int SLAPI PPObjTSession::InductSuperSess(TSessionTbl::Rec * pRec)
 int SLAPI PPObjTSession::SetSCardID(TSessionTbl::Rec * pRec, const SCardTbl::Rec * pSCardRec)
 {
 	int    ok = 1;
-	if(pSCardRec == 0 || pSCardRec->ID == 0) {
+	if(!pSCardRec || pSCardRec->ID == 0)
 		pRec->SCardID = 0;
-	}
 	else {
 		pRec->SCardID = pSCardRec->ID;
 		if(pSCardRec->PersonID) {
@@ -2174,18 +2173,8 @@ int SLAPI PPObjTSession::IsTimingTech(const TechTbl::Rec * pTechRec, double * pB
 	if(pTechRec && pTechRec->GoodsID) {
 		Goods2Tbl::Rec goods_rec;
 		THROW(GObj.Fetch(pTechRec->GoodsID, &goods_rec) > 0);
-		// @v9.9.12 {
-		if(GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) {
+		if(GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0)
 			ok = 1;
-		}
-		// } @v9.9.12
-		/* @v9.9.12
-		PPUnit unit_rec;
-		THROW(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0);
-		if(unit_rec.BaseUnitID == PPUNT_SECOND && unit_rec.BaseRatio) {
-			ratio = unit_rec.BaseRatio;
-			ok = 1;
-		}*/
 	}
 	CATCHZOK
 	ASSIGN_PTR(pBaseRatio, ratio);
@@ -2232,7 +2221,7 @@ int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 				main_item_sign = tec_rec.Sign;
 			}
 			if(qtty != 0.0) {
-				TSessLineTbl::Rec line_rec, ex_line_rec;
+				TSessLineTbl::Rec line_rec;
 				long   oprno = 0;
 				THROW(InitLinePacket(&line_rec, pPack->ID) > 0);
 				THROW(SetupLineGoods(&line_rec, tec_rec.GoodsID, 0, 0));
@@ -2241,6 +2230,7 @@ int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 				line_rec.Flags |= TSESLF_AUTOMAIN;
 				line_rec.Qtty = qtty;
 				{
+					TSessLineTbl::Rec ex_line_rec;
 					for(P_Tbl->InitLineEnum(pPack->ID, &hdl_ln_enum); P_Tbl->NextLineEnum(hdl_ln_enum, &ex_line_rec) > 0;)
 						if(ex_line_rec.Flags & TSESLF_AUTOMAIN)
 							THROW(PutLine(pPack->ID, &ex_line_rec.OprNo, 0, 0));

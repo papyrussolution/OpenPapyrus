@@ -38,9 +38,7 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 			if(rec.Name[0] == 0)
 				ideqvalstr(id, rec.Name, sizeof(rec.Name));
 		}
-		// @v9.9.4
-		//result->init(rec.Name);
-		result->InitForeignStr(SLS.AcquireRvlStr() = rec.Name); // @v9.9.4
+		result->InitForeignStr(SLS.AcquireRvlStr() = rec.Name);
 	}
 }
 
@@ -277,6 +275,40 @@ static IMPL_DBE_PROC(dbqf_registertext_i)
 			RegisterTbl::Rec reg_rec;
 			if(reg_obj.Fetch(reg_id, &reg_rec) > 0) {
 				PPObjRegister::Format(reg_rec, "@regsn - @regno [@date..@expiry]", temp_buf);
+			}
+		}
+		result->init(temp_buf.Trim(buffer_size-1));
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_objregistertext_iii)
+{
+	const  size_t buffer_size = 128;
+	if(!DbeInitSize(option, result, buffer_size)) {
+		SString temp_buf;
+		//(registerTypeID, objtype, objid)
+		const PPID reg_type = params[0].lval;
+		PPObjID oid(params[1].lval, params[2].lval);
+		if(reg_type && oid.Obj && oid.Id) {
+			PPID   reg_id = 0;
+			PPObjRegister reg_obj;
+			RegisterTbl::Rec reg_rec;
+			if(reg_obj.P_Tbl->SearchByObj(oid, reg_type, &reg_rec) > 0) {
+				temp_buf.Z();
+				if(reg_rec.Serial[0])
+					temp_buf.Cat(reg_rec.Serial);
+				if(reg_rec.Num[0])
+					temp_buf.CatDivIfNotEmpty('-', 1).Cat(reg_rec.Num);
+				if(checkdate(reg_rec.Dt) || checkdate(reg_rec.Expiry)) {
+					temp_buf.CatDivIfNotEmpty(' ', 0).CatChar('[');
+					if(checkdate(reg_rec.Dt))
+						temp_buf.Cat(reg_rec.Dt, DATF_DMY);
+					temp_buf.Dot().Dot();
+					if(checkdate(reg_rec.Expiry))
+						temp_buf.Cat(reg_rec.Expiry, DATF_DMY);
+					temp_buf.CatChar(']');
+				}
+				//PPObjRegister::Format(reg_rec, "@regsn - @regno [@date..@expiry]", temp_buf);
 			}
 		}
 		result->init(temp_buf.Trim(buffer_size-1));
@@ -980,7 +1012,7 @@ static IMPL_DBE_PROC(dbqf_idcommsyncid_ii)
 	char   buf[20];
 	if(!DbeInitSize(option, result, sizeof(buf))) {
 		PPCommSyncID comm_id;
-		comm_id.P = (short)params[0].lval;
+		comm_id.P = static_cast<short>(params[0].lval);
 		comm_id.I = params[1].lval;
 		SString temp_buf;
 		comm_id.ToStr(0, temp_buf).CopyTo(buf, sizeof(buf));
@@ -1173,26 +1205,27 @@ int PPDbqFuncPool::IdFormatCycle       = 0; //
 int PPDbqFuncPool::IdYesWordByFlag     = 0; //
 int PPDbqFuncPool::IdBudgetPlanOrFact  = 0; //
 int PPDbqFuncPool::IdChkOpJActionName  = 0; //
-int PPDbqFuncPool::IdAddrCityName      = 0; // @v7.0.8  (locID)
-int PPDbqFuncPool::IdAddrExField       = 0; // @v7.0.8  (locID, locExFld)
-int PPDbqFuncPool::IdObjCodeSCard      = 0; // @v7.2.8  (fldSCardID)
-int PPDbqFuncPool::IdSCardOwnerName    = 0; // @v7.2.8  (fldSCardID)
-int PPDbqFuncPool::IdUsrPersonName     = 0; // @v7.5.11 (fldUsrID)
-int PPDbqFuncPool::IdLocOwnerName      = 0; // @v9.1.5  (fldLocID) Формирует строку с именем персоналии-владельца локации
-int PPDbqFuncPool::IdUfpFuncName       = 0; // @v8.1.1  (fldFuncId)
-int PPDbqFuncPool::IdVersionText       = 0; // @v8.1.1  (fldVersion)
-int PPDbqFuncPool::IdUfpFuncId         = 0; // @v8.1.x  (fldFuncId)
-int PPDbqFuncPool::IdCheckCsPosNode    = 0; // @v7.6.3  (csessID, posNodeID)
-int PPDbqFuncPool::IdCheckCsPosNodeList = 0; // @v7.6.3  (csessID, (const LongArray *))
+int PPDbqFuncPool::IdAddrCityName      = 0; // (locID)
+int PPDbqFuncPool::IdAddrExField       = 0; // (locID, locExFld)
+int PPDbqFuncPool::IdObjCodeSCard      = 0; // (fldSCardID)
+int PPDbqFuncPool::IdSCardOwnerName    = 0; // (fldSCardID)
+int PPDbqFuncPool::IdUsrPersonName     = 0; // (fldUsrID)
+int PPDbqFuncPool::IdLocOwnerName      = 0; // (fldLocID) Формирует строку с именем персоналии-владельца локации
+int PPDbqFuncPool::IdUfpFuncName       = 0; // (fldFuncId)
+int PPDbqFuncPool::IdVersionText       = 0; // (fldVersion)
+int PPDbqFuncPool::IdUfpFuncId         = 0; // (fldFuncId)
+int PPDbqFuncPool::IdCheckCsPosNode    = 0; // (csessID, posNodeID)
+int PPDbqFuncPool::IdCheckCsPosNodeList = 0; // (csessID, (const LongArray *))
 int PPDbqFuncPool::IdStrExistSubStr    = 0; // @vmiller
-int PPDbqFuncPool::IdAddedCreditLimit  = 0; // @v8.2.4
-int PPDbqFuncPool::IdBillFrghtIssueDt  = 0; // @v8.2.9 (billID)
-int PPDbqFuncPool::IdBillFrghtArrvlDt  = 0; // @v8.2.9 (billID)
-int PPDbqFuncPool::IdBillFrghtDlvrAddr = 0; // @v8.7.9 (billID)
+int PPDbqFuncPool::IdAddedCreditLimit  = 0; // 
+int PPDbqFuncPool::IdBillFrghtIssueDt  = 0; // (billID)
+int PPDbqFuncPool::IdBillFrghtArrvlDt  = 0; // (billID)
+int PPDbqFuncPool::IdBillFrghtDlvrAddr = 0; // (billID)
 int PPDbqFuncPool::IdGetAgrmntSymbol   = 0; // @vmiller
-int PPDbqFuncPool::IdBillAgentName     = 0; // @v8.3.6 (billID) Наименование агента по документу (извлекается из записи расширения документа)
-int PPDbqFuncPool::IdRegisterText      = 0; // @v8.4.4 (registerID) Текст описания регистрационного документа
-int PPDbqFuncPool::IdObjTagText        = 0; // @v8.4.11(tagid, objid) Текстовое представление тега объекта
+int PPDbqFuncPool::IdBillAgentName     = 0; // (billID) Наименование агента по документу (извлекается из записи расширения документа)
+int PPDbqFuncPool::IdRegisterText      = 0; // (registerID) Текст описания регистрационного документа
+int PPDbqFuncPool::IdObjRegisterText   = 0; // (registerTypeID, objtype, objid)
+int PPDbqFuncPool::IdObjTagText        = 0; // (tagid, objid) Текстовое представление тега объекта
 int PPDbqFuncPool::IdObjTagText_NoCache = 0; // @v10.3.8
 int PPDbqFuncPool::IdDateRange         = 0; // @v8.6.4
 //int PPDbqFuncPool::IdObjNameOpTypeK    = 0; // @v8.6.
@@ -1380,8 +1413,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	result->init(_d);
 }
 
-// static
-int SLAPI PPDbqFuncPool::Register()
+/*static*/int SLAPI PPDbqFuncPool::Register()
 {
 	int    ok = 1;
 	THROW(DbqFuncTab::RegisterDyn(&IdEmpty,               BTS_STRING, dbqf_empty,                  0));
@@ -1481,6 +1513,7 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,    BTS_REAL,   dbqf_addedcreditlimit_rii,   3, BTS_REAL, BTS_INT, BTS_INT)); // @v8.2.4
 	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,     BTS_STRING, dbqf_getagrmntsymbol_i,      1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,        BTS_STRING, dbqf_registertext_i,         1, BTS_INT)); // @v8.4.4
+	THROW(DbqFuncTab::RegisterDyn(&IdObjRegisterText,     BTS_STRING, dbqf_objregistertext_iii,    3, BTS_INT)); // @v10.8.12
 	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,          BTS_STRING, dbqf_objtagtext_ii,          2, BTS_INT, BTS_INT)); // @v8.4.11
 	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText_NoCache,  BTS_STRING, dbqf_objtagtextnocache_ii,   2, BTS_INT, BTS_INT)); // @v10.3.8
 	THROW(DbqFuncTab::RegisterDyn(&IdDateRange,           BTS_STRING, dbqf_daterange_dd,           2, BTS_DATE, BTS_DATE)); // @v8.6.4
@@ -1492,8 +1525,7 @@ int SLAPI PPDbqFuncPool::Register()
 	return ok;
 }
 
-// static
-void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld)
+/*static*/void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld)
 {
 	rDbe.init();
 	rDbe.push(rFld);

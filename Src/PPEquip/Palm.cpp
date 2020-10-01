@@ -1711,11 +1711,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 	THROW(pack.CreateBlank_WithoutCode(opID, 0L, pSrcPack->Hdr.LocID, use_ta));
 	if(pSrcPack->Hdr.AgentID)
 		pack.Ext.AgentID = pSrcPack->Hdr.AgentID;
-	if(pSrcPack->Hdr.DlvrAddrID) {
-		PPFreight freight;
-		freight.DlvrAddrID = pSrcPack->Hdr.DlvrAddrID;
-		THROW(pack.SetFreight(&freight));
-	}
+	THROW(pack.SetFreight_DlvrAddrOnly(pSrcPack->Hdr.DlvrAddrID));
 	pack.Rec.Dt = pSrcPack->Hdr.Dt;
 	if(pSrcPack->Hdr.LocID)
 		pack.Rec.LocID = pSrcPack->Hdr.LocID;
@@ -1734,20 +1730,16 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 		int    skip = 0;
 		PalmBillItem item;
 		ObjTagItem tag;
-		// Дата и время начала создания заказа
-		if(pSrcPack->Hdr.CreateDtm != ZERODATETIME) {
+		if(pSrcPack->Hdr.CreateDtm != ZERODATETIME) { // Дата и время начала создания заказа
 			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTM, temp_buf.Z().Cat(pSrcPack->Hdr.CreateDtm));
 		}
-		// Дата и время окончания создания заказа
-		if(pSrcPack->Hdr.CreateDtmEnd != ZERODATETIME) {
+		if(pSrcPack->Hdr.CreateDtmEnd != ZERODATETIME) { // Дата и время окончания создания заказа
 			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTMEND, temp_buf.Z().Cat(pSrcPack->Hdr.CreateDtmEnd));
 		}
-		// Координаты начала создания заказа
-		if(pSrcPack->Hdr.Latitude != 0.0 || pSrcPack->Hdr.Longitude != 0.0) {
+		if(pSrcPack->Hdr.Latitude != 0.0 || pSrcPack->Hdr.Longitude != 0.0) { // Координаты начала создания заказа
 			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORD, temp_buf.Z().Cat(pSrcPack->Hdr.Latitude).CatChar(',').Cat(pSrcPack->Hdr.Longitude));
 		}
-		// Координаты окончания создания заказа
-		if(pSrcPack->Hdr.LatitudeEnd != 0.0 || pSrcPack->Hdr.LongitudeEnd != 0.0) {
+		if(pSrcPack->Hdr.LatitudeEnd != 0.0 || pSrcPack->Hdr.LongitudeEnd != 0.0) { // Координаты окончания создания заказа
 			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORDEND, temp_buf.Z().Cat(pSrcPack->Hdr.LatitudeEnd).CatChar(',').Cat(pSrcPack->Hdr.LongitudeEnd));
 		}
 		pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "STYLOAGENT");
@@ -1764,8 +1756,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 					ti.Quantity_ = fabs(item.Qtty);
 					ti.Price = fabs(item.Price);
 					//
-					// Устанавливаем емкость упаковки лота заказа равной
-					// емкости упаковки последнего прихода до даты этого заказа
+					// Устанавливаем емкость упаковки лота заказа равной емкости упаковки последнего прихода до даты этого заказа
 					//
 					{
 						LDATE  dt = pack.Rec.Dt;
@@ -1872,7 +1863,6 @@ int SLAPI PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, 
 	ArticleTbl::Rec ar_rec;
 	PPBillPacket pack;
 	SString temp_buf;
-
 	THROW(palm_obj.Search(palm_id, &palm_rec) > 0);
 	THROW_PP(/*sp_cfg.CliInvOpID*/opID, PPERR_INVOPNOTDEF);
 	THROW(pack.CreateBlank_WithoutCode(/*sp_cfg.CliInvOpID*/opID, 0L, 0, use_ta));
@@ -2363,7 +2353,6 @@ int SLAPI PPObjStyloPalm::CopyFromFTP(PPID id, int delAfterCopy, PPLogger * pLog
 	PPObjInternetAccount obj_acct;
 	PPStyloPalmPacket palm_pack;
 	WinInetFTP ftp;
-
 	THROW(GetPacket(id, &palm_pack) > 0);
 	THROW(obj_acct.Get(palm_pack.Rec.FTPAcctID, &acct));
 	THROW(GetChildList(id, palm_list));

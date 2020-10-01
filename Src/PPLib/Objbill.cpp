@@ -1281,7 +1281,6 @@ int SLAPI PPObjBill::GetOriginalPacket(PPID billID, SysJournalTbl::Rec * pSjRec,
 				long   vv = 0;
 				SBuffer ov_buf;
 				PPObjID oid;
-				oid.Z();
 				ov_buf.Z();
 				if(p_ovc->Search(ev_mod.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEqual(ev_mod.ObjType, ev_mod.ObjID)) {
 					PPBillPacket org_pack;
@@ -4297,7 +4296,7 @@ int SLAPI PPObjBill::CalcGoodsSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, con
 		BillTbl::Rec bill_rec;
 		if(!endOprNo || trfr->data.Dt < pPeriod->upp || (trfr->data.Dt == pPeriod->upp && trfr->data.OprNo < endOprNo)) {
 			if(Fetch(trfr->data.BillID, &bill_rec) > 0 && bill_rec.Object == arID) {
-				if(!dlvrLocID || (P_Tbl->GetFreight(bill_rec.ID, &freight) > 0 && freight.DlvrAddrID == dlvrLocID)) { // @v9.1.11
+				if(!dlvrLocID || (P_Tbl->GetFreight(bill_rec.ID, &freight) > 0 && freight.DlvrAddrID == dlvrLocID)) {
 					qt += trfr->data.Quantity;
 					am += (TR5(trfr->data.Price) - TR5(trfr->data.Discount)) * trfr->data.Quantity;
 				}
@@ -5633,7 +5632,7 @@ int SLAPI PPObjBill::Subst(const PPBill * pPack, PPID * pDestID, SubstParam * pP
 		case SubstGrpBill::sgbAgent:    val = pPack->Ext.AgentID; ar = 1; break;
 		case SubstGrpBill::sgbPayer:    val = pPack->Ext.PayerID; ar = 1; break;
 		case SubstGrpBill::sgbStorageLoc: val = pPack->P_Freight ? pPack->P_Freight->StorageLocID : 0; break;
-		case SubstGrpBill::sgbDlvrLoc: val = pPack->P_Freight ? pPack->P_Freight->DlvrAddrID : 0; break;
+		case SubstGrpBill::sgbDlvrLoc: val = pPack->GetDlvrAddrID(); break;
 		case SubstGrpBill::sgbDebtDim:  debt_dim = 1; break;
 		case SubstGrpBill::sgbDate:
 			{
@@ -5660,7 +5659,7 @@ int SLAPI PPObjBill::Subst(const PPBill * pPack, PPID * pDestID, SubstParam * pP
 	else if(ar && val && pParam->Sgb.S2.Sgp) {
 		long   temp_val = 0;
 		PPObjPerson psn_obj;
-		psn_obj.Subst((val | sgpArticleMask), pPack->P_Freight ? pPack->P_Freight->DlvrAddrID : 0, &pParam->Psp, 0, &temp_val);
+		psn_obj.Subst((val | sgpArticleMask), pPack->GetDlvrAddrID(), &pParam->Psp, 0, &temp_val);
 		val = temp_val;
 	}
 	pParam->AsscList.Add(val, pPack->Rec.ID, 0);
@@ -5672,7 +5671,6 @@ int SLAPI PPObjBill::GetSubstObjType(long id, const SubstParam * pParam, PPObjID
 {
 	int    ok = 1;
 	PPObjID obj_id;
-	obj_id.Z();
 	switch(pParam->Sgb.S) {
 		case SubstGrpBill::sgbNone: break;
 		case SubstGrpBill::sgbObject:
@@ -7893,15 +7891,11 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			/* @v9.8.11 if(TLP(HistBill).IsOpened()) {
 				THROW(HistBill->PutPacket(&h_id, &hist_pack, 0, 0));
 			} */
-			// @v9.8.11 {
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					PPObjID oid;
-					THROW(p_ovc->Add(&h_id, oid.Set(Obj, id), &hist_buf, 0));
+					THROW(p_ovc->Add(&h_id, PPObjID(Obj, id), &hist_buf, 0));
 				}
 			}
-			// } @v9.8.11
-			// @v9.5.2 {
 			if(CcFlags & CCFLG_DEBUG) {
 				if(CheckOpFlags(pPack->Rec.OpID, OPKF_ONORDER)) {
 					PPIDArray _debug_new_ord_bill_list;
@@ -7934,7 +7928,6 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					}
 				}
 			}
-			// } @v9.5.2
 			DS.LogAction(PPACN_UPDBILL, PPOBJ_BILL, pPack->Rec.ID, h_id, 0);
 		}
 		THROW(PPCommitWork(&ta));
@@ -8115,14 +8108,11 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 			PPID   h_id = 0;
 			/* @v9.8.11 if(TLP(HistBill).IsOpened())
 				THROW(HistBill->PutPacket(&h_id, &hist_pack, 1, 0) > 0); */
-			// @v9.8.11 {
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					PPObjID oid;
-					THROW(p_ovc->Add(&h_id, oid.Set(Obj, id), &hist_buf, 0));
+					THROW(p_ovc->Add(&h_id, PPObjID(Obj, id), &hist_buf, 0));
 				}
 			}
-			// } @v9.8.11
 			DS.LogAction(PPACN_RMVBILL, PPOBJ_BILL, id, h_id, 0);
 		}
 		THROW(PPCommitWork(&ta));
@@ -9109,16 +9099,16 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 						// } @v10.7.3
 						case PPSYM_BILLOBJ2: GetArticleName(pk->Rec.Object2, subst_buf); break;
 						case PPSYM_DLVRLOCCODE:
-							if(pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
+							if(pk->GetDlvrAddrID() && LocObj.Fetch(pk->GetDlvrAddrID(), &loc_rec) > 0)
 								subst_buf.Cat(loc_rec.Code);
 							break;
 						case PPSYM_DLVRLOCID:
-							if(pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
+							if(pk->GetDlvrAddrID() && LocObj.Fetch(pk->GetDlvrAddrID(), &loc_rec) > 0)
 								subst_buf.Cat(loc_rec.ID);
 							break;
 						case PPSYM_DLVRLOCTAG: // @v10.4.1
-							if(ext_id && pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)
-								PPRef->Ot.GetTagStr(PPOBJ_LOCATION, pk->P_Freight->DlvrAddrID, ext_id, subst_buf);
+							if(ext_id && pk->GetDlvrAddrID() && LocObj.Fetch(pk->GetDlvrAddrID(), &loc_rec) > 0)
+								PPRef->Ot.GetTagStr(PPOBJ_LOCATION, pk->GetDlvrAddrID(), ext_id, subst_buf);
 							break;
 						case PPSYM_INN:
 							{

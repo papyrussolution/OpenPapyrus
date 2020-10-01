@@ -1,5 +1,5 @@
 // PPSOAPCALLER-PEPSI.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2016, 2017, 2019, 2020
 // @codepage UTF-8
 //
 #include <ppsoapclient.h>
@@ -10,41 +10,10 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 	return Implement_SoapModule_DllMain(hModule, dwReason, lpReserved, "Papyrus iSalesPepsiSoapModule");
 }
 
-/*
-static SCollection __ResultPtrList;
-
-static int DestroyResultPtr(void * p)
-{
-	int    ok = 0;
-	uint c = __ResultPtrList.getCount();
-	if(c) do {
-		PPSoapResultPtrBase * p_item = (PPSoapResultPtrBase *)__ResultPtrList.at(--c);
-		if(p_item && *p_item == p) {
-			p_item->Destroy();
-			__ResultPtrList.atFree(c);
-			ok = 1;
-		}
-	} while(!ok && c);
-	return ok;
-}
-
-template <class T> static void RegisterResultPtr(T * ptr)
-{
-	if(ptr) {
-		PPSoapResultPtr <T> * p_item = new PPSoapResultPtr <T> (ptr);
-		if(p_item)
-			__ResultPtrList.insert(p_item);
-	}
-}
-*/
-
 extern "C" __declspec(dllexport) int iSalesDestroyResult(void * pResult)
 {
 	return pResult ? PPSoapDestroyResultPtr(pResult) : -1;
 }
-
-//typedef TSCollection <iSalesGoodsPacket> * (*ISALESGETGOODSLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw);
-//typedef int (*ISALESPUTSTOCKCOUNTING_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, TSCollection <iSalesStockCountingWhPacket> * pItems);
 
 static void FASTCALL ProcessError(AccountingTransferSoapProxy & rProxi, PPSoapClientSession & rSess)
 {
@@ -62,59 +31,6 @@ static int FASTCALL PreprocessCall(AccountingTransferSoapProxy & rProxy, PPSoapC
 		return 0;
 	}
 }
-
-#if 0 // {
-static char * FASTCALL GetDynamicParamString(const char * pSrc, TSCollection <InParamString> & rPool)
-{
-	InParamString * p_new_item = new InParamString(pSrc);
-	if(p_new_item) {
-		if(!rPool.insert(p_new_item)) {
-			ZDELETE(p_new_item);
-		}
-	}
-	return p_new_item ? (char *)*p_new_item : 0;
-}
-
-static char * FASTCALL GetDynamicParamString(long ival, TSCollection <InParamString> & rPool)
-{
-	SString temp_buf;
-	return GetDynamicParamString(temp_buf.Cat(ival), rPool);
-}
-
-static char * FASTCALL GetDynamicParamString(int ival, TSCollection <InParamString> & rPool)
-{
-	SString temp_buf;
-	return GetDynamicParamString(temp_buf.Cat((long)ival), rPool);
-}
-
-static char * FASTCALL GetDynamicParamString(double rval, long fmt, TSCollection <InParamString> & rPool)
-{
-	SString temp_buf;
-	temp_buf.Cat(rval, fmt);
-	temp_buf.ReplaceChar('.', ',');
-	return GetDynamicParamString(temp_buf, rPool);
-}
-
-static char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection <InParamString> & rPool)
-{
-	SString temp_buf;
-	if(checkdate(dval))
-		temp_buf.Cat(dval, fmt);
-	else
-		temp_buf.Z();
-	return GetDynamicParamString(temp_buf, rPool);
-}
-
-static char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tfmt, TSCollection <InParamString> & rPool)
-{
-	SString temp_buf;
-	if(checkdate(dtval.d))
-		temp_buf.Cat(dtval, dfmt, tfmt);
-	else
-		temp_buf.Z();
-	return GetDynamicParamString(temp_buf, rPool);
-}
-#endif // } 0
 
 extern "C" __declspec(dllexport) TSCollection <iSalesBillDebt> * iSalesGetUnclosedBillList(PPSoapClientSession & rSess,
 	const char * pUser, const char * pPassw, const DateRange * pPeriod)
@@ -236,12 +152,10 @@ extern "C" __declspec(dllexport) TSCollection <iSalesGoodsPacket> * iSalesGetGoo
 	param.username = arg_name;
 	param.password = arg_pw;
 	DateRange period;
-	//period.Set(encodedate(1, 1, 2001), encodedate(31, 12, 2030));
-	//period.Set(encodedate(1, 7, 2016), encodedate(20, 7, 2016));
 	if(pPeriod && pPeriod->low && pPeriod->upp)
 		period = *pPeriod;
 	else
-		period.Set(encodedate(1, 1, 2016), encodedate(20, 7, 2030));
+		period.Set(encodedate(1, 1, 2020), encodedate(20, 7, 2030));
 	InParamString arg_dtstart(temp_buf.Z().Cat(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 	InParamString arg_dtend(temp_buf.Z().Cat(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 	param.dtFrom = arg_dtstart;
@@ -313,7 +227,7 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 		const ns1__DOC * p_ord = pSrcList->DOC[i];
 		if(p_ord) {
 			const int doc_type = (temp_buf = p_ord->DOC_USCORETP).Transf(CTRANSF_UTF8_TO_INNER).ToLong();
-			if(oneof2(doc_type, 6, 13)) { // Заказ от клиента или приход от поставщика
+			if(oneof3(doc_type, 6, 13, 15)) { // Заказ от клиента, приход от поставщика, v-doc (запрос возврата)
 				iSalesBillPacket * p_new_order = p_result->CreateNewItem(0);
 				THROW(p_new_order);
 				p_new_order->DocType = doc_type;
@@ -338,10 +252,8 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 				strtodatetime(temp_buf, &p_new_order->CreationDtm, DATF_DMY, TIMF_HMS);
 				(temp_buf = p_ord->EDIT_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
 				strtodatetime(temp_buf, &p_new_order->LastUpdDtm, DATF_DMY, TIMF_HMS);
-				// @v9.2.6 {
 				(temp_buf = p_ord->INC_USCOREDT).Transf(CTRANSF_UTF8_TO_INNER);
 				strtodatetime(temp_buf, &p_new_order->IncDtm, DATF_DMY, TIMF_HMS);
-				// } @v9.2.6
 				p_new_order->ErrMsg = (temp_buf = p_ord->ErrorMessage).Transf(CTRANSF_UTF8_TO_INNER);
 				if(p_ord->DOC_USCOREITEMS && p_ord->DOC_USCOREITEMS->__sizeDOC_USCOREITEM > 0) {
 					for(int j = 0; j < p_ord->DOC_USCOREITEMS->__sizeDOC_USCOREITEM; j++) {
@@ -393,7 +305,6 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 						}
 					}
 				}
-				// @v9.3.1 {
 				if(p_ord->ATTRS && p_ord->ATTRS->__sizeATTR > 0) {
 					for(int j = 0; j < p_ord->ATTRS->__sizeATTR; j++) {
 						const ns1__ATTR * p_attr = p_ord->ATTRS->ATTR[j];
@@ -405,7 +316,6 @@ static TSCollection <iSalesBillPacket> * Helper_AcceptDocList(const ns1__ArrayOf
 						}
 					}
 				}
-				// } @v9.3.1
 			}
 		}
 	}
@@ -430,7 +340,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetRece
 	DateRange period;
 	if(!RVALUEPTR(period, pPeriod))
 		period.Z();
-	SETIFZ(period.low, encodedate(1, 1, 2001));
+	SETIFZ(period.low, encodedate(1, 1, 2020));
 	SETIFZ(period.upp, encodedate(31, 12, 2030));
 	param.dtFrom = GetDynamicParamString(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
 	param.dtTo = GetDynamicParamString(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
@@ -440,6 +350,35 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetRece
 	THROW(PreprocessCall(proxi, rSess, proxi.DocumentsTransfer(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	if(resp.DocumentsTransferResult && resp.DocumentsTransferResult->__sizeDOC > 0) {
 		p_result = Helper_AcceptDocList(resp.DocumentsTransferResult);
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetVDocList(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems)
+{
+	TSCollection <iSalesBillPacket> * p_result = 0;
+	AccountingTransferSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	gSoapClientInit(&proxi, 0, 0);
+	_ns1__VdocsTransfer param;
+	_ns1__VdocsTransferResponse resp;
+	SString temp_buf;
+	param.username = GetDynamicParamString(pUser, arg_str_pool);
+	param.password = GetDynamicParamString(pPassw, arg_str_pool);
+	DateRange period;
+	if(!RVALUEPTR(period, pPeriod))
+		period.Z();
+	SETIFZ(period.low, encodedate(1, 1, 2020));
+	SETIFZ(period.upp, encodedate(31, 12, 2030));
+	param.dtFrom = GetDynamicParamString(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
+	param.dtTo = GetDynamicParamString(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
+	param.includeAlreadyProcessedItems = GetDynamicParamString(inclProcessedItems, arg_str_pool);
+	THROW(PreprocessCall(proxi, rSess, proxi.VdocsTransfer(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+	if(resp.VdocsTransferResult && resp.VdocsTransferResult->__sizeDOC > 0) {
+		p_result = Helper_AcceptDocList(resp.VdocsTransferResult);
 	}
 	CATCH
 		ZDELETE(p_result);
@@ -462,7 +401,7 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetOrde
 	DateRange period;
 	if(!RVALUEPTR(period, pPeriod))
 		period.Z();
-	SETIFZ(period.low, encodedate(1, 1, 2001));
+	SETIFZ(period.low, encodedate(1, 1, 2020));
 	SETIFZ(period.upp, encodedate(31, 12, 2030));
 	param.dtFrom = GetDynamicParamString(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
 	param.dtTo = GetDynamicParamString(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
@@ -477,15 +416,6 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillPacket> * iSalesGetOrde
 	return p_result;
 }
 
-#if 0 // {
-static void ** FASTCALL /*_CreateSoapArray*/PPSoapCreateArray(uint count, int & rArrayCount)
-{
-	void ** pp_list = count ? (void **)SAlloc::C(count, sizeof(void *)) : 0;
-	rArrayCount = (int)count;
-	return pp_list;
-}
-#endif // } 0
-
 extern "C" __declspec(dllexport) SString * iSalesPutTransferStatus(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const TSCollection <iSalesTransferStatus> * pItems)
 {
 	SString * p_result = 0;
@@ -498,10 +428,8 @@ extern "C" __declspec(dllexport) SString * iSalesPutTransferStatus(PPSoapClientS
 	gSoapClientInit(&proxi, 0, 0);
 	_ns1__UpdateTransferStatus param;
 	_ns1__UpdateTransferStatusResponse resp;
-
 	TSCollection <ns1__pTransferStatus> arg_status_list;
 	ns1__ArrayOfPTransferStatus scl;
-
 	if(pItems && pItems->getCount()) {
 		param.username = arg_name;
 		param.password = arg_pw;
@@ -513,6 +441,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutTransferStatus(PPSoapClientS
 					case iSalesTransferStatus::ifcOrder: temp_buf = "ORDS"; break;
 					case iSalesTransferStatus::ifcInvoice: temp_buf = "DOCL"; break;
 					case iSalesTransferStatus::ifcReceipt: temp_buf = "DOCS"; break;
+					case iSalesTransferStatus::ifcReturnReq: temp_buf = "VDOC"; break; // @v10.8.12
 					default: temp_buf.Z(); break;
 				}
 				if(temp_buf.NotEmpty()) {
@@ -599,7 +528,6 @@ extern "C" __declspec(dllexport) SString * iSalesPutDebtSettlement(PPSoapClientS
 
 extern "C" __declspec(dllexport) SString * iSalesPutStockCounting(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const TSCollection <iSalesStockCountingWhPacket> * pItems)
 {
-	//int StockCountingTransfer(const char *endpoint, const char *soap_action, _ns1__StockCountingTransfer *ns1__StockCountingTransfer, _ns1__StockCountingTransferResponse *ns1__StockCountingTransferResponse);
 	SString * p_result = 0;
 	SString reply_msg;
 	SString temp_buf;
@@ -778,8 +706,6 @@ static const long PepsiMoneyFormat = MKSFMTD(0, 8, NMBF_DECCOMMA|NMBF_NOTRAILZ|N
 extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & rSess, const char * pUser, const char * pPassw,
 	const TSCollection <iSalesBillPacket> * pItems, uint maxItems)
 {
-	//int StockCountingTransfer(const char *endpoint, const char *soap_action, _ns1__StockCountingTransfer *ns1__StockCountingTransfer, _ns1__StockCountingTransferResponse *ns1__StockCountingTransferResponse);
-	//InvoiceWaybillTransfer
 	SString * p_result = 0;
 	SString temp_buf;
 	AccountingTransferSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
@@ -835,7 +761,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 				p_new_bill->SHIP_USCORETO   = GetDynamicParamString(p_src_pack->ShipTo, arg_str_pool);
 				p_new_bill->SELLER = GetDynamicParamString(p_src_pack->SellerCode, arg_str_pool);
 				p_new_bill->PAYER  = GetDynamicParamString(p_src_pack->PayerCode, arg_str_pool);
-				p_new_bill->ITEMS_USCOREAMOUNT = GetDynamicParamString((long)p_src_pack->Items.getCount(), arg_str_pool);
+				p_new_bill->ITEMS_USCOREAMOUNT = GetDynamicParamString(p_src_pack->Items.getCountI(), arg_str_pool);
 				p_new_bill->DUE_USCOREDATE = GetDynamicParamString(p_src_pack->DueDate, DATF_GERMAN|DATF_CENTURY, arg_str_pool);
 				p_new_bill->COMMS = GetDynamicParamString(p_src_pack->Memo, arg_str_pool);
 				p_new_bill->WHS_USCORESRC = GetDynamicParamString(p_src_pack->SrcLocCode, arg_str_pool);

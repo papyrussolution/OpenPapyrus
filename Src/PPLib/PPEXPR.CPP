@@ -323,7 +323,7 @@ int SLAPI BillContext::ResolveFunc(int funcId, FC & rFc)
 			break;
 		case funcAmountByTVat:
 			{
-				PPObjID objid;
+				PPObjID_Base objid;
 				objid = arg;
 				double arg2 = (rFc.ArgList.getCount() > 1) ? rFc.ArgList.at(1) : 0.0;
 				THROW_PP(objid.Obj == PPOBJ_GOODSTYPE, PPERR_OBJEXPECTED_GOODSTYPE);
@@ -1182,7 +1182,7 @@ int SLAPI GoodsContext::ResolveFunc(int funcId, FC & rFc)
 		double price = P_Ti ? P_Ti->Price : 0.0;
 		for(uint i = 0; i < rFc.ArgList.getCount(); i++) {
 			const double arg = rFc.ArgList.at(i);
-			PPObjID oid;
+			PPObjID_Base oid;
 			oid = arg;
 			switch(oid.Obj) {
 				case PPOBJ_QUOTKIND: SETIFZ(qk_id, oid.Id); break;
@@ -1218,10 +1218,9 @@ int SLAPI GoodsContext::IsRef(const char * pStr, size_t * pPos, SString & rRef)
 {
 	size_t pos = *pPos;
 	SString temp_buf;
-	if(isalpha(pStr[pos]) || pStr[pos] == '_' || pStr[pos] == '@')
-		do {
-			temp_buf.CatChar(pStr[pos++]);
-		} while(isalnum(pStr[pos]) || pStr[pos] == '_');
+	if(isalpha(pStr[pos]) || pStr[pos] == '_' || pStr[pos] == '@') do {
+		temp_buf.CatChar(pStr[pos++]);
+	} while(isalnum(pStr[pos]) || pStr[pos] == '_');
 	if(pStr[pos] == '.') {
 		pos++;
 		ASSIGN_PTR(pPos, pos);
@@ -1240,7 +1239,7 @@ int SLAPI GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty
 		if(P.TSessID) {
 			SETIFZ(P_TSesObj, new PPObjTSession);
 			TSessGoodsTotal tsgt;
-			MEMSZERO(tsgt);
+			// @v10.8.12 @ctr MEMSZERO(tsgt);
 			THROW(P_TSesObj->P_Tbl->CalcGoodsTotal(P.TSessID, goodsID, &tsgt));
 			v = isPhQtty ? tsgt.PhQtty : tsgt.Qtty;
 		}

@@ -5,9 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 SLAPI AmtEntry::AmtEntry() : AmtTypeID(0), CurID(0), Amt(0.0)
 {
 }
@@ -414,7 +412,7 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 					THROW(credit_list.Add(pPack->Rec.Dt, pPack->Rec.Amount));
 					for(j = 0; j < getCount(); j++) {
 						PayPlanTbl::Rec & r_item = at(j);
-						if(r_item.Amount > 0)
+						if(r_item.Amount > 0.0)
 							THROW(credit_list.Add(r_item.PayDate, -r_item.Amount));
 					}
 					//
@@ -430,7 +428,8 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 					// дату первой операции по кредиту
 					//
 					SETIFZ(last_chrg_dt, credit_list.GetFirstDate());
-					r = pPack->Rent.CalcPercent(last_chrg_dt, charge_dt, &credit_list, &amount);
+					amount = pPack->Rent.CalcPercent(last_chrg_dt, charge_dt, &credit_list);
+					r = 1;
 				}
 				else {
 					r = pPack->Rent.CalcRent(charge_dt, &amount);
@@ -631,10 +630,10 @@ void SLAPI PPBill::BaseDestroy()
 	Turns.clear();
 	AdvList.Clear();
 	LTagL.Release();
-	XcL.Release(); // @v9.8.11
+	XcL.Release();
 	_VXcL.Release(); // @v10.3.0
 	BTagL.Destroy();
-	Ver = DS.GetVersion(); // @v9.8.11
+	Ver = DS.GetVersion();
 }
 
 int FASTCALL PPBill::IsEqual(const PPBill & rS) const
@@ -777,6 +776,8 @@ int SLAPI PPBill::SetPayDate(LDATE dt, double amount)
 	return AddPayDate(dt, amount);
 }
 
+PPID SLAPI PPBill::GetDlvrAddrID() const { return P_Freight ? P_Freight->DlvrAddrID : 0; }
+
 int FASTCALL PPBill::GetFreight(PPFreight * pFreight) const
 {
 	int    ok = -1;
@@ -802,6 +803,17 @@ int FASTCALL PPBill::SetFreight(const PPFreight * pFreight)
 	else {
 		memcpy(P_Freight, pFreight, sizeof(*P_Freight));
 		Rec.Flags |= BILLF_FREIGHT;
+	}
+	return ok;
+}
+
+int FASTCALL PPBill::SetFreight_DlvrAddrOnly(PPID dlvrAddrID)
+{
+	int    ok = -1;
+	if(dlvrAddrID) {
+		PPFreight freight;
+		freight.DlvrAddrID = dlvrAddrID;
+		ok = SetFreight(&freight);
 	}
 	return ok;
 }
@@ -2088,6 +2100,13 @@ int SLAPI PPBillPacket::SetupDefaultPayDate(int paymTerm, long paymDateBase)
 {
 	const LDATE paym_date = CalcDefaultPayDate(paymTerm, paymDateBase);
 	return paym_date ? SetPayDate(paym_date, 0) : -1;
+}
+
+void SLAPI PPBillPacket::SetupEdiAttributes(int ediOp, const char * pEdiChannel, const char * pEdiIdent)
+{
+	Rec.EdiOp = ediOp;
+	BTagL.PutItemStrNE(PPTAG_BILL_EDICHANNEL, pEdiChannel);
+	BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pEdiIdent);
 }
 
 int SLAPI PPBillPacket::SetupObject2(PPID arID)
@@ -3444,8 +3463,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 			if(r_item.Val > 0) {
 				if(!goods_obj.BelongToGroup(goodsID, grp_id)) {
 					msg_buf.Z().Cat(goods_rec.Name).Space().Cat(">>").Space();
-					// @v9.5.5 GetGoodsName(grp_id, temp_buf);
-					goods_obj.FetchNameR(grp_id, temp_buf); // @v9.5.5
+					goods_obj.FetchNameR(grp_id, temp_buf);
 					msg_buf.Cat(temp_buf);
 					ok = PPSetError(PPERR_BILLGOODSRESTRICT, msg_buf);
 				}
@@ -3453,8 +3471,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 			else if(r_item.Val < 0) {
 				if(goods_obj.BelongToGroup(goodsID, grp_id)) {
 					msg_buf.Z().Cat(goods_rec.Name).Space().Cat(">>").Space();
-					// @v9.5.5 GetGoodsName(grp_id, temp_buf);
-					goods_obj.FetchNameR(grp_id, temp_buf); // @v9.5.5
+					goods_obj.FetchNameR(grp_id, temp_buf);
 					msg_buf.Cat(temp_buf);
 					ok = PPSetError(PPERR_BILLGOODSRESTRICTNEG, msg_buf);
 				}
@@ -3582,8 +3599,8 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
                         BillTbl::Rec plan_bill_rec;
                         PPIDArray plan_bill_list;
                         DateRange plan_bill_period;
-						PPIDArray _goods_list;    // @v9.5.1
-						_goods_list.add(goodsID); // @v9.5.1
+						PPIDArray _goods_list;
+						_goods_list.add(goodsID);
                         plan_bill_period.Set(plusdate(Rec.Dt, -180), Rec.Dt);
                         for(SEnum en = r_billc.EnumByOp(gvr_pack.Rec.ScpShipmLimitOpID, &plan_bill_period, 0); en.Next(&plan_bill_rec) > 0;) {
                             if(Rec.Dt >= plan_bill_rec.Dt && (!plan_bill_rec.DueDate || Rec.Dt < plan_bill_rec.DueDate)) {
@@ -5026,7 +5043,7 @@ int SLAPI TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, O
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	if(FiltGrpID && Flags & ETIEF_SALDOFILTGRP) {
-		const PPID dlvr_loc_id = pPack->P_Freight ? pPack->P_Freight->DlvrAddrID : 0;
+		const PPID dlvr_loc_id = pPack->GetDlvrAddrID();
 		PPIDArray temp_list;
 		GoodsIterator::GetListByGroup(FiltGrpID, &temp_list);
 		for(uint i = 0; i < temp_list.getCount(); i++) {

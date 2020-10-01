@@ -979,7 +979,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 				if(p_bp) {
 					const PPID   dlvr_ar_id = p_bp->Rec.Object;
 					const PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-					const PPID   dlvr_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
+					const PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
 					const PPID   subj_loc_id = p_bp->Rec.LocID;
 					PPID   subj_psn_id = 0;
 					GetMainOrgID(&subj_psn_id);

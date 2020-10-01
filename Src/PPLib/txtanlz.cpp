@@ -2349,7 +2349,6 @@ int PrcssrObjText::SignalProc(const char * pResource, int64 orgOffs, const char 
 	int    ok = 1;
 	SignalProcBlock * p_blk = static_cast<SignalProcBlock *>(pExtraPtr);
 	PPObjID oi;
-	oi.Z();
 	if(p_blk && oi.FromStr(pResource)) {
 		if(oi.Obj == PPOBJ_GOODS) {
 			if(!p_blk->GObj.SetupAttrByTextDescr(oi.Id, pSignalStr, !(p_blk->State & p_blk->stOuterTransaction))) {
@@ -2559,9 +2558,7 @@ int SLAPI PPObjectTokenizer::ProcessSuprWare(PPID swType, PPID swCls)
 	f_sw.SuprWareCat = swCls;
 	THROW(v_sw.Init_(&f_sw));
 	for(v_sw.InitIteration(); v_sw.NextIteration(&sw_item) > 0;) {
-		PPObjID oi;
-		oi.Set(PPOBJ_COMPGOODS, sw_item.ID);
-		THROW(AddObject(oi, sw_item.Name));
+		THROW(AddObject(PPObjID(PPOBJ_COMPGOODS, sw_item.ID), sw_item.Name));
 	}
 	CATCHZOK
 	return ok;
@@ -2572,9 +2569,7 @@ int SLAPI PPObjectTokenizer::ProcessGoods(const GoodsFilt * pFilt)
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
 	for(GoodsIterator iter(pFilt, 0); iter.Next(&goods_rec) > 0;) {
-		PPObjID oi;
-		oi.Set(PPOBJ_GOODS, goods_rec.ID);
-		THROW(AddObject(oi, goods_rec.Name));
+		THROW(AddObject(PPObjID(PPOBJ_GOODS, goods_rec.ID), goods_rec.Name));
 	}
 	CATCHZOK
 	return ok;

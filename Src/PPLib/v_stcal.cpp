@@ -551,10 +551,8 @@ int SLAPI PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME
 			PPStaffCalPacket pack;
 			if(Filt.LinkObjType && Obj.Fetch(calID, &par_rec) > 0) {
 				StaffCalendarTbl::Rec entry;
-				MEMSZERO(entry);
-				PPObjID oid;
-				oid.Obj = Filt.LinkObjType;
-				oid.Id = objID;
+				// @v10.8.12 @ctr MEMSZERO(entry);
+				PPObjID oid(Filt.LinkObjType, objID);
 				if(Obj.SearchByObj(calID, oid, &cal_rec) > 0) {
 					child_cal_id = cal_rec.ID;
 					THROW(Obj.GetPacket(child_cal_id, &pack) > 0);
@@ -649,9 +647,8 @@ int SLAPI PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			else if(Filt.LinkObjType && rec.LinkObjID) {
 				StaffCalFilt sc_flt;
 				if(rec.CalID) {
-					PPObjID oi;
 					PPStaffCal sc_rec;
-					if(Obj.SearchByObj(rec.CalID, oi.Set(Filt.LinkObjType, rec.LinkObjID), &sc_rec) > 0) {
+					if(Obj.SearchByObj(rec.CalID, PPObjID(Filt.LinkObjType, rec.LinkObjID), &sc_rec) > 0) {
 						sc_flt.Period.SetDate(rec.Dt);
 						if(Obj.Edit(&sc_rec.ID, &sc_flt) == cmOK) {
 							CreateEntryByObj(Filt.LinkObjType, rec.LinkObjID, &ObjNameList, 1);

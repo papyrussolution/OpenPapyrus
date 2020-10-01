@@ -2080,7 +2080,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         	if(rPack.Flags & PPEgaisProcessor::Packet::fReturnBill) {
 								wb_type = wbtRetFromMe;
 								consignee_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
-								consignee_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
+								consignee_loc_id = p_bp->GetDlvrAddrID();
 								shipper_psn_id = main_org_id;
 								shipper_loc_id = p_bp->Rec.LocID;
                         	}
@@ -2108,7 +2108,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								}
 								else {
 									consignee_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
-									consignee_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
+									consignee_loc_id = p_bp->GetDlvrAddrID();
 									shipper_psn_id = main_org_id;
 									shipper_loc_id = p_bp->Rec.LocID;
 								}
@@ -2130,13 +2130,13 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								consignee_psn_id = main_org_id;
 								consignee_loc_id = p_bp->Rec.LocID;
 								shipper_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
-								shipper_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
+								shipper_loc_id = p_bp->GetDlvrAddrID();
                         	}
                         	else if(p_bp->OpTypeID == PPOPT_GOODSRETURN && op_rec.LinkOpID) {
 								if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
 									wb_type = wbtRetFromMe;
 									consignee_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
-									consignee_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
+									consignee_loc_id = p_bp->GetDlvrAddrID();
 									shipper_psn_id = main_org_id;
 									shipper_loc_id = p_bp->Rec.LocID;
 								}
@@ -2145,7 +2145,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									consignee_psn_id = main_org_id;
 									consignee_loc_id = p_bp->Rec.LocID;
 									shipper_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
-									shipper_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
+									shipper_loc_id = p_bp->GetDlvrAddrID();
 								}
                         	}
                         	if(wb_type && !do_skip) {

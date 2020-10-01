@@ -1838,7 +1838,7 @@ static long FASTCALL _AdviseQuotCacheUpdate(long acn, PPAdviseProc proc, void * 
 {
 	long   cookie = 0;
 	PPAdviseBlock adv_blk;
-	MEMSZERO(adv_blk);
+	// @v10.8.12 @ctr MEMSZERO(adv_blk);
 	adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
 	adv_blk.Action = acn;
 	adv_blk.DbPathID = DBS.GetDbPathID();

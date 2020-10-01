@@ -369,6 +369,10 @@ SEnumImp * SLAPI TSessionCore::EnumLinesBySerial(const char * pSerial, int sign)
 	return InitLineEnumBySerial(pSerial, sign, &h) ? new PPTblEnum <TSessLineCore>(&Lines, h) : 0;
 }
 
+SLAPI TSessGoodsTotal::TSessGoodsTotal() : Count(0), Qtty(0.0), PhQtty(0.0), Amount(0.0)
+{
+}
+
 int SLAPI TSessionCore::CalcGoodsTotal(PPID sessID, PPID goodsID, TSessGoodsTotal * pTotal)
 {
 	int    ok = -1;

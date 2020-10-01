@@ -816,12 +816,16 @@ int NewPersMarksDialog::addItem(long * pPos, long * pID)
 	int    ok = -1;
 	PPPersonConfig::NewClientDetectionItem item;
 	SString op_kind_name;
-	MEMSZERO(item);
+	// @v10.8.12 @ctr MEMSZERO(item);
 	if(Edit(&item, op_kind_name) > 0) {
-		Data.insert(&item);
-		ASSIGN_PTR(pPos, (long)(Data.getCount() - 1));
-		ASSIGN_PTR(pID, item.Oi.Id);
-		ok = 1;
+		if(Data.insert(&item)) {
+			assert(Data.getCount() > 0);
+			ASSIGN_PTR(pPos, (Data.getCountI() - 1));
+			ASSIGN_PTR(pID, item.Oi.Id);
+			ok = 1;
+		}
+		else
+			ok = PPSetErrorSLib();
 	}
 	return ok;
 }
@@ -883,6 +887,10 @@ int NewPersMarksDialog::setupList()
 		}
 	}
 	return ok;
+}
+
+SLAPI PPPersonConfig::NewClientDetectionItem::NewClientDetectionItem() : Flags(0)
+{
 }
 
 SLAPI PPPersonConfig::PPPersonConfig()
@@ -3100,8 +3108,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						StringSet phone_list;
 						pPack->ELA.GetListByType(ELNKRT_PHONE, phone_list);
 						pPack->ELA.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
-						PPObjID objid;
-						objid.Set(Obj, id);
+						PPObjID objid(Obj, id);
 						// @v10.0.0 {
 						if(action != PPACN_OBJADD) {
 							StringSet org_phone_list;
@@ -3176,8 +3183,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					THROW(P_Tbl->GetELinks(id, &ela));
 					ela.GetListByType(ELNKRT_PHONE, phone_list);
 					ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
-					PPObjID objid;
-					objid.Set(Obj, id);
+					PPObjID objid(Obj, id);
 					for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
 						THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 					}
@@ -3197,8 +3203,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 			// @v10.5.3 {
 			if(id && DoObjVer_Person && hist_buf.GetAvailableSize()) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
-					PPObjID oid;
-					THROW(p_ovc->Add(&hid, oid.Set(Obj, id), &hist_buf, 0));
+					THROW(p_ovc->Add(&hid, PPObjID(Obj, id), &hist_buf, 0));
 				}
 			}		
 			// } @v10.5.3 
@@ -5969,10 +5974,9 @@ int SLAPI PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 		// ...а уже потом по этому списку проиндексируем телефоны.
 		//
 		for(uint j = 0; j < psn_id_list.getCount(); j++) {
-			PPObjID objid;
-			objid.Set(PPOBJ_PERSON, psn_id_list.get(j));
 			PersonTbl::Rec psn_rec;
 			WorldTbl::Rec city_rec;
+			PPObjID objid(PPOBJ_PERSON, psn_id_list.get(j));
 			if(Search(objid.Id, &psn_rec) > 0) {
 				PPID   city_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
 				city_prefix = 0;

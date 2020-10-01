@@ -5712,9 +5712,6 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 			/* case PPVCMD_TOTAL:
 				ok = ViewTotal();
 				break; */
-			/* @v9.2.10 case PPVCMD_TPIDTOTAL:
-				ok = ViewVATaxList();
-				break; */
 			case PPVCMD_CHECKSTAT:
 				if(r_cfg.Cash) {
 					PPCashMachine * cm = PPCashMachine::CreateInstance(r_cfg.Cash);
@@ -5724,10 +5721,6 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 					}
 				}
 				break;
-			/* @v9.2.10 case PPVCMD_EXPORTBNKORDER:
-				if(Filt.Flags & BillFilt::fAccturnOnly)
-					ok = ExportBnkOrder();
-				break; */
 			case PPVCMD_REFRESH:
 				ok = update = 1;
 				break;
@@ -5801,14 +5794,13 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 		}
 	}
 	if(update > 0 && ok > 0) {
-		//if(P_TempOrd && oneof2(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject))
 		if(IsTempTblNeeded()) {
 			ok = UpdateTempTable(id);
-			update = 2; // @v9.0.9
+			update = 2;
 		}
 		if(update == 2 && pBrw) {
 			pBrw->Update();
-			if(CheckIDForFilt(id, 0)) { // @v9.0.11
+			if(CheckIDForFilt(id, 0)) {
 				pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
 			}
 		}
@@ -6548,8 +6540,8 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 						qtty += p_ti->SQtty(p_pack->Rec.OpID);
 					}
 				}
-				const PPID dlvr_loc_id = p_pack->P_Freight ? p_pack->P_Freight->DlvrAddrID : 0; // @v9.5.1
-				p_bobj->GetGoodsSaldo(goods_id, H.ObjectID, dlvr_loc_id, H.Dt, oprno, &saldo, 0); // @v9.5.1 @fix H.DlvrLocID-->dlvr_loc_id
+				const PPID dlvr_loc_id = p_pack->GetDlvrAddrID();
+				p_bobj->GetGoodsSaldo(goods_id, H.ObjectID, dlvr_loc_id, H.Dt, oprno, &saldo, 0);
 			}
 		}
 		_RET_DBL = saldo;
@@ -8754,8 +8746,7 @@ int PPALDD_UhttBill::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.Code, r_blk.Pack.Rec.Code);
 		H.LocID = r_blk.Pack.Rec.LocID;
 		H.ArticleID = r_blk.Pack.Rec.Object;
-		if(r_blk.Pack.P_Freight)
-			H.DlvrLocID = r_blk.Pack.P_Freight->DlvrAddrID;
+		H.DlvrLocID = r_blk.Pack.GetDlvrAddrID();
 		H.CurID = r_blk.Pack.Rec.CurID;
 		if(p_bobj->P_Tbl->GetExtraData(r_blk.Pack.Rec.ID, &ext) > 0)
             H.AgentID = ext.AgentID;

@@ -113,6 +113,13 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetupSubstDateCombo(this, CTLSEL_PSNEVFLT_SUBSTDT, Data.Sgd);
 			AddClusterAssoc(CTL_PSNEVFLT_FLAGS, 0, Data.fWithoutPair);
 			SetClusterData(CTL_PSNEVFLT_FLAGS, Data.Flags);
+			// @v10.8.12 {
+			SetupPPObjCombo(this, CTLSEL_PSNEVFLT_EPRMRREG, PPOBJ_REGISTERTYPE, Data.ExtPrmrPersonRegID, 0, 0);
+			{
+				ObjTagFilt ot_filt(PPOBJ_PERSON, ObjTagFilt::fOnlyTags);
+				SetupPPObjCombo(this, CTLSEL_PSNEVFLT_EPRMRTAG, PPOBJ_TAG, Data.ExtPrmrPersonTagID, 0, &ot_filt);
+			}
+			// } @v10.8.12
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -131,7 +138,9 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			getCtrlData(CTLSEL_PSNEVFLT_SUBST,   &Data.Sgpe);
 			getCtrlData(CTLSEL_PSNEVFLT_SUBSTDT, &Data.Sgd);
 			GetClusterData(CTL_PSNEVFLT_FLAGS, &Data.Flags);
-			*pData = Data;
+			getCtrlData(CTLSEL_PSNEVFLT_EPRMRREG, &Data.ExtPrmrPersonRegID); // @v10.8.12
+			getCtrlData(CTLSEL_PSNEVFLT_EPRMRTAG, &Data.ExtPrmrPersonTagID); // @v10.8.12
+			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
 	};
@@ -151,7 +160,6 @@ int SLAPI PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 	AverageEventTimePrcssr * p_avg_ev_prcssr = 0;
 	TempPersonEventTbl * p_temp_grp_tbl = 0;
 	PersonEventTbl * p_temp_tbl = 0;
-
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(Helper_InitBaseFilt(pFilt));
 	save_filt = Filt;
@@ -370,8 +378,12 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 	TempPersonEventTbl * t = 0;
 	DBQuery * q = 0;
 	DBQ  * dbq = 0;
-	DBE    dbe_psn_prmr, dbe_psn_scnd;
-	DBE    dbe_op, dbe_avg_tm;
+	DBE    dbe_psn_prmr;
+	DBE    dbe_psn_scnd;
+	DBE    dbe_op;
+	DBE    dbe_avg_tm;
+	DBE    dbe_extreg; // @v10.8.12
+	DBE    dbe_exttag; // @v10.8.12
 	if(P_TempGrpTbl) {
 		brw_id = BROWSER_PSNEVSUBST;
 		THROW(CheckTblPtr(P_TempGrpTbl));
@@ -402,7 +414,7 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNamePsnOpKind, pe->OpID);
 		q = & select(
 			pe->ID,       // #0
-			pe->Flags,    // #1 // @v8.0.3
+			pe->Flags,    // #1 
 			pe->Dt,       // #2
 			pe->Tm,       // #3
 			dbe_psn_prmr, // #4
@@ -410,6 +422,29 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 			dbe_psn_scnd, // #6
 			pe->Memo,     // #7
 			0L).from(pe, 0L);
+		{
+			dbe_extreg.init();
+			if(Filt.ExtPrmrPersonRegID) {
+				dbe_extreg.push(dbconst(Filt.ExtPrmrPersonRegID));
+				dbe_extreg.push(dbconst(PPOBJ_PERSON));
+				dbe_extreg.push(pe->PersonID);
+				dbe_extreg.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjRegisterText));
+			}
+			else
+				dbe_extreg.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+			q->addField(dbe_extreg); // #8
+		}
+		{
+			dbe_exttag.init();
+			if(Filt.ExtPrmrPersonTagID) {
+				dbe_exttag.push(dbconst(Filt.ExtPrmrPersonTagID));
+				dbe_exttag.push(pe->PersonID);
+				dbe_exttag.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjTagText));
+			}
+			else
+				dbe_exttag.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+			q->addField(dbe_exttag); // #9
+		}
 		dbq = & daterange(pe->Dt, &Filt.Period);
 		dbq = & (*dbq && timerange(pe->Tm, &Filt.TmPeriod));
 		dbq = ppcheckweekday(dbq, pe->Dt, Filt.DayOfWeek);
@@ -487,6 +522,23 @@ void SLAPI PPViewPersonEvent::PreprocessBrowser(PPViewBrowser * pBrw)
 		if(!P_TempGrpTbl && !P_TempTbl)
 			pBrw->Advise(PPAdviseBlock::evPsnEvChanged, 0, PPOBJ_PERSONEVENT, 0);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		if(!P_TempGrpTbl) {
+			//BrowserDef * p_def = pBrw->getDef();
+			const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
+			const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
+			//uint pos = 0;
+			//if(p_q && p_q->getFieldPosByName("PVat", &pos)) {
+			//}
+			SString title_buf;
+			if(Filt.ExtPrmrPersonRegID) {
+				GetObjectName(PPOBJ_REGISTERTYPE, Filt.ExtPrmrPersonRegID, title_buf);
+				pBrw->InsColumn(-1, title_buf,  8, 0, 0, 0);
+			}
+			if(Filt.ExtPrmrPersonTagID) {
+				GetObjectName(PPOBJ_TAG, Filt.ExtPrmrPersonTagID, title_buf);
+				pBrw->InsColumn(-1, title_buf,  9, 0, 0, 0);
+			}
+		}
 	}
 }
 

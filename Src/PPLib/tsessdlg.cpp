@@ -3,9 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 static const int _TSesStatusTab[] = { TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED };
 
 SLAPI PrcTechCtrlGroup::Rec::Rec() : PrcID(0), PrcParentID(0), TechID(0), ArID(0), Ar2ID(0), IdleStatus(0)
@@ -233,9 +231,10 @@ int PrcTechCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-#define GRP_PRCTECH 2
-
 class TSessionDialog : public TDialog {
+	enum {
+		ctlgroupPrcTech = 2
+	};
 public:
 	explicit TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(0), InnerGetDTS(0), InpUpdLock(0), P_BObj(BillObj)
 	{
@@ -244,7 +243,7 @@ public:
 		SetupCalPeriod(CTLCAL_TSESS_PLANPERIOD, CTL_TSESS_PLANPERIOD);
 		SetupTimePicker(this, CTL_TSESS_STTM, CTLTM_TSESS_STTM);
 		SetupTimePicker(this, CTL_TSESS_FNTM, CTLTM_TSESS_FNTM);
-		addGroup(GRP_PRCTECH, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS,
+		addGroup(ctlgroupPrcTech, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS,
 			CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, cmSelTechByGoods, cmCreateGoods));
 		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing))
 			showCtrl(CTL_TSESS_AMOUNT, 0);
@@ -265,20 +264,23 @@ private:
 	//
 	// ARG(master IN): 0 - ведущее значение - продолжительность, 1 - ведущее значение - время окончания //
 	//
-	int    setupTiming(int master);
-	void   setupCapacity();
+	int    SetupTiming(int master);
+	void   SetupCapacity();
 	void   setupOrder();
-	void   setupTech(int force);
+	void   SetupTech(int force);
 	void   selectFreeEntry();
 	long   getToolingTiming();
-	void   detail();
-	int    setupCCheckButton();
-	int    setupCipButton();
+	void   Detail();
+	void   SetupCCheckButton();
+	void   SetupCipButton();
+	void   SetupAutoFillButton();
 	void   SetPlannedTiming(long sec);
 	long   GetPlannedTiming();
 	int    SetupPayment();
 	int    AddPayment();
 	void   More();
+	int    IsAddCompletionAvailable();
+	int    AddCompletion();
 
 	TSessionPacket Data;
 	int    OrgStatus;
@@ -526,7 +528,7 @@ void TSessionDialog::selectFreeEntry()
 					if(finish.IsFar())
 						finish.Z();
 					setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, finish);
-					setupTiming(1);
+					SetupTiming(1);
 				}
 			}
 		}
@@ -574,7 +576,7 @@ void TSessionDialog::setupOrder()
 	setCtrlString(CTL_TSESS_ORDER, order_buf);
 }
 
-void TSessionDialog::setupTech(int force)
+void TSessionDialog::SetupTech(int force)
 {
 	PPID   tech_id = Data.Rec.TechID;
 	getCtrlData(CTLSEL_TSESS_TECH, &tech_id);
@@ -598,19 +600,22 @@ void TSessionDialog::setupTech(int force)
 					}
 				}
 			}
-			if(r && new_tec_rec.InitQtty > 0) {
-				double prev_qtty = getCtrlReal(CTL_TSESS_PLANQTTY);
+			if(r && new_tec_rec.InitQtty > 0.0) {
+				const double prev_qtty = getCtrlReal(CTL_TSESS_PLANQTTY);
 				if(!force || prev_qtty == 0.0) {
 					setCtrlReal(CTL_TSESS_PLANQTTY, new_tec_rec.InitQtty);
-					setupCapacity();
+					SetupCapacity();
 				}
 			}
 		}
+		else
+			Data.Rec.TechID = 0;
+		SetupAutoFillButton(); // @v10.8.12
 	}
 	Data.Rec.TechID = tech_id;
 }
 
-void TSessionDialog::detail()
+void TSessionDialog::Detail()
 {
 	TSessionPacket temp_pack;
 	if(getDTS(&temp_pack)) {
@@ -624,8 +629,9 @@ void TSessionDialog::detail()
 				PPError();
 				endModal(cmCancel);
 			}
-			else
+			else {
 				setDTS(&temp_pack);
+			}
 		}
 		else
 			PPError();
@@ -921,15 +927,96 @@ long TSessionDialog::GetPlannedTiming()
 	return sec;
 }
 
+int TSessionDialog::IsAddCompletionAvailable()
+{
+	int    yes = 0;
+	long   h_lnenum = -1;
+	if(Data.Rec.PrcID && Data.Rec.TechID) {
+		const  double planned_qtty = getCtrlReal(CTL_TSESS_PLANQTTY);
+		PPID   sess_id = Data.Rec.ID;
+		if(!(Data.Rec.Flags & (TSESF_SUPERSESS|TSESF_WRITEDOFF)) && TSesObj.GetSessionKind(Data.Rec) == TSESK_SESSION && planned_qtty != 0.0) {
+			uint   ln_count = 0;
+			TSessLineTbl::Rec line_rec;
+			for(!sess_id || TSesObj.P_Tbl->InitLineEnum(sess_id, &h_lnenum); TSesObj.P_Tbl->NextLineEnum(h_lnenum, &line_rec) > 0;) {
+				ln_count++;
+				break;
+			}
+			if(ln_count == 0) {
+				ProcessorTbl::Rec prc_rec;
+				TechTbl::Rec tec_rec;
+				if(TSesObj.PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1) > 0 && TSesObj.TecObj.Fetch(Data.Rec.TechID, &tec_rec) > 0) {
+					if(tec_rec.GoodsID && tec_rec.GStrucID)
+						yes = 1;
+				}
+			}
+		}
+	}
+	TSesObj.P_Tbl->DestroyIter(h_lnenum);
+	return yes;
+}
+
+int TSessionDialog::AddCompletion() // @v10.8.12
+{
+	int    ok = -1;
+	PPID   sess_id = Data.Rec.ID;
+	const  double planned_qtty = getCtrlReal(CTL_TSESS_PLANQTTY);
+	if(!(Data.Rec.Flags & (TSESF_SUPERSESS|TSESF_WRITEDOFF)) && TSesObj.GetSessionKind(Data.Rec) == TSESK_SESSION && planned_qtty != 0.0) {
+		uint   ln_count = 0;
+		if(sess_id) {
+			TSessLineTbl::Rec line_rec;
+			long   h_lnenum = -1;
+			for(TSesObj.P_Tbl->InitLineEnum(sess_id, &h_lnenum); TSesObj.P_Tbl->NextLineEnum(h_lnenum, &line_rec) > 0;) {
+				ln_count++;
+			}
+			TSesObj.P_Tbl->DestroyIter(h_lnenum);
+		}
+		if(ln_count == 0) {
+			ProcessorTbl::Rec prc_rec;
+			TechTbl::Rec tec_rec;
+			if(TSesObj.PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec) > 0 && TSesObj.TecObj.Fetch(Data.Rec.TechID, &tec_rec) > 0) {
+				const PPID tec_goods_id = tec_rec.GoodsID;
+				const PPID tec_struc_id = tec_rec.GStrucID;
+				const int  main_item_sign = tec_rec.Sign;
+				if(tec_goods_id && tec_struc_id && CONFIRM(PPCFM_TSESSAUTOCOMPLETE)) {
+					TSessionPacket temp_pack;
+					if(getDTS(&temp_pack)) {
+						PPTransaction tra(1);
+						THROW(tra);
+						sess_id = temp_pack.Rec.ID;
+						THROW(TSesObj.PutPacket(&sess_id, &temp_pack, 0));
+						{
+							{
+								TSessLineTbl::Rec line_rec;
+								long   oprno = 0;
+								THROW(TSesObj.InitLinePacket(&line_rec, sess_id) > 0);
+								THROW(TSesObj.SetupLineGoods(&line_rec, tec_goods_id, 0, 0));
+								line_rec.Sign = static_cast<int16>(main_item_sign);
+								line_rec.Qtty = planned_qtty;
+								THROW(TSesObj.PutLine(sess_id, &oprno, &line_rec, 0));
+							}
+							THROW(TSesObj.CompleteSession(sess_id, 0));
+						}
+						THROW(tra.Commit());
+						SetupAutoFillButton();
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 IMPL_HANDLE_EVENT(TSessionDialog)
 {
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		if(event.isCmd(cmTSessDetail))
-			detail();
+			Detail();
 		else if(event.isCmd(cmSelOrder)) {
 			PPID   goods_id = 0;
-			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
+			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
 			//PPID   sel_lot_id = Data.Rec.OrderLotID;
 			//ReceiptTbl::Rec sel_lot_rec;
 			if(p_grp && p_grp->getGoodsID(this, &goods_id) > 0) {
@@ -972,7 +1059,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 						TSesObj.CallCheckPaneBySess(temp_id, 0);
 						if(TSesObj.Search(temp_id, &temp_pack.Rec) > 0 && temp_pack.Rec.CCheckID_) {
 							Data.Rec.CCheckID_ = temp_pack.Rec.CCheckID_;
-							setupCCheckButton();
+							SetupCCheckButton();
 						}
 					}
 					else
@@ -1010,6 +1097,11 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 		else if(event.isCmd(cmaMore)) {
 			More();
 		}
+		// @v10.8.12 {
+		else if(event.isCmd(cmAutoFill)) {
+			AddCompletion();
+		}
+		// } @v10.8.12 
 		else if(event.isClusterClk(CTL_TSESS_STATUS)) {
 			long   new_status = 0;
 			GetClusterData(CTL_TSESS_STATUS, &new_status);
@@ -1024,17 +1116,16 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 					setCtrlData(CTL_TSESS_FNDT, &Data.Rec.FinDt);
 				if(prev_rec.StTm != Data.Rec.FinTm)
 					setCtrlData(CTL_TSESS_FNTM, &Data.Rec.FinTm);
-				setupCCheckButton();
+				SetupCCheckButton();
 			}
 			else
 				PPError();
 		}
 		else if(event.isClusterClk(CTL_TSESS_IDLE)) {
 			GetClusterData(CTL_TSESS_IDLE, &Data.Rec.Flags);
-			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
-			if(p_grp)
-				p_grp->setIdleStatus(this, BIN(Data.Rec.Flags & TSESF_IDLE));
-			setupCCheckButton();
+			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
+			CALLPTRMEMB(p_grp, setIdleStatus(this, BIN(Data.Rec.Flags & TSESF_IDLE)));
+			SetupCCheckButton();
 		}
 		else if(event.isCbSelected(CTLSEL_TSESS_PRC)) {
 			int    r = 1;
@@ -1049,7 +1140,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 					Data.Rec.Status = 1;
 					if(!TSesObj.SetSessionState(&Data.Rec, new_status, 1)) {
 						PPError();
-						Data.Rec.Status = (int16)prev_status;
+						Data.Rec.Status = static_cast<int16>(prev_status);
 						Data.Rec.PrcID  = prev_prc_id;
 						setCtrlData(CTLSEL_TSESS_PRC, &Data.Rec.PrcID);
 						r = 0;
@@ -1059,7 +1150,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 						if(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0 && prc_rec.SuperSessTiming) {
 							Data.Rec.PlannedTiming = prc_rec.SuperSessTiming;
 							SetPlannedTiming(Data.Rec.PlannedTiming);
-							setupTiming(0);
+							SetupTiming(0);
 						}
 					}
 					else if(Data.Rec.ParentID) {
@@ -1080,8 +1171,8 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 					getCtrlData(CTLSEL_TSESS_SUPERSES, &Data.Rec.ParentID);
 					void * extra_ptr = PPObjTSession::MakeExtraParam(0, prc_id, 1);
 					SetupPPObjCombo(this, CTLSEL_TSESS_SUPERSES, PPOBJ_TSESSION, Data.Rec.ParentID, OLW_LOADDEFONOPEN, extra_ptr);
-					setupCCheckButton();
-					setupCipButton();
+					SetupCCheckButton();
+					SetupCipButton();
 				}
 				SetupPayment();
 			}
@@ -1103,7 +1194,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			}
 		}
 		else if(event.isCbSelected(CTLSEL_TSESS_TECH))
-			setupTech(0);
+			SetupTech(0);
 		else if(event.isCbSelected(CTLSEL_TSESS_OBJ)) {
 			Data.Rec.ArID = getCtrlLong(CTLSEL_TSESS_OBJ);
 			enableCommand(cmBrowseTSessByAr, Data.Rec.ArID);
@@ -1118,7 +1209,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 				if(!InpUpdLock) {
 					TInputLine * il = static_cast<TInputLine *>(getCtrlView(i));
 					CALLPTRMEMB(il, disableDeleteSelection(1));
-					setupTiming(0);
+					SetupTiming(0);
 					CALLPTRMEMB(il, disableDeleteSelection(0));
 				}
 			}
@@ -1126,7 +1217,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 				if(!InpUpdLock) {
 					TInputLine * il = static_cast<TInputLine *>(getCtrlView(i));
 					CALLPTRMEMB(il, disableDeleteSelection(1));
-					setupTiming(1);
+					SetupTiming(1);
 					CALLPTRMEMB(il, disableDeleteSelection(0));
 				}
 			}
@@ -1134,7 +1225,8 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 				if(!InpUpdLock) {
 					TInputLine * il = static_cast<TInputLine *>(getCtrlView(i));
 					CALLPTRMEMB(il, disableDeleteSelection(1));
-					setupCapacity();
+					SetupCapacity();
+					SetupAutoFillButton(); // @v10.8.12
 					CALLPTRMEMB(il, disableDeleteSelection(0));
 				}
 			}
@@ -1147,11 +1239,11 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			uint i = TVINFOVIEW->GetId();
 			if(oneof3(i, CTL_TSESS_PLANTIMING, CTL_TSESS_STDT, CTL_TSESS_STTM)) {
 				if(!InpUpdLock)
-					setupTiming(0);
+					SetupTiming(0);
 			}
 			else if(i == CTL_TSESS_PLANQTTY) {
 				if(!InpUpdLock)
-					setupCapacity();
+					SetupCapacity();
 			}
 			else
 				return;
@@ -1164,11 +1256,11 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 			LDATETIME dtm = getcurdatetime_();
 			if(isCurrCtlID(CTL_TSESS_STDT)) {
 				setCtrlData(CTL_TSESS_STDT, &dtm.d);
-				setupTiming(0);
+				SetupTiming(0);
 			}
 			else if(isCurrCtlID(CTL_TSESS_STTM)) {
 				setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, dtm);
-				setupTiming(0);
+				SetupTiming(0);
 			}
 			else if(isCurrCtlID(CTL_TSESS_FNDT))
 				setCtrlData(CTL_TSESS_FNDT, &dtm.d);
@@ -1176,7 +1268,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 				setCtrlDatetime(CTL_TSESS_FNDT, CTL_TSESS_FNTM, dtm);
 		}
 		else if(TVKEY == kbF11)
-			detail();
+			Detail();
 		else
 			return;
 	}
@@ -1185,21 +1277,21 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 	clearEvent(event);
 }
 
-void TSessionDialog::setupCapacity()
+void TSessionDialog::SetupCapacity()
 {
-	double planned_qtty = getCtrlReal(CTL_TSESS_PLANQTTY);
+	const double planned_qtty = getCtrlReal(CTL_TSESS_PLANQTTY);
 	if(planned_qtty != Data.Rec.PlannedQtty || Data.Rec.PlannedTiming <= 0) {
 		InpUpdLock++;
 		Data.Rec.PlannedQtty = planned_qtty;
 		getCtrlData(CTLSEL_TSESS_TECH, &Data.Rec.TechID); // getCtrlLong использовать нельзя, ибо поле может отсутствовать
 		TSesObj.SetPlannedTiming(&Data.Rec);
 		SetPlannedTiming(Data.Rec.PlannedTiming);
-		setupTiming(0);
+		SetupTiming(0);
 		InpUpdLock--;
 	}
 }
 
-int TSessionDialog::setupTiming(int master)
+int TSessionDialog::SetupTiming(int master)
 {
 	int    ok = 1;
 	uint   sel = 0;
@@ -1254,7 +1346,12 @@ int TSessionDialog::setupTiming(int master)
 	return ok;
 }
 
-int TSessionDialog::setupCCheckButton()
+void TSessionDialog::SetupAutoFillButton()
+{
+	enableCommand(cmAutoFill, IsAddCompletionAvailable());
+}
+
+void TSessionDialog::SetupCCheckButton()
 {
 	int    allow = 0;
 	ProcessorTbl::Rec prc_rec;
@@ -1264,10 +1361,9 @@ int TSessionDialog::setupCCheckButton()
 		allow = BIN(PPObjCashNode::Select(prc_rec.LocID, 1, 0, 1) > 0);
 	enableCommand(cmCCheck, allow);
 	showButton(cmCCheck, allow);
-	return allow;
 }
 
-int TSessionDialog::setupCipButton()
+void TSessionDialog::SetupCipButton()
 {
 	int    allow = 0;
 	ProcessorTbl::Rec prc_rec;
@@ -1275,12 +1371,11 @@ int TSessionDialog::setupCipButton()
 		allow = BIN(prc_rec.Flags & PRCF_ALLOWCIP);
 	enableCommand(cmChkInP, allow);
 	showButton(cmChkInP, allow);
-	return allow;
 }
 
 int TSessionDialog::setDTS(const TSessionPacket * pData)
 {
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	OrgStatus = Data.Rec.Status;
 	int    ok = 1;
 	InpUpdLock++;
@@ -1303,17 +1398,17 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		ptcg_rec.IdleStatus = BIN(Data.Rec.Flags & TSESF_IDLE);
 	}
 	{
-		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
+		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
 		if(p_grp) {
 			if(!(Data.Rec.Flags & (TSESF_SUPERSESS|TSESF_PLAN)))
 				p_grp->enableSelUpLevel(0);
 			p_grp->enablePrcInsert(1);
 		}
 	}
-	if(setGroupData(GRP_PRCTECH, &ptcg_rec)) {
+	if(setGroupData(ctlgroupPrcTech, &ptcg_rec)) {
 		//
 		// Предварительно устанавливаем дату и время начала в диалоге из-за того,
-		// что вызов setupTech (косвенно через события) приводит к тому,
+		// что вызов SetupTech (косвенно через события) приводит к тому,
 		// что из этих полей извлекается время.
 		//
 		setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.Rec.StDt, Data.Rec.StTm);
@@ -1321,20 +1416,19 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		// Группа выбора процессора может изменить TechID, установив
 		// единственную доступную для данного процессора технологию.
 		//
-		setupTech(Data.Rec.ID ? 0 : 1);
+		SetupTech(Data.Rec.ID ? 0 : 1);
 	}
 	else
 		PPError();
 	void * extra_ptr = PPObjTSession::MakeExtraParam(0, Data.Rec.PrcID, TSESK_SUPERSESS);
 	SetupPPObjCombo(this, CTLSEL_TSESS_SUPERSES, PPOBJ_TSESSION, Data.Rec.ParentID, OLW_LOADDEFONOPEN, extra_ptr);
-
 	AddClusterAssoc(CTL_TSESS_IDLE, 0, TSESF_IDLE);
 	SetClusterData(CTL_TSESS_IDLE, Data.Rec.Flags);
 	AddClusterAssoc(CTL_TSESS_PLANFLAGS, 0, TSESF_PLAN_PHUNIT);
 	SetClusterData(CTL_TSESS_PLANFLAGS, Data.Rec.Flags);
 	{
-		int first_status = 0;
-		uint pos = 0;
+		int    first_status = 0;
+		uint   pos = 0;
 		if(!oneof2(resourceID, DLG_TSESSSIMPLE, DLG_TSESSTM)) {
 			pos = 1;
 			AddClusterAssoc(CTL_TSESS_STATUS,  0, TSESST_PLANNED);
@@ -1349,9 +1443,8 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		for(uint i = 0; i < SIZEOFARRAY(_TSesStatusTab); i++) {
 			int    item_pos = 0;
 			const  int status = _TSesStatusTab[i];
-			if(GetClusterItemByAssoc(CTL_TSESS_STATUS, status, &item_pos)) {
+			if(GetClusterItemByAssoc(CTL_TSESS_STATUS, status, &item_pos))
 				DisableClusterItem(CTL_TSESS_STATUS, item_pos, !TSesObj.SetSessionState(&Data.Rec, status, 1));
-			}
 		}
 	}
 	setCtrlDatetime(CTL_TSESS_STDT, CTL_TSESS_STTM, Data.Rec.StDt, Data.Rec.StTm);
@@ -1376,8 +1469,9 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	disableCtrl(CTLSEL_TSESS_TECH, Data.Rec.Flags & (TSESF_IDLE | TSESF_PLAN));
 	enableCommand(cmSelTechByGoods, !(Data.Rec.Flags & (TSESF_IDLE | TSESF_PLAN)));
 	enableCommand(cmBrowseTSessByAr, Data.Rec.ArID);
-	setupCCheckButton();
-	setupCipButton();
+	SetupCCheckButton();
+	SetupCipButton();
+	SetupAutoFillButton(); // @v10.8.12
 	SetupPayment();
 	InpUpdLock--;
 	return ok;
@@ -1401,8 +1495,8 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 	}
 	else {
 		PrcTechCtrlGroup::Rec ptcg_rec;
-		MEMSZERO(ptcg_rec);
-		if(getGroupData(GRP_PRCTECH, &ptcg_rec)) {
+		// @v10.8.12 @ctr MEMSZERO(ptcg_rec);
+		if(getGroupData(ctlgroupPrcTech, &ptcg_rec)) {
 			Data.Rec.PrcID = ptcg_rec.PrcID;
 			sel = CTLSEL_TSESS_PRC;
 			THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
@@ -1430,7 +1524,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 	getCtrlData(CTL_TSESS_FNTM, &Data.Rec.FinTm);
 	getCtrlData(CTL_TSESS_PLANQTTY,   &Data.Rec.PlannedQtty);
 	sel = 0;
-	THROW(setupTiming(0));
+	THROW(SetupTiming(0));
 	THROW(TSesObj.CheckSessionTime(Data.Rec));
 	PPID   parent_id = getCtrlLong(sel = CTLSEL_TSESS_SUPERSES);
 	THROW(TSesObj.CheckSuperSessLink(&Data.Rec, parent_id, 0));
@@ -1612,7 +1706,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 			if(goods_id) {
 				long   temp_long = 0;
 				if(GetClusterData(CTL_TSESSLN_SIGN, &temp_long))
-					Data.Sign = (int16)temp_long;
+					Data.Sign = static_cast<int16>(temp_long);
 				if(Data.Sign < 0) {
 					PPObjTSession::SerialByGoodsListItem si;
 					if(TSesObj.SelectSerialByGoods(goods_id, TSessLocID, &si) > 0 && si.Serial[0])
@@ -1621,7 +1715,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 			}
 		}
 		else if(event.isCbSelected(CTLSEL_TSESSLN_GOODS)) {
-			PPID   goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
+			const  PPID goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
 			int    r = TSesObj.SetupLineGoods(&Data, goods_id, 0, 0);
 			if(r == 0) {
 				setCtrlLong(CTLSEL_TSESSLN_GOODS, Data.GoodsID);
@@ -1641,12 +1735,12 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 		else if(event.isClusterClk(CTL_TSESSLN_PLANFLAGS)) {
 			long   temp_long = 0;
 			if(GetClusterData(CTL_TSESSLN_SIGN, &temp_long)) {
-				Data.Sign = (int16)temp_long;
+				Data.Sign = static_cast<int16>(temp_long);
 				disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
 				enableCommand(cmSelSerial, BIN(Data.Sign < 0));
 			}
 		}
-		else if(TVCMD == cmInputUpdated) {
+		else if(event.isCmd(cmInputUpdated)) {
 			if(event.isCtlEvent(CTL_TSESSLN_PRICE)) {
 				Data.Price = getCtrlReal(CTL_TSESSLN_PRICE);
 				if(PctDis) {
@@ -1672,7 +1766,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 		const  uint curr_ctl_id = GetCurrId();
 		if(TVKEY == kbF2) {
 			if(curr_ctl_id == CTL_TSESSLN_QTTY) {
-				double qtty = getCtrlReal(CTL_TSESSLN_QTTY);
+				const double qtty = getCtrlReal(CTL_TSESSLN_QTTY);
 				if(qtty > 0.0) {
 					PPID   goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
 					GoodsStockExt gse;
@@ -1685,7 +1779,8 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 		}
 		else if(TVKEY == kbF4) {
 			if(curr_ctl_id == CTL_TSESSLN_QTTY) {
-				double phuperu, qtty = 0.0;
+				double phuperu;
+				double qtty = 0.0;
 				GetClusterData(CTL_TSESSLN_PLANFLAGS, &Data.Flags);
 				if(!(Data.Flags & TSESLF_PLAN_PHUNIT) && getCtrlData(CTL_TSESSLN_QTTY, &qtty) && qtty > 0)
 					if(Data.GoodsID && GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0)
@@ -1697,7 +1792,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 		else if(TVKEY == kbShiftF6) {
 			if(curr_ctl_id == CTL_TSESSLN_QTTY) {
 				double qtty = getCtrlReal(CTL_TSESSLN_QTTY);
-				if(qtty > 0 && Data.GoodsID) {
+				if(qtty > 0.0 && Data.GoodsID) {
 					PPGoodsStruc gs;
 					if(TSesObj.GetGoodsStruc(Data.TSessID, &gs) > 0 && gs.RecalcQttyByMainItemPh(&qtty) > 0)
 						setupQtty(0, qtty);
@@ -1709,8 +1804,8 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 		else if(TVKEY == kbF9) {
 			if(oneof2(curr_ctl_id, CTL_TSESSLN_QTTY, CTL_TSESSLN_INDEPPHQTTY)) {
 				double result = 0.0;
-				PPID   goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
-				double _arg = getCtrlReal(curr_ctl_id);
+				const  PPID   goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
+				const  double _arg = getCtrlReal(curr_ctl_id);
 				if(PPGoodsCalculator(goods_id, Data.TSessID, 1, _arg, &result) > 0 && result > 0.0) {
 					setCtrlReal(curr_ctl_id, R6(result));
 					if(curr_ctl_id == CTL_LOT_QUANTITY)
@@ -1798,4 +1893,3 @@ int SLAPI PPObjTSession::EditLineDialog(TSessLineTbl::Rec * pData, int asPlanLin
 	uint   dlg_id = asPlanLine ? DLG_TSESSPLANLN : DLG_TSESSLN;
 	DIALOG_PROC_BODY_P1(TSessLineDialog, dlg_id, pData);
 }
-

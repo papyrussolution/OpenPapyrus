@@ -393,8 +393,7 @@ int SLAPI LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
 		if(CConfig.Flags2 & CCFLG2_INDEXEADDR) {
 			SString temp_buf;
 			GetExField(pRec, LOCEXSTR_PHONE, temp_buf);
-			PPObjID objid;
-			objid.Set(PPOBJ_LOCATION, *pID);
+			PPObjID objid(PPOBJ_LOCATION, *pID);
 			THROW(IndexPhone(temp_buf, &objid, 0, 0));
 		}
 		THROW(tra.Commit());
@@ -638,8 +637,7 @@ int SLAPI LocationCore::DumpEaList(const char * pFileName)
 			q.select(P_Eac->ID, P_Eac->LinkObjType, P_Eac->LinkObjID, P_Eac->Addr, 0L);
 			MEMSZERO(k1);
 			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
-				PPObjID oid;
-				oid.Set(P_Eac->data.LinkObjType, P_Eac->data.LinkObjID);
+				PPObjID oid(P_Eac->data.LinkObjType, P_Eac->data.LinkObjID);
 				reinterpret_cast<const PPEAddr *>(P_Eac->data.Addr)->GetPhone(phone_buf);
 				;
 				line_buf.Z().Cat(P_Eac->data.ID).Tab().Cat(phone_buf).Tab().Cat(oid.ToStr(temp_buf));

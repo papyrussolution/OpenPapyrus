@@ -629,38 +629,38 @@ int SLAPI ObjIdListFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 //
 //
 //
-int SLAPI PPObjID::IsZero() const
+int SLAPI PPObjID_Base::IsZero() const
 {
 	return (Obj == 0 && Id == 0);
 }
 
-PPObjID & PPObjID::Z()
+PPObjID_Base & SLAPI PPObjID_Base::Z()
 {
 	Obj = 0;
 	Id = 0;
 	return *this;
 }
 
-PPObjID PPObjID::Set(PPID objType, PPID objID)
+PPObjID_Base SLAPI PPObjID_Base::Set(PPID objType, PPID objID)
 {
 	Obj = objType;
 	Id = objID;
 	return *this;
 }
 
-int SLAPI PPObjID::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
-int FASTCALL PPObjID::operator == (PPObjID s) const { return (Obj == s.Obj && Id == s.Id); }
-int FASTCALL PPObjID::operator != (PPObjID s) const { return (Obj != s.Obj || Id != s.Id); }
-PPObjID::operator double() const { return ((Obj * 4.0E+9) + (double)Id); }
+int SLAPI PPObjID_Base::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
+int FASTCALL PPObjID_Base::operator == (PPObjID_Base s) const { return (Obj == s.Obj && Id == s.Id); }
+int FASTCALL PPObjID_Base::operator != (PPObjID_Base s) const { return (Obj != s.Obj || Id != s.Id); }
+PPObjID_Base::operator double() const { return ((Obj * 4.0E+9) + static_cast<double>(Id)); }
 
-PPObjID & FASTCALL PPObjID::operator = (double oid)
+PPObjID_Base & FASTCALL PPObjID_Base::operator = (double oid)
 {
 	Id = (long)fmod(fabs(oid), 4.0E+9);
 	Obj = (long)(fabs(oid) / 4.0E+9);
 	return *this;
 }
 
-SString & FASTCALL PPObjID::ToStr(SString & rBuf) const
+SString & FASTCALL PPObjID_Base::ToStr(SString & rBuf) const
 {
 	rBuf.Z();
 	if(!DS.GetObjectTypeSymb(Obj, rBuf)) 
@@ -670,7 +670,7 @@ SString & FASTCALL PPObjID::ToStr(SString & rBuf) const
 	return rBuf;
 }
 
-int FASTCALL PPObjID::FromStr(const char * pStr)
+int FASTCALL PPObjID_Base::FromStr(const char * pStr)
 {
 	int    ok = 0;
 	SStrScan scan(pStr);
@@ -698,12 +698,40 @@ int FASTCALL PPObjID::FromStr(const char * pStr)
 	}
 	return ok;
 }
-//
-//
-//
-SLAPI PPObjIDArray::PPObjIDArray() : TSVector <PPObjID>() // @v9.8.4 TSArray-->TSVector
+
+SLAPI PPObjID::PPObjID()
 {
-	DoReplace = 0;
+	Obj = 0;
+	Id = 0;
+}
+
+SLAPI PPObjID::PPObjID(const PPObjID_Base & rS)
+{
+	Obj = rS.Obj;
+	Id = rS.Id;
+}
+
+SLAPI PPObjID::PPObjID(PPID objType, PPID objID)
+{
+	Obj = objType;
+	Id = objID;
+}
+
+PPObjID & FASTCALL PPObjID::operator = (const PPObjID_Base & rS)
+{
+	Obj = rS.Obj;
+	Id = rS.Id;
+	return *this;
+}
+
+SLAPI PPObjNamePEntry::PPObjNamePEntry(PPID objType, PPID objID) : PPObjID(objType, objID), NameP(0)
+{
+}
+//
+//
+//
+SLAPI PPObjIDArray::PPObjIDArray() : TSVector <PPObjID>(), DoReplace(0)
+{
 }
 
 int SLAPI PPObjIDArray::Search(PPObjID key, uint * pPos) const
@@ -713,16 +741,14 @@ int SLAPI PPObjIDArray::Search(PPObjID key, uint * pPos) const
 
 int SLAPI PPObjIDArray::Add(PPID objType, PPID objID)
 {
-	PPObjID item;
-	item.Set(objType, objID);
+	PPObjID item(objType, objID);
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
 int SLAPI PPObjIDArray::Add_NotPreprocess(PPID objType, PPID objID)
 {
 	int    ok = 1;
-	PPObjID item;
-	item.Set(objType, objID);
+	PPObjID item(objType, objID);
 	const uint pos = getCount();
 	if(insert(&item)) {
 		DontPreprocPosList.add(pos);
@@ -740,8 +766,7 @@ int FASTCALL PPObjIDArray::Is_NotPreprocess_Pos(uint pos) const
 int SLAPI PPObjIDArray::Add(PPID objType, const PPIDArray & rList)
 {
 	int    ok = 1;
-	PPObjID item;
-	item.Obj = objType;
+	PPObjID item(objType, 0);
 	for(uint i = 0; ok && i < rList.getCount(); i++) {
 		item.Id = rList.get(i);
 		if(!insert(&item))

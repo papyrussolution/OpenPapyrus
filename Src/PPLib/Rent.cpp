@@ -5,17 +5,15 @@
 #include <pp.h>
 #pragma hdrstop
 
-// Prototype
-int SLAPI RentChrgDialog(RentChrgFilt *);
+int SLAPI RentChrgDialog(RentChrgFilt *); // Prototype
 //
 //
 //
-int SLAPI CalcPercent(LDATE beg, LDATE end, double rest, double percent, double * pResult)
+double SLAPI CalcPercent(LDATE beg, LDATE end, double rest, double percent)
 {
 	long   num_days = _diffdate(&end, &beg, DF_BTRIEVE, 1);
 	double result = fdiv100r(rest * num_days * percent) / 360.0;
-	ASSIGN_PTR(pResult, result);
-	return 1;
+	return result;
 }
 //
 //
@@ -83,18 +81,15 @@ int SLAPI PctChargeArray::ChargePercent(LDATE since, LDATE end, double percent, 
 	for(uint i = 0; EnumItems(&i, &entry) > 0;) {
 		if(entry.Dt > since) {
 			if(entry.Dt <= end) {
-				double part = 0.0;
-				CalcPercent(beg, entry.Dt, rest, percent, &part);
+				double part = CalcPercent(beg, entry.Dt, rest, percent);
 				result += part;
 			}
 			else if(i > 1 && end > at(i-2).Dt) {
 				//
 				// Если точка начисления находится между двумя операциями
-				// по кредиту, то начисляем за период, прошедший с даты beg
-				// до точки начисления.
+				// по кредиту, то начисляем за период, прошедший с даты beg до точки начисления.
 				//
-				double part = 0.0;
-				CalcPercent(beg, end, rest, percent, &part);
+				double part = CalcPercent(beg, end, rest, percent);
 				result += part;
 			}
 			beg = entry.Dt;
@@ -102,8 +97,7 @@ int SLAPI PctChargeArray::ChargePercent(LDATE since, LDATE end, double percent, 
 		rest = entry.Rest;
 	}
 	if(end > beg) {
-		double part = 0.0;
-		CalcPercent(beg, end, rest, percent, &part);
+		double part = CalcPercent(beg, end, rest, percent);
 		result += part;
 	}
 	ASSIGN_PTR(pResult, result);
@@ -211,10 +205,11 @@ int SLAPI PPRentCondition::CalcRent(LDATE /*chargeDt*/, double * pAmount) const
 	return 1;
 }
 
-int SLAPI PPRentCondition::CalcPercent(LDATE begDt, LDATE chargeDt, const PctChargeArray * pCreditList, double * pAmount) const
+double SLAPI PPRentCondition::CalcPercent(LDATE begDt, LDATE chargeDt, const PctChargeArray * pCreditList) const
 {
-	pCreditList->ChargePercent(begDt, chargeDt, Percent, pAmount);
-	return 1;
+	double result = 0.0;
+	pCreditList->ChargePercent(begDt, chargeDt, Percent, &result);
+	return result;
 }
 //
 //
@@ -259,7 +254,8 @@ int SLAPI PPObjBill::AutoCharge(PPID billID, PPID opID, const PPRentCondition * 
 				// дату первой операции по кредиту
 				//
 				SETIFZ(last_chrg_dt, credit_list.GetFirstDate());
-				r = pRc->CalcPercent(last_chrg_dt, charge_dt, &credit_list, &amount);
+				amount = pRc->CalcPercent(last_chrg_dt, charge_dt, &credit_list);
+				r = 1;
 			}
 			else {
 				r = pRc->CalcRent(charge_dt, &amount);

@@ -1364,10 +1364,10 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 					r_citem.Price   += tg_rec.Price;
 					r_citem.PVat    += tg_rec.PVat;
 					r_citem.Brutto  += tg_rec.Brutto;
-					r_citem.LinkQtty  += tg_rec.LinkQtty;  // @v9.4.10
-					r_citem.LinkCost  += tg_rec.LinkCost;  // @v9.4.10
-					r_citem.LinkPrice += tg_rec.LinkPrice; // @v9.4.10
-					r_citem.ExtVal1 += tg_rec.ExtVal1; // @v9.3.5
+					r_citem.LinkQtty  += tg_rec.LinkQtty;
+					r_citem.LinkCost  += tg_rec.LinkCost;
+					r_citem.LinkPrice += tg_rec.LinkPrice;
+					r_citem.ExtVal1 += tg_rec.ExtVal1;
 					if(Filt.Flags & TrfrAnlzFilt::fInitLocCount)
 						if(!LocCountList.SearchPair(r_citem.ID__, dlvr_loc_id, 0)) {
 							LocCountList.Add(r_citem.ID__, dlvr_loc_id, 0);
@@ -1418,10 +1418,10 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 					CPY(SaldoAmt);
 					CPY(PVat);
 					CPY(Brutto);
-					CPY(LinkQtty);  // @v9.4.10
-					CPY(LinkCost);  // @v9.4.10
-					CPY(LinkPrice); // @v9.4.10
-					CPY(ExtVal1);   // @v9.3.5
+					CPY(LinkQtty);
+					CPY(LinkCost);
+					CPY(LinkPrice);
+					CPY(ExtVal1);
 	#undef CPY
 					citem.Counter = ++LastCacheTouch;
 					if(Cache.getCount() >= MaxCacheItems)
@@ -1498,15 +1498,13 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			}
 			rec.PVat = pvat;
 			rec.Brutto = brutto; // @v10.3.4
-			// @v9.4.10 {
 			if(pExt) {
-				rec.LinkBillID = pExt->LinkBillID; // @v9.6.8
+				rec.LinkBillID = pExt->LinkBillID;
 				rec.LinkQtty  = pExt->LinkQtty;
 				rec.LinkCost  = pExt->LinkCost;
 				rec.LinkPrice = pExt->LinkPrice;
 			}
-			// } @v9.4.10
-			rec.ExtVal1 = ext_val1; // @v9.3.5
+			rec.ExtVal1 = ext_val1;
 			THROW_DB(pBei->insert(&rec));
 		}
 	}
@@ -2004,8 +2002,8 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	DBE    dbe_goods;
 	DBE    dbe_goodscode;
 	DBE    dbe_serial;
-	DBE    dbe_rest;      // @v9.1.3
-	DBE    dbe_trnovr;    // @v9.1.5
+	DBE    dbe_rest;
+	DBE    dbe_trnovr;
 	DBE    dbe_linkdate;  // @v10.0.03
 	DBQ  * dbq = 0, * dbq2 = 0;
 	DBQuery * q = 0;
@@ -2038,10 +2036,10 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 					dbe_oprkind,    // #8
 					dbe_ar,         // #9
 					tat->PVat,      // #10
-					tat->LinkQtty,  // #11 @v9.4.10
-					tat->LinkCost,  // #12 @v9.4.10
-					tat->LinkPrice, // #13 @v9.4.10
-					tat->ExtVal1,   // #14 @v9.3.5 // @v9.4.10 11-->14
+					tat->LinkQtty,  // #11 
+					tat->LinkCost,  // #12 
+					tat->LinkPrice, // #13 
+					tat->ExtVal1,   // #14 
 					tat->Brutto,    // #15 @v10.3.5
 					0L).from(tat, 0L).orderBy(tat->Dt, tat->OprNo, 0L);
 				delete p_mult;
@@ -2480,8 +2478,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					if(p_q) {
 						uint pos = 0;
 						if(p_q->getFieldPosByName("PVat", &pos)) {
-							// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_VAT, pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
-							pBrw->InsColumn(-1, "@vat", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0); // @v9.0.2
+							pBrw->InsColumn(-1, "@vat", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
 						}
 					}
 				}

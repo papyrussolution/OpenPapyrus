@@ -602,17 +602,18 @@ static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, 
 			dec--;
 		}
 		if(prec > 0) {
-			*b++ = (flags & NMBF_DECCOMMA) ? ',' : '.';
+			const char decimal_sep = (flags & NMBF_DECCOMMA) ? ',' : '.';
+			*b++ = decimal_sep;
 			b = stpcpy(b, ptr);
 			if(flags & NMBF_NOTRAILZ) {
 				while(*(b-1) == '0') {
-					if(flags & NMBF_EXPLFLOAT && *(b-2) == '.') { // @v9.7.8
+					if(flags & NMBF_EXPLFLOAT && *(b-2) == decimal_sep) {
 						break;
 					}
 					else
 						*--b = 0;
 				}
-				if(*(b-1) == '.')
+				if(*(b-1) == decimal_sep)
 					*--b = 0;
 			}
 		}
@@ -685,9 +686,8 @@ char * FASTCALL realfmt(double val, long fmt, char * pBuf)
 				else if(_d == '9') {
 					c_0 = 0;
 					if(++c_9 >= OMITEPSDIGITS) {
-						if(last_n09_pos == 0 && str[0] == '9') {
+						if(last_n09_pos == 0 && str[0] == '9')
 							do_carry = 1;
-						}
 						else
 							str[last_n09_pos] += 1;
 						for(uint j = last_n09_pos+1; j < _len; j++) {

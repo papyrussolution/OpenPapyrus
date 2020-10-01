@@ -1701,10 +1701,8 @@ int SLAPI PPViewGeoTracking::Export()
 					n_gpx.PutAttrib("xsi:schemaLocation", temp_buf);
 				GeoTrackingViewItem item;
 				PPObjID last_oid;
-				last_oid.Z();
 				while(NextIteration(&item) > 0) {
-					PPObjID oid;
-					oid.Set(item.ObjType, item.ObjID);
+					PPObjID oid(item.ObjType, item.ObjID);
 					LDATETIME dtm;
 					dtm.Set(GeoTrackCore::ConvertStorageDate(item.Dts2010), item.Tm);
 					if(!p_n_trk || oid != last_oid) {

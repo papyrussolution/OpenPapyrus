@@ -281,7 +281,6 @@ struct TEvent {
 		int8   doubleClick;
 		int16  WhereX;
 		int16  WhereY;
-		//TPoint where;
 	};
 	struct KeyDown {
 		struct Scan {
@@ -313,7 +312,7 @@ struct TEvent {
 	uint   what; // @firstmember
 	union {
 		Message message;
-		Mouse mouse;
+		Mouse   mouse;
 		KeyDown keyDown;
 	};
 

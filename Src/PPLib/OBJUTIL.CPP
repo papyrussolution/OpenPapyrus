@@ -237,7 +237,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_FREIGHTPACKAGETYPE: p = new PPObjFreightPackageType(extraPtr); break; // @v10.4.1
 		case PPOBJ_TAXSYSTEMKIND:      p = new PPObjTaxSystemKind(extraPtr); break; // @v10.6.0
 		case PPOBJ_TSSMODEL:           p = new PPObjTssModel(extraPtr); break; // @v10.7.4
-		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubcription(extraPtr); break; // @v10.8.9
+		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubscription(extraPtr); break; // @v10.8.9
 		default:
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);

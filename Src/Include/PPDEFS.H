@@ -497,8 +497,8 @@
 	#define PPOPT_EXTERNAL      18L // Специализированный тип операции, определяющий
 		// документ, содержащий внешний документ (обычно, файл).
 	#define PPOPT_AGREEMENT     19L // @v7.0.0 @construction Соглашение (договор) с покупателем или поставщиком
-	#define PPOPT_CORRECTION    20L // @v7.2.7 Корректирующий документ
-	#define PPOPT_DRAFTTRANSIT  21L // @v7.2.7 Специальная категория драфт-документов, которые
+	#define PPOPT_CORRECTION    20L // Корректирующий документ
+	#define PPOPT_DRAFTTRANSIT  21L // Специальная категория драфт-документов, которые
 		// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
 		// без посредничества главной организации.
 	#define PPOPT_DRAFTQUOTREQ  22L // @v10.5.7 Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
@@ -522,9 +522,9 @@
 	#define PPOPK_EDI_ACTCHARGEON     12L // Постановка лотов на баланс в ЕГАИС
 	#define PPOPK_EDI_RECADV          13L // Драфт-операция подтверждения отгрузки, поступившего из EDI
 	#define PPOPK_EDI_STOCK           14L // Драфт-операция подтверждения остатков, учитываемых сервисом EDI
-	#define PPOPK_EDI_SHOPCHARGEON    15L // @v9.2.11 Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
-	#define PPOPK_EDI_ACTCHARGEONSHOP 16L // @v9.2.11 Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
-	#define PPOPK_EDI_WRITEOFFSHOP    17L // @v9.3.19 Списание с баланса торгового зала в ЕГАИС (регистр 2)
+	#define PPOPK_EDI_SHOPCHARGEON    15L // Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
+	#define PPOPK_EDI_ACTCHARGEONSHOP 16L // Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
+	#define PPOPK_EDI_WRITEOFFSHOP    17L // Списание с баланса торгового зала в ЕГАИС (регистр 2)
 		// @v10.3.5 Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
 	#define PPOPK_EDI_ORDERRSP        18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
 	#define PPOPK_EDI_WROFFWITHMARKS  19L // @v10.3.6  Драфт-операция списание с отстатков ЕГАИС акцизных марок
@@ -582,11 +582,10 @@
 	#define PPAMT_CSTAX         20L // Сумма налога с продаж в ценах поступления //
 	#define PPAMT_ASSETEXPL     21L // Сумма вводимых в эксплуатацию основных средств
 	#define PPAMT_POOLAMOUNT    22L // Сумма системного пула документов (проецируется на внутренние документы пула)
-	#define PPAMT_FREIGHT       23L // @v6.4.3 Сумма фрахта (извлекается из информации по фрахту документа, однако
-		// может быть определена и в типе товара).
-	#define PPAMT_CS_CASH       24L // @v6.6.12 Сумма кассовой сессии, оплаченная наличными
-	#define PPAMT_CS_BANK       25L // @v6.6.12 Сумма кассовой сессии, оплаченная безналично
-	#define PPAMT_CS_CSCARD     26L // @v6.6.12 Сумма кассовой сессии, оплаченная корпоративными кредитными картами
+	#define PPAMT_FREIGHT       23L // Сумма фрахта (извлекается из информации по фрахту документа, однако может быть определена и в типе товара).
+	#define PPAMT_CS_CASH       24L // Сумма кассовой сессии, оплаченная наличными
+	#define PPAMT_CS_BANK       25L // Сумма кассовой сессии, оплаченная безналично
+	#define PPAMT_CS_CSCARD     26L // Сумма кассовой сессии, оплаченная корпоративными кредитными картами
 	// Набор сумм по строкам расширения бухгалтерских документов
 	#define PPAMT_ADLN_MAIN     41L // Номинальная сумма строки расширения //
 #define PPOBJ_CASHNODE           17L  // $ Расчетные кассовые узлы
@@ -702,7 +701,7 @@
 	#define PPACN_ATTACHMENTUPD    78L // Приклепленный к объекту файл изменен (доп параметр - номер файла)
 	#define PPACN_BILLWROFF        79L // Документ списан
 	#define PPACN_BILLWROFFUNDO    80L // Откат списания документа
-	#define PPACN_GOODSPASSVSET    81L // @v9.5.0 Установлен признак "Пассивный" для товара
+	#define PPACN_GOODSPASSVSET    81L // Установлен признак "Пассивный" для товара
 	#define PPACN_GSTRUCATTACHED   82L // @v10.2.1 К товару привязана товарная структура
 	#define PPACN_GSTRUCDETACHED   83L // @v10.2.1 От товара отвязана товарная структура
 	#define PPACN_GSTRUCCUPD       84L // @v10.2.1 Изменился компонентный состав товарной структуры (добавлен или удален компонент)
@@ -1260,28 +1259,28 @@
 #define PPTAG_BILL_EDIRECADVCONFIRM 49L // Номер отправленного по каналу EDI нашего согласия/не согласия с полученным RECADV
 #define PPTAG_LOT_DIMENTIONS        50L // Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы)
 #define PPTAG_BILL_EDIREJECTACK     51L // По каналу EDI отправлено требование отменить ранее совершенную передачу документа
-#define PPTAG_GOODS_OUTERPOSCODE    52L // @v9.1.3 (в ppdata.rc не добавлять) Код товара у источника данных для POS-узла
-#define PPTAG_BILL_EDICHANNEL       53L // @v9.2.1 Символьное обозначение EDI-канала, по которому был доставлен документ в базу данных.
+#define PPTAG_GOODS_OUTERPOSCODE    52L // (в ppdata.rc не добавлять) Код товара у источника данных для POS-узла
+#define PPTAG_BILL_EDICHANNEL       53L // Символьное обозначение EDI-канала, по которому был доставлен документ в базу данных.
 	// Этот тег может быть автоматически установлен у документов, имеющих не нулевой признак BillTbl::Rec::EdiOp
 	// Ручная установка этого тега крайне не желательна.
-#define PPTAG_BILL_EDIREPEALACK     54L // @v9.2.8 По каналу EDI Papyrus'ом отправлен запрос на отмену проведения документа.
+#define PPTAG_BILL_EDIREPEALACK     54L // По каналу EDI Papyrus'ом отправлен запрос на отмену проведения документа.
 	// Этот тег содержит подтверждение о получении сервером EDI такого запроса.
-#define PPTAG_BILL_EDIPROBLEMTRFR   55L // @v9.3.1 Текстовый тег, перечисляющий проблемные номера товарных строк в формате: number[:descr][;number[:descr]]*
-#define PPTAG_LOT_SOURCESERIAL      56L // @v9.3.5 Серийный номер исходного лота для данной строки. Применяется в документах модификации.
-#define PPTAG_PERSON_UUID           57L // @v9.3.10 UUID персоналии
-#define PPTAG_LOC_UUID              58L // @v9.3.10 UUID локации
-#define PPTAG_BILL_FORMALREASON     59L // @v9.4.7 Формальное основание документа (перечисление)
-#define PPTAG_BILL_EDIREPEALREQ     60L // @v9.5.12 Запрос на отмену проведения документа EDI
-#define PPTAG_POSNODE_UUID          61L // @v9.6.5  UUID кассового узла
-#define PPTAG_POSNODE_HOSTUUID      62L // @v9.6.5  UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
-#define PPTAG_BILL_STATECONTRACTID  63L // @v9.7.5  ИД государственного контракта (для счетов-фактур)
-#define PPTAG_PERSON_ENALOGID       64L // @v9.8.0  ИД участника документооборота (nalog.ru)
-#define PPTAG_BILL_COMPLEMENTARY    65L // @v9.8.0  Формальная текстовая ссылка на комплементарный (парный) документ.
+#define PPTAG_BILL_EDIPROBLEMTRFR   55L // Текстовый тег, перечисляющий проблемные номера товарных строк в формате: number[:descr][;number[:descr]]*
+#define PPTAG_LOT_SOURCESERIAL      56L // Серийный номер исходного лота для данной строки. Применяется в документах модификации.
+#define PPTAG_PERSON_UUID           57L // UUID персоналии
+#define PPTAG_LOC_UUID              58L // UUID локации
+#define PPTAG_BILL_FORMALREASON     59L // Формальное основание документа (перечисление)
+#define PPTAG_BILL_EDIREPEALREQ     60L // Запрос на отмену проведения документа EDI
+#define PPTAG_POSNODE_UUID          61L // UUID кассового узла
+#define PPTAG_POSNODE_HOSTUUID      62L // UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
+#define PPTAG_BILL_STATECONTRACTID  63L // ИД государственного контракта (для счетов-фактур)
+#define PPTAG_PERSON_ENALOGID       64L // ИД участника документооборота (nalog.ru)
+#define PPTAG_BILL_COMPLEMENTARY    65L // Формальная текстовая ссылка на комплементарный (парный) документ.
 	// Теоретически, использоваться может достаточно широко, однако непосредственным поводом для ввода тега
 	// послужила необходимость при передаче в ЕГАИС акта постановки на баланс по пересортице (PPEDIOP_EGAIS_ACTCHARGEON_V2)
 	// передавать ссылку на соответствующий документ потерь (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
-#define PPTAG_PERSON_VETISUUID      66L // @v9.8.9  UUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID)
-#define PPTAG_GUA_LOGIN             67L // @v9.9.12 Строка авторизации для глобальной учетной записи. Необходим в том случае,
+#define PPTAG_PERSON_VETISUUID      66L // UUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID)
+#define PPTAG_GUA_LOGIN             67L // Строка авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
 #define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID товара
 #define PPTAG_BILL_EDIRECADVRCV     69L // @v10.0.05 Информация о RECADV полученном в ответ на отправленный DESADV
@@ -1346,10 +1345,10 @@
 #define PPCMT_ATOLDRV        18L // Универсальный драйвер АТОЛ
 #define PPCMT_CASHNGROUP     19L // Группа кассовых узлов
 #define PPCMT_SYNCCASH		 20L // Синхронный кассовый узел // @vmiller
-#define PPCMT_DISTRIB        21L // @v7.3.7 Распределенный кассовый узел. Специализированный тип кассового узла,
+#define PPCMT_DISTRIB        21L // Распределенный кассовый узел. Специализированный тип кассового узла,
 	// применяемый для централизованного управления хранением кассовых чеков, генерируемых разными предприятиями.
 	// Кассовые сессии, привязанные к такому узлу в качестве номера кассы используют идент адреса магазина.
-#define PPCMT_SETSTART       22L // @v8.9.1 SETSTART
+#define PPCMT_SETSTART       22L // SETSTART
 // @v10.0.04 (попытка удалась, но ид не используется) #define PPCMT_PAPYRUSAPS     23L // @v9.0.6 Papyrus Async Pos System - Последняя попытка сделать собственный асинхронный кассовый узел
 #define PPCMT_FIRST_DYN_DVC  23L // @v10.0.04 Идентификатор первого динамически подгружаемого драйвера
 #define PPCMT_LAST_DYN_DVC  500L // @v10.0.04 Последний допустимый идентификатор динамически подгружаемого драйвера
@@ -1419,9 +1418,8 @@
 #define PPASS_PRJPHASEBILLPOOL 20L // Пул документов по фазам проектов
 #define PPASS_TSDBILLPOOL      21L // Пул документов покрытия дефицита по технологическим сессиям
 #define PPASS_GOODS2CASHNODE   22L // Ассоциация товар(группа товаров)-кассовый узел
-#define PPASS_GOODS2WAREPLACE  23L // Ассоциация товар(группа товаров)-место хранения. Допускает дублирование:
-	// с одним товаром может быть сопоставлено более одного места хранения //
-#define PPASS_AGTBILLPOOL      24L // @v7.0.0 @construction Пул документов, сопоставленных с документом соглашения //
+#define PPASS_GOODS2WAREPLACE  23L // Ассоциация товар(группа товаров)-место хранения. Допускает дублирование: с одним товаром может быть сопоставлено более одного места хранения //
+// @v10.8.12 #define PPASS_AGTBILLPOOL      24L // @v7.0.0 @construction Пул документов, сопоставленных с документом соглашения //
 #define PPASS_CHECKINPSNTSES   25L // @v7.7.2
 #define PPASS_GOODSCOMP	       26L // Ассоциация товара и его компонента
 //
@@ -1481,6 +1479,7 @@
 #define PPEDIOP_SALESORDER                     8 // Заказ от покупателя
 #define PPEDIOP_PARTIN                         9 // @v10.0.02
 #define PPEDIOP_INVOIC                        10 // @v10.0.06
+#define PPEDIOP_RETURNREQ                     11 // @v10.8.12
 //
 // Типы операций обмена с системой ЕГАИС
 //
@@ -1529,12 +1528,11 @@
 #define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // Запрос остатков version 2
 #define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // Ответ на запрос остатков version 2
 #define PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG 65 // version 2 of PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG
-#define PPEDIOP_EGAIS_WAYBILL_V3              66 // @v9.9.5
-#define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // @v9.9.5 version 3 of PPEDIOP_EGAIS_WAYBILLACT
-#define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 // @v9.9.5
-#define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // @v9.9.7 Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7
-	// PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
+#define PPEDIOP_EGAIS_WAYBILL_V3              66 //
+#define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // version 3 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 //
+#define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7 (PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
 #define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
@@ -1834,6 +1832,7 @@
 #define cmPersonList             1175 // Кнопка списка персоналий
 #define cmGuaList                1176 // @v10.5.3 // @v10.8.9 made-global
 #define cmTotal                  1177 // @v10.8.11
+#define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -3557,7 +3556,6 @@
 	#define CTL_LST2LST_ALLBW            (6 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_CT2              (7 + WINDOWS_ID_BIAS) // @v10.8.5 Количество элементов в правом списке
 #define DLG_GDSLST                262 // Список товаров для добавления в группу
-	#define cmAutoFill                101
 	#define CTL_GDSLST_GGRP              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSLST_GGRP           (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSLST_LIST              (3 + WINDOWS_ID_BIAS)
@@ -4384,6 +4382,10 @@
 	#define CTL_PSNEVFLT_SUBSTDT         (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNEVFLT_SUBSTDT      (12 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVFLT_FLAGS           (13 + WINDOWS_ID_BIAS)
+	#define CTL_PSNEVFLT_EPRMRREG        (14 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PSNEVFLT_EPRMRREG     (15 + WINDOWS_ID_BIAS)
+	#define CTL_PSNEVFLT_EPRMRTAG        (16 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PSNEVFLT_EPRMRTAG     (17 + WINDOWS_ID_BIAS)
 #define DLG_PSNEVNT               334 // Персональные событи
 	#define cmPsnEvntRegister         101
 	#define cmPsnEvntLocation         102

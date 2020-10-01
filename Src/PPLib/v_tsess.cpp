@@ -183,15 +183,12 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 3, (1 << TSESST_CLOSED));
 	dlg->AddClusterAssoc(CTL_TSESSFILT_STATUS, 4, (1 << TSESST_CANCELED));
 	dlg->SetClusterData(CTL_TSESSFILT_STATUS, p_filt->StatusFlags);
-
 	dlg->AddClusterAssoc(CTL_TSESSFILT_FLAGS, 0, TSessionFilt::fSuperSessOnly);
 	dlg->SetClusterData(CTL_TSESSFILT_FLAGS, p_filt->Flags);
-
 	dlg->AddClusterAssocDef(CTL_TSESSFILT_IDLE,  0,  0);
 	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  1, -1);
 	dlg->AddClusterAssoc(CTL_TSESSFILT_IDLE,  2,  1);
 	dlg->SetClusterData(CTL_TSESSFILT_IDLE, p_filt->Ft_Idle);
-
 	SetPeriodInput(dlg, CTL_TSESSFILT_STPERIOD, &p_filt->StPeriod);
 	dlg->setCtrlData(CTL_TSESSFILT_STTIME, &p_filt->StTime);
 	SetPeriodInput(dlg, CTL_TSESSFILT_FNPERIOD, &p_filt->FnPeriod);
@@ -212,7 +209,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		dlg->GetClusterData(CTL_TSESSFILT_STATUS, &p_filt->StatusFlags);
 		dlg->GetClusterData(CTL_TSESSFILT_FLAGS, &p_filt->Flags);
 		dlg->GetClusterData(CTL_TSESSFILT_IDLE, &temp_long);
-		p_filt->Ft_Idle = (int16)temp_long;
+		p_filt->Ft_Idle = static_cast<int16>(temp_long);
 		GetPeriodInput(dlg, CTL_TSESSFILT_STPERIOD, &p_filt->StPeriod);
 		dlg->getCtrlData(CTL_TSESSFILT_STTIME, &p_filt->StTime);
 		if(!p_filt->StPeriod.low)

@@ -948,8 +948,7 @@ int SLAPI PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 		}
 		else if(oneof3(_obj, PPOBJ_PERSON, PPOBJ_STAFFLIST2, PPOBJ_PERSONPOST)) {
 			PPStaffCal rec;
-			PPObjID oi;
-			if(SearchByObj(0, oi.Set(_obj, _id), &rec) > 0)
+			if(SearchByObj(0, PPObjID(_obj, _id), &rec) > 0)
 				return RetRefsExistsErr(Obj, rec.ID);
 		}
 	return DBRPL_OK;
@@ -1671,9 +1670,8 @@ int SLAPI PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket
 				PPID   cal_id = 0;
 				CALDATE cdt;
 				LTIME   tm;
-				PPObjID oi;
-				THROW(CreateChild(&cal_id, baseCalID, oi.Set(PPOBJ_PERSON, ep.ObjID), 0) > 0);
-				MEMSZERO(entry);
+				THROW(CreateChild(&cal_id, baseCalID, PPObjID(PPOBJ_PERSON, ep.ObjID), 0) > 0);
+				// @v10.8.12 @ctr MEMSZERO(entry);
 				entry.CalID  = cal_id;
 				entry.ObjID  = pDsPack->Rec.ID;
 				entry.Flags |= STCALEF_BYDUTYSCHED;

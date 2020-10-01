@@ -9,8 +9,8 @@
 IMPLEMENT_PPFILT_FACTORY(GoodsBillCmp); SLAPI GoodsBillCmpFilt::GoodsBillCmpFilt() : PPBaseFilt(PPFILT_GOODSBILLCMP, 0, 1)
 {
 	SetFlatChunk(offsetof(GoodsBillCmpFilt, ReserveStart), offsetof(GoodsBillCmpFilt, Reserve)+sizeof(Reserve)-offsetof(GoodsBillCmpFilt, ReserveStart));
-	SetBranchSVector(offsetof(GoodsBillCmpFilt, LhBillList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
-	SetBranchSVector(offsetof(GoodsBillCmpFilt, RhBillList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(GoodsBillCmpFilt, LhBillList));
+	SetBranchSVector(offsetof(GoodsBillCmpFilt, RhBillList));
 	Init(1, 0);
 }
 

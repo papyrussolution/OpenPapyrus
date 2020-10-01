@@ -785,10 +785,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					default: Check.TaxSys = -1; break; // @v10.6.4 0-->-1
 				}
 			}
-			// @v10.8.12 {
-			if(pb.Get("CHZNCID", param_val) > 0)
-				Check.ChZnCid = param_val;
-			// } @v10.8.12 
 			THROW(RunCheck(0));
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
@@ -803,6 +799,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.PaymBank = param_val.ToReal();
 			if(pb.Get("PAYMCCRD", param_val) > 0) // @v10.4.6
 				Check.PaymCCrdCard = param_val.ToReal();
+			// @v10.8.12 {
+			if(pb.Get("CHZNCID", param_val) > 0)
+				Check.ChZnCid = param_val;
+			// } @v10.8.12 
 			THROW(RunCheck(1));
 		}
 		else if(cmd.IsEqiAscii("CHECKCORRECTION")) { // @v10.0.0
@@ -1726,7 +1726,11 @@ int PiritEquip::RunCheck(int opertype)
 				if(Check.ChZnCid.NotEmpty()) {
 					CreateStr("mdlp", in_data); // Название дополнительного реквизита пользователя
 					str.Z().Cat("cid").Cat(Check.ChZnCid).CatChar('&');
-					CreateStr("", in_data);     // Значение дополнительного реквизита пользователя
+					CreateStr(str, in_data); // Значение дополнительного реквизита пользователя
+					if(LogFileName.NotEmpty()) {
+						(out_data = "1084").CatDiv(':', 2).CatEq("mdlp", str);
+						SLS.LogMessage(LogFileName, out_data, 8192);
+					}
 				}
 				// } @v10.8.12
 				THROW(ExecCmd("31", in_data, out_data, r_error));

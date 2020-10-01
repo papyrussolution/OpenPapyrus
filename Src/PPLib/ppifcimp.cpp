@@ -5076,7 +5076,7 @@ static void FASTCALL FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOute
 	FLD(ExtPriceQuotKindID);
 	(temp_buf = pInner->Ext.InvoiceCode).CopyToOleStr(&pOuter->InvoiceCode);
 	(temp_buf = pInner->Ext.PaymBillCode).CopyToOleStr(&pOuter->PaymBillCode);
-	pOuter->DlvrAddrID = pInner->P_Freight ? pInner->P_Freight->DlvrAddrID : 0;
+	pOuter->DlvrAddrID = pInner->GetDlvrAddrID();
 #undef FLD
 	//
 	// Условия ренты

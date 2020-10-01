@@ -795,6 +795,21 @@ int FASTCALL RegisterCore::CheckRecForFilt(const RegisterTbl::Rec & rRec, const 
 	return ok;
 }
 
+int SLAPI RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec)
+{
+	int    ok = -1;
+	RegisterTbl::Key1 k1;
+	k1.ObjType = oid.Obj;
+	k1.ObjID = oid.Id;
+	if(search(1, &k1, spGe) && data.ObjType == oid.Obj && data.ObjID == oid.Id) do {
+		if(data.RegTypeID == regTypeID) {
+			copyBufTo(pRec);
+			ok = 1;
+		}
+	} while(ok < 0 && search(1, &k1, spNext) && data.ObjType == oid.Obj && data.ObjID == oid.Id);
+	return ok;
+}
+
 int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
 {
 	int    c = 0, sp;

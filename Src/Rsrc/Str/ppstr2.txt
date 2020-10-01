@@ -2257,9 +2257,10 @@ PPCFM_PRINTIMAGE           "Распечатать изображение?"
 PPCFM_SETCCASSPFINISHED    "Пометить чек '%s' как финишированный?"
 PPCFM_POSDATNEQCURRENT     "Выбранная дата отличается от текущей. Вы уверены, что хотите начать новый кассовый день именно этой датой?"
 PPCFM_GENRCGOODSTOALTGRP   "Выбранный товар является обобщенным. Хотите ли вы вставить в группу компоненты обобщения или сам товар? [@{yes}] - компоненты, [@{no}] - сам товар"
-PPCFG_VETISRMVPREPENTRY    "Подтвердите удаление записи подготовки транспортного сертификата"
-PPCFG_VETISWITHDRAWDOC     "Подтвердите аннулирование транспортного сертификата"
-PPCFG_WROFFALLVETISCERTS   "Вы собираетесь выполнить опасную операцию по списанию всех выбранных сертификатов. Вы уверены в том, что делаете?"
+PPCFM_VETISRMVPREPENTRY    "Подтвердите удаление записи подготовки транспортного сертификата"
+PPCFM_VETISWITHDRAWDOC     "Подтвердите аннулирование транспортного сертификата"
+PPCFM_WROFFALLVETISCERTS   "Вы собираетесь выполнить опасную операцию по списанию всех выбранных сертификатов. Вы уверены в том, что делаете?"
+PPCFM_TSESSAUTOCOMPLETE    "Эта операция заполнит строки сессии по технологии в соответствии с плановым количеством. Вы уверены в том, что делаете?"
 
 [103]
 
@@ -4429,7 +4430,7 @@ PPTXT_DBDE_SYNCQSETOBJECT           "Внесение объекта в очер
 PPTXT_DBDE_SYNCQSETFILE             "Внесение файла в очередь синхронизации"
 PPTXT_LAB_SELECTGSTRUC              "Выберите структуру товара"
 PPTXT_MOVSCARDREST                  "Перенос остатков с карт"
-PPTXT_EDIOP                         /!/ "1,ORDER;2,ORDERRSP;3,APERAK;4,DESADV;5,RECADV;6,DECLINEORDER;7,ALCODESADV;8,SALESORDER;9,PARTIN;10,INVOIC;\
+PPTXT_EDIOP                         /!/ "1,ORDER;2,ORDERRSP;3,APERAK;4,DESADV;5,RECADV;6,DECLINEORDER;7,ALCODESADV;8,SALESORDER;9,PARTIN;10,INVOIC;11,RETURNREQ;\
 	21,EGAIS-WAYBILL;22,EGAIS-TICKET;23,EGAIS-WAYBILLACT;42,EGAIS-REPLYRESTS;50,EGAIS-REPLYRESTSSHOP;59,PPEDIOP_EGAIS_WAYBILL_V2;\
 	66,PPEDIOP_EGAIS_WAYBILL_V3"
 PPTXT_EDIEXPCMD                     "1,ORDER,@{booking};2,RECADV,Уведомление о приходе"
@@ -4773,7 +4774,7 @@ PPTXT_LOG_VK_NOGUA                  "Неопределена глобальна
 87 "Изменена дата истечения срока действия персональной карты"
 88 "Вызов функции обслуживания системы"
 89 "Удалена привязка документа к другому документу"
-90 "Попытка идентификации уведомительного события"
+90 "Идентификация уведомительного события"
 
 [119]
 1  "Объект получен"
@@ -5603,6 +5604,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @thank                               "Спасибо"
 @options                             "Опции"
 @exchangeoptions                     "Опции обмена"
+@viewoptions                         "Опции просмотра"
 @zero                                "Ноль"
 @processing                          "Обработка"
 @beginning                           "Начало"
@@ -7106,7 +7108,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @but_fldcorr                        "Соответствия полей..."
 @but_impexpfp                       "Параметры файла..."
 @but_registers                      "@{register_pl}..."
-@but_viewoptions                    "Опции просмотра..."
+@but_viewoptions                    "@{viewoptions}..."
 @but_cert                           "@{cert}..."
 @but_rights                         "@{rights}..."
 @but_billdetail                     "Строки документа..."
@@ -10777,6 +10779,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @opsubt_tradeplan                         "Торговый план"
 @opsubt_accwroff                          "Списание по счетам"
 @opsubt_poscorrection                     "Корректировка кассовых фискальных сумм"
+@opsubt_returnreq                         "Запрос возврата"
 //
 // Дженерики для заголовков диалогов видов операций
 @oprkindgroup_wms                         "Вид складской операции"
@@ -11853,6 +11856,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tsession_planperiod                      "Период планирования" // generic
 @tsession_plan_firstsesstm                "Время начала первой сессии"
 @tsession_plan_lastsesstm                 "Время окончания последней сессии"
+@tsession_autofill                        "Заполнить строки по плану" // command at dialog
 @tsessionext                              "Расширение технологической сессии"
 @tsessionext_descr                        "Краткое описание"
 @tsessionext_detaildescr                  "Подробное описание"
@@ -12870,6 +12874,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personeventfilt_scnd                     "@{contractor}"
 @personeventfilt_sgd                      "@{repsubstdate}"
 @personeventfilt_sgpe                     "@{repsubst}"
+@personeventfilt_viewoptions              "@{viewoptions}" // generic
+@personeventfilt_extprmrpersonreg         "Регистр первичной персоналии"
+@personeventfilt_extprmrpersontag         "Тег первичной персоналии"
 
 @personfilt                               "Фильтр по персоналиям"
 @personfilt_attribtype                    "@{attribute}"

@@ -496,8 +496,7 @@ int SLAPI PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok,
 		// @v10.3.0 (never used) long   dt_val = 0;
 		CALDATE cdt;
 		StaffCalendarTbl::Rec entry;
-		PPObjID oi;
-		oi.Set(PPOBJ_PERSON, psnID);
+		PPObjID oi(PPOBJ_PERSON, psnID);
 		if(oneof4(pClause->VerbID, POVERB_SETCALENDAR, POVERB_SETCALENDAR_SKIP, POVERB_SETCALCONT, POVERB_SETCALCONT_SKIP)) {
 			THROW(StcObj.CreateChild(&cal_id, pClause->DirObj, oi, 0) > 0);
 			MEMSZERO(entry);
@@ -843,8 +842,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 				case POVERB_INCSCARDOP:
 				case POVERB_DECSCARDOP:
 					{
-						PPObjID oi;
-						oi.Set(PPOBJ_PERSONEVENT, pPack->Rec.ID);
+						PPObjID oi(PPOBJ_PERSONEVENT, pPack->Rec.ID);
 						if(oneof2(action, PPACN_OBJUPD, PPACN_OBJRMV)) {
 							TSVector <SCardCore::OpBlock> ex_link_op_list; // @v9.8.4 TSArray-->TSVector
 							THROW(P_ScObj->P_Tbl->GetOpByLinkObj(oi, ex_link_op_list));
