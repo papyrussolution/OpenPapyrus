@@ -62,11 +62,11 @@ int SLAPI VATBCfg::Setup()
 int SLAPI VATBCfg::CheckAccSheet(PPID accSheetID)
 {
 	int    ok = 1;
-	PPID   sav = AccSheetID;
+	const  PPID  preserve_acs_id = AccSheetID;
 	AccSheetID = accSheetID;
 	if(!CheckList())
 		ok = PPSetError(PPERR_UNMATCHOPSHEET);
-	AccSheetID = sav;
+	AccSheetID = preserve_acs_id;
 	return ok;
 }
 //
@@ -86,8 +86,7 @@ int SLAPI VATBCfg::CheckAccSheet(PPID accSheetID)
 		return 0.0;
 }
 
-//static
-int FASTCALL PPObjVATBook::IsValidKind(int kind)
+/*static*/int FASTCALL PPObjVATBook::IsValidKind(int kind)
 {
 	return oneof3(kind, PPVTB_SELL, PPVTB_BUY, PPVTB_SIMPLELEDGER) ? 1 : PPSetError(PPERR_INVVATBOOKKIND);
 }
@@ -903,15 +902,16 @@ int VATBCfgDialog::delItem(long pos, long id)
 int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 {
 	class VATBItemDlg : public TDialog {
+		DECL_DIALOG_DATA(VATBCfg::Item);
 	public:
 		explicit VATBItemDlg(VATBCfg * pCfg) : TDialog((pCfg->Kind == PPVTB_SIMPLELEDGER) ? DLG_VATBL_SIMPLE : DLG_VATBL), P_Cfg(pCfg)
 		{
 		}
-		int    setDTS(const VATBCfg::Item * pItem)
+		DECL_DIALOG_SETDTS()
 		{
 			PPID   op_id = 0;
 			PPIDArray op_list;
-			if(!RVALUEPTR(Data, pItem))
+			if(!RVALUEPTR(Data, pData))
 				MEMSZERO(Data);
 			while(EnumOperations(0L, &op_id) > 0)
 				op_list.add(op_id);
@@ -942,14 +942,14 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 			setVATFld();
 			return 1;
 		}
-		int    getDTS(VATBCfg::Item * pItem)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			PPOprKind opk_rec;
 			getCtrlData(CTLSEL_VATBL_OPRKIND, &Data.OpID);
 			GetClusterData(CTL_VATBL_FLAGS, &Data.Flags);
 			{
-				long   exp_by_fact = GetClusterData(CTL_VATBL_EXPBYFACT);
+				const long exp_by_fact = GetClusterData(CTL_VATBL_EXPBYFACT);
 				Data.Flags &= ~(VATBCfg::fExpendByFact | VATBCfg::fFactByShipment);
 				if(exp_by_fact == 1)
 					Data.Flags |= VATBCfg::fExpendByFact;
@@ -962,7 +962,7 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 				ok = PPErrorByDialog(this, CTL_VATBL_OPRKIND, PPERR_OPRKINDNEEDED);
 			else if(Data.Flags & VATBCfg::fByExtObj && !opk_rec.AccSheet2ID)
 				ok = PPErrorByDialog(this, CTLSEL_VATBL_OPRKIND, PPERR_OPHASNTEXTOBJ);
-			ASSIGN_PTR(pItem, Data);
+			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	private:
@@ -988,7 +988,6 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 			disableCtrl(CTL_VATBL_EXPBYFACT, is_paym_op);
 		}
 		VATBCfg * P_Cfg;
-		VATBCfg::Item Data;
 	};
 	DIALOG_PROC_BODY_P1(VATBItemDlg, &Data, pItem);
 }
@@ -1016,7 +1015,7 @@ int VATBCfgDialog::setDTS(const VATBCfg * pData)
 	AddClusterAssoc(CTL_VATBCFG_INCMPRD,  0, INCM_BYSHIPMENT);
 	AddClusterAssoc(CTL_VATBCFG_INCMPRD,  1, INCM_BYPAYMENT);
 	if(Data.Kind == PPVTB_SIMPLELEDGER) {
-		AddClusterAssoc(CTL_VATBCFG_INCMPRD,  2, INCM_BYPAYMENTINPERIOD); // @v9.6.5
+		AddClusterAssoc(CTL_VATBCFG_INCMPRD,  2, INCM_BYPAYMENTINPERIOD);
 	}
 	SetClusterData(CTL_VATBCFG_INCMPRD, Data.AcctgBasisAtPeriod);
 	SetupCalCtrl(CTLCAL_VATBCFG_PERIOD, this, CTL_VATBCFG_PERIOD, 1);
@@ -2762,7 +2761,12 @@ int SLAPI PPViewVatBook::Export()
 	int    ok = 1;
 	uint   i;
 	PPID   main_org_id = 0;
-	SString path, data_name, head_name, suffix, left, temp_buf;
+	SString temp_buf;
+	SString path;
+	SString data_name;
+	SString head_name;
+	SString suffix;
+	SString left;
 	SString out_file_name;
 	SString id_file;
 	xmlTextWriter * p_writer = 0;

@@ -34119,14 +34119,13 @@ public:
 	int16  AcctgBasis; // Форма учета доходности (INCM_XXX (PP.H))
 	int16  AcctgBasisAtPeriod; // Форма учета доходности на определенный период
 	DateRange Period;
-	TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
+	TSVector <Item> List; 
 };
 //
 // Флаги записи книги продаж/покупок
 //
 #define VATBF_FIX      0x0001L // Запись нельзя модифицировать
-#define VATBF_EXCLUDED 0x0002L // Исключенная из реестра запись
-	// Такая запись предотвращает попадание связанного документа в книгу
+#define VATBF_EXCLUDED 0x0002L // Исключенная из реестра запись. Такая запись предотвращает попадание связанного документа в книгу
 #define VATBF_VATFREE  0x0004L // Запись книги покупок, освобожденная от НДС
 #define VATBF_PARTPAYM 0x0008L // Признак частичной оплаты
 

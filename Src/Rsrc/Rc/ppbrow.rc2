@@ -2001,7 +2001,7 @@ browser GOODSITEM_CUR_W2 south(73), 2, 1, "@{view_billitem_goods} {%s}", OWNER|G
 	"@qtty",            2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@price",           3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	"@trfr_curprice",  10, double, NMBF_NOZERO,  10.2, BCO_USERPROC
-	"Валютная\nсумма", 11, double, NMBF_NOZERO,  10.2, BCO_USERPROC
+	"@currencyamount", 11, double, NMBF_NOZERO,  10.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
 }
 
@@ -2013,7 +2013,7 @@ browser GOODSITEMPH_CUR_W2 south(73), 2, 1, "@{view_billitem_goods} {%s}", OWNER
 	"@phqtty",          7, double, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3, BCO_USERPROC
 	"@price",           3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	"@trfr_curprice",  10, double, NMBF_NOZERO,  10.2, BCO_USERPROC
-	"Валютная\nсумма", 11, double, NMBF_NOZERO,  10.2, BCO_USERPROC
+	"@currencyamount", 11, double, NMBF_NOZERO,  10.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
 }
 
@@ -2037,7 +2037,7 @@ browser GOODSITEM_REVAL_W2 south(73), 3, 0, "@{view_billitem_goods} {%s}", OWNER
 	"@qtty",       2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@termcost",   3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	group "@termprice" {
-		"Старая",     9, double, NMBF_NOZERO, 8.2, BCO_USERPROC
+		"@old_fem",   9, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 		"@new_fem",   4, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	}
 	"@amount",       6, double, NMBF_NOZERO, 8.2, BCO_USERPROC
@@ -3160,11 +3160,11 @@ browser GOODSOPER_REVAL north(100), 3, 1, "Товарный отчет по переоценке {%s}", O
 		"@munit_ph_sfx_s",  4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 	}
 	group "@sumcost" {
-		"Старая",    13, notype, NMBF_NOZERO, 10.2
+		"@old_fem",  13, notype, NMBF_NOZERO, 10.2
 		"@new_fem",   5, notype, NMBF_NOZERO, 10.2
 	}
 	group "@sumprice" {
-		"Старая",    10, notype, NMBF_NOZERO, 10.2
+		"@old_fem",  10, notype, NMBF_NOZERO, 10.2
 		"@new_fem",   6, notype, NMBF_NOZERO, 10.2
 	}
 	toolbar GOODSOPER
@@ -5594,7 +5594,7 @@ browser PRICEANLZ north(100), 3, 1, "Анализ сравнения цен {%s}", OWNER|GRID, 0
 	}
 }
 
-browser REPORT north(100), 1, 1, "Настройка отчетов", GRID, 0
+browser REPORT north(100), 1, 1, "@cmd_report", GRID, 0
 {
 	"@appellation",		  1,    zstring(30),    0, 10
 	"@modifdate",	      2,    date, DATF_DMY, 8

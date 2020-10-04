@@ -533,4 +533,5 @@
 #define cmEvents                       639 // @v10.8.9 События
 #define cmEventSubscription            640 // @v10.8.9 Подписка на события //
 
+
 #endif /* __PPMENU_H */

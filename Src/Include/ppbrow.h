@@ -513,7 +513,7 @@
 	#define HELP_BROWSER_DLS_SCARDS                             234
 #define BROWSER_PRICEANLZ                              235 // Анализ сравнения цен {%s}
 	#define HELP_BROWSER_PRICEANLZ                              235
-#define BROWSER_REPORT                                 236 // Настройка отчетов
+#define BROWSER_REPORT                                 236 // @cmd_report
 	#define HELP_BROWSER_REPORT                                 236
 #define BROWSER_PRCBUSY                                237 // @{view_prcbusy} {%s}
 	#define HELP_BROWSER_PRCBUSY                                237
