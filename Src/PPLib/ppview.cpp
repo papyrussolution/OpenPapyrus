@@ -41,8 +41,7 @@
 	return LoadResource(1, filtID, rc) ? CreateFiltInstanceBySymb(rc.Symb, ppF) : 0;
 }
 
-// static
-int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** ppF)
+/*static*/int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** ppF)
 {
 	int    ok = 0;
 	PPBaseFilt * p_filt = 0;
@@ -474,8 +473,7 @@ int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
 	}
 }
 
-// static
-void FASTCALL PPBaseFilt::PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf)
 {
 	const uint count = pFlagList ? pFlagList->getCount() : 0;
 	if(count) {
@@ -1162,8 +1160,7 @@ public:
 	}
 };
 
-// static
-int SLAPI PPView::SerializeTableSpec(int dir, DBTable ** ppTbl, TDBTWrapper & rCw, SBuffer & rBuf, SSerializeContext * pCtx)
+/*static*/int SLAPI PPView::SerializeTableSpec(int dir, DBTable ** ppTbl, TDBTWrapper & rCw, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	uint8  ind = 0;
@@ -1197,8 +1194,7 @@ int SLAPI PPView::SerializeTableSpec(int dir, DBTable ** ppTbl, TDBTWrapper & rC
 
 #endif // } 0 @construction
 
-// static
-int SLAPI PPView::Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+/*static*/int SLAPI PPView::Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	int32  inst_id = 0;
@@ -1209,8 +1205,7 @@ int SLAPI PPView::Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 	return ok;
 }
 
-// static
-int SLAPI PPView::Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+/*static*/int SLAPI PPView::Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
 	int    ok = -2;
 	int32  inst_id = 0;
@@ -1429,8 +1424,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-// static
-int SLAPI PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+/*static*/int SLAPI PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	PPView * p_view = 0;
@@ -2020,8 +2014,7 @@ void PPViewBrowser::Unadvise()
 		DS.Unadvise(Cookies.at(i));
 }
 
-// static
-int PPViewBrowser::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * extraProcPtr)
+/*static*/int PPViewBrowser::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * extraProcPtr)
 {
 	int    ok = -1;
 	if(pEv) {

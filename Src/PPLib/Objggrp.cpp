@@ -20,8 +20,7 @@ SLAPI PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODS
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-// static
-int SLAPI PPObjGoodsGroup::IsAlt(PPID id)
+/*static*/int SLAPI PPObjGoodsGroup::IsAlt(PPID id)
 {
 	if(id) {
 		PPObjGoodsGroup ggobj;
@@ -30,8 +29,7 @@ int SLAPI PPObjGoodsGroup::IsAlt(PPID id)
 	return -1;
 }
 
-// static
-int SLAPI PPObjGoodsGroup::IsTempAlt(PPID id)
+/*static*/int SLAPI PPObjGoodsGroup::IsTempAlt(PPID id)
 {
 	if(id) {
 		PPObjGoodsGroup ggobj;
@@ -40,8 +38,7 @@ int SLAPI PPObjGoodsGroup::IsTempAlt(PPID id)
 	return -1;
 }
 
-// static
-int SLAPI PPObjGoodsGroup::IsDynamicAlt(PPID id)
+/*static*/int SLAPI PPObjGoodsGroup::IsDynamicAlt(PPID id)
 {
 	if(id) {
 		PPObjGoodsGroup ggobj;
@@ -1425,8 +1422,7 @@ int SLAPI PPObjTransport::Get(PPID id, PPTransport * pRec)
 	return ok;
 }
 
-// static
-int SLAPI PPObjTransport::MakeStorage(PPID id, const PPTransport * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
+/*static*/int SLAPI PPObjTransport::MakeStorage(PPID id, const PPTransport * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
 {
 	int    ok = 1;
 	memzero(pRawRec, sizeof(*pRawRec));
@@ -1871,8 +1867,7 @@ SLAPI PPObjBrand::PPObjBrand(void * extraPtr) : PPObjGoods(PPOBJ_BRAND, PPGDSK_B
 {
 }
 
-// static
-int FASTCALL PPObjBrand::Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPBrand * pRec)
+/*static*/int FASTCALL PPObjBrand::Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPBrand * pRec)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -2221,8 +2216,7 @@ int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsGroup::SetOwner(PPID id, long curOwner, long newOwner)
+/*static*/int SLAPI PPObjGoodsGroup::SetOwner(PPID id, long curOwner, long newOwner)
 {
 	int    ok = -1;
 	if(id && PPObjGoodsGroup::IsTempAlt(id)) {
@@ -2246,8 +2240,7 @@ int SLAPI PPObjGoodsGroup::SetOwner(PPID id, long curOwner, long newOwner)
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsGroup::RemoveTempAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
+/*static*/int SLAPI PPObjGoodsGroup::RemoveTempAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
 {
 	int    ok = -1;
 	if(id && PPObjGoodsGroup::IsTempAlt(id) > 0) {
@@ -2262,8 +2255,7 @@ int SLAPI PPObjGoodsGroup::RemoveTempAlt(PPID id, long owner, int forceDel /*=0*
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsGroup::AddDynamicAltGroupByFilt(const GoodsFilt * pFilt, PPID * pGrpID, long owner, int useTa)
+/*static*/int SLAPI PPObjGoodsGroup::AddDynamicAltGroupByFilt(const GoodsFilt * pFilt, PPID * pGrpID, long owner, int useTa)
 {
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {
@@ -2297,8 +2289,7 @@ int SLAPI PPObjGoodsGroup::AddDynamicAltGroupByFilt(const GoodsFilt * pFilt, PPI
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsGroup::SetDynamicOwner(PPID id, long curOwner, long newOwner)
+/*static*/int SLAPI PPObjGoodsGroup::SetDynamicOwner(PPID id, long curOwner, long newOwner)
 {
 	int    ok = -1;
 	PPObjGoodsGroup gg_obj;
@@ -2322,8 +2313,7 @@ int SLAPI PPObjGoodsGroup::SetDynamicOwner(PPID id, long curOwner, long newOwner
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsGroup::RemoveDynamicAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
+/*static*/int SLAPI PPObjGoodsGroup::RemoveDynamicAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
 {
 	int    ok = -1;
 	PPObjGoodsGroup gg_obj;
@@ -2469,8 +2459,7 @@ int SLAPI PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 	return ok;
 }
 
-// static
-int SLAPI PPObjSuprWare::MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
+/*static*/int SLAPI PPObjSuprWare::MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
 {
 	int    ok = 1;
 	memzero(pRawRec, sizeof(*pRawRec));

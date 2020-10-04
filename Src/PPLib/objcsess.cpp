@@ -1939,8 +1939,7 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 	return ok;
 }
 
-// static
-int CTableOrder::ShowTimeGraph(PPID posNodeID, int modeless)
+/*static*/int CTableOrder::ShowTimeGraph(PPID posNodeID, int modeless)
 {
 	class CTableTimeChunkBrowser : public PPTimeChunkBrowser {
 	public:

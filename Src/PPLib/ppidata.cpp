@@ -1042,8 +1042,7 @@ int WinInetFTP::CreateDir(const char * pDir)
 
 // @v8.6.1 #endif // __WIN32__
 
-// static
-int SLAPI PpyInetDataPrcssr::EditCfg()
+/*static*/int SLAPI PpyInetDataPrcssr::EditCfg()
 {
 	class InetConnConfigDialog : public TDialog {
 		DECL_DIALOG_DATA(PPInetConnConfig);
@@ -1113,8 +1112,7 @@ int SLAPI PpyInetDataPrcssr::EditCfg()
 	return ok;
 }
 
-// static
-int SLAPI PpyInetDataPrcssr::GetCfg(PPInetConnConfig * pCfg)
+/*static*/int SLAPI PpyInetDataPrcssr::GetCfg(PPInetConnConfig * pCfg)
 {
 	PPInetConnConfig cfg;
 	int    ok = PPRef->GetPropMainConfig(PPPRP_INETCONNCFG, &cfg, sizeof(cfg));
@@ -1124,8 +1122,7 @@ int SLAPI PpyInetDataPrcssr::GetCfg(PPInetConnConfig * pCfg)
 	return ok;
 }
 
-// static
-int SLAPI PpyInetDataPrcssr::PutCfg(const PPInetConnConfig * pCfg, int use_ta)
+/*static*/int SLAPI PpyInetDataPrcssr::PutCfg(const PPInetConnConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;

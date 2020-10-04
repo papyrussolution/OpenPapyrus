@@ -2240,8 +2240,8 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 }
 //
 // Descr: Инициализирует смс-клиента и устанавливает соединение с СМСЦ для обычной рассылки через диалог
-// static
-int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr)
+//
+/*static*/int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr)
 {
 	int    ok = 1;
 	PPSendSmsParam send_sms;
@@ -2257,8 +2257,8 @@ int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr,
 }
 //
 // Descr: Инициализирует смс-клиента и устанавливает соединение с СМСЦ для автоматической рассылки через шаблон tddo
-// static
-int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr)
+//
+/*static*/int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr)
 {
 	int    ok = 1;
 	PPSendSmsParam send_sms;
@@ -2484,8 +2484,7 @@ enum SmsVarStr {
 
 #if 0 // @obsolete {
 
-// static
-void SendSmsDialog::SubstVar(SString & src, SString & rDest, PPID personeId)
+/*static*/void SendSmsDialog::SubstVar(SString & src, SString & rDest, PPID personeId)
 {
 	SString s = src;
 	SString d = rDest;
@@ -2540,8 +2539,7 @@ void SendSmsDialog::SubstVar(SString & src, SString & rDest, PPID personeId)
 	rDest = d;
 }
 
-// static
-void SendSmsDialog::FormatText(SString & rSrcMsg, SString & rDestMsg, PPID personeId)
+/*static*/void SendSmsDialog::FormatText(SString & rSrcMsg, SString & rDestMsg, PPID personeId)
 {
 	SString d, s;
 	d = 0;

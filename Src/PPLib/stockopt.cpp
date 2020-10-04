@@ -165,8 +165,7 @@ struct __StockOptConfig {   // @persistent
 	uint8  Reserve[36];     //
 };
 
-// static
-int FASTCALL PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
+/*static*/int FASTCALL PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
 {
 	int    ok = 1;
 	if(pCfg) {
@@ -203,8 +202,7 @@ int FASTCALL PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
 	return ok;
 }
 
-// static
-int FASTCALL PPStockOpt::ReadConfig(PPStockOpt::Config * pCfg)
+/*static*/int FASTCALL PPStockOpt::ReadConfig(PPStockOpt::Config * pCfg)
 {
 	int    ok = -1;
 	__StockOptConfig rec;
@@ -759,8 +757,7 @@ int SLAPI PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-// static
-int FASTCALL PPViewStockOpt::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewStockOpt::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewStockOpt * p_v = static_cast<PPViewStockOpt *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

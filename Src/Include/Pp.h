@@ -1438,7 +1438,7 @@ class Profile : public SProfile, public SArray {
 public:
 	explicit SLAPI  Profile(int singleThreaded = 0);
 	SLAPI ~Profile();
-	int    SLAPI Output(uint fileId, const char * pDescription);
+	void   SLAPI Output(uint fileId, const char * pDescription);
 	void   SLAPI Start(const char * pFileName, long lineNum, const char * pAddedInfo = 0); // @cs
 	void   SLAPI Finish(const char * pFileName, long lineNum); // @cs
 	int    SLAPI Start(uint logFileId, const char * pName, const char * pAddedInfo = 0);  // @cs
@@ -21570,18 +21570,17 @@ public:
 	PalmBillPacket * SLAPI Pop();
 	PalmBillPacket * SLAPI Peek();
 	int    SLAPI AddItem(PPID billID, const PalmBillItem *, uint * pPos);
-	int    SLAPI Destroy();
-
+	void   SLAPI Destroy();
 	int    SLAPI SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID);
 	PPID   SLAPI GetInnerIdByOuter(PPID dvcID, PPID outerID) const;
 private:
 	struct IdAssocItem { // @flat
+		SLAPI  IdAssocItem(PPID dvcID, PPID outerBillID, PPID innerBillID = 0);
 		PPID   DvcID;
 		PPID   OuterBillID;
 		PPID   InnerBillID;
 	};
     TSVector <IdAssocItem> IdAssocList; // Сопоставление внешних идентификаторов документов с идентификаторами в принимающей базе данных
-		// @v9.8.4 TSArray-->TSVector
 };
 
 struct PalmInputParam {
@@ -31892,7 +31891,7 @@ struct AssetCard {
 //
 struct InventoryFilt : public PPBaseFilt {
 	SLAPI  InventoryFilt();
-	int    SLAPI Setup(PPID billID = 0);
+	void   SLAPI Setup(PPID billID = 0);
 	InventoryFilt & FASTCALL operator = (const InventoryFilt & rS);
 	void   FASTCALL SetSingleBillID(PPID billID);
 	PPID   SLAPI GetSingleBillID() const;
@@ -34461,13 +34460,14 @@ struct SCardChargeRule {
 
 struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 	enum {
-		fValid                = 0x0001, // Признак того, что запись является действительной (загруженной из базы данных)
-		fSyncWoChecks         = 0x0002, // Заменяет DBDXF_SYNCSCARDWOCHECKS
-		fAcceptOwnerInDispDiv = 0x0004, // Принимать изменения владельца карты в диспетчерском разделе
-		fDontUseBonusCards    = 0x0008, // Использовать бонусные карты только как дисконтные.
+		fValid                 = 0x0001, // Признак того, что запись является действительной (загруженной из базы данных)
+		fSyncWoChecks          = 0x0002, // Заменяет DBDXF_SYNCSCARDWOCHECKS
+		fAcceptOwnerInDispDiv  = 0x0004, // Принимать изменения владельца карты в диспетчерском разделе
+		fDontUseBonusCards     = 0x0008, // Использовать бонусные карты только как дисконтные.
 			// Флаг следует установить в разделе базы данных, обслуживающем магазин, в котором бонусные карты не
 			// должны использоваться, в противоположность другим синхронизированным магазинам.
-		fCheckBillDebt        = 0x0010  // При операциях по карте проверять наличие простроченной задолженности по документам, привязанным к карте
+		fCheckBillDebt         = 0x0010, // При операциях по карте проверять наличие простроченной задолженности по документам, привязанным к карте
+		fDisableBonusByDefault = 0x0020  // @v10.9.0 По умолчанию не применять бонус при расчете в кассовой панели (с возможностью ручного включения)
 	};
 	PPID   Tag;                // Const=PPOBJ_CONFIG
 	PPID   ID;                 // Const=PPCFG_MAIN
@@ -35811,6 +35811,7 @@ public:
 	//     измерения, соответствующая товару).
 	//
 	int    SLAPI IsTimingTech(const TechTbl::Rec * pTechRec, double * pBaseRatio);
+	int    SLAPI CheckPossibilityToInsertLine(const TSessionTbl::Rec & rSessRec);
 	int    SLAPI AdjustTiming(const TSessionTbl::Rec & rSessRec, const STimeChunk & rChunk, STimeChunk & rResult, long * pTiming);
 	int    SLAPI GetPrc(PPID prcID, ProcessorTbl::Rec *, int withInheritance, int useCache = 0);
 	int    SLAPI GetPrcByCode(const char * pPrcCode, ProcessorTbl::Rec *);
@@ -51734,8 +51735,15 @@ public:
 	//   Поле CCheckPacket::Rec::CashID получает идентификатор кассового узла, к которому привязан текущий чек.
 	//
 	int    GetCheckInfo(CCheckPacket * pPack);
-	void   CalcTotal(double * pTotal, double * pDiscount) const;
+	struct CcTotal {
+		SLAPI  CcTotal();
+		double Amount;
+		double Discount;
+	};
+	CcTotal CalcTotal() const; // @v10.9.0 
+	// @v10.9.0 void   CalcTotal(double * pTotal, double * pDiscount) const;
 	double GetUsableBonus() const;
+	double GetBonusMaxPart() const; // @v10.9.0
 	int    GetState() const { return State_p; }
 	int    FASTCALL IsState(int s) const;
 	PPID   GetPosNodeID() const;

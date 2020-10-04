@@ -75,7 +75,7 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 {
 	for(uint i = 0; i < SIZEOFARRAY(PPUserProfileFuncTab); i++) {
 		const PPUserProfileFuncEntry & r_entry = PPUserProfileFuncTab[i];
-		if(((int)r_entry.FuncId) == funcId) {
+		if(static_cast<int>(r_entry.FuncId) == funcId) {
 			return &r_entry;
 		}
 	}
@@ -90,7 +90,7 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 
 long SLAPI PPUserProfileFuncEntry::GetLoggedFuncId() const
 {
-	return (((long)FuncId)*1000)+((long)FuncVer);
+	return (static_cast<long>(FuncId)*1000) + static_cast<long>(FuncVer);
 }
 
 struct ProfileEntry {
@@ -179,7 +179,7 @@ int SLAPI Profile::Insert(ProfileEntry * e, uint * pPos)
 	return ordInsert(e, pPos, PTR_CMPFUNC(PrflEnKey)) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI Profile::Output(uint fileId, const char * pDescription)
+void SLAPI Profile::Output(uint fileId, const char * pDescription)
 {
 	Lck.Lock();
 	if(getCount()) {
@@ -187,7 +187,7 @@ int SLAPI Profile::Output(uint fileId, const char * pDescription)
 		char   empty_descr[16];
 		SString temp_buf;
 		if(pDescription == 0) {
-			empty_descr[0] = 0;
+			PTR32(empty_descr)[0] = 0;
 			pDescription = empty_descr;
 		}
 		temp_buf.Printf("Start profile at clock %ld: %s", (long)(StartClock / 10000) , pDescription);
@@ -200,16 +200,14 @@ int SLAPI Profile::Output(uint fileId, const char * pDescription)
 			const  char * p_added_info = NZOR(p_pe->P_AddedInfo, reinterpret_cast<const char *>(&stub));
 			const  char * p_file_name  = NZOR(p_pe->P_FileName, reinterpret_cast<const char *>(&stub));
 			temp_buf.Printf("%8I64d\t%8.0lf\t%12.4lf\t%8.0lf\t%12.4lf\t%s[%ld]\t%s",
-				p_pe->Hits, (double)(p_pe->NSecs100 / 10000.0), msh,
-				(double)(((double)p_pe->Mks) / 1000.0), msh_full,
+				p_pe->Hits, (double)(p_pe->NSecs100 / 10000.0), msh, (double)(((double)p_pe->Mks) / 1000.0), msh_full,
 				p_file_name, p_pe->LineNum, p_added_info);
-			PPLogMessage(fileId, temp_buf, LOGMSGF_DIRECTOUTP); // @v9.2.0 LOGMSGF_DIRECTOUTP
+			PPLogMessage(fileId, temp_buf, LOGMSGF_DIRECTOUTP);
 		}
-		temp_buf.Printf("End profile at clock %ld", (long)(EndClock / 10000));
-		PPLogMessage(fileId, temp_buf, /*LOGMSGF_USER|*/LOGMSGF_TIME|LOGMSGF_DIRECTOUTP); // @v9.2.0 LOGMSGF_DIRECTOUTP
+		temp_buf.Printf("End profile at clock %ld", static_cast<long>(EndClock / 10000));
+		PPLogMessage(fileId, temp_buf, /*LOGMSGF_USER|*/LOGMSGF_TIME|LOGMSGF_DIRECTOUTP);
 	}
 	Lck.Unlock();
-	return 1;
 }
 
 enum {

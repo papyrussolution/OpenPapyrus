@@ -1017,17 +1017,15 @@ int TDialog::SaveUserSettings()
 
 int TDialog::RestoreUserSettings()
 {
-	//char   spec[128];
+	int    ok = -1;
 	SString spec_buf;
 	char   param[32];
 	WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_DlgUserSetting, 1);
 	ltoa(resourceID, param, 10);
 	if(reg_key.GetString(param, spec_buf)) {
-		// version, left, top
 		char   ver[32], temp_buf[32];
 		uint   pos = 0;
 		uint   num_cols = 0;
-		//spec[sizeof(spec)-1] = 0;
 		StringSet ss(',', spec_buf);
 		ss.get(&pos, ver, sizeof(ver));
 		Settings.Ver = atoi(ver);
@@ -1036,9 +1034,9 @@ int TDialog::RestoreUserSettings()
 		ss.get(&pos, temp_buf, sizeof(temp_buf));
 		Settings.Top = atoi(temp_buf);
 		DlgFlags |= fUserSettings;
-		return 1;
+		ok = 1;
 	}
-	return -1;
+	return ok;
 }
 //
 // Изменение размеров окна диалога
@@ -1099,8 +1097,7 @@ int __cdecl TDialog::LinkCtrlsToDlgBorders(long ctrlResizeFlags, ...)
 	return ok;
 }
 
-void TDialog::RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord,
-	long ctrlSize, int recalcParam)
+void TDialog::RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord, long ctrlSize, int recalcParam)
 {
 	if(pFirstCtrlCoord && pSecondCtrlCoord) {
 		if(recalcParam == 1) {
@@ -1112,7 +1109,8 @@ void TDialog::RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstC
 			*pSecondCtrlCoord = secondCoord;
 		}
 		else if(recalcParam == 3) {
-			double mult = ((double)(secondCoord - firstCoord - ctrlSize)) / (*pFirstCtrlCoord + *pSecondCtrlCoord);
+			// @v10.9.0 double mult = ((double)(secondCoord - firstCoord - ctrlSize)) / (*pFirstCtrlCoord + *pSecondCtrlCoord);
+			const double mult = fdivi(secondCoord - firstCoord - ctrlSize, *pFirstCtrlCoord + *pSecondCtrlCoord); // @v10.9.0 
 			*pFirstCtrlCoord  = firstCoord + R0i(*pFirstCtrlCoord * mult);
 			*pSecondCtrlCoord = *pFirstCtrlCoord + ctrlSize;
 		}
@@ -1123,18 +1121,20 @@ void TDialog::RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstC
 	}
 }
 
-int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry * pCtrlParam,
-	TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim) // @v9.8.4 TSArray-->TSVector
+int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, const ResizeParamEntry & rCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim)
 {
-	int    ok = 1, is_found;
+	int    ok = 1;
+	int    is_found;
 	uint   p;
 	double mult;
 	HWND   ctrl_wnd;
 	RECT   ctrl_rect, linked_rect;
-	ResizeParamEntry  * p_coord = 0, rpe, new_coord, linked_coord;
-	//TSArray <long>  ctrl_set_ary;
+	ResizeParamEntry * p_coord = 0;
+	ResizeParamEntry new_coord;
+	ResizeParamEntry linked_coord;
 	LongArray ctrl_set_ary;
-	long    old_f_bound, old_s_bound, new_f_bound, new_s_bound, size_to_resize, first_ctrl_id;
+	ResizeParamEntry rpe = rCtrlParam;
+	long    old_f_bound, old_s_bound, new_f_bound, new_s_bound;
 	long    srch_flg_f = isXDim ? crfLinkLeft  : crfLinkTop;
 	long    srch_flg_s = isXDim ? crfLinkRight : crfLinkBottom;
 	long  * p_param_f      = isXDim ? &rpe.Left           : &rpe.Top;
@@ -1149,10 +1149,8 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry *
 	long  * p_old_linked_s = isXDim ? &linked_rect.right  : &linked_rect.bottom;
 	long  * p_new_linked_f = isXDim ? &linked_coord.Left  : &linked_coord.Top;
 	long  * p_new_linked_s = isXDim ? &linked_coord.Right : &linked_coord.Bottom;
-
-	rpe = *pCtrlParam;
+	long    size_to_resize = 0;
 	ok  =  ctrl_set_ary.add(rpe.CtrlID);
-	size_to_resize = 0;
 	for(is_found = 0; ok > 0 && !is_found;) {
 		if(rpe.Flags & crfResizeable) {
 			ctrl_wnd = GetDlgItem(H(), rpe.CtrlID);
@@ -1191,8 +1189,8 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry *
 		}
 	}
 	if(is_found) {
-		first_ctrl_id = *p_param_f;
-		rpe = *pCtrlParam;
+		const long first_ctrl_id = *p_param_f;
+		rpe = rCtrlParam;
 		rpe.Flags &= ~crfResizeable;
 		for(is_found = 0; ok > 0 && !is_found;) {
 			if(rpe.Flags & crfResizeable) {
@@ -1231,62 +1229,63 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry *
 				is_found = 1;
 			}
 		}
-	}
-	if(is_found) {
-		mult = (double)(new_s_bound - new_f_bound - (old_s_bound - old_f_bound - size_to_resize)) / size_to_resize;
-		if(first_ctrl_id) {
-			pCoordAry->lsearch(&first_ctrl_id, &(p = 0), CMPF_LONG);
-			new_coord = pCoordAry->at(p);
-			GetWindowRect(new_coord.CtrlWnd, &ctrl_rect);
-			linked_coord.Left   = new_coord.Right;
-			linked_coord.Right  = new_coord.Left;
-			linked_coord.Top    = new_coord.Bottom;
-			linked_coord.Bottom = new_coord.Top;
-			linked_rect.left    = ctrl_rect.right;
-			linked_rect.right   = ctrl_rect.left;
-			linked_rect.top     = ctrl_rect.bottom;
-			linked_rect.bottom  = ctrl_rect.top;
-		}
-		else {
-			linked_coord.Left   = pNewDlgRect->right;
-			linked_coord.Right  = pNewDlgRect->left;
-			linked_coord.Top    = pNewDlgRect->bottom;
-			linked_coord.Bottom = pNewDlgRect->top;
-			linked_rect.left    = ResizedRect.right;
-			linked_rect.right   = ResizedRect.left;
-			linked_rect.top     = ResizedRect.bottom;
-			linked_rect.bottom  = ResizedRect.top;
-		}
-		for(uint i = 0; ok > 0 && i < ctrl_set_ary.getCount(); i++) {
-			ResizeParamAry.lsearch(&ctrl_set_ary.at(i), &(p = 0), CMPF_LONG);
-			rpe = ResizeParamAry.at(p);
-			is_found = pCoordAry->lsearch(&rpe.CtrlID, &(p = 0), CMPF_LONG);
-			if(is_found)
-				p_coord = &pCoordAry->at(p);
-			else {
-				MEMSZERO(new_coord);
-				new_coord.CtrlWnd = GetDlgItem(H(), rpe.CtrlID);
-				if(SETIFZ(new_coord.CtrlWnd, GetDlgItem(H(), MAKE_BUTTON_ID(rpe.CtrlID, 1)))) {
-					new_coord.CtrlID = rpe.CtrlID;
-					new_coord.Flags  = rpe.Flags;
-					p_coord = &new_coord;
-				}
-				else
-					ok = -1;
+		if(is_found) {
+			// @v10.9.0 mult = (double)(new_s_bound - new_f_bound - (old_s_bound - old_f_bound - size_to_resize)) / size_to_resize;
+			mult = fdivi(new_s_bound - new_f_bound - (old_s_bound - old_f_bound - size_to_resize), size_to_resize); // @v10.9.0
+			if(first_ctrl_id) {
+				pCoordAry->lsearch(&first_ctrl_id, &(p = 0), CMPF_LONG);
+				new_coord = pCoordAry->at(p);
+				GetWindowRect(new_coord.CtrlWnd, &ctrl_rect);
+				linked_coord.Left   = new_coord.Right;
+				linked_coord.Right  = new_coord.Left;
+				linked_coord.Top    = new_coord.Bottom;
+				linked_coord.Bottom = new_coord.Top;
+				linked_rect.left    = ctrl_rect.right;
+				linked_rect.right   = ctrl_rect.left;
+				linked_rect.top     = ctrl_rect.bottom;
+				linked_rect.bottom  = ctrl_rect.top;
 			}
-			if(ok > 0) {
-				long * p_new_coord_f = isXDim ? &p_coord->Left  : &p_coord->Top;
-				long * p_new_coord_s = isXDim ? &p_coord->Right : &p_coord->Bottom;
-				GetWindowRect(p_coord->CtrlWnd, &ctrl_rect);
-				size_to_resize = *p_old_rect_s - *p_old_rect_f;
-				*p_new_coord_f = *p_new_linked_s + (*p_old_rect_f - *p_old_linked_s);
-				*p_new_coord_s = *p_new_coord_f  + ((p_coord->Flags & crfResizeable) ? R0i(size_to_resize * mult) : size_to_resize);
-				if(!is_found)
-					ok = pCoordAry->insert(&new_coord);
-				linked_coord = *p_coord;
-				linked_rect  = ctrl_rect;
-				if(ok)
-					ok = pCalcedCtrlAry->insert(&p_coord->CtrlID);
+			else {
+				linked_coord.Left   = pNewDlgRect->right;
+				linked_coord.Right  = pNewDlgRect->left;
+				linked_coord.Top    = pNewDlgRect->bottom;
+				linked_coord.Bottom = pNewDlgRect->top;
+				linked_rect.left    = ResizedRect.right;
+				linked_rect.right   = ResizedRect.left;
+				linked_rect.top     = ResizedRect.bottom;
+				linked_rect.bottom  = ResizedRect.top;
+			}
+			for(uint i = 0; ok > 0 && i < ctrl_set_ary.getCount(); i++) {
+				ResizeParamAry.lsearch(&ctrl_set_ary.at(i), &(p = 0), CMPF_LONG);
+				rpe = ResizeParamAry.at(p);
+				is_found = pCoordAry->lsearch(&rpe.CtrlID, &(p = 0), CMPF_LONG);
+				if(is_found)
+					p_coord = &pCoordAry->at(p);
+				else {
+					MEMSZERO(new_coord);
+					new_coord.CtrlWnd = GetDlgItem(H(), rpe.CtrlID);
+					if(SETIFZ(new_coord.CtrlWnd, GetDlgItem(H(), MAKE_BUTTON_ID(rpe.CtrlID, 1)))) {
+						new_coord.CtrlID = rpe.CtrlID;
+						new_coord.Flags  = rpe.Flags;
+						p_coord = &new_coord;
+					}
+					else
+						ok = -1;
+				}
+				if(ok > 0) {
+					long * p_new_coord_f = isXDim ? &p_coord->Left  : &p_coord->Top;
+					long * p_new_coord_s = isXDim ? &p_coord->Right : &p_coord->Bottom;
+					GetWindowRect(p_coord->CtrlWnd, &ctrl_rect);
+					size_to_resize = *p_old_rect_s - *p_old_rect_f;
+					*p_new_coord_f = *p_new_linked_s + (*p_old_rect_f - *p_old_linked_s);
+					*p_new_coord_s = *p_new_coord_f  + ((p_coord->Flags & crfResizeable) ? R0i(size_to_resize * mult) : size_to_resize);
+					if(!is_found)
+						ok = pCoordAry->insert(&new_coord);
+					linked_coord = *p_coord;
+					linked_rect  = ctrl_rect;
+					if(ok)
+						ok = pCalcedCtrlAry->insert(&p_coord->CtrlID);
+				}
 			}
 		}
 	}
@@ -1299,20 +1298,23 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 	uint  i, p;
 	LongArray x_calced, y_calced;
 	TSVector <ResizeParamEntry> new_coord_ary;
-	ResizeParamEntry  rpe, new_coord;
+	ResizeParamEntry new_coord;
 	for(int pass = 0; ok > 0 && pass < 3; pass++) {
 		for(i = 0; ok > 0 && i < ResizeParamAry.getCount(); i++) {
-			rpe = ResizeParamAry.at(i);
-			int   recalc, recalc_param;
+			const ResizeParamEntry rpe = ResizeParamAry.at(i);
+			int   recalc;
+			int   recalc_param;
 			int   is_x_calced = x_calced.lsearch(rpe.CtrlID);
 			int   is_y_calced = y_calced.lsearch(rpe.CtrlID);
-			long  first_of_diap, second_of_diap;
-			RECT  ctrl_rect, linked_ctrl_rect;
+			long  first_of_diap;
+			long  second_of_diap;
+			RECT  ctrl_rect;
+			RECT  linked_ctrl_rect;
 			ResizeParamEntry * p_coord = 0;
 			ResizeParamEntry new_linked_coord;
 			if(!is_x_calced) {
 				if((rpe.Left > 0 && !(rpe.Flags & crfLinkLeft)) || (rpe.Right > 0 && !(rpe.Flags & crfLinkRight))) {
-					recalc = Helper_ToRecalcCtrlSet(pNewDlgRect, &rpe, &new_coord_ary, &x_calced, 1);
+					recalc = Helper_ToRecalcCtrlSet(pNewDlgRect, rpe, &new_coord_ary, &x_calced, 1);
 					if(recalc > 0)
 						is_x_calced = 1;
 					else if(recalc == 0)
@@ -1382,7 +1384,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 			}
 			if(ok > 0 && !is_y_calced) {
 				if((rpe.Top > 0 && !(rpe.Flags & crfLinkTop)) || (rpe.Bottom > 0 && !(rpe.Flags & crfLinkBottom))) {
-					recalc = Helper_ToRecalcCtrlSet(pNewDlgRect, &rpe, &new_coord_ary, &y_calced, 0);
+					recalc = Helper_ToRecalcCtrlSet(pNewDlgRect, rpe, &new_coord_ary, &y_calced, 0);
 					if(recalc > 0)
 						is_y_calced = 1;
 					else if(recalc == 0)
@@ -1452,7 +1454,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 		}
 	}
 	for(i = 0; ok > 0 && i < ResizeParamAry.getCount(); i++) {
-		rpe = ResizeParamAry.at(i);
+		const ResizeParamEntry rpe = ResizeParamAry.at(i);
 		HWND   ctrl_wnd = GetDlgItem(H(), rpe.CtrlID);
 		if(ctrl_wnd && new_coord_ary.lsearch(&rpe.CtrlID, &(p = 0), CMPF_LONG)) {
 			new_coord = new_coord_ary.at(p);

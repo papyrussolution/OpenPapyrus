@@ -977,28 +977,43 @@ int TSessionDialog::AddCompletion() // @v10.8.12
 				const PPID tec_goods_id = tec_rec.GoodsID;
 				const PPID tec_struc_id = tec_rec.GStrucID;
 				const int  main_item_sign = tec_rec.Sign;
-				if(tec_goods_id && tec_struc_id && CONFIRM(PPCFM_TSESSAUTOCOMPLETE)) {
+				if(tec_goods_id && tec_struc_id) {
 					TSessionPacket temp_pack;
 					if(getDTS(&temp_pack)) {
-						PPTransaction tra(1);
-						THROW(tra);
-						sess_id = temp_pack.Rec.ID;
-						THROW(TSesObj.PutPacket(&sess_id, &temp_pack, 0));
-						{
+						THROW(TSesObj.CheckPossibilityToInsertLine(temp_pack.Rec)); // @v10.9.0
+						if(CONFIRM(PPCFM_TSESSAUTOCOMPLETE)) {
+							TSessionTbl::Rec updated_tses_rec;
+							PPTransaction tra(1);
+							THROW(tra);
+							sess_id = temp_pack.Rec.ID;
+							THROW(TSesObj.PutPacket(&sess_id, &temp_pack, 0));
 							{
-								TSessLineTbl::Rec line_rec;
-								long   oprno = 0;
-								THROW(TSesObj.InitLinePacket(&line_rec, sess_id) > 0);
-								THROW(TSesObj.SetupLineGoods(&line_rec, tec_goods_id, 0, 0));
-								line_rec.Sign = static_cast<int16>(main_item_sign);
-								line_rec.Qtty = planned_qtty;
-								THROW(TSesObj.PutLine(sess_id, &oprno, &line_rec, 0));
+								{
+									TSessLineTbl::Rec line_rec;
+									long   oprno = 0;
+									THROW(TSesObj.InitLinePacket(&line_rec, sess_id) > 0);
+									THROW(TSesObj.SetupLineGoods(&line_rec, tec_goods_id, 0, 0));
+									line_rec.Sign = static_cast<int16>(main_item_sign);
+									line_rec.Qtty = planned_qtty;
+									THROW(TSesObj.PutLine(sess_id, &oprno, &line_rec, 0));
+								}
+								THROW(TSesObj.CompleteSession(sess_id, 0));
 							}
-							THROW(TSesObj.CompleteSession(sess_id, 0));
+							THROW(TSesObj.Search(sess_id, &updated_tses_rec) > 0);
+							THROW(tra.Commit());
+							assert(updated_tses_rec.ID == sess_id);
+							Data.Rec.ID = sess_id;
+							Data.Rec.ActQtty = updated_tses_rec.ActQtty;
+							Data.Rec.Amount = updated_tses_rec.Amount;
+							Data.Rec.FinDt = updated_tses_rec.FinDt;
+							Data.Rec.FinTm = updated_tses_rec.FinTm;
+							setCtrlReal(CTL_TSESS_ACTQTTY, Data.Rec.ActQtty);
+							setCtrlReal(CTL_TSESS_AMOUNT, Data.Rec.Amount);
+							setCtrlData(CTL_TSESS_FNDT, &Data.Rec.FinDt);
+							setCtrlData(CTL_TSESS_FNTM, &Data.Rec.FinTm);
+							SetupAutoFillButton();
+							ok = 1;
 						}
-						THROW(tra.Commit());
-						SetupAutoFillButton();
-						ok = 1;
 					}
 				}
 			}
@@ -1017,14 +1032,10 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 		else if(event.isCmd(cmSelOrder)) {
 			PPID   goods_id = 0;
 			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
-			//PPID   sel_lot_id = Data.Rec.OrderLotID;
-			//ReceiptTbl::Rec sel_lot_rec;
 			if(p_grp && p_grp->getGoodsID(this, &goods_id) > 0) {
 				PPObjBill::SelectLotParam slp(-labs(goods_id), 0, 0, PPObjBill::SelectLotParam::fFillLotRec);
 				slp.RetLotID = Data.Rec.OrderLotID;
-				//if(SelectLot(0, -labs(goods_id), 0, &sel_lot_id, &sel_lot_rec) > 0) {
 				if(P_BObj->SelectLot2(slp) > 0) {
-					//Data.Rec.OrderLotID = sel_lot_id;
 					Data.Rec.OrderLotID = slp.RetLotID;
 					setupOrder();
 				}
@@ -1551,15 +1562,16 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 //
 //
 //
-#define GRP_GOODS 1
-
 class TSessLineDialog : public TDialog {
 	DECL_DIALOG_DATA(TSessLineTbl::Rec);
+	enum {
+		ctlgroupGoods = 1
+	};
 public:
 	explicit TSessLineDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSLN*/), PctDis(0.0)
 	{
 		SetupCalDate(CTLCAL_TSESSLN_DT, CTL_TSESSLN_DT);
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TSESSLN_GGRP, CTLSEL_TSESSLN_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TSESSLN_GGRP, CTLSEL_TSESSLN_GOODS));
 		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing)) {
 			showCtrl(CTL_TSESSLN_PRICE, 0);
 			showCtrl(CTL_TSESSLN_DSCNT, 0);
@@ -1580,15 +1592,18 @@ public:
 		SString sess_title;
 		// @v10.6.4 MEMSZERO(prc_rec);
 		THROW(TSesObj.Search(Data.TSessID, &tses_rec) > 0);
+		THROW(Data.OprNo || TSesObj.CheckPossibilityToInsertLine(tses_rec)); // @v10.9.0
+		/* @v10.9.0
 		if(!Data.OprNo && !(tses_rec.Flags & TSESF_PLAN) && !(TSesObj.GetConfig().Flags & PPTSessConfig::fAllowLinesInPendingSessions))
 			THROW_PP(oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED), PPERR_ADDTOINACTSESS);
+		*/
 		sess_title.Cat(tses_rec.Num);
 		{
 			SCardTbl::Rec sc_rec;
 			if(SearchObject(PPOBJ_SCARD, tses_rec.SCardID, &sc_rec) > 0)
 				PctDis = fdiv100i(sc_rec.PDis);
 		}
-		if(PrcObj.Search(tses_rec.PrcID, &prc_rec) > 0) {
+		if(TSesObj.PrcObj.Search(tses_rec.PrcID, &prc_rec) > 0) {
 			sess_title.Space().CatChar('-').Space().Cat(prc_rec.Name);
 			TSessLocID = prc_rec.LocID;
 		}
@@ -1596,7 +1611,7 @@ public:
 		{
 			GoodsCtrlGroup::Rec gcg_rec(0, Data.GoodsID, prc_rec.LocID,
 				GoodsCtrlGroup::disableEmptyGoods|GoodsCtrlGroup::activateGoodsListOnGroupSelection|GoodsCtrlGroup::enableInsertGoods);
-			setGroupData(GRP_GOODS, &gcg_rec);
+			setGroupData(ctlgroupGoods, &gcg_rec);
 		}
 		setCtrlLong(CTL_TSESSLN_SESSID, Data.TSessID);
 		setCtrlLong(CTL_TSESSLN_OPRNO,  Data.OprNo);
@@ -1631,7 +1646,7 @@ public:
 		uint   sel = 0;
 		long   temp_long = 0;
 		GoodsCtrlGroup::Rec gcg_rec;
-		THROW(getGroupData(GRP_GOODS, &gcg_rec));
+		THROW(getGroupData(ctlgroupGoods, &gcg_rec));
 		Data.GoodsID = gcg_rec.GoodsID;
 		if(GetClusterData(CTL_TSESSLN_SIGN, &temp_long))
 			Data.Sign = static_cast<int16>(temp_long);
@@ -1660,7 +1675,6 @@ private:
 	void   setupPricing(int recalcDiscount);
 
 	PPObjTSession TSesObj;
-	PPObjProcessor PrcObj;
 	PPObjGoods GObj;
 	PPID   TSessLocID; // Склад из технологической сессии
 	double PctDis; // Процентная скидка (извлекается из дисконтой карты, привязанной к сессии)

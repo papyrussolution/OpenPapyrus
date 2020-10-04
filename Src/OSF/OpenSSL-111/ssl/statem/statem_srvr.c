@@ -3623,75 +3623,50 @@ MSG_PROCESS_RETURN tls_process_client_certificate(SSL * s, PACKET * pkt)
 		    SSL_R_LENGTH_MISMATCH);
 		goto err;
 	}
-
 	for(chainidx = 0; PACKET_remaining(&spkt) > 0; chainidx++) {
-		if(!PACKET_get_net_3(&spkt, &l)
-		    || !PACKET_get_bytes(&spkt, &certbytes, l)) {
-			SSLfatal(s, SSL_AD_DECODE_ERROR,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-			    SSL_R_CERT_LENGTH_MISMATCH);
+		if(!PACKET_get_net_3(&spkt, &l) || !PACKET_get_bytes(&spkt, &certbytes, l)) {
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_CERT_LENGTH_MISMATCH);
 			goto err;
 		}
-
 		certstart = certbytes;
 		x = d2i_X509(NULL, (const unsigned char**)&certbytes, l);
 		if(x == NULL) {
-			SSLfatal(s, SSL_AD_DECODE_ERROR,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, ERR_R_ASN1_LIB);
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, ERR_R_ASN1_LIB);
 			goto err;
 		}
 		if(certbytes != (certstart + l)) {
-			SSLfatal(s, SSL_AD_DECODE_ERROR,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-			    SSL_R_CERT_LENGTH_MISMATCH);
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_CERT_LENGTH_MISMATCH);
 			goto err;
 		}
-
 		if(SSL_IS_TLS13(s)) {
 			RAW_EXTENSION * rawexts = NULL;
 			PACKET extensions;
-
 			if(!PACKET_get_length_prefixed_2(&spkt, &extensions)) {
-				SSLfatal(s, SSL_AD_DECODE_ERROR,
-				    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-				    SSL_R_BAD_LENGTH);
+				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_BAD_LENGTH);
 				goto err;
 			}
-			if(!tls_collect_extensions(s, &extensions,
-			    SSL_EXT_TLS1_3_CERTIFICATE, &rawexts,
-			    NULL, chainidx == 0)
-			    || !tls_parse_all_extensions(s, SSL_EXT_TLS1_3_CERTIFICATE,
-			    rawexts, x, chainidx,
-			    PACKET_remaining(&spkt) == 0)) {
+			if(!tls_collect_extensions(s, &extensions, SSL_EXT_TLS1_3_CERTIFICATE, &rawexts, NULL, chainidx == 0) || 
+				!tls_parse_all_extensions(s, SSL_EXT_TLS1_3_CERTIFICATE, rawexts, x, chainidx, PACKET_remaining(&spkt) == 0)) {
 				OPENSSL_free(rawexts);
 				goto err;
 			}
 			OPENSSL_free(rawexts);
 		}
-
 		if(!sk_X509_push(sk, x)) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-			    ERR_R_MALLOC_FAILURE);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		x = NULL;
 	}
-
 	if(sk_X509_num(sk) <= 0) {
 		/* TLS does not mind 0 certs returned */
 		if(s->version == SSL3_VERSION) {
-			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-			    SSL_R_NO_CERTIFICATES_RETURNED);
+			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_NO_CERTIFICATES_RETURNED);
 			goto err;
 		}
 		/* Fail for TLS only if we required a certificate */
-		else if((s->verify_mode & SSL_VERIFY_PEER) &&
-		    (s->verify_mode & SSL_VERIFY_FAIL_IF_NO_PEER_CERT)) {
-			SSLfatal(s, SSL_AD_CERTIFICATE_REQUIRED,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-			    SSL_R_PEER_DID_NOT_RETURN_A_CERTIFICATE);
+		else if((s->verify_mode & SSL_VERIFY_PEER) && (s->verify_mode & SSL_VERIFY_FAIL_IF_NO_PEER_CERT)) {
+			SSLfatal(s, SSL_AD_CERTIFICATE_REQUIRED, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_PEER_DID_NOT_RETURN_A_CERTIFICATE);
 			goto err;
 		}
 		/* No client certificate so digest cached records */
@@ -3704,25 +3679,19 @@ MSG_PROCESS_RETURN tls_process_client_certificate(SSL * s, PACKET * pkt)
 		EVP_PKEY * pkey;
 		i = ssl_verify_cert_chain(s, sk);
 		if(i <= 0) {
-			SSLfatal(s, ssl_x509err2alert(s->verify_result),
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-			    SSL_R_CERTIFICATE_VERIFY_FAILED);
+			SSLfatal(s, ssl_x509err2alert(s->verify_result), SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_CERTIFICATE_VERIFY_FAILED);
 			goto err;
 		}
 		if(i > 1) {
-			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, i);
+			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, i);
 			goto err;
 		}
 		pkey = X509_get0_pubkey(sk_X509_value(sk, 0));
 		if(pkey == NULL) {
-			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-			    SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-			    SSL_R_UNKNOWN_CERTIFICATE_TYPE);
+			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_UNKNOWN_CERTIFICATE_TYPE);
 			goto err;
 		}
 	}
-
 	/*
 	 * Sessions must be immutable once they go into the session cache. Otherwise
 	 * we can get multi-thread problems. Therefore we don't "update" sessions,

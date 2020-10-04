@@ -205,8 +205,6 @@ int SmartListBox::SearchColumnByIdent(long ident, uint * pPos) const
 int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint format, long ident)
 {
 	int    ok = 1;
-	ColumnDescr item;
-	MEMSZERO(item);
 	SString temp_buf;
 	SString title(pTitle);
 	if(!title.NotEmptyS()) {
@@ -223,25 +221,29 @@ int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint forma
 			cf = STRF_OEM;
 		}
 	}
-	if(cf == STRF_OEM || cf == 0)
+	if(oneof2(cf, STRF_OEM, 0))
 		title.Transf(CTRANSF_INNER_TO_OUTER);
 	SETIFZ(width, title.Len());
-	item.Width = MIN(255, MAX(width, 2));
-	if(format & ALIGN_LEFT)
-		item.Format |= ALIGN_LEFT;
-	else if(format & ALIGN_RIGHT)
-		item.Format |= ALIGN_RIGHT;
-	else if(format & ALIGN_CENTER)
-		item.Format |= ALIGN_CENTER;
-	else
-		item.Format |= ALIGN_LEFT;
-	item.Ident = ident; // @v9.2.9
-	if(title.Len())
-		StrPool.add(title, &item.TitlePos);
-	if(pos < 0 || pos >= (int)Columns.getCount())
-		pos = Columns.getCount();
-	ok = Columns.atInsert((uint)pos, &item);
-	if(ok /* @v9.2.9 && !(State & stInited)*/)
+	{
+		ColumnDescr item;
+		MEMSZERO(item);
+		item.Width = MIN(255, MAX(width, 2));
+		if(format & ALIGN_LEFT)
+			item.Format |= ALIGN_LEFT;
+		else if(format & ALIGN_RIGHT)
+			item.Format |= ALIGN_RIGHT;
+		else if(format & ALIGN_CENTER)
+			item.Format |= ALIGN_CENTER;
+		else
+			item.Format |= ALIGN_LEFT;
+		item.Ident = ident;
+		if(title.Len())
+			StrPool.add(title, &item.TitlePos);
+		if(pos < 0 || pos >= Columns.getCountI())
+			pos = Columns.getCount();
+		ok = Columns.atInsert((uint)pos, &item);
+	}
+	if(ok)
 		Helper_InsertColumn(static_cast<uint>(pos));
 	return ok;
 }
@@ -287,16 +289,14 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 			uint   format = 0;
 			title_buf.Z();
 			if(ss.get(&pos, citem)) {
-				if(citem.Divide('w', left, right) > 0)
-					width = static_cast<uint16>(right.ToLong());
-				else
-					width = static_cast<uint16>(citem.ToLong());
+				width = static_cast<uint16>((citem.Divide('w', left, right) > 0) ? right.ToLong() : citem.ToLong());
 				if(ss.get(&pos, citem)) {
-					int a = toupper(citem.Strip().C(0));
-					if(a == 'L')      format |= ALIGN_LEFT;
-					else if(a == 'R') format |= ALIGN_RIGHT;
-					else if(a == 'C') format |= ALIGN_CENTER;
-					else              format |= ALIGN_LEFT;
+					switch(toupper(citem.Strip().C(0))) {
+						case 'L': format |= ALIGN_LEFT; break;
+						case 'R': format |= ALIGN_RIGHT; break;
+						case 'C': format |= ALIGN_CENTER; break;
+						default: format |= ALIGN_LEFT; break;
+					}
 					ss.get(&pos, title_buf);
 				}
 			}
@@ -409,7 +409,7 @@ void SmartListBox::CreateScrollBar(int create)
 		sc_lu.y = rc_list.top;
 		::MapWindowPoints(NULL, Parent, &sc_lu, 1);
 		h_wnd = ::CreateWindow(_T("SCROLLBAR"), _T(""), WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, 
-			reinterpret_cast<HMENU>(MAKE_BUTTON_ID(Id, 1)), TProgram::GetInst(), 0); // @unicodeproblem
+			reinterpret_cast<HMENU>(MAKE_BUTTON_ID(Id, 1)), TProgram::GetInst(), 0);
 		::ShowWindow(h_wnd, SW_SHOWNORMAL);
 	}
 }
@@ -423,13 +423,11 @@ void SmartListBox::SetScrollBarPos(long pos, LPARAM lParam)
 
 int SmartListBox::GetMaxListHeight()
 {
-	int    item_height = 0, max_height = 0;
-	int    list_height = 0;
 	const  HWND h_lb = getHandle();
 	RECT   list_rect;
 	::GetClientRect(Parent, &list_rect);
-	list_height = list_rect.bottom - list_rect.top;
-	item_height = ::SendMessage(h_lb, LB_GETITEMHEIGHT, 0, 0);
+	const int list_height = list_rect.bottom - list_rect.top;
+	const int item_height = ::SendMessage(h_lb, LB_GETITEMHEIGHT, 0, 0);
 	return (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 }
 
@@ -472,8 +470,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 			HWND   hwh = ListView_GetHeader(h_lb);
 			::GetWindowRect(hwh, &rc);
 			item_height = rc.bottom - rc.top - 4;
-			for(uint i = 0; i < Columns.getCount(); i++)
-				Helper_InsertColumn(i);
+			SForEachVectorItem(Columns, i) { Helper_InsertColumn(i); }
 			Height = ((list_height-3) / item_height) - 1;
 			ListView_SetExtendedListViewStyle(h_lb, LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
 		}
@@ -502,7 +499,6 @@ void SmartListBox::onInitDialog(int useScrollBar)
 }
 
 #if 0 // {
-
 int SmartListBox::SetupTreeWnd(HTREEITEM hParent, long grpParentID)
 {
 	int    ok = -1;
@@ -592,7 +588,6 @@ int SmartListBox::SetupTreeWnd(HTREEITEM hParent, long grpParentID)
 	PROFILE_END
 	return ok;
 }
-
 #endif // } 0
 
 void SmartListBox::Helper_ClearTreeWnd()

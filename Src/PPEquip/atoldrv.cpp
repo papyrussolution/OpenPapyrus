@@ -1217,11 +1217,22 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		SString goods_name;
 		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v10.0.03
 		StateBlock stb;
+		// @v10.9.0 {
+		double real_fiscal = 0.0;
+		double real_nonfiscal = 0.0;
+		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
+		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const CcAmountList & r_al = pPack->AL_Const();
+		const int is_al = BIN(r_al.getCount());
+		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
+		// } @v10.9.0 
 		THROW(Connect(&stb));
 		THROW(AllowPrintOper_Fptr10());
-		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
-		fiscal = fabs(fiscal);
-		nonfiscal = fabs(nonfiscal);
+		// @v10.9.0 pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
+		// @v10.9.0 fiscal = fabs(fiscal);
+		// @v10.9.0 nonfiscal = fabs(nonfiscal);
 		if(flags & PRNCHK_LASTCHKANNUL) {
 			THROW(Annulate(MODE_REGISTER));
 		}
@@ -1457,7 +1468,6 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						Flags |= sfOpenCheck;
 						prn_total_sale = 0;
 					}
-					// @v9.1.4 {
 					else if(sl_param.Kind == sl_param.lkBarcode) {
 						;
 					}
@@ -1515,16 +1525,15 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								else {
 									THROW(SetProp(PrintBarcodeText, 0));
 								}
-								THROW(SetProp(AutoSize, true)); // @v9.1.8
-								THROW(SetProp(Alignment, 1)); // @v9.1.8
-								THROW(SetProp(Scale, barcode_scale)); // @v9.1.8
-								THROW(SetProp(PrintPurpose, 1));       // @v9.1.8
-								THROW(SetProp(BarcodeControlCode, false)); // @v9.1.8
+								THROW(SetProp(AutoSize, true));
+								THROW(SetProp(Alignment, 1));
+								THROW(SetProp(Scale, barcode_scale));
+								THROW(SetProp(PrintPurpose, 1));
+								THROW(SetProp(BarcodeControlCode, false));
 								THROW(ExecOper(PrintBarcode));
 							}
 						}
 					}
-					// } @v9.1.4
 					else {
 						THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
 					}
@@ -1609,46 +1618,74 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
 			sum = running_total;
 		{
-			double _paym_bnk = 0.0;
-			if(pPack->AL_Const().getCount()) {
-				_paym_bnk = R2(fabs(pPack->AL_Const().Get(CCAMTTYP_BANK)));
+			// @v10.9.0 {
+			const double __amt_bnk = R2(fabs(amt_bnk));
+			const double __amt_ccrd = R2(fabs(amt_ccrd));
+			const double __amt_cash = R2(fabs(sum - __amt_bnk - __amt_ccrd));
+			debug_log_buf.Space().CatEq("PAYMBANK", __amt_bnk, MKSFMTD(0, 10, 0)).
+				Space().CatEq("PAYMCASH", __amt_cash, MKSFMTD(0, 10, 0)).
+				Space().CatEq("PAYMCRDCARD", __amt_ccrd, MKSFMTD(0, 10, 0));
+			if(__amt_cash > 0.0) {
+				THROW(RegisterPayment(__amt_cash, LIBFPTR_PT_CASH));
 			}
-			else if(pPack->Rec.Flags & CCHKF_BANKING) {
-				if(nonfiscal > 0.0) {
-					if(fiscal > 0.0)
-						_paym_bnk = R2(fiscal);
-				}
-				else
-					_paym_bnk = R2(sum);
+			if(__amt_bnk > 0.0) {
+				THROW(RegisterPayment(__amt_bnk, LIBFPTR_PT_ELECTRONICALLY));
 			}
+			if(__amt_ccrd > 0.0) {
+				THROW(RegisterPayment(__amt_ccrd, LIBFPTR_PT_OTHER));
+			}
+			// } @v10.9.0 
+			/* @v10.9.0
 			{
-				if(nonfiscal > 0.0) {
-					if(fiscal > 0.0) {
-						const double _paym_cash = R2(fiscal - _paym_bnk);
-						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
+				double _paym_bnk = 0.0;
+				double _paym_credit = 0.0;
+				if(r_al.getCount()) {
+					_paym_bnk = R2(fabs(r_al.Get(CCAMTTYP_BANK)));
+					_paym_credit = R2(fabs(r_al.Get(CCAMTTYP_CRDCARD)));
+				}
+				else if(pPack->Rec.Flags & CCHKF_BANKING) {
+					if(nonfiscal > 0.0) {
+						if(fiscal > 0.0)
+							_paym_bnk = R2(fiscal);
+					}
+					else
+						_paym_bnk = R2(sum);
+				}
+				{
+					if(nonfiscal > 0.0) {
+						if(fiscal > 0.0) {
+							const double _paym_cash = R2(fiscal - _paym_bnk);
+							debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
+							if(_paym_cash > 0.0) {
+								THROW(RegisterPayment(R2(_paym_cash), LIBFPTR_PT_CASH));
+							}
+							if(_paym_bnk > 0.0) {
+								THROW(RegisterPayment(R2(_paym_bnk), LIBFPTR_PT_ELECTRONICALLY));
+							}
+						}
+					}
+					else {
+						// @v10.3.1 {
+						if(_paym_bnk != 0.0 && feqeps(sum, _paym_bnk, 1E-5)) // @v10.3.3 (_paym_bnk != 0.0)
+							_paym_bnk = sum;
+						// } @v10.3.1
+						// @v10.9.0 const double _paym_cash = R2(sum - _paym_bnk);
+						const double _paym_cash = R2(sum - _paym_bnk - _paym_credit); // @v10.9.0
+						debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).
+							Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0)).
+							Space().CatEq("PAYMCRDCARD", _paym_credit, MKSFMTD(0, 10, 0));
 						if(_paym_cash > 0.0) {
-							THROW(RegisterPayment(R2(_paym_cash), LIBFPTR_PT_CASH));
+							THROW(RegisterPayment(_paym_cash, LIBFPTR_PT_CASH));
 						}
 						if(_paym_bnk > 0.0) {
-							THROW(RegisterPayment(R2(_paym_bnk), LIBFPTR_PT_ELECTRONICALLY));
+							THROW(RegisterPayment(_paym_bnk, LIBFPTR_PT_ELECTRONICALLY));
+						}
+						if(_paym_credit > 0.0) {
+							THROW(RegisterPayment(_paym_credit, LIBFPTR_PT_OTHER));
 						}
 					}
 				}
-				else {
-					// @v10.3.1 {
-					if(_paym_bnk != 0.0 && feqeps(sum, _paym_bnk, 1E-5)) // @v10.3.3 (_paym_bnk != 0.0)
-						_paym_bnk = sum;
-					// } @v10.3.1
-					const double _paym_cash = R2(sum - _paym_bnk);
-					debug_log_buf.Space().CatEq("PAYMBANK", _paym_bnk, MKSFMTD(0, 10, 0)).Space().CatEq("PAYMCASH", _paym_cash, MKSFMTD(0, 10, 0));
-					if(_paym_cash > 0.0) {
-						THROW(RegisterPayment(_paym_cash, LIBFPTR_PT_CASH));
-					}
-					if(_paym_bnk > 0.0) {
-						THROW(RegisterPayment(_paym_bnk, LIBFPTR_PT_ELECTRONICALLY));
-					}
-				}
-			}
+			}*/
 		}
 		if(P_Fptr10) {
 			THROW(AllowPrintOper_Fptr10());

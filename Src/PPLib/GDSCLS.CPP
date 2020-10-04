@@ -36,8 +36,7 @@ SLAPI PPObjGoodsClass::PPObjGoodsClass(void * extraPtr) : PPObjReference(PPOBJ_G
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 
-//static
-int SLAPI PPObjGoodsClass::SerializeDim(int dir, PPGdsClsDim * p, SBuffer & rBuf, SSerializeContext * pSCtx)
+/*static*/int SLAPI PPObjGoodsClass::SerializeDim(int dir, PPGdsClsDim * p, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_ZSTRING, sizeof(p->Name)), p->Name, 0, rBuf));
@@ -47,8 +46,7 @@ int SLAPI PPObjGoodsClass::SerializeDim(int dir, PPGdsClsDim * p, SBuffer & rBuf
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsClass::PutProp(SString & rBuf, uint fldID, PPGdsClsProp * pProp)
+/*static*/int SLAPI PPObjGoodsClass::PutProp(SString & rBuf, uint fldID, PPGdsClsProp * pProp)
 {
 	int    ok = 1;
 	char   temp_str[128];
@@ -57,8 +55,7 @@ int SLAPI PPObjGoodsClass::PutProp(SString & rBuf, uint fldID, PPGdsClsProp * pP
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsClass::GetProp(const SString & rBuf, uint fldID, PPGdsClsProp * pProp)
+/*static*/int SLAPI PPObjGoodsClass::GetProp(const SString & rBuf, uint fldID, PPGdsClsProp * pProp)
 {
 	SString temp_buf;
 	PPGetExtStrData(10*fldID+1, rBuf, temp_buf);
@@ -68,8 +65,7 @@ int SLAPI PPObjGoodsClass::GetProp(const SString & rBuf, uint fldID, PPGdsClsPro
 	return 1;
 }
 
-// static
-int SLAPI PPObjGoodsClass::PutPropsToLine(SString & rLine, PPGdsClsPacket * pPack)
+/*static*/int SLAPI PPObjGoodsClass::PutPropsToLine(SString & rLine, PPGdsClsPacket * pPack)
 {
 	int    ok = 1;
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_NAMECONV,   rLine, pPack->NameConv);
@@ -87,8 +83,7 @@ int SLAPI PPObjGoodsClass::PutPropsToLine(SString & rLine, PPGdsClsPacket * pPac
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsClass::GetPropsFromLine(const SString & rLine, PPGdsClsPacket * pPack)
+/*static*/int SLAPI PPObjGoodsClass::GetPropsFromLine(const SString & rLine, PPGdsClsPacket * pPack)
 {
 	int    ok = 1;
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_NAMECONV,   rLine, pPack->NameConv);

@@ -920,8 +920,7 @@ int FASTCALL PPObjGoods::HasUndupNameSuffix(const SString & rBuf, uint * pPos)
 	return ok;
 }
 
-// static
-int FASTCALL PPObjGoods::RemoveUndupNameSuffix(SString & rBuf)
+/*static*/int FASTCALL PPObjGoods::RemoveUndupNameSuffix(SString & rBuf)
 {
 	int    ok = -1;
 	size_t pos = rBuf.Len();

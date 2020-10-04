@@ -719,8 +719,7 @@ SLAPI ReportDescrEntry::ReportDescrEntry() : Flags(0)
 {
 }
 
-// static
-int FASTCALL ReportDescrEntry::GetIniToken(const char * pLine, SString * pFileName)
+/*static*/int FASTCALL ReportDescrEntry::GetIniToken(const char * pLine, SString * pFileName)
 {
 	int   tok = tUnkn;
 	SString buf(pLine);

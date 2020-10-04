@@ -4,9 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <charry.h>
-//
-//
-//
+
 class FiasAddrCache : public ObjCacheHash {
 public:
 	struct Data : public ObjCacheEntry {
@@ -273,8 +271,7 @@ int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
 	return ok;
 }
 
-// static
-int FASTCALL PPObjLocation::WriteConfig(const PPLocationConfig * pCfg, int use_ta)
+/*static*/int FASTCALL PPObjLocation::WriteConfig(const PPLocationConfig * pCfg, int use_ta)
 {
 	const  long prop_cfg_id = PPPRP_LOCATIONCFG;
 	const  long cfg_obj_type = PPCFGOBJ_LOCATION;
@@ -366,8 +363,7 @@ int FASTCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, co
 	return SetupPPObjCombo(dlg, ctl, PPOBJ_LOCATION, id, flags, &flt);
 }
 
-// static
-int SLAPI PPObjLocation::SelectWarehouse(PPID /*owner*/, PPID /*level*/)
+/*static*/int SLAPI PPObjLocation::SelectWarehouse(PPID /*owner*/, PPID /*level*/)
 {
 	PPID   id = LConfig.Location;
 	int    r = PPSelectObject(PPOBJ_LOCATION, &id, PPTXT_SELECTLOCATION, 0);
@@ -2869,17 +2865,14 @@ void DivisionView::viewStaffList()
 //
 //
 //
-
-// static
-int SLAPI PPObjLocation::ViewWarehouse()
+/*static*/int SLAPI PPObjLocation::ViewWarehouse()
 {
 	PPObjLocation locobj(0);
 	locobj.Browse(0);
 	return 1;
 }
 
-// static
-int SLAPI PPObjLocation::ViewDivision()
+/*static*/int SLAPI PPObjLocation::ViewDivision()
 {
 	DivisionView * dlg = new DivisionView();
 	return CheckDialogPtrErr(&dlg) ? ExecViewAndDestroy(dlg) : 0;
@@ -3498,8 +3491,7 @@ int SLAPI PPObjLocation::ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDAr
 	return ok;
 }
 
-// static
-int FASTCALL PPObjLocation::FetchConfig(PPLocationConfig * pCfg)
+/*static*/int FASTCALL PPObjLocation::FetchConfig(PPLocationConfig * pCfg)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION, 1);
 	if(p_cache) {
@@ -3511,8 +3503,7 @@ int FASTCALL PPObjLocation::FetchConfig(PPLocationConfig * pCfg)
 	}
 }
 
-// static
-int SLAPI PPObjLocation::DirtyConfig()
+/*static*/int SLAPI PPObjLocation::DirtyConfig()
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION, 0);
 	return p_cache ? p_cache->GetConfig(0, 1) : 0;
@@ -3530,8 +3521,7 @@ uint SLAPI PPObjLocation::GetWarehouseList(PPIDArray * pList)
 	return p_cache ? p_cache->GetWarehouseList(pList) : 0;
 }
 
-// static
-int FASTCALL PPObjLocation::CheckWarehouseFlags(PPID locID, long f)
+/*static*/int FASTCALL PPObjLocation::CheckWarehouseFlags(PPID locID, long f)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	return p_cache ? p_cache->CheckWarehouseFlags(locID, f) : 0;
@@ -3558,13 +3548,10 @@ PPID FASTCALL PPObjLocation::Implement_ObjToWarehouse_Direct(PPID arID, int igno
 	return 0;
 }
 
-//static 
-PPID FASTCALL PPObjLocation::ObjToWarehouse_Direct(PPID arID, PPID * pAcsID) { return Implement_ObjToWarehouse_Direct(arID, 0, pAcsID); }
-//static 
-PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights_Direct(PPID arID, PPID * pAcsID) { return Implement_ObjToWarehouse_Direct(arID, 1, pAcsID); }
+/*static*/PPID FASTCALL PPObjLocation::ObjToWarehouse_Direct(PPID arID, PPID * pAcsID) { return Implement_ObjToWarehouse_Direct(arID, 0, pAcsID); }
+/*static*/PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights_Direct(PPID arID, PPID * pAcsID) { return Implement_ObjToWarehouse_Direct(arID, 1, pAcsID); }
 
-//static 
-PPID FASTCALL PPObjLocation::WarehouseToObj_Direct(PPID locID)
+/*static*/PPID FASTCALL PPObjLocation::WarehouseToObj_Direct(PPID locID)
 {
 	PPObjArticle ar_obj;
 	const  PPID loc_acs_id = LConfig.LocAccSheetID;
@@ -3572,8 +3559,7 @@ PPID FASTCALL PPObjLocation::WarehouseToObj_Direct(PPID locID)
 	return (ar_obj.P_Tbl->LocationToArticle(locID, loc_acs_id, &ar_id) > 0) ? ar_id : 0;
 }
 
-// static
-PPID FASTCALL PPObjLocation::ObjToWarehouse(PPID arID)
+/*static*/PPID FASTCALL PPObjLocation::ObjToWarehouse(PPID arID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 0) : 0;
@@ -3593,8 +3579,7 @@ PPID FASTCALL PPObjLocation::ObjToWarehouse(PPID arID)
 	return result;
 }
 
-// static
-PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights(PPID arID)
+/*static*/PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights(PPID arID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 1) : 0;
@@ -3614,8 +3599,7 @@ PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights(PPID arID)
 	return result;
 }
 
-// static
-PPID FASTCALL PPObjLocation::WarehouseToObj(PPID locID)
+/*static*/PPID FASTCALL PPObjLocation::WarehouseToObj(PPID locID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->WarehouseToObj(locID, 0) : 0;

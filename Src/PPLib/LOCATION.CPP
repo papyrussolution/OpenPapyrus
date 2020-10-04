@@ -38,10 +38,8 @@ int SLAPI LocationFilt::SetExField(int fldId, const char * pBuf)
 {
 	return (fldId == exfPhone) ? PPPutExtStrData(fldId, ExtString, pBuf) : -1;
 }
-//
-//
-// static
-int FASTCALL LocationCore::IsEmptyAddressRec(const LocationTbl::Rec & rRec)
+
+/*static*/int FASTCALL LocationCore::IsEmptyAddressRec(const LocationTbl::Rec & rRec)
 {
 	int    yes = 1;
 	if(rRec.CityID)
@@ -78,16 +76,14 @@ int FASTCALL LocationCore::IsEmptyAddressRec(const LocationTbl::Rec & rRec)
 	return yes;
 }
 
-//static
-int FASTCALL LocationCore::Helper_IsEqExField(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2, int fldId, SString & rBuf1, SString & rBuf2)
+/*static*/int FASTCALL LocationCore::Helper_IsEqExField(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2, int fldId, SString & rBuf1, SString & rBuf2)
 {
 	GetExField(&rRec1, fldId, rBuf1);
 	GetExField(&rRec2, fldId, rBuf2);
 	return (rBuf1 == rBuf2);
 }
 
-// static
-int FASTCALL LocationCore::IsEqualRec(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2)
+/*static*/int FASTCALL LocationCore::IsEqualRec(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2)
 {
 	#define CMP_FLD(f) if(rRec1.f != rRec2.f) return 0;
 	CMP_FLD(ParentID);
@@ -532,8 +528,7 @@ int SLAPI LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID *
 	return ok;
 }
 
-// static
-int FASTCALL LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString & rBuf)
+/*static*/int FASTCALL LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString & rBuf)
 {
 	rBuf.Z();
 	if(rRec.Flags & LOCF_MANUALADDR)

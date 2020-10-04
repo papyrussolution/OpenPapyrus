@@ -236,7 +236,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 								// @v10.0.0 {
 								for(SEnum en = t->EnumByEmployer(employer, 0, 0); en.Next(&todo_rec) > 0;) {
 									if(!(todo_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
-										//PPGetWord(PPWORD_NEWTASK, 1, temp_buf);
 										PPLoadString("newtask", temp_buf);
 										APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_NEWTASK, 0, cmPrjTask_ByStatus);
 										break;
@@ -577,12 +576,10 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 			rN.PutExtStrData(rN.extssCallerId, rTempBuf);
 			EvqList.GetS(rSrc.ConnectedLineNumP, rTempBuf);
 			rN.PutExtStrData(rN.extssConnectedLineNum, rTempBuf);
-			// @v9.9.12 {
 			EvqList.GetS(rSrc.ContextP, rTempBuf);
 			rN.PutExtStrData(rN.extssContext, rTempBuf);
 			EvqList.GetS(rSrc.ExtenP, rTempBuf);
 			rN.PutExtStrData(rN.extssExten, rTempBuf);
-			// } @v9.9.12
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -4642,6 +4639,7 @@ StringSet & SLAPI PPSession::AcquireRvlSsSCD()
 
 void SLAPI PPSession::ProcessIdle()
 {
+	ENTER_CRITICAL_SECTION // @v10.9.0
 	PPThreadLocalArea & r_tla = GetTLA();
 	const uint c = r_tla.IdleCmdList.getCount();
 	for(uint i = 0; i < c; i++) {
@@ -4652,6 +4650,7 @@ void SLAPI PPSession::ProcessIdle()
 				p_cmd->Run(prev);
 		}
 	}
+	LEAVE_CRITICAL_SECTION // @v10.9.0
 }
 
 PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)

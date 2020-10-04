@@ -17,15 +17,13 @@ GoodsIterator::Ext & GoodsIterator::Ext::Z()
 	return *this;
 }
 
-// static
-int FASTCALL GoodsIterator::GetListByGroup(PPID grpID, PPIDArray * pList)
+/*static*/int FASTCALL GoodsIterator::GetListByGroup(PPID grpID, PPIDArray * pList)
 {
 	GoodsIterator iter(grpID, 0);
 	return (!iter.P_List || pList->copy(*iter.P_List)) ? 1 : PPSetErrorSLib();
 }
 
-// static
-int FASTCALL GoodsIterator::GetListByFilt(const GoodsFilt * pFilt, PPIDArray * pList, PPIDArray * pDupDynGrpList)
+/*static*/int FASTCALL GoodsIterator::GetListByFilt(const GoodsFilt * pFilt, PPIDArray * pList, PPIDArray * pDupDynGrpList)
 {
 	int    ok = -1;
 	if(pFilt && pList) {

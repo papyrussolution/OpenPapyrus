@@ -1842,13 +1842,10 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	size_t chainidx, certidx;
 	unsigned int context = 0;
 	const SSL_CERT_LOOKUP * clu;
-
 	if((sk = sk_X509_new_null()) == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	if((SSL_IS_TLS13(s) && !PACKET_get_1(pkt, &context))
 	    || context != 0
 	    || !PACKET_get_net_3(pkt, &cert_list_len)
@@ -1929,18 +1926,14 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	 * set. The *documented* interface remains the same.
 	 */
 	if(s->verify_mode != SSL_VERIFY_NONE && i <= 0) {
-		SSLfatal(s, ssl_x509err2alert(s->verify_result),
-		    SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    SSL_R_CERTIFICATE_VERIFY_FAILED);
+		SSLfatal(s, ssl_x509err2alert(s->verify_result), SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_CERTIFICATE_VERIFY_FAILED);
 		goto err;
 	}
 	ERR_clear_error();      /* but we keep s->verify_result */
 	if(i > 1) {
-		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-		    SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, i);
+		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, i);
 		goto err;
 	}
-
 	s->session->peer_chain = sk;
 	/*
 	 * Inconsistency alert: cert_chain does include the peer's certificate,
@@ -1948,21 +1941,15 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	 */
 	x = sk_X509_value(sk, 0);
 	sk = NULL;
-
 	pkey = X509_get0_pubkey(x);
-
 	if(pkey == NULL || EVP_PKEY_missing_parameters(pkey)) {
 		x = NULL;
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    SSL_R_UNABLE_TO_FIND_PUBLIC_KEY_PARAMETERS);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_UNABLE_TO_FIND_PUBLIC_KEY_PARAMETERS);
 		goto err;
 	}
-
 	if((clu = ssl_cert_lookup_by_pkey(pkey, &certidx)) == NULL) {
 		x = NULL;
-		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER,
-		    SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    SSL_R_UNKNOWN_CERTIFICATE_TYPE);
+		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_UNKNOWN_CERTIFICATE_TYPE);
 		goto err;
 	}
 	/*
@@ -1973,31 +1960,22 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	if(!SSL_IS_TLS13(s)) {
 		if((clu->amask & s->s3->tmp.new_cipher->algorithm_auth) == 0) {
 			x = NULL;
-			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER,
-			    SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-			    SSL_R_WRONG_CERTIFICATE_TYPE);
+			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_WRONG_CERTIFICATE_TYPE);
 			goto err;
 		}
 	}
 	s->session->peer_type = certidx;
-
 	X509_free(s->session->peer);
 	X509_up_ref(x);
 	s->session->peer = x;
 	s->session->verify_result = s->verify_result;
 	x = NULL;
-
 	/* Save the current hash state for when we receive the CertificateVerify */
-	if(SSL_IS_TLS13(s)
-	    && !ssl_handshake_hash(s, s->cert_verify_hash,
-	    sizeof(s->cert_verify_hash),
-	    &s->cert_verify_hash_len)) {
+	if(SSL_IS_TLS13(s) && !ssl_handshake_hash(s, s->cert_verify_hash, sizeof(s->cert_verify_hash), &s->cert_verify_hash_len)) {
 		/* SSLfatal() already called */;
 		goto err;
 	}
-
 	ret = MSG_PROCESS_CONTINUE_READING;
-
 err:
 	X509_free(x);
 	sk_X509_pop_free(sk, X509_free);

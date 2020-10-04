@@ -299,8 +299,7 @@ int TDateCalendar::OnTodaySelection()
 	return setDTS(getcurdate_());
 }
 
-// static
-INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TDateCalendar * dc = 0;
 	RECT r;

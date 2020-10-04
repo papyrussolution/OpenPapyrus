@@ -520,8 +520,7 @@ static int IsOurINN(const char * pINN)
 	return yes;
 }
 
-// static
-int SLAPI ClientBankImportDef::ReadAssocList(SVector * pList)
+/*static*/int SLAPI ClientBankImportDef::ReadAssocList(SVector * pList)
 {
 	struct BankStmntAssocItem_Pre578 { // @persistent @store(PropertyTbl)[as item of array] @flat
 		PPID   AccSheetID;       //
@@ -559,8 +558,7 @@ int SLAPI ClientBankImportDef::ReadAssocList(SVector * pList)
 	return ok;
 }
 
-// static
-int SLAPI ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta) // @v9.8.8 SArray-->SVector
+/*static*/int SLAPI ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta) // @v9.8.8 SArray-->SVector
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;

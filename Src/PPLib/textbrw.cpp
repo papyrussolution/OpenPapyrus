@@ -966,11 +966,9 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 	return 1;
 }
 
-// static
-LPCTSTR STextBrowser::WndClsName = _T("STextBrowser"); // @global
+/*static*/LPCTSTR STextBrowser::WndClsName = _T("STextBrowser"); // @global
 
-// static
-int STextBrowser::RegWindowClass(HINSTANCE hInst)
+/*static*/int STextBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
@@ -990,8 +988,7 @@ int STextBrowser::RegWindowClass(HINSTANCE hInst)
 	return RegisterClassEx(&wc);
 }
 
-// static
-LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	CREATESTRUCT * p_init_data;
 	STextBrowser * p_view = 0;

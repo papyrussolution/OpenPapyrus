@@ -169,7 +169,7 @@ public:
 		double Total;  // Total bill amount (in currency units).
 		double SkipLoyaltyTotal; // A part of the bill amount for which cashback is not credited and to which the discount does not apply (in currency units).
 		long   Flags;
-		SString Code; // Payment code
+		SString Code;  // Payment code
 		SString Phone; // Phone number in E164 format, for example, +79876543210.
 	};
 	SLAPI  UdsGameInterface();
@@ -733,7 +733,7 @@ int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer 
 					else if(json_t::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Text.IsEqiAscii("user")) {
-								ReadCustomer(p_cur, rC);
+								ReadCustomer(p_cur->P_Child, rC);
 							}
 							else if(p_cur->Text.IsEqiAscii("code")) {
 								rCode = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
@@ -789,7 +789,11 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 	StrStrAssocArray hdr_flds;
 	SBuffer ack_buf;
 	SFile wr_stream(ack_buf, SFile::mWrite);
-	PrepareHtmlFields(hdr_flds);
+	{
+		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		PrepareHtmlFields(hdr_flds);
+	}
 	{
 		p_json_req = new json_t(json_t::tOBJECT);
 		if(rT.Code.NotEmpty())
@@ -891,7 +895,7 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 											rReplyT.Total = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
 										}
 										else if(p_item->Text.IsEqiAscii("customer")) {
-											ReadCustomer(p_item, rReplyT.Cust);
+											ReadCustomer(p_item->P_Child, rReplyT.Cust);
 										}
 										else if(p_item->Text.IsEqiAscii("cashier")) {
 										}
@@ -917,13 +921,15 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 int SLAPI TestUdsInterface()
 {
 	int    ok = -1;
+	SString temp_buf;
 	UdsGameInterface ifc;
 	if(ifc.Setup(0)) {
 		UdsGameInterface::Settings s;
 		TSCollection <UdsGameInterface::Customer> cust_list;
 		ifc.GetSettings(s);
-		{
-			const char * p_code = "748470";
+		PPInputStringDialogParam isdp("Input client code");
+		SString cli_code;
+		if(InputStringDialog(&isdp, cli_code) > 0) {
 			int fcr = 0;
 			SString cust_code;
 			UdsGameInterface::Customer cust;
@@ -933,7 +939,7 @@ int SLAPI TestUdsInterface()
 				// +79142706592 
 				// 4f678ec3-3888-4650-af52-efa30db5699a
 				UdsGameInterface::FindCustomerParam fcp;
-				fcp.Code = p_code;
+				fcp.Code = cli_code;
 				//fcp.Phone = "+79142706592";
 				//fcp.Uid.FromStr("4f678ec3-3888-4650-af52-efa30db5699a");
 				fcr = ifc.FindCustomer(fcp, cust, cust_code, cust_purch);
@@ -941,7 +947,7 @@ int SLAPI TestUdsInterface()
 			if(fcr > 0) {
 				UdsGameInterface::Transaction t;
 				UdsGameInterface::Transaction reply_t;
-				t.Code = p_code;
+				t.Code = cli_code;
 				t.Cust.Uid = cust.Uid;
 				t.BillNumber = "CC-TEST-307";
 				t.Cashier.ID = 101;
@@ -949,7 +955,7 @@ int SLAPI TestUdsInterface()
 				t.Total = 500.0;
 				t.Cash = 500.0;
 				t.Points = 0.0;
-				t.SkipLoyaltyTotal = 0.0;
+				t.SkipLoyaltyTotal = 0.01;
 				ifc.CreateTransaction(t, reply_t);
 			}
 		}

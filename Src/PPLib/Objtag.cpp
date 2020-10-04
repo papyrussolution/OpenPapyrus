@@ -705,8 +705,7 @@ SLAPI ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
 	ParentID = parentID;
 }
 
-// static
-PPID SLAPI PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
+/*static*/PPID SLAPI PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
 {
 	long   sur_id = 0;
 	Reference * p_ref = PPRef;
@@ -720,8 +719,7 @@ PPID SLAPI PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSy
 	return sur_id;
 }
 
-// static
-PPID SLAPI PPObjTag::Helper_GetTagByID(PPID objType, PPID objID, PPID tagID)
+/*static*/PPID SLAPI PPObjTag::Helper_GetTagByID(PPID objType, PPID objID, PPID tagID)
 {
 	long   sur_id = 0;
 	if(tagID) {
@@ -1079,8 +1077,7 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 }
 
 #if 0 // @v10.7.8 (unused) {
-// static
-int SLAPI PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
+/*static*/int SLAPI PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
 {
 	class TagEnumListDialog : public PPListDialog {
 		DECL_DIALOG_DATA(PPTagEnumList);
@@ -2043,8 +2040,7 @@ int FASTCALL EditTagFilt(PPID objType, TagFilt * pData)
 	return ok;
 }
 
-// static
-int SLAPI PPObjTag::CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt)
+/*static*/int SLAPI PPObjTag::CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt)
 {
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {

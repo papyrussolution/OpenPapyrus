@@ -1264,8 +1264,7 @@ int SLAPI BarcodeLabelPrinter::UpLoad(PPID prnID, const char * pLoadName, int si
 	return ok;
 }
 
-// static
-int BarcodeLabelPrinter::LoadFonts(PPID prnID, int silent)
+/*static*/int BarcodeLabelPrinter::LoadFonts(PPID prnID, int silent)
 {
 	int    ok = -1;
 	PPID   printer_id = prnID;
@@ -1279,8 +1278,7 @@ int BarcodeLabelPrinter::LoadFonts(PPID prnID, int silent)
 	return ok;
 }
 
-// static
-int SLAPI BarcodeLabelPrinter::PrintGoodsLabel(PPID goodsID)
+/*static*/int SLAPI BarcodeLabelPrinter::PrintGoodsLabel(PPID goodsID)
 {
 	int    ok = -1;
 	RetailGoodsInfo rgi;
@@ -1290,8 +1288,7 @@ int SLAPI BarcodeLabelPrinter::PrintGoodsLabel(PPID goodsID)
 	return ok;
 }
 
-// static
-int SLAPI BarcodeLabelPrinter::PrintLotLabel(PPID lotID)
+/*static*/int SLAPI BarcodeLabelPrinter::PrintLotLabel(PPID lotID)
 {
 	int    ok = -1;
 	RetailGoodsInfo rgi;
@@ -1300,8 +1297,7 @@ int SLAPI BarcodeLabelPrinter::PrintLotLabel(PPID lotID)
 	return ok;
 }
 
-// static
-int SLAPI BarcodeLabelPrinter::PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID prnID, int silent)
+/*static*/int SLAPI BarcodeLabelPrinter::PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID prnID, int silent)
 {
 	int    ok = 1;
 	PPBarcodePrinter rec;
@@ -1364,8 +1360,7 @@ int SLAPI BarcodeLabelPrinter::PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID pr
 	return ok;
 }
 
-// static
-int SLAPI BarcodeLabelPrinter::PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prnID, int silent)
+/*static*/int SLAPI BarcodeLabelPrinter::PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prnID, int silent)
 {
 	int    ok = 1;
 	PPBarcodePrinter rec;
@@ -1492,8 +1487,7 @@ int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrint
 	return ok;
 }
 
-// static
-int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uint pos)
+/*static*/int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -1595,8 +1589,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 	return ok;
 }
 
-// static
-int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, uint pos)
+/*static*/int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;

@@ -278,8 +278,7 @@ int SLAPI PPTransferItem::SetSignFlags(PPID op, int forceSign)
 	return ok;
 }
 
-// static
-int FASTCALL PPTransferItem::GetSign(PPID op, long flags)
+/*static*/int FASTCALL PPTransferItem::GetSign(PPID op, long flags)
 {
 	int    sign = TISIGN_UNDEF;
 	if(PPTransferItem::IsRecomplete(flags))

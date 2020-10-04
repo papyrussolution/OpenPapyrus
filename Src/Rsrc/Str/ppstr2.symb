@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493044
+LastSignatureCode=2147493045
 LastAutoCodeList=1,11985;102,10176;103,10072;110,10000;111,11990;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -3973,6 +3973,7 @@ cfgscard_defser=2147486989
 cfgscard_facceptownerindispdiv=2147486990
 cfgscard_fcheckbilldebt=2147486991
 cfgscard_fdontusebonuscards=2147486992
+cfgscard_fdisablebonusbydefault=2147493045
 cfgscard_flags=2147486993
 cfgscard_fvalid=2147486994
 cfgscard_id=2147486995

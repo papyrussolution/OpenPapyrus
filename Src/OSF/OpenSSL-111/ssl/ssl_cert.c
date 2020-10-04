@@ -823,9 +823,7 @@ int ssl_build_cert_chain(SSL * s, SSL_CTX * ctx, int flags)
 		goto err;
 	}
 	/* Set suite B flags if needed */
-	X509_STORE_CTX_set_flags(xs_ctx,
-	    c->cert_flags & SSL_CERT_FLAG_SUITEB_128_LOS);
-
+	X509_STORE_CTX_set_flags(xs_ctx, c->cert_flags & SSL_CERT_FLAG_SUITEB_128_LOS);
 	i = X509_verify_cert(xs_ctx);
 	if(i <= 0 && flags & SSL_BUILD_CHAIN_FLAG_IGNORE_ERROR) {
 		if(flags & SSL_BUILD_CHAIN_FLAG_CLEAR_ERROR)
@@ -838,9 +836,7 @@ int ssl_build_cert_chain(SSL * s, SSL_CTX * ctx, int flags)
 	if(i <= 0) {
 		SSLerr(SSL_F_SSL_BUILD_CERT_CHAIN, SSL_R_CERTIFICATE_VERIFY_FAILED);
 		i = X509_STORE_CTX_get_error(xs_ctx);
-		ERR_add_error_data(2, "Verify error:",
-		    X509_verify_cert_error_string(i));
-
+		ERR_add_error_data(2, "Verify error:", X509_verify_cert_error_string(i));
 		goto err;
 	}
 	/* Remove EE certificate from chain */

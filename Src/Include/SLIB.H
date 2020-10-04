@@ -1537,6 +1537,7 @@ public:
 		fmtIDL = 0,
 		fmtC = 1,
 		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
+		// @construction fmtSUID27,   // @v10.9.0 Специальный внутренний формат (base32), умещающийся в 28 байт (с нулем в конце)
 		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
 	};
 	int    operator !() const { return IsZero(); }
@@ -8248,7 +8249,7 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 private:
 	void * GetBlock(ulong val, int cr);
-	SVector List; // @v9.8.4 SArray-->SVector
+	SVector List;
 };
 //
 // BitArray

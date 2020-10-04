@@ -4,9 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 static void __LogDebugMessage(ObjTransmContext * pCtx, const char * pMsg)
 {
 //#ifndef NDEBUG
@@ -2366,8 +2364,7 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 	return ok;
 }
 
-// static
-int SLAPI PPObjBill::TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded)
+/*static*/int SLAPI PPObjBill::TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded)
 {
 	int    ok = -1;
 	if(pCtx && pCtx->P_Btd) {

@@ -1,5 +1,5 @@
 // PALMEXCH.CPP
-// ..2009, 2010, 2012, 2015, 2016, 2018, 2019
+// ..2009, 2010, 2012, 2015, 2016, 2018, 2019, 2020
 //
 #pragma hdrstop
 #ifndef __GENERIC_MAIN_CONDUIT__
@@ -313,8 +313,7 @@ void SyncTable::LogError(const char * pFuncName)
 	LogMessage(P_Ctx->LogFile, log_buf);
 }
 
-// static
-void SyncTable::LogMessage(const char * pFileName, const char * pMsg)
+/*static*/void SyncTable::LogMessage(const char * pFileName, const char * pMsg)
 {
 	int    r = 1;
 	FILE * f = 0;
@@ -724,8 +723,7 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize,
 	return 1;
 }
 
-// static
-int SyncTable::ReceivePalmCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
+/*static*/int SyncTable::ReceivePalmCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 {
 	int    ok = -1;
 	const  size_t blk_size = PALMPACKRECLEN;
@@ -767,11 +765,9 @@ int SyncTable::ReceivePalmCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx
 	return ok;
 }
 
-// static
-int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
+/*static*/int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 {
 	const size_t InitBlockSize = 24*1024;
-
 	int    ok = 1;
 	//char   log_msg[128];
 	SString wait_msg_buf;
@@ -1330,8 +1326,7 @@ int PalmTcpExchange::LogTrafficInfo(const char * pDevice)
 	return ok;
 }
 
-// static
-int PalmTcpExchange::LogTrafficInfo(const char * pPath, const char * pLogPath, const char * pDevice, int isReadBytes)
+/*static*/int PalmTcpExchange::LogTrafficInfo(const char * pPath, const char * pLogPath, const char * pDevice, int isReadBytes)
 {
 	int    ok = 1, r = 1, is_new = 0;
 	FILE * f = 0;

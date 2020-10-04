@@ -1297,6 +1297,7 @@ PPID   CPosProcessor::GetCnLocID(PPID goodsID) const { return (ExtCashNodeID && 
 int    CPosProcessor::InitIteration() { return P.InitIteration(); }
 int    FASTCALL CPosProcessor::NextIteration(CCheckItem * pItem) { return P.NextIteration(pItem); }
 double CPosProcessor::GetUsableBonus() const { return (Flags & fSCardBonus) ? CSt.UsableBonus : 0.0; }
+double CPosProcessor::GetBonusMaxPart() const { return BonusMaxPart; } // @v10.9.0
 double CPosProcessor::RoundDis(double d) const { return Round(d, R.DisRoundPrec, R.DisRoundDir); }
 
 int CPosProcessor::SetupCTable(int tableNo, int guestCount)
@@ -1381,13 +1382,11 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 		const int scst = scs_rec.GetType();
 		if(F(fRetCheck)) {
 			if(Flags & fRetByCredit) {
-				double total = 0.0, discount = 0.0;
-				CalcTotal(&total, &discount);
+				const CcTotal cct = CalcTotal();
 				const double credit_part = fdivnz(Rb.SellCheckCredit, Rb.SellCheckAmount);
-				const double ret_by_credit = total * credit_part;
-				if(ret_by_credit < 0.0 && ret_by_credit > total) {
-					CSt.AdditionalPayment = R2(total - ret_by_credit);
-				}
+				const double ret_by_credit = cct.Amount * credit_part;
+				if(ret_by_credit < 0.0 && ret_by_credit > cct.Amount)
+					CSt.AdditionalPayment = R2(cct.Amount - ret_by_credit);
 			}
 		}
 		else {
@@ -1423,12 +1422,11 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 				double non_crd_amt = 0.0;
 				double add_paym = 0.0;
 				double cc = -CalcCreditCharge(0, 0, checkCurItem ? &P.GetCur() : 0, &non_crd_amt, 0);
+				const  CcTotal cct = CalcTotal();
 				if(Flags & fSCardBonus && BonusMaxPart < 1.0 && cc > 0.0) {
-					double total = 0.0, discount = 0.0;
-					CalcTotal(&total, &discount);
-					double cc_ = R2(MIN(cc, total * BonusMaxPart));
+					double cc_ = R2(MIN(cc, cct.Amount * BonusMaxPart));
 					cc = MIN(cc_, CSt.RestByCrdCard);
-					add_paym = total-cc;
+					add_paym = cct.Amount-cc;
 				}
 				else if(scst == scstCredit && CSt.MaxCreditByCrdCard > 0.0 && cc > (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard)) {
 					//
@@ -1440,13 +1438,15 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 					skip_crd_processing = 1;
 					MessageError(PPERR_CHKPAN_SCOUTOFCRDLIMIT, sc_rec.Code, /*eomMsgWindow*/eomPopup|eomBeep);
 				}
-				else
-					add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
+				else {
+					// @v10.9.0 add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
+					add_paym = non_crd_amt - (cc + CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v10.9.0
+				}
 				if(!skip_crd_processing) {
-					if(add_paym <= 0.0)
+					/* @v10.9.0 if(add_paym <= 0.0)
 						add_paym = non_crd_amt;
 					else
-						add_paym += non_crd_amt;
+						add_paym += non_crd_amt;*/
 					if(add_paym > 0.0) {
 						if(R2(CSt.AdditionalPayment) == 0.0 && !(Flags & fSCardBonus)) { // Для бонусных карт запрос доплаты не выводится //
 							if(scs_rec.Flags & SCRDSF_DISABLEADDPAYM)
@@ -1466,14 +1466,14 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 						}
 						if(ok) {
 							CSt.AdditionalPayment = R2(add_paym);
-							if((CSt.RestByCrdCard - cc) < -CSt.MaxCreditByCrdCard)
+							if((CSt.RestByCrdCard + cc) < -CSt.MaxCreditByCrdCard) // @v10.9.0 @fix (- cc)-->(+ cc)
 								CSt.RestByCrdCard = -CSt.MaxCreditByCrdCard;
 							else
-								CSt.RestByCrdCard -= cc;
+								CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
 						}
 					}
 					else {
-						CSt.RestByCrdCard -= cc;
+						CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
 						CSt.AdditionalPayment = (add_paym < 0.0) ? 0.0 : R2(add_paym);
 					}
 					if(Flags & fSCardBonus)
@@ -1488,7 +1488,29 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 	return ok;
 }
 
-void CPosProcessor::CalcTotal(double * pTotal, double * pDiscount) const
+SLAPI CPosProcessor::CcTotal::CcTotal() : Amount(0.0), Discount(0.0)
+{
+}
+
+CPosProcessor::CcTotal CPosProcessor::CalcTotal() const // @v10.9.0
+{
+	CcTotal _t;
+	SForEachVectorItem(P, i) {
+		const CCheckItem & r_item = P.at(i);
+		if(r_item.Flags & cifGift) {
+			_t.Amount   = R2(_t.Amount - r_item.Quantity * r_item.Discount);
+			_t.Discount = R2(_t.Discount + r_item.Quantity * r_item.Discount);
+		}
+		else {
+			_t.Amount   = R2(_t.Amount + r_item.GetAmount()); // @R2
+			_t.Discount = R2(_t.Discount + r_item.Quantity * r_item.Discount); // @R2
+		}
+	}
+	_t.Amount = R2(_t.Amount);
+	return _t;
+}
+
+/* @v10.9.0 void CPosProcessor::CalcTotal(double * pTotal, double * pDiscount) const
 {
 	double total = 0.0, discount = 0.0;
 	SForEachVectorItem(P, i) {
@@ -1504,7 +1526,7 @@ void CPosProcessor::CalcTotal(double * pTotal, double * pDiscount) const
 	}
 	ASSIGN_PTR(pTotal, R2(total));
 	ASSIGN_PTR(pDiscount, discount);
-}
+}*/
 
 struct CPosProcessor_SetupDiscontBlock {
 	CPosProcessor_SetupDiscontBlock(double roundingDiscount, int distributeGiftDiscount) : IsRounding(BIN(roundingDiscount != 0.0)),
@@ -1816,31 +1838,11 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 {
 	Helper_SetupDiscount(0.0, distributeGiftDiscount);
-	double amt, dis;
-	CalcTotal(&amt, &dis);
-	double new_amt = (R.AmtRoundPrec != 0.0) ? Round(amt, R.AmtRoundPrec, R.AmtRoundDir) : R2(amt);
-	double diff = R2(amt - new_amt);
+	const CcTotal cct = CalcTotal();
+	double new_amt = (R.AmtRoundPrec != 0.0) ? Round(cct.Amount, R.AmtRoundPrec, R.AmtRoundDir) : R2(cct.Amount);
+	double diff = R2(cct.Amount - new_amt);
 	if(!feqeps(diff, 0.0, 1E-6)) {
 		Helper_SetupDiscount(diff, 0);
-		/*
-		CalcTotal(&amt, &dis);
-		diff = R2(amt - new_amt);
-		if(diff != 0.0) {
-			Helper_SetupDiscount(diff, 0);
-			CalcTotal(&amt, &dis);
-		}
-		*/
-		/*
-		if(amt != new_amt) {
-			SString fmt_buf, msg_buf, chk_code;
-			CCheckPacket cc_pack;
-			GetCheckInfo(&cc_pack);
-			CCheckCore::MakeCodeString(&cc_pack.Rec, chk_code);
-			PPLoadText(PPTXT_UNABLEDISTRIBCCHECKDIS, fmt_buf);
-			msg_buf.Printf(fmt_buf, chk_code.cptr());
-			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-		}
-		*/
 	}
 }
 
@@ -1976,8 +1978,7 @@ double CPosProcessor::CalcSCardOpAmount(const CCheckLineTbl::Rec & rItem, PPID c
 	return charge;
 }
 
-// static
-double CPosProcessor::Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt)
+/*static*/double CPosProcessor::Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt)
 {
 	double charge = 0.0;
 	double non_crd_amt = 0.0;
@@ -2107,17 +2108,16 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExtPack, const CcAmountList * pCcPl, long options)
 {
 	int    ok = 1;
-	double amt = 0.0, dscnt = 0.0;
-	double debug_amt = 0.0, debug_dscnt = 0.0; // @debug
 	if(F(fRetCheck)) {
 		if(pPack)
 			pPack->Rec.Flags |= CCHKF_RETURN;
 		if(pExtPack)
 			pExtPack->Rec.Flags |= CCHKF_RETURN;
 	}
-	CalcTotal(&debug_amt, &debug_dscnt); // @debug
+	const CcTotal cct_debug = CalcTotal(); // @debug
+	CcTotal cct;
 	if(options & iccpDontFillLines) {
-		CalcTotal(&amt, &dscnt);
+		cct = CalcTotal();
 	}
 	else {
 		int   to_fill_ext_pack = BIN(!(pPack->Rec.Flags & CCHKF_SUSPENDED) && pExtPack && ExtCashNodeID);
@@ -2167,10 +2167,10 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 			THROW(p_pack->InsertItem(*p_item));
 		}
 		SETFLAG(pPack->Rec.Flags, CCHKF_HASGIFT, has_gift);
-		pPack->CalcAmount(&amt, &dscnt);
+		pPack->CalcAmount(&cct.Amount, &cct.Discount);
 	}
-	LDBLTOMONEY(amt, pPack->Rec.Amount);
-	LDBLTOMONEY(dscnt, pPack->Rec.Discount);
+	LDBLTOMONEY(cct.Amount, pPack->Rec.Amount);
+	LDBLTOMONEY(cct.Discount, pPack->Rec.Discount);
 	pPack->Rec.SCardID = CSt.GetID();
 	pPack->UhttScHash = CSt.UhttHash;
 	P.SetupCCheckPacket(pPack);
@@ -2988,7 +2988,7 @@ int CheckPaneDialog::InitGroupList(const PPTouchScreenPacket & rTsPack)
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(CashNodePane); CashNodePaneFilt::CashNodePaneFilt(): PPBaseFilt(PPFILT_CASHNODEPANE, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(CashNodePane); CashNodePaneFilt::CashNodePaneFilt() : PPBaseFilt(PPFILT_CASHNODEPANE, 0, 1)
 {
 	SetFlatChunk(offsetof(CashNodePaneFilt, ReserveStart),
 		offsetof(CashNodePaneFilt, ReserveEnd) - offsetof(CashNodePaneFilt, ReserveStart));
@@ -3398,13 +3398,12 @@ int CheckPaneDialog::SuspendCheck()
 	}
 	else if(IsState(sLIST_EMPTYBUF)) {
 		if(OperRightsFlags & orfSuspCheck) {
-			double total = 0.0, discount = 0.0;
-			CalcTotal(&total, &discount);
+			CcTotal cct = CalcTotal();
 			CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
-			CDispCommand(cdispcmdTotal, 0, total, 0.0);
-			if(discount != 0.0)
-				CDispCommand(cdispcmdTotalDiscount, 0, (discount * 100.0) / (total + discount), discount);
-			AcceptCheck(0, 0, total, accmSuspended);
+			CDispCommand(cdispcmdTotal, 0, cct.Amount, 0.0);
+			if(cct.Discount != 0.0)
+				CDispCommand(cdispcmdTotalDiscount, 0, (cct.Discount * 100.0) / (cct.Amount + cct.Discount), cct.Discount);
+			AcceptCheck(0, 0, cct.Amount, accmSuspended);
 			ok = 1;
 		}
 	}
@@ -8143,13 +8142,12 @@ int CheckPaneDialog::RemoveRow()
 		p_list->focusItem(cur);
 		p_list->Draw_();
 		{
-			double total = 0.0, discount = 0.0;
-			CalcTotal(&total, &discount);
+			const CcTotal cct = CalcTotal();
 			SString buf;
-			setStaticText(CTL_CHKPAN_TOTAL, buf.Cat(total, MKSFMTD(0, 2, NMBF_NOZERO)));
-			if(discount != 0.0) {
+			setStaticText(CTL_CHKPAN_TOTAL, buf.Cat(cct.Amount, MKSFMTD(0, 2, NMBF_NOZERO)));
+			if(cct.Discount != 0.0) {
 				// @v10.7.11 PPGetWord(PPWORD_DISCOUNT, 0, buf).CatChar(':').Cat(discount, SFMT_MONEY);
-				PPLoadStringS("discount", buf).CatChar(':').Cat(discount, SFMT_MONEY); // @v10.7.11
+				PPLoadStringS("discount", buf).CatChar(':').Cat(cct.Discount, SFMT_MONEY); // @v10.7.11
 			}
 			else
 				buf.Z();
@@ -12847,20 +12845,18 @@ int SLAPI PrcssrCCheckGenerator::Run()
 			}
 		}
 		{
-			double total = 0.0;
-			double discount = 0.0;
-			P.P_Pan->CalcTotal(&total, &discount);
+			const CPosProcessor::CcTotal cct = P.P_Pan->CalcTotal();
 			//
 			// выбор метода платежа и проведение чека
 			//
 			CcAmountList pl;
 			if(cc_count%20 == 0) {
-				pl.Add(CCAMTTYP_BANK, total);
+				pl.Add(CCAMTTYP_BANK, cct.Amount);
 			}
 			else {
-				pl.Add(CCAMTTYP_CASH, total);
+				pl.Add(CCAMTTYP_CASH, cct.Amount);
 			}
-			P.P_Pan->AcceptCheck(&pl, 0, total, CPosProcessor::accmRegular);
+			P.P_Pan->AcceptCheck(&pl, 0, cct.Amount, CPosProcessor::accmRegular);
 			P.P_Pan->ClearCheck();
 		}
 		if(P.MaxCheckDelay) {

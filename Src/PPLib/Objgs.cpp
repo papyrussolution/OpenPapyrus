@@ -772,8 +772,7 @@ int SLAPI PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemP
 	return ok;
 }
 
-// static
-int FASTCALL PPGoodsStrucItem::GetEffectiveQuantity(double complQtty, PPID goodsID, double median, double denom, long flags, double * pItemQtty)
+/*static*/int FASTCALL PPGoodsStrucItem::GetEffectiveQuantity(double complQtty, PPID goodsID, double median, double denom, long flags, double * pItemQtty)
 {
 	int    ok = 1;
 	double qtty = complQtty * median;
@@ -2198,8 +2197,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsStruc::EditExtDialog(PPGoodsStruc * pData)
+/*static*/int SLAPI PPObjGoodsStruc::EditExtDialog(PPGoodsStruc * pData)
 {
 	int    ok = -1;
 	GSExtDialog * dlg = new GSExtDialog;
@@ -2221,8 +2219,7 @@ int SLAPI PPObjGoodsStruc::EditExtDialog(PPGoodsStruc * pData)
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsStruc::EditDialog(PPGoodsStruc * pData, int toCascade)
+/*static*/int SLAPI PPObjGoodsStruc::EditDialog(PPGoodsStruc * pData, int toCascade)
 {
 	int    ok = -1;
 	PPObjGoodsStruc gs_obj;
@@ -2664,8 +2661,7 @@ int SLAPI PPObjGoodsStruc::CheckStructs()
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsStruc::CheckRecursion()
+/*static*/int SLAPI PPObjGoodsStruc::CheckRecursion()
 {
 	PPObjGoodsStruc gs_obj;
 	return gs_obj.CheckStructs();

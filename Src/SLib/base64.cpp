@@ -32,14 +32,12 @@
 int FASTCALL encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen)
 {
 	int    ok = 1;
-	//char   basis_64[256];
-	uchar * out = (uchar *)pOut;
+	uchar * out = reinterpret_cast<uchar *>(pOut);
 	uchar  oval;
-	const  uchar * in = (const uchar *)pIn;
+	const  uchar * in = reinterpret_cast<const uchar *>(pIn);
 	size_t olen = (inLen + 2) / 3 * 4;
 	size_t real_len = 0;
 	ASSIGN_PTR(pOutLen, olen);
-	//makebasis64(basis_64);
 	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	THROW(outMax >= olen);
 	while(inLen >= 3) {
@@ -102,11 +100,9 @@ int FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOut
 	size_t len = 0, lup = 0;
 	char * p_out = pOut;
 	const  char * p_in = pIn;
-	//char   basis_64[256];
 	if(p_in[0] == '+' && p_in[1] == ' ')
 		p_in += 2;
 	THROW(*p_in != 0);
-	// makebasis64(basis_64);
 	if(p_out) {
 		for(lup = 0; lup < inLen / 4; lup++) {
 			const int b1 = CHAR64(p_in[0]);
@@ -157,14 +153,13 @@ int FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOut
 //
 MIME64::MIME64()
 {
-	// @v9.9.5 makebasis64(Basis64);
 }
 
 int MIME64::Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen, size_t * pOutDataLen) const
 {
 	int    ok = 1;
-	uchar * out = (uchar *)pOut;
-	const  uchar * in = (const uchar *)pIn;
+	uchar * out = reinterpret_cast<uchar *>(pOut);
+	const  uchar * in = reinterpret_cast<const uchar *>(pIn);
 	size_t olen = (inLen + 2) / 3 * 4;
 	ASSIGN_PTR(pOutDataLen, olen);
 	if(outBufLen >= olen) {
@@ -208,7 +203,7 @@ int MIME64::Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDat
 	for(lup = 0; lup < inLen / 4; lup++) {
 		char   c64[4];
 		char   c[4];
-		*(uint32 *)c = *(uint32 *)p_in;
+		*reinterpret_cast<uint32 *>(c) = *reinterpret_cast<const uint32 *>(p_in);
 		p_in += 4;
 		c64[0] = CHAR64(c[0]);
 		c64[1] = CHAR64(c[1]);

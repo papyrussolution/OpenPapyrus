@@ -272,8 +272,7 @@ int SLAPI PPObjOpCounter::UngetCounter(PPID id, long counter, PPID locID, int us
 	return ok;
 }
 
-// static
-int SLAPI PPObjOpCounter::ResetAll()
+/*static*/int SLAPI PPObjOpCounter::ResetAll()
 {
 	int    ok = 1;
 	if(PPMessage(mfConf|mfYesNo, PPCFM_RESETOPCNTRS) == cmYes) {

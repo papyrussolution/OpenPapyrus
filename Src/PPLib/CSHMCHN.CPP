@@ -47,8 +47,7 @@ struct CMRegEntry { // @flat
 
 typedef TSVector <CMRegEntry> CMRegArray; // @v10.0.04 TSArray-->TSVector
 
-// static
-int SLAPI PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int _sync, int _async)
+/*static*/int SLAPI PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int _sync, int _async)
 {
 	ENTER_CRITICAL_SECTION
 	SETIFZ(P_RegData, new CMRegArray);
@@ -94,8 +93,7 @@ int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & rS)
 }
 // } @vmiller
 
-// static
-int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
+/*static*/int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 {
 	int    idx = 0, s = 0; // @vmiller
 	if(P_RegData == 0) {
@@ -140,8 +138,7 @@ int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 	return PPSetError(PPERR_INVCMT);
 }
 
-// static
-PPCashMachine * SLAPI PPCashMachine::CreateInstance(PPID cashID)
+/*static*/PPCashMachine * SLAPI PPCashMachine::CreateInstance(PPID cashID)
 {
 	PPCashMachine * p_cm = 0;
 	uint   p = 0;
@@ -173,15 +170,13 @@ PPCashMachine * SLAPI PPCashMachine::CreateInstance(PPID cashID)
 	return p_cm;
 }
 
-// static
-int SLAPI PPCashMachine::IsSyncCMT(PPID cmtID)
+/*static*/int SLAPI PPCashMachine::IsSyncCMT(PPID cmtID)
 {
 	uint p;
 	return BIN(GetRegEntry(cmtID, &p) && static_cast<CMRegArray *>(P_RegData)->at(p).flags & CMRegEntry::sync);
 }
 
-// static
-int SLAPI PPCashMachine::IsAsyncCMT(PPID cmtID)
+/*static*/int SLAPI PPCashMachine::IsAsyncCMT(PPID cmtID)
 {
 	uint p;
 	return BIN(GetRegEntry(cmtID, &p) && static_cast<CMRegArray *>(P_RegData)->at(p).flags & CMRegEntry::async);
@@ -367,8 +362,7 @@ int SLAPI PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 	return ok;
 }
 
-// static
-long SLAPI CSessionCore::GetUnitingPeriodSec()
+/*static*/long SLAPI CSessionCore::GetUnitingPeriodSec()
 {
 	const PPCommConfig & r_ccfg = CConfig;
 	return ((r_ccfg.CSessUnitingPeriod > 0) ? r_ccfg.CSessUnitingPeriod : (60*12)) * 60;
@@ -1283,8 +1277,7 @@ int SLAPI PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0
 	return ok;
 }
 
-// static
-int SLAPI PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
+/*static*/int SLAPI PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
 {
 	int    ok = 1;
 	PPCashNode cn_rec;
@@ -1496,7 +1489,8 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 {
 	MemLeakTracer mlt;
-	int    ok = -1, is_single = 0;
+	int    ok = -1;
+	int    is_single = 0;
 	PPID   ext_cash_node_id = 0;
 	PPCashMachine * p_cm = 0;
 	PPCashMachine * p_cm_ext = 0;
@@ -1548,8 +1542,10 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 				THROW_PP_S(rt_loc_list.lsearch(loc_id), PPERR_NORTTOLOC, loc_name);
 			}
 		}
-		if((is_locked = PPObjCashNode::IsLocked(cn_id)) <= 0 || (cn_rec.Flags & CASHF_WORKWHENLOCK || CONFIRM(PPCFM_VIEWLOCKEDCASHNODE))) {
-			int    c = cmCancel, csp_flags = 0;
+		is_locked = PPObjCashNode::IsLocked(cn_id);
+		if(is_locked <= 0 || (cn_rec.Flags & CASHF_WORKWHENLOCK || CONFIRM(PPCFM_VIEWLOCKEDCASHNODE))) {
+			int    c = cmCancel;
+			int    csp_flags = 0;
 			if(is_locked < 0)
 				is_locked = 0;
 			SETFLAG(csp_flags, CSPanel::fcspZReport,  cs_obj.CheckRights(CSESSRT_CLOSE, 0));

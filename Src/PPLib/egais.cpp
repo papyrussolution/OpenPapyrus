@@ -1201,8 +1201,7 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	return SIntToSymbTab_GetSymb(_EgaisDocTypes, SIZEOFARRAY(_EgaisDocTypes), docType, rTag);
 }
 
-// static
-int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
+/*static*/int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 {
 	int    doc_type = 0;
 	if(!isempty(pTag)) {
@@ -8709,22 +8708,21 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 int SLAPI PPEgaisProcessor::InteractiveQuery()
 {
 	int    ok = -1;
-	const  long  preserve_state = State; // @v9.6.0
+	const  long  preserve_state = State;
 	QueryParam _param;
 	SETFLAGBYSAMPLE(_param.Flags, stTestSendingMode, State);
 	_param.LocID = LConfig.Location;
 	while(EditQueryParam(&_param) > 0) {
-		SETFLAGBYSAMPLE(State, stTestSendingMode, _param.Flags); // @v9.6.0
+		SETFLAGBYSAMPLE(State, stTestSendingMode, _param.Flags);
 		THROW(ImplementQuery(_param));
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	State = preserve_state; // @v9.6.0
+	State = preserve_state;
 	return ok;
 }
 
-// static
-int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
+/*static*/int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
 {
     int    ok = -1;
     uint   sel = 0;
@@ -8765,8 +8763,7 @@ int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
     return ok;
 }
 
-// static
-int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark)
+/*static*/int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark)
 {
 	class EgaisMarkDialog : public TDialog {
 	public:

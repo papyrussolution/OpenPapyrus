@@ -127,8 +127,7 @@ int SLAPI PPGoodsPacket::IsExtRecEmpty() const
 	return (ExtRec.KindID || ExtRec.GradeID || ExtRec.AddObjID || ExtRec.AddObj2ID || ExtRec.X || ExtRec.Y || ExtRec.Z || ExtRec.W) ? 0 : 1;
 }
 
-// static
-int SLAPI PPGoodsPacket::ValidateAddedMsgSign(const char * pSign, size_t signBufSize)
+/*static*/int SLAPI PPGoodsPacket::ValidateAddedMsgSign(const char * pSign, size_t signBufSize)
 {
 	int    ok = 1;
 	int    par_open = 0;

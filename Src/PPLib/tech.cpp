@@ -334,8 +334,7 @@ int SLAPI PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 	return ok;
 }
 
-// static
-int SLAPI PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, PPID prcID, PPID goodsID)
+/*static*/int SLAPI PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, PPID prcID, PPID goodsID)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));

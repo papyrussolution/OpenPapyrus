@@ -52,8 +52,7 @@ struct RestoreStackItem {
 	PPID   DbID;
 };
 
-// static
-int SLAPI PPObjectTransmit::EditConfig()
+/*static*/int SLAPI PPObjectTransmit::EditConfig()
 {
 	class DbExchangeCfgDialog : public TDialog {
 		DECL_DIALOG_DATA(PPDBXchgConfig);
@@ -199,8 +198,7 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 	long   Reserve3;       //
 };
 
-// static
-int FASTCALL PPObjectTransmit::WriteConfig(const PPDBXchgConfig * pCfg, int use_ta)
+/*static*/int FASTCALL PPObjectTransmit::WriteConfig(const PPDBXchgConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -227,8 +225,7 @@ int FASTCALL PPObjectTransmit::WriteConfig(const PPDBXchgConfig * pCfg, int use_
 	return ok;
 }
 
-// static
-int FASTCALL PPObjectTransmit::ReadConfig(PPDBXchgConfig * pCfg)
+/*static*/int FASTCALL PPObjectTransmit::ReadConfig(PPDBXchgConfig * pCfg)
 {
 	__PPDBXchgConfig p;
 	int    r = PPRef->GetPropMainConfig(PPPRP_DBXCHGCFG, &p, sizeof(p));
@@ -579,8 +576,7 @@ int SLAPI PPObjectTransmit::UpdateInHeader(FILE * stream, const PPObjectTransmit
 	return 1;
 }
 
-// static
-int FASTCALL PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header & rHdr, int checkVer, const char * pFileName)
+/*static*/int FASTCALL PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header & rHdr, int checkVer, const char * pFileName)
 {
 	int    ok = 1;
 	THROW_PP_S(rHdr.Magic == OT_MAGIC, PPERR_PPOSNOTPACKET, pFileName);
@@ -635,8 +631,7 @@ int SLAPI PPObjectTransmit::CloseInPacket()
 	return ok;
 }
 
-// static
-int SLAPI PPObjectTransmit::GetHeader(const char * pFileName, PPObjectTransmit::Header * pHdr)
+/*static*/int SLAPI PPObjectTransmit::GetHeader(const char * pFileName, PPObjectTransmit::Header * pHdr)
 {
 	int    ok = 1;
 	Header h;
@@ -1091,8 +1086,7 @@ int SLAPI PPObjectTransmit::ReadFileStat(const char * pFileName, PacketStat & rS
 	return ok;
 }
 
-// static
-SString & SLAPI PPObjectTransmit::GetQueueFilePath(SString & rBuf)
+/*static*/SString & SLAPI PPObjectTransmit::GetQueueFilePath(SString & rBuf)
 {
 	rBuf.Z();
 	PPGetPath(PPPATH_DAT, rBuf);
@@ -2132,8 +2126,7 @@ int SLAPI PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * p
 	return ok;
 }
 
-// static
-int SLAPI PPObjectTransmit::TransmitModificationsByDBDivList(const ObjTransmitParam * pParam)
+/*static*/int SLAPI PPObjectTransmit::TransmitModificationsByDBDivList(const ObjTransmitParam * pParam)
 {
 	MemLeakTracer mlt;
 	int    ok = 1;
@@ -2159,8 +2152,7 @@ int SLAPI PPObjectTransmit::TransmitModificationsByDBDivList(const ObjTransmitPa
 	return ok;
 }
 
-// static
-int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTransmitParam * pParam)
+/*static*/int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTransmitParam * pParam)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -2409,8 +2401,7 @@ int BillTransDialog::delItem()
 
 int SLAPI BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 
-// static
-int SLAPI PPObjectTransmit::TransmitBillsByDBDivList(BillTransmitParam * pParam)
+/*static*/int SLAPI PPObjectTransmit::TransmitBillsByDBDivList(BillTransmitParam * pParam)
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -2437,8 +2428,7 @@ int SLAPI PPObjectTransmit::TransmitBillsByDBDivList(BillTransmitParam * pParam)
 	return ok;
 }
 
-// static
-int SLAPI PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitParam * pFilt)
+/*static*/int SLAPI PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitParam * pFilt)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -2535,8 +2525,7 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 	return ok;
 }
 
-// static
-int PPObjectTransmit::Transmit(PPID dbDivID, const PPObjIDArray * pObjAry, const ObjTransmitParam * pParam)
+/*static*/int PPObjectTransmit::Transmit(PPID dbDivID, const PPObjIDArray * pObjAry, const ObjTransmitParam * pParam)
 {
 	int    ok = 0;
 	PPObjectTransmit * p_ot = 0;
@@ -3030,10 +3019,8 @@ int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID com
 	ASSIGN_PTR(pPrimID, primary_id);
 	return ok;
 }
-//
-//
-// static
-int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
+
+/*static*/int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 {
 	int    ok = 1;
 	int    next_pass = 0;
@@ -3162,10 +3149,8 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 	}
 	return ok;
 }
-//
-//
-// static
-int FASTCALL PPObjectTransmit::LockReceiving(int unlock)
+
+/*static*/int FASTCALL PPObjectTransmit::LockReceiving(int unlock)
 {
 	int    ok = 1;
 	if(!unlock) {

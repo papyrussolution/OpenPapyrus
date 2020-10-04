@@ -1082,16 +1082,16 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 						PPTransferItem * ti;
 						if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {
 							for(uint i = 0; pack.EnumTItems(&i, &ti);) {
-								double qtty = fabs(ti->Quantity_);
-								double n_pr = ti->NetPrice();
+								const double qtty = fabs(ti->Quantity_);
+								const double n_pr = ti->NetPrice();
 								THROW(cp.InsertItem(ti->GoodsID, qtty, n_pr, 0.0, param.DivisionN));
 								cc_amount += R2(n_pr * qtty);
 								dscnt += R2(ti->Discount * qtty);
 							}
 						}
 						else if(prepay_goods_id) {
-							double qtty = 1.0;
-							double n_pr = pack.GetAmount();
+							const double qtty = 1.0;
+							const double n_pr = pack.GetAmount();
 							THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, param.DivisionN));
 							cc_amount += R2(n_pr * qtty);
 						}
@@ -1117,16 +1117,16 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 								PPTransferItem * ti;
 								if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {
 									for(uint i = 0; link_pack.EnumTItems(&i, &ti);) {
-										double qtty = R6(fabs(ti->Quantity_) * mult);
-										double n_pr = ti->NetPrice();
+										const double qtty = R6(fabs(ti->Quantity_) * mult);
+										const double n_pr = ti->NetPrice();
 										THROW(cp.InsertItem(ti->GoodsID, qtty, n_pr, 0.0, param.DivisionN));
 										cc_amount += R2(n_pr * qtty);
 										dscnt += R2(ti->Discount * qtty);
 									}
 								}
 								else if(prepay_goods_id) {
-									double qtty = 1.0;
-									double n_pr = cc_req_amount;
+									const double qtty = 1.0;
+									const double n_pr = cc_req_amount;
 									THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, param.DivisionN));
 									cc_amount += R2(n_pr * qtty);
 								}
@@ -1137,16 +1137,15 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 									LDBLTOMONEY(/*cc_amount*/result_amount, cp.Rec.Amount);
 									LDBLTOMONEY(/*dscnt*/result_discount, cp.Rec.Discount);
 									if(oneof3(link_pack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT)) {
-										if(pack.Rec.Amount > 0.0) // @v9.7.1
+										if(pack.Rec.Amount > 0.0)
 											cp.Rec.Flags |= CCHKF_RETURN;
 									}
 									else {
-										if(pack.Rec.Amount < 0.0) // @v9.7.1
+										if(pack.Rec.Amount < 0.0)
 											cp.Rec.Flags |= CCHKF_RETURN;
 									}
 									if(param.PaymType == cpmBank)
 										cp.Rec.Flags |= CCHKF_BANKING;
-									// @v9.7.9 {
 									if(!feqeps(fabs(result_amount), fabs(cc_req_amount), 1E-8)) {
 										double fixup_discount = result_discount + (fabs(result_amount) - fabs(cc_req_amount));
 										cp.SetTotalDiscount__(fabs(fixup_discount), (fixup_discount < 0.0) ? CCheckPacket::stdfPlus : 0);
@@ -1154,7 +1153,6 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 										LDBLTOMONEY(result_amount, cp.Rec.Amount);
 										LDBLTOMONEY(result_discount, cp.Rec.Discount);
 									}
-									// } @v9.7.9
 									cp._Cash = /*cc_amount*/result_amount;
 									ok = p_cm->SyncPrintCheck(&cp, 1);
 								}
@@ -3069,8 +3067,7 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 
 // @v10.7.10 replaced with (PPConstParam::WrParam_BillAddFilesFolder) const char * BillAddFilesFolder = "BillAddFilesFolder";
 
-// static
-int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
+/*static*/int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -3388,8 +3385,7 @@ public:
 
 static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConfigAddednumDialog, pData); }
 
-// static
-int SLAPI PPObjBill::EditConfig()
+/*static*/int SLAPI PPObjBill::EditConfig()
 {
 	class BillConfigDialog : public TDialog {
 	public:
@@ -6301,8 +6297,7 @@ int SLAPI PPObjBill::SetClbNumberByLot(PPID lotID, const char * pNumber, int use
 int SLAPI PPObjBill::SetSerialNumberByLot(PPID lotID, const char * pNumber, int use_ta)
 	{ return SetTagNumberByLot(lotID, PPTAG_LOT_SN, pNumber, use_ta); }
 
-// static
-int FASTCALL PPObjBill::VerifyUniqSerialSfx(const char * pSfx)
+/*static*/int FASTCALL PPObjBill::VerifyUniqSerialSfx(const char * pSfx)
 {
 	int    ok = -1;
 	if(!isempty(pSfx)) {
@@ -8719,8 +8714,7 @@ int SLAPI PPObjBill::__TurnPacket(PPBillPacket * pPack, PPIDArray * pList, int s
 	return ok;
 }
 
-// static
-int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate)
+/*static*/int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate)
 {
 	enum {
 		billsymbmodLink   = 0x40000000,

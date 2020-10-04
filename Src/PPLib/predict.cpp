@@ -100,8 +100,7 @@ LocValEntry * FASTCALL LocValList::GetEntry(PPID locID)
 //
 //
 //
-// static
-int FASTCALL Predictor::GetPredictCfg(PPPredictConfig * pCfg)
+/*static*/int FASTCALL Predictor::GetPredictCfg(PPPredictConfig * pCfg)
 {
 	PPPredictConfig cfg;
 	int    ok = PPRef->GetPropMainConfig(PPPRP_PREDICTCFG, &cfg, sizeof(cfg));
@@ -111,8 +110,7 @@ int FASTCALL Predictor::GetPredictCfg(PPPredictConfig * pCfg)
 	return ok;
 }
 
-// static
-int SLAPI Predictor::PutPredictCfg(const PPPredictConfig * pCfg, int use_ta)
+/*static*/int SLAPI Predictor::PutPredictCfg(const PPPredictConfig * pCfg, int use_ta)
 {
 	int    ok = 1, is_new = 1;
 	Reference * p_ref = PPRef;
@@ -357,22 +355,19 @@ SLAPI PPPredictConfig::PPPredictConfig()
 	THISZERO();
 }
 
-// static
-int FASTCALL PPPredictConfig::_GetPckgUse(long f)
+/*static*/int FASTCALL PPPredictConfig::_GetPckgUse(long f)
 {
 	const long t = CHKXORFLAGS(f, fPrefStockPckg, fPrefLotPckg);
 	return (t == fPrefStockPckg) ? pckgPrefStock : ((t == fPrefLotPckg) ? pckgPrefLot : pckgDontUse);
 }
 
-// static
-int FASTCALL PPPredictConfig::_GetPckgRounding(long f)
+/*static*/int FASTCALL PPPredictConfig::_GetPckgRounding(long f)
 {
 	const long t = CHKXORFLAGS(f, fRoundPckgUp, fRoundPckgDn);
 	return (t == fRoundPckgUp) ? pckgRoundUp : ((t == fRoundPckgDn) ? pckgRoundDn : pckgRoundNear);
 }
 
-// static
-long FASTCALL PPPredictConfig::_SetPckgUse(long f, int t)
+/*static*/long FASTCALL PPPredictConfig::_SetPckgUse(long f, int t)
 {
 	f &= ~(fPrefStockPckg | fPrefLotPckg);
 	if(t == pckgPrefStock)
@@ -382,8 +377,7 @@ long FASTCALL PPPredictConfig::_SetPckgUse(long f, int t)
 	return f;
 }
 
-// static
-long FASTCALL PPPredictConfig::_SetPckgRounding(long f, int t)
+/*static*/long FASTCALL PPPredictConfig::_SetPckgRounding(long f, int t)
 {
 	f &= ~(fRoundPckgUp | fRoundPckgDn);
 	if(t == pckgRoundUp)
@@ -393,9 +387,7 @@ long FASTCALL PPPredictConfig::_SetPckgRounding(long f, int t)
 	return f;
 }
 
-//
-// static
-int SLAPI PrcssrPrediction::EditPredictCfg()
+/*static*/int SLAPI PrcssrPrediction::EditPredictCfg()
 {
 	int    ok = -1, is_new = 0;
 	ushort v = 0;
@@ -534,16 +526,17 @@ int SLAPI PrcssrPrediction::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rL
 //
 //
 //
-#define GRP_GOODS 1
-
 class PSalesTestParamDialog : public TDialog {
 	DECL_DIALOG_DATA(PrcssrPrediction::Param);
+	enum {
+		ctlgroupGoods = 1
+	};
 public:
 	PSalesTestParamDialog(PPPredictConfig * pCfg) : TDialog(DLG_PSALESTEST)
 	{
 		if(!RVALUEPTR(Cfg, pCfg))
 			MEMSZERO(Cfg);
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_PSALTST_GGROUP, CTLSEL_PSALTST_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_PSALTST_GGROUP, CTLSEL_PSALTST_GOODS));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -554,7 +547,7 @@ public:
 		Data.Process = PrcssrPrediction::Param::prcsTest;
 		SetupCalPeriod(CTLCAL_PSALTST_PERIOD, CTL_PSALTST_PERIOD);
 		GoodsCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODS, &rec);
+		setGroupData(ctlgroupGoods, &rec);
 		mode = BIN(Data.Flags & PrcssrPrediction::Param::fTestUpdatedItems);
 		AddClusterAssocDef(CTL_PSALTST_GOODSSELKIND, 0, 0);
 		AddClusterAssoc(CTL_PSALTST_GOODSSELKIND, 1, 1);
@@ -571,7 +564,7 @@ public:
 		long   mode = 0;
 		Data.Process = PrcssrPrediction::Param::prcsTest;
 		GoodsCtrlGroup::Rec rec;
-		getGroupData(GRP_GOODS, &rec);
+		getGroupData(ctlgroupGoods, &rec);
 		Data.GoodsID = rec.GoodsID;
 		Data.GoodsGrpID = rec.GrpID;
 		GetClusterData(CTL_PSALTST_GOODSSELKIND, &mode);
@@ -588,9 +581,10 @@ private:
 	PPPredictConfig Cfg;
 };
 
-#define GRP_GOODS 1
-
 class PredictionParamDialog : public TDialog {
+	enum {
+		ctlgroupGoods = 1
+	};
 public:
 	PredictionParamDialog(PPPredictConfig * pCfg, PredictSalesCore * pSalesTbl) : TDialog(DLG_FILLSALESTBL), P_SalesTbl(pSalesTbl)
 	{
@@ -598,7 +592,7 @@ public:
 			MEMSZERO(Cfg);
 		PrevContinueMode = BIN(Cfg.Flags & PPPredictConfig::fContinueBuilding);
 		SetCtrlBitmap(CTL_FILLSALESTBL_IMG, BM_FILLSALESTBL);
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_FILLSALESTBL_GRP, CTLSEL_FILLSALESTBL_GDS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_FILLSALESTBL_GRP, CTLSEL_FILLSALESTBL_GDS));
 	}
 	int    setDTS(const PrcssrPrediction::Param *);
 	int    getDTS(PrcssrPrediction::Param *);
@@ -663,7 +657,7 @@ int PredictionParamDialog::setDTS(const PrcssrPrediction::Param * pData)
 	setCtrlData(CTL_FILLSALESTBL_ENDDT, &period.upp);
 	{
 		GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODS, &ggrp_rec);
+		setGroupData(ctlgroupGoods, &ggrp_rec);
 	}
 	{
 		if(Data.GoodsID) {
@@ -704,7 +698,7 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	P_SalesTbl->GetTblUpdateDt(&last_dt);
 	{
 		GoodsCtrlGroup::Rec ggrp_rec;
-		getGroupData(GRP_GOODS, &ggrp_rec);
+		getGroupData(ctlgroupGoods, &ggrp_rec);
 		Data.GoodsGrpID = ggrp_rec.GrpID;
 		Data.GoodsID    = ggrp_rec.GoodsID;
 	}
@@ -763,8 +757,7 @@ int SLAPI PrcssrPrediction::EditParam(Param * pParam)
 	return ok;
 }
 
-// static
-int FASTCALL PrcssrPrediction::Lock(int unlock)
+/*static*/int FASTCALL PrcssrPrediction::Lock(int unlock)
 {
 	int    ok = 1;
 	if(!unlock) {
@@ -781,8 +774,7 @@ int FASTCALL PrcssrPrediction::Lock(int unlock)
 	return ok;
 }
 
-// static
-int SLAPI PrcssrPrediction::IsLocked()
+/*static*/int SLAPI PrcssrPrediction::IsLocked()
 {
 	int    ok = -1, r;
 	PPSync & r_sync = DS.GetSync();

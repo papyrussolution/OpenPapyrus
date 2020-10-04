@@ -225,16 +225,14 @@ SLAPI PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ
 {
 }
 
-// static
-void SLAPI PPObjGoodsBasket::SetAddLockErrInfo(PPID mutexID)
+/*static*/void SLAPI PPObjGoodsBasket::SetAddLockErrInfo(PPID mutexID)
 {
 	SString buf;
 	DS.GetSync().GetLockingText(mutexID, 1, buf);
 	PPSetAddedMsgString(buf);
 }
 
-// static
-int SLAPI PPObjGoodsBasket::ForceUnlock(PPID id)
+/*static*/int SLAPI PPObjGoodsBasket::ForceUnlock(PPID id)
 {
 	int    ok = 1;
 	PPSyncArray sync_ary;
@@ -250,8 +248,7 @@ int SLAPI PPObjGoodsBasket::ForceUnlock(PPID id)
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsBasket::IsLocked(PPID id)
+/*static*/int SLAPI PPObjGoodsBasket::IsLocked(PPID id)
 {
 	int    ok = 0;
 	PPID   mutex_id = 0;
@@ -822,8 +819,7 @@ int SLAPI PPObjGoodsBasket::Browse(void * extraPtr)
 }
 
 
-// static
-int SLAPI PPObjGoodsBasket::IsPrivate(PPID id)
+/*static*/int SLAPI PPObjGoodsBasket::IsPrivate(PPID id)
 {
 	PPBasketPacket * p_private_pack = DS.GetPrivateBasket();
 	return BIN(p_private_pack && p_private_pack->Head.ID == id);

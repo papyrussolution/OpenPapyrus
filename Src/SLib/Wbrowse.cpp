@@ -404,8 +404,7 @@ void BrowserBrushes::Destroy()
 	ZDeleteWinGdiObject(&CursorBrush);
 }
 
-// static
-LPCTSTR BrowserWindow::WndClsName = _T("SBROWSER");
+/*static*/LPCTSTR BrowserWindow::WndClsName = _T("SBROWSER");
 //
 //
 //
@@ -2487,9 +2486,7 @@ HWND GetPrevBrowser(HWND hw)
 	return hw;
 }
 */
-
-// static
-LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	int    i;
 	long   hPos, vPos;
@@ -2851,8 +2848,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-// static
-int BrowserWindow::RegWindowClass(HINSTANCE hInst)
+/*static*/int BrowserWindow::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);

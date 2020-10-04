@@ -74,8 +74,7 @@ int SLAPI VATBCfg::CheckAccSheet(PPID accSheetID)
 //
 // @PPObjVATBook {
 //
-// static
-double FASTCALL PPObjVATBook::GetVatRate(int idx)
+/*static*/double FASTCALL PPObjVATBook::GetVatRate(int idx)
 {
 	if(idx == 0)
 		return 10.0;
@@ -149,8 +148,7 @@ int SLAPI PPObjVATBook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 static const SVerT __VATBookFormatVer(7, 6, 1);
 
-// static
-int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
+/*static*/int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 {
 	int    r = 1, i;
 	uint   sz = sizeof(PPVATBConfig);
@@ -231,8 +229,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 	return r;
 }
 
-// static
-int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use_ta)
+/*static*/int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use_ta)
 {
 	int    ok = 1;
 	const  uint items_count = pConfig->List.getCount();
@@ -1091,8 +1088,7 @@ IMPL_HANDLE_EVENT(VATBCfgDialog)
 //
 // } @VATBCfgDialog
 //
-// static
-int SLAPI PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
+/*static*/int SLAPI PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
 {
 	int    ok = -1;
 	uint   dlg_id = 0;

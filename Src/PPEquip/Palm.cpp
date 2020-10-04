@@ -6,24 +6,17 @@
 #pragma hdrstop
 #include <stylopalm.h>
 
+SLAPI PalmBillQueue::IdAssocItem::IdAssocItem(PPID dvcID, PPID outerBillID, PPID innerBillID) : DvcID(dvcID), OuterBillID(outerBillID), InnerBillID(innerBillID)
+{
+}
+
 SLAPI PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), aryPtrContainer)
 {
 }
 
-uint SLAPI PalmBillQueue::GetItemsCount() const
-{
-	return getCount();
-}
-
-int  SLAPI PalmBillQueue::IsEmpty() const
-{
-	return getCount() ? 0 : 1;
-}
-
-int SLAPI PalmBillQueue::Push(PalmBillPacket * pPack)
-{
-	return insert(pPack) ? 1 : PPSetErrorSLib();
-}
+uint SLAPI PalmBillQueue::GetItemsCount() const { return getCount(); }
+int  SLAPI PalmBillQueue::IsEmpty() const { return getCount() ? 0 : 1; }
+int  SLAPI PalmBillQueue::Push(PalmBillPacket * pPack) { return insert(pPack) ? 1 : PPSetErrorSLib(); }
 
 // @v10.7.2 #define COMPARE(a,b) ((a)>(b)) ? 1 : (((a)<(b)) ? -1 : 0)
 
@@ -66,19 +59,15 @@ PalmBillPacket * SLAPI PalmBillQueue::Pop()
 
 PalmBillPacket * SLAPI PalmBillQueue::Peek()
 {
-	PalmBillPacket * p_pack = 0;
-	if(getCount())
-		p_pack = static_cast<PalmBillPacket *>(at(0));
-	return p_pack;
+	return getCount() ? static_cast<PalmBillPacket *>(at(0)) : 0;
 }
 
-int SLAPI PalmBillQueue::Destroy()
+void SLAPI PalmBillQueue::Destroy()
 {
 	while(!IsEmpty()) {
 		PalmBillPacket * p_pack = Pop();
 		delete p_pack;
 	}
-	return 1;
 }
 
 long SLAPI PalmBillQueue::GetBillIdBias() const
@@ -102,12 +91,13 @@ int SLAPI PalmBillQueue::AddItem(PPID billID, const PalmBillItem * pItem, uint *
 		ok = 1;
 	}
 	else {
-		for(uint i = 0; i < getCount(); i++)
+		for(uint i = 0; i < getCount(); i++) {
 			if(static_cast<const PalmBillPacket *>(at(i))->Hdr.ID == billID) {
 				pos = i;
 				ok = 1;
 				break;
 			}
+		}
 	}
 	if(ok > 0) {
 		p_pack = static_cast<PalmBillPacket *>(at(pos));
@@ -123,26 +113,16 @@ int SLAPI PalmBillQueue::AddItem(PPID billID, const PalmBillItem * pItem, uint *
 
 PPID SLAPI PalmBillQueue::GetInnerIdByOuter(PPID dvcID, PPID outerID) const
 {
-	PPID   inner_id = 0;
 	uint   pos = 0;
-	IdAssocItem key;
-	MEMSZERO(key);
-	key.DvcID = dvcID;
-	key.OuterBillID = outerID;
-	if(IdAssocList.lsearch(&key, &pos, PTR_CMPFUNC(_2long))) {
-		inner_id = IdAssocList.at(pos).InnerBillID;
-	}
-	return inner_id;
+	const  IdAssocItem key(dvcID, outerID);
+	return IdAssocList.lsearch(&key, &pos, PTR_CMPFUNC(_2long)) ? IdAssocList.at(pos).InnerBillID : 0;
 }
 
 int SLAPI PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
 {
 	int    ok = -1;
 	uint   pos = 0;
-	IdAssocItem key;
-	MEMSZERO(key);
-	key.DvcID = dvcID;
-	key.OuterBillID = outerID;
+	const  IdAssocItem key(dvcID, outerID);
 	if(IdAssocList.lsearch(&key, &pos, PTR_CMPFUNC(_2long))) {
 		IdAssocItem & r_item = IdAssocList.at(pos);
 		if(r_item.InnerBillID == innerID)
@@ -157,10 +137,8 @@ int SLAPI PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
 		}
 	}
 	else {
-		key.DvcID = dvcID;
-		key.OuterBillID = outerID;
-		key.InnerBillID = innerID;
-		IdAssocList.insert(&key);
+		IdAssocItem new_item(dvcID, outerID, innerID);
+		IdAssocList.insert(&new_item);
 		ok = 1;
 	}
 	return ok;
@@ -183,29 +161,18 @@ void SLAPI PalmBillPacket::Init()
 	freeAll();
 }
 
-uint SLAPI PalmBillPacket::GetItemsCount() const
-{
-	return getCount();
-}
+uint SLAPI PalmBillPacket::GetItemsCount() const { return getCount(); }
+int  SLAPI PalmBillPacket::AddItem(const PalmBillItem * pItem) { return insert(pItem) ? 1 : PPSetErrorSLib(); }
+int  SLAPI PalmBillPacket::RemoveItem(uint idx) { return atFree(idx) ? 1 : PPSetErrorSLib(); }
 
 int SLAPI PalmBillPacket::EnumItems(uint * pIdx, PalmBillItem * pItem) const
 {
 	PalmBillItem * p_item;
-	if(SVector::enumItems(pIdx, (void **)&p_item) > 0) { // @v9.8.9 SArray-->SVector
+	if(SVector::enumItems(pIdx, (void **)&p_item) > 0) {
 		ASSIGN_PTR(pItem, *p_item);
 		return 1;
 	}
 	return 0;
-}
-
-int SLAPI PalmBillPacket::AddItem(const PalmBillItem * pItem)
-{
-	return insert(pItem) ? 1 : PPSetErrorSLib();
-}
-
-int SLAPI PalmBillPacket::RemoveItem(uint idx)
-{
-	return atFree(idx) ? 1 : PPSetErrorSLib();
 }
 //
 //
@@ -221,15 +188,8 @@ PPGeoTrackingMode & SLAPI PPGeoTrackingMode::Z()
 	return *this;
 }
 
-int FASTCALL PPGeoTrackingMode::operator == (const PPGeoTrackingMode & rS) const
-{
-	return BIN(Mode == rS.Mode && Cycle == rS.Cycle);
-}
-
-int FASTCALL PPGeoTrackingMode::operator != (const PPGeoTrackingMode & rS) const
-{
-	return BIN(Mode != rS.Mode || Cycle != rS.Cycle);
-}
+int FASTCALL PPGeoTrackingMode::operator == (const PPGeoTrackingMode & rS) const { return BIN(Mode == rS.Mode && Cycle == rS.Cycle); }
+int FASTCALL PPGeoTrackingMode::operator != (const PPGeoTrackingMode & rS) const { return BIN(Mode != rS.Mode || Cycle != rS.Cycle); }
 
 SLAPI PPStyloPalmPacket::PPStyloPalmPacket() : P_Path(0), P_FTPPath(0)
 {
@@ -415,8 +375,7 @@ int SLAPI PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 	return ok;
 }
 
-// static
-int FASTCALL PPObjStyloPalm::ReadConfig(PPStyloPalmConfig * pCfg)
+/*static*/int FASTCALL PPObjStyloPalm::ReadConfig(PPStyloPalmConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_STYLOPALMCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
@@ -424,8 +383,7 @@ int FASTCALL PPObjStyloPalm::ReadConfig(PPStyloPalmConfig * pCfg)
 	return r;
 }
 
-// static
-int SLAPI PPObjStyloPalm::EditConfig()
+/*static*/int SLAPI PPObjStyloPalm::EditConfig()
 {
 	int    ok = -1, valid_data = 0, is_new = 0;
 	PPStyloPalmConfig cfg;
@@ -445,13 +403,11 @@ int SLAPI PPObjStyloPalm::EditConfig()
 	SetupPPObjCombo(dlg, CTLSEL_SPIICFG_SELLOP, PPOBJ_OPRKIND, cfg.SellOpID, 0);
 	dlg->setCtrlData(CTL_SPIICFG_SELLTERM, &cfg.SellAnlzTerm);
 	SetupOprKindCombo(dlg, CTLSEL_SPIICFG_CLIINVOP, cfg.CliInvOpID, 0, &op_list, OPKLF_OPLIST);
-	// @v9.2.11 {
 	{
 		ObjTagFilt ot_filt(PPOBJ_BILL);
 		ot_filt.Flags |= ObjTagFilt::fOnlyTags;
 		SetupObjTagCombo(dlg, CTLSEL_SPIICFG_INHBTAG, cfg.InhBillTagID, 0, &ot_filt);
 	}
-	// } @v9.2.11
 	dlg->AddClusterAssocDef(CTL_SPIICFG_ORDCFMTTYP,  0, PPStyloPalmConfig::ordercodeIdHash);
 	dlg->AddClusterAssoc(CTL_SPIICFG_ORDCFMTTYP,  1, PPStyloPalmConfig::ordercodeSymbName);
 	dlg->AddClusterAssoc(CTL_SPIICFG_ORDCFMTTYP,  2, PPStyloPalmConfig::ordercodeNameSymb);
@@ -481,14 +437,15 @@ int SLAPI PPObjStyloPalm::EditConfig()
 static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
 {
 	class GeoTrackingModeDialog : public TDialog {
+		DECL_DIALOG_DATA(PPGeoTrackingMode);
 	public:
 		GeoTrackingModeDialog() : TDialog(DLG_GEOTRACKMODE)
 		{
 		}
-		int   setDTS(const PPGeoTrackingMode * pData)
+		DECL_DIALOG_SETDTS()
 		{
             int    ok = 1;
-            Data = *pData;
+            RVALUEPTR(Data, pData);
             AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 0, GTMF_AUTO);
             AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 1, GTMF_CHECKIN);
             AddClusterAssoc(CTL_GEOTRACKMODE_FLAGS, 2, GTMF_EVNT_BILL);
@@ -498,7 +455,7 @@ static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
             disableCtrl(CTL_GEOTRACKMODE_CYCLE, !(Data.Mode & GTMF_AUTO));
             return ok;
 		}
-		int    getDTS(PPGeoTrackingMode * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetClusterData(CTL_GEOTRACKMODE_FLAGS, &Data.Mode);
@@ -518,28 +475,27 @@ static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
 				return;
 			clearEvent(event);
 		}
-		PPGeoTrackingMode Data;
 	};
     DIALOG_PROC_BODY(GeoTrackingModeDialog, pData);
 }
-
 //
 // @todo @v4.6.8 Если запись PPStyloPalmPacket имеет ненулевую группу, то в диалоге
 // необходимо запретить редактирование наследуемых параметров, а также предусмотреть
 // изменение наследуемых параметров при изменении принадлежности к группе.
 //
-#define GRP_LOC      1
-#define GRP_QUOTKIND 2
-
 class StyloPalmDialog : public TDialog {
 	DECL_DIALOG_DATA(PPStyloPalmPacket);
+	enum {
+		ctlgroupLoc      = 1,
+		ctlgroupQuotKind = 2
+	};
 public:
 	StyloPalmDialog(uint dlgID) : TDialog(dlgID)
 	{
 		PPObjStyloPalm::ReadConfig(&SpCfg);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PALM_PATH, CTL_PALM_PATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_PALM_LOC, 0, 0, cmLocList, 0, 0, 0));
-		addGroup(GRP_QUOTKIND, new QuotKindCtrlGroup(CTLSEL_PALM_QUOTKIND, cmQuotKindList));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_PALM_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupQuotKind, new QuotKindCtrlGroup(CTLSEL_PALM_QUOTKIND, cmQuotKindList));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -560,11 +516,11 @@ public:
 		SetupArCombo(this, CTLSEL_PALM_AGENT, Data.Rec.AgentID, OLW_CANINSERT, agent_accsheet_id, sacfDisableIfZeroSheet);
 		{
 			LocationCtrlGroup::Rec l_rec(&Data.LocList);
-			setGroupData(GRP_LOC, &l_rec);
+			setGroupData(ctlgroupLoc, &l_rec);
 		}
 		{
 			QuotKindCtrlGroup::Rec qk_rec(&Data.QkList);
-			setGroupData(GRP_QUOTKIND, &qk_rec);
+			setGroupData(ctlgroupQuotKind, &qk_rec);
 		}
 		SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 		SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp));
@@ -644,12 +600,12 @@ public:
 		getCtrlData(CTLSEL_PALM_AGENT, &Data.Rec.AgentID);
 		{
 			LocationCtrlGroup::Rec l_rec;
-			getGroupData(GRP_LOC, &l_rec);
+			getGroupData(ctlgroupLoc, &l_rec);
 			Data.LocList = l_rec.LocList;
 		}
 		{
 			QuotKindCtrlGroup::Rec qk_rec;
-			getGroupData(GRP_QUOTKIND, &qk_rec);
+			getGroupData(ctlgroupQuotKind, &qk_rec);
 			Data.QkList = qk_rec.List;
 		}
 		getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
@@ -731,8 +687,6 @@ void StyloPalmDialog::SetupInheritance()
 	DisableClusterItem(CTL_PALM_FLAGS, 6, dsbl_flags);
 	DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags);
 }
-
-#undef GRP_LOC
 
 int SLAPI PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)
 {
@@ -1232,60 +1186,27 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 									p_pack->Hdr.OrgID = val.ToLong();
 									p_pack->Hdr.ID = p_pack->Hdr.OrgID + billIdBias;
 									break;
-								case 1:   // Dt
-									strtodate(val, DATF_DMY, &p_pack->Hdr.Dt);
-									break;
-								case 2:   // CreateDt
-									strtodate(val, DATF_DMY, &p_pack->Hdr.CreateDtm.d);
-									break;
-								case 3:   // CreateTm
-									strtotime(val, TIMF_HMS, &p_pack->Hdr.CreateDtm.t);
-									break;
-								case 4:   // LocID
-									p_pack->Hdr.LocID = val.ToLong();
-									break;
-								case 5:   // Code
-									val.CopyTo(p_pack->Hdr.Code, sizeof(p_pack->Hdr.Code));
-									break;
-								case 6:   // ClientID
-									p_pack->Hdr.ClientID   = val.ToLong();
-									break;
-								case 7:   // DlvrAddrID
-									p_pack->Hdr.DlvrAddrID = val.ToLong();
-									break;
-								case 8:   // QuotKindID
-									p_pack->Hdr.QuotKindID = val.ToLong();
-									break;
-								case 9:   // Amount
-									p_pack->Hdr.Amount = val.ToReal();
-									break;
-								case 10:  // PctDis
-									p_pack->Hdr.PctDis = val.ToReal();
-									break;
-								case 11:  // Flags
-									break;
+								case 1: strtodate(val, DATF_DMY, &p_pack->Hdr.Dt); break; // Dt
+								case 2: strtodate(val, DATF_DMY, &p_pack->Hdr.CreateDtm.d); break; // CreateDt
+								case 3: strtotime(val, TIMF_HMS, &p_pack->Hdr.CreateDtm.t); break; // CreateTm
+								case 4: p_pack->Hdr.LocID = val.ToLong(); break; // LocID
+								case 5: val.CopyTo(p_pack->Hdr.Code, sizeof(p_pack->Hdr.Code)); break; // Code
+								case 6: p_pack->Hdr.ClientID   = val.ToLong(); break; // ClientID
+								case 7: p_pack->Hdr.DlvrAddrID = val.ToLong(); break; // DlvrAddrID
+								case 8: p_pack->Hdr.QuotKindID = val.ToLong(); break; // QuotKindID
+								case 9: p_pack->Hdr.Amount = val.ToReal(); break; // Amount
+								case 10: p_pack->Hdr.PctDis = val.ToReal(); break; // PctDis
+								case 11: break; // Flags
 								case 12:  // Memo
 									val.Transf(CTRANSF_UTF8_TO_INNER);
 									val.CopyTo(p_pack->Hdr.Memo, sizeof(p_pack->Hdr.Memo));
 									break;
-								case 13:  // CreateDtEnd
-									strtodate(val, DATF_DMY, &p_pack->Hdr.CreateDtmEnd.d);
-									break;
-								case 14:  // CreateTmEnd
-									strtotime(val, TIMF_HMS, &p_pack->Hdr.CreateDtmEnd.t);
-									break;
-								case 15:  // Latitude
-									p_pack->Hdr.Latitude = val.ToReal();
-									break;
-								case 16:  // Longitude
-									p_pack->Hdr.Longitude = val.ToReal();
-									break;
-								case 17:  // LatitudeEnd
-									p_pack->Hdr.LatitudeEnd = val.ToReal();
-									break;
-								case 18:  // LongitudeEnd
-									p_pack->Hdr.LongitudeEnd = val.ToReal();
-									break;
+								case 13: strtodate(val, DATF_DMY, &p_pack->Hdr.CreateDtmEnd.d); break; // CreateDtEnd
+								case 14: strtotime(val, TIMF_HMS, &p_pack->Hdr.CreateDtmEnd.t); break; // CreateTmEnd
+								case 15: p_pack->Hdr.Latitude = val.ToReal(); break; // Latitude
+								case 16: p_pack->Hdr.Longitude = val.ToReal(); break; // Longitude
+								case 17: p_pack->Hdr.LatitudeEnd = val.ToReal(); break; // LatitudeEnd
+								case 18: p_pack->Hdr.LongitudeEnd = val.ToReal(); break; // LongitudeEnd
 							}
 						}
 					}
@@ -1293,7 +1214,6 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 				p_pack->Hdr.PalmID  = PalmRec.ID;
 				p_pack->Hdr.Op      = 1;
 				p_pack->Hdr.AgentID = PalmRec.AgentID;
-
 				line_order_id = p_pack->Hdr.ID;
 				if(line_order_id) {
 					pParam->P_BillQueue->PushUnique(p_pack);
@@ -1320,19 +1240,11 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 									val = (const char *)p_fld->children->content;
 									if(PPSearchSubStr(p_brow_tags, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 										switch(idx) {
-											case 0:   // _id
-												break;
-											case 1:   // OrderID
-												break;
-											case 2:   // GoodsID
-												item.GoodsID = val.ToLong();
-												break;
-											case 3:   // Price
-												item.Price = val.ToReal();
-												break;
-											case 4:   // Quantity
-												item.Qtty = val.ToReal();
-												break;
+											case 0: break; // _id
+											case 1: break; // OrderID
+											case 2: item.GoodsID = val.ToLong(); break; // GoodsID
+											case 3: item.Price = val.ToReal(); break; // Price
+											case 4: item.Qtty = val.ToReal(); break; // Quantity
 										}
 									}
 								}
@@ -1360,8 +1272,7 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 			SString mask;
 			PPGetFileName(PPFILNAM_PALM_OUTXML, fname);
 			SPathStruc sp(fname);
-			// @v9.7.10 mask.Printf("*%s*.%s", sp.Nam.cptr(), sp.Ext.cptr());
-			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext); // @v9.7.10
+			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext);
 			if(pFtp)
 				ok = pFtp->SafeGetFileList(pPath, pList, mask.cptr(), pLogger);
 			else {
@@ -1378,16 +1289,11 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 			}
 		}
 		else {
-			PPGetFileName(PPFILNAM_PALM_BILL,    fname);
-			pList->Add(1, fname);
-			PPGetFileName(PPFILNAM_PALM_BLINE,   fname);
-			pList->Add(2, fname);
-			PPGetFileName(PPFILNAM_PALM_INVHDR,  fname);
-			pList->Add(3, fname);
-			PPGetFileName(PPFILNAM_PALM_INVLINE, fname);
-			pList->Add(4, fname);
-			PPGetFileName(PPFILNAM_PALM_TODO,    fname);
-			pList->Add(5, fname);
+			pList->Add(1, PPGetFileName(PPFILNAM_PALM_BILL,    fname));
+			pList->Add(2, PPGetFileName(PPFILNAM_PALM_BLINE,   fname));
+			pList->Add(3, PPGetFileName(PPFILNAM_PALM_INVHDR,  fname));
+			pList->Add(4, PPGetFileName(PPFILNAM_PALM_INVLINE, fname));
+			pList->Add(5, PPGetFileName(PPFILNAM_PALM_TODO,    fname));
 			ok = 1;
 		}
 	}
@@ -1410,16 +1316,14 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 			if(GetImportFileList(1, pPath, 0, &file_list, 0) > 0) {
 				for(uint i = 0; i < file_list.getCount(); i++) {
 					AndroidReader reader((path = pPath).SetLastSlash().Cat(file_list.Get(i).Txt), pRec);
-					if(!(pRec->Flags & PLMF_BLOCKED)) { // @v9.4.7
+					if(!(pRec->Flags & PLMF_BLOCKED))
 						reader.ReadBills(pParam, bill_id_bias, &ord_count);
-					}
-					if(DS.CheckExtFlag(ECF_USEGEOTRACKING)) {
+					if(DS.CheckExtFlag(ECF_USEGEOTRACKING))
 						reader.ReadGeoTracks(pParam);
-					}
 				}
 			}
 		}
-		else if(!(pRec->Flags & PLMF_BLOCKED)) { // @v9.4.7 if(!(pRec->Flags & PLMF_BLOCKED))
+		else if(!(pRec->Flags & PLMF_BLOCKED)) {
 			SString cln_path;
 			SString hdr_path;
 			SString ln_path;
@@ -4782,4 +4686,3 @@ int PPALDD_UhttStyloDevice::Set(long iterId, int commit)
 		r_blk.Clear();
 	return ok;
 }
-

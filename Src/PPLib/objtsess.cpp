@@ -531,8 +531,7 @@ int  FASTCALL PPObjTSession::GetStatusSymbol(int status, SString & rBuf)
 	return ok;
 }
 
-//static
-int FASTCALL PPObjTSession::GetSessionKind(const TSessionTbl::Rec & rRec, int superSessAsSimple)
+/*static*/int FASTCALL PPObjTSession::GetSessionKind(const TSessionTbl::Rec & rRec, int superSessAsSimple)
 {
 	int    kind = TSESK_SESSION;
 	if(rRec.Flags & TSESF_IDLE)
@@ -548,14 +547,12 @@ int FASTCALL PPObjTSession::GetSessionKind(const TSessionTbl::Rec & rRec, int su
 	return kind;
 }
 
-// static
-long SLAPI PPObjTSession::GetContinuation(const TSessionTbl::Rec * pRec)
+/*static*/long SLAPI PPObjTSession::GetContinuation(const TSessionTbl::Rec * pRec)
 {
 	return (pRec->StDt && pRec->FinDt) ? diffdatetimesec(pRec->FinDt, pRec->FinTm, pRec->StDt, pRec->StTm) : 0;
 }
 
-// static
-int SLAPI PPObjTSession::IsIdleInsignificant(const TSessionTbl::Rec * pRec, int prevStatus)
+/*static*/int SLAPI PPObjTSession::IsIdleInsignificant(const TSessionTbl::Rec * pRec, int prevStatus)
 {
 	int    ok = 0;
 	if(prevStatus != TSESST_CLOSED && pRec->Status == TSESST_CLOSED && pRec->Flags & TSESF_IDLE) {
@@ -570,8 +567,7 @@ int SLAPI PPObjTSession::IsIdleInsignificant(const TSessionTbl::Rec * pRec, int 
 	return ok;
 }
 
-// static
-int SLAPI PPObjTSession::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
+/*static*/int SLAPI PPObjTSession::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 {
 	int    ok = -1;
 	if(pFilt) {
@@ -601,8 +597,7 @@ int SLAPI PPObjTSession::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 	return ok;
 }
 
-// static
-void * FASTCALL PPObjTSession::MakeExtraParam(PPID superSessID, PPID prcID, int kind)
+/*static*/void * FASTCALL PPObjTSession::MakeExtraParam(PPID superSessID, PPID prcID, int kind)
 {
 	long   param = 0;
 	if(kind == TSESK_SUPERSESS) {
@@ -1074,8 +1069,7 @@ int SLAPI PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl
 					if(!pOprNo || *pOprNo == 0) {
 						if(pRec->Serial[0]) {
 							//
-							// Проследим, чтобы строка остатка в течении одной сессии по одному серийному номеру
-							// была единственной
+							// Проследим, чтобы строка остатка в течении одной сессии по одному серийному номеру была единственной
 							//
 							TSessLineTbl::Rec rest_rec;
 							if(P_Tbl->SearchSerial(pRec->Serial, pRec->TSessID, 0, TSessionCore::sserRest, &rest_rec) > 0)
@@ -2164,6 +2158,15 @@ int SLAPI PPObjTSession::CreateOnlineByLinkBill(PPID * pSessID, const ProcessorT
 int SLAPI PPObjTSession::DeleteObj(PPID id)
 {
 	return CheckRights(PPR_DEL) ? P_Tbl->Put(&id, 0, 0) : 0;
+}
+
+int SLAPI PPObjTSession::CheckPossibilityToInsertLine(const TSessionTbl::Rec & rSessRec)
+{
+	int   ok = 1;
+	if(!(rSessRec.Flags & TSESF_PLAN) && !(GetConfig().Flags & PPTSessConfig::fAllowLinesInPendingSessions))
+		THROW_PP(oneof2(rSessRec.Status, TSESST_INPROCESS, TSESST_CLOSED), PPERR_ADDTOINACTSESS);
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPObjTSession::IsTimingTech(const TechTbl::Rec * pTechRec, double * pBaseRatio)

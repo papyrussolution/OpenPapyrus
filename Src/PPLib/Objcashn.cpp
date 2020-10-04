@@ -403,9 +403,7 @@ int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
 //
 // Logic locking
 //
-
-// static
-int SLAPI PPObjCashNode::IsExtCashNode(PPID nodeID, PPID * pParentID)
+/*static*/int SLAPI PPObjCashNode::IsExtCashNode(PPID nodeID, PPID * pParentID)
 {
 	Reference * p_ref = PPRef;
 	int    is_ext_cash_node = 0;
@@ -422,8 +420,7 @@ int SLAPI PPObjCashNode::IsExtCashNode(PPID nodeID, PPID * pParentID)
 	return is_ext_cash_node;
 }
 
-// static
-int SLAPI PPObjCashNode::IsLocked(PPID id)
+/*static*/int SLAPI PPObjCashNode::IsLocked(PPID id)
 {
 	int    ok = -1;
 	PPID   parent_id = 0;
@@ -439,8 +436,7 @@ int SLAPI PPObjCashNode::IsLocked(PPID id)
 	return ok;
 }
 
-// static
-int SLAPI PPObjCashNode::Lock(PPID id)
+/*static*/int SLAPI PPObjCashNode::Lock(PPID id)
 {
 	int    ok = -1;
 	int    no_locking = 0;
@@ -452,8 +448,7 @@ int SLAPI PPObjCashNode::Lock(PPID id)
 	return ok;
 }
 
-// static
-int SLAPI PPObjCashNode::Unlock(PPID id)
+/*static*/int SLAPI PPObjCashNode::Unlock(PPID id)
 {
 	SString  added_msg_str = DS.GetTLA().AddedMsgString;
 	int    ok = DS.GetSync().ReleaseMutex(PPOBJ_CASHNODE, id);
@@ -516,8 +511,7 @@ StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	return p_ary;
 }
 
-// static
-PPID SLAPI PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int isAny)
+/*static*/PPID SLAPI PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int isAny)
 {
 	int    valid_data = 0;
 	PPID   id = -1;

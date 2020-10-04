@@ -24,8 +24,7 @@ static StrAssocArray * SLAPI MakeDBDivList(int skipCurrent)
 	return p_list;
 }
 
-// static
-PPID SLAPI PPObjDBDiv::Select(int skipCurrent, int * pSingle)
+/*static*/PPID SLAPI PPObjDBDiv::Select(int skipCurrent, int * pSingle)
 {
 	PPID   id = 0;
 	ListWindow * p_lw = 0;

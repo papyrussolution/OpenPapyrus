@@ -684,8 +684,7 @@ int SLAPI AlbatrosTagParser::ProcessNext(AlbatrosOrder * pOrder, const char * pP
 	return Run(pPath);
 }
 
-// static
-int SLAPI AlbatrosTagParser::ResolveClientID(PPID inID, PPID opID, AlbatrosOrderHeader * pHead, PPID * pOutID, int use_ta)
+/*static*/int SLAPI AlbatrosTagParser::ResolveClientID(PPID inID, PPID opID, AlbatrosOrderHeader * pHead, PPID * pOutID, int use_ta)
 {
 	int    ok = -1, ta = 0;
 	if(pHead && inID > 0) {

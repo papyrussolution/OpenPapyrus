@@ -81,8 +81,7 @@ PPAccountPacket & SLAPI PPAccountPacket::Z()
 
 #if 0 // @v9.0.4 {
 
-// static
-void SLAPI AccountCore::GenerateCode(PPAccount & rRec)
+/*static*/void SLAPI AccountCore::GenerateCode(PPAccount & rRec)
 {
 	char   buf[48];
 	Acct   acct;

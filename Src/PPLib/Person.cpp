@@ -1281,8 +1281,7 @@ int SLAPI PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	return ok;
 }
 
-// static
-int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec, const size_t recLen, PPELinkArray * pList)
+/*static*/int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec, const size_t recLen, PPELinkArray * pList)
 {
 	int    ok = -1;
 	if(pRec && pList) {
@@ -1369,8 +1368,7 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 	return ok;
 }
 
-// static
-int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
+/*static*/int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
@@ -1394,8 +1392,7 @@ int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 	return ok;
 }
 
-// static
-int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
+/*static*/int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 {
 	int    ok = 1;
 	uint   i;

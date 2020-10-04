@@ -6,21 +6,17 @@
 #ifndef SOAP_TYPE_string
 	#define SOAP_TYPE_string (4)
 #endif
-
 /*
 SOAP_FMAC2 soap_ssl_client_context(struct soap * soap, unsigned short flags, const char * keyfile,
-	const char * password, const char * cafile, const char * capath,
-	const char * randfile)
+	const char * password, const char * cafile, const char * capath, const char * randfile)
 */
-
 int SLAPI gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile)
 {
 	int    ok = 1;
 	soap_ssl_init();
 	const SGlobalSecureConfig & r_cfg = SLS.GetGlobalSecureConfig();
 	long  soaperr = soap_ssl_client_context(pSoap,
-		SOAP_SSL_REQUIRE_CLIENT_AUTHENTICATION|
-		SOAP_SSL_REQUIRE_SERVER_AUTHENTICATION|SOAP_SSL_SKIP_HOST_CHECK|SOAP_SSL_ALLOW_EXPIRED_CERTIFICATE,
+		SOAP_SSL_REQUIRE_CLIENT_AUTHENTICATION|SOAP_SSL_REQUIRE_SERVER_AUTHENTICATION|SOAP_SSL_SKIP_HOST_CHECK|SOAP_SSL_ALLOW_EXPIRED_CERTIFICATE,
 		0/*pKeyfile*/, /* keyfile: required only when client must authenticate to server (see SSL docs on how to obtain this file) */
 		0, /* password to read the key file (not used with GNUTLS) */
 		r_cfg.CaFile, /* cacert file to store trusted certificates (needed to verify server) */

@@ -500,8 +500,7 @@ int PPBizScoreWindow::DoCommand(TPoint p)
 	return ok;
 }
 
-// static
-INT_PTR CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PPBizScoreWindow * p_win = static_cast<PPBizScoreWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
@@ -1187,8 +1186,7 @@ void PPDesktop::Unadvise()
 		DS.Unadvise(Cookies.at(i));
 }
 
-// static
-int PPDesktop::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int PPDesktop::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	if(pEv && pEv->ObjType) {
@@ -1269,8 +1267,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 	ReleaseDC(H(), hdc);
 }
 
-// static
-PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopList) // will not used in future @erik
+/*static*/PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopList) // will not used in future @erik
 {
 	PPCommandMngr * p_mgr = 0;
 	THROW_INVARG(pDesktopList);
@@ -1282,8 +1279,7 @@ PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopL
 	return p_mgr;
 }
 
-// static
-int PPDesktop::GetDeskName(long deskId, SString & rDeskName)
+/*static*/int PPDesktop::GetDeskName(long deskId, SString & rDeskName)
 {
 	int    ok = -1;
 	DbProvider * p_dict = CurDict;
@@ -1713,8 +1709,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 	clearEvent(event);
 }
 
-// static
-LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PPDesktop * p_desk = static_cast<PPDesktop *>(TView::GetWindowUserData(hWnd));
 	LPCREATESTRUCT initData;
@@ -2167,8 +2162,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 	return ok;
 }
 
-// static
-int PPDesktop::RegWindowClass(HINSTANCE hInst)
+/*static*/int PPDesktop::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
@@ -2182,8 +2176,7 @@ int PPDesktop::RegWindowClass(HINSTANCE hInst)
 	return ::RegisterClassEx(&wc);
 }
 
-// static
-int PPDesktop::CreateDefault(long * pID)
+/*static*/int PPDesktop::CreateDefault(long * pID)
 {
 	int    ok = -1;
 	long   desk_id = 0;
@@ -2222,8 +2215,7 @@ int PPDesktop::CreateDefault(long * pID)
 	return ok;
 }
 
-// static
-int PPDesktop::Open(long desktopID, int createIfZero)
+/*static*/int PPDesktop::Open(long desktopID, int createIfZero)
 {
 	int    ok = cmError, r = 0;
 	PPDesktop * p_v = 0;

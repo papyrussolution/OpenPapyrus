@@ -8,9 +8,6 @@
 
 /*static*/int PPViewInventory::DynFuncInvLnWrOff = 0;
 
-#define GRP_GOODS 1
-#define GRP_QTTY  2
-
 IMPLEMENT_PPFILT_FACTORY(Inventory); SLAPI InventoryFilt::InventoryFilt() : PPBaseFilt(PPFILT_INVENTORY, 0, 1)
 {
 	SetFlatChunk(offsetof(InventoryFilt, ReserveStart),
@@ -30,11 +27,10 @@ void FASTCALL InventoryFilt::SetSingleBillID(PPID billID) { BillList.SetSingle(b
 PPID SLAPI InventoryFilt::GetSingleBillID() const { return BillList.GetSingle(); }
 int  SLAPI InventoryFilt::HasSubst() const { return BIN(!!Sgb || Sgg); }
 
-int SLAPI InventoryFilt::Setup(PPID billID)
+void SLAPI InventoryFilt::Setup(PPID billID)
 {
 	Init(1, 0);
 	SetSingleBillID(billID);
-	return 1;
 }
 
 SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0),
@@ -57,10 +53,13 @@ int  SLAPI PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpd
 
 class InventoryFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(InventoryFilt);
+	enum {
+		ctlgroupGoods = 1
+	};
 public:
 	InventoryFiltDialog() : TDialog(DLG_INVDIFFLT)
 	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_INVDIFFLT_GRP, CTLSEL_INVDIFFLT_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_INVDIFFLT_GRP, CTLSEL_INVDIFFLT_GOODS));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -72,7 +71,7 @@ public:
 			rec.GrpID   = Data.GoodsGrpID;
 			rec.GoodsID = Data.GoodsID;
 			rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
-			setGroupData(GRP_GOODS, &rec);
+			setGroupData(ctlgroupGoods, &rec);
 		}
 		{
 			const PPID strg_loc_id = Data.StorageLocID;
@@ -104,7 +103,7 @@ public:
 		long   f = 0;
 		{
 			GoodsCtrlGroup::Rec rec;
-			getGroupData(GRP_GOODS, &rec);
+			getGroupData(ctlgroupGoods, &rec);
 			Data.GoodsGrpID = rec.GrpID;
 			Data.GoodsID    = rec.GoodsID;
 			//getCtrlData(CTLSEL_INVDIFFLT_GRP, &Data.GoodsGrpID);
@@ -1003,14 +1002,18 @@ int QuantityCtrlGroup::getData(TDialog * pDlg, void * pData)
 
 class InventoryItemDialog : public TDialog {
 	DECL_DIALOG_DATA(InventoryTbl::Rec);
+	enum {
+		ctlgroupGoods = 1,
+		ctlgroupQtty  = 2
+	};
 public:
 	InventoryItemDialog(PPObjBill * pBObj, const PPBillPacket * pPack, const PPInventoryOpEx * pInvOpEx, int existsGoodsOnly) :
 		TDialog(DLG_INVITEM), P_BObj(pBObj), P_Pack(pPack), StockRest(0.0), StockPrice(0.0), St(0), Packs(0.0), Price(0.0)
 	{
 		InvOpEx = *pInvOpEx;
 		SETFLAG(St, stExistsGoodsOnly, existsGoodsOnly);
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_INVITEM_GOODSGRP, CTLSEL_INVITEM_GOODS));
-		addGroup(GRP_QTTY,  new QuantityCtrlGroup(CTL_INVITEM_UNITPERPACK, CTL_INVITEM_PACKS, CTL_INVITEM_QUANTITY));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_INVITEM_GOODSGRP, CTLSEL_INVITEM_GOODS));
+		addGroup(ctlgroupQtty,  new QuantityCtrlGroup(CTL_INVITEM_UNITPERPACK, CTL_INVITEM_PACKS, CTL_INVITEM_QUANTITY));
 		disableCtrls(1, CTL_INVITEM_STOCKREST, CTL_INVITEM_DIFFREST, 0);
 		SETFLAG(St, stUseSerial, InvOpEx.Flags & INVOPF_USESERIAL);
 		{
@@ -1031,7 +1034,7 @@ public:
 		GoodsCtrlGroup::Rec gcg_rec(0, Data.GoodsID, P_Pack->Rec.LocID, GoodsCtrlGroup::disableEmptyGoods);
 		if(St & stExistsGoodsOnly)
 			gcg_rec.Flags |= GoodsCtrlGroup::existsGoodsOnly;
-		setGroupData(GRP_GOODS, &gcg_rec);
+		setGroupData(ctlgroupGoods, &gcg_rec);
 		if(Data.GoodsID) {
 			disableCtrls(1, CTLSEL_INVITEM_GOODS, CTLSEL_INVITEM_GOODSGRP, 0);
 			replyGoodsSelection();
@@ -1050,8 +1053,8 @@ public:
 		int    ok = 1;
 		GoodsCtrlGroup::Rec gcg_rec;
 		QuantityCtrlGroup::Rec qcg_rec;
-		THROW(getGroupData(GRP_GOODS, &gcg_rec));
-		THROW(getGroupData(GRP_QTTY, &qcg_rec));
+		THROW(getGroupData(ctlgroupGoods, &gcg_rec));
+		THROW(getGroupData(ctlgroupQtty, &qcg_rec));
 		Data.GoodsID = gcg_rec.GoodsID;
 		getCtrlString(CTL_INVITEM_SERIAL, Serial);
 		Data.UnitPerPack = qcg_rec.UnitPerPack;
@@ -1180,7 +1183,7 @@ IMPL_HANDLE_EVENT(InventoryItemDialog)
 			if(!(St & stLockUpdateByInp)) {
 				St |= stLockUpdateByInp;
 				QuantityCtrlGroup::Rec qcg_rec;
-				getGroupData(GRP_QTTY, &qcg_rec);
+				getGroupData(ctlgroupQtty, &qcg_rec);
 				setCtrlReal(CTL_INVITEM_DIFFREST, qcg_rec.Qtty - StockRest);
 				St &= ~stLockUpdateByInp;
 			}
@@ -1196,12 +1199,13 @@ void InventoryItemDialog::setupQuantity()
 	QuantityCtrlGroup::Rec qcg_rec;
 	qcg_rec.UnitPerPack = Data.UnitPerPack;
 	qcg_rec.Qtty = Data.Quantity;
-	setGroupData(GRP_QTTY, &qcg_rec);
+	setGroupData(ctlgroupQtty, &qcg_rec);
 }
 
 int SLAPI PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, const char * pSerial, double initQtty, int accelMode)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	int    accel_mode = 0;
 	int    skip_dialog = 0;
 	int    was_goods_replaced = 0;

@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 // Program Interface Paradigm
 //
 #include <slib.h>
@@ -46,6 +46,67 @@ static char * FASTCALL format_uuid_part(const uint8 * pData, size_t numBytes, in
 		}
 	return pBuf;
 }
+
+/* @construction
+static void GUID_to_InnerSUID27(const S_GUID_Base & rS, SString & rBuf)
+{
+	rBuf.Z();
+	const char * p_base = "ABCDEFGHIJKLMNOPQRSTUV0123456789";
+	const char * p_tail_size_base = "WXYZ";
+	char   temp_buf[64];
+	uint32 c;
+	uint i = 0;
+	for(; i < (sizeof(rS) * 8) / 5; i++) {
+		c = getbits(&rS, sizeof(rS), (i*5), 5); assert(c < 32); temp_buf[i] = p_base[c];
+	}
+	const uint tail_size = ((sizeof(rS) * 8) % 5);
+	assert(tail_size == 3);
+	c = getbits(&rS, sizeof(rS), (i*5), tail_size); assert(c < 32); 
+	temp_buf[i++] = p_tail_size_base[tail_size-1];
+	temp_buf[i++] = p_base[c];
+	temp_buf[i] = 0;
+	assert(i == 27);
+	assert(i == sstrlen(temp_buf));
+	//
+	S_GUID debug_guid;
+	{
+		// @debug
+		uint32 debug_buf[64];
+		memzero(debug_buf, sizeof(debug_buf));
+		uint j = 0;
+		for(; j < 25; j++) {
+			uint v = temp_buf[j];
+			assert((v >= 'A' && v <= 'V') || (v >= '0' && v <= '9'));
+			c = (v >= 'A' && v <= 'V') ? (v - 'A') : (v - '0' + ('V'-'A'+1));
+			assert(c < 32);
+			if(c & 0x01)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+0);
+			if(c & 0x02)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+1);
+			if(c & 0x04)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+2);
+			if(c & 0x08)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+3);
+			if(c & 0x10)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+4);
+		}
+		assert(temp_buf[j++] == 'Y');
+		{
+			uint v = temp_buf[j];
+			assert((v >= 'A' && v <= 'V') || (v >= '0' && v <= '9'));
+			c = (v >= 'A' && v <= 'V') ? (v - 'A') : (v - '0' + ('V'-'A'+1));
+			assert(c < 32);
+			if(c & 0x01)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+0);
+			if(c & 0x02)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+1);
+			if(c & 0x04)
+				setbit32(debug_buf, sizeof(debug_buf), (j * 5)+2);
+		}
+		memcpy(&debug_guid, debug_buf, sizeof(debug_guid));
+	}
+	rBuf = temp_buf;
+}*/
 
 SString & S_GUID_Base::ToStr(long fmt__, SString & rBuf) const
 {
@@ -105,6 +166,7 @@ SString & S_GUID_Base::ToStr(long fmt__, SString & rBuf) const
 				}
 			}
 			break;
+		// @construction case fmtSUID27: GUID_to_InnerSUID27(*this, rBuf); break;
 	}
 	return rBuf;
 }

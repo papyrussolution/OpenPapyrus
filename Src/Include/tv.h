@@ -2939,7 +2939,7 @@ private:
 	//   3 - разместить в той же пропорции от краев диапазона, 4 - растянуть на весь диапазон
 	//
 	void   RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord, long ctrlSize, int recalcParam);
-	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry * pCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim); // @v9.8.4 TSArray-->TSVector
+	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, const ResizeParamEntry & rCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim); // @v9.8.4 TSArray-->TSVector
 	int    Helper_ToResizeDlg(const RECT * pNewDlgRect);
 	//
 	// Descr: Вспомогательная функция, испольуемая при формировании диалога из ресурсов
@@ -3011,8 +3011,6 @@ public:
 	static LPCTSTR WndClsName;
 protected:
 	DECL_HANDLE_EVENT;
-	// @v9.1.3 virtual int Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	// @v9.6.2 virtual void   draw();
 	int    Implement_GetText();
 	void   Implement_Draw();
 
@@ -3069,8 +3067,6 @@ private:
 	uint   VirtButtonId;
 };
 
-#define TIMAGEVIEW_USE_FIG // @v9.5.6
-
 class TImageView : public TView {
 public:
 	TImageView(const TRect & rBounds, const char * pFigSymb);
@@ -3080,11 +3076,8 @@ private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
 	SDrawFigure * P_Fig;
-	SString FigSymb; // @v9.5.6 Символ векторной фигуры для отображения //
-	SColor ReplacedColor; // @v9.6.5 Замещаемый цвет в векторном изображении
-#ifndef TIMAGEVIEW_USE_FIG
-	void * P_Image_GDIP;
-#endif
+	SString FigSymb;      // Символ векторной фигуры для отображения //
+	SColor ReplacedColor; // Замещаемый цвет в векторном изображении
 };
 
 class TButton : public TView {
@@ -3175,21 +3168,11 @@ public:
 protected:
 	TView * link;
 };
-//
-// msgbox {
-//
+
 ushort messageBox(const char *msg, ushort aOptions);
-// @v9.3.4 ushort messageBox(ushort aOptions, const char *msg, ...);
-// @v9.3.4 ushort messageBoxRect(const TRect &r, ushort aOptions, const char *msg, ...);
-// @v9.3.4 ushort inputBox(const char *Title, const char *aLabel, char *s, uchar limit);
-// @v9.3.4 ushort inputBoxRect(const TRect &bounds, const char *title, const char *aLabel, char *s, uchar limit);
-//
-// } msgbox
-//
-// void * message(TView * receiver, ushort what, ushort command, void * infoPtr);
 
 #define CLUSTER_ID(x) ((x)&4095)
-#define BUTTON_ID(x) ((x)>>12)
+#define BUTTON_ID(x)  ((x)>>12)
 #define MAKE_BUTTON_ID(id,bid) ((id)+((bid)<<12))
 
 #define DEFAULT_MAX_LEN  128

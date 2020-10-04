@@ -168,7 +168,7 @@ int SLAPI PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * 
 				p++;
 			char   param_buf[64];
 			const  char * p_delim = sstrchr(pStr+p, ',');
-			size_t delim_dist = p_delim ? (size_t)(p_delim - pStr) : (size_t)MAXSHORT;
+			size_t delim_dist = p_delim ? (p_delim - pStr) : static_cast<size_t>(MAXSHORT);
 			char * p_dest = param_buf;
 			while(pStr[p] != 0 && p != delim_dist && pStr[p] != ')')
 				*p_dest++ = pStr[p++];
@@ -260,8 +260,6 @@ SLAPI CalcPriceParam::CalcPriceParam()
 	THISZERO();
 }
 
-//static const char * WrParam_CalcPriceParam = "CalcPriceParam";
-
 int SLAPI CalcPriceParam::Save() const
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
@@ -291,7 +289,7 @@ int SLAPI CalcPriceParam::Restore()
 			if(ss.get(&pos, temp_buf)) {
 				RoundPrec = R4(satof(temp_buf)); // @v10.7.9 atof-->satof
 				if(ss.get(&pos, temp_buf)) {
-					RoundDir = (int16)atol(temp_buf);
+					RoundDir = static_cast<int16>(atol(temp_buf));
 					if(ss.get(&pos, temp_buf)) {
 						SETFLAG(Flags, fRoundVat, atol(temp_buf));
 						if(ss.get(&pos, temp_buf))
@@ -316,17 +314,14 @@ ulong SLAPI GetMinVatDivisor(double rate, uint prec)
 {
 	assert(prec >= 0 && prec <= 6);
 	const double _mult = fpow10i(prec + 2);
-    ulong  r = (ulong)(R6(rate) * _mult);
-    ulong  d = (ulong)((1.0 + R6(rate)) * _mult);
+    const ulong  r = static_cast<ulong>(R6(rate) * _mult);
+    const ulong  d = static_cast<ulong>((1.0 + R6(rate)) * _mult);
     UlongArray r_list, d_list;
     Factorize(r, &r_list);
     Factorize(d, &d_list);
     MutualReducePrimeMultiplicators(d_list, r_list, 0);
 	ulong v = 1;
-	{
-		for(uint i = 0; i < d_list.getCount(); i++)
-			v *= d_list.at(i);
-	}
+	SForEachVectorItem(d_list, i) { v *= d_list.at(i); }
 	return v;
 }
 //
@@ -375,7 +370,7 @@ double SLAPI CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pV
 		// Расчет цены кратной ставке НДС
 		//
 		ulong  div = GetMinVatDivisor(fdiv100r(vat_rate), 2);
-		ulong  p   = (ulong)R0i(price * 100.0);
+		ulong  p   = static_cast<ulong>(R0i(price * 100.0));
 		ulong  n   = p / div;
 		ulong  mod = p % div;
 		if(mod != 0)
@@ -406,12 +401,50 @@ double SLAPI CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pV
 //
 //
 class CalcPriceDialog : public TDialog {
+	DECL_DIALOG_DATA(CalcPriceParam);
 public:
 	CalcPriceDialog() : TDialog(DLG_CALCPRICE)
 	{
 	}
-	int    setDTS(const CalcPriceParam *);
-	int    getDTS(CalcPriceParam *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SETIFZ(Data.VaPercent, DS.GetTLA().Lid.VaPercent);
+		int    is_price_wo_taxes = 0;
+		Goods2Tbl::Rec goods_rec;
+		if(Data.GoodsID && GObj.Search(Data.GoodsID, &goods_rec) > 0) {
+			setCtrlData(CTL_CALCPRICE_GOODS, goods_rec.Name);
+			is_price_wo_taxes = BIN(goods_rec.Flags & GF_PRICEWOTAXES);
+		}
+		setCtrlData(CTL_CALCPRICE_COST, &Data.Cost);
+		setCtrlData(CTL_CALCPRICE_PERCENT, &Data.VaPercent);
+		SETFLAG(Data.Flags, CalcPriceParam::fExclTaxes, is_price_wo_taxes);
+		AddClusterAssoc(CTL_CALCPRICE_EXCLTAXES, 0, CalcPriceParam::fExclTaxes);
+		AddClusterAssoc(CTL_CALCPRICE_EXCLTAXES, 1, CalcPriceParam::fVatAboveAddition);
+		SetClusterData(CTL_CALCPRICE_EXCLTAXES, Data.Flags);
+		setCtrlData(CTL_CALCPRICE_PREC, &Data.RoundPrec);
+		AddClusterAssocDef(CTL_CALCPRICE_ROUND, 0, 0);
+		AddClusterAssoc(CTL_CALCPRICE_ROUND, 1, -1);
+		AddClusterAssoc(CTL_CALCPRICE_ROUND, 2, +1);
+		SetClusterData(CTL_CALCPRICE_ROUND, Data.RoundDir);
+		AddClusterAssoc(CTL_CALCPRICE_ROUNDVAT, 0, CalcPriceParam::fRoundVat);
+		SetClusterData(CTL_CALCPRICE_ROUNDVAT, Data.Flags);
+		if(!(Data.Flags & CalcPriceParam::fCostWoVat))
+			setStaticText(CTL_CALCPRICE_COSTWOVAT, 0);
+		SetupPrice();
+		disableCtrl(CTL_CALCPRICE_COST, 1);
+		selectCtrl(CTL_CALCPRICE_PERCENT);
+		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CALCPRICE_PERCENT));
+		CALLPTRMEMB(p_il, selectAll(1));
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		SetupPrice();
+		DS.GetTLA().Lid.VaPercent = Data.VaPercent;
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 	//
 	// Descr: Считывает параметры расчета из полей диалога и рассчитывает
 	//   цену исходя из этих параметров. Наконец, устанавливает расчитанную цену
@@ -420,99 +453,48 @@ public:
 	//   !0 - если цена в поле изменилась (разница между старой и новой ценой более 0.005)
 	//   0 -  в противном случае.
 	//
-	int    setupPrice();
+	int    SetupPrice()
+	{
+		long   temp_long = 0;
+		double old_price = getCtrlReal(CTL_CALCPRICE_PRICE);
+		double cost = getCtrlReal(CTL_CALCPRICE_COST);
+		getCtrlData(CTL_CALCPRICE_PERCENT, &Data.VaPercent);
+		GetClusterData(CTL_CALCPRICE_EXCLTAXES, &Data.Flags);
+		getCtrlData(CTL_CALCPRICE_PREC,        &Data.RoundPrec);
+		GetClusterData(CTL_CALCPRICE_ROUNDVAT, &Data.Flags);
+		GetClusterData(CTL_CALCPRICE_ROUND, &(temp_long = 0));
+		Data.RoundDir = (int16)temp_long;
+		double vat_rate = 0.0, vat_sum = 0.0, excise = 0.0;
+		double price = Data.Calc(cost, &vat_rate, &vat_sum, &excise);
+		setCtrlData(CTL_CALCPRICE_EXCISE,  &excise);
+		setCtrlData(CTL_CALCPRICE_VATRATE, &vat_rate);
+		setCtrlData(CTL_CALCPRICE_VATSUM,  &vat_sum);
+		setCtrlData(CTL_CALCPRICE_PRICE,   &price);
+		Data.Price = price;
+		return BIN(fabs(price - old_price) > 0.005);
+	}
 private:
-	DECL_HANDLE_EVENT;
-
-	PPObjGoods GObj;
-	CalcPriceParam Data;
-};
-
-int CalcPriceDialog::setupPrice()
-{
-	long   temp_long = 0;
-	double old_price = getCtrlReal(CTL_CALCPRICE_PRICE);
-	double cost = getCtrlReal(CTL_CALCPRICE_COST);
-	getCtrlData(CTL_CALCPRICE_PERCENT, &Data.VaPercent);
-	GetClusterData(CTL_CALCPRICE_EXCLTAXES, &Data.Flags);
-	getCtrlData(CTL_CALCPRICE_PREC,        &Data.RoundPrec);
-	GetClusterData(CTL_CALCPRICE_ROUNDVAT, &Data.Flags);
-	GetClusterData(CTL_CALCPRICE_ROUND, &(temp_long = 0));
-	Data.RoundDir = (int16)temp_long;
-	double vat_rate = 0.0, vat_sum = 0.0, excise = 0.0;
-	double price = Data.Calc(cost, &vat_rate, &vat_sum, &excise);
-	setCtrlData(CTL_CALCPRICE_EXCISE,  &excise);
-	setCtrlData(CTL_CALCPRICE_VATRATE, &vat_rate);
-	setCtrlData(CTL_CALCPRICE_VATSUM,  &vat_sum);
-	setCtrlData(CTL_CALCPRICE_PRICE,   &price);
-	Data.Price = price;
-	return BIN(fabs(price - old_price) > 0.005);
-}
-
-int CalcPriceDialog::setDTS(const CalcPriceParam * pData)
-{
-	Data = *pData;
-	SETIFZ(Data.VaPercent, DS.GetTLA().Lid.VaPercent);
-
-	int    is_price_wo_taxes = 0;
-	Goods2Tbl::Rec goods_rec;
-	if(Data.GoodsID && GObj.Search(Data.GoodsID, &goods_rec) > 0) {
-		setCtrlData(CTL_CALCPRICE_GOODS, goods_rec.Name);
-		is_price_wo_taxes = BIN(goods_rec.Flags & GF_PRICEWOTAXES);
-	}
-	setCtrlData(CTL_CALCPRICE_COST, &Data.Cost);
-	setCtrlData(CTL_CALCPRICE_PERCENT, &Data.VaPercent);
-	SETFLAG(Data.Flags, CalcPriceParam::fExclTaxes, is_price_wo_taxes);
-	AddClusterAssoc(CTL_CALCPRICE_EXCLTAXES, 0, CalcPriceParam::fExclTaxes);
-	AddClusterAssoc(CTL_CALCPRICE_EXCLTAXES, 1, CalcPriceParam::fVatAboveAddition);
-	SetClusterData(CTL_CALCPRICE_EXCLTAXES, Data.Flags);
-
-	setCtrlData(CTL_CALCPRICE_PREC, &Data.RoundPrec);
-	AddClusterAssocDef(CTL_CALCPRICE_ROUND, 0, 0);
-	AddClusterAssoc(CTL_CALCPRICE_ROUND, 1, -1);
-	AddClusterAssoc(CTL_CALCPRICE_ROUND, 2, +1);
-	SetClusterData(CTL_CALCPRICE_ROUND, Data.RoundDir);
-	AddClusterAssoc(CTL_CALCPRICE_ROUNDVAT, 0, CalcPriceParam::fRoundVat);
-	SetClusterData(CTL_CALCPRICE_ROUNDVAT, Data.Flags);
-	if(!(Data.Flags & CalcPriceParam::fCostWoVat))
-		setStaticText(CTL_CALCPRICE_COSTWOVAT, 0);
-
-	setupPrice();
-	disableCtrl(CTL_CALCPRICE_COST, 1);
-	selectCtrl(CTL_CALCPRICE_PERCENT);
-	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CALCPRICE_PERCENT));
-	CALLPTRMEMB(p_il, selectAll(1));
-	return 1;
-}
-
-int CalcPriceDialog::getDTS(CalcPriceParam * pData)
-{
-	setupPrice();
-	DS.GetTLA().Lid.VaPercent = Data.VaPercent;
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
-IMPL_HANDLE_EVENT(CalcPriceDialog)
-{
-	if(event.isCmd(cmOK) && setupPrice()) {
-		selectCtrl(CTL_CALCPRICE_PRICE);
-		clearEvent(event);
-	}
-	TDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_CALCPRICE_EXCLTAXES) || event.isClusterClk(CTL_CALCPRICE_ROUND) ||
-		event.isClusterClk(CTL_CALCPRICE_ROUNDVAT))
-		setupPrice();
-	else if(TVBROADCAST && (TVCMD == cmReleasedFocus || TVCMD == cmCommitInput)) {
-		if(event.isCtlEvent(CTL_CALCPRICE_PERCENT) || event.isCtlEvent(CTL_CALCPRICE_PREC))
-			setupPrice();
+	DECL_HANDLE_EVENT
+	{
+		if(event.isCmd(cmOK) && SetupPrice()) {
+			selectCtrl(CTL_CALCPRICE_PRICE);
+			clearEvent(event);
+		}
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_CALCPRICE_EXCLTAXES) || event.isClusterClk(CTL_CALCPRICE_ROUND) || event.isClusterClk(CTL_CALCPRICE_ROUNDVAT))
+			SetupPrice();
+		else if(TVBROADCAST && (TVCMD == cmReleasedFocus || TVCMD == cmCommitInput)) {
+			if(event.isCtlEvent(CTL_CALCPRICE_PERCENT) || event.isCtlEvent(CTL_CALCPRICE_PREC))
+				SetupPrice();
+			else
+				return;
+		}
 		else
 			return;
+		clearEvent(event);
 	}
-	else
-		return;
-	clearEvent(event);
-}
+	PPObjGoods GObj;
+};
 
 int SLAPI CalcPrice(CalcPriceParam * pParam)
 {
@@ -877,8 +859,11 @@ PosPaymentBlock & PosPaymentBlock::Init(const CPosProcessor * pCpp)
 {
 	assert(pCpp);
 	Z();
-	pCpp->CalcTotal(&Total, &Discount);
+	const CPosProcessor::CcTotal cct = pCpp->CalcTotal();
+	Total = cct.Amount;
+	Discount = cct.Discount;
 	UsableBonus = pCpp->GetUsableBonus();
+	BonusMaxPart = pCpp->GetBonusMaxPart();
 	return *this;
 }
 
@@ -892,11 +877,8 @@ int PosPaymentBlock::EditDialog2()
 	class PosPaymentDialog2 : public PPListDialog {
 		DECL_DIALOG_DATA(PosPaymentBlock);
 	public:
-		PosPaymentDialog2() : PPListDialog(DLG_CPPAYM2, CTL_CPPAYM_CCRDLIST), Data(0, 0.0), Lock__(0), EnableBonus(1)
+		PosPaymentDialog2() : PPListDialog(DLG_CPPAYM2, CTL_CPPAYM_CCRDLIST), Data(0, 0.0), State(stEnableBonus)
 		{
-			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_CASH, BM_BYCASH);
-			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_BANK, BM_BANKING);
-			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_SCARD, BM_CRDCARD);
 			SString font_face;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
 			SetCtrlFont(CTL_CPPAYM_CSHAMT, font_face, 26);
@@ -904,7 +886,7 @@ int PosPaymentBlock::EditDialog2()
 		}
 		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			TotalConst = Data.CcPl.GetTotal();
 			setCtrlReal(CTL_CPPAYM_AMOUNT, TotalConst);
 			AddClusterAssoc(CTL_CPPAYM_KIND, 0, cpmCash);
@@ -927,56 +909,58 @@ int PosPaymentBlock::EditDialog2()
 				SString text_buf;
 				PPLoadTextS(PPTXT_BONUSAVAILABLE, text_buf).CatDiv(':', 2).Cat(bonus, SFMT_MONEY);
 				SetClusterItemText(CTL_CPPAYM_USEBONUS, 0, text_buf);
-				setCtrlUInt16(CTL_CPPAYM_USEBONUS, BIN(EnableBonus));
+				SETFLAG(State, stEnableBonus, !(ScObj.GetConfig().Flags & PPSCardConfig::fDisableBonusByDefault)); // @v10.9.0
+				ToggleBonusAvailability(LOGIC(State & stEnableBonus), true/*force*/); // @v10.9.0
+				setCtrlUInt16(CTL_CPPAYM_USEBONUS, BIN(State & stEnableBonus));
 			}
 			else
 				showCtrl(CTL_CPPAYM_USEBONUS, 0);
-			// @v9.6.9 {
 			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg >= 0));
 			if(Data.AltCashReg >= 0)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg == 1));
-			// } @v9.6.9
 			updateList(-1);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			double val = 0.0;
-			val = R2(getCtrlReal(CTL_CPPAYM_CSHAMT));
+			double val = R2(getCtrlReal(CTL_CPPAYM_CSHAMT));
 			Data.CcPl.Set(CCAMTTYP_CASH, val);
 			val = R2(getCtrlReal(CTL_CPPAYM_BNKAMT));
 			Data.CcPl.Set(CCAMTTYP_BANK, val);
 			Data.CcPl.Normalize();
-			// @v9.6.9 {
 			if(Data.AltCashReg >= 0) {
 				uint16 v = getCtrlUInt16(CTL_CPPAYM_ALTCASHREG);
 				Data.AltCashReg = BIN(v == 1);
 			}
-			// } @v9.6.9
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	private:
 		DECL_HANDLE_EVENT
 		{
-			if(!event.isCmd(cmOK) || SetupCrdCard() <= 0) {
+			if(!event.isCmd(cmOK) || SetupCrdCard(0) <= 0) {
 				if(event.isCmd(cmLBDblClk)) {
 					if(event.isCtlEvent(CTL_CPPAYM_CCRDLIST)) {
 						long   _id = 0;
 						P_Box->getCurID(&_id);
 						if(_id) {
+							SCardTbl::Rec sc_rec;
 							for(uint i = 0; i < Data.CcPl.getCount(); i++) {
 								const CcAmountEntry & r_entry = Data.CcPl.at(i);
-								if(r_entry.AddedID == _id) {
-									SCardTbl::Rec sc_rec;
-									if(ScObj.Fetch(_id, &sc_rec) > 0) {
-										setCtrlData(CTL_CPPAYM_CRDCARD, sc_rec.Code);
-										double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, 0.0, _id, CCAMTTYP_CASH, CCAMTTYP_BANK);
-										SetupAmount(0);
-										updateList(-1);
-										break;
+								if(r_entry.AddedID == _id && ScObj.Fetch(_id, &sc_rec) > 0) {
+									setCtrlData(CTL_CPPAYM_CRDCARD, sc_rec.Code);
+									double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, 0.0, _id, CCAMTTYP_CASH, CCAMTTYP_BANK);
+									SetupAmount(0);
+									// @v10.9.0 {
+									{
+										setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 0);
+										setCtrlReal(CTL_CPPAYM_CRDCARDAMT, r_entry.Amount);
+										selectCtrl(CTL_CPPAYM_CRDCARDAMT);
 									}
+									// } @v10.9.0 
+									updateList(-1);
+									break;
 								}
 							}
 						}
@@ -987,66 +971,29 @@ int PosPaymentBlock::EditDialog2()
 					if(event.isClusterClk(CTL_CPPAYM_KIND)) {
 						SetupKind();
 					}
-					if(event.isClusterClk(CTL_CPPAYM_USEBONUS)) {
-						uint v = getCtrlUInt16(CTL_CPPAYM_USEBONUS);
-						if(EnableBonus != BIN(v)) {
-							EnableBonus = BIN(v);
-							PPObjSCardSeries scs_obj;
-							int    do_update = 0;
-							for(uint i = 0; i < Data.CcPl.getCount(); i++) {
-								CcAmountEntry & r_entry = Data.CcPl.at(i);
-								if(r_entry.Type == CCAMTTYP_CRDCARD && r_entry.AddedID) {
-									SCardTbl::Rec sc_rec;
-									if(ScObj.Fetch(r_entry.AddedID, &sc_rec) > 0) {
-										PPSCardSeries scs_rec;
-										const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
-										if(scst == scstBonus) {
-											if(EnableBonus) {
-												double sc_rest = GetCrdCardRest(sc_rec.ID);
-												const double max_bonus = (Data.BonusMaxPart < 1.0) ? (TotalConst * Data.BonusMaxPart) : TotalConst;
-												double b = Data.CcPl.GetBonusAmount(&ScObj);
-												double bonus = MIN(sc_rest, (max_bonus - b));
-												double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, bonus, r_entry.AddedID, CCAMTTYP_CASH, CCAMTTYP_BANK);
-											}
-											else {
-												if(Data.Kind == cpmBank)
-													Data.CcPl.ReplaceDontRemove(CCAMTTYP_CRDCARD, 0.0, r_entry.AddedID, CCAMTTYP_BANK, CCAMTTYP_CASH);
-												else
-													Data.CcPl.ReplaceDontRemove(CCAMTTYP_CRDCARD, 0.0, r_entry.AddedID, CCAMTTYP_CASH, CCAMTTYP_BANK);
-											}
-											do_update = 1;
-										}
-									}
-								}
-							}
-							if(do_update) {
-								setCtrlReal(CTL_CPPAYM_CSHAMT, Data.CcPl.Get(CCAMTTYP_CASH));
-								setCtrlReal(CTL_CPPAYM_BNKAMT, Data.CcPl.Get(CCAMTTYP_BANK));
-								setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
-								updateList(-1);
-							}
-						}
+					else if(event.isClusterClk(CTL_CPPAYM_USEBONUS)) {
+						ToggleBonusAvailability(LOGIC(getCtrlUInt16(CTL_CPPAYM_USEBONUS)), false/*force*/);
 					}
 					else if(event.isCmd(cmInputUpdated)) {
-						if(!Lock__) {
+						if(!(State & stLock)) {
 							if(event.isCtlEvent(CTL_CPPAYM_BNKAMT)) {
 								double val = R2(getCtrlReal(CTL_CPPAYM_BNKAMT));
 								double nv = Data.CcPl.Replace(CCAMTTYP_BANK, val, 0, CCAMTTYP_CASH, 0);
 								if(nv != val) {
-									Lock__ = 1;
+									State |= stLock;
 									setCtrlReal(CTL_CPPAYM_BNKAMT, nv);
-									Lock__ = 0;
+									State &= ~stLock;
 								}
 								Data.DeliveryAmt = R2(Data.NoteAmt - Data.CcPl.Get(CCAMTTYP_CASH));
 								SetupAmount(CTL_CPPAYM_BNKAMT);
 							}
 							else if(event.isCtlEvent(CTL_CPPAYM_CSHAMT)) {
-								double val = R2(getCtrlReal(CTL_CPPAYM_CSHAMT));
-								double nv = Data.CcPl.Replace(CCAMTTYP_CASH, val, 0, CCAMTTYP_BANK, 0);
+								const double val = R2(getCtrlReal(CTL_CPPAYM_CSHAMT));
+								const double nv = Data.CcPl.Replace(CCAMTTYP_CASH, val, 0, CCAMTTYP_BANK, 0);
 								if(nv != val) {
-									Lock__ = 1;
+									State |= stLock;
 									setCtrlReal(CTL_CPPAYM_CSHAMT, nv);
-									Lock__ = 0;
+									State &= ~stLock;
 								}
 								Data.DeliveryAmt = R2(Data.NoteAmt - Data.CcPl.Get(CCAMTTYP_CASH));
 								SetupAmount(CTL_CPPAYM_CSHAMT);
@@ -1071,11 +1018,11 @@ int PosPaymentBlock::EditDialog2()
 								Data.DeliveryAmt = R2(val - Data.CcPl.Get(CCAMTTYP_CASH));
 								SetupAmount(CTL_CPPAYM_CASH);
 							}
-							/*
 							else if(event.isCtlEvent(CTL_CPPAYM_CRDCARD)) {
-								SetupCrdCard();
+								State |= stLock;
+								SetupCrdCard(1);
+								State &= ~stLock;
 							}
-							*/
 						}
 					}
 					else
@@ -1124,7 +1071,6 @@ int PosPaymentBlock::EditDialog2()
 			int    ok = 1;
 			SString temp_buf;
 			StringSet ss(SLBColumnDelim);
-			PPObjSCardSeries scs_obj;
 			for(uint i = 0; i < Data.CcPl.getCount(); i++) {
 				const CcAmountEntry & r_entry = Data.CcPl.at(i);
 				if(r_entry.Type == CCAMTTYP_CRDCARD) {
@@ -1134,7 +1080,7 @@ int PosPaymentBlock::EditDialog2()
 						SCardTbl::Rec sc_rec;
 						if(ScObj.Search(r_entry.AddedID, &sc_rec) > 0) {
 							PPSCardSeries scs_rec;
-							const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
+							const int scst = (ScsObj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 							if(oneof2(scst, scstCredit, scstBonus)) {
 								if(!ScRestList.Has(r_entry.AddedID)) {
 									//
@@ -1162,6 +1108,45 @@ int PosPaymentBlock::EditDialog2()
 			CATCHZOK
 			return ok;
 		}
+		void   ToggleBonusAvailability(bool available, bool force)
+		{
+			if(BIN(State & stEnableBonus) != BIN(available) || force) {
+				SETFLAG(State, stEnableBonus, available);
+				int    do_update = 0;
+				for(uint i = 0; i < Data.CcPl.getCount(); i++) {
+					CcAmountEntry & r_entry = Data.CcPl.at(i);
+					if(r_entry.Type == CCAMTTYP_CRDCARD && r_entry.AddedID) {
+						SCardTbl::Rec sc_rec;
+						if(ScObj.Fetch(r_entry.AddedID, &sc_rec) > 0) {
+							PPSCardSeries scs_rec;
+							const int scst = (ScsObj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
+							if(scst == scstBonus) {
+								if(State & stEnableBonus) {
+									double sc_rest = GetCrdCardRest(sc_rec.ID);
+									const double max_bonus = (Data.BonusMaxPart < 1.0) ? (TotalConst * Data.BonusMaxPart) : TotalConst;
+									double b = Data.CcPl.GetBonusAmount(&ScObj);
+									double bonus = MIN(sc_rest, (max_bonus - b));
+									double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, bonus, r_entry.AddedID, CCAMTTYP_CASH, CCAMTTYP_BANK);
+								}
+								else {
+									if(Data.Kind == cpmBank)
+										Data.CcPl.ReplaceDontRemove(CCAMTTYP_CRDCARD, 0.0, r_entry.AddedID, CCAMTTYP_BANK, CCAMTTYP_CASH);
+									else
+										Data.CcPl.ReplaceDontRemove(CCAMTTYP_CRDCARD, 0.0, r_entry.AddedID, CCAMTTYP_CASH, CCAMTTYP_BANK);
+								}
+								do_update = 1;
+							}
+						}
+					}
+				}
+				if(do_update) {
+					setCtrlReal(CTL_CPPAYM_CSHAMT, Data.CcPl.Get(CCAMTTYP_CASH));
+					setCtrlReal(CTL_CPPAYM_BNKAMT, Data.CcPl.Get(CCAMTTYP_BANK));
+					setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
+					updateList(-1);
+				}
+			}
+		}
 		int    EditCcAmount(CcAmountEntry * pData)
 		{
 			int    ok = -1;
@@ -1171,9 +1156,8 @@ int PosPaymentBlock::EditDialog2()
                 if(pData->Type == CCAMTTYP_CRDCARD && pData->AddedID) {
                 	SCardTbl::Rec sc_rec;
 					if(ScObj.Fetch(pData->AddedID, &sc_rec) > 0) {
-						PPObjSCardSeries scs_obj;
 						PPSCardSeries scs_rec;
-						const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
+						const int scst = (ScsObj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 						PPLoadString("card", temp_buf);
 						info_buf.Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Code);
 						if(oneof2(scst, scstCredit, scstBonus)) {
@@ -1212,9 +1196,8 @@ int PosPaymentBlock::EditDialog2()
 			double rest = 0.0;
 			SCardTbl::Rec sc_rec;
 			if(ScObj.Fetch(cardID, &sc_rec) > 0) {
-				PPObjSCardSeries scs_obj;
 				PPSCardSeries scs_rec;
-				const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
+				const int scst = (ScsObj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 				if(oneof2(scst, scstCredit, scstBonus)) {
 					if(scs_rec.Flags & SCRDSF_UHTTSYNC) {
 						PPObjSCard::UhttEntry uhtt_sc;
@@ -1231,7 +1214,10 @@ int PosPaymentBlock::EditDialog2()
 			}
 			return rest;
 		}
-		int    SetupCrdCard()
+		//
+		// ARG(onScCodeInput IN): Если !0 то функция вызывается во время ввода номера карты - не очищать поле при неверном коде
+		//
+		int    SetupCrdCard(int onScCodeInput) 
 		{
 			int    ok = 1;
 			SString temp_buf;
@@ -1242,27 +1228,35 @@ int PosPaymentBlock::EditDialog2()
 					if(Data.CcPl.SearchAddedID(sc_rec.ID, 0)) {
 					}
 					else {
-						PPObjSCardSeries scs_obj;
 						PPSCardSeries scs_rec;
-						const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
+						const int scst = (ScsObj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 						if(oneof2(scst, scstCredit, scstBonus)) {
 							double sc_rest = GetCrdCardRest(sc_rec.ID);
 							if(sc_rest > 0.0 || TotalConst < 0.0) {
-								double replace_amt = 0.0;
+								double to_replace_amt = 0.0;
 								double v = 0.0;
+								const double input_amount = getCtrlReal(CTL_CPPAYM_CRDCARDAMT);
 								if(scst == scstBonus) {
-									if(EnableBonus && Data.BonusMaxPart > 0.0) {
+									if(State & stEnableBonus && Data.BonusMaxPart > 0.0) {
 										const double max_bonus = (Data.BonusMaxPart < 1.0) ? (TotalConst * Data.BonusMaxPart) : TotalConst;
 										double b = Data.CcPl.GetBonusAmount(&ScObj);
-										double bonus = MIN(sc_rest, (max_bonus - b));
-										if(bonus > 0.0) {
-											v = Data.CcPl.Replace(CCAMTTYP_CRDCARD, bonus, sc_rec.ID, CCAMTTYP_CASH, CCAMTTYP_BANK);
-										}
+										to_replace_amt = MIN(sc_rest, (max_bonus - b));
 									}
 								}
 								else {
-									replace_amt = (TotalConst >= 0.0) ? sc_rest : (Data.CcPl.Get(CCAMTTYP_CASH) + Data.CcPl.Get(CCAMTTYP_BANK));
-									v = Data.CcPl.Replace(CCAMTTYP_CRDCARD, replace_amt, sc_rec.ID, CCAMTTYP_CASH, CCAMTTYP_BANK);
+									to_replace_amt = (TotalConst >= 0.0) ? sc_rest : (Data.CcPl.Get(CCAMTTYP_CASH) + Data.CcPl.Get(CCAMTTYP_BANK));
+								}
+								if(input_amount > 0.0 && input_amount <= to_replace_amt)
+									to_replace_amt = input_amount;
+								if(to_replace_amt > 0.0) {
+									if(onScCodeInput) {
+										setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 0);
+										setCtrlReal(CTL_CPPAYM_CRDCARDAMT, to_replace_amt);
+										selectCtrl(CTL_CPPAYM_CRDCARDAMT);
+									}
+									else {
+										v = Data.CcPl.Replace(CCAMTTYP_CRDCARD, to_replace_amt, sc_rec.ID, CCAMTTYP_CASH, CCAMTTYP_BANK);
+									}
 								}
 								if(v != 0.0) {
 									assert(sc_rest >= v);
@@ -1274,7 +1268,11 @@ int PosPaymentBlock::EditDialog2()
 						}
 					}
 				}
-				setCtrlString(CTL_CPPAYM_CRDCARD, temp_buf.Z());
+				if(!onScCodeInput) {
+					setCtrlString(CTL_CPPAYM_CRDCARD, temp_buf.Z());
+					setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
+					setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
+				}
 			}
 			else
 				ok = -1;
@@ -1283,44 +1281,34 @@ int PosPaymentBlock::EditDialog2()
 		void   SetupKind()
 		{
 			// @v10.3.0 (never used) const int prev_kind = Data.Kind;
-			Data.Kind = (CheckPaymMethod)GetClusterData(CTL_CPPAYM_KIND);
+			Data.Kind = static_cast<CheckPaymMethod>(GetClusterData(CTL_CPPAYM_KIND));
 			if(Data.Kind == cpmCash) {
-				//setCtrlReadOnly(CTL_CPPAYM_BNKAMT, 1);
-				//setCtrlReadOnly(CTL_CPPAYM_CRDCARD, 1);
-				//setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
-				//setCtrlReadOnly(CTL_CPPAYM_CSHAMT, 1);
 				double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
 				Data.CcPl.Set(CCAMTTYP_CASH, val);
 				Data.CcPl.Set(CCAMTTYP_BANK, 0.0);
 				SetupAmount();
-				Lock__ = 1;
+				State |= stLock;
 				selectCtrl(CTL_CPPAYM_CASH);
-				Lock__ = 0;
+				State &= ~stLock;
 			}
 			else if(Data.Kind == cpmBank) {
-				//setCtrlReadOnly(CTL_CPPAYM_BNKAMT, 0);
-				//setCtrlReadOnly(CTL_CPPAYM_CRDCARD, 1);
-				//setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
 				double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
 				Data.CcPl.Set(CCAMTTYP_CASH, 0.0);
 				Data.CcPl.Set(CCAMTTYP_BANK, val);
 				SetupAmount();
 			}
 			else if(Data.Kind == cpmIncorpCrd) {
-				//setCtrlReadOnly(CTL_CPPAYM_BNKAMT, 1);
-				//setCtrlReadOnly(CTL_CPPAYM_CRDCARD, 0);
-				//setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 0);
 				SString crd_code;
 				getCtrlString(CTL_CPPAYM_CRDCARDAMT, crd_code);
 				if(!crd_code.NotEmptyS())
 					selectCtrl(CTL_CPPAYM_CRDCARDAMT);
-				SetupCrdCard();
+				SetupCrdCard(0);
 			}
 		}
 		void   SetupAmount(uint lockCtl = 0)
 		{
-			if(!Lock__) {
-				Lock__ = 1;
+			if(!(State & stLock)) {
+				State |= stLock;
 				if(lockCtl != CTL_CPPAYM_CSHAMT)
 					setCtrlReal(CTL_CPPAYM_CSHAMT, Data.CcPl.Get(CCAMTTYP_CASH));
 				if(lockCtl != CTL_CPPAYM_BNKAMT)
@@ -1336,13 +1324,19 @@ int PosPaymentBlock::EditDialog2()
 				if(lockCtl != CTL_CPPAYM_CASH)
 					setCtrlReal(CTL_CPPAYM_CASH, Data.NoteAmt);
 				setCtrlReal(CTL_CPPAYM_DIFF, Data.DeliveryAmt);
-				Lock__ = 0;
+				State &= ~stLock;
 			}
 		}
 		PPObjSCard ScObj;
+		PPObjSCardSeries ScsObj;
 		RAssocArray ScRestList;
-		int    Lock__;
-		int    EnableBonus;
+		//int    Lock__;
+		//int    EnableBonus;
+		enum {
+			stLock        = 0x0001,
+			stEnableBonus = 0x0002
+		};
+		uint   State;
 		double TotalConst;
 	};
 

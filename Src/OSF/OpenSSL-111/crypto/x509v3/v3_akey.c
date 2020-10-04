@@ -33,10 +33,7 @@ const X509V3_EXT_METHOD v3_akey_id = {
 	NULL
 };
 
-static STACK_OF(CONF_VALUE) *i2v_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
-    AUTHORITY_KEYID *akeyid,
-    STACK_OF(CONF_VALUE)
-    *extlist)
+static STACK_OF(CONF_VALUE) *i2v_AUTHORITY_KEYID(X509V3_EXT_METHOD *method, AUTHORITY_KEYID *akeyid, STACK_OF(CONF_VALUE) *extlist)
 {
 	char * tmp;
 	if(akeyid->keyid) {
@@ -62,10 +59,7 @@ static STACK_OF(CONF_VALUE) *i2v_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
  * to only use this if keyid is not present. With the option 'always'
  * this is always included.
  */
-
-static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx,
-    STACK_OF(CONF_VALUE) * values)
+static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * values)
 {
 	char keyid = 0, issuer = 0;
 	int i;
@@ -82,12 +76,12 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 		cnf = sk_CONF_VALUE_value(values, i);
 		if(sstreq(cnf->name, "keyid")) {
 			keyid = 1;
-			if(cnf->value && sstreq(cnf->value, "always"))
+			if(sstreq(cnf->value, "always"))
 				keyid = 2;
 		}
 		else if(sstreq(cnf->name, "issuer")) {
 			issuer = 1;
-			if(cnf->value && sstreq(cnf->value, "always"))
+			if(sstreq(cnf->value, "always"))
 				issuer = 2;
 		}
 		else {
@@ -96,7 +90,6 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 			return NULL;
 		}
 	}
-
 	if(!ctx || !ctx->issuer_cert) {
 		if(ctx && (ctx->flags == CTX_TEST))
 			return AUTHORITY_KEYID_new();
@@ -109,8 +102,7 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 		if((i >= 0) && (ext = X509_get_ext(cert, i)))
 			ikeyid = static_cast<ASN1_OCTET_STRING *>(X509V3_EXT_d2i(ext));
 		if(keyid == 2 && !ikeyid) {
-			X509V3err(X509V3_F_V2I_AUTHORITY_KEYID,
-			    X509V3_R_UNABLE_TO_GET_ISSUER_KEYID);
+			X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, X509V3_R_UNABLE_TO_GET_ISSUER_KEYID);
 			return NULL;
 		}
 	}
@@ -119,34 +111,26 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 		isname = X509_NAME_dup(X509_get_issuer_name(cert));
 		serial = ASN1_INTEGER_dup(X509_get_serialNumber(cert));
 		if(!isname || !serial) {
-			X509V3err(X509V3_F_V2I_AUTHORITY_KEYID,
-			    X509V3_R_UNABLE_TO_GET_ISSUER_DETAILS);
+			X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, X509V3_R_UNABLE_TO_GET_ISSUER_DETAILS);
 			goto err;
 		}
 	}
-
 	if((akeyid = AUTHORITY_KEYID_new()) == NULL)
 		goto err;
-
 	if(isname) {
-		if((gens = sk_GENERAL_NAME_new_null()) == NULL
-		    || (gen = GENERAL_NAME_new()) == NULL
-		    || !sk_GENERAL_NAME_push(gens, gen)) {
+		if((gens = sk_GENERAL_NAME_new_null()) == NULL || (gen = GENERAL_NAME_new()) == NULL || !sk_GENERAL_NAME_push(gens, gen)) {
 			X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		gen->type = GEN_DIRNAME;
 		gen->d.dirn = isname;
 	}
-
 	akeyid->issuer = gens;
 	gen = NULL;
 	gens = NULL;
 	akeyid->serial = serial;
 	akeyid->keyid = ikeyid;
-
 	return akeyid;
-
 err:
 	sk_GENERAL_NAME_free(gens);
 	GENERAL_NAME_free(gen);

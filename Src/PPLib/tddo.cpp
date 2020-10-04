@@ -39,8 +39,7 @@
 #end{}
 */
 
-// static
-int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult)
+/*static*/int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult)
 {
 	int    ok = 0;
 	SString path, result;
@@ -83,8 +82,7 @@ int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * p
 	return (ok || fileExists(rResult)) ? 1 : PPSetErrorSLib();
 }
 
-// static
-int SLAPI Tddo::LoadFile(const char * pFileName, SString & rBuf)
+/*static*/int SLAPI Tddo::LoadFile(const char * pFileName, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;

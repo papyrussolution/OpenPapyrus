@@ -1818,14 +1818,12 @@ int SLAPI PPRights::CheckDesktopID(long deskID, long rt) const
 	return ok;
 }
 
-// static
-ushort SLAPI PPRights::GetDefaultFlags()
+/*static*/ushort SLAPI PPRights::GetDefaultFlags()
 {
 	return (0xffff & ~PPR_ADM);
 }
 
-// static
-long SLAPI PPRights::GetDefaultOprFlags()
+/*static*/long SLAPI PPRights::GetDefaultOprFlags()
 {
 	return 0xffffffff; // @v8.3.3 (0xffff & ~PPORF_INHERITED)-->0xffff // @v8.9.3 0xffff-->0xffffffff
 }

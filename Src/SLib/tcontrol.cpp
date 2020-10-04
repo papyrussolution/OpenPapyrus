@@ -1822,11 +1822,6 @@ void ComboBox::freeAll()
 					canv.Draw(p_view->P_Fig);
 					canv.PopTransform();
 				}
-#ifndef TIMAGEVIEW_USE_FIG
-				else if(p_view->P_Image_GDIP) {
-					static_cast<SImage *>(p_view->P_Image_GDIP)->Draw(hWnd, 0);
-				}
-#endif
 				::EndPaint(hWnd, &ps);
 			}
 			return 0;
@@ -1849,9 +1844,6 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds), P_Fig(0), FigSymb(pFigSymb)
-#ifndef TIMAGEVIEW_USE_FIG
-	, P_Image_GDIP(0)
-#endif
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW;
 	ReplacedColor.Set(0);
@@ -1864,23 +1856,11 @@ TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBo
 			ReplacedColor = tool_item.ReplacedColor;
 		}
 	}
-	else {
-#ifndef TIMAGEVIEW_USE_FIG
-		P_Image = new SImage;
-		((SImage*)P_Image)->Init();
-#endif
-	}
 }
 
 TImageView::~TImageView()
 {
 	delete P_Fig;
-#ifndef TIMAGEVIEW_USE_FIG
-	if(P_Image_GDIP) {
-		delete (SImage *)P_Image_GDIP;
-		P_Image_GDIP = 0;
-	}
-#endif
 	RestoreOnDestruction();
 }
 
@@ -1891,26 +1871,13 @@ int TImageView::TransmitData(int dir, void * pData)
 		const char * p_path = static_cast<const char *>(pData);
 		{
 			HWND hw = getHandle();
-#ifdef TIMAGEVIEW_USE_FIG
 			DELETEANDASSIGN(P_Fig, SDrawFigure::CreateFromFile(p_path, 0));
-#else
-			((SImage*)P_Image)->LoadImage(p_path);
-#endif
 			::InvalidateRect(hw, 0, /*erase=*/TRUE);
 			::UpdateWindow(hw);
 		}
 	}
 	return s;
 }
-
-/*void TImageView::draw()
-{
-#ifdef TIMAGEVIEW_USE_FIG
-#else
-	((SImage*)P_Image)->Draw(getHandle(), 0);
-#endif
-	TView::draw();
-}*/
 //
 //
 //

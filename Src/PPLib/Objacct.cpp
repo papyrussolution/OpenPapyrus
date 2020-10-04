@@ -14,16 +14,14 @@ SLAPI PPObjAccount::~PPObjAccount()
 {
 }
 
-//static
-Reference2Tbl::Key2 & PPObjAccount::MakeAcctKey(int ac, int sb, Reference2Tbl::Key2 & rKey)
+/*static*/Reference2Tbl::Key2 & PPObjAccount::MakeAcctKey(int ac, int sb, Reference2Tbl::Key2 & rKey)
 {
     rKey.ObjType = PPOBJ_ACCOUNT2;
 	rKey.Val1 = MakeLong((int16)sb, (int16)ac);
     return rKey;
 }
 
-// static
-void SLAPI PPObjAccount::GenerateCode(PPAccount & rRec)
+/*static*/void SLAPI PPObjAccount::GenerateCode(PPAccount & rRec)
 {
 	char   buf[48];
 	Acct   acct;
@@ -992,8 +990,7 @@ int AccountDialog::delItem(long, long id)
 	return ok;
 }
 
-// static
-int SLAPI PPObjAccount::CheckRecursion(PPID id, PPID parentID)
+/*static*/int SLAPI PPObjAccount::CheckRecursion(PPID id, PPID parentID)
 {
 	int    ok = 1;
 	if(id) {

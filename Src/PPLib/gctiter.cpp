@@ -1,7 +1,6 @@
 // GCTITER.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020
 // @Kernel
-//
 // GCTIterator
 //
 #include <pp.h>
@@ -362,8 +361,7 @@ int SLAPI GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSeria
 	return ok;
 }
 
-// static
-long SLAPI GCTIterator::AnalyzeOp(PPID opID, PPIDArray * pResultOpList)
+/*static*/long SLAPI GCTIterator::AnalyzeOp(PPID opID, PPIDArray * pResultOpList)
 {
 	long   result = 0;
 	PPIDArray op_list;

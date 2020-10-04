@@ -60,10 +60,15 @@ void FASTCALL resetbit32(void * pBuf, size_t len, size_t pos)
 		PTR32(pBuf)[idx] &= ~(1U << BLKBIT(pos));
 }
 
-int FASTCALL getbit32(const void * pBuf, size_t len, size_t pos)
+static FORCEINLINE int implement_getbit32(const void * pBuf, size_t len, size_t pos)
 {
 	size_t idx = BLKIDX(pos);
 	return (idx < (len>>2)) ? BIN(PTR32C(pBuf)[idx] & (1U << BLKBIT(pos))) : 0;
+}
+
+int FASTCALL getbit32(const void * pBuf, size_t len, size_t pos)
+{
+	return implement_getbit32(pBuf, len, pos);
 }
 
 int FASTCALL getbit8(const void * pBuf, size_t len, size_t pos)
@@ -82,8 +87,66 @@ uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count)
 		size_t max_count = (len>>2)-idx;
 		max_count = MIN(32, max_count);
 		SETMIN(count, max_count);
-		for(uint i = 0; i < count; ++i)
-			r |= (getbit32(pBuf, len, pos+i) << (count - i - 1));
+		switch(count) {
+			case 1:
+				r |= implement_getbit32(pBuf, len, pos);
+				break;
+			case 2:
+				r |= (implement_getbit32(pBuf, len, pos) << 1);
+				r |= (implement_getbit32(pBuf, len, pos+1));
+				break;
+			case 3:
+				r |= (implement_getbit32(pBuf, len, pos) << 2);
+				r |= (implement_getbit32(pBuf, len, pos+1) << 1);
+				r |= (implement_getbit32(pBuf, len, pos+2));
+				break;
+			case 4:
+				r |= (implement_getbit32(pBuf, len, pos) << 3);
+				r |= (implement_getbit32(pBuf, len, pos+1) << 2);
+				r |= (implement_getbit32(pBuf, len, pos+2) << 1);
+				r |= (implement_getbit32(pBuf, len, pos+3));
+				break;
+			case 5:
+				r |= (implement_getbit32(pBuf, len, pos) << 4);
+				r |= (implement_getbit32(pBuf, len, pos+1) << 3);
+				r |= (implement_getbit32(pBuf, len, pos+2) << 2);
+				r |= (implement_getbit32(pBuf, len, pos+3) << 1);
+				r |= (implement_getbit32(pBuf, len, pos+4));
+				break;
+			case 6:
+				r |= (implement_getbit32(pBuf, len, pos) << 5);
+				r |= (implement_getbit32(pBuf, len, pos+1) << 4);
+				r |= (implement_getbit32(pBuf, len, pos+2) << 3);
+				r |= (implement_getbit32(pBuf, len, pos+3) << 2);
+				r |= (implement_getbit32(pBuf, len, pos+4) << 1);
+				r |= (implement_getbit32(pBuf, len, pos+5));
+				break;
+			case 7:
+				r |= (implement_getbit32(pBuf, len, pos) << 6);
+				r |= (implement_getbit32(pBuf, len, pos+1) << 5);
+				r |= (implement_getbit32(pBuf, len, pos+2) << 4);
+				r |= (implement_getbit32(pBuf, len, pos+3) << 3);
+				r |= (implement_getbit32(pBuf, len, pos+4) << 2);
+				r |= (implement_getbit32(pBuf, len, pos+5) << 1);
+				r |= (implement_getbit32(pBuf, len, pos+6));
+				break;
+			case 8:
+				r |= (implement_getbit32(pBuf, len, pos) << 7);
+				r |= (implement_getbit32(pBuf, len, pos+1) << 6);
+				r |= (implement_getbit32(pBuf, len, pos+2) << 5);
+				r |= (implement_getbit32(pBuf, len, pos+3) << 4);
+				r |= (implement_getbit32(pBuf, len, pos+4) << 3);
+				r |= (implement_getbit32(pBuf, len, pos+5) << 2);
+				r |= (implement_getbit32(pBuf, len, pos+6) << 1);
+				r |= (implement_getbit32(pBuf, len, pos+7));
+				break;
+			default:
+				{
+					for(uint i = 0; i < count; ++i)
+						r |= (implement_getbit32(pBuf, len, pos+i) << (count - i - 1));
+				}
+				break;
+		}
 	}
 	return r;
 }
@@ -146,11 +209,12 @@ void SLAPI insbit(void * pBuf, size_t len, size_t pos)
 		blk &= ~HIBIT;
 	}
 	{
-		for(int i = 30; i >= (int)BLKBIT(pos); i--)
+		for(int i = 30; i >= (int)BLKBIT(pos); i--) {
 			if(blk & (1U << i)) {
 				blk |= (1U << (i + 1));
 				blk &= ~(1U << i);
 			}
+		}
 	}
 	PTR32(pBuf)[firstword] = blk;
 	{
@@ -173,11 +237,12 @@ void SLAPI delbit(void * pBuf, size_t len, size_t pos)
 	size_t firstword = BLKIDX(pos);
 	uint32 blk = PTR32(pBuf)[firstword];
 	blk &= ~(1U << BLKBIT(pos));
-	for(i = BLKBIT(pos) + 1; i < 32; i++)
+	for(i = BLKBIT(pos) + 1; i < 32; i++) {
 		if(blk & (1U << i)) {
 			blk |= (1U << (i - 1));
 			blk &= ~(1U << i);
 		}
+	}
 	PTR32(pBuf)[firstword] = blk;
 	size_t num_blk = (len>>2);
 	for(i = firstword + 1; i < num_blk; i++) {

@@ -212,8 +212,7 @@ int FASTCALL PPViewAccount::NextIteration(AccountViewItem * pItem)
 	return ok;
 }
 
-// static
-int FASTCALL PPViewAccount::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewAccount::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewAccount * p_v = static_cast<PPViewAccount *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
@@ -306,8 +305,7 @@ static void SLAPI dbqf_account_checkrights_i(int option, DBConst * result, DBCon
 	result->init(ok);
 }
 
-// static
-int PPViewAccount::DynFuncCheckRights = 0;
+/*static*/int PPViewAccount::DynFuncCheckRights = 0;
 
 /*virtual*/DBQuery * SLAPI PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {

@@ -672,41 +672,26 @@ int ASN1_TIME_print(BIO * fp, const ASN1_TIME * a);
 int ASN1_STRING_print(BIO * bp, const ASN1_STRING * v);
 int ASN1_STRING_print_ex(BIO * out, const ASN1_STRING * str, unsigned long flags);
 int ASN1_buf_print(BIO * bp, const unsigned char * buf, size_t buflen, int off);
-int ASN1_bn_print(BIO * bp, const char * number, const BIGNUM * num,
-    unsigned char * buf, int off);
+int ASN1_bn_print(BIO * bp, const char * number, const BIGNUM * num, unsigned char * buf, int off);
 int ASN1_parse(BIO * bp, const unsigned char * pp, long len, int indent);
-int ASN1_parse_dump(BIO * bp, const unsigned char * pp, long len, int indent,
-    int dump);
+int ASN1_parse_dump(BIO * bp, const unsigned char * pp, long len, int indent, int dump);
 const char * ASN1_tag2str(int tag);
 
 /* Used to load and write Netscape format cert */
 
 int ASN1_UNIVERSALSTRING_to_string(ASN1_UNIVERSALSTRING * s);
-
 int ASN1_TYPE_set_octetstring(ASN1_TYPE * a, unsigned char * data, int len);
 int ASN1_TYPE_get_octetstring(const ASN1_TYPE * a, unsigned char * data, int max_len);
-int ASN1_TYPE_set_int_octetstring(ASN1_TYPE * a, long num,
-    unsigned char * data, int len);
-int ASN1_TYPE_get_int_octetstring(const ASN1_TYPE * a, long * num,
-    unsigned char * data, int max_len);
-
+int ASN1_TYPE_set_int_octetstring(ASN1_TYPE * a, long num, unsigned char * data, int len);
+int ASN1_TYPE_get_int_octetstring(const ASN1_TYPE * a, long * num, unsigned char * data, int max_len);
 void * ASN1_item_unpack(const ASN1_STRING * oct, const ASN1_ITEM * it);
-
-ASN1_STRING * ASN1_item_pack(void * obj, const ASN1_ITEM * it,
-    ASN1_OCTET_STRING ** oct);
-
+ASN1_STRING * ASN1_item_pack(void * obj, const ASN1_ITEM * it, ASN1_OCTET_STRING ** oct);
 void ASN1_STRING_set_default_mask(unsigned long mask);
 int ASN1_STRING_set_default_mask_asc(const char * p);
 unsigned long ASN1_STRING_get_default_mask(void);
-int ASN1_mbstring_copy(ASN1_STRING ** out, const unsigned char * in, int len,
-    int inform, unsigned long mask);
-int ASN1_mbstring_ncopy(ASN1_STRING ** out, const unsigned char * in, int len,
-    int inform, unsigned long mask,
-    long minsize, long maxsize);
-
-ASN1_STRING * ASN1_STRING_set_by_NID(ASN1_STRING ** out,
-    const unsigned char * in, int inlen,
-    int inform, int nid);
+int ASN1_mbstring_copy(ASN1_STRING ** out, const unsigned char * in, int len, int inform, unsigned long mask);
+int ASN1_mbstring_ncopy(ASN1_STRING ** out, const unsigned char * in, int len, int inform, unsigned long mask, long minsize, long maxsize);
+ASN1_STRING * ASN1_STRING_set_by_NID(ASN1_STRING ** out, const unsigned char * in, int inlen, int inform, int nid);
 ASN1_STRING_TABLE * ASN1_STRING_TABLE_get(int nid);
 int ASN1_STRING_TABLE_add(int, long, long, unsigned long, unsigned long);
 void ASN1_STRING_TABLE_cleanup(void);
@@ -716,15 +701,11 @@ void ASN1_STRING_TABLE_cleanup(void);
 /* Old API compatible functions */
 ASN1_VALUE * ASN1_item_new(const ASN1_ITEM * it);
 void ASN1_item_free(ASN1_VALUE * val, const ASN1_ITEM * it);
-ASN1_VALUE * ASN1_item_d2i(ASN1_VALUE ** val, const unsigned char ** in,
-    long len, const ASN1_ITEM * it);
+ASN1_VALUE * ASN1_item_d2i(ASN1_VALUE ** val, const unsigned char ** in, long len, const ASN1_ITEM * it);
 int ASN1_item_i2d(ASN1_VALUE * val, unsigned char ** out, const ASN1_ITEM * it);
-int ASN1_item_ndef_i2d(ASN1_VALUE * val, unsigned char ** out,
-    const ASN1_ITEM * it);
-
+int ASN1_item_ndef_i2d(ASN1_VALUE * val, unsigned char ** out, const ASN1_ITEM * it);
 void ASN1_add_oid_module(void);
 void ASN1_add_stable_module(void);
-
 ASN1_TYPE * ASN1_generate_nconf(const char * str, CONF * nconf);
 ASN1_TYPE * ASN1_generate_v3(const char * str, X509V3_CTX * cnf);
 int ASN1_str2mask(const char * str, unsigned long * pmask);
@@ -750,8 +731,7 @@ int ASN1_str2mask(const char * str, unsigned long * pmask);
 /* Don't show structure name even at top level */
 #define ASN1_PCTX_FLAGS_NO_STRUCT_NAME          0x100
 
-int ASN1_item_print(BIO * out, ASN1_VALUE * ifld, int indent,
-    const ASN1_ITEM * it, const ASN1_PCTX * pctx);
+int ASN1_item_print(BIO * out, ASN1_VALUE * ifld, int indent, const ASN1_ITEM * it, const ASN1_PCTX * pctx);
 ASN1_PCTX * ASN1_PCTX_new(void);
 void ASN1_PCTX_free(ASN1_PCTX * p);
 unsigned long ASN1_PCTX_get_flags(const ASN1_PCTX * p);
@@ -764,7 +744,6 @@ unsigned long ASN1_PCTX_get_oid_flags(const ASN1_PCTX * p);
 void ASN1_PCTX_set_oid_flags(ASN1_PCTX * p, unsigned long flags);
 unsigned long ASN1_PCTX_get_str_flags(const ASN1_PCTX * p);
 void ASN1_PCTX_set_str_flags(ASN1_PCTX * p, unsigned long flags);
-
 ASN1_SCTX * ASN1_SCTX_new(int (* scan_cb)(ASN1_SCTX * ctx));
 void ASN1_SCTX_free(ASN1_SCTX * p);
 const ASN1_ITEM * ASN1_SCTX_get_item(ASN1_SCTX * p);
@@ -772,22 +751,14 @@ const ASN1_TEMPLATE * ASN1_SCTX_get_template(ASN1_SCTX * p);
 unsigned long ASN1_SCTX_get_flags(ASN1_SCTX * p);
 void ASN1_SCTX_set_app_data(ASN1_SCTX * p, void * data);
 void * ASN1_SCTX_get_app_data(ASN1_SCTX * p);
-
 const BIO_METHOD * BIO_f_asn1(void);
-
 BIO * BIO_new_NDEF(BIO * out, ASN1_VALUE * val, const ASN1_ITEM * it);
-
-int i2d_ASN1_bio_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags,
-    const ASN1_ITEM * it);
-int PEM_write_bio_ASN1_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags,
-    const char * hdr, const ASN1_ITEM * it);
-int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags,
-    int ctype_nid, int econt_nid,
-    STACK_OF(X509_ALGOR) *mdalgs, const ASN1_ITEM * it);
+int i2d_ASN1_bio_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags, const ASN1_ITEM * it);
+int PEM_write_bio_ASN1_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags, const char * hdr, const ASN1_ITEM * it);
+int SMIME_write_ASN1(BIO * bio, ASN1_VALUE * val, BIO * data, int flags, int ctype_nid, int econt_nid, STACK_OF(X509_ALGOR) *mdalgs, const ASN1_ITEM * it);
 ASN1_VALUE * SMIME_read_ASN1(BIO * bio, BIO ** bcont, const ASN1_ITEM * it);
 int SMIME_crlf_copy(BIO * in, BIO * out, int flags);
 int SMIME_text(BIO * in, BIO * out);
-
 const ASN1_ITEM * ASN1_ITEM_lookup(const char * name);
 const ASN1_ITEM * ASN1_ITEM_get(size_t i);
 

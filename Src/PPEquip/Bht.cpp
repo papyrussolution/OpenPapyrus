@@ -2308,8 +2308,7 @@ int SLAPI BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBu
 	return ok;
 }
 
-// static
-void SLAPI BhtProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
+/*static*/void SLAPI BhtProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
 {
 	char   fname[64];
 	long   numrecs = 0;
@@ -2571,8 +2570,7 @@ int SLAPI CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 	return ok;
 }
 
-// static
-void SLAPI CipherProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
+/*static*/void SLAPI CipherProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
 {
 	char   fname[64];
 	long   numrecs = 0;
@@ -4035,8 +4033,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::AcceptBillsToGBasketPalm(const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptBillsToGBasketPalm(const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	DbfTable bill_tbl(pHName);
@@ -4131,8 +4128,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasketPalm(const char * pHName, const char * p
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::AcceptInventPalm(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptInventPalm(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4441,8 +4437,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	const  PPConfig & r_cfg = LConfig;
@@ -4772,8 +4767,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcode, double qtty, double price, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcode, double qtty, double price, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4863,8 +4857,7 @@ int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcod
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4967,8 +4960,7 @@ int SLAPI PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLNa
 }
 // } AHTOXA
 
-// static
-int SLAPI PPObjBHT::AcceptBills(const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptBills(const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjGoodsGroup gg_obj;
@@ -5062,8 +5054,7 @@ int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID,
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	struct BillRowEntry {
 		long   BillID;
@@ -5355,8 +5346,7 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
 {
 	int    ok = -1, r = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -5476,8 +5466,7 @@ static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFi
 }
 #endif // } 0 @v9.4.9
 
-// static
-int SLAPI PPObjBHT::ReceiveData()
+/*static*/int SLAPI PPObjBHT::ReceiveData()
 {
 	class ReceiveData_LocalBlock {
 	public:
@@ -5789,8 +5778,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 	return ok;
 }
 
-// static
-int SLAPI PPObjBHT::TransmitData()
+/*static*/int SLAPI PPObjBHT::TransmitData()
 {
 	class BhtSendDlg : public TDialog {
 	public:

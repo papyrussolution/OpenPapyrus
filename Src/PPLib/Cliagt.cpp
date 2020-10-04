@@ -799,8 +799,7 @@ int SLAPI PPObjArticle::EditAgreement(PPID arID)
 	return ok;
 }
 
-// static
-int SLAPI PPObjArticle::DefaultClientAgreement()
+/*static*/int SLAPI PPObjArticle::DefaultClientAgreement()
 {
 	int    ok = 1;
 	PPObjArticle arobj;
@@ -1232,8 +1231,7 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 	long   OrdDrDtl;
 };
 
-// static
-int FASTCALL PPObjArticle::PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPSupplAgreement * pAgt)
+/*static*/int FASTCALL PPObjArticle::PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPSupplAgreement * pAgt)
 {
 	const _PPSupplAgt & r_agt = *reinterpret_cast<const _PPSupplAgt *>(&rPropRec);
 	pAgt->SupplID         = r_agt.ArtID;
@@ -1255,8 +1253,7 @@ int FASTCALL PPObjArticle::PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPS
 	return 1;
 }
 
-// static
-int FASTCALL PPObjArticle::HasSupplAgreement(PPID id)
+/*static*/int FASTCALL PPObjArticle::HasSupplAgreement(PPID id)
 {
 	int    yes = 0;
 	if(id > 0) {
@@ -1271,8 +1268,7 @@ int FASTCALL PPObjArticle::HasSupplAgreement(PPID id)
 	return yes;
 }
 
-// static
-int FASTCALL PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int useInheritance)
+/*static*/int FASTCALL PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int useInheritance)
 {
 	int    ok = -1;
 	if(pAgt) {
@@ -1981,11 +1977,9 @@ int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
 	return ok;
 }
 
-// static
-int FASTCALL PPObjArticle::EditSupplAgreement(PPSupplAgreement * pAgt) { DIALOG_PROC_BODY_P1(SupplAgtDialog, pAgt ? pAgt->SupplID : 0, pAgt); }
+/*static*/int FASTCALL PPObjArticle::EditSupplAgreement(PPSupplAgreement * pAgt) { DIALOG_PROC_BODY_P1(SupplAgtDialog, pAgt ? pAgt->SupplID : 0, pAgt); }
 
-// static
-int SLAPI PPObjArticle::DefaultSupplAgreement()
+/*static*/int SLAPI PPObjArticle::DefaultSupplAgreement()
 {
 	int    ok = 1;
 	PPObjArticle arobj;
@@ -1999,8 +1993,7 @@ int SLAPI PPObjArticle::DefaultSupplAgreement()
 	return ok;
 }
 
-//static
-int FASTCALL PPObjArticle::GetAgreementKind(const ArticleTbl::Rec * pArRec)
+/*static*/int FASTCALL PPObjArticle::GetAgreementKind(const ArticleTbl::Rec * pArRec)
 {
 	int    ok = -1;
 	PPObjAccSheet acs_obj;

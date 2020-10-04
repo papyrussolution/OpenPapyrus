@@ -86,11 +86,9 @@ private:
 	WNDPROC OrgScintillaWndProc;
 };
 
-// static
-LPCTSTR LogListWindowSCI::WndClsName = _T("LogListWindowSCI"); // @global
+/*static*/LPCTSTR LogListWindowSCI::WndClsName = _T("LogListWindowSCI"); // @global
 
-// static
-int LogListWindowSCI::RegWindowClass(HINSTANCE hInst)
+/*static*/int LogListWindowSCI::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
@@ -310,8 +308,7 @@ int LogListWindowSCI::Resize()
 	return 1;
 }
 
-// static
-LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	CREATESTRUCT * p_init_data;
 	LogListWindowSCI * p_view = 0;
@@ -613,8 +610,7 @@ long SLAPI PPMsgLog::GetVisibleMessage(long nrow)
 	return (Valid && nrow < GetVisCount()) ? *static_cast<const long *>(P_Index->at((uint)nrow)) : 0;
 }
 
-// static
-int SLAPI PPMsgLog::RemoveTempFiles()
+/*static*/int SLAPI PPMsgLog::RemoveTempFiles()
 {
 	int    ok = 0;
 	SString src_path, src_file_name;
@@ -779,8 +775,7 @@ SLAPI TVMsgLog::TVMsgLog() : PPMsgLog(), P_LWnd(0), HorzRange(0)
 {
 }
 
-// static
-void TVMsgLog::Delete_(TVMsgLog * pMsgLog, int winDestroy)
+/*static*/void TVMsgLog::Delete_(TVMsgLog * pMsgLog, int winDestroy)
 {
 	if(pMsgLog && winDestroy)
 		ZDELETE(pMsgLog);
@@ -1013,8 +1008,7 @@ int SLAPI PPLogger::Save(const char * pFileName, long options)
 
 #ifndef USE_LOGLISTWINDOWSCI
 
-// static
-BOOL CALLBACK LogListWindow::LogListProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/BOOL CALLBACK LogListWindow::LogListProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LogListWindow * p_data = (LogListWindow *)TView::GetWindowUserData(hWnd);
 	switch(uMsg) {

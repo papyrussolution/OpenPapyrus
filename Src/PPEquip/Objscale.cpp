@@ -83,8 +83,7 @@ struct ScalePLU { // @transient
 	SString AddMsgBuf;
 };
 
-// static
-int SLAPI PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSize)
+/*static*/int SLAPI PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSize)
 {
 	int    ok = 1;
 	char   ip[16], encoded_ip[8];
@@ -115,8 +114,7 @@ int SLAPI PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSiz
 	return ok;
 }
 
-// static
-int SLAPI PPObjScale::DecodeIP(const char * pEncodedIP, char * pIP)
+/*static*/int SLAPI PPObjScale::DecodeIP(const char * pEncodedIP, char * pIP)
 {
 	int    ok = 1;
 	uint   i = 0;
@@ -141,8 +139,7 @@ typedef	HANDLE (WINAPI *ICMPCREATEFILE)();
 typedef	BOOL   (WINAPI *ICMPCLOSEHANDLE)(HANDLE);
 typedef	DWORD  (WINAPI *ICMPSENDECHO)(HANDLE, DWORD, LPVOID, WORD, PIP_OPTION_INFORMATION, LPVOID, DWORD, DWORD);
 
-// static
-int PPObjScale::CheckForConnection(const char * pIPAddress, uint timeout, uint attemptCount)
+/*static*/int PPObjScale::CheckForConnection(const char * pIPAddress, uint timeout, uint attemptCount)
 {
 	int    ok = 0;
 	InetAddr addr;
@@ -4863,8 +4860,7 @@ int SLAPI PPObjScale::IsPassive(PPID id, const PPScale * pScale)
 	return ok;
 }
 
-// static
-void * FASTCALL PPObjScale::MakeExtraParam(long onlyGroups, long groupID)
+/*static*/void * FASTCALL PPObjScale::MakeExtraParam(long onlyGroups, long groupID)
 {
 	return reinterpret_cast<void *>((onlyGroups << 24) | groupID);
 }
@@ -5463,8 +5459,7 @@ int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 	return r;
 }
 
-// static
-int SLAPI PPObjScale::PrepareData(PPID scaleID)
+/*static*/int SLAPI PPObjScale::PrepareData(PPID scaleID)
 {
 	PPID   id = scaleID;
 	long   flags = 0;
@@ -5487,8 +5482,7 @@ int SLAPI PPObjScale::PrepareData(PPID scaleID)
 	return 1;
 }
 
-// static
-int SLAPI PPObjScale::TransmitData(PPID scaleID)
+/*static*/int SLAPI PPObjScale::TransmitData(PPID scaleID)
 {
 	PPID   id = scaleID;
 	long   flags = 0;
@@ -5537,7 +5531,7 @@ int SLAPI GetScaleData(PPID scaleID, TIDlgInitData * pData)
 			THROW(r = p_scale->GetData(&gds_no, &weight));
 			if(r > 0) {
 				ObjAssocTbl::Rec assoc_rec;
-				MEMSZERO(assoc_rec);
+				// @v10.9.0 @ctr MEMSZERO(assoc_rec);
 				if(gds_no) {
 					THROW(r = PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, pack.Rec.AltGoodsGrp, gds_no, &assoc_rec));
 					tidi.GoodsGrpID = pack.Rec.AltGoodsGrp;

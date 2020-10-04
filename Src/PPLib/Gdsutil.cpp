@@ -822,14 +822,13 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 	return ok;
 }
 
-// static
-int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
+/*static*/int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	assert(pCfg);
 	pCfg->Z();
-	pCfg->Ver__ = DS.GetVersion(); // @v9.7.2
+	pCfg->Ver__ = DS.GetVersion();
 	size_t sz = 0;
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, &sz) > 0) {
 		const size_t pre770_size = pCfg->GetSize_Pre770();
@@ -1102,8 +1101,7 @@ int SLAPI PPObjGoods::WriteConfig(const PPGoodsConfig * pCfg, const SString * pG
 	return Helper_WriteConfig(pCfg, pGoodsExTitles, 0, 0, use_ta);
 }
 
-// static
-int SLAPI PPObjGoods::EditConfig()
+/*static*/int SLAPI PPObjGoods::EditConfig()
 {
 	int    ok = -1, ta = 0, is_new = 0;
 	int    valid_data = 0;

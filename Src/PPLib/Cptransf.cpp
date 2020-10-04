@@ -16,8 +16,7 @@ SLAPI CpTransfCore::CpTransfCore() : CpTransfTbl()
 {
 }
 
-// static
-int FASTCALL CpTransfCore::PutExt__(CpTransfTbl::Rec & rRec, const CpTrfrExt * pExt)
+/*static*/int FASTCALL CpTransfCore::PutExt__(CpTransfTbl::Rec & rRec, const CpTrfrExt * pExt)
 {
 	int    ok = 1;
 	SString ext_buf, temp_buf;
@@ -41,12 +40,11 @@ int FASTCALL CpTransfCore::PutExt__(CpTransfTbl::Rec & rRec, const CpTrfrExt * p
 	return ok;
 }
 
-// static
-int FASTCALL CpTransfCore::GetExt__(CpTransfTbl::Rec & rRec, CpTrfrExt * pExt)
+/*static*/int FASTCALL CpTransfCore::GetExt__(CpTransfTbl::Rec & rRec, CpTrfrExt * pExt)
 {
 	int    ok = 1;
-	SString ext_buf, temp_buf;
-	ext_buf = rRec.Tail;
+	SString temp_buf;
+	const SString ext_buf(rRec.Tail);
 	if(pExt) {
 		pExt->PartNo[0] = 0;
 		pExt->Clb[0] = 0;

@@ -4,9 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 SLAPI PPGoodsTaxEntry::PPGoodsTaxEntry()
 {
 	THISZERO();
@@ -572,8 +570,7 @@ int SLAPI PPObjGoodsTax::Browse(void * extraPtr)
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsTax::IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2)
+/*static*/int SLAPI PPObjGoodsTax::IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2)
 {
 	if(dbl_cmp(pRec1->VAT, pRec2->VAT) == 0 && dbl_cmp(pRec1->Excise, pRec2->Excise) == 0 &&
 		dbl_cmp(pRec1->SalesTax, pRec2->SalesTax) == 0 && pRec1->Flags == pRec2->Flags &&
@@ -643,8 +640,7 @@ int SLAPI PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, doub
 	return ok;
 }
 
-// static
-long SLAPI PPObjGoodsTax::GetDefaultOrder()
+/*static*/long SLAPI PPObjGoodsTax::GetDefaultOrder()
 {
 	long   list[6];
 	list[0] = GTAX_EXCISE;
@@ -1089,16 +1085,14 @@ int SLAPI GTaxCache::Get(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
 	return ok;
 }
 
-// static
-int SLAPI PPObjGoodsTax::Fetch(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
+/*static*/int SLAPI PPObjGoodsTax::Fetch(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
 {
 	memzero(pEntry, sizeof(*pEntry));
 	GTaxCache * p_cache = GetDbLocalCachePtr <GTaxCache> (PPOBJ_GOODSTAX);
 	return p_cache ? p_cache->Get(id, dt, opID, pEntry) : 0;
 }
 
-// static
-int SLAPI PPObjGoodsTax::FetchByID(PPID id, PPGoodsTaxEntry * pEntry)
+/*static*/int SLAPI PPObjGoodsTax::FetchByID(PPID id, PPGoodsTaxEntry * pEntry)
 {
 	memzero(pEntry, sizeof(*pEntry));
 	GTaxCache * p_cache = GetDbLocalCachePtr <GTaxCache> (PPOBJ_GOODSTAX);

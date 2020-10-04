@@ -4004,8 +4004,7 @@ int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
 	return ok;
 }
 
-// static
-int FASTCALL PrcssrAlcReport::ReadConfig(PrcssrAlcReport::Config * pCfg)
+/*static*/int FASTCALL PrcssrAlcReport::ReadConfig(PrcssrAlcReport::Config * pCfg)
 {
 	int    ok = -1;
 	SBuffer buffer;
@@ -4022,8 +4021,7 @@ int FASTCALL PrcssrAlcReport::ReadConfig(PrcssrAlcReport::Config * pCfg)
 	return ok;
 }
 
-// static
-int FASTCALL PrcssrAlcReport::WriteConfig(PrcssrAlcReport::Config * pCfg, int use_ta)
+/*static*/int FASTCALL PrcssrAlcReport::WriteConfig(PrcssrAlcReport::Config * pCfg, int use_ta)
 {
 	int    ok = 1;
 	SBuffer buffer;
@@ -4224,8 +4222,7 @@ public:
 	}
 };
 
-// static
-int SLAPI PrcssrAlcReport::EditConfig()
+/*static*/int SLAPI PrcssrAlcReport::EditConfig()
 {
 	int    ok = -1;
 	AlcReportConfigDialog * dlg = 0;
@@ -4407,8 +4404,7 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 	return ok;
 }
 
-// static
-int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcessedMark)
+/*static*/int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcessedMark)
 {
 	int    yes = 0;
 	const  size_t len = sstrlen(pMark);
@@ -4444,8 +4440,7 @@ int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcess
 	return yes;
 }
 
-// static
-int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::EgaisMarkBlock & rMb)
+/*static*/int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::EgaisMarkBlock & rMb)
 {
 	/*
 	Если СтрДлина(Значение) <> 68 Тогда

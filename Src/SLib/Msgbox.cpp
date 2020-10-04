@@ -140,21 +140,3 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 	}
 	return ret;
 }
-
-/* @v9.3.4 ushort messageBoxRect(const TRect & r, ushort aOptions, const char *fmt, ...)
-{
-	va_list argptr;
-	va_start(argptr, fmt);
-	char msg[1024];
-	vsprintf(msg, fmt, argptr);
-	return messageBoxRect(r, msg, aOptions);
-}*/
-
-/* @v9.3.4 ushort messageBox(ushort aOptions, const char *fmt,...)
-{
-	va_list argptr;
-	va_start(argptr, fmt);
-	char msg[1024];
-	vsprintf(msg, fmt, argptr);
-	return messageBoxRect(APPL->MakeCenterRect(60, 10), msg, aOptions);
-}*/

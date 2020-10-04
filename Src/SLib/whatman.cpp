@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -137,8 +137,7 @@ static WhatmanObjectRegTable * GetRegTable()
 	return p_tab;
 }
 
-// static
-int SLAPI TWhatmanObject::Register(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory)
+/*static*/int SLAPI TWhatmanObject::Register(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory)
 {
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
@@ -148,24 +147,21 @@ int SLAPI TWhatmanObject::Register(const char * pSymb, const char * pName, FN_WT
 	return ok;
 }
 
-// static
-TWhatmanObject * SLAPI TWhatmanObject::CreateInstance(long id)
+/*static*/TWhatmanObject * SLAPI TWhatmanObject::CreateInstance(long id)
 {
 	WhatmanObjectRegTable::Item item;
 	WhatmanObjectRegTable * p_tab = GetRegTable();
 	return (p_tab && p_tab->Search(id, 0, &item) && item.Factory) ? item.Factory() : 0;
 }
 
-// static
-TWhatmanObject * SLAPI TWhatmanObject::CreateInstance(const char * pSymb)
+/*static*/TWhatmanObject * SLAPI TWhatmanObject::CreateInstance(const char * pSymb)
 {
 	WhatmanObjectRegTable::Item item;
 	WhatmanObjectRegTable * p_tab = GetRegTable();
 	return (p_tab && p_tab->Search(pSymb, 0, &item) && item.Factory) ? item.Factory() : 0;
 }
 
-// static
-int TWhatmanObject::GetRegSymbById(long id, SString & rSymb)
+/*static*/int TWhatmanObject::GetRegSymbById(long id, SString & rSymb)
 {
 	int    ok = 0;
 	WhatmanObjectRegTable * p_tab = GetRegTable();
@@ -179,16 +175,14 @@ int TWhatmanObject::GetRegSymbById(long id, SString & rSymb)
 	return ok;
 }
 
-// static
-long TWhatmanObject::GetRegIdBySymb(const char * pSymb)
+/*static*/long TWhatmanObject::GetRegIdBySymb(const char * pSymb)
 {
 	WhatmanObjectRegTable * p_tab = GetRegTable();
 	WhatmanObjectRegTable::Item item;
 	return (p_tab && p_tab->Search(pSymb, 0, &item)) ? item.Id : 0;
 }
 
-// static
-StrAssocArray * TWhatmanObject::MakeStrAssocList()
+/*static*/StrAssocArray * TWhatmanObject::MakeStrAssocList()
 {
 	WhatmanObjectRegTable * p_tab = GetRegTable();
 	return p_tab ? p_tab->MakeStrAssocList() : 0;

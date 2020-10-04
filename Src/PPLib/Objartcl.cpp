@@ -1175,11 +1175,9 @@ int SLAPI PPObjArticle::DeleteObj(PPID id)
 	return ok;
 }
 
-// static
-int SLAPI PPObjArticle::PutAliasSubst(PPID arID, const LAssocArray * pList, int use_ta)
+/*static*/int SLAPI PPObjArticle::PutAliasSubst(PPID arID, const LAssocArray * pList, int use_ta)
 	{ return PPRef->PutPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList, use_ta); }
-// static
-int SLAPI PPObjArticle::GetAliasSubst(PPID arID, LAssocArray * pList)
+/*static*/int SLAPI PPObjArticle::GetAliasSubst(PPID arID, LAssocArray * pList)
 	{ return PPRef->GetPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList); }
 
 int SLAPI PPObjArticle::Helper_PutAgreement(PPID id, PPArticlePacket * pPack)
@@ -2170,8 +2168,7 @@ SLAPI PPObjDebtDim::PPObjDebtDim() : PPObjReference(PPOBJ_DEBTDIM, 0)
 {
 }
 
-// static
-PPID SLAPI PPObjDebtDim::Select()
+/*static*/PPID SLAPI PPObjDebtDim::Select()
 {
 	PPID   id = 0;
 	SString sub_title;

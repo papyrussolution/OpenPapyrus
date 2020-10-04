@@ -355,7 +355,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 			total = -total;
 			result = -result;
 		}
-		assert(GetTotal() == total);
+		assert(feqeps(GetTotal(), total, 1E-7)); // @v10.9.0 feqeps
 	}
 	return result;
 }
@@ -365,7 +365,7 @@ int CcAmountList::Normalize()
 	int    ok = -1;
 	uint   c = getCount();
 	if(c) do {
-		if(at(--c).Amount == 0.0) {
+		if(feqeps(at(--c).Amount, 0.0, 1E-7)) { // @v10.9.0 feqeps
 			atFree(c);
 			ok = 1;
 		}
@@ -2337,12 +2337,11 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 						}
 					}
 					if(charge_amount != 0.0)
-						temp_al.Add(CCAMTTYP_CSCCHARGE, -charge_amount, pPack->Rec.SCardID);
+						temp_al.Add(CCAMTTYP_CSCCHARGE, charge_amount, pPack->Rec.SCardID); // @v10.9.0 @fix (-charge_amount)-->(charge_amount)
 				}
 			}
 		}
 		const uint plc = temp_al.getCount();
-		// @v8.0.0 {
 		if(plc) {
 			struct _UhttEntry {
 				uint   P;
@@ -2361,8 +2360,8 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 					cp_rec.PaymType = static_cast<int16>(r_entry.Type);
 					cp_rec.Amount = dbltointmny(r_entry.Amount);
 					cp_rec.SCardID = sc_id;
-					cp_rec.CurID = r_entry.CurID; // @v9.0.4
-					cp_rec.CurAmount = dbltointmny(r_entry.CurAmount); // @v9.0.4
+					cp_rec.CurID = r_entry.CurID;
+					cp_rec.CurAmount = dbltointmny(r_entry.CurAmount);
 					THROW_DB(PaymT.insertRecBuf(&cp_rec));
 					ufp_factor += 1.0;
 				}
@@ -2402,7 +2401,7 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 						const _UhttEntry * p_u = static_cast<const _UhttEntry *>(uhtt_list.at(i));
 						const CcAmountEntry & r_entry = temp_al.at(p_u->P);
 						char   uhtt_sc_code[64];
-						uhtt_sc_code[0] = 0;
+						PTR32(uhtt_sc_code)[0] = 0;
 						UhttSCardPacket scp;
 						ufp_factor_uhtt += 1.0;
 						if(p_uhtt_cli->GetSCardByNumber(p_u->Code, scp)) {
@@ -2430,7 +2429,6 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 				}
 			}
 		}
-		// } @v8.0.0
 		THROW(tra.Commit());
 	}
 	else

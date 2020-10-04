@@ -2016,7 +2016,7 @@ void gravity_value_dump(gravity_vm * vm, GravityValue v, char * buffer, uint16 l
 	}
 	else if(v.isa == GravityEnv.P_ClsBool) {
 		type = "BOOL";
-		value = (v.n == 0) ? "false" : "true";
+		value = v.n ? "true" : "false";
 		snprintf(buffer, len, "(%s) %s", type, value);
 		value = buffer;
 	}
