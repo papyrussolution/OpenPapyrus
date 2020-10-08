@@ -2,7 +2,7 @@
 
 www.petroglif.ru
 
-### [Ru]
+#Ru
 
 ### Система управления предприятием OpenPapyrus
 
@@ -74,7 +74,7 @@ empty - пустая база данных для реального испол�
 
 Поддержка платная.
 
-### [En]
+#En
 
 ### The enterprise management system OpenPapyrus
 
@@ -96,6 +96,24 @@ Programming Language: C ++
 Operating system: Windows XP or higher
 
 Language: Russian 
+Experimental translation phase: English, German, Dutch, Portuguese
+
+Integration with services, equipment and systems:
+* EGAIS
+* EDI systems
+* Cash register module Set-Retail
+* Frontol cash register module
+* Pepsico iSales
+* IP-telephony server Asterisk
+* Universal hardware driver ATOL
+* Fiscal registrars Shtrif-FR
+* Fiscal registrars Viki Print
+* Fiscal registrars Pirit
+* Electronic scales CAS
+* Electronic scales DIGI
+* Electronic scales Mettler-Toledo
+* Electronic scales Bizerba
+* Electronic scales Shtrih-Print
 
 features.pdf: detailed (but, alas, not full) features description.
 
