@@ -1574,7 +1574,7 @@ int SLAPI CPosNodeBlock::ResolveCrit_ArByPerson(int subcriterion, const SString 
 					if(pk_obj.Fetch(acs_rec.ObjGroup, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
 						PPIDArray list;
 						SString temp_buf = rArg;
-						if(temp_buf.CmpPrefix("SAL", 1) == 0)
+						if(temp_buf.HasPrefixIAscii("SAL"))
 							temp_buf.ShiftLeft(3);
 						if(PsnObj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, temp_buf, list) > 0)
 							temp_id = list.get(0);

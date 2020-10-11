@@ -62,8 +62,7 @@ int SLAPI PPViewServerStat::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-//static
-int FASTCALL PPViewServerStat::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewServerStat::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewServerStat * p_v = static_cast<PPViewServerStat *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

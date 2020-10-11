@@ -86,11 +86,11 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 				SETMAX(upp, 0.0);
 				if(low > upp)
 					Exchange(&low, &upp);
-				rBlk.LenRange.low = (int)low;
-				rBlk.LenRange.upp = (int)low;
+				rBlk.LenRange.low = static_cast<int>(low);
+				rBlk.LenRange.upp = static_cast<int>(low);
 			}
 		}
-		else if(scan[0] >= 0 && scan[0] <= '9') {
+		else if(isdec(scan[0])) { // @v10.9.0 @fix (scan[0] >= 0)-->(scan[0] >= '0')
 			temp_buf.Z();
 			while(isalnum(scan[0])) {
 				temp_buf.CatChar(scan[0]);
@@ -455,8 +455,7 @@ int PPBizScoreWindow::Update()
 		(buf = name).CatDiv(':', 1).Cat(value).CRB();
 		text.Cat(buf);
 	}
-	// @v9.1.5 SendDlgItemMessage(H(), CTL_BUSPARAMS_TEXT, WM_SETTEXT, 0, (LPARAM)(const char *)text.Transf(CTRANSF_INNER_TO_OUTER).Strip());
-	TView::SSetWindowText(GetDlgItem(H(), CTL_BUSPARAMS_TEXT), text.Transf(CTRANSF_INNER_TO_OUTER).Strip()); // @v9.1.5
+	TView::SSetWindowText(GetDlgItem(H(), CTL_BUSPARAMS_TEXT), text.Transf(CTRANSF_INNER_TO_OUTER).Strip());
 	UpdateWindow(H());
 	return 1;
 }
@@ -557,7 +556,6 @@ int PPBizScoreWindow::DoCommand(TPoint p)
 //
 // PPDesktop
 //
-
 PPDesktop::PPDesktop() : TWindow(TRect(1,1,50,20), 0, 1), IconSize(32), IconGap(8), HwndTT(0), P_ActiveDesktop(0), State(0), HBizScoreWnd(0),
 	P_ScObj(0), P_GObj(0), P_PsnObj(0)
 {
@@ -985,7 +983,7 @@ int PPDesktop::EndIconMove(TPoint coord)
 		if(p_cmd) {
 			PPIDArray ary;
 			TRect ir;
-			MoveIconCoord = coord - CoordOffs; // @v9.0.11
+			MoveIconCoord = coord - CoordOffs;
 			CalcIconRect(MoveIconCoord, ir);
 			Selected =- Selected;
 			invalidateRect(ir, 0);
@@ -1095,7 +1093,7 @@ int PPDesktop::ArrangeIcon(TPoint * pCoord)
 	return ok;
 }
 
-int PPDesktop::Update(const TRect * pR, int drawBackgnd)
+void PPDesktop::Update(const TRect * pR, int drawBackgnd)
 {
 	if(pR) {
 		invalidateRect(*pR, drawBackgnd);
@@ -1103,8 +1101,7 @@ int PPDesktop::Update(const TRect * pR, int drawBackgnd)
 	else {
 		invalidateAll(drawBackgnd);
 	}
-	UpdateWindow(H());
-	return 1;
+	::UpdateWindow(H());
 }
 
 int PPDesktop::EditIconName(long id)
@@ -1166,17 +1163,31 @@ int PPDesktop::Advise()
 	int    ok = -1;
 	UserInterfaceSettings ui_cfg;
 	ui_cfg.Restore();
+	const ThreadID thr_id = DS.GetConstTLA().GetThreadID();
 	if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) {
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;
 		adv_blk.Kind       = PPAdviseBlock::evBizScoreChanged;
-		adv_blk.TId        = DS.GetConstTLA().GetThreadID();
+		adv_blk.TId        = thr_id;
 		adv_blk.ObjType    = PPOBJ_BIZSCORE;
 		adv_blk.Proc       = PPDesktop::HandleNotifyEvent;
 		adv_blk.ProcExtPtr = this;
 		if((ok = DS.Advise(&cookie, &adv_blk)) > 0)
 			Cookies.addUnique(cookie);
 	}
+	// @v10.9.0 {
+	{
+		long   cookie = 0;
+		PPAdviseBlock adv_blk;
+		adv_blk.Kind = PPAdviseBlock::evEventCreated;
+		adv_blk.TId = thr_id;
+		adv_blk.ObjType = PPOBJ_EVENTSUBSCRIPTION;
+		adv_blk.Proc    = PPDesktop::HandleNotifyEvent;
+		adv_blk.ProcExtPtr = this;
+		if((ok = DS.Advise(&cookie, &adv_blk)) > 0)
+			Cookies.addUnique(cookie);
+	}
+	// } @v10.9.0 
 	return ok;
 }
 
@@ -1189,20 +1200,44 @@ void PPDesktop::Unadvise()
 /*static*/int PPDesktop::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
-	if(pEv && pEv->ObjType) {
-		PPDesktop * p_desk = static_cast<PPDesktop *>(procExtPtr);
-		if(p_desk) {
-			ok = p_desk->LoadBizScoreData();
-			ok = 1;
+	if(pEv) {
+		if(kind == PPAdviseBlock::evBizScoreChanged) {
+			if(pEv->ObjType) {
+				PPDesktop * p_desk = static_cast<PPDesktop *>(procExtPtr);
+				if(p_desk) {
+					// @v10.9.0 ok = p_desk->LoadBizScoreData();
+					// @v10.9.0 int PPDesktop::LoadBizScoreData()
+					// @v10.9.0 {
+					{
+						PPBizScoreWindow * p_wnd = p_desk->GetBizScoreWnd();
+						ok = p_wnd ? p_wnd->LoadData() : 0;
+					}
+					// } @v10.9.0 
+					ok = 1;
+				}
+			}
+		}
+		else if(kind == PPAdviseBlock::evEventCreated) {
+			if(pEv->ObjType == PPOBJ_EVENTSUBSCRIPTION && pEv->ObjID) {
+				PPDesktop * p_desk = static_cast<PPDesktop *>(procExtPtr);
+				if(p_desk) {
+					const PPID cur_user_id = LConfig.UserID;
+					PPObjEventSubscription evs_obj(0);
+					PPEventSubscriptionPacket evs_pack;
+					if(evs_obj.Fetch(pEv->ObjID, &evs_pack) > 0) {
+						if(evs_pack.UserList.Search(cur_user_id, 0, 0)) {
+							SString msg_buf;
+							COLORREF clr = GetColorRef(SClrLightskyblue);
+							msg_buf = "Ooo-ps!";
+							PPTooltipMessage(msg_buf, 0, p_desk->H(), 30000, clr, SMessageWindow::fTextAlignLeft|
+								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fTopmost);
+						}
+					}
+				}
+			}
 		}
 	}
 	return ok;
-}
-
-int PPDesktop::LoadBizScoreData()
-{
-	PPBizScoreWindow * p_wnd = GetBizScoreWnd();
-	return p_wnd ? p_wnd->LoadData() : 0;
 }
 //
 //
@@ -1245,10 +1280,10 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 			MEMSZERO(log_font);
 			log_font.lfCharSet = DEFAULT_CHARSET;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_ARIAL, temp_buf);
-			STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf)); // @unicodeproblem
+			STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf));
 			log_font.lfHeight = 14;
 			log_font.lfQuality = CLEARTYPE_QUALITY;
-			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font)); // @unicodeproblem
+			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font));
 		}
 		Ptb.SetBrush(brushTextRect,    SPaintObj::bsSolid, SColor(RGB(0x80, 0x80, 0xC0)), 0);
 		Ptb.SetBrush(brushSelTextRect, SPaintObj::bsSolid, SColor(RGB(0x40, 0x00, 0x80)), 0);

@@ -1501,8 +1501,7 @@ int SLAPI PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-//static
-int PPViewQuot::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int PPViewQuot::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	PPViewQuot * p_view = static_cast<PPViewQuot *>(extraPtr);

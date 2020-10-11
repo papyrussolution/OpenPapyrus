@@ -664,7 +664,6 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 /*virtual*/int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 {
 	// mailfrom:coke@gmail.com?subj=orders
-
 	int    ok = -1;
 	SString _file_spec;
 	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
@@ -813,9 +812,8 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		if(ImpOpID && op_obj.Search(ImpOpID, &op_rec) > 0) {
 			if(op_rec.Symb[0])
 				param_val = op_rec.Symb;
-			else {
+			else
 				param_val.Z().Cat(ImpOpID);
-			}
 		}
 		else
 			param_val = 0;
@@ -1455,7 +1453,6 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 		BillParam.Direction = BIN(import);
 		BRowParam.Direction = BIN(import);
 		THROW(CheckDialogPtr(&(dlg = new SelectBillImpCfgDialog((import ? DLG_RUNIE_BILL_IMP : DLG_RUNIE_BILL_EXP), ini_file_name, import))));
-		// @v9.9.9 {
 		{
 			PrcssrAlcReport::Config parc;
 			if(PrcssrAlcReport::ReadConfig(&parc) > 0) {
@@ -1464,7 +1461,6 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			else
 				Flags &= fEgaisVer3;
 		}
-		// } @v9.9.9
 		THROW(dlg->setDTS(this));
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS())
@@ -1475,84 +1471,6 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 	delete dlg;
 	return ok;
 }
-
-#if 0 // @v9.1.1 @unused {
-class UnknownGoodsSubstDialog : public PPListDialog {
-public:
-	UnknownGoodsSubstDialog() : PPListDialog(DLG_LBXSEL, CTL_LBXSEL_LIST)
-	{
-		SString subtitle;
-		PPLoadText(PPTXT_NOTIMPORTEDGOODS, subtitle);
-		setSubTitle(subtitle);
-		showCtrl(STDCTL_INSBUTTON,  0);
-		showCtrl(STDCTL_DELBUTTON,  0);
-		showCtrl(CTL_LBXSEL_UPBTN,   0);
-		showCtrl(CTL_LBXSEL_DOWNBTN, 0);
-		updateList(-1);
-	}
-	int setDTS(SdrBillRowArray * pData)
-	{
-		int    ok = 1;
-		if(pData)
-			Data.copy(*pData);
-		updateList(-1);
-		return ok;
-	}
-	int getDTS(SdrBillRowArray * pData, PPIDArray * pSubstGoodsList)
-	{
-		int    ok = 1;
-		THROW_INVARG(pData && pSubstGoodsList);
-		pData->freeAll();
-		pSubstGoodsList->freeAll();
-		for(uint i = 0; i < SubstGoodsList.getCount(); i++) {
-			const  LAssoc & r_item = SubstGoodsList.at(i);
-			THROW_SL(pSubstGoodsList->add(r_item.Val /* goods_id */));
-			THROW_SL(pData->insert(&Data.at(r_item.Key - 1)));
-		}
-		CATCHZOK
-		return ok;
-	}
-private:
-	virtual int editItem(long pos, long id);
-	virtual int setupList();
-	LAssocArray     SubstGoodsList;
-	SdrBillRowArray Data;
-};
-
-int UnknownGoodsSubstDialog::setupList()
-{
-	int    ok = -1;
-	SString goods_name;
-	for(uint i = 0; i < Data.getCount(); i++) {
-		if(SubstGoodsList.Search(i + 1, 0, 0) <= 0) {
-			const Sdr_BRow * p_brow = &Data.at(i);
-			goods_name = p_brow->GoodsName;
-			if(!goods_name.NotEmptyS())
-				(goods_name = p_brow->Barcode).CatChar(' ').Cat(p_brow->Quantity, MKSFMTD(10, 2, 0));
-			THROW(addStringToList(i + 1, goods_name.cptr()));
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-
-int UnknownGoodsSubstDialog::editItem(long pos, long id)
-{
-	int    ok = -1;
-	PPID   goods_id = 0;
-	if(id && SelectGoods(goods_id) > 0) {
-		char   goods_name[128];
-		SubstGoodsList.Add(id, goods_id, 0);
-		STRNSCPY(goods_name, Data.at((uint)id - 1).GoodsName);
-		for(uint p = 0; Data.lsearch(goods_name, &p, PTR_CMPFUNC(Pchar), offsetof(Sdr_BRow, GoodsName)) > 0; p++) {
-			if((p + 1) != id)
-				SubstGoodsList.Add(p + 1, goods_id, 0);
-		}
-		ok = 1;
-	}
-	return ok;
-}
-#endif // } 0 @v9.1.1 @unused
 //
 //
 //
@@ -1564,8 +1482,7 @@ PPBillImporter::PPBillImporter() : P_Cc(0), P_Btd(0)
 PPBillImporter::~PPBillImporter()
 {
 	SString path;
-	PPGetFilePath(PPPATH_LOG, PPFILNAM_IMPEXP_LOG, path);
-	Logger.Save(path, 0);
+	Logger.Save(PPGetFilePathS(PPPATH_LOG, PPFILNAM_IMPEXP_LOG, path), 0);
 	delete P_Btd;
 	delete P_Cc;
 }
@@ -2665,7 +2582,7 @@ int SLAPI PPBillImporter::ReadData()
 			StrAssocArray articles;
 			PPImpExp ie(&BillParam, 0);
 			PPImpExp * p_ie_row = 0;
-			/*StrAssocArray*/PPImpExpParam::PtTokenList fn_fld_list;
+			PPImpExpParam::PtTokenList fn_fld_list;
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);
 			THROW(ie.OpenFileForReading(filename));
 			p_ie_row = &ie;
@@ -2701,9 +2618,9 @@ int SLAPI PPBillImporter::ReadData()
 		SString bid;
 		BillsRows.freeAll();
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
-		ss_files.sortAndUndup(); // @v9.9.1
+		ss_files.sortAndUndup();
 		for(uint ssp = 0, fi = 0; ss_files.get(&ssp, filename); fi++) {
-			/*StrAssocArray*/PPImpExpParam::PtTokenList fn_fld_list;
+			PPImpExpParam::PtTokenList fn_fld_list;
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);
 			if(imp_rows_only) {
 				SdrBillRowArray preserve_rows = BillsRows;
@@ -4203,8 +4120,7 @@ int SLAPI PPBillImporter::Run()
 			// Если импортируем через EDI, то необходимо импортировать данные для всех провайдеров, указанных
 			// в impexp.ini для выбранного типа документов
 			//
-			PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, file_name);
-			PPIniFile ini_file(file_name, 0, 1, 1);
+			PPIniFile ini_file(PPGetFilePathS(PPPATH_BIN, PPFILNAM_IMPEXP_INI, file_name), 0, 1, 1);
 			StringSet sects;
 			const PPBillImpExpParam preserve_bill_param = BillParam; // Запомним начальные настройки конфигурации
 			if(ini_file.GetSections(&sects) > 0) {

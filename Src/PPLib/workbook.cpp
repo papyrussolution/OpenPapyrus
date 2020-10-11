@@ -202,10 +202,8 @@ PPWorkbookConfig & SLAPI PPWorkbookConfig::Z()
 	THISZERO();
 	return *this;
 }
-//
-//
-//static
-int FASTCALL PPObjWorkbook::ReadConfig(PPWorkbookConfig * pCfg)
+
+/*static*/int FASTCALL PPObjWorkbook::ReadConfig(PPWorkbookConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_WORKBOOKCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
@@ -266,8 +264,7 @@ void SLAPI PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
 	rList.SVectorBase::sort(PTR_CMPFUNC(WorkbookIdByRank_Name), this);
 }
 
-//static
-int SLAPI PPObjWorkbook::EditConfig()
+/*static*/int SLAPI PPObjWorkbook::EditConfig()
 {
 	class WorkbookCfgDialog : public TDialog {
 	public:

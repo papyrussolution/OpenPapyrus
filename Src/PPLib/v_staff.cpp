@@ -75,8 +75,7 @@ int SLAPI PPViewStaffList::EditBaseFilt(PPBaseFilt * pFilt)
 #undef GRP_DIV
 }
 
-//static
-void FASTCALL PPViewStaffList::MakeListEntry(const PPStaffEntry & rSrc, PPViewStaffList::BrwEntry & rEntry)
+/*static*/void FASTCALL PPViewStaffList::MakeListEntry(const PPStaffEntry & rSrc, PPViewStaffList::BrwEntry & rEntry)
 {
 	MEMSZERO(rEntry);
 	rEntry.ID = rSrc.ID;

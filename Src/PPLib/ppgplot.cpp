@@ -398,8 +398,7 @@ SString & Generator_GnuPlot::Font(const StyleFont & rFont)
 	return LineBuf.CatChar('\"');
 }
 
-// static
-SString & Generator_GnuPlot::ColorToStr(COLORREF c, SString & rBuf)
+/*static*/SString & Generator_GnuPlot::ColorToStr(COLORREF c, SString & rBuf)
 {
 	char temp[32];
 	sprintf(temp, "#%02x%02x%02x", GetRValue(c), GetGValue(c), GetBValue(c));

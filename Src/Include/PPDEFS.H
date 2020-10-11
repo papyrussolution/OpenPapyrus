@@ -503,32 +503,33 @@
 		// без посредничества главной организации.
 	#define PPOPT_DRAFTQUOTREQ  22L // @v10.5.7 Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
 #define PPOBJ_OPRKIND            12L  // $ Виды операций
-	#define PPOPK_GENERICACCTURN       1L // Общая бух. проводка
-	#define PPOPK_RECEIPT              2L // Прием товара от поставщика
-	#define PPOPK_SELL                 3L // Продажа товара именованному клиенту
-	#define PPOPK_RETAIL               4L // Продажа в розницу неименованному клиенту
-	#define PPOPK_INTREXPEND           5L // Внутренняя передача товара
-	#define PPOPK_INTRRECEIPT          6L // Внутренний прием товара
+	#define PPOPK_GENERICACCTURN         1L // Общая бух. проводка
+	#define PPOPK_RECEIPT                2L // Прием товара от поставщика
+	#define PPOPK_SELL                   3L // Продажа товара именованному клиенту
+	#define PPOPK_RETAIL                 4L // Продажа в розницу неименованному клиенту
+	#define PPOPK_INTREXPEND             5L // Внутренняя передача товара
+	#define PPOPK_INTRRECEIPT            6L // Внутренний прием товара
 //
 // Следующие три операции зарезервированы только для конвертации
 // из других баз данных, где возврат осуществляется без ссылки на осн. док.
 // Какие-либо операции с этими видами при нормальной работе запрещены
 //
-	#define _PPOPK_SUPPLRET            7L // Левый возврат поставщику (без ссылки)
-	#define _PPOPK_SELLRET             8L // Левый возврат от клиента (без ссылки)
-	#define _PPOPK_RETAILRET           9L // Левый возврат в розницу (без ссылки)
-	#define PPOPK_INVENTORY           10L // Инвентаризация //
-	#define PPOPK_CASHSESS            11L // @unused Кассовая сессия (тип PPOPT_CASHSESS)
-	#define PPOPK_EDI_ACTCHARGEON     12L // Постановка лотов на баланс в ЕГАИС
-	#define PPOPK_EDI_RECADV          13L // Драфт-операция подтверждения отгрузки, поступившего из EDI
-	#define PPOPK_EDI_STOCK           14L // Драфт-операция подтверждения остатков, учитываемых сервисом EDI
-	#define PPOPK_EDI_SHOPCHARGEON    15L // Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
-	#define PPOPK_EDI_ACTCHARGEONSHOP 16L // Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
-	#define PPOPK_EDI_WRITEOFFSHOP    17L // Списание с баланса торгового зала в ЕГАИС (регистр 2)
+	#define _PPOPK_SUPPLRET              7L // Левый возврат поставщику (без ссылки)
+	#define _PPOPK_SELLRET               8L // Левый возврат от клиента (без ссылки)
+	#define _PPOPK_RETAILRET             9L // Левый возврат в розницу (без ссылки)
+	#define PPOPK_INVENTORY             10L // Инвентаризация //
+	#define PPOPK_CASHSESS              11L // @unused Кассовая сессия (тип PPOPT_CASHSESS)
+	#define PPOPK_EDI_ACTCHARGEON       12L // Постановка лотов на баланс в ЕГАИС
+	#define PPOPK_EDI_RECADV            13L // Драфт-операция подтверждения отгрузки, поступившего из EDI
+	#define PPOPK_EDI_STOCK             14L // Драфт-операция подтверждения остатков, учитываемых сервисом EDI
+	#define PPOPK_EDI_SHOPCHARGEON      15L // Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
+	#define PPOPK_EDI_ACTCHARGEONSHOP   16L // Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
+	#define PPOPK_EDI_WRITEOFFSHOP      17L // Списание с баланса торгового зала в ЕГАИС (регистр 2)
 		// @v10.3.5 Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
-	#define PPOPK_EDI_ORDERRSP        18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
-	#define PPOPK_EDI_WROFFWITHMARKS  19L // @v10.3.6  Драфт-операция списание с отстатков ЕГАИС акцизных марок
-	#define PPOPK_UNASSIGNED        1000L // Специальный идентификатор
+	#define PPOPK_EDI_ORDERRSP          18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
+	#define PPOPK_EDI_WROFFWITHMARKS    19L // @v10.3.6  Драфт-операция списание с остатков ЕГАИС акцизных марок
+	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // @v10.9.0  Драфт-операция постановки на баланс маркированной продукции
+	#define PPOPK_UNASSIGNED          1000L // Специальный идентификатор
 	//
 	// Extra records of PPOBJ_OPRKIND
 	#define OPKPRP_BILLMEMO   (PP_MAXATURNTEMPLATES+1)  // @obsolete since @v3.0.2 Шаблон текста для ввода в примечание документа
@@ -1438,6 +1439,7 @@
 #define BBT_DRAFTBILLS          7
 #define BBT_REALTYPES           8  // Товарные, бухгалтерские документы и оплаты
 #define BBT_WMSBILLS            9  // Документы складских операций
+#define BBT_SPC_CHARGEONMARKS  10  // @v10.9.0 Special: постановка на баланс маркированной продукции
 //
 // Вид анализа счета. Применяются в PPViewAccAnlz
 // Перечисление AccAnlzKind (pp.h) однозначно проецируется в эти константы.
@@ -1536,6 +1538,8 @@
 #define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
 #define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
+#define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // @v10.9.0 ActFixBarCode Акт фиксации фиксации штрихкодов на балансе организации
+#define PPEDIOP_EGAIS_ACTUNFIXBARCODE         75 // @v10.9.0 ActUnFixBarCode Акт отмены фиксации штрихкодов на балансе организации
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -1833,6 +1837,7 @@
 #define cmGuaList                1176 // @v10.5.3 // @v10.8.9 made-global
 #define cmTotal                  1177 // @v10.8.11
 #define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
+#define cmCopyToClipboardSpc     1179 // @v10.9.0 Специальное копирование в буфер обмена
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -1968,6 +1973,7 @@
 	#define CTL_PERSON_SCTIME           (53 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_ST_INFO          (54 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_FULLSCARDBUT     (55 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_GENDER           (56 + WINDOWS_ID_BIAS)
 #define DLG_REG_PRIVATE            26 // Регистр. данные физ. лиц
 #define DLG_REG_FREE               27 // Регистр. данные частных предпр.
 #define DLG_REG_LEGAL              28 // Регистр. данные юр. лиц
@@ -5705,6 +5711,7 @@
 	#define CTL_SCARD_POOLDSER           (29 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARD_POOLDSER        (30 + WINDOWS_ID_BIAS)
 	#define CTL_SCARD_FIXBON             (31 + WINDOWS_ID_BIAS)
+	#define CTL_SCARD_OUTERID            (32 + WINDOWS_ID_BIAS)
 #define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
@@ -8699,6 +8706,8 @@
 	#define CTLSEL_ADDBILLFLT_OP         (4 + WINDOWS_ID_BIAS)
 	#define CTL_ADDBILLFLT_LOC           (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ADDBILLFLT_LOC        (6 + WINDOWS_ID_BIAS)
+	#define CTL_ADDBILLFLT_RESERVED      (7 + WINDOWS_ID_BIAS) // @v10.9.0 radio-button with reserved operations
+	#define CTL_ADDBILLFLT_FLAGS         (8 + WINDOWS_ID_BIAS) // @v10.9.0
 #define DLG_CLIBNKFMTLIST        1017
 	#define cmCliBnkFmtListAssoc         101
 	#define CTL_CLIBNKFMTLIST_LIST       (1 + WINDOWS_ID_BIAS)

@@ -315,9 +315,9 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	GetPath(PPPATH_TEMP, 0, temp_path);
 	GetPath(PPPATH_LOG, 0, log_path);
 	GetPath(PPPATH_PACK, 0, pack_path);
-	GetPath(PPPATH_SPII, 0, spii_path); // @v9.7.8
-	GetPath(PPPATH_SARTREDB, 0, sartredb_path); // @v9.7.8
-	GetPath(PPPATH_REPORTDATA, 0, reportdata_path); // @v9.8.9
+	GetPath(PPPATH_SPII, 0, spii_path);
+	GetPath(PPPATH_SARTREDB, 0, sartredb_path);
+	GetPath(PPPATH_REPORTDATA, 0, reportdata_path);
 	GetPath(PPPATH_WORKSPACE, 0, workspace_path); // @v10.6.1
 	PathItem * p = 0;
 	THROW(Resize(sz));
@@ -373,16 +373,12 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		SetPath(PPPATH_LOG, log_path, 0, 1);
 	if(pack_path.NotEmptyS())
 		SetPath(PPPATH_PACK, pack_path, 0, 1);
-	// @v9.7.8 {
 	if(spii_path.NotEmptyS())
 		SetPath(PPPATH_SPII, spii_path, 0, 1);
 	if(sartredb_path.NotEmptyS())
 		SetPath(PPPATH_SARTREDB, sartredb_path, 0, 1);
-	// } @v9.7.8
-	// @v9.8.9 {
 	if(reportdata_path.NotEmptyS())
 		SetPath(PPPATH_REPORTDATA, reportdata_path, 0, 1);
-	// } @v9.8.9
 	// @v10.6.1 {
 	if(workspace_path.NotEmptyS())
 		SetPath(PPPATH_WORKSPACE, workspace_path, 0, 1);
@@ -467,8 +463,15 @@ int FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
 
 int FASTCALL PPGetFilePath(PPID pathID, uint fileNameID, SString & rBuf)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.10
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	return PPGetFilePath(pathID, PPGetFileName(fileNameID, r_temp_buf), rBuf);
+}
+
+SString & FASTCALL PPGetFilePathS(PPID pathID, uint fileNameID, SString & rBuf)
+{
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	PPGetFilePath(pathID, PPGetFileName(fileNameID, r_temp_buf), rBuf);
+	return rBuf;
 }
 
 SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)

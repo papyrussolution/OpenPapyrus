@@ -242,8 +242,7 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 	long   Reserve3[2];
 };
 
-//static
-int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
+/*static*/int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_LOCATIONCFG;
 	int    ok = -1, r;
@@ -302,8 +301,7 @@ int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
 	return ok;
 }
 
-//static
-int SLAPI PPObjLocation::EditConfig()
+/*static*/int SLAPI PPObjLocation::EditConfig()
 {
 	int    ok = -1;
 	PPLocationConfig cfg, org_cfg;
@@ -3527,8 +3525,7 @@ uint SLAPI PPObjLocation::GetWarehouseList(PPIDArray * pList)
 	return p_cache ? p_cache->CheckWarehouseFlags(locID, f) : 0;
 }
 
-//static 
-PPID FASTCALL PPObjLocation::Implement_ObjToWarehouse_Direct(PPID arID, int ignoreRights, PPID * pAcsID)
+/*static*/PPID FASTCALL PPObjLocation::Implement_ObjToWarehouse_Direct(PPID arID, int ignoreRights, PPID * pAcsID)
 {
 	if(arID) { 
 		PPID   acs_id = 0;
@@ -5943,8 +5940,7 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 //
 //
 //
-//static
-int PPFiasReference::IdentifyShortDescription(const char * pText, int * pLevel, SString * pFullText)
+/*static*/int PPFiasReference::IdentifyShortDescription(const char * pText, int * pLevel, SString * pFullText)
 {
 	int    ok = 0;
 	int    level = DEREFPTRORZ(pLevel);

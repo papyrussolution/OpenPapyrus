@@ -110,8 +110,7 @@ int FASTCALL GetMainEmployerID(PPID * pID)
 	return 0;
 }
 
-//static
-int FASTCALL PPObjPerson::GetCurUserPerson(PPID * pID, SString * pBuf)
+/*static*/int FASTCALL PPObjPerson::GetCurUserPerson(PPID * pID, SString * pBuf)
 {
 	int    ok = -1;
 	PPObjSecur sec_obj(PPOBJ_USR, 0);
@@ -362,8 +361,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	//TSArray <PPPersonConfig::NewClientDetectionItem> NewClientDetectionList; // @vmiller
 };
 
-//static
-int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
+/*static*/int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 {
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
 	const  long cfg_obj_type = PPCFGOBJ_PERSON;
@@ -444,8 +442,7 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 	return ok;
 }
 
-//static
-int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
+/*static*/int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
 	int    ok = -1, r;
@@ -908,8 +905,7 @@ void SLAPI PPPersonConfig::Init()
 	NewClientDetectionList.freeAll();
 }
 
-//static
-int SLAPI PPObjPerson::EditConfig()
+/*static*/int SLAPI PPObjPerson::EditConfig()
 {
 	class PersonCfgDialog : public TDialog {
 		DECL_DIALOG_DATA(PPPersonConfig);
@@ -2545,8 +2541,7 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 	clearEvent(event);
 }
 
-// static
-int SLAPI PPObjPerson::ReplacePerson(PPID srcID, PPID srcKindID)
+/*static*/int SLAPI PPObjPerson::ReplacePerson(PPID srcID, PPID srcKindID)
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -2590,8 +2585,7 @@ int SLAPI PPObjPerson::ReplacePerson(PPID srcID, PPID srcKindID)
 	return ok;
 }
 
-// static
-int SLAPI PPObjPerson::ReplaceDlvrAddr(PPID srcID)
+/*static*/int SLAPI PPObjPerson::ReplaceDlvrAddr(PPID srcID)
 {
 	int    ok = -1;
 	//PPID   dest_id = 0, src_id = srcID;
@@ -3428,7 +3422,7 @@ int SLAPI PPObjPerson::GetSubstObjType(long id, const SubstParam * pParam, PPObj
 	return 1;
 }
 
-int SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam, SString & rBuf)
+void SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam, SString & rBuf)
 {
 	rBuf.Z();
 	SString temp_buf, addr_buf;
@@ -3453,15 +3447,13 @@ int SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam
 			if(Fetch(id, &psn_rec) > 0)
 				rBuf = psn_rec.Name;
 			if(dlvrLocID) {
-				// @v9.5.5 LocObj.P_Tbl->GetAddress(dlvrLocID, 0, addr_buf);
-				LocObj.GetAddress(dlvrLocID, 0, addr_buf); // @v9.5.5
+				LocObj.GetAddress(dlvrLocID, 0, addr_buf);
 				rBuf.CatDivIfNotEmpty(';', 2).Cat(addr_buf);
 			}
 		}
 		if(rBuf.Empty())
 			rBuf.CatChar('#').Cat(id);
 	}
-	return 1;
 }
 //
 // Prototype (V_PERSON.CPP)
@@ -3586,6 +3578,12 @@ class PersonDialogBase : public TDialog {
 public:
 	explicit PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0)
 	{
+		TView * p_ctrl = getCtrlView(CTL_PERSON_GENDER);
+		if(p_ctrl) {
+			AddClusterAssocDef(CTL_PERSON_GENDER, 0, GENDER_UNDEF);
+			AddClusterAssocDef(CTL_PERSON_GENDER, 1, GENDER_MALE);
+			AddClusterAssocDef(CTL_PERSON_GENDER, 2, GENDER_FEMALE);
+		}
 	}
 	void   SetupPhoneOnInit(const char * pPhone)
 	{
@@ -3593,8 +3591,75 @@ public:
 	}
 	PPID   GetDupID() const { return DupID; }
 protected:
+	DECL_DIALOG_DATA(PPPersonPacket);
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_PERSON_STATUS)) {
+			SetupGender();
+			GetDOB();
+			SetupDOB();
+			clearEvent(event);
+		}
+		else
+			return;
+	}
+	int SetupGender()
+	{
+		int    ok = -1;
+		TView * p_ctrl = getCtrlView(CTL_PERSON_GENDER);
+		if(p_ctrl) {
+			getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
+			PPObjPersonStatus ps_obj;
+			PPPersonStatus ps_rec;
+			if(ps_obj.Fetch(Data.Rec.Status, &ps_rec) > 0 && ps_rec.Flags & PSNSTF_PRIVATE)
+				showCtrl(CTL_PERSON_GENDER, 1);
+			else
+				showCtrl(CTL_PERSON_GENDER, 0);
+		}
+		return ok;
+	}
+	void GetDOB()
+	{
+		LDATE  dob = ZERODATE;
+		TView * p_ctrl = getCtrlView(CTL_PERSON_DOB);
+		if(p_ctrl && p_ctrl->IsInState(sfVisible) && getCtrlData(CTL_PERSON_DOB, &dob)) {
+			if(checkdate(dob)) {
+				ObjTagItem dob_item;
+				dob_item.Init(PPTAG_PERSON_DOB);
+				dob_item.SetDate(PPTAG_PERSON_DOB, dob);
+				Data.TagL.PutItem(PPTAG_PERSON_DOB, &dob_item);
+			}
+			else
+				Data.TagL.PutItem(PPTAG_PERSON_DOB, 0);
+		}
+	}
+	int SetupDOB()
+	{
+		int    ok = -1;
+		getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
+		PPObjPersonStatus ps_obj;
+		PPPersonStatus ps_rec;
+		if(ps_obj.Fetch(Data.Rec.Status, &ps_rec) > 0 && ps_rec.Flags & PSNSTF_PRIVATE) {
+			showCtrl(CTL_PERSON_DOB, 1);
+			showCtrl(CTLCAL_PERSON_DOB, 1);
+			const ObjTagItem * p_dob_tag = Data.TagL.GetItem(PPTAG_PERSON_DOB);
+			if(p_dob_tag) {
+				LDATE  dob = ZERODATE;
+				p_dob_tag->GetDate(&dob);
+				setCtrlDate(CTL_PERSON_DOB, dob);
+				ok = 1;
+			}
+		}
+		else {
+			showCtrl(CTL_PERSON_DOB, 0);
+			showCtrl(CTLCAL_PERSON_DOB, 0);
+		}
+		if(ok <= 0)
+			setCtrlDate(CTL_PERSON_DOB, ZERODATE);
+		return ok;
+	}
 	PPObjPerson PsnObj;
-	PPPersonPacket Data;
 	PPID   DupID;
 	SString Name_;
 	SString InitPhone;
@@ -3618,9 +3683,9 @@ public:
 		Ptb.SetBrush(brushHumanNameFem, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameMus, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.8f), 0);
 	}
-	int    setDTS(const PPPersonPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		SString temp_buf;
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_PERSON_KIND));
 		LocationFilt loc_flt(LOCTYP_DIVISION);
@@ -3647,6 +3712,8 @@ public:
 		//
 		setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
 		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT);
+		SetupGender(); // @v10.9.0
+		SetClusterData(CTL_PERSON_GENDER, PersonCore::GetGender(Data.Rec)); // @v10.9.0
 		SetupCtrls();
 		{
 			ImageBrowseCtrlGroup::Rec rec;
@@ -3661,7 +3728,7 @@ public:
 		enableCommand(cmSelectAnalog, !Data.Rec.ID);
 		return 1;
 	}
-	int getDTS(PPPersonPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok  = 1;
 		uint   sel = 0, i;
@@ -3676,6 +3743,10 @@ public:
 		getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
 		strip(Data.Rec.Memo);
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
+		// @v10.9.0 {
+		if(getCtrlView(CTL_PERSON_GENDER))
+			PersonCore::SetGender(Data.Rec, GetClusterData(CTL_PERSON_GENDER));
+		// } @v10.9.0 
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			if(getGroupData(GRP_IBG, &rec))
@@ -3786,8 +3857,129 @@ public:
 		showButton(cmCreateSCard, 0);
 		enableCommand(cmCreateSCard, 0);
 	}
-	int    setDTS(const PPPersonPacket * pData);
-	int    getDTS(PPPersonPacket * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		uint   i;
+		PPID   reg_type_id = 0;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		PhonePos = -1;
+		CodeRegPos = -1;
+		CodeRegTypeID = 0;
+		SCardID = 0;
+		if(Data.Rec.ID && !PsnObj.CheckRights(PPR_MOD)) {
+			PPLoadText(PPTXT_NORIGHTS_PERSON_UPD, temp_buf);
+			setStaticText(CTL_PERSON_ST_INFO, temp_buf);
+		}
+		setCtrlLong(CTL_PERSON_ID, Data.Rec.ID);
+		setCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
+		SetupPPObjCombo(this, CTLSEL_PERSON_STATUS, PPOBJ_PRSNSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
+		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0);
+		setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		// @v10.0.01 {
+		if(InitPhone.NotEmpty()) {
+			PPELink el;
+			if(PPELinkArray::SetupNewPhoneEntry(InitPhone, el) > 0)
+				Data.ELA.insert(&el);
+		}
+		// } @v10.0.01
+		if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
+			PhonePos = static_cast<int>(i);
+			setCtrlString(CTL_PERSON_PHONE, temp_buf);
+		}
+		if(KindID) {
+			if(!Data.Kinds.lsearch(KindID)) {
+				if(Data.Kinds.getCount())
+					KindID = Data.Kinds.get(0);
+				else
+					Data.Kinds.add(KindID);
+			}
+			PPObjPersonKind pk_obj;
+			PPPersonKind pk_rec;
+			if(pk_obj.Fetch(KindID, &pk_rec) > 0) {
+				Data.Kinds.addUnique(KindID);
+				setStaticText(CTL_PERSON_ST_KINDNAME, pk_rec.Name);
+				{
+					PPObjRegisterType rt_obj;
+					PPRegisterType rt_rec;
+					if(pk_rec.CodeRegTypeID && rt_obj.Fetch(pk_rec.CodeRegTypeID, &rt_rec) > 0) {
+						CodeRegTypeID = pk_rec.CodeRegTypeID;
+						setLabelText(CTL_PERSON_SRCHCODE, rt_rec.Name);
+						uint   p = 0;
+						if(Data.Regs.GetRegister(pk_rec.CodeRegTypeID, &p, 0) > 0) {
+							temp_buf = Data.Regs.at(p-1).Num;
+							CodeRegPos = static_cast<int>(p-1);
+						}
+						else
+							temp_buf.Z();
+						setCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
+					}
+				}
+			}
+		}
+		SetupGender();
+		SetupDOB();
+		SetClusterData(CTL_PERSON_GENDER, PersonCore::GetGender(Data.Rec)); // @v10.9.0
+		if(SCardSerID) {
+			SetupPPObjCombo(this, CTLSEL_PERSON_SCARDSER, PPOBJ_SCARDSERIES, (SCardSerID > 0) ? SCardSerID : 0, OLW_CANINSERT, 0);
+			AddClusterAssoc(CTL_PERSON_SCARDAUTO, 0, stSCardAutoCreate);
+			SetClusterData(CTL_PERSON_SCARDAUTO, St);
+			//disableCtrls(!(St & stSCardAutoCreate), CTL_PERSON_SCEXPIRY, CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCDIS, CTL_PERSON_SCTIME, CTL_PERSON_SCAG, 0);
+		}
+		SetupSCardSeries(0, 0);
+		disableCtrl(CTL_PERSON_SRCHCODE, !CodeRegTypeID);
+		enableCommand(cmSelectAnalog, !Data.Rec.ID);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		SString temp_buf;
+		getCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
+		getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
+		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
+		getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
+		getCtrlString(CTL_PERSON_PHONE, temp_buf);
+		if(PhonePos >= 0) {
+			if(temp_buf.NotEmptyS()) {
+				PPELink & r_el = Data.ELA.at(PhonePos);
+				temp_buf.CopyTo(r_el.Addr, sizeof(r_el.Addr));
+			}
+			else
+				Data.ELA.atFree(PhonePos);
+		}
+		else if(temp_buf.NotEmptyS())
+			Data.ELA.AddItem(ELNKRT_PHONE, temp_buf);
+		if(CodeRegTypeID) {
+			getCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
+			if(CodeRegPos >= 0) {
+				if(temp_buf.NotEmptyS()) {
+					RegisterTbl::Rec & r_reg_rec = Data.Regs.at(CodeRegPos);
+					temp_buf.CopyTo(r_reg_rec.Num, sizeof(r_reg_rec.Num));
+				}
+				else {
+					Data.Regs.atFree(CodeRegPos);
+					CodeRegPos = -1;
+				}
+			}
+			else if(temp_buf.NotEmptyS()) {
+				Data.AddRegister(CodeRegTypeID, temp_buf, 1);
+			}
+		}
+		THROW(AcceptSCard(&sel));
+		GetDOB();
+		// @v10.9.0 {
+		if(getCtrlView(CTL_PERSON_GENDER))
+			PersonCore::SetGender(Data.Rec, GetClusterData(CTL_PERSON_GENDER));
+		// } @v10.9.0 
+		sel = CTL_PERSON_NAME;
+		THROW(PsnObj.ValidatePacket(&Data, 0));
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    AcceptSCard(uint * pSel);
@@ -3795,13 +3987,11 @@ private:
 	void   SetupSCard();
 	void   ShowSCardCtrls(int show);
 	int    SetupSCardSeries(int fromCtrl, int dontSeekCard);
-	void   GetDOB();
-	int    SetupDOB();
 
 	PPID   KindID;
 	PPID   CodeRegTypeID;
 	PPID   SCardSerID;
-	PPID   Preserve_SCardSerID; // @v9.8.6 Сохраненная серия карт для восстановления после
+	PPID   Preserve_SCardSerID; // Сохраненная серия карт для восстановления после
 		// последовательности при вводе номера карты: найдена-карта -> не-найдена-карта
 		// В базе данных могут быть карты с номерами разных длин. При наборе номера
 		// программа может неверно идентифицировать номер карты до завершения ввода.
@@ -3819,132 +4009,10 @@ private:
 	DateAddDialogParam ScExpiryPeriodParam;
 };
 
-int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
-{
-	int    ok = 1;
-	uint   i;
-	PPID   reg_type_id = 0;
-	SString temp_buf;
-	Data = *pData;
-	PhonePos = -1;
-	CodeRegPos = -1;
-	CodeRegTypeID = 0;
-	SCardID = 0;
-	if(Data.Rec.ID && !PsnObj.CheckRights(PPR_MOD)) {
-		PPLoadText(PPTXT_NORIGHTS_PERSON_UPD, temp_buf);
-		setStaticText(CTL_PERSON_ST_INFO, temp_buf);
-	}
-	setCtrlLong(CTL_PERSON_ID, Data.Rec.ID);
-	setCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
-	SetupPPObjCombo(this, CTLSEL_PERSON_STATUS, PPOBJ_PRSNSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
-	SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0);
-	setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
-	// @v10.0.01 {
-	if(InitPhone.NotEmpty()) {
-		PPELink el;
-		if(PPELinkArray::SetupNewPhoneEntry(InitPhone, el) > 0)
-			Data.ELA.insert(&el);
-	}
-	// } @v10.0.01
-	if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
-		PhonePos = static_cast<int>(i);
-		setCtrlString(CTL_PERSON_PHONE, temp_buf);
-	}
-	if(KindID) {
-		if(!Data.Kinds.lsearch(KindID)) {
-			if(Data.Kinds.getCount())
-				KindID = Data.Kinds.get(0);
-			else
-				Data.Kinds.add(KindID);
-		}
-		PPObjPersonKind pk_obj;
-		PPPersonKind pk_rec;
-		if(pk_obj.Fetch(KindID, &pk_rec) > 0) {
-			Data.Kinds.addUnique(KindID);
-			setStaticText(CTL_PERSON_ST_KINDNAME, pk_rec.Name);
-			{
-				PPObjRegisterType rt_obj;
-				PPRegisterType rt_rec;
-				if(pk_rec.CodeRegTypeID && rt_obj.Fetch(pk_rec.CodeRegTypeID, &rt_rec) > 0) {
-					CodeRegTypeID = pk_rec.CodeRegTypeID;
-					setLabelText(CTL_PERSON_SRCHCODE, rt_rec.Name);
-					uint   p = 0;
-					if(Data.Regs.GetRegister(pk_rec.CodeRegTypeID, &p, 0) > 0) {
-						temp_buf = Data.Regs.at(p-1).Num;
-						CodeRegPos = (int)(p-1);
-					}
-					else
-						temp_buf.Z();
-					setCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
-				}
-			}
-		}
-	}
-	SetupDOB();
-	if(SCardSerID) {
-		SetupPPObjCombo(this, CTLSEL_PERSON_SCARDSER, PPOBJ_SCARDSERIES, (SCardSerID > 0) ? SCardSerID : 0, OLW_CANINSERT, 0);
-		AddClusterAssoc(CTL_PERSON_SCARDAUTO, 0, stSCardAutoCreate);
-		SetClusterData(CTL_PERSON_SCARDAUTO, St);
-		//disableCtrls(!(St & stSCardAutoCreate), CTL_PERSON_SCEXPIRY, CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCDIS, CTL_PERSON_SCTIME, CTL_PERSON_SCAG, 0);
-	}
-	SetupSCardSeries(0, 0);
-	disableCtrl(CTL_PERSON_SRCHCODE, !CodeRegTypeID);
-	enableCommand(cmSelectAnalog, !Data.Rec.ID);
-	return ok;
-}
-
-int ShortPersonDialog::getDTS(PPPersonPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	SString temp_buf;
-	getCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
-	getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
-	getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
-	getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
-	getCtrlString(CTL_PERSON_PHONE, temp_buf);
-	if(PhonePos >= 0) {
-		if(temp_buf.NotEmptyS()) {
-			PPELink & r_el = Data.ELA.at(PhonePos);
-			temp_buf.CopyTo(r_el.Addr, sizeof(r_el.Addr));
-		}
-		else
-			Data.ELA.atFree(PhonePos);
-	}
-	else if(temp_buf.NotEmptyS()) {
-		Data.ELA.AddItem(ELNKRT_PHONE, temp_buf);
-	}
-	if(CodeRegTypeID) {
-		getCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
-		if(CodeRegPos >= 0) {
-			if(temp_buf.NotEmptyS()) {
-				RegisterTbl::Rec & r_reg_rec = Data.Regs.at(CodeRegPos);
-				temp_buf.CopyTo(r_reg_rec.Num, sizeof(r_reg_rec.Num));
-			}
-			else {
-				Data.Regs.atFree(CodeRegPos);
-				CodeRegPos = -1;
-			}
-		}
-		else {
-			if(temp_buf.NotEmptyS()) {
-				Data.AddRegister(CodeRegTypeID, temp_buf, 1);
-			}
-		}
-	}
-	THROW(AcceptSCard(&sel));
-	GetDOB();
-	sel = CTL_PERSON_NAME;
-	THROW(PsnObj.ValidatePacket(&Data, 0));
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 IMPL_HANDLE_EVENT(ShortPersonDialog)
 {
 	SString temp_buf;
-	TDialog::handleEvent(event);
+	PersonDialogBase::handleEvent(event);
 	if(event.isCmd(cmSelectAnalog)) {
 		if(!Data.Rec.ID) {
 			PPID   analog_id = 0;
@@ -4008,10 +4076,6 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 				}
 			}
 		}
-	}
-	else if(event.isCbSelected(CTLSEL_PERSON_STATUS)) {
-		GetDOB();
-		SetupDOB();
 	}
 	else if(event.isCbSelected(CTLSEL_PERSON_SCARDSER)) {
 		SetupSCardSeries(1, 0);
@@ -4162,13 +4226,19 @@ void ShortPersonDialog::SetupSCard()
 	}
 	else {
 		SCardID = 0;
-		setCtrlLong(CTLSEL_PERSON_SCARDSER, SCardSerID = Preserve_SCardSerID); // @v9.8.6
+		setCtrlLong(CTLSEL_PERSON_SCARDSER, SCardSerID = Preserve_SCardSerID);
 	}
 }
 
 void ShortPersonDialog::ShowSCardCtrls(int show)
 {
-	showCtrl(CTL_PERSON_SCFRAME, show);
+	// @v10.9.0 {
+	const ushort ctl_list[] = { CTL_PERSON_SCFRAME, CTL_PERSON_SCARD, CTL_PERSON_SCARDAUTO, CTL_PERSON_SCARDSER, CTLSEL_PERSON_SCARDSER,
+		CTL_PERSON_ST_SCARDINFO, CTL_PERSON_SCEXPIRY, CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCDIS, CTL_PERSON_SCAG, CTLSEL_PERSON_SCAG, CTL_PERSON_SCTIME };
+	for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++)
+		showCtrl(ctl_list[i], show);
+	// } @v10.9.0 
+	/* @v10.9.0 showCtrl(CTL_PERSON_SCFRAME, show);
 	showCtrl(CTL_PERSON_SCARD, show);
 	showCtrl(CTL_PERSON_SCARDAUTO, show);
 	showCtrl(CTL_PERSON_SCARDSER, show);
@@ -4179,9 +4249,9 @@ void ShortPersonDialog::ShowSCardCtrls(int show)
 	showCtrl(CTL_PERSON_SCDIS, show);
 	showCtrl(CTL_PERSON_SCAG, show);
 	showCtrl(CTLSEL_PERSON_SCAG, show);
-	showCtrl(CTL_PERSON_SCTIME, show);
-	showButton(cmFullSCardDialog, show); // @v9.8.0 @fix
-	enableCommand(cmFullSCardDialog, show); // @v9.8.0 @fix
+	showCtrl(CTL_PERSON_SCTIME, show);*/
+	showButton(cmFullSCardDialog, show);
+	enableCommand(cmFullSCardDialog, show);
 }
 
 int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
@@ -4224,19 +4294,15 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				}
 			}
 			if(goods_grp_id) {
-				// @v9.8.6 {
 				PPID   auto_goods_id = 0;
 				if(SCardID)
 					auto_goods_id = sc_rec.AutoGoodsID;
-				// @v9.8.9 {
 				else if(goods_grp_id) {
 					PPIDArray temp_goods_list;
 					GoodsIterator::GetListByGroup(goods_grp_id, &temp_goods_list);
 					if(temp_goods_list.getCount() == 1)
 						auto_goods_id = temp_goods_list.get(0);
 				}
-				// } @v9.8.9
-				// } @v9.8.6
 				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, auto_goods_id, 0, reinterpret_cast<void *>(goods_grp_id));
 			}
 			else
@@ -4250,14 +4316,11 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 					sc_rec.Flags |= SCRDF_INHERITED;
 					ScObj.SetInheritance(&scs_pack, &sc_rec);
 				}
-				// @v9.2.8 {
 				else if(Data.Rec.ID) {
 					SCardTbl::Rec dbc_rec;
-					if(ScObj.FindDiscountBorrowingCard(Data.Rec.ID, &dbc_rec) > 0) {
+					if(ScObj.FindDiscountBorrowingCard(Data.Rec.ID, &dbc_rec) > 0)
 						sc_rec.PDis = dbc_rec.PDis;
-					}
 				}
-				// } @v9.2.8
 			}
 		}
 		ShowSCardCtrls(1);
@@ -4268,48 +4331,6 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 	}
 	else
 		ShowSCardCtrls(0);
-	return ok;
-}
-
-void ShortPersonDialog::GetDOB()
-{
-	LDATE  dob = ZERODATE;
-	TView * p_ctrl = getCtrlView(CTL_PERSON_DOB);
-	if(p_ctrl && p_ctrl->IsInState(sfVisible) && getCtrlData(CTL_PERSON_DOB, &dob)) {
-		if(checkdate(dob)) {
-			ObjTagItem dob_item;
-			dob_item.Init(PPTAG_PERSON_DOB);
-			dob_item.SetDate(PPTAG_PERSON_DOB, dob);
-			Data.TagL.PutItem(PPTAG_PERSON_DOB, &dob_item);
-		}
-		else
-			Data.TagL.PutItem(PPTAG_PERSON_DOB, 0);
-	}
-}
-
-int ShortPersonDialog::SetupDOB()
-{
-	int    ok = -1;
-	getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
-	PPObjPersonStatus ps_obj;
-	PPPersonStatus ps_rec;
-	if(ps_obj.Fetch(Data.Rec.Status, &ps_rec) > 0 && ps_rec.Flags & PSNSTF_PRIVATE) {
-		showCtrl(CTL_PERSON_DOB, 1);
-		showCtrl(CTLCAL_PERSON_DOB, 1);
-		const ObjTagItem * p_dob_tag = Data.TagL.GetItem(PPTAG_PERSON_DOB);
-		if(p_dob_tag) {
-			LDATE  dob = ZERODATE;
-			p_dob_tag->GetDate(&dob);
-			setCtrlDate(CTL_PERSON_DOB, dob);
-			ok = 1;
-		}
-	}
-	else {
-		showCtrl(CTL_PERSON_DOB, 0);
-		showCtrl(CTLCAL_PERSON_DOB, 0);
-	}
-	if(ok <= 0)
-		setCtrlDate(CTL_PERSON_DOB, ZERODATE);
 	return ok;
 }
 //
@@ -4821,14 +4842,13 @@ IMPL_HANDLE_EVENT(PersonDialog)
 		if(InitPhone.NotEmpty()) {
 			PPELink el;
 			PPELinkArray::SetupNewPhoneEntry(InitPhone, el);
-			if(EditELink(&el) > 0) {
+			if(EditELink(&el) > 0)
 				Data.ELA.insert(&el);
-			}
 		}
 		// Далее управление передается базовому классу
 	}
 	// } @v10.0.01
-	TDialog::handleEvent(event);
+	PersonDialogBase::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmCtlColor:
@@ -4882,8 +4902,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 			case cmPersonAddr:
 			case cmPersonRAddr: {
 					PPObjLocation loc_obj;
-					// @v9.2.6 LocationTbl::Rec * p_loc_rec = (TVCMD == cmPersonAddr) ? &Data.Loc : &Data.RLoc;
-					PPLocationPacket * p_loc_pack = (TVCMD == cmPersonAddr) ? &Data.Loc : &Data.RLoc; // @v9.2.6
+					PPLocationPacket * p_loc_pack = (TVCMD == cmPersonAddr) ? &Data.Loc : &Data.RLoc;
 					p_loc_pack->Type = LOCTYP_ADDRESS;
 					if(p_loc_pack->ID == 0)
 						loc_obj.InitCode(p_loc_pack);
@@ -7447,8 +7466,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	}
 }
 
-// static
-int SLAPI PPObjPerson::TestSearchEmail()
+/*static*/int SLAPI PPObjPerson::TestSearchEmail()
 {
 	int    ok = 1;
 	SString email_buf;

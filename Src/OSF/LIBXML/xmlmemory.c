@@ -6,6 +6,9 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
+
+#if 0 // {
+
 //#ifdef HAVE_SYS_TYPES_H
 	//#include <sys/types.h>
 //#endif
@@ -109,7 +112,6 @@ void xmlMallocBreakpoint()
 {
 	xmlGenericError(0, "xmlMallocBreakpoint reached on block %d\n", xmlMemStopAtBlock);
 }
-
 /**
  * xmlMallocLoc:
  * @size:  an int specifying the size in byte to allocate.
@@ -120,7 +122,6 @@ void xmlMallocBreakpoint()
  *
  * Returns a pointer to the allocated area or NULL in case of lack of memory.
  */
-
 void * xmlMallocLoc(size_t size, const char * file, int line)
 {
 	MEMHDR * p;
@@ -715,9 +716,8 @@ static void debugmem_tag_error(void * p)
 }
 
 #ifdef MEM_LIST
-static FILE * xmlMemoryDumpFile = NULL;
+	static FILE * xmlMemoryDumpFile = NULL;
 #endif
-
 /**
  * xmlMemShow:
  * @fp:  a FILE descriptor used as the output file
@@ -726,7 +726,6 @@ static FILE * xmlMemoryDumpFile = NULL;
  * show a show display of the memory allocated, and dump
  * the @nr last allocated areas which were not freed
  */
-
 void xmlMemShow(FILE * fp, int nr ATTRIBUTE_UNUSED)
 {
 #ifdef MEM_LIST
@@ -785,18 +784,11 @@ void xmlMemoryDump()
 		fclose(dump);
 #endif /* MEM_LIST */
 }
-
-/****************************************************************
-*								*
-*		Initialization Routines				*
-*								*
-****************************************************************/
-
+//
+// Initialization Routines
+//
 /**
- * xmlInitMemory:
- *
- * Initialize the memory layer.
- *
+ * Descr: Initialize the memory layer.
  * Returns 0 on success
  */
 int xmlInitMemory()
@@ -807,15 +799,13 @@ int xmlInitMemory()
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlInitMemory()\n");
 #endif
-	/*
-	   This is really not good code (see Bug 130419).  Suggestions for
-	   improvement will be welcome!
-	 */
+	//
+	// This is really not good code (see Bug 130419).  Suggestions for improvement will be welcome!
+	//
 	if(xmlMemInitialized)
 		return -1;
 	xmlMemInitialized = 1;
 	xmlMemMutex = xmlNewMutex();
-
 #ifdef HAVE_STDLIB_H
 	breakpoint = getenv("XML_MEM_BREAKPOINT");
 	if(breakpoint) {
@@ -828,17 +818,13 @@ int xmlInitMemory()
 		sscanf(breakpoint, "%p", &xmlMemTraceBlockAt);
 	}
 #endif
-
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlInitMemory() Ok\n");
 #endif
 	return 0;
 }
 /**
- * xmlCleanupMemory:
- *
- * Free up all the memory allocated by the library for its own
- * use. This should not be called by user level code.
+ * Free up all the memory allocated by the library for its own use. This should not be called by user level code.
  */
 void xmlCleanupMemory()
 {
@@ -983,3 +969,4 @@ void xmlCleanupMemory()
 
 #define bottom_xmlmemory
 //#include "elfgcchack.h"
+#endif // } 0

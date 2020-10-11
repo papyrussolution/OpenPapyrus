@@ -71,10 +71,10 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  6, GTF_EXCLVAT);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  7, GTF_REQBARCODE);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  8, GTF_QUASIUNLIM);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  9, GTF_LOOKBACKPRICES); // @v9.8.4
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  9, GTF_LOOKBACKPRICES);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 10, GTF_GMARKED); // @v10.4.11
 	dlg->SetClusterData(CTL_GDSTYP_FLAGS, rec.Flags);
-	dlg->setCtrlReal(CTL_GDSTYP_STKTLR, rec.StockTolerance); // @v9.0.4
+	dlg->setCtrlReal(CTL_GDSTYP_STKTLR, rec.StockTolerance);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
 		dlg->getCtrlData(CTL_GDSTYP_ID,   &rec.ID);
@@ -96,7 +96,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTLSEL_GDSTYP_CHZNPT, &rec.ChZnProdType); // @v10.7.2
 			dlg->GetClusterData(CTL_GDSTYP_UNLIM, &rec.Flags);
 			dlg->GetClusterData(CTL_GDSTYP_FLAGS, &rec.Flags);
-			rec.StockTolerance = dlg->getCtrlReal(CTL_GDSTYP_STKTLR); // @v9.0.4
+			rec.StockTolerance = dlg->getCtrlReal(CTL_GDSTYP_STKTLR);
 			if(*pID)
 				*pID = rec.ID;
 			THROW(EditItem(PPOBJ_GOODSTYPE, *pID, &rec, 1));
@@ -514,8 +514,7 @@ int GoodsValRestrDialog::delItem(long pos, long id)
 	return Data.RemoveBillArRestr(id) ? 1 : -1;
 }
 
-//static
-int SLAPI PPObjGoodsValRestr::TestFormula(const char * pFormula)
+/*static*/int SLAPI PPObjGoodsValRestr::TestFormula(const char * pFormula)
 {
 	double bound = 0.0;
 	PPBillPacket pack;
@@ -814,7 +813,7 @@ public:
 	struct GoodsValRestrData : public ObjCacheEntry {
 		PPID   ScpShipmOpID;
 		PPID   ScpRetOpID;
-		PPID   ScpShipmLimitOpID; // @v9.2.3
+		PPID   ScpShipmLimitOpID;
 		long   ScpDurationDays;
 		long   ScpUpDev;
 		long   ScpDnDev;

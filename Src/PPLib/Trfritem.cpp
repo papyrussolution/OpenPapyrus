@@ -70,8 +70,7 @@ int SLAPI PPTransferItem::IsUnlimWoLot() const { return Impl_IsUnlimWoLot(Flags)
 int FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec) { return Impl_IsUnlimWoLot(rRec.Flags); }
 int SLAPI PPTransferItem::IsLotRet() const { return (!(Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_REVAL|PPTFR_RECEIPT|PPTFR_DRAFT)) && (Flags & PPTFR_PLUS)); }
 
-//static
-int FASTCALL PPTransferItem::IsRecomplete(long flags) { return BIN((flags & (PPTFR_MODIF|PPTFR_REVAL)) == (PPTFR_MODIF|PPTFR_REVAL)); }
+/*static*/int FASTCALL PPTransferItem::IsRecomplete(long flags) { return BIN((flags & (PPTFR_MODIF|PPTFR_REVAL)) == (PPTFR_MODIF|PPTFR_REVAL)); }
 int SLAPI PPTransferItem::IsRecomplete() const { return PPTransferItem::IsRecomplete(Flags); }
 int SLAPI PPTransferItem::IsCorrectionRcpt() const { return BIN(Flags & PPTFR_CORRECTION && Flags & PPTFR_REVAL); }
 int SLAPI PPTransferItem::IsCorrectionExp() const { return BIN(Flags & PPTFR_CORRECTION && !(Flags & PPTFR_REVAL)); }

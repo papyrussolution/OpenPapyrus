@@ -487,8 +487,7 @@ SLAPI PPELink::PPELink() : KindID(0)
 	PTR32(Addr)[0] = 0;
 }
 
-//static 
-int SLAPI PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry)
+/*static*/int SLAPI PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry)
 {
 	int    ok = 1;
 	rEntry.KindID = 0;
@@ -1366,6 +1365,27 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 	}
 	CATCHZOK
 	return ok;
+}
+
+/*static*/void SLAPI PersonCore::SetGender(PersonTbl::Rec & rRec, int gender)
+{
+	rRec.Flags &= ~(PSNF_GENDER_MALE|PSNF_GENDER_FEMALE);
+	if(gender == GENDER_MALE)
+		rRec.Flags |= PSNF_GENDER_MALE;	
+	else if(gender == GENDER_FEMALE)
+		rRec.Flags |= PSNF_GENDER_FEMALE;	
+	else if(gender != GENDER_UNDEF)
+		rRec.Flags |= (PSNF_GENDER_MALE|PSNF_GENDER_FEMALE);	
+}
+
+/*static*/int  SLAPI PersonCore::GetGender(const PersonTbl::Rec & rRec)
+{
+	if(rRec.Flags & PSNF_GENDER_MALE)
+		return (rRec.Flags & PSNF_GENDER_FEMALE) ? GENDER_QUESTIONING : GENDER_MALE;
+	else if(rRec.Flags & PSNF_GENDER_FEMALE)
+		return GENDER_FEMALE;
+	else
+		return GENDER_UNDEF;
 }
 
 /*static*/int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)

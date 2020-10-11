@@ -1648,8 +1648,7 @@ double ABCGroupingRecsStorage::GetMinFraction(short * pABCGrp)
 	return fdiv100r(min_val) * TotalSum;
 }
 
-//static
-double ABCGroupingRecsStorage::GetValueByGrouping(uint groupBy, const GoodsOpAnalyzeViewItem * pItem)
+/*static*/double ABCGroupingRecsStorage::GetValueByGrouping(uint groupBy, const GoodsOpAnalyzeViewItem * pItem)
 {
 	double val = 0.0;
 	if(pItem)

@@ -226,8 +226,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 	return ok;
 }
 
-// static
-PPBackup * SLAPI PPBackup::CreateInstance(const PPDbEntrySet2 * dbes)
+/*static*/PPBackup * SLAPI PPBackup::CreateInstance(const PPDbEntrySet2 * dbes)
 {
 	PPBackup * ppb = 0;
 	PPID   db_id = dbes->GetSelection();
@@ -3202,8 +3201,7 @@ int SLAPI PrcssrTestDb::OutputTa(const char * pFileName)
 	return ok;
 }
 
-// static
-int PrcssrTestDb::TaRVal1_Update_Callback(DBTable * pTbl, const void * pBefore, const void * pAfter, void * extraPtr)
+/*static*/int PrcssrTestDb::TaRVal1_Update_Callback(DBTable * pTbl, const void * pBefore, const void * pAfter, void * extraPtr)
 {
 	SString msg_buf;
 	TestTa01Tbl::Rec before = *static_cast<const TestTa01Tbl::Rec *>(pBefore);

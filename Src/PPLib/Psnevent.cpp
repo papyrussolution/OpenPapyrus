@@ -218,8 +218,7 @@ SLAPI PPObjPersonEvent::~PPObjPersonEvent()
 	delete P_ScObj;
 }
 
-// static
-SString & FASTCALL PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
+/*static*/SString & FASTCALL PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
 {
 	rBuf.Z();
 	if(pRec) {
@@ -892,10 +891,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 											if(is_quot || pClause->CmdText.NotEmpty()) {
 												double qtty = 1.0;
 												double ratio = 0.0;
-												// @v9.9.12 PPUnit unit_rec;
-												// @v9.9.12 if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.BaseUnitID == PPUNT_SECOND && unit_rec.BaseRatio) {
-													// @v9.9.12 ratio = unit_rec.BaseRatio;
-												if(goods_obj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) { // @v9.9.12
+												if(goods_obj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) {
 													if(ratio > 0.0) {
 														PersonEventCore::PairIdent pi;
 														pi.PersonID = psn_id;
@@ -928,7 +924,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 														amount = R0(quot * qtty);
 												}
 												else
-													amount = R0(quot * qtty); // @v8.7.10 R0
+													amount = R0(quot * qtty);
 											}
 										}
 									}
@@ -938,7 +934,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 									THROW(fabs(value) >= 0.00001); // @todo @err
 									THROW(P_ScObj->P_Tbl->GetRest(sc_rec.ID, ZERODATE, &rest));
 									rest += sc_rec.MaxCredit;
-									THROW_PP_S(value > 0.0 || (rest+value) >= 0.0, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code); // @v8.2.3 (>0.0)-->(>=0.0)
+									THROW_PP_S(value > 0.0 || (rest+value) >= 0.0, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
 									{
 										SCardCore::OpBlock ob;
 										ob.SCardID = sc_rec.ID;
@@ -1448,8 +1444,7 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 //
 //
 //
-// static
-int SLAPI PsnEventDialog::GetParam(PPID pokID, Param * pParam)
+/*static*/int SLAPI PsnEventDialog::GetParam(PPID pokID, Param * pParam)
 {
 	int    ok = 1;
 	PPPsnOpKindPacket pok_pack;

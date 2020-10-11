@@ -108,8 +108,7 @@ int SLAPI PPViewAccount::ViewAccAnalyze(PPID accID)
 	return -1;
 }
 
-//static
-void FASTCALL PPViewAccount::MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry)
+/*static*/void FASTCALL PPViewAccount::MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry)
 {
 	MEMSZERO(rEntry);
 	rEntry.ID = rSrc.ID;

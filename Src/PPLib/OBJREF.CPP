@@ -381,8 +381,7 @@ PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const 
 	STRNSCPY(Symb, pSymb);
 }
 
-// static
-int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
+/*static*/int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 {
 	int    r = -1, valid_data = 0;
 	TDialog * p_dlg = 0;
@@ -1914,7 +1913,7 @@ int SLAPI PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 }
 
 /*
-// static
+//static
 int PPObjDynamicObjs::ReplaceObjs(PPID srcID /*=0*//*)
 {
 	class ReplObjDialog : public TDialog {
@@ -2025,8 +2024,7 @@ int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) co
 #undef NRECFLD
 }
 
-//static
-int FASTCALL PPObjGlobalUserAcc::ReadConfig(PPGlobalUserAccConfig * pCfg)
+/*static*/int FASTCALL PPObjGlobalUserAcc::ReadConfig(PPGlobalUserAccConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_GLOBALUSERACCCFG, pCfg, sizeof(*pCfg));
 	if(r > 0) {
@@ -2038,8 +2036,7 @@ int FASTCALL PPObjGlobalUserAcc::ReadConfig(PPGlobalUserAccConfig * pCfg)
 	return r;
 }
 
-//static
-int SLAPI PPObjGlobalUserAcc::EditConfig()
+/*static*/int SLAPI PPObjGlobalUserAcc::EditConfig()
 {
 	int    ok = -1, is_new = 0;
 	PPGlobalUserAccConfig cfg;

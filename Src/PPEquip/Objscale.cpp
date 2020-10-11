@@ -2337,20 +2337,14 @@ int SLAPI TCPIPMToledo::CloseConnection()
 				THROW((r = TrfrDLLCall(temp_path)) != 0);
 			}
 			SFile::Remove(out_path);
-			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_CFG, path);
-			SFile::Remove(path);
-			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_DATA, path);
-			SFile::Remove(path);
-			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_LOG, path);
-			SFile::Remove(path);
-			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_BINLZ, path);
-			SFile::Remove(path);
-			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_BINOUT, path);
-			SFile::Remove(path);
+			SFile::Remove(PPGetFilePathS(PPPATH_BIN, PPFILNAM_MTSCALE_CFG, path));
+			SFile::Remove(PPGetFilePathS(PPPATH_BIN, PPFILNAM_MTSCALE_DATA, path));
+			SFile::Remove(PPGetFilePathS(PPPATH_BIN, PPFILNAM_MTSCALE_LOG, path));
+			SFile::Remove(PPGetFilePathS(PPPATH_BIN, PPFILNAM_MTSCALE_BINLZ, path));
+			SFile::Remove(PPGetFilePathS(PPPATH_BIN, PPFILNAM_MTSCALE_BINOUT, path));
 			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_LOG2, path);
 			SFile::Remove(buf.Printf(path, Data.Rec.LogNum));
-			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_TRFIN, path);
-			SFile::Remove(path);
+			SFile::Remove(PPGetFilePathS(PPPATH_BIN, PPFILNAM_MTSCALE_TRFIN, path));
 			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_TRFIN2, path);
 			SFile::Remove(buf.Printf(path, Data.Rec.LogNum));
 			PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_SCPLU, path);
@@ -2358,9 +2352,6 @@ int SLAPI TCPIPMToledo::CloseConnection()
 		}
 		if(P_DrvMT && P_AddStrAry) {
 			SString port_buf;
-			//char   ip[16];
-			//memzero(ip, sizeof(ip));
-			//THROW(PPObjScale::DecodeIP(Data.Rec.Port, ip));
 			Data.GetExtStrData(Data.extssPort, port_buf);
 			THROW(SetParam(port_buf));
 			THROW(SetParam(3001L));

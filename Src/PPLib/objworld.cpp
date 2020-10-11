@@ -151,8 +151,7 @@ PPID PPObjWorld::SelFilt::GetSingleKind() const
 //
 //
 //
-//static
-void * FASTCALL PPObjWorld::MakeExtraParam(int kind, PPID parentID, PPID countryID)
+/*static*/void * FASTCALL PPObjWorld::MakeExtraParam(int kind, PPID parentID, PPID countryID)
 {
 	uint   mask = 0;
 	if(oneof6(kind, WORLDOBJ_CONTINENT, WORLDOBJ_GENREGION, WORLDOBJ_COUNTRY, WORLDOBJ_REGION, WORLDOBJ_CITY, WORLDOBJ_STREET))
@@ -165,8 +164,7 @@ void * FASTCALL PPObjWorld::MakeExtraParam(int kind, PPID parentID, PPID country
 	return reinterpret_cast<void *>(v);
 }
 
-//static
-void * FASTCALL PPObjWorld::MakeExtraParam(const PPIDArray & rKindList, PPID parentID, PPID countryID)
+/*static*/void * FASTCALL PPObjWorld::MakeExtraParam(const PPIDArray & rKindList, PPID parentID, PPID countryID)
 {
 	uint   mask = 0;
 	for(uint i = 0; i < rKindList.getCount(); i++) {
@@ -183,8 +181,7 @@ void * FASTCALL PPObjWorld::MakeExtraParam(const PPIDArray & rKindList, PPID par
 	return reinterpret_cast<void *>(v);
 }
 
-//static
-int SLAPI PPObjWorld::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
+/*static*/int SLAPI PPObjWorld::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 {
 	const long extra_param = reinterpret_cast<long>(extraPtr);
 	pFilt->KindFlags = (extra_param & ~0x80000000) >> 24;
@@ -199,8 +196,7 @@ int SLAPI PPObjWorld::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 	return 1;
 }
 
-//static
-SString & SLAPI PPObjWorld::GetNativeCountryName(SString & rBuf)
+/*static*/SString & SLAPI PPObjWorld::GetNativeCountryName(SString & rBuf)
 {
 	PPLoadString("nativecountry", rBuf);
 	return rBuf;
@@ -405,8 +401,7 @@ private:
 	return /*0; */ new PPObjWorldListWindow(this, flags, extraPtr);
 }
 
-// static
-int SLAPI PPObjWorld::UniteMaxLike()
+/*static*/int SLAPI PPObjWorld::UniteMaxLike()
 {
 	int    ok = 1;
 	StrAssocArray * p_list = 0;
@@ -1675,8 +1670,7 @@ int SLAPI PPObjWorld::Fetch(PPID id, WorldTbl::Rec * pRec)
 //
 //
 //
-//static
-SString & FiasObjCore::HouseCode::NormalizeItem(SString & rBuf)
+/*static*/SString & FiasObjCore::HouseCode::NormalizeItem(SString & rBuf)
 {
 	// @todo
 	return rBuf;
@@ -1840,10 +1834,8 @@ int SLAPI GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 	int    ok = -1;
 	return ok;
 }
-//
-//
-// static
-int SLAPI PPObjWorld::Convert()
+
+/*static*/int SLAPI PPObjWorld::Convert()
 {
 	const char * p_spec_name = "special";
 	int    ok = -1;

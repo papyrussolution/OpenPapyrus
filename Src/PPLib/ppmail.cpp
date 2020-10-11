@@ -1673,8 +1673,7 @@ int SLAPI PPMailSmtp::TransmitFile(const char * pFileName, MailCallbackProc pf, 
 	return ok;
 }
 
-//static
-int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+/*static*/int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
 {
 	int    ok = 1;
 	PPMailSmtp cli(&rAcc);

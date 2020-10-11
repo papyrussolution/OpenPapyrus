@@ -333,8 +333,7 @@ int SLAPI PPGdsClsDim::FromStr(int, const char * pBuf)
 //
 //
 //
-//static
-int SLAPI PPGdsCls::IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, const GoodsExtTbl::Rec * p2)
+/*static*/int SLAPI PPGdsCls::IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, const GoodsExtTbl::Rec * p2)
 {
 #define M(f) (mask & (1 << (f-1)))
 	if(M(eKind) && p1->KindID != p2->KindID)
@@ -360,8 +359,7 @@ int SLAPI PPGdsCls::IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, con
 void   SLAPI PPGdsCls::SetDynGenMask(int fld, int val) { DynGenMask |= (1 << (fld-1)); }
 int    FASTCALL PPGdsCls::GetDynGenMask(int fld) const { return (DynGenMask & (1 << (fld-1))) ? 1 : 0; }
 
-//static
-long FASTCALL PPGdsCls::UseFlagToE(long useFlag)
+/*static*/long FASTCALL PPGdsCls::UseFlagToE(long useFlag)
 {
 	switch(useFlag) {
 		case fUsePropKind: return eKind;
@@ -376,8 +374,7 @@ long FASTCALL PPGdsCls::UseFlagToE(long useFlag)
 	return 0;
 }
 
-//static
-long FASTCALL PPGdsCls::EToUseFlag(long e)
+/*static*/long FASTCALL PPGdsCls::EToUseFlag(long e)
 {
 	switch(e) {
 		case eKind: return fUsePropKind;

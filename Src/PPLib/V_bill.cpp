@@ -2198,8 +2198,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 				uint   bs_col   = 2;
 				uint   debt_col = 4;
 				if(!single_loc_id) {
-					// @v9.0.2 pBrw->InsColumnWord(loc_col, PPWORD_WAREHOUSE, 7, 0, MKSFMT(10, 0), 0);
-					pBrw->InsColumn(loc_col, "@warehouse", 7, 0, MKSFMT(10, 0), 0); // @v9.0.2
+					pBrw->InsColumn(loc_col, "@warehouse", 7, 0, MKSFMT(10, 0), 0);
 					debt_col++;
 					bs_col++;
 				}
@@ -2211,8 +2210,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						// Определен по крайней мере один статус документа,
 						// следовательно в таблице нужна колонка статуса документа
 						//
-						// @v9.1.11 pBrw->InsColumnWord(bs_col, PPWORD_STATUS, 10, 0, MKSFMT(6, 0), 0);
-						pBrw->InsColumn(bs_col, "@status", 10, 0, MKSFMT(6, 0), 0); // @v9.1.11
+						pBrw->InsColumn(bs_col, "@status", 10, 0, MKSFMT(6, 0), 0);
 						debt_col++;
 					}
 				}
@@ -2267,6 +2265,13 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
 		}
 	}
+	// @v10.9.0 {
+	else if(Filt.Sel) {
+		if(CheckIDForFilt(Filt.Sel, 0)) {
+			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
+		}
+	}
+	// } @v10.9.0 
 	if(Filt.PoolBillID && Filt.AssocID)
 		caption = 6;
 	else if(Filt.Flags & BillFilt::fOrderOnly) {

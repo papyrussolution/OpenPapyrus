@@ -286,6 +286,13 @@
 #define UNIT_GR_DIALOG       26 // Графическая единица: одна диалоговая единица (неизоморфна, контекстно-зависима)
 #define UNIT_MINUTE          27 // Минута
 //
+// Половая принадлежность
+//
+#define GENDER_UNDEF          0 // Не определена (в принципе не известно из-за того, что не было попыток идентифицировать)
+#define GENDER_MALE           1 // Мужской
+#define GENDER_FEMALE         2 // Женский
+#define GENDER_QUESTIONING    3 // Под вопросом (попытка идентификации пола была, но окончилась неудачей)
+//
 // Descr: Агрегатный функции для комбинирования выборки значений
 // @persistent
 //
@@ -1739,7 +1746,6 @@ class WorkDate { // @noctr @size=2
 public:
 	static int    FASTCALL ShrinkDate(LDATE dt);
 	static LDATE  FASTCALL ExpandDate(int16 sdt);
-
 	int    FASTCALL SetDate(LDATE dt);
 	int    FASTCALL SetDayOfWeek(int dayOfWeek);
 	int    SetDayOfYear(int day, int mon);
@@ -2709,7 +2715,6 @@ public:
 	virtual int    SLAPI comp(const void * i1, const void * i2) const;
 	virtual char * SLAPI tostr(const void *, long, char * b) const;
 	//
-	// @v9.1.11
 	// Descr: Функция должна преобразовать бинарное представление данные pData
 	//   в строку rBuf в соответствии с форматом преобразования format.
 	//   Функция ToStr обязана предварительно очистить буфер rBuf вызовом rBuf.Z()
@@ -2858,7 +2863,6 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define DATF_MDY            9  // mm/dd/yy
 #define DATF_DMY           10  // dd/mm/yy
 #define DATF_YMD           11  // yy/mm/dd
-// @v8.6.12 #define DATF_NUMBER        11  // Number of formats
 #define DATF_SQL           12  // DATE 'YYYY-MM-DD'
 #define DATF_INTERNET      13  // Wed, 27 Feb 2008
 #define DATF_ISO8601       14  // yyyy-mm-dd
@@ -4437,10 +4441,8 @@ char * FASTCALL chomp(char * pStr);
 char * FASTCALL padleft(char  * pStr, char pad, size_t n);
 char * FASTCALL padright(char * pStr, char pad, size_t n);
 char * SLAPI alignstr(char * pStr, size_t width, int adj);
-// @v9.5.1 (obsolete) int    SLAPI getTextHight(char * pStr, int width);
 int    SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
 int    SLAPI replacestr(char * pStr, const char * pReplacer, size_t * pPos, size_t * pLen, uint maxlen);
-// @v9.4.10 (unused) char * SLAPI quotstr(char * pStr, int leftQuotChr, int rightQuotChr);
 // AHTOXA convert hex or octal representation of symbol to symbol in string
 int    SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize);
 //
@@ -4470,8 +4472,6 @@ int64  FASTCALL satoi64(const char * pT);
 int64  FASTCALL satoi64(const wchar_t * pT);
 int    FASTCALL satof(const char * pBuf, double * pVal);
 double FASTCALL satof(const char * pBuf);
-// @v9.5.1 (moved as static to sbrodef.cpp) uint   GetTextHeight(char * pBuf, size_t strLen);
-// @v9.5.1 (moved as static to sbrodef.cpp) void   FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
 //
 // Descr: Добавляет по указателю pStr разделительный символ div, возможно (addSpaces != 0), обрамленный
@@ -4529,21 +4529,9 @@ int    FASTCALL strnicmp866(const char *, const char *, size_t);
 char * FASTCALL stristr866(const char *, const char *);
 char * FASTCALL strlwr866(char *);
 char * FASTCALL strupr866(char *);
-// @v9.5.1 int    SLAPI rus_tbl_cvt(int ch, int srctbl, int desttbl);
-// @v9.5.1 uchar  SLAPI __866_to_1251();
-// @v9.5.1 uchar  SLAPI __1251_to_866();
-// @v9.5.1 char * FASTCALL _s_866_to_1251(char *);
-// @v9.5.1 char * FASTCALL _s_1251_to_866(char *);
 int    FASTCALL __866_to_koi7(int);
 char * FASTCALL _s_866_to_koi7(char *);
 int    FASTCALL _koi8_to_866(int);
-// @v9.5.1 (moved as static to tvrez.cpp) char   FASTCALL wchar_to_1251(int16);
-#if 0 // @v9.5.1 {
-	#if !defined(__WIN32__) || defined(_WIN32_WCE)
-		int OemToChar(const char * in, char * out);
-		int CharToOem(const char * in, char * out);
-	#endif
-#endif // } 0 @v9.5.1
 char * FASTCALL SOemToChar(char * pStr);
 char * FASTCALL SCharToOem(char * pStr);
 //
@@ -7141,6 +7129,13 @@ public:
 	//
 	int    FASTCALL IncrementValueByKey(long key);
 	int    SLAPI Update(long key, long val, int binary = 0);
+	//
+	// Descr: Удаляет первый элемент массива, ключ которого равен key.
+	// Note: Если в массиве имеется более одного элемента с ключом key, то все остальные останутся на месте
+	// Returns:
+	//   >0 - обнаружен и удален элемент с ключом key
+	//    0 - в массиве нет ни одного элемента с ключом key (либо не был найден из-за параметра binary != 0 на неотсортированном массиве)
+	//
 	int    SLAPI Remove(long key, int binary = 0);
 	//
 	// Descr:
@@ -8343,7 +8338,7 @@ public:
 	//
 	int    FASTCALL Enum(Iter & rIter) const;
 	//
-	// Descr: Возвращает указатель на блок данных, соответствующих позиции узла pos.
+	// Descr: Возвращает указатель на блок данных, соответствующий позиции узла pos.
 	//
 	void * FASTCALL GetData(uint32 pos) const;
 private:

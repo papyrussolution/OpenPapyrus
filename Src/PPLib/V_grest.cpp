@@ -1029,7 +1029,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 			rec.LotID   = rItem.LotID;
 			rec.LocID   = rItem.LocID;
 			if(Filt.Sgg) {
-				THROW(GObj.GetSubstText(goods_id, Filt.Sgg, &Gsl, temp_buf));
+				GObj.GetSubstText(goods_id, Filt.Sgg, &Gsl, temp_buf);
 				STRNSCPY(rec.GoodsName, temp_buf);
 			}
 			else {
@@ -1084,10 +1084,6 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 			rec.DraftRcpt   = rItem.DraftRcpt;
 			rec.SumPrice    = rItem.Price * (rItem.Rest + rItem.DraftRcpt - rItem.Deficit);
 			rec.SumCost     = (Flags & fAccsCost) ? (rItem.Cost * (rItem.Rest + rItem.DraftRcpt - rItem.Deficit)) : 0.0;
-			/* @v9.8.2 if(Flags & fAccsCost && rItem.Cost)
-				rec.PctAddedVal = (float)((rItem.Price - rItem.Cost) / rItem.Cost * 100.0);
-			else
-				rec.PctAddedVal = 0.0f; */
 			rec.SumCVat     = (Flags & fAccsCost) ? rItem.SumCVat : 0.0;
 			rec.SumPVat     = rItem.SumPVat;
 			if(Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID) {
@@ -1098,13 +1094,13 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 				CacheBuf.GetCacheItemSerial(rItem, temp_buf);
 				StrPool.AddS(temp_buf, &rec.SerialSP);
 			}
-			if((Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) || Filt.Flags & GoodsRestFilt::fCalcSStatSales || Filt.PrgnTerm > 0) { // @v9.5.8 CalcPrognosis-->Flags2
+			if((Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) || Filt.Flags & GoodsRestFilt::fCalcSStatSales || Filt.PrgnTerm > 0) {
 				int    can_trust = 0;
 				double predict = 0.0;
 				PredictSalesStat stat;
 				Predictor::EvalParam ep;
 				THROW_MEM(SETIFZ(P_Predictor, new Predictor));
-				if(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) { // @v9.5.8 CalcPrognosis-->Flags2
+				if(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) {
 					char * p = 0;
 					THROW(P_Predictor->Predict_(ep.Set(&LocList, rec.GoodsID, Filt.PrgnPeriod), &predict, &stat, &can_trust));
 					rec.RestInDays = (long)roundnev(rec.Quantity * stat.GetTrnovr(PSSV_QTTY), 0);
@@ -1139,7 +1135,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 				else {
 					THROW(P_Predictor->GetStat(rec.GoodsID, LocList, &stat));
 				}
-				rec.Predict    = (long)roundnev(predict, 0);
+				rec.Predict    = static_cast<long>(roundnev(predict, 0));
 				rec.IsPredictTrust = BIN(can_trust);
 				rec.SStatSales = stat.GetAverage(PSSV_QTTY);
 			}
@@ -1220,8 +1216,8 @@ int SLAPI PPViewGoodsRest::FlashCacheItems(uint count)
 		BExtInsert bei(P_Tbl);
 		if(count) {
 			PROFILE_START
-			SVector lru_array(sizeof(_lru_item_tag)); // @v9.9.1 SArray-->SVector
-			SVector lru_pos_array(sizeof(uint)); // @v9.9.1 SArray-->SVector
+			SVector lru_array(sizeof(_lru_item_tag));
+			SVector lru_pos_array(sizeof(uint));
 			const uint _c = CacheBuf.getCount();
 			for(i = 0; i < _c; i++) {
 				_lru_item_tag lru_item;
@@ -1324,13 +1320,11 @@ int FASTCALL PPViewGoodsRest::AddCacheItem(PPViewGoodsRest::CacheItem & rItem)
 					found = 0;
 				else if(Filt.DiffParam & GoodsRestParam::_diffPack && p_tbl->data.UnitPerPack != rItem.UnitPerPack)
 					found = 0;
-				// @v9.7.11 {
 				else if(Filt.DiffParam & GoodsRestParam::_diffExpiry && p_tbl->data.Expiry != rItem.Expiry)
 					found = 0;
-				// } @v9.7.11
 				else {
-					StrPool.GetS(p_tbl->data.SerialSP, serial2); // @v9.8.3
-					if(Filt.DiffParam & GoodsRestParam::_diffSerial && serial != serial2/*p_tbl->data.Serial*/) // @v9.8.3 p_tbl->data.Serial-->serial2
+					StrPool.GetS(p_tbl->data.SerialSP, serial2);
+					if(Filt.DiffParam & GoodsRestParam::_diffSerial && serial != serial2/*p_tbl->data.Serial*/)
 						found = 0;
 					else
 						found = 1;
@@ -1425,7 +1419,7 @@ int SLAPI PPViewGoodsRest::AddGoodsThruCache(PPID goodsID, PPID locID, int isSub
 	grci.Deficit  = pGRV->Deficit;
 	grci.DraftRcpt = pGRV->DraftRcpt;
 	CacheBuf.SetupCacheItemSerial(grci, pGRV->Serial);
-	CacheBuf.SetupCacheItemLotTag(grci, pGRV->LotTagText); // @v9.7.11
+	CacheBuf.SetupCacheItemLotTag(grci, pGRV->LotTagText);
 	if(Filt.CalcMethod == GoodsRestParam::pcmMostRecent)
 		::GetCurGoodsPrice(goodsID, locID, GPRET_MOSTRECENT, &grci.Price, 0);
 	if(Filt.Flags & GoodsRestFilt::fCalcTotalOnly)
@@ -2185,8 +2179,7 @@ int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowI
 	return ok;
 }
 
-//static
-BExtQuery & FASTCALL PPViewGoodsRest::MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT)
+/*static*/BExtQuery & FASTCALL PPViewGoodsRest::MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT)
 {
 	return rQ.select(rT.ID, rT.BillID, rT.Dt, rT.OprNo, rT.GoodsID, rT.LocID, rT.SupplID,
 		rT.InTaxGrpID, rT.Flags, rT.UnitPerPack, rT.PrevLotID, rT.Cost, rT.Price,

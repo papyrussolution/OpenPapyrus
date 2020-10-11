@@ -202,8 +202,7 @@ void SLAPI PPQuotItemArray::Sort()
 //
 // PPQuot
 //
-// static
-int FASTCALL PPQuot::IsQuotAcceptableForLoc(PPID locID, const PPIDArray & rLocList)
+/*static*/int FASTCALL PPQuot::IsQuotAcceptableForLoc(PPID locID, const PPIDArray & rLocList)
 {
 	int    yes = 0;
 	if(locID == 0)

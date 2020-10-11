@@ -669,8 +669,7 @@ IMPL_INVARIANT_C(PPStaffCal)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-//static
-int SLAPI PPStaffCalPacket::InvariantEntry(const StaffCalendarTbl::Rec * pRec)
+/*static*/int SLAPI PPStaffCalPacket::InvariantEntry(const StaffCalendarTbl::Rec * pRec)
 {
 	int    ok = 1;
 	CALDATE cd;
@@ -688,8 +687,7 @@ int SLAPI PPStaffCalPacket::InvariantEntry(const StaffCalendarTbl::Rec * pRec)
 	return ok;
 }
 
-//static
-int SLAPI PPStaffCalPacket::SetupEntry(StaffCalendarTbl::Rec * pEntry)
+/*static*/int SLAPI PPStaffCalPacket::SetupEntry(StaffCalendarTbl::Rec * pEntry)
 {
 	int    ok = -1;
 	LTIME  tm = ZEROTIME;
@@ -917,12 +915,10 @@ int SLAPI PPStaffCalPacket::RemoveItem(uint pos)
 	return ok;
 }
 
-//static
-int FASTCALL PPObjStaffCal::HasValidTimeRange(const StaffCalendarTbl::Rec & rRec)
+/*static*/int FASTCALL PPObjStaffCal::HasValidTimeRange(const StaffCalendarTbl::Rec & rRec)
 {
 	return BIN(rRec.TmStart || (rRec.TmEnd && rRec.TmEnd >= rRec.TmStart));
 }
-
 
 TLP_IMPL(PPObjStaffCal, StaffCalendarTbl, P_ScT);
 

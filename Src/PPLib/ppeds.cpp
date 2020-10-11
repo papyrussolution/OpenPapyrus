@@ -1,16 +1,17 @@
 // PPEDS.CPP
-// Работа с эцп
+// @codepage UTF-8
+// Р Р°Р±РѕС‚Р° СЃ СЌС†Рї
 //
 #include <pp.h>
 #pragma hdrstop
 
 #define MY_ENCODING_TYPE		(PKCS_7_ASN_ENCODING | X509_ASN_ENCODING)
 #define CERTIFICATE_STORE_NAME	_T("My")
-#define MY_PROV_TYPE			75 // Тип провайдера PROV_GOST_2001_DH
+#define MY_PROV_TYPE			75 // РўРёРї РїСЂРѕРІР°Р№РґРµСЂР° PROV_GOST_2001_DH
 #define MAX_NAME_LEN			256
 #define SIZE_TO_READ			1024
 
-// Эти параметры должны быть введены в диалоге настройки подписей. Пока такого диалога нет.
+// Р­С‚Рё РїР°СЂР°РјРµС‚СЂС‹ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІРІРµРґРµРЅС‹ РІ РґРёР°Р»РѕРіРµ РЅР°СЃС‚СЂРѕР№РєРё РїРѕРґРїРёСЃРµР№. РџРѕРєР° С‚Р°РєРѕРіРѕ РґРёР°Р»РѕРіР° РЅРµС‚.
 #define HOST					"tsptest.e-notary.ru"
 #define URL						"http://tsptest.e-notary.ru"
 
@@ -18,7 +19,7 @@
 //{
 //	SString msg;
 //	DWORD err_code = GetLastError();
-//	msg.Z().Cat(pErrorMsg).Cat("Код ошибки ").Cat(err_code);
+//	msg.Z().Cat(pErrorMsg).Cat("РљРѕРґ РѕС€РёР±РєРё ").Cat(err_code);
 //	PPSetError(PPERR_EDSERROR, msg.ToOem());
 //}
 
@@ -54,24 +55,24 @@ int PPEds::GetCert(HCERTSTORE & rCertSore, PCCERT_CONTEXT & rCert, const char * 
 {
 	int    ok = 1;
 	THROW_PP((rCertSore = CertOpenSystemStore(0, CERTIFICATE_STORE_NAME)), PPERR_EDS_OPENCERTSTORE); // @unicodeproblem
-	// CERT_FIND_SUBJECT_STR_A для латиницы
-	// CERT_FIND_SUBJECT_STR для кириллицы
-	// есть еще CERT_FIND_SUBJECT_STR_W
-	// Хотя, как оказалось, CERT_FIND_SUBJECT_STR_A работает и с криллицей
+	// CERT_FIND_SUBJECT_STR_A РґР»СЏ Р»Р°С‚РёРЅРёС†С‹
+	// CERT_FIND_SUBJECT_STR РґР»СЏ РєРёСЂРёР»Р»РёС†С‹
+	// РµСЃС‚СЊ РµС‰Рµ CERT_FIND_SUBJECT_STR_W
+	// РҐРѕС‚СЏ, РєР°Рє РѕРєР°Р·Р°Р»РѕСЃСЊ, CERT_FIND_SUBJECT_STR_A СЂР°Р±РѕС‚Р°РµС‚ Рё СЃ РєСЂРёР»Р»РёС†РµР№
    THROW_PP((rCert = CertFindCertificateInStore(rCertSore, MY_ENCODING_TYPE, 0,
        CERT_FIND_SUBJECT_STR_A, pOwnerName, NULL)), PPERR_EDS_GETCERT);
 	CATCHZOK;
 	return ok;
 }
 
-// Запрашивает контейнер с ключами (носитель, где лежат ключи)
+// Р—Р°РїСЂР°С€РёРІР°РµС‚ РєРѕРЅС‚РµР№РЅРµСЂ СЃ РєР»СЋС‡Р°РјРё (РЅРѕСЃРёС‚РµР»СЊ, РіРґРµ Р»РµР¶Р°С‚ РєР»СЋС‡Рё)
 int PPEds::GetCert(PCCERT_CONTEXT & rCert)
 {
 	int    ok = 1;
-	// Получение дескриптора контекста криптографического провайдера.
+	// РџРѕР»СѓС‡РµРЅРёРµ РґРµСЃРєСЂРёРїС‚РѕСЂР° РєРѕРЅС‚РµРєСЃС‚Р° РєСЂРёРїС‚РѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РїСЂРѕРІР°Р№РґРµСЂР°.
 	HCRYPTPROV prov = 0;
     THROW_PP(CryptAcquireContext(&prov, NULL, NULL, MY_PROV_TYPE, NULL), PPERR_EDS_GETPROVIDER);
-    // Получение пользовательского ключа (по двум типам ключей)
+    // РџРѕР»СѓС‡РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ РєР»СЋС‡Р° (РїРѕ РґРІСѓРј С‚РёРїР°Рј РєР»СЋС‡РµР№)
     DWORD key_type = AT_SIGNATURE;
 	HCRYPTKEY h_key = 0;
     if(!CryptGetUserKey(prov, key_type, &h_key)) {
@@ -79,14 +80,14 @@ int PPEds::GetCert(PCCERT_CONTEXT & rCert)
         THROW_PP(CryptGetUserKey(prov, key_type, &h_key), PPERR_EDS_GETKEYFAILED);
     }
 	DWORD user_cert_length = 0;
-    // Определение размера пользовательского сертификата.
+    // РћРїСЂРµРґРµР»РµРЅРёРµ СЂР°Р·РјРµСЂР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ СЃРµСЂС‚РёС„РёРєР°С‚Р°.
     THROW_PP(CryptGetKeyParam(h_key, KP_CERTIFICATE, NULL, &user_cert_length, 0), PPERR_EDS_GETCERT);
 	BYTE * p_user_cert = 0;
-    // Распределение памяти под буфер пользовательского сертификата.
+    // Р Р°СЃРїСЂРµРґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РїРѕРґ Р±СѓС„РµСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ СЃРµСЂС‚РёС„РёРєР°С‚Р°.
     THROW_MEM((p_user_cert = (BYTE *)SAlloc::M(user_cert_length)));
-    // Получение пользовательского сертификата.
+    // РџРѕР»СѓС‡РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ СЃРµСЂС‚РёС„РёРєР°С‚Р°.
 	THROW_PP(CryptGetKeyParam(h_key, KP_CERTIFICATE, p_user_cert, &user_cert_length, 0), PPERR_EDS_GETCERT);
-    // Формирование контекста сертификата.
+    // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РєРѕРЅС‚РµРєСЃС‚Р° СЃРµСЂС‚РёС„РёРєР°С‚Р°.
     THROW_PP((rCert = CertCreateCertificateContext(MY_ENCODING_TYPE, p_user_cert, user_cert_length)), PPERR_EDS_GETCERT);
 	CATCHZOK;
 	if(prov) {
@@ -202,21 +203,21 @@ int PPEds::EncodeData(const char * pOwnerName, const char * pFileName, int sameF
 	SFile file, encode_file;
 	int64 file_size = 0;
 
-	// Получим сертификат
+	// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚
 	THROW(GetCert(cert_sore, p_owner_cert, pOwnerName));
 
-	// Получим провайдера
+	// РџРѕР»СѓС‡РёРј РїСЂРѕРІР°Р№РґРµСЂР°
 	DWORD dw_key_spec = 0;
 	THROW(GetCryptoProv(p_owner_cert, prov, dw_key_spec));
 
-	// Получим открытый ключ получателя
+	// РџРѕР»СѓС‡РёРј РѕС‚РєСЂС‹С‚С‹Р№ РєР»СЋС‡ РїРѕР»СѓС‡Р°С‚РµР»СЏ
 	THROW_PP(CryptImportPublicKeyInfo(prov, MY_ENCODING_TYPE, &p_owner_cert->pCertInfo->SubjectPublicKeyInfo, &h_pub_key), PPERR_EDS_GETKEYFAILED);
 
-	// Получим длину ключа
+	// РџРѕР»СѓС‡РёРј РґР»РёРЅСѓ РєР»СЋС‡Р°
 	THROW_PP((key_length = CertGetPublicKeyLength(MY_ENCODING_TYPE, &p_owner_cert->pCertInfo->SubjectPublicKeyInfo)), PPERR_EDS_GETKEYLENFAILED);
 	key_length /= 8;
 
-	// Получим размер блока данных для шифрования
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ Р±Р»РѕРєР° РґР°РЅРЅС‹С… РґР»СЏ С€РёС„СЂРѕРІР°РЅРёСЏ
 	l_block_len = sizeof(block_len);
 	THROW_PP(CryptGetKeyParam(h_pub_key, KP_BLOCKLEN, (PBYTE)&block_len, &l_block_len, 0), PPERR_EDS_GETBLOCKSIZEFAILED);
 	block_len /= 8;
@@ -230,34 +231,34 @@ int PPEds::EncodeData(const char * pOwnerName, const char * pFileName, int sameF
 	THROW_SL(encode_file.Open(encode_file_name, SFile::mWrite | SFile::mBinary));
 	file.CalcSize(&file_size);
 	blob_count = fceili((double)file_size / block_size_to_read);
-	// Получим размер зашифрованных данных
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
 	buf_len = block_size_to_read;
 	cb_indata = block_size_to_read;
 	THROW_PP(CryptEncrypt(h_pub_key, NULL, FALSE, 0, NULL, &buf_len, cb_indata), PPERR_EDS_ENCRYPTIONFAILED);
 
-	// Выделим память
+	// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_indata = new BYTE[buf_len]);
-	// Шифруем блоки данных без последнего блока
+	// РЁРёС„СЂСѓРµРј Р±Р»РѕРєРё РґР°РЅРЅС‹С… Р±РµР· РїРѕСЃР»РµРґРЅРµРіРѕ Р±Р»РѕРєР°
 	for(size_t i = 1; i < (size_t)blob_count; i++, file_size -= block_size_to_read) {
 		memzero(pb_indata, buf_len);
 		file.ReadV(pb_indata, block_size_to_read);
 		cb_indata = block_size_to_read;
-		// Шифруем данные
+		// РЁРёС„СЂСѓРµРј РґР°РЅРЅС‹Рµ
 		THROW_PP(CryptEncrypt(h_pub_key, NULL, FALSE, 0, pb_indata, &cb_indata, buf_len), PPERR_EDS_ENCRYPTIONFAILED);
-		// Запишем в файл
+		// Р—Р°РїРёС€РµРј РІ С„Р°Р№Р»
 		encode_file.Write(pb_indata, buf_len);
 	}
-	// Теперь работаем с последним блоком
+	// РўРµРїРµСЂСЊ СЂР°Р±РѕС‚Р°РµРј СЃ РїРѕСЃР»РµРґРЅРёРј Р±Р»РѕРєРѕРј
 	block_size_to_read = static_cast<DWORD>(file_size);
 	ZDELETE(pb_indata);
 	cb_indata = block_size_to_read;
 	buf_len = block_size_to_read;
-	// Получим размер зашифрованных данных
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
 	THROW_PP(CryptEncrypt(h_pub_key, NULL, FALSE, 0, NULL, &buf_len, cb_indata), PPERR_EDS_ENCRYPTIONFAILED);
 	THROW_MEM(pb_indata = new BYTE[buf_len]);
 	memzero(pb_indata, buf_len);
 	file.ReadV(pb_indata, block_size_to_read);
-	// Шифруем данные
+	// РЁРёС„СЂСѓРµРј РґР°РЅРЅС‹Рµ
 	THROW_PP(CryptEncrypt(h_pub_key, NULL, TRUE, 0, pb_indata, &cb_indata, buf_len), PPERR_EDS_ENCRYPTIONFAILED);
 	encode_file.Write(pb_indata, buf_len);
 
@@ -302,13 +303,13 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 
 	SFile file, decode_file;
 
-	// Получим хранилище сертификатов
+	// РџРѕР»СѓС‡РёРј С…СЂР°РЅРёР»РёС‰Рµ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 	THROW(GetCert(cert_sore, p_owner_cert, pOwnerName));
 
 	DWORD dw_key_spec;
 	THROW(GetCryptoProv(p_owner_cert, prov, dw_key_spec));
 
-	// Получим закрытый ключ
+	// РџРѕР»СѓС‡РёРј Р·Р°РєСЂС‹С‚С‹Р№ РєР»СЋС‡
 	THROW_PP(CryptGetUserKey(prov, dw_key_spec, &h_private_key), PPERR_EDS_GETKEYFAILED);
 
 	GetEncryptedFileName(pFileName, decode_file_name);
@@ -316,7 +317,7 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 	THROW_SL(file.Open(pFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
 
-	// Найдем длину блока для чтения данных (в битах)
+	// РќР°Р№РґРµРј РґР»РёРЅСѓ Р±Р»РѕРєР° РґР»СЏ С‡С‚РµРЅРёСЏ РґР°РЅРЅС‹С… (РІ Р±РёС‚Р°С…)
 	l_block_len = sizeof(block_len);
 	THROW_PP(CryptGetKeyParam(h_private_key, KP_BLOCKLEN, (PBYTE)&block_len, &l_block_len, 0), PPERR_EDS_GETBLOCKSIZEFAILED);
 	block_len /= 8;
@@ -325,11 +326,11 @@ int PPEds::DecodeData(const char * pOwnerName, const char * pFileName)
 		cb_indata = block_len;
 		if(file_size < block_len)
 			cb_indata = static_cast<DWORD>(file_size);
-		// Выделим память
+		// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 		THROW_MEM(pb_indata = new BYTE[cb_indata]);
 		memzero(pb_indata, cb_indata);
 		file.ReadV(pb_indata, cb_indata);
-		// Расшифровываем данные
+		// Р Р°СЃС€РёС„СЂРѕРІС‹РІР°РµРј РґР°РЅРЅС‹Рµ
 		THROW_PP(CryptDecrypt(h_private_key, 0, (file_size > block_len) ? FALSE : TRUE, 0,
 			pb_indata, &cb_indata), PPERR_EDS_DECRYPTIONFAILED);
 		decode_file.Write(pb_indata, cb_indata);
@@ -375,13 +376,13 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 	SString sign_file_name;
 	SFile file;
 
-	// Получим сертификат
+	// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚
 	THROW(GetCert(cert_sore, p_signer_cert, pSignerName));
 
-	// Проверим цепочку сертификатов
+	// РџСЂРѕРІРµСЂРёРј С†РµРїРѕС‡РєСѓ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 	THROW(CheckCertChain(p_signer_cert));
 
-    // Начнем-с:)
+    // РќР°С‡РЅРµРј-СЃ:)
     // Initialize the signature structure
 	memzero(&sig_params, sizeof(CRYPT_SIGN_MESSAGE_PARA));
     sig_params.cbSize = sizeof(CRYPT_SIGN_MESSAGE_PARA);
@@ -392,9 +393,9 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
     sig_params.cMsgCert = 1;
     sig_params.rgpMsgCert = &p_signer_cert;
 
-	// Чтобы окно ввода пароля не появлялось дважды, включаем кеширование
+	// Р§С‚РѕР±С‹ РѕРєРЅРѕ РІРІРѕРґР° РїР°СЂРѕР»СЏ РЅРµ РїРѕСЏРІР»СЏР»РѕСЃСЊ РґРІР°Р¶РґС‹, РІРєР»СЋС‡Р°РµРј РєРµС€РёСЂРѕРІР°РЅРёРµ
 	THROW(CashOn(p_signer_cert));
-	// Подписываем файл частями
+	// РџРѕРґРїРёСЃС‹РІР°РµРј С„Р°Р№Р» С‡Р°СЃС‚СЏРјРё
 	THROW_SL(file.Open(pFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
 	blob_count = fceili((double)file_size / SIZE_TO_READ);
@@ -418,31 +419,31 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 	}
 	file.Close();
 
-	// Получим размер зашифрованного и подписанного блока
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРіРѕ Рё РїРѕРґРїРёСЃР°РЅРЅРѕРіРѕ Р±Р»РѕРєР°
 	if(!CryptSignMessage(&sig_params, TRUE /*detached*/, blob_count, message_array, message_size_array,
 		NULL, &cb_signed_message_blob)) {
 		THROW_PP(GetLastError() == SCARD_W_CANCELLED_BY_USER, PPERR_EDS_CREATESIGNATUREFAILED);
 		ok = -1;
 	}
 	else {
-		// Выделяем память для подписанного блока
+		// Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ РїРѕРґРїРёСЃР°РЅРЅРѕРіРѕ Р±Р»РѕРєР°
 		THROW_MEM(pb_signed_message_blob = new BYTE[cb_signed_message_blob]);
 		memzero(pb_signed_message_blob, cb_signed_message_blob);
 
-		// Пописываем блок
+		// РџРѕРїРёСЃС‹РІР°РµРј Р±Р»РѕРє
 		if(!CryptSignMessage(&sig_params, TRUE /*detached*/, blob_count, message_array, message_size_array,
 			pb_signed_message_blob, &cb_signed_message_blob)) {
-			// В pb_signed_message_blob теперь находится подписанное сообщение
+			// Р’ pb_signed_message_blob С‚РµРїРµСЂСЊ РЅР°С…РѕРґРёС‚СЃСЏ РїРѕРґРїРёСЃР°РЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ
 			THROW_PP(GetLastError() == SCARD_W_CANCELLED_BY_USER, PPERR_EDS_CREATESIGNATUREFAILED);
 			ok = -1;
 		}
 
-		// Сохраним подпись в новый файл
+		// РЎРѕС…СЂР°РЅРёРј РїРѕРґРїРёСЃСЊ РІ РЅРѕРІС‹Р№ С„Р°Р№Р»
 		if(!rSignFileName.NotEmpty()) {
 			GetSignFileName(pFileName, sign_file_name);
 			rSignFileName.CopyFrom(sign_file_name);
 		}
-		// Или перезапишем существующий
+		// РР»Рё РїРµСЂРµР·Р°РїРёС€РµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№
 		else
 			(sign_file_name = 0).CopyFrom(rSignFileName);
 		THROW_SL(file.Open(sign_file_name, SFile::mWrite | SFile::mBinary));
@@ -454,7 +455,7 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 	ZDELETE(pb_signed_message_blob);
 	ZDELETE(pb_indata);
 	if(p_signer_cert) {
-		CashOff(p_signer_cert); // Выключаем кеширование
+		CashOff(p_signer_cert); // Р’С‹РєР»СЋС‡Р°РµРј РєРµС€РёСЂРѕРІР°РЅРёРµ
 		CertFreeCertificateContext(p_signer_cert);
 		p_signer_cert = 0;
 	}
@@ -477,15 +478,15 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 	PCCERT_CONTEXT p_cosigner_cert = 0;
     HCRYPTPROV prov = NULL;
     HCRYPTMSG h_msg = NULL;
-	BYTE * pb_sign_data = NULL; // Данные из файла подписей до добавления новой подписи
+	BYTE * pb_sign_data = NULL; // Р”Р°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° РїРѕРґРїРёСЃРµР№ РґРѕ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРѕРІРѕР№ РїРѕРґРїРёСЃРё
 	DWORD cb_sign_data = 0;
-    BYTE * pb_cosigned_data = NULL; // Данные с добавленной подписью для записи в файл подписей
+    BYTE * pb_cosigned_data = NULL; // Р”Р°РЅРЅС‹Рµ СЃ РґРѕР±Р°РІР»РµРЅРЅРѕР№ РїРѕРґРїРёСЃСЊСЋ РґР»СЏ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» РїРѕРґРїРёСЃРµР№
     DWORD cb_cosigned_data = 0;
-	BYTE * pb_indata = NULL; // Данные из документа
+	BYTE * pb_indata = NULL; // Р”Р°РЅРЅС‹Рµ РёР· РґРѕРєСѓРјРµРЅС‚Р°
 	DWORD cb_indata = 0;
 	int64 file_size = 0;
 
-	// Прочитаем файл с подписями
+	// РџСЂРѕС‡РёС‚Р°РµРј С„Р°Р№Р» СЃ РїРѕРґРїРёСЃСЏРјРё
 	SFile file;
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
@@ -495,20 +496,20 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 	file.ReadV(pb_sign_data, cb_sign_data);
 	file.Close();
 
-	// Получим сертификат
+	// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚
 	THROW(GetCert(cert_sore, p_cosigner_cert, pCosignerName));
 
-	// Получаем криптопровайдера
+	// РџРѕР»СѓС‡Р°РµРј РєСЂРёРїС‚РѕРїСЂРѕРІР°Р№РґРµСЂР°
 	DWORD dw_key_spec;
 	THROW(GetCryptoProv(p_cosigner_cert, prov, dw_key_spec));
 
-	// Проверим цепочку сертификатов
+	// РџСЂРѕРІРµСЂРёРј С†РµРїРѕС‡РєСѓ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 	THROW(CheckCertChain(p_cosigner_cert));
 
-    // Откроем данные с подписями для раскодирования
+    // РћС‚РєСЂРѕРµРј РґР°РЅРЅС‹Рµ СЃ РїРѕРґРїРёСЃСЏРјРё РґР»СЏ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРёСЏ
     THROW_PP((h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, CMSG_DETACHED_FLAG, 0, NULL, NULL, NULL)), PPERR_EDS_MSGOPENFAILED);
 
-    // Добавляем данные о подписи в h_msg
+    // Р”РѕР±Р°РІР»СЏРµРј РґР°РЅРЅС‹Рµ Рѕ РїРѕРґРїРёСЃРё РІ h_msg
 	THROW_PP(CryptMsgUpdate(h_msg, pb_sign_data, cb_sign_data, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 
 	THROW_SL(file.Open(pFileName, SFile::mRead | SFile::mBinary));
@@ -520,12 +521,12 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 	blob_count = fceili((double)file_size / SIZE_TO_READ);
 	for(size_t i = 0; i < (size_t)blob_count; i++) {
 		file.Read(pb_indata, SIZE_TO_READ, &actual_size);
-		// Добавим данные в h_msg
+		// Р”РѕР±Р°РІРёРј РґР°РЅРЅС‹Рµ РІ h_msg
 		THROW_PP(CryptMsgUpdate(h_msg, pb_indata, (DWORD)actual_size, (i == blob_count - 1) ? TRUE : FALSE), PPERR_EDS_MSGUPDATEFAILED);
 	}
 	file.Close();
 
-    // Заполняем структуру с инофрмацией о со-подписчике
+    // Р—Р°РїРѕР»РЅСЏРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ СЃ РёРЅРѕС„СЂРјР°С†РёРµР№ Рѕ СЃРѕ-РїРѕРґРїРёСЃС‡РёРєРµ
     CMSG_SIGNER_ENCODE_INFO cosigner_info;
     memzero(&cosigner_info, sizeof(CMSG_SIGNER_ENCODE_INFO));
     cosigner_info.cbSize = sizeof(CMSG_SIGNER_ENCODE_INFO);
@@ -534,25 +535,25 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
     cosigner_info.dwKeySpec = dw_key_spec;
     cosigner_info.HashAlgorithm.pszObjId = p_cosigner_cert->pCertInfo->SignatureAlgorithm.pszObjId;
 
-	// Добавляем инфу о со-подписчике и его подпись в сообщение
+	// Р”РѕР±Р°РІР»СЏРµРј РёРЅС„Сѓ Рѕ СЃРѕ-РїРѕРґРїРёСЃС‡РёРєРµ Рё РµРіРѕ РїРѕРґРїРёСЃСЊ РІ СЃРѕРѕР±С‰РµРЅРёРµ
     if(!CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_SIGNER, &cosigner_info)) {
 		THROW_PP(GetLastError() == SCARD_W_CANCELLED_BY_USER, PPERR_EDS_ADDSIGNERFAILED);
 		ok = -1;
     }
 	else {
-		// Добавляем сертификат со-подписчика в сообщение
-		CERT_BLOB cosign_сert_blob;
-		cosign_сert_blob.cbData = p_cosigner_cert->cbCertEncoded;
-		cosign_сert_blob.pbData = p_cosigner_cert->pbCertEncoded;
-		THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_CERT, &cosign_сert_blob), PPERR_EDS_ADDCERTFAILED);
-		// Получаем размер со-подписанного блока
+		// Р”РѕР±Р°РІР»СЏРµРј СЃРµСЂС‚РёС„РёРєР°С‚ СЃРѕ-РїРѕРґРїРёСЃС‡РёРєР° РІ СЃРѕРѕР±С‰РµРЅРёРµ
+		CERT_BLOB cosign_СЃert_blob;
+		cosign_СЃert_blob.cbData = p_cosigner_cert->cbCertEncoded;
+		cosign_СЃert_blob.pbData = p_cosigner_cert->pbCertEncoded;
+		THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_CERT, &cosign_СЃert_blob), PPERR_EDS_ADDCERTFAILED);
+		// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ СЃРѕ-РїРѕРґРїРёСЃР°РЅРЅРѕРіРѕ Р±Р»РѕРєР°
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_cosigned_data), PPERR_EDS_CREATESIGNATUREFAILED);
 
-		// Выделяем память для со-подписанного сообщения
+		// Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ СЃРѕ-РїРѕРґРїРёСЃР°РЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
 		THROW_MEM(pb_cosigned_data = new BYTE[cb_cosigned_data]);
 		memzero(pb_cosigned_data, cb_cosigned_data);
 
-		// Получаем со-подписанный блок.
+		// РџРѕР»СѓС‡Р°РµРј СЃРѕ-РїРѕРґРїРёСЃР°РЅРЅС‹Р№ Р±Р»РѕРє.
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_cosigned_data, &cb_cosigned_data), PPERR_EDS_CREATESIGNATUREFAILED);
 
 		THROW_SL(file.Open(pSignFileName, SFile::mWrite | SFile::mBinary));
@@ -586,11 +587,11 @@ int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, co
 	PCCERT_CONTEXT p_cntr_sig_cert = 0;
     HCRYPTPROV prov = NULL;
 	HCRYPTMSG h_msg = NULL;
-	BYTE * pb_indata = NULL; // Данные из файла с подписями до проставления заверяющей
+	BYTE * pb_indata = NULL; // Р”Р°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё РґРѕ РїСЂРѕСЃС‚Р°РІР»РµРЅРёСЏ Р·Р°РІРµСЂСЏСЋС‰РµР№
 	DWORD cb_indata = 0;
-    BYTE * pb_decoded = NULL; // Раскодированные данные из файла с подписями до проставления заверяющей
+    BYTE * pb_decoded = NULL; // Р Р°СЃРєРѕРґРёСЂРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё РґРѕ РїСЂРѕСЃС‚Р°РІР»РµРЅРёСЏ Р·Р°РІРµСЂСЏСЋС‰РµР№
 	DWORD cb_decoded = 0;
-    BYTE * pb_encoded = NULL; // Данные о подписях вместе с заверяющей
+    BYTE * pb_encoded = NULL; // Р”Р°РЅРЅС‹Рµ Рѕ РїРѕРґРїРёСЃСЏС… РІРјРµСЃС‚Рµ СЃ Р·Р°РІРµСЂСЏСЋС‰РµР№
 	DWORD cb_encoded = 0;
 	CMSG_SIGNER_ENCODE_INFO countersigner_info;
 	CMSG_SIGNER_ENCODE_INFO cntr_sign_array[1] = {0};
@@ -605,34 +606,34 @@ int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, co
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
 
-	// Получим сертификат заверителя
+	// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚ Р·Р°РІРµСЂРёС‚РµР»СЏ
 	THROW(GetCert(cert_sore, p_cntr_sig_cert, pCountersignerName));
 
-	// Откроем сообщение для раскодирования
+	// РћС‚РєСЂРѕРµРј СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРёСЏ
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
 
-    // Загрузим сообщение pb_indata для раскодировки
+    // Р—Р°РіСЂСѓР·РёРј СЃРѕРѕР±С‰РµРЅРёРµ pb_indata РґР»СЏ СЂР°СЃРєРѕРґРёСЂРѕРІРєРё
 	THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 
-	// Получим размер раскодированного сообщения
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_CONTENT_PARAM, 0, NULL, &cb_decoded), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Выделим память
+	// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_decoded = new BYTE[cb_decoded]);
 	memzero(pb_decoded, cb_decoded);
 
-	// Получаем в pb_decoded раскодированное сообщение
+	// РџРѕР»СѓС‡Р°РµРј РІ pb_decoded СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ
     THROW_PP(CryptMsgGetParam(h_msg, CMSG_CONTENT_PARAM, 0, pb_decoded, &cb_decoded), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Проверяем подпись
+	// РџСЂРѕРІРµСЂСЏРµРј РїРѕРґРїРёСЃСЊ
 	THROW(VerifySign(pFileName, pSignFileName, signerNumber));
 
-	// Теперь будем ставить заверяющую подпись
-	// Получаем криптопровайдера
+	// РўРµРїРµСЂСЊ Р±СѓРґРµРј СЃС‚Р°РІРёС‚СЊ Р·Р°РІРµСЂСЏСЋС‰СѓСЋ РїРѕРґРїРёСЃСЊ
+	// РџРѕР»СѓС‡Р°РµРј РєСЂРёРїС‚РѕРїСЂРѕРІР°Р№РґРµСЂР°
 	DWORD dw_key_spec;
 	THROW(GetCryptoProv(p_cntr_sig_cert, prov, dw_key_spec));
 
-	// Инициализируем структуру для заверяющей подписи
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР»СЏ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
     memzero(&countersigner_info, sizeof(CMSG_SIGNER_ENCODE_INFO));
     countersigner_info.cbSize = sizeof(CMSG_SIGNER_ENCODE_INFO);
     countersigner_info.pCertInfo = p_cntr_sig_cert->pCertInfo;
@@ -642,18 +643,18 @@ int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, co
 
     cntr_sign_array[0] = countersigner_info;
 
-	// Заверяем подпись
+	// Р—Р°РІРµСЂСЏРµРј РїРѕРґРїРёСЃСЊ
 	THROW_PP(CryptMsgCountersign(h_msg, signerNumber - 1, 1, cntr_sign_array), PPERR_EDS_CREATESIGNATUREFAILED);
 
-	// Получаем ссылку на новое, с заверяющей подписью, сообщение.
-    // Получаем длину полученного сообщения
+	// РџРѕР»СѓС‡Р°РµРј СЃСЃС‹Р»РєСѓ РЅР° РЅРѕРІРѕРµ, СЃ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃСЊСЋ, СЃРѕРѕР±С‰РµРЅРёРµ.
+    // РџРѕР»СѓС‡Р°РµРј РґР»РёРЅСѓ РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_encoded), PPERR_EDS_CREATESIGNATUREFAILED);
 
-	// Выделяем память
+	// Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_encoded = new BYTE[cb_encoded]);
 	memzero(pb_encoded, cb_encoded);
 
-	// Получаем подписанное заверяющей подписью сообщение
+	// РџРѕР»СѓС‡Р°РµРј РїРѕРґРїРёСЃР°РЅРЅРѕРµ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃСЊСЋ СЃРѕРѕР±С‰РµРЅРёРµ
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_encoded, &cb_encoded), PPERR_EDS_CREATESIGNATUREFAILED);
 
 	THROW_SL(file.Open(pSignFileName, SFile::mWrite | SFile::mBinary));
@@ -689,9 +690,9 @@ int PPEds::DeleteSign(const char * pSignFileName, int signNumber)
 	PCCERT_CONTEXT p_signer_cert = 0;
     HCRYPTPROV prov = NULL;
     HCRYPTMSG h_msg = NULL;
-	BYTE * pb_indata = NULL; // Данные из файла с подписями до удаления подписи
+	BYTE * pb_indata = NULL; // Р”Р°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё РґРѕ СѓРґР°Р»РµРЅРёСЏ РїРѕРґРїРёСЃРё
 	DWORD cb_indata = 0;
-    BYTE * pb_unsigned_message_blob = NULL; // Новые данные о подписях, указанная подпись удалена
+    BYTE * pb_unsigned_message_blob = NULL; // РќРѕРІС‹Рµ РґР°РЅРЅС‹Рµ Рѕ РїРѕРґРїРёСЃСЏС…, СѓРєР°Р·Р°РЅРЅР°СЏ РїРѕРґРїРёСЃСЊ СѓРґР°Р»РµРЅР°
 	DWORD cb_unsigned_message_blob = 0;
 
 	SFile file;
@@ -706,45 +707,45 @@ int PPEds::DeleteSign(const char * pSignFileName, int signNumber)
 
     DWORD dw_key_spec = 0;
 
-	// Проверим, а есть ли подписи вообще
+	// РџСЂРѕРІРµСЂРёРј, Р° РµСЃС‚СЊ Р»Рё РїРѕРґРїРёСЃРё РІРѕРѕР±С‰Рµ
 	int sign_count = 0;
 	THROW(GetSignsCount(pSignFileName, sign_count));
-	if(sign_count != 0) { // Если есть хотя бы одна подпись
+	if(sign_count != 0) { // Р•СЃР»Рё РµСЃС‚СЊ С…РѕС‚СЏ Р±С‹ РѕРґРЅР° РїРѕРґРїРёСЃСЊ
 		SString signer_name;
 		THROW(GetSignerNameByNumber(pSignFileName, signNumber, signer_name));
-		// В принципе при удалении подписи проверку делать не надо
-		// Получаем сертификат
+		// Р’ РїСЂРёРЅС†РёРїРµ РїСЂРё СѓРґР°Р»РµРЅРёРё РїРѕРґРїРёСЃРё РїСЂРѕРІРµСЂРєСѓ РґРµР»Р°С‚СЊ РЅРµ РЅР°РґРѕ
+		// РџРѕР»СѓС‡Р°РµРј СЃРµСЂС‚РёС„РёРєР°С‚
 		//THROW(GetCert(cert_sore, p_signer_cert, signer_name));
-		//// Получаем криптопровайдера
+		//// РџРѕР»СѓС‡Р°РµРј РєСЂРёРїС‚РѕРїСЂРѕРІР°Р№РґРµСЂР°
 		//THROW(GetCryptoProv(p_signer_cert, prov, dw_key_spec));
-		//// Проверим цепочку сертификатов
+		//// РџСЂРѕРІРµСЂРёРј С†РµРїРѕС‡РєСѓ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 		//THROW(CheckCertChain(p_signer_cert));
 
-		// Получим индекс сертификата выбранного подписчика
+		// РџРѕР»СѓС‡РёРј РёРЅРґРµРєСЃ СЃРµСЂС‚РёС„РёРєР°С‚Р° РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїРѕРґРїРёСЃС‡РёРєР°
 		THROW(GetCertIndexBySignerName(pSignFileName, signer_name, cert_index));
 
-		// Откроем сообщение для раскодирования
+		// РћС‚РєСЂРѕРµРј СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРёСЏ
 		THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
 
-		// Расшифровваем pb_indata и пишем результат в h_msg
+		// Р Р°СЃС€РёС„СЂРѕРІРІР°РµРј pb_indata Рё РїРёС€РµРј СЂРµР·СѓР»СЊС‚Р°С‚ РІ h_msg
 		THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 
-		// Удаляем инфу о подписчике из сообщения
-		int true_index = signNumber - 1; // Так как эту функцию передаются значения индекса, начиная с 1, а
-								// в системных функциях индекс начинается с 0
+		// РЈРґР°Р»СЏРµРј РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃС‡РёРєРµ РёР· СЃРѕРѕР±С‰РµРЅРёСЏ
+		int true_index = signNumber - 1; // РўР°Рє РєР°Рє СЌС‚Сѓ С„СѓРЅРєС†РёСЋ РїРµСЂРµРґР°СЋС‚СЃСЏ Р·РЅР°С‡РµРЅРёСЏ РёРЅРґРµРєСЃР°, РЅР°С‡РёРЅР°СЏ СЃ 1, Р°
+								// РІ СЃРёСЃС‚РµРјРЅС‹С… С„СѓРЅРєС†РёСЏС… РёРЅРґРµРєСЃ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ 0
 		THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_DEL_SIGNER, &true_index), PPERR_EDS_DELSIGNFAILED);
 
-		// Удаляем сертификат подписчика из сообщения
+		// РЈРґР°Р»СЏРµРј СЃРµСЂС‚РёС„РёРєР°С‚ РїРѕРґРїРёСЃС‡РёРєР° РёР· СЃРѕРѕР±С‰РµРЅРёСЏ
 		THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_DEL_CERT, &cert_index), PPERR_EDS_DELCERTINFOFAILED);
 
-		// Получаем размер сообщения без подписи
+		// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ Р±РµР· РїРѕРґРїРёСЃРё
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_unsigned_message_blob), PPERR_EDS_DELSIGNFAILED);
 
-		// Выделяем память для сообщения без подписи
+		// Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ Р±РµР· РїРѕРґРїРёСЃРё
 		THROW_MEM(pb_unsigned_message_blob = new BYTE[cb_unsigned_message_blob]);
 		memzero(pb_unsigned_message_blob, cb_unsigned_message_blob);
 
-		// Получаем сообщение без подписи
+		// РџРѕР»СѓС‡Р°РµРј СЃРѕРѕР±С‰РµРЅРёРµ Р±РµР· РїРѕРґРїРёСЃРё
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_unsigned_message_blob, &cb_unsigned_message_blob), PPERR_EDS_DELSIGNFAILED);
 
 		THROW_SL(file.Open(pSignFileName, SFile::mWrite | SFile::mBinary));
@@ -776,10 +777,10 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 {
 	int    ok = 1;
     HCRYPTMSG h_msg = NULL;
-	BYTE * pb_indata = NULL; // Данные файла с подписями до удаления заверяющей
+	BYTE * pb_indata = NULL; // Р”Р°РЅРЅС‹Рµ С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё РґРѕ СѓРґР°Р»РµРЅРёСЏ Р·Р°РІРµСЂСЏСЋС‰РµР№
     BYTE * pb_unsigned_message_blob = NULL;
 	DWORD cb_indata = 0;
-	PCMSG_SIGNER_INFO pb_signer_info = 0; // Новые данные о подписях, заверяющая удалена
+	PCMSG_SIGNER_INFO pb_signer_info = 0; // РќРѕРІС‹Рµ РґР°РЅРЅС‹Рµ Рѕ РїРѕРґРїРёСЃСЏС…, Р·Р°РІРµСЂСЏСЋС‰Р°СЏ СѓРґР°Р»РµРЅР°
 	DWORD cb_unsigned_message_blob = 0;
 	DWORD cb_signer_info = 0;
 	CMSG_CTRL_DEL_SIGNER_UNAUTH_ATTR_PARA unauth_para;
@@ -796,19 +797,19 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 
     DWORD dw_key_spec = 0;
 
-	// Откроем сообщение для раскодирования
+	// РћС‚РєСЂРѕРµРј СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРёСЏ
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
 
-	// Добавим данные о подписях в h_msg
+	// Р”РѕР±Р°РІРёРј РґР°РЅРЅС‹Рµ Рѕ РїРѕРґРїРёСЃСЏС… РІ h_msg
 	THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 
-	// Получим инфу о подписи
-	// Получим размер данных о подписях
+	// РџРѕР»СѓС‡РёРј РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃРё
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… Рѕ РїРѕРґРїРёСЃСЏС…
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_INFO_PARAM, signerNumber - 1, NULL, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Выделим память
+	// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_signer_info = (PCMSG_SIGNER_INFO)LocalAlloc(LPTR, cb_signer_info));
-	// Получим инфу о подписи
+	// РџРѕР»СѓС‡РёРј РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_INFO_PARAM, signerNumber - 1, pb_signer_info, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
 	memzero(&unauth_para, sizeof(CMSG_CTRL_DEL_SIGNER_UNAUTH_ATTR_PARA));
 	unauth_para.cbSize = sizeof(CMSG_CTRL_DEL_SIGNER_UNAUTH_ATTR_PARA);
@@ -816,21 +817,21 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 		for(uint j = 0; j < pb_signer_info->UnauthAttrs.cAttr; j++) {
 			unauth_para.dwSignerIndex = signerNumber - 1;
 			unauth_para.dwUnauthAttrIndex = j;
-			// Среди параметров может оказаться штамп времени, так что проверим, что параметр
-			// все-таки является подписью
+			// РЎСЂРµРґРё РїР°СЂР°РјРµС‚СЂРѕРІ РјРѕР¶РµС‚ РѕРєР°Р·Р°С‚СЊСЃСЏ С€С‚Р°РјРї РІСЂРµРјРµРЅРё, С‚Р°Рє С‡С‚Рѕ РїСЂРѕРІРµСЂРёРј, С‡С‚Рѕ РїР°СЂР°РјРµС‚СЂ
+			// РІСЃРµ-С‚Р°РєРё СЏРІР»СЏРµС‚СЃСЏ РїРѕРґРїРёСЃСЊСЋ
 			DWORD cb_size = 0;
 			if(CryptDecodeObject(MY_ENCODING_TYPE, PKCS7_SIGNER_INFO,
 				pb_signer_info->UnauthAttrs.rgAttr[j].rgValue->pbData,
 				pb_signer_info->UnauthAttrs.rgAttr[j].rgValue->cbData, 0, NULL, &cb_size)) {
-				// Удаляем инфу о заверителе из сообщения
+				// РЈРґР°Р»СЏРµРј РёРЅС„Сѓ Рѕ Р·Р°РІРµСЂРёС‚РµР»Рµ РёР· СЃРѕРѕР±С‰РµРЅРёСЏ
 				THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_DEL_SIGNER_UNAUTH_ATTR, &unauth_para), PPERR_EDS_DELSIGNFAILED);
 			}
 		}
-		// Получаем размер сообщения без подписи
+		// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ Р±РµР· РїРѕРґРїРёСЃРё
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_unsigned_message_blob), PPERR_EDS_DELSIGNFAILED);
-		// Выделяем память для сообщения без подписи
+		// Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ Р±РµР· РїРѕРґРїРёСЃРё
 		THROW_MEM(pb_unsigned_message_blob = new BYTE[cb_unsigned_message_blob]);
-		// Получаем сообщение без подписи
+		// РџРѕР»СѓС‡Р°РµРј СЃРѕРѕР±С‰РµРЅРёРµ Р±РµР· РїРѕРґРїРёСЃРё
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_unsigned_message_blob, &cb_unsigned_message_blob), PPERR_EDS_DELSIGNFAILED);
 		THROW_SL(file.Open(pSignFileName, SFile::mWrite | SFile::mBinary));
 		file.Write(pb_unsigned_message_blob, cb_unsigned_message_blob);
@@ -858,7 +859,7 @@ int PPEds::GetSignsCount(const char * pSignFileName, int & rCount)
 	DWORD cb_indata = 0;
 	SFile file;
 	if(!file.Open(pSignFileName, SFile::mRead | SFile::mBinary)) {
-		rCount = 0; // Нет файла с подписями - нет подписей
+		rCount = 0; // РќРµС‚ С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё - РЅРµС‚ РїРѕРґРїРёСЃРµР№
 	}
 	else {
 		int64 file_size = 0;
@@ -883,7 +884,7 @@ int PPEds::SignData(const char * pSignerName, const char * pFileName, SString & 
 	int signs_count = 0;
 
 	if(rSignFileName.NotEmpty())
-		THROW(GetSignsCount(rSignFileName, signs_count) != -1); // ошибка
+		THROW(GetSignsCount(rSignFileName, signs_count) != -1); // РѕС€РёР±РєР°
 	if(!rSignFileName.NotEmpty() || (signs_count == 0))
 		THROW(FirstSignData(pSignerName, pFileName, rSignFileName))
 	else if(signs_count > 0)
@@ -914,13 +915,13 @@ int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SSt
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
 
-	// Откроем сообщение для раскодирования
+	// РћС‚РєСЂРѕРµРј СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРёСЏ
     THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
 
-    // Расшифровваем pb_indata и пишем результат в h_msg
+    // Р Р°СЃС€РёС„СЂРѕРІРІР°РµРј pb_indata Рё РїРёС€РµРј СЂРµР·СѓР»СЊС‚Р°С‚ РІ h_msg
     THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 
-	// Получим размер запрашиваемой инфы о сертификате
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ Р·Р°РїСЂР°С€РёРІР°РµРјРѕР№ РёРЅС„С‹ Рѕ СЃРµСЂС‚РёС„РёРєР°С‚Рµ
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_CERT_INFO_PARAM, signNumber - 1, NULL, &cb_signer_cert_info), PPERR_EDS_GETCERTINFOFAILED);
 //		if(GetLastError() == CRYPT_E_INVALID_INDEX) {
 //			//cout << "No signers" << endl;
@@ -936,14 +937,14 @@ int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SSt
 //	if(ok) {
 		THROW_MEM(pb_signer_cert_info = (PCERT_INFO)SAlloc::M(cb_signer_cert_info));
 		memzero(pb_signer_cert_info, cb_signer_cert_info);
-		// Получаем инфу о сертификате
+		// РџРѕР»СѓС‡Р°РµРј РёРЅС„Сѓ Рѕ СЃРµСЂС‚РёС„РёРєР°С‚Рµ
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_CERT_INFO_PARAM, signNumber - 1, pb_signer_cert_info, &cb_signer_cert_info), PPERR_EDS_GETCERTINFOFAILED);
-		// Откроем хранилище сертификатов в памяти с помощью CERT_STORE_PROV_MSG,
-		// который инициализирует его с сертификатами из сообщения.
+		// РћС‚РєСЂРѕРµРј С…СЂР°РЅРёР»РёС‰Рµ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ РІ РїР°РјСЏС‚Рё СЃ РїРѕРјРѕС‰СЊСЋ CERT_STORE_PROV_MSG,
+		// РєРѕС‚РѕСЂС‹Р№ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РµРіРѕ СЃ СЃРµСЂС‚РёС„РёРєР°С‚Р°РјРё РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
 		THROW_PP(h_cert_store = CertOpenStore(CERT_STORE_PROV_MSG, MY_ENCODING_TYPE, NULL, 0, h_msg), PPERR_EDS_OPENCERTSTORE);
-		// Найдем сертификат подписчика
+		// РќР°Р№РґРµРј СЃРµСЂС‚РёС„РёРєР°С‚ РїРѕРґРїРёСЃС‡РёРєР°
 		THROW_PP(p_cert = CertGetSubjectCertificateFromStore(h_cert_store, MY_ENCODING_TYPE, pb_signer_cert_info), PPERR_EDS_GETCERT);
-		// Получим имя подписчика
+		// РџРѕР»СѓС‡РёРј РёРјСЏ РїРѕРґРїРёСЃС‡РёРєР°
 		TCHAR  signer_name[256];
 		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
 		rSignerName.Cat(SUcSwitch(signer_name));
@@ -986,22 +987,22 @@ int PPEds::GetCertIndexBySignerName(const char * pSignFileName, const char * pSi
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
 
-	// Откроем сообщение для раскодирования
+	// РћС‚РєСЂРѕРµРј СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРёСЏ
     THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-    // Добавляем данные о подписях в h_msg
+    // Р”РѕР±Р°РІР»СЏРµРј РґР°РЅРЅС‹Рµ Рѕ РїРѕРґРїРёСЃСЏС… РІ h_msg
     THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 	THROW(GetSignsCount(pSignFileName, signers_count));
 	while(!exit && (index != signers_count)) {
-		// Получим размер запрашиваемой инфы о сертификате
+		// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ Р·Р°РїСЂР°С€РёРІР°РµРјРѕР№ РёРЅС„С‹ Рѕ СЃРµСЂС‚РёС„РёРєР°С‚Рµ
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_CERT_PARAM, index, NULL, &cb_cert), PPERR_EDS_GETCERTINFOFAILED);
-		// Выделяем память
+		// Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ
 		THROW_MEM(pb_cert = new BYTE[cb_cert]);
 		memzero(pb_cert, cb_cert);
-		// Получаем инфу о сертификате
+		// РџРѕР»СѓС‡Р°РµРј РёРЅС„Сѓ Рѕ СЃРµСЂС‚РёС„РёРєР°С‚Рµ
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_CERT_PARAM, index, pb_cert, &cb_cert), PPERR_EDS_GETCERTINFOFAILED);
-		// Найдем сертификат подписчика
+		// РќР°Р№РґРµРј СЃРµСЂС‚РёС„РёРєР°С‚ РїРѕРґРїРёСЃС‡РёРєР°
 		THROW_PP(p_cert = CertCreateCertificateContext(MY_ENCODING_TYPE, pb_cert, cb_cert), PPERR_EDS_GETCERT);
-		// Получим имя подписчика
+		// РџРѕР»СѓС‡РёРј РёРјСЏ РїРѕРґРїРёСЃС‡РёРєР°
 		TCHAR  signer_name[256];
 		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
 		if(sstreq(SUcSwitch(signer_name), pSignerName))
@@ -1031,9 +1032,9 @@ int PPEds::CashOn(PCCERT_CONTEXT & cert)
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, NULL, &c_data));
     THROW_MEM(p_crypt_key_prov_info = (CRYPT_KEY_PROV_INFO *)SAlloc::M(c_data));
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, p_crypt_key_prov_info, &c_data));
-    // Установим флаг кеширования провайдера
+    // РЈСЃС‚Р°РЅРѕРІРёРј С„Р»Р°Рі РєРµС€РёСЂРѕРІР°РЅРёСЏ РїСЂРѕРІР°Р№РґРµСЂР°
     p_crypt_key_prov_info->dwFlags = CERT_SET_KEY_CONTEXT_PROP_ID;
-    // Установим свойства в контексте сертификата
+    // РЈСЃС‚Р°РЅРѕРІРёРј СЃРІРѕР№СЃС‚РІР° РІ РєРѕРЅС‚РµРєСЃС‚Рµ СЃРµСЂС‚РёС„РёРєР°С‚Р°
     THROW(CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, p_crypt_key_prov_info));
 
 	CATCHZOK;
@@ -1053,9 +1054,9 @@ int PPEds::CashOff(PCCERT_CONTEXT & cert)
         SAlloc::F(p_crypt_key_prov_info);
     THROW_MEM(p_crypt_key_prov_info = (CRYPT_KEY_PROV_INFO *)SAlloc::M(c_data));
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, p_crypt_key_prov_info, &c_data));
-    /* Убираем флаг кеширования провайдера*/
+    /* РЈР±РёСЂР°РµРј С„Р»Р°Рі РєРµС€РёСЂРѕРІР°РЅРёСЏ РїСЂРѕРІР°Р№РґРµСЂР°*/
     p_crypt_key_prov_info->dwFlags = 0;
-    /* Установим свойства в контексте сертификата*/
+    /* РЈСЃС‚Р°РЅРѕРІРёРј СЃРІРѕР№СЃС‚РІР° РІ РєРѕРЅС‚РµРєСЃС‚Рµ СЃРµСЂС‚РёС„РёРєР°С‚Р°*/
 	THROW(CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, p_crypt_key_prov_info));
 
 	CATCHZOK;
@@ -1072,17 +1073,17 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 	PCCERT_CONTEXT p_cert = 0;
 	CERT_INFO cert_info;
 	HCRYPTMSG h_msg = 0;
-	PCMSG_SIGNER_INFO pb_countersigner_info = NULL; // инфа о заверителе
+	PCMSG_SIGNER_INFO pb_countersigner_info = NULL; // РёРЅС„Р° Рѕ Р·Р°РІРµСЂРёС‚РµР»Рµ
 	DWORD cb_countersigner_info = 0;
-	BYTE * pb_sign_data = NULL; // Данные из файла с подписями
+	BYTE * pb_sign_data = NULL; // Р”Р°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё
 	DWORD cb_sign_data = 0;
-	BYTE * pb_signer_info = NULL; // инфа о подписанте, чья подпись заверена
+	BYTE * pb_signer_info = NULL; // РёРЅС„Р° Рѕ РїРѕРґРїРёСЃР°РЅС‚Рµ, С‡СЊСЏ РїРѕРґРїРёСЃСЊ Р·Р°РІРµСЂРµРЅР°
 	DWORD cb_signer_info = 0;
-    PCRYPT_ATTRIBUTES pb_attr_info = NULL; // инфа о заверяющей подписи
+    PCRYPT_ATTRIBUTES pb_attr_info = NULL; // РёРЅС„Р° Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
 	DWORD cb_attr_info = 0;
 	SFile file;
 
-	// Считаем данные из файла с подписью
+	// РЎС‡РёС‚Р°РµРј РґР°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЊСЋ
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
 	cb_sign_data = static_cast<DWORD>(file_size);
@@ -1092,41 +1093,41 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 	file.Close();
 
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-	// Добавим в h_msg инфу о подписях
+	// Р”РѕР±Р°РІРёРј РІ h_msg РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃСЏС…
     THROW_PP(CryptMsgUpdate(h_msg, pb_sign_data, cb_sign_data, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 
-	// Получим инфу о подписи
-	// Получим размер данных о подписи
+	// РџРѕР»СѓС‡РёРј РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃРё
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… Рѕ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_SIGNER, signerNumber - 1, NULL, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Выделим память
+	// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_signer_info = new BYTE[cb_signer_info]);
 	memzero(pb_signer_info, cb_signer_info);
 
-	// Получим инфу о подписи
+	// РџРѕР»СѓС‡РёРј РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_SIGNER, signerNumber - 1, pb_signer_info, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Получаем инфу о заверяющей подписи
-	// Проверим атрибуты заверенной подписи на тип содержащейся информации
-	// Получаем размер данных о заверяющей подпсиси
+	// РџРѕР»СѓС‡Р°РµРј РёРЅС„Сѓ Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
+	// РџСЂРѕРІРµСЂРёРј Р°С‚СЂРёР±СѓС‚С‹ Р·Р°РІРµСЂРµРЅРЅРѕР№ РїРѕРґРїРёСЃРё РЅР° С‚РёРї СЃРѕРґРµСЂР¶Р°С‰РµР№СЃСЏ РёРЅС„РѕСЂРјР°С†РёРё
+	// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїСЃРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, signerNumber - 1, NULL, &cb_attr_info), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Выделим память
+	// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_attr_info = (CRYPT_ATTRIBUTES*)SAlloc::M(cb_attr_info));
 	memzero(pb_attr_info, cb_attr_info);
 
-	// Получаем инфу о заверяющей подписи
+	// РџРѕР»СѓС‡Р°РµРј РёРЅС„Сѓ Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, signerNumber - 1,
 		pb_attr_info, &cb_attr_info), PPERR_EDS_GETSIGNINFOFAILED);
 
 	for(size_t j = 0; j < pb_attr_info->cAttr; j ++) {
-		// Получим сертификат заверителя
-		// Получим из данных о заверяющей подписи инфу о заверителе
-		// Получим размер данных
+		// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚ Р·Р°РІРµСЂРёС‚РµР»СЏ
+		// РџРѕР»СѓС‡РёРј РёР· РґР°РЅРЅС‹С… Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё РёРЅС„Сѓ Рѕ Р·Р°РІРµСЂРёС‚РµР»Рµ
+		// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С…
 		if(CryptDecodeObject(MY_ENCODING_TYPE, PKCS7_SIGNER_INFO,
 			pb_attr_info->rgAttr[j].rgValue->pbData,
 			pb_attr_info->rgAttr[j].rgValue->cbData, 0, NULL, &cb_countersigner_info)) {
-			// Выделим память
+			// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 			THROW_MEM(pb_countersigner_info = (PCMSG_SIGNER_INFO)SAlloc::M(cb_countersigner_info));
 			memzero(pb_countersigner_info, cb_countersigner_info);
 			THROW_PP(CryptDecodeObject(MY_ENCODING_TYPE, PKCS7_SIGNER_INFO,
@@ -1135,11 +1136,11 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 
 			cert_info.Issuer = pb_countersigner_info->Issuer;
 			cert_info.SerialNumber = pb_countersigner_info->SerialNumber;
-			// Откроем хранилище сертификатов
+			// РћС‚РєСЂРѕРµРј С…СЂР°РЅРёР»РёС‰Рµ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 			THROW_PP(store = CertOpenSystemStore(0, CERTIFICATE_STORE_NAME), PPERR_EDS_OPENCERTSTORE); // @unicodeproblem
-			// Получим сертификат заверителя
+			// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚ Р·Р°РІРµСЂРёС‚РµР»СЏ
 			THROW_PP((p_cert = CertGetSubjectCertificateFromStore(store, MY_ENCODING_TYPE, &cert_info)), PPERR_EDS_GETCERT);
-			// Получим имя заверителя
+			// РџРѕР»СѓС‡РёРј РёРјСЏ Р·Р°РІРµСЂРёС‚РµР»СЏ
 			TCHAR countersigner_name[256];
 			THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL,
 					countersigner_name, MAX_NAME_LEN) > 1, PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
@@ -1204,13 +1205,13 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
 	HCERTSTORE store = 0;
 	SString  signer_name;
 	SFile file;
-	BYTE * pb_indata = NULL; // Данные из документа
+	BYTE * pb_indata = NULL; // Р”Р°РЅРЅС‹Рµ РёР· РґРѕРєСѓРјРµРЅС‚Р°
 	DWORD cb_indata = 0;
-	BYTE * pb_sign_data = NULL; // Данные из файла с подписями
+	BYTE * pb_sign_data = NULL; // Р”Р°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё
 	DWORD cb_sign_data = 0;
 	CRYPT_VERIFY_MESSAGE_PARA verify_params;
 
-	// Считаем данные из документа
+	// РЎС‡РёС‚Р°РµРј РґР°РЅРЅС‹Рµ РёР· РґРѕРєСѓРјРµРЅС‚Р°
 	THROW_SL(file.Open(pFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
 	cb_indata = static_cast<DWORD>(file_size);
@@ -1219,7 +1220,7 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
 
-	// Считаем данные из файла с подписью
+	// РЎС‡РёС‚Р°РµРј РґР°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЊСЋ
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file_size = 0;
 	file.CalcSize(&file_size);
@@ -1237,10 +1238,10 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
     verify_params.cbSize = sizeof(CRYPT_VERIFY_MESSAGE_PARA);
     verify_params.dwMsgAndCertEncodingType = MY_ENCODING_TYPE;
     verify_params.hCryptProv = NULL/*prov*/;
-    verify_params.pfnGetSignerCertificate = NULL; // Будет искать в сообщении
+    verify_params.pfnGetSignerCertificate = NULL; // Р‘СѓРґРµС‚ РёСЃРєР°С‚СЊ РІ СЃРѕРѕР±С‰РµРЅРёРё
     verify_params.pvGetArg = NULL;
 
-	// Проверяем подпись
+	// РџСЂРѕРІРµСЂСЏРµРј РїРѕРґРїРёСЃСЊ
 	const BYTE * indata_arr[] = {pb_indata};
 	DWORD indata_size_arr[1];
 	indata_size_arr[0] = cb_indata;
@@ -1277,17 +1278,17 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 	HCERTSTORE store = 0;
 	PCCERT_CONTEXT p_cert = 0;
 	CERT_INFO cert_info;
-	PCMSG_SIGNER_INFO pb_countersigner_info = NULL; // инфа о заверителе
+	PCMSG_SIGNER_INFO pb_countersigner_info = NULL; // РёРЅС„Р° Рѕ Р·Р°РІРµСЂРёС‚РµР»Рµ
 	DWORD cb_countersigner_info = 0;
-	BYTE * pb_sign_data = NULL; // Данные из файла с подписями
+	BYTE * pb_sign_data = NULL; // Р”Р°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЏРјРё
 	DWORD cb_sign_data = 0;
-	BYTE * pb_signer_info = NULL; // инфа о подписанте, чья подпись заверена
+	BYTE * pb_signer_info = NULL; // РёРЅС„Р° Рѕ РїРѕРґРїРёСЃР°РЅС‚Рµ, С‡СЊСЏ РїРѕРґРїРёСЃСЊ Р·Р°РІРµСЂРµРЅР°
 	DWORD cb_signer_info = 0;
-    PCRYPT_ATTRIBUTES pb_countersign_info = NULL; // инфа о заверяющей подписи
+    PCRYPT_ATTRIBUTES pb_countersign_info = NULL; // РёРЅС„Р° Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
 	DWORD cb_countersign_info = 0;
 	SFile file;
 
-	// Считаем данные из файла с подписью
+	// РЎС‡РёС‚Р°РµРј РґР°РЅРЅС‹Рµ РёР· С„Р°Р№Р»Р° СЃ РїРѕРґРїРёСЃСЊСЋ
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
 	cb_sign_data = static_cast<DWORD>(file_size);
@@ -1298,38 +1299,38 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
 
-    // Добавим в h_msg инфу о подписях
+    // Р”РѕР±Р°РІРёРј РІ h_msg РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃСЏС…
     THROW_PP(CryptMsgUpdate(h_msg, pb_sign_data, cb_sign_data, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 
-    // Получим инфу о подписи
-	// Получим размер данных о подписи
+    // РџРѕР»СѓС‡РёРј РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃРё
+	// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… Рѕ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_SIGNER, signerNumber - 1, NULL, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Выделим память
+	// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_signer_info = new BYTE[cb_signer_info]);
 	memzero(pb_signer_info, cb_signer_info);
 
-	// Получим инфу о подписи
+	// РџРѕР»СѓС‡РёРј РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_SIGNER, signerNumber - 1, pb_signer_info, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
 
-	// Получаем инфу о заверяющей подписи
-	// Получаем размер данных о заверяющей подписи
+	// РџРѕР»СѓС‡Р°РµРј РёРЅС„Сѓ Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
+	// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, signerNumber - 1, NULL, &cb_countersign_info), PPERR_EDS_GETSIGNINFOFAILED);
-	// Выделим память
+	// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 	THROW_MEM(pb_countersign_info = (CRYPT_ATTRIBUTES*)SAlloc::M(cb_countersign_info));
 	memzero(pb_countersign_info, cb_countersign_info);
 
-	// Получаем инфу о заверяющей подписи
+	// РџРѕР»СѓС‡Р°РµРј РёРЅС„Сѓ Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, signerNumber - 1,
 		pb_countersign_info, &cb_countersign_info), PPERR_EDS_GETSIGNINFOFAILED);
 	for(size_t i = 0; i < pb_countersign_info->cAttr; i++) {
-		// Получим сертификат заверителя
-		// Получим из данных о заверяющей подписи инфу о заверителе
-		// Получим размер данных и заодно проверим, является ли параметр подписью
+		// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚ Р·Р°РІРµСЂРёС‚РµР»СЏ
+		// РџРѕР»СѓС‡РёРј РёР· РґР°РЅРЅС‹С… Рѕ Р·Р°РІРµСЂСЏСЋС‰РµР№ РїРѕРґРїРёСЃРё РёРЅС„Сѓ Рѕ Р·Р°РІРµСЂРёС‚РµР»Рµ
+		// РџРѕР»СѓС‡РёРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… Рё Р·Р°РѕРґРЅРѕ РїСЂРѕРІРµСЂРёРј, СЏРІР»СЏРµС‚СЃСЏ Р»Рё РїР°СЂР°РјРµС‚СЂ РїРѕРґРїРёСЃСЊСЋ
 		THROW_PP(CryptDecodeObject(MY_ENCODING_TYPE, PKCS7_SIGNER_INFO,
 			pb_countersign_info->rgAttr[i].rgValue->pbData,
 			pb_countersign_info->rgAttr[i].rgValue->cbData, 0, NULL, &cb_countersigner_info), PPERR_EDS_MSGOPENFAILED);
-		// Выделим память
+		// Р’С‹РґРµР»РёРј РїР°РјСЏС‚СЊ
 		THROW_MEM(pb_countersigner_info = (PCMSG_SIGNER_INFO)SAlloc::M(cb_countersigner_info));
 		memzero(pb_countersigner_info, cb_countersigner_info);
 		THROW_PP(CryptDecodeObject(MY_ENCODING_TYPE, PKCS7_SIGNER_INFO,
@@ -1338,11 +1339,11 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 
 		cert_info.Issuer = pb_countersigner_info->Issuer;
 		cert_info.SerialNumber = pb_countersigner_info->SerialNumber;
-		// Откроем хранилище сертификатов
+		// РћС‚РєСЂРѕРµРј С…СЂР°РЅРёР»РёС‰Рµ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 		THROW_PP((store = CertOpenSystemStore(0, CERTIFICATE_STORE_NAME)), PPERR_EDS_OPENCERTSTORE); // @unicodeproblem
-		// Получим сертификат заверителя
+		// РџРѕР»СѓС‡РёРј СЃРµСЂС‚РёС„РёРєР°С‚ Р·Р°РІРµСЂРёС‚РµР»СЏ
 		THROW_PP((p_cert = CertGetSubjectCertificateFromStore(store, MY_ENCODING_TYPE, &cert_info)), PPERR_EDS_GETCERT);
-		// Проверяем заверяющую подпись
+		// РџСЂРѕРІРµСЂСЏРµРј Р·Р°РІРµСЂСЏСЋС‰СѓСЋ РїРѕРґРїРёСЃСЊ
 		if(!CryptMsgVerifyCountersignatureEncoded(0, MY_ENCODING_TYPE, pb_signer_info,
 			cb_signer_info, pb_countersign_info->rgAttr->rgValue->pbData,
 			pb_countersign_info->rgAttr->rgValue->cbData, p_cert->pCertInfo)) {
@@ -1390,30 +1391,30 @@ int PPEds::GetHash(void * pData, DWORD dataSize, int signNumber, BYTE * pHashedD
 
 int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 {
-	// Концепция Der-кодирования объектных идентификаторов
-	// Первые два числа объединяют в одно по формуле:
+	// РљРѕРЅС†РµРїС†РёСЏ Der-РєРѕРґРёСЂРѕРІР°РЅРёСЏ РѕР±СЉРµРєС‚РЅС‹С… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
+	// РџРµСЂРІС‹Рµ РґРІР° С‡РёСЃР»Р° РѕР±СЉРµРґРёРЅСЏСЋС‚ РІ РѕРґРЅРѕ РїРѕ С„РѕСЂРјСѓР»Рµ:
 	//		new_val = val_1 * 40 + val_2
-	// Оставшиеся числа сравнивают с 128. Если меньше этого значения, то число остается без
-	// изменений. Если больше или равно, то число преобразуется по следующему алгоритму:
-	//		Старший бит байта является идентификатором конечного байта. То есть в последнем байте
-	//		старший бит равен 0, в остальных - 1. Остальные семь бит содержат код числа. Поэтому,
-	//		прежде чем записать в старший бит 0 или 1, надо запомнить его истинное значение путем
-	//		сдвига этого бита и всех старших на одну позицию влево.
-	//		Пример: рассмотрим число 113549
-	//		двоичный код - 0000 0001 1011 1011 1000 1101
+	// РћСЃС‚Р°РІС€РёРµСЃСЏ С‡РёСЃР»Р° СЃСЂР°РІРЅРёРІР°СЋС‚ СЃ 128. Р•СЃР»Рё РјРµРЅСЊС€Рµ СЌС‚РѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ, С‚Рѕ С‡РёСЃР»Рѕ РѕСЃС‚Р°РµС‚СЃСЏ Р±РµР·
+	// РёР·РјРµРЅРµРЅРёР№. Р•СЃР»Рё Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅРѕ, С‚Рѕ С‡РёСЃР»Рѕ РїСЂРµРѕР±СЂР°Р·СѓРµС‚СЃСЏ РїРѕ СЃР»РµРґСѓСЋС‰РµРјСѓ Р°Р»РіРѕСЂРёС‚РјСѓ:
+	//		РЎС‚Р°СЂС€РёР№ Р±РёС‚ Р±Р°Р№С‚Р° СЏРІР»СЏРµС‚СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РєРѕРЅРµС‡РЅРѕРіРѕ Р±Р°Р№С‚Р°. РўРѕ РµСЃС‚СЊ РІ РїРѕСЃР»РµРґРЅРµРј Р±Р°Р№С‚Рµ
+	//		СЃС‚Р°СЂС€РёР№ Р±РёС‚ СЂР°РІРµРЅ 0, РІ РѕСЃС‚Р°Р»СЊРЅС‹С… - 1. РћСЃС‚Р°Р»СЊРЅС‹Рµ СЃРµРјСЊ Р±РёС‚ СЃРѕРґРµСЂР¶Р°С‚ РєРѕРґ С‡РёСЃР»Р°. РџРѕСЌС‚РѕРјСѓ,
+	//		РїСЂРµР¶РґРµ С‡РµРј Р·Р°РїРёСЃР°С‚СЊ РІ СЃС‚Р°СЂС€РёР№ Р±РёС‚ 0 РёР»Рё 1, РЅР°РґРѕ Р·Р°РїРѕРјРЅРёС‚СЊ РµРіРѕ РёСЃС‚РёРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РїСѓС‚РµРј
+	//		СЃРґРІРёРіР° СЌС‚РѕРіРѕ Р±РёС‚Р° Рё РІСЃРµС… СЃС‚Р°СЂС€РёС… РЅР° РѕРґРЅСѓ РїРѕР·РёС†РёСЋ РІР»РµРІРѕ.
+	//		РџСЂРёРјРµСЂ: СЂР°СЃСЃРјРѕС‚СЂРёРј С‡РёСЃР»Рѕ 113549
+	//		РґРІРѕРёС‡РЅС‹Р№ РєРѕРґ - 0000 0001 1011 1011 1000 1101
 	//
-	//		1) обнулим старший бит младшего байта, при этом биты, начиная с этого, сдвинутся влево на 1 бит
+	//		1) РѕР±РЅСѓР»РёРј СЃС‚Р°СЂС€РёР№ Р±РёС‚ РјР»Р°РґС€РµРіРѕ Р±Р°Р№С‚Р°, РїСЂРё СЌС‚РѕРј Р±РёС‚С‹, РЅР°С‡РёРЅР°СЏ СЃ СЌС‚РѕРіРѕ, СЃРґРІРёРЅСѓС‚СЃСЏ РІР»РµРІРѕ РЅР° 1 Р±РёС‚
 	//			0000 0011 0111 0111 0000 1101
-	//		2) поставим в единицу старший бит второго байта, также сдвигая биты влево, только теперь начиная с этого
+	//		2) РїРѕСЃС‚Р°РІРёРј РІ РµРґРёРЅРёС†Сѓ СЃС‚Р°СЂС€РёР№ Р±РёС‚ РІС‚РѕСЂРѕРіРѕ Р±Р°Р№С‚Р°, С‚Р°РєР¶Рµ СЃРґРІРёРіР°СЏ Р±РёС‚С‹ РІР»РµРІРѕ, С‚РѕР»СЊРєРѕ С‚РµРїРµСЂСЊ РЅР°С‡РёРЅР°СЏ СЃ СЌС‚РѕРіРѕ
 	//			0000 0110 1111 0111 0000 1101
-	//		3) наконец, поставим в единицу старший бит старшего байта
+	//		3) РЅР°РєРѕРЅРµС†, РїРѕСЃС‚Р°РІРёРј РІ РµРґРёРЅРёС†Сѓ СЃС‚Р°СЂС€РёР№ Р±РёС‚ СЃС‚Р°СЂС€РµРіРѕ Р±Р°Р№С‚Р°
 	//			1000 0110 1111 0111 0000 1101
-	//		4) получившиееся значение разбиваем побайтно, то есть код числа будет (86 F7 0D)
+	//		4) РїРѕР»СѓС‡РёРІС€РёРµРµСЃСЏ Р·РЅР°С‡РµРЅРёРµ СЂР°Р·Р±РёРІР°РµРј РїРѕР±Р°Р№С‚РЅРѕ, С‚Рѕ РµСЃС‚СЊ РєРѕРґ С‡РёСЃР»Р° Р±СѓРґРµС‚ (86 F7 0D)
 	int  ok = 1, binval = 0, part_val = 0;
 	size_t arr_size = 0;
 	size_t enc_arr_size = 0;
-	int * vals = 0; // Массив числами в первоначальном виде
-	int * encode_vals = 0; // Массив с зкаодированными числами
+	int * vals = 0; // РњР°СЃСЃРёРІ С‡РёСЃР»Р°РјРё РІ РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕРј РІРёРґРµ
+	int * encode_vals = 0; // РњР°СЃСЃРёРІ СЃ Р·РєР°РѕРґРёСЂРѕРІР°РЅРЅС‹РјРё С‡РёСЃР»Р°РјРё
 	size_t start = 0, pos = 0, count = 0, i = 0, j = 0;
 	SString str, l_str, r_str;
 	SString sstr;
@@ -1434,7 +1435,7 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 		vals[i++] = l_str.ToLong();
 		str.Z().Cat(r_str);
 	}
-	// Посмотрим, есть ли числа больше 127 и сколько байт они занимают
+	// РџРѕСЃРјРѕС‚СЂРёРј, РµСЃС‚СЊ Р»Рё С‡РёСЃР»Р° Р±РѕР»СЊС€Рµ 127 Рё СЃРєРѕР»СЊРєРѕ Р±Р°Р№С‚ РѕРЅРё Р·Р°РЅРёРјР°СЋС‚
 	for(i = 0; i < arr_size; i++) {
 		if(vals[i] > 127) {
 			char c[32];
@@ -1450,10 +1451,10 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 	THROW(enc_arr_size);
 	encode_vals = new int[enc_arr_size];
 	memzero(encode_vals, enc_arr_size);
-	// Теперь начинаем кодировать
-	// Первые два числа кодируем вместе
+	// РўРµРїРµСЂСЊ РЅР°С‡РёРЅР°РµРј РєРѕРґРёСЂРѕРІР°С‚СЊ
+	// РџРµСЂРІС‹Рµ РґРІР° С‡РёСЃР»Р° РєРѕРґРёСЂСѓРµРј РІРјРµСЃС‚Рµ
 	encode_vals[0] = vals[0] * 40 + vals[1];
-    // С третьего числа смотрим, оно <= 127, или больше
+    // РЎ С‚СЂРµС‚СЊРµРіРѕ С‡РёСЃР»Р° СЃРјРѕС‚СЂРёРј, РѕРЅРѕ <= 127, РёР»Рё Р±РѕР»СЊС€Рµ
 	for(i = 2, j = 1; i < arr_size; i++) {
 		part_val = 0;
 		if(vals[i] <= 127) {
@@ -1461,37 +1462,37 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 		}
 		else {
 			binval = vals[i];
-			// Выясним, сколько байт занимает число
+			// Р’С‹СЏСЃРЅРёРј, СЃРєРѕР»СЊРєРѕ Р±Р°Р№С‚ Р·Р°РЅРёРјР°РµС‚ С‡РёСЃР»Рѕ
 			char cc[32];
 			memzero(cc, sizeof(cc));
 			itoa(binval, cc, 2);
 			count = sstrlen(cc) / 8;
 			if(count * 8 < sstrlen(cc))
 				count++;
-			long mask = 0x7FFFFFFF; // Больше 4-х байт число точно не будет
-			// В младшем байте старший бит должен быть ноль.
+			long mask = 0x7FFFFFFF; // Р‘РѕР»СЊС€Рµ 4-С… Р±Р°Р№С‚ С‡РёСЃР»Рѕ С‚РѕС‡РЅРѕ РЅРµ Р±СѓРґРµС‚
+			// Р’ РјР»Р°РґС€РµРј Р±Р°Р№С‚Рµ СЃС‚Р°СЂС€РёР№ Р±РёС‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРѕР»СЊ.
 			part_val = binval;
 			mask = 0x7FFFFF80;
 			part_val &= mask;
-			part_val <<= 1; // Запомнили значение бита путем сдвига числа вправо
-			part_val &= 0x7FFFFF7F; // Занулили бит
+			part_val <<= 1; // Р—Р°РїРѕРјРЅРёР»Рё Р·РЅР°С‡РµРЅРёРµ Р±РёС‚Р° РїСѓС‚РµРј СЃРґРІРёРіР° С‡РёСЃР»Р° РІРїСЂР°РІРѕ
+			part_val &= 0x7FFFFF7F; // Р—Р°РЅСѓР»РёР»Рё Р±РёС‚
 			part_val |= 0x7F;
 			binval |= 0x7FFFFF80;
             binval &= part_val;
-			// В остальных байтах старший бит должен быть 1. Простановку бита начинаем с младших байтов
+			// Р’ РѕСЃС‚Р°Р»СЊРЅС‹С… Р±Р°Р№С‚Р°С… СЃС‚Р°СЂС€РёР№ Р±РёС‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ 1. РџСЂРѕСЃС‚Р°РЅРѕРІРєСѓ Р±РёС‚Р° РЅР°С‡РёРЅР°РµРј СЃ РјР»Р°РґС€РёС… Р±Р°Р№С‚РѕРІ
 			for(size_t k = 1; k < count; k++) {
 				mask = 0x7FFFFFFF << (8 * k);
 				mask <<= 7;
-				// Здесь младшие байты занулять будем
+				// Р—РґРµСЃСЊ РјР»Р°РґС€РёРµ Р±Р°Р№С‚С‹ Р·Р°РЅСѓР»СЏС‚СЊ Р±СѓРґРµРј
 				part_val = binval;
 				part_val &= mask;
-				part_val <<= 1; // Запомнили значение бита путем сдвига
-				part_val |= (long)(0x80 * powl(256, k)); // Поставили бит в 1
+				part_val <<= 1; // Р—Р°РїРѕРјРЅРёР»Рё Р·РЅР°С‡РµРЅРёРµ Р±РёС‚Р° РїСѓС‚РµРј СЃРґРІРёРіР°
+				part_val |= (long)(0x80 * powl(256, k)); // РџРѕСЃС‚Р°РІРёР»Рё Р±РёС‚ РІ 1
 				part_val |= ~mask;
 				binval |= mask;
 				binval &= part_val;
-				// Еще раз проверим количество байт, ибо при смещении на бит влево мог
-				// появиться дополнительный
+				// Р•С‰Рµ СЂР°Р· РїСЂРѕРІРµСЂРёРј РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚, РёР±Рѕ РїСЂРё СЃРјРµС‰РµРЅРёРё РЅР° Р±РёС‚ РІР»РµРІРѕ РјРѕРі
+				// РїРѕСЏРІРёС‚СЊСЃСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№
 				size_t sub_count = 0;
 				memzero(cc, 32);
 				itoa(binval, cc, 2);
@@ -1501,7 +1502,7 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 				if(sub_count > count)
 					count = sub_count;
 			}
-			// Теперь собираем числа
+			// РўРµРїРµСЂСЊ СЃРѕР±РёСЂР°РµРј С‡РёСЃР»Р°
 			for(size_t k = 0; k < count; k++) {
 				mask = 0x7FFFFFFF;
 				mask ^= (0xFF << (8 * (count - k - 1)));
@@ -1522,30 +1523,30 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 	return ok;
 }
 
-// Получение штампа времени. Почему не могу использовать capicom
-// Для проставления штампа времени надо сначала инициализировать объект SignedCode, который
-// должен содержать подписанные данные. Но загвоздка в формате файлов, которые можно подписать:
+// РџРѕР»СѓС‡РµРЅРёРµ С€С‚Р°РјРїР° РІСЂРµРјРµРЅРё. РџРѕС‡РµРјСѓ РЅРµ РјРѕРіСѓ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ capicom
+// Р”Р»СЏ РїСЂРѕСЃС‚Р°РІР»РµРЅРёСЏ С€С‚Р°РјРїР° РІСЂРµРјРµРЅРё РЅР°РґРѕ СЃРЅР°С‡Р°Р»Р° РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РѕР±СЉРµРєС‚ SignedCode, РєРѕС‚РѕСЂС‹Р№
+// РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РїРѕРґРїРёСЃР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ. РќРѕ Р·Р°РіРІРѕР·РґРєР° РІ С„РѕСЂРјР°С‚Рµ С„Р°Р№Р»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РїРѕРґРїРёСЃР°С‚СЊ:
 // "The executable file should be of a type that can be signed with Authenticode technology,
 // such as an .exe, .dll, .vbs, or .ocx file"
-// Поэтому выкручиваемся стандартной библиотекой cryptoAPI
+// РџРѕСЌС‚РѕРјСѓ РІС‹РєСЂСѓС‡РёРІР°РµРјСЃСЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ Р±РёР±Р»РёРѕС‚РµРєРѕР№ cryptoAPI
 
-// Структура для хранения некоторых данных, полученных из ответа от сервера штампа времени
+// РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РЅРµРєРѕС‚РѕСЂС‹С… РґР°РЅРЅС‹С…, РїРѕР»СѓС‡РµРЅРЅС‹С… РёР· РѕС‚РІРµС‚Р° РѕС‚ СЃРµСЂРІРµСЂР° С€С‚Р°РјРїР° РІСЂРµРјРµРЅРё
 struct StTspResponse {
 	StTspResponse() : ResponseLen(0), PKIStatus(0), Time(ZERODATETIME), Accuracy(0)
 	{
-		HashAlg = ""; // Алгоритм хеширования
-		Hash = ""; // Хеш
-		Nonce = ""; // Поле из восьми чисел, идентификатор запроса
+		HashAlg = ""; // РђР»РіРѕСЂРёС‚Рј С…РµС€РёСЂРѕРІР°РЅРёСЏ
+		Hash = ""; // РҐРµС€
+		Nonce = ""; // РџРѕР»Рµ РёР· РІРѕСЃСЊРјРё С‡РёСЃРµР», РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РїСЂРѕСЃР°
 	}
 	int ResponseLen;
-	int PKIStatus; // Статус запроса
-	SString PKIFreeText; // Какое-то описание
-	SString PKIFailureInfo; // Описание в случае ошибки выполнения запроса
-	SString HashAlg; // можно использовать для проверки, на тот ли запрос пришел ответ
-	SString Hash; // опять же как часть проверки
-	LDATETIME Time; // Время формирования штампа
-	int Accuracy; // Точность времени генерации штампа
-	SString Nonce; // Это совбственно и исспользуется для проверки, но только в случае, если в запросе было передано это поле
+	int PKIStatus; // РЎС‚Р°С‚СѓСЃ Р·Р°РїСЂРѕСЃР°
+	SString PKIFreeText; // РљР°РєРѕРµ-С‚Рѕ РѕРїРёСЃР°РЅРёРµ
+	SString PKIFailureInfo; // РћРїРёСЃР°РЅРёРµ РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР°
+	SString HashAlg; // РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ РїСЂРѕРІРµСЂРєРё, РЅР° С‚РѕС‚ Р»Рё Р·Р°РїСЂРѕСЃ РїСЂРёС€РµР» РѕС‚РІРµС‚
+	SString Hash; // РѕРїСЏС‚СЊ Р¶Рµ РєР°Рє С‡Р°СЃС‚СЊ РїСЂРѕРІРµСЂРєРё
+	LDATETIME Time; // Р’СЂРµРјСЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ С€С‚Р°РјРїР°
+	int Accuracy; // РўРѕС‡РЅРѕСЃС‚СЊ РІСЂРµРјРµРЅРё РіРµРЅРµСЂР°С†РёРё С€С‚Р°РјРїР°
+	SString Nonce; // Р­С‚Рѕ СЃРѕРІР±СЃС‚РІРµРЅРЅРѕ Рё РёСЃСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё, РЅРѕ С‚РѕР»СЊРєРѕ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РІ Р·Р°РїСЂРѕСЃРµ Р±С‹Р»Рѕ РїРµСЂРµРґР°РЅРѕ СЌС‚Рѕ РїРѕР»Рµ
 };
 
 int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd) {
@@ -1554,24 +1555,24 @@ int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmt
 	int block_len = 0;
 	int byte_count = 0;
 	size_t byte_pos = 0;
-	// Для проверки нам нужен статус ответа, алгоритм хеширования, наш хеш, поле nonce,
-	// время создания штампа.
-	// На счет статуса подписи штампа времени даже не знаю. Вообще-то надо проверять.
+	// Р”Р»СЏ РїСЂРѕРІРµСЂРєРё РЅР°Рј РЅСѓР¶РµРЅ СЃС‚Р°С‚СѓСЃ РѕС‚РІРµС‚Р°, Р°Р»РіРѕСЂРёС‚Рј С…РµС€РёСЂРѕРІР°РЅРёСЏ, РЅР°С€ С…РµС€, РїРѕР»Рµ nonce,
+	// РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ С€С‚Р°РјРїР°.
+	// РќР° СЃС‡РµС‚ СЃС‚Р°С‚СѓСЃР° РїРѕРґРїРёСЃРё С€С‚Р°РјРїР° РІСЂРµРјРµРЅРё РґР°Р¶Рµ РЅРµ Р·РЅР°СЋ. Р’РѕРѕР±С‰Рµ-С‚Рѕ РЅР°РґРѕ РїСЂРѕРІРµСЂСЏС‚СЊ.
 
-	// Основа разбора ответа - данные преддставля.т структуры различных типов,
-	// зачастую вложенные. Структура данных: тип - длина блока данных - данные.
-	// Закладываюсь на неизменность структуры ответа. То есть число параметров, передаваемых в
-	// запросе будет постоянным. Имеются в виду опционные параметры - часть из них я
-	// обязательно передаю в запросе (соответственно они будут и в ответе).
+	// РћСЃРЅРѕРІР° СЂР°Р·Р±РѕСЂР° РѕС‚РІРµС‚Р° - РґР°РЅРЅС‹Рµ РїСЂРµРґРґСЃС‚Р°РІР»СЏ.С‚ СЃС‚СЂСѓРєС‚СѓСЂС‹ СЂР°Р·Р»РёС‡РЅС‹С… С‚РёРїРѕРІ,
+	// Р·Р°С‡Р°СЃС‚СѓСЋ РІР»РѕР¶РµРЅРЅС‹Рµ. РЎС‚СЂСѓРєС‚СѓСЂР° РґР°РЅРЅС‹С…: С‚РёРї - РґР»РёРЅР° Р±Р»РѕРєР° РґР°РЅРЅС‹С… - РґР°РЅРЅС‹Рµ.
+	// Р—Р°РєР»Р°РґС‹РІР°СЋСЃСЊ РЅР° РЅРµРёР·РјРµРЅРЅРѕСЃС‚СЊ СЃС‚СЂСѓРєС‚СѓСЂС‹ РѕС‚РІРµС‚Р°. РўРѕ РµСЃС‚СЊ С‡РёСЃР»Рѕ РїР°СЂР°РјРµС‚СЂРѕРІ, РїРµСЂРµРґР°РІР°РµРјС‹С… РІ
+	// Р·Р°РїСЂРѕСЃРµ Р±СѓРґРµС‚ РїРѕСЃС‚РѕСЏРЅРЅС‹Рј. РРјРµСЋС‚СЃСЏ РІ РІРёРґСѓ РѕРїС†РёРѕРЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ - С‡Р°СЃС‚СЊ РёР· РЅРёС… СЏ
+	// РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РїРµСЂРµРґР°СЋ РІ Р·Р°РїСЂРѕСЃРµ (СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РѕРЅРё Р±СѓРґСѓС‚ Рё РІ РѕС‚РІРµС‚Рµ).
 
-	// Проверяем, что это последовательность
+	// РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ СЌС‚Рѕ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
 	THROW((c = pResponse[byte_pos++]) == 48);
-	// Смотрим общую длину ответа (длина идет со второго байта)
+	// РЎРјРѕС‚СЂРёРј РѕР±С‰СѓСЋ РґР»РёРЅСѓ РѕС‚РІРµС‚Р° (РґР»РёРЅР° РёРґРµС‚ СЃРѕ РІС‚РѕСЂРѕРіРѕ Р±Р°Р№С‚Р°)
 	c = pResponse[byte_pos++];
-	if(c < 0) { // Длина состоит из нескольких байт. Первый может быт либо длиной,
-		// либо количсетвом байт, содержащих длину
+	if(c < 0) { // Р”Р»РёРЅР° СЃРѕСЃС‚РѕРёС‚ РёР· РЅРµСЃРєРѕР»СЊРєРёС… Р±Р°Р№С‚. РџРµСЂРІС‹Р№ РјРѕР¶РµС‚ Р±С‹С‚ Р»РёР±Рѕ РґР»РёРЅРѕР№,
+		// Р»РёР±Рѕ РєРѕР»РёС‡СЃРµС‚РІРѕРј Р±Р°Р№С‚, СЃРѕРґРµСЂР¶Р°С‰РёС… РґР»РёРЅСѓ
 		byte_count = 0;
-		byte_count = (c & 0x7F); // первый бит управляющий, остальные семь содержат количество байт длины
+		byte_count = (c & 0x7F); // РїРµСЂРІС‹Р№ Р±РёС‚ СѓРїСЂР°РІР»СЏСЋС‰РёР№, РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃРµРјСЊ СЃРѕРґРµСЂР¶Р°С‚ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РґР»РёРЅС‹
 		c = pResponse[byte_pos++];
 		block_len = c;
 		for(size_t i = 1; i < (size_t)byte_count; i++) {
@@ -1583,116 +1584,116 @@ int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmt
 	}
 	else
 		rResponseFmtd.ResponseLen = c;
-	// Теперь должен быть статус ответа
-	THROW((c = pResponse[byte_pos++]) == 48); // Должна быть последовательность
-	block_len = pResponse[byte_pos++]; // Считываем длину блока
-	THROW((c = pResponse[byte_pos++]) == 2); // тип INTEGER
-	THROW((c = pResponse[byte_pos++]) == 1); // длина 1
-	rResponseFmtd.PKIStatus = pResponse[byte_pos++]; // Собственно сам статус
-	if((rResponseFmtd.PKIStatus == 0) || (rResponseFmtd.PKIStatus == 1)) { // Если другие значения, то штамп не был выдан.
-		// Конечно, потом можно посмотреть сообщения об ошибке, которые пойдут дальше,
-		// но пока обойдемся этим.
-		byte_pos += block_len - 3; // Пропускаем возможную инфу о причинах невыдачи штампа PKIFreeText и PKIFailureInfo
-		// Дальше смотрим структуру TimeStampToken
-		THROW((c = pResponse[byte_pos++]) == 48); // последовательность
-		c = pResponse[byte_pos++]; // Здесь нам важно знать не длину блока, а количество байт под длину
+	// РўРµРїРµСЂСЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃС‚Р°С‚СѓСЃ РѕС‚РІРµС‚Р°
+	THROW((c = pResponse[byte_pos++]) == 48); // Р”РѕР»Р¶РЅР° Р±С‹С‚СЊ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
+	block_len = pResponse[byte_pos++]; // РЎС‡РёС‚С‹РІР°РµРј РґР»РёРЅСѓ Р±Р»РѕРєР°
+	THROW((c = pResponse[byte_pos++]) == 2); // С‚РёРї INTEGER
+	THROW((c = pResponse[byte_pos++]) == 1); // РґР»РёРЅР° 1
+	rResponseFmtd.PKIStatus = pResponse[byte_pos++]; // РЎРѕР±СЃС‚РІРµРЅРЅРѕ СЃР°Рј СЃС‚Р°С‚СѓСЃ
+	if((rResponseFmtd.PKIStatus == 0) || (rResponseFmtd.PKIStatus == 1)) { // Р•СЃР»Рё РґСЂСѓРіРёРµ Р·РЅР°С‡РµРЅРёСЏ, С‚Рѕ С€С‚Р°РјРї РЅРµ Р±С‹Р» РІС‹РґР°РЅ.
+		// РљРѕРЅРµС‡РЅРѕ, РїРѕС‚РѕРј РјРѕР¶РЅРѕ РїРѕСЃРјРѕС‚СЂРµС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєРµ, РєРѕС‚РѕСЂС‹Рµ РїРѕР№РґСѓС‚ РґР°Р»СЊС€Рµ,
+		// РЅРѕ РїРѕРєР° РѕР±РѕР№РґРµРјСЃСЏ СЌС‚РёРј.
+		byte_pos += block_len - 3; // РџСЂРѕРїСѓСЃРєР°РµРј РІРѕР·РјРѕР¶РЅСѓСЋ РёРЅС„Сѓ Рѕ РїСЂРёС‡РёРЅР°С… РЅРµРІС‹РґР°С‡Рё С€С‚Р°РјРїР° PKIFreeText Рё PKIFailureInfo
+		// Р”Р°Р»СЊС€Рµ СЃРјРѕС‚СЂРёРј СЃС‚СЂСѓРєС‚СѓСЂСѓ TimeStampToken
+		THROW((c = pResponse[byte_pos++]) == 48); // РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
+		c = pResponse[byte_pos++]; // Р—РґРµСЃСЊ РЅР°Рј РІР°Р¶РЅРѕ Р·РЅР°С‚СЊ РЅРµ РґР»РёРЅСѓ Р±Р»РѕРєР°, Р° РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РїРѕРґ РґР»РёРЅСѓ
 		if(c < 0) {
 			byte_count = c & 0x7F;
 			byte_pos += byte_count;
 		}
-		// Пропускаем ContentType
+		// РџСЂРѕРїСѓСЃРєР°РµРј ContentType
 		THROW((c = pResponse[byte_pos++]) == 6); // OBJECT IDENTIFIER
 		block_len = pResponse[byte_pos++];
 		byte_pos += block_len;
-		// Пропускаем количство байт под длину и тип -96
-		byte_pos++; // тип (у меня получился -96. Что за зверь - не понятно)
+		// РџСЂРѕРїСѓСЃРєР°РµРј РєРѕР»РёС‡СЃС‚РІРѕ Р±Р°Р№С‚ РїРѕРґ РґР»РёРЅСѓ Рё С‚РёРї -96
+		byte_pos++; // С‚РёРї (Сѓ РјРµРЅСЏ РїРѕР»СѓС‡РёР»СЃСЏ -96. Р§С‚Рѕ Р·Р° Р·РІРµСЂСЊ - РЅРµ РїРѕРЅСЏС‚РЅРѕ)
 		c = pResponse[byte_pos++];
 		if(c < 0) {
 			byte_count = c & 0x7F;
 			byte_pos += byte_count;
 		}
-		// Пропускаем количество байт под длину и тип SignedData ::= SEQUENCE, но с проверкой типа
-		THROW((c = pResponse[byte_pos++]) == 48); // последовательность
+		// РџСЂРѕРїСѓСЃРєР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РїРѕРґ РґР»РёРЅСѓ Рё С‚РёРї SignedData ::= SEQUENCE, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
+		THROW((c = pResponse[byte_pos++]) == 48); // РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
 		c = pResponse[byte_pos++];
 		if(c < 0) {
 			byte_count = c & 0x7F;
 			byte_pos += byte_count;
 		}
-		// Пропускаем версию, но с проверкой типа
+		// РџСЂРѕРїСѓСЃРєР°РµРј РІРµСЂСЃРёСЋ, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
 		THROW((c = pResponse[byte_pos++]) == 2); // INTEGER
-		byte_pos += 2; // байт длины и байт с номером версии
-		// Пропускаем DigestAlgorithmIdentifiers со всеми вложенными структурами, с проверкой типа
+		byte_pos += 2; // Р±Р°Р№С‚ РґР»РёРЅС‹ Рё Р±Р°Р№С‚ СЃ РЅРѕРјРµСЂРѕРј РІРµСЂСЃРёРё
+		// РџСЂРѕРїСѓСЃРєР°РµРј DigestAlgorithmIdentifiers СЃРѕ РІСЃРµРјРё РІР»РѕР¶РµРЅРЅС‹РјРё СЃС‚СЂСѓРєС‚СѓСЂР°РјРё, СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
 		THROW((c = pResponse[byte_pos++]) == 49); // SET OF
-		block_len = pResponse[byte_pos++]; // С длиной можно не заморачиваться, она тут небольшая
+		block_len = pResponse[byte_pos++]; // РЎ РґР»РёРЅРѕР№ РјРѕР¶РЅРѕ РЅРµ Р·Р°РјРѕСЂР°С‡РёРІР°С‚СЊСЃСЏ, РѕРЅР° С‚СѓС‚ РЅРµР±РѕР»СЊС€Р°СЏ
 		byte_pos += block_len;
-		// Пропускаем количество байт под длину и тип EncapsulatedContentInfo ::= SEQUENCE
-		THROW((c = pResponse[byte_pos++]) == 48); // последовательность
+		// РџСЂРѕРїСѓСЃРєР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РїРѕРґ РґР»РёРЅСѓ Рё С‚РёРї EncapsulatedContentInfo ::= SEQUENCE
+		THROW((c = pResponse[byte_pos++]) == 48); // РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
 		c = pResponse[byte_pos++];
 		if(c < 0) {
 			byte_count = c & 0x7F;
 			byte_pos += byte_count;
 		}
-		// Пропускаем байты с длиной и типом ContentType ::= OBJECT IDENTIFIER, но с проверкой типа
+		// РџСЂРѕРїСѓСЃРєР°РµРј Р±Р°Р№С‚С‹ СЃ РґР»РёРЅРѕР№ Рё С‚РёРїРѕРј ContentType ::= OBJECT IDENTIFIER, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
 		THROW((c = pResponse[byte_pos++]) == 6); // OBJECT IDENTIFIER
 		block_len = pResponse[byte_pos++];
 		byte_pos += block_len;
-		// Пропускаем байты с длиной и типом -96
-		byte_pos ++; // тип -96
+		// РџСЂРѕРїСѓСЃРєР°РµРј Р±Р°Р№С‚С‹ СЃ РґР»РёРЅРѕР№ Рё С‚РёРїРѕРј -96
+		byte_pos ++; // С‚РёРї -96
 		c = pResponse[byte_pos++];
 		if(c < 0) {
 			byte_count = c & 0x7F;
 			byte_pos += byte_count;
 		}
-		// Пропускаем байты с длиной и типом eContent :: OCTET STRING с проверкой типа
+		// РџСЂРѕРїСѓСЃРєР°РµРј Р±Р°Р№С‚С‹ СЃ РґР»РёРЅРѕР№ Рё С‚РёРїРѕРј eContent :: OCTET STRING СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
 		THROW((c = pResponse[byte_pos++]) == 4); // OCTET STRING
 		c = pResponse[byte_pos++];
 		if(c < 0) {
 			byte_count = c & 0x7F;
 			byte_pos += byte_count;
 		}
-		// Пропускаем байты с длиной и типом TSTInfo ::= SEQUENCE с проверкой типа
-		THROW((c = pResponse[byte_pos++]) == 48); // последовательность
+		// РџСЂРѕРїСѓСЃРєР°РµРј Р±Р°Р№С‚С‹ СЃ РґР»РёРЅРѕР№ Рё С‚РёРїРѕРј TSTInfo ::= SEQUENCE СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
+		THROW((c = pResponse[byte_pos++]) == 48); // РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
 		c = pResponse[byte_pos++];
 		if(c < 0) {
 			byte_count = c & 0x7F;
 			byte_pos += byte_count;
 		}
-		// Пропускаем версию, но с проверкой типа
+		// РџСЂРѕРїСѓСЃРєР°РµРј РІРµСЂСЃРёСЋ, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
 		THROW((c = pResponse[byte_pos++]) == 2); // INTEGER
-		byte_pos += 2; // байт длины и байт с номером версии
-		// Пропускаем политику, но с проверкой типа
+		byte_pos += 2; // Р±Р°Р№С‚ РґР»РёРЅС‹ Рё Р±Р°Р№С‚ СЃ РЅРѕРјРµСЂРѕРј РІРµСЂСЃРёРё
+		// РџСЂРѕРїСѓСЃРєР°РµРј РїРѕР»РёС‚РёРєСѓ, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
 		THROW((c = pResponse[byte_pos++]) == 6); // OBJECT IDENTIFIER
 		block_len = pResponse[byte_pos++];
 		byte_pos += block_len;
-		// Пропускаем байты с длиной и типом messageImprint MessageImprint, но с проверкой
-		THROW((c = pResponse[byte_pos++]) == 48); // последовательность
+		// РџСЂРѕРїСѓСЃРєР°РµРј Р±Р°Р№С‚С‹ СЃ РґР»РёРЅРѕР№ Рё С‚РёРїРѕРј messageImprint MessageImprint, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№
+		THROW((c = pResponse[byte_pos++]) == 48); // РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
 		byte_pos ++;
-		// Пропускаем байт с длиной и типом MessageImprint ::= SEQUENCE, но с проверкой типа
-		THROW((c = pResponse[byte_pos++]) == 48); // последовательность
+		// РџСЂРѕРїСѓСЃРєР°РµРј Р±Р°Р№С‚ СЃ РґР»РёРЅРѕР№ Рё С‚РёРїРѕРј MessageImprint ::= SEQUENCE, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
+		THROW((c = pResponse[byte_pos++]) == 48); // РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
 		byte_pos ++;
-		// Запоминаем алгоритм хеша
+		// Р—Р°РїРѕРјРёРЅР°РµРј Р°Р»РіРѕСЂРёС‚Рј С…РµС€Р°
 		THROW((c = pResponse[byte_pos++]) == 6); // OBJECT IDENTIFIER
 		block_len = pResponse[byte_pos++];
 		rResponseFmtd.HashAlg.CopyFromN(pResponse + byte_pos, block_len);
 		byte_pos += block_len;
-		// Запоминаем хеш
+		// Р—Р°РїРѕРјРёРЅР°РµРј С…РµС€
 		THROW((c = pResponse[byte_pos++]) == 4); // OCTET STRING
 		block_len = pResponse[byte_pos++];
 		rResponseFmtd.Hash.CopyFromN(pResponse + byte_pos, block_len);
 		byte_pos += block_len;
-		// Пропускаем байты с длиной и типом serialNumber INTEGER, но с проверкой типа
+		// РџСЂРѕРїСѓСЃРєР°РµРј Р±Р°Р№С‚С‹ СЃ РґР»РёРЅРѕР№ Рё С‚РёРїРѕРј serialNumber INTEGER, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
 		THROW((c = pResponse[byte_pos++]) == 2); // INTEGER
 		block_len = pResponse[byte_pos++];
 		byte_pos += block_len;
-		// Запомним время генерации штампа времени с проверкой типа
-		THROW((c = pResponse[byte_pos++]) == 24); // GeneralizedTime ггггммддччммссZ
+		// Р—Р°РїРѕРјРЅРёРј РІСЂРµРјСЏ РіРµРЅРµСЂР°С†РёРё С€С‚Р°РјРїР° РІСЂРµРјРµРЅРё СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
+		THROW((c = pResponse[byte_pos++]) == 24); // GeneralizedTime РіРіРіРіРјРјРґРґС‡С‡РјРјСЃСЃZ
 		block_len = pResponse[byte_pos++];
 		LDATETIME da_tm;
 		LDATE date;
 		LTIME time;
 		long sec = 0;
 		char val[4] = "";
-		size_t start_pos = byte_pos; // запомним положение указателя
+		size_t start_pos = byte_pos; // Р·Р°РїРѕРјРЅРёРј РїРѕР»РѕР¶РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ
 		memzero(val, 4);
 		memcpy(val, pResponse + byte_pos, 4);
 		byte_pos += 4;
@@ -1720,23 +1721,23 @@ int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmt
 		time.settotalsec(sec);
 		da_tm.Set(date, time);
 		rResponseFmtd.Time = da_tm;
-		byte_pos = start_pos + block_len; // Пришлось сделать именно так, потому что после даты/времени
-										// может идти ".0Z" (0 - любое число, доли секунды) или только "Z"
+		byte_pos = start_pos + block_len; // РџСЂРёС€Р»РѕСЃСЊ СЃРґРµР»Р°С‚СЊ РёРјРµРЅРЅРѕ С‚Р°Рє, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РїРѕСЃР»Рµ РґР°С‚С‹/РІСЂРµРјРµРЅРё
+										// РјРѕР¶РµС‚ РёРґС‚Рё ".0Z" (0 - Р»СЋР±РѕРµ С‡РёСЃР»Рѕ, РґРѕР»Рё СЃРµРєСѓРЅРґС‹) РёР»Рё С‚РѕР»СЊРєРѕ "Z"
 
-		// Пропустим точность времени генерации штампа, но с проверкой типа
-		// Этот параметр опциальный, поэтому его может не быть в ответе
+		// РџСЂРѕРїСѓСЃС‚РёРј С‚РѕС‡РЅРѕСЃС‚СЊ РІСЂРµРјРµРЅРё РіРµРЅРµСЂР°С†РёРё С€С‚Р°РјРїР°, РЅРѕ СЃ РїСЂРѕРІРµСЂРєРѕР№ С‚РёРїР°
+		// Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РѕРїС†РёР°Р»СЊРЅС‹Р№, РїРѕСЌС‚РѕРјСѓ РµРіРѕ РјРѕР¶РµС‚ РЅРµ Р±С‹С‚СЊ РІ РѕС‚РІРµС‚Рµ
 		if((c = pResponse[byte_pos]) == 48) {
 			byte_pos++;
 			block_len = pResponse[byte_pos++];
 			byte_pos += block_len;
 		}
-		// Поле Nonce вообще-то тоже опциальное, но, так как мы его указали в запросе, то в ответе он должен быть обязательно
+		// РџРѕР»Рµ Nonce РІРѕРѕР±С‰Рµ-С‚Рѕ С‚РѕР¶Рµ РѕРїС†РёР°Р»СЊРЅРѕРµ, РЅРѕ, С‚Р°Рє РєР°Рє РјС‹ РµРіРѕ СѓРєР°Р·Р°Р»Рё РІ Р·Р°РїСЂРѕСЃРµ, С‚Рѕ РІ РѕС‚РІРµС‚Рµ РѕРЅ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ
 		THROW((c = pResponse[byte_pos++]) == 2); // INTEGER
 		block_len = pResponse[byte_pos++];
 		rResponseFmtd.Nonce.CopyFromN(pResponse + byte_pos, block_len);
 		byte_pos += block_len;
 
-		// Будем считать, что это все пока что
+		// Р‘СѓРґРµРј СЃС‡РёС‚Р°С‚СЊ, С‡С‚Рѕ СЌС‚Рѕ РІСЃРµ РїРѕРєР° С‡С‚Рѕ
 	}
 
 	CATCHZOK;
@@ -1748,21 +1749,21 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	struct Request {
 		Request()
 		{
-			StartByte = 48; // Говорит о том, что данные являются последовательной структурой (SEQUENCE)
+			StartByte = 48; // Р“РѕРІРѕСЂРёС‚ Рѕ С‚РѕРј, С‡С‚Рѕ РґР°РЅРЅС‹Рµ СЏРІР»СЏСЋС‚СЃСЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРѕР№ (SEQUENCE)
 			RequestLen = 0;
-			Separator1.Z().CatChar(2).CatChar(1); // Тип данных INTEGER, длина 1
-			Version = 1; // Версия запроса V1
-			Separator2.Z().CatChar(48); // Тип данных SEQUENCE (потом допишется длина данных этого блока)
-			Separator3.Z().CatChar(48); // Тип данных SEQUENCE (потом допишется длина данных этого блока)
-			Separator4.Z().CatChar(6); // Тип данных OBJECT IDENTIFIER (потом допишется длина данных этого блока)
+			Separator1.Z().CatChar(2).CatChar(1); // РўРёРї РґР°РЅРЅС‹С… INTEGER, РґР»РёРЅР° 1
+			Version = 1; // Р’РµСЂСЃРёСЏ Р·Р°РїСЂРѕСЃР° V1
+			Separator2.Z().CatChar(48); // РўРёРї РґР°РЅРЅС‹С… SEQUENCE (РїРѕС‚РѕРј РґРѕРїРёС€РµС‚СЃСЏ РґР»РёРЅР° РґР°РЅРЅС‹С… СЌС‚РѕРіРѕ Р±Р»РѕРєР°)
+			Separator3.Z().CatChar(48); // РўРёРї РґР°РЅРЅС‹С… SEQUENCE (РїРѕС‚РѕРј РґРѕРїРёС€РµС‚СЃСЏ РґР»РёРЅР° РґР°РЅРЅС‹С… СЌС‚РѕРіРѕ Р±Р»РѕРєР°)
+			Separator4.Z().CatChar(6); // РўРёРї РґР°РЅРЅС‹С… OBJECT IDENTIFIER (РїРѕС‚РѕРј РґРѕРїРёС€РµС‚СЃСЏ РґР»РёРЅР° РґР°РЅРЅС‹С… СЌС‚РѕРіРѕ Р±Р»РѕРєР°)
 			HashAlgorytm = "";
-			Separator5.Z().CatChar(4); // Тип данных OBJECT STRING (потом допишется длина данных этого блока)
+			Separator5.Z().CatChar(4); // РўРёРї РґР°РЅРЅС‹С… OBJECT STRING (РїРѕС‚РѕРј РґРѕРїРёС€РµС‚СЃСЏ РґР»РёРЅР° РґР°РЅРЅС‹С… СЌС‚РѕРіРѕ Р±Р»РѕРєР°)
 			Hash = "";
-			Separator6.Z().CatChar(6); // Тип данных OBJECT IDENTIFIER (потом допишется длина данных этого блока)
+			Separator6.Z().CatChar(6); // РўРёРї РґР°РЅРЅС‹С… OBJECT IDENTIFIER (РїРѕС‚РѕРј РґРѕРїРёС€РµС‚СЃСЏ РґР»РёРЅР° РґР°РЅРЅС‹С… СЌС‚РѕРіРѕ Р±Р»РѕРєР°)
 			Policy = "";
-			Separator7.Z().CatChar(2); // Тип данных INTEGER (потом допишется длина данных этого блока)
+			Separator7.Z().CatChar(2); // РўРёРї РґР°РЅРЅС‹С… INTEGER (РїРѕС‚РѕРј РґРѕРїРёС€РµС‚СЃСЏ РґР»РёРЅР° РґР°РЅРЅС‹С… СЌС‚РѕРіРѕ Р±Р»РѕРєР°)
 			Nonce = "";
-			Separator8.Z().CatChar(1).CatChar(1); // Тип данных BOOLEAN, длина данных 1 бит
+			Separator8.Z().CatChar(1).CatChar(1); // РўРёРї РґР°РЅРЅС‹С… BOOLEAN, РґР»РёРЅР° РґР°РЅРЅС‹С… 1 Р±РёС‚
 			CertReq = 0;
 		}
 		void CalcLen()
@@ -1780,7 +1781,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 			else
 				Separator7 = "";
 			if(CertReq) {
-				RequestLen += 2; // байт со значением длины строки не считаем
+				RequestLen += 2; // Р±Р°Р№С‚ СЃРѕ Р·РЅР°С‡РµРЅРёРµРј РґР»РёРЅС‹ СЃС‚СЂРѕРєРё РЅРµ СЃС‡РёС‚Р°РµРј
 				RequestLen += (char)Separator8.Len();
 			}
 			else
@@ -1802,21 +1803,21 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 			}
 		}
 
-		char   StartByte;     // тип запроса
-		char   RequestLen;    // длина запроса
-		SString Separator1;   // тип данных и длина: версия  запроса
-		char   Version;       // версия  запроса
-		SString Separator2;   // тип данных и длина: алгоритм хеширования и сам хеш
-		SString Separator3;   // тип данных и длина: идентификатор алгоритма хеширования, параметры (в нашем случае параметров нет)
-		SString Separator4;   // тип данных и длина запроса: идентификатор алгоритма хеширования
-		SString HashAlgorytm; // идентификатор алгоритма хеширования
-		SString Separator5;   // тип данных и длина запроса: хеш
-		SString Hash;         // хеш
-		SString Separator6;   // тип данных и длина: политика шифрования
-		SString Policy;       // политика шифрования
-		SString Separator7;   // тип данных и длина: поле nonce
+		char   StartByte;     // С‚РёРї Р·Р°РїСЂРѕСЃР°
+		char   RequestLen;    // РґР»РёРЅР° Р·Р°РїСЂРѕСЃР°
+		SString Separator1;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР°: РІРµСЂСЃРёСЏ  Р·Р°РїСЂРѕСЃР°
+		char   Version;       // РІРµСЂСЃРёСЏ  Р·Р°РїСЂРѕСЃР°
+		SString Separator2;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР°: Р°Р»РіРѕСЂРёС‚Рј С…РµС€РёСЂРѕРІР°РЅРёСЏ Рё СЃР°Рј С…РµС€
+		SString Separator3;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР°: РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°Р»РіРѕСЂРёС‚РјР° С…РµС€РёСЂРѕРІР°РЅРёСЏ, РїР°СЂР°РјРµС‚СЂС‹ (РІ РЅР°С€РµРј СЃР»СѓС‡Р°Рµ РїР°СЂР°РјРµС‚СЂРѕРІ РЅРµС‚)
+		SString Separator4;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР° Р·Р°РїСЂРѕСЃР°: РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°Р»РіРѕСЂРёС‚РјР° С…РµС€РёСЂРѕРІР°РЅРёСЏ
+		SString HashAlgorytm; // РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°Р»РіРѕСЂРёС‚РјР° С…РµС€РёСЂРѕРІР°РЅРёСЏ
+		SString Separator5;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР° Р·Р°РїСЂРѕСЃР°: С…РµС€
+		SString Hash;         // С…РµС€
+		SString Separator6;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР°: РїРѕР»РёС‚РёРєР° С€РёС„СЂРѕРІР°РЅРёСЏ
+		SString Policy;       // РїРѕР»РёС‚РёРєР° С€РёС„СЂРѕРІР°РЅРёСЏ
+		SString Separator7;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР°: РїРѕР»Рµ nonce
 		SString Nonce;        // nonce
-		SString Separator8;   // тип данных и длина: будет ли web-сервис возвращать свой сертификат
+		SString Separator8;   // С‚РёРї РґР°РЅРЅС‹С… Рё РґР»РёРЅР°: Р±СѓРґРµС‚ Р»Рё web-СЃРµСЂРІРёСЃ РІРѕР·РІСЂР°С‰Р°С‚СЊ СЃРІРѕР№ СЃРµСЂС‚РёС„РёРєР°С‚
 		char   CertReq;
 	};
 
@@ -1832,13 +1833,13 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	SString hash_str, hashalg_der, policy_der;
 	Request req_struct;
 	HCRYPTMSG h_msg = 0, stamp_msg = 0;
-	BYTE * pb_stamp_data = 0; // Часть ответа от сервиса, содержащая только информацию о штампе времени
+	BYTE * pb_stamp_data = 0; // Р§Р°СЃС‚СЊ РѕС‚РІРµС‚Р° РѕС‚ СЃРµСЂРІРёСЃР°, СЃРѕРґРµСЂР¶Р°С‰Р°СЏ С‚РѕР»СЊРєРѕ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С€С‚Р°РјРїРµ РІСЂРµРјРµРЅРё
 	DWORD  cb_stamp_data = 0;
-	BYTE * pb_stamp_decoded = 0; // То же, что и pb_stamp_data, только в раскодированном виде
+	BYTE * pb_stamp_decoded = 0; // РўРѕ Р¶Рµ, С‡С‚Рѕ Рё pb_stamp_data, С‚РѕР»СЊРєРѕ РІ СЂР°СЃРєРѕРґРёСЂРѕРІР°РЅРЅРѕРј РІРёРґРµ
 	DWORD  cb_stamp_decoded = 0;
-	BYTE * pb_stamp_encoded = 0; // Закодированная информация о штампе времни, которая будет добавлена в атрибуты подписи
+	BYTE * pb_stamp_encoded = 0; // Р—Р°РєРѕРґРёСЂРѕРІР°РЅРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ С€С‚Р°РјРїРµ РІСЂРµРјРЅРё, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅР° РІ Р°С‚СЂРёР±СѓС‚С‹ РїРѕРґРїРёСЃРё
 	DWORD  cb_stamp_encoded = 0;
-	BYTE * pb_stamped_data = 0; // Данные о подписи со штампом времени
+	BYTE * pb_stamped_data = 0; // Р”Р°РЅРЅС‹Рµ Рѕ РїРѕРґРїРёСЃРё СЃРѕ С€С‚Р°РјРїРѕРј РІСЂРµРјРµРЅРё
 	DWORD  cb_stamped_data = 0;
 	BYTE * hash = 0;
 	DWORD  hash_size = 0;
@@ -1859,7 +1860,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	file.Close();
 
 	THROW(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL));
-    // Добавим в h_msg инфу о подписях
+    // Р”РѕР±Р°РІРёРј РІ h_msg РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃСЏС…
     THROW(CryptMsgUpdate(h_msg, (BYTE *)p_indata, (DWORD)file_size, TRUE));
 
 	hash_size = 0;
@@ -1868,7 +1869,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	memzero(hash, hash_size);
 	THROW(GetHash(p_indata, (DWORD)file_size, signerNumber, hash, hash_size));
 
-	// Структура запроса:
+	// РЎС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїСЂРѕСЃР°:
 	//
 	//	version                      INTEGER  { v1(1) },
 	//	messageImprint               MessageImprint,
@@ -1879,12 +1880,12 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	//	certReq               BOOLEAN                  DEFAULT FALSE,
 	//	extensions            [0] IMPLICIT Extensions  OPTIONAL  }
 
-	// Собираем запрос
+	// РЎРѕР±РёСЂР°РµРј Р·Р°РїСЂРѕСЃ
 
-	// Если в wincrypt.h есть параметр X509_OID (или что-то подобное),
-	// der-кодирование типаов OBJECT IDENTIFIER можно осуществить так,
-	// как закомментировано ниже. Но, так как в моем случае такого параметра не было,
-	// то пришлось написать свою функцию для кодирования ObjIdfrDerEncode().
+	// Р•СЃР»Рё РІ wincrypt.h РµСЃС‚СЊ РїР°СЂР°РјРµС‚СЂ X509_OID (РёР»Рё С‡С‚Рѕ-С‚Рѕ РїРѕРґРѕР±РЅРѕРµ),
+	// der-РєРѕРґРёСЂРѕРІР°РЅРёРµ С‚РёРїР°РѕРІ OBJECT IDENTIFIER РјРѕР¶РЅРѕ РѕСЃСѓС‰РµСЃС‚РІРёС‚СЊ С‚Р°Рє,
+	// РєР°Рє Р·Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅРѕ РЅРёР¶Рµ. РќРѕ, С‚Р°Рє РєР°Рє РІ РјРѕРµРј СЃР»СѓС‡Р°Рµ С‚Р°РєРѕРіРѕ РїР°СЂР°РјРµС‚СЂР° РЅРµ Р±С‹Р»Рѕ,
+	// С‚Рѕ РїСЂРёС€Р»РѕСЃСЊ РЅР°РїРёСЃР°С‚СЊ СЃРІРѕСЋ С„СѓРЅРєС†РёСЋ РґР»СЏ РєРѕРґРёСЂРѕРІР°РЅРёСЏ ObjIdfrDerEncode().
 	//BYTE * encoded = 0;
 	//DWORD size_encoded = 0;
 	//CERT_NAME_VALUE name_val;
@@ -1901,17 +1902,17 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	//	&name_val, encoded, &size_encoded))
 	//	ShowError();
 
-	THROW_PP(ObjIdfrDerEncode("1.2.643.2.2.9", hashalg_der), PPERR_EDS_DERENCODEFAILED); // идентификатор алгоритма хеширования
+	THROW_PP(ObjIdfrDerEncode("1.2.643.2.2.9", hashalg_der), PPERR_EDS_DERENCODEFAILED); // РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°Р»РіРѕСЂРёС‚РјР° С…РµС€РёСЂРѕРІР°РЅРёСЏ
 	hash_str.CopyFromN((char *)hash, hash_size);
-	//THROW_PP(ObjIdfrDerEncode("1.2.643.2.2.38.4", policy_der), PPERR_EDS_DERENCODEFAILED); // политика безопасности // @vmiller comment
+	//THROW_PP(ObjIdfrDerEncode("1.2.643.2.2.38.4", policy_der), PPERR_EDS_DERENCODEFAILED); // РїРѕР»РёС‚РёРєР° Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё // @vmiller comment
 
 	req_struct.HashAlgorytm.Z().Cat(hashalg_der);
 	req_struct.Hash.Z().Cat(hash_str);
 	req_struct.Policy.Z().Cat(policy_der);
-	// Сгенерируем nonce
+	// РЎРіРµРЅРµСЂРёСЂСѓРµРј nonce
 	req_struct.Nonce = 0;
 	for(size_t i = 0; i < 8; i++) {
-		// Значения в диапазоне 0 - 255
+		// Р—РЅР°С‡РµРЅРёСЏ РІ РґРёР°РїР°Р·РѕРЅРµ 0 - 255
 		int val = rand() % 256;
 		req_struct.Nonce.CatChar(val);
 	}
@@ -1955,7 +1956,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	uint   l = SIZEOFARRAY(resp_buf);
 	uint   count = 20;
 	size_t recvd_size = 0, wr_pos = 0;
-	Sleep(2000); // Подождем пару секунд, пока запрос обработается
+	Sleep(2000); // РџРѕРґРѕР¶РґРµРј РїР°СЂСѓ СЃРµРєСѓРЅРґ, РїРѕРєР° Р·Р°РїСЂРѕСЃ РѕР±СЂР°Р±РѕС‚Р°РµС‚СЃСЏ
 	while((l == size) || (count > 0)) {
 		memzero(resp_buf, sizeof(resp_buf));
 		Sleep(10);
@@ -1973,14 +1974,14 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	if(buf.GetWrOffs() != 0) {
 		SString substr;
 		substr.CopyFromN(buf.GetBufC(), buf.GetSize());
-		substr.Search("\r\n\r\n", 0, 1, &pos); // Между заголовком http-ответа и нужной инфой - пустая строка
+		substr.Search("\r\n\r\n", 0, 1, &pos); // РњРµР¶РґСѓ Р·Р°РіРѕР»РѕРІРєРѕРј http-РѕС‚РІРµС‚Р° Рё РЅСѓР¶РЅРѕР№ РёРЅС„РѕР№ - РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°
 		file.Open("answer.tsr", SFile::mWrite|SFile::mBinary);
 		THROW_PP(ParseTSAResponse(buf.GetBufC() + pos + 4, rResponse), PPERR_EDS_TSPRESPPARSEFAILED);
 		THROW_PP((rResponse.PKIStatus == 0) || (rResponse.PKIStatus == 1), PPERR_EDS_TSPFAILED);
         THROW_PP(req_struct.HashAlgorytm.CmpNC(rResponse.HashAlg) == 0, PPERR_EDS_TSPFAILED);
 		THROW_PP(req_struct.Hash.CmpNC(rResponse.Hash) == 0, PPERR_EDS_TSPFAILED);
 		THROW_PP(req_struct.Nonce.CmpNC(rResponse.Nonce) == 0, PPERR_EDS_TSPFAILED);
-		// Проверяем, чтобы время формирования штампа сильно не отличалось от текущего (я взяла 5 минут)
+		// РџСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ РІСЂРµРјСЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ С€С‚Р°РјРїР° СЃРёР»СЊРЅРѕ РЅРµ РѕС‚Р»РёС‡Р°Р»РѕСЃСЊ РѕС‚ С‚РµРєСѓС‰РµРіРѕ (СЏ РІР·СЏР»Р° 5 РјРёРЅСѓС‚)
 		LDATETIME cur_dt_tm = getcurdatetime_();
 		LTIME  five_minutes, diff_time;
 		int    time_zone = gettimezone();
@@ -1998,7 +1999,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 		else
 			diff = abs((long)cur_dt_tm.t - (long)rResponse.Time.t);
 		diff_time.v = diff;
-		five_minutes.settotalsec(300); // 5 минут
+		five_minutes.settotalsec(300); // 5 РјРёРЅСѓС‚
 		THROW_PP(diff_time < five_minutes, PPERR_EDS_TSPFAILED);
 
 		buf.SetRdOffs(0);
@@ -2006,23 +2007,23 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 		file.Close();
 	}
 
-	// Добавляем штмап в атрибут подписи
-	// Сначала раскодируем
-	cb_stamp_data = buf.GetSize() - pos - 4 - 9; // Почему тут еще 9? Да потому что первые 9 байт
-	// в ответе - общая инфа об этом самом ответе. А дальше уже идет непосредственно
-	// штамп времени.
+	// Р”РѕР±Р°РІР»СЏРµРј С€С‚РјР°Рї РІ Р°С‚СЂРёР±СѓС‚ РїРѕРґРїРёСЃРё
+	// РЎРЅР°С‡Р°Р»Р° СЂР°СЃРєРѕРґРёСЂСѓРµРј
+	cb_stamp_data = buf.GetSize() - pos - 4 - 9; // РџРѕС‡РµРјСѓ С‚СѓС‚ РµС‰Рµ 9? Р”Р° РїРѕС‚РѕРјСѓ С‡С‚Рѕ РїРµСЂРІС‹Рµ 9 Р±Р°Р№С‚
+	// РІ РѕС‚РІРµС‚Рµ - РѕР±С‰Р°СЏ РёРЅС„Р° РѕР± СЌС‚РѕРј СЃР°РјРѕРј РѕС‚РІРµС‚Рµ. Рђ РґР°Р»СЊС€Рµ СѓР¶Рµ РёРґРµС‚ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ
+	// С€С‚Р°РјРї РІСЂРµРјРµРЅРё.
 	THROW_MEM(pb_stamp_data = new BYTE[cb_stamp_data]);
 	memzero(pb_stamp_data, cb_stamp_data);
 	memcpy(pb_stamp_data, buf.GetBufU8() + pos + 4 + 9, cb_stamp_data);
 	THROW_PP(stamp_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-    // Добавим в h_msg инфу о подписях
+    // Р”РѕР±Р°РІРёРј РІ h_msg РёРЅС„Сѓ Рѕ РїРѕРґРїРёСЃСЏС…
 	THROW_PP(CryptMsgUpdate(stamp_msg, pb_stamp_data, cb_stamp_data, TRUE), PPERR_EDS_MSGUPDATEFAILED);
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_stamp_decoded), PPERR_EDS_TSPFAILED);
 	THROW_MEM(pb_stamp_decoded = new BYTE[cb_stamp_decoded]);
 	memzero(pb_stamp_decoded, cb_stamp_decoded);
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_stamp_decoded, &cb_stamp_decoded), PPERR_EDS_TSPFAILED);
 
-	// теперь закодируем отдельно добавляемую информацию
+	// С‚РµРїРµСЂСЊ Р·Р°РєРѕРґРёСЂСѓРµРј РѕС‚РґРµР»СЊРЅРѕ РґРѕР±Р°РІР»СЏРµРјСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ
 	attr.pszObjId = szOID_KP_TIME_STAMP_SIGNING;
 	attr.cValue = 1;
 	attr.rgValue = 0;
@@ -2036,7 +2037,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	memzero(pb_stamp_encoded, cb_stamp_encoded);
 	THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr, pb_stamp_encoded, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
 
-	// Собственно добавляем штамп в неподписанные атрибуты подписи
+	// РЎРѕР±СЃС‚РІРµРЅРЅРѕ РґРѕР±Р°РІР»СЏРµРј С€С‚Р°РјРї РІ РЅРµРїРѕРґРїРёСЃР°РЅРЅС‹Рµ Р°С‚СЂРёР±СѓС‚С‹ РїРѕРґРїРёСЃРё
 	THROW_MEM(attr_data.pbData = new BYTE[cb_stamp_encoded]);
 	memzero(attr_data.pbData, cb_stamp_encoded);
 	memcpy(attr_data.pbData, pb_stamp_encoded, cb_stamp_encoded);
@@ -2047,12 +2048,12 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	attr_para.blob = attr_data;
 	THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_SIGNER_UNAUTH_ATTR, &attr_para), PPERR_EDS_TSPFAILED);
 
-	// Получаем размер сообщения
+	// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ СЃРѕРѕР±С‰РµРЅРёСЏ
     THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_stamped_data), PPERR_EDS_TSPFAILED);
-    // Выделяем память для сообщения
+    // Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ
 	THROW_MEM(pb_stamped_data = new BYTE[cb_stamped_data]);
 	memzero(pb_stamped_data, cb_stamped_data);
-    // Получаем сообщение
+    // РџРѕР»СѓС‡Р°РµРј СЃРѕРѕР±С‰РµРЅРёРµ
     THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_stamped_data, &cb_stamped_data), PPERR_EDS_TSPFAILED);
 	THROW_SL(file.Open("test_stamped.p7s", SFile::mWrite | SFile::mBinary));
 	file.Write(pb_stamped_data, cb_stamped_data);
@@ -2091,20 +2092,20 @@ int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 	HANDLE hd;
 	if((hd = FindFirstFile(SUcSwitch(path), &found_file)) == INVALID_HANDLE_VALUE) { // @unicodeproblem
 		r = GetLastError();
-		if((r != ERROR_FILE_NOT_FOUND) && (r != ERROR_NO_MORE_FILES)) // Отсутствие файлов не считаем за ошибку
+		if((r != ERROR_FILE_NOT_FOUND) && (r != ERROR_NO_MORE_FILES)) // РћС‚СЃСѓС‚СЃС‚РІРёРµ С„Р°Р№Р»РѕРІ РЅРµ СЃС‡РёС‚Р°РµРј Р·Р° РѕС€РёР±РєСѓ
 			ok = 0;
 	}
 	else
 		rFilesLis.Add(i++, SUcSwitch(found_file.cFileName)); // @unicodeproblem
 	if(ok == 1) {
-		while(FindNextFile(hd, &found_file)) { // @unicodeproblem // Выходим из цикла, когда функция возвратит ERROR_FILE_NOT_FOUND
+		while(FindNextFile(hd, &found_file)) { // @unicodeproblem // Р’С‹С…РѕРґРёРј РёР· С†РёРєР»Р°, РєРѕРіРґР° С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‚РёС‚ ERROR_FILE_NOT_FOUND
 			rFilesLis.Add(i++, SUcSwitch(found_file.cFileName)); // @unicodeproblem
 		}
 		if(r == -1)
 			r = GetLastError();
-		if((r == ERROR_FILE_NOT_FOUND) || (r == ERROR_NO_MORE_FILES)) // Нет похожих файлов
+		if((r == ERROR_FILE_NOT_FOUND) || (r == ERROR_NO_MORE_FILES)) // РќРµС‚ РїРѕС…РѕР¶РёС… С„Р°Р№Р»РѕРІ
 			ok = 1;
-		else { // Остальные ошибки выводим
+		else { // РћСЃС‚Р°Р»СЊРЅС‹Рµ РѕС€РёР±РєРё РІС‹РІРѕРґРёРј
 			ok = 0;
 		}
 	}
@@ -2138,7 +2139,7 @@ int PPEds::GetSignFileAndSignNames(int posInList, const char * pFileName, SStrin
 //			THROW(GetSignerNameByNumber(pFileName, i, signer_name = 0));
 //			rSignersArr.Add(i - 1, signer_name, 1);
 //			//signer_name.ToOem();
-//			//cout << i << " - " << signer_name << endl; // @vmiller на время компиляции
+//			//cout << i << " - " << signer_name << endl; // @vmiller РЅР° РІСЂРµРјСЏ РєРѕРјРїРёР»СЏС†РёРё
 //		}
 //	}
 //	else {

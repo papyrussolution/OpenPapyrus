@@ -1147,8 +1147,7 @@ int SLAPI PPObjPckgType::Edit(long * pID, void * extraPtr)
 	return ok;
 }
 
-//static
-int SLAPI PPObjPckgType::CodeByTemplate(const char * pTempl, long counter, char * pBuf, size_t bufLen)
+/*static*/int SLAPI PPObjPckgType::CodeByTemplate(const char * pTempl, long counter, char * pBuf, size_t bufLen)
 {
 	char   temp_buf[128];
 	int    div_list_count = 0;
@@ -1238,8 +1237,7 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 	//char   ExtString[];
 };
 
-//static
-int FASTCALL PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
+/*static*/int FASTCALL PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
 	int    ok = -1, r;
@@ -1276,8 +1274,7 @@ int FASTCALL PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 	return ok;
 }
 
-//static
-int FASTCALL PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use_ta)
+/*static*/int FASTCALL PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use_ta)
 {
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
 	const  long cfg_obj_type = PPCFGOBJ_TRANSP;
@@ -1324,8 +1321,7 @@ int FASTCALL PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use
 	return ok;
 }
 
-//static
-int SLAPI PPObjTransport::EditConfig()
+/*static*/int SLAPI PPObjTransport::EditConfig()
 {
 	int    ok = -1;
 	PPTransportConfig cfg, org_cfg;
@@ -2965,8 +2961,7 @@ int SLAPI PPViewBrand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-//static 
-int FASTCALL PPViewBrand::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewBrand::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewBrand * p_v = static_cast<PPViewBrand *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

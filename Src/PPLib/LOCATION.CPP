@@ -1,5 +1,5 @@
 // LOCATION.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -127,8 +127,7 @@ int SLAPI LocationFilt::SetExField(int fldId, const char * pBuf)
 	return 1;
 }
 
-//static
-int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
+/*static*/int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -141,15 +140,13 @@ int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, 
 	return ok;
 }
 
-//static 
-SString & FASTCALL LocationCore::GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
+/*static*/SString & FASTCALL LocationCore::GetExFieldS(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	LocationCore::GetExField(pRec, fldId, rBuf);
 	return rBuf;
 }
 
-//static
-int FASTCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf)
+/*static*/int FASTCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
@@ -427,8 +424,7 @@ int SLAPI LocationCore::SearchMaxLike(const LocationTbl::Rec * pRec, long flags,
 	return ok;
 }
 
-//static
-int SLAPI LocationCore::GetTypeDescription(int locType, LocTypeDescr * pDescr)
+/*static*/int SLAPI LocationCore::GetTypeDescription(int locType, LocTypeDescr * pDescr)
 {
 	int    ok = 1;
 	LocTypeDescr d;
@@ -760,21 +756,18 @@ static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const 
     return result;
 }
 
-//static
-uint FASTCALL PPEAddr::Phone::GenerateCheckNumber(const char * pOrgPhone, const char * pAddedumCode)
+/*static*/uint FASTCALL PPEAddr::Phone::GenerateCheckNumber(const char * pOrgPhone, const char * pAddedumCode)
 {
 	return Helper_GeneratePhoneCheckNumber(pOrgPhone, pAddedumCode, 0);
 }
 
-//static
-int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkedNumber)
+/*static*/int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkedNumber)
 {
 	uint r = Helper_GeneratePhoneCheckNumber(pOrgPhone, pAddedumCode, checkedNumber);
 	return BIN(r == checkedNumber);
 }
 
-//static
-SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, long flags, SString & rResult)
+/*static*/SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, long flags, SString & rResult)
 {
 	static StringSet ext_prefix_list;
 	rResult.Z();
@@ -786,7 +779,7 @@ SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, long fla
 			ext_prefix_list.add("x");
 			ext_prefix_list.add("доб"); // this source file has UTF-8 codepage (see header of file above)
 		}
-		for(const uchar * p = (const uchar *)pOrgPhone; *p != 0; p++) {
+		for(const uchar * p = reinterpret_cast<const uchar *>(pOrgPhone); *p != 0; p++) {
 			uint  ext_prefix_width = 0; // Если !0 то надо обработать добавочный номер после (ext_prefix_width) символов префикса
 			const uchar c = *p;
 			if(isdec(c)) {

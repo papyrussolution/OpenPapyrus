@@ -1294,7 +1294,7 @@ void TGroup::forEach(void (*func)(TView*, void *), void *args)
 	} while(p_temp != p_term);
 }
 
-void TGroup::removeView(TView *p)
+void TGroup::removeView(TView * p)
 {
 	if(P_Last) {
 		TView * t = P_Last;
@@ -1332,14 +1332,16 @@ int TGroup::TransmitData(int dir, void * pData)
 	return s;
 }
 
-void TGroup::remove(TView * p)
+void FASTCALL TGroup::remove(TView * p)
 {
-	removeView(p);
-	p->P_Owner = 0;
-	p->P_Next = 0;
+	if(p) {
+		removeView(p);
+		p->P_Owner = 0;
+		p->P_Next = 0;
+	}
 }
 
-ushort TGroup::execView(TWindow * p)
+ushort FASTCALL TGroup::execView(TWindow * p)
 {
 	ushort retval = cmCancel;
 	if(p) {

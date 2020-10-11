@@ -568,8 +568,7 @@ int PPAbstractDevice::RunCmd(const char * pCmd, StrAssocArray & rOut)
 	return ok;
 }
 
-// static
-int SLAPI PPAbstractDevice::CreateInstance(const char * pSymb, PPAbstractDevice ** ppDvc)
+/*static*/int SLAPI PPAbstractDevice::CreateInstance(const char * pSymb, PPAbstractDevice ** ppDvc)
 {
 	int    ok = 0;
 	PPAbstractDevice * p_dvc = 0;

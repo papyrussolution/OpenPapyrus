@@ -835,6 +835,62 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	private:
 		PPID   NotifyID;
 	};
+	class IdleCmdEventCreation : public IdleCommand, private PPAdviseEventQueue::Client {
+		const  PPID NotifyID;
+	public:
+		IdleCmdEventCreation(long repeatPeriodSec) : IdleCommand(repeatPeriodSec), NotifyID(PPAdviseBlock::evEventCreated)
+		{
+		}
+		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
+		{
+			int    ok = -1;
+			PPAdviseList adv_list;
+			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
+			//
+			// Установить маркер очереди необходимо даже если подписчиков на события нет.
+			//
+			const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
+			if(evqc)
+				Marker = EvqList.at(evqc-1).Ident;
+			if(DS.GetAdviseList(NotifyID, 0, adv_list) > 0) {
+				PPThreadLocalArea & r_tla = DS.GetTLA();
+				PPAdviseEventVector result_list;
+				if(p_queue && evqc) {
+					for(uint i = 0; i < evqc; i++) {
+						const PPAdviseEvent & r_ev = EvqList.at(i);
+						if(r_ev.Action == PPACN_EVENTDETECTION && r_ev.Oid.Obj == PPOBJ_EVENTSUBSCRIPTION)
+							EvqList.MoveItemTo(i, result_list);
+					}
+				}
+				{
+					const uint rlc = result_list.getCount();
+					if(rlc) {
+						PPNotifyEvent nev;
+						PPAdviseBlock adv_blk;
+						LDATETIME prev_dtm = rPrevRunTime;
+						for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
+							if(adv_blk.Proc) {
+								for(uint i = 0; i < rlc; i++) {
+									const PPAdviseEvent & r_ev = result_list.at(i);
+									assert(r_ev.Action == PPACN_EVENTDETECTION);
+									assert(r_ev.Oid.Obj == PPOBJ_EVENTSUBSCRIPTION);
+									nev.Clear();
+									nev.Action  = r_ev.Action;
+									nev.ObjType = r_ev.Oid.Obj;
+									nev.ObjID   = r_ev.Oid.Id;
+									nev.ExtInt_ = r_ev.SjExtra;
+									adv_blk.Proc(NotifyID, &nev, adv_blk.ProcExtPtr);
+								}
+								adv_blk.Proc(NotifyID, &nev.Finalize(prev_dtm, 0), adv_blk.ProcExtPtr); // finalize
+							}
+						}
+						ok = 1;
+					}
+				}
+			}
+			return ok;
+		}
+	};
 	class IdleCmdUpdateBizScoreOnDesktop : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
 		IdleCmdUpdateBizScoreOnDesktop(long repeatPeriodSec) : IdleCommand(repeatPeriodSec/*30*/)
@@ -928,7 +984,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 		}
 	private:
 		PPID   ObjTypeID;
-		PPID   NotifyID;
+		const  PPID NotifyID;
 	};
 	class IdleCmdQuartz : public IdleCommand {
 	public:
@@ -967,11 +1023,12 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdUpdateObjList(23, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged)); // @v10.4.4 5-->23
 	IdleCmdList.insert(new IdleCmdUpdateTSessList(30, PPAdviseBlock::evTSessChanged));
 	IdleCmdList.insert(new IdleCmdUpdateObjList(27,  -1, PPAdviseBlock::evSysJournalChanged)); // @v10.4.4 5-->27
-	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged));
+	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged)); // @note Это, похоже, просто Quartz
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
-	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0)); // @v9.8.12
+	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0));
 	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged)); // @v10.3.1
 	IdleCmdList.insert(new IdleCmdMqb(1, PPAdviseBlock::evMqbMessage)); // @v10.5.7
+	IdleCmdList.insert(new IdleCmdEventCreation(83)); // @v10.9.0
 // @v10.4.8 #if USE_ADVEVQUEUE==2
 	if(_PPConst.UseAdvEvQueue == 2) { // @v10.4.8
 		class IdleCmdTestAdvEvQueue : public IdleCommand, private PPAdviseEventQueue::Client {
@@ -4661,15 +4718,15 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 	for(uint i = 0; i < obj_type_list.getCount(); i++) {
 		const PPID obj_type = obj_type_list.get(i);
 		if(PPLoadString(PPSTR_OBJNAMES, (uint)obj_type, name_buf))
-			TitleList.AddFast(obj_type, name_buf); // @v9.9.3 Add-->AddFast
+			TitleList.AddFast(obj_type, name_buf);
 	}
 	{
 		PPLoadText(PPTXT_CFGNAMES, name_buf);
 		StringSet ss(';', name_buf);
 		for(uint i = 0, j = 1; ss.get(&i, name_buf) > 0; j++)
-			TitleList.AddFast(PPOBJ_FIRST_CFG_OBJ + j, name_buf); // @v9.9.3 Add-->AddFast
+			TitleList.AddFast(PPOBJ_FIRST_CFG_OBJ + j, name_buf);
 	}
-	TitleList.SortByID(); // @v9.9.3
+	TitleList.SortByID();
 	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 }
 
@@ -5359,8 +5416,7 @@ int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 					}
 				}
 				for(; _pos < _c; _pos++) {
-					// @v9.8.11 rList.insert(&at(_pos));
-					MoveItemTo(_pos, rList); // @v9.8.11
+					MoveItemTo(_pos, rList);
 				}
 			}
 			ok = 1;
@@ -5467,13 +5523,14 @@ int SLAPI SysMaintenanceEventResponder::IsConsistent() const
 #else
 		const double prob_event_detection   = 0.020000;
 #endif
-		/* @construction if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_event_detection)) {
+		// @v10.8.12 {
+		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_event_detection)) {
 			PROFILE_START
 			PPObjEventSubscription es_obj(0);
 			if(!es_obj.Run())
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 			PROFILE_END 
-		} */
+		}
 		// } @v10.8.12 
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_common_mqs_config)) {
 			SString logmsg_buf;

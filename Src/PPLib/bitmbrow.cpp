@@ -2392,29 +2392,127 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
-	virtual int  pasteFromClipboardAll(){return -1;} // @erik v10.5.2
+	//virtual int pasteFromClipboardAll() { return -1; } // @erik v10.5.2
+	int pasteFromClipboardAll(int validation) // @erik v10.8.0
+	{
+		PPObjBill * p_bobj = BillObj;
+		int    ok = -1;
+		uint   sel = 0;
+		SString temp_buf;
+		StringSet ss;
+		PPLotExtCodeContainer::MarkSet set;
+		LotExtCodeTbl::Rec rec;
+		rec.BillID = P_Pack->Rec.ID;
+		rec.RByBill = RowIdx;
+		const int dont_veryfy_mark = BIN(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
+		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= static_cast<int>(P_Pack->GetTCount())) ? &P_Pack->ConstTI(RowIdx - 1) : 0;
+		const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
+		const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+		const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+		SStringU buf_from_copy;
+		SClipboard::Past_Text(buf_from_copy);
+		buf_from_copy.CopyToUtf8(temp_buf, 0);
+		if (temp_buf.Tokenize("\xD\xA", ss)) {
+			temp_buf.Z();
+			for (uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
+				if (!temp_buf.NotEmptyS()) {
+					continue;
+				}
+				else if (temp_buf.Len() >= sizeof(rec.Code)) {
+					continue;
+				}
+				else {
+					SString mark_buf;
+					GtinStruc gts;
+					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
+					if (pczcr)
+						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+					if (!iemr && !pczcr) {
+						if (P_LotXcT) {
+							if (lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) // @v10.8.2 
+								ok = 1;
+							else
+								continue;
+						}
+						else {
+							PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
+							continue;
+						}
+					}
+					else {
+						if (do_check && P_LotXcT) {
+							if (P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
+								STRNSCPY(rec.Code, mark_buf);
+								ok = 1;
+							}
+							else
+								continue;
+						}
+						else {
+							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
+								rSet.AddBox(0, mark_buf, 1);*/
+							if (oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
+								long last_box_id = set.SearchLastBox(-1);
+								set.AddNum(last_box_id, mark_buf, 1);
+							}
+							else
+								set.AddNum(0, mark_buf, 1);
+							STRNSCPY(rec.Code, mark_buf);
+							ok = 1;
+						}
+					}
+				}
+				if (validation > 0) {
+					if (Data.AddValidation(set)) {
+						ok++;
+					}
+				}
+				else{
+					if (Data.Add(RowIdx, set)) {
+						ok++;
+					}
+				}
+			}
+		}
+		updateList(0);
+		return ok;
+	}
+
 protected:
 	DECL_HANDLE_EVENT
 	{
 		PPListDialog::handleEvent(event);
 		if(event.isCmd(cmCopyToClipboard)) {
-			int   row_idx = 0;
-			uint  inner_idx = 0;
 			long  cur_pos = 0;
 			long  cur_id = 0;
 			SString text_buf;
-			if(getCurItem(&cur_pos, &cur_id)) {
-				if(getText(cur_pos, text_buf)) {
-					SClipboard::Copy_Text(text_buf, text_buf.Len());
-				}
-				/*if(GetItem(cur_pos, &row_idx, &inner_idx)) {
-					PPLotExtCodeContainer::Item2 item;
-					if(Data.GetByIdx(inner_idx, item)) {
-						SClipboard::Copy_Text(item.Num, item.Num.Len());
-					}
-				}*/
+			if(getCurItem(&cur_pos, &cur_id) && getText(cur_pos, text_buf)) {
+				SClipboard::Copy_Text(text_buf, text_buf.Len());
 			}
 		}
+		// @v10.9.0 {
+		if(event.isCmd(cmCopyToClipboardSpc)) {
+			long  cur_pos = 0;
+			long  cur_id = 0;
+			SString text_buf;
+			if(getCurItem(&cur_pos, &cur_id) && getText(cur_pos, text_buf)) {
+				GtinStruc gts;
+				const int iemr = PrcssrAlcReport::IsEgaisMark(text_buf, 0);
+				const int pczcr = PPChZnPrcssr::ParseChZnCode(text_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
+				if(!iemr && pczcr) {
+					SString serial_buf;
+					gts.GetToken(GtinStruc::fldGTIN14, &text_buf);
+					gts.GetToken(GtinStruc::fldSerial, &serial_buf);
+					if(text_buf.NotEmpty()) {
+						if(serial_buf.NotEmpty())
+							text_buf.Cat(serial_buf);
+						SClipboard::Copy_Text(text_buf, text_buf.Len());
+					}
+				}
+			}
+		}
+		// } @v10.9.0 
 		else if(event.isCmd(cmCopyToClipboardAll)) {
 			SString buf_to_copy;
 			SString temp_buf;
@@ -2441,11 +2539,11 @@ protected:
 				SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
 			}
 		}
-		// @erik v10.5.2 {
-		else if(event.isCmd(cmPasteFromClipboardAll)){
-			pasteFromClipboardAll();
-		}
-		// } @erik
+		//@erik v10.8.2 {
+		//else if(event.isCmd(cmPasteFromClipboardAll)){
+		//	pasteFromClipboardAll();
+		//}
+		//// } @erik
 		else
 			return;
 		clearEvent(event);
@@ -2457,7 +2555,7 @@ protected:
 		uint  inner_idx = 0;
 		SString text_buf;
 		if(getText(pos, text_buf)) {
-			if(text_buf.CmpPrefix("box:", 1) == 0)
+			if(text_buf.HasPrefixIAscii("box:"))
 				text_buf.ShiftLeft(4);
 			text_buf.Strip();
 			if(Data.Search(text_buf, &row_idx, &inner_idx)) {
@@ -2610,6 +2708,12 @@ private:
 					p_draw_item->ItemAction = 0; // Список не активен - строку не рисуем
 			}
 		}
+		// @erik v10.8.2 {
+		else if (event.isCmd(cmPasteFromClipboardAll)) {
+			int validation = 1;
+			pasteFromClipboardAll(validation);
+		}
+		// } @erik
 		else
 			return;
 		clearEvent(event);
@@ -2764,85 +2868,6 @@ private:
 		delete dlg;
 		return ok;
 	}
-	//
-	// функция вставки всех марок из буфера(если они там есть)
-	//
-	virtual int pasteFromClipboardAll()
-	{
-		int ok = 0;
-		uint   sel = 0;
-		//TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
-		SString temp_buf;
-		StringSet ss;
-		PPLotExtCodeContainer::MarkSet set;
-		LotExtCodeTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
-		rec.BillID = P_Pack->Rec.ID;
-		rec.RByBill = RowIdx;
-		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx - 1) : 0;
-		const int  do_check = (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT)) ? 0 : 1;
-		const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
-		const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
-		SStringU buf_from_copy;
-		SClipboard::Past_Text(buf_from_copy);
-		buf_from_copy.CopyToUtf8(temp_buf, 0);
-		if(temp_buf.Tokenize("\xD\xA", ss)) {
-			temp_buf.Z();
-			for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
-				if(!temp_buf.NotEmptyS()) {
-					//PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
-					continue;
-				}
-				else if(temp_buf.Len() >= sizeof(rec.Code)) {
-					//PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rec.Code) - 1));
-					//PPErrorByDialog(dlg, sel);
-					continue;
-				}
-				else {
-					SString mark_buf;
-					GtinStruc gts;
-					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-					if(pczcr)
-						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-					if(!iemr && !pczcr) {
-						if(P_LotXcT) {
-							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) <= 0) {
-								//PPErrorByDialog(dlg, sel);
-								continue;
-							}
-						}
-						else {
-							//PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
-							//PPErrorByDialog(dlg, sel);
-							continue;
-						}
-					}
-					else if(do_check && P_LotXcT) {
-						if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
-							STRNSCPY(rec.Code, mark_buf);
-						}
-						else {
-							//PPErrorByDialog(dlg, sel);
-							continue;
-						}
-					}
-					else {
-						set.AddNum(0, mark_buf, 1);
-						STRNSCPY(rec.Code, mark_buf);
-					}
-				}
-				if(Data.AddValidation(set)) {
-					ok++;
-				}
-				//else {
-				//	PPError();
-				//}
-			}
-		}
-		updateList(0);
-		return ok;
-	}
 
 	int    FontId;
 	int    CStyleId;
@@ -2873,6 +2898,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 	public:
 		LotXCodeListDialog(const PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
 		{
+			ContextMenuID = CTRLMENU_LOTXCODELIST; // @v10.9.0
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -2892,6 +2918,15 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 				}
 			}
 			LotXCodeListDialog_Base::handleEvent(event);
+			// @erik v10.8.2 {
+			if (event.isCmd(cmPasteFromClipboardAll)) {
+				int validation = 0;
+				pasteFromClipboardAll(validation);
+			}
+			else
+				return;
+			clearEvent(event);
+			// } @erik
 		}
 		virtual int setupList()
 		{
@@ -2976,7 +3011,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			ReceiptTbl::Rec lot_rec;
 			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 			const int dont_veryfy_mark = BIN(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
-			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
+			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= static_cast<int>(P_Pack->GetTCount())) ? &P_Pack->ConstTI(RowIdx-1) : 0;
 			const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
 			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
@@ -3051,86 +3086,6 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			}
 			CATCHZOKPPERR
 			delete dlg;
-			return ok;
-		}
-		//
-		//  @erik v10.5.2
-		//  функция вставки всех марок из буфера(если они там есть)
-		//
-		virtual int pasteFromClipboardAll()
-		{
-			int    ok = 0;
-			uint   sel = 0;
-			//TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
-			SString temp_buf;
-			StringSet ss;
-			PPLotExtCodeContainer::MarkSet set;
-			LotExtCodeTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
-			rec.BillID = P_Pack->Rec.ID;
-			rec.RByBill = RowIdx;
-			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx - 1) : 0;
-			const int  do_check = (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT)) ? 0 : 1;
-			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
-			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
-			SStringU buf_from_copy;
-			SClipboard::Past_Text(buf_from_copy);
-			buf_from_copy.CopyToUtf8(temp_buf, 0);
-			if(temp_buf.Tokenize("\xD\xA", ss)) {
-				temp_buf.Z();
-				for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Clear()) {
-					if(!temp_buf.NotEmptyS()) {
-						//PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
-						continue;
-					}
-					else if(temp_buf.Len() >= sizeof(rec.Code)) {
-						//PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rec.Code) - 1));
-						//PPErrorByDialog(dlg, sel);
-						continue;
-					}
-					else {
-						SString mark_buf;
-						GtinStruc gts;
-						const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
-						if(pczcr)
-							gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-						if(!iemr && !pczcr) {
-							if(P_LotXcT) {
-								if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) <= 0) {
-									//PPErrorByDialog(dlg, sel);
-									continue;
-								}
-							}
-							else {
-								//PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
-								//PPErrorByDialog(dlg, sel);
-								continue;
-							}
-						}
-						else if(do_check && P_LotXcT) {
-							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) {
-								STRNSCPY(rec.Code, mark_buf);
-							}
-							else {
-								//PPErrorByDialog(dlg, sel);
-								continue;
-							}
-						}
-						else {
-							set.AddNum(0, mark_buf, 1);
-							STRNSCPY(rec.Code, mark_buf);
-						}
-					}
-					if(Data.Add(RowIdx, set)) {
-						ok++;
-					}
-					else {
-						//PPError();
-					}
-				}
-			}
-			updateList(0);
 			return ok;
 		}
 	};
@@ -3253,7 +3208,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				case kbShiftF2:
 					if(!EventBarrier()) {
 						c = getCurItemPos();
-						if(c >= 0 && c < (int)P_Pack->GetTCount()) {
+						if(c >= 0 && c < static_cast<int>(P_Pack->GetTCount())) {
 							PPID   goods_id = labs(P_Pack->ConstTI(static_cast<uint>(c)).GoodsID);
 							if(goods_id && GObj.Edit(&goods_id, 0) == cmOK)
 								update(pos_cur);
@@ -3264,7 +3219,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				case kbShiftF3:
 					if(!EventBarrier()) {
 						c = getCurItemPos();
-						if(c >= 0 && c < (int)P_Pack->GetTCount()) {
+						if(c >= 0 && c < static_cast<int>(P_Pack->GetTCount())) {
 							const PPTransferItem & r_ti = P_Pack->ConstTI(static_cast<uint>(c));
 							if(oneof4(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_ACTCHARGEON, PPOPK_EDI_ACTCHARGEONSHOP, PPOPK_EDI_SHOPCHARGEON)) {
 								Reference * p_ref = PPRef;
@@ -4150,16 +4105,15 @@ SArray * CompleteBrowser::MakeList()
 		entry.LotID   = p_item->LotID;
 		entry.Dt      = p_item->Dt;
 		entry.Expiry  = p_item->Expiry;
-		// @v9.5.5 STRNSCPY(entry.GoodsName, GetGoodsName(p_item->GoodsID, temp_buf));
-		goods_obj.FetchNameR(p_item->GoodsID, temp_buf); // @v9.5.5
-		STRNSCPY(entry.GoodsName, temp_buf); // @v9.5.5
+		goods_obj.FetchNameR(p_item->GoodsID, temp_buf);
+		STRNSCPY(entry.GoodsName, temp_buf);
 		GetArticleName(p_item->ArID, temp_buf);
 		STRNSCPY(entry.ArName, temp_buf);
 		STRNSCPY(entry.Serial, p_item->Serial);
 		entry.Qtty = p_item->Qtty;
 		entry.Cost = p_item->Cost;
 		entry.Price = p_item->Price;
-		entry.Flags = p_item->Flags; // @v9.0.4
+		entry.Flags = p_item->Flags;
 		if(P_BObj->Search(p_item->BillID, &bill_rec) > 0)
 			STRNSCPY(entry.Memo, bill_rec.Memo);
 		THROW_SL(p_list->insert(&entry));

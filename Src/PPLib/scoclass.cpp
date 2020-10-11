@@ -1,5 +1,5 @@
 // SCOCLASS.CPP
-// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018, 2019, 2020
 //
 #pragma hdrstop
 #define DL600R
@@ -8,14 +8,12 @@
 //
 // @ModuleDef(SCoClass)
 //
-//static
-void * FASTCALL SCoClass::GetExtraPtrByInterface(const void * pIfc)
+/*static*/void * FASTCALL SCoClass::GetExtraPtrByInterface(const void * pIfc)
 {
 	return pIfc ? static_cast<const TabEntry *>(pIfc)->ThisPtr->ExtraPtr : 0;
 }
 
-// static
-int SLAPI SCoClass::SetExtraPtrByInterface(const void * pIfc, void * extraPtr)
+/*static*/int SLAPI SCoClass::SetExtraPtrByInterface(const void * pIfc, void * extraPtr)
 {
 	int    ok = -1;
 	if(pIfc && static_cast<const TabEntry *>(pIfc)->ThisPtr->ExtraPtr == 0) {
@@ -349,8 +347,7 @@ HRESULT __stdcall SCoFactory::LockServer(BOOL bLock)
 //
 // DLL helpers
 //
-//static
-HRESULT SLAPI SCoClass::Helper_DllGetClassObject(REFCLSID rClsID, REFIID rIID, void ** ppV)
+/*static*/HRESULT SLAPI SCoClass::Helper_DllGetClassObject(REFCLSID rClsID, REFIID rIID, void ** ppV)
 {
 	SCoFactory * p_cf = new SCoFactory(rClsID);
 	HRESULT ok = p_cf ? p_cf->ImpQueryInterface(rIID, ppV) : E_OUTOFMEMORY;
@@ -368,14 +365,12 @@ HRESULT SLAPI SCoClass::Helper_DllGetClassObject(REFCLSID rClsID, REFIID rIID, v
 	return ok;
 }
 
-//static
-HRESULT SLAPI SCoClass::Helper_DllCanUnloadNow()
+/*static*/HRESULT SLAPI SCoClass::Helper_DllCanUnloadNow()
 {
 	return DS.LockingDllServer(PPSession::ldsCanUnload) ? S_OK : S_FALSE;
 }
 
-//static
-int SLAPI SCoClass::Helper_DllRegisterServer(int unreg)
+/*static*/int SLAPI SCoClass::Helper_DllRegisterServer(int unreg)
 {
 	int    ok = 0;
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxtInterface);

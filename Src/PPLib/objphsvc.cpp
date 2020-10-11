@@ -3,7 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
 
 int SLAPI TestAsteriskAmiClient(PPID phnSvcID);
 //
@@ -273,8 +272,7 @@ int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
 	return ok;
 }
 
-//static 
-int FASTCALL PPObjPhoneService::IsPhnChannelAcceptable(const SString & rFilter, const SString & rChannel)
+/*static*/int FASTCALL PPObjPhoneService::IsPhnChannelAcceptable(const SString & rFilter, const SString & rChannel)
 {
 	int    ok = 0;
 	if(rFilter.NotEmpty() && rChannel.NotEmpty()) {
@@ -296,8 +294,7 @@ int FASTCALL PPObjPhoneService::IsPhnChannelAcceptable(const SString & rFilter, 
 	return ok;
 }
 
-//static 
-int SLAPI PPObjPhoneService::PhoneTo(const SString & rPhone)
+/*static*/int SLAPI PPObjPhoneService::PhoneTo(const SString & rPhone)
 {
 	int    ok = -1;
 	if(rPhone.NotEmpty()) {
@@ -674,8 +671,7 @@ int SLAPI PhnSvcChannelStatusPool::SetIdentifiedCallerName(uint idx, const char 
 	return ok;
 }
 
-//static
-AsteriskAmiClient::AsteriskAmiStateStr AsteriskAmiClient::StateList[] = {
+/*static*/AsteriskAmiClient::AsteriskAmiStateStr AsteriskAmiClient::StateList[] = {
 	{ PhnSvcChannelStatus::stDown,      "Down" },
 	{ PhnSvcChannelStatus::stReserved,  "Rsrvd" },
 	{ PhnSvcChannelStatus::stOffHook,   "OffHook" },
@@ -688,8 +684,7 @@ AsteriskAmiClient::AsteriskAmiStateStr AsteriskAmiClient::StateList[] = {
 	{ PhnSvcChannelStatus::stPreRing,   "Pre-ring" }
 };
 
-//static
-int AsteriskAmiClient::GetStateText(long state, SString & rBuf)
+/*static*/int AsteriskAmiClient::GetStateText(long state, SString & rBuf)
 {
 	int    ok = 0;
 	const  long _st = (state & 0xffff);
@@ -705,8 +700,7 @@ int AsteriskAmiClient::GetStateText(long state, SString & rBuf)
 	return ok;
 }
 
-//static
-int AsteriskAmiClient::GetStateVal(const char * pText, long * pState)
+/*static*/int AsteriskAmiClient::GetStateVal(const char * pText, long * pState)
 {
 	int    ok = 0;
 	long   _st = 0;

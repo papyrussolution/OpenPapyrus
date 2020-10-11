@@ -424,6 +424,93 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 	CATCHZOKPPERR
 	return ok;
 }
+
+/*
+struct PPEventSubscription {
+	SLAPI  PPEventSubscription();
+	int    FASTCALL IsEqual(const PPEventSubscription & rS) const;
+	long   Tag;            // Const=PPOBJ_EVENTSUBSCRIPTION
+	long   ID;             // @id
+	char   Name[48];       // @name @!refname
+	char   Symb[20];       //
+	long   Flags;          //
+	PPID   ObjType;        // Тип объекта, ассоциированный с событием (для некоторых типов событий)
+	char   Reserve[56];    // @reserve
+	PPID   EventType;      //
+	PPID   Reserve2;       //
+};
+*/
+
+class EventSubscriptionCache : public ObjCache {
+public:
+	SLAPI  EventSubscriptionCache() : ObjCache(PPOBJ_EVENTSUBSCRIPTION, sizeof(EventSubscriptionData)) {}
+private:
+	struct EventSubscriptionData : public ObjCacheEntry {
+		long   Flags;          //
+		PPID   ObjType;        // Тип объекта, ассоциированный с событием (для некоторых типов событий)
+		PPID   EventType;      //
+	};
+	virtual int SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+	{
+		int    ok = 1;
+		EventSubscriptionData * p_cache_rec = static_cast<EventSubscriptionData *>(pEntry);
+		PPObjEventSubscription _obj(0);
+		PPEventSubscriptionPacket pack;
+		if(_obj.GetPacket(id, &pack) > 0) {
+			#define FLD(f) p_cache_rec->f = pack.Rec.f
+			FLD(Flags);
+			FLD(ObjType);
+			FLD(EventType);
+			#undef FLD
+			MultTextBlock b;
+			b.Add(pack.Rec.Name);
+			b.Add(pack.Rec.Symb);
+			PutTextBlock(b, p_cache_rec);
+			//
+			{
+				{
+					long   user_id = 0;
+					uint   pos = 0;
+					while(IdToUserList.Search(id, &user_id, &pos)) {
+						IdToUserList.atFree(pos);
+					}
+				}
+				PPIDArray user_list;
+				pack.UserList.Get(user_list);
+				for(uint i = 0; i < user_list.getCount(); i++) {
+					IdToUserList.Add(id, user_list.get(i));
+				}
+			}
+		}
+		else
+			ok = -1;
+		return ok;
+	}
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	{
+		PPEventSubscriptionPacket * p_data_pack = static_cast<PPEventSubscriptionPacket *>(pDataRec);
+		const EventSubscriptionData * p_cache_rec = static_cast<const EventSubscriptionData *>(pEntry);
+		p_data_pack->Z();
+		p_data_pack->Rec.Tag = PPOBJ_EVENTSUBSCRIPTION;
+		#define FLD(f) p_data_pack->Rec.f = p_cache_rec->f
+		FLD(ID);
+		FLD(Flags);
+		FLD(ObjType);
+		FLD(EventType);
+		#undef FLD
+		MultTextBlock b(this, pEntry);
+		b.Get(p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));
+		b.Get(p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
+		{
+			PPIDArray user_list;
+			IdToUserList.GetListByKey(p_cache_rec->ID, user_list);
+			p_data_pack->UserList.Set(&user_list);
+		}
+	}
+	LAssocArray IdToUserList; // Список ассоциаций EventSubscriptionID-->UserID
+};
+
+IMPL_OBJ_FETCH(PPObjEventSubscription, PPEventSubscriptionPacket, EventSubscriptionCache);
 //
 //
 //
@@ -892,27 +979,35 @@ int SLAPI PPObjEventSubscription::Run()
 	TSCollection <PPEventCore::Packet> evp_list;
 	PPEventSubscription evs_rec;
 	PPIDArray id_list;
-	PPIDArray detected_id_list;
 	for(SEnum en = Enum(0); en.Next(&evs_rec) > 0;) {
 		id_list.add(evs_rec.ID);
 	}
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		const PPID evs_id = id_list.get(i);
 		int dr = Detect(evs_id, evp_list);
-		if(dr > 0) {
+		/*if(dr > 0) {
 			detected_id_list.add(evs_id);
-		}
+		}*/
 	}
 	if(evp_list.getCount()) {
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPEventCore evc;
+		PPIDArray detected_id_list;
 		PPTransaction tra(1);
 		THROW(tra);
 		for(uint j = 0; j < evp_list.getCount(); j++) {
 			PPID ev_id = 0;
-			THROW(evc.Put(&ev_id, evp_list.at(j), 0));
+			const PPEventCore::Packet * p_pack = evp_list.at(j);
+			if(p_pack) {
+				if(evc.Put(&ev_id, p_pack, 0)) {
+					detected_id_list.addnz(p_pack->EvSubscrID);
+				}
+				else
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
+			}
 		}
 		if(p_sj) {
+			detected_id_list.sortAndUndup();
 			for(uint dlidx = 0; dlidx < detected_id_list.getCount(); dlidx++) {
 				THROW(DS.LogAction(PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, detected_id_list.get(dlidx), 0, 0));
 			}

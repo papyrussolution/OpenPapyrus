@@ -276,8 +276,7 @@ int SLAPI PPViewReport::SaveChanges(int remove)
 	*/
 	if(P_RptFile) {
 		P_RptFile->FlashIniBuf();
-		PPGetFilePath(PPPATH_BIN, PPFILNAM_REPORT_INI, fname);
-		SCopyFile(P_RptFile->GetFileName(), fname, 0, 0, 0);
+		SCopyFile(P_RptFile->GetFileName(), PPGetFilePathS(PPPATH_BIN, PPFILNAM_REPORT_INI, fname), 0, 0, 0);
 	}
 	if(remove) {
 		SString temp_fname;
@@ -301,18 +300,15 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempReport);
 {
 	int    ok = 1;
 	SString fname, temp_fname;
-	//SString temp_dir;
 	PPViewBrowser * p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(p_prev_win && p_prev_win->P_View)
 		static_cast<PPViewReport *>(p_prev_win->P_View)->SaveChanges(0);
 	else
 		SaveChanges(1);
-	PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname);
-	SCopyFile(fname, PPMakeTempFileName("stdrpt", "ini", 0, temp_fname), 0, 0, 0);
+	SCopyFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname), PPMakeTempFileName("stdrpt", "ini", 0, temp_fname), 0, 0, 0);
 	THROW_MEM(P_StdRptFile = new PPIniFile(temp_fname, 0, 0, 1));
-	PPGetFilePath(PPPATH_BIN, (uint)PPFILNAM_REPORT_INI, fname);
-	SCopyFile(fname, PPMakeTempFileName("rpt", "ini", 0, temp_fname), 0, 0, 0);
+	SCopyFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_REPORT_INI, fname), PPMakeTempFileName("rpt", "ini", 0, temp_fname), 0, 0, 0);
 	THROW_MEM(P_RptFile = new PPIniFile(temp_fname, 0, 0, 1));
 	THROW(P_StdRptFile->IsValid() && P_RptFile->IsValid());
 	{
@@ -762,8 +758,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 	THROW_INVARG(pList);
 	if(!p_file) {
 		SString filename;
-		PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, filename);
-		p_file = new PPIniFile(filename);
+		p_file = new PPIniFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_STDRPT_INI, filename));
 	}
 	THROW(p_file->GetSections(&sections));
 	for(i = 0, id = 0; sections.get(&i, sect.Z()) > 0; id++) {
@@ -862,8 +857,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	THROW_INVARG(pList);
 	if(!p_file) {
 		SString filename;
-		PPGetFilePath(PPPATH_BIN, PPFILNAM_REPORT_INI, filename);
-		p_file = new PPIniFile(filename);
+		p_file = new PPIniFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_REPORT_INI, filename));
 		do_close_file = 1;
 	}
 	THROW(p_file->GetSections(&sections));
@@ -926,6 +920,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 }
 
 class ReportDlg : public TDialog {
+	DECL_DIALOG_DATA(ReportViewItem);
 public:
 	explicit ReportDlg(PPViewReport * pView) : TDialog(DLG_REPORT)
 	{
@@ -945,75 +940,70 @@ public:
 		}
 		PPWait(0);
 	}
-	int setDTS(const ReportViewItem * pData);
-	int getDTS(ReportViewItem * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		uint   pos = 0;
+		long   _id = 0;
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		setCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
+		if(RptList.SearchByText(Data.StdName, 1, &pos) > 0)
+			_id = RptList.Get(pos).Id;
+		SetupStrAssocCombo(this, CTLSEL_REPORT_STDNAME, &RptList, _id,   0);
+		if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
+			_id = StrucList.Get(pos).Id;
+		else
+			_id = 0;
+		SetupStrAssocCombo(this, CTLSEL_REPORT_STRUCNAME, &StrucList,   _id, 0);
+		setCtrlData(CTL_REPORT_PATH,  Data.Path);
+		setCtrlData(CTL_REPORT_DESCR, Data.Descr);
+		AddClusterAssocDef(CTL_REPORT_TYPE, 0, ReportFilt::rpttStandart);
+		AddClusterAssoc(CTL_REPORT_TYPE, 1, ReportFilt::rpttLocal);
+		SetClusterData(CTL_REPORT_TYPE, Data.Type);
+		disableCtrls(Data.Type == ReportFilt::rpttStandart, CTL_REPORT_MODIFDATE, CTLSEL_REPORT_STDNAME, CTLSEL_REPORT_STRUCNAME, CTL_REPORT_PATH, CTL_REPORT_DESCR, 0L);
+		disableCtrls(1, CTL_REPORT_MODIFDATE, CTL_REPORT_TYPE, 0L);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = -1;
+		uint   sel = 0;
+		long   _id = 0;
+		SString buf;
+		GetClusterData(CTL_REPORT_TYPE, &Data.Type);
+		THROW_PP(_id = getCtrlLong(sel = CTLSEL_REPORT_STDNAME), PPERR_INVRPTSTDNAME);
+		RptList.GetText(_id, buf);
+		buf.CopyTo(Data.StdName, sizeof(Data.StdName));
+		THROW_PP(_id = getCtrlLong(sel = CTLSEL_REPORT_STRUCNAME), PPERR_INVRPTSTRUCNAME);
+		StrucList.GetText(_id, buf);
+		buf.CopyTo(Data.StrucName, sizeof(Data.StrucName));
+		getCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
+		if(Data.Type == ReportFilt::rpttLocal) {
+			SString path;
+			SPathStruc sp;
+			getCtrlData(sel = CTL_REPORT_PATH,  Data.Path);
+			THROW_PP(sstrlen(Data.Path), PPERR_USERINPUT);
+			sp.Split(Data.Path);
+			if(!sp.Drv.NotEmptyS()) {
+				PPGetPath(PPPATH_BIN, path);
+				path.SetLastSlash().Cat(Data.Path);
+			}
+			else
+				path.CopyFrom(Data.Path);
+			THROW_SL(fileExists(path));
+		}
+		getCtrlData(CTL_REPORT_DESCR, Data.Descr);
+		ASSIGN_PTR(pData, Data);
+		ok = 1;
+		CATCH
+			ok = (selectCtrl(sel), 0);
+		ENDCATCH
+		return ok;
+	}
 private:
-	ReportViewItem  Data;
 	StrAssocArray   RptList;
 	StrAssocArray   StrucList;
 };
-
-int ReportDlg::setDTS(const ReportViewItem * pData)
-{
-	uint   pos = 0;
-	long   _id = 0;
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	setCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
-	if(RptList.SearchByText(Data.StdName, 1, &pos) > 0)
-		_id = RptList.Get(pos).Id;
-	SetupStrAssocCombo(this, CTLSEL_REPORT_STDNAME, &RptList, _id,   0);
-	if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
-		_id = StrucList.Get(pos).Id;
-	else
-		_id = 0;
-	SetupStrAssocCombo(this, CTLSEL_REPORT_STRUCNAME, &StrucList,   _id, 0);
-	setCtrlData(CTL_REPORT_PATH,  Data.Path);
-	setCtrlData(CTL_REPORT_DESCR, Data.Descr);
-	AddClusterAssocDef(CTL_REPORT_TYPE, 0, ReportFilt::rpttStandart);
-	AddClusterAssoc(CTL_REPORT_TYPE, 1, ReportFilt::rpttLocal);
-	SetClusterData(CTL_REPORT_TYPE, Data.Type);
-	disableCtrls(Data.Type == ReportFilt::rpttStandart, CTL_REPORT_MODIFDATE, CTLSEL_REPORT_STDNAME, CTLSEL_REPORT_STRUCNAME, CTL_REPORT_PATH, CTL_REPORT_DESCR, 0L);
-	disableCtrls(1, CTL_REPORT_MODIFDATE, CTL_REPORT_TYPE, 0L);
-	return 1;
-}
-
-int ReportDlg::getDTS(ReportViewItem * pData)
-{
-	int    ok = -1;
-	uint   sel = 0;
-	long   _id = 0;
-	SString buf;
-	GetClusterData(CTL_REPORT_TYPE, &Data.Type);
-	THROW_PP(_id = getCtrlLong(sel = CTLSEL_REPORT_STDNAME), PPERR_INVRPTSTDNAME);
-	RptList.GetText(_id, buf);
-	buf.CopyTo(Data.StdName, sizeof(Data.StdName));
-	THROW_PP(_id = getCtrlLong(sel = CTLSEL_REPORT_STRUCNAME), PPERR_INVRPTSTRUCNAME);
-	StrucList.GetText(_id, buf);
-	buf.CopyTo(Data.StrucName, sizeof(Data.StrucName));
-	getCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
-	if(Data.Type == ReportFilt::rpttLocal) {
-		SString path;
-		SPathStruc sp;
-		getCtrlData(sel = CTL_REPORT_PATH,  Data.Path);
-		THROW_PP(sstrlen(Data.Path), PPERR_USERINPUT);
-		sp.Split(Data.Path);
-		if(!sp.Drv.NotEmptyS()) {
-			PPGetPath(PPPATH_BIN, path);
-			path.SetLastSlash().Cat(Data.Path);
-		}
-		else
-			path.CopyFrom(Data.Path);
-		THROW_SL(fileExists(path));
-	}
-	getCtrlData(CTL_REPORT_DESCR, Data.Descr);
-	ASSIGN_PTR(pData, Data);
-	ok = 1;
-	CATCH
-		ok = (selectCtrl(sel), 0);
-	ENDCATCH
-	return ok;
-}
 
 int SLAPI PPViewReport::EditItem(long * pID)
 {

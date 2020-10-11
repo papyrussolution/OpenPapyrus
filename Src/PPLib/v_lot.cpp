@@ -599,8 +599,7 @@ int FASTCALL PPViewLot::AddDerivedLotToTotal(const ReceiptTbl::Rec * pRec)
 	return 1;
 }
 
-//static
-int PPViewLot::CalcChildLots(const ReceiptTbl::Rec * pLotRec, void * extraPtr)
+/*static*/int PPViewLot::CalcChildLots(const ReceiptTbl::Rec * pLotRec, void * extraPtr)
 {
 	PPViewLot * p_lv = static_cast<PPViewLot *>(extraPtr);
 	return (p_lv && pLotRec->LocID != p_lv->Total.LocID) ? p_lv->AddDerivedLotToTotal(pLotRec) : 0;
@@ -2111,8 +2110,7 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 //
 //
 //
-//static 
-int PPViewLot::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int PPViewLot::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);

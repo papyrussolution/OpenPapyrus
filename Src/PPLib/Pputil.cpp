@@ -3854,8 +3854,7 @@ int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFi
 	return ok;
 }
 
-// static
-int SLAPI PPUhttClient::ViewNewVerList(int showSelDlg)
+/*static*/int SLAPI PPUhttClient::ViewNewVerList(int showSelDlg)
 {
 	int    ok = 0;
 	TSCollection <UhttDCFileVersionInfo> ver_list;
@@ -4323,8 +4322,7 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 }
 
 #if 0 // @v10.5.12 {
-//static
-int SLAPI PPUhttClient::TestUi_GetLocationListByPhone()
+/*static*/int SLAPI PPUhttClient::TestUi_GetLocationListByPhone()
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -4358,8 +4356,7 @@ int SLAPI PPUhttClient::TestUi_GetLocationListByPhone()
 	return ok;
 }
 
-//static
-int SLAPI PPUhttClient::TestUi_GetQuotByLoc()
+/*static*/int SLAPI PPUhttClient::TestUi_GetQuotByLoc()
 {
 	int    ok = -1;
 	PPLogger logger;

@@ -820,11 +820,9 @@ int SrConceptTbl::SetPropDeclList(CONCEPTID id, const SrCPropDeclList * pPdl)
 	return ok;
 }
 
-//static
-void FASTCALL SrConceptPropTbl::EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec)
+/*static*/void FASTCALL SrConceptPropTbl::EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec)
 	{ rKeyBuf.Set(&rRec.CID, sizeof(rRec.CID)+sizeof(rRec.PropID)); }
-//static
-void FASTCALL SrConceptPropTbl::DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec)
+/*static*/void FASTCALL SrConceptPropTbl::DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec)
 	{ rKeyBuf.Get(&rRec.CID, sizeof(rRec.CID)+sizeof(rRec.PropID)); }
 
 SrConceptPropTbl::SrConceptPropTbl(SrDatabase & rSr) : BDbTable(BDbTable::ConfigHash("concept.db->conceptprop", 0, SKILOBYTE(16), 0), rSr.P_Db), R_Sr(rSr)
@@ -1401,8 +1399,7 @@ int SLAPI SrGeoWayTbl::Search(uint64 id, PPOsm::Way * pW)
 //
 //
 //
-//static
-int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf)
+/*static*/int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -3073,8 +3070,7 @@ struct StoreFiasAddrBlock {
 	TextHash   H;
 };
 
-//static 
-const uint StoreFiasAddrBlock::SignatureValue = 0x43a5e9b7;
+/*static*/const uint StoreFiasAddrBlock::SignatureValue = 0x43a5e9b7;
 
 void * SrDatabase::CreateStoreFiasAddrBlock()
 {

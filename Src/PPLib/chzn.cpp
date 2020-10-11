@@ -197,8 +197,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 	return ok;
 }
 
-//static 
-int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
+/*static*/int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
 {
 	//#define SNTOK_CHZN_GS1_GTIN    28 // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
 	//#define SNTOK_CHZN_SIGN_SGTIN  29 // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
@@ -248,8 +247,7 @@ int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
 	return result;
 }
 
-//static 
-int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
+/*static*/int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 {
 	class ChZnMarkDialog : public TDialog {
 	public:
@@ -2689,8 +2687,7 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 	return ok;
 }
 
-//static
-int SLAPI PPChZnPrcssr::Test()
+/*static*/int SLAPI PPChZnPrcssr::Test()
 {
 	int    ok = 1;
 	SString temp_buf;

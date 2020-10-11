@@ -34,9 +34,8 @@ PPSCardPacket & SLAPI PPSCardPacket::Z()
 			templ_buf.Cat(buf);
 			if(buf.Len() < 2 || templ_buf.Last() != '"') {
 				templ_buf.Semicol();
-				continue;
 			}
-			if(templ_buf.C(0) == '"') {
+			else if(templ_buf.C(0) == '"') {
 				templ_buf.ShiftLeft().TrimRight();
 				size_t  code_pos = 0;
 				if(templ_buf.Search("*C*", code_pos, 1, &code_pos)) {
@@ -101,8 +100,7 @@ PPSCardPacket & SLAPI PPSCardPacket::Z()
 	return ok;
 }
 
-//static
-int FASTCALL PPObjSCard::FetchConfig(PPSCardConfig * pCfg)
+/*static*/int FASTCALL PPObjSCard::FetchConfig(PPSCardConfig * pCfg)
 {
 	return PPObjSCardSeries::FetchConfig(pCfg);
 }
@@ -1004,20 +1002,20 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 			};
 			const  size_t init_count = 256 / sizeof(Item_);
 			size_t sz = sizeof(long) + sizeof(PropPPIDArray) + init_count * sizeof(Item_);
-			THROW_MEM(p_rec = (PropPPIDArray*)SAlloc::C(1, sz));
+			THROW_MEM(p_rec = static_cast<PropPPIDArray *>(SAlloc::C(1, sz)));
 			pack.Rule.freeAll();
 			if((r = p_ref->GetProperty(Obj, id, SCARDSERIES_RULE, p_rec, sz)) > 0) {
 				if(p_rec->Count > (long)init_count) {
 					sz = sizeof(long) + sizeof(PropPPIDArray) + (size_t)p_rec->Count * sizeof(Item_);
 					SAlloc::F(p_rec);
-					THROW_MEM(p_rec = (PropPPIDArray *)SAlloc::C(1, sz));
+					THROW_MEM(p_rec = static_cast<PropPPIDArray *>(SAlloc::C(1, sz)));
 					THROW(p_ref->GetProperty(Obj, id, SCARDSERIES_RULE, p_rec, sz) > 0);
 				}
 				memcpy(&pack.Rule.TrnovrPeriod, PTR8(p_rec + 1), sizeof(long));
 				for(uint i = 0; i < (uint)p_rec->Count; i++) {
 					TrnovrRngDis item;
 					MEMSZERO(item);
-					const Item_ * p_item_ = (Item_ *)(PTR8(p_rec+1) + sizeof(long) + i * sizeof(Item_));
+					const Item_ * p_item_ = reinterpret_cast<const Item_ *>(PTR8(p_rec+1) + sizeof(long) + i * sizeof(Item_));
 					item.R = p_item_->R;
 					item.Value = p_item_->Value;
 					THROW_SL(pack.Rule.insert(&item));
@@ -1127,14 +1125,7 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 		}
 		else if(*pID) {
 			THROW(CheckRights(PPR_DEL));
-			/* @v9.8.11
-			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_RULE, 0));
-			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_CCHECKRULE, 0));
-			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_BONUSRULE, 0));
-			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_QKLIST, 0));
-			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_EXT, 0)); // @v8.7.12
-			*/
-			THROW(p_ref->RemoveProperty(Obj, *pID, 0, 0)); // @v9.8.11
+			THROW(p_ref->RemoveProperty(Obj, *pID, 0, 0));
 			THROW(RemoveObjV(*pID, 0, 0, 0));
 			acn_id = PPACN_OBJRMV;
 			ok = 1;
@@ -1184,12 +1175,25 @@ int SLAPI PPObjSCardSeries::GetChildList(PPID id, PPIDArray & rList)
 	return Helper_GetChildList(id, rList, 0);
 }
 
+int SLAPI PPObjSCardSeries::GetSeriesWithSpecialTreatment(LAssocArray & rList)
+{
+	int    ok = -1;
+	rList.clear();
+	PPSCardSeries rec;
+	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		if(oneof2(rec.SpecialTreatment, SCRDSSPCTRT_AZ, SCRDSSPCTRT_UDS)) {
+			rList.Add(rec.ID, rec.SpecialTreatment);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 SLAPI SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 {
 }
 
-//static
-int SLAPI PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
+/*static*/int SLAPI PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
 {
 	int    ok = -1;
 	SCardChargeRule scs_rule;
@@ -1837,8 +1841,7 @@ int SLAPI PPObjSCard::IsCreditSeries(PPID scSerID)
 	return BIN(GetSeriesType(scSerID) == scstCredit);
 }
 
-//static
-int SLAPI PPObjSCard::GetSeriesType(PPID scSerID)
+/*static*/int SLAPI PPObjSCard::GetSeriesType(PPID scSerID)
 {
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries scs_rec;
@@ -2138,10 +2141,10 @@ int SLAPI PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
 	return ok;
 }
 
-int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList) // @v9.8.4 TSArray-->TSVector
+int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList)
 {
 	int    ok = -1;
-	if(rList.getCount()) { // @v9.6.12
+	if(rList.getCount()) {
 		SString fmt_buf, msg_buf;
 		SString temp_buf;
 		PPPersonConfig psn_cfg;
@@ -2332,7 +2335,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 	LDATE  prev_prd_beg = ZERODATE;
 	SString fmt_buf, msg_buf, scard_name, temp_buf, temp_buf2;
 	char   prd_txt[32];
-	TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 	SCardTbl::Key2 k2;
 	PPUserFuncProfiler ufp(PPUPRF_SCARDUPDBYRULE);
 	double ufp_factor = 0.0;
@@ -2385,7 +2388,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 				THROW_SL(scr_list.insert(&rec));
 			}
 			const uint scrlc = scr_list.getCount();
-			const PPID bonus_charge_grp_id = pack.Rec.BonusChrgGrpID; // @v9.5.2
+			const PPID bonus_charge_grp_id = pack.Rec.BonusChrgGrpID;
 			for(uint i = 0; i < scrlc; i++) {
 				const SCardTbl::Rec & r_sc_rec = scr_list.at(i);
 				_SCardTrnovrItem item;
@@ -2886,29 +2889,31 @@ int SLAPI PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID, int u
 		uint   check_code = 0;
 		SCardSpecialTreatment::CardBlock cb;
 		THROW(!updateImmediately || CheckRights(PPR_MOD));
-		if(SCardSpecialTreatment::InitSpecialCardBlock(rScPack.Rec.ID, posNodeID, cb) > 0) {
+		{
 			p_spctrt = SCardSpecialTreatment::CreateInstance(cb.SpecialTreatment);
-		}
-		if(p_spctrt) {
-			int r = p_spctrt->VerifyOwner(&cb);
-			if(r > 0) {
-				rScPack.Rec.Flags |= SCRDF_OWNERVERIFIED;
-				if(updateImmediately && rScPack.Rec.ID) {
-					THROW(SetFlags(rScPack.Rec.ID, SCRDF_OWNERVERIFIED, 1));
-				}
-				ok = 1;
-			}
-			else if(r == 0)
-				ok = 0;
-		}
-		else {
-			if(VerifyPhoneNumberBySms(phone, rScPack.Rec.Code, &check_code, 0) > 0) {
-				if(check_code) {
-					rScPack.Rec.Flags |= SCRDF_OWNERVERIFIED;
-					if(updateImmediately && rScPack.Rec.ID) {
-						THROW(SetFlags(rScPack.Rec.ID, SCRDF_OWNERVERIFIED, 1));
+			if(p_spctrt && p_spctrt->GetCapability() & SCardSpecialTreatment::capfVerifyPhone) {
+				if(SCardSpecialTreatment::InitSpecialCardBlock(rScPack.Rec.ID, posNodeID, cb) > 0) {
+					int r = p_spctrt->VerifyOwner(&cb);
+					if(r > 0) {
+						rScPack.Rec.Flags |= SCRDF_OWNERVERIFIED;
+						if(updateImmediately && rScPack.Rec.ID) {
+							THROW(SetFlags(rScPack.Rec.ID, SCRDF_OWNERVERIFIED, 1));
+						}
+						ok = 1;
 					}
-					ok = 1;
+					else if(r == 0)
+						ok = 0;
+				}
+			}
+			if(ok < 0) {
+				if(VerifyPhoneNumberBySms(phone, rScPack.Rec.Code, &check_code, 0) > 0) {
+					if(check_code) {
+						rScPack.Rec.Flags |= SCRDF_OWNERVERIFIED;
+						if(updateImmediately && rScPack.Rec.ID) {
+							THROW(SetFlags(rScPack.Rec.ID, SCRDF_OWNERVERIFIED, 1));
+						}
+						ok = 1;
+					}
 				}
 			}
 		}
@@ -2929,7 +2934,6 @@ public:
 		SetupCalDate(CTLCAL_SCARD_DATE,   CTL_SCARD_DATE);
 		SetupCalDate(CTLCAL_SCARD_EXPIRY, CTL_SCARD_EXPIRY);
 		addGroup(ctlgroupSpcDvcInp, new SpecialInputCtrlGroup(CTL_SCARD_CODE, 500));
-		// @v9.4.5 {
 		if(getCtrlView(CTL_SCARD_PHONEINPUT)) {
 			LocationCtrlGroup * p_loc_grp = new LocationCtrlGroup(0, 0, CTL_SCARD_PHONEINPUT, 0, cmAddress, LocationCtrlGroup::fStandaloneByPhone, 0);
 			if(p_loc_grp) {
@@ -2937,7 +2941,6 @@ public:
 				addGroup(ctlgroupLoc, p_loc_grp);
 			}
 		}
-		// } @v9.4.5
 		if(Options & PPObjSCard::edfDisableCode)
 			setCtrlReadOnly(CTL_SCARD_CODE, 1);
 	}
@@ -3002,13 +3005,11 @@ private:
 		}
 		else if(event.isCmd(cmNotifyOptions))
 			EditNotifyOptions();
-		// @v9.8.9 {
 		else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_SCARD_EXPIRY)) {
 			if(DateAddDialog(&ScExpiryPeriodParam) > 0 && checkdate(ScExpiryPeriodParam.ResultDate, 0)) {
 				setCtrlDate(CTL_SCARD_EXPIRY, ScExpiryPeriodParam.ResultDate);
 			}
 		}
-		// } @v9.8.9
 		else
 			return;
 		clearEvent(event);
@@ -3186,25 +3187,27 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	SetupPPObjCombo(this, CTLSEL_SCARD_AUTOGOODS, PPOBJ_GOODS, Data.Rec.AutoGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
 	setCtrlData(CTL_SCARD_CODE, Data.Rec.Code);
 	setCtrlData(CTL_SCARD_ID, &Data.Rec.ID);
-	// @v9.4.4 {
 	{
 		LocationCtrlGroup::Rec lcg_rec;
 		lcg_rec.LocList.Add(Data.Rec.LocID);
 		setGroupData(ctlgroupLoc, &lcg_rec);
 	}
-	// } @v9.4.4
 	SetupSeries(Data.Rec.SeriesID, Data.Rec.PersonID);
 	Data.GetExtStrData(Data.extssPassword, temp_buf);
 	setCtrlString(CTL_SCARD_PSW, temp_buf);
 	Data.GetExtStrData(Data.extssMemo, temp_buf);
 	setCtrlString(CTL_SCARD_MEMO, temp_buf);
-	// @v9.4.6 {
 	{
 		Data.GetExtStrData(Data.extssPhone, temp_buf);
 		setCtrlString(CTL_SCARD_PHONE, temp_buf);
-		enableCommand(cmVerify, temp_buf.NotEmptyS()); // @v9.5.12
+		enableCommand(cmVerify, temp_buf.NotEmptyS());
 	}
-	// } @v9.4.6
+	// @v10.9.0 {
+	{
+		Data.GetExtStrData(Data.extssOuterId, temp_buf);
+		setCtrlString(CTL_SCARD_OUTERID, temp_buf);
+	}
+	// } @v10.9.0 
 	AddClusterAssoc(CTL_SCARD_FLAGS, 0, SCRDF_INHERITED);
 	AddClusterAssoc(CTL_SCARD_FLAGS, 1, SCRDF_CLOSED);
 	AddClusterAssoc(CTL_SCARD_FLAGS, 2, SCRDF_CLOSEDSRV);
@@ -3242,13 +3245,11 @@ int SCardDialog::getDTS(PPSCardPacket * pData)
 		THROW_PP(Data.Rec.Code[0], PPERR_SCARDCODENEEDED);
 	}
 	getCtrlData(sel = CTLSEL_SCARD_PERSON, &Data.Rec.PersonID);
-	// @v9.4.4 {
 	{
 		LocationCtrlGroup::Rec lcg_rec;
 		getGroupData(ctlgroupLoc, &lcg_rec);
 		Data.Rec.LocID = lcg_rec.LocList.GetSingle();
 	}
-	// } @v9.4.4
 	{
 		getCtrlString(CTL_SCARD_PSW, temp_buf);
 		Data.PutExtStrData(Data.extssPassword, temp_buf.Strip());
@@ -3852,6 +3853,67 @@ int SLAPI PPObjSCard::SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesI
 	CATCHZOK
 	ASSIGN_PTR(pPoolID, pool_id);
 	ASSIGN_PTR(pID, sc_id);
+	return ok;
+}
+
+int SLAPI PPObjSCard::SearchCodeExt(const char * pCode, const LAssocArray * pSpcTrtScsList, PPIDArray & rScList, TSVector <SCardSpecialTreatment::IdentifyReplyBlock> & rScpRbList)
+{
+	rScList.clear();
+	rScpRbList.clear();
+	int    ok = -1;
+	SCardTbl::Rec sc_rec;
+	SString temp_buf(pCode);
+	if(PreprocessSCardCode(temp_buf) > 0) {
+		PPIDArray id_list;
+		const int mc = P_Tbl->GetListByCode(temp_buf, &id_list);
+		/*if(SearchCode(0, temp_buf, &sc_rec) > 0) {
+			rScList.add(sc_rec.ID);
+			ok = 1;
+		}*/
+		if(id_list.getCount()) {
+			rScList = id_list;
+			ok = 1;
+		}
+		else if(pSpcTrtScsList) {
+			for(uint i = 0; i < pSpcTrtScsList->getCount(); i++) {
+				const PPID scs_id = pSpcTrtScsList->at(i).Key;
+				const long spc_trt = pSpcTrtScsList->at(i).Val;
+				assert(scs_id && spc_trt);
+				SCardSpecialTreatment * p_st = SCardSpecialTreatment::CreateInstance(spc_trt);
+				if(p_st) {
+					SCardSpecialTreatment::IdentifyReplyBlock irb;
+					STRNSCPY(irb.InCode, pCode);
+					int ict = p_st->IdentifyCode(irb, scs_id, 1/*use_ta*/);
+					if(oneof3(ict, SCardSpecialTreatment::ictHash, SCardSpecialTreatment::ictPhone, SCardSpecialTreatment::ictSCardCode)) {
+						assert(irb.ScID);
+						rScList.add(irb.ScID);
+						rScpRbList.insert(&irb);
+						ok = 1;
+					}
+					ZDELETE(p_st);
+				}
+			}
+		}
+	}
+	if(ok < 0) {
+		PPEAddr::Phone::NormalizeStr(pCode, 0, temp_buf);
+		if(temp_buf.NotEmptyS()) {
+			PPIDArray phone_id_list;
+			PPObjLocation loc_obj;
+			loc_obj.P_Tbl->SearchPhoneIndex(temp_buf, 0, phone_id_list);
+			for(uint i = 0; i < phone_id_list.getCount(); i++) {
+				const PPID ea_id = phone_id_list.get(i);
+				EAddrTbl::Rec ea_rec;
+				if(loc_obj.P_Tbl->GetEAddr(ea_id, &ea_rec) > 0 && ea_rec.LinkObjType == PPOBJ_SCARD) {
+					if(Search(ea_rec.LinkObjID, &sc_rec) > 0) {
+						rScList.add(sc_rec.ID);
+						ok = 2;
+					}
+				}
+			}
+		}
+	}
+	rScList.sortAndUndup();
 	return ok;
 }
 //

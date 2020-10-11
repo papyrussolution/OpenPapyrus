@@ -74,7 +74,7 @@ static int64 calcNeededSize(int isEmpty)
 		if(p_dict->GetTableInfo(item.Id, &ts) && !(ts.Flags & XTF_DICT)) {
 			file_name = ts.Location;
 			ps.Split(file_name);
-			if(ps.Nam.C(0) != '_' && ps.Nam.CmpPrefix("tmp", 1) != 0) {
+			if(ps.Nam.C(0) != '_' && !ps.Nam.HasPrefixIAscii("tmp")) {
 				tbl_name = ts.TblName;
 				file_name = (isEmpty || !isNeededFile(tbl_name)) ? empty_path : base_path;
 				file_name.Cat(ps.Nam).Cat(ps.Ext);
@@ -139,7 +139,7 @@ int SLAPI CreateByExample(const char * pPath)
 			file_name = ts.Location;
 			(src_path = pp).Cat(file_name.Strip());
 			ps.Split(file_name);
-			if(file_name.NotEmpty() && ps.Nam.C(0) != '_' && ps.Nam.CmpPrefix("tmp", 1) != 0 && fileExists(src_path)) {
+			if(file_name.NotEmpty() && ps.Nam.C(0) != '_' && !ps.Nam.HasPrefixIAscii("tmp") && fileExists(src_path)) {
 				(dst_path = pPath).SetLastSlash().Cat(file_name);
 				if(::access(dst_path, 0) == 0)
 					THROW_SL(SFile::Remove(dst_path));

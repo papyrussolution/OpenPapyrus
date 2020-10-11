@@ -27,8 +27,7 @@ SLAPI PPObjBill::ReckonParam::ReckonParam(int automat, int dontConfirm) : Flags(
 	PTR32(ForceBillCode)[0] = 0;
 }
 
-//static
-int FASTCALL PPObjBill::IsPoolOwnedByBill(PPID assocID)
+/*static*/int FASTCALL PPObjBill::IsPoolOwnedByBill(PPID assocID)
 {
 	return BIN(oneof2(assocID, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL));
 }
@@ -254,8 +253,7 @@ int SLAPI PPObjBill::GetGuid(PPID id, S_GUID * pUuid)
 	return (PPRef->Ot.GetTag(PPOBJ_BILL, id, PPTAG_BILL_UUID, &tag) > 0) ? BIN(tag.GetGuid(pUuid)) : -1;
 }
 
-//static
-SString & FASTCALL PPObjBill::MakeCodeString(const BillTbl::Rec * pRec, int options, SString & rBuf)
+/*static*/SString & FASTCALL PPObjBill::MakeCodeString(const BillTbl::Rec * pRec, int options, SString & rBuf)
 {
 	char   code[64];
 	SString name;
@@ -374,28 +372,6 @@ int SLAPI PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & r
 				if(!r_ti1.IsEqual(r_ti2))
 					eq = 0;
 				else if((r_ti1.Flags & PPTFR_RECEIPT) || is_intr || rS1.IsDraft()){
-					/* @v9.8.11
-					rS1.ClbL.GetNumber(i, &n1);
-					rS2.ClbL.GetNumber(i, &n2);
-					if(n1 != n2)
-						eq = 0;
-					else {
-						rS1.SnL.GetNumber(i, &n1);
-						rS2.SnL.GetNumber(i, &n2);
-						if(n1 != n2)
-							eq = 0;
-						else {
-							const ObjTagList * p_t1 = rS1.LTagL.Get(i);
-							const ObjTagList * p_t2 = rS2.LTagL.Get(i);
-							if(p_t1 != 0 && p_t2 != 0) {
-								if(!p_t1->IsEqual(*p_t2))
-									eq = 0;
-							}
-							else if(BIN(p_t1) != BIN(p_t2))
-								eq = 0;
-						}
-					} */
-					// @v9.8.11 {
 					const ObjTagList * p_t1 = rS1.LTagL.Get(i);
 					const ObjTagList * p_t2 = rS2.LTagL.Get(i);
 					if(p_t1 != 0 && p_t2 != 0) {
@@ -404,7 +380,6 @@ int SLAPI PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & r
 					}
 					else if(BIN(p_t1) != BIN(p_t2))
 						eq = 0;
-					// } @v9.8.11
 				}
 				if(eq && is_intr) {
 					const ObjTagList * p_t1 = rS1.P_MirrorLTagL ? rS1.P_MirrorLTagL->Get(i) : 0;
@@ -461,7 +436,6 @@ int SLAPI PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_FREIGHT) || p_fr, PPERR_BILLSTCHECKFLD_FREIGHT);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DLVRADDR) || (p_fr && p_fr->DlvrAddrID), PPERR_BILLSTCHECKFLD_DLVRADDR);
 					if(p_fr) {
-						// @v8.4.5 THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DLVRADDR) || p_fr->DlvrAddrID, PPERR_BILLSTCHECKFLD_DLVRADDR);
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFLOADING) || p_fr->PortOfLoading, PPERR_BILLSTCHECKFLD_PORTOFLD);
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFDISCHARGE) || p_fr->PortOfDischarge, PPERR_BILLSTCHECKFLD_PORTOFDCHG);
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ISSUEDT) || p_fr->IssueDate, PPERR_BILLSTCHECKFLD_ISSUEDATE);
@@ -1673,7 +1647,6 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 				ReceiptTbl::Rec lot_rec;
 				PPTransferItem new_ti(&pack.Rec, TISIGN_UNDEF);
 				THROW(new_ti.SetupGoods(labs(p_ti->GoodsID)));
-				// @v9.9.6 (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder)
 				if(p_ti->LotID && (op_type == PPOPT_DRAFTRECEIPT || (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder)))
 					trfr->GetRest(p_ti->LotID, pack.Rec.Dt, &qtty);
 				else
@@ -1795,7 +1768,7 @@ SLAPI PPObjBill::AddBlock::AddBlock(const AddBlock * pBlk)
 		RegisterID = pBlk->RegisterID;
 		LinkBillID = pBlk->LinkBillID;
 		ObjectID = pBlk->ObjectID;
-		Object2ID = pBlk->Object2ID; // @v9.8.1
+		Object2ID = pBlk->Object2ID;
 		Pk = pBlk->Pk;
 		PoolID = pBlk->PoolID;
 		LocID = pBlk->LocID;
@@ -1934,7 +1907,6 @@ int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 							pack.Rec.Object = alt_ar_id;
 					}
 				}
-				// @v9.8.2 {
 				if(pack.Rec.Object2 == 0 && blk.Object2ID != 0) {
 					if(op_rec.AccSheet2ID && ArObj.Fetch(blk.Object2ID, &ar_rec) > 0) {
 						if(ar_rec.AccSheetID == op_rec.AccSheet2ID)
@@ -1943,7 +1915,6 @@ int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 							pack.Rec.Object2 = alt_ar_id;
 					}
 				}
-				// } @v9.8.2
 			}
 			if(blk.FirstItemLotID) {
 				ReceiptTbl::Rec lot_rec;
@@ -5253,8 +5224,7 @@ int SLAPI BillCache::GetPrjConfig(PPProjectConfig * pCfg, int enforce)
 	return 1;
 }
 
-//static
-int FASTCALL PPObjProject::FetchConfig(PPProjectConfig * pCfg)
+/*static*/int FASTCALL PPObjProject::FetchConfig(PPProjectConfig * pCfg)
 {
 	BillCache * p_cache = GetDbLocalCachePtr <BillCache> (PPOBJ_BILL);
 	if(p_cache) {
@@ -5266,8 +5236,7 @@ int FASTCALL PPObjProject::FetchConfig(PPProjectConfig * pCfg)
 	}
 }
 
-//static
-int SLAPI PPObjProject::DirtyConfig()
+/*static*/int SLAPI PPObjProject::DirtyConfig()
 {
 	BillCache * p_cache = GetDbLocalCachePtr <BillCache> (PPOBJ_BILL);
 	return p_cache ? p_cache->GetPrjConfig(0, 1) : 0;
@@ -5690,9 +5659,8 @@ int SLAPI PPObjBill::GetSubstObjType(long id, const SubstParam * pParam, PPObjID
 	return ok;
 }
 
-int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBuf)
+void SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBuf)
 {
-	int    ok = 1;
 	long   val = srcID;
 	int    ar = 0;
 	rBuf.Z();
@@ -5708,9 +5676,8 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 			if(srcID) {
 				PPObjDebtDim dd_obj;
 				PPDebtDim dd_rec;
-				if(dd_obj.Search(srcID, &dd_rec) > 0) {
+				if(dd_obj.Search(srcID, &dd_rec) > 0)
 					rBuf = dd_rec.Name;
-				}
 				else
 					ideqvalstr(srcID, rBuf);
 			}
@@ -5735,7 +5702,7 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 		case SubstGrpBill::sgbStorageLoc:
 			GetLocationName(val, rBuf);
 			break;
-		case SubstGrpBill::sgbDlvrLoc: // @v9.1.5
+		case SubstGrpBill::sgbDlvrLoc:
 			{
                 PPObjLocation loc_obj;
                 LocationTbl::Rec loc_rec;
@@ -5746,9 +5713,8 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
                     if(addr_buf.NotEmptyS())
 						rBuf.CatDivIfNotEmpty(';', 2).Cat(addr_buf);
                 }
-                if(!rBuf.NotEmptyS()) {
+                if(!rBuf.NotEmptyS())
                     ideqvalstr(val, rBuf);
-                }
 			}
 			break;
 	}
@@ -5760,7 +5726,6 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 		else
 			GetArticleName(val, rBuf);
 	}
-	return ok;
 }
 
 PPObjBill::PplBlock::PplBlock(const DateRange & rPeriod, const PPIDArray * pOpList, const PPIDArray * pPaymOpList) :

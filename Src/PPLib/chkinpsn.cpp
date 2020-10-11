@@ -782,8 +782,7 @@ struct PPCheckInPersonItem_Strg {
 	uint8  Reserve[12];
 };
 
-//static
-PPID FASTCALL PPCheckInPersonMngr::GetAssocType(int kind)
+/*static*/PPID FASTCALL PPCheckInPersonMngr::GetAssocType(int kind)
 {
 	PPID   assc_type = 0;
 	if(kind == PPCheckInPersonItem::kTSession) {
@@ -797,8 +796,7 @@ PPID FASTCALL PPCheckInPersonMngr::GetAssocType(int kind)
 	return assc_type;
 }
 
-//static
-int  FASTCALL PPCheckInPersonMngr::GetKind(PPID asscType)
+/*static*/int  FASTCALL PPCheckInPersonMngr::GetKind(PPID asscType)
 {
 	int    kind = 0;
 	if(asscType == PPASS_CHECKINPSNTSES)
@@ -811,8 +809,7 @@ int  FASTCALL PPCheckInPersonMngr::GetKind(PPID asscType)
 	return kind;
 }
 
-//static
-int FASTCALL PPCheckInPersonMngr::ItemToStorage(const PPCheckInPersonItem & rItem, ObjAssocTbl::Rec & rRec)
+/*static*/int FASTCALL PPCheckInPersonMngr::ItemToStorage(const PPCheckInPersonItem & rItem, ObjAssocTbl::Rec & rRec)
 {
 	assert(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
@@ -841,8 +838,7 @@ int FASTCALL PPCheckInPersonMngr::ItemToStorage(const PPCheckInPersonItem & rIte
 	return ok;
 }
 
-//static
-int FASTCALL PPCheckInPersonMngr::StorageToItem(const ObjAssocTbl::Rec & rRec, PPCheckInPersonItem & rItem)
+/*static*/int FASTCALL PPCheckInPersonMngr::StorageToItem(const ObjAssocTbl::Rec & rRec, PPCheckInPersonItem & rItem)
 {
 	assert(sizeof(PPCheckInPersonItem_Strg) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;

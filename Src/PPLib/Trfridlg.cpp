@@ -2762,8 +2762,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 	{ RET_CMPCASCADE2(static_cast<const SelLotBrowser::Entry *>(i1), static_cast<const SelLotBrowser::Entry *>(i2), Dt, OprNo); }
 
-//static
-SArray * SLAPI SelLotBrowser::CreateArray()
+/*static*/SArray * SLAPI SelLotBrowser::CreateArray()
 {
 	SArray * p_ary = new SArray(sizeof(Entry));
 	if(!p_ary)
@@ -2771,8 +2770,7 @@ SArray * SLAPI SelLotBrowser::CreateArray()
 	return p_ary;
 }
 
-//static
-int FASTCALL SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial)
+/*static*/int FASTCALL SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial)
 {
 	int    ok = 1;
 	if(pRec && !pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
@@ -2809,8 +2807,7 @@ int FASTCALL SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec 
 	return ok;
 }
 
-//static
-int FASTCALL SelLotBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL SelLotBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(pBlk->ExtraPtr);
 	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
@@ -2918,8 +2915,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-//static
-int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int SelLotBrowser::StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(extraPtr);

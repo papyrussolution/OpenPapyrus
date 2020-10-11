@@ -43,9 +43,8 @@ SVerT SLAPI PPSession::GetMinCompatVersion() const
 // DB Exchange Config (PPDBXchgConfig)
 //
 
-//static
-const long PPObjectTransmit::DefaultPriority = 1000;
-const long PPObjectTransmit::DependedPriority = 2000;
+/*static*/const long PPObjectTransmit::DefaultPriority = 1000;
+/*static*/const long PPObjectTransmit::DependedPriority = 2000;
 
 struct RestoreStackItem {
 	PPObjID Oi;
@@ -242,8 +241,7 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 	return r;
 }
 
-//static
-int SLAPI PPObjectTransmit::IncrementCharryOutCounter()
+/*static*/int SLAPI PPObjectTransmit::IncrementCharryOutCounter()
 {
 	int    ok = 1;
 	PPDBXchgConfig cfg;
@@ -1048,8 +1046,7 @@ PPObjectTransmit::PacketStat::PacketStat() : Items(sizeof(PPObjectTransmit::Inde
 {
 }
 
-//static
-int SLAPI PPObjectTransmit::ReadFileStat(const char * pFileName, PacketStat & rStat)
+/*static*/int SLAPI PPObjectTransmit::ReadFileStat(const char * pFileName, PacketStat & rStat)
 {
 	int    ok = 1;
 	char * p_temp_buf = 0;

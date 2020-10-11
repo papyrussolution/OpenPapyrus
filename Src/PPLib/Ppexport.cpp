@@ -50,7 +50,7 @@ int SLAPI ProcessImportJob(const char * pJobName)
 {
 	int    ok = 0;
 	const  SString job_name(pJobName);
-	if(job_name.CmpPrefix("GEOCITY", 1) == 0) {
+	if(job_name.HasPrefixIAscii("GEOCITY")) {
 		SString left, right;
 		if(job_name.Divide('@', left, right) > 0)
 			ImportGeoCity(right);

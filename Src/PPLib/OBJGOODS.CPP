@@ -90,8 +90,7 @@ long SLAPI HistGoodsCore::GetNextVer(PPID goodsID)
 }
 #endif // } 0
 //
-//static
-int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
+/*static*/int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
 {
 	/*
 	const char * p_line = "OK;Пустой код;Код содержит нецифровые символы;Неверная контрольная цифра EAN13;Неверная контрольная цифра UPCA;\
@@ -107,8 +106,7 @@ int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
 	return PPGetSubStr(line_buf, diag, rBuf);
 }
 
-//static
-int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode)
+/*static*/int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode)
 {
 	int    ok = 0;
 	uint   bclen = sstrlen(pBarcode);
@@ -896,8 +894,7 @@ int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 	return ok;
 }
 
-//static
-int FASTCALL PPObjGoods::HasUndupNameSuffix(const SString & rBuf, uint * pPos)
+/*static*/int FASTCALL PPObjGoods::HasUndupNameSuffix(const SString & rBuf, uint * pPos)
 {
 	int    ok = 0;
 	size_t pos = rBuf.Len();
@@ -1959,11 +1956,9 @@ int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, 
 					goods_id = temp_grec.ParentID;
 			}
 		}
-		// @v9.6.0 {
 		else if(sgg == sggType) {
 			goods_id = (goods_rec.GoodsTypeID | GOODSSUBSTMASK);
 		}
-		// } @v9.6.0
 		else if(sgg == sggBrand)
 			goods_id = goods_rec.BrandID;
 		else if(sgg == sggBrandOwner) {
@@ -2072,7 +2067,7 @@ int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, 
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList * pGsl, SString & rBuf)
+void SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList * pGsl, SString & rBuf)
 {
 	rBuf.Z();
 	if(sgg > sggTagBias) {
@@ -2101,17 +2096,14 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 		CALLPTRMEMB(pGsl, GetLocAssocText(id, rBuf));
 	}
 	else if(oneof4(sgg, sggNone, sggGeneric, sggGroup, sggBrand) || sgg >= sggGroupSecondLvl || !(id & GOODSSUBSTMASK)) {
-		// @v9.5.5 GetGoodsName(id, rBuf);
-		FetchNameR(id, rBuf); // @v9.5.5
+		FetchNameR(id, rBuf);
 	}
-	// @v9.6.0 {
 	else if(sgg == sggType) {
 		PPObjGoodsType gt_obj;
 		PPGoodsType gt_rec;
 		if(gt_obj.Fetch(id & ~GOODSSUBSTMASK, &gt_rec) > 0)
 			rBuf = gt_rec.Name;
 	}
-	// } @v9.6.0
 	else if(sgg == sggBrandOwner) {
 		GetPersonName(id & ~GOODSSUBSTMASK, rBuf);
 	}
@@ -2132,7 +2124,7 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 			if(gc_obj.Fetch(gsitem.ClsID, &gc_pack) > 0) {
 				double val = 0.0;
 				GoodsExtTbl::Rec gext_rec;
-				MEMSZERO(gext_rec);
+				// @v10.9.0 @ctr MEMSZERO(gext_rec);
 				gext_rec.GoodsClsID = gsitem.ClsID;
 				if(sgg == sggDimX) {
 					gext_rec.X = gsitem.Par1;
@@ -2212,7 +2204,6 @@ int SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstL
 			}
 		}
 	}
-	return 1;
 }
 
 int SLAPI PPObjGoods::GetParentID(PPID id, PPID * pParentID)

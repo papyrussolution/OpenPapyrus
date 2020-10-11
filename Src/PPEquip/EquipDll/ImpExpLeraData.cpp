@@ -93,7 +93,6 @@
 #define ELEMENT_NAME_E5283		"E5283"
 #define ELEMENT_NAME_C243		"C243"
 #define ELEMENT_NAME_MOA		"MOA"
-#define ELEMENT_NAME_C516		"C516"
 #define ELEMENT_NAME_E5025		"E5025"
 #define ELEMENT_NAME_E5004		"E5004"
 #define ELEMENT_NAME_CNT		"CNT"
@@ -110,7 +109,8 @@
 #define ELEMENT_NAME_UNT		"UNT"
 #define ELEMENT_NAME_E0074		"E0074"
 #define ELEMENT_NAME_E0062		"E0062"
-#define ELEMENT_NAME_С516		"C516"
+//#define ELEMENT_NAME_C516		"C516"
+//#define ELEMENT_NAME_С516		"C516"
 #define ELEMENT_NAME_E3055		"E3055"
 #define ELEMENT_NAME_E9321		"E9321"
 #define ELEMENT_NAME_E4451		"E4451"
@@ -229,9 +229,6 @@
 #define SYSLOG_PARSEAPERAKRESP			"in ParseAperakResp()"
 
 #define LOG_NOINCOMDOC					"Нет входящих сообщений"
-
-class ExportCls;
-class ImportCls;
 
 class ExportCls;
 class ImportCls;
@@ -380,8 +377,7 @@ void GetErrorMsg(SString & rMsg)
 			break;
 		}
 	}
-	if((ErrorCode == IEERR_FTP) || (ErrorCode == IEERR_IMPFILENOTFOUND) || (ErrorCode == IEERR_INVMESSAGEYTYPE) || (ErrorCode  == IEERR_NOCFGFORGLN)
-		|| (ErrorCode == IEERR_MSGSYMBNOTFOUND))
+	if(oneof5(ErrorCode, IEERR_FTP, IEERR_IMPFILENOTFOUND, IEERR_INVMESSAGEYTYPE, IEERR_NOCFGFORGLN, IEERR_MSGSYMBNOTFOUND))
 		str.Cat(StrError);
 	rMsg.Z().CopyFrom(str);
 }
@@ -450,10 +446,10 @@ class ImportExportCls {
 public:
 	ImportExportCls() 
 	{
-	};
+	}
 	~ImportExportCls() 
 	{
-	};
+	}
 	void CleanHeader();
 
 	Sdr_ImpExpHeader Header;
@@ -1122,7 +1118,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
             // Вообще суммы по товарной позиции для RECADV в стандарте не прописаны, но пока включим их в документ
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_MOA); // Сумма товарной позиции с НДС
 				SegNum++;
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_C516);
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы товарной позиции
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E5025_128); //	Идентификатор суммы товарной позиции с НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
@@ -1134,7 +1130,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 			xmlTextWriterEndElement(P_XmlWriter); //MOA
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_MOA); // Сумма товарной позиции без НДС
 				SegNum++;
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_C516);
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы товарной позиции
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E5025_203); //	Идентификатор суммы товарной позиции без НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
@@ -1255,7 +1251,7 @@ int ExportCls::EndDoc()
 			xmlTextWriterEndElement(P_XmlWriter); //UNS
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_MOA); // Сумма заказа с НДС
 				SegNum++;
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_С516);
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E5025_9); // Сумма документа с НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
@@ -1267,7 +1263,7 @@ int ExportCls::EndDoc()
 			xmlTextWriterEndElement(P_XmlWriter); //MOA
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_MOA); // Сумма заказа без НДС
 				SegNum++;
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_С516);
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E5025_98); // Сумма документа без НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
@@ -1988,7 +1984,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 				str = PTRCHRC_(p_node->children->content);
 				ok = 1;
 			}
-			else if(sstreq(PTRCHRC_(p_node->name), ELEMENT_NAME_C516) && p_node->children && (p_node->children->type == XML_READER_TYPE_ELEMENT)) {
+			else if(sstreq(PTRCHRC_(p_node->name), "C516") && p_node->children && (p_node->children->type == XML_READER_TYPE_ELEMENT)) {
 				p_node = p_node->children; // <E5025>
 				if(p_node && sstreq(PTRCHRC_(p_node->name), ELEMENT_NAME_E5025) && p_node->children) {
 					// Запомним значение текущего элемента
@@ -2179,7 +2175,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 									else
 										strcpy(pBRow->UnitName, UNIT_NAME_PIECE);
 								}
-								else if(sstreq(PTRCHRC_(p_node->name), ELEMENT_NAME_C516) && p_node->children && (p_node->children->type == XML_READER_TYPE_ELEMENT)) {
+								else if(sstreq(PTRCHRC_(p_node->name), "C516") && p_node->children && (p_node->children->type == XML_READER_TYPE_ELEMENT)) {
 									p_node = p_node->children; // <E5025>
 									if(sstreq(PTRCHRC_(p_node->name), ELEMENT_NAME_E5025) && p_node->children) {
 										// Запомним значение текущего элемента

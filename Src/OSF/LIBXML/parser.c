@@ -12707,14 +12707,14 @@ void xmlInitParser()
 	xmlInitGlobals();
 	if(xmlGenericError == xmlGenericErrorDefaultFunc || !xmlGenericError)
 		initGenericErrorDefaultFunc(NULL);
-	xmlInitMemory();
-	xmlInitializeDict();
+	// @v10.9.0 xmlInitMemory();
+	// @v10.9.0 (depricated) xmlInitializeDict();
 	xmlInitCharEncodingHandlers();
 	xmlDefaultSAXHandlerInit();
 	xmlRegisterDefaultInputCallbacks();
 #ifdef LIBXML_OUTPUT_ENABLED
 	xmlRegisterDefaultOutputCallbacks();
-#endif /* LIBXML_OUTPUT_ENABLED */
+#endif
 #ifdef LIBXML_HTML_ENABLED
 	htmlInitAutoClose();
 	htmlDefaultSAXHandlerInit();
@@ -12727,8 +12727,8 @@ void xmlInitParser()
 #endif
 	xmlParserInitialized = 1;
 #ifdef LIBXML_THREAD_ENABLED
-}
-__xmlGlobalInitMutexUnlock();
+	}
+	__xmlGlobalInitMutexUnlock();
 #endif
 }
 
@@ -12772,7 +12772,7 @@ void xmlCleanupParser()
 		xmlResetLastError();
 		xmlCleanupGlobals();
 		xmlCleanupThreads(); // must be last if called not from the main thread
-		xmlCleanupMemory();
+		// @v10.9.0 xmlCleanupMemory();
 		xmlParserInitialized = 0;
 	}
 }

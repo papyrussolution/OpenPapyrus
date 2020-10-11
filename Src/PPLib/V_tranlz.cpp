@@ -3945,8 +3945,7 @@ int SLAPI PrcssrAlcReport::Init()
 	return ok;
 }
 
-//static
-int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
+/*static*/int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
 {
 	int    ok = -1;
 	SString name_buf;

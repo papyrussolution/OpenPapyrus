@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -59,7 +59,6 @@ int SCardSelPrcssrParam::Validate(PPID srcSeriesID)
 	}
 	THROW_PP_S((FlagsSet   & ~valid_flags) == 0, PPERR_INVSCARDFLAGS, msg_buf.Z().CatHex(FlagsSet));
 	THROW_PP_S((FlagsReset & ~valid_flags) == 0, PPERR_INVSCARDFLAGS, msg_buf.Z().CatHex(FlagsReset));
-
 	for(uint i = 0; i < 32; i++) {
 		const long t = (1 << i);
 		if(t & valid_flags) {
@@ -658,33 +657,32 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 			if(addr_id && PsnObj.LocObj.Search(addr_id, &loc_rec) > 0) {
 				LocationCore::GetAddress(loc_rec, 0, temp_buf);
 				if(temp_buf.NotEmptyS()) {
-					//temp_buf.CopyTo(pDestRec->Address, sizeof(pDestRec->Address));
-					StrPool.AddS(temp_buf, &pDestRec->AddressP); // @v9.8.9
+					StrPool.AddS(temp_buf, &pDestRec->AddressP);
 					Las.Recognize(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 					if(Las.GetText(PPLocAddrStruc::tZip, temp_buf)) {
-						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->ZIP, sizeof(pDestRec->ZIP));
-						StrPool.AddS(result_buf, &pDestRec->ZipP); // @v9.8.9
+						temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+						StrPool.AddS(result_buf, &pDestRec->ZipP);
 					}
 					if(Las.GetText(PPLocAddrStruc::tLocalArea, temp_buf)) {
 						result_buf.Z();
 						if(Las.GetText(PPLocAddrStruc::tLocalAreaKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->LocalArea, sizeof(pDestRec->LocalArea));
-						StrPool.AddS(result_buf, &pDestRec->LocalAreaP); // @v9.8.9
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER);
+						StrPool.AddS(result_buf, &pDestRec->LocalAreaP);
 					}
 					if(Las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
 						result_buf.Z();
 						if(Las.GetText(PPLocAddrStruc::tCityKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->City, sizeof(pDestRec->City));
-						StrPool.AddS(result_buf, &pDestRec->CityP); // @v9.8.9
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER);
+						StrPool.AddS(result_buf, &pDestRec->CityP);
 					}
 					if(Las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
 						result_buf.Z();
 						if(Las.GetText(PPLocAddrStruc::tStreetKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->Street, sizeof(pDestRec->Street));
-						StrPool.AddS(result_buf, &pDestRec->StreetP); // @v9.8.9
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER);
+						StrPool.AddS(result_buf, &pDestRec->StreetP);
 					}
 					if(Las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
 						result_buf.Z();
@@ -697,19 +695,19 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 								result_buf.Cat(temp_buf2).Space();
 							result_buf.Cat(temp_buf);
 						}
-						result_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->House, sizeof(pDestRec->House));
-						StrPool.AddS(result_buf, &pDestRec->HouseP); // @v9.8.9
+						result_buf.Transf(CTRANSF_OUTER_TO_INNER);
+						StrPool.AddS(result_buf, &pDestRec->HouseP);
 					}
 					if(Las.GetText(PPLocAddrStruc::tApart, temp_buf)) {
 						result_buf.Z();
 						if(Las.GetText(PPLocAddrStruc::tApartKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->Apart, sizeof(pDestRec->Apart));
-						StrPool.AddS(result_buf, &pDestRec->ApartP); // @v9.8.9
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER);
+						StrPool.AddS(result_buf, &pDestRec->ApartP);
 					}
 					if(Las.GetText(PPLocAddrStruc::tAddendum, temp_buf)) {
-						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->AddrAddend, sizeof(pDestRec->AddrAddend));
-						StrPool.AddS(temp_buf, &pDestRec->AddrAddendP); // @v9.8.9
+						temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+						StrPool.AddS(temp_buf, &pDestRec->AddrAddendP);
 					}
 				}
 			}
@@ -774,7 +772,6 @@ int SLAPI PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, Te
 			sprintf(ord_rec.Name, p_fmt, large_val-pRec->PDis);
 		else if(ord == OrdByTrnovr)
 			sprintf(ord_rec.Name, p_fmt, large_val-pRec->Turnover);
-		// @v8.4.2 {
 		else if(ord == OrdByExpiry) {
 			GetPersonName(pRec->PersonID, psn_name);
 			temp_buf.Z();
@@ -784,7 +781,6 @@ int SLAPI PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, Te
 				temp_buf.CatCharN('0', 8);
 			temp_buf.Cat(psn_name).CopyTo(ord_rec.Name, sizeof(ord_rec.Name));
 		}
-		// } @v8.4.2
 		ASSIGN_PTR(pOrdRec, ord_rec);
 		ok = 1;
 	}
@@ -877,7 +873,7 @@ int SLAPI PPViewSCard::InitIteration()
 				dbq = & (*dbq && p_c->PersonID == 0L);
 			else
 				dbq = ppcheckfiltid(dbq, p_c->PersonID, Filt.PersonID);
-			dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID); // @v9.4.5
+			dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID);
 			dbq = & (*dbq && realrange(p_c->PDis, Filt.PDisR.low, Filt.PDisR.upp));
 			dbq = & (*dbq && realrange(p_c->Turnover, Filt.TurnoverR.low, Filt.TurnoverR.upp));
 			P_IterQuery->selectAll().where(*dbq);
@@ -920,7 +916,7 @@ int FASTCALL PPViewSCard::NextIteration(SCardViewItem * pItem)
 		}
 		if(r > 0 && CheckForFilt(&rec, 0)) {
 			if(pItem) {
-				*((SCardTbl::Rec *)pItem) = rec;
+				*static_cast<SCardTbl::Rec *>(pItem) = rec;
 				pItem->EmployerID = 0;
 				if(pItem->PersonID && !(Filt.Flags & SCardFilt::fNoEmployer)) {
 					PersonPostArray post_list;
@@ -1094,7 +1090,7 @@ IMPL_HANDLE_EVENT(SCardFiltDialog)
 		SCardFilt eosc_filt;
 		if(Data.P_ExludeOwnerF)
 			eosc_filt = *Data.P_ExludeOwnerF;
-		eosc_filt.Flags |= SCardFilt::fInnerFilter; // @v8.4.3
+		eosc_filt.Flags |= SCardFilt::fInnerFilter;
 		if(Helper_EditSCardFilt(&eosc_filt, 1) > 0) {
 			SETIFZ(Data.P_ExludeOwnerF, new SCardFilt);
 			ASSIGN_PTR(Data.P_ExludeOwnerF, eosc_filt);
@@ -1116,20 +1112,15 @@ void SCardFiltDialog::SetupCtrls()
 		SetupPerson(series);
 	}
 	disableCtrl(CTLSEL_SCARDFLT_PERSON, BIN(Data.Flags & SCardFilt::fWoOwner));
-	enableCommand(cmExcludeOwnerScFilt, BIN(!(Data.Flags & SCardFilt::fInnerFilter))); // @v8.4.3
-	disableCtrl(CTL_SCARDFLT_ORD, BIN(Data.Flags & SCardFilt::fInnerFilter)); // @v8.4.3
+	enableCommand(cmExcludeOwnerScFilt, BIN(!(Data.Flags & SCardFilt::fInnerFilter)));
+	disableCtrl(CTL_SCARDFLT_ORD, BIN(Data.Flags & SCardFilt::fInnerFilter));
 }
 
 void SCardFiltDialog::SetupPerson(PPID series)
 {
-	PPID   psn_kind_id = Data.GetOwnerPersonKind(); // @v9.8.0
-	/* @v9.8.0
-	PPSCardSerPacket pack;
-	if(series && ObjSCardSer.GetPacket(series, &pack) > 0)
-		psn_kind_id = pack.Rec.PersonKindID;
-	*/
+	PPID   psn_kind_id = Data.GetOwnerPersonKind();
 	SETIFZ(psn_kind_id, PPPRK_CLIENT);
-	SetupPersonCombo(this, CTLSEL_SCARDFLT_PERSON, Data.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0); // @v9.8.0 -OLW_LOADDEFONOPEN
+	SetupPersonCombo(this, CTLSEL_SCARDFLT_PERSON, Data.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
 }
 
 int SLAPI Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)
@@ -1236,7 +1227,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 	int    ok = -1;
 	uint   replace_trnovr = 1;
 	CALLPTRMEMB(pIdList, freeAll());
-	if(/*Filt.SeriesID*/SeriesList.GetSingle() && SelectorDialog(DLG_RENMDUPLSC, CTL_RENMDUPLSC_FLAGS, &replace_trnovr) > 0) {
+	if(SeriesList.GetSingle() && SelectorDialog(DLG_RENMDUPLSC, CTL_RENMDUPLSC_FLAGS, &replace_trnovr) > 0) {
 		SCardTbl::Key1 k1;
 		LAssocArray dupl_ary;
 		SCardViewItem item;
@@ -2829,7 +2820,7 @@ int SLAPI PPViewSCardOp::AddItem(int freezing)
 			if(freezing)
 				blk.Flags |= SCardCore::OpBlock::fFreezing;
 			while(ok <= 0 && EditSCardOp(blk) > 0) {
-				TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
+				TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 				if(SCObj.PutUhttOp(Filt.SCardID, blk.Amount) != 0 && SCObj.P_Tbl->PutOpBlk(blk, &urn_list, 1)) {
 #ifndef NDEBUG
 					SCObj.FinishSCardUpdNotifyList(urn_list);
@@ -2950,17 +2941,15 @@ DBQuery * SLAPI PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 
 int SLAPI PPViewSCardOp::Recover()
 {
-	int    ok = -1;
-	SCardOpTbl & t = SCObj.P_Tbl->ScOp;
-	CCheckCore & r_cc = *SCObj.P_CcTbl;
-
-	struct FaultItem {
+	struct FaultItem { // @flat
 		PPID   CCheckID;
 		PPID   SCardID;
 		LDATETIME Dtm;
 	};
-
-	SArray fault_list(sizeof(FaultItem));
+	int    ok = -1;
+	SCardOpTbl & t = SCObj.P_Tbl->ScOp;
+	CCheckCore & r_cc = *SCObj.P_CcTbl;
+	SVector fault_list(sizeof(FaultItem)); // @v10.9.0 SArray-->SVector
 	PPLogger logger;
 	SString msg_buf, fmt_buf, temp_buf;
 	SCardOpTbl::Key0 k0;
@@ -2998,13 +2987,13 @@ int SLAPI PPViewSCardOp::Recover()
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint i = 0; i < flc; i++) {
-				const FaultItem & r_item = *(FaultItem *)fault_list.at(i);
-				if(i == 0 || r_item.CCheckID != ((FaultItem *)fault_list.at(i-1))->CCheckID) {
+				const FaultItem & r_item = *static_cast<const FaultItem *>(fault_list.at(i));
+				if(i == 0 || r_item.CCheckID != static_cast<const FaultItem *>(fault_list.at(i-1))->CCheckID) {
 					THROW(SCObj.P_Tbl->RemoveOpByCheck(r_item.CCheckID, 0));
 					{
 						CCheckPacket cc_pack;
 						THROW(r_cc.LoadPacket(r_item.CCheckID, 0, &cc_pack) > 0);
-						THROW(r_cc.TurnSCardPayment(&cc_pack, CCheckCore::tscpfSkipUhtt|CCheckCore::tscpfCorrection, 0));
+						THROW(r_cc.TurnSCardPayment(&cc_pack, CCheckCore::tscpfSkipScSpcTrt|CCheckCore::tscpfCorrection, 0));
 					}
 				}
 				PPWaitPercent(i, flc);
@@ -3044,7 +3033,7 @@ int SLAPI PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						SCardCore::OpBlock blk;
 						if(p_hdr->SCardID && SCObj.P_Tbl->GetOp(p_hdr->SCardID, p_hdr->Dtm, &blk) > 0)
 							for(int valid = 0; !valid && EditSCardOp(blk) > 0;) {
-								TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
+								TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 								if(SCObj.P_Tbl->PutOpBlk(blk, &urn_list, 1)) {
 									SCObj.FinishSCardUpdNotifyList(urn_list);
 									ok = valid = 1;

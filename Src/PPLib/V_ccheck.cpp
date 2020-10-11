@@ -1418,11 +1418,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						case CCheckFilt::gGoodsDate:
 						case CCheckFilt::gGoodsDateSerial: // @v10.2.6
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf));
+								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf);
 							}
 							else {
-								// @v9.5.5 GetGoodsName(rec.GoodsID, temp_buf);
-								GdsObj.FetchNameR(rec.GoodsID, temp_buf); // @v9.5.5
+								GdsObj.FetchNameR(rec.GoodsID, temp_buf);
 							}
 							break;
 						case CCheckFilt::gGuestCount: // @fallthrough
@@ -1465,12 +1464,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								GetArticleName(rec.CashID, temp_buf);
 							else
 								PPGetWord(PPWORD_AGENTNOTDEF, 0, temp_buf);
-							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
-							}
-							else {
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
+								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+							else
 								GdsObj.FetchNameR(rec.GoodsID, goods_name);
-							}
 							temp_buf.CatDiv('-', 1).Cat(goods_name);
 							break;
 						case CCheckFilt::gAgentGoodsSCSer:
@@ -1478,9 +1475,8 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								GetArticleName(rec.CashID, temp_buf);
 							else
 								PPGetWord(PPWORD_AGENTNOTDEF, 0, temp_buf);
-							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
-							}
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
+								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
 								GdsObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDiv('-', 1).Cat(goods_name);
@@ -1495,23 +1491,17 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								GetPersonName(rec.CashID, temp_buf);
 							else
 								temp_buf.Z();
-							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
-							}
-							else {
-								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
-								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
-							}
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
+								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+							else
+								GdsObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
 						case CCheckFilt::gGoodsSCSer:
-							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
-							}
-							else {
-								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
-								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
-							}
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
+								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+							else
+								GdsObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf = goods_name;
 							if(rec.CashID) {
 								PPSCardSeries sc_rec;
@@ -1528,21 +1518,18 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								temp_buf.CatCharN('.', 2);
 								temp_buf.Cat(upp, MKSFMTD(0, prec, NMBF_NOTRAILZ));
 							}
-							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
-							}
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
+								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
 								GdsObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
 						// @erik v10.5.2{
 						case CCheckFilt::gGoodsCard:
-							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
-							}
-							else {
+							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
+								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+							else
 								GdsObj.FetchNameR(rec.GoodsID, goods_name);
-							}
 							temp_buf = goods_name;
 							SCardTbl::Rec crd_rec;
 							if(ScObj.Fetch(rec.SCardID, &crd_rec) > 0) {

@@ -1568,25 +1568,25 @@ int ImportCls::ParseFileName(const char * pFileName, PPEdiMessageEntry * pEntry)
     SPathStruc ps(pFileName);
     pEntry->EdiOp = 0;
 	if(ps.Nam.Divide('_', left, right) > 0) {
-		if(left.CmpNC("OrdRsp") == 0)
+		if(left.IsEqiAscii("OrdRsp"))
 			pEntry->EdiOp = PPEDIOP_ORDERRSP;
-		else if(left.CmpNC("Desadv") == 0)
+		else if(left.IsEqiAscii("Desadv"))
 			pEntry->EdiOp = PPEDIOP_DESADV;
-		else if(left.CmpNC("Aperak") == 0)
+		else if(left.IsEqiAscii("Aperak"))
 			pEntry->EdiOp = PPEDIOP_APERAK;
-		else if(left.CmpNC("alcodesadv") == 0 || left.CmpNC("alcrpt") == 0 || left.CmpNC("alcdes") == 0)
+		else if(left.IsEqiAscii("alcodesadv") || left.IsEqiAscii("alcrpt") || left.IsEqiAscii("alcdes"))
 			pEntry->EdiOp = PPEDIOP_ALCODESADV;
 		pEntry->Uuid.FromStr(right);
 		STRNSCPY(pEntry->SId, pFileName);
 	}
 	else {
-		if(left.CmpPrefix("ordrsp", 1) == 0)
+		if(left.HasPrefixIAscii("ordrsp"))
 			pEntry->EdiOp = PPEDIOP_ORDERRSP;
-		else if(left.CmpPrefix("Desadv", 1) == 0)
+		else if(left.HasPrefixIAscii("Desadv"))
 			pEntry->EdiOp = PPEDIOP_DESADV;
-		else if(left.CmpPrefix("Aperak", 1) == 0)
+		else if(left.HasPrefixIAscii("Aperak"))
 			pEntry->EdiOp = PPEDIOP_APERAK;
-		else if(left.CmpPrefix("alcodesadv", 1) == 0 || left.CmpPrefix("alcrpt", 1) == 0 || left.CmpPrefix("alcdes", 1) == 0)
+		else if(left.HasPrefixIAscii("alcodesadv") || left.HasPrefixIAscii("alcrpt") || left.HasPrefixIAscii("alcdes"))
 			pEntry->EdiOp = PPEDIOP_ALCODESADV;
 	}
 	if(pEntry->EdiOp) {

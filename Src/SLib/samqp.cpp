@@ -1712,7 +1712,8 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				m->nowait    = BIN(bit_buffer & (1 << 3));
 				{
 					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
-					if(res < 0) return res;
+					if(res < 0) 
+						return res;
 				}
 				*decoded = m;
 				return 0;

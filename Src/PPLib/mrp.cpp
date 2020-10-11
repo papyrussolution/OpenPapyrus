@@ -1168,8 +1168,7 @@ int SLAPI PPObjMrpTab::AddIndep(MrpTabPacket * pMrpPack, PPID tabID, PPID goodsI
 	return pMrpPack->AddLine__(tabID, goodsID, MRPSRCV_TOTAL, req, 0, price, lflags);
 }
 
-// static
-int SLAPI PPObjMrpTab::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest)
+/*static*/int SLAPI PPObjMrpTab::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest)
 {
 	*pRest = 0;
 	const  double ignore_epsilon = BillCore::GetQttyEpsilon();

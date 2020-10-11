@@ -333,39 +333,38 @@ void FASTCALL xmlRMutexLock(xmlRMutex * tok)
  */
 void FASTCALL xmlRMutexUnlock(xmlRMutex * tok ATTRIBUTE_UNUSED)
 {
-	if(tok == NULL)
-		return;
+	if(tok) {
 #ifdef HAVE_PTHREAD_H
-	if(libxml_is_threaded == 0)
-		return;
-	pthread_mutex_lock(&tok->lock);
-	tok->held--;
-	if(tok->held == 0) {
-		if(tok->waiters)
-			pthread_cond_signal(&tok->cv);
-		MEMSZERO(tok->tid);
-	}
-	pthread_mutex_unlock(&tok->lock);
-#elif defined HAVE_WIN32_THREADS
-	if(tok->count > 0) {
-		LeaveCriticalSection(&tok->cs);
-		tok->count--;
-	}
-#elif defined HAVE_BEOS_THREADS
-	if(tok->lock->tid == find_thread(NULL)) {
-		tok->count--;
-		if(tok->count == 0) {
-			xmlMutexUnlock(tok->lock);
+		if(libxml_is_threaded == 0)
+			return;
+		pthread_mutex_lock(&tok->lock);
+		tok->held--;
+		if(tok->held == 0) {
+			if(tok->waiters)
+				pthread_cond_signal(&tok->cv);
+			MEMSZERO(tok->tid);
 		}
-		return;
-	}
+		pthread_mutex_unlock(&tok->lock);
+#elif defined HAVE_WIN32_THREADS
+		if(tok->count > 0) {
+			LeaveCriticalSection(&tok->cs);
+			tok->count--;
+		}
+#elif defined HAVE_BEOS_THREADS
+		if(tok->lock->tid == find_thread(NULL)) {
+			tok->count--;
+			if(tok->count == 0) {
+				xmlMutexUnlock(tok->lock);
+			}
+			return;
+		}
 #endif
+	}
 }
 /**
  * xmlGlobalInitMutexLock
  *
- * Makes sure that the global initialization mutex is initialized and
- * locks it.
+ * Makes sure that the global initialization mutex is initialized and locks it.
  */
 void __xmlGlobalInitMutexLock()
 {

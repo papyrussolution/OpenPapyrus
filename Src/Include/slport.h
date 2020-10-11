@@ -10,6 +10,7 @@
 //
 #ifndef __SLPORT_H // {
 #define __SLPORT_H
+#include <cxx_detect.h> // @v10.9.0
 //
 // Идентификация разрядности компилируемого кода
 // 

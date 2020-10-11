@@ -46,10 +46,6 @@ int SLAPI PPQuotKind2::GetTimeRange(TimeRange & rRange) const
 	}
 	if(rRange.upp == 0 && rRange.low)
 		rRange.upp = MAXDAYTIMESEC;
-	/* @v7.0.6
-	if(rRange.low > rRange.upp)
-		memswap(&rRange.low, &rRange.upp, sizeof(rRange.low));
-	*/
 	return (rRange.low || rRange.upp) ? 1 : -1;
 }
 
@@ -196,8 +192,7 @@ int FASTCALL PPObjQuotKind::Special::GetCategory(PPID qkID) const
 		return PPQC_PRICE;
 }
 
-//static
-PPID SLAPI PPObjQuotKind::GetDefaultAccSheetID(int cls)
+/*static*/PPID SLAPI PPObjQuotKind::GetDefaultAccSheetID(int cls)
 {
 	return (cls == PPQuot::clsSupplDeal) ? GetSupplAccSheet() : ((cls == PPQuot::clsGeneral) ? GetSellAccSheet() : 0);
 }
@@ -1355,8 +1350,7 @@ int SLAPI PPObjQuotKind::FetchBySymb(const char * pSymb, PPID * pID)
 	}
 }
 
-//static
-int FASTCALL PPObjQuotKind::GetSpecialKinds(Special * pRec, int useCache)
+/*static*/int FASTCALL PPObjQuotKind::GetSpecialKinds(Special * pRec, int useCache)
 {
 	if(useCache) {
 		QuotKindCache * p_cache = GetDbLocalCachePtr <QuotKindCache> (PPOBJ_QUOTKIND);

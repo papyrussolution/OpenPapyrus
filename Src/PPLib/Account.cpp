@@ -742,10 +742,8 @@ SEnumImp * SLAPI AcctRel::Enum(int keyN, PPID keyID)
 	return p_enum;
 }
 
-SEnumImp * SLAPI AcctRel::EnumByAcc(PPID accID)
-	{ return Enum(1, accID); }
-SEnumImp * SLAPI AcctRel::EnumByArticle(PPID arID)
-	{ return Enum(2, arID); }
+SEnumImp * SLAPI AcctRel::EnumByAcc(PPID accID) { return Enum(1, accID); }
+SEnumImp * SLAPI AcctRel::EnumByArticle(PPID arID) { return Enum(2, arID); }
 //
 //
 //

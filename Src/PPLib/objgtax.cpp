@@ -932,8 +932,7 @@ int SLAPI PPObjGoodsTax::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoodsTax, PPGoodsTaxPacket);
 
-//static
-int SLAPI PPObjGoodsTax::ReplaceGoodsTaxGrp()
+/*static*/int SLAPI PPObjGoodsTax::ReplaceGoodsTaxGrp()
 {
 	int    ok = -1;
 	PPID   src_id = 0, dest_id = 0;

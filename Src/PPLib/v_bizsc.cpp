@@ -103,11 +103,11 @@ int SLAPI PPBizScTemplPacket::RemoveCol(uint pos)
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSArray <PPBizScTemplCell> * pCells)
+int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSVector <PPBizScTemplCell> * pCells)
 {
 	int    ok = -1;
 	uint   count = Cols.getCount();
-	TSArray <PPBizScTemplCol> cols;
+	TSVector <PPBizScTemplCol> cols;
 	PPBizScTemplRow row;
 	if(colId > 0) {
 		PPBizScTemplCol col;
@@ -125,7 +125,7 @@ int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSArr
 	if(GetRow(rowId, 0, &row) > 0) {
 		for(uint c = 0; c < count; c++) {
 			PPBizScTemplCell cell;
-			TSArray <PPBizScTemplCell> cell_list;
+			TSVector <PPBizScTemplCell> cell_list;
 			MEMSZERO(cell);
 			if(GetCellList(cols.at(c).Id, rowId, &cell_list) > 0 && cell_list.getCount())
 				cell = cell_list.at(0);
@@ -141,7 +141,7 @@ int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSArr
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSArray <PPBizScTemplCell> * pCells)
+int SLAPI PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSVector <PPBizScTemplCell> * pCells)
 {
 	int    ok = -1;
 	uint count = Cells.getCount();
@@ -242,7 +242,7 @@ int SLAPI PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * 
 	MEMSZERO(row);
 	rValList.freeAll();
 	if(pBizScTbl && GetRow(rowId, 0, &row) > 0) {
-		TSArray <PPBizScTemplCell> cell_list;
+		TSVector <PPBizScTemplCell> cell_list;
 		if(GetCellListInclEmpty(colId, row.Id, &cell_list) > 0 && cell_list.getCount()) {
 			DL2_Resolver resolver;
 			PPBizScTemplCell * p_cell = 0;
@@ -250,7 +250,6 @@ int SLAPI PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * 
 				PPID score_id = 0L;
 				SString str_val, formula;
 				PPBizScTemplCol col;
-
 				MEMSZERO(col);
 				score_id = p_cell->BizScId;
 				formula = p_cell->Formula;
@@ -259,7 +258,6 @@ int SLAPI PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * 
 					DateRange period;
 					BizScoreTbl::Key0 k0;
 					BExtQuery q(pBizScTbl, 0, 8);
-
 					MEMSZERO(k0);
 					period.Set(col.DtLow, col.DtUp);
 					period.Actualize(ZERODATE);
@@ -341,12 +339,13 @@ int SLAPI PPObjBizScTempl::PutPacket(PPID * pID, PPBizScTemplPacket * pPack, int
 }
 
 class BizScTemplColDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBizScTemplCol);
 public:
 	BizScTemplColDialog() : TDialog(DLG_BIZSCTI)
 	{
 		SetupCalPeriod(CTLCAL_BIZSCTI_PERIOD, CTL_BIZSCTI_PERIOD);
 	}
-	int    setDTS(const PPBizScTemplCol * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
@@ -354,7 +353,7 @@ public:
 		AddClusterAssocDef(CTL_BIZSCTI_TYPE, 0, PPBizScTemplCol::tDate);
 		AddClusterAssoc(CTL_BIZSCTI_TYPE, 1, PPBizScTemplCol::tPeriod);
 		AddClusterAssoc(CTL_BIZSCTI_TYPE, 2, PPBizScTemplCol::tPeriodChange);
-		SetClusterData(CTL_BIZSCTI_TYPE, (long)Data.Type);
+		SetClusterData(CTL_BIZSCTI_TYPE, static_cast<long>(Data.Type));
 		AddClusterAssoc(CTL_BIZSCTI_FLAGS, 0, PPBizScTemplCol::fInvisible);
 		SetClusterData(CTL_BIZSCTI_FLAGS, Data.Flags);
 		{
@@ -364,7 +363,7 @@ public:
 		}
 		return 1;
 	}
-	int    getDTS(PPBizScTemplCol * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		long   v = 0;
@@ -388,7 +387,6 @@ private:
 			clearEvent(event);
 		}
 	}
-	PPBizScTemplCol Data;
 };
 
 static int SLAPI TestFormula(PPID bizScId, const char * pFormula, PPObjBizScore * pObj, SString & rResult)
@@ -520,6 +518,7 @@ private:
 };
 
 class BizScTemplDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPBizScTemplPacket);
 public:
 	BizScTemplDialog() : PPListDialog(DLG_BIZSCT, CTL_BIZSCT_LIST)
 	{
@@ -529,8 +528,28 @@ public:
 		setSmartListBoxOption(CTL_BIZSCT_ROWS, lbtSelNotify);
 		setSmartListBoxOption(CTL_BIZSCT_LIST, lbtSelNotify);
 	}
-	int setDTS(const PPBizScTemplPacket * pData);
-	int getDTS(PPBizScTemplPacket * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		disableCtrl(CTL_BIZSCT_ID, 1);
+		setCtrlData(CTL_BIZSCT_ID, &Data.Rec.ID);
+		setCtrlString(CTL_BIZSCT_NAME, SString(Data.Rec.Name));
+		setCtrlString(CTL_BIZSCT_SYMB, SString(Data.Rec.Symb));
+		updateList(-1);
+		UpdateList(CTL_BIZSCT_ROWS);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlData(CTL_BIZSCT_NAME, Data.Rec.Name);
+		THROW_PP(sstrlen(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
+		getCtrlData(CTL_BIZSCT_SYMB, Data.Rec.Symb);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOK
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
@@ -555,7 +574,6 @@ private:
 	} Item_;
 
 	long SelColId;
-	PPBizScTemplPacket Data;
 	PPObjBizScore BizScObj;
 };
 
@@ -571,7 +589,7 @@ int BizScTemplDialog::UpdateList(uint ctlList)
 int BizScTemplDialog::moveItem(long pos, long id, int up)
 {
 	int    ok = -1;
-	SArray * p_list = 0;
+	SVector * p_list = 0;
 	if(GetSelList() == CTL_BIZSCT_LIST)
 		p_list = &Data.Cols;
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
@@ -600,7 +618,7 @@ int BizScTemplDialog::EditCell()
 	GetCurItem(CTL_BIZSCT_LIST, 0, &col_id);
 	GetCurItem(CTL_BIZSCT_ROWS, 0, &row_id);
 	if(col_id) {
-		TSArray <PPBizScTemplCell> cell_list;
+		TSVector <PPBizScTemplCell> cell_list;
 		Data.GetCellListInclEmpty(col_id, row_id, &cell_list);
 		if(cell_list.getCount()) {
 			cell = cell_list.at(0);
@@ -626,7 +644,7 @@ int BizScTemplDialog::SetupCellInfo()
 {
 	long   col_id = 0L, row_id = 0L, col_pos = 0L, row_pos = 0L;
 	SString text, empty_word;
-	TSArray <PPBizScTemplCell> cell_list;
+	TSVector <PPBizScTemplCell> cell_list;
 	GetCurItem(CTL_BIZSCT_LIST, &col_pos, &col_id);
 	GetCurItem(CTL_BIZSCT_ROWS, &row_pos, &row_id);
 	Data.GetCellListInclEmpty(col_id, row_id, &cell_list);
@@ -693,9 +711,9 @@ int BizScTemplDialog::GetCurItem(uint ctlList, long * pPos, long * pID)
 int BizScTemplDialog::setupList()
 {
 	int    ok = 1;
-	long row_id = 0L;
-	SArray * p_list = 0;
-	TSArray <PPBizScTemplCell> cell_list;
+	long   row_id = 0L;
+	SVector * p_list = 0;
+	TSVector <PPBizScTemplCell> cell_list;
 	SString types;
 	PPLoadText(PPTXT_BIZSCTI_TYPESTEXT, types);
 	if(GetSelList() == CTL_BIZSCT_LIST) {
@@ -712,7 +730,7 @@ int BizScTemplDialog::setupList()
 		temp_buf.Z().Cat(i + 1);
 		ss.add(temp_buf);
 		if(GetSelList() == CTL_BIZSCT_LIST) {
-			PPBizScTemplCol * p_item = (PPBizScTemplCol*)p_list->at(i);
+			PPBizScTemplCol * p_item = static_cast<PPBizScTemplCol *>(p_list->at(i));
 			id = p_item->Id;
 			ss.add(temp_buf = p_item->Name);
 			PPGetSubStr(types, p_item->Type, temp_buf.Z());
@@ -736,7 +754,7 @@ int BizScTemplDialog::setupList()
 			ss.add(temp_buf);
 		}
 		else if(GetSelList() == CTL_BIZSCT_ROWS) {
-			PPBizScTemplRow * p_item = (PPBizScTemplRow*)p_list->at(i);
+			PPBizScTemplRow * p_item = static_cast<PPBizScTemplRow *>(p_list->at(i));
 			id = p_item->Id;
 			temp_buf = p_item->Name;
 			ss.add(temp_buf);
@@ -758,12 +776,12 @@ int BizScTemplDialog::setupList()
 TDialog * BizScTemplDialog::GetItemDialog(long itemPos, int edit)
 {
 	TDialog * p_dlg = 0;
-	SArray * p_list = 0;
+	SVector * p_list = 0;
 	if(GetSelList() == CTL_BIZSCT_LIST)
 		p_list = &Data.Cols;
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
 		p_list = &Data.Rows;
-	if(!edit || edit && itemPos >= 0 && itemPos < (long)p_list->getCount()) {
+	if(!edit || edit && itemPos >= 0 && itemPos < p_list->getCountI()) {
 		if(GetSelList() == CTL_BIZSCT_LIST) {
 			p_dlg = new BizScTemplColDialog;
 			MEMSZERO(Item_.Col);
@@ -822,7 +840,7 @@ int BizScTemplDialog::UpdateItem(long * pPos, long * pID)
 			ok = Data.AddRow(&p, p_row);
 		id = p_row->Id;
 	}
-	ASSIGN_PTR(pPos, (long)p);
+	ASSIGN_PTR(pPos, static_cast<long>(p));
 	ASSIGN_PTR(pID, id);
 	return ok;
 }
@@ -873,12 +891,12 @@ int BizScTemplDialog::editItem(long pos, long id)
 int BizScTemplDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	SArray * p_list = 0;
+	SVector * p_list = 0;
 	if(GetSelList() == CTL_BIZSCT_LIST)
 		p_list = &Data.Cols;
 	else if(GetSelList() == CTL_BIZSCT_ROWS)
 		p_list = &Data.Rows;
-	if(p_list && pos >= 0 && pos < (long)p_list->getCount())
+	if(p_list && pos >= 0 && pos < p_list->getCountI())
 		if(CONFIRM(PPCFM_DELITEM)) {
 			if(GetSelList() == CTL_BIZSCT_LIST)
 				ok = Data.RemoveCol(pos);
@@ -887,30 +905,6 @@ int BizScTemplDialog::delItem(long pos, long id)
 			else
 				ok = Data.Cells.atFree(pos);
 		}
-	return ok;
-}
-
-int BizScTemplDialog::setDTS(const PPBizScTemplPacket * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	disableCtrl(CTL_BIZSCT_ID, 1);
-	setCtrlData(CTL_BIZSCT_ID, &Data.Rec.ID);
-	setCtrlString(CTL_BIZSCT_NAME, SString(Data.Rec.Name));
-	setCtrlString(CTL_BIZSCT_SYMB, SString(Data.Rec.Symb));
-	updateList(-1);
-	UpdateList(CTL_BIZSCT_ROWS);
-	return 1;
-}
-
-int BizScTemplDialog::getDTS(PPBizScTemplPacket * pData)
-{
-	int    ok = 1;
-	getCtrlData(CTL_BIZSCT_NAME, Data.Rec.Name);
-	THROW_PP(sstrlen(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
-	getCtrlData(CTL_BIZSCT_SYMB, Data.Rec.Symb);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOK
 	return ok;
 }
 

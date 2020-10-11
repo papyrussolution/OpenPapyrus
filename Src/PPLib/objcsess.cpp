@@ -39,8 +39,7 @@ static const struct __RtToS {
 	{ CSESSOPRT_REPRNUNFCC,       1, "3" } // @v10.6.11
 };
 
-//static
-void SLAPI PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
+/*static*/void SLAPI PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
 {
 	rBuf.Z();
 	for(uint i = 0; i < SIZEOFARRAY(RtToS); i++) {
@@ -49,8 +48,7 @@ void SLAPI PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
 	}
 }
 
-//static
-void SLAPI PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
+/*static*/void SLAPI PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 {
 	long   rt = 0;
 	long   ort = 0;
@@ -99,8 +97,7 @@ const PPEquipConfig & SLAPI PPObjCSession::GetEqCfg()
 int SLAPI PPObjCSession::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
 const char * SLAPI PPObjCSession::GetNamePtr() { return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
 
-//static
-SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
+/*static*/SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
 {
 	rBuf.Z().Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->SessNumber).CatDiv('-', 1).Cat(pRec->CashNumber).CatDiv('-', 1);
 	GetObjectName(PPOBJ_CASHNODE, pRec->CashNodeID, rBuf, 1);
@@ -782,7 +779,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 					}
 				}
 				pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
-				pack.UpdFlags |= CCheckPacket::ufSkipUhtt;
+				pack.UpdFlags |= CCheckPacket::ufSkipScSpcTrt;
 				if(!SessObj.P_Cc->TurnCheck(&pack, 0)) {
 					PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 					CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
@@ -875,7 +872,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 							}
 							else {
 								pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
-								pack.UpdFlags |= CCheckPacket::ufSkipUhtt;
+								pack.UpdFlags |= CCheckPacket::ufSkipScSpcTrt;
 								CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 								if(!p_cc->TurnCheck(&pack, 0)) {
 									PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);

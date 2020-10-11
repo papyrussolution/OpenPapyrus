@@ -38,16 +38,14 @@ int FASTCALL GetRegisterTypeName(PPID rtID, SString & rBuf)
 	return ok;
 }
 
-// static
-int SLAPI PPObjRegisterType::IsDupRegType(PPID regTypeID)
+/*static*/int SLAPI PPObjRegisterType::IsDupRegType(PPID regTypeID)
 {
 	PPObjRegisterType rt_obj;
 	PPRegisterType rt_rec;
 	return BIN(rt_obj.Fetch(regTypeID, &rt_rec) > 0 && rt_rec.Flags & REGTF_DUPNUMBER);
 }
 
-// static
-int FASTCALL PPObjRegisterType::GetByCode(const char * pRegTypeCode, PPID * pRegTypeID)
+/*static*/int FASTCALL PPObjRegisterType::GetByCode(const char * pRegTypeCode, PPID * pRegTypeID)
 {
 	int    ok = -1;
 	PPID   reg_type_id = 0;

@@ -520,13 +520,58 @@ int VATBookDialog::getDTS(VATBookTbl::Rec * pData)
 // SimpleLedgerDialog {
 //
 class SimpleLedgerDialog : public TDialog {
+	DECL_DIALOG_DATA(VATBookTbl::Rec);
 public:
 	explicit SimpleLedgerDialog(PPObjVATBook * aPPObj) : TDialog(DLG_SMPLLEDG), ppobj(aPPObj)
 	{
 		SetupCalDate(CTLCAL_SMPLLEDG_DT, CTL_SMPLLEDG_DT);
 	}
-	int    setDTS(const VATBookTbl::Rec *);
-	int    getDTS(VATBookTbl::Rec *);
+	DECL_DIALOG_SETDTS()
+	{
+		ushort v = 0;
+		PPID   acs_id = 0;
+		RVALUEPTR(Data, pData);
+		if(Data.Object) {
+			PPObjArticle ar_obj;
+			ArticleTbl::Rec ar_rec;
+			if(ar_obj.Fetch(Data.Object, &ar_rec) > 0)
+				acs_id = ar_rec.AccSheetID;
+		}
+		if(acs_id == 0 && ppobj->IsValidKind(Data.LineType_))
+			acs_id = ppobj->GetConfig(Data.LineType_).AccSheetID;
+		SetupArCombo(this, CTLSEL_SMPLLEDG_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, 0);
+		enableCommand(cmVATBookLink, (int)Data.Link);
+		setCtrlData(CTL_SMPLLEDG_DT,     &Data.Dt);
+		setCtrlData(CTL_SMPLLEDG_CODE,   Data.Code);
+		SETFLAG(v, 0x01, Data.Flags & VATBF_FIX);
+		SETFLAG(v, 0x02, ((Data.Flags & VATBF_EXCLUDED) || Data.Excluded));
+		setCtrlData(CTL_SMPLLEDG_FLAGS,  &v);
+		setIncExpCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		getCtrlData(CTL_SMPLLEDG_DT, &Data.Dt);
+		LDATE  rcpt_dt = Data.RcptDt, invc_dt = Data.InvcDt;
+		Data.RcptDt = Data.InvcDt = Data.Dt; // нужно для того, чтобы ValidateData() не выдавала ошибку
+		Data.PaymDt = Data.Dt;
+		getCtrlData(CTL_SMPLLEDG_CODE, Data.Code);
+		ushort v = getCtrlUInt16(CTL_SMPLLEDG_INCEXPSEL);
+		getIncExpData(v);
+		getCtrlData(CTLSEL_SMPLLEDG_OBJ, &Data.Object);
+		getCtrlData(CTL_SMPLLEDG_FLAGS,  &v);
+		SETFLAG(Data.Flags, VATBF_FIX,      v & 0x01);
+		SETFLAG(Data.Flags, VATBF_EXCLUDED, v & 0x02);
+		Data.Excluded = BIN(v & 0x02);
+		if(ppobj->ValidateData(&Data, 0)) {
+			Data.RcptDt = rcpt_dt;
+			Data.InvcDt = invc_dt;
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+		else
+			return 0;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   linkBill()
@@ -546,56 +591,7 @@ private:
 		setCtrlData(CTL_SMPLLEDG_INCEXPSEL, &v);
 	}
 	PPObjVATBook * ppobj;
-	VATBookTbl::Rec Data;
 };
-
-int SimpleLedgerDialog::setDTS(const VATBookTbl::Rec * pRec)
-{
-	ushort v = 0;
-	PPID   acs_id = 0;
-	Data = *pRec;
-	if(Data.Object) {
-		PPObjArticle ar_obj;
-		ArticleTbl::Rec ar_rec;
-		if(ar_obj.Fetch(Data.Object, &ar_rec) > 0)
-			acs_id = ar_rec.AccSheetID;
-	}
-	if(acs_id == 0 && ppobj->IsValidKind(Data.LineType_))
-		acs_id = ppobj->GetConfig(Data.LineType_).AccSheetID;
-	SetupArCombo(this, CTLSEL_SMPLLEDG_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, 0);
-	enableCommand(cmVATBookLink, (int)Data.Link);
-	setCtrlData(CTL_SMPLLEDG_DT,     &Data.Dt);
-	setCtrlData(CTL_SMPLLEDG_CODE,   Data.Code);
-	SETFLAG(v, 0x01, Data.Flags & VATBF_FIX);
-	SETFLAG(v, 0x02, ((Data.Flags & VATBF_EXCLUDED) || Data.Excluded));
-	setCtrlData(CTL_SMPLLEDG_FLAGS,  &v);
-	setIncExpCtrls();
-	return 1;
-}
-
-int SimpleLedgerDialog::getDTS(VATBookTbl::Rec * pRec)
-{
-	getCtrlData(CTL_SMPLLEDG_DT, &Data.Dt);
-	LDATE  rcpt_dt = Data.RcptDt, invc_dt = Data.InvcDt;
-	Data.RcptDt = Data.InvcDt = Data.Dt; // нужно для того, чтобы ValidateData() не выдавала ошибку
-	Data.PaymDt = Data.Dt;
-	getCtrlData(CTL_SMPLLEDG_CODE, Data.Code);
-	ushort v = getCtrlUInt16(CTL_SMPLLEDG_INCEXPSEL);
-	getIncExpData(v);
-	getCtrlData(CTLSEL_SMPLLEDG_OBJ, &Data.Object);
-	getCtrlData(CTL_SMPLLEDG_FLAGS,  &v);
-	SETFLAG(Data.Flags, VATBF_FIX,      v & 0x01);
-	SETFLAG(Data.Flags, VATBF_EXCLUDED, v & 0x02);
-	Data.Excluded = BIN(v & 0x02);
-	if(ppobj->ValidateData(&Data, 0)) {
-		Data.RcptDt = rcpt_dt;
-		Data.InvcDt = invc_dt;
-		*pRec = Data;
-		return 1;
-	}
-	else
-		return 0;
-}
 
 void SimpleLedgerDialog::setIncExpData(int expend)
 {
@@ -783,19 +779,15 @@ int SLAPI PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 	}
 	else {
 		// @v10.7.9 @ctr MEMSZERO(rec);
-		rec.Dt = LConfig.OperDate;
+		rec.Dt = getcurdate_(); // @v10.9.0 LConfig.OperDate-->getcurdate_()
 	}
 	THROW(_kind = SelectLineType(&res_id, NZOR(rec.LineType_, extra_kind)));
 	if(_kind > 0) {
 		THROW(IsValidKind(_kind));
 		if(*pID == 0)
-			rec.LineType_ = (int16)_kind;
-		if(_kind != PPVTB_SIMPLELEDGER) {
-			THROW(CheckDialogPtr(&(p_dlg = new VATBookDialog(res_id, this))));
-		}
-		else {
-			THROW(CheckDialogPtr(&(p_dlg = new SimpleLedgerDialog(this))));
-		}
+			rec.LineType_ = static_cast<int16>(_kind);
+		p_dlg = (_kind == PPVTB_SIMPLELEDGER) ? static_cast<TDialog *>(new SimpleLedgerDialog(this)) : static_cast<TDialog *>(new VATBookDialog(res_id, this));
+		THROW(CheckDialogPtr(&p_dlg));
 		THROW(SETVATBOOKDTS(p_dlg, &rec, _kind));
 		while(!valid_data && ExecView(p_dlg) == cmOK)
 			if((valid_data = GETVATBOOKDTS(p_dlg, &rec, _kind)) != 0) {

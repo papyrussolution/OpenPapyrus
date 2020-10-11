@@ -25,8 +25,7 @@ BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReser
 	return TRUE;
 }
 
-//static
-SCollection PPSoapResultPtrBase::ResultPtrList;
+/*static*/SCollection PPSoapResultPtrBase::ResultPtrList;
 
 int FASTCALL PPSoapDestroyResultPtr(void * p)
 {

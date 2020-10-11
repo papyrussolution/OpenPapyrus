@@ -75,8 +75,7 @@ int DlFunc::GetArgName(uint argN, SString & rArgName) const
 	return ok;
 }
 
-// static
-int DlFunc::GetOpName(uint opID, SString & rName)
+/*static*/int DlFunc::GetOpName(uint opID, SString & rName)
 {
 	static const struct OpName { uint16 OpID; const char * P_Name; } OpNameList[] = {
 		{dlopConstructor, "constructor" },

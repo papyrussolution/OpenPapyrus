@@ -872,8 +872,7 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 	return ok;
 }
 
-//static
-int FASTCALL PPObjGoods::ReadGoodsExTitles(PPID grpID, SString & rBuf)
+/*static*/int FASTCALL PPObjGoods::ReadGoodsExTitles(PPID grpID, SString & rBuf)
 {
 	Reference * p_ref = PPRef;
 	SString temp_buf;
@@ -885,8 +884,7 @@ int FASTCALL PPObjGoods::ReadGoodsExTitles(PPID grpID, SString & rBuf)
 	return 1;
 }
 
-//static
-GoodsPacketKind FASTCALL PPObjGoods::GetRecKind(const Goods2Tbl::Rec * pRec)
+/*static*/GoodsPacketKind FASTCALL PPObjGoods::GetRecKind(const Goods2Tbl::Rec * pRec)
 {
 	if(pRec->Kind == PPGDSK_GOODS)
 		return gpkndGoods;
@@ -900,8 +898,7 @@ GoodsPacketKind FASTCALL PPObjGoods::GetRecKind(const Goods2Tbl::Rec * pRec)
 	return gpkndUndef;
 }
 
-//static
-int SLAPI PPObjGoods::GenerateOwnArCode(SString & rCode, int use_ta)
+/*static*/int SLAPI PPObjGoods::GenerateOwnArCode(SString & rCode, int use_ta)
 {
 	int    ok = -1;
 	PPObjGoods goods_obj;
@@ -2964,8 +2961,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 //
 #include <..\osf\zint\backend\zint.h>
 
-//static
-SString & FASTCALL PPBarcode::ConvertUpceToUpca(const char * pUpce, SString & rUpca)
+/*static*/SString & FASTCALL PPBarcode::ConvertUpceToUpca(const char * pUpce, SString & rUpca)
 {
 	rUpca.Z();
 	char   temp[64];
@@ -2974,8 +2970,7 @@ SString & FASTCALL PPBarcode::ConvertUpceToUpca(const char * pUpce, SString & rU
 	return rUpca;
 }
 
-//static
-int FASTCALL PPBarcode::GetStdName(int bcstd, SString & rBuf)
+/*static*/int FASTCALL PPBarcode::GetStdName(int bcstd, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -3007,8 +3002,7 @@ int FASTCALL PPBarcode::GetStdName(int bcstd, SString & rBuf)
     return ok;
 }
 
-//static
-int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
+/*static*/int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 {
 	int    bcstd = 0;
     SString text(pText);
@@ -3072,8 +3066,7 @@ SLAPI PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), Outp
 	Size.Z();
 }
 
-//static
-int FASTCALL PPBarcode::CreateImage(PPBarcode::BarcodeImageParam & rParam)
+/*static*/int FASTCALL PPBarcode::CreateImage(PPBarcode::BarcodeImageParam & rParam)
 {
     int    ok = -1;
     int    zint_barc_std = 0;
@@ -3183,10 +3176,8 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 	}
 	return 0;
 }
-//
-//
-//static
-int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList)
+
+/*static*/int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList)
 {
 	rList.clear();
 

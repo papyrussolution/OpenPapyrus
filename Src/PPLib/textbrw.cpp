@@ -1366,8 +1366,7 @@ int SLAPI STextBrowser::LoadToolbar(uint tbId)
 	return r;
 }
 
-//static
-LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	STextBrowser * p_this = reinterpret_cast<STextBrowser *>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	if(p_this) {

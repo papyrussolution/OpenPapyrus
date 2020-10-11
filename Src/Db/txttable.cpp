@@ -442,7 +442,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 			THROW(rRec.GetFieldByPos(i, &fld));
 			GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf);
 			if(P.Flags & fFldEqVal) {
-				if(fld.Name.CmpPrefix("empty", 1) == 0)
+				if(fld.Name.HasPrefixIAscii("empty"))
 					line = field_buf;
 				else
 					line.Z().CatEq(fld.Name, field_buf);
@@ -518,7 +518,7 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 			THROW(rRec.GetFieldByPos(i, &fld));
 			GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf);
 			if(P.Flags & fFldEqVal) {
-				if(fld.Name.CmpPrefix("empty", 1) == 0)
+				if(fld.Name.HasPrefixIAscii("empty"))
 					line = field_buf;
 				else
 					line.Z().CatEq(fld.Name, field_buf);

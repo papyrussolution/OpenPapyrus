@@ -1,5 +1,5 @@
 // PPSPROT.CPP
-// Copyright (c) A.Sobolev 2018, 2019
+// Copyright (c) A.Sobolev 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -85,8 +85,8 @@ void SLAPI PPJobSrvReply::SetAck()
 }
 //
 //
-//static
-const int16 PPJobSrvProtocol::CurrentProtocolVer = 1;
+//
+/*static*/const int16 PPJobSrvProtocol::CurrentProtocolVer = 1;
 
 PPJobSrvProtocol::Header::Header() : Zero(0), ProtocolVer(0), DataLen(0), Type(0), Flags(0)
 {

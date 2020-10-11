@@ -4,8 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
-// @v9.6.3 #include <idea.h>
 
 SLAPI PPBizScore::PPBizScore()
 {
@@ -155,13 +153,14 @@ int SLAPI PPObjBizScore::TestPacket(PPBizScorePacket * pPack, SString & rResult)
 }
 
 // @vmiller {
-#define GRP_LOC        1
-
 class BizPrimitivCreateDialog : public TDialog {
+	enum {
+		ctlgroupLoc = 1
+	};
 public:
 	BizPrimitivCreateDialog(const char * pBizScoreName) : TDialog(DLG_BIZPRCRT), BizScoreName(pBizScoreName)
 	{
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_BIZPRCRT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_BIZPRCRT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		SetupCalPeriod(CTLCAL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_PERIOD);
 	}
 	int    setDTS(const DL2_Score * pData)
@@ -296,7 +295,7 @@ private:
 		}
 		if(/*event.isCbSelected(CTLSEL_BIZPRCRT_LOC) || */event.isCtlEvent(CTL_BIZPRCRT_LOC)) {
 			long id = 0;
-			if(getGroupData(GRP_LOC, &Loc_Ctrl_Rec)) {
+			if(getGroupData(ctlgroupLoc, &Loc_Ctrl_Rec)) {
 				for(uint i = 0; i < Loc_Ctrl_Rec.LocList.GetCount(); i++) {
 					Obj_Loc.Fetch(Loc_Ctrl_Rec.LocList.Get(i), &Loc_Rec);
 					Str_Set.add(Loc_Rec.Code);
@@ -1244,7 +1243,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 		//
 		bizsc_list.freeAll();
 		THROW(bizsc_tbl.GetLastList(user_acc.ID, &bizsc_list));
-		buf.Cat((long)1).CRB();
+		buf.Cat(1L).CRB();
 		THROW(pSock->Send(buf, buf.Len(), 0));
 		if(bizsc_list.getCount()) {
 			SString val, name;
@@ -1630,8 +1629,7 @@ int CallbackBizScToFtpTransfer(long count, long total, const char * pMsg, int)
 	return 1;
 }
 
-// static
-int SLAPI PPViewBizScoreVal::SendXml(PPID ftpAcctID, const char * pFilePath)
+/*static*/int SLAPI PPViewBizScoreVal::SendXml(PPID ftpAcctID, const char * pFilePath)
 {
 	int    ok = -1;
 	SString ftp_path;
@@ -1647,7 +1645,6 @@ int SLAPI PPViewBizScoreVal::SendXml(PPID ftpAcctID, const char * pFilePath)
 		SPathStruc sp;
 		PPInternetAccount acct;
 		PPObjInternetAccount obj_acct;
-
 		(buf = "\\\\").Cat(ftp_path).SetLastSlash();
 		ftp_path = buf;
 		sp.Split(pFilePath);
@@ -1670,7 +1667,7 @@ int SLAPI PPViewBizScoreVal::SendXml(PPID ftpAcctID, const char * pFilePath)
 //
 //
 //
-const uint32 PrcssrBizScore::Param::CVer = 2; // @v7.8.2 1-->2
+const uint32 PrcssrBizScore::Param::CVer = 2;
 
 SLAPI PrcssrBizScore::Param::Param()
 {
@@ -1736,7 +1733,7 @@ int SLAPI PrcssrBizScore::Param::Write(SBuffer & rBuf, long)
 
 SLAPI PrcssrBizScore::PrcssrBizScore() : P_Resolver(0)
 {
-	MEMSZERO(P);
+	// @v10.9.0 @ctr MEMSZERO(P);
 }
 
 SLAPI PrcssrBizScore::~PrcssrBizScore()
@@ -1952,8 +1949,8 @@ SLAPI GlobalBizScoreArray::GlobalBizScoreArray() : TSCollection <GlobalBizScoreV
 
 IMPL_CMPFUNC(GlobalBizScoreVal_wo_date, i1, i2)
 {
-	const GlobalBizScoreVal * p1 = (const GlobalBizScoreVal *)i1;
-	const GlobalBizScoreVal * p2 = (const GlobalBizScoreVal *)i2;
+	const GlobalBizScoreVal * p1 = static_cast<const GlobalBizScoreVal *>(i1);
+	const GlobalBizScoreVal * p2 = static_cast<const GlobalBizScoreVal *>(i2);
 	int s = memcmp(p1->LocalDbUuid.Data, p2->LocalDbUuid.Data, sizeof(S_GUID));
 	if(s == 0) {
 		s = cmp_long(p1->LocalUserID, p2->LocalUserID);
@@ -2388,9 +2385,9 @@ int PPALDD_UhttStatistic::InitData(PPFilt & rFilt, long rsrv)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	}
 	else */ {
-		int ggrps_n = 0,
-			goods_n = 0,
-			brands_n = 0;
+		int    ggrps_n = 0;
+		int    goods_n = 0;
+		int    brands_n = 0;
 		SString temp_buf;
 		{
 			PPID  id = 0;

@@ -364,8 +364,7 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 
 #endif // } 0
 
-// static
-int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SString * pPrefPath)
+/*static*/int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SString * pPrefPath)
 {
 	int    ok = -1;
 	rList.Z();
@@ -423,8 +422,7 @@ int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SSt
 	return ok;
 }
 
-//static
-int PrcssrBuild::CopyProgressProc(const SDataMoveProgressInfo * scfd)
+/*static*/int PrcssrBuild::CopyProgressProc(const SDataMoveProgressInfo * scfd)
 {
 	SString msg_buf;
 	(msg_buf = scfd->P_Src).Space().Cat("-->").Space().Cat(scfd->P_Dest);

@@ -16,8 +16,7 @@ using namespace Scintilla;
 //
 //
 //
-//static 
-PRectangle PRectangle::FromInts(int left_, int top_, int right_, int bottom_)
+/*static*/PRectangle PRectangle::FromInts(int left_, int top_, int right_, int bottom_)
 {
 	return PRectangle(static_cast<XYPOSITION>(left_), static_cast<XYPOSITION>(top_), static_cast<XYPOSITION>(right_), static_cast<XYPOSITION>(bottom_));
 }

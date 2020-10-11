@@ -1590,21 +1590,18 @@ public:
 	virtual void   Insert_(TView *p);
 	virtual void   setState(uint aState, bool enable);
 	virtual int    TransmitData(int dir, void * pData);
-	// @v9.6.2 virtual void   draw();
 	virtual int    FASTCALL valid(ushort command);
-	ushort execView(TWindow * p);
+	ushort FASTCALL execView(TWindow * p);
 	void   insertView(TView * p, TView * pTarget);
-	void   remove(TView * p);
+	void   FASTCALL remove(TView * p);
 	void   removeView(TView * p);
-	void   selectNext(/*Boolean forwards*/ /*false*/); // @v9.0.9 Все вызовы имеют парамет forward = False - убираем
-	void    forEach(void (*func)(TView *, void *), void *args);
-	void    insertBefore(TView *p, TView *Target);
+	void   selectNext();
+	void   forEach(void (*func)(TView *, void *), void *args);
+	void   insertBefore(TView *p, TView *Target);
 	TView * GetFirstView() const;
 	TView * GetCurrentView() const { return P_Current; }
 	TView * GetLastView() const { return P_Last; }
 	void   redraw();
-	// @v9.8.12 void   lock();
-	// @v9.8.12 void   unlock();
 	uint   GetCurrId() const;
 	int    FASTCALL IsCurrentView(const TView * pV) const;
 	int    FASTCALL isCurrCtlID(uint ctlID) const;
@@ -1612,13 +1609,10 @@ public:
 protected:
 	TView * P_Current;
 	TView * P_Last;
-	// @v9.0.1 phaseType Phase_;
 	enum {
 		fLockMsgChangedFocus = 0x001
 	};
 	uint   MsgLockFlags; // fLockMsgXXX
-private:
-	// @v9.4.8 bool   invalid(TView *p, ushort command);
 };
 //
 //
@@ -4593,8 +4587,7 @@ protected:
 		bbsCancel       = 0x00000008, // @v10.3.4 Какой-то из виртуальных методов порожденного класса потребовал прекратить выполнение
 		// Начиная с 0x00010000 флаги зарезервированы за наследующими классами
 	};
-	uint    ToolbarID;   // ID Toolbar'a для сохранения в реестре = LastCmd
-		// (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
+	uint    ToolbarID;   // ID Toolbar'a для сохранения в реестре = LastCmd (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
 	const  SString ClsName;     // Window class name
 	uint   ResourceID;
 	TPoint PrevMouseCoord;

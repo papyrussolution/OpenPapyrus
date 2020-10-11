@@ -709,8 +709,7 @@ int EditColor(long * pColor)
 #define COLOR_SELLIST   0x00ff6633L
 #define COLOR_FRAMELIST 0x002D9DFFL
 
-//static
-const COLORREF ColorCtrlGroup::Rec::UndefC = 0x00000000U;
+/*static*/const COLORREF ColorCtrlGroup::Rec::UndefC = 0x00000000U;
 
 ColorCtrlGroup::Rec::Rec() : C(UndefC)
 {

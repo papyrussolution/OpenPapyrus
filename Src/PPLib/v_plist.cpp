@@ -2025,8 +2025,7 @@ int SLAPI PPViewPriceList::SendPList()
 		DbfTable  * plst_tbl = 0;
 		PPLoadText(PPTXT_PLISTTOALBATROS, msg_buf);
 		PPWaitMsg(msg_buf);
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PLIST_CNF, path);
-		THROW_MEM(p_ini_file = new PPIniFile(path, TRUE));
+		THROW_MEM(p_ini_file = new PPIniFile(PPGetFilePathS(PPPATH_OUT, PPFILNAM_PLIST_CNF, path), TRUE));
 		p_ini_file->Append(PPINISECT_PRICELIST, PPINIPARAM_PL_USEPACKAGE, (LConfig.Flags & CFGFLG_USEPACKAGE) ? "yes" : "no", 1);
 		datefmt(&LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY), sdt);
 		p_ini_file->Append(PPINISECT_PRICELIST, PPINIPARAM_PL_OPERDATE, sdt, 1);
@@ -2047,8 +2046,7 @@ int SLAPI PPViewPriceList::SendPList()
 		}
 		ZDELETE(p_ini_file);
 
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PLIST_DBF, path);
-		THROW(plst_tbl = CreateDbfTable(DBFS_Exp_Price_List, path, TRUE));
+		THROW(plst_tbl = CreateDbfTable(DBFS_Exp_Price_List, PPGetFilePathS(PPPATH_OUT, PPFILNAM_PLIST_DBF, path), TRUE));
 		plst_tbl->bottom();
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			PPUnit unit_rec;

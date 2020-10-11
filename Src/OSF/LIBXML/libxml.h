@@ -2035,7 +2035,7 @@ int xmlNop(void);
 		// 
 		// XML shell helpers
 		// 
-		XMLPUBFUN void XMLCALL xmlLsOneNode(FILE * output, xmlNode * pNode);
+		XMLPUBFUN void FASTCALL xmlLsOneNode(FILE * output, xmlNode * pNode);
 		XMLPUBFUN int XMLCALL xmlLsCountNode(xmlNode * pNode);
 		XMLPUBFUN const char * XMLCALL xmlBoolToText(int boolval);
 		// 
@@ -2091,16 +2091,16 @@ int xmlNop(void);
 				XMLPUBFUN int XMLCALL xmlShellCat(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
 				XMLPUBFUN int XMLCALL xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
 				XMLPUBFUN int XMLCALL xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
-			#endif /* LIBXML_OUTPUT_ENABLED */
+			#endif
 			#ifdef LIBXML_VALID_ENABLED
-				XMLPUBFUN int XMLCALL xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * pNode, xmlNode * node2);
-			#endif /* LIBXML_VALID_ENABLED */
-			XMLPUBFUN int XMLCALL xmlShellDu(xmlShellCtxtPtr ctxt, char * arg, xmlNode * tree, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellPwd(xmlShellCtxtPtr ctxt, char * buffer, xmlNode * pNode, xmlNode * node2);
+				// @v10.9.0 XMLPUBFUN int XMLCALL xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * pNode, xmlNode * node2);
+			#endif
+			// @v10.9.0 XMLPUBFUN int XMLCALL xmlShellDu(xmlShellCtxtPtr ctxt, char * arg, xmlNode * tree, xmlNode * node2);
+			// @v10.9.0 XMLPUBFUN int XMLCALL xmlShellPwd(xmlShellCtxtPtr ctxt, char * buffer, xmlNode * pNode, xmlNode * node2);
 			/*
 			 * The Shell interface.
 			 */
-			XMLPUBFUN void XMLCALL xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * output);
+			// @v10.9.0 XMLPUBFUN void XMLCALL xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * output);
 		#endif
 		#ifdef __cplusplus
 		}
@@ -2422,7 +2422,7 @@ int xmlNop(void);
 	// 
 	// Initializer
 	// 
-	XMLPUBFUN int XMLCALL xmlInitializeDict();
+	// @v10.9.0 (depricated) XMLPUBFUN int XMLCALL xmlInitializeDict();
 	// 
 	// Constructor and destructor.
 	// 

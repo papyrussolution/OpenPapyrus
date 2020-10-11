@@ -2342,8 +2342,7 @@ int SLAPI PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * 
 static DbfTable * SLAPI Palm_CreateDbfTable(uint fileNameId, uint dbfsId)
 {
 	SString path;
-	PPGetFilePath(PPPATH_OUT, fileNameId, path);
-	return CreateDbfTable(dbfsId, path, 1);
+	return CreateDbfTable(dbfsId, PPGetFilePathS(PPPATH_OUT, fileNameId, path), 1);
 }
 
 class AndroidXmlWriter {
@@ -2997,8 +2996,7 @@ static int SLAPI MoveOutFile(int fileID, const PalmCfgItem * pCfgItem, AndroidDe
 	return ok;
 }
 
-// static
-int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
+/*static*/int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 {
 	int    r = -1;
 	const  char * p_tag = "StyloPalm";
@@ -3224,8 +3222,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	THROW(p_qk_tbl = Palm_CreateDbfTable(PPFILNAM_PALM_QUOTKIND, DBFS_PALM_QUOTKIND));
 	{
 		PPImpExpParam param_quots;
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_QUOTS, temp_buf.Z());
-		THROW(InitImpExpDbfParam(PPREC_PALMQUOT, &param_quots, temp_buf, 1));
+		THROW(InitImpExpDbfParam(PPREC_PALMQUOT, &param_quots, PPGetFilePathS(PPPATH_OUT, PPFILNAM_PALM_QUOTS, temp_buf), 1));
 		THROW_MEM(p_ie_quots = new PPImpExp(&param_quots, 0));
 		THROW(p_ie_quots->OpenFileForWriting(0, 1));
 	}
@@ -3462,8 +3459,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	if(pPack->Rec.Flags & PLMF_EXPBRAND) {
 		PPImpExpParam param_brand;
 		THROW(CreateBrandList(rBlk));
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_BRAND, temp_buf.Z());
-		THROW(InitImpExpDbfParam(PPREC_SPIIBRAND, &param_brand, temp_buf, 1));
+		THROW(InitImpExpDbfParam(PPREC_SPIIBRAND, &param_brand, PPGetFilePathS(PPPATH_OUT, PPFILNAM_PALM_BRAND, temp_buf), 1));
 		THROW_MEM(p_ie_brand = new PPImpExp(&param_brand, 0));
 		THROW(p_ie_brand->OpenFileForWriting(0, 1));
 		if(!(pPack->Rec.Flags & PLMF_BLOCKED)) {
@@ -3484,8 +3480,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	if(pPack->Rec.Flags & PLMF_EXPLOC) {
 		PPImpExpParam param_loc;
 		THROW(CreateWhList(rBlk));
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_LOC, temp_buf.Z());
-		THROW(InitImpExpDbfParam(PPREC_SPIILOC, &param_loc, temp_buf, 1));
+		THROW(InitImpExpDbfParam(PPREC_SPIILOC, &param_loc, PPGetFilePathS(PPPATH_OUT, PPFILNAM_PALM_LOC, temp_buf), 1));
 		THROW_MEM(p_ie_loc = new PPImpExp(&param_loc, 0));
 		THROW(p_ie_loc->OpenFileForWriting(0, 1));
 		if(!(pPack->Rec.Flags & PLMF_BLOCKED)) {
@@ -4184,8 +4179,7 @@ private:
 	}
 };
 
-// static
-int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
+/*static*/int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
 {
 	int    ok = -1;
 	PalmPaneDialog * dlg = 0;
@@ -4204,8 +4198,7 @@ int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
 	return ok;
 }
 
-// static
-int SLAPI PPObjStyloPalm::ImpExp(const PalmPaneData * pData)
+/*static*/int SLAPI PPObjStyloPalm::ImpExp(const PalmPaneData * pData)
 {
 	int    ok = 1;
 	const  PPConfig & r_cfg = LConfig;
@@ -4274,8 +4267,7 @@ int SLAPI PPObjStyloPalm::ImpExp(const PalmPaneData * pData)
 		DS.GetSync().ReleaseMutex(mutex_id);
 	{
 		SString file_name;
-		PPGetFilePath(PPPATH_LOG, PPFILNAM_INFO_LOG, file_name);
-		logger.Save(file_name, 0);
+		logger.Save(PPGetFilePathS(PPPATH_LOG, PPFILNAM_INFO_LOG, file_name), 0);
 	}
 	return ok;
 }

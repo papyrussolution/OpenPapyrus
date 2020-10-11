@@ -7,8 +7,7 @@
 
 TLP_IMPL(PPObjRegister, RegisterCore, P_Tbl);
 
-//static
-int SLAPI PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPID objType, PPID objID)
+/*static*/int SLAPI PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPID objType, PPID objID)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -913,8 +912,7 @@ int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, char * pBuf, size
 	return ok;
 }
 
-// static
-int SLAPI PPObjRegister::Format(const RegisterTbl::Rec & rRec, const char * pFormat, SString & rBuf)
+/*static*/int SLAPI PPObjRegister::Format(const RegisterTbl::Rec & rRec, const char * pFormat, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;

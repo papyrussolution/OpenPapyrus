@@ -69,8 +69,7 @@ int SLAPI PUGL::SetLotManufTimeParam::FixedTimeFromString(const char * pStr)
 	return ok;
 }
 
-//static
-int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty) // @v9.8.6 TSArray-->TSVector
+/*static*/int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty) // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(neededeQtty > 0.0 && rList.getCount()) {

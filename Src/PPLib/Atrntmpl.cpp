@@ -102,8 +102,7 @@ public:
 	DateRange Period;     // Период действия шаблона
 };
 
-//static
-int SLAPI PPAccTurnTempl::Convert_6407(PropertyTbl::Rec * pRec)
+/*static*/int SLAPI PPAccTurnTempl::Convert_6407(PropertyTbl::Rec * pRec)
 {
 	int    ok = 1;
 	PPAccTurnTempl_Before6406 * p_b6406 = reinterpret_cast<PPAccTurnTempl_Before6406 *>(pRec);

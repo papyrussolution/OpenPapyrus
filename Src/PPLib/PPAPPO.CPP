@@ -3,9 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
-// @v9.7.10 @obsolete #include <ppftp.h>
 #include <Lm.h>
 #include <strstore.h>
 //
@@ -14,7 +11,6 @@
 int SLAPI ExportDialogs(const char * pFileName);
 int TestAddressRecognition();
 int SLAPI SelfBuild();
-// @v9.7.8 int SLAPI SartTest();
 int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
 int SLAPI RemoveZeroLinkCCLines();
 int SLAPI ReceiptPacking();
@@ -1220,8 +1216,7 @@ int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 	return ok;
 }
 
-// static
-int SLAPI PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
+/*static*/int SLAPI PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
 {
 	int    ok = 0;
 	SString path, fname;
@@ -1264,8 +1259,7 @@ int SLAPI PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
 	return ok;
 }
 
-// static
-int SLAPI PPVerHistory::Log()
+/*static*/int SLAPI PPVerHistory::Log()
 {
 	int    ok = -1;
 	SString arg_buf;

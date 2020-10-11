@@ -20,8 +20,7 @@ private:
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempAssoc);
 
-//static
-TempAssoc * SLAPI TempAssoc::CreateInstance()
+/*static*/TempAssoc * SLAPI TempAssoc::CreateInstance()
 {
 	TempAssoc * p_assc = new TempAssoc;
 	if(!p_assc)
@@ -782,9 +781,8 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 	}
 }
 
-// static
-int PPViewAccturn::DynFuncCheckRelRestrictions = 0;
-int PPViewAccturn::DynFuncCurSymbByAccRelID = 0;
+/*static*/int PPViewAccturn::DynFuncCheckRelRestrictions = 0;
+/*static*/int PPViewAccturn::DynFuncCurSymbByAccRelID = 0;
 
 /*virtual*/DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {

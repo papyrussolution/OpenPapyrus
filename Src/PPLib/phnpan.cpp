@@ -1320,8 +1320,7 @@ int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObj
 	return ok;
 }
 
-//static
-int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	SString msg_buf;
@@ -1566,8 +1565,7 @@ int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-//static
-int FASTCALL PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewPhnSvcMonitor * p_v = static_cast<PPViewPhnSvcMonitor *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

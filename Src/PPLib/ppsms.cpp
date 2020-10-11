@@ -286,7 +286,7 @@ int StConfig::SetConfig_(const char * pHost, uint port, const char * pSystemId, 
 SmsClient::StSMResults::StSMResults() : BindResult(NO_STATUS), UnbindResult(NO_STATUS), SubmitResult(NO_STATUS),
 	DataResult(NO_STATUS), EnquireLinkResult(NO_STATUS), GenericNackResult(NO_STATUS)
 {
-};
+}
 
 int SmsClient::StSMResults::GetResult(int kindOfResult)
 {
@@ -303,8 +303,8 @@ int SmsClient::StSMResults::GetResult(int kindOfResult)
 }
 //
 //
-//static
-int SLAPI PPObjSmsAccount::VerifyString(const SString & rStr, int options)
+//
+/*static*/int SLAPI PPObjSmsAccount::VerifyString(const SString & rStr, int options)
 {
 	int    ok = 1;
 	for(size_t i = 0; ok && i < rStr.Len(); i++) {
@@ -2561,9 +2561,7 @@ enum SmsVarStr {
 
 #endif // } 0 @obsolete
 
-//void SendSmsDialog::GetStrVar(size_t pos, SString & rVar)
-//static
-int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
+/*static*/int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -2579,8 +2577,7 @@ int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
 	return ok;
 }
 
-//static
-int SLAPI PPSmsSender::FormatMessage_(const char * pTemplate, SString & rResult, PPSmsSender::FormatMessageBlock * pFmBlk)
+/*static*/int SLAPI PPSmsSender::FormatMessage_(const char * pTemplate, SString & rResult, PPSmsSender::FormatMessageBlock * pFmBlk)
 {
 	rResult.Z();
 	int    ok = 1;

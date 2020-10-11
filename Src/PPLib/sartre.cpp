@@ -489,8 +489,7 @@ int FASTCALL SrWordForm::ToStr(SString & rBuf) const
 	return 1;
 }
 
-//static
-int FASTCALL SrWordForm::StrToToken(const char * pStr, int * pVal)
+/*static*/int FASTCALL SrWordForm::StrToToken(const char * pStr, int * pVal)
 {
 	for(uint i = 0; i < SIZEOFARRAY(__Tokens); i++) {
 		if(sstreqi_ascii(pStr, __Tokens[i].Tok)) {
@@ -950,8 +949,7 @@ static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
 	return 0;
 }
 
-//static 
-int SLAPI SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb)
+/*static*/int SLAPI SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb)
 {
 	int    ok = 0;
 	rSymb.Z();
@@ -979,8 +977,7 @@ int SLAPI SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint
 	return ok;
 }
 
-//static 
-int SLAPI SrConcept::IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize)
+/*static*/int SLAPI SrConcept::IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize)
 {
 	int    surrsymbpfx = surrsymbsrcUndef;
 	if(!isempty(pSymb)) {

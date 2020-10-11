@@ -21,10 +21,7 @@
 		Item Type Name:   "Type_Name\0"
 	} Items Count Times
 */
-//
-//
-// static
-PPDeclStruc * SLAPI PPDeclStruc::CreateInstance(long typeID, void * /*extraPtr*/, const PPDeclStruc * pOuter, PPLogger * pLogger)
+/*static*/PPDeclStruc * SLAPI PPDeclStruc::CreateInstance(long typeID, void * /*extraPtr*/, const PPDeclStruc * pOuter, PPLogger * pLogger)
 {
 	PPDeclStruc * p_decl = 0;
 	switch(typeID) {

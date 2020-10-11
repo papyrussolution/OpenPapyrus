@@ -16,8 +16,7 @@ static int FASTCALL IsValidSpcSeriesExStrID(int id)
 	return oneof5(id, SPCSNEXSTR_GOODSNAME, SPCSNEXSTR_MANUFNAME, SPCSNEXSTR_LABNAME, SPCSNEXSTR_MANUFCOUNTRYNAME, SPCSNEXSTR_DESCRIPTION);
 }
 
-//static
-int SLAPI SpecSeriesCore::GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId, SString & rBuf)
+/*static*/int SLAPI SpecSeriesCore::GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -28,8 +27,7 @@ int SLAPI SpecSeriesCore::GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId
 	return ok;
 }
 
-//static
-int SLAPI SpecSeriesCore::SetExField(SpecSeries2Tbl::Rec * pRec, int fldId, const char * pBuf)
+/*static*/int SLAPI SpecSeriesCore::SetExField(SpecSeries2Tbl::Rec * pRec, int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(IsValidSpcSeriesExStrID(fldId)) {

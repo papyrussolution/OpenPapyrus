@@ -170,8 +170,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	char   Code2[24];      // @v10.2.9 Вместо Code[12]
 };
 
-//static
-int FASTCALL PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList /*=0*/)
+/*static*/int FASTCALL PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPClientAgreement * pAgt, int loadDebtLimList /*=0*/)
 {
 	int    ok = 1;
 	const _PPClientAgt * p_agt = (const _PPClientAgt *)pPropRec;

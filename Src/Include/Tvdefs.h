@@ -18,6 +18,7 @@
 //  mnemonic names for the ASCII control codes.  They cannot be used
 //  to define menu hotkeys, etc., which require scan codes.
 //
+#define kbNone           0x0000 // @v10.9.0 неопределенная клавиша
 #define kbCtrlA          0x0001
 #define kbCtrlB          0x0002
 #define kbCtrlC          0x0003
@@ -274,7 +275,7 @@
 #define cmSearchVirtButton   58 // evBroadcast
 #define cmInputUpdatedByBtn  59 // Изменился текст в строке ввода, посредством нажатия какой-либо клавиши
 #define cmInputDblClk        60 // На поле ввода пользователь дважды щелкнул левой кнопкой мыши
-#define cmDrawItem           61 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное сообщение WM_DRAWITEM. 
+#define cmDrawItem           61 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное сообщение WM_DRAWITEM.
 	// С дополнительным параметром посылается указатель на структуру TDrawItemData
 #define cmWinKeyDown         62 // передается сообщение, альтернативное TVKEYDOWN, но с WIN кодами кнопок
 #define cmCtlColor           63 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
@@ -583,7 +584,7 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define BCO_CAPTOP       0x00000080
 #define BCO_CAPBOTTOM    0x00000100
 #define BCO_CAPVCENTER   0x00000200
-#define BCO_SORTABLE     0x00000400 // @v10.6.3 По содержимому колонки допускается сортировка таблицы 
+#define BCO_SORTABLE     0x00000400 // @v10.6.3 По содержимому колонки допускается сортировка таблицы
 #define BCO_USERPROC     0x00001000
 //#define BCO_SKIP       0x00002000
 #define BCO_DEFOPT       (BCO_CAPBOTTOM | BCO_CAPCENTER)

@@ -527,16 +527,14 @@ int PsnOpKindView::CopyList(PPID parentID, StrAssocArray * pSrc, StrAssocArray *
 	return 1;
 }
 
-// static
-PPID SLAPI PPObjPsnOpKind::Select(long)
+/*static*/PPID SLAPI PPObjPsnOpKind::Select(long)
 {
 	PPID   id = 0;
 	int    r = PPSelectObject(PPOBJ_PERSONOPKIND, &id, PPTXT_SELECTPSNOP, 0);
 	return (r > 0) ? id : ((r < 0) ? -1 : 0);
 }
 
-// static
-int FASTCALL PPObjPsnOpKind::CheckRecursion(PPID id, PPID parentID)
+/*static*/int FASTCALL PPObjPsnOpKind::CheckRecursion(PPID id, PPID parentID)
 {
 	int    ok = 1;
 	if(id) {

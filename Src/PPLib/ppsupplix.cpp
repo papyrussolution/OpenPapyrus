@@ -886,7 +886,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 		}
 		else { // Экспортируем остатки разливного пива
 			uint items_count = wotarebeerrest_list.getCount();
-			TSVector <Sdr_Baltika_RestPartLine> items_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <Sdr_Baltika_RestPartLine> items_list;
 			for(uint j = 0; j < items_count; j++) {
 				Sdr_Baltika_RestPartLine temp_item = wotarebeerrest_list.at(j);
 				Sdr_Baltika_RestPartLine line_rec = temp_item;
@@ -3406,6 +3406,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_dlvrloc_id));
 						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
+							sob.Flags |= sob.fEnableStop; // @v10.9.0
 							if(!pack.SetupObject(ar_id, sob))
 								R_Logger.LogLastError();
 						}
@@ -3916,7 +3917,7 @@ int SLAPI iSalesPepsi::SendStocks()
 									temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 								else
 									temp_buf.Z().CatChar('#').Cat(p_gp->NativeCode);
-								line_buf.Cat(temp_buf).Tab().Cat(0L).Tab().Cat(p_item->Qtty, MKSFMTD(0, 3, 0));
+								line_buf.Cat(temp_buf).Tab().Cat(0L).Tab().Cat(p_item->Qtty, MKSFMTD(0, 3, NMBF_DECCOMMA));
 								f_check.WriteLine(line_buf.CR());
 							}
 						}
@@ -3935,17 +3936,10 @@ int SLAPI iSalesPepsi::SendStocks()
 			{
 				long   err_item_count = 0;
 				TSCollection <iSalesPepsi::ResultItem> result_list;
-				ParseResultString(*p_result, result_list, &err_item_count); // @v9.5.1 &err_item_count
+				ParseResultString(*p_result, result_list, &err_item_count);
 				{
 					SString tech_buf;
 					Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
-					/* @v9.5.1 {
-						for(uint i = 0; i < result_list.getCount(); i++) {
-							const ResultItem * p_result_item = result_list.at(i);
-							if(p_result_item && p_result_item->Status == 0)
-								err_item_count++;
-						}
-					}*/
 					//PPTXT_LOG_SUPPLIX_EXPSTOCK_E   "Экспортированы остатки поставщику @zstr '@article'. Количество элементов с ошибками: @int"
 					PPFormatT(PPTXT_LOG_SUPPLIX_EXPSTOCK_E, &msg_buf, tech_buf.cptr(), P.SupplID, err_item_count);
 					PPWaitMsg(msg_buf);
@@ -4720,25 +4714,25 @@ int SLAPI iSalesPepsi::SendInvoices()
 								temp_buf.Z().CatChar('#').Cat(p_item->NativeGoodsCode);
 							line_buf.Cat(temp_buf).Tab();
 						}
-						line_buf.Cat(p_item->Qtty, MKSFMTD(0, 3, 0)).Tab();
+						line_buf.Cat(p_item->Qtty, MKSFMTD(0, 3, NMBF_DECCOMMA)).Tab();
 						{
 							int amt_entry_found = 0;
 							for(uint si = 0; si < p_item->Amounts.getCount(); si++) {
 								iSalesBillAmountEntry * p_amt_entry = p_item->Amounts.at(si);
 								if(p_amt_entry && p_amt_entry->SetType == 0) {
-									line_buf.Cat(p_amt_entry->GrossSum, MKSFMTD(0, 2, 0)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
-									line_buf.Cat(p_amt_entry->NetSum, MKSFMTD(0, 2, 0)).Tab();   // 17	Сумма в руб без НДС по продукту в документе	
+									line_buf.Cat(p_amt_entry->GrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
+									line_buf.Cat(p_amt_entry->NetSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();   // 17	Сумма в руб без НДС по продукту в документе	
 									amt_entry_found = 1;
 									break;
 								}
 							}
 							if(!amt_entry_found) {
-								line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
-								line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab(); // 17	Сумма в руб без НДС по продукту в документе	
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 17	Сумма в руб без НДС по продукту в документе	
 							}
-							line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab();         // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-							line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab();         // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-							line_buf.Cat(debt_amount, MKSFMTD(0, 2, 0)).Tab(); // 20 Сумма долга в руб c НДС по документу	неоплаченная сумма по документу в целом, значение дублируется для каждой строки(продукта) документа; поле не заполняется для приходного документа
+							line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();         // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();         // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							line_buf.Cat(debt_amount, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 20 Сумма долга в руб c НДС по документу	неоплаченная сумма по документу в целом, значение дублируется для каждой строки(продукта) документа; поле не заполняется для приходного документа
 						}
 						{
 							line_buf.Tab(); // 21	Номер заказа SAP для приходного документа	номер заказа (SAP#) приходного документа, полученного из iSales, заполняется только для приходных документов

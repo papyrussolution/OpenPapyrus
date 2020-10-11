@@ -6,7 +6,6 @@
  *
  * Daniel Veillard <daniel@veillard.com>
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -432,7 +431,7 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 static void xmlCtxtDumpElemDecl(xmlDebugCtxt * ctxt, xmlElement * elem)
 {
 	xmlCtxtDumpSpaces(ctxt);
-	if(elem == NULL) {
+	if(!elem) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "Element declaration is NULL\n");
 	}
@@ -510,7 +509,7 @@ static void xmlCtxtDumpEntityDecl(xmlDebugCtxt * ctxt, xmlEntity * ent)
 				xmlCtxtDumpSpaces(ctxt);
 				fprintf(ctxt->output, " SystemID=%s\n", (char *)ent->SystemID);
 			}
-			if(ent->URI != NULL) {
+			if(ent->URI) {
 				xmlCtxtDumpSpaces(ctxt);
 				fprintf(ctxt->output, " URI=%s\n", (char *)ent->URI);
 			}
@@ -531,7 +530,7 @@ static void xmlCtxtDumpEntityDecl(xmlDebugCtxt * ctxt, xmlEntity * ent)
 static void xmlCtxtDumpNamespace(xmlDebugCtxt * ctxt, xmlNs * ns)
 {
 	xmlCtxtDumpSpaces(ctxt);
-	if(ns == NULL) {
+	if(!ns) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "namespace node is NULL\n");
 	}
@@ -545,7 +544,7 @@ static void xmlCtxtDumpNamespace(xmlDebugCtxt * ctxt, xmlNs * ns)
 			xmlDebugErr(ctxt, XML_CHECK_NO_HREF, "Incomplete default namespace href=NULL\n");
 	}
 	else if(!ctxt->check) {
-		if(ns->prefix != NULL)
+		if(ns->prefix)
 			fprintf(ctxt->output, "namespace %s href=", (char *)ns->prefix);
 		else
 			fprintf(ctxt->output, "default namespace href=");
@@ -621,13 +620,13 @@ static void xmlCtxtDumpAttr(xmlDebugCtxt * ctxt, xmlAttr * attr)
 			fprintf(ctxt->output, "ATTRIBUTE ");
 			xmlCtxtDumpString(ctxt, attr->name);
 			fprintf(ctxt->output, "\n");
-			if(attr->children != NULL) {
+			if(attr->children) {
 				ctxt->depth++;
 				xmlCtxtDumpNodeList(ctxt, attr->children);
 				ctxt->depth--;
 			}
 		}
-		if(attr->name == NULL)
+		if(!attr->name)
 			xmlDebugErr(ctxt, XML_CHECK_NO_NAME, "Attribute has no name");
 		/*
 		* Do a bit of checking
@@ -635,7 +634,6 @@ static void xmlCtxtDumpAttr(xmlDebugCtxt * ctxt, xmlAttr * attr)
 		xmlCtxtGenericNodeCheck(ctxt, (xmlNode *)attr);
 	}
 }
-
 /**
  * xmlCtxtDumpAttrList:
  * @output:  the FILE * for the output
@@ -649,7 +647,6 @@ static void xmlCtxtDumpAttrList(xmlDebugCtxt * ctxt, xmlAttr * attr)
 	for(; attr; attr = attr->next)
 		xmlCtxtDumpAttr(ctxt, attr);
 }
-
 /**
  * xmlCtxtDumpOneNode:
  * @output:  the FILE * for the output
@@ -818,7 +815,6 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * pNode)
 		xmlCtxtGenericNodeCheck(ctxt, pNode);
 	}
 }
-
 /**
  * xmlCtxtDumpNode:
  * @output:  the FILE * for the output
@@ -827,24 +823,23 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * pNode)
  *
  * Dumps debug information for the element node, it is recursive
  */
-static void xmlCtxtDumpNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
+static void xmlCtxtDumpNode(xmlDebugCtxt * ctxt, xmlNode * pNode)
 {
-	if(!P_Node) {
+	if(!pNode) {
 		if(!ctxt->check) {
 			xmlCtxtDumpSpaces(ctxt);
 			fprintf(ctxt->output, "node is NULL\n");
 		}
-		return;
 	}
-	xmlCtxtDumpOneNode(ctxt, P_Node);
-	if((P_Node->type != XML_NAMESPACE_DECL) &&
-	    (P_Node->children != NULL) && (P_Node->type != XML_ENTITY_REF_NODE)) {
-		ctxt->depth++;
-		xmlCtxtDumpNodeList(ctxt, P_Node->children);
-		ctxt->depth--;
+	else {
+		xmlCtxtDumpOneNode(ctxt, pNode);
+		if(pNode->type != XML_NAMESPACE_DECL && pNode->children && pNode->type != XML_ENTITY_REF_NODE) {
+			ctxt->depth++;
+			xmlCtxtDumpNodeList(ctxt, pNode->children);
+			ctxt->depth--;
+		}
 	}
 }
-
 /**
  * xmlCtxtDumpNodeList:
  * @output:  the FILE * for the output
@@ -864,30 +859,31 @@ static void xmlCtxtDumpDocHead(xmlDebugCtxt * ctxt, xmlDoc * doc)
 	if(!doc) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "DOCUMENT == NULL !\n");
-		return;
 	}
-	ctxt->P_Node = (xmlNode *)doc;
-	switch(doc->type) {
-		case XML_ELEMENT_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ELEMENT, "Misplaced ELEMENT node\n"); break;
-		case XML_ATTRIBUTE_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ATTRIBUTE, "Misplaced ATTRIBUTE node\n"); break;
-		case XML_TEXT_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_TEXT, "Misplaced TEXT node\n"); break;
-		case XML_CDATA_SECTION_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_CDATA, "Misplaced CDATA node\n"); break;
-		case XML_ENTITY_REF_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ENTITYREF, "Misplaced ENTITYREF node\n"); break;
-		case XML_ENTITY_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ENTITY, "Misplaced ENTITY node\n"); break;
-		case XML_PI_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_PI, "Misplaced PI node\n"); break;
-		case XML_COMMENT_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_COMMENT, "Misplaced COMMENT node\n"); break;
-		case XML_DOCUMENT_TYPE_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_DOCTYPE, "Misplaced DOCTYPE node\n"); break;
-		case XML_DOCUMENT_FRAG_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_FRAGMENT, "Misplaced FRAGMENT node\n"); break;
-		case XML_NOTATION_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_NOTATION, "Misplaced NOTATION node\n"); break;
-		case XML_DOCUMENT_NODE:
-			if(!ctxt->check)
-			    fprintf(ctxt->output, "DOCUMENT\n");
-		    break;
-		case XML_HTML_DOCUMENT_NODE:
-		    if(!ctxt->check)
-			    fprintf(ctxt->output, "HTML DOCUMENT\n");
-		    break;
-		default: xmlDebugErr2(ctxt, XML_CHECK_UNKNOWN_NODE, "Unknown node type %d\n", doc->type);
+	else {
+		ctxt->P_Node = reinterpret_cast<xmlNode *>(doc);
+		switch(doc->type) {
+			case XML_ELEMENT_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ELEMENT, "Misplaced ELEMENT node\n"); break;
+			case XML_ATTRIBUTE_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ATTRIBUTE, "Misplaced ATTRIBUTE node\n"); break;
+			case XML_TEXT_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_TEXT, "Misplaced TEXT node\n"); break;
+			case XML_CDATA_SECTION_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_CDATA, "Misplaced CDATA node\n"); break;
+			case XML_ENTITY_REF_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ENTITYREF, "Misplaced ENTITYREF node\n"); break;
+			case XML_ENTITY_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_ENTITY, "Misplaced ENTITY node\n"); break;
+			case XML_PI_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_PI, "Misplaced PI node\n"); break;
+			case XML_COMMENT_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_COMMENT, "Misplaced COMMENT node\n"); break;
+			case XML_DOCUMENT_TYPE_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_DOCTYPE, "Misplaced DOCTYPE node\n"); break;
+			case XML_DOCUMENT_FRAG_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_FRAGMENT, "Misplaced FRAGMENT node\n"); break;
+			case XML_NOTATION_NODE: xmlDebugErr(ctxt, XML_CHECK_FOUND_NOTATION, "Misplaced NOTATION node\n"); break;
+			case XML_DOCUMENT_NODE:
+				if(!ctxt->check)
+					fprintf(ctxt->output, "DOCUMENT\n");
+				break;
+			case XML_HTML_DOCUMENT_NODE:
+				if(!ctxt->check)
+					fprintf(ctxt->output, "HTML DOCUMENT\n");
+				break;
+			default: xmlDebugErr2(ctxt, XML_CHECK_UNKNOWN_NODE, "Unknown node type %d\n", doc->type);
+		}
 	}
 }
 /**
@@ -902,22 +898,22 @@ static void xmlCtxtDumpDocumentHead(xmlDebugCtxt * ctxt, xmlDoc * doc)
 	if(doc) {
 		xmlCtxtDumpDocHead(ctxt, doc);
 		if(!ctxt->check) {
-			if(doc->name != NULL) {
+			if(doc->name) {
 				fprintf(ctxt->output, "name=");
-				xmlCtxtDumpString(ctxt, BAD_CAST doc->name);
+				xmlCtxtDumpString(ctxt, doc->name);
 				fprintf(ctxt->output, "\n");
 			}
-			if(doc->version != NULL) {
+			if(doc->version) {
 				fprintf(ctxt->output, "version=");
 				xmlCtxtDumpString(ctxt, doc->version);
 				fprintf(ctxt->output, "\n");
 			}
-			if(doc->encoding != NULL) {
+			if(doc->encoding) {
 				fprintf(ctxt->output, "encoding=");
 				xmlCtxtDumpString(ctxt, doc->encoding);
 				fprintf(ctxt->output, "\n");
 			}
-			if(doc->URL != NULL) {
+			if(doc->URL) {
 				fprintf(ctxt->output, "URL=");
 				xmlCtxtDumpString(ctxt, doc->URL);
 				fprintf(ctxt->output, "\n");
@@ -925,11 +921,10 @@ static void xmlCtxtDumpDocumentHead(xmlDebugCtxt * ctxt, xmlDoc * doc)
 			if(doc->standalone)
 				fprintf(ctxt->output, "standalone=true\n");
 		}
-		if(doc->oldNs != NULL)
+		if(doc->oldNs)
 			xmlCtxtDumpNamespaceList(ctxt, doc->oldNs);
 	}
 }
-
 /**
  * xmlCtxtDumpDocument:
  * @output:  the FILE * for the output
@@ -945,7 +940,7 @@ static void xmlCtxtDumpDocument(xmlDebugCtxt * ctxt, xmlDoc * doc)
 	}
 	else {
 		xmlCtxtDumpDocumentHead(ctxt, doc);
-		if(((doc->type == XML_DOCUMENT_NODE) || (doc->type == XML_HTML_DOCUMENT_NODE)) && doc->children) {
+		if(oneof2(doc->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE) && doc->children) {
 			ctxt->depth++;
 			xmlCtxtDumpNodeList(ctxt, doc->children);
 			ctxt->depth--;
@@ -1018,7 +1013,7 @@ static void xmlCtxtDumpEntities(xmlDebugCtxt * ctxt, xmlDoc * doc)
  */
 static void xmlCtxtDumpDTD(xmlDebugCtxt * ctxt, xmlDtd * dtd)
 {
-	if(dtd == NULL) {
+	if(!dtd) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "DTD is NULL\n");
 	}
@@ -1033,13 +1028,9 @@ static void xmlCtxtDumpDTD(xmlDebugCtxt * ctxt, xmlDtd * dtd)
 		}
 	}
 }
-
-/************************************************************************
-*									*
-*			Public entry points for dump			*
-*									*
-************************************************************************/
-
+//
+// Public entry points for dump
+//
 /**
  * xmlDebugDumpString:
  * @output:  the FILE * for the output
@@ -1084,7 +1075,6 @@ void xmlDebugDumpAttr(FILE * output, xmlAttr * attr, int depth)
 		xmlCtxtDumpCleanCtxt(&ctxt);
 	}
 }
-
 /**
  * xmlDebugDumpEntities:
  * @output:  the FILE * for the output
@@ -1142,15 +1132,14 @@ void xmlDebugDumpOneNode(FILE * output, xmlNode * pNode, int depth)
  *
  * Dumps debug information for the element node, it is recursive
  */
-void xmlDebugDumpNode(FILE * output, xmlNode * P_Node, int depth)
+void xmlDebugDumpNode(FILE * output, xmlNode * pNode, int depth)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
 	ctxt.depth = depth;
-	xmlCtxtDumpNode(&ctxt, P_Node);
+	xmlCtxtDumpNode(&ctxt, pNode);
 	xmlCtxtDumpCleanCtxt(&ctxt);
 }
-
 /**
  * xmlDebugDumpNodeList:
  * @output:  the FILE * for the output
@@ -1159,12 +1148,12 @@ void xmlDebugDumpNode(FILE * output, xmlNode * P_Node, int depth)
  *
  * Dumps debug information for the list of element node, it is recursive
  */
-void xmlDebugDumpNodeList(FILE * output, xmlNode * P_Node, int depth)
+void xmlDebugDumpNodeList(FILE * output, xmlNode * pNode, int depth)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
 	ctxt.depth = depth;
-	xmlCtxtDumpNodeList(&ctxt, P_Node);
+	xmlCtxtDumpNodeList(&ctxt, pNode);
 	xmlCtxtDumpCleanCtxt(&ctxt);
 }
 /**
@@ -1212,11 +1201,9 @@ void xmlDebugDumpDTD(FILE * output, xmlDtd * dtd)
 	xmlCtxtDumpDTD(&ctxt, dtd);
 	xmlCtxtDumpCleanCtxt(&ctxt);
 }
-/************************************************************************
-*									*
-*			Public entry points for checkings		*
-*									*
-************************************************************************/
+//
+// Public entry points for checkings
+//
 /**
  * xmlDebugCheckDocument:
  * @output:  the FILE * for the output
@@ -1236,13 +1223,9 @@ int xmlDebugCheckDocument(FILE * output, xmlDoc * doc)
 	xmlCtxtDumpCleanCtxt(&ctxt);
 	return ctxt.errors;
 }
-
-/************************************************************************
-*									*
-*			Helpers for Shell				*
-*									*
-************************************************************************/
-
+//
+// Helpers for Shell
+//
 /**
  * xmlLsCountNode:
  * @node:  the node to count
@@ -1251,32 +1234,32 @@ int xmlDebugCheckDocument(FILE * output, xmlDoc * doc)
  *
  * Returns the number of children of @node.
  */
-int xmlLsCountNode(xmlNode * P_Node) 
+int xmlLsCountNode(xmlNode * pNode) 
 {
 	int ret = 0;
 	xmlNode * list = NULL;
-	if(!P_Node)
+	if(!pNode)
 		return 0;
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_ELEMENT_NODE:
-		    list = P_Node->children;
+		    list = pNode->children;
 		    break;
 		case XML_DOCUMENT_NODE:
 		case XML_HTML_DOCUMENT_NODE:
 #ifdef LIBXML_DOCB_ENABLED
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
-		    list = ((xmlDoc *)P_Node)->children;
+		    list = reinterpret_cast<xmlDoc *>(pNode)->children;
 		    break;
 		case XML_ATTRIBUTE_NODE:
-		    list = ((xmlAttr *)P_Node)->children;
+		    list = reinterpret_cast<xmlAttr *>(pNode)->children;
 		    break;
 		case XML_TEXT_NODE:
 		case XML_CDATA_SECTION_NODE:
 		case XML_PI_NODE:
 		case XML_COMMENT_NODE:
-		    if(P_Node->content) {
-			    ret = sstrlen(P_Node->content);
+		    if(pNode->content) {
+			    ret = sstrlen(pNode->content);
 		    }
 		    break;
 		case XML_ENTITY_REF_NODE:
@@ -1294,11 +1277,10 @@ int xmlLsCountNode(xmlNode * P_Node)
 		    ret = 1;
 		    break;
 	}
-	for(; list != NULL; ret++)
+	for(; list; ret++)
 		list = list->next;
 	return ret;
 }
-
 /**
  * xmlLsOneNode:
  * @output:  the FILE * for the output
@@ -1306,7 +1288,7 @@ int xmlLsCountNode(xmlNode * P_Node)
  *
  * Dump to @output the type and name of @node.
  */
-void xmlLsOneNode(FILE * output, xmlNode * pNode) 
+void FASTCALL xmlLsOneNode(FILE * output, xmlNode * pNode) 
 {
 	if(output)  {
 		if(!pNode) {
@@ -1416,7 +1398,6 @@ const char * xmlBoolToText(int boolval)
  *   - cleanup function registrations (with help) and calling
  *   - provide registration routines
  */
-
 /**
  * xmlShellPrintXPathError:
  * @errorType: valid xpath error id
@@ -1535,26 +1516,26 @@ void xmlShellPrintXPathResult(xmlXPathObject * list)
  *
  * Returns 0
  */
-int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlNode * cur;
 	if(ctxt) {
-		if(!P_Node) {
+		if(!pNode) {
 			fprintf(ctxt->output, "NULL\n");
 		}
 		else {
-			if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-				cur = ((xmlDoc *)P_Node)->children;
+			if(oneof2(pNode->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
+				cur = reinterpret_cast<xmlDoc *>(pNode)->children;
 			}
-			else if(P_Node->type == XML_NAMESPACE_DECL) {
-				xmlLsOneNode(ctxt->output, P_Node);
+			else if(pNode->type == XML_NAMESPACE_DECL) {
+				xmlLsOneNode(ctxt->output, pNode);
 				return 0;
 			}
-			else if(P_Node->children != NULL) {
-				cur = P_Node->children;
+			else if(pNode->children) {
+				cur = pNode->children;
 			}
 			else {
-				xmlLsOneNode(ctxt->output, P_Node);
+				xmlLsOneNode(ctxt->output, pNode);
 				return 0;
 			}
 			while(cur) {
@@ -1565,7 +1546,6 @@ int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_
 	}
 	return 0;
 }
-
 /**
  * xmlShellBase:
  * @ctxt:  the shell context
@@ -1684,7 +1664,7 @@ static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNode *
 static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * root, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlNs * ns;
-	if((root == NULL) || (root->type != XML_ELEMENT_NODE) || (root->nsDef == NULL) || (ctxt == NULL) || (ctxt->pctxt == NULL))
+	if(!root || (root->type != XML_ELEMENT_NODE) || !root->nsDef || !ctxt || !ctxt->pctxt)
 		return -1;
 	ns = root->nsDef;
 	while(ns != NULL) {
@@ -1711,57 +1691,51 @@ static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRI
  *
  * Returns 0
  */
-static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	if(!ctxt)
-		return 0;
-	if(!P_Node)
-		return 0;
-	if(!arg)
+	if(!ctxt || !pNode || !arg)
 		return 0;
 #ifdef LIBXML_REGEXP_ENABLED
 	if((xmlStrchr((xmlChar *)arg, '?')) || (xmlStrchr((xmlChar *)arg, '*')) || (xmlStrchr((xmlChar *)arg, '.')) || (xmlStrchr((xmlChar *)arg, '['))) {
 	}
 #endif
-	while(P_Node) {
-		if(P_Node->type == XML_COMMENT_NODE) {
-			if(xmlStrstr(P_Node->content, (xmlChar *)arg)) {
-				fprintf(ctxt->output, "%s : ", xmlGetNodePath(P_Node));
-				xmlShellList(ctxt, NULL, P_Node, 0);
+	while(pNode) {
+		if(pNode->type == XML_COMMENT_NODE) {
+			if(xmlStrstr(pNode->content, (xmlChar *)arg)) {
+				fprintf(ctxt->output, "%s : ", xmlGetNodePath(pNode));
+				xmlShellList(ctxt, NULL, pNode, 0);
 			}
 		}
-		else if(P_Node->type == XML_TEXT_NODE) {
-			if(xmlStrstr(P_Node->content, (xmlChar *)arg)) {
-				fprintf(ctxt->output, "%s : ", xmlGetNodePath(P_Node->P_ParentNode));
-				xmlShellList(ctxt, NULL, P_Node->P_ParentNode, 0);
+		else if(pNode->type == XML_TEXT_NODE) {
+			if(xmlStrstr(pNode->content, (xmlChar *)arg)) {
+				fprintf(ctxt->output, "%s : ", xmlGetNodePath(pNode->P_ParentNode));
+				xmlShellList(ctxt, NULL, pNode->P_ParentNode, 0);
 			}
 		}
 		/*
 		 * Browse the full subtree, deep first
 		 */
-		if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-			P_Node = ((xmlDoc *)P_Node)->children;
+		if((pNode->type == XML_DOCUMENT_NODE) || (pNode->type == XML_HTML_DOCUMENT_NODE)) {
+			pNode = reinterpret_cast<xmlDoc *>(pNode)->children;
 		}
-		else if((P_Node->children != NULL) && (P_Node->type != XML_ENTITY_REF_NODE)) {
-			/* deep first */
-			P_Node = P_Node->children;
+		else if(pNode->children && (pNode->type != XML_ENTITY_REF_NODE)) {
+			pNode = pNode->children; /* deep first */
 		}
-		else if(P_Node->next) {
-			/* then siblings */
-			P_Node = P_Node->next;
+		else if(pNode->next) {
+			pNode = pNode->next; /* then siblings */
 		}
 		else {
 			/* go up to parents->next if needed */
-			while(P_Node) {
-				if(P_Node->P_ParentNode) {
-					P_Node = P_Node->P_ParentNode;
+			while(pNode) {
+				if(pNode->P_ParentNode) {
+					pNode = pNode->P_ParentNode;
 				}
-				if(P_Node->next) {
-					P_Node = P_Node->next;
+				if(pNode->next) {
+					pNode = pNode->next;
 					break;
 				}
-				if(P_Node->P_ParentNode == NULL) {
-					P_Node = NULL;
+				if(pNode->P_ParentNode == NULL) {
+					pNode = NULL;
 					break;
 				}
 			}
@@ -1769,7 +1743,6 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
 	}
 	return 0;
 }
-
 /**
  * xmlShellDir:
  * @ctxt:  the shell context
@@ -1996,11 +1969,9 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode ATTRIBUT
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	if(!P_Node)
-		return -1;
-	if(isempty(filename))
+	if(!pNode || isempty(filename))
 		return -1;
 #ifdef W_OK
 	if(access((char *)filename, W_OK)) {
@@ -2008,7 +1979,7 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNo
 		return -1;
 	}
 #endif
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_DOCUMENT_NODE:
 		    if(xmlSaveFile((char *)filename, ctxt->doc) < -1) {
 			    xmlGenericError(0, "Failed to write to %s\n", filename);
@@ -2026,17 +1997,18 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNo
 			    xmlGenericError(0, "Failed to write to %s\n", filename);
 			    return -1;
 		    }
-#endif /* LIBXML_HTML_ENABLED */
+#endif
 		    break;
-		default: {
-		    FILE * f = fopen(filename, "w");
-		    if(f == NULL) {
-			    xmlGenericError(0, "Failed to write to %s\n", filename);
-			    return -1;
-		    }
-		    xmlElemDump(f, ctxt->doc, P_Node);
-		    fclose(f);
-	    }
+		default: 
+			{
+				FILE * f = fopen(filename, "w");
+				if(f == NULL) {
+					xmlGenericError(0, "Failed to write to %s\n", filename);
+					return -1;
+				}
+				xmlElemDump(f, ctxt->doc, pNode);
+				fclose(f);
+			}
 	}
 	return 0;
 }
@@ -2091,7 +2063,7 @@ int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBU
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
+#if 0 // @v10.9.0 {
 #ifdef LIBXML_VALID_ENABLED
 /**
  * xmlShellValidate:
@@ -2126,9 +2098,7 @@ int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * P_Node ATTRIBUT
 	}
 	return (res);
 }
-
 #endif /* LIBXML_VALID_ENABLED */
-
 /**
  * xmlShellDu:
  * @ctxt:  the shell context
@@ -2239,7 +2209,6 @@ int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNode * 
 	SAlloc::F(path);
 	return 0;
 }
-
 /**
  * xmlShell:
  * @doc:  the initial document
@@ -2403,6 +2372,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 			xmlShellGrep(ctxt, arg, ctxt->P_Node, 0);
 		}
 		else if(sstreq(command, "free")) {
+			/* @v10.9.0 
 			if(arg[0] == 0) {
 				xmlMemShow(ctxt->output, 0);
 			}
@@ -2410,7 +2380,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 				int len = 0;
 				sscanf(arg, "%d", &len);
 				xmlMemShow(ctxt->output, len);
-			}
+			} */
 		}
 		else if(sstreq(command, "pwd")) {
 			char dir[500];
@@ -2713,6 +2683,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 	SAlloc::F(ctxt);
 	SAlloc::F(cmdline);  /* not free here ! */
 }
+#endif // } 0 @v10.9.0
 
 #endif /* LIBXML_XPATH_ENABLED */
 #define bottom_debugXML

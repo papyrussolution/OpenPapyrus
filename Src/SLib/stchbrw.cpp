@@ -287,10 +287,8 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 				p_view->invalidateAll(1);
 				PostMessage(hWnd, WM_PAINT, 0, 0);
 				{
-					// @v9.1.5 char   cap[256];
-					// @v9.1.5 ::GetWindowText(hWnd, cap, sizeof(cap));
 					SString temp_buf;
-					TView::SGetWindowText(hWnd, temp_buf); // @v9.1.5
+					TView::SGetWindowText(hWnd, temp_buf);
 					APPL->AddItemToMenu(temp_buf, p_view);
 				}
 				p_view->RegisterMouseTracking();

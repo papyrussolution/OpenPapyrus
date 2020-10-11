@@ -562,11 +562,9 @@ StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	return id;
 }
 
-//static
-const int PPObjCashNode::SubstCTblID = 999; // Специализированный идентификатор стола, применяемый для замещения не определенного списка столов. =999
+/*static*/const int PPObjCashNode::SubstCTblID = 999; // Специализированный идентификатор стола, применяемый для замещения не определенного списка столов. =999
 
-//static
-int  SLAPI PPObjCashNode::GetCafeTableName(int ctblN, SString & rBuf)
+/*static*/int  SLAPI PPObjCashNode::GetCafeTableName(int ctblN, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();

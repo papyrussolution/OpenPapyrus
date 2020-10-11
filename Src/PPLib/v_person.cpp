@@ -2079,7 +2079,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				pCellStyle->Color2 = GetColorRef(SClrGreen);
 				ok = 1;
 			}
-			else if(col == 1 && p_view->IsNewCliPerson(*(PPID *)pData)) {
+			else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const PPID *>(pData))) {
 				pCellStyle->Flags = 0;
 				pCellStyle->Color = GetColorRef(SClrOrange);
 				ok = 1;

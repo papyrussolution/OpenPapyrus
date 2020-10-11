@@ -5228,8 +5228,7 @@ int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID,
 	return ok;
 }
 
-//static
-int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
+/*static*/int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;

@@ -6,8 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-//static 
-int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(const PPViewGoodsStruc * pView, int order, const void * i1, const void * i2)
+/*static*/int FASTCALL PPViewGoodsStruc::Cmp_ItemEntry(const PPViewGoodsStruc * pView, int order, const void * i1, const void * i2)
 {
 	int    si = 0;
 	if(pView && i1 && i2) {

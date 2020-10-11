@@ -1238,9 +1238,7 @@ int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
 	return ok;
 }
 
-// static
-int SLAPI PPObjStaffList::SetupPostCombo(TDialog * dlg, uint ctl, PPID id,
-	uint /*olwFlags*/, PPID orgID, PPID divID, PPID staffID)
+/*static*/int SLAPI PPObjStaffList::SetupPostCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, PPID orgID, PPID divID, PPID staffID)
 {
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));

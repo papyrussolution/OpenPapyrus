@@ -151,8 +151,7 @@ int SLAPI PPGoodsStruc::SetKind(int kind)
 	return ok;
 }
 
-//static
-int FASTCALL PPGoodsStruc::GetStrucKind(long flags)
+/*static*/int FASTCALL PPGoodsStruc::GetStrucKind(long flags)
 {
 	if(flags & GSF_COMPLEX)
 		return kComplex;
@@ -168,8 +167,7 @@ int FASTCALL PPGoodsStruc::GetStrucKind(long flags)
 		return kUndef;
 }
 
-//static
-SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf)
+/*static*/SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf)
 {
 	rBuf.Z();
 	if(strucID)
@@ -649,8 +647,7 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 	return BIN(temp_buf.ToReal() != 0.0);
 }
 
-//static
-int FASTCALL PPGoodsStruc::IsSimpleQttyString(const char * pStr)
+/*static*/int FASTCALL PPGoodsStruc::IsSimpleQttyString(const char * pStr)
 {
 	size_t pos = 0;
 	if(IsNumber(pStr, &pos)) {
@@ -796,8 +793,7 @@ int SLAPI PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemP
 	return ok;
 }
 
-//static
-SString & FASTCALL PPGoodsStrucItem::MakeEstimationString(double median, double denom, SString & rBuf, long format)
+/*static*/SString & FASTCALL PPGoodsStrucItem::MakeEstimationString(double median, double denom, SString & rBuf, long format)
 {
 	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 	rBuf.Z().Cat(median, fmt);

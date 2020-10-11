@@ -58,8 +58,7 @@ SLAPI PPTechPacket::PPTechPacket()
 
 TLP_IMPL(PPObjTech, TechTbl, P_Tbl);
 
-//static
-int SLAPI PPObjTech::GenerateCode(int kind, SString & rBuf, int use_ta)
+/*static*/int SLAPI PPObjTech::GenerateCode(int kind, SString & rBuf, int use_ta)
 {
 	int    ok = 1;
 	long   c = 0;

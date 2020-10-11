@@ -1688,7 +1688,7 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 				// 0xDF^^
 				// ~0xDA^^
 				// ~0xDE^^
-				if(str.CmpPrefix("0xDF^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
+				if(str.HasPrefixIAscii("0xDF^^")) { // @v10.7.8 @fix (!=0)-->(== 0)
 					if(!(Flags & sfDontUseCutter)) {
 						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
 					}
@@ -1700,7 +1700,7 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else if(str.CmpPrefix("~0xDA^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
+				else if(str.HasPrefixIAscii("~0xDA^^")) { // @v10.7.8 @fix (!=0)-->(== 0)
 					if(!(Flags & sfDontUseCutter)) {
 						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
 					}
@@ -1712,7 +1712,7 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else if(str.CmpPrefix("~0xDE^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
+				else if(str.HasPrefixIAscii("~0xDE^^")) { // @v10.7.8 @fix (!=0)-->(== 0)
 					if(!(Flags & sfDontUseCutter)) {
 						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
 					}

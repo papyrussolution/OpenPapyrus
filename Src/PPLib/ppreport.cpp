@@ -738,11 +738,11 @@ SLAPI ReportDescrEntry::ReportDescrEntry() : Flags(0)
 		tok = tModifDate;
 	else if(buf == "std")
 		tok = tStd;
-	else if(buf.CmpPrefix("format", 0) == 0)
+	else if(buf.HasPrefix("format"))
 		tok = tFormat;
-	else if(buf.CmpPrefix("destination", 0) == 0)
+	else if(buf.HasPrefix("destination"))
 		tok = tDestination;
-	else if(buf.CmpPrefix("silent", 0) == 0)
+	else if(buf.HasPrefix("silent"))
 		tok = tSilent;
 	else {
 		SString file_name;

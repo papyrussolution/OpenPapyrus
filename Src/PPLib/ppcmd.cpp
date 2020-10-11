@@ -8,8 +8,7 @@
 //
 // @ModuleDef(PPCommand)
 //
-//static
-const char * PPCommandDescr::P_FactoryPrfx = "CFF_";
+/*static*/const char * PPCommandDescr::P_FactoryPrfx = "CFF_";
 
 SLAPI PPCommandDescr::PPCommandDescr()
 {
@@ -96,8 +95,7 @@ int SLAPI PPCommandDescr::LoadResource(long cmdDescrID)
 	return ok;
 }
 
-// static
-int SLAPI PPCommandDescr::GetResourceList(LAssocArray & rList)
+/*static*/int SLAPI PPCommandDescr::GetResourceList(LAssocArray & rList)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -859,8 +857,7 @@ int SLAPI PPCommandFolder::Remove(uint pos)
 		return 0;
 }
 
-// static
-int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArray * pAry, int isDesktop)
+/*static*/int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArray * pAry, int isDesktop)
 {
 	int    ok = 1;
 	SString db_symb;
@@ -2696,10 +2693,54 @@ IMPLEMENT_CMD_HDL_FACTORY(CASHNODEPANEL);
 class AddBillFiltDlg : public TDialog {
 public:
 	struct Param {
-		Param() : Bbt(0), OpID(0), LocID(0)
+		enum {
+			poUndef = 0,
+			poBuyerOrder = 1,
+			poSupplOrder = 2,
+			poReceipt    = 3,
+			poBuyerSale  = 4,
+			poIntrExpend = 5,
+			poInventory  = 6,
+			poAccTurn    = 7
+		};
+		enum {
+			fShowBrowserAfterCreation = 0x0001
+		};
+		Param() : PredefOp(poUndef), Bbt(0), OpID(0), LocID(0), Flags(0)
 		{
 		}
-		int    SLAPI Read(SBuffer & rBuf, long)
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+		{
+			const  uint64 signature = 0x18080BCD1FFC030BULL;
+			int    ok = 1;
+			int    do_regular = 1;
+			if(dir < 0) {
+				uint64 in_s = 0;
+				THROW_SL(rBuf.Read(in_s));
+				if(in_s == signature) {
+					do_regular = 1;
+				}
+				else {
+					THROW(rBuf.Unread(sizeof(in_s)));
+					THROW_SL(rBuf.Read(Bbt));
+					THROW_SL(rBuf.Read(OpID));
+					THROW_SL(rBuf.Read(LocID));
+				}
+			}
+			else if(dir > 0) {
+				THROW_SL(rBuf.Write(signature));
+			}
+			if(do_regular) {
+				THROW_SL(pSCtx->Serialize(dir, PredefOp, rBuf));
+				THROW_SL(pSCtx->Serialize(dir, Bbt, rBuf));
+				THROW_SL(pSCtx->Serialize(dir, OpID, rBuf));
+				THROW_SL(pSCtx->Serialize(dir, LocID, rBuf));
+				THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+			}
+			CATCHZOK
+			return ok;
+		}
+		/*int    SLAPI Read(SBuffer & rBuf, long)
 		{
 			int    ok = 1;
 			THROW_SL(rBuf.Read(Bbt));
@@ -2716,96 +2757,215 @@ public:
 			THROW_SL(rBuf.Write(LocID));
 			CATCHZOK
 			return ok;
-		}
+		}*/
+		long   PredefOp;
 		PPID   Bbt;
 		PPID   OpID;
 		PPID   LocID;
+		long   Flags;
 	};
+	DECL_DIALOG_DATA(Param);
 
-	static int OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList);
-	AddBillFiltDlg() : TDialog(DLG_ADDBILLFLT), PrevBbt(0)
+	static int OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList)
+	{
+		int    ok = 1;
+		THROW_INVARG(pOpTypeList);
+		switch(bbt) {
+			case bbtGoodsBills:
+				pOpTypeList->addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
+					PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CORRECTION, 0L);
+				break;
+			case bbtOrderBills: pOpTypeList->add(PPOPT_GOODSORDER); break;
+			case bbtAccturnBills: pOpTypeList->add(PPOPT_ACCTURN); break;
+			case bbtInventoryBills: pOpTypeList->add(PPOPT_INVENTORY); break;
+			case bbtDraftBills: pOpTypeList->addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ, 0L); break; // @v10.5.7 PPOPT_DRAFTQUOTREQ
+			case bbtSpcChargeOnMarks: pOpTypeList->add(PPOPT_DRAFTRECEIPT); break; // @v10.9.0
+		}
+		pOpTypeList->sort();
+		CATCHZOK
+		return ok;
+	}
+	AddBillFiltDlg() : TDialog(DLG_ADDBILLFLT)
 	{
 	}
-	int    setDTS(const Param *);
-	int    getDTS(Param *);
+	DECL_DIALOG_SETDTS()
+	{
+		PPID   bbt = 0;
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		AddClusterAssocDef(CTL_ADDBILLFLT_RESERVED, 0, Param::poUndef);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 1, Param::poBuyerOrder);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 2, Param::poSupplOrder);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 3, Param::poReceipt);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 4, Param::poBuyerSale);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 5, Param::poIntrExpend);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 6, Param::poInventory);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 7, Param::poAccTurn);
+		SetClusterData(CTL_ADDBILLFLT_RESERVED, Data.PredefOp);
+		AddClusterAssoc(CTL_ADDBILLFLT_FLAGS, 0, Param::fShowBrowserAfterCreation);
+		SetClusterData(CTL_ADDBILLFLT_FLAGS, Data.Flags);
+		bbt = (Data.Bbt >= 0) ? (Data.Bbt + 1) : 0;
+		SetupPPObjCombo(this, CTLSEL_ADDBILLFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
+		SetupStringCombo(this, CTLSEL_ADDBILLFLT_BBT, PPTXT_BILLTYPES, bbt);
+		SetupOprKindList(Param::poUndef, bbt, Data.OpID);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		Data.PredefOp = GetClusterData(CTL_ADDBILLFLT_RESERVED);
+		getCtrlData(CTLSEL_ADDBILLFLT_OP,  &Data.OpID);
+		getCtrlData(CTLSEL_ADDBILLFLT_LOC, &Data.LocID);
+		getCtrlData(CTLSEL_ADDBILLFLT_BBT, &Data.Bbt);
+		GetClusterData(CTL_ADDBILLFLT_FLAGS, &Data.Flags);
+		Data.Bbt--;
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
-	DECL_HANDLE_EVENT;
-	int    SetupOprKindList(PPID opTypeID, PPID opID);
-	PPID   PrevBbt;
-	Param  Data;
-};
-
-IMPL_HANDLE_EVENT(AddBillFiltDlg)
-{
-	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_ADDBILLFLT_BBT)) {
-		PPID   bbt = getCtrlLong(CTLSEL_ADDBILLFLT_BBT);
-		PPID   op_id = getCtrlLong(CTLSEL_ADDBILLFLT_OP);
-		SetupOprKindList(bbt, op_id);
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_ADDBILLFLT_BBT)) {
+			PPID   bbt = getCtrlLong(CTLSEL_ADDBILLFLT_BBT);
+			PPID   op_id = getCtrlLong(CTLSEL_ADDBILLFLT_OP);
+			SetupOprKindList(Param::poUndef, bbt, op_id);
+		}
+		else if(event.isClusterClk(CTL_ADDBILLFLT_RESERVED)) {
+			Data.PredefOp = GetClusterData(CTL_ADDBILLFLT_RESERVED);
+			SetupOprKindList(Data.PredefOp, -1, 0);
+		}
+		else
+			return;
 		clearEvent(event);
 	}
-}
-
-int AddBillFiltDlg::OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList)
-{
-	int    ok = 1;
-	THROW_INVARG(pOpTypeList);
-	if(bbt == bbtGoodsBills) {
-		pOpTypeList->addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
-			PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CORRECTION, 0L);
+	void SetupOprKindList(long predefOp, PPID bbt, PPID opID)
+	{
+		static int __lock = 0;
+		if(!__lock) {
+			__lock = 1;
+			PPObjOprKind op_obj;
+			PPID   selected_op_id = 0;
+			PPIDArray op_list;
+			int    is_op_list_inited = 0;
+			PPOprKind enum_opk_rec;
+			if(predefOp) {
+				bbt = -1;
+				const PPCommConfig & r_ccfg = CConfig;
+				switch(predefOp) {
+					case Param::poUndef:
+						break;
+					case Param::poBuyerOrder:
+						bbt = bbtOrderBills;
+						{
+							const PPID acs_id = r_ccfg.SellAccSheet;
+							if(acs_id) {
+								for(PPID enum_op_id = 0; EnumOperations(PPOPT_GOODSORDER, &enum_op_id, &enum_opk_rec) > 0;) {
+									if(enum_opk_rec.AccSheetID == acs_id) {
+										op_list.add(enum_op_id);
+										is_op_list_inited = 1;
+									}
+								}
+								SETIFZ(selected_op_id, op_list.getSingle());
+							}
+						}
+						break;
+					case Param::poSupplOrder:
+						bbt = bbtDraftBills;
+						selected_op_id = r_ccfg.DraftRcptOp;
+						break;
+					case Param::poReceipt:
+						bbt = bbtGoodsBills;
+						selected_op_id = r_ccfg.ReceiptOp;
+						break;
+					case Param::poBuyerSale:
+						bbt = bbtGoodsBills;
+						{
+							const PPID acs_id = r_ccfg.SellAccSheet;
+							if(acs_id) {
+								for(PPID enum_op_id = 0; EnumOperations(PPOPT_GOODSEXPEND, &enum_op_id, &enum_opk_rec) > 0;) {
+									if(enum_opk_rec.AccSheetID == acs_id) {
+										if(!selected_op_id && enum_opk_rec.Flags & OPKF_ONORDER)
+											selected_op_id = enum_op_id;
+										op_list.add(enum_op_id);
+										is_op_list_inited = 1;
+									}
+								}
+							}
+						}
+						break;
+					case Param::poIntrExpend:
+						bbt = bbtGoodsBills;
+						{
+							for(PPID enum_op_id = 0; EnumOperations(PPOPT_GOODSEXPEND, &enum_op_id, &enum_opk_rec) > 0;) {
+								if(IsIntrExpndOp(enum_opk_rec.ID)) {
+									op_list.add(enum_op_id);
+									is_op_list_inited = 1;
+								}
+							}
+							SETIFZ(selected_op_id, op_list.getSingle());
+						}
+						break;
+					case Param::poInventory:
+						bbt = bbtInventoryBills;
+						break;
+					case Param::poAccTurn:
+						bbt = bbtAccturnBills;
+						selected_op_id = PPOPK_GENERICACCTURN;
+						break;
+				}
+				if(bbt >= 0)
+					setCtrlLong(CTLSEL_ADDBILLFLT_BBT, bbt+1);
+				if(selected_op_id)
+					setCtrlLong(CTLSEL_ADDBILLFLT_OP, selected_op_id);
+			}
+			else {
+				selected_op_id = opID;
+				bbt--;
+			}
+			if((bbt+1) == bbtSpcChargeOnMarks) {
+				PPID   temp_op_id = PPOPK_EDI_CHARGEONWITHMARKS;
+				if(GetOpData(temp_op_id, &enum_opk_rec) > 0) {
+					op_list.add(temp_op_id);
+					is_op_list_inited = 1;
+					selected_op_id = temp_op_id;
+				}
+				else if(CONFIRM(PPCFM_CREATESPCOPRKIND)) { // Выбранная категории документов требует специальной зарезервированной операции. Создать ее сейчас?
+					temp_op_id = 0;
+					if(op_obj.GetEdiChargeOnWithMarksOp(&temp_op_id, 1) > 0) {
+						op_list.add(temp_op_id);
+						is_op_list_inited = 1;
+						selected_op_id = temp_op_id;
+					}
+					else {
+						op_list.clear();
+						is_op_list_inited = 1;
+						selected_op_id = 0;
+						PPError();
+					}
+				}
+				else {
+					op_list.clear();
+					is_op_list_inited = 1;
+					selected_op_id = 0;
+				}
+			}
+			if(!is_op_list_inited) {
+				PPIDArray op_type_list;
+				AddBillFiltDlg::OpTypeListByBbt(bbt, &op_type_list);
+				for(PPID enum_op_id = 0; EnumOperations(0, &enum_op_id, &enum_opk_rec) > 0;) {
+					if(op_type_list.bsearch(enum_opk_rec.OpTypeID, 0) > 0)
+						op_list.add(enum_op_id);
+				}
+				SETIFZ(selected_op_id, op_list.getSingle());
+			}
+			// @v10.9.0 opID = oneof2(PrevBbt, 0, bbt) ? opID : 0;
+			if(!op_list.lsearch(selected_op_id))
+				selected_op_id = 0;
+			SetupOprKindCombo(this, CTLSEL_ADDBILLFLT_OP, selected_op_id, 0, &op_list, OPKLF_OPLIST);
+			__lock = 0;
+		}
 	}
-	else if(bbt == bbtOrderBills)
-		pOpTypeList->add(PPOPT_GOODSORDER);
-	else if(bbt == bbtAccturnBills)
-		pOpTypeList->add(PPOPT_ACCTURN);
-	else if(bbt == bbtInventoryBills)
-		pOpTypeList->add(PPOPT_INVENTORY);
-	else if(bbt == bbtDraftBills)
-		pOpTypeList->addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
-	pOpTypeList->sort();
-	CATCHZOK
-	return ok;
-}
-
-int AddBillFiltDlg::SetupOprKindList(PPID bbt, PPID opID)
-{
-	int    r = 0;
-	PPID   op_id = 0;
-	PPIDArray op_type_list;
-	PPIDArray op_list;
-	PPOprKind opk_rec;
-	bbt--;
-	AddBillFiltDlg::OpTypeListByBbt(bbt, &op_type_list);
-	while((r = EnumOperations(0, &op_id, &opk_rec)) > 0)
-		if(op_type_list.bsearch(opk_rec.OpTypeID, 0) > 0)
-			op_list.add(op_id);
-	opID = (PrevBbt == 0 || PrevBbt == bbt) ? opID : 0;
-	PrevBbt = bbt;
-	SetupOprKindCombo(this, CTLSEL_ADDBILLFLT_OP, opID, 0, &op_list, OPKLF_OPLIST);
-	return 1;
-}
-
-int AddBillFiltDlg::setDTS(const Param * pData)
-{
-	PPID   bbt = 0;
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	bbt = (Data.Bbt >= 0) ? Data.Bbt + 1 : 0;
-	SetupPPObjCombo(this, CTLSEL_ADDBILLFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
-	SetupStringCombo(this, CTLSEL_ADDBILLFLT_BBT, PPTXT_BILLTYPES, bbt);
-	SetupOprKindList(bbt, Data.OpID);
-	return 1;
-}
-
-int AddBillFiltDlg::getDTS(Param * pData)
-{
-	getCtrlData(CTLSEL_ADDBILLFLT_OP,  &Data.OpID);
-	getCtrlData(CTLSEL_ADDBILLFLT_LOC, &Data.LocID);
-	getCtrlData(CTLSEL_ADDBILLFLT_BBT, &Data.Bbt);
-	Data.Bbt--;
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
+};
 
 class CMD_HDL_CLS(ADDBILL) : public PPCommandHandler {
 public:
@@ -2818,11 +2978,12 @@ public:
 		size_t sav_offs = 0;
 		AddBillFiltDlg::Param filt;
 		AddBillFiltDlg * p_dlg = 0;
-
+		SSerializeContext sctx;
 		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&(p_dlg = new AddBillFiltDlg)));
 		sav_offs = pParam->GetRdOffs();
-		filt.Read(*pParam, 0);
+		filt.Serialize(-1, *pParam, &sctx);
+		//filt.Read(*pParam, 0);
 		p_dlg->setDTS(&filt);
 		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			if(p_dlg->getDTS(&filt) > 0)
@@ -2831,7 +2992,9 @@ public:
 				PPError();
 		}
 		if(ok > 0) {
-			THROW(filt.Write(pParam->Z(), 0));
+			pParam->Z();
+			THROW(filt.Serialize(+1, *pParam, &sctx));
+			//THROW(filt.Write(pParam, 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2850,18 +3013,22 @@ public:
 				int    r = 1;
 				SBuffer param;
 				AddBillFiltDlg::Param filt;
+				SSerializeContext sctx;
 				static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 				RVALUEPTR(param, pParam);
 				if(!param.GetAvailableSize()) {
 					if(EditParam(&param, cmdID, extraPtr) > 0) {
-						filt.Read(param, 0);
+						//filt.Read(param, 0);
+						filt.Serialize(-1, param, &sctx);
 						r = 1;
 					}
 					else
 						r = -1;
 				}
-				else
-					filt.Read(param, 0);
+				else {
+					//filt.Read(param, 0);
+					filt.Serialize(-1, param, &sctx);
+				}
 				if(r > 0 && filt.Bbt >= 0) {
 					if(!filt.LocID || !filt.OpID) {
 						PPIDArray op_type_list;
@@ -2883,6 +3050,30 @@ public:
 							bill_filt.LocList.Add(filt.LocID);
 							r = p_bobj->AddGoodsBillByFilt(&id, &bill_filt, filt.OpID);
 						}
+						// @v10.9.0 {
+						if(r > 0 && filt.Flags & filt.fShowBrowserAfterCreation) {
+							BillTbl::Rec bill_rec;
+							if(p_bobj->Search(id, &bill_rec) > 0) {
+								BillFilt bill_flt;
+								switch(GetOpType(bill_rec.OpID)) {
+									case PPOPT_DRAFTEXPEND:
+									case PPOPT_DRAFTRECEIPT:
+									case PPOPT_DRAFTQUOTREQ:
+									case PPOPT_DRAFTTRANSIT: bill_flt.Bbt = bbtDraftBills; break;
+									case PPOPT_ACCTURN: bill_flt.Bbt = bbtAccturnBills; break;
+									case PPOPT_INVENTORY: bill_flt.Bbt = bbtInventoryBills; break;
+									case PPOPT_GOODSORDER: bill_flt.Bbt = bbtOrderBills; break;
+									case PPOPT_POOL: bill_flt.Bbt = bbtPoolBills;
+								}
+								bill_flt.SetupBrowseBillsType(bill_flt.Bbt);
+								bill_flt.OpID = bill_rec.OpID;
+								bill_flt.Period.SetDate(bill_rec.Dt);
+								bill_flt.Sel = id;
+								BillFilt::FiltExtraParam p(0, bill_flt.Bbt);
+								PPView::Execute(PPVIEW_BILL, &bill_flt, GetModelessStatus(), &p);
+							}
+						}
+						// } @v10.9.0 
 						DS.SetLocation(save_loc_id);
 						ok = (r == cmOK) ? 1 : -1;
 					}
@@ -3011,8 +3202,7 @@ public:
 	SString WtmFileName;
 };
 
-//static
-const char * TSessCreateFilt::P_PrivSign = "TSESCR\x20\x20";
+/*static*/const char * TSessCreateFilt::P_PrivSign = "TSESCR\x20\x20";
 
 #define GRP_CRTTSESSFLT_WTM 1
 

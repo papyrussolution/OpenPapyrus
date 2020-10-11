@@ -592,8 +592,7 @@ int PPTex2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
 	return ok;
 }
 
-//static
-PPTex2HtmlPrcssr::_TexToHtmlEntry PPTex2HtmlPrcssr::__TexToHtmlList[] = {
+/*static*/PPTex2HtmlPrcssr::_TexToHtmlEntry PPTex2HtmlPrcssr::__TexToHtmlList[] = {
 	{ PPTex2HtmlPrcssr::_texEnv, "__default",   "p", 0 },
 	{ PPTex2HtmlPrcssr::_texEnv, "document",    "body", 0 },
 	{ PPTex2HtmlPrcssr::_texEnv, "itemize",     "dl", 0 },
@@ -1686,8 +1685,7 @@ private:
 	}
 };
 
-//static
-int PPTex2HtmlPrcssr::EditParam(PPTex2HtmlPrcssr::Param * pParam)
+/*static*/int PPTex2HtmlPrcssr::EditParam(PPTex2HtmlPrcssr::Param * pParam)
 {
     return PPDialogProcBody <Tex2HtmlParamDialog, PPTex2HtmlPrcssr::Param> (pParam);
 }
@@ -1980,8 +1978,7 @@ private:
 	}
 };
 
-//static
-int PPVer2HtmlPrcssr::EditParam(PPVer2HtmlPrcssr::Param * pParam)
+/*static*/int PPVer2HtmlPrcssr::EditParam(PPVer2HtmlPrcssr::Param * pParam)
 {
     return PPDialogProcBody <Ver2HtmlParamDialog, PPVer2HtmlPrcssr::Param> (pParam);
 }

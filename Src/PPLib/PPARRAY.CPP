@@ -419,9 +419,7 @@ int FASTCALL ObjIdListFilt::Get(PPIDArray & rResult) const
 	int    ok = 1;
 	rResult.clear();
 	if(P_List && P_List->getCount()) {
-		/* @v9.8.5 for(uint i = 0; i < P_List->getCount(); i++)
-			rResult.add(P_List->get(i));*/
-		rResult = *P_List; // @v9.8.5
+		rResult = *P_List;
 		rResult.sortAndUndup();
 	}
 	else

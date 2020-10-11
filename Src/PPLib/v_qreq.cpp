@@ -1,5 +1,5 @@
 // V_QREQ.CPP
-// Copyright (c) A.Sobolev 2019
+// Copyright (c) A.Sobolev 2019, 2020
 // @codepage UTF-8
 //
 // @moduledef(PPViewQuoteReqAnalyze) Анализ котировочных запросов
@@ -303,8 +303,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-//static 
-int FASTCALL PPViewQuoteReqAnalyze::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewQuoteReqAnalyze::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewQuoteReqAnalyze * p_v = static_cast<PPViewQuoteReqAnalyze *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

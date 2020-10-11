@@ -1447,7 +1447,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 			left.TrimRight();
 			rItem.Str.Cat(left);
 		}
-		else if(TempBuf.CmpPrefix("#}", 0) == 0) {
+		else if(TempBuf.HasPrefix("#}")) {
 			rItem.Kind = rItem.kScopeEnd;
 			rItem.Scope = rItem.scopeDescr;
 		}
@@ -1472,15 +1472,15 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 		else {
 			StringStore2::ParseItem preserve_item = rItem;
 			rItem.Z();
-			if(TempBuf.CmpPrefix("#{", 0) == 0) {
+			if(TempBuf.HasPrefix("#{")) {
 				rItem.Kind = rItem.kScopeStart;
 				rItem.Scope = rItem.scopeDescr;
 			}
-			else if(TempBuf.CmpPrefix("#!{", 0) == 0) {
+			else if(TempBuf.HasPrefix("#!{")) {
 				rItem.Kind = rItem.kScopeStart;
 				rItem.Scope = rItem.scopeNoTranslate;
 			}
-			else if(TempBuf.CmpPrefix("#!}", 0) == 0) {
+			else if(TempBuf.HasPrefix("#!}")) {
 				rItem.Kind = rItem.kScopeEnd;
 				rItem.Scope = rItem.scopeNoTranslate;
 			}

@@ -1344,7 +1344,7 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 		delete static_cast<PPView##ViewTypNam *>(Extra[0].Ptr);  \
 		Extra[0].Ptr = 0;                    \
 	}                                        \
-	Extra[1].Ptr = 0; /* @v9.6.4 return 1; */
+	Extra[1].Ptr = 0;
 
 #define INIT_PPVIEW_ALDD_ITER(ViewTypNam) \
 	PPView##ViewTypNam * p_v = static_cast<PPView##ViewTypNam *>(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr); \
@@ -1388,8 +1388,6 @@ int  FASTCALL PPAlddPrint(int RptId, PView * pview, const PPReportEnv * pEnv = 0
 
 //int  SLAPI PPAlddPrint(int RptId, PPFilt * pf, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
 //int  SLAPI PPAlddPrint(int RptId, PView * pview, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
-// @v9.8.5 int  SLAPI PPAlddPrint(int RptId, DlRtm *);
-// @v9.8.5 int  SLAPI PPAlddExport(DlRtm *, PPFilt *, int sort, int isView, char * pPath, const char * pDestPath = 0, int inheritedTblNames = 0);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, PPView * pView, SCodepageIdent cp, SString & rBuf);

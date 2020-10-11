@@ -544,7 +544,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 									rec.GoodsID = final_goods_id;
 									rec.GoodsGrpID = Filt.Sgg ? 0 : goods_rec.ParentID;
 									if(Filt.Sgg) {
-										THROW(GObj.GetSubstText(final_goods_id, Filt.Sgg, &Gsl, temp_buf));
+										GObj.GetSubstText(final_goods_id, Filt.Sgg, &Gsl, temp_buf);
 										STRNSCPY(rec.Name, temp_buf);
 									}
 									else

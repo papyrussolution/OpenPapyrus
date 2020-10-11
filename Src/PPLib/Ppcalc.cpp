@@ -1323,7 +1323,7 @@ int PosPaymentBlock::EditDialog2()
 				}
 				if(lockCtl != CTL_CPPAYM_CASH)
 					setCtrlReal(CTL_CPPAYM_CASH, Data.NoteAmt);
-				setCtrlReal(CTL_CPPAYM_DIFF, Data.DeliveryAmt);
+				setCtrlReal(CTL_CPPAYM_DIFF, (Data.DeliveryAmt > 0.0) ? Data.DeliveryAmt : 0.0); // @v10.9.0 (Data.DeliveryAmt)-->((Data.DeliveryAmt > 0.0) ? Data.DeliveryAmt : 0.0)
 				State &= ~stLock;
 			}
 		}

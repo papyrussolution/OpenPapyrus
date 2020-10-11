@@ -780,8 +780,7 @@ int SLAPI ClientBankExportDef::PutEnd()
 int SLAPI ClientBankExportDef::GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount)
 	{ return static_cast<const Helper_ClientBank2 *>(P_Helper)->GetStat(pAcceptedCount, pRejectedCount, pAmount); }
 
-//static
-SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & rBuf)
+/*static*/SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & rBuf)
 {
 	PPLoadString("vat", rBuf);
 	rBuf.Space();

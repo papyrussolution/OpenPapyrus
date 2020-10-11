@@ -70,8 +70,7 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 	return 0;
 }
 
-// static
-int FASTCALL RegisterCore::IsEqualRec(const RegisterTbl::Rec & rRec1, const RegisterTbl::Rec & rRec2)
+/*static*/int FASTCALL RegisterCore::IsEqualRec(const RegisterTbl::Rec & rRec1, const RegisterTbl::Rec & rRec2)
 {
 	#define ISEQ(f) (rRec1.f == rRec2.f)
 	if(ISEQ(ObjType) && ISEQ(ObjID) && ISEQ(PsnEventID) && ISEQ(RegTypeID) && ISEQ(Dt) && ISEQ(RegOrgID) &&
@@ -543,8 +542,7 @@ int SLAPI RegisterCore::SetByPerson(PPID personID, PPID regTypeID, const Registe
 	return ok;
 }
 
-// static
-int FASTCALL RegisterCore::GetText(const RegisterTbl::Rec & rRec, SString & rBuf)
+/*static*/int FASTCALL RegisterCore::GetText(const RegisterTbl::Rec & rRec, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -768,8 +766,7 @@ int SLAPI RegisterFilt::IsEmpty() const
 		NmbPattern.NotEmpty() || !RegPeriod.IsZero() || !ExpiryPeriod.IsZero());
 }
 
-//static
-int FASTCALL RegisterCore::CheckRecForFilt(const RegisterTbl::Rec & rRec, const RegisterFilt * pFilt)
+/*static*/int FASTCALL RegisterCore::CheckRecForFilt(const RegisterTbl::Rec & rRec, const RegisterFilt * pFilt)
 {
 	int    ok = 1;
 	if(pFilt) {

@@ -5,6 +5,8 @@
 #include <pp.h>
 #pragma hdrstop
 
+#if 0 // moved to scspctrt.cpp {
+
 class UdsGameInterface {
 public:
 	struct InitBlock {
@@ -98,10 +100,10 @@ public:
 		MembershipTier Mt;
 	};
 	struct Customer {
-		Customer() : Gender(-1), DOB(ZERODATE)
+		Customer() : Gender(GENDER_UNDEF), DOB(ZERODATE)
 		{
 		}
-		int    Gender; // 0 - male, 1 - female
+		int    Gender; // GENDER_XXX
 		LDATE  DOB;
 		S_GUID Uid;
 		SString Avatar;
@@ -369,8 +371,7 @@ int SLAPI UdsGameInterface::GetSettings(Settings & rResult)
 	PrepareHtmlFields(hdr_flds);
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("settings"));
-		PPGetFilePath(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf);
-		SFile f_out_log(temp_buf, SFile::mAppend);
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
 		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
 		f_out_log.WriteLine(log_buf.CR());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
@@ -603,8 +604,7 @@ int SLAPI UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // G
 	PrepareHtmlFields(hdr_flds);
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("customers").SetLastDSlash().Cat(id));
-		PPGetFilePath(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf);
-		SFile f_out_log(temp_buf, SFile::mAppend);
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
 		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
 		f_out_log.WriteLine(log_buf.CR());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
@@ -641,8 +641,7 @@ int SLAPI UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) /
 	PrepareHtmlFields(hdr_flds);
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("customers"));
-		PPGetFilePath(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf);
-		SFile f_out_log(temp_buf, SFile::mAppend);
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
 		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
 		f_out_log.WriteLine(log_buf.CR());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
@@ -714,8 +713,7 @@ int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer 
 			url_buf.CatChar(arg_count ? '&' : '?').CatEq("uid", temp_buf);
 		}
 		InetUrl url(url_buf);
-		PPGetFilePath(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf);
-		SFile f_out_log(temp_buf, SFile::mAppend);
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
 		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf);
 		f_out_log.WriteLine(log_buf.CR());
 		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
@@ -841,8 +839,7 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("operations"));
-		PPGetFilePath(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf);
-		SFile f_out_log(temp_buf, SFile::mAppend);
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
 		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
 		f_out_log.WriteLine(log_buf.CR());
 		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -968,3 +965,4 @@ int SLAPI TestUdsInterface()
 	}
 	return ok;
 }
+#endif // } 0 moved to scspctrt.cpp

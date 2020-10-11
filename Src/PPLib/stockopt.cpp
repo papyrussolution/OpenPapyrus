@@ -138,8 +138,7 @@ private:
 	int    DataSrc; // 0 - cfg, 1 - filt
 };
 
-//static
-int SLAPI PPStockOpt::EditConfig()
+/*static*/int SLAPI PPStockOpt::EditConfig()
 {
 	int    ok = -1;
 	Config cfg;

@@ -283,8 +283,7 @@ int FASTCALL PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pIte
 	return ok;
 }
 
-//static 
-int FASTCALL PPViewGoodsToObjAssoc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewGoodsToObjAssoc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewGoodsToObjAssoc * p_v = static_cast<PPViewGoodsToObjAssoc *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

@@ -6,9 +6,9 @@
 
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
 TView * SLAPI ValidView(TView * pView) { return APPL->validView(pView); }
-ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; } // @v9.0.4 TView-->TWindow
+ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }
 
-ushort FASTCALL ExecViewAndDestroy(TWindow * pView) // @v9.0.4 TView-->TWindow
+ushort FASTCALL ExecViewAndDestroy(TWindow * pView)
 {
 	ushort r = pView ? APPL->P_DeskTop->execView(pView) : cmError;
 	delete pView;
@@ -1964,8 +1964,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 //
 //
 //
-// static
-int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtlID, uint grpID, int titleTextId, int patternId, long flags)
+/*static*/int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtlID, uint grpID, int titleTextId, int patternId, long flags)
 {
 	int    ok = 1;
 	if(dlg) {
@@ -5583,11 +5582,20 @@ int SLAPI EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 // TimePickerDialog
 //
 class TimePickerDialog : public TDialog {
+	DECL_DIALOG_DATA(LTIME);
 public:
 	TimePickerDialog();
 	~TimePickerDialog();
-	int    setDTS(LTIME data);
-	int    getDTS(LTIME * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	enum {
 		dummyFirst = 1,
@@ -5632,11 +5640,11 @@ private:
 				HourDelta = (rect.right - rect.left - 20) / hours_in_line;
 				offs = (rect.right - rect.left - (HourDelta * hours_in_line)) / 2;
 				for(long i = 0; i < hoursl_count; i++) {
-					int16 top = (i == 0) ? (int16)(rect.top + 30) : Hours.at(i - 1).b.y;
-					item.a.x = (int16)(rect.left + offs);
+					int16 top = (i == 0) ? static_cast<int16>(rect.top + 30) : Hours.at(i - 1).b.y;
+					item.a.x = static_cast<int16>(rect.left + offs);
 					item.a.y = top;
-					item.b.x = (int16)(item.a.x + HourDelta * hours_in_line);
-					item.b.y = (int16)(item.a.y + HourDelta);
+					item.b.x = static_cast<int16>(item.a.x + HourDelta * hours_in_line);
+					item.b.y = static_cast<int16>(item.a.y + HourDelta);
 					Hours.insert(&item);
 				}
 				HCellLen = (item.b.x - item.a.x) / hours_in_line;
@@ -5648,10 +5656,10 @@ private:
 				offs = (rect.right - rect.left - (MinDelta * minuts_in_line)) / 2;
 				for(long i = 0; i < minutsl_count; i++) {
 					int16 top = (i == 0) ? Hours.at(Hours.getCount() - 1).b.y + 25 : Minuts.at(i - 1).b.y;
-					item.a.x = (int16)(rect.left + offs);
+					item.a.x = static_cast<int16>(rect.left + offs);
 					item.a.y = top;
-					item.b.x = (int16)(item.a.x + MinDelta * minuts_in_line);
-					item.b.y = (int16)(item.a.y + MinDelta);
+					item.b.x = static_cast<int16>(item.a.x + MinDelta * minuts_in_line);
+					item.b.y = static_cast<int16>(item.a.y + MinDelta);
 					Minuts.insert(&item);
 				}
 				MCellLen = (item.b.x - item.a.x) / minuts_in_line;
@@ -5691,11 +5699,10 @@ private:
 		long MinDelta;
 		long HCellLen;
 		long MCellLen;
-		TSVector <TRect> Hours; // @v9.8.4 TSArray-->TSVector
-		TSVector <TRect> Minuts; // @v9.8.4 TSArray-->TSVector
+		TSVector <TRect> Hours;
+		TSVector <TRect> Minuts;
 	};
 	TimeRects TmRects;
-	LTIME  Data;
 	SPaintToolBox Ptb;
 };
 
@@ -5777,7 +5784,7 @@ void TimePickerDialog::DrawMainRect(TCanvas * pCanv, RECT * pRect)
 		m_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
 		TRect draw_rect(pRect->left + 3, 3, pRect->right - 3, m_rect.b.y + 8);
 		// нарисуем пр€моугольник
-		pCanv->FillRect(draw_rect, (HBRUSH)Ptb.Get(brMainRect));
+		pCanv->FillRect(draw_rect, static_cast<HBRUSH>(Ptb.Get(brMainRect)));
 		// Ёффект объемного пр€моугольника
 		pCanv->SelectObjectAndPush(Ptb.Get(penBlack));
 		pCanv->LineHorz(draw_rect.a.x + 1, draw_rect.b.x - 1, draw_rect.a.y + 1);
@@ -5976,18 +5983,6 @@ void TimePickerDialog::Implement_Draw()
 	::EndPaint(H(), &ps);
 }
 
-int TimePickerDialog::setDTS(LTIME data)
-{
-	Data = data;
-	return 1;
-}
-
-int TimePickerDialog::getDTS(LTIME * pData)
-{
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
 void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 {
 	struct TimeButtonWndEx {
@@ -6010,7 +6005,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 						LTIME  tm = p_cbwe->Dlg->getCtrlTime(p_cbwe->EditID);
 						TimePickerDialog * dlg = new TimePickerDialog;
 						if(CheckDialogPtrErr(&dlg)) {
-							dlg->setDTS(tm);
+							dlg->setDTS(&tm);
 							if(ExecView(dlg) == cmOK) {
 								dlg->getDTS(&tm);
 								p_cbwe->Dlg->setCtrlTime(p_cbwe->EditID, tm);
@@ -6064,7 +6059,7 @@ int TimePickerCtrlGroup::Edit(TDialog * pDlg)
 	int    ok = -1;
 	TimePickerDialog * dlg = new TimePickerDialog;
 	getData(pDlg, &Data);
-	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(Data)) {
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(&Data)) {
 		while(ok <= 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&Data)) {
 				setData(pDlg, &Data);

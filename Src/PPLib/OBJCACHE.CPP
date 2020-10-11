@@ -163,7 +163,7 @@ int SLAPI ObjCache::PackNames()
 				}
 				Ss = tempss;
 				UnusedNameSpace = 0;
-				ufp.SetFactor(0, (double)c);
+				ufp.SetFactor(0, static_cast<double>(c));
 				ufp.Commit();
 				ok = 1;
 				LastPackNamesClock = SLS.GetProfileTime();
@@ -175,7 +175,7 @@ int SLAPI ObjCache::PackNames()
 
 uint SLAPI ObjCache::GetCount() const
 {
-	return P_Ary ? P_Ary->getCount() : 0;
+	return SVector::GetCount(P_Ary);
 }
 
 int FASTCALL ObjCache::Search(PPID id, uint * pPos) const
@@ -191,7 +191,7 @@ int FASTCALL ObjCache::Search(PPID id, uint * pPos) const
 ObjCacheEntry * FASTCALL ObjCache::SearchByPos(uint pos, int incr) const
 {
 	ObjCacheEntry * p_entry = 0;
-	if(P_Ary && pos < P_Ary->getCount()) {
+	if(pos < SVector::GetCount(P_Ary)) {
 		p_entry = static_cast<ObjCacheEntry *>(P_Ary->at(pos));
 		if(incr)
 			p_entry->Counter.Incr();
@@ -206,8 +206,7 @@ int SLAPI ObjCache::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 	if(P_Ary) {
 		ObjCacheEntry * p_entry = 0;
 		if(Search(pEntry->ID, &idx) && (p_entry = (ObjCacheEntry *)P_Ary->at(idx)) != 0) {
-			// @v8.1.5 if(Ss.getDataLen())
-			if(p_entry->NameIdx && Ss.getDataLen() > 3) // @v8.1.5 (3) - нулевая заглушка и терминатор
+			if(p_entry->NameIdx && Ss.getDataLen() > 3) // (3) - нулевая заглушка и терминатор
 				UnusedNameSpace += Ss.getLen(p_entry->NameIdx)+1; // (+1) - разделитель строк
 			//
 			// Чтобы не затереть счетчик обращений копируем только прикладную часть буфера

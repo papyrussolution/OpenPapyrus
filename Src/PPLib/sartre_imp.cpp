@@ -1234,8 +1234,7 @@ int SrConceptParser::_ReadLine()
 	return ok;
 }
 
-//static
-int FASTCALL SrConceptParser::_IsWordbreakChar(int c)
+/*static*/int FASTCALL SrConceptParser::_IsWordbreakChar(int c)
 {
 	static const char * p_wb = " \t{}[]()<>,.;:!@#%^&*=+`~'?№/|\\";
 	return (c == 0 || sstrchr(p_wb, c));

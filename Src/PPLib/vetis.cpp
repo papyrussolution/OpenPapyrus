@@ -1848,8 +1848,7 @@ SLAPI VetisEntityCore::VetisEntityCore()
 {
 }
 
-//static
-int FASTCALL VetisEntityCore::ValidateEntityKind(int kind)
+/*static*/int FASTCALL VetisEntityCore::ValidateEntityKind(int kind)
 {
 	return oneof10(kind, kProductItem, kProduct, kSubProduct, kEnterprise, kBusinessEntity,
 		kUOM, kCountry, kRegion, kVetDocument, kStockEntry);
@@ -3466,8 +3465,7 @@ int SLAPI PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMs
 	return ok;
 }
 
-//static
-int FASTCALL PPVetisInterface::SetupParam(Param & rP)
+/*static*/int FASTCALL PPVetisInterface::SetupParam(Param & rP)
 {
 	rP.Clear();
 	int    ok = 1;
@@ -3586,7 +3584,7 @@ int SLAPI PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, co
 		THROW(MakeAuthField(temp_buf));
 		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
 		if(!isempty(pAction)) {
-			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrSoapAction, temp_buf.CatQStr(pAction));
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrSoapAction, temp_buf.Z().CatQStr(pAction)); // @v10.9.0 temp_buf.-->temp_buf.Z().
 		}
 	}
 	LogMessage("query", rPack);
@@ -7004,8 +7002,7 @@ void SLAPI PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint o
 	n_lo.PutInner(SXml::nst("base", "offset"), temp_buf.Z().Cat(offs));
 }
 
-//static
-int SLAPI PPVetisInterface::GoodsDateToString(const SUniTime & rUt, SString & rBuf)
+/*static*/int SLAPI PPVetisInterface::GoodsDateToString(const SUniTime & rUt, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -7102,13 +7099,30 @@ int SLAPI PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 	THROW_PP(State & stInited, PPERR_VETISIFCNOTINITED);
 	{
 		VetisSubmitRequestBlock srb;
+		/*
+			<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+				xmlns:ws="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" 
+				xmlns:base="http://api.vetrf.ru/schema/cdm/base">
+			  <soapenv:Header/>
+			  <soapenv:Body>
+				<ws:getAllCountryListRequest>
+				  <base:listOptions>
+					<base:count>10</base:count>
+					<base:offset>0</base:offset>
+				  </base:listOptions>
+				</ws:getAllCountryListRequest>
+			  </soapenv:Body>
+			</soapenv:Envelope>
+
+			https://api.vetrf.ru/platform/services/2.0/IkarService
+		*/
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
 			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar/ws-definitions"));
+			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7121,7 +7135,8 @@ int SLAPI PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : "api.vetrf.ru"; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/ikar/services/IkarService"), "GetAllCountryList", reply_buf, temp_buf));
+		//https://api.vetrf.ru/platform/services/2.0/IkarService
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/IkarService"), "GetAllCountryList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7685,7 +7700,7 @@ int SLAPI PPVetisInterface::ModifyEnterprise(VetisRegisterModificationType modTy
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(1, &app_data);
+		VetisApplicationBlock blk(1, &app_data); // @problem-vetis-ver1
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
@@ -7705,7 +7720,7 @@ int SLAPI PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationTyp
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(1, &app_data);
+		VetisApplicationBlock blk(1, &app_data); // @problem-vetis-ver1
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
@@ -7745,7 +7760,7 @@ int SLAPI PPVetisInterface::WithdrawVetDocument(const S_GUID & rDocUuid, VetisAp
 		{
 			rReply.Clear();
 			VetisApplicationBlock submit_result;
-			VetisApplicationBlock blk(1, &app_data);
+			VetisApplicationBlock blk(1, &app_data); // @problem-vetis-ver1
 			THROW(SubmitRequest(blk, submit_result));
 			if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 				THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
@@ -8471,7 +8486,7 @@ int SLAPI PPVetisInterface::ProcessUnresolvedEntityList(const TSVector <VetisEnt
 	SString temp_buf;
 	for(uint i = 0; i < rList.getCount(); i++) {
 		const VetisEntityCore::UnresolvedEntity & r_entry = rList.at(i);
-		VetisApplicationBlock reply(1, 0);
+		VetisApplicationBlock reply(1, 0); // @problem-vetis-ver1
 		S_GUID guid;
 		int    rr = 1;
 		PPID   entity_id = 0;
@@ -9408,8 +9423,7 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 	return ok;
 }
 
-//static
-int SLAPI PPVetisInterface::MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList)
+/*static*/int SLAPI PPVetisInterface::MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList)
 {
 	rBillList.clear();
 	int    ok = -1;
@@ -10416,8 +10430,7 @@ public:
 	}
 };
 
-//static
-int FASTCALL PPViewVetisDocument::EditInterchangeParam(VetisDocumentFilt * pFilt)
+/*static*/int FASTCALL PPViewVetisDocument::EditInterchangeParam(VetisDocumentFilt * pFilt)
 {
 	class VetisInterchangeFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(VetisDocumentFilt);
@@ -10480,8 +10493,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 	return is_empty_period;
 }
 
-//static
-int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFilt__)
+/*static*/int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFilt__)
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -10800,8 +10812,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
 	THROW_PP_S(!!app_data.StockEntryGuid && !!app_data.StockEntryUuid, PPERR_VETISHASNTSTOCKREF, temp_buf);
 }*/
 
-//static
-int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf)
+/*static*/int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -10836,8 +10847,7 @@ int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID,
 	return ok;
 }
 
-//static
-int FASTCALL VetisEntityCore::CheckExpiryDate(int64 expiryFrom, int64 expiryTo)
+/*static*/int FASTCALL VetisEntityCore::CheckExpiryDate(int64 expiryFrom, int64 expiryTo)
 {
 	long   ok = 1;
 	if(expiryFrom || expiryTo) {

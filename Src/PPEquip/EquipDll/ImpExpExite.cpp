@@ -109,7 +109,7 @@
 #define ELEMENT_NAME_UNT		"UNT"
 #define ELEMENT_NAME_E0074		"E0074"
 #define ELEMENT_NAME_E0062		"E0062"
-#define ELEMENT_NAME_С516		"C516"
+//#define ELEMENT_NAME_С516		"C516"
 #define ELEMENT_NAME_E3055		"E3055"
 #define ELEMENT_NAME_E9321		"E9321"
 #define ELEMENT_NAME_E4451		"E4451"
@@ -224,9 +224,6 @@
 #define SYSLOG_PARSEAPERAKRESP			"in ParseAperakResp()"
 
 #define LOG_NOINCOMDOC					"Нет входящих сообщений"
-
-class ExportCls;
-class ImportCls;
 
 class ExportCls;
 class ImportCls;
@@ -1261,7 +1258,7 @@ int ExportCls::EndDoc()
 			xmlTextWriterEndElement(P_XmlWriter); //UNS
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_MOA); // Сумма заказа с НДС
 				SegNum++;
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_С516);
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E5025_9); // Сумма документа с НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
@@ -1273,7 +1270,7 @@ int ExportCls::EndDoc()
 			xmlTextWriterEndElement(P_XmlWriter); //MOA
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_MOA); // Сумма заказа без НДС
 				SegNum++;
-				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_С516);
+				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C516");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E5025); // Квалификатор суммы
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E5025_98); // Сумма документа без НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025

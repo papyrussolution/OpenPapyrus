@@ -1332,8 +1332,7 @@ int TWhatman::DrawObject(TCanvas2 & rCanv, TWhatmanObject * pObj)
 	return ok;
 }
 
-//static
-float TWhatman::GetRuleWidth()
+/*static*/float TWhatman::GetRuleWidth()
 {
 	static const float __rule_width = 15.5f;
 	return __rule_width;

@@ -465,8 +465,7 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 //
 //
 //
-//static
-PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(uint recId, long flags)
+/*static*/PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(uint recId, long flags)
 {
 	PPImpExpParam * p_param = 0;
 	SdRecord rec;
@@ -479,8 +478,7 @@ PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(uint recId, long flags)
 	return p_param;
 }
 
-//static
-PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(const char * pSymb, long flags)
+/*static*/PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(const char * pSymb, long flags)
 {
 	PPImpExpParam * p_param = 0;
 	if(!isempty(pSymb)) {
@@ -2011,8 +2009,7 @@ enum {
 	iefrmCats,           // @v9.3.10 cats(...) Текстовая конкатенация списка аргументов (со вставкой пробелов между каждой парой)
 };
 
-// static
-int PPImpExp::ResolveVarName(const char * pSymb, const SdRecord & rRec, double * pVal)
+/*static*/int PPImpExp::ResolveVarName(const char * pSymb, const SdRecord & rRec, double * pVal)
 {
 	int    ok = 0;
 	uint   pos = 0;

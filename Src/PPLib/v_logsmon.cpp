@@ -272,14 +272,14 @@ void SLAPI PPViewLogsMonitor::PreprocessBrowser(PPViewBrowser *pBrw)
 	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evLogsChanged, 0, -1, 0));
 }
 //
-int SLAPI PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent *pEv, PPViewBrowser *pBrw, void * extraProcPtr)
+int SLAPI PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser *pBrw, void * extraProcPtr)
 {
 	int    ok = 1, update = 0;
 	if(FirstTime) {
 		pBrw->bottom();
 		FirstTime = 0;
 	}
-	if(pEv && kind==PPAdviseBlock::evLogsChanged) {
+	if(pEv && kind == PPAdviseBlock::evLogsChanged) {
 		LogsArray expired_logs;
 		SString log_fname;
 		SString logs_fpath;	PPGetPath(PPPATH_LOG, logs_fpath);

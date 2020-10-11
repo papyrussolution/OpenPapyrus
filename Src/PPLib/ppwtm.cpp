@@ -2512,8 +2512,7 @@ int PPWhatmanWindow::FileOpen()
 	return ok;
 }
 
-// static
-int PPWhatmanWindow::Launch(const char * pWtmFileName, long options, TWhatmanObject::SelectObjRetBlock * pSelRetBlk)
+/*static*/int PPWhatmanWindow::Launch(const char * pWtmFileName, long options, TWhatmanObject::SelectObjRetBlock * pSelRetBlk)
 {
 	int    ok = -1;
 	HWND   w_preserve_focus = ::GetFocus();
@@ -2551,8 +2550,7 @@ int PPWhatmanWindow::Launch(const char * pWtmFileName, long options, TWhatmanObj
 	return ok;
 }
 
-// static
-int PPWhatmanWindow::Edit(const char * pWtmFileName, const char * pWtaFileName)
+/*static*/int PPWhatmanWindow::Edit(const char * pWtmFileName, const char * pWtaFileName)
 {
 	class FrameWindow : public TWindowBase {
 	public:

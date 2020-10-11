@@ -552,7 +552,7 @@ int WinInetFTP::CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPat
 	{
 		SString temp_buf(pFTPPath);
 		temp_buf.Strip().ReplaceChar('\\', '/');
-		if(temp_buf.CmpPrefix("//", 0) == 0) {
+		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
@@ -773,7 +773,7 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 	HINTERNET file_conn = NULL, ftp_dir = NULL;
 	{
 		SPathStruc::NormalizePath(pFTPPath, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
-		if(temp_buf.CmpPrefix("//", 0) == 0) {
+		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
@@ -893,7 +893,7 @@ int WinInetFTP::Delete(const char * pPath)
 	{
 		SString temp_buf;
 		SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
-		if(temp_buf.CmpPrefix("//", 0) == 0) {
+		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
@@ -919,7 +919,7 @@ int WinInetFTP::Exists(const char * pPath)
 	{
 		SString temp_buf;
 		SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
-		if(temp_buf.CmpPrefix("//", 0) == 0) {
+		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
@@ -950,7 +950,7 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 	if(!isempty(pDir)) {
 		SString temp_buf;
 		SPathStruc::NormalizePath(pDir, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
-		if(temp_buf.CmpPrefix("//", 0) == 0) {
+		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {

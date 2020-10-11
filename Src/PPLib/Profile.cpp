@@ -597,8 +597,7 @@ SString & SLAPI Profile::GetUserProfileFileName(int fk, SString & rBuf)
 	return DS.GetTLA().Prf.InitUserProfile(0);
 }
 
-// static
-SString & SLAPI PPUserFuncProfiler::GetFileName_(int fk, SString & rBuf)
+/*static*/SString & SLAPI PPUserFuncProfiler::GetFileName_(int fk, SString & rBuf)
 {
  	return DS.GetTLA().Prf.GetUserProfileFileName(fk, rBuf);
 }

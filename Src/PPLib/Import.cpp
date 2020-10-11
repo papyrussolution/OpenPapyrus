@@ -3219,7 +3219,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPers
 				}
 				else if(elinktype == ELNKRT_WEBADDR) {
 					if(IeParam.Flags & PPPersonImpExpParam::f2GIS) {
-						if(temp_buf.CmpPrefix("http://link.2gis.ru/", 1) == 0) {
+						if(temp_buf.HasPrefixIAscii("http://link.2gis.ru/")) {
 							size_t p_ = 0;
 							if(temp_buf.SearchChar('?', &p_)) {
 								temp_buf.ShiftLeft(p_+1);
@@ -3654,7 +3654,6 @@ int ReadDBSR25::GetNutrArr(TSArray <PPComps> & rArr)
 	SString left, right;
 	NutrDescr nutr;
 	PPComps comp;
-
 	PPGetFilePath(PPPATH_IN, "NUTR_DEF.txt", file_path);
 	THROW_SL(file.Open(file_path, SFile::mRead));
 	rArr.freeAll();
@@ -4259,8 +4258,7 @@ void FiasImporter::SaxStop()
 	xmlStopParser(P_SaxCtx);
 }
 
-// static
-int FiasImporter::ParseFiasFileName(const char * pFileName, SString & rObjName, LDATE & rDt, S_GUID & rUuid)
+/*static*/int FiasImporter::ParseFiasFileName(const char * pFileName, SString & rObjName, LDATE & rDt, S_GUID & rUuid)
 {
 	int   ok = 1;
 	long  status = 0;

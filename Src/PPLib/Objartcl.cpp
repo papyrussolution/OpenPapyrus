@@ -1077,8 +1077,7 @@ int SLAPI PPObjArticle::Search(PPID id, void * b)
 int SLAPI PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 	{ return P_Tbl->SearchFreeNum(accSheetID, pID); }
 
-//static
-int SLAPI PPObjArticle::GetSearchingRegTypeID(PPID accSheetID, const char * pRegTypeCode, int useBillConfig, PPID * pRegTypeID)
+/*static*/int SLAPI PPObjArticle::GetSearchingRegTypeID(PPID accSheetID, const char * pRegTypeCode, int useBillConfig, PPID * pRegTypeID)
 {
 	int    ok = -1;
 	PPID   reg_type_id = 0;

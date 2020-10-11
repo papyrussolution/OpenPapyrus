@@ -1121,9 +1121,7 @@ int SLAPI BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * p
 //
 // BarcodeLabelPrinter
 //
-
-//static
-BarcodeLabelPrinter * SLAPI BarcodeLabelPrinter::CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack)
+/*static*/BarcodeLabelPrinter * SLAPI BarcodeLabelPrinter::CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack)
 {
 	if(rPrnPack.PrinterType == PPBCPT_ZEBRA)
 		return new ZebraLabelPrinter(rPrnPack);
@@ -1206,8 +1204,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPri
 	return ok;
 }
 
-//static
-int SLAPI BarcodeLabelPrinter::UpLoad(PPID prnID, const char * pLoadName, int silent)
+/*static*/int SLAPI BarcodeLabelPrinter::UpLoad(PPID prnID, const char * pLoadName, int silent)
 {
 	int    ok = 1;
 	SFile  f;

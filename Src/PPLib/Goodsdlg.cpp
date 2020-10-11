@@ -95,7 +95,7 @@ int SLAPI PPObjGoods::SearchUhttInteractive(const SString & rName, const SString
 		{
 			long   sel = 0;
 			int    ok = getCurItem(0, &sel);
-			ASSIGN_PTR(pSelPos, (uint)sel);
+			ASSIGN_PTR(pSelPos, static_cast<uint>(sel));
 			return ok;
 		}
 	private:
@@ -1428,7 +1428,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 		getCtrlData(CTLSEL_GOODS_DEFPRC, &Data.Rec.DefPrcID);
 		getCtrlData(CTLSEL_GOODS_DEFGSTRUC, &Data.Rec.StrucID);
 		Data.Rec.Limit = getCtrlLong(CTL_GOODSGROUP_LIMIT);
-		GetClusterData(CTL_GOODS_GRPFLAGS, &Data.Rec.Flags); // @v9.2.8
+		GetClusterData(CTL_GOODS_GRPFLAGS, &Data.Rec.Flags);
 	}
 	if(Data.Rec.PhUnitID == 0)
 		Data.Rec.PhUPerU = 0.0;

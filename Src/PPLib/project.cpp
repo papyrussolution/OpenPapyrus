@@ -1199,11 +1199,9 @@ static SString & SLAPI _GetEnumText(uint strId, int i, SString & rBuf)
 	return rBuf;
 }
 
-// static
-SString & SLAPI PPObjPrjTask::GetStatusText(int statusId, SString & rBuf)
+/*static*/SString & SLAPI PPObjPrjTask::GetStatusText(int statusId, SString & rBuf)
 	{ return _GetEnumText(PPTXT_TODO_STATUS, statusId, rBuf); }
-// static
-SString & SLAPI PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
+/*static*/SString & SLAPI PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
 	{ return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf); }
 
 class VCalImportParamDlg : public TDialog {
@@ -2510,8 +2508,7 @@ int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int
 	return ok;
 }
 
-// static
-int SLAPI PPObjPrjTask::RecoverAbsencePerson()
+/*static*/int SLAPI PPObjPrjTask::RecoverAbsencePerson()
 {
 	int    ok = 1;
 	LostPrjTPersonArray list;

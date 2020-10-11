@@ -44,8 +44,7 @@ GoodsIterator::Ext & GoodsIterator::Ext::Z()
 	return ok;
 }
 
-//static
-int FASTCALL GoodsIterator::GetListByFilt(const GoodsFilt * pFilt, StrAssocArray * pList, int byName)
+/*static*/int FASTCALL GoodsIterator::GetListByFilt(const GoodsFilt * pFilt, StrAssocArray * pList, int byName)
 {
 	int    ok = -1;
 	if(pFilt && pList) {

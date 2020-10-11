@@ -8437,7 +8437,7 @@ reportstub Lots				{ dl600data=Lots,				"Лоты"}
 reportstub LotsSOper		{ dl600data=Lots,				"Лоты по поставщику с операционным периодом"}
 reportstub LotsOper			{ dl600data=Lots,				"Лоты с операционным периодом"}
 reportstub JobPool			{ dl600data=JobPool,			"Список задач сервера"}
-reportstub Invent			{ dl600data=Invent,				"Инвентаризация"}
+reportstub Invent			{ dl600data=Invent,				"@{inventory}"}
 reportstub GTaxAnlz_PrpRcpt	{ dl600data=GoodsTaxAnlz,		"Тетрадь частного предпринимателя (по операциям прихода товаров)"}
 reportstub GTaxAnlz_PrpExpnd { dl600data=GoodsTaxAnlz,		"Тетрадь частного предпринимателя (по операциям расхода товаров)"}
 reportstub GTaxAnlz			{ dl600data=GoodsTaxAnlz,		"Налоговый анализ товарооборота (по товарам)"}
@@ -8610,6 +8610,15 @@ ctrlmenu GoodsGroupList { // @v10.8.11 @experimental
 	("@{print}\tCtrl-F7" kbF7 cmPrint)
 	("@{totals}\tF9" kbF9 cmTotal)
 	("@{close}\tEscape" kbEsc cmClose)
+}
+
+ctrlmenu LotxcodeList { // @v10.9.0
+	("@{add}\tInsert" kbIns cmaInsert)
+	("@{delete}\tDelete" kbDel cmaDelete)
+	("@{lotxcodelist_cbcopy}\tCtrl-Insert" kbCtrlIns cmCopyToClipboard)
+	("@{lotxcodelist_cbcopygtin}" kbNone cmCopyToClipboardSpc)
+	("@{lotxcodelist_cbcopyall}" kbNone cmCopyToClipboardAll)
+	("@{lotxcodelist_cbpaste}" kbNone cmPasteFromClipboardAll)
 }
 
 ctrlmenu GoodsOpAnlzAddPeriod {

@@ -2585,8 +2585,7 @@ void PPALDD_DebtTrnovr::Destroy() { DESTROY_PPVIEW_ALDD(DebtTrnovr); }
 //
 //
 //
-//static
-int SLAPI PPDebtorStatConfig::Read(PPDebtorStatConfig * pCfg)
+/*static*/int SLAPI PPDebtorStatConfig::Read(PPDebtorStatConfig * pCfg)
 {
 	int    r = -1;
 	if(pCfg) {
@@ -2605,8 +2604,7 @@ int SLAPI PPDebtorStatConfig::Read(PPDebtorStatConfig * pCfg)
 	return r;
 }
 
-//static
-int SLAPI PPDebtorStatConfig::Edit()
+/*static*/int SLAPI PPDebtorStatConfig::Edit()
 {
 	const  long prop_cfg_id  = PPPRP_DEBTORSTATCFG;
 	const  long cfg_obj_type = PPCFGOBJ_DEBTORSTAT;

@@ -396,8 +396,7 @@ int SLAPI showInputLineCalc(TDialog * pParentDlg, uint fieldCtlId)
 	return ok;
 }
 
-//static
-LRESULT CALLBACK TCalcInputLine::InLnCalcWindProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TCalcInputLine::InLnCalcWindProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	TCalcInputLine::VirtButtonWndEx * p_vbwe = static_cast<TCalcInputLine::VirtButtonWndEx *>(TView::GetWindowUserData(hWnd));
 	if(msg == WM_LBUTTONUP)

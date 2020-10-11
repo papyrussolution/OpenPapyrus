@@ -446,7 +446,6 @@ xmlSAXHandlerV1 docbDefaultSAXHandler = {
 	0,
 };
 #endif /* LIBXML_DOCB_ENABLED */
-
 /**
  * xmlInitializeGlobalState:
  * @gs: a pointer to a newly allocated global state
@@ -518,10 +517,8 @@ void xmlInitializeGlobalState(xmlGlobalState * gs)
 	memzero(&gs->xmlLastError, sizeof(xmlError));
 	xmlMutexUnlock(xmlThrDefMutex);
 }
-
 /**
- * DOC_DISABLE : we ignore missing doc for the xmlThrDef functions,
- *          those are really internal work
+ * DOC_DISABLE : we ignore missing doc for the xmlThrDef functions, those are really internal work
  */
 void xmlThrDefSetGenericErrorFunc(void * ctx, xmlGenericErrorFunc handler)
 {
@@ -567,7 +564,6 @@ xmlRegisterNodeFunc xmlThrDefRegisterNodeDefault(xmlRegisterNodeFunc func)
 	xmlMutexUnlock(xmlThrDefMutex);
 	return old;
 }
-
 /**
  * xmlDeregisterNodeDefault:
  * @func: function pointer to the new DeregisterNodeFunc
@@ -624,7 +620,6 @@ xmlSAXHandlerV1 * __docbDefaultSAXHandler()
 {
 	return IS_MAIN_THREAD ? &docbDefaultSAXHandler : &xmlGetGlobalState()->docbDefaultSAXHandler;
 }
-
 #endif
 
 #ifdef LIBXML_HTML_ENABLED
@@ -633,7 +628,6 @@ xmlSAXHandlerV1 * __htmlDefaultSAXHandler()
 {
 	return IS_MAIN_THREAD ? &htmlDefaultSAXHandler : &xmlGetGlobalState()->htmlDefaultSAXHandler;
 }
-
 #endif
 
 #undef xmlLastError

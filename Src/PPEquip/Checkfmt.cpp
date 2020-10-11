@@ -902,8 +902,13 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					}
 					break;
 				case symbUhttScHash:
-					if(Src == srcCCheck)
-						rResult.Cat(p_ccp->UhttScHash);
+					if(Src == srcCCheck) {
+						SCardSpecialTreatment::IdentifyReplyBlock stirb;
+						if(p_ccp->GetSCardSpecialTreatmentIdentifyReplyBlock(&stirb)) {
+							rResult.Cat(stirb.Hash);
+							//rResult.Cat(p_ccp->UhttScHash);
+						}
+					}
 					break;
 				case symbPctDis:
 					if(Src == srcCCheck)

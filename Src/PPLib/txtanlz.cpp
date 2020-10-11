@@ -66,10 +66,8 @@ int PPTextAnalyzer::Replacer::Chain::Add(int type, const PPTextAnalyzer::Replace
 	return ok;
 }
 
-//static
-int FASTCALL PPTextAnalyzer::Replacer::IsOp(int termType) { return BIN(termType > stLastLex); }
-//static
-int FASTCALL PPTextAnalyzer::Replacer::IsLex(int termType) { return BIN(termType < stLastLex); }
+/*static*/int FASTCALL PPTextAnalyzer::Replacer::IsOp(int termType) { return BIN(termType > stLastLex); }
+/*static*/int FASTCALL PPTextAnalyzer::Replacer::IsLex(int termType) { return BIN(termType < stLastLex); }
 
 PPTextAnalyzer::Replacer::Replacer() : P_Cluster(0)
 {
@@ -2181,8 +2179,7 @@ SLAPI PrcssrObjText::~PrcssrObjText()
 	delete P_Rpl;
 }
 
-//static
-int SLAPI PrcssrObjText::VerifyRuleFile(const char * pFileName)
+/*static*/int SLAPI PrcssrObjText::VerifyRuleFile(const char * pFileName)
 {
 	int    ok = 1;
 	THROW_SL(fileExists(pFileName));
@@ -2343,8 +2340,7 @@ int SLAPI PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-//static
-int PrcssrObjText::SignalProc(const char * pResource, int64 orgOffs, const char * pOrgStr, const char * pSignalStr, void * pExtraPtr)
+/*static*/int PrcssrObjText::SignalProc(const char * pResource, int64 orgOffs, const char * pOrgStr, const char * pSignalStr, void * pExtraPtr)
 {
 	int    ok = 1;
 	SignalProcBlock * p_blk = static_cast<SignalProcBlock *>(pExtraPtr);

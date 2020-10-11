@@ -10,8 +10,7 @@ SLAPI PPInventoryOpEx::PPInventoryOpEx()
 	THISZERO();
 }
 
-//static
-int FASTCALL PPInventoryOpEx::Helper_GetAccelInputMode(long flags)
+/*static*/int FASTCALL PPInventoryOpEx::Helper_GetAccelInputMode(long flags)
 {
 	int    mode = accsliNo;
 	if(flags & (INVOPF_ACCELADDITEMS|INVOPF_ACCELADDITEMSQTTY)) {
@@ -344,8 +343,7 @@ static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 		return stricmp866(p_i1->Name, p_i2->Name);
 }
 
-// static
-StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPIDArray * pOpList, uint flags)
+/*static*/StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPIDArray * pOpList, uint flags)
 {
 	int    r;
 	PPID   id = 0;
@@ -451,8 +449,7 @@ SLAPI PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND
 {
 }
 
-//static
-int SLAPI PPObjOprKind::GetATTemplList(PPID opID, PPAccTurnTemplArray * pList)
+/*static*/int SLAPI PPObjOprKind::GetATTemplList(PPID opID, PPAccTurnTemplArray * pList)
 {
 	int    ok = -1;
 	PPID   p = 0, last = PP_MAXATURNTEMPLATES;
@@ -843,7 +840,6 @@ SLAPI PPObjOprKind::ReservedOpCreateBlock::ReservedOpCreateBlock()
 
 int SLAPI PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta)
 {
-	// @v9.4.8 assert(rBlk.OpID);
 	int    ok = 1;
 	PPID   op_id = 0;
 	PPOprKind op_rec;
@@ -863,7 +859,7 @@ int SLAPI PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateB
         THROW(temp_buf.NotEmptyS());
         STRNSCPY(op_pack.Rec.Name, temp_buf);
         STRNSCPY(op_pack.Rec.Symb, rBlk.P_Symb);
-        op_pack.Rec.AccSheetID = rBlk.AccSheetID; // @v9.4.8
+        op_pack.Rec.AccSheetID = rBlk.AccSheetID;
         op_pack.Rec.OpTypeID = rBlk.OpTypeID;
 		op_pack.Rec.Flags |= rBlk.Flags;
 		op_pack.OpCntrPack.Init(0);
@@ -948,21 +944,31 @@ int SLAPI PPObjOprKind::GetEdiWrOffWithMarksOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
+int SLAPI PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v10.9.0
+{
+	ReservedOpCreateBlock blk;
+	blk.OpID = PPOPK_EDI_CHARGEONWITHMARKS;
+	blk.OpTypeID = PPOPT_DRAFTRECEIPT;
+	blk.NameTxtId = PPTXT_OPK_EDI_CHARGEONWITHMARKS;
+	blk.Flags = 0;
+	blk.P_Symb = "EDICHRGONWITHMARKS";
+	blk.P_CodeTempl = "EDICOM%05";
+	return Helper_GetReservedOp(pID, blk, use_ta);
+}
+
 /*virtual*/int SLAPI PPObjOprKind::MakeReserved(long flags)
 {
     int    ok = -1;
     if(flags & mrfInitializeDb) {
-		/*
-// PPTXT_OPK_COMM_GENERICACCTURN  "Общая бухгалтерская проводка"
-// PPTXT_OPK_COMM_RECEIPT         "Приход товара от поставщика"
-// PPTXT_OPK_COMM_SALE            "Продажа покупателю"
-// PPTXT_OPK_COMM_RETAIL          "Розничная продажа"
-// PPTXT_OPK_COMM_INTREXPEND      "Внутренняя передача"
-// PPTXT_OPK_COMM_INTRRECEIPT     "Межскладской приход"
-// PPTXT_OPK_COMM_INVENTORY       "Инвентаризация"
-// PPTXT_OPK_COMM_ORDER           "Заказ от покупателя"
-// PPTXT_OPK_COMM_PURCHASE        "Закупка"
-		*/
+		// PPTXT_OPK_COMM_GENERICACCTURN  "Общая бухгалтерская проводка"
+		// PPTXT_OPK_COMM_RECEIPT         "Приход товара от поставщика"
+		// PPTXT_OPK_COMM_SALE            "Продажа покупателю"
+		// PPTXT_OPK_COMM_RETAIL          "Розничная продажа"
+		// PPTXT_OPK_COMM_INTREXPEND      "Внутренняя передача"
+		// PPTXT_OPK_COMM_INTRRECEIPT     "Межскладской приход"
+		// PPTXT_OPK_COMM_INVENTORY       "Инвентаризация"
+		// PPTXT_OPK_COMM_ORDER           "Заказ от покупателя"
+		// PPTXT_OPK_COMM_PURCHASE        "Закупка"
 		long    _count = 0;
 		PPOprKind op_rec;
 		{
@@ -3094,8 +3100,7 @@ int FASTCALL GetOpData(PPID op, PPOprKind * pData)
 	return r;
 }
 
-//static
-int FASTCALL PPObjOprKind::ExpandOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList)
+/*static*/int FASTCALL PPObjOprKind::ExpandOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList)
 {
 	int    ok = -1;
 	rResultList.clear();
@@ -3121,8 +3126,7 @@ int FASTCALL PPObjOprKind::ExpandOpList(const PPIDArray & rBaseOpList, PPIDArray
 	return ok;
 }
 
-//static
-int FASTCALL PPObjOprKind::ExpandOp(PPID opID, PPIDArray & rResultList)
+/*static*/int FASTCALL PPObjOprKind::ExpandOp(PPID opID, PPIDArray & rResultList)
 {
 	int    ok = -1;
 	rResultList.clear();

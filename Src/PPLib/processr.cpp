@@ -166,8 +166,7 @@ int ProcessorPlaceCodeTemplate::Generate(StringSet & rSs) const
 	return ok;
 }
 
-// static
-SString & FASTCALL ProcessorPlaceCodeTemplate::NormalizeCode(SString & rCode)
+/*static*/SString & FASTCALL ProcessorPlaceCodeTemplate::NormalizeCode(SString & rCode)
 {
 	return rCode.Strip().ToUpper();
 }
@@ -1165,8 +1164,7 @@ private:
 	long   InheritedFlags;
 };
 
-// static
-int SLAPI PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem)
+/*static*/int SLAPI PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem)
 {
 	#define GRP_GOODS 1
 

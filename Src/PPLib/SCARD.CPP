@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -30,8 +30,7 @@ SCardCore::OpBlock & SCardCore::OpBlock::Init(SCardOpTbl::Rec * pRec)
 	return *this;
 }
 
-//static
-int SCardCore::OpBlock::CheckFreezingPeriod(const DateRange & rPeriod, LDATE expiry)
+/*static*/int SCardCore::OpBlock::CheckFreezingPeriod(const DateRange & rPeriod, LDATE expiry)
 {
 	int    ok = 1;
 	const  long pl = rPeriod.GetLength();
@@ -140,6 +139,33 @@ int SLAPI SCardCore::GetListByLoc(PPID locID, PPID seriesID, PPIDArray * pList)
 					ok = 1;
 				}
 			} while(search(4, &k4, spNext) && data.LocID == locID);
+		}
+	}
+	return ok;
+}
+
+int SLAPI SCardCore::GetListByText(int textFldId, const char * pKey, PPIDArray * pList)
+{
+	int    ok = -1;
+	if(!isempty(pKey) && oneof3(textFldId, PPSCardPacket::extssMemo, PPSCardPacket::extssPhone, PPSCardPacket::extssOuterId)) {
+		Reference * p_ref = PPRef;
+		if(p_ref) {
+			SString temp_buf;
+			PPExtStrContainer exsc;
+			TextRefEnumItem text_en_item;
+			for(SEnum en = p_ref->UtrC.Enum(PPOBJ_SCARD, PPTRPROP_SCARDEXT); en.Next(&text_en_item) > 0;) {
+				exsc.SetBuffer(text_en_item.S);
+				if(exsc.GetExtStrData(textFldId, temp_buf)) {
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(temp_buf.IsEqNC(pKey)) {
+						ok = 1;
+						if(pList)
+							pList->add(text_en_item.O.Id);
+						else
+							break;
+					}
+				}
+			}
 		}
 	}
 	return ok;
@@ -266,7 +292,6 @@ int SLAPI SCardCore::AddTurnover(PPID id, double add, int use_ta)
 }
 
 #if 0 // @construction {
-
 int SLAPI SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 {
 	int    ok = 1;
@@ -276,11 +301,9 @@ int SLAPI SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 		ok = -1;
 	return ok;
 }
-
 #endif // } @construction
 
-// static
-int SLAPI SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SString & rUpp)
+/*static*/int SLAPI SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SString & rUpp)
 {
 	int    ok = -1;
 	rLow.Z();
@@ -904,11 +927,11 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
+int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
 	int    ok = 1;
 	const  PPID user_id = LConfig.UserID;
-	TSVector <OpBlock> ex_link_op_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <OpBlock> ex_link_op_list;
 	PPTransaction tra(use_ta);
 	THROW(tra);
 	/* @construction
@@ -919,61 +942,65 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEn
 		}
 	}
 	*/
-	if(!(rBlk.Flags & rBlk.fEdit)) {
+	{
 		SCardOpTbl::Rec rec;
 		// @v10.6.4 MEMSZERO(rec);
-		rec.SCardID = rBlk.SCardID;
-		rec.Dt = rBlk.Dtm.d;
-		rec.Tm = rBlk.Dtm.t;
-		rec.LinkObjType = rBlk.LinkOi.Obj;
-		rec.LinkObjID   = rBlk.LinkOi.Id;
-		if(rBlk.DestSCardID) {
-			rec.Amount = -fabs(rBlk.Amount);
-			rec.DestSCardID = rBlk.DestSCardID;
-		}
-		else
-			rec.Amount = rBlk.Amount;
-		rec.UserID = user_id;
-		if(rBlk.Flags & rBlk.fFreezing) {
-			rec.Flags |= SCARDOPF_FREEZING;
-			THROW(rBlk.CheckFreezingPeriod(ZERODATE));
-			rec.FreezingStart = rBlk.FreezingPeriod.low;
-			rec.FreezingEnd = rBlk.FreezingPeriod.upp;
-		}
-		THROW(PutOpRec(&rec, pNotifyList, 0));
-		if(rBlk.DestSCardID) {
-			MEMSZERO(rec);
-			rec.SCardID = rBlk.DestSCardID;
-			LDATETIME dtm = rBlk.Dtm;
-			dtm.addhs(10);
-			rec.Dt = dtm.d;
-			rec.Tm = dtm.t;
+		if(!(rBlk.Flags & rBlk.fEdit)) {
+			rec.SCardID = rBlk.SCardID;
+			rec.Dt = rBlk.Dtm.d;
+			rec.Tm = rBlk.Dtm.t;
 			rec.LinkObjType = rBlk.LinkOi.Obj;
 			rec.LinkObjID   = rBlk.LinkOi.Id;
-			rec.Amount = fabs(rBlk.Amount);
+			if(rBlk.DestSCardID) {
+				rec.Amount = -fabs(rBlk.Amount);
+				rec.DestSCardID = rBlk.DestSCardID;
+			}
+			else
+				rec.Amount = rBlk.Amount;
 			rec.UserID = user_id;
-			rec.DestSCardID = rBlk.SCardID;
+			if(rBlk.Flags & rBlk.fFreezing) {
+				rec.Flags |= SCARDOPF_FREEZING;
+				THROW(rBlk.CheckFreezingPeriod(ZERODATE));
+				rec.FreezingStart = rBlk.FreezingPeriod.low;
+				rec.FreezingEnd = rBlk.FreezingPeriod.upp;
+			}
+			// @v10.9.0 {
+			if(rBlk.Flags & rBlk.fLeveling)
+				rec.Flags |= SCARDOPF_LEVELING;
+			// } @v10.9.0 
 			THROW(PutOpRec(&rec, pNotifyList, 0));
-			DS.LogAction(PPACN_SCARDOPMOV, PPOBJ_SCARD, rBlk.SCardID, rBlk.DestSCardID, 0); // @v8.0.0
+			if(rBlk.DestSCardID) {
+				MEMSZERO(rec);
+				rec.SCardID = rBlk.DestSCardID;
+				LDATETIME dtm = rBlk.Dtm;
+				dtm.addhs(10);
+				rec.Dt = dtm.d;
+				rec.Tm = dtm.t;
+				rec.LinkObjType = rBlk.LinkOi.Obj;
+				rec.LinkObjID   = rBlk.LinkOi.Id;
+				rec.Amount = fabs(rBlk.Amount);
+				rec.UserID = user_id;
+				rec.DestSCardID = rBlk.SCardID;
+				THROW(PutOpRec(&rec, pNotifyList, 0));
+				DS.LogAction(PPACN_SCARDOPMOV, PPOBJ_SCARD, rBlk.SCardID, rBlk.DestSCardID, 0);
+			}
 		}
-	}
-	else {
-		SCardOpTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
-		rec.SCardID = rBlk.SCardID;
-		rec.Dt = rBlk.Dtm.d;
-		rec.Tm = rBlk.Dtm.t;
-		rec.LinkObjType = rBlk.LinkOi.Obj;
-		rec.LinkObjID   = rBlk.LinkOi.Id;
-		rec.Amount = rBlk.Amount;
-		rec.UserID = user_id;
-		if(rBlk.Flags & rBlk.fFreezing) {
-			rec.Flags |= SCARDOPF_FREEZING;
-			THROW(rBlk.CheckFreezingPeriod(ZERODATE));
-			rec.FreezingStart = rBlk.FreezingPeriod.low;
-			rec.FreezingEnd = rBlk.FreezingPeriod.upp;
+		else {
+			rec.SCardID = rBlk.SCardID;
+			rec.Dt = rBlk.Dtm.d;
+			rec.Tm = rBlk.Dtm.t;
+			rec.LinkObjType = rBlk.LinkOi.Obj;
+			rec.LinkObjID   = rBlk.LinkOi.Id;
+			rec.Amount = rBlk.Amount;
+			rec.UserID = user_id;
+			if(rBlk.Flags & rBlk.fFreezing) {
+				rec.Flags |= SCARDOPF_FREEZING;
+				THROW(rBlk.CheckFreezingPeriod(ZERODATE));
+				rec.FreezingStart = rBlk.FreezingPeriod.low;
+				rec.FreezingEnd = rBlk.FreezingPeriod.upp;
+			}
+			THROW(PutOpRec(&rec, pNotifyList, 0));
 		}
-		THROW(PutOpRec(&rec, pNotifyList, 0));
 	}
 	THROW(tra.Commit());
 	CATCHZOK
@@ -988,13 +1015,14 @@ int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRest
 	SCardOpTbl::Rec exs_rec, rec = *pRec;
 	SCardOpTbl::Key0 k0;
 	SCardTbl::Rec sc_rec;
+	const  LDATETIME now_dtm = getcurdatetime_();
 	THROW_PP(rec.SCardID, PPERR_SCARDIDNEEDEDFOROP);
 	THROW(Search(rec.SCardID, &sc_rec));
 	if(rec.Dt == 0 || rec.Tm == 0)
 		new_op = 1;
-	SETIFZ(rec.Dt, getcurdate_());
+	SETIFZ(rec.Dt, now_dtm.d);
 	if(rec.Tm == 0) {
-		rec.Tm = getcurtime_();
+		rec.Tm = now_dtm.t;
 		if(rec.Tm == 0 && (rec.LinkObjType && rec.LinkObjID)) {
 			//
 			// Особый случай: нулевое время. Если мы оставим его таким и к операции привязан

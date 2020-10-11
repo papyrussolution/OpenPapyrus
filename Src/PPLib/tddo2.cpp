@@ -2177,8 +2177,7 @@ int SLAPI TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGr
 	return ok;
 }
 
-//static
-int FASTCALL TddoContentGraph::ExprSet::CmpOpPrior(int op1, int op2)
+/*static*/int FASTCALL TddoContentGraph::ExprSet::CmpOpPrior(int op1, int op2)
 {
 	if(op1 == op2)
 		return 0;
@@ -2751,14 +2750,12 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 	return ok;
 }
 
-//static
-int FASTCALL TddoContentGraph::IsFirstCharOfIdent(char c)
+/*static*/int FASTCALL TddoContentGraph::IsFirstCharOfIdent(char c)
 {
 	return (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
 }
 
-//static
-int FASTCALL TddoContentGraph::IsCharOfIdent(char c)
+/*static*/int FASTCALL TddoContentGraph::IsCharOfIdent(char c)
 {
 	return (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c));
 }

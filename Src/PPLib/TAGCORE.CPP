@@ -6,9 +6,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//static
-SString & FASTCALL ObjTagItem::GetTypeString(int tagType, PPID enumId, SString & rBuf)
+
+/*static*/SString & FASTCALL ObjTagItem::GetTypeString(int tagType, PPID enumId, SString & rBuf)
 {
 	rBuf.Z();
 	const char * p_str_signature = 0;

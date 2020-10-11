@@ -291,8 +291,7 @@ int SLAPI PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-// static
-int FASTCALL PPViewLinkedBill::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewLinkedBill::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewLinkedBill * p_v = static_cast<PPViewLinkedBill *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

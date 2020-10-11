@@ -14,8 +14,7 @@ static int DispArrAdd(StrAssocArray & rArr, int pos, const char* pValue)
 	return rArr.Add(pos, pValue, 1);
 }
 
-// static
-int PPCustDisp::IsComPort(const char * pPortName)
+/*static*/int PPCustDisp::IsComPort(const char * pPortName)
 {
 	int    ok = 0;
 	if(pPortName) {

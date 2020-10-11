@@ -369,8 +369,7 @@ int SLAPI DL2_Entry::Write(DL2_Storage * pStrg) const
 	return ok;
 }
 
-// static
-uint16 SLAPI DL2_Entry::ReadEntryType(FILE * pStream)
+/*static*/uint16 SLAPI DL2_Entry::ReadEntryType(FILE * pStream)
 {
 	uint32 t;
 	if(fread(&t, sizeof(t), 1, pStream) == 1) {

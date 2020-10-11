@@ -144,8 +144,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 };
 
 // @vmiller
-//static
-int FASTCALL PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
+/*static*/int FASTCALL PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 {
 	const  long prop_cfg_id = PPPRP_TSESSCFG;
 	const  long cfg_obj_type = PPCFGOBJ_TECHSESS;
@@ -200,8 +199,7 @@ int FASTCALL PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 }
 
 // @vmiller
-//static
-int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
+/*static*/int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_TSESSCFG;
 	int    ok = -1, r;
@@ -267,16 +265,6 @@ int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 	SAlloc::F(p_cfg);
 	return ok;
 }
-
-
-////static
-//int SLAPI PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
-//{
-//	int    r = PPRef->GetPropMainConfig(PPPRP_TSESSCFG, pCfg, sizeof(*pCfg));
-//	if(r <= 0)
-//		memzero(pCfg, sizeof(*pCfg));
-//	return r;
-//}
 
 #define GRP_PLANNED 1
 #define GRP_PENDING 2
@@ -458,8 +446,7 @@ void SLAPI TSessionPacket::destroy()
 //
 //
 //
-//static
-int SLAPI PPObjTSession::EditConfig()
+/*static*/int SLAPI PPObjTSession::EditConfig()
 {
 	int    ok = -1, valid_data = 0, is_new = 0;
 	PPTSessConfig cfg;
@@ -483,8 +470,7 @@ int SLAPI PPObjTSession::EditConfig()
 	return ok;
 }
 
-//static
-int FASTCALL PPObjTSession::ValidateStatus(int status)
+/*static*/int FASTCALL PPObjTSession::ValidateStatus(int status)
 {
 	return BIN(oneof5(status, TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED));
 }
@@ -502,8 +488,7 @@ static TSessStatusSymb TSessStatusSymbList[] = {
 	{ "canceled", TSESST_CANCELED }
 };
 
-//static
-int  FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol)
+/*static*/int  FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol)
 {
 	int    status = 0;
 	SString temp_buf(pSymbol);
@@ -517,8 +502,7 @@ int  FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol)
 	return status;
 }
 
-//static
-int  FASTCALL PPObjTSession::GetStatusSymbol(int status, SString & rBuf)
+/*static*/int  FASTCALL PPObjTSession::GetStatusSymbol(int status, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -3773,14 +3757,12 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 	return ok;
 }
 
-//static
-int SLAPI PPObjTSession::PutWrOffOrder(const TSessWrOffOrder * pData, int use_ta)
+/*static*/int SLAPI PPObjTSession::PutWrOffOrder(const TSessWrOffOrder * pData, int use_ta)
 {
 	return PPRef->PutPropArray(PPOBJ_TSESSION, 0, TSESPRP_WROFFORDER, pData, use_ta);
 }
 
-//static
-int SLAPI PPObjTSession::GetWrOffOrder(TSessWrOffOrder * pData)
+/*static*/int SLAPI PPObjTSession::GetWrOffOrder(TSessWrOffOrder * pData)
 {
 	int    ok = -1;
 	if(pData) {
@@ -3884,8 +3866,7 @@ int SLAPI TSessWrOffOrder::ArrangeTSessList(const PPIDArray * pSrcList, PPIDArra
 //
 //
 //
-//static
-int SLAPI PPObjTSession::EditWrOffOrder()
+/*static*/int SLAPI PPObjTSession::EditWrOffOrder()
 {
 	class TSessWrOffOrderDialog : public ObjRestrictListDialog {
 		DECL_DIALOG_DATA(TSessWrOffOrder);
