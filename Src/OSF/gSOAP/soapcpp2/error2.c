@@ -34,7 +34,7 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 */
 
 #include "soapcpp2.h"
-#include "soapcpp2_yacc.tab.cpp.h"
+#include "soapcpp2_yacc.tab.hpp"
 
 #define	MAXERR 10
 

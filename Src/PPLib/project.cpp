@@ -460,8 +460,8 @@ public:
 		setCtrlData(CTL_PRJ_START,     &Data.Rec.BeginDt);
 		setCtrlData(CTL_PRJ_ESTFINISH, &Data.Rec.EstFinishDt);
 		setCtrlData(CTL_PRJ_FINISH,    &Data.Rec.FinishDt);
-		SetupPersonCombo(this, CTLSEL_PRJ_CLIENT, Data.Rec.ClientID, OLW_CANINSERT, (PPID)PPPRK_CLIENT, 0);
-		SetupPersonCombo(this, CTLSEL_PRJ_MNGR,   Data.Rec.MngrID,   OLW_CANINSERT, (PPID)PPPRK_EMPL,   0);
+		SetupPersonCombo(this, CTLSEL_PRJ_CLIENT, Data.Rec.ClientID, OLW_CANINSERT, PPPRK_CLIENT, 0);
+		SetupPersonCombo(this, CTLSEL_PRJ_MNGR,   Data.Rec.MngrID,   OLW_CANINSERT, PPPRK_EMPL,   0);
 		if(oneof2(Data.Rec.Kind, PPPRJK_PROJECT, PPPRJK_PRJTEMPLATE)) {
 			switch(Data.Rec.Status) {
 				case PPPRJSTS_ACTIVE:    v = 0; break;
@@ -535,7 +535,8 @@ public:
 int SLAPI PPObjProject::Edit(PPID * pID, void * extraPtr /*parentPrjID*/)
 {
 	const  PPID extra_parent_prj_id = reinterpret_cast<PPID>(extraPtr);
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	uint   dlg_id = 0;
 	PPProjectPacket pack;
 	PPProjectPacket parent_pack;
@@ -605,8 +606,8 @@ int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	SetupCalCtrl(CTLCAL_PRJFLT_PRDESTFINISH, dlg, CTL_PRJFLT_PRDESTFINISH, 1);
 	SetPeriodInput(dlg, CTL_PRJFLT_PRDSTART, &filt.StartPeriod);
 	SetPeriodInput(dlg, CTL_PRJFLT_PRDESTFINISH, &filt.EstFinishPeriod);
-	SetupPersonCombo(dlg, CTLSEL_PRJFLT_CLIENT, filt.ClientID, 0, (PPID)PPPRK_CLIENT, 0);
-	SetupPersonCombo(dlg, CTLSEL_PRJFLT_MNGR,   filt.MngrID,   0, (PPID)PPPRK_EMPL,   0);
+	SetupPersonCombo(dlg, CTLSEL_PRJFLT_CLIENT, filt.ClientID, 0, PPPRK_CLIENT, 0);
+	SetupPersonCombo(dlg, CTLSEL_PRJFLT_MNGR,   filt.MngrID,   0, PPPRK_EMPL,   0);
 	dlg->AddClusterAssoc(CTL_PRJFLT_FLAGS, 0, ProjectFilt::fShowNonActive);
 	dlg->AddClusterAssoc(CTL_PRJFLT_FLAGS, 1, ProjectFilt::fShowArchived);
 	dlg->SetClusterData(CTL_PRJFLT_FLAGS, filt.Flags);

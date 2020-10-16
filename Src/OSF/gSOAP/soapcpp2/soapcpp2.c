@@ -32,11 +32,10 @@
    A commercial use license is available from Genivia, Inc., contact@genivia.com
    --------------------------------------------------------------------------------
  */
-
 #include "soapcpp2.h"
 
 #ifndef SOAPCPP2_IMPORT_PATH
- #define SOAPCPP2_IMPORT_PATH (NULL)
+	#define SOAPCPP2_IMPORT_PATH (NULL)
 #endif
 
 extern void init(void);

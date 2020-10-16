@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0), Flags(0), EventType(0), ObjType(0), Reserve2(0)
+SLAPI PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0), Flags(0), EventType(0), ObjType(0), MinDetectionInterval(0), Reserve2(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Symb)[0] = 0;
@@ -23,6 +23,10 @@ int FASTCALL PPEventSubscription::IsEqual(const PPEventSubscription & rS) const
 	else if(EventType != rS.EventType)
 		eq = 0;
 	else if(ObjType != rS.ObjType)
+		eq = 0;
+	else if(NotifColor != rS.NotifColor)
+		eq = 0;
+	else if(MinDetectionInterval != rS.MinDetectionInterval)
 		eq = 0;
 	return eq;
 }
@@ -189,9 +193,13 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 {
 	class EventSubscriptionDialog : public TDialog {
 		DECL_DIALOG_DATA(PPEventSubscriptionPacket);
+		enum {
+			ctrgroupColor = 1
+		};
 	public:
 		EventSubscriptionDialog() : TDialog(DLG_EVNTSUBSCR)
 		{
+			addGroup(ctrgroupColor, new ColorCtrlGroup(CTL_EVNTSUBSCR_COLOR, CTLSEL_EVNTSUBSCR_COLOR, cmSelColor, CTL_EVNTSUBSCR_SELCOLOR));
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -213,6 +221,12 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 			SetupObjListCombo(this, CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType, 0);
 			Data.GetExtStrData(Data.extssMessage, temp_buf);
 			setCtrlString(CTL_EVNTSUBSCR_MSG, temp_buf);
+			{
+				ColorCtrlGroup::Rec color_rec;
+				color_rec.SetupStdColorList();
+				color_rec.C = NZOR(Data.Rec.NotifColor, GetColorRef(SClrLightskyblue));
+				setGroupData(ctrgroupColor, &color_rec);
+			}
 			SetupType();
 			return ok;
 		}
@@ -226,6 +240,11 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 			getCtrlData(CTLSEL_EVNTSUBSCR_OBJ, &Data.Rec.ObjType);
 			getCtrlString(CTL_EVNTSUBSCR_MSG, temp_buf);
 			Data.PutExtStrData(Data.extssMessage, temp_buf);
+			{
+				ColorCtrlGroup::Rec color_rec;
+				getGroupData(ctrgroupColor, &color_rec);
+				Data.Rec.NotifColor = color_rec.C;
+			}
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -260,44 +279,7 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 				switch(Data.Rec.EventType) {
 					case PPEVENTTYPE_OBJCREATED:
 						getCtrlData(CTLSEL_EVNTSUBSCR_OBJ, &Data.Rec.ObjType);
-						switch(Data.Rec.ObjType) {
-							case PPOBJ_OPRKIND: 
-								filt_id = PPFILT_OPRKIND; 
-								view_id = PPVIEW_OPRKIND;
-								break;
-							case PPOBJ_BILL: 
-								filt_id = PPFILT_BILL; 
-								view_id = PPVIEW_BILL;
-								break;
-							case PPOBJ_PERSON: 
-								filt_id = PPFILT_PERSON; 
-								view_id = PPVIEW_PERSON;
-								break;
-							case PPOBJ_GOODS: 
-								filt_id = PPFILT_GOODS; 
-								view_id = PPVIEW_GOODS;
-								break;
-							case PPOBJ_PRJTASK: 
-								filt_id = PPFILT_PRJTASK; 
-								view_id = PPVIEW_PRJTASK;
-								break;
-							case PPOBJ_PROJECT: 
-								filt_id = PPFILT_PROJECT; 
-								view_id = PPVIEW_PROJECT;
-								break;
-							case PPOBJ_PERSONEVENT: 
-								filt_id = PPFILT_PERSONEVENT; 
-								view_id = PPVIEW_PERSONEVENT;
-								break;
-							case PPOBJ_CSESSION: 
-								filt_id = PPFILT_CSESS; 
-								view_id = PPVIEW_CSESS;
-								break;
-							case PPOBJ_TSESSION: 
-								filt_id = PPFILT_TSESSION; 
-								view_id = PPVIEW_TSESSION;
-								break;
-						}
+						PPGetObjViewFiltMapping_Obj(Data.Rec.ObjType, &view_id, &filt_id);
 						break;
 					case PPEVENTTYPE_OUTER:
 						break;
@@ -425,22 +407,6 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 	return ok;
 }
 
-/*
-struct PPEventSubscription {
-	SLAPI  PPEventSubscription();
-	int    FASTCALL IsEqual(const PPEventSubscription & rS) const;
-	long   Tag;            // Const=PPOBJ_EVENTSUBSCRIPTION
-	long   ID;             // @id
-	char   Name[48];       // @name @!refname
-	char   Symb[20];       //
-	long   Flags;          //
-	PPID   ObjType;        // Тип объекта, ассоциированный с событием (для некоторых типов событий)
-	char   Reserve[56];    // @reserve
-	PPID   EventType;      //
-	PPID   Reserve2;       //
-};
-*/
-
 class EventSubscriptionCache : public ObjCache {
 public:
 	SLAPI  EventSubscriptionCache() : ObjCache(PPOBJ_EVENTSUBSCRIPTION, sizeof(EventSubscriptionData)) {}
@@ -449,6 +415,8 @@ private:
 		long   Flags;          //
 		PPID   ObjType;        // Тип объекта, ассоциированный с событием (для некоторых типов событий)
 		PPID   EventType;      //
+		SColor NotifColor;
+		long   MinDetectionInterval;
 	};
 	virtual int SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	{
@@ -461,10 +429,17 @@ private:
 			FLD(Flags);
 			FLD(ObjType);
 			FLD(EventType);
+			FLD(NotifColor);
+			FLD(MinDetectionInterval);
 			#undef FLD
 			MultTextBlock b;
 			b.Add(pack.Rec.Name);
 			b.Add(pack.Rec.Symb);
+			{
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				pack.GetExtStrData(PPEventSubscriptionPacket::extssMessage, r_temp_buf);
+				b.Add(r_temp_buf);
+			}
 			PutTextBlock(b, p_cache_rec);
 			//
 			{
@@ -497,10 +472,17 @@ private:
 		FLD(Flags);
 		FLD(ObjType);
 		FLD(EventType);
+		FLD(NotifColor);
+		FLD(MinDetectionInterval);
 		#undef FLD
 		MultTextBlock b(this, pEntry);
 		b.Get(p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));
 		b.Get(p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
+		{
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			b.Get(r_temp_buf);
+			p_data_pack->PutExtStrData(PPEventSubscriptionPacket::extssMessage, r_temp_buf);
+		}
 		{
 			PPIDArray user_list;
 			IdToUserList.GetListByKey(p_cache_rec->ID, user_list);
@@ -992,7 +974,7 @@ int SLAPI PPObjEventSubscription::Run()
 	if(evp_list.getCount()) {
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPEventCore evc;
-		PPIDArray detected_id_list;
+		LAssocArray detected_id_list;
 		PPTransaction tra(1);
 		THROW(tra);
 		for(uint j = 0; j < evp_list.getCount(); j++) {
@@ -1000,16 +982,16 @@ int SLAPI PPObjEventSubscription::Run()
 			const PPEventCore::Packet * p_pack = evp_list.at(j);
 			if(p_pack) {
 				if(evc.Put(&ev_id, p_pack, 0)) {
-					detected_id_list.addnz(p_pack->EvSubscrID);
+					detected_id_list.Add(p_pack->EvSubscrID, ev_id);
 				}
 				else
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
 			}
 		}
 		if(p_sj) {
-			detected_id_list.sortAndUndup();
 			for(uint dlidx = 0; dlidx < detected_id_list.getCount(); dlidx++) {
-				THROW(DS.LogAction(PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, detected_id_list.get(dlidx), 0, 0));
+				const LAssoc & r_item = detected_id_list.at(dlidx);
+				THROW(DS.LogAction(PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, r_item.Key, r_item.Val, 0));
 			}
 		}
 		THROW(tra.Commit());
@@ -1055,16 +1037,46 @@ int SLAPI PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Pac
 					DBQ * dbq = &(p_sj->Dt >= last_det_dtm.d && p_sj->ObjType == pack.Rec.ObjType);
 					q.select(p_sj->Dt, p_sj->Tm, p_sj->ObjType, p_sj->ObjID, p_sj->Action, 0L).where(*dbq);
 					for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
-						if(cmp(last_det_dtm, p_sj->data.Dt, p_sj->data.Tm) < 0 && acn_list.lsearch(p_sj->data.Action)) {
-							PPEventCore::Packet * p_evp = rEvpList.CreateNewItem();
-							THROW_SL(p_evp);
-							p_evp->Dtm.Set(p_sj->data.Dt, p_sj->data.Tm);
-							p_evp->EvSubscrID = pack.Rec.ID;
-							p_evp->Oid.Set(p_sj->data.ObjType, p_sj->data.ObjID);
-							p_evp->TypeID = pack.Rec.EventType;
-							pack.GetExtStrData(pack.extssMessage, p_evp->Text);
-							new_last_det_dtm = p_evp->Dtm;
-							ok = 1;
+						SysJournalTbl::Rec sj_rec;
+						p_sj->copyBufTo(&sj_rec);
+						if(cmp(last_det_dtm, sj_rec.Dt, sj_rec.Tm) < 0 && acn_list.lsearch(sj_rec.Action)) {
+							int    skip = 0;
+							if(pack.P_Filt) {
+								skip = 1;
+								int   view_id = 0;
+								int   filt_id = 0;
+								if(PPGetObjViewFiltMapping_Obj(sj_rec.ObjType, &view_id, &filt_id) && pack.P_Filt->GetSignature() == filt_id) {
+									switch(sj_rec.ObjType) {
+										case PPOBJ_BILL:
+											{
+												PPViewBill view;
+												static_cast<BillFilt *>(pack.P_Filt)->Flags |= BillFilt::fNoTempTable;
+												if(view.Init_(pack.P_Filt) && view.CheckIDForFilt(sj_rec.ObjID, 0))
+													skip = 0;
+											}
+											break;
+										case PPOBJ_PRJTASK:
+											{
+												PPViewPrjTask view;
+												static_cast<PrjTaskFilt *>(pack.P_Filt)->Flags |= (PrjTaskFilt::fNoTempTable|PrjTaskFilt::fNotShowPPWaitOnInit);
+												if(view.Init_(pack.P_Filt) && view.CheckIDForFilt(sj_rec.ObjID, 0))
+													skip = 0;
+											}
+											break;
+									}
+								}
+							}
+							if(!skip) {
+								PPEventCore::Packet * p_evp = rEvpList.CreateNewItem();
+								THROW_SL(p_evp);
+								p_evp->Dtm.Set(sj_rec.Dt, sj_rec.Tm);
+								p_evp->EvSubscrID = pack.Rec.ID;
+								p_evp->Oid.Set(sj_rec.ObjType, sj_rec.ObjID);
+								p_evp->TypeID = pack.Rec.EventType;
+								pack.GetExtStrData(pack.extssMessage, p_evp->Text);
+								new_last_det_dtm = p_evp->Dtm;
+								ok = 1;
+							}
 						}
 					}
 				}

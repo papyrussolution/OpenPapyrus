@@ -121,11 +121,15 @@
       <ProgramDataBaseFileName>$(IntDir)vc70.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>None</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -185,6 +189,12 @@
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="win_bison.vcxproj">
+      <Project>{f49dc041-3a12-4d54-a15e-f38504d1d8b2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="win_flex.vcxproj">
+      <Project>{47c40ef9-255c-475f-b5a6-b9cb85d40ad0}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

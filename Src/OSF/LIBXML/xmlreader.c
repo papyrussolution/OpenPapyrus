@@ -219,7 +219,7 @@ static int xmlTextReaderRemoveID(xmlDoc * doc, xmlAttr * attr)
 		return -1;
 	id = static_cast<xmlID *>(xmlHashLookup(table, ID));
 	SAlloc::F(ID);
-	if(id == NULL || id->attr != attr) {
+	if(!id || id->attr != attr) {
 		return -1;
 	}
 	id->name = attr->name;
@@ -1562,12 +1562,9 @@ int xmlTextReaderReadBinHex(xmlTextReader * reader,
 }
 
 #endif
-
-/************************************************************************
-*									*
-*			Operating on a preparsed tree			*
-*									*
-************************************************************************/
+//
+// Operating on a preparsed tree
+//
 static int xmlTextReaderNextTree(xmlTextReader * reader)
 {
 	if(!reader)

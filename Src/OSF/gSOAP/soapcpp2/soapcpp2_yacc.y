@@ -129,7 +129,7 @@ Tnode	*t;
 Node	tmp, c;
 Pragma	**pp;
 
-int    yylineno; // @sobolev
+// @v10.9.0 int    yylineno; // @sobolev
 //int    yywrap;   // @sobolev
 
 %}
@@ -153,26 +153,26 @@ int    yylineno; // @sobolev
 /* pragmas */
 %token	<s> PRAGMA
 /* keywords */
-%token	<sym> AUTO     DOUBLE  INT       STRUCT
-%token	<sym> BREAK    ELSE    LONG      SWITCH
-%token	<sym> CASE     ENUM    REGISTER  TYPEDEF
-%token	<sym> CHAR     EXTERN  RETURN    UNION
-%token	<sym> CONST    FLOAT   SHORT     UNSIGNED
-%token	<sym> CONTINUE FOR     SIGNED    VOID
+%token	<sym> AUTO      TOK_DOUBLE TOK_INT STRUCT
+%token	<sym> BREAK     ELSE    TOK_LONG  SWITCH
+%token	<sym> CASE      ENUM    REGISTER  TYPEDEF
+%token	<sym> TOK_CHAR  EXTERN  RETURN    UNION
+%token	<sym> TOK_CONST TOK_FLOAT TOK_SHORT     UNSIGNED
+%token	<sym> CONTINUE FOR     SIGNED    TOK_VOID
 %token	<sym> DEFAULT  GOTO    SIZEOF    VOLATILE
 %token	<sym> DO       IF      STATIC    WHILE
 %token	<sym> CLASS    PRIVATE PROTECTED PUBLIC
 %token	<sym> VIRTUAL  INLINE  OPERATOR  LLONG
-%token	<sym> BOOL     CFALSE  CTRUE	 WCHAR
+%token	<sym> TOK_BOOL CFALSE  CTRUE	 TOK_WCHAR
 %token	<sym> TIME     USING   NAMESPACE ULLONG
-%token	<sym> MUSTUNDERSTAND   SIZE      FRIEND
+%token	<sym> MUSTUNDERSTAND   TOK_SIZE  FRIEND
 %token	<sym> TEMPLATE EXPLICIT		 TYPENAME
 %token	<sym> RESTRICT null
-%token	<sym> UCHAR    USHORT  UINT      ULONG
+%token	<sym> TOK_UCHAR TOK_USHORT  TOK_UINT TOK_ULONG
 /* */
 %token	NONE
-/* identifiers (TYPE = typedef identifier) */
-%token	<sym> ID TAG LAB TYPE
+/* identifiers (TOK_TYPE = typedef identifier) */
+%token	<sym> ID TAG LAB TOK_TYPE
 /* constants */
 %token	<i> LNG
 %token	<r> DBL
@@ -342,17 +342,17 @@ dclr	: ptrs ID arrayck tag occurs init
 					p->info.typ->minLength = $5.minLength;
 					p->info.typ->maxLength = $5.maxLength;
 				}
-				$2->token = TYPE;
+				$2->token = TOK_TYPE;
 			  }
-			  else
-			  {	p = enter(sp->table, $2);
+			  else {	
+				p = enter(sp->table, $2);
 			  	p->tag = $4;
 			  	p->info.typ = $3.typ;
 			  	p->info.sto = (Storage)((int)$3.sto | permission);
-				if ($6.hasval)
-				{	p->info.hasval = True;
-					switch ($3.typ->type)
-					{	case Tchar:
+				if ($6.hasval) {	
+					p->info.hasval = True;
+					switch ($3.typ->type) {	
+						case Tchar:
 						case Tuchar:
 						case Tshort:
 						case Tushort:
@@ -463,7 +463,7 @@ fdclr	: ptrs name	{ if ($1.sto & Stypedef)
 			}
 	;
 id	: ID		{ $$ = $1; }
-	| TYPE		{ $$ = $1; }
+	| TOK_TYPE  { $$ = $1; }
 	;
 name	: ID		{ $$ = $1; }
 	| OPERATOR '!'	{ $$ = lookup("operator!"); }
@@ -513,7 +513,8 @@ name	: ID		{ $$ = $1; }
 				$$ = install(s, ID);
 			}
 	;
-constr	: TYPE		{ if (!(p = entry(classtable, $1)))
+constr	: TOK_TYPE { 
+			if(!(p = entry(classtable, $1)))
 			  	semerror("invalid constructor");
 			  sp->entry = enter(sp->table, $1);
 			  sp->entry->info.typ = mknone();
@@ -523,8 +524,8 @@ constr	: TYPE		{ if (!(p = entry(classtable, $1)))
 			  sp->node.sto = Snone;
 			}
 	;
-destr	: virtual '~' TYPE
-			{ if (!(p = entry(classtable, $3)))
+destr	: virtual '~' TOK_TYPE { 
+			if(!(p = entry(classtable, $3)))
 			  	semerror("invalid destructor");
 			  s = (char *)emalloc(strlen($3->name) + 2);
 			  strcpy(s, "~");
@@ -840,30 +841,30 @@ tspec	: store		{ $$.typ = mkint();
 			  sp->node = $$;
 			}
 	;
-type	: VOID { $$ = mkvoid(); }
-	| BOOL		{ $$ = mkbool(); }
-	| CHAR		{ $$ = mkchar(); }
-	| WCHAR		{ $$ = mkwchart(); }
-	| SHORT		{ $$ = mkshort(); }
-	| INT		{ $$ = mkint(); }
-	| LONG		{ $$ = mklong(); }
-	| LLONG		{ $$ = mkllong(); }
-	| ULLONG	{ $$ = mkullong(); }
-	| SIZE		{ $$ = mkulong(); }
-	| FLOAT		{ $$ = mkfloat(); }
-	| DOUBLE	{ $$ = mkdouble(); }
-	| SIGNED	{ $$ = mkint(); }
-	| UNSIGNED	{ $$ = mkuint(); }
-	| UCHAR		{ $$ = mkuchar(); }
-	| USHORT	{ $$ = mkushort(); }
-	| UINT		{ $$ = mkuint(); }
-	| ULONG		{ $$ = mkulong(); }
-	| TIME		{ $$ = mktimet(); }
-	| TEMPLATE '<' tname id '>' CLASS id
-			{ if (!(p = entry(templatetable, $7)))
-			  {	p = enter(templatetable, $7);
+type	: TOK_VOID { $$ = mkvoid(); }
+	| TOK_BOOL   { $$ = mkbool(); }
+	| TOK_CHAR   { $$ = mkchar(); }
+	| TOK_WCHAR  { $$ = mkwchart(); }
+	| TOK_SHORT  { $$ = mkshort(); }
+	| TOK_INT    { $$ = mkint(); }
+	| TOK_LONG   { $$ = mklong(); }
+	| LLONG		 { $$ = mkllong(); }
+	| ULLONG	 { $$ = mkullong(); }
+	| TOK_SIZE   { $$ = mkulong(); }
+	| TOK_FLOAT  { $$ = mkfloat(); }
+	| TOK_DOUBLE { $$ = mkdouble(); }
+	| SIGNED	 { $$ = mkint(); }
+	| UNSIGNED	 { $$ = mkuint(); }
+	| TOK_UCHAR  { $$ = mkuchar(); }
+	| TOK_USHORT { $$ = mkushort(); }
+	| TOK_UINT   { $$ = mkuint(); }
+	| TOK_ULONG  { $$ = mkulong(); }
+	| TIME		 { $$ = mktimet(); }
+	| TEMPLATE '<' tname id '>' CLASS id { 
+			if(!(p = entry(templatetable, $7))) {	
+				p = enter(templatetable, $7);
 			  	p->info.typ = mktemplate(NULL, $7);
-			  	$7->token = TYPE;
+			  	$7->token = TOK_TYPE;
 			  }
 			  $$ = p->info.typ;
 			}
@@ -871,17 +872,17 @@ type	: VOID { $$ = mkvoid(); }
 			{ sym = gensym("_Struct");
 			  sprintf(errbuf, "anonymous class will be named '%s'", sym->name);
 			  semwarn(errbuf);
-			  if ((p = entry(classtable, sym)))
-			  {	if (p->info.typ->ref || p->info.typ->type != Tclass)
-				{	sprintf(errbuf, "class '%s' already declared at line %d", sym->name, p->lineno);
+			  if((p = entry(classtable, sym))) {	
+				if(p->info.typ->ref || p->info.typ->type != Tclass) {	
+					sprintf(errbuf, "class '%s' already declared at line %d", sym->name, p->lineno);
 					semerror(errbuf);
 				}
 			  }
-			  else
-			  {	p = enter(classtable, sym);
+			  else {	
+				p = enter(classtable, sym);
 				p->info.typ = mkclass((Table*)0, 0);
 			  }
-			  sym->token = TYPE;
+			  sym->token = TOK_TYPE;
 			  sp->table->sym = sym;
 			  p->info.typ->ref = sp->table;
 			  p->info.typ->width = sp->offset;
@@ -991,17 +992,18 @@ type	: VOID { $$ = mkvoid(); }
 				p->info.typ->id = $2;
 			  }
 			}
-	| STRUCT TYPE	{ if ((p = entry(classtable, $2)))
-			  {	if (p->info.typ->type == Tstruct)
+	| STRUCT TOK_TYPE { 
+			if((p = entry(classtable, $2))) {	
+				if (p->info.typ->type == Tstruct)
 					$$ = p->info.typ;
-			  	else
-				{	sprintf(errbuf, "'struct %s' redeclaration (line %d)", $2->name, p->lineno);
+			  	else {	
+					sprintf(errbuf, "'struct %s' redeclaration (line %d)", $2->name, p->lineno);
 			  		semerror(errbuf);
 			  		$$ = mkint();
 				}
 			  }
-			  else
-			  {	p = enter(classtable, $2);
+			  else {	
+				p = enter(classtable, $2);
 			  	$$ = p->info.typ = mkstruct((Table*)0, 0);
 				p->info.typ->id = $2;
 			  }
@@ -1064,17 +1066,18 @@ type	: VOID { $$ = mkvoid(); }
 				p->info.typ->id = $2;
 			  }
 			}
-	| UNION TYPE	{ if ((p = entry(classtable, $2)))
-			  {	if (p->info.typ->type == Tunion)
+	| UNION TOK_TYPE { 
+			if((p = entry(classtable, $2))) {	
+				if(p->info.typ->type == Tunion)
 					$$ = p->info.typ;
-			  	else
-				{	sprintf(errbuf, "'union %s' redeclaration (line %d)", $2->name, p->lineno);
+			  	else {	
+					sprintf(errbuf, "'union %s' redeclaration (line %d)", $2->name, p->lineno);
 			  		semerror(errbuf);
 			  		$$ = mkint();
 				}
 			  }
-			  else
-			  {	p = enter(classtable, $2);
+			  else {	
+				p = enter(classtable, $2);
 			  	$$ = p->info.typ = mkunion((Table*) 0, 0);
 				p->info.typ->id = $2;
 			  }
@@ -1147,37 +1150,39 @@ type	: VOID { $$ = mkvoid(); }
 				p->info.typ->id = $2;
 			  }
 			}
-	| ENUM TYPE	{ if ((p = entry(enumtable, $2)))
+	| ENUM TOK_TYPE {
+			if((p = entry(enumtable, $2)))
 				$$ = p->info.typ;
-			  else
-			  {	p = enter(enumtable, $2);
+			  else {	
+				p = enter(enumtable, $2);
 			  	$$ = p->info.typ = mkenum((Table*)0);
 				p->info.typ->id = $2;
 			  }
 			}
-	| TYPE		{ if ((p = entry(typetable, $1)))
+	| TOK_TYPE { 
+			if((p = entry(typetable, $1)))
 				$$ = p->info.typ;
 			  else if ((p = entry(classtable, $1)))
 			  	$$ = p->info.typ;
 			  else if ((p = entry(enumtable, $1)))
 			  	$$ = p->info.typ;
-			  else if ($1 == lookup("std::string") || $1 == lookup("std::wstring"))
-			  {	p = enter(classtable, $1);
+			  else if ($1 == lookup("std::string") || $1 == lookup("std::wstring")) {	
+				p = enter(classtable, $1);
 				$$ = p->info.typ = mkclass((Table*)0, 0);
 			  	p->info.typ->id = $1;
 			  	p->info.typ->transient = -2;
 			  }
-			  else
-			  {	sprintf(errbuf, "unknown type '%s'", $1->name);
+			  else {	
+				sprintf(errbuf, "unknown type '%s'", $1->name);
 				semerror(errbuf);
 				$$ = mkint();
 			  }
 			}
-	| TYPE '<' texp '>'
-			{ if ((p = entry(templatetable, $1)))
+	| TOK_TYPE '<' texp '>' { 
+		if((p = entry(templatetable, $1)))
 				$$ = mktemplate($3.typ, $1);
-			  else
-			  {	sprintf(errbuf, "invalid template '%s'", $1->name);
+			  else {	
+				sprintf(errbuf, "invalid template '%s'", $1->name);
 				semerror(errbuf);
 				$$ = mkint();
 			  }
@@ -1220,22 +1225,23 @@ struct	: STRUCT id	{ if ((p = entry(classtable, $2)))
 			  $$ = p;
 			}
 	;
-class	: CLASS id	{ if ((p = entry(classtable, $2)))
-			  {	if (p->info.typ->ref)
-			   	{	if (!is_mutable(p->info.typ))
-					{	sprintf(errbuf, "class '%s' already declared at line %d", $2->name, p->lineno);
+class	: CLASS id	{ 
+			if ((p = entry(classtable, $2))) {	
+				if (p->info.typ->ref) {	
+					if(!is_mutable(p->info.typ)) {	
+						sprintf(errbuf, "class '%s' already declared at line %d", $2->name, p->lineno);
 						semerror(errbuf);
 					}
 				}
 				else
 					p = reenter(classtable, $2);
 			  }
-			  else
-			  {	p = enter(classtable, $2);
+			  else {
+				p = enter(classtable, $2);
 				p->info.typ = mkclass((Table*)0, 0);
 				p->info.typ->id = p->sym;
 			  }
-			  $2->token = TYPE;
+			  $2->token = TOK_TYPE;
 			  $$ = p;
 			}
 	;
@@ -1262,9 +1268,9 @@ tname	: CLASS		{ }
 base	: PROTECTED base{ $$ = $2; }
 	| PRIVATE base	{ $$ = $2; }
 	| PUBLIC base	{ $$ = $2; }
-	| TYPE		{ $$ = entry(classtable, $1);
-			  if (!$$)
-			  {	p = entry(typetable, $1);
+	| TOK_TYPE      { $$ = entry(classtable, $1);
+			  if (!$$) {	
+				p = entry(typetable, $1);
 			  	if (p && (p->info.typ->type == Tclass || p->info.typ->type == Tstruct))
 					$$ = p;
 			  }
@@ -1310,7 +1316,7 @@ store	: AUTO		{ $$ = Sauto; }
 	| EXTERN	{ $$ = Sextern; transient = 1; }
 	| TYPEDEF	{ $$ = Stypedef; }
 	| VIRTUAL	{ $$ = Svirtual; }
-	| CONST     { $$ = Sconst; }
+	| TOK_CONST { $$ = Sconst; }
 	| FRIEND	{ $$ = Sfriend; }
 	| INLINE	{ $$ = Sinline; }
 	| MUSTUNDERSTAND{ $$ = SmustUnderstand; }
@@ -1323,7 +1329,7 @@ store	: AUTO		{ $$ = Sauto; }
 	| VOLATILE	{ $$ = Sextern; transient = -2; }
 	;
 constobj: /* empty */	{ $$ = Snone; }
-	| CONST		{ $$ = Sconstobj; }
+	| TOK_CONST { $$ = Sconstobj; }
 	;
 abstract: /* empty */	{ $$ = Snone; }
 	| '=' LNG	{ $$ = Sabstract; }
@@ -1618,17 +1624,17 @@ static Node op(const char *op, Node p, Node q)
 	return r;
 }
 
-static Node
-iop(const char *iop, Node p, Node q)
-{	if (integer(p.typ) && integer(q.typ))
+static Node iop(const char *iop, Node p, Node q)
+{	
+	if (integer(p.typ) && integer(q.typ))
 		return op(iop, p, q);
 	typerror("integer operands only");
 	return p;
 }
 
-static Node
-relop(const char *op, Node p, Node q)
-{	Node	r;
+static Node relop(const char *op, Node p, Node q)
+{	
+	Node	r;
 	Tnode	*typ;
 	r.typ = mkint();
 	r.sto = Snone;
@@ -1697,12 +1703,14 @@ undefined(Symbol *sym)
 /*
 mgtype - return most general type among two numerical types
 */
-Tnode*
-mgtype(Tnode *typ1, Tnode *typ2)
-{	if (numeric(typ1) && numeric(typ2)) {
+Tnode * mgtype(Tnode *typ1, Tnode *typ2)
+{	
+	if (numeric(typ1) && numeric(typ2)) {
 		if (typ1->type < typ2->type)
 			return typ2;
-	} else	typerror("non-numeric type");
+		} 
+		else	
+			typerror("non-numeric type");
 	return typ1;
 }
 
@@ -1712,37 +1720,37 @@ mgtype(Tnode *typ1, Tnode *typ2)
 
 \******************************************************************************/
 
-static int
-integer(Tnode *typ)
-{	switch (typ->type) {
-	case Tchar:
-	case Tshort:
-	case Tint:
-	case Tlong:	return True;
-	default:	break;
+static int integer(Tnode *typ)
+{	
+	switch (typ->type) {
+		case Tchar:
+		case Tshort:
+		case Tint:
+		case Tlong:	return True;
+		default:	break;
 	}
 	return False;
 }
 
-static int
-real(Tnode *typ)
-{	switch (typ->type) {
-	case Tfloat:
-	case Tdouble:
-	case Tldouble:	return True;
-	default:	break;
+static int real(Tnode *typ)
+{	
+	switch (typ->type) {
+		case Tfloat:
+		case Tdouble:
+		case Tldouble:	return True;
+		default:	break;
 	}
 	return False;
 }
 
-static int
-numeric(Tnode *typ)
-{	return integer(typ) || real(typ);
+static int numeric(Tnode *typ)
+{	
+	return integer(typ) || real(typ);
 }
 
-static void
-add_fault(Table *gt)
-{ Table *t;
+static void add_fault(Table *gt)
+{ 
+	Table *t;
   Entry *p1, *p2, *p3, *p4;
   Symbol *s1, *s2, *s3, *s4;
   imported = NULL;
@@ -1842,53 +1850,53 @@ add_fault(Table *gt)
   }
 }
 
-static void
-add_soap(void)
-{ Symbol *s = lookup("soap");
-  p = enter(classtable, s);
-  p->info.typ = mkstruct(NULL, 0);
-  p->info.typ->transient = -2;
-  p->info.typ->id = s;
+static void add_soap(void)
+{ 
+	Symbol *s = lookup("soap");
+	p = enter(classtable, s);
+	p->info.typ = mkstruct(NULL, 0);
+	p->info.typ->transient = -2;
+	p->info.typ->id = s;
 }
 
-static void
-add_XML(void)
-{ Symbol *s = lookup("_XML");
-  s->token = TYPE;
-  p = enter(typetable, s);
-  xml = p->info.typ = mksymtype(mkstring(), s);
-  p->info.sto = Stypedef;
+static void add_XML(void)
+{ 
+	Symbol *s = lookup("_XML");
+	s->token = TOK_TYPE;
+	p = enter(typetable, s);
+	xml = p->info.typ = mksymtype(mkstring(), s);
+	p->info.sto = Stypedef;
 }
 
-static void
-add_qname(void)
-{ Symbol *s = lookup("_QName");
-  s->token = TYPE;
-  p = enter(typetable, s);
-  qname = p->info.typ = mksymtype(mkstring(), s);
-  p->info.sto = Stypedef;
+static void add_qname(void)
+{ 
+	Symbol *s = lookup("_QName");
+	s->token = TOK_TYPE;
+	p = enter(typetable, s);
+	qname = p->info.typ = mksymtype(mkstring(), s);
+	p->info.sto = Stypedef;
 }
 
-static void
-add_header(Table *gt)
-{ Table *t;
-  Entry *p;
-  Symbol *s = lookup("SOAP_ENV__Header");
-  imported = NULL;
-  p = entry(classtable, s);
-  if (!p || !p->info.typ->ref)
-  { t = mktable((Table*)0);
-    if (!p)
-      p = enter(classtable, s);
-    p->info.typ = mkstruct(t, 0);
-    p->info.typ->id = s;
-    custom_header = 0;
-  }
+static void add_header(Table *gt) 
+{ 
+	Table *t;
+	Entry *p;
+	Symbol *s = lookup("SOAP_ENV__Header");
+	imported = NULL;
+	p = entry(classtable, s);
+	if (!p || !p->info.typ->ref) { 
+		t = mktable((Table*)0);
+		if (!p)
+			p = enter(classtable, s);
+		p->info.typ = mkstruct(t, 0);
+		p->info.typ->id = s;
+		custom_header = 0;
+	}
 }
 
-static void
-add_response(Entry *fun, Entry *ret)
-{ Table *t;
+static void add_response(Entry *fun, Entry *ret)
+{ 
+	Table *t;
   Entry *p, *q;
   Symbol *s;
   size_t n = strlen(fun->sym->name);
@@ -1909,19 +1917,19 @@ add_response(Entry *fun, Entry *ret)
   fun->info.typ->response = p;
 }
 
-static void
-add_result(Tnode *typ)
-{ Entry *p;
-  if (!typ->ref || !((Tnode*)typ->ref)->ref)
-  { semwarn("response struct/class must be declared before used in function prototype");
-    return;
-  }
-  for (p = ((Table*)((Tnode*)typ->ref)->ref)->list; p; p = p->next)
-    if (p->info.sto & Sreturn)
-      return;
-  for (p = ((Table*)((Tnode*)typ->ref)->ref)->list; p; p = p->next)
-  { if (p->info.typ->type != Tfun && !(p->info.sto & Sattribute) && !is_transient(p->info.typ) && !(p->info.sto & (Sprivate|Sprotected)))
-      p->info.sto = (Storage)((int)p->info.sto | (int)Sreturn);
-      return;
-  }
+static void add_result(Tnode *typ)
+{ 
+	Entry *p;
+	if(!typ->ref || !((Tnode*)typ->ref)->ref) { 
+		semwarn("response struct/class must be declared before used in function prototype");
+		return;
+	}
+	for(p = ((Table*)((Tnode*)typ->ref)->ref)->list; p; p = p->next)
+		if(p->info.sto & Sreturn)
+			return;
+	for(p = ((Table*)((Tnode*)typ->ref)->ref)->list; p; p = p->next) { 
+		if(p->info.typ->type != Tfun && !(p->info.sto & Sattribute) && !is_transient(p->info.typ) && !(p->info.sto & (Sprivate|Sprotected)))
+			p->info.sto = (Storage)((int)p->info.sto | (int)Sreturn);
+		return;
+	}
 }

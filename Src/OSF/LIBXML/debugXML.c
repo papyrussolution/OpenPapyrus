@@ -1591,9 +1591,9 @@ int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * pN
  *
  * Returns 0
  */
-static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	xmlNodeSetBase(P_Node, (xmlChar *)arg);
+	xmlNodeSetBase(pNode, (xmlChar *)arg);
 	return 0;
 }
 
@@ -1755,27 +1755,26 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
  *
  * Returns 0
  */
-int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(ctxt) {
-		if(!P_Node) {
+		if(!pNode) {
 			fprintf(ctxt->output, "NULL\n");
 		}
 		else {
-			if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-				xmlDebugDumpDocumentHead(ctxt->output, (xmlDoc *)P_Node);
+			if((pNode->type == XML_DOCUMENT_NODE) || (pNode->type == XML_HTML_DOCUMENT_NODE)) {
+				xmlDebugDumpDocumentHead(ctxt->output, (xmlDoc *)pNode);
 			}
-			else if(P_Node->type == XML_ATTRIBUTE_NODE) {
-				xmlDebugDumpAttr(ctxt->output, (xmlAttr *)P_Node, 0);
+			else if(pNode->type == XML_ATTRIBUTE_NODE) {
+				xmlDebugDumpAttr(ctxt->output, (xmlAttr *)pNode, 0);
 			}
 			else {
-				xmlDebugDumpOneNode(ctxt->output, P_Node, 0);
+				xmlDebugDumpOneNode(ctxt->output, pNode, 0);
 			}
 		}
 	}
 	return 0;
 }
-
 /**
  * xmlShellSetContent:
  * @ctxt:  the shell context
@@ -1788,23 +1787,23 @@ int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUS
  *
  * Returns 0
  */
-static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * value, xmlNode * P_Node, xmlNode * node2 ATTRIBUTE_UNUSED)
+static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * value, xmlNode * pNode, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(ctxt) {
-		if(!P_Node)
+		if(!pNode)
 			fprintf(ctxt->output, "NULL\n");
 		else if(!value)
 			fprintf(ctxt->output, "NULL\n");
 		else {
 			xmlNode * p_results;
-			xmlParserErrors ret = xmlParseInNodeContext(P_Node, value, sstrlen(value), 0, &p_results);
+			xmlParserErrors ret = xmlParseInNodeContext(pNode, value, sstrlen(value), 0, &p_results);
 			if(ret == XML_ERR_OK) {
-				if(P_Node->children) {
-					xmlFreeNodeList(P_Node->children);
-					P_Node->children = NULL;
-					P_Node->last = NULL;
+				if(pNode->children) {
+					xmlFreeNodeList(pNode->children);
+					pNode->children = NULL;
+					pNode->last = NULL;
 				}
-				xmlAddChildList(P_Node, p_results);
+				xmlAddChildList(pNode, p_results);
 			}
 			else
 				fprintf(ctxt->output, "failed to parse content\n");
@@ -1826,7 +1825,7 @@ static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * valu
  *
  * Returns 0
  */
-static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNode * P_Node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
+static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNode * pNode ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlRelaxNGPtr relaxngschemas;
 	xmlRelaxNGValidCtxtPtr vctxt;
@@ -2024,7 +2023,7 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNod
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
+int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(!ctxt || (ctxt->doc == NULL))
 		return -1;

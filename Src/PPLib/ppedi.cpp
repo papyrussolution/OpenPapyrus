@@ -296,7 +296,7 @@ int SLAPI GtinStruc::AddOnlyToken(int token)
 int SLAPI GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 {
 	int    ok = 1;
-	if(checkirange(fixedLen, 1, 30) && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) {
+	if(fixedLen == 1000 || checkirange(fixedLen, 1, 50) && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) { // @v10.9.0 30-->50
 		SpecialFixedTokens.Remove(token, 0); // @v10.7.12
 		SpecialFixedTokens.AddUnique(token, fixedLen, 0, 0);
 	}
@@ -309,13 +309,19 @@ uint SLAPI GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen
 {
 	uint   result_offs = 0;
 	SString temp_buf;
-	temp_buf.CatN(pSrc+prefixLen, fixLen);
-	THROW(temp_buf.Len() == fixLen);
+	if(fixLen == 1000) {
+		temp_buf.Cat(pSrc+prefixLen);
+	}
+	else {
+		temp_buf.CatN(pSrc+prefixLen, fixLen);
+		THROW(temp_buf.Len() == fixLen);
+	}
+	const uint result_fix_len = temp_buf.Len();
 	if(fldId > 0) {
 		THROW(!StrAssocArray::Search(fldId));
 		StrAssocArray::Add(fldId, temp_buf);
 	}
-	result_offs = (prefixLen + fixLen);
+	result_offs = (prefixLen + result_fix_len);
 	CATCH
 		result_offs = 0;
 	ENDCATCH
@@ -631,6 +637,7 @@ int SLAPI TestGtinStruc()
 				gts.AddOnlyToken(GtinStruc::fldAddendumId);
 				gts.AddOnlyToken(GtinStruc::fldUSPS);
 				gts.AddOnlyToken(GtinStruc::fldInner1);
+				gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
 				gts.AddOnlyToken(GtinStruc::fldInner2);
 				gts.AddOnlyToken(GtinStruc::fldSscc18);
 				gts.AddOnlyToken(GtinStruc::fldExpiryDate);

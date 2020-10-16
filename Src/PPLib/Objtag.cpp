@@ -1838,7 +1838,6 @@ private:
 			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 			GetTagRec(Data.Id, &tag);
 			void * extra_ptr = reinterpret_cast<void *>((tag.TagDataType == OTTYP_OBJLINK) ? tag.LinkObjGrp : 0);
-			// @v9.4.9 {
 			{
 				PPIDArray id_list;
 				TagFilt::GetRestrictionIdList(restrict_buf, &id_list);
@@ -1851,13 +1850,6 @@ private:
 					SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
 				}
 			}
-			// } @v9.4.9
-			/* @v9.4.9
-			if(ListBoxSelDialog(tag.TagEnumID, &EnumID, extra_ptr) > 0) {
-				restrict_buf.Z().Cat(EnumID);
-				SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
-			}
-			*/
 		}
 		else if(event.isClusterClk(CTL_SELTAG_OPTION)) {
 			const  int  option = GetClusterData(CTL_SELTAG_OPTION);
@@ -1948,7 +1940,7 @@ int TagFiltDialog::EditItem(long * pPos)
 {
 	int    ok = -1;
 	const  int  is_new = (*pPos >= 0) ? 0 : 1;
-	uint   pos = is_new ? -1 : (uint)(*pPos);
+	uint   pos = is_new ? -1 : static_cast<uint>(*pPos);
 	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.Get(pos));
 	SelTagDialog * p_dlg = 0;
 	GetClusterData(CTL_TAGFLT_FLAGS, &Data.Flags);
@@ -1957,7 +1949,7 @@ int TagFiltDialog::EditItem(long * pPos)
 	while(ok <= 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&item) > 0) {
 			int    replace_dup_factor = 1;
-			if(Data.Flags & Data.fColors) { // @v9.8.6
+			if(Data.Flags & Data.fColors) {
 				replace_dup_factor = -1;
 				// @v10.4.4 {
 				if(!is_new)

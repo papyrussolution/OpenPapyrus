@@ -319,9 +319,6 @@ static int SLAPI PPAbout()
 		vi.GetVersionText(c_buf, sizeof(c_buf));
 		PPGetLicData(&lic);
 		{
-			// @v9.3.6 if(dlg->getStaticText(CTL_ABOUT_VERSION, fmt) > 0)
-			// @v9.3.6 	dlg->setStaticText(CTL_ABOUT_VERSION, text.Printf(fmt, c_buf));
-			// @v9.3.6 {
 			PPLoadString("entmanagementsys", temp_buf);
 			text = temp_buf;
 			vi.GetProductName(temp_buf);
@@ -329,7 +326,6 @@ static int SLAPI PPAbout()
 			PPLoadString("version", temp_buf);
 			text.CatDiv('.', 2).Cat(temp_buf).Space().Cat(c_buf);
 			dlg->setStaticText(CTL_ABOUT_VERSION, text);
-			// } @v9.3.6
 		}
 		{
 			uint   start_year = 0;
@@ -598,6 +594,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPoolBillList:         BrowseBills(bbtPoolBills);           break;
 		case cmDraftBillList:        BrowseBills(bbtDraftBills);          break;
 		case cmWmsBillList:          BrowseBills(bbtWmsBills);            break;
+		case cmAddBill:              p_bobj->CreateNewInteractive(0);    break; // @v10.9.0
 		case cmAutoCharge:           p_bobj->AutoCharge();               break;
 		case cmCorrectBillPaym:      p_bobj->GatherPayments();           break;
 		case cmPaymWOLinkBill:       p_bobj->SearchPaymWOLinkBill();     break;

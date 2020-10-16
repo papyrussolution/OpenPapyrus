@@ -463,7 +463,18 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						else {
 							tail.Semicol();         // #53 Код вида алкогольной продукции
 							tail.Semicol();         // #54 Емкость тары
-							tail.Semicol();         // #55 Признак алкогольной продукции
+							// @v10.9.0 {
+							{
+								int    identified_type = 0;
+								if(gds_info.Flags_ & gds_info.fGMarkedType) {
+									if(gds_info.ChZnProdType == GTCHZNPT_TOBACCO)
+										identified_type = 4; // табак : 4
+								}
+								if(identified_type)
+									tail.Cat(identified_type); // #55 Тип маркированной продукции
+								tail.Semicol();         
+							}
+							// } @v10.9.0 
 							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}

@@ -34,7 +34,7 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 */
 
 #include "soapcpp2.h"
-#include "soapcpp2_yacc.tab.cpp.h"
+#include "soapcpp2_yacc.tab.hpp"
 
 typedef	struct Keyword
 { char *s;	/* name */
@@ -44,19 +44,19 @@ typedef	struct Keyword
 static Keyword keywords[] =
 {	{ "asm",		NONE },
 	{ "auto",		AUTO },
-	{ "bool",		BOOL },
+	{ "bool",		TOK_BOOL },
 	{ "break",		BREAK },
 	{ "case",		CASE },
 	{ "catch",		NONE },
-	{ "char",		CHAR },
+	{ "char",		TOK_CHAR },
 	{ "class",		CLASS },
-	{ "const",		CONST },
-	{ "const_cast",		NONE },
-	{ "continue",		CONTINUE },
-	{ "default",		DEFAULT },
+	{ "const",		TOK_CONST },
+	{ "const_cast", NONE },
+	{ "continue",	CONTINUE },
+	{ "default",	DEFAULT },
 	{ "delete",		NONE },
 	{ "do",			DO },
-	{ "double",		DOUBLE },
+	{ "double",		TOK_DOUBLE },
 	{ "dynamic_cast",	NONE },
 	{ "else",		ELSE },
 	{ "enum",		ENUM },
@@ -65,18 +65,18 @@ static Keyword keywords[] =
 	{ "export",		NONE },
 	{ "extern",		EXTERN },
 	{ "false",		CFALSE },
-	{ "float",		FLOAT },
+	{ "float",		TOK_FLOAT },
 	{ "for",		FOR },
 	{ "friend",		FRIEND },
 	{ "goto",		GOTO },
 	{ "if",			IF },
 	{ "inline",		INLINE },
-	{ "int",		INT },
-	{ "int8_t",		CHAR },
-	{ "int16_t",		SHORT },
-	{ "int32_t",		INT },
+	{ "int",		TOK_INT },
+	{ "int8_t",		TOK_CHAR },
+	{ "int16_t",		TOK_SHORT },
+	{ "int32_t",		TOK_INT },
 	{ "int64_t",		LLONG },
-	{ "long",		LONG },
+	{ "long",		TOK_LONG },
 	{ "LONG64",		LLONG },
 	{ "mutable",		NONE },
 	{ "namespace",		NAMESPACE },
@@ -90,9 +90,9 @@ static Keyword keywords[] =
 	{ "reinterpret_cast",	NONE },
 	{ "restrict",		NONE },
 	{ "return",		RETURN },
-	{ "short",		SHORT },
+	{ "short",		TOK_SHORT },
 	{ "signed",		SIGNED },
-	{ "size_t",		SIZE },
+	{ "size_t",		TOK_SIZE },
 	{ "sizeof",		SIZEOF },
 	{ "static",		STATIC },
 	{ "static_cast",	NONE },
@@ -106,18 +106,18 @@ static Keyword keywords[] =
 	{ "typedef",		TYPEDEF },
 	{ "typeid",		NONE },
 	{ "typename",		TYPENAME },
-	{ "uint8_t",		UCHAR },
-	{ "uint16_t",		USHORT },
-	{ "uint32_t",		UINT },
+	{ "uint8_t",		TOK_UCHAR },
+	{ "uint16_t",		TOK_USHORT },
+	{ "uint32_t",		TOK_UINT },
 	{ "uint64_t",		ULLONG },
 	{ "ULONG64",		ULLONG },
 	{ "union",		UNION },
 	{ "unsigned",		UNSIGNED },
 	{ "using",		USING },
 	{ "virtual",		VIRTUAL },
-	{ "void",		VOID },
+	{ "void",		TOK_VOID },
 	{ "volatile",		VOLATILE },
-	{ "wchar_t",		WCHAR },
+	{ "wchar_t",		TOK_WCHAR },
 	{ "while",		WHILE },
 
 	{ "operator!",		NONE },
@@ -183,19 +183,18 @@ static Keyword keywords[] =
 
 	{ "_QName",		ID },
 	{ "_XML",		ID },
-	{ "std::string",	TYPE },
-	{ "std::wstring",	TYPE },
+	{ "std::string",	TOK_TYPE },
+	{ "std::wstring",	TOK_TYPE },
 
 	{ "/*?*/",		NONE },
 
 	{ 0,			0 }
 };
-
 /*
 init - initialize symbol table with predefined keywords
 */
-void init(void)
-{ struct Keyword *k;
-  for (k = keywords; k->s; k++)
-    install(k->s, k->t);
+void init(void) 
+{
+	for(struct Keyword * k = keywords; k->s; k++)
+		install(k->s, k->t);
 }

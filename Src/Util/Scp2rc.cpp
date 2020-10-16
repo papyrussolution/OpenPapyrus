@@ -105,7 +105,7 @@ public:
 				strcpy(orgID, Fix.id);
 				if(ctlNo != 0 && !oneof2(kind, __Dialog, __ScrollBar))
 					if(Fix.id[0] == 0 || strncmp(Fix.id, DEF_CTL_ID, strlen(DEF_CTL_ID)) == 0)
-						itoa(/*20000*/4000+(ctlNo++), Fix.id, 10);
+						_itoa(/*20000*/4000+(ctlNo++), Fix.id, 10);
 					/*
 					else
 						ctlNo = 1;
@@ -142,13 +142,12 @@ public:
 					case __Static:
 						Ctrl.Static.get(*this);
 						WriteHeader(kind);
-						// @v9.5.6 {
 						(line_buf = 0).CatDiv(',', 2);
 						line_buf.CatQStr((temp_buf = Ctrl.Static.text).Cat("\\0")).CatDiv(',', 2);
 						line_buf.CatQStr((temp_buf = Fix.extra[2]).Strip().Cat("\\0")).CatDiv(',', 2);
 						line_buf.CatQStr((temp_buf = Fix.extra[3]).Strip().Cat("\\0")).CR();
-						fprintf(R_Out, line_buf.cptr());
-						// } @v9.5.6
+						// @v10.9.0 fprintf(R_Out, line_buf.cptr());
+						fputs(line_buf.cptr(), R_Out); // @v10.9.0
 						// @v9.5.6 fprintf(R_Out, ", \"%s\\0\", \"%s\\0\", \"%s\\0\"\n", Ctrl.Static.text, strip(Fix.extra[2]), strip(Fix.extra[3]));
 						break;
 					case __ColoredText:
@@ -165,7 +164,7 @@ public:
 						if(fmtLen == 0)
 							fmtLen = Ctrl.Input.maxLen/* - 1*/;
 						{
-							virtButtonId[0] = 0;
+							PTR32(virtButtonId)[0] = 0;
 							char * p = strip(Fix.extra[2]);
 							if(strnicmp(p, "VB_", (size_t)3) == 0) {
 								STRNSCPY(virtButtonId, p);

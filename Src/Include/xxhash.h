@@ -106,15 +106,15 @@ typedef enum {
 #    define XXH_PUBLIC_API static // this version may generate warnings for unused static functions 
 #  endif
 #else
-#  if defined(WIN32) && defined(_MSC_VER) && (defined(XXH_IMPORT) || defined(XXH_EXPORT))
-#    ifdef XXH_EXPORT
-#      define XXH_PUBLIC_API __declspec(dllexport)
-#    elif XXH_IMPORT
-#      define XXH_PUBLIC_API __declspec(dllimport)
-#    endif
-#  else
-#    define XXH_PUBLIC_API   /* do nothing */
-#  endif
+	#if defined(WIN32) && defined(_MSC_VER) && (defined(XXH_IMPORT) || defined(XXH_EXPORT))
+		#ifdef XXH_EXPORT
+			#define XXH_PUBLIC_API __declspec(dllexport)
+		#elif XXH_IMPORT
+			#define XXH_PUBLIC_API __declspec(dllimport)
+		#endif
+	#else
+		#define XXH_PUBLIC_API   /* do nothing */
+	#endif
 #endif /* XXH_INLINE_ALL || XXH_PRIVATE_API */
 
 /*! XXH_NAMESPACE, aka Namespace Emulation :

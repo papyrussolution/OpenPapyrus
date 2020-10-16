@@ -95,18 +95,18 @@ char * SLAPI Acct::ToStr(long format, char * pBuf) const // ACCBIN_NATURE
 	if(ac != 0) {
 		if(ac < 10 && ac > 0 && (format & ACCF_PADACC))
 			*b++ = '0';
-		b += sstrlen(itoa(ac, b, 10));
+		b += sstrlen(_itoa(ac, b, 10));
 		if(sb) {
 			if(dlm)
 				*b++ = dlm;
 			if(sb < 10 && (format & ACCF_PADSUB))
 				*b++ = '0';
-			b += sstrlen(itoa(sb, b, 10));
+			b += sstrlen(_itoa(sb, b, 10));
 		}
 		if(ar && !(format & ACCF_BAL)) {
 			if(dlm)
 				*b++ = dlm;
-			b += sstrlen(itoa((int)ar, b, 10));
+			b += sstrlen(_itoa((int)ar, b, 10));
 		}
 	}
 	else

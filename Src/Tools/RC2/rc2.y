@@ -49,9 +49,9 @@ static ExtTypeInfo SimpleTypes[] = {
 	{S_ZSTRING,	"char*",	"S_ZSTRING"},
 	{T_DATE,	"date",		"S_DATE"},
 	{T_ACCT,	"acct",		"S_ACCT"},
-	{T_TIME,    "time",     "S_TIME"},    // @v6.4.3
-	{T_DATETIME, "datetime", "S_DATETIME"}, // @v6.4.3
-	{T_GUID,     "guid",     "S_UUID_"}     // @v8.6.2
+	{T_TIME,    "time",     "S_TIME"},
+	{T_DATETIME, "datetime", "S_DATETIME"},
+	{T_GUID,     "guid",     "S_UUID_"}
 };
 
 TYPEID GetSType(const char * pName)

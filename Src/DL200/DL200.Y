@@ -465,18 +465,18 @@ char * SLAPI AccToStr(const Acct * acc, long format, char * buf)
 	if(acc->ac != 0) {
 		if(acc->ac < 10 && acc->ac > 0 && (format & ACCF_PADACC))
 			*b++ = '0';
-		b += strlen(itoa(acc->ac, b, 10));
+		b += strlen(_itoa(acc->ac, b, 10));
 		if(acc->sb) {
 			if(dlm)
 				*b++ = dlm;
 			if(acc->sb < 10 && (format & ACCF_PADSUB))
 				*b++ = '0';
-			b += strlen(itoa(acc->sb, b, 10));
+			b += strlen(_itoa(acc->sb, b, 10));
 		}
 		if(acc->ar && !(format & ACCF_BAL)) {
 			if(dlm)
 				*b++ = dlm;
-			b += strlen(itoa((int)acc->ar, b, 10));
+			b += strlen(_itoa((int)acc->ar, b, 10));
 		}
 	}
 	else

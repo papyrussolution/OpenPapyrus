@@ -418,6 +418,10 @@ int SMessageWindow::Move()
 			toolt_rect.top  += 8; // @v10.5.5 5-->8
 			toolt_rect.left -= 8; // @v10.5.5 5-->8
 		}
+		else if(Flags & SMessageWindow::fShowOnRUCorner) { // @v10.9.0
+			toolt_rect.bottom = parent_rect.top + toolt_h + 64 + 128;
+			toolt_rect.left   = parent_rect.right - toolt_w - 32;
+		}
 		else {
 			toolt_rect.top  = parent_rect.bottom - toolt_h - 64; // @v10.5.5 5-->64
 			toolt_rect.left = parent_rect.right  - toolt_w - 32; // @v10.5.5 5-->32

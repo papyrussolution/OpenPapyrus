@@ -61,6 +61,71 @@
 	return ok;
 }
 
+struct ViewFiltObjMappingEntry {
+	PPID   ObjType;
+	int    ViewID;
+	int    FiltID;
+};
+
+static const ViewFiltObjMappingEntry ViewFiltObjMapping[] = {
+	{ PPOBJ_BILL, PPVIEW_BILL, PPFILT_BILL },
+	{ PPOBJ_OPRKIND, PPVIEW_OPRKIND, PPFILT_OPRKIND },
+	{ PPOBJ_DBDIV, PPVIEW_DBDIV, PPFILT_DBDIV },
+	{ PPOBJ_BILL, PPVIEW_BILL, PPFILT_BILL },
+	{ PPOBJ_PERSON, PPVIEW_PERSON,  PPFILT_PERSON },
+	{ PPOBJ_SCARD, PPVIEW_SCARD,  PPFILT_SCARD },
+	{ PPOBJ_ARTICLE, PPVIEW_ARTICLE,  PPFILT_ARTICLE },
+	{ PPOBJ_BRAND, PPVIEW_BRAND, PPFILT_BRAND },
+	{ PPOBJ_GOODS, PPVIEW_GOODS, PPFILT_GOODS },
+	{ PPOBJ_PRJTASK, PPVIEW_PRJTASK, PPFILT_PRJTASK },
+	{ PPOBJ_PROJECT, PPVIEW_PROJECT, PPFILT_PROJECT },
+	{ PPOBJ_PERSONEVENT, PPVIEW_PERSONEVENT, PPFILT_PERSONEVENT },
+	{ PPOBJ_CASHNODE, PPVIEW_CASHNODE, PPFILT_CASHNODE },
+	{ PPOBJ_CSESSION, PPVIEW_CSESS, PPFILT_CSESS },
+	{ PPOBJ_PROCESSOR, PPVIEW_PROCESSOR, PPFILT_PROCESSOR },
+	{ PPOBJ_TECH, PPVIEW_TECH, PPFILT_TECH },
+	{ PPOBJ_TSESSION, PPVIEW_TSESSION, PPFILT_TSESSION },
+	{ PPOBJ_TIMESERIES, PPVIEW_TIMESERIES, PPFILT_TIMESERIES },
+	{ PPOBJ_CCHECK, PPVIEW_CCHECK, PPFILT_CCHECK },
+	{ PPOBJ_LOT, PPVIEW_LOT, PPFILT_LOT },
+};
+
+int PPGetObjViewFiltMapping_Obj(PPID objType, int * pViewId, int * pFiltId)
+{
+	for(uint i = 0; i < SIZEOFARRAY(ViewFiltObjMapping); i++) {
+		if(ViewFiltObjMapping[i].ObjType == objType) {
+			ASSIGN_PTR(pViewId, ViewFiltObjMapping[i].ViewID);
+			ASSIGN_PTR(pFiltId, ViewFiltObjMapping[i].FiltID);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int PPGetObjViewFiltMapping_View(int viewId, PPID * pObjType, int * pFiltId)
+{
+	for(uint i = 0; i < SIZEOFARRAY(ViewFiltObjMapping); i++) {
+		if(ViewFiltObjMapping[i].ViewID == viewId) {
+			ASSIGN_PTR(pObjType, ViewFiltObjMapping[i].ObjType);
+			ASSIGN_PTR(pFiltId, ViewFiltObjMapping[i].FiltID);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
+{
+	for(uint i = 0; i < SIZEOFARRAY(ViewFiltObjMapping); i++) {
+		if(ViewFiltObjMapping[i].FiltID == filtId) {
+			ASSIGN_PTR(pObjType, ViewFiltObjMapping[i].ObjType);
+			ASSIGN_PTR(pViewId, ViewFiltObjMapping[i].ViewID);
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /*static*/int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV) { return CreateInstance(viewID, 0, ppV); }
 
 /*static*/int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
@@ -168,7 +233,7 @@
 			case PPVIEW_USERPROFILE:     p_v = new PPViewUserProfile();  break;
 			case PPVIEW_JOB:             p_v = new PPViewJob();          break;
 			case PPVIEW_GEOTRACKING:     p_v = new PPViewGeoTracking();  break;
-			case PPVIEW_OPRKIND:         p_v = new PPViewOprKind();      break; // @v9.3.6
+			case PPVIEW_OPRKIND:         p_v = new PPViewOprKind();      break;
 			case PPVIEW_PHNSVCMONITOR:   p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
 			case PPVIEW_VETISDOCUMENT:   p_v = new PPViewVetisDocument(); break; // @v10.0.12
 			case PPVIEW_TIMESERIES:      p_v = new PPViewTimeSeries();    break; // @v10.4.4

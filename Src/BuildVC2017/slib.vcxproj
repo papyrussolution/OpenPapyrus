@@ -435,7 +435,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>

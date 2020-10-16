@@ -52,7 +52,7 @@ int SLAPI SCardSpecialTreatment::DoesWareBelongToScope(PPID goodsID)
 	{ return 0; }
 int SLAPI SCardSpecialTreatment::QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList)
 	{ return -1; }
-int SLAPI SCardSpecialTreatment::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags)
+int SLAPI SCardSpecialTreatment::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, TransactionResult * pResult)
 	{ return -1; }
 
 /*static*/int FASTCALL SCardSpecialTreatment::InitSpecialCardBlock(PPID scID, PPID posNodeID, SCardSpecialTreatment::CardBlock & rBlk)
@@ -90,7 +90,7 @@ public:
 	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
 	virtual int SLAPI DoesWareBelongToScope(PPID goodsID);
 	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList);
-	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, TransactionResult * pResult);
 private:
 	void SLAPI MakeUrl(const char * pSuffix, SString & rBuf)
 	{
@@ -277,7 +277,7 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBl
 	return ok;
 }
 
-int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags)
+int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, TransactionResult * pResult)
 {
 	int    ok = -1;
 	json_t * p_query = 0;
@@ -347,7 +347,7 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBl
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					THROW_SL(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK);
 					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
-						if(p_cur->Type == json_t::tOBJECT) {
+						if(json_t::IsObject(p_cur)) {
 							for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 								if(p_obj->Text.IsEqiAscii("status")) {
 									if(p_obj->P_Child->Text.IsEqiAscii("success"))
@@ -1072,6 +1072,10 @@ int SLAPI UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) cons
 				else
 					rC.Uid.Z();
 			}
+			else if(p_cur->Text.IsEqiAscii("id")) {
+				if(json_t::IsNumber(p_cur->P_Child))
+					rC.P.ID = p_cur->P_Child->Text.ToInt64();
+			}
 			else if(p_cur->Text.IsEqiAscii("phone")) {
 				rC.Phone = json_t::IsString(p_cur->P_Child) ? p_cur->P_Child->Text : "";
 			}
@@ -1449,52 +1453,49 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 					}
 					else if(json_t::IsObject(p_cur)) {
 						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
-							if(p_cur->Text.IsEqiAscii("oneOf")) {
-								ok = 1;
-								if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tARRAY) {
-									for(json_t * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
-										if(p_item->Text.IsEqiAscii("id")) {
-											rReplyT.ID = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToInt64() : 0;
-										}
-										else if(p_item->Text.IsEqiAscii("dateCreated")) {
-										}
-										else if(p_item->Text.IsEqiAscii("action")) {
-											if(json_t::IsString(p_item->P_Child)) {
-												if(p_item->P_Child->Text.IsEqiAscii("PURCHASE")) {
-													rReplyT.Action = tactPurchase;
-												}
-											}
-										}
-										else if(p_item->Text.IsEqiAscii("state")) {
-											if(json_t::IsString(p_item->P_Child)) {
-												if(p_item->P_Child->Text.IsEqiAscii("NORMAL"))
-													rReplyT.State = tstNormal;
-												else if(p_item->P_Child->Text.IsEqiAscii("CANCELED"))
-													rReplyT.State = tstCanceled;
-												else if(p_item->P_Child->Text.IsEqiAscii("REVERSAL"))
-													rReplyT.State = tstReversal;
-											}
-										}
-										else if(p_item->Text.IsEqiAscii("points")) {
-											rReplyT.Points = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
-										}
-										else if(p_item->Text.IsEqiAscii("cash")) {
-											rReplyT.Cash = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
-										}
-										else if(p_item->Text.IsEqiAscii("total")) {
-											rReplyT.Total = json_t::IsNumber(p_item->P_Child) ? p_item->P_Child->Text.ToReal() : 0.0;
-										}
-										else if(p_item->Text.IsEqiAscii("customer")) {
-											ReadCustomer(p_item->P_Child, rReplyT.Cust);
-										}
-										else if(p_item->Text.IsEqiAscii("cashier")) {
-										}
-										else if(p_item->Text.IsEqiAscii("branch")) {
-										}
-										else if(p_item->Text.IsEqiAscii("origin")) {
-										}
+							ok = 1;
+							if(p_cur->Text.IsEqiAscii("id")) {
+								rReplyT.ID = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
+							}
+							else if(p_cur->Text.IsEqiAscii("dateCreated")) {
+								if(json_t::IsString(p_cur->P_Child)) {
+									strtodatetime(p_cur->P_Child->Text, &rReplyT.Dtm, DATF_ISO8601, 0);
+								}
+							}
+							else if(p_cur->Text.IsEqiAscii("action")) {
+								if(json_t::IsString(p_cur->P_Child)) {
+									if(p_cur->P_Child->Text.IsEqiAscii("PURCHASE")) {
+										rReplyT.Action = tactPurchase;
 									}
 								}
+							}
+							else if(p_cur->Text.IsEqiAscii("state")) {
+								if(json_t::IsString(p_cur->P_Child)) {
+									if(p_cur->P_Child->Text.IsEqiAscii("NORMAL"))
+										rReplyT.State = tstNormal;
+									else if(p_cur->P_Child->Text.IsEqiAscii("CANCELED"))
+										rReplyT.State = tstCanceled;
+									else if(p_cur->P_Child->Text.IsEqiAscii("REVERSAL"))
+										rReplyT.State = tstReversal;
+								}
+							}
+							else if(p_cur->Text.IsEqiAscii("points")) {
+								rReplyT.Points = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+							}
+							else if(p_cur->Text.IsEqiAscii("cash")) {
+								rReplyT.Cash = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+							}
+							else if(p_cur->Text.IsEqiAscii("total")) {
+								rReplyT.Total = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
+							}
+							else if(p_cur->Text.IsEqiAscii("customer")) {
+								ReadCustomer(p_cur->P_Child, rReplyT.Cust);
+							}
+							else if(p_cur->Text.IsEqiAscii("cashier")) {
+							}
+							else if(p_cur->Text.IsEqiAscii("branch")) {
+							}
+							else if(p_cur->Text.IsEqiAscii("origin")) {
 							}
 						}
 					}
@@ -1520,7 +1521,7 @@ public:
 	virtual int SLAPI VerifyOwner(const CardBlock * pScBlk);
 	virtual int SLAPI DoesWareBelongToScope(PPID goodsID);
 	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList);
-	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, TransactionResult * pResult);
 };
 
 /*virtual*/int SLAPI SCardSpecialTreatment_UDS::IdentifyCode(IdentifyReplyBlock & rB, PPID seriesID, int use_ta)
@@ -1620,6 +1621,10 @@ public:
 						}
 						sc_pack.Rec.SeriesID = seriesID;
 						sc_pack.Rec.PersonID = ex_psn_id;
+						if(cust.P.ID > 0) {
+							temp_buf.Z().Cat(cust.P.ID).Transf(CTRANSF_UTF8_TO_INNER);
+							STRNSCPY(sc_pack.Rec.Code, temp_buf);
+						}
 						{
 							cust.Uid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 							sc_pack.PutExtStrData(PPSCardPacket::extssOuterId, temp_buf);
@@ -1679,7 +1684,7 @@ public:
 	return -1;
 }
 
-/*virtual*/int SLAPI SCardSpecialTreatment_UDS::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags)
+/*virtual*/int SLAPI SCardSpecialTreatment_UDS::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, TransactionResult * pResult)
 {
 	int    ok = -1;
 	if(pCcPack) {
@@ -1687,7 +1692,10 @@ public:
 		if(pCcPack->GetSCardSpecialTreatmentIdentifyReplyBlock(&irb)) {
 			SString temp_buf;
 			THROW(UdsGameInterface::Setup(0));
-			{
+			if(pCcPack->Rec.Flags & CCHKF_RETURN) {
+				; // @todo refund
+			}
+			else {
 				UdsGameInterface::Transaction t;
 				UdsGameInterface::Transaction reply_t;
 				int    is_withdraw_permitted = 0;
@@ -1745,7 +1753,30 @@ public:
 						t.Cash = cca;
 					}
 				}
-				THROW(UdsGameInterface::CreateTransaction(t, reply_t));
+				int ctr = UdsGameInterface::CreateTransaction(t, reply_t);
+				if(pResult) {
+					if(ctr > 0) {
+						pResult->Status = TransactionResult::stAccepted;
+						if(reply_t.ID) {
+							temp_buf.Z().Cat("UDS").Cat(reply_t.ID);
+							STRNSCPY(pResult->TaIdent, temp_buf);
+						}
+						pResult->CustomerUid = reply_t.Cust.Uid;
+						if(reply_t.Cust.P.ID) {
+							temp_buf.Z().Cat(reply_t.Cust.P.ID);
+							STRNSCPY(pResult->CustomerIdent, temp_buf);
+						}
+						ok = 1;
+					}
+					else {
+						pResult->Status = TransactionResult::stRejected;
+						Error err;
+						if(IsError(err)) {
+							STRNSCPY(pResult->ErrMessage, err.Message);
+						}
+						ok = 0;
+					}
+				}
 			}
 		}
 	}
@@ -1798,11 +1829,11 @@ int SLAPI TestUdsInterface()
 				UdsGameInterface::Transaction reply_t;
 				t.Code = cli_code;
 				t.Cust.Uid = cust.Uid;
-				t.BillNumber = "CC-TEST-307";
-				t.Cashier.ID = 101;
-				t.Cashier.Name = "Nicole";
-				t.Total = 500.0;
-				t.Cash = 500.0;
+				t.BillNumber = "CC-TEST-401";
+				t.Cashier.ID = 102;
+				t.Cashier.Name = "Nicole 2";
+				t.Total = 400.0;
+				t.Cash = 400.0;
 				t.Points = 0.0;
 				t.SkipLoyaltyTotal = 0.01;
 				ifc.CreateTransaction(t, reply_t);
@@ -1815,5 +1846,37 @@ int SLAPI TestUdsInterface()
 		}
 		ok = 1;
 	}
+	return ok;
+}
+//
+//
+//
+struct SetupGlobalServiceUDS_Param {
+	SetupGlobalServiceUDS_Param() : SCardSerID(0)
+	{
+	}
+	SString Login;
+	SString ApiKey;
+	PPID   SCardSerID;
+	PPID   GuaID;
+};
+
+class SetupGlobalServiceUDS_Dialog : public TDialog {
+	DECL_DIALOG_DATA(SetupGlobalServiceUDS_Param);
+public:
+	SetupGlobalServiceUDS_Dialog() : TDialog(DLG_SU_UDS)
+	{
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+	}
+};
+
+int PPSetup_GlobalService_UDS()
+{
+	int    ok = -1;
+	
 	return ok;
 }

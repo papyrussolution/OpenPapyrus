@@ -15,7 +15,7 @@
     #include <stdlib.h>
 	#define min(a,b)            (((a) < (b)) ? (a) : (b))
     #include "rc2.h"
-    #include "rc2.tab.cpp.h"
+    #include "rc2.tab.hpp"
     long yyline = 1;
     long yybrak = 0;
 	typedef struct {

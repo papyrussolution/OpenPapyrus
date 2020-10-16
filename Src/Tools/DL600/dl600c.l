@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dl600.h>
-#include "dl600c.tab.cpp.h"
+#include "dl600c.tab.hpp"
 
 long       yyline = 1;
 long       yybrak = 0;

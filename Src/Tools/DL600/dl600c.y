@@ -1082,7 +1082,7 @@ uictrl_type : T_TYPE
 	ZapToken3($1, $3, $5);
 }
 
-uictrl_type_opt : uictrl_type { $$ = $1 } | { $$ = 0; }
+uictrl_type_opt : uictrl_type { $$ = $1; } | { $$ = 0; }
 
 uictrl :
 {

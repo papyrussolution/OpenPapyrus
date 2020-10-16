@@ -102,11 +102,16 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat />
+      <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\tools\$(ProjectName).exe</OutputFile>
@@ -155,7 +160,6 @@
   <ItemGroup>
     <ClInclude Include="..\Osf\gSOAP\soapcpp2\error2.h" />
     <ClInclude Include="..\Osf\gSOAP\soapcpp2\soapcpp2.h" />
-    <ClInclude Include="..\Osf\gSOAP\soapcpp2\soapcpp2_yacc.tab.cpp.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="openssl-111-crypto.vcxproj">
@@ -166,6 +170,12 @@
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="win_bison.vcxproj">
+      <Project>{f49dc041-3a12-4d54-a15e-f38504d1d8b2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="win_flex.vcxproj">
+      <Project>{47c40ef9-255c-475f-b5a6-b9cb85d40ad0}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

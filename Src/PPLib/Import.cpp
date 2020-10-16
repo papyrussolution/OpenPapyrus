@@ -3044,7 +3044,7 @@ private:
 		SString Code;
 		SString ZIP;
 		SString CityName;
-		SString SubCityName; // @v8.2.3
+		SString SubCityName;
 		SString Addr;
 	};
 	int    SLAPI ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr);
@@ -3072,44 +3072,40 @@ int SLAPI PrcssrPersonImport::InitParam(Param * pParam)
 }
 
 class PersonImportDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrPersonImport::Param);
 public:
 	PersonImportDialog() : TDialog(DLG_IEPERSON)
 	{
 		PPPersonImpExpParam param;
 		GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PERSON, &param, &CfgList, 2 /* import */);
 	}
-	int    setDTS(const PrcssrPersonImport::Param * pData);
-	int    getDTS(PrcssrPersonImport::Param * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		int    ok = 1;
+		long   cfg_id = 0;
+		if(CfgList.getCount() == 1)
+			cfg_id = CfgList.Get(0).Id;
+		SetupStrAssocCombo(this, CTLSEL_IEPERSON_CFG, &CfgList, cfg_id, 0, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_IEPERSON_CAT, PPOBJ_PRSNCATEGORY, Data.CategoryID, OLW_CANINSERT, 0);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		long   cfg_id = getCtrlLong(sel = CTLSEL_IEPERSON_CFG);
+		SString temp_buf;
+		THROW_PP(cfg_id, PPERR_CFGNEEDED);
+		THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
+		getCtrlData(CTLSEL_IEPERSON_CAT, &Data.CategoryID);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
-	PrcssrPersonImport::Param Data;
 	StrAssocArray CfgList;
 };
-
-int PersonImportDialog::setDTS(const PrcssrPersonImport::Param * pData)
-{
-	Data = *pData;
-	int    ok = 1;
-	long   cfg_id = 0;
-	if(CfgList.getCount() == 1)
-		cfg_id = CfgList.Get(0).Id;
-	SetupStrAssocCombo(this, CTLSEL_IEPERSON_CFG, &CfgList, cfg_id, 0, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_IEPERSON_CAT, PPOBJ_PRSNCATEGORY, Data.CategoryID, OLW_CANINSERT, 0);
-	return ok;
-}
-
-int PersonImportDialog::getDTS(PrcssrPersonImport::Param * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	long   cfg_id = getCtrlLong(sel = CTLSEL_IEPERSON_CFG);
-	SString temp_buf;
-	THROW_PP(cfg_id, PPERR_CFGNEEDED);
-	THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
-	getCtrlData(CTLSEL_IEPERSON_CAT, &Data.CategoryID);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 
 int PrcssrPersonImport::EditParam(Param * pParam) { DIALOG_PROC_BODY(PersonImportDialog, pParam); }
 
@@ -3269,7 +3265,11 @@ int SLAPI PrcssrPersonImport::Run()
 {
 	int    ok = -1;
 	long   numrecs = 0;
-	SString log_msg, fmt_buf, temp_buf, temp_buf2, dblgis_code;
+	SString log_msg;
+	SString fmt_buf;
+	SString temp_buf;
+	SString temp_buf2;
+	SString dblgis_code;
 	SString name;
 	PPLogger logger;
 	PPObjPersonCat pc_obj;
@@ -3475,7 +3475,6 @@ int SLAPI PrcssrPersonImport::Run()
 						}
 					}
 				}
-				// @v9.8.0 {
 				if(checkdate(rec.DOB)) {
 					const ObjTagItem * p_tag_item = pack.TagL.GetItem(PPTAG_PERSON_DOB);
 					LDATE   ex_dob = ZERODATE;
@@ -3486,7 +3485,6 @@ int SLAPI PrcssrPersonImport::Run()
 						}
 					}
 				}
-				// } @v9.8.0
 				{
 					if((temp_buf = rec.Phone).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf);
@@ -3619,9 +3617,18 @@ struct FoodWithNutr {
 };
 
 struct PPComps {
-	void Clear()
+	PPComps() : CompID(0), Qtty(0.0)
 	{
-		THISZERO();
+		PTR32(CompName)[0] = 0;
+		PTR32(UnitAbbr)[0] = 0;
+	}
+	PPComps & Z()
+	{
+		CompID = 0;
+		Qtty = 0.0;
+		PTR32(CompName)[0] = 0;
+		PTR32(UnitAbbr)[0] = 0;
+		return *this;
 	}
 	PPID   CompID;       // В файле импорта это ИД элемента, а в Papyrus это будет штрихкод
 	char   CompName[128];

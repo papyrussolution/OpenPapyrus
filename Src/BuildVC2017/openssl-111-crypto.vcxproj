@@ -352,6 +352,10 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <ShowIncludes>false</ShowIncludes>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>

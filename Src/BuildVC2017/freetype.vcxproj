@@ -277,11 +277,16 @@
       <ProgramDataBaseFileName>.\..\..\..\objs\release/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>

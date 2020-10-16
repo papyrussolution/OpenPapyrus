@@ -1751,8 +1751,8 @@
 #define STDCTL_SJBUTTON           155 // Кнопка "Системные события" (для внутреннего фильтра по сис журналу и для просмотра событий)
 #define STDCTL_PERSONBUTTON       156 // Кнопка "Персоналия"
 #define STDCTL_LINKOBJBUTTON      157 // Кнопка "Связанный объект"
-#define STDCTL_QKLISTBUTTON       158 // @v9.5.5  Кнопка выбора списка видов котировок
-#define STDCTL_FILTERBUTTON       159 // @v9.7.10 Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
+#define STDCTL_QKLISTBUTTON       158 // Кнопка выбора списка видов котировок
+#define STDCTL_FILTERBUTTON       159 // Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
 #define STDCTL_VERIFYBUTTON       160 // @v10.1.5 Кнопка "Верифицировать"
 #define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 Кнопка "Layout"
 #define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 Кнопка "Передать"
@@ -1838,6 +1838,7 @@
 #define cmTotal                  1177 // @v10.8.11
 #define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
 #define cmCopyToClipboardSpc     1179 // @v10.9.0 Специальное копирование в буфер обмена
+#define cmConfigure              1180 // @v10.9.0
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -6416,6 +6417,7 @@
 	#define CTL_CCHECKINFO_LINKID        (17 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_PAYMLIST      (18 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_SESSUUID      (19 + WINDOWS_ID_BIAS)
+	#define CTL_CCHECKINFO_RPRCTAID      (20 + WINDOWS_ID_BIAS) // remote-processing-transation-id
 #define DLG_PSNRELTYPE            638 // Тип связи между персоналиями
 	#define CTL_PSNRELTYPE_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_ID            (2 + WINDOWS_ID_BIAS)
@@ -10970,6 +10972,19 @@
 	#define CTL_EVNTSUBSCR_OBJ        (7 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_EVNTSUBSCR_OBJ     (8 + IMPEXP_CTL_BIAS)
 	#define CTL_EVNTSUBSCR_MSG        (9 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_MINDI      (10 + IMPEXP_CTL_BIAS) // MinDetectionInterval
+	#define CTL_EVNTSUBSCR_COLOR      (11 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_EVNTSUBSCR_COLOR   (12 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_SELCOLOR   (13 + IMPEXP_CTL_BIAS)
+#define DLG_SU_UDS                1391 // Parameters for set up UDS integration
+	#define CTL_SUUDS_LOGIN           (1 + IMPEXP_CTL_BIAS)
+	#define CTL_SUUDS_APIKEY          (2 + IMPEXP_CTL_BIAS)
+	#define CTL_SUUDS_SCARDSER        (3 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_SUUDS_SCARDSER     (4 + IMPEXP_CTL_BIAS)
+	#define CTL_SUUDS_HINT            (5 + IMPEXP_CTL_BIAS)
+	#define CTL_SUUDS_INFO            (6 + IMPEXP_CTL_BIAS)
+	#define CTL_SUUDS_GUA             (7 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_SUUDS_GUA          (8 + IMPEXP_CTL_BIAS)
 
 // Win32 Dialog Identifiers
 //

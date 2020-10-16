@@ -3630,7 +3630,7 @@ int SLAPI iSalesPepsi::SendDebts()
 				if(i == _c || (prev_date && p_outer_bill->Dtm.d != prev_date)) {
 					BillTbl::Rec bill_rec;
 					for(DateIter di(prev_date, prev_date); P_BObj->P_Tbl->EnumByDate(&di, &bill_rec) > 0;) {
-                        if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER) { // @v9.3.2 // @v9.9.4 (bill_rec.Amount > 0.0)
+                        if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER) {
 							BillCore::GetCode(temp_buf = bill_rec.Code);
 							int    found = 0;
 							for(uint j = first_idx_by_date; !found && j < i; j++) {
@@ -4443,7 +4443,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PP
 									}
 								}
 								if(is_my_goods) {
-									if(isales_code != org_isales_code) {
+									if(isales_code != org_isales_code) { 
 										Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
 									}
 									force_bill_list.add(upd_bill_id);
@@ -4461,8 +4461,12 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PP
 				int    dont_send = 0;
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK))
 					dont_send = 1; // Статус не позволяет отправку
-				else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf))
-					dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
+				else {
+					if(!(P.Flags & P.fTestMode)) { // @v10.9.0 При подготовке файла сверки нельзя пропускать документы, которые уже были отправлены
+						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf))
+							dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
+					}
+				}
 				if(!dont_send)
 					Helper_MakeBillEntry(view_item.ID, outerDocType, pRegisteredAgentList, rList);
 			}
@@ -4571,9 +4575,9 @@ int SLAPI iSalesPepsi::SendInvoices()
 					msg_buf.Z().
 						CatEq("NativeID", p_pack->NativeID).Semicol().
 						CatEq("iSalesId", p_pack->iSalesId).Semicol().
-						CatEq("DocType", (long)p_pack->DocType).Semicol().
-						CatEq("ExtDocType", (long)p_pack->ExtDocType).Semicol().
-						CatEq("Status", (long)p_pack->Status).Semicol().
+						CatEq("DocType",  static_cast<long>(p_pack->DocType)).Semicol().
+						CatEq("ExtDocType", static_cast<long>(p_pack->ExtDocType)).Semicol().
+						CatEq("Status", static_cast<long>(p_pack->Status)).Semicol().
 						CatEq("Code", p_pack->Code).Semicol().
 						CatEq("ExtCode", p_pack->ExtCode).Semicol().
 						CatEq("Dtm", p_pack->Dtm.d, DATF_DMY|DATF_CENTURY).Semicol().

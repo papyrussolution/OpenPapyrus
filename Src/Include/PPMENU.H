@@ -532,6 +532,7 @@
 #define cmCorrectWorldObjNIA           638 // @v10.8.0 Корректировка географических объектов (не интерактивная)
 #define cmEvents                       639 // @v10.8.9 События
 #define cmEventSubscription            640 // @v10.8.9 Подписка на события //
+#define cmSetupGlbSvcUDS               641 // @v10.9.0 Настройка интеграции с UDS Game
 
 
 #endif /* __PPMENU_H */

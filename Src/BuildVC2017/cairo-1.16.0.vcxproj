@@ -358,7 +358,7 @@
       <SDLCheck>
       </SDLCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>

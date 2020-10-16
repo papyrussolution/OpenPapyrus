@@ -1239,7 +1239,7 @@ void main(int argc, char ** argv)
 		}
 		yyin = fopen(rc2_name, "r");
 		if(!yyin)
-			printf("cant open file %s\n", rc2_name);
+			printf("cant open file %s\n", rc2_name.cptr());
 		else {
 			RegisterBIST();
 			if(Rc2.Init(rc2_name, rc_name, h_name, embed_rc_name)) {

@@ -1307,8 +1307,8 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	TestUdsInterface();
-	//TestGtinStruc();
+	TestGtinStruc();
+	//TestUdsInterface();
 	//TestTsDensityMap();
 	//TestAddressRecognition();
 	//TestSArchive();

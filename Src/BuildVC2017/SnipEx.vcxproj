@@ -191,7 +191,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -214,6 +214,10 @@
       <EnableModules>false</EnableModules>
       <PrecompiledHeaderFile />
       <DisableSpecificWarnings>26438;26448;26493;26485;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

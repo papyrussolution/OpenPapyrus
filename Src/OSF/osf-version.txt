@@ -34,3 +34,4 @@ lua          5.3.4
 libarchive   
 gravity
 @v9.6.12 giflib encapsulated in slib
+sqlite       3.33.00

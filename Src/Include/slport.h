@@ -66,6 +66,9 @@
 	#ifndef STDOUT_FILENO
 		#define STDOUT_FILENO (_fileno(stdout))
 	#endif
+	#ifndef STDERR_FILENO
+		#define STDERR_FILENO (_fileno(stderr))
+	#endif
 	#ifdef _WIN64
 		#define fseeko      _fseeki64
 		#define ftello      _ftelli64

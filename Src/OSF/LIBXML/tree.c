@@ -7145,23 +7145,23 @@ static int xmlDOMWrapNSNormAddNsMapItem2(xmlNs *** list, int * size, int * numbe
  * Returns 0 on success, 1 if the node is not supported,
  *    -1 on API and internal errors.
  */
-int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * P_Node, int options ATTRIBUTE_UNUSED)
+int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * pNode, int options ATTRIBUTE_UNUSED)
 {
 	xmlNs ** list = NULL;
 	int sizeList, nbList, i, j;
 	xmlNs * ns;
-	if(!P_Node || !doc || P_Node->doc != doc)
+	if(!pNode || !doc || pNode->doc != doc)
 		return -1;
 	/* @todo 0 or -1 ? */
-	if(!P_Node->P_ParentNode)
+	if(!pNode->P_ParentNode)
 		return 0;
-	switch(P_Node->type) {
+	switch(pNode->type) {
 		case XML_TEXT_NODE:
 		case XML_CDATA_SECTION_NODE:
 		case XML_ENTITY_REF_NODE:
 		case XML_PI_NODE:
 		case XML_COMMENT_NODE:
-		    xmlUnlinkNode(P_Node);
+		    xmlUnlinkNode(pNode);
 		    return 0;
 		case XML_ELEMENT_NODE:
 		case XML_ATTRIBUTE_NODE:
@@ -7169,15 +7169,15 @@ int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * P_Node,
 		default:
 		    return 1;
 	}
-	xmlUnlinkNode(P_Node);
+	xmlUnlinkNode(pNode);
 	/*
 	 * Save out-of-scope ns-references in doc->oldNs.
 	 */
 	do {
-		switch(P_Node->type) {
+		switch(pNode->type) {
 			case XML_ELEMENT_NODE:
-			    if(!ctxt && P_Node->nsDef) {
-				    ns = P_Node->nsDef;
+			    if(!ctxt && pNode->nsDef) {
+				    ns = pNode->nsDef;
 				    do {
 					    if(xmlDOMWrapNSNormAddNsMapItem2(&list, &sizeList, &nbList, ns, ns) == -1)
 						    goto internal_error;
@@ -7186,44 +7186,36 @@ int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * P_Node,
 			    }
 			/* No break on purpose. */
 			case XML_ATTRIBUTE_NODE:
-			    if(P_Node->ns) {
-				    /*
-				 * Find a mapping.
-				     */
+			    if(pNode->ns) {
+				    // Find a mapping.
 				    if(list) {
 					    for(i = 0, j = 0; i < nbList; i++, j += 2) {
-						    if(P_Node->ns == list[j]) {
-							    P_Node->ns = list[++j];
+						    if(pNode->ns == list[j]) {
+							    pNode->ns = list[++j];
 							    goto next_node;
 						    }
 					    }
 				    }
 				    ns = NULL;
 				    if(ctxt) {
-					    /*
-					 * User defined.
-					     */
+					    // User defined.
 				    }
 				    else {
-					    /*
-					 * Add to doc's oldNs.
-					     */
-					    ns = xmlDOMWrapStoreNs(doc, P_Node->ns->href,
-					    P_Node->ns->prefix);
+					    // Add to doc's oldNs.
+					    ns = xmlDOMWrapStoreNs(doc, pNode->ns->href,
+					    pNode->ns->prefix);
 					    if(ns == NULL)
 						    goto internal_error;
 				    }
 				    if(ns) {
-					    /*
-					 * Add mapping.
-					     */
-					    if(xmlDOMWrapNSNormAddNsMapItem2(&list, &sizeList, &nbList, P_Node->ns, ns) == -1)
+					    // Add mapping.
+					    if(xmlDOMWrapNSNormAddNsMapItem2(&list, &sizeList, &nbList, pNode->ns, ns) == -1)
 						    goto internal_error;
 				    }
-				    P_Node->ns = ns;
+				    pNode->ns = ns;
 			    }
-			    if((P_Node->type == XML_ELEMENT_NODE) && P_Node->properties) {
-				    P_Node = (xmlNode *)P_Node->properties;
+			    if((pNode->type == XML_ELEMENT_NODE) && pNode->properties) {
+				    pNode = (xmlNode *)pNode->properties;
 				    continue;
 			    }
 			    break;
@@ -7231,20 +7223,20 @@ int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * P_Node,
 			    goto next_sibling;
 		}
 next_node:
-		if((P_Node->type == XML_ELEMENT_NODE) && P_Node->children) {
-			P_Node = P_Node->children;
+		if((pNode->type == XML_ELEMENT_NODE) && pNode->children) {
+			pNode = pNode->children;
 			continue;
 		}
 next_sibling:
-		if(!P_Node)
+		if(!pNode)
 			break;
-		if(P_Node->next)
-			P_Node = P_Node->next;
+		if(pNode->next)
+			pNode = pNode->next;
 		else {
-			P_Node = P_Node->P_ParentNode;
+			pNode = pNode->P_ParentNode;
 			goto next_sibling;
 		}
-	} while(P_Node);
+	} while(pNode);
 	SAlloc::F(list);
 	return 0;
 internal_error:

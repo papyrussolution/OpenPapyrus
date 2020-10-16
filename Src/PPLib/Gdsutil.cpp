@@ -555,7 +555,9 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						STRNSCPY(pBlk->ChZnGtin, temp_buf);
 						gts.GetToken(GtinStruc::fldSerial, &temp_buf);
 						STRNSCPY(pBlk->ChZnSerial, temp_buf);
-						STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9
+						// @v10.9.0 STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9
+						gts.GetToken(GtinStruc::fldOriginalText, &temp_buf);
+						STRNSCPY(pBlk->ChZnCode, temp_buf); // @v10.9.0
 						ok = 1;
 					}
 				}

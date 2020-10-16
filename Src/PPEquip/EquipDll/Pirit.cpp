@@ -1725,7 +1725,7 @@ int PiritEquip::RunCheck(int opertype)
 				// @v10.8.12 {
 				if(Check.ChZnCid.NotEmpty()) {
 					CreateStr("mdlp", in_data); // Название дополнительного реквизита пользователя
-					str.Z().Cat("cid").Cat(Check.ChZnCid).CatChar('&');
+					str.Z().Cat("sid").Cat(Check.ChZnCid).CatChar('&');
 					CreateStr(str, in_data); // Значение дополнительного реквизита пользователя
 					if(LogFileName.NotEmpty()) {
 						(out_data = "1084").CatDiv(':', 2).CatEq("mdlp", str);

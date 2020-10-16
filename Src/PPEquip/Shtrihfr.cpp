@@ -344,22 +344,9 @@ private:
 		ReceiptRibbonIsPresent,                 // #82
 		OutputReceipt,                          // #83 @v6.8.2
 		ReceiptOutputType,                      // #84 @v6.8.2
-		// @v9.1.7 PrintBarCode,                           // @v9.1.4
-		// @v9.1.7 Print2DBarcode,                         // @v9.1.4
 		PrintBarcodeGraph,                      // @v9.1.4
-		// @v9.1.7 PrintBarcodeUsingPrinter,               // @v9.1.4
-		// @v9.1.7 PrintBarcodeLine,                       // @v9.1.5
 		BarcodeType,                            // @v9.1.4
 		BarCode,                                // @v9.1.4
-		// @v9.1.7 BarcodeDataLength,                      // @v9.1.4
-		// @v9.1.7 BarWidth,                               // @v9.1.4
-		// @v9.1.7 BarcodeStartBlockNumber,                // @v9.1.5
-		// @v9.1.7 BarcodeParameter1,                      // @v9.1.5
-		// @v9.1.7 BarcodeParameter2,                      // @v9.1.5
-		// @v9.1.7 BarcodeParameter3,                      // @v9.1.5
-		// @v9.1.7 BarcodeParameter4,                      // @v9.1.5
-		// @v9.1.7 BarcodeParameter5,                      // @v9.1.5
-		// @v9.1.7 BarcodeAlignment,                       // @v9.1.5
 		FirstLineNumber,                        // @v9.1.5
 		LineNumber,                             // @v9.1.5
 		Summ4,                                  // @v10.6.1
@@ -575,16 +562,14 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flag
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
-			// @v9.7.1 prn_str = "КАРТА"; // @cstr #1
-			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v9.7.1
-			prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+			PPLoadText(PPTXT_CCFMT_CARD, prn_str);
+			prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 			prn_str.Space().Cat(scc.data.Code);
 			THROW(SetFR(StringForPrinting, prn_str));
 			THROW(ExecFRPrintOper(PrintString));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
-				// @v9.7.1 (prn_str = "ВЛАДЕЛЕЦ"); // @cstr #2
-				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v9.7.1
-				prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str);
+				prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 				prn_str.Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
 				CutLongTail(prn_str);
 				THROW(SetFR(StringForPrinting, prn_str));
@@ -592,9 +577,8 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flag
 			}
 		}
 		temp_str.Z().Cat(dscnt, SFMT_MONEY);
-		// @v9.7.1 (prn_str = "СКИДКА"); // @cstr #3
-		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v9.7.1
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str);
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 		prn_str.Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetFR(StringForPrinting, prn_str));
@@ -759,7 +743,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(SetFR(Price, fabs(_p)));
 						{
 							(temp_buf = sl_param.Text).Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
-							THROW(SetFR(StringForPrinting, temp_buf)); // @v9.7.8 @fix ""-->temp_buf
+							THROW(SetFR(StringForPrinting, temp_buf));
 						}
 						THROW(SetFR(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
 						THROW(SetFR(Tax1, 0L));
@@ -802,7 +786,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									8. Выигрыш лотереи
 									9. Предоставление РИД
 									10. Платеж
-									11. Агеннтское вознаграждение
+									11. Агентское вознаграждение
 									12. Составной предмет расчета
 									13. Иной предмет расчета
 									14. Имущественное право

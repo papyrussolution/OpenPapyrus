@@ -735,7 +735,7 @@ SLAPI PPViewBill::PoolInsertionParam::PoolInsertionParam() : Verb(2), AddedBillK
 }
 
 SLAPI PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL), P_TempTbl(0), P_TempOrd(0), P_BPOX(0), P_Arp(0),
-	P_BObj(BillObj), CtrlX(0), P_IterState(0), LastSelID(0)
+	P_BObj(BillObj), State(0), /*CtrlX(0),*/ P_IterState(0), LastSelID(0)
 {
 }
 
@@ -779,6 +779,7 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 	LastSelID = 0;
 	TempOrder = OrdByDefault;
 	Counter.Init();
+	SETFLAG(State, stNoTempTbl, BIN(Filt.Flags & LotFilt::fNoTempTable)); // @v10.9.0
 	IdList = Filt.List;
 	GetOpList(&Filt, &OpList, &SingleOpID);
 	THROW_PP(OpList.getCount(), PPERR_VIEWBYFILTISEMPTY);
@@ -969,7 +970,9 @@ int SLAPI PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 
 int SLAPI PPViewBill::IsTempTblNeeded() const
 {
-	if((Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || IdList.IsExists() ||
+	if(State & stNoTempTbl) // @v10.9.0
+		return 0;
+	else if((Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || IdList.IsExists() ||
 		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID ||
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
 		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID) {
@@ -1116,7 +1119,6 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 	else if(Filt.Ft_CheckPrintStatus < 0)
 		{ THROW(!(f & BILLF_CHECK)); }
 	// } @v10.7.0
-	// @v9.1.6 {
     if(Filt.EdiRecadvStatus) {
 		const int recadv_status = pRec ? BillCore::GetRecadvStatus(*pRec) : 0;
 		if(Filt.EdiRecadvStatus == -1) {
@@ -1132,7 +1134,6 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 		}
 		THROW(recadv_conf_status == static_cast<int>(Filt.EdiRecadvConfStatus));
     }
-	// } @v9.1.6
 	CATCHZOK
 	return ok;
 }
@@ -5607,14 +5608,16 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 				}
 				break;
 			case PPVCMD_INPUTCHAR:
-				if(PTR8C(pHdr)[0] == kbCtrlX)
-					CtrlX++;
-				else
-					CtrlX = 0;
-				if(CtrlX == 2) {
-					ok = UpdateAttributes();
-					CtrlX = 0;
+				if(PTR8C(pHdr)[0] == kbCtrlX) {
+					if(State & stCtrlX) {
+						ok = UpdateAttributes();
+						State &= ~stCtrlX;
+					}
+					else
+						State |= stCtrlX;
 				}
+				else
+					State &= ~stCtrlX;
 				break;
 			case PPVCMD_TRFRANLZ:
 				ok = -1;

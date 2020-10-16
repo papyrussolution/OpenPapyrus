@@ -587,8 +587,7 @@ long SLAPI PPMsgLog::PutMessage(const char * pBody, long flags, const void * hea
 	long   rval = 0;
 	if(Valid) {
 		PPLogIdx st;
-		SString body;
-		body = pBody;
+		SString body(pBody);
 		body.Chomp();
 		st.flags    = flags;
 		st.address  = hsize + sizeof(int16) + body.Len();

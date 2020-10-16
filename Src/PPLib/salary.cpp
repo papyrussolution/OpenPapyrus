@@ -330,7 +330,7 @@ public:
 		DivisionCtrlGroup::Rec grp_rec(OrgID, DivID, StaffID);
 		setGroupData(ctlgroupDiv, &grp_rec);
 		SetPeriodInput(this, CTL_SALARY_PERIOD, &period);
-		SetupPPObjCombo(this, CTLSEL_SALARY_CHARGE, PPOBJ_SALCHARGE, Data.SalChargeID, 0, (void *)-10000);
+		SetupPPObjCombo(this, CTLSEL_SALARY_CHARGE, PPOBJ_SALCHARGE, Data.SalChargeID, 0, reinterpret_cast<void *>(-10000));
 		PPObjStaffList::SetupPostCombo(this, CTLSEL_SALARY_POST, Data.PostID, 0, OrgID, DivID, StaffID);
 		setCtrlReal(CTL_SALARY_AMOUNT, Data.Amount);
 		return 1;
@@ -532,7 +532,7 @@ int SLAPI PPViewSalary::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_Ct);
 	SalChargeList.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE); // @v6.1.10
+	Filt.Period.Actualize(ZERODATE);
 	SETFLAG(Filt.Flags, SalaryFilt::fCrosstab, GetSalChargeGroupItems(Filt.SalChargeID, &SalChargeList) > 0);
 	if(IsTempTblNeeded()) {
 		{
@@ -546,7 +546,7 @@ int SLAPI PPViewSalary::Init_(const PPBaseFilt * pFilt)
 				THROW(tra);
 				for(InitIteration(0); NextIteration(&item) > 0;) {
 					TempSalaryTbl::Rec temp_rec;
-					MakeTempRec(order, (SalaryTbl::Rec *)&item, &temp_rec);
+					MakeTempRec(order, static_cast<SalaryTbl::Rec *>(&item), &temp_rec);
 					THROW_DB(bei.insert(&temp_rec));
 				}
 				THROW_DB(bei.flash());
@@ -620,7 +620,7 @@ int SLAPI PPViewSalary::InitIteration(int order)
 			idx = 1;
 			k.k1.PostID = Filt.PostID;
 		}
-		else if(!(Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID) { // @v5.6.14 AHTOXA @v10.3.0 @fix (!Filt.Flags & SalaryFilt::fCrosstab)-->!(Filt.Flags & SalaryFilt::fCrosstab)
+		else if(!(Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID) { // @v10.3.0 @fix (!Filt.Flags & SalaryFilt::fCrosstab)-->!(Filt.Flags & SalaryFilt::fCrosstab)
 			idx = 3;
 			k.k3.SalChargeID = Filt.SalChargeID;
 		}
@@ -631,8 +631,8 @@ int SLAPI PPViewSalary::InitIteration(int order)
 		}
 		THROW_MEM(q = new BExtQuery(&Tbl, idx));
 		dbq = ppcheckfiltid(dbq, Tbl.PostID, Filt.PostID);
-		if(!(Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID)    // @v5.6.14 AHTOXA // @v10.3.0 @fix (!Filt.Flags & SalaryFilt::fCrosstab)-->!(Filt.Flags & SalaryFilt::fCrosstab)
-			dbq = ppcheckfiltid(dbq, Tbl.SalChargeID, Filt.SalChargeID); // @v5.6.14 AHTOXA
+		if(!(Filt.Flags & SalaryFilt::fCrosstab) && Filt.SalChargeID)    // @v10.3.0 @fix (!Filt.Flags & SalaryFilt::fCrosstab)-->!(Filt.Flags & SalaryFilt::fCrosstab)
+			dbq = ppcheckfiltid(dbq, Tbl.SalChargeID, Filt.SalChargeID);
 		dbq = & (*dbq && daterange(Tbl.Beg, &Filt.Period));
 		q->where(*dbq);
 		k_ = k;
@@ -1005,7 +1005,7 @@ SLAPI PrcssrSalary::PrcssrSalary() : PeriodStack(64)
 	{
 		PPObjectTag tag_rec;
 		for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
-			if(tag_rec.ObjTypeID == PPOBJ_PERSON) // @v6.3.x AHTOXA
+			if(tag_rec.ObjTypeID == PPOBJ_PERSON)
 				TagSymbList.Add(tag_rec.ID, tag_rec.Symb);
 		}
 	}
@@ -1834,8 +1834,8 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 		}
 	}
 	if(oneof2(descr.FuncId, funcCalDay, funcCalHour)) {
-		PPID   cal_id      = (argCount > 0) ? (PPID)pArgList[0] : 0;
-		PPID   proj_cal_id = (argCount > 1) ? (PPID)pArgList[1] : 0;
+		PPID   cal_id      = (argCount > 0) ? static_cast<PPID>(pArgList[0]) : 0;
+		PPID   proj_cal_id = (argCount > 1) ? static_cast<PPID>(pArgList[1]) : 0;
 		long   numdays = 0;
 		double numhours = 0.0;
 		const char * p_time_msr = "";
@@ -1885,7 +1885,7 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 				period.SetDate(P_CurEv->Dt);
 				ev_list.add(P_CurEv->ID);
 			}
-			proj_cal_id = (argCount > 0) ? (PPID)pArgList[0] : 0;
+			proj_cal_id = (argCount > 0) ? static_cast<PPID>(pArgList[0]) : 0;
 		}
 		if(proj_cal_id < 0) {
 			inverse = 1;

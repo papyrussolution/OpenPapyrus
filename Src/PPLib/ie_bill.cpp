@@ -683,7 +683,6 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 			SString templ = ps.Nam;
 			SString name = ps.Nam;
 			SString wildcard;
-			//StrAssocArray result_list;
 			PPImpExpParam::PtTokenList result_list;
 			if(PPObjBill::ParseText(name, templ, result_list, &wildcard) > 0) {
 				ps.Nam = wildcard;
@@ -2171,9 +2170,9 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 		else if(mode == 2) {
 			if(isempty(brow_.BillID))
 				STRNSCPY(brow_.BillID, brow_.BillCode);
-			SETIFZ(brow_.BillDate, brow_.InvcDate); // @v9.8.5
-			SETIFZ(brow_.BillDate, brow_.DueDate); // @v9.8.5
-			SETIFZ(brow_.BillDate, brow_.PaymDate); // @v9.8.5
+			SETIFZ(brow_.BillDate, brow_.InvcDate);
+			SETIFZ(brow_.BillDate, brow_.DueDate);
+			SETIFZ(brow_.BillDate, brow_.PaymDate);
 			SETIFZ(brow_.BillDate, cdate);
 			if(!Period.CheckDate(brow_.BillDate))
 				continue;
@@ -2186,12 +2185,10 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 			(file_name = sp.Nam).Dot().Cat(sp.Ext);
 			PPLoadText(PPTXT_BROWLINKNOTFOUND, temp_buf);
 			if(brow_.Barcode[0]) {
-				// @v9.0.2 PPGetWord(PPWORD_BARCODE, 0, goods_info);
-				PPLoadString("barcode", goods_info); // @v9.0.2
+				PPLoadString("barcode", goods_info);
 				goods_info.Space().Cat(brow_.Barcode).Space();
 			}
-			// @v9.0.2 PPGetWord(PPWORD_GOODS, 0, (word = 0));
-			PPLoadString("ware", word); // @v9.0.2
+			PPLoadString("ware", word);
 			goods_info.Cat(word).Space().Cat(brow_.GoodsName);
 			msg.Printf(temp_buf, file_name.cptr(), goods_info.cptr());
 			Logger.Log(msg);

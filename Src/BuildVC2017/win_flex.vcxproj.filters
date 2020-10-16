@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\winflexbison\flex\flexdef.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\flexint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\gettext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\options.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\regex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\scanopt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\tables.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\winflexbison\flex\tables_shared.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\winflexbison\flex\buf.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\ccl.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\dfa.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\ecs.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\filter.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\gen.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\main.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\misc.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\nfa.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\options.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\parse.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\regex.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\scan.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\scanflags.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\scanopt.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\skel.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\sym.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\tables.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\tables_shared.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\tblcmp.c" />
+    <ClCompile Include="..\osf\winflexbison\flex\yylex.c" />
+    <ClCompile Include="..\OSF\winflexbison\flex\flex-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\osf\winflexbison\flex\parse.y" />
+    <None Include="..\osf\winflexbison\flex\scan.l" />
+  </ItemGroup>
+</Project>

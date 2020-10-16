@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493105
+LastSignatureCode=2147493111
 LastAutoCodeList=1,11985;102,10177;103,10072;110,10000;111,11991;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -231,6 +231,7 @@ flags=2147483840
 session=2147483841
 supersession=2147483842
 sessionid=2147492720
+worksessionuuid=2147493106
 sessionno=2147483843
 csession=2147483844
 csession_pl=2147483845
@@ -703,6 +704,7 @@ owner=2147484173
 scardowner=2147484174
 infokiosk=2147484175
 user=2147484176
+user_pl=2147493108
 username=2147484177
 userid=2147493019
 usergroup=2147484178
@@ -878,6 +880,7 @@ marginpctg=2147484323
 discountpctg=2147484324
 goodspricewotaxes=2147484325
 transaction=2147491860
+remotetransactionid=2147493107
 amounttype=2147484326
 amount=2147484327
 amount_pl=2147484328
@@ -1351,6 +1354,8 @@ event=2147484624
 event_pl=2147492973
 eventsubscription=2147492975
 eventsubscription_message=2147493038
+eventsubscription_mindetectioninterval=2147493109
+eventsubscription_notifcolor=2147493110
 personevent=2147484625
 personevent_pl=2147484626
 port=2147484627
@@ -1515,6 +1520,7 @@ dochangebillstatus_new=2147492867
 doskip=2147492918
 doget=2147491747
 doput=2147491748
+doconfigure=2147493111
 doupdateflags=2147484761
 timechart=2147484762
 bizscore=2147484763

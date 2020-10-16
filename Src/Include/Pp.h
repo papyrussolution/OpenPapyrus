@@ -2915,7 +2915,7 @@ private:
 			tBaseFiltPtr,
 			tStrAssocArray,
 			tDisplayExtList,
-			tSVector, // @v9.8.4
+			tSVector,
 		};
 		uint16 Type;
 		uint16 Offs;
@@ -14713,6 +14713,11 @@ public:
 	int    SLAPI TurnCheck(CCheckPacket * pPack, int use_ta);
 	int    SLAPI UpdateCheck(CCheckPacket * pPack, int use_ta);
 	//
+	// Descr: Специализированный метод, позволяющий изменить текст расширения чека непосредственно в базе данных, не трогая все остальные 
+	//   записи и атрибуты чека. 
+	//
+	int    SLAPI UpdateExtText(PPID id, int fldId, const char * pText, int use_ta);
+	//
 	// Descr: Опции функции TurnSCardPayment
 	//
 	enum {
@@ -16204,15 +16209,17 @@ private:
 struct PPEventSubscription {
 	SLAPI  PPEventSubscription();
 	int    FASTCALL IsEqual(const PPEventSubscription & rS) const;
-	long   Tag;            // Const=PPOBJ_EVENTSUBSCRIPTION
-	long   ID;             // @id
-	char   Name[48];       // @name @!refname
-	char   Symb[20];       //
-	long   Flags;          //
-	PPID   ObjType;        // Тип объекта, ассоциированный с событием (для некоторых типов событий)
-	char   Reserve[56];    // @reserve
-	PPID   EventType;      //
-	PPID   Reserve2;       //
+	long   Tag;                  // Const=PPOBJ_EVENTSUBSCRIPTION
+	long   ID;                   // @id
+	char   Name[48];             // @name @!refname
+	char   Symb[20];             //
+	long   Flags;                //
+	PPID   ObjType;              // Тип объекта, ассоциированный с событием (для некоторых типов событий)
+	SColor NotifColor;           // Цвет мини-окна с уведомлением
+	long   MinDetectionInterval; // Минимальный временной интервал между попытками детекта событий (sec).
+	char   Reserve[48];          // @reserve
+	PPID   EventType;            //
+	PPID   Reserve2;             //
 };
 
 class PPEventSubscriptionPacket : public PPExtStrContainer {
@@ -19406,7 +19413,7 @@ public:
 		fldControlRuTobacco       // Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
 	};
 	SLAPI  GtinStruc();
-	int    SLAPI SetSpecialFixedToken(int token, int fixedLen);
+	int    SLAPI SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
 	int    SLAPI AddOnlyToken(int token);
 	GtinStruc & SLAPI Z();
 	int    SLAPI Parse(const char * pCode);
@@ -19424,7 +19431,7 @@ private:
 	};
 	int    SLAPI DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const;
 	int    SLAPI GetPrefixSpec(int prefixId, uint * pFixedLen) const;
-	::LAssocArray SpecialFixedTokens;
+	::LAssocArray SpecialFixedTokens; // Значение длины 1000 означает 'до конца строки' (UNTIL EOL)
 	LongArray OnlyTokenList;
 	int    SpecialNaturalToken; // При разборе может появиться специальный случай, отражаемый как NaturalToken (например, SNTOK_CHZN_CIGITEM)
 };
@@ -22952,7 +22959,7 @@ struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	char   Symb[20];       //
 	char   Reserve[28];    // @reserve // @v10.7.2 [32]-->[28]
 	long   ChZnProdType;   // @v10.7.2
-	double StockTolerance; // @v9.0.4 Величина толерантности к дефициту либо к излишку товара.
+	double StockTolerance; // Величина толерантности к дефициту либо к излишку товара.
 		// Если доступный остаток меньше требуемого на величину, не превышающую StockTolerance
 		// то расходуется то, что есть.
 	PPID   PriceRestrID;   // ->Ref(PPOBJ_GOODSVALRESTR) Ограничение на цену реализации
@@ -27135,7 +27142,7 @@ struct PersonFilt : public PPBaseFilt {
 	int    SLAPI PutExtssData(int fldID, const char * pBuf);
 
 	uint8  ReserveStart[24];  // @anchor
-	DateRange NewCliPeriod;   // @v8.3.0 Период иднетификации нового клиента
+	DateRange NewCliPeriod;   // Период иднетификации нового клиента
 	PPID   Kind;              //
 	PPID   Category;          //
 	PPID   Status;            //
@@ -30904,7 +30911,7 @@ struct AsyncCashGoodsInfo { // @transient
 	// @v10.4.11 short  Deleted_;         // Признак того, что товар был удален
 	long   Flags_;           // @v10.4.11
 	short  NoDis;            // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой, -1 - со скидкой (признак "без скидки" был снят)
-	uint16 Reserve;          // @v10.4.11 @alignment
+	int16  ChZnProdType;     // @v10.9.0 Reserve-->ChZnProdType Тип маркированной продукции честный знак
 	long   DivN;             // Номер отдела
 	PPID   LocPrnID;         // ->Ref(PPOBJ_LOCPRINTER)
 	char   LocPrnSymb[20];   // Символ локального принтера LocPrnID
@@ -32569,6 +32576,32 @@ public:
 
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr /* (PPObjBill::EditParam *) */);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
+
+	struct CreateNewInteractive_Param {
+		enum {
+			poUndef = 0,
+			poBuyerOrder = 1,
+			poSupplOrder = 2,
+			poReceipt    = 3,
+			poBuyerSale  = 4,
+			poIntrExpend = 5,
+			poInventory  = 6,
+			poAccTurn    = 7
+		};
+		enum {
+			fShowBrowserAfterCreation = 0x0001
+		};
+		static int OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList);
+		CreateNewInteractive_Param();
+		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		long   PredefOp;
+		PPID   Bbt;
+		PPID   OpID;
+		PPID   LocID;
+		long   Flags;
+	};
+	int    EditCreateNewInteractiveParam(CreateNewInteractive_Param * pData);
+	int    CreateNewInteractive(CreateNewInteractive_Param * pP);
 	int    SLAPI CheckRightsWithOp(PPID opID, long rtflags);
 	int    SLAPI Lock(PPID billID);
 	int    SLAPI Unlock(PPID billID);
@@ -34656,6 +34689,25 @@ public:
 		double ResultPrice;
 		char   TaIdent[64];
 	};
+	struct TransactionResult { // @flat
+		SLAPI  TransactionResult() : Status(stUndef), ResultFlags(0)
+		{
+			PTR32(TaIdent)[0] = 0;
+			PTR32(CustomerIdent)[0] = 0;
+			PTR32(ErrMessage)[0] = 0;
+		}
+		enum {
+			stRejected = -1,
+			stUndef    = 0,
+			stAccepted = 1,
+		};
+		int    Status;
+		uint   ResultFlags;
+		S_GUID CustomerUid;
+		char   TaIdent[64];
+		char   CustomerIdent[64];
+		char   ErrMessage[512];
+	};
 
 	static SCardSpecialTreatment * FASTCALL CreateInstance(int spcTrtID);
 	static int FASTCALL InitSpecialCardBlock(PPID scID, PPID posNodeID, CardBlock & rBlk);
@@ -34689,7 +34741,7 @@ public:
 	//
 	virtual int SLAPI DoesWareBelongToScope(PPID goodsID);
 	virtual int SLAPI QueryDiscount(const CardBlock * pScBlk, TSVector <DiscountBlock> & rDL, long * pRetFlags, StringSet * pRetMsgList);
-	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, long * pRetFlags);
+	virtual int SLAPI CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, TransactionResult * pResult);
 protected:
 	explicit SLAPI SCardSpecialTreatment(uint capability);
 private:
@@ -35797,7 +35849,7 @@ public:
 	long   Flags;
 	TSessionTbl::Rec Rec;
 	PPCheckInPersonArray CiList;
-	TSVector <TSessLineTbl::Rec> Lines; // @v9.8.6 TSArray-->TSVector
+	TSVector <TSessLineTbl::Rec> Lines;
 	ObjTagList TagL;        // Список тегов
 	ObjLinkFiles LinkFiles; //
 	PPProcessorPacket::ExtBlock Ext; // Некоторые параметры процессора могут быть переопределены в этом блоке.
@@ -37735,9 +37787,10 @@ public:
 		fDiscountOnly      = 0x00800000, // Только со скидкой на весь документ
 		fDescOrder         = 0x01000000, // Сортировка в обратном порядке
 		fAddZeroLoc        = 0x02000000, // При построении выборки добавлять нулевую локацию к списку складов, по которому фильтруется отчет.
-		fExportEDI         = 0x04000000, // @v8.0.5 Специальный флаг, используемый при экспорте
+		fExportEDI         = 0x04000000, // Специальный флаг, используемый при экспорте
 		// @v10.7.0 fCcPrintedOnly     = 0x08000000, // @v9.7.12 Только документы, по которым отпечатан кассовый чек
 		// @v10.7.0 fCcNotPrintedOnly  = 0x10000000  // @v10.6.13 Только документы, по которым не отпечатан кассовый чек
+		fNoTempTable       = 0x20000000, // @v10.9.0 Не создавать временную таблицу, даже если условия фильтрации этого требуют
 	};
 	enum {
 		fDenyAdd    = 0x0001,
@@ -37768,12 +37821,12 @@ public:
 	long   Tag;            // @#0 reserved
 	DateRange DuePeriod;   // Период исполнения //
 	uint32 Count;          // Максимальное количество документов в выборке
-	int16  Ft_Declined;    // @v8.3.3 Признак BILLF2_DECLINED: (0) ignored, (< 0) off, (> 0) on
+	int16  Ft_Declined;    // Признак BILLF2_DECLINED: (0) ignored, (< 0) off, (> 0) on
 	int16  Ft_CheckPrintStatus; // @v10.7.0 reserve-->Ft_CheckPrintStatus
-	PPID   StorageLocID;   // @v8.8.6 Место хранение, ассоциированное с фрахтом документа
-	int16  EdiRecadvStatus;     // @v9.1.6 Статус RECADV по каналу EDI. -1 - с нулевым статусом
-	int16  EdiRecadvConfStatus; // @v9.1.6 Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом
-	uint8  Reserve[8];     // @#0 !Использовать начиная со старших адресов // @v8.8.6 [18]-->[12] // @v9.1.6 [12]-->[8]
+	PPID   StorageLocID;   // Место хранение, ассоциированное с фрахтом документа
+	int16  EdiRecadvStatus;     // Статус RECADV по каналу EDI. -1 - с нулевым статусом
+	int16  EdiRecadvConfStatus; // Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом
+	uint8  Reserve[8];     // @#0 !Использовать начиная со старших адресов 
 	BrowseBillsType Bbt;   // @#1f
 	DateRange Period;      //
 	DateRange PaymPeriod;  // Период поступления платежей (Flags & fShowDebt)
@@ -37926,8 +37979,6 @@ public:
 	//
 	int    SLAPI Transmit(PPID billID, int transmitKind);
 	int    SLAPI UpdateAttributes();
-	//int    SLAPI ExportToAtlas(); // @v5.2.0 VADIM Obsolete
-	// @v8.9.11 int    SLAPI ExportToEGAIS();
 	int    SLAPI ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam);
 	int    SLAPI CreateMrpTab(PPID billID);
 	int    SLAPI GetPacket(PPID billID, PPBillPacket * pPack) const; // <<PPALDD_BillInfoList::NextIteration
@@ -37977,8 +38028,6 @@ private:
 
 	BillFilt Filt;
 	PPIDArray UpdateBillList; // для обновления измененнных документов в броузере
-	int    CtrlX;             //
-	int    UseOrderTblForIteration; // 0 - use TempBillTbl, else use TempOrderTbl
 	uint   _IterC;            // Количество выполненных (успешных) итераций NextIteration
 	PPID   SingleOpID;        //
 	PPID   SingleLocID;       //
@@ -37999,7 +38048,15 @@ private:
 	PPBillPoolOpEx * P_BPOX;  // @# {(!Filt.PoolBillID && !Filt.PoolOpID) => P_BPOX==0}
 	PoolInsertionParam Pip;   //
 	PrcssrAlcReport * P_Arp;  //
-
+	// @v10.9.0 int    CtrlX;             //
+	// @v10.9.0 (unused) int    UseOrderTblForIteration; // 0 - use TempBillTbl, else use TempOrderTbl
+	// @v10.9.0 {
+	enum {
+		stNoTempTbl = 0x0001, // Экземпляр не будет создавать временную таблицу, даже если условия фильтрации этого требуют.
+		stCtrlX     = 0x0002,
+	};
+	long   State;
+	// } @v10.9.0 
 	friend int IterProc_CrTmpTbl(const BillViewItem *, void * pExtraPtr);
 };
 //
@@ -38671,8 +38728,6 @@ private:
 		stFiltSerial = 0x00004  // Текущий фильтр имеет не пустой критерий серийного номера (для экономии времени)
 	};
 	long   State;
-	//int    AccsCost;
-	//int    NoTempTbl;
 };
 //
 // @ModuleDecl(PPViewLotExtCode)
@@ -44898,6 +44953,7 @@ public:
 	virtual int   SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PrjTaskViewItem *);
+	int    SLAPI CheckIDForFilt(PPID id, const PrjTaskTbl::Rec * pRec);
 	int    SLAPI GetItem(PPID id, PrjTaskViewItem * pItem);
 	void   SLAPI GetTabTitle(PPID tabID, SString & rBuf);
 	int    SLAPI ChangeTasks(PPIDArray *);
@@ -47121,16 +47177,17 @@ public:
 		bilstfExpend            = 0x00000010, // Документы продажи товара
 		bilstfIntrExpend        = 0x00000020, // Документы внутренней передачи
 		bilstfReturnToSuppl     = 0x00000040, // Документы возврата поставщику
-		bilstfLosses            = 0x00000080, // @v8.9.12 Документы потерь (прочие расходы)
-		bilstfRepeal            = 0x00000100, // @v9.2.8 Документы с запросом на отмену проведения
-		bilstfTransferToShop    = 0x00000200, // @v9.2.11 Документы передачи в торговый зал (Регистр 2)
-		bilstfChargeOnShop      = 0x00000400, // @v9.2.11 Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
-		bilstfTransferFromShop  = 0x00000800, // @v9.3.10 Документы возврата из торговый зал (Регистр 2) на склад
-		bilstfWriteOffShop      = 0x00001000, // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
-		bilstfWbRepealConf      = 0x00002000, // @v9.5.12 Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
-		bilstfV1                = 0x00004000, // @v9.7.5  Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
-		bilstfV2                = 0x00008000, // @v9.7.5  Документы 2-й версии ЕГАИС
-		bilstfV3                = 0x00010000, // @v9.9.5  Документы 3-й версии ЕГАИС
+		bilstfLosses            = 0x00000080, // Документы потерь (прочие расходы)
+		bilstfRepeal            = 0x00000100, // Документы с запросом на отмену проведения
+		bilstfTransferToShop    = 0x00000200, // Документы передачи в торговый зал (Регистр 2)
+		bilstfChargeOnShop      = 0x00000400, // Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
+		bilstfTransferFromShop  = 0x00000800, // Документы возврата из торговый зал (Регистр 2) на склад
+		bilstfWriteOffShop      = 0x00001000, // Документы списания с баланса торгового зала (Регистр 2)
+		bilstfWbRepealConf      = 0x00002000, // Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
+		bilstfV1                = 0x00004000, // Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
+		bilstfV2                = 0x00008000, // Документы 2-й версии ЕГАИС
+		bilstfV3                = 0x00010000, // Документы 3-й версии ЕГАИС
+		bilstfFixBarcode        = 0x00020000, // @v10.9.0 Постановка маркированной продукции на баланс 
 	};
 	int    SLAPI GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
 	int    SLAPI GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
@@ -52406,7 +52463,7 @@ public:
 	int    Move();
 	int    LoadData();
 private:
-	int    Update();
+	void   Update();
 	LDATETIME  Dtm;
 	LDATE  ActualDt;
 	StrAssocArray  BizScoreList;
@@ -52507,14 +52564,14 @@ public:
 	TRect & CalcIconRect(TPoint lrp, TRect & rResult) const;
 	int    GetIconSize() const { return IconSize; }
 	int    GetIconGap() const { return IconGap; }
-	int    Paint();
+	void   Paint();
 	int    BeginIconMove(TPoint p);
 	int    MoveIcon(TPoint p);
-	int    EndIconMove(TPoint p);
+	void   EndIconMove(TPoint p);
 	void   Update(const TRect * pR, int drawBackgnd);
 	int    EditIconName(long id);
 	int    DoCommand(TPoint p);
-	int    ArrangeIcons();
+	void   ArrangeIcons();
 	PPBizScoreWindow * GetBizScoreWnd();
 	int    CreateBizScoreWnd();
 	// @v10.9.0 (inlined) int    LoadBizScoreData();
@@ -52545,8 +52602,8 @@ private:
 	};
 	ushort Execute();
 	void   WMHCreate(LPCREATESTRUCT);
-	int    DrawIcon(TCanvas & rC, long cmdID, int isSelected);
-	int    DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rText, const SString & rIcon, int isSelected);
+	void   DrawIcon(TCanvas & rC, long cmdID, int isSelected);
+	void   DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rText, const SString & rIcon, int isSelected);
 	void   AddTooltip(long id, TPoint coord, const char * pText);
 	int    DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char * pText);
 	int    ArrangeIcon(PPCommand * pCmd);
@@ -53083,6 +53140,15 @@ enum {
 int    FASTCALL PPGetObjTypeList(PPIDArray * pList, long flags);
 int    FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl);
 int    FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id);
+//
+// Descr: Функция возвращает идентификаторы PPView и PPFilt, соответствующие типу объекта objType.
+// Returns:
+//   >0 найдено соответствие objType-->{viewId; filtId}
+//    0 соответствие для типа объекта objType не найдено
+//
+int    PPGetObjViewFiltMapping_Obj(PPID objType, int * pViewId, int * pFiltId);
+int    PPGetObjViewFiltMapping_View(int viewId, PPID * pObjType, int * pFiltId);
+int    PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId);
 int    SLAPI PPGetConfigList(StrAssocArray *);
 int    SLAPI PPLicUpdate();
 int    SLAPI PPLicRegister();

@@ -894,7 +894,7 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	CreatorList.Set(0);
 	EmployerList.Set(0);
 	ClientList.Set(0);
-	StrPool.ClearS(); // @v9.8.4
+	StrPool.ClearS();
 	if(Filt.ClientID || Filt.CreatorID || Filt.EmployerID) {
 		PPObjPersonRelType prt_obj;
 		PPIDArray grp_prt_list;
@@ -1180,6 +1180,66 @@ int SLAPI PPViewPrjTask::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODY(PrjTaskFiltDialog, static_cast<PrjTaskFilt *>(pBaseFilt));
+}
+
+int SLAPI PPViewPrjTask::CheckIDForFilt(PPID id, const PrjTaskTbl::Rec * pRec)
+{
+	int    ok = 1;
+	PrjTaskTbl::Rec _rec;
+	if(pRec || TodoObj.Search(id, &_rec) > 0) {
+		SETIFZ(pRec, &_rec);
+		if(!CheckFiltID(Filt.Kind, pRec->Kind))
+			ok = 0;
+		else if(Filt.Flags & PrjTaskFilt::fUnbindedOnly && pRec->ProjectID)
+			ok = 0;
+		else if(!CheckFiltID(Filt.ProjectID, pRec->ProjectID))
+			ok = 0;
+		else if(!CheckFiltID(Filt.TemplateID, pRec->TemplateID))
+			ok = 0;
+		else if(!CheckFiltID(Filt.LinkTaskID, pRec->LinkTaskID))
+			ok = 0;
+		else if(!UndefPriorList && !PriorList.lsearch(pRec->Priority))
+			ok = 0;
+		else if(!UndefStatusList && (!StatusList.lsearch(pRec->Status)))
+			ok = 0;
+		else if(Filt.Flags & PrjTaskFilt::fUnviewedOnly && pRec->OpenCount > 0)
+			ok = 0;
+		else if(Filt.Flags & PrjTaskFilt::fUnviewedEmployerOnly && pRec->Flags & TODOF_OPENEDBYEMPL)
+			ok = 0;
+		else if(!Filt.Period.CheckDate(pRec->Dt))
+			ok = 0;
+		else if(!Filt.StartPeriod.CheckDate(pRec->StartDt))
+			ok = 0;
+		else if(!Filt.EstFinishPeriod.CheckDate(pRec->EstFinishDt))
+			ok = 0;
+		else if(!Filt.FinishPeriod.CheckDate(pRec->FinishDt))
+			ok = 0;
+		else if(CreatorList.IsExists() && !CreatorList.CheckID(pRec->CreatorID))
+			ok = 0;
+		else if(EmployerList.IsExists() && !EmployerList.CheckID(pRec->EmployerID))
+			ok = 0;
+		else if(ClientList.IsExists() && !ClientList.CheckID(pRec->ClientID))
+			ok = 0;
+		else {
+			const int tm_period_valid = BIN((Filt.StartTmPeriodBeg || Filt.StartTmPeriodEnd) && Filt.StartTmPeriodEnd >= Filt.StartTmPeriodBeg);
+			if(tm_period_valid && (pRec->StartTm < Filt.StartTmPeriodBeg || pRec->StartTm > Filt.StartTmPeriodEnd))
+				ok = 0;
+			else if(Filt.CliCityID) {
+				ok = 1;
+				PPID   addr_id = 0, city_id = 0;
+				if(pRec->ClientID && PsnObj.GetAddrID(pRec->ClientID, pRec->DlvrAddrID, PSNGETADDRO_DLVRADDR, &addr_id) > 0) {
+					PsnObj.GetCityByAddr(addr_id, &city_id, 0);
+					if(city_id != Filt.CliCityID)
+						ok = 0;
+				}
+				else
+					ok = 0;
+			}
+			else
+				ok = 1;
+		}
+	}
+	return ok;
 }
 
 int SLAPI PPViewPrjTask::InitIteration()

@@ -7499,8 +7499,8 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	int    rbybill;
 	uint   i, pos;
 	const  PPRights & r_rt = ObjRts;
-	Reference * p_ref = PPRef; // @v9.8.11
-	ObjVersioningCore * p_ovc = p_ref->P_OvT; // @v9.8.11
+	Reference * p_ref = PPRef;
+	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	const  PPID  id = pPack->Rec.ID;
 	TBlock tb_;
 	PPIDArray added_lot_items; // Список позиций товарных строк с признаком
@@ -7513,11 +7513,10 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	PPAccTurn    at, * p_at;
 	PPTransferItem ti, * p_ti;
 	PPBillPacket org_pack;
-	SBuffer hist_buf; // @v9.8.11
-	// @v9.8.11 PPHistBillPacket hist_pack;
+	SBuffer hist_buf;
 	BillUserProfileCounter ufp_counter;
 	PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(pPack->Rec.OpID, PPACN_UPDBILL));
-	PPIDArray correction_exp_chain; // @v9.4.3
+	PPIDArray correction_exp_chain;
 	pPack->ErrCause = 0;
 	THROW_PP_S(!(pPack->ProcessFlags & PPBillPacket::pfUpdateProhibited), PPERR_UPDBPACKPROHIBITED, PPObjBill::MakeCodeString(&pPack->Rec, 0, bill_code));
 	if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreStatusRestr)) {
@@ -7564,17 +7563,12 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	if(IsPacketEq(*pPack, org_pack, 0))
 		ok = -1;
 	else {
-		/* @v9.8.11 if(TLP(HistBill).IsOpened()) {
-			hist_pack.Init(&org_pack);
-		} */
-		// @v9.8.11 {
 		if(State2 & stDoObjVer) {
 			if(p_ovc && p_ovc->InitSerializeContext(0)) {
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
 				THROW(SerializePacket__(+1, &org_pack, hist_buf, &r_sctx));
 			}
 		}
-		// } @v9.8.11
 		THROW(PPStartTransaction(&ta, use_ta));
 		THROW(BeginTFrame(id, tb_));
 		THROW(LockFRR(pPack->Rec.Dt, &frrl_tag, 0));
@@ -9235,6 +9229,312 @@ int SLAPI PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, c
 	return ok;
 }
 
+PPObjBill::CreateNewInteractive_Param::CreateNewInteractive_Param() : PredefOp(poUndef), Bbt(0), OpID(0), LocID(0), Flags(0)
+{
+}
+
+int SLAPI PPObjBill::CreateNewInteractive_Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	const  uint64 signature = 0x18080BCD1FFC030BULL;
+	int    ok = 1;
+	int    do_regular = 1;
+	if(dir < 0) {
+		uint64 in_s = 0;
+		THROW_SL(rBuf.Read(in_s));
+		if(in_s == signature) {
+			do_regular = 1;
+		}
+		else {
+			THROW(rBuf.Unread(sizeof(in_s)));
+			THROW_SL(rBuf.Read(Bbt));
+			THROW_SL(rBuf.Read(OpID));
+			THROW_SL(rBuf.Read(LocID));
+		}
+	}
+	else if(dir > 0) {
+		THROW_SL(rBuf.Write(signature));
+	}
+	if(do_regular) {
+		THROW_SL(pSCtx->Serialize(dir, PredefOp, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Bbt, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, OpID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, LocID, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PPObjBill::CreateNewInteractive_Param::OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList)
+{
+	int    ok = 1;
+	THROW_INVARG(pOpTypeList);
+	switch(bbt) {
+		case bbtGoodsBills:
+			pOpTypeList->addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
+				PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CORRECTION, 0L);
+			break;
+		case bbtOrderBills: pOpTypeList->add(PPOPT_GOODSORDER); break;
+		case bbtAccturnBills: pOpTypeList->add(PPOPT_ACCTURN); break;
+		case bbtInventoryBills: pOpTypeList->add(PPOPT_INVENTORY); break;
+		case bbtDraftBills: pOpTypeList->addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ, 0L); break; // @v10.5.7 PPOPT_DRAFTQUOTREQ
+		case bbtSpcChargeOnMarks: pOpTypeList->add(PPOPT_DRAFTRECEIPT); break; // @v10.9.0
+	}
+	pOpTypeList->sort();
+	CATCHZOK
+	return ok;
+}
+
+class BillCreateNewInteractiveParamDialog : public TDialog {
+public:
+	DECL_DIALOG_DATA(PPObjBill::CreateNewInteractive_Param);
+
+	BillCreateNewInteractiveParamDialog() : TDialog(DLG_ADDBILLFLT)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		PPID   bbt = 0;
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		AddClusterAssocDef(CTL_ADDBILLFLT_RESERVED, 0, DlgDataType::poUndef);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 1, DlgDataType::poBuyerOrder);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 2, DlgDataType::poSupplOrder);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 3, DlgDataType::poReceipt);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 4, DlgDataType::poBuyerSale);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 5, DlgDataType::poIntrExpend);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 6, DlgDataType::poInventory);
+		AddClusterAssoc(CTL_ADDBILLFLT_RESERVED, 7, DlgDataType::poAccTurn);
+		SetClusterData(CTL_ADDBILLFLT_RESERVED, Data.PredefOp);
+		AddClusterAssoc(CTL_ADDBILLFLT_FLAGS, 0, DlgDataType::fShowBrowserAfterCreation);
+		SetClusterData(CTL_ADDBILLFLT_FLAGS, Data.Flags);
+		bbt = (Data.Bbt >= 0) ? (Data.Bbt + 1) : 0;
+		SetupPPObjCombo(this, CTLSEL_ADDBILLFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
+		SetupStringCombo(this, CTLSEL_ADDBILLFLT_BBT, PPTXT_BILLTYPES, bbt);
+		SetupOprKindList(Data.poUndef, bbt, Data.OpID);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		Data.PredefOp = GetClusterData(CTL_ADDBILLFLT_RESERVED);
+		getCtrlData(CTLSEL_ADDBILLFLT_OP,  &Data.OpID);
+		getCtrlData(CTLSEL_ADDBILLFLT_LOC, &Data.LocID);
+		getCtrlData(CTLSEL_ADDBILLFLT_BBT, &Data.Bbt);
+		GetClusterData(CTL_ADDBILLFLT_FLAGS, &Data.Flags);
+		Data.Bbt--;
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_ADDBILLFLT_BBT)) {
+			PPID   bbt = getCtrlLong(CTLSEL_ADDBILLFLT_BBT);
+			PPID   op_id = getCtrlLong(CTLSEL_ADDBILLFLT_OP);
+			SetupOprKindList(Data.poUndef, bbt, op_id);
+		}
+		else if(event.isClusterClk(CTL_ADDBILLFLT_RESERVED)) {
+			Data.PredefOp = GetClusterData(CTL_ADDBILLFLT_RESERVED);
+			SetupOprKindList(Data.PredefOp, -1, 0);
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	void SetupOprKindList(long predefOp, PPID bbt, PPID opID)
+	{
+		static int __lock = 0;
+		if(!__lock) {
+			__lock = 1;
+			PPObjOprKind op_obj;
+			PPID   selected_op_id = 0;
+			PPIDArray op_list;
+			int    is_op_list_inited = 0;
+			PPOprKind enum_opk_rec;
+			if(predefOp) {
+				bbt = -1;
+				const PPCommConfig & r_ccfg = CConfig;
+				switch(predefOp) {
+					case DlgDataType::poUndef:
+						break;
+					case DlgDataType::poBuyerOrder:
+						bbt = bbtOrderBills;
+						{
+							const PPID acs_id = r_ccfg.SellAccSheet;
+							if(acs_id) {
+								for(PPID enum_op_id = 0; EnumOperations(PPOPT_GOODSORDER, &enum_op_id, &enum_opk_rec) > 0;) {
+									if(enum_opk_rec.AccSheetID == acs_id) {
+										op_list.add(enum_op_id);
+										is_op_list_inited = 1;
+									}
+								}
+								SETIFZ(selected_op_id, op_list.getSingle());
+							}
+						}
+						break;
+					case DlgDataType::poSupplOrder:
+						bbt = bbtDraftBills;
+						selected_op_id = r_ccfg.DraftRcptOp;
+						break;
+					case DlgDataType::poReceipt:
+						bbt = bbtGoodsBills;
+						selected_op_id = r_ccfg.ReceiptOp;
+						break;
+					case DlgDataType::poBuyerSale:
+						bbt = bbtGoodsBills;
+						{
+							const PPID acs_id = r_ccfg.SellAccSheet;
+							if(acs_id) {
+								for(PPID enum_op_id = 0; EnumOperations(PPOPT_GOODSEXPEND, &enum_op_id, &enum_opk_rec) > 0;) {
+									if(enum_opk_rec.AccSheetID == acs_id) {
+										if(!selected_op_id && enum_opk_rec.Flags & OPKF_ONORDER)
+											selected_op_id = enum_op_id;
+										op_list.add(enum_op_id);
+										is_op_list_inited = 1;
+									}
+								}
+							}
+						}
+						break;
+					case DlgDataType::poIntrExpend:
+						bbt = bbtGoodsBills;
+						{
+							for(PPID enum_op_id = 0; EnumOperations(PPOPT_GOODSEXPEND, &enum_op_id, &enum_opk_rec) > 0;) {
+								if(IsIntrExpndOp(enum_opk_rec.ID)) {
+									op_list.add(enum_op_id);
+									is_op_list_inited = 1;
+								}
+							}
+							SETIFZ(selected_op_id, op_list.getSingle());
+						}
+						break;
+					case DlgDataType::poInventory:
+						bbt = bbtInventoryBills;
+						break;
+					case DlgDataType::poAccTurn:
+						bbt = bbtAccturnBills;
+						selected_op_id = PPOPK_GENERICACCTURN;
+						break;
+				}
+				if(bbt >= 0)
+					setCtrlLong(CTLSEL_ADDBILLFLT_BBT, bbt+1);
+				if(selected_op_id)
+					setCtrlLong(CTLSEL_ADDBILLFLT_OP, selected_op_id);
+			}
+			else {
+				selected_op_id = opID;
+				bbt--;
+			}
+			if((bbt+1) == bbtSpcChargeOnMarks) {
+				PPID   temp_op_id = PPOPK_EDI_CHARGEONWITHMARKS;
+				if(GetOpData(temp_op_id, &enum_opk_rec) > 0) {
+					op_list.add(temp_op_id);
+					is_op_list_inited = 1;
+					selected_op_id = temp_op_id;
+				}
+				else if(CONFIRM(PPCFM_CREATESPCOPRKIND)) { // Выбранная категории документов требует специальной зарезервированной операции. Создать ее сейчас?
+					temp_op_id = 0;
+					if(op_obj.GetEdiChargeOnWithMarksOp(&temp_op_id, 1) > 0) {
+						op_list.add(temp_op_id);
+						is_op_list_inited = 1;
+						selected_op_id = temp_op_id;
+					}
+					else {
+						op_list.clear();
+						is_op_list_inited = 1;
+						selected_op_id = 0;
+						PPError();
+					}
+				}
+				else {
+					op_list.clear();
+					is_op_list_inited = 1;
+					selected_op_id = 0;
+				}
+			}
+			if(!is_op_list_inited) {
+				PPIDArray op_type_list;
+				DlgDataType::OpTypeListByBbt(bbt, &op_type_list);
+				for(PPID enum_op_id = 0; EnumOperations(0, &enum_op_id, &enum_opk_rec) > 0;) {
+					if(op_type_list.bsearch(enum_opk_rec.OpTypeID, 0) > 0)
+						op_list.add(enum_op_id);
+				}
+				SETIFZ(selected_op_id, op_list.getSingle());
+			}
+			// @v10.9.0 opID = oneof2(PrevBbt, 0, bbt) ? opID : 0;
+			if(!op_list.lsearch(selected_op_id))
+				selected_op_id = 0;
+			SetupOprKindCombo(this, CTLSEL_ADDBILLFLT_OP, selected_op_id, 0, &op_list, OPKLF_OPLIST);
+			__lock = 0;
+		}
+	}
+};
+
+int PPObjBill::EditCreateNewInteractiveParam(CreateNewInteractive_Param * pData)
+{
+	DIALOG_PROC_BODY(BillCreateNewInteractiveParamDialog, pData);
+}
+
+int PPObjBill::CreateNewInteractive(CreateNewInteractive_Param * pP)
+{
+	int    ok = -1;
+	CreateNewInteractive_Param param;
+	if(!pP && EditCreateNewInteractiveParam(&param) > 0) {
+		pP = &param;
+	}
+	if(pP && pP->Bbt >= 0) {
+		int    r = 1;
+		if(!pP->LocID || !pP->OpID) {
+			PPIDArray op_type_list;
+			SETIFZ(pP->LocID, LConfig.Location);
+			PPObjBill::CreateNewInteractive_Param::OpTypeListByBbt(pP->Bbt, &op_type_list);
+			r = BillPrelude(&op_type_list, 0, 0, &pP->OpID, &pP->LocID);
+		}
+		if(r > 0) {
+			PPID   id = 0;
+			const  PPID save_loc_id = LConfig.Location;
+			DS.SetLocation(pP->LocID);
+			if(GetOpType(pP->OpID) == PPOPT_ACCTURN && !CheckOpFlags(pP->OpID, OPKF_EXTACCTURN))
+				r = AddGenAccturn(&id, pP->OpID, 0);
+			else {
+				BillFilt bill_filt;
+				bill_filt.SetupBrowseBillsType(static_cast<BrowseBillsType>(pP->Bbt));
+				bill_filt.OpID = pP->OpID;
+				bill_filt.LocList.Add(pP->LocID);
+				r = AddGoodsBillByFilt(&id, &bill_filt, pP->OpID);
+			}
+			// @v10.9.0 {
+			if(r > 0 && pP->Flags & pP->fShowBrowserAfterCreation) {
+				BillTbl::Rec bill_rec;
+				if(Search(id, &bill_rec) > 0) {
+					BillFilt bill_flt;
+					switch(GetOpType(bill_rec.OpID)) {
+						case PPOPT_DRAFTEXPEND:
+						case PPOPT_DRAFTRECEIPT:
+						case PPOPT_DRAFTQUOTREQ:
+						case PPOPT_DRAFTTRANSIT: bill_flt.Bbt = bbtDraftBills; break;
+						case PPOPT_ACCTURN: bill_flt.Bbt = bbtAccturnBills; break;
+						case PPOPT_INVENTORY: bill_flt.Bbt = bbtInventoryBills; break;
+						case PPOPT_GOODSORDER: bill_flt.Bbt = bbtOrderBills; break;
+						case PPOPT_POOL: bill_flt.Bbt = bbtPoolBills;
+					}
+					bill_flt.SetupBrowseBillsType(bill_flt.Bbt);
+					bill_flt.OpID = bill_rec.OpID;
+					bill_flt.Period.SetDate(bill_rec.Dt);
+					bill_flt.Sel = id;
+					BillFilt::FiltExtraParam p(0, bill_flt.Bbt);
+					PPView::Execute(PPVIEW_BILL, &bill_flt, GetModelessStatus(), &p);
+				}
+			}
+			// } @v10.9.0 
+			DS.SetLocation(save_loc_id);
+			ok = (r == cmOK) ? 1 : -1;
+		}
+	}
+	return ok;
+}
+
 int PPObjBill::ConvertUuid7601()
 {
 	int    ok = 1;
@@ -9275,8 +9575,7 @@ int SLAPI TestPPObjBillParseText()
 	StrAssocArray result_list;
 	int    ok = PPObjBill::ParseText(name, templ, result_list);
 	return ok;
-}
-*/
+}*/
 
 #if SLTEST_RUNNING // {
 

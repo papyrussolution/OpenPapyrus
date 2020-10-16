@@ -263,6 +263,7 @@
 		MENUITEM "@cmd_quit",								cmQuit
 	}
 	POPUP "@cmdpu_operations" {
+		MENUITEM "@documentnew",                            cmAddBill // @v10.9.0
 		MENUITEM "@cmd_accturnlist",						cmAccTurnList
 		MENUITEM "@cmd_accturnbilllist",					cmAccturnBillList
 		MENUITEM "@cmd_curreval",							cmCurReval

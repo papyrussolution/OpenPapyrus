@@ -1993,7 +1993,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 									if(CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextSerial, text_by_row_list, serial) > 0)
 										STRNSCPY(pItem->Serial, serial);
 									else
-										pItem->Serial[0] = 0;
+										PTR32(pItem->Serial)[0] = 0;
 									// } @v10.2.6
 									ok = 1;
 									break;
@@ -3705,8 +3705,8 @@ public:
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 1, CCHKF_CLOSEDORDER);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 2, CCHKF_DELIVERY);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 3, CCHKF_FIXEDPRICE);
-		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 4, CCHKF_SPFINISHED); // @v9.7.5
-		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 5, CCHKF_ALTREG); // @v9.7.8
+		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 4, CCHKF_SPFINISHED);
+		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 5, CCHKF_ALTREG);
 		SetClusterData(CTL_CCHECKINFO_FLAGS2, Data.Rec.Flags);
 		if(Data.AL_Const().getCount()) {
 			SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_CCHECKINFO_PAYMLIST));
@@ -3743,6 +3743,12 @@ public:
 			}
 			setCtrlString(CTL_CCHECKINFO_SESSUUID, temp_buf);
 		}
+		// @v10.9.0 {
+		{
+			Data.GetExtStrData(CCheckPacket::extssRemoteProcessingTa, temp_buf);
+			setCtrlString(CTL_CCHECKINFO_RPRCTAID, temp_buf);
+		}
+		// } @v10.9.0 
 		return ok;
 	}
 	int    getDTS(CCheckPacket * pData)
@@ -3933,7 +3939,6 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			if(GetBrwHdr(pHdr, &hdr)) {
 				uint   tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
 				PPID   tab_id = 0;
-				// @v9.8.7 DBFieldList fld_list; // realy const, do not modify
 				int    r = 0;
 				if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) // @v10.2.6 CCheckFilt::gGoodsDateSerial
 					r = (tab_idx > 0) ? P_Ct->GetTab((tab_idx-1) / P_Ct->GetAggrCount(), &tab_id) : 1;
@@ -4047,14 +4052,12 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 							tmp_filt.CashierID = cur_rec.CashID;
 						else if(Filt.Grp == CCheckFilt::gGoodsSCSer)
 							tmp_filt.SCardSerID = cur_rec.CashID;
-						// @v9.6.6 {
 						else if(Filt.Grp == CCheckFilt::gAgentGoodsSCSer) {
 							tmp_filt.SCardSerID = cur_rec.SCardID;
 							tmp_filt.AgentID = cur_rec.CashID;
 						}
 						else if(Filt.Grp == CCheckFilt::gGoodsCard) // @erik v10.5.1
 							tmp_filt.SCardID = cur_rec.SCardID;
-						// } @v9.6.6
 					}
 					else if(Filt.Grp == CCheckFilt::gGuestCount)
 						tmp_filt.GuestCount = (int16)cur_rec.CashID;

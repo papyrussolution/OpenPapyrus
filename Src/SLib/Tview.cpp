@@ -814,7 +814,7 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbCtrlBack,  KeyDownCommand::stateCtrl,  VK_BACK },
 	{ kbShiftTab,  KeyDownCommand::stateShift, VK_TAB },
 	{ kbTab,       0,                          VK_TAB },
-	{ kbCtrlTab,   KeyDownCommand::stateCtrl,  VK_TAB }, // @v9.8.7
+	{ kbCtrlTab,   KeyDownCommand::stateCtrl,  VK_TAB },
 	{ kbCtrlEnter, KeyDownCommand::stateCtrl,  VK_RETURN },
 	{ kbEnter,     0,                          VK_RETURN },
 	{ kbAltA,      KeyDownCommand::stateAlt, 'A' },
@@ -1116,7 +1116,8 @@ uint SLAPI KeyDownCommand::GetChar() const
 		// @v10.8.10 case VK_OEM_PLUS:   c = '+'; break;
 		case VK_OEM_PLUS:   c = (State & stateShift) ? '+' : '='; break; // @v10.8.10
 		case VK_OEM_COMMA:  c = (State & stateShift) ? '<' : ','; break;
-		case VK_OEM_MINUS:  c = '-'; break;
+		// @v10.9.0 case VK_OEM_MINUS:  c = '-'; break;
+		case VK_OEM_MINUS:  c = (State & stateShift) ? '_' : '-'; break; // @v10.9.0 
 		case VK_OEM_PERIOD: c = (State & stateShift) ? '>' : '.'; break;
 		case VK_MULTIPLY:   c = '*'; break;
 		case VK_ADD:        c = '+'; break;

@@ -349,6 +349,10 @@
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>

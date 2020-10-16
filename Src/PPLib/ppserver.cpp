@@ -386,7 +386,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_GETREQQUOTES             , "getreqquotes",              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
 		{ PPHS_SETTIMESERIESPROP        , "settimeseriesprop",         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
 		{ PPHS_SETTIMESERIESSTKENV      , "settimeseriesstkenv",       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
-		{ PPHS_GETCOMMONMQSCONFIG       , "getcommonmqsconfig",        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9       
+		{ PPHS_GETCOMMONMQSCONFIG       , "getcommonmqsconfig",        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -395,15 +395,14 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 	H.Type = 0;
 	int    tok = 0;
 	uint   i;
-	uint   _u_hs = 0; // @v9.6.4
+	uint   _u_hs = 0;
 	long   cmd_flags = 0;
 	ClearParams();
     THROW(GetWord(rLine, &p));
-	Term.ToLower(); // @v9.6.4
-	CALLPTRMEMB(P_ShT, Search(Term, &_u_hs, 0)); // @v9.6.4
+	Term.ToLower();
+	CALLPTRMEMB(P_ShT, Search(Term, &_u_hs, 0));
 	for(i = 0; i < SIZEOFARRAY(symb_list); i++) {
-		// @v9.6.4 if(Term.CmpNC(symb_list[i].P_Symb) == 0) {
-		if(symb_list[i].H == _u_hs) { // @v9.6.4
+		if(symb_list[i].H == _u_hs) {
 			assert(sstreqi_ascii(symb_list[i].P_Symb, Term)); // @1
 			tok = symb_list[i].Tok;
 			H.Type = symb_list[i].CmdType;
@@ -1693,7 +1692,7 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 			arg_buf.Z();
 			// @v10.5.7 {
 			int    criterion = SIntToSymbTab_GetId(crit_titles, SIZEOFARRAY(crit_titles), temp_buf);
-			if(criterion) 
+			if(criterion)
 				crit = temp_buf;
 			// } @v10.5.7
 			/* @v10.5.7 for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
@@ -1719,7 +1718,7 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 						sub_crit = temp_buf;
 						(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
 					}
-					// } @v10.5.7 
+					// } @v10.5.7
 					/* @v10.5.7 for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
 						if(temp_buf.IsEqiAscii(subcrit_titles[i].P_Symb)) {
 							sub_crit = temp_buf;
@@ -3403,7 +3402,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rRe
 	ENDCATCH
 	return ret;
 }
-// } @v10.2.3 
+// } @v10.2.3
 
 /*
 	Сценарий теста:
@@ -3766,7 +3765,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				break;
 			case PPSCMD_PUTNEXTFILEPART: ok = ReceiveFile(tfvNext, name, rReply); break;
 			case PPSCMD_TEST: ok = Testing(); break;
-			case PPSCMD_GETREQQUOTES: ok = GetReqQuotes(rReply); break; // @v10.2.4 
+			case PPSCMD_GETREQQUOTES: ok = GetReqQuotes(rReply); break; // @v10.2.4
 			case PPSCMD_SETTIMESERIES: ok = SetTimeSeries(rReply); break; // @v10.2.3
 			case PPSCMD_SETTIMESERIESPROP: // @v10.2.5
 				{

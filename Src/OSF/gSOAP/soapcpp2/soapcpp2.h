@@ -35,6 +35,7 @@
  */
 #ifndef __SOAPCPP2_H
 #define __SOAPCPP2_H
+#include <slib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -203,8 +204,12 @@ typedef enum Level { INTERNAL, GLOBAL, PARAM, LOCAL } Level;
 #define mkfun(t)        mktype(Tfun,      t,    0)
 #define mkstring()      mkpointer(mkchar())
 
-#define MINLONG64 (0x8000000000000000LL)
-#define MAXLONG64 (0x7FFFFFFFFFFFFFFFLL)
+#ifndef MINLONG64
+	#define MINLONG64 (0x8000000000000000LL)
+#endif
+#ifndef MAXLONG64
+	#define MAXLONG64 (0x7FFFFFFFFFFFFFFFLL)
+#endif
 
 struct Symbol {
 	char * name;

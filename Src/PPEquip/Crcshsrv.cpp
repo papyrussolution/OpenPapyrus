@@ -96,7 +96,7 @@ public:
 		LTIME Tm;
 	};
 
-	SLAPI  ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
+	explicit SLAPI ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
 	{
 		int    ipar = 0;
 		PPIniFile  ini_file;
@@ -110,8 +110,7 @@ public:
 			PPAsyncCashNode acn;
 			// @v10.6.4 MEMSZERO(acn);
 			GetNodeData(&acn);
-			// @v9.2.5 SETFLAG(Options, BIN(acn.DrvVerMajor == 10), oV10);
-			ModuleVer = acn.DrvVerMajor; // @v9.2.5
+			ModuleVer = acn.DrvVerMajor;
 			ModuleSubVer = acn.DrvVerMinor;
 		}
 	}
@@ -418,9 +417,6 @@ public:
 	void SLAPI PutPlugin(const char * pKey, long val);
 	void SLAPI PutPlugin(const char * pKey, LDATE val);
 private:
-	// @v9.0.9 int SLAPI TimeStamp(LDATETIME dtm, SString & rBuf);
-	// @v9.0.9 int SLAPI TimeStamp(LTIME tm, SString & rBuf);
-
 	int    ReplaceSpecSymb;
 	xmlTextWriter * P_Writer;
 	SString TempBuf;

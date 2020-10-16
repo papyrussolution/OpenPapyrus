@@ -834,7 +834,7 @@ int SLAPI CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 	return Items_.lsearch(&rbc, pPos, PTR_CMPFUNC(int16), offsetof(CCheckLineTbl::Rec, RByCheck));
 }
 
-static const int ccpack_textext_ident_list[] = { CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl };
+static const int ccpack_textext_ident_list[] = { CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl, CCheckPacket::extssRemoteProcessingTa };
 
 int SLAPI CCheckPacket::PackTextExt(SString & rResult) const
 {
@@ -912,7 +912,7 @@ int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 				}
 				ok = 1;
 			}
-			else if(oneof3(fld_id, CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl)) {
+			else if(oneof4(fld_id, CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl, CCheckPacket::extssRemoteProcessingTa)) {
 				CALLPTRMEMB(pSc, PutExtStrData(fld_id, temp_buf));
 				ok = 1;
 			}
@@ -2596,6 +2596,30 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 	ufp.SetFactor(1, ufp_factor);
 	ufp.SetFactor(2, ufp_factor_uhtt);
 	ufp.Commit();
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI CCheckCore::UpdateExtText(PPID id, int fldId, const char * pText, int use_ta)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	SString text_buf;
+	CCheckPacket cc_pack;
+	if(fldId > 0) {
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		//
+		p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf);
+		text_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		cc_pack.UnpackTextExt(text_buf);
+		//
+		cc_pack.PutExtStrData(fldId, pText);
+		//
+		cc_pack.PackTextExt(text_buf);
+		THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		THROW(tra.Commit());
+	}
 	CATCHZOK
 	return ok;
 }

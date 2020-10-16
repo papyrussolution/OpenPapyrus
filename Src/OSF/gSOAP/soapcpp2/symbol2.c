@@ -38,10 +38,10 @@
 //          SOAP_FMAC4 soap_serialize_%s
 //
 #include <slib.h>
-#undef CONST // Используется как идент токена в синтаксическом анализе
-#undef VOID  // Используется как идент токена в синтаксическом анализе
+//#undef CONST // Используется как идент токена в синтаксическом анализе
+//#undef VOID  // Используется как идент токена в синтаксическом анализе
 #include "soapcpp2.h"
-#include "soapcpp2_yacc.tab.cpp.h"
+#include "soapcpp2_yacc.tab.hpp"
 
 extern const char * S_SoapEnvNs;
 extern const char * S_SoapEncNs;
@@ -1952,7 +1952,7 @@ void gen_class(FILE * fd, Entry * p)
 	}
 	if(is_volatile(typ))
 		fprintf(fd, "\n#endif");
-	if((typ->type == Tstruct || typ->type == Tunion) && p->sym->token == TYPE)
+	if((typ->type == Tstruct || typ->type == Tunion) && p->sym->token == TOK_TYPE)
 		fprintf(fd, "\ntypedef %s %s;", c_type(typ), ident(p->sym->name));
 	if(typ->ref)
 		fprintf(fd, "\n#endif");
@@ -1992,7 +1992,7 @@ void generate_header(Table * t)
 				}
 			}
 			fprintf(fheader, "};");
-			if(p->sym->token == TYPE)
+			if(p->sym->token == TOK_TYPE)
 				fprintf(fheader, "\ntypedef %s %s;", c_type(p->info.typ), ident(p->sym->name));
 			if(is_volatile(p->info.typ))
 				fprintf(fheader, "\n\t#endif");

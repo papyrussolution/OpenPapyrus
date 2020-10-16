@@ -51,7 +51,6 @@ static int LoadTagsList(Texc2h *const pTexc2h)
 {
 	uint	pos = 0;
 	SString	fname = SLS.GetExePath();
-	
 	if(fname.Search(".exe", 0, 0, &pos) > 0) {
 		fname.Excise(pos, 4);
 		fname.Cat(".tgs");
@@ -60,7 +59,7 @@ static int LoadTagsList(Texc2h *const pTexc2h)
 	if(tb_file.IsValid())
 		tb_file.LoadTab("texc2h_TAGS_TABLE", pTexc2h->TagsTab);
 	else {
-		printf("File not found: %s\n", fname);
+		printf("File not found: %s\n", fname.cptr());
 		exit(1);
 	}
 	return 0;

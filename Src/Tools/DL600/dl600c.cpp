@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #include <dl600.h>
-#include "dl600c.tab.cpp.h"
+#include "dl600c.tab.hpp"
 
 // Строка отладки для интерфейсов: ../rsrc/dl600/ppifc.dl6
 // Строка отладки для структуры БД: /dict:..\..\BASE\INIT_DL6 /oracle ..\rsrc\dl600\ppdbs.dl6

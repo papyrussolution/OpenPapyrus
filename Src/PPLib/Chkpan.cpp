@@ -2423,7 +2423,7 @@ int CPosProcessor::AutosaveCheck()
 				was_turned_before_printing = 1;
 			}
 			if(mode != accmSuspended) {
-				SETFLAG(epb.Flags, epb.fAltReg, altPosNodeID && P_CM_ALT); // @v9.6.11
+				SETFLAG(epb.Flags, epb.fAltReg, altPosNodeID && P_CM_ALT);
 				if(!Implement_AcceptCheckOnEquipment(pPl, epb))
 					ok = 0;
 			}
@@ -2440,7 +2440,7 @@ int CPosProcessor::AutosaveCheck()
 				SETIFZ(epb.ExtPack.Rec.Code, org_ext_code);
 			}
 			// } @v9.5.10
-			if(was_turned_before_printing) { // @v9.1.0 turn_check_before_printing-->was_turned_before_printing
+			if(was_turned_before_printing) {
 				//
 				// При проведении чека перед печатью может возникнуть ситуация, когда
 				// печать изменила некоторые поля чека. В этом случае необходимо в БД изменить значения этих полей.
@@ -2529,8 +2529,7 @@ int CPosProcessor::Helper_SetupSessUuidForCheck(PPID checkID)
 	int    ok = 1;
 	if(checkID) {
 		ObjTagItem tag_item;
-		S_GUID uuid;
-		uuid = SessUUID.IsZero() ? SLS.GetSessUuid() : SessUUID;
+		const S_GUID uuid(SessUUID.IsZero() ? SLS.GetSessUuid() : SessUUID);
 		if(tag_item.SetGuid(PPTAG_CCHECK_JS_UUID, &uuid))
 			PPRef->Ot.PutTag(PPOBJ_CCHECK, checkID, &tag_item, 0);
 	}
@@ -2673,10 +2672,19 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 						SCardSpecialTreatment::CardBlock scst_cb;
 						TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
 						if(p_scst && SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), CashNodeID, scst_cb) > 0) {
-							int    ccr = p_scst->CommitCheck(&scst_cb, pPack, 0);
-							int    ccer = pExtPack ? p_scst->CommitCheck(&scst_cb, pExtPack, 0) : -1;
+							SCardSpecialTreatment::TransactionResult pack_ta_result;
+							SCardSpecialTreatment::TransactionResult extpack_ta_result;
+							int    ccr = p_scst->CommitCheck(&scst_cb, pPack, &pack_ta_result);
+							int    ccer = pExtPack ? p_scst->CommitCheck(&scst_cb, pExtPack, &extpack_ta_result) : -1;
 							if(ccr > 0 || ccer > 0) {
-								;
+								if(ccr > 0 && !isempty(pack_ta_result.TaIdent)) {
+									//pPack->PutExtStrData(CCheckPacket::extssRemoteProcessingTa, pack_ta_result.TaIdent);
+									r_cc.UpdateExtText(pPack->Rec.ID, CCheckPacket::extssRemoteProcessingTa, pack_ta_result.TaIdent, 0);
+								}
+								if(ccer > 0 && !isempty(extpack_ta_result.TaIdent)) {
+									//pExtPack->PutExtStrData(CCheckPacket::extssRemoteProcessingTa, extpack_ta_result.TaIdent);
+									r_cc.UpdateExtText(pExtPack->Rec.ID, CCheckPacket::extssRemoteProcessingTa, extpack_ta_result.TaIdent, 0);
+								}
 							}
 							else if(!ccr || !ccer) {
 								MessageError(-1, 0, eomPopup);
@@ -9098,6 +9106,17 @@ public:
 		ENDCATCH
 		return ok;
 	}
+	int GetStirb(SCardSpecialTreatment::IdentifyReplyBlock * pStirb)
+	{
+		if(Stirb.ScID && Stirb.SpecialTreatment) {
+			ASSIGN_PTR(pStirb, Stirb);
+			return 1;
+		}
+		else {
+			CALLPTRMEMB(pStirb, Z());
+			return 0;
+		}
+	}
 private:
 	enum {
 		dummyFirst = 1,
@@ -9248,6 +9267,7 @@ private:
 	PPObjPerson PsnObj;
 	SpcArray OwnerList;
 	LAssocArray SpcTrtScsList; // @v10.9.0
+	SCardSpecialTreatment::IdentifyReplyBlock Stirb;
 };
 
 /*virtual*/int SCardInfoDialog::editItem(long pos, long id)
@@ -9446,6 +9466,13 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 		}
 		// } @v10.1.9
 	}
+	// @v10.9.0 {
+	if(pStirb && SCardID && pStirb->ScID == SCardID && pStirb->SpecialTreatment) {
+		Stirb = *pStirb;
+	}
+	else
+		Stirb.Z();
+	// } @v10.9.0 
 	{
 		const PPID charge_goods_id = (SCardID && (LocalState & stAsSelector)) ? ScObj.GetChargeGoodsID(SCardID) : 0;
 		showButton(cmCharge, charge_goods_id);
@@ -9896,7 +9923,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 	}
 }
 
-static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector)
+static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector, SCardSpecialTreatment::IdentifyReplyBlock * pStirb)
 {
 	//DIALOG_PROC_BODY_P1(SCardInfoDialog, asSelector, pSCardID);
 	int    ok = -1;
@@ -9905,6 +9932,7 @@ static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSel
 		int    cm = 0;
 		while(ok <= 0 && ((cm = ExecView(dlg)) == cmOK || cm == cmCharge)) {
 			if(dlg->getDTS(pSCardID)) {
+				dlg->GetStirb(pStirb);
 				if(cm == cmCharge)
 					ok = 2;
 				else
@@ -9922,7 +9950,7 @@ int FASTCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector)
 {
 	const int preserve_use_large_dialogs_flags = SLS.CheckUiFlag(sluifUseLargeDialogs);
 	SLS.SetUiFlag(sluifUseLargeDialogs, 0);
-	int    ok = Helper_ViewSCardInfo(pSCardID, posNodeID, asSelector);
+	int    ok = Helper_ViewSCardInfo(pSCardID, posNodeID, asSelector, 0);
 	SLS.SetUiFlag(sluifUseLargeDialogs, preserve_use_large_dialogs_flags);
 	return ok;
 }
@@ -10133,6 +10161,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 	int    ok = 1;
 	SString temp_buf;
 	CPosProcessor_MsgToDisp_Frame mdf(this);
+	SCardSpecialTreatment::IdentifyReplyBlock local_stirb; // @v10.9.0
 	if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck) && !(ascf & ascfIgnoreRights)) {
 		MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 		Flags &= ~fWaitOnSCard;
@@ -10183,18 +10212,23 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 						{
 							const int preserve_use_large_dialogs_flags = SLS.CheckUiFlag(sluifUseLargeDialogs);
 							SLS.SetUiFlag(sluifUseLargeDialogs, 0);
-							cm = Helper_ViewSCardInfo(&scard_id, CashNodeID, 1/*asSelector*/);
+							cm = Helper_ViewSCardInfo(&scard_id, CashNodeID, 1/*asSelector*/, &local_stirb);
 							SLS.SetUiFlag(sluifUseLargeDialogs, preserve_use_large_dialogs_flags);
 						}
 						if(cm > 0) {
 							if(scard_id && ScObj.Search(scard_id, &sc_rec) > 0) {
 								CSt.SetID(scard_id, sc_rec.Code);
+								// @v10.9.0 {
+								if(local_stirb.ScID && local_stirb.SpecialTreatment)
+									p_stirb = &local_stirb;
+								// } @v10.9.0 
 								if(cm == 2) // Начисление на карту
 									auto_charge = 1;
 								is_found = 1;
 							}
-							else
+							else {
 								Flags |= fWaitOnSCard; // Ниже по этому флагу произойдет сброс выбранной карты.
+							}
 						}
 						else
 							ext_cancel = 1;
