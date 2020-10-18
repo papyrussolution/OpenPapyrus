@@ -20,7 +20,7 @@
 #include "gl_linkedhash_list.h" /* Specification.  */
 //#include <stdint.h> /* for SIZE_MAX */
 //#include <stdlib.h>
-#include "xsize.h"
+//#include "xsize.h"
 #ifndef uintptr_t
 	#define uintptr_t unsigned long
 #endif
@@ -46,7 +46,6 @@ static void hash_resize_after_add(gl_list_t list)
 static void add_to_bucket(gl_list_t list, gl_list_node_t node)
 {
 	size_t bucket = node->h.hashcode % list->table_size;
-
 	node->h.hash_next = list->table[bucket];
 	list->table[bucket] = &node->h;
 }

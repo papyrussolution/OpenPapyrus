@@ -17,8 +17,8 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 //#include <wchar.h> /* Specification.  */
-#include <wctype.h> /* Get iswprint.  */
-#include "localcharset.h"
+//#include <wctype.h> /* Get iswprint.  */
+//#include "localcharset.h"
 #include "streq.h"
 #include "uniwidth.in.h"
 //#include <wchar.h>

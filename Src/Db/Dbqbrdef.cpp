@@ -124,5 +124,5 @@ int    SLAPI DBQBrowserDef::valid() { return !query->error; }
 int    FASTCALL DBQBrowserDef::go(long p) { return step(p-curItem); }
 long   SLAPI DBQBrowserDef::getRecsCount() { return query->P_Frame->srange+1; }
 const  void * FASTCALL DBQBrowserDef::getRow(long r) const { return query->getRecord(static_cast<uint>(r)); }
-int    FASTCALL DBQBrowserDef::getData(void *) { return 1; }
-int    FASTCALL DBQBrowserDef::setData(void *) { return 1; }
+// @v10.9.0 int    FASTCALL DBQBrowserDef::getData(void *) { return 1; }
+// @v10.9.0 int    FASTCALL DBQBrowserDef::setData(void *) { return 1; }

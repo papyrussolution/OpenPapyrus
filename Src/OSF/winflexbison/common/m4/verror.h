@@ -17,8 +17,8 @@
 #ifndef _VERROR_H
 #define _VERROR_H 1
 
-#include "error.h"
-#include <stdarg.h>
+//#include "error.h"
+//#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,7 +42,7 @@ extern void verror (int __status, int __errnum, const char *__format,
    error_one_per_line similarly to error_at_line().  */
 
 extern void verror_at_line (int __status, int __errnum, const char *__fname,
-                            unsigned int __lineno, const char *__format,
+                            uint __lineno, const char *__format,
                             va_list __args);
 //     __attribute__ ((__format__ (__printf__, 5, 0)));
 

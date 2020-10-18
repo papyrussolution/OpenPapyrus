@@ -1031,14 +1031,14 @@ static void XXH3_64bits_reset_internal(XXH3_state_t* statePtr, XXH64_hash_t seed
 
 XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset(XXH3_state_t* statePtr)
 {
-	if(statePtr == NULL) return XXH_ERROR;
+	if(!statePtr) return XXH_ERROR;
 	XXH3_64bits_reset_internal(statePtr, 0, kSecret, XXH_SECRET_DEFAULT_SIZE);
 	return XXH_OK;
 }
 
 XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSecret(XXH3_state_t* statePtr, const void* secret, size_t secretSize)
 {
-	if(statePtr == NULL) return XXH_ERROR;
+	if(!statePtr) return XXH_ERROR;
 	XXH3_64bits_reset_internal(statePtr, 0, secret, secretSize);
 	if(secret == NULL) return XXH_ERROR;
 	if(secretSize < XXH3_SECRET_SIZE_MIN) return XXH_ERROR;
@@ -1047,7 +1047,7 @@ XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSecret(XXH3_state_t* statePtr
 
 XXH_PUBLIC_API XXH_errorcode XXH3_64bits_reset_withSeed(XXH3_state_t* statePtr, XXH64_hash_t seed)
 {
-	if(statePtr == NULL) 
+	if(!statePtr)
 		return XXH_ERROR;
 	XXH3_64bits_reset_internal(statePtr, seed, kSecret, XXH_SECRET_DEFAULT_SIZE);
 	XXH3_initKeySeed(statePtr->customSecret, seed);
@@ -1400,7 +1400,7 @@ static void XXH3_128bits_reset_internal(XXH3_state_t* statePtr,
 
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset(XXH3_state_t* statePtr)
 {
-	if(statePtr == NULL) 
+	if(!statePtr) 
 		return XXH_ERROR;
 	XXH3_128bits_reset_internal(statePtr, 0, kSecret, XXH_SECRET_DEFAULT_SIZE);
 	return XXH_OK;
@@ -1408,7 +1408,7 @@ XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset(XXH3_state_t* statePtr)
 
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSecret(XXH3_state_t* statePtr, const void* secret, size_t secretSize)
 {
-	if(statePtr == NULL) 
+	if(!statePtr) 
 		return XXH_ERROR;
 	XXH3_128bits_reset_internal(statePtr, 0, secret, secretSize);
 	if(secret == NULL) 
@@ -1420,7 +1420,7 @@ XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSecret(XXH3_state_t* statePt
 
 XXH_PUBLIC_API XXH_errorcode XXH3_128bits_reset_withSeed(XXH3_state_t* statePtr, XXH64_hash_t seed)
 {
-	if(statePtr == NULL) 
+	if(!statePtr) 
 		return XXH_ERROR;
 	XXH3_128bits_reset_internal(statePtr, seed, kSecret, XXH_SECRET_DEFAULT_SIZE);
 	XXH3_initKeySeed(statePtr->customSecret, seed);

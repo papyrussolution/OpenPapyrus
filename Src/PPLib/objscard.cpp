@@ -746,7 +746,7 @@ int SCardRuleDlg::setupList()
 	return ok;
 }
 
-SLAPI SCardSeriesFilt::SCardSeriesFilt() : ParentID(0), Flags(0)
+SLAPI SCardSeriesFilt::SCardSeriesFilt() : ParentID(0), Flags(0), SpecialTreatment(0)
 {
 }
 
@@ -785,6 +785,8 @@ int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PP
 		else if(pFilt->Flags & SCardSeriesFilt::fOnlyReal && (rRec.Flags & (SCRDSF_GROUP|SCRDSF_RSRVPOOL))) // @v10.2.8
 			ok = 0;
 		else if(pFilt->ParentID && (rRec.ParentID != pFilt->ParentID && rRec.ID != pFilt->ParentID))
+			ok = 0;
+		else if(pFilt->SpecialTreatment && rRec.SpecialTreatment != pFilt->SpecialTreatment) // @v10.9.0
 			ok = 0;
 	}
 	else if(rRec.Flags & SCRDSF_PASSIVE)
@@ -1259,13 +1261,11 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			if(!RVALUEPTR(Data, pData))
 				Data.Init();
 			long   _type = Data.Rec.GetType();
-			// @v9.8.9 {
 			{
 				SCardSeriesFilt scs_filt;
 				scs_filt.Flags = scs_filt.fOnlyGroups;
 				SetupPPObjCombo(this, CTLSEL_SCARDSER_PARENT, PPOBJ_SCARDSERIES, Data.Rec.ParentID, 0, &scs_filt);
 			}
-			// } @v9.8.9
 			// @v10.2.8 {
 			{
 				SCardSeriesFilt scs_filt;

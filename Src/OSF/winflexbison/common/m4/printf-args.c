@@ -27,7 +27,7 @@
 //#include <config.h>
 //#endif
 #ifndef PRINTF_FETCHARGS
-#include "printf-args.h" /* Specification.  */
+	#include "printf-args.h" /* Specification.  */
 #endif
 
 #ifdef STATIC
@@ -40,16 +40,16 @@ int PRINTF_FETCHARGS(va_list args, arguments * a)
 	for(i = 0, ap = &a->arg[0]; i < a->count; i++, ap++)
 		switch(ap->type) {
 			case TYPE_SCHAR: ap->a.a_schar = va_arg(args, /*signed char*/ int); break;
-			case TYPE_UCHAR: ap->a.a_uchar = va_arg(args, /*unsigned char*/ int); break;
+			case TYPE_UCHAR: ap->a.a_uchar = va_arg(args, /*uchar*/ int); break;
 			case TYPE_SHORT: ap->a.a_short = va_arg(args, /*short*/ int); break;
 			case TYPE_USHORT: ap->a.a_ushort = va_arg(args, /*unsigned short*/ int); break;
 			case TYPE_INT: ap->a.a_int = va_arg(args, int); break;
-			case TYPE_UINT: ap->a.a_uint = va_arg(args, unsigned int); break;
+			case TYPE_UINT: ap->a.a_uint = va_arg(args, uint); break;
 			case TYPE_LONGINT: ap->a.a_longint = va_arg(args, long int); break;
-			case TYPE_ULONGINT: ap->a.a_ulongint = va_arg(args, unsigned long int); break;
+			case TYPE_ULONGINT: ap->a.a_ulongint = va_arg(args, ulong); break;
 #if HAVE_LONG_LONG_INT
 			case TYPE_LONGLONGINT: ap->a.a_longlongint = va_arg(args, long long int); break;
-			case TYPE_ULONGLONGINT: ap->a.a_ulonglongint = va_arg(args, unsigned long long int); break;
+			case TYPE_ULONGLONGINT: ap->a.a_ulonglongint = va_arg(args, uint64); break;
 #endif
 			case TYPE_DOUBLE: ap->a.a_double = va_arg(args, double); break;
 			case TYPE_LONGDOUBLE: ap->a.a_longdouble = va_arg(args, long double); break;

@@ -1,3 +1,5 @@
+// @sobolev: This file is included into regex.c (don't compile separately)
+//
 /* Extended regular expression matching and search library.
    Copyright (C) 2002-2011 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -17,14 +19,11 @@
    with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
 
-static reg_errcode_t re_compile_internal(regex_t * preg, const char * pattern,
-    size_t length, reg_syntax_t syntax);
-static void re_compile_fastmap_iter(regex_t * bufp,
-    const re_dfastate_t * init_state,
-    char * fastmap);
+static reg_errcode_t re_compile_internal(regex_t * preg, const char * pattern, size_t length, reg_syntax_t syntax);
+static void re_compile_fastmap_iter(regex_t * bufp, const re_dfastate_t * init_state, char * fastmap);
 static reg_errcode_t init_dfa(re_dfa_t * dfa, size_t pat_len);
 #ifdef RE_ENABLE_I18N
-static void free_charset(re_charset_t * cset);
+	static void free_charset(re_charset_t * cset);
 #endif /* RE_ENABLE_I18N */
 static void free_workarea_compile(regex_t * preg);
 static reg_errcode_t create_initial_state(re_dfa_t * dfa);
@@ -32,38 +31,24 @@ static reg_errcode_t create_initial_state(re_dfa_t * dfa);
 static void optimize_utf8(re_dfa_t * dfa);
 #endif
 static reg_errcode_t analyze(regex_t * preg);
-static reg_errcode_t preorder(bin_tree_t * root,
-    reg_errcode_t (fn(void *, bin_tree_t *)),
-    void * extra);
-static reg_errcode_t postorder(bin_tree_t * root,
-    reg_errcode_t (fn(void *, bin_tree_t *)),
-    void * extra);
+static reg_errcode_t preorder(bin_tree_t * root, reg_errcode_t (fn(void *, bin_tree_t *)), void * extra);
+static reg_errcode_t postorder(bin_tree_t * root, reg_errcode_t (fn(void *, bin_tree_t *)), void * extra);
 static reg_errcode_t optimize_subexps(void * extra, bin_tree_t * node);
 static reg_errcode_t lower_subexps(void * extra, bin_tree_t * node);
-static bin_tree_t * lower_subexp(reg_errcode_t * err, regex_t * preg,
-    bin_tree_t * node);
+static bin_tree_t * lower_subexp(reg_errcode_t * err, regex_t * preg, bin_tree_t * node);
 static reg_errcode_t calc_first(void * extra, bin_tree_t * node);
 static reg_errcode_t calc_next(void * extra, bin_tree_t * node);
 static reg_errcode_t link_nfa_nodes(void * extra, bin_tree_t * node);
 static Idx duplicate_node(re_dfa_t * dfa, Idx org_idx, unsigned int constraint);
-static Idx search_duplicated_node(const re_dfa_t * dfa, Idx org_node,
-    unsigned int constraint);
+static Idx search_duplicated_node(const re_dfa_t * dfa, Idx org_node, unsigned int constraint);
 static reg_errcode_t calc_eclosure(re_dfa_t * dfa);
-static reg_errcode_t calc_eclosure_iter(re_node_set * new_set, re_dfa_t * dfa,
-    Idx node, bool root);
+static reg_errcode_t calc_eclosure_iter(re_node_set * new_set, re_dfa_t * dfa, Idx node, bool root);
 static reg_errcode_t calc_inveclosure(re_dfa_t * dfa);
-static Idx fetch_number(re_string_t * input, re_token_t * token,
-    reg_syntax_t syntax);
-static int peek_token(re_token_t * token, re_string_t * input,
-    reg_syntax_t syntax) internal_function;
-static bin_tree_t * parse(re_string_t * regexp, regex_t * preg,
-    reg_syntax_t syntax, reg_errcode_t * err);
-static bin_tree_t * parse_reg_exp(re_string_t * regexp, regex_t * preg,
-    re_token_t * token, reg_syntax_t syntax,
-    Idx nest, reg_errcode_t * err);
-static bin_tree_t * parse_branch(re_string_t * regexp, regex_t * preg,
-    re_token_t * token, reg_syntax_t syntax,
-    Idx nest, reg_errcode_t * err);
+static Idx fetch_number(re_string_t * input, re_token_t * token, reg_syntax_t syntax);
+static int peek_token(re_token_t * token, re_string_t * input, reg_syntax_t syntax) internal_function;
+static bin_tree_t * parse(re_string_t * regexp, regex_t * preg, reg_syntax_t syntax, reg_errcode_t * err);
+static bin_tree_t * parse_reg_exp(re_string_t * regexp, regex_t * preg, re_token_t * token, reg_syntax_t syntax, Idx nest, reg_errcode_t * err);
+static bin_tree_t * parse_branch(re_string_t * regexp, regex_t * preg, re_token_t * token, reg_syntax_t syntax, Idx nest, reg_errcode_t * err);
 static bin_tree_t * parse_expression(re_string_t * regexp, regex_t * preg,
     re_token_t * token, reg_syntax_t syntax,
     Idx nest, reg_errcode_t * err);

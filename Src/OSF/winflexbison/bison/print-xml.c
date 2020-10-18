@@ -20,21 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "print-xml.h"
-//#include <bitset.h>
-//#include <stdarg.h>
-//#include "closure.h"
-//#include "conflicts.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "lalr.h"
-//#include "lr0.h"
-//#include "print.h"
-//#include "reader.h"
-//#include "reduce.h"
-//#include "state.h"
-//#include "symtab.h"
 #include "tables.h"
 
 static bitset no_reduce_set;
@@ -353,23 +338,19 @@ static char const * xml_escape_string(struct escape_buf * buf, char const * str)
 {
 	size_t len = strlen(str);
 	size_t max_expansion = sizeof "&quot;" - 1;
-
 	if(buf->size <= max_expansion * len) {
 		buf->size = max_expansion * len + 1;
-		buf->ptr = x2realloc(buf->ptr, &buf->size);
+		buf->ptr = (char *)x2realloc(buf->ptr, &buf->size);
 	}
 	char * p = buf->ptr;
-
 	for(; *str; str++)
-		switch(*str)
-		{
+		switch(*str) {
 			default: *p++ = *str; break;
 			case '&': p = _stpcpy(p, "&amp;"); break;
 			case '<': p = _stpcpy(p, "&lt;"); break;
 			case '>': p = _stpcpy(p, "&gt;"); break;
 			case '"': p = _stpcpy(p, "&quot;"); break;
 		}
-
 	*p = '\0';
 	return buf->ptr;
 }

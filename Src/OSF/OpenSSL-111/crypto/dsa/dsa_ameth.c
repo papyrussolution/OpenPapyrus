@@ -206,26 +206,18 @@ static int dsa_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 		goto err;
 	}
 	params->type = V_ASN1_SEQUENCE;
-
 	/* Get private key into integer */
 	prkey = BN_to_ASN1_INTEGER(pkey->pkey.dsa->priv_key, NULL);
-
 	if(!prkey) {
 		DSAerr(DSA_F_DSA_PRIV_ENCODE, DSA_R_BN_ERROR);
 		goto err;
 	}
-
 	dplen = i2d_ASN1_INTEGER(prkey, &dp);
-
 	ASN1_STRING_clear_free(prkey);
 	prkey = NULL;
-
-	if(!PKCS8_pkey_set0(p8, OBJ_nid2obj(NID_dsa), 0,
-	    V_ASN1_SEQUENCE, params, dp, dplen))
+	if(!PKCS8_pkey_set0(p8, OBJ_nid2obj(NID_dsa), 0, V_ASN1_SEQUENCE, params, dp, dplen))
 		goto err;
-
 	return 1;
-
 err:
 	OPENSSL_free(dp);
 	ASN1_STRING_free(params);

@@ -18,7 +18,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "dirname.h"
+//#include "dirname.h"
 
 /* Return the length of the prefix of FILE that will be used by
    dir_name.  If FILE is in the working directory, this returns zero

@@ -20,7 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "assoc.h"
 
 const char * assoc_to_string(assoc a)
 {

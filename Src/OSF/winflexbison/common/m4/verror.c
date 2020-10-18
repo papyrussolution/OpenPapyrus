@@ -19,12 +19,12 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "verror.h"
-#include "xvasprintf.h"
+//#include "xvasprintf.h"
 //#include <errno.h>
 //#include <stdarg.h>
 //#include <stdlib.h>
 #if ENABLE_NLS
-	#include "gettext.h"
+	//#include "gettext.h"
 	#define _(msgid) gettext(msgid)
 #endif
 #ifndef _
@@ -48,7 +48,7 @@ void verror(int status, int errnum, const char * format, va_list args)
    Use the globals error_print_progname, error_message_count, and
    error_one_per_line similarly to error_at_line().  */
 void verror_at_line(int status, int errnum, const char * file,
-    unsigned int line_number, const char * format, va_list args)
+    uint line_number, const char * format, va_list args)
 {
 	char * message = xvasprintf(format, args);
 	if(message) {

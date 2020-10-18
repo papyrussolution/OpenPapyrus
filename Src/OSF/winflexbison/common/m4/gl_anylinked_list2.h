@@ -29,25 +29,19 @@
    and we use 'volatile' assignments to prevent the compiler from reordering
    such assignments.  */
 #ifdef SIGNAL_SAFE_LIST
-#define ASYNCSAFE(type) *(volatile type*)&
+	#define ASYNCSAFE(type) *(volatile type*)&
 #else
-#define ASYNCSAFE(type)
+	#define ASYNCSAFE(type)
 #endif
 
 /* -------------------------- gl_list_t Data Type -------------------------- */
 
-static gl_list_t gl_linked_nx_create_empty(gl_list_implementation_t implementation,
-    gl_listelement_equals_fn equals_fn,
-    gl_listelement_hashcode_fn hashcode_fn,
-    gl_listelement_dispose_fn dispose_fn,
-    bool allow_duplicates)
+static gl_list_t gl_linked_nx_create_empty(gl_list_implementation_t implementation, gl_listelement_equals_fn equals_fn,
+    gl_listelement_hashcode_fn hashcode_fn, gl_listelement_dispose_fn dispose_fn, bool allow_duplicates)
 {
-	struct gl_list_impl * list =
-	    (struct gl_list_impl *)SAlloc::M(sizeof(struct gl_list_impl));
-
+	struct gl_list_impl * list = (struct gl_list_impl *)SAlloc::M(sizeof(struct gl_list_impl));
 	if(list == NULL)
 		return NULL;
-
 	list->base.vtable = implementation;
 	list->base.equals_fn = equals_fn;
 	list->base.hashcode_fn = hashcode_fn;
@@ -55,8 +49,7 @@ static gl_list_t gl_linked_nx_create_empty(gl_list_implementation_t implementati
 	list->base.allow_duplicates = allow_duplicates;
 #if WITH_HASHTABLE
 	list->table_size = 11;
-	list->table =
-	    (gl_hash_entry_t*)SAlloc::C(list->table_size, sizeof(gl_hash_entry_t));
+	list->table = (gl_hash_entry_t *)SAlloc::C(list->table_size, sizeof(gl_hash_entry_t));
 	if(list->table == NULL)
 		goto fail;
 #endif
@@ -109,26 +102,18 @@ static gl_list_t gl_linked_nx_create(gl_list_implementation_t implementation,
 	list->count = count;
 	tail = &list->root;
 	for(; count > 0; contents++, count--) {
-		gl_list_node_t node =
-		    (struct gl_list_node_impl *)SAlloc::M(sizeof(struct gl_list_node_impl));
-
+		gl_list_node_t node = (struct gl_list_node_impl *)SAlloc::M(sizeof(struct gl_list_node_impl));
 		if(node == NULL)
 			goto fail2;
-
 		node->value = *contents;
 #if WITH_HASHTABLE
-		node->h.hashcode =
-		    (list->base.hashcode_fn != NULL
-		    ? list->base.hashcode_fn(node->value)
-		    : (size_t)(uintptr_t)node->value);
-
+		node->h.hashcode = (list->base.hashcode_fn != NULL ? list->base.hashcode_fn(node->value) : (size_t)(uintptr_t)node->value);
 		/* Add node to the hash table.  */
 		if(add_to_bucket(list, node) < 0) {
 			SAlloc::F(node);
 			goto fail2;
 		}
 #endif
-
 		/* Add node to the list.  */
 		node->prev = tail;
 		tail->next = node;
@@ -136,16 +121,12 @@ static gl_list_t gl_linked_nx_create(gl_list_implementation_t implementation,
 	}
 	tail->next = &list->root;
 	list->root.prev = tail;
-
 	return list;
-
 fail2:
 	{
 		gl_list_node_t node;
-
 		for(node = tail; node != &list->root;) {
 			gl_list_node_t prev = node->prev;
-
 			SAlloc::F(node);
 			node = prev;
 		}
@@ -655,26 +636,18 @@ static gl_list_node_t gl_linked_nx_add_before(gl_list_t list, gl_list_node_t nod
 
 static gl_list_node_t gl_linked_nx_add_after(gl_list_t list, gl_list_node_t node, const void * elt)
 {
-	gl_list_node_t new_node =
-	    (struct gl_list_node_impl *)SAlloc::M(sizeof(struct gl_list_node_impl));
-
+	gl_list_node_t new_node = (struct gl_list_node_impl *)SAlloc::M(sizeof(struct gl_list_node_impl));
 	if(new_node == NULL)
 		return NULL;
-
 	ASYNCSAFE(const void *) new_node->value = elt;
 #if WITH_HASHTABLE
-	new_node->h.hashcode =
-	    (list->base.hashcode_fn != NULL
-	    ? list->base.hashcode_fn(new_node->value)
-	    : (size_t)(uintptr_t)new_node->value);
-
+	new_node->h.hashcode = (list->base.hashcode_fn != NULL ? list->base.hashcode_fn(new_node->value) : (size_t)(uintptr_t)new_node->value);
 	/* Add new_node to the hash table.  */
 	if(add_to_bucket(list, new_node) < 0) {
 		SAlloc::F(new_node);
 		return NULL;
 	}
 #endif
-
 	/* Add new_node to the list.  */
 	new_node->prev = node;
 	ASYNCSAFE(gl_list_node_t) new_node->next = node->next;

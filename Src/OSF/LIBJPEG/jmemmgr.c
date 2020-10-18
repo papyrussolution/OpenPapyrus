@@ -500,7 +500,6 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	long minheights, max_minheights;
 	jvirt_sarray_ptr sptr;
 	jvirt_barray_ptr bptr;
-
 	/* Compute the minimum space needed (maxaccess rows in each buffer)
 	 * and the maximum space needed (full image height in each buffer).
 	 * These may be of use to the system-dependent jpeg_mem_available routine.
@@ -508,7 +507,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	space_per_minheight = 0;
 	maximum_space = 0;
 	for(sptr = mem->virt_sarray_list; sptr; sptr = sptr->next) {
-		if(sptr->mem_buffer == NULL) { /* if not realized yet */
+		if(!sptr->mem_buffer) { /* if not realized yet */
 			space_per_minheight += (long)sptr->maxaccess * (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
 			maximum_space += (long)sptr->rows_in_array * (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
 		}
@@ -539,7 +538,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	}
 	/* Allocate the in-memory buffers and initialize backing store as needed. */
 	for(sptr = mem->virt_sarray_list; sptr; sptr = sptr->next) {
-		if(sptr->mem_buffer == NULL) { /* if not realized yet */
+		if(!sptr->mem_buffer) { /* if not realized yet */
 			minheights = ((long)sptr->rows_in_array - 1L) / sptr->maxaccess + 1L;
 			if(minheights <= max_minheights) {
 				/* This buffer fits in memory */

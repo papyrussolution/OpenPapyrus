@@ -25,7 +25,7 @@
 //#include <errno.h>
 //#include <limits.h>
 //#include <stdlib.h>
-#include "vasnprintf.h"
+//#include "vasnprintf.h"
 
 int vasprintf(char ** resultp, const char * format, va_list args)
 {

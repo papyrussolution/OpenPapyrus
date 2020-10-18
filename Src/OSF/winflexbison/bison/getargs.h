@@ -20,8 +20,6 @@
 #ifndef GETARGS_H_
 #define GETARGS_H_
 
-//#include "location.h"
-
 enum { 
 	command_line_prio, 
 	grammar_prio, 

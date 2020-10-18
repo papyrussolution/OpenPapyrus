@@ -19,14 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset.h>
-//#include <bitsetv.h>
-//#include "closure.h"
-//#include "derives.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "reader.h"
-//#include "symtab.h"
 
 /* NITEMSET is the size of the array ITEMSET.  */
 item_index * itemset;

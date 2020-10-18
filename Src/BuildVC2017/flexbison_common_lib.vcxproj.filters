@@ -488,9 +488,6 @@
     <ClCompile Include="..\osf\winflexbison\common\m4\regex.c">
       <Filter>m4</Filter>
     </ClCompile>
-    <ClCompile Include="..\osf\winflexbison\common\m4\regex_internal.c">
-      <Filter>m4</Filter>
-    </ClCompile>
     <ClCompile Include="..\osf\winflexbison\common\m4\tempname.c">
       <Filter>m4</Filter>
     </ClCompile>

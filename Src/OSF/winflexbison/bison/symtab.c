@@ -20,14 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "symtab.h"
-//#include <assure.h>
-//#include <fstrcmp.h>
-//#include <hash.h>
-//#include <quote.h>
-//#include "complain.h"
-//#include "getargs.h"
-//#include "gram.h"
 #include "intprops.h"
 
 #define CODE_UNDEFINED (-1) /** Undefined token code.  */
@@ -523,7 +515,7 @@ static void symbol_check_defined(Symbol * sym)
 static void semantic_type_check_defined(semantic_type * sem_type)
 {
 	/* <*> and <> do not have to be "declared".  */
-	if(sem_type->status == declared || !*sem_type->tag || STREQ(sem_type->tag, "*")) {
+	if(sem_type->status == declared || !*sem_type->tag || sstreq(sem_type->tag, "*")) {
 		for(int i = 0; i < 2; ++i)
 			if(sem_type->props[i].kind != code_props::CODE_PROPS_NONE && !sem_type->props[i].is_used)
 				complain(&sem_type->location, Wother, _("useless %s for type <%s>"), code_props_type_string((code_props_type)i), sem_type->tag);
@@ -916,7 +908,7 @@ void symbols_pack(void)
 			}
 		}
 	}
-	symbols = xnrealloc(symbols, nsyms, sizeof *symbols);
+	symbols = (Symbol **)xnrealloc(symbols, nsyms, sizeof(*symbols));
 	symbols_token_translations_init();
 	if(startsymbol->content->Cls == unknown_sym)
 		complain(&startsymbol_loc, fatal, _("the start symbol %s is undefined"), startsymbol->tag);

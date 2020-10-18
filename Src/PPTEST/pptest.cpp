@@ -994,8 +994,6 @@ int SLAPI GenerateGoodsBills()
 //
 //
 //
-
-
 static int _StringFuncSS(const char * pStr)
 {
 	SString buf;

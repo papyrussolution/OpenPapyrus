@@ -20,24 +20,12 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <configmake.h> /* PKGDATADIR */
 #include <dirname.h>
-//#include <error.h>
-//#include <get-errno.h>
-//#include <gl_array_list.h>
-//#include <gl_xlist.h>
-//#include <quote.h>
-//#include <quotearg.h>
 #include <relocatable.h> /* relocate2 */
 #include <stdio-safer.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-//#include <unistd.h>
 #include <xstrndup.h>
-//#include "complain.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
 
 /* Initializing some values below (such SPEC_NAME_PREFIX to 'yy') is
    tempting, but don't do that: for the time being our handling of the
@@ -214,7 +202,6 @@ void add_prefix_map(char const * oldprefix, char const * newprefix)
 	struct prefix_map * p = (struct prefix_map *)xmalloc(sizeof(*p));
 	p->oldprefix = xstrdup(oldprefix);
 	p->newprefix = xstrdup(newprefix);
-
 	gl_list_add_last(prefix_maps, p);
 }
 
@@ -225,7 +212,7 @@ void add_prefix_map(char const * oldprefix, char const * newprefix)
 /* Compute extensions from the grammar file extension.  */
 static void compute_exts_from_gf(const char * ext)
 {
-	if(STREQ(ext, ".y")) {
+	if(sstreq(ext, ".y")) {
 		src_extension = xstrdup(language->src_extension);
 		header_extension = xstrdup(language->header_extension);
 	}
@@ -280,13 +267,11 @@ static void compute_exts_from_src(const char * ext)
    'foo' -> *BASE = 'foo', *TAB = NULL, *EXT = NULL.  */
 #include <mbstring.h>
 
-static void file_name_split(const char * file_name,
-    const char ** base, const char ** tab, const char ** ext)
+static void file_name_split(const char * file_name, const char ** base, const char ** tab, const char ** ext)
 {
 	*base = last_component(file_name);
-
 	/* Look for the extension, i.e., look for the last dot. */
-	*ext = (const char*)_mbsrchr((const unsigned char*)*base, '.');
+	*ext = (const char*)_mbsrchr((const uchar *)*base, '.');
 	*tab = NULL;
 
 	/* If there is an extension, check if there is a '.tab' part right
@@ -294,8 +279,7 @@ static void file_name_split(const char * file_name,
 	if(*ext) {
 		size_t baselen = *ext - *base;
 		size_t dottablen = sizeof(TAB_EXT) - 1;
-		if(dottablen < baselen
-		    && STRPREFIX_LIT(TAB_EXT, *ext - dottablen))
+		if(dottablen < baselen && STRPREFIX_LIT(TAB_EXT, *ext - dottablen))
 			*tab = *ext - dottablen;
 	}
 }
@@ -312,30 +296,19 @@ static void compute_file_name_parts(void)
 		const char * base, * tab, * ext;
 		file_name_split(spec_outfile, &base, &tab, &ext);
 		dir_prefix = xstrndup(spec_outfile, base - spec_outfile);
-
 		/* ALL_BUT_EXT goes up the EXT, excluding it. */
-		all_but_ext =
-		    xstrndup(spec_outfile,
-			(strlen(spec_outfile) - (ext ? strlen(ext) : 0)));
-
+		all_but_ext = xstrndup(spec_outfile, (strlen(spec_outfile) - (ext ? strlen(ext) : 0)));
 		/* ALL_BUT_TAB_EXT goes up to TAB, excluding it.  */
-		all_but_tab_ext =
-		    xstrndup(spec_outfile,
-			(strlen(spec_outfile)
-			- (tab ? strlen(tab) : (ext ? strlen(ext) : 0))));
-
+		all_but_tab_ext = xstrndup(spec_outfile, (strlen(spec_outfile) - (tab ? strlen(tab) : (ext ? strlen(ext) : 0))));
 		if(ext)
 			compute_exts_from_src(ext);
 	}
 	else {
 		const char * base, * tab, * ext;
 		file_name_split(grammar_file, &base, &tab, &ext);
-
 		if(spec_file_prefix) {
 			/* If --file-prefix=foo was specified, ALL_BUT_TAB_EXT = 'foo'.  */
-			dir_prefix =
-			    xstrndup(spec_file_prefix,
-				last_component(spec_file_prefix) - spec_file_prefix);
+			dir_prefix = xstrndup(spec_file_prefix, last_component(spec_file_prefix) - spec_file_prefix);
 			all_but_tab_ext = xstrdup(spec_file_prefix);
 		}
 		else if(!location_empty(yacc_loc)) {
@@ -347,10 +320,8 @@ static void compute_file_name_parts(void)
 			/* Otherwise, ALL_BUT_TAB_EXT is computed from the input
 			   grammar: 'foo/bar.yy' => 'bar'.  */
 			dir_prefix = xstrdup("");
-			all_but_tab_ext =
-			    xstrndup(base, (strlen(base) - (ext ? strlen(ext) : 0)));
+			all_but_tab_ext = xstrndup(base, (strlen(base) - (ext ? strlen(ext) : 0)));
 		}
-
 		if(language->add_tab)
 			all_but_ext = concat2(all_but_tab_ext, TAB_EXT);
 		else
@@ -368,45 +339,27 @@ static void compute_file_name_parts(void)
 void compute_output_file_names(void)
 {
 	compute_file_name_parts();
-
 	/* If not yet done. */
-	if(!src_extension)
-		src_extension = xstrdup(".c");
-	if(!header_extension)
-		header_extension = xstrdup(".h");
-
-	parser_file_name =
-	    (spec_outfile
-	    ? xstrdup(spec_outfile)
-	    : concat2(all_but_ext, src_extension));
-
+	SETIFZ(src_extension, xstrdup(".c"));
+	SETIFZ(header_extension, xstrdup(".h"));
+	parser_file_name = (spec_outfile ? xstrdup(spec_outfile) : concat2(all_but_ext, src_extension));
 	if(defines_flag) {
-		if(!spec_header_file)
-			spec_header_file = concat2(all_but_ext, header_extension);
+		SETIFZ(spec_header_file, concat2(all_but_ext, header_extension));
 	}
-
 	if(graph_flag) {
-		if(!spec_graph_file)
-			spec_graph_file = concat2(all_but_tab_ext,
-				304 <= required_version ? ".gv" : ".dot");
+		SETIFZ(spec_graph_file, concat2(all_but_tab_ext, 304 <= required_version ? ".gv" : ".dot"));
 		output_file_name_check(&spec_graph_file, false);
 	}
-
 	if(xml_flag) {
-		if(!spec_xml_file)
-			spec_xml_file = concat2(all_but_tab_ext, ".xml");
+		SETIFZ(spec_xml_file, concat2(all_but_tab_ext, ".xml"));
 		output_file_name_check(&spec_xml_file, false);
 	}
-
 	if(report_flag) {
-		if(!spec_verbose_file)
-			spec_verbose_file = concat2(all_but_tab_ext, OUTPUT_EXT);
+		SETIFZ(spec_verbose_file, concat2(all_but_tab_ext, OUTPUT_EXT));
 		output_file_name_check(&spec_verbose_file, false);
 	}
-
 	spec_mapped_header_file = map_file_name(spec_header_file);
 	mapped_dir_prefix = map_file_name(dir_prefix);
-
 	SAlloc::F(all_but_tab_ext);
 	SAlloc::F(src_extension);
 	SAlloc::F(header_extension);
@@ -415,16 +368,14 @@ void compute_output_file_names(void)
 void output_file_name_check(char ** file_name, bool source)
 {
 	bool conflict = false;
-	if(STREQ(*file_name, grammar_file)) {
-		complain(NULL, complaint, _("refusing to overwrite the input file %s"),
-		    quote(*file_name));
+	if(sstreq(*file_name, grammar_file)) {
+		complain(NULL, complaint, _("refusing to overwrite the input file %s"), quote(*file_name));
 		conflict = true;
 	}
 	else
 		for(int i = 0; i < generated_files_size; i++)
-			if(STREQ(generated_files[i].name, *file_name)) {
-				complain(NULL, Wother, _("conflicting outputs to file %s"),
-				    quote(generated_files[i].name));
+			if(sstreq(generated_files[i].name, *file_name)) {
+				complain(NULL, Wother, _("conflicting outputs to file %s"), quote(generated_files[i].name));
 				conflict = true;
 			}
 	if(conflict) {
@@ -432,8 +383,7 @@ void output_file_name_check(char ** file_name, bool source)
 		*file_name = _strdup("/dev/null");
 	}
 	else {
-		generated_files = xnrealloc(generated_files, ++generated_files_size,
-			sizeof *generated_files);
+		generated_files = (generated_file *)xnrealloc(generated_files, ++generated_files_size, sizeof *generated_files);
 		generated_files[generated_files_size-1].name = xstrdup(*file_name);
 		generated_files[generated_files_size-1].is_source = source;
 	}

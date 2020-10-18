@@ -49,7 +49,7 @@ char * concatenated_filename(const char * directory, const char * filename, cons
 	else {
 		size_t directory_len = strlen(directory);
 		int need_slash = ((int)(directory_len) > FILE_SYSTEM_PREFIX_LEN(directory) && !ISSLASH(directory[directory_len-1]));
-		result = (char*)SAlloc::M(directory_len + need_slash + strlen(filename) + (suffix != NULL ? strlen(suffix) : 0) + 1);
+		result = (char *)SAlloc::M(directory_len + need_slash + strlen(filename) + (suffix != NULL ? strlen(suffix) : 0) + 1);
 		if(result == NULL)
 			return NULL; /* errno is set here */
 		memcpy(result, directory, directory_len);

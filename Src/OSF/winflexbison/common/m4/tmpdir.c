@@ -19,7 +19,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "tmpdir.h" /* Specification.  */
+//#include "tmpdir.h" /* Specification.  */
 //#include <stdbool.h>
 //#include <stdlib.h>
 //#include <string.h>
@@ -80,7 +80,6 @@ int path_search(char * tmpl, size_t tmpl_len, const char * dir, const char * pfx
 		if(plen > 5)
 			plen = 5;
 	}
-
 	if(try_tmpdir) {
 		d = __secure_getenv("TMPDIR");
 		if(d != NULL && direxists(d))
@@ -100,7 +99,6 @@ int path_search(char * tmpl, size_t tmpl_len, const char * dir, const char * pfx
 			return -1;
 		}
 	}
-
 	dlen = strlen(dir);
 	while(dlen >= 1 && ISSLASH(dir[dlen - 1]))
 		dlen--;         /* remove trailing slashes */
@@ -109,7 +107,6 @@ int path_search(char * tmpl, size_t tmpl_len, const char * dir, const char * pfx
 		__set_errno(EINVAL);
 		return -1;
 	}
-
 	sprintf(tmpl, "%.*s/%.*sXXXXXX", (int)dlen, dir, (int)plen, pfx);
 	return 0;
 }

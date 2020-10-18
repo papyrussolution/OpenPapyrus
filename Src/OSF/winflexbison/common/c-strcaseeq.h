@@ -30,16 +30,16 @@
 #if defined (__GNUC__) && defined (__OPTIMIZE__)
 
 /* Case insensitive comparison of ASCII characters.  */
-# if C_CTYPE_ASCII
+#if C_CTYPE_ASCII
 #  define CASEEQ(other, upper) \
 	(c_isupper(upper) ? ((other) & ~0x20) == (upper) : (other) == (upper))
 # elif C_CTYPE_CONSECUTIVE_UPPERCASE && C_CTYPE_CONSECUTIVE_LOWERCASE
 #  define CASEEQ(other, upper) \
 	(c_isupper(upper) ? (other) == (upper) || (other) == (upper) - 'A' + 'a' : (other) == (upper))
-# else
+#else
 #  define CASEEQ(other, upper) \
 	(c_toupper(other) == (upper))
-# endif
+#endif
 
 static inline int strcaseeq9(const char * s1, const char * s2)
 {

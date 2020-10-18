@@ -1,3 +1,6 @@
+// @sobolev: This file is included into regex.c (don't compile separately)
+// 
+//
 /* Extended regular expression matching and search library.
    Copyright (C) 2002-2011 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -16,21 +19,14 @@
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
-#include <flexbison_common.h>
-#pragma hdrstop
-#include "regex_internal.h"
+//#include <flexbison_common.h>
+//#pragma hdrstop
+//#include "regex_internal.h"
 
-static void re_string_construct_common(const char * str, Idx len,
-    re_string_t * pstr,
-    RE_TRANSLATE_TYPE trans, bool icase,
+static void re_string_construct_common(const char * str, Idx len, re_string_t * pstr, RE_TRANSLATE_TYPE trans, bool icase,
     const re_dfa_t * dfa) internal_function;
-static re_dfastate_t * create_ci_newstate(const re_dfa_t * dfa,
-    const re_node_set * nodes,
-    re_hashval_t hash) internal_function;
-static re_dfastate_t * create_cd_newstate(const re_dfa_t * dfa,
-    const re_node_set * nodes,
-    unsigned int context,
-    re_hashval_t hash) internal_function;
+static re_dfastate_t * create_ci_newstate(const re_dfa_t * dfa, const re_node_set * nodes, re_hashval_t hash) internal_function;
+static re_dfastate_t * create_cd_newstate(const re_dfa_t * dfa, const re_node_set * nodes, uint context, re_hashval_t hash) internal_function;
 
 /* Functions for string operation.  */
 
@@ -53,7 +49,7 @@ internal_function __attribute_warn_unused_result__ re_string_allocate(re_string_
 		return ret;
 	pstr->word_char = dfa->word_char;
 	pstr->word_ops_used = dfa->word_ops_used;
-	pstr->mbs = pstr->mbs_allocated ? pstr->mbs : (unsigned char*)str;
+	pstr->mbs = pstr->mbs_allocated ? pstr->mbs : (uchar*)str;
 	pstr->valid_len = (pstr->mbs_allocated || dfa->mb_cur_max > 1) ? 0 : len;
 	pstr->valid_raw_len = pstr->valid_len;
 	return REG_NOERROR;
@@ -72,7 +68,7 @@ static reg_errcode_t internal_function __attribute_warn_unused_result__ re_strin
 		if(BE(ret != REG_NOERROR, 0))
 			return ret;
 	}
-	pstr->mbs = pstr->mbs_allocated ? pstr->mbs : (unsigned char*)str;
+	pstr->mbs = pstr->mbs_allocated ? pstr->mbs : (uchar*)str;
 	if(icase) {
 #ifdef RE_ENABLE_I18N
 		if(dfa->mb_cur_max > 1) {
@@ -139,7 +135,7 @@ internal_function __attribute_warn_unused_result__ re_string_realloc_buffers(re_
 	}
 #endif /* RE_ENABLE_I18N  */
 	if(pstr->mbs_allocated) {
-		unsigned char * new_mbs = re_realloc(pstr->mbs, unsigned char,
+		uchar * new_mbs = re_realloc(pstr->mbs, uchar,
 			new_buf_len);
 		if(BE(new_mbs == NULL, 0))
 			return REG_ESPACE;
@@ -154,7 +150,7 @@ internal_function re_string_construct_common(const char * str, Idx len, re_strin
     RE_TRANSLATE_TYPE trans, bool icase,
     const re_dfa_t * dfa)
 {
-	pstr->raw_mbs = (const unsigned char*)str;
+	pstr->raw_mbs = (const uchar*)str;
 	pstr->len = len;
 	pstr->raw_len = len;
 	pstr->trans = trans;
@@ -184,10 +180,10 @@ static void
 internal_function build_wcs_buffer(re_string_t * pstr)
 {
 #ifdef _LIBC
-	unsigned char buf[MB_LEN_MAX];
+	uchar buf[MB_LEN_MAX];
 	assert(MB_LEN_MAX >= pstr->mb_cur_max);
 #else
-	unsigned char buf[64];
+	uchar buf[64];
 #endif
 	mbstate_t prev_st;
 	Idx byte_idx, end_idx, remain_len;
@@ -347,7 +343,7 @@ offsets_needed:
 					size_t mbcdlen;
 
 					wcu = towupper(wc);
-					mbcdlen = wcrtomb((char*)buf, wcu, &prev_st);
+					mbcdlen = wcrtomb((char *)buf, wcu, &prev_st);
 					if(BE(mbclen == mbcdlen, 1))
 						memcpy(pstr->mbs + byte_idx, buf, mbclen);
 					else if(mbcdlen != (size_t)-1) {
@@ -458,7 +454,7 @@ internal_function re_string_skip_chars(re_string_t * pstr, Idx new_raw_idx, wint
 			if(mbclen == 0 || remain_len == 0)
 				wc = L'\0';
 			else
-				wc = *(unsigned char*)(pstr->raw_mbs + rawbuf_idx);
+				wc = *(uchar*)(pstr->raw_mbs + rawbuf_idx);
 			mbclen = 1;
 			pstr->cur_state = prev_st;
 		}
@@ -538,7 +534,7 @@ internal_function __attribute_warn_unused_result__ re_string_reconstruct(re_stri
 		pstr->tip_context = ((eflags & REG_NOTBOL) ? CONTEXT_BEGBUF
 		    : CONTEXT_NEWLINE | CONTEXT_BEGBUF);
 		if(!pstr->mbs_allocated)
-			pstr->mbs = (unsigned char*)pstr->raw_mbs;
+			pstr->mbs = (uchar*)pstr->raw_mbs;
 		offset = idx;
 	}
 
@@ -641,7 +637,7 @@ internal_function __attribute_warn_unused_result__ re_string_reconstruct(re_stri
 				wint_t wc = WEOF;
 
 				if(pstr->is_utf8) {
-					const unsigned char * raw, * p, * end;
+					const uchar * raw, * p, * end;
 
 					/* Special case UTF-8.  Multi-byte chars start with any
 					   byte other than 0x80 - 0xbf.  */
@@ -668,7 +664,7 @@ internal_function __attribute_warn_unused_result__ re_string_reconstruct(re_stri
 							size_t mbclen;
 
 #if 0 /* dead code: buf is set but never used */
-							unsigned char buf[6];
+							uchar buf[6];
 							if(BE(pstr->trans != NULL, 0)) {
 								int i = mlen < 6 ? mlen : 6;
 								while(--i >= 0)
@@ -751,7 +747,7 @@ internal_function __attribute_warn_unused_result__ re_string_reconstruct(re_stri
 	return REG_NOERROR;
 }
 
-static unsigned char
+static uchar
 internal_function __attribute((pure))
 re_string_peek_byte_case(const re_string_t *pstr, Idx idx)
 {
@@ -788,7 +784,7 @@ re_string_peek_byte_case(const re_string_t *pstr, Idx idx)
 	return ch;
 }
 
-static unsigned char
+static uchar
 internal_function __attribute((pure))
 re_string_fetch_byte_case(re_string_t *pstr)
 {
@@ -838,7 +834,7 @@ internal_function re_string_destruct(re_string_t * pstr)
 
 /* Return the context at IDX in INPUT.  */
 
-static unsigned int
+static uint
 internal_function re_string_context_at(const re_string_t * input, Idx idx, int eflags)
 {
 	int c;
@@ -1322,7 +1318,7 @@ internal_function re_dfa_add_node(re_dfa_t * dfa, re_token_t token)
 }
 
 static re_hashval_t
-internal_function calc_state_hash(const re_node_set * nodes, unsigned int context)
+internal_function calc_state_hash(const re_node_set * nodes, uint context)
 {
 	re_hashval_t hash = nodes->nelem + context;
 	Idx i;
@@ -1387,7 +1383,7 @@ internal_function __attribute_warn_unused_result__ re_acquire_state(reg_errcode_
 
 static re_dfastate_t *
 internal_function __attribute_warn_unused_result__ re_acquire_state_context(reg_errcode_t * err, const re_dfa_t * dfa,
-    const re_node_set * nodes, unsigned int context)
+    const re_node_set * nodes, uint context)
 {
 	re_hashval_t hash;
 	re_dfastate_t * new_state;
@@ -1521,7 +1517,7 @@ internal_function __attribute_warn_unused_result__ create_ci_newstate(const re_d
 
 static re_dfastate_t *
 internal_function __attribute_warn_unused_result__ create_cd_newstate(const re_dfa_t * dfa, const re_node_set * nodes,
-    unsigned int context, re_hashval_t hash)
+    uint context, re_hashval_t hash)
 {
 	Idx i, nctx_nodes = 0;
 	reg_errcode_t err;
@@ -1542,7 +1538,7 @@ internal_function __attribute_warn_unused_result__ create_cd_newstate(const re_d
 	for(i = 0; i < nodes->nelem; i++) {
 		re_token_t * node = dfa->nodes + nodes->elems[i];
 		re_token_type_t type = node->type;
-		unsigned int constraint = node->constraint;
+		uint constraint = node->constraint;
 
 		if(type == CHARACTER && !constraint)
 			continue;

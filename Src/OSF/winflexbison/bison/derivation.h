@@ -20,10 +20,6 @@
 #ifndef DERIVATION_H
 #define DERIVATION_H
 
-//#include <gl_linked_list.h>
-//#include <gl_xlist.h>
-//#include "gram.h"
-
 /* Derivations are trees of symbols such that each nonterminal's
    children are symbols that produce that nonterminal if they are
    relevant to the counterexample.  The leaves of a derivation form a

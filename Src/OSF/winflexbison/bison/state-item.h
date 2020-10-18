@@ -20,12 +20,6 @@
 #ifndef STATE_ITEM_H
 #define STATE_ITEM_H
 
-//#include <bitsetv.h>
-//#include <gl_list.h>
-//#include <hash.h>
-//#include "gram.h"
-//#include "state.h"
-
 /* Initializes a graph connecting (state, production item) pairs to
    pairs they can make a transition or production step to.  This graph
    is used to search for paths that represent counterexamples of some

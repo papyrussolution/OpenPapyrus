@@ -20,19 +20,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "print-graph.h"
-//#include "closure.h"
-//#include "complain.h"
-//#include "conflicts.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
 #include "graphviz.h"
-//#include "lalr.h"
-//#include "lr0.h"
-//#include "reader.h"
-//#include "state.h"
-//#include "symtab.h"
 
 /*----------------------------.
 | Construct the node labels.  |

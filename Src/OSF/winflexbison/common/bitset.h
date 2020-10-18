@@ -186,7 +186,7 @@ void bitset_dump(FILE *, bitset); /* Dump bitset.  */
    bitset_iterator iter;
 
    BITSET_FOR_EACH (iter, src, i, 0)
-     printf ("%lu ", (unsigned long) i);
+     printf ("%lu ", (ulong)i);
  */
 #define BITSET_FOR_EACH(ITER, BSET, INDEX, MIN)                               \
 	for(ITER.next = (MIN), ITER.num = BITSET_LIST_SIZE; (ITER.num == BITSET_LIST_SIZE) && (ITER.num = bitset_list(BSET, ITER.list, BITSET_LIST_SIZE, &ITER.next));) \
@@ -200,32 +200,24 @@ void bitset_dump(FILE *, bitset); /* Dump bitset.  */
    bitset_iterator iter;
 
    BITSET_FOR_EACH_REVERSE (iter, src, i, 0)
-    printf ("%lu ", (unsigned long) i);
+    printf ("%lu ", (ulong) i);
  */
 #define BITSET_FOR_EACH_REVERSE(ITER, BSET, INDEX, MIN)                       \
-	for(ITER.next = (MIN), ITER.num = BITSET_LIST_SIZE;                        \
-	    (ITER.num == BITSET_LIST_SIZE)                                         \
-	    && (ITER.num = bitset_list_reverse(BSET, ITER.list,                   \
-	    BITSET_LIST_SIZE, &ITER.next));)   \
-		for(ITER.i = 0;                                                          \
-		    ITER.i < ITER.num && ((INDEX) = ITER.list[ITER.i], 1);               \
-		    ITER.i++)
+	for(ITER.next = (MIN), ITER.num = BITSET_LIST_SIZE; (ITER.num == BITSET_LIST_SIZE)                                         \
+	    && (ITER.num = bitset_list_reverse(BSET, ITER.list, BITSET_LIST_SIZE, &ITER.next));)   \
+		for(ITER.i = 0; ITER.i < ITER.num && ((INDEX) = ITER.list[ITER.i], 1); ITER.i++)
 
 /* Define set operations in terms of logical operations.  */
 
 #define bitset_diff(DST, SRC1, SRC2) bitset_andn(DST, SRC1, SRC2)
 #define bitset_diff_cmp(DST, SRC1, SRC2) bitset_andn_cmp(DST, SRC1, SRC2)
-
 #define bitset_intersection(DST, SRC1, SRC2) bitset_and(DST, SRC1, SRC2)
 #define bitset_intersection_cmp(DST, SRC1, SRC2) bitset_and_cmp(DST, SRC1, SRC2)
-
 #define bitset_union(DST, SRC1, SRC2) bitset_or(DST, SRC1, SRC2)
 #define bitset_union_cmp(DST, SRC1, SRC2) bitset_or_cmp(DST, SRC1, SRC2)
-
 /* Symmetrical difference.  */
 #define bitset_symdiff(DST, SRC1, SRC2) bitset_xor(DST, SRC1, SRC2)
 #define bitset_symdiff_cmp(DST, SRC1, SRC2) bitset_xor_cmp(DST, SRC1, SRC2)
-
 /* Union of difference.  */
 #define bitset_diff_union(DST, SRC1, SRC2, SRC3)     bitset_andn_or(DST, SRC1, SRC2, SRC3)
 #define bitset_diff_union_cmp(DST, SRC1, SRC2, SRC3) bitset_andn_or_cmp(DST, SRC1, SRC2, SRC3)

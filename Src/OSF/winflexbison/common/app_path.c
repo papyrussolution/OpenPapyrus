@@ -1,7 +1,7 @@
-
+// APP_PATH.C
+//
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <windows.h>
 
 #define APP_PATH_LEN  1024
 static char app_path[APP_PATH_LEN+1];

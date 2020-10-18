@@ -18,8 +18,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "dirname.h"
-#include <string.h>
+//#include "dirname.h"
 
 /* Return the address of the last file name component of NAME.  If
    NAME has no relative file name components because it is a file
@@ -40,7 +39,7 @@ char * last_component(char const * name)
 			saw_slash = false;
 		}
 	}
-	return (char*)base;
+	return (char *)base;
 }
 
 /* Return the length of the basename NAME.  Typically NAME is the

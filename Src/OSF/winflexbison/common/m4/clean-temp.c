@@ -26,26 +26,26 @@
 //#include <stdlib.h>
 //#include <string.h>
 //#include <unistd.h>
-#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
-	#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
+//#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+	//#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 	//#include <windows.h>
 	//#include <io.h>
-	#include <direct.h>
-#endif
-#include "error.h"
+	//#include <direct.h>
+//#endif
+//#include "error.h"
 //#include "fatal-signal.h"
 #include "pathmax.h"
-#include "tmpdir.h"
-#include "xalloc.h"
+//#include "tmpdir.h"
+//#include "xalloc.h"
 #include "xmalloca.h"
 #include "gl_xlist.h"
 #include "gl_linkedhash_list.h"
-#include "gettext.h"
+//#include "gettext.h"
 #if GNULIB_FWRITEERROR
 	#include "fwriteerror.h"
 #endif
 #if GNULIB_CLOSE_STREAM
-	#include "close-stream.h"
+	//#include "close-stream.h"
 #endif
 #if GNULIB_FCNTL_SAFER
 	#include "fcntl--.h"
@@ -53,6 +53,7 @@
 #if GNULIB_FOPEN_SAFER
 	#include "stdio--.h"
 #endif
+#undef _ // @sobolev
 #define _(str) gettext(str)
 /* GNU Hurd doesn't have PATH_MAX.  */
 #ifndef PATH_MAX
@@ -68,8 +69,8 @@
 #if !GNULIB_FCNTL_SAFER
 /* The results of open() in this file are not used with fchdir,
    therefore save some unnecessary work in fchdir.c.  */
-# undef open
-# undef close
+#undef open
+#undef close
 #endif
 
 /* The use of 'volatile' in the types below (and ISO C 99 section 5.1.2.3.(5))
@@ -302,7 +303,7 @@ struct temp_dir * create_temp_dir(const char * prefix, const char * parentdir,
 		false);
 
 	/* Create the temporary directory.  */
-	xtemplate = (char*)xmalloca(PATH_MAX);
+	xtemplate = (char *)xmalloca(PATH_MAX);
 	if(path_search(xtemplate, PATH_MAX, parentdir, prefix, parentdir == NULL)) {
 		error(0, errno,
 		    _("cannot find a temporary directory, try setting $TMPDIR"));
@@ -359,7 +360,7 @@ void unregister_temp_file(struct temp_dir * dir,
 
 	node = gl_list_search(list, absolute_file_name);
 	if(node != NULL) {
-		char * old_string = (char*)gl_list_node_value(list, node);
+		char * old_string = (char *)gl_list_node_value(list, node);
 
 		gl_list_remove_node(list, node);
 		SAlloc::F(old_string);
@@ -392,7 +393,7 @@ void unregister_temp_subdir(struct temp_dir * dir,
 
 	node = gl_list_search(list, absolute_dir_name);
 	if(node != NULL) {
-		char * old_string = (char*)gl_list_node_value(list, node);
+		char * old_string = (char *)gl_list_node_value(list, node);
 
 		gl_list_remove_node(list, node);
 		SAlloc::F(old_string);
@@ -465,7 +466,7 @@ int cleanup_temp_dir_contents(struct temp_dir * dir)
 	list = tmpdir->files;
 	iter = gl_list_iterator(list);
 	while(gl_list_iterator_next(&iter, &element, &node)) {
-		char * file = (char*)element;
+		char * file = (char *)element;
 
 		err |= do_unlink(dir, file);
 		gl_list_remove_node(list, node);
@@ -478,7 +479,7 @@ int cleanup_temp_dir_contents(struct temp_dir * dir)
 	list = tmpdir->subdirs;
 	iter = gl_list_iterator(list);
 	while(gl_list_iterator_next(&iter, &element, &node)) {
-		char * subdir = (char*)element;
+		char * subdir = (char *)element;
 
 		err |= do_rmdir(dir, subdir);
 		gl_list_remove_node(list, node);
@@ -611,7 +612,7 @@ FILE * fopen_temp(const char * file_name, const char * mode)
 	   temporary file is removed when the process crashes.  */
 	if(supports_delete_on_close()) {
 		size_t mode_len = strlen(mode);
-		char * augmented_mode = (char*)xmalloca(mode_len + 2);
+		char * augmented_mode = (char *)xmalloca(mode_len + 2);
 		memcpy(augmented_mode, mode, mode_len);
 		memcpy(augmented_mode + mode_len, "D", 2);
 

@@ -56,7 +56,7 @@ void set_program_name(const char * argv0)
 			argv0 = base + 3;
 			/* On glibc systems, remove the "lt-" prefix from the variable program_invocation_short_name.  */
 #if HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
-			program_invocation_short_name = (char*)argv0;
+			program_invocation_short_name = (char *)argv0;
 #endif
 		}
 	}
@@ -76,6 +76,6 @@ void set_program_name(const char * argv0)
 	   variable program_invocation_name, not program_name.  So set this variable
 	   as well.  */
 #if HAVE_DECL_PROGRAM_INVOCATION_NAME
-	program_invocation_name = (char*)argv0;
+	program_invocation_name = (char *)argv0;
 #endif
 }

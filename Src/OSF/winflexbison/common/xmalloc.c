@@ -20,7 +20,7 @@
 #if !HAVE_INLINE
 	#define static_inline
 #endif
-#include "xalloc.h"
+//#include "xalloc.h"
 #undef static_inline
 //#include <stdlib.h>
 //#include <string.h>
@@ -33,9 +33,9 @@
 #else
 	enum { HAVE_GNU_CALLOC = 0 };
 #endif
-
-/* Allocate N bytes of memory dynamically, with error checking.  */
-
+//
+// Allocate N bytes of memory dynamically, with error checking.
+//
 void * xmalloc(size_t n)
 {
 	void * p = SAlloc::M(n);
@@ -44,10 +44,9 @@ void * xmalloc(size_t n)
 	memzero(p, n);
 	return p;
 }
-
-/* Change the size of an allocated block of memory P to N bytes,
-   with error checking.  */
-
+// 
+// Change the size of an allocated block of memory P to N bytes, with error checking.
+// 
 void * xrealloc(void * p, size_t n)
 {
 	if(!n && p) {
@@ -71,19 +70,17 @@ void * x2realloc(void * p, size_t * pn)
 {
 	return x2nrealloc(p, pn, 1);
 }
-
-/* Allocate S bytes of zeroed memory dynamically, with error checking.
-   There's no need for xnzalloc (N, S), since it would be equivalent
-   to xcalloc (N, S).  */
-
+// 
+// Allocate S bytes of zeroed memory dynamically, with error checking.
+// There's no need for xnzalloc (N, S), since it would be equivalent to xcalloc (N, S).
+// 
 void * xzalloc(size_t s)
 {
 	return memzero(xmalloc(s), s);
 }
-
-/* Allocate zeroed memory for N elements of S bytes, with error
-   checking.  S must be nonzero.  */
-
+// 
+// Allocate zeroed memory for N elements of S bytes, with error checking.  S must be nonzero.
+// 
 void * xcalloc(size_t n, size_t s)
 {
 	void * p;
@@ -95,18 +92,115 @@ void * xcalloc(size_t n, size_t s)
 		xalloc_die();
 	return p;
 }
-
-/* Clone an object P of size S, with error checking.  There's no need
-   for xnmemdup (P, N, S), since xmemdup (P, N * S) works without any
-   need for an arithmetic overflow check.  */
-
+//
+// Allocate an array of N objects, each with S bytes of memory, dynamically, with error checking.  S must be nonzero.
+//
+void * xnmalloc(size_t n, size_t s)
+{
+	if(xalloc_oversized(n, s))
+		xalloc_die();
+	return xmalloc(n * s);
+}
+//
+// Change the size of an allocated block of memory P to an array of N
+// objects each of S bytes, with error checking.  S must be nonzero.
+//
+void * xnrealloc(void * p, size_t n, size_t s)
+{
+	if(xalloc_oversized(n, s))
+		xalloc_die();
+	return xrealloc(p, n * s);
+}
+// 
+// If P is null, allocate a block of at least *PN such objects;
+// otherwise, reallocate P so that it contains more than *PN objects
+// each of S bytes.  *PN must be nonzero unless P is null, and S must
+// be nonzero.  Set *PN to the new number of objects, and return the
+// pointer to the new block.  *PN is never set to zero, and the
+// returned pointer is never null.
+// 
+// Repeated reallocations are guaranteed to make progress, either by
+// allocating an initial block with a nonzero size, or by allocating a larger block.
+// 
+// In the following implementation, nonzero sizes are increased by a
+// factor of approximately 1.5 so that repeated reallocations have
+// O(N) overall cost rather than O(N**2) cost, but the
+// specification for this function does not guarantee that rate.
+// 
+// Here is an example of use:
+// 
+// int *p = NULL;
+// size_t used = 0;
+// size_t allocated = 0;
+// void append_int (int value)
+// {
+//   if(used == allocated)
+//     p = x2nrealloc (p, &allocated, sizeof *p);
+//     p[used++] = value;
+// }
+// 
+// This causes x2nrealloc to allocate a block of some nonzero size the first time it is called.
+// 
+// To have finer-grained control over the initial size, set *PN to a
+// nonzero value before calling this function with P == NULL.  For example:
+// 
+// int *p = NULL;
+// size_t used = 0;
+// size_t allocated = 0;
+// size_t allocated1 = 1000;
+// void append_int (int value)
+// {
+//   if(used == allocated) {
+//     p = x2nrealloc (p, &allocated1, sizeof *p);
+//     allocated = allocated1;
+//   }
+//   p[used++] = value;
+// }
+// 
+void * x2nrealloc(void * p, size_t * pn, size_t s)
+{
+	size_t n = *pn;
+	if(!p) {
+		if(!n) {
+			/* The approximate size to use for initial small allocation
+			   requests, when the invoking code specifies an old size of
+			   zero.  64 bytes is the largest "small" request for the
+			   GNU C library malloc.  */
+			enum { DEFAULT_MXFAST = 64 };
+			n = DEFAULT_MXFAST / s;
+			n += !n;
+		}
+	}
+	else {
+		// Set N = ceil (1.5 * N) so that progress is made if N == 1.
+		// Check for overflow, so that N * S stays in size_t range.
+		// The check is slightly conservative, but an exact check isn't worth the trouble.
+		if((size_t)-1 / 3 * 2 / s <= n)
+			xalloc_die();
+		n += (n + 1) / 2;
+	}
+	*pn = n;
+	return xrealloc(p, n * s);
+}
+//
+// Return a pointer to a new buffer of N bytes.  This is like xmalloc, except it returns char *.
+//
+char * xcharalloc(size_t n)
+{
+	return XNMALLOC(n, char);
+}
+//
+// Clone an object P of size S, with error checking.  There's no need
+// for xnmemdup (P, N, S), since xmemdup (P, N * S) works without any
+// need for an arithmetic overflow check. 
+//
 void * xmemdup(void const * p, size_t s)
 {
 	return memcpy(xmalloc(s), p, s);
 }
 
-/* Clone STRING.  */
+// Clone STRING. 
 char * xstrdup(char const * string)
 {
-	return xmemdup(string, strlen(string) + 1);
+	return (char *)xmemdup(string, strlen(string) + 1);
 }

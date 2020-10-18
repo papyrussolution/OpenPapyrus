@@ -20,9 +20,6 @@
 #ifndef FILES_H_
 #define FILES_H_
 
-//#include "location.h"
-//#include "uniqstr.h"
-
 extern char const * spec_outfile; /* File name specified with -o for the output file, or 0 if no -o.  */
 extern char * parser_file_name; /* File name for the parser (i.e., the one above, or its default.) */
 /* Symbol prefix specified with -p, or 0 if no -p.  */

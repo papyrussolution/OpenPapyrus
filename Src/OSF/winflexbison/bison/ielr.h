@@ -19,23 +19,19 @@
 
 #ifndef IELR_H_
 #define IELR_H_
-
-//#include <bitset.h>
-//#include "state.h"
-/**
- * \pre
- *   - \c ::states is of size \c ::nstates and defines an LR(0) parser
- *     for the users's grammar.
- *   - \c ::ntokens is the number of tokens in the grammar.
- * \post
- *   - \c ::states is of size \c ::nstates (which might be greater than
- *     <tt>::nstates \@pre</tt>) and defines the type of parser specified by
- *     the value of the \c \%define variable \c lr.type.  Its value can be:
- *     - \c "lalr".
- *     - \c "ielr".
- *     - \c "canonical-lr".
- */
-void ielr(void);
-bool ielr_item_has_lookahead(state *s, symbol_number lhs, size_t item, symbol_number lookahead, state ***predecessors, bitset **item_lookahead_sets);
-
+	/**
+	 * \pre
+	 *   - \c ::states is of size \c ::nstates and defines an LR(0) parser
+	 *     for the users's grammar.
+	 *   - \c ::ntokens is the number of tokens in the grammar.
+	 * \post
+	 *   - \c ::states is of size \c ::nstates (which might be greater than
+	 *     <tt>::nstates \@pre</tt>) and defines the type of parser specified by
+	 *     the value of the \c \%define variable \c lr.type.  Its value can be:
+	 *     - \c "lalr".
+	 *     - \c "ielr".
+	 *     - \c "canonical-lr".
+	 */
+	void ielr(void);
+	bool ielr_item_has_lookahead(state *s, symbol_number lhs, size_t item, symbol_number lookahead, state ***predecessors, bitset **item_lookahead_sets);
 #endif /* !IELR_H_ */

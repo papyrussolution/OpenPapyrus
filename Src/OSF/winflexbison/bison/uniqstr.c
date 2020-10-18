@@ -20,16 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <attribute.h>
-//#include <error.h>
-//#include <hash.h>
-//#include <quotearg.h>
-//#include <stdarg.h>
-//#include "uniqstr.h"
-// start winflexbison insertion
-//#include <stdlib.h>
-//#include <malloc.h>
-// end winflexbison insertion
 
 /*-----------------------.
 | A uniqstr hash table.  |
@@ -119,7 +109,7 @@ int uniqstr_cmp(uniqstr l, uniqstr r)
 
 static bool hash_compare_uniqstr(void const * m1, void const * m2)
 {
-	return STREQ((const char *)m1, (const char *)m2);
+	return sstreq((const char *)m1, (const char *)m2);
 }
 
 static size_t hash_uniqstr(void const * m, size_t tablesize)

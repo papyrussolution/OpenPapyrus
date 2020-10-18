@@ -2199,7 +2199,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 		{
 			SetupCalDate(CTLCAL_TDEFICIT_DATE, CTL_TDEFICIT_DATE);
 		}
-		int setDTS(const TSVector <LocPeriod> & rList, double pctAddition) // @v9.8.6 TSArray-->TSVector
+		int setDTS(const TSVector <LocPeriod> & rList, double pctAddition)
 		{
 			OrgLocPeriodList = rList;
 			LocPeriodList = rList;
@@ -2208,7 +2208,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			updateList(-1);
 			return 1;
 		}
-		int getDTS(TSVector <LocPeriod> & rList, double * pPctAddition) // @v9.8.6 TSArray-->TSVector
+		int getDTS(TSVector <LocPeriod> & rList, double * pPctAddition)
 		{
 			rList = LocPeriodList;
 			PctAddition = getCtrlReal(CTL_TDEFICIT_PCTADD);

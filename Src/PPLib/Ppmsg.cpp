@@ -156,6 +156,21 @@ SString & FASTCALL PPLoadStringS(const char * pSignature, SString & rBuf)
 	return rBuf;
 }
 
+int FASTCALL PPLoadStringDescription(const char * pSignature, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(isempty(pSignature))
+		ok = -1;
+	else {
+		ok = _PPStrStore ? _PPStrStore->GetDescription(pSignature, rBuf) : 0;
+		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
+		if(!ok)
+			PPSetErrorSLib();
+	}
+	return ok;
+}
+
 int FASTCALL PPLoadText(int code, SString & s)
 {
 	return PPLoadString(PPSTR_TEXT, code, s);

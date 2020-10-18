@@ -20,29 +20,26 @@
 /* -------------------------- gl_list_t Data Type -------------------------- */
 
 /* Concrete list node implementation, valid for this file only.  */
-struct gl_list_node_impl
-{
+struct gl_list_node_impl {
 #if WITH_HASHTABLE
-  struct gl_hash_entry h;           /* hash table entry fields; must be first */
+	struct gl_hash_entry h;     /* hash table entry fields; must be first */
 #endif
-  struct gl_list_node_impl *next;
-  struct gl_list_node_impl *prev;
-  const void *value;
+	struct gl_list_node_impl * next;
+	struct gl_list_node_impl * prev;
+	const void * value;
 };
 
 /* Concrete gl_list_impl type, valid for this file only.  */
-struct gl_list_impl
-{
-  struct gl_list_impl_base base;
+struct gl_list_impl {
+	struct gl_list_impl_base base;
 #if WITH_HASHTABLE
-  /* A hash table: managed as an array of collision lists.  */
-  struct gl_hash_entry **table;
-  size_t table_size;
+	// A hash table: managed as an array of collision lists. 
+	struct gl_hash_entry ** table;
+	size_t table_size;
 #endif
-  /* A circular list anchored at root.
-     The first node is = root.next, the last node is = root.prev.
-     The root's value is unused.  */
-  struct gl_list_node_impl root;
-  /* Number of list nodes, excluding the root.  */
-  size_t count;
+	/* A circular list anchored at root.
+	   The first node is = root.next, the last node is = root.prev.
+	   The root's value is unused.  */
+	struct gl_list_node_impl root;
+	size_t count; /* Number of list nodes, excluding the root.  */
 };

@@ -31,14 +31,14 @@
 
    For now, use this only with GCC.  Eventually whether _Static_assert
    and static_assert works should be determined by 'configure'.  */
-# if (4 < __GNUC__ || (__GNUC__ == 4 && 6 <= __GNUC_MINOR__)) && !defined __cplusplus
+#if (4 < __GNUC__ || (__GNUC__ == 4 && 6 <= __GNUC_MINOR__)) && !defined __cplusplus
 #  define HAVE__STATIC_ASSERT 1
-# endif
+#endif
 /* The condition (99 < __GNUC__) is temporary, until we know about the
    first G++ release that supports static_assert.  */
-# if (99 < __GNUC__) && defined __cplusplus
+#if (99 < __GNUC__) && defined __cplusplus
 #  define HAVE_STATIC_ASSERT 1
-# endif
+#endif
 
 // for windows compiler
 #  define HAVE_STATIC_ASSERT 1
@@ -67,12 +67,12 @@
      constant and nonnegative.
 
  * Next this expression W is wrapped in a type
-     struct verify_type__ { unsigned int verify_error_if_negative_size__: W; }.
+     struct verify_type__ { uint verify_error_if_negative_size__: W; }.
      If W is negative, this yields a compile-time error.  No compiler can
      deal with a bit-field of negative size.
 
      One might think that an array size check would have the same
-     effect, that is, that the type struct { unsigned int dummy[W]; }
+     effect, that is, that the type struct { uint dummy[W]; }
      would work as well.  However, inside a function, some compilers
      (such as C++ compilers and GNU C) allow local parameters and
      variables inside array size expressions.  With these compilers,
@@ -109,28 +109,28 @@
      A solution is to use the sizeof operator.  It yields a number,
      getting rid of the identity of the type.  Declarations like
 
-       extern int dummy [sizeof (struct {...})];
-       extern void dummy (int [sizeof (struct {...})]);
-       extern int (*dummy (void)) [sizeof (struct {...})];
+       extern int dummy [sizeof(struct {...})];
+       extern void dummy (int [sizeof(struct {...})]);
+       extern int (*dummy (void)) [sizeof(struct {...})];
 
      can be repeated.
 
  * Should the implementation use a named struct or an unnamed struct?
      Which of the following alternatives can be used?
 
-       extern int dummy [sizeof (struct {...})];
-       extern int dummy [sizeof (struct verify_type__ {...})];
-       extern void dummy (int [sizeof (struct {...})]);
-       extern void dummy (int [sizeof (struct verify_type__ {...})]);
-       extern int (*dummy (void)) [sizeof (struct {...})];
-       extern int (*dummy (void)) [sizeof (struct verify_type__ {...})];
+       extern int dummy [sizeof(struct {...})];
+       extern int dummy [sizeof(struct verify_type__ {...})];
+       extern void dummy (int [sizeof(struct {...})]);
+       extern void dummy (int [sizeof(struct verify_type__ {...})]);
+       extern int (*dummy (void)) [sizeof(struct {...})];
+       extern int (*dummy (void)) [sizeof(struct verify_type__ {...})];
 
      In the second and sixth case, the struct type is exported to the
      outer scope; two such declarations therefore collide.  GCC warns
      about the first, third, and fourth cases.  So the only remaining
      possibility is the fifth case:
 
-       extern int (*dummy (void)) [sizeof (struct {...})];
+       extern int (*dummy (void)) [sizeof(struct {...})];
 
  * GCC warns about duplicate declarations of the dummy function if
      -Wredundant_decls is used.  GCC 4.3 and later have a builtin
@@ -162,14 +162,14 @@
 #define _GL_GENSYM(prefix) _GL_CONCAT(prefix, _GL_COUNTER)
 // Verify requirement R at compile-time, as an integer constant expression. Return 1.
 #ifdef __cplusplus
-	template <int w> struct verify_type__ { unsigned int verify_error_if_negative_size__ : w; };
+	template <int w> struct verify_type__ { uint verify_error_if_negative_size__ : w; };
 	#define verify_true(R) (!!sizeof(verify_type__<(R) ? 1 : -1>))
 #elif HAVE__STATIC_ASSERT
-	#define verify_true(R) (!!sizeof (struct { _Static_assert(R, "verify_true (" #R ")"); int verify_dummy__; }))
+	#define verify_true(R) (!!sizeof(struct { _Static_assert(R, "verify_true (" #R ")"); int verify_dummy__; }))
 #elif HAVE_STATIC_ASSERT
-	#define verify_true(R) (!!sizeof (struct { static_assert(R, "verify_true (" #R ")"); int verify_dummy__; }))
+	#define verify_true(R) (!!sizeof(struct { static_assert(R, "verify_true (" #R ")"); int verify_dummy__; }))
 #else
-	#define verify_true(R) (!!sizeof (struct { unsigned int verify_error_if_negative_size__ : (R) ? 1 : -1; }))
+	#define verify_true(R) (!!sizeof(struct { uint verify_error_if_negative_size__ : (R) ? 1 : -1; }))
 #endif
 //
 // Verify requirement R at compile-time, as a declaration without a trailing ';'.  

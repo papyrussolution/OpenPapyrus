@@ -20,20 +20,10 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <mbfile.h>
-//#include <mbswidth.h>
-//#include <quotearg.h>
-//#include <stdio.h>    /* fileno */
-//#include <sys/ioctl.h>
-//#include <sys/stat.h> /* fstat */
-//#include <termios.h>
 #ifdef WINSIZE_IN_PTEM
 	#include <sys/stream.h>
 	#include <sys/ptem.h>
 #endif
-//#include "complain.h"
-//#include "getargs.h"
-//#include "location.h"
 
 Location const empty_loc = EMPTY_LOCATION_INIT;
 

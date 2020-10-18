@@ -22,7 +22,7 @@
 
 # ifdef __cplusplus
 extern "C" {
-# endif
+#endif
 
 /* This function is always triggered when memory is exhausted.
    It must be defined by the application, either explicitly
@@ -35,6 +35,6 @@ char * xmemdup0(void const * p, size_t s);
 
 # ifdef __cplusplus
 }
-# endif
+#endif
 
 #endif /* !XMEMDUP0_H_ */

@@ -1020,7 +1020,7 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 				PersonTbl::Rec   psn_rec;
 				LocationTbl::Rec loc_rec;
 				PPAccount  acc_rec;
-				PPGlobalUserAcc gua_rec; // @v9.1.3
+				PPGlobalUserAcc gua_rec;
 				//THROW(ppobj->Search(obj_id, &assoc_obj_rec) > 0);
 				switch(acs_rec.Assoc) {
 					case PPOBJ_PERSON:
@@ -1031,7 +1031,7 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 						THROW(ppobj->Search(obj_id, &loc_rec) > 0);
 						STRNSCPY(pack.Rec.Name, loc_rec.Name);
 						break;
-					case PPOBJ_GLOBALUSERACC: // @v9.1.3
+					case PPOBJ_GLOBALUSERACC:
 						THROW(ppobj->Search(obj_id, &gua_rec) > 0);
 						STRNSCPY(pack.Rec.Name, gua_rec.Name);
 						break;

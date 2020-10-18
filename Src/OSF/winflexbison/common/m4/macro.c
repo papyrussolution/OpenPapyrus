@@ -24,9 +24,9 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "m4.h"
+//#include "m4.h"
 
-static void expand_macro(symbol *);
+static void expand_macro(SymbolTableEntry *);
 static void expand_token(struct obstack *, token_type, token_data *, int);
 
 /* Current recursion level in expand_macro ().  */
@@ -81,7 +81,7 @@ void expand_input(void)
 
 static void expand_token(struct obstack * obs, token_type t, token_data * td, int line)
 {
-	symbol * sym;
+	SymbolTableEntry * sym;
 	switch(t) { /* TOKSW */
 		case TOKEN_EOF:
 		case TOKEN_MACDEF:
@@ -150,7 +150,7 @@ static bool expand_argument(struct obstack * obs, token_data * argp)
 			    if(paren_level == 0) {
 				    /* The argument MUST be finished, whether we want it or not.  */
 				    obstack_1grow(obs, '\0');
-				    text = (char*)obstack_finish(obs);
+				    text = (char *)obstack_finish(obs);
 
 				    if(TOKEN_DATA_TYPE(argp) == TOKEN_VOID) {
 					    TOKEN_DATA_TYPE(argp) = TOKEN_TEXT;
@@ -205,14 +205,12 @@ static bool expand_argument(struct obstack * obs, token_data * argp)
 | pointers to the arguments on the obstack ARGPTR.             |
    `-------------------------------------------------------------*/
 
-static void collect_arguments(symbol * sym, struct obstack * argptr,
-    struct obstack * arguments)
+static void collect_arguments(SymbolTableEntry * sym, struct obstack * argptr, struct obstack * arguments)
 {
 	token_data td;
 	token_data * tdp;
 	bool more_args;
 	bool groks_macro_args = SYMBOL_MACRO_ARGS(sym);
-
 	TOKEN_DATA_TYPE(&td) = TOKEN_TEXT;
 	TOKEN_DATA_TEXT(&td) = SYMBOL_NAME(sym);
 	tdp = (token_data*)obstack_copy(arguments, &td, sizeof td);
@@ -225,7 +223,7 @@ static void collect_arguments(symbol * sym, struct obstack * argptr,
 
 			if(!groks_macro_args && TOKEN_DATA_TYPE(&td) == TOKEN_FUNC) {
 				TOKEN_DATA_TYPE(&td) = TOKEN_TEXT;
-				TOKEN_DATA_TEXT(&td) = (char*)"";
+				TOKEN_DATA_TEXT(&td) = (char *)"";
 			}
 			tdp = (token_data*)obstack_copy(arguments, &td, sizeof td);
 			obstack_ptr_grow(argptr, tdp);
@@ -244,7 +242,7 @@ static void collect_arguments(symbol * sym, struct obstack * argptr,
 | here.                                                              |
    `-------------------------------------------------------------------*/
 
-void call_macro(symbol * sym, int argc, token_data ** argv, struct obstack * expansion)
+void call_macro(SymbolTableEntry * sym, int argc, token_data ** argv, struct obstack * expansion)
 {
 	switch(SYMBOL_TYPE(sym)) {
 		case TOKEN_FUNC:
@@ -272,10 +270,10 @@ void call_macro(symbol * sym, int argc, token_data ** argv, struct obstack * exp
 | call expand_macro ().                                              |
    `-------------------------------------------------------------------*/
 
-static void expand_macro(symbol * sym)
+static void expand_macro(SymbolTableEntry * sym)
 {
 	struct obstack arguments; /* Alternate obstack if argc_stack is busy.  */
-	unsigned argv_base;     /* Size of argv_stack on entry.  */
+	uint   argv_base;     /* Size of argv_stack on entry.  */
 	bool use_argc_stack = true; /* Whether argc_stack is safe.  */
 	token_data ** argv;
 	int argc;
@@ -314,7 +312,7 @@ static void expand_macro(symbol * sym)
 		trace_prepre(SYMBOL_NAME(sym), my_call_id);
 	collect_arguments(sym, &argv_stack, use_argc_stack ? &argc_stack : &arguments);
 	argc = ((obstack_object_size(&argv_stack) - argv_base) / sizeof(token_data *));
-	argv = (token_data**)((char*)obstack_base(&argv_stack) + argv_base);
+	argv = (token_data**)((char *)obstack_base(&argv_stack) + argv_base);
 	loc_close_file = current_file;
 	loc_close_line = current_line;
 	current_file = loc_open_file;

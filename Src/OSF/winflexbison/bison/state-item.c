@@ -19,15 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "state-item.h"
-//#include <assert.h>
-//#include <gl_linked_list.h>
-//#include <gl_xlist.h>
-//#include <stdlib.h>
-//#include <time.h>
-//#include "closure.h"
-//#include "getargs.h"
-//#include "nullable.h"
 
 size_t nstate_items;
 state_item_number * state_item_map;

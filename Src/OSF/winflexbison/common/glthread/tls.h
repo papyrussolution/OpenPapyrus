@@ -47,13 +47,13 @@
 //#include <stdlib.h>
 
 #if !defined c11_threads_in_use
-# if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
+#if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
 #  include <threads.h>
 #  pragma weak thrd_exit
 #  define c11_threads_in_use() (thrd_exit != NULL)
-# else
+#else
 #  define c11_threads_in_use() 0
-# endif
+#endif
 #endif
 
 /* ========================================================================= */
@@ -86,16 +86,16 @@ typedef tss_t gl_tls_key_t;
 
 #include <pthread.h>
 
-# if PTHREAD_IN_USE_DETECTION_HARD
+#if PTHREAD_IN_USE_DETECTION_HARD
 
 /* The pthread_in_use() detection needs to be done at runtime.  */
 #  define pthread_in_use() \
      glthread_in_use ()
 extern int glthread_in_use (void);
 
-# endif
+#endif
 
-# if USE_POSIX_THREADS_WEAK
+#if USE_POSIX_THREADS_WEAK
 
 /* Use weak references to the POSIX threads library.  */
 
@@ -113,13 +113,13 @@ extern int glthread_in_use (void);
       (pthread_mutexattr_gettype != NULL || c11_threads_in_use ())
 #  endif
 
-# else
+#else
 
 #  if !PTHREAD_IN_USE_DETECTION_HARD
 #   define pthread_in_use() 1
 #  endif
 
-# endif
+#endif
 
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
@@ -176,21 +176,13 @@ typedef glwthread_tls_key_t gl_tls_key_t;
 
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
-typedef struct
-        {
-          void *singlethread_value;
-        }
-        gl_tls_key_t;
-#define glthread_tls_key_init(KEY, DESTRUCTOR) \
-    ((KEY)->singlethread_value = NULL, \
-     (void) (DESTRUCTOR),              \
-     0)
-#define gl_tls_get(NAME) \
-    (NAME).singlethread_value
-#define glthread_tls_set(KEY, POINTER) \
-    ((KEY)->singlethread_value = (POINTER), 0)
-#define glthread_tls_key_destroy(KEY) \
-    0
+typedef struct {
+	void *singlethread_value;
+} gl_tls_key_t;
+#define glthread_tls_key_init(KEY, DESTRUCTOR) ((KEY)->singlethread_value = NULL, (void)(DESTRUCTOR), 0)
+#define gl_tls_get(NAME) (NAME).singlethread_value
+#define glthread_tls_set(KEY, POINTER) ((KEY)->singlethread_value = (POINTER), 0)
+#define glthread_tls_key_destroy(KEY) 0
 
 #endif
 
@@ -201,26 +193,20 @@ typedef struct
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
 #define gl_tls_key_init(NAME, DESTRUCTOR) \
-   do                                                 \
-     {                                                \
-       if (glthread_tls_key_init (&NAME, DESTRUCTOR)) \
+   do {                                                \
+       if(glthread_tls_key_init(&NAME, DESTRUCTOR)) \
          abort ();                                    \
-     }                                                \
-   while (0)
+     } while(0)
 #define gl_tls_set(NAME, POINTER) \
-   do                                         \
-     {                                        \
-       if (glthread_tls_set (&NAME, POINTER)) \
+   do {                                        \
+       if(glthread_tls_set (&NAME, POINTER)) \
          abort ();                            \
-     }                                        \
-   while (0)
+     } while(0)
 #define gl_tls_key_destroy(NAME) \
-   do                                        \
-     {                                       \
-       if (glthread_tls_key_destroy (&NAME)) \
+   do {                                       \
+       if(glthread_tls_key_destroy (&NAME)) \
          abort ();                           \
-     }                                       \
-   while (0)
+     } while(0)
 
 /* ========================================================================= */
 

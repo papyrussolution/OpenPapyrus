@@ -8,36 +8,23 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/safestack.h>
-//#include <openssl/asn1.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
 #include "x509_lcl.h"
 
 int X509v3_get_ext_count(const STACK_OF(X509_EXTENSION) * x)
 {
-	if(x == NULL)
-		return 0;
-	return sk_X509_EXTENSION_num(x);
+	return x ? sk_X509_EXTENSION_num(x) : 0;
 }
 
 int X509v3_get_ext_by_NID(const STACK_OF(X509_EXTENSION) * x, int nid, int lastpos)
 {
-	ASN1_OBJECT * obj;
-	obj = OBJ_nid2obj(nid);
-	if(obj == NULL)
-		return -2;
-	return X509v3_get_ext_by_OBJ(x, obj, lastpos);
+	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
+	return obj ? X509v3_get_ext_by_OBJ(x, obj, lastpos) : -2;
 }
 
-int X509v3_get_ext_by_OBJ(const STACK_OF(X509_EXTENSION) * sk,
-    const ASN1_OBJECT * obj, int lastpos)
+int X509v3_get_ext_by_OBJ(const STACK_OF(X509_EXTENSION) * sk, const ASN1_OBJECT * obj, int lastpos)
 {
 	int n;
 	X509_EXTENSION * ex;
-
 	if(sk == NULL)
 		return -1;
 	lastpos++;
@@ -52,12 +39,10 @@ int X509v3_get_ext_by_OBJ(const STACK_OF(X509_EXTENSION) * sk,
 	return -1;
 }
 
-int X509v3_get_ext_by_critical(const STACK_OF(X509_EXTENSION) * sk, int crit,
-    int lastpos)
+int X509v3_get_ext_by_critical(const STACK_OF(X509_EXTENSION) * sk, int crit, int lastpos)
 {
 	int n;
 	X509_EXTENSION * ex;
-
 	if(sk == NULL)
 		return -1;
 	lastpos++;
@@ -97,7 +82,7 @@ STACK_OF(X509_EXTENSION) *X509v3_add_ext(STACK_OF(X509_EXTENSION) **x,
 	int n;
 	STACK_OF(X509_EXTENSION) *sk = NULL;
 
-	if(x == NULL) {
+	if(!x) {
 		X509err(X509_F_X509V3_ADD_EXT, ERR_R_PASSED_NULL_PARAMETER);
 		goto err2;
 	}
@@ -131,14 +116,10 @@ err2:
 	return NULL;
 }
 
-X509_EXTENSION * X509_EXTENSION_create_by_NID(X509_EXTENSION ** ex, int nid,
-    int crit,
-    ASN1_OCTET_STRING * data)
+X509_EXTENSION * X509_EXTENSION_create_by_NID(X509_EXTENSION ** ex, int nid, int crit, ASN1_OCTET_STRING * data)
 {
-	ASN1_OBJECT * obj;
 	X509_EXTENSION * ret;
-
-	obj = OBJ_nid2obj(nid);
+	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL) {
 		X509err(X509_F_X509_EXTENSION_CREATE_BY_NID, X509_R_UNKNOWN_NID);
 		return NULL;
@@ -171,7 +152,6 @@ X509_EXTENSION * X509_EXTENSION_create_by_OBJ(X509_EXTENSION ** ex,
 		goto err;
 	if(!X509_EXTENSION_set_data(ret, data))
 		goto err;
-
 	if((ex != NULL) && (*ex == NULL))
 		*ex = ret;
 	return ret;
@@ -192,7 +172,7 @@ int X509_EXTENSION_set_object(X509_EXTENSION * ex, const ASN1_OBJECT * obj)
 
 int X509_EXTENSION_set_critical(X509_EXTENSION * ex, int crit)
 {
-	if(ex == NULL)
+	if(!ex)
 		return 0;
 	ex->critical = (crit) ? 0xFF : -1;
 	return 1;
@@ -201,8 +181,7 @@ int X509_EXTENSION_set_critical(X509_EXTENSION * ex, int crit)
 int X509_EXTENSION_set_data(X509_EXTENSION * ex, ASN1_OCTET_STRING * data)
 {
 	int i;
-
-	if(ex == NULL)
+	if(!ex)
 		return 0;
 	i = ASN1_OCTET_STRING_set(&ex->value, data->data, data->length);
 	if(!i)
@@ -212,21 +191,17 @@ int X509_EXTENSION_set_data(X509_EXTENSION * ex, ASN1_OCTET_STRING * data)
 
 ASN1_OBJECT * FASTCALL X509_EXTENSION_get_object(X509_EXTENSION * ex)
 {
-	if(ex == NULL)
-		return NULL;
-	return ex->object;
+	return ex ? ex->object : 0;
 }
 
 ASN1_OCTET_STRING * FASTCALL X509_EXTENSION_get_data(X509_EXTENSION * ex)
 {
-	if(ex == NULL)
-		return NULL;
-	return &ex->value;
+	return ex ? &ex->value : 0;
 }
 
 int X509_EXTENSION_get_critical(const X509_EXTENSION * ex)
 {
-	if(ex == NULL)
+	if(!ex)
 		return 0;
 	if(ex->critical > 0)
 		return 1;

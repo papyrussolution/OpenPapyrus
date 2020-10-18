@@ -24,12 +24,12 @@
 //#include <limits.h>
 //#include <stdbool.h>
 //#include <stddef.h>
-#include "xalloc.h"
+//#include "xalloc.h"
 
 #ifndef __attribute__
-# if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8)
+#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8)
 #  define __attribute__(x)
-# endif
+#endif
 #endif
 
 #define ATTRIBUTE_UNUSED __attribute__ ((__unused__))
@@ -62,8 +62,8 @@ enum bitset_type {
 extern const char * const bitset_type_names[];
 
 /* Data type used to store a word of bits.  */
-typedef unsigned long bitset_word;
-#define BITSET_WORD_BITS ((unsigned)(CHAR_BIT * sizeof(bitset_word)))
+typedef ulong bitset_word;
+#define BITSET_WORD_BITS ((uint)(CHAR_BIT * sizeof(bitset_word)))
 
 /* Bit index.  In theory we might need a type wider than size_t, but
    in practice we lose at most a factor of CHAR_BIT by going with

@@ -20,7 +20,7 @@
 //#include <stdlib.h>
 
 #if !_LIBC
-	#include "tempname.h"
+	//#include "tempname.h"
 	#define __gen_tempname gen_tempname
 	#ifndef __GT_FILE
 		#define __GT_FILE GT_FILE

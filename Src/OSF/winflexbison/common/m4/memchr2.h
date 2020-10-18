@@ -14,18 +14,14 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-#include <stddef.h>
-
+//#include <stddef.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /* Return the first address of either C1 or C2 (treated as unsigned
    char) that occurs within N bytes of the memory region S.  If
    neither byte appears, return NULL.  */
-
 extern void * memchr2(void const *s, int c1, int c2, size_t n);
-
 #ifdef __cplusplus
 }
 #endif

@@ -23,10 +23,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern const struct gl_list_implementation gl_array_list_implementation;
-#define GL_ARRAY_LIST &gl_array_list_implementation
-
+	extern const struct gl_list_implementation gl_array_list_implementation;
+	#define GL_ARRAY_LIST &gl_array_list_implementation
 #ifdef __cplusplus
 }
 #endif

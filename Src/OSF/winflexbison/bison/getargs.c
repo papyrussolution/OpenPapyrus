@@ -110,7 +110,7 @@ static void flags_argmatch(const char * opt, xargmatch_fn xargmatch, usage_fn us
 {
 	if(!args)
 		*flags |= all;
-	else if(STREQ(args, "help")) {
+	else if(sstreq(args, "help")) {
 		usage(stdout);
 		exit(EXIT_SUCCESS);
 	}
@@ -431,7 +431,7 @@ Output Files:\n\
 		   Note we still output for 'C' so that it gets included in the
 		   man page.  */
 		const char * lc_messages = setlocale(LC_ALL, NULL);
-		if(lc_messages && !STREQ(lc_messages, "en_"))
+		if(lc_messages && !sstreq(lc_messages, "en_"))
 			/* TRANSLATORS: Replace LANG_CODE in this URL with your language
 			   code <http://translationproject.org/team/LANG_CODE.html> to
 			   form one of the URLs at http://translationproject.org/team/.
@@ -615,12 +615,12 @@ static void getargs_colors(int argc, char * argv[])
 		const char * arg = argv[i];
 		if(STRPREFIX_LIT("--color=", arg)) {
 			const char * color = arg + strlen("--color=");
-			if(STREQ(color, "debug"))
+			if(sstreq(color, "debug"))
 				color_debug = true;
 			else
 				handle_color_option(color);
 		}
-		else if(STREQ("--color", arg))
+		else if(sstreq("--color", arg))
 			handle_color_option(NULL);
 		else if(STRPREFIX_LIT("--style=", arg)) {
 			const char * style = arg + strlen("--style=");

@@ -59,7 +59,7 @@ struct gl_oset_impl {
 /* An AVL tree of height h has at least F_(h+2) [Fibonacci number] and at most
    2^h - 1 elements.  So, h <= 84 (because a tree of height h >= 85 would have
    at least F_87 elements, and because even on 64-bit machines,
-     sizeof (gl_oset_node_impl) * F_87 > 2^64
+     sizeof(gl_oset_node_impl) * F_87 > 2^64
    this would exceed the address space of the machine.  */
 #define MAXHEIGHT 83
 
@@ -476,10 +476,10 @@ static bool gl_tree_remove_node(gl_oset_t set, gl_oset_node_t node)
 #include "gl_anytree_oset.h" 
 
 /* For debugging.  */
-static unsigned int check_invariants(gl_oset_node_t node, gl_oset_node_t parent, size_t * counterp)
+static uint check_invariants(gl_oset_node_t node, gl_oset_node_t parent, size_t * counterp)
 {
-	unsigned int left_height = (node->left != NULL ? check_invariants(node->left, node, counterp) : 0);
-	unsigned int right_height = (node->right != NULL ? check_invariants(node->right, node, counterp) : 0);
+	uint left_height = (node->left != NULL ? check_invariants(node->left, node, counterp) : 0);
+	uint right_height = (node->right != NULL ? check_invariants(node->right, node, counterp) : 0);
 	int balance = (int)right_height - (int)left_height;
 	if(!(node->parent == parent))
 		abort();

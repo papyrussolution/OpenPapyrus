@@ -24,11 +24,11 @@
 
 /* The `sentinel' attribute was added in gcc 4.0.  */
 #ifndef _GL_ATTRIBUTE_SENTINEL
-# if 4 <= __GNUC__
+#if 4 <= __GNUC__
 #  define _GL_ATTRIBUTE_SENTINEL __attribute__ ((__sentinel__))
-# else
+#else
 #  define _GL_ATTRIBUTE_SENTINEL /* empty */
-# endif
+#endif
 #endif
 
 extern const char version_etc_copyright[];

@@ -61,7 +61,7 @@ int X509_PUBKEY_set(X509_PUBKEY ** x, EVP_PKEY * pkey)
 {
 	X509_PUBKEY * pk = NULL;
 
-	if(x == NULL)
+	if(!x)
 		return 0;
 
 	if((pk = X509_PUBKEY_new()) == NULL)
@@ -372,7 +372,7 @@ int X509_PUBKEY_get0_param(ASN1_OBJECT ** ppkalg,
 
 ASN1_BIT_STRING * X509_get0_pubkey_bitstr(const X509 * x)
 {
-	if(x == NULL)
+	if(!x)
 		return NULL;
 	return x->cert_info.key->public_key;
 }

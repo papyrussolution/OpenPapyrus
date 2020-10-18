@@ -42,7 +42,7 @@ extern "C" {
 extern void error(int __status, int __errnum, const char *__format, ...);
 //     _GL_ATTRIBUTE_FORMAT ((__printf__, 3, 4));
 
-extern void error_at_line (int __status, int __errnum, const char *__fname, unsigned int __lineno, const char *__format, ...);
+extern void error_at_line (int __status, int __errnum, const char *__fname, uint __lineno, const char *__format, ...);
 //     _GL_ATTRIBUTE_FORMAT ((__printf__, 5, 6));
 
 /* If NULL, error will flush stdout, then print on stderr the program
@@ -50,7 +50,7 @@ extern void error_at_line (int __status, int __errnum, const char *__fname, unsi
    function without parameters instead.  */
 extern void (*error_print_progname) (void);
 // This variable is incremented each time `error' is called.
-extern unsigned int error_message_count;
+extern uint error_message_count;
 // Sometimes we want to have at most one error per line. This variable controls whether this mode is selected or not.
 extern int error_one_per_line;
 

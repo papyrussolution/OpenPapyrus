@@ -27,24 +27,16 @@ gl_list_t gl_list_create_empty(gl_list_implementation_t implementation,
     gl_listelement_dispose_fn dispose_fn,
     bool allow_duplicates)
 {
-	gl_list_t result =
-	    gl_list_nx_create_empty(implementation, equals_fn, hashcode_fn, dispose_fn,
-		allow_duplicates);
+	gl_list_t result = gl_list_nx_create_empty(implementation, equals_fn, hashcode_fn, dispose_fn, allow_duplicates);
 	if(result == NULL)
 		xalloc_die();
 	return result;
 }
 
-gl_list_t gl_list_create(gl_list_implementation_t implementation,
-    gl_listelement_equals_fn equals_fn,
-    gl_listelement_hashcode_fn hashcode_fn,
-    gl_listelement_dispose_fn dispose_fn,
-    bool allow_duplicates,
-    size_t count, const void ** contents)
+gl_list_t gl_list_create(gl_list_implementation_t implementation, gl_listelement_equals_fn equals_fn,
+    gl_listelement_hashcode_fn hashcode_fn, gl_listelement_dispose_fn dispose_fn, bool allow_duplicates, size_t count, const void ** contents)
 {
-	gl_list_t result =
-	    gl_list_nx_create(implementation, equals_fn, hashcode_fn, dispose_fn,
-		allow_duplicates, count, contents);
+	gl_list_t result = gl_list_nx_create(implementation, equals_fn, hashcode_fn, dispose_fn, allow_duplicates, count, contents);
 	if(result == NULL)
 		xalloc_die();
 	return result;

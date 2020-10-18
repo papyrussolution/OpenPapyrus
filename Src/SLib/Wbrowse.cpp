@@ -2560,6 +2560,7 @@ HWND GetPrevBrowser(HWND hw)
 				UpdateWindow(hWnd);
 			}
 			return 0;
+#if 0 // @v10.9.0 {
 		case BRO_SETDATA:
 			if(p_view) {
 				p_view->P_Def->setData(reinterpret_cast<void *>(lParam));
@@ -2574,6 +2575,7 @@ HWND GetPrevBrowser(HWND hw)
 				SendMessage(GetParent(hWnd), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(hWnd), MAKELPARAM(p_view->HScrollPos, 0));
 			}
 			return 0;
+#endif // } 0
 		case WM_SIZE:
 			if(lParam && p_view) {
 				int    cell = p_view->YCell;

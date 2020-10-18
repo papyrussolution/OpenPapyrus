@@ -2486,15 +2486,15 @@ void skel_scanner_free(void)
 static inline warnings flag(const char * arg)
 {
 	/* compare with values issued from b4_error */
-	if(STREQ(arg, "complain"))
+	if(sstreq(arg, "complain"))
 		return complaint;
-	else if(STREQ(arg, "deprecated"))
+	else if(sstreq(arg, "deprecated"))
 		return Wdeprecated;
-	else if(STREQ(arg, "fatal"))
+	else if(sstreq(arg, "fatal"))
 		return fatal;
-	else if(STREQ(arg, "note"))
+	else if(sstreq(arg, "note"))
 		return (warnings)(silent | complaint | no_caret | note);
-	else if(STREQ(arg, "warn"))
+	else if(sstreq(arg, "warn"))
 		return Wother;
 	else
 		abort();

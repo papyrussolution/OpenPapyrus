@@ -369,7 +369,14 @@ private:
 		FNSendItemCodeData,                     // @v10.7.2
 		MarkingType,                            // @v10.7.2
 		GTIN,                                   // @v10.7.2
-		SerialNumber                            // @v10.7.2
+		SerialNumber,                           // @v10.7.2
+		FNBeginSTLVTag,                         // @v10.9.0
+		TagID,                                  // @v10.9.0
+		TagNumber,                              // @v10.9.0
+		TagType,                                // @v10.9.0
+		TagValueStr,                            // @v10.9.0
+		FNAddTag,                               // @v10.9.0
+		FNSendSTLVTag                           // @v10.9.0
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -678,6 +685,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 	SString fmt_buf;
 	SString msg_buf;
 	SString added_buf;
+	SString chzn_sid;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
 	THROW_INVARG(pPack);
@@ -702,6 +710,10 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		// } @v10.1.11 
+		// @v10.9.0 {
+		if(SCn.LocID)
+			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
+		// } @v10.9.0 
 		THROW(ConnectFR());
 		if(flags & PRNCHK_LASTCHKANNUL)
 			THROW(AnnulateCheck());
@@ -711,8 +723,9 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 		}
 		if(P_SlipFmt) {
-			int      prn_total_sale = 1, r = 0;
-			SString  line_buf;
+			int    prn_total_sale = 1;
+			int    r = 0;
+			SString line_buf;
 			const SString format_name("CCheck");
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
@@ -725,6 +738,53 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				if(_fiscal != 0.0) {
 					THROW(SetFR(CheckType, (flags & PRNCHK_RETURN) ? 2L : 0L));
 					THROW(ExecFRPrintOper(OpenCheck));
+					// @v10.9.0 {
+					if(use_fn_op) {
+						/*
+							полеОбъектККМ.CheckType = 0;
+							полеОбъектККМ.OpenCheck();
+
+							полеОбъектККМ.TagNumber = 1084;
+							полеОбъектККМ.FNBeginSTLVTag();
+							my_TagID = полеОбъектККМ.TagID;
+
+							полеОбъектККМ.TagID = my_TagID;
+							полеОбъектККМ.TagNumber = 1085;
+							полеОбъектККМ.TagType = 7;
+							полеОбъектККМ.TagValueStr = "mdlp";
+							полеОбъектККМ.FNAddTag();
+
+							полеОбъектККМ.TagID = my_TagID;
+							полеОбъектККМ.TagNumber = 1086;
+							полеОбъектККМ.TagType = 7;
+							полеОбъектККМ.TagValueStr = "sid"+subject_id+"&";
+							полеОбъектККМ.FNAddTag();
+
+							полеОбъектККМ.FNSendSTLVTag();
+						*/
+						if(chzn_sid.NotEmpty()) {
+							int   stlv_tag_id = 0;
+							THROW(SetFR(TagNumber, 1084));
+							THROW(ExecFRPrintOper(FNBeginSTLVTag));
+							THROW(P_DrvFRIntrf->GetProperty(TagID, &stlv_tag_id) > 0);
+							//
+							THROW(SetFR(TagID, stlv_tag_id));
+							THROW(SetFR(TagNumber, 1085));
+							THROW(SetFR(TagType, 7));
+							THROW(SetFR(TagValueStr, "mdlp"));
+							THROW(ExecFRPrintOper(FNAddTag));
+							//
+							THROW(SetFR(TagID, stlv_tag_id));
+							THROW(SetFR(TagNumber, 1086));
+							THROW(SetFR(TagType, 7));
+							(temp_buf = "sid").Cat(chzn_sid).CatChar('&');
+							THROW(SetFR(TagValueStr, temp_buf));
+							THROW(ExecFRPrintOper(FNAddTag));
+							//
+							THROW(ExecFRPrintOper(FNSendSTLVTag));
+						}
+					}
+					// } @v10.9.0
 				}
 				else {
 					THROW(SetFR(DocumentName, "" /*sdc_param.Title*/));
@@ -962,43 +1022,6 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			temp_buf.Z().CatCharN('=', CheckStrLen);
 			THROW(SetFR(StringForPrinting, temp_buf));
 		}
-		/* @v10.4.11 
-		if(nonfiscal > 0.0) {
-			if(_fiscal > 0.0) {
-				if(flags & PRNCHK_BANKING) {
-					THROW(SetFR(Summ2, _fiscal));
-					THROW(SetFR(Summ1, 0L));
-				}
-				else {
-					THROW(SetFR(Summ1, _fiscal));
-					THROW(SetFR(Summ2, 0L));
-				}
-			}
-		}
-		else {
-			if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum))
-				sum = running_total;
-			if(flags & PRNCHK_BANKING) {
-				double  add_paym = 0.0;
-				const double add_paym_epsilon = 0.01;
-				const double add_paym_delta = (add_paym - sum);
-				if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon)
-					add_paym = 0.0;
-				if(add_paym) {
-					THROW(SetFR(Summ1, sum - amt + add_paym));
-					THROW(SetFR(Summ2, amt - add_paym));
-				}
-				else {
-					THROW(SetFR(Summ2, sum));
-					THROW(SetFR(Summ1, 0L));
-				}
-			}
-			else {
-				THROW(SetFR(Summ1, sum));
-				THROW(SetFR(Summ2, 0L));
-			}
-		}*/
-		// @v10.4.11 {
 		{
 			if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum))
 				sum = running_total;
@@ -1048,7 +1071,6 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(SetFR(ccrd_entry_id, __amt_ccrd));
 			}
 		}
-		// } @v10.4.11 
 		if(_fiscal != 0.0) {
 			if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3
 				THROW(ExecFRPrintOper(CloseCheckEx));
@@ -1831,7 +1853,14 @@ FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendItemCodeData) > 0);                     // @v10.7.2
 	THROW(ASSIGN_ID_BY_NAME(p_drv, MarkingType) > 0);                            // @v10.7.2
 	THROW(ASSIGN_ID_BY_NAME(p_drv, GTIN) > 0);                                   // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, SerialNumber) > 0);                            // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, SerialNumber) > 0);                           // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNBeginSTLVTag) > 0); // @v10.9.0
+	THROW(ASSIGN_ID_BY_NAME(p_drv, TagID) > 0);          // @v10.9.0
+	THROW(ASSIGN_ID_BY_NAME(p_drv, TagNumber) > 0);      // @v10.9.0
+	THROW(ASSIGN_ID_BY_NAME(p_drv, TagType) > 0);        // @v10.9.0
+	THROW(ASSIGN_ID_BY_NAME(p_drv, TagValueStr) > 0);    // @v10.9.0
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNAddTag) > 0);       // @v10.9.0
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendSTLVTag) > 0);  // @v10.9.0
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH

@@ -22,7 +22,6 @@
 
 #undef mkstemp
 #define mkstemp mkstemp_safer
-
 #if GNULIB_MKOSTEMP
 	#define mkostemp mkostemp_safer
 #endif

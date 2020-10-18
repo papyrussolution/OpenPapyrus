@@ -20,17 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset.h>
-//#include <bitsetv.h>
-//#include "complain.h"
-//#include "conflicts.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "lalr.h"
-//#include "muscle-tab.h"
-//#include "reader.h"
-//#include "symtab.h"
 #include "tables.h"
 
 /* Several tables are indexed both by state and nonterminal numbers.
@@ -140,11 +129,11 @@ static void table_grow(int desired)
 		table_size *= 2;
 	if(trace_flag & trace_resource)
 		fprintf(stderr, "growing tables from %d to %d\n", old_size, table_size);
-	table = xnrealloc(table, table_size, sizeof *table);
+	table = (base_number *)xnrealloc(table, table_size, sizeof(*table));
 	memzero(table + old_size, sizeof *table * (table_size - old_size));
-	conflict_table = xnrealloc(conflict_table, table_size, sizeof *conflict_table);
+	conflict_table = (int *)xnrealloc(conflict_table, table_size, sizeof(*conflict_table));
 	memzero(conflict_table + old_size, sizeof *conflict_table * (table_size - old_size));
-	check = xnrealloc(check, table_size, sizeof *check);
+	check = (base_number *)xnrealloc(check, table_size, sizeof(*check));
 	for(int i = old_size; i < table_size; ++i)
 		check[i] = -1;
 	bitset_resize(pos_set, table_size + nstates);

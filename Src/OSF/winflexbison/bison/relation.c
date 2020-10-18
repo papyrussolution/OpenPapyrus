@@ -20,9 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitsetv.h>
-//#include "getargs.h"
-//#include "relation.h"
 
 void relation_print(const char * title, relation r, relation_node size, relation_node_print print, FILE * out)
 {

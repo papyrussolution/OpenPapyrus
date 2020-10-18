@@ -21,7 +21,7 @@
 #pragma hdrstop
 //#include <io.h>
 //#include "unistd-safer.h"
-#include <errno.h>
+//#include <errno.h>
 //#include <unistd.h>
 
 /* Return FD, unless FD would be a copy of standard input, output, or
@@ -42,6 +42,5 @@ int fd_safer(int fd)
 		errno = e;
 		fd = f;
 	}
-
 	return fd;
 }

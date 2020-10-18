@@ -19,12 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "glyphs.h"
-//#include <assert.h>
-//#include <attribute.h>
-//#include <stdbool.h>
-//#include <string.h>
-//#include <mbswidth.h>
 #include <unicodeio.h>
 
 glyph_buffer_t arrow;
@@ -55,7 +49,7 @@ static long on_success(const char * buf, size_t buflen, void * callback_arg)
 	return 1;
 }
 
-static long on_failure(unsigned code, const char * msg, void * callback_arg)
+static long on_failure(uint code, const char * msg, void * callback_arg)
 {
 	callback_arg_t * arg = (callback_arg_t*)callback_arg;
 	assert(strlen(arg->fallback) + 1 < sizeof *arg->pbuf);
@@ -63,7 +57,7 @@ static long on_failure(unsigned code, const char * msg, void * callback_arg)
 	return 0;
 }
 
-static bool glyph_set(glyph_buffer_t * glyph, int * width, unsigned code, const char * fallback)
+static bool glyph_set(glyph_buffer_t * glyph, int * width, uint code, const char * fallback)
 {
 	callback_arg_t arg = { glyph, fallback };
 	int res = unicode_to_mb(code, on_success, on_failure, &arg);

@@ -17,8 +17,7 @@
 #ifndef _XVASPRINTF_H
 #define _XVASPRINTF_H
 
-/* Get va_list.  */
-#include <stdarg.h>
+//#include <stdarg.h> // Get va_list
 
 /* The __attribute__ feature is available in gcc versions 2.5 and later.
    The __-protected variants of the attributes 'format' and 'printf' are

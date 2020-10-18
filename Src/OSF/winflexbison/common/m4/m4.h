@@ -22,6 +22,8 @@
    using -I. -I$srcdir will use ./config.h rather than $srcdir/config.h
    (which it would do because it found this file in $srcdir).  */
 
+#ifndef __M4_H // {
+#define __M4_H
 //#include <config.h>
 #define PACKAGE_STRING "M4"
 #define RENAME_OPEN_FILE_WORKS 1
@@ -33,28 +35,29 @@
 //#include <stdbool.h>
 //#include <stdint.h>
 //#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+//#include <sys/stat.h>
+//#include <sys/types.h>
 #include "binary-io.h"
 #include "clean-temp.h"
 #include "cloexec.h"
-#include "close-stream.h"
+//#include "close-stream.h"
 #include "closein.h"
-#include "dirname.h"
-#include "error.h"
+//#include "dirname.h"
+//#include "error.h"
 #include "exitfail.h"
-#include "filenamecat.h"
+//#include "filenamecat.h"
 #include "obstack.h"
 #include "stdio--.h"
 #include "stdlib--.h"
 #include "unistd--.h"
 #include "verror.h"
-#include "xalloc.h"
-#include "xprintf.h"
-#include "xvasprintf.h"
+//#include "xalloc.h"
+//#include "xprintf.h"
+//#include "xvasprintf.h"
 
 /* Canonicalize UNIX recognition macros.  */
-#if defined unix || defined __unix || defined __unix__ || defined _POSIX_VERSION || defined _POSIX2_VERSION || defined __NetBSD__ || defined __OpenBSD__ || defined __APPLE__ || defined __APPLE_CC__
+#if defined unix || defined __unix || defined __unix__ || defined _POSIX_VERSION || defined _POSIX2_VERSION || defined __NetBSD__ || \
+	defined __OpenBSD__ || defined __APPLE__ || defined __APPLE_CC__
 	#define UNIX 1
 #endif
 /* Canonicalize Windows recognition macros.  */
@@ -90,11 +93,11 @@ typedef void builtin_func (struct obstack *, int, token_data **);
 
 /* Gnulib's stdbool doesn't work with bool bitfields.  For nicer
    debugging, use bool when we know it works, but use the more
-   portable unsigned int elsewhere.  */
+   portable uint elsewhere.  */
 #if __GNUC__ > 2
-	typedef bool bool_bitfield;
+typedef bool bool_bitfield;
 #else
-	typedef unsigned int bool_bitfield;
+typedef uint bool_bitfield;
 #endif /* ! __GNUC__ */
 /* Take advantage of GNU C compiler source level optimization hints,
    using portable macros.  */
@@ -120,7 +123,7 @@ extern int suppress_warnings;           /* -Q */
 extern int warning_status;              /* -E */
 extern int nesting_limit;               /* -L */
 #ifdef ENABLE_CHANGEWORD
-extern const char * user_word_regexp;    /* -W */
+extern const char * user_word_regexp;            /* -W */
 #endif
 
 /* Error handling.  */
@@ -150,38 +153,37 @@ extern FILE * _debug;
 #define DEBUG_TRACE_CALL 128 /* c: show macro call before args collection */
 #define DEBUG_TRACE_INPUT 256 /* i: trace changes of input files */
 #define DEBUG_TRACE_CALLID 512 /* x: add call id to trace output */
-
 #define DEBUG_TRACE_VERBOSE 1023 /* V: very verbose --  print everything */
 #define DEBUG_TRACE_DEFAULT 7 /* default flags -- equiv: aeq */
 
 #define DEBUG_PRINT1(Fmt, Arg1) \
-	do {                                                           \
-		if(_debug != NULL)                                        \
-			xfprintf(_debug, Fmt, Arg1);                            \
+	do {                                 \
+		if(_debug)                       \
+			xfprintf(_debug, Fmt, Arg1); \
 	} while(0)
 
 #define DEBUG_PRINT3(Fmt, Arg1, Arg2, Arg3) \
-	do {                                                           \
-		if(_debug != NULL)                                        \
-			xfprintf(_debug, Fmt, Arg1, Arg2, Arg3);                \
+	do {                                             \
+		if(_debug)                                   \
+			xfprintf(_debug, Fmt, Arg1, Arg2, Arg3); \
 	} while(0)
 
 #define DEBUG_MESSAGE(Fmt) \
-	do {                                                           \
-		if(_debug != NULL) {                                    \
-			debug_message_prefix();                              \
-			xfprintf(_debug, Fmt);                                \
-			putc('\n', _debug);                                   \
-		}                                                       \
+	do {                            \
+		if(_debug) {                \
+			debug_message_prefix(); \
+			xfprintf(_debug, Fmt);  \
+			putc('\n', _debug);     \
+		}                           \
 	} while(0)
 
 #define DEBUG_MESSAGE1(Fmt, Arg1) \
-	do {                                                           \
-		if(_debug != NULL) {                                       \
-			debug_message_prefix();                              \
-			xfprintf(_debug, Fmt, Arg1);                          \
-			putc('\n', _debug);                                   \
-		}                                                       \
+	do {                                 \
+		if(_debug) {                     \
+			debug_message_prefix();      \
+			xfprintf(_debug, Fmt, Arg1); \
+			putc('\n', _debug);          \
+		}                                \
 	} while(0)
 
 #define DEBUG_MESSAGE2(Fmt, Arg1, Arg2) \
@@ -198,7 +200,6 @@ int debug_decode(const char *);
 void debug_flush_files(void);
 bool debug_set_output(const char *);
 void debug_message_prefix(void);
-
 void trace_prepre(const char *, int);
 void trace_pre(const char *, int, int, token_data **);
 void trace_post(const char *, int, int, const char *);
@@ -308,16 +309,17 @@ enum symbol_lookup {
 	SYMBOL_POPDEF
 };
 
-/* Symbol table entry.  */
-struct symbol {
-	struct symbol * next;
+//
+// Symbol table entry.
+//
+struct SymbolTableEntry {
+	SymbolTableEntry * next;
 	bool_bitfield traced : 1;
 	bool_bitfield shadowed : 1;
 	bool_bitfield macro_args : 1;
 	bool_bitfield blind_no_args : 1;
 	bool_bitfield deleted : 1;
 	int pending_expansions;
-
 	char * name;
 	token_data data;
 };
@@ -335,22 +337,22 @@ struct symbol {
 #define SYMBOL_FUNC(S)          (TOKEN_DATA_FUNC(&(S)->data))
 
 typedef enum symbol_lookup symbol_lookup;
-typedef struct symbol symbol;
-typedef void hack_symbol (symbol *, void *);
+//typedef struct symbol symbol;
+typedef void hack_symbol (SymbolTableEntry *, void *);
 
 #define HASHMAX 509             /* default, overridden by -Hsize */
 
-extern symbol ** symtab;
+extern SymbolTableEntry ** symtab;
 
-void free_symbol(symbol * sym);
+void free_symbol(SymbolTableEntry * sym);
 void symtab_init(void);
-symbol * lookup_symbol(const char *, symbol_lookup);
+SymbolTableEntry * FASTCALL lookup_symbol(const char *, symbol_lookup);
 void hack_all_symbols(hack_symbol *, void *);
 
 /* File: macro.c  --- macro expansion.  */
 
 void expand_input(void);
-void call_macro(symbol *, int, token_data **, struct obstack *);
+void call_macro(SymbolTableEntry *, int, token_data **, struct obstack *);
 
 /* File: builtin.c  --- builtins.  */
 
@@ -385,11 +387,10 @@ void set_macro_sequence(const char *);
 void free_macro_sequence(void);
 void define_user_macro(const char *, const char *, symbol_lookup);
 void undivert_all(void);
-void expand_user_macro(struct obstack *, symbol *, int, token_data **);
+void expand_user_macro(struct obstack *, SymbolTableEntry *, int, token_data **);
 void m4_placeholder(struct obstack *, int, token_data **);
 void init_pattern_buffer(struct re_pattern_buffer *, struct re_registers *);
 const char * ntoa(int32_t, int);
-
 const builtin * find_builtin_by_addr(builtin_func *);
 const builtin * find_builtin_by_name(const char *);
 
@@ -405,40 +406,36 @@ FILE * m4_path_search(const char *, char **);
 bool evaluate(const char *, int32_t *);
 
 /* File: format.c  --- printf like formatting.  */
-
 void expand_format(struct obstack *, int, token_data **);
 
 /* File: freeze.c --- frozen state files.  */
-
 void produce_frozen_state(const char *);
 void reload_frozen_state(const char *);
 
 /* Debugging the memory allocator.  */
-
 #ifdef WITH_DMALLOC
-#define DMALLOC_FUNC_CHECK
-#include <dmalloc.h>
+	#define DMALLOC_FUNC_CHECK
+	#include <dmalloc.h>
 #endif
-
 /* Other debug stuff.  */
-
 #ifdef DEBUG
-#define DEBUG_INCL   1
-#define DEBUG_INPUT  1
-#define DEBUG_MACRO  1
-#define DEBUG_OUTPUT 1
-#define DEBUG_STKOVF 1
-#define DEBUG_SYM    1
+	#define DEBUG_INCL   1
+	#define DEBUG_INPUT  1
+	#define DEBUG_MACRO  1
+	#define DEBUG_OUTPUT 1
+	#define DEBUG_STKOVF 1
+	#define DEBUG_SYM    1
 #endif
-
 /* Convert a possibly-signed character to an unsigned character.  This is
-   a bit safer than casting to unsigned char, since it catches some type
+   a bit safer than casting to uchar, since it catches some type
    errors that the cast doesn't.  */
 #if HAVE_INLINE
-	static inline unsigned char to_uchar(char ch) { return ch; }
-#else
-	#define to_uchar(C) ((unsigned char)(C))
-#endif
+static inline uchar to_uchar(char ch) {
+	return ch;
+}
 
-/* Avoid negative logic when comparing two strings.  */
-#define STREQ(a, b) (strcmp(a, b) == 0)
+#else
+	#define to_uchar(C) ((uchar)(C))
+#endif
+#define STREQ(a, b) (strcmp(a, b) == 0) /* Avoid negative logic when comparing two strings.  */
+#endif // } __M4_H

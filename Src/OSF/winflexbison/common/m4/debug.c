@@ -21,9 +21,9 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 //#include <io.h>
-#include "m4.h"
-#include <stdarg.h>
-#include <sys/stat.h>
+//#include "m4.h"
+//#include <stdarg.h>
+//#include <sys/stat.h>
 
 FILE * _debug = NULL; /* File for debugging output.  */
 static struct obstack trace; /* Obstack for trace messages.  */
@@ -275,7 +275,7 @@ static void trace_flush(void)
 	char * line;
 
 	obstack_1grow(&trace, '\0');
-	line = (char*)obstack_finish(&trace);
+	line = (char *)obstack_finish(&trace);
 	DEBUG_PRINT1("%s\n", line);
 	obstack_free(&trace, line);
 }

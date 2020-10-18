@@ -20,13 +20,8 @@
 
 #ifndef _BITSET_LIST_H
 #define _BITSET_LIST_H
-
-#include "bitset.h"
-
-size_t lbitset_bytes (bitset_bindex);
-
-bitset lbitset_init (bitset, bitset_bindex);
-
-void lbitset_release_memory (void);
-
+	#include "bitset.h"
+	size_t lbitset_bytes(bitset_bindex);
+	bitset lbitset_init(bitset, bitset_bindex);
+	void lbitset_release_memory(void);
 #endif

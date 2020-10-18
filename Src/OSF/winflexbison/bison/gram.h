@@ -100,10 +100,6 @@
 
    Associativities are recorded similarly in SYMBOLS[I]->assoc.  */
 
-//#include "system.h"
-//#include "location.h"
-//#include "symtab.h"
-
 #define ISTOKEN(i)     ((i) < ntokens)
 #define ISVAR(i)       ((i) >= ntokens)
 
@@ -118,7 +114,7 @@ extern item_number * ritem;
 extern int nritems;
 
 /* Indices into ritem. */
-typedef unsigned int item_index;
+typedef uint item_index;
 
 /* There is weird relationship between OT1H item_number and OTOH
    symbol_number and rule_number: we store the latter in

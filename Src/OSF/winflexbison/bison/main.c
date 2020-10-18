@@ -20,41 +20,11 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset.h>
 #include <bitset/stats.h>
 #include <closeout.h>
-//#include <configmake.h>
 #include <progname.h>
-//#include <quote.h>
-//#include <quotearg.h>
 #include <relocatable.h> /* relocate2 */
-//#include <timevar.h>
-//#include "complain.h"
-//#include "conflicts.h"
-//#include "counterexample.h"
-//#include "derives.h"
-//#include "files.h"
-//#include "fixits.h"
-//#include "getargs.h"
-//#include "glyphs.h"
-//#include "gram.h"
-//#include "ielr.h"
-//#include "lalr.h"
-//#include "lr0.h"
-//#include "muscle-tab.h"
-//#include "nullable.h"
-//#include "output.h"
-//#include "parse-gram.h"
-//#include "print-graph.h"
-//#include "print-xml.h"
-//#include "print.h"
-//#include "reader.h"
-//#include "reduce.h"
-//#include "scan-code.h"
-//#include "scan-gram.h"
 #include "scan-skel.h"
-//#include "symtab.h"
-//#include "uniqstr.h"
 #include "tables.h"
 
 int main(int argc, char * argv[])
@@ -73,7 +43,7 @@ int main(int argc, char * argv[])
 	textdomain("bison");
 	{
 		char const * cp = getenv("LC_CTYPE");
-		if(cp && STREQ(cp, "C"))
+		if(cp && sstreq(cp, "C"))
 			set_custom_quoting(&quote_quoting_options, "'", "'");
 		else
 			set_quoting_style(&quote_quoting_options, locale_quoting_style);

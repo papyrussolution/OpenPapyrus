@@ -24,7 +24,7 @@
 //#include <unistd.h>
 //#include <errno.h>
 #include "cloexec.h"
-#include "xalloc.h"
+//#include "xalloc.h"
 
 /* Duplicates a file handle, making the copy uninheritable.
    Returns -1 for a file handle that is equivalent to closed.  */
@@ -131,7 +131,7 @@ static char ** prepare_spawn(char ** argv)
 			char * quoted_string;
 			char * p;
 			size_t length = 0;
-			unsigned int backslashes = 0;
+			uint backslashes = 0;
 			if(quote_around)
 				length++;
 			for(s = string; *s != '\0'; s++) {
@@ -146,7 +146,7 @@ static char ** prepare_spawn(char ** argv)
 			}
 			if(quote_around)
 				length += backslashes + 1;
-			quoted_string = (char*)xmalloc(length + 1);
+			quoted_string = (char *)xmalloc(length + 1);
 			p = quoted_string;
 			backslashes = 0;
 			if(quote_around)
@@ -154,7 +154,7 @@ static char ** prepare_spawn(char ** argv)
 			for(s = string; *s != '\0'; s++) {
 				char c = *s;
 				if(c == '"') {
-					unsigned int j;
+					uint j;
 					for(j = backslashes + 1; j > 0; j--)
 						*p++ = '\\';
 				}
@@ -165,7 +165,7 @@ static char ** prepare_spawn(char ** argv)
 					backslashes = 0;
 			}
 			if(quote_around) {
-				unsigned int j;
+				uint j;
 				for(j = backslashes; j > 0; j--)
 					*p++ = '\\';
 				*p++ = '"';
@@ -175,7 +175,7 @@ static char ** prepare_spawn(char ** argv)
 			new_argv[i] = quoted_string;
 		}
 		else
-			new_argv[i] = (char*)string;
+			new_argv[i] = (char *)string;
 	}
 	new_argv[argc] = NULL;
 	return new_argv;

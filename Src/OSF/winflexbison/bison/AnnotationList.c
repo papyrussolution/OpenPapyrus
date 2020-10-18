@@ -19,9 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "ielr.h"
-//#include "lalr.h"
-//#include "AnnotationList.h"
 /**
  * \pre
  *   - <tt>annotations_obstackp != NULL</tt>.

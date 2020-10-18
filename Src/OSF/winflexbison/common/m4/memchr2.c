@@ -23,7 +23,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "memchr2.h"
+//#include "memchr2.h"
 //#include <limits.h>
 //#include <stdint.h>
 //#include <string.h>
@@ -38,19 +38,19 @@ void * memchr2(void const * s, int c1_in, int c2_in, size_t n)
 	   performance.  On 64-bit hardware, unsigned long is generally 64
 	   bits already.  Change this typedef to experiment with
 	   performance.  */
-	typedef unsigned long int longword;
-	const unsigned char * char_ptr;
+	typedef ulong longword;
+	const uchar * char_ptr;
 	const longword * longword_ptr;
 	longword repeated_one;
 	longword repeated_c1;
 	longword repeated_c2;
-	unsigned char c1 = (unsigned char)c1_in;
-	unsigned char c2 = (unsigned char)c2_in;
+	uchar c1 = (uchar)c1_in;
+	uchar c2 = (uchar)c2_in;
 	if(c1 == c2)
 		return (void *)memchr(s, c1, n); // @badcast
 	/* Handle the first few bytes by reading one byte at a time.
 	   Do this until CHAR_PTR is aligned on a longword boundary.  */
-	for(char_ptr = (const unsigned char*)s; n > 0 && (size_t)char_ptr % sizeof(longword) != 0; --n, ++char_ptr)
+	for(char_ptr = (const uchar*)s; n > 0 && (size_t)char_ptr % sizeof(longword) != 0; --n, ++char_ptr)
 		if(*char_ptr == c1 || *char_ptr == c2)
 			return (void*)char_ptr;
 	longword_ptr = (const longword*)char_ptr;
@@ -125,10 +125,10 @@ void * memchr2(void const * s, int c1_in, int c2_in, size_t n)
 		n -= sizeof(longword);
 	}
 
-	char_ptr = (const unsigned char*)longword_ptr;
+	char_ptr = (const uchar*)longword_ptr;
 
-	/* At this point, we know that either n < sizeof (longword), or one of the
-	   sizeof (longword) bytes starting at char_ptr is == c1 or == c2.  On
+	/* At this point, we know that either n < sizeof(longword), or one of the
+	   sizeof(longword) bytes starting at char_ptr is == c1 or == c2.  On
 	   little-endian machines, we could determine the first such byte without
 	   any further memory accesses, just by looking at the (tmp1 | tmp2) result
 	   from the last loop iteration.  But this does not work on big-endian

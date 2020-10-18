@@ -17,18 +17,13 @@
 
 #ifndef _GL_LINKEDHASH_LIST_H
 #define _GL_LINKEDHASH_LIST_H
-
 #include "gl_list.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern const struct gl_list_implementation gl_linkedhash_list_implementation;
-#define GL_LINKEDHASH_LIST &gl_linkedhash_list_implementation
-
+	extern const struct gl_list_implementation gl_linkedhash_list_implementation;
+	#define GL_LINKEDHASH_LIST &gl_linkedhash_list_implementation
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* _GL_LINKEDHASH_LIST_H */

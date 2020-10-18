@@ -26,12 +26,13 @@
 #if HAVE_ICONV
 	#include <iconv.h>
 #endif
-#include <error.h>
-#include "gettext.h"
+//#include <error.h>
+//#include "gettext.h"
+#undef _ // @sobolev
 #define _(msgid) gettext(msgid)
 #define N_(msgid) msgid
 
-#include "localcharset.h"
+//#include "localcharset.h"
 //#include "unistr.h"
 
 /* When we pass a Unicode character to iconv(), we must pass it in a
@@ -55,10 +56,10 @@
    passing it CODE and an English error string.
    Returns whatever the callback returned.
    Assumes that the locale doesn't change between two calls.  */
-long unicode_to_mb(unsigned int code,
+long unicode_to_mb(uint code,
     long (*success)(const char * buf, size_t buflen,
     void * callback_arg),
-    long (*failure)(unsigned int code, const char * msg,
+    long (*failure)(uint code, const char * msg,
     void * callback_arg),
     void * callback_arg)
 {
@@ -99,7 +100,7 @@ long unicode_to_mb(unsigned int code,
 	}
 
 	/* Convert the character to UTF-8.  */
-	count = u8_uctomb((unsigned char*)inbuf, code, sizeof(inbuf));
+	count = u8_uctomb((uchar*)inbuf, code, sizeof(inbuf));
 	if(count < 0)
 		return failure(code, N_("character out of range"), callback_arg);
 
@@ -131,23 +132,23 @@ long unicode_to_mb(unsigned int code,
 		       NUL (IRIX).  */
 		if(inbytesleft > 0 || res == (size_t)(-1)
 		    /* Irix iconv() inserts a NUL byte if it cannot convert.  */
-# if !defined _LIBICONV_VERSION && (defined sgi || defined __sgi)
+#if !defined _LIBICONV_VERSION && (defined sgi || defined __sgi)
 		    || (res > 0 && code != 0 && outptr - outbuf == 1 && *outbuf == '\0')
-# endif
+#endif
 		    /* NetBSD iconv() and Solaris 11 iconv() insert a '?' if they cannot
 		       convert.  */
-# if !defined _LIBICONV_VERSION && (defined __NetBSD__ || defined __sun)
+#if !defined _LIBICONV_VERSION && (defined __NetBSD__ || defined __sun)
 		    || (res > 0 && outptr - outbuf == 1 && *outbuf == '?')
-# endif
+#endif
 		    /* musl libc iconv() inserts a '*' if it cannot convert.  */
-# if !defined _LIBICONV_VERSION && MUSL_LIBC
+#if !defined _LIBICONV_VERSION && MUSL_LIBC
 		    || (res > 0 && outptr - outbuf == 1 && *outbuf == '*')
-# endif
+#endif
 		    )
 			return failure(code, NULL, callback_arg);
 
 		/* Avoid glibc-2.1 bug and Solaris 7 bug.  */
-# if defined _LIBICONV_VERSION \
+#if defined _LIBICONV_VERSION \
 		|| !(((__GLIBC__ - 0 == 2 && __GLIBC_MINOR__ - 0 <= 1) \
 		&& !defined __UCLIBC__) \
 		|| defined __sun)
@@ -156,7 +157,7 @@ long unicode_to_mb(unsigned int code,
 		res = iconv(utf8_to_local, NULL, NULL, &outptr, &outbytesleft);
 		if(res == (size_t)(-1))
 			return failure(code, NULL, callback_arg);
-# endif
+#endif
 
 		return success(outbuf, outptr - outbuf, callback_arg);
 	}
@@ -182,7 +183,7 @@ long fwrite_success_callback(const char * buf, size_t buflen, void * callback_ar
 }
 
 /* Simple failure callback that displays an error and exits.  */
-static long exit_failure_callback(unsigned int code, const char * msg,
+static long exit_failure_callback(uint code, const char * msg,
     void * callback_arg _GL_UNUSED)
 {
 	if(msg == NULL)
@@ -195,7 +196,7 @@ static long exit_failure_callback(unsigned int code, const char * msg,
 
 /* Simple failure callback that displays a fallback representation in plain
    ASCII, using the same notation as ISO C99 strings.  */
-static long fallback_failure_callback(unsigned int code,
+static long fallback_failure_callback(uint code,
     const char * msg _GL_UNUSED,
     void * callback_arg)
 {
@@ -211,7 +212,7 @@ static long fallback_failure_callback(unsigned int code,
 /* Outputs the Unicode character CODE to the output stream STREAM.
    Upon failure, exit if exit_on_error is true, otherwise output a fallback
    notation.  */
-void print_unicode_char(FILE * stream, unsigned int code, int exit_on_error)
+void print_unicode_char(FILE * stream, uint code, int exit_on_error)
 {
 	unicode_to_mb(code, fwrite_success_callback,
 	    exit_on_error

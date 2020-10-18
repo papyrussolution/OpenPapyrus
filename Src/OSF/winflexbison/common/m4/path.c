@@ -24,7 +24,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "m4.h"
+//#include "m4.h"
 
 struct includes {
 	struct includes * next; /* next directory to search */

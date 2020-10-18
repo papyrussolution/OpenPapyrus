@@ -19,7 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "named-ref.h"
 
 named_ref * named_ref_new(uniqstr id, Location loc)
 {

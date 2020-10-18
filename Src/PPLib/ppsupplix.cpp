@@ -3609,12 +3609,15 @@ IMPL_CMPFUNC(iSalesBillDebt, p1, p2)
 int SLAPI iSalesPepsi::SendDebts()
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	SString * p_result = 0;
 	PPSoapClientSession sess;
 	SString temp_buf;
 	TSCollection <iSalesBillDebt> outer_debt_list;
+	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK); // @v10.9.0
 	THROW(ReceiveUnclosedInvoices(outer_debt_list));
 	if(outer_debt_list.getCount()) {
+		PPIDArray processed_id_list;
 		int    result = 0;
 		int    do_send = 0;
 		uint   i;
@@ -3630,30 +3633,32 @@ int SLAPI iSalesPepsi::SendDebts()
 				if(i == _c || (prev_date && p_outer_bill->Dtm.d != prev_date)) {
 					BillTbl::Rec bill_rec;
 					for(DateIter di(prev_date, prev_date); P_BObj->P_Tbl->EnumByDate(&di, &bill_rec) > 0;) {
-                        if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER) {
-							BillCore::GetCode(temp_buf = bill_rec.Code);
-							int    found = 0;
-							for(uint j = first_idx_by_date; !found && j < i; j++) {
-								const iSalesBillDebt * p_temp_item = outer_debt_list.at(j);
-								if(p_temp_item->Code.CmpNC(temp_buf) == 0) {
-									double payment = 0.0;
-									P_BObj->P_Tbl->CalcPayment(bill_rec.ID, 1, 0, 0, &payment);
-									iSalesBillDebt * p_new_item = current_debt_list.CreateNewItem();
-									THROW_SL(p_new_item);
-									*p_new_item = *p_temp_item;
-									p_new_item->Code.Transf(CTRANSF_INNER_TO_UTF8);
-									p_new_item->Debt = (payment >= p_new_item->Amount) ? 0.0 : (p_new_item->Amount - payment);
-									found = 1;
+						if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER && !processed_id_list.lsearch(bill_rec.ID)) {
+							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, bill_ack_tag_id, temp_buf) > 0) { // @v10.9.0
+								BillCore::GetCode(temp_buf = bill_rec.Code);
+								int    found = 0;
+								for(uint j = first_idx_by_date; !found && j < i; j++) {
+									const iSalesBillDebt * p_temp_item = outer_debt_list.at(j);
+									if(p_temp_item->Code.CmpNC(temp_buf) == 0) {
+										double payment = 0.0;
+										P_BObj->P_Tbl->CalcPayment(bill_rec.ID, 1, 0, 0, &payment);
+										iSalesBillDebt * p_new_item = current_debt_list.CreateNewItem();
+										THROW_SL(p_new_item);
+										*p_new_item = *p_temp_item;
+										p_new_item->Code.Transf(CTRANSF_INNER_TO_UTF8);
+										p_new_item->Debt = (payment >= p_new_item->Amount) ? 0.0 : (p_new_item->Amount - payment);
+										processed_id_list.add(bill_rec.ID); // @v10.9.0
+										found = 1;
+									}
 								}
 							}
-                        }
+						}
 					}
 					//
 					first_idx_by_date = i;
 				}
-				if(i < _c) {
+				if(i < _c)
 					prev_date = p_outer_bill->Dtm.d;
-				}
 			}
 		}
 		if(current_debt_list.getCount()) {

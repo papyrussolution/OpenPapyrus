@@ -18,11 +18,8 @@
 #ifndef _VASNPRINTF_H
 #define _VASNPRINTF_H
 
-/* Get va_list.  */
-#include <stdarg.h>
-
-/* Get size_t.  */
-#include <stddef.h>
+//#include <stdarg.h> /* Get va_list.  */
+//#include <stddef.h> /* Get size_t.  */
 
 /* The __attribute__ feature is available in gcc versions 2.5 and later.
    The __-protected variants of the attributes 'format' and 'printf' are
@@ -31,9 +28,9 @@
    gnulib and libintl do '#define printf __printf__' when they override
    the 'printf' function.  */
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
-#define _GL_ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
+	#define _GL_ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
 #else
-#define _GL_ATTRIBUTE_FORMAT(spec) /* empty */
+	#define _GL_ATTRIBUTE_FORMAT(spec) /* empty */
 #endif
 
 #ifdef __cplusplus
@@ -53,26 +50,22 @@ extern "C" {
    a statically allocated or stack-allocated buffer, like this:
 
           char buf[100];
-          size_t len = sizeof (buf);
+          size_t len = sizeof(buf);
           char *output = vasnprintf (buf, &len, format, args);
-          if (output == NULL)
+          if(output == NULL)
             ... error handling ...;
-          else
-            {
+          else {
               ... use the output string ...;
-              if (output != buf)
-                free (output);
+              if(output != buf)
+                free(output);
             }
-  */
+ */
 #if REPLACE_VASNPRINTF
-#define asnprintf rpl_asnprintf
-#define vasnprintf rpl_vasnprintf
+	#define asnprintf rpl_asnprintf
+	#define vasnprintf rpl_vasnprintf
 #endif
-extern char * asnprintf (char *resultbuf, size_t *lengthp, const char *format, ...)
-       _GL_ATTRIBUTE_FORMAT ((__printf__, 3, 4));
-extern char * vasnprintf (char *resultbuf, size_t *lengthp, const char *format, va_list args)
-       _GL_ATTRIBUTE_FORMAT ((__printf__, 3, 0));
-
+extern char * asnprintf(char * resultbuf, size_t * lengthp, const char * format, ...) _GL_ATTRIBUTE_FORMAT((__printf__, 3, 4));
+extern char * vasnprintf(char * resultbuf, size_t * lengthp, const char * format, va_list args) _GL_ATTRIBUTE_FORMAT((__printf__, 3, 0));
 #ifdef __cplusplus
 }
 #endif

@@ -597,7 +597,7 @@ int EVP_PKEY_base_id(const EVP_PKEY * pkey)
 void FASTCALL EVP_PKEY_free(EVP_PKEY * x)
 {
 	int i;
-	if(x == NULL)
+	if(!x)
 		return;
 	CRYPTO_DOWN_REF(&x->references, &i, x->lock);
 	REF_PRINT_COUNT("EVP_PKEY", x);

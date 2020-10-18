@@ -22,9 +22,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <quotearg.h>
-//#include "files.h"
-//#include "gram.h"
 #include "graphviz.h"
 #include "tables.h"
 //

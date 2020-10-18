@@ -19,18 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "ielr.h"
-//#include <bitset.h>
-//#include <timevar.h>
-//#include "AnnotationList.h"
-//#include "derives.h"
-//#include "getargs.h"
-//#include "lalr.h"
-//#include "muscle-tab.h"
-//#include "nullable.h"
-//#include "relation.h"
-//#include "state.h"
-//#include "symtab.h"
 
 /** Records the value of the \%define variable lr.type.  */
 typedef enum {
@@ -45,13 +33,13 @@ static LrType lr_type_get(void)
 {
 	char * type = muscle_percent_define_get("lr.type");
 	LrType res;
-	if(STREQ(type, "lr" "(0)"))
+	if(sstreq(type, "lr" "(0)"))
 		res = LR_TYPE__LR0;
-	else if(STREQ(type, "lalr"))
+	else if(sstreq(type, "lalr"))
 		res = LR_TYPE__LALR;
-	else if(STREQ(type, "ielr"))
+	else if(sstreq(type, "ielr"))
 		res = LR_TYPE__IELR;
-	else if(STREQ(type, "canonical-lr"))
+	else if(sstreq(type, "canonical-lr"))
 		res = LR_TYPE__CANONICAL_LR;
 	else {
 		aver(false);
@@ -249,24 +237,20 @@ static void ielr_compute_always_follows(goto_number *** edgesp, int const edge_c
 				}
 			}
 			if(nedges - edge_counts[i]) {
-				(*edgesp)[i] =
-				    xnrealloc((*edgesp)[i], nedges + 1, sizeof *(*edgesp)[i]);
-				memcpy((*edgesp)[i] + edge_counts[i], edge_array + edge_counts[i],
-				    (nedges - edge_counts[i]) * sizeof *(*edgesp)[i]);
+				(*edgesp)[i] = (goto_number *)xnrealloc((*edgesp)[i], nedges + 1, sizeof *(*edgesp)[i]);
+				memcpy((*edgesp)[i] + edge_counts[i], edge_array + edge_counts[i], (nedges - edge_counts[i]) * sizeof *(*edgesp)[i]);
 				(*edgesp)[i][nedges] = END_NODE;
 			}
 		}
 		SAlloc::F(edge_array);
 	}
 	relation_digraph(*edgesp, ngotos, *always_followsp);
-
 	if(trace_flag & trace_ielr) {
 		relation_print("always follow edges", *edgesp, ngotos, NULL, stderr);
 		fprintf(stderr, "always_follows:\n");
 		debug_bitsetv(*always_followsp);
 	}
 }
-
 /**
  * \post
  *   - \c result is a new array of size \c ::nstates.
@@ -875,11 +859,10 @@ static void ielr_split_states(bitsetv follow_kernel_items, bitsetv always_follow
 	bitsetv_free(lookahead_filter);
 	bitsetv_free(lookaheads);
 	/* Store states back in the states array.  */
-	states = xnrealloc(states, nstates, sizeof *states);
+	states = (state **)xnrealloc(states, nstates, sizeof(*states));
 	for(state_list * node = first_state; node; node = node->next)
 		states[node->state->number] = node->state;
-	/* In the case of canonical LR(1), copy item lookahead sets to reduction
-	   lookahead sets.  */
+	// In the case of canonical LR(1), copy item lookahead sets to reduction lookahead sets.
 	if(!annotation_lists) {
 		timevar_push(tv_ielr_phase4);
 		initialize_LA();

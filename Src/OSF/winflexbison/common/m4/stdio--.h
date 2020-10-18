@@ -21,21 +21,21 @@
 #include "stdio-safer.h"
 
 #if GNULIB_FOPEN_SAFER
-# undef fopen
+#undef fopen
 #define fopen fopen_safer
 #endif
 
 #if GNULIB_FREOPEN_SAFER
-# undef freopen
+#undef freopen
 #define freopen freopen_safer
 #endif
 
 #if GNULIB_TMPFILE_SAFER
-# undef tmpfile
+#undef tmpfile
 #define tmpfile tmpfile_safer
 #endif
 
 #if GNULIB_POPEN_SAFER
-# undef popen
+#undef popen
 #define popen popen_safer
 #endif

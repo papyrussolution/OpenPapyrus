@@ -20,14 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "complain.h"
-//#include "getargs.h"
-//#include "glyphs.h"
-//#include "gram.h"
-//#include "print-xml.h"
-//#include "reader.h"
-//#include "reduce.h"
-//#include "symtab.h"
 
 /* Comments for these variables are in gram.h.  */
 

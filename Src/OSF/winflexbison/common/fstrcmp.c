@@ -22,7 +22,7 @@
 #include "glthread/lock.h"
 #include "glthread/tls.h"
 #include "minmax.h"
-#include "xalloc.h"
+//#include "xalloc.h"
 
 #define ELEMENT char
 #define EQUAL(x, y) ((x) == (y))
@@ -133,10 +133,10 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 			/* Determine the occurrence counts in X.  */
 			memzero(occ_diff, sizeof(occ_diff));
 			for(i = xvec_length - 1; i >= 0; i--)
-				occ_diff[(unsigned char)string1[i]]++;
+				occ_diff[(uchar)string1[i]]++;
 			/* Subtract the occurrence counts in Y.  */
 			for(i = yvec_length - 1; i >= 0; i--)
-				occ_diff[(unsigned char)string2[i]]--;
+				occ_diff[(uchar)string2[i]]--;
 			/* Sum up the absolute values.  */
 			sum = 0;
 			for(i = 0; i <= UCHAR_MAX; i++) {

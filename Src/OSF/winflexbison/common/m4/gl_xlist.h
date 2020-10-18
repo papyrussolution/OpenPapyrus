@@ -19,7 +19,7 @@
 #define _GL_XLIST_H
 
 #include "gl_list.h"
-#include "xalloc.h"
+//#include "xalloc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,61 +28,36 @@ extern "C" {
 /* These functions are thin wrappers around the corresponding functions with
    _nx_ infix from gl_list.h.  Upon out-of-memory, they invoke xalloc_die (),
    instead of returning an error indicator.  */
-extern gl_list_t gl_list_create_empty(gl_list_implementation_t implementation,
-    gl_listelement_equals_fn equals_fn,
-    gl_listelement_hashcode_fn hashcode_fn,
-    gl_listelement_dispose_fn dispose_fn,
-    bool allow_duplicates);
-extern gl_list_t gl_list_create(gl_list_implementation_t implementation,
-    gl_listelement_equals_fn equals_fn,
-    gl_listelement_hashcode_fn hashcode_fn,
-    gl_listelement_dispose_fn dispose_fn,
-    bool allow_duplicates,
-    size_t count, const void ** contents);
-extern void gl_list_node_set_value(gl_list_t list, gl_list_node_t node,
-    const void * elt);
-extern gl_list_node_t gl_list_set_at(gl_list_t list, size_t position,
-    const void * elt);
+extern gl_list_t gl_list_create_empty(gl_list_implementation_t implementation, gl_listelement_equals_fn equals_fn,
+    gl_listelement_hashcode_fn hashcode_fn, gl_listelement_dispose_fn dispose_fn, bool allow_duplicates);
+extern gl_list_t gl_list_create(gl_list_implementation_t implementation, gl_listelement_equals_fn equals_fn,
+    gl_listelement_hashcode_fn hashcode_fn, gl_listelement_dispose_fn dispose_fn, bool allow_duplicates, size_t count, const void ** contents);
+extern void gl_list_node_set_value(gl_list_t list, gl_list_node_t node, const void * elt);
+extern gl_list_node_t gl_list_set_at(gl_list_t list, size_t position, const void * elt);
 extern gl_list_node_t gl_list_add_first(gl_list_t list, const void * elt);
 extern gl_list_node_t gl_list_add_last(gl_list_t list, const void * elt);
-extern gl_list_node_t gl_list_add_before(gl_list_t list, gl_list_node_t node,
-    const void * elt);
-extern gl_list_node_t gl_list_add_after(gl_list_t list, gl_list_node_t node,
-    const void * elt);
-extern gl_list_node_t gl_list_add_at(gl_list_t list, size_t position,
-    const void * elt);
-extern gl_list_node_t gl_sortedlist_add(gl_list_t list,
-    gl_listelement_compar_fn compar,
-    const void * elt);
+extern gl_list_node_t gl_list_add_before(gl_list_t list, gl_list_node_t node, const void * elt);
+extern gl_list_node_t gl_list_add_after(gl_list_t list, gl_list_node_t node, const void * elt);
+extern gl_list_node_t gl_list_add_at(gl_list_t list, size_t position, const void * elt);
+extern gl_list_node_t gl_sortedlist_add(gl_list_t list, gl_listelement_compar_fn compar, const void * elt);
 
 #if HAVE_INLINE
 
 #define gl_list_create_empty gl_list_create_empty_inline
-static inline gl_list_t gl_list_create_empty(gl_list_implementation_t implementation,
-    gl_listelement_equals_fn equals_fn,
-    gl_listelement_hashcode_fn hashcode_fn,
-    gl_listelement_dispose_fn dispose_fn,
-    bool allow_duplicates)
+static inline gl_list_t gl_list_create_empty(gl_list_implementation_t implementation, gl_listelement_equals_fn equals_fn,
+    gl_listelement_hashcode_fn hashcode_fn, gl_listelement_dispose_fn dispose_fn, bool allow_duplicates)
 {
-	gl_list_t result =
-	    gl_list_nx_create_empty(implementation, equals_fn, hashcode_fn, dispose_fn,
-		allow_duplicates);
+	gl_list_t result = gl_list_nx_create_empty(implementation, equals_fn, hashcode_fn, dispose_fn, allow_duplicates);
 	if(result == NULL)
 		xalloc_die();
 	return result;
 }
 
 #define gl_list_create gl_list_create_inline
-static inline gl_list_t gl_list_create(gl_list_implementation_t implementation,
-    gl_listelement_equals_fn equals_fn,
-    gl_listelement_hashcode_fn hashcode_fn,
-    gl_listelement_dispose_fn dispose_fn,
-    bool allow_duplicates,
-    size_t count, const void ** contents)
+static inline gl_list_t gl_list_create(gl_list_implementation_t implementation, gl_listelement_equals_fn equals_fn,
+    gl_listelement_hashcode_fn hashcode_fn, gl_listelement_dispose_fn dispose_fn, bool allow_duplicates, size_t count, const void ** contents)
 {
-	gl_list_t result =
-	    gl_list_nx_create(implementation, equals_fn, hashcode_fn, dispose_fn,
-		allow_duplicates, count, contents);
+	gl_list_t result = gl_list_nx_create(implementation, equals_fn, hashcode_fn, dispose_fn, allow_duplicates, count, contents);
 	if(result == NULL)
 		xalloc_die();
 	return result;

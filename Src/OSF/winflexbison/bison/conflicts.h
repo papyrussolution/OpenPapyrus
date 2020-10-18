@@ -19,7 +19,6 @@
 
 #ifndef CONFLICTS_H_
 #define CONFLICTS_H_
-//#include "state.h"
 
 void conflicts_solve(void);
 /**

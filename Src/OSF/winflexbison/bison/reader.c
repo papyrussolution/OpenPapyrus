@@ -20,31 +20,15 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <quote.h>
-//#include "complain.h"
-//#include "conflicts.h"
-//#include "files.h"
-//#include "fixits.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "muscle-tab.h"
-//#include "reader.h"
-//#include "symlist.h"
-//#include "symtab.h"
-//#include "scan-gram.h"
-//#include "scan-code.h"
 
 static void prepare_percent_define_front_end_variables(void);
 static void check_and_convert_grammar(void);
-
 static symbol_list * grammar = NULL;
 static bool start_flag = false;
 merger_list * merge_functions;
 
-/* Was %union seen?  */
-bool union_seen = false;
-/* Should rules have a default precedence?  */
-bool default_prec = true;
+bool union_seen = false; /* Was %union seen?  */
+bool default_prec = true; /* Should rules have a default precedence?  */
 
 /*-----------------------.
 | Set the start symbol.  |
@@ -249,21 +233,17 @@ static void grammar_rule_check_and_complete(symbol_list * r)
 				complain(&r->rhs_loc, Wother, _("type clash on default action: <%s> != <%s>"), lhs_type, rhs_type);
 			else {
 				/* Install the default action only for C++.  */
-				const bool is_cxx = STREQ(language->language, "c++") || (skeleton && (STREQ(skeleton, "glr.cc") || STREQ(skeleton, "lalr1.cc")));
+				const bool is_cxx = sstreq(language->language, "c++") || (skeleton && (sstreq(skeleton, "glr.cc") || sstreq(skeleton, "lalr1.cc")));
 				if(is_cxx) {
-					code_props_rule_action_init(&r->action_props, "{ $$ = $1; }",
-					    r->rhs_loc, r,
-					    /* name */ NULL,
-					    /* type */ NULL,
-					    /* is_predicate */ false);
+					code_props_rule_action_init(&r->action_props, "{ $$ = $1; }", r->rhs_loc, r,
+					    /* name */ NULL, /* type */ NULL, /* is_predicate */ false);
 					code_props_translate_code(&r->action_props);
 				}
 			}
 		}
 		/* Warn if there is no default for $$ but we need one.  */
 		else
-			complain(&r->rhs_loc, Wother,
-			    _("empty rule for typed nonterminal, and no action"));
+			complain(&r->rhs_loc, Wother, _("empty rule for typed nonterminal, and no action"));
 	}
 
 	/* Check that symbol values that should be used are in fact used.  */
@@ -271,8 +251,7 @@ static void grammar_rule_check_and_complete(symbol_list * r)
 		int n = 0;
 		for(symbol_list const * l = r; l && l->content.sym; l = l->next, ++n) {
 			bool midrule_warning = false;
-			if(!l->action_props.is_value_used
-			    && symbol_should_be_used(l, &midrule_warning)
+			if(!l->action_props.is_value_used && symbol_should_be_used(l, &midrule_warning)
 			    /* The default action, $$ = $1, 'uses' both.  */
 			    && (r->action_props.code || (n != 0 && n != 1))) {
 				warnings warn_flag = midrule_warning ? Wmidrule_values : Wother;
@@ -285,10 +264,8 @@ static void grammar_rule_check_and_complete(symbol_list * r)
 	}
 
 	/* Check that %empty => empty rule.  */
-	if(r->percent_empty_loc.start.file
-	    && r->next && r->next->content.sym) {
-		complain(&r->percent_empty_loc, complaint,
-		    _("%%empty on non-empty rule"));
+	if(r->percent_empty_loc.start.file && r->next && r->next->content.sym) {
+		complain(&r->percent_empty_loc, complaint, _("%%empty on non-empty rule"));
 		fixits_register(&r->percent_empty_loc, "");
 	}
 
@@ -308,16 +285,14 @@ static void grammar_rule_check_and_complete(symbol_list * r)
 	/* See comments in grammar_current_rule_prec_set for how POSIX
 	   mandates this complaint.  It's only for identifiers, so skip
 	   it for char literals and strings, which are always tokens.  */
-	if(r->ruleprec
-	    && r->ruleprec->tag[0] != '\'' && r->ruleprec->tag[0] != '"'
+	if(r->ruleprec && r->ruleprec->tag[0] != '\'' && r->ruleprec->tag[0] != '"'
 	    && r->ruleprec->content->status != declared
 	    && !r->ruleprec->content->prec)
 		complain(&r->rhs_loc, Wother, _("token for %%prec is not defined: %s"), r->ruleprec->tag);
 
 	/* Check that the (main) action was not typed.  */
 	if(r->action_props.type)
-		complain(&r->rhs_loc, Wother,
-		    _("only midrule actions can be typed: %s"), r->action_props.type);
+		complain(&r->rhs_loc, Wother, _("only midrule actions can be typed: %s"), r->action_props.type);
 }
 
 /*-------------------------------------.
@@ -341,19 +316,14 @@ void grammar_current_rule_end(Location loc)
 void grammar_midrule_action(void)
 {
 	/* Since the action was written out with this rule's number, we must
-	   give the new rule this number by inserting the new rule before
-	   it.  */
-
-	/* Make a DUMMY nonterminal, whose location is that of the midrule
-	   action.  Create the MIDRULE.  */
+	   give the new rule this number by inserting the new rule before it.  */
+	/* Make a DUMMY nonterminal, whose location is that of the midrule action.  Create the MIDRULE.  */
 	Location dummy_loc = current_rule->action_props.location;
 	Symbol * dummy = dummy_symbol_get(dummy_loc);
 	symbol_type_set(dummy, current_rule->action_props.type, current_rule->action_props.location);
 	symbol_list * midrule = symbol_list_sym_new(dummy, dummy_loc);
-
 	/* Remember named_ref of previous action. */
 	named_ref * action_name = current_rule->action_props.named_ref;
-
 	/* Make a new rule, whose body is empty, before the current one, so
 	   that the action just read can belong to it.  */
 	++nrules;
@@ -483,24 +453,17 @@ void grammar_current_rule_action_append(const char * action, Location loc, named
 	if(current_rule->action_props.code)
 		grammar_midrule_action();
 	if(type)
-		complain(&loc, Wyacc,
-		    _("POSIX Yacc does not support typed midrule actions"));
+		complain(&loc, Wyacc, _("POSIX Yacc does not support typed midrule actions"));
 	/* After all symbol declarations have been parsed, packgram invokes
 	   code_props_translate_code.  */
-	code_props_rule_action_init(&current_rule->action_props, action, loc,
-	    current_rule,
-	    name, type,
-	    /* is_predicate */ false);
+	code_props_rule_action_init(&current_rule->action_props, action, loc, current_rule, name, type, /* is_predicate */ false);
 }
 
 void grammar_current_rule_predicate_append(const char * pred, Location loc)
 {
 	if(current_rule->action_props.code)
 		grammar_midrule_action();
-	code_props_rule_action_init(&current_rule->action_props, pred, loc,
-	    current_rule,
-	    NULL, NULL,
-	    /* is_predicate */ true);
+	code_props_rule_action_init(&current_rule->action_props, pred, loc, current_rule, NULL, NULL, /* is_predicate */ true);
 }
 
 /* Set the expected number of shift/reduce (reduce/reduce) conflicts
@@ -516,8 +479,7 @@ void grammar_current_rule_expect_sr(int count, Location loc)
 void grammar_current_rule_expect_rr(int count, Location loc)
 {
 	if(!glr_parser)
-		complain(&loc, Wother, _("%s affects only GLR parsers"),
-		    "%expect-rr");
+		complain(&loc, Wother, _("%s affects only GLR parsers"), "%expect-rr");
 	else
 		current_rule->expected_rr_conflicts = count;
 }
@@ -532,7 +494,6 @@ static void packgram(void)
 	ritem = (item_number *)xnmalloc(nritems + 1, sizeof *ritem);
 	/* This sentinel is used by build_relations() in lalr.c.  */
 	*ritem++ = 0;
-
 	rule_number ruleno = 0;
 	rules = (rule *)xnmalloc(nrules, sizeof *rules);
 	for(symbol_list * p = grammar; p; p = p->next) {
@@ -567,13 +528,11 @@ static void packgram(void)
 		rules[ruleno].is_predicate = lhs->action_props.is_predicate;
 		rules[ruleno].expected_sr_conflicts = lhs->expected_sr_conflicts;
 		rules[ruleno].expected_rr_conflicts = lhs->expected_rr_conflicts;
-
 		/* Traverse the rhs.  */
 		{
 			size_t rule_length = 0;
 			for(p = lhs->next; p->content.sym; p = p->next) {
 				++rule_length;
-
 				/* Don't allow rule_length == INT_MAX, since that might
 				   cause confusion with strtol if INT_MAX == LONG_MAX.  */
 				if(rule_length == INT_MAX)
@@ -603,9 +562,7 @@ static void packgram(void)
 		++ruleno;
 		aver(ruleno < RULE_NUMBER_MAX);
 	}
-
 	aver(itemno == nritems);
-
 	if(trace_flag & trace_sets)
 		ritem_print(stderr);
 }
@@ -617,17 +574,13 @@ static void packgram(void)
 
 void reader(const char * gram)
 {
-	/* Set up symbol_table, semantic_type_table, and the built-in
-	   symbols.  */
+	/* Set up symbol_table, semantic_type_table, and the built-in symbols.  */
 	symbols_new();
-
 	gram_scanner_open(gram);
 	parser_init();
 	gram_parse();
 	gram_scanner_close();
-
 	prepare_percent_define_front_end_variables();
-
 	if(complaint_status  < status_complaint)
 		check_and_convert_grammar();
 }
@@ -683,7 +636,6 @@ static void check_and_convert_grammar(void)
 	/* Grammar has been read.  Do some checking.  */
 	if(nrules == 0)
 		complain(NULL, fatal, _("no rules in the input grammar"));
-
 	/* If the user did not define her EOFTOKEN, do it now. */
 	if(!eoftoken) {
 		eoftoken = symbol_get("YYEOF", empty_loc);
@@ -722,13 +674,9 @@ static void check_and_convert_grammar(void)
 		nritems += 3;
 		grammar = p;
 	}
-
 	aver(nsyms <= SYMBOL_NUMBER_MAXIMUM);
 	aver(nsyms == ntokens + nnterms);
-
-	/* Assign the symbols their symbol numbers.  */
-	symbols_pack();
-
+	symbols_pack(); /* Assign the symbols their symbol numbers.  */
 	/* Scan rule actions after invoking symbol_check_alias_consistency
 	   (in symbols_pack above) so that token types are set correctly
 	   before the rule action type checking.
@@ -743,10 +691,6 @@ static void check_and_convert_grammar(void)
 	   packgram).  */
 	for(symbol_list * sym = grammar; sym; sym = sym->next)
 		code_props_translate_code(&sym->action_props);
-
-	/* Convert the grammar into the format described in gram.h.  */
-	packgram();
-
-	/* The grammar as a symbol_list is no longer needed. */
-	symbol_list_free(grammar);
+	packgram(); /* Convert the grammar into the format described in gram.h.  */
+	symbol_list_free(grammar); /* The grammar as a symbol_list is no longer needed. */
 }

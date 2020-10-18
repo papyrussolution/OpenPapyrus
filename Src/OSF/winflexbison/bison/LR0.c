@@ -23,17 +23,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset.h>
-//#include "closure.h"
-//#include "complain.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "lalr.h"
-//#include "lr0.h"
-//#include "reader.h"
-//#include "reduce.h"
-//#include "state.h"
-//#include "symtab.h"
 
 typedef struct state_list {
 	struct state_list * next;

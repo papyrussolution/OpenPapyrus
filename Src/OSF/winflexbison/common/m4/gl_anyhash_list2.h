@@ -103,7 +103,7 @@ static void hash_resize(gl_list_t list, size_t estimate)
 		/* Iterate through the entries of the old table.  */
 		for(i = list->table_size; i > 0;) {
 			gl_hash_entry_t node = old_table[--i];
-			while(node != NULL) {
+			while(node) {
 				gl_hash_entry_t next = node->hash_next;
 				/* Add the entry to the new table.  */
 				size_t bucket = node->hashcode % new_size;

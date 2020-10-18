@@ -28,9 +28,10 @@
 //#include <sys/time.h>
 //#include <sys/times.h>
 #include "gethrxtime.h"
-#include "gettext.h"
+//#include "gettext.h"
+#undef _ // @sobolev
 #define _(msgid) gettext(msgid)
-#include "xalloc.h"
+//#include "xalloc.h"
 
 int timevar_enabled = 0; /* See timevar.h for an explanation of timing variables.  */
 
@@ -230,7 +231,7 @@ void timevar_print(FILE * fp)
 	struct timevar_time_def const* total = &timevars[tv_total].elapsed;
 	fprintf(fp, "%-22s\n", _("Execution times (seconds)"));
 	fprintf(fp, " %-22s   %-13s %-13s %-16s\n", "", _("CPU user"), _("CPU system"), _("wall clock"));
-	for(unsigned /* timevar_id_t */ id = 0; id < (unsigned)TIMEVAR_LAST; ++id) {
+	for(unsigned /* timevar_id_t */ id = 0; id < (uint)TIMEVAR_LAST; ++id) {
 		/* Don't print the total execution time here; that goes at the end.  */
 		if((timevar_id_t)id == tv_total)
 			continue;

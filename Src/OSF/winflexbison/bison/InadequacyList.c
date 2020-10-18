@@ -19,7 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "InadequacyList.h"
 #include <intprops.h>
 
 ContributionIndex const ContributionIndex__none = -1;

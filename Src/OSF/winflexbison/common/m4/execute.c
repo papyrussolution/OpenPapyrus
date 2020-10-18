@@ -23,16 +23,17 @@
 //#include <stdbool.h>
 //#include <stdio.h>
 //#include <stdlib.h>
-#include <signal.h>
+//#include <signal.h>
 //#include <unistd.h>
-#include "error.h"
+//#include "error.h"
 //#include "fatal-signal.h"
 //#include "wait-process.h"
-#include "gettext.h"
+//#include "gettext.h"
+#undef _ // @sobolev
 #define _(str) gettext(str)
 #if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
 	/* Native Woe32 API.  */
-	#include <process.h>
+	//#include <process.h>
 	#include "w32spawn.h"
 #else
 	#include <spawn.h> /* Unix API.  */

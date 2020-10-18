@@ -226,7 +226,7 @@ int glthread_recursive_lock_destroy(gl_recursive_lock_t * lock)
 
 /* ------------------------- gl_rwlock_t datatype ------------------------- */
 
-# if HAVE_PTHREAD_RWLOCK && (HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER || (defined PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP && \
+#if HAVE_PTHREAD_RWLOCK && (HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER || (defined PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP && \
 	(__GNU_LIBRARY__ > 1)))
 
 #  ifdef PTHREAD_RWLOCK_INITIALIZER
@@ -336,7 +336,7 @@ int glthread_rwlock_destroy_multithreaded(gl_rwlock_t * lock)
 
 #  endif
 
-# else
+#else
 
 int glthread_rwlock_init_multithreaded(gl_rwlock_t * lock)
 {
@@ -466,11 +466,11 @@ int glthread_rwlock_destroy_multithreaded(gl_rwlock_t * lock)
 	return 0;
 }
 
-# endif
+#endif
 
 /* --------------------- gl_recursive_lock_t datatype --------------------- */
 
-# if HAVE_PTHREAD_MUTEX_RECURSIVE
+#if HAVE_PTHREAD_MUTEX_RECURSIVE
 
 #  if defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER || defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 
@@ -569,7 +569,7 @@ int glthread_recursive_lock_destroy_multithreaded(gl_recursive_lock_t * lock)
 
 #  endif
 
-# else
+#else
 
 int glthread_recursive_lock_init_multithreaded(gl_recursive_lock_t * lock)
 {
@@ -622,7 +622,7 @@ int glthread_recursive_lock_destroy_multithreaded(gl_recursive_lock_t * lock)
 	return pthread_mutex_destroy(&lock->mutex);
 }
 
-# endif
+#endif
 
 /* -------------------------- gl_once_t datatype -------------------------- */
 
@@ -632,7 +632,7 @@ int glthread_once_singlethreaded(pthread_once_t * once_control)
 {
 	/* We don't know whether pthread_once_t is an integer type, a floating-point
 	   type, a pointer type, or a structure type.  */
-	char * firstbyte = (char*)once_control;
+	char * firstbyte = (char *)once_control;
 	if(*firstbyte == *(const char*)&fresh_once) {
 		/* First time use of once_control.  Invert the first byte.  */
 		*firstbyte = ~*(const char*)&fresh_once;

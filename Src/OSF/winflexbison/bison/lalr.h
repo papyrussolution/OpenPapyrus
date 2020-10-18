@@ -20,11 +20,6 @@
 #ifndef LALR_H_
 #define LALR_H_
 
-//#include <bitset.h>
-//#include <bitsetv.h>
-//#include "gram.h" /* Import the definition of RULE_T. */
-//#include "state.h" /* Import the definition of CORE, TRANSITIONS and REDUCTIONS. */
-
 /** Build the LALR(1) automaton.
 
    Find which rules need lookahead in each state, and which lookahead

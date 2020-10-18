@@ -148,7 +148,7 @@ SOraDbProvider::OH::operator uint32 () const
 {
 	OH h;
 	h.T = OCI_HTYPE_STMT;
-	h.H = (void *)rS.H;
+	h.H = (void *)rS.H; // @x64crit
 	return h;
 }
 
@@ -323,7 +323,7 @@ int SSqlStmt::Describe()
 
 int SSqlStmt::InitBinding()
 {
-	BL.clear(); // @v9.9.0 freeAll-->clear
+	BL.clear();
 	BL.Dim = 1;
 	BS.Destroy();
 	BS.Alloc(SKILOBYTE(16)); // @todo Указатель должен быть неперемещаемым. В дальнейшем надо

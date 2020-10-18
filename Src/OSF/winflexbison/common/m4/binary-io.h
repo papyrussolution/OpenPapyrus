@@ -23,22 +23,22 @@
 /* SET_BINARY (fd);
    changes the file descriptor fd to perform binary I/O.  */
 #if O_BINARY
-# if defined __EMX__ || defined __DJGPP__ || defined __CYGWIN__
+#if defined __EMX__ || defined __DJGPP__ || defined __CYGWIN__
 #  include <io.h> /* declares setmode() */
-# else
+#else
 #  define setmode _setmode
 #  undef fileno
 #  define fileno _fileno
-# endif
+#endif
 # ifdef __DJGPP__
 #  include <unistd.h> /* declares isatty() */
    /* Avoid putting stdin/stdout in binary mode if it is connected to
       the console, because that would make it impossible for the user
       to interrupt the program through Ctrl-C or Ctrl-Break.  */
 #  define SET_BINARY(fd) ((void) (!isatty (fd) ? (setmode (fd, O_BINARY), 0) : 0))
-# else
+#else
 #  define SET_BINARY(fd) ((void) setmode (fd, O_BINARY))
-# endif
+#endif
 #else
   /* On reasonable systems, binary I/O is the default.  */
 #define SET_BINARY(fd) /* do nothing */ ((void) 0)

@@ -49,7 +49,7 @@
 
 /* Number of bits stored in each element.  */
 #define EBITSET_ELT_BITS \
-	((unsigned)(EBITSET_ELT_WORDS * BITSET_WORD_BITS))
+	((uint)(EBITSET_ELT_WORDS * BITSET_WORD_BITS))
 
 /* Ebitset element.  We use an array of bits.  */
 typedef struct tbitset_elt_struct {
@@ -345,7 +345,7 @@ static inline bool tbitset_equal_p(bitset dst, bitset src)
 		if((selt && !delt) || (!selt && delt))
 			return false;
 
-		for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++)
+		for(uint i = 0; i < EBITSET_ELT_WORDS; i++)
 			if(EBITSET_WORDS(selt)[i] != EBITSET_WORDS(delt)[i])
 				return false;
 	}
@@ -697,7 +697,7 @@ static void tbitset_not(bitset dst, bitset src)
 		tbitset_elt * delt =
 		    tbitset_elt_find(dst, j * EBITSET_ELT_BITS, EBITSET_CREATE);
 
-		for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++)
+		for(uint i = 0; i < EBITSET_ELT_WORDS; i++)
 			EBITSET_WORDS(delt)[i] = ~EBITSET_WORDS (selt)[i];
 	}
 	EBITSET_NONZERO_SET(dst);
@@ -725,7 +725,7 @@ static bool tbitset_subset_p(bitset dst, bitset src)
 		if(!delt)
 			delt = &tbitset_zero_elts[0];
 
-		for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++)
+		for(uint i = 0; i < EBITSET_ELT_WORDS; i++)
 			if(EBITSET_WORDS(delt)[i]
 			    != (EBITSET_WORDS(selt)[i] | EBITSET_WORDS(delt)[i]))
 				return false;
@@ -749,7 +749,7 @@ static bool tbitset_disjoint_p(bitset dst, bitset src)
 		if(!selt || !delt)
 			continue;
 
-		for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++)
+		for(uint i = 0; i < EBITSET_ELT_WORDS; i++)
 			if((EBITSET_WORDS(selt)[i] & EBITSET_WORDS(delt)[i]))
 				return false;
 	}
@@ -805,7 +805,7 @@ static bool tbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    abort();
 
 			case BITSET_OP_OR:
-			    for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ | *srcp2++;
 
 				    if(*dstp != tmp) {
@@ -816,7 +816,7 @@ static bool tbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    break;
 
 			case BITSET_OP_AND:
-			    for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ & *srcp2++;
 
 				    if(*dstp != tmp) {
@@ -827,7 +827,7 @@ static bool tbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    break;
 
 			case BITSET_OP_XOR:
-			    for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ ^ *srcp2++;
 
 				    if(*dstp != tmp) {
@@ -838,7 +838,7 @@ static bool tbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    break;
 
 			case BITSET_OP_ANDN:
-			    for(unsigned i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < EBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ & ~(*srcp2++);
 
 				    if(*dstp != tmp) {

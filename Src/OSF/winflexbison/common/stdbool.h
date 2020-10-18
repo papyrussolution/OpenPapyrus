@@ -40,7 +40,7 @@
        - <stdbool.h> must be #included before 'bool', 'false', 'true'
          can be used.
 
-       - You cannot assume that sizeof (bool) == 1.
+       - You cannot assume that sizeof(bool) == 1.
 
        - Programs should not undefine the macros bool, true, and false,
          as C99 lists that as an "obsolescent feature".
@@ -52,7 +52,7 @@
        - You cannot assume that _Bool is a typedef; it might be a macro.
 
        - Bit-fields of type 'bool' are not supported.  Portable code
-         should use 'unsigned int foo : 1;' rather than 'bool foo : 1;'.
+         should use 'uint foo : 1;' rather than 'bool foo : 1;'.
 
        - In C99, casts and automatic conversions to '_Bool' or 'bool' are
          performed in such a way that every nonzero value gets converted
@@ -73,8 +73,8 @@
    definitions below, but temporarily we have to #undef them.  */
 #if defined __BEOS__ && !defined __HAIKU__
 #include <OS.h> /* defines bool but not _Bool */
-# undef false
-# undef true
+#undef false
+#undef true
 #endif
 
 /* For the sake of symbolic names in gdb, we define true and false as
@@ -82,7 +82,7 @@
    It is tempting to write
       typedef enum { false = 0, true = 1 } _Bool;
    so that gdb prints values of type 'bool' symbolically. But if we do
-   this, values of type '_Bool' may promote to 'int' or 'unsigned int'
+   this, values of type '_Bool' may promote to 'int' or 'uint'
    (see ISO C 99 6.7.2.2.(4)); however, '_Bool' must promote to 'int'
    (see ISO C 99 6.3.1.1.(2)).  So we add a negative value to the
    enum; this ensures that '_Bool' promotes to 'int'.  */
@@ -90,11 +90,11 @@
   /* A compiler known to have 'bool'.  */
   /* If the compiler already has both 'bool' and '_Bool', we can assume they
      are the same types.  */
-# if !@HAVE__BOOL@
+#if !@HAVE__BOOL@
 typedef bool _Bool;
-# endif
+#endif
 #else
-# if !defined __GNUC__
+#if !defined __GNUC__
    /* If @HAVE__BOOL@:
         Some HP-UX cc and AIX IBM C compiler versions have compiler bugs when
         the built-in _Bool type is used.  See
@@ -115,12 +115,12 @@ typedef bool _Bool;
         The only benefit of the enum, debuggability, is not important
         with these compilers.  So use 'signed char' and no enum.  */
 #  define _Bool signed char
-# else
+#else
    /* With this compiler, trust the _Bool type if the compiler has it.  */
 #  if !@HAVE__BOOL@
 typedef enum { _Bool_must_promote_to_int = -1, false = 0, true = 1 } _Bool;
 #  endif
-# endif
+#endif
 #endif
 //#define bool signed char
 //_Bool

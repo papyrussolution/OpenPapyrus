@@ -15,13 +15,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* Common code of
-   gl_linkedhash_list.c, gl_avltreehash_list.c, gl_rbtreehash_list.c.  */
+/* Common code of gl_linkedhash_list.c, gl_avltreehash_list.c, gl_rbtreehash_list.c.  */
 
 /* Hash table entry.  */
-struct gl_hash_entry
-{
-  struct gl_hash_entry *hash_next;  /* chain of entries in same bucket */
-  size_t hashcode;                  /* cache of values' common hash code */
+struct gl_hash_entry {
+	struct gl_hash_entry * hash_next; /* chain of entries in same bucket */
+	size_t hashcode;            /* cache of values' common hash code */
 };
+
 typedef struct gl_hash_entry * gl_hash_entry_t;

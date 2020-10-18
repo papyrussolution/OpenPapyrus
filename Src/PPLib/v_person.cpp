@@ -2761,7 +2761,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					ok = AddItem(&id);
 					if(ok > 0) {
 						pBrw->Update();
-						pBrw->search2(&id, PTR_CMPFUNC(long), srchFirst, 0);
+						pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
 						ok = -1; // Не надо обновлять таблицу после этого вызова
 					}
 				}

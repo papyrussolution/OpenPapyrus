@@ -21,10 +21,6 @@
 #ifndef SCAN_CODE_H_
 #define SCAN_CODE_H_
 
-//#include "location.h"
-//#include "named-ref.h"
-//#include "uniqstr.h"
-
 struct symbol_list;
 
 /**

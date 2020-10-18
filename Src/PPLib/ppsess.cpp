@@ -1940,7 +1940,6 @@ static void InitTest()
 	assert(sizeof(PPGeoTrackingMode) == 8);
 	assert(sizeof(PPCycleFilt) == 4); // @v9.5.8
 	assert(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
-	// @v9.0.11 {
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
 	// БОльшая часть кода закладывается на этот факт.
@@ -1951,7 +1950,7 @@ static void InitTest()
 	assert(PPSetError(0) == 0);
 	assert(PPSetError(0, "") == 0);
 	assert(PPSetError(0, 0L) == 0);
-	// } @v9.0.11
+	//
 	assert(_TestSymbols());
 	{
 		//
@@ -1964,7 +1963,7 @@ static void InitTest()
 	}
 	{
 		//
-		// @v9.3.4 Возможность системы получить стоп-событие, созданное в SlSession, критична!
+		// Возможность системы получить стоп-событие, созданное в SlSession, критична!
 		//
 		SString evnam;
 		Evnt test_stop_event(SLS.GetStopEventName(evnam), Evnt::modeOpen);

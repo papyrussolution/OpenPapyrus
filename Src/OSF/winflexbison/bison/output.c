@@ -20,26 +20,9 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <error.h>
 #include <filename.h> /* IS_PATH_WITH_DIR */
-//#include <get-errno.h>
-//#include <mbswidth.h>
 #include <path-join.h>
-//#include <quotearg.h>
-//#include <spawn-pipe.h>
-//#include <timevar.h>
-//#include <wait-process.h>
-//#include "complain.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "muscle-tab.h"
-//#include "output.h"
-//#include "reader.h"
-//#include "reduce.h"
-//#include "scan-code.h"    /* max_left_semantic_context */
 #include "scan-skel.h"
-//#include "symtab.h"
 #include "tables.h"
 
 static struct obstack format_obstack;
@@ -189,9 +172,8 @@ static const char * symbol_tag(const Symbol * sym)
 static void prepare_symbol_names(char const * muscle_name)
 {
 	// Whether to add a pair of quotes around the name.
-	const bool quote = STREQ(muscle_name, "tname");
+	const bool quote = sstreq(muscle_name, "tname");
 	bool has_translations = false;
-
 	/* We assume that the table will be output starting at column 2. */
 	int col = 2;
 	struct quoting_options * qo = clone_quoting_options(0);
@@ -385,8 +367,8 @@ static int symbol_type_name_cmp(const Symbol ** lhs, const Symbol ** rhs)
 
 static Symbol ** symbols_by_type_name(void)
 {
-	typedef int (* qcmp_type) (const void *, const void *);
-	Symbol ** res = xmemdup(symbols, nsyms * sizeof *res);
+	typedef int (* qcmp_type)(const void *, const void *);
+	Symbol ** res = (Symbol **)xmemdup(symbols, nsyms * sizeof *res);
 	qsort(res, nsyms, sizeof *res, (qcmp_type) &symbol_type_name_cmp);
 	return res;
 }
@@ -616,9 +598,8 @@ static void muscles_output(FILE * out)
 | Call the skeleton parser.  |
    `---------------------------*/
 #include <process.h>
-#include <io.h>
-static const char letters[] =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+//#include <io.h>
+static const char letters[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
    does not exist at the time of the call to mkstemp.  TMPL is
@@ -627,12 +608,11 @@ static FILE* mkstempFILE(char * tmpl, const char * mode)
 {
 	int len;
 	char * XXXXXX;
-	static unsigned long long value;
-	unsigned long long random_time_bits;
-	unsigned int count;
-	FILE* fd = NULL;
+	static uint64 value;
+	uint64 random_time_bits;
+	uint count;
+	FILE * fd = NULL;
 	int r;
-
 	/* A lower bound on the number of temporary files to attempt to
 	   generate.  The maximum total number of temporary file names that
 	   can exist for a given template is 62**6.  It should never be
@@ -644,32 +624,26 @@ static FILE* mkstempFILE(char * tmpl, const char * mode)
 	/* The number of times to attempt to generate a temporary file.  To
 	   conform to POSIX, this must be no smaller than TMP_MAX.  */
 #if ATTEMPTS_MIN < TMP_MAX
-	unsigned int attempts = TMP_MAX;
+	uint attempts = TMP_MAX;
 #else
-	unsigned int attempts = ATTEMPTS_MIN;
+	uint attempts = ATTEMPTS_MIN;
 #endif
-
 	len = strlen(tmpl);
 	if(len < 6 || strcmp(&tmpl[len - 6], "XXXXXX")) {
 		return NULL;
 	}
-
 	/* This is where the Xs start.  */
 	XXXXXX = &tmpl[len - 6];
-
 	/* Get some more or less random data but unique per process */
 	{
-		static unsigned long long g_value;
+		static uint64 g_value;
 		g_value = _getpid();
 		g_value += 100;
-		random_time_bits = (((unsigned long long)234546 << 32)
-		    | (unsigned long long)g_value);
+		random_time_bits = (((uint64)234546 << 32) | (uint64)g_value);
 	}
-	value += random_time_bits ^ (unsigned long long)122434;
-
+	value += random_time_bits ^ (uint64)122434;
 	for(count = 0; count < attempts; value += 7777, ++count) {
-		unsigned long long v = value;
-
+		uint64 v = value;
 		/* Fill in the random bits.  */
 		XXXXXX[0] = letters[v % 62];
 		v /= 62;

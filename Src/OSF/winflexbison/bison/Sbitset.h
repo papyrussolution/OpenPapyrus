@@ -20,7 +20,7 @@
 #ifndef SBITSET_H_
 #define SBITSET_H_
 
-typedef unsigned char * Sbitset;
+typedef uchar * Sbitset;
 typedef size_t Sbitset__Index;
 #define SBITSET__INDEX__CONVERSION_SPEC "zu"
 

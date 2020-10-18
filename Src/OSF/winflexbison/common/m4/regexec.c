@@ -1,3 +1,5 @@
+// @sobolev: This file is included into regex.c (don't compile separately)
+//
 /* Extended regular expression matching and search library.
    Copyright (C) 2002-2011 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -17,29 +19,16 @@
    with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
 
-static reg_errcode_t match_ctx_init(re_match_context_t * cache, int eflags,
-    Idx n) internal_function;
+static reg_errcode_t match_ctx_init(re_match_context_t * cache, int eflags, Idx n) internal_function;
 static void match_ctx_clean(re_match_context_t * mctx) internal_function;
 static void match_ctx_free(re_match_context_t * cache) internal_function;
-static reg_errcode_t match_ctx_add_entry(re_match_context_t * cache, Idx node,
-    Idx str_idx, Idx from, Idx to)
-internal_function;
-static Idx search_cur_bkref_entry(const re_match_context_t * mctx, Idx str_idx)
-internal_function;
-static reg_errcode_t match_ctx_add_subtop(re_match_context_t * mctx, Idx node,
-    Idx str_idx) internal_function;
-static re_sub_match_last_t * match_ctx_add_sublast(re_sub_match_top_t * subtop,
-    Idx node, Idx str_idx)
-internal_function;
-static void sift_ctx_init(re_sift_context_t * sctx, re_dfastate_t ** sifted_sts,
-    re_dfastate_t ** limited_sts, Idx last_node,
-    Idx last_str_idx)
-internal_function;
-static reg_errcode_t re_search_internal(const regex_t * preg,
-    const char * string, Idx length,
-    Idx start, Idx last_start, Idx stop,
-    size_t nmatch, regmatch_t pmatch[],
-    int eflags) internal_function;
+static reg_errcode_t match_ctx_add_entry(re_match_context_t * cache, Idx node, Idx str_idx, Idx from, Idx to) internal_function;
+static Idx search_cur_bkref_entry(const re_match_context_t * mctx, Idx str_idx) internal_function;
+static reg_errcode_t match_ctx_add_subtop(re_match_context_t * mctx, Idx node, Idx str_idx) internal_function;
+static re_sub_match_last_t * match_ctx_add_sublast(re_sub_match_top_t * subtop, Idx node, Idx str_idx) internal_function;
+static void sift_ctx_init(re_sift_context_t * sctx, re_dfastate_t ** sifted_sts, re_dfastate_t ** limited_sts, Idx last_node, Idx last_str_idx) internal_function;
+static reg_errcode_t re_search_internal(const regex_t * preg, const char * string, Idx length, Idx start, Idx last_start, Idx stop,
+    size_t nmatch, regmatch_t pmatch[], int eflags) internal_function;
 static regoff_t re_search_2_stub(struct re_pattern_buffer * bufp,
     const char * string1, Idx length1,
     const char * string2, Idx length2,
@@ -3959,8 +3948,7 @@ internal_function search_cur_bkref_entry(const re_match_context_t * mctx, Idx st
 /* Register the node NODE, whose type is OP_OPEN_SUBEXP, and which matches
    at STR_IDX.  */
 
-static reg_errcode_t
-internal_function __attribute_warn_unused_result__ match_ctx_add_subtop(re_match_context_t * mctx, Idx node, Idx str_idx)
+static reg_errcode_t internal_function __attribute_warn_unused_result__ match_ctx_add_subtop(re_match_context_t * mctx, Idx node, Idx str_idx)
 {
 #ifdef DEBUG
 	assert(mctx->sub_tops != NULL);
@@ -3968,9 +3956,7 @@ internal_function __attribute_warn_unused_result__ match_ctx_add_subtop(re_match
 #endif
 	if(BE(mctx->nsub_tops == mctx->asub_tops, 0)) {
 		Idx new_asub_tops = mctx->asub_tops * 2;
-		re_sub_match_top_t ** new_array = re_realloc(mctx->sub_tops,
-			re_sub_match_top_t *,
-			new_asub_tops);
+		re_sub_match_top_t ** new_array = re_realloc(mctx->sub_tops, re_sub_match_top_t *, new_asub_tops);
 		if(BE(new_array == NULL, 0))
 			return REG_ESPACE;
 		mctx->sub_tops = new_array;

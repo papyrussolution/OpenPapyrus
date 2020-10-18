@@ -47,7 +47,7 @@ int ecdh_simple_compute_key(unsigned char ** pout, size_t * poutlen,
 		goto err;
 	BN_CTX_start(ctx);
 	x = BN_CTX_get(ctx);
-	if(x == NULL) {
+	if(!x) {
 		ECerr(EC_F_ECDH_SIMPLE_COMPUTE_KEY, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

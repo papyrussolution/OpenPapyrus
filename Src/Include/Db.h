@@ -48,7 +48,9 @@ enum SqlServerType {
 	sqlstORA,         // Oracle
 	sqlstMSS,         // Ms SQL Server
 	sqlstFB,          // FireBird
-	sqlstPg           // PostgreSQL
+	sqlstPg,          // PostgreSQL
+	sqlstMySQL,       // @v10.9.0 MySQL
+	sqlstSQLite       // @v10.9.0 SQLite 
 };
 //
 // Descr: класс, представляющий поля типа BLOB или CLOB в таблицах баз данных.
@@ -2738,6 +2740,17 @@ private:
 	int32  LastErrCode;
 	SString LastErrMsg;
 	StrAssocArray CrsfcNameList;
+	Generator_SQL SqlGen;
+};
+//
+// Descr: Провайдер MySQL и MariaDB
+//
+class SMySqlDbProvider : public DbProvider { // @construction
+public:
+	SMySqlDbProvider();
+	~SMySqlDbProvider();
+private:
+	long   Flags;
 	Generator_SQL SqlGen;
 };
 //

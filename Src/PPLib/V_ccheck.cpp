@@ -3629,11 +3629,12 @@ int SLAPI PPViewCCheck::GetPacket(PPID id, CCheckPacket * pPack)
 }
 
 class CCheckInfoDialog : public TDialog {
+	DECL_DIALOG_DATA(CCheckPacket);
 public:
 	CCheckInfoDialog() : TDialog(DLG_CCHECKINFO), CanModif(0)
 	{
 	}
-	int    setDTS(const CCheckPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -3751,7 +3752,7 @@ public:
 		// } @v10.9.0 
 		return ok;
 	}
-	int    getDTS(CCheckPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		long   flags = Data.Rec.Flags;
@@ -3824,7 +3825,6 @@ private:
 	{
 		return (!(Data.Rec.Flags & (CCHKF_PRINTED|CCHKF_SUSPENDED)) && (Data.Rec.Flags & CCHKF_SYNC) && Data.Rec.CashID && Data.Rec.SessID);
 	}
-	CCheckPacket Data;
 	PPObjCSession CsObj;
 	PPObjSCard ScObj;
 	int    CanModif;

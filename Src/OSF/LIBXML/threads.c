@@ -58,7 +58,6 @@
  *  to avoid some crazyness since xmlMalloc/free may actually
  *  be hosted on allocated blocks needing them for the allocation ...
  */
-
 /*
  * xmlMutex are a simple mutual exception locks
  */
@@ -411,13 +410,11 @@ void __xmlGlobalInitMutexLock()
 			atomic_add(&global_init_count, -1);
 		}
 	}
-
 	/* If another thread successfully recorded its critical
 	 * section in the global_init_lock then discard the one
 	 * allocated by this thread. */
 	if(global_init_lock != sem)
 		delete_sem(sem);
-
 	/* Acquire the chosen semaphore */
 	if(acquire_sem(global_init_lock) != B_NO_ERROR) {
 #ifdef DEBUG_THREADS
@@ -490,13 +487,13 @@ static void xmlFreeGlobalState(void * state)
 static xmlGlobalState * xmlNewGlobalState()
 {
 	xmlGlobalState * gs = static_cast<xmlGlobalState *>(malloc(sizeof(xmlGlobalState)));
-	if(gs == NULL)
+	if(!gs)
 		xmlGenericError(0, __FUNCTION__ ": out of memory\n");
 	else {
 		memzero(gs, sizeof(xmlGlobalState));
 		xmlInitializeGlobalState(gs);
 	}
-	return (gs);
+	return gs;
 }
 #endif /* LIBXML_THREAD_ENABLED */
 
@@ -756,7 +753,6 @@ void xmlInitThreads()
 	InitializeCriticalSection(&cleanup_helpers_cs);
 #endif
 }
-
 /**
  * xmlCleanupThreads:
  *
@@ -802,16 +798,12 @@ void xmlCleanupThreads()
 }
 
 #ifdef LIBXML_THREAD_ENABLED
-
-/**
- * xmlOnceInit
- *
- * xmlOnceInit() is used to initialize the value of mainthread for use
- * in other routines. This function should only be called using
- * pthread_once() in association with the once_control variable to ensure
- * that the function is only called once. See man pthread_once for more
- * details.
- */
+// 
+// Descr: xmlOnceInit() is used to initialize the value of mainthread for use
+// in other routines. This function should only be called using
+// pthread_once() in association with the once_control variable to ensure
+// that the function is only called once. See man pthread_once for more details.
+// 
 static void xmlOnceInit()
 {
 #ifdef HAVE_PTHREAD_H
@@ -846,9 +838,7 @@ static void xmlOnceInit()
 		atomic_add(&run_once_init, -1);
 #endif
 }
-
 #endif
-
 /**
  * DllMain:
  * @hinstDLL: handle to DLL instance

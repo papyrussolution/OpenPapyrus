@@ -17,12 +17,8 @@
 
 #ifndef FIXITS_H_
 #define FIXITS_H_ 1
-
-//#include "location.h"
-
-void fixits_register(Location const * loc, char const* update); /* Declare a fix to apply.  */
-void fixits_run(void); /* Apply the fixits: update the source file.  */
-bool fixits_empty(void); /* Whether there are no fixits. */
-void fixits_free(void); /* Free the registered fixits.  */
-
+	void fixits_register(Location const * loc, char const* update); /* Declare a fix to apply.  */
+	void fixits_run(void); /* Apply the fixits: update the source file.  */
+	bool fixits_empty(void); /* Whether there are no fixits. */
+	void fixits_free(void); /* Free the registered fixits.  */
 #endif /* !FIXITS_H_ */

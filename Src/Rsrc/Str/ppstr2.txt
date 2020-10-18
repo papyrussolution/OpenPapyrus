@@ -192,6 +192,8 @@ PPERR_GENDVCNEEDED                 "Необходимо выбрать обоб
 PPERR_RULENEEDED                   "Необходимо указать правило"
 PPERR_FILENAMENEEDED               "Необходимо выбрать имя файла"
 PPERR_TIMSERNEEDED                 "Необходимо указать временную серию"
+PPERR_LOGINNEEDED                  "Необходимо указать строку авторизации"
+PPERR_APIKEYNEEDED                 "Необходимо указать ключ доступа (API-ключ)"
 // } -NEEDED messages
 PPERR_BALNOTEXISTS                 "Указанный балансовый счет (%s) не существует"
 PPERR_INVALIDVATAX                 "НДС должен находиться в пределах 0..50%"
@@ -2076,11 +2078,15 @@ PPERR_SCARDPOOLDSERISPOOL           "Серия карт (%s) для перен�
 PPERR_NOSCARDSERRSRVPOOL            "Не удалось найти серию карт резервного пула"
 PPERR_SCARDSERMUSTBERSRVPOOL        "Серия карт (%s) должна быть резервным пулом"
 PPERR_SCARDSERMUSTBEREGTYPE         "Серия карт (%s) должна иметь регулярный тип (дисконтная, кредитная или бонусная)"
+PPERR_SCARDSERMUSTBEBONUS           "Серия карт (%s) должна бонусный тип"
 PPERR_SCARDSERRSRVPOOLISEMPTY       "Нет доступных карт в резервном пуле %s"
 PPERR_QUERYOBJPACKBYZEROID          "Запрос пакета объекта '%s' по нулевому идентификатору"
 PPERR_STRICTCONFIRMTEXTIGNORED      "Не введена строка подтверждения действия"
 PPERR_GSTRUCHASUNDEFGOODS           "Товарная структура содержит неопределенный товар: %s"
 PPERR_GLOBALDATADOMAINUNDEF         "Не определен домен данных в конфигурации глобального обмена"
+PPERR_INVGUASERVICEIDENT            "Недопустимое значение типа сервиса глобальной учетной записи. Должно быть '%s'"
+PPERR_INVSCSSPECIALTREATMENT        "Недопустимое значение специальной трактовки карт в серии. Должно быть '%s'"
+PPERR_UNDEFSCSPERSONKIND            "Не определен вид персоналии владельцев карт серии '%s'"
 // LastError
 
 [102] // confirmation
@@ -8057,6 +8063,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_eventsubscription                    "Подписка на события"
 @cmd_exportdbtbltransfer                  "Экспорт таблицы Transfer"
 @cmd_exportdbtblbill                      "Экспорт таблицы Bill"
+@cmd_setupglbsvc_uds                      "Настройка интеграции с сервисом UDS"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -8198,7 +8205,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @sdbfield_descr                           "@{description}"
 @sdbfield_formula                         "@{formula}"
 
-@sdbfieldiematch                          "Сопоставление поля для экспорта/импорта"
+@sdbfieldiematchlist                      "Соответствие полей импорта/экспорта"
+@sdbfieldiematch                          "Сопоставление поля для импорта/экспорта"
 @sdbfieldiematch_innerrepr                "Внутреннее представление"
 @sdbfieldiematch_outername                "Внешнее наименование поля"
 //
@@ -11554,6 +11562,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardopblock_amount                      "@{amount}"
 @scardopblock_prevrest                    ""
 @scardopblock_prevdestrest                ""
+
+@scardopfilt                              "Фильтр операций по кредитным картам"
+@scardopfilt_scard                        "@{card}"
+@scardopfilt_scardser                     "@{scard_series_s}"
+@scardopfilt_period                       "@{daterange}"
+@scardopfilt_amtr                         "Диапазон суммы"
+@scardopfilt_flags                        "@{flags}"
+@scardopfilt_order                        "@{sorting}"
 
 @scardupdselection                        "Изменения выборки карт"
 @scardupdselection_flags                  "Изменение флагов"
@@ -15458,6 +15474,59 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @addbillfilt                                  "@{documentnew}"
 @addbillfilt_fshowbrowseraftercreation        "Показать документ в таблице"
+
+@setupglbsvc_uds_login                        "ID компании"
+#{
+В личном кабинете UDS Game перейдите в раздел Интеграция и скопируйте сюда значение поля 'ID компании'.
+#}
+@setupglbsvc_uds_apikey                       "API Key"
+#{
+В личном кабинете UDS Game перейдите в раздел Интеграция и скопируйте сюда значение поля 'API Key'.
+#}
+
+@suprwaretype_goods                           "Базовые товары"
+@suprwaretype_component                       "@{component_pl}"
+
+@suprwarefilt                                 "Фильтр базовых товаров и компонентов"
+@suprwarefilt_prmr                            ""
+@suprwarefilt_scnd                            ""
+@suprwarefilt_flags                           "@{flags}"
+@suprwarefilt_suprwaretype                    "@{type}"
+@suprwarefilt_suprwarecat                     "Категория базового товара"
+@suprwarefilt_srchstr                         "@{srchpattern_substr}"
+@suprwarefilt_typeidlist                      ""
+
+@geotrackingmode                              "Режим отслеживания GEO-треков"
+@geotrackingmode_mode                         ""
+@geotrackingmode_gtmf_auto                    "Автоматически"
+@geotrackingmode_gtmf_checkin                 "Ручная регистрация"
+@geotrackingmode_gtmf_evnt_bill               "По событию: создание документа"
+@geotrackingmode_gtmf_forcegpson              "Принудительно включать GPS-локацию на устройстве"
+@geotrackingmode_cycle                        "Периодичность автоматической регистрации, @{seconds}"
+
+@geotrackingfilt                              "Фильтр гео-треков"
+@geotrackingfilt_period                       "@{daterange}"
+@geotrackingfilt_begtm                        ""
+@geotrackingfilt_oi                           "@{object}"
+@geotrackingfilt_extoi                        "@{extobject}"
+@geotrackingfilt_flags                        "@{flags}"
+
+@gtajournalfilt                               "Фильтр тарифицируемых событий глобальных аккаунтов"
+@gtajournalfilt_period                        "@{daterange}"
+@gtajournalfilt_begtm                         ""
+@gtajournalfilt_globaluser                    "@{user}"
+@gtajournalfilt_oi                            "@{object}"
+@gtajournalfilt_flags                         "@{flags}"
+@gtajournalfilt_fshowobjects                  "@{toshowobjects}"
+@gtajournalfilt_dayofweek                     ""
+@gtajournalfilt_actionlist                    "@{event}"
+
+@billtransmdeficitturn                        "Приходование дефицита при синхронизации документов"
+@billtransmdeficitturn_hint                   "После успешного создания приходных документов следует снова принять данные"
+@billtransmdeficitturn_locdatelist            "Дата прихода по складам"
+
+@divgroupassoc                                "Соответствие 'группа-отдел'"
+@divgroupassocentry                           "Элемент соответствия 'группа-отдел'"
 
 [121]
 1   "Вход"

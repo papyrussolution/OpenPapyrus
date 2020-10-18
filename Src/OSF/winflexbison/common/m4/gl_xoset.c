@@ -27,7 +27,6 @@
 			xalloc_die();
 		return result;
 	}
-
 	bool gl_oset_add(gl_oset_t set, const void * elt)
 	{
 		int result = gl_oset_nx_add(set, elt);

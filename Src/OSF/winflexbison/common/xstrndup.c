@@ -18,8 +18,8 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "xstrndup.h" /* Specification.  */
-#include <string.h>
-#include "xalloc.h"
+//#include <string.h>
+//#include "xalloc.h"
 
 /* Return a newly allocated copy of at most N bytes of STRING.
    In other words, return a copy of the initial segment of length N of
@@ -27,7 +27,7 @@
 char * xstrndup(const char * string, size_t n)
 {
 	size_t len = strnlen(string, n)+1;
-	char * s = (char*)xmalloc(sizeof(char)*len);
+	char * s = (char *)xmalloc(sizeof(char)*len);
 	strncpy(s, string, n);
 	s[n] = 0;
 	return s;

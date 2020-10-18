@@ -1274,6 +1274,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\Db\dbsql-mysql.cpp" />
     <ClCompile Include="..\Db\dbsql.cpp" />
     <ClCompile Include="..\Db\Dbtable.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">

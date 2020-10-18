@@ -21,9 +21,6 @@
 #ifndef MUSCLE_TAB_H_
 #define MUSCLE_TAB_H_
 
-//#include <quotearg.h>
-//#include "location.h"
-
 /* The kind of value associated to this muscle, depending on the
    syntax of the value: keyword (no delimiter, e.g., true), string
    (double quotes, e.g., "foo.h"), or code (braces, e.g., {int}).  */

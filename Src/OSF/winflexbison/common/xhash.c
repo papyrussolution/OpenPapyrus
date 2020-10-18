@@ -18,7 +18,7 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "hash.h" /* Specification.  */
-#include "xalloc.h"
+//#include "xalloc.h"
 
 /* Same as hash_initialize, but invokes xalloc_die on memory
    exhaustion.  */

@@ -19,13 +19,13 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "filenamecat.h" /* Specification.  */
+//#include "filenamecat.h" /* Specification.  */
 //#include <stdlib.h>
 //#include <string.h>
-#include "dirname.h"
+//#include "dirname.h"
 
 #if !HAVE_MEMPCPY && !defined mempcpy
-	#define mempcpy(D, S, N) ((void*)((char*)memcpy(D, S, N) + (N)))
+	#define mempcpy(D, S, N) ((void*)((char *)memcpy(D, S, N) + (N)))
 #endif
 
 /* Return the longest suffix of F that is a relative file name.

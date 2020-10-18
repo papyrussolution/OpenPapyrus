@@ -22,10 +22,10 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "m4.h"
-#include "xvasprintf.h"
+//#include "m4.h"
+//#include "xvasprintf.h"
 
-/* Simple varargs substitute.  We assume int and unsigned int are the
+/* Simple varargs substitute.  We assume int and uint are the
    same size; likewise for long and unsigned long.  */
 
 /* Parse STR as an integer, reporting warnings.  */
@@ -34,7 +34,6 @@ static int arg_int(const char * str)
 	char * endp;
 	long value;
 	size_t len = strlen(str);
-
 	if(!len) {
 		M4ERROR((warning_status, 0, _("empty string treated as 0")));
 		return 0;
@@ -56,7 +55,6 @@ static long arg_long(const char * str)
 	char * endp;
 	long value;
 	size_t len = strlen(str);
-
 	if(!len) {
 		M4ERROR((warning_status, 0, _("empty string treated as 0")));
 		return 0L;
@@ -78,7 +76,6 @@ static double arg_double(const char * str)
 	char * endp;
 	double value;
 	size_t len = strlen(str);
-
 	if(!len) {
 		M4ERROR((warning_status, 0, _("empty string treated as 0")));
 		return 0.0;
@@ -94,21 +91,10 @@ static double arg_double(const char * str)
 	return value;
 }
 
-#define ARG_INT(argc, argv) \
-	((argc == 0) ? 0 : \
-	(--argc, argv++, arg_int(TOKEN_DATA_TEXT(argv[-1]))))
-
-#define ARG_LONG(argc, argv) \
-	((argc == 0) ? 0 : \
-	(--argc, argv++, arg_long(TOKEN_DATA_TEXT(argv[-1]))))
-
-#define ARG_STR(argc, argv) \
-	((argc == 0) ? "" : \
-	(--argc, argv++, TOKEN_DATA_TEXT(argv[-1])))
-
-#define ARG_DOUBLE(argc, argv) \
-	((argc == 0) ? 0 : \
-	(--argc, argv++, arg_double(TOKEN_DATA_TEXT(argv[-1]))))
+#define ARG_INT(argc, argv) ((argc == 0) ? 0 : (--argc, argv++, arg_int(TOKEN_DATA_TEXT(argv[-1]))))
+#define ARG_LONG(argc, argv) ((argc == 0) ? 0 : (--argc, argv++, arg_long(TOKEN_DATA_TEXT(argv[-1]))))
+#define ARG_STR(argc, argv) ((argc == 0) ? "" : (--argc, argv++, TOKEN_DATA_TEXT(argv[-1])))
+#define ARG_DOUBLE(argc, argv) ((argc == 0) ? 0 : (--argc, argv++, arg_double(TOKEN_DATA_TEXT(argv[-1]))))
 
 /*------------------------------------------------------------------.
 | The main formatting function.  Output is placed on the obstack    |
@@ -124,7 +110,7 @@ void expand_format(struct obstack * obs, int argc, token_data ** argv)
 	const char * fmt;               /* position within f */
 	char fstart[] = "%'+- 0#*.*hhd"; /* current format spec */
 	char * p;                       /* position within fstart */
-	unsigned char c;                /* a simple character */
+	uchar c;                /* a simple character */
 
 	/* Flags.  */
 	char flags;                     /* flags to use in fstart */
@@ -208,8 +194,7 @@ void expand_format(struct obstack * obs, int argc, token_data ** argv)
 				    flags |= DONE;
 				    break;
 			}
-		}
-		while(!(flags & DONE) && fmt++);
+		} while(!(flags & DONE) && fmt++);
 		if(flags & THOUSANDS)
 			*p++ = '\'';
 		if(flags & PLUS)
@@ -311,7 +296,6 @@ void expand_format(struct obstack * obs, int argc, token_data ** argv)
 			case 'G':
 			    datatype = DOUBLE;
 			    break;
-
 			default:
 			    abort();
 		}

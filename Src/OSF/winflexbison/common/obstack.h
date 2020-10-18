@@ -128,7 +128,7 @@
    relative to B.  Otherwise, use the faster strategy of computing the
    alignment relative to 0.  */
 
-#define __PTR_ALIGN(B, P, A) __BPTR_ALIGN(sizeof(PTR_INT_TYPE) < sizeof(void *) ? (B) : (char*)0, P, A)
+#define __PTR_ALIGN(B, P, A) __BPTR_ALIGN(sizeof(PTR_INT_TYPE) < sizeof(void *) ? (B) : (char *)0, P, A)
 
 #include <string.h>
 
@@ -223,9 +223,9 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 /* NextStep 2.0 cc is really gcc 1.93 but it defines __GNUC__ = 2 and
    does not implement __extension__.  But that compiler doesn't define
    __GNUC_MINOR__.  */
-# if __GNUC__ < 2 || (__NeXT__ && !__GNUC_MINOR__)
+#if __GNUC__ < 2 || (__NeXT__ && !__GNUC_MINOR__)
 #  define __extension__
-# endif
+#endif
 
 /* For GNU C, if not -traditional,
    we can define these macros to compute all args only once
@@ -235,12 +235,12 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 #define obstack_object_size(OBSTACK)                                   \
 	__extension__                                                         \
 		({ struct obstack const * __o = (OBSTACK);                             \
-		   (unsigned)(__o->next_free - __o->object_base); })
+		   (uint)(__o->next_free - __o->object_base); })
 
 #define obstack_room(OBSTACK)                                          \
 	__extension__                                                         \
 		({ struct obstack const * __o = (OBSTACK);                             \
-		   (unsigned)(__o->chunk_limit - __o->next_free); })
+		   (uint)(__o->chunk_limit - __o->next_free); })
 
 #define obstack_make_room(OBSTACK, length)                              \
 	__extension__                                                           \
@@ -254,7 +254,7 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 	__extension__                                                         \
 		({ struct obstack const * __o = (OBSTACK);                             \
 		   (__o->chunk->prev == 0                                             \
-		   && __o->next_free == __PTR_ALIGN((char*)__o->chunk,            \
+		   && __o->next_free == __PTR_ALIGN((char *)__o->chunk,            \
 		   __o->chunk->contents,           \
 		   __o->alignment_mask)); })
 
@@ -357,8 +357,8 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 		   __o1->next_free                                                      \
 			   = __PTR_ALIGN(__o1->object_base, __o1->next_free,                 \
 		   __o1->alignment_mask);                              \
-		   if(__o1->next_free - (char*)__o1->chunk                            \
-		   > __o1->chunk_limit - (char*)__o1->chunk)                       \
+		   if(__o1->next_free - (char *)__o1->chunk                            \
+		   > __o1->chunk_limit - (char *)__o1->chunk)                       \
 			   __o1->next_free = __o1->chunk_limit;                               \
 		   __o1->object_base = __o1->next_free;                                 \
 		   __value; })
@@ -368,20 +368,20 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 		({ struct obstack * __o = (OBSTACK);                                     \
 		   void * __obj = (OBJ);                                                 \
 		   if(__obj > (void*)__o->chunk && __obj < (void*)__o->chunk_limit)  \
-			   __o->next_free = __o->object_base = (char*)__obj;                 \
+			   __o->next_free = __o->object_base = (char *)__obj;                 \
 		   else (__obstack_free)(__o, __obj); })
 
 #else /* not __GNUC__ */
 
 #define obstack_object_size(h) \
-	(unsigned)((h)->next_free - (h)->object_base)
+	(uint)((h)->next_free - (h)->object_base)
 
 #define obstack_room(h)                \
-	(unsigned)((h)->chunk_limit - (h)->next_free)
+	(uint)((h)->chunk_limit - (h)->next_free)
 
 #define obstack_empty_p(h) \
 	((h)->chunk->prev == 0                                                 \
-	&& (h)->next_free == __PTR_ALIGN((char*)(h)->chunk,                \
+	&& (h)->next_free == __PTR_ALIGN((char *)(h)->chunk,                \
 	(h)->chunk->contents,               \
 	(h)->alignment_mask))
 
@@ -455,19 +455,19 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 	(h)->next_free                                                        \
 		= __PTR_ALIGN((h)->object_base, (h)->next_free,                    \
 	(h)->alignment_mask),                                \
-	(((h)->next_free - (char*)(h)->chunk                                \
-	> (h)->chunk_limit - (char*)(h)->chunk)                           \
+	(((h)->next_free - (char *)(h)->chunk                                \
+	> (h)->chunk_limit - (char *)(h)->chunk)                           \
 	? ((h)->next_free = (h)->chunk_limit) : 0),                          \
 	(h)->object_base = (h)->next_free,                                    \
 	(h)->temp.tempptr)
 
 #define obstack_free(h, obj)                                            \
-	( (h)->temp.tempint = (char*)(obj) - (char*)(h)->chunk,             \
+	( (h)->temp.tempint = (char *)(obj) - (char *)(h)->chunk,             \
 	((((h)->temp.tempint > 0                                              \
-	&& (h)->temp.tempint < (h)->chunk_limit - (char*)(h)->chunk))     \
+	&& (h)->temp.tempint < (h)->chunk_limit - (char *)(h)->chunk))     \
 	? (int)((h)->next_free = (h)->object_base                           \
-		= (h)->temp.tempint + (char*)(h)->chunk)                  \
-	: (((__obstack_free)((h), (h)->temp.tempint + (char*)(h)->chunk), 0), 0)))
+		= (h)->temp.tempint + (char *)(h)->chunk)                  \
+	: (((__obstack_free)((h), (h)->temp.tempint + (char *)(h)->chunk), 0), 0)))
 
 #endif /* not __GNUC__ */
 

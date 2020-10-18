@@ -30,6 +30,6 @@
 	#endif
 #endif
 #define ATTRIBUTE_UNUSED __attribute__ ((__unused__))
-#include "xalloc.h"
+//#include "xalloc.h"
 
 #endif /* ! BISON_LIBIBERTY_H_ */

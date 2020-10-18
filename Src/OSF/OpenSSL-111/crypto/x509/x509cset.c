@@ -17,7 +17,7 @@
 
 int X509_CRL_set_version(X509_CRL * x, long version)
 {
-	if(x == NULL)
+	if(!x)
 		return 0;
 	if(x->crl.version == NULL) {
 		if((x->crl.version = ASN1_INTEGER_new()) == NULL)
@@ -28,21 +28,21 @@ int X509_CRL_set_version(X509_CRL * x, long version)
 
 int X509_CRL_set_issuer_name(X509_CRL * x, X509_NAME * name)
 {
-	if(x == NULL)
+	if(!x)
 		return 0;
 	return X509_NAME_set(&x->crl.issuer, name);
 }
 
 int X509_CRL_set1_lastUpdate(X509_CRL * x, const ASN1_TIME * tm)
 {
-	if(x == NULL)
+	if(!x)
 		return 0;
 	return x509_set1_time(&x->crl.lastUpdate, tm);
 }
 
 int X509_CRL_set1_nextUpdate(X509_CRL * x, const ASN1_TIME * tm)
 {
-	if(x == NULL)
+	if(!x)
 		return 0;
 	return x509_set1_time(&x->crl.nextUpdate, tm);
 }
@@ -141,7 +141,7 @@ int X509_REVOKED_set_revocationDate(X509_REVOKED * x, ASN1_TIME * tm)
 {
 	ASN1_TIME * in;
 
-	if(x == NULL)
+	if(!x)
 		return 0;
 	in = x->revocationDate;
 	if(in != tm) {
@@ -162,7 +162,7 @@ const ASN1_INTEGER * X509_REVOKED_get0_serialNumber(const X509_REVOKED * x)
 int X509_REVOKED_set_serialNumber(X509_REVOKED * x, ASN1_INTEGER * serial)
 {
 	ASN1_INTEGER * in;
-	if(x == NULL)
+	if(!x)
 		return 0;
 	in = &x->serialNumber;
 	if(in != serial)

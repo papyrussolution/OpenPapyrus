@@ -18,8 +18,8 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "dirname.h"
-#include "xalloc.h"
+//#include "dirname.h"
+//#include "xalloc.h"
 
 /* Just like mdir_name (dirname-lgpl.c), except, rather than
    returning NULL upon malloc failure, here, we report the

@@ -2575,8 +2575,7 @@ static variant * variant_table_grow(void)
 	if(variant_count > variant_table_size) {
 		while(variant_count > variant_table_size)
 			variant_table_size = 2 * variant_table_size + 3;
-		variant_table = xnrealloc(variant_table, variant_table_size,
-			sizeof *variant_table);
+		variant_table = (variant *)xnrealloc(variant_table, variant_table_size, sizeof *variant_table);
 	}
 	return &variant_table[variant_count - 1];
 }
@@ -2593,12 +2592,10 @@ static char const * find_prefix_end(char const * prefix, char const * cp, char c
 	for(; *prefix && cp != end; ++prefix, ++cp)
 		if(*prefix != *cp)
 			return NULL;
-
 	return *prefix ? NULL : cp;
 }
 
-static variant * variant_add(uniqstr id, Location id_loc, int symbol_index,
-    char const * cp, char const * cp_end, bool explicit_bracketing)
+static variant * variant_add(uniqstr id, Location id_loc, int symbol_index, char const * cp, char const * cp_end, bool explicit_bracketing)
 {
 	char const * prefix_end = find_prefix_end(id, cp, cp_end);
 	if(prefix_end &&
@@ -2638,17 +2635,14 @@ static void show_sub_message(warnings warning, const char* cp, bool explicit_bra
 			id = var->hidden_by->id;
 			id_loc = var->hidden_by->loc;
 		}
-		else{
+		else {
 			id = var->id;
 			id_loc = var->loc;
 		}
-
 		const char * tail = explicit_bracketing ? "" : cp + strlen(var->id);
-
 		/* Create the explanation message. */
 		static struct obstack msg_buf;
 		obstack_init(&msg_buf);
-
 		obstack_printf(&msg_buf, _("possibly meant: %c"), dollar_or_at);
 		if(contains_dot_or_dash(id))
 			obstack_printf(&msg_buf, "[%s]", id);

@@ -19,12 +19,6 @@
 
 #ifndef PARSE_SIMULATION_H
 #define PARSE_SIMULATION_H
-
-//#include <stdio.h>
-//#include <gl_xlist.h>
-//#include "derivation.h"
-//#include "state-item.h"
-
 /*
    Simulating states of the parser:
    Each state is an array of state-items and an array of derivations.

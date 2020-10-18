@@ -20,14 +20,10 @@
 
 #ifndef PRINT_XML_H_
 #define PRINT_XML_H_
-
-//#include <stdio.h>
-
-void xml_indent (FILE *out, int level);
-void xml_puts (FILE *, int, char const *);
-void xml_printf (FILE *, int, char const *, ...);
-char const *xml_escape_n (int n, char const *str);
-char const *xml_escape (char const *str);
-void print_xml (void);
-
+	void xml_indent(FILE * out, int level);
+	void xml_puts(FILE *, int, char const *);
+	void xml_printf(FILE *, int, char const *, ...);
+	char const * xml_escape_n(int n, char const * str);
+	char const * xml_escape(char const * str);
+	void print_xml(void);
 #endif /* !PRINT_XML_H_ */

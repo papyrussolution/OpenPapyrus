@@ -1165,7 +1165,7 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const 
 static int FASTCALL xmlFetchXMLCatalogFile(xmlCatalogEntry * catal) 
 {
 	xmlCatalogEntry * doc;
-	if(catal == NULL)
+	if(!catal)
 		return -1;
 	if(catal->URL == NULL)
 		return -1;
@@ -1547,7 +1547,7 @@ static xmlChar * xmlCatalogXMLResolveURI(xmlCatalogEntryPtr catal, const xmlChar
 	int haveNext = 0;
 	xmlCatalogEntryPtr rewrite = NULL;
 	int lenrewrite = 0, len;
-	if(catal == NULL)
+	if(!catal)
 		return 0;
 	if(URI == NULL)
 		return 0;
@@ -2140,7 +2140,7 @@ static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTable * catal, const xmlCh
 {
 	xmlCatalogEntryPtr entry;
 	xmlChar * normid;
-	if(catal == NULL)
+	if(!catal)
 		return 0;
 	normid = xmlCatalogNormalizePublic(pubID);
 	if(normid != NULL)
@@ -2221,7 +2221,7 @@ xmlCatalogPtr xmlLoadSGMLSuperCatalog(const char * filename)
 	if(content == NULL)
 		return 0;
 	catal = xmlCreateNewCatalog(XML_SGML_CATALOG_TYPE, xmlCatalogDefaultPrefer);
-	if(catal == NULL) {
+	if(!catal) {
 		SAlloc::F(content);
 		return 0;
 	}
@@ -2257,7 +2257,7 @@ xmlCatalogPtr xmlLoadACatalog(const char * filename)
 		first++;
 	if(*first != '<') {
 		catal = xmlCreateNewCatalog(XML_SGML_CATALOG_TYPE, xmlCatalogDefaultPrefer);
-		if(catal == NULL) {
+		if(!catal) {
 			SAlloc::F(content);
 			return 0;
 		}
@@ -2270,7 +2270,7 @@ xmlCatalogPtr xmlLoadACatalog(const char * filename)
 	}
 	else {
 		catal = xmlCreateNewCatalog(XML_XML_CATALOG_TYPE, xmlCatalogDefaultPrefer);
-		if(catal == NULL) {
+		if(!catal) {
 			SAlloc::F(content);
 			return 0;
 		}
@@ -2549,7 +2549,7 @@ xmlCatalogPtr xmlNewCatalog(int sgml)
  */
 int xmlCatalogIsEmpty(xmlCatalogPtr catal) 
 {
-	if(catal == NULL)
+	if(!catal)
 		return -1;
 	else if(catal->type == XML_XML_CATALOG_TYPE) {
 		if(catal->xml == NULL)
@@ -2696,7 +2696,7 @@ int xmlLoadCatalog(const char * filename)
 	xmlRMutexLock(xmlCatalogMutex);
 	if(xmlDefaultCatalog == NULL) {
 		catal = xmlLoadACatalog(filename);
-		if(catal == NULL) {
+		if(!catal) {
 			xmlRMutexUnlock(xmlCatalogMutex);
 			return -1;
 		}
@@ -3033,7 +3033,7 @@ void * xmlCatalogAddLocal(void * catalogs, const xmlChar * URL)
 	if(add == NULL)
 		return (catalogs);
 	catal = (xmlCatalogEntry *)catalogs;
-	if(catal == NULL)
+	if(!catal)
 		return (void *)add;
 	while(catal->next)
 		catal = catal->next;
@@ -3099,7 +3099,7 @@ xmlChar * xmlCatalogLocalResolveURI(void * catalogs, const xmlChar * URI)
 	if(xmlDebugCatalogs)
 		xmlGenericError(0, "Resolve URI %s\n", URI);
 	catal = (xmlCatalogEntry *)catalogs;
-	if(catal == NULL)
+	if(!catal)
 		return 0;
 	ret = xmlCatalogListXMLResolveURI(catal, URI);
 	return (ret && ret != XML_CATAL_BREAK) ? ret : 0;

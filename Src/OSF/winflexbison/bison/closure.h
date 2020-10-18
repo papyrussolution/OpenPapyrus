@@ -20,8 +20,6 @@
 #ifndef CLOSURE_H_
 #define CLOSURE_H_
 
-//#include "gram.h"
-
 /* Allocates the itemset and ruleset vectors, and precomputes useful
    data so that closure can be called.  n is the number of elements to
    allocate for itemset.  */

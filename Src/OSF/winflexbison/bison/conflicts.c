@@ -20,19 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset.h>
-//#include "complain.h"
-//#include "conflicts.h"
-//#include "counterexample.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "lalr.h"
-//#include "lr0.h"
-//#include "print-xml.h"
-//#include "reader.h"
-//#include "state.h"
-//#include "symtab.h"
 
 /* -1 stands for not specified. */
 int expected_sr_conflicts = -1;

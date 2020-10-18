@@ -1,5 +1,5 @@
 // DBOCI.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2018
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2018, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -104,16 +104,13 @@ OCIDATETIMESUBTRACT          Ocif::OCIDateTimeSubtract = 0;
 OCIDATETIMESYSTIMESTAMP      Ocif::OCIDateTimeSysTimeStamp = 0;
 OCIARRAYDESCRIPTORFREE       Ocif::OCIArrayDescriptorFree = 0;
 OCICLIENTVERSION             Ocif::OCIClientVersion = 0;
-
 OCISTRINGPTR                 Ocif::OCIStringPtr = 0;
 OCISTRINGASSIGNTEXT          Ocif::OCIStringAssignText = 0;
 OCIRAWPTR                    Ocif::OCIRawPtr = 0;
 OCIRAWASSIGNBYTES            Ocif::OCIRawAssignBytes = 0;
 OCIRAWALLOCSIZE              Ocif::OCIRawAllocSize = 0;
 OCIRAWRESIZE                 Ocif::OCIRawResize = 0;
-
 OCIROWIDTOCHAR               Ocif::OCIRowidToChar = 0;
-
 OCIBINDARRAYOFSTRUCT         Ocif::OCIBindArrayOfStruct = 0;
 OCIDEFINEARRAYOFSTRUCT       Ocif::OCIDefineArrayOfStruct = 0;
 
@@ -183,7 +180,7 @@ int Ocif::Load()
     		LIB_SYMB(OCILobGetLength, OCILOBGETLENGTH);
     		LIB_SYMB(OCILobOpen, OCILOBOPEN);
     		LIB_SYMB(OCILobClose, OCILOBCLOSE);
-			LIB_SYMB(OCILobGetChunkSize, OCILOBGETCHUNKSIZE); // @v6.1.5
+			LIB_SYMB(OCILobGetChunkSize, OCILOBGETCHUNKSIZE);
     		LIB_SYMB(OCILobFileOpen, OCILOBFILEOPEN);
     		LIB_SYMB(OCILobFileClose, OCILOBFILECLOSE);
     		LIB_SYMB(OCILobFileCloseAll, OCILOBFILECLOSEALL);
@@ -194,7 +191,7 @@ int Ocif::Load()
     		LIB_SYMB(OCILobLoadFromFile, OCILOBLOADFROMFILE);
     		LIB_SYMB(OCILobWriteAppend, OCILOBWRITEAPPEND);
     		LIB_SYMB(OCILobIsEqual, OCILOBISEQUAL);
-			LIB_SYMB(OCILobAssign,  OCILOBASSIGN);            // @v6.1.6
+			LIB_SYMB(OCILobAssign,  OCILOBASSIGN);
     		LIB_SYMB(OCIDateAssign, OCIDATEASSIGN);
     		LIB_SYMB(OCIDateToText, OCIDATETOTEXT);
     		LIB_SYMB(OCIDateFromText, OCIDATEFROMTEXT);

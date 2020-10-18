@@ -189,7 +189,7 @@ union GRAM_STYPE {
 	uniqstr yykind_74;                 /* tag.opt  */
 	uniqstr tag;                       /* tag  */
 	uniqstr variable;                  /* variable  */
-	unsigned char CHAR_LITERAL;        /* "character literal"  */
+	uchar  CHAR_LITERAL;        /* "character literal"  */
 	value_type value;                  /* value  */
 
 #line 199 "src/parse-gram.h"

@@ -50,7 +50,7 @@ enum bitset_alloc_type {BITSET_MALLOC, BITSET_OBALLOC};
 
 /* Data type used to store a word of bits.  */
 typedef unsigned long bitset_word;
-#define BITSET_WORD_BITS ((unsigned)(CHAR_BIT * sizeof(bitset_word)))
+#define BITSET_WORD_BITS ((uint)(CHAR_BIT * sizeof(bitset_word)))
 
 /* Bit index.  In theory we might need a type wider than size_t, but
    in practice we lose at most a factor of CHAR_BIT by going with
@@ -59,16 +59,13 @@ typedef unsigned long bitset_word;
    overflow when converting bit counts to byte or word counts.
    The bit and word index types must be unsigned.  */
 typedef size_t bitset_bindex;
-
-/* Word index.  */
-typedef size_t bitset_windex;
+typedef size_t bitset_windex; /* Word index.  */
 
 /* Maximum values for commonly-used unsigned types.  BITSET_SIZE_MAX
    always equals SIZE_MAX, but some older systems lack SIZE_MAX.  */
 #define BITSET_BINDEX_MAX ((bitset_bindex) -1)
 
-/* Limit max word index to the maximum value of a signed integer
-   to simplify cache disabling.  */
+/* Limit max word index to the maximum value of a signed integer to simplify cache disabling.  */
 #define BITSET_WINDEX_MAX (((bitset_windex) -1) >> 1)
 #define BITSET_SIZE_MAX ((size_t)-1)
 #define BITSET_MSB ((bitset_word)1 << (BITSET_WORD_BITS - 1))

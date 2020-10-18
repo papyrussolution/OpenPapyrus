@@ -21,7 +21,7 @@
 //#include <stdint.h> /* for uintptr_t, SIZE_MAX */
 //#include <stdlib.h>
 #include "gl_rbtree_oset.h"
-#include "xsize.h"
+//#include "xsize.h"
 
 #define WITH_HASHTABLE 1
 
@@ -43,10 +43,10 @@
 #include "gl_anytree_list2.h" /* Generic binary tree code: All other functions.  */
 
 /* For debugging.  */
-static unsigned int check_invariants(gl_list_node_t node, gl_list_node_t parent)
+static uint check_invariants(gl_list_node_t node, gl_list_node_t parent)
 {
-	unsigned int left_blackheight = (node->left != NULL ? check_invariants(node->left, node) : 0);
-	unsigned int right_blackheight = (node->right != NULL ? check_invariants(node->right, node) : 0);
+	uint left_blackheight = (node->left != NULL ? check_invariants(node->left, node) : 0);
+	uint right_blackheight = (node->right != NULL ? check_invariants(node->right, node) : 0);
 	if(!(node->parent == parent))
 		abort();
 	if(!(node->branch_size == (node->left != NULL ? node->left->branch_size : 0) + 1 + (node->right != NULL ? node->right->branch_size : 0)))

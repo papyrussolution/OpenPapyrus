@@ -18,7 +18,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "gl_rbtree_oset.h" /* Specification.  */
-//#include <stdlib.h>
 
 /* -------------------------- gl_oset_t Data Type -------------------------- */
 
@@ -34,14 +33,13 @@
 #define NODE_PAYLOAD_DISPOSE(container, node) if(container->base.dispose_fn != NULL) container->base.dispose_fn(node->value);
 
 #include "gl_rbtree_ordered.h"
-/* Generic binary tree code.  */
-#include "gl_anytree_oset.h"
+#include "gl_anytree_oset.h" /* Generic binary tree code.  */
 
 /* For debugging.  */
 void gl_rbtree_oset_check_invariants(gl_oset_t set)
 {
 	size_t counter = 0;
-	if(set->root != NULL)
+	if(set->root)
 		check_invariants(set->root, NULL, &counter);
 	if(!(set->count == counter))
 		abort();

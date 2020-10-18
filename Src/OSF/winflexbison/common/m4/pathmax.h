@@ -24,24 +24,24 @@
 
 # ifndef _POSIX_PATH_MAX
 #  define _POSIX_PATH_MAX 256
-# endif
+#endif
 
-# if !defined PATH_MAX && defined _PC_PATH_MAX && defined HAVE_PATHCONF
+#if !defined PATH_MAX && defined _PC_PATH_MAX && defined HAVE_PATHCONF
 #  define PATH_MAX (pathconf ("/", _PC_PATH_MAX) < 1 ? 1024 \
                     : pathconf ("/", _PC_PATH_MAX))
-# endif
+#endif
 
 /* Don't include sys/param.h if it already has been.  */
-# if defined HAVE_SYS_PARAM_H && !defined PATH_MAX && !defined MAXPATHLEN
+#if defined HAVE_SYS_PARAM_H && !defined PATH_MAX && !defined MAXPATHLEN
 #  include <sys/param.h>
-# endif
+#endif
 
-# if !defined PATH_MAX && defined MAXPATHLEN
+#if !defined PATH_MAX && defined MAXPATHLEN
 #  define PATH_MAX MAXPATHLEN
-# endif
+#endif
 
 # ifndef PATH_MAX
 #  define PATH_MAX _POSIX_PATH_MAX
-# endif
+#endif
 
 #endif /* _PATHMAX_H */

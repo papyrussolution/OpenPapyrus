@@ -20,11 +20,7 @@
 #ifndef NAMED_REF_H_
 #define NAMED_REF_H_
 
-//#include "location.h"
-//#include "uniqstr.h"
-
-/* Named reference object. Keeps information about
-   a symbolic name of a symbol in a rule. */
+/* Named reference object. Keeps information about a symbolic name of a symbol in a rule. */
 typedef struct named_ref {
 	uniqstr id; /* Symbolic named given by user. */
 	Location loc; /* Location of the symbolic name. Not including brackets. */

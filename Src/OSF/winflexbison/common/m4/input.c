@@ -22,8 +22,8 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "m4.h"
-#include "memchr2.h"
+//#include "m4.h"
+//#include "memchr2.h"
 
 /* Unread input can be either files, that should be read (eg. included
    files), strings, which should be rescanned (eg. macro expansion text),
@@ -61,7 +61,7 @@
    accordingly.  */
 
 #ifdef ENABLE_CHANGEWORD
-#include "regex.h"
+	#include "regex.h"
 #endif
 
 enum input_type {
@@ -165,7 +165,7 @@ void push_file(FILE * fp, const char * title, bool close_when_done)
 	i = (input_block*)obstack_alloc(current_input,
 		sizeof(struct input_block));
 	i->type = INPUT_FILE;
-	i->file = (char*)obstack_copy0(&file_names, title, strlen(title));
+	i->file = (char *)obstack_copy0(&file_names, title, strlen(title));
 	i->line = 1;
 	input_change = true;
 
@@ -242,7 +242,7 @@ const char * push_string_finish(void)
 	if(obstack_object_size(current_input) > 0) {
 		size_t len = obstack_object_size(current_input);
 		obstack_1grow(current_input, '\0');
-		next->u.u_s.string = (char*)obstack_finish(current_input);
+		next->u.u_s.string = (char *)obstack_finish(current_input);
 		next->u.u_s.end = next->u.u_s.string + len;
 		next->prev = isp;
 		isp = next;
@@ -274,7 +274,7 @@ void push_wrapup(const char * s)
 	i->type = INPUT_STRING;
 	i->file = current_file;
 	i->line = current_line;
-	i->u.u_s.string = (char*)obstack_copy0(wrapup_stack, s, len);
+	i->u.u_s.string = (char *)obstack_copy0(wrapup_stack, s, len);
 	i->u.u_s.end = i->u.u_s.string + len;
 	wsp = i;
 }
@@ -674,22 +674,18 @@ void set_word_regexp(const char * regexp)
 {
 	const char * msg;
 	struct re_pattern_buffer new_word_regexp;
-
-	if(!*regexp || STREQ(regexp, DEFAULT_WORD_REGEXP)) {
+	if(!*regexp || sstreq(regexp, DEFAULT_WORD_REGEXP)) {
 		default_word_regexp = true;
 		return;
 	}
-
 	/* Dry run to see whether the new expression is compilable.  */
 	init_pattern_buffer(&new_word_regexp, NULL);
 	msg = re_compile_pattern(regexp, strlen(regexp), &new_word_regexp);
 	regfree(&new_word_regexp);
-
-	if(msg != NULL) {
+	if(msg) {
 		M4ERROR((warning_status, 0, "bad regular expression `%s': %s", regexp, msg));
 		return;
 	}
-
 	/* If compilation worked, retry using the word_regexp struct.  We
 	   can't rely on struct assigns working, so redo the compilation.
 	   The fastmap can be reused between compilations, and will be freed
@@ -792,12 +788,12 @@ token_type next_token(token_data * td, int * line)
 				break;
 			obstack_1grow(&token_stack, ch);
 			startpos = re_search(&word_regexp,
-				(char*)obstack_base(&token_stack),
+				(char *)obstack_base(&token_stack),
 				obstack_object_size(&token_stack), 0, 0,
 				&regs);
 			if(startpos ||
 			    regs.end [0] != (regoff_t)obstack_object_size(&token_stack)) {
-				*(((char*)obstack_base(&token_stack)
+				*(((char *)obstack_base(&token_stack)
 				+ obstack_object_size(&token_stack)) - 1) = '\0';
 				break;
 			}
@@ -805,7 +801,7 @@ token_type next_token(token_data * td, int * line)
 		}
 
 		obstack_1grow(&token_stack, '\0');
-		orig_text = (char*)obstack_finish(&token_stack);
+		orig_text = (char *)obstack_finish(&token_stack);
 
 		if(regs.start[1] != -1)
 			obstack_grow(&token_stack, orig_text + regs.start[1],
@@ -838,7 +834,7 @@ token_type next_token(token_data * td, int * line)
 				size_t len = isp->u.u_s.end - buffer;
 				const char * p = buffer;
 				do {
-					p = (char*)memchr2(p, *lquote.string, *rquote.string,
+					p = (char *)memchr2(p, *lquote.string, *rquote.string,
 						buffer + len - p);
 				}
 				while(p && fast && (*p++ == *rquote.string
@@ -885,7 +881,7 @@ token_type next_token(token_data * td, int * line)
 	obstack_1grow(&token_stack, '\0');
 
 	TOKEN_DATA_TYPE(td) = TOKEN_TEXT;
-	TOKEN_DATA_TEXT(td) = (char*)obstack_finish(&token_stack);
+	TOKEN_DATA_TEXT(td) = (char *)obstack_finish(&token_stack);
 #ifdef ENABLE_CHANGEWORD
 	if(orig_text == NULL)
 		orig_text = TOKEN_DATA_TEXT(td);

@@ -1866,7 +1866,7 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 
 		certstart = certbytes;
 		x = d2i_X509(NULL, (const unsigned char**)&certbytes, cert_len);
-		if(x == NULL) {
+		if(!x) {
 			SSLfatal(s, SSL_AD_BAD_CERTIFICATE,
 			    SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, ERR_R_ASN1_LIB);
 			goto err;

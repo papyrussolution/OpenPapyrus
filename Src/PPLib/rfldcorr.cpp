@@ -36,7 +36,7 @@ static int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ) // @v9.
 	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(typ), 0);
 }
 
-static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField) // @v9.8.12 static
+static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 {
 	class SdFieldCorrDialog : public TDialog {
 		DECL_DIALOG_DATA(SdbField);

@@ -299,7 +299,7 @@ int ssl_cert_add1_chain_cert(SSL * s, SSL_CTX * ctx, X509 * x)
 int ssl_cert_select_current(CERT * c, X509 * x)
 {
 	int i;
-	if(x == NULL)
+	if(!x)
 		return 0;
 	for(i = 0; i < SSL_PKEY_NUM; i++) {
 		CERT_PKEY * cpk = c->pkeys + i;
@@ -517,7 +517,7 @@ static int add_ca_name(STACK_OF(X509_NAME) ** sk, const X509 * x)
 {
 	X509_NAME * name;
 
-	if(x == NULL)
+	if(!x)
 		return 0;
 	if(*sk == NULL && ((*sk = sk_X509_NAME_new_null()) == NULL))
 		return 0;

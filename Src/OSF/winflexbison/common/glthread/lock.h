@@ -81,13 +81,13 @@
 //#include <stdlib.h>
 
 #if !defined c11_threads_in_use
-# if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
+#if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
 #  include <threads.h>
 #  pragma weak thrd_exit
 #  define c11_threads_in_use() (thrd_exit != NULL)
-# else
+#else
 #  define c11_threads_in_use() 0
-# endif
+#endif
 #endif
 
 /* ========================================================================= */
@@ -100,7 +100,7 @@
 
 # ifdef __cplusplus
 extern "C" {
-# endif
+#endif
 
 /* -------------------------- gl_lock_t datatype -------------------------- */
 
@@ -138,7 +138,7 @@ typedef struct
           mtx_t lock; /* protects the remaining fields */
           cnd_t waiting_readers; /* waiting readers */
           cnd_t waiting_writers; /* waiting writers */
-          unsigned int waiting_writers_count; /* number of waiting writers */
+          uint waiting_writers_count; /* number of waiting writers */
           int runcount; /* number of readers running, or -1 when a writer runs */
         }
         gl_rwlock_t;
@@ -195,7 +195,7 @@ typedef once_flag gl_once_t;
 
 # ifdef __cplusplus
 }
-# endif
+#endif
 
 #endif
 
@@ -209,18 +209,18 @@ typedef once_flag gl_once_t;
 
 # ifdef __cplusplus
 extern "C" {
-# endif
+#endif
 
-# if PTHREAD_IN_USE_DETECTION_HARD
+#if PTHREAD_IN_USE_DETECTION_HARD
 
 /* The pthread_in_use() detection needs to be done at runtime.  */
 #  define pthread_in_use() \
      glthread_in_use ()
 extern int glthread_in_use (void);
 
-# endif
+#endif
 
-# if USE_POSIX_THREADS_WEAK
+#if USE_POSIX_THREADS_WEAK
 
 /* Use weak references to the POSIX threads library.  */
 
@@ -278,13 +278,13 @@ extern int glthread_in_use (void);
       (pthread_mutexattr_gettype != NULL || c11_threads_in_use ())
 #  endif
 
-# else
+#else
 
 #  if !PTHREAD_IN_USE_DETECTION_HARD
 #   define pthread_in_use() 1
 #  endif
 
-# endif
+#endif
 
 /* -------------------------- gl_lock_t datatype -------------------------- */
 
@@ -306,7 +306,7 @@ typedef pthread_mutex_t gl_lock_t;
 
 /* ------------------------- gl_rwlock_t datatype ------------------------- */
 
-# if HAVE_PTHREAD_RWLOCK && (HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER || (defined PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP && (__GNU_LIBRARY__ > 1)))
+#if HAVE_PTHREAD_RWLOCK && (HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER || (defined PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP && (__GNU_LIBRARY__ > 1)))
 
 #  ifdef PTHREAD_RWLOCK_INITIALIZER
 
@@ -369,14 +369,14 @@ extern int glthread_rwlock_destroy_multithreaded (gl_rwlock_t *lock);
 
 #  endif
 
-# else
+#else
 
 typedef struct
         {
           pthread_mutex_t lock; /* protects the remaining fields */
           pthread_cond_t waiting_readers; /* waiting readers */
           pthread_cond_t waiting_writers; /* waiting writers */
-          unsigned int waiting_writers_count; /* number of waiting writers */
+          uint waiting_writers_count; /* number of waiting writers */
           int runcount; /* number of readers running, or -1 when a writer runs */
         }
         gl_rwlock_t;
@@ -402,11 +402,11 @@ extern int glthread_rwlock_wrlock_multithreaded (gl_rwlock_t *lock);
 extern int glthread_rwlock_unlock_multithreaded (gl_rwlock_t *lock);
 extern int glthread_rwlock_destroy_multithreaded (gl_rwlock_t *lock);
 
-# endif
+#endif
 
 /* --------------------- gl_recursive_lock_t datatype --------------------- */
 
-# if HAVE_PTHREAD_MUTEX_RECURSIVE
+#if HAVE_PTHREAD_MUTEX_RECURSIVE
 
 #  if defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER || defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 
@@ -462,7 +462,7 @@ extern int glthread_recursive_lock_destroy_multithreaded (gl_recursive_lock_t *l
 
 #  endif
 
-# else
+#else
 
 /* Old versions of POSIX threads on Solaris did not have recursive locks.
    We have to implement them ourselves.  */
@@ -493,7 +493,7 @@ extern int glthread_recursive_lock_lock_multithreaded (gl_recursive_lock_t *lock
 extern int glthread_recursive_lock_unlock_multithreaded (gl_recursive_lock_t *lock);
 extern int glthread_recursive_lock_destroy_multithreaded (gl_recursive_lock_t *lock);
 
-# endif
+#endif
 
 /* -------------------------- gl_once_t datatype -------------------------- */
 
@@ -508,7 +508,7 @@ extern int glthread_once_singlethreaded (pthread_once_t *once_control);
 
 # ifdef __cplusplus
 }
-# endif
+#endif
 
 #endif
 
@@ -525,7 +525,7 @@ extern int glthread_once_singlethreaded (pthread_once_t *once_control);
 
 # ifdef __cplusplus
 extern "C" {
-# endif
+#endif
 
 /* We can use CRITICAL_SECTION directly, rather than the native Windows Event,
    Mutex, Semaphore types, because
@@ -604,7 +604,7 @@ typedef glwthread_once_t gl_once_t;
 
 # ifdef __cplusplus
 }
-# endif
+#endif
 
 #endif
 

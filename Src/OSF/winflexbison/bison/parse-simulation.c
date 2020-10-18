@@ -19,12 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "parse-simulation.h"
-//#include <gl_linked_list.h>
-//#include <gl_xlist.h>
-//#include <stdlib.h>
-//#include "lssi.h"
-//#include "nullable.h"
 
 typedef struct parse_state {
 	// Path of state-items the parser has traversed.

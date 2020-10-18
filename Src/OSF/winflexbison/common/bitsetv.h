@@ -21,7 +21,7 @@
 #ifndef _BITSETV_H
 #define _BITSETV_H
 
-//#include "bitset.h"
+#include "bitset.h"
 
 typedef bitset * bitsetv;
 

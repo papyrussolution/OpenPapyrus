@@ -53,11 +53,12 @@ SLAPI PPViewSuprWare::~PPViewSuprWare()
 int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class SuprWareFilterDlg : public TDialog {
+		DECL_DIALOG_DATA(SuprWareFilt);
 	public:
 		SuprWareFilterDlg() : TDialog(DLG_FLTCOMPGDS)
 		{
 		}
-		int    setDTS(const SuprWareFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_FLTCOMPGDS_SWTYPE, 0, SUPRWARETYPE_GOODS);
@@ -68,7 +69,7 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetupCtrls();
 			return 1;
 		}
-		int    getDTS(SuprWareFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			GetClusterData(CTL_FLTCOMPGDS_SWTYPE, &Data.SuprWareType);
 			getCtrlData(CTLSEL_FLTCOMPGDS_SWCAT, &Data.SuprWareCat);
@@ -95,7 +96,6 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			getCtrlData(CTLSEL_FLTCOMPGDS_SWCAT, &cat_id);
 			setCtrlString(CTL_FLTCOMPGDS_NAMESTR, str_srch.Strip());
 		}
-		SuprWareFilt Data;
 	};
 	if(Filt.IsA(pBaseFilt)) {
 		DIALOG_PROC_BODYERR(SuprWareFilterDlg, static_cast<SuprWareFilt *>(pBaseFilt));

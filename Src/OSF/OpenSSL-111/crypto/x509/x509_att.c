@@ -71,7 +71,7 @@ STACK_OF(X509_ATTRIBUTE) *X509at_add1_attr(STACK_OF(X509_ATTRIBUTE) **x,
 	X509_ATTRIBUTE * new_attr = NULL;
 	STACK_OF(X509_ATTRIBUTE) *sk = NULL;
 
-	if(x == NULL) {
+	if(!x) {
 		X509err(X509_F_X509AT_ADD1_ATTR, ERR_R_PASSED_NULL_PARAMETER);
 		goto err2;
 	}
@@ -161,14 +161,10 @@ void * X509at_get0_data_by_OBJ(STACK_OF(X509_ATTRIBUTE) * x,
 	return X509_ATTRIBUTE_get0_data(at, 0, type, NULL);
 }
 
-X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_NID(X509_ATTRIBUTE ** attr, int nid,
-    int atrtype, const void * data,
-    int len)
+X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_NID(X509_ATTRIBUTE ** attr, int nid, int atrtype, const void * data, int len)
 {
-	ASN1_OBJECT * obj;
 	X509_ATTRIBUTE * ret;
-
-	obj = OBJ_nid2obj(nid);
+	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL) {
 		X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_NID, X509_R_UNKNOWN_NID);
 		return NULL;
@@ -179,28 +175,22 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_NID(X509_ATTRIBUTE ** attr, int nid,
 	return ret;
 }
 
-X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr,
-    const ASN1_OBJECT * obj,
-    int atrtype, const void * data,
-    int len)
+X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr, const ASN1_OBJECT * obj,
+    int atrtype, const void * data, int len)
 {
 	X509_ATTRIBUTE * ret;
-
 	if(!attr || (*attr == NULL)) {
 		if((ret = X509_ATTRIBUTE_new()) == NULL) {
-			X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_OBJ,
-			    ERR_R_MALLOC_FAILURE);
+			X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_OBJ, ERR_R_MALLOC_FAILURE);
 			return NULL;
 		}
 	}
 	else
 		ret = *attr;
-
 	if(!X509_ATTRIBUTE_set1_object(ret, obj))
 		goto err;
 	if(!X509_ATTRIBUTE_set1_data(ret, atrtype, data, len))
 		goto err;
-
 	if((attr != NULL) && (*attr == NULL))
 		*attr = ret;
 	return ret;
@@ -210,18 +200,12 @@ err:
 	return NULL;
 }
 
-X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_txt(X509_ATTRIBUTE ** attr,
-    const char * atrname, int type,
-    const unsigned char * bytes,
-    int len)
+X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_txt(X509_ATTRIBUTE ** attr, const char * atrname, int type, const unsigned char * bytes, int len)
 {
-	ASN1_OBJECT * obj;
 	X509_ATTRIBUTE * nattr;
-
-	obj = OBJ_txt2obj(atrname, 0);
+	ASN1_OBJECT * obj = OBJ_txt2obj(atrname, 0);
 	if(obj == NULL) {
-		X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_TXT,
-		    X509_R_INVALID_FIELD_NAME);
+		X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_TXT, X509_R_INVALID_FIELD_NAME);
 		ERR_add_error_data(2, "name=", atrname);
 		return NULL;
 	}

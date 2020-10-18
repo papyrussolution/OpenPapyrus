@@ -22,7 +22,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "localcharset.h" /* Specification.  */
+//#include "localcharset.h" /* Specification.  */
 //#include <fcntl.h>
 //#include <stddef.h>
 //#include <stdio.h>
@@ -40,22 +40,22 @@
 /* Assume EMX program runs on OS/2, even if compiled under DOS.  */
 # ifndef OS2
 #  define OS2
-# endif
+#endif
 #endif
 
 #if !defined WIN32_NATIVE
-#include <unistd.h>
-# if HAVE_LANGINFO_CODESET
-#  include <langinfo.h>
-# else
-#  if 0 /* see comment below */
-#   include <locale.h>
-#  endif
-# endif
-# ifdef __CYGWIN__
-	//#define WIN32_LEAN_AND_MEAN
-	//#include <windows.h>
-# endif
+	#include <unistd.h>
+	#if HAVE_LANGINFO_CODESET
+		#include <langinfo.h>
+	#else
+		//#if 0 /* see comment below */
+			//#include <locale.h>
+		//#endif
+	#endif
+	#ifdef __CYGWIN__
+		//#define WIN32_LEAN_AND_MEAN
+		//#include <windows.h>
+	#endif
 #elif defined WIN32_NATIVE
 	//#define WIN32_LEAN_AND_MEAN
 	//#include <windows.h>
@@ -64,23 +64,19 @@
 	#define INCL_DOS
 	#include <os2.h>
 #endif
-
 #if ENABLE_RELOCATABLE
-#include "relocatable.h"
+	#include "relocatable.h"
 #else
-#define relocate(pathname) (pathname)
+	#define relocate(pathname) (pathname)
 #endif
-
 /* Get LIBDIR.  */
-#ifndef LIBDIR
-//#include "configmake.h"
-#endif
-
+//#ifndef LIBDIR
+	//#include "configmake.h"
+//#endif
 /* Define O_NOFOLLOW to 0 on platforms where it does not exist.  */
 #ifndef O_NOFOLLOW
-#define O_NOFOLLOW 0
+	#define O_NOFOLLOW 0
 #endif
-
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
 /* Win32, Cygwin, OS/2, DOS */
 #define ISSLASH(C) ((C) == '/' || (C) == '\\')
@@ -130,7 +126,7 @@ static const char * get_charset_aliases(void)
 			size_t dir_len = strlen(dir);
 			size_t base_len = strlen(base);
 			int add_slash = (dir_len > 0 && !ISSLASH(dir[dir_len - 1]));
-			file_name = (char*)SAlloc::M(dir_len + add_slash + base_len + 1);
+			file_name = (char *)SAlloc::M(dir_len + add_slash + base_len + 1);
 			if(file_name != NULL) {
 				memcpy(file_name, dir, dir_len);
 				if(add_slash)
@@ -200,11 +196,11 @@ static const char * get_charset_aliases(void)
 						old_res_ptr = res_ptr;
 						if(res_size == 0) {
 							res_size = l1 + 1 + l2 + 1;
-							res_ptr = (char*)SAlloc::M(res_size + 1);
+							res_ptr = (char *)SAlloc::M(res_size + 1);
 						}
 						else {
 							res_size += l1 + 1 + l2 + 1;
-							res_ptr = (char*)SAlloc::R(res_ptr, res_size + 1);
+							res_ptr = (char *)SAlloc::R(res_ptr, res_size + 1);
 						}
 						if(res_ptr == NULL) {
 							/* Out of memory. */
@@ -230,7 +226,7 @@ static const char * get_charset_aliases(void)
 
 #else
 
-# if defined DARWIN7
+#if defined DARWIN7
 		/* To avoid the trouble of installing a file that is shared by many
 		   GNU packages -- many packaging systems have problems with this --,
 		   simply inline the aliases here.  */
@@ -261,9 +257,9 @@ static const char * get_charset_aliases(void)
 		    "PT154" "\0" "PT154" "\0"
 		    /*"ISCII-DEV" "\0" "?" "\0"*/
 		    "*" "\0" "UTF-8" "\0";
-# endif
+#endif
 
-# if defined VMS
+#if defined VMS
 		/* To avoid the troubles of an extra file charset.alias_vms in the
 		   sources of many GNU packages, simply inline the aliases here.  */
 		/* The list of encodings is taken from the OpenVMS 7.3-1 documentation
@@ -286,9 +282,9 @@ static const char * get_charset_aliases(void)
 		    "DECHANZI" "\0" "GB2312" "\0"
 		    /* Korean */
 		    "DECKOREAN" "\0" "EUC-KR" "\0";
-# endif
+#endif
 
-# if defined WIN32_NATIVE || defined __CYGWIN__
+#if defined WIN32_NATIVE || defined __CYGWIN__
 		/* To avoid the troubles of installing a separate file in the same
 		   directory as the DLL and of retrieving the DLL's directory at
 		   runtime, simply inline the aliases here.  */
@@ -316,7 +312,7 @@ static const char * get_charset_aliases(void)
 		    "CP51950" "\0" "EUC-TW" "\0"
 		    "CP54936" "\0" "GB18030" "\0"
 		    "CP65001" "\0" "UTF-8" "\0";
-# endif
+#endif
 #endif
 
 		charset_aliases = cp;
@@ -341,7 +337,7 @@ const char * locale_charset(void)
 
 #if !(defined WIN32_NATIVE || defined OS2)
 
-# if HAVE_LANGINFO_CODESET
+#if HAVE_LANGINFO_CODESET
 
 	/* Most systems support nl_langinfo (CODESET) nowadays.  */
 	codeset = nl_langinfo(CODESET);
@@ -397,7 +393,7 @@ const char * locale_charset(void)
 	}
 #  endif
 
-# else
+#else
 
 	/* On old systems which lack it, use setlocale or getenv.  */
 	const char * locale = NULL;
@@ -423,7 +419,7 @@ const char * locale_charset(void)
 	   through the charset.alias file.  */
 	codeset = locale;
 
-# endif
+#endif
 
 #elif defined WIN32_NATIVE
 

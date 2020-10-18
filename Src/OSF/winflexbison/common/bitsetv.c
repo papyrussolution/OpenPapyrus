@@ -20,8 +20,6 @@
 #pragma hdrstop
 #include "bitset.h" // @sobolev 
 #include "bitsetv.h"
-//#include <stdlib.h>
-#include "xalloc.h"
 
 /* Create a vector of N_VECS bitsets, each of N_BITS, and of
    type TYPE.  */
@@ -38,7 +36,7 @@ bitset * bitsetv_alloc(bitset_bindex n_vecs, bitset_bindex n_bits, enum bitset_t
 	bitset * bsetv = (bitset*)xcalloc(1, vector_bytes + bytes * n_vecs);
 	bitset_bindex i = 0;
 	for(i = 0; i < n_vecs; i++) {
-		bsetv[i] = (bitset)(void*)((char*)bsetv + vector_bytes + i * bytes);
+		bsetv[i] = (bitset)(void*)((char *)bsetv + vector_bytes + i * bytes);
 		bitset_init(bsetv[i], n_bits, type);
 	}
 	/* Null terminate table.  */
@@ -104,7 +102,7 @@ void bitsetv_dump(FILE * file, char const * title, char const * subtitle, bitset
 {
 	fprintf(file, "%s\n", title);
 	for(bitset_windex i = 0; bsetv[i]; i++) {
-		fprintf(file, "%s %lu\n", subtitle, (unsigned long)i);
+		fprintf(file, "%s %lu\n", subtitle, (ulong)i);
 		bitset_dump(file, bsetv[i]);
 	}
 	fprintf(file, "\n");
@@ -113,7 +111,7 @@ void bitsetv_dump(FILE * file, char const * title, char const * subtitle, bitset
 void debug_bitsetv(bitsetv bsetv)
 {
 	for(bitset_windex i = 0; bsetv[i]; i++) {
-		fprintf(stderr, "%lu: ", (unsigned long)i);
+		fprintf(stderr, "%lu: ", (ulong)i);
 		debug_bitset(bsetv[i]);
 	}
 	fprintf(stderr, "\n");
@@ -146,7 +144,7 @@ void bitsetv_matrix_dump(FILE * out, const char * title, bitsetv bset)
 	fputs(".\n", out);
 	/* Contents. */
 	for(bitset_bindex i = 0; bset[i]; ++i) {
-		fprintf(out, "%2lu|", (unsigned long)i);
+		fprintf(out, "%2lu|", (ulong)i);
 		for(bitset_bindex j = 0; j < hsize; ++j)
 			fputs(bitset_test(bset[i], j) ? "1" : " ", out);
 		fputs("|\n", out);

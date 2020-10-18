@@ -26,9 +26,9 @@
 #endif
 
 #if HAVE_DECL___FPENDING
-# if HAVE_STDIO_EXT_H
+#if HAVE_STDIO_EXT_H
 #  include <stdio_ext.h>
-# endif
+#endif
 #else
 size_t __fpending (FILE *);
 #endif

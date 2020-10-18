@@ -23,7 +23,7 @@
 //#include <sys/stat.h>
 #include "gl_rbtree_oset.h"
 #include "gl_xoset.h"
-#include "m4.h"
+//#include "m4.h"
 
 #define INITIAL_BUFFER_SIZE 512 /* Size of initial in-memory buffer size for diversions.  Small diversions would usually fit in.  */
 #define MAXIMUM_TOTAL_SIZE (512 * 1024) /* Maximum value for the total of all in-memory buffer sizes for diversions.  */
@@ -144,7 +144,7 @@ static const char * m4_tmpname(int divnum)
 	static char * tail;
 	if(buffer == NULL) {
 		tail = xasprintf("%s/m4-%d", output_temp_dir->dir_name, INT_MAX);
-		buffer = (char*)obstack_copy0(&diversion_storage, tail, strlen(tail));
+		buffer = (char *)obstack_copy0(&diversion_storage, tail, strlen(tail));
 		SAlloc::F(tail);
 		tail = strrchr(buffer, '-') + 1;
 	}
@@ -825,9 +825,9 @@ void freeze_diversions(FILE * file)
 				diversion->u.file = m4_tmpopen(diversion->divnum, true);
 				if(fstat(fileno(diversion->u.file), &file_stat) < 0)
 					M4ERROR((EXIT_FAILURE, errno, "cannot stat diversion"));
-				if(file_stat.st_size < 0 || (file_stat.st_size + 0UL != (unsigned long int)file_stat.st_size))
+				if(file_stat.st_size < 0 || (file_stat.st_size + 0UL != (ulong)file_stat.st_size))
 					M4ERROR((EXIT_FAILURE, 0, "diversion too large"));
-				xfprintf(file, "D%d,%lu\n", diversion->divnum, (unsigned long int)file_stat.st_size);
+				xfprintf(file, "D%d,%lu\n", diversion->divnum, (ulong)file_stat.st_size);
 			}
 
 			insert_diversion_helper(diversion);

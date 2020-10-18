@@ -3,7 +3,6 @@
 // The snip.exe that comes bundled with Microsoft Windows is *almost* good enough. So I made one just a little better.
 
 #include <slib.h>
-
 #ifndef UNICODE
 	#define UNICODE                                                                 // 100% Unicode.
 #endif
@@ -1612,10 +1611,10 @@ BOOL NewButton_Click(void)
 	SetForegroundWindow(gCaptureWindowHandle);
 	Result = TRUE;
 Cleanup:
-	if(MemoryDC != NULL) {
+	if(MemoryDC) {
 		DeleteDC(MemoryDC);
 	}
-	if(ScreenDC != NULL) {
+	if(ScreenDC) {
 		ReleaseDC(NULL, ScreenDC);
 	}
 	return(Result);
@@ -1700,10 +1699,10 @@ BOOL SaveButton_Click(void)
 	// If nothing has gone wrong up to this point, set Success to TRUE.
 	Result = TRUE;
 Cleanup:
-	if(ResultItem != NULL) {
+	if(ResultItem) {
 		ResultItem->/*lpVtbl->*/Release();
 	}
-	if(DialogInterface != NULL) {
+	if(DialogInterface) {
 		DialogInterface->/*lpVtbl->*/Release();
 	}
 	CoUninitialize();
@@ -1744,11 +1743,11 @@ BOOL CopyButton_Click(void)
 	}
 	Result = TRUE;
 Cleanup:
-	if(SourceDC != NULL)
+	if(SourceDC)
 		DeleteDC(SourceDC);
-	if(DestinationDC != NULL)
+	if(DestinationDC)
 		DeleteDC(DestinationDC);
-	if(ClipboardCopy != NULL)
+	if(ClipboardCopy)
 		DeleteObject(ClipboardCopy);
 	CloseClipboard();
 	gCopyButton.SelectedTool = FALSE;

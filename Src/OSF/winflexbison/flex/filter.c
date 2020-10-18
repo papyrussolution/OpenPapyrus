@@ -23,12 +23,6 @@
 
 #include "flexdef.h"
 #pragma hdrstop
-//#include <fcntl.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-//#include <stdio.h>
-//#include <io.h>
-//#include <process.h>
 
 static const char * check_4_gnu_m4 = "m4_dnl ifdef(`__gnu__', ,`errprint(Flex requires GNU M4. Set the PATH or set the M4 environment variable to its path name.) m4exit(2)')\n";
 struct filter * output_chain = NULL; /** global chain. */
@@ -85,9 +79,9 @@ FILE* mkstempFILE(char * tmpl, const char * mode)
 	/* The number of times to attempt to generate a temporary file.  To
 	   conform to POSIX, this must be no smaller than TMP_MAX.  */
 #if ATTEMPTS_MIN < TMP_MAX
-	unsigned int attempts = TMP_MAX;
+	uint attempts = TMP_MAX;
 #else
-	unsigned int attempts = ATTEMPTS_MIN;
+	uint attempts = ATTEMPTS_MIN;
 #endif
 	if(num_temp_file_names >= max_temp_file_names)
 		return NULL;
@@ -130,8 +124,7 @@ FILE* mkstempFILE(char * tmpl, const char * mode)
 				return fd;
 			}
 		}
-
-		free(tmp_file_name);
+		SAlloc::F(tmp_file_name);
 		tmp_file_name = 0;
 	}
 
@@ -146,8 +139,7 @@ void unlinktemp()
 		--num_temp_file_names;
 		if(_unlink(temp_file_names[num_temp_file_names]))
 			fprintf(stderr, _("error delete file %s"), temp_file_names[num_temp_file_names]);
-
-		free(temp_file_names[num_temp_file_names]);
+		SAlloc::F(temp_file_names[num_temp_file_names]);
 		temp_file_names[num_temp_file_names] = NULL;
 	}
 }
@@ -160,8 +152,7 @@ void unlinktemp()
  *            not including argv[0].
  * @return newest filter in chain
  */
-struct filter * filter_create_ext(struct filter * chain, const char * cmd,
-    ...) {
+struct filter * filter_create_ext(struct filter * chain, const char * cmd, ...) {
 	struct filter * f;
 	int max_args;
 	const char * s;
@@ -307,16 +298,12 @@ bool filter_apply_chain(struct filter * chain, FILE* in_file, FILE* out_file)
 
 	/* Now we are the right-most unprocessed link in the chain.
 	 */
-
 	fflush(stdout);
 	fflush(stderr);
-
 	if(pipe(pipes) == -1)
 		flexerror(_("pipe failed"));
-
 	if((pid = fork()) == -1)
 		flexerror(_("fork failed"));
-
 	if(pid == 0) {
 		/* child */
 
@@ -344,15 +331,11 @@ bool filter_apply_chain(struct filter * chain, FILE* in_file, FILE* out_file)
 			FLEX_EXIT(0);
 		}
 		else {
-			execvp(chain->argv[0],
-			    (char** const)(chain->argv));
-			lerr_fatal(_("exec of %s failed"),
-			    chain->argv[0]);
+			execvp(chain->argv[0], (char** const)(chain->argv));
+			lerr_fatal(_("exec of %s failed"), chain->argv[0]);
 		}
-
 		FLEX_EXIT(1);
 	}
-
 	/* Parent */
 	close(pipes[0]);
 	if(dup2(pipes[1], fileno(stdout)) == -1)
@@ -372,15 +355,12 @@ bool filter_apply_chain(struct filter * chain, FILE* in_file, FILE* out_file)
 int filter_truncate(struct filter * chain, int max_len)
 {
 	int len = 1;
-
 	if(!chain)
 		return 0;
-
 	while(chain->next && len < max_len) {
 		chain = chain->next;
 		++len;
 	}
-
 	chain->next = NULL;
 	return len;
 }

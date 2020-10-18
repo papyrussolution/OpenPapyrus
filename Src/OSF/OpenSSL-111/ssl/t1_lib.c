@@ -2547,7 +2547,7 @@ int ssl_security_cert(SSL * s, SSL_CTX * ctx, X509 * x, int vfy, int is_ee)
 int ssl_security_cert_chain(SSL * s, STACK_OF(X509) * sk, X509 * x, int vfy)
 {
 	int rv, start_idx, i;
-	if(x == NULL) {
+	if(!x) {
 		x = sk_X509_value(sk, 0);
 		start_idx = 1;
 	}

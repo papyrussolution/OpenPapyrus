@@ -151,7 +151,7 @@
 //#include <stdio.h>
 #include <time.h>
 //#include <wchar.h>
-#include <wctype.h>
+//#include <wctype.h>
 //#include "config.h"
 
 #ifndef _GL_INLINE_HEADER_BEGIN
@@ -295,11 +295,11 @@ MBCHAR_INLINE void mb_copy(mbchar_t * new_mbc, const mbchar_t * old_mbc)
 /* The character set is ISO-646, not EBCDIC. */
 #define IS_BASIC_ASCII 1
 
-extern const unsigned int is_basic_table[];
+extern const uint is_basic_table[];
 
 MBCHAR_INLINE bool is_basic(char c)
 {
-	return (is_basic_table [(unsigned char)c >> 5] >> ((unsigned char)c & 31)) & 1;
+	return (is_basic_table [(uchar)c >> 5] >> ((uchar)c & 31)) & 1;
 }
 
 #else

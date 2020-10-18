@@ -24,11 +24,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "getargs.h"
-//#include "gram.h"
-//#include "nullable.h"
-//#include "reduce.h"
-//#include "symtab.h"
 
 bool * nullable = NULL; // @global
 //

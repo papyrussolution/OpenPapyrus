@@ -20,8 +20,6 @@
 #ifndef COUNTEREXAMPLE_H
 #define COUNTEREXAMPLE_H
 
-//#include "state.h"
-
 // Init/deinit this module.
 void counterexample_init(void);
 void counterexample_free(void);

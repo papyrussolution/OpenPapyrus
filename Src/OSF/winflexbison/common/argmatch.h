@@ -27,7 +27,7 @@
 //#include <stddef.h>
 //#include <stdio.h>
 //#include <string.h> /* memcmp */
-#include "gettext.h"
+//#include "gettext.h"
 #include "quote.h"
 #include "verify.h"
 //#include "config.h"

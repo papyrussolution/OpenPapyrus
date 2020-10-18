@@ -16,11 +16,11 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "xprintf.h"
-#include <errno.h>
-#include "error.h"
+//#include "xprintf.h"
+//#include <errno.h>
+//#include "error.h"
 #include "exitfail.h"
-#include "gettext.h"
+//#include "gettext.h"
 
 /* written by Jim Meyering */
 

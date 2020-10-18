@@ -24,9 +24,9 @@
 
 int c_strncasecmp(const char * s1, const char * s2, size_t n)
 {
-	const unsigned char * p1 = (const unsigned char*)s1;
-	const unsigned char * p2 = (const unsigned char*)s2;
-	unsigned char c1, c2;
+	const uchar * p1 = (const uchar*)s1;
+	const uchar * p2 = (const uchar*)s2;
+	uchar c1, c2;
 	if(p1 == p2 || n == 0)
 		return 0;
 	do {
@@ -41,7 +41,7 @@ int c_strncasecmp(const char * s1, const char * s2, size_t n)
 		return c1 - c2;
 	else
 		/* On machines where 'char' and 'int' are types of the same size, the
-		   difference of two 'unsigned char' values - including the sign bit -
+		   difference of two 'uchar' values - including the sign bit -
 		   doesn't fit in an 'int'.  */
 		return (c1 > c2 ? 1 : c1 < c2 ? -1 : 0);
 }

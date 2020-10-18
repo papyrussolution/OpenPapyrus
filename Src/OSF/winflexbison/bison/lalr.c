@@ -23,19 +23,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset.h>
-//#include <bitsetv.h>
-//#include "complain.h"
-//#include "derives.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "lalr.h"
-//#include "lr0.h"
-//#include "muscle-tab.h"
-//#include "nullable.h"
-//#include "reader.h"
-//#include "relation.h"
-//#include "symtab.h"
 
 /* goto_map[nterm - NTOKENS] -> number of gotos.  */
 goto_number * goto_map = NULL;
@@ -400,7 +387,7 @@ void initialize_LA(void)
 	bool default_reduction_only_for_accept;
 	{
 		char * default_reductions = muscle_percent_define_get("lr.default-reduction");
-		default_reduction_only_for_accept = STREQ(default_reductions, "accepting");
+		default_reduction_only_for_accept = sstreq(default_reductions, "accepting");
 		SAlloc::F(default_reductions);
 	}
 	// Compute the total number of reductions requiring a lookahead. 

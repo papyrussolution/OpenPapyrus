@@ -41,9 +41,9 @@
 //#include <stdio.h>              /* Random thing to get __GNU_LIBRARY__.  */
 #if !defined _LIBC && defined __GNU_LIBRARY__ && __GNU_LIBRARY__ > 1
 #include <gnu-versions.h>
-# if _GNU_OBSTACK_INTERFACE_VERSION == OBSTACK_INTERFACE_VERSION
+#if _GNU_OBSTACK_INTERFACE_VERSION == OBSTACK_INTERFACE_VERSION
 #  define ELIDE_CODE
-# endif
+#endif
 #endif
 
 //#include <stddef.h>
@@ -78,7 +78,7 @@ enum {
    or 'char' as a last resort.  */
 # ifndef COPYING_UNIT
 #  define COPYING_UNIT int
-# endif
+#endif
 
 /* The functions allocating more room by calling 'obstack_chunk_alloc'
    jump to the handler pointed to by 'obstack_alloc_failed_handler'.
@@ -93,10 +93,10 @@ void (* obstack_alloc_failed_handler) (void) = print_and_abort;
 //#include <stdlib.h>
 # ifdef _LIBC
 int obstack_exit_failure = EXIT_FAILURE;
-# else
+#else
 #  include "exitfail.h"
 #  define obstack_exit_failure exit_failure
-# endif
+#endif
 
 # ifdef _LIBC
 #  if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_4)
@@ -106,7 +106,7 @@ int obstack_exit_failure = EXIT_FAILURE;
 struct obstack * _obstack_compat;
 compat_symbol(libc, _obstack_compat, _obstack, GLIBC_2_0);
 #  endif
-# endif
+#endif
 
 /* Define a macro that either calls functions with the traditional malloc/free
    calling interface, or calls functions with the mmalloc/mfree interface
@@ -138,7 +138,7 @@ int _obstack_begin(struct obstack * h, int size, int alignment, void *(*chunkfun
 	SETIFZ(alignment, DEFAULT_ALIGNMENT);
 	if(size == 0) {
 		/* Default size is what GNU malloc can fit in a 4096-byte block.  */
-		/* 12 is sizeof (mhead) and 4 is EXTRA from GNU malloc.
+		/* 12 is sizeof(mhead) and 4 is EXTRA from GNU malloc.
 		   Use the values for range checking, because if range checking is off,
 		   the extra bytes won't be missed terribly, but if range checking is on
 		   and we used a larger request, a whole extra 4096 bytes would be
@@ -157,8 +157,8 @@ int _obstack_begin(struct obstack * h, int size, int alignment, void *(*chunkfun
 	chunk = h->chunk = CALL_CHUNKFUN(h, h->chunk_size);
 	if(!chunk)
 		(*obstack_alloc_failed_handler)();
-	h->next_free = h->object_base = __PTR_ALIGN((char*)chunk, chunk->contents, alignment - 1);
-	h->chunk_limit = chunk->limit = (char*)chunk + h->chunk_size;
+	h->next_free = h->object_base = __PTR_ALIGN((char *)chunk, chunk->contents, alignment - 1);
+	h->chunk_limit = chunk->limit = (char *)chunk + h->chunk_size;
 	chunk->prev = 0;
 	/* The initial chunk now contains no empty object.  */
 	h->maybe_empty_object = 0;
@@ -172,7 +172,7 @@ int _obstack_begin_1(struct obstack * h, int size, int alignment, void *(*chunkf
 	SETIFZ(alignment, DEFAULT_ALIGNMENT);
 	if(size == 0) {
 		/* Default size is what GNU malloc can fit in a 4096-byte block.  */
-		/* 12 is sizeof (mhead) and 4 is EXTRA from GNU malloc.
+		/* 12 is sizeof(mhead) and 4 is EXTRA from GNU malloc.
 		   Use the values for range checking, because if range checking is off,
 		   the extra bytes won't be missed terribly, but if range checking is on
 		   and we used a larger request, a whole extra 4096 bytes would be
@@ -192,8 +192,8 @@ int _obstack_begin_1(struct obstack * h, int size, int alignment, void *(*chunkf
 	chunk = h->chunk = CALL_CHUNKFUN(h, h->chunk_size);
 	if(!chunk)
 		(*obstack_alloc_failed_handler)();
-	h->next_free = h->object_base = __PTR_ALIGN((char*)chunk, chunk->contents, alignment - 1);
-	h->chunk_limit = chunk->limit = (char*)chunk + h->chunk_size;
+	h->next_free = h->object_base = __PTR_ALIGN((char *)chunk, chunk->contents, alignment - 1);
+	h->chunk_limit = chunk->limit = (char *)chunk + h->chunk_size;
 	chunk->prev = 0;
 	/* The initial chunk now contains no empty object.  */
 	h->maybe_empty_object = 0;
@@ -225,10 +225,10 @@ void _obstack_newchunk(struct obstack * h, int length)
 		(*obstack_alloc_failed_handler)();
 	h->chunk = new_chunk;
 	new_chunk->prev = old_chunk;
-	new_chunk->limit = h->chunk_limit = (char*)new_chunk + new_size;
+	new_chunk->limit = h->chunk_limit = (char *)new_chunk + new_size;
 
 	/* Compute an aligned object_base in the new chunk */
-	object_base = __PTR_ALIGN((char*)new_chunk, new_chunk->contents, h->alignment_mask);
+	object_base = __PTR_ALIGN((char *)new_chunk, new_chunk->contents, h->alignment_mask);
 	/* Move the existing object to the new chunk.
 	   Word at a time is fast and is safe if the object
 	   is sufficiently aligned.  */
@@ -248,7 +248,7 @@ void _obstack_newchunk(struct obstack * h, int length)
 	/* If the object just copied was the only data in OLD_CHUNK,
 	   free that chunk and remove it from the chain.
 	   But not if that chunk might contain an empty object.  */
-	if(!h->maybe_empty_object && (h->object_base == __PTR_ALIGN((char*)old_chunk, old_chunk->contents, h->alignment_mask))) {
+	if(!h->maybe_empty_object && (h->object_base == __PTR_ALIGN((char *)old_chunk, old_chunk->contents, h->alignment_mask))) {
 		new_chunk->prev = old_chunk->prev;
 		CALL_FREEFUN(h, old_chunk);
 	}
@@ -305,7 +305,7 @@ void __obstack_free(struct obstack * h, void * obj)
 		h->maybe_empty_object = 1;
 	}
 	if(lp) {
-		h->object_base = h->next_free = (char*)(obj);
+		h->object_base = h->next_free = (char *)(obj);
 		h->chunk_limit = lp->limit;
 		h->chunk = lp;
 	}
@@ -317,31 +317,30 @@ void __obstack_free(struct obstack * h, void * obj)
 /* Older versions of libc used a function _obstack_free intended to be
    called by non-GCC compilers.  */
 strong_alias(obstack_free, _obstack_free)
-# endif
+#endif
 
 int _obstack_memory_used(struct obstack * h)
 {
 	struct _obstack_chunk* lp;
 	int nbytes = 0;
 	for(lp = h->chunk; lp != 0; lp = lp->prev) {
-		nbytes += lp->limit - (char*)lp;
+		nbytes += lp->limit - (char *)lp;
 	}
 	return nbytes;
 }
 
 /* Define the error handler.  */
-# ifdef _LIBC
-#  include <libintl.h>
-# else
-#  include "gettext.h"
-# endif
-# ifndef _
-#  define _(msgid) gettext(msgid)
-# endif
-
-# ifdef _LIBC
-#  include <libio/iolibio.h>
-# endif
+#ifdef _LIBC
+	#include <libintl.h>
+#else
+	//#include "gettext.h"
+#endif
+#ifndef _
+	#define _(msgid) gettext(msgid)
+#endif
+#ifdef _LIBC
+	#include <libio/iolibio.h>
+#endif
 
 static void print_and_abort(void)
 {
@@ -352,9 +351,9 @@ static void print_and_abort(void)
 	   a very similar string which requires a separate translation.  */
 # ifdef _LIBC
 	(void)__fxprintf(NULL, "%s\n", _("memory exhausted"));
-# else
+#else
 	fprintf(stderr, "%s\n", _("memory exhausted"));
-# endif
+#endif
 	exit(obstack_exit_failure);
 }
 

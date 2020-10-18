@@ -42,16 +42,12 @@ int X509_NAME_get_text_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, char * 
 
 int X509_NAME_entry_count(const X509_NAME * name)
 {
-	if(name == NULL)
-		return 0;
-	return sk_X509_NAME_ENTRY_num(name->entries);
+	return name ? sk_X509_NAME_ENTRY_num(name->entries) : 0;
 }
 
 int X509_NAME_get_index_by_NID(X509_NAME * name, int nid, int lastpos)
 {
-	ASN1_OBJECT * obj;
-
-	obj = OBJ_nid2obj(nid);
+	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL)
 		return -2;
 	return X509_NAME_get_index_by_OBJ(name, obj, lastpos);
@@ -63,7 +59,6 @@ int X509_NAME_get_index_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int la
 	int n;
 	X509_NAME_ENTRY * ne;
 	STACK_OF(X509_NAME_ENTRY) *sk;
-
 	if(name == NULL)
 		return -1;
 	if(lastpos < 0)
@@ -254,15 +249,10 @@ X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_txt(X509_NAME_ENTRY ** ne,
 	return nentry;
 }
 
-X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_NID(X509_NAME_ENTRY ** ne, int nid,
-    int type,
-    const unsigned char * bytes,
-    int len)
+X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_NID(X509_NAME_ENTRY ** ne, int nid, int type, const unsigned char * bytes, int len)
 {
-	ASN1_OBJECT * obj;
 	X509_NAME_ENTRY * nentry;
-
-	obj = OBJ_nid2obj(nid);
+	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL) {
 		X509err(X509_F_X509_NAME_ENTRY_CREATE_BY_NID, X509_R_UNKNOWN_NID);
 		return NULL;
@@ -272,20 +262,15 @@ X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_NID(X509_NAME_ENTRY ** ne, int nid,
 	return nentry;
 }
 
-X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_OBJ(X509_NAME_ENTRY ** ne,
-    const ASN1_OBJECT * obj, int type,
-    const unsigned char * bytes,
-    int len)
+X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_OBJ(X509_NAME_ENTRY ** ne, const ASN1_OBJECT * obj, int type, const unsigned char * bytes, int len)
 {
 	X509_NAME_ENTRY * ret;
-
 	if((ne == NULL) || (*ne == NULL)) {
 		if((ret = X509_NAME_ENTRY_new()) == NULL)
 			return NULL;
 	}
 	else
 		ret = *ne;
-
 	if(!X509_NAME_ENTRY_set_object(ret, obj))
 		goto err;
 	if(!X509_NAME_ENTRY_set_data(ret, type, bytes, len))

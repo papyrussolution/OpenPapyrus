@@ -19,7 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "Sbitset.h"
 
 Sbitset Sbitset__new(Sbitset__Index nbits)
 {

@@ -20,7 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "symlist.h"
 
 /*--------------------------------------.
 | Create a list containing SYM at LOC.  |

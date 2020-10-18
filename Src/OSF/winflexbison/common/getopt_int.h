@@ -19,7 +19,7 @@
 #ifndef _GETOPT_INT_H
 #define _GETOPT_INT_H   1
 
-#include <getopt.h>
+//#include <getopt.h>
 
 extern int _getopt_internal(int ___argc, char ** ___argv,
     const char * __shortopts,

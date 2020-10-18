@@ -19,11 +19,11 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#if !_LIBC
+//#if !_LIBC
 	//#include <config.h>
-	#include "tempname.h"
-#endif
-#include <sys/types.h>
+	//#include "tempname.h"
+//#endif
+//#include <sys/types.h>
 //#include <assert.h>
 //#include <errno.h>
 #ifndef __set_errno
@@ -53,30 +53,28 @@
 //#include <unistd.h>
 //#include <io.h>
 //#include <fcntl.h>
-#include <process.h>
-#include <sys/stat.h>
+//#include <process.h>
+//#include <sys/stat.h>
 
 #if _LIBC
-#define struct_stat64 struct stat64
+	#define struct_stat64 struct stat64
 #else
-#define struct_stat64 struct stat
-#define __gen_tempname gen_tempname
-#define __getpid getpid
-#define __gettimeofday gettimeofday
-#define __mkdir mkdir
-#define __open open
-#define __open64 open
-#define __lxstat64(version, file, buf) lstat(file, buf)
-#define __xstat64(version, file, buf) stat(file, buf)
+	#define struct_stat64 struct stat
+	#define __gen_tempname gen_tempname
+	#define __getpid getpid
+	#define __gettimeofday gettimeofday
+	#define __mkdir mkdir
+	#define __open open
+	#define __open64 open
+	#define __lxstat64(version, file, buf) lstat(file, buf)
+	#define __xstat64(version, file, buf) stat(file, buf)
 #endif
-
 #if !(HAVE___SECURE_GETENV || _LIBC)
-#define __secure_getenv getenv
+	#define __secure_getenv getenv
 #endif
-
 #ifdef _LIBC
 #include <hp-timing.h>
-# if HP_TIMING_AVAIL
+#if HP_TIMING_AVAIL
 #  define RANDOM_BITS(Var) \
 	if(__builtin_expect(value == UINT64_C(0), 0))                            \
 	{                                                                         \
@@ -90,7 +88,7 @@
 		value = ((uint64_t)tv.tv_usec << 16) ^ tv.tv_sec;                      \
 	}                                                                         \
 	HP_TIMING_NOW(Var)
-# endif
+#endif
 #endif
 
 /* Use the widest available unsigned type if uint64_t is not
@@ -99,7 +97,7 @@
    uintmax_t is only 32 bits lose about 3.725 bits of randomness,
    which is better than not having mkstemp at all.  */
 #if !defined UINT64_MAX && !defined uint64_t
-#define uint64_t uintmax_t
+	#define uint64_t uintmax_t
 #endif
 
 #if _LIBC
@@ -191,7 +189,7 @@ int __gen_tempname(char * tmpl, int suffixlen, int flags, int kind)
 	char * XXXXXX;
 	static uint64_t value;
 	uint64_t random_time_bits;
-	unsigned int count;
+	uint count;
 	int fd = -1;
 	int save_errno = errno;
 //  struct_stat64 st;
@@ -207,9 +205,9 @@ int __gen_tempname(char * tmpl, int suffixlen, int flags, int kind)
 	/* The number of times to attempt to generate a temporary file.  To
 	   conform to POSIX, this must be no smaller than TMP_MAX.  */
 #if ATTEMPTS_MIN < TMP_MAX
-	unsigned int attempts = TMP_MAX;
+	uint attempts = TMP_MAX;
 #else
-	unsigned int attempts = ATTEMPTS_MIN;
+	uint attempts = ATTEMPTS_MIN;
 #endif
 
 	len = strlen(tmpl);

@@ -19,23 +19,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "counterexample.h"
-//#include <gl_linked_list.h>
-//#include <gl_rbtreehash_list.h>
-//#include <hash.h>
-//#include <mbswidth.h>
-//#include <stdlib.h>
 #include <textstyle.h>
-//#include <time.h>
-//#include "closure.h"
-//#include "complain.h"
-//#include "derivation.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "lalr.h"
-//#include "lssi.h"
-//#include "nullable.h"
-//#include "parse-simulation.h"
 
 #define TIME_LIMIT_ENFORCED true
 /** If set to false, only consider the states on the shortest

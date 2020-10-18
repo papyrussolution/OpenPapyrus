@@ -28,9 +28,9 @@
 #endif
 #include "quotearg.h"
 #include "quote.h"
-#include "xalloc.h"
+//#include "xalloc.h"
 #include "c-strcaseeq.h"
-#include "localcharset.h"
+//#include "localcharset.h"
 //#include <ctype.h>
 //#include <errno.h>
 //#include <limits.h>
@@ -38,8 +38,9 @@
 //#include <stdlib.h>
 //#include <string.h>
 //#include <wchar.h>
-#include <wctype.h>
-#include "gettext.h"
+//#include <wctype.h>
+//#include "gettext.h"
+#undef _ // @sobolev
 #define _(msgid) gettext(msgid)
 #define N_(msgid) msgid
 
@@ -54,7 +55,7 @@ struct quoting_options {
 	int flags; /* Additional flags.  Bitwise combination of enum quoting_flags.  */
 	/* Quote the characters indicated by this bit vector even if the
 	   quoting style would not normally require them to be quoted.  */
-	unsigned int quote_these_too[(UCHAR_MAX / INT_BITS) + 1];
+	uint quote_these_too[(UCHAR_MAX / INT_BITS) + 1];
 	char const * left_quote; /* The left quote for custom_quoting_style.  */
 	char const * right_quote; /* The right quote for custom_quoting_style.  */
 };
@@ -95,7 +96,7 @@ static struct quoting_options default_quoting_options;
 struct quoting_options * clone_quoting_options(struct quoting_options * o)                         
 {
 	int e = errno;
-	struct quoting_options * p = xmemdup(o ? o : &default_quoting_options, sizeof *o);
+	struct quoting_options * p = (struct quoting_options *)xmemdup(o ? o : &default_quoting_options, sizeof *o);
 	errno = e;
 	return p;
 }
@@ -120,8 +121,8 @@ void set_quoting_style(struct quoting_options * o, enum quoting_style s)
    it would not otherwise be quoted).  */
 int set_char_quoting(struct quoting_options * o, char c, int i)
 {
-	unsigned char uc = c;
-	unsigned int * p =
+	uchar uc = c;
+	uint * p =
 	    (o ? o : &default_quoting_options)->quote_these_too + uc / INT_BITS;
 	int shift = uc % INT_BITS;
 	int r = (*p >> shift) & 1;
@@ -215,7 +216,7 @@ static char const * gettext_quote(char const * msgid, enum quoting_style s)
    not careful about errno.  */
 
 static size_t quotearg_buffer_restyled(char * buffer, size_t buffersize, char const * arg, size_t argsize,
-    enum quoting_style quoting_style, int flags, unsigned int const * quote_these_too, char const * left_quote, char const * right_quote)
+    enum quoting_style quoting_style, int flags, uint const * quote_these_too, char const * left_quote, char const * right_quote)
 {
 	size_t i;
 	size_t len = 0;
@@ -311,8 +312,8 @@ static size_t quotearg_buffer_restyled(char * buffer, size_t buffersize, char co
 	}
 
 	for(i = 0; !(argsize == SIZE_MAX ? arg[i] == '\0' : i == argsize); i++) {
-		unsigned char c;
-		unsigned char esc;
+		uchar c;
+		uchar esc;
 		bool is_right_quote = false;
 
 		if(backslash_escapes && quote_string_len && i + quote_string_len <= argsize && memcmp(arg + i, quote_string, quote_string_len) == 0) {
@@ -647,14 +648,14 @@ struct slotvec {
 
 /* Preallocate a slot 0 buffer, so that the caller can always quote one small component of a "memory exhausted" message in slot 0.  */
 static char slot0[256];
-static unsigned int nslots = 1;
+static uint nslots = 1;
 static struct slotvec slotvec0 = {sizeof slot0, slot0};
 static struct slotvec * slotvec = &slotvec0;
 
 void quotearg_free(void)
 {
 	struct slotvec * sv = slotvec;
-	unsigned int i;
+	uint i;
 	for(i = 1; i < nslots; i++)
 		SAlloc::F(sv[i].val);
 	if(sv[0].val != slot0) {
@@ -680,12 +681,12 @@ void quotearg_free(void)
 static char * quotearg_n_options(int n, char const * arg, size_t argsize, struct quoting_options const * options)
 {
 	int e = errno;
-	unsigned int n0 = n;
+	uint n0 = n;
 	struct slotvec * sv = slotvec;
 	if(n < 0)
 		abort();
 	if(nslots <= n0) {
-		/* FIXME: technically, the type of n1 should be 'unsigned int',
+		/* FIXME: technically, the type of n1 should be 'uint',
 		   but that evokes an unsuppressible warning from gcc-4.0.1 and
 		   older.  If gcc ever provides an option to suppress that warning,
 		   revert to the original type, so that the test in xalloc_oversized
@@ -694,7 +695,7 @@ static char * quotearg_n_options(int n, char const * arg, size_t argsize, struct
 		bool preallocated = (sv == &slotvec0);
 		if(xalloc_oversized(n1, sizeof *sv))
 			xalloc_die();
-		slotvec = sv = xrealloc(preallocated ? NULL : sv, n1 * sizeof *sv);
+		slotvec = sv = (struct slotvec *)xrealloc(preallocated ? NULL : sv, n1 * sizeof *sv);
 		if(preallocated)
 			*sv = slotvec0;
 		memzero(sv + nslots, (n1 - nslots) * sizeof *sv);

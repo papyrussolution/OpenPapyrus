@@ -23,10 +23,11 @@
 //#include <stdbool.h>
 //#include <stdio.h>
 //#include <unistd.h>
-#include "gettext.h"
+//#include "gettext.h"
+#undef _ // @sobolev
 #define _(msgid) gettext(msgid)
-#include "close-stream.h"
-#include "error.h"
+//#include "close-stream.h"
+//#include "error.h"
 #include "exitfail.h"
 #include "quotearg.h"
 

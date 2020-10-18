@@ -20,11 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "getargs.h"
-//#include "derives.h"
-//#include "gram.h"
-//#include "reader.h"
-//#include "symtab.h"
 
 /* Linked list of rule numbers.  */
 typedef struct rule_list {

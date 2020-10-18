@@ -19,12 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "lssi.h"
-//#include <gl_linked_list.h>
-//#include <gl_xlist.h>
-//#include <stdlib.h>
-//#include "getargs.h"
-//#include "nullable.h"
 
 // Lookahead sensitive state item.
 struct lssi {

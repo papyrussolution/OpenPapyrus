@@ -20,7 +20,7 @@
 #include "gl_array_list.h" /* Specification.  */
 //#include <stdlib.h>
 //#include <string.h> /* Get memcpy.  */
-#include "xsize.h" /* Checked size_t computations.  */
+//#include "xsize.h" /* Checked size_t computations.  */
 
 #ifndef uintptr_t
 	#define uintptr_t unsigned long
@@ -38,8 +38,7 @@ struct gl_list_impl {
 	size_t allocated;
 };
 
-/* struct gl_list_node_impl doesn't exist here.  The pointers are actually
-   indices + 1.  */
+/* struct gl_list_node_impl doesn't exist here.  The pointers are actually indices + 1.  */
 #define INDEX_TO_NODE(index) (gl_list_node_t)(uintptr_t)(size_t)((index) + 1)
 #define NODE_TO_INDEX(node) ((uintptr_t)(node) - 1)
 
@@ -49,12 +48,9 @@ static gl_list_t gl_array_nx_create_empty(gl_list_implementation_t implementatio
     gl_listelement_dispose_fn dispose_fn,
     bool allow_duplicates)
 {
-	struct gl_list_impl * list =
-	    (struct gl_list_impl *)SAlloc::M(sizeof(struct gl_list_impl));
-
+	struct gl_list_impl * list = (struct gl_list_impl *)SAlloc::M(sizeof(struct gl_list_impl));
 	if(list == NULL)
 		return NULL;
-
 	list->base.vtable = implementation;
 	list->base.equals_fn = equals_fn;
 	list->base.hashcode_fn = hashcode_fn;
@@ -63,7 +59,6 @@ static gl_list_t gl_array_nx_create_empty(gl_list_implementation_t implementatio
 	list->elements = NULL;
 	list->count = 0;
 	list->allocated = 0;
-
 	return list;
 }
 

@@ -264,14 +264,14 @@ X509 * X509_find_by_subject(STACK_OF(X509) * sk, X509_NAME * name)
 
 EVP_PKEY * X509_get0_pubkey(const X509 * x)
 {
-	if(x == NULL)
+	if(!x)
 		return NULL;
 	return X509_PUBKEY_get0(x->cert_info.key);
 }
 
 EVP_PKEY * X509_get_pubkey(X509 * x)
 {
-	if(x == NULL)
+	if(!x)
 		return NULL;
 	return X509_PUBKEY_get(x->cert_info.key);
 }
@@ -357,7 +357,7 @@ int X509_chain_check_suiteb(int * perror_depth, X509 * x, STACK_OF(X509) * chain
 		return X509_V_OK;
 
 	/* If no EE certificate passed in must be first in chain */
-	if(x == NULL) {
+	if(!x) {
 		x = sk_X509_value(chain, 0);
 		i = 1;
 	}

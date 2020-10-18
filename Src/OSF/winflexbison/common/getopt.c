@@ -21,7 +21,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "getopt.h"
+//#include "getopt.h"
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <string.h>
@@ -29,11 +29,12 @@
 #ifdef _LIBC
 	#include <libintl.h>
 #else
-	#include "gettext.h"
+	//#include "gettext.h"
+	#undef _ // @sobolev
 	#define _(msgid) gettext(msgid)
 #endif
 #if defined _LIBC && defined USE_IN_LIBIO
-	#include <wchar.h>
+	//#include <wchar.h>
 #endif
 /* This version of `getopt' appears to the caller like standard Unix `getopt'
    but it behaves differently for the user, since it allows the user
@@ -107,7 +108,7 @@ extern char ** __libc_argv;
 # ifdef USE_NONOPTION_FLAGS
 /* Defined in getopt_init.c  */
 extern char * __getopt_nonoption_flags;
-# endif
+#endif
 
 # ifdef USE_NONOPTION_FLAGS
 #  define SWAP_FLAGS(ch1, ch2) \
@@ -117,9 +118,9 @@ extern char * __getopt_nonoption_flags;
 		__getopt_nonoption_flags[ch1] = __getopt_nonoption_flags[ch2];          \
 		__getopt_nonoption_flags[ch2] = __tmp;                                  \
 	}
-# else
+#else
 #  define SWAP_FLAGS(ch1, ch2)
-# endif
+#endif
 #else   /* !_LIBC */
 #define SWAP_FLAGS(ch1, ch2)
 #endif  /* _LIBC */
@@ -244,7 +245,7 @@ static const char * _getopt_initialize(int argc, char ** argv, const char * opts
 				int len = d->__nonoption_flags_max_len = strlen(orig_str);
 				if(d->__nonoption_flags_max_len < argc)
 					d->__nonoption_flags_max_len = argc;
-				__getopt_nonoption_flags = (char*)SAlloc::M(d->__nonoption_flags_max_len);
+				__getopt_nonoption_flags = (char *)SAlloc::M(d->__nonoption_flags_max_len);
 				if(__getopt_nonoption_flags == NULL)
 					d->__nonoption_flags_max_len = -1;
 				else
@@ -459,8 +460,8 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 		   or abbreviated matches.  */
 		for(p = longopts, option_index = 0; p->name; p++, option_index++)
 			if(!strncmp(p->name, d->__nextchar, nameend - d->__nextchar)) {
-				if((unsigned int)(nameend - d->__nextchar)
-				    == (unsigned int)strlen(p->name)) {
+				if((uint)(nameend - d->__nextchar)
+				    == (uint)strlen(p->name)) {
 					/* Exact match found.  */
 					pfound = p;
 					indfound = option_index;
@@ -670,7 +671,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 				}
 #endif
 			}
-			d->__nextchar = (char*)"";
+			d->__nextchar = (char *)"";
 			d->optind++;
 			d->optopt = 0;
 			return '?';
@@ -786,7 +787,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 			   or abbreviated matches.  */
 			for(p = longopts, option_index = 0; p->name; p++, option_index++)
 				if(!strncmp(p->name, d->__nextchar, nameend - d->__nextchar)) {
-					if((unsigned int)(nameend - d->__nextchar) == strlen(p->name)) {
+					if((uint)(nameend - d->__nextchar) == strlen(p->name)) {
 						/* Exact match found.  */
 						pfound = p;
 						indfound = option_index;

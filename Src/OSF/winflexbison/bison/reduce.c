@@ -26,15 +26,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset.h>
-//#include "complain.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "print-xml.h"
-//#include "reader.h"
-//#include "reduce.h"
-//#include "symtab.h"
 
 static bitset N; /* Set of nonterminals whose language is not empty.  */
 static bitset P; /* Set of rules that have no useless nonterminals in their RHS.  */

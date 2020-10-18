@@ -21,11 +21,6 @@
 #ifndef SYMLIST_H_
 #define SYMLIST_H_
 
-//#include "location.h"
-//#include "scan-code.h"
-//#include "symtab.h"
-//#include "named-ref.h"
-
 /* A list of symbols, used during the parsing for many different
    purposes: rules, symbol declarations or properties (such as
    %destructor, etc.)...  */

@@ -27,14 +27,10 @@
 #ifdef __cplusplus
 //extern "C" {
 #endif
-
-/* Define __USE_GNU_REGEX to declare GNU extensions that violate the
-   POSIX name space rules.  */
+// Define __USE_GNU_REGEX to declare GNU extensions that violate the POSIX name space rules.
 #undef __USE_GNU_REGEX
-#if (defined _GNU_SOURCE                                        \
-	|| (!defined _POSIX_C_SOURCE && !defined _POSIX_SOURCE     \
-	&& !defined _XOPEN_SOURCE))
-#define __USE_GNU_REGEX 1
+#if (defined _GNU_SOURCE || (!defined _POSIX_C_SOURCE && !defined _POSIX_SOURCE && !defined _XOPEN_SOURCE))
+	#define __USE_GNU_REGEX 1
 #endif
 
 #ifdef _REGEX_LARGE_OFFSETS
@@ -64,7 +60,7 @@ typedef size_t __re_idx_t;
 typedef size_t __re_size_t;
 
 /* The type of object sizes, in places where the traditional code
-   uses unsigned long int.  */
+   uses ulong.  */
 typedef size_t __re_long_size_t;
 
 #else
@@ -74,8 +70,8 @@ typedef size_t __re_long_size_t;
 
 typedef int regoff_t;
 typedef int __re_idx_t;
-typedef unsigned int __re_size_t;
-typedef unsigned long int __re_long_size_t;
+typedef uint __re_size_t;
+typedef ulong __re_long_size_t;
 
 #endif
 
@@ -84,20 +80,20 @@ typedef unsigned long int __re_long_size_t;
    ptrdiff_t and size_t should be likely OK.  Still size of these two
    types is 2 for Microsoft C.  Ugh... */
 typedef long int s_reg_t;
-typedef unsigned long int active_reg_t;
+typedef ulong active_reg_t;
 
 /* The following bits are used to determine the regexp syntax we
    recognize.  The set/not-set meanings are chosen so that Emacs syntax
    remains the value 0.  The bits are given in alphabetical order, and
    the definitions shifted by one from the previous bit; thus, when we
    add or remove a bit, only one other definition need change.  */
-typedef unsigned long int reg_syntax_t;
+typedef ulong reg_syntax_t;
 
 #ifdef __USE_GNU_REGEX
 
 /* If this bit is not set, then \ inside a bracket expression is literal.
    If set, then such a \ quotes the following character.  */
-#define RE_BACKSLASH_ESCAPE_IN_LISTS ((unsigned long int)1)
+#define RE_BACKSLASH_ESCAPE_IN_LISTS ((ulong)1)
 
 /* If this bit is not set, then + and ? are operators, and \+ and \? are
      literals.
@@ -315,7 +311,7 @@ extern reg_syntax_t re_syntax_options;
    value, so remove any previous define.  */
 # ifdef RE_DUP_MAX
 #  undef RE_DUP_MAX
-# endif
+#endif
 
 /* RE_DUP_MAX is 2**15 - 1 because an earlier implementation stored
    the counter as a 2-byte signed integer.  This is no longer true, so
@@ -427,14 +423,14 @@ typedef enum {
 /* The user can specify the type of the re_translate member by
    defining the macro RE_TRANSLATE_TYPE, which defaults to unsigned
    char *.  This pollutes the POSIX name space, so in POSIX mode just
-   use unsigned char *.  */
+   use uchar *.  */
 #ifdef __USE_GNU_REGEX
 # ifndef RE_TRANSLATE_TYPE
-#  define RE_TRANSLATE_TYPE unsigned char *
-# endif
+#  define RE_TRANSLATE_TYPE uchar *
+#endif
 #define REG_TRANSLATE_TYPE RE_TRANSLATE_TYPE
 #else
-#define REG_TRANSLATE_TYPE unsigned char *
+#define REG_TRANSLATE_TYPE uchar *
 #endif
 
 /* This data structure represents a compiled pattern.  Before calling
@@ -444,8 +440,8 @@ typedef enum {
    private to the regex routines.  */
 
 struct re_pattern_buffer {
-	/* Space that holds the compiled pattern.  It is declared as `unsigned char *' because its elements are sometimes used as array indexes.  */
-	unsigned char * _REG_RE_NAME(buffer);
+	/* Space that holds the compiled pattern.  It is declared as `uchar *' because its elements are sometimes used as array indexes.  */
+	uchar * _REG_RE_NAME(buffer);
 	__re_long_size_t _REG_RE_NAME(allocated); /* Number of bytes to which `buffer' points.  */
 	__re_long_size_t _REG_RE_NAME(used); /* Number of bytes actually used in `buffer'.  */
 	reg_syntax_t _REG_RE_NAME(syntax); /* Syntax setting with which the pattern was compiled.  */
@@ -462,7 +458,7 @@ struct re_pattern_buffer {
 	   Well, in truth it's used only in `re_search_2', to see whether or
 	   not we should use the fastmap, so we don't set this absolutely
 	   perfectly; see `re_compile_fastmap' (the `duplicate' case).  */
-	unsigned int _REG_RE_NAME(can_be_null) : 1;
+	uint _REG_RE_NAME(can_be_null) : 1;
 	/* If REGS_UNALLOCATED, allocate space in the `regs' structure
 	   for `max (RE_NREGS, re_nsub + 1)' groups.
 	   If REGS_REALLOCATE, reallocate space if necessary.
@@ -472,12 +468,12 @@ struct re_pattern_buffer {
 	#define REGS_REALLOCATE 1
 	#define REGS_FIXED 2
 #endif
-	unsigned int _REG_RE_NAME(regs_allocated) : 2;
-	unsigned int _REG_RE_NAME(fastmap_accurate) : 1; /* Set to zero when `re_compile_pattern' compiles a pattern; set to one by `re_compile_fastmap' if it updates the fastmap.  */
-	unsigned int _REG_RE_NAME(no_sub) : 1; /* If set, `re_match_2' does not return information about subexpressions.  */
-	unsigned int _REG_RE_NAME(not_bol) : 1; /* If set, a beginning-of-line anchor doesn't match at the beginning of the string.  */
-	unsigned int _REG_RE_NAME(not_eol) : 1; /* Similarly for an end-of-line anchor.  */
-	unsigned int _REG_RE_NAME(newline_anchor) : 1; /* If true, an anchor at a newline matches.  */
+	uint _REG_RE_NAME(regs_allocated) : 2;
+	uint _REG_RE_NAME(fastmap_accurate) : 1; /* Set to zero when `re_compile_pattern' compiles a pattern; set to one by `re_compile_fastmap' if it updates the fastmap.  */
+	uint _REG_RE_NAME(no_sub) : 1; /* If set, `re_match_2' does not return information about subexpressions.  */
+	uint _REG_RE_NAME(not_bol) : 1; /* If set, a beginning-of-line anchor doesn't match at the beginning of the string.  */
+	uint _REG_RE_NAME(not_eol) : 1; /* Similarly for an end-of-line anchor.  */
+	uint _REG_RE_NAME(newline_anchor) : 1; /* If true, an anchor at a newline matches.  */
 
 /* [[[end pattern_buffer]]] */
 };
@@ -516,8 +512,7 @@ extern reg_syntax_t re_set_syntax(reg_syntax_t __syntax);
 /* Compile the regular expression PATTERN, with length LENGTH
    and syntax given by the global `re_syntax_options', into the buffer
    BUFFER.  Return NULL if successful, and an error string if not.  */
-extern const char * re_compile_pattern(const char * __pattern, size_t __length,
-    struct re_pattern_buffer * __buffer);
+extern const char * re_compile_pattern(const char * __pattern, size_t __length, struct re_pattern_buffer * __buffer);
 
 /* Compile a fastmap for the compiled pattern in BUFFER; used to
    accelerate searches.  Return 0 if successful and -2 if was an
@@ -579,13 +574,13 @@ extern void re_set_registers(struct re_pattern_buffer * __buffer, struct re_regi
    'configure' might #define 'restrict' to those words, so pick a
    different name.  */
 #ifndef _Restrict_
-# if 199901L <= __STDC_VERSION__
+#if 199901L <= __STDC_VERSION__
 #  define _Restrict_ restrict
 # elif 2 < __GNUC__ || (2 == __GNUC__ && 95 <= __GNUC_MINOR__)
 #  define _Restrict_ __restrict
-# else
+#else
 #  define _Restrict_
-# endif
+#endif
 #endif
 /* gcc 3.1 and up support the [restrict] syntax.  Don't trust
    sys/cdefs.h's definition of __restrict_arr, though, as it

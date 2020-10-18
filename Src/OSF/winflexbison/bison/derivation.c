@@ -19,12 +19,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "derivation.h"
-//#include "glyphs.h"
 #include <c-ctype.h>
-//#include <gl_linked_list.h>
-//#include <mbswidth.h>
-//#include "complain.h"
 
 struct derivation {
 	symbol_number sym;

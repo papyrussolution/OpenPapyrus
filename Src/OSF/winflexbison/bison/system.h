@@ -34,15 +34,11 @@
 	#undef UINT16_MAX
 	#undef UINT32_MAX
 #endif
-//#include <limits.h>
-//#include <stddef.h>
-//#include <stdlib.h>
-//#include <string.h>
 
 #define ARRAY_CARDINALITY(Array) (sizeof(Array) / sizeof *(Array))
 // @sobolev #define STREQ(L, R)  (strcmp(L, R) == 0)
 // @sobolev #define STRNEQ(L, R) (!STREQ(L, R))
-#define STREQ(L, R)  (sstreq(L, R)) // @sobolev
+// #define STREQ(L, R)  (sstreq(L, R)) // @sobolev
 #define STRNEQ(L, R) (!sstreq(L, R)) // @sobolev
 /* Just like strncmp, but the second argument must be a literal string and you don't specify the length.  */
 #define STRNCMP_LIT(S, Literal) strncmp(S, "" Literal "", sizeof(Literal) - 1)

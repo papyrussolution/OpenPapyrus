@@ -19,7 +19,7 @@
 #define _GL_XOSET_H
 
 #include "gl_oset.h"
-#include "xalloc.h"
+//#include "xalloc.h"
 
 #ifdef __cplusplus
 extern "C" {

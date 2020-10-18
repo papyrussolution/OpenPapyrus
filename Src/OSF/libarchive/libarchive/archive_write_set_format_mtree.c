@@ -415,7 +415,7 @@ static void mtree_indent(struct mtree_writer * mtree)
 		if(pd + (r - s) <= MAXLINELEN - 3 - INDENTNAMELEN)
 			x = r++;
 		else {
-			if(x == NULL)
+			if(!x)
 				x = r;
 			archive_strncat(&mtree->buf, s, x - s);
 			archive_strncat(&mtree->buf, " \\\n", 3);

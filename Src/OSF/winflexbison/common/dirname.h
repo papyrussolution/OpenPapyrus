@@ -30,13 +30,13 @@
 	#define DOUBLE_SLASH_IS_DISTINCT_ROOT 0
 #endif
 #if GNULIB_DIRNAME
-	char * base_name (char const *file);
-	char * dir_name (char const *file);
+char * base_name(char const * file);
+char * dir_name(char const * file);
 #endif
-char * mdir_name (char const *file);
-size_t base_len (char const *file);
-size_t dir_len (char const *file);
-char * last_component (char const *file);
-bool   strip_trailing_slashes (char *file);
+char * mdir_name(char const * file);
+size_t base_len(char const * file);
+size_t dir_len(char const * file);
+char * last_component(char const * file);
+bool   strip_trailing_slashes(char * file);
 
 #endif /* not DIRNAME_H_ */

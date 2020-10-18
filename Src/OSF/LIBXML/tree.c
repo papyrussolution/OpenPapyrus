@@ -12,9 +12,8 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-// @v10.6.5 #include "save.h"
 
-int __xmlRegisterCallbacks = 0;
+int __xmlRegisterCallbacks = 0; // @global
 // 
 // Forward declarations
 // 
@@ -5372,9 +5371,7 @@ xmlNs * xmlSearchNsByHref(xmlDoc * doc, xmlNode * P_Node, const xmlChar * href)
 	}
 	return 0;
 }
-
 /**
- * xmlNewReconciliedNs:
  * @doc:  the document
  * @tree:  a node expected to hold the new namespace
  * @ns:  the original namespace
@@ -5391,13 +5388,13 @@ static xmlNs * xmlNewReconciliedNs(xmlDoc * doc, xmlNode * tree, xmlNs * ns)
 	xmlNs * def;
 	xmlChar prefix[50];
 	int counter = 1;
-	if((tree == NULL) || (tree->type != XML_ELEMENT_NODE)) {
+	if(!tree || tree->type != XML_ELEMENT_NODE) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlNewReconciliedNs : tree == NULL\n");
 #endif
 		return 0;
 	}
-	if((ns == NULL) || (ns->type != XML_NAMESPACE_DECL)) {
+	if(!ns || ns->type != XML_NAMESPACE_DECL) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlNewReconciliedNs : ns == NULL\n");
 #endif
@@ -5408,7 +5405,7 @@ static xmlNs * xmlNewReconciliedNs(xmlDoc * doc, xmlNode * tree, xmlNs * ns)
 	 */
 	def = xmlSearchNsByHref(doc, tree, ns->href);
 	if(def)
-		return (def);
+		return def;
 	/*
 	 * Find a close prefix which is not already in use.
 	 * Let's strip namespace prefixes longer than 20 chars !
@@ -5456,20 +5453,20 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 	int sizeCache = 0;
 	int nbCache = 0;
 	xmlNs * n;
-	xmlNode * P_Node = tree;
+	xmlNode * p_node = tree;
 	xmlAttr * attr;
 	int ret = 0, i;
-	if(!P_Node || (P_Node->type != XML_ELEMENT_NODE)) 
+	if(!p_node || (p_node->type != XML_ELEMENT_NODE)) 
 		return -1;
 	if(!doc || (doc->type != XML_DOCUMENT_NODE)) 
 		return -1;
-	if(P_Node->doc != doc) 
+	if(p_node->doc != doc) 
 		return -1;
-	while(P_Node) {
+	while(p_node) {
 		/*
 		 * Reconciliate the node namespace
 		 */
-		if(P_Node->ns) {
+		if(p_node->ns) {
 			/*
 			 * initialize the cache if needed
 			 */
@@ -5488,8 +5485,8 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 				}
 			}
 			for(i = 0; i < nbCache; i++) {
-				if(oldNs[i] == P_Node->ns) {
-					P_Node->ns = newNs[i];
+				if(oldNs[i] == p_node->ns) {
+					p_node->ns = newNs[i];
 					break;
 				}
 			}
@@ -5497,7 +5494,7 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 				/*
 				 * OK we need to recreate a new namespace definition
 				 */
-				n = xmlNewReconciliedNs(doc, tree, P_Node->ns);
+				n = xmlNewReconciliedNs(doc, tree, p_node->ns);
 				if(n) { /* :-( what if else ??? */
 					/*
 					 * check if we need to grow the cache buffers.
@@ -5518,21 +5515,21 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 						}
 					}
 					newNs[nbCache] = n;
-					oldNs[nbCache++] = P_Node->ns;
-					P_Node->ns = n;
+					oldNs[nbCache++] = p_node->ns;
+					p_node->ns = n;
 				}
 			}
 		}
-		/*
-		 * now check for namespace hold by attributes on the node.
-		 */
-		if(P_Node->type == XML_ELEMENT_NODE) {
-			attr = P_Node->properties;
+		// 
+		// now check for namespace hold by attributes on the node.
+		// 
+		if(p_node->type == XML_ELEMENT_NODE) {
+			attr = p_node->properties;
 			while(attr) {
 				if(attr->ns) {
-					/*
-					 * initialize the cache if needed
-					 */
+					// 
+					// initialize the cache if needed
+					// 
 					if(sizeCache == 0) {
 						sizeCache = 10;
 						oldNs = (xmlNs **)SAlloc::M(sizeCache * sizeof(xmlNs *));
@@ -5541,7 +5538,7 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 							return -1;
 						}
 						newNs = (xmlNs **)SAlloc::M(sizeCache * sizeof(xmlNs *));
-						if(newNs == NULL) {
+						if(!newNs) {
 							xmlTreeErrMemory("fixing namespaces");
 							SAlloc::F(oldNs);
 							return -1;
@@ -5554,24 +5551,24 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 						}
 					}
 					if(i == nbCache) {
-						/*
-						 * OK we need to recreate a new namespace definition
-						 */
+						// 
+						// OK we need to recreate a new namespace definition
+						// 
 						n = xmlNewReconciliedNs(doc, tree, attr->ns);
 						if(n) { /* :-( what if else ??? */
-							/*
-							 * check if we need to grow the cache buffers.
-							 */
+							// 
+							// check if we need to grow the cache buffers.
+							// 
 							if(sizeCache <= nbCache) {
 								sizeCache *= 2;
 								oldNs = (xmlNs **)SAlloc::R(oldNs, sizeCache * sizeof(xmlNs *));
-								if(oldNs == NULL) {
+								if(!oldNs) {
 									xmlTreeErrMemory("fixing namespaces");
 									SAlloc::F(newNs);
 									return -1;
 								}
 								newNs = (xmlNs **)SAlloc::R(newNs, sizeCache * sizeof(xmlNs *));
-								if(newNs == NULL) {
+								if(!newNs) {
 									xmlTreeErrMemory("fixing namespaces");
 									SAlloc::F(oldNs);
 									return -1;
@@ -5586,32 +5583,32 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 				attr = attr->next;
 			}
 		}
-		/*
-		 * Browse the full subtree, deep first
-		 */
-		if(P_Node->children && (P_Node->type != XML_ENTITY_REF_NODE)) {
-			P_Node = P_Node->children; // deep first 
+		// 
+		// Browse the full subtree, deep first
+		// 
+		if(p_node->children && (p_node->type != XML_ENTITY_REF_NODE)) {
+			p_node = p_node->children; // deep first 
 		}
-		else if((P_Node != tree) && P_Node->next) {
-			P_Node = P_Node->next; // then siblings 
+		else if(p_node != tree && p_node->next) {
+			p_node = p_node->next; // then siblings 
 		}
-		else if(P_Node != tree) {
+		else if(p_node != tree) {
 			/* go up to parents->next if needed */
-			while(P_Node != tree) {
-				if(P_Node->P_ParentNode)
-					P_Node = P_Node->P_ParentNode;
-				if((P_Node != tree) && P_Node->next) {
-					P_Node = P_Node->next;
+			while(p_node != tree) {
+				if(p_node->P_ParentNode)
+					p_node = p_node->P_ParentNode;
+				if(p_node != tree && p_node->next) {
+					p_node = p_node->next;
 					break;
 				}
-				if(!P_Node->P_ParentNode) {
-					P_Node = NULL;
+				if(!p_node->P_ParentNode) {
+					p_node = NULL;
 					break;
 				}
 			}
-			/* exit condition */
-			if(P_Node == tree)
-				P_Node = NULL;
+			// exit condition 
+			if(p_node == tree)
+				p_node = NULL;
 		}
 		else
 			break;
@@ -5620,34 +5617,32 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 	SAlloc::F(newNs);
 	return ret;
 }
-
 #endif /* LIBXML_TREE_ENABLED */
 
-static xmlAttr * FASTCALL xmlGetPropNodeInternal(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nsName, int useDTD)
+static xmlAttr * FASTCALL xmlGetPropNodeInternal(const xmlNode * pNode, const xmlChar * name, const xmlChar * nsName, int useDTD)
 {
 	xmlAttr * prop;
-	if(!P_Node || (P_Node->type != XML_ELEMENT_NODE) || !name)
+	if(!pNode || (pNode->type != XML_ELEMENT_NODE) || !name)
 		return 0;
-	if(P_Node->properties) {
-		prop = P_Node->properties;
-		if(nsName == NULL) {
-			/*
-			 * We want the attr to be in no namespace.
-			 */
+	if(pNode->properties) {
+		prop = pNode->properties;
+		if(!nsName) {
+			// 
+			// We want the attr to be in no namespace.
+			// 
 			do {
-				if((prop->ns == NULL) && sstreq(prop->name, name)) {
-					return (prop);
-				}
+				if(!prop->ns && sstreq(prop->name, name))
+					return prop;
 				prop = prop->next;
 			} while(prop);
 		}
 		else {
-			/*
-			 * We want the attr to be in the specified namespace.
-			 */
+			// 
+			// We want the attr to be in the specified namespace.
+			// 
 			do {
 				if(prop->ns && sstreq(prop->name, name) && ((prop->ns->href == nsName) || sstreq(prop->ns->href, nsName))) {
-					return (prop);
+					return prop;
 				}
 				prop = prop->next;
 			} while(prop);
@@ -5660,39 +5655,37 @@ static xmlAttr * FASTCALL xmlGetPropNodeInternal(const xmlNode * P_Node, const x
 	 * Check if there is a default/fixed attribute declaration in
 	 * the internal or external subset.
 	 */
-	if(P_Node->doc && P_Node->doc->intSubset) {
-		xmlDoc * doc = P_Node->doc;
+	if(pNode->doc && pNode->doc->intSubset) {
+		xmlDoc * doc = pNode->doc;
 		xmlAttribute * attrDecl = NULL;
 		xmlChar * elemQName, * tmpstr = NULL;
-		/*
-		 * We need the QName of the element for the DTD-lookup.
-		 */
-		if(P_Node->ns && P_Node->ns->prefix) {
-			tmpstr = sstrdup(P_Node->ns->prefix);
+		//
+		// We need the QName of the element for the DTD-lookup.
+		//
+		if(pNode->ns && pNode->ns->prefix) {
+			tmpstr = sstrdup(pNode->ns->prefix);
 			tmpstr = xmlStrcat(tmpstr, reinterpret_cast<const xmlChar *>(":"));
-			tmpstr = xmlStrcat(tmpstr, P_Node->name);
+			tmpstr = xmlStrcat(tmpstr, pNode->name);
 			if(tmpstr == NULL)
 				return 0;
 			elemQName = tmpstr;
 		}
 		else
-			elemQName = (xmlChar *)P_Node->name;
-		if(nsName == NULL) {
-			/*
-			 * The common and nice case: Attr in no namespace.
-			 */
+			elemQName = (xmlChar *)pNode->name;
+		if(!nsName) {
+			//
+			// The common and nice case: Attr in no namespace.
+			//
 			attrDecl = xmlGetDtdQAttrDesc(doc->intSubset, elemQName, name, 0);
-			if(!attrDecl && doc->extSubset) {
+			if(!attrDecl && doc->extSubset)
 				attrDecl = xmlGetDtdQAttrDesc(doc->extSubset, elemQName, name, 0);
-			}
 		}
 		else {
-			/*
-			 * The ugly case: Search using the prefixes of in-scope
-			 * ns-decls corresponding to @nsName.
-			 */
-			xmlNs ** nsList = xmlGetNsList(P_Node->doc, P_Node);
-			if(nsList == NULL) {
+			//
+			// The ugly case: Search using the prefixes of in-scope ns-decls corresponding to @nsName.
+			//
+			xmlNs ** nsList = xmlGetNsList(pNode->doc, pNode);
+			if(!nsList) {
 				SAlloc::F(tmpstr);
 				return 0;
 			}
@@ -5713,9 +5706,9 @@ static xmlAttr * FASTCALL xmlGetPropNodeInternal(const xmlNode * P_Node, const x
 			}
 		}
 		SAlloc::F(tmpstr);
-		/*
-		 * Only default/fixed attrs are relevant.
-		 */
+		// 
+		// Only default/fixed attrs are relevant.
+		// 
 		if(attrDecl && attrDecl->defaultValue)
 			return (xmlAttr *)attrDecl;
 	}
@@ -5727,15 +5720,15 @@ static xmlChar * FASTCALL xmlGetPropNodeValueInternal(const xmlAttr * prop)
 {
 	if(prop) {
 		if(prop->type == XML_ATTRIBUTE_NODE) {
-			/*
-			 * Note that we return at least the empty string.
-			 * @todo Do we really always want that?
-			 */
+			// 
+			// Note that we return at least the empty string. 
+			// @todo Do we really always want that?
+			// 
 			if(prop->children) {
 				if(!prop->children->next && oneof2(prop->children->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
-					/*
-					 * Optimization for the common case: only 1 text node.
-					 */
+					// 
+					// Optimization for the common case: only 1 text node.
+					// 
 					return sstrdup(prop->children->content);
 				}
 				else {
@@ -5746,9 +5739,8 @@ static xmlChar * FASTCALL xmlGetPropNodeValueInternal(const xmlAttr * prop)
 			}
 			return sstrdup((xmlChar *)"");
 		}
-		else if(prop->type == XML_ATTRIBUTE_DECL) {
+		else if(prop->type == XML_ATTRIBUTE_DECL)
 			return sstrdup(((xmlAttribute *)prop)->defaultValue);
-		}
 	}
 	return 0;
 }
@@ -5782,25 +5774,21 @@ xmlAttr * FASTCALL xmlHasProp(const xmlNode * pNode, const xmlChar * name)
 	}
 	if(!xmlCheckDTD) 
 		return 0;
-	/*
-	 * Check if there is a default declaration in the internal
-	 * or external subsets
-	 */
+	// 
+	// Check if there is a default declaration in the internal or external subsets
+	// 
 	doc = pNode->doc;
 	if(doc) {
-		xmlAttribute * attrDecl;
 		if(doc->intSubset) {
-			attrDecl = xmlGetDtdAttrDesc(doc->intSubset, pNode->name, name);
+			xmlAttribute * attrDecl = xmlGetDtdAttrDesc(doc->intSubset, pNode->name, name);
 			if(!attrDecl && doc->extSubset)
 				attrDecl = xmlGetDtdAttrDesc(doc->extSubset, pNode->name, name);
 			if(attrDecl && attrDecl->defaultValue)
-				// return attribute declaration only if a default value is given (that includes #FIXED declarations) 
-				return (xmlAttr *)attrDecl;
+				return (xmlAttr *)attrDecl; // return attribute declaration only if a default value is given (that includes #FIXED declarations) 
 		}
 	}
 	return 0;
 }
-
 /**
  * xmlHasNsProp:
  * @node:  the node
@@ -5895,7 +5883,7 @@ xmlChar * FASTCALL xmlGetNsProp(const xmlNode * P_Node, const xmlChar * name, co
 int xmlUnsetProp(xmlNode * pNode, const xmlChar * name) 
 {
 	xmlAttr * prop = xmlGetPropNodeInternal(pNode, name, NULL, 0);
-	if(prop == NULL)
+	if(!prop)
 		return -1;
 	else {
 		xmlUnlinkNode((xmlNode *)prop);
@@ -5915,7 +5903,7 @@ int xmlUnsetProp(xmlNode * pNode, const xmlChar * name)
 int xmlUnsetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name) 
 {
 	xmlAttr * prop = xmlGetPropNodeInternal(pNode, name, ns ? ns->href : NULL, 0);
-	if(prop == NULL)
+	if(!prop)
 		return -1;
 	else {
 		xmlUnlinkNode((xmlNode *)prop);
@@ -5938,7 +5926,6 @@ int xmlUnsetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name)
  * error it there's no such ns-binding for the prefix in
  * scope.
  * Returns the attribute pointer.
- *
  */
 xmlAttr * FASTCALL xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value) 
 {
@@ -5970,17 +5957,17 @@ xmlAttr * FASTCALL xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlCh
  *
  * Returns the attribute pointer.
  */
-xmlAttr * FASTCALL xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
+xmlAttr * FASTCALL xmlSetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name, const xmlChar * value)
 {
-	if(ns && (ns->href == NULL))
+	if(ns && !ns->href)
 		return 0;
-	xmlAttr * prop = xmlGetPropNodeInternal(P_Node, name, ns ? ns->href : NULL, 0);
+	xmlAttr * prop = xmlGetPropNodeInternal(pNode, name, ns ? ns->href : NULL, 0);
 	if(prop) {
-		/*
-		 * Modify the attribute's value.
-		 */
+		// 
+		// Modify the attribute's value.
+		// 
 		if(prop->atype == XML_ATTRIBUTE_ID) {
-			xmlRemoveID(P_Node->doc, prop);
+			xmlRemoveID(pNode->doc, prop);
 			prop->atype = XML_ATTRIBUTE_ID;
 		}
 		xmlFreeNodeList(prop->children);
@@ -5989,11 +5976,11 @@ xmlAttr * FASTCALL xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * na
 		prop->ns = ns;
 		if(value) {
 			if(!xmlCheckUTF8(value)) {
-				xmlTreeErr(XML_TREE_NOT_UTF8, (xmlNode *)P_Node->doc, 0);
-				if(P_Node->doc)
-					P_Node->doc->encoding = sstrdup(reinterpret_cast<const xmlChar *>("ISO-8859-1"));
+				xmlTreeErr(XML_TREE_NOT_UTF8, (xmlNode *)pNode->doc, 0);
+				if(pNode->doc)
+					pNode->doc->encoding = sstrdup(reinterpret_cast<const xmlChar *>("ISO-8859-1"));
 			}
-			prop->children = xmlNewDocText(P_Node->doc, value);
+			prop->children = xmlNewDocText(pNode->doc, value);
 			prop->last = NULL;
 			{
 				for(xmlNode * tmp = prop->children; tmp; tmp = tmp->next) {
@@ -6004,13 +5991,13 @@ xmlAttr * FASTCALL xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * na
 			}
 		}
 		if(prop->atype == XML_ATTRIBUTE_ID)
-			xmlAddID(NULL, P_Node->doc, value, prop);
+			xmlAddID(NULL, pNode->doc, value, prop);
 		return prop;
 	}
 	/*
 	 * No equal attr found; create a new one.
 	 */
-	return xmlNewPropInternal(P_Node, ns, name, value, 0);
+	return xmlNewPropInternal(pNode, ns, name, value, 0);
 }
 
 #endif /* LIBXML_TREE_ENABLED */
@@ -6375,7 +6362,6 @@ int xmlBufferDump(FILE * file, xmlBuffer * buf)
 	ret = fwrite(buf->content, sizeof(xmlChar), buf->use, file);
 	return ret;
 }
-
 /**
  * xmlBufferContent:
  * @buf:  the buffer
@@ -6935,8 +6921,7 @@ static xmlNsMapItem * FASTCALL xmlDOMWrapNsMapAddItem(xmlNsMap ** nsmap, int pos
  * Creates or reuses an xmlNs struct on doc->oldNs with
  * the given prefix and namespace name.
  *
- * Returns the aquired ns struct or NULL in case of an API
- *    or internal error.
+ * Returns the aquired ns struct or NULL in case of an API or internal error.
  */
 static xmlNs * xmlDOMWrapStoreNs(xmlDoc * doc, const xmlChar * nsName, const xmlChar * prefix)
 {
@@ -8621,11 +8606,9 @@ static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlAt
 			 */
 			if(xmlSearchNsByNamespaceStrict(destDoc, destParent, attr->ns->href, &ns, 1) == -1)
 				goto internal_error;
-			if(ns == NULL) {
-				ns = xmlDOMWrapNSNormDeclareNsForced(destDoc, destParent, attr->ns->href, attr->ns->prefix, 1);
-			}
+			SETIFZ(ns, xmlDOMWrapNSNormDeclareNsForced(destDoc, destParent, attr->ns->href, attr->ns->prefix, 1));
 		}
-		if(ns == NULL)
+		if(!ns)
 			goto internal_error;
 		attr->ns = ns;
 	}

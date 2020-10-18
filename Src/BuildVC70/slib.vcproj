@@ -570,6 +570,9 @@
 				RelativePath="..\Db\dbsess.cpp">
 			</File>
 			<File
+				RelativePath="..\Db\dbsql-mysql.cpp">
+			</File>
+			<File
 				RelativePath="..\Db\dbsql.cpp">
 			</File>
 			<File

@@ -19,17 +19,16 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #ifdef _LIBC
-	#include <getopt.h>
+	//#include <getopt.h>
 #else
-	#include "getopt.h"
+	//#include "getopt.h"
 #endif
 #include "getopt_int.h"
 //#include <stdio.h>
-/* This needs to come after some library #include
-   to get __GNU_LIBRARY__ defined.  */
-#ifdef __GNU_LIBRARY__
+// This needs to come after some library #include to get __GNU_LIBRARY__ defined.
+//#ifdef __GNU_LIBRARY__
 	//#include <stdlib.h>
-#endif
+//#endif
 //#ifndef NULL
 	//#define NULL 0
 //#endif

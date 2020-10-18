@@ -1609,6 +1609,7 @@ public:
 								}
 								//psn_pack.ELA.AddItem()
 							}
+							SETIFZ(psn_pack.Rec.Status, PPPRS_PRIVATE);
 						}
 						THROW(psn_obj.PutPacket(&ex_psn_id, &psn_pack, 0));
 					}
@@ -1861,22 +1862,187 @@ struct SetupGlobalServiceUDS_Param {
 	PPID   GuaID;
 };
 
+static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, int force)
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPObjGlobalUserAcc gua_obj;
+	PPObjSCardSeries scs_obj;
+	PPGlobalUserAcc gua_rec;
+	PPSCardSeries2 scs_rec;
+	PPIDArray gua_candidate_list;
+	PPIDArray scs_candidate_list;
+	
+	PPSCardConfig sc_cfg;
+	PPObjSCard::ReadConfig(&sc_cfg);
+
+	if(!rP.GuaID) {
+		for(SEnum en = gua_obj.Enum(0); en.Next(&gua_rec) > 0;) {
+			if(gua_rec.ServiceIdent == PPGLS_UDS)
+				gua_candidate_list.add(gua_rec.ID);
+		}
+		if(gua_candidate_list.getCount() == 1)
+			rP.GuaID = gua_candidate_list.get(0);
+	}
+	if(rP.GuaID) {
+		PPGlobalUserAccPacket gua_pack;
+		if(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0) {
+			if(force) {
+			}
+			else {
+				SString db_value;
+				gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, db_value);
+				if(db_value.NotEmptyS() && !rP.Login.NotEmptyS())
+					rP.Login = db_value;
+				gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, db_value.Z());
+				if(db_value.NotEmptyS() && !rP.ApiKey.NotEmptyS()) {
+					rP.ApiKey = db_value;
+				}
+			}
+		}
+	}
+	if(!rP.SCardSerID) {
+		for(SEnum en = scs_obj.Enum(0); en.Next(&scs_rec) > 0;) {
+			if(scs_rec.SpecialTreatment == SCRDSSPCTRT_UDS) {
+				scs_candidate_list.add(scs_rec.ID);
+			}
+		}
+		if(scs_candidate_list.getCount() == 1)
+			rP.SCardSerID = scs_candidate_list.get(0);
+	}
+	if(force) {
+		PPGlobalUserAccPacket gua_pack;
+		PPSCardSerPacket scs_pack;
+		THROW_PP(rP.Login.NotEmptyS(), PPERR_LOGINNEEDED);
+		THROW_PP(rP.ApiKey.NotEmptyS(), PPERR_APIKEYNEEDED);
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			if(rP.GuaID) {
+				PPID   temp_id = gua_pack.Rec.ID;
+				THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
+				THROW_PP_S(gua_pack.Rec.ServiceIdent == PPGLS_UDS, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
+				gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
+				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 1));
+			}
+			else {
+				PPID   temp_id = 0;
+				gua_pack.Rec.ServiceIdent = PPGLS_UDS;
+				STRNSCPY(gua_pack.Rec.Name, "UDS");
+				STRNSCPY(gua_pack.Rec.Symb, "UDS");
+				gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
+				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0));
+			}
+			if(rP.SCardSerID) {
+				THROW(scs_obj.GetPacket(rP.SCardSerID, &scs_pack) > 0);
+				THROW_PP_S(scs_pack.Rec.SpecialTreatment == SCRDSSPCTRT_UDS, PPERR_INVSCSSPECIALTREATMENT, temp_buf.Z());
+				THROW_PP_S(scs_pack.Rec.PersonKindID != 0, PPERR_UNDEFSCSPERSONKIND, scs_pack.Rec.Name);
+				THROW_PP_S(scs_pack.Rec.Flags & SCRDSF_BONUS, PPERR_SCARDSERMUSTBEBONUS, scs_pack.Rec.Name);
+			}
+			else {
+				PPID   temp_id = 0;
+				scs_pack.Rec.SpecialTreatment = SCRDSSPCTRT_UDS;
+				scs_pack.Rec.Flags |= SCRDSF_BONUS;
+				scs_pack.Rec.PersonKindID = sc_cfg.PersonKindID;
+				STRNSCPY(scs_pack.Rec.Name, "UDS");
+				STRNSCPY(scs_pack.Rec.Symb, "UDS");
+				STRNSCPY(scs_pack.Eb.CodeTempl, "UDS%07[1..100000]");
+				THROW(scs_obj.PutPacket(&temp_id, &scs_pack, 0));
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 class SetupGlobalServiceUDS_Dialog : public TDialog {
 	DECL_DIALOG_DATA(SetupGlobalServiceUDS_Param);
 public:
-	SetupGlobalServiceUDS_Dialog() : TDialog(DLG_SU_UDS)
+	SetupGlobalServiceUDS_Dialog(DlgDataType & rData) : TDialog(DLG_SU_UDS), Data(rData), State(0)
 	{
+		Setup_GlobalService_UDS_InitParam(Data, 0);
+		setCtrlString(CTL_SUUDS_LOGIN, Data.Login);
+		setCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
+		SetupPPObjCombo(this, CTLSEL_SUUDS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
+		{
+			SCardSeriesFilt scs_filt;
+			scs_filt.Flags = scs_filt.fOnlySeries;
+			scs_filt.SpecialTreatment = SCRDSSPCTRT_UDS;
+			SetupPPObjCombo(this, CTLSEL_SUUDS_SCARDSER, PPOBJ_SCARDSERIES, Data.SCardSerID, 0);
+		}
+		{
+			SString temp_buf;
+			selectCtrl(CTL_SUUDS_LOGIN);
+			PPLoadStringDescription("setupglbsvc_uds_login", temp_buf);
+			setStaticText(CTL_SUUDS_HINT, temp_buf);
+		}
+	}
+	int    IsSettled() const
+	{
+		return BIN(State & stSettled);
 	}
 private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
+		if(event.isCmd(cmConfigure)) {
+			getCtrlString(CTL_SUUDS_LOGIN, Data.Login);
+			getCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
+			getCtrlData(CTLSEL_SUUDS_GUA, &Data.GuaID);
+			getCtrlData(CTLSEL_SUUDS_SCARDSER, &Data.SCardSerID);
+			if(!Setup_GlobalService_UDS_InitParam(Data, 1)) {
+				PPError();
+			}
+			else {
+				setCtrlString(CTL_SUUDS_LOGIN, Data.Login);
+				setCtrlString(CTL_SUUDS_APIKEY, Data.ApiKey);
+				//
+				// Комбо-боксы надо перестроить - у нас появились новые объекты, которых не было в списках
+				//
+				SetupPPObjCombo(this, CTLSEL_SUUDS_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
+				{
+					SCardSeriesFilt scs_filt;
+					scs_filt.Flags = scs_filt.fOnlySeries;
+					scs_filt.SpecialTreatment = SCRDSSPCTRT_UDS;
+					SetupPPObjCombo(this, CTLSEL_SUUDS_SCARDSER, PPOBJ_SCARDSERIES, Data.SCardSerID, 0);
+				}
+				State |= stSettled;
+				//enableCommand(cmConfigure, 0);
+			}
+		}
+		else if(TVBROADCAST && TVCMD == cmReceivedFocus) {
+			SString temp_buf;
+			if(event.isCtlEvent(CTL_SUUDS_LOGIN)) {
+				PPLoadStringDescription("setupglbsvc_uds_login", temp_buf);
+			}
+			else if(event.isCtlEvent(CTL_SUUDS_APIKEY)) {
+				PPLoadStringDescription("setupglbsvc_uds_apikey", temp_buf);
+			}
+			setStaticText(CTL_SUUDS_HINT, temp_buf);
+		}
+		else
+			return;
+		clearEvent(event);
 	}
+	enum {
+		stSettled = 0x0001
+	};
+	long   State;
 };
 
-int PPSetup_GlobalService_UDS()
+int SLAPI PPSetup_GlobalService_UDS()
 {
 	int    ok = -1;
-	
+	SetupGlobalServiceUDS_Param param;
+	SetupGlobalServiceUDS_Dialog * dlg = new SetupGlobalServiceUDS_Dialog(param);
+	if(CheckDialogPtrErr(&dlg)) {
+		ExecView(dlg);
+		if(dlg->IsSettled())
+			ok = 1;
+	}
+	delete dlg;
 	return ok;
 }

@@ -2688,9 +2688,9 @@ class CtrlGroup {
 public:
 	CtrlGroup();
 	virtual ~CtrlGroup();
-	virtual void handleEvent(TDialog*, TEvent&);
-	virtual int setData(TDialog*, void*);
-	virtual int getData(TDialog*, void*);
+	virtual void handleEvent(TDialog *, TEvent &);
+	virtual int setData(TDialog *, void *);
+	virtual int getData(TDialog *, void *);
 private:
 	friend class TDialog;
 	uint   Id;
@@ -4377,8 +4377,8 @@ public:
 	virtual int   SLAPI bottom();
 	virtual long  SLAPI getRecsCount();
 	virtual const void * FASTCALL getRow(long) const;
-	virtual int   FASTCALL getData(void *);
-	virtual int   FASTCALL setData(void *);
+	// @v10.9.0 virtual int   FASTCALL getData(void *);
+	// @v10.9.0 virtual int   FASTCALL setData(void *);
 	virtual int   SLAPI refresh();
 	virtual int   SLAPI search(const void * pPattern, CompFunc, int srchMode, int srchCol);
 	virtual int   SLAPI search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
@@ -4449,8 +4449,8 @@ public:
 	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
 	virtual long  SLAPI getRecsCount();
 	virtual const void * FASTCALL getRow(long) const;
-	virtual int   FASTCALL getData(void *);
-	virtual int   FASTCALL setData(void *);
+	// @v10.9.0 virtual int   FASTCALL getData(void *);
+	// @v10.9.0 virtual int   FASTCALL setData(void *);
 protected:
 	SArray * P_Array;
 	BNFieldList * P_Fields;
@@ -4478,8 +4478,8 @@ public:
 	virtual int   SLAPI bottom();
 	virtual long  SLAPI getRecsCount();
 	virtual const void * FASTCALL getRow(long) const;
-	virtual int   FASTCALL getData(void *);
-	virtual int   FASTCALL setData(void *);
+	// @v10.9.0 virtual int   FASTCALL getData(void *);
+	// @v10.9.0 virtual int   FASTCALL setData(void *);
 	virtual int   SLAPI refresh();
 protected:
 	void   SLAPI setupView();
@@ -4493,8 +4493,7 @@ protected:
 #define BRO_GETCURREC     WM_USER+1
 #define BRO_GETCURCOL     WM_USER+2
 #define BRO_DATACHG       WM_USER+3
-#define BRO_SETDATA       WM_USER+4 // LPARAM = far ptr to new data
-	// WPARAM = parameter for BrowseDef::setData virtual member function
+// @v10.9.0 #define BRO_SETDATA       WM_USER+4 // LPARAM = far ptr to new data, WPARAM = parameter for BrowseDef::setData virtual member function
 //
 // Next messages are sending to parent window
 //

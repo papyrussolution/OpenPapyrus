@@ -20,11 +20,11 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 //#include <io.h>
-#include "m4.h"
-#include <getopt.h>
+//#include "m4.h"
+//#include <getopt.h>
 //#include <limits.h>
 //#include <signal.h>
-#include "c-stack.h"
+//#include "c-stack.h"
 #include "ignore-value.h"
 #include "progname.h"
 #include "version-etc.h"
@@ -120,7 +120,7 @@ void m4_error_at_line(int status, int errnum, const char * file, int line,
 #ifndef NSIG
 # ifndef MAX
 #  define MAX(a, b) ((a) < (b) ? (b) : (a))
-# endif
+#endif
 #define NSIG (MAX(SIGABRT, MAX(SIGILL, MAX(SIGFPE,  \
 	MAX(SIGSEGV, SIGBUS)))) + 1)
 #endif
@@ -322,7 +322,7 @@ static const struct option long_options[] =
    stdin.  */
 static void process_file(const char * name, FILE* in)
 {
-	if(STREQ(name, "-")) {
+	if(sstreq(name, "-")) {
 		/* If stdin is a terminal, we want to allow 'm4 - file -'
 		   to read input from stdin twice, like GNU cat.  Besides,
 		   there is no point closing stdin before wrapped text, to
@@ -550,7 +550,7 @@ int main_m4(int argc, char * const * argv, FILE* in, FILE* out)
 
 	while(defines != NULL) {
 		macro_definition * next;
-		symbol * sym;
+		SymbolTableEntry * sym;
 		switch(defines->code) {
 			case 'D':
 		    {

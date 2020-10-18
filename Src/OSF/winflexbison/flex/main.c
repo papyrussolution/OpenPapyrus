@@ -33,11 +33,8 @@
 
 #include "flexdef.h"
 #pragma hdrstop
-//#include "version.h"
-//#include "options.h"
 #include "tables.h"
 #include "parse.h"
-//#include <io.h>
 
 static const char flex_version[] = "2.6.4";//FLEX_VERSION;
 
@@ -444,7 +441,7 @@ void check_options(void)
 							m4 = m4_path;
 							break;
 						}
-						free(m4_path);
+						SAlloc::F(m4_path);
 					}
 					path = endOfDir+1;
 				} while(path[0]);
@@ -496,64 +493,49 @@ void check_options(void)
 		}
 		if((tablesout = fopen(tablesfilename, "wb")) == NULL)
 			lerr(_("could not create %s"), tablesfilename);
-		free(pname);
+		SAlloc::F(pname);
 		tablesfilename = 0;
-
 		yytbl_writer_init(&tableswr, tablesout);
-
 		nbytes = strlen(prefix) + strlen("tables") + 2;
 		tablesname = (char *)calloc(nbytes, 1);
 		snprintf(tablesname, nbytes, "%stables", prefix);
 		yytbl_hdr_init(&hdr, flex_version, tablesname);
-
 		if(yytbl_hdr_fwrite(&tableswr, &hdr) <= 0)
 			flexerror(_("could not write tables header"));
 	}
-
 	if(skelname && (skelfile = fopen(skelname, "r")) == NULL)
 		lerr(_("can't open skeleton file %s"), skelname);
-
 	if(reentrant) {
 		buf_m4_define(&m4defs_buf, "M4_YY_REENTRANT", NULL);
 		if(yytext_is_array)
 			buf_m4_define(&m4defs_buf, "M4_YY_TEXT_IS_ARRAY", NULL);
 	}
-
 	if(bison_bridge_lval)
 		buf_m4_define(&m4defs_buf, "M4_YY_BISON_LVAL", NULL);
-
 	if(bison_bridge_lloc)
 		buf_m4_define(&m4defs_buf, "<M4_YY_BISON_LLOC>", NULL);
-
 	if(strchr(prefix, '[') || strchr(prefix, ']'))
 		flexerror(_("Prefix cannot include '[' or ']'"));
 	buf_m4_define(&m4defs_buf, "M4_YY_PREFIX", prefix);
-
 	if(did_outfilename)
 		line_directive_out(stdout, 0);
-
 	if(do_yylineno)
 		buf_m4_define(&m4defs_buf, "M4_YY_USE_LINENO", NULL);
-
 	/* Create the alignment type. */
-	buf_strdefine(&userdef_buf, "YY_INT_ALIGNED",
-	    long_align ? "long int" : "short int");
-
+	buf_strdefine(&userdef_buf, "YY_INT_ALIGNED", long_align ? "long int" : "short int");
 	/* Define the start condition macros. */
 	{
 		struct Buf tmpbuf;
 		buf_init(&tmpbuf, sizeof(char));
 		for(i = 1; i <= lastsc; i++) {
-			char * str, * fmt = "#define %s %d\n";
-			size_t strsz;
-
-			strsz = strlen(fmt) + strlen(scname[i]) + (size_t)(1 + ceil(log10(i))) + 2;
-			str = (char *)malloc(strsz);
+			const char * fmt = "#define %s %d\n";
+			size_t strsz = strlen(fmt) + strlen(scname[i]) + (size_t)(1 + ceil(log10(i))) + 2;
+			char * str = (char *)malloc(strsz);
 			if(!str)
 				flexfatal(_("allocation of macro definition failed"));
 			snprintf(str, strsz, fmt,      scname[i], i - 1);
 			buf_strappend(&tmpbuf, str);
-			free(str);
+			SAlloc::F(str);
 		}
 		buf_m4_define(&m4defs_buf, "M4_YY_SC_DEFS", (const char *)tmpbuf.elts);
 		buf_destroy(&tmpbuf);
@@ -572,11 +554,9 @@ void check_options(void)
 	/* Place a bogus line directive, it will be fixed in the filter. */
 	if(gen_line_dirs)
 		outn("#line 0 \"M4_YY_OUTFILE_NAME\"\n");
-
 	/* Dump the user defined preproc directives. */
 	if(userdef_buf.elts)
 		outn((char*)(userdef_buf.elts));
-
 	skelout();
 	/* %% [1.0] */
 }
@@ -800,7 +780,6 @@ void flexend(int exit_status)
 		for(i = 0; undef_list[i] != NULL; i++)
 			fprintf(header_out, "#undef %s\n", undef_list[i]);
 	}
-
 	/* undef any of the auto-generated symbols. */
 	for(i = 0; i < defs_buf.nelts; i++) {
 		/* don't undef start conditions */
@@ -809,13 +788,10 @@ void flexend(int exit_status)
 		fprintf(header_out, "#undef %s\n",
 		    ((char**)defs_buf.elts)[i]);
 	}
-
-	fprintf(header_out,
-	    "#endif /* !YY_HEADER_NO_UNDEFS */\n");
+	fprintf(header_out, "#endif /* !YY_HEADER_NO_UNDEFS */\n");
 	fprintf(header_out, "\n");
 	fprintf(header_out, "#undef %sIN_HEADER\n", prefix);
 	fprintf(header_out, "#endif /* %sHEADER_H */\n", prefix);
-
 	if(ferror(header_out))
 		lerr(_("error creating header file %s"), headerfilename);
 	fflush(header_out);
@@ -885,21 +861,17 @@ void flexend(int exit_status)
 			putc('L', stderr);
 		if(trace)
 			putc('T', stderr);
-
 		if(csize == unspecified)
 			/* We encountered an error fairly early on, so csize
 			 * never got specified.  Define it now, to prevent
 			 * bogus table sizes being written out below.
 			 */
 			csize = 256;
-
 		if(csize == 128)
 			putc('7', stderr);
 		else
 			putc('8', stderr);
-
 		fprintf(stderr, " -C");
-
 		if(long_align)
 			putc('a', stderr);
 		if(fulltbl)
@@ -966,10 +938,8 @@ void flexend(int exit_status)
 		fprintf(stderr, _("  %d sets of reallocations needed\n"), num_reallocs);
 		fprintf(stderr, _("  %d total table entries needed\n"), tblsiz);
 	}
-
-	free(flex_temp_out_main);
+	SAlloc::F(flex_temp_out_main);
 	flex_temp_out_main = 0;
-
 	exit(exit_status);
 //	FLEX_EXIT (exit_status);
 }
@@ -1000,15 +970,12 @@ void flexinit(int argc, char ** argv)
 	tablesext = tablesverify = false;
 	gentables = true;
 	tablesfilename = tablesname = NULL;
-
 	sawcmpflag = false;
-
 	/* Initialize dynamic array for holding the rule actions. */
 	action_size = 2048;     /* default size of action array in bytes */
 	action_array = (char *)allocate_character_array(action_size);
 	defs1_offset = prolog_offset = action_offset = action_index = 0;
 	action_array[0] = '\0';
-
 	/* Initialize any buffers. */
 	buf_init(&userdef_buf, sizeof(char));   /* one long string */
 	buf_init(&defs_buf, sizeof(char *));    /* list of strings */
@@ -1025,11 +992,9 @@ void flexinit(int argc, char ** argv)
 	/* Enable C++ if program name ends with '+'. */
 	//program_name = basename (argv[0]);
 	program_name = basename2(argv[0], 0, &ext_path);
-
 	//	if(program_name != NULL && program_name[strlen (program_name) - 1] == '+')
 	if(ext_path && *(--ext_path) == '+')
 		C_plus_plus = true;
-
 	/* read flags */
 	sopt = scanopt_init(flexopts, argc, argv, 0);
 	if(!sopt) {
@@ -1044,17 +1009,10 @@ void flexinit(int argc, char ** argv)
 			FLEX_EXIT(1);
 		}
 		switch((enum flexopt_flag_t)rv) {
-			case OPT_CPLUSPLUS:
-			    C_plus_plus = true;
-			    break;
-			case OPT_BATCH:
-			    interactive = false;
-			    break;
-			case OPT_BACKUP:
-			    backing_up_report = true;
-			    break;
-			case OPT_DONOTHING:
-			    break;
+			case OPT_CPLUSPLUS: C_plus_plus = true; break;
+			case OPT_BATCH: interactive = false; break;
+			case OPT_BACKUP: backing_up_report = true; break;
+			case OPT_DONOTHING: break;
 			case OPT_COMPRESSION:
 			    if(!sawcmpflag) {
 				    useecs = false;
@@ -1115,20 +1073,12 @@ void flexinit(int argc, char ** argv)
 			    //buf_strdefine (&userdef_buf, "YY_NO_UNISTD_H", "1");
 			    buf_m4_define(&m4defs_buf, "M4_YY_NO_UNISTD_H", 0);
 			    break;
-
-			case OPT_WIN_COMPAT:
-			    buf_m4_define(&m4defs_buf, "M4_YY_WIN_COMPAT", 0);
-			    break;
-
+			case OPT_WIN_COMPAT: buf_m4_define(&m4defs_buf, "M4_YY_WIN_COMPAT", 0); break;
 			case OPT_TABLES_FILE:
 			    tablesext = true;
 			    tablesfilename = arg;
 			    break;
-
-			case OPT_TABLES_VERIFY:
-			    tablesverify = true;
-			    break;
-
+			case OPT_TABLES_VERIFY: tablesverify = true; break;
 			case OPT_TRACE: trace = true; break;
 			case OPT_VERBOSE: printstats = true; break;
 			case OPT_VERSION:
@@ -1152,7 +1102,7 @@ void flexinit(int argc, char ** argv)
 			case OPT_PREPROCDEFINE:
 		    {
 			    /* arg is "symbol" or "symbol=definition". */
-			    char   * def;
+			    char * def;
 			    for(def = arg; *def != '\0' && *def != '='; ++def)
 					;
 			    buf_strappend(&userdef_buf, "#define ");
@@ -1289,12 +1239,10 @@ void flexinit(int argc, char ** argv)
 	variable_trailing_context_rules = bol_needed = false;
 	linenum = sectnum = 1;
 	firstprot = NIL;
-
 	/* Used in mkprot() so that the first proto goes in slot 1
 	 * of the proto queue.
 	 */
 	lastprot = 1;
-
 	set_up_initial_allocations();
 }
 
@@ -1328,7 +1276,6 @@ void readin(void)
 		 */
 		/* Update: Estes says no, since other flex features don't violate posix. */
 	}
-
 	if(getenv("POSIXLY_CORRECT")) {
 		posix_compat = true;
 	}
@@ -1339,17 +1286,14 @@ void readin(void)
 	}
 	else
 		backing_up_file = NULL;
-
 	if(yymore_really_used == true)
 		yymore_used = true;
 	else if(yymore_really_used == false)
 		yymore_used = false;
-
 	if(reject_really_used == true)
 		reject = true;
 	else if(reject_really_used == false)
 		reject = false;
-
 	if(performance_report > 0) {
 		if(lex_compat) {
 			fprintf(stderr, _("-l AT&T lex compatibility option entails a large performance penalty\n"));

@@ -38,7 +38,7 @@ int X509_trusted(const X509 * x)
 
 static X509_CERT_AUX * aux_get(X509 * x)
 {
-	if(x == NULL)
+	if(!x)
 		return NULL;
 	if(x->aux == NULL && (x->aux = X509_CERT_AUX_new()) == NULL)
 		return NULL;

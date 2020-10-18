@@ -20,11 +20,6 @@
 #ifndef READER_H_
 #define READER_H_
 
-//#include "location.h"
-//#include "symlist.h"
-//#include "named-ref.h"
-//#include "parse-gram.h"
-
 typedef struct merger_list {
 	struct merger_list* next;
 	uniqstr name;

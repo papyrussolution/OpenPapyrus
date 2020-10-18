@@ -19,26 +19,20 @@
 #define _XMALLOCA_H
 
 #include "malloca.h"
-#include "xalloc.h"
-
+//#include "xalloc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
 /* xmalloca(N) is a checking safe variant of alloca(N).  It allocates N bytes
    of memory allocated on the stack, that must be freed using freea() before
    the function returns.  Upon failure, it exits with an error message.  */
 #if HAVE_ALLOCA
-#define xmalloca(N) \
-  ((N) < 4032 - sa_increment                                        \
-   ? (void *) ((char *) alloca ((N) + sa_increment) + sa_increment) \
-   : xmmalloca (N))
-extern void * xmmalloca (size_t n);
+	#define xmalloca(N) ((N) < 4032 - sa_increment ? (void*)((char*)alloca((N) + sa_increment) + sa_increment) : xmmalloca(N))
+	extern void * xmmalloca(size_t n);
 #else
-#define xmalloca(N) \
-  xmalloc (N)
+	#define xmalloca(N) xmalloc(N)
 #endif
 
 /* xnmalloca(N,S) is an overflow-safe variant of xmalloca (N * S).
@@ -47,18 +41,14 @@ extern void * xmmalloca (size_t n);
    The array must be freed using freea() before the function returns.
    Upon failure, it exits with an error message.  */
 #if HAVE_ALLOCA
-/* Rely on xmalloca (SIZE_MAX) calling xalloc_die ().  */
-#define xnmalloca(n, s) \
-    xmalloca (xalloc_oversized ((n), (s)) ? (size_t) (-1) : (n) * (s))
+	/* Rely on xmalloca (SIZE_MAX) calling xalloc_die ().  */
+	#define xnmalloca(n, s) xmalloca(xalloc_oversized((n), (s)) ? (size_t)(-1) : (n) * (s))
 #else
-#define xnmalloca(n, s) \
-    xnmalloc ((n), (s))
+	#define xnmalloca(n, s) xnmalloc((n), (s))
 #endif
-
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* _XMALLOCA_H */

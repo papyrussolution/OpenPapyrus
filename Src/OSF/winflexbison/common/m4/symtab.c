@@ -33,7 +33,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "m4.h"
+//#include "m4.h"
 //#include <limits.h>
 
 #ifdef DEBUG_SYM
@@ -53,12 +53,9 @@ static symbol_lookup current_mode;
 /* On exit, show a profile of symbol table performance.  */
 static void show_profile(void)
 {
-	int i;
-	for(i = 0; i < 5; i++) {
-		xfprintf(stderr, "m4: lookup mode %d called %d times, %d compares, "
-		    "%d misses, %lld bytes\n",
-		    i, profiles[i].entry, profiles[i].comparisons,
-		    profiles[i].misses, profiles[i].bytes);
+	for(int i = 0; i < 5; i++) {
+		xfprintf(stderr, "m4: lookup mode %d called %d times, %d compares, %d misses, %lld bytes\n",
+		    i, profiles[i].entry, profiles[i].comparisons, profiles[i].misses, profiles[i].bytes);
 	}
 }
 
@@ -72,7 +69,7 @@ static int profile_strcmp(const char * s1, const char * s2)
 		s2++;
 		i++;
 	}
-	result = (unsigned char)*s1 - (unsigned char)*s2;
+	result = (uchar)*s1 - (uchar)*s2;
 	profiles[current_mode].comparisons++;
 	if(result != 0)
 		profiles[current_mode].misses++;
@@ -89,13 +86,13 @@ static int profile_strcmp(const char * s1, const char * s2)
    `------------------------------------------------------------------*/
 
 /* Pointer to symbol table.  */
-symbol ** symtab;
+SymbolTableEntry ** symtab;
 
 void symtab_init(void)
 {
 	size_t i;
-	symbol ** s;
-	s = symtab = (symbol**)xnmalloc(hash_table_size, sizeof(symbol *));
+	SymbolTableEntry ** s;
+	s = symtab = (SymbolTableEntry **)xnmalloc(hash_table_size, sizeof(SymbolTableEntry *));
 	for(i = 0; i < hash_table_size; i++)
 		s[i] = NULL;
 #ifdef DEBUG_SYM
@@ -120,12 +117,10 @@ static size_t hash(const char * s)
 		val = (val << 7) + (val >> (sizeof(val) * CHAR_BIT - 7)) + ch;
 	return val;
 }
-
 /*--------------------------------------------.
 | Free all storage associated with a symbol.  |
    `--------------------------------------------*/
-
-void free_symbol(symbol * sym)
+void free_symbol(SymbolTableEntry * sym)
 {
 	if(SYMBOL_PENDING_EXPANSIONS(sym) > 0)
 		SYMBOL_DELETED(sym) = true;
@@ -136,52 +131,41 @@ void free_symbol(symbol * sym)
 		SAlloc::F(sym);
 	}
 }
-
-/*-------------------------------------------------------------------.
-| Search in, and manipulation of the symbol table, are all done by   |
-| lookup_symbol ().  It basically hashes NAME to a list in the       |
-| symbol table, and searches this list for the first occurrence of a |
-| symbol with the name.                                              |
-|                                                                    |
-| The MODE parameter determines what lookup_symbol () will do.  It   |
-| can either just do a lookup, do a lookup and insert if not         |
-| present, do an insertion even if the name is already in the list,  |
-| delete the first occurrence of the name on the list, or delete all |
-| occurrences of the name on the list.                               |
-   `-------------------------------------------------------------------*/
-
-symbol * lookup_symbol(const char * name, symbol_lookup mode)
+// 
+// Search in, and manipulation of the symbol table, are all done by   |
+// lookup_symbol ().  It basically hashes NAME to a list in the       |
+// symbol table, and searches this list for the first occurrence of a |
+// symbol with the name.                                              |
+// 
+// The MODE parameter determines what lookup_symbol () will do.  It   |
+// can either just do a lookup, do a lookup and insert if not         |
+// present, do an insertion even if the name is already in the list,  |
+// delete the first occurrence of the name on the list, or delete all |
+// occurrences of the name on the list.                               |
+// 
+SymbolTableEntry * FASTCALL lookup_symbol(const char * name, symbol_lookup mode)
 {
 	size_t h;
 	int cmp = 1;
-	symbol * sym, * prev;
-	symbol ** spp;
-
+	SymbolTableEntry * sym, * prev;
+	SymbolTableEntry ** spp;
 #if DEBUG_SYM
 	current_mode = mode;
 	profiles[mode].entry++;
 #endif /* DEBUG_SYM */
-
 	h = hash(name);
 	sym = symtab[h % hash_table_size];
-
 	for(prev = NULL; sym != NULL; prev = sym, sym = sym->next) {
 		cmp = strcmp(SYMBOL_NAME(sym), name);
 		if(cmp >= 0)
 			break;
 	}
-
 	/* If just searching, return status of search.  */
-
 	if(mode == SYMBOL_LOOKUP)
 		return cmp == 0 ? sym : NULL;
-
 	/* Symbol not found.  */
-
 	spp = (prev != NULL) ?  &prev->next : &symtab[h % hash_table_size];
-
-	switch(mode)
-	{
+	switch(mode) {
 		case SYMBOL_INSERT:
 
 		    /* If the name was found in the table, check whether it is still in
@@ -191,10 +175,9 @@ symbol * lookup_symbol(const char * name, symbol_lookup mode)
 
 		    if(cmp == 0 && sym != NULL) {
 			    if(SYMBOL_PENDING_EXPANSIONS(sym) > 0) {
-				    symbol * old = sym;
+				    SymbolTableEntry * old = sym;
 				    SYMBOL_DELETED(old) = true;
-
-				    sym = (symbol*)xmalloc(sizeof(symbol));
+				    sym = (SymbolTableEntry *)xmalloc(sizeof(SymbolTableEntry));
 				    SYMBOL_TYPE(sym) = TOKEN_VOID;
 				    SYMBOL_TRACED(sym) = SYMBOL_TRACED(old);
 				    SYMBOL_NAME(sym) = xstrdup(name);
@@ -218,7 +201,7 @@ symbol * lookup_symbol(const char * name, symbol_lookup mode)
 		       with the name, insert this in front of it, and mark the old
 		       symbol as "shadowed".  */
 
-		    sym = (symbol*)xmalloc(sizeof(symbol));
+		    sym = (SymbolTableEntry *)xmalloc(sizeof(SymbolTableEntry));
 		    SYMBOL_TYPE(sym) = TOKEN_VOID;
 		    SYMBOL_TRACED(sym) = false;
 		    SYMBOL_NAME(sym) = xstrdup(name);
@@ -267,7 +250,7 @@ symbol * lookup_symbol(const char * name, symbol_lookup mode)
 			    while(*spp != NULL && SYMBOL_SHADOWED(*spp)
 				&& mode == SYMBOL_DELETE);
 			    if(traced) {
-				    sym = (symbol*)xmalloc(sizeof(symbol));
+				    sym = (SymbolTableEntry *)xmalloc(sizeof(SymbolTableEntry));
 				    SYMBOL_TYPE(sym) = TOKEN_VOID;
 				    SYMBOL_TRACED(sym) = true;
 				    SYMBOL_NAME(sym) = xstrdup(name);
@@ -305,8 +288,8 @@ symbol * lookup_symbol(const char * name, symbol_lookup mode)
 void hack_all_symbols(hack_symbol * func, void * data)
 {
 	size_t h;
-	symbol * sym;
-	symbol * next;
+	SymbolTableEntry * sym;
+	SymbolTableEntry * next;
 	for(h = 0; h < hash_table_size; h++) {
 		/* We allow func to call SYMBOL_POPDEF, which can invalidate
 		   sym, so we must grab the next element to traverse before
@@ -355,7 +338,7 @@ static void symtab_print_list(int i)
 			xprintf("\tname %s, bucket %lu, addr %p, next %p, "
 			    "flags%s%s%s, pending %d\n",
 			    SYMBOL_NAME(sym),
-			    (unsigned long int)h, sym, SYMBOL_NEXT(sym),
+			    (ulong)h, sym, SYMBOL_NEXT(sym),
 			    SYMBOL_TRACED(sym) ? " traced" : "",
 			    SYMBOL_SHADOWED(sym) ? " shadowed" : "",
 			    SYMBOL_DELETED(sym) ? " deleted" : "",

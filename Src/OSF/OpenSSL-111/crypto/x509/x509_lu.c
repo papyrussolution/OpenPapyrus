@@ -325,7 +325,7 @@ static int x509_store_add(X509_STORE * store, void * x, int crl) {
 	X509_OBJECT * obj;
 	int ret = 0, added = 0;
 
-	if(x == NULL)
+	if(!x)
 		return 0;
 	obj = X509_OBJECT_new();
 	if(obj == NULL)

@@ -16,13 +16,13 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "xvasprintf.h" /* Specification.  */
+//#include "xvasprintf.h" /* Specification.  */
 //#include <errno.h>
 //#include <limits.h>
 //#include <string.h>
 //#include <stdio.h>
-#include "xalloc.h"
-#include "xsize.h" /* Checked size_t computations.  */
+//#include "xalloc.h"
+//#include "xsize.h" /* Checked size_t computations.  */
 #ifndef va_copy
 	#define va_copy(a, b) ((a) = (b))
 #endif
@@ -31,26 +31,22 @@ static char * xstrcat(size_t argcount, va_list args)
 {
 	char * result;
 	va_list ap;
-	size_t totalsize;
 	size_t i;
 	char * p;
 	/* Determine the total size.  */
-	totalsize = 0;
+	size_t totalsize = 0;
 	va_copy(ap, args);
 	for(i = argcount; i > 0; i--) {
 		const char * next = va_arg(ap, const char *);
 		totalsize = xsum(totalsize, strlen(next));
 	}
 	va_end(ap);
-
 	/* Test for overflow in the summing pass above or in (totalsize + 1) below.
-	   Also, don't return a string longer than INT_MAX, for consistency with
-	   vasprintf().  */
+	   Also, don't return a string longer than INT_MAX, for consistency with vasprintf().  */
 	if(totalsize == SIZE_MAX || totalsize > INT_MAX) {
 		errno = EOVERFLOW;
 		return NULL;
 	}
-
 	/* Allocate and fill the result string.  */
 	result = XNMALLOC(totalsize + 1, char);
 	p = result;
@@ -61,7 +57,6 @@ static char * xstrcat(size_t argcount, va_list args)
 		p += len;
 	}
 	*p = '\0';
-
 	return result;
 }
 
@@ -70,14 +65,12 @@ extern int vasprintf(char ** resultp, const char * format, va_list args);
 char * xvasprintf(const char * format, va_list args)
 {
 	char * result;
-
 	/* Recognize the special case format = "%s...%s".  It is a frequently used
 	   idiom for string concatenation and needs to be fast.  We don't want to
 	   have a separate function xstrcat() for this purpose.  */
 	{
 		size_t argcount = 0;
 		const char * f;
-
 		for(f = format;;) {
 			if(*f == '\0')
 				/* Recognized the special case of string concatenation.  */

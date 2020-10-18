@@ -19,17 +19,8 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "fixits.h"
-//#include <error.h>
-//#include <get-errno.h>
-//#include <gl_array_list.h>
-//#include <gl_xlist.h>
 #include <progname.h>
-//#include <quote.h>
-//#include <quotearg.h>
 #include <vasnprintf.h>
-//#include "files.h"
-//#include "getargs.h"
 
 typedef struct {
 	Location location;

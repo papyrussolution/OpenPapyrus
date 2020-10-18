@@ -276,36 +276,26 @@ struct re_pattern_buffer {
 	   `uchar *' because its elements are
 	   sometimes used as array indexes.  */
 	uchar * buffer;
-
-	/* Number of bytes to which `buffer' points.  */
-	unsigned long allocated;
-
-	/* Number of bytes actually used in `buffer'.  */
-	unsigned long used;
-
-	/* Syntax setting with which the pattern was compiled.  */
-	reg_syntax_t syntax;
-
+	ulong allocated; /* Number of bytes to which `buffer' points.  */
+	ulong used; /* Number of bytes actually used in `buffer'.  */
+	reg_syntax_t syntax; /* Syntax setting with which the pattern was compiled.  */
 	/* Pointer to a fastmap, if any, otherwise zero.  re_search uses
 	   the fastmap, if there is one, to skip over impossible
 	   starting points for matches.  */
 	char * fastmap;
-
 	/* Either a translate table to apply to all characters before
 	   comparing them, or zero for no translation.  The translation
 	   is applied to a pattern when it is compiled and to a string
 	   when it is matched.  */
 	char * translate;
-
 	/* Number of subexpressions found by the compiler.  */
 	size_t re_nsub;
-
 	/* Zero if this pattern cannot match the empty string, one else.
 	   Well, in truth it's used only in `re_search_2', to see
 	   whether or not we should use the fastmap, so we don't set
 	   this absolutely perfectly; see `re_compile_fastmap' (the
 	   `duplicate' case).  */
-	unsigned can_be_null : 1;
+	uint   can_be_null : 1;
 
 	/* If REGS_UNALLOCATED, allocate space in the `regs' structure
 	     for `max (RE_NREGS, re_nsub + 1)' groups.

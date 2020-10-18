@@ -17,7 +17,7 @@ int X509_certificate_type(const X509 * x, const EVP_PKEY * pkey)
 	const EVP_PKEY * pk;
 	int ret = 0, i;
 
-	if(x == NULL)
+	if(!x)
 		return 0;
 
 	if(pkey == NULL)

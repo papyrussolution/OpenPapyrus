@@ -259,7 +259,6 @@
     <ClCompile Include="..\osf\winflexbison\common\m4\printf-args.c" />
     <ClCompile Include="..\osf\winflexbison\common\m4\printf-parse.c" />
     <ClCompile Include="..\osf\winflexbison\common\m4\regex.c" />
-    <ClCompile Include="..\osf\winflexbison\common\m4\regex_internal.c" />
     <ClCompile Include="..\osf\winflexbison\common\m4\tempname.c" />
     <ClCompile Include="..\osf\winflexbison\common\m4\tmpdir.c" />
     <ClCompile Include="..\osf\winflexbison\common\m4\unicodeio.c" />

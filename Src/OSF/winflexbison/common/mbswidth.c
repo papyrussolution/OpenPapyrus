@@ -23,7 +23,7 @@
 //#include <string.h>
 //#include <ctype.h> /* Get isprint().  */
 //#include <wchar.h> /* Get mbstate_t, mbrtowc(), mbsinit(), wcwidth().  */
-#include <wctype.h> /* Get iswcntrl().  */
+//#include <wctype.h> /* Get iswcntrl().  */
 //#include <limits.h> /* Get INT_MAX.  */
 
 extern int wcwidth(wchar_t wc);
@@ -137,7 +137,7 @@ int mbsnwidth(const char * string, size_t nbytes, int flags)
 	}
 
 	while(p < plimit) {
-		unsigned char c = (unsigned char)*p++;
+		uchar c = (uchar)*p++;
 
 		if(isprint(c)) {
 			if(width == INT_MAX)

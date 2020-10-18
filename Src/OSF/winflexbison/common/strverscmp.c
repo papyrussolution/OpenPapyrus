@@ -34,13 +34,13 @@
 #define LEN    3
 
 /* ISDIGIT differs from isdigit, as follows:
-   - Its arg may be any int or unsigned int; it need not be an unsigned char
+   - Its arg may be any int or uint; it need not be an uchar
      or EOF.
    - It's typically faster.
    POSIX says that only '0' through '9' are digits.  Prefer ISDIGIT to
    isdigit unless it's important to use the locale's definition
    of "digit" even when the host does not conform to POSIX.  */
-#define ISDIGIT(c) ((unsigned int)(c) - '0' <= 9)
+#define ISDIGIT(c) ((uint)(c) - '0' <= 9)
 
 #undef __strverscmp
 #undef strverscmp
@@ -56,14 +56,14 @@
 
 int __strverscmp(const char * s1, const char * s2)
 {
-	const unsigned char * p1 = (const unsigned char*)s1;
-	const unsigned char * p2 = (const unsigned char*)s2;
-	unsigned char c1, c2;
+	const uchar * p1 = (const uchar*)s1;
+	const uchar * p2 = (const uchar*)s2;
+	uchar c1, c2;
 	int state;
 	int diff;
 	/* Symbol(s)    0       [1-9]   others  (padding)
 	   Transition   (10) 0  (01) d  (00) x  (11) -   */
-	static const unsigned int next_state[] =
+	static const uint next_state[] =
 	{
 		/* state    x    d    0    - */
 		/* S_N */ S_N, S_I, S_Z, S_N,

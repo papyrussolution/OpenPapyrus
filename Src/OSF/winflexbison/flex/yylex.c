@@ -34,7 +34,6 @@
 #include "flexdef.h"
 #pragma hdrstop
 #include "parse.h"
-//#include <ctype.h>
 
 /* yylex - scan for a regular expression token */
 extern char * yytext;

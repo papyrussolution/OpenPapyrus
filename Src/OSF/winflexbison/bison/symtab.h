@@ -25,11 +25,6 @@
 #ifndef SYMTAB_H_
 #define SYMTAB_H_
 
-//#include "assoc.h"
-//#include "location.h"
-//#include "scan-code.h"
-//#include "uniqstr.h"
-
 /*----------.
 | Symbols.  |
    `----------*/

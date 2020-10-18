@@ -1410,6 +1410,7 @@ SLAPI PPViewGeoTracking::~PPViewGeoTracking()
 /*virtual*/int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class GeoTrackFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(GeoTrackingFilt);
 	public:
 		GeoTrackFiltDialog() : TDialog(DLG_GEOTRFILT)
 		{
@@ -1417,7 +1418,7 @@ SLAPI PPViewGeoTracking::~PPViewGeoTracking()
 			ObjTypeList.addzlist(PPOBJ_STYLOPALM, 0);
 			ExtObjTypeList.addzlist(PPOBJ_BILL, PPOBJ_LOCATION, 0);
 		}
-		int    setDTS(const GeoTrackingFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -1427,7 +1428,7 @@ SLAPI PPViewGeoTracking::~PPViewGeoTracking()
 			SetupObjType();
 			return ok;
 		}
-		int    getDTS(GeoTrackingFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetPeriodInput(this, CTL_GEOTRFILT_PERIOD, &Data.Period);
@@ -1465,7 +1466,6 @@ SLAPI PPViewGeoTracking::~PPViewGeoTracking()
 			}
 			disableCtrl(CTLSEL_GEOTRFILT_EXTOBJ, 1);
 		}
-		GeoTrackingFilt Data;
 		PPIDArray ObjTypeList;
 		PPIDArray ExtObjTypeList;
 	};

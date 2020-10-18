@@ -26,7 +26,7 @@
 
 # ifdef  __cplusplus
 extern "C" {
-# endif
+#endif
 
 /* Timing variables are used to measure elapsed time in various
    portions of the application.  Each measures elapsed user, system, and
@@ -124,6 +124,6 @@ extern int timevar_enabled;
 
 # ifdef  __cplusplus
 }
-# endif
+#endif
 
 #endif /* ! _TIMEVAR_H */

@@ -19,9 +19,6 @@
 #ifndef COMPLAIN_H_
 #define COMPLAIN_H_ 1
 
-//#include <attribute.h>
-//#include "location.h"
-
 /*---------------.
 | Error stream.  |
    `---------------*/

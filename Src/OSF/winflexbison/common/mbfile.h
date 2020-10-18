@@ -62,7 +62,7 @@ struct mbfile_multi {
 	bool eof_seen;
 	bool have_pushback;
 	mbstate_t state;
-	unsigned int bufcount;
+	uint bufcount;
 	char buf[MBCHAR_BUF_SIZE];
 	struct mbchar pushback;
 };
@@ -87,7 +87,7 @@ MBFILE_INLINE void mbfile_multi_getc(struct mbchar * mbc, struct mbfile_multi * 
 			mbf->eof_seen = true;
 			goto eof;
 		}
-		mbf->buf[0] = (unsigned char)c;
+		mbf->buf[0] = (uchar)c;
 		mbf->bufcount++;
 	}
 
@@ -149,7 +149,7 @@ MBFILE_INLINE void mbfile_multi_getc(struct mbchar * mbc, struct mbfile_multi * 
 					mbc->wc_valid = false;
 					break;
 				}
-				mbf->buf[mbf->bufcount] = (unsigned char)c;
+				mbf->buf[mbf->bufcount] = (uchar)c;
 				mbf->bufcount++;
 			}
 		}
@@ -173,7 +173,7 @@ MBFILE_INLINE void mbfile_multi_getc(struct mbchar * mbc, struct mbfile_multi * 
 	mbf->bufcount -= bytes;
 	if(mbf->bufcount > 0) {
 		/* It's not worth calling memmove() for so few bytes.  */
-		unsigned int count = mbf->bufcount;
+		uint count = mbf->bufcount;
 		char * p = &mbf->buf[0];
 
 		do {

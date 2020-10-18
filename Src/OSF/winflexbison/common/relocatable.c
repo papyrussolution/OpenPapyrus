@@ -33,9 +33,9 @@
 //#include <stdlib.h>
 //#include <string.h>
 #ifdef NO_XMALLOC
-#define xmalloc malloc
+	#define xmalloc malloc
 #else
-#include "xalloc.h"
+	//#include "xalloc.h"
 #endif
 #if defined _WIN32 && !defined __CYGWIN__
 	//#define WIN32_LEAN_AND_MEAN
@@ -90,11 +90,11 @@
    platforms, see below.  Therefore we enable it by default only on native
    Windows platforms.  */
 #ifndef ENABLE_COSTLY_RELOCATABLE
-# if defined _WIN32 && !defined __CYGWIN__
+#if defined _WIN32 && !defined __CYGWIN__
 #  define ENABLE_COSTLY_RELOCATABLE 1
-# else
+#else
 #  define ENABLE_COSTLY_RELOCATABLE 0
-# endif
+#endif
 #endif
 
 /* Original installation prefix.  */
@@ -123,7 +123,7 @@ static void set_this_relocation_prefix(const char * orig_prefix_arg,
 
 		orig_prefix_len = strlen(orig_prefix_arg);
 		curr_prefix_len = strlen(curr_prefix_arg);
-		memory = (char*)xmalloc(orig_prefix_len + 1 + curr_prefix_len + 1);
+		memory = (char *)xmalloc(orig_prefix_len + 1 + curr_prefix_len + 1);
 #ifdef NO_XMALLOC
 		if(memory != NULL)
 #endif
@@ -199,7 +199,7 @@ char * compute_curr_prefix(const char * orig_installprefix, const char * orig_in
 				break;
 		}
 
-		q = (char*)xmalloc(p - curr_pathname + 1);
+		q = (char *)xmalloc(p - curr_pathname + 1);
 #ifdef NO_XMALLOC
 		if(q == NULL)
 			return NULL;
@@ -261,7 +261,7 @@ char * compute_curr_prefix(const char * orig_installprefix, const char * orig_in
 			size_t computed_curr_prefix_len = cp - curr_installdir;
 			char * computed_curr_prefix;
 
-			computed_curr_prefix = (char*)xmalloc(computed_curr_prefix_len + 1);
+			computed_curr_prefix = (char *)xmalloc(computed_curr_prefix_len + 1);
 #ifdef NO_XMALLOC
 			if(computed_curr_prefix == NULL) {
 				SAlloc::F(curr_installdir);
@@ -369,7 +369,7 @@ static void find_shared_library_fullname()
 	/* Open the current process' maps file.  It describes one VMA per line.  */
 	fp = fopen("/proc/self/maps", "r");
 	if(fp) {
-		unsigned long address = (unsigned long)&find_shared_library_fullname;
+		unsigned long address = (ulong)&find_shared_library_fullname;
 		for(;;) {
 			unsigned long start, end;
 			int c;
@@ -469,7 +469,7 @@ const char * relocate(const char * pathname)
 	    && strncmp(pathname, orig_prefix, orig_prefix_len) == 0) {
 		if(pathname[orig_prefix_len] == '\0') {
 			/* pathname equals orig_prefix.  */
-			char * result = (char*)xmalloc(strlen(curr_prefix) + 1);
+			char * result = (char *)xmalloc(strlen(curr_prefix) + 1);
 
 #ifdef NO_XMALLOC
 			if(result != NULL)
@@ -483,7 +483,7 @@ const char * relocate(const char * pathname)
 			/* pathname starts with orig_prefix.  */
 			const char * pathname_tail = &pathname[orig_prefix_len];
 			char * result =
-			    (char*)xmalloc(curr_prefix_len + strlen(pathname_tail) + 1);
+			    (char *)xmalloc(curr_prefix_len + strlen(pathname_tail) + 1);
 
 #ifdef NO_XMALLOC
 			if(result != NULL)
@@ -506,12 +506,12 @@ const char * relocate(const char * pathname)
 		return pathname;
 	}
 	else
-# endif
+#endif
 	if(ISSLASH(pathname[0])) {
 		const char * unixroot = getenv("UNIXROOT");
 
 		if(unixroot && HAS_DEVICE(unixroot) && unixroot[2] == '\0') {
-			char * result = (char*)xmalloc(2 + strlen(pathname) + 1);
+			char * result = (char *)xmalloc(2 + strlen(pathname) + 1);
 #ifdef NO_XMALLOC
 			if(result != NULL)
 #endif
@@ -536,7 +536,7 @@ const char * relocate(const char * pathname)
 const char * relocate2(const char * pathname, char ** allocatedp)
 {
 	const char * result = relocate(pathname);
-	*allocatedp = (result != pathname ? (char*)result : NULL);
+	*allocatedp = (result != pathname ? (char *)result : NULL);
 	return result;
 }
 

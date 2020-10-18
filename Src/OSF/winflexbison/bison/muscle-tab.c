@@ -19,21 +19,14 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <hash.h>
-//#include <quote.h>
-//#include "complain.h"
-//#include "files.h"
-//#include "fixits.h"
-//#include "getargs.h"
-//#include "muscle-tab.h"
 
 muscle_kind muscle_kind_new(char const * k)
 {
-	if(STREQ(k, "code"))
+	if(sstreq(k, "code"))
 		return muscle_code;
-	else if(STREQ(k, "keyword"))
+	else if(sstreq(k, "keyword"))
 		return muscle_keyword;
-	else if(STREQ(k, "string"))
+	else if(sstreq(k, "string"))
 		return muscle_string;
 	abort();
 }
@@ -79,7 +72,7 @@ static bool hash_compare_muscles(void const * x, void const * y)
 {
 	muscle_entry const * m1 = (const muscle_entry *)x;
 	muscle_entry const * m2 = (const muscle_entry *)y;
-	return STREQ(m1->key, m2->key);
+	return sstreq(m1->key, m2->key);
 }
 
 static size_t hash_muscle(const void * x, size_t tablesize)
@@ -396,17 +389,11 @@ static char const * muscle_percent_variable_update(char const * variable, muscle
 		{ "variant=true",               "api.value.type=variant",    (muscle_kind)-1 },
 		{ NULL, NULL, (muscle_kind)-1, }
 	};
-
 	for(conversion_type const * c = conversion; c->obsolete; ++c) {
 		char const * eq = strchr(c->obsolete, '=');
-		if(eq
-		    ? (!strncmp(c->obsolete, variable, eq - c->obsolete)
-		    && STREQ(eq + 1, *value))
-		    : STREQ(c->obsolete, variable)) {
+		if(eq ? (!strncmp(c->obsolete, variable, eq - c->obsolete) && sstreq(eq + 1, *value)) : sstreq(c->obsolete, variable)) {
 			/* Generate the deprecation warning. */
-			*old = c->obsolete[0] == '%'
-			    ? xstrdup(c->obsolete)
-			    : define_directive(c->obsolete, kind, *value);
+			*old = c->obsolete[0] == '%' ? xstrdup(c->obsolete) : define_directive(c->obsolete, kind, *value);
 			*upd = define_directive(c->updated, c->kind, *value);
 			/* Update the variable and its value.  */
 			{
@@ -450,7 +437,7 @@ void muscle_percent_define_insert(char const * var,
 			if(how_old == MUSCLE_PERCENT_DEFINE_F)
 				goto end;
 			/* If assigning the same value, make it a warning.  */
-			warnings warn = STREQ(value, current_value) ? Wother : complaint;
+			warnings warn = sstreq(value, current_value) ? Wother : complaint;
 			complain(&variable_loc, warn, _("%%define variable %s redefined"), quote(variable));
 			Location loc = muscle_percent_define_get_loc(variable);
 			subcomplain(&loc, warn, _("previous definition"));
@@ -535,19 +522,13 @@ static void muscle_percent_define_check_kind(char const * variable, muscle_kind 
 		Location loc = muscle_percent_define_get_loc(variable);
 		switch(kind) {
 			case muscle_code:
-			    complain(&loc, Wdeprecated,
-				_("%%define variable '%s' requires '{...}' values"),
-				variable);
+			    complain(&loc, Wdeprecated, _("%%define variable '%s' requires '{...}' values"), variable);
 			    break;
 			case muscle_keyword:
-			    complain(&loc, Wdeprecated,
-				_("%%define variable '%s' requires keyword values"),
-				variable);
+			    complain(&loc, Wdeprecated, _("%%define variable '%s' requires keyword values"), variable);
 			    break;
 			case muscle_string:
-			    complain(&loc, Wdeprecated,
-				_("%%define variable '%s' requires '\"...\"' values"),
-				variable);
+			    complain(&loc, Wdeprecated, _("%%define variable '%s' requires '\"...\"' values"), variable);
 			    break;
 		}
 	}
@@ -581,9 +562,9 @@ bool muscle_percent_define_flag_if(char const * variable)
 	if(muscle_percent_define_ifdef(variable)) {
 		char * value = muscle_percent_define_get(variable);
 		muscle_percent_define_check_kind(variable, muscle_keyword);
-		if(value[0] == '\0' || STREQ(value, "true"))
+		if(value[0] == '\0' || sstreq(value, "true"))
 			res = true;
-		else if(STREQ(value, "false"))
+		else if(sstreq(value, "false"))
 			res = false;
 		else if(!muscle_find_const(invalid_boolean_name)) {
 			muscle_insert(invalid_boolean_name, "");
@@ -627,7 +608,7 @@ void muscle_percent_define_check_values(char const * const * values)
 		muscle_percent_define_check_kind(*variablep, muscle_keyword);
 		if(value) {
 			for(++values; *values; ++values)
-				if(STREQ(value, *values))
+				if(sstreq(value, *values))
 					break;
 			if(!*values) {
 				Location loc = muscle_percent_define_get_loc(*variablep);

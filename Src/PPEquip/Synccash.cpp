@@ -556,9 +556,9 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
 		// @v10.8.12 {
-		SString chzn_cid;
+		SString chzn_sid;
 		if(SCn.LocID)
-			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_cid);
+			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
 		// } @v10.8.12 
 		THROW(Connect());
 		// @v10.1.0 if(flags & PRNCHK_LASTCHKANNUL) {
@@ -796,8 +796,8 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		{
 			// @v10.8.12 {
-			if(chzn_cid.NotEmpty())
-				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_cid)); 
+			if(chzn_sid.NotEmpty())
+				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCID, chzn_sid)); 
 			// } @v10.8.12 
 		}
 		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек

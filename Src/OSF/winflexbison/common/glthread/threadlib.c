@@ -28,7 +28,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-# if PTHREAD_IN_USE_DETECTION_HARD
+#if PTHREAD_IN_USE_DETECTION_HARD
 
 /* The function to be executed by a dummy thread.  */
 static void * dummy_thread_func(void * arg)

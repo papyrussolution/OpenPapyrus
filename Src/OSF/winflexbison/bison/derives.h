@@ -19,16 +19,9 @@
 
 #ifndef DERIVES_H_
 #define DERIVES_H_
-
-//#include "gram.h"
-
-/* DERIVES[SYMBOL - NTOKENS] points to a vector of the rules that
-   SYMBOL derives, terminated with NULL.  */
-extern rule *** derives;
-
-/* Compute DERIVES.  */
-
-void derives_compute(void);
-void derives_free(void);
-
+	/* DERIVES[SYMBOL - NTOKENS] points to a vector of the rules that SYMBOL derives, terminated with NULL.  */
+	extern rule *** derives;
+	/* Compute DERIVES.  */
+	void derives_compute(void);
+	void derives_free(void);
 #endif /* !DERIVES_H_ */

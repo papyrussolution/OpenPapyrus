@@ -215,15 +215,15 @@ void warnings_argmatch(char * args)
 {
 	if(!args)
 		warning_argmatch("all", 0, 0);
-	else if(STREQ(args, "help")) {
+	else if(sstreq(args, "help")) {
 		warning_usage(stdout);
 		exit(EXIT_SUCCESS);
 	}
 	else
 		for(args = strtok(args, ","); args; args = strtok(NULL, ","))
-			if(STREQ(args, "error"))
+			if(sstreq(args, "error"))
 				warnings_are_errors = true;
-			else if(STREQ(args, "no-error"))
+			else if(sstreq(args, "no-error"))
 				warnings_are_errors = false;
 			else {
 				/* The length of the possible 'no-' prefix: 3, or 0.  */

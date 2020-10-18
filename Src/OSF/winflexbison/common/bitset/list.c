@@ -49,7 +49,7 @@
 typedef bitset_word lbitset_word;
 
 #define LBITSET_WORD_BITS BITSET_WORD_BITS
-#define LBITSET_ELT_BITS ((unsigned)(LBITSET_ELT_WORDS * LBITSET_WORD_BITS)) /* Number of bits stored in each element.  */
+#define LBITSET_ELT_BITS ((uint)(LBITSET_ELT_WORDS * LBITSET_WORD_BITS)) /* Number of bits stored in each element.  */
 
 /* Lbitset element.   We use an array of bits for each element.
    These are linked together in a doubly-linked list.  */
@@ -77,7 +77,7 @@ static lbitset_elt * lbitset_free_list;  /* Free list of bitset elements.  */
 
 extern void debug_lbitset(bitset);
 
-#define LBITSET_CURRENT1(X) ((lbitset_elt*)(void*)((char*)(X)-offsetof(lbitset_elt, words)))
+#define LBITSET_CURRENT1(X) ((lbitset_elt*)(void*)((char *)(X)-offsetof(lbitset_elt, words)))
 #define LBITSET_CURRENT(X) LBITSET_CURRENT1((X)->b.cdata)
 #define LBITSET_HEAD(X) ((X)->l.head)
 #define LBITSET_TAIL(X) ((X)->l.tail)
@@ -763,7 +763,7 @@ static void lbitset_not(bitset dst, bitset src)
 		   or substitute zero elements if src elements not found.  */
 		lbitset_elt * selt = lbitset_elt_find(src, i, LBITSET_SUBST);
 		lbitset_elt * delt = lbitset_elt_find(dst, i, LBITSET_CREATE);
-		for(unsigned j = 0; j < LBITSET_ELT_WORDS; j++)
+		for(uint j = 0; j < LBITSET_ELT_WORDS; j++)
 			delt->words[j] = ~selt->words[j];
 	}
 	lbitset_unused_clear(dst);
@@ -790,7 +790,7 @@ static bool lbitset_subset_p(bitset dst, bitset src)
 			}
 		}
 
-		for(unsigned j = 0; j < LBITSET_ELT_WORDS; j++)
+		for(uint j = 0; j < LBITSET_ELT_WORDS; j++)
 			if(delt->words[j] != (selt->words[j] | delt->words[j]))
 				return false;
 	}
@@ -816,7 +816,7 @@ static bool lbitset_disjoint_p(bitset dst, bitset src)
 			continue;
 		}
 
-		for(unsigned j = 0; j < LBITSET_ELT_WORDS; j++)
+		for(uint j = 0; j < LBITSET_ELT_WORDS; j++)
 			if(selt->words[j] & delt->words[j])
 				return false;
 	}
@@ -894,7 +894,7 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    abort();
 
 			case BITSET_OP_OR:
-			    for(unsigned i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ | *srcp2++;
 
 				    if(*dstp != tmp) {
@@ -905,7 +905,7 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    break;
 
 			case BITSET_OP_AND:
-			    for(unsigned i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ & *srcp2++;
 
 				    if(*dstp != tmp) {
@@ -916,7 +916,7 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    break;
 
 			case BITSET_OP_XOR:
-			    for(unsigned i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ ^ *srcp2++;
 
 				    if(*dstp != tmp) {
@@ -927,7 +927,7 @@ static bool lbitset_op3_cmp(bitset dst, bitset src1, bitset src2, enum bitset_op
 			    break;
 
 			case BITSET_OP_ANDN:
-			    for(unsigned i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
+			    for(uint i = 0; i < LBITSET_ELT_WORDS; i++, dstp++) {
 				    bitset_word tmp = *srcp1++ & ~(*srcp2++);
 
 				    if(*dstp != tmp) {
@@ -1108,12 +1108,12 @@ void debug_lbitset(bitset bset)
 		return;
 
 	for(lbitset_elt * elt = LBITSET_HEAD(bset); elt; elt = elt->next) {
-		fprintf(stderr, "Elt %lu\n", (unsigned long)elt->index);
-		for(unsigned i = 0; i < LBITSET_ELT_WORDS; i++) {
+		fprintf(stderr, "Elt %lu\n", (ulong)elt->index);
+		for(uint i = 0; i < LBITSET_ELT_WORDS; i++) {
 			bitset_word word = elt->words[i];
 
 			fprintf(stderr, "  Word %u:", i);
-			for(unsigned j = 0; j < LBITSET_WORD_BITS; j++)
+			for(uint j = 0; j < LBITSET_WORD_BITS; j++)
 				if((word & ((bitset_word)1 << j)))
 					fprintf(stderr, " %u", j);
 			fprintf(stderr, "\n");

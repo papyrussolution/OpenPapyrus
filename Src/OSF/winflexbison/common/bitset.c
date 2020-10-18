@@ -20,8 +20,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "bitset.h"
-//#include <stdlib.h>
-//#include <string.h>
 #include "obstack.h"
 #include "bitset/array.h"
 #include "bitset/list.h"
@@ -191,7 +189,7 @@ static void bitset_print(FILE * file, bitset bset, bool verbose)
 {
 	if(verbose)
 		fprintf(file, "n_bits = %lu, set = {",
-		    (unsigned long)bitset_size(bset));
+		    (ulong)bitset_size(bset));
 
 	unsigned pos = 30;
 	bitset_bindex i;
@@ -202,7 +200,7 @@ static void bitset_print(FILE * file, bitset bset, bool verbose)
 			fprintf(file, "\n");
 			pos = 0;
 		}
-		fprintf(file, "%lu ", (unsigned long)i);
+		fprintf(file, "%lu ", (ulong)i);
 		pos += 1 + (i >= 10) + (i >= 100);
 	}
 	if(verbose)

@@ -20,11 +20,7 @@
 
 #ifndef _BITSET_VECTOR_H
 #define _BITSET_VECTOR_H
-
-#include "bitset.h"
-
-size_t vbitset_bytes (bitset_bindex);
-
-bitset vbitset_init (bitset, bitset_bindex);
-
+	#include "bitset.h"
+	size_t vbitset_bytes(bitset_bindex);
+	bitset vbitset_init(bitset, bitset_bindex);
 #endif

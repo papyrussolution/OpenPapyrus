@@ -58,7 +58,7 @@ struct CONTAINER_IMPL {
    therefore at least 2^ceil(h/2) - 1 elements.  So, h <= 116 (because a tree
    of height h >= 117 would have at least 2^59 - 1 elements, and because even
    on 64-bit machines,
-     sizeof (NODE_IMPL) * (2^59 - 1) > 2^64
+     sizeof(NODE_IMPL) * (2^59 - 1) > 2^64
    this would exceed the address space of the machine.  */
 #define MAXHEIGHT 116
 
@@ -693,10 +693,10 @@ static bool gl_tree_remove_node(CONTAINER_T container, NODE_T node)
 }
 
 /* For debugging.  */
-static unsigned int check_invariants(NODE_T node, NODE_T parent, size_t * counterp)
+static uint check_invariants(NODE_T node, NODE_T parent, size_t * counterp)
 {
-	unsigned int left_blackheight = (node->left != NULL ? check_invariants(node->left, node, counterp) : 0);
-	unsigned int right_blackheight = (node->right != NULL ? check_invariants(node->right, node, counterp) : 0);
+	uint left_blackheight = (node->left != NULL ? check_invariants(node->left, node, counterp) : 0);
+	uint right_blackheight = (node->right != NULL ? check_invariants(node->right, node, counterp) : 0);
 	if(!(node->parent == parent))
 		abort();
 	if(!(node->color == BLACK || node->color == RED))

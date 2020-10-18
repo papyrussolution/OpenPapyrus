@@ -17,7 +17,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "xvasprintf.h" /* Specification.  */
+//#include "xvasprintf.h" /* Specification.  */
 
 char * xasprintf(const char * format, ...)
 {

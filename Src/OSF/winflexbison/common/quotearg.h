@@ -228,7 +228,7 @@ enum quoting_flags {
 /* For now, --quoting-style=literal is the default, but this may change.  */
 # ifndef DEFAULT_QUOTING_STYLE
 #  define DEFAULT_QUOTING_STYLE literal_quoting_style
-# endif
+#endif
 
 /* Names of quoting styles and their corresponding values.  */
 extern char const * const quoting_style_args[];

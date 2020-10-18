@@ -27,7 +27,7 @@
 #include "hash.h"
 #include "bitrotate.h"
 //#include "xalloc-oversized.h"
-#include "xalloc.h"
+//#include "xalloc.h"
 //#include <stdint.h>
 //#include <stdio.h>
 //#include <stdlib.h>
@@ -208,10 +208,10 @@ void hash_print_statistics(const Hash_table * table, FILE * stream)
 	size_t n_buckets_used = hash_get_n_buckets_used(table);
 	size_t max_bucket_length = hash_get_max_bucket_length(table);
 
-	fprintf(stream, "# entries:         %lu\n", (unsigned long int)n_entries);
-	fprintf(stream, "# buckets:         %lu\n", (unsigned long int)n_buckets);
-	fprintf(stream, "# buckets used:    %lu (%.2f%%)\n", (unsigned long int)n_buckets_used, (100.0 * n_buckets_used) / n_buckets);
-	fprintf(stream, "max bucket length: %lu\n", (unsigned long int)max_bucket_length);
+	fprintf(stream, "# entries:         %lu\n", (ulong)n_entries);
+	fprintf(stream, "# buckets:         %lu\n", (ulong)n_buckets);
+	fprintf(stream, "# buckets used:    %lu (%.2f%%)\n", (ulong)n_buckets_used, (100.0 * n_buckets_used) / n_buckets);
+	fprintf(stream, "max bucket length: %lu\n", (ulong)max_bucket_length);
 }
 
 /* Hash KEY and return a pointer to the selected bucket.
@@ -361,13 +361,13 @@ size_t hash_string(const char * string, size_t n_buckets)
 	((Byte) + rotl_sz(Value, 7))
 
 	size_t value = 0;
-	unsigned char ch;
+	uchar ch;
 
 	for(; (ch = *string); string++)
 		value = HASH_ONE_CHAR(value, ch);
 	return value % n_buckets;
 
-# undef HASH_ONE_CHAR
+#undef HASH_ONE_CHAR
 }
 
 #else /* not USE_DIFF_HASH */
@@ -380,7 +380,7 @@ size_t hash_string(const char * string, size_t n_buckets)
 size_t hash_string(const char * string, size_t n_buckets)
 {
 	size_t value = 0;
-	unsigned char ch;
+	uchar ch;
 
 	for(; (ch = *string); string++)
 		value = (value * 31 + ch) % n_buckets;
@@ -1066,7 +1066,7 @@ void hash_print(const Hash_table * table)
 		struct hash_entry * cursor;
 
 		if(bucket)
-			printf("%lu:\n", (unsigned long int)(bucket - table->bucket));
+			printf("%lu:\n", (ulong)(bucket - table->bucket));
 
 		for(cursor = bucket; cursor; cursor = cursor->next) {
 			char const * s = cursor->data;

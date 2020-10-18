@@ -20,13 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "state.h"
-//#include <hash.h>
-//#include "closure.h"
-//#include "complain.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "print-xml.h"
 
 /*-------------------.
 | Shifts and Gotos.  |

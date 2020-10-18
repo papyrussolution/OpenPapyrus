@@ -152,6 +152,7 @@
     <ClCompile Include="..\SLib\xxhash.c" />
     <ClCompile Include="..\SLib\ineturl.cpp" />
     <ClCompile Include="..\SLib\slprintf.c" />
+    <ClCompile Include="..\Db\dbsql-mysql.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

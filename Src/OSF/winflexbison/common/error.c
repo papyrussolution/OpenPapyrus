@@ -19,9 +19,9 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "error.h"
+//#include "error.h"
 #if !_LIBC && ENABLE_NLS
-	#include "gettext.h"
+	//#include "gettext.h"
 	#define _(msgid) gettext(msgid)
 #endif
 #ifdef _LIBC
@@ -42,7 +42,7 @@
    function without parameters instead.  */
 void (* error_print_progname)(void);
 
-unsigned int error_message_count; /* This variable is incremented each time `error' is called.  */
+uint error_message_count; /* This variable is incremented each time `error' is called.  */
 
 #ifdef _LIBC
 /* In the GNU C library, there is a predefined variable for this.  */
@@ -56,7 +56,7 @@ unsigned int error_message_count; /* This variable is incremented each time `err
    Instead make it a weak alias.  */
 extern void __error(int status, int errnum, const char * message, ...)
 __attribute__ ((__format__(__printf__, 3, 4)));
-extern void __error_at_line(int status, int errnum, const char * file_name, unsigned int line_number, const char * message, ...)
+extern void __error_at_line(int status, int errnum, const char * file_name, uint line_number, const char * message, ...)
 __attribute__ ((__format__(__printf__, 5, 6)));;
 #define error __error
 #define error_at_line __error_at_line
@@ -72,7 +72,7 @@ __attribute__ ((__format__(__printf__, 5, 6)));;
 
 //#include <fcntl.h>
 //#include <unistd.h>
-# if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
 	/* Get declarations of the Win32 API functions.  */
 	//#define WIN32_LEAN_AND_MEAN
 	//#include <windows.h>
@@ -80,38 +80,38 @@ __attribute__ ((__format__(__printf__, 5, 6)));;
 /* The gnulib override of fcntl is not needed in this file.  */
 #undef fcntl
 
-# if !HAVE_DECL_STRERROR_R && STRERROR_R_CHAR_P
+#if !HAVE_DECL_STRERROR_R && STRERROR_R_CHAR_P
 #  ifndef HAVE_DECL_STRERROR_R
 "this configure-time declaration test was not run"
 #  endif
 char * strerror_r();
-# endif
+#endif
 
 /* The calling program should define program_name and set it to the
    name of the executing program.  */
 //extern const char *program_name;
 const char * get_program_name();
 
-# if HAVE_STRERROR_R || defined strerror_r
+#if HAVE_STRERROR_R || defined strerror_r
 #  define __strerror_r strerror_r
-# endif /* HAVE_STRERROR_R || defined strerror_r */
+#endif /* HAVE_STRERROR_R || defined strerror_r */
 #endif  /* not _LIBC */
 #if !_LIBC
 #include <io.h>
 /* Return non-zero if FD is open.  */
 static int is_open(int fd)
 {
-# if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
 	/* On Win32: The initial state of unassigned standard file descriptors is
 	   that they are open but point to an INVALID_HANDLE_VALUE.  There is no
 	   fcntl, and the gnulib replacement fcntl does not support F_GETFL.  */
 	return (HANDLE)_get_osfhandle(fd) != INVALID_HANDLE_VALUE;
-# else
+#else
 #  ifndef F_GETFL
 #   error Please port fcntl to your platform
 #  endif
 	return 0 <= fcntl(fd, F_GETFL);
-# endif
+#endif
 }
 
 #endif
@@ -121,17 +121,17 @@ static void flush_stdout(void)
 #if !_LIBC
 	int stdout_fd;
 
-# if GNULIB_FREOPEN_SAFER
+#if GNULIB_FREOPEN_SAFER
 	/* Use of gnulib's freopen-safer module normally ensures that
 	     fileno (stdout) == 1
 	   whenever stdout is open.  */
 	stdout_fd = STDOUT_FILENO;
-# else
+#else
 	/* POSIX states that fileno (stdout) after fclose is unspecified.  But in
 	   practice it is not a problem, because stdout is statically allocated and
 	   the fd of a FILE stream is stored as a field in its allocated memory.  */
 	stdout_fd = _fileno(stdout);
-# endif
+#endif
 	/* POSIX states that fflush (stdout) after fclose is unspecified; it
 	   is safe in glibc, but not on all other platforms.  fflush (NULL)
 	   is always defined, but too draconian.  */
@@ -145,14 +145,14 @@ static void print_errno_message(int errnum)
 	char const * s;
 #if defined HAVE_STRERROR_R || _LIBC
 	char errbuf[1024];
-# if STRERROR_R_CHAR_P || _LIBC
+#if STRERROR_R_CHAR_P || _LIBC
 	s = __strerror_r(errnum, errbuf, sizeof errbuf);
-# else
+#else
 	if(__strerror_r(errnum, errbuf, sizeof errbuf) == 0)
 		s = errbuf;
 	else
 		s = 0;
-# endif
+#endif
 #else
 	s = strerror(errnum);
 #endif
@@ -267,19 +267,19 @@ void error(int status, int errnum, const char * message, ...)
 	_IO_funlockfile(stderr);
 # ifdef __libc_ptf_call
 	__libc_ptf_call(pthread_setcancelstate, (state, NULL), 0);
-# endif
+#endif
 #endif
 }
 
 // Sometimes we want to have at most one error per line.  This variable controls whether this mode is selected or not.
 int error_one_per_line;
 
-void error_at_line(int status, int errnum, const char * file_name, unsigned int line_number, const char * message, ...)
+void error_at_line(int status, int errnum, const char * file_name, uint line_number, const char * message, ...)
 {
 	va_list args;
 	if(error_one_per_line) {
 		static const char * old_file_name;
-		static unsigned int old_line_number;
+		static uint old_line_number;
 		if(old_line_number == line_number && (file_name == old_file_name || strcmp(old_file_name, file_name) == 0))
 			return; /* Simply return and print nothing.  */
 		old_file_name = file_name;
@@ -316,14 +316,14 @@ void error_at_line(int status, int errnum, const char * file_name, unsigned int 
 	_IO_funlockfile(stderr);
 # ifdef __libc_ptf_call
 	__libc_ptf_call(pthread_setcancelstate, (state, NULL), 0);
-# endif
+#endif
 #endif
 }
 
 #ifdef _LIBC
 /* Make the weak alias.  */
-# undef error
-# undef error_at_line
+#undef error
+#undef error_at_line
 weak_alias(__error, error)
 weak_alias(__error_at_line, error_at_line)
 #endif

@@ -20,23 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "print.h"
-//#include <bitset.h>
-//#include <mbswidth.h>
-//#include "closure.h"
-//#include "complain.h"
-//#include "conflicts.h"
-//#include "counterexample.h"
-//#include "files.h"
-//#include "getargs.h"
-//#include "gram.h"
-//#include "lalr.h"
-//#include "lr0.h"
-//#include "muscle-tab.h"
-//#include "reader.h"
-//#include "reduce.h"
-//#include "state.h"
-//#include "symtab.h"
 #include "tables.h"
 
 static bitset no_reduce_set;
@@ -247,7 +230,7 @@ static void print_reductions(FILE * out, const state * s)
 	if(default_reduction) {
 		char * default_reductions = muscle_percent_define_get("lr.default-reduction");
 		print_reduction(out, width, _("$default"), default_reduction, true);
-		aver(STREQ(default_reductions, "most") || (STREQ(default_reductions, "consistent") && default_reduction_only) || (reds->num == 1 && reds->rules[0]->number == 0));
+		aver(sstreq(default_reductions, "most") || (sstreq(default_reductions, "consistent") && default_reduction_only) || (reds->num == 1 && reds->rules[0]->number == 0));
 		(void)default_reduction_only;
 		SAlloc::F(default_reductions);
 	}

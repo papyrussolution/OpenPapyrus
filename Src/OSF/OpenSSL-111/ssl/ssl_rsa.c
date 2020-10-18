@@ -23,7 +23,7 @@ static int ssl_set_pkey(CERT * c, EVP_PKEY * pkey);
 int SSL_use_certificate(SSL * ssl, X509 * x)
 {
 	int rv;
-	if(x == NULL) {
+	if(!x) {
 		SSLerr(SSL_F_SSL_USE_CERTIFICATE, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -67,7 +67,7 @@ int SSL_use_certificate_file(SSL * ssl, const char * file, int type)
 		goto end;
 	}
 
-	if(x == NULL) {
+	if(!x) {
 		SSLerr(SSL_F_SSL_USE_CERTIFICATE_FILE, j);
 		goto end;
 	}
@@ -85,7 +85,7 @@ int SSL_use_certificate_ASN1(SSL * ssl, const unsigned char * d, int len)
 	int ret;
 
 	x = d2i_X509(NULL, &d, (long)len);
-	if(x == NULL) {
+	if(!x) {
 		SSLerr(SSL_F_SSL_USE_CERTIFICATE_ASN1, ERR_R_ASN1_LIB);
 		return 0;
 	}
@@ -305,7 +305,7 @@ int SSL_use_PrivateKey_ASN1(int type, SSL * ssl, const unsigned char * d,
 int SSL_CTX_use_certificate(SSL_CTX * ctx, X509 * x)
 {
 	int rv;
-	if(x == NULL) {
+	if(!x) {
 		SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -408,7 +408,7 @@ int SSL_CTX_use_certificate_file(SSL_CTX * ctx, const char * file, int type)
 		goto end;
 	}
 
-	if(x == NULL) {
+	if(!x) {
 		SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, j);
 		goto end;
 	}
@@ -426,7 +426,7 @@ int SSL_CTX_use_certificate_ASN1(SSL_CTX * ctx, int len, const unsigned char * d
 	int ret;
 
 	x = d2i_X509(NULL, &d, (long)len);
-	if(x == NULL) {
+	if(!x) {
 		SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_ASN1, ERR_R_ASN1_LIB);
 		return 0;
 	}
@@ -630,7 +630,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 
 	x = PEM_read_bio_X509_AUX(in, NULL, passwd_callback,
 		passwd_callback_userdata);
-	if(x == NULL) {
+	if(!x) {
 		SSLerr(SSL_F_USE_CERTIFICATE_CHAIN_FILE, ERR_R_PEM_LIB);
 		goto end;
 	}

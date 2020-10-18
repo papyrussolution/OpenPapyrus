@@ -19,19 +19,18 @@
  */
 
 /* This module handles frozen files.  */
-
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "m4.h"
+//#include "m4.h"
 
 /*-------------------------------------------------------------------.
 | Destructively reverse a symbol list and return the reversed list.  |
    `-------------------------------------------------------------------*/
 
-static symbol * reverse_symbol_list(symbol * sym)
+static SymbolTableEntry * reverse_symbol_list(SymbolTableEntry * sym)
 {
-	symbol * next;
-	symbol * result = NULL;
+	SymbolTableEntry * next;
+	SymbolTableEntry * result = NULL;
 	while(sym) {
 		next = SYMBOL_NEXT(sym);
 		SYMBOL_NEXT(sym) = result;
@@ -48,7 +47,7 @@ static symbol * reverse_symbol_list(symbol * sym)
 void produce_frozen_state(const char * name)
 {
 	size_t h;
-	symbol * sym;
+	SymbolTableEntry * sym;
 	const builtin * bp;
 	FILE * file = fopen(name, O_BINARY ? "wb" : "w");
 	if(!file) {
@@ -178,7 +177,7 @@ void reload_frozen_state(const char * name)
 
 #define GET_NUMBER(Number, AllowNeg)                            \
 	do {                                                         \
-		unsigned int n = 0;                                       \
+		uint n = 0;                                       \
 		while(isdigit(character) && n <= INT_MAX / 10U) {         \
 			n = 10 * n + character - '0';                         \
 			GET_CHARACTER;                                        \
@@ -230,7 +229,7 @@ void reload_frozen_state(const char * name)
 		while((tmp = memchr(p, '\n', number[(i)] - (p - string[(i)]))))  \
 		{                                                               \
 			current_line++;                                               \
-			p = (char*)tmp + 1;                                         \
+			p = (char *)tmp + 1;                                         \
 		}                                                               \
 	}                                                                   \
 	while(0)

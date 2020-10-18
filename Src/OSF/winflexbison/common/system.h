@@ -18,7 +18,7 @@
 #ifndef COMMON_SYSTEM_H
 #define COMMON_SYSTEM_H
 
-#include <xalloc.h>
+//#include <xalloc.h>
 //#include <stdio.h>
 //#include <stdlib.h>
 
@@ -26,8 +26,8 @@
 | NLS.  |
    `------*/
 
-#include <locale.h>
-#include <gettext.h>
+//#include <locale.h>
+//#include <gettext.h>
 #ifndef _
 #define _(Msgid)  gettext(Msgid)
 #endif
@@ -35,10 +35,10 @@
 
 #ifndef __attribute__
 /* This feature is available in gcc versions 2.5 and later.  */
-# if (!defined __GNUC__ || __GNUC__ < 2 \
+#if (!defined __GNUC__ || __GNUC__ < 2 \
 	|| (__GNUC__ == 2 && __GNUC_MINOR__ < 5) || __STRICT_ANSI__)
 #  define __attribute__(Spec) /* empty */
-# endif
+#endif
 #endif
 
 /* The __-protected variants of `format' and `printf' attributes
@@ -62,15 +62,15 @@
    <stdint.h>, which are included below if available.  It also runs
    afoul of pre-C99 compilers that define these macros in <limits.h>.  */
 #if !defined __STDC_VERSION__ || __STDC_VERSION__ < 199901
-# undef INT8_MIN
-# undef INT16_MIN
-# undef INT32_MIN
-# undef INT8_MAX
-# undef INT16_MAX
-# undef UINT8_MAX
-# undef INT32_MAX
-# undef UINT16_MAX
-# undef UINT32_MAX
+#undef INT8_MIN
+#undef INT16_MIN
+#undef INT32_MIN
+#undef INT8_MAX
+#undef INT16_MAX
+#undef UINT8_MAX
+#undef INT32_MAX
+#undef UINT16_MAX
+#undef UINT32_MAX
 #endif
 
 //#include <limits.h>

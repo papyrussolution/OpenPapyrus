@@ -82,11 +82,6 @@
 #ifndef STATE_H_
 #define STATE_H_
 
-//#include <stdbool.h>
-//#include <bitset.h>
-//#include "gram.h"
-//#include "symtab.h"
-
 /*-------------------.
 | Numbering states.  |
    `-------------------*/

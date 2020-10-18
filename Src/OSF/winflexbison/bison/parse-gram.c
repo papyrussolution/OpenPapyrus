@@ -371,7 +371,7 @@ typedef __UINT_LEAST8_TYPE__ yytype_uint8;
 	&& UINT_LEAST8_MAX <= INT_MAX)
 typedef uint_least8_t yytype_uint8;
 #elif !defined __UINT_LEAST8_MAX__ && UCHAR_MAX <= INT_MAX
-typedef unsigned char yytype_uint8;
+typedef uchar yytype_uint8;
 #else
 typedef short yytype_uint8;
 #endif
@@ -382,7 +382,7 @@ typedef __UINT_LEAST16_TYPE__ yytype_uint16;
 	&& UINT_LEAST16_MAX <= INT_MAX)
 typedef uint_least16_t yytype_uint16;
 #elif !defined __UINT_LEAST16_MAX__ && USHRT_MAX <= INT_MAX
-typedef unsigned short yytype_uint16;
+typedef ushort yytype_uint16;
 #else
 typedef int yytype_uint16;
 #endif

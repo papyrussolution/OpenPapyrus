@@ -24,14 +24,14 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include <io.h>
-#include "m4.h"
+//#include <io.h>
+//#include "m4.h"
 //#include "execute.h"
-#include "memchr2.h"
+//#include "memchr2.h"
 #include "regex.h"
 //#include "spawn-pipe.h"
 //#include "wait-process.h"
-#include <process.h>
+//#include <process.h>
 
 #define SYSCMD_SHELL "cmd.exe"
 
@@ -197,9 +197,8 @@ const builtin * find_builtin_by_addr(builtin_func * func)
 const builtin * find_builtin_by_name(const char * name)
 {
 	const builtin * bp;
-
 	for(bp = &builtin_tab[0]; bp->name != NULL; bp++)
-		if(STREQ(bp->name, name))
+		if(sstreq(bp->name, name))
 			return bp;
 	return bp + 1;
 }
@@ -211,9 +210,7 @@ const builtin * find_builtin_by_name(const char * name)
 
 void define_builtin(const char * name, const builtin * bp, symbol_lookup mode)
 {
-	symbol * sym;
-
-	sym = lookup_symbol(name, mode);
+	SymbolTableEntry * sym = lookup_symbol(name, mode);
 	SYMBOL_TYPE(sym) = TOKEN_FUNC;
 	SYMBOL_MACRO_ARGS(sym) = bp->groks_macro_args;
 	SYMBOL_BLIND_NO_ARGS(sym) = bp->blind_if_no_args;
@@ -280,7 +277,7 @@ void free_macro_sequence(void)
 void define_user_macro(const char * name, const char * text, symbol_lookup mode)
 {
 	char * defn = xstrdup(text ? text : "");
-	symbol * s = lookup_symbol(name, mode);
+	SymbolTableEntry * s = lookup_symbol(name, mode);
 	if(SYMBOL_TYPE(s) == TOKEN_TEXT)
 		SAlloc::F(SYMBOL_TEXT(s));
 	SYMBOL_TYPE(s) = TOKEN_TEXT;
@@ -317,11 +314,10 @@ void builtin_init(void)
 	const builtin * bp;
 	const predefined * pp;
 	char * string;
-
 	for(bp = &builtin_tab[0]; bp->name != NULL; bp++)
 		if(!no_gnu_extensions || !bp->gnu_extension) {
 			if(prefix_all_builtins) {
-				string = (char*)xmalloc(strlen(bp->name) + 4);
+				string = (char *)xmalloc(strlen(bp->name) + 4);
 				strcpy(string, "m4_");
 				strcat(string, bp->name);
 				define_builtin(string, bp, SYMBOL_INSERT);
@@ -350,7 +346,7 @@ void builtin_init(void)
 | the maximum number, negative if not applicable.                    |
    `-------------------------------------------------------------------*/
 
-static bool bad_argc(token_data * name, int argc, int min, int max)
+static bool FASTCALL bad_argc(token_data * name, int argc, int min, int max)
 {
 	bool isbad = false;
 	if(min > 0 && argc < min) {
@@ -536,10 +532,9 @@ static void m4_pushdef(struct obstack * obs M4_GNUC_UNUSED, int argc, token_data
 
 static void m4_popdef(struct obstack * obs M4_GNUC_UNUSED, int argc, token_data ** argv)
 {
-	int i;
 	if(bad_argc(argv[0], argc, 2, -1))
 		return;
-	for(i = 1; i < argc; i++)
+	for(int i = 1; i < argc; i++)
 		lookup_symbol(ARG(i), SYMBOL_POPDEF);
 }
 
@@ -549,21 +544,18 @@ static void m4_popdef(struct obstack * obs M4_GNUC_UNUSED, int argc, token_data 
 
 static void m4_ifdef(struct obstack * obs, int argc, token_data ** argv)
 {
-	symbol * s;
+	SymbolTableEntry * s;
 	const char * result;
-
 	if(bad_argc(argv[0], argc, 3, 4))
 		return;
 	s = lookup_symbol(ARG(1), SYMBOL_LOOKUP);
-
-	if(s != NULL && SYMBOL_TYPE(s) != TOKEN_VOID)
+	if(s && SYMBOL_TYPE(s) != TOKEN_VOID)
 		result = ARG(2);
 	else if(argc >= 4)
 		result = ARG(3);
 	else
 		result = NULL;
-
-	if(result != NULL)
+	if(result)
 		obstack_grow(obs, result, strlen(result));
 }
 
@@ -571,22 +563,17 @@ static void m4_ifelse(struct obstack * obs, int argc, token_data ** argv)
 {
 	const char * result;
 	token_data * me = argv[0];
-
 	if(argc == 2)
 		return;
-
 	if(bad_argc(me, argc, 4, -1))
 		return;
 	else
-		/* Diagnose excess arguments if 5, 8, 11, etc., actual arguments.  */
-		bad_argc(me, (argc + 2) % 3, -1, 1);
-
+		bad_argc(me, (argc + 2) % 3, -1, 1); /* Diagnose excess arguments if 5, 8, 11, etc., actual arguments.  */
 	argv++;
 	argc--;
-
 	result = NULL;
-	while(result == NULL)
-		if(STREQ(ARG(0), ARG(1)))
+	while(!result)
+		if(sstreq(ARG(0), ARG(1)))
 			result = ARG(2);
 		else
 			switch(argc) {
@@ -615,16 +602,16 @@ static void m4_ifelse(struct obstack * obs, int argc, token_data ** argv)
 
 struct dump_symbol_data {
 	struct obstack * obs;   /* obstack for table */
-	symbol ** base;         /* base of table */
+	SymbolTableEntry ** base;         /* base of table */
 	int size;               /* size of table */
 };
 
-static void dump_symbol(symbol * sym, void * arg)
+static void dump_symbol(SymbolTableEntry * sym, void * arg)
 {
 	struct dump_symbol_data * data = (struct dump_symbol_data *)arg;
 	if(!SYMBOL_SHADOWED(sym) && SYMBOL_TYPE(sym) != TOKEN_VOID) {
-		obstack_blank(data->obs, sizeof(symbol *));
-		data->base = (symbol**)obstack_base(data->obs);
+		obstack_blank(data->obs, sizeof(SymbolTableEntry *));
+		data->base = (SymbolTableEntry **)obstack_base(data->obs);
 		data->base[data->size++] = sym;
 	}
 }
@@ -635,8 +622,7 @@ static void dump_symbol(symbol * sym, void * arg)
 
 static int dumpdef_cmp(const void * s1, const void * s2)
 {
-	return strcmp(SYMBOL_NAME(*(symbol* const*)s1),
-		   SYMBOL_NAME(*(symbol* const*)s2));
+	return strcmp(SYMBOL_NAME(*(SymbolTableEntry * const *)s1), SYMBOL_NAME(*(SymbolTableEntry * const *)s2));
 }
 
 /*-------------------------------------------------------------.
@@ -646,15 +632,13 @@ static int dumpdef_cmp(const void * s1, const void * s2)
 
 static void m4_dumpdef(struct obstack * obs, int argc, token_data ** argv)
 {
-	symbol * s;
+	SymbolTableEntry * s;
 	int i;
 	struct dump_symbol_data data;
 	const builtin * bp;
-
 	data.obs = obs;
-	data.base = (symbol**)obstack_base(obs);
+	data.base = (SymbolTableEntry **)obstack_base(obs);
 	data.size = 0;
-
 	if(argc == 1) {
 		hack_all_symbols(dump_symbol, &data);
 	}
@@ -669,7 +653,7 @@ static void m4_dumpdef(struct obstack * obs, int argc, token_data ** argv)
 	}
 	/* Make table of symbols invisible to expand_macro ().  */
 	obstack_finish(obs);
-	qsort(data.base, data.size, sizeof(symbol *), dumpdef_cmp);
+	qsort(data.base, data.size, sizeof(SymbolTableEntry *), dumpdef_cmp);
 	for(; data.size > 0; --data.size, data.base++) {
 		DEBUG_PRINT1("%s:\t", SYMBOL_NAME(data.base[0]));
 		switch(SYMBOL_TYPE(data.base[0])) {
@@ -726,7 +710,7 @@ static void m4_builtin(struct obstack * obs, int argc, token_data ** argv)
 			for(i = 2; i < argc; i++)
 				if(TOKEN_DATA_TYPE(argv[i]) != TOKEN_TEXT) {
 					TOKEN_DATA_TYPE(argv[i]) = TOKEN_TEXT;
-					TOKEN_DATA_TEXT(argv[i]) = (char*)"";
+					TOKEN_DATA_TEXT(argv[i]) = (char *)"";
 				}
 		bp->func(obs, argc - 1, argv + 1);
 	}
@@ -741,7 +725,7 @@ static void m4_builtin(struct obstack * obs, int argc, token_data ** argv)
 
 static void m4_indir(struct obstack * obs, int argc, token_data ** argv)
 {
-	symbol * s;
+	SymbolTableEntry * s;
 	const char * name;
 	if(bad_argc(argv[0], argc, 2, -1))
 		return;
@@ -759,7 +743,7 @@ static void m4_indir(struct obstack * obs, int argc, token_data ** argv)
 			for(i = 2; i < argc; i++)
 				if(TOKEN_DATA_TYPE(argv[i]) != TOKEN_TEXT) {
 					TOKEN_DATA_TYPE(argv[i]) = TOKEN_TEXT;
-					TOKEN_DATA_TEXT(argv[i]) = (char*)"";
+					TOKEN_DATA_TEXT(argv[i]) = (char *)"";
 				}
 		call_macro(s, argc - 1, argv + 1, obs);
 	}
@@ -773,13 +757,13 @@ static void m4_indir(struct obstack * obs, int argc, token_data ** argv)
 
 static void m4_defn(struct obstack * obs, int argc, token_data ** argv)
 {
-	symbol * s;
+	SymbolTableEntry * s;
 	builtin_func * b;
-	unsigned int i;
+	uint i;
 	if(bad_argc(argv[0], argc, 2, -1))
 		return;
 	assert(0 < argc && argc <= INT_MAX);
-	for(i = 1; i < (unsigned)argc; i++) {
+	for(i = 1; i < (uint)argc; i++) {
 		const char * arg = ARG((int)i);
 		s = lookup_symbol(arg, SYMBOL_LOOKUP);
 		if(s == NULL)
@@ -815,17 +799,13 @@ static void m4_defn(struct obstack * obs, int argc, token_data ** argv)
 | "esyscmd" and "sysval".  "esyscmd" is GNU specific.           |
    `--------------------------------------------------------------*/
 
-extern int execute(const char * progname,
-    const char * prog_path, char ** prog_argv,
-    bool ignore_sigpipe,
-    bool null_stdin, bool null_stdout, bool null_stderr,
-    bool slave_process, bool exit_on_error,
-    int * termsigp);
+extern int execute(const char * progname, const char * prog_path, char ** prog_argv, bool ignore_sigpipe,
+    bool null_stdin, bool null_stdout, bool null_stderr, bool slave_process, bool exit_on_error, int * termsigp);
 
 /* Exit code from last "syscmd" command.  */
 static int sysval;
 
-#include "vasnprintf.h"
+//#include "vasnprintf.h"
 /* cat content */
 char * cat_string = NULL;
 FILE* cat_out = NULL;
@@ -835,7 +815,6 @@ static void m4_syscmd(struct obstack * obs M4_GNUC_UNUSED, int argc, token_data 
 	const char * cmd = ARG(1);
 	char * old_cat_string = cat_string;
 	size_t len = 0;
-
 	/* special case only used in bison - "cat" some text to output */
 	if(strncmp(cmd, "cat <<", 6) == 0) {
 		if(cat_string)
@@ -1284,7 +1263,7 @@ static void mkstemp_helper(struct obstack * obs, const char * me, const char * p
 		if(pattern[len - i - 1] != 'X')
 			break;
 	obstack_grow0(obs, "XXXXXX", 6 - i);
-	name = (char*)obstack_base(obs) + lquote.length;
+	name = (char *)obstack_base(obs) + lquote.length;
 
 	errno = 0;
 	fd = mkstemp(name);
@@ -1358,7 +1337,7 @@ static void m4_errprint(struct obstack * obs, int argc, token_data ** argv)
 	dump_args(obs, argc, argv, " ", false);
 	obstack_1grow(obs, '\0');
 	debug_flush_files();
-	xfprintf(stderr, "%s", (char*)obstack_finish(obs));
+	xfprintf(stderr, "%s", (char *)obstack_finish(obs));
 	fflush(stderr);
 }
 
@@ -1435,7 +1414,7 @@ static void m4_m4wrap(struct obstack * obs, int argc, token_data ** argv)
 	else
 		dump_args(obs, argc, argv, " ", false);
 	obstack_1grow(obs, '\0');
-	push_wrapup((char*)obstack_finish(obs));
+	push_wrapup((char *)obstack_finish(obs));
 }
 
 /* Enable tracing of all specified macros, or all, if none is specified.
@@ -1448,7 +1427,7 @@ static void m4_m4wrap(struct obstack * obs, int argc, token_data ** argv)
 | otherwise it enables tracing.                                     |
    `------------------------------------------------------------------*/
 
-static void set_trace(symbol * sym, void * data)
+static void set_trace(SymbolTableEntry * sym, void * data)
 {
 	SYMBOL_TRACED(sym) = data != NULL;
 	/* Remove placeholder from table if macro is undefined and untraced.  */
@@ -1458,9 +1437,8 @@ static void set_trace(symbol * sym, void * data)
 
 static void m4_traceon(struct obstack * obs, int argc, token_data ** argv)
 {
-	symbol * s;
+	SymbolTableEntry * s;
 	int i;
-
 	if(argc == 1)
 		hack_all_symbols(set_trace, obs);
 	else
@@ -1478,9 +1456,8 @@ static void m4_traceon(struct obstack * obs, int argc, token_data ** argv)
 
 static void m4_traceoff(struct obstack * obs M4_GNUC_UNUSED, int argc, token_data ** argv)
 {
-	symbol * s;
+	SymbolTableEntry * s;
 	int i;
-
 	if(argc == 1)
 		hack_all_symbols(set_trace, NULL);
 	else
@@ -1501,7 +1478,6 @@ static void m4_debugmode(struct obstack * obs M4_GNUC_UNUSED, int argc, token_da
 {
 	int new_debug_level;
 	int change_flag;
-
 	if(bad_argc(argv[0], argc, 1, 2))
 		return;
 
@@ -1632,8 +1608,8 @@ static void m4_substr(struct obstack * obs, int argc, token_data ** argv)
 
 static const char * expand_ranges(const char * s, struct obstack * obs)
 {
-	unsigned char from;
-	unsigned char to;
+	uchar from;
+	uchar to;
 
 	for(from = '\0'; *s != '\0'; from = to_uchar(*s++)) {
 		if(*s == '-' && from != '\0') {
@@ -1656,7 +1632,7 @@ static const char * expand_ranges(const char * s, struct obstack * obs)
 			obstack_1grow(obs, *s);
 	}
 	obstack_1grow(obs, '\0');
-	return (char*)obstack_finish(obs);
+	return (char *)obstack_finish(obs);
 }
 
 /*-----------------------------------------------------------------.
@@ -1674,7 +1650,7 @@ static void m4_translit(struct obstack * obs, int argc, token_data ** argv)
 	const char * to;
 	char map[UCHAR_MAX + 1];
 	char found[UCHAR_MAX + 1];
-	unsigned char ch;
+	uchar ch;
 
 	if(bad_argc(argv[0], argc, 3, 4) || !*data || !*from) {
 		/* builtin(`translit') is blank, but translit(`abc') is abc.  */
@@ -1695,7 +1671,7 @@ static void m4_translit(struct obstack * obs, int argc, token_data ** argv)
 	if(!from[1] || !from[2]) {
 		const char * p;
 		size_t len = strlen(data);
-		while((p = (char*)memchr2(data, from[0], from[1], len))) {
+		while((p = (char *)memchr2(data, from[0], from[1], len))) {
 			obstack_grow(obs, data, p - data);
 			len -= p - data;
 			if(!len)
@@ -1988,8 +1964,7 @@ void m4_placeholder(struct obstack * obs M4_GNUC_UNUSED, int argc, token_data **
 | are the arguments, as usual.                                       |
    `-------------------------------------------------------------------*/
 
-void expand_user_macro(struct obstack * obs, symbol * sym,
-    int argc, token_data ** argv)
+void expand_user_macro(struct obstack * obs, SymbolTableEntry * sym, int argc, token_data ** argv)
 {
 	const char * text = SYMBOL_TEXT(sym);
 	int i;

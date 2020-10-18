@@ -102,13 +102,13 @@ extern "C" {
 /* Function declarations. */
 
 /* Unlike the functions in <ctype.h>, which require an argument in the range
-   of the 'unsigned char' type, the functions here operate on values that are
-   in the 'unsigned char' range or in the 'char' range.  In other words,
+   of the 'uchar' type, the functions here operate on values that are
+   in the 'uchar' range or in the 'char' range.  In other words,
    when you have a 'char' value, you need to cast it before using it as
    argument to a <ctype.h> function:
 
          const char *s = ...;
-         if (isalpha ((unsigned char) *s)) ...
+         if (isalpha ((uchar) *s)) ...
 
    but you don't need to cast it for the functions defined in this file:
 

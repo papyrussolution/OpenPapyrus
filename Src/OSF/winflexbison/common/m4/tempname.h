@@ -16,21 +16,20 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* header written by Eric Blake */
-
 #ifndef GL_TEMPNAME_H
 #define GL_TEMPNAME_H
 
 //#include <stdio.h>
 
-# ifdef __GT_FILE
-#  define GT_FILE     __GT_FILE
-#  define GT_DIR      __GT_DIR
-#  define GT_NOCREATE __GT_NOCREATE
-# else
-#  define GT_FILE     0
-#  define GT_DIR      1
-#  define GT_NOCREATE 2
-# endif
+#ifdef __GT_FILE
+	#define GT_FILE     __GT_FILE
+	#define GT_DIR      __GT_DIR
+	#define GT_NOCREATE __GT_NOCREATE
+#else
+	#define GT_FILE     0
+	#define GT_DIR      1
+	#define GT_NOCREATE 2
+#endif
 
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX", possibly with a suffix).
@@ -45,6 +44,6 @@
    GT_DIR:              create a directory, which will be mode 0700.
 
    We use a clever algorithm to get hard-to-predict names. */
-extern int gen_tempname (char *tmpl, int suffixlen, int flags, int kind);
+extern int gen_tempname(char * tmpl, int suffixlen, int flags, int kind);
 
 #endif /* GL_TEMPNAME_H */

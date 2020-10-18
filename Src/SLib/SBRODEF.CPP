@@ -539,8 +539,8 @@ int    SLAPI BrowserDef::bottom() { return go(getRecsCount() - 1); }
 long   SLAPI BrowserDef::getRecsCount() { return 0; }
 const  void * FASTCALL BrowserDef::getRow(long) const { return 0; }
 int    SLAPI BrowserDef::refresh() { return 1; }
-int    FASTCALL BrowserDef::setData(void *) { return 1; }
-int    FASTCALL BrowserDef::getData(void *) { return 1; }
+// @v10.9.0 int    FASTCALL BrowserDef::setData(void *) { return 1; }
+// @v10.9.0 int    FASTCALL BrowserDef::getData(void *) { return 1; }
 
 int SLAPI BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, int srchCol)
 {
@@ -629,7 +629,7 @@ int SLAPI AryBrowserDef::valid()
 long SLAPI AryBrowserDef::getRecsCount()
 {
 	//return (long)(P_Array ? P_Array->getCount() : 0);
-	return (long)SVectorBase::GetCount(P_Array);
+	return static_cast<long>(SVectorBase::GetCount(P_Array));
 }
 
 const void * FASTCALL AryBrowserDef::getRow(long row) const
@@ -637,6 +637,7 @@ const void * FASTCALL AryBrowserDef::getRow(long row) const
 	return (P_Array && row >= 0 && row < P_Array->getCountI()) ? P_Array->at((uint)row) : 0;
 }
 
+#if 0 // @v10.9.0 {
 int FASTCALL AryBrowserDef::getData(void * pData)
 {
 	*static_cast<SArray **>(pData) = P_Array;
@@ -647,3 +648,4 @@ int FASTCALL AryBrowserDef::setData(void * pNewData)
 {
 	return setArray(static_cast<SArray *>(pNewData), 0, 1);
 }
+#endif // } 0

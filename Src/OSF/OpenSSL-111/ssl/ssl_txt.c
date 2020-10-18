@@ -34,7 +34,7 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 	size_t i;
 	const char * s;
 	int istls13;
-	if(x == NULL)
+	if(!x)
 		goto err;
 	istls13 = (x->ssl_version == TLS1_3_VERSION);
 	if(BIO_puts(bp, "SSL-Session:\n") <= 0)
@@ -154,7 +154,7 @@ int SSL_SESSION_print_keylog(BIO * bp, const SSL_SESSION * x)
 {
 	size_t i;
 
-	if(x == NULL)
+	if(!x)
 		goto err;
 	if(x->session_id_length == 0 || x->master_key_length == 0)
 		goto err;

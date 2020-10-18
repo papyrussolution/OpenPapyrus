@@ -27574,13 +27574,11 @@ private:
 //
 //
 struct GtaJournalFilt : public PPBaseFilt {
+	SLAPI  GtaJournalFilt();
+	virtual int SLAPI IsEmpty() const;
 	enum {
 		fShowObjects  = 0x0001
 	};
-
-	SLAPI  GtaJournalFilt();
-	virtual int SLAPI IsEmpty() const;
-
 	char   ReserveStart[32]; // @anchor
 	DateRange Period;
 	LTIME  BegTm;
@@ -34533,6 +34531,7 @@ struct SCardSeriesFilt {
 		fOnlyReal     = 0x0008  // @v10.2.8 Только "рабочие" серии (scstDiscount, scstCredit, scstBonus)
 	};
 	PPID   ParentID;   // Группа серий
+	int    SpecialTreatment; // @v10.9.0
 	long   Flags;      //
 };
 
@@ -52873,6 +52872,7 @@ int    FASTCALL PPLoadString(int group, int code, SString & s); // @cs
 SString & FASTCALL PPLoadStringS(int group, int code, SString & s); // @cs
 int    FASTCALL PPLoadString(const char * pSignature, SString & s);
 SString & FASTCALL PPLoadStringS(const char * pSignature, SString & s);
+int    FASTCALL PPLoadStringDescription(const char * pSignature, SString & rBuf);
 //
 // Descr: Возвращает хэш-таблицу символов, ассоциированную с группой group
 //   из внутреннего глобального хранилища.
@@ -53544,6 +53544,7 @@ int    FASTCALL GetRealRangeInput(TDialog *, uint ctl, RealRange *);
 int    FASTCALL SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
 int    FASTCALL GetIntRangeInput(TDialog *, uint ctl, IntRange *);
 int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
+int    SLAPI PPSetup_GlobalService_UDS();
 int    SLAPI PPExecuteContextMenu(TView * pView, uint menuID);
 int    SLAPI ViewGoodsTurnover(long);
 int    SLAPI PrintDialog(SPrinter *);
