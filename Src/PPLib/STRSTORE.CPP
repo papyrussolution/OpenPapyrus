@@ -42,7 +42,7 @@ int StringStore2::LangStrCollItem::Get(long ident, SString & rBuf) const
 //
 //
 //
-SLAPI StringStore2::Hash::Hash(size_t sz) : HashTableBase(sz)
+StringStore2::Hash::Hash(size_t sz) : HashTableBase(sz)
 {
 }
 
@@ -52,7 +52,7 @@ size_t FASTCALL StringStore2::Hash::GetHash(long id) const
 	return static_cast<size_t>(__h % Size);
 }
 
-int SLAPI StringStore2::Hash::Add(long id, long value)
+int StringStore2::Hash::Add(long id, long value)
 {
 	int    c = 1;
 	THROW(InitTab());
@@ -64,7 +64,7 @@ int SLAPI StringStore2::Hash::Add(long id, long value)
 	return c;
 }
 
-int SLAPI StringStore2::Hash::Get(long id, long * pValue) const
+int StringStore2::Hash::Get(long id, long * pValue) const
 {
 	int    ok = 0;
 	if(P_Tab) {
@@ -88,11 +88,11 @@ int SLAPI StringStore2::Hash::Get(long id, long * pValue) const
 	return ok;
 }
 
-SLAPI StringStore2::ParseItem::ParseItem() : Kind(0), Flags(0), Group(0), Code(0), SLang(0), Scope(0)
+StringStore2::ParseItem::ParseItem() : Kind(0), Flags(0), Group(0), Code(0), SLang(0), Scope(0)
 {
 }
 
-StringStore2::ParseItem & SLAPI StringStore2::ParseItem::Z()
+StringStore2::ParseItem & StringStore2::ParseItem::Z()
 {
 	Kind = 0;
 	Flags = 0;
@@ -107,24 +107,24 @@ StringStore2::ParseItem & SLAPI StringStore2::ParseItem::Z()
 	return *this;
 }
 
-SLAPI StringStore2::StringStore2() : P_Pb(0), Flags(0), ErrCode(0), ActiveLanguage(0), P_SignatureHash(0)
+StringStore2::StringStore2() : P_Pb(0), Flags(0), ErrCode(0), ActiveLanguage(0), P_SignatureHash(0)
 {
 }
 
-SLAPI StringStore2::~StringStore2()
+StringStore2::~StringStore2()
 {
 	delete P_Pb;
 	delete P_SignatureHash;
 }
 
-void SLAPI StringStore2::SetActiveLanguage(int slang)
+void StringStore2::SetActiveLanguage(int slang)
 {
 	ActiveLanguage = slang;
 }
 
 #ifndef SC2C // {
 
-int SLAPI StringStore2::Load(const char * pFileName, int selfTest)
+int StringStore2::Load(const char * pFileName, int selfTest)
 {
 	int    ok = 1;
 #ifndef _WIN32_WCE // {
@@ -166,7 +166,7 @@ int SLAPI StringStore2::Load(const char * pFileName, int selfTest)
 	return ok;
 }
 
-int SLAPI StringStore2::CreateHash(int doTest)
+int StringStore2::CreateHash(int doTest)
 {
 	int    ok = -1;
 	if(!P_SignatureHash) {
@@ -208,7 +208,7 @@ int SLAPI StringStore2::CreateHash(int doTest)
 	return ok;
 }
 
-int SLAPI StringStore2::Helper_GetDescription(long ident, SString & rBuf) // @noncost
+int StringStore2::Helper_GetDescription(long ident, SString & rBuf) // @noncost
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -246,7 +246,7 @@ int SLAPI StringStore2::Helper_GetDescription(long ident, SString & rBuf) // @no
     return ok;
 }
 
-SymbHashTable * SLAPI StringStore2::LoadStringHash(int group) const
+SymbHashTable * StringStore2::LoadStringHash(int group) const
 {
 	SymbHashTable * p_tab = 0;
     if(HashGroupList.lsearch(group)) {
@@ -317,12 +317,12 @@ const SymbHashTable * FASTCALL StringStore2::GetStringHash(int group) // @noncon
     return p_result;
 }
 
-int SLAPI StringStore2::GetDescription(int group, int code, SString & rBuf) // @nonconst
+int StringStore2::GetDescription(int group, int code, SString & rBuf) // @nonconst
 {
 	return Helper_GetDescription(MakeLong(code, group), rBuf);
 }
 
-int SLAPI StringStore2::GetDescription(const char * pSignature, SString & rBuf) // @nonconst
+int StringStore2::GetDescription(const char * pSignature, SString & rBuf) // @nonconst
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -343,7 +343,7 @@ int SLAPI StringStore2::GetDescription(const char * pSignature, SString & rBuf) 
 
 #endif // } SC2C
 
-int SLAPI StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) const
+int StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) const
 {
 	int    ok = -1;
 	if(rBuf.Len() > 3 && rBuf.HasChr('@')) {
@@ -370,7 +370,7 @@ int SLAPI StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/
 	return ok;
 }
 
-int SLAPI StringStore2::Helper_GetString(long ident, SString & rBuf) const
+int StringStore2::Helper_GetString(long ident, SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -388,12 +388,12 @@ int SLAPI StringStore2::Helper_GetString(long ident, SString & rBuf) const
 	return ok;
 }
 
-int SLAPI StringStore2::GetString(int group, int code, SString & rBuf) const
+int StringStore2::GetString(int group, int code, SString & rBuf) const
 {
 	return Helper_GetString(MakeLong(code, group), rBuf);
 }
 
-int SLAPI StringStore2::GetString(const char * pSignature, SString & rBuf) const
+int StringStore2::GetString(const char * pSignature, SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -474,7 +474,7 @@ enum {
 	sc2eSavedSymbNEqGrp  = PPERR_SC2_SAVEDSYMBNEQGRP,   // При восстановлении сохраненного идентификатора символа строки возник конфликт групп
 };
 
-int SLAPI StringStore2::Error(int errCode, long flags)
+int StringStore2::Error(int errCode, long flags)
 {
 	SString msg_buf;
 	SString temp_buf(4);
@@ -543,7 +543,7 @@ int SLAPI StringStore2::Error(int errCode, long flags)
 	return 0;
 }
 
-int SLAPI StringStore2::StoreState(const char * pFileName)
+int StringStore2::StoreState(const char * pFileName)
 {
 	int    ok = 1;
 	uint   i;
@@ -582,7 +582,7 @@ int SLAPI StringStore2::StoreState(const char * pFileName)
 	return ok;
 }
 
-int SLAPI StringStore2::RestoreState(const char * pFileName)
+int StringStore2::RestoreState(const char * pFileName)
 {
     int    ok = 1;
     if(fileExists(pFileName)) {
@@ -648,7 +648,7 @@ int SLAPI StringStore2::RestoreState(const char * pFileName)
     return ok;
 }
 
-int SLAPI StringStore2::TranslationWanted(const uchar * pOrgText) const
+int StringStore2::TranslationWanted(const uchar * pOrgText) const
 {
 	const  uchar * p_notrasl_chars = reinterpret_cast<const uchar *>(".,:; \t\n\r-_(){}[]<>!=$%^&\'\"*`@#\\/+~0123456789");
     int    yes = 0;
@@ -816,7 +816,7 @@ static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocLi
 	rBuf.ReplaceStr("  ", " ", 0);
 }
 
-int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
+int StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
 {
 	EXCEPTVAR(ErrCode);
 	int    ok = 1;
@@ -1162,7 +1162,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 	return ok;
 }
 
-int SLAPI StringStore2::Write(SFile & rF, LangStrCollItem * pData)
+int StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 {
 	int    ok = 1;
 	StrgHeader hdr;
@@ -1216,7 +1216,7 @@ int SLAPI StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 
 #ifndef _WIN32_WCE // {
 
-int SLAPI StringStore2::Read(SFile & rF)
+int StringStore2::Read(SFile & rF)
 {
 	int    ok = 1;
 	uint32 crc = 0;
@@ -1257,7 +1257,7 @@ int SLAPI StringStore2::Read(SFile & rF)
 
 #endif // } _WIN32_WCE
 
-int SLAPI StringStore2::InitParsing()
+int StringStore2::InitParsing()
 {
 	ZDELETE(P_Pb);
 	P_Pb = new ParseBlock;
@@ -1266,7 +1266,7 @@ int SLAPI StringStore2::InitParsing()
 	return 1;
 }
 
-int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
+int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 {
 	int    ok = -1;
 	int    empty_symb = 0;
@@ -1324,7 +1324,7 @@ int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	return ok;
 }
 
-int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, long * pCodeStr)
+int StringStore2::AddString(long group, StringStore2::ParseItem & rItem, long * pCodeStr)
 {
 	EXCEPTVAR(ErrCode);
 	int    ok = 1;
@@ -1399,7 +1399,7 @@ int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, l
 	return ok;
 }
 
-int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStore2::ParseItem & rItem)
+int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStore2::ParseItem & rItem)
 {
 	/*
 		[/lang/]
@@ -1670,7 +1670,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 }
 
 #if 0 // @v8.9.10 {
-int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrcFileName)
+int StringStore2::GenerateRcFile(const char * pFileName, const char * pSrcFileName)
 {
 	int    ok = 1;
 	uint   i;
@@ -1741,7 +1741,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 }
 #endif // } 0 @v8.9.10
 
-int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * pSrcFileName)
+int StringStore2::GenerateHeaderFile(const char * pFileName, const char * pSrcFileName)
 {
 	int    ok = 1;
 	uint   i;

@@ -7,15 +7,15 @@
 //
 // @ModuleDef(MrpTabCore)
 //
-SLAPI MrpReqItem::MrpReqItem(PPID goodsID, long flags, double req, double price) : GoodsID(goodsID), Flags(flags), Req(req), Price(price)
+MrpReqItem::MrpReqItem(PPID goodsID, long flags, double req, double price) : GoodsID(goodsID), Flags(flags), Req(req), Price(price)
 {
 }
 
-SLAPI MrpReqArray::MrpReqArray() : TSVector <MrpReqItem>() // @v9.8.6 TSArray-->TSVector
+MrpReqArray::MrpReqArray() : TSVector <MrpReqItem>() // @v9.8.6 TSArray-->TSVector
 {
 }
 
-int SLAPI MrpReqArray::Add(PPID goodsID, long flags, double req, double price)
+int MrpReqArray::Add(PPID goodsID, long flags, double req, double price)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -33,16 +33,16 @@ int SLAPI MrpReqArray::Add(PPID goodsID, long flags, double req, double price)
 	return ok;
 }
 
-SLAPI MrpTabCore::MrpTabCore() : MrpTabTbl()
+MrpTabCore::MrpTabCore() : MrpTabTbl()
 {
 }
 
-int SLAPI MrpTabCore::Search(PPID id, MrpTabTbl::Rec * pRec)
+int MrpTabCore::Search(PPID id, MrpTabTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_MRPTAB, id, pRec);
 }
 
-int SLAPI MrpTabCore::GetSubList(PPID tabID, PPIDArray * pList)
+int MrpTabCore::GetSubList(PPID tabID, PPIDArray * pList)
 {
 	int    ok = -1;
 	MrpTabTbl::Key3 k3;
@@ -58,7 +58,7 @@ int SLAPI MrpTabCore::GetSubList(PPID tabID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI MrpTabCore::GetParentID(PPID tabID, PPID * pParentID)
+int MrpTabCore::GetParentID(PPID tabID, PPID * pParentID)
 {
 	if(Search(tabID, 0) > 0) {
 		ASSIGN_PTR(pParentID, data.ParentID);
@@ -68,7 +68,7 @@ int SLAPI MrpTabCore::GetParentID(PPID tabID, PPID * pParentID)
 		return 0;
 }
 
-int SLAPI MrpTabCore::SearchByLink(PPID objType, PPID objID, PPID locID, LDATE dt, MrpTabTbl::Rec * pRec)
+int MrpTabCore::SearchByLink(PPID objType, PPID objID, PPID locID, LDATE dt, MrpTabTbl::Rec * pRec)
 {
 	MrpTabTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -79,7 +79,7 @@ int SLAPI MrpTabCore::SearchByLink(PPID objType, PPID objID, PPID locID, LDATE d
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
-int SLAPI MrpTabCore::Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta)
+int MrpTabCore::Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1, r;
 	MrpTabTbl::Rec rec;
@@ -102,7 +102,7 @@ int SLAPI MrpTabCore::Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta
 	return ok;
 }
 
-int SLAPI MrpTabCore::Update(PPID id, const MrpTabTbl::Rec * pRec, int use_ta)
+int MrpTabCore::Update(PPID id, const MrpTabTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	MrpTabTbl::Rec rec;
@@ -123,12 +123,12 @@ int SLAPI MrpTabCore::Update(PPID id, const MrpTabTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI MrpTabCore::RemoveLines(PPID id, int use_ta)
+int MrpTabCore::RemoveLines(PPID id, int use_ta)
 {
 	return deleteFrom(&Lines, use_ta, Lines.TabID == id) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI MrpTabCore::Remove(PPID id, int use_ta)
+int MrpTabCore::Remove(PPID id, int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -149,7 +149,7 @@ int SLAPI MrpTabCore::Remove(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI MrpTabCore::SearchLine(PPID tabID, PPID destID, PPID srcID, MrpLineTbl::Rec * pRec)
+int MrpTabCore::SearchLine(PPID tabID, PPID destID, PPID srcID, MrpLineTbl::Rec * pRec)
 {
 	MrpLineTbl::Key1 k1;
 	k1.TabID = tabID;
@@ -158,17 +158,17 @@ int SLAPI MrpTabCore::SearchLine(PPID tabID, PPID destID, PPID srcID, MrpLineTbl
 	return SearchByKey(&Lines, 1, &k1, pRec);
 }
 
-int SLAPI MrpTabCore::GetTotalLine(PPID tabID, PPID goodsID, MrpLineTbl::Rec * pRec)
+int MrpTabCore::GetTotalLine(PPID tabID, PPID goodsID, MrpLineTbl::Rec * pRec)
 {
 	return SearchLine(tabID, goodsID, MRPSRCV_TOTAL, pRec);
 }
 
-int SLAPI MrpTabCore::SearchLineByID(PPID lineID, MrpLineTbl::Rec * pRec)
+int MrpTabCore::SearchLineByID(PPID lineID, MrpLineTbl::Rec * pRec)
 {
 	return SearchByID(&Lines, 0, lineID, pRec);
 }
 
-int SLAPI MrpTabCore::AddLine(PPID id, PPID destID, PPID srcID, double destReqQtty, double srcReqQtty, double price, long flags, int use_ta)
+int MrpTabCore::AddLine(PPID id, PPID destID, PPID srcID, double destReqQtty, double srcReqQtty, double price, long flags, int use_ta)
 {
 	int    ok = 1;
 	MrpLineTbl::Rec line_rec;
@@ -200,7 +200,7 @@ int SLAPI MrpTabCore::AddLine(PPID id, PPID destID, PPID srcID, double destReqQt
 	return ok;
 }
 
-int SLAPI MrpTabCore::AddCTab(const CMrpTab * pTab, int use_ta)
+int MrpTabCore::AddCTab(const CMrpTab * pTab, int use_ta)
 {
 	int    ok = 1;
 	BExtInsert bei(&Lines);
@@ -227,7 +227,7 @@ int SLAPI MrpTabCore::AddCTab(const CMrpTab * pTab, int use_ta)
 	return ok;
 }
 
-int SLAPI MrpTabCore::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int set, int use_ta)
+int MrpTabCore::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int set, int use_ta)
 {
 	int    ok = -1;
 	MrpLineTbl::Rec line_rec;
@@ -245,7 +245,7 @@ int SLAPI MrpTabCore::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, in
 	return ok;
 }
 
-int SLAPI MrpTabCore::EnumLinesByDest(PPID id, PPID destID, PPID * pSrcID, MrpLineTbl::Rec * pRec)
+int MrpTabCore::EnumLinesByDest(PPID id, PPID destID, PPID * pSrcID, MrpLineTbl::Rec * pRec)
 {
 	MrpLineTbl::Key1 k1;
 	k1.TabID = id;
@@ -260,7 +260,7 @@ int SLAPI MrpTabCore::EnumLinesByDest(PPID id, PPID destID, PPID * pSrcID, MrpLi
 		return BTRNFOUND ? -1 : PPSetErrorDB();
 }
 
-int SLAPI MrpTabCore::EnumLinesBySrc(PPID id, PPID srcID, PPID * pDestID, MrpLineTbl::Rec * pRec)
+int MrpTabCore::EnumLinesBySrc(PPID id, PPID srcID, PPID * pDestID, MrpLineTbl::Rec * pRec)
 {
 	MrpLineTbl::Key2 k2;
 	k2.TabID = id;
@@ -275,7 +275,7 @@ int SLAPI MrpTabCore::EnumLinesBySrc(PPID id, PPID srcID, PPID * pDestID, MrpLin
 		return BTRNFOUND ? -1 : PPSetErrorDB();
 }
 
-int SLAPI MrpTabCore::GetSrcList(PPID tabID, PPID destID, RAssocArray * pList)
+int MrpTabCore::GetSrcList(PPID tabID, PPID destID, RAssocArray * pList)
 {
 	MrpLineTbl::Key1 k1;
 	k1.TabID = tabID;
@@ -289,7 +289,7 @@ int SLAPI MrpTabCore::GetSrcList(PPID tabID, PPID destID, RAssocArray * pList)
 	return pList->getCount() ? 1 : -1;
 }
 
-int SLAPI MrpTabCore::GetDestList(PPID tabID, PPID srcID, int minusSrcReq, MrpReqArray * pList)
+int MrpTabCore::GetDestList(PPID tabID, PPID srcID, int minusSrcReq, MrpReqArray * pList)
 {
 	int    ok = -1;
 	MrpLineTbl::Key1 k1;
@@ -310,19 +310,19 @@ int SLAPI MrpTabCore::GetDestList(PPID tabID, PPID srcID, int minusSrcReq, MrpRe
 	return ok;
 }
 
-int SLAPI MrpTabCore::IsGoodsFlagged(PPID tabID, PPID goodsID, long flag)
+int MrpTabCore::IsGoodsFlagged(PPID tabID, PPID goodsID, long flag)
 {
 	MrpLineTbl::Rec rec;
 	int    r = SearchLine(tabID, goodsID, 0, &rec);
 	return (r > 0) ? ((rec.Flags & flag) ? 1 : -1) : (r ? -1 : 0);
 }
 
-int SLAPI MrpTabCore::IsTerminalGoods(PPID tabID, PPID goodsID)
+int MrpTabCore::IsTerminalGoods(PPID tabID, PPID goodsID)
 	{ return IsGoodsFlagged(tabID, goodsID, MRPLF_TERMINAL); }
-int SLAPI MrpTabCore::IsReplacedGoods(PPID tabID, PPID goodsID)
+int MrpTabCore::IsReplacedGoods(PPID tabID, PPID goodsID)
 	{ return IsGoodsFlagged(tabID, goodsID, MRPLF_REPLACED); }
 
-int SLAPI MrpTabCore::GetDependencyList(PPID tabID, PPID destGoodsID, PUGL * pList)
+int MrpTabCore::GetDependencyList(PPID tabID, PPID destGoodsID, PUGL * pList)
 {
 	MrpLineTbl::Key1 k1;
 	k1.TabID = tabID;
@@ -341,7 +341,7 @@ int SLAPI MrpTabCore::GetDependencyList(PPID tabID, PPID destGoodsID, PUGL * pLi
 	return pList->getCount() ? 1 : -1;
 }
 
-int SLAPI MrpTabCore::Helper_GetDeficit(const MrpLineTbl::Rec & rRec, int terminal, int replacePassiveGoods, PUGL * pList)
+int MrpTabCore::Helper_GetDeficit(const MrpLineTbl::Rec & rRec, int terminal, int replacePassiveGoods, PUGL * pList)
 {
 	int    ok = -1;
 	if(terminal > 0 && !(rRec.Flags & MRPLF_TERMINAL))
@@ -383,7 +383,7 @@ int SLAPI MrpTabCore::Helper_GetDeficit(const MrpLineTbl::Rec & rRec, int termin
 //
 // terminal: -1 - non terminal only, 0 - all, 1 - terminal only
 //
-int SLAPI MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replacePassiveGoods, PUGL * pList)
+int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replacePassiveGoods, PUGL * pList)
 {
 	int    ok = -1;
 	PPObjGoods * p_goods_obj = 0;
@@ -437,7 +437,7 @@ int SLAPI MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int 
 	return ok;
 }
 
-int SLAPI MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
+int MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
 {
 	int    ok = -1;
 	MrpTabTbl::Rec tab_rec;
@@ -476,7 +476,7 @@ int SLAPI MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
 	return ok;
 }
 
-int SLAPI MrpTabCore::SetRest(PPID id, PPID destID, const GoodsRestVal * pVal, double * pDeficit, int use_ta)
+int MrpTabCore::SetRest(PPID id, PPID destID, const GoodsRestVal * pVal, double * pDeficit, int use_ta)
 {
 	int    ok = 1;
 	double dfct = 0.0;
@@ -508,7 +508,7 @@ int SLAPI MrpTabCore::SetRest(PPID id, PPID destID, const GoodsRestVal * pVal, d
 	return ok;
 }
 
-int SLAPI MrpTabCore::SetSubstRest(PPID id, PPID destID, PPID srcID, const GoodsRestVal * pVal, double ratio, double * pDeficit, int use_ta)
+int MrpTabCore::SetSubstRest(PPID id, PPID destID, PPID srcID, const GoodsRestVal * pVal, double ratio, double * pDeficit, int use_ta)
 {
 	int    ok = 1;
 	double dfct = 0.0;
@@ -575,7 +575,7 @@ int SLAPI MrpTabCore::SetSubstRest(PPID id, PPID destID, PPID srcID, const Goods
 	return ok;
 }
 
-int SLAPI MrpTabCore::RemoveSubst(PPID tabID, PPID destID, PPID srcID, int use_ta)
+int MrpTabCore::RemoveSubst(PPID tabID, PPID destID, PPID srcID, int use_ta)
 {
 	int    ok = -1;
 	MrpLineTbl::Rec rec, subst_rec;
@@ -609,7 +609,7 @@ int SLAPI MrpTabCore::RemoveSubst(PPID tabID, PPID destID, PPID srcID, int use_t
 	return ok;
 }
 
-int SLAPI MrpTabCore::Aggregate(PPID destTabID, PPID srcTabID, int use_ta)
+int MrpTabCore::Aggregate(PPID destTabID, PPID srcTabID, int use_ta)
 {
 	int    ok = 1;
 	MrpLineTbl::Key1 k1;
@@ -642,7 +642,7 @@ IMPL_CMPFUNC(CMrpRow, i1, i2)
 	return NZOR(NZOR(r, cmp_long(p1->DestID, p2->DestID)), cmp_long(p1->SrcID, p2->SrcID));
 }
 
-SLAPI CMrpTab::CMrpTab() : SArray(sizeof(Row))
+CMrpTab::CMrpTab() : SArray(sizeof(Row))
 {
 }
 
@@ -651,7 +651,7 @@ CMrpTab::Row & FASTCALL CMrpTab::at(uint i) const
 	return *static_cast<Row *>(SArray::at(i));
 }
 
-int SLAPI CMrpTab::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int set)
+int CMrpTab::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int set)
 {
 	int    ok = -1;
 	uint   p = 0;
@@ -663,12 +663,12 @@ int SLAPI CMrpTab::SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int s
 	return ok;
 }
 
-void SLAPI CMrpTab::Sort()
+void CMrpTab::Sort()
 {
 	sort(PTR_CMPFUNC(CMrpRow));
 }
 
-int SLAPI CMrpTab::Search(PPID tabID, PPID destID, PPID srcID, uint * pPos, CMrpTab::Row * pRow) const
+int CMrpTab::Search(PPID tabID, PPID destID, PPID srcID, uint * pPos, CMrpTab::Row * pRow) const
 {
 	uint   pos = DEREFPTRORZ(pPos);
 	Row    pat;
@@ -687,7 +687,7 @@ int SLAPI CMrpTab::Search(PPID tabID, PPID destID, PPID srcID, uint * pPos, CMrp
 	}
 }
 
-int SLAPI CMrpTab::Add__(PPID tabID, PPID destID, PPID srcID, double destReqQtty, double srcReqQtty, double price,
+int CMrpTab::Add__(PPID tabID, PPID destID, PPID srcID, double destReqQtty, double srcReqQtty, double price,
 	/*int term*/ long flags)
 {
 	int    ok = 1;
@@ -725,7 +725,7 @@ int SLAPI CMrpTab::Add__(PPID tabID, PPID destID, PPID srcID, double destReqQtty
 	return ok;
 }
 
-int SLAPI CMrpTab::Aggregate(PPID destTabID)
+int CMrpTab::Aggregate(PPID destTabID)
 {
 	int    ok = 1;
 	CMrpTab total;
@@ -743,7 +743,7 @@ int SLAPI CMrpTab::Aggregate(PPID destTabID)
 //
 //
 //
-SLAPI MrpTabPacket::MrpTabPacket() : TSVector <MrpTabLeaf>() // @v9.8.4 SArray-->SVector
+MrpTabPacket::MrpTabPacket() : TSVector <MrpTabLeaf>() // @v9.8.4 SArray-->SVector
 {
 	ObjType  = 0;
 	ObjID    = 0;
@@ -762,7 +762,7 @@ MrpTabPacket & FASTCALL MrpTabPacket::operator = (const MrpTabPacket & s)
 	return *this;
 }
 
-void SLAPI MrpTabPacket::Init(PPID objType, PPID objID, const char * pName)
+void MrpTabPacket::Init(PPID objType, PPID objID, const char * pName)
 {
 	Cache.freeAll();
 	ObjType = objType;
@@ -771,24 +771,24 @@ void SLAPI MrpTabPacket::Init(PPID objType, PPID objID, const char * pName)
 	STRNSCPY(Name, pName);
 }
 
-void SLAPI MrpTabPacket::Destroy()
+void MrpTabPacket::Destroy()
 {
 	freeAll();
 	BaseID = 0;
 	Cache.freeAll();
 }
 
-int SLAPI MrpTabPacket::IsTree() const
+int MrpTabPacket::IsTree() const
 {
 	return BIN(BaseID);
 }
 
-const char * SLAPI MrpTabPacket::GetName() const
+const char * MrpTabPacket::GetName() const
 {
 	return Name;
 }
 
-void SLAPI MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) const
+void MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) const
 {
 	MrpTabLeaf * p_item;
 	CALLPTRMEMB(pLocList, freeAll());
@@ -805,7 +805,7 @@ void SLAPI MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPerio
 	}
 }
 
-PPID SLAPI MrpTabPacket::GetBaseID() const
+PPID MrpTabPacket::GetBaseID() const
 {
 	return (getCount() == 1 && !BaseID) ? at(0).TabID : BaseID;
 }
@@ -815,7 +815,7 @@ void FASTCALL MrpTabPacket::SetBaseID(PPID id)
 	BaseID = id;
 }
 
-int SLAPI MrpTabPacket::GetTabID(PPID locID, LDATE dt, PPID * pTabID) const
+int MrpTabPacket::GetTabID(PPID locID, LDATE dt, PPID * pTabID) const
 {
 	MrpTabLeaf * p_item;
 	for(uint i = 0; enumItems(&i, (void **)&p_item);) {
@@ -837,7 +837,7 @@ int FASTCALL MrpTabPacket::AddLeaf(const MrpTabTbl::Rec * pRec)
 	return insert(&leaf) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI MrpTabPacket::GetLeaf(PPID tabID, MrpTabLeaf * pLeaf) const
+int MrpTabPacket::GetLeaf(PPID tabID, MrpTabLeaf * pLeaf) const
 {
 	uint pos = 0;
 	if(lsearch(&tabID, &pos, CMPF_LONG)) {
@@ -848,7 +848,7 @@ int SLAPI MrpTabPacket::GetLeaf(PPID tabID, MrpTabLeaf * pLeaf) const
 		return 0;
 }
 
-void SLAPI MrpTabPacket::CreateLeafRec(PPID locID, LDATE dt, MrpTabTbl::Rec & rRec) const
+void MrpTabPacket::CreateLeafRec(PPID locID, LDATE dt, MrpTabTbl::Rec & rRec) const
 {
 	memzero(&rRec, sizeof(rRec));
 	rRec.ParentID = GetBaseID();
@@ -858,7 +858,7 @@ void SLAPI MrpTabPacket::CreateLeafRec(PPID locID, LDATE dt, MrpTabTbl::Rec & rR
 	rRec.LocID = locID;
 }
 
-int SLAPI MrpTabPacket::GetList(PPIDArray * pList) const
+int MrpTabPacket::GetList(PPIDArray * pList) const
 {
 	MrpTabLeaf * p_item;
 	for(uint i = 0; enumItems(&i, (void **)&p_item);)
@@ -870,33 +870,33 @@ int SLAPI MrpTabPacket::GetList(PPIDArray * pList) const
 
 IMPL_CMPFUNC(MrpTabLeaf, i1, i2) { RET_CMPCASCADE3(static_cast<const MrpTabLeaf *>(i1), static_cast<const MrpTabLeaf *>(i2), Dt, LocID, TabID); }
 
-void SLAPI MrpTabPacket::Sort()
+void MrpTabPacket::Sort()
 {
 	sort(PTR_CMPFUNC(MrpTabLeaf));
 }
 
-void SLAPI MrpTabPacket::SortCache()
+void MrpTabPacket::SortCache()
 {
 	Cache.Sort();
 }
 
-int SLAPI MrpTabPacket::AddLine__(PPID tabID, PPID destID, PPID srcID, double destReq, double srcReq, double price, /*int term*/long flags)
+int MrpTabPacket::AddLine__(PPID tabID, PPID destID, PPID srcID, double destReq, double srcReq, double price, /*int term*/long flags)
 {
 	return Cache.Add__(tabID, destID, srcID, destReq, srcReq, price, /*term ? MRPLF_TERMINAL : 0*/flags);
 }
 
-int SLAPI MrpTabPacket::SetTerminal(PPID tabID, PPID destID, int term)
+int MrpTabPacket::SetTerminal(PPID tabID, PPID destID, int term)
 {
 	return Cache.SetFlag(tabID, destID, MRPSRCV_TOTAL, MRPLF_TERMINAL, term);
 }
 
-int SLAPI MrpTabPacket::IsTerminal(PPID tabID, PPID destID) const
+int MrpTabPacket::IsTerminal(PPID tabID, PPID destID) const
 {
 	CMrpTab::Row row;
 	return Cache.Search(tabID, destID, MRPSRCV_TOTAL, 0, &row) ? BIN(row.Flags & MRPLF_TERMINAL) : -1;
 }
 
-int SLAPI MrpTabPacket::GetDestList(PPID tabID, PPID srcID, int minusSrcReq, MrpReqArray * pList) const
+int MrpTabPacket::GetDestList(PPID tabID, PPID srcID, int minusSrcReq, MrpReqArray * pList) const
 {
 	int    ok = -1;
 	CMrpTab::Row * p_row;
@@ -913,7 +913,7 @@ int SLAPI MrpTabPacket::GetDestList(PPID tabID, PPID srcID, int minusSrcReq, Mrp
 	return ok;
 }
 
-int SLAPI MrpTabPacket::Aggregate()
+int MrpTabPacket::Aggregate()
 {
 	int    ok = 1;
 	if(IsTree() && GetBaseID()) {
@@ -925,7 +925,7 @@ int SLAPI MrpTabPacket::Aggregate()
 	return ok;
 }
 
-int SLAPI MrpTabPacket::Flash(MrpTabCore * pTbl, int use_ta)
+int MrpTabPacket::Flash(MrpTabCore * pTbl, int use_ta)
 {
 	return pTbl->AddCTab(&Cache, use_ta);
 }
@@ -942,7 +942,7 @@ int FASTCALL PPObjMrpTab::ReadConfig(PPMrpTabConfig * pCfg)
 }
 
 //static
-int SLAPI PPObjMrpTab::GetCounter(long * pCounter, int use_ta)
+int PPObjMrpTab::GetCounter(long * pCounter, int use_ta)
 {
 	int    ok = 1;
 	long   c = 0;
@@ -961,7 +961,7 @@ int SLAPI PPObjMrpTab::GetCounter(long * pCounter, int use_ta)
 }
 
 //static
-void SLAPI PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString * pName, int use_ta)
+void PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString * pName, int use_ta)
 {
 	if(pName) {
 		long   c = 0;
@@ -976,32 +976,32 @@ void SLAPI PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString *
 
 TLP_IMPL(PPObjMrpTab, MrpTabCore, P_Tbl);
 
-SLAPI PPObjMrpTab::PPObjMrpTab(void * extraPtr) : PPObject(PPOBJ_MRPTAB), ExtraPtr(extraPtr)
+PPObjMrpTab::PPObjMrpTab(void * extraPtr) : PPObject(PPOBJ_MRPTAB), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 }
 
-SLAPI PPObjMrpTab::~PPObjMrpTab()
+PPObjMrpTab::~PPObjMrpTab()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjMrpTab::Search(PPID id, void * pRec)
+int PPObjMrpTab::Search(PPID id, void * pRec)
 {
 	return P_Tbl->Search(id, (MrpTabTbl::Rec *)pRec);
 }
 
-/*virtual*/const char * SLAPI PPObjMrpTab::GetNamePtr() 
+/*virtual*/const char * PPObjMrpTab::GetNamePtr() 
 { 
 	return P_Tbl->data.Name; 
 }
 
-int SLAPI PPObjMrpTab::DeleteObj(PPID id)
+int PPObjMrpTab::DeleteObj(PPID id)
 {
 	return P_Tbl->Remove(id, 0);
 }
 
-int SLAPI PPObjMrpTab::SetupLinkObjTypeCombo(TDialog * dlg, uint ctlID, PPID initObjType)
+int PPObjMrpTab::SetupLinkObjTypeCombo(TDialog * dlg, uint ctlID, PPID initObjType)
 {
 	PPIDArray obj_type_list;
 	obj_type_list.addzlist(PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_DRAFTWROFF, 0);
@@ -1075,9 +1075,9 @@ int MrpTabDialog::getDTS(MrpTabTbl::Rec * pData)
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::EditDialog(MrpTabTbl::Rec * pRec) { DIALOG_PROC_BODY(MrpTabDialog, pRec); }
+int PPObjMrpTab::EditDialog(MrpTabTbl::Rec * pRec) { DIALOG_PROC_BODY(MrpTabDialog, pRec); }
 
-int SLAPI PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
+int PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1, r = cmCancel, is_new = 0;
 	const  PPConfig & r_cfg = LConfig;
@@ -1104,12 +1104,12 @@ int SLAPI PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjMrpTab::Browse(void * extraPtr)
+int PPObjMrpTab::Browse(void * extraPtr)
 {
 	return ViewMrpTab(0);
 }
 
-int SLAPI PPObjMrpTab::CheckForFilt(const MrpTabFilt * pFilt, PPID id, MrpTabTbl::Rec * pRec)
+int PPObjMrpTab::CheckForFilt(const MrpTabFilt * pFilt, PPID id, MrpTabTbl::Rec * pRec)
 {
 	MrpTabTbl::Rec rec;
 	if(pRec == 0) {
@@ -1138,7 +1138,7 @@ int SLAPI PPObjMrpTab::CheckForFilt(const MrpTabFilt * pFilt, PPID id, MrpTabTbl
 		return 1;
 }
 
-int SLAPI PPObjMrpTab::LoadPacket(PPID tabID, MrpTabPacket * pTree)
+int PPObjMrpTab::LoadPacket(PPID tabID, MrpTabPacket * pTree)
 {
 	int    ok = 1, r;
 	PPID   parent_id = 0;
@@ -1162,13 +1162,13 @@ int SLAPI PPObjMrpTab::LoadPacket(PPID tabID, MrpTabPacket * pTree)
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::AddIndep(MrpTabPacket * pMrpPack, PPID tabID, PPID goodsID, double req, double price, int ignoreRest)
+int PPObjMrpTab::AddIndep(MrpTabPacket * pMrpPack, PPID tabID, PPID goodsID, double req, double price, int ignoreRest)
 {
 	const long lflags = ignoreRest ? (MRPLF_TERMINAL|MRPLF_IGNOREREST) : MRPLF_TERMINAL;
 	return pMrpPack->AddLine__(tabID, goodsID, MRPSRCV_TOTAL, req, 0, price, lflags);
 }
 
-/*static*/int SLAPI PPObjMrpTab::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest)
+/*static*/int PPObjMrpTab::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest)
 {
 	*pRest = 0;
 	const  double ignore_epsilon = BillCore::GetQttyEpsilon();
@@ -1177,7 +1177,7 @@ int SLAPI PPObjMrpTab::AddIndep(MrpTabPacket * pMrpPack, PPID tabID, PPID goodsI
 	return BillObj->trfr->GetAvailableGoodsRest(goodsID, pLeaf->LocID, lot_period, ignore_epsilon, pRest);
 }
 
-int SLAPI PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf, long cflags, int use_ta)
+int PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf, long cflags, int use_ta)
 {
 	int    ok = 1, r;
 	uint   i = 0;
@@ -1237,7 +1237,7 @@ int SLAPI PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * 
 	return ok;
 }
 
-int SLAPI MrpTabPacket::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, double * pRest) const
+int MrpTabPacket::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, double * pRest) const
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -1269,7 +1269,7 @@ int SLAPI MrpTabPacket::GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf
 	return ok;
 }
 
-int SLAPI MrpTabPacket::GetCTerminalList(PPID tabID, CMrpTab & rList) const
+int MrpTabPacket::GetCTerminalList(PPID tabID, CMrpTab & rList) const
 {
 	int    ok = 1;
 	rList.clear();
@@ -1283,7 +1283,7 @@ int SLAPI MrpTabPacket::GetCTerminalList(PPID tabID, CMrpTab & rList) const
 	return ok;
 }
 
-int SLAPI MrpTabPacket::ProcessReq(const MrpTabLeaf * pLeaf, const MrpReqItem & rReq, double * pExtReq, int dep, long cflags)
+int MrpTabPacket::ProcessReq(const MrpTabLeaf * pLeaf, const MrpReqItem & rReq, double * pExtReq, int dep, long cflags)
 {
 	int    ok = 1;
 	double rest = 0.0, ext_req = 0.0;
@@ -1324,7 +1324,7 @@ int SLAPI MrpTabPacket::ProcessReq(const MrpTabLeaf * pLeaf, const MrpReqItem & 
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf, const MrpReqItem & rReq, int dep, long cflags, PPIDArray * pRecurTrace)
+int PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf, const MrpReqItem & rReq, int dep, long cflags, PPIDArray * pRecurTrace)
 {
 	int    ok = 1;
 	int    r, terminal = 1;
@@ -1392,7 +1392,7 @@ int SLAPI PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf *
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf, long cflags)
+int PPObjMrpTab::ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf, long cflags)
 {
 	int    ok = 1;
 	PPIDArray recur_trace;
@@ -1408,7 +1408,7 @@ int SLAPI PPObjMrpTab::ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf,
 //
 //
 //
-int SLAPI PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_ta)
+int PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_ta)
 {
 	int    ok = -1;
 	MrpTabTbl::Rec base_rec;
@@ -1491,13 +1491,13 @@ int SLAPI PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_t
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::DestroyPacket(MrpTabPacket * pTree, int use_ta)
+int PPObjMrpTab::DestroyPacket(MrpTabPacket * pTree, int use_ta)
 {
 	PPID   id = pTree->GetBaseID();
 	return id ? P_Tbl->Remove(id, use_ta) : -1;
 }
 
-int SLAPI PPObjMrpTab::CreateTreeLeaf(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID * pTabID)
+int PPObjMrpTab::CreateTreeLeaf(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID * pTabID)
 {
 	int    ok = 1;
 	PPID   tab_id = 0;
@@ -1511,7 +1511,7 @@ int SLAPI PPObjMrpTab::CreateTreeLeaf(MrpTabPacket * pTree, PPID locID, LDATE dt
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::GetTabID(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID * pTabID, int use_ta)
+int PPObjMrpTab::GetTabID(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID * pTabID, int use_ta)
 {
 	int    ok = 1;
 	PPID   tab_id = 0;
@@ -1563,7 +1563,7 @@ int SLAPI PPObjMrpTab::GetTabID(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::GetDeficitList(const MrpTabPacket * pPack, PPID srcID, int terminal, int replacePassiveGoods, PUGL * pList)
+int PPObjMrpTab::GetDeficitList(const MrpTabPacket * pPack, PPID srcID, int terminal, int replacePassiveGoods, PUGL * pList)
 {
 	int    ok = -1, r;
 	if(pPack->IsTree()) {
@@ -1583,7 +1583,7 @@ int SLAPI PPObjMrpTab::GetDeficitList(const MrpTabPacket * pPack, PPID srcID, in
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::CreateByGoods(PPID * pID, const char * pName, PPID goodsID, PPID locID, LDATE dt, int use_ta)
+int PPObjMrpTab::CreateByGoods(PPID * pID, const char * pName, PPID goodsID, PPID locID, LDATE dt, int use_ta)
 {
 	MrpTabTbl::Rec rec;
 	// @v10.6.4 MEMSZERO(rec);
@@ -1595,7 +1595,7 @@ int SLAPI PPObjMrpTab::CreateByGoods(PPID * pID, const char * pName, PPID goodsI
 	return P_Tbl->Create(pID, &rec, use_ta);
 }
 
-int SLAPI PPObjMrpTab::CreateByBill(PPID * pID, const char * pName, PPID billID, int use_ta)
+int PPObjMrpTab::CreateByBill(PPID * pID, const char * pName, PPID billID, int use_ta)
 {
 	int    ok = 1;
 	PPBillPacket pack;
@@ -1613,7 +1613,7 @@ int SLAPI PPObjMrpTab::CreateByBill(PPID * pID, const char * pName, PPID billID,
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::CreateByDraftWrOff(PPID * pID, const char * pName, PPID dwoID, PPID locID, LDATE dt, int use_ta)
+int PPObjMrpTab::CreateByDraftWrOff(PPID * pID, const char * pName, PPID dwoID, PPID locID, LDATE dt, int use_ta)
 {
 	int    ok = 1;
 	PPObjDraftWrOff dwo_obj;
@@ -1638,7 +1638,7 @@ int SLAPI PPObjMrpTab::CreateByDraftWrOff(PPID * pID, const char * pName, PPID d
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::ArrangePugl(PPID tabID, PUGL * pSrc, uint pos, PUGL * pDest)
+int PPObjMrpTab::ArrangePugl(PPID tabID, PUGL * pSrc, uint pos, PUGL * pDest)
 {
 	int    ok = 1;
 	PUGI * p_pugi = (PUGI *)pSrc->at(pos);
@@ -1656,7 +1656,7 @@ int SLAPI PPObjMrpTab::ArrangePugl(PPID tabID, PUGL * pSrc, uint pos, PUGL * pDe
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::CreateModif(const MrpTabLeaf * pLeaf, PPID mrpSrcID, PPID opID, const PUGL::SetLotManufTimeParam * pSlmt, PPIDArray * pBillList, PPLogger * pLogger, int use_ta)
+int PPObjMrpTab::CreateModif(const MrpTabLeaf * pLeaf, PPID mrpSrcID, PPID opID, const PUGL::SetLotManufTimeParam * pSlmt, PPIDArray * pBillList, PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	PUGL   pugl;
@@ -1698,7 +1698,7 @@ int SLAPI PPObjMrpTab::CreateModif(const MrpTabLeaf * pLeaf, PPID mrpSrcID, PPID
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::DoMaintain(LDATE toDt)
+int PPObjMrpTab::DoMaintain(LDATE toDt)
 {
 	int    ok = 1;
 	long   total = 0;

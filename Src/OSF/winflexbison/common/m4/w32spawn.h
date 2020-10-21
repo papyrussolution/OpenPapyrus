@@ -23,7 +23,7 @@
 //#include <string.h>
 //#include <unistd.h>
 //#include <errno.h>
-#include "cloexec.h"
+//#include "cloexec.h"
 //#include "xalloc.h"
 
 /* Duplicates a file handle, making the copy uninheritable.

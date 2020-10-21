@@ -49,16 +49,16 @@ int SCardCore::OpBlock::CheckFreezingPeriod(LDATE expiry) const
 //
 //
 //
-SLAPI SCardCore::SCardCore() : SCardTbl()
+SCardCore::SCardCore() : SCardTbl()
 {
 }
 
-int SLAPI SCardCore::Search(PPID id, SCardTbl::Rec * pRec)
+int SCardCore::Search(PPID id, SCardTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_SCARD, id, pRec);
 }
 
-int SLAPI SCardCore::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRec)
+int SCardCore::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRec)
 {
 	int    ok = -1, idx = 1;
 	union {
@@ -90,7 +90,7 @@ int SLAPI SCardCore::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec
 	return ok;
 }
 
-int SLAPI SCardCore::GetListByCode(const char * pCode, PPIDArray * pList)
+int SCardCore::GetListByCode(const char * pCode, PPIDArray * pList)
 {
 	CALLPTRMEMB(pList, clear());
 	int    ok = -1;
@@ -106,7 +106,7 @@ int SLAPI SCardCore::GetListByCode(const char * pCode, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI SCardCore::GetListByPerson(PPID personID, PPID seriesID, PPIDArray * pList)
+int SCardCore::GetListByPerson(PPID personID, PPID seriesID, PPIDArray * pList)
 {
 	int    ok = -1;
 	if(personID) {
@@ -125,7 +125,7 @@ int SLAPI SCardCore::GetListByPerson(PPID personID, PPID seriesID, PPIDArray * p
 	return ok;
 }
 
-int SLAPI SCardCore::GetListByLoc(PPID locID, PPID seriesID, PPIDArray * pList)
+int SCardCore::GetListByLoc(PPID locID, PPID seriesID, PPIDArray * pList)
 {
 	int    ok = -1;
 	if(locID) {
@@ -144,7 +144,7 @@ int SLAPI SCardCore::GetListByLoc(PPID locID, PPID seriesID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI SCardCore::GetListByText(int textFldId, const char * pKey, PPIDArray * pList)
+int SCardCore::GetListByText(int textFldId, const char * pKey, PPIDArray * pList)
 {
 	int    ok = -1;
 	if(!isempty(pKey) && oneof3(textFldId, PPSCardPacket::extssMemo, PPSCardPacket::extssPhone, PPSCardPacket::extssOuterId)) {
@@ -171,7 +171,7 @@ int SLAPI SCardCore::GetListByText(int textFldId, const char * pKey, PPIDArray *
 	return ok;
 }
 
-int SLAPI SCardCore::UpdateDiscount(PPID id, double discount, int use_ta)
+int SCardCore::UpdateDiscount(PPID id, double discount, int use_ta)
 {
 	int    ok = 1;
 	if(id) {
@@ -193,7 +193,7 @@ int SLAPI SCardCore::UpdateDiscount(PPID id, double discount, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::UpdateRest_(PPID id, const LDATETIME * pOpDtm, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
+int SCardCore::UpdateRest_(PPID id, const LDATETIME * pOpDtm, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	if(id) {
@@ -225,7 +225,7 @@ int SLAPI SCardCore::UpdateRest_(PPID id, const LDATETIME * pOpDtm, double rest,
 	return ok;
 }
 
-int SLAPI SCardCore::UpdateExpiryDelta(PPID id, long delta, int use_ta)
+int SCardCore::UpdateExpiryDelta(PPID id, long delta, int use_ta)
 {
 	int    ok = 1;
 	if(id) {
@@ -246,7 +246,7 @@ int SLAPI SCardCore::UpdateExpiryDelta(PPID id, long delta, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::Update(PPID id, SCardCore::Rec * pRec, int useTa)
+int SCardCore::Update(PPID id, SCardCore::Rec * pRec, int useTa)
 {
 	int    ok = 1;
 	if(pRec && id) {
@@ -273,7 +273,7 @@ int SLAPI SCardCore::Update(PPID id, SCardCore::Rec * pRec, int useTa)
 	return ok;
 }
 
-int SLAPI SCardCore::AddTurnover(PPID id, double add, int use_ta)
+int SCardCore::AddTurnover(PPID id, double add, int use_ta)
 {
 	int    ok = 1;
 	if(id && add != 0.0) {
@@ -292,7 +292,7 @@ int SLAPI SCardCore::AddTurnover(PPID id, double add, int use_ta)
 }
 
 #if 0 // @construction {
-int SLAPI SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
+int SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 {
 	int    ok = 1;
 	if(id)
@@ -303,7 +303,7 @@ int SLAPI SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 }
 #endif // } @construction
 
-/*static*/int SLAPI SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SString & rUpp)
+/*static*/int SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SString & rUpp)
 {
 	int    ok = -1;
 	rLow.Z();
@@ -358,7 +358,7 @@ int SLAPI SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString & rCode)
+int SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString & rCode)
 {
 	rCode.Z();
 
@@ -591,7 +591,7 @@ struct SCardCodeTemplate {
 	IntRange R;
 };
 
-int SLAPI SCardCore::AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern, int use_ta)
+int SCardCore::AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern, int use_ta)
 {
 	int    ok = -1, r;
 	SCardCodeTemplate templ;
@@ -628,7 +628,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSerPacket & rScsPack, const char * pP
 
 #if 0 // @obsolete {
 
-int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPattern, int use_ta)
+int SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPattern, int use_ta)
 {
 	int    ok = -1;
 	int    add_check_dig = 0;
@@ -741,7 +741,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPatte
 
 #endif // } 0 @obsolete
 
-int SLAPI SCardCore::SearchOp(PPID cardID, LDATE dt, LTIME tm, SCardOpTbl::Rec * pRec)
+int SCardCore::SearchOp(PPID cardID, LDATE dt, LTIME tm, SCardOpTbl::Rec * pRec)
 {
 	SCardOpTbl::Key0 k0;
 	k0.SCardID = cardID;
@@ -750,7 +750,7 @@ int SLAPI SCardCore::SearchOp(PPID cardID, LDATE dt, LTIME tm, SCardOpTbl::Rec *
 	return SearchByKey(&ScOp, 0, &k0, pRec);
 }
 
-int SLAPI SCardCore::SearchOpByLinkObj(PPID objType, PPID objID, SCardOpTbl::Rec * pRec)
+int SCardCore::SearchOpByLinkObj(PPID objType, PPID objID, SCardOpTbl::Rec * pRec)
 {
 	SCardOpTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -764,12 +764,12 @@ int SLAPI SCardCore::SearchOpByLinkObj(PPID objType, PPID objID, SCardOpTbl::Rec
 		return PPDbSearchError();
 }
 
-int SLAPI SCardCore::SearchOpByCheck(PPID checkID, SCardOpTbl::Rec * pRec)
+int SCardCore::SearchOpByCheck(PPID checkID, SCardOpTbl::Rec * pRec)
 {
 	return SearchOpByLinkObj(PPOBJ_CCHECK, checkID, pRec);
 }
 
-int SLAPI SCardCore::GetLastOpByCard(PPID cardID, LDATE dt, SCardOpTbl::Rec * pRec)
+int SCardCore::GetLastOpByCard(PPID cardID, LDATE dt, SCardOpTbl::Rec * pRec)
 {
 	SCardOpTbl::Key0 k0;
 	k0.SCardID = cardID;
@@ -783,7 +783,7 @@ int SLAPI SCardCore::GetLastOpByCard(PPID cardID, LDATE dt, SCardOpTbl::Rec * pR
 		return PPDbSearchError();
 }
 
-int SLAPI SCardCore::EnumOpByCard(PPID cardID, LDATETIME * pDT, SCardOpTbl::Rec * pRec)
+int SCardCore::EnumOpByCard(PPID cardID, LDATETIME * pDT, SCardOpTbl::Rec * pRec)
 {
 	SCardOpTbl::Key0 k0;
 	k0.SCardID = cardID;
@@ -798,7 +798,7 @@ int SLAPI SCardCore::EnumOpByCard(PPID cardID, LDATETIME * pDT, SCardOpTbl::Rec 
 		return PPDbSearchError();
 }
 
-int SLAPI SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
+int SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -822,7 +822,7 @@ int SLAPI SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList) // 
 	return ok;
 }
 
-int SLAPI SCardCore::GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
+int SCardCore::GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -846,7 +846,7 @@ int SLAPI SCardCore::GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList) 
 	return ok;
 }
 
-int SLAPI SCardCore::GetOp(PPID scardID, const LDATETIME & rDtm, OpBlock * pBlk)
+int SCardCore::GetOp(PPID scardID, const LDATETIME & rDtm, OpBlock * pBlk)
 {
 	int    ok = -1;
 	SCardOpTbl::Rec op_rec;
@@ -886,7 +886,7 @@ int SLAPI SCardCore::GetOp(PPID scardID, const LDATETIME & rDtm, OpBlock * pBlk)
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amount, int use_ta)
+int SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amount, int use_ta)
 {
 	int    ok = 1;
 	if(billID) {
@@ -927,7 +927,7 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
+int SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
 	int    ok = 1;
 	const  PPID user_id = LConfig.UserID;
@@ -1007,7 +1007,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEn
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
+int SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1, new_op = -1, r = -1;
 	double rest;
@@ -1083,7 +1083,7 @@ int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRest
 	return ok;
 }
 
-int SLAPI SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
+int SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -1114,7 +1114,7 @@ int SLAPI SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::RemoveOpAll(PPID cardID, int use_ta)
+int SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 {
 	int    ok = 1;
 	DateTimeArray list; // @v9.8.4 TSArray-->TSVector
@@ -1148,7 +1148,7 @@ int SLAPI SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::RemoveOpByCheck(PPID checkID, int use_ta)
+int SCardCore::RemoveOpByCheck(PPID checkID, int use_ta)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -1169,7 +1169,7 @@ int SLAPI SCardCore::RemoveOpByCheck(PPID checkID, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::RecalcForwardRests(PPID cardID, LDATE dt, LTIME tm, double * pRest, int use_ta)
+int SCardCore::RecalcForwardRests(PPID cardID, LDATE dt, LTIME tm, double * pRest, int use_ta)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -1219,12 +1219,12 @@ int SLAPI SCardCore::RecalcForwardRests(PPID cardID, LDATE dt, LTIME tm, double 
 	return ok;
 }
 
-int SLAPI SCardCore::RecalcRests(PPID cardID, double * pRest, int use_ta)
+int SCardCore::RecalcRests(PPID cardID, double * pRest, int use_ta)
 {
 	return RecalcForwardRests(cardID, ZERODATE, ZEROTIME, pRest, use_ta);
 }
 
-int SLAPI SCardCore::RecalcRestsBySeries(PPID serID, int use_ta)
+int SCardCore::RecalcRestsBySeries(PPID serID, int use_ta)
 {
 	int    ok = 1;
 	SCardTbl::Key2 k2;
@@ -1244,7 +1244,7 @@ int SLAPI SCardCore::RecalcRestsBySeries(PPID serID, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::GetRest(PPID id, LDATE dt, double * pRest)
+int SCardCore::GetRest(PPID id, LDATE dt, double * pRest)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -1270,7 +1270,7 @@ struct ScCodeByLenEntry {
     StrAssocArray Codes;
 };
 
-int SLAPI SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
+int SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
 {
 	rRanges.freeAll();
 	int    ok = 1;

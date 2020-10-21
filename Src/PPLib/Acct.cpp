@@ -25,11 +25,11 @@ Acct & FASTCALL Acct::operator = (const PPAccount & s)
 //
 // STAcct
 //
-SLAPI STAcct::STAcct(uint32 sz) : DataType(sz)
+STAcct::STAcct(uint32 sz) : DataType(sz)
 {
 }
 
-char * SLAPI STAcct::tostr(const void * a, long fmt, char * b) const
+char * STAcct::tostr(const void * a, long fmt, char * b) const
 {
 	const  int accflen = 8;
 	int    ofs;
@@ -55,19 +55,19 @@ char * SLAPI STAcct::tostr(const void * a, long fmt, char * b) const
 	return b;
 }
 
-int SLAPI STAcct::fromstr(void * a, long fmt, const char * b) const
+int STAcct::fromstr(void * a, long fmt, const char * b) const
 {
 	return static_cast<Acct *>(a)->FromStr(fmt, b);
 }
 
-void SLAPI RegisterSTAcct()
+void RegisterSTAcct()
 {
 	RegisterSType(S_ACCT, &STAcct());
 }
 //
 // Utils
 //
-Acct & SLAPI Acct::Z()
+Acct & Acct::Z()
 {
 	ac = 0;
 	sb = 0;
@@ -75,7 +75,7 @@ Acct & SLAPI Acct::Z()
 	return *this;
 }
 
-static int SLAPI delim(long format)
+static int delim(long format)
 {
 	if(format & ACCF_DELDOT)   return '.';
 	if(format & ACCF_DELSPACE) return ' ';
@@ -83,12 +83,12 @@ static int SLAPI delim(long format)
 	return 0;
 }
 
-// char * SLAPI ToStr(long format, char * pBuf) const; // ACCBIN_NATURE
-// SString & SLAPI ToStr(long format, SString & rBuf) const;
-// int    SLAPI FromStr(long format, const char *); // ACCBIN_NATURE
+// char * ToStr(long format, char * pBuf) const; // ACCBIN_NATURE
+// SString & ToStr(long format, SString & rBuf) const;
+// int    FromStr(long format, const char *); // ACCBIN_NATURE
 
-//char * SLAPI AccToStr(const Acct * acc, long format, char * buf)
-char * SLAPI Acct::ToStr(long format, char * pBuf) const // ACCBIN_NATURE
+//char * AccToStr(const Acct * acc, long format, char * buf)
+char * Acct::ToStr(long format, char * pBuf) const // ACCBIN_NATURE
 {
 	char * b = pBuf;
 	int    dlm = delim(format);
@@ -114,8 +114,8 @@ char * SLAPI Acct::ToStr(long format, char * pBuf) const // ACCBIN_NATURE
 	return _commfmt(format, pBuf);
 }
 
-//SString & SLAPI AccToStr(const Acct * acc, long format, SString & rBuf)
-SString & SLAPI Acct::ToStr(long format, SString & rBuf) const
+//SString & AccToStr(const Acct * acc, long format, SString & rBuf)
+SString & Acct::ToStr(long format, SString & rBuf) const
 {
 	rBuf.Z();
 	int    dlm = delim(format);
@@ -168,7 +168,7 @@ static int FASTCALL searchSideText(const char * pStr, int * pSide)
 	return 0;
 }
 
-static int SLAPI parseAccString(const char * pStr, int pTok[], int * pSide)
+static int parseAccString(const char * pStr, int pTok[], int * pSide)
 {
 	int    i = 0;
 	int    sd = -1;
@@ -190,8 +190,8 @@ static int SLAPI parseAccString(const char * pStr, int pTok[], int * pSide)
 	return 1;
 }
 
-//int SLAPI StrToAcc(Acct * pAcct, long, const char * pStr)
-int SLAPI Acct::FromStr(long format, const char * pStr) // ACCBIN_NATURE
+//int StrToAcc(Acct * pAcct, long, const char * pStr)
+int Acct::FromStr(long format, const char * pStr) // ACCBIN_NATURE
 {
 	int    tok[3];
 	parseAccString(pStr, tok, 0);
@@ -201,7 +201,7 @@ int SLAPI Acct::FromStr(long format, const char * pStr) // ACCBIN_NATURE
 	return 1;
 }
 
-int SLAPI IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
+int IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 {
 	int    found = 0;
 	char   buf[32], separator[8];
@@ -229,7 +229,7 @@ int SLAPI IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 }
 
 #if 0 // @v10.3.2 @unused {
-int SLAPI IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
+int IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
 {
 	if(aco == ACO_1)
 		return (pAcc->ac == pPattern->ac) ? 1 : 0;
@@ -241,11 +241,11 @@ int SLAPI IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
 //
 //
 //
-SLAPI AcctID::AcctID() : ac(0), ar(0)
+AcctID::AcctID() : ac(0), ar(0)
 {
 }
 
-AcctID & SLAPI AcctID::Z()
+AcctID & AcctID::Z()
 {
 	ac = 0;
 	ar = 0;

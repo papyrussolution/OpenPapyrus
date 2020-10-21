@@ -26,7 +26,7 @@ struct BillRecoverParam {
 // } @v9.4.0
 
 struct BillRecalcParam {
-	SLAPI  BillRecalcParam() : OpID(0), Flags(0)
+	BillRecalcParam() : OpID(0), Flags(0)
 	{
 		Period.Z();
 	}
@@ -69,16 +69,16 @@ public:
 		}
 		DateRange Period;
 	};
-	SLAPI  PrcssrAbsentBill();
-	SLAPI ~PrcssrAbsentBill();
-	int    SLAPI InitParam(Param *);
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	PrcssrAbsentBill();
+	~PrcssrAbsentBill();
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
 private:
-	int    SLAPI ScanTransfer(SArray * pList);
-	int    SLAPI ScanAccturn(SArray * pList);
-	int    SLAPI Repair(const AbsentEntry * pEntry);
+	int    ScanTransfer(SArray * pList);
+	int    ScanAccturn(SArray * pList);
+	int    Repair(const AbsentEntry * pEntry);
 	Param  P;
 	SArray * P_List;
 	PPObjBill * P_BObj;
@@ -103,7 +103,7 @@ struct RecoverAbsBillData {
 	long   LinesCount;
 };
 
-int SLAPI PPObjBill::GatherPayments()
+int PPObjBill::GatherPayments()
 {
 	int    ok = 1;
 	long   f, f1;
@@ -171,7 +171,7 @@ int SLAPI PPObjBill::GatherPayments()
 	return ok;
 }
 
-int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
+int PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 {
 	int    ok = 1;
 	double bamt, ramt;
@@ -209,7 +209,7 @@ int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 	return ok;
 }
 
-static int SLAPI RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
+static int RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 {
 	int    r = -1;
 	PPIDArray types;
@@ -245,7 +245,7 @@ static int SLAPI RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 	return r;
 }
 
-int SLAPI RecalcBillTurns(int checkAmounts)
+int RecalcBillTurns(int checkAmounts)
 {
 	int    ok = 1;
 	int    ta = 0;
@@ -303,32 +303,32 @@ int SLAPI RecalcBillTurns(int checkAmounts)
 	return ok;
 }
 
-SLAPI PrcssrAbsentBill::PrcssrAbsentBill() : P_BObj(BillObj), P_List(0)
+PrcssrAbsentBill::PrcssrAbsentBill() : P_BObj(BillObj), P_List(0)
 {
 }
 
-SLAPI PrcssrAbsentBill::~PrcssrAbsentBill()
+PrcssrAbsentBill::~PrcssrAbsentBill()
 {
 }
 
-int SLAPI PrcssrAbsentBill::InitParam(Param * pParam)
+int PrcssrAbsentBill::InitParam(Param * pParam)
 {
 	CALLPTRMEMB(pParam, Period.Z());
 	return 1;
 }
 
-int SLAPI PrcssrAbsentBill::EditParam(Param * pParam)
+int PrcssrAbsentBill::EditParam(Param * pParam)
 {
 	return DateRangeDialog(0, 0, &pParam->Period);
 }
 
-int SLAPI PrcssrAbsentBill::Init(const Param * pParam)
+int PrcssrAbsentBill::Init(const Param * pParam)
 {
 	RVALUEPTR(P, pParam);
 	return 1;
 }
 
-int SLAPI PrcssrAbsentBill::ScanAccturn(SArray * pList)
+int PrcssrAbsentBill::ScanAccturn(SArray * pList)
 {
 	int    ok = 1;
 	IterCounter counter;
@@ -364,7 +364,7 @@ int SLAPI PrcssrAbsentBill::ScanAccturn(SArray * pList)
 	return ok;
 }
 
-int SLAPI PrcssrAbsentBill::ScanTransfer(SArray * pList)
+int PrcssrAbsentBill::ScanTransfer(SArray * pList)
 {
 	int    ok = 1;
 	IterCounter counter;
@@ -532,7 +532,7 @@ int AbsBillDialog::getDTS(RecoverAbsBillData * pData)
 	}
 }
 
-int SLAPI PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
+int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 {
 	int    ok = -1, valid_data = 0, stop = 0;
 	AbsBillDialog * dlg = 0;
@@ -594,7 +594,7 @@ int SLAPI PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 	return ok;
 }
 
-int SLAPI PrcssrAbsentBill::Run()
+int PrcssrAbsentBill::Run()
 {
 	int    ok = 1;
 	SArray bill_list(sizeof(AbsentEntry));
@@ -613,7 +613,7 @@ int SLAPI PrcssrAbsentBill::Run()
 	return ok;
 }
 
-int SLAPI RecoverAbsenceBills()
+int RecoverAbsenceBills()
 {
 	int    ok = -1;
 	PrcssrAbsentBill prcssr;
@@ -627,7 +627,7 @@ int SLAPI RecoverAbsenceBills()
 	return ok;
 }
 
-int SLAPI RemoveBadReckons()
+int RemoveBadReckons()
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -692,7 +692,7 @@ int SLAPI RemoveBadReckons()
 	return ok;
 }
 
-int SLAPI PPObjBill::SearchPaymWOLinkBill()
+int PPObjBill::SearchPaymWOLinkBill()
 {
 	int    ok = 1;
 	PPID   op_id;
@@ -772,7 +772,7 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 	return ok;
 }
 
-int SLAPI PPObjBill::RecoverUnitedFreightPorts()
+int PPObjBill::RecoverUnitedFreightPorts()
 {
 	int    ok = 1;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;

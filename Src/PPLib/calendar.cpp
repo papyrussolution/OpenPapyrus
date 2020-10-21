@@ -1768,7 +1768,7 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 //
 //
 //
-void SLAPI ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show)
+void ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show)
 	{ ShowWindow(GetDlgItem(pDlg->H(), buttCtlID), show ? SW_SHOW : SW_HIDE); }
 
 void TDialog::SetupCalendar(uint calCtlID, uint inputCtlID, int kind)

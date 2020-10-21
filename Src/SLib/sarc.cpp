@@ -15,7 +15,7 @@
 //
 static const size_t Default_SCompressor_MaxTempBufSize = SKILOBYTE(256);
 
-SLAPI SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(Default_SCompressor_MaxTempBufSize)
+SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(Default_SCompressor_MaxTempBufSize)
 {
 	assert(oneof2(Type, tLz4, tZLib));
 	if(Type == tLz4) {
@@ -28,7 +28,7 @@ SLAPI SCompressor::SCompressor(int type) : Type(type), P_Ctx(0), MaxTempBufSize(
 	}
 }
 
-SLAPI SCompressor::~SCompressor()
+SCompressor::~SCompressor()
 {
 	if(Type == tLz4) {
 		/*LZ4F_cctx * p_ctx = (LZ4F_cctx *)P_Ctx;
@@ -38,7 +38,7 @@ SLAPI SCompressor::~SCompressor()
 	}
 }
 
-int SLAPI SCompressor::SetMaxTempBufSize(size_t sz)
+int SCompressor::SetMaxTempBufSize(size_t sz)
 {
 	int    ok = 1;
 	if(sz == 0)
@@ -51,7 +51,7 @@ int SLAPI SCompressor::SetMaxTempBufSize(size_t sz)
 	return ok;
 }
 
-int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt)
+int SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt)
 {
 	int    ok = 0;
 	if(Type == tLz4) {
@@ -108,7 +108,7 @@ int SLAPI SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer 
 	return ok;
 }
 
-int SLAPI SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest)
+int SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest)
 {
 	int    ok = 0;
 	if(Type == tLz4) {
@@ -175,21 +175,21 @@ struct SArc_Bz2_Block {
 	SString FileName;
 };
 
-SLAPI SArchive::SArchive() : Type(0), H(0)/*, P_Cb_Blk(0)*/
+SArchive::SArchive() : Type(0), H(0)/*, P_Cb_Blk(0)*/
 {
 }
 
-SLAPI SArchive::~SArchive()
+SArchive::~SArchive()
 {
 	Close();
 }
 
-int SLAPI SArchive::IsValid() const
+int SArchive::IsValid() const
 {
 	return BIN(H != 0);
 }
 
-int SLAPI SArchive::Close()
+int SArchive::Close()
 {
 	int    ok = 1;
 	if(Type == tZip) {
@@ -270,7 +270,7 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 #endif // } 0 @construction
 // } @v10.4.4
 
-int SLAPI SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/, SArchive::Format * pFmt)
+int SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/, SArchive::Format * pFmt)
 {
 	int    ok = 1;
 	Close();
@@ -358,7 +358,7 @@ int SLAPI SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/,
 	return ok;
 }
 
-int64 SLAPI SArchive::GetEntriesCount() const
+int64 SArchive::GetEntriesCount() const
 {
 	int64 c = 0;
 	if(H) {
@@ -415,7 +415,7 @@ int FASTCALL SArchive::GetEntryName(int64 idx, SString & rBuf)
 	return ok;
 }
 
-int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
+int SArchive::ExtractEntry(int64 idx, const char * pDestName)
 {
     int    ok = 1;
     zip_file_t * p_zf = 0;
@@ -467,7 +467,7 @@ int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
     return ok;
 }
 
-int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
+int SArchive::AddEntry(const char * pSrcFileName, const char * pName, int flags)
 {
     int    ok = 1;
 	SString temp_buf;
@@ -524,7 +524,7 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
     return ok;
 }
 
-int SLAPI SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags)
+int SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags)
 {
 	int    ok = 1;
 	THROW(IsValid());
@@ -577,7 +577,7 @@ int SLAPI SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSu
 	return ok;
 }
 
-int SLAPI SArchive::AddEntries(const char * pMask, int flags)
+int SArchive::AddEntries(const char * pMask, int flags)
 {
 	SString root;
 	SString sub;
@@ -654,7 +654,7 @@ static int TestCompressor(SCompressor & rC)
 	return ok;
 }
 
-void SLAPI TestSArchive()
+void TestSArchive()
 {
 	int    ok = 1;
 	SString temp_buf;

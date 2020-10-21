@@ -25,5 +25,5 @@
 	void xml_printf(FILE *, int, char const *, ...);
 	char const * xml_escape_n(int n, char const * str);
 	char const * xml_escape(char const * str);
-	void print_xml(void);
+	void print_xml();
 #endif /* !PRINT_XML_H_ */

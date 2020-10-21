@@ -22,7 +22,7 @@ public:
 			fLockAutoExit               = 0x0001,
 			fCloseButtonInMinimizeState = 0x0002  // Кнопка "Закрыть" находится в состоянии "Свернуть"
 		};
-		SLAPI  State() : Mode(lmNone), Status(0), Flags(0), PhnSvcID(0), PersonID(0), SCardID(0), LocID(0), SinceUp(getcurdatetime_()),
+		State() : Mode(lmNone), Status(0), Flags(0), PhnSvcID(0), PersonID(0), SCardID(0), LocID(0), SinceUp(getcurdatetime_()),
 			SinceDown(ZERODATETIME)
 		{
 		}
@@ -435,7 +435,7 @@ private:
 	};
 	class InfoListData : public SStrGroup, public TSVector <InfoListEntry> {
 	public:
-		SLAPI  InfoListData() : SStrGroup()
+		InfoListData() : SStrGroup()
 		{
 		}
 	};
@@ -1226,7 +1226,7 @@ void PhonePaneDialog::OnContactSelection(int onInit)
 	SelectContact(oid, onInit);
 }
 
-int SLAPI OpenPhonePane()
+int OpenPhonePane()
 {
 	int    ok = -1;
 	TWindow * p_phn_pane = static_cast<PPApp *>(APPL)->FindPhonePaneDialog(); 
@@ -1236,7 +1236,7 @@ int SLAPI OpenPhonePane()
 	return ok;
 }
 
-int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
+int ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
 {
 	int    ok = 1;
 	// @v10.5.8 PhonePaneDialog * p_prev_dlg = PhonePaneDialog::FindAnalogue("");
@@ -1257,10 +1257,10 @@ int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneD
 
 // @v10.6.1 (moved to PPConst) static const uint32 PhoneServiceEventResponder_Signature = 0x5A6B7C8E;
 
-int SLAPI PhoneServiceEventResponder::IsConsistent() const
+int PhoneServiceEventResponder::IsConsistent() const
 	{ return (Signature == _PPConst.Signature_PhoneServiceEventResponder); }
 
-SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(_PPConst.Signature_PhoneServiceEventResponder),
+PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(_PPConst.Signature_PhoneServiceEventResponder),
 	AdvCookie_Ringing(0), AdvCookie_Up(0), P_PsnObj(0), P_InternalPhoneList(0)
 {
 	{
@@ -1279,7 +1279,7 @@ SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : Signature(_PPCo
 	}
 }
 
-SLAPI PhoneServiceEventResponder::~PhoneServiceEventResponder()
+PhoneServiceEventResponder::~PhoneServiceEventResponder()
 {
 	DS.Unadvise(AdvCookie_Ringing);
 	DS.Unadvise(AdvCookie_Up);
@@ -1288,7 +1288,7 @@ SLAPI PhoneServiceEventResponder::~PhoneServiceEventResponder()
 	Signature = 0;
 }
 
-const StrAssocArray * SLAPI PhoneServiceEventResponder::GetInternalPhoneList()
+const StrAssocArray * PhoneServiceEventResponder::GetInternalPhoneList()
 {
 	if(!P_InternalPhoneList) {
 		THROW_SL(P_InternalPhoneList = new StrAssocArray);
@@ -1308,7 +1308,7 @@ const StrAssocArray * SLAPI PhoneServiceEventResponder::GetInternalPhoneList()
 	return P_InternalPhoneList;
 }
 
-int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArray & rList)
+int PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -1411,24 +1411,23 @@ int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObj
 	// Writetrans: ;Callgroup: 0;Pickupgroup: 0;Seconds: 12;ActionID: 2899;;
 //Event: Status;Privilege: Call;Channel: SIP/110-0000027b;ChannelState: 6;ChannelStateDesc: Up;CallerIDNum: 110;CallerIDName: Соболев Антон;ConnectedLineNum: 198;ConnectedLineName: Sobolev (soft sip);Accountcode: ;Context: macro-dial-one;Exten: s;Priority: 52;Uniqueid: 1520526041.659;Type: SIP;DNID: 198;EffectiveConnectedLineNum: 198;EffectiveConnectedLineName: Sobolev (soft sip);TimeToHangup: 0;BridgeID: 89e33c3e-f276-45a3-b66e-b0a5fda6fa4e;Linkedid: 1520526041.659;Application: Dial;Data: SIP/198,,TtrIb(func-apply-sipheaders^s^1);Nativeformats: (ulaw);Readformat: ulaw;Readtrans: ;Writeformat: ulaw;Writetrans: ;Callgroup: 0;Pickupgroup: 0;Seconds: 12;ActionID: 2899;;
 
-IMPLEMENT_PPFILT_FACTORY(PhnSvcMonitor); SLAPI PhnSvcMonitorFilt::PhnSvcMonitorFilt() : PPBaseFilt(PPFILT_PHNSVCMONITOR, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PhnSvcMonitor); PhnSvcMonitorFilt::PhnSvcMonitorFilt() : PPBaseFilt(PPFILT_PHNSVCMONITOR, 0, 0)
 {
 	SetFlatChunk(offsetof(PhnSvcMonitorFilt, ReserveStart),
 		offsetof(PhnSvcMonitorFilt, ReserveEnd)-offsetof(PhnSvcMonitorFilt, ReserveStart)+sizeof(ReserveEnd));
 	Init(1, 0);
 }
 
-SLAPI PPViewPhnSvcMonitor::PPViewPhnSvcMonitor() : PPView(0, &Filt, PPVIEW_PHNSVCMONITOR), P_Cli(0), P_PsnObj(0)
+PPViewPhnSvcMonitor::PPViewPhnSvcMonitor() : PPView(0, &Filt, PPVIEW_PHNSVCMONITOR, implBrowseArray, 0), P_Cli(0), P_PsnObj(0)
 {
-	ImplementFlags |= implBrowseArray;
 }
 
-SLAPI PPViewPhnSvcMonitor::~PPViewPhnSvcMonitor()
+PPViewPhnSvcMonitor::~PPViewPhnSvcMonitor()
 {
 	delete P_PsnObj;
 }
 
-PPBaseFilt * SLAPI PPViewPhnSvcMonitor::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewPhnSvcMonitor::CreateFilt(void * extraPtr) const
 {
 	PhnSvcMonitorFilt * p_filt = new PhnSvcMonitorFilt;
 	{
@@ -1439,12 +1438,12 @@ PPBaseFilt * SLAPI PPViewPhnSvcMonitor::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewPhnSvcMonitor::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewPhnSvcMonitor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	return 1;
 }
 
-int SLAPI PPViewPhnSvcMonitor::CreatePhnSvcClient()
+int PPViewPhnSvcMonitor::CreatePhnSvcClient()
 {
 	int    ok = 1;
 	PPObjPhoneService ps_obj(0);
@@ -1455,7 +1454,7 @@ int SLAPI PPViewPhnSvcMonitor::CreatePhnSvcClient()
 	return ok;
 }
 
-int SLAPI PPViewPhnSvcMonitor::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewPhnSvcMonitor::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -1466,7 +1465,7 @@ int SLAPI PPViewPhnSvcMonitor::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewPhnSvcMonitor::Update()
+int PPViewPhnSvcMonitor::Update()
 {
 	int    ok = -1;
 	if(P_Cli) {
@@ -1514,7 +1513,7 @@ int SLAPI PPViewPhnSvcMonitor::Update()
 	return ok;
 }
 
-void SLAPI PPViewPhnSvcMonitor::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewPhnSvcMonitor::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewPhnSvcMonitor::GetDataForBrowser, this);
@@ -1523,7 +1522,7 @@ void SLAPI PPViewPhnSvcMonitor::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -1571,7 +1570,7 @@ int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-SArray * SLAPI PPViewPhnSvcMonitor::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewPhnSvcMonitor::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_PHNSVCMONITOR;
 	SArray * p_array = new TSArray <uint>; // Array - not Vector
@@ -1585,7 +1584,7 @@ SArray * SLAPI PPViewPhnSvcMonitor::CreateBrowserArray(uint * pBrwId, SString * 
 	return p_array;
 }
 
-int SLAPI PPViewPhnSvcMonitor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPhnSvcMonitor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2 && oneof2(ppvCmd, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {

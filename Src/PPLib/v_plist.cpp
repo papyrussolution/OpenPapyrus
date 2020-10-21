@@ -10,22 +10,22 @@
 //
 //
 //
-SLAPI PriceLineIdent::PriceLineIdent()
+PriceLineIdent::PriceLineIdent()
 {
 	THISZERO();
 }
 //
 // PriceListCore
 //
-SLAPI PriceListCore::PriceListCore() : PriceListTbl()
+PriceListCore::PriceListCore() : PriceListTbl()
 {
 }
 
-int SLAPI PriceListCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_PRICELIST, id, b); }
-int SLAPI PriceListCore::Add(PPID * pID, void * b, int use_ta) { return AddByID(this, pID, b, use_ta); }
-int SLAPI PriceListCore::Update(PPID id, void * b, int use_ta) { return UpdateByID(this, 0, id, b, use_ta); }
+int PriceListCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_PRICELIST, id, b); }
+int PriceListCore::Add(PPID * pID, void * b, int use_ta) { return AddByID(this, pID, b, use_ta); }
+int PriceListCore::Update(PPID id, void * b, int use_ta) { return UpdateByID(this, 0, id, b, use_ta); }
 
-int SLAPI PriceListCore::Remove(PPID id, int use_ta)
+int PriceListCore::Remove(PPID id, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -39,7 +39,7 @@ int SLAPI PriceListCore::Remove(PPID id, int use_ta)
 	return ok;
 }
 
-PriceLineTbl::Key0 * SLAPI PriceListCore::IdentToKey0(const PriceLineIdent * pIdent, PriceLineTbl::Key0 * pKey)
+PriceLineTbl::Key0 * PriceListCore::IdentToKey0(const PriceLineIdent * pIdent, PriceLineTbl::Key0 * pKey)
 {
 	pKey->ListID  = pIdent->PListID;
 	pKey->GoodsID = pIdent->GoodsID;
@@ -48,13 +48,13 @@ PriceLineTbl::Key0 * SLAPI PriceListCore::IdentToKey0(const PriceLineIdent * pId
 	return pKey;
 }
 
-int SLAPI PriceListCore::SearchLine(const PriceLineIdent * pIdent, void * b)
+int PriceListCore::SearchLine(const PriceLineIdent * pIdent, void * b)
 {
 	PriceLineTbl::Key0 k;
 	return SearchByKey(&Lines, 0, IdentToKey0(pIdent, &k), b);
 }
 
-int SLAPI PriceListCore::SearchGoodsLine(PriceLineIdent * pIdent, void * b)
+int PriceListCore::SearchGoodsLine(PriceLineIdent * pIdent, void * b)
 {
 	PriceLineTbl::Key0 k;
 	IdentToKey0(pIdent, &k);
@@ -71,7 +71,7 @@ int SLAPI PriceListCore::SearchGoodsLine(PriceLineIdent * pIdent, void * b)
 	return PPDbSearchError();
 }
 
-int SLAPI PriceListCore::EnumLines(const PriceLineIdent * pIdent, PriceLineIdent * pIter, void * b)
+int PriceListCore::EnumLines(const PriceLineIdent * pIdent, PriceLineIdent * pIter, void * b)
 {
 	PriceLineTbl::Key0 k;
 	IdentToKey0(pIter, &k);
@@ -90,7 +90,7 @@ int SLAPI PriceListCore::EnumLines(const PriceLineIdent * pIdent, PriceLineIdent
 	return PPDbSearchError();
 }
 
-int SLAPI PriceListCore::GetLineNo(const PriceLineIdent * pIdent, short * pLineNo)
+int PriceListCore::GetLineNo(const PriceLineIdent * pIdent, short * pLineNo)
 {
 	int    ok = 1;
 	PriceLineTbl::Key0 k;
@@ -107,7 +107,7 @@ int SLAPI PriceListCore::GetLineNo(const PriceLineIdent * pIdent, short * pLineN
 	return ok;
 }
 
-int SLAPI PriceListCore::AddLine(PPID id, void * b, PriceLineIdent * pIdent, int useSubst, int use_ta)
+int PriceListCore::AddLine(PPID id, void * b, PriceLineIdent * pIdent, int useSubst, int use_ta)
 {
 	int    ok = 1;
 	PPObjGoods goods_obj;
@@ -139,7 +139,7 @@ int SLAPI PriceListCore::AddLine(PPID id, void * b, PriceLineIdent * pIdent, int
 	return ok;
 }
 
-int SLAPI PriceListCore::UpdateLine(const PriceLineIdent * pIdent, PriceLineTbl::Rec * pRec, int useSubst, int use_ta)
+int PriceListCore::UpdateLine(const PriceLineIdent * pIdent, PriceLineTbl::Rec * pRec, int useSubst, int use_ta)
 {
 	int    ok = 1;
 	PPObjGoods goods_obj;
@@ -162,7 +162,7 @@ int SLAPI PriceListCore::UpdateLine(const PriceLineIdent * pIdent, PriceLineTbl:
 	return ok;
 }
 
-int SLAPI PriceListCore::RemoveLine(const PriceLineIdent * pIdent, int use_ta)
+int PriceListCore::RemoveLine(const PriceLineIdent * pIdent, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -178,12 +178,12 @@ int SLAPI PriceListCore::RemoveLine(const PriceLineIdent * pIdent, int use_ta)
 //
 //
 //
-SLAPI PriceListViewItem::PriceListViewItem()
+PriceListViewItem::PriceListViewItem()
 {
 	Clear();
 }
 
-void SLAPI PriceListViewItem::Clear()
+void PriceListViewItem::Clear()
 {
 	memzero(this, offsetof(PriceListViewItem, GoodsName_));
 	GoodsName_.Z();
@@ -193,7 +193,7 @@ void SLAPI PriceListViewItem::Clear()
 //
 // @ModuleDecl(PPViewPriceList)
 //
-IMPLEMENT_PPFILT_FACTORY(PriceList); SLAPI PriceListFilt::PriceListFilt() : PPBaseFilt(PPFILT_PRICELIST, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(PriceList); PriceListFilt::PriceListFilt() : PPBaseFilt(PPFILT_PRICELIST, 0, 2)
 {
 	SetFlatChunk(offsetof(PriceListFilt, ReserveStart),
 		offsetof(PriceListFilt, Memo)-offsetof(PriceListFilt, ReserveStart));
@@ -209,7 +209,7 @@ PriceListFilt & FASTCALL PriceListFilt::operator = (const PriceListFilt & s)
 	return *this;
 }
 
-int SLAPI PriceListFilt::Setup()
+int PriceListFilt::Setup()
 {
 	if(GrpIDList.IsExists()) {
 		GoodsGrpID = GrpIDList.GetSingle();
@@ -223,12 +223,12 @@ int SLAPI PriceListFilt::Setup()
 //   LocID = LConfig.Location
 //   UserID = -1;
 //
-SLAPI PPViewPriceList::PPViewPriceList() : PPView(0, &Filt, PPVIEW_PRICELIST), P_BObj(BillObj), P_GGIter(0), P_TempTbl(0), State(0), NewGoodsGrpID(0)
+PPViewPriceList::PPViewPriceList() : PPView(0, &Filt, PPVIEW_PRICELIST, 0, 0), P_BObj(BillObj), P_GGIter(0), P_TempTbl(0), State(0), NewGoodsGrpID(0)
 {
 	MEMSZERO(Cfg);
 }
 
-SLAPI PPViewPriceList::~PPViewPriceList()
+PPViewPriceList::~PPViewPriceList()
 {
 	delete P_GGIter;
 	delete P_TempTbl;
@@ -246,7 +246,7 @@ PPBaseFilt * PPViewPriceList::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewPriceList::GetLastQCertID(PPID goodsID, LDATE dt, PPID * pQCertID)
+int PPViewPriceList::GetLastQCertID(PPID goodsID, LDATE dt, PPID * pQCertID)
 {
 	int    ok = 1;
 	PPID   qcert_id = 0;
@@ -259,7 +259,7 @@ int SLAPI PPViewPriceList::GetLastQCertID(PPID goodsID, LDATE dt, PPID * pQCertI
 	return ok;
 }
 
-int SLAPI PPViewPriceList::SearchLine(PriceLineIdent * pIdent, PriceLineTbl::Rec * pRec)
+int PPViewPriceList::SearchLine(PriceLineIdent * pIdent, PriceLineTbl::Rec * pRec)
 {
 	PriceLineTbl::Key0 k;
 	k.ListID     = pIdent->PListID;
@@ -269,7 +269,7 @@ int SLAPI PPViewPriceList::SearchLine(PriceLineIdent * pIdent, PriceLineTbl::Rec
 	return SearchByKey(&Tbl.Lines, 0, &k, pRec);
 }
 
-int SLAPI PPViewPriceList::SetGoodsPrice(const RecalcParamBlock * pRPB, PPID quotKindID, double unitsPerPack, double price, int isPresent, int use_ta)
+int PPViewPriceList::SetGoodsPrice(const RecalcParamBlock * pRPB, PPID quotKindID, double unitsPerPack, double price, int isPresent, int use_ta)
 {
 	int    ok = 1;
 	char   name[128];
@@ -334,7 +334,7 @@ int SLAPI PPViewPriceList::SetGoodsPrice(const RecalcParamBlock * pRPB, PPID quo
 	return ok;
 }
 
-int SLAPI PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKindID, double * pPrice)
+int PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKindID, double * pPrice)
 {
 	int    done  = 0;
 	double price = *pPrice;
@@ -355,7 +355,7 @@ int SLAPI PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKind
 	return done ? 1 : -1;
 }
 
-int SLAPI PPViewPriceList::SetByQuot(RecalcParamBlock * pRPB, double unitsPerPack, int isPresent, int use_ta)
+int PPViewPriceList::SetByQuot(RecalcParamBlock * pRPB, double unitsPerPack, int isPresent, int use_ta)
 {
 	int    ok = 1, r;
 	PPQuotKind qk_rec;
@@ -390,7 +390,7 @@ PPPriceListImpExpParam::PPPriceListImpExpParam(uint recId, long flags) : PPImpEx
 {
 }
 
-int SLAPI EditPriceListImpExpParams()
+int EditPriceListImpExpParams()
 {
 	int    ok = -1;
 	PPPriceListImpExpParam param;
@@ -402,7 +402,7 @@ int SLAPI EditPriceListImpExpParams()
 	return ok;
 }
 
-int SLAPI SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExport)
+int SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExport)
 {
 	int    ok = -1;
 	uint   p = 0;
@@ -435,12 +435,12 @@ int SLAPI SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExpor
 
 class PPPriceListImporter {
 public:
-	SLAPI  PPPriceListImporter() : P_View(0)
+	PPPriceListImporter() : P_View(0)
 	{
 	}
-	int    SLAPI Init(PPViewPriceList * pView);
-	int    SLAPI Init(PPViewPriceList * pView, const PPPriceListImpExpParam * pParam);
-	int    SLAPI Run();
+	int    Init(PPViewPriceList * pView);
+	int    Init(PPViewPriceList * pView, const PPPriceListImpExpParam * pParam);
+	int    Run();
 private:
 	PPPriceListImpExpParam Param;
 	Sdr_PriceListArray Rows;
@@ -469,7 +469,7 @@ int PPPriceListImporter::Init(PPViewPriceList * pView, const PPPriceListImpExpPa
 	return ok;
 }
 
-int SLAPI PPPriceListImporter::Run()
+int PPPriceListImporter::Run()
 {
 	int    ok = -1, goods_resolved = 0;
 	uint   i;
@@ -555,7 +555,7 @@ int SLAPI PPPriceListImporter::Run()
 	return ok;
 }
 
-double SLAPI PPViewPriceList::GetRest(PPID goodsID)
+double PPViewPriceList::GetRest(PPID goodsID)
 {
 	double rest = 0.0;
 	if(Filt.Flags & PLISTF_CALCREST) {
@@ -572,7 +572,7 @@ double SLAPI PPViewPriceList::GetRest(PPID goodsID)
 	return rest;
 }
 
-int SLAPI PPViewPriceList::SubstGoods(PPID goodsID, PPID * pSubstID, char * pBuf, size_t bufSize)
+int PPViewPriceList::SubstGoods(PPID goodsID, PPID * pSubstID, char * pBuf, size_t bufSize)
 {
 	int    ok = 1;
 	PPID   subst_id = goodsID;
@@ -602,7 +602,7 @@ int SLAPI PPViewPriceList::SubstGoods(PPID goodsID, PPID * pSubstID, char * pBuf
 	return ok;
 }
 
-int SLAPI PPViewPriceList::InitRPB(RecalcParamBlock * pRPB,
+int PPViewPriceList::InitRPB(RecalcParamBlock * pRPB,
 	Goods2Tbl::Rec * pGoodsRec, int lotPriceWoTaxes, double cost, double price, LDATE expiry)
 {
 	double tax_factor = 1.0;
@@ -630,7 +630,7 @@ int SLAPI PPViewPriceList::InitRPB(RecalcParamBlock * pRPB,
 	return 1;
 }
 
-int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, const Sdr_PriceListArray * pList, int useTa)
+int PPViewPriceList::UpdatePriceList(LDATE date, const Sdr_PriceListArray * pList, int useTa)
 {
 	int    ok = 1;
 	PriceListTbl::Rec plist_rec;
@@ -685,7 +685,7 @@ int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, const Sdr_PriceListArray 
 	return ok;
 }
 
-int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, int rmvOld, int use_ta)
+int PPViewPriceList::UpdatePriceList(LDATE date, int rmvOld, int use_ta)
 {
 	int    ok = 1;
 	PriceListTbl::Rec plist_rec;
@@ -810,12 +810,12 @@ int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, int rmvOld, int use_ta)
 	return ok;
 }
 
-int SLAPI PPViewPriceList::AddPriceList(PPID * pListID, PriceListTbl::Rec * pRec, int useTa)
+int PPViewPriceList::AddPriceList(PPID * pListID, PriceListTbl::Rec * pRec, int useTa)
 {
 	return Tbl.Add(pListID, pRec, useTa);
 }
 
-int SLAPI PPViewPriceList::SearchListByFilt(PriceListFilt * pFilt, PPID * pID, PriceListTbl::Rec * pRec)
+int PPViewPriceList::SearchListByFilt(PriceListFilt * pFilt, PPID * pID, PriceListTbl::Rec * pRec)
 {
 	PPID   quot_kind_id = (pFilt->Flags & PLISTF_BYQUOT) ? pFilt->QuotKindID : -1L;
 	PPID   user_id = (pFilt->Flags & PLISTF_USECOMMON) ? -1L : LConfig.UserID;
@@ -835,7 +835,7 @@ int SLAPI PPViewPriceList::SearchListByFilt(PriceListFilt * pFilt, PPID * pID, P
 		return PPDbSearchError();
 }
 
-int SLAPI PPViewPriceList::UpdateTempTbl(PriceLineIdent * pIdent)
+int PPViewPriceList::UpdateTempTbl(PriceLineIdent * pIdent)
 {
 	int    ok = -1;
 	PriceLineTbl::Rec rec;
@@ -909,7 +909,7 @@ int SLAPI PPViewPriceList::UpdateTempTbl(PriceLineIdent * pIdent)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, PriceLine);
 
-int SLAPI PPViewPriceList::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewPriceList::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -948,7 +948,7 @@ int SLAPI PPViewPriceList::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewPriceList::InitIterQuery(PPID grpID)
+int PPViewPriceList::InitIterQuery(PPID grpID)
 {
 	union {
 		PriceLineTbl::Key1 k1;
@@ -996,7 +996,7 @@ int SLAPI PPViewPriceList::InitIterQuery(PPID grpID)
 	return 1;
 }
 
-int SLAPI PPViewPriceList::InitIteration(IterOrder ord)
+int PPViewPriceList::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx = 0;
@@ -1028,7 +1028,7 @@ int SLAPI PPViewPriceList::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewPriceList::NextOuterIteration()
+int PPViewPriceList::NextOuterIteration()
 {
 	PPID   grp_id = 0;
 	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName_) > 0) {
@@ -1040,7 +1040,7 @@ int SLAPI PPViewPriceList::NextOuterIteration()
 }
 
 // AHTOXA { для печати ценников по списку товаров
-int SLAPI PPViewPriceList::NextIterationByList(PriceListViewItem * pItem)
+int PPViewPriceList::NextIterationByList(PriceListViewItem * pItem)
 {
 	int    ok = -1;
 	const  uint i = Counter;
@@ -1127,7 +1127,7 @@ int FASTCALL PPViewPriceList::NextIteration(PriceListViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewPriceList::RemoveLine(PriceLineIdent * pIdent)
+int PPViewPriceList::RemoveLine(PriceLineIdent * pIdent)
 {
 	int    ok = -1;
 	if(pIdent) {
@@ -1156,7 +1156,7 @@ int SLAPI PPViewPriceList::RemoveLine(PriceLineIdent * pIdent)
 	return ok;
 }
 
-int SLAPI PPViewPriceList::Print(const void * pHdr)
+int PPViewPriceList::Print(const void * pHdr)
 {
 	int    ok = 1, rpt_id;
 	ushort v = 0;
@@ -1221,7 +1221,7 @@ int SLAPI PPViewPriceList::Print(const void * pHdr)
 //
 //
 //
-int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -1354,7 +1354,7 @@ int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-DBQuery * SLAPI PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_PLINES;
 	int    by_all_quots = BIN(Filt.Flags & PLISTF_BYQUOT && Filt.QuotKindID == 0);
@@ -1412,7 +1412,7 @@ DBQuery * SLAPI PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-void SLAPI PPViewPriceList::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewPriceList::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & PLISTF_CALCREST) {
@@ -1666,7 +1666,7 @@ int PListFiltDialog::getDTS(PriceListFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1, valid_data = 0;
 	PListFiltDialog * dlg = 0;
@@ -1852,7 +1852,7 @@ IMPL_HANDLE_EVENT(PLineDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPViewPriceList::AddLine(PriceLineIdent * pIdent)
+int PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 {
 	int    ok = -1, valid_data = 0;
 	PriceLineTbl::Rec rec;
@@ -1887,7 +1887,7 @@ int SLAPI PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 	return ok;
 }
 
-int SLAPI PPViewPriceList::EditLine(PriceLineIdent * pIdent)
+int PPViewPriceList::EditLine(PriceLineIdent * pIdent)
 {
 	int    ok = -1, valid_data = 0;
 	PriceLineTbl::Rec rec;
@@ -1916,16 +1916,16 @@ int SLAPI PPViewPriceList::EditLine(PriceLineIdent * pIdent)
 
 class PPPriceListExporter {
 public:
-	SLAPI  PPPriceListExporter() : P_IE(0)
+	PPPriceListExporter() : P_IE(0)
 	{
 	}
-	SLAPI ~PPPriceListExporter()
+	~PPPriceListExporter()
 	{
 		ZDELETE(P_IE);
 	}
-	int    SLAPI Init(const PPPriceListImpExpParam * pParam);
-	int    SLAPI Export(const PriceListViewItem * pItem);
-	int    SLAPI DistributeFile()
+	int    Init(const PPPriceListImpExpParam * pParam);
+	int    Export(const PriceListViewItem * pItem);
+	int    DistributeFile()
 	{
 		CALLPTRMEMB(P_IE, CloseFile());
 		return Param.DistributeFile(0);
@@ -1937,7 +1937,7 @@ private:
 	PPObjGoods GObj;
 };
 
-int SLAPI PPPriceListExporter::Init(const PPPriceListImpExpParam * pParam)
+int PPPriceListExporter::Init(const PPPriceListImpExpParam * pParam)
 {
 	int    ok = 1;
 	RVALUEPTR(Param, pParam);
@@ -1953,7 +1953,7 @@ int SLAPI PPPriceListExporter::Init(const PPPriceListImpExpParam * pParam)
 	return ok;
 }
 
-int SLAPI PPPriceListExporter::Export(const PriceListViewItem * pItem)
+int PPPriceListExporter::Export(const PriceListViewItem * pItem)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2006,7 +2006,7 @@ int SLAPI PPPriceListExporter::Export(const PriceListViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewPriceList::SendPList()
+int PPViewPriceList::SendPList()
 {
 	int    ok = 1;
 	PriceListConfig plist_cfg;
@@ -2084,7 +2084,7 @@ int SLAPI PPViewPriceList::SendPList()
 	return ok;
 }
 
-int SLAPI PPViewPriceList::ConvertBasketToLines()
+int PPViewPriceList::ConvertBasketToLines()
 {
 	int    ok = -1, r;
 	PPObjGoodsBasket gb_obj;
@@ -2134,7 +2134,7 @@ int SLAPI PPViewPriceList::ConvertBasketToLines()
 	return ok;
 }
 
-int SLAPI PPViewPriceList::ConvertLinesToBasket()
+int PPViewPriceList::ConvertLinesToBasket()
 {
 	int    ok = -1, r = 0;
 	SelBasketParam param;
@@ -2268,7 +2268,7 @@ static SString & FASTCALL XmlDeclElement(const char * pFieldName, SString & rBuf
 	return rBuf;
 }
 
-int SLAPI PPViewPriceList::SendPListInXmlFormat()
+int PPViewPriceList::SendPListInXmlFormat()
 {
 	struct SellerInfo {
 		char Name[512];
@@ -2527,7 +2527,7 @@ struct PriceListExportSpecItem {
 	long   Size;
 };
 
-static int SLAPI ParsePriceListExportSpec(const char * pRowDef, const char * pVarStr, int defSpec, SArray * pSpec)
+static int ParsePriceListExportSpec(const char * pRowDef, const char * pVarStr, int defSpec, SArray * pSpec)
 {
 	SString row, row_name, sub;
 	StringSet ss(';', pRowDef);
@@ -2577,7 +2577,7 @@ static int SLAPI ParsePriceListExportSpec(const char * pRowDef, const char * pVa
 	return 1;
 }
 
-static int SLAPI PutSylkHeader(const SArray * pSpec, SylkWriter & sw, int rowNo)
+static int PutSylkHeader(const SArray * pSpec, SylkWriter & sw, int rowNo)
 {
 	PriceListExportSpecItem * p_item;
 	SString temp_buf;
@@ -2624,7 +2624,7 @@ static int SLAPI PutSylkHeader(const SArray * pSpec, SylkWriter & sw, int rowNo)
 	return 1;
 }
 
-int SLAPI PPViewPriceList::Export()
+int PPViewPriceList::Export()
 {
 	int    ok = 1, r;
 	PPPriceListExporter l_e;
@@ -2643,7 +2643,7 @@ int SLAPI PPViewPriceList::Export()
 	return ok;
 }
 
-int SLAPI PPViewPriceList::Export_Pre9302()
+int PPViewPriceList::Export_Pre9302()
 {
 	int    ok = -1;
 	uint   i;
@@ -2776,7 +2776,7 @@ int SLAPI PPViewPriceList::Export_Pre9302()
 	return ok;
 }
 
-int SLAPI PPViewPriceList::ExportUhtt()
+int PPViewPriceList::ExportUhtt()
 {
 	int    ok = -1;
 	const  PPID src_loc_id = Filt.LocID;
@@ -2827,7 +2827,7 @@ int FASTCALL ReadPriceListConfig(PriceListConfig * pCfg)
 	return r;
 }
 
-int SLAPI EditPriceListConfig()
+int EditPriceListConfig()
 {
 	int    ok = -1, is_new = 0;
 	PriceListConfig cfg;

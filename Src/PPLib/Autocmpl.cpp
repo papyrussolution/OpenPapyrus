@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PUGI::PUGI()
+PUGI::PUGI()
 {
 	THISZERO();
 }
@@ -30,7 +30,7 @@ PUGL::SetLotManufTimeParam::SetLotManufTimeParam() : Flags(0), DateOffsDays(0), 
 {
 }
 
-int SLAPI PUGL::SetLotManufTimeParam::FixedTimeToString(SString & rBuf) const
+int PUGL::SetLotManufTimeParam::FixedTimeToString(SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -41,7 +41,7 @@ int SLAPI PUGL::SetLotManufTimeParam::FixedTimeToString(SString & rBuf) const
 	return ok;
 }
 
-int SLAPI PUGL::SetLotManufTimeParam::FixedTimeFromString(const char * pStr)
+int PUGL::SetLotManufTimeParam::FixedTimeFromString(const char * pStr)
 {
 	int    ok = -1;
 	if(!isempty(pStr)) {
@@ -114,7 +114,7 @@ int SLAPI PUGL::SetLotManufTimeParam::FixedTimeFromString(const char * pStr)
 	return ok;
 }
 
-SLAPI PUGL::PUGL() : SArray(sizeof(PUGI)), OPcug(0), LocID(0), SupplAccSheetForSubstID(0), Dt(ZERODATE), CostByCalc(0), CalcCostPct(0)
+PUGL::PUGL() : SArray(sizeof(PUGI)), OPcug(0), LocID(0), SupplAccSheetForSubstID(0), Dt(ZERODATE), CostByCalc(0), CalcCostPct(0)
 {
 	ClearActions();
 }
@@ -141,7 +141,7 @@ void FASTCALL PUGL::SetHeader(const BillTbl::Rec * pBillRec)
 	Dt    = pBillRec ? pBillRec->Dt : ZERODATE;
 }
 
-int SLAPI PUGL::SearchGoods(PPID goodsID, uint * pPos, PUGI * pItem) const
+int PUGL::SearchGoods(PPID goodsID, uint * pPos, PUGI * pItem) const
 {
 	PUGI * p_item;
 	for(uint i = 0; enumItems(&i, (void **)&p_item);)
@@ -153,7 +153,7 @@ int SLAPI PUGL::SearchGoods(PPID goodsID, uint * pPos, PUGI * pItem) const
 	return 0;
 }
 
-int SLAPI PUGL::Add__(const PUGL * pList)
+int PUGL::Add__(const PUGL * pList)
 {
 	if(pList) {
 		PUGI * p_item;
@@ -164,7 +164,7 @@ int SLAPI PUGL::Add__(const PUGL * pList)
 	return 1;
 }
 
-int SLAPI PUGL::Add(const PUGI * pItem, LDATE dt)
+int PUGL::Add(const PUGI * pItem, LDATE dt)
 {
 	int    ok = -1;
 	PUGI   item, * p_item;
@@ -191,7 +191,7 @@ int SLAPI PUGL::Add(const PUGI * pItem, LDATE dt)
 	return ok;
 }
 
-int SLAPI PUGL::Add(const ILTI * pItem, PPID locID, uint itemPos, LDATE dt /* = ZERODATE */)
+int PUGL::Add(const ILTI * pItem, PPID locID, uint itemPos, LDATE dt /* = ZERODATE */)
 {
 	PUGI   item;
 	item.Pos = itemPos;
@@ -228,7 +228,7 @@ void FASTCALL PUGL::GetItemsLocList(PPIDArray & rList) const
 			rList.addUnique(p_item->LocID);
 }
 
-int SLAPI PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const // @v9.8.6 TSArray-->TSVector
+int PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -243,7 +243,7 @@ int SLAPI PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubst
 	return ok;
 }
 
-int SLAPI PUGL::IsTerminal() const
+int PUGL::IsTerminal() const
 {
 	PUGI * p_item;
 	for(uint i = 0; enumItems(&i, (void **)&p_item);)
@@ -252,7 +252,7 @@ int SLAPI PUGL::IsTerminal() const
 	return 1;
 }
 
-int SLAPI PUGL::AddAction(int16 a)
+int PUGL::AddAction(int16 a)
 {
 	if(ActionsCount < SIZEOFARRAY(Actions)) {
 		Actions[ActionsCount++] = a;
@@ -262,7 +262,7 @@ int SLAPI PUGL::AddAction(int16 a)
 		return 0;
 }
 
-void SLAPI PUGL::Clear()
+void PUGL::Clear()
 {
 	SupplAccSheetForSubstID = 0;
 	CostByCalc  = 0;
@@ -271,7 +271,7 @@ void SLAPI PUGL::Clear()
     SupplSubstList.freeAll();
 }
 
-void SLAPI PUGL::ClearActions()
+void PUGL::ClearActions()
 {
 	ActionsCount = 0;
 	memzero(Actions, sizeof(Actions));
@@ -547,7 +547,7 @@ int PuglDialog::setupList()
 	return ok;
 }
 
-int SLAPI ProcessUnsuffisientList(uint dlgID, PUGL * pList)
+int ProcessUnsuffisientList(uint dlgID, PUGL * pList)
 {
 	int    ret = PCUG_CANCEL;
 	int    valid_data = 0;
@@ -564,7 +564,7 @@ int SLAPI ProcessUnsuffisientList(uint dlgID, PUGL * pList)
 	return ret;
 }
 
-int SLAPI ProcessUnsuffisientGoods(PPID goods, PUGP param)
+int ProcessUnsuffisientGoods(PPID goods, PUGP param)
 {
 	uint   dlg_id;
 	if(param == pugpFull)
@@ -609,7 +609,7 @@ int SLAPI ProcessUnsuffisientGoods(PPID goods, PUGP param)
 }
 
 // @v9.4.0
-int SLAPI PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData)
+int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData)
 {
 	int    ok = 1;
 	int    r;
@@ -671,7 +671,7 @@ int SLAPI PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPB
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplBlock & rData)
+int PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplBlock & rData)
 {
 	int    ok = 1;
 	const double need_qtty = needQty;
@@ -705,7 +705,7 @@ int SLAPI PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplB
 	return ok;
 }
 
-int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList, int processUnsuffisientQtty, const GoodsReplacementArray * pGra)
+int PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList, int processUnsuffisientQtty, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
 	int    user_cancel = 0; // Признак того, что ошибка возникла по причине отказа пользователя. В этом случае функция возвращает -1
@@ -869,7 +869,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 	return ok;
 }
 
-int SLAPI PPBillPacket::InsertPartitialStruc()
+int PPBillPacket::InsertPartitialStruc()
 {
 	int    ok = -1;
 	if(oneof6(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GOODSMODIF)) {
@@ -1028,7 +1028,7 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 	return ok;
 }
 
-int SLAPI PPBillPacket::RemoveAutoComplRow(uint pos)
+int PPBillPacket::RemoveAutoComplRow(uint pos)
 {
 	uint   acpos = 0;
 	if(pos < GetTCount()) {
@@ -1045,7 +1045,7 @@ int SLAPI PPBillPacket::RemoveAutoComplRow(uint pos)
 	return 1;
 }
 
-int SLAPI PPBillPacket::UpdateAutoComplRow(uint pos, int pcug)
+int PPBillPacket::UpdateAutoComplRow(uint pos, int pcug)
 {
 	int    ok = 1;
 	uint   acpos = 0;
@@ -1065,7 +1065,7 @@ int SLAPI PPBillPacket::UpdateAutoComplRow(uint pos, int pcug)
 	return ok;
 }
 
-int SLAPI PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
+int PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 {
 	int    ok = 1;
 	uint   acpos;
@@ -1103,7 +1103,7 @@ int SLAPI PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 	return ok;
 }
 
-int SLAPI PPBillPacket::InitACPacket()
+int PPBillPacket::InitACPacket()
 {
 	int    ok = 1;
 	PPOprKind op_rec;

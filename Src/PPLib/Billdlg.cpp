@@ -6,10 +6,10 @@
 #pragma hdrstop
 
 // Prototype
-int SLAPI EditCurTransitBill(PPBillPacket *);
-int SLAPI EditBillTaxes(AmtList *, double amount);
-int SLAPI ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj);
-int SLAPI EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData);
+int EditCurTransitBill(PPBillPacket *);
+int EditBillTaxes(AmtList *, double amount);
+int ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj);
+int EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData);
 //
 //
 #define GRP_DBT    1
@@ -216,7 +216,7 @@ IMPL_HANDLE_EVENT(AccTurnDialog)
 //
 //
 //
-int SLAPI EditRentCondition(PPRentCondition * pRc)
+int EditRentCondition(PPRentCondition * pRc)
 {
 	class RentConditionDlg : public TDialog {
 		DECL_DIALOG_DATA(PPRentCondition);
@@ -351,7 +351,7 @@ private:
 	ObjTagList TagL;
 };
 
-int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * pTagList, int asFilt)
+int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * pTagList, int asFilt)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -516,7 +516,7 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
 	return ok;
 }
 
-int SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID * pOpID, PPID * pLocID)
+int BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID * pOpID, PPID * pLocID)
 {
 	class BillPreludeDialog : public TDialog {
 	public:
@@ -569,7 +569,7 @@ int SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, 
 
 class BillDialog : public PPListDialog {
 public:
-	friend int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags);
+	friend int EditGoodsBill(PPBillPacket * pPack, long egbFlags);
 
 	BillDialog(uint dlgID, PPBillPacket *, int isEdit);
 	int    setDTS(PPBillPacket *);
@@ -650,7 +650,7 @@ private:
 	SPaintToolBox Ptb;
 };
 
-static uint SLAPI GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
+static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 {
 	PPOprKind op_rec;
 	*pPrnForm = 0;
@@ -706,7 +706,7 @@ static uint SLAPI GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 //       В случае редактирования некоторые поля блокируются.
 //   3 - не выводить сообщение о том что документ был модифицирован
 //
-int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
+int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 {
 	MemLeakTracer mlt;
 	int    ok = -1, r;
@@ -978,12 +978,12 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 
 IMPL_CMPFUNC(PPLinkFile, i1, i2) { return stricmp866(static_cast<const PPLinkFile *>(i1)->Path, static_cast<const PPLinkFile *>(i2)->Path); }
 
-SLAPI PPLinkFile::PPLinkFile()
+PPLinkFile::PPLinkFile()
 {
 	Init(0);
 }
 
-int SLAPI PPLinkFile::Init(const char * pPath)
+int PPLinkFile::Init(const char * pPath)
 {
 	int    ok = 0;
 	Id = 0;
@@ -1000,7 +1000,7 @@ int SLAPI PPLinkFile::Init(const char * pPath)
 	return ok;
 }
 
-size_t SLAPI PPLinkFile::Size() const
+size_t PPLinkFile::Size() const
 {
 	return sizeof(Id) + sizeof(Flags) + sizeof(uint32) + Ext.Len() + 1 + sizeof(uint32) +
 		Path.Len() + 1 + sizeof(uint32) + Description.Len() + 1;
@@ -1009,7 +1009,7 @@ size_t SLAPI PPLinkFile::Size() const
 	// @v10.3.2 sizeof(Path.Len())-->sizeof(uint32)
 }
 
-int SLAPI PPLinkFile::CopyTo(void ** ppBuf)
+int PPLinkFile::CopyTo(void ** ppBuf)
 {
 	const uint32 ext_len  = Ext.Len()  + 1; // @v10.3.2 size_t-->const uint32
 	const uint32 path_len = Path.Len() + 1; // @v10.3.2 size_t-->const uint32
@@ -1044,7 +1044,7 @@ int FASTCALL PPLinkFile::CopyFrom(const void * pBuf)
 	return 1;
 }
 
-SLAPI PPLinkFilesArray::PPLinkFilesArray(const char * pStoreDir /*=0*/) : TSCollection<PPLinkFile> ()
+PPLinkFilesArray::PPLinkFilesArray(const char * pStoreDir /*=0*/) : TSCollection<PPLinkFile> ()
 {
 	Init(pStoreDir);
 }
@@ -1061,7 +1061,7 @@ PPLinkFilesArray & FASTCALL PPLinkFilesArray::operator = (const PPLinkFilesArray
 	return *this;
 }
 
-int SLAPI PPLinkFilesArray::Init(const char * pStoreDir)
+int PPLinkFilesArray::Init(const char * pStoreDir)
 {
 	SString temp_buf;
 	StoreDir.Z();
@@ -1078,7 +1078,7 @@ int SLAPI PPLinkFilesArray::Init(const char * pStoreDir)
 	return 1;
 }
 
-int SLAPI PPLinkFilesArray::CreateExcelFile(const char * pPath)
+int PPLinkFilesArray::CreateExcelFile(const char * pPath)
 {
 	int    ok = 1;
 	ComExcelApp * p_app = new ComExcelApp;
@@ -1096,7 +1096,7 @@ int SLAPI PPLinkFilesArray::CreateExcelFile(const char * pPath)
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::CreateWordFile(const char * pPath)
+int PPLinkFilesArray::CreateWordFile(const char * pPath)
 {
 	int    ok = 1;
 	enum {
@@ -1142,7 +1142,7 @@ int SLAPI PPLinkFilesArray::CreateWordFile(const char * pPath)
     return ok;
 }
 
-int SLAPI PPLinkFilesArray::AddNewByExt(const char * pExt, const char * pDescr, uint * pPos)
+int PPLinkFilesArray::AddNewByExt(const char * pExt, const char * pDescr, uint * pPos)
 {
 	int    ok = 1;
 	SString store_path;
@@ -1176,7 +1176,7 @@ int SLAPI PPLinkFilesArray::AddNewByExt(const char * pExt, const char * pDescr, 
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::Add(PPLinkFile * pLink, uint * pPos)
+int PPLinkFilesArray::Add(PPLinkFile * pLink, uint * pPos)
 {
 	int    ok = 0;
 	if(pLink && StoreDir.Len() && pLink->Path.Len() && lsearch(pLink, 0, PTR_CMPFUNC(PPLinkFile)) <= 0 &&
@@ -1198,7 +1198,7 @@ int SLAPI PPLinkFilesArray::Add(PPLinkFile * pLink, uint * pPos)
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::Remove(uint pos)
+int PPLinkFilesArray::Remove(uint pos)
 {
 	int    ok = 0;
 	if(pos < getCount()) {
@@ -1211,7 +1211,7 @@ int SLAPI PPLinkFilesArray::Remove(uint pos)
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
+int PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
 {
 	for(long i = getCount(); i > 0; i--) {
 		uint   pos = 0;
@@ -1227,7 +1227,7 @@ int SLAPI PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
 #define LOW_APP_VER  1
 #define HIGH_APP_VER 20
 
-int SLAPI PPLinkFilesArray::Edit(uint pos)
+int PPLinkFilesArray::Edit(uint pos)
 {
 	int    ok = -1;
 	if(pos < getCount()) {
@@ -1240,7 +1240,7 @@ int SLAPI PPLinkFilesArray::Edit(uint pos)
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::EditDescr(uint pos)
+int PPLinkFilesArray::EditDescr(uint pos)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < getCount()) {
@@ -1258,7 +1258,7 @@ int SLAPI PPLinkFilesArray::EditDescr(uint pos)
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::GetFilePath(uint pos, SString & aFilePath) const
+int PPLinkFilesArray::GetFilePath(uint pos, SString & aFilePath) const
 {
 	int    ok = 0;
 	if(pos >= 0 && pos < getCount()) {
@@ -1269,7 +1269,7 @@ int SLAPI PPLinkFilesArray::GetFilePath(uint pos, SString & aFilePath) const
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::GetFilePath(PPID id, const char * pExt, SString & rFilePath) const
+int PPLinkFilesArray::GetFilePath(PPID id, const char * pExt, SString & rFilePath) const
 {
 	SString data_path, fname;
 	fname.CatLongZ(id, 8);
@@ -1282,7 +1282,7 @@ int SLAPI PPLinkFilesArray::GetFilePath(PPID id, const char * pExt, SString & rF
 	return 1;
 }
 
-PPID SLAPI PPLinkFilesArray::GetNewId() const
+PPID PPLinkFilesArray::GetNewId() const
 {
 	PPID   id = 0;
 	PPBillConfig cfg;
@@ -1308,7 +1308,7 @@ PPID SLAPI PPLinkFilesArray::GetNewId() const
 	return id;
 }
 
-int SLAPI PPLinkFilesArray::ReadFromProp(PPID billID)
+int PPLinkFilesArray::ReadFromProp(PPID billID)
 {
 	freeAll();
 
@@ -1334,7 +1334,7 @@ int SLAPI PPLinkFilesArray::ReadFromProp(PPID billID)
 	return ok;
 }
 
-int SLAPI PPLinkFilesArray::WriteToProp(PPID billID, int useTa)
+int PPLinkFilesArray::WriteToProp(PPID billID, int useTa)
 {
 	int    ok = 1;
 	char * p_buf = 0;
@@ -3003,7 +3003,7 @@ static void FASTCALL SetBillFlagsCtrl(TDialog * dlg, uint ctlID, long f)
 	dlg->SetClusterData(ctlID, f);
 }
 
-int SLAPI PPObjBill::ViewBillInfo(PPID billID)
+int PPObjBill::ViewBillInfo(PPID billID)
 {
 	class BillInfoDialog : public AmtListDialog {
 	public:
@@ -3103,7 +3103,7 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 	return ok;
 }
 
-int SLAPI ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID)
+int ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID)
 {
 	int       ok = -1;
 	TDialog * dlg = new TDialog(DLG_BILLF);
@@ -3141,7 +3141,7 @@ int SLAPI ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pSt
 //
 //
 //
-int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
+int PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 {
 	class FreightDialog : public TDialog {
 	public:
@@ -3373,7 +3373,7 @@ IMPL_CMPFUNC(PPBillStatus_Rank_Name, i1, i2)
 	return r;
 }
 
-int SLAPI PPObjBill::EditBillStatus(PPID billID)
+int PPObjBill::EditBillStatus(PPID billID)
 {
 	class SelBillStatusDialog : public PPListDialog {
 	public:
@@ -3596,11 +3596,11 @@ int PaymPlanDialog::delItem(long pos, long id)
 	return Data.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
-int SLAPI EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData) { DIALOG_PROC_BODY_P1(PaymPlanDialog, pPack, pData); }
+int EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData) { DIALOG_PROC_BODY_P1(PaymPlanDialog, pPack, pData); }
 //
 //
 //
-int SLAPI PPObjBill::EditBillFreight(PPID billID)
+int PPObjBill::EditBillFreight(PPID billID)
 {
 	int    ok = -1;
 	BillTbl::Rec bill_rec;
@@ -3672,7 +3672,7 @@ int SLAPI PPObjBill::EditBillFreight(PPID billID)
 	return ok;
 }
 
-int SLAPI PPObjBill::EditBillExtData(PPID billID)
+int PPObjBill::EditBillExtData(PPID billID)
 {
 	int    ok = -1;
 	BillExtDialog * dlg = 0;
@@ -3836,7 +3836,7 @@ IMPL_HANDLE_EVENT(LotQCertDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjBill::EditLotExtData(PPID lotID)
+int PPObjBill::EditLotExtData(PPID lotID)
 {
 	int    ok = -1;
 	ReceiptTbl::Rec lot_rec;
@@ -4033,7 +4033,7 @@ IMPL_HANDLE_EVENT(LotInfoDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjBill::EditLotSystemInfo(PPID lotID)
+int PPObjBill::EditLotSystemInfo(PPID lotID)
 {
 	int    ok = -1;
 	ReceiptTbl::Rec lot_rec;

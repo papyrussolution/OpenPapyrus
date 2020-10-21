@@ -20,7 +20,7 @@
 #ifndef CONFLICTS_H_
 #define CONFLICTS_H_
 
-void conflicts_solve(void);
+void conflicts_solve();
 /**
  * Update state numbers recorded in internal arrays such that:
  *   - \c nstates_old is the old number of states.
@@ -31,10 +31,10 @@ void conflicts_solve(void);
  *   - The numerical order of the remaining states has not changed.
  */
 void conflicts_update_state_numbers(state_number old_to_new[], state_number nstates_old);
-void conflicts_print(void);
-int conflicts_total_count(void);
+void conflicts_print();
+int conflicts_total_count();
 void conflicts_output(FILE * out);
-void conflicts_free(void);
+void conflicts_free();
 bool has_conflicts(const state * s);
 /* Were there conflicts? */
 extern int expected_sr_conflicts;

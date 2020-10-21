@@ -8,7 +8,12 @@
 #pragma hdrstop
 #include <charry.h>
 
-IMPLEMENT_PPFILT_FACTORY(RegisterType); SLAPI RegisterTypeFilt::RegisterTypeFilt() : PPBaseFilt(PPFILT_REGISTERTYPE, 0, 0)
+RegTypeViewItem::RegTypeViewItem() : ID(0), RegOrgKind(0), PersonKindID(0), ExpiryPrd(0)
+{
+	PTR32(Format)[0] = 0;
+}
+
+IMPLEMENT_PPFILT_FACTORY(RegisterType); RegisterTypeFilt::RegisterTypeFilt() : PPBaseFilt(PPFILT_REGISTERTYPE, 0, 0)
 {
 	SetFlatChunk(offsetof(RegisterTypeFilt, ReserveStart), offsetof(RegisterTypeFilt, ReserveEnd) - offsetof(RegisterTypeFilt, ReserveStart));
 	Init(1, 0);
@@ -20,16 +25,16 @@ RegisterTypeFilt & FASTCALL RegisterTypeFilt::operator = (const RegisterTypeFilt
 	return *this;
 }
 
-SLAPI PPViewRegisterType::PPViewRegisterType() : PPView(&ObjRegT, &Filt, PPVIEW_REGISTERTYPE), Data(sizeof(RegTypeViewItem))
-{
-	ImplementFlags |= (implBrowseArray|implDontEditNullFilter);
-}
-
-SLAPI PPViewRegisterType::~PPViewRegisterType()
+PPViewRegisterType::PPViewRegisterType() : 
+	PPView(&ObjRegT, &Filt, PPVIEW_REGISTERTYPE, implBrowseArray|implDontEditNullFilter, 0), Data(sizeof(RegTypeViewItem))
 {
 }
 
-int SLAPI PPViewRegisterType::CheckForFilt(const PPRegisterTypePacket * pPack) const
+PPViewRegisterType::~PPViewRegisterType()
+{
+}
+
+int PPViewRegisterType::CheckForFilt(const PPRegisterTypePacket * pPack) const
 {
 	if(pPack) {
 		const long st = (pPack->Rec.Flags & (REGTF_LEGAL|REGTF_PRIVATE));
@@ -50,7 +55,7 @@ int FASTCALL PPViewRegisterType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -84,7 +89,7 @@ int SLAPI PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPViewRegisterType::MakeListEntry(const PPRegisterTypePacket * pPack, RegTypeViewItem * pItem)
+int PPViewRegisterType::MakeListEntry(const PPRegisterTypePacket * pPack, RegTypeViewItem * pItem)
 {
 	int    ok = -1;
 	if(pPack && pItem) {
@@ -100,7 +105,7 @@ int SLAPI PPViewRegisterType::MakeListEntry(const PPRegisterTypePacket * pPack, 
 //
 //
 //
-int SLAPI PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class RegTypeFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(RegisterTypeFilt);
@@ -147,7 +152,7 @@ int SLAPI PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewRegisterType::Init_(const PPBaseFilt * pFilt)
+int PPViewRegisterType::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -156,7 +161,7 @@ int SLAPI PPViewRegisterType::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewRegisterType::InitIteration()
+int PPViewRegisterType::InitIteration()
 {
 	int    ok = 1;
 	Counter.Init(Data.getCount());
@@ -174,12 +179,12 @@ int FASTCALL PPViewRegisterType::NextIteration(RegTypeViewItem * pItem)
 	return ok;
 }
 
-void SLAPI PPViewRegisterType::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewRegisterType::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewRegisterType::GetDataForBrowser, this));
 }
 
-SArray * SLAPI PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(Data);
 	uint   brw_id = BROWSER_REGISTERTYPE;
@@ -187,7 +192,7 @@ SArray * SLAPI PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * p
 	return p_array;
 }
 
-int SLAPI PPViewRegisterType::Transmit(int isCharry)
+int PPViewRegisterType::Transmit(int isCharry)
 {
 	int    ok = -1;
 	PPWait(1);
@@ -216,7 +221,7 @@ int SLAPI PPViewRegisterType::Transmit(int isCharry)
 	return ok;
 }
 
-int SLAPI PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPIDArray  id_list;
@@ -264,16 +269,15 @@ int SLAPI PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 	return ok;
 }
 
-int SLAPI PPViewRegisterType::FetchData(long id)
+int PPViewRegisterType::FetchData(long id)
 {
 	int    ok = 1;
-	RegTypeViewItem item;
 	if(id == 0) {
 		Data.freeAll();
 		for(PPID id = 0; ObjRegT.EnumItems(&id, 0) > 0;) {
 			PPRegisterTypePacket pack;
 			if(ObjRegT.GetPacket(id, &pack) > 0 && CheckForFilt(&pack) > 0) {
-				MEMSZERO(item);
+				RegTypeViewItem item;
 				MakeListEntry(&pack, &item);
 				THROW_SL(Data.insert(&item));
 			}
@@ -284,7 +288,7 @@ int SLAPI PPViewRegisterType::FetchData(long id)
 		int found = BIN(Data.lsearch(&id, &pos, CMPF_LONG) > 0);
 		PPRegisterTypePacket pack;
 		if(ObjRegT.GetPacket(id, &pack) > 0 && CheckForFilt(&pack) > 0) {
-			MEMSZERO(item);
+			RegTypeViewItem item;
 			MakeListEntry(&pack, &item);
 			if(found)
 				*static_cast<RegTypeViewItem *>(Data.at(pos)) = item;

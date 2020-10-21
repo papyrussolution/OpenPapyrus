@@ -19,9 +19,9 @@ public:
 		char   Barcode[32];    // #160
 		char   Serial[32];     // #192
 	};
-	static SArray * SLAPI CreateArray();
+	static SArray * CreateArray();
 	static int FASTCALL AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest);
-	static int SLAPI SortArray(SArray * pAry, int f);
+	static int SortArray(SArray * pAry, int f);
 	PickLotBrowser(SArray * pList);
 private:
 	DECL_HANDLE_EVENT;
@@ -29,7 +29,7 @@ private:
 };
 //
 //
-/*static*/SArray * SLAPI PickLotBrowser::CreateArray()
+/*static*/SArray * PickLotBrowser::CreateArray()
 {
 	SArray * p_ary = new SArray(sizeof(Entry));
 	if(!p_ary)
@@ -79,12 +79,12 @@ IMPL_CMPFUNC(PickLotBrowser_Entry_GoodsName, i1, i2)
 	return stricmp866(e1->GoodsName, e2->GoodsName);
 }
 
-/*static*/int SLAPI PickLotBrowser::SortArray(SArray * pAry, int f)
+/*static*/int PickLotBrowser::SortArray(SArray * pAry, int f)
 {
 	return pAry ? (pAry->sort(PTR_CMPFUNC(PickLotBrowser_Entry_GoodsName)), 1) : 0;
 }
 
-SLAPI PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PICKLOT, pList), P_BObj(BillObj)
+PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PICKLOT, pList), P_BObj(BillObj)
 {
 }
 
@@ -127,7 +127,7 @@ PickLotParam::PickLotParam(int mode) : Mode(mode), LocID(0), Price(0.0)
 {
 }
 
-int SLAPI PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
+int PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -222,7 +222,7 @@ int SLAPI PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 //
 //
 //
-SLAPI TIDlgInitData::TIDlgInitData()
+TIDlgInitData::TIDlgInitData()
 {
 	THISZERO();
 }

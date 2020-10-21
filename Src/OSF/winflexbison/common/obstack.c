@@ -17,11 +17,9 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
+//#include <obstack.h>
 #ifdef _LIBC
-	#include <obstack.h>
 	#include <shlib-compat.h>
-#else
-	#include "obstack.h"
 #endif
 
 /* NOTE BEFORE MODIFYING THIS FILE: This version number must be
@@ -91,11 +89,11 @@ void (* obstack_alloc_failed_handler) (void) = print_and_abort;
 
 /* Exit value used when 'print_and_abort' is used.  */
 //#include <stdlib.h>
-# ifdef _LIBC
-int obstack_exit_failure = EXIT_FAILURE;
+#ifdef _LIBC
+	int obstack_exit_failure = EXIT_FAILURE;
 #else
-#  include "exitfail.h"
-#  define obstack_exit_failure exit_failure
+	//#include "exitfail.h"
+	#define obstack_exit_failure exit_failure
 #endif
 
 # ifdef _LIBC

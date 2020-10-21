@@ -10,7 +10,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing) : AsscType(asscTyp), ObjType(objType), Flags(0)
+GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing) : AsscType(asscTyp), ObjType(objType), Flags(0)
 {
 	SETFLAG(Flags, fDup, dupAllowing);
 	// @v10.7.1 @ctr MEMSZERO(NoaRec);
@@ -25,19 +25,19 @@ SLAPI GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowi
 	ENDCATCH
 }
 
-int   SLAPI GoodsToObjAssoc::IsValid() const { return !BIN(Flags & fError); }
-SLAPI GoodsToObjAssoc::operator const LAssocArray & () const { return List; }
-uint  SLAPI GoodsToObjAssoc::GetCount() const { return List.getCount(); }
+int   GoodsToObjAssoc::IsValid() const { return !BIN(Flags & fError); }
+GoodsToObjAssoc::operator const LAssocArray & () const { return List; }
+uint  GoodsToObjAssoc::GetCount() const { return List.getCount(); }
 const LAssoc & FASTCALL GoodsToObjAssoc::at(uint pos) const { return List.at(pos); }
-int   SLAPI GoodsToObjAssoc::Save() { return PPRef->Assc.AddArray(AsscType, &List, 1, 1); }
+int   GoodsToObjAssoc::Save() { return PPRef->Assc.AddArray(AsscType, &List, 1, 1); }
 
-int SLAPI GoodsToObjAssoc::Load()
+int GoodsToObjAssoc::Load()
 {
 	List.freeAll();
 	return PPRef->Assc.GetList(AsscType, &List);
 }
 
-SString & SLAPI GoodsToObjAssoc::GetKeyName(PPID id, SString & rBuf)
+SString & GoodsToObjAssoc::GetKeyName(PPID id, SString & rBuf)
 {
 	Goods2Tbl::Rec goods_rec;
 	rBuf.Z();
@@ -51,7 +51,7 @@ SString & SLAPI GoodsToObjAssoc::GetKeyName(PPID id, SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI GoodsToObjAssoc::Add(PPID goodsID, PPID objID, uint * pPos)
+int GoodsToObjAssoc::Add(PPID goodsID, PPID objID, uint * pPos)
 {
 	int    ok = 1;
 	if(List.SearchPair(goodsID, objID, 0))
@@ -64,7 +64,7 @@ int SLAPI GoodsToObjAssoc::Add(PPID goodsID, PPID objID, uint * pPos)
 }
 
 #if 0 // {
-int SLAPI GoodsToObjAssoc::Update(PPID goodsID, PPID objID, uint * pPos)
+int GoodsToObjAssoc::Update(PPID goodsID, PPID objID, uint * pPos)
 {
 	long   obj_id = 0;
 	uint   pos = 0;
@@ -80,14 +80,14 @@ int SLAPI GoodsToObjAssoc::Update(PPID goodsID, PPID objID, uint * pPos)
 }
 #endif // } 0
 
-int SLAPI GoodsToObjAssoc::SearchPair(PPID goodsID, PPID objID, uint * pPos) const
+int GoodsToObjAssoc::SearchPair(PPID goodsID, PPID objID, uint * pPos) const
 	{ return List.SearchPair(goodsID, objID, pPos); }
-int SLAPI GoodsToObjAssoc::Search(PPID goodsID, PPID * pObjID, uint * pPos) const
+int GoodsToObjAssoc::Search(PPID goodsID, PPID * pObjID, uint * pPos) const
 	{ return List.Search(goodsID, pObjID, pPos); }
-int SLAPI GoodsToObjAssoc::GetListByObj(PPID objID, PPIDArray & rGoodsList) const
+int GoodsToObjAssoc::GetListByObj(PPID objID, PPIDArray & rGoodsList) const
 	{ return List.GetListByVal(objID, rGoodsList); }
 
-int SLAPI GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
+int GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 {
 	int    ok = 0;
 	if(pos < List.getCount()) {
@@ -111,7 +111,7 @@ int SLAPI GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 	return ok;
 }
 
-int SLAPI GoodsToObjAssoc::Remove(PPID goodsID, PPID objID)
+int GoodsToObjAssoc::Remove(PPID goodsID, PPID objID)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -122,7 +122,7 @@ int SLAPI GoodsToObjAssoc::Remove(PPID goodsID, PPID objID)
 	return ok;
 }
 
-int SLAPI GoodsToObjAssoc::GetListByGoods(PPID goodsID, PPIDArray & rObjList)
+int GoodsToObjAssoc::GetListByGoods(PPID goodsID, PPIDArray & rObjList)
 {
 	Goods2Tbl::Rec goods_rec;
 	PPIDArray temp_list;
@@ -136,7 +136,7 @@ int SLAPI GoodsToObjAssoc::GetListByGoods(PPID goodsID, PPIDArray & rObjList)
 	return temp_list.getCount() ? 1 : -1;
 }
 
-int SLAPI GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID)
+int GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID)
 {
 	int    ok = -1;
 	PPID   obj_id = 0;
@@ -162,21 +162,20 @@ int SLAPI GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID)
 //
 // @ModuleDef(PPViewGoodsToObjAssoc)
 //
-IMPLEMENT_PPFILT_FACTORY(GoodsToObjAssoc); SLAPI GoodsToObjAssocFilt::GoodsToObjAssocFilt() :
+IMPLEMENT_PPFILT_FACTORY(GoodsToObjAssoc); GoodsToObjAssocFilt::GoodsToObjAssocFilt() :
 	PPBaseFilt(PPFILT_GOODSTOOBJASSOC, 0, 1), P_LocF(0) // @v8.1.9 ver 0-->1
 {
 	SetFlatChunk(offsetof(GoodsToObjAssocFilt, ReserveStart),
 		offsetof(GoodsToObjAssocFilt, Reserve)-offsetof(GoodsToObjAssocFilt, ReserveStart)+sizeof(Reserve));
-	SetBranchBaseFiltPtr(PPFILT_LOCATION, offsetof(GoodsToObjAssocFilt, P_LocF)); // @v8.1.9
+	SetBranchBaseFiltPtr(PPFILT_LOCATION, offsetof(GoodsToObjAssocFilt, P_LocF));
 	Init(1, 0);
 }
 
-SLAPI PPViewGoodsToObjAssoc::PPViewGoodsToObjAssoc() : PPView(0, &Filt, PPVIEW_GOODSTOOBJASSOC), P_Assoc(0), P_AsscObj(0)
+PPViewGoodsToObjAssoc::PPViewGoodsToObjAssoc() : PPView(0, &Filt, PPVIEW_GOODSTOOBJASSOC, implBrowseArray, 0), P_Assoc(0), P_AsscObj(0)
 {
-	ImplementFlags |= implBrowseArray;
 }
 
-SLAPI PPViewGoodsToObjAssoc::~PPViewGoodsToObjAssoc()
+PPViewGoodsToObjAssoc::~PPViewGoodsToObjAssoc()
 {
 	delete P_Assoc;
 	delete P_AsscObj;
@@ -186,12 +185,12 @@ SLAPI PPViewGoodsToObjAssoc::~PPViewGoodsToObjAssoc()
 	}
 }
 
-int SLAPI PPViewGoodsToObjAssoc::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewGoodsToObjAssoc::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	return 1;
 }
 
-PPBaseFilt * SLAPI PPViewGoodsToObjAssoc::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsToObjAssoc::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_GOODSTOOBJASSOC, &p_base_filt)) {
@@ -241,7 +240,7 @@ PPBaseFilt * SLAPI PPViewGoodsToObjAssoc::CreateFilt(void * extraPtr) const
 	return p_base_filt;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewGoodsToObjAssoc::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	ZDELETE(P_AsscObj);
@@ -253,7 +252,7 @@ int SLAPI PPViewGoodsToObjAssoc::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::InitIteration()
+int PPViewGoodsToObjAssoc::InitIteration()
 {
 	int    ok = 1;
 	Counter.Init(P_Assoc ? P_Assoc->GetCount() : 0);
@@ -289,7 +288,7 @@ int FASTCALL PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pIte
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -314,12 +313,12 @@ int SLAPI PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	return ok;
 }
 
-void SLAPI PPViewGoodsToObjAssoc::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewGoodsToObjAssoc::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsToObjAssoc::GetDataForBrowser, this));
 }
 
-SArray * SLAPI PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_GOODSTOOBJASSC;
 	SArray * p_array = P_Assoc ? new SArray(*P_Assoc) : 0;
@@ -336,7 +335,7 @@ SArray * SLAPI PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString 
 	return p_array;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, int newItem)
+int PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, void * extraPtr, int newItem)
 {
 	int    ok = -1;
 	PPObjGoods goods_obj;
@@ -382,7 +381,7 @@ int SLAPI PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objTyp
 	return ok;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
+int PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	LAssoc assc;
@@ -401,7 +400,7 @@ int SLAPI PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * pHdr)
+int PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * pHdr)
 {
 	int    ok = -1;
 	if(pHdr && P_Assoc) {
@@ -436,7 +435,7 @@ int SLAPI PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * p
 	return ok;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::DeleteItem(const BrwHdr * pHdr)
+int PPViewGoodsToObjAssoc::DeleteItem(const BrwHdr * pHdr)
 {
 	int    ok = -1;
 	if(pHdr && P_Assoc) {
@@ -449,7 +448,7 @@ int SLAPI PPViewGoodsToObjAssoc::DeleteItem(const BrwHdr * pHdr)
 	return ok;
 }
 
-void SLAPI PPViewGoodsToObjAssoc::UpdateOnEdit(PPViewBrowser * pBrw)
+void PPViewGoodsToObjAssoc::UpdateOnEdit(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
@@ -460,7 +459,7 @@ void SLAPI PPViewGoodsToObjAssoc::UpdateOnEdit(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -490,7 +489,7 @@ int SLAPI PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, 
 	return ok;
 }
 
-int SLAPI ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, void * extraPtr, long options)
+int ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, void * extraPtr, long options)
 {
 	GoodsToObjAssocFilt flt;
 	flt.ObjType = objType;
@@ -501,7 +500,7 @@ int SLAPI ViewGoodsToObjAssoc(PPID objType, PPID objID, PPID asscType, void * ex
 	return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, &flt, 1, 0);
 }
 
-int SLAPI ViewGoodsToLocAssoc(PPID locID, PPID asscType, const LocationFilt * pLocFilt, long options)
+int ViewGoodsToLocAssoc(PPID locID, PPID asscType, const LocationFilt * pLocFilt, long options)
 {
 	GoodsToObjAssocFilt flt;
 	flt.ObjType = PPOBJ_LOCATION;
@@ -514,16 +513,16 @@ int SLAPI ViewGoodsToLocAssoc(PPID locID, PPID asscType, const LocationFilt * pL
 	return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, &flt, 1, 0);
 }
 
-int SLAPI ViewGoodsToObjAssoc(long extraParam) { return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, 0, 1, (void *)extraParam); }
+int ViewGoodsToObjAssoc(long extraParam) { return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, 0, 1, (void *)extraParam); }
 //
 //
 //
-SLAPI PPNamedObjAssoc2::PPNamedObjAssoc2()
+PPNamedObjAssoc2::PPNamedObjAssoc2()
 {
 	THISZERO();
 }
 
-SLAPI PPObjNamedObjAssoc::PPObjNamedObjAssoc(void * extraPtr) : PPObjReference(PPOBJ_NAMEDOBJASSOC, extraPtr)
+PPObjNamedObjAssoc::PPObjNamedObjAssoc(void * extraPtr) : PPObjReference(PPOBJ_NAMEDOBJASSOC, extraPtr)
 {
 }
 
@@ -603,7 +602,7 @@ void NamedObjAssocDialog::SetupScndObjGrp()
 	disableCtrl(CTLSEL_NOBJASSC_SCNDGRP, dsbl_grp);
 }
 
-int SLAPI PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
+int PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	PPNamedObjAssoc rec;
@@ -631,7 +630,7 @@ int SLAPI PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjNamedObjAssoc::Browse(void * extraPtr)
+int PPObjNamedObjAssoc::Browse(void * extraPtr)
 {
 	class NamedObjAssocView : public ObjViewDialog {
 	public:

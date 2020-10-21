@@ -662,22 +662,19 @@ static inline gl_list_node_t gl_list_nx_add_at(gl_list_t list, size_t position, 
 #define gl_list_remove_node gl_list_remove_node_inline
 static inline bool gl_list_remove_node(gl_list_t list, gl_list_node_t node)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->remove_node(list, node);
+	return ((const struct gl_list_impl_base *)list)->vtable->remove_node(list, node);
 }
 
 #define gl_list_remove_at gl_list_remove_at_inline
 static inline bool gl_list_remove_at(gl_list_t list, size_t position)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->remove_at(list, position);
+	return ((const struct gl_list_impl_base *)list)->vtable->remove_at(list, position);
 }
 
 #define gl_list_remove gl_list_remove_inline
 static inline bool gl_list_remove(gl_list_t list, const void * elt)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->remove_elt(list, elt);
+	return ((const struct gl_list_impl_base *)list)->vtable->remove_elt(list, elt);
 }
 
 #define gl_list_free gl_list_free_inline
@@ -689,15 +686,13 @@ static inline void gl_list_free(gl_list_t list)
 #define gl_list_iterator gl_list_iterator_inline
 static inline gl_list_iterator_t gl_list_iterator(gl_list_t list)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->iterator(list);
+	return ((const struct gl_list_impl_base *)list)->vtable->iterator(list);
 }
 
 #define gl_list_iterator_from_to gl_list_iterator_from_to_inline
 static inline gl_list_iterator_t gl_list_iterator_from_to(gl_list_t list, size_t start_index, size_t end_index)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->iterator_from_to(list, start_index, end_index);
+	return ((const struct gl_list_impl_base *)list)->vtable->iterator_from_to(list, start_index, end_index);
 }
 
 #define gl_list_iterator_next gl_list_iterator_next_inline
@@ -716,8 +711,7 @@ static inline void gl_list_iterator_free(gl_list_iterator_t * iterator)
 #define gl_sortedlist_search gl_sortedlist_search_inline
 static inline gl_list_node_t gl_sortedlist_search(gl_list_t list, gl_listelement_compar_fn compar, const void * elt)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->sortedlist_search(list, compar, elt);
+	return ((const struct gl_list_impl_base *)list)->vtable->sortedlist_search(list, compar, elt);
 }
 
 #define gl_sortedlist_search_from_to gl_sortedlist_search_from_to_inline
@@ -727,35 +721,26 @@ static inline gl_list_node_t gl_sortedlist_search_from_to(gl_list_t list,
     size_t end_index,
     const void * elt)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->sortedlist_search_from_to(list, compar, start_index, end_index,
-		   elt);
+	return ((const struct gl_list_impl_base *)list)->vtable->sortedlist_search_from_to(list, compar, start_index, end_index, elt);
 }
 
 #define gl_sortedlist_indexof gl_sortedlist_indexof_inline
 static inline size_t gl_sortedlist_indexof(gl_list_t list, gl_listelement_compar_fn compar, const void * elt)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->sortedlist_indexof(list, compar, elt);
+	return ((const struct gl_list_impl_base *)list)->vtable->sortedlist_indexof(list, compar, elt);
 }
 
 #define gl_sortedlist_indexof_from_to gl_sortedlist_indexof_from_to_inline
-static inline size_t gl_sortedlist_indexof_from_to(gl_list_t list,
-    gl_listelement_compar_fn compar,
-    size_t start_index,
-    size_t end_index,
-    const void * elt)
+static inline size_t gl_sortedlist_indexof_from_to(gl_list_t list, gl_listelement_compar_fn compar,
+    size_t start_index, size_t end_index, const void * elt)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->sortedlist_indexof_from_to(list, compar, start_index, end_index,
-		   elt);
+	return ((const struct gl_list_impl_base *)list)->vtable->sortedlist_indexof_from_to(list, compar, start_index, end_index, elt);
 }
 
 #define gl_sortedlist_nx_add gl_sortedlist_nx_add_inline
 static inline gl_list_node_t gl_sortedlist_nx_add(gl_list_t list, gl_listelement_compar_fn compar, const void * elt)
 {
-	return ((const struct gl_list_impl_base *)list)->vtable
-	       ->sortedlist_nx_add(list, compar, elt);
+	return ((const struct gl_list_impl_base *)list)->vtable->sortedlist_nx_add(list, compar, elt);
 }
 
 #define gl_sortedlist_remove gl_sortedlist_remove_inline

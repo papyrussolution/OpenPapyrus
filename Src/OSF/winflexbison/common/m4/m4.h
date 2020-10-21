@@ -38,15 +38,15 @@
 //#include <sys/stat.h>
 //#include <sys/types.h>
 #include "binary-io.h"
-#include "clean-temp.h"
-#include "cloexec.h"
+//#include "clean-temp.h"
+//#include "cloexec.h"
 //#include "close-stream.h"
-#include "closein.h"
+//#include "closein.h"
 //#include "dirname.h"
 //#include "error.h"
-#include "exitfail.h"
+//#include "exitfail.h"
 //#include "filenamecat.h"
-#include "obstack.h"
+//#include "obstack.h"
 #include "stdio--.h"
 #include "stdlib--.h"
 #include "unistd--.h"
@@ -430,12 +430,9 @@ void reload_frozen_state(const char *);
    a bit safer than casting to uchar, since it catches some type
    errors that the cast doesn't.  */
 #if HAVE_INLINE
-static inline uchar to_uchar(char ch) {
-	return ch;
-}
-
+static inline uchar to_uchar(char ch) { return ch; }
 #else
 	#define to_uchar(C) ((uchar)(C))
 #endif
-#define STREQ(a, b) (strcmp(a, b) == 0) /* Avoid negative logic when comparing two strings.  */
+//#define STREQ(a, b) (sstreq(a, b)) /* Avoid negative logic when comparing two strings.  */
 #endif // } __M4_H

@@ -20,7 +20,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include "intprops.h"
+//#include "intprops.h"
 
 #define CODE_UNDEFINED (-1) /** Undefined token code.  */
 #define NUMBER_UNDEFINED (-1) /* Undefined symbol number.  */

@@ -6,12 +6,12 @@
 #pragma hdrstop
 #include <charry.h>
 
-SLAPI PPDraftWrOffEntry::PPDraftWrOffEntry() : OpID(0), LocID(0), Flags(0)
+PPDraftWrOffEntry::PPDraftWrOffEntry() : OpID(0), LocID(0), Flags(0)
 {
 	Reserve[0] = Reserve[1] = 0;
 }
 
-void SLAPI PPDraftWrOff2::SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS)
+void PPDraftWrOff2::SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS)
 {
 	if(pS) {
 		SETFLAG(Flags, DWOF_SETMANUFDATE, pS->Flags & pS->fEnable);
@@ -25,7 +25,7 @@ void SLAPI PPDraftWrOff2::SetLotManufTimeParam(const PUGL::SetLotManufTimeParam 
 	}
 }
 
-void SLAPI PPDraftWrOff2::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const
+void PPDraftWrOff2::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const
 {
 	if(pS) {
 		SETFLAG(pS->Flags, pS->fEnable, Flags & DWOF_SETMANUFDATE);
@@ -34,22 +34,22 @@ void SLAPI PPDraftWrOff2::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) 
 	}
 }
 
-SLAPI PPDraftWrOff2::PPDraftWrOff2()
+PPDraftWrOff2::PPDraftWrOff2()
 {
 	THISZERO();
 }
 
-SLAPI PPDraftWrOffPacket::PPDraftWrOffPacket() : P_List(0)
+PPDraftWrOffPacket::PPDraftWrOffPacket() : P_List(0)
 {
 	// @v10.5.12 (Rec get ctr now) Init();
 }
 
-SLAPI PPDraftWrOffPacket::~PPDraftWrOffPacket()
+PPDraftWrOffPacket::~PPDraftWrOffPacket()
 {
 	delete P_List;
 }
 
-void SLAPI PPDraftWrOffPacket::Init()
+void PPDraftWrOffPacket::Init()
 {
 	ZDELETE(P_List);
 	MEMSZERO(Rec);
@@ -68,11 +68,11 @@ PPDraftWrOffPacket & FASTCALL PPDraftWrOffPacket::operator = (const PPDraftWrOff
 //
 //
 //
-SLAPI PPObjDraftWrOff::PPObjDraftWrOff(void * extraPtr) : PPObjReference(PPOBJ_DRAFTWROFF, extraPtr)
+PPObjDraftWrOff::PPObjDraftWrOff(void * extraPtr) : PPObjReference(PPOBJ_DRAFTWROFF, extraPtr)
 {
 }
 
-int SLAPI PPObjDraftWrOff::PutPacket(PPID * pID, PPDraftWrOffPacket * pPack, int use_ta)
+int PPObjDraftWrOff::PutPacket(PPID * pID, PPDraftWrOffPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -109,7 +109,7 @@ int SLAPI PPObjDraftWrOff::PutPacket(PPID * pID, PPDraftWrOffPacket * pPack, int
 	return ok;
 }
 
-int SLAPI PPObjDraftWrOff::GetPacket(PPID id, PPDraftWrOffPacket * pPack)
+int PPObjDraftWrOff::GetPacket(PPID id, PPDraftWrOffPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
@@ -303,7 +303,7 @@ void DraftWrOffDialog::setupDfctSelectors(PPID arID)
 		disableCtrl(CTLSEL_DRAFTWROFF_DFCTAR, 0);
 }
 
-static int SLAPI EditDraftWrOffItem(PPDraftWrOffEntry * pItem)
+static int EditDraftWrOffItem(PPDraftWrOffEntry * pItem)
 {
 	class DraftWrOffEntryDialog : public TDialog {
 		DECL_DIALOG_DATA(PPDraftWrOffEntry);
@@ -362,7 +362,7 @@ int DraftWrOffDialog::editItem(long pos, long /*id*/)
 //
 //
 //
-int SLAPI PPObjDraftWrOff::Edit(PPID * pID, void * extraPtr)
+int PPObjDraftWrOff::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0;
 	DraftWrOffDialog * dlg = 0;
@@ -384,11 +384,11 @@ int SLAPI PPObjDraftWrOff::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjDraftWrOff::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRDRAFTWROFF, 0); }
+int PPObjDraftWrOff::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRDRAFTWROFF, 0); }
 //
 // @ModuleDef(PrcssrWrOffDraft)
 //
-IMPLEMENT_PPFILT_FACTORY(PrcssrWrOffDraft); SLAPI PrcssrWrOffDraftFilt::PrcssrWrOffDraftFilt() : PPBaseFilt(PPFILT_PRCSSRWROFFDRAFTPARAM, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrcssrWrOffDraft); PrcssrWrOffDraftFilt::PrcssrWrOffDraftFilt() : PPBaseFilt(PPFILT_PRCSSRWROFFDRAFTPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrWrOffDraftFilt, ReserveStart),
 		offsetof(PrcssrWrOffDraftFilt, MrpTabName)-offsetof(PrcssrWrOffDraftFilt, ReserveStart));
@@ -397,7 +397,7 @@ IMPLEMENT_PPFILT_FACTORY(PrcssrWrOffDraft); SLAPI PrcssrWrOffDraftFilt::PrcssrWr
 	Init(1, 0);
 }
 
-void SLAPI PrcssrWrOffDraftFilt::SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS)
+void PrcssrWrOffDraftFilt::SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS)
 {
 	if(pS) {
 		SETFLAG(Flags, fSetManufDate, pS->Flags & pS->fEnable);
@@ -411,7 +411,7 @@ void SLAPI PrcssrWrOffDraftFilt::SetLotManufTimeParam(const PUGL::SetLotManufTim
 	}
 }
 
-void SLAPI PrcssrWrOffDraftFilt::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const
+void PrcssrWrOffDraftFilt::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const
 {
 	if(pS) {
 		SETFLAG(pS->Flags, pS->fEnable, Flags & fSetManufDate);
@@ -420,11 +420,11 @@ void SLAPI PrcssrWrOffDraftFilt::GetLotManufTimeParam(PUGL::SetLotManufTimeParam
 	}
 }
 
-SLAPI PrcssrWrOffDraft::PrcssrWrOffDraft() : P_BObj(BillObj)
+PrcssrWrOffDraft::PrcssrWrOffDraft() : P_BObj(BillObj)
 {
 }
 
-int SLAPI PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)
+int PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)
 {
 	if(pP) {
 		PPObjLocation loc_obj;
@@ -436,7 +436,7 @@ int SLAPI PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)
 	return 1;
 }
 
-int SLAPI PrcssrWrOffDraft::Init(const PrcssrWrOffDraftFilt * pP)
+int PrcssrWrOffDraft::Init(const PrcssrWrOffDraftFilt * pP)
 {
 	RVALUEPTR(P, pP);
 	P.Period.Actualize(ZERODATE);
@@ -584,7 +584,7 @@ void WrOffDraftParamDialog::SetupCtrls()
 	SetupSetManufTimeParams(&dwo_rec);
 }
 
-int SLAPI PrcssrWrOffDraft::EditParam(PrcssrWrOffDraftFilt * pParam) { DIALOG_PROC_BODY(WrOffDraftParamDialog, pParam); }
+int PrcssrWrOffDraft::EditParam(PrcssrWrOffDraftFilt * pParam) { DIALOG_PROC_BODY(WrOffDraftParamDialog, pParam); }
 
 static int TestBillRec(const PPDraftWrOffEntry * pDwoEntry, const BillTbl::Rec & rRec, const PPIDArray * pDfctList)
 {
@@ -600,7 +600,7 @@ struct DwoBillEntry { // @flat
 
 static IMPL_CMPFUNC(DwoBillEntry, i1, i2) { RET_CMPCASCADE3(static_cast<const DwoBillEntry *>(i1), static_cast<const DwoBillEntry *>(i2), Dt, LocID, ID); }
 
-int SLAPI PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
+int PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 {
 	int    ok = 1;
 	uint   i;
@@ -625,7 +625,7 @@ int SLAPI PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffEntry * pDwoEntry, PPIDArray * pDfctList, PPIDArray * pList)
+int PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffEntry * pDwoEntry, PPIDArray * pDfctList, PPIDArray * pList)
 {
 	int    ok = 1;
 	const PPID op_id = pDwoEntry->OpID;
@@ -659,7 +659,7 @@ int SLAPI PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffEntry * pDwoEntry
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffPacket * pPack, PPIDArray * pDfctList, PPIDArray * pList)
+int PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffPacket * pPack, PPIDArray * pDfctList, PPIDArray * pList)
 {
 	int    ok = 1;
 	PPDraftWrOffEntry * p_item;
@@ -670,7 +670,7 @@ int SLAPI PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffPacket * pPack, P
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::WriteOff(const PPDraftWrOffPacket * pPack,
+int PrcssrWrOffDraft::WriteOff(const PPDraftWrOffPacket * pPack,
 	PPIDArray * pWrOffBillList, PPIDArray * pDfctList, PUGL * pPugl, PPID * pErrBillID, int use_ta)
 {
 	int    ok = 1;
@@ -704,7 +704,7 @@ int SLAPI PrcssrWrOffDraft::WriteOff(const PPDraftWrOffPacket * pPack,
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL * pPugl)
+int PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL * pPugl)
 {
 	//
 	// 1. Строим MRP-таблицу по всему списанию для расчета полного дефицита
@@ -870,7 +870,7 @@ int SLAPI PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL *
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillList, int use_ta)
+int PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillList, int use_ta)
 {
 	int    ok = 1;
 	const  uint bcount = SVectorBase::GetCount(pBillList);
@@ -909,12 +909,12 @@ int SLAPI PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillLi
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::ProcessDeficit(const PPDraftWrOffPacket * pPack, const PUGL * pPugl, int use_ta)
+int PrcssrWrOffDraft::ProcessDeficit(const PPDraftWrOffPacket * pPack, const PUGL * pPugl, int use_ta)
 {
 	return P_BObj->ProcessDeficit(pPack->Rec.DfctCompensOpID, pPack->Rec.DfctCompensArID, pPugl, &Logger, use_ta);
 }
 
-int SLAPI PrcssrWrOffDraft::CreateMrpTab(const PPDraftWrOffPacket * pPack, PPID * pMrpTabID, MrpTabPacket * pMrpPack, int use_ta)
+int PrcssrWrOffDraft::CreateMrpTab(const PPDraftWrOffPacket * pPack, PPID * pMrpTabID, MrpTabPacket * pMrpPack, int use_ta)
 {
 	int    ok = 1;
 	MrpTabPacket mrp_pack;
@@ -929,7 +929,7 @@ int SLAPI PrcssrWrOffDraft::CreateMrpTab(const PPDraftWrOffPacket * pPack, PPID 
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::Run()
+int PrcssrWrOffDraft::Run()
 {
 	int    ok = -1, r;
 	PPID   err_bill_id = 0;
@@ -1002,7 +1002,7 @@ int SLAPI PrcssrWrOffDraft::Run()
 	return ok;
 }
 
-int SLAPI WriteOffDrafts(const PPIDArray * pCSessList)
+int WriteOffDrafts(const PPIDArray * pCSessList)
 {
 	int    ok = -1;
 	PrcssrWrOffDraftFilt p;

@@ -9,24 +9,24 @@ long FASTCALL ATTF_TO_ATDF(long attf); // Defined in objbill.cpp
 
 TLP_IMPL(PPObjAccTurn, AccTurnCore, P_Tbl);
 
-SLAPI PPObjAccTurn::PPObjAccTurn(void * extraPtr) : PPObject(PPOBJ_ACCTURN), ExtraPtr(extraPtr)
+PPObjAccTurn::PPObjAccTurn(void * extraPtr) : PPObject(PPOBJ_ACCTURN), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 }
 
-SLAPI PPObjAccTurn::~PPObjAccTurn()
+PPObjAccTurn::~PPObjAccTurn()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjAccTurn::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pSheetID)
+int PPObjAccTurn::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pSheetID)
 	{ return P_Tbl->ConvertStr(pStr, curID, pAcct, pAcctId, pSheetID); }
-int SLAPI PPObjAccTurn::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pAccSheetID)
+int PPObjAccTurn::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pAccSheetID)
 	{ return P_Tbl->ConvertAcct(pAcct, curID, pAcctId, pAccSheetID); }
-int SLAPI PPObjAccTurn::ConvertAcctID(const AcctID & rAci, Acct * acct, PPID * pCurID, int useCache)
+int PPObjAccTurn::ConvertAcctID(const AcctID & rAci, Acct * acct, PPID * pCurID, int useCache)
 	{ return P_Tbl->ConvertAcctID(rAci, acct, pCurID, useCache); }
 
-int SLAPI PPObjAccTurn::VerifyRevokingCurFromAccount(PPID accID, PPID curID)
+int PPObjAccTurn::VerifyRevokingCurFromAccount(PPID accID, PPID curID)
 {
 	PPID   cur_acc_id = 0;
 	if(P_Tbl->AccObj.SearchCur(accID, curID, &cur_acc_id, 0) > 0)
@@ -35,7 +35,7 @@ int SLAPI PPObjAccTurn::VerifyRevokingCurFromAccount(PPID accID, PPID curID)
 	return 1;
 }
 
-int SLAPI PPObjAccTurn::VerifyChangingAccsheetOfAccount(PPID accID)
+int PPObjAccTurn::VerifyChangingAccsheetOfAccount(PPID accID)
 {
 	int    ok = 1;
 	PPAccount acc_rec;
@@ -56,7 +56,7 @@ int SLAPI PPObjAccTurn::VerifyChangingAccsheetOfAccount(PPID accID)
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::CreateBlankAccTurn(PPID opID, PPBillPacket * pPack, long * pFlags, int use_ta)
+int PPObjAccTurn::CreateBlankAccTurn(PPID opID, PPBillPacket * pPack, long * pFlags, int use_ta)
 {
 	int       ok = 1;
 	long      f = 0;
@@ -79,7 +79,7 @@ int SLAPI PPObjAccTurn::CreateBlankAccTurn(PPID opID, PPBillPacket * pPack, long
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillPacket * pSamplePack, long * pFlags)
+int PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillPacket * pSamplePack, long * pFlags)
 {
 	int       ok = 1;
 	long      f = 0;
@@ -112,7 +112,7 @@ int SLAPI PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const P
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::SearchAccturnInPacketByCorrAcc(const PPBillPacket * pPack, int side, int ac, Acct * pCorrAcc, uint * pPos)
+int PPObjAccTurn::SearchAccturnInPacketByCorrAcc(const PPBillPacket * pPack, int side, int ac, Acct * pCorrAcc, uint * pPos)
 {
 	for(uint i = 0; i < pPack->Turns.getCount(); i++) {
 		Acct   dbt, crd;
@@ -133,7 +133,7 @@ int SLAPI PPObjAccTurn::SearchAccturnInPacketByCorrAcc(const PPBillPacket * pPac
 	return 0;
 }
 
-int SLAPI PPObjAccTurn::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjAccTurn::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE)
 		switch(_obj) {
@@ -146,7 +146,7 @@ int SLAPI PPObjAccTurn::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return DBRPL_OK;
 }
 
-int SLAPI PPObjAccTurn::ReplyAccDel(PPID _id)
+int PPObjAccTurn::ReplyAccDel(PPID _id)
 {
 	int    ok = DBRPL_OK;
 	int    r = P_Tbl->SearchAccRef(_id, 1);
@@ -157,7 +157,7 @@ int SLAPI PPObjAccTurn::ReplyAccDel(PPID _id)
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::ReplyArticleDel(PPID _id)
+int PPObjAccTurn::ReplyArticleDel(PPID _id)
 {
 	int    ok = DBRPL_OK;
 	PPID   bill_id = 0;
@@ -170,7 +170,7 @@ int SLAPI PPObjAccTurn::ReplyArticleDel(PPID _id)
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
+int PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 {
 	int    ok = -1, valid_data = 0;
 	Acct   acct;
@@ -211,7 +211,7 @@ int SLAPI PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::CorrectBalance()
+int PPObjAccTurn::CorrectBalance()
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -229,7 +229,7 @@ int SLAPI PPObjAccTurn::CorrectBalance()
 	return ok;
 }
 
-int SLAPI PPObjAccTurn::CorrectRelsArRefs()
+int PPObjAccTurn::CorrectRelsArRefs()
 {
 	PPID   k = 0;
 	IterCounter cntr;

@@ -19,7 +19,7 @@
 //#include "xprintf.h"
 //#include <errno.h>
 //#include "error.h"
-#include "exitfail.h"
+//#include "exitfail.h"
 //#include "gettext.h"
 
 /* written by Jim Meyering */

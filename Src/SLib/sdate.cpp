@@ -250,7 +250,7 @@ static char * FASTCALL extractVarPart(const char * word, char * buf)
 	return (char *)p;
 }
 
-static char * SLAPI extractFormFromVarPart(const char * vp, int n /*[1..]*/, char * buf)
+static char * extractFormFromVarPart(const char * vp, int n /*[1..]*/, char * buf)
 {
 	const char * c = vp;
 	const char * p = vp;
@@ -266,7 +266,7 @@ static char * SLAPI extractFormFromVarPart(const char * vp, int n /*[1..]*/, cha
 	return b;
 }
 
-static char * SLAPI selectVarPart(const char * word, int n, char * pBuf)
+static char * selectVarPart(const char * word, int n, char * pBuf)
 {
 	char   vp[256];
 	char * e = extractVarPart(word, vp);
@@ -330,7 +330,7 @@ static const char * FASTCALL _extractVarPart(const char * word, char * buf)
 	return p;
 }
 
-static void SLAPI _extractFormFromVarPart(const char * vp, int n /*[1..]*/, SString & rBuf)
+static void _extractFormFromVarPart(const char * vp, int n /*[1..]*/, SString & rBuf)
 {
 	const char * c = vp;
 	const char * p = vp;
@@ -343,7 +343,7 @@ static void SLAPI _extractFormFromVarPart(const char * vp, int n /*[1..]*/, SStr
 	}
 }
 
-static const char * SLAPI _selectVarPart(const char * word, int n, SString & rBuf)
+static const char * _selectVarPart(const char * word, int n, SString & rBuf)
 {
 	char   vp[256];
 	const  char * e = _extractVarPart(word, vp);
@@ -483,7 +483,7 @@ static long FASTCALL _datetol360(const void * dt, int format)
 #define firstDay     1
 #define firstOff    4L
 
-static long SLAPI CLADateToLong(const SDosDate * d)
+static long CLADateToLong(const SDosDate * d)
 {
 	SDosDate doff;
 	long loff;
@@ -495,7 +495,7 @@ static long SLAPI CLADateToLong(const SDosDate * d)
 	return loff;
 }
 
-static void SLAPI CLALongToDate(long off, SDosDate * d)
+static void CLALongToDate(long off, SDosDate * d)
 {
 	long dev  = off - ((off / 365) >> 2) - 2;
 	int  rest = (int)(dev % 365);
@@ -622,7 +622,7 @@ void FASTCALL _plusdate(void * dt, int nd, int fmt, int _360)
 		_ltodate360(_datetol360(dt, fmt) + nd, dt, fmt);
 }
 
-void SLAPI _plusperiod(void * dest, int prd, int numperiods, int format, int _360)
+void _plusperiod(void * dest, int prd, int numperiods, int format, int _360)
 {
 	int d, m, y;
 	if(numperiods) {
@@ -825,7 +825,7 @@ LTIME LTIME::operator = (double od)
 	return (*this = dtm.t);
 }
 
-LTIME SLAPI LTIME::encode(int h, int m, int s, int ms)
+LTIME LTIME::encode(int h, int m, int s, int ms)
 {
 	*this = encodetime(h, m, s, ms / 10);
 	return *this;
@@ -912,7 +912,7 @@ long FASTCALL DiffTime(LTIME t1, LTIME t2, int dim)
 		return d;
 }
 
-long SLAPI diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays)
+long diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays)
 {
 	long   dd = _diffdate(&d1, &d2, DF_BTRIEVE, 0);
 	long   dt = DiffTime(t1, t2, 4/*dim*/);
@@ -937,12 +937,12 @@ long SLAPI diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * 
 		return dt;
 }
 
-long  SLAPI diffdatetime(const LDATETIME & dtm1, const LDATETIME & dtm2, int dim, long * pDiffDays)
+long  diffdatetime(const LDATETIME & dtm1, const LDATETIME & dtm2, int dim, long * pDiffDays)
 {
 	return diffdatetime(dtm1.d, dtm1.t, dtm2.d, dtm2.t, dim, pDiffDays);
 }
 
-long SLAPI diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
+long diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
 {
 	long dif_days = 0;
 	long ds = diffdatetime(d1, t1, d2, t2, 3, &dif_days);
@@ -988,7 +988,7 @@ LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
 //
 //
 //
-int SLAPI setcurdatetime(LDATETIME dtm)
+int setcurdatetime(LDATETIME dtm)
 {
 	SYSTEMTIME st;
 	if(SetLocalTime(&dtm.Get(st))) {
@@ -1061,7 +1061,7 @@ LDATETIME FASTCALL getcurdatetime_()
 	return dtm;
 }
 
-int SLAPI gettimezone()
+int gettimezone()
 {
 	TIME_ZONE_INFORMATION tz;
 	::GetTimeZoneInformation(&tz);
@@ -1162,12 +1162,12 @@ static LDATETIME FarMoment;
 //
 static const struct InitFarMoment { InitFarMoment() { FarMoment.d.v = MAXLONG; FarMoment.t.v = 0; } } IFM;
 
-int  SLAPI LDATETIME::IsFar() const
+int  LDATETIME::IsFar() const
 {
 	return cmp(*this, FarMoment) ? 0 : 1;
 }
 
-LDATETIME & SLAPI LDATETIME::SetFar()
+LDATETIME & LDATETIME::SetFar()
 {
 	*this = FarMoment;
 	return *this;
@@ -1185,7 +1185,7 @@ LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t _tm)
 	return *this;
 }
 
-time_t SLAPI LDATETIME::GetTimeT() const
+time_t LDATETIME::GetTimeT() const
 {
 	if(!*this)
 		return 0;
@@ -1201,14 +1201,14 @@ time_t SLAPI LDATETIME::GetTimeT() const
 	}
 }
 
-LDATETIME & SLAPI LDATETIME::Set(LDATE _d, LTIME _t)
+LDATETIME & LDATETIME::Set(LDATE _d, LTIME _t)
 {
 	d = _d;
 	t = _t;
 	return *this;
 }
 
-int SLAPI LDATETIME::Set(const char * pText, long datf, long timf) { return strtodatetime(pText, this, datf, timf); }
+int LDATETIME::Set(const char * pText, long datf, long timf) { return strtodatetime(pText, this, datf, timf); }
 int LDATETIME::operator !() const { return (d == ZERODATE && t == ZEROTIME); }
 int FASTCALL LDATETIME::operator == (const LDATETIME & s) const { return (d == s.d && t == s.t); }
 int FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s.d || t != s.t); }
@@ -1275,7 +1275,7 @@ LDATETIME FASTCALL LDATETIME::operator = (OleDate od)
 
 #endif // }
 
-LDATETIME & SLAPI LDATETIME::Z()
+LDATETIME & LDATETIME::Z()
 {
 	d = ZERODATE;
 	t = ZEROTIME;
@@ -1336,7 +1336,7 @@ int FASTCALL cmp(const LDATETIME & t1, LDATE dt, LTIME tm)
 	return dt;
 }*/
 
-OleDate SLAPI LDATE::GetOleDate() const
+OleDate LDATE::GetOleDate() const
 {
 	LDATETIME dt;
 	dt.Set(*this, ZEROTIME);
@@ -1361,7 +1361,7 @@ LDATE LDATE::operator = (double od)
 
 #endif // }
 
-time_t SLAPI LDATE::GetTimeT() const
+time_t LDATE::GetTimeT() const
 {
 	if(!checkdate(*this))
 		return 0;
@@ -1559,7 +1559,7 @@ int LDATE::decode(int * pD, int * pM, int * pY) const
 	return ok;
 }
 
-int SLAPI LDATE::hasanycomponent() const
+int LDATE::hasanycomponent() const
 {
 	const int _d = (int)(v & 0x00ff);
 	const int _m = (int)((v & 0xff00) >> 8);
@@ -1574,7 +1574,7 @@ int SLAPI LDATE::hasanycomponent() const
 	return result;
 }
 
-LDATE SLAPI LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
+LDATE LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 {
 	LDATE  result;
 	if(v == 0)
@@ -1655,7 +1655,7 @@ LDATE SLAPI LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 	return result;
 }
 
-LDATE SLAPI LDATE::getactualcmp(LDATE rel, LDATE cmp) const { return Helper_GetActual(rel, cmp); }
+LDATE LDATE::getactualcmp(LDATE rel, LDATE cmp) const { return Helper_GetActual(rel, cmp); }
 LDATE FASTCALL LDATE::getactual(LDATE rel) const { return Helper_GetActual(rel, ZERODATE); }
 //
 //
@@ -1737,23 +1737,23 @@ int CALDATE::SetCalDate(int day, int mon)
 //
 //
 //
-SLAPI STimeChunk::STimeChunk() : Start(ZERODATETIME), Finish(ZERODATETIME)
+STimeChunk::STimeChunk() : Start(ZERODATETIME), Finish(ZERODATETIME)
 {
 }
 
-SLAPI STimeChunk::STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish)
+STimeChunk::STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish)
 {
 	Init(rStart, rFinish);
 }
 
-STimeChunk & SLAPI STimeChunk::Z()
+STimeChunk & STimeChunk::Z()
 {
 	Start = ZERODATETIME;
 	Finish = ZERODATETIME;
 	return *this;
 }
 
-void SLAPI STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
+void STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
 {
 	Start = start;
 	if(finish.d)
@@ -1762,7 +1762,7 @@ void SLAPI STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
 		Finish.SetFar();
 }
 
-void SLAPI STimeChunk::Init(const LDATETIME & start, long cont)
+void STimeChunk::Init(const LDATETIME & start, long cont)
 {
 	Start = start;
 	Finish = plusdatetime(start, cont, 3);
@@ -1806,7 +1806,7 @@ int FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult
 	return is;
 }
 
-SString & SLAPI STimeChunk::ToStr(SString & rBuf, long fmt) const
+SString & STimeChunk::ToStr(SString & rBuf, long fmt) const
 {
 	const long datf = DATF_DMY;
 	const long timf = (fmt & fmtOmitSec) ? TIMF_HM : TIMF_HMS;
@@ -1825,12 +1825,12 @@ SString & SLAPI STimeChunk::ToStr(SString & rBuf, long fmt) const
 	return rBuf;
 }
 
-long SLAPI STimeChunk::GetDurationDays() const
+long STimeChunk::GetDurationDays() const
 	{ return (Start.d && Finish.d && !Finish.IsFar()) ? (diffdate(Finish.d, Start.d)+1) : -1; }
-long SLAPI STimeChunk::GetDuration() const
+long STimeChunk::GetDuration() const
 	{ return (Start.d && Finish.d && !Finish.IsFar()) ? diffdatetimesec(Finish, Start) : -1; }
 
-int64 SLAPI STimeChunk::GetDurationMs() const
+int64 STimeChunk::GetDurationMs() const
 {
 	if(Start.d && Finish.d && !Finish.IsFar()) {
 		long days = 0;
@@ -1858,13 +1858,13 @@ int FASTCALL DateRepeating::operator == (const DateRepeating & rS) const
 int FASTCALL DateRepeating::operator != (const DateRepeating & rS) const
 	{ return !DateRepeating_IsEqual(*this, rS); }
 
-int SLAPI DateRepeating::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int DateRepeating::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	const size_t offs = offsetof(DateRepeating, Prd);
 	return pSCtx->SerializeBlock(dir, sizeof(*this)-offs, PTR8(this)+offs, rBuf, 0);
 }
 
-int SLAPI DateRepeating::GetMonthlyPeriod(int * pMonthCount, int * pMonthNo) const
+int DateRepeating::GetMonthlyPeriod(int * pMonthCount, int * pMonthNo) const
 {
 	int    ok = 0;
 	int    month_count = 1;
@@ -1882,7 +1882,7 @@ int SLAPI DateRepeating::GetMonthlyPeriod(int * pMonthCount, int * pMonthNo) con
 	return ok;
 }
 
-int SLAPI DateRepeating::SetMonthly(int monthCount, int monthNo, int dayOfMonth)
+int DateRepeating::SetMonthly(int monthCount, int monthNo, int dayOfMonth)
 {
 	Prd = PRD_MONTH;
 	RepeatKind = 1;
@@ -1895,7 +1895,7 @@ int SLAPI DateRepeating::SetMonthly(int monthCount, int monthNo, int dayOfMonth)
 	return (month_count == monthCount && month_no == monthNo && day_of_month == dayOfMonth) ? 1 : 100;
 }
 
-int SLAPI DateRepeating::SetMonthly(int monthCount, int monthNo, int weekNo, int dayOfWeek)
+int DateRepeating::SetMonthly(int monthCount, int monthNo, int weekNo, int dayOfWeek)
 {
 	Prd = PRD_MONTH;
 	RepeatKind = 2;
@@ -1909,7 +1909,7 @@ int SLAPI DateRepeating::SetMonthly(int monthCount, int monthNo, int weekNo, int
 	return (month_count == monthCount && month_no == monthNo && week_no == weekNo && day_of_week == dayOfWeek) ? 1 : 100;
 }
 
-int SLAPI DateRepeating::DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE * pResult) const
+int DateRepeating::DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE * pResult) const
 {
 	int    ok = 0;
 	LDATE  temp_dt = dt;
@@ -1941,7 +1941,7 @@ int SLAPI DateRepeating::DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE 
 	return ok;
 }
 
-int SLAPI DateRepeating::Init(int prd, int kind, LDATE dt)
+int DateRepeating::Init(int prd, int kind, LDATE dt)
 {
 	int    ok = 1;
 	int    dow = -1;
@@ -2011,7 +2011,7 @@ int SLAPI DateRepeating::Init(int prd, int kind, LDATE dt)
 	return ok;
 }
 
-int SLAPI DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
+int DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 {
 	int    ok = -1;
 	LDATE  temp_dt = NZOR(startDate, getcurdate_());
@@ -2083,7 +2083,7 @@ int SLAPI DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 	return ok;
 }
 /*
-int SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
+int DateRepeating::Format(int fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	switch(Prd) {
@@ -2120,7 +2120,7 @@ int SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 }
 */
 
-long SLAPI DateRepeating::DtlToLong()
+long DateRepeating::DtlToLong()
 {
 	switch(Prd) {
 		case PRD_DAY:    return *reinterpret_cast<const long *>(&Dtl.D);
@@ -2132,7 +2132,7 @@ long SLAPI DateRepeating::DtlToLong()
 	return 0;
 }
 
-int SLAPI DateRepeating::LongToDtl(long v)
+int DateRepeating::LongToDtl(long v)
 {
 	if(Prd == PRD_DAY)
 		Dtl.D = *reinterpret_cast<const RepeatDay *>(&v);
@@ -2155,7 +2155,7 @@ int SLAPI DateRepeating::LongToDtl(long v)
 	return 1;
 }
 
-SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
+SString & DateRepeating::Format(int fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	SString dowtxt;
@@ -2252,13 +2252,13 @@ SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 //
 //
 //
-int SLAPI DateTimeRepeating::Init(int prd, int kind, LDATE dt, LTIME tm)
+int DateTimeRepeating::Init(int prd, int kind, LDATE dt, LTIME tm)
 {
 	Time = tm;
 	return DateRepeating::Init(prd, kind, dt);
 }
 
-int SLAPI DateTimeRepeating::Next_(LDATETIME startDtm, LDATETIME * pNextDtm) const
+int DateTimeRepeating::Next_(LDATETIME startDtm, LDATETIME * pNextDtm) const
 {
 	int    ok = -1;
 	LDATETIME temp_dtm = startDtm;
@@ -2293,7 +2293,7 @@ int SLAPI DateTimeRepeating::Next_(LDATETIME startDtm, LDATETIME * pNextDtm) con
 	return ok;
 }
 
-SString & SLAPI DateTimeRepeating::Format(int fmt, SString & rBuf) const
+SString & DateTimeRepeating::Format(int fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	DateRepeating::Format(fmt, rBuf);
@@ -2826,7 +2826,7 @@ static inline void SUniTime_Encode(uint8 * pD, uint8 signature, uint64 value)
 	}
 }
 
-int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
+int SUniTime::Implement_Set(uint8 signature, const void * pData)
 {
 	int    ok = 1;
 	const SUniTime_Inner * p_inner = static_cast<const SUniTime_Inner *>(pData);
@@ -3135,7 +3135,7 @@ int FASTCALL SUniTime::IsEq(const SUniTime & rS) const
 		return cmprIncompat;
 }
 
-uint8  SLAPI SUniTime::Implement_Get(void * pData) const
+uint8  SUniTime::Implement_Get(void * pData) const
 {
 	uint64 value = 0;
 	uint8  signature = SUniTime_Decode(D, &value);

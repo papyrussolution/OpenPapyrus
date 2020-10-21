@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <shlobj.h> // SHGetFolderPath and constants
 
-SLAPI SDataMoveProgressInfo::SDataMoveProgressInfo()
+SDataMoveProgressInfo::SDataMoveProgressInfo()
 {
 	THISZERO();
 }
@@ -39,7 +39,7 @@ static int getdisk()
 	return *buf-L'A';
 }
 
-int SLAPI pathToUNC(const char * pPath, SString & rUncPath)
+int pathToUNC(const char * pPath, SString & rUncPath)
 {
 	int    ok = 1;
 	char   disk[4] = "X:\\";
@@ -72,7 +72,7 @@ static int Win_IsFileExists(const char * pFileName)
 
 #endif
 
-/* @v10.5.6 char * SLAPI replacePath(char * fileName, const char * newPath, int force)
+/* @v10.5.6 char * replacePath(char * fileName, const char * newPath, int force)
 {
 	char   drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
@@ -81,7 +81,7 @@ static int Win_IsFileExists(const char * pFileName)
 	return fileName;
 } */
 
-/* @v10.5.6 char * SLAPI replaceExt(char * fileName, const char * newExt, int force)
+/* @v10.5.6 char * replaceExt(char * fileName, const char * newExt, int force)
 {
 	char   drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);
@@ -97,7 +97,7 @@ static int Win_IsFileExists(const char * pFileName)
 	return fileName;
 }*/
 
-char * SLAPI setLastSlash(char * p)
+char * setLastSlash(char * p)
 {
 	size_t len = sstrlen(p);
 	if(len > 0 && !oneof2(p[len-1], '\\', '/')) {
@@ -107,7 +107,7 @@ char * SLAPI setLastSlash(char * p)
 	return p;
 }
 
-char * SLAPI rmvLastSlash(char * p)
+char * rmvLastSlash(char * p)
 {
 	const size_t len = sstrlen(p);
 	if(len > 0 && oneof2(p[len-1], '\\', '/'))
@@ -115,7 +115,7 @@ char * SLAPI rmvLastSlash(char * p)
 	return p;
 }
 
-SString & SLAPI getExecPath(SString & rBuf)
+SString & getExecPath(SString & rBuf)
 {
 	SPathStruc ps(SLS.GetExePath());
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rBuf);
@@ -124,7 +124,7 @@ SString & SLAPI getExecPath(SString & rBuf)
 
 #pragma warn -asc
 
-int SLAPI driveValid(const char * pPath)
+int driveValid(const char * pPath)
 {
 	int    ok = 0;
 	char   dname[4] = "X:\\";
@@ -185,7 +185,7 @@ int FASTCALL IsDirectory(const char * pStr)
 // to '\' on output.
 //
 #ifndef __WIN32__ // {
-static char * SLAPI squeeze(char * path)
+static char * squeeze(char * path)
 {
 	char * dest = path;
 	char * src = path;
@@ -208,7 +208,7 @@ static char * SLAPI squeeze(char * path)
 }
 #endif // } __WIN32__
 
-/* @v10.8.2 (unused) static char * SLAPI fexpand(char * rpath)
+/* @v10.8.2 (unused) static char * fexpand(char * rpath)
 {
 #ifdef __WIN32__
 	TCHAR * fn = 0;
@@ -248,7 +248,7 @@ static char * SLAPI squeeze(char * path)
 #endif
 }*/
 
-int SLAPI pathValid(const char * pPath, int existOnly)
+int pathValid(const char * pPath, int existOnly)
 {
 	SString exp_path(pPath);
 	{
@@ -261,7 +261,7 @@ int SLAPI pathValid(const char * pPath, int existOnly)
 }
 
 /* @v10.8.2 (unused)
-int SLAPI validFileName(const char * pFileName)
+int validFileName(const char * pFileName)
 {
 	static const char * illegalChars = ";,=+<>|\"[] \\";
 	char   path[MAXPATH];
@@ -301,7 +301,7 @@ SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, con
 	return rBuf;
 }
 
-int SLAPI createDir(const char * pPath)
+int createDir(const char * pPath)
 {
 	int    ok = 1;
 	SString path;
@@ -335,7 +335,7 @@ int FASTCALL IsWild(const char * f)
 	return BIN(f && strpbrk(f, "*?") != 0);
 }
 
-SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)
+SString & makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)
 {
 	HMODULE h_inst = SLS.GetHInst();
 	// @v10.3.9 char   drv[MAXDRIVE], dir[MAXDIR];
@@ -382,7 +382,7 @@ struct fat_time {
 	unsigned hour  : 5;  /* Hours */
 };
 
-void SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)
+void decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)
 {
 	union {
 		uint16 d;
@@ -398,7 +398,7 @@ void SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)
 	dt->t = encodetime(fat_t.ft.hour, fat_t.ft.min, fat_t.ft.tsec * 2, 0);
 }
 
-void SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
+void encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
 {
 	int d, m, y, h, s, hs;
 	union {
@@ -421,7 +421,7 @@ void SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
 	*ft = fat_t.t;
 }
 
-int SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName)
+int copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 {
 #ifdef __WIN32__
 	int    r = ::CopyFile(SUcSwitch(pSrcFileName), SUcSwitch(pDestFileName), 0);
@@ -435,7 +435,7 @@ int SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 
 #ifdef __WIN32__
 
-int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, long shareMode, void * pExtra)
+int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, long shareMode, void * pExtra)
 {
 	EXCEPTVAR(SLibError);
 	int   ok = 1, reply;
@@ -545,7 +545,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 
 #else /* __WIN32__ */
 
-int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, void * pExtra)
+int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, void * pExtra)
 {
 	const size_t KB = 1024;
 

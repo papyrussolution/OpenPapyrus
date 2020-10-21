@@ -47,7 +47,7 @@ struct CMRegEntry { // @flat
 
 typedef TSVector <CMRegEntry> CMRegArray; // @v10.0.04 TSArray-->TSVector
 
-/*static*/int SLAPI PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int _sync, int _async)
+/*static*/int PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int _sync, int _async)
 {
 	ENTER_CRITICAL_SECTION
 	SETIFZ(P_RegData, new CMRegArray);
@@ -66,7 +66,7 @@ typedef TSVector <CMRegEntry> CMRegArray; // @v10.0.04 TSArray-->TSVector
 }
 
 // @vmiller {
-int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & rS)
+int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 {
 	rS = 0;
 	int    ok = 1;
@@ -93,7 +93,7 @@ int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & rS)
 }
 // } @vmiller
 
-/*static*/int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
+/*static*/int PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 {
 	int    idx = 0, s = 0; // @vmiller
 	if(P_RegData == 0) {
@@ -138,7 +138,7 @@ int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & rS)
 	return PPSetError(PPERR_INVCMT);
 }
 
-/*static*/PPCashMachine * SLAPI PPCashMachine::CreateInstance(PPID cashID)
+/*static*/PPCashMachine * PPCashMachine::CreateInstance(PPID cashID)
 {
 	PPCashMachine * p_cm = 0;
 	uint   p = 0;
@@ -170,50 +170,50 @@ int SLAPI PPCashMachine::SyncOrAsync(int cashID, int & rS)
 	return p_cm;
 }
 
-/*static*/int SLAPI PPCashMachine::IsSyncCMT(PPID cmtID)
+/*static*/int PPCashMachine::IsSyncCMT(PPID cmtID)
 {
 	uint p;
 	return BIN(GetRegEntry(cmtID, &p) && static_cast<CMRegArray *>(P_RegData)->at(p).flags & CMRegEntry::sync);
 }
 
-/*static*/int SLAPI PPCashMachine::IsAsyncCMT(PPID cmtID)
+/*static*/int PPCashMachine::IsAsyncCMT(PPID cmtID)
 {
 	uint p;
 	return BIN(GetRegEntry(cmtID, &p) && static_cast<CMRegArray *>(P_RegData)->at(p).flags & CMRegEntry::async);
 }
 
-SLAPI PPCashMachine::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
+PPCashMachine::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
 	AmtVat20(0.0), AmtVat18(0.0), AmtVat10(0.0), AmtVat00(0.0), AmtNoVat(0.0), VatRate(0.0), Dt(ZERODATE), Flags(0)
 {
 }
 
-SLAPI PPCashMachine::PPCashMachine(PPID cashID) : P_SyncIntrf(0), P_AsyncIntrf(0), SyncPrintErrCode(0), NodeID(cashID), ParentNodeID(0)
+PPCashMachine::PPCashMachine(PPID cashID) : P_SyncIntrf(0), P_AsyncIntrf(0), SyncPrintErrCode(0), NodeID(cashID), ParentNodeID(0)
 {
 	Valid = (GetNode() > 0);
 }
 
-SLAPI PPCashMachine::~PPCashMachine()
+PPCashMachine::~PPCashMachine()
 {
 	delete P_SyncIntrf;
 	delete P_AsyncIntrf;
 }
 
-/*virtual*/int SLAPI PPCashMachine::ValidateCheck(CCheckTbl::Rec *, int /*correct*/, char * /*pErrBuf*/, size_t /*errBufLen*/)
+/*virtual*/int PPCashMachine::ValidateCheck(CCheckTbl::Rec *, int /*correct*/, char * /*pErrBuf*/, size_t /*errBufLen*/)
 {
 	return 2; // not supported
 }
 
-PPID SLAPI PPCashMachine::GetCurSessID()
+PPID PPCashMachine::GetCurSessID()
 {
 	PPCashNode cn_rec;
 	return (PPRef->GetItem(PPOBJ_CASHNODE, NodeRec.ID, &cn_rec) > 0) ? cn_rec.CurSessID : 0;
 }
 
-const PPCashNode & SLAPI PPCashMachine::GetNodeData() const { return NodeRec; }
-int SLAPI PPCashMachine::IsValid() const { return Valid; }
-void SLAPI PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
+const PPCashNode & PPCashMachine::GetNodeData() const { return NodeRec; }
+int PPCashMachine::IsValid() const { return Valid; }
+void PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
 
-int SLAPI PPCashMachine::GetSyncIntrf()
+int PPCashMachine::GetSyncIntrf()
 {
 	int    ok = 1;
 	if(!P_SyncIntrf) {
@@ -226,14 +226,14 @@ int SLAPI PPCashMachine::GetSyncIntrf()
 	return ok;
 }
 
-int SLAPI PPCashMachine::GetAsyncIntrf()
+int PPCashMachine::GetAsyncIntrf()
 {
 	return SETIFZ(P_AsyncIntrf, AsyncInterface()) ? 1 : PPSetError(PPERR_ASYNCCSNOTSUPP);
 }
 //
 // Синхронные методы
 //
-int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
+int PPCashMachine::NewDayDialog(LDATE * pDt)
 {
 	int    ok = 0;
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_NEWDAY_L : DLG_NEWDAY);
@@ -263,7 +263,7 @@ int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncOpenSession(LDATE * pDate)
+int PPCashMachine::SyncOpenSession(LDATE * pDate)
 {
 	int    ok = 1, r;
 	LDATETIME dtm;
@@ -300,7 +300,7 @@ int SLAPI PPCashMachine::SyncOpenSession(LDATE * pDate)
 	return ok;
 }
 
-int SLAPI PPCashMachine::_SyncCloseBill(int ret, int use_ta)
+int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 {
 	int    ok = 1;
 	PPID   op = ret ? GetCashRetOp() : GetCashOp();
@@ -362,13 +362,13 @@ int SLAPI PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 	return ok;
 }
 
-/*static*/long SLAPI CSessionCore::GetUnitingPeriodSec()
+/*static*/long CSessionCore::GetUnitingPeriodSec()
 {
 	const PPCommConfig & r_ccfg = CConfig;
 	return ((r_ccfg.CSessUnitingPeriod > 0) ? r_ccfg.CSessUnitingPeriod : (60*12)) * 60;
 }
 
-int SLAPI CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm, PPIDArray * pList)
+int CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm, PPIDArray * pList)
 {
 	int    ok = -1;
 	const long uniting_period_sec = CSessionCore::GetUnitingPeriodSec();
@@ -394,12 +394,12 @@ int SLAPI CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncDiagnose(StringSet * pSs)
+int PPCashMachine::SyncDiagnose(StringSet * pSs)
 {
 	return GetSyncIntrf() ? P_SyncIntrf->Diagnose(pSs) : 0;
 }
 
-int SLAPI PPCashMachine::SyncCloseSession()
+int PPCashMachine::SyncCloseSession()
 {
 	int    ok = -1, r, is_locked = 0, my_lock = 0;
 	int    close_sess = 1;
@@ -623,7 +623,7 @@ IMPL_HANDLE_EVENT(CashStatDialog)
 	}*/
 }
 
-int SLAPI PPCashMachine::SyncViewSessionStat(long options)
+int PPCashMachine::SyncViewSessionStat(long options)
 {
 	int    ok = cmCancel;
 	CashStat stat;
@@ -695,7 +695,7 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags)
+int PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -812,13 +812,13 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncGetSummator(double * pSum)
+int PPCashMachine::SyncGetSummator(double * pSum)
 	{ return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); }
 
-int SLAPI PPCashMachine::SyncGetDeviceTime(LDATETIME * pDtm)
+int PPCashMachine::SyncGetDeviceTime(LDATETIME * pDtm)
 	{ return (GetSyncIntrf() && P_SyncIntrf->GetDeviceTime(pDtm)); }
 
-int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
+int PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 {
 	SyncPrintErrCode = 0;
 	int    ok = retCode;
@@ -875,7 +875,7 @@ int CmLocking::IsForeignLocking() const { return BIN(Flags & fForeignLocking); }
 //
 //
 //
-int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
+int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 {
 	int     ok = 1, chk_no = 0, is_format = 0;
 	THROW_INVARG(pPack);
@@ -1009,7 +1009,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
+int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 {
 	int    ok = 1;
 	SyncPrintErrCode = 0;
@@ -1043,7 +1043,7 @@ int SLAPI PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncOpenBox()
+int PPCashMachine::SyncOpenBox()
 {
 	int    ok = -1;
 	THROW(GetNode() > 0);
@@ -1059,7 +1059,7 @@ int SLAPI PPCashMachine::SyncOpenBox()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncCheckForSessionOver()
+int PPCashMachine::SyncCheckForSessionOver()
 {
 	int    ok = 1, is_over = 0;
 	CmLocking cml(NodeRec);
@@ -1079,7 +1079,7 @@ int SLAPI PPCashMachine::SyncCheckForSessionOver()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName)
+int PPCashMachine::SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName)
 {
 	int    ok = 0;
 	uint   flags = 0;
@@ -1096,7 +1096,7 @@ int SLAPI PPCashMachine::SyncPrintCheckCopy(CCheckPacket * pPack, const char * p
 	return ok;
 }
 
-int SLAPI PPCashMachine::GetSlipFormatList(StrAssocArray * pList, int getSlipDocForms)
+int PPCashMachine::GetSlipFormatList(StrAssocArray * pList, int getSlipDocForms)
 {
 	int    ok = 1;
 	THROW(GetSyncIntrf());
@@ -1109,7 +1109,7 @@ int SLAPI PPCashMachine::GetSlipFormatList(StrAssocArray * pList, int getSlipDoc
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName)
+int PPCashMachine::SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName)
 {
 	int    ok = 0;
 	uint   flags = 0;
@@ -1126,7 +1126,7 @@ int SLAPI PPCashMachine::SyncPrintSlipDocument(CCheckPacket * pPack, const char 
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc)
+int PPCashMachine::SyncPrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc)
 {
 	int    ok = 0;
 	THROW(GetSyncIntrf());
@@ -1140,7 +1140,7 @@ int SLAPI PPCashMachine::SyncPrintFiscalCorrection(const PPCashMachine::FiscalCo
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintXReport()
+int PPCashMachine::SyncPrintXReport()
 {
 	int    ok = 0, r = 0;
 	PPObjCSession cs_obj;
@@ -1172,7 +1172,7 @@ int SLAPI PPCashMachine::SyncPrintXReport()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintZReportCopy(const CSessInfo * pInfo)
+int PPCashMachine::SyncPrintZReportCopy(const CSessInfo * pInfo)
 {
 	int    ok = 0;
 	CmLocking cml(NodeRec);
@@ -1185,7 +1185,7 @@ int SLAPI PPCashMachine::SyncPrintZReportCopy(const CSessInfo * pInfo)
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncPrintIncasso()
+int PPCashMachine::SyncPrintIncasso()
 {
 	int    ok = -1;
 	ushort v = 0;
@@ -1214,7 +1214,7 @@ int SLAPI PPCashMachine::SyncPrintIncasso()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncAllowPrint()
+int PPCashMachine::SyncAllowPrint()
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -1229,25 +1229,25 @@ int SLAPI PPCashMachine::SyncAllowPrint()
 	return ok;
 }
 
-int SLAPI PPCashMachine::SyncLockCashKeyb() { return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(0)); }
-int SLAPI PPCashMachine::SyncUnlockCashKeyb() { return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(1)); }
-int SLAPI PPCashMachine::SyncPrintBnkTermReport(long pinpad, const char * pZCheck)
+int PPCashMachine::SyncLockCashKeyb() { return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(0)); }
+int PPCashMachine::SyncUnlockCashKeyb() { return (GetSyncIntrf() && P_SyncIntrf->EnableCashKeyb(1)); }
+int PPCashMachine::SyncPrintBnkTermReport(long pinpad, const char * pZCheck)
 	{ return (pinpad & PPSyncCashNode::btfPinpad) ? (GetSyncIntrf() && P_SyncIntrf->PrintBnkTermReport(pZCheck)) : 1; }
 //
 // Асинхронные методы
 //
-int SLAPI PPCashMachine::AsyncUpdateSession()
+int PPCashMachine::AsyncUpdateSession()
 {
 	return PPSetError(PPERR_CASHFUNCNSUPP);
 }
 
-int SLAPI PPCashMachine::AsyncBrowseCheckList()
+int PPCashMachine::AsyncBrowseCheckList()
 {
 	ViewCCheck(0, 0);
 	return 1;
 }
 
-int SLAPI PPCashMachine::AsyncOpenSession(int update, PPID sinceDlsID)
+int PPCashMachine::AsyncOpenSession(int update, PPID sinceDlsID)
 {
 	int    ok = 1;
 	if(!update) {
@@ -1266,7 +1266,7 @@ int SLAPI PPCashMachine::AsyncOpenSession(int update, PPID sinceDlsID)
 	return ok;
 }
 
-int SLAPI PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0*/)
+int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = 1;
 	CmLocking cml(NodeRec);
@@ -1277,7 +1277,7 @@ int SLAPI PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0
 	return ok;
 }
 
-/*static*/int SLAPI PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
+/*static*/int PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
 {
 	int    ok = 1;
 	PPCashNode cn_rec;
@@ -1334,7 +1334,7 @@ int SLAPI PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0
 	return ok;
 }
 
-int SLAPI PPCashMachine::AsyncInteractiveQuery()
+int PPCashMachine::AsyncInteractiveQuery()
 {
 	int    ok = 1;
 	CmLocking cml(NodeRec);
@@ -1345,7 +1345,7 @@ int SLAPI PPCashMachine::AsyncInteractiveQuery()
 	return ok;
 }
 
-int SLAPI PPCashMachine::AsyncBrowseExcess()
+int PPCashMachine::AsyncBrowseExcess()
 {
 	CSessExcFilt flt;
 	flt.CashNodeID = GetNodeData().ID;
@@ -1354,13 +1354,13 @@ int SLAPI PPCashMachine::AsyncBrowseExcess()
 //
 // Общие методы
 //
-int SLAPI PPCashMachine::GetNode()
+int PPCashMachine::GetNode()
 {
 	int    r = PPRef->GetItem(PPOBJ_CASHNODE, NodeID, &NodeRec);
 	return (r > 0) ? 1 : ((r == 0) ? 0 : (PPErrCode = PPERR_INVCASHNODEID, -1));
 }
 
-int SLAPI PPCashMachine::UpdateNode(int use_ta)
+int PPCashMachine::UpdateNode(int use_ta)
 {
 	return PPRef->UpdateItem(PPOBJ_CASHNODE, NodeID, &NodeRec, 1, use_ta);
 }
@@ -1417,7 +1417,7 @@ IMPL_HANDLE_EVENT(CSPanel)
 	}
 }
 
-int SLAPI AsyncCashnPrepDialog(AsyncPosPrepParam * pParam)
+int AsyncCashnPrepDialog(AsyncPosPrepParam * pParam)
 {
 	int    ok = -1, valid_data = 0;
 	PPObjCashNode::SelFilt f;
@@ -1447,7 +1447,7 @@ int SLAPI AsyncCashnPrepDialog(AsyncPosPrepParam * pParam)
 	return ok;
 }
 
-int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
+int SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 {
 	int    ok = -1, valid_data = 0;
 	LDATE  dt = getcurdate_();
@@ -1486,7 +1486,7 @@ int SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 	return ok;
 }
 
-int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
+int ExecCSPanel(const CashNodePaneFilt * pFilt)
 {
 	MemLeakTracer mlt;
 	int    ok = -1;
@@ -1738,7 +1738,7 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 	return ok;
 }
 
-int SLAPI ViewCashBills(PPID cashNodeID)
+int ViewCashBills(PPID cashNodeID)
 {
 	int    ok = 1;
 	PPCashMachine * p_cm = 0;
@@ -1754,7 +1754,7 @@ int SLAPI ViewCashBills(PPID cashNodeID)
 	return ok;
 }
 
-int SLAPI CloseCashDay()
+int CloseCashDay()
 {
 	int    ok = 1;
 	PPID   cash_node_id = 0;

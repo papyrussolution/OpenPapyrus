@@ -139,8 +139,8 @@ ProcDll ProcessOw = 0;
 
 class BnkIngVTB {
 public:
-	SLAPI BnkIngVTB();
-	SLAPI ~BnkIngVTB();
+	BnkIngVTB();
+	~BnkIngVTB();
 	int RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize);
 	int Connect();
 	int Disconnect();

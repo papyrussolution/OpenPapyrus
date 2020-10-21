@@ -40,11 +40,10 @@ extern char * yytext;
 extern FILE * yyout;
 bool no_section3_escape = false;
 
-int yylex(void)
+int yylex()
 {
 	int toktype;
 	static int beglin = false;
-
 	if(eofseen) {
 		toktype = EOF;
 	}
@@ -86,9 +85,9 @@ int yylex(void)
 			case '.':
 			case '*':
 			case '+':
-			case ',': (void)putc(toktype, stderr); break;
+			case ',': putc(toktype, stderr); break;
 			case '\n':
-			    (void)putc('\n', stderr);
+			    putc('\n', stderr);
 			    if(sectnum == 2)
 				    beglin = 1;
 
@@ -142,10 +141,9 @@ int yylex(void)
 							fprintf(stderr, "\\%.3o", (uint)yylval);
 					}
 					else
-						(void)putc(yylval, stderr);
+						putc(yylval, stderr);
 					break;
 			    }
-
 			    break;
 			case NUMBER: fprintf(stderr, "%d", yylval); break;
 			case PREVCCL: fprintf(stderr, "[%d]", yylval); break;

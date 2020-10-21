@@ -98,7 +98,7 @@ int FASTCALL GetArticleName(PPID arID, SString & rBuf)
 	return ok;
 }
 
-int SLAPI GetArticleText(PPID arID, PPArticleType artyp, SString & rBuf)
+int GetArticleText(PPID arID, PPArticleType artyp, SString & rBuf)
 {
 	int    ok = -1;
 	if(arID) {
@@ -113,19 +113,19 @@ int SLAPI GetArticleText(PPID arID, PPArticleType artyp, SString & rBuf)
 	return ok;
 }
 
-int SLAPI GetSupplText(PPID supplID, SString & rBuf)
+int GetSupplText(PPID supplID, SString & rBuf)
 {
 	return GetArticleText(supplID, artypSuppl, rBuf);
 }
 //
 //
 //
-SLAPI PPArticlePacket::PPArticlePacket()
+PPArticlePacket::PPArticlePacket()
 {
 	THISZERO();
 }
 
-SLAPI PPArticlePacket::~PPArticlePacket()
+PPArticlePacket::~PPArticlePacket()
 {
 	delete P_CliAgt;
 	delete P_SupplAgt;
@@ -145,7 +145,7 @@ PPArticlePacket & FASTCALL PPArticlePacket::operator = (const PPArticlePacket & 
 	return *this;
 }
 
-int SLAPI PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket & rS2, long options)
+int PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket & rS2, long options)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 #define CMP_MEMBS(m) if(!sstreq(rS1.Rec.m, rS2.Rec.m)) return 0;
@@ -173,7 +173,7 @@ int SLAPI PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticleP
 }
 
 #if 0 // @v8.1.3 {
-int SLAPI PPArticlePacket::operator == (const PPArticlePacket & s) const
+int PPArticlePacket::operator == (const PPArticlePacket & s) const
 {
 #define CMP_MEMB(m)  if(Rec.m != s.Rec.m) return 0;
 #define CMP_MEMBS(m) if(strcmp(Rec.m, s.Rec.m) != 0) return 0;
@@ -199,7 +199,7 @@ int SLAPI PPArticlePacket::operator == (const PPArticlePacket & s) const
 }
 #endif // } 0
 
-void SLAPI PPArticlePacket::Init()
+void PPArticlePacket::Init()
 {
 	ZDELETE(P_CliAgt);
 	ZDELETE(P_SupplAgt);
@@ -207,7 +207,7 @@ void SLAPI PPArticlePacket::Init()
 	THISZERO();
 }
 
-int SLAPI PPArticlePacket::SetClientAgreement(const PPClientAgreement * pAgt, int ignoreEmpty)
+int PPArticlePacket::SetClientAgreement(const PPClientAgreement * pAgt, int ignoreEmpty)
 {
 	int    ok = 1;
 	ZDELETE(P_CliAgt);
@@ -219,7 +219,7 @@ int SLAPI PPArticlePacket::SetClientAgreement(const PPClientAgreement * pAgt, in
 	return ok;
 }
 
-int SLAPI PPArticlePacket::SetSupplAgreement(const PPSupplAgreement * pAgt, int ignoreEmpty)
+int PPArticlePacket::SetSupplAgreement(const PPSupplAgreement * pAgt, int ignoreEmpty)
 {
 	int    ok = 1;
 	ZDELETE(P_SupplAgt);
@@ -231,12 +231,12 @@ int SLAPI PPArticlePacket::SetSupplAgreement(const PPSupplAgreement * pAgt, int 
 	return ok;
 }
 
-const LAssocArray * SLAPI PPArticlePacket::GetAliasSubst() const
+const LAssocArray * PPArticlePacket::GetAliasSubst() const
 {
 	return P_AliasSubst;
 }
 
-int SLAPI PPArticlePacket::EnumAliasSubst(uint * pPos, PPID * pAliasID, PPID * pAccID) const
+int PPArticlePacket::EnumAliasSubst(uint * pPos, PPID * pAliasID, PPID * pAccID) const
 {
 	int    ok = 0;
 	if(P_AliasSubst) {
@@ -250,13 +250,13 @@ int SLAPI PPArticlePacket::EnumAliasSubst(uint * pPos, PPID * pAliasID, PPID * p
 	return ok;
 }
 
-int SLAPI PPArticlePacket::AddAliasSubst(PPID accAliasID, PPID accID)
+int PPArticlePacket::AddAliasSubst(PPID accAliasID, PPID accID)
 {
 	SETIFZ(P_AliasSubst, new LAssocArray);
 	return P_AliasSubst->AddUnique(accAliasID, accID, 0) ? 1 : PPSetError(PPERR_DUPSUBSTALIASONARTICLE);
 }
 
-int SLAPI PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
+int PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
 {
 	if(P_AliasSubst && P_AliasSubst->Search(accAliasID, 0, 0)) {
 		uint   cnt = 0;
@@ -274,7 +274,7 @@ int SLAPI PPArticlePacket::UpdateAliasSubst(PPID accAliasID, PPID accID)
 		return -1;
 }
 
-int SLAPI PPArticlePacket::RemoveAliasSubst(PPID accAliasID)
+int PPArticlePacket::RemoveAliasSubst(PPID accAliasID)
 {
 	return (P_AliasSubst && P_AliasSubst->Remove(accAliasID)) ? 1 : -1;
 }
@@ -282,7 +282,7 @@ int SLAPI PPArticlePacket::RemoveAliasSubst(PPID accAliasID)
 //
 //
 struct ArticleDlgData : public PPArticlePacket {
-	SLAPI  ArticleDlgData() : PPArticlePacket(), Options(0)
+	ArticleDlgData() : PPArticlePacket(), Options(0)
 	{
 	}
 	enum {
@@ -458,7 +458,7 @@ IMPL_HANDLE_EVENT(ArticleAutoAddDialog)
 //
 //
 //
-static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
+static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 {
 	#define GRP_ALS 1
 	#define GRP_ACC 2
@@ -526,7 +526,7 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 
 class ArticleDialog : public PPListDialog {
 public:
-	SLAPI  ArticleDialog(uint rezID, ArticleDlgData * aData) : PPListDialog(rezID, CTL_ARTICLE_ALIASSUBST), P_Data(aData), AccSheetFounded(0), AgtFlags(0)
+	ArticleDialog(uint rezID, ArticleDlgData * aData) : PPListDialog(rezID, CTL_ARTICLE_ALIASSUBST), P_Data(aData), AccSheetFounded(0), AgtFlags(0)
 	{
 		PPObjArticle arobj;
 		SetEmptyAgreementInd();
@@ -596,9 +596,9 @@ private:
 	virtual int addItem(long * pos, long * id);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
-	void   SLAPI editObject();
-	void   SLAPI editClientAgreement();
-	void   SLAPI SetEmptyAgreementInd();
+	void   editObject();
+	void   editClientAgreement();
+	void   SetEmptyAgreementInd();
 
 	ArticleDlgData * P_Data;
 	int    AccSheetFounded;
@@ -662,7 +662,7 @@ int ArticleDialog::delItem(long pos, long id)
 	return 1;
 }
 
-void SLAPI ArticleDialog::editObject()
+void ArticleDialog::editObject()
 {
 	if(P_Data->Rec.AccSheetID && AccSheetFounded && AccSheetRec.Assoc) {
 		if(EditPPObj(AccSheetRec.Assoc, P_Data->Rec.ObjID) > 0) {
@@ -673,7 +673,7 @@ void SLAPI ArticleDialog::editObject()
 	}
 }
 
-void SLAPI ArticleDialog::editClientAgreement()
+void ArticleDialog::editClientAgreement()
 {
 	int    ok = -1;
 	int    agt_kind = -1;
@@ -715,7 +715,7 @@ void SLAPI ArticleDialog::editClientAgreement()
 	CATCHZOKPPERR
 }
 
-void SLAPI ArticleDialog::SetEmptyAgreementInd()
+void ArticleDialog::SetEmptyAgreementInd()
 {
 	uint   bmp_id = IDB_RED;
 	if(P_Data) {
@@ -728,7 +728,7 @@ void SLAPI ArticleDialog::SetEmptyAgreementInd()
 //
 //
 //
-int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
+int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 {
 	class GrpArticleDialog : public TDialog {
 	public:
@@ -863,7 +863,7 @@ int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 //
 //
 //
-int SLAPI PPObjArticle::EditDialog(ArticleDlgData * pData)
+int PPObjArticle::EditDialog(ArticleDlgData * pData)
 {
 	int    ok = 1, r = 1, cm = cmCancel, valid_data = 0;
 	int    sel_linkobj = 0;
@@ -937,7 +937,7 @@ int SLAPI PPObjArticle::EditDialog(ArticleDlgData * pData)
 	return ok ? cm : 0;
 }
 
-int SLAPI PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
+int PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 {
 	const ArticleFilt * p_filt = static_cast<const ArticleFilt *>(extraPtr);
 	const  PPID extra_acs_id = NZOR(CurrFilt.AccSheetID, (p_filt ? p_filt->AccSheetID : 0));
@@ -975,7 +975,7 @@ int SLAPI PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjArticle::AutoFill(const PPAccSheet * pAccSheetRec)
+int PPObjArticle::AutoFill(const PPAccSheet * pAccSheetRec)
 {
 	ArticleAutoAddDialog * dlg = new ArticleAutoAddDialog(pAccSheetRec->ID);
 	int    r = dlg->Ret;
@@ -983,7 +983,7 @@ int SLAPI PPObjArticle::AutoFill(const PPAccSheet * pAccSheetRec)
 	return r;
 }
 
-int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
+int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 {
 	int    ok = 1;
 	int    cm = cmCancel, done = 0;
@@ -1060,24 +1060,24 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 
 TLP_IMPL(PPObjArticle, ArticleCore, P_Tbl);
 
-SLAPI PPObjArticle::PPObjArticle(void * extraPtr) : PPObject(PPOBJ_ARTICLE), ExtraPtr(extraPtr)
+PPObjArticle::PPObjArticle(void * extraPtr) : PPObject(PPOBJ_ARTICLE), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
 	RVALUEPTR(CurrFilt, static_cast<ArticleFilt *>(ExtraPtr));
 }
 
-SLAPI PPObjArticle::~PPObjArticle()
+PPObjArticle::~PPObjArticle()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjArticle::Search(PPID id, void * b)
+int PPObjArticle::Search(PPID id, void * b)
 	{ return SearchByID(P_Tbl, Obj, id, b); }
-int SLAPI PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
+int PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 	{ return P_Tbl->SearchFreeNum(accSheetID, pID); }
 
-/*static*/int SLAPI PPObjArticle::GetSearchingRegTypeID(PPID accSheetID, const char * pRegTypeCode, int useBillConfig, PPID * pRegTypeID)
+/*static*/int PPObjArticle::GetSearchingRegTypeID(PPID accSheetID, const char * pRegTypeCode, int useBillConfig, PPID * pRegTypeID)
 {
 	int    ok = -1;
 	PPID   reg_type_id = 0;
@@ -1103,7 +1103,7 @@ int SLAPI PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 	return ok;
 }
 
-int SLAPI PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const char * pRegCode,
+int PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const char * pRegCode,
 	PPID * pID, ArticleTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -1120,7 +1120,7 @@ int SLAPI PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const c
 	return ok;
 }
 
-int SLAPI PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, PPIDArray * pArList)
+int PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, PPIDArray * pArList)
 {
 	int    ok = 1;
 	if(accSheetID) {
@@ -1143,7 +1143,7 @@ int SLAPI PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnL
 	return ok;
 }
 
-int SLAPI PPObjArticle::GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID)
+int PPObjArticle::GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID)
 {
 	int    ok = -1;
 	PPID   ar_id = 0;
@@ -1159,7 +1159,7 @@ int SLAPI PPObjArticle::GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID)
 	return ok;
 }
 
-int SLAPI PPObjArticle::DeleteObj(PPID id)
+int PPObjArticle::DeleteObj(PPID id)
 {
 	int    ok = 1;
 	THROW(Search(id) > 0);
@@ -1174,12 +1174,12 @@ int SLAPI PPObjArticle::DeleteObj(PPID id)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjArticle::PutAliasSubst(PPID arID, const LAssocArray * pList, int use_ta)
+/*static*/int PPObjArticle::PutAliasSubst(PPID arID, const LAssocArray * pList, int use_ta)
 	{ return PPRef->PutPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList, use_ta); }
-/*static*/int SLAPI PPObjArticle::GetAliasSubst(PPID arID, LAssocArray * pList)
+/*static*/int PPObjArticle::GetAliasSubst(PPID arID, LAssocArray * pList)
 	{ return PPRef->GetPropArray(PPOBJ_ARTICLE, arID, ARTPRP_ALIASSUBST, pList); }
 
-int SLAPI PPObjArticle::Helper_PutAgreement(PPID id, PPArticlePacket * pPack)
+int PPObjArticle::Helper_PutAgreement(PPID id, PPArticlePacket * pPack)
 {
 	int    ok = -1;
 	SString fmt_buf, msg_buf;
@@ -1211,7 +1211,7 @@ int SLAPI PPObjArticle::Helper_PutAgreement(PPID id, PPArticlePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
+int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPObjAccTurn at_obj;
@@ -1292,7 +1292,7 @@ int SLAPI PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_t
 	return ok;
 }
 
-int SLAPI PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
+int PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 {
 	int    ok = 1, r;
 	pPack->Init();
@@ -1328,7 +1328,7 @@ int SLAPI PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(ArticleFilt*)*/ )
+StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(ArticleFilt*)*/ )
 {
 //#define DO_GET_NAME_FROM_CACHE // Вариант с раздельным извлечением строк (значительно медленнее прямого метода)q
 	StrAssocArray * p_list = 0;
@@ -1393,7 +1393,7 @@ StrAssocArray * SLAPI PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetI
 #undef DO_GET_NAME_FROM_CACHE
 }
 
-int SLAPI PPObjArticle::Browse(void * extraPtr /*(ArticleFilt *)*/)
+int PPObjArticle::Browse(void * extraPtr /*(ArticleFilt *)*/)
 {
 	if(extraPtr) {
 		ArticleFilt filt;
@@ -1410,12 +1410,12 @@ int SLAPI PPObjArticle::Browse(void * extraPtr /*(ArticleFilt *)*/)
 //
 //
 //
-const char * SLAPI PPObjArticle::GetNamePtr()
+const char * PPObjArticle::GetNamePtr()
 {
 	return P_Tbl->data.Name;
 }
 
-int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	switch(msg) {
@@ -1548,7 +1548,7 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjArticle::SearchAssocObjRef(PPID _obj, PPID _id, PPID * pAccSheetID, PPID kind, PPID * pID)
+int PPObjArticle::SearchAssocObjRef(PPID _obj, PPID _id, PPID * pAccSheetID, PPID kind, PPID * pID)
 {
 	int    r;
 	PPID   acc_sheet_id = DEREFPTRORZ(pAccSheetID);
@@ -1568,7 +1568,7 @@ int SLAPI PPObjArticle::SearchAssocObjRef(PPID _obj, PPID _id, PPID * pAccSheetI
 	return r;
 }
 
-int SLAPI PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pName, long ar, int use_ta)
+int PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pName, long ar, int use_ta)
 {
 	int    ok = 1;
 	ArticleTbl::Rec rec;
@@ -1596,7 +1596,7 @@ int SLAPI PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pNam
 	return ok;
 }
 
-int SLAPI PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, long ar, int use_ta)
+int PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, long ar, int use_ta)
 {
 	int    ok = 1;
 	ArticleTbl::Rec rec;
@@ -1626,12 +1626,12 @@ int SLAPI PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, lo
 	return ok;
 }
 
-int SLAPI PPObjArticle::_ProcessSearch(int r, PPID id)
+int PPObjArticle::_ProcessSearch(int r, PPID id)
 {
 	return (r > 0) ? RetRefsExistsErr(Obj, id) : (r ? DBRPL_OK : DBRPL_ERROR);
 }
 
-/* @v9.1.3 int SLAPI PPObjArticle::ReplyWarehouseAdded(PPID locID)
+/* @v9.1.3 int PPObjArticle::ReplyWarehouseAdded(PPID locID)
 {
 	PPID   sheet_id = 0;
 	PPAccSheet as_rec;
@@ -1649,7 +1649,7 @@ int SLAPI PPObjArticle::_ProcessSearch(int r, PPID id)
 //
 // @v9.1.3
 //
-int SLAPI PPObjArticle::ReplyObjectCreated(PPID objType, PPID objID)
+int PPObjArticle::ReplyObjectCreated(PPID objType, PPID objID)
 {
 	PPAccSheet acs_rec;
 	PPObjAccSheet acs_obj;
@@ -1665,7 +1665,7 @@ int SLAPI PPObjArticle::ReplyObjectCreated(PPID objType, PPID objID)
 	return DBRPL_OK;
 }
 
-int SLAPI PPObjArticle::_UpdateName(const char * pNewName)
+int PPObjArticle::_UpdateName(const char * pNewName)
 {
 	int    ok = 1;
 	const  char * p_newname = pNewName;
@@ -1684,7 +1684,7 @@ int SLAPI PPObjArticle::_UpdateName(const char * pNewName)
 	return ok;
 }
 
-int SLAPI PPObjArticle::ReplyPersonReplace(PPID dest, PPID src)
+int PPObjArticle::ReplyPersonReplace(PPID dest, PPID src)
 {
 	MemLeakTracer mlt;
 	int    ok = DBRPL_OK, r;
@@ -1709,7 +1709,7 @@ int SLAPI PPObjArticle::ReplyPersonReplace(PPID dest, PPID src)
 	return ok;
 }
 
-int SLAPI PPObjArticle::ReplyArticleReplace(PPID dest, PPID src)
+int PPObjArticle::ReplyArticleReplace(PPID dest, PPID src)
 {
 	int    ok = DBRPL_OK;
 	PPID   dst_sheet, src_sheet;
@@ -1724,7 +1724,7 @@ int SLAPI PPObjArticle::ReplyArticleReplace(PPID dest, PPID src)
 	return ok;
 }
 
-int SLAPI PPObjArticle::SerializePacket(int dir, PPArticlePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjArticle::SerializePacket(int dir, PPArticlePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	uint8  cli_agt_ind   = 0; // 1 - соглашение отсутствует
@@ -1766,7 +1766,7 @@ int SLAPI PPObjArticle::SerializePacket(int dir, PPArticlePacket * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	PPArticlePacket * p_pack = static_cast<PPArticlePacket *>(p->Data);
@@ -1815,10 +1815,10 @@ int SLAPI PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	return ok;
 }
 
-int SLAPI PPObjArticle::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjArticle::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjArticle, PPArticlePacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1858,7 +1858,7 @@ int SLAPI PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 	return ok;
 }
 
-int SLAPI PPObjArticle::GetMainOrgAsSuppl(PPID * pID, int processAbsense, int use_ta)
+int PPObjArticle::GetMainOrgAsSuppl(PPID * pID, int processAbsense, int use_ta)
 {
 	int    ok = 1, r;
 	PPID   i, sheet_id = GetSupplAccSheet();
@@ -1880,12 +1880,12 @@ int SLAPI PPObjArticle::GetMainOrgAsSuppl(PPID * pID, int processAbsense, int us
 	return ok;
 }
 
-int SLAPI PPObjArticle::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjArticle::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTART, CTL_RTART_FLAGS, CTL_RTART_SFLAGS, bufSize, rt, pDlg);
 }
 
-int SLAPI PPObjArticle::GetRelPersonList(PPID arID, PPID relTypeID, int reverse, PPIDArray * pList)
+int PPObjArticle::GetRelPersonList(PPID arID, PPID relTypeID, int reverse, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPID   acc_sheet_id = 0;
@@ -1904,7 +1904,7 @@ int SLAPI PPObjArticle::GetRelPersonList(PPID arID, PPID relTypeID, int reverse,
 	return ok;
 }
 
-int SLAPI PPObjArticle::GetRelPersonSingle(PPID arID, PPID relTypeID, int reverse, PPID * pRelID)
+int PPObjArticle::GetRelPersonSingle(PPID arID, PPID relTypeID, int reverse, PPID * pRelID)
 {
 	PPID   rel_id = 0;
 	PPIDArray ar_list;
@@ -1915,7 +1915,7 @@ int SLAPI PPObjArticle::GetRelPersonSingle(PPID arID, PPID relTypeID, int revers
 	return rel_id ? 1 : -1;
 }
 
-SString & SLAPI PPObjArticle::MakeCodeString(const ArticleTbl::Rec * pRec, long options, SString & rBuf)
+SString & PPObjArticle::MakeCodeString(const ArticleTbl::Rec * pRec, long options, SString & rBuf)
 {
 	rBuf.Z();
 	rBuf.Cat(pRec->Name);
@@ -1931,7 +1931,7 @@ SString & SLAPI PPObjArticle::MakeCodeString(const ArticleTbl::Rec * pRec, long 
 	return rBuf;
 }
 
-int SLAPI PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack, PPIDArray * pAbsentKinds)
+int PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack, PPIDArray * pAbsentKinds)
 {
 	int    ok = 1;
 	if(pPack && pPack->Rec.ID) {
@@ -1963,7 +1963,7 @@ int SLAPI PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack, PPIDArra
 	return ok;
 }
 
-int SLAPI PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
+int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 {
 	int    ok = 1;
 	SString ar_buf;
@@ -2022,11 +2022,11 @@ int SLAPI PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsg
 //
 class ArticleCache : public ObjCacheHash {
 public:
-	SLAPI  ArticleCache() : ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), 1024*1024, 4), IsVatFreeListInited(0)
+	ArticleCache() : ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), 1024*1024, 4), IsVatFreeListInited(0)
 	{
 	}
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
-	int    SLAPI IsSupplVatFree(PPID supplID); // @sync_rw
+	int    IsSupplVatFree(PPID supplID); // @sync_rw
 private:
 	struct Data : public ObjCacheEntry {
 		PPID   AccSheetID;
@@ -2034,14 +2034,14 @@ private:
 		PPID   ObjID;
 		long   Flags;
 	};
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	PPIDArray VatFreeSupplList;
 	int    IsVatFreeListInited;
 };
 
-int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
+int ArticleCache::IsSupplVatFree(PPID supplID)
 {
 	int    ok = -1;
 	if(supplID) {
@@ -2080,7 +2080,7 @@ int FASTCALL ArticleCache::Dirty(PPID id)
 	return ok;
 }
 
-int SLAPI ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2104,7 +2104,7 @@ int SLAPI ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	ArticleTbl::Rec * p_data_rec = static_cast<ArticleTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -2142,12 +2142,12 @@ int FASTCALL PPObjArticle::Dirty(PPID id)
 	return 1;
 }
 
-const ArticleFilt * SLAPI PPObjArticle::GetCurrFilt() const
+const ArticleFilt * PPObjArticle::GetCurrFilt() const
 {
 	return &CurrFilt;
 }
 
-void SLAPI PPObjArticle::SetCurrFilt(const ArticleFilt * pFilt)
+void PPObjArticle::SetCurrFilt(const ArticleFilt * pFilt)
 {
 	if(!RVALUEPTR(CurrFilt, pFilt)) {
 		CurrFilt.Init(1, 0);
@@ -2156,18 +2156,18 @@ void SLAPI PPObjArticle::SetCurrFilt(const ArticleFilt * pFilt)
 //
 //
 //
-SLAPI PPDebtDimPacket::PPDebtDimPacket()
+PPDebtDimPacket::PPDebtDimPacket()
 {
 	MEMSZERO(Rec);
 }
 //
 // PPObjDebtLimit
 //
-SLAPI PPObjDebtDim::PPObjDebtDim() : PPObjReference(PPOBJ_DEBTDIM, 0)
+PPObjDebtDim::PPObjDebtDim() : PPObjReference(PPOBJ_DEBTDIM, 0)
 {
 }
 
-/*static*/PPID SLAPI PPObjDebtDim::Select()
+/*static*/PPID PPObjDebtDim::Select()
 {
 	PPID   id = 0;
 	SString sub_title;
@@ -2191,7 +2191,7 @@ SLAPI PPObjDebtDim::PPObjDebtDim() : PPObjReference(PPOBJ_DEBTDIM, 0)
 	return id;
 }
 
-int SLAPI PPObjDebtDim::Browse(void * extraPtr) { return RefObjView(this, 0, 0); }
+int PPObjDebtDim::Browse(void * extraPtr) { return RefObjView(this, 0, 0); }
 
 class DebtDimDialog : public PPListDialog {
 public:
@@ -2292,7 +2292,7 @@ int DebtDimDialog::delItem(long pos, long id)
 	return Data.AgentList.Remove(id, 0);
 }
 
-int SLAPI PPObjDebtDim::Edit(PPID * pID, void * extraPtr)
+int PPObjDebtDim::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
 	PPDebtDimPacket pack;
@@ -2324,7 +2324,7 @@ int SLAPI PPObjDebtDim::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjDebtDim::GetPacket(PPID id, PPDebtDimPacket * pPack)
+int PPObjDebtDim::GetPacket(PPID id, PPDebtDimPacket * pPack)
 {
 	int    ok = -1;
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
@@ -2340,7 +2340,7 @@ int SLAPI PPObjDebtDim::GetPacket(PPID id, PPDebtDimPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjDebtDim::PutPacket(PPID * pID, PPDebtDimPacket * pPack, int use_ta)
+int PPObjDebtDim::PutPacket(PPID * pID, PPDebtDimPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -2369,7 +2369,7 @@ int SLAPI PPObjDebtDim::PutPacket(PPID * pID, PPDebtDimPacket * pPack, int use_t
 	return ok;
 }
 
-int SLAPI PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -2408,10 +2408,10 @@ int SLAPI PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjDebtDim::Read(PPObjPack *p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjDebtDim::Read(PPObjPack *p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjDebtDim, PPDebtDimPacket>(this, p, id, stream, pCtx); }
 
-int  SLAPI PPObjDebtDim::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int  PPObjDebtDim::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	PPDebtDimPacket * p_pack = static_cast<PPDebtDimPacket *>(p->Data);
@@ -2435,7 +2435,7 @@ int  SLAPI PPObjDebtDim::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 	return ok;
 }
 
-int  SLAPI PPObjDebtDim::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int  PPObjDebtDim::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -2459,7 +2459,7 @@ int  SLAPI PPObjDebtDim::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return ok;
 }
 
-int SLAPI PPObjDebtDim::SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjDebtDim::SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -2477,7 +2477,7 @@ int SLAPI PPObjDebtDim::SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI CorrectZeroDebtDimRefs()
+int CorrectZeroDebtDimRefs()
 {
 	int    ok = -1;
 	{
@@ -2569,18 +2569,18 @@ int SLAPI CorrectZeroDebtDimRefs()
 //
 class DebtDimCache : public ObjCache {
 public:
-	SLAPI DebtDimCache() : ObjCache(PPOBJ_DEBTDIM, sizeof(DebtDimData)), P_AgentList(0)
+	DebtDimCache() : ObjCache(PPOBJ_DEBTDIM, sizeof(DebtDimData)), P_AgentList(0)
 	{
 	}
-	SLAPI ~DebtDimCache()
+	~DebtDimCache()
 	{
 		ZDELETE(P_AgentList);
 	}
 	virtual int FASTCALL Dirty(PPID id);
 	int    FetchAgentList(LAssocArray * pAgentList);
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct DebtDimData : public ObjCacheEntry {
 		PPID   Reserve; // @reserve
@@ -2589,7 +2589,7 @@ public:
 	ReadWriteLock AlLock;
 };
 
-int SLAPI DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	DebtDimData * p_cache_rec = static_cast<DebtDimData *>(pEntry);
@@ -2610,7 +2610,7 @@ int SLAPI DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPDebtDim * p_data_rec = static_cast<PPDebtDim *>(pDataRec);
 	const DebtDimData * p_cache_rec = static_cast<const DebtDimData *>(pEntry);
@@ -2670,7 +2670,7 @@ int DebtDimCache::FetchAgentList(LAssocArray * pAgentList)
 IMPL_OBJ_FETCH(PPObjDebtDim, PPDebtDim, DebtDimCache);
 IMPL_OBJ_DIRTY(PPObjDebtDim, DebtDimCache);
 
-int  SLAPI PPObjDebtDim::FetchAgentList(LAssocArray * pList)
+int  PPObjDebtDim::FetchAgentList(LAssocArray * pList)
 {
 	DebtDimCache * p_cache = GetDbLocalCachePtr <DebtDimCache> (Obj);
 	return p_cache ? p_cache->FetchAgentList(pList) : -1;

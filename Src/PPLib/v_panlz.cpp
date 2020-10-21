@@ -19,7 +19,7 @@
 // 3. Оптимизировать расчет по поставщику (предварительно выбрать позиции, которые приходят
 //    от этого поставщика, а затем перебирать эти позиции).
 //
-IMPLEMENT_PPFILT_FACTORY(PriceAnlz); SLAPI PriceAnlzFilt::PriceAnlzFilt() : PPBaseFilt(PPFILT_PRICEANLZ, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PriceAnlz); PriceAnlzFilt::PriceAnlzFilt() : PPBaseFilt(PPFILT_PRICEANLZ, 0, 0)
 {
 	SetFlatChunk(offsetof(PriceAnlzFilt, ReserveStart),
 		offsetof(PriceAnlzFilt, LocList)-offsetof(PriceAnlzFilt, ReserveStart));
@@ -35,17 +35,16 @@ PriceAnlzFilt & FASTCALL PriceAnlzFilt::operator = (const PriceAnlzFilt & s)
 //
 //
 //
-SLAPI PPViewPriceAnlz::PPViewPriceAnlz() : PPView(0, &Filt, 0), P_TempTbl(0)
+PPViewPriceAnlz::PPViewPriceAnlz() : PPView(0, &Filt, 0, 0, REPORT_PRICEANLZ), P_TempTbl(0)
 {
-	DefReportId = REPORT_PRICEANLZ;
 }
 
-SLAPI PPViewPriceAnlz::~PPViewPriceAnlz()
+PPViewPriceAnlz::~PPViewPriceAnlz()
 {
 	ZDELETE(P_TempTbl);
 }
 
-PPBaseFilt * SLAPI PPViewPriceAnlz::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewPriceAnlz::CreateFilt(void * extraPtr) const
 {
 	PriceAnlzFilt * p_filt = new PriceAnlzFilt;
 	p_filt->BaseCost = PriceAnlzFilt::bcByContract;
@@ -140,7 +139,7 @@ int PriceAnlzFiltDialog::getDTS(PriceAnlzFilt * pData)
 	return ok;
 }
 
-int SLAPI PPViewPriceAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewPriceAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -150,7 +149,7 @@ int SLAPI PPViewPriceAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPriceAnlz);
 
-int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1, use_ta = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -372,17 +371,17 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 	{
 		class PriceAnlzCrosstab : public Crosstab {
 		public:
-			SLAPI PriceAnlzCrosstab(PPViewPriceAnlz * pV) : Crosstab(), P_V(pV)
+			PriceAnlzCrosstab(PPViewPriceAnlz * pV) : Crosstab(), P_V(pV)
 			{
 			}
-			virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+			virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 			{
 				PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 				SetupBrowserCtColumns(p_brw);
 				return p_brw;
 			}
 		protected:
-			virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+			virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 			{
 				if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
 					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -413,7 +412,7 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewPriceAnlz::InitIteration()
+int PPViewPriceAnlz::InitIteration()
 {
 	TempPriceAnlzTbl::Key0 k, k_;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -437,7 +436,7 @@ int FASTCALL PPViewPriceAnlz::NextIteration(PriceAnlzViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	DBQuery * p_q = 0;
@@ -470,7 +469,7 @@ DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return p_q;
 }
 
-void SLAPI PPViewPriceAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewPriceAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
@@ -479,7 +478,7 @@ void SLAPI PPViewPriceAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-/*virtual*/int SLAPI PPViewPriceAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewPriceAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	struct _E {
 		PPID   ID;
@@ -524,7 +523,7 @@ void SLAPI PPViewPriceAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewPriceAnlz::SetContractPrices()
+int PPViewPriceAnlz::SetContractPrices()
 {
 	int    ok = -1;
 	uint   cfm_msg = Filt.LocList.GetCount() ? PPCFM_SETCONTRACTPRICESSEL : PPCFM_SETCONTRACTPRICES;
@@ -582,7 +581,7 @@ int SLAPI PPViewPriceAnlz::SetContractPrices()
 	return ok;
 }
 
-void SLAPI PPViewPriceAnlz::GetTabTitle(PPID tabID, SString & rBuf)
+void PPViewPriceAnlz::GetTabTitle(PPID tabID, SString & rBuf)
 {
 	rBuf.Z();
 	if(tabID && P_TempTbl)

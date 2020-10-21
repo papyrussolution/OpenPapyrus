@@ -6,12 +6,12 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
-SLAPI GoodsRestViewItem::GoodsRestViewItem()
+GoodsRestViewItem::GoodsRestViewItem()
 {
 	THISZERO();
 }
 
-IMPLEMENT_PPFILT_FACTORY(GoodsRest); SLAPI GoodsRestFilt::GoodsRestFilt() : PPBaseFilt(PPFILT_GOODSREST, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GoodsRest); GoodsRestFilt::GoodsRestFilt() : PPBaseFilt(PPFILT_GOODSREST, 0, 0)
 {
 	SetFlatChunk(offsetof(GoodsRestFilt, ReserveStart),
 		offsetof(GoodsRestFilt, Reserve)-offsetof(GoodsRestFilt, ReserveStart)+sizeof(Reserve));
@@ -20,7 +20,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsRest); SLAPI GoodsRestFilt::GoodsRestFilt() : PPBa
 	Init(1, 0);
 }
 
-/*virtual*/int SLAPI GoodsRestFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int GoodsRestFilt::Describe(long flags, SString & rBuf) const
 {
 	PutObjMembToBuf(PPOBJ_ARTICLE,     SupplID,    STRINGIZE(SupplID),    rBuf);
 	PutObjMembToBuf(PPOBJ_GOODSGROUP,  GoodsGrpID, STRINGIZE(GoodsGrpID), rBuf);
@@ -83,7 +83,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsRest); SLAPI GoodsRestFilt::GoodsRestFilt() : PPBa
 	return 1;
 }
 
-int SLAPI GoodsRestFilt::IsEqualExcept(const GoodsRestFilt & rS, long flags) const
+int GoodsRestFilt::IsEqualExcept(const GoodsRestFilt & rS, long flags) const
 {
 #define NEQ_FLD(f) (f) != (rS.f)
 	if(NEQ_FLD(CalcMethod))
@@ -127,7 +127,7 @@ int SLAPI GoodsRestFilt::IsEqualExcept(const GoodsRestFilt & rS, long flags) con
 	return 1;
 }
 
-int SLAPI GoodsRestFilt::SetQuotUsage(int v)
+int GoodsRestFilt::SetQuotUsage(int v)
 {
 	int    ok = -1;
 	const long preserve_flags = Flags;
@@ -149,7 +149,7 @@ int SLAPI GoodsRestFilt::SetQuotUsage(int v)
 	return !ok ? 0 : ((Flags == preserve_flags && Flags2 == preserve_flags2) ? -1 : +1);
 }
 
-int SLAPI GoodsRestFilt::GetQuotUsage() const
+int GoodsRestFilt::GetQuotUsage() const
 {
 	int    result = 0;
 	if(!(Flags & fPriceByQuot)) {
@@ -165,12 +165,12 @@ int SLAPI GoodsRestFilt::GetQuotUsage() const
 //
 //
 //
-SLAPI GoodsRestTotal::GoodsRestTotal()
+GoodsRestTotal::GoodsRestTotal()
 {
 	Init();
 }
 
-void SLAPI GoodsRestTotal::Init()
+void GoodsRestTotal::Init()
 {
 	Count = 0;
 	PctAddedVal = 0.0;
@@ -222,18 +222,16 @@ int GoodsRestTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 //
 #define DEFAULT_GROUPRESTCALCTHRESHOLD 100
 
-SLAPI PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST), P_GGIter(0), P_Tbl(0), P_BObj(BillObj),
+PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST, implUseServer, REPORT_GOODSREST), P_GGIter(0), P_Tbl(0), P_BObj(BillObj),
 	P_Predictor(0), P_TempOrd(0), P_OpGrpngFilt(0), Flags(0), ScalePrefixID(0), SellOpID(0), LastCacheCounter(0),
 	GroupCalcThreshold(CConfig.GRestCalcThreshold), P_Rpe(0)
 {
-	DefReportId = REPORT_GOODSREST;
 	SETFLAG(Flags, fAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 	if(GroupCalcThreshold <= 0 || GroupCalcThreshold > 1000)
 		GroupCalcThreshold = DEFAULT_GROUPRESTCALCTHRESHOLD;
-	ImplementFlags |= implUseServer;
 }
 
-SLAPI PPViewGoodsRest::~PPViewGoodsRest()
+PPViewGoodsRest::~PPViewGoodsRest()
 {
 	delete P_GGIter;
 	delete P_Tbl;
@@ -259,14 +257,14 @@ PPBaseFilt * PPViewGoodsRest::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-void SLAPI PPViewGoodsRest::SetGsl(const GoodsSubstList * pOuterGsl)
+void PPViewGoodsRest::SetGsl(const GoodsSubstList * pOuterGsl)
 {
 	Gsl.Init(1, pOuterGsl);
 }
 //
 //
 //
-int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
+int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	GoodsRestFilt prev_filt = Filt;
@@ -345,7 +343,7 @@ int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots)
+int PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots)
 {
 	int    ok = -1;
 	GoodsRestViewItem item;
@@ -809,7 +807,7 @@ int GoodsRestWPrgnFltDlg::getDTS(GoodsRestFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewGoodsRest::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
@@ -829,24 +827,24 @@ PPViewGoodsRest::CacheItem::CacheItem()
 	THISZERO();
 }
 
-SLAPI PPViewGoodsRest::Cache::Cache()
+PPViewGoodsRest::Cache::Cache()
 {
 }
 
-PPViewGoodsRest::Cache & SLAPI PPViewGoodsRest::Cache::Clear()
+PPViewGoodsRest::Cache & PPViewGoodsRest::Cache::Clear()
 {
 	TSVector <PPViewGoodsRest::CacheItem>::freeAll(); // @v9.8.4 TSArray-->TSVector
 	SStrGroup::DestroyS();
 	return *this;
 }
 
-int SLAPI PPViewGoodsRest::Cache::SetupCacheItemSerial(PPViewGoodsRest::CacheItem & rItem, const char * pSerial)
+int PPViewGoodsRest::Cache::SetupCacheItemSerial(PPViewGoodsRest::CacheItem & rItem, const char * pSerial)
 	{ return AddS(pSerial, &rItem.SerialP); }
-int SLAPI PPViewGoodsRest::Cache::GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
+int PPViewGoodsRest::Cache::GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
 	{ return GetS(rItem.SerialP, rBuf); }
-int SLAPI PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal)
+int PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal)
 	{ return AddS(pTagVal, &rItem.LotTagP); }
-int SLAPI PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
+int PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
 	{ return GetS(rItem.LotTagP, rBuf); }
 
 IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2)
@@ -854,7 +852,7 @@ IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2)
 	RET_CMPCASCADE5(static_cast<const PPViewGoodsRest::CacheItem *>(_i1), static_cast<const PPViewGoodsRest::CacheItem *>(_i2), GoodsID, LocID, Cost, Price, UnitPerPack);
 }
 
-void SLAPI PPViewGoodsRest::InitCache()
+void PPViewGoodsRest::InitCache()
 {
 	MaxCacheItems = 128*1024;
 	CacheDelta = 4096;
@@ -875,7 +873,7 @@ IMPL_CMPFUNC(_lru_item_tag, _i1, _i2)
 	return CMPFUNC(int16, &i2->pos, &i1->pos); // descending order
 }
 
-double SLAPI PPViewGoodsRest::GetDeficit(PPID goodsID)
+double PPViewGoodsRest::GetDeficit(PPID goodsID)
 {
 	double deficit = 0.0;
 	if(Filt.Flags & GoodsRestFilt::fCalcDeficit)
@@ -884,7 +882,7 @@ double SLAPI PPViewGoodsRest::GetDeficit(PPID goodsID)
 	return deficit;
 }
 
-double SLAPI PPViewGoodsRest::GetDraftRcptByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList /*=1*/)
+double PPViewGoodsRest::GetDraftRcptByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList /*=1*/)
 {
 	double rest = 0.0;
 	const  uint _c = SVectorBase::GetCount(pLocList);
@@ -896,7 +894,7 @@ double SLAPI PPViewGoodsRest::GetDraftRcptByLocList(PPID goodsID, const PPIDArra
 	return rest;
 }
 
-double SLAPI PPViewGoodsRest::EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcptItem * pItem)
+double PPViewGoodsRest::EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcptItem * pItem)
 {
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pIdx);
@@ -914,7 +912,7 @@ double SLAPI PPViewGoodsRest::EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcpt
 	return ok;
 }
 
-double SLAPI PPViewGoodsRest::GetDraftReceipt(PPID goodsID, PPID locID, int addToExclList /*=1*/)
+double PPViewGoodsRest::GetDraftReceipt(PPID goodsID, PPID locID, int addToExclList /*=1*/)
 {
 	double rest = 0.0;
 	if(goodsID && (Filt.Flags & GoodsRestFilt::fShowDraftReceipt)) {
@@ -934,7 +932,7 @@ double SLAPI PPViewGoodsRest::GetDraftReceipt(PPID goodsID, PPID locID, int addT
 	return rest;
 }
 
-double SLAPI PPViewGoodsRest::GetUncompleteSessQttyByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList /*=1*/)
+double PPViewGoodsRest::GetUncompleteSessQttyByLocList(PPID goodsID, const PPIDArray * pLocList, int addToExclList /*=1*/)
 {
 	double rest = 0.0;
 	const  uint _c = SVectorBase::GetCount(pLocList);
@@ -946,7 +944,7 @@ double SLAPI PPViewGoodsRest::GetUncompleteSessQttyByLocList(PPID goodsID, const
 	return rest;
 }
 
-double SLAPI PPViewGoodsRest::EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, DraftRcptItem * pItem)
+double PPViewGoodsRest::EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, DraftRcptItem * pItem)
 {
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pIdx);
@@ -964,7 +962,7 @@ double SLAPI PPViewGoodsRest::EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, 
 	return ok;
 }
 
-double SLAPI PPViewGoodsRest::GetUncompleteSessQtty(PPID goodsID, PPID locID, int addToExclList /*=1*/)
+double PPViewGoodsRest::GetUncompleteSessQtty(PPID goodsID, PPID locID, int addToExclList /*=1*/)
 {
 	double rest = 0.0;
 	if(goodsID && (Filt.Flags & GoodsRestFilt::fCalcUncompleteSess)) {
@@ -984,7 +982,7 @@ double SLAPI PPViewGoodsRest::GetUncompleteSessQtty(PPID goodsID, PPID locID, in
 	return rest;
 }
 
-int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::CacheItem & rItem)
+int PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::CacheItem & rItem)
 {
 	int    ok = 1;
 	if(P_Tbl) {
@@ -1153,7 +1151,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::UpdateGoods(PPID goodsID)
+int PPViewGoodsRest::UpdateGoods(PPID goodsID)
 {
 	int    ok = 1;
 	if(!Filt.Sgg) {
@@ -1206,7 +1204,7 @@ int SLAPI PPViewGoodsRest::UpdateGoods(PPID goodsID)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::FlashCacheItems(uint count)
+int PPViewGoodsRest::FlashCacheItems(uint count)
 {
 	int    ok = 1;
 	uint   pos, i;
@@ -1252,7 +1250,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItems(uint count)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::CompareNthCacheItem(uint n, const PPViewGoodsRest::CacheItem * pItem) const
+int PPViewGoodsRest::CompareNthCacheItem(uint n, const PPViewGoodsRest::CacheItem * pItem) const
 {
 	int    ok = 0;
 	if(n < CacheBuf.getCount()) {
@@ -1398,7 +1396,7 @@ PROFILE_END
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::AddGoodsThruCache(PPID goodsID, PPID locID, int isSubst,
+int PPViewGoodsRest::AddGoodsThruCache(PPID goodsID, PPID locID, int isSubst,
 	double order, double phUPerU, const GoodsRestVal * pGRV, BExtInsert * pBei)
 {
 	if(Filt.Flags & GoodsRestFilt::fUnderMinStock) {
@@ -1430,7 +1428,7 @@ int SLAPI PPViewGoodsRest::AddGoodsThruCache(PPID goodsID, PPID locID, int isSub
 		return FlashCacheItem(pBei, grci);
 }
 
-int SLAPI PPViewGoodsRest::GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, LDATE dt, ReceiptTbl::Rec * pRec)
+int PPViewGoodsRest::GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, LDATE dt, ReceiptTbl::Rec * pRec)
 {
 	int    ok = 0;
 	PROFILE_START
@@ -1463,7 +1461,7 @@ int SLAPI PPViewGoodsRest::GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, 
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec & rRec)
+int PPViewGoodsRest::GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec & rRec)
 {
 	MEMSZERO(rRec);
 	int    ok = GetLastLot_p(goodsID, locID, Filt.SupplID, getcurdate_(), &rRec); // @v10.8.10 LConfig.OperDate-->getcurdate_()
@@ -1482,7 +1480,7 @@ int SLAPI PPViewGoodsRest::GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::CalcOrder(PPID goodsID, GoodsRestParam * pOutData)
+int PPViewGoodsRest::CalcOrder(PPID goodsID, GoodsRestParam * pOutData)
 {
 	int    ok = 1;
 	GoodsRestParam p;
@@ -1501,7 +1499,7 @@ int SLAPI PPViewGoodsRest::CalcOrder(PPID goodsID, GoodsRestParam * pOutData)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::AddTotal(const PPViewGoodsRest::CacheItem & rItem)
+int PPViewGoodsRest::AddTotal(const PPViewGoodsRest::CacheItem & rItem)
 {
 	int    ok = 1;
 	PPID   amt_type_cost  = PPAMT_BUYING;
@@ -1534,7 +1532,7 @@ int SLAPI PPViewGoodsRest::AddTotal(const PPViewGoodsRest::CacheItem & rItem)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArray * pAgentBillList)
+int PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArray * pAgentBillList)
 {
 	int    ok = 1;
 	const  long ff = Filt.Flags;
@@ -1742,7 +1740,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::ProcessGroup(const PPIDArray * pGrpGoodsList)
+int PPViewGoodsRest::ProcessGroup(const PPIDArray * pGrpGoodsList)
 {
 	int    ok = 1;
 	PPIDArray * p_agent_bill_list = 0;
@@ -1810,7 +1808,7 @@ PPViewGoodsRest::ProcessLotBlock::~ProcessLotBlock()
 	delete P_LpCache;
 }
 
-int SLAPI PPViewGoodsRest::InitProcessLotBlock(ProcessLotBlock & rBlk, const PPIDArray * pGrpGoodsList)
+int PPViewGoodsRest::InitProcessLotBlock(ProcessLotBlock & rBlk, const PPIDArray * pGrpGoodsList)
 {
 	int    ok = 1;
 	rBlk.ExtBillList.freeAll();
@@ -1833,7 +1831,7 @@ int SLAPI PPViewGoodsRest::InitProcessLotBlock(ProcessLotBlock & rBlk, const PPI
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec & rRec)
+int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec & rRec)
 {
 	int    ok = 1;
 	const  PPID goods_id = rRec.GoodsID;
@@ -2054,7 +2052,7 @@ PPViewGoodsRest::LotQueryBlock::~LotQueryBlock()
 	BExtQuery::ZDelete(&P_Q);
 }
 
-int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowId, long uppId)
+int PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowId, long uppId)
 {
 	assert(!lcr || Filt.Date);
 	int    ok = 1;
@@ -2186,7 +2184,7 @@ int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowI
 		rT.Rest, rT.Closed, rT.Expiry, 0L); // @v9.7.11 rT.Expiry
 }
 
-int SLAPI PPViewGoodsRest::SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList) // @v9.8.8 SArray-->SVector
+int PPViewGoodsRest::SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList) // @v9.8.8 SArray-->SVector
 {
 	int    ok = 1;
 	ReceiptCore & r_t = P_BObj->trfr->Rcpt;
@@ -2210,7 +2208,7 @@ int SLAPI PPViewGoodsRest::SelectLcrLots(const PPIDArray & rIdList, const UintHa
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
+int PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 {
 	int    ok = 1, r;
 	ReceiptCore * r_t = & P_BObj->trfr->Rcpt;
@@ -2359,7 +2357,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 	return ok;
 }
 
-void SLAPI PPViewGoodsRest::GetTabTitle(long tabID, SString & rBuf)
+void PPViewGoodsRest::GetTabTitle(long tabID, SString & rBuf)
 {
 	if(tabID) {
 		LocationTbl::Rec loc_rec;
@@ -2378,22 +2376,22 @@ public:
 		long   NzMtxCount;
 		double RelNzToMtx;
 	};
-	SLAPI  GoodsRestCrosstab(PPViewGoodsRest * pV) : Crosstab(), P_V(pV)
+	GoodsRestCrosstab(PPViewGoodsRest * pV) : Crosstab(), P_V(pV)
 	{
 	}
-	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+	virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 	{
 		PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 		SetupBrowserCtColumns(p_brw);
 		return p_brw;
 	}
 private:
-	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
 		if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
 			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
 	}
-	virtual int SLAPI CalcSummary(int action, CalcSummaryBlock & rBlk)
+	virtual int CalcSummary(int action, CalcSummaryBlock & rBlk)
 	{
 		PPID loc_id = 0;
 		PPID goods_id = 0;
@@ -2464,7 +2462,7 @@ private:
 	PPObjGoods GObj;
 };
 
-int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
+int PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 {
 	int    ok = 1;
 	int    use_goods_iterator = 0;
@@ -2703,7 +2701,7 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 }
 
 // AHTOXA {
-int SLAPI PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
+int PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = -1;
 	TempOrderTbl * p_o = 0;
@@ -2755,7 +2753,7 @@ int SLAPI PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl
 //
 //
 //
-int SLAPI PPViewGoodsRest::InitIterQuery(PPID grpID)
+int PPViewGoodsRest::InitIterQuery(PPID grpID)
 {
 	int    ok = -1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -2791,7 +2789,7 @@ int SLAPI PPViewGoodsRest::InitIterQuery(PPID grpID)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::InitGroupNamesList()
+int PPViewGoodsRest::InitGroupNamesList()
 {
 	IterGrpName.Z();
 	PPID   init_parent_id = 0;
@@ -2818,7 +2816,7 @@ int SLAPI PPViewGoodsRest::InitGroupNamesList()
 	return P_GGIter ? 1 : PPSetErrorNoMem();
 }
 
-int SLAPI PPViewGoodsRest::InitIteration(IterOrder ord)
+int PPViewGoodsRest::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx = 0;
@@ -2858,7 +2856,7 @@ int SLAPI PPViewGoodsRest::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::NextOuterIteration()
+int PPViewGoodsRest::NextOuterIteration()
 {
 	PPID   grp_id = 0;
 	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
@@ -2869,7 +2867,7 @@ int SLAPI PPViewGoodsRest::NextOuterIteration()
 		return -1;
 }
 
-int SLAPI PPViewGoodsRest::InitAppBuff(const TempGoodsRestTbl::Rec * pRec, GoodsRestViewItem * pItem)
+int PPViewGoodsRest::InitAppBuff(const TempGoodsRestTbl::Rec * pRec, GoodsRestViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem) {
@@ -2950,7 +2948,7 @@ int FASTCALL PPViewGoodsRest::NextIteration(GoodsRestViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewGoodsRest::GetItem(PPID goodsID, PPID locID, GoodsRestViewItem * pItem)
+int PPViewGoodsRest::GetItem(PPID goodsID, PPID locID, GoodsRestViewItem * pItem)
 {
 	TempGoodsRestTbl::Key3 k3;
 	k3.GoodsID = goodsID;
@@ -2964,7 +2962,7 @@ int SLAPI PPViewGoodsRest::GetItem(PPID goodsID, PPID locID, GoodsRestViewItem *
 		return 0;
 }
 
-int SLAPI PPViewGoodsRest::GetItem(PPID goodsID, const ObjIdListFilt * pLocList, GoodsRestViewItem * pItem)
+int PPViewGoodsRest::GetItem(PPID goodsID, const ObjIdListFilt * pLocList, GoodsRestViewItem * pItem)
 {
 	TempGoodsRestTbl::Key3 k3;
 	k3.GoodsID = goodsID;
@@ -2978,7 +2976,7 @@ int SLAPI PPViewGoodsRest::GetItem(PPID goodsID, const ObjIdListFilt * pLocList,
 		return 0;
 }
 
-int SLAPI PPViewGoodsRest::GetItem(PPID __id, GoodsRestViewItem * pItem)
+int PPViewGoodsRest::GetItem(PPID __id, GoodsRestViewItem * pItem)
 {
 	TempGoodsRestTbl::Key0 k0;
 	k0.ID__ = __id;
@@ -2990,7 +2988,7 @@ int SLAPI PPViewGoodsRest::GetItem(PPID __id, GoodsRestViewItem * pItem)
 		return 0;
 }
 
-int SLAPI PPViewGoodsRest::GetGoodsStat(PPID goodsID, const ObjIdListFilt & rLocList, PredictSalesStat * pStat)
+int PPViewGoodsRest::GetGoodsStat(PPID goodsID, const ObjIdListFilt & rLocList, PredictSalesStat * pStat)
 {
 	int    ok = 1;
 	PredictSalesStat stat;
@@ -3002,12 +3000,12 @@ int SLAPI PPViewGoodsRest::GetGoodsStat(PPID goodsID, const ObjIdListFilt & rLoc
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::GetTableName(SString & rBuf) const
+int PPViewGoodsRest::GetTableName(SString & rBuf) const
 {
 	return P_Tbl ? ((rBuf = P_Tbl->GetName()), 1) : (rBuf.Z(), 0);
 }
 
-int SLAPI PPViewGoodsRest::SetSupplOrderValues(PPID goodsID, PPID locID, double predict, double minStock, double order, int canTrust)
+int PPViewGoodsRest::SetSupplOrderValues(PPID goodsID, PPID locID, double predict, double minStock, double order, int canTrust)
 {
 	TempGoodsRestTbl::Key3 k3;
 	k3.GoodsID = goodsID;
@@ -3028,13 +3026,13 @@ int SLAPI PPViewGoodsRest::SetSupplOrderValues(PPID goodsID, PPID locID, double 
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::GetGoodsBarcode(PPID goodsID, char * barcode, size_t buflen)
+int PPViewGoodsRest::GetGoodsBarcode(PPID goodsID, char * barcode, size_t buflen)
 {
 	return GObj.GetSingleBarcode(goodsID, barcode, buflen);
 }
 
 /* @v9.2.2 (replaced by GoodsCore::GetGoodsCodeInAltGrp)
-int SLAPI PPViewGoodsRest::GetGoodsNumByAlterGroup(PPID goodsID, PPID grpID, long * pNum)
+int PPViewGoodsRest::GetGoodsNumByAlterGroup(PPID goodsID, PPID grpID, long * pNum)
 {
 	int    ok = -1;
 	long   goods_num = 0;
@@ -3047,7 +3045,7 @@ int SLAPI PPViewGoodsRest::GetGoodsNumByAlterGroup(PPID goodsID, PPID grpID, lon
 	return ok;
 }*/
 
-int SLAPI PPViewGoodsRest::GetTotal(GoodsRestTotal * pTotal)
+int PPViewGoodsRest::GetTotal(GoodsRestTotal * pTotal)
 {
 	if(!(Flags & fTotalInited)) {
 		Total.Init();
@@ -3059,7 +3057,7 @@ int SLAPI PPViewGoodsRest::GetTotal(GoodsRestTotal * pTotal)
 	return 1;
 }
 
-int SLAPI PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
+int PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 {
 	int    ok = 1;
 	TempGoodsRestTbl * p_tbl = P_Tbl;
@@ -3116,7 +3114,7 @@ int SLAPI PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
+int PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
 {
 	DateRange prd = Filt.PrgnPeriod;
 	if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && DateRangeDialog(0, 0, &prd) > 0) { // @v9.5.8 CalcPrognosis-->Flags2
@@ -3143,7 +3141,7 @@ int SLAPI PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
 //
 //
 //
-int SLAPI PPViewGoodsRest::ConvertLinesToBasket()
+int PPViewGoodsRest::ConvertLinesToBasket()
 {
 	int    ok = -1, r = 0;
 	int    convert = BIN(Filt.Sgg == sggNone);
@@ -3204,7 +3202,7 @@ int SLAPI PPViewGoodsRest::ConvertLinesToBasket()
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewGoodsRest::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	int    disable_group_selection = 0;
 	PPAccessRestriction accsr;
@@ -3216,7 +3214,7 @@ int SLAPI PPViewGoodsRest::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-void SLAPI PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
+void PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
 {
 	PPID   loc_id   = 0;
 	PPID   goods_id = 0;
@@ -3243,7 +3241,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pCellStyle) : -1;
 }
 
-int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle)
+int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle)
 {
 	int    ok = -1;
 	if(pData && pCellStyle && col >= 0) {
@@ -3275,7 +3273,7 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 	return ok;
 }
 
-/*virtual*/void SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	uint   brw_id = 0;
 	int    deficit_col = 0, minstock_col = 0, draft_rcpt_col = 0;
@@ -3344,7 +3342,7 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
 }
 
-/*virtual*/DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	if(!P_Tbl)
 		return 0;
@@ -3543,7 +3541,7 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 	return q;
 }
 
-/*virtual*/int SLAPI PPViewGoodsRest::ViewTotal()
+/*virtual*/int PPViewGoodsRest::ViewTotal()
 {
 	class GoodsRestTotalDialog : public AmtListDialog {
 	public:
@@ -3586,7 +3584,7 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 	return 1;
 }
 
-int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
+int PPViewGoodsRest::ExportUhtt(int silent)
 {
 	int    ok = -1;
 	const  PPID src_loc_id = NZOR(Filt.UhttExpLocID, Filt.LocList.GetSingle());
@@ -3963,7 +3961,7 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    update = 0;
 	int    ok = (ppvCmd != PPVCMD_DETAIL && ppvCmd != PPVCMD_PRINT) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
@@ -4134,9 +4132,9 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 	return ok;
 }
 
-int SLAPI ViewGoodsRest(const GoodsRestFilt * pFilt, int calcPrognosis) { return PPView::Execute(PPVIEW_GOODSREST, pFilt, 1, reinterpret_cast<void *>(BIN(calcPrognosis))); }
+int ViewGoodsRest(const GoodsRestFilt * pFilt, int calcPrognosis) { return PPView::Execute(PPVIEW_GOODSREST, pFilt, 1, reinterpret_cast<void *>(BIN(calcPrognosis))); }
 
-int SLAPI GoodsRestTest()
+int GoodsRestTest()
 {
 	int    ok = -1, iter_count = 0;
 	PPIniFile ini_file;
@@ -4156,7 +4154,7 @@ int SLAPI GoodsRestTest()
 //
 // Printing
 //
-int SLAPI PPViewGoodsRest::PrintTotal(const GoodsRestTotal * pTotal)
+int PPViewGoodsRest::PrintTotal(const GoodsRestTotal * pTotal)
 {
 	GoodsRestTotalPrintData grtpd;
 	grtpd.P_Total = pTotal;
@@ -4178,7 +4176,7 @@ struct GoodsRestReport {
 	};
 };
 
-int SLAPI PPViewGoodsRest::SetContractPrices()
+int PPViewGoodsRest::SetContractPrices()
 {
 	int    ok = -1;
 	uint   cfm_msg = LocList.GetCount() ? PPCFM_SETCONTRACTPRICESSEL : PPCFM_SETCONTRACTPRICES;
@@ -4232,7 +4230,7 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::Print(const void * pExtra)
+int PPViewGoodsRest::Print(const void * pExtra)
 {
 	int    ok = 1;
 	const  int use_option_dlg = pExtra ? *static_cast<const int *>(pExtra) : 0;
@@ -4342,7 +4340,7 @@ int SLAPI PPViewGoodsRest::Print(const void * pExtra)
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewGoodsRest::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	SString temp_buf;

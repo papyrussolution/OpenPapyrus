@@ -21,15 +21,15 @@
 #ifndef REDUCE_H_
 #define REDUCE_H_
 
-void reduce_grammar (void);
-void reduce_output (FILE *out);
-bool reduce_token_unused_in_grammar (symbol_number i);
+void reduce_grammar();
+void reduce_output(FILE * out);
+bool reduce_token_unused_in_grammar(symbol_number i);
 /** Whether symbol \a i is useless in the grammar.
  * \pre  reduce_grammar was called before.
  */
-bool reduce_nonterminal_useless_in_grammar (const sym_content *sym);
-void reduce_free (void);
-extern symbol_number *nterm_map; /** Map initial nterm numbers to the new ones.  Built by reduce_grammar.  Size nnterms + nuseless_nonterminals.  */
+bool reduce_nonterminal_useless_in_grammar(const sym_content * sym);
+void reduce_free();
+extern symbol_number * nterm_map; /** Map initial nterm numbers to the new ones.  Built by reduce_grammar.  Size nnterms + nuseless_nonterminals.  */
 extern int nuseless_nonterminals;
 extern int nuseless_productions;
 

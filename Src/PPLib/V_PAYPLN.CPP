@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(PaymPlan); SLAPI PaymPlanFilt::PaymPlanFilt() : PPBaseFilt(PPFILT_PAYMPLAN, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(PaymPlan); PaymPlanFilt::PaymPlanFilt() : PPBaseFilt(PPFILT_PAYMPLAN, 0, 1)
 {
 	SetFlatChunk(offsetof(PaymPlanFilt, ReserveStart),
 		offsetof(PaymPlanFilt, Reserve)-offsetof(PaymPlanFilt, ReserveStart)+sizeof(Reserve));
@@ -15,11 +15,11 @@ IMPLEMENT_PPFILT_FACTORY(PaymPlan); SLAPI PaymPlanFilt::PaymPlanFilt() : PPBaseF
 }
 
 
-SLAPI PPViewPaymPlan::PPViewPaymPlan() : PPView(0, &Filt, PPVIEW_PAYMPLAN), P_BObj(BillObj), P_TempTbl(0)
+PPViewPaymPlan::PPViewPaymPlan() : PPView(0, &Filt, PPVIEW_PAYMPLAN, 0, 0), P_BObj(BillObj), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewPaymPlan::~PPViewPaymPlan()
+PPViewPaymPlan::~PPViewPaymPlan()
 {
 	ZDELETE(P_TempTbl);
 }
@@ -201,7 +201,7 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
+int PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
@@ -260,17 +260,17 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 	{
 		class PaymPlanCrosstab : public Crosstab {
 		public:
-			SLAPI  PaymPlanCrosstab(PPViewPaymPlan * pV) : Crosstab(), P_V(pV)
+			PaymPlanCrosstab(PPViewPaymPlan * pV) : Crosstab(), P_V(pV)
 			{
 			}
-			virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+			virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 			{
 				PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 				SetupBrowserCtColumns(p_brw);
 				return p_brw;
 			}
 		protected:
-			virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+			virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 			{
 				if(pVal && P_V) 
 					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -311,7 +311,7 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::InitIteration()
+int PPViewPaymPlan::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1;
@@ -331,7 +331,7 @@ int SLAPI PPViewPaymPlan::InitIteration()
 	return ok;
 }
 
-void SLAPI PPViewPaymPlan::NextInnerIteration(PaymPlanViewItem * pItem)
+void PPViewPaymPlan::NextInnerIteration(PaymPlanViewItem * pItem)
 {
 	if(Filt.Flags & PaymPlanFilt::fDetailByBill) {
 		if(InnerCounter >= InnerCounter.GetTotal()) {
@@ -384,12 +384,12 @@ int FASTCALL PPViewPaymPlan::NextIteration(PaymPlanViewItem * pItem)
 	return ok;
 }
 
-void SLAPI PPViewPaymPlan::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void PPViewPaymPlan::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
 	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
 
-void SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
+void PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
 {
 	if(tabID && P_TempTbl) {
 		char   buf[64];
@@ -405,7 +405,7 @@ void SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
 	}
 }
 
-int SLAPI PPViewPaymPlan::ViewTotal()
+int PPViewPaymPlan::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_PAYPLANTOTAL);
@@ -421,7 +421,7 @@ int SLAPI PPViewPaymPlan::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class PaymPlanFiltDialog : public WLDialog {
 		DECL_DIALOG_DATA(PaymPlanFilt);
@@ -506,7 +506,7 @@ int SLAPI PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(PaymPlanFiltDialog, p_filt);
 }
 
-DBQuery * SLAPI PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	int    ok = 1;
 	uint   brw_id = BROWSER_PAYMPLAN;
@@ -549,7 +549,7 @@ DBQuery * SLAPI PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-int SLAPI PPViewPaymPlan::ViewArticleInfo(const BrwHdr * pHdr, int what)
+int PPViewPaymPlan::ViewArticleInfo(const BrwHdr * pHdr, int what)
 {
 	int    ok = -1;
 	if(pHdr && pHdr->ObjID) {
@@ -576,7 +576,7 @@ int SLAPI PPViewPaymPlan::ViewArticleInfo(const BrwHdr * pHdr, int what)
 	return ok;
 }
 
-void SLAPI PPViewPaymPlan::GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col)
+void PPViewPaymPlan::GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col)
 {
 	LDATE dt = ZERODATE;
 	PPID  obj_id = 0;
@@ -597,7 +597,7 @@ void SLAPI PPViewPaymPlan::GetEditIds(const void * pRow, LDATE * pDt, PPID * pOb
 	ASSIGN_PTR(pObjID, obj_id);
 }
 
-int SLAPI PPViewPaymPlan::GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBillList, RPairArray * pPaymList, int allowZeroPeriod)
+int PPViewPaymPlan::GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBillList, RPairArray * pPaymList, int allowZeroPeriod)
 {
 	int    ok = 1;
 	DateRange period;
@@ -623,7 +623,7 @@ int SLAPI PPViewPaymPlan::GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBil
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPaymPlan::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	LDATE dt = ZERODATE;
@@ -639,7 +639,7 @@ int SLAPI PPViewPaymPlan::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPaymPlan::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -662,7 +662,7 @@ int SLAPI PPViewPaymPlan::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::Print(const void *)
+int PPViewPaymPlan::Print(const void *)
 {
 	uint rpt_id = (Filt.Flags & PaymPlanFilt::fDetailByBill) ? REPORT_PAYMPLANDETAIL : REPORT_PAYMPLAN;
 	return Helper_Print(rpt_id, 0);

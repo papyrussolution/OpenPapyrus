@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(GoodsTaxAnalyze); SLAPI GoodsTaxAnalyzeFilt::GoodsTaxAnalyzeFilt() : PPBaseFilt(PPFILT_GOODSTAXANALYZE, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(GoodsTaxAnalyze); GoodsTaxAnalyzeFilt::GoodsTaxAnalyzeFilt() : PPBaseFilt(PPFILT_GOODSTAXANALYZE, 0, 1)
 {
 	SetFlatChunk(offsetof(GoodsTaxAnalyzeFilt, ReserveStart),
 		offsetof(GoodsTaxAnalyzeFilt, BillList)-offsetof(GoodsTaxAnalyzeFilt, ReserveStart));
@@ -16,16 +16,16 @@ IMPLEMENT_PPFILT_FACTORY(GoodsTaxAnalyze); SLAPI GoodsTaxAnalyzeFilt::GoodsTaxAn
 		Flags |= GoodsTaxAnalyzeFilt::fByPayment;
 }
 
-int SLAPI GoodsTaxAnalyzeFilt::HasCycleFlags() const
+int GoodsTaxAnalyzeFilt::HasCycleFlags() const
 {
 	return BIN(Flags & (fDayly|fMonthly));
 }
 
-SLAPI PPViewGoodsTaxAnalyze::PPViewGoodsTaxAnalyze() : PPView(0, &Filt, PPVIEW_GOODSTAXANALYZE), P_TempTbl(0), IterIdx(0), P_GGIter(0), P_InOutVATList(0)
+PPViewGoodsTaxAnalyze::PPViewGoodsTaxAnalyze() : PPView(0, &Filt, PPVIEW_GOODSTAXANALYZE, 0, 0), P_TempTbl(0), IterIdx(0), P_GGIter(0), P_InOutVATList(0)
 {
 }
 
-SLAPI PPViewGoodsTaxAnalyze::~PPViewGoodsTaxAnalyze()
+PPViewGoodsTaxAnalyze::~PPViewGoodsTaxAnalyze()
 {
 	delete P_TempTbl;
 	delete P_GGIter;
@@ -40,7 +40,7 @@ const BVATAccmArray * PPViewGoodsTaxAnalyze::GetInOutVATList() const
 //
 //
 //
-int SLAPI PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class GoodsTaxAnalyzeFiltDialog : public WLDialog {
 		DECL_DIALOG_DATA(GoodsTaxAnalyzeFilt);
@@ -175,7 +175,7 @@ int SLAPI PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(GoodsTaxAnalyzeFiltDialog, static_cast<GoodsTaxAnalyzeFilt *>(pBaseFilt));
 }
 
-void SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size_t bufLen)
+void PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size_t bufLen)
 {
 	PPGoodsTax gtx;
 	PPGoodsTaxEntry gtx_entry;
@@ -215,14 +215,14 @@ void SLAPI PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf
 	temp_buf.CopyTo(pBuf, bufLen);
 }
 
-void SLAPI PPViewGoodsTaxAnalyze::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void PPViewGoodsTaxAnalyze::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
 	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsTaxAnlz);
 
-int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
+int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -653,7 +653,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::InitIterQuery(PPID grpID)
+int PPViewGoodsTaxAnalyze::InitIterQuery(PPID grpID)
 {
 	// @v10.6.8 char   k_[MAXKEYLEN];
 	BtrDbKey k__; // @v10.6.8
@@ -674,7 +674,7 @@ int SLAPI PPViewGoodsTaxAnalyze::InitIterQuery(PPID grpID)
 	return 1;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::InitIteration(IterOrder ord)
+int PPViewGoodsTaxAnalyze::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx = 0;
@@ -705,7 +705,7 @@ int SLAPI PPViewGoodsTaxAnalyze::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::NextOuterIteration()
+int PPViewGoodsTaxAnalyze::NextOuterIteration()
 {
 	PPID   grp_id = 0;
 	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
@@ -753,7 +753,7 @@ int FASTCALL PPViewGoodsTaxAnalyze::NextIteration(GoodsTaxAnalyzeViewItem * pIte
 	return -1;
 }
 
-DBQuery * SLAPI PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString *)
+DBQuery * PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString *)
 {
 	uint   brw_id = Filt.HasCycleFlags() ? BROWSER_GOODSTAXANLZ_D : BROWSER_GOODSTAXANLZ;
 	TempGoodsTaxAnlzTbl * t = new TempGoodsTaxAnlzTbl(P_TempTbl->GetName());
@@ -805,7 +805,7 @@ DBQuery * SLAPI PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString
 	return q;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsTaxAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -817,7 +817,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, 
 	return ok;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::Print(const void *)
+int PPViewGoodsTaxAnalyze::Print(const void *)
 {
 	uint   rpt_id = 0;
 	IterOrder order;
@@ -867,7 +867,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Print(const void *)
 		return -1;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::PrintTotal(const GoodsTaxAnalyzeTotal * pTotal)
+int PPViewGoodsTaxAnalyze::PrintTotal(const GoodsTaxAnalyzeTotal * pTotal)
 {
 	GTaxAnlzTotalPrintData  gtatpd;
 	gtatpd.P_Total   = pTotal;
@@ -877,7 +877,7 @@ int SLAPI PPViewGoodsTaxAnalyze::PrintTotal(const GoodsTaxAnalyzeTotal * pTotal)
 	return PPAlddPrint(REPORT_GTAXANLZTOTAL, &pv, 0);
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::Detail(const void * pHdr, PPViewBrowser *)
+int PPViewGoodsTaxAnalyze::Detail(const void * pHdr, PPViewBrowser *)
 {
 	struct BrwHdr {
 		PPID   GoodsID;
@@ -921,7 +921,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Detail(const void * pHdr, PPViewBrowser *)
 //
 DECL_CMPFUNC(BVATAccm);
 
-int SLAPI PPViewGoodsTaxAnalyze::CalcTotal(GoodsTaxAnalyzeTotal * pTotal)
+int PPViewGoodsTaxAnalyze::CalcTotal(GoodsTaxAnalyzeTotal * pTotal)
 {
 	int    ok = -1;
 	GoodsTaxAnalyzeViewItem item;
@@ -954,7 +954,7 @@ int SLAPI PPViewGoodsTaxAnalyze::CalcTotal(GoodsTaxAnalyzeTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
+int PPViewGoodsTaxAnalyze::ViewTotal()
 {
 	class GTaxAnlzTotalDialog : public TDialog {
 	public:
@@ -1038,7 +1038,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 	return ok;
 }
 
-int SLAPI ViewGoodsTaxAnalyze(const GoodsTaxAnalyzeFilt * pFilt) { return PPView::Execute(PPVIEW_GOODSTAXANALYZE, pFilt, PPView::exefModeless, 0); }
+int ViewGoodsTaxAnalyze(const GoodsTaxAnalyzeFilt * pFilt) { return PPView::Execute(PPVIEW_GOODSTAXANALYZE, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_GoodsTaxAnlz
 //

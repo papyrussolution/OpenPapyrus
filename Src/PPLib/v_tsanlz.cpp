@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPViewTSessAnlz)
 //
-IMPLEMENT_PPFILT_FACTORY(TSessAnlz); SLAPI TSessAnlzFilt::TSessAnlzFilt() : PPBaseFilt(PPFILT_TSESSANLZ, 0, 0), P_TSesFilt(0)
+IMPLEMENT_PPFILT_FACTORY(TSessAnlz); TSessAnlzFilt::TSessAnlzFilt() : PPBaseFilt(PPFILT_TSESSANLZ, 0, 0), P_TSesFilt(0)
 {
 	SetFlatChunk(offsetof(TSessAnlzFilt, ReserveStart),
 		offsetof(TSessAnlzFilt, SessIdList)-offsetof(TSessAnlzFilt, ReserveStart));
@@ -22,7 +22,7 @@ TSessAnlzFilt & FASTCALL TSessAnlzFilt::operator = (const TSessAnlzFilt & s)
 	return *this;
 }
 
-void SLAPI TSessAnlzFilt::SetOuterTSessFilt(const TSessionFilt * pTSesFilt)
+void TSessAnlzFilt::SetOuterTSessFilt(const TSessionFilt * pTSesFilt)
 {
 	if(pTSesFilt) {
 		P_TSesFilt = new TSessionFilt;
@@ -32,12 +32,16 @@ void SLAPI TSessAnlzFilt::SetOuterTSessFilt(const TSessionFilt * pTSesFilt)
 		ZDELETE(P_TSesFilt);
 }
 
-const TSessionFilt * SLAPI TSessAnlzFilt::GetOuterTSessFilt() const { return P_TSesFilt; }
-int SLAPI TSessAnlzFilt::IsDiffFlag() const { return (DiffPrc || DiffMg || DiffDt); }
+const TSessionFilt * TSessAnlzFilt::GetOuterTSessFilt() const { return P_TSesFilt; }
+int TSessAnlzFilt::IsDiffFlag() const { return (DiffPrc || DiffMg || DiffDt); }
 //
 //
 //
 struct TSessAnlzEntry { // @flat
+	TSessAnlzEntry()
+	{
+		THISZERO();
+	}
 	int    IsTotalRow() const { return (DtVal == MAXLONG && PrcID == MAXLONG && PrmrGoodsID == MAXLONG); }
 	long   DtVal;       // Дата операции
 	PPID   PrcID;
@@ -71,9 +75,9 @@ struct AddQttyBlock {
 	double CompPart;
 };
 
-class TSessAnlzList : public TSVector <TSessAnlzEntry> { // @v9.8.4 TSArray-->TSVector
+class TSessAnlzList : public TSVector <TSessAnlzEntry> {
 public:
-	SLAPI  TSessAnlzList(SubstGrpGoods sgg, GoodsSubstList * pGsl, int addTotal) : TSVector <TSessAnlzEntry> (), Sgg(sgg), AddTotal(addTotal)
+	TSessAnlzList(SubstGrpGoods sgg, GoodsSubstList * pGsl, int addTotal) : TSVector <TSessAnlzEntry> (), Sgg(sgg), AddTotal(addTotal)
 	{
 		if(pGsl) {
 			P_ScndSggList = pGsl;
@@ -84,19 +88,19 @@ public:
 			IsScndSggListOwn = 1;
 		}
 	}
-	SLAPI ~TSessAnlzList();
-	int    SLAPI Search(long dtVal, PPID prcID, PPID prmrGoodsID, PPID goodsID, uint * pPos, int useSubst = 0);
-	int    SLAPI AddQtty(const AddQttyBlock & rBlk, int planned, int sign, double qtty, double compPart, int planPhUnit = 0);
-	int    SLAPI SetEntryVal(TSessAnlzEntry * pEntry, int planned, int sign, double qtty, double compPart, int planPhUnit);
-	int    SLAPI SetRest(long dtVal, PPID prcID, PPID goodsID, double rest);
-	int    SLAPI IsProcessed(PPID goodsID, PPID prmrGoodsID) const
+	~TSessAnlzList();
+	int    Search(long dtVal, PPID prcID, PPID prmrGoodsID, PPID goodsID, uint * pPos, int useSubst = 0);
+	int    AddQtty(const AddQttyBlock & rBlk, int planned, int sign, double qtty, double compPart, int planPhUnit = 0);
+	int    SetEntryVal(TSessAnlzEntry * pEntry, int planned, int sign, double qtty, double compPart, int planPhUnit);
+	int    SetRest(long dtVal, PPID prcID, PPID goodsID, double rest);
+	int    IsProcessed(PPID goodsID, PPID prmrGoodsID) const
 	{
 		return BIN(ProcessedGoodsList.SearchPair(goodsID, prmrGoodsID, 0));
 	}
-	int    SLAPI CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssocArray * pPlanList);
+	int    CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssocArray * pPlanList);
 	TSessAnlzEntry & FASTCALL GetTotalRow(PPID goodsID);
-	void   SLAPI ProcessTotalPlan();
-	int    SLAPI ProcessCompParts();
+	void   ProcessTotalPlan();
+	int    ProcessCompParts();
 
 	SubstGrpGoods Sgg;
 	GoodsSubstList PrmrSggList;
@@ -110,7 +114,7 @@ public:
 	int    AddTotal;
 };
 
-SLAPI TSessAnlzList::~TSessAnlzList()
+TSessAnlzList::~TSessAnlzList()
 {
 	if(IsScndSggListOwn)
 		delete P_ScndSggList;
@@ -140,7 +144,7 @@ IMPL_CMPFUNC(TSessAnlzEntry, i1, i2)
 		return 0;
 }
 
-int SLAPI TSessAnlzList::CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssocArray * pPlanList)
+int TSessAnlzList::CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssocArray * pPlanList)
 {
 	AddQttyBlock blk;
 	MEMSZERO(blk);
@@ -148,7 +152,7 @@ int SLAPI TSessAnlzList::CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssoc
 	for(uint i = 0; i < pPlanList->getCount(); i++) {
 		const RAssoc & r_plan_item = pPlanList->at(i);
 		TSessAnlzEntry test;
-		MEMSZERO(test);
+		// @v10.9.1 @ctr MEMSZERO(test);
 		test.PrcID = prcID;
 		test.PrmrGoodsID = prmrGoodsID;
 		test.GoodsID = r_plan_item.Key;
@@ -166,7 +170,7 @@ int SLAPI TSessAnlzList::CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssoc
 TSessAnlzEntry & FASTCALL TSessAnlzList::GetTotalRow(PPID goodsID)
 {
 	TSessAnlzEntry test;
-	MEMSZERO(test);
+	// @v10.9.1 @ctr MEMSZERO(test);
 	test.DtVal = MAXLONG;
 	test.PrcID = MAXLONG;
 	test.PrmrGoodsID = MAXLONG;
@@ -179,7 +183,7 @@ TSessAnlzEntry & FASTCALL TSessAnlzList::GetTotalRow(PPID goodsID)
 	return at(pos);
 }
 
-void SLAPI TSessAnlzList::ProcessTotalPlan()
+void TSessAnlzList::ProcessTotalPlan()
 {
 	uint   i;
 	for(i = 0; i < getCount(); i++) {
@@ -199,7 +203,7 @@ void SLAPI TSessAnlzList::ProcessTotalPlan()
 	}
 }
 
-int SLAPI TSessAnlzList::Search(long dtVal, PPID prcID, PPID prmrGoodsID, PPID goodsID, uint * pPos, int useSubst)
+int TSessAnlzList::Search(long dtVal, PPID prcID, PPID prmrGoodsID, PPID goodsID, uint * pPos, int useSubst)
 {
 	uint   pos = 0;
 	TSessAnlzEntry entry;
@@ -219,7 +223,7 @@ int SLAPI TSessAnlzList::Search(long dtVal, PPID prcID, PPID prmrGoodsID, PPID g
 		return 0;
 }
 
-int SLAPI TSessAnlzList::SetRest(long dtVal, PPID prcID, PPID goodsID, double rest)
+int TSessAnlzList::SetRest(long dtVal, PPID prcID, PPID goodsID, double rest)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -231,7 +235,7 @@ int SLAPI TSessAnlzList::SetRest(long dtVal, PPID prcID, PPID goodsID, double re
 	}
 	else {
 		TSessAnlzEntry entry;
-		MEMSZERO(entry);
+		// @v10.9.1 @ctr MEMSZERO(entry);
 		entry.DtVal   = dtVal;
 		entry.PrcID   = prcID;
 		entry.GoodsID = goods_id;
@@ -242,7 +246,7 @@ int SLAPI TSessAnlzList::SetRest(long dtVal, PPID prcID, PPID goodsID, double re
 	return ok;
 }
 
-int SLAPI TSessAnlzList::SetEntryVal(TSessAnlzEntry * pEntry, int planned, int sign, double qtty, double compPart, int planPhUnit)
+int TSessAnlzList::SetEntryVal(TSessAnlzEntry * pEntry, int planned, int sign, double qtty, double compPart, int planPhUnit)
 {
 	if(sign > 0)
 		if(planned == 1)
@@ -267,7 +271,7 @@ int SLAPI TSessAnlzList::SetEntryVal(TSessAnlzEntry * pEntry, int planned, int s
 	return 1;
 }
 
-int SLAPI TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sign, double qtty, double compPart, int planPhUnit)
+int TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sign, double qtty, double compPart, int planPhUnit)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -280,7 +284,7 @@ int SLAPI TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sig
 		SetEntryVal(&at(pos), planned, sign, qtty, compPart, planPhUnit);
 	else {
 		TSessAnlzEntry entry;
-		MEMSZERO(entry);
+		// @v10.9.1 @ctr MEMSZERO(entry);
 		entry.DtVal       = rBlk.DtVal;
 		entry.PrcID       = rBlk.PrcID;
 		entry.PrmrGoodsID = prmr_goods_id;
@@ -304,33 +308,33 @@ int SLAPI TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sig
 	return ok;
 }
 
-int SLAPI TSessAnlzList::ProcessCompParts()
+int TSessAnlzList::ProcessCompParts()
 {
-	struct E {
+	struct E { // @flat
+		E(const TSessAnlzEntry & rS) : PrmrGoodsID(rS.PrmrGoodsID), In(rS.InCompPart), Out(rS.OutCompPart)
+		{
+		}
 		PPID   PrmrGoodsID;
 		double In;
 		double Out;
 	};
 	uint   i, pos;
-	SVector total_list(sizeof(E)); // @v9.9.3 SArray-->SVector
+	SVector total_list(sizeof(E));
 	TSessAnlzEntry * p_entry;
 	for(i = 0; enumItems(&i, reinterpret_cast<void**>(&p_entry));) {
 		if(total_list.lsearch(&p_entry->PrmrGoodsID, &(pos = 0), CMPF_LONG)) {
-			E * p_e = (E *)total_list.at(pos);
+			E * p_e = static_cast<E *>(total_list.at(pos));
 			p_e->In  += p_entry->InCompPart;
 			p_e->Out += p_entry->OutCompPart;
 		}
 		else {
-			E e;
-			e.PrmrGoodsID = p_entry->PrmrGoodsID;
-			e.In  = p_entry->InCompPart;
-			e.Out = p_entry->OutCompPart;
+			E e(*p_entry);
 			total_list.insert(&e);
 		}
 	}
 	for(i = 0; enumItems(&i, reinterpret_cast<void**>(&p_entry));) {
 		if(total_list.lsearch(&p_entry->PrmrGoodsID, &(pos = 0), CMPF_LONG)) {
-			E * p_e2 = (E *)total_list.at(pos);
+			const E * p_e2 = static_cast<E *>(total_list.at(pos));
 			if(p_e2->In)
 				p_entry->InCompPart /= fdiv100r(p_e2->In);
 			if(p_e2->Out)
@@ -342,18 +346,18 @@ int SLAPI TSessAnlzList::ProcessCompParts()
 //
 //
 //
-SLAPI PPViewTSessAnlz::PPViewTSessAnlz() : PPView(0, &Filt, PPVIEW_TSESSANLZ), P_TempTbl(0)
+PPViewTSessAnlz::PPViewTSessAnlz() : PPView(0, &Filt, PPVIEW_TSESSANLZ, 0, 0), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewTSessAnlz::~PPViewTSessAnlz()
+PPViewTSessAnlz::~PPViewTSessAnlz()
 {
 	delete P_TempTbl;
 }
 //
 //
 //
-int SLAPI PPViewTSessAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewTSessAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class TSessAnlzFilt3Dialog : public TDialog {
 		DECL_DIALOG_DATA(TSessAnlzFilt);
@@ -448,7 +452,7 @@ int SLAPI PPViewTSessAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(TSessAnlzFilt3Dialog, static_cast<TSessAnlzFilt *>(pBaseFilt));
 }
 
-int SLAPI PPViewTSessAnlz::IsGoodsBelongToGen(PPID goodsID, PPID * pGenID)
+int PPViewTSessAnlz::IsGoodsBelongToGen(PPID goodsID, PPID * pGenID)
 {
 	int    ok = -1;
 	PPID   gen_id = 0;
@@ -469,7 +473,7 @@ int SLAPI PPViewTSessAnlz::IsGoodsBelongToGen(PPID goodsID, PPID * pGenID)
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::GetPlanWithSubst(PPID arID, PPID * pGoodsID, double * pPlan, int * pSign)
+int PPViewTSessAnlz::GetPlanWithSubst(PPID arID, PPID * pGoodsID, double * pPlan, int * pSign)
 {
 	int    ok = -1;
 	double plan = 0.0;
@@ -506,7 +510,7 @@ int SLAPI PPViewTSessAnlz::GetPlanWithSubst(PPID arID, PPID * pGoodsID, double *
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::NmGoodsSubst(PPID prmrGoodsID, PPID * pGoodsID)
+int PPViewTSessAnlz::NmGoodsSubst(PPID prmrGoodsID, PPID * pGoodsID)
 {
 	if(Filt.NmGoodsGrpID && *pGoodsID != prmrGoodsID)
 		if(GObj.BelongToGroup(*pGoodsID, Filt.NmGoodsGrpID) > 0) {
@@ -518,7 +522,7 @@ int SLAPI PPViewTSessAnlz::NmGoodsSubst(PPID prmrGoodsID, PPID * pGoodsID)
 	return 1;
 }
 
-int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAnlzList * pResult)
+int PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAnlzList * pResult)
 {
 	int    ok = 1;
 	//
@@ -675,7 +679,7 @@ int SLAPI PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAn
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::CreateBySess(PPID sessID, TSessAnlzList * pResult, PPIDArray * pProcessedList)
+int PPViewTSessAnlz::CreateBySess(PPID sessID, TSessAnlzList * pResult, PPIDArray * pProcessedList)
 {
 	int    ok = -1;
 	long   enum_handle = -1;
@@ -710,7 +714,7 @@ int SLAPI PPViewTSessAnlz::CreateBySess(PPID sessID, TSessAnlzList * pResult, PP
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::GetDutySchedPacket(PPID prcID, PPDutySchedPacket * pDsPack)
+int PPViewTSessAnlz::GetDutySchedPacket(PPID prcID, PPDutySchedPacket * pDsPack)
 {
 	int    ok = -1;
 	PPOprKind op_rec;
@@ -725,7 +729,7 @@ int SLAPI PPViewTSessAnlz::GetDutySchedPacket(PPID prcID, PPDutySchedPacket * pD
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::CalcArTimes(const PPDutySchedPacket * pDsPack, const STimeChunk & rBounds, RAssocArray * pDurationList)
+int PPViewTSessAnlz::CalcArTimes(const PPDutySchedPacket * pDsPack, const STimeChunk & rBounds, RAssocArray * pDurationList)
 {
 	int    ok = -1;
 	PPDutySchedPacket::EnumParam ep;
@@ -743,7 +747,7 @@ int SLAPI PPViewTSessAnlz::CalcArTimes(const PPDutySchedPacket * pDsPack, const 
 
 // @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempTSessRep);
 
-int SLAPI PPViewTSessAnlz::CreateTSessFiltByPlan(const TSessionTbl::Rec * pPlanRec, TSessionFilt * pFilt) const
+int PPViewTSessAnlz::CreateTSessFiltByPlan(const TSessionTbl::Rec * pPlanRec, TSessionFilt * pFilt) const
 {
 	pFilt->PrcID = pPlanRec->PrcID;
 	pFilt->StPeriod.Set(pPlanRec->StDt, pPlanRec->FinDt);
@@ -756,7 +760,7 @@ int SLAPI PPViewTSessAnlz::CreateTSessFiltByPlan(const TSessionTbl::Rec * pPlanR
 	return 1;
 }
 
-int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -943,7 +947,7 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::InitIteration()
+int PPViewTSessAnlz::InitIteration()
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -970,7 +974,7 @@ int FASTCALL PPViewTSessAnlz::NextIteration(TSessAnlzViewItem * pItem)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_TSESSANLZ;
 	DBQ  * dbq = 0;
@@ -1017,7 +1021,7 @@ DBQuery * SLAPI PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return p_q;
 }
 
-void SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && P_TempTbl) {
 		DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pBrw->getDef());
@@ -1050,7 +1054,7 @@ void SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewTSessAnlz::GetPhQtty(const TSessAnlzViewItem * pItem, PPID * pPhUnitID, double * pIn, double * pOut)
+int PPViewTSessAnlz::GetPhQtty(const TSessAnlzViewItem * pItem, PPID * pPhUnitID, double * pIn, double * pOut)
 {
 	int    ok = -1;
 	double in = 0.0;
@@ -1073,7 +1077,7 @@ int SLAPI PPViewTSessAnlz::GetPhQtty(const TSessAnlzViewItem * pItem, PPID * pPh
 	return ok;
 }
 
-void SLAPI PPViewTSessAnlz::RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSessAnlzViewItem * pItem)
+void PPViewTSessAnlz::RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSessAnlzViewItem * pItem)
 {
 	if(pItem && pRec) {
 		memzero(pItem, sizeof(*pItem));
@@ -1100,7 +1104,7 @@ void SLAPI PPViewTSessAnlz::RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSe
 	}
 }
 
-int SLAPI PPViewTSessAnlz::GetItem(PPID __id, TSessAnlzViewItem * pItem)
+int PPViewTSessAnlz::GetItem(PPID __id, TSessAnlzViewItem * pItem)
 {
 	int    ok = -1;
 	TempTSessRepTbl::Rec rec;
@@ -1111,7 +1115,7 @@ int SLAPI PPViewTSessAnlz::GetItem(PPID __id, TSessAnlzViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::EditGoods(PPID goodsID)
+int PPViewTSessAnlz::EditGoods(PPID goodsID)
 {
 	int    ok = -1;
 	if(goodsID) {
@@ -1146,12 +1150,12 @@ int SLAPI PPViewTSessAnlz::EditGoods(PPID goodsID)
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::Print(const void * pHdr)
+int PPViewTSessAnlz::Print(const void * pHdr)
 {
 	return Helper_Print((Filt.Flags & TSessAnlzFilt::fCalcCompParts) ? REPORT_TSESSANLZ_COMPPART : REPORT_TSESSANLZ);
 }
 
-int SLAPI PPViewTSessAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTSessAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

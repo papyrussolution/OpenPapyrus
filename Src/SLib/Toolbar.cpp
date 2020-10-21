@@ -366,7 +366,7 @@ HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 			if(tb.fsStyle & TBSTYLE_SEP)
 				AppendMenu(h_menu, MF_ENABLED|MF_SEPARATOR, 0, 0);
 			else
-				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, reinterpret_cast<LPTSTR>(tb.dwData)); // @unicodeproblem
+				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, reinterpret_cast<LPTSTR>(tb.dwData));
 	}
 	ASSIGN_PTR(pMenu, h_menu);
 	return h_menu;
@@ -381,7 +381,7 @@ int isFindMenuID(long id, HMENU hm)
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_STATE|MIIM_ID;
 		GetMenuItemInfo(hm, i, TRUE, &mii);
-		if(mii.hSubMenu && isFindMenuID(id, mii.hSubMenu))
+		if(mii.hSubMenu && isFindMenuID(id, mii.hSubMenu)) // @recursion
 			break;
 		else if(mii.wID == (uint)id)
 			break;
@@ -446,23 +446,16 @@ HICON BitmapToIcon(HBITMAP hBitmap)
 
 int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 {
-	Items = *pList;
+	RVALUEPTR(Items, pList);
 	Style = style;
 	VisibleCount = 0;
 	uint   i;
 	HIMAGELIST himl = reinterpret_cast<HIMAGELIST>(::SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0));
 	{
-		/* @v9.5.5
-		long count = SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0);
-		for(long idx = count - 1; idx >= 0; idx--)
-			::SendMessage(H_Toolbar, TB_DELETEBUTTON, idx, 0);
-		*/
-		// @v9.5.5 {
 		long _c = static_cast<long>(::SendMessage(H_Toolbar, TB_BUTTONCOUNT, 0, 0));
 		if(_c) do {
 			::SendMessage(H_Toolbar, TB_DELETEBUTTON, --_c, 0);
 		} while(_c);
-		// } @v9.5.5 
 		if(himl) {
 			ImageList_RemoveAll(himl);
 			ImageList_Destroy(himl);
@@ -485,7 +478,8 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 					btns.idCommand = item.KeyCode;
 					btns.dwData  = reinterpret_cast<DWORD_PTR>(item.ToolTipText);
 					btns.fsStyle = TBSTYLE_BUTTON;
-					if(!h_menu || isFindMenuID(item.KeyCode, h_menu))
+					// @v10.9.1 oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) костыль, предотвращающий блокировку команд, которых нет в меню
+					if(!h_menu || oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) || isFindMenuID(item.KeyCode, h_menu))
 						btns.fsState |= TBSTATE_ENABLED;
 					prev_separator = 0;
 				}
@@ -507,8 +501,7 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 						{
 							TCanvas2 canv(APPL->GetUiToolBox(), ib);
 							if(!tool_item.ReplacedColor.IsEmpty()) {
-								SColor replacement_color;
-								replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+								SColor replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
 								canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 							}
 							LMatrix2D mtx;

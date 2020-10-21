@@ -31,7 +31,7 @@ void VCalendar::Todo::Init()
 	Descr.Z();
 }
 
-SLAPI VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/) : P_Stream(0)
+VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/) : P_Stream(0)
 {
 	PPLoadText(PPTXT_VCAL_PROPERTIES,     Properties);
 	PPLoadText(PPTXT_VCAL_STATUSLIST,     Status);
@@ -40,12 +40,12 @@ SLAPI VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/) 
 	Open(pFileName, forExport);
 }
 
-SLAPI VCalendar::~VCalendar()
+VCalendar::~VCalendar()
 {
 	Close();
 }
 
-int SLAPI VCalendar::Open(const char * pFileName, int forExport)
+int VCalendar::Open(const char * pFileName, int forExport)
 {
 	int    ok = -1;
 	Close();
@@ -66,7 +66,7 @@ int SLAPI VCalendar::Open(const char * pFileName, int forExport)
 	return ok;
 }
 
-void SLAPI VCalendar::Close()
+void VCalendar::Close()
 {
   	if(P_Stream) {
 		SString temp_buf;
@@ -76,12 +76,12 @@ void SLAPI VCalendar::Close()
 	}
 }
 
-int SLAPI VCalendar::PutEvent(VCalendar::Event * pData)
+int VCalendar::PutEvent(VCalendar::Event * pData)
 {
 	return -1;
 }
 
-int SLAPI VCalendar::PutTodo(const VCalendar::Todo * pData)
+int VCalendar::PutTodo(const VCalendar::Todo * pData)
 {
 	int    ok = -1;
 	if(pData && P_Stream && P_Stream->IsValid() && Export) {
@@ -112,7 +112,7 @@ int SLAPI VCalendar::PutTodo(const VCalendar::Todo * pData)
 	return ok;
 }
 
-int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long addedParam)
+int VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long addedParam)
 {
 	int    ok = -1;
 	if(P_Stream && P_Stream->IsValid() && prop && pVal && Export) {
@@ -181,7 +181,7 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 	return ok;
 }
 
-int SLAPI VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rAttrib)
+int VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rAttrib)
 {
 	int    ok = -1;
 	SString temp_buf, val, attrs;
@@ -229,7 +229,7 @@ int SLAPI VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rA
 	return ok;
 }
 
-int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
+int VCalendar::GetTodo(VCalendar::Todo * pData)
 {
 	int    ok = -1;
 	if(pData && P_Stream && P_Stream->IsValid() && Export == 0) {
@@ -299,7 +299,7 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 	return ok;
 }
 
-int SLAPI VCalendar::GetDtm(const SString & rBuf, LDATETIME * pDtm)
+int VCalendar::GetDtm(const SString & rBuf, LDATETIME * pDtm)
 {
 	int    ok = -1;
 	LDATETIME dtm = ZERODATETIME;
@@ -318,14 +318,14 @@ int SLAPI VCalendar::GetDtm(const SString & rBuf, LDATETIME * pDtm)
 //
 // @ModuleDef(PPViewPrjTask)
 //
-IMPLEMENT_PPFILT_FACTORY(PrjTask); SLAPI PrjTaskFilt::PrjTaskFilt() : PPBaseFilt(PPFILT_PRJTASK, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrjTask); PrjTaskFilt::PrjTaskFilt() : PPBaseFilt(PPFILT_PRJTASK, 0, 0)
 {
 	SetFlatChunk(offsetof(PrjTaskFilt, ReserveStart),
 		offsetof(PrjTaskFilt, Reserve)-offsetof(PrjTaskFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-int SLAPI PrjTaskFilt::Init(int fullyDestroy, long extraData)
+int PrjTaskFilt::Init(int fullyDestroy, long extraData)
 {
 	PPBaseFilt::Init(fullyDestroy, extraData);
 	ExcludeStatus(TODOSTTS_REJECTED);
@@ -333,7 +333,7 @@ int SLAPI PrjTaskFilt::Init(int fullyDestroy, long extraData)
 	return 1;
 }
 
-int SLAPI PrjTaskFilt::InclInList(int16 * pList, size_t listSize, int16 val)
+int PrjTaskFilt::InclInList(int16 * pList, size_t listSize, int16 val)
 {
 	size_t first_zero_idx = MAXLONG; // @v8.9.8 MAXINT-->MAXLONG
 	for(size_t i = 0; i < listSize; i++) {
@@ -350,7 +350,7 @@ int SLAPI PrjTaskFilt::InclInList(int16 * pList, size_t listSize, int16 val)
 		return 0;
 }
 
-int SLAPI PrjTaskFilt::ExclFromList(int16 * pList, size_t listSize, int16 minVal, int16 maxVal, int16 val)
+int PrjTaskFilt::ExclFromList(int16 * pList, size_t listSize, int16 minVal, int16 maxVal, int16 val)
 {
 	int    is_empty = 1;
 	size_t i;
@@ -370,7 +370,7 @@ int SLAPI PrjTaskFilt::ExclFromList(int16 * pList, size_t listSize, int16 minVal
 	return -1;
 }
 
-int SLAPI PrjTaskFilt::GetList(const int16 * pList, size_t listSize, PPIDArray * pDestList) const
+int PrjTaskFilt::GetList(const int16 * pList, size_t listSize, PPIDArray * pDestList) const
 {
 	pDestList->freeAll();
 	int    is_empty = 1;
@@ -388,40 +388,40 @@ int SLAPI PrjTaskFilt::GetList(const int16 * pList, size_t listSize, PPIDArray *
 	}
 }
 
-int SLAPI PrjTaskFilt::IncludeStatus(long status)
+int PrjTaskFilt::IncludeStatus(long status)
 {
 	if(!PrjTaskCore::IsValidStatus(status))
 		return 0;
 	return InclInList(StatusList, SIZEOFARRAY(StatusList), (int16)status);
 }
 
-int SLAPI PrjTaskFilt::ExcludeStatus(long status)
+int PrjTaskFilt::ExcludeStatus(long status)
 {
 	if(!PrjTaskCore::IsValidStatus(status))
 		return 0;
 	return ExclFromList(StatusList, SIZEOFARRAY(StatusList), 1, 5, (int16)status);
 }
 
-int SLAPI PrjTaskFilt::IncludePrior(long prior)
+int PrjTaskFilt::IncludePrior(long prior)
 {
 	if(!PrjTaskCore::IsValidPrior(prior))
 		return 0;
 	return InclInList(PriorList, SIZEOFARRAY(PriorList), (int16)prior);
 }
 
-int SLAPI PrjTaskFilt::ExcludePrior(long prior)
+int PrjTaskFilt::ExcludePrior(long prior)
 {
 	if(!PrjTaskCore::IsValidPrior(prior))
 		return 0;
 	return ExclFromList(PriorList, SIZEOFARRAY(PriorList), 1, 5, (int16)prior);
 }
 
-int SLAPI PrjTaskFilt::GetStatusList(PPIDArray * pList) const
+int PrjTaskFilt::GetStatusList(PPIDArray * pList) const
 {
 	return GetList(StatusList, SIZEOFARRAY(StatusList), pList);
 }
 
-SString & SLAPI PrjTaskFilt::GetStatusListText(SString & rDest) const
+SString & PrjTaskFilt::GetStatusListText(SString & rDest) const
 {
 	PPIDArray id_list;
 	GetStatusList(&id_list);
@@ -432,7 +432,7 @@ SString & SLAPI PrjTaskFilt::GetStatusListText(SString & rDest) const
 	return rDest;
 }
 
-SString & SLAPI PrjTaskFilt::GetPriorListText(SString & rDest) const
+SString & PrjTaskFilt::GetPriorListText(SString & rDest) const
 {
 	PPIDArray id_list;
 	GetPriorList(&id_list);
@@ -443,27 +443,26 @@ SString & SLAPI PrjTaskFilt::GetPriorListText(SString & rDest) const
 	return rDest;
 }
 
-int SLAPI PrjTaskFilt::GetPriorList(PPIDArray * pList) const
+int PrjTaskFilt::GetPriorList(PPIDArray * pList) const
 {
 	return GetList(PriorList, SIZEOFARRAY(PriorList), pList);
 }
 //
 //
 //
-SLAPI PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK), P_TempOrd(0), P_TempTbl(0), Grid(this)
+PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK, implChangeFilt, 0), P_TempOrd(0), P_TempTbl(0), Grid(this)
 {
-	ImplementFlags |= implChangeFilt;
-	UpdateTaskList.freeAll();
+	// @v10.9.1 (redundunt) UpdateTaskList.freeAll();
 }
 
-SLAPI PPViewPrjTask::~PPViewPrjTask()
+PPViewPrjTask::~PPViewPrjTask()
 {
 	UpdateTimeBrowser(1);
 	delete P_TempOrd;
 	delete P_TempTbl;
 }
 
-int SLAPI PPViewPrjTask::UpdateTempTable(const PPIDArray * pIdList, int use_ta)
+int PPViewPrjTask::UpdateTempTable(const PPIDArray * pIdList, int use_ta)
 {
 	int    ok = -1;
 	if(P_TempOrd && pIdList) {
@@ -495,7 +494,7 @@ int SLAPI PPViewPrjTask::UpdateTempTable(const PPIDArray * pIdList, int use_ta)
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
+int PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 {
 	if(pRec == 0)
 		return 0;
@@ -543,7 +542,7 @@ int SLAPI PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 	return 1;
 }
 
-TempOrderTbl::Rec & SLAPI PPViewPrjTask::MakeTempEntry(const PrjTaskTbl::Rec & rRec, TempOrderTbl::Rec & rTempRec)
+TempOrderTbl::Rec & PPViewPrjTask::MakeTempEntry(const PrjTaskTbl::Rec & rRec, TempOrderTbl::Rec & rTempRec)
 {
 	SString ord_buf;
 	if(Filt.Order == PrjTaskFilt::ordByDt)
@@ -574,26 +573,26 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPrjTask);
 
 class CrosstabProcessor {
 public:
-	SLAPI  CrosstabProcessor(TempPrjTaskTbl * pTbl, PrjTaskFilt * pFilt);
-	int    SLAPI ProcessRec(PrjTaskTbl::Rec * pRec);
-	int    SLAPI Start();
-	int    SLAPI Finish();
+	CrosstabProcessor(TempPrjTaskTbl * pTbl, PrjTaskFilt * pFilt);
+	int    ProcessRec(PrjTaskTbl::Rec * pRec);
+	int    Start();
+	int    Finish();
 private:
-	int    SLAPI SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskTbl::Rec * pRec);
-	int    SLAPI AddRec(PPID tabID, double tabParam, double addParam, PrjTaskTbl::Rec * pRec);
+	int    SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskTbl::Rec * pRec);
+	int    AddRec(PPID tabID, double tabParam, double addParam, PrjTaskTbl::Rec * pRec);
 
 	PPProjectConfig PrjCfg;
 	PrjTaskFilt Filt;
 	TempPrjTaskTbl * P_TempTbl;
 };
 
-SLAPI CrosstabProcessor::CrosstabProcessor(TempPrjTaskTbl * pTbl, PrjTaskFilt * pFilt) : P_TempTbl(pTbl)
+CrosstabProcessor::CrosstabProcessor(TempPrjTaskTbl * pTbl, PrjTaskFilt * pFilt) : P_TempTbl(pTbl)
 {
 	if(!RVALUEPTR(Filt, pFilt))
 		Filt.Init(1, 0);
 }
 
-int SLAPI CrosstabProcessor::Start()
+int CrosstabProcessor::Start()
 {
 	int    ok = 1;
 	MEMSZERO(PrjCfg);
@@ -615,7 +614,7 @@ int SLAPI CrosstabProcessor::Start()
 	return ok;
 }
 
-int SLAPI CrosstabProcessor::Finish()
+int CrosstabProcessor::Finish()
 {
 	int    ok = 1;
 	TempPrjTaskTbl * p_tbl = 0;
@@ -653,7 +652,7 @@ int SLAPI CrosstabProcessor::Finish()
 	return ok;
 }
 
-int SLAPI CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
+int CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -728,7 +727,7 @@ int SLAPI CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam, PrjTaskTbl::Rec * pRec)
+int CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam, PrjTaskTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pRec) {
@@ -782,7 +781,7 @@ int SLAPI CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam
 	return ok;
 }
 
-int SLAPI CrosstabProcessor::SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskTbl::Rec * pRec)
+int CrosstabProcessor::SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskTbl::Rec * pRec)
 {
 	int    ok = -1;
 	int    idx = 0;
@@ -810,7 +809,7 @@ int SLAPI CrosstabProcessor::SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskT
 	return SearchByKey(P_TempTbl, idx, &k, pRec);
 }
 
-int SLAPI PPViewPrjTask::GetItem(PPID id, PrjTaskViewItem * pItem)
+int PPViewPrjTask::GetItem(PPID id, PrjTaskViewItem * pItem)
 {
 	int    ok = -1;
 	PrjTaskTbl::Rec rec;
@@ -821,7 +820,7 @@ int SLAPI PPViewPrjTask::GetItem(PPID id, PrjTaskViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::AddItemToTimeGrid(const PrjTaskViewItem * pItem, int rmv)
+int PPViewPrjTask::AddItemToTimeGrid(const PrjTaskViewItem * pItem, int rmv)
 {
 	long   row_id = (Filt.Order == PrjTaskFilt::ordByClient) ? pItem->ClientID : pItem->EmployerID;
 	if(rmv)
@@ -847,7 +846,7 @@ int SLAPI PPViewPrjTask::AddItemToTimeGrid(const PrjTaskViewItem * pItem, int rm
 	return 1;
 }
 
-void SLAPI PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
+void PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 {
 	if(P_TempTbl) {
 		TempPrjTaskTbl::Key0 k0;
@@ -873,7 +872,7 @@ void SLAPI PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 	}
 }
 
-int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
+int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, use_ta = 1;
 	TempOrderTbl * p_ord = 0;
@@ -973,17 +972,17 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	{
 		class PrjTaskCrosstab : public Crosstab {
 		public:
-			explicit SLAPI PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab(), P_V(pV)
+			explicit PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab(), P_V(pV)
 			{
 			}
-			virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+			virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 			{
 				PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 				SetupBrowserCtColumns(p_brw);
 				return p_brw;
 			}
 		protected:
-			virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+			virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 			{
 				if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V)
 					P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -1175,14 +1174,14 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewPrjTask::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODY(PrjTaskFiltDialog, static_cast<PrjTaskFilt *>(pBaseFilt));
 }
 
-int SLAPI PPViewPrjTask::CheckIDForFilt(PPID id, const PrjTaskTbl::Rec * pRec)
+int PPViewPrjTask::CheckIDForFilt(PPID id, const PrjTaskTbl::Rec * pRec)
 {
 	int    ok = 1;
 	PrjTaskTbl::Rec _rec;
@@ -1239,10 +1238,12 @@ int SLAPI PPViewPrjTask::CheckIDForFilt(PPID id, const PrjTaskTbl::Rec * pRec)
 				ok = 1;
 		}
 	}
+	else
+		ok = 0;
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::InitIteration()
+int PPViewPrjTask::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 0;
@@ -1344,7 +1345,7 @@ int SLAPI PPViewPrjTask::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::NextInnerIteration(PrjTaskViewItem * pItem)
+int PPViewPrjTask::NextInnerIteration(PrjTaskViewItem * pItem)
 {
 	int    ok = 1;
 	if(Item.ID) {
@@ -1376,7 +1377,7 @@ int SLAPI PPViewPrjTask::NextInnerIteration(PrjTaskViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::NextOuterIteration()
+int PPViewPrjTask::NextOuterIteration()
 {
 	int    ok = -1;
 	PrjTaskTbl::Rec rec;
@@ -1428,7 +1429,7 @@ int FASTCALL PPViewPrjTask::NextIteration(PrjTaskViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::Transmit(PPID /*id*/, int kind)
+int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 {
 	int    ok = -1;
 	if(kind == 0) {
@@ -1495,7 +1496,7 @@ int SLAPI PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::ViewTotal()
+int PPViewPrjTask::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_TODOTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -1513,7 +1514,7 @@ int SLAPI PPViewPrjTask::ViewTotal()
 		return 0;
 }
 
-int SLAPI PPViewPrjTask::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPrjTask::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PrjTaskTbl::Rec rec;
 	PPID   templ_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -1525,7 +1526,7 @@ int SLAPI PPViewPrjTask::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewPrjTask::ViewCrosstabDetail(PPID tabID, const DBFieldList * pFldList)
+int PPViewPrjTask::ViewCrosstabDetail(PPID tabID, const DBFieldList * pFldList)
 {
 	int    ok = -1;
 	if(P_TempTbl && pFldList) {
@@ -1582,7 +1583,7 @@ int SLAPI PPViewPrjTask::ViewCrosstabDetail(PPID tabID, const DBFieldList * pFld
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::CreateByTemplate()
+int PPViewPrjTask::CreateByTemplate()
 {
 	int    ok = -1, r = 0;
 	PPIDArray id_list;
@@ -1621,7 +1622,7 @@ int SLAPI PPViewPrjTask::CreateByTemplate()
 	return ok;
 }
 
-void * SLAPI PPViewPrjTask::GetEditExtraParam()
+void * PPViewPrjTask::GetEditExtraParam()
 {
 	PPID   extra_param = 0;
 	if(Filt.ProjectID)
@@ -1635,17 +1636,17 @@ void * SLAPI PPViewPrjTask::GetEditExtraParam()
 	return (void *)extra_param;
 }
 
-int SLAPI PPViewPrjTask::Print(const void *)
+int PPViewPrjTask::Print(const void *)
 {
 	return Helper_Print(Filt.TabType == PrjTaskFilt::crstNone ? REPORT_PRJTASKVIEW : REPORT_PRJTASKVIEWCT, Filt.Order);
 }
 
-int SLAPI PPViewPrjTask::Export()
+int PPViewPrjTask::Export()
 {
 	return -1;
 }
 
-DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst prior_subst(5);  // @global @threadsafe
 	static DbqStringSubst status_subst(5); // @global @threadsafe
@@ -1748,7 +1749,7 @@ DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 #define CHNGTASKS_DELALL  1
 #define CHNGTASKS_STATUS  2
 
-int SLAPI PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
+int PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 {
 	int    ok = -1;
 	long   flags = CHNGTASKS_DELALL;
@@ -1793,7 +1794,7 @@ int SLAPI PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPIDArray id_list;
 	PPID   id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
@@ -1943,7 +1944,7 @@ int SLAPI PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+int PPViewPrjTask::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	int    ok = -1, update = 0;
 	if(pEv) {
@@ -1964,16 +1965,16 @@ int SLAPI PPViewPrjTask::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, 
 	return ok;
 }
 
-void SLAPI PPViewPrjTask::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewPrjTask::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evTodoChanged, 0, PPOBJ_PRJTASK, 0));
 }
 //
 //
 //
-int SLAPI ViewPrjTask(const PrjTaskFilt * pFilt) { return PPView::Execute(PPVIEW_PRJTASK, pFilt, PPView::exefModeless, 0); }
+int ViewPrjTask(const PrjTaskFilt * pFilt) { return PPView::Execute(PPVIEW_PRJTASK, pFilt, PPView::exefModeless, 0); }
 
-int SLAPI ViewPrjTask_ByStatus()
+int ViewPrjTask_ByStatus()
 {
 	PrjTaskFilt filt;
 	PPObjPerson::GetCurUserPerson(&filt.EmployerID, 0);
@@ -1988,7 +1989,7 @@ int SLAPI ViewPrjTask_ByStatus()
 	return ViewPrjTask(&filt);
 }
 
-int SLAPI ViewPrjTask_ByReminder()
+int ViewPrjTask_ByReminder()
 {
 	int    ok = -1;
 	PPProjectConfig cfg;
@@ -2014,11 +2015,11 @@ int SLAPI ViewPrjTask_ByReminder()
 //
 //
 //
-SLAPI PPViewPrjTask::PrjTaskTimeChunkGrid::PrjTaskTimeChunkGrid(PPViewPrjTask * pV) : STimeChunkGrid(), P_View(pV)
+PPViewPrjTask::PrjTaskTimeChunkGrid::PrjTaskTimeChunkGrid(PPViewPrjTask * pV) : STimeChunkGrid(), P_View(pV)
 {
 }
 
-SLAPI PPViewPrjTask::PrjTaskTimeChunkGrid::~PrjTaskTimeChunkGrid()
+PPViewPrjTask::PrjTaskTimeChunkGrid::~PrjTaskTimeChunkGrid()
 {
 }
 
@@ -2040,7 +2041,7 @@ int PPViewPrjTask::PrjTaskTimeChunkGrid::GetText(int item, long id, SString & rB
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::GetTimeGridItemText(PPID taskID, SString & rBuf)
+int PPViewPrjTask::GetTimeGridItemText(PPID taskID, SString & rBuf)
 {
 	int    ok = -1;
 	PPPrjTaskPacket pack;
@@ -2073,10 +2074,10 @@ int SLAPI PPViewPrjTask::GetTimeGridItemText(PPID taskID, SString & rBuf)
 	return ok;
 }
 
-SString & SLAPI PPViewPrjTask::GetItemDescr(PPID id, SString & rBuf) { return TodoObj.GetItemDescr(id, rBuf); }
-SString & SLAPI PPViewPrjTask::GetItemMemo(PPID id, SString & rBuf) { return TodoObj.GetItemMemo(id, rBuf); }
+SString & PPViewPrjTask::GetItemDescr(PPID id, SString & rBuf) { return TodoObj.GetItemDescr(id, rBuf); }
+SString & PPViewPrjTask::GetItemMemo(PPID id, SString & rBuf) { return TodoObj.GetItemMemo(id, rBuf); }
 
-int SLAPI PPViewPrjTask::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm)
+int PPViewPrjTask::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm)
 {
 	int    ok = -1;
 	PPIDArray id_list;
@@ -2127,12 +2128,12 @@ int PPViewPrjTask::PrjTaskTimeChunkGrid::MoveChunk(int mode, long id, long rowId
 	return -1;
 }
 
-int SLAPI PPViewPrjTask::UpdateTimeBrowser(int destroy)
+int PPViewPrjTask::UpdateTimeBrowser(int destroy)
 {
 	return PPView::UpdateTimeBrowser(&Grid, 0, destroy);
 }
 
-int SLAPI PPViewPrjTask::TimeChunkBrowser()
+int PPViewPrjTask::TimeChunkBrowser()
 {
 	UpdateTimeBrowser(1);
 	PPTimeChunkBrowser * p_brw = new PPTimeChunkBrowser;

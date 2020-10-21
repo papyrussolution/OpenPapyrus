@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPObjOpCounter)
 //
-SLAPI PPOpCounter2::PPOpCounter2()
+PPOpCounter2::PPOpCounter2()
 {
 	THISZERO();
 }
@@ -24,7 +24,7 @@ PPOpCounterPacket::~PPOpCounterPacket()
 	ZDELETE(P_Items);
 }
 
-int SLAPI PPOpCounterPacket::Init(const PPOpCounter * pHead, const LAssocArray * pItems)
+int PPOpCounterPacket::Init(const PPOpCounter * pHead, const LAssocArray * pItems)
 {
     int    ok = 1;
 	if(!RVALUEPTR(Head, pHead))
@@ -37,7 +37,7 @@ int SLAPI PPOpCounterPacket::Init(const PPOpCounter * pHead, const LAssocArray *
 	return ok;
 }
 
-int SLAPI PPOpCounterPacket::Init(const LAssocArray * pItems)
+int PPOpCounterPacket::Init(const LAssocArray * pItems)
 {
 	int    ok = 1;
 	ZDELETE(P_Items);
@@ -57,14 +57,14 @@ int SLAPI PPOpCounterPacket::Init(const LAssocArray * pItems)
 	return ok;
 }
 
-int SLAPI PPOpCounterPacket::GetCounter(PPID locID, long * pCounter)
+int PPOpCounterPacket::GetCounter(PPID locID, long * pCounter)
 {
 	if(!P_Items || !(Head.Flags & OPCNTF_DIFFBYLOC) || !P_Items->Search(locID, pCounter, 0))
 		ASSIGN_PTR(pCounter, Head.Counter);
 	return 1;
 }
 
-int SLAPI PPOpCounterPacket::SetCounter(PPID locID, long counter)
+int PPOpCounterPacket::SetCounter(PPID locID, long counter)
 {
 	int    r = -1;
 	counter = (counter < 0) ? 0 : counter;
@@ -81,7 +81,7 @@ int SLAPI PPOpCounterPacket::SetCounter(PPID locID, long counter)
 	return r;
 }
 
-int SLAPI PPOpCounterPacket::CounterIncr(PPID locID, long * pCounter, int incr)
+int PPOpCounterPacket::CounterIncr(PPID locID, long * pCounter, int incr)
 {
 	long   counter = 0;
 	GetCounter(locID, &counter);
@@ -95,7 +95,7 @@ int SLAPI PPOpCounterPacket::CounterIncr(PPID locID, long * pCounter, int incr)
 	return SetCounter(locID, counter);
 }
 
-int SLAPI PPOpCounterPacket::ResetAll()
+int PPOpCounterPacket::ResetAll()
 {
 	int    ok = 1;
 	Head.Counter = 0L;
@@ -106,7 +106,7 @@ int SLAPI PPOpCounterPacket::ResetAll()
 	return ok;
 }
 
-int SLAPI PPOpCounterPacket::UngetCounter(PPID locID, long counter)
+int PPOpCounterPacket::UngetCounter(PPID locID, long counter)
 {
 	int    r = -1;
 	long   cntr = 0;
@@ -123,17 +123,17 @@ PPOpCounterPacket & FASTCALL PPOpCounterPacket::operator = (const PPOpCounterPac
 	return *this;
 }
 
-static int SLAPI OpCounterListFilt(void * rec, void * extraPtr)
+static int OpCounterListFilt(void * rec, void * extraPtr)
 {
 	return (static_cast<PPOpCounter *>(rec)->OwnerObjID == 0);
 }
 
-SLAPI PPObjOpCounter::PPObjOpCounter(void * extraPtr) : PPObjReference(PPOBJ_OPCOUNTER, extraPtr)
+PPObjOpCounter::PPObjOpCounter(void * extraPtr) : PPObjReference(PPOBJ_OPCOUNTER, extraPtr)
 {
 	FiltProc = OpCounterListFilt;
 }
 
-int SLAPI PPObjOpCounter::Edit(PPID * pID, void * extraPtr)
+int PPObjOpCounter::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1, valid_data = 0, r = 0;
 	PPOpCounterPacket pack;
@@ -152,7 +152,7 @@ int SLAPI PPObjOpCounter::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjOpCounter::CodeByTemplate(const char * pTempl, long counter, SString & rBuf)
+int PPObjOpCounter::CodeByTemplate(const char * pTempl, long counter, SString & rBuf)
 {
 	int    wasnumber = 0;
 	char   temp_buf[64];
@@ -181,14 +181,14 @@ int SLAPI PPObjOpCounter::CodeByTemplate(const char * pTempl, long counter, SStr
 	return 1;
 }
 
-int SLAPI PPObjOpCounter::CheckCodeTemplate(const char * pTempl, size_t bufLen)
+int PPObjOpCounter::CheckCodeTemplate(const char * pTempl, size_t bufLen)
 {
 	SString temp_buf;
 	CodeByTemplate(pTempl, 9999L, temp_buf);
 	return (temp_buf.Len() <= (bufLen - 1));
 }
 
-int SLAPI PPObjOpCounter::UpdateCounter(PPID id, long counter, long flags, PPID locID, int use_ta)
+int PPObjOpCounter::UpdateCounter(PPID id, long counter, long flags, PPID locID, int use_ta)
 {
 	int    ok = 1;
 	if(id) {
@@ -212,7 +212,7 @@ int SLAPI PPObjOpCounter::UpdateCounter(PPID id, long counter, long flags, PPID 
 	return ok;
 }
 
-int SLAPI PPObjOpCounter::Helper_GetCounter(PPID id, PPID locID, long * pCounter, SString * pCodeBuf, int use_ta)
+int PPObjOpCounter::Helper_GetCounter(PPID id, PPID locID, long * pCounter, SString * pCodeBuf, int use_ta)
 {
 	int    ok = -1;
 	long   counter = 0;
@@ -236,12 +236,12 @@ int SLAPI PPObjOpCounter::Helper_GetCounter(PPID id, PPID locID, long * pCounter
 	return ok;
 }
 
-int SLAPI PPObjOpCounter::GetCounter(PPID id, PPID locID, long * pCounter, int use_ta)
+int PPObjOpCounter::GetCounter(PPID id, PPID locID, long * pCounter, int use_ta)
 {
 	return Helper_GetCounter(id, locID, pCounter, 0, use_ta);
 }
 
-int SLAPI PPObjOpCounter::GetCode(PPID id, long * pCounter, char * pBuf, size_t bufLen, PPID locID, int use_ta)
+int PPObjOpCounter::GetCode(PPID id, long * pCounter, char * pBuf, size_t bufLen, PPID locID, int use_ta)
 {
 	SString temp_buf;
 	int    ok = Helper_GetCounter(id, locID, pCounter, &temp_buf, use_ta);
@@ -249,7 +249,7 @@ int SLAPI PPObjOpCounter::GetCode(PPID id, long * pCounter, char * pBuf, size_t 
 	return ok;
 }
 
-int SLAPI PPObjOpCounter::UngetCounter(PPID id, long counter, PPID locID, int use_ta)
+int PPObjOpCounter::UngetCounter(PPID id, long counter, PPID locID, int use_ta)
 {
 	int    ok = 1, r = 0;
 	if(id) {
@@ -272,7 +272,7 @@ int SLAPI PPObjOpCounter::UngetCounter(PPID id, long counter, PPID locID, int us
 	return ok;
 }
 
-/*static*/int SLAPI PPObjOpCounter::ResetAll()
+/*static*/int PPObjOpCounter::ResetAll()
 {
 	int    ok = 1;
 	if(PPMessage(mfConf|mfYesNo, PPCFM_RESETOPCNTRS) == cmYes) {
@@ -296,7 +296,7 @@ int SLAPI PPObjOpCounter::UngetCounter(PPID id, long counter, PPID locID, int us
 	return ok;
 }
 
-int SLAPI PPObjOpCounter::GetPacket(PPID opCntrID, PPOpCounterPacket * pPack)
+int PPObjOpCounter::GetPacket(PPID opCntrID, PPOpCounterPacket * pPack)
 {
 	int    ok = -1, r = 0;
 	if(pPack) {
@@ -318,7 +318,7 @@ int SLAPI PPObjOpCounter::GetPacket(PPID opCntrID, PPOpCounterPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjOpCounter::PutPacket(PPID * pOpCntrID, const PPOpCounterPacket * pPack, int use_ta)
+int PPObjOpCounter::PutPacket(PPID * pOpCntrID, const PPOpCounterPacket * pPack, int use_ta)
 {
 	int    ok = -1;
 	{
@@ -353,7 +353,7 @@ int SLAPI PPObjOpCounter::PutPacket(PPID * pOpCntrID, const PPOpCounterPacket * 
 	return ok;
 }
 
-int SLAPI PPObjOpCounter::MakeReserved(long flags)
+int PPObjOpCounter::MakeReserved(long flags)
 {
 	// {ID, Name, Symb, CodeTemplate }
 	int    ok = 1;

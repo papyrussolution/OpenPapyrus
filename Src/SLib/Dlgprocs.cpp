@@ -101,7 +101,7 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 	return ok;
 }
 
-void SLAPI TDialog::RemoveUnusedControls()
+void TDialog::RemoveUnusedControls()
 {
 	const HWND h_wnd = H();
 	TView * v = P_Last;

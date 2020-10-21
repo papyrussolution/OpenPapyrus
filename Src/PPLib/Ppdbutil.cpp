@@ -22,26 +22,26 @@ DBTable * FASTCALL __PreprocessCreatedDbTable(DBTable * pT)
 }
 
 // Prototype
-static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * pNewPw);
+static int ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * pNewPw);
 //
 //
 //
 class PPRecoverParam : public BRecoverParam {
 public:
-	SLAPI PPRecoverParam() : BRecoverParam(), Stop(0)
+	PPRecoverParam() : BRecoverParam(), Stop(0)
 	{
 	}
-	virtual int SLAPI callbackProc(int ev, const void * lp1, const void * lp2, const void * vp);
+	virtual int callbackProc(int ev, const void * lp1, const void * lp2, const void * vp);
 	int    Stop;
 	SString LogFileName;
 };
 
-static int SLAPI LoadRcvrMsg(int msgID, SString & rBuf)
+static int LoadRcvrMsg(int msgID, SString & rBuf)
 {
 	return PPLoadText(msgID, rBuf);
 }
 
-int SLAPI PPRecoverParam::callbackProc(int ev, const void * lp1, const void * lp2, const void * vp)
+int PPRecoverParam::callbackProc(int ev, const void * lp1, const void * lp2, const void * vp)
 {
 	int    ok = 1, do_log_msg = 0;
 	SString fmt_buf, msg_buf;
@@ -104,7 +104,7 @@ struct PPRecoverInfo {
 	char   TableName[48];
 };
 
-static int SLAPI _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecoverInfoAry)
+static int _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecoverInfoAry)
 {
 	int    r = 1;
 	int64  disk_total = 0, disk_avail = 0;
@@ -161,7 +161,7 @@ PPBackupScen::PPBackupScen() : ID(0), Period(1), Flags(0), NumCopies(1)
 	PTR32(BackupPath)[0] = 0;
 }
 
-PPBackupScen & SLAPI PPBackupScen::Z()
+PPBackupScen & PPBackupScen::Z()
 {
 	ID = 0;
 	PTR32(Name)[0] = 0;
@@ -173,7 +173,7 @@ PPBackupScen & SLAPI PPBackupScen::Z()
 	return *this;
 }
 
-int SLAPI PPBackupScen::ToStr(SString & rBuf) const
+int PPBackupScen::ToStr(SString & rBuf) const
 {
 	rBuf.Z().Cat(DBName).CatDiv(',', 0).Cat(BackupPath).CatDiv(',', 0).
 		Cat(Period).CatDiv(',', 0).Cat(Flags).CatDiv(',', 0).Cat(NumCopies);
@@ -226,7 +226,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 	return ok;
 }
 
-/*static*/PPBackup * SLAPI PPBackup::CreateInstance(const PPDbEntrySet2 * dbes)
+/*static*/PPBackup * PPBackup::CreateInstance(const PPDbEntrySet2 * dbes)
 {
 	PPBackup * ppb = 0;
 	PPID   db_id = dbes->GetSelection();
@@ -243,7 +243,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 	return ppb;
 }
 
-SLAPI PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(stValid), P_ScenList(0), P_Sync(0)
+PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(stValid), P_ScenList(0), P_Sync(0)
 {
 	SString data_path;
 	THROW_MEM(P_Sync = new PPSync);
@@ -258,18 +258,18 @@ SLAPI PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), S
 	ENDCATCH
 }
 
-SLAPI PPBackup::~PPBackup()
+PPBackup::~PPBackup()
 {
 	delete P_ScenList;
 	delete P_Sync;
 }
 
-int SLAPI PPBackup::IsValid() const
+int PPBackup::IsValid() const
 {
 	return BIN(State & stValid);
 }
 
-int SLAPI PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
+int PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
 	int64 totalSize, int64 /*fileSize*/, int64 totalBytesReady, int64 /*fileBytesReady*/)
 {
 	long   pct = (long)(100L * totalBytesReady / totalSize);
@@ -277,7 +277,7 @@ int SLAPI PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestF
 	return SPRGRS_CONTINUE;
 }
 
-int SLAPI PPBackup::GetDefaultBackupPath(char * pPath) const
+int PPBackup::GetDefaultBackupPath(char * pPath) const
 {
 	pPath[0] = 0;
 	SString data_path;
@@ -286,7 +286,7 @@ int SLAPI PPBackup::GetDefaultBackupPath(char * pPath) const
 	return 1;
 }
 
-int SLAPI PPBackup::GetDefaultScen(PPBackupScen * pScen)
+int PPBackup::GetDefaultScen(PPBackupScen * pScen)
 {
 	int    ok = 1;
 	if(pScen) {
@@ -302,7 +302,7 @@ int SLAPI PPBackup::GetDefaultScen(PPBackupScen * pScen)
 	return ok;
 }
 
-int SLAPI PPBackup::GetScenList(SArray * pScenList)
+int PPBackup::GetScenList(SArray * pScenList)
 {
 	int    ok = 1;
 	if(pScenList) {
@@ -361,7 +361,7 @@ int SLAPI PPBackup::GetScenList(SArray * pScenList)
 	return ok;
 }
 
-int SLAPI PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
+int PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
 {
 	int    ok = 1;
 	uint   p = (uint)*pPos;
@@ -374,7 +374,7 @@ int SLAPI PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
 	return ok;
 }
 
-int SLAPI PPBackup::GetScen(long id, PPBackupScen * pScen)
+int PPBackup::GetScen(long id, PPBackupScen * pScen)
 {
 	int    ok = 1;
 	if(P_ScenList && id > 0 && id <= P_ScenList->getCountI())
@@ -384,7 +384,7 @@ int SLAPI PPBackup::GetScen(long id, PPBackupScen * pScen)
 	return ok;
 }
 
-int SLAPI PPBackup::GetLastScenCopy(PPBackupScen * pScen, BCopyData * bcdata)
+int PPBackup::GetLastScenCopy(PPBackupScen * pScen, BCopyData * bcdata)
 {
 	BCopyData bcd;
 	BCopyData * p_pbcd = &bcd;
@@ -402,7 +402,7 @@ int SLAPI PPBackup::GetLastScenCopy(PPBackupScen * pScen, BCopyData * bcdata)
 //
 // Config backup - from PPConfig
 //
-int SLAPI getScenList(SArray * scenList)
+int getScenList(SArray * scenList)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -448,7 +448,7 @@ int SLAPI getScenList(SArray * scenList)
 	return ok;
 }
 
-static int SLAPI SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
+static int SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
 {
 	if(pList) {
 		pList->ViewOptions |= lbfl;
@@ -691,12 +691,12 @@ public:
 
 	explicit PrcssrDbDump(PPDbEntrySet2 * pDbes);
 	~PrcssrDbDump();
-	int    SLAPI IsValid() const;
-	int    SLAPI GetTableListInFile(const char * pFileName, StrAssocArray * pList);
-	int	   SLAPI InitParam(Param *);
-	int	   SLAPI EditParam(Param *);
-	int	   SLAPI Init(const Param *);
-	int	   SLAPI Run();
+	int    IsValid() const;
+	int    GetTableListInFile(const char * pFileName, StrAssocArray * pList);
+	int	   InitParam(Param *);
+	int	   EditParam(Param *);
+	int	   Init(const Param *);
+	int	   Run();
 private:
 	struct DumpHeader {
 		uint32 Signature;   // PPDD 0x44445050 _PPConst.DbDumpSignature
@@ -708,7 +708,7 @@ private:
 		uint8  Reserve[36];
 	};
 	struct TableEntry {
-		SLAPI  TableEntry() : Id(0), Offs(0), NumRecs(0), NumChunks(0)
+		TableEntry() : Id(0), Offs(0), NumRecs(0), NumChunks(0)
 		{
 		}
 		long   Id;
@@ -716,10 +716,10 @@ private:
 		int64  NumRecs;
 		int64  NumChunks;
 	};
-	int    SLAPI OpenStream(const char * pFileName);
-	int    SLAPI CloseStream();
-	int    SLAPI Helper_Dump(long tblID);
-	int    SLAPI Helper_Undump(long tblID);
+	int    OpenStream(const char * pFileName);
+	int    CloseStream();
+	int    Helper_Dump(long tblID);
+	int    Helper_Undump(long tblID);
 
 	enum {
 		stValid   = 0x0001,
@@ -736,7 +736,7 @@ private:
 	Param  P;
 };
 
-SLAPI PrcssrDbDump::PrcssrDbDump(PPDbEntrySet2 * pDbes) : TblEntryList(sizeof(PrcssrDbDump::TableEntry)), MaxBufLen(1024 * 1024), State(stValid), Valid(1)
+PrcssrDbDump::PrcssrDbDump(PPDbEntrySet2 * pDbes) : TblEntryList(sizeof(PrcssrDbDump::TableEntry)), MaxBufLen(1024 * 1024), State(stValid), Valid(1)
 {
 	if(pDbes)
 		P_Dbes = pDbes;
@@ -749,13 +749,13 @@ SLAPI PrcssrDbDump::PrcssrDbDump(PPDbEntrySet2 * pDbes) : TblEntryList(sizeof(Pr
 	MEMSZERO(P);
 }
 
-SLAPI PrcssrDbDump::~PrcssrDbDump()
+PrcssrDbDump::~PrcssrDbDump()
 {
 	if(State & stOwnDbes)
 		delete P_Dbes;
 }
 
-int SLAPI PrcssrDbDump::EditParam(Param * pData)
+int PrcssrDbDump::EditParam(Param * pData)
 {
 	class DbDumpDialog : public TDialog {
 	public:
@@ -882,7 +882,7 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 	DIALOG_PROC_BODY_P1(DbDumpDialog, P_Dbes, pData);
 }
 
-int SLAPI PrcssrDbDump::InitParam(Param * pData)
+int PrcssrDbDump::InitParam(Param * pData)
 {
 	if(pData) {
 		pData->TblID = 0;
@@ -904,13 +904,13 @@ int SLAPI PrcssrDbDump::InitParam(Param * pData)
 	return 1;
 }
 
-int SLAPI PrcssrDbDump::Init(const Param * pData)
+int PrcssrDbDump::Init(const Param * pData)
 {
 	RVALUEPTR(P, pData);
 	return 1;
 }
 
-int SLAPI PrcssrDbDump::Run()
+int PrcssrDbDump::Run()
 {
 	int    ok = 1;
 	int    db_locked = 0;
@@ -971,12 +971,12 @@ int SLAPI PrcssrDbDump::Run()
 	return ok;
 }
 
-int SLAPI PrcssrDbDump::IsValid() const
+int PrcssrDbDump::IsValid() const
 {
 	return BIN(Valid);
 }
 
-int SLAPI PrcssrDbDump::OpenStream(const char * pFileName)
+int PrcssrDbDump::OpenStream(const char * pFileName)
 {
 	int    ok = -1;
 	DumpHeader hdr;
@@ -1009,7 +1009,7 @@ int SLAPI PrcssrDbDump::OpenStream(const char * pFileName)
 	return ok;
 }
 
-int SLAPI PrcssrDbDump::CloseStream()
+int PrcssrDbDump::CloseStream()
 {
 	int    ok = 1;
 	if(P.Mode == 1) {
@@ -1034,7 +1034,7 @@ int SLAPI PrcssrDbDump::CloseStream()
 	return ok;
 }
 
-int SLAPI PrcssrDbDump::GetTableListInFile(const char * pFileName, StrAssocArray * pList)
+int PrcssrDbDump::GetTableListInFile(const char * pFileName, StrAssocArray * pList)
 {
 	int    ok = 1;
 	P.Mode = 0;
@@ -1044,7 +1044,7 @@ int SLAPI PrcssrDbDump::GetTableListInFile(const char * pFileName, StrAssocArray
 	return ok;
 }
 
-int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
+int PrcssrDbDump::Helper_Undump(long tblID)
 {
 	int    ok = 1;
 	// @v10.3.0 (never used) int    ref_allocated = 0;
@@ -1122,7 +1122,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 	return ok;
 }
 
-int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
+int PrcssrDbDump::Helper_Dump(long tblID)
 {
 	int    ok = -1;
 	int    ref_allocated = 0;
@@ -1226,7 +1226,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 	return ok;
 }
 
-int SLAPI DoDbDump(PPDbEntrySet2 * pDbes)
+int DoDbDump(PPDbEntrySet2 * pDbes)
 {
 	int    ok = -1;
 	PrcssrDbDump::Param p;
@@ -1538,7 +1538,7 @@ struct BackupDlgData {
 	uint   Cmd;
 };
 
-int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog = 1);
+int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog = 1);
 
 class BackupDialog : public TDialog {
 public:
@@ -1693,7 +1693,7 @@ void BackupDialog::setupCopyList()
 //
 //
 //
-static int SLAPI DBMaintenanceFunctions(PPDbEntrySet2 * dbes)
+static int DBMaintenanceFunctions(PPDbEntrySet2 * dbes)
 {
 	DBMaintenanceDialog * dlg = new DBMaintenanceDialog(dbes);
 	PPID   db_id = 0;
@@ -1712,7 +1712,7 @@ static int SLAPI DBMaintenanceFunctions(PPDbEntrySet2 * dbes)
 	return reply;
 }
 
-int SLAPI PPBackup::LockDatabase()
+int PPBackup::LockDatabase()
 {
 	int    ok = 1, waiting = 0;
 	if(!(State & stDbIsLocked)) {
@@ -1743,7 +1743,7 @@ int SLAPI PPBackup::LockDatabase()
 	return ok;
 }
 
-void SLAPI PPBackup::UnlockDatabase()
+void PPBackup::UnlockDatabase()
 {
 	if(State & stDbIsLocked) {
 		if(P_Sync->UnlockDB())
@@ -1751,7 +1751,7 @@ void SLAPI PPBackup::UnlockDatabase()
 	}
 }
 
-int SLAPI UseCopyContinouos(PPDbEntrySet2 * pDbes)
+int UseCopyContinouos(PPDbEntrySet2 * pDbes)
 {
 	int    r = 0;
 	if(pDbes) {
@@ -1834,7 +1834,7 @@ private:
 	}
 };
 
-int SLAPI EditBackupParam(SString & rDBSymb, PPBackupScen * pScen)
+int EditBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 {
 	int    ok = -1;
 	BackupParamDialog * p_dlg = new BackupParamDialog();
@@ -1849,7 +1849,7 @@ int SLAPI EditBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 	return ok;
 }
 
-int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
+int DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 {
 	int    ok = -1, is_locked = 0;
 	int    use_copy_continouos = 0;
@@ -1934,7 +1934,7 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 	return ok;
 }
 
-static int SLAPI _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContinouos)
+static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContinouos)
 {
 	int    ok = 1;
 	uint   i, j;
@@ -1988,7 +1988,7 @@ static int SLAPI _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopy
 	return ok;
 }
 
-static int SLAPI _DoAutoBackup(PPDbEntrySet2 * pDbes, PPBackup * pBu, int noDefault, int useCopyContinouos)
+static int _DoAutoBackup(PPDbEntrySet2 * pDbes, PPBackup * pBu, int noDefault, int useCopyContinouos)
 {
 	int    ok = 1;
 	if(pBu == 0) {
@@ -2022,7 +2022,7 @@ static int SLAPI _DoAutoBackup(PPDbEntrySet2 * pDbes, PPBackup * pBu, int noDefa
 	return ok;
 }
 
-static int SLAPI _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyContinouos)
+static int _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyContinouos)
 {
 	int    ok = -1;
 	BCopyData copy_data;
@@ -2057,7 +2057,7 @@ static int SLAPI _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyConti
 	return ok;
 }
 
-static int SLAPI _DoRemoveCopy(PPBackup * ppb, const BackupDlgData & bdd)
+static int _DoRemoveCopy(PPBackup * ppb, const BackupDlgData & bdd)
 {
 	int    ok = -1;
 	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BREMOVE) == cmYes) {
@@ -2070,7 +2070,7 @@ static int SLAPI _DoRemoveCopy(PPBackup * ppb, const BackupDlgData & bdd)
 	return ok;
 }
 
-static int SLAPI _DoRestore(PPBackup * ppb, const BackupDlgData & bdd)
+static int _DoRestore(PPBackup * ppb, const BackupDlgData & bdd)
 {
 	int    ok = -1;
 	if(bdd.CopyID && PPMessage(mfConf|mfYesNo, PPCFM_BRESTORE) == cmYes) {
@@ -2090,7 +2090,7 @@ static int SLAPI _DoRestore(PPBackup * ppb, const BackupDlgData & bdd)
 	return ok;
 }
 
-static int SLAPI PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString & rDestPath, SString & rLogFileName)
+static int PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString & rDestPath, SString & rLogFileName)
 {
 	class RecoverDialog : public TDialog {
 	public:
@@ -2148,7 +2148,7 @@ static int SLAPI PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString
 	return ok;
 }
 
-static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
+static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 {
 	int    ok = 1, ret;
 	int    all_ok = -1; // Если >0, то все таблицы восстановлены, если 0, то были ошибки
@@ -2262,7 +2262,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 	return ok;
 }
 
-static int SLAPI _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
+static int _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
 {
 	int    ok = 1;
 	TDialog * dlg = new TDialog(DLG_PROTECT);
@@ -2293,7 +2293,7 @@ static int SLAPI _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
 	return ok;
 }
 
-int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
+int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 {
 	int    ok = -1;
 	BCopyData copy_data;
@@ -2335,7 +2335,7 @@ int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 	return ok;
 }
 
-int SLAPI DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
+int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 {
 	int    ok = 1;
 	int    reply = cmCancel;
@@ -2438,7 +2438,7 @@ int SLAPI DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 	return ok;
 }
 
-int SLAPI CreateBackupCopy(const char * pActiveUser, int skipCfm)
+int CreateBackupCopy(const char * pActiveUser, int skipCfm)
 {
 	int    ok = -1;
 	PPIniFile ini_file;
@@ -2515,7 +2515,7 @@ int SLAPI CreateBackupCopy(const char * pActiveUser, int skipCfm)
 	return ok;
 }
 
-int SLAPI SetDatabaseChain()
+int SetDatabaseChain()
 {
 	int    ok = -1;
 	int    r = 0;
@@ -2544,7 +2544,7 @@ int SLAPI SetDatabaseChain()
 //
 // Data Protection
 //
-static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * pNewPw)
+static int ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * pNewPw)
 {
 	int    ok = 1;
 	char   buf[128];
@@ -2579,7 +2579,7 @@ static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, c
 //
 //
 //
-int SLAPI PPLicUpdate()
+int PPLicUpdate()
 {
 	int    ok = -1;
 	char   path[MAXPATH];
@@ -2613,7 +2613,7 @@ int SLAPI PPLicUpdate()
 	return ok;
 }
 
-int SLAPI PPLicRegister()
+int PPLicRegister()
 {
 	int    ok = -1;
 	char   name[64];
@@ -2716,9 +2716,9 @@ void DBMaintainDlg::SetCtrls(long tables)
 	}
 }
 
-int SLAPI DBMaintainDialog(DBMaintainParam * pParam) { DIALOG_PROC_BODY(DBMaintainDlg, pParam); }
+int DBMaintainDialog(DBMaintainParam * pParam) { DIALOG_PROC_BODY(DBMaintainDlg, pParam); }
 
-int SLAPI DoDBMaintain(const DBMaintainParam * pParam)
+int DoDBMaintain(const DBMaintainParam * pParam)
 {
 	int    ok = -1, do_maintain = 1;
 	PPLogger logger;
@@ -2797,7 +2797,7 @@ struct _DBMantainConfig {  // @persistent @store(PropertyTbl)
 	char   Reserve[60];
 };
 
-int SLAPI ReadDBMaintainCfg(DBMaintainParam * pParam)
+int ReadDBMaintainCfg(DBMaintainParam * pParam)
 {
 	int    ok = -1;
 	DBMaintainParam  db_param;
@@ -2816,7 +2816,7 @@ int SLAPI ReadDBMaintainCfg(DBMaintainParam * pParam)
 	return ok;
 }
 
-int SLAPI EditDBMaintainCfg()
+int EditDBMaintainCfg()
 {
 	int    ok = -1, is_new = 0;
 	DBMaintainParam  param;
@@ -2840,7 +2840,7 @@ int SLAPI EditDBMaintainCfg()
 //
 //
 //
-int SLAPI TestLargeVlrInputOutput()
+int TestLargeVlrInputOutput()
 {
 	const  long test_obj_type = 999;
 	const  long test_obj_id = 1;
@@ -2970,25 +2970,25 @@ public:
 		SString LogFileName;
 		SString OutPath;    // Путь к файлам вывода //
 	};
-	SLAPI  PrcssrTestDb();
-	SLAPI ~PrcssrTestDb();
-	int    SLAPI InitParam(Param *);
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	PrcssrTestDb();
+	~PrcssrTestDb();
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
 private:
-	int    SLAPI GenerateString(char * pBuf, size_t maxLen);
-	int    SLAPI CreateTa(int use_ta);
-	int    SLAPI GenTa_Rec(TestTa01Tbl::Rec * pRec);
-	int    SLAPI CreateRef01(long * pID);
-	int    SLAPI CreateRef02(long * pID);
-	int    SLAPI GenRef01_Rec(TestRef01Tbl::Rec * pRec);
-	int    SLAPI GenRef02_Rec(TestRef02Tbl::Rec * pRec);
-	int    SLAPI LogMessage(const char * pMsg);
-	int    SLAPI LogGenRec(DBTable * pTbl);
-	int    SLAPI OutputTa(const char * pFileName);
-	int    SLAPI AnalyzeAndUpdateTa();
-	int    SLAPI GetTaHistograms(SHistogram * pHgVal1, SHistogram * pHgVal2);
+	int    GenerateString(char * pBuf, size_t maxLen);
+	int    CreateTa(int use_ta);
+	int    GenTa_Rec(TestTa01Tbl::Rec * pRec);
+	int    CreateRef01(long * pID);
+	int    CreateRef02(long * pID);
+	int    GenRef01_Rec(TestRef01Tbl::Rec * pRec);
+	int    GenRef02_Rec(TestRef02Tbl::Rec * pRec);
+	int    LogMessage(const char * pMsg);
+	int    LogGenRec(DBTable * pTbl);
+	int    OutputTa(const char * pFileName);
+	int    AnalyzeAndUpdateTa();
+	int    GetTaHistograms(SHistogram * pHgVal1, SHistogram * pHgVal2);
 
 	struct UpdCbParam {
 		enum {
@@ -3015,18 +3015,18 @@ private:
 	TestTa01Tbl * P_Ta;
 };
 
-SLAPI PrcssrTestDb::PrcssrTestDb() : TaCount(0), P_Ref1(0), P_Ref2(0), P_Ta(0)
+PrcssrTestDb::PrcssrTestDb() : TaCount(0), P_Ref1(0), P_Ref2(0), P_Ta(0)
 {
 }
 
-SLAPI PrcssrTestDb::~PrcssrTestDb()
+PrcssrTestDb::~PrcssrTestDb()
 {
 	delete P_Ref1;
 	delete P_Ref2;
 	delete P_Ta;
 }
 
-int SLAPI PrcssrTestDb::InitParam(Param * pParam)
+int PrcssrTestDb::InitParam(Param * pParam)
 {
 	if(pParam) {
 		pParam->Flags = 0;
@@ -3037,12 +3037,12 @@ int SLAPI PrcssrTestDb::InitParam(Param * pParam)
 	return 1;
 }
 
-int SLAPI PrcssrTestDb::EditParam(Param *)
+int PrcssrTestDb::EditParam(Param *)
 {
 	return 1;
 }
 
-int SLAPI PrcssrTestDb::Init(const Param * pParam)
+int PrcssrTestDb::Init(const Param * pParam)
 {
 	int    ok = 1;
 	P = *pParam;
@@ -3067,7 +3067,7 @@ int SLAPI PrcssrTestDb::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
+int PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 {
 	int    ok = 1;
 	uint   i;
@@ -3100,12 +3100,12 @@ int SLAPI PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::LogMessage(const char * pMsg)
+int PrcssrTestDb::LogMessage(const char * pMsg)
 {
 	return PPLogMessage(P.LogFileName, pMsg, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
 }
 
-int SLAPI PrcssrTestDb::LogGenRec(DBTable * pTbl)
+int PrcssrTestDb::LogGenRec(DBTable * pTbl)
 {
 	SString msg_buf, msg_rec_buf;
 	pTbl->putRecToString(msg_rec_buf, 1);
@@ -3113,7 +3113,7 @@ int SLAPI PrcssrTestDb::LogGenRec(DBTable * pTbl)
 	return LogMessage(msg_buf);
 }
 
-int SLAPI PrcssrTestDb::CreateTa(int use_ta)
+int PrcssrTestDb::CreateTa(int use_ta)
 {
 	int    ok = 1;
 	uint   count = 0;
@@ -3154,7 +3154,7 @@ int SLAPI PrcssrTestDb::CreateTa(int use_ta)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::GetTaHistograms(SHistogram * pHgVal1, SHistogram * pHgVal2)
+int PrcssrTestDb::GetTaHistograms(SHistogram * pHgVal1, SHistogram * pHgVal2)
 {
 	int    ok = 1;
 	RECORDNUMBER nr = 0, nr_test = 0;
@@ -3175,7 +3175,7 @@ int SLAPI PrcssrTestDb::GetTaHistograms(SHistogram * pHgVal1, SHistogram * pHgVa
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::OutputTa(const char * pFileName)
+int PrcssrTestDb::OutputTa(const char * pFileName)
 {
 	int    ok = 1;
 	if(P.OutPath.NotEmpty()) {
@@ -3237,7 +3237,7 @@ int SLAPI PrcssrTestDb::OutputTa(const char * pFileName)
 	return 1;
 }
 
-int SLAPI PrcssrTestDb::AnalyzeAndUpdateTa()
+int PrcssrTestDb::AnalyzeAndUpdateTa()
 {
 	int    ok = 1;
 	OutputTa("ta_before_upd.txt");
@@ -3294,7 +3294,7 @@ int SLAPI PrcssrTestDb::AnalyzeAndUpdateTa()
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
+int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestTa01Tbl::Rec rec;
@@ -3397,7 +3397,7 @@ int SLAPI PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::CreateRef01(long * pID)
+int PrcssrTestDb::CreateRef01(long * pID)
 {
 	int    ok = 1;
 	long   id = 0;
@@ -3467,7 +3467,7 @@ int SLAPI PrcssrTestDb::CreateRef01(long * pID)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
+int PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestRef01Tbl::Rec rec;
@@ -3485,7 +3485,7 @@ int SLAPI PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::CreateRef02(long * pID)
+int PrcssrTestDb::CreateRef02(long * pID)
 {
 	int    ok = 1;
 	long   id = 0;
@@ -3557,7 +3557,7 @@ int SLAPI PrcssrTestDb::CreateRef02(long * pID)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
+int PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestRef02Tbl::Rec rec;
@@ -3576,7 +3576,7 @@ int SLAPI PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PrcssrTestDb::Run()
+int PrcssrTestDb::Run()
 {
 	int    ok = 1;
 	SString msg_buf, err_msg_buf;

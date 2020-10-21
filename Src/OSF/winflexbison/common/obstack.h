@@ -111,7 +111,7 @@
 #ifdef __PTRDIFF_TYPE__
 	#define PTR_INT_TYPE __PTRDIFF_TYPE__
 #else
-	#include <stddef.h>
+	//#include <stddef.h>
 	#define PTR_INT_TYPE ptrdiff_t
 #endif
 
@@ -130,7 +130,7 @@
 
 #define __PTR_ALIGN(B, P, A) __BPTR_ALIGN(sizeof(PTR_INT_TYPE) < sizeof(void *) ? (B) : (char *)0, P, A)
 
-#include <string.h>
+//#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -373,17 +373,11 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 
 #else /* not __GNUC__ */
 
-#define obstack_object_size(h) \
-	(uint)((h)->next_free - (h)->object_base)
+#define obstack_object_size(h) (uint)((h)->next_free - (h)->object_base)
+#define obstack_room(h) (uint)((h)->chunk_limit - (h)->next_free)
 
-#define obstack_room(h)                \
-	(uint)((h)->chunk_limit - (h)->next_free)
-
-#define obstack_empty_p(h) \
-	((h)->chunk->prev == 0                                                 \
-	&& (h)->next_free == __PTR_ALIGN((char *)(h)->chunk,                \
-	(h)->chunk->contents,               \
-	(h)->alignment_mask))
+#define obstack_empty_p(h) ((h)->chunk->prev == 0 && (h)->next_free == __PTR_ALIGN((char *)(h)->chunk, \
+	(h)->chunk->contents, (h)->alignment_mask))
 
 /* Note that the call to _obstack_newchunk is enclosed in (..., 0)
    so that we can avoid having void expressions
@@ -438,14 +432,9 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 	? (_obstack_newchunk((h), (h)->temp.tempint), 0) : 0),              \
 	obstack_blank_fast(h, (h)->temp.tempint))
 
-#define obstack_alloc(h, length)                                        \
-	(obstack_blank((h), (length)), obstack_finish((h)))
-
-#define obstack_copy(h, where, length)                                   \
-	(obstack_grow((h), (where), (length)), obstack_finish((h)))
-
-#define obstack_copy0(h, where, length)                                  \
-	(obstack_grow0((h), (where), (length)), obstack_finish((h)))
+#define obstack_alloc(h, length)        (obstack_blank((h), (length)), obstack_finish((h)))
+#define obstack_copy(h, where, length)  (obstack_grow((h), (where), (length)), obstack_finish((h)))
+#define obstack_copy0(h, where, length) (obstack_grow0((h), (where), (length)), obstack_finish((h)))
 
 #define obstack_finish(h)                                              \
 	( ((h)->next_free == (h)->object_base                                   \

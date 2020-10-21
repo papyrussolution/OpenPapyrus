@@ -36,7 +36,7 @@
 
 /* ccl2ecl - convert character classes to set of equivalence classes */
 
-void ccl2ecl(void)
+void ccl2ecl()
 {
 	int i, ich, newlen, cclp, ccls, cclmec;
 	for(i = 1; i <= lastccl; ++i) {
@@ -71,10 +71,8 @@ void ccl2ecl(void)
 
 int     cre8ecs(int fwd[], int bck[], int num)
 {
-	int i, j, numcl;
-
-	numcl = 0;
-
+	int i, j;
+	int numcl = 0;
 	/* Create equivalence class numbers.  From now on, ABS( bck(x) )
 	 * is the equivalence class number for object x.  If bck(x)
 	 * is positive, then x is the representative of its equivalence
@@ -86,7 +84,6 @@ int     cre8ecs(int fwd[], int bck[], int num)
 			for(j = fwd[i]; j != NIL; j = fwd[j])
 				bck[j] = -numcl;
 		}
-
 	return numcl;
 }
 

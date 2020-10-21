@@ -29,7 +29,7 @@ int FASTCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize)
 }
 //
 //
-PPJobHandler * SLAPI PPJobMngr::CreateInstance(PPID jobID, const PPJobDescr * pDescr)
+PPJobHandler * PPJobMngr::CreateInstance(PPID jobID, const PPJobDescr * pDescr)
 {
 	PPJobHandler * p_jh = 0;
 	PPJobDescr jd;
@@ -56,14 +56,14 @@ int PPJobMngr::GetXmlPoolDir(SString &rXmlPoolPath)
 	return ok;
 }
 
-int SLAPI PPJobMngr::DoJob(PPID jobID, SBuffer * pParam)
+int PPJobMngr::DoJob(PPID jobID, SBuffer * pParam)
 {
 	PPJobHandler * p_job = CreateInstance(jobID, 0);
 	int    ok = p_job ? p_job->Run(pParam, 0) : 0;
 	return ok;
 }
 
-int SLAPI PPJobMngr::EditJobParam(PPID jobID, SBuffer * pParam)
+int PPJobMngr::EditJobParam(PPID jobID, SBuffer * pParam)
 {
 	PPJobHandler * p_job = CreateInstance(jobID, 0);
 	return p_job ? p_job->EditParam(pParam, 0) : 0;
@@ -71,7 +71,7 @@ int SLAPI PPJobMngr::EditJobParam(PPID jobID, SBuffer * pParam)
 //
 //
 //
-SLAPI PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0), LastLoading(ZERODATETIME)
+PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0), LastLoading(ZERODATETIME)
 {
 	SString name;
 	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
@@ -83,13 +83,13 @@ SLAPI PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0), LastLoading(ZERODATET
 // } @erik
 }
 
-SLAPI PPJobMngr::~PPJobMngr()
+PPJobMngr::~PPJobMngr()
 {
 	CloseFile();
 	delete P_Rez;
 }
 
-long SLAPI PPJobMngr::AcquireNewId()
+long PPJobMngr::AcquireNewId()
 {
 	return ++LastId;
 }
@@ -100,7 +100,7 @@ void FASTCALL PPJobMngr::UpdateLastId(long id)
 	LastId = id;
 }
 
-void SLAPI PPJobMngr::CloseFile()
+void PPJobMngr::CloseFile()
 {
 	if(P_F) {
 		if(LckH) {
@@ -114,7 +114,7 @@ void SLAPI PPJobMngr::CloseFile()
 	}
 }
 
-int SLAPI PPJobMngr::ConvertBinToXml()
+int PPJobMngr::ConvertBinToXml()
 {
 	int ok = 1;
 	PPJobPool pool(this, 0, 0);
@@ -126,7 +126,7 @@ int SLAPI PPJobMngr::ConvertBinToXml()
 	return ok;
 }
 
-int SLAPI PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
+int PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 {
 	int    ok = 1;
 	pJob->CmdID = jobID;
@@ -141,7 +141,7 @@ int SLAPI PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 	return ok;
 }
 
-int SLAPI PPJobMngr::GetResourceList(int loadText, StrAssocArray & rList)
+int PPJobMngr::GetResourceList(int loadText, StrAssocArray & rList)
 {
 	int    ok = 1;
 	rList.Z();
@@ -168,7 +168,7 @@ struct JobStrgHeader {     // @persistent @size=64
 	char   Reserve2[44];
 };
 
-int SLAPI PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
+int PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
 {
 	int    ok = 1;
 	uint32 locking_stub = 0;
@@ -205,7 +205,7 @@ int SLAPI PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
 	return ok;
 }
 
-int SLAPI PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readOnly)
+int PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 {
 	int    ok = 1;
 	assert(!P_F || LckH);
@@ -253,7 +253,7 @@ int SLAPI PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readO
 }
 
 //@erik v10.7.4
-int SLAPI PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int readOnly)
+int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_xml_parser = 0;
@@ -317,13 +317,13 @@ int SLAPI PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int read
 	return ok;
 }
 
-DirChangeNotification * SLAPI PPJobMngr::CreateDcn()
+DirChangeNotification * PPJobMngr::CreateDcn()
 {
 	SString path;
 	return PPGetFilePath(PPPATH_WORKSPACE, "srvjobpool", path)? new DirChangeNotification(path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME) : 0;
 }
 
-int SLAPI PPJobMngr::IsPoolChanged() const
+int PPJobMngr::IsPoolChanged() const
 {
 	int    ok = 0;
 	if(LastLoading.d) {
@@ -340,7 +340,7 @@ int SLAPI PPJobMngr::IsPoolChanged() const
 	return ok;
 }
 
-int SLAPI PPJobMngr::CreatePool()
+int PPJobMngr::CreatePool()
 {
 	int    ok = 1;
 	if(!fileExists(FilePath)) {
@@ -364,7 +364,7 @@ int SLAPI PPJobMngr::CreatePool()
 	return ok;
 }
 
-int SLAPI PPJobMngr::SavePool(const PPJobPool * pPool)
+int PPJobMngr::SavePool(const PPJobPool * pPool)
 {
 	int ok = 1;
 	assert(!P_F || LckH);
@@ -401,7 +401,7 @@ int SLAPI PPJobMngr::SavePool(const PPJobPool * pPool)
 }
 
 //@erik v10.7.0
-int SLAPI PPJobMngr::SavePool2(const PPJobPool * pPool)
+int PPJobMngr::SavePool2(const PPJobPool * pPool)
 {
 	int    ok = 1;
 	JobStrgHeader hdr;
@@ -440,7 +440,7 @@ int SLAPI PPJobMngr::SavePool2(const PPJobPool * pPool)
 //
 const char * PPJobDescr::P_FactoryPrfx = "JFF_";
 
-SLAPI PPJobDescr::PPJobDescr()
+PPJobDescr::PPJobDescr()
 {
 	THISZERO();
 }
@@ -522,7 +522,7 @@ int FASTCALL PPJobDescr::Read2(xmlNode * pParentNode) //@erik v10.7.1
 //
 //
 //
-SLAPI PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0), ScheduleBeforeTime(ZEROTIME), LastRunningTime(ZERODATETIME)
+PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0), ScheduleBeforeTime(ZEROTIME), LastRunningTime(ZERODATETIME)
 {
 	MEMSZERO(Dtr);
 	Ver = 1; // @v9.2.3 0-->1
@@ -721,12 +721,12 @@ int PPJob::Read2(xmlNode * pParentNode) //@erik v10.7.1
 //
 //
 //
-SLAPI PPJobPool::PPJobPool(PPJobMngr * pMngr, const char * pDbSymb, int readOnly) : TSCollection <PPJob> (), P_Mngr(pMngr), DbSymb(pDbSymb), Flags(0)
+PPJobPool::PPJobPool(PPJobMngr * pMngr, const char * pDbSymb, int readOnly) : TSCollection <PPJob> (), P_Mngr(pMngr), DbSymb(pDbSymb), Flags(0)
 {
 	SETFLAG(Flags, fReadOnly, readOnly);
 }
 
-const SString & SLAPI PPJobPool::GetDbSymb() const
+const SString & PPJobPool::GetDbSymb() const
 {
 	return DbSymb;
 }
@@ -755,7 +755,7 @@ int FASTCALL PPJobPool::IsJobSuited(const PPJob * pJob) const
 	// } @v10.8.3 
 }
 
-uint SLAPI PPJobPool::GetCount() const
+uint PPJobPool::GetCount() const
 {
 	uint   c = 0;
 	if(DbSymb.NotEmpty()) {
@@ -768,7 +768,7 @@ uint SLAPI PPJobPool::GetCount() const
 	return c;
 }
 
-int SLAPI PPJobPool::CheckUniqueJob(const PPJob * pJob) const
+int PPJobPool::CheckUniqueJob(const PPJob * pJob) const
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
@@ -783,7 +783,7 @@ int SLAPI PPJobPool::CheckUniqueJob(const PPJob * pJob) const
 	return ok;
 }
 
-int SLAPI PPJobPool::Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb) const
+int PPJobPool::Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const PPJob * p_job = at(i);
@@ -796,7 +796,7 @@ int SLAPI PPJobPool::Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb) const
 	return 0;
 }
 
-const PPJob * SLAPI PPJobPool::GetJobItem(PPID id, int ignoreDbSymb) const
+const PPJob * PPJobPool::GetJobItem(PPID id, int ignoreDbSymb) const
 {
 	if(id) {
 		for(uint i = 0; i < getCount(); i++) {
@@ -809,7 +809,7 @@ const PPJob * SLAPI PPJobPool::GetJobItem(PPID id, int ignoreDbSymb) const
 	return 0;
 }
 
-int SLAPI PPJobPool::PutJobItem(PPID * pID, const PPJob * pJob)
+int PPJobPool::PutJobItem(PPID * pID, const PPJob * pJob)
 {
 	int    ok = -1;
 	uint   i = 0;
@@ -886,26 +886,26 @@ int SLAPI PPJobPool::PutJobItem(PPID * pID, const PPJob * pJob)
 //
 //
 //
-SLAPI PPJobHandler::PPJobHandler(const PPJobDescr * pJob)
+PPJobHandler::PPJobHandler(const PPJobDescr * pJob)
 {
 	RVALUEPTR(D, pJob);
 }
 
-SLAPI PPJobHandler::~PPJobHandler()
+PPJobHandler::~PPJobHandler()
 {
 }
 
-int SLAPI PPJobHandler::EditParam(SBuffer * pParam, void * extraPtr)
+int PPJobHandler::EditParam(SBuffer * pParam, void * extraPtr)
 {
 	return CheckParamBuf(pParam, 0);
 }
 
-int SLAPI PPJobHandler::Run(SBuffer * pParam, void * extraPtr)
+int PPJobHandler::Run(SBuffer * pParam, void * extraPtr)
 {
 	return 1;
 }
 
-int SLAPI PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) const
+int PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) const
 {
 	int    ok = 1;
 	if(pBuf == 0)
@@ -919,21 +919,21 @@ int SLAPI PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) c
 }
 
 // @v5.7 ANDREW
-const PPJobDescr & SLAPI PPJobHandler::GetDescr()
+const PPJobDescr & PPJobHandler::GetDescr()
 {
 	return D;
 }
 //
 //
 // prototype @defined(filtrnsm.cpp)
-int SLAPI EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions);
+int EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions);
 
 class JOB_HDL_CLS(OBJRECV) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(OBJRECV)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(OBJRECV)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r;
 		ObjReceiveParam param;
@@ -949,7 +949,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		ObjReceiveParam param;
@@ -967,10 +967,10 @@ IMPLEMENT_JOB_HDL_FACTORY(OBJRECV);
 //
 class JOB_HDL_CLS(DUMMY) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(DUMMY)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(DUMMY)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		PPLogMessage(PPFILNAM_INFO_LOG, "Job DUMMY completed", LOGMSGF_TIME);
 		return 1;
@@ -983,10 +983,10 @@ IMPLEMENT_JOB_HDL_FACTORY(DUMMY);
 //
 class JOB_HDL_CLS(MAINTAINPRJTASK) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(MAINTAINPRJTASK)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(MAINTAINPRJTASK)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		PPObjPrjTask todo_obj;
 		return BIN(todo_obj.Maintain());
@@ -999,15 +999,15 @@ IMPLEMENT_JOB_HDL_FACTORY(MAINTAINPRJTASK);
 //
 class PPBackupParam {
 public:
-	SLAPI PPBackupParam()
+	PPBackupParam()
 	{
 	}
-	void SLAPI Init()
+	void Init()
 	{
 		DBSymb.Z();
 		BuScen.Z();
 	}
-	int SLAPI Read(SBuffer & rBuf, long)
+	int Read(SBuffer & rBuf, long)
 	{
 		int    ok = -1;
 		if(rBuf.GetAvailableSize()) {
@@ -1018,7 +1018,7 @@ public:
 		}
 		return ok;
 	}
-	int SLAPI Write(SBuffer & rBuf, long)
+	int Write(SBuffer & rBuf, long)
 	{
 		if(rBuf.Write(DBSymb) && rBuf.Write(&BuScen, sizeof(BuScen)))
 			return 1;
@@ -1029,14 +1029,14 @@ public:
 	PPBackupScen BuScen;
 };
 
-int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen); // @prototype(ppdbutil.cpp)
+int DoServerBackup(SString & rDBSymb, PPBackupScen * pScen); // @prototype(ppdbutil.cpp)
 
 class JOB_HDL_CLS(BACKUP) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(BACKUP)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(BACKUP)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		PPBackupParam param;
@@ -1051,7 +1051,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PPBackupParam param;
@@ -1068,10 +1068,10 @@ IMPLEMENT_JOB_HDL_FACTORY(BACKUP);
 //
 class JOB_HDL_CLS(PALMIMPEXP) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(PALMIMPEXP) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(PALMIMPEXP) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		PalmPaneData param;
@@ -1087,7 +1087,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PalmPaneData param;
@@ -1104,10 +1104,10 @@ IMPLEMENT_JOB_HDL_FACTORY(PALMIMPEXP);
 //
 class JOB_HDL_CLS(SCARDDISCRECALC) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(SCARDDISCRECALC) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(SCARDDISCRECALC) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		SCardChargeRule param;
@@ -1122,7 +1122,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		SCardChargeRule param;
@@ -1137,10 +1137,10 @@ IMPLEMENT_JOB_HDL_FACTORY(SCARDDISCRECALC);
 //
 //
 //
-extern int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags); // @v5.0.0
+extern int ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags); // @v5.0.0
 
 struct ScalePrepParam {
-	SLAPI  ScalePrepParam() : ScaleID(0), Flags(0)
+	ScalePrepParam() : ScaleID(0), Flags(0)
 	{
 	}
 	PPID   ScaleID;
@@ -1149,10 +1149,10 @@ struct ScalePrepParam {
 
 class JOB_HDL_CLS(LOADSCALE) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(LOADSCALE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(LOADSCALE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		ScalePrepParam param;
@@ -1168,7 +1168,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		ScalePrepParam param;
@@ -1196,10 +1196,10 @@ IMPLEMENT_JOB_HDL_FACTORY(LOADSCALE);
 
 class JOB_HDL_CLS(LOADASYNCPOS) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(LOADASYNCPOS) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(LOADASYNCPOS) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		AsyncPosPrepParam param;
@@ -1215,7 +1215,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		AsyncPosPrepParam param;
@@ -1257,10 +1257,10 @@ int GetLastTransmit(const ObjIdListFilt * pDBDivList, LDATETIME * pSince)
 
 class JOB_HDL_CLS(TRANSMITMODIF) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(TRANSMITMODIF) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(TRANSMITMODIF) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		ObjTransmitParam param;
@@ -1276,7 +1276,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		ObjTransmitParam param;
@@ -1294,10 +1294,10 @@ IMPLEMENT_JOB_HDL_FACTORY(TRANSMITMODIF);
 //
 class JOB_HDL_CLS(DBMAINTAIN) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(DBMAINTAIN) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(DBMAINTAIN) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		DBMaintainParam param;
@@ -1313,7 +1313,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		DBMaintainParam param;
@@ -1330,15 +1330,15 @@ IMPLEMENT_JOB_HDL_FACTORY(DBMAINTAIN);
 // Закрытие кассовых сессий
 //
 struct CashNodeParam {
-	SLAPI CashNodeParam()
+	CashNodeParam()
 	{
 		Init();
 	}
-	void SLAPI Init()
+	void Init()
 	{
 		THISZERO();
 	}
-	int SLAPI Read(SBuffer & rBuf, long)
+	int Read(SBuffer & rBuf, long)
 	{
 		int    ok = -1;
 		if(rBuf.GetAvailableSize()) {
@@ -1353,7 +1353,7 @@ struct CashNodeParam {
 		}
 		return ok;
 	}
-	int SLAPI Write(SBuffer & rBuf, long)
+	int Write(SBuffer & rBuf, long)
 	{
 		if(rBuf.Write(CashNodeID) && rBuf.Write(Period.upp.v) && rBuf.Write(Period.low.v))
 			return 1;
@@ -1465,14 +1465,14 @@ int CashNodeDialog::GetPeriod()
 	return ok;
 }
 
-static int SLAPI EditSessionParam(CashNodeParam * pParam) { DIALOG_PROC_BODY(CashNodeDialog, pParam); }
+static int EditSessionParam(CashNodeParam * pParam) { DIALOG_PROC_BODY(CashNodeDialog, pParam); }
 
 class JOB_HDL_CLS(CSESSCLOSE) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(CSESSCLOSE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(CSESSCLOSE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		CashNodeParam param;
@@ -1487,7 +1487,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		// @v10.3.0 (never used) PPCashMachine * p_cm = 0;
@@ -1510,10 +1510,10 @@ IMPLEMENT_JOB_HDL_FACTORY(CSESSCLOSE);
 //
 class JOB_HDL_CLS(FILLSALESTABLE) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(FILLSALESTABLE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(FILLSALESTABLE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		PrcssrPrediction::Param param;
@@ -1529,7 +1529,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PrcssrPrediction::Param param;
@@ -1548,10 +1548,10 @@ IMPLEMENT_JOB_HDL_FACTORY(FILLSALESTABLE);
 //
 class JOB_HDL_CLS(TESTSALESTABLE) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(TESTSALESTABLE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(TESTSALESTABLE) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		PrcssrPrediction::Param param;
@@ -1568,7 +1568,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PrcssrPrediction::Param param;
@@ -1588,10 +1588,10 @@ IMPLEMENT_JOB_HDL_FACTORY(TESTSALESTABLE);
 //
 class JOB_HDL_CLS(CHARRYIMPORT) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(CHARRYIMPORT) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(CHARRYIMPORT) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		RcvCharryParam param;
@@ -1605,7 +1605,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		RcvCharryParam param;
@@ -1620,10 +1620,10 @@ IMPLEMENT_JOB_HDL_FACTORY(CHARRYIMPORT);
 
 class JOB_HDL_CLS(REMOVETEMPFILES) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(REMOVETEMPFILES) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(REMOVETEMPFILES) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		DeleteTmpFilesParam param;
@@ -1637,7 +1637,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		DeleteTmpFilesParam param;
@@ -1652,10 +1652,10 @@ IMPLEMENT_JOB_HDL_FACTORY(REMOVETEMPFILES);
 
 class JOB_HDL_CLS(TESTCREATEFILES) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(TESTCREATEFILES) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(TESTCREATEFILES) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		char   path[MAXPATH];
@@ -1672,7 +1672,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		char   path[MAXPATH];
@@ -1703,9 +1703,9 @@ IMPLEMENT_JOB_HDL_FACTORY(TESTCREATEFILES);
 //
 class LaunchAppParam {
 public:
-	SLAPI  LaunchAppParam();
-	int    SLAPI Write(SBuffer & rBuf, long) const;
-	int    SLAPI Read(SBuffer & rBuf, long);
+	LaunchAppParam();
+	int    Write(SBuffer & rBuf, long) const;
+	int    Read(SBuffer & rBuf, long);
 
 	enum {
 		fWait	= 0x0001,
@@ -1724,12 +1724,12 @@ public:
 
 // @v10.5.5 (replaced with _PPConst.LaunchAppParam_Signature)#define SIGNATURE_LAUNCHAPPPARAM 0x4c484150L // 'LHAP'
 
-SLAPI LaunchAppParam::LaunchAppParam() : Signature(_PPConst.Signature_LaunchAppParam), Ver(0), Flags(0)
+LaunchAppParam::LaunchAppParam() : Signature(_PPConst.Signature_LaunchAppParam), Ver(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
 
-int SLAPI LaunchAppParam::Write(SBuffer & rBuf, long) const
+int LaunchAppParam::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
 	long   sign = _PPConst.Signature_LaunchAppParam;
@@ -1746,7 +1746,7 @@ int SLAPI LaunchAppParam::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-int SLAPI LaunchAppParam::Read(SBuffer & rBuf, long)
+int LaunchAppParam::Read(SBuffer & rBuf, long)
 {
 	int    ok = -1;
 	if(rBuf.GetAvailableSize()) {
@@ -1832,10 +1832,10 @@ int EditLaunchAppParam(LaunchAppParam * pData) { DIALOG_PROC_BODYERR(LaunchAppDi
 
 class JOB_HDL_CLS(LAUNCHAPP) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(LAUNCHAPP) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(LAUNCHAPP) (PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		LaunchAppParam param;
@@ -1852,7 +1852,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		LaunchAppParam param;
@@ -1909,10 +1909,10 @@ IMPLEMENT_JOB_HDL_FACTORY(LAUNCHAPP);
 //
 class JOB_HDL_CLS(CSESSCRDRAFT) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(CSESSCRDRAFT)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(CSESSCRDRAFT)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		CSessCrDraftParam param;
@@ -1929,7 +1929,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		CSessCrDraftParam param;
@@ -1947,10 +1947,10 @@ IMPLEMENT_JOB_HDL_FACTORY(CSESSCRDRAFT);
 //
 class JOB_HDL_CLS(DEBTRATE) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(DEBTRATE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(DEBTRATE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrDebtRate::Param param;
@@ -1970,7 +1970,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PrcssrDebtRate prc;
@@ -1989,10 +1989,10 @@ IMPLEMENT_JOB_HDL_FACTORY(DEBTRATE);
 //
 class JOB_HDL_CLS(BIZSCORE) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(BIZSCORE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(BIZSCORE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrBizScore::Param param;
@@ -2012,7 +2012,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PrcssrBizScore prc;
@@ -2031,10 +2031,10 @@ IMPLEMENT_JOB_HDL_FACTORY(BIZSCORE);
 //
 class JOB_HDL_CLS(EXPORTBALTIKA) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(EXPORTBALTIKA)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(EXPORTBALTIKA)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -2053,7 +2053,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		if(pParam) {
@@ -2075,10 +2075,10 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTBALTIKA);
 //
 class JOB_HDL_CLS(TRANSMITBILLBYFILT) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(TRANSMITBILLBYFILT)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(TRANSMITBILLBYFILT)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -2102,7 +2102,7 @@ public:
 			pParam->SetRdOffs(sav_offs);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		BillFilt filt;
@@ -2380,10 +2380,10 @@ int ExportBillsFiltDialog::getDTS(ExpBillsFilt * pData)
 
 class JOB_HDL_CLS(EXPORTBILLS) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(EXPORTBILLS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(EXPORTBILLS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
 		ExportBillsFiltDialog::ExpBillsFilt filt;
@@ -2415,7 +2415,7 @@ public:
 		delete p_dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		const  PPCommConfig & r_ccfg = CConfig;
@@ -2540,10 +2540,10 @@ private:
 
 class JOB_HDL_CLS(EXPORTGOODS) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(EXPORTGOODS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(EXPORTGOODS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		ExportGoodsParam param;
@@ -2572,7 +2572,7 @@ public:
 		delete dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		ExportGoodsParam param;
@@ -2596,10 +2596,10 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTGOODS);
 //
 class JOB_HDL_CLS(AUTOSUPPLORDER) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(AUTOSUPPLORDER)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(AUTOSUPPLORDER)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2623,7 +2623,7 @@ public:
 		ZDELETE(p_filt);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		SStatFilt filt;
@@ -2638,7 +2638,7 @@ IMPLEMENT_JOB_HDL_FACTORY(AUTOSUPPLORDER);
 //
 //
 //
-SLAPI PPObjRFIDDevice::PPObjRFIDDevice(void * extraPtr) : PPObjReference(PPOBJ_RFIDDEVICE, extraPtr)
+PPObjRFIDDevice::PPObjRFIDDevice(void * extraPtr) : PPObjReference(PPOBJ_RFIDDEVICE, extraPtr)
 {
 }
 
@@ -2731,7 +2731,7 @@ private:
 
 #if 0 // {
 // @vmiller
-int SLAPI PPObjRFIDDevice::ExecOper(PPAbstractDevice * pDvc, int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
+int PPObjRFIDDevice::ExecOper(PPAbstractDevice * pDvc, int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
 {
 	int    ok = 1;
 	if(pDvc) {
@@ -2749,7 +2749,7 @@ int SLAPI PPObjRFIDDevice::ExecOper(PPAbstractDevice * pDvc, int cmd, StrAssocAr
 }
 #endif // }
 
-int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
+int PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 {
 	rRetBuf.Z();
 #if 0 // {
@@ -2894,7 +2894,7 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, ta = 0;
 	PPRFIDDevice rec;
@@ -2921,7 +2921,7 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 	return ok;
 }
 
-/*virtual*/int  SLAPI PPObjRFIDDevice::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRRFIDDEVICE, 0); }
+/*virtual*/int  PPObjRFIDDevice::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRRFIDDEVICE, 0); }
 
 #define DISPLAY_ROW_SIZE 16
 
@@ -3186,10 +3186,10 @@ int RFIDDevPrcssr::IsWait(uint devPos)
 
 class JOB_HDL_CLS(RFIDDEVICEPRCSSR) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(RFIDDEVICEPRCSSR)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(RFIDDEVICEPRCSSR)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3211,7 +3211,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1, run = 0;
 		SString err_msg;
@@ -3240,10 +3240,10 @@ IMPLEMENT_JOB_HDL_FACTORY(RFIDDEVICEPRCSSR);
 //
 class JOB_HDL_CLS(SCARDSELECTIONPRCSSR) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(SCARDSELECTIONPRCSSR)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(SCARDSELECTIONPRCSSR)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3276,7 +3276,7 @@ public:
 		delete p_dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		SCardSelPrcssrParam param;
@@ -3294,10 +3294,10 @@ IMPLEMENT_JOB_HDL_FACTORY(SCARDSELECTIONPRCSSR);
 //
 class JOB_HDL_CLS(UPDATEQUOTS) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(UPDATEQUOTS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(UPDATEQUOTS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3323,7 +3323,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		QuotUpdFilt filt;
@@ -3375,10 +3375,10 @@ public:
 		SString Dl600_Name;
 		SString FileName;
 	};*/
-	SLAPI JOB_HDL_CLS(EXPORTVIEW)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(EXPORTVIEW)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		PPView::ExecNfViewParam param;
@@ -3397,7 +3397,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	/* @v10.5.3 virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	/* @v10.5.3 virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		PPView::ExecNfViewParam param;
@@ -3447,7 +3447,7 @@ public:
 		delete dlg;
 		return ok;
 	} */
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PPView::ExecNfViewParam param;
@@ -3548,10 +3548,10 @@ public:
 		long    BrandsFlags;
 		long    StoresFlags;      // @v7.7.5 @muxa
 	};
-	SLAPI JOB_HDL_CLS(EXPORTOBJLISTTOHTML)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(EXPORTOBJLISTTOHTML)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		size_t sav_offs = 0;
@@ -3598,7 +3598,7 @@ public:
 		delete dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		Param  param;
@@ -3630,10 +3630,10 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTOBJLISTTOHTML);
 //
 class JOB_HDL_CLS(UHTTEXPORTGOODSREST) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(UHTTEXPORTGOODSREST)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(UHTTEXPORTGOODSREST)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3654,7 +3654,7 @@ public:
 			pParam->SetRdOffs(sav_offs);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		if(pParam && pParam->GetAvailableSize()) {
@@ -3675,10 +3675,10 @@ IMPLEMENT_JOB_HDL_FACTORY(UHTTEXPORTGOODSREST);
 //
 class JOB_HDL_CLS(IMPORTBILLS) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(IMPORTBILLS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(IMPORTBILLS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3700,7 +3700,7 @@ public:
 		CATCHZOKPPERR
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		SSerializeContext sctx;
@@ -3722,10 +3722,10 @@ IMPLEMENT_JOB_HDL_FACTORY(IMPORTBILLS);
 //
 class JOB_HDL_CLS(PROCESSOBJTEXT) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(PROCESSOBJTEXT)(const PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(PROCESSOBJTEXT)(const PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3744,7 +3744,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		if(pParam) {
@@ -3772,10 +3772,10 @@ IMPLEMENT_JOB_HDL_FACTORY(PROCESSOBJTEXT);
 //
 class JOB_HDL_CLS(PERSONEVENTBYREADER) : public PPJobHandler {
 public:
-	SLAPI  JOB_HDL_CLS(PERSONEVENTBYREADER)(const PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(PERSONEVENTBYREADER)(const PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3794,7 +3794,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		if(pParam) {
@@ -3901,10 +3901,10 @@ int TSessAutoSmsFiltDialog::setDTS(const TSessionFilt * pData)
 
 class JOB_HDL_CLS(TSESSAUTOSMS) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(TSESSAUTOSMS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(TSESSAUTOSMS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
 		//size_t sav_offs = 0;
@@ -3934,7 +3934,7 @@ public:
 		delete p_dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		const  PPCommConfig & r_ccfg = CConfig;
@@ -3972,7 +3972,7 @@ public:
 		{
 			memzero(Reserve, sizeof(Reserve));
 		}
-		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 		{
 			int    ok = 1;
 			THROW_SL(pSCtx->Serialize(dir, Ver, rBuf));
@@ -3985,10 +3985,10 @@ public:
 		LDATETIME Since;
 		uint8  Reserve[32];
 	};
-	SLAPI JOB_HDL_CLS(SENDNOTIFIESBYRECENTSCOPS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(SENDNOTIFIESBYRECENTSCOPS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		TDialog * dlg = new TDialog(DLG_JOB_SNRSCO);
@@ -4012,7 +4012,7 @@ public:
 		delete dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		Param  filt;
@@ -4041,10 +4041,10 @@ IMPLEMENT_JOB_HDL_FACTORY(SENDNOTIFIESBYRECENTSCOPS);
 //
 class JOB_HDL_CLS(EXPORTDBTBLTRANSFER) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(EXPORTDBTBLTRANSFER)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(EXPORTDBTBLTRANSFER)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -4065,7 +4065,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -4086,10 +4086,10 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTDBTBLTRANSFER);
 //
 class JOB_HDL_CLS(EXPORTDBTBLBILL) : public JOB_HDL_CLS(EXPORTDBTBLTRANSFER) {
 public:
-	SLAPI JOB_HDL_CLS(EXPORTDBTBLBILL)(PPJobDescr * pDescr) : JOB_HDL_CLS(EXPORTDBTBLTRANSFER)(pDescr)
+	JOB_HDL_CLS(EXPORTDBTBLBILL)(PPJobDescr * pDescr) : JOB_HDL_CLS(EXPORTDBTBLTRANSFER)(pDescr)
 	{
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -4110,14 +4110,14 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTDBTBLBILL);
 //
 class JOB_HDL_CLS(PROCESSEDI) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(PROCESSEDI)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(PROCESSEDI)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		return -1;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		return -1;
 	}
@@ -4129,10 +4129,10 @@ IMPLEMENT_JOB_HDL_FACTORY(PROCESSEDI);
 //
 class JOB_HDL_CLS(PROCESSTSESSION) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(PROCESSTSESSION)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(PROCESSTSESSION)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		PrcssrTSessMaintenance::Param param;
@@ -4147,7 +4147,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PrcssrTSessMaintenance::Param param;
@@ -4166,10 +4166,10 @@ IMPLEMENT_JOB_HDL_FACTORY(PROCESSTSESSION);
 //
 class JOB_HDL_CLS(QUERYEGAIS) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(QUERYEGAIS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(QUERYEGAIS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		PPEgaisProcessor prc(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
@@ -4191,7 +4191,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		PPEgaisProcessor::QueryParam filt;
@@ -4212,10 +4212,10 @@ IMPLEMENT_JOB_HDL_FACTORY(QUERYEGAIS);
 //
 class JOB_HDL_CLS(VETISINTERCHANGE) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(VETISINTERCHANGE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(VETISINTERCHANGE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		VetisDocumentFilt filt;
@@ -4236,7 +4236,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
 		SSerializeContext sctx;
@@ -4254,10 +4254,10 @@ IMPLEMENT_JOB_HDL_FACTORY(VETISINTERCHANGE);
 //
 class JOB_HDL_CLS(TIMESERIESSA) : public PPJobHandler {
 public:
-	SLAPI JOB_HDL_CLS(TIMESERIESSA)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	JOB_HDL_CLS(TIMESERIESSA)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4273,7 +4273,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrTsStrategyAnalyze prc;

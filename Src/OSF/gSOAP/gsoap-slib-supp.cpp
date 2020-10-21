@@ -10,7 +10,7 @@
 SOAP_FMAC2 soap_ssl_client_context(struct soap * soap, unsigned short flags, const char * keyfile,
 	const char * password, const char * cafile, const char * capath, const char * randfile)
 */
-int SLAPI gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile)
+int gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile)
 {
 	int    ok = 1;
 	soap_ssl_init();
@@ -32,7 +32,7 @@ int SLAPI gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile)
 	return ok;
 }
 
-int SLAPI gSoapClientInit(struct soap * pSoap, long flags, const char * pKeyfile)
+int gSoapClientInit(struct soap * pSoap, long flags, const char * pKeyfile)
 {
 	int    ok = 1;
 	soap_set_imode(pSoap, SOAP_C_UTFSTRING);

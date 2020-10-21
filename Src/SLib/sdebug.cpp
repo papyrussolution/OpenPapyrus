@@ -7,13 +7,13 @@
 #include <malloc.h>
 #include <crtdbg.h>
 
-SLAPI MemLeakTracer::MemLeakTracer()
+MemLeakTracer::MemLeakTracer()
 {
 	P_State = new _CrtMemState;
 	_CrtMemCheckpoint((_CrtMemState *)P_State); // @debug
 }
 
-SLAPI MemLeakTracer::~MemLeakTracer()
+MemLeakTracer::~MemLeakTracer()
 {
 	_CrtMemDumpAllObjectsSince((_CrtMemState *)P_State);
 	delete ((_CrtMemState *)P_State);
@@ -28,11 +28,11 @@ SLAPI MemLeakTracer::~MemLeakTracer()
 	return BIN(mht.CalcStat(&mht_stat));
 }
 
-SLAPI MemHeapTracer::MemHeapTracer()
+MemHeapTracer::MemHeapTracer()
 {
 }
 
-int SLAPI MemHeapTracer::CalcStat(Stat * pStat)
+int MemHeapTracer::CalcStat(Stat * pStat)
 {
 	memzero(pStat, sizeof(*pStat));
 	_HEAPINFO blk;

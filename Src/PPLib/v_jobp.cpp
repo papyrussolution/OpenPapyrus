@@ -196,7 +196,7 @@ int JobItemDialog::CheckRecursion(const PPJob * pData)
 	return ok;
 }
 
-int SLAPI EditJobItem(PPJobMngr * pMngr, PPJobPool * pJobPool, PPJob * pData) { DIALOG_PROC_BODY_P2(JobItemDialog, pMngr, pJobPool, pData); }
+int EditJobItem(PPJobMngr * pMngr, PPJobPool * pJobPool, PPJob * pData) { DIALOG_PROC_BODY_P2(JobItemDialog, pMngr, pJobPool, pData); }
 //
 //
 //
@@ -299,7 +299,7 @@ int JobPoolDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI ViewJobPool()
+int ViewJobPool()
 {
 	MemLeakTracer mlt;
 	int    ok = -1;
@@ -384,27 +384,26 @@ void PPALDD_JobPool::Destroy()
 //
 // PPViewJob
 //
-IMPLEMENT_PPFILT_FACTORY(Job); SLAPI JobFilt::JobFilt() : PPBaseFilt(PPFILT_JOB, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(Job); JobFilt::JobFilt() : PPBaseFilt(PPFILT_JOB, 0, 1)
 {
 	SetFlatChunk(offsetof(JobFilt, ReserveStart),
 		offsetof(JobFilt, ReserveEnd)-offsetof(JobFilt, ReserveStart)+sizeof(ReserveEnd));
 	Init(1, 0);
 }
 
-SLAPI PPViewJob::PPViewJob() : PPView(0, &Filt, PPVIEW_JOB), IsChanged(0), P_Pool(0)
+PPViewJob::PPViewJob() : PPView(0, &Filt, PPVIEW_JOB, (implBrowseArray|implDontEditNullFilter), 0), IsChanged(0), P_Pool(0)
 {
-	ImplementFlags |= (implBrowseArray|implDontEditNullFilter);
 	LoadPool();
 }
 
-SLAPI PPViewJob::~PPViewJob()
+PPViewJob::~PPViewJob()
 {
 	if(IsChanged == 1 && CONFIRM(PPCFM_DATACHANGED))
 		SavePool();
 	ZDELETE(P_Pool);
 }
 
-int SLAPI PPViewJob::LoadPool()
+int PPViewJob::LoadPool()
 {
 	int    ok = 1;
 	SString db_symb;
@@ -422,7 +421,7 @@ int SLAPI PPViewJob::LoadPool()
 	return ok;
 }
 
-int SLAPI PPViewJob::SavePool()
+int PPViewJob::SavePool()
 {
 	int    ok = -1;
 	if(P_Pool) {
@@ -480,12 +479,12 @@ private:
 	PPJobPool * P_Pool;
 };
 
-int SLAPI PPViewJob::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewJob::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODY_P2ERR(JobFiltDialog, Mngr, P_Pool, static_cast<JobFilt *>(pFilt));
 }
 
-int SLAPI PPViewJob::Init_(const PPBaseFilt * pFilt)
+int PPViewJob::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -494,7 +493,7 @@ int SLAPI PPViewJob::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewJob::InitIteration()
+int PPViewJob::InitIteration()
 {
 	Counter.Init(List.getCount());
 	return 1;
@@ -511,7 +510,7 @@ int FASTCALL PPViewJob::NextIteration(JobViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewJob::AddItem(PPID * pID)
+int PPViewJob::AddItem(PPID * pID)
 {
 	int    ok = -1;
 	if(P_Pool) {
@@ -530,7 +529,7 @@ int SLAPI PPViewJob::AddItem(PPID * pID)
 	return ok;
 }
 
-int SLAPI PPViewJob::EditItem(PPID id)
+int PPViewJob::EditItem(PPID id)
 {
 	int    ok = -1;
 	if(P_Pool && CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
@@ -550,7 +549,7 @@ int SLAPI PPViewJob::EditItem(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewJob::DeleteItem(PPID id)
+int PPViewJob::DeleteItem(PPID id)
 {
 	int    ok = (P_Pool) ? (CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_DEL, 0) > 0 ? P_Pool->PutJobItem(&id, 0) : 0) : -1;
 	if(ok > 0)
@@ -560,7 +559,7 @@ int SLAPI PPViewJob::DeleteItem(PPID id)
 	return ok;
 }
 
-/*virtual*/SArray  * SLAPI PPViewJob::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+/*virtual*/SArray  * PPViewJob::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(List);
 	uint   brw_id = BROWSER_JOB;
@@ -568,7 +567,7 @@ int SLAPI PPViewJob::DeleteItem(PPID id)
 	return p_array;
 }
 
-int SLAPI PPViewJob::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewJob::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -594,12 +593,12 @@ int FASTCALL PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-void SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewJob::GetDataForBrowser, this));
 }
 
-/*virtual*/int SLAPI PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd == PPVCMD_PRINT) ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -689,7 +688,7 @@ void SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewJob::Print(const void *)
+/*virtual*/int PPViewJob::Print(const void *)
 {
 	int    ok = -1;
 	if(P_Pool) {
@@ -699,7 +698,7 @@ void SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewJob::CheckForFilt(PPJob & rJob)
+int PPViewJob::CheckForFilt(PPJob & rJob)
 {
 	int    r = 1;
 	if(Filt.CmdId) {
@@ -712,7 +711,7 @@ int SLAPI PPViewJob::CheckForFilt(PPJob & rJob)
 	return r;
 }
 
-int SLAPI PPViewJob::MakeList()
+int PPViewJob::MakeList()
 {
 	int    ok = -1;
 	List.freeAll();

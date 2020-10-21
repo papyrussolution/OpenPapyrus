@@ -33,12 +33,12 @@ BizScValByTemplViewItem & FASTCALL BizScValByTemplViewItem::operator = (const Bi
 //
 //
 //
-SLAPI PPBizScTemplPacket::PPBizScTemplPacket()
+PPBizScTemplPacket::PPBizScTemplPacket()
 {
 	Init();
 }
 
-SLAPI PPBizScTemplPacket::~PPBizScTemplPacket()
+PPBizScTemplPacket::~PPBizScTemplPacket()
 {
 }
 
@@ -52,7 +52,7 @@ PPBizScTemplPacket & FASTCALL PPBizScTemplPacket::operator = (const PPBizScTempl
 	return *this;
 }
 
-void SLAPI PPBizScTemplPacket::Init()
+void PPBizScTemplPacket::Init()
 {
 	Cols.freeAll();
 	Rows.freeAll();
@@ -60,7 +60,7 @@ void SLAPI PPBizScTemplPacket::Init()
 	MEMSZERO(Rec);
 }
 
-int SLAPI PPBizScTemplPacket::AddCol(uint * pPos, PPBizScTemplCol * pCol)
+int PPBizScTemplPacket::AddCol(uint * pPos, PPBizScTemplCol * pCol)
 {
 	int    ok = -1;
 	if(pCol) {
@@ -76,7 +76,7 @@ int SLAPI PPBizScTemplPacket::AddCol(uint * pPos, PPBizScTemplCol * pCol)
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::GetCol(PPID colId, uint * pPos, PPBizScTemplCol * pCol)
+int PPBizScTemplPacket::GetCol(PPID colId, uint * pPos, PPBizScTemplCol * pCol)
 {
 	int  ok = 1;
 	uint pos = 0;
@@ -88,7 +88,7 @@ int SLAPI PPBizScTemplPacket::GetCol(PPID colId, uint * pPos, PPBizScTemplCol * 
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::RemoveCol(uint pos)
+int PPBizScTemplPacket::RemoveCol(uint pos)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < Cols.getCount()) {
@@ -103,7 +103,7 @@ int SLAPI PPBizScTemplPacket::RemoveCol(uint pos)
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSVector <PPBizScTemplCell> * pCells)
+int PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSVector <PPBizScTemplCell> * pCells)
 {
 	int    ok = -1;
 	uint   count = Cols.getCount();
@@ -141,7 +141,7 @@ int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSVec
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSVector <PPBizScTemplCell> * pCells)
+int PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSVector <PPBizScTemplCell> * pCells)
 {
 	int    ok = -1;
 	uint count = Cells.getCount();
@@ -156,7 +156,7 @@ int SLAPI PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSVector <PPBi
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::GetRow(PPID rowId, uint * pPos, PPBizScTemplRow * pRow)
+int PPBizScTemplPacket::GetRow(PPID rowId, uint * pPos, PPBizScTemplRow * pRow)
 {
 	int  ok = -1;
 	uint pos = 0;
@@ -168,7 +168,7 @@ int SLAPI PPBizScTemplPacket::GetRow(PPID rowId, uint * pPos, PPBizScTemplRow * 
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::AddRow(uint * pPos, PPBizScTemplRow * pRow)
+int PPBizScTemplPacket::AddRow(uint * pPos, PPBizScTemplRow * pRow)
 {
 	int    ok = -1;
 	if(pRow) {
@@ -184,7 +184,7 @@ int SLAPI PPBizScTemplPacket::AddRow(uint * pPos, PPBizScTemplRow * pRow)
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::RemoveRow(PPID rowId)
+int PPBizScTemplPacket::RemoveRow(PPID rowId)
 {
 	int  ok = 1;
 	uint pos = 0;
@@ -200,7 +200,7 @@ int SLAPI PPBizScTemplPacket::RemoveRow(PPID rowId)
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::AddCell(uint * pPos, PPBizScTemplCell * pCell)
+int PPBizScTemplPacket::AddCell(uint * pPos, PPBizScTemplCell * pCell)
 {
 	int    ok = -1;
 	if(pCell) {
@@ -216,7 +216,7 @@ int SLAPI PPBizScTemplPacket::AddCell(uint * pPos, PPBizScTemplCell * pCell)
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::UpdateCell(uint * pPos, PPBizScTemplCell * pCell)
+int PPBizScTemplPacket::UpdateCell(uint * pPos, PPBizScTemplCell * pCell)
 {
 	int    ok = -1;
 	uint pos = 0;
@@ -235,7 +235,7 @@ int SLAPI PPBizScTemplPacket::UpdateCell(uint * pPos, PPBizScTemplCell * pCell)
 	return ok;
 }
 
-int SLAPI PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * pBizScTbl, RealArray & rValList)
+int PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * pBizScTbl, RealArray & rValList)
 {
 	int    ok = -1;
 	PPBizScTemplRow row;
@@ -290,16 +290,16 @@ int SLAPI PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * 
 	return ok;
 }
 
-SLAPI PPObjBizScTempl::PPObjBizScTempl(void * extraPtr) : PPObjReference(PPOBJ_BIZSCTEMPL, extraPtr)
+PPObjBizScTempl::PPObjBizScTempl(void * extraPtr) : PPObjReference(PPOBJ_BIZSCTEMPL, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList);
 }
 
-SLAPI PPObjBizScTempl::~PPObjBizScTempl()
+PPObjBizScTempl::~PPObjBizScTempl()
 {
 }
 
-int SLAPI PPObjBizScTempl::GetPacket(PPID id, PPBizScTemplPacket * pPack)
+int PPObjBizScTempl::GetPacket(PPID id, PPBizScTemplPacket * pPack)
 {
 	int    ok = -1;
 	pPack->Init();
@@ -311,7 +311,7 @@ int SLAPI PPObjBizScTempl::GetPacket(PPID id, PPBizScTemplPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjBizScTempl::PutPacket(PPID * pID, PPBizScTemplPacket * pPack, int use_ta)
+int PPObjBizScTempl::PutPacket(PPID * pID, PPBizScTemplPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -389,7 +389,7 @@ private:
 	}
 };
 
-static int SLAPI TestFormula(PPID bizScId, const char * pFormula, PPObjBizScore * pObj, SString & rResult)
+static int TestFormula(PPID bizScId, const char * pFormula, PPObjBizScore * pObj, SString & rResult)
 {
 	int    ok = -1;
 	rResult.Space() = 0;
@@ -908,7 +908,7 @@ int BizScTemplDialog::delItem(long pos, long id)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjBizScTempl::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int PPObjBizScTempl::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel, valid_data = 0;
@@ -944,7 +944,7 @@ int BizScTemplDialog::delItem(long pos, long id)
 //
 // PPViewBizScTempl
 //
-IMPLEMENT_PPFILT_FACTORY(BizScTempl); SLAPI BizScTemplFilt::BizScTemplFilt() : PPBaseFilt(PPFILT_BIZSCTEMPL, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(BizScTempl); BizScTemplFilt::BizScTemplFilt() : PPBaseFilt(PPFILT_BIZSCTEMPL, 0, 1)
 {
 	SetFlatChunk(offsetof(BizScTemplFilt, ReserveStart), offsetof(BizScTemplFilt, ReserveEnd)-offsetof(BizScTemplFilt, ReserveStart)+sizeof(ReserveStart));
 	Init(1, 0);
@@ -956,23 +956,23 @@ BizScTemplFilt & BizScTemplFilt::operator = (const BizScTemplFilt & s)
 	return *this;
 }
 
-SLAPI PPViewBizScTempl::PPViewBizScTempl() : PPView(0, &Filt, PPVIEW_BIZSCTEMPL), P_TempTbl(0)
+PPViewBizScTempl::PPViewBizScTempl() : PPView(0, &Filt, PPVIEW_BIZSCTEMPL, 0, 0), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewBizScTempl::~PPViewBizScTempl()
+PPViewBizScTempl::~PPViewBizScTempl()
 {
 	delete P_TempTbl;
 }
 
-int SLAPI PPViewBizScTempl::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewBizScTempl::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	ok = 1;
 	return ok;
 }
 
-void SLAPI PPViewBizScTempl::MakeTempRec(const PPBizScTempl * pInRec, TempBizScTemplTbl::Rec * pOutRec)
+void PPViewBizScTempl::MakeTempRec(const PPBizScTempl * pInRec, TempBizScTemplTbl::Rec * pOutRec)
 {
 	if(pInRec && pOutRec) {
 		pOutRec->ID = pInRec->ID;
@@ -982,14 +982,14 @@ void SLAPI PPViewBizScTempl::MakeTempRec(const PPBizScTempl * pInRec, TempBizScT
 	}
 }
 
-int SLAPI PPViewBizScTempl::CheckIDForFilt(PPID id, PPBizScTempl * pRec)
+int PPViewBizScTempl::CheckIDForFilt(PPID id, PPBizScTempl * pRec)
 {
 	return 1;
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempBizScTempl);
 
-int SLAPI PPViewBizScTempl::Init_(const PPBaseFilt * pFilt)
+int PPViewBizScTempl::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1019,7 +1019,7 @@ int SLAPI PPViewBizScTempl::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewBizScTempl::InitIteration()
+int PPViewBizScTempl::InitIteration()
 {
 	int ok = 0;
 	DBQ * dbq = 0;
@@ -1046,7 +1046,7 @@ int FASTCALL PPViewBizScTempl::NextIteration(BizScTemplViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewBizScTempl::UpdateTempTable(PPID id)
+int PPViewBizScTempl::UpdateTempTable(PPID id)
 {
 	if(id) {
 		PPBizScTempl rec;
@@ -1064,7 +1064,7 @@ int SLAPI PPViewBizScTempl::UpdateTempTable(PPID id)
 	return 1;
 }
 
-DBQuery * SLAPI PPViewBizScTempl::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewBizScTempl::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	PPID brw_id = 0;
 	DBQuery * q = 0;
@@ -1090,7 +1090,7 @@ DBQuery * SLAPI PPViewBizScTempl::CreateBrowserQuery(uint * pBrwId, SString * pS
 	return q;
 }
 
-int SLAPI PPViewBizScTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewBizScTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	PPID  id = (pHdr) ? *static_cast<const long *>(pHdr) : 0;
@@ -1123,7 +1123,7 @@ int SLAPI PPViewBizScTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 //
 // PPViewBizScValByTempl
 //
-IMPLEMENT_PPFILT_FACTORY(BizScValByTempl); SLAPI BizScValByTemplFilt::BizScValByTemplFilt() : PPBaseFilt(PPFILT_BIZSCVALBYTEMPL, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(BizScValByTempl); BizScValByTemplFilt::BizScValByTemplFilt() : PPBaseFilt(PPFILT_BIZSCVALBYTEMPL, 0, 1)
 {
 	SetFlatChunk(offsetof(BizScValByTemplFilt, ReserveStart), offsetof(BizScValByTemplFilt, ReserveEnd)-offsetof(BizScValByTemplFilt, ReserveStart)+sizeof(ReserveStart));
 	Init(1, 0);
@@ -1135,12 +1135,11 @@ BizScValByTemplFilt & FASTCALL BizScValByTemplFilt::operator = (const BizScValBy
 	return *this;
 }
 
-SLAPI PPViewBizScValByTempl::PPViewBizScValByTempl() : PPView(0, &Filt, PPVIEW_BIZSCVALBYTEMPL)
+PPViewBizScValByTempl::PPViewBizScValByTempl() : PPView(0, &Filt, PPVIEW_BIZSCVALBYTEMPL, implBrowseArray, 0)
 {
-	ImplementFlags |= implBrowseArray;
 }
 
-SLAPI PPViewBizScValByTempl::~PPViewBizScValByTempl()
+PPViewBizScValByTempl::~PPViewBizScValByTempl()
 {
 }
 
@@ -1172,12 +1171,12 @@ public:
 	}
 };
 
-int SLAPI PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODYERR(BizScValByTemplFiltDialog, static_cast<BizScValByTemplFilt *>(pFilt));
 }
 
-int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -1221,7 +1220,7 @@ int FASTCALL PPViewBizScValByTempl::GetDataForBrowser(SBrowserDataProcBlock * pB
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewBizScValByTempl::FetchData()
+int PPViewBizScValByTempl::FetchData()
 {
 	int    ok = 1;
 	PPBizScTemplRow * p_row = 0;
@@ -1256,7 +1255,7 @@ int SLAPI PPViewBizScValByTempl::FetchData()
 	return ok;
 }
 
-int SLAPI PPViewBizScValByTempl::Init_(const PPBaseFilt * pFilt)
+int PPViewBizScValByTempl::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -1266,7 +1265,7 @@ int SLAPI PPViewBizScValByTempl::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewBizScValByTempl::InitIteration()
+int PPViewBizScValByTempl::InitIteration()
 {
 	Counter.Init(Data.getCount());
 	return 1;
@@ -1283,7 +1282,7 @@ int FASTCALL PPViewBizScValByTempl::NextIteration(BizScValByTemplViewItem * pIte
 	return ok;
 }
 
-void SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		SString name;
@@ -1301,7 +1300,7 @@ void SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-SArray * SLAPI PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SString subtitle;
 	TSCollection <BizScValByTemplViewItem> * p_array = new TSCollection <BizScValByTemplViewItem>;
@@ -1316,7 +1315,7 @@ SArray * SLAPI PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString 
 	return (SArray*)p_array;
 }
 
-int SLAPI PPViewBizScValByTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewBizScValByTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
  	PPID   id = (pHdr) ? *static_cast<const long *>(pHdr) : 0;

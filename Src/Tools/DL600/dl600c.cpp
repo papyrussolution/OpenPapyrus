@@ -217,17 +217,17 @@ void CtmFuncDclr::Destroy()
 //
 //
 //
-SLAPI DlMacro::DlMacro() : S(";")
+DlMacro::DlMacro() : S(";")
 {
 }
 
-void SLAPI DlMacro::Add(const char * pSymb, const char * pResult)
+void DlMacro::Add(const char * pSymb, const char * pResult)
 {
 	SString buf;
 	S.add(buf.Cat(pSymb).Comma().Cat(pResult));
 }
 
-int SLAPI DlMacro::Subst(const char * pSymb, SString & rResult) const
+int DlMacro::Subst(const char * pSymb, SString & rResult) const
 {
 	SString pat(pSymb);
 	pat.Comma();
@@ -260,7 +260,7 @@ void DlContext::AddStrucDeclare(const char * pDecl)
 	CurDeclList.add(pDecl);
 }
 
-int SLAPI DlContext::AddType(const char * pName, TYPEID stypId, char mangleC)
+int DlContext::AddType(const char * pName, TYPEID stypId, char mangleC)
 {
 	int    ok = 1;
 	DLSYMBID id = CreateSymb(pName, '@', crsymfErrorOnDup);
@@ -298,7 +298,7 @@ int DlContext::UnrollType(DLSYMBID typeID, const STypEx & rTyp, TypeDetail * pTd
 	return ok;
 }
 
-int SLAPI DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags)
+int DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags)
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -345,7 +345,7 @@ int SLAPI DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint td
 //
 //
 //
-int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, long val)
+int DlContext::AddTempFldProp(const CtmToken & rSymb, long val)
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -370,7 +370,7 @@ int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, long val)
 	return ok;
 }
 
-int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, double val)
+int DlContext::AddTempFldProp(const CtmToken & rSymb, double val)
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -391,7 +391,7 @@ int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, double val)
 	return ok;
 }
 
-int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, const char * pStr)
+int DlContext::AddTempFldProp(const CtmToken & rSymb, const char * pStr)
 {
 	int    ok = 1;
 	CtmExprConst c;
@@ -407,7 +407,7 @@ int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, const char * pStr)
 	return ok;
 }
 
-int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t sz)
+int DlContext::AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t sz)
 {
 	int    ok = 1;
 	CtmExprConst c;
@@ -421,7 +421,7 @@ int SLAPI DlContext::AddTempFldProp(const CtmToken & rSymb, const void * pData, 
 	return ok;
 }
 
-uint SLAPI DlContext::AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect)
+uint DlContext::AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect)
 {
 	//
 	// Для элементов кластера создается специализированная область с именем 'DLG_SCOPE_NAME:CTRL_NAME'
@@ -450,7 +450,7 @@ uint SLAPI DlContext::AddUiCluster(int kind, const CtmToken & rSymb, const CtmTo
 	return fld_id;
 }
 
-int SLAPI DlContext::AddUiClusterItem(const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rDescr)
+int DlContext::AddUiClusterItem(const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rDescr)
 {
 	int    ok = 1;
 	uint   item_id = 0;
@@ -493,7 +493,7 @@ int SLAPI DlContext::AddUiClusterItem(const CtmToken & rText, const UiRelRect & 
 	return ok;
 }
 
-DlScope * SLAPI DlContext::GetCurDialogScope()
+DlScope * DlContext::GetCurDialogScope()
 {
 	const DlScope * p_scope = GetCurScope();
 	while(p_scope) {
@@ -505,7 +505,7 @@ DlScope * SLAPI DlContext::GetCurDialogScope()
 	return const_cast<DlScope *>(p_scope); // @badcast
 }
 
-int SLAPI DlContext::GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId)
+int DlContext::GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId)
 {
 	rSerBuf.Z();
 	int    ok = 0;
@@ -546,7 +546,7 @@ int SLAPI DlContext::GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSY
 	return ok;
 }
 
-uint SLAPI DlContext::AddUiListbox(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rColumns)
+uint DlContext::AddUiListbox(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rColumns)
 {
 	DlScope * p_scope = 0;
 	uint   fld_id = AddUiCtrl(DlScope::ckListbox, rSymb, rText, 0, rRect);
@@ -566,7 +566,7 @@ uint SLAPI DlContext::AddUiListbox(const CtmToken & rSymb, const CtmToken & rTex
 	return fld_id;
 }
 
-uint SLAPI DlContext::AddUiButton(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rCmdSymb)
+uint DlContext::AddUiButton(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rCmdSymb)
 {
 	DlScope * p_scope = 0;
 	uint   fld_id = AddUiCtrl(DlScope::ckPushbutton, rSymb, rText, 0, rRect);
@@ -598,7 +598,7 @@ uint SLAPI DlContext::AddUiButton(const CtmToken & rSymb, const CtmToken & rText
 	return fld_id;
 }
 
-uint SLAPI DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect)
+uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect)
 {
 	EXCEPTVAR(LastError);
 	uint   fld_id = 0;
@@ -703,7 +703,7 @@ uint SLAPI DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken
 //
 //
 //
-SString & SLAPI GetIdlTypeString(TYPEID typ, SString & rBuf, const char * pFldName, size_t indent)
+SString & GetIdlTypeString(TYPEID typ, SString & rBuf, const char * pFldName, size_t indent)
 {
 	rBuf.Z();
 	size_t sz = stsize(typ);
@@ -773,7 +773,7 @@ SString & SLAPI GetIdlTypeString(TYPEID typ, SString & rBuf, const char * pFldNa
 	return rBuf;
 }
 
-int SLAPI DlContext::Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * pFldName, long flags, SString & rBuf)
+int DlContext::Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * pFldName, long flags, SString & rBuf)
 {
 	int    ok = 1;
 	SString type_buf, name_buf, comment;
@@ -870,7 +870,7 @@ int SLAPI DlContext::Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * 
 	return ok;
 }
 
-int SLAPI DlContext::GetFuncName(int, const CtmExpr * pExpr, SString & rBuf)
+int DlContext::GetFuncName(int, const CtmExpr * pExpr, SString & rBuf)
 {
 	int    ok = 1;
 	SString arg_buf, temp_buf;
@@ -901,7 +901,7 @@ int SLAPI DlContext::GetFuncName(int, const CtmExpr * pExpr, SString & rBuf)
 	return ok;
 }
 
-int SLAPI DlContext::Format_Func(const DlFunc & rFunc, long options, SString & rBuf)
+int DlContext::Format_Func(const DlFunc & rFunc, long options, SString & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf, arg_name;
@@ -925,7 +925,7 @@ int SLAPI DlContext::Format_Func(const DlFunc & rFunc, long options, SString & r
 	return ok;
 }
 
-int SLAPI DlContext::Write_Scope(int indent, SFile & rOutFile, const DlScope & rScope)
+int DlContext::Write_Scope(int indent, SFile & rOutFile, const DlScope & rScope)
 {
 	uint   i;
 	SString line;
@@ -956,7 +956,7 @@ int SLAPI DlContext::Write_Scope(int indent, SFile & rOutFile, const DlScope & r
 	return 1;
 }
 
-void SLAPI DlContext::Write_DebugListing()
+void DlContext::Write_DebugListing()
 {
 	SFile out_file(LogFileName, SFile::mWrite);
 	SString line;
@@ -979,7 +979,7 @@ static SString & FASTCALL _RectToLine(const UiRelRect & rRect, SString & rBuf)
 		Cat(rRect.R.X.Val).CatDiv(',', 2).Cat(rRect.R.Y.Val).CatChar(')');
 }
 
-int SLAPI DlContext::Write_DialogReverse()
+int DlContext::Write_DialogReverse()
 {
 	int    ok = 1;
 	SString out_file_name;
@@ -1190,7 +1190,7 @@ DLSYMBID DlContext::SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */,
 	return new_type_id;
 }
 
-int SLAPI DlContext::AddPropDeclare(CtmDclr & rSymb, int propDirParam)
+int DlContext::AddPropDeclare(CtmDclr & rSymb, int propDirParam)
 {
 	int    ok = 1;
 	DLSYMBID symb_id = 0;
@@ -1281,7 +1281,7 @@ int DlContext::AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgLis
 	return ok;
 
 #if 0 // @sample {
-int SLAPI DlContext::AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList)
+int DlContext::AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList)
 {
 	int    ok = 1;
 	DLSYMBID symb_id = 0;
@@ -1441,7 +1441,7 @@ int DlContext::AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * 
 	return ok;
 }
 
-int SLAPI DlContext::InitDbIndexName(const char * pIdxName, SString & rBuf)
+int DlContext::InitDbIndexName(const char * pIdxName, SString & rBuf)
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -1469,7 +1469,7 @@ int SLAPI DlContext::InitDbIndexName(const char * pIdxName, SString & rBuf)
 	return ok;
 }
 
-int SLAPI DlContext::AddDbIndexSegmentDeclaration(const char * pFieldName, long options)
+int DlContext::AddDbIndexSegmentDeclaration(const char * pFieldName, long options)
 {
 	int    ok = 1;
 	DlScope * p_scope = GetScope(CurScopeID, DlScope::kDbIndex);
@@ -1482,7 +1482,7 @@ int SLAPI DlContext::AddDbIndexSegmentDeclaration(const char * pFieldName, long 
 	return ok;
 }
 
-int SLAPI DlContext::ResolveDbIndexSegFlag(long flags, const char * pSymb, long * pResultFlags)
+int DlContext::ResolveDbIndexSegFlag(long flags, const char * pSymb, long * pResultFlags)
 {
 	int    ok = 1;
 	long   f = 0;
@@ -1501,7 +1501,7 @@ int SLAPI DlContext::ResolveDbIndexSegFlag(long flags, const char * pSymb, long 
 	return ok;
 }
 
-int SLAPI DlContext::ResolveDbIndexFlag(const char * pSymb)
+int DlContext::ResolveDbIndexFlag(const char * pSymb)
 {
 	int    ok = 1;
 	long   f = 0;
@@ -1545,7 +1545,7 @@ int SLAPI DlContext::ResolveDbIndexFlag(const char * pSymb)
 	return ok;
 }
 
-int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char * pConstStr, int constInt)
+int DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char * pConstStr, int constInt)
 {
 	int    ok = 1;
 	CtmExprConst c;
@@ -1656,7 +1656,7 @@ int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char 
 	return ok;
 }
 
-int SLAPI DlContext::AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList) const
+int DlContext::AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList) const
 {
 	int    ok = 1;
 	for(uint i = 0; ok && i < rCvtPosList.getCount(); i++) {
@@ -1671,7 +1671,7 @@ int SLAPI DlContext::AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, 
 	return ok;
 }
 
-int SLAPI DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList)
+int DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList)
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -1740,7 +1740,7 @@ int SLAPI DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, 
 	return ok;
 }
 
-int SLAPI DlContext::IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList)
+int DlContext::IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList)
 {
 	EXCEPTVAR(LastError);
 	int    s = 1;
@@ -2118,20 +2118,20 @@ int DlContext::SetupScopeUUID(DLSYMBID scopeID, const char * pName, const S_GUID
 //
 //
 //
-SLAPI DlContext::TypeDetail::TypeDetail()
+DlContext::TypeDetail::TypeDetail()
 {
 	DimList.Init();
 	PtrList.Init();
 	T.Init();
 }
 
-SLAPI DlContext::TypeDetail::~TypeDetail()
+DlContext::TypeDetail::~TypeDetail()
 {
 	DimList.Destroy();
 	PtrList.Destroy();
 }
 
-int SLAPI DlContext::TypeDetail::IsInterfaceTypeConversionNeeded() const
+int DlContext::TypeDetail::IsInterfaceTypeConversionNeeded() const
 {
 	const TYPEID st = GETSTYPE(T.Typ);
 	if(oneof3(st, S_DATE, S_TIME, S_DATETIME))
@@ -2225,7 +2225,7 @@ int DlContext::PopScope()
 	return scope_id;
 }
 
-int SLAPI DlContext::SetInheritance(DLSYMBID scopeID, DLSYMBID baseID)
+int DlContext::SetInheritance(DLSYMBID scopeID, DLSYMBID baseID)
 {
 	int    ok = 1;
 	DlScope * p = GetScope(scopeID);
@@ -2587,7 +2587,7 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 	return ok;
 }
 
-void SLAPI DlContext::Write_C_FileHeader(Generator_CPP & gen, const char * pFileName)
+void DlContext::Write_C_FileHeader(Generator_CPP & gen, const char * pFileName)
 {
 	SString temp_buf;
 	SPathStruc ps;
@@ -2599,7 +2599,7 @@ void SLAPI DlContext::Write_C_FileHeader(Generator_CPP & gen, const char * pFile
 	gen.Wr_Comment(0);
 }
 
-int SLAPI DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const
+int DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -2618,7 +2618,7 @@ int SLAPI DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SStri
 	return ok;
 }
 
-int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, long cflags)
+int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, long cflags)
 {
 	int    ok = 1, r;
 	uint   i, j, k;
@@ -2881,14 +2881,14 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 	return ok;
 }
 
-static void SLAPI Wr_YourCodeHere(Generator_CPP & gen)
+static void Wr_YourCodeHere(Generator_CPP & gen)
 {
 	gen.IndentInc();
 	gen.Wr_Comment("Your code here...");
 	gen.IndentDec();
 }
 
-int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags)
+int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags)
 {
 	int    ok = 1, is_ret = 0;
 	const  uint arg_count = rFunc.GetArgCount();
@@ -3079,12 +3079,12 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 	return ok;
 }
 
-static SString & SLAPI Make_USEIMPL_DefSymb(const char * pClsName, SString & rBuf)
+static SString & Make_USEIMPL_DefSymb(const char * pClsName, SString & rBuf)
 {
 	return (rBuf = "USE_IMPL_").Cat(pClsName);
 }
 
-int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags)
+int DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags)
 {
 	int    ok = 1, r;
 	uint   i, j, k;
@@ -3227,7 +3227,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 	return ok;
 }
 
-int SLAPI DlContext::Write_WSDL_File(const char * pFileName, const DlScope & rScope)
+int DlContext::Write_WSDL_File(const char * pFileName, const DlScope & rScope)
 {
 	int    ok = -1;
 	/*
@@ -3251,7 +3251,7 @@ int SLAPI DlContext::Write_WSDL_File(const char * pFileName, const DlScope & rSc
 	return ok;
 }
 
-int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, long cflags)
+int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, long cflags)
 {
 	int    ok = 1;
 	uint   j, k;
@@ -3522,7 +3522,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 //
 //
 //
-int SLAPI DlContext::Write_Code()
+int DlContext::Write_Code()
 {
 	// CtmConstList AddConst
 	int    ok = 1;
@@ -3559,7 +3559,7 @@ int SLAPI DlContext::Write_Code()
 //
 //
 //
-int SLAPI DlContext::FindImportFile(const char * pFileName, SString & rPath)
+int DlContext::FindImportFile(const char * pFileName, SString & rPath)
 {
 	SPathStruc ps, ps_s;
 	ps.Split(pFileName);
@@ -3585,7 +3585,7 @@ int SLAPI DlContext::FindImportFile(const char * pFileName, SString & rPath)
 	}
 }
 
-int SLAPI DlContext::Test()
+int DlContext::Test()
 {
 	SString symb;
 	LongArray scope_id_list;
@@ -3607,7 +3607,7 @@ int SLAPI DlContext::Test()
 	return 1;
 }
 
-int SLAPI DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath, SqlServerType sqlst)
+int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath, SqlServerType sqlst)
 {
 	int    ok = 1;
 	char   acs[512];
@@ -3690,7 +3690,7 @@ int SLAPI DlContext::CreateDbDictionary(const char * pDictPath, const char * pDa
 
 #define DL600C_RELEASE_DEBUG
 
-int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags)
+int DlContext::Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags)
 {
 	extern FILE * yyin;
 	extern int    yyparse();

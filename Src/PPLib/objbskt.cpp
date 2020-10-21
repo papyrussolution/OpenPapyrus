@@ -85,29 +85,29 @@ public:
 //
 // PPBasketPacket
 //
-SLAPI PPBasketPacket::PPBasketPacket() : ILBillPacket()
+PPBasketPacket::PPBasketPacket() : ILBillPacket()
 {
 	Init();
 }
 
-SLAPI PPBasketPacket::~PPBasketPacket()
+PPBasketPacket::~PPBasketPacket()
 {
 	destroy();
 }
 
-void SLAPI PPBasketPacket::Init()
+void PPBasketPacket::Init()
 {
 	Head.ID  = Head.Num = Head.Flags = 0;
 	Head.Tag = PPOBJ_GOODSBASKET;
 	Head.User = LConfig.UserID;
-	Head.Name[0] = 0;
+	PTR32(Head.Name)[0] = 0;
 	Head.SupplID = 0;
 	GoodsID = 0;
 	Lots.freeAll();
 	InsertedGoodsList.freeAll();
 }
 
-void SLAPI PPBasketPacket::InitInsertion()
+void PPBasketPacket::InitInsertion()
 {
 	InsertedGoodsList.freeAll();
 }
@@ -129,7 +129,7 @@ PPBasketPacket & FASTCALL PPBasketPacket::operator = (const PPBasketPacket & src
 	return *this;
 }
 
-int SLAPI PPBasketPacket::AddItem(const ILTI * pItem, uint * pPos, int replaceOption)
+int PPBasketPacket::AddItem(const ILTI * pItem, uint * pPos, int replaceOption)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -161,15 +161,19 @@ int SLAPI PPBasketPacket::AddItem(const ILTI * pItem, uint * pPos, int replaceOp
 	return ok;
 }
 
-int SLAPI PPBasketPacket::DelItem(long pos)
+int PPBasketPacket::DelItem(long pos)
 {
 	return Lots.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
-int SLAPI PPBasketPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
+int PPBasketPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
 {
 	const PPID goods_id = labs(goodsID);
 	return Lots.lsearch(&goods_id, pPos, CMPF_LONG, offsetof(ILTI, GoodsID));
+}
+
+PPBasketCombine::PPBasketCombine() : BasketID(0)
+{
 }
 //
 // PPObjGoodsBasket
@@ -221,18 +225,18 @@ int PPObjGoodsBasket::Locking::Unlock()
 	return ok;
 }
 
-SLAPI PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ_GOODSBASKET, extraPtr)
+PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ_GOODSBASKET, extraPtr)
 {
 }
 
-/*static*/void SLAPI PPObjGoodsBasket::SetAddLockErrInfo(PPID mutexID)
+/*static*/void PPObjGoodsBasket::SetAddLockErrInfo(PPID mutexID)
 {
 	SString buf;
 	DS.GetSync().GetLockingText(mutexID, 1, buf);
 	PPSetAddedMsgString(buf);
 }
 
-/*static*/int SLAPI PPObjGoodsBasket::ForceUnlock(PPID id)
+/*static*/int PPObjGoodsBasket::ForceUnlock(PPID id)
 {
 	int    ok = 1;
 	PPSyncArray sync_ary;
@@ -248,7 +252,7 @@ SLAPI PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsBasket::IsLocked(PPID id)
+/*static*/int PPObjGoodsBasket::IsLocked(PPID id)
 {
 	int    ok = 0;
 	PPID   mutex_id = 0;
@@ -263,7 +267,7 @@ SLAPI PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
+int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 {
 	int    ok = 1;
 	if(options & gpoProcessPrivate && IsPrivate(id)) {
@@ -329,7 +333,7 @@ int SLAPI PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long opti
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
+int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 {
 	int    ok = -1, r;
 	int    skip_items = 0;
@@ -462,7 +466,7 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoodsBasket, PPBasketPacket);
 
-int SLAPI PPObjGoodsBasket::SerializePacket(int dir, PPBasketPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjGoodsBasket::SerializePacket(int dir, PPBasketPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Head, rBuf, pSCtx));
@@ -471,10 +475,10 @@ int SLAPI PPObjGoodsBasket::SerializePacket(int dir, PPBasketPacket * pPack, SBu
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjGoodsBasket::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjGoodsBasket, PPBasketPacket>(this, pPack, id, stream, pCtx); }
 
-int SLAPI PPObjGoodsBasket::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjGoodsBasket::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	PPBasketPacket * p_pack = static_cast<PPBasketPacket *>(pPack->Data);
@@ -503,7 +507,7 @@ int SLAPI PPObjGoodsBasket::Write(PPObjPack * pPack, PPID * pID, void * stream, 
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjGoodsBasket::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPBasketPacket * p_pack= static_cast<PPBasketPacket *>(p->Data);
@@ -516,7 +520,7 @@ int SLAPI PPObjGoodsBasket::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 	return -1;
 }
 
-int SLAPI PPObjGoodsBasket::Transfer(PPID id)
+int PPObjGoodsBasket::Transfer(PPID id)
 {
 	int    ok = -1;
 	PPObjectTransmit * p_ot = 0;
@@ -555,7 +559,7 @@ int SLAPI PPObjGoodsBasket::Transfer(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::ClearDefForBaskets(int use_ta)
+int PPObjGoodsBasket::ClearDefForBaskets(int use_ta)
 {
 	int    ok = -1;
 	PPBasketPacket gb_packet;
@@ -576,7 +580,7 @@ int SLAPI PPObjGoodsBasket::ClearDefForBaskets(int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::SearchByName(PPID * pID, const char * pName, PPBasketPacket * pPacket)
+int PPObjGoodsBasket::SearchByName(PPID * pID, const char * pName, PPBasketPacket * pPacket)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -591,7 +595,7 @@ int SLAPI PPObjGoodsBasket::SearchByName(PPID * pID, const char * pName, PPBaske
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::SearchDefaultBasket(PPID * pID, PPGoodsBasket * pRec)
+int PPObjGoodsBasket::SearchDefaultBasket(PPID * pID, PPGoodsBasket * pRec)
 {
 	int    ok = -1;
 	long   eh = -1;
@@ -608,7 +612,7 @@ int SLAPI PPObjGoodsBasket::SearchDefaultBasket(PPID * pID, PPGoodsBasket * pRec
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::GetPreferredBasket(PPBasketCombine & rC)
+int PPObjGoodsBasket::GetPreferredBasket(PPBasketCombine & rC)
 {
 	int    ok = -1;
 	PPBasketPacket * p_private_cart = DS.GetPrivateBasket();
@@ -653,7 +657,7 @@ int SLAPI PPObjGoodsBasket::GetPreferredBasket(PPBasketCombine & rC)
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
+int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 {
 	int    ok = -1;
 	rBasket.BasketID = 0;
@@ -669,7 +673,7 @@ int SLAPI PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez)
+/*virtual*/int PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez)
 {
 	int    ok = 1;
 	int    r;
@@ -693,7 +697,7 @@ int SLAPI PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 	return ok;
 }
 
-/*virtual*/void * SLAPI PPObjGoodsBasket::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjGoodsBasket::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjGoodsBasketListWindow : public PPObjListWindow {
 	public:
@@ -805,7 +809,7 @@ private:
 	int    AsSelector;
 };
 
-int SLAPI PPObjGoodsBasket::Browse(void * extraPtr)
+int PPObjGoodsBasket::Browse(void * extraPtr)
 {
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
@@ -819,13 +823,13 @@ int SLAPI PPObjGoodsBasket::Browse(void * extraPtr)
 }
 
 
-/*static*/int SLAPI PPObjGoodsBasket::IsPrivate(PPID id)
+/*static*/int PPObjGoodsBasket::IsPrivate(PPID id)
 {
 	PPBasketPacket * p_private_pack = DS.GetPrivateBasket();
 	return BIN(p_private_pack && p_private_pack->Head.ID == id);
 }
 
-int SLAPI PPObjGoodsBasket::Select(PPID * pID, const char * pMsg)
+int PPObjGoodsBasket::Select(PPID * pID, const char * pMsg)
 {
 	int    ok = -1;
 	PPID   sel_id = 0;
@@ -846,7 +850,7 @@ int SLAPI PPObjGoodsBasket::Select(PPID * pID, const char * pMsg)
 	return ok;
 }
 
-int SLAPI PPObjGoodsBasket::Edit(PPID * pID, void * extraPtr)
+int PPObjGoodsBasket::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    valid_data = 0;
@@ -907,11 +911,11 @@ int SLAPI PPObjGoodsBasket::Edit(PPID * pID, void * extraPtr)
 //
 //
 //
-SLAPI SelBasketParam::SelBasketParam() : PPBasketCombine(), SelPrice(0), SelReplace(1), Flags(0)
+SelBasketParam::SelBasketParam() : PPBasketCombine(), SelPrice(0), SelReplace(1), Flags(0)
 {
 }
 
-int SLAPI SelBasketParam::StoreInReg(const char * pName) const
+int SelBasketParam::StoreInReg(const char * pName) const
 {
 	int    ok = -1;
 	if(!isempty(pName)) {
@@ -925,7 +929,7 @@ int SLAPI SelBasketParam::StoreInReg(const char * pName) const
 	return ok;
 }
 
-int SLAPI SelBasketParam::RestoreFromReg(const char * pName)
+int SelBasketParam::RestoreFromReg(const char * pName)
 {
 	int    ok = -1;
 	if(!isempty(pName)) {
@@ -943,7 +947,7 @@ int SLAPI SelBasketParam::RestoreFromReg(const char * pName)
 	return ok;
 }
 
-int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, uint dlgID)
+int GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, uint dlgID)
 {
 	class GBDataDialog : public TDialog {
 	public:
@@ -1090,22 +1094,22 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 //
 // PPViewGoodsBasket
 //
-SLAPI PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket) :
+PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket) :
 	IterCount(0), NumIters(0), P_OrdTbl(0), P_IterQuery(0), P_GBPacket(pPacket), Order(0), Flags(0)
 {
 }
 
-SLAPI PPViewGoodsBasket::~PPViewGoodsBasket()
+PPViewGoodsBasket::~PPViewGoodsBasket()
 {
 	ZDELETE(P_OrdTbl);
 	BExtQuery::ZDelete(&P_IterQuery);
 	DBRemoveTempFiles();
 }
 
-const IterCounter & SLAPI PPViewGoodsBasket::GetIterCounter() const { return Counter; }
-const PPBasketPacket * SLAPI PPViewGoodsBasket::GetPacket() const { return P_GBPacket; }
+const IterCounter & PPViewGoodsBasket::GetIterCounter() const { return Counter; }
+const PPBasketPacket * PPViewGoodsBasket::GetPacket() const { return P_GBPacket; }
 
-int SLAPI PPViewGoodsBasket::Init(int ord)
+int PPViewGoodsBasket::Init(int ord)
 {
 	int    ok = 1;
 	ZDELETE(P_OrdTbl);
@@ -1114,7 +1118,7 @@ int SLAPI PPViewGoodsBasket::Init(int ord)
 	return ok;
 }
 
-int SLAPI PPViewGoodsBasket::InitIteration()
+int PPViewGoodsBasket::InitIteration()
 {
 	int    ok = 0;
 	TempOrderTbl::Key1 k;
@@ -1152,7 +1156,7 @@ int FASTCALL PPViewGoodsBasket::NextIteration(ILTI * pItem)
 	return ok;
 }
 
-int SLAPI PPViewGoodsBasket::Print()
+int PPViewGoodsBasket::Print()
 {
 	int    ok = -1;
 	uint   rpt_id = 0;
@@ -1184,7 +1188,7 @@ int SLAPI PPViewGoodsBasket::Print()
 	return ok;
 }
 
-int SLAPI PPViewGoodsBasket::CreateOrderTable()
+int PPViewGoodsBasket::CreateOrderTable()
 {
 	int    ok = 1;
 	uint   i = 0;
@@ -1232,7 +1236,7 @@ int SLAPI PPViewGoodsBasket::CreateOrderTable()
 //
 //
 //
-int SLAPI PPObjGoodsBasket::Print(PPBasketPacket * pData)
+int PPObjGoodsBasket::Print(PPBasketPacket * pData)
 {
 	PPViewGoodsBasket v_gb(pData);
 	return v_gb.Print();
@@ -1501,7 +1505,7 @@ IMPL_HANDLE_EVENT(GBItemDialog)
 	clearEvent(event);
 }
 
-int SLAPI GoodsBasketItemDialog(ILTI * pData, PPBasketCombine & rCart)
+int GoodsBasketItemDialog(ILTI * pData, PPBasketCombine & rCart)
 {
 	int    ok = -1;
 	GBItemDialog * dlg = 0;
@@ -1714,7 +1718,8 @@ int GBDialog::delItem(long pos, long)
 		Flags |= gbdfChanged;
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 int GBDialog::addItem(long * pPos, long * pID)
@@ -1839,7 +1844,7 @@ int GBDialog::DoDiscount()
 			PPWait(1);
 			ILTI * p_item = 0;
 			for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void **)&p_item) > 0;) {
-				double price = p_item->Price - (pctdis ? (p_item->Price * fdiv100r(discount)) : discount);
+				const double price = p_item->Price - (pctdis ? (p_item->Price * fdiv100r(discount)) : discount);
 				if(price > 0.0)
 					p_item->Price = price;
 			}
@@ -1877,7 +1882,7 @@ int GBDialog::IsChanged()
 	else if(Flags & gbdfEditNameNFlags) {
 		long  new_flags = 0;
 		GetClusterData(CTL_GBTRUC_FLAGS, &new_flags);
-		ushort v = getCtrlUInt16(CTL_GBTRUC_PRIVATE);
+		const ushort v = getCtrlUInt16(CTL_GBTRUC_PRIVATE);
 		SETFLAG(new_flags, GBASKF_PRIVATE, v);
 		if(new_flags != InitBasketFlags)
 			is_changed = 1;
@@ -1885,7 +1890,7 @@ int GBDialog::IsChanged()
 	return is_changed;
 }
 
-int SLAPI GoodsBasketDialog(PPBasketCombine & rBasket, int action)
+int GoodsBasketDialog(PPBasketCombine & rBasket, int action)
 {
 	int    ok = -1, valid_data = 0, r;
 	GBDialog * dlg = 0;
@@ -1909,9 +1914,10 @@ int SLAPI GoodsBasketDialog(PPBasketCombine & rBasket, int action)
 	return ok;
 }
 
-int SLAPI AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double price)
+int AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double price)
 {
-	int    ok = -1, is_locked = 0;
+	int    ok = -1;
+	int    is_locked = 0;
 	PPID   gb_id = 0;
 	GBItemDialog * dlg = 0;
 	if(goodsID) {
@@ -2011,7 +2017,7 @@ struct Basket2BillParam {
 	long   Flags;
 };
 
-static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
+static int EditBasket2BillParam(Basket2BillParam * pParam)
 {
 	class Basket2BillDialog : public TDialog {
 		DECL_DIALOG_DATA(Basket2BillParam);
@@ -2067,7 +2073,7 @@ static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
 	DIALOG_PROC_BODY(Basket2BillDialog, pParam);
 }
 
-int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPack)
+int PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPack)
 {
 	int    ok = 1;
 	int    is_expend = -1;

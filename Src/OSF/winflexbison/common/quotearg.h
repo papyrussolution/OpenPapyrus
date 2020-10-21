@@ -209,25 +209,21 @@ enum quoting_style {
 /* Flags for use in set_quoting_flags.  */
 enum quoting_flags {
 	/* Always elide null bytes from styles that do not quote them,
-	   even when the length of the result is available to the
-	   caller.  */
+	   even when the length of the result is available to the caller.  */
 	QA_ELIDE_NULL_BYTES = 0x01,
-
 	/* Omit the surrounding quote characters if no escaped characters
 	   are encountered.  Note that if no other character needs
 	   escaping, then neither does the escape character.  */
 	QA_ELIDE_OUTER_QUOTES = 0x02,
-
 	/* In the c_quoting_style and c_maybe_quoting_style, split ANSI
 	   trigraph sequences into concatenated strings (for example,
-	   "?""?/" rather than "??/", which could be confused with
-	   "\\").  */
+	   "?""?/" rather than "??/", which could be confused with "\\").  */
 	QA_SPLIT_TRIGRAPHS = 0x04
 };
 
 /* For now, --quoting-style=literal is the default, but this may change.  */
-# ifndef DEFAULT_QUOTING_STYLE
-#  define DEFAULT_QUOTING_STYLE literal_quoting_style
+#ifndef DEFAULT_QUOTING_STYLE
+	#define DEFAULT_QUOTING_STYLE literal_quoting_style
 #endif
 
 /* Names of quoting styles and their corresponding values.  */

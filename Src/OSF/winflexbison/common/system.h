@@ -74,13 +74,11 @@
 #endif
 
 //#include <limits.h>
-#include <stddef.h>
+//#include <stddef.h>
 //#include <string.h>
-
 #if HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
-
 //#include <unistd.h>
 //#include <inttypes.h>
 
@@ -95,7 +93,7 @@ typedef size_t uintptr_t;
    `---------*/
 
 //#include <unlocked-io.h>
-#include <verify.h>
+//#include <verify.h>
 //#include <stdio.h>
 
 /*-----------------.
@@ -155,10 +153,9 @@ typedef size_t uintptr_t;
 
 #define obstack_chunk_alloc xmalloc
 #define obstack_chunk_free  free
-#include <obstack.h>
+//#include <obstack.h>
 
-#define obstack_sgrow(Obs, Str) \
-	obstack_grow(Obs, Str, strlen(Str))
+#define obstack_sgrow(Obs, Str) obstack_grow(Obs, Str, strlen(Str))
 
 #define obstack_fgrow1(Obs, Format, Arg1)       \
 	do {                                            \

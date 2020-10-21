@@ -7,7 +7,7 @@
 //
 // Фильтр по транспорту
 //
-int SLAPI TransportFilt::InitInstance()
+int TransportFilt::InitInstance()
 {
 	SetFlatChunk(offsetof(TransportFilt, ReserveStart), offsetof(TransportFilt, Code) - offsetof(TransportFilt, ReserveStart));
 	SetBranchSString(offsetof(TransportFilt, Code));
@@ -15,12 +15,12 @@ int SLAPI TransportFilt::InitInstance()
 	return Init(1, 0);
 }
 
-IMPLEMENT_PPFILT_FACTORY(Transport); SLAPI TransportFilt::TransportFilt() : PPBaseFilt(PPFILT_TRANSPORT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Transport); TransportFilt::TransportFilt() : PPBaseFilt(PPFILT_TRANSPORT, 0, 0)
 {
 	InitInstance();
 }
 
-/*virtual*/int SLAPI TransportFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int TransportFilt::Describe(long flags, SString & rBuf) const
 {
 	PutObjMembToBuf(PPOBJ_TRANSPMODEL, ModelID,   STRINGIZE(ModelID),      rBuf);
 	PutObjMembToBuf(PPOBJ_PERSON,      OwnerID,   STRINGIZE(BrandOwnerID), rBuf);
@@ -39,7 +39,7 @@ IMPLEMENT_PPFILT_FACTORY(Transport); SLAPI TransportFilt::TransportFilt() : PPBa
 	return 1;
 }
 
-int SLAPI TransportFilt::IsEmpty() const
+int TransportFilt::IsEmpty() const
 {
 	return !(TrType || OwnerID || CaptainID || ModelID || CountryID || Code.NotEmpty() || TrailCode.NotEmpty());
 }
@@ -47,18 +47,17 @@ int SLAPI TransportFilt::IsEmpty() const
 // Storing format for GoodsFilt
 //
 //
-SLAPI PPViewTransport::PPViewTransport() : PPView(0, &Filt, PPVIEW_TRANSPORT), P_TempTbl(0)
+PPViewTransport::PPViewTransport() : PPView(0, &Filt, PPVIEW_TRANSPORT, 0, REPORT_TRANSPORTVIEW), P_TempTbl(0)
 {
-	DefReportId = REPORT_TRANSPORTVIEW;
 }
 
-SLAPI PPViewTransport::~PPViewTransport()
+PPViewTransport::~PPViewTransport()
 {
 	delete P_TempTbl;
 	DBRemoveTempFiles();
 }
 
-PPBaseFilt * SLAPI PPViewTransport::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewTransport::CreateFilt(void * extraPtr) const
 {
 	TransportFilt * p_filt = new TransportFilt;
 	p_filt->TrType = PPTRTYP_CAR;
@@ -143,7 +142,7 @@ void TransportFilterDlg::SetupCtrls()
 	setCtrlString(CTL_FLTTRANSP_TRAILCODE, trail_code);
 }
 
-int SLAPI PPViewTransport::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewTransport::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(Filt.IsA(pBaseFilt)) {
 		DIALOG_PROC_BODYERR(TransportFilterDlg, static_cast<TransportFilt *>(pBaseFilt));
@@ -152,7 +151,7 @@ int SLAPI PPViewTransport::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		return 0;
 }
 
-DBQuery * SLAPI PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	DBE    dbe_owner, dbe_captain, dbe_country, dbe_trtype;
@@ -191,7 +190,7 @@ DBQuery * SLAPI PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSu
 
 // PP_CREATE_TEMP_FILE_PROC(CreateTempTransportFile, TempTransport);
 
-void SLAPI PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec)
+void PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec)
 {
 	if(pTempRec && pTranspRec) {
 		memzero(pTempRec, sizeof(*pTempRec));
@@ -209,7 +208,7 @@ void SLAPI PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTran
 	}
 }
 
-int SLAPI PPViewTransport::UpdateTempTable(PPID transpID, PPViewBrowser * pBrw)
+int PPViewTransport::UpdateTempTable(PPID transpID, PPViewBrowser * pBrw)
 {
 	int    ok = 1;
 	if(P_TempTbl) {
@@ -242,7 +241,7 @@ int SLAPI PPViewTransport::UpdateTempTable(PPID transpID, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, PPTransport * pRec)
+int PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, PPTransport * pRec)
 {
 	PPTransport rec;
 	if(pRec)
@@ -269,12 +268,12 @@ int SLAPI PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, PP
 	return 1;
 }
 
-int SLAPI PPViewTransport::IsTempTblNeeded()
+int PPViewTransport::IsTempTblNeeded()
 {
 	return 1;
 }
 
-int SLAPI PPViewTransport::Init_(const PPBaseFilt * pFilt)
+int PPViewTransport::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	LongArray * p_list = 0;
@@ -310,7 +309,7 @@ int SLAPI PPViewTransport::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewTransport::InitIteration(int aOrder)
+int PPViewTransport::InitIteration(int aOrder)
 {
 	int    ok  = 1;
 	Counter.Init();
@@ -340,7 +339,7 @@ int FASTCALL PPViewTransport::NextIteration(TransportViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewTransport::ViewTotal()
+int PPViewTransport::ViewTotal()
 {
 	TDialog * p_dlg = new TDialog(DLG_GOODSTOTAL);
 	if(CheckDialogPtrErr(&p_dlg)) {
@@ -361,12 +360,12 @@ int SLAPI PPViewTransport::ViewTotal()
 		return 0;
 }
 
-int SLAPI PPViewTransport::DeleteItem(PPID id)
+int PPViewTransport::DeleteItem(PPID id)
 {
 	return (id && CONFIRM(PPCFM_DELETE)) ? TObj.Put(&id, 0, 1) : -1;
 }
 
-int SLAPI PPViewTransport::Transmit(PPID /*id*/)
+int PPViewTransport::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -387,7 +386,7 @@ int SLAPI PPViewTransport::Transmit(PPID /*id*/)
 //
 //
 //
-int SLAPI PPViewTransport::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTransport::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

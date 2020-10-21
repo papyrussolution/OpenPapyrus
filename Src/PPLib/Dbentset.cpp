@@ -34,7 +34,7 @@ PPDbEntrySet2::PPDbEntrySet2() : DbLoginBlockArray()
 // normal=Normal Database,c:\papyrus\ppy\data\normal
 // ora-test=ORACLE:ora-test,c:\papyrus\ppy\data\ora-test,PPYDEV01@SYSTEM:PROTON
 
-int SLAPI PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) const
+int PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) const
 {
 	int    ok = 1;
 	int    server_type = sqlstNone;
@@ -74,7 +74,7 @@ int SLAPI PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rB
 	return ok;
 }
 
-int SLAPI PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) const
+int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) const
 {
 	int    ok = 1;
 	int    server_type = sqlstNone;
@@ -149,7 +149,7 @@ int SLAPI PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBl
 	return ok;
 }
 
-int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 1*/, int dontLoadDefDict /*= 0*/)
+int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 1*/, int dontLoadDefDict /*= 0*/)
 {
 	int    ok = 1;
 	SString entry_symb, entry_buf, def_dict, def_data, temp_buf;
@@ -209,7 +209,7 @@ int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnl
 	return ok;
 }
 
-int SLAPI PPDbEntrySet2::RegisterEntry(PPIniFile * pIniFile, const DbLoginBlock * pBlk)
+int PPDbEntrySet2::RegisterEntry(PPIniFile * pIniFile, const DbLoginBlock * pBlk)
 {
 	int    ok = 1;
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
@@ -244,7 +244,7 @@ int SLAPI PPDbEntrySet2::RegisterEntry(PPIniFile * pIniFile, const DbLoginBlock 
 	return ok;
 }
 
-long SLAPI PPDbEntrySet2::SetDefaultSelection()
+long PPDbEntrySet2::SetDefaultSelection()
 {
 	DbLoginBlock blk;
 	/* @v9.0.9

@@ -261,7 +261,7 @@ int CurTransBillDialog::getDTS()
 	return ok;
 }
 
-int SLAPI EditCurTransitBill(PPBillPacket * pPack)
+int EditCurTransitBill(PPBillPacket * pPack)
 {
 	int    r = cmCancel, valid_data = 0;
 	CurTransBillDialog * dlg = 0;

@@ -7,7 +7,7 @@
 #include <sbht.h>
 #include <stylobhtII.h>
 
-int SLAPI RecvBuf(TcpSocket * pSo, void * pBuf, size_t bufSize)
+int RecvBuf(TcpSocket * pSo, void * pBuf, size_t bufSize)
 {
 	int    ok = -1;
 	if(pSo && bufSize) {
@@ -22,7 +22,7 @@ int SLAPI RecvBuf(TcpSocket * pSo, void * pBuf, size_t bufSize)
 	return ok;
 }
 
-int SLAPI SendCmd(TcpSocket * pSo, SBHTCmdBuf * pBuf, void * pParam)
+int SendCmd(TcpSocket * pSo, SBHTCmdBuf * pBuf, void * pParam)
 {
 	int    ok = -1;
 	if(pSo) {
@@ -35,7 +35,7 @@ int SLAPI SendCmd(TcpSocket * pSo, SBHTCmdBuf * pBuf, void * pParam)
 	return ok;
 }
 
-static int SLAPI MakeParam(const void * pInBuf, char ** ppOutBuf, size_t bufSize)
+static int MakeParam(const void * pInBuf, char ** ppOutBuf, size_t bufSize)
 {
 	int    ok = 1;
 	delete [] *ppOutBuf;
@@ -48,7 +48,7 @@ static int SLAPI MakeParam(const void * pInBuf, char ** ppOutBuf, size_t bufSize
 	return ok;
 }
 
-int SLAPI StyloBHTExch(TcpSocket * pSo)
+int StyloBHTExch(TcpSocket * pSo)
 {
 	int    ok = 1, stop = 0;
 	int    r = 1;
@@ -133,32 +133,32 @@ int SLAPI StyloBHTExch(TcpSocket * pSo)
 #if 0 // {
 class StyloBhtIIExchanger {
 public:
-	SLAPI  StyloBhtIIExchanger(TcpSocket * pSo);
-	SLAPI ~StyloBhtIIExchanger();
-	int    SLAPI Run();
+	StyloBhtIIExchanger(TcpSocket * pSo);
+	~StyloBhtIIExchanger();
+	int    Run();
 private:
-	int    SLAPI GetTable(int16 Cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long nextRecNo = -1);
-	int    SLAPI SetTable(int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long count);
-	int    SLAPI GetGoods();
-	int    SLAPI GetArticles();
-	int    SLAPI PrepareBills(int uniteGoods);
-	int    SLAPI GetBills();
-	int    SLAPI GetBillRows();
-	int    SLAPI GetBillRowsWithCells(long billID);
-	int    SLAPI GetOpRestrictions();
-	int    SLAPI GetConfig(StyloBhtIIConfig * pCfg);
-	int    SLAPI GetGoodsList(long cellID, int getGoods);
-	int    SLAPI SetBills(long count);
-	int    SLAPI SetBillRows(long count);
-	int    SLAPI AcceptLocOp(SBIILocOp * pRec);
-	int    SLAPI FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec);
-	int    SLAPI FindLocCell(PPID locID, const char * pName, SBIILocCellRec * pRec);
-	int    SLAPI PrintBarcode(const char * pBarcode);
-	int    SLAPI SendCmd(int16 cmd, int32 retcode, const void * pBuf, size_t bufSize);
-	int    SLAPI RecvCommand(void * pBuf, size_t bufSize, size_t * pRecvBytes = 0);
-	int    SLAPI GetReply();
-	int    SLAPI Log(uint errCode, uint msgCode, const char * pAddInfo);
-	int    SLAPI Log(uint errCode, uint msgCode, const char * pAddInfo, long count, long total);
+	int    GetTable(int16 Cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long nextRecNo = -1);
+	int    SetTable(int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long count);
+	int    GetGoods();
+	int    GetArticles();
+	int    PrepareBills(int uniteGoods);
+	int    GetBills();
+	int    GetBillRows();
+	int    GetBillRowsWithCells(long billID);
+	int    GetOpRestrictions();
+	int    GetConfig(StyloBhtIIConfig * pCfg);
+	int    GetGoodsList(long cellID, int getGoods);
+	int    SetBills(long count);
+	int    SetBillRows(long count);
+	int    AcceptLocOp(SBIILocOp * pRec);
+	int    FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec);
+	int    FindLocCell(PPID locID, const char * pName, SBIILocCellRec * pRec);
+	int    PrintBarcode(const char * pBarcode);
+	int    SendCmd(int16 cmd, int32 retcode, const void * pBuf, size_t bufSize);
+	int    RecvCommand(void * pBuf, size_t bufSize, size_t * pRecvBytes = 0);
+	int    GetReply();
+	int    Log(uint errCode, uint msgCode, const char * pAddInfo);
+	int    Log(uint errCode, uint msgCode, const char * pAddInfo, long count, long total);
 
 	SString DeviceDir;
 	TcpSocket * P_So;
@@ -171,23 +171,23 @@ private:
 };
 #endif // } 0
 
-SLAPI StyloBhtIIExchanger::StyloBhtIIExchanger(/*TcpSocket * pSo*/)
+StyloBhtIIExchanger::StyloBhtIIExchanger(/*TcpSocket * pSo*/)
 {
 	//P_So = pSo;
 	P_LocTransf = 0;
 }
 
-SLAPI StyloBhtIIExchanger::~StyloBhtIIExchanger()
+StyloBhtIIExchanger::~StyloBhtIIExchanger()
 {
 	delete P_LocTransf;
 }
 
-int SLAPI StyloBhtIIExchanger::SendCmd(TcpSocket & rSo, int16 cmd, int32 retcode, const void * pBuf, size_t bufSize)
+int StyloBhtIIExchanger::SendCmd(TcpSocket & rSo, int16 cmd, int32 retcode, const void * pBuf, size_t bufSize)
 {
 	int    ok = 1;
 	size_t snd_size = 0;
 	SBhtIICmdBuf cmd_buf;
-	MEMSZERO(cmd_buf);
+	// @v10.9.1 @ctr MEMSZERO(cmd_buf);
 	cmd_buf.Cmd     = cmd;
 	cmd_buf.RetCode = retcode;
 	cmd_buf.BufSize = bufSize;
@@ -204,7 +204,7 @@ int StyloBhtIIExchanger::RecvCommand(TcpSocket & rSo, void * pBuf, size_t bufSiz
 	int    ok = 1;
 	size_t rcvd_sz = 0;
 	SBhtIICmdBuf cmd_buf;
-	MEMSZERO(cmd_buf);
+	// @v10.9.1 @ctr MEMSZERO(cmd_buf);
 	THROW_SL(rSo.RecvBlock(&cmd_buf, sizeof(cmd_buf), &rcvd_sz));
 	THROW_PP_S(cmd_buf.RetCode == 1, PPERR_SBII_INVRETCODE, cmd_buf.RetCode);
 	if(pBuf && cmd_buf.BufSize > 0) {
@@ -216,7 +216,7 @@ int StyloBhtIIExchanger::RecvCommand(TcpSocket & rSo, void * pBuf, size_t bufSiz
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::GetConfig(StyloBhtIIConfig * pCfg)
+int StyloBhtIIExchanger::GetConfig(StyloBhtIIConfig * pCfg)
 {
 	int    ok = 1;
 	SString fname, path;
@@ -250,7 +250,7 @@ int SLAPI StyloBhtIIExchanger::GetConfig(StyloBhtIIConfig * pCfg)
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::GetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long nextRecNo)
+int StyloBhtIIExchanger::GetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long nextRecNo)
 {
 	int    ok = 1;
 	long   i = 0, recs_count = 0;
@@ -311,7 +311,7 @@ int SLAPI StyloBhtIIExchanger::GetTable(TcpSocket & rSo, int16 cmd, uint fileNam
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::GetGoodsList(TcpSocket & rSo, long cellID, int getGoods)
+int StyloBhtIIExchanger::GetGoodsList(TcpSocket & rSo, long cellID, int getGoods)
 {
 	int16  cmd = getGoods ? SBhtIICmdBuf::cmGoodsListByCell : SBhtIICmdBuf::cmCellListByGoods;
 	int    ok = 1;
@@ -371,7 +371,7 @@ int SLAPI StyloBhtIIExchanger::GetGoodsList(TcpSocket & rSo, long cellID, int ge
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::PrepareBills(int uniteGoods)
+int StyloBhtIIExchanger::PrepareBills(int uniteGoods)
 {
 	int    ok = 1;
 	SString fname, path;
@@ -392,7 +392,7 @@ int SLAPI StyloBhtIIExchanger::PrepareBills(int uniteGoods)
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::SetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long count)
+int StyloBhtIIExchanger::SetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long count)
 {
 	int    ok = 1;
 	long   i = 0;
@@ -429,7 +429,7 @@ int SLAPI StyloBhtIIExchanger::SetTable(TcpSocket & rSo, int16 cmd, uint fileNam
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec)
+int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec)
 {
 	int    ok = -1;
 	int    is_serial = 0;
@@ -496,7 +496,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIILocCellRec * pRec)
+int StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIILocCellRec * pRec)
 {
 	int    ok = -1;
 	uint   i = 0, count = 0;
@@ -527,7 +527,7 @@ int SLAPI StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIIL
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
+int StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
 {
 	int    ok = -1;
 	THROW_INVARG(pRec);
@@ -549,7 +549,7 @@ int SLAPI StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
+int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 {
 	int    ok = -1, is_serial = 0;
 	PPID   goods_id = 0;
@@ -588,7 +588,7 @@ int SLAPI StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 	return ok;
 }
 
-int SLAPI StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo)
+int StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo)
 {
 	LDATETIME dtm;
 	SString temp_buf, buf, str_dtm;
@@ -631,7 +631,7 @@ int SLAPI StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAd
 	return 1;
 }
 
-int SLAPI StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo, long count, long total)
+int StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo, long count, long total)
 {
 	SString add_info;
 	if(total)
@@ -655,7 +655,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 	long   recs_count = 0;
 	SBuffer in_buf;
 	SBuffer ret_buf;
-	MEMSZERO(cmd_buf);
+	// @v10.9.1 @ctr MEMSZERO(cmd_buf);
 	THROW_SL(rSo.RecvBlock(&cmd_buf, sizeof(cmd_buf), &rcvd_size));
 	// @v9.4.11 @debug {
 	{
@@ -1023,7 +1023,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 }
 
 #if 0 // {
-int SLAPI StyloBhtIIExchange(const char * pDbSymb, const char * pName, const char * pPassword, TcpSocket * pSo)
+int StyloBhtIIExchange(const char * pDbSymb, const char * pName, const char * pPassword, TcpSocket * pSo)
 {
 	int    ok = 1;
 	SString buf, msg_buf, pwd;

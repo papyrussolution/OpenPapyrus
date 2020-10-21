@@ -452,7 +452,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return new_font;
 }
 
-/*static*/void SLAPI TView::CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG)
+/*static*/void TView::CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG)
 {
 	if(pG) {
 		TView * p_temp = pG->GetLastView();
@@ -723,19 +723,19 @@ void TView::SetWordSelBlock(WordSel_ExtraBlock * pBlk)
 //
 //
 //
-/*SLAPI KeyDownCommand::KeyDownCommand()
+/*KeyDownCommand::KeyDownCommand()
 {
 	State = 0;
 	KeyCode = 0;
 }*/
 
-void SLAPI KeyDownCommand::Clear()
+void KeyDownCommand::Clear()
 {
 	State = 0;
 	Code = 0;
 }
 
-int SLAPI KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
+int KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -937,7 +937,7 @@ int FASTCALL KeyDownCommand::SetTvKeyCode(uint16 tvKeyCode)
 	return ok;
 }
 
-uint16 SLAPI KeyDownCommand::GetTvKeyCode() const
+uint16 KeyDownCommand::GetTvKeyCode() const
 {
 	for(uint i = 0; i < SIZEOFARRAY(TvKeyCodeVKList); i++) {
 		const _TvKeyCodeVK & r_entry = TvKeyCodeVKList[i];
@@ -1109,7 +1109,7 @@ int FASTCALL KeyDownCommand::SetChar(uint chr)
 	return ok;
 }
 
-uint SLAPI KeyDownCommand::GetChar() const
+uint KeyDownCommand::GetChar() const
 {
 	uint   c = 0;
 	switch(Code) {
@@ -1158,7 +1158,7 @@ uint SLAPI KeyDownCommand::GetChar() const
 	return c;
 }
 
-int SLAPI KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
+int KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
 {
 	int    ok = 1;
 	size_t len = 0;
@@ -1251,13 +1251,13 @@ int FASTCALL TEvent::isCbSelected(uint ctlID) const { return (what == evCommand 
 int FASTCALL TEvent::isClusterClk(uint ctlID) const { return (what == evCommand && message.command == cmClusterClk && message.infoView->TestId(ctlID)); }
 int FASTCALL TEvent::wasFocusChanged(uint ctlID) const { return BIN(what == evBroadcast && message.command == cmChangedFocus && message.infoView->TestId(ctlID)); }
 
-int SLAPI TEvent::wasFocusChanged2(uint ctl01, uint ctl02) const
+int TEvent::wasFocusChanged2(uint ctl01, uint ctl02) const
 {
 	return BIN(what == evBroadcast && message.command == cmChangedFocus &&
 		(message.infoView->TestId(ctl01) || message.infoView->TestId(ctl02)));
 }
 
-int SLAPI TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
+int TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
 {
 	return BIN(what == evBroadcast && message.command == cmChangedFocus &&
 		(message.infoView->TestId(ctl01) || message.infoView->TestId(ctl02) || message.infoView->TestId(ctl03)));
@@ -1265,12 +1265,12 @@ int SLAPI TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
 //
 //
 //
-SLAPI TGroup::TGroup(const TRect & bounds) : TView(bounds), P_Last(0), P_Current(0), MsgLockFlags(0)
+TGroup::TGroup(const TRect & bounds) : TView(bounds), P_Last(0), P_Current(0), MsgLockFlags(0)
 {
 	ViewOptions |= ofSelectable;
 }
 
-SLAPI TGroup::~TGroup()
+TGroup::~TGroup()
 {
 	TView * p = P_Last;
 	if(p) do {

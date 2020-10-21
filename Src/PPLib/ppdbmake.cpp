@@ -106,7 +106,7 @@ static void RemovePath(const char * pPath)
 }
 */
 
-int SLAPI CreateByExample(const char * pPath)
+int CreateByExample(const char * pPath)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -380,7 +380,7 @@ private:
 	}
 };
 
-int SLAPI MakeDatabase()
+int MakeDatabase()
 {
 	int    ok = -1;
 	MakeDatabaseParam param;
@@ -488,12 +488,12 @@ int SLAPI MakeDatabase()
 						S_GUID NewPosNodeGuid;
 						SString DbSymb;
 					};
-					explicit SLAPI PPCreateDatabaseSession(const Param & rParam) : PPThread(PPThread::kUnknown, 0, 0), P(rParam)
+					explicit PPCreateDatabaseSession(const Param & rParam) : PPThread(PPThread::kUnknown, 0, 0), P(rParam)
 					{
 						InitStartupSignal();
 					}
 				private:
-					void SLAPI Startup()
+					void Startup()
 					{
 						PPThread::Startup();
 						SignalStartup();

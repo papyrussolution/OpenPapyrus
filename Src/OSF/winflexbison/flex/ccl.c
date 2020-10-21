@@ -148,7 +148,7 @@ int ccl_set_union(int a, int b)
 
 /* cclinit - return an empty ccl */
 
-int     cclinit(void)
+int cclinit()
 {
 	if(++lastccl >= current_maxccls) {
 		current_maxccls += MAX_CCLS_INCREMENT;

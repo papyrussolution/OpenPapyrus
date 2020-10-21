@@ -9,7 +9,7 @@
 // @v9.6.3 #include <idea.h>
 
 // Prototype
-DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds);
+DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds);
 
 int FASTCALL dbl_cmp(double v1, double v2)
 {
@@ -49,7 +49,7 @@ int FASTCALL PPInitIterCounter(IterCounter & rCntr, DBTable * pTbl)
 	return (!pTbl || pTbl->getNumRecs(&num_recs)) ? (rCntr.Init(num_recs), 1) : PPSetErrorDB();
 }
 
-SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
+SString & DateToStr(LDATE dt, SString & rBuf)
 {
 	rBuf.Z();
 	if(dt) {
@@ -63,7 +63,7 @@ SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
 	return rBuf;
 }
 
-SString & SLAPI MoneyToStr(double nmb, long fmt, SString & rBuf)
+SString & MoneyToStr(double nmb, long fmt, SString & rBuf)
 {
 	char   temp[128];
 	int    word_idx = 0;
@@ -86,7 +86,7 @@ SString & SLAPI MoneyToStr(double nmb, long fmt, SString & rBuf)
 double FASTCALL SalesTaxMult(double rate) { return (rate / (100.0 + rate)); }
 double FASTCALL CalcVATRate(double base, double vat_sum) { return fdivnz(100.0 * vat_sum, base - vat_sum); }
 
-SString & SLAPI VatRateStr(double rate, SString & rBuf)
+SString & VatRateStr(double rate, SString & rBuf)
 {
 	PPLoadString("vat", rBuf);
 	return rBuf.Space().Cat(R0i(rate)).CatChar('%');
@@ -288,17 +288,17 @@ int    PPDimention::operator !() const { return BIN(Length == 0 && Width == 0 &&
 int    FASTCALL PPDimention::IsEqual(const PPDimention & rS) const { return BIN(Length == rS.Length && Width == rS.Width && Height == rS.Height); }
 int    FASTCALL PPDimention::operator == (const PPDimention & rS) const { return IsEqual(rS); }
 int    FASTCALL PPDimention::operator != (const PPDimention & rS) const { return !IsEqual(rS); }
-double SLAPI PPDimention::CalcVolumeM() const { return (fdiv1000i(Width) * fdiv1000i(Length) * fdiv1000i(Height)); }
-double SLAPI PPDimention::CalcVolumeMM() const { return (Width * Length * Height); }
+double PPDimention::CalcVolumeM() const { return (fdiv1000i(Width) * fdiv1000i(Length) * fdiv1000i(Height)); }
+double PPDimention::CalcVolumeMM() const { return (Width * Length * Height); }
 
-void SLAPI PPDimention::SetVolumeM(double volume)
+void PPDimention::SetVolumeM(double volume)
 {
 	Width  = 100L;
 	Height = 100L;
 	Length = R0i(volume * fpow10i(5));
 }
 
-int SLAPI PPDimention::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPDimention::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, Length, rBuf));
@@ -464,7 +464,7 @@ int FASTCALL SearchByKey_ForUpdate(DBTable * pTbl, int idx, void * pKey, void * 
 	return ok;
 }
 
-int SLAPI PPSetDbRecordByKey(DBTable * pTbl, int idx, void * pKey, const void * pData, int use_ta)
+int PPSetDbRecordByKey(DBTable * pTbl, int idx, void * pKey, const void * pData, int use_ta)
 {
 	int    ok = -1;
 	if(pTbl) {
@@ -676,7 +676,7 @@ int FASTCALL IncDateKey(DBTable * tbl, int idx, LDATE date, long * pOprNo)
 
 PP_CREATE_TEMP_FILE_PROC(_CreateTempOrderFile, TempOrder);
 
-TempOrderTbl * SLAPI CreateTempOrderFile()
+TempOrderTbl * CreateTempOrderFile()
 {
 	return _CreateTempOrderFile();
 }
@@ -766,17 +766,17 @@ int FASTCALL CheckQueryPtr(const DBQuery * q)
 //
 // PPTblEnumList
 //
-SLAPI PPTblEnumList::PPTblEnumList()
+PPTblEnumList::PPTblEnumList()
 {
 }
 
-SLAPI PPTblEnumList::~PPTblEnumList()
+PPTblEnumList::~PPTblEnumList()
 {
 	for(uint i = 0; i < Tab.getCount(); i++)
 		DestroyIterHandler(static_cast<long>(i));
 }
 
-int SLAPI PPTblEnumList::RegisterIterHandler(BExtQuery * pQ, long * pHandle)
+int PPTblEnumList::RegisterIterHandler(BExtQuery * pQ, long * pHandle)
 {
 	int    ok = 1;
 	long   handle = -1;
@@ -795,7 +795,7 @@ int SLAPI PPTblEnumList::RegisterIterHandler(BExtQuery * pQ, long * pHandle)
 	return ok;
 }
 
-int SLAPI PPTblEnumList::DestroyIterHandler(long handle)
+int PPTblEnumList::DestroyIterHandler(long handle)
 {
 	int    ok = -1;
 	uint   pos = static_cast<uint>(handle);
@@ -829,7 +829,7 @@ int FASTCALL PPTblEnumList::NextIter(long handle)
 //
 // Special helper functions
 //
-PPID SLAPI GetSupplAccSheet()
+PPID GetSupplAccSheet()
 {
 	const  PPCommConfig & r_ccfg = CConfig;
 	PPID   acs_id = r_ccfg.SupplAccSheet;
@@ -845,7 +845,7 @@ PPID SLAPI GetSupplAccSheet()
 	return acs_id;
 }
 
-PPID SLAPI GetSellAccSheet()
+PPID GetSellAccSheet()
 {
 	const  PPCommConfig & r_ccfg = CConfig;
 	PPID   acc_sheet_id = 0;
@@ -860,7 +860,7 @@ PPID SLAPI GetSellAccSheet()
 	return acc_sheet_id;
 }
 
-PPID SLAPI GetSellPersonKind()
+PPID GetSellPersonKind()
 {
     PPID   pk_id = 0;
     const  PPID acs_id = GetSellAccSheet();
@@ -876,7 +876,7 @@ PPID SLAPI GetSellPersonKind()
     return pk_id;
 }
 
-PPID SLAPI GetAgentAccSheet()
+PPID GetAgentAccSheet()
 {
 	PPID   agent_acs_id = 0;
 	PPThreadLocalArea & r_tla = DS.GetTLA();
@@ -929,7 +929,7 @@ int FASTCALL GetLocationName(PPID locID, SString & rBuf)
 	return ok;
 }
 
-SString & SLAPI GetExtLocationName(const ObjIdListFilt & rLocList, size_t maxItems, SString & rBuf)
+SString & GetExtLocationName(const ObjIdListFilt & rLocList, size_t maxItems, SString & rBuf)
 {
 	if(rLocList.IsEmpty()) {
 		PPLoadText(PPTXT_ALLWAREHOUSES, rBuf);
@@ -1054,7 +1054,7 @@ char * FASTCALL QttyToStr(double qtty, double upp, long fmt, char * buf, int noa
 	return _commfmt(fmt, buf);
 }
 
-SString & SLAPI GetCurSymbText(PPID curID, SString & rBuf)
+SString & GetCurSymbText(PPID curID, SString & rBuf)
 {
 	rBuf.Z();
 	if(curID >= 0) {
@@ -1078,19 +1078,19 @@ SString & SLAPI GetCurSymbText(PPID curID, SString & rBuf)
 // PPSymbTranslator
 // @todo Перевести реализацию на SString и SStrScan
 //
-SLAPI PPSymbTranslator::PPSymbTranslator(uint strID /*=PPSSYM_SYMB*/) : ErrorCode(0)
+PPSymbTranslator::PPSymbTranslator(uint strID /*=PPSSYM_SYMB*/) : ErrorCode(0)
 {
 	if(!PPLoadString(PPSTR_SYMB, strID, Coll))
 		ErrorCode = PPErrCode;
 }
 
-int SLAPI PPSymbTranslator::operator !() const
+int PPSymbTranslator::operator !() const
 {
 	return ErrorCode ? (PPErrCode = ErrorCode, 1) : 0;
 }
 
 /*
-static char * SLAPI nextStr(const char * pColl, size_t * pPos, char * pBuf)
+static char * nextStr(const char * pColl, size_t * pPos, char * pBuf)
 {
 	size_t p = *pPos;
 	if(pColl[p]) {
@@ -1108,7 +1108,7 @@ static char * SLAPI nextStr(const char * pColl, size_t * pPos, char * pBuf)
 }
 */
 
-char * SLAPI PPSymbTranslator::NextStr(size_t * pPos, char * pBuf) const
+char * PPSymbTranslator::NextStr(size_t * pPos, char * pBuf) const
 {
 	size_t p = *pPos;
 	if(Coll.C(p)) {
@@ -1125,7 +1125,7 @@ char * SLAPI PPSymbTranslator::NextStr(size_t * pPos, char * pBuf) const
 		return 0;
 }
 
-long SLAPI PPSymbTranslator::Translate(SStrScan & rScan)
+long PPSymbTranslator::Translate(SStrScan & rScan)
 {
 	long   v = 0;
 	int    count = 0;
@@ -1156,7 +1156,7 @@ long SLAPI PPSymbTranslator::Translate(SStrScan & rScan)
 	return v;
 }
 
-long SLAPI PPSymbTranslator::Translate(const char * pString, size_t * pNextPos, uint /*flags*/)
+long PPSymbTranslator::Translate(const char * pString, size_t * pNextPos, uint /*flags*/)
 {
 	long   v = 0;
 	int    count = 0;
@@ -1194,7 +1194,7 @@ long SLAPI PPSymbTranslator::Translate(const char * pString, size_t * pNextPos, 
 	return v;
 }
 
-int SLAPI PPSymbTranslator::Retranslate(long sym, char * s, size_t bufLen) const
+int PPSymbTranslator::Retranslate(long sym, char * s, size_t bufLen) const
 {
 	const  char * p = Coll;
 	int    count = 0;
@@ -1212,7 +1212,7 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, char * s, size_t bufLen) const
 	return PPSetError(PPERR_UNDEFSYMB);
 }
 
-int SLAPI PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
+int PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
 {
 	const  char * p = Coll;
 	int    count = 0;
@@ -1231,35 +1231,35 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
 //
 // DateIter
 //
-SLAPI DateIter::DateIter() : dt(ZERODATE), end(ZERODATE), oprno(0)
+DateIter::DateIter() : dt(ZERODATE), end(ZERODATE), oprno(0)
 {
 }
 
-SLAPI DateIter::DateIter(long start, long finish)
+DateIter::DateIter(long start, long finish)
 {
 	Init(start, finish);
 }
 
-SLAPI DateIter::DateIter(const DateRange * pPeriod)
+DateIter::DateIter(const DateRange * pPeriod)
 {
 	Init(pPeriod);
 }
 
-void SLAPI DateIter::Init()
+void DateIter::Init()
 {
 	dt = ZERODATE;
 	end = ZERODATE;
 	oprno = 0;
 }
 
-void SLAPI DateIter::Init(long start, long finish)
+void DateIter::Init(long start, long finish)
 {
 	dt.v  = start;
 	end.v = finish;
 	oprno = 0;
 }
 
-void SLAPI DateIter::Init(const DateRange * pPeriod)
+void DateIter::Init(const DateRange * pPeriod)
 {
 	if(pPeriod)
 		Init(pPeriod->low, pPeriod->upp);
@@ -1274,7 +1274,7 @@ int FASTCALL DateIter::Advance(LDATE d, long o)
 	return IsEnd() ? -1 : 1;
 }
 
-int SLAPI DateIter::IsEnd() const
+int DateIter::IsEnd() const
 {
 	return (end && dt > end);
 }
@@ -1283,7 +1283,7 @@ int FASTCALL DateIter::Cmp(const DateIter & rS) const { RET_CMPCASCADE2(this, &r
 //
 // Loading DBF structure from resource
 //
-DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds)
+DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds)
 {
 	uint   i, num_flds = 0;
 	char   name[32];
@@ -1347,11 +1347,11 @@ int FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
 //
 //
 //
-SLAPI PPExtStringStorage::PPExtStringStorage() : Re("<[0-9]+>")
+PPExtStringStorage::PPExtStringStorage() : Re("<[0-9]+>")
 {
 }
 
-int SLAPI PPExtStringStorage::Excise(SString & rLine, int fldID)
+int PPExtStringStorage::Excise(SString & rLine, int fldID)
 {
 	int    ok = -1;
 	if(rLine.NotEmpty()) {
@@ -1372,7 +1372,7 @@ int SLAPI PPExtStringStorage::Excise(SString & rLine, int fldID)
 	return ok;
 }
 
-int SLAPI PPExtStringStorage::Put(SString & rLine, int fldID, const char * pBuf)
+int PPExtStringStorage::Put(SString & rLine, int fldID, const char * pBuf)
 {
 	int    ok = -2;
 	while(Excise(rLine, fldID) > 0) {
@@ -1385,7 +1385,7 @@ int SLAPI PPExtStringStorage::Put(SString & rLine, int fldID, const char * pBuf)
 	return ok;
 }
 
-int SLAPI PPExtStringStorage::Put(SString & rLine, int fldID, const SString & rBuf)
+int PPExtStringStorage::Put(SString & rLine, int fldID, const SString & rBuf)
 {
 	int    ok = -2;
 	while(Excise(rLine, fldID) > 0) {
@@ -1398,7 +1398,7 @@ int SLAPI PPExtStringStorage::Put(SString & rLine, int fldID, const SString & rB
 	return ok;
 }
 
-int SLAPI PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
+int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 {
 	int    ok = -2;
 	rBuf.Z();
@@ -1423,7 +1423,7 @@ int SLAPI PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rB
 	return ok;
 }
 
-int SLAPI PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf)
+int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -1516,15 +1516,15 @@ int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
 //
 //
 //
-SLAPI  PPExtStrContainer::PPExtStrContainer() {}
-PPExtStrContainer & SLAPI PPExtStrContainer::Z() { ExtString.Z(); return *this; }
-int    SLAPI PPExtStrContainer::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int    SLAPI PPExtStrContainer::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
-int    SLAPI PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) { return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib(); }
+PPExtStrContainer::PPExtStrContainer() {}
+PPExtStrContainer & PPExtStrContainer::Z() { ExtString.Z(); return *this; }
+int    PPExtStrContainer::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int    PPExtStrContainer::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
+int    PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) { return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib(); }
 void   FASTCALL PPExtStrContainer::SetBuffer(const char * pSrc) { ExtString = pSrc; }
-const  SString & SLAPI PPExtStrContainer::GetBuffer() const { return ExtString; }
+const  SString & PPExtStrContainer::GetBuffer() const { return ExtString; }
 
-int SLAPI PPExtStrContainer::IsEqual(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const
+int PPExtStrContainer::IsEqual(const PPExtStrContainer & rS, int fldCount, const int * pFldList) const
 {
 	int    yes = 1;
 	assert(fldCount > 0);
@@ -1575,7 +1575,7 @@ Article
 	Name[47]:    0
 }
 */
-static int SLAPI _F2_(const BillTbl::Rec * pBillRec, const ArticleTbl::Rec * pArRec, ReferenceTbl::Rec * pRefRec)
+static int _F2_(const BillTbl::Rec * pBillRec, const ArticleTbl::Rec * pArRec, ReferenceTbl::Rec * pRefRec)
 {
 	const size_t ar_buf_offs = 10;
 	memzero(pRefRec->ObjName, sizeof(pRefRec->ObjName));
@@ -1589,7 +1589,7 @@ static int SLAPI _F2_(const BillTbl::Rec * pBillRec, const ArticleTbl::Rec * pAr
 	return 1;
 }
 
-int SLAPI PPChainDatabase(const char * pPassword)
+int PPChainDatabase(const char * pPassword)
 {
 	// 1. Проверить связку базы.
 	//    Если база связана (с нарушением или без) то ничего не делаем
@@ -1695,7 +1695,7 @@ enum {
 	pdbcmReEncrypt = 2,
 };
 
-static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, const char * pPassword, const char * pSrcEncPw, const char * pDestEncPw, int use_ta)
+static int ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int mode, const char * pPassword, const char * pSrcEncPw, const char * pDestEncPw, int use_ta)
 {
 	int    ok = -1;
 	SString pw;
@@ -1756,10 +1756,10 @@ static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int m
 	return ok;
 }
 
-int SLAPI PPUnchainDatabase(const char * pPassword) { return ProcessDatabaseChain(BillObj, PPRef, pdbcmUnchain, pPassword, 0, 0, 1); }
-int SLAPI PPCheckDatabaseChain() { return ProcessDatabaseChain(BillObj, PPRef, pdbcmVerify, 0, 0, 0, 1); }
+int PPUnchainDatabase(const char * pPassword) { return ProcessDatabaseChain(BillObj, PPRef, pdbcmUnchain, pPassword, 0, 0, 1); }
+int PPCheckDatabaseChain() { return ProcessDatabaseChain(BillObj, PPRef, pdbcmVerify, 0, 0, 0, 1); }
 
-int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta)
+int PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta)
 {
 	return ProcessDatabaseChain(pBObj, pRef, pdbcmReEncrypt, 0, pSrcEncPw, pDestEncPw, use_ta);
 }
@@ -1767,7 +1767,7 @@ int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const ch
 //
 //
 #if 0 // @v10.5.4 (inlined) {
-static void SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize, uint8 * pBuf, void ** ppItems)
+static void LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize, uint8 * pBuf, void ** ppItems)
 {
 	for(uint idx = 0; idx < numItems; idx++) {
 		char   item_buf[128];
@@ -1797,7 +1797,7 @@ static void SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize
 }
 #endif // } 0 @v10.5.4 (inlined)
 
-SLAPI DbqStringSubst::DbqStringSubst(size_t numItems) : NumItems(numItems), IsInited(0)
+DbqStringSubst::DbqStringSubst(size_t numItems) : NumItems(numItems), IsInited(0)
 {
 	Items = new Subst[NumItems];
 	memzero(Items, sizeof(Subst) * NumItems);
@@ -1805,7 +1805,7 @@ SLAPI DbqStringSubst::DbqStringSubst(size_t numItems) : NumItems(numItems), IsIn
 	memzero(P_Items, sizeof(Subst*) * NumItems);
 }
 
-SLAPI DbqStringSubst::~DbqStringSubst()
+DbqStringSubst::~DbqStringSubst()
 {
 	delete [] Items;
 	delete [] P_Items;
@@ -1817,7 +1817,7 @@ void FASTCALL DbqStringSubst::Init(uint strID)
 		ENTER_CRITICAL_SECTION
 		if(!IsInited) {
 			// @v10.5.4 (inlined) LoadDbqStringSubst(strID, NumItems, sizeof(static_cast<Subst *>(0)->Str), reinterpret_cast<uint8 *>(Items), (void **)P_Items);
-			//static void SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize, uint8 * pBuf, void ** ppItems)
+			//static void LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize, uint8 * pBuf, void ** ppItems)
 			// @v10.5.4 (inlined) {
 			{
 				const size_t str_size = sizeof(static_cast<Subst *>(0)->Str);
@@ -1863,7 +1863,7 @@ char ** FASTCALL DbqStringSubst::Get(uint strID)
 //
 //
 //
-int SLAPI AdjustPeriodToSubst(SubstGrpDate sgd, DateRange * pPeriod)
+int AdjustPeriodToSubst(SubstGrpDate sgd, DateRange * pPeriod)
 {
 	DateRange p = *pPeriod;
 	DateRange low, upp;
@@ -1876,7 +1876,7 @@ int SLAPI AdjustPeriodToSubst(SubstGrpDate sgd, DateRange * pPeriod)
 	return -1;
 }
 
-int SLAPI ShrinkSubstDateExt(SubstGrpDate sgd, LDATE orgDt, LTIME orgTm, LDATE * pDestDt, LTIME * pDestTm)
+int ShrinkSubstDateExt(SubstGrpDate sgd, LDATE orgDt, LTIME orgTm, LDATE * pDestDt, LTIME * pDestTm)
 {
 	int    ok = 1;
 	if(sgd == sgdHour) {
@@ -1895,7 +1895,7 @@ int SLAPI ShrinkSubstDateExt(SubstGrpDate sgd, LDATE orgDt, LTIME orgTm, LDATE *
 	return ok;
 }
 
-int SLAPI ShrinkSubstDate(SubstGrpDate sgd, LDATE orgDt, LDATE * pDestDt)
+int ShrinkSubstDate(SubstGrpDate sgd, LDATE orgDt, LDATE * pDestDt)
 {
 	int    ok = 1;
 	LDATE  dt = orgDt;
@@ -1923,7 +1923,7 @@ int SLAPI ShrinkSubstDate(SubstGrpDate sgd, LDATE orgDt, LDATE * pDestDt)
 	return ok;
 }
 
-int SLAPI ExpandSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, DateRange * pPeriod, TimeRange * pTmPeriod)
+int ExpandSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, DateRange * pPeriod, TimeRange * pTmPeriod)
 {
 	int    ok = 1;
 	if(sgd == sgdHour) {
@@ -1958,7 +1958,7 @@ int SLAPI ExpandSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, DateRange * p
 	return ok;
 }
 
-int SLAPI ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange * pPeriod)
+int ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange * pPeriod)
 {
 	int    ok = 1;
 	DateRange period;
@@ -1996,7 +1996,7 @@ int SLAPI ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange * pPeriod)
 	return ok;
 }
 
-void SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rBuf, long dtFmt /*=0*/, long tmFmt /*=0*/)
+void FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rBuf, long dtFmt /*=0*/, long tmFmt /*=0*/)
 {
 	char   buf[256];
 	memzero(buf, sizeof(buf));
@@ -2020,7 +2020,7 @@ void SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & rB
 	}
 }
 
-void SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, SString & rBuf, long fmt /*=0*/)
+void FormatSubstDate(SubstGrpDate sgd, LDATE dt, SString & rBuf, long fmt /*=0*/)
 {
 	char   buf[256];
 	memzero(buf, sizeof(buf));
@@ -2028,7 +2028,7 @@ void SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, SString & rBuf, long fmt 
 	rBuf = buf;
 }
 
-void SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, long fmt /*=0*/)
+void FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, long fmt /*=0*/)
 {
 	char   temp[128];
 	char * p = temp;
@@ -2348,7 +2348,7 @@ SString & SLAPIV PPFormatS(int textGroup, int textCode, SString * pBuf, ...)
 	return *pBuf;
 }
 
-int SLAPI WaitForExists(const char * pPath, int whileExists /* = 1 */, int notifyTimeout /* = 5000 */)
+int WaitForExists(const char * pPath, int whileExists /* = 1 */, int notifyTimeout /* = 5000 */)
 {
 	int    ok = 1, stop = 0;
 	if(pPath) {
@@ -2385,7 +2385,7 @@ int SLAPI WaitForExists(const char * pPath, int whileExists /* = 1 */, int notif
 	return ok;
 }
 
-int SLAPI WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =5000 */)
+int WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =5000 */)
 {
 	int    ok = 1, stop = 0;
 	if(pDir) {
@@ -2434,7 +2434,7 @@ int FASTCALL CopyDataStruct(const char *pSrc, const char *pDest, const char *pFi
 	return __CopyFileByPath(pSrc, pDest, pFileName) ? 1 : PPErrorZ();
 }
 
-int SLAPI PPValidateXml()
+int PPValidateXml()
 {
     int    ok = -1;
     SString xsd_file_name;
@@ -2474,7 +2474,7 @@ int SLAPI PPValidateXml()
 }
 
 #if 0 // { replaced by XMLWriteSpecSymbEntities(void *)
-int SLAPI XMLFillDTDEntitys(void * pWriter)
+int XMLFillDTDEntitys(void * pWriter)
 {
 	// amp$&#38;#38;.exclam$&#33;.sharp$&#35;.pct$&#37;.apostr$&#39;.comma$&#44;.dot$&#46;.fwsl$&#47;.lt$&#38;#60;.\
 	// eq$&#61;.gt$&#62;.ques$&#63;.lsq$&#91;.bksl$&#92;.rsq$&#93;"
@@ -2762,7 +2762,7 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 //
 //
 //
-SLAPI PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
+PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 {
 	SString temp_buf;
  	{
@@ -2791,21 +2791,21 @@ SLAPI PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 		State |= stHasAccount;
 }
 
-SLAPI PPUhttClient::~PPUhttClient()
+PPUhttClient::~PPUhttClient()
 {
 }
 
-int SLAPI PPUhttClient::GetState() const { return State; }
-// @v10.5.12 int SLAPI PPUhttClient::HasAccount() const { return (State & stHasAccount); }
-// @v10.5.12 int SLAPI PPUhttClient::IsAuth() const { return (State & stAuth); }
+int PPUhttClient::GetState() const { return State; }
+// @v10.5.12 int PPUhttClient::HasAccount() const { return (State & stHasAccount); }
+// @v10.5.12 int PPUhttClient::IsAuth() const { return (State & stAuth); }
 
-int SLAPI PPUhttClient::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
+int PPUhttClient::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
 	LastMsg = rSess.GetMsg();
     return BIN(pResult);
 }
 
-FARPROC SLAPI PPUhttClient::GetFuncEntryAndSetupSess(const char * pFuncName, PPSoapClientSession & rSess)
+FARPROC PPUhttClient::GetFuncEntryAndSetupSess(const char * pFuncName, PPSoapClientSession & rSess)
 {
 	FARPROC func = P_Lib ? P_Lib->GetProcAddr(pFuncName) : 0;
 	if(func)
@@ -2813,7 +2813,7 @@ FARPROC SLAPI PPUhttClient::GetFuncEntryAndSetupSess(const char * pFuncName, PPS
 	return func;
 }
 
-int SLAPI PPUhttClient::Auth()
+int PPUhttClient::Auth()
 {
 	Token.Z();
 	State &= ~stAuth;
@@ -2840,7 +2840,7 @@ int SLAPI PPUhttClient::Auth()
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetLocationByID(int id, UhttLocationPacket & rResult)
+int PPUhttClient::GetLocationByID(int id, UhttLocationPacket & rResult)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -2858,7 +2858,7 @@ int SLAPI PPUhttClient::GetLocationByID(int id, UhttLocationPacket & rResult)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetLocationByCode(const char * pCode, UhttLocationPacket & rResult)
+int PPUhttClient::GetLocationByCode(const char * pCode, UhttLocationPacket & rResult)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -2876,7 +2876,7 @@ int SLAPI PPUhttClient::GetLocationByCode(const char * pCode, UhttLocationPacket
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetLocationListByPhone(const char * pPhone, TSCollection <UhttLocationPacket> & rResult)
+int PPUhttClient::GetLocationListByPhone(const char * pPhone, TSCollection <UhttLocationPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -2895,7 +2895,7 @@ int SLAPI PPUhttClient::GetLocationListByPhone(const char * pPhone, TSCollection
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBrandPacket> & rResult)
+int PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBrandPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -2918,7 +2918,7 @@ int SLAPI PPUhttClient::GetBrandByName(const char * pName, TSCollection <UhttBra
 
 //typedef int (*UHTTGETGOODSREFLIST_PROC)(PPSoapClientSession & rSess, const char * pToken, TSArray <UhttCodeRefItem> & rList);
 
-int SLAPI PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray * pByCodeList)
+int PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray * pByCodeList)
 {
 	CALLPTRMEMB(pByCodeList, Z());
 
@@ -2976,7 +2976,7 @@ int SLAPI PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray *
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetUhttGoodsList(PPID goodsID, long flags, TSCollection <UhttGoodsPacket> & rResult)
+int PPUhttClient::GetUhttGoodsList(PPID goodsID, long flags, TSCollection <UhttGoodsPacket> & rResult)
 {
 	int    ok = 1;
 	int    uhtt_goods_id = 0;
@@ -3008,7 +3008,7 @@ int SLAPI PPUhttClient::GetUhttGoodsList(PPID goodsID, long flags, TSCollection 
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetUhttGoods(PPID goodsID, long flags, int * pUhttID, UhttGoodsPacket * pUhttResult)
+int PPUhttClient::GetUhttGoods(PPID goodsID, long flags, int * pUhttID, UhttGoodsPacket * pUhttResult)
 {
 	int    ok = 0;
 	int    uhtt_goods_id = 0;
@@ -3047,7 +3047,7 @@ int SLAPI PPUhttClient::GetUhttGoods(PPID goodsID, long flags, int * pUhttID, Uh
 	return ok;
 }
 
-int SLAPI PPUhttClient::ResolveGoodsByUhttID(int uhttID, UhttGoodsPacket * pUhttResult, PPID * pGoodsID, SString * pCode)
+int PPUhttClient::ResolveGoodsByUhttID(int uhttID, UhttGoodsPacket * pUhttResult, PPID * pGoodsID, SString * pCode)
 {
 	int    ok = -1;
 	PPID   goods_id = 0;
@@ -3077,7 +3077,7 @@ int SLAPI PPUhttClient::ResolveGoodsByUhttID(int uhttID, UhttGoodsPacket * pUhtt
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetPersonByID(int id, UhttPersonPacket & rResult)
+int PPUhttClient::GetPersonByID(int id, UhttPersonPacket & rResult)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3095,7 +3095,7 @@ int SLAPI PPUhttClient::GetPersonByID(int id, UhttPersonPacket & rResult)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetPersonByName(const char * pName, TSCollection <UhttPersonPacket> & rResult)
+int PPUhttClient::GetPersonByName(const char * pName, TSCollection <UhttPersonPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3116,7 +3116,7 @@ int SLAPI PPUhttClient::GetPersonByName(const char * pName, TSCollection <UhttPe
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetGoodsByID(int id, UhttGoodsPacket & rResult)
+int PPUhttClient::GetGoodsByID(int id, UhttGoodsPacket & rResult)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3134,7 +3134,7 @@ int SLAPI PPUhttClient::GetGoodsByID(int id, UhttGoodsPacket & rResult)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetGoodsByCode(const char * pCode, TSCollection <UhttGoodsPacket> & rResult)
+int PPUhttClient::GetGoodsByCode(const char * pCode, TSCollection <UhttGoodsPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3153,7 +3153,7 @@ int SLAPI PPUhttClient::GetGoodsByCode(const char * pCode, TSCollection <UhttGoo
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetGoodsByName(const char * pName, TSCollection <UhttGoodsPacket> & rResult)
+int PPUhttClient::GetGoodsByName(const char * pName, TSCollection <UhttGoodsPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3174,7 +3174,7 @@ int SLAPI PPUhttClient::GetGoodsByName(const char * pName, TSCollection <UhttGoo
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetGoodsArCode(const char * pBarcode, const char * pPersonINN, SString & rArCode)
+int PPUhttClient::GetGoodsArCode(const char * pBarcode, const char * pPersonINN, SString & rArCode)
 {
 	int    ok = 0;
 	rArCode.Z();
@@ -3196,7 +3196,7 @@ int SLAPI PPUhttClient::GetGoodsArCode(const char * pBarcode, const char * pPers
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetGoodsRestList(int uhttGoodsID, TSCollection <UhttGoodsRestListItem> & rResult)
+int PPUhttClient::GetGoodsRestList(int uhttGoodsID, TSCollection <UhttGoodsRestListItem> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3215,7 +3215,7 @@ int SLAPI PPUhttClient::GetGoodsRestList(int uhttGoodsID, TSCollection <UhttGood
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateStandaloneLocation(long * pID, const UhttLocationPacket & rPack)
+int PPUhttClient::CreateStandaloneLocation(long * pID, const UhttLocationPacket & rPack)
 {
 	int    ok = 0;
 	int    id = 0;
@@ -3240,7 +3240,7 @@ int SLAPI PPUhttClient::CreateStandaloneLocation(long * pID, const UhttLocationP
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateGoods(long * pID, const UhttGoodsPacket & rPack)
+int PPUhttClient::CreateGoods(long * pID, const UhttGoodsPacket & rPack)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3265,7 +3265,7 @@ int SLAPI PPUhttClient::CreateGoods(long * pID, const UhttGoodsPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPUhttClient::SetObjImage(const char * pObjTypeSymb, PPID uhttObjID, const char * pFileName)
+int PPUhttClient::SetObjImage(const char * pObjTypeSymb, PPID uhttObjID, const char * pFileName)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3287,7 +3287,7 @@ int SLAPI PPUhttClient::SetObjImage(const char * pObjTypeSymb, PPID uhttObjID, c
 }
 
 // @Muxa {
-int SLAPI PPUhttClient::GetSpecSeriesByPeriod(const char * pPeriod, TSCollection <UhttSpecSeriesPacket> & rResult)
+int PPUhttClient::GetSpecSeriesByPeriod(const char * pPeriod, TSCollection <UhttSpecSeriesPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3308,7 +3308,7 @@ int SLAPI PPUhttClient::GetSpecSeriesByPeriod(const char * pPeriod, TSCollection
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateSpecSeries(long * pID, const UhttSpecSeriesPacket & rPack)
+int PPUhttClient::CreateSpecSeries(long * pID, const UhttSpecSeriesPacket & rPack)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3333,7 +3333,7 @@ int SLAPI PPUhttClient::CreateSpecSeries(long * pID, const UhttSpecSeriesPacket 
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateSCard(UhttSCardPacket & rPack)
+int PPUhttClient::CreateSCard(UhttSCardPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3356,7 +3356,7 @@ int SLAPI PPUhttClient::CreateSCard(UhttSCardPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetSCardByNumber(const char * pNumber, UhttSCardPacket & rResult)
+int PPUhttClient::GetSCardByNumber(const char * pNumber, UhttSCardPacket & rResult)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3378,7 +3378,7 @@ int SLAPI PPUhttClient::GetSCardByNumber(const char * pNumber, UhttSCardPacket &
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateBill(UhttBillPacket & rPack)
+int PPUhttClient::CreateBill(UhttBillPacket & rPack)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3397,7 +3397,7 @@ int SLAPI PPUhttClient::CreateBill(UhttBillPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetBill(const UhttBillFilter & rFilt, TSCollection <UhttBillPacket> & rResult)
+int PPUhttClient::GetBill(const UhttBillFilter & rFilt, TSCollection <UhttBillPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3416,7 +3416,7 @@ int SLAPI PPUhttClient::GetBill(const UhttBillFilter & rFilt, TSCollection <Uhtt
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetQuot(const UhttQuotFilter & rFilt, TSCollection <UhttQuotPacket> & rResult)
+int PPUhttClient::GetQuot(const UhttQuotFilter & rFilt, TSCollection <UhttQuotPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3435,7 +3435,7 @@ int SLAPI PPUhttClient::GetQuot(const UhttQuotFilter & rFilt, TSCollection <Uhtt
 	return ok;
 }
 
-int SLAPI PPUhttClient::SetQuot(const UhttQuotPacket & rPack)
+int PPUhttClient::SetQuot(const UhttQuotPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3451,7 +3451,7 @@ int SLAPI PPUhttClient::SetQuot(const UhttQuotPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPUhttClient::SetQuotList(const TSCollection <UhttQuotPacket> & rList, TSCollection <UhttStatus> & rResult)
+int PPUhttClient::SetQuotList(const TSCollection <UhttQuotPacket> & rList, TSCollection <UhttStatus> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3472,7 +3472,7 @@ int SLAPI PPUhttClient::SetQuotList(const TSCollection <UhttQuotPacket> & rList,
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateSCardCheck(const char * pLocSymb, const char * pSCardNumber, const UhttCheckPacket & rPack)
+int PPUhttClient::CreateSCardCheck(const char * pLocSymb, const char * pSCardNumber, const UhttCheckPacket & rPack)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3495,7 +3495,7 @@ int SLAPI PPUhttClient::CreateSCardCheck(const char * pLocSymb, const char * pSC
 	return ok;
 }
 
-int SLAPI PPUhttClient::DepositSCardAmount(const char * pNumber, const double amount)
+int PPUhttClient::DepositSCardAmount(const char * pNumber, const double amount)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3518,7 +3518,7 @@ int SLAPI PPUhttClient::DepositSCardAmount(const char * pNumber, const double am
 	return ok;
 }
 
-int SLAPI PPUhttClient::WithdrawSCardAmount(const char * pNumber, const double amount)
+int PPUhttClient::WithdrawSCardAmount(const char * pNumber, const double amount)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3541,7 +3541,7 @@ int SLAPI PPUhttClient::WithdrawSCardAmount(const char * pNumber, const double a
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetSCardRest(const char * pNumber, const char * pDate, double & rRest)
+int PPUhttClient::GetSCardRest(const char * pNumber, const char * pDate, double & rRest)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3559,7 +3559,7 @@ int SLAPI PPUhttClient::GetSCardRest(const char * pNumber, const char * pDate, d
 
 // } @Muxa
 
-int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey,
+int PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey,
 	const char * pVersionLabel, const char * pVersionMemo, SDataMoveProgressProc pp, void * pExtra)
 {
 	int    ok = 1;
@@ -3655,7 +3655,7 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 	return ok;
 }
 
-int SLAPI PPUhttClient::StartTransferData(const char * pName, int64 totalRawSize, int32 chunkCount, int * pTransferID)
+int PPUhttClient::StartTransferData(const char * pName, int64 totalRawSize, int32 chunkCount, int * pTransferID)
 {
 	int    ok = 0;
 	int    transfer_id = 0;
@@ -3674,7 +3674,7 @@ int SLAPI PPUhttClient::StartTransferData(const char * pName, int64 totalRawSize
 	return ok;
 }
 
-int SLAPI PPUhttClient::TransferData(int transferID, int chunkNumber, size_t rawChunkSize, const void * pBinaryChunkData)
+int PPUhttClient::TransferData(int transferID, int chunkNumber, size_t rawChunkSize, const void * pBinaryChunkData)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3691,7 +3691,7 @@ int SLAPI PPUhttClient::TransferData(int transferID, int chunkNumber, size_t raw
 	return ok;
 }
 
-int SLAPI PPUhttClient::FinishTransferData(int transferID)
+int PPUhttClient::FinishTransferData(int transferID)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3716,7 +3716,7 @@ void FASTCALL PPUhttClient::DestroyResult(void ** ppResult)
 //
 //
 //
-int SLAPI PPUhttClient::ConvertLocationPacket(const UhttLocationPacket & rUhttPack, LocationTbl::Rec & rLocRec) const
+int PPUhttClient::ConvertLocationPacket(const UhttLocationPacket & rUhttPack, LocationTbl::Rec & rLocRec) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3733,7 +3733,7 @@ int SLAPI PPUhttClient::ConvertLocationPacket(const UhttLocationPacket & rUhttPa
 	return ok;
 }
 
-int SLAPI PPUhttClient::ConvertPersonPacket(const UhttPersonPacket & rUhttPack, PPID kindID, PPPersonPacket & rPsnPack) const
+int PPUhttClient::ConvertPersonPacket(const UhttPersonPacket & rUhttPack, PPID kindID, PPPersonPacket & rPsnPack) const
 {
 	int    ok = 1;
 	if(rUhttPack.Name[0]) {
@@ -3788,7 +3788,7 @@ int SLAPI PPUhttClient::ConvertPersonPacket(const UhttPersonPacket & rUhttPack, 
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetCommonMqsConfig(PPAlbatrossConfig & rCfg)
+int PPUhttClient::GetCommonMqsConfig(PPAlbatrossConfig & rCfg)
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -3806,7 +3806,7 @@ int SLAPI PPUhttClient::GetCommonMqsConfig(PPAlbatrossConfig & rCfg)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFileVersionInfo> & rResult, SVerT * pMinVer)
+int PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFileVersionInfo> & rResult, SVerT * pMinVer)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3854,7 +3854,7 @@ int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFi
 	return ok;
 }
 
-/*static*/int SLAPI PPUhttClient::ViewNewVerList(int showSelDlg)
+/*static*/int PPUhttClient::ViewNewVerList(int showSelDlg)
 {
 	int    ok = 0;
 	TSCollection <UhttDCFileVersionInfo> ver_list;
@@ -3880,7 +3880,7 @@ int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFi
 //
 //
 //
-int SLAPI PPUhttClient::GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPack)
+int PPUhttClient::GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3898,7 +3898,7 @@ int SLAPI PPUhttClient::GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPa
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFileName)
+int PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFileName)
 {
 	int    ok = 0;
 	SString file_name_to_remove;
@@ -3937,7 +3937,7 @@ int SLAPI PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFile
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetWorkbookItemByCode(const char * pCode, UhttWorkbookItemPacket & rPack)
+int PPUhttClient::GetWorkbookItemByCode(const char * pCode, UhttWorkbookItemPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -3955,7 +3955,7 @@ int SLAPI PPUhttClient::GetWorkbookItemByCode(const char * pCode, UhttWorkbookIt
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetWorkbookListByParentCode(const char * pParentCode, TSCollection <UhttWorkbookItemPacket> & rResult)
+int PPUhttClient::GetWorkbookListByParentCode(const char * pParentCode, TSCollection <UhttWorkbookItemPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -3974,7 +3974,7 @@ int SLAPI PPUhttClient::GetWorkbookListByParentCode(const char * pParentCode, TS
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateWorkbookItem(long * pID, const UhttWorkbookItemPacket & rPack)
+int PPUhttClient::CreateWorkbookItem(long * pID, const UhttWorkbookItemPacket & rPack)
 {
 	int    ok = 0;
 	PPID   id = 0;
@@ -3999,7 +3999,7 @@ int SLAPI PPUhttClient::CreateWorkbookItem(long * pID, const UhttWorkbookItemPac
 	return ok;
 }
 
-int SLAPI PPUhttClient::SetWorkbookContentByID(int id, const char * pFileName)
+int PPUhttClient::SetWorkbookContentByID(int id, const char * pFileName)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -4020,7 +4020,7 @@ int SLAPI PPUhttClient::SetWorkbookContentByID(int id, const char * pFileName)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetStyloDeviceByID(int id, UhttStyloDevicePacket & rPack)
+int PPUhttClient::GetStyloDeviceByID(int id, UhttStyloDevicePacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -4038,7 +4038,7 @@ int SLAPI PPUhttClient::GetStyloDeviceByID(int id, UhttStyloDevicePacket & rPack
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetStyloDeviceByCode(const char * pCode, UhttStyloDevicePacket & rPack)
+int PPUhttClient::GetStyloDeviceByCode(const char * pCode, UhttStyloDevicePacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -4058,7 +4058,7 @@ int SLAPI PPUhttClient::GetStyloDeviceByCode(const char * pCode, UhttStyloDevice
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateStyloDevice(long * pID, const UhttStyloDevicePacket & rPack)
+int PPUhttClient::CreateStyloDevice(long * pID, const UhttStyloDevicePacket & rPack)
 {
 	int    ok = 0;
 	int    id = 0;
@@ -4083,7 +4083,7 @@ int SLAPI PPUhttClient::CreateStyloDevice(long * pID, const UhttStyloDevicePacke
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetProcessorByID(long id, UhttProcessorPacket & rPack)
+int PPUhttClient::GetProcessorByID(long id, UhttProcessorPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -4101,7 +4101,7 @@ int SLAPI PPUhttClient::GetProcessorByID(long id, UhttProcessorPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetProcessorByCode(const char * pCode, UhttProcessorPacket & rPack)
+int PPUhttClient::GetProcessorByCode(const char * pCode, UhttProcessorPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -4121,7 +4121,7 @@ int SLAPI PPUhttClient::GetProcessorByCode(const char * pCode, UhttProcessorPack
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateProcessor(long * pID, const UhttProcessorPacket & rPack)
+int PPUhttClient::CreateProcessor(long * pID, const UhttProcessorPacket & rPack)
 {
 	int    ok = 0;
 	int    id = 0;
@@ -4147,7 +4147,7 @@ int SLAPI PPUhttClient::CreateProcessor(long * pID, const UhttProcessorPacket & 
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetTSessionByID(long id, UhttTSessionPacket & rPack)
+int PPUhttClient::GetTSessionByID(long id, UhttTSessionPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -4165,7 +4165,7 @@ int SLAPI PPUhttClient::GetTSessionByID(long id, UhttTSessionPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetTSessionByUUID(const S_GUID & rUuid, UhttTSessionPacket & rPack)
+int PPUhttClient::GetTSessionByUUID(const S_GUID & rUuid, UhttTSessionPacket & rPack)
 {
 	int    ok = 0;
 	if(State & stAuth) {
@@ -4183,7 +4183,7 @@ int SLAPI PPUhttClient::GetTSessionByUUID(const S_GUID & rUuid, UhttTSessionPack
 	return ok;
 }
 
-int SLAPI PPUhttClient::GetTSessionByPrc(long prcID, const LDATETIME & rSince, TSCollection <UhttTSessionPacket> & rResult)
+int PPUhttClient::GetTSessionByPrc(long prcID, const LDATETIME & rSince, TSCollection <UhttTSessionPacket> & rResult)
 {
 	int    ok = 0;
 	rResult.freeAll();
@@ -4209,7 +4209,7 @@ int SLAPI PPUhttClient::GetTSessionByPrc(long prcID, const LDATETIME & rSince, T
 	return ok;
 }
 
-int SLAPI PPUhttClient::CreateTSession(long * pID, const UhttTSessionPacket & rPack)
+int PPUhttClient::CreateTSession(long * pID, const UhttTSessionPacket & rPack)
 {
 	int    ok = 0;
 	int    id = 0;
@@ -4234,7 +4234,7 @@ int SLAPI PPUhttClient::CreateTSession(long * pID, const UhttTSessionPacket & rP
 	return ok;
 }
 
-UhttTagItem * SLAPI PPUhttClient::GetUhttTagText(PPID objType, PPID objID, PPID tagID, const char * pTagSymb)
+UhttTagItem * PPUhttClient::GetUhttTagText(PPID objType, PPID objID, PPID tagID, const char * pTagSymb)
 {
 	UhttTagItem * p_result = 0;
 	if(tagID && objType && objID && !isempty(pTagSymb)) {
@@ -4272,7 +4272,7 @@ UhttTagItem * SLAPI PPUhttClient::GetUhttTagText(PPID objType, PPID objID, PPID 
 //
 //
 //
-int SLAPI TestCURL()
+int TestCURL()
 {
 	int    ok = 1;
 #if 0 // {
@@ -4298,7 +4298,7 @@ int SLAPI TestCURL()
     return ok;
 }
 
-int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollection <UhttStatus> & rResult)
+int PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollection <UhttStatus> & rResult)
 {
 	rResult.freeAll();
 	int    ok = 0;
@@ -4322,7 +4322,7 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 }
 
 #if 0 // @v10.5.12 {
-/*static*/int SLAPI PPUhttClient::TestUi_GetLocationListByPhone()
+/*static*/int PPUhttClient::TestUi_GetLocationListByPhone()
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -4356,7 +4356,7 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 	return ok;
 }
 
-/*static*/int SLAPI PPUhttClient::TestUi_GetQuotByLoc()
+/*static*/int PPUhttClient::TestUi_GetQuotByLoc()
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -4399,7 +4399,7 @@ int SLAPI PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCo
 }
 #endif // } 0 @v10.5.12
 
-int SLAPI TestUhttClient()
+int TestUhttClient()
 {
 	int    ok = 1;
 	PPLogger logger;

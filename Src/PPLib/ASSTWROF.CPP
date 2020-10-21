@@ -7,7 +7,7 @@
 //
 //
 //
-int SLAPI Transfer::EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode, PPID * pDestLotID, TransferTbl::Rec * pRec)
+int Transfer::EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode, PPID * pDestLotID, TransferTbl::Rec * pRec)
 {
 	int    op_code = 0, r;
 	TransferTbl::Rec rec;
@@ -41,7 +41,7 @@ int SLAPI Transfer::EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode, PPI
 	return r ? -1 : 0;
 }
 
-int SLAPI Transfer::EnumAssetOp(PPID * pLotID, DateIter * pIter, int * pOpCode, TransferTbl::Rec * pRec)
+int Transfer::EnumAssetOp(PPID * pLotID, DateIter * pIter, int * pOpCode, TransferTbl::Rec * pRec)
 {
 	int    op_code = 0, r;
 	PPID   dest_lot_id = 0;
@@ -67,11 +67,11 @@ int SLAPI Transfer::EnumAssetOp(PPID * pLotID, DateIter * pIter, int * pOpCode, 
 //
 //
 //
-SLAPI PPObjAssetWrOffGrp::PPObjAssetWrOffGrp(void * extraPtr) : PPObjReference(PPOBJ_ASSTWROFFGRP, extraPtr)
+PPObjAssetWrOffGrp::PPObjAssetWrOffGrp(void * extraPtr) : PPObjReference(PPOBJ_ASSTWROFFGRP, extraPtr)
 {
 }
 
-int SLAPI PPObjAssetWrOffGrp::Edit(PPID * pID, void * extraPtr)
+int PPObjAssetWrOffGrp::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel;
@@ -131,11 +131,11 @@ int SLAPI PPObjAssetWrOffGrp::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjAssetWrOffGrp::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRASSETWROFFGRP, 0); }
+int PPObjAssetWrOffGrp::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRASSETWROFFGRP, 0); }
 //
 //
 //
-double SLAPI CalcAssetDeprec(LDATE start, LDATE dt, long term)
+double CalcAssetDeprec(LDATE start, LDATE dt, long term)
 {
 	int    d, m, y;
 	decodedate(&d, &m, &y, &start);
@@ -146,7 +146,7 @@ double SLAPI CalcAssetDeprec(LDATE start, LDATE dt, long term)
 	return fdivi(num_periods, term);
 }
 
-/* @v9.8.11 (unused) int SLAPI CalcRestAssetPrice(LDATE start, LDATE dt, long term, double cost, double * pPrice)
+/* @v9.8.11 (unused) int CalcRestAssetPrice(LDATE start, LDATE dt, long term, double cost, double * pPrice)
 {
 	double deprec = CalcAssetDeprec(start, dt, term);
 	*pPrice = cost - (cost * deprec);
@@ -160,7 +160,7 @@ double SLAPI CalcAssetDeprec(LDATE start, LDATE dt, long term)
 class PrcssrAssetDeprec {
 public:
 	struct Param {
-		SLAPI  Param() : Dt(ZERODATE), GoodsTypeID(0), GoodsGrpID(0), RevalOpID(0), LocID(0)
+		Param() : Dt(ZERODATE), GoodsTypeID(0), GoodsGrpID(0), RevalOpID(0), LocID(0)
 		{
 		}
 		LDATE  Dt;
@@ -169,11 +169,11 @@ public:
 		PPID   RevalOpID;
 		PPID   LocID;
 	};
-	SLAPI  PrcssrAssetDeprec() : P_BObj(BillObj)
+	PrcssrAssetDeprec() : P_BObj(BillObj)
 	{
 		// @v10.6.5 @ctr MEMSZERO(P);
 	}
-	int    SLAPI InitParam(Param * pParam)
+	int    InitParam(Param * pParam)
 	{
 		if(pParam) {
 			memzero(pParam, sizeof(*pParam));
@@ -182,21 +182,21 @@ public:
 		}
 		return 1;
 	}
-	int    SLAPI Init(const Param * pParam)
+	int    Init(const Param * pParam)
 	{
 		RVALUEPTR(P, pParam);
 		return P.RevalOpID ? 1 : PPSetError(PPERR_OPRKINDNEEDED);
 	}
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Run();
+	int    EditParam(Param *);
+	int    Run();
 private:
-	int    SLAPI ProcessGoods(Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID);
+	int    ProcessGoods(Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID);
 	Param P;
 	PPObjBill * P_BObj;
 	GoodsIterator GI;
 };
 
-int SLAPI PrcssrAssetDeprec::EditParam(Param * pData)
+int PrcssrAssetDeprec::EditParam(Param * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -229,7 +229,7 @@ int SLAPI PrcssrAssetDeprec::EditParam(Param * pData)
 	return ok;
 }
 
-int SLAPI PrcssrAssetDeprec::Run()
+int PrcssrAssetDeprec::Run()
 {
 	int    ok = -1;
 	ReceiptCore * p_rcpt = & P_BObj->trfr->Rcpt;
@@ -342,7 +342,7 @@ int SLAPI PrcssrAssetDeprec::Run()
 	return ok;
 }
 
-int SLAPI RevalAssets()
+int RevalAssets()
 {
 	int    ok = -1;
 	PrcssrAssetDeprec prcssr;

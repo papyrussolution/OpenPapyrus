@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-void SLAPI GCTFilt::Helper_Init()
+void GCTFilt::Helper_Init()
 {
 	SetFlatChunk(offsetof(GCTFilt, ReserveStart), offsetof(GCTFilt, BillList) - offsetof(GCTFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(GCTFilt, BillList));
@@ -17,23 +17,23 @@ void SLAPI GCTFilt::Helper_Init()
 	Init(1, 0);
 }
 
-IMPLEMENT_PPFILT_FACTORY(GCT); SLAPI GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GCT); GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, 0)
 {
 	Helper_Init();
 }
 
-SLAPI GCTFilt::GCTFilt(const GCTFilt & rS) : PPBaseFilt(PPFILT_GCT, 0, 0)
+GCTFilt::GCTFilt(const GCTFilt & rS) : PPBaseFilt(PPFILT_GCT, 0, 0)
 {
 	Helper_Init();
 	Copy(&rS, 1);
 }
 
-/*SLAPI GCTFilt::GCTFilt()
+/*GCTFilt::GCTFilt()
 {
 	Init();
 }*/
 
-/*int SLAPI GCTFilt::Init()
+/*int GCTFilt::Init()
 {
 	BillList.Set(0);
 	LocList.Set(0);
@@ -86,16 +86,16 @@ int FASTCALL GCTFilt::AcceptIntr3(const BillTbl::Rec & rRec) const
 //
 //
 //
-SLAPI GCTIterator::CurrentBillBlock::CurrentBillBlock() : P_Pack(0), P_WrOffPack(0)
+GCTIterator::CurrentBillBlock::CurrentBillBlock() : P_Pack(0), P_WrOffPack(0)
 {
 }
 
-SLAPI GCTIterator::CurrentBillBlock::~CurrentBillBlock()
+GCTIterator::CurrentBillBlock::~CurrentBillBlock()
 {
     Clear();
 }
 
-void SLAPI GCTIterator::CurrentBillBlock::Clear()
+void GCTIterator::CurrentBillBlock::Clear()
 {
     ZDELETE(P_Pack);
     ZDELETE(P_WrOffPack);
@@ -103,7 +103,7 @@ void SLAPI GCTIterator::CurrentBillBlock::Clear()
 //
 // GCT_BillCache
 //
-SLAPI GCTIterator::GCT_BillCache::GCT_BillCache() : P_BObj(BillObj)
+GCTIterator::GCT_BillCache::GCT_BillCache() : P_BObj(BillObj)
 {
 }
 
@@ -112,7 +112,7 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillForAgent(PPID billID) const
 	return ExtIdList.bsearch(billID);
 }
 
-int SLAPI GCTIterator::GCT_BillCache::SetupFilt(const GCTFilt * pFilt, const ObjIdListFilt & rArList, int disableCaching)
+int GCTIterator::GCT_BillCache::SetupFilt(const GCTFilt * pFilt, const ObjIdListFilt & rArList, int disableCaching)
 {
 	int    ok = 1;
 	Filt = *pFilt;
@@ -204,12 +204,12 @@ int FASTCALL GCTIterator::GCT_BillCache::Get(PPID id, BillTbl::Rec * pRec)
 IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry, p1, p2) { RET_CMPCASCADE3((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID, Dt); }
 IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc, p1, p2) { RET_CMPCASCADE2((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID); }
 
-SLAPI GCTIterator::GoodsRestArray::GoodsRestArray() : TSVector <GoodsRestEntry> ()
+GCTIterator::GoodsRestArray::GoodsRestArray() : TSVector <GoodsRestEntry> ()
 {
 	Init();
 }
 
-void SLAPI GCTIterator::GoodsRestArray::Init()
+void GCTIterator::GoodsRestArray::Init()
 {
 	State = stAccumulation;
 	AccumPeriod.Set(MAXDATE, encodedate(1, 1, 1900));
@@ -217,7 +217,7 @@ void SLAPI GCTIterator::GoodsRestArray::Init()
 	SVector::clear();
 }
 
-int SLAPI GCTIterator::GoodsRestArray::SetAccumItem(PPID goodsID, PPID locID, LDATE dt, double qtty)
+int GCTIterator::GoodsRestArray::SetAccumItem(PPID goodsID, PPID locID, LDATE dt, double qtty)
 {
 	int    ok = -1;
 	if(State & stAccumulation) {
@@ -244,7 +244,7 @@ int SLAPI GCTIterator::GoodsRestArray::SetAccumItem(PPID goodsID, PPID locID, LD
 	return ok;
 }
 
-int SLAPI GCTIterator::GoodsRestArray::SetInitRest(PPID goodsID, PPID locID, double rest)
+int GCTIterator::GoodsRestArray::SetInitRest(PPID goodsID, PPID locID, double rest)
 {
 	int    ok = -1;
 	if(State & stAccumulation) {
@@ -268,7 +268,7 @@ int SLAPI GCTIterator::GoodsRestArray::SetInitRest(PPID goodsID, PPID locID, dou
 	return ok;
 }
 
-void SLAPI GCTIterator::GoodsRestArray::Finish()
+void GCTIterator::GoodsRestArray::Finish()
 {
 	if(State & stAccumulation) {
 		sort(PTR_CMPCFUNC(GCTIterator_GoodsRestEntry));
@@ -299,7 +299,7 @@ void SLAPI GCTIterator::GoodsRestArray::Finish()
 	}
 }
 
-double SLAPI GCTIterator::GoodsRestArray::GetRest(PPID goodsID, PPID locID, LDATE dt) const
+double GCTIterator::GoodsRestArray::GetRest(PPID goodsID, PPID locID, LDATE dt) const
 {
 	double result = 0.0;
 	uint   pos = 0;
@@ -323,7 +323,7 @@ double SLAPI GCTIterator::GoodsRestArray::GetRest(PPID goodsID, PPID locID, LDAT
 	return result;
 }
 
-double SLAPI GCTIterator::GoodsRestArray::GetRest(PPID goodsID, LDATE dt) const
+double GCTIterator::GoodsRestArray::GetRest(PPID goodsID, LDATE dt) const
 {
 	double result = 0.0;
 	for(uint i = 0; i < LocList.getCount(); i++) {
@@ -334,7 +334,7 @@ double SLAPI GCTIterator::GoodsRestArray::GetRest(PPID goodsID, LDATE dt) const
 	return result;
 }
 
-double SLAPI GCTIterator::GoodsRestArray::GetAverageRest(PPID goodsID, PPID locID, const DateRange & rPeriod) const
+double GCTIterator::GoodsRestArray::GetAverageRest(PPID goodsID, PPID locID, const DateRange & rPeriod) const
 {
 	double result = 0.0;
 	DateRange period = AccumPeriod; // rPeriod;
@@ -350,7 +350,7 @@ double SLAPI GCTIterator::GoodsRestArray::GetAverageRest(PPID goodsID, PPID locI
 	return result;
 }
 
-int SLAPI GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, (SVector *)this, rBuf)); // @v9.8.5 SArray-->SVector
@@ -361,7 +361,7 @@ int SLAPI GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSeria
 	return ok;
 }
 
-/*static*/long SLAPI GCTIterator::AnalyzeOp(PPID opID, PPIDArray * pResultOpList)
+/*static*/long GCTIterator::AnalyzeOp(PPID opID, PPIDArray * pResultOpList)
 {
 	long   result = 0;
 	PPIDArray op_list;
@@ -407,7 +407,7 @@ int SLAPI GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSeria
 //
 // GCTIterator
 //
-SLAPI GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : State(0), IterPhase(iterphaseInit),
+GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : State(0), IterPhase(iterphaseInit),
 	trfr_q(0), rcpt_q(0), cptrfr_q(0), BCache(0), P_GoodsRestList(0)
 {
 	Filt = *pFilt;
@@ -500,7 +500,7 @@ SLAPI GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange)
 	}
 }
 
-SLAPI GCTIterator::~GCTIterator()
+GCTIterator::~GCTIterator()
 {
 	delete trfr_q;
 	delete rcpt_q;
@@ -557,7 +557,7 @@ const GCTIterator::GoodsRestArray * GCTIterator::GetGoodsRestList() const
 int FASTCALL GCTIterator::SetupGoodsRest(TransferTbl::Rec * pRec)
 	{ return P_GoodsRestList ? P_GoodsRestList->SetAccumItem(pRec->GoodsID, pRec->LocID, pRec->Dt, pRec->Quantity) : -1; }
 
-int SLAPI GCTIterator::InitQuery(int cpMode)
+int GCTIterator::InitQuery(int cpMode)
 {
 	int    ok = 1;
 	const  int soft_restr = BIN(Filt.SoftRestrict);
@@ -740,7 +740,7 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 	return ok;
 }
 
-int SLAPI GCTIterator::NextOuter()
+int GCTIterator::NextOuter()
 {
 	int    ok = -1;
 	const  int soft_restr = BIN(Filt.SoftRestrict);
@@ -772,7 +772,7 @@ int SLAPI GCTIterator::NextOuter()
 	return ok;
 }
 
-int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
 	const  int    soft_restr = BIN(Filt.SoftRestrict);
@@ -882,7 +882,7 @@ int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec *
 	return ok;
 }
 
-int SLAPI GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
 	const  int    soft_restr = BIN(Filt.SoftRestrict);
@@ -957,7 +957,7 @@ int SLAPI GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec
 	return ok;
 }
 
-int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	union {
 		TransferTbl::Key0 k0;
@@ -1098,7 +1098,7 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 	return ok;
 }
 
-int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
 	int    done = 0;
@@ -1200,7 +1200,7 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 	return ok;
 }
 
-int SLAPI GCTIterator::NextTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::NextTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	while(trfr_q->nextIteration() > 0) {
 		if(AcceptTrfrRec(pTrfrRec, pBillRec, pExt) > 0)
@@ -1209,7 +1209,7 @@ int SLAPI GCTIterator::NextTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBil
 	return -1;
 }
 
-int SLAPI GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
 	if(Cbb.P_Pack) {
@@ -1315,7 +1315,7 @@ int SLAPI GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pB
 	return ok;
 }
 
-int SLAPI GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = -1;
 	memzero(pExt, sizeof(*pExt));
@@ -1369,24 +1369,24 @@ int SLAPI GCTIterator::Iterate(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 	return ok;
 }
 
-int SLAPI GCTIterator::First(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int GCTIterator::First(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
 {
 	IterPhase = iterphaseInit;
 	return Iterate(pTrfrRec, pBillRec, 0);
 }
 
-int SLAPI GCTIterator::Next(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
+int GCTIterator::Next(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec)
 {
 	return Iterate(pTrfrRec, pBillRec, 0);
 }
 
-int SLAPI GCTIterator::First(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::First(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	IterPhase = iterphaseInit;
 	return Iterate(pTrfrRec, pBillRec, pExt);
 }
 
-int SLAPI GCTIterator::Next(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int GCTIterator::Next(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	return Iterate(pTrfrRec, pBillRec, pExt);
 }

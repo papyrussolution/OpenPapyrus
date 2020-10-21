@@ -373,6 +373,12 @@
     <ClInclude Include="..\Include\frontol.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\ppdrvapi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\PPDS.H">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />

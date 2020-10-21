@@ -10,7 +10,7 @@
 //
 class TrfrItemDialog : public TDialog {
 private:
-	friend int SLAPI EditTransferItem(PPBillPacket *, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder, int sign);
+	friend int EditTransferItem(PPBillPacket *, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder, int sign);
 
 	TrfrItemDialog(uint dlgID, PPID opID);
 	int    setDTS(const PPTransferItem * pData);
@@ -126,7 +126,7 @@ private:
 		// теги от тегов унаследованных.
 };
 
-static int SLAPI CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
+static int CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
 {
 	int   yes = 0;
 	if(pBp->OpTypeID == PPOPT_GOODSRECEIPT) {
@@ -146,7 +146,7 @@ static int SLAPI CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
 	return yes;
 }
 
-int SLAPI ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText)
+int ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText)
 {
 	int    ok = -1;
 	PPListDialog * dlg = new PPListDialog(DLG_SPOILLIST, CTL_SPOILLIST_LIST);
@@ -200,7 +200,7 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 //
 // Если itemNo == -1, то добавляется новая строка
 //
-int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
+int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
 {
 	const PPConfig & r_cfg = LConfig;
 	PPObjBill * p_bobj = BillObj;
@@ -2057,7 +2057,7 @@ int TrfrItemDialog::CheckQuantityVal(double * pExtraQtty)
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, PPBillPacket * pPack, const PPTransferItem & rTi, int itemPos, double & rBound)
+int PPObjBill::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, PPBillPacket * pPack, const PPTransferItem & rTi, int itemPos, double & rBound)
 {
 	int    ok = -1;
 	rBound = 0.0;
@@ -2073,7 +2073,7 @@ int SLAPI PPObjBill::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, P
 	return ok;
 }
 
-int SLAPI PPObjBill::GetPriceRestrictions(PPBillPacket & rPack, const PPTransferItem & rTi, int itemPos, RealRange * pRange)
+int PPObjBill::GetPriceRestrictions(PPBillPacket & rPack, const PPTransferItem & rTi, int itemPos, RealRange * pRange)
 {
 	int    ok = -1;
 	RealRange range;
@@ -2094,7 +2094,7 @@ int SLAPI PPObjBill::GetPriceRestrictions(PPBillPacket & rPack, const PPTransfer
 	return ok;
 }
 
-int SLAPI PPObjBill::GetPriceRestrictions(PPID goodsID, PPID lotID, double cost, double price, RealRange * pRange)
+int PPObjBill::GetPriceRestrictions(PPID goodsID, PPID lotID, double cost, double price, RealRange * pRange)
 {
 	int    ok = -1;
 	RealRange range;
@@ -2762,7 +2762,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 	{ RET_CMPCASCADE2(static_cast<const SelLotBrowser::Entry *>(i1), static_cast<const SelLotBrowser::Entry *>(i2), Dt, OprNo); }
 
-/*static*/SArray * SLAPI SelLotBrowser::CreateArray()
+/*static*/SArray * SelLotBrowser::CreateArray()
 {
 	SArray * p_ary = new SArray(sizeof(Entry));
 	if(!p_ary)
@@ -2813,7 +2813,7 @@ IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -3147,7 +3147,7 @@ void TrfrItemDialog::selectLot()
 //
 //
 //
-int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
+int PPObjBill::SelectLot2(SelectLotParam & rParam)
 {
 	PPID     lotid = 0;
 	const SelLotBrowser::Entry * p_sel;
@@ -3264,7 +3264,7 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 }
 
 #if 0 // @v9.3.6 {
-int SLAPI SelectLot__(PPID locID, PPID goodsID, PPID excludeLotID, PPID * pLotID, ReceiptTbl::Rec * pRec)
+int SelectLot__(PPID locID, PPID goodsID, PPID excludeLotID, PPID * pLotID, ReceiptTbl::Rec * pRec)
 {
 	PPObjBill * p_bobj = BillObj;
 	PPID     lotid = 0;
@@ -3327,7 +3327,7 @@ int SLAPI SelectLot__(PPID locID, PPID goodsID, PPID excludeLotID, PPID * pLotID
 //
 //
 //
-int SLAPI PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * pData)
+int PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_FPACKAGE);

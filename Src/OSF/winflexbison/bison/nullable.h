@@ -21,6 +21,6 @@
 #ifndef NULLABLE_H_
 	#define NULLABLE_H_
 	extern bool * nullable; /* A vector saying which nonterminals can expand into the null string. NULLABLE[I - NTOKENS] is nonzero if symbol I can do so.  */
-	extern void nullable_compute(void); /* Set up NULLABLE. */
-	extern void nullable_free(void); /* Free NULLABLE. */
+	extern void nullable_compute(); /* Set up NULLABLE. */
+	extern void nullable_free(); /* Free NULLABLE. */
 #endif /* !NULLABLE_H_ */

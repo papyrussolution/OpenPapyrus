@@ -1487,7 +1487,7 @@ _skip_switch:
 	#undef CTONLY
 }
 
-SLAPI DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0),
+DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0),
 	LastSymbId(0), UniqCntr(0), CurScopeID(0), Flags(0), P_M(0)
 {
 	F_Dot.Z();
@@ -1543,18 +1543,18 @@ SLAPI DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSY
 	}
 }
 
-DLSYMBID SLAPI DlContext::GetNewSymbID()
+DLSYMBID DlContext::GetNewSymbID()
 {
 	SETIFZ(LastSymbId, Tab.GetMaxVal());
 	return ++LastSymbId;
 }
 
-long SLAPI DlContext::GetUniqCntr()
+long DlContext::GetUniqCntr()
 {
 	return ++UniqCntr;
 }
 
-DLSYMBID SLAPI DlContext::Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int prefix, long flags)
+DLSYMBID DlContext::Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int prefix, long flags)
 {
 	DLSYMBID id = 0;
 	SString name, temp_buf;
@@ -1593,12 +1593,12 @@ DLSYMBID SLAPI DlContext::Helper_CreateSymb(const char * pSymb, DLSYMBID newId, 
 	return id;
 }
 
-DLSYMBID SLAPI DlContext::CreateSymb(const char * pSymb, int prefix, long flags)
+DLSYMBID DlContext::CreateSymb(const char * pSymb, int prefix, long flags)
 {
 	return Helper_CreateSymb(pSymb, 0, prefix, flags);
 }
 
-DLSYMBID SLAPI DlContext::CreateSymbWithId(const char * pSymb, DLSYMBID id, int prefix, long flags)
+DLSYMBID DlContext::CreateSymbWithId(const char * pSymb, DLSYMBID id, int prefix, long flags)
 {
 	return Helper_CreateSymb(pSymb, id, prefix, flags);
 }
@@ -1685,7 +1685,7 @@ int FASTCALL DlContext::Init(const char * pInFileName)
 	return ok;
 }
 
-void SLAPI DlContext::InitFileNames(const char * pInFileName)
+void DlContext::InitFileNames(const char * pInFileName)
 {
 	if(Flags & fCompile) {
 		InFileName = pInFileName;
@@ -1701,12 +1701,12 @@ void SLAPI DlContext::InitFileNames(const char * pInFileName)
 		BinFileName = pInFileName;
 }
 
-const char * SLAPI DlContext::GetInputFileName() const
+const char * DlContext::GetInputFileName() const
 {
 	return InFileName.cptr();
 }
 
-SLAPI DlContext::~DlContext()
+DlContext::~DlContext()
 {
 	delete P_M;
 }
@@ -1722,7 +1722,7 @@ DLSYMBID FASTCALL DlContext::SearchUuid(const S_GUID_Base & rUuid) const
 	return static_cast<DLSYMBID>(key);
 }
 
-int SLAPI DlContext::GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const
+int DlContext::GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const
 {
 	int    ok = 1;
 	if(!UuidList.Search(scopeID, pUuid, 0)) {
@@ -1732,7 +1732,7 @@ int SLAPI DlContext::GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const
 	return ok;
 }
 
-int SLAPI DlContext::GetInterface(const S_GUID_Base & rIID, DLSYMBID * pScopeID, const DlScope ** ppScope) const
+int DlContext::GetInterface(const S_GUID_Base & rIID, DLSYMBID * pScopeID, const DlScope ** ppScope) const
 {
 	int    ok = 0;
 	DLSYMBID scope_id = SearchUuid(rIID);
@@ -1749,7 +1749,7 @@ int SLAPI DlContext::GetInterface(const S_GUID_Base & rIID, DLSYMBID * pScopeID,
 	return ok;
 }
 
-int SLAPI DlContext::EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const
+int DlContext::EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const
 {
 	int    ok = -1;
 	const  uint ibc = pCls->GetIfaceBaseCount();
@@ -1773,7 +1773,7 @@ int SLAPI DlContext::EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlSco
 	return ok;
 }
 
-int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
+int DlContext::RegisterICls(const DlScope * pCls, int unreg)
 {
 #ifdef DL600C
 	EXCEPTVAR(LastError);
@@ -1886,7 +1886,7 @@ int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
 	return ok;
 }
 
-int SLAPI DeleteKey(HKEY hKey, uint32 ver, const char * pKeyBuf)
+int DeleteKey(HKEY hKey, uint32 ver, const char * pKeyBuf)
 {
 	int    ok = -1;
 	if(pKeyBuf && sstrlen(pKeyBuf)) {
@@ -1905,7 +1905,7 @@ int SLAPI DeleteKey(HKEY hKey, uint32 ver, const char * pKeyBuf)
 	return ok;
 }
 
-int SLAPI DlContext::RegisterTypeLib(const DlScope * pCls, int unreg)
+int DlContext::RegisterTypeLib(const DlScope * pCls, int unreg)
 {
 	int    ok = 1;
 	if(unreg) {
@@ -1944,7 +1944,7 @@ size_t FASTCALL DlContext::GetTypeBinSize(DLSYMBID typID) const
 	return SearchTypeID(typID, 0, &te) ? te.T.GetBinSize() : 0;
 }
 
-int SLAPI DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void * pSrcData, void * pDestData, int * pLoss)
+int DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void * pSrcData, void * pDestData, int * pLoss)
 {
 	int    ok = tcrUnable;
 	int    loss = 0;
@@ -2282,20 +2282,20 @@ int DlContext::AddConst(const char * pTypeSymb, const void * pData, size_t dataS
 	return ok;
 }
 
-int SLAPI DlContext::AddConst(const void * pData, size_t dataSize, CtmExprConst * pResult) { return AddConst("raw", pData, dataSize, pResult); }
-int SLAPI DlContext::AddConst(const char * pData, CtmExprConst * pResult) { return AddConst("string", pData, sstrlen(pData)+1, pResult); }
-int SLAPI DlContext::AddConst(const SString & rData, CtmExprConst * pResult) { return AddConst("string", (const char *)rData, rData.Len()+1, pResult); }
-int SLAPI DlContext::AddConst(uint32 data, CtmExprConst * pResult) { return AddConst("uint32", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(int32 data, CtmExprConst * pResult) { return AddConst("int32", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(int64 data, CtmExprConst * pResult) { return AddConst("int64", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(int8 data, CtmExprConst * pResult) { return AddConst("int8", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(int16 data, CtmExprConst * pResult) { return AddConst("int16", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(float data, CtmExprConst * pResult) { return AddConst("float", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(double data, CtmExprConst * pResult) { return AddConst("double", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(LDATE data, CtmExprConst * pResult) { return AddConst("date", &data, sizeof(data), pResult); }
-int SLAPI DlContext::AddConst(LTIME data, CtmExprConst * pResult) { return AddConst("time", &data, sizeof(data), pResult); }
+int DlContext::AddConst(const void * pData, size_t dataSize, CtmExprConst * pResult) { return AddConst("raw", pData, dataSize, pResult); }
+int DlContext::AddConst(const char * pData, CtmExprConst * pResult) { return AddConst("string", pData, sstrlen(pData)+1, pResult); }
+int DlContext::AddConst(const SString & rData, CtmExprConst * pResult) { return AddConst("string", (const char *)rData, rData.Len()+1, pResult); }
+int DlContext::AddConst(uint32 data, CtmExprConst * pResult) { return AddConst("uint32", &data, sizeof(data), pResult); }
+int DlContext::AddConst(int32 data, CtmExprConst * pResult) { return AddConst("int32", &data, sizeof(data), pResult); }
+int DlContext::AddConst(int64 data, CtmExprConst * pResult) { return AddConst("int64", &data, sizeof(data), pResult); }
+int DlContext::AddConst(int8 data, CtmExprConst * pResult) { return AddConst("int8", &data, sizeof(data), pResult); }
+int DlContext::AddConst(int16 data, CtmExprConst * pResult) { return AddConst("int16", &data, sizeof(data), pResult); }
+int DlContext::AddConst(float data, CtmExprConst * pResult) { return AddConst("float", &data, sizeof(data), pResult); }
+int DlContext::AddConst(double data, CtmExprConst * pResult) { return AddConst("double", &data, sizeof(data), pResult); }
+int DlContext::AddConst(LDATE data, CtmExprConst * pResult) { return AddConst("date", &data, sizeof(data), pResult); }
+int DlContext::AddConst(LTIME data, CtmExprConst * pResult) { return AddConst("time", &data, sizeof(data), pResult); }
 
-int SLAPI DlContext::AddBCmpOps(uint implID, const char * pType)
+int DlContext::AddBCmpOps(uint implID, const char * pType)
 {
 	return (
 		AddBOp(dlopEq,  implID+0, "bool", pType, pType, 0) &&
@@ -2328,7 +2328,7 @@ int SLAPIV DlContext::AddBFunc(const char * pFuncName, uint implID, const char *
 	return ok;
 }
 
-int SLAPI DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList)
+int DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList)
 {
 	int    ok = 1;
 	DLSYMBID symb_id = 0;
@@ -2354,7 +2354,7 @@ int SLAPI DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const 
 	return ok;
 }
 
-int SLAPI DlContext::GetFunc(const CtmFunc & rF, DlFunc * pFunc)
+int DlContext::GetFunc(const CtmFunc & rF, DlFunc * pFunc)
 {
 	if(rF.ScopeID) {
 		const DlScope * p_scope = GetScope(rF.ScopeID);
@@ -2364,7 +2364,7 @@ int SLAPI DlContext::GetFunc(const CtmFunc & rF, DlFunc * pFunc)
 	return 0;
 }
 
-int SLAPI DlContext::GetField(const CtmVar & rV, SdbField * pFld)
+int DlContext::GetField(const CtmVar & rV, SdbField * pFld)
 {
 	if(rV.ScopeID) {
 		const DlScope * p_scope = GetScope(rV.ScopeID);
@@ -2374,7 +2374,7 @@ int SLAPI DlContext::GetField(const CtmVar & rV, SdbField * pFld)
 	return 0;
 }
 
-int SLAPI DlContext::GetConstData(const CtmExprConst & rC, void * pBuf, size_t bufLen) const
+int DlContext::GetConstData(const CtmExprConst & rC, void * pBuf, size_t bufLen) const
 {
 	int    ok = 1;
 	TypeEntry te;
@@ -2395,7 +2395,7 @@ int SLAPI DlContext::GetConstData(const CtmExprConst & rC, void * pBuf, size_t b
 	return ok;
 }
 
-int SLAPI DlContext::SearchVarInChildList(const DlScope * pScope, uint childKind, const char * pSymb, CtmVar * pVar)
+int DlContext::SearchVarInChildList(const DlScope * pScope, uint childKind, const char * pSymb, CtmVar * pVar)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -2443,7 +2443,7 @@ int FASTCALL DlContext::GetRefFunc(CtmFunc * pF)
 	return ok;
 }
 
-int SLAPI DlContext::GetSymb(DLSYMBID id, SString & rBuf, int prefix) const
+int DlContext::GetSymb(DLSYMBID id, SString & rBuf, int prefix) const
 {
 	int    ok = 1;
 	if(Tab.GetByAssoc(id, rBuf)) {
@@ -2460,7 +2460,7 @@ int SLAPI DlContext::GetSymb(DLSYMBID id, SString & rBuf, int prefix) const
 	return ok;
 }
 
-int SLAPI DlContext::SearchSymb(const char * pSymb, int prefix, DLSYMBID * pID) const
+int DlContext::SearchSymb(const char * pSymb, int prefix, DLSYMBID * pID) const
 {
 	int    ok = 1;
 	uint   id = 0;
@@ -2475,7 +2475,7 @@ int SLAPI DlContext::SearchSymb(const char * pSymb, int prefix, DLSYMBID * pID) 
 	return ok;
 }
 
-DlScope * SLAPI DlContext::Helper_GetScope(DLSYMBID id, const DlScope * pScope, int kind) const
+DlScope * DlContext::Helper_GetScope(DLSYMBID id, const DlScope * pScope, int kind) const
 {
 	if(pScope == 0) {
 		SString msg_buf;
@@ -2488,21 +2488,21 @@ DlScope * SLAPI DlContext::Helper_GetScope(DLSYMBID id, const DlScope * pScope, 
 	return const_cast<DlScope *>(pScope); // @badcast
 }
 
-DlScope * SLAPI DlContext::GetScope(DLSYMBID id, int kind)
+DlScope * DlContext::GetScope(DLSYMBID id, int kind)
 	{ return Helper_GetScope(id, Sc.SearchByID(id, 0), kind); }
-DlScope * SLAPI DlContext::GetCurScope()
+DlScope * DlContext::GetCurScope()
 	{ return Helper_GetScope(CurScopeID, Sc.SearchByID(CurScopeID, 0), 0); }
-const DlScope * SLAPI DlContext::GetScope_Const(DLSYMBID id, int kind) const
+const DlScope * DlContext::GetScope_Const(DLSYMBID id, int kind) const
 	{ return static_cast<const DlScope *>(Helper_GetScope(id, Sc.SearchByID_Const(id, 0), kind)); }
 
-const  DlScope * SLAPI DlContext::GetScopeByName_Const(uint kind, const char * pName) const
+const  DlScope * DlContext::GetScopeByName_Const(uint kind, const char * pName) const
 {
 	DLSYMBID parent_id = 0;
 	const DlScope * p_scope = Sc.SearchByName_Const(kind, pName, &parent_id);
 	return p_scope;
 }
 
-int SLAPI DlContext::AddStructType(DLSYMBID symbId)
+int DlContext::AddStructType(DLSYMBID symbId)
 {
 	int    ok = 1;
 	TypeEntry entry;
@@ -2514,7 +2514,7 @@ int SLAPI DlContext::AddStructType(DLSYMBID symbId)
 	return ok;
 }
 
-int SLAPI DlContext::SearchTypeID(DLSYMBID id, uint * pPos, TypeEntry * pEntry) const
+int DlContext::SearchTypeID(DLSYMBID id, uint * pPos, TypeEntry * pEntry) const
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -2529,18 +2529,18 @@ int SLAPI DlContext::SearchTypeID(DLSYMBID id, uint * pPos, TypeEntry * pEntry) 
 	return ok;
 }
 
-TYPEID SLAPI DlContext::TypeToSType(DLSYMBID id) const
+TYPEID DlContext::TypeToSType(DLSYMBID id) const
 {
 	uint   pos = 0;
 	return SearchTypeID(id, &pos, 0) ? TypeList.at(pos).T.Typ : 0;
 }
 
-DLSYMBID SLAPI DlContext::SetDeclType(DLSYMBID typeID)
+DLSYMBID DlContext::SetDeclType(DLSYMBID typeID)
 {
 	return SearchTypeID(typeID, 0, 0) ? typeID : 0;
 }
 
-void SLAPI DlContext::MakeClassName(const DlScope * pStruc, int fmt, long cflags, SString & rBuf) const
+void DlContext::MakeClassName(const DlScope * pStruc, int fmt, long cflags, SString & rBuf) const
 {
 	if(fmt == clsnfCPP) {
 		if(pStruc->IsKind(DlScope::kIClass)) {
@@ -2571,7 +2571,7 @@ void SLAPI DlContext::MakeClassName(const DlScope * pStruc, int fmt, long cflags
 		rBuf.Z();
 }
 
-DLSYMBID SLAPI DlContext::SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const
+DLSYMBID DlContext::SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const
 {
 	uint   c = TypeList.getCount();
 	if(c) do {
@@ -2584,7 +2584,7 @@ DLSYMBID SLAPI DlContext::SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) 
 	return 0;
 }
 
-int SLAPI DlContext::DemangleType(const char * pTypeStr, STypEx * pTyp, DLSYMBID * pID)
+int DlContext::DemangleType(const char * pTypeStr, STypEx * pTyp, DLSYMBID * pID)
 {
 	STypEx t;
 	t.Init();
@@ -2632,7 +2632,7 @@ int SLAPI DlContext::DemangleType(const char * pTypeStr, STypEx * pTyp, DLSYMBID
 	return 0;
 }
 
-long SLAPI DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
+long DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 {
 	int    oset = 0;
 	const  char * curpos = pFmtStr;
@@ -2737,7 +2737,7 @@ long SLAPI DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 	return fs.prec ? MKSFMTD(fs.len, fs.prec, fs.flags) : MKSFMT(fs.len, fs.flags);
 }
 
-int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
+int DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 {
 	int    ok = 1;
 	TypeEntry te;
@@ -2792,7 +2792,7 @@ int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 //
 //
 #ifndef DL600C // {
-	int SLAPI DlContext::CreateNewDbTableSpec(const DBTable * pTbl)
+	int DlContext::CreateNewDbTableSpec(const DBTable * pTbl)
 	{
 		int    ok = 1;
 		uint   i;
@@ -2863,7 +2863,7 @@ int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 	}
 #endif // } !DL600C
 
-int SLAPI DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pTbl, int format) const
+int DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pTbl, int format) const
 {
 	int    ok = 1;
 	int    key_number = 0;
@@ -2942,7 +2942,7 @@ int SLAPI DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pT
 	return ok;
 }
 
-int SLAPI DlContext::LoadDbTableSpec(DLSYMBID scopeID, DBTable * pTbl, int format) const
+int DlContext::LoadDbTableSpec(DLSYMBID scopeID, DBTable * pTbl, int format) const
 {
 	int    ok = 1;
 	const DlScope * p_scope = Sc.SearchByID_Const(scopeID, 0);
@@ -2952,7 +2952,7 @@ int SLAPI DlContext::LoadDbTableSpec(DLSYMBID scopeID, DBTable * pTbl, int forma
 	return ok;
 }
 
-int SLAPI DlContext::LoadDbTableSpec(const char * pName, DBTable * pTbl, int format) const
+int DlContext::LoadDbTableSpec(const char * pName, DBTable * pTbl, int format) const
 {
 	int    ok = 1;
 	const DlScope * p_scope = Sc.SearchByName_Const(DlScope::kDbTable, pName, 0);
@@ -2962,7 +2962,7 @@ int SLAPI DlContext::LoadDbTableSpec(const char * pName, DBTable * pTbl, int for
 	return ok;
 }
 
-int SLAPI DlContext::DropDbTableSpec(const char * pName)
+int DlContext::DropDbTableSpec(const char * pName)
 {
 	int    ok = 1;
 	DLSYMBID parent_id = 0;
@@ -2975,7 +2975,7 @@ int SLAPI DlContext::DropDbTableSpec(const char * pName)
 	return ok;
 }
 
-int SLAPI DlContext::Helper_GetScopeList(int kind, int recursive, StrAssocArray * pList) const
+int DlContext::Helper_GetScopeList(int kind, int recursive, StrAssocArray * pList) const
 {
 	int    ok = 1;
 	if(pList) {
@@ -2994,9 +2994,9 @@ int SLAPI DlContext::Helper_GetScopeList(int kind, int recursive, StrAssocArray 
 	return ok;
 }
 
-int SLAPI DlContext::GetDbTableSpecList(StrAssocArray * pList) const
+int DlContext::GetDbTableSpecList(StrAssocArray * pList) const
 	{ return Helper_GetScopeList(DlScope::kDbTable, 1, pList); }
-int SLAPI DlContext::GetDialogList(StrAssocArray * pList) const
+int DlContext::GetDialogList(StrAssocArray * pList) const
 	{ return Helper_GetScopeList(DlScope::kUiDialog, 1, pList); }
 //
 //
@@ -3015,7 +3015,7 @@ int DlCtxHdr::Check() const
 	return BIN(Signature[0] == 'D' && Signature[1] == 'L' && Signature[2] == '6' && Signature[3] == 'B');
 }
 
-int SLAPI DlContext::Read_Code()
+int DlContext::Read_Code()
 {
 	int    ok = 1;
 	THROW(fileExists(BinFileName));

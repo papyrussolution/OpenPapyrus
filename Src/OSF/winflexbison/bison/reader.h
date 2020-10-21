@@ -30,7 +30,7 @@ typedef struct merger_list {
 void grammar_start_symbol_set(Symbol * sym, Location loc);
 void grammar_current_rule_begin(Symbol * lhs, Location loc, named_ref * lhs_named_ref);
 void grammar_current_rule_end(Location loc);
-void grammar_midrule_action(void);
+void grammar_midrule_action();
 /* Apply %empty to the current rule.  */
 void grammar_current_rule_empty_set(Location loc);
 void grammar_current_rule_prec_set(Symbol * precsym, Location loc);
@@ -45,7 +45,7 @@ void grammar_current_rule_action_append(const char * action, Location loc, named
 /* Attach a PREDICATE to the current rule.  */
 void grammar_current_rule_predicate_append(const char * predicate, Location loc);
 void reader(const char * gram);
-void free_merger_functions(void);
+void free_merger_functions();
 
 extern merger_list * merge_functions;
 

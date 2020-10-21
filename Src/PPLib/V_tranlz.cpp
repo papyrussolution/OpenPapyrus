@@ -6,12 +6,12 @@
 #pragma hdrstop
 //#include <graph.h>
 
-SLAPI TrfrAnlzViewItem::TrfrAnlzViewItem()
+TrfrAnlzViewItem::TrfrAnlzViewItem()
 {
 	Clear();
 }
 
-void SLAPI TrfrAnlzViewItem::Clear()
+void TrfrAnlzViewItem::Clear()
 {
 	memzero(this, offsetof(TrfrAnlzViewItem, BillCode_));
 	BillCode_.Z();
@@ -22,19 +22,19 @@ void SLAPI TrfrAnlzViewItem::Clear()
 //
 //
 //
-SLAPI TrfrAnlzTotal::TrfrAnlzTotal()
+TrfrAnlzTotal::TrfrAnlzTotal()
 {
 	destroy();
 }
 
-void SLAPI TrfrAnlzTotal::destroy()
+void TrfrAnlzTotal::destroy()
 {
 	THISZERO();
 }
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); SLAPI TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 3) // @v7.9.11 ver 2-->3
+IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 3) // @v7.9.11 ver 2-->3
 {
 	SetFlatChunk(offsetof(TrfrAnlzFilt, ReserveStart),
 		offsetof(TrfrAnlzFilt, BillList)-offsetof(TrfrAnlzFilt, ReserveStart));
@@ -47,22 +47,22 @@ IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); SLAPI TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseF
 	Init(1, 0);
 }
 
-int SLAPI TrfrAnlzFilt::HasCntragentGrouping() const
+int TrfrAnlzFilt::HasCntragentGrouping() const
 	{ return oneof6(Grp, gCntragent, gCntragentDate, gGoodsCntragent, gGoodsCntragentDate, gDateCntragentAgentGoods, gBillCntragent); }
-int SLAPI TrfrAnlzFilt::HasGoodsGrouping() const
+int TrfrAnlzFilt::HasGoodsGrouping() const
 	{ return oneof7(Grp, gGoods, gGoodsCntragent, gGoodsCntragentDate, gGoodsBill, gDateCntragentAgentGoods, gGoodsDate, gGoodsSuppl); }
-int SLAPI TrfrAnlzFilt::HasDateGrouping() const
+int TrfrAnlzFilt::HasDateGrouping() const
 	{ return oneof4(Grp, gCntragentDate, gGoodsCntragentDate, gDateCntragentAgentGoods, gGoodsDate); }
-int SLAPI TrfrAnlzFilt::HasBillGrouping() const
+int TrfrAnlzFilt::HasBillGrouping() const
 	{ return oneof2(Grp, gGoodsBill, gBillCntragent); }
 
-int SLAPI TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 2) {
 		class TrfrAnlzFilt_v2 : public PPBaseFilt {
 		public:
-			SLAPI  TrfrAnlzFilt_v2() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 2)
+			TrfrAnlzFilt_v2() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 2)
 			{
 				SetFlatChunk(offsetof(TrfrAnlzFilt_v2, ReserveStart), offsetof(TrfrAnlzFilt_v2, BillList)-offsetof(TrfrAnlzFilt_v2, ReserveStart));
 				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v2, BillList));
@@ -141,7 +141,7 @@ TrfrAnlzFilt & FASTCALL TrfrAnlzFilt::operator = (const TrfrAnlzFilt & rS)
 	return *this;
 }
 
-int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
+int TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 {
 #define NEQ_FLD(f) (f) != (rS.f)
 	if(NEQ_FLD(Period))
@@ -204,7 +204,7 @@ int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 	return 1;
 }
 
-/*virtual*/int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 {
 	SString temp_buf;
 	PutMembToBuf(&Period,     STRINGIZE(Period), rBuf);
@@ -297,12 +297,12 @@ int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 //
 //
 //
-SLAPI TrfrAnlzViewItem_AlcRep::TrfrAnlzViewItem_AlcRep()
+TrfrAnlzViewItem_AlcRep::TrfrAnlzViewItem_AlcRep()
 {
 	Init();
 }
 
-void SLAPI TrfrAnlzViewItem_AlcRep::Init()
+void TrfrAnlzViewItem_AlcRep::Init()
 {
 	Item.Clear();
 	MEMSZERO(GoodsRec);
@@ -361,7 +361,7 @@ TagrCacheItem & FASTCALL PPViewTrfrAnlz::GetCacheItem(uint pos) const
 	return *static_cast<TagrCacheItem *>(Cache.at(pos));
 }
 
-int SLAPI PPViewTrfrAnlz::FlashCacheItem(BExtInsert * pBei, const TagrCacheItem & rItem)
+int PPViewTrfrAnlz::FlashCacheItem(BExtInsert * pBei, const TagrCacheItem & rItem)
 {
 	int    ok = 1;
 	if(!P_TrGrpngTbl)
@@ -428,7 +428,7 @@ int SLAPI PPViewTrfrAnlz::FlashCacheItem(BExtInsert * pBei, const TagrCacheItem 
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::FlashCacheItems(uint count)
+int PPViewTrfrAnlz::FlashCacheItems(uint count)
 {
 	int    ok = 1;
 	if(!P_TrGrpngTbl)
@@ -463,15 +463,15 @@ int SLAPI PPViewTrfrAnlz::FlashCacheItems(uint count)
 	return ok;
 }
 
-SLAPI PPViewTrfrAnlz::PPViewTrfrAnlz() : PPView(0, &Filt, PPVIEW_TRFRANLZ), Cache(sizeof(TagrCacheItem), /*32,*/O_ARRAY),
+PPViewTrfrAnlz::PPViewTrfrAnlz() : PPView(0, &Filt, PPVIEW_TRFRANLZ, implDontSetupCtColumnsOnChgFilt|implUseServer, 0), 
+	Cache(sizeof(TagrCacheItem), /*32,*/O_ARRAY),
 	MaxCacheItems(DS.CheckExtFlag(ECF_SYSSERVICE) ? (128*1024) : (64*1024U)), CacheDelta(DS.CheckExtFlag(ECF_SYSSERVICE) ? 4096 : 2048),
 	P_TrAnlzTbl(0), P_TrGrpngTbl(0), P_OrderTbl(0), P_IterOrderQuery(0), P_InnerIterItem(0), P_BObj(BillObj), Flags(0), GrpIdCounter(0)
 {
-	ImplementFlags |= (implDontSetupCtColumnsOnChgFilt|implUseServer);
 	SETFLAG(Flags, fAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 }
 
-SLAPI PPViewTrfrAnlz::~PPViewTrfrAnlz()
+PPViewTrfrAnlz::~PPViewTrfrAnlz()
 {
 	delete P_IterOrderQuery;
 	delete P_TrAnlzTbl;
@@ -484,12 +484,12 @@ SLAPI PPViewTrfrAnlz::~PPViewTrfrAnlz()
 
 class TrfrAnlzCrosstab : public Crosstab {
 public:
-	SLAPI  TrfrAnlzCrosstab(PPViewTrfrAnlz * pV) : Crosstab(), P_V(pV)
+	TrfrAnlzCrosstab(PPViewTrfrAnlz * pV) : Crosstab(), P_V(pV)
 	{
 	}
-	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+	virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 		{ return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner); }
-	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{ 
 		if(pVal && P_V) 
 			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf); 
@@ -498,7 +498,7 @@ protected:
 	PPViewTrfrAnlz * P_V;
 };
 
-void SLAPI PPViewTrfrAnlz::GetTabTitle(long tabID, SString & rBuf) const
+void PPViewTrfrAnlz::GetTabTitle(long tabID, SString & rBuf) const
 {
 	rBuf.Z();
 	if(Filt.CtKind == TrfrAnlzFilt::ctDate) {
@@ -510,7 +510,7 @@ void SLAPI PPViewTrfrAnlz::GetTabTitle(long tabID, SString & rBuf) const
 		GetObjectName(PPOBJ_ARTICLE, tabID, rBuf);
 }
 
-int SLAPI PPViewTrfrAnlz::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewTrfrAnlz::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -545,7 +545,7 @@ int SLAPI PPViewTrfrAnlz::SerializeState(int dir, SBuffer & rBuf, SSerializeCont
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::AllocInnerIterItem()
+int PPViewTrfrAnlz::AllocInnerIterItem()
 {
 	SETIFZ(P_InnerIterItem, new TrfrAnlzViewItem);
 	return P_InnerIterItem ? 1 : PPSetErrorNoMem();
@@ -559,7 +559,7 @@ const TrfrAnlzViewItem * PPViewTrfrAnlz::GetInnerIterItem() const
 PP_CREATE_TEMP_FILE_PROC(CreateTempTrfrAnlzFile, TempTrfrAnlz);
 PP_CREATE_TEMP_FILE_PROC(CreateTempTrfrGrpngFile, TempTrfrGrpng);
 
-int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
+int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, use_ta = 1;
 	TrfrAnlzFilt prev_filt = Filt;
@@ -938,7 +938,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::CalcInRest(PPID goodsID, double * pRest)
+int PPViewTrfrAnlz::CalcInRest(PPID goodsID, double * pRest)
 {
 	int    ok = 1;
 	GoodsRestParam gp;
@@ -959,7 +959,7 @@ int SLAPI PPViewTrfrAnlz::CalcInRest(PPID goodsID, double * pRest)
 //
 //
 //
-int SLAPI PPViewTrfrAnlz::GetDlvrLocID(const BillTbl::Rec * pBillRec, PPID * pDlvrLocID)
+int PPViewTrfrAnlz::GetDlvrLocID(const BillTbl::Rec * pBillRec, PPID * pDlvrLocID)
 {
 	PPID   dlvr_loc_id = 0;
 	int    intr = IsIntrOp(pBillRec->OpID);
@@ -976,7 +976,7 @@ int SLAPI PPViewTrfrAnlz::GetDlvrLocID(const BillTbl::Rec * pBillRec, PPID * pDl
 	return dlvr_loc_id ? 1 : -1;
 }
 
-int SLAPI PPViewTrfrAnlz::InitDlvrLocID(const BillTbl::Rec * pBillRec, PPID * pDlvrLocID, TempTrfrGrpngTbl::Rec * pRec)
+int PPViewTrfrAnlz::InitDlvrLocID(const BillTbl::Rec * pBillRec, PPID * pDlvrLocID, TempTrfrGrpngTbl::Rec * pRec)
 {
 	if(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) {
 		if(*pDlvrLocID < 0)
@@ -986,12 +986,12 @@ int SLAPI PPViewTrfrAnlz::InitDlvrLocID(const BillTbl::Rec * pBillRec, PPID * pD
 	return (*pDlvrLocID > 0) ? 1 : -1;
 }
 
-int SLAPI PPViewTrfrAnlz::GetSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double * pSaldoQtty, double * pSaldoAmt)
+int PPViewTrfrAnlz::GetSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double * pSaldoQtty, double * pSaldoAmt)
 {
 	return P_BObj->GetGoodsSaldo(goodsID, arID, dlvrLocID, dt, 0, pSaldoQtty, pSaldoAmt);
 }
 
-int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
+int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)
 {
 	int    ok = 1;
 	double phuperu = 0.0;
@@ -1513,7 +1513,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::GetArticlesBySaldo(PPID gdsID, PPIDArray * pArtAry)
+int PPViewTrfrAnlz::GetArticlesBySaldo(PPID gdsID, PPIDArray * pArtAry)
 {
 	int    ok = 1;
 	GoodsDebtTbl  gdt;
@@ -1535,7 +1535,7 @@ int SLAPI PPViewTrfrAnlz::GetArticlesBySaldo(PPID gdsID, PPIDArray * pArtAry)
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::AddAbsentSaldo()
+int PPViewTrfrAnlz::AddAbsentSaldo()
 {
 	int    ok = -1;
 	PPID   goods_id, art_id;
@@ -1589,7 +1589,7 @@ int SLAPI PPViewTrfrAnlz::AddAbsentSaldo()
 	return ok;
 }
 
-void SLAPI PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
+void PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
 {
 	FormatSubstDate(Filt.Sgd, dt, rBuf, (P_TrGrpngTbl && Filt.CtKind == TrfrAnlzFilt::ctDate) ? DATF_YMD|DATF_CENTURY : 0);
 	if(billID && Filt.Grp != TrfrAnlzFilt::gDateCntragentAgentGoods) {
@@ -1599,7 +1599,7 @@ void SLAPI PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
 	}
 }
 
-int SLAPI PPViewTrfrAnlz::InitGrpngNames()
+int PPViewTrfrAnlz::InitGrpngNames()
 {
 	int    ok = 1;
 	TempTrfrGrpngTbl * p_tgt = P_TrGrpngTbl;
@@ -1631,7 +1631,7 @@ int SLAPI PPViewTrfrAnlz::InitGrpngNames()
 
 #pragma warn -stv
 
-int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
+int PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 {
 	int    ok = 1;
 	int    idx;
@@ -1732,7 +1732,7 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::InitIteration(IterOrder ord)
+int PPViewTrfrAnlz::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1783,7 +1783,7 @@ int SLAPI PPViewTrfrAnlz::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::NextOuterIteration()
+int PPViewTrfrAnlz::NextOuterIteration()
 {
 	if(P_IterOrderQuery && P_IterOrderQuery->nextIteration() > 0) {
 		CurOuterID = P_OrderTbl->data.ID;
@@ -1793,7 +1793,7 @@ int SLAPI PPViewTrfrAnlz::NextOuterIteration()
 		return -1;
 }
 
-int SLAPI PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
+int PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 {
 	int    r = -1;
 	if(P_TrAnlzTbl) {
@@ -1871,7 +1871,7 @@ int FASTCALL PPViewTrfrAnlz::NextIteration(TrfrAnlzViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewTrfrAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
+int PPViewTrfrAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 {
 	int    ok = 1;
 	memzero(pHdr, sizeof(*pHdr));
@@ -1986,7 +1986,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 	}
 }
 
-DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncGetRest,    BTS_REAL, dbqf_trfrnalz_getrest_iidp,       4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
 	DbqFuncTab::RegisterDyn(&DynFuncGetAvgRest, BTS_REAL, dbqf_trfrnalz_getavgrest_iidp,    4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
@@ -2277,7 +2277,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-int SLAPI PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -2431,7 +2431,7 @@ int SLAPI PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	return ok;
 }
 
-SString & SLAPI PPViewTrfrAnlz::GetCtColumnTitle(const int ct, SString & rBuf)
+SString & PPViewTrfrAnlz::GetCtColumnTitle(const int ct, SString & rBuf)
 {
 	rBuf.Z();
 	SString temp_buf;
@@ -2458,7 +2458,7 @@ SString & SLAPI PPViewTrfrAnlz::GetCtColumnTitle(const int ct, SString & rBuf)
 	return rBuf;
 }
 
-void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(!P_Ct) {
@@ -2589,7 +2589,7 @@ void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewTrfrAnlz::Print(const void *)
+int PPViewTrfrAnlz::Print(const void *)
 {
 	int    ok = 1/*, order = 0*/;
 	int    disable_grpng = 0;
@@ -2628,7 +2628,7 @@ int SLAPI PPViewTrfrAnlz::Print(const void *)
 	return PPAlddPrint(rpt_id, &pv, &env);
 }
 
-int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	BrwHdr hdr;
@@ -2788,7 +2788,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::ViewGraph()
+int PPViewTrfrAnlz::ViewGraph()
 {
 	int    ok = -1;
 #if 0 // {
@@ -3414,7 +3414,7 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPViewTrfrAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewTrfrAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(Filt.IsA(pBaseFilt)) {
 		DIALOG_PROC_BODY(TrfrAnlzFiltDialog, static_cast<TrfrAnlzFilt *>(pBaseFilt));
@@ -3423,7 +3423,7 @@ int SLAPI PPViewTrfrAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		return 0;
 }
 
-int SLAPI PPViewTrfrAnlz::Export()
+int PPViewTrfrAnlz::Export()
 {
 	int    ok = 1;
 	SString path;
@@ -3460,7 +3460,7 @@ int SLAPI PPViewTrfrAnlz::Export()
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
+int PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 {
 	if(pTotal) {
 		pTotal->destroy();
@@ -3495,7 +3495,7 @@ int SLAPI PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 		return -1;
 }
 
-int SLAPI PPViewTrfrAnlz::ViewTotal()
+int PPViewTrfrAnlz::ViewTotal()
 {
 	TDialog * dlg = 0;
 	if(Total.Count > 0 || CalcTotal(&Total) > 0) {
@@ -3517,13 +3517,13 @@ int SLAPI PPViewTrfrAnlz::ViewTotal()
 	return -1;
 }
 
-void SLAPI PPViewTrfrAnlz::SetAlcRepParam(const AlcReportParam * pParam)
+void PPViewTrfrAnlz::SetAlcRepParam(const AlcReportParam * pParam)
 {
 	if(!RVALUEPTR(AlcRepParam, pParam))
 		MEMSZERO(AlcRepParam);
 }
 
-int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
+int PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 {
 	int    ok = -1;
 	TrfrAnlzViewItem item;
@@ -3606,7 +3606,7 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 //
 //
 //
-int SLAPI ViewTrfrAnlz(const TrfrAnlzFilt * pFilt) { return PPView::Execute(PPVIEW_TRFRANLZ, pFilt, PPView::exefModeless, 0); }
+int ViewTrfrAnlz(const TrfrAnlzFilt * pFilt) { return PPView::Execute(PPVIEW_TRFRANLZ, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_TrfrAnlzBase
 //
@@ -3765,7 +3765,7 @@ PrcssrAlcReport::Config::Config() : P_CcFilt(0)
 	Z();
 }
 
-SLAPI PrcssrAlcReport::Config::Config(const Config & rS) : P_CcFilt(0)
+PrcssrAlcReport::Config::Config(const Config & rS) : P_CcFilt(0)
 {
 	Copy(rS);
 }
@@ -3798,7 +3798,7 @@ int FASTCALL PrcssrAlcReport::Config::Copy(const Config & rS)
 	return ok;
 }
 
-PrcssrAlcReport::Config & SLAPI PrcssrAlcReport::Config::Z()
+PrcssrAlcReport::Config & PrcssrAlcReport::Config::Z()
 {
 	memzero(this, offsetof(PrcssrAlcReport::Config, StorageLocList));
 	StorageLocList.clear();
@@ -3807,7 +3807,7 @@ PrcssrAlcReport::Config & SLAPI PrcssrAlcReport::Config::Z()
 	return *this;
 }
 
-int SLAPI PrcssrAlcReport::Config::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PrcssrAlcReport::Config::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -3852,7 +3852,7 @@ int SLAPI PrcssrAlcReport::Config::Serialize(int dir, SBuffer & rBuf, SSerialize
 	return ok;
 }
 
-SLAPI PrcssrAlcReport::EgaisMarkBlock::EgaisMarkBlock() : Ver(0)
+PrcssrAlcReport::EgaisMarkBlock::EgaisMarkBlock() : Ver(0)
 {
 }
 
@@ -3896,18 +3896,18 @@ PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Z()
 	return *this;
 }
 
-SLAPI PrcssrAlcReport::PrcssrAlcReport() : P_RefC(0), P_BObj(BillObj)
+PrcssrAlcReport::PrcssrAlcReport() : P_RefC(0), P_BObj(BillObj)
 {
 	DS.FetchAlbatrosConfig(&ACfg);
 }
 
-SLAPI PrcssrAlcReport::~PrcssrAlcReport()
+PrcssrAlcReport::~PrcssrAlcReport()
 {
 	P_BObj = 0;
 	ZDELETE(P_RefC);
 }
 
-int SLAPI PrcssrAlcReport::Init()
+int PrcssrAlcReport::Init()
 {
 	int    ok = 1;
 	AlcGoodsList.clear();
@@ -3945,7 +3945,7 @@ int SLAPI PrcssrAlcReport::Init()
 	return ok;
 }
 
-/*static*/int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
+/*static*/int PrcssrAlcReport::AutoConfigure(long flags)
 {
 	int    ok = -1;
 	SString name_buf;
@@ -4033,7 +4033,7 @@ int SLAPI PrcssrAlcReport::Init()
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::SetConfig(const PrcssrAlcReport::Config * pCfg)
+int PrcssrAlcReport::SetConfig(const PrcssrAlcReport::Config * pCfg)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(Cfg, pCfg)) {
@@ -4042,7 +4042,7 @@ int SLAPI PrcssrAlcReport::SetConfig(const PrcssrAlcReport::Config * pCfg)
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::ValidateConfig(const Config & rCfg, long flags)
+int PrcssrAlcReport::ValidateConfig(const Config & rCfg, long flags)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
@@ -4221,7 +4221,7 @@ public:
 	}
 };
 
-/*static*/int SLAPI PrcssrAlcReport::EditConfig()
+/*static*/int PrcssrAlcReport::EditConfig()
 {
 	int    ok = -1;
 	AlcReportConfigDialog * dlg = 0;
@@ -4243,9 +4243,9 @@ public:
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::UseOwnEgaisObjects() const { return BIN(ACfg.Hdr.Flags & ACfg.Hdr.fUseOwnEgaisObjects && P_RefC); }
+int PrcssrAlcReport::UseOwnEgaisObjects() const { return BIN(ACfg.Hdr.Flags & ACfg.Hdr.fUseOwnEgaisObjects && P_RefC); }
 
-int SLAPI PrcssrAlcReport::GetCategoryNameByCodePos(uint codePos, SString & rBuf)
+int PrcssrAlcReport::GetCategoryNameByCodePos(uint codePos, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -4257,7 +4257,7 @@ int SLAPI PrcssrAlcReport::GetCategoryNameByCodePos(uint codePos, SString & rBuf
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::GetCategoryNameByCode(const char * pCode, SString & rBuf)
+int PrcssrAlcReport::GetCategoryNameByCode(const char * pCode, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -4274,7 +4274,7 @@ int SLAPI PrcssrAlcReport::GetCategoryNameByCode(const char * pCode, SString & r
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsnID, PPID * pLocID)
+int PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsnID, PPID * pLocID)
 {
     int    ok = -1;
 	int    _loc_ok = -1;
@@ -4341,7 +4341,7 @@ int SLAPI PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsn
     return ok;
 }
 
-int SLAPI PrcssrAlcReport::SearchGoodsByRarCode(const char * pCode, PPID * pGoodsID)
+int PrcssrAlcReport::SearchGoodsByRarCode(const char * pCode, PPID * pGoodsID)
 {
 	ASSIGN_PTR(pGoodsID, 0);
 	int    ok = -1;
@@ -4356,7 +4356,7 @@ int SLAPI PrcssrAlcReport::SearchGoodsByRarCode(const char * pCode, PPID * pGood
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::GetEgaisCodeList(PPID goodsID, BarcodeArray & rList)
+int PrcssrAlcReport::GetEgaisCodeList(PPID goodsID, BarcodeArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -4439,7 +4439,7 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 	return yes;
 }
 
-/*static*/int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::EgaisMarkBlock & rMb)
+/*static*/int PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::EgaisMarkBlock & rMb)
 {
 	/*
 	Если СтрДлина(Значение) <> 68 Тогда
@@ -4510,7 +4510,7 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagList * pTags, long flags, PrcssrAlcReport::GoodsItem & rItem)
+int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagList * pTags, long flags, PrcssrAlcReport::GoodsItem & rItem)
 {
 	rItem.Z();
 
@@ -4791,7 +4791,7 @@ PPID FASTCALL PrcssrAlcReport::GetWkrRegisterTypeID(int wkr) const
 	return 0;
 }
 
-int SLAPI PrcssrAlcReport::GetWkrRegisterListByPeriod(int wkr, PPID psnID, PPID locID, const DateRange & rPeriod, RegisterArray * pList)
+int PrcssrAlcReport::GetWkrRegisterListByPeriod(int wkr, PPID psnID, PPID locID, const DateRange & rPeriod, RegisterArray * pList)
 {
 	int    ok = -1;
 	const  PPID reg_type_id = GetWkrRegisterTypeID(wkr);
@@ -4843,7 +4843,7 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterListByPeriod(int wkr, PPID psnID, PPID 
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::GetWkrRegisterList(int wkr, PPID psnID, PPID locID, LDATE dt, RegisterArray * pList)
+int PrcssrAlcReport::GetWkrRegisterList(int wkr, PPID psnID, PPID locID, LDATE dt, RegisterArray * pList)
 {
 	int    ok = -1;
 	const  PPID reg_type_id = GetWkrRegisterTypeID(wkr);
@@ -4895,7 +4895,7 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterList(int wkr, PPID psnID, PPID locID, L
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::GetWkrRegister(int wkr, PPID psnID, PPID locID, LDATE dt, RegisterTbl::Rec * pRec)
+int PrcssrAlcReport::GetWkrRegister(int wkr, PPID psnID, PPID locID, LDATE dt, RegisterTbl::Rec * pRec)
 {
 	int    ok = -1;
 	const  PPID reg_type_id = GetWkrRegisterTypeID(wkr);
@@ -4968,7 +4968,7 @@ int FASTCALL PrcssrAlcReport::GetManufPersonType(PPID personID)
 	return result;
 }
 
-int SLAPI PrcssrAlcReport::GetLotManufID(PPID lotID, PPID * pManufID, SString * pMsgBuf)
+int PrcssrAlcReport::GetLotManufID(PPID lotID, PPID * pManufID, SString * pMsgBuf)
 {
     int    ok = 0;
     PPID   manuf_id = 0;
@@ -5030,7 +5030,7 @@ int SLAPI PrcssrAlcReport::GetLotManufID(PPID lotID, PPID * pManufID, SString * 
     return ok;
 }
 
-int SLAPI PrcssrAlcReport::ProcessRegisterRec(RegisterTbl::Rec * pRegRec, PPID psnID, PPID locID)
+int PrcssrAlcReport::ProcessRegisterRec(RegisterTbl::Rec * pRegRec, PPID psnID, PPID locID)
 {
     struct SurRegIdBlock {
     	PPID RegID;
@@ -5058,7 +5058,7 @@ int SLAPI PrcssrAlcReport::ProcessRegisterRec(RegisterTbl::Rec * pRegRec, PPID p
     return ok;
 }
 
-int SLAPI PrcssrAlcReport::FetchRegister(PPID regID, PPID psnID, PPID locID, RegisterTbl::Rec * pRegRec)
+int PrcssrAlcReport::FetchRegister(PPID regID, PPID psnID, PPID locID, RegisterTbl::Rec * pRegRec)
 {
 	RegisterTbl::Rec rec;
     int    ok = PsnObj.RegObj.Fetch(regID, &rec);
@@ -5071,7 +5071,7 @@ int SLAPI PrcssrAlcReport::FetchRegister(PPID regID, PPID psnID, PPID locID, Reg
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::GetBillLic(PPID billID, PPID * pRegID, RegisterTbl::Rec * pRegRec)
+int PrcssrAlcReport::GetBillLic(PPID billID, PPID * pRegID, RegisterTbl::Rec * pRegRec)
 {
 	int    ret = 0;
 	PPID   lic_reg_id = 0;

@@ -1157,11 +1157,11 @@ int SmartListBox::search(const void * pPattern, CompFunc fcmp, int srchMode)
 //
 //
 //
-SLAPI Helper_WordSelector::Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId) : P_WordSel(0), P_OuterWordSelBlk(pBlk), InputCtlId(inputCtlId)
+Helper_WordSelector::Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId) : P_WordSel(0), P_OuterWordSelBlk(pBlk), InputCtlId(inputCtlId)
 {
 }
 
-SLAPI Helper_WordSelector::~Helper_WordSelector()
+Helper_WordSelector::~Helper_WordSelector()
 {
 	HWND hw = P_WordSel ? P_WordSel->H() : 0;
 	if(hw)
@@ -1169,7 +1169,7 @@ SLAPI Helper_WordSelector::~Helper_WordSelector()
 	ZDELETE(P_WordSel);
 }
 
-int SLAPI Helper_WordSelector::IsWsVisible() const
+int Helper_WordSelector::IsWsVisible() const
 {
 	return P_WordSel ? P_WordSel->CheckVisible() : 0;
 }

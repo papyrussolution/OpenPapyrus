@@ -8,16 +8,16 @@
 
 class ACS_DREAMKAS : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_DREAMKAS(PPID id) : PPAsyncCashSession(id)
+	ACS_DREAMKAS(PPID id) : PPAsyncCashSession(id)
 	{
 		GetNodeData(&Acn);
 	}
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
-	virtual int SLAPI FinishImportSession(PPIDArray *);
-	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly);
-	virtual int SLAPI InteractiveQuery();
+	virtual int ExportData(int updOnly);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
+	virtual int FinishImportSession(PPIDArray *);
+	virtual int SetGoodsRestLoadFlag(int updOnly);
+	virtual int InteractiveQuery();
 protected:
 	PPID   StatID;
 private:
@@ -49,13 +49,13 @@ private:
 		long   Flags;
 		CashierEntry Cashier;
 	};
-	int    SLAPI ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName);
-	int    SLAPI ParseSess(const json_t * pJsonObj, SessEntry & rEntry);
-	int    SLAPI AcceptCheck(const json_t * pJsonObj);
-	int    SLAPI ImportGoodsList(UUIDAssocArray & rList);
-	int    SLAPI SendGoods(json_t ** ppJson, uint & rCount, int update, int force);
-	int    SLAPI ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID);
-	int    SLAPI PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
+	int    ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName);
+	int    ParseSess(const json_t * pJsonObj, SessEntry & rEntry);
+	int    AcceptCheck(const json_t * pJsonObj);
+	int    ImportGoodsList(UUIDAssocArray & rList);
+	int    SendGoods(json_t ** ppJson, uint & rCount, int update, int force);
+	int    ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID);
+	int    PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
 
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
@@ -89,15 +89,15 @@ private:
 
 class CM_DREAMKAS : public PPCashMachine {
 public:
-	SLAPI CM_DREAMKAS(PPID cashID) : PPCashMachine(cashID)
+	CM_DREAMKAS(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_DREAMKAS(NodeID); }
+	PPAsyncCashSession * AsyncInterface() { return new ACS_DREAMKAS(NodeID); }
 };
 
 REGISTER_CMT(DREAMKAS, 0, 1);
 
-int SLAPI ACS_DREAMKAS::ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName)
+int ACS_DREAMKAS::ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SString & rName)
 {
 	rUuid.Z();
 	rName.Z();
@@ -120,7 +120,7 @@ int SLAPI ACS_DREAMKAS::ParseGoods(const json_t * pJsonObj, S_GUID & rUuid, SStr
 	return ok;
 }
 
-int SLAPI ACS_DREAMKAS::ParseSess(const json_t * pJsonObj, SessEntry & rEntry)
+int ACS_DREAMKAS::ParseSess(const json_t * pJsonObj, SessEntry & rEntry)
 {
 	int    ok = 1;
 	for(const json_t * p_cur = pJsonObj; p_cur; p_cur = p_cur->P_Next) {
@@ -149,7 +149,7 @@ int SLAPI ACS_DREAMKAS::ParseSess(const json_t * pJsonObj, SessEntry & rEntry)
 static const char * P_DreamKasUrlBase = "https://kabinet.dreamkas.ru/api";
 static const char * P_Dk_DebugFileName = "dreamkas-debug.log";
 
-int SLAPI ACS_DREAMKAS::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
+int ACS_DREAMKAS::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -190,7 +190,7 @@ int SLAPI ACS_DREAMKAS::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 	return ok;
 }
 
-int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
+int ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -253,7 +253,7 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 	return ok;
 }
 
-int SLAPI ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, int force)
+int ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, int force)
 {
 	int    ok = -1;
 	if(rCount && (force || rCount >= 100)) {
@@ -297,7 +297,7 @@ int SLAPI ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, i
 	return ok;
 }
 
-int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
+int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -425,7 +425,7 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 	return ok;
 }
 
-/*virtual*/int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
+/*virtual*/int ACS_DREAMKAS::ExportData(int updOnly)
 {
 	int    ok = 1;
 	//
@@ -544,7 +544,7 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 	return ok;
 }
 
-/*virtual*/int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd)
+/*virtual*/int ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd)
 { 
 	Scb.Reset();
 	int    ok = -1;
@@ -649,7 +649,7 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 	return ok;
 }
 
-int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
+int ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -842,7 +842,7 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 	return ok;
 }
 
-/*virtual*/int SLAPI ACS_DREAMKAS::InteractiveQuery()
+/*virtual*/int ACS_DREAMKAS::InteractiveQuery()
 {
 	int    ok = -1;
 	/*
@@ -857,7 +857,7 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 	return ok;
 }
 
-/*virtual*/int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
+/*virtual*/int ACS_DREAMKAS::ImportSession(int sessIdx)
 { 
 	int    ok = -1;
 	json_t * p_json_doc = 0;
@@ -944,5 +944,5 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 	return ok;
 }
 
-/*virtual*/int SLAPI ACS_DREAMKAS::FinishImportSession(PPIDArray *) { return -1; }
-/*virtual*/int SLAPI ACS_DREAMKAS::SetGoodsRestLoadFlag(int updOnly) { return -1; }
+/*virtual*/int ACS_DREAMKAS::FinishImportSession(PPIDArray *) { return -1; }
+/*virtual*/int ACS_DREAMKAS::SetGoodsRestLoadFlag(int updOnly) { return -1; }

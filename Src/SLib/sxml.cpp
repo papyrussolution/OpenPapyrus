@@ -68,7 +68,7 @@ void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 	rBuf = temp_buf;
 }
 
-int SLAPI XMLWriteSpecSymbEntities(FILE * pStream)
+int XMLWriteSpecSymbEntities(FILE * pStream)
 {
 	int    ok = 1;
 	if(pStream) {
@@ -86,7 +86,7 @@ int SLAPI XMLWriteSpecSymbEntities(FILE * pStream)
 	return ok;
 }
 
-int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
+int XMLWriteSpecSymbEntities(void * pWriter)
 {
 	int    ok = 1;
 	SString subst;
@@ -277,7 +277,7 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 	return ok;
 }
 
-/*static*/int SLAPI SXml::GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult)
+/*static*/int SXml::GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult)
 {
 	int    ok = 0;
 	if(IsName(pNode, pName)) {
@@ -287,7 +287,7 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 	return ok;
 }
 
-/*static*/int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
+/*static*/int SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
 {
 	int    ok = 0;
 	rResult.Z();
@@ -304,14 +304,14 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
     return ok;
 }
 
-SLAPI SXmlWriter::SXmlWriter()
+SXmlWriter::SXmlWriter()
 {
 	P_XmlBuf = xmlBufferCreate();
 	P_Writer = xmlNewTextWriterMemory(P_XmlBuf, 0);
 	xmlTextWriterSetIndent(P_Writer, 1);
 }
 
-SLAPI SXmlWriter::~SXmlWriter()
+SXmlWriter::~SXmlWriter()
 {
 	xmlFreeTextWriter(P_Writer);
 	xmlBufferFree(P_XmlBuf);
@@ -341,11 +341,11 @@ SLAPI SXmlWriter::~SXmlWriter()
 	}
 }
 
-SLAPI SXmlValidationMessageList::SXmlValidationMessageList()
+SXmlValidationMessageList::SXmlValidationMessageList()
 {
 }
 
-int SLAPI SXmlValidationMessageList::AddMessage(int type, const char * pMsg)
+int SXmlValidationMessageList::AddMessage(int type, const char * pMsg)
 {
 	int    ok = 1;
 	if(pMsg) {
@@ -357,12 +357,12 @@ int SLAPI SXmlValidationMessageList::AddMessage(int type, const char * pMsg)
 	return ok;
 }
 
-uint SLAPI SXmlValidationMessageList::GetMessageCount() const
+uint SXmlValidationMessageList::GetMessageCount() const
 {
 	return L.getCount();
 }
 
-int SLAPI SXmlValidationMessageList::GetMessageByIdx(uint idx, int * pType, SString & rMsg) const
+int SXmlValidationMessageList::GetMessageByIdx(uint idx, int * pType, SString & rMsg) const
 {
 	rMsg.Z();
 	int    ok = 1;
@@ -376,7 +376,7 @@ int SLAPI SXmlValidationMessageList::GetMessageByIdx(uint idx, int * pType, SStr
 	return ok;
 }
 
-/*static*/int SLAPI SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList)
+/*static*/int SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList)
 {
 	int    ok = 1;
 	xmlDoc * doc = 0;

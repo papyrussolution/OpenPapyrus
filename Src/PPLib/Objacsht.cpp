@@ -7,12 +7,12 @@
 //
 // @ModuleDef(PPObjAccSheet)
 //
-SLAPI PPAccSheet2::PPAccSheet2()
+PPAccSheet2::PPAccSheet2()
 {
 	Init();
 }
 
-void SLAPI PPAccSheet2::Init()
+void PPAccSheet2::Init()
 {
 	THISZERO();
 	Tag = PPOBJ_ACCSHEET;
@@ -134,12 +134,12 @@ int AccSheetDialog::setupAssoc()
 //
 //
 //
-SLAPI PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, extraPtr)
+PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, extraPtr)
 {
 	// @v10.4.10 (ответственность ctr PPObjReference) FiltProc = 0;
 }
 
-/*virtual*/int SLAPI PPObjAccSheet::MakeReserved(long flags)
+/*virtual*/int PPObjAccSheet::MakeReserved(long flags)
 {
 	int    ok = -1;
     if(flags & mrfInitializeDb) {
@@ -192,7 +192,7 @@ SLAPI PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSH
     return ok;
 }
 
-int SLAPI PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet * pRec)
+int PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet * pRec)
 {
 	int    ok = -1;
 	PPAccSheet acs_rec;
@@ -204,13 +204,13 @@ int SLAPI PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet * pRec)
 	return ok;
 }
 
-int SLAPI PPObjAccSheet::IsLinkedToMainOrg(PPID acsID)
+int PPObjAccSheet::IsLinkedToMainOrg(PPID acsID)
 {
 	PPAccSheet acs_rec;
 	return BIN(acsID && Fetch(acsID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN);
 }
 
-int SLAPI PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
+int PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel, valid_data = 0;
@@ -241,7 +241,7 @@ int SLAPI PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-/*virtual*/void * SLAPI PPObjAccSheet::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjAccSheet::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjAccSheetListWindow : public PPObjListWindow {
 	public:
@@ -306,7 +306,7 @@ int SLAPI PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 	return /*0; */ new PPObjAccSheetListWindow(this, flags, extraPtr);
 }
 
-int SLAPI PPObjAccSheet::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjAccSheet::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PRSNKIND) {
@@ -322,7 +322,7 @@ int SLAPI PPObjAccSheet::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	return ok;
 }
 
-int SLAPI PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data)
@@ -368,7 +368,7 @@ int SLAPI PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 	return ok;
 }
 
-int SLAPI PPObjAccSheet::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjAccSheet::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -395,15 +395,15 @@ public:
 		long   Assoc;         // @#{0L, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT} Ассоциированный объект
 		long   ObjGroup;      // Подгруппа ассоциированных объектов
 	};
-	SLAPI AccSheetCache() : ObjCache(PPOBJ_ACCSHEET, sizeof(AccSheetData))
+	AccSheetCache() : ObjCache(PPOBJ_ACCSHEET, sizeof(AccSheetData))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int SLAPI AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	AccSheetData * p_cache_rec = static_cast<AccSheetData *>(pEntry);
@@ -422,7 +422,7 @@ int SLAPI AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPAccSheet * p_data_rec = static_cast<PPAccSheet *>(pDataRec);
 	const AccSheetData * p_cache_rec = static_cast<const AccSheetData *>(pEntry);

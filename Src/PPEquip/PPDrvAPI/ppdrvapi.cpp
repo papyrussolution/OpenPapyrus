@@ -66,7 +66,7 @@ int PPDrvSession::ImplementDllMain(HANDLE hModule, DWORD dwReason)
 	return TRUE;
 }
 
-SLAPI PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc,
+PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc,
 	uint verMajor, uint verMinor, uint errMsgCount, const SIntToSymbTabEntry * pErrMsgTab) :
 	Name(pName), Proc(proc), VerMajor(verMajor), VerMinor(verMinor)
 {
@@ -88,11 +88,11 @@ SLAPI PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc pr
 
 #define SIGN_PPDRVTLA 0x7D08E312L
 
-SLAPI PPDrvThreadLocalArea::PPDrvThreadLocalArea() : Sign(SIGN_PPDRVTLA), Id(0), TId(0), LastErr(0), State(0), I(0), P_FinishEvnt(0)
+PPDrvThreadLocalArea::PPDrvThreadLocalArea() : Sign(SIGN_PPDRVTLA), Id(0), TId(0), LastErr(0), State(0), I(0), P_FinishEvnt(0)
 {
 }
 
-SLAPI PPDrvThreadLocalArea::~PPDrvThreadLocalArea()
+PPDrvThreadLocalArea::~PPDrvThreadLocalArea()
 {
 	Sign = 0;
 	ZDELETE(I);
@@ -119,11 +119,11 @@ int PPDrvThreadLocalArea::SignalFinishEvent()
 		return 0;
 }
 
-long SLAPI PPDrvThreadLocalArea::GetId() const { return Id; }
-ThreadID SLAPI PPDrvThreadLocalArea::GetThreadID() const { return TId; }
-int SLAPI PPDrvThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPDRVTLA); }
+long PPDrvThreadLocalArea::GetId() const { return Id; }
+ThreadID PPDrvThreadLocalArea::GetThreadID() const { return TId; }
+int PPDrvThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPDRVTLA); }
 
-SLAPI PPDrvSession::~PPDrvSession()
+PPDrvSession::~PPDrvSession()
 {
 #ifdef _MT
 	ReleaseThread();
@@ -131,7 +131,7 @@ SLAPI PPDrvSession::~PPDrvSession()
 #endif
 }
 
-int SLAPI PPDrvSession::Init(HINSTANCE hInst)
+int PPDrvSession::Init(HINSTANCE hInst)
 {
 	int    ok = 1;
 	SString product_name;
@@ -140,7 +140,7 @@ int SLAPI PPDrvSession::Init(HINSTANCE hInst)
 	return ok;
 }
 
-int SLAPI PPDrvSession::InitThread()
+int PPDrvSession::InitThread()
 {
 	PPDrvThreadLocalArea * p_tla = 0;
 #ifdef _MT
@@ -156,7 +156,7 @@ int SLAPI PPDrvSession::InitThread()
 	return 1;
 }
 
-int SLAPI PPDrvSession::ReleaseThread()
+int PPDrvSession::ReleaseThread()
 {
 #ifdef _MT
 	PPDrvThreadLocalArea * p_tla = static_cast<PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx));
@@ -169,8 +169,8 @@ int SLAPI PPDrvSession::ReleaseThread()
 	return 1;
 }
 
-PPDrvThreadLocalArea & SLAPI PPDrvSession::GetTLA() { return *static_cast<PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx)); }
-const PPDrvThreadLocalArea & SLAPI PPDrvSession::GetConstTLA() const { return *static_cast<const PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx)); }
+PPDrvThreadLocalArea & PPDrvSession::GetTLA() { return *static_cast<PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx)); }
+const PPDrvThreadLocalArea & PPDrvSession::GetConstTLA() const { return *static_cast<const PPDrvThreadLocalArea *>(TlsGetValue(TlsIdx)); }
 PPBaseDriver * PPDrvSession::GetI() { return GetTLA().I; }
 void PPDrvSession::SetErrCode(int errCode) { GetTLA().LastErr = errCode; }
 int PPDrvSession::GetLastErr() { return GetConstTLA().LastErr; }

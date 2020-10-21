@@ -8,7 +8,7 @@
 
 static StringStore2 * _PPStrStore = 0; // @global @threadsafe
 
-int SLAPI PPInitStrings(const char * pFileName)
+int PPInitStrings(const char * pFileName)
 {
 	ENTER_CRITICAL_SECTION
 	if(_PPStrStore == 0) {
@@ -89,7 +89,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 	LEAVE_CRITICAL_SECTION
 }
 
-void SLAPI PPReleaseStrings()
+void PPReleaseStrings()
 {
 	if(_PPStrStore)
 		DO_CRITICAL(ZDELETE(_PPStrStore));
@@ -224,10 +224,10 @@ int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 	return 0;
 }
 
-int SLAPI PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
-int SLAPI PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); } // @v9.6.3
-int SLAPI PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
-int SLAPI PPSetErrorDB() { return PPSetError(PPERR_DBENGINE); }
+int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
+int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); } // @v9.6.3
+int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int PPSetErrorDB() { return PPSetError(PPERR_DBENGINE); }
 
 int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 {
@@ -488,7 +488,7 @@ int FASTCALL PPError(int errcode)
 	{ return Helper_PPError(errcode, 0, 0); }
 int FASTCALL PPError(int errcode, const char * pAddInfo, uint extraMfOptions)
 	{ return Helper_PPError(errcode, pAddInfo, extraMfOptions); }
-int SLAPI PPError()
+int PPError()
 	{ return Helper_PPError(-1, 0, 0); }
 
 int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
@@ -512,17 +512,17 @@ int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 	return ok;
 }
 
-int SLAPI PPErrorZ()
+int PPErrorZ()
 {
 	return (PPError(-1, 0), 0);
 }
 
-int SLAPI PPDbSearchError()
+int PPDbSearchError()
 {
 	return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB();
 }
 
-static int SLAPI PPCriticalWarning(SString & rMsg, uint /*options*/)
+static int PPCriticalWarning(SString & rMsg, uint /*options*/)
 {
 	if(!CS_SERVER) {
 		int    yes = cmCancel;
@@ -569,7 +569,7 @@ int FASTCALL PPMessage(uint options, int msgcode)
 	return ok;
 }
 
-int SLAPI PPOutputMessage(const char * pMsg, uint options)
+int PPOutputMessage(const char * pMsg, uint options)
 {
 	if(!CS_SERVER) {
 		if(SLS.CheckUiFlag(sluifUseLargeDialogs))
@@ -583,7 +583,7 @@ int SLAPI PPOutputMessage(const char * pMsg, uint options)
 	}
 }
 
-int SLAPI PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags)
+int PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags)
 {
 	int    ok = 0;
 	if(!CS_SERVER) {
@@ -599,7 +599,7 @@ int SLAPI PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent
 	return ok;
 }
 
-int SLAPI PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
+int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 {
 	int    ok = 0;
 	if(!CS_SERVER) {
@@ -623,14 +623,14 @@ int SLAPI PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 //
 //
 // Prototype
-void SLAPI AlignWaitDlg(HWND hw = 0);
+void AlignWaitDlg(HWND hw = 0);
 
-SLAPI PPThreadLocalArea::WaitBlock::WaitBlock() : State(stValid), PrevView(0), WaitDlg(0), OrgCur(0), hwndPB(0), hwndST(0), PrevPercent(-1),
+PPThreadLocalArea::WaitBlock::WaitBlock() : State(stValid), PrevView(0), WaitDlg(0), OrgCur(0), hwndPB(0), hwndST(0), PrevPercent(-1),
 	WaitCur(::LoadCursor(TProgram::GetInst(), MAKEINTRESOURCE(IDC_PPYWAIT))), IdleTimer(500)
 {
 }
 
-SLAPI PPThreadLocalArea::WaitBlock::~WaitBlock()
+PPThreadLocalArea::WaitBlock::~WaitBlock()
 {
 	Stop();
 	DestroyCursor(WaitCur);
@@ -662,7 +662,7 @@ static INT_PTR CALLBACK WaitDialogWndProc(HWND hWnd, UINT message, WPARAM wParam
 	return 1;
 }
 
-int SLAPI PPThreadLocalArea::WaitBlock::Start()
+int PPThreadLocalArea::WaitBlock::Start()
 {
 	int    ok = 1;
 	State |= stValid;
@@ -692,7 +692,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Start()
 	return ok;
 }
 
-int SLAPI PPThreadLocalArea::WaitBlock::Stop()
+int PPThreadLocalArea::WaitBlock::Stop()
 {
 	int    ok = 1;
 	if(WaitDlg) {
@@ -714,7 +714,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Stop()
 	return ok;
 }
 
-int SLAPI PPThreadLocalArea::WaitBlock::Hide()
+int PPThreadLocalArea::WaitBlock::Hide()
 {
 	int    ok = 0;
 	if(WaitDlg) {
@@ -729,7 +729,7 @@ int SLAPI PPThreadLocalArea::WaitBlock::Hide()
 	return ok;
 }
 
-int SLAPI PPThreadLocalArea::WaitBlock::Show()
+int PPThreadLocalArea::WaitBlock::Show()
 {
 	int    ok = 0;
 	if(WaitDlg) {
@@ -810,7 +810,7 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const ch
 
 #define __WD DS.GetTLA().WD
 
-void SLAPI AlignWaitDlg(HWND hw)
+void AlignWaitDlg(HWND hw)
 {
 	SETIFZ(hw, __WD.GetWindowHandle());
 	if(hw) {
@@ -883,7 +883,7 @@ static int FASTCALL CheckEscKey(int cmd)
 	return PeekMessage(&msg, 0, WM_KEYDOWN, WM_KEYDOWN, cmd ? PM_NOREMOVE : PM_REMOVE) ? ((msg.wParam == VK_ESCAPE) ? 1 : 0) : 0;
 }
 
-int SLAPI PPCheckUserBreak()
+int PPCheckUserBreak()
 {
 	int    ok = 1;
 	PROFILE_START

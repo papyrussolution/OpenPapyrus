@@ -14,11 +14,11 @@ static int FASTCALL Impl_IsUnlimWoLot(long flags)
 		return BIN(flags & (PPTFR_UNLIM|PPTFR_ACK));
 }
 
-SLAPI PPTransferItem::FreightPackage::FreightPackage() : Ver(0), FreightPackageTypeID(0), Qtty(0.0)
+PPTransferItem::FreightPackage::FreightPackage() : Ver(0), FreightPackageTypeID(0), Qtty(0.0)
 {
 }
 
-int SLAPI PPTransferItem::FreightPackage::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPTransferItem::FreightPackage::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, Ver, rBuf));
@@ -28,7 +28,7 @@ int SLAPI PPTransferItem::FreightPackage::Serialize(int dir, SBuffer & rBuf, SSe
 	return ok;
 }
 
-int SLAPI PPTransferItem::FreightPackage::ToStr(SString & rBuf)
+int PPTransferItem::FreightPackage::ToStr(SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -40,7 +40,7 @@ int SLAPI PPTransferItem::FreightPackage::ToStr(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPTransferItem::FreightPackage::FromStr(const SString & rBuf)
+int PPTransferItem::FreightPackage::FromStr(const SString & rBuf)
 {
 	int    ok = 1;
 	uint8  mime_buf[512];
@@ -54,29 +54,29 @@ int SLAPI PPTransferItem::FreightPackage::FromStr(const SString & rBuf)
 	return ok;
 }
 
-SLAPI PPTransferItem::PPTransferItem()
+PPTransferItem::PPTransferItem()
 {
 	THISZERO();
 	Init(0, 1, TISIGN_UNDEF);
 }
 
-SLAPI PPTransferItem::PPTransferItem(const BillTbl::Rec * pBillRec, int forceSign)
+PPTransferItem::PPTransferItem(const BillTbl::Rec * pBillRec, int forceSign)
 {
 	THISZERO();
 	Init(pBillRec, 1, forceSign);
 }
 
-int SLAPI PPTransferItem::IsUnlimWoLot() const { return Impl_IsUnlimWoLot(Flags); }
+int PPTransferItem::IsUnlimWoLot() const { return Impl_IsUnlimWoLot(Flags); }
 int FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec) { return Impl_IsUnlimWoLot(rRec.Flags); }
-int SLAPI PPTransferItem::IsLotRet() const { return (!(Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_REVAL|PPTFR_RECEIPT|PPTFR_DRAFT)) && (Flags & PPTFR_PLUS)); }
+int PPTransferItem::IsLotRet() const { return (!(Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_REVAL|PPTFR_RECEIPT|PPTFR_DRAFT)) && (Flags & PPTFR_PLUS)); }
 
 /*static*/int FASTCALL PPTransferItem::IsRecomplete(long flags) { return BIN((flags & (PPTFR_MODIF|PPTFR_REVAL)) == (PPTFR_MODIF|PPTFR_REVAL)); }
-int SLAPI PPTransferItem::IsRecomplete() const { return PPTransferItem::IsRecomplete(Flags); }
-int SLAPI PPTransferItem::IsCorrectionRcpt() const { return BIN(Flags & PPTFR_CORRECTION && Flags & PPTFR_REVAL); }
-int SLAPI PPTransferItem::IsCorrectionExp() const { return BIN(Flags & PPTFR_CORRECTION && !(Flags & PPTFR_REVAL)); }
+int PPTransferItem::IsRecomplete() const { return PPTransferItem::IsRecomplete(Flags); }
+int PPTransferItem::IsCorrectionRcpt() const { return BIN(Flags & PPTFR_CORRECTION && Flags & PPTFR_REVAL); }
+int PPTransferItem::IsCorrectionExp() const { return BIN(Flags & PPTFR_CORRECTION && !(Flags & PPTFR_REVAL)); }
 int FASTCALL PPTransferItem::GetSign(PPID op) const { return PPTransferItem::GetSign(op, Flags); }
 
-void SLAPI PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTransferItem * pOrder)
+void PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTransferItem * pOrder)
 {
 	THISZERO();
 	if(pBillRec) {
@@ -93,7 +93,7 @@ void SLAPI PPTransferItem::InitShadow(const BillTbl::Rec * pBillRec, const PPTra
 	}
 }
 
-double SLAPI PPTransferItem::GetEffCorrectionExpQtty() const
+double PPTransferItem::GetEffCorrectionExpQtty() const
 {
 	double eff_qtty = 0.0;
 	if(IsCorrectionExp())
@@ -103,7 +103,7 @@ double SLAPI PPTransferItem::GetEffCorrectionExpQtty() const
 	return eff_qtty;
 }
 
-int SLAPI PPTransferItem::PreprocessCorrectionExp()
+int PPTransferItem::PreprocessCorrectionExp()
 {
 	int   ok = 1;
 	if(IsCorrectionExp()) {
@@ -120,7 +120,7 @@ int SLAPI PPTransferItem::PreprocessCorrectionExp()
 	return ok;
 }
 
-int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int forceSign)
+int PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int forceSign)
 {
 	int    ok = 1;
 	int    intr = 0;
@@ -197,7 +197,7 @@ int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, i
 	return ok;
 }
 
-int SLAPI PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
+int PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 {
 	int    ok = -1;
 	if(oneof2(pPack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT) ||
@@ -223,7 +223,7 @@ int SLAPI PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPTransferItem::SetSignFlags(PPID op, int forceSign)
+int PPTransferItem::SetSignFlags(PPID op, int forceSign)
 {
 	int    ok = 1;
 	const  long   f = (Flags & (PPTFR_PLUS | PPTFR_MINUS));
@@ -337,7 +337,7 @@ void FASTCALL PPTransferItem::SetupSign(PPID op)
 	}
 }
 
-int SLAPI PPTransferItem::SetupGoods(PPID goodsID, uint flags)
+int PPTransferItem::SetupGoods(PPID goodsID, uint flags)
 {
 	int    ok = 1, ac = 0;
 	GoodsID = goodsID;
@@ -373,7 +373,7 @@ int SLAPI PPTransferItem::SetupGoods(PPID goodsID, uint flags)
 	return ok;
 }
 
-int SLAPI PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint fl)
+int PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint fl)
 {
 	int    ok = 1;
 	ReceiptTbl::Rec lot_rec;
@@ -518,7 +518,7 @@ double FASTCALL PPTransferItem::CalcAmount(int zeroCost) const
 	return R2(v);
 }
 
-int SLAPI PPTransferItem::SetupQuot(double quot, int set)
+int PPTransferItem::SetupQuot(double quot, int set)
 {
 	int    ok = 1;
 	if(Flags & PPTFR_CORRECTION) {
@@ -535,7 +535,7 @@ int SLAPI PPTransferItem::SetupQuot(double quot, int set)
 	return ok;
 }
 
-double SLAPI PPTransferItem::RoundPrice(double price, double roundPrec, int roundDir, long flags) const
+double PPTransferItem::RoundPrice(double price, double roundPrec, int roundDir, long flags) const
 {
 	if(price > 0.0) {
 		CalcPriceParam param;
@@ -553,7 +553,7 @@ double SLAPI PPTransferItem::RoundPrice(double price, double roundPrec, int roun
 	return price;
 }
 
-int SLAPI PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, double * pResult)
+int PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, double * pResult)
 {
 	int    ok = -1;
 	double new_price = 0.0;
@@ -589,13 +589,13 @@ int SLAPI PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, dou
 	return ok;
 }
 
-double SLAPI PPTransferItem::NetPrice() const { return (Price - Discount); }
-double SLAPI PPTransferItem::Qtty() const { return (Flags & PPTFR_REVAL && !(Flags & PPTFR_CORRECTION)) ? Rest_ : Quantity_; }
-double SLAPI PPTransferItem::GetOrgCost() const { return (Cost - ExtCost); }
-void   SLAPI PPTransferItem::SetOrgCost(double c) { Cost = TR5(c + ExtCost); }
-void   SLAPI PPTransferItem::SetZeroCost() { Cost = ExtCost = 0.0; }
+double PPTransferItem::NetPrice() const { return (Price - Discount); }
+double PPTransferItem::Qtty() const { return (Flags & PPTFR_REVAL && !(Flags & PPTFR_CORRECTION)) ? Rest_ : Quantity_; }
+double PPTransferItem::GetOrgCost() const { return (Cost - ExtCost); }
+void   PPTransferItem::SetOrgCost(double c) { Cost = TR5(c + ExtCost); }
+void   PPTransferItem::SetZeroCost() { Cost = ExtCost = 0.0; }
 
-double SLAPI PPTransferItem::CalcCurAmount() const
+double PPTransferItem::CalcCurAmount() const
 {
 	double v;
 	if(Flags & PPTFR_REVAL && !(Flags & PPTFR_CORRECTION))
@@ -622,7 +622,7 @@ void FASTCALL PPTransferItem::ConvertMoney(TransferTbl::Rec * pRec) const
 }
 
 #if 0 // {
-int SLAPI PPTransferItem::Valuation(PPID quotKindID, double roundPrec, int roundDir, long flags, double * pResult)
+int PPTransferItem::Valuation(PPID quotKindID, double roundPrec, int roundDir, long flags, double * pResult)
 {
 	int    ok = -1;
 	QuotIdent qi(LocID, quotKindID, 0, Suppl);

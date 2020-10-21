@@ -5,12 +5,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI SlipLineParam::SlipLineParam()
+SlipLineParam::SlipLineParam()
 {
 	Z();
 }
 
-SlipLineParam & SLAPI SlipLineParam::Z()
+SlipLineParam & SlipLineParam::Z()
 {
 	Font = 0;
 	Kind = 0;
@@ -1415,7 +1415,7 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 	return c;
 }
 
-int SLAPI PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail, int * pWrapPos)
+int PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail, int * pWrapPos)
 {
 	int    ok = 1;
 	rHead.Z();

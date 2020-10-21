@@ -65,7 +65,7 @@
 	#include <os2.h>
 #endif
 #if ENABLE_RELOCATABLE
-	#include "relocatable.h"
+	//#include "relocatable.h"
 #else
 	#define relocate(pathname) (pathname)
 #endif

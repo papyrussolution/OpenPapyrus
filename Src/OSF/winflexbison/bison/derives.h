@@ -22,6 +22,6 @@
 	/* DERIVES[SYMBOL - NTOKENS] points to a vector of the rules that SYMBOL derives, terminated with NULL.  */
 	extern rule *** derives;
 	/* Compute DERIVES.  */
-	void derives_compute(void);
-	void derives_free(void);
+	void derives_compute();
+	void derives_free();
 #endif /* !DERIVES_H_ */

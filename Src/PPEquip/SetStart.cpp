@@ -19,20 +19,20 @@ static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter 
 
 class ACS_SETSTART : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_SETSTART(PPID id);
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
-	virtual int SLAPI FinishImportSession(PPIDArray *);
-	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly);
+	ACS_SETSTART(PPID id);
+	virtual int ExportData(int updOnly);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
+	virtual int FinishImportSession(PPIDArray *);
+	virtual int SetGoodsRestLoadFlag(int updOnly);
 protected:
 	PPID   StatID;
 private:
-	int    SLAPI ConvertWareList(const char * pImpPath);
-	long   SLAPI ModifDup(long cashNo, long chkNo);
-	int    SLAPI ImportFiles();
-	int    SLAPI GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList);
-	int    SLAPI QueryFile(uint setNo, const char * pImpPath);
+	int    ConvertWareList(const char * pImpPath);
+	long   ModifDup(long cashNo, long chkNo);
+	int    ImportFiles();
+	int    GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList);
+	int    QueryFile(uint setNo, const char * pImpPath);
 
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
@@ -55,10 +55,10 @@ private:
 
 class CM_SETSTART : public PPCashMachine {
 public:
-	SLAPI CM_SETSTART(PPID cashID) : PPCashMachine(cashID)
+	CM_SETSTART(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_SETSTART(NodeID); }
+	PPAsyncCashSession * AsyncInterface() { return new ACS_SETSTART(NodeID); }
 };
 
 #define CM_ATOLWOATOLCARD  CM_ATOL
@@ -66,7 +66,7 @@ public:
 
 REGISTER_CMT(SETSTART, 0, 1);
 
-SLAPI ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0)
+ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0)
 {
 	SkipExportingDiscountSchemes = 0;
 	int    v = 0;
@@ -82,7 +82,7 @@ SLAPI ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id), ImpExpTimeou
 	ChkRepPeriod.Z();
 }
 
-int SLAPI ACS_SETSTART::SetGoodsRestLoadFlag(int updOnly)
+int ACS_SETSTART::SetGoodsRestLoadFlag(int updOnly)
 {
 	int    ok = -1, use_replace_qtty_wosale = 0;
 	PPIniFile  ini_file;
@@ -96,7 +96,7 @@ int SLAPI ACS_SETSTART::SetGoodsRestLoadFlag(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_SETSTART::ExportData(int updOnly)
+int ACS_SETSTART::ExportData(int updOnly)
 {
 	int    ok = 1, next_barcode = 0;
 	uint   i;
@@ -539,7 +539,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				for(uint scsidx = 0; scsidx < scard_series_list.getCount(); scsidx++) {
 					const PPID scs_id = scard_series_list.get(scsidx);
 					if(scs_obj.GetPacket(scs_id, &scs_pack) > 0 && scs_pack.Rec.PDis != 0) {
-						//int SLAPI SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
+						//int SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
 						TSCollection <SCardCore::PrefixRange> prefix_ranges;
 						CC.Cards.GetPrefixRanges(scs_id, 10, prefix_ranges);
 						for(uint pridx = 0; pridx < prefix_ranges.getCount(); pridx++) {
@@ -736,7 +736,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_SETSTART::ImportFiles()
+int ACS_SETSTART::ImportFiles()
 {
 	const  long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  int    notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
@@ -893,7 +893,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 	return ok;
 }
 
-int SLAPI ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -985,7 +985,7 @@ int SLAPI ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 
 #define FRONTOL_DUPCHECK_OFFS 0x3FFF8000
 
-long SLAPI ACS_SETSTART::ModifDup(long cashNo, long chkNo)
+long ACS_SETSTART::ModifDup(long cashNo, long chkNo)
 {
 	/*
 	if(Acn.ExtFlags & CASHFX_CREATEOBJSONIMP)
@@ -995,7 +995,7 @@ long SLAPI ACS_SETSTART::ModifDup(long cashNo, long chkNo)
 	return chkNo;
 }
 
-int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
+int ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 {
 	int    ok = 1, field_no = 0;
 	SString path, buf;
@@ -1065,7 +1065,7 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 	return ok;
 }
 
-int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
+int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 {
 	int    ok = 1, field_no;
 	uint   pos;
@@ -1418,7 +1418,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 	return ok;
 }
 
-int SLAPI ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
+int ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 {
 	const  int  notify_timeout = NZOR(ImpExpTimeout, 5000);
 
@@ -1495,7 +1495,7 @@ int SLAPI ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 	return ok;
 }
 
-int SLAPI ACS_SETSTART::ImportSession(int)
+int ACS_SETSTART::ImportSession(int)
 {
 	int    ok = 1;
 	StringSet ss(";");
@@ -1513,7 +1513,7 @@ int SLAPI ACS_SETSTART::ImportSession(int)
 	return ok;
 }
 
-int SLAPI ACS_SETSTART::FinishImportSession(PPIDArray * pSessList)
+int ACS_SETSTART::FinishImportSession(PPIDArray * pSessList)
 {
 	//
 	// Удалим файлы импорта.

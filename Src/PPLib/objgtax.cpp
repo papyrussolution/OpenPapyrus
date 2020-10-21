@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPGoodsTaxEntry::PPGoodsTaxEntry()
+PPGoodsTaxEntry::PPGoodsTaxEntry()
 {
 	THISZERO();
 }
@@ -26,12 +26,12 @@ int FASTCALL PPGoodsTaxEntry::IsEqual(const PPGoodsTaxEntry & rS) const
 #undef CMP_FLD
 }
 
-double SLAPI PPGoodsTaxEntry::GetVatRate() const
+double PPGoodsTaxEntry::GetVatRate() const
 {
 	return fdiv100i(VAT);
 }
 
-char * SLAPI PPGoodsTaxEntry::FormatVAT(char * pBuf, size_t bufLen) const
+char * PPGoodsTaxEntry::FormatVAT(char * pBuf, size_t bufLen) const
 {
 	const  long fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
 	char   str[32];
@@ -39,7 +39,7 @@ char * SLAPI PPGoodsTaxEntry::FormatVAT(char * pBuf, size_t bufLen) const
 	return strnzcpy(pBuf, str, bufLen);
 }
 
-char * SLAPI PPGoodsTaxEntry::FormatSTax(char * pBuf, size_t bufLen) const
+char * PPGoodsTaxEntry::FormatSTax(char * pBuf, size_t bufLen) const
 {
 	const  long fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
 	char   str[32];
@@ -47,7 +47,7 @@ char * SLAPI PPGoodsTaxEntry::FormatSTax(char * pBuf, size_t bufLen) const
 	return strnzcpy(pBuf, str, bufLen);
 }
 
-char * SLAPI PPGoodsTaxEntry::FormatExcise(char * pBuf, size_t bufLen) const
+char * PPGoodsTaxEntry::FormatExcise(char * pBuf, size_t bufLen) const
 {
 	SString temp_buf;
 	temp_buf.Cat(fdiv100i(Excise), MKSFMTD(0, 2, NMBF_NOTRAILZ|ALIGN_LEFT|NMBF_NOZERO)); // @divtax
@@ -56,7 +56,7 @@ char * SLAPI PPGoodsTaxEntry::FormatExcise(char * pBuf, size_t bufLen) const
 	return temp_buf.CopyTo(pBuf, bufLen);
 }
 
-SLAPI PPGoodsTax2::PPGoodsTax2()
+PPGoodsTax2::PPGoodsTax2()
 {
 	THISZERO();
 }
@@ -85,7 +85,7 @@ void FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
 	UnionVect = pEntry->UnionVect;
 }
 
-SLAPI PPGoodsTaxPacket::PPGoodsTaxPacket() : SVector(sizeof(PPGoodsTaxEntry)) // @v10.1.6 SArray-->SVector
+PPGoodsTaxPacket::PPGoodsTaxPacket() : SVector(sizeof(PPGoodsTaxEntry)) // @v10.1.6 SArray-->SVector
 {
 }
 
@@ -96,12 +96,12 @@ PPGoodsTaxPacket & FASTCALL PPGoodsTaxPacket::operator = (const PPGoodsTaxPacket
 	return *this;
 }
 
-uint SLAPI PPGoodsTaxPacket::GetCount() const { return SVector::getCount(); }
+uint PPGoodsTaxPacket::GetCount() const { return SVector::getCount(); }
 PPGoodsTaxEntry & FASTCALL PPGoodsTaxPacket::Get(uint idx) const { return *static_cast<PPGoodsTaxEntry *>(SVector::at(idx)); }
 int  FASTCALL PPGoodsTaxPacket::Insert(const PPGoodsTaxEntry & rEntry) { return SVector::insert(&rEntry) ? 1 : PPSetErrorSLib(); }
-SVector * SLAPI PPGoodsTaxPacket::vecptr() { return this; }
+SVector * PPGoodsTaxPacket::vecptr() { return this; }
 
-int SLAPI PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
+int PPGoodsTaxPacket::PutEntry(int pos, const PPGoodsTaxEntry * pEntry)
 {
 	int    ok = 1;
 	if(pEntry) {
@@ -141,14 +141,14 @@ IMPL_CMPFUNC(PPGoodsTaxEntry, i1, i2)
 	return NZOR(r, cmp_long(p_i1->OpID, p_i2->OpID));
 }
 
-void SLAPI PPGoodsTaxPacket::Sort()
+void PPGoodsTaxPacket::Sort()
 {
 	sort(PTR_CMPFUNC(PPGoodsTaxEntry));
 }
 //
 //
 //
-SLAPI GTaxVect::GTaxVect(int roundPrec) : RoundPrec(roundPrec)
+GTaxVect::GTaxVect(int roundPrec) : RoundPrec(roundPrec)
 {
 }
 
@@ -167,7 +167,7 @@ int FASTCALL GTaxVect::VectToTax(int idx) const
 	return (idx > 0 && idx <= N) ? static_cast<int>(OrderVect[idx]) : (idx ? -1 : 0);
 }
 
-double SLAPI GTaxVect::GetTaxRate(long taxID, int * pIsAbs) const
+double GTaxVect::GetTaxRate(long taxID, int * pIsAbs) const
 {
 	int    is_abs = 0;
 	double rate = 0.0;
@@ -199,7 +199,7 @@ double FASTCALL GTaxVect::GetValue(long flags) const
 	}
 }
 
-double SLAPI GTaxVect::CalcTaxValByBase(int idx, double base) const
+double GTaxVect::CalcTaxValByBase(int idx, double base) const
 {
 	const double v = (AbsVect & (1 << idx)) ? Qtty : base;
 	return round(RateVect[idx] * v, RoundPrec);
@@ -208,7 +208,7 @@ double SLAPI GTaxVect::CalcTaxValByBase(int idx, double base) const
 // amount - сумма, включающая налоги 1..n (n<=N)
 // Расчитывает сумму без налогов (AmountAfterTaxes) GTaxVect::Vect[0]
 //
-void SLAPI GTaxVect::CalcForward(int n, double amount)
+void GTaxVect::CalcForward(int n, double amount)
 {
 	Vect[0] = amount;
 	double prev_sum = 0.0;
@@ -247,7 +247,7 @@ void SLAPI GTaxVect::CalcForward(int n, double amount)
 // amount - сумма, не включающая налоги (n+1)..N (1 <= n <= N)
 // Расчитывает полную сумму со всеми налогами GTaxVect::Amount
 //
-void SLAPI GTaxVect::CalcBackward(int n, double amount)
+void GTaxVect::CalcBackward(int n, double amount)
 {
 	Amount = round(amount, RoundPrec);
 	double prev_sum = 0.0;
@@ -261,7 +261,7 @@ void SLAPI GTaxVect::CalcBackward(int n, double amount)
 	}
 }
 
-void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long amtFlags, long excludeFlags)
+void GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long amtFlags, long excludeFlags)
 {
 	int    i;
 	amount = round(amount, RoundPrec);
@@ -350,7 +350,7 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 	}
 }
 
-int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long exclFlags)
+int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long exclFlags)
 {
 	int    ok = 1;
 	const  PPCommConfig & r_ccfg = CConfig;
@@ -490,11 +490,11 @@ int SLAPI GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, lon
 //
 //
 //
-SLAPI PPObjGoodsTax::PPObjGoodsTax(void * extraPtr) : PPObjReference(PPOBJ_GOODSTAX, extraPtr)
+PPObjGoodsTax::PPObjGoodsTax(void * extraPtr) : PPObjReference(PPOBJ_GOODSTAX, extraPtr)
 {
 }
 
-int SLAPI PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPacket & rS2, long flags)
+int PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 #define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
@@ -523,12 +523,12 @@ int SLAPI PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsT
 	return 1;
 }
 
-int SLAPI PPObjGoodsTax::Search(PPID id, PPGoodsTax * pRec)
+int PPObjGoodsTax::Search(PPID id, PPGoodsTax * pRec)
 {
 	return PPObjReference::Search(id, pRec);
 }
 
-int SLAPI PPObjGoodsTax::Search(PPID id, PPGoodsTaxEntry * pEntry)
+int PPObjGoodsTax::Search(PPID id, PPGoodsTaxEntry * pEntry)
 {
 	PPGoodsTax raw_rec;
     int    ok = PPObjReference::Search(id, &raw_rec);
@@ -538,7 +538,7 @@ int SLAPI PPObjGoodsTax::Search(PPID id, PPGoodsTaxEntry * pEntry)
     return ok;
 }
 
-int SLAPI PPObjGoodsTax::Browse(void * extraPtr)
+int PPObjGoodsTax::Browse(void * extraPtr)
 {
 	class GoodsTaxView : public ObjViewDialog {
 	public:
@@ -570,7 +570,7 @@ int SLAPI PPObjGoodsTax::Browse(void * extraPtr)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsTax::IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2)
+/*static*/int PPObjGoodsTax::IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2)
 {
 	if(dbl_cmp(pRec1->VAT, pRec2->VAT) == 0 && dbl_cmp(pRec1->Excise, pRec2->Excise) == 0 &&
 		dbl_cmp(pRec1->SalesTax, pRec2->SalesTax) == 0 && pRec1->Flags == pRec2->Flags &&
@@ -583,7 +583,7 @@ int SLAPI PPObjGoodsTax::Browse(void * extraPtr)
 	return 0;
 }
 
-int SLAPI PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec)
+int PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -599,7 +599,7 @@ int SLAPI PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID
 	return ok;
 }
 
-void SLAPI PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen)
+void PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, size_t buflen)
 {
 	SString text;
 	if(R6(pRec->VAT) != 0)
@@ -616,7 +616,7 @@ void SLAPI PPObjGoodsTax::GetDefaultName(const PPGoodsTax * pRec, char * buf, si
 	strnzcpy(buf, text, buflen);
 }
 
-int SLAPI PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, double stax, long flags, int use_ta)
+int PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, double stax, long flags, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -640,7 +640,7 @@ int SLAPI PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, doub
 	return ok;
 }
 
-/*static*/long SLAPI PPObjGoodsTax::GetDefaultOrder()
+/*static*/long PPObjGoodsTax::GetDefaultOrder()
 {
 	long   list[6];
 	list[0] = GTAX_EXCISE;
@@ -649,7 +649,7 @@ int SLAPI PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, doub
 	return GetTranspositionNumber(list, 3);
 }
 
-int SLAPI PPObjGoodsTax::FormatOrder(long order, long unionVect, char * buf, size_t /*buflen*/)
+int PPObjGoodsTax::FormatOrder(long order, long unionVect, char * buf, size_t /*buflen*/)
 {
 	long   list[8];
 	const  int N = 3;
@@ -680,7 +680,7 @@ int SLAPI PPObjGoodsTax::FormatOrder(long order, long unionVect, char * buf, siz
 	return 0;
 }
 
-int SLAPI PPObjGoodsTax::StrToOrder(const char * buf, long * pOrder, long * pUnionVect)
+int PPObjGoodsTax::StrToOrder(const char * buf, long * pOrder, long * pUnionVect)
 {
 	const  int N = 3;
 	long   list[6];
@@ -722,7 +722,7 @@ int SLAPI PPObjGoodsTax::StrToOrder(const char * buf, long * pOrder, long * pUni
 	return (order == 0) ? 0 : 1;
 }
 
-int SLAPI PPObjGoodsTax::HandleMsg(int msg, PPID objTypeID, PPID objID, void * extraPtr)
+int PPObjGoodsTax::HandleMsg(int msg, PPID objTypeID, PPID objID, void * extraPtr)
 {
 	if(msg == DBMSG_OBJREPLACE)
 		if(objTypeID == PPOBJ_GOODSTAX) {
@@ -738,7 +738,7 @@ int SLAPI PPObjGoodsTax::HandleMsg(int msg, PPID objTypeID, PPID objID, void * e
 	Reference (PPOBJ_GOODSTAX, ID): Rec
 	Property  (PPOBJ_GOODSTAX, ID, GTGPRP_ENTRIES): PPGoodsTaxEntry[]
 */
-int SLAPI PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use_ta)
+int PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -783,7 +783,7 @@ int SLAPI PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
+int PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 {
 	int    ok = -1;
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
@@ -816,7 +816,7 @@ int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	int32  c = static_cast<int32>(pPack->GetCount()); // @persistent
@@ -844,10 +844,10 @@ int SLAPI PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuf
 	return ok;
 }
 
-int  SLAPI PPObjGoodsTax::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int  PPObjGoodsTax::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjGoodsTax, PPGoodsTaxPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjGoodsTax::SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsTax * pRec)
+int PPObjGoodsTax::SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsTax * pRec)
 {
 	int    ok = -1;
 	PPID   same_id = 0;
@@ -870,7 +870,7 @@ int SLAPI PPObjGoodsTax::SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PP
 	return ok;
 }
 
-int  SLAPI PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int  PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -914,7 +914,7 @@ int  SLAPI PPObjGoodsTax::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	return ok;
 }
 
-int SLAPI PPObjGoodsTax::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjGoodsTax::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -932,7 +932,7 @@ int SLAPI PPObjGoodsTax::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoodsTax, PPGoodsTaxPacket);
 
-/*static*/int SLAPI PPObjGoodsTax::ReplaceGoodsTaxGrp()
+/*static*/int PPObjGoodsTax::ReplaceGoodsTaxGrp()
 {
 	int    ok = -1;
 	PPID   src_id = 0, dest_id = 0;
@@ -981,23 +981,23 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsTax, PPGoodsTaxPacket);
 //
 class GTaxCache : public ObjCache {
 public:
-	SLAPI  GTaxCache();
-	int    SLAPI Get(PPID, LDATE, PPID, PPGoodsTaxEntry *);
-	int    SLAPI GetByID(PPID, PPGoodsTaxEntry *);
+	GTaxCache();
+	int    Get(PPID, LDATE, PPID, PPGoodsTaxEntry *);
+	int    GetByID(PPID, PPGoodsTaxEntry *);
 	virtual int  FASTCALL Dirty(PPID); // @sync_w
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long)
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long)
 	{
 		return 0;
 	}
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 	}
-	int    SLAPI SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry) const;
-	int    SLAPI GetFromBase(PPID);
+	int    SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry) const;
+	int    GetFromBase(PPID);
 };
 
-SLAPI GTaxCache::GTaxCache() : ObjCache(PPOBJ_GOODSTAX, sizeof(PPGoodsTaxEntry))
+GTaxCache::GTaxCache() : ObjCache(PPOBJ_GOODSTAX, sizeof(PPGoodsTaxEntry))
 {
 }
 
@@ -1016,7 +1016,7 @@ int FASTCALL GTaxCache::Dirty(PPID id)
 	return 1;
 }
 
-int SLAPI GTaxCache::GetFromBase(PPID id)
+int GTaxCache::GetFromBase(PPID id)
 {
 	int    ok = -1;
 	PPObjGoodsTax gt_obj;
@@ -1034,7 +1034,7 @@ int SLAPI GTaxCache::GetFromBase(PPID id)
 	return ok;
 }
 
-int SLAPI GTaxCache::GetByID(PPID id, PPGoodsTaxEntry * pEntry)
+int GTaxCache::GetByID(PPID id, PPGoodsTaxEntry * pEntry)
 {
 	int    ok = -1;
 	if(id) {
@@ -1053,7 +1053,7 @@ int SLAPI GTaxCache::GetByID(PPID id, PPGoodsTaxEntry * pEntry)
 	return ok;
 }
 
-int SLAPI GTaxCache::SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry) const
+int GTaxCache::SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry) const
 {
 	int    ok = 0;
 	const  PPID _id = (id & 0x00ffffffL);
@@ -1066,7 +1066,7 @@ int SLAPI GTaxCache::SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry *
 	return ok;
 }
 
-int SLAPI GTaxCache::Get(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
+int GTaxCache::Get(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
 {
 	int    ok = -1;
 	if(id) {
@@ -1084,14 +1084,14 @@ int SLAPI GTaxCache::Get(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsTax::Fetch(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
+/*static*/int PPObjGoodsTax::Fetch(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry)
 {
 	memzero(pEntry, sizeof(*pEntry));
 	GTaxCache * p_cache = GetDbLocalCachePtr <GTaxCache> (PPOBJ_GOODSTAX);
 	return p_cache ? p_cache->Get(id, dt, opID, pEntry) : 0;
 }
 
-/*static*/int SLAPI PPObjGoodsTax::FetchByID(PPID id, PPGoodsTaxEntry * pEntry)
+/*static*/int PPObjGoodsTax::FetchByID(PPID id, PPGoodsTaxEntry * pEntry)
 {
 	memzero(pEntry, sizeof(*pEntry));
 	GTaxCache * p_cache = GetDbLocalCachePtr <GTaxCache> (PPOBJ_GOODSTAX);

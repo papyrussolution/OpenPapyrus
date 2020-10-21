@@ -69,12 +69,12 @@ int ProcPool_IpHlpApi::PtRelease()
 	return ok;
 }
 
-void SLAPI MACAddr::Init()
+void MACAddr::Init()
 {
 	memzero(Addr, sizeof(Addr));
 }
 
-int  SLAPI MACAddr::IsEmpty() const
+int  MACAddr::IsEmpty() const
 {
 	for(size_t i = 0; i < sizeof(Addr); i++)
 		if(Addr[i] != 0)
@@ -105,11 +105,11 @@ int FASTCALL MACAddr::Cmp(const MACAddr & s) const
 	return 0;
 }
 
-SLAPI MACAddrArray::MACAddrArray() : TSVector <MACAddr> () // @v9.8.4 TSArray-->TSVector
+MACAddrArray::MACAddrArray() : TSVector <MACAddr> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
-int SLAPI MACAddrArray::addUnique(const MACAddr & rItem)
+int MACAddrArray::addUnique(const MACAddr & rItem)
 {
 	MACAddr * p_item;
 	int    found = 0;
@@ -219,7 +219,7 @@ static int Helper_GetFirstHostByMacAddr(int Level, LPNETRESOURCE lpNet, const MA
 //
 // @todo Кэшировать список адресов. Иначе скорость выполнения функции ниже всякой критики.
 //
-int SLAPI GetFirstHostByMACAddr(const MACAddr * pMAC, InetAddr * pAddr)
+int GetFirstHostByMACAddr(const MACAddr * pMAC, InetAddr * pAddr)
 {
 	return Helper_GetFirstHostByMacAddr(RES_NET, 0, pMAC, pAddr);
 	/*
@@ -241,7 +241,7 @@ int SLAPI GetFirstHostByMACAddr(const MACAddr * pMAC, InetAddr * pAddr)
 }
 
 /*
-int SLAPI GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr)
+int GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr)
 {
 	int    ok = 0;
 	IP_ADAPTER_INFO * p_info = 0;
@@ -286,7 +286,7 @@ int SLAPI GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr)
 }
 */
 
-int SLAPI GetMACAddrList(MACAddrArray * pList)
+int GetMACAddrList(MACAddrArray * pList)
 {
 	int    ok = 0;
 	IP_ADAPTER_INFO * p_info = 0;
@@ -313,7 +313,7 @@ int SLAPI GetMACAddrList(MACAddrArray * pList)
 	return ok;
 }
 
-int SLAPI GetFirstMACAddr(MACAddr * pAddr)
+int GetFirstMACAddr(MACAddr * pAddr)
 {
 	int    ok = 0;
 	MACAddrArray ma_list;

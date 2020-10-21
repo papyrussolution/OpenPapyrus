@@ -8,7 +8,7 @@
 #pragma hdrstop
 #include <charry.h>
 
-IMPLEMENT_PPFILT_FACTORY(AmountType); SLAPI AmountTypeFilt::AmountTypeFilt() : PPBaseFilt(PPFILT_AMOUNTTYPE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(AmountType); AmountTypeFilt::AmountTypeFilt() : PPBaseFilt(PPFILT_AMOUNTTYPE, 0, 0)
 {
 	SetFlatChunk(offsetof(AmountTypeFilt, ReserveStart), offsetof(AmountTypeFilt, ReserveEnd) - offsetof(AmountTypeFilt, ReserveStart));
 	Init(1, 0);
@@ -20,21 +20,21 @@ AmountTypeFilt & FASTCALL AmountTypeFilt::operator = (const AmountTypeFilt & s)
 	return *this;
 }
 
-int SLAPI AmountTypeFilt::IsComplementary() const
+int AmountTypeFilt::IsComplementary() const
 {
 	return BIN(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount));
 }
 
-SLAPI PPViewAmountType::PPViewAmountType() : PPView(&ObjAmtT, &Filt, PPVIEW_AMOUNTTYPE), Data(sizeof(AmountTypeViewItem))
-{
-	ImplementFlags |= (implBrowseArray|implDontEditNullFilter);
-}
-
-SLAPI PPViewAmountType::~PPViewAmountType()
+PPViewAmountType::PPViewAmountType() : 
+	PPView(&ObjAmtT, &Filt, PPVIEW_AMOUNTTYPE, (implBrowseArray|implDontEditNullFilter), 0), Data(sizeof(AmountTypeViewItem))
 {
 }
 
-int SLAPI PPViewAmountType::CheckForFilt(const PPAmountTypePacket * pPack) const
+PPViewAmountType::~PPViewAmountType()
+{
+}
+
+int PPViewAmountType::CheckForFilt(const PPAmountTypePacket * pPack) const
 {
 	if(pPack) {
 		long flags = pPack->Rec.Flags;
@@ -54,7 +54,7 @@ int SLAPI PPViewAmountType::CheckForFilt(const PPAmountTypePacket * pPack) const
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -106,7 +106,7 @@ int SLAPI PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPViewAmountType::MakeListEntry(const PPAmountTypePacket * pPack, AmountTypeViewItem * pItem)
+int PPViewAmountType::MakeListEntry(const PPAmountTypePacket * pPack, AmountTypeViewItem * pItem)
 {
 	int    ok = -1;
 	if(pPack && pItem) {
@@ -301,7 +301,7 @@ IMPL_HANDLE_EVENT(AmtTypeFiltDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPViewAmountType::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewAmountType::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	AmountTypeFilt filt;
@@ -321,7 +321,7 @@ int SLAPI PPViewAmountType::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewAmountType::Init_(const PPBaseFilt * pFilt)
+int PPViewAmountType::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -330,7 +330,7 @@ int SLAPI PPViewAmountType::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewAmountType::InitIteration()
+int PPViewAmountType::InitIteration()
 {
 	Counter.Init(Data.getCount());
 	return 1;
@@ -347,12 +347,12 @@ int FASTCALL PPViewAmountType::NextIteration(AmountTypeViewItem * pItem)
 	return ok;
 }
 
-void SLAPI PPViewAmountType::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewAmountType::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewAmountType::GetDataForBrowser, this));
 }
 
-SArray * SLAPI PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(Data);
 	uint   brw_id = BROWSER_AMOUNTTYPE;
@@ -360,7 +360,7 @@ SArray * SLAPI PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSu
 	return p_array;
 }
 
-int SLAPI PPViewAmountType::Transmit(int isCharry)
+int PPViewAmountType::Transmit(int isCharry)
 {
 	int    ok = -1;
 	PPWait(1);
@@ -389,7 +389,7 @@ int SLAPI PPViewAmountType::Transmit(int isCharry)
 	return ok;
 }
 
-int SLAPI PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int        ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPIDArray  id_list;
@@ -414,7 +414,7 @@ int SLAPI PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI PPViewAmountType::FetchData(long id)
+int PPViewAmountType::FetchData(long id)
 {
 	int    ok = 1;
 	AmountTypeViewItem item;

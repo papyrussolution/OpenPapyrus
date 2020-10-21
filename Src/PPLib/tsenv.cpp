@@ -42,35 +42,35 @@ POSITION_TYPE_SELL	1
 
 static const int TsStakeEnvironment_CurrentVersion = 2; // @v10.5.4 1-->2
 
-SLAPI TsStakeEnvironment::TerminalInfo::TerminalInfo() : GmtOffset(0)
+TsStakeEnvironment::TerminalInfo::TerminalInfo() : GmtOffset(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
 
-SLAPI TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0), Margin(0.0), MarginFree(0.0)
+TsStakeEnvironment::AccountInfo::AccountInfo() : ID(0), ActualDtm(ZERODATETIME), Balance(0.0), Profit(0.0), Margin(0.0), MarginFree(0.0)
 {
 }
 
-SLAPI TsStakeEnvironment::Stake::Stake()
-{
-	THISZERO();
-}
-
-SLAPI TsStakeEnvironment::StakeRequestBlock::Req::Req()
+TsStakeEnvironment::Stake::Stake()
 {
 	THISZERO();
 }
 
-SLAPI TsStakeEnvironment::StakeRequestBlock::Result::Result()
+TsStakeEnvironment::StakeRequestBlock::Req::Req()
 {
 	THISZERO();
 }
 
-SLAPI TsStakeEnvironment::StakeRequestBlock::StakeRequestBlock(/*TsStakeEnvironment & rEnv*/) : /*R_Env(rEnv)*/SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
+TsStakeEnvironment::StakeRequestBlock::Result::Result()
+{
+	THISZERO();
+}
+
+TsStakeEnvironment::StakeRequestBlock::StakeRequestBlock(/*TsStakeEnvironment & rEnv*/) : /*R_Env(rEnv)*/SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
 {
 }
 
-int SLAPI TsStakeEnvironment::StakeRequestBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int TsStakeEnvironment::StakeRequestBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	long   ver = Ver;
@@ -86,11 +86,11 @@ int SLAPI TsStakeEnvironment::StakeRequestBlock::Serialize(int dir, SBuffer & rB
 	return ok;
 }
 
-SLAPI TsStakeEnvironment::TsStakeEnvironment() : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
+TsStakeEnvironment::TsStakeEnvironment() : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
 {
 }
 
-SLAPI TsStakeEnvironment::TsStakeEnvironment(const TsStakeEnvironment & rS) : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
+TsStakeEnvironment::TsStakeEnvironment(const TsStakeEnvironment & rS) : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
 {
 	Copy(rS);
 }
@@ -101,7 +101,7 @@ TsStakeEnvironment & FASTCALL TsStakeEnvironment::operator = (const TsStakeEnvir
 	return *this;
 }
 
-int SLAPI TsStakeEnvironment::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int TsStakeEnvironment::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	long   ver = Ver;
@@ -153,11 +153,11 @@ const TsStakeEnvironment::Tick * FASTCALL TsStakeEnvironment::SearchTickBySymb(c
 //
 //
 //
-SLAPI TsStakeEnvironment::TransactionNotification::TransactionNotification() : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
+TsStakeEnvironment::TransactionNotification::TransactionNotification() : SStrGroup(), Ver(TsStakeEnvironment_CurrentVersion)
 {
 }
 
-int SLAPI TsStakeEnvironment::TransactionNotification::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int TsStakeEnvironment::TransactionNotification::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	long   ver = Ver;

@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(PersonRel); SLAPI PersonRelFilt::PersonRelFilt() : PPBaseFilt(PPFILT_PERSONREL, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PersonRel); PersonRelFilt::PersonRelFilt() : PPBaseFilt(PPFILT_PERSONREL, 0, 0)
 {
 	P_PsnFilt = 0;
 	SetFlatChunk(offsetof(PersonRelFilt, ReserveStart),
@@ -21,12 +21,11 @@ PersonRelFilt & FASTCALL PersonRelFilt::operator = (const PersonRelFilt & s)
 	return *this;
 }
 
-SLAPI PPViewPersonRel::PPViewPersonRel() : PPView(0, &Filt, PPVIEW_PERSONREL), P_TempTbl(0), P_TempOrd(0)
+PPViewPersonRel::PPViewPersonRel() : PPView(0, &Filt, PPVIEW_PERSONREL, 0, REPORT_PSNRELLIST), P_TempTbl(0), P_TempOrd(0)
 {
-	DefReportId = REPORT_PSNRELLIST;
 }
 
-SLAPI PPViewPersonRel::~PPViewPersonRel()
+PPViewPersonRel::~PPViewPersonRel()
 {
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
@@ -105,7 +104,7 @@ IMPL_HANDLE_EVENT(PersonRelFiltDialog)
 	}
 }
 
-int SLAPI PPViewPersonRel::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewPersonRel::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -113,7 +112,7 @@ int SLAPI PPViewPersonRel::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODYERR(PersonRelFiltDialog, p_filt);
 }
 
-int SLAPI PPViewPersonRel::CheckForFilt(const PersonCore::RelationRecord * pRec)
+int PPViewPersonRel::CheckForFilt(const PersonCore::RelationRecord * pRec)
 {
 	int    r = 0;
 	if(pRec) {
@@ -128,7 +127,7 @@ int SLAPI PPViewPersonRel::CheckForFilt(const PersonCore::RelationRecord * pRec)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPersonRel);
 
-int SLAPI PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	BExtQuery  * p_q = 0;
@@ -188,7 +187,7 @@ int SLAPI PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-TempPersonRelTbl::Rec & SLAPI PPViewPersonRel::MakeTempEntry(const PersonCore::RelationRecord & rRec, TempPersonRelTbl::Rec & rTempRec)
+TempPersonRelTbl::Rec & PPViewPersonRel::MakeTempEntry(const PersonCore::RelationRecord & rRec, TempPersonRelTbl::Rec & rTempRec)
 {
 	PPPersonRelType reltyp_rec;
 	// @v10.6.12 @ctr MEMSZERO(reltyp_rec);
@@ -203,7 +202,7 @@ TempPersonRelTbl::Rec & SLAPI PPViewPersonRel::MakeTempEntry(const PersonCore::R
 	return rTempRec;
 }
 
-int SLAPI PPViewPersonRel::MakeTempOrdEntry(long ord, const TempPersonRelTbl::Rec * pTempRec, TempOrderTbl::Rec * pOrdRec)
+int PPViewPersonRel::MakeTempOrdEntry(long ord, const TempPersonRelTbl::Rec * pTempRec, TempOrderTbl::Rec * pOrdRec)
 {
 	int    ok = -1;
 	if(pTempRec && pOrdRec) {
@@ -221,7 +220,7 @@ int SLAPI PPViewPersonRel::MakeTempOrdEntry(long ord, const TempPersonRelTbl::Re
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndList, PPID relation, int reverse)
+int PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndList, PPID relation, int reverse)
 {
 	int    ok = 1;
 	if(P_TempTbl) {
@@ -280,7 +279,7 @@ int SLAPI PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndL
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
+int PPViewPersonRel::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = 1;
 	ZDELETE(P_TempOrd);
@@ -315,7 +314,7 @@ int SLAPI PPViewPersonRel::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::InitIteration()
+int PPViewPersonRel::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 0;
@@ -352,7 +351,7 @@ int FASTCALL PPViewPersonRel::NextIteration(PersonRelViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewPersonRel::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewPersonRel::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	if(Filt.Flags & PersonRelFilt::fAddedSelectorByPrmr) {
 		PPIDArray id_list;
@@ -369,7 +368,7 @@ int SLAPI PPViewPersonRel::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewPersonRel::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPersonRel::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	TempPersonRelTbl * t = 0;
@@ -404,7 +403,7 @@ DBQuery * SLAPI PPViewPersonRel::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-int SLAPI PPViewPersonRel::ViewReverseRelations(PPID personID)
+int PPViewPersonRel::ViewReverseRelations(PPID personID)
 {
 	int    ok = -1;
 	PersonRelFilt filt;
@@ -416,7 +415,7 @@ int SLAPI PPViewPersonRel::ViewReverseRelations(PPID personID)
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPersonRel::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    reverse = 0;

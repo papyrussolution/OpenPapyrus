@@ -248,11 +248,11 @@ int CRevalDialog::delItem(long pos, long /*id*/)
 	return Data.AccList.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
-int SLAPI EditCRevalParam(CurRevalParam * pData) { DIALOG_PROC_BODY(CRevalDialog, pData); }
+int EditCRevalParam(CurRevalParam * pData) { DIALOG_PROC_BODY(CRevalDialog, pData); }
 
 #define __HDR_DW_COUNT 9
 
-static int SLAPI PutCurRevalConfig(const CurRevalParam * pData, int use_ta)
+static int PutCurRevalConfig(const CurRevalParam * pData, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray temp;
@@ -279,7 +279,7 @@ static int SLAPI PutCurRevalConfig(const CurRevalParam * pData, int use_ta)
 	return ok;
 }
 
-int SLAPI GetCurRevalConfig(CurRevalParam * pData)
+int GetCurRevalConfig(CurRevalParam * pData)
 {
 	uint   i;
 	PPIDArray temp;
@@ -311,7 +311,7 @@ int SLAPI GetCurRevalConfig(CurRevalParam * pData)
 	return -1;
 }
 
-int SLAPI CurReval()
+int CurReval()
 {
 	int    ok = -1;
 	CurRevalParam param;

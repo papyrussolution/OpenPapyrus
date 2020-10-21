@@ -7,17 +7,17 @@
 //
 // @ModuleDef(PPObjAmountType)
 //
-SLAPI PPAmountType2::PPAmountType2()
+PPAmountType2::PPAmountType2()
 {
 	THISZERO();
 }
 
-int SLAPI PPAmountType2::IsTax(PPID taxID  /* GTAX_XXX */) const
+int PPAmountType2::IsTax(PPID taxID  /* GTAX_XXX */) const
 	{ return BIN(Flags & PPAmountType::fTax && Tax == taxID); }
-int SLAPI PPAmountType2::IsComplementary() const
+int PPAmountType2::IsComplementary() const
 	{ return BIN(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)); }
 
-SLAPI PPAmountTypePacket::PPAmountTypePacket()
+PPAmountTypePacket::PPAmountTypePacket()
 {
 	// @v10.7.4 @ctr MEMSZERO(Rec);
 }
@@ -42,7 +42,7 @@ int FASTCALL PPAmountTypePacket::IsEqual(const PPAmountTypePacket & rS) const
 	return 1;
 }
 
-int SLAPI SetupAmtTypeCombo(TDialog * dlg, uint ctl, PPID id, uint flags, long options, PPIDArray * pInclList)
+int SetupAmtTypeCombo(TDialog * dlg, uint ctl, PPID id, uint flags, long options, PPIDArray * pInclList)
 {
 	int    ok = 0;
 	PPObjAmountType amttobj;
@@ -62,16 +62,16 @@ int SLAPI SetupAmtTypeCombo(TDialog * dlg, uint ctl, PPID id, uint flags, long o
 	return ok;
 }
 
-SLAPI PPObjAmountType::PPObjAmountType(void * extraPtr) : PPObjReference(PPOBJ_AMOUNTTYPE, extraPtr)
+PPObjAmountType::PPObjAmountType(void * extraPtr) : PPObjReference(PPOBJ_AMOUNTTYPE, extraPtr)
 {
 }
 
-int SLAPI PPObjAmountType::SearchSymb(PPID * pID, const char * pSymb)
+int PPObjAmountType::SearchSymb(PPID * pID, const char * pSymb)
 {
 	return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPAmountType, Symb));
 }
 
-int SLAPI PPObjAmountType::CheckDupTax(PPID id, PPID tax, long taxRate)
+int PPObjAmountType::CheckDupTax(PPID id, PPID tax, long taxRate)
 {
 	int    ok = 1;
 	PPAmountType rec;
@@ -81,7 +81,7 @@ int SLAPI PPObjAmountType::CheckDupTax(PPID id, PPID tax, long taxRate)
 	return ok;
 }
 
-int SLAPI PPObjAmountType::GetFormulaList(StrAssocArray * pList)
+int PPObjAmountType::GetFormulaList(StrAssocArray * pList)
 {
 	int    ok = -1;
 	PPAmountType rec;
@@ -99,7 +99,7 @@ int SLAPI PPObjAmountType::GetFormulaList(StrAssocArray * pList)
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjAmountType::CreateSelectorList(long options, const PPIDArray * pIncludeList)
+StrAssocArray * PPObjAmountType::CreateSelectorList(long options, const PPIDArray * pIncludeList)
 {
 	PPAmountType rec;
 	StrAssocArray * p_list = new StrAssocArray;
@@ -356,7 +356,7 @@ int AmtTypeDialog::getDTS(PPAmountTypePacket * pData)
 	return ok;
 }
 
-int SLAPI PPObjAmountType::Edit(PPID * pID, void * extraPtr)
+int PPObjAmountType::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    r = cmCancel, valid_data = 0, is_new = 0;
@@ -387,12 +387,12 @@ int SLAPI PPObjAmountType::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjAmountType::GetFormula(PPID id, SString & rBuf)
+int PPObjAmountType::GetFormula(PPID id, SString & rBuf)
 {
 	return ref->GetPropVlrString(Obj, id, AMTTPRP_FORMULA, rBuf);
 }
 
-int SLAPI PPObjAmountType::GetPacket(PPID id, PPAmountTypePacket * pPack)
+int PPObjAmountType::GetPacket(PPID id, PPAmountTypePacket * pPack)
 {
 	int    ok = -1;
 	PPAmountTypePacket pack;
@@ -408,7 +408,7 @@ int SLAPI PPObjAmountType::GetPacket(PPID id, PPAmountTypePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int use_ta)
+int PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -453,7 +453,7 @@ int SLAPI PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int
 	return ok;
 }
 
-int SLAPI PPObjAmountType::ProcessReservedItem(TVRez & rez)
+int PPObjAmountType::ProcessReservedItem(TVRez & rez)
 {
 	int    ok = 1, r;
 	SString name;
@@ -478,7 +478,7 @@ int SLAPI PPObjAmountType::ProcessReservedItem(TVRez & rez)
 	return ok;
 }
 
-int  SLAPI PPObjAmountType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int  PPObjAmountType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -492,7 +492,7 @@ int  SLAPI PPObjAmountType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 	return ok;
 }
 
-int SLAPI PPObjAmountType::SerializePacket(int dir, PPAmountTypePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjAmountType::SerializePacket(int dir, PPAmountTypePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -502,10 +502,10 @@ int SLAPI PPObjAmountType::SerializePacket(int dir, PPAmountTypePacket * pPack, 
 	return ok;
 }
 
-int  SLAPI PPObjAmountType::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int  PPObjAmountType::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjAmountType, PPAmountTypePacket>(this, p, id, stream, pCtx); }
 
-int  SLAPI PPObjAmountType::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int  PPObjAmountType::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1, r;
 	if(p && p->Data) {
@@ -575,12 +575,12 @@ IMPL_DESTROY_OBJ_PACK(PPObjAmountType, PPAmountTypePacket);
 //
 class AmountTypeCache : public ObjCache {
 public:
-	SLAPI  AmountTypeCache();
+	AmountTypeCache();
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
-	int    SLAPI FetchByTax(PPID * pID, PPID tax, double taxRate); // @sync_r
-	int    SLAPI FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID); // @sync_r
-	int    SLAPI FetchTaxIDs(TaxAmountIDs * pBlk);
-	int    SLAPI IsThereDistribCost()
+	int    FetchByTax(PPID * pID, PPID tax, double taxRate); // @sync_r
+	int    FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID); // @sync_r
+	int    FetchTaxIDs(TaxAmountIDs * pBlk);
+	int    IsThereDistribCost()
 	{
 		int    yes = 0;
 		{
@@ -590,9 +590,9 @@ public:
 		return yes;
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	int    SLAPI InitTaxBlock();
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	int    InitTaxBlock();
 	TaxAmountIDs TaxBlock;
 	int    IsThereDistribCostAmounts;
 	ReadWriteLock LocRwL;
@@ -609,7 +609,7 @@ public:
 	};
 };
 
-SLAPI AmountTypeCache::AmountTypeCache() : ObjCache(PPOBJ_AMOUNTTYPE, sizeof(AmountTypeCache::AmountTypeData))
+AmountTypeCache::AmountTypeCache() : ObjCache(PPOBJ_AMOUNTTYPE, sizeof(AmountTypeCache::AmountTypeData))
 {
 	PPObjAmountType amt_obj;
 	PPAmountType temp_rec;
@@ -622,7 +622,7 @@ SLAPI AmountTypeCache::AmountTypeCache() : ObjCache(PPOBJ_AMOUNTTYPE, sizeof(Amo
 	}
 }
 
-static void SLAPI SwapVat(TaxAmountIDs * pData, uint i1, uint i2)
+static void SwapVat(TaxAmountIDs * pData, uint i1, uint i2)
 {
 	if(pData->VatAmtID[i1] && pData->VatAmtID[i2] && pData->VatRate[i1] > pData->VatRate[i2]) {
 		Exchange(&pData->VatAmtID[i1], &pData->VatAmtID[i2]);
@@ -630,7 +630,7 @@ static void SLAPI SwapVat(TaxAmountIDs * pData, uint i1, uint i2)
 	}
 }
 
-int SLAPI AmountTypeCache::InitTaxBlock()
+int AmountTypeCache::InitTaxBlock()
 {
 	MEMSZERO(TaxBlock);
 	IsThereDistribCostAmounts = 0;
@@ -685,7 +685,7 @@ int FASTCALL AmountTypeCache::Dirty(PPID id)
 	return ok;
 }
 
-int SLAPI AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)
+int AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)
 {
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
@@ -694,7 +694,7 @@ int SLAPI AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)
 	return 1;
 }
 
-int SLAPI AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	AmountTypeData * p_cache_rec = static_cast<AmountTypeData *>(pEntry);
@@ -717,7 +717,7 @@ int SLAPI AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPAmountType * p_data_rec = static_cast<PPAmountType *>(pDataRec);
 	const AmountTypeData * p_cache_rec = static_cast<const AmountTypeData *>(pEntry);
@@ -740,7 +740,7 @@ void SLAPI AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
 }
 
-int SLAPI AmountTypeCache::FetchByTax(PPID * pID, PPID tax, double taxRate)
+int AmountTypeCache::FetchByTax(PPID * pID, PPID tax, double taxRate)
 {
 	int    ok = -1;
 	{
@@ -757,7 +757,7 @@ int SLAPI AmountTypeCache::FetchByTax(PPID * pID, PPID tax, double taxRate)
 	return ok;
 }
 
-int SLAPI AmountTypeCache::FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID)
+int AmountTypeCache::FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID)
 {
 	PPID   in_id = 0, out_id = 0;
 	{
@@ -782,25 +782,25 @@ int SLAPI AmountTypeCache::FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOu
 IMPL_OBJ_FETCH(PPObjAmountType, PPAmountType, AmountTypeCache);
 IMPL_OBJ_DIRTY(PPObjAmountType, AmountTypeCache);
 
-int SLAPI PPObjAmountType::FetchByTax(PPID * pID, PPID tax, double taxRate)
+int PPObjAmountType::FetchByTax(PPID * pID, PPID tax, double taxRate)
 {
 	AmountTypeCache * p_cache = GetDbLocalCachePtr <AmountTypeCache> (Obj);
 	return p_cache ? p_cache->FetchByTax(pID, tax, taxRate) : -1;
 }
 
-int SLAPI PPObjAmountType::FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID)
+int PPObjAmountType::FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID)
 {
 	AmountTypeCache * p_cache = GetDbLocalCachePtr <AmountTypeCache> (Obj);
 	return p_cache ? p_cache->FetchCompl(srcAmtID, pInAmtID, pOutAmtID) : -1;
 }
 
-int SLAPI PPObjAmountType::IsThereDistribCostAmounts()
+int PPObjAmountType::IsThereDistribCostAmounts()
 {
 	AmountTypeCache * p_cache = GetDbLocalCachePtr <AmountTypeCache> (Obj);
 	return p_cache ? p_cache->IsThereDistribCost() : 0;
 }
 
-int SLAPI PPObjAmountType::GetTaxAmountIDs(TaxAmountIDs * pData, int useCache)
+int PPObjAmountType::GetTaxAmountIDs(TaxAmountIDs * pData, int useCache)
 {
 	AmountTypeCache * p_cache = 0;
 	if(useCache && (p_cache = GetDbLocalCachePtr <AmountTypeCache> (Obj, 0)) != 0) {
@@ -832,7 +832,7 @@ int SLAPI PPObjAmountType::GetTaxAmountIDs(TaxAmountIDs * pData, int useCache)
 //
 //
 //
-int SLAPI PPObjAmountType::Browse(void * extraPtr)
+int PPObjAmountType::Browse(void * extraPtr)
 {
 	class AmountTypeView : public ObjViewDialog {
 	public:

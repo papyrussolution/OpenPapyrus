@@ -6,13 +6,13 @@
 //
 // @ModuleDef(PPViewObjSync)
 //
-IMPLEMENT_PPFILT_FACTORY(ObjSync); SLAPI ObjSyncFilt::ObjSyncFilt() : PPBaseFilt(PPFILT_OBJSYNC, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(ObjSync); ObjSyncFilt::ObjSyncFilt() : PPBaseFilt(PPFILT_OBJSYNC, 0, 0)
 {
 	SetFlatChunk(offsetof(ObjSyncFilt, ReserveStart), offsetof(ObjSyncFilt, ObjIDList) - offsetof(ObjSyncFilt, ReserveStart));
 	Init(1, 0);
 }
 
-int SLAPI ObjSyncFilt::Init(int fullyDestroy, long extraData)
+int ObjSyncFilt::Init(int fullyDestroy, long extraData)
 {
 	PPBaseFilt::Init(fullyDestroy, extraData);
 	ObjIDList.freeAll();
@@ -20,17 +20,17 @@ int SLAPI ObjSyncFilt::Init(int fullyDestroy, long extraData)
 	return 1;
 }
 
-int SLAPI ObjSyncFilt::Write(SBuffer & rBuf, long f) const
+int ObjSyncFilt::Write(SBuffer & rBuf, long f) const
 {
 	return (PPBaseFilt::Write(rBuf, f) && rBuf.Write(&ObjIDList, 0) && rBuf.Write(&CommIDList, 0)) ? 1 : 0;
 }
 
-int SLAPI ObjSyncFilt::Read(SBuffer & rBuf, long f)
+int ObjSyncFilt::Read(SBuffer & rBuf, long f)
 {
 	return (PPBaseFilt::Read(rBuf, f) && rBuf.Read(&ObjIDList, 0) && rBuf.Read(&CommIDList, 0)) ? 1 : 0;
 }
 
-int SLAPI ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
+int ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 {
 	int    ok = 1;
 	if(PPBaseFilt::Copy(pS, deep)) {
@@ -42,7 +42,7 @@ int SLAPI ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 	return ok;
 }
 
-int SLAPI ObjSyncFilt::IsEqual(const PPBaseFilt * pS, int deep) const
+int ObjSyncFilt::IsEqual(const PPBaseFilt * pS, int deep) const
 {
 	return BIN(PPBaseFilt::IsEqual(pS, deep) && 
 		ObjIDList.IsEqual(&static_cast<const ObjSyncFilt *>(pS)->ObjIDList) && CommIDList.IsEqual(static_cast<const ObjSyncFilt *>(pS)->CommIDList));
@@ -50,11 +50,11 @@ int SLAPI ObjSyncFilt::IsEqual(const PPBaseFilt * pS, int deep) const
 //
 //
 //
-SLAPI PPViewObjSync::PPViewObjSync() : PPView(0, &Filt, PPVIEW_OBJSYNC), P_Tbl(DS.GetTLA().P_ObjSync), P_TmpTbl(0)
+PPViewObjSync::PPViewObjSync() : PPView(0, &Filt, PPVIEW_OBJSYNC, 0, 0), P_Tbl(DS.GetTLA().P_ObjSync), P_TmpTbl(0)
 {
 }
 
-SLAPI PPViewObjSync::~PPViewObjSync()
+PPViewObjSync::~PPViewObjSync()
 {
 	delete P_TmpTbl;
 }
@@ -135,7 +135,7 @@ public:
 //
 //
 //
-int SLAPI PPViewObjSync::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewObjSync::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return PPErrorZ();
@@ -146,7 +146,7 @@ int SLAPI PPViewObjSync::EditBaseFilt(PPBaseFilt * pFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, ObjSync);
 
-int SLAPI PPViewObjSync::Init_(const PPBaseFilt * pFilt)
+int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -233,7 +233,7 @@ int SLAPI PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewObjSync::InitIteration()
+int PPViewObjSync::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -266,7 +266,7 @@ int FASTCALL PPViewObjSync::NextIteration(ObjSyncViewItem * pItem)
 		return -1;
 }
 
-int SLAPI PPViewObjSync::EditRecord(ObjSyncTbl::Rec * pRec)
+int PPViewObjSync::EditRecord(ObjSyncTbl::Rec * pRec)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_OBJSYNC);
@@ -300,7 +300,7 @@ int SLAPI PPViewObjSync::EditRecord(ObjSyncTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPViewObjSync::AddItem()
+int PPViewObjSync::AddItem()
 {
 	int    ok = -1;
 	ObjSyncTbl::Rec rec;
@@ -314,7 +314,7 @@ int SLAPI PPViewObjSync::AddItem()
 	return ok;
 }
 
-int SLAPI PPViewObjSync::EditItem(const ObjSyncIdent * pIdent)
+int PPViewObjSync::EditItem(const ObjSyncIdent * pIdent)
 {
 	int    ok = -1;
 	ObjSyncTbl::Rec rec, temp_rec;
@@ -333,7 +333,7 @@ int SLAPI PPViewObjSync::EditItem(const ObjSyncIdent * pIdent)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	uint   brw_id = BROWSER_OBJSYNC;
@@ -378,7 +378,7 @@ DBQuery * SLAPI PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return q;
 }
 
-int SLAPI PPViewObjSync::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewObjSync::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -428,7 +428,7 @@ int SLAPI PPViewObjSync::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 //
 // @ModuleDef(PPViewObjSyncCmp)
 //
-IMPLEMENT_PPFILT_FACTORY(ObjSyncCmp); SLAPI ObjSyncCmpFilt::ObjSyncCmpFilt() : PPBaseFilt(PPFILT_OBJSYNCCMP, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(ObjSyncCmp); ObjSyncCmpFilt::ObjSyncCmpFilt() : PPBaseFilt(PPFILT_OBJSYNCCMP, 0, 0)
 {
 	SetFlatChunk(offsetof(ObjSyncCmpFilt, ReserveStart),
 		offsetof(ObjSyncCmpFilt, Reserve)-offsetof(ObjSyncCmpFilt, ReserveStart)+sizeof(Reserve));
@@ -437,18 +437,17 @@ IMPLEMENT_PPFILT_FACTORY(ObjSyncCmp); SLAPI ObjSyncCmpFilt::ObjSyncCmpFilt() : P
 //
 //
 //
-SLAPI PPViewObjSyncCmp::PPViewObjSyncCmp() : PPView(0, &Filt, PPVIEW_OBJSYNCCMP), P_TmpTbl(0), P_Ot(0)
+PPViewObjSyncCmp::PPViewObjSyncCmp() : PPView(0, &Filt, PPVIEW_OBJSYNCCMP, 0, REPORT_OBJSYNCCMP), P_TmpTbl(0), P_Ot(0)
 {
-	DefReportId = REPORT_OBJSYNCCMP;
 }
 
-SLAPI PPViewObjSyncCmp::~PPViewObjSyncCmp()
+PPViewObjSyncCmp::~PPViewObjSyncCmp()
 {
 	delete P_TmpTbl;
 	delete P_Ot;
 }
 
-PPBaseFilt * SLAPI PPViewObjSyncCmp::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewObjSyncCmp::CreateFilt(void * extraPtr) const
 {
 	ObjSyncCmpFilt * p_filt = new ObjSyncCmpFilt;
 	if((reinterpret_cast<long>(extraPtr)) == 1)
@@ -456,7 +455,7 @@ PPBaseFilt * SLAPI PPViewObjSyncCmp::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewObjSyncCmp::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewObjSyncCmp::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	ushort v = 0;
@@ -507,7 +506,7 @@ int SLAPI PPViewObjSyncCmp::EditBaseFilt(PPBaseFilt * pFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempSyncCmpFile, TempSyncCmp);
 
-int SLAPI PPViewObjSyncCmp::Init_(const PPBaseFilt * pFilt)
+int PPViewObjSyncCmp::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	ObjReceiveParam param;
@@ -525,7 +524,7 @@ int SLAPI PPViewObjSyncCmp::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewObjSyncCmp::InitIteration()
+int PPViewObjSyncCmp::InitIteration()
 {
 	if(P_TmpTbl) {
 		DBQ * dbq = 0;
@@ -585,7 +584,7 @@ int FASTCALL PPViewObjSyncCmp::NextIteration(ObjSyncCmpViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewObjSyncCmp::CalcTotal(ObjSyncCmpTotal * pTotal)
+int PPViewObjSyncCmp::CalcTotal(ObjSyncCmpTotal * pTotal)
 {
 	memzero(pTotal, sizeof(*pTotal));
 	ObjSyncCmpViewItem item;
@@ -604,7 +603,7 @@ int SLAPI PPViewObjSyncCmp::CalcTotal(ObjSyncCmpTotal * pTotal)
 	return 1;
 }
 
-int SLAPI PPViewObjSyncCmp::ViewTotal()
+int PPViewObjSyncCmp::ViewTotal()
 {
 	int    ok = -1;
 	ObjSyncCmpTotal total;
@@ -624,7 +623,7 @@ int SLAPI PPViewObjSyncCmp::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewObjSyncCmp::RemoveAllSync()
+int PPViewObjSyncCmp::RemoveAllSync()
 {
 	int    ok = -1;
 	THROW_SL(SETIFZ(P_Ot, new PPObjectTransmit(PPObjectTransmit::tmUndef, PPObjectTransmit::ctrfSyncCmp/*1, 0*/)));
@@ -650,7 +649,7 @@ int SLAPI PPViewObjSyncCmp::RemoveAllSync()
 	return ok;
 }
 
-DBQuery * SLAPI PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	uint   brw_id = BROWSER_SYNCCMP;
@@ -710,7 +709,7 @@ DBQuery * SLAPI PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pS
 	return q;
 }
 
-int SLAPI PPViewObjSyncCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewObjSyncCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -753,7 +752,7 @@ int SLAPI PPViewObjSyncCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI AnalyzeObjSyncCmp(int asModeless)
+int AnalyzeObjSyncCmp(int asModeless)
 {
 	ObjSyncCmpFilt init_filt;
 	init_filt.Flags |= ObjSyncCmpFilt::fInitialize;
@@ -823,7 +822,7 @@ void PPALDD_ObjSyncCmp::Destroy()
 //
 // @ModuleDecl(PPViewObjSyncQueue)
 //
-IMPLEMENT_PPFILT_FACTORY(ObjSyncQueue); SLAPI ObjSyncQueueFilt::ObjSyncQueueFilt() : PPBaseFilt(PPFILT_OBJSYNCQUEUE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(ObjSyncQueue); ObjSyncQueueFilt::ObjSyncQueueFilt() : PPBaseFilt(PPFILT_OBJSYNCQUEUE, 0, 0)
 {
 	SetFlatChunk(offsetof(ObjSyncQueueFilt, ReserveStart),
 		offsetof(ObjSyncQueueFilt, Reserve)-offsetof(ObjSyncQueueFilt, ReserveStart)+sizeof(Reserve));
@@ -832,26 +831,26 @@ IMPLEMENT_PPFILT_FACTORY(ObjSyncQueue); SLAPI ObjSyncQueueFilt::ObjSyncQueueFilt
 //
 //
 //
-SLAPI PPViewObjSyncQueue::PPViewObjSyncQueue() : PPView(0, &Filt, PPVIEW_OBJSYNCQUEUE)
+PPViewObjSyncQueue::PPViewObjSyncQueue() : PPView(0, &Filt, PPVIEW_OBJSYNCQUEUE, 0, 0)
 {
 }
 
-SLAPI PPViewObjSyncQueue::~PPViewObjSyncQueue()
+PPViewObjSyncQueue::~PPViewObjSyncQueue()
 {
 }
 
-int SLAPI PPViewObjSyncQueue::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewObjSyncQueue::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	return Filt.IsA(pFilt) ? 1 : PPErrorZ();
 }
 
-int SLAPI PPViewObjSyncQueue::Init_(const PPBaseFilt * pFilt)
+int PPViewObjSyncQueue::Init_(const PPBaseFilt * pFilt)
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	return Helper_InitBaseFilt(pFilt);
 }
 
-DBQuery * SLAPI PPViewObjSyncQueue::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewObjSyncQueue::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	uint   brw_id = BROWSER_OBJSYNCQUEUE;
@@ -886,7 +885,7 @@ DBQuery * SLAPI PPViewObjSyncQueue::CreateBrowserQuery(uint * pBrwId, SString * 
 	return q;
 }
 
-int SLAPI PPViewObjSyncQueue::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewObjSyncQueue::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -920,7 +919,7 @@ struct _ObjSyncEntry {
 	LDATETIME ModDtm;
 };
 
-int SLAPI ViewObjSyncTab(PPObjID oid)
+int ViewObjSyncTab(PPObjID oid)
 {
 	class ObjSyncTabDialog : public PPListDialog {
 	public:

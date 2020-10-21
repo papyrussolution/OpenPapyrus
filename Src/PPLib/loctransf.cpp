@@ -22,7 +22,7 @@ LocTransfOpBlock::LocTransfOpBlock(int op, PPID locID)
 	Init(op, locID);
 }
 
-LocTransfOpBlock & SLAPI LocTransfOpBlock::Init(int op, PPID locID)
+LocTransfOpBlock & LocTransfOpBlock::Init(int op, PPID locID)
 {
 	Op = op;
 	BillID = 0;
@@ -68,15 +68,15 @@ int FASTCALL LocTransfOpBlock::IsEqual(const LocTransfTbl::Rec & rRec) const
 		fabs(Qtty) == fabs(rRec.Qtty));
 }
 
-SLAPI LocTransfCore::LocTransfCore() : LocTransfTbl()
+LocTransfCore::LocTransfCore() : LocTransfTbl()
 {
 }
 
-SLAPI LocTransfCore::~LocTransfCore()
+LocTransfCore::~LocTransfCore()
 {
 }
 
-int SLAPI LocTransfCore::Search(PPID locID, long rByLoc, LocTransfTbl::Rec * pRec)
+int LocTransfCore::Search(PPID locID, long rByLoc, LocTransfTbl::Rec * pRec)
 {
 	LocTransfTbl::Key0 k0;
 	k0.LocID = locID;
@@ -84,7 +84,7 @@ int SLAPI LocTransfCore::Search(PPID locID, long rByLoc, LocTransfTbl::Rec * pRe
 	return SearchByKey(this, 0, &k0, pRec);
 }
 
-int SLAPI LocTransfCore::SearchRestByGoods(PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec)
+int LocTransfCore::SearchRestByGoods(PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(rByLoc == 0) {
@@ -115,7 +115,7 @@ int SLAPI LocTransfCore::SearchRestByGoods(PPID goodsID, PPID locID, long rByLoc
 	return ok;
 }
 
-int SLAPI LocTransfCore::SearchRestByLot(PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec)
+int LocTransfCore::SearchRestByLot(PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(lotID) {
@@ -144,7 +144,7 @@ int SLAPI LocTransfCore::SearchRestByLot(PPID lotID, PPID locID, long rByLoc, Lo
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVector
+int LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	LocTransfTbl::Key3 k3;
 	BExtQuery q(this, 3, 128);
@@ -157,7 +157,7 @@ int SLAPI LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <Lo
 	return 1;
 }
 
-int SLAPI LocTransfCore::EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec)
+int LocTransfCore::EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
@@ -173,7 +173,7 @@ int SLAPI LocTransfCore::EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl:
 	return ok;
 }
 
-int SLAPI LocTransfCore::ValidateOpBlock(const LocTransfOpBlock & rBlk)
+int LocTransfCore::ValidateOpBlock(const LocTransfOpBlock & rBlk)
 {
 	int    ok = 1;
 	LocationTbl::Rec loc_rec;
@@ -187,7 +187,7 @@ int SLAPI LocTransfCore::ValidateOpBlock(const LocTransfOpBlock & rBlk)
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec)
+int LocTransfCore::GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
 	LocTransfTbl::Key0 k0;
@@ -206,7 +206,7 @@ int SLAPI LocTransfCore::GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec)
+int LocTransfCore::GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(lotID) {
@@ -224,7 +224,7 @@ int SLAPI LocTransfCore::GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Re
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec * pRec)
+int LocTransfCore::GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
 	LocTransfTbl::Key2 k2;
@@ -240,7 +240,7 @@ int SLAPI LocTransfCore::GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec)
+int LocTransfCore::GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(billID) {
@@ -261,7 +261,7 @@ int SLAPI LocTransfCore::GetLastOpByBill(PPID billID, int16 * pRByBill, LocTrans
 	return ok;
 }
 
-int SLAPI LocTransfCore::PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec)
+int LocTransfCore::PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec)
 {
 	int    ok = 1;
 	uint   i = 0;
@@ -285,7 +285,7 @@ int SLAPI LocTransfCore::PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec *
 	return ok;
 }
 
-int SLAPI LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
+int LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
 {
 	int    ok = 1;
 	DBRowId pos;
@@ -317,7 +317,7 @@ int SLAPI LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
 	return ok;
 }
 
-int SLAPI LocTransfCore::UpdateCurrent(PPID locID, PPID goodsID, PPID lotID, double addendum)
+int LocTransfCore::UpdateCurrent(PPID locID, PPID goodsID, PPID lotID, double addendum)
 {
 	int    ok = 1, r;
 	const  PPID user_id = LConfig.UserID;
@@ -360,7 +360,7 @@ int SLAPI LocTransfCore::UpdateCurrent(PPID locID, PPID goodsID, PPID lotID, dou
 	return ok;
 }
 
-int SLAPI LocTransfCore::UpdateForward(PPID locID, long rByLoc, PPID goodsID, PPID lotID, int check, double * pAddendum)
+int LocTransfCore::UpdateForward(PPID locID, long rByLoc, PPID goodsID, PPID lotID, int check, double * pAddendum)
 {
 	int    ok = 1, valid = 1;
 	double neck = fabs(*pAddendum);
@@ -421,7 +421,7 @@ int SLAPI LocTransfCore::UpdateForward(PPID locID, long rByLoc, PPID goodsID, PP
 	return ok;
 }
 
-int SLAPI LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta)
+int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta)
 {
 	int    ok = 1, r;
 	int    rbyloc = rBlk.RByLoc;
@@ -527,7 +527,7 @@ int SLAPI LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetNonEmptyCellList(const PPIDArray * pDomain, PPIDArray * pList)
+int LocTransfCore::GetNonEmptyCellList(const PPIDArray * pDomain, PPIDArray * pList)
 {
 	int    ok = 1;
 	PPIDArray cell_list, result_cell_list;
@@ -546,7 +546,7 @@ int SLAPI LocTransfCore::GetNonEmptyCellList(const PPIDArray * pDomain, PPIDArra
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetEmptyCellList(const PPIDArray * pDomain, PPIDArray * pList)
+int LocTransfCore::GetEmptyCellList(const PPIDArray * pDomain, PPIDArray * pList)
 {
 	int    ok = 1;
 	PPIDArray domain, non_empty_cell_list, result_list;
@@ -561,7 +561,7 @@ int SLAPI LocTransfCore::GetEmptyCellList(const PPIDArray * pDomain, PPIDArray *
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetCellListForGoods(PPID goodsID, const PPIDArray * pDomain, RAssocArray * pList)
+int LocTransfCore::GetCellListForGoods(PPID goodsID, const PPIDArray * pDomain, RAssocArray * pList)
 {
 	int    ok = -1;
 	BExtQuery q(this, 2);
@@ -578,7 +578,7 @@ int SLAPI LocTransfCore::GetCellListForGoods(PPID goodsID, const PPIDArray * pDo
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * pList)
+int LocTransfCore::GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * pList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, freeAll());
@@ -599,7 +599,7 @@ int SLAPI LocTransfCore::GetLocCellList(PPID goodsID, PPID parentLocID, RAssocAr
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetGoodsList(PPID locCellID, RAssocArray * pList)
+int LocTransfCore::GetGoodsList(PPID locCellID, RAssocArray * pList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, freeAll());
@@ -617,7 +617,7 @@ int SLAPI LocTransfCore::GetGoodsList(PPID locCellID, RAssocArray * pList)
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
+int LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
@@ -633,7 +633,7 @@ int SLAPI LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocT
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
+int LocTransfCore::GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
@@ -656,16 +656,16 @@ LocTransfDisposeItem::LocTransfDisposeItem()
 	THISZERO();
 }
 
-SLAPI LocTransfDisposer::LocTransfDisposer() : GtoAssc(PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION, 1)
+LocTransfDisposer::LocTransfDisposer() : GtoAssc(PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION, 1)
 {
 	State = 0;
 }
 
-SLAPI LocTransfDisposer::~LocTransfDisposer()
+LocTransfDisposer::~LocTransfDisposer()
 {
 }
 
-int SLAPI LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID, double * pQtty, LocTransfOpBlock & rBlk)
+int LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID, double * pQtty, LocTransfOpBlock & rBlk)
 {
 	int    ok = 1;
 	double pallet_qtty = 0.0;
@@ -717,7 +717,7 @@ int SLAPI LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whC
 	return ok;
 }
 
-int SLAPI LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLogger, int use_ta)
+int LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1, r;
 	PPObjBill * p_bobj = BillObj;
@@ -796,7 +796,7 @@ int SLAPI LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLo
 	return ok;
 }
 
-int SLAPI LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisposeArray & rOutList, int use_ta)
+int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisposeArray & rOutList, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray domain, temp_list;
@@ -905,7 +905,7 @@ int SLAPI LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTran
 	return ok;
 }
 
-int SLAPI LocTransfDisposer::Dispose(const LocTransfDisposeArray & rInList, LocTransfDisposeArray & rOutList, int use_ta)
+int LocTransfDisposer::Dispose(const LocTransfDisposeArray & rInList, LocTransfDisposeArray & rOutList, int use_ta)
 {
 	int    ok = 1;
 	PPTransaction tra(use_ta);
@@ -973,13 +973,13 @@ IMPL_CMPFUNC(ArrangeCellItem, i1, i2)
 	}
 }
 
-int SLAPI LocTransfDisposer::ArrangeColumnList(PPIDArray & rColumnList)
+int LocTransfDisposer::ArrangeColumnList(PPIDArray & rColumnList)
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI LocTransfDisposer::ArrangeCellList(const LocTransfDisposeItem & rItem, PPIDArray & rLocList)
+int LocTransfDisposer::ArrangeCellList(const LocTransfDisposeItem & rItem, PPIDArray & rLocList)
 {
 	int    ok = -1;
 	uint   i;
@@ -1029,13 +1029,13 @@ int SLAPI LocTransfDisposer::ArrangeCellList(const LocTransfDisposeItem & rItem,
 	return ok;
 }
 
-int SLAPI LocTransfDisposer::GetDistance(PPID loc1ID, PPID loc2ID, double * pDistance)
+int LocTransfDisposer::GetDistance(PPID loc1ID, PPID loc2ID, double * pDistance)
 {
 	ASSIGN_PTR(pDistance, 0.0);
 	return -1;
 }
 
-int SLAPI LocTransfDisposer::CheckLocRestictions(const LocTransfDisposeItem & rItem)
+int LocTransfDisposer::CheckLocRestictions(const LocTransfDisposeItem & rItem)
 {
 	return 1;
 }

@@ -73,9 +73,9 @@ void warnings_argmatch(char * args);
 | complain.  |
    `-----------*/
 
-void complain_init(void); /** Initialize this module.  */
-void complain_free(void); /** Reclaim resources.  */
-void complain_init_color(void); /** Initialize support for colored messages.  */
+void complain_init(); /** Initialize this module.  */
+void complain_free(); /** Reclaim resources.  */
+void complain_init_color(); /** Initialize support for colored messages.  */
 
 /** Flags passed to diagnostics functions.  */
 typedef enum {

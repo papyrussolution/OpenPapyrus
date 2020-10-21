@@ -260,34 +260,21 @@ extern Symbol ** symbols;
 extern symbol_number * token_translations;
 extern int max_code;
 
-/* Dump RITEM for traces. */
-void ritem_print(FILE * out);
-
-/* The size of the longest rule RHS.  */
-size_t ritem_longest_rhs(void);
-
+void ritem_print(FILE * out); /* Dump RITEM for traces. */
+size_t ritem_longest_rhs(); /* The size of the longest rule RHS.  */
 /* Print the grammar's rules that match FILTER on OUT under TITLE.  */
 void grammar_rules_partial_print(FILE * out, const char * title, rule_filter filter);
-
-/* Print the grammar's useful rules on OUT.  */
-void grammar_rules_print(FILE * out);
-/* Print all of the grammar's rules with a "usefulness" attribute.  */
-void grammar_rules_print_xml(FILE * out, int level);
-
-/* Dump the grammar. */
-void grammar_dump(FILE * out, const char * title);
+void grammar_rules_print(FILE * out); /* Print the grammar's useful rules on OUT.  */
+void grammar_rules_print_xml(FILE * out, int level); /* Print all of the grammar's rules with a "usefulness" attribute.  */
+void grammar_dump(FILE * out, const char * title); /* Dump the grammar. */
 
 /* Report on STDERR the rules that are not flagged USEFUL, using the
    MESSAGE (which can be 'rule useless in grammar' when invoked after grammar
    reduction, or 'rule useless in parser due to conflicts' after conflicts
    were taken into account).  */
 void grammar_rules_useless_report(const char * message);
-
-/* Free the packed grammar. */
-void grammar_free(void);
-
-/* The version %required by the grammar file, as an int (100 * major +
-   minor).  0 if unspecified.  */
+void grammar_free(); /* Free the packed grammar. */
+/* The version %required by the grammar file, as an int (100 * major + minor).  0 if unspecified.  */
 extern int required_version;
 
 #endif /* !GRAM_H_ */

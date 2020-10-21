@@ -1872,13 +1872,13 @@ library PapyrusInterfaceLib version(1.1) {
 	}
 	/* not implemented
 	struct SPpyO_ReckonOpEx {
-		SLAPI  PPReckonOpEx();
-		int    SLAPI Init();
-		PPReckonOpEx & SLAPI operator = (const PPReckonOpEx &);
-		int    SLAPI GetReckonPeriod(LDATE debtDate, DateRange *) const;
-		int    SLAPI GetDebtPeriod(LDATE paymDate, DateRange *) const;
-		int    SLAPI PeriodToStr(char * pBuf, size_t bufLen) const;
-		int    SLAPI StrToPeriod(string code);
+		PPReckonOpEx();
+		int    Init();
+		PPReckonOpEx & operator = (const PPReckonOpEx &);
+		int    GetReckonPeriod(LDATE debtDate, DateRange *) const;
+		int    GetDebtPeriod(LDATE paymDate, DateRange *) const;
+		int    PeriodToStr(char * pBuf, size_t bufLen) const;
+		int    StrToPeriod(string code);
 
 		date  Beg;
 		date  End;

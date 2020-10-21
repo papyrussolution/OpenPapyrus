@@ -115,7 +115,7 @@ int PervasiveDBCatalog::IsValid() const
 	return BIN(State & sValid);
 }
 
-static int SLAPI GetServerNameFromUncPath(const char * pUncPath, SString & rServerName)
+static int GetServerNameFromUncPath(const char * pUncPath, SString & rServerName)
 {
 	int    start = 0;
 	rServerName.Z();

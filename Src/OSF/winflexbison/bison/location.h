@@ -90,11 +90,11 @@ void location_compute(Location * loc, boundary * cur, char const * token, size_t
 int location_print(Location loc, FILE * out);
 
 /* Prepare the use of location_caret.  */
-void caret_init(void);
+void caret_init();
 
 /* Free any allocated resources and close any open file handles that are
    left-over by the usage of location_caret.  */
-void caret_free(void);
+void caret_free();
 
 /* If -fcaret is enabled, quote the line containing LOC onto OUT.
    Highlight the part of LOC with the color STYLE.  */

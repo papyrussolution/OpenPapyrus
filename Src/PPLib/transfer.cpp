@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem__(0), P_LcrT(0), P_Lcr2T(0)
+Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem__(0), P_LcrT(0), P_Lcr2T(0)
 {
 	const PPCommConfig & r_ccfg = CConfig;
 	const int lcrusage = r_ccfg.LcrUsage;
@@ -18,13 +18,13 @@ SLAPI Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem_
 	}
 }
 
-SLAPI Transfer::~Transfer()
+Transfer::~Transfer()
 {
 	delete P_LcrT;
 	delete P_Lcr2T;
 }
 
-int SLAPI Transfer::EnumByLot(PPID lotID, LDATE * date, long *oprno, TransferTbl::Rec * pRec)
+int Transfer::EnumByLot(PPID lotID, LDATE * date, long *oprno, TransferTbl::Rec * pRec)
 {
 	int    r = Search(lotID, *date, *oprno, spGt);
 	if(r > 0) {
@@ -35,7 +35,7 @@ int SLAPI Transfer::EnumByLot(PPID lotID, LDATE * date, long *oprno, TransferTbl
 	return r;
 }
 
-int SLAPI Transfer::EnumByLot(PPID lotID, DateIter * pIter, TransferTbl::Rec * pRec)
+int Transfer::EnumByLot(PPID lotID, DateIter * pIter, TransferTbl::Rec * pRec)
 {
 	assert(pIter != 0);
 	int    r = Search(lotID, pIter->dt, pIter->oprno, spGt);
@@ -47,7 +47,7 @@ int SLAPI Transfer::EnumByLot(PPID lotID, DateIter * pIter, TransferTbl::Rec * p
 		return r;
 }
 
-int SLAPI Transfer::IsDeadLot(PPID lotID)
+int Transfer::IsDeadLot(PPID lotID)
 {
 	LDATE  dt = ZERODATE;
 	long   oprno = 0;
@@ -58,7 +58,7 @@ int SLAPI Transfer::IsDeadLot(PPID lotID)
 	return is_dead ? +1 : -1;
 }
 
-int SLAPI Transfer::SearchByBill(PPID billID, int reverse, short rByBill, TransferTbl::Rec * pRec)
+int Transfer::SearchByBill(PPID billID, int reverse, short rByBill, TransferTbl::Rec * pRec)
 {
 	TransferTbl::Key0 k0;
 	k0.BillID  = billID;
@@ -70,7 +70,7 @@ int SLAPI Transfer::SearchByBill(PPID billID, int reverse, short rByBill, Transf
 	return r;
 }
 
-int SLAPI Transfer::RecByBill(PPID billID, short * rByBill)
+int Transfer::RecByBill(PPID billID, short * rByBill)
 {
 	int    ok = 1;
 	int    sp_mode = spEq;
@@ -98,7 +98,7 @@ int SLAPI Transfer::RecByBill(PPID billID, short * rByBill)
 	return ok;
 }
 
-int SLAPI Transfer::SearchMirror(LDATE dt, long oprno, TransferTbl::Rec * mirror)
+int Transfer::SearchMirror(LDATE dt, long oprno, TransferTbl::Rec * mirror)
 {
 	int    ok = -1;
 	TransferTbl::Key1 k1;
@@ -117,7 +117,7 @@ int SLAPI Transfer::SearchMirror(LDATE dt, long oprno, TransferTbl::Rec * mirror
 	return ok;
 }
 
-int SLAPI Transfer::IsCompletedLot(PPID lotID)
+int Transfer::IsCompletedLot(PPID lotID)
 {
 	int    ok = -1;
 	PPID   org_lot_id = 0;
@@ -136,16 +136,16 @@ int SLAPI Transfer::IsCompletedLot(PPID lotID)
 	return ok;
 }
 
-/*inline*/ int SLAPI Transfer::GetOprNo(LDATE date, long *oprno)
+/*inline*/ int Transfer::GetOprNo(LDATE date, long *oprno)
 	{ return IncDateKey(this, 1, date, oprno); }
 
-inline int SLAPI Transfer::GetLotOprNo(LDATE date, long *oprno)
+inline int Transfer::GetLotOprNo(LDATE date, long *oprno)
 	{ return IncDateKey(&Rcpt, 1, date, oprno); }
 //
 // Процедура AddLotItem при добавлении записи обнуляет текущий остаток.
 // Изменение остатка делает процедура _UpdateForward.
 //
-int SLAPI Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
+int Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 {
 	int    ok = 1;
 	PPID   prev_lot = ti->LotID;
@@ -212,7 +212,7 @@ int SLAPI Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 	return ok;
 }
 
-int SLAPI Transfer::SearchReval(PPID lotID, LDATE date, long oprno, TransferTbl::Rec * b)
+int Transfer::SearchReval(PPID lotID, LDATE date, long oprno, TransferTbl::Rec * b)
 {
 	int    r = 1;
 	if(date)
@@ -222,7 +222,7 @@ int SLAPI Transfer::SearchReval(PPID lotID, LDATE date, long oprno, TransferTbl:
 	return r ? -1 : 0;
 }
 
-int SLAPI Transfer::UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF)
+int Transfer::UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF)
 {
 	int    ok = 1;
 	uint   uf = 0;
@@ -269,7 +269,7 @@ int SLAPI Transfer::UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno,
 	return ok;
 }
 
-int SLAPI Transfer::UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF)
+int Transfer::UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF)
 {
 	int    ok = 1, r;
 	uint   uf = 0;
@@ -303,7 +303,7 @@ int SLAPI Transfer::UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, 
 	return ok;
 }
 
-SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocList) : Date(plusdate(dt, 1))
+Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocList) : Date(plusdate(dt, 1))
 {
 	//
 	// Получаем список видов операции переоценки
@@ -379,7 +379,7 @@ int FASTCALL Transfer::GetLotPricesCache::Get(ReceiptTbl::Rec * pLotRec)
 	return RLotList.bsearch(pLotRec->ID) ? BillObj->trfr->GetLotPrices(pLotRec, plusdate(Date, -1), 0) : -1;
 }
 
-int SLAPI Transfer::GetLotPrices(ReceiptTbl::Rec * pLotRec, LDATE date, long oprno)
+int Transfer::GetLotPrices(ReceiptTbl::Rec * pLotRec, LDATE date, long oprno)
 {
 	int    r = -1;
 	if(oprno == 0)
@@ -403,12 +403,12 @@ int SLAPI Transfer::GetLotPrices(ReceiptTbl::Rec * pLotRec, LDATE date, long opr
 //
 // GoodsRestVal, GoodsRestParam
 //
-SLAPI GoodsRestVal::GoodsRestVal(const ReceiptTbl::Rec * pLotRec, double r)
+GoodsRestVal::GoodsRestVal(const ReceiptTbl::Rec * pLotRec, double r)
 {
 	Init(pLotRec, r);
 }
 
-void SLAPI GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
+void GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 {
 	Count = 0;
 	if(pLotRec) {
@@ -434,18 +434,18 @@ void SLAPI GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 	LotTagText[0] = 0;
 }
 
-SLAPI GoodsRestParam::GoodsRestParam() : CalcMethod(0), Flags_(0), DiffParam(_diffNone), Date(ZERODATE), Md_(ZERODATE), OprNo(0), Mo_(0),
+GoodsRestParam::GoodsRestParam() : CalcMethod(0), Flags_(0), DiffParam(_diffNone), Date(ZERODATE), Md_(ZERODATE), OprNo(0), Mo_(0),
 	LocID(0), GoodsID(0), SupplID(0), AgentID(0), GoodsTaxGrpID(0), DiffLotTagID(0), P_SupplAgentBillList(0), P_Rpe(0)
 {
 	InitVal();
 }
 
-SLAPI GoodsRestParam::GoodsRestParam(const GoodsRestParam & rS) : P_SupplAgentBillList(0), P_Rpe(0)
+GoodsRestParam::GoodsRestParam(const GoodsRestParam & rS) : P_SupplAgentBillList(0), P_Rpe(0)
 {
 	Copy(rS);
 }
 
-void SLAPI GoodsRestParam::Init()
+void GoodsRestParam::Init()
 {
 	CalcMethod = 0;
 	Flags_ = 0;
@@ -500,7 +500,7 @@ GoodsRestParam & FASTCALL GoodsRestParam::operator = (const GoodsRestParam & rS)
 	return *this;
 }
 
-void SLAPI GoodsRestParam::InitVal()
+void GoodsRestParam::InitVal()
 {
 	Md_ = ZERODATE;
 	Mo_ = 0;
@@ -514,7 +514,7 @@ void SLAPI GoodsRestParam::InitVal()
 	}
 }
 
-void SLAPI GoodsRestParam::Set(const GoodsRestFilt & rF, RetailPriceExtractor * pRpe)
+void GoodsRestParam::Set(const GoodsRestFilt & rF, RetailPriceExtractor * pRpe)
 {
 	Init();
 	P_Rpe = pRpe; // @v10.3.2
@@ -557,7 +557,7 @@ double FASTCALL GoodsRestParam::GetRestByLoc(PPID locID) const
 	return rest;
 }
 
-PPID SLAPI GoodsRestParam::DiffByTag() const { return (DiffParam == _diffLotTag && DiffLotTagID) ? DiffLotTagID : 0; }
+PPID GoodsRestParam::DiffByTag() const { return (DiffParam == _diffLotTag && DiffLotTagID) ? DiffLotTagID : 0; }
 
 int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal * a) const
 {
@@ -581,7 +581,7 @@ int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal
 	return yes;
 }
 
-int SLAPI GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pAdd)
+int GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pAdd)
 {
 	if(p == -1) {
 		pAdd->Count = 1;
@@ -631,7 +631,7 @@ int SLAPI GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pA
 	return 1;
 }
 
-int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, double rest, LDATE orgLotDate)
+int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, double rest, LDATE orgLotDate)
 {
 	int    merge;
 	uint   i;
@@ -755,7 +755,7 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 	return 1;
 }
 
-int SLAPI GoodsRestParam::CheckBill(const ReceiptTbl::Rec * pRec, LDATE * pOrgLotDate) const
+int GoodsRestParam::CheckBill(const ReceiptTbl::Rec * pRec, LDATE * pOrgLotDate) const
 {
 	int    ok = 1;
 	LDATE  org_lot_date = ZERODATE;
@@ -795,7 +795,7 @@ int SLAPI GoodsRestParam::CheckBill(const ReceiptTbl::Rec * pRec, LDATE * pOrgLo
 //
 //
 //
-int SLAPI Transfer::CalcAssetDeprec(PPID lotID, const DateRange * pPeriod, double * pDeprec)
+int Transfer::CalcAssetDeprec(PPID lotID, const DateRange * pPeriod, double * pDeprec)
 {
 	int    ok = 1;
 	double deprec = 0.0, rest = 0.0;
@@ -823,7 +823,7 @@ int SLAPI Transfer::CalcAssetDeprec(PPID lotID, const DateRange * pPeriod, doubl
 	return ok;
 }
 
-void SLAPI GoodsRestParam::DivRestPrices()
+void GoodsRestParam::DivRestPrices()
 {
 	if(CalcMethod == pcmSum) {
 		Total.Cost  *= Total.Rest;
@@ -850,7 +850,7 @@ static int FASTCALL CR_MakeLocList(const GoodsRestParam & rP, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int closedTag, int nzRestOnly, LotArray * pRecList)
+int ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int closedTag, int nzRestOnly, LotArray * pRecList)
 {
 	int    ok = 1;
 	ReceiptTbl::Key3 k3;
@@ -875,7 +875,7 @@ int SLAPI ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LD
 	return ok;
 }
 
-int SLAPI ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int openedOnly, int nzRestOnly, LotArray * pRecList)
+int ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int openedOnly, int nzRestOnly, LotArray * pRecList)
 {
 	int    ok = 1;
 	THROW(Helper_GetList(goodsID, locID, supplID, beforeDt, 0, nzRestOnly, pRecList));
@@ -886,7 +886,7 @@ int SLAPI ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE bef
 	return ok;
 }
 
-int SLAPI Transfer::GetCurRest(GoodsRestParam & rP)
+int Transfer::GetCurRest(GoodsRestParam & rP)
 {
 	int    ok = 1, r = 1;
 	PPIDArray loc_list;
@@ -935,7 +935,7 @@ int SLAPI Transfer::GetCurRest(GoodsRestParam & rP)
 	return ok;
 }
 
-int SLAPI Transfer::GetRest(GoodsRestParam & rP)
+int Transfer::GetRest(GoodsRestParam & rP)
 {
 	int    ok = 1;
 	if(rP.Date == 0)
@@ -1020,7 +1020,7 @@ int SLAPI Transfer::GetRest(GoodsRestParam & rP)
 	return ok;
 }
 
-int SLAPI Transfer::Search(PPID lot, LDATE date, long oprno, int spMode)
+int Transfer::Search(PPID lot, LDATE date, long oprno, int spMode)
 {
 	TransferTbl::Key2 k;
 	k.LotID = lot;
@@ -1029,7 +1029,7 @@ int SLAPI Transfer::Search(PPID lot, LDATE date, long oprno, int spMode)
 	return (search(2, &k, spMode) && k.LotID == lot) ? 1 : PPDbSearchError();
 }
 
-int SLAPI Transfer::GetRest(PPID lotID, LDATE date, long oprno, double * pRest, double * pPhRest)
+int Transfer::GetRest(PPID lotID, LDATE date, long oprno, double * pRest, double * pPhRest)
 {
 	TransferTbl::Key2 k;
 	k.LotID = lotID;
@@ -1048,12 +1048,12 @@ int SLAPI Transfer::GetRest(PPID lotID, LDATE date, long oprno, double * pRest, 
 	}
 }
 
-int SLAPI Transfer::GetRest(PPID lotID, LDATE dt, double * pRest, double * pPhRest)
+int Transfer::GetRest(PPID lotID, LDATE dt, double * pRest, double * pPhRest)
 {
 	return GetRest(lotID, dt, MAXLONG, pRest, pPhRest);
 }
 
-int SLAPI Transfer::GetBounds(PPID lotID, LDATE date, long oprno, double * pMinusDelta, double * pPlusDelta)
+int Transfer::GetBounds(PPID lotID, LDATE date, long oprno, double * pMinusDelta, double * pPlusDelta)
 {
 	int    ok = 1;
 	double down = 0.0;
@@ -1090,7 +1090,7 @@ int SLAPI Transfer::GetBounds(PPID lotID, LDATE date, long oprno, double * pMinu
 	return ok;
 }
 
-int SLAPI Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & rPeriod, double ignoreEpsilon, double * pRest)
+int Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & rPeriod, double ignoreEpsilon, double * pRest)
 {
 	int    ok = 1;
 	const  double _epsilon = (ignoreEpsilon > 0.0) ? ignoreEpsilon : 0.0;
@@ -1110,7 +1110,7 @@ int SLAPI Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRa
 	return ok;
 }
 
-int SLAPI Transfer::PreprocessCorrectionExp(PPTransferItem & rTi, const PPIDArray & rBillChain)
+int Transfer::PreprocessCorrectionExp(PPTransferItem & rTi, const PPIDArray & rBillChain)
 {
 	int   ok = 1;
 	if(rTi.IsCorrectionExp()) {
@@ -1126,7 +1126,7 @@ int SLAPI Transfer::PreprocessCorrectionExp(PPTransferItem & rTi, const PPIDArra
 	return ok;
 }
 
-int SLAPI Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double * pAddendum, double * pPhAdd)
+int Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double * pAddendum, double * pPhAdd)
 {
 	int    ok = 1;
 	int    r = 1, valid = 1;
@@ -1190,7 +1190,7 @@ int SLAPI Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, d
 	return ok;
 }
 
-int SLAPI Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum, double phAddend)
+int Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum, double phAddend)
 {
 	int    ok = 1;
 	int    is_recomplete = BIN((rRec.Flags & (PPTFR_REVAL|PPTFR_MODIF)) == (PPTFR_REVAL|PPTFR_MODIF));
@@ -1259,7 +1259,7 @@ int SLAPI Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum
 	return ok;
 }
 
-int SLAPI Transfer::GetLocGoodsList(PPID locID, UintHashTable & rList)
+int Transfer::GetLocGoodsList(PPID locID, UintHashTable & rList)
 {
 	int    ok = 1;
 	if(locID) {
@@ -1290,7 +1290,7 @@ int SLAPI Transfer::GetLocGoodsList(PPID locID, UintHashTable & rList)
 	return ok;
 }
 
-int SLAPI Transfer::UpdateCurRest(PPID goodsID, PPID loc, double addendum)
+int Transfer::UpdateCurRest(PPID goodsID, PPID loc, double addendum)
 {
 	//
 	// @v6.6.11 Сделаны изменения для того, чтобы записи с нулевым остатком не
@@ -1356,7 +1356,7 @@ long FASTCALL MASK_TFR_FLAGS(long f)
 // должна идти проводка по РАСХОДУ. Это очень важное замечание так как, в случае автоматического провода
 // зеркальной проводки знак количества меняется на противоположный.
 //
-int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
+int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 {
 	int    ok = 1, r;
 	int    _reverse = 0;
@@ -2095,7 +2095,7 @@ int Transfer::LcrBlock2::TranslateErr(PPLotFaultArray * pLfa) const
 	return ok;
 }
 
-int SLAPI Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int forceRebuild)
+int Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int forceRebuild)
 {
 	int    ok = -1;
 	if(P_LcrT && lotID) {
@@ -2141,7 +2141,7 @@ int SLAPI Transfer::Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int for
 	return ok;
 }
 
-int SLAPI Transfer::Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceRebuild)
+int Transfer::Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceRebuild)
 {
 	int    ok = -1;
 	if(P_Lcr2T && lotID) {
@@ -2187,7 +2187,7 @@ int SLAPI Transfer::Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int fo
 	return ok;
 }
 
-int SLAPI Transfer::GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList)
+int Transfer::GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList)
 {
 	int    ok = 1;
 	const PPCommConfig & r_ccfg = CConfig;
@@ -2243,7 +2243,7 @@ int SLAPI Transfer::GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray *
 	return ok;
 }
 
-int SLAPI Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p, uint flags, int use_ta)
+int Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p, uint flags, int use_ta)
 {
 	int    ok = 1, r;
 	PPID   prev_lot_id = 0;
@@ -2368,7 +2368,7 @@ int SLAPI Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p
 	return ok;
 }
 
-int SLAPI Transfer::UpdateReceipt(PPID lotID, PPTransferItem * ti, PPID prevLotID, long flags)
+int Transfer::UpdateReceipt(PPID lotID, PPTransferItem * ti, PPID prevLotID, long flags)
 {
 	int    ok = 1;
 	uint   ucl_flags = 0;
@@ -2457,7 +2457,7 @@ int SLAPI Transfer::UpdateReceipt(PPID lotID, PPTransferItem * ti, PPID prevLotI
 // В считанной записи TransferTbl::Rec проверяется поле Flags на флажок PPTFR_RECEIPT.
 // Если этот флажок установлен, то будет модифицироваться приходная запись.
 //
-int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rByBill, long flags, int use_ta)
+int Transfer::UpdateItem(PPTransferItem * ti, int16 & rByBill, long flags, int use_ta)
 {
 	return UpdateItem(ti, rByBill, 0, flags, use_ta);
 }
@@ -2465,7 +2465,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rByBill, long flags,
 // Функция UpdateItem умеет выправлять несоответствующие зеркальные проводки.
 // Для этой цели необходимо параметр reverse установить в значение 1.
 //
-int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, long flags, int use_ta)
+int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, long flags, int use_ta)
 {
 	int    ok = 1, r;
 	short  _rbb = ti->RByBill;
@@ -2740,7 +2740,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 	return ok;
 }
 
-int SLAPI Transfer::RemoveItem(PPID billID, int rByBill, int force, int use_ta)
+int Transfer::RemoveItem(PPID billID, int rByBill, int force, int use_ta)
 {
 	return RemoveItem(billID, 0, rByBill, force, use_ta);
 }
@@ -2749,7 +2749,7 @@ int SLAPI Transfer::RemoveItem(PPID billID, int rByBill, int force, int use_ta)
 // зеркальной записи. Для удаления такой записи необходимо
 // параметр reverse установить в значение 1.
 //
-int SLAPI Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force, int use_ta)
+int Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force, int use_ta)
 {
 	int    ok = 1, r;
 	LDATE  dt;
@@ -2837,7 +2837,7 @@ int SLAPI Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force,
 	return ok;
 }
 
-int SLAPI Transfer::SubtractBillQtty(PPID billID, PPID lotID, double * pRest)
+int Transfer::SubtractBillQtty(PPID billID, PPID lotID, double * pRest)
 {
 	if(billID && lotID) {
 		TransferTbl::Key0 k;
@@ -2856,7 +2856,7 @@ int SLAPI Transfer::SubtractBillQtty(PPID billID, PPID lotID, double * pRest)
 // перемещает операцию param->TrRec с лота SrcLot (SrcLotID == TrRec.LotID)
 // на лот DestLotID (DestLot.GoodsID == SrcLot.GoodsID).
 //
-int SLAPI Transfer::MoveOp(LotOpMovParam * param, int use_ta)
+int Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 {
 	int    ok = 1;
 	long   oprno = 0;
@@ -2890,7 +2890,7 @@ int SLAPI Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 	return ok;
 }
 
-int SLAPI Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
+int Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -2928,7 +2928,7 @@ int SLAPI Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
 	return ok;
 }
 
-int SLAPI Transfer::InitLotOpMovParam(PPID srcLotID, PPID destLotID, LotOpMovParam * pParam, int zeroSrcLotID)
+int Transfer::InitLotOpMovParam(PPID srcLotID, PPID destLotID, LotOpMovParam * pParam, int zeroSrcLotID)
 {
 	int    ok = 1;
 	memzero(pParam, sizeof(*pParam));
@@ -2949,7 +2949,7 @@ int SLAPI Transfer::InitLotOpMovParam(PPID srcLotID, PPID destLotID, LotOpMovPar
 	return ok;
 }
 
-int SLAPI Transfer::MoveLotOp(PPID srcLotID, LDATE dt, long oprno, PPID destLotID, int use_ta)
+int Transfer::MoveLotOp(PPID srcLotID, LDATE dt, long oprno, PPID destLotID, int use_ta)
 {
 	int    ok = 1;
 	LotOpMovParam param;
@@ -2981,7 +2981,7 @@ int SLAPI Transfer::MoveLotOp(PPID srcLotID, LDATE dt, long oprno, PPID destLotI
 	return ok;
 }
 
-int SLAPI Transfer::MoveLotOps(PPID srcLotID, PPID destLotID, long flags, int use_ta)
+int Transfer::MoveLotOps(PPID srcLotID, PPID destLotID, long flags, int use_ta)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -3020,7 +3020,7 @@ int SLAPI Transfer::MoveLotOps(PPID srcLotID, PPID destLotID, long flags, int us
 	return ok;
 }
 
-int SLAPI Transfer::GetLastOpByGoods(PPID goodsID, LDATE beforeDt, long beforeOprNo, TransferTbl::Rec * pRec)
+int Transfer::GetLastOpByGoods(PPID goodsID, LDATE beforeDt, long beforeOprNo, TransferTbl::Rec * pRec)
 {
 	int    ok = -1;
 	TransferTbl::Key3 k3;

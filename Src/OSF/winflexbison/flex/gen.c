@@ -37,7 +37,7 @@
 
 /* declare functions that have forward references */
 
-void    genecs(void);
+void genecs();
 
 static int indent_level = 0;    /* each level is 8 spaces */
 
@@ -49,29 +49,29 @@ static int indent_level = 0;    /* each level is 8 spaces */
  * 0 elements of its arrays, too.)
  */
 
-static const char * get_int16_decl(void)
+static const char * get_int16_decl()
 {
-	return (gentables) ? "static const flex_int16_t %s[%d] =\n    {   0,\n" : "static const flex_int16_t * %s = 0;\n";
+	return (gentables) ? "static const flex_int16_t %s[%d] = {\n\t0,\n" : "static const flex_int16_t * %s = 0;\n";
 }
 
-static const char * get_int32_decl(void)
+static const char * get_int32_decl()
 {
-	return (gentables) ? "static const flex_int32_t %s[%d] =\n    {   0,\n" : "static const flex_int32_t * %s = 0;\n";
+	return (gentables) ? "static const flex_int32_t %s[%d] = {\n\t0,\n" : "static const flex_int32_t * %s = 0;\n";
 }
 
-static const char * get_state_decl(void)
+static const char * get_state_decl()
 {
-	return (gentables) ? "static const yy_state_type %s[%d] =\n    {   0,\n" : "static const yy_state_type * %s = 0;\n";
+	return (gentables) ? "static const yy_state_type %s[%d] = {\n\t0,\n" : "static const yy_state_type * %s = 0;\n";
 }
 
-static const char * get_yy_char_decl(void)
+static const char * get_yy_char_decl()
 {
-	return (gentables) ? "static const YY_CHAR %s[%d] =\n    {   0,\n" : "static const YY_CHAR * %s = 0;\n";
+	return (gentables) ? "static const YY_CHAR %s[%d] = {\n\t0,\n" : "static const YY_CHAR * %s = 0;\n";
 }
 
 /* Indent to the current level. */
 
-void do_indent(void)
+void do_indent()
 {
 	int i = indent_level * 8;
 	while(i >= 8) {
@@ -87,7 +87,7 @@ void do_indent(void)
 /** Make the table for possible eol matches.
  *  @return the newly allocated rule_can_match_eol table
  */
-static struct yytbl_data * mkeoltbl(void)
+static struct yytbl_data * mkeoltbl()
 {
 	int i;
 	flex_int8_t * tdata = 0;
@@ -98,12 +98,12 @@ static struct yytbl_data * mkeoltbl(void)
 	tbl->td_data = tdata = (flex_int8_t *)calloc(tbl->td_lolen, sizeof(flex_int8_t));
 	for(i = 1; i <= num_rules; i++)
 		tdata[i] = rule_has_nl[i] ? 1 : 0;
-	buf_prints(&yydmap_buf, "\t{YYTD_ID_RULE_CAN_MATCH_EOL, (void**)&yy_rule_can_match_eol, sizeof(%s)},\n", "flex_int32_t");
+	buf_prints(&yydmap_buf, "\t{YYTD_ID_RULE_CAN_MATCH_EOL, (void **)&yy_rule_can_match_eol, sizeof(%s)},\n", "flex_int32_t");
 	return tbl;
 }
 
 /* Generate the table for possible eol matches. */
-static void geneoltbl(void)
+static void geneoltbl()
 {
 	int i;
 	outn("m4_ifdef( [[M4_YY_USE_LINENO]],[[");
@@ -123,7 +123,7 @@ static void geneoltbl(void)
 
 /* Generate the code to keep backing-up information. */
 
-void gen_backing_up(void)
+void gen_backing_up()
 {
 	if(reject || num_backing_up == 0)
 		return;
@@ -141,17 +141,14 @@ void gen_backing_up(void)
 
 /* Generate the code to perform the backing up. */
 
-void gen_bu_action(void)
+void gen_bu_action()
 {
 	if(reject || num_backing_up == 0)
 		return;
-
 	set_indent(3);
-
 	indent_puts("case 0: /* must back up */");
 	indent_puts("/* undo the effects of YY_DO_BEFORE_ACTION */");
 	indent_puts("*yy_cp = YY_G(yy_hold_char);");
-
 	if(fullspd || fulltbl)
 		indent_puts("yy_cp = YY_G(yy_last_accepting_cpos) + 1;");
 	else
@@ -174,7 +171,7 @@ void gen_bu_action(void)
  * @return the newly allocated trans table
  */
 
-static struct yytbl_data * mkctbl(void)
+static struct yytbl_data * mkctbl()
 {
 	int i;
 	struct yytbl_data * tbl = 0;
@@ -267,7 +264,7 @@ static struct yytbl_data * mkctbl(void)
 /** Make start_state_list table.
  *  @return the newly allocated start_state_list table
  */
-static struct yytbl_data * mkssltbl(void)
+static struct yytbl_data * mkssltbl()
 {
 	struct yytbl_data * tbl = 0;
 	flex_int32_t * tdata = 0;
@@ -280,13 +277,13 @@ static struct yytbl_data * mkssltbl(void)
 	tbl->td_data = tdata = (flex_int32_t *)calloc(tbl->td_lolen, sizeof(flex_int32_t));
 	for(i = 0; i <= lastsc * 2; ++i)
 		tdata[i] = base[i];
-	buf_prints(&yydmap_buf, "\t{YYTD_ID_START_STATE_LIST, (void**)&yy_start_state_list, sizeof(%s)},\n", "struct yy_trans_info*");
+	buf_prints(&yydmap_buf, "\t{ YYTD_ID_START_STATE_LIST, (void **)&yy_start_state_list, sizeof(%s) },\n", "struct yy_trans_info*");
 	return tbl;
 }
 
 /* genctbl - generates full speed compressed transition table */
 
-void genctbl(void)
+void genctbl()
 {
 	int i;
 	int end_of_buffer_action = num_rules + 1;
@@ -384,7 +381,7 @@ void genctbl(void)
 
 /* mkecstbl - Make equivalence-class tables.  */
 
-static struct yytbl_data * mkecstbl(void)
+static struct yytbl_data * mkecstbl()
 {
 	int i;
 	struct yytbl_data * tbl = 0;
@@ -405,7 +402,7 @@ static struct yytbl_data * mkecstbl(void)
 
 /* Generate equivalence-class tables. */
 
-void genecs(void)
+void genecs()
 {
 	int i, j;
 	int numrows;
@@ -437,7 +434,7 @@ void genecs(void)
 
 /* Generate the code to find the action number. */
 
-void gen_find_action(void)
+void gen_find_action()
 {
 	if(fullspd)
 		indent_puts("yy_act = yy_current_state[-1].yy_nxt;");
@@ -552,7 +549,7 @@ void gen_find_action(void)
 /* mkftbl - make the full table and return the struct .
  * you should call mkecstbl() after this.
  */
-struct yytbl_data * mkftbl(void)
+struct yytbl_data * mkftbl()
 {
 	int i;
 	int end_of_buffer_action = num_rules + 1;
@@ -576,7 +573,7 @@ struct yytbl_data * mkftbl(void)
 
 /* genftbl - generate full transition table */
 
-void genftbl(void)
+void genftbl()
 {
 	int i;
 	int end_of_buffer_action = num_rules + 1;
@@ -632,7 +629,7 @@ void gen_next_compressed_state(char * char_map)
 
 /* Generate the code to find the next match. */
 
-void gen_next_match(void)
+void gen_next_match()
 {
 	/* NOTE - changes in here should be reflected in gen_next_state() and
 	 * gen_NUL_trans().
@@ -765,21 +762,18 @@ void gen_next_state(int worry_about_NULs)
 		--indent_level;
 		indent_puts("else");
 		++indent_level;
-		indent_puts
-			("yy_current_state = yy_NUL_trans[yy_current_state];");
+		indent_puts("yy_current_state = yy_NUL_trans[yy_current_state];");
 		--indent_level;
 	}
-
 	if(fullspd || fulltbl)
 		gen_backing_up();
-
 	if(reject)
 		indent_puts("*YY_G(yy_state_ptr)++ = yy_current_state;");
 }
 
 /* Generate the code to make a NUL transition. */
 
-void gen_NUL_trans(void)
+void gen_NUL_trans()
 {                               /* NOTE - changes in here should be reflected in gen_next_match() */
 	/* Only generate a definition for "yy_cp" if we'll generate code
 	 * that uses it.  Otherwise lint and the like complain.
@@ -863,24 +857,19 @@ void gen_NUL_trans(void)
 
 /* Generate the code to find the start state. */
 
-void gen_start_state(void)
+void gen_start_state()
 {
 	if(fullspd) {
 		if(bol_needed) {
-			indent_puts
-				("yy_current_state = yy_start_state_list[YY_G(yy_start) + YY_AT_BOL()];");
+			indent_puts("yy_current_state = yy_start_state_list[YY_G(yy_start) + YY_AT_BOL()];");
 		}
 		else
-			indent_puts
-				("yy_current_state = yy_start_state_list[YY_G(yy_start)];");
+			indent_puts("yy_current_state = yy_start_state_list[YY_G(yy_start)];");
 	}
-
 	else {
 		indent_puts("yy_current_state = YY_G(yy_start);");
-
 		if(bol_needed)
 			indent_puts("yy_current_state += YY_AT_BOL();");
-
 		if(reject) {
 			/* Set up for storing up states. */
 			outn("m4_ifdef( [[M4_YY_USES_REJECT]],\n[[");
@@ -895,7 +884,7 @@ void gen_start_state(void)
 
 /* gentabs - generate data statements for the transition tables */
 
-void gentabs(void)
+void gentabs()
 {
 	int i, j, k, * accset, nacc, * acc_array, total_states;
 	int end_of_buffer_action = num_rules + 1;
@@ -1229,8 +1218,7 @@ void indent_puts(const char * str)
 
 /* make_tables - generate transition tables and finishes generating output file
  */
-
-void make_tables(void)
+void make_tables()
 {
 	int i;
 	int did_eof_rule = false;
@@ -1810,25 +1798,20 @@ void make_tables(void)
 			--indent_level;
 		}
 	}
-
 	else if(do_yylineno) {
 		indent_puts("if(c == '\\n')");
 		++indent_level;
 		indent_puts("M4_YY_INCR_LINENO();");
 		--indent_level;
 	}
-
 	skelout();
-
 	/* Copy remainder of input to output. */
-
 	line_directive_out(stdout, 1);
-
 	if(sectnum == 3) {
 		OUT_BEGIN_CODE();
 		if(!no_section3_escape)
 			fputs("[[", stdout);
-		(void)flexscan();       /* copy remainder of input to output */
+		flexscan();       /* copy remainder of input to output */
 		if(!no_section3_escape)
 			fputs("]]", stdout);
 		OUT_END_CODE();

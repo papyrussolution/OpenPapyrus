@@ -215,36 +215,28 @@ void    bldtbl(int state[], int statenum, int totaltrans, int comstate, int comf
  * classes.
  */
 
-void    cmptmps(void)
+void cmptmps()
 {
 	int tmpstorage[CSIZE + 1];
 	int * tmp = tmpstorage, i, j;
 	int totaltrans, trans;
-
 	peakpairs = numtemps * numecs + tblend;
-
 	if(usemecs) {
 		/* Create equivalence classes based on data gathered on
 		 * template transitions.
 		 */
 		nummecs = cre8ecs(tecfwd, tecbck, numecs);
 	}
-
 	else
 		nummecs = numecs;
-
 	while(lastdfa + numtemps + 1 >= current_max_dfas)
 		increase_max_dfas();
-
 	/* Loop through each template. */
-
 	for(i = 1; i <= numtemps; ++i) {
 		/* Number of non-jam transitions out of this template. */
 		totaltrans = 0;
-
 		for(j = 1; j <= numecs; ++j) {
 			trans = tnxt[numecs * i + j];
-
 			if(usemecs) {
 				/* The absolute value of tecbck is the
 				 * meta-equivalence class of a given
@@ -279,8 +271,7 @@ void    cmptmps(void)
 }
 
 /* expand_nxt_chk - expand the next check arrays */
-
-void    expand_nxt_chk(void)
+void expand_nxt_chk()
 {
 	int old_max = current_max_xpairs;
 	current_max_xpairs += MAX_XPAIRS_INCREMENT;
@@ -396,13 +387,12 @@ int     find_table_space(int * state, int numtrans)
 			++i;
 	}
 }
-
 /* inittbl - initialize transition tables
  *
  * Initializes "firstfree" to be one beyond the end of the table.  Initializes
  * all "chk" entries to be zero.
  */
-void    inittbl(void)
+void    inittbl()
 {
 	int i;
 	memzero(chk, (size_t)current_max_xpairs * sizeof(int));
@@ -425,31 +415,23 @@ void    inittbl(void)
 
 /* mkdeftbl - make the default, "jam" table entries */
 
-void    mkdeftbl(void)
+void mkdeftbl()
 {
 	int i;
-
 	jamstate = lastdfa + 1;
-
 	++tblend;               /* room for transition on end-of-buffer character */
-
 	while(tblend + numecs >= current_max_xpairs)
 		expand_nxt_chk();
-
 	/* Add in default end-of-buffer transition. */
 	nxt[tblend] = end_of_buffer_state;
 	chk[tblend] = jamstate;
-
 	for(i = 1; i <= numecs; ++i) {
 		nxt[tblend + i] = 0;
 		chk[tblend + i] = jamstate;
 	}
-
 	jambase = tblend;
-
 	base[jamstate] = jambase;
 	def[jamstate] = 0;
-
 	tblend += numecs;
 	++numtemps;
 }
@@ -473,12 +455,10 @@ void    mkdeftbl(void)
  * state array.
  */
 
-void    mkentry(int * state, int numchars, int statenum, int deflink,
-    int totaltrans)
+void mkentry(int * state, int numchars, int statenum, int deflink, int totaltrans)
 {
 	int minec, maxec, i, baseaddr;
 	int tblbase, tbllast;
-
 	if(totaltrans == 0) {   /* there are no out-transitions */
 		if(deflink == JAMSTATE)
 			base[statenum] = JAMSTATE;

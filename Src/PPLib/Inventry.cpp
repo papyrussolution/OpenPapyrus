@@ -313,7 +313,7 @@ IMPL_HANDLE_EVENT(InventoryOptionsDialog)
 	clearEvent(event);
 }
 
-int SLAPI EditInventoryOptionsDialog(PPInventoryOpEx * pData) { DIALOG_PROC_BODY(InventoryOptionsDialog, pData); }
+int EditInventoryOptionsDialog(PPInventoryOpEx * pData) { DIALOG_PROC_BODY(InventoryOptionsDialog, pData); }
 //
 // PPObjBill inventory methods
 //
@@ -330,7 +330,7 @@ PPObjBill::InvBlock::InvBlock(long flags) : State(0), Flags(flags)
 	// @v10.6.10 Flags = flags;
 }
 
-int SLAPI PPObjBill::InitInventoryBlock(PPID billID, InvBlock & rBlk)
+int PPObjBill::InitInventoryBlock(PPID billID, InvBlock & rBlk)
 {
 	int    ok = 1;
 	THROW(Fetch(billID, &rBlk.BillRec) > 0);
@@ -340,7 +340,7 @@ int SLAPI PPObjBill::InitInventoryBlock(PPID billID, InvBlock & rBlk)
 	return ok;
 }
 
-int SLAPI PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int use_ta)
+int PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int use_ta)
 {
 	int    ok = 1;
 	int    skip = 0;
@@ -423,7 +423,7 @@ int SLAPI PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem,
 	return ok;
 }
 
-int SLAPI PPObjBill::LoadInventoryArray(PPID billID, InventoryArray & rList)
+int PPObjBill::LoadInventoryArray(PPID billID, InventoryArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -437,7 +437,7 @@ int SLAPI PPObjBill::LoadInventoryArray(PPID billID, InventoryArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, GoodsRestParam * pRestParam)
+int PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, GoodsRestParam * pRestParam)
 {
 	int    ok = 1;
 	ReceiptTbl::Rec lot_rec;
@@ -502,7 +502,7 @@ int SLAPI PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pIte
 	return ok;
 }
 
-int SLAPI PPObjBill::EditInventory(PPBillPacket * pPack, long)
+int PPObjBill::EditInventory(PPBillPacket * pPack, long)
 {
 	int    r = cmCancel, valid_data = 0;
 	InventoryDialog * dlg = new InventoryDialog(DLG_INVENTORY, this, pPack);
@@ -538,7 +538,7 @@ int SLAPI PPObjBill::EditInventory(PPBillPacket * pPack, long)
 	return r;
 }
 
-int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
+int PPObjBill::RollbackInventoryWrOff(PPID id)
 {
 	int    ok = 1, r;
 	uint   i;
@@ -616,7 +616,7 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_ta)
+int PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	InventoryTbl::Rec rec;
@@ -659,7 +659,7 @@ int SLAPI PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_t
 	return ok;
 }
 
-int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long flags, int use_ta)
+int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long flags, int use_ta)
 {
 	int    ok = 1, r;
 	IterCounter cntr;
@@ -788,7 +788,7 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 	return ok;
 }
 
-int SLAPI PPObjBill::ViewInventoryTotal(const PPIDArray & rIdList, const InventoryFilt * pFilt)
+int PPObjBill::ViewInventoryTotal(const PPIDArray & rIdList, const InventoryFilt * pFilt)
 {
 	int    ok = -1;
 	InventoryTotal total;
@@ -827,13 +827,13 @@ int SLAPI PPObjBill::ViewInventoryTotal(const PPIDArray & rIdList, const Invento
 	return ok;
 }
 
-InventoryCore & SLAPI PPObjBill::GetInvT()
+InventoryCore & PPObjBill::GetInvT()
 {
 	SETIFZ(P_InvT, new InventoryCore);
 	return *P_InvT;
 }
 
-int SLAPI PPObjBill::TurnInventory(PPBillPacket * pPack, int use_ta)
+int PPObjBill::TurnInventory(PPBillPacket * pPack, int use_ta)
 {
 	int    ok = -1;
 	PPID   id = pPack->Rec.ID;
@@ -853,7 +853,7 @@ int SLAPI PPObjBill::TurnInventory(PPBillPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::UniteInventory(PPID destBillID, PPIDArray * pSrcBillList, InvMovSgo sgoption, int rmvSrc, int use_ta)
+int PPObjBill::UniteInventory(PPID destBillID, PPIDArray * pSrcBillList, InvMovSgo sgoption, int rmvSrc, int use_ta)
 {
 	int    ok = 1;
 	long   num_iters = 0, iter_count = 0;
@@ -920,7 +920,7 @@ int SLAPI PPObjBill::UniteInventory(PPID destBillID, PPIDArray * pSrcBillList, I
 	return ok;
 }
 
-int SLAPI PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
+int PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
@@ -999,20 +999,20 @@ int SLAPI PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 //
 class InventoryConversion {
 public:
-	explicit SLAPI InventoryConversion(PPObjBill * pBObj) : R_Tbl(pBObj->GetInvT()), invID(0), P_BObj(pBObj), transaction(0)
+	explicit InventoryConversion(PPObjBill * pBObj) : R_Tbl(pBObj->GetInvT()), invID(0), P_BObj(pBObj), transaction(0)
 	{
 	}
-	SLAPI  ~InventoryConversion()
+	~InventoryConversion()
 	{
 		// На всякий случай проверим, чтобы не оставалось активной транзакции
 		PPRollbackWork(&transaction);
 	}
-	int    SLAPI Run(PPID);
+	int    Run(PPID);
 private:
-	int    SLAPI Init(PPID);
-	int    SLAPI InitPackets();
-	int    SLAPI TurnPackets(int force, int initNewPackets);
-	int    SLAPI SearchLot(PPID goodsID, ReceiptTbl::Rec * pRec);
+	int    Init(PPID);
+	int    InitPackets();
+	int    TurnPackets(int force, int initNewPackets);
+	int    SearchLot(PPID goodsID, ReceiptTbl::Rec * pRec);
 
 	PPObjBill * P_BObj;
 	PPObjGoods  GObj;
@@ -1025,7 +1025,7 @@ private:
 	int transaction;
 };
 
-int SLAPI InventoryConversion::Init(PPID billID)
+int InventoryConversion::Init(PPID billID)
 {
 	int    ok = 1;
 	invID = billID;
@@ -1047,7 +1047,7 @@ int SLAPI InventoryConversion::Init(PPID billID)
 	return ok;
 }
 
-int SLAPI InventoryConversion::InitPackets()
+int InventoryConversion::InitPackets()
 {
 	int    ok = 1;
 	if(invOpEx.WrDnOp) {
@@ -1069,7 +1069,7 @@ int SLAPI InventoryConversion::InitPackets()
 	return ok;
 }
 
-int SLAPI InventoryConversion::TurnPackets(int force, int initNewPackets)
+int InventoryConversion::TurnPackets(int force, int initNewPackets)
 {
 	int    ok = 1;
 	if(force || wrDnPack.CheckLargeBill(0) || wrUpPack.CheckLargeBill(0)) {
@@ -1087,7 +1087,7 @@ int SLAPI InventoryConversion::TurnPackets(int force, int initNewPackets)
 	return ok;
 }
 
-int SLAPI InventoryConversion::Run(PPID billID)
+int InventoryConversion::Run(PPID billID)
 {
 	int    ok = 1;
 	PPLogger logger;
@@ -1312,7 +1312,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 	return ok;
 }
 
-int SLAPI InventoryConversion::SearchLot(PPID goodsID, ReceiptTbl::Rec * pRec)
+int InventoryConversion::SearchLot(PPID goodsID, ReceiptTbl::Rec * pRec)
 {
 	PPID   loc_id = invPack.Rec.LocID;
 	if(invOpEx.Flags & INVOPF_USEANOTERLOCLOTS)
@@ -1320,7 +1320,7 @@ int SLAPI InventoryConversion::SearchLot(PPID goodsID, ReceiptTbl::Rec * pRec)
 	return P_BObj->trfr->Rcpt.GetLastLot(goodsID, loc_id, invPack.Rec.Dt, pRec);
 }
 
-int SLAPI PPObjBill::ConvertInventory(PPID invID)
+int PPObjBill::ConvertInventory(PPID invID)
 {
 	InventoryConversion ic(this);
 	return ic.Run(invID);
@@ -1337,7 +1337,7 @@ PPInventoryImpExpParam::PPInventoryImpExpParam(uint recId, long flags) : PPImpEx
 class PrcssrInvImport {
 public:
 	struct Param {
-		SLAPI  Param() : OpID(0), LocID(0), Dt(ZERODATE)
+		Param() : OpID(0), LocID(0), Dt(ZERODATE)
 		{
 		}
 		PPID   OpID;
@@ -1345,13 +1345,13 @@ public:
 		LDATE  Dt;
 		SString CfgName;
 	};
-	SLAPI  PrcssrInvImport();
-	int    SLAPI InitParam(Param *);
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	PrcssrInvImport();
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
 private:
-	int    SLAPI IdentifyBySerial(const char * pSerial, PPObjBill::InvItem * pInvItem, PPLogger & rLogger);
+	int    IdentifyBySerial(const char * pSerial, PPObjBill::InvItem * pInvItem, PPLogger & rLogger);
 
 	PPObjBill * P_BObj;
 	PPObjGoods GObj;
@@ -1359,11 +1359,11 @@ private:
 	PPInventoryImpExpParam IeParam;
 };
 
-SLAPI PrcssrInvImport::PrcssrInvImport() : P_BObj(BillObj)
+PrcssrInvImport::PrcssrInvImport() : P_BObj(BillObj)
 {
 }
 
-int SLAPI PrcssrInvImport::InitParam(Param * pParam)
+int PrcssrInvImport::InitParam(Param * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
@@ -1445,7 +1445,7 @@ int PrcssrInvImport::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::InvItem * pInvItem, PPLogger & rLogger)
+int PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::InvItem * pInvItem, PPLogger & rLogger)
 {
 	int    ok = -1;
 	SString serial;
@@ -1471,7 +1471,7 @@ int SLAPI PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::Inv
 	return ok;
 }
 
-int SLAPI PrcssrInvImport::Run()
+int PrcssrInvImport::Run()
 {
 	int    ok = -1;
 	long   numrecs = 0;
@@ -1636,7 +1636,7 @@ int SLAPI PrcssrInvImport::Run()
 	return ok;
 }
 
-int SLAPI ImportInventory()
+int ImportInventory()
 {
 	int    ok = -1;
 	PrcssrInvImport prcssr;
@@ -1650,7 +1650,7 @@ int SLAPI ImportInventory()
 	return ok;
 }
 
-int SLAPI EditInventoryImpExpParams()
+int EditInventoryImpExpParams()
 {
 	int    ok = -1;
 	PPInventoryImpExpParam param;
@@ -1667,7 +1667,7 @@ int SLAPI EditInventoryImpExpParams()
 class GeneratorGoods {
 public:
 	struct Param {
-		SLAPI  Param() : LocID(0), GoodsGrpID(0), Part(0), Flags(0)
+		Param() : LocID(0), GoodsGrpID(0), Part(0), Flags(0)
 		{
 		}
 		enum {
@@ -1679,11 +1679,11 @@ public:
 		ulong  Part;       // Часть общего справочника (в промилле), которая должна принимать участие в выборке
 		long   Flags;
 	};
-	SLAPI  GeneratorGoods();
-	SLAPI ~GeneratorGoods();
-	int    SLAPI InitParam(Param * pParam);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Next(PPID * pGoodsID, Goods2Tbl::Rec * pRec);
+	GeneratorGoods();
+	~GeneratorGoods();
+	int    InitParam(Param * pParam);
+	int    Init(const Param *);
+	int    Next(PPID * pGoodsID, Goods2Tbl::Rec * pRec);
 private:
 	Param  P;
 	PPObjGoods GObj;
@@ -1692,16 +1692,16 @@ private:
 	SRng * P_Rng;
 };
 
-SLAPI GeneratorGoods::GeneratorGoods() : P_Rng(0)
+GeneratorGoods::GeneratorGoods() : P_Rng(0)
 {
 }
 
-SLAPI GeneratorGoods::~GeneratorGoods()
+GeneratorGoods::~GeneratorGoods()
 {
 	delete P_Rng;
 }
 
-int SLAPI GeneratorGoods::InitParam(Param * pParam)
+int GeneratorGoods::InitParam(Param * pParam)
 {
 	if(pParam) {
 		pParam->LocID = 0;
@@ -1712,7 +1712,7 @@ int SLAPI GeneratorGoods::InitParam(Param * pParam)
 	return 1;
 }
 
-int SLAPI GeneratorGoods::Init(const Param * pParam)
+int GeneratorGoods::Init(const Param * pParam)
 {
 	P = *pParam;
 	int    ok = 1;
@@ -1750,7 +1750,7 @@ int SLAPI GeneratorGoods::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI GeneratorGoods::Next(PPID * pGoodsID, Goods2Tbl::Rec * pRec)
+int GeneratorGoods::Next(PPID * pGoodsID, Goods2Tbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPID   goods_id = 0;
@@ -1783,7 +1783,7 @@ int SLAPI GeneratorGoods::Next(PPID * pGoodsID, Goods2Tbl::Rec * pRec)
 
 #if SLTEST_RUNNING // {
 
-int SLAPI TestGenerateInventory()
+int TestGenerateInventory()
 {
 	int    ok = 1;
 	StrAssocArray cfg_list;

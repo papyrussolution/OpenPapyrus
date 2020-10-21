@@ -24,14 +24,14 @@ PPProjectConfig & PPProjectConfig::Z()
 	return r;
 }
 
-static int SLAPI PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPacket * pCntr)
+static int PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPacket * pCntr)
 {
 	pCntr->Head.ObjType = PPOBJ_PROJECT;
 	pCntr->Head.OwnerObjID = -1;
 	return BIN(pOpcObj->PutPacket(pID, pCntr, 0));
 }
 
-static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * pPrjCntr, PPOpCounterPacket * pPhsCntr,
+static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * pPrjCntr, PPOpCounterPacket * pPhsCntr,
 	PPOpCounterPacket * pTodoCntr, PPOpCounterPacket * pTemplCntr)
 {
 	int    ok = 1;
@@ -59,7 +59,7 @@ static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPac
 	return ok;
 }
 
-/*static*/int SLAPI PPObjProject::EditConfig()
+/*static*/int PPObjProject::EditConfig()
 {
 	class ProjectCfgDialog : public TDialog {
 	public:
@@ -193,11 +193,11 @@ static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPac
 	return rBuf.Z().Cat(pRec->Code).CatDiv('-', 1).Cat(pRec->Name);
 }
 
-SLAPI PPProjectPacket::PPProjectPacket() // @v10.7.2
+PPProjectPacket::PPProjectPacket() // @v10.7.2
 {
 }
 
-PPProjectPacket & SLAPI PPProjectPacket::Z()
+PPProjectPacket & PPProjectPacket::Z()
 {
 	MEMSZERO(Rec);
 	SDescr.Z();
@@ -207,25 +207,25 @@ PPProjectPacket & SLAPI PPProjectPacket::Z()
 
 TLP_IMPL(PPObjProject, ProjectTbl, P_Tbl);
 
-SLAPI PPObjProject::PPObjProject(void * extraPtr) : PPObject(PPOBJ_PROJECT), ExtraPtr(extraPtr)
+PPObjProject::PPObjProject(void * extraPtr) : PPObject(PPOBJ_PROJECT), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
 }
 
-SLAPI PPObjProject::~PPObjProject()
+PPObjProject::~PPObjProject()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjProject::DeleteObj(PPID id)
+int PPObjProject::DeleteObj(PPID id)
 	{ return PutPacket(&id, static_cast<PPProjectPacket *>(0), 0); }
-int SLAPI PPObjProject::Search(PPID id, void * b)
+int PPObjProject::Search(PPID id, void * b)
 	{ return SearchByID(P_Tbl, Obj, id, b); }
-const char * SLAPI PPObjProject::GetNamePtr()
+const char * PPObjProject::GetNamePtr()
 	{ return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
 
-StrAssocArray * SLAPI PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrjID*/)
+StrAssocArray * PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrjID*/)
 {
 	const   PPID parent_prj_id = reinterpret_cast<PPID>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
@@ -247,7 +247,7 @@ StrAssocArray * SLAPI PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrj
 	return p_list;
 }
 
-int SLAPI PPObjProject::GetFullName(PPID id, SString & rBuf)
+int PPObjProject::GetFullName(PPID id, SString & rBuf)
 {
 	int    ok = -1;
 	ProjectTbl::Rec rec;
@@ -269,9 +269,9 @@ int SLAPI PPObjProject::GetFullName(PPID id, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPObjProject::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_PROJECT, 0, PPView::exefModeless, 0); }
+int PPObjProject::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_PROJECT, 0, PPView::exefModeless, 0); }
 
-int SLAPI PPObjProject::SerializePacket(int dir, PPProjectPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx) // @v10.7.2
+int PPObjProject::SerializePacket(int dir, PPProjectPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx) // @v10.7.2
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -281,7 +281,7 @@ int SLAPI PPObjProject::SerializePacket(int dir, PPProjectPacket * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI PPObjProject::InitPacket(PPProjectPacket * pPack, int kind, PPID parentID, int use_ta)
+int PPObjProject::InitPacket(PPProjectPacket * pPack, int kind, PPID parentID, int use_ta)
 {
 	PPProjectConfig cfg;
 	PPObjProject::ReadConfig(&cfg);
@@ -302,7 +302,7 @@ int SLAPI PPObjProject::InitPacket(PPProjectPacket * pPack, int kind, PPID paren
 	return 1;
 }
 
-SString & SLAPI PPObjProject::GetItemDescr(PPID id, SString & rBuf)
+SString & PPObjProject::GetItemDescr(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
@@ -310,7 +310,7 @@ SString & SLAPI PPObjProject::GetItemDescr(PPID id, SString & rBuf)
 	return rBuf;
 }
 
-SString & SLAPI PPObjProject::GetItemMemo(PPID id, SString & rBuf)
+SString & PPObjProject::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
@@ -318,7 +318,7 @@ SString & SLAPI PPObjProject::GetItemMemo(PPID id, SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI PPObjProject::GetPacket(PPID id, PPProjectPacket * pPack)
+int PPObjProject::GetPacket(PPID id, PPProjectPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack) {
@@ -335,7 +335,7 @@ int SLAPI PPObjProject::GetPacket(PPID id, PPProjectPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta)
+int PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -377,7 +377,7 @@ int SLAPI PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_t
 	return ok;
 }
 
-int SLAPI PPObjProject::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjProject::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	PPProjectPacket * p_pack = new PPProjectPacket;
@@ -396,7 +396,7 @@ int SLAPI PPObjProject::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	return ok;
 }
 
-int SLAPI PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	PPProjectPacket * p_pack = 0;
@@ -420,7 +420,7 @@ int SLAPI PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	return ok;
 }
 
-int SLAPI PPObjProject::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjProject::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW(p && p->Data);
@@ -532,7 +532,7 @@ public:
 //
 // If(parentPrjID != 0 && *pID == 0) then - необходимо создать элемент типа Phase
 //
-int SLAPI PPObjProject::Edit(PPID * pID, void * extraPtr /*parentPrjID*/)
+int PPObjProject::Edit(PPID * pID, void * extraPtr /*parentPrjID*/)
 {
 	const  PPID extra_parent_prj_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel;
@@ -575,7 +575,7 @@ int SLAPI PPObjProject::Edit(PPID * pID, void * extraPtr /*parentPrjID*/)
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(Project); SLAPI ProjectFilt::ProjectFilt() : PPBaseFilt(PPFILT_PROJECT, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(Project); ProjectFilt::ProjectFilt() : PPBaseFilt(PPFILT_PROJECT, 0, 1)
 {
 	SetFlatChunk(offsetof(ProjectFilt, ReserveStart),
 		offsetof(ProjectFilt, Reserve)-offsetof(ProjectFilt, ReserveStart)+sizeof(Reserve));
@@ -584,17 +584,16 @@ IMPLEMENT_PPFILT_FACTORY(Project); SLAPI ProjectFilt::ProjectFilt() : PPBaseFilt
 //
 //
 //
-SLAPI PPViewProject::PPViewProject() : PPView(&PrjObj, &Filt, PPVIEW_PROJECT), P_PrjTaskView(0)
+PPViewProject::PPViewProject() : PPView(&PrjObj, &Filt, PPVIEW_PROJECT, 0, REPORT_PROJECTVIEW), P_PrjTaskView(0)
 {
-	DefReportId = REPORT_PROJECTVIEW;
 }
 
-SLAPI PPViewProject::~PPViewProject()
+PPViewProject::~PPViewProject()
 {
 	delete P_PrjTaskView;
 }
 
-int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -630,7 +629,7 @@ int SLAPI PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewProject::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewProject::Init_(const PPBaseFilt * pBaseFilt)
 {
 	if(Helper_InitBaseFilt(pBaseFilt)) {
 		Filt.StartPeriod.Actualize(ZERODATE);
@@ -641,7 +640,7 @@ int SLAPI PPViewProject::Init_(const PPBaseFilt * pBaseFilt)
 		return 0;
 }
 
-int SLAPI PPViewProject::InitIteration()
+int PPViewProject::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 3;
@@ -701,7 +700,7 @@ int FASTCALL PPViewProject::NextIteration(ProjectViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewProject::Transmit(PPID /*id*/)
+int PPViewProject::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -720,7 +719,7 @@ int SLAPI PPViewProject::Transmit(PPID /*id*/)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	DBQuery * q  = 0;
@@ -789,7 +788,7 @@ DBQuery * SLAPI PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return q;
 }
 
-int SLAPI PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -820,12 +819,12 @@ int SLAPI PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return ok;
 }
 
-void * SLAPI PPViewProject::GetEditExtraParam()
+void * PPViewProject::GetEditExtraParam()
 {
 	return reinterpret_cast<void *>(Filt.ParentID);
 }
 
-int SLAPI PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
@@ -837,12 +836,12 @@ int SLAPI PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewProject::ViewTotal()
+int PPViewProject::ViewTotal()
 {
 	return -1;
 }
 
-int SLAPI PPViewProject::InitPrjTaskIterations(PPID prjID)
+int PPViewProject::InitPrjTaskIterations(PPID prjID)
 {
 	int  ok = 1;
 	PrjTaskFilt  filt;
@@ -861,10 +860,10 @@ int SLAPI PPViewProject::InitPrjTaskIterations(PPID prjID)
 	return ok;
 }
 
-SString & SLAPI PPViewProject::GetItemDescr(PPID id, SString & rBuf) { return PrjObj.GetItemDescr(id, rBuf); }
-SString & SLAPI PPViewProject::GetItemMemo(PPID id, SString & rBuf) { return PrjObj.GetItemMemo(id, rBuf); }
+SString & PPViewProject::GetItemDescr(PPID id, SString & rBuf) { return PrjObj.GetItemDescr(id, rBuf); }
+SString & PPViewProject::GetItemMemo(PPID id, SString & rBuf) { return PrjObj.GetItemMemo(id, rBuf); }
 
-int SLAPI PPViewProject::PrintProjectTasks(PPID prjID)
+int PPViewProject::PrintProjectTasks(PPID prjID)
 {
 	int    ok = -1;
 	PPViewProject prj_view;
@@ -879,7 +878,7 @@ int SLAPI PPViewProject::PrintProjectTasks(PPID prjID)
 	return ok;
 }
 
-int SLAPI PPViewProject::Export()
+int PPViewProject::Export()
 {
 	return -1;
 }
@@ -889,21 +888,21 @@ int SLAPI PPViewProject::Export()
 /*static*/int FASTCALL PrjTaskCore::IsValidStatus(int s) { return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
 /*static*/int FASTCALL PrjTaskCore::IsValidPrior(int p) { return (p >= 1 && p <= 5); }
 
-SLAPI PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
+PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
 {
 }
 
-int SLAPI PrjTaskCore::Search(PPID id, PrjTaskTbl::Rec * pRec)
+int PrjTaskCore::Search(PPID id, PrjTaskTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_PRJTASK, id, pRec);
 }
 
-int SLAPI PrjTaskCore::NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec)
+int PrjTaskCore::NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec)
 	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
-int SLAPI PrjTaskCore::DestroyIter(long enumHandle)
+int PrjTaskCore::DestroyIter(long enumHandle)
 	{ return EnumList.DestroyIterHandler(enumHandle); }
 
-BExtQuery * SLAPI PrjTaskCore::StartupEnumQuery(int idx, int options)
+BExtQuery * PrjTaskCore::StartupEnumQuery(int idx, int options)
 {
 	BExtQuery * q = new BExtQuery(this, idx);
 	if(q) {
@@ -915,7 +914,7 @@ BExtQuery * SLAPI PrjTaskCore::StartupEnumQuery(int idx, int options)
 	return q;
 }
 
-SEnumImp * SLAPI PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options)
+SEnumImp * PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	int    idx = 5;
@@ -929,7 +928,7 @@ SEnumImp * SLAPI PrjTaskCore::EnumByClient(PPID cliPersonID, const DateRange * p
 	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
 }
 
-SEnumImp * SLAPI PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options)
+SEnumImp * PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	int    idx = 4;
@@ -943,7 +942,7 @@ SEnumImp * SLAPI PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange 
 	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
 }
 
-int SLAPI PrjTaskCore::SearchByTime(const LDATETIME & dtm, PPID * pID, PrjTaskTbl::Rec * pRec)
+int PrjTaskCore::SearchByTime(const LDATETIME & dtm, PPID * pID, PrjTaskTbl::Rec * pRec)
 {
 	PrjTaskTbl::Key1 k1;
 	k1.Dt = dtm.d;
@@ -954,7 +953,7 @@ int SLAPI PrjTaskCore::SearchByTime(const LDATETIME & dtm, PPID * pID, PrjTaskTb
 	return ok;
 }
 
-int SLAPI PrjTaskCore::SearchByTemplate(PPID templID, LDATE startDt, PrjTaskTbl::Rec * pRec)
+int PrjTaskCore::SearchByTemplate(PPID templID, LDATE startDt, PrjTaskTbl::Rec * pRec)
 {
 	PrjTaskTbl::Key3 k3;
 	MEMSZERO(k3);
@@ -967,7 +966,7 @@ int SLAPI PrjTaskCore::SearchByTemplate(PPID templID, LDATE startDt, PrjTaskTbl:
 	return -1;
 }
 
-int SLAPI PrjTaskCore::Add(PPID * pID, PrjTaskTbl::Rec * pRec, int use_ta)
+int PrjTaskCore::Add(PPID * pID, PrjTaskTbl::Rec * pRec, int use_ta)
 {
 	LDATETIME dtm;
 	dtm.Set(pRec->Dt, pRec->Tm);
@@ -977,7 +976,7 @@ int SLAPI PrjTaskCore::Add(PPID * pID, PrjTaskTbl::Rec * pRec, int use_ta)
 	return AddObjRecByID(this, PPOBJ_PRJTASK, pID, pRec, use_ta);
 }
 
-int SLAPI PrjTaskCore::Update(PPID id, PrjTaskTbl::Rec * pRec, int use_ta)
+int PrjTaskCore::Update(PPID id, PrjTaskTbl::Rec * pRec, int use_ta)
 {
 	LDATETIME dtm;
 	dtm.Set(pRec->Dt, pRec->Tm);
@@ -987,7 +986,7 @@ int SLAPI PrjTaskCore::Update(PPID id, PrjTaskTbl::Rec * pRec, int use_ta)
 	return UpdateByID(this, PPOBJ_PRJTASK, id, pRec, use_ta);
 }
 
-int SLAPI PrjTaskCore::UpdateStatus(PPID id, int newStatus, int use_ta)
+int PrjTaskCore::UpdateStatus(PPID id, int newStatus, int use_ta)
 {
 	int    ok = 1;
 	PrjTaskTbl::Rec rec;
@@ -1008,12 +1007,12 @@ int SLAPI PrjTaskCore::UpdateStatus(PPID id, int newStatus, int use_ta)
 	return ok;
 }
 
-int SLAPI PrjTaskCore::Remove(PPID id, int use_ta)
+int PrjTaskCore::Remove(PPID id, int use_ta)
 	{ return deleteFrom(this, use_ta, this->ID == id) ? 1 : PPSetErrorDB(); }
-int SLAPI PrjTaskCore::RemoveByProject(PPID prjID, int use_ta)
+int PrjTaskCore::RemoveByProject(PPID prjID, int use_ta)
 	{ return deleteFrom(this, use_ta, this->ProjectID == prjID) ? 1 : PPSetErrorDB(); }
 
-int SLAPI PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
+int PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 {
 	int    ok = -1;
 	union {
@@ -1074,7 +1073,7 @@ int SLAPI PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	return ok;
 }
 
-int SLAPI PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_ta)
+int PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_ta)
 {
 	int    ok = 1;
 	union {
@@ -1142,7 +1141,7 @@ int SLAPI PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, in
 	return ok;
 }
 
-int SLAPI PrjTaskCore::GetSingleByCode(long kind, const char * pCode, PPID * pID)
+int PrjTaskCore::GetSingleByCode(long kind, const char * pCode, PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -1175,7 +1174,7 @@ int SLAPI PrjTaskCore::GetSingleByCode(long kind, const char * pCode, PPID * pID
 //
 // @ModuleDef(PPObjPrjTask)
 //
-static SString & SLAPI _GetEnumText(uint strId, int i, SString & rBuf)
+static SString & _GetEnumText(uint strId, int i, SString & rBuf)
 {
 	int    ok = 0;
 	SString item_buf;
@@ -1200,9 +1199,9 @@ static SString & SLAPI _GetEnumText(uint strId, int i, SString & rBuf)
 	return rBuf;
 }
 
-/*static*/SString & SLAPI PPObjPrjTask::GetStatusText(int statusId, SString & rBuf)
+/*static*/SString & PPObjPrjTask::GetStatusText(int statusId, SString & rBuf)
 	{ return _GetEnumText(PPTXT_TODO_STATUS, statusId, rBuf); }
-/*static*/SString & SLAPI PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
+/*static*/SString & PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
 	{ return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf); }
 
 class VCalImportParamDlg : public TDialog {
@@ -1268,7 +1267,7 @@ public:
 };
 
 // Static
-int SLAPI PPObjPrjTask::ImportFromVCal()
+int PPObjPrjTask::ImportFromVCal()
 {
 	int    ok = -1;
 	int    valid_data = 0;
@@ -1347,11 +1346,11 @@ int SLAPI PPObjPrjTask::ImportFromVCal()
 	return ok;
 }
 
-SLAPI PPPrjTaskPacket::PPPrjTaskPacket() // @v10.7.2
+PPPrjTaskPacket::PPPrjTaskPacket() // @v10.7.2
 {
 }
 
-PPPrjTaskPacket & SLAPI PPPrjTaskPacket::Z()
+PPPrjTaskPacket & PPPrjTaskPacket::Z()
 {
 	MEMSZERO(Rec);
 	SDescr.Z();
@@ -1361,21 +1360,21 @@ PPPrjTaskPacket & SLAPI PPPrjTaskPacket::Z()
 
 TLP_IMPL(PPObjPrjTask, PrjTaskCore, P_Tbl);
 
-SLAPI PPObjPrjTask::PPObjPrjTask(void * extraPtr) : PPObject(PPOBJ_PRJTASK), ExtraPtr(extraPtr)
+PPObjPrjTask::PPObjPrjTask(void * extraPtr) : PPObject(PPOBJ_PRJTASK), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
 }
 
-SLAPI PPObjPrjTask::~PPObjPrjTask()
+PPObjPrjTask::~PPObjPrjTask()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-/*virtual*/int SLAPI PPObjPrjTask::Search(PPID id, void * pRec) { return P_Tbl->Search(id, static_cast<PrjTaskTbl::Rec *>(pRec)); }
-/*virtual*/const char * SLAPI PPObjPrjTask::GetNamePtr() { return P_Tbl->data.Code; }
+/*virtual*/int PPObjPrjTask::Search(PPID id, void * pRec) { return P_Tbl->Search(id, static_cast<PrjTaskTbl::Rec *>(pRec)); }
+/*virtual*/const char * PPObjPrjTask::GetNamePtr() { return P_Tbl->data.Code; }
 
-StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 {
 	PrjTaskTbl::Key0  k0;
 	StrAssocArray * p_list = new StrAssocArray;
@@ -1401,7 +1400,7 @@ StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjPrjTask::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjPrjTask::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -1415,7 +1414,7 @@ int SLAPI PPObjPrjTask::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjPrjTask::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	PPPrjTaskPacket * p_pack = new PPPrjTaskPacket;
@@ -1434,7 +1433,7 @@ int SLAPI PPObjPrjTask::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCon
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjPrjTask::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	PPPrjTaskPacket * p_pack = 0;
@@ -1457,12 +1456,12 @@ int SLAPI PPObjPrjTask::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjPrjTask::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTPRJTASK, CTL_RTPRJTASK_FLAGS, CTL_RTPRJTASK_SFLAGS, bufSize, rt, pDlg);
 }
 
-int SLAPI PPObjPrjTask::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjPrjTask::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW(p && p->Data);
@@ -1481,7 +1480,7 @@ int SLAPI PPObjPrjTask::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::DetermineNewStatus(const PPProjectConfig * pCfg, const PrjTaskTbl::Rec * pRec, int * pNewStatus)
+int PPObjPrjTask::DetermineNewStatus(const PPProjectConfig * pCfg, const PrjTaskTbl::Rec * pRec, int * pNewStatus)
 {
 	int    new_status = 0;
 	LDATE  cur = getcurdate_();
@@ -1499,7 +1498,7 @@ int SLAPI PPObjPrjTask::DetermineNewStatus(const PPProjectConfig * pCfg, const P
 	return new_status ? 1 : -1;
 }
 
-int SLAPI PPObjPrjTask::Maintain()
+int PPObjPrjTask::Maintain()
 {
 	int    ok = 1;
 	long   look_count = 0, upd_count = 0;
@@ -1563,7 +1562,7 @@ int SLAPI PPObjPrjTask::Maintain()
 	return ok;
 }
 
-int SLAPI MaintainPrjTask()
+int MaintainPrjTask()
 {
 	int    ok = -1;
 	if(CONFIRM(PPCFM_MAINTAINPRJTASK)) {
@@ -1578,7 +1577,7 @@ int SLAPI MaintainPrjTask()
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjPrjTask::SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -1588,7 +1587,7 @@ int SLAPI PPObjPrjTask::SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::InitPacket(PPPrjTaskPacket * pPack, int kind, PPID prjID, PPID clientID, PPID employerID, int use_ta)
+int PPObjPrjTask::InitPacket(PPPrjTaskPacket * pPack, int kind, PPID prjID, PPID clientID, PPID employerID, int use_ta)
 {
 	PPProjectConfig cfg;
 	PPObjProject::ReadConfig(&cfg);
@@ -1614,7 +1613,7 @@ int SLAPI PPObjPrjTask::InitPacket(PPPrjTaskPacket * pPack, int kind, PPID prjID
 	return 1;
 }
 
-int SLAPI PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta) // @v10.7.2
+int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta) // @v10.7.2
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1666,7 +1665,7 @@ int SLAPI PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_t
 	return ok;
 }
 
-SString & SLAPI PPObjPrjTask::GetItemDescr(PPID id, SString & rBuf)
+SString & PPObjPrjTask::GetItemDescr(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_DESCR), rBuf);
@@ -1674,7 +1673,7 @@ SString & SLAPI PPObjPrjTask::GetItemDescr(PPID id, SString & rBuf)
 	return rBuf;
 }
 
-SString & SLAPI PPObjPrjTask::GetItemMemo(PPID id, SString & rBuf)
+SString & PPObjPrjTask::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	PPRef->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_MEMO), rBuf);
@@ -1682,7 +1681,7 @@ SString & SLAPI PPObjPrjTask::GetItemMemo(PPID id, SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI PPObjPrjTask::GetPacket(PPID id, PPPrjTaskPacket * pPack) // @v10.7.2
+int PPObjPrjTask::GetPacket(PPID id, PPPrjTaskPacket * pPack) // @v10.7.2
 {
 	int    ok = -1;
 	if(pPack) {
@@ -1699,7 +1698,7 @@ int SLAPI PPObjPrjTask::GetPacket(PPID id, PPPrjTaskPacket * pPack) // @v10.7.2
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::SubstDescr(PPPrjTaskPacket * pPack)
+int PPObjPrjTask::SubstDescr(PPPrjTaskPacket * pPack)
 {
 	int    ok = 1;
 	char   buf[2048];
@@ -1755,7 +1754,7 @@ int SLAPI PPObjPrjTask::SubstDescr(PPPrjTaskPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta)
+int PPObjPrjTask::InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	THROW_INVARG(pTemplPack && pPack && startDt != ZERODATE);
@@ -1773,7 +1772,7 @@ int SLAPI PPObjPrjTask::InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack,
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod, PPIDArray * pIdList, int use_ta)
+int PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod, PPIDArray * pIdList, int use_ta)
 {
 	int    ok = -1;
 	PPPrjTaskPacket templ_pack;
@@ -2051,7 +2050,7 @@ IMPL_HANDLE_EVENT(PrjTaskDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjPrjTask::EditDialog(PPPrjTaskPacket * pPack)
+int PPObjPrjTask::EditDialog(PPPrjTaskPacket * pPack)
 {
 	uint   dlg_id = 0;
 	if(pPack->Rec.Kind == TODOKIND_TEMPLATE)
@@ -2061,7 +2060,7 @@ int SLAPI PPObjPrjTask::EditDialog(PPPrjTaskPacket * pPack)
 	DIALOG_PROC_BODY_P1(PrjTaskDialog, dlg_id, pPack);
 }
 
-int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
+int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 {
 	const  long extra_param = reinterpret_cast<long>(extraPtr);
 	int    ok = cmCancel, r = 0, is_new = 0, task_finished = 0;
@@ -2159,7 +2158,7 @@ int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::AddBySample(PPID * pID, PPID sampleID)
+int PPObjPrjTask::AddBySample(PPID * pID, PPID sampleID)
 {
 	int    ok = -1;
 	if(sampleID > 0) {
@@ -2196,17 +2195,17 @@ int SLAPI PPObjPrjTask::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::Browse(void * extraPtr)
+int PPObjPrjTask::Browse(void * extraPtr)
 {
 	return ViewPrjTask(0);
 }
 
-int SLAPI PPObjPrjTask::DeleteObj(PPID id)
+int PPObjPrjTask::DeleteObj(PPID id)
 {
 	return PutPacket(&id, static_cast<PPPrjTaskPacket *>(0), 0);
 }
 
-int SLAPI PPObjPrjTask::GetLinkTasks(PPID taskID, PPIDArray * pAry)
+int PPObjPrjTask::GetLinkTasks(PPID taskID, PPIDArray * pAry)
 {
 	int    ok  = -1;
 	if(pAry) {
@@ -2471,7 +2470,7 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pIte
 	return ok;
 }
 
-int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoPerson)
+int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoPerson)
 {
 	int    ok = -1;
 	BExtQuery * p_q = 0;
@@ -2509,7 +2508,7 @@ int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int
 	return ok;
 }
 
-/*static*/int SLAPI PPObjPrjTask::RecoverAbsencePerson()
+/*static*/int PPObjPrjTask::RecoverAbsencePerson()
 {
 	int    ok = 1;
 	LostPrjTPersonArray list;

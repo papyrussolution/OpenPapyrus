@@ -21,15 +21,10 @@
 #ifndef _BITSET_BASE_H
 #define _BITSET_BASE_H
 
-//#include <limits.h>
-//#include <stdbool.h>
-//#include <stddef.h>
-//#include "xalloc.h"
-
 #ifndef __attribute__
-#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8)
-#  define __attribute__(x)
-#endif
+	#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8)
+		#define __attribute__(x)
+	#endif
 #endif
 
 #define ATTRIBUTE_UNUSED __attribute__ ((__unused__))

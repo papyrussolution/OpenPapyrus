@@ -24,24 +24,23 @@
    changes the file descriptor fd to perform binary I/O.  */
 #if O_BINARY
 #if defined __EMX__ || defined __DJGPP__ || defined __CYGWIN__
-#  include <io.h> /* declares setmode() */
+	#include <io.h> /* declares setmode() */
 #else
-#  define setmode _setmode
-#  undef fileno
-#  define fileno _fileno
+	#define setmode _setmode
+	#undef fileno
+	#define fileno _fileno
 #endif
-# ifdef __DJGPP__
-#  include <unistd.h> /* declares isatty() */
+#ifdef __DJGPP__
+	#include <unistd.h> /* declares isatty() */
    /* Avoid putting stdin/stdout in binary mode if it is connected to
       the console, because that would make it impossible for the user
       to interrupt the program through Ctrl-C or Ctrl-Break.  */
-#  define SET_BINARY(fd) ((void) (!isatty (fd) ? (setmode (fd, O_BINARY), 0) : 0))
+	#define SET_BINARY(fd) ((void) (!isatty (fd) ? (setmode (fd, O_BINARY), 0) : 0))
 #else
-#  define SET_BINARY(fd) ((void) setmode (fd, O_BINARY))
+	#define SET_BINARY(fd) ((void)setmode(fd, O_BINARY))
 #endif
 #else
-  /* On reasonable systems, binary I/O is the default.  */
-#define SET_BINARY(fd) /* do nothing */ ((void) 0)
+	#define SET_BINARY(fd) /* do nothing */ ((void)0) /* On reasonable systems, binary I/O is the default.  */
 #endif
 
 #endif /* _BINARY_H */

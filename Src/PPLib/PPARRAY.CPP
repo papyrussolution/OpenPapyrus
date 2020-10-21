@@ -8,11 +8,11 @@
 //
 //
 //
-SLAPI PPCycleFilt::PPCycleFilt() : Cycle(0), NumCycles(0)
+PPCycleFilt::PPCycleFilt() : Cycle(0), NumCycles(0)
 {
 }
 
-PPCycleFilt & SLAPI PPCycleFilt::Z()
+PPCycleFilt & PPCycleFilt::Z()
 {
 	Cycle = 0;
 	NumCycles = 0;
@@ -25,24 +25,24 @@ int FASTCALL PPCycleFilt::operator == (const PPCycleFilt & rS) const
 	return (Cycle == rS.Cycle && NumCycles == rS.NumCycles);
 }
 
-int SLAPI PPCycleFilt::operator !() const
+int PPCycleFilt::operator !() const
 {
 	return (Cycle == 0);
 }
 //
 // PPCycleArray
 //
-SLAPI PPCycleArray::PPCycleArray() : TSVector <DateRange> (), Cycle(0), NumCycles(0) // @v9.8.4 TSArray-->TSVector
+PPCycleArray::PPCycleArray() : TSVector <DateRange> (), Cycle(0), NumCycles(0) // @v9.8.4 TSArray-->TSVector
 {
 	Period.Z();
 }
 
-SLAPI PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
+PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
 {
 	init(beg, end, cycle, numCycles);
 }
 
-int SLAPI PPCycleArray::init(LDATE beg, LDATE end, int cycle, int numCycles)
+int PPCycleArray::init(LDATE beg, LDATE end, int cycle, int numCycles)
 {
 	Period.Set(beg, end);
 	Cycle  = abs(cycle);
@@ -108,17 +108,17 @@ int SLAPI PPCycleArray::init(LDATE beg, LDATE end, int cycle, int numCycles)
 	return 1;
 }
 
-int SLAPI PPCycleArray::init(const DateRange * pRange, int cycle, int numCycles)
+int PPCycleArray::init(const DateRange * pRange, int cycle, int numCycles)
 {
 	return init(pRange->low, pRange->upp, cycle, numCycles);
 }
 
-int SLAPI PPCycleArray::init(const DateRange * pRange, PPCycleFilt cycl)
+int PPCycleArray::init(const DateRange * pRange, PPCycleFilt cycl)
 {
 	return init(pRange->low, pRange->upp, cycl.Cycle, cycl.NumCycles);
 }
 
-int SLAPI PPCycleArray::init2(DateRange * pPeriod, PPCycleFilt * pCycl)
+int PPCycleArray::init2(DateRange * pPeriod, PPCycleFilt * pCycl)
 {
 	int    ok = -1;
 	if(!*pCycl)
@@ -131,7 +131,7 @@ int SLAPI PPCycleArray::init2(DateRange * pPeriod, PPCycleFilt * pCycl)
 	return ok;
 }
 
-int SLAPI PPCycleArray::concat(const PPCycleArray * pSrc)
+int PPCycleArray::concat(const PPCycleArray * pSrc)
 {
 	int    ok = 1;
 	if(Cycle == pSrc->Cycle) { // @v10.3.0 @fix (Cycle = pSrc->Cycle)-->(Cycle == pSrc->Cycle)
@@ -145,7 +145,7 @@ int SLAPI PPCycleArray::concat(const PPCycleArray * pSrc)
 	return ok;
 }
 
-void SLAPI PPCycleArray::getCycleParams(DateRange * pRange, PPCycleFilt * pCycl) const
+void PPCycleArray::getCycleParams(DateRange * pRange, PPCycleFilt * pCycl) const
 {
 	ASSIGN_PTR(pRange, Period);
 	if(pCycl) {
@@ -154,7 +154,7 @@ void SLAPI PPCycleArray::getCycleParams(DateRange * pRange, PPCycleFilt * pCycl)
 	}
 }
 
-int SLAPI PPCycleArray::getPeriod(uint pos, DateRange * pPeriod) const
+int PPCycleArray::getPeriod(uint pos, DateRange * pPeriod) const
 {
 	int    ok = 1;
 	DateRange dr;
@@ -168,7 +168,7 @@ int SLAPI PPCycleArray::getPeriod(uint pos, DateRange * pPeriod) const
 	return ok;
 }
 
-int SLAPI PPCycleArray::searchDate(LDATE dt, uint * pPos) const
+int PPCycleArray::searchDate(LDATE dt, uint * pPos) const
 {
 	ASSIGN_PTR(pPos, 0);
 	for(uint i = 0; i < getCount(); i++) {
@@ -182,13 +182,13 @@ int SLAPI PPCycleArray::searchDate(LDATE dt, uint * pPos) const
 	return 0;
 }
 
-int SLAPI PPCycleArray::searchPeriodByDate(LDATE dt, DateRange * pPeriod) const
+int PPCycleArray::searchPeriodByDate(LDATE dt, DateRange * pPeriod) const
 {
 	uint   pos = 0;
 	return searchDate(dt, &pos) ? getPeriod(pos, pPeriod) : -1;
 }
 
-void SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
+void PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 {
 	SString temp_buf;
 	uint   pos = 0;
@@ -244,7 +244,7 @@ void SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 	strnzcpy(pBuf, temp_buf, bufLen);
 }
 
-int SLAPI PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, reinterpret_cast<SVector *>(this), rBuf)); // @v10.3.9 @fix (SArray-->SVector)
@@ -258,19 +258,19 @@ int SLAPI PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 //
 //
 //
-SLAPI ObjRestrictItem::ObjRestrictItem() : ObjID(0), Flags(0)
+ObjRestrictItem::ObjRestrictItem() : ObjID(0), Flags(0)
 {
 }
 
-SLAPI ObjRestrictItem::ObjRestrictItem(PPID objID, long flags) : ObjID(objID), Flags(flags)
+ObjRestrictItem::ObjRestrictItem(PPID objID, long flags) : ObjID(objID), Flags(flags)
 {
 }
 
-SLAPI ObjRestrictArray::ObjRestrictArray() : /*TSArray*/TSVector <ObjRestrictItem> ()
+ObjRestrictArray::ObjRestrictArray() : /*TSArray*/TSVector <ObjRestrictItem> ()
 {
 }
 
-SLAPI ObjRestrictArray::ObjRestrictArray(const ObjRestrictArray & s) : /*TSArray*/TSVector <ObjRestrictItem> (s)
+ObjRestrictArray::ObjRestrictArray(const ObjRestrictArray & s) : /*TSArray*/TSVector <ObjRestrictItem> (s)
 {
 }
 
@@ -298,7 +298,7 @@ int FASTCALL ObjRestrictArray::Helper_MergeItems(const ObjRestrictArray * pS)
 	return ok;
 }
 
-int SLAPI ObjRestrictArray::Merge(const ObjRestrictArray * pS, long options)
+int ObjRestrictArray::Merge(const ObjRestrictArray * pS, long options)
 {
 	int    ok = 1;
     if(options & moEmptyListIsFull) {
@@ -314,7 +314,7 @@ int SLAPI ObjRestrictArray::Merge(const ObjRestrictArray * pS, long options)
     return ok;
 }
 
-int SLAPI ObjRestrictArray::Add(PPID objID, long flags, uint * pPos)
+int ObjRestrictArray::Add(PPID objID, long flags, uint * pPos)
 {
 	ObjRestrictItem item(objID, flags);
 	if(insert(&item)) {
@@ -330,7 +330,7 @@ int FASTCALL ObjRestrictArray::CheckUniqueID(PPID objID) const
 	return SearchItemByID(objID, 0) ? 0 : 1;
 }
 
-int SLAPI ObjRestrictArray::UpdateItemByID(PPID objID, long itemFlags)
+int ObjRestrictArray::UpdateItemByID(PPID objID, long itemFlags)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -352,12 +352,12 @@ int FASTCALL ObjRestrictArray::RemoveItemByID(PPID objID)
 		return -1;
 }
 
-int SLAPI ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const
+int ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const
 {
 	return lsearch(&objID, pPos, CMPF_LONG);
 }
 
-int SLAPI ObjRestrictArray::CheckFlag(PPID objID, long f) const
+int ObjRestrictArray::CheckFlag(PPID objID, long f) const
 {
 	uint   p = 0;
 	return BIN(lsearch(&objID, &p, CMPF_LONG) && at(p).Flags & f);
@@ -365,16 +365,16 @@ int SLAPI ObjRestrictArray::CheckFlag(PPID objID, long f) const
 //
 //
 //
-SLAPI ObjIdListFilt::ObjIdListFilt() : P_List(0)
+ObjIdListFilt::ObjIdListFilt() : P_List(0)
 {
 }
 
-SLAPI ObjIdListFilt::ObjIdListFilt(const ObjIdListFilt & s) : P_List(0)
+ObjIdListFilt::ObjIdListFilt(const ObjIdListFilt & s) : P_List(0)
 {
 	Set(s.P_List);
 }
 
-SLAPI ObjIdListFilt::~ObjIdListFilt()
+ObjIdListFilt::~ObjIdListFilt()
 {
 	Set(0);
 }
@@ -398,13 +398,13 @@ int FASTCALL ObjIdListFilt::IsEqual(const ObjIdListFilt & s) const
 	return P_List ? P_List->IsEqual(s.P_List) : (s.P_List ? 0 : 1);
 }
 
-ObjIdListFilt & SLAPI ObjIdListFilt::InitEmpty()
+ObjIdListFilt & ObjIdListFilt::InitEmpty()
 {
 	SETIFZ(P_List, new PPIDArray);
 	return *this;
 }
 
-int SLAPI ObjIdListFilt::IsEmpty() const
+int ObjIdListFilt::IsEmpty() const
 {
 	return BIN(!P_List || !P_List->getCount() || (P_List->getCount() == 1 && P_List->at(0) == 0));
 }
@@ -427,7 +427,7 @@ int FASTCALL ObjIdListFilt::Get(PPIDArray & rResult) const
 	return ok;
 }
 
-PPID SLAPI ObjIdListFilt::GetSingle() const
+PPID ObjIdListFilt::GetSingle() const
 {
 	return P_List ? P_List->getSingle() : 0;
 }
@@ -437,13 +437,13 @@ PPID FASTCALL ObjIdListFilt::Get(uint pos) const
 	return (P_List && pos >= 0 && pos < P_List->getCount()) ? P_List->at(pos) : 0;
 }
 
-int SLAPI ObjIdListFilt::SetSingle(PPID id)
+int ObjIdListFilt::SetSingle(PPID id)
 {
 	Set(0);
 	return Add(id);
 }
 
-uint SLAPI ObjIdListFilt::IncPointer()
+uint ObjIdListFilt::IncPointer()
 {
 	return P_List ? P_List->incPointer() : 0;
 }
@@ -466,7 +466,7 @@ void FASTCALL ObjIdListFilt::Set(const PPIDArray * pList)
 }
 
 #if 0 // {
-int SLAPI ObjIdListFilt::Add(PPID id, int ignoreZero /* = 1 */)
+int ObjIdListFilt::Add(PPID id, int ignoreZero /* = 1 */)
 {
 	int    ok = -1;
 	if(!ignoreZero || id != 0) {
@@ -501,7 +501,7 @@ int FASTCALL ObjIdListFilt::AddNotIgnoringZero(PPID id)
 	return ok;
 }
 
-int SLAPI ObjIdListFilt::Update(uint pos, PPID newId, int ignoreZero /* = 1 */)
+int ObjIdListFilt::Update(uint pos, PPID newId, int ignoreZero /* = 1 */)
 {
 	int    ok = -1;
 	if(!ignoreZero || newId != 0) {
@@ -525,21 +525,21 @@ int FASTCALL ObjIdListFilt::Add(const PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI ObjIdListFilt::Remove(PPID id, int binary /*= 0 */)
+int ObjIdListFilt::Remove(PPID id, int binary /*= 0 */)
 {
 	uint p = 0;
 	return (Search(id, &p, binary) > 0) ? P_List->atFree(p) : -1;
 }
 
-int SLAPI ObjIdListFilt::RemoveByIdx(uint idx)
+int ObjIdListFilt::RemoveByIdx(uint idx)
 	{ return (P_List && idx < P_List->getCount()) ? P_List->atFree(idx) : 0; }
-ObjIdListFilt & SLAPI ObjIdListFilt::Z() { CALLPTRMEMB(P_List, Z()); return *this; } // @v10.6.8 FreeAll-->Z freeAll()-->Z()
-int SLAPI ObjIdListFilt::Sort() { return P_List ? (P_List->sort(), 1) : -1; }
-uint SLAPI ObjIdListFilt::GetCount() const { return SVectorBase::GetCount(P_List); }
-int SLAPI ObjIdListFilt::Search(PPID id, uint * pPos, int binary) const
+ObjIdListFilt & ObjIdListFilt::Z() { CALLPTRMEMB(P_List, Z()); return *this; } // @v10.6.8 FreeAll-->Z freeAll()-->Z()
+int ObjIdListFilt::Sort() { return P_List ? (P_List->sort(), 1) : -1; }
+uint ObjIdListFilt::GetCount() const { return SVectorBase::GetCount(P_List); }
+int ObjIdListFilt::Search(PPID id, uint * pPos, int binary) const
 	{ return P_List ? (binary ? P_List->bsearch(id, pPos) : P_List->lsearch(id, pPos)) : 0; }
 
-int SLAPI ObjIdListFilt::Intersect(const ObjIdListFilt * pList, int binary /*=0*/)
+int ObjIdListFilt::Intersect(const ObjIdListFilt * pList, int binary /*=0*/)
 {
 	if(P_List) {
 		if(!pList)
@@ -579,7 +579,7 @@ int FASTCALL ObjIdListFilt::Read(SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI ObjIdListFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int ObjIdListFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	uint8  ind = 0;
@@ -627,26 +627,26 @@ int SLAPI ObjIdListFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 //
 //
 //
-int SLAPI PPObjID_Base::IsZero() const
+int PPObjID_Base::IsZero() const
 {
 	return (Obj == 0 && Id == 0);
 }
 
-PPObjID_Base & SLAPI PPObjID_Base::Z()
+PPObjID_Base & PPObjID_Base::Z()
 {
 	Obj = 0;
 	Id = 0;
 	return *this;
 }
 
-PPObjID_Base SLAPI PPObjID_Base::Set(PPID objType, PPID objID)
+PPObjID_Base PPObjID_Base::Set(PPID objType, PPID objID)
 {
 	Obj = objType;
 	Id = objID;
 	return *this;
 }
 
-int SLAPI PPObjID_Base::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
+int PPObjID_Base::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
 int FASTCALL PPObjID_Base::operator == (PPObjID_Base s) const { return (Obj == s.Obj && Id == s.Id); }
 int FASTCALL PPObjID_Base::operator != (PPObjID_Base s) const { return (Obj != s.Obj || Id != s.Id); }
 PPObjID_Base::operator double() const { return ((Obj * 4.0E+9) + static_cast<double>(Id)); }
@@ -697,19 +697,19 @@ int FASTCALL PPObjID_Base::FromStr(const char * pStr)
 	return ok;
 }
 
-SLAPI PPObjID::PPObjID()
+PPObjID::PPObjID()
 {
 	Obj = 0;
 	Id = 0;
 }
 
-SLAPI PPObjID::PPObjID(const PPObjID_Base & rS)
+PPObjID::PPObjID(const PPObjID_Base & rS)
 {
 	Obj = rS.Obj;
 	Id = rS.Id;
 }
 
-SLAPI PPObjID::PPObjID(PPID objType, PPID objID)
+PPObjID::PPObjID(PPID objType, PPID objID)
 {
 	Obj = objType;
 	Id = objID;
@@ -722,28 +722,28 @@ PPObjID & FASTCALL PPObjID::operator = (const PPObjID_Base & rS)
 	return *this;
 }
 
-SLAPI PPObjNamePEntry::PPObjNamePEntry(PPID objType, PPID objID) : PPObjID(objType, objID), NameP(0)
+PPObjNamePEntry::PPObjNamePEntry(PPID objType, PPID objID) : PPObjID(objType, objID), NameP(0)
 {
 }
 //
 //
 //
-SLAPI PPObjIDArray::PPObjIDArray() : TSVector <PPObjID>(), DoReplace(0)
+PPObjIDArray::PPObjIDArray() : TSVector <PPObjID>(), DoReplace(0)
 {
 }
 
-int SLAPI PPObjIDArray::Search(PPObjID key, uint * pPos) const
+int PPObjIDArray::Search(PPObjID key, uint * pPos) const
 {
     return lsearch(&key, pPos, PTR_CMPFUNC(_2long));
 }
 
-int SLAPI PPObjIDArray::Add(PPID objType, PPID objID)
+int PPObjIDArray::Add(PPID objType, PPID objID)
 {
 	PPObjID item(objType, objID);
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPObjIDArray::Add_NotPreprocess(PPID objType, PPID objID)
+int PPObjIDArray::Add_NotPreprocess(PPID objType, PPID objID)
 {
 	int    ok = 1;
 	PPObjID item(objType, objID);
@@ -761,7 +761,7 @@ int FASTCALL PPObjIDArray::Is_NotPreprocess_Pos(uint pos) const
 	return DontPreprocPosList.lsearch(static_cast<long>(pos)) ? 1 : 0;
 }
 
-int SLAPI PPObjIDArray::Add(PPID objType, const PPIDArray & rList)
+int PPObjIDArray::Add(PPID objType, const PPIDArray & rList)
 {
 	int    ok = 1;
 	PPObjID item(objType, 0);
@@ -773,7 +773,7 @@ int SLAPI PPObjIDArray::Add(PPID objType, const PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjIDArray::ProcessRef(PPID objType, PPID * pObjID)
+int PPObjIDArray::ProcessRef(PPID objType, PPID * pObjID)
 {
 	int    ok = -1;
 	if(objType)
@@ -849,6 +849,6 @@ const void * SurKeyArray::Get(long id, size_t * pDataLen) const
 //
 //
 //
-SLAPI PPStringSetSCD::PPStringSetSCD() : StringSet("/&")
+PPStringSetSCD::PPStringSetSCD() : StringSet("/&")
 {
 }

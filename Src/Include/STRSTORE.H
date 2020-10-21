@@ -1,5 +1,5 @@
 // STRSTORE.H
-// Copyright (c) A.Sobolev 1996-1999, 2005, 2007, 2016, 2018
+// Copyright (c) A.Sobolev 1996-1999, 2005, 2007, 2016, 2018, 2020
 // @codepage windows-1251
 //
 #ifndef __STRSTORE_H
@@ -9,16 +9,15 @@
 #include <slib.h>
 
 #if 0 // @v9.0.2 {
-
 class StringStore : public SArray {
 public:
-	SLAPI  StringStore(const char * fname, int for_writing = 0);
-	SLAPI ~StringStore();
-	int    SLAPI open(const char *, int = 0);
-	int    SLAPI close();
-	int    SLAPI addString(int group, int code, Pchar string);
-	int    SLAPI getString(int group, int code, SString & s);
-	int    SLAPI getString(int group, int code, Pchar buf, size_t bufLen);
+	StringStore(const char * fname, int for_writing = 0);
+	~StringStore();
+	int    open(const char *, int = 0);
+	int    close();
+	int    addString(int group, int code, Pchar string);
+	int    getString(int group, int code, SString & s);
+	int    getString(int group, int code, Pchar buf, size_t bufLen);
 		// @>>StringStore::getString(int, int, SString &)
 	int    error;
 protected:
@@ -37,7 +36,6 @@ protected:
 	int    writing;
 	uint   last;
 };
-
 #endif // } 0 @v9.0.2
 //
 //
@@ -46,12 +44,12 @@ protected:
 
 class StringStore2 {
 public:
-	SLAPI  StringStore2();
-	SLAPI ~StringStore2();
-	void   SLAPI SetActiveLanguage(int slang);
-	int    SLAPI Load(const char * pFileName, int selfTest);
-	int    SLAPI GetString(int group, int code, SString & rBuf) const;
-	int    SLAPI GetString(const char * pSignature, SString & rBuf) const;
+	StringStore2();
+	~StringStore2();
+	void   SetActiveLanguage(int slang);
+	int    Load(const char * pFileName, int selfTest);
+	int    GetString(int group, int code, SString & rBuf) const;
+	int    GetString(const char * pSignature, SString & rBuf) const;
 	//
 	// Descr: Создает и заполняет хэш-таблицу символов, содержащихся в группе group.
 	// Note: Возвращаемый указатель ссылается на объект, который переходит в собственность
@@ -65,7 +63,7 @@ public:
 	//   !0 - указатель на хэш-таблицу, переходящую в собственность вызывающей функции.
 	//       после использования таблица должна быть разрушена в целях освобождения памяти.
 	//
-	SymbHashTable * SLAPI LoadStringHash(int group) const;
+	SymbHashTable * LoadStringHash(int group) const;
 	//
 	// Descr: Возвращает собственный экземпляр хэш-таблицы символов, ассоциированный с группой group.
 	// Note: В отличии от LoadStringHash эта функция возвращает собственный экземпляр хэш-таблицы.
@@ -78,20 +76,20 @@ public:
 	//      совместно используемого многими потоками.
 	//
 	const  SymbHashTable * FASTCALL GetStringHash(int group); // @nonconst @cs
-	int    SLAPI GetDescription(int group, int code, SString & rBuf); // @nonconst @cs
-	int    SLAPI GetDescription(const char * pSignature, SString & rBuf); // @nonconst @cs
-	int    SLAPI ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) const;
-	int    SLAPI Error(int errCode, long flags);
+	int    GetDescription(int group, int code, SString & rBuf); // @nonconst @cs
+	int    GetDescription(const char * pSignature, SString & rBuf); // @nonconst @cs
+	int    ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) const;
+	int    Error(int errCode, long flags);
 
 	enum {
 		cfTranslateOnly = 0x0001
 	};
 
-	int    SLAPI Compile(const char * pFileName, long flags, const char * pTranslateToLang);
+	int    Compile(const char * pFileName, long flags, const char * pTranslateToLang);
 private:
 	struct ParseItem {
-		SLAPI  ParseItem();
-		ParseItem & SLAPI Z();
+		ParseItem();
+		ParseItem & Z();
 		enum {
 			kGroup = 1, // Определитель группы строк [999]
 			kString,    // Строка
@@ -115,7 +113,7 @@ private:
 		long   Flags;
 		long   Group;
 		long   Code;
-		int    SLang;  // @v8.9.10 Идентификатор языка slangXXX
+		int    SLang;  // Идентификатор языка slangXXX
 		int    Scope;
 		SString GroupSymb;
 		SString CodeSymb;
@@ -125,9 +123,9 @@ private:
 
 	class Hash : public HashTableBase {
 	public:
-		SLAPI  Hash(size_t sz);
-        int    SLAPI Add(long id, long pos);
-        int    SLAPI Get(long id, long * pPos) const;
+		Hash(size_t sz);
+        int    Add(long id, long pos);
+        int    Get(long id, long * pPos) const;
 	private:
 		size_t FASTCALL GetHash(long id) const;
 	};
@@ -148,33 +146,33 @@ private:
 		StringStore2::Hash * P_PositionHash;
 	};
 
-	int    SLAPI InitParsing();
-	int    SLAPI ParseFile(const char * pFileName);
-	int    SLAPI GenerateHeaderFile(const char * pFileName, const char * pSrcFileName);
-	int    SLAPI GenerateRcFile(const char * pFileName, const char * pSrcFileName);
-	int    SLAPI ParseString(const SString & rStr, SStrScan & rScan, ParseItem & rItem);
-	int    SLAPI AddGroup(ParseItem & rItem);
-	int    SLAPI AddString(long group, StringStore2::ParseItem & rItem, long * pCodeStr);
+	int    InitParsing();
+	int    ParseFile(const char * pFileName);
+	int    GenerateHeaderFile(const char * pFileName, const char * pSrcFileName);
+	int    GenerateRcFile(const char * pFileName, const char * pSrcFileName);
+	int    ParseString(const SString & rStr, SStrScan & rScan, ParseItem & rItem);
+	int    AddGroup(ParseItem & rItem);
+	int    AddString(long group, StringStore2::ParseItem & rItem, long * pCodeStr);
 	LangStrCollItem * FASTCALL GetOrConstructList(int slang);
 	const LangStrCollItem * FASTCALL GetList(int slang) const;
 
-	int    SLAPI CreateHash(int doTest);
-	int    SLAPI Helper_GetString(long ident, SString & rBuf) const;
-	int    SLAPI Helper_GetDescription(long ident, SString & rBuf); // @noncost
-	int    SLAPI TranslationWanted(const uchar * pOrgText) const;
+	int    CreateHash(int doTest);
+	int    Helper_GetString(long ident, SString & rBuf) const;
+	int    Helper_GetDescription(long ident, SString & rBuf); // @noncost
+	int    TranslationWanted(const uchar * pOrgText) const;
 
-	int    SLAPI StoreState(const char * pFileName);
-	int    SLAPI RestoreState(const char * pFileName);
+	int    StoreState(const char * pFileName);
+	int    RestoreState(const char * pFileName);
 
 #ifndef _WIN32_WCE // {
-	int    SLAPI Write(SFile & rF, LangStrCollItem * pData);
-	int    SLAPI Read(SFile & rF);
+	int    Write(SFile & rF, LangStrCollItem * pData);
+	int    Read(SFile & rF);
 #endif // } _WIN32_WCE
 	enum {
 		fReadOnly         = 0x0001,
 		fError            = 0x0002,
-		fNoTranslateScope = 0x0004,  // @v9.0.2
-		fDescrScope       = 0x0008   // @v9.0.8 Процесс разбора находится в области текстового определения последней строки
+		fNoTranslateScope = 0x0004,  // 
+		fDescrScope       = 0x0008   // Процесс разбора находится в области текстового определения последней строки
 	};
 	long   Flags;
 	int    ErrCode;
@@ -192,14 +190,14 @@ private:
 		uint32 Crc32;          // CRC всего файла
 		uint32 ListOffs;       // Смещение от начала файла до List (StrAssocArray)
 		uint32 SListOffs;      // Смещение от начала файла до SignatureList (StrAssocArray)
-		int32  SLang;          // @v8.9.10 Идентификатор языка
-		uint32 Ver;            // @v9.0.2 Версия файла
-		uint32 DescrListOffs;  // @v9.0.8 Смещение от начала файла до DescrPosList (LAssocArray)
+		int32  SLang;          // Идентификатор языка
+		uint32 Ver;            // Версия файла
+		uint32 DescrListOffs;  // Смещение от начала файла до DescrPosList (LAssocArray)
 		uint8  Reserve[36];    // @reserve // @v8.9.10 [48]-->[44] // @v9.0.2 [44]-->[40] // @v9.0.8 [40]-->[36]
 	};
 
-	StrAssocArray GrpSymbList; // @v9.6.4
-	LongArray HashGroupList;   // @v9.6.4 Список идентификаторов групп, которые определены как хэширующие
+	StrAssocArray GrpSymbList; // 
+	LongArray HashGroupList;   // Список идентификаторов групп, которые определены как хэширующие
 	//
 	// Descr: Предварительно загруженая хэш-таблица символов
 	//
@@ -221,7 +219,6 @@ private:
 		uint   Line;                   // Номер разбираемой строки
 		long   LastAutoGrpCode;
 		uint32 LastSignatureCode;
-		// @v9.6.4 StrAssocArray GrpSymbList;
 		StrAssocArray StrSymbList;
 		LAssocArray LastAutoCodeList;
 		//

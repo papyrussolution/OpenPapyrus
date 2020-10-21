@@ -11,12 +11,12 @@
 //static
 // @v10.5.5 (moved to PPConstParam) const uint32 PPObjSCard::FiltSignature = 0xfbefffffU;
 
-SLAPI PPSCardPacket::PPSCardPacket() : PPExtStrContainer()
+PPSCardPacket::PPSCardPacket() : PPExtStrContainer()
 {
 	// @v10.7.3 @ctr Z();
 }
 
-PPSCardPacket & SLAPI PPSCardPacket::Z()
+PPSCardPacket & PPSCardPacket::Z()
 {
 	MEMSZERO(Rec);
     SetBuffer(0);
@@ -105,7 +105,7 @@ PPSCardPacket & SLAPI PPSCardPacket::Z()
 	return PPObjSCardSeries::FetchConfig(pCfg);
 }
 
-int SLAPI PPObjSCard::EditConfig()
+int PPObjSCard::EditConfig()
 {
 	class SCardCfgDialog : public TDialog {
 		DECL_DIALOG_DATA(PPSCardConfig);
@@ -216,7 +216,7 @@ int SLAPI PPObjSCard::EditConfig()
 //
 //
 //
-SLAPI PPSCardSeries2::PPSCardSeries2()
+PPSCardSeries2::PPSCardSeries2()
 {
 	THISZERO();
 	VerifTag = 2; // @v9.8.9
@@ -266,7 +266,7 @@ int FASTCALL PPSCardSeries2::IsEqual(const PPSCardSeries2 & rS) const
 	return eq;
 }
 
-int SLAPI PPSCardSeries2::GetType() const
+int PPSCardSeries2::GetType() const
 {
 	if(Flags & SCRDSF_RSRVPOOL) // @v10.2.7
 		return scstRsrvPool;
@@ -280,7 +280,7 @@ int SLAPI PPSCardSeries2::GetType() const
 		return scstDiscount;
 }
 
-int SLAPI PPSCardSeries2::SetType(int type)
+int PPSCardSeries2::SetType(int type)
 {
 	int    ok = 1;
 	const  long preserve_flags = Flags;
@@ -311,7 +311,7 @@ int SLAPI PPSCardSeries2::SetType(int type)
 	return (ok && Flags == preserve_flags) ? -1 : ok;
 }
 
-int SLAPI PPSCardSeries2::Verify()
+int PPSCardSeries2::Verify()
 {
 	int    ok = -1;
 	if(VerifTag == 0) {
@@ -329,12 +329,12 @@ int SLAPI PPSCardSeries2::Verify()
 //
 //
 //
-SLAPI TrnovrRngDis::TrnovrRngDis()
+TrnovrRngDis::TrnovrRngDis()
 {
 	THISZERO();
 }
 
-int SLAPI TrnovrRngDis::GetResult(double currentValue, double * pResult) const
+int TrnovrRngDis::GetResult(double currentValue, double * pResult) const
 {
 	int    ok = 0;
 	double result = currentValue;
@@ -363,7 +363,7 @@ PPSCardSerRule & FASTCALL PPSCardSerRule::operator = (const PPSCardSerRule & s)
 	return *this;
 }
 
-int SLAPI PPSCardSerRule::CheckTrnovrRng(const RealRange & rR, long pos) const
+int PPSCardSerRule::CheckTrnovrRng(const RealRange & rR, long pos) const
 {
 	int    ok = (rR.upp > rR.low && rR.low >= 0.0) ? 1 : PPSetError(PPERR_TRNOVRRNG);
 	TrnovrRngDis * p_item = 0;
@@ -375,7 +375,7 @@ int SLAPI PPSCardSerRule::CheckTrnovrRng(const RealRange & rR, long pos) const
 	return ok;
 }
 
-int SLAPI PPSCardSerRule::ValidateItem(int ruleType, const TrnovrRngDis & rItem, long pos) const
+int PPSCardSerRule::ValidateItem(int ruleType, const TrnovrRngDis & rItem, long pos) const
 {
 	int    ok = 1;
 	THROW(CheckTrnovrRng(rItem.R, pos));
@@ -424,7 +424,7 @@ int FASTCALL PPSCardSerRule::IsEqual(const PPSCardSerRule & rS) const
 	return eq;
 }
 
-void SLAPI PPSCardSerRule::Init()
+void PPSCardSerRule::Init()
 {
 	freeAll();
 	Ver = 1;
@@ -432,13 +432,13 @@ void SLAPI PPSCardSerRule::Init()
 	TrnovrPeriod = 0;
 }
 
-int SLAPI PPSCardSerRule::IsList() const
+int PPSCardSerRule::IsList() const
 {
 	return BIN(count > 1);
 }
 
 #if 0 // {
-int SLAPI PPSCardSerRule::GetPDisValue(double amt, double * pValue) const
+int PPSCardSerRule::GetPDisValue(double amt, double * pValue) const
 {
 	int    ok = -1;
 	double discount = 0.0;
@@ -457,7 +457,7 @@ int SLAPI PPSCardSerRule::GetPDisValue(double amt, double * pValue) const
 }
 #endif // } 0
 
-const TrnovrRngDis * SLAPI PPSCardSerRule::SearchItem(double amount) const
+const TrnovrRngDis * PPSCardSerRule::SearchItem(double amount) const
 {
 	const TrnovrRngDis * p_item = 0;
 	for(uint i = 0; !p_item && i < getCount(); i++) {
@@ -468,7 +468,7 @@ const TrnovrRngDis * SLAPI PPSCardSerRule::SearchItem(double amount) const
 	return p_item;
 }
 
-int SLAPI PPSCardSerRule::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPSCardSerRule::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, Ver, rBuf));
@@ -479,17 +479,17 @@ int SLAPI PPSCardSerRule::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 	return ok;
 }
 
-SLAPI PPSCardSerPacket::Ext::Ext()
+PPSCardSerPacket::Ext::Ext()
 {
 	Init();
 }
 
-void SLAPI PPSCardSerPacket::Ext::Init()
+void PPSCardSerPacket::Ext::Init()
 {
 	THISZERO();
 }
 
-int SLAPI PPSCardSerPacket::Ext::IsEmpty() const
+int PPSCardSerPacket::Ext::IsEmpty() const
 {
 	return BIN(!UsageTmStart && !UsageTmEnd &&
 		(!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
@@ -503,12 +503,12 @@ int FASTCALL PPSCardSerPacket::Ext::IsEqual(const Ext & rS) const
 	return yes;
 }
 
-SLAPI PPSCardSerPacket::PPSCardSerPacket()
+PPSCardSerPacket::PPSCardSerPacket()
 {
 	Init();
 }
 
-void SLAPI PPSCardSerPacket::Init()
+void PPSCardSerPacket::Init()
 {
 	UpdFlags = 0;
 	MEMSZERO(Rec);
@@ -518,7 +518,7 @@ void SLAPI PPSCardSerPacket::Init()
 	Eb.Init();
 }
 
-int SLAPI PPSCardSerPacket::Normalize()
+int PPSCardSerPacket::Normalize()
 {
 	int    ok = 1;
 	PPIDArray temp_list;
@@ -570,7 +570,7 @@ int FASTCALL PPSCardSerPacket::IsEqual(const PPSCardSerPacket & rS) const
 	return eq;
 }
 
-int SLAPI PPSCardSerPacket::GetDisByRule(double trnovr, TrnovrRngDis & rEntry) const
+int PPSCardSerPacket::GetDisByRule(double trnovr, TrnovrRngDis & rEntry) const
 {
 	int    ok = -1;
 	TrnovrRngDis * p_item = 0;
@@ -746,21 +746,21 @@ int SCardRuleDlg::setupList()
 	return ok;
 }
 
-SLAPI SCardSeriesFilt::SCardSeriesFilt() : ParentID(0), Flags(0), SpecialTreatment(0)
+SCardSeriesFilt::SCardSeriesFilt() : ParentID(0), Flags(0), SpecialTreatment(0)
 {
 }
 
-SLAPI PPObjSCardSeries::PPObjSCardSeries(void * extraPtr) : PPObjReference(PPOBJ_SCARDSERIES, extraPtr), P_ScObj(0)
+PPObjSCardSeries::PPObjSCardSeries(void * extraPtr) : PPObjReference(PPOBJ_SCARDSERIES, extraPtr), P_ScObj(0)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-SLAPI PPObjSCardSeries::~PPObjSCardSeries()
+PPObjSCardSeries::~PPObjSCardSeries()
 {
 	delete P_ScObj;
 }
 
-SCardSeriesFilt & SLAPI PPObjSCardSeries::InitFilt(void * extraPtr, SCardSeriesFilt & rFilt) const
+SCardSeriesFilt & PPObjSCardSeries::InitFilt(void * extraPtr, SCardSeriesFilt & rFilt) const
 {
 	if(extraPtr) {
 		rFilt = *static_cast<const SCardSeriesFilt *>(extraPtr);
@@ -772,7 +772,7 @@ SCardSeriesFilt & SLAPI PPObjSCardSeries::InitFilt(void * extraPtr, SCardSeriesF
 	return rFilt;
 }
 
-int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PPSCardSeries & rRec) const
+int PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PPSCardSeries & rRec) const
 {
 	int    ok = 1;
 	if(pFilt) {
@@ -794,14 +794,14 @@ int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PP
 	return ok;
 }
 
-/*virtual*/ListBoxDef * SLAPI PPObjSCardSeries::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjSCardSeries::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-/*virtual*/int SLAPI PPObjSCardSeries::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int PPObjSCardSeries::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
 	if(ok > 0)
@@ -809,7 +809,7 @@ int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PP
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
+int PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
@@ -838,7 +838,7 @@ int SLAPI PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-StrAssocArray * SLAPI PPObjSCardSeries::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjSCardSeries::MakeStrAssocList(void * extraPtr)
 {
 	SCardSeriesFilt scs_filt;
 	InitFilt(extraPtr, scs_filt);
@@ -860,7 +860,7 @@ StrAssocArray * SLAPI PPObjSCardSeries::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjSCardSeries::GetCodeRange(PPID serID, SString & rLow, SString & rUpp)
+int PPObjSCardSeries::GetCodeRange(PPID serID, SString & rLow, SString & rUpp)
 {
 	PPSCardSerPacket pack;
 	rLow.Z();
@@ -870,7 +870,7 @@ int SLAPI PPObjSCardSeries::GetCodeRange(PPID serID, SString & rLow, SString & r
 
 class Storage_SCardRule {  // @persistent @store(PropertyTbl)
 public:
-	void * SLAPI operator new(size_t sz, const PPSCardSerRule * pSrc, size_t preallocCount, int prop)
+	void * operator new(size_t sz, const PPSCardSerRule * pSrc, size_t preallocCount, int prop)
 	{
 		const size_t item_size = pSrc->getItemSize();
 		size_t allocated_count = MAX(pSrc->getCount(), preallocCount);
@@ -890,7 +890,7 @@ public:
 		}
 		return p;
 	}
-	int    SLAPI CopyTo(PPSCardSerRule * pDest) const
+	int    CopyTo(PPSCardSerRule * pDest) const
 	{
 		int    ok = 1;
 		pDest->Ver = Ver;
@@ -906,7 +906,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-	size_t SLAPI GetSize() const { return (sizeof(*this) + AllocatedCount * ItemSize); }
+	size_t GetSize() const { return (sizeof(*this) + AllocatedCount * ItemSize); }
 	PPID   ObjType;
 	PPID   ObjID;
 	PPID   Prop;
@@ -958,7 +958,7 @@ struct Storage_SCardSerExt {
 	long   Reserve2[2];    //
 };
 
-int SLAPI PPObjSCardSeries::Search(PPID id, void * b)
+int PPObjSCardSeries::Search(PPID id, void * b)
 {
 	PPSCardSeries2 * p_rec = static_cast<PPSCardSeries2 *>(b);
 	int    ok = PPObjReference::Search(id, p_rec);
@@ -967,7 +967,7 @@ int SLAPI PPObjSCardSeries::Search(PPID id, void * b)
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
+int PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 {
 	int    ok = -1, r = -1;
 	Reference * p_ref = PPRef;
@@ -1050,7 +1050,7 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta)
+int PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta)
 {
 	int    ok = -1, eq = 0;
 	Reference * p_ref = PPRef;
@@ -1143,7 +1143,7 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray * pStack)
+int PPObjSCardSeries::Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray * pStack)
 {
 	int    ok = 1;
 	PPIDArray inner_stack;
@@ -1172,12 +1172,12 @@ int SLAPI PPObjSCardSeries::Helper_GetChildList(PPID id, PPIDArray & rList, PPID
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::GetChildList(PPID id, PPIDArray & rList)
+int PPObjSCardSeries::GetChildList(PPID id, PPIDArray & rList)
 {
 	return Helper_GetChildList(id, rList, 0);
 }
 
-int SLAPI PPObjSCardSeries::GetSeriesWithSpecialTreatment(LAssocArray & rList)
+int PPObjSCardSeries::GetSeriesWithSpecialTreatment(LAssocArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -1191,11 +1191,11 @@ int SLAPI PPObjSCardSeries::GetSeriesWithSpecialTreatment(LAssocArray & rList)
 	return ok;
 }
 
-SLAPI SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
+SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 {
 }
 
-/*static*/int SLAPI PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
+/*static*/int PPObjSCardSeries::SelectRule(SCardChargeRule * pSelRule)
 {
 	int    ok = -1;
 	SCardChargeRule scs_rule;
@@ -1217,7 +1217,7 @@ SLAPI SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjSCardSeries::SetSCardsByRule(const SCardChargeRule * pSelRule)
+/*static*/int PPObjSCardSeries::SetSCardsByRule(const SCardChargeRule * pSelRule)
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -1247,7 +1247,7 @@ SLAPI SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
+int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 {
 	class SCardSeriaDlg : public TDialog {
 	public:
@@ -1555,7 +1555,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 
 IMPL_DESTROY_OBJ_PACK(PPObjSCardSeries, PPSCardSerPacket);
 
-int SLAPI PPObjSCardSeries::SerializePacket(int dir, PPSCardSerPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjSCardSeries::SerializePacket(int dir, PPSCardSerPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -1568,10 +1568,10 @@ int SLAPI PPObjSCardSeries::SerializePacket(int dir, PPSCardSerPacket * pPack, S
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjSCardSeries::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjSCardSeries, PPSCardSerPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	PPSCardSerPacket * p_pack = p ? static_cast<PPSCardSerPacket *>(p->Data) : 0;
@@ -1593,7 +1593,7 @@ int SLAPI PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 	return ok;
 }
 
-int SLAPI PPObjSCardSeries::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjSCardSeries::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1652,7 +1652,7 @@ int SCardSeriesView::Print()
 	return PPAlddPrint(REPORT_SCARDSERIESVIEW, &pv, 0);
 }
 
-int SLAPI PPObjSCardSeries::Browse(void * extraPtr)
+int PPObjSCardSeries::Browse(void * extraPtr)
 {
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
@@ -1669,7 +1669,7 @@ int SLAPI PPObjSCardSeries::Browse(void * extraPtr)
 //
 //
 //
-SLAPI PPObjSCardSeriesListWindow::PPObjSCardSeriesListWindow(PPObject * pObj, uint flags, void * extraPtr) :
+PPObjSCardSeriesListWindow::PPObjSCardSeriesListWindow(PPObject * pObj, uint flags, void * extraPtr) :
 	PPObjListWindow(pObj, flags, extraPtr), CurIterPos(0)
 {
 	if(pObj) {
@@ -1680,7 +1680,7 @@ SLAPI PPObjSCardSeriesListWindow::PPObjSCardSeriesListWindow(PPObject * pObj, ui
 	SetToolbar(TOOLBAR_LIST_SCARDSERIES);
 }
 
-int SLAPI PPObjSCardSeriesListWindow::InitIteration()
+int PPObjSCardSeriesListWindow::InitIteration()
 {
 	CurIterPos = 0;
 	return 1;
@@ -1734,24 +1734,24 @@ IMPL_HANDLE_EVENT(PPObjSCardSeriesListWindow)
 	}
 }
 
-/*virtual*/void * SLAPI PPObjSCardSeries::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjSCardSeries::CreateObjListWin(uint flags, void * extraPtr)
 {
 	return new PPObjSCardSeriesListWindow(this, flags, extraPtr);
 }
 //
 //
 //
-SLAPI PPObjSCard::AddParam::AddParam(PPID serID, PPID ownerID) : SerID(serID), OwnerID(ownerID), LocID(0)
+PPObjSCard::AddParam::AddParam(PPID serID, PPID ownerID) : SerID(serID), OwnerID(ownerID), LocID(0)
 {
 }
 
-SLAPI PPObjSCard::Filt::Filt() : Signature(_PPConst.Signature_PPObjSCard_Filt), SeriesID(0), OwnerID(0)
+PPObjSCard::Filt::Filt() : Signature(_PPConst.Signature_PPObjSCard_Filt), SeriesID(0), OwnerID(0)
 {
 }
 
 TLP_IMPL(PPObjSCard, CCheckCore, P_CcTbl);
 
-SLAPI PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(extraPtr), P_CsObj(0),
+PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(extraPtr), P_CsObj(0),
 	DoObjVer_SCard(CConfig.Flags2 & CCFLG2_USEHISTSCARD) // @v10.5.3
 {
 	TLP_OPEN(P_CcTbl);
@@ -1760,13 +1760,13 @@ SLAPI PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(
 	Cfg.Flags &= ~PPSCardConfig::fValid;
 }
 
-SLAPI PPObjSCard::~PPObjSCard()
+PPObjSCard::~PPObjSCard()
 {
 	TLP_CLOSE(P_CcTbl);
 	delete P_CsObj;
 }
 
-const PPSCardConfig & SLAPI PPObjSCard::GetConfig()
+const PPSCardConfig & PPObjSCard::GetConfig()
 {
 	if(!(Cfg.Flags & PPSCardConfig::fValid))
 		PPObjSCard::ReadConfig(&Cfg);
@@ -1788,15 +1788,15 @@ PPID FASTCALL PPObjSCard::GetChargeGoodsID(PPID cardID)
 	return charge_goods_id;
 }
 
-int SLAPI PPObjSCard::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<SCardTbl::Rec *>(b)); }
-/*virtual*/const char * SLAPI PPObjSCard::GetNamePtr() { return P_Tbl->data.Code; }
+int PPObjSCard::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<SCardTbl::Rec *>(b)); }
+/*virtual*/const char * PPObjSCard::GetNamePtr() { return P_Tbl->data.Code; }
 
-int SLAPI PPObjSCard::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjSCard::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTSCARD, CTL_RTSCARD_FLAGS, CTL_RTSCARD_SFLAGS, bufSize, rt, pDlg);
 }
 
-int SLAPI PPObjSCard::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjSCard::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -1836,35 +1836,35 @@ int SLAPI PPObjSCard::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjSCard::IsCreditSeries(PPID scSerID)
+int PPObjSCard::IsCreditSeries(PPID scSerID)
 {
 	return BIN(GetSeriesType(scSerID) == scstCredit);
 }
 
-/*static*/int SLAPI PPObjSCard::GetSeriesType(PPID scSerID)
+/*static*/int PPObjSCard::GetSeriesType(PPID scSerID)
 {
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries scs_rec;
 	return (scs_obj.Fetch(scSerID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 }
 
-int SLAPI PPObjSCard::GetCardType(PPID cardID)
+int PPObjSCard::GetCardType(PPID cardID)
 {
 	SCardTbl::Rec rec;
 	return (cardID && Search(cardID, &rec) > 0) ? GetSeriesType(rec.SeriesID) : scstUnkn;
 }
 
-int SLAPI PPObjSCard::IsCreditCard(PPID cardID)
+int PPObjSCard::IsCreditCard(PPID cardID)
 {
 	return BIN(GetCardType(cardID) == scstCredit);
 }
 
-int SLAPI PPObjSCard::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRec)
+int PPObjSCard::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRec)
 {
 	return P_Tbl->SearchCode(seriesID, pCode, pRec);
 }
 
-int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID seriesID, void * pList, long flags)
+int PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID seriesID, void * pList, long flags)
 {
 	int    ok = 1, r = 0;
 	const  size_t substr_len = sstrlen(pSubstr);
@@ -1990,7 +1990,7 @@ int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID serie
 	return ok;
 }
 
-int SLAPI PPObjSCard::GetListBySubstring(const char * pSubstr, PPID seriesID, StrAssocArray * pList, int fromBegStr)
+int PPObjSCard::GetListBySubstring(const char * pSubstr, PPID seriesID, StrAssocArray * pList, int fromBegStr)
 {
 	long   flags = clsfStrList;
 	if(fromBegStr)
@@ -2000,7 +2000,7 @@ int SLAPI PPObjSCard::GetListBySubstring(const char * pSubstr, PPID seriesID, St
 	return ok;
 }
 
-int SLAPI PPObjSCard::UpdateBySeries(PPID seriesID, int use_ta)
+int PPObjSCard::UpdateBySeries(PPID seriesID, int use_ta)
 {
 	int    ok = -1;
 	PPSCardSerPacket scs_pack;
@@ -2034,7 +2034,7 @@ int SLAPI PPObjSCard::UpdateBySeries(PPID seriesID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjSCard::CheckUniq()
+int PPObjSCard::CheckUniq()
 {
 	int    ok = 1;
 	SString prev_code;
@@ -2050,7 +2050,7 @@ int SLAPI PPObjSCard::CheckUniq()
 	return ok;
 }
 
-int SLAPI PPObjSCard::CheckExpiredBillDebt(PPID scardID)
+int PPObjSCard::CheckExpiredBillDebt(PPID scardID)
 {
 	int    ok = 1;
 	if(scardID) {
@@ -2091,7 +2091,7 @@ int SLAPI PPObjSCard::CheckExpiredBillDebt(PPID scardID)
 	return ok;
 }
 
-int SLAPI PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
+int PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
 {
 	int    ok = -1;
 	//
@@ -2141,7 +2141,7 @@ int SLAPI PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
 	return ok;
 }
 
-int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList)
+int PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList)
 {
 	int    ok = -1;
 	if(rList.getCount()) {
@@ -2274,7 +2274,7 @@ int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::Update
 	return ok;
 }
 
-int SLAPI PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATETIME dtm)
+int PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATETIME dtm)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -2328,7 +2328,7 @@ struct _SCardTrnovrItem {
 	double DscntTrnovr;
 };
 
-int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta)
+int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLogger * pLog, int use_ta)
 {
 	int    ok = 1;
 	int    prd_delta = 0;
@@ -2587,7 +2587,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 }
 
 // @Muxa @v7.3.9
-SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
+SString & PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
 {
 	rHash.Z();
 #define SCARD_HASH_LEN   4
@@ -2606,12 +2606,12 @@ SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
 	return rHash;
 }
 // }
-int SLAPI PPObjSCard::CreateTurnoverList(const DateRange * pPeriod, RAssocArray * pList)
+int PPObjSCard::CreateTurnoverList(const DateRange * pPeriod, RAssocArray * pList)
 {
 	return (P_CcTbl->CreateSCardsTurnoverList(pPeriod, pList) && BillObj->P_Tbl->CreateSCardsTurnoverList(pPeriod, pList));
 }
 
-int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
+int PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -2676,7 +2676,7 @@ int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const Dat
 	return ok;
 }
 
-int SLAPI PPObjSCard::GetTurnover(PPID cardID, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
+int PPObjSCard::GetTurnover(PPID cardID, int alg, const DateRange & rPeriod, PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
 	int    ok = 1;
 	SCardTbl::Rec rec;
@@ -2690,7 +2690,7 @@ int SLAPI PPObjSCard::GetTurnover(PPID cardID, int alg, const DateRange & rPerio
 	return ok;
 }
 
-int SLAPI PPObjSCard::PutUhttOp(PPID cardID, double amount)
+int PPObjSCard::PutUhttOp(PPID cardID, double amount)
 {
 	int    ok = -1;
 	amount = R2(amount);
@@ -2724,7 +2724,7 @@ int SLAPI PPObjSCard::PutUhttOp(PPID cardID, double amount)
 	return ok;
 }
 
-int SLAPI PPObjSCard::ActivateRec(SCardTbl::Rec * pRec)
+int PPObjSCard::ActivateRec(SCardTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pRec) {
@@ -2742,8 +2742,8 @@ int SLAPI PPObjSCard::ActivateRec(SCardTbl::Rec * pRec)
 	return ok;
 }
 
-//int SLAPI PPObjSCard::SetInheritance(const PPSCardSeries * pSerRec, SCardTbl::Rec * pRec)
-int SLAPI PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl::Rec * pRec)
+//int PPObjSCard::SetInheritance(const PPSCardSeries * pSerRec, SCardTbl::Rec * pRec)
+int PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pRec && pRec->Flags & SCRDF_INHERITED) {
@@ -2783,7 +2783,7 @@ int SLAPI PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl
 	return ok;
 }
 
-int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl::Rec * pPatternRec, SString & rNumber, long flags, int use_ta)
+int PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl::Rec * pPatternRec, SString & rNumber, long flags, int use_ta)
 {
 	int    ok = 1;
 	SString number;
@@ -2857,7 +2857,7 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 	return ok;
 }
 
-int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
+int PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 {
 	int    ok = -1; // sample template: L01(290%09[1..6])^
 	SString pattern;
@@ -2879,7 +2879,7 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID, int updateImmediately)
+int PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID, int updateImmediately)
 {
 	int    ok = -1;
 	SCardSpecialTreatment * p_spctrt = 0;
@@ -3289,7 +3289,7 @@ int SCardDialog::getDTS(PPSCardPacket * pData)
 	return ok;
 }
 
-int SLAPI PPObjSCard::SetFlags(PPID id, long flags, int use_ta)
+int PPObjSCard::SetFlags(PPID id, long flags, int use_ta)
 {
 	int    ok = -1;
 	SCardTbl::Rec rec;
@@ -3306,7 +3306,7 @@ int SLAPI PPObjSCard::SetFlags(PPID id, long flags, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjSCard::FindAndEdit(PPID * pID, const AddParam * pParam)
+int PPObjSCard::FindAndEdit(PPID * pID, const AddParam * pParam)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_SCARDNUM);
@@ -3355,7 +3355,7 @@ int SLAPI PPObjSCard::FindAndEdit(PPID * pID, const AddParam * pParam)
 	return ok;
 }
 
-int SLAPI PPObjSCard::EditDialog(PPSCardPacket * pPack, long flags)
+int PPObjSCard::EditDialog(PPSCardPacket * pPack, long flags)
 {
 	int    ok = -1;
 	SCardDialog * dlg = 0;
@@ -3381,7 +3381,7 @@ int SLAPI PPObjSCard::EditDialog(PPSCardPacket * pPack, long flags)
 	return ok;
 }
 
-int SLAPI PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
+int PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(ownerID) {
@@ -3463,7 +3463,7 @@ int SLAPI PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pR
 	return ok;
 }
 
-int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
+int PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 {
 	int    ok = -1;
 	int    r = cmCancel;
@@ -3525,18 +3525,18 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjSCard::Edit(PPID * pID, void * extraPtr /*serID*/)
+int PPObjSCard::Edit(PPID * pID, void * extraPtr /*serID*/)
 {
 	AddParam param(reinterpret_cast<PPID>(extraPtr));
 	return Helper_Edit(pID, &param);
 }
 
-int SLAPI PPObjSCard::Edit(PPID * pID, const AddParam & rParam)
+int PPObjSCard::Edit(PPID * pID, const AddParam & rParam)
 {
 	return Helper_Edit(pID, &rParam);
 }
 
-int SLAPI PPObjSCard::ViewVersion(PPID histID)
+int PPObjSCard::ViewVersion(PPID histID)
 {
 	int    ok = -1;
 	SCardDialog * dlg = 0;
@@ -3564,7 +3564,7 @@ int SLAPI PPObjSCard::ViewVersion(PPID histID)
 	return ok;
 }
 
-int SLAPI PPObjSCard::IsPacketEq(const PPSCardPacket & rS1, const PPSCardPacket & rS2, long flags)
+int PPObjSCard::IsPacketEq(const PPSCardPacket & rS1, const PPSCardPacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 	CMP_MEMB(ID);
@@ -3619,7 +3619,7 @@ int SLAPI PPObjSCard::IsPacketEq(const PPSCardPacket & rS1, const PPSCardPacket 
 	return 1;
 }
 
-int SLAPI PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
+int PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
 {
 	int    ok = -1;
 	assert(pPack);
@@ -3639,7 +3639,7 @@ int SLAPI PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
+int PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
@@ -3779,7 +3779,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjSCard::DeleteObj(PPID id)
+int PPObjSCard::DeleteObj(PPID id)
 {
 	int    ok = 1;
 	CCheckTbl::Key4 k4;
@@ -3798,14 +3798,14 @@ int SLAPI PPObjSCard::DeleteObj(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjSCard::Browse(void * extraPtr)
+int PPObjSCard::Browse(void * extraPtr)
 {
 	SCardFilt flt;
 	flt.SeriesID = reinterpret_cast<long>(extraPtr);
 	return ViewSCard(&flt, 0);
 }
 
-int SLAPI PPObjSCard::SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesID, PPID * pID, int use_ta)
+int PPObjSCard::SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesID, PPID * pID, int use_ta)
 {
 	int    ok = -1;
 	PPID   sc_id = 0;
@@ -3856,7 +3856,7 @@ int SLAPI PPObjSCard::SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesI
 	return ok;
 }
 
-int SLAPI PPObjSCard::SearchCodeExt(const char * pCode, const LAssocArray * pSpcTrtScsList, PPIDArray & rScList, TSVector <SCardSpecialTreatment::IdentifyReplyBlock> & rScpRbList)
+int PPObjSCard::SearchCodeExt(const char * pCode, const LAssocArray * pSpcTrtScsList, PPIDArray & rScList, TSVector <SCardSpecialTreatment::IdentifyReplyBlock> & rScpRbList)
 {
 	rScList.clear();
 	rScpRbList.clear();
@@ -3923,10 +3923,10 @@ class SCardTransmitPacket {
 public:
 	friend class PPObjSCard;
 
-	SLAPI  SCardTransmitPacket();
-	void   SLAPI destroy();
-	int    SLAPI PutCheck(const CCheckTbl::Rec *);
-	int    SLAPI PutOp(const SCardOpTbl::Rec *);
+	SCardTransmitPacket();
+	void   destroy();
+	int    PutCheck(const CCheckTbl::Rec *);
+	int    PutOp(const SCardOpTbl::Rec *);
 	const  SCardTbl::Rec & GetRec() const { return P.Rec; }
 private:
 	//SCardTbl::Rec Rec;
@@ -3942,11 +3942,11 @@ private:
 	TSVector <SCardOpTbl::Rec> ScOpList; // @v9.8.5 TSArray-->TSVector
 };
 
-SLAPI SCardTransmitPacket::SCardTransmitPacket() : Since(ZERODATETIME)
+SCardTransmitPacket::SCardTransmitPacket() : Since(ZERODATETIME)
 {
 }
 
-void SLAPI SCardTransmitPacket::destroy()
+void SCardTransmitPacket::destroy()
 {
 	P.Z();
 	Since.Z();
@@ -3954,12 +3954,12 @@ void SLAPI SCardTransmitPacket::destroy()
 	ScOpList.freeAll();
 }
 
-int SLAPI SCardTransmitPacket::PutCheck(const CCheckTbl::Rec * pItem) { return (!pItem || CheckList.insert(pItem)) ? 1 : PPSetErrorSLib(); }
-int SLAPI SCardTransmitPacket::PutOp(const SCardOpTbl::Rec * pItem)   { return (!pItem || ScOpList.insert(pItem))  ? 1 : PPSetErrorSLib(); }
+int SCardTransmitPacket::PutCheck(const CCheckTbl::Rec * pItem) { return (!pItem || CheckList.insert(pItem)) ? 1 : PPSetErrorSLib(); }
+int SCardTransmitPacket::PutOp(const SCardOpTbl::Rec * pItem)   { return (!pItem || ScOpList.insert(pItem))  ? 1 : PPSetErrorSLib(); }
 //
 //
 //
-int SLAPI PPObjSCard::GetTransmitPacket(PPID id, const LDATETIME * pMoment, SCardTransmitPacket * pPack, const ObjTransmContext * pCtx)
+int PPObjSCard::GetTransmitPacket(PPID id, const LDATETIME * pMoment, SCardTransmitPacket * pPack, const ObjTransmContext * pCtx)
 {
 	int    ok = -1;
 	pPack->destroy();
@@ -4004,7 +4004,7 @@ int SLAPI PPObjSCard::GetTransmitPacket(PPID id, const LDATETIME * pMoment, SCar
 	return ok;
 }
 
-int SLAPI PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack, int update, ObjTransmContext * pCtx, int use_ta)
+int PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack, int update, ObjTransmContext * pCtx, int use_ta)
 {
 	int    ok = 1;
 	SCardTbl::Rec same_rec;
@@ -4084,7 +4084,7 @@ int SLAPI PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack,
 
 IMPL_DESTROY_OBJ_PACK(PPObjSCard, SCardTransmitPacket);
 
-int SLAPI PPObjSCard::SerializePacket(int dir, SCardTransmitPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjSCard::SerializePacket(int dir, SCardTransmitPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->P.Rec, rBuf, pSCtx));
@@ -4096,7 +4096,7 @@ int SLAPI PPObjSCard::SerializePacket(int dir, SCardTransmitPacket * pPack, SBuf
 	return ok;
 }
 
-int SLAPI PPObjSCard::SerializePacket(int dir, PPSCardPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjSCard::SerializePacket(int dir, PPSCardPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -4105,7 +4105,7 @@ int SLAPI PPObjSCard::SerializePacket(int dir, PPSCardPacket * pPack, SBuffer & 
 	return ok;
 }
 
-int SLAPI PPObjSCard::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjSCard::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	SCardTransmitPacket * p_pack = new SCardTransmitPacket;
@@ -4126,7 +4126,7 @@ int SLAPI PPObjSCard::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	return ok;
 }
 
-int SLAPI PPObjSCard::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjSCard::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	SCardTransmitPacket * p_pack = p ? static_cast<SCardTransmitPacket *>(p->Data) : 0;
@@ -4144,7 +4144,7 @@ int SLAPI PPObjSCard::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-int SLAPI PPObjSCard::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjSCard::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -4172,7 +4172,7 @@ int SLAPI PPObjSCard::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjSCard::MakeStrAssocList(void * extraPtr /*cardSerID*/)
+StrAssocArray * PPObjSCard::MakeStrAssocList(void * extraPtr /*cardSerID*/)
 {
 	const  Filt * p_filt = static_cast<const Filt *>(extraPtr);
 	const  PPID ser_id = (p_filt && p_filt->Signature == _PPConst.Signature_PPObjSCard_Filt) ? p_filt->SeriesID : reinterpret_cast<PPID>(extraPtr);
@@ -4206,7 +4206,7 @@ StrAssocArray * SLAPI PPObjSCard::MakeStrAssocList(void * extraPtr /*cardSerID*/
 	return p_list;
 }
 
-int SLAPI PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
+int PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	SString phone, main_city_prefix, city_prefix, temp_buf;
@@ -4255,14 +4255,14 @@ int SLAPI PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
 //
 class SCardSeriesCache : public ObjCache {
 public:
-	SLAPI  SCardSeriesCache() : ObjCache(PPOBJ_SCARDSERIES, sizeof(Data))
+	SCardSeriesCache() : ObjCache(PPOBJ_SCARDSERIES, sizeof(Data))
 	{
 		MEMSZERO(Cfg);
 	}
-	int    SLAPI GetConfig(PPSCardConfig * pCfg, int enforce); // @sync_w
+	int    GetConfig(PPSCardConfig * pCfg, int enforce); // @sync_w
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		LDATE  Issue;
@@ -4284,7 +4284,7 @@ public:
 	ReadWriteLock CfgLock;
 };
 
-int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -4316,7 +4316,7 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSCardSeries * p_data_rec = static_cast<PPSCardSeries *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -4349,7 +4349,7 @@ void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 	// @v9.8.9 ss.get(&p, p_data_rec->CodeTempl, sizeof(p_data_rec->CodeTempl));
 }
 
-int SLAPI SCardSeriesCache::GetConfig(PPSCardConfig * pCfg, int enforce)
+int SCardSeriesCache::GetConfig(PPSCardConfig * pCfg, int enforce)
 {
 	{
 		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
@@ -4398,23 +4398,23 @@ public:
 		int16  PeriodTerm;
 		int16  PeriodCount;
 	};
-	SLAPI  SCardCache() : ObjCacheHash(PPOBJ_SCARD, sizeof(Data), SMEGABYTE(2), 8), FullCardList(1)
+	SCardCache() : ObjCacheHash(PPOBJ_SCARD, sizeof(Data), SMEGABYTE(2), 8), FullCardList(1)
 	{
 	}
-	SLAPI  ~SCardCache()
+	~SCardCache()
 	{
 	}
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
-	const  StrAssocArray * SLAPI GetFullList(); // @sync_w
+	const  StrAssocArray * GetFullList(); // @sync_w
 	void   FASTCALL ReleaseFullList(const StrAssocArray * pList);
-	int    SLAPI FetchExtText(PPID id, SString & rBuf)
+	int    FetchExtText(PPID id, SString & rBuf)
 	{
 		return ExtBlk.Fetch(id, rBuf, 0);
 	}
 	int    FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry);
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	class FclArray : public StrAssocArray {
 	public:
@@ -4431,7 +4431,7 @@ private:
 	};
 	class SCardCache_ExtText_Block : public ObjCache::ExtTextBlock {
 	private:
-		virtual int SLAPI Implement_Get(PPID id, SString & rBuf, void * extraPtr)
+		virtual int Implement_Get(PPID id, SString & rBuf, void * extraPtr)
 		{
 			int    ok = -1;
 			if(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_SCARD, id, PPTRPROP_SCARDEXT), rBuf) > 0 && rBuf.NotEmpty()) {
@@ -4448,7 +4448,7 @@ private:
 	ReadWriteLock UhttLock;
 };
 
-int SLAPI SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -4484,7 +4484,7 @@ int SLAPI SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 	return ok;
 }
 
-void SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	SCardTbl::Rec * p_data_rec = static_cast<SCardTbl::Rec *>(pDataRec);
 	if(p_data_rec) {
@@ -4516,7 +4516,7 @@ void SLAPI SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 	}
 }
 
-const StrAssocArray * SLAPI SCardCache::GetFullList()
+const StrAssocArray * SCardCache::GetFullList()
 {
 	int    err = 0;
 	const StrAssocArray * p_result = 0;
@@ -4687,25 +4687,25 @@ int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntr
 	return ok;
 }
 
-const StrAssocArray * SLAPI PPObjSCard::GetFullList()
+const StrAssocArray * PPObjSCard::GetFullList()
 {
 	SCardCache * p_cache = GetDbLocalCachePtr <SCardCache> (PPOBJ_SCARD);
 	return p_cache ? p_cache->GetFullList() : 0;
 }
 
-void SLAPI PPObjSCard::ReleaseFullList(const StrAssocArray * pList)
+void PPObjSCard::ReleaseFullList(const StrAssocArray * pList)
 {
 	SCardCache * p_cache = GetDbLocalCachePtr <SCardCache> (PPOBJ_SCARD);
 	CALLPTRMEMB(p_cache, ReleaseFullList(pList));
 }
 
-int SLAPI PPObjSCard::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry)
+int PPObjSCard::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry)
 {
 	SCardCache * p_cache = GetDbLocalCachePtr <SCardCache> (PPOBJ_SCARD);
 	return p_cache ? p_cache->FetchUhttEntry(pCode, pEntry) : 0;
 }
 
-int SLAPI PPObjSCard::FetchExtText(PPID id, int fldId, SString & rBuf)
+int PPObjSCard::FetchExtText(PPID id, int fldId, SString & rBuf)
 {
 	rBuf.Z();
 	SCardCache * p_cache = GetDbLocalCachePtr <SCardCache> (PPOBJ_SCARD);
@@ -4832,7 +4832,7 @@ int SCardImpExpDialog::getDTS(PPSCardImpExpParam * pData)
 	return ok;
 }
 
-int SLAPI EditSCardParam(const char * pIniSection)
+int EditSCardParam(const char * pIniSection)
 {
 	int    ok = -1;
 	SCardImpExpDialog * dlg = 0;
@@ -4891,16 +4891,16 @@ private:
 //
 class PPSCardImporter {
 public:
-	SLAPI  PPSCardImporter() : P_IE(0)
+	PPSCardImporter() : P_IE(0)
 	{
 	}
-	SLAPI ~PPSCardImporter()
+	~PPSCardImporter()
 	{
 		ZDELETE(P_IE);
 	}
-	int    SLAPI Run(const char * pCfgName, int use_ta);
+	int    Run(const char * pCfgName, int use_ta);
 private:
-	int    SLAPI IdentifyOwner(const char * pName, const char * pCode, PPID kindID, PPID regTypeID, PPID * pID);
+	int    IdentifyOwner(const char * pName, const char * pCode, PPID kindID, PPID regTypeID, PPID * pID);
 
 	PPSCardImpExpParam Param;
 	PPImpExp * P_IE;
@@ -4909,7 +4909,7 @@ private:
 	PPObjPerson PsnObj;
 };
 
-static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
+static int SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 {
 	int    ok = -1, valid_data = 0;
 	uint   p = 0;
@@ -4954,7 +4954,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 	return ok;
 }
 
-int SLAPI PPSCardImporter::IdentifyOwner(const char * pName, const char * pCode, PPID kindID, PPID regTypeID, PPID * pID)
+int PPSCardImporter::IdentifyOwner(const char * pName, const char * pCode, PPID kindID, PPID regTypeID, PPID * pID)
 {
 	int    ok = 1;
 	PPID   owner_id = 0;
@@ -4993,7 +4993,7 @@ int SLAPI PPSCardImporter::IdentifyOwner(const char * pName, const char * pCode,
 	return ok;
 }
 
-int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
+int PPSCardImporter::Run(const char * pCfgName, int use_ta)
 {
 	int    ok = 1, r = 0;
 	SString wait_msg, temp_buf, tok_buf;
@@ -5155,7 +5155,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 	return ok;
 }
 
-int SLAPI ImportSCard()
+int ImportSCard()
 {
 	PPSCardImporter prcssr;
 	return prcssr.Run(0, 1) ? 1 : PPErrorZ();
@@ -5163,7 +5163,7 @@ int SLAPI ImportSCard()
 //
 //
 //
-int SLAPI ConvertSCardSeries9809()
+int ConvertSCardSeries9809()
 {
 	struct SCardSeries_Before9809 {
 		long   Tag;

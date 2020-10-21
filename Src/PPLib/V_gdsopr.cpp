@@ -164,12 +164,12 @@ IMPL_CMPFUNC(GoaUniqItem_CP, i1, i2)
 //
 //
 //
-SLAPI GoodsOpAnalyzeTotal::GoodsOpAnalyzeTotal()
+GoodsOpAnalyzeTotal::GoodsOpAnalyzeTotal()
 {
 	Init();
 }
 
-void SLAPI GoodsOpAnalyzeTotal::Init()
+void GoodsOpAnalyzeTotal::Init()
 {
 	Count = 0;
 	InCount = 0;
@@ -205,7 +205,7 @@ GoodsOpAnalyzeTotal & FASTCALL GoodsOpAnalyzeTotal::operator = (const GoodsOpAna
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(GoodsOpAnalyze); SLAPI GoodsOpAnalyzeFilt::GoodsOpAnalyzeFilt() : PPBaseFilt(PPFILT_GOODSOPANALYZE, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(GoodsOpAnalyze); GoodsOpAnalyzeFilt::GoodsOpAnalyzeFilt() : PPBaseFilt(PPFILT_GOODSOPANALYZE, 0, 2)
 {
 	SetFlatChunk(offsetof(GoodsOpAnalyzeFilt, ReserveStart),
 		offsetof(GoodsOpAnalyzeFilt, GoodsIdList) - offsetof(GoodsOpAnalyzeFilt, ReserveStart));
@@ -216,7 +216,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsOpAnalyze); SLAPI GoodsOpAnalyzeFilt::GoodsOpAnaly
 	Init(1, 0);
 }
 
-/*virtual*/int SLAPI GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
 {
 	PutObjMembToBuf(PPOBJ_QUOTKIND,   QuotKindID,   STRINGIZE(QuotKindID), rBuf);
 	PutObjMembToBuf(PPOBJ_OPRKIND,    OpID,         STRINGIZE(OpID), rBuf);
@@ -329,12 +329,12 @@ int FASTCALL GoodsOpAnalyzeFilt::IsValidABCGroup(short abcGroup) const
 		(ABCAnlzGroup == 2 && abcGroup < 0) || (ABCAnlzGroup == 1 && abcGroup > 0) || (ABCAnlzGroup < 0 && ABCAnlzGroup == abcGroup)));
 }
 
-int SLAPI GoodsOpAnalyzeFilt::IsLeadedInOutAnalyze() const
+int GoodsOpAnalyzeFilt::IsLeadedInOutAnalyze() const
 {
 	return BIN(OpGrpID == ogInOutAnalyze && Flags & fLeaderInOutGoods && GoodsIdList.GetCount());
 }
 
-void SLAPI GoodsOpAnalyzeFilt::ZeroCompareItems()
+void GoodsOpAnalyzeFilt::ZeroCompareItems()
 {
 	CmpPeriod.Z();
 	CompareItems.freeAll();
@@ -344,7 +344,7 @@ void SLAPI GoodsOpAnalyzeFilt::ZeroCompareItems()
 //
 //
 //
-SLAPI PPViewGoodsOpAnalyze::PPViewGoodsOpAnalyze() : PPView(0, &Filt, PPVIEW_GOODSOPANALYZE), P_BObj(BillObj), P_Psc(0), State(0),
+PPViewGoodsOpAnalyze::PPViewGoodsOpAnalyze() : PPView(0, &Filt, PPVIEW_GOODSOPANALYZE, 0, 0), P_BObj(BillObj), P_Psc(0), State(0),
 	P_TempTbl(0), P_TempOrd(0), IterIdx(0), P_GGIter(0), P_TradePlanPacket(0), P_TrfrFilt(0), P_Cache(0), P_CmpView(0), P_Uniq(0),
 	P_GoodsList(0), CurrentViewOrder(OrdByDefault)
 {
@@ -352,7 +352,7 @@ SLAPI PPViewGoodsOpAnalyze::PPViewGoodsOpAnalyze() : PPView(0, &Filt, PPVIEW_GOO
 		State |= sAccsCost;
 }
 
-SLAPI PPViewGoodsOpAnalyze::~PPViewGoodsOpAnalyze()
+PPViewGoodsOpAnalyze::~PPViewGoodsOpAnalyze()
 {
 	delete P_TempTbl;
 	delete P_TempOrd;
@@ -366,7 +366,7 @@ SLAPI PPViewGoodsOpAnalyze::~PPViewGoodsOpAnalyze()
 	delete P_GoodsList;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::InitUniq(const SArray * pUniq)
+int PPViewGoodsOpAnalyze::InitUniq(const SArray * pUniq)
 {
 	int    ok = 1;
 	ZDELETE(P_Uniq);
@@ -377,13 +377,13 @@ int SLAPI PPViewGoodsOpAnalyze::InitUniq(const SArray * pUniq)
 	return ok;
 }
 
-void SLAPI PPViewGoodsOpAnalyze::CopyUniq(SArray * pUniq) const
+void PPViewGoodsOpAnalyze::CopyUniq(SArray * pUniq) const
 {
 	if(P_Uniq && pUniq)
 		pUniq->copy(*P_Uniq);
 }
 
-int SLAPI PPViewGoodsOpAnalyze::GetByID(PPID id, TempGoodsOprTbl::Rec * pRec)
+int PPViewGoodsOpAnalyze::GetByID(PPID id, TempGoodsOprTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
@@ -663,7 +663,7 @@ int GoodsOpAnlzFiltDialog::getDTS(GoodsOpAnalyzeFilt * pFilt)
 
 class GoodsOpAnlzCmpFiltDialog : public PPListDialog {
 public:
-	SLAPI GoodsOpAnlzCmpFiltDialog() : PPListDialog(DLG_GOODSOPRE, CTL_GOODSOPRE_VALLIST), PrevID(0)
+	GoodsOpAnlzCmpFiltDialog() : PPListDialog(DLG_GOODSOPRE, CTL_GOODSOPRE_VALLIST), PrevID(0)
 	{
 		PPLoadText(PPTXT_GOODSOPRADDVALNAMES, Items);
 		SetupCalCtrl(CTLCAL_GOODSOPRE_PERIOD, this, CTL_GOODSOPRE_PERIOD, 1);
@@ -672,13 +672,13 @@ public:
 		SetupCalCtrl(CTLCAL_GOODSOPRE_RESTDT, this, CTL_GOODSOPRE_RESTDT, 4);
 		PPSetupCtrlMenu(this, CTL_GOODSOPRE_RESTDT, CTLMNU_GOODSOPRE_RESTDT, CTRLMENU_RESTDATE);
 	}
-	int SLAPI setDTS(const GoodsOpAnalyzeFilt *);
-	int SLAPI getDTS(GoodsOpAnalyzeFilt *);
+	int setDTS(const GoodsOpAnalyzeFilt *);
+	int getDTS(GoodsOpAnalyzeFilt *);
 private:
 	DECL_HANDLE_EVENT;
-	virtual int SLAPI setupList();
-	virtual int SLAPI editItem(long pos, long id);
-	void   SLAPI SetupFlags();
+	virtual int setupList();
+	virtual int editItem(long pos, long id);
+	void   SetupFlags();
 
 	uint   PrevID;
 	SString Items;
@@ -730,7 +730,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 	}
 }
 
-/*virtual*/int SLAPI GoodsOpAnlzCmpFiltDialog::setupList()
+/*virtual*/int GoodsOpAnlzCmpFiltDialog::setupList()
 {
 	int    ok = 1;
 	SString buf;
@@ -741,7 +741,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 	return ok;
 }
 
-/*virtual*/int SLAPI GoodsOpAnlzCmpFiltDialog::editItem(long pos, long id)
+/*virtual*/int GoodsOpAnlzCmpFiltDialog::editItem(long pos, long id)
 {
 	long   set_flags = (Data.Flags & GoodsOpAnalyzeFilt::fCrosstab) ? GoodsOpAnalyzeFilt::ffldMainPeriod :
 		(GoodsOpAnalyzeFilt::ffldMainPeriod|GoodsOpAnalyzeFilt::ffldCmpPeriod|GoodsOpAnalyzeFilt::ffldDiff);
@@ -753,7 +753,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 	return 1;
 }
 
-void SLAPI GoodsOpAnlzCmpFiltDialog::SetupFlags()
+void GoodsOpAnlzCmpFiltDialog::SetupFlags()
 {
 	uint   p = 0;
 	ObjRestrictItem item(PrevID, 0);
@@ -770,7 +770,7 @@ void SLAPI GoodsOpAnlzCmpFiltDialog::SetupFlags()
 	PrevID = item.ObjID;
 }
 
-int SLAPI GoodsOpAnlzCmpFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pData)
+int GoodsOpAnlzCmpFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pData)
 {
 	if(!RVALUEPTR(Data, pData))
 		Data.Init(1, 0);
@@ -795,7 +795,7 @@ int SLAPI GoodsOpAnlzCmpFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pData)
 	return 1;
 }
 
-int SLAPI GoodsOpAnlzCmpFiltDialog::getDTS(GoodsOpAnalyzeFilt * pData)
+int GoodsOpAnlzCmpFiltDialog::getDTS(GoodsOpAnalyzeFilt * pData)
 {
 	int    ok = 1;
 	SetupFlags();
@@ -1135,7 +1135,7 @@ int GoodsOpAnlzFiltDialog::editABCAnlzFilt(ABCAnlzFilt * pFilt)
 	DIALOG_PROC_BODY(ABCAnlzFiltDialog, pFilt);
 }
 
-int SLAPI PPViewGoodsOpAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewGoodsOpAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -1143,7 +1143,7 @@ int SLAPI PPViewGoodsOpAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(GoodsOpAnlzFiltDialog, p_filt);
 }
 
-PPViewGoodsOpAnalyze::IterOrder SLAPI PPViewGoodsOpAnalyze::GetIterOrder() const
+PPViewGoodsOpAnalyze::IterOrder PPViewGoodsOpAnalyze::GetIterOrder() const
 {
 	IterOrder ord;
 	if(Filt.ABCAnlzGroup < 0) {
@@ -1170,7 +1170,7 @@ PPBaseFilt * PPViewGoodsOpAnalyze::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
+int PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec grp_rec;
@@ -1249,7 +1249,7 @@ int SLAPI PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::InitIterQuery(PPID grpID)
+int PPViewGoodsOpAnalyze::InitIterQuery(PPID grpID)
 {
 	// @v10.6.8 char   k_[MAXKEYLEN];
 	BtrDbKey k__; // @v10.6.8
@@ -1274,7 +1274,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitIterQuery(PPID grpID)
 	return 1;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
+int PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx   = 0;
@@ -1317,7 +1317,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::NextOuterIteration()
+int PPViewGoodsOpAnalyze::NextOuterIteration()
 {
 	PPID   grp_id = 0;
 	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
@@ -1422,7 +1422,7 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::CalcTotal(GoodsOpAnalyzeTotal * pTotal)
+int PPViewGoodsOpAnalyze::CalcTotal(GoodsOpAnalyzeTotal * pTotal)
 {
 	TempGoodsOprTbl::Key0 k;
 	PPObjGoodsType gtobj;
@@ -1521,7 +1521,7 @@ int FASTCALL PPViewGoodsOpAnalyze::CheckBillRec(const BillTbl::Rec * pRec)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsOpr);
 
-int SLAPI PPViewGoodsOpAnalyze::InitGoodsRestView(PPViewGoodsRest * pGrView)
+int PPViewGoodsOpAnalyze::InitGoodsRestView(PPViewGoodsRest * pGrView)
 {
 	assert(pGrView);
 	int    ok = 1;
@@ -1757,7 +1757,7 @@ int ABCGroupingRecsStorage::SaveValToMinABCGrp(double val, const GoodsOpAnalyzeV
 class ABCGrpStorageList {
 public:
 	struct TotalItem {
-		SLAPI  TotalItem() : GoodsGrpID(0), RecsCount(0), TotalSum(0.0)
+		TotalItem() : GoodsGrpID(0), RecsCount(0), TotalSum(0.0)
 		{
 		}
 		long   GoodsGrpID;
@@ -1807,7 +1807,7 @@ int ABCGrpStorageList::Init(const ABCAnlzFilt * pFilt)
 	return ok;
 }
 
-int SLAPI ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
+int ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
 {
 	int  ok = -1;
 	int  abc_by_ggrps = BIN(pFilt && pFilt->Flags & GoodsOpAnalyzeFilt::fABCAnlzByGGrps);
@@ -1953,7 +1953,7 @@ int ABCGrpStorageList::EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pRec)
 	return is_valid;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, int sign, const PPIDArray * pSupplBillList)
+int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, int sign, const PPIDArray * pSupplBillList)
 {
 	int    ok = 1;
 	PPBillPacket * p_link_pack = 0;
@@ -2037,7 +2037,7 @@ int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double 
 	return ok;
 }
 
-void SLAPI PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
+void PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
 {
 	if(tabID) {
 		LocationTbl::Rec loc_rec;
@@ -2048,7 +2048,7 @@ void SLAPI PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
 	}
 }
 
-void SLAPI PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
+void PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
 {
 	PPID   loc_id   = 0;
 	PPID   goods_id = 0;
@@ -2080,17 +2080,17 @@ public:
 		long   NzMtxCount;
 		double RelNzToMtx;
 	};
-	SLAPI  GoodsOpAnlzCrosstab(PPViewGoodsOpAnalyze * pV) : Crosstab(), P_V(pV)
+	GoodsOpAnlzCrosstab(PPViewGoodsOpAnalyze * pV) : Crosstab(), P_V(pV)
 	{
 	}
-	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+	virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 	{
 		PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 		SetupBrowserCtColumns(p_brw);
 		return p_brw;
 	}
 private:
-	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
 		if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
 			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -2105,7 +2105,7 @@ struct __GoaBillEntry {
 	double Part;
 };
 
-int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
+int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 {
 	assert(pUfpFactors != 0);
 
@@ -2698,7 +2698,7 @@ GoaCacheItem * FASTCALL PPViewGoodsOpAnalyze::GetCacheItem(uint pos) const
 	return (GoaCacheItem *)P_Cache->at(pos);
 }
 
-int SLAPI PPViewGoodsOpAnalyze::FlashCacheItems(uint count)
+int PPViewGoodsOpAnalyze::FlashCacheItems(uint count)
 {
 	int    ok = 1;
 	if(!P_TempTbl)
@@ -2733,7 +2733,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItems(uint count)
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCacheItem * pItem)
+int PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCacheItem * pItem)
 {
 	int    ok = 1;
 	long   id = 1;
@@ -2830,7 +2830,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
+int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 {
 	int    ok = 1;
 	const  int profitable = (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? 1 : BIN(pBlk->Flags & GoaAddingBlock::fProfitable);
@@ -2982,7 +2982,7 @@ int SLAPI PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 	return ok;
 }
 
-void SLAPI PPViewGoodsOpAnalyze::InitAddingBlock(const PPBillPacket * pPack, double part, int sign, GoaAddingBlock * pBlk)
+void PPViewGoodsOpAnalyze::InitAddingBlock(const PPBillPacket * pPack, double part, int sign, GoaAddingBlock * pBlk)
 {
 	const  long f = Filt.Flags;
 	pBlk->ParentGrpID = 0;
@@ -2998,7 +2998,7 @@ void SLAPI PPViewGoodsOpAnalyze::InitAddingBlock(const PPBillPacket * pPack, dou
 	pBlk->Part = part;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArray * pSupplBillList, long substBillVal, GoaAddingBlock * pBlk)
+int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArray * pSupplBillList, long substBillVal, GoaAddingBlock * pBlk)
 {
 	int    ok = 1;
 	if(Filt.SupplID && pTi->Suppl != Filt.SupplID)
@@ -3128,7 +3128,7 @@ int SLAPI PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const P
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
+int PPViewGoodsOpAnalyze::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = 1;
 	TempOrderTbl * p_o = 0;
@@ -3175,7 +3175,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateOrderTable(IterOrder ord, TempOrderTbl ** 
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
+int PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOPANLZORD);
@@ -3214,7 +3214,7 @@ int SLAPI PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::ViewDetail(PPID locID, PPID goodsID, short abcGroup, int viewAllLots)
+int PPViewGoodsOpAnalyze::ViewDetail(PPID locID, PPID goodsID, short abcGroup, int viewAllLots)
 {
 	int    ok = -1;
 	if(abcGroup != 0 && Filt.ABCAnlzGroup > 0) {
@@ -3284,7 +3284,7 @@ int SLAPI PPViewGoodsOpAnalyze::ViewDetail(PPID locID, PPID goodsID, short abcGr
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::ViewTotal()
+int PPViewGoodsOpAnalyze::ViewTotal()
 {
 	int    ok = 1;
 	if((State & sTotalInited) || CalcTotal(&Total)) {
@@ -3344,7 +3344,7 @@ int SLAPI PPViewGoodsOpAnalyze::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
+int PPViewGoodsOpAnalyze::ViewGraph()
 {
 	int    ok = -1;
 	if(Filt.ABCAnlzGroup > 0) {
@@ -3437,7 +3437,7 @@ int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
 	return ok;
 }
 
-void SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	DBQBrowserDef * p_def = pBrw ? static_cast<DBQBrowserDef *>(pBrw->getDef()) : 0;
 	const DBQuery * p_q = (p_def) ? p_def->getQuery() : 0;
@@ -3596,7 +3596,7 @@ void SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSubTitle)
+DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	long   ff = 0;
@@ -3884,7 +3884,7 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 	return q;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::ConvertLinesToBasket()
+int PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 {
 	int    ok = -1, r = 0;
 	int    convert = (Filt.Sgg == sggNone && !(Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) &&
@@ -3944,12 +3944,12 @@ int SLAPI PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 	return ok;
 }
 
-void SLAPI PPViewGoodsOpAnalyze::GetTempTableName(SString & rBuf) const
+void PPViewGoodsOpAnalyze::GetTempTableName(SString & rBuf) const
 {
 	rBuf = P_TempTbl ? P_TempTbl->GetName() : static_cast<const char *>(0);
 }
 
-int SLAPI PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)
+int PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)
 {
 	int    ok = -1;
 	TDialog * p_dlg = 0;
@@ -3987,7 +3987,7 @@ int SLAPI PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	BrwHdr hdr;
@@ -4093,7 +4093,7 @@ int SLAPI PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, P
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::Print(const void *)
+int PPViewGoodsOpAnalyze::Print(const void *)
 {
 	int    ok = 1;
 	IterOrder ord = OrdByDefault;
@@ -4201,7 +4201,7 @@ int SLAPI PPViewGoodsOpAnalyze::Print(const void *)
 	return ok;
 }
 
-int SLAPI ViewGoodsOpAnalyze(const GoodsOpAnalyzeFilt * pFilt) { return PPView::Execute(PPVIEW_GOODSOPANALYZE, pFilt, 1, 0); }
+int ViewGoodsOpAnalyze(const GoodsOpAnalyzeFilt * pFilt) { return PPView::Execute(PPVIEW_GOODSOPANALYZE, pFilt, 1, 0); }
 //
 // Implementation of PPALDD_GoodsOpAnlz
 //

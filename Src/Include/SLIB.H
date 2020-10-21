@@ -324,7 +324,7 @@
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(_WIN32_WCE)
 	#define SFAR
-	#define SLAPI    //__stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
+	#define SLAPI_unused    //__stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
 		// снижает скорость работы member-функция из-за того, что this передается на стеке, а не в регистре
 	#define SLAPIV   __cdecl
 	// @v9.6.3 #define SLCLASS
@@ -336,7 +336,7 @@
 		#define PASCAL           pascal
 	#endif
 	#define SFAR                 far
-	#define SLAPI                pascal SFAR
+	#define SLAPI_unused                pascal SFAR
 	#define SLAPIV               cdecl SFAR
 	// @v9.6.3 #define SLCLASS
 	#define FASTCALL
@@ -518,8 +518,8 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 //
 // Макросы для использования инвариантов
 //
-#define DECL_INVARIANT_C()    int SLAPI InvariantC(SInvariantParam * pInvP) const
-#define IMPL_INVARIANT_C(cls) int SLAPI cls::InvariantC(SInvariantParam * pInvP) const
+#define DECL_INVARIANT_C()    int InvariantC(SInvariantParam * pInvP) const
+#define IMPL_INVARIANT_C(cls) int cls::InvariantC(SInvariantParam * pInvP) const
 //
 #define SIZEOFARRAY(array) (sizeof(array)/sizeof((array)[0]))
 #define IS_ODD(n)          ((n) & 1)
@@ -1608,8 +1608,8 @@ struct LDATE { // @noctr
 	};
 	operator unsigned long() const { return v; }
 	// @v10.3.4 (replaced with GetOleDate()) operator OleDate() const;
-	OleDate SLAPI GetOleDate() const;
-	time_t SLAPI GetTimeT() const;
+	OleDate GetOleDate() const;
+	time_t GetTimeT() const;
 	LDATE  operator = (OleDate);
 	LDATE  operator = (double); // OleDate
 	int    day()   const { return static_cast<int>(v & 0x00ff); }
@@ -1639,15 +1639,15 @@ struct LDATE { // @noctr
 	//   Если дата не содержит относительных факторов, то возвращает ее как есть.
 	//
 	LDATE  FASTCALL getactual(LDATE rel) const;
-	LDATE  SLAPI getactualcmp(LDATE rel, LDATE cmp) const;
+	LDATE  getactualcmp(LDATE rel, LDATE cmp) const;
 	//
 	// Descr: Возвращает !0 если день, месяц или год содержат шаблонизированный ANY-признак.
 	//
-	int    SLAPI hasanycomponent() const;
+	int    hasanycomponent() const;
 
 	ulong  v;
 private:
-	LDATE  SLAPI Helper_GetActual(LDATE rel, LDATE cmp) const;
+	LDATE  Helper_GetActual(LDATE rel, LDATE cmp) const;
 };
 //
 // Descr: Календарный день. Применяется для хранения регулярных дат.
@@ -1678,16 +1678,16 @@ struct CALDATE : public LDATE {
 //
 struct LTIME {
 	DECL_INVARIANT_C();
-	SLAPI  operator unsigned long() const { return v; }
+	operator unsigned long() const { return v; }
 	operator OleDate() const;
 	LTIME  operator = (OleDate);
 	LTIME  operator = (double); // OleDate
-	LTIME  SLAPI encode(int h, int m, int s, int ms);
-	int    SLAPI hour()  const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[3]); }
-	int    SLAPI minut() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[2]); }
-	int    SLAPI sec()   const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[1]); }
-	int    SLAPI hs()    const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[0]); }
-	long   SLAPI totalsec() const { return (sec() + minut() * 60 + hour() * 3600); }
+	LTIME  encode(int h, int m, int s, int ms);
+	int    hour()  const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[3]); }
+	int    minut() const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[2]); }
+	int    sec()   const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[1]); }
+	int    hs()    const { return static_cast<int>((reinterpret_cast<const uint8 *>(&v))[0]); }
+	long   totalsec() const { return (sec() + minut() * 60 + hour() * 3600); }
 	//
 	// Descr: Устанавливает время в соответствии с количеством секунд, заданных параметром s.
 	// Returns:
@@ -1708,17 +1708,17 @@ struct LTIME {
 class STIME {
 public:
 	DECL_INVARIANT_C();
-	SLAPI  operator unsigned long() const { return v; }
+	operator unsigned long() const { return v; }
 	operator OleDate() const;
 	STIME  operator = (OleDate);
 	STIME  operator = (double); // OleDate
-	STIME  SLAPI encode(int h, int m, int s, int ms, int tz);
-	int    SLAPI hour()  const;
-	int    SLAPI minut() const;
-	int    SLAPI sec()   const;
-	int    SLAPI ms()    const;
-	int    SLAPI zone()  const;
-	long   SLAPI totalsec() const;
+	STIME  encode(int h, int m, int s, int ms, int tz);
+	int    hour()  const;
+	int    minut() const;
+	int    sec()   const;
+	int    ms()    const;
+	int    zone()  const;
+	long   totalsec() const;
 	//
 	// Descr: Устанавливает время в соответствии с количеством секунд, заданных параметром s.
 	// Returns:
@@ -1777,16 +1777,16 @@ struct LDATETIME {
 	operator LDATE () const { return d; }
 	operator OleDate() const;
 	LDATETIME FASTCALL operator = (OleDate);
-	LDATETIME & SLAPI Set(LDATE _d, LTIME _t);
-	LDATETIME & SLAPI Z();
-	LDATETIME & SLAPI SetFar();
+	LDATETIME & Set(LDATE _d, LTIME _t);
+	LDATETIME & Z();
+	LDATETIME & SetFar();
 	LDATETIME & FASTCALL SetTimeT(time_t t);
-	time_t SLAPI GetTimeT() const;
-	int    SLAPI IsFar() const;
+	time_t GetTimeT() const;
+	int    IsFar() const;
 	//
 	// Decr: Устанавливает дату-время, разбирая строку pText в соответствии с форматами datf и timf.
 	//
-	int    SLAPI Set(const char * pText, long datf, long timef);
+	int    Set(const char * pText, long datf, long timef);
 	//
 	// Descr: Устанавливает время в соответсвии с количеством секунд, заданных
 	//   параметром s и увеличивает дату на  (s / (3600 * 60 * 60)) дней.
@@ -1826,11 +1826,11 @@ extern const LDATETIME MAXDATETIME;
 //   @attention Не должен включать виртуальных фукнций.
 //
 struct STimeChunk {
-	SLAPI  STimeChunk();
-	SLAPI  STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish);
-	STimeChunk & SLAPI Z();
-	void   SLAPI Init(const LDATETIME & rStart, const LDATETIME & rFinish);
-	void   SLAPI Init(const LDATETIME &, long cont);
+	STimeChunk();
+	STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish);
+	STimeChunk & Z();
+	void   Init(const LDATETIME & rStart, const LDATETIME & rFinish);
+	void   Init(const LDATETIME &, long cont);
 	//
 	// Descr: Определяет, совпадают ли точки начала и окончания //
 	//   отрезков *this и rTest.
@@ -1869,22 +1869,22 @@ struct STimeChunk {
 	// Descr: Возвращает продолжительность элемента в секундах.
 	//   Если продолжительность не определена (бесконечна), то возвращает -1.
 	//
-	long   SLAPI GetDuration() const;
+	long   GetDuration() const;
 	//
 	// Descr: Возвращает продолжительность элемента в сутках.
 	//   При вычислении в расчет берутся только даты Start.d и Finish.d.
 	//   Если продолжительность не определена (бесконечна), то возвращает -1.
 	//
-	long   SLAPI GetDurationDays() const;
+	long   GetDurationDays() const;
 	//
 	// Descr: Возвращает продолжительность элемента в миллисекундах.
 	//   Если продолжительность не определена (бесконечна), то возвращает -1.
 	//
-	int64  SLAPI GetDurationMs() const;
+	int64  GetDurationMs() const;
 	enum {
 		fmtOmitSec  = 0x0001  // Не выводить секунды
 	};
-	SString & SLAPI ToStr(SString & rBuf, long fmt = 0) const;
+	SString & ToStr(SString & rBuf, long fmt = 0) const;
 
 	LDATETIME Start;
 	LDATETIME Finish;
@@ -1898,16 +1898,16 @@ public:
 
 	int    FASTCALL operator == (const DateRepeating & rS) const;
 	int    FASTCALL operator != (const DateRepeating & rS) const;
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    SLAPI Init(int prd, int kind = 1, LDATE = ZERODATE);
-	int    SLAPI Next_(LDATE startDate, LDATE * pNextDate) const; // @obsolete use DateRepIterator
-	SString & SLAPI Format(int fmt, SString & rBuf) const;
-	long   SLAPI DtlToLong();
-	int    SLAPI LongToDtl(long);
-	int    SLAPI GetMonthlyPeriod(int * pMonthCount, int * pMonthNo) const;
-	int    SLAPI SetMonthly(int monthCount, int monthNo, int dayOfMonth);
-	int    SLAPI SetMonthly(int monthCount, int monthNo, int weekNo, int weekDay);
-	int    SLAPI DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE * pResult) const;
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Init(int prd, int kind = 1, LDATE = ZERODATE);
+	int    Next_(LDATE startDate, LDATE * pNextDate) const; // @obsolete use DateRepIterator
+	SString & Format(int fmt, SString & rBuf) const;
+	long   DtlToLong();
+	int    LongToDtl(long);
+	int    GetMonthlyPeriod(int * pMonthCount, int * pMonthNo) const;
+	int    SetMonthly(int monthCount, int monthNo, int dayOfMonth);
+	int    SetMonthly(int monthCount, int monthNo, int weekNo, int weekDay);
+	int    DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE * pResult) const;
 
 	struct RepeatDay {       // @size=4
 		int16  NumPrd;
@@ -1966,9 +1966,9 @@ public:
 //
 class DateTimeRepeating : public DateRepeating { // @persistent @size=12
 public:
-	int    SLAPI Init(int prd, int kind = 1, LDATE dt = ZERODATE, LTIME tm = ZEROTIME);
-	int    SLAPI Next_(LDATETIME startDtm, LDATETIME * pNextDtm) const; // @obsolete use DateTimeRepIterator
-	SString & SLAPI Format(int fmt, SString & rBuf) const;
+	int    Init(int prd, int kind = 1, LDATE dt = ZERODATE, LTIME tm = ZEROTIME);
+	int    Next_(LDATETIME startDtm, LDATETIME * pNextDtm) const; // @obsolete use DateTimeRepIterator
+	SString & Format(int fmt, SString & rBuf) const;
 	LTIME  Time;
 };
 //
@@ -2133,8 +2133,8 @@ public:
 	};
 	int    FASTCALL IsEq(const SUniTime & rS) const; // @construction
 private:
-	int    SLAPI Implement_Set(uint8 signature, const void *);
-	uint8  SLAPI Implement_Get(void *) const;
+	int    Implement_Set(uint8 signature, const void *);
+	uint8  Implement_Get(void *) const;
 	//
 	// Самый старший байт D[7] - индикатор, определяющий разрешение представления и,
 	// возможно, часовой пояс (для indMksSince1900).
@@ -2709,11 +2709,11 @@ struct STypEx { // @persistent @size=16
 //
 class DataType {
 public:
-	explicit SLAPI DataType(uint32 sz) : S(sz) {}
-	SLAPI DataType() : S(0) {}
-	virtual uint32 SLAPI size() const; // @v10.2.1 size_t-->uint32
-	virtual int    SLAPI comp(const void * i1, const void * i2) const;
-	virtual char * SLAPI tostr(const void *, long, char * b) const;
+	explicit DataType(uint32 sz) : S(sz) {}
+	DataType() : S(0) {}
+	virtual uint32 size() const; // @v10.2.1 size_t-->uint32
+	virtual int    comp(const void * i1, const void * i2) const;
+	virtual char * tostr(const void *, long, char * b) const;
 	//
 	// Descr: Функция должна преобразовать бинарное представление данные pData
 	//   в строку rBuf в соответствии с форматом преобразования format.
@@ -2721,34 +2721,34 @@ public:
 	// Note: Эта функция замещает устаревшую tostr.
 	//   На начальном этапе default-реализация функции вызывает tostr()
 	//
-	virtual SString & SLAPI ToStr(const void * pData, long format, SString & rBuf) const;
-	virtual int    SLAPI fromstr(void *, long, const char *) const;
-	virtual int    SLAPI base() const;
-	virtual void   SLAPI tobase(const void * data, void * baseData) const;
-	virtual int    SLAPI baseto(void * data, const void * baseData) const;
+	virtual SString & ToStr(const void * pData, long format, SString & rBuf) const;
+	virtual int    fromstr(void *, long, const char *) const;
+	virtual int    base() const;
+	virtual void   tobase(const void * data, void * baseData) const;
+	virtual int    baseto(void * data, const void * baseData) const;
 	virtual void   FASTCALL destroy(void *) const; // @v9.8.5 const
 	// DataType::minval and DataType::maxval sets to parameter
 	// min and max values correspondly.
 	// Returns !0 if function is supported, otherwise 0.
-	virtual void   SLAPI minval(void *) const;
-	virtual void   SLAPI maxval(void *) const;
-	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    SLAPI isnumber() const { return (base() == BTS_INT || base() == BTS_REAL); }
+	virtual void   minval(void *) const;
+	virtual void   maxval(void *) const;
+	virtual int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    isnumber() const { return (base() == BTS_INT || base() == BTS_REAL); }
 
 	uint32 S; // Size or other specific data // @v9.8.11 size_t-->uint32
 };
 
-inline TYPEID SLAPI GetSTypeID(char)   { return MKSTYPE(S_INT, 1); }
-inline TYPEID SLAPI GetSTypeID(int16)  { return MKSTYPE(S_INT, 2); }
-inline TYPEID SLAPI GetSTypeID(int)    { return MKSTYPE(S_INT, 4); }
-inline TYPEID SLAPI GetSTypeID(long)   { return MKSTYPE(S_INT, 4); }
-inline TYPEID SLAPI GetSTypeID(float)  { return MKSTYPE(S_FLOAT, 4); }
-inline TYPEID SLAPI GetSTypeID(double) { return MKSTYPE(S_FLOAT, 8); }
-inline TYPEID SLAPI GetSTypeID(LDBL)   { return MKSTYPE(S_FLOAT, 10); }
-inline TYPEID SLAPI GetSTypeID(char *,  int s) { return MKSTYPE(S_ZSTRING, s); }
-inline TYPEID SLAPI GetSTypeID(LDATE)  { return MKSTYPE(S_DATE, 4); }
-inline TYPEID SLAPI GetSTypeID(LTIME)  { return MKSTYPE(S_TIME, 4); }
-inline TYPEID SLAPI GetSTypeID(LDATETIME)  { return MKSTYPE(S_DATETIME, 8); }
+inline TYPEID GetSTypeID(char)   { return MKSTYPE(S_INT, 1); }
+inline TYPEID GetSTypeID(int16)  { return MKSTYPE(S_INT, 2); }
+inline TYPEID GetSTypeID(int)    { return MKSTYPE(S_INT, 4); }
+inline TYPEID GetSTypeID(long)   { return MKSTYPE(S_INT, 4); }
+inline TYPEID GetSTypeID(float)  { return MKSTYPE(S_FLOAT, 4); }
+inline TYPEID GetSTypeID(double) { return MKSTYPE(S_FLOAT, 8); }
+inline TYPEID GetSTypeID(LDBL)   { return MKSTYPE(S_FLOAT, 10); }
+inline TYPEID GetSTypeID(char *,  int s) { return MKSTYPE(S_ZSTRING, s); }
+inline TYPEID GetSTypeID(LDATE)  { return MKSTYPE(S_DATE, 4); }
+inline TYPEID GetSTypeID(LTIME)  { return MKSTYPE(S_TIME, 4); }
+inline TYPEID GetSTypeID(LDATETIME)  { return MKSTYPE(S_DATETIME, 8); }
 DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
 int    FASTCALL btnumber(int bt);
@@ -2767,7 +2767,7 @@ int    FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 //
 // Descr: Register all BUILT-INS SLIB TYPES (BIST)
 //
-void   SLAPI RegisterBIST();
+void   RegisterBIST();
 //
 // Descr: Заносит в буфер rBuf c++ тип, соответствующий типу typ.
 //   Если pFldName != 0, то строка будет иметь следующий вид "type  pFldName[count]"
@@ -2924,7 +2924,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 //   Используется при форматировании бинарных данных.
 //
 struct SFormatParam {
-	SLAPI  SFormatParam();
+	SFormatParam();
 	enum {
 		fFloatSize = 0x0001, // Выводимая строка может иметь произвольную длину (длина поля, содержащаяся в форматах игнорируется).
 		fQuotText  = 0x0002  // Текстовые поля должны обрамляться двойными кавычками.
@@ -2942,7 +2942,7 @@ struct IntRange { // @persistent @size=8
 	//
 	// Descr: Возвращает !0 если (this->low == 0 && this->upp == 0)
 	//
-	int    SLAPI IsZero() const;
+	int    IsZero() const;
 	//
 	// Descr: Проверяет значение test на принадлежность закрытому диапазону this
 	//   (то есть, равенство граничному значению означает принадлежность всему диапазону).
@@ -2992,7 +2992,7 @@ struct IntRange { // @persistent @size=8
 	//
 	int    FASTCALL Intersect(const IntRange & rD, IntRange * pResult) const;
 	int    FASTCALL Intersect(const IntRange & rD) const;
-	SString & SLAPI Format(long fmt, SString &) const;
+	SString & Format(long fmt, SString &) const;
 
 	int32  low;
 	int32  upp;
@@ -3016,31 +3016,31 @@ struct SSzChunk { // @flat @noctr @novtbl
 //
 //
 struct RealRange { // @persistent @flat @noctr @novtbl @size=16
-	int    SLAPI IsZero() const;
+	int    IsZero() const;
 	int    FASTCALL IsEqual(const RealRange & rS) const;
 	int    FASTCALL LessThan(double v) const;
 	int    FASTCALL GreaterThan(double v) const;
-	double SLAPI GetDistance() const;
+	double GetDistance() const;
 	//
 	// Descr: Возвращает наименьшее значение из (low, upp)
 	//
-	double SLAPI GetActualLow() const;
+	double GetActualLow() const;
 	//
 	// Descr: Возвращает наибольшее значение из (low, upp)
 	//
-	double SLAPI GetActualUpp() const;
-	RealRange & SLAPI Z();
+	double GetActualUpp() const;
+	RealRange & Z();
 	RealRange & FASTCALL operator = (const IntRange & rS);
 	int    FASTCALL operator != (const RealRange & rS) const;
 	//
 	// Descr: Проверяет значение v на принадлежность закрытому диапазону [low..upp]
 	//
-	int    SLAPI Check(double v) const;
+	int    Check(double v) const;
 	//
 	// Descr: Проверяет значение v на принадлежность закрытому диапазону [low..upp]
 	//   если low <= upp, в противном случае - на принадлежность диапазону [upp..low].
 	//
-	int    SLAPI CheckX(double v) const;
+	int    CheckX(double v) const;
 	//
 	// Descr: Проверяет значение val на принадлежность закрытому диапазону [low..upp]
 	//   с условием, что, если граница (low или upp) имеет значение 0.0, то она не проверяется.
@@ -3048,23 +3048,23 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//     -1 удовлетворяет диапазону [0..5.2]
 	//     10 удовлетворяет диапазону [-3.1..0]
 	//
-	int    SLAPI CheckVal(double val) const;
+	int    CheckVal(double val) const;
 	//
 	// Descr: Проверяет значение val на принадлежность закрытому диапазону [low..upp]
 	//   с условием, что, если граница (low или upp) имеет значение 0.0, то она не проверяется.
 	//   Если разница между val и границей диапазона меньше eps, то функция считает условие
 	//   выполненным.
 	//
-	int    SLAPI CheckValEps(double val, double eps) const;
-	double SLAPI Clip(double v) const;
-	RealRange & SLAPI SetVal(double);
-	RealRange & SLAPI Set(double, double);
-	RealRange & SLAPI SetupMinMax(double v);
+	int    CheckValEps(double val, double eps) const;
+	double Clip(double v) const;
+	RealRange & SetVal(double);
+	RealRange & Set(double, double);
+	RealRange & SetupMinMax(double v);
 	//
 	// Descr: Устанавливает диапазон [lo..lo+delta]
 	//
-	RealRange & SLAPI SetDelta(double lo, double delta);
-	RealRange & SLAPI Scale(double sc);
+	RealRange & SetDelta(double lo, double delta);
+	RealRange & Scale(double sc);
 	//
 	// Descr: вызывает round(low, prec) и round(upp, prec)
 	//
@@ -3072,8 +3072,8 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//
 	// Descr: Устанавливает диапазон [middle-delta..middle+delta]
 	//
-	RealRange & SLAPI SetMiddle(double middle, double delta);
-	double SLAPI GetMiddle() const;
+	RealRange & SetMiddle(double middle, double delta);
+	double GetMiddle() const;
 	int    FASTCALL Intersect(const RealRange & rTest, RealRange * pResult) const;
 
 	double low;
@@ -3094,21 +3094,21 @@ struct DateRange { // @persistent @size=8
 	//   Если интервал открыт справа, но закрыт слева, то возвращает (MAXLONG-2)
 	//   Для интевалов, нижняя граница которых превышает верхнюю возвращает отрицательное значение.
 	//
-	long   SLAPI GetLength() const;
-	int    SLAPI IsZero() const;
+	long   GetLength() const;
+	int    IsZero() const;
 	int    FASTCALL CheckDate(LDATE) const;
 	int    FASTCALL Intersect(const DateRange *);
-	int    SLAPI IsIntersect(DateRange r) const;
-	DateRange & SLAPI Set(LDATE, LDATE);
+	int    IsIntersect(DateRange r) const;
+	DateRange & Set(LDATE, LDATE);
 	//
 	// Descr: Если pSrc != 0, то присваивает экземпляру *this значение *pSrc,
 	//   в противном случае вызывает SetZero()
 	//
 	DateRange & FASTCALL Set(const DateRange * pSrc);
-	DateRange & SLAPI Z();
+	DateRange & Z();
 	void   FASTCALL SetDate(LDATE);
 	int    SetPeriod(LDATE date, int prd);
-	void   SLAPI CheckAndSwap();
+	void   CheckAndSwap();
 	//
 	// Descr: Корректирует нижнюю и верхнюю границы диапазона в согласии с датой dt.
 	//   Если нижняя граница ниже dt, то она становится равной dt.
@@ -3126,7 +3126,7 @@ struct DateRange { // @persistent @size=8
 	//   относительно даты rel. Если rel == ZERODATE, то rel считается равной getcurdate_()
 	//
 	DateRange & FASTCALL Actualize(LDATE rel);
-	DateRange & SLAPI ActualizeCmp(LDATE rel, LDATE cmp);
+	DateRange & ActualizeCmp(LDATE rel, LDATE cmp);
 	LDATE  low;
 	LDATE  upp;
 };
@@ -3135,9 +3135,9 @@ inline int FASTCALL operator > (const DateRange & r1, const DateRange & r2) { re
 inline int FASTCALL operator < (const DateRange & r1, const DateRange & r2) { return BIN(r1.Cmp(r2) < 0); }
 
 struct TimeRange { // @persistent
-	void   SLAPI Set(LTIME lowTm, LTIME uppTm);
-	void   SLAPI SetZero();
-	int    SLAPI IsZero() const;
+	void   Set(LTIME lowTm, LTIME uppTm);
+	void   SetZero();
+	int    IsZero() const;
 	//
 	// Descr: Проверяет принадлежность момента tm диапазону low..upp.
 	//   -- Если low == upp && low == ZEROTIME, то не зависимо от значения tm возвращается !0.
@@ -3155,7 +3155,7 @@ struct TimeRange { // @persistent
 	// Returns:
 	//   rBuf
 	//
-	SString & SLAPI ToStr(long tmFormat, SString & rBuf) const;
+	SString & ToStr(long tmFormat, SString & rBuf) const;
 
 	LTIME  low;
 	LTIME  upp;
@@ -3274,38 +3274,38 @@ public:
 	//
 	// Descr: Конструктор по умолчанию. Ради скорости ничего не инициализирует.
 	//
-	SLAPI  FPoint();
+	FPoint();
 	//
 	// Descr: Конструктор. Инициализирует X и Y в xy.
 	//
-	explicit SLAPI FPoint(float xy);
-	SLAPI  FPoint(float x, float y);
+	explicit FPoint(float xy);
+	FPoint(float x, float y);
 	FPoint & FASTCALL operator = (const TPoint & p);
 	FPoint & FASTCALL operator = (float f);
-	int    SLAPI IsZero() const;
-	int    SLAPI IsPositive() const;
-	FPoint SLAPI Set(float xy);
-	FPoint SLAPI Set(float x, float y);
-	FPoint SLAPI SetZero();
-	FPoint SLAPI Neg() const;
-	FPoint SLAPI Scale(float);
-	float  SLAPI Ratio() const;
-	float  SLAPI Add() const;
-	FPoint SLAPI AddX(float x) const;
-	FPoint SLAPI AddY(float y) const;
-	float  SLAPI Sub() const;
-	float  SLAPI Sq() const;
+	int    IsZero() const;
+	int    IsPositive() const;
+	FPoint Set(float xy);
+	FPoint Set(float x, float y);
+	FPoint SetZero();
+	FPoint Neg() const;
+	FPoint Scale(float);
+	float  Ratio() const;
+	float  Add() const;
+	FPoint AddX(float x) const;
+	FPoint AddY(float y) const;
+	float  Sub() const;
+	float  Sq() const;
 	//
 	// Descr: Возвращает гипотенузу прямого угла с катетами X и Y.
 	// Note: Ошибки нет - функция возвращает double.
 	//
-	double SLAPI Hypot() const;
-	float  SLAPI Hypotf() const;
+	double Hypot() const;
+	float  Hypotf() const;
 	//
 	// Descr: (a.X*X + a.Y*Y, b.X*X + b.Y*Y)
 	//
-	FPoint SLAPI Combine(FPoint a, FPoint b) const;
-	FPoint SLAPI Swap() const;
+	FPoint Combine(FPoint a, FPoint b) const;
+	FPoint Swap() const;
 	int    FASTCALL Write(SBuffer &) const;
 	int    FASTCALL Read(SBuffer &);
 
@@ -3347,8 +3347,8 @@ struct CompareTerm {
 	int    link;
 };*/
 
-// @v9.8.6 (unused) typedef int (SLAPI * is_data_func)(char *);
-// @v9.8.6 (unused) typedef int (SLAPI * get_data_func)(char * buf, int * idx, char * data);
+// @v9.8.6 (unused) typedef int (* is_data_func)(char *);
+// @v9.8.6 (unused) typedef int (* get_data_func)(char * buf, int * idx, char * data);
 //
 // Compare sign sets
 //
@@ -3363,16 +3363,16 @@ struct CompareTerm {
 //
 // Function prototypes
 //
-// @v9.8.6 (unused) int SLAPI  is_number(char *);
-// @v9.8.6 (unused) int SLAPI  is_date(char *);
-// @v9.8.6 (unused) int SLAPI  get_number(char *, int *, char *);
-// @v9.8.6 (unused) int SLAPI  get_date(char *, int *, char *);
-// @v9.8.6 (unused) int SLAPI  set_data_func(is_data_func, get_data_func);
-// @v9.8.6 (unused) int SLAPI  check_cmp_expression(char * pStr, IntRange * pErrLoc);
-// @v9.8.6 (unused) int SLAPI  parse_cmp_expression(char *, int *, CompareTerm *);
-// @v9.8.6 (unused) int SLAPI  get_cmp_parse_error();
-// @v9.8.6 (unused) const char * SLAPI getcmpsign(int cmp, int set);
-// @v9.8.6 (unused) const char * SLAPI getboolsign(int link, int set);
+// @v9.8.6 (unused) int is_number(char *);
+// @v9.8.6 (unused) int is_date(char *);
+// @v9.8.6 (unused) int get_number(char *, int *, char *);
+// @v9.8.6 (unused) int get_date(char *, int *, char *);
+// @v9.8.6 (unused) int set_data_func(is_data_func, get_data_func);
+// @v9.8.6 (unused) int check_cmp_expression(char * pStr, IntRange * pErrLoc);
+// @v9.8.6 (unused) int parse_cmp_expression(char *, int *, CompareTerm *);
+// @v9.8.6 (unused) int get_cmp_parse_error();
+// @v9.8.6 (unused) const char * getcmpsign(int cmp, int set);
+// @v9.8.6 (unused) const char * getboolsign(int link, int set);
 //
 // String functions
 //
@@ -3386,8 +3386,8 @@ struct CompareTerm {
 //   Символ '&' в списке исключений игнорируется (он присутствует в представлении сущностей, потому не может не замещаться).
 //
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb);
-int  SLAPI XMLWriteSpecSymbEntities(FILE * pStream);
-int  SLAPI XMLWriteSpecSymbEntities(void * pWriter);
+int  XMLWriteSpecSymbEntities(FILE * pStream);
+int  XMLWriteSpecSymbEntities(void * pWriter);
 //
 //
 //
@@ -3490,12 +3490,12 @@ private:
 class SString {
 public:
 	DECL_INVARIANT_C();
-	SLAPI  SString();
-	explicit SLAPI SString(size_t initSize);
-	explicit SLAPI SString(const char *);
-	SLAPI  SString(const SString &);
-	SLAPI ~SString();
-	void   SLAPI Destroy();
+	SString();
+	explicit SString(size_t initSize);
+	explicit SString(const char *);
+	SString(const SString &);
+	~SString();
+	void   Destroy();
 	SString & FASTCALL operator = (const SString & rS);
 	SString & FASTCALL operator = (const char * pS);
 	//
@@ -3521,14 +3521,14 @@ public:
 	// Descr: Если строка имеет длину 1 символ, то возврашает этот символ,
 	//   в противном случае возвращает 0.
 	//
-	int    SLAPI Single() const;
-	int    SLAPI Empty() const;
-	//int    SLAPI operator !() const { return Empty(); }
-	int    SLAPI NotEmpty() const;
+	int    Single() const;
+	int    Empty() const;
+	//int    operator !() const { return Empty(); }
+	int    NotEmpty() const;
 	//
 	// Descr: Возвращает !0 если после применения метода Strip строка становится пустой.
 	//
-	int    SLAPI NotEmptyS();
+	int    NotEmptyS();
 	int    FASTCALL IsEqual(const SString & rS) const;
 	int    FASTCALL IsEqual(const char * pS) const;
 	int    FASTCALL IsEqNC(const SString & rS) const;
@@ -3583,17 +3583,17 @@ public:
 	//  !0 - @#[1..] номер подстроки из pPattern с которой совпала this.
 	// Sample: OneOf(';', "yes;true;1", 1)
 	//
-	uint   SLAPI OneOf(int div, const char * pPattern, int ignoreCase) const;
-	int    SLAPI Last() const;
+	uint   OneOf(int div, const char * pPattern, int ignoreCase) const;
+	int    Last() const;
 	char * FASTCALL CopyTo(char *, size_t) const;
 	BSTR   FASTCALL CopyToOleStr(BSTR * pBuf) const;
 	SString & FASTCALL CopyFromOleStr(const BSTR s);
-	SString & SLAPI Z();
-	size_t SLAPI Len() const;
-	size_t SLAPI BufSize() const;
-	void   SLAPI Obfuscate();
-	const  char * SLAPI SearchChar(int c, size_t * pPos) const;
-	const  char * SLAPI SearchCharPos(size_t startPos, int c, size_t * pPos) const;
+	SString & Z();
+	size_t Len() const;
+	size_t BufSize() const;
+	void   Obfuscate();
+	const  char * SearchChar(int c, size_t * pPos) const;
+	const  char * SearchCharPos(size_t startPos, int c, size_t * pPos) const;
 	//
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
@@ -3604,7 +3604,7 @@ public:
 	//   0 - не все символы из строки принадлежат указанному диапазону
 	//   1 - все символы из строки принадлежат указанному диапазону
 	//
-	int    SLAPI IsLatin() const;
+	int    IsLatin() const;
 	//
 	// Descr: Сканирует слово, начиная с позиции *pPos. Если pPos == 0,
 	//   то начинает сканирование с позиции 0. Разделителями слов являются все символы,
@@ -3613,7 +3613,7 @@ public:
 	//   >0 - удалось извлечь слово, длина которого равна возвращаемому значению.
 	//   0  - не удалось сосканировать ни одного символа.
 	//
-	int    SLAPI GetWord(size_t * pPos, SString & rBuf) const;
+	int    GetWord(size_t * pPos, SString & rBuf) const;
 	//
 	// Descr: Разбивает строку this на отдельные фрагменты, разделенные одним из символов,
 	//   перечисленных в строке pDelimChrSet. Результирующие фрагменты заносятся в
@@ -3626,7 +3626,7 @@ public:
 	//   1 - в строке this не было встречено ни одного разделителя - она полностью внесена в rResult
 	//  -1 - строка this пуста - в rResult ничего не добавлено
 	//
-	int    SLAPI Tokenize(const char * pDelimChrSet, StringSet & rResult) const;
+	int    Tokenize(const char * pDelimChrSet, StringSet & rResult) const;
 	//
 	// Descr: Ищет в строке this подстроку, установленную в качестве образца в блок pBlk.
 	// ARG(pBlk     IN): блок, в котором реализован препроцессинг образца для поиска.
@@ -3640,10 +3640,10 @@ public:
 	//       символа строки this.
 	//
 #ifndef _WIN32_WCE
-	int    SLAPI Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const;
+	int    Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const;
 #endif
 		// @>>SSrchPattern::Search
-	int    SLAPI Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const;
+	int    Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const;
 	//
 	// Descr: Делит строку на две части, используя в качестве разделителя символ divChr.
 	//   Левая часть копируется в буфер rLeft, а правая - в буфер rRight.
@@ -3654,14 +3654,14 @@ public:
 	//     Буфер rRight стал пустым.
 	//   0  - ошибка. Буферы rLeft и rRight стали пустыми.
 	//
-	int    SLAPI Divide(int divChr, SString & rLeft, SString & rRight) const;
-	int    SLAPI Wrap(uint maxLen, SString & rHead, SString & rTail) const;
-	int    SLAPI IsDigit() const;
-	long   SLAPI ToLong() const;
-	ulong  SLAPI ToULong() const;
-	int64  SLAPI ToInt64() const;
-	double SLAPI ToReal() const;
-	float  SLAPI ToFloat() const;
+	int    Divide(int divChr, SString & rLeft, SString & rRight) const;
+	int    Wrap(uint maxLen, SString & rHead, SString & rTail) const;
+	int    IsDigit() const;
+	long   ToLong() const;
+	ulong  ToULong() const;
+	int64  ToInt64() const;
+	double ToReal() const;
+	float  ToFloat() const;
 	//
 	// Descr: Флаги функции ToIntRange
 	//
@@ -3693,10 +3693,10 @@ public:
 	//   0  - не удалось извлечь диапазон из строки. В этом случае значение rRange не изменяется.
 	//   >0 - смещение от начала строки, на котором закончился успешный разбор диапазона.
 	//
-	int    SLAPI ToIntRange(IntRange & rRange, long flags) const;
-	SString & SLAPI Sub(size_t startPos, size_t len, SString & rBuf) const;
-	SString & SLAPI Fmt(long fmt);
-	SString & SLAPI TrimRight();
+	int    ToIntRange(IntRange & rRange, long flags) const;
+	SString & Sub(size_t startPos, size_t len, SString & rBuf) const;
+	SString & Fmt(long fmt);
+	SString & TrimRight();
 	//
 	// Descr: Обрезает самый правый символ строки, если он равен c.
 	//
@@ -3714,11 +3714,11 @@ public:
 	//   параметре pDivList, то строка обрезается по самому крайне правому в подстроке [0..n-1]
 	//   из этих символов (не включая сам символ).
 	//
-	SString & SLAPI TrimToDiv(size_t n, const char * pDivList);
+	SString & TrimToDiv(size_t n, const char * pDivList);
 	//
 	// Descr: Вырезает из середины строки, начиная с позиции start, отрезок размером len.
 	//
-	SString & SLAPI Excise(size_t start, size_t size);
+	SString & Excise(size_t start, size_t size);
 	//
 	// Descr: сдвигает строку на n позиций влево. n левых символов теряются.
 	//   Если длина строки меньше n, то длина строки становится нулевой.
@@ -3728,45 +3728,45 @@ public:
 	// Descr: сдвигает строку на 1 позицию влево если первый символ в строке равен chr.
 	//
 	SString & FASTCALL ShiftLeftChr(int chr);
-	SString & SLAPI Reverse();
-	SString & SLAPI PadLeft(size_t n, int pad);
-	SString & SLAPI Align(size_t width, int adj);
-	SString & SLAPI Chomp();
-	SString & SLAPI Quot(int leftQuotChar, int rightQuotChar);
-	SString & SLAPI ReplaceChar(int patternChr, int replaceChr);
+	SString & Reverse();
+	SString & PadLeft(size_t n, int pad);
+	SString & Align(size_t width, int adj);
+	SString & Chomp();
+	SString & Quot(int leftQuotChar, int rightQuotChar);
+	SString & ReplaceChar(int patternChr, int replaceChr);
 	//
 	// Descr: В строке this замещает подстроки pPattern подстроками pReplacer.
 	//   Если once != 0, то производит только одну замену с начала строки.
 	// Returns:
 	//   Количество произведенных замен.
 	//
-	int    SLAPI ReplaceStrR(const char * pPattern, const char * pReplacer, int once);
+	int    ReplaceStrR(const char * pPattern, const char * pReplacer, int once);
 	//
 	// Descr: В строке this замещает подстроки pPattern подстроками pReplacer.
 	//   Если once != 0, то производит толко одну замену с начала строки.
 	// Returns:
 	//   *this.
 	//
-	SString & SLAPI ReplaceStr(const char * pPattern, const char * pReplacer, int once);
+	SString & ReplaceStr(const char * pPattern, const char * pReplacer, int once);
 	SString & FASTCALL ReplaceSpecSymb(int fileFormat);
 	SString & FASTCALL RevertSpecSymb(int fileFormat);
-	SString & SLAPI ReplaceCR();
-	SString & SLAPI Escape();
-	SString & SLAPI Unescape();
-	SString & SLAPI ToUrl();
-	SString & SLAPI FromUrl();
-	SString & SLAPI ToOem();
-	SString & SLAPI ToChar();
-	SString & SLAPI ToUtf8();
-	SString & SLAPI Utf8ToChar();
-	SString & SLAPI Utf8ToOem();
+	SString & ReplaceCR();
+	SString & Escape();
+	SString & Unescape();
+	SString & ToUrl();
+	SString & FromUrl();
+	SString & ToOem();
+	SString & ToChar();
+	SString & ToUtf8();
+	SString & Utf8ToChar();
+	SString & Utf8ToOem();
 	SString & FASTCALL Utf8ToCp(SCodepageIdent cp);
-	SString & SLAPI Utf8ToLower();
-	SString & SLAPI Utf8ToUpper();
-	SString & SLAPI ToUpper();
-	SString & SLAPI ToLower();
-	SString & SLAPI ToUpper1251();
-	SString & SLAPI ToLower1251();
+	SString & Utf8ToLower();
+	SString & Utf8ToUpper();
+	SString & ToUpper();
+	SString & ToLower();
+	SString & ToUpper1251();
+	SString & ToLower1251();
 	SString & FASTCALL SetCase(int ccas);
 	//
 	// Descr: Унифицированный транслятор кодировки строки.
@@ -3781,16 +3781,16 @@ public:
 	//
 	// ARG(dir IN): 1 - обрезать справа, 2 - обрезать слева, 0 - обрезать с обоих концов (аналог Strip())
 	//
-	SString & SLAPI Strip(int dir);
-	SString & SLAPI Strip();
-	SString & SLAPI StripQuotes();
+	SString & Strip(int dir);
+	SString & Strip();
+	SString & StripQuotes();
 	SString & FASTCALL CopyFrom(const SString &);
 	SString & FASTCALL CopyFrom(const char *);
 	SString & FASTCALL SetIfEmpty(const char *);
 	SString & FASTCALL SetIfEmpty(const SString &);
-	int    SLAPI IsAscii() const;
-	int    SLAPI IsLegalUtf8() const;
-	int    SLAPI CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
+	int    IsAscii() const;
+	int    IsLegalUtf8() const;
+	int    CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//
 	// Descr: Копирует в нашу строку не более maxLen символов из строки pSrc.
 	//   Если завершающий ноль в строке pStr встретится раньше, чем будут скопированы
@@ -3807,8 +3807,8 @@ public:
 	//   >0 - строка с индексом idx найдена и скопирована в this.
 	//   0  - в коллекции строк меньше, чем индекс idx. Строка this становится пустой.
 	//
-	int       SLAPI GetSubFrom(const char * pStr, int div, int idx);
-	int       SLAPI GetIdxBySub(const char * pSubStr, int div);
+	int       GetSubFrom(const char * pStr, int div, int idx);
+	int       GetIdxBySub(const char * pSubStr, int div);
 	SString & FASTCALL SetInt(int val);
 	SString & FASTCALL Cat(const SString &);
 	SString & FASTCALL Cat(const char *);
@@ -3829,15 +3829,15 @@ public:
 	SString & FASTCALL CatParStr(long val);
 	SString & FASTCALL CatBrackStr(const char * pStr);
 	SString & FASTCALL CatChar(int chr);
-	SString & SLAPI    Space();   // @>>CatChar(' ')
+	SString & Space();   // @>>CatChar(' ')
 	SString & FASTCALL Tab(uint c); // @>>CatChar('\t')
-	SString & SLAPI    Tab();       // @>>CatChar('\t')
-	SString & SLAPI    Dot();     // @>>CatChar('.')
-	SString & SLAPI    Comma();   // @>>CatChar(',')
-	SString & SLAPI    Semicol(); // @>>CatChar(';')
-	SString & SLAPI    Eq();      // @>>CatChar('=')
-	SString & SLAPI    CR();      // @>>CatChar('\n')
-	SString & SLAPI    CRB();     // "\xD\xA"
+	SString & Tab();       // @>>CatChar('\t')
+	SString & Dot();     // @>>CatChar('.')
+	SString & Comma();   // @>>CatChar(',')
+	SString & Semicol(); // @>>CatChar(';')
+	SString & Eq();      // @>>CatChar('=')
+	SString & CR();      // @>>CatChar('\n')
+	SString & CRB();     // "\xD\xA"
 	SString & FASTCALL CatCharN(int chr, size_t n);
 	SString & FASTCALL CatDiv(int c, int addSpaces/* = 0*//*, int ifNotEmpty = 0*/);
 	SString & FASTCALL CatDivConditionally(int c, int addSpaces, bool condition);
@@ -3845,8 +3845,8 @@ public:
 	SString & FASTCALL Cat(long);
 	SString & FASTCALL Cat(ulong);
 #ifndef _WIN32_WCE // {
-	SString & SLAPI    Cat(int64);
-	SString & SLAPI    Cat(uint64);
+	SString & Cat(int64);
+	SString & Cat(uint64);
 #endif // } _WIN32_WCE
 	SString & FASTCALL Cat(int);
 	SString & FASTCALL Cat(uint);
@@ -3871,16 +3871,16 @@ public:
 	//
 	// Descr: Конкатенация конструкции {"%d.%d.%d", ver, mjr, mnr}
 	//
-	SString & SLAPI CatDotTriplet(int ver, int mjr, int mnr);
+	SString & CatDotTriplet(int ver, int mjr, int mnr);
 	//
 	// Descr: Конкатенация конструкции {pMsg ' ' ((100 * p) / t) '%'}
 	//   Если pMsg == 0, то конкатенируется только процент.
 	//
-	SString & SLAPI CatPercentMsg(long p, long t, const char * pMsg);
-	SString & SLAPI Cat(double v, long fmt);
-	SString & SLAPI Cat(double v); // MKSFMTD(0, 6, NMBF_NOTRAILZ)
-	SString & SLAPI CatReal(double v);
-	SString & SLAPI Cat(const RealRange & rR, long fmt);
+	SString & CatPercentMsg(long p, long t, const char * pMsg);
+	SString & Cat(double v, long fmt);
+	SString & Cat(double v); // MKSFMTD(0, 6, NMBF_NOTRAILZ)
+	SString & CatReal(double v);
+	SString & Cat(const RealRange & rR, long fmt);
 	SString & FASTCALL Cat(LDATE, long fmt); // @v9.6.4 defargremoved
 	SString & FASTCALL Cat(LTIME, long fmt); // @v9.6.4 defargremoved
 	//
@@ -3901,44 +3901,44 @@ public:
 	//   1 - </pTag>
 	//   2 - <pTag/>
 	//
-	SString & SLAPI CatTagBrace(const char * pTag, int kind);
-	SString & SLAPI CatTag(const char * pTag, const char * pData);
-	SString & SLAPI CatXmlElem(const char * pName, int typ, const StringSet * pList);
-	SString & SLAPI CatEq(const char * pKey, const char * pVal);
-	SString & SLAPI CatEqQ(const char * pKey, const char * pVal);
-	SString & SLAPI CatEq(const char * pKey, uint16 val);
-	SString & SLAPI CatEq(const char * pKey, uint val);
-	SString & SLAPI CatEq(const char * pKey, long val);
-	SString & SLAPI CatEq(const char * pKey, ulong val);
-	SString & SLAPI CatEq(const char * pKey, int64 val);
-	SString & SLAPI CatEq(const char * pKey, uint64 val);
-	SString & SLAPI CatEq(const char * pKey, double val, long fmt = SFMT_QTTY);
-	SString & SLAPI CatEq(const char * pKey, LDATE val, long fmt = DATF_DMY|DATF_CENTURY);
-	SString & SLAPI CatEq(const char * pKey, LTIME val, long fmt = TIMF_HMS);
-	SString & SLAPI CatEq(const char * pKey, LDATETIME val, long dtFmt = DATF_DMY|DATF_CENTURY, long tmFmt = TIMF_HMS);
+	SString & CatTagBrace(const char * pTag, int kind);
+	SString & CatTag(const char * pTag, const char * pData);
+	SString & CatXmlElem(const char * pName, int typ, const StringSet * pList);
+	SString & CatEq(const char * pKey, const char * pVal);
+	SString & CatEqQ(const char * pKey, const char * pVal);
+	SString & CatEq(const char * pKey, uint16 val);
+	SString & CatEq(const char * pKey, uint val);
+	SString & CatEq(const char * pKey, long val);
+	SString & CatEq(const char * pKey, ulong val);
+	SString & CatEq(const char * pKey, int64 val);
+	SString & CatEq(const char * pKey, uint64 val);
+	SString & CatEq(const char * pKey, double val, long fmt = SFMT_QTTY);
+	SString & CatEq(const char * pKey, LDATE val, long fmt = DATF_DMY|DATF_CENTURY);
+	SString & CatEq(const char * pKey, LTIME val, long fmt = TIMF_HMS);
+	SString & CatEq(const char * pKey, LDATETIME val, long dtFmt = DATF_DMY|DATF_CENTURY, long tmFmt = TIMF_HMS);
 	//
 	// Descr: Вставляет в позицию pos строки this другую строку pStr.
 	//   Если pos > this->Len(), то ничего не делает,
 	//   если pos == this->Len(), то this->Insert(this->Len(), pStr) == this->Cat(pStr)
 	//
-	SString & SLAPI Insert(size_t pos, const char * pStr);
+	SString & Insert(size_t pos, const char * pStr);
 	SString & __cdecl Printf(const char * pFormat, ...);
 	SString & __cdecl VPrintf(const char * pFormat, va_list);
 	//
 	// Descr: Добавляет в конец строки обратный слэш ('\\'). Если строка пустая или
 	//   в конце строки уже стоит '\\' или '/', то ничего не делает.
 	//
-	SString & SLAPI SetLastSlash();
+	SString & SetLastSlash();
 	//
 	// Descr: Добавляет в конец строки прямой слэш ('/'). Если строка пустая или
 	//   в конце строки уже стоит '/', то ничего не делает.
 	//   Если в конце строки стоит обратный слэш ('\\'), то заменяет его на прямой ('/').
 	//
-	SString & SLAPI SetLastDSlash();
+	SString & SetLastDSlash();
 	//
 	// Descr: Если в конце строки стоит прямой ('/') или обратный ('\\') слэш, то убирает его.
 	//
-	SString & SLAPI RmvLastSlash();
+	SString & RmvLastSlash();
 	//
 	// Descr: читает из потока fStream блок размером size. Считает, что
 	//   size - это длина строки без завершающего нуля. Считывание начинается с
@@ -3951,17 +3951,17 @@ public:
 	//   <0 - либо fStream, либо size равны нулю. Буфер обнуляется //
 	//   0  - ошибка (SLibError)
 	//
-	int    SLAPI Read(FILE * fStream, size_t size);
+	int    Read(FILE * fStream, size_t size);
 	//
 	// Descr: Кодирует (декодирует в зависимости от параметра decode) строку с помощью параметра pEncodeStr
 	//   строка pEncodeStr содержит пары в виде: %01,254000;%02,255000,
 	//   где 254000, 255000 и т.д. - кусок строки который нужно закодировать символами - %01, %02 и т.д
 	//
 	SString & EncodeString(const char * pSrc, const char * pEncodeStr, int decode);
-	SString & SLAPI EncodeMime64(const void * pBuf, size_t bufLen);
-	int    SLAPI DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const;
-	SString & SLAPI Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen);
-	int    SLAPI Decode_QuotedPrintable(SString & rBuf) const;
+	SString & EncodeMime64(const void * pBuf, size_t bufLen);
+	int    DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const;
+	SString & Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen);
+	int    Decode_QuotedPrintable(SString & rBuf) const;
 	int    FASTCALL Decode_XMLENT(SString & rBuf) const; // @construction
 	//
 	// Descr: Способы кодировки encoded-word RFC2047
@@ -3970,23 +3970,23 @@ public:
 		rfc2207encMime64 = 1, // mime64
 		rfc2207encQP,         // quoted-printable
 	};
-	SString & SLAPI Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepageIdent cp, int rfc2207enc);
-	size_t SLAPI Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const;
-	SString & SLAPI EncodeUrl(const char * pSrc, int mode);
-	int    SLAPI DecodeUrl(SString & rBuf) const;
-	int    SLAPI DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const;
+	SString & Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepageIdent cp, int rfc2207enc);
+	size_t Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const;
+	SString & EncodeUrl(const char * pSrc, int mode);
+	int    DecodeUrl(SString & rBuf) const;
+	int    DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const;
 	//
 	// Descr: Утилитная функция, формирующая унифицированную строку сообщения при разборе файла.
 	//   Необходимость функции обусловлена способностью многих IDE-систем разбирать сообщения (в частности, об ошибках),
 	//   формируемые сторонними программами, в формате "filename(lineno): message"
 	//
 	SString & FormatFileParsingMessage(const char * pFileName, int lineNo, const char * pAddedText);
-	SString & SLAPI Helper_MbToMb(uint srcCodepage, uint destCodepage); // @v9.8.3 private-->public
+	SString & Helper_MbToMb(uint srcCodepage, uint destCodepage); // @v9.8.3 private-->public
 
 	void   FASTCALL Cat_Unsafe(const uint8 * pChr, size_t numChr); // very-very dangerous function
 private:
 	int    FASTCALL Alloc(size_t);
-	SString & SLAPI ShiftRight(size_t n, int padChar);
+	SString & ShiftRight(size_t n, int padChar);
 	//
 	// Descr: Преобразует символ c в Quoted-Printable-формат.
 	//   То есть, если c == ' ' или в диапазоне [33..126] (за исключением '=')
@@ -4009,11 +4009,11 @@ int cdecl slprintf(SString & rBuf, const char * pFormat, ...);
 //
 class SStringU {
 public:
-	SLAPI  SStringU();
-	SLAPI  SStringU(const SStringU &);
-	SLAPI  SStringU(const wchar_t *);
-	SLAPI ~SStringU();
-	size_t SLAPI Len() const;
+	SStringU();
+	SStringU(const SStringU &);
+	SStringU(const wchar_t *);
+	~SStringU();
+	size_t Len() const;
 	operator const wchar_t * () const { return P_Buf; }
 	//
 	// Descr: Сокращенная версия operator const wchar_t * ()
@@ -4036,9 +4036,9 @@ public:
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
 	int    FASTCALL HasChr(wchar_t c) const;
-	int    SLAPI Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const;
-	SStringU & SLAPI Z();
-	wchar_t SLAPI Last() const;
+	int    Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const;
+	SStringU & Z();
+	wchar_t Last() const;
 	//
 	// Descr: Возвращает символ, находящийся в позиции n (n = 0..)
 	//   Если n больше длины строки, то возвращает 0.
@@ -4059,17 +4059,17 @@ public:
 	//
 	SStringU & FASTCALL CopyFromMb_INNER(const char * pS, size_t srcLen);
 	wchar_t *  FASTCALL CopyTo(wchar_t * pS, size_t maxLen);
-	SStringU & SLAPI Sub(size_t startPos, size_t len, SStringU & rBuf) const;
+	SStringU & Sub(size_t startPos, size_t len, SStringU & rBuf) const;
 	int    FASTCALL CopyFromUtf8(const char * pSrc, size_t srcSize);
 	int    FASTCALL CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize);
 	int    FASTCALL CopyFromUtf8(const SString & rS);
 	int    FASTCALL CopyFromUtf8R(const SString & rS, size_t * pActualSrcSize);
 	int    FASTCALL CopyFromUtf8Strict(const char * pSrc, size_t srcSize);
 	int    FASTCALL CopyToUtf8(SString & rBuf, int strictConversion) const;
-	int    SLAPI CopyToMb(int cp, SString & rBuf) const;
+	int    CopyToMb(int cp, SString & rBuf) const;
 	SStringU & FASTCALL Trim(size_t n);
-	SStringU & SLAPI ToUpper();
-	SStringU & SLAPI ToLower();
+	SStringU & ToUpper();
+	SStringU & ToLower();
 
 	enum {
 		tcEmpty = 0,
@@ -4079,9 +4079,9 @@ public:
 		tcCapital
 	};
 
-	int    SLAPI AnalyzeCase() const;
-	long   SLAPI ToLong() const;
-	int64  SLAPI ToInt64() const;
+	int    AnalyzeCase() const;
+	long   ToLong() const;
+	int64  ToInt64() const;
 private:
 	int    FASTCALL Alloc(size_t sz);
 	int    FASTCALL Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
@@ -4101,28 +4101,28 @@ wchar_t FASTCALL UToLowerCase(wchar_t code);
 //
 class StringSet {
 public:
-	explicit SLAPI StringSet(const char * pDelim = 0);
-	SLAPI  StringSet(char delim, const char * pBuf);
-	SLAPI  StringSet(const StringSet &);
-	SLAPI ~StringSet();
+	explicit StringSet(const char * pDelim = 0);
+	StringSet(char delim, const char * pBuf);
+	StringSet(const StringSet &);
+	~StringSet();
 	//
 	// Descr: Разрушает внутренний буфер экземпляра и обнуляет текущую длину данных (DataLen).
 	//   Параметр Delim (разделитель элементов) не меняет.
 	//
-	void   SLAPI destroy();
+	void   destroy();
 	//
 	// Descr: Обнуляет текущую длину данных экземпляра, не освобождая буфер.
 	// Note: Следует использовать при необходимости повторного использования объекта
 	//   (распределенный ранее буфер улучшит производительность).
 	//
-	void   SLAPI clear(/*int dontFreeBuf = 0*/);
+	void   clear(/*int dontFreeBuf = 0*/);
 	//
 	// Descr: Функционально идентична clear(), семантически же, соответствует SString::Z()
 	//   (не освобождает память и возвращает *this)
 	//
-	StringSet & SLAPI Z();
+	StringSet & Z();
 	int    FASTCALL copy(const StringSet & rS);
-	int    SLAPI setBuf(const void * b, size_t len);
+	int    setBuf(const void * b, size_t len);
 	int    FASTCALL setBuf(const SString & rBuf);
 	//
 	// Descr: устанавливает разделитель строк.
@@ -4130,8 +4130,8 @@ public:
 	//   нет ни одной строки. Иначе начнутся сбои.
 	//
 	void   FASTCALL setDelim(const char * pDelim);
-	uint   SLAPI getDelimLen() const;
-	uint   SLAPI getCount() const;
+	uint   getDelimLen() const;
+	uint   getCount() const;
 	int    FASTCALL add(const char * pStr, uint * pPos);
 	int    FASTCALL add(const char * pStr, uint32 * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
 	//
@@ -4151,36 +4151,36 @@ public:
 	size_t FASTCALL getLen(uint pos) const;
 	int    FASTCALL get(uint * pPos, char * pStr, size_t maxlen) const;
 	int    FASTCALL get(uint * pPos, SString &) const;
-	int    SLAPI get(uint pos, SString & rBuf) const;
+	int    get(uint pos, SString & rBuf) const;
 	//
 	// Descr: Специализированный вариант функции get(uint, SString &). Если pos == 0,
 	//   то присваивает буферу rBuf нулевую строку, в остальных случаях работает
 	//   как get(uint, SString &).
 	//
-	int    SLAPI getnz(uint pos, SString & rBuf) const;
-	int    SLAPI search(const char * pPattern, uint * pPos, int ignoreCase) const;
-	int    SLAPI search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const;
+	int    getnz(uint pos, SString & rBuf) const;
+	int    search(const char * pPattern, uint * pPos, int ignoreCase) const;
+	int    search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const;
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке
 	//
-	void   SLAPI sort();
+	void   sort();
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке и удаляет из него дубликаты
 	//
-	void   SLAPI sortAndUndup();
+	void   sortAndUndup();
 	//
 	// Descr: Переставляет элементы набора в обратном порядке: первый становится последним, последний - первым.
 	//
-	int    SLAPI reverse();
+	int    reverse();
 	StringSet & FASTCALL operator =  (const StringSet &);
 	StringSet & FASTCALL operator +  (const char * s);
 	StringSet & FASTCALL operator += (const char * s);
-	const char * SLAPI getBuf() const;
+	const char * getBuf() const;
 	//
 	// Descr: Возвращает размер данных в буфере.
 	//
-	size_t SLAPI getDataLen() const { return DataLen; }
-	size_t SLAPI getSize() const;
+	size_t getDataLen() const { return DataLen; }
+	size_t getSize() const;
 	//
 	// Descr: Записывает в буфер rBuf состояние экземпляра.
 	//   Запись идет в бинарном формате по следующему порядку:
@@ -4193,13 +4193,13 @@ public:
 	//   что и запись (см. StringSet::Write).
 	//
 	int    FASTCALL Read(SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 #ifndef _WIN32_WCE // {
-	int    SLAPI Write(SFile & rFile, long) const;
-	int    SLAPI Read(SFile & rFile, long);
+	int    Write(SFile & rFile, long) const;
+	int    Read(SFile & rFile, long);
 #endif // } _WIN32_WCE
 protected:
-	int    SLAPI Init(const char * pDelim, size_t prealloc);
+	int    Init(const char * pDelim, size_t prealloc);
 	int    FASTCALL Alloc(size_t sz);
 
 	size_t DataLen; // @#{DataLen<=BufLen} Length of data with delimiters and trailings
@@ -4305,13 +4305,13 @@ public:
 //   Note: Гарантируется сохранение количества, размера и порядка следования переменных-членов этой структуры.
 //
 struct SVerT { // @persistent Size=4
-	SLAPI  SVerT(int = 0, int = 0, int = 0);
-	int    SLAPI Get(int *, int *, int *) const;
-	void   SLAPI Set(int, int, int);
-	void   SLAPI Set(uint32);
-	int    SLAPI IsLt(int, int, int) const;
-	int    SLAPI IsGt(int, int, int) const;
-	int    SLAPI IsEq(int, int, int) const;
+	SVerT(int = 0, int = 0, int = 0);
+	int    Get(int *, int *, int *) const;
+	void   Set(int, int, int);
+	void   Set(uint32);
+	int    IsLt(int, int, int) const;
+	int    IsGt(int, int, int) const;
+	int    IsEq(int, int, int) const;
 	int    FASTCALL Cmp(const SVerT *) const;
 	SString FASTCALL ToStr(SString & rBuf) const;
 	//
@@ -4328,7 +4328,7 @@ struct SVerT { // @persistent Size=4
 	//
 	int    FASTCALL FromStr(const char * pStr);
 	operator uint32() const;
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 	uint16 V;
 	uint16 R;
@@ -4340,7 +4340,7 @@ struct SVerT { // @persistent Size=4
 #define SSPF_NOCASE 0x0002
 
 struct SSrchParam {
-	SLAPI  SSrchParam(const char * pPattern, const char * pWordChars, int flags) : P_Pattern(pPattern), P_WordChars(pWordChars), Flags(flags)
+	SSrchParam(const char * pPattern, const char * pWordChars, int flags) : P_Pattern(pPattern), P_WordChars(pWordChars), Flags(flags)
 	{
 	}
 	const  char * P_Pattern;
@@ -4365,7 +4365,7 @@ char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
-// @v9.9.5 (unused) char * SLAPI    wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
+// @v9.9.5 (unused) char * wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
 uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);
@@ -4424,7 +4424,7 @@ bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);
 size_t FASTCALL sisascii(const char * pS, size_t len);
 char * FASTCALL strip(char * pStr);
 char * FASTCALL chomp(char * pStr);
-// @v10.0.0 const  char * SLAPI skipws(const char * pStr, size_t * pPos);
+// @v10.0.0 const  char * skipws(const char * pStr, size_t * pPos);
 //
 // Descr: Функция заменяет символ 'c' на строку из одиночного того же символа "c".
 // Note: Функция рудиментарная сделана еще во времена DOS с целью снизить размер кода.
@@ -4440,11 +4440,11 @@ char * FASTCALL chomp(char * pStr);
 //
 char * FASTCALL padleft(char  * pStr, char pad, size_t n);
 char * FASTCALL padright(char * pStr, char pad, size_t n);
-char * SLAPI alignstr(char * pStr, size_t width, int adj);
-int    SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
-int    SLAPI replacestr(char * pStr, const char * pReplacer, size_t * pPos, size_t * pLen, uint maxlen);
+char * alignstr(char * pStr, size_t width, int adj);
+int    searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen);
+int    replacestr(char * pStr, const char * pReplacer, size_t * pPos, size_t * pLen, uint maxlen);
 // AHTOXA convert hex or octal representation of symbol to symbol in string
-int    SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize);
+int    hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize);
 //
 // Descr: Низкоуровневая функция преобразования серии последовательных цифр в число.
 //   Никаких проверок не делает и полагается на то, что в строке pT ей передается len
@@ -4481,7 +4481,7 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 //   ptr                       // -> abc.
 //   ptr = catdiv(ptr, '-', 1) // -> abc - .
 //
-// @v9.4.10 (unused) char * SLAPI catdiv(char * pStr, int div, int addSpaces);
+// @v9.4.10 (unused) char * catdiv(char * pStr, int div, int addSpaces);
 
 //get string - used in network @vantonov
 // @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
@@ -4593,8 +4593,8 @@ int    FASTCALL _checkdate(int d, int m, int y);
 char * FASTCALL _datefmt(int d, int m, int y, int format, char *);
 void   FASTCALL encodedate(int, int, int, void *);
 void   FASTCALL decodedate(int *, int *, int *, const void *);
-void   SLAPI    decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
-void   SLAPI    encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
+void   decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
+void   encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
 int    FASTCALL IsLeapYear(uint y);
 int    FASTCALL checkdate(const void * pBinDate);
 //
@@ -4615,7 +4615,7 @@ int    FASTCALL checktime(LTIME tm);
 #define MONF_CASEGEN   0x0004 // Полная форма (родительный падеж)
 #define MONF_OEM       0x0080 // OEM-coding
 
-// @v9.4.8 char * SLAPI getMonthText(int mon, long fmt, char * pBuf);
+// @v9.4.8 char * getMonthText(int mon, long fmt, char * pBuf);
 SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf); // @v9.4.8
 //
 // Descr: Флаги функции strtoperiod
@@ -4647,8 +4647,8 @@ LTIME  FASTCALL getcurtime_();
 int    FASTCALL getcurdatetime(LDATETIME *);
 int    FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
 LDATETIME FASTCALL getcurdatetime_();
-int    SLAPI setcurdatetime(LDATETIME dtm);
-int    SLAPI gettimezone();
+int    setcurdatetime(LDATETIME dtm);
+int    gettimezone();
 //
 // Date arithmetic
 //
@@ -4664,7 +4664,7 @@ void   FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
 // ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
 //   при этом длительность года полагается равной 360 дням.
 //
-void   SLAPI _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
+void   _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
 int    FASTCALL _dayofweek(const void * pDate, int format); // 0..6 (0=Sunday)
 long   FASTCALL diffdate(const void *, const void *, int _360);
 void   FASTCALL plusdate(void *, int, int _360);
@@ -4731,9 +4731,9 @@ LTIME  FASTCALL encodetime(int h, int m, int s, int ts);
 		(dim == 4) : thousandths of second
 */
 long   FASTCALL DiffTime(LTIME t1, LTIME t2, int dim);
-long   SLAPI diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
-long   SLAPI diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
-long   SLAPI diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
+long   diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
+long   diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
+long   diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
 long   FASTCALL diffdatetimesec(const LDATETIME &, const LDATETIME &);
 LDATETIME FASTCALL plusdatetime(const LDATETIME &, long plus, int dim);
 LDATE  FASTCALL encodedate(int day, int month, int year);
@@ -4811,12 +4811,12 @@ char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf);
 char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
 char * FASTCALL uintfmt(ulong val, long fmt, char * pBuf);
 char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf);
-char * SLAPI decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf);
-char * SLAPI datefmt(const void *, long fmt, char *);
-char * SLAPI timefmt(LTIME, long fmt, char *);
-char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
+char * decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf);
+char * datefmt(const void *, long fmt, char *);
+char * timefmt(LTIME, long fmt, char *);
+char * datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
 char * FASTCALL periodfmt(const DateRange *, char *);
-int    SLAPI periodfmtex(const DateRange *, char *, size_t bufLen);
+int    periodfmtex(const DateRange *, char *, size_t bufLen);
 //
 // Descr: Флаги функции TimeZoneFmt
 //
@@ -4833,9 +4833,9 @@ enum {
 //    rBuf
 //
 SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf);
-char * SLAPI strfmt(const char * str, long fmt, char * buf);
-//char * SLAPI numbertotext(double nmb, long fmt, char * pBuf);
-// @v9.6.0 int   SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp);
+char * strfmt(const char * str, long fmt, char * buf);
+//char * numbertotext(double nmb, long fmt, char * pBuf);
+// @v9.6.0 int   strtoirng(const char * pBuf, long * pLow, long * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
 int    FASTCALL strtodoub(const char * pBuf, double *);
@@ -4911,11 +4911,11 @@ int   FASTCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, l
 // Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
 //
 struct BNField {
-	uint   SLAPI size() const { return stsize(T); }
-	int    SLAPI IsEqual(const BNField & rS, int nameAndTypeOnly = 0) const;
+	uint   size() const { return stsize(T); }
+	int    IsEqual(const BNField & rS, int nameAndTypeOnly = 0) const;
 	int    FASTCALL getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
-	int    SLAPI setValue(void * pDataBuf, const void * pValBuf) const;
-	int    SLAPI putValueToString(const void * pDataBuf, char * pBuf) const;
+	int    setValue(void * pDataBuf, const void * pValBuf) const;
+	int    putValueToString(const void * pDataBuf, char * pBuf) const;
 
 	int32  Id;   // If object attached to dictionary then id = X$FIELD.XeId, else id = 0,1,..
 	char   Name[20];
@@ -4929,28 +4929,28 @@ struct BNField {
 //
 class BNFieldList {
 public:
-	SLAPI  BNFieldList();
-	SLAPI  BNFieldList(const BNFieldList & rS);
-	SLAPI ~BNFieldList();
+	BNFieldList();
+	BNFieldList(const BNFieldList & rS);
+	~BNFieldList();
 	BNFieldList & FASTCALL operator = (const BNFieldList &);
 	int    FASTCALL copy(const BNFieldList *);
-	int    SLAPI IsEqual(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
-	void   SLAPI reset();
-	int    SLAPI addField(const char * pName, TYPEID type, int id = UNDEF);
+	int    IsEqual(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
+	void   reset();
+	int    addField(const char * pName, TYPEID type, int id = UNDEF);
 	int    FASTCALL addField(const BNField &);
-	int    SLAPI getFieldPosition(int fldId, uint * pPos) const;
-	const  BNField & SLAPI getField(uint, int byPosition = 1) const;
-	const  BNField & SLAPI getField(const char * pName, uint * pPos = 0) const;
+	int    getFieldPosition(int fldId, uint * pPos) const;
+	const  BNField & getField(uint, int byPosition = 1) const;
+	const  BNField & getField(const char * pName, uint * pPos = 0) const;
 	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
-	uint   SLAPI getCount() const { return count; }
-	RECORDSIZE SLAPI getRecSize() const;
-	int    SLAPI setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
-	int    SLAPI IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
+	uint   getCount() const { return count; }
+	RECORDSIZE getRecSize() const;
+	int    setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
+	int    IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
 	//
 	// Descr: Выводит значения полей записи pRec в строковый буфер rBuf.
 	//   Если pRec == 0, то в буфер выводятся наименования полей.
 	//
-	//void   SLAPI RecordToStr(const void * pRec, SString & rBuf) const;
+	//void   RecordToStr(const void * pRec, SString & rBuf) const;
 private:
 	uint   count;
 	BNField * fields;
@@ -5042,22 +5042,22 @@ public:
 	static int GetSysDir(int pathId, SString & rPath);
 };
 
-int	   SLAPI pathToUNC(const char * pPath, SString & rUncPath);
-// @v10.5.6 char * SLAPI replacePath(char * fileName, const char * newPath, int force);
-// @v10.5.6 char * SLAPI replaceExt(char * fileName, const char * newExt, int force);
-char * SLAPI setLastSlash(char *);
-char * SLAPI rmvLastSlash(char *);
+int	   pathToUNC(const char * pPath, SString & rUncPath);
+// @v10.5.6 char * replacePath(char * fileName, const char * newPath, int force);
+// @v10.5.6 char * replaceExt(char * fileName, const char * newExt, int force);
+char * setLastSlash(char *);
+char * rmvLastSlash(char *);
 //
 // Descr: Returns execution file name in buffer pBuf.
 // Returns:
 //   pBuf
 //
-SString & SLAPI getExecPath(SString & rBuf);
+SString & getExecPath(SString & rBuf);
 int    FASTCALL fileExists(const char * pFileName);
-int    SLAPI driveValid(const char * path);
+int    driveValid(const char * path);
 int    FASTCALL IsDirectory(const char * pStr);
-int    SLAPI pathValid(const char * pPath, int existOnly);
-// @v10.8.2 (unused) int    SLAPI validFileName(const char * pFileName);
+int    pathValid(const char * pPath, int existOnly);
+// @v10.8.2 (unused) int    validFileName(const char * pFileName);
 //
 // Descr: формирует полное имя файла, состоящее из пути
 //   до исполняемого файла и имени pName с расширением pExt.
@@ -5067,10 +5067,10 @@ int    SLAPI pathValid(const char * pPath, int existOnly);
 // Requares:
 //   @# &rPath != 0
 //
-SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SString & rPath);
+SString & makeExecPathFileName(const char * pName, const char * pExt, SString & rPath);
 int    FASTCALL IsWild(const char * pFileName);
-int    SLAPI createDir(const char * pPath);
-int    SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName);
+int    createDir(const char * pPath);
+int    copyFileByName(const char * pSrcFileName, const char * pDestFileName);
 //
 // Descr: Создает пустой файл с именем pFileName.
 // Returns:
@@ -5088,7 +5088,7 @@ int    FASTCALL createEmptyFile(const char * pFileName);
 //   Расширение (pExt) может быть задано с лидирующей точкой или без нее.
 //
 /*
-char * SLAPI MakeTempFileName(const char * pDir, const char * pPrefix,
+char * MakeTempFileName(const char * pDir, const char * pPrefix,
 	const char * pExt, long * pStart, char * pFileNameBuf, size_t fileNameBufLen); // @obsolete
 */
 SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
@@ -5105,7 +5105,7 @@ SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, con
 //   else: Offset for string in file
 // Module: fsif.c
 //
-long   SLAPI SearchStrInFile(FILE *, long startOffset, const char * pStr, int ignoreCase);
+long   SearchStrInFile(FILE *, long startOffset, const char * pStr, int ignoreCase);
 
 #define SPRGRS_CONTINUE  0 // for WIN32 eq PROGRESS_CONTINUE
 #define SPRGRS_CANCEL    1 // for WIN32 eq PROGRESS_CANCEL
@@ -5119,7 +5119,7 @@ typedef int (* SDataMoveProgressProc)(const SDataMoveProgressInfo *);
 //   предполагается вероятность незнания относительно общего размера данных для передачи.
 //
 struct SDataMoveProgressInfo {
-	SLAPI  SDataMoveProgressInfo();
+	SDataMoveProgressInfo();
 
 	int64  SizeDone;  // Количество данных текущего элемента, переданных на момент вызова callback
 	int64  SizeTotal; // Общий размер передаваемых данных в текущем элементе
@@ -5139,15 +5139,15 @@ struct SDataMoveProgressInfo {
 
 typedef int (* PercentFunc)(long, long, const char *, int);
 
-int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc, long shareMode, void * pExtra);
+int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc, long shareMode, void * pExtra);
 // @v10.8.0 int compress(char *, char *, int, PercentFunc, ulong*);
-int SLAPI PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir);
+int PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir);
 int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int compress, PercentFunc pf);
 //
 //
 //
 struct ExecVDosParam {
-	SLAPI  ExecVDosParam();
+	ExecVDosParam();
 	enum {
 		fExitAfter = 0x0001,
 		fWait      = 0x0002
@@ -5158,7 +5158,7 @@ struct ExecVDosParam {
 	StringSet Batch;
 };
 
-int SLAPI ExecVDos(const ExecVDosParam & rParam);
+int ExecVDos(const ExecVDosParam & rParam);
 //
 //
 //
@@ -5169,19 +5169,19 @@ struct SDirEntry { // @flat
 	//
 	// Descr: Возвращает !0 если является каталогом
 	//
-	int    SLAPI IsFolder() const;
+	int    IsFolder() const;
 	//
 	// Descr: Возвращает !0 если является ссылкой на каталог верхнего уровня ("..")
 	//
-	int    SLAPI IsUpFolder() const;
+	int    IsUpFolder() const;
 	//
 	// Descr: Возвращает !0 если является ссылкой на текущий каталог (".")
 	//
-	int    SLAPI IsSelf() const;
+	int    IsSelf() const;
 	//
 	// Descr: Возвращает !0 если является файлом (== (!IsFolder() && !IsUpFolder() && !IsSelf()))
 	//
-	int    SLAPI IsFile() const;
+	int    IsFile() const;
 
 	enum {
 		attrRdOnly = 0x00000001, // dos/win _A_RDONLY
@@ -5213,16 +5213,16 @@ struct SDirEntry { // @flat
 
 class SDirec {
 public:
-	static int SLAPI GetSingle(const char * pPath, SDirEntry * pEntry);
-	SLAPI  SDirec();
-	explicit SLAPI SDirec(const char * pathname, int enumDirs = 0);
-	SLAPI ~SDirec();
-	int    SLAPI Init(const char * pathname, int enumDirs = 0);
+	static int GetSingle(const char * pPath, SDirEntry * pEntry);
+	SDirec();
+	explicit SDirec(const char * pathname, int enumDirs = 0);
+	~SDirec();
+	int    Init(const char * pathname, int enumDirs = 0);
 	int    FASTCALL Next(SDirEntry *);
 private:
-	int    SLAPI FindFirst();
-	int    SLAPI FindNext();
-	int    SLAPI FindClose();
+	int    FindFirst();
+	int    FindNext();
+	int    FindClose();
 
 	char   InitPath[ALIGNSIZE(MAXPATH, 2)]; // @v10.8.0 MAXPATH-->ALIGNSIZE(MAXPATH, 2)
 	int    InitFlag;
@@ -5244,12 +5244,12 @@ int    RemoveDir(const char * pDir);
 //
 class SFindFile {
 public:
-	SLAPI  SFindFile(const char * pPath = 0, const char * pFileName = 0);
+	SFindFile(const char * pPath = 0, const char * pFileName = 0);
 	//
 	// Descr: Запускает механизм поиска. Предварительно должны быть инициализированы
 	//   необходимые поля.
 	//
-	int    SLAPI Run();
+	int    Run();
 	//
 	// Descr: вызывается на каждый найденный по заданным условиям файл, а также
 	//   для всех каталогов, вложенных в стартовый каталог P_Path.
@@ -5258,7 +5258,7 @@ public:
 	//   !0 - метод Run должен продолжать работу
 	//   0 - метод Run следует остановить. В этом случае Run() вернет 0.
 	//
-	virtual int SLAPI CallbackProc(const char * pPath, SDirEntry * pEntry);
+	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
 
 	const  char * P_Path;     // @#{vptr}
 	const  char * P_FileName; // @#{vptr0}
@@ -5278,7 +5278,7 @@ public:
 //   Это сделано ради оптимизации.
 //
 void  FASTCALL memmovo(void * pDest, const void * pSrc, size_t size);
-void * SLAPI catmem(void * pDest, size_t destSz, const void * pSrc, size_t srcSz);
+void * catmem(void * pDest, size_t destSz, const void * pSrc, size_t srcSz);
 //
 // Descr: Быстро меняет содержимое по указателям p1 и p2 размером size.
 //
@@ -5291,7 +5291,7 @@ void   FASTCALL memswap(void * p1, void * p2, size_t size);
 //   !0 - искомый ключ найден
 //   0  - искомый ключ не найден
 //
-int    SLAPI memdword(void * p, size_t size, uint32 k, size_t * pOffs);
+int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 //
 // Descr: Вызов memzero эквивалентен memset(p, 0, s). Так как такие
 //   вызовы весьма часты, то использование memzero даст выигрыш
@@ -5372,13 +5372,13 @@ int    FASTCALL deccmp(const char * dc1, const char * dc2, int16 len);
 //
 class IterCounter {
 public:
-	SLAPI  IterCounter();
+	IterCounter();
 	operator ulong() const { return Count; }
 	void   FASTCALL Init(ulong total = 0L);
 	void   FASTCALL SetTotal(ulong total)  { Total = total; }
-	IterCounter & SLAPI Increment() { Count++; return *this; }
+	IterCounter & Increment() { Count++; return *this; }
 	IterCounter & FASTCALL Add(long a) { Count += a; return *this; }
-	ulong  SLAPI GetTotal() const { return Total; }
+	ulong  GetTotal() const { return Total; }
 private:
 	ulong  Count;
 	ulong  Total;
@@ -5391,8 +5391,8 @@ private:
 struct SBaseBuffer {
 	// no constructor (used in unions)
 	// no destructor  (used in unions)
-	void   SLAPI Init();
-	void   SLAPI Destroy();
+	void   Init();
+	void   Destroy();
 	int    FASTCALL IsEqual(const SBaseBuffer & rS) const;
 	//
 	// Descr: Копирует содержимое буфера rS в буфер this.
@@ -5402,27 +5402,27 @@ struct SBaseBuffer {
 	//   последствия не предсказуемы.
 	//
 	int    FASTCALL Copy(const SBaseBuffer & rS);
-	void   SLAPI Zero();
-	void   SLAPI Set(void * pBuf, size_t size);
+	void   Zero();
+	void   Set(void * pBuf, size_t size);
 	int    FASTCALL Alloc(size_t sz);
-	int    SLAPI Put(size_t offs, const void * pSrc, size_t size);
-    int    SLAPI Put(size_t offs, uint8 v);
-    int    SLAPI Put(size_t offs, uint16 v);
-    int    SLAPI Put(size_t offs, uint32 v);
-    int    SLAPI Put(size_t offs, uint64 v);
-    int    SLAPI Put(size_t offs, int8 v);
-    int    SLAPI Put(size_t offs, int16 v);
-    int    SLAPI Put(size_t offs, int32 v);
-    int    SLAPI Put(size_t offs, int64 v);
-    int    SLAPI Get(size_t offs, void * pDest, size_t size) const;
-    int    SLAPI Get(size_t offs, uint8 & rV) const;
-    int    SLAPI Get(size_t offs, uint16 & rV) const;
-    int    SLAPI Get(size_t offs, uint32 & rV) const;
-    int    SLAPI Get(size_t offs, uint64 & rV) const;
-    int    SLAPI Get(size_t offs, int8 & rV) const;
-    int    SLAPI Get(size_t offs, int16 & rV) const;
-    int    SLAPI Get(size_t offs, int32 & rV) const;
-    int    SLAPI Get(size_t offs, int64 & rV) const;
+	int    Put(size_t offs, const void * pSrc, size_t size);
+    int    Put(size_t offs, uint8 v);
+    int    Put(size_t offs, uint16 v);
+    int    Put(size_t offs, uint32 v);
+    int    Put(size_t offs, uint64 v);
+    int    Put(size_t offs, int8 v);
+    int    Put(size_t offs, int16 v);
+    int    Put(size_t offs, int32 v);
+    int    Put(size_t offs, int64 v);
+    int    Get(size_t offs, void * pDest, size_t size) const;
+    int    Get(size_t offs, uint8 & rV) const;
+    int    Get(size_t offs, uint16 & rV) const;
+    int    Get(size_t offs, uint32 & rV) const;
+    int    Get(size_t offs, uint64 & rV) const;
+    int    Get(size_t offs, int8 & rV) const;
+    int    Get(size_t offs, int16 & rV) const;
+    int    Get(size_t offs, int32 & rV) const;
+    int    Get(size_t offs, int64 & rV) const;
 	//
 	char * P_Buf; // @firstmember
 	size_t Size;
@@ -5434,18 +5434,18 @@ struct SBaseBuffer {
 //
 class STempBuffer : private SBaseBuffer {
 public:
-	explicit SLAPI STempBuffer(size_t sz);
-	SLAPI ~STempBuffer();
+	explicit STempBuffer(size_t sz);
+	~STempBuffer();
 	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
-	int    SLAPI IsValid() const;
-	size_t SLAPI GetSize() const;
-	SLAPI  operator char * ();
-	SLAPI  operator const char * () const;
-	const  uchar * SLAPI ucptr() const;
-	const  char  * SLAPI cptr() const;
-	const  void  * SLAPI vcptr() const;
-	void * SLAPI vptr();
-	void * SLAPI vptr(size_t offs);
+	int    IsValid() const;
+	size_t GetSize() const;
+	operator char * ();
+	operator const char * () const;
+	const  uchar * ucptr() const;
+	const  char  * cptr() const;
+	const  void  * vcptr() const;
+	void * vptr();
+	void * vptr(size_t offs);
 	int    FASTCALL Alloc(size_t sz);
 	//
 	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном
@@ -5475,17 +5475,17 @@ public:
 		ffAryCount32    = 0x0001, // Количество элементов в массиве сохранять как 4-x байтовое значение (по умолчанию - 2 байта)
 		ffAryForceEmpty = 0x0002  // Сохранить массив как имеющий 0 элементов, даже если он не пустой.
 	};
-	int    SLAPI InvariantC(SInvariantParam *) const;
-	SLAPI  SBuffer(size_t initSize = 0, long flags = fMovable);
-	SLAPI  SBuffer(const SBuffer &);
-	SLAPI ~SBuffer();
+	int    InvariantC(SInvariantParam *) const;
+	SBuffer(size_t initSize = 0, long flags = fMovable);
+	SBuffer(const SBuffer &);
+	~SBuffer();
 	void   Destroy();
 	int    FASTCALL Copy(const SBuffer &);
 	SBuffer & FASTCALL operator = (const SBuffer & s);
 	//
 	// Desct: Возвращает 0 если в объекте произошла ошибка.
 	//
-	int    SLAPI IsValid();
+	int    IsValid();
 	//
 	// Descr: Сравнивает буфер this c буфером rS.
 	//   Сравнение осуществляется бинарным сопоставлением между участками памяти this->P_Buf[0..this->WrOffs-1]
@@ -5493,11 +5493,11 @@ public:
 	//   Пустые буферы (WrOffs == 0) считаются равными.
 	//
 	int    FASTCALL IsEqual(const SBuffer & rS) const;
-	//SLAPI  operator const void * () const { return P_Buf; }
+	//operator const void * () const { return P_Buf; }
 	const void * constptr() const { return P_Buf; }
-	size_t SLAPI GetSize() const { return Size; }
-	size_t SLAPI GetRdOffs() const { return RdOffs; }
-	size_t SLAPI GetWrOffs() const { return WrOffs; }
+	size_t GetSize() const { return Size; }
+	size_t GetRdOffs() const { return RdOffs; }
+	size_t GetWrOffs() const { return WrOffs; }
 	const  void * FASTCALL GetBuf(size_t offs = 0) const;
 	const  char * FASTCALL GetBufC(size_t offs = 0) const;
 	const  int8 * FASTCALL GetBufI8(size_t offs = 0) const;
@@ -5511,7 +5511,7 @@ public:
 	// Returns:
 	//   *this
 	//
-	SBuffer & SLAPI Z();
+	SBuffer & Z();
 	//
 	// Descr: Записывает в буфер данные, на которые указывает pSrc в размере srcLen.
 	//
@@ -5519,8 +5519,8 @@ public:
 	//
 	// Descr: Возвращает количество доступных для считывания байт буфера.
 	//
-	size_t SLAPI GetAvailableSize() const;
-	int    SLAPI GetAvailableSizeI() const { return static_cast<int>(GetAvailableSize()); }
+	size_t GetAvailableSize() const;
+	int    GetAvailableSizeI() const { return static_cast<int>(GetAvailableSize()); }
 	//
 	// Descr: Считывает в буфер pBuf, начиная со смещения RdOffs, доступное количество
 	//   байт данных, но не более чем bufLen.
@@ -5555,8 +5555,8 @@ public:
 	// Returns:
 	//   Количество считанных байт.
 	//
-	size_t SLAPI ReadTerm(const char * pTerm, void * pBuf, size_t bufLen);
-	size_t SLAPI ReadTermStr(const char * pTerm, SString & rBuf);
+	size_t ReadTerm(const char * pTerm, void * pBuf, size_t bufLen);
+	size_t ReadTermStr(const char * pTerm, SString & rBuf);
 	size_t FASTCALL ReadLine(SString & rBuf);
 	int    FASTCALL WriteByte(char);
 	int    FASTCALL Read(char &);
@@ -5606,14 +5606,14 @@ public:
 	//   !0 - операция успешно завершена.
 	//   0  - ошибка.
 	//
-	int    SLAPI WriteToFile(FILE * f, uint sign, uint32 * pActualBytes);
-	int    SLAPI ReadFromFile(FILE * f, uint sign);
+	int    WriteToFile(FILE * f, uint sign, uint32 * pActualBytes);
+	int    ReadFromFile(FILE * f, uint sign);
 protected:
 	void * FASTCALL Ptr(size_t) const;
 private:
 	SBuffer & FASTCALL Reset(int freeBuf);
 	int    FASTCALL Alloc(size_t);
-	int    SLAPI Search(const char * pStr, size_t * pPos) const;
+	int    Search(const char * pStr, size_t * pPos) const;
 	int    FASTCALL Helper_Read(SVectorBase * pAry, long options /* = 0*/);
 
 	size_t Size;   // Размер буфера
@@ -5653,11 +5653,11 @@ typedef TSBinary <32> binary256;
 //
 class SCRC32 {
 public:
-	SLAPI  SCRC32();
-	SLAPI ~SCRC32();
-	ulong  SLAPI Calc(ulong, const void * pData, size_t dataLen);
+	SCRC32();
+	~SCRC32();
+	ulong  Calc(ulong, const void * pData, size_t dataLen);
 private:
-	int    SLAPI MakeTab();
+	int    MakeTab();
 	ulong * P_Tab;
 };
 //
@@ -5754,8 +5754,8 @@ public:
 		friend class SlHash;
 		friend struct ngx_sha1_t__; // @debug
 
-		SLAPI  State();
-		SLAPI ~State();
+		State();
+		~State();
 		State & Z();
 		uint8  GetResult8() const { return Result.R8; }
 		uint16 GetResult16() const { return Result.R16; }
@@ -5940,10 +5940,10 @@ int    FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len);
 // Определен в md5.h
 //class MD5 {
 //public:
-//	SLAPI  MD5() { init(); }
-//	void   SLAPI init();
-//	void   SLAPI update(uchar * bug, uint len);
-//	void   SLAPI final(uchar digest[16]);
+//	MD5() { init(); }
+//	void   init();
+//	void   update(uchar * bug, uint len);
+//	void   final(uchar digest[16]);
 //private:
 //	uint32 buf[4]; // scratch buffer
 //	uint32 i[2];   // number of _bits_ handled mod 2^64
@@ -5979,13 +5979,13 @@ private:
 
 //#endif /* MD5_H_INCLUDED */
 
-void SLAPI Transform(uint32 *buf, uint32 *in);
+void Transform(uint32 *buf, uint32 *in);
 
 #define IDEAKEYSIZE 16
 #define IDEABLOCKSIZE 8
 
 // hashpass - Hash pass phrase down to 128 bits (16 bytes).
-void SLAPI hashpass(char *keystring, int keylen, uint8 *hash);
+void hashpass(char *keystring, int keylen, uint8 *hash);
 
 #define IDEA_ROUNDS	8            // Don't change this value, should be 8
 #define IDEA_KEYLEN	(6*IDEA_ROUNDS+4) // length of key schedule */
@@ -5994,12 +5994,12 @@ typedef uint16 IDEAkey[IDEA_KEYLEN];
 
 class IDEACFB {
 public:
-	SLAPI  IDEACFB();
-	SLAPI  IDEACFB(uint16 iv0[4], uint8 key[16], int decryp);
-	SLAPI ~IDEACFB();
-	void   SLAPI init(uint16 iv0[4], uint8 key[16], int decryp);
-	void   SLAPI close();
-	void   SLAPI run(uint8 * buf, int count);
+	IDEACFB();
+	IDEACFB(uint16 iv0[4], uint8 key[16], int decryp);
+	~IDEACFB();
+	void   init(uint16 iv0[4], uint8 key[16], int decryp);
+	void   close();
+	void   run(uint8 * buf, int count);
 private:
 	// Key schedules for IDEA encryption and decryption
 	IDEAkey  Z;
@@ -6009,12 +6009,12 @@ private:
 
 class IDEARAND {
 public:
-	SLAPI  IDEARAND();
-	SLAPI  IDEARAND(uint8 key[16], uint8 seed[8], uint32 tstamp);
-	SLAPI ~IDEARAND();
-	void   SLAPI init(uint8 key[16], uint8 seed[8], uint32 tstamp);
-	uint8  SLAPI rand();
-	void   SLAPI close();
+	IDEARAND();
+	IDEARAND(uint8 key[16], uint8 seed[8], uint32 tstamp);
+	~IDEARAND();
+	void   init(uint8 key[16], uint8 seed[8], uint32 tstamp);
+	uint8  rand();
+	void   close();
 private:
 	uint16 dtbuf[4];        // buffer for enciphered timestamp
 	uint16 randseed[4];     // seed for IDEA random # generator
@@ -6023,8 +6023,8 @@ private:
 	IDEAkey randkey;         // Expanded key for IDEA random # generator
 };
 
-void SLAPI IdeaEncrypt(const char * password, void * buf, size_t len);
-void SLAPI IdeaDecrypt(const char * password, void * buf, size_t len);
+void IdeaEncrypt(const char * password, void * buf, size_t len);
+void IdeaDecrypt(const char * password, void * buf, size_t len);
 void FASTCALL IdeaRandMem(void * buf, size_t len);
 //
 // Math
@@ -6066,7 +6066,7 @@ double FASTCALL R6(double);
 // Округляет n с точностью prec по правилу "до ближайшего четного"
 //
 double FASTCALL roundnev(double n, int prec);
-double SLAPI trunc(double n, int prec);
+double trunc(double n, int prec);
 int    GetRandom(int min, int max);
 //
 // Int Money
@@ -6101,21 +6101,21 @@ uint32 FASTCALL parity32(uint32 v);
 //
 uint32 getbits(const void * pBuf, size_t len, size_t pos, size_t count);
 int    FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos);
-void   SLAPI insbit(void * pBuf, size_t len, size_t);
-void   SLAPI delbit(void * pBuf, size_t len, size_t);
+void   insbit(void * pBuf, size_t len, size_t);
+void   delbit(void * pBuf, size_t len, size_t);
 uint8  FASTCALL bitscanforward(uint32 * pIdx, uint32 mask);
 uint8  FASTCALL bitscanreverse(uint32 * pIdx, uint32 mask);
 //
 // Table search functions
 //
-// @v9.4.3 (moved to sformat.cpp as static) int    SLAPI i_tab(const void * tbl, int req, int def);
-// @v9.4.3 (moved to sformat.cpp as static) int    SLAPI ai_tab(const void * tbl, int req, int def);
+// @v9.4.3 (moved to sformat.cpp as static) int    i_tab(const void * tbl, int req, int def);
+// @v9.4.3 (moved to sformat.cpp as static) int    ai_tab(const void * tbl, int req, int def);
 //
 // Encrypt / Decrypt functions
 //
-void * SLAPI encrypt(void *, size_t);
-void * SLAPI decrypt(void *, size_t);
-ulong  SLAPI _checksum__(const char *, size_t);
+void * encrypt(void *, size_t);
+void * decrypt(void *, size_t);
+ulong  _checksum__(const char *, size_t);
 //
 // MIME64 encoder/decoder
 //
@@ -6138,8 +6138,8 @@ int SPunycodeDecode(const char * input, size_t input_length, size_t * output_len
 //
 //
 int    EquipInputDecode(const void * pInput, size_t inputSize, int binaryFormat, int outpFormat, SString & rBuf); // @construction
-// @v10.3.3 @unused int SLAPI checkabort();
-// @v10.3.3 @unused int SLAPI enableabort(int); // 0 - disable, 1 - enable, (-1) - check status
+// @v10.3.3 @unused int checkabort();
+// @v10.3.3 @unused int enableabort(int); // 0 - disable, 1 - enable, (-1) - check status
 //
 //
 //
@@ -6156,8 +6156,8 @@ int    FASTCALL IsComDvcSymb(const char * pSymb, int * pCount);
 //   comdvcs, count. Если (option & 0x0001), тогда впереди строки добавляются символы \\.\
 //   необходимые для открытия порта в Win32.
 //
-SString & SLAPI GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf);
-int SLAPI GetPort(const char * pPortName, int * pPortNo);
+SString & GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf);
+int GetPort(const char * pPortName, int * pPortNo);
 //
 // RS232 Communication
 //
@@ -6202,19 +6202,19 @@ struct CommPortTimeouts {
 
 class SCommPort {
 public:
-	SLAPI  SCommPort();
-	SLAPI ~SCommPort();
+	SCommPort();
+	~SCommPort();
 	void   FASTCALL GetParams(CommPortParams *) const;
 	void   FASTCALL GetTimeouts(CommPortTimeouts *) const;
 	void   FASTCALL SetParams(const CommPortParams *);
 	void   FASTCALL SetTimeouts(const CommPortTimeouts *);
-	int    SLAPI InitPort(int portNo, int ctsControl, int rtsControl);
-	int    SLAPI ClosePort();
+	int    InitPort(int portNo, int ctsControl, int rtsControl);
+	int    ClosePort();
 	int    FASTCALL PutChr(int c);
-	int    SLAPI GetChr();
+	int    GetChr();
 	int    FASTCALL GetChr(int * pChr);
-	void   SLAPI SetReadCyclingParams(int cycleCount, int cycleDelay);
-	int    SLAPI GetPortNo() const {return PortNo;}
+	void   SetReadCyclingParams(int cycleCount, int cycleDelay);
+	int    GetPortNo() const {return PortNo;}
 protected:
 	CommPortParams   CPP;
 	CommPortTimeouts CPT;
@@ -6335,17 +6335,17 @@ public:
 	//
 	static uint FASTCALL GetCount(const SVectorBase * pB);
 
-	int    SLAPI operator ! () const { return (count == 0); }
-	uint   SLAPI getCount() const { return count; }
-	int    SLAPI getCountI() const { return static_cast<int>(count); }
-	int    SLAPI getEnd() const { return static_cast<int>(count-1); }
-	uint   SLAPI getItemSize() const { return isize; }
-	uint   SLAPI getFlags() const;
-	void   SLAPI setFlag(uint val, int set);
+	int    operator ! () const { return (count == 0); }
+	uint   getCount() const { return count; }
+	int    getCountI() const { return static_cast<int>(count); }
+	int    getEnd() const { return static_cast<int>(count-1); }
+	uint   getItemSize() const { return isize; }
+	uint   getFlags() const;
+	void   setFlag(uint val, int set);
 	//
 	// Descr: Возвращает значение внутреннего указателя позиции
 	//
-	uint   SLAPI getPointer() const { return pointer; }
+	uint   getPointer() const { return pointer; }
 	//
 	// Descr: Устанавливает значение внутреннего указателя позиции
 	// Returns:
@@ -6357,7 +6357,7 @@ public:
 	// Returns:
 	//   Предшествующее изменению значение позиции
 	//
-	uint   SLAPI incPointer();
+	uint   incPointer();
 	//
 	// Descr: Изменяет значение внутреннего указателя позиции на величину incr.
 	//   При этом не выходя за границы диапазона [0..getCount()-1].
@@ -6366,7 +6366,7 @@ public:
 	//   Предшествующее изменению значение позиции
 	//
 	uint   FASTCALL incPointerSafe(int incr);
-	void * SLAPI dataPtr() const;
+	void * dataPtr() const;
 	void * FASTCALL at(uint) const;
 	//
 	// Descr: Возвращает указатель на элемент по индексу getPointer() если getPointer() < getCount().
@@ -6383,9 +6383,9 @@ public:
 	//    ...
 	// }
 	//
-	void * SLAPI next();
+	void * next();
 	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
-	void   SLAPI atPut(uint, const void *);
+	void   atPut(uint, const void *);
 	int    FASTCALL atInsert(uint, const void *);
 	int    FASTCALL insert(const void * pItem);
 	//
@@ -6405,21 +6405,21 @@ public:
 	//      p_ptr_list[i] = new SomeStruct;
 	//   some_struct_list.insertChunk(32, p_ptr_list);
 	//
-	int    SLAPI insertChunk(uint numItemsToInsert, const void * pItems);
+	int    insertChunk(uint numItemsToInsert, const void * pItems);
 	//
 	// Descr: меняет местами элементы с индексами p1 и p2.
 	// Returns:
 	//   1 - обмен прошел успешно
 	//   0 - один из индексов выходит за пределы размеров массива
 	//
-	int    SLAPI swap(uint p1, uint p2);
+	int    swap(uint p1, uint p2);
 	//
 	// Descr: меняет порядок следования элементов массива [pos..pos+numItems-1].
 	//   То есть:
 	//      первый элемент становится последним, последний - первым
 	//      второй элемент становится предпоследним, предпоследний - вторым и т.д.
 	//
-	void   SLAPI reverse(uint pos, uint numItems);
+	void   reverse(uint pos, uint numItems);
 	//
 	// Descr: Сжимает объем используемой вектором памяти до ALIGNSIZE(count, 4).
 	//   Если count == 0, то просто освобождает занимаемую динамическую память.
@@ -6429,11 +6429,11 @@ public:
 	//   <0 - ничего не было сделано по причине отсутствия значимого избытка занимаемой памяти
 	//    0 - ошибка (скорее всего не удалось выделить новый буфер для переноса данных).
 	//
-	int    SLAPI Shrink();
+	int    Shrink();
 	//
 	// Descr: Перемешивает элементы массива случайным образом
 	//
-	int    SLAPI shuffle();
+	int    shuffle();
 	//
 	// Descr: перемещает элемент в позиции pos на одну позицию вниз или вверх
 	//   в зависимости от параметра dir.
@@ -6446,28 +6446,28 @@ public:
 	//   0  - ошибка позиционирования: либо pos >= getCount(), либо (dir == 0 && pos == getCount()-1),
 	//        либо (dir != 0 && pos == 0).
 	//
-	int    SLAPI moveItem(uint pos, int dir, uint * pNewPos); // @>>SArray::swap
-	int    SLAPI ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
+	int    moveItem(uint pos, int dir, uint * pNewPos); // @>>SArray::swap
+	int    ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
 	//
 	// Descr: осуществляет бинарный поиск по всем записям массива.
 	//   Каждая запись просматривается со смещения ofs.
 	//
-	int    SLAPI imp_bsearch(const void *, uint *, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	int    imp_bsearch(const void *, uint *, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	//
 	// Descr: осуществляет последовательный поиск по
 	//   всем записям массива, начиная с записи *pos. Каждая запись
 	//   просматривается со смещения ofs.
 	//
-	int    SLAPI imp_lsearch(const void *, uint * pos, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
-	int    SLAPI bsearch(const void * key, uint * pIdx, CompFunc, size_t ofs, void * pExtraData) const;
-	int    SLAPI bsearch(const void * key, uint * pIdx, CompFunc fcmp) const;
-	int    SLAPI lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
-	void   SLAPI sort(CompFunc fcmp, void * pExtraData = 0);
-	void   SLAPI sort2(CompFunc fcmp, void * pExtraData = 0);
-	double SLAPI sumDouble(uint offs, uint firstIdx, uint lastIdx) const;
+	int    imp_lsearch(const void *, uint * pos, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	int    bsearch(const void * key, uint * pIdx, CompFunc, size_t ofs, void * pExtraData) const;
+	int    bsearch(const void * key, uint * pIdx, CompFunc fcmp) const;
+	int    lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	void   sort(CompFunc fcmp, void * pExtraData = 0);
+	void   sort2(CompFunc fcmp, void * pExtraData = 0);
+	double sumDouble(uint offs, uint firstIdx, uint lastIdx) const;
 protected:
-	SLAPI  SVectorBase(uint itemSize, uint o);
-	SLAPI ~SVectorBase();
+	SVectorBase(uint itemSize, uint o);
+	~SVectorBase();
 	//
 	// Descr: Базовая функция копирования массива.
 	// Note: Как упоминалось, копируются только собственно данные, хранящиеся в массиве.
@@ -6479,8 +6479,8 @@ protected:
 	//
 	int    FASTCALL CopyS(const SVectorBase & rS);
 	int    FASTCALL expand(uint numNewRecs);
-	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
-	int    SLAPI isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
+	int    Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
+	int    isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
 
 	uint   count;   // Количество элементов, находящихся в массиве
 	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
@@ -6501,11 +6501,11 @@ protected:
 //
 class SVector : public SVectorBase { // @novtbl
 public:
-	SLAPI  SVector(uint itemSize, uint o /*= O_ARRAY*/);
-	explicit SLAPI SVector(uint itemSize);
-	SLAPI  SVector(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
-	SLAPI  SVector(const SVector & rS);
-	SLAPI ~SVector();
+	SVector(uint itemSize, uint o /*= O_ARRAY*/);
+	explicit SVector(uint itemSize);
+	SVector(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
+	SVector(const SVector & rS);
+	~SVector();
 	SVector & FASTCALL operator = (const SVector &);
 	int    FASTCALL copy(const SVector & rS);
 	//
@@ -6527,15 +6527,15 @@ public:
 	//
 	// Descr: Удаляет последний элемент массива.
 	//
-	int    SLAPI freeLast();
+	int    freeLast();
 	//
 	// Descr: удаляет все элементы массива и освобождает занятую под них память.
 	//
-	void   SLAPI freeAll();
+	void   freeAll();
 	//
 	// Descr: удаляет все элементы массива не освобождая при этом память, выделенную под data
 	//
-	void   SLAPI clear();
+	void   clear();
 	//
 	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включительно.
 	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
@@ -6544,7 +6544,7 @@ public:
 	// Note: Главное назначение функции - ускорить массовое удаление за счет сокращения издержек
 	//   на перемещение участков памяти при серии единичных удалений.
 	//
-	int    SLAPI freeChunk(uint lowPos, uint uppPos);
+	int    freeChunk(uint lowPos, uint uppPos);
 	//
 	// Descr: Функция записывает массив в бинарный файл rFile.
 	//   Формат записи следующий:
@@ -6555,7 +6555,7 @@ public:
 	//   Этой функцией не следует подменять унаследованныю функцию WriteSArrayToFile(const SArray *, FILE *)
 	//   поскольку формат записи этих функций различается.
 	//
-	int    SLAPI Write(SFile & rFile, long) const;
+	int    Write(SFile & rFile, long) const;
 	//
 	// Descr: Функция считывает массив из бинарного файла rFile. Формат считывания //
 	//   соответствует тому, что определен для функции SArray::Write(SFile &, long).
@@ -6565,7 +6565,7 @@ public:
 	//   Этой функцией не следует подменять унаследованныю функцию ReadSArrayFromFile(SArray *, FILE *)
 	//   поскольку формат чтения этих функций различается.
 	//
-	int    SLAPI Read(SFile & rFile, long);
+	int    Read(SFile & rFile, long);
 };
 
 template <class T> class TSVector : public SVector {
@@ -6583,16 +6583,16 @@ public:
 //
 class SArray : public SVectorBase {
 public:
-	SLAPI  SArray(uint itemSize, uint o /*= O_ARRAY*/);
+	SArray(uint itemSize, uint o /*= O_ARRAY*/);
 	//
 	// Descr: Создает простой массив (O_ARRAY) со значением delta по умолчанию (8)
 	//   и размером элемента - itemSize.
 	//
-	explicit SLAPI SArray(uint itemSize);
-	SLAPI  SArray(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
-	SLAPI  SArray(const SArray & rS);
-	SLAPI  SArray(const SVector & rS);
-	virtual SLAPI ~SArray();
+	explicit SArray(uint itemSize);
+	SArray(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
+	SArray(const SArray & rS);
+	SArray(const SVector & rS);
+	virtual ~SArray();
 	SArray & FASTCALL operator = (const SArray &);
 	int    FASTCALL copy(const SArray & src);
 	//
@@ -6616,16 +6616,16 @@ public:
 	//
 	// Descr: Удаляет последний элемент массива.
 	//
-	int    SLAPI freeLast();
+	int    freeLast();
 	//
 	// Descr: удаляет все элементы массива и освобождает занятую под них память.
 	//
-	void   SLAPI freeAll();
+	void   freeAll();
 	//
 	// Descr: удаляет все элементы массива не освобождая при этом память, выделенную под data
 	//   ("глубокие" данные, разрушение которых определено функцией freeItem, освобождаются).
 	//
-	void   SLAPI clear();
+	void   clear();
 	//
 	// Descr: Функция должна разрушить объект, по указателю p.
 	//   Эта функция вызывается при разрушении массива или удалении его элемента в случае,
@@ -6640,7 +6640,7 @@ public:
 	// Note: Главное назначение функции - ускорить массовое удаление за счет сокращения издержек
 	//   на перемещение участков памяти при серии единичных удалений.
 	//
-	int    SLAPI freeChunk(uint lowPos, uint uppPos);
+	int    freeChunk(uint lowPos, uint uppPos);
 #ifndef _WIN32_WCE // {
 	//
 	// Descr: Функция записывает массив в бинарный файл rFile.
@@ -6652,7 +6652,7 @@ public:
 	//   Этой функцией не следует подменять унаследованныю функцию WriteSArrayToFile(const SArray *, FILE *)
 	//   поскольку формат записи этих функций различается.
 	//
-	int    SLAPI Write(SFile & rFile, long) const;
+	int    Write(SFile & rFile, long) const;
 	//
 	// Descr: Функция считывает массив из бинарного файла rFile. Формат считывания //
 	//   соответствует тому, что определен для функции SArray::Write(SFile &, long).
@@ -6662,7 +6662,7 @@ public:
 	//   Этой функцией не следует подменять унаследованныю функцию ReadSArrayFromFile(SArray *, FILE *)
 	//   поскольку формат чтения этих функций различается.
 	//
-	int    SLAPI Read(SFile & rFile, long);
+	int    Read(SFile & rFile, long);
 #endif // } !_WIN32_WCE
 };
 //
@@ -6673,19 +6673,19 @@ public:
 //
 // { (uint16)count; data[count*isize] }
 //
-//int    SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream);
-//int    SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream);
-//int SLAPI WritePStrToFile(const char * pStr, FILE * pStream);
-//int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream);
-//int SLAPI ReadPStrFromFile(SString & rStr, FILE * pStream);
+//int    WriteSArrayToFile(const SArray * pAry, FILE * pStream);
+//int    ReadSArrayFromFile(SArray * pAry, FILE * pStream);
+//int WritePStrToFile(const char * pStr, FILE * pStream);
+//int ReadPStrFromFile(char ** ppStr, FILE * pStream);
+//int ReadPStrFromFile(SString & rStr, FILE * pStream);
 //
 // SCollection
 //
 class SCollection : public SArray {
 public:
-	SLAPI  SCollection();
-	SLAPI  SCollection(/*uint aDelta = DEFCOLLECTDELTA,*/ uint o /*= O_COLLECTION*/);
-	SLAPI  SCollection(const SCollection & src) : SArray(src) {}
+	SCollection();
+	SCollection(/*uint aDelta = DEFCOLLECTDELTA,*/ uint o /*= O_COLLECTION*/);
+	SCollection(const SCollection & src) : SArray(src) {}
 protected:
 	int    FASTCALL Helper_CreateNewItem(void * pNewItem, uint * pPos);
 	int    FASTCALL Helper_CreateNewItem(void * pNewItem);
@@ -6695,26 +6695,26 @@ protected:
 //
 class SStack : public SArray {
 public:
-	SLAPI  SStack(uint itemSize, /*uint aDelta = 8,*/ uint o = O_ARRAY); // @v8.9.12 aDelta 1-->8
+	SStack(uint itemSize, /*uint aDelta = 8,*/ uint o = O_ARRAY); // @v8.9.12 aDelta 1-->8
 	int    FASTCALL push(const void *);
 	int    FASTCALL pop(void *);
-	void * SLAPI pop();
-	int    SLAPI undo(uint savedPos);
-	void * SLAPI peek() const;
+	void * pop();
+	int    undo(uint savedPos);
+	void * peek() const;
 };
 
 class SQueue : public SArray {
 public:
-	SLAPI  SQueue(uint itemSize, uint queueSize, uint o = O_ARRAY);
-	SLAPI  SQueue(const SQueue &);
-	void   SLAPI clear();
+	SQueue(uint itemSize, uint queueSize, uint o = O_ARRAY);
+	SQueue(const SQueue &);
+	void   clear();
 	int    FASTCALL copy(const SQueue & src);
 	int    FASTCALL push(const void *);
-	void * SLAPI pop();
-	void * SLAPI peek() const;
-	uint   SLAPI size() const { return QueueSize; }
-	uint   SLAPI getNumItems() const;
-	void * SLAPI get(uint) const;
+	void * pop();
+	void * peek() const;
+	uint   size() const { return QueueSize; }
+	uint   getNumItems() const;
+	void * get(uint) const;
 private:
 	uint   QueueSize;
 	uint   Front;
@@ -6723,13 +6723,13 @@ private:
 
 class STypArray : public SArray {
 public:
-	SLAPI  STypArray(TYPEID, /*uint aDelta = 8,*/ uint o /*= O_ARRAY*/);
+	STypArray(TYPEID, /*uint aDelta = 8,*/ uint o /*= O_ARRAY*/);
 	// @v9.0.5 virtual int FASTCALL insert(const void *);
 	virtual	void FASTCALL freeItem(void *);
-	TYPEID SLAPI getType() const { return type; }
-	int    SLAPI search(const void *, uint *) const;
-	void   SLAPI sort();
-	SString & SLAPI itemToString(uint idx, long fmt, SString &) const;
+	TYPEID getType() const { return type; }
+	int    search(const void *, uint *) const;
+	void   sort();
+	SString & itemToString(uint idx, long fmt, SString &) const;
 protected:
 	TYPEID type;
 };
@@ -6926,29 +6926,29 @@ typedef TSCollection <char> SStrCollection;
 
 class RealArray : public TSVector <double> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  RealArray();
-	SLAPI  RealArray(const RealArray & s);
+	RealArray();
+	RealArray(const RealArray & s);
 	RealArray & FASTCALL operator = (const RealArray & s);
 	double & FASTCALL operator [] (size_t i) const;
-	int    SLAPI add(double v);
+	int    add(double v);
 	//
 	// Descr: Распределяет память ровно на numItems элементов.
 	//   Все элементы обнуляются.
 	//
 	int    FASTCALL dim(uint numItems);
-	double SLAPI Sum() const;
+	double Sum() const;
 	//
 	// Descr: Вычисляет разницу между элементами [idx] и [idx-stride]
 	//
-	double SLAPI StrideDifference(uint idx, uint stride) const;
-	void   SLAPI Sort();
+	double StrideDifference(uint idx, uint stride) const;
+	void   Sort();
 };
 //
 //
 //
 class FloatArray : public TSVector <float> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  FloatArray();
+	FloatArray();
 	int    FASTCALL operator == (const FloatArray & rS) const;
 	int    FASTCALL operator != (const FloatArray & rS) const;
 	int    FASTCALL IsEqual(const FloatArray *) const;
@@ -6972,33 +6972,33 @@ public:
 //
 class LongArray : public /*TSArray*/TSVector <long> {
 public:
-	SLAPI  LongArray();
-	SLAPI  LongArray(const LongArray & s);
+	LongArray();
+	LongArray(const LongArray & s);
 	LongArray & FASTCALL operator = (const LongArray & s);
 	int    FASTCALL operator == (const LongArray & rS) const;
 	int    FASTCALL operator != (const LongArray & rS) const;
-	int    SLAPI ordInsert(long, uint * pPos);
+	int    ordInsert(long, uint * pPos);
 	int    FASTCALL bsearch(long, uint * pPos) const;
 	int    FASTCALL lsearch(long, uint * pPos) const;
 	int    FASTCALL bsearch(long) const;
 	int    FASTCALL lsearch(long) const;
-	int    SLAPI isList() const;
+	int    isList() const;
 	int    FASTCALL IsEqual(const LongArray *) const;
 	long   FASTCALL get(uint) const;
-	long   SLAPI getSingle() const;
-	long   SLAPI getLast() const;
+	long   getSingle() const;
+	long   getLast() const;
 	int    FASTCALL setSingleNZ(long id);
 	//
 	// Descr: Функционально аналогична SVector::clear() и отличается только
 	//   возвратом *this.
 	//   Реализована для семантической идентичности с SString::Z()
 	//
-	LongArray & SLAPI Z();
-	int    SLAPI freeByKey(long, int binarySearch); //
+	LongArray & Z();
+	int    freeByKey(long, int binarySearch); //
 	int    FASTCALL removeByID(long);                  // @warning dup function (see above)
-	void   SLAPI sort();
-	void   SLAPI sortAndUndup();
-	int    SLAPI isSorted() const;
+	void   sort();
+	void   sortAndUndup();
+	int    isSorted() const;
 	//
 	// Descr: оставляет в массиве только те элементы, которые одновременно содержатся в
 	//   массиве pList. Если pList == 0, то массив this очищается (freeAll).
@@ -7008,9 +7008,9 @@ public:
 	//   значительно ускоряет выполнение, но предполагает, что pList отсортирован
 	//   (@see LongArray::sort()).
 	//
-	void   SLAPI intersect(const LongArray * pList, int binary = 0);
+	void   intersect(const LongArray * pList, int binary = 0);
 #ifndef _WIN32_WCE // {
-	void   SLAPI intersect(const UintHashTable * pList);
+	void   intersect(const UintHashTable * pList);
 #endif // } _WIN32_WCE
 	int    FASTCALL add(long value);
 	//
@@ -7027,24 +7027,24 @@ public:
 	//   Элементы, присутствующие в pExcl из существующих до вызова функции в this
 	//   элементов не удаляются.
 	//
-	int    SLAPI addUniqueExclusive(const LongArray * pS, const LongArray * pExcl);
+	int    addUniqueExclusive(const LongArray * pS, const LongArray * pExcl);
 	//
 	// Descr: То же, что и addUniqueExclusive(), но не проверяет добавляемые элементы на уникальность.
 	//   За счет этого функция работает на много быстрее, чем addUniqueExclusive().
 	//
-	int    SLAPI addExclusive(const LongArray * pS, const LongArray * pExcl);
+	int    addExclusive(const LongArray * pS, const LongArray * pExcl);
 	enum {
 		srlzfSortAndUndup = 0x0001
 	};
-	int    SLAPI Serialize__construction(int dir, long flags, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Serialize__construction(int dir, long flags, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
 //
 //
 //
 class Int64Array : public TSVector <int64> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  Int64Array();
-	SLAPI  Int64Array(const Int64Array & s);
+	Int64Array();
+	Int64Array(const Int64Array & s);
 	Int64Array & FASTCALL operator = (const Int64Array & s);
 	int    FASTCALL operator == (const Int64Array & rS) const;
 	int    FASTCALL operator != (const Int64Array & rS) const;
@@ -7057,9 +7057,9 @@ public:
 	int    FASTCALL add(int32);
 	int    FASTCALL addUnique(int64);
 	int    FASTCALL add(const Int64Array *);
-	void   SLAPI sort();
-	void   SLAPI sortAndUndup();
-	void   SLAPI intersect(const Int64Array * pList, int binary = 0);
+	void   sort();
+	void   sortAndUndup();
+	void   intersect(const Int64Array * pList, int binary = 0);
 };
 //
 //
@@ -7070,19 +7070,19 @@ typedef TSVector <S_GUID> UuidArray; // @v9.8.4 TSArray-->TSVector
 //
 class DateTimeArray : public TSVector <LDATETIME> {
 public:
-	SLAPI  DateTimeArray();
+	DateTimeArray();
 	int    FASTCALL add(LDATETIME dtm);
 	LDATETIME FASTCALL get(uint idx) const;
-	void   SLAPI sort();
+	void   sort();
 };
 //
 //
 //
 class FloatStack : public TSStack <float> {
 public:
-	SLAPI  FloatStack();
-	void   SLAPI pushPoint(FPoint p);
-	int    SLAPI popPoint(FPoint & rP);
+	FloatStack();
+	void   pushPoint(FPoint p);
+	int    popPoint(FPoint & rP);
 };
 //
 //
@@ -7093,16 +7093,16 @@ struct LAssocBase { // @noctr
 };
 
 struct LAssoc : public LAssocBase {
-	SLAPI  LAssoc();
-	SLAPI  LAssoc(int32 key, int32 val);
-	SLAPI  LAssoc(const LAssoc & rS);
+	LAssoc();
+	LAssoc(int32 key, int32 val);
+	LAssoc(const LAssoc & rS);
 	int    FASTCALL operator == (const LAssoc &) const;
 };
 
 class LAssocArray : public TSVector <LAssoc> {
 public:
-	SLAPI  LAssocArray();
-	SLAPI  LAssocArray(const LAssocArray &);
+	LAssocArray();
+	LAssocArray(const LAssocArray &);
 	LAssocArray & FASTCALL operator = (const LAssocArray &);
 	int    FASTCALL operator == (const LAssocArray &) const;
 	//
@@ -7110,16 +7110,16 @@ public:
 	//   0  - в массиве уже есть элемент с идентификатором id
 	//   !0 - в массиве элемент с таким идентификатором отсутствует.
 	//
-	int    SLAPI CheckUnique(long key, int binary = 0) const;
+	int    CheckUnique(long key, int binary = 0) const;
 	//
 	// Descr: Считает количество элементов, соответствующих ключу key
 	//
 	long   FASTCALL Count(long key) const;
-	int    SLAPI GetListByKey(long key, LongArray & rList) const;
-	int    SLAPI GetListByVal(long val, LongArray & rList) const;
-	int    SLAPI Add(long key, long val);
-	int    SLAPI Add(long key, long val, uint * pPos, int inOrder = 0);
-	int    SLAPI AddUnique(long key, long val, uint * pPos, int inOrder = 0);
+	int    GetListByKey(long key, LongArray & rList) const;
+	int    GetListByVal(long val, LongArray & rList) const;
+	int    Add(long key, long val);
+	int    Add(long key, long val, uint * pPos, int inOrder = 0);
+	int    AddUnique(long key, long val, uint * pPos, int inOrder = 0);
 	//
 	// Descr: Если находит в массиве элемент со ключем key, то увеличивает соответствующее значение val на единицу,
 	//   в противном случае добавляет новый элемент с ключем key и значением val.
@@ -7128,7 +7128,7 @@ public:
 	//   2 - ключ key не найден - создан новый элемент со значением 1.
 	//
 	int    FASTCALL IncrementValueByKey(long key);
-	int    SLAPI Update(long key, long val, int binary = 0);
+	int    Update(long key, long val, int binary = 0);
 	//
 	// Descr: Удаляет первый элемент массива, ключ которого равен key.
 	// Note: Если в массиве имеется более одного элемента с ключом key, то все остальные останутся на месте
@@ -7136,7 +7136,7 @@ public:
 	//   >0 - обнаружен и удален элемент с ключом key
 	//    0 - в массиве нет ни одного элемента с ключом key (либо не был найден из-за параметра binary != 0 на неотсортированном массиве)
 	//
-	int    SLAPI Remove(long key, int binary = 0);
+	int    Remove(long key, int binary = 0);
 	//
 	// Descr:
 	//   Находит в массиве элемент, соответствующий ключу key. Если такой элемент найден,
@@ -7157,16 +7157,16 @@ public:
 	//   >0 - ключ key найден в массиве
 	//   0  - ключ не найден
 	//
-	int    SLAPI Search(long key, long * pVal, uint * pPos/*, int binary = 0*/) const;
+	int    Search(long key, long * pVal, uint * pPos/*, int binary = 0*/) const;
 	//
 	// Descr: Тоже что и Search, но поиск бинарный (предполагается, что список отсортирован по ключу в возрастающем порядке).
 	//
-	int    SLAPI BSearch(long key, long * pVal, uint * pPos) const;
-	int    SLAPI SearchByVal(long val, long * pKey, uint * pPos) const;
-	int    SLAPI SearchPair(long key, long val, uint * pPos) const;
-	int    SLAPI CheckFlag(long key, long mask, int binary = 0) const;
-	void   SLAPI Sort();
-	void   SLAPI SortByVal();
+	int    BSearch(long key, long * pVal, uint * pPos) const;
+	int    SearchByVal(long val, long * pKey, uint * pPos) const;
+	int    SearchPair(long key, long val, uint * pPos) const;
+	int    CheckFlag(long key, long mask, int binary = 0) const;
+	void   Sort();
+	void   SortByVal();
 };
 //
 //
@@ -7179,8 +7179,8 @@ struct LLAssoc {
 
 class LLAssocArray : public TSVector <LLAssoc> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  LLAssocArray();
-	SLAPI  LLAssocArray(const LLAssocArray &);
+	LLAssocArray();
+	LLAssocArray(const LLAssocArray &);
 	LLAssocArray & FASTCALL operator = (const LLAssocArray &);
 	int    FASTCALL operator == (const LLAssocArray &) const;
 	//
@@ -7188,17 +7188,17 @@ public:
 	//   0  - в массиве уже есть элемент с идентификатором id
 	//   !0 - в массиве элемент с таким идентификатором отсутствует.
 	//
-	int    SLAPI CheckUnique(int64 key, int binary = 0) const;
+	int    CheckUnique(int64 key, int binary = 0) const;
 	//
 	// Descr: Считает количество элементов, соответствующих ключу key
 	//
 	long   FASTCALL Count(int64 key) const;
-	int    SLAPI GetListByKey(int64 key, Int64Array & rList) const;
-	int    SLAPI GetListByVal(int64 val, Int64Array & rList) const;
-	int    SLAPI Add(int64 key, int64 val, uint * pPos, int inOrder = 0);
-	int    SLAPI AddUnique(int64 key, int64 val, uint * pPos, int inOrder = 0);
-	int    SLAPI Update(int64 key, int64 val, int binary = 0);
-	int    SLAPI Remove(int64 key, int binary = 0);
+	int    GetListByKey(int64 key, Int64Array & rList) const;
+	int    GetListByVal(int64 val, Int64Array & rList) const;
+	int    Add(int64 key, int64 val, uint * pPos, int inOrder = 0);
+	int    AddUnique(int64 key, int64 val, uint * pPos, int inOrder = 0);
+	int    Update(int64 key, int64 val, int binary = 0);
+	int    Remove(int64 key, int binary = 0);
 	//
 	// Descr:
 	//   Находит в массиве элемент, соответствующий ключу key. Если такой элемент найден,
@@ -7219,14 +7219,14 @@ public:
 	//   >0 - ключ key найден в массиве
 	//   0  - ключ не найден
 	//
-	int    SLAPI Search(int64 key, int64 * pVal, uint * pPos/*, int binary = 0*/) const;
+	int    Search(int64 key, int64 * pVal, uint * pPos/*, int binary = 0*/) const;
 	//
 	// Descr: Тоже что и Search, но поиск бинарный (предполагается, что список отсортирован по ключу в возрастающем порядке).
 	//
-	int    SLAPI BSearch(int64 key, int64 * pVal, uint * pPos) const;
-	int    SLAPI SearchByVal(int64 val, int64 * pKey, uint * pPos) const;
-	int    SLAPI SearchPair(int64 key, int64 val, uint * pPos) const;
-	void   SLAPI Sort();
+	int    BSearch(int64 key, int64 * pVal, uint * pPos) const;
+	int    SearchByVal(int64 val, int64 * pKey, uint * pPos) const;
+	int    SearchPair(int64 key, int64 val, uint * pPos) const;
+	void   Sort();
 };
 //
 //
@@ -7238,8 +7238,8 @@ struct RAssoc {
 
 class RAssocArray : public TSVector <RAssoc> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  RAssocArray();
-	SLAPI  RAssocArray(const RAssocArray &);
+	RAssocArray();
+	RAssocArray(const RAssocArray &);
 	RAssocArray & FASTCALL operator = (const RAssocArray &);
 	//
 	// Descr: Ищет в массиве элемент со значением ключа key.
@@ -7258,31 +7258,31 @@ public:
 	//   !0 - элемент со значением ключа key найден
 	//   0  - в массиве нет элемента со значением ключа key
 	//
-	int    SLAPI Search(long key, double * pVal, uint * pPos, int binary = 0) const;
+	int    Search(long key, double * pVal, uint * pPos, int binary = 0) const;
 	int    FASTCALL Has(long key) const;
-	double SLAPI Get(long key, int binary = 0) const; // @>>RAssocArray::Search
-	int    SLAPI GetList(LongArray & rList, int unique) const;
-	void   SLAPI Scale(double rate);
-	int    SLAPI SearchMaxVal(uint * pPos) const;
+	double Get(long key, int binary = 0) const; // @>>RAssocArray::Search
+	int    GetList(LongArray & rList, int unique) const;
+	void   Scale(double rate);
+	int    SearchMaxVal(uint * pPos) const;
 
 	enum {
 		dfRound = 0x0001, // Округлять каждое распределенное значение до точность prec
 		dfReset = 0x0002  // Сбросить остаток на последний элемент
 	};
-	int    SLAPI Distribute(double amount, long flags, int prec, RAssocArray & rResult) const;
-	double SLAPI GetTotal() const;
-	int    SLAPI Add(long key, double val, int additive = 1, int binary = 0);
-	int    SLAPI Add(const RAssocArray & rList, int additive = 1, int binary = 0);
-	int    SLAPI Remove(long key, int binary = 0);
-	void   SLAPI SortByKey();
+	int    Distribute(double amount, long flags, int prec, RAssocArray & rResult) const;
+	double GetTotal() const;
+	int    Add(long key, double val, int additive = 1, int binary = 0);
+	int    Add(const RAssocArray & rList, int additive = 1, int binary = 0);
+	int    Remove(long key, int binary = 0);
+	void   SortByKey();
 	//
 	// Descr: Сортирует массив в порядке увеличения значения Val
 	//
-	void   SLAPI SortByVal();
+	void   SortByVal();
 	//
 	// Descr: Сортирует массив в порядке уменьшения значения Val
 	//
-	void   SLAPI SortByValRev();
+	void   SortByValRev();
 };
 //
 //
@@ -7294,12 +7294,12 @@ struct RPair {
 
 class RPairArray : public TSVector <RPair> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  RPairArray();
-	SLAPI  RPairArray(const RPairArray &);
+	RPairArray();
+	RPairArray(const RPairArray &);
 	RPairArray & FASTCALL operator = (const RPairArray &);
 	RPair & FASTCALL operator [](size_t i) const;
-	void   SLAPI SortByX();
-	void   SLAPI SortByY();
+	void   SortByX();
+	void   SortByY();
 };
 
 #ifndef _WIN32_WCE // {
@@ -7313,20 +7313,20 @@ struct UUIDAssoc {
 
 class UUIDAssocArray : public TSVector <UUIDAssoc> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  UUIDAssocArray();
-	int    SLAPI Add(long key, const S_GUID & rVal, uint * pPos);
-	int    SLAPI Search(long key, S_GUID * pVal, uint * pPos) const;
-	int    SLAPI SearchVal(const S_GUID_Base &, long * pKey, uint * pPos) const;
-	int    SLAPI GetMaxKey(long * pMaxKey, uint * pPos) const;
+	UUIDAssocArray();
+	int    Add(long key, const S_GUID & rVal, uint * pPos);
+	int    Search(long key, S_GUID * pVal, uint * pPos) const;
+	int    SearchVal(const S_GUID_Base &, long * pKey, uint * pPos) const;
+	int    GetMaxKey(long * pMaxKey, uint * pPos) const;
 };
 #endif // } _WIN32_WCE
 //
 // @obsolete
 //
 struct TaggedString_obsolete {
-	static TYPEID SLAPI BufType();
-	static size_t SLAPI BufSize();
-	SLAPI  TaggedString_obsolete();
+	static TYPEID BufType();
+	static size_t BufSize();
+	TaggedString_obsolete();
 
 	long   Id;
 	char   Txt[64];
@@ -7334,10 +7334,10 @@ struct TaggedString_obsolete {
 
 class TaggedStringArray_obsolete : public TSArray <TaggedString_obsolete> {
 public:
-	SLAPI  TaggedStringArray_obsolete();
+	TaggedStringArray_obsolete();
 	TaggedStringArray_obsolete & FASTCALL operator = (const TaggedStringArray_obsolete &);
-	int    SLAPI Add(long id, const char * pStr);
-	// @v10.7.11 int    SLAPI Search(long id, uint * pPos, int binary = 0) const;
+	int    Add(long id, const char * pStr);
+	// @v10.7.11 int    Search(long id, uint * pPos, int binary = 0) const;
 	//
 	// Descr: Ищет в массиве элемент, текст которого совпадает с параметром pTxt.
 	//   поиск не чувствителен к регистру.
@@ -7347,11 +7347,11 @@ public:
 	//   !0 - элемент найден
 	//   0  - элемент не найден
 	//
-	// @v10.7.11 int    SLAPI SearchByText(const char * pTxt, uint * pPos) const;
-	// @v10.7.11 int    SLAPI Get(long id, char * pBuf, size_t bufLen, int binary = 0) const;
-	// @v10.7.11 int    SLAPI Get(long id, SString & rBuf, int binary = 0) const;
-	// @v10.7.11 void   SLAPI SortByID();
-	// @v10.7.11 void   SLAPI SortByText();
+	// @v10.7.11 int    SearchByText(const char * pTxt, uint * pPos) const;
+	// @v10.7.11 int    Get(long id, char * pBuf, size_t bufLen, int binary = 0) const;
+	// @v10.7.11 int    Get(long id, SString & rBuf, int binary = 0) const;
+	// @v10.7.11 void   SortByID();
+	// @v10.7.11 void   SortByText();
 };
 //
 // Descr: Вспомогательный класс, управляющий набором строк, каждая из которых идентифицируется своей позицией
@@ -7364,25 +7364,25 @@ public:
 //
 class SStrGroup {
 public:
-	SLAPI  SStrGroup();
-	SLAPI  SStrGroup(const SStrGroup & rS);
+	SStrGroup();
+	SStrGroup(const SStrGroup & rS);
 	SStrGroup & FASTCALL operator = (const SStrGroup & rS);
-	size_t SLAPI GetPoolDataLen() const;
-	size_t SLAPI GetPoolSize() const;
+	size_t GetPoolDataLen() const;
+	size_t GetPoolSize() const;
 	//
 	// Descr: Очищает содержимое пула строк не освобождая память.
 	//   Полезно применять при ожидаемом повторном использовании объекта.
 	//
-	void   SLAPI ClearS();
+	void   ClearS();
 	//
 	// Descr: То же, что и ClearS, но с освобождением памяти.
 	//
-	void   SLAPI DestroyS();
+	void   DestroyS();
 	SStrGroup & FASTCALL CopyS(const SStrGroup & rS);
-	int    SLAPI AddS(const char * pStr, uint * pPos);
-	int    SLAPI AddS(const char * pStr, uint32 * pPos);
-	int    SLAPI GetS(uint pos, SString & rStr) const;
-	int    SLAPI SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    AddS(const char * pStr, uint * pPos);
+	int    AddS(const char * pStr, uint32 * pPos);
+	int    GetS(uint pos, SString & rStr) const;
+	int    SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL WriteS(SBuffer & rBuf) const;
 	int    FASTCALL ReadS(SBuffer & rBuf);
 protected:
@@ -7403,9 +7403,9 @@ protected:
 	//	Pack_Finish(p_pack_handle); // Завершаем упаковку и разрушаем дескриптор. Крайне важный вызов - без него нарушится целостность ссылок.
 	// }
 	//
-	void * SLAPI Pack_Start() const;
-	int    SLAPI Pack_Finish(void * pHandle);
-	int    SLAPI Pack_Replace(void * pHandle, uint & rPos) const;
+	void * Pack_Start() const;
+	int    Pack_Finish(void * pHandle);
+	int    Pack_Replace(void * pHandle, uint & rPos) const;
 
 	StringSet Pool;
 };
@@ -7419,19 +7419,19 @@ protected:
 //
 class StrAssocArray : private LAssocArray, private SStrGroup {
 public:
-	friend int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc *, const LAssoc *, StrAssocArray *, LAssocArray *);
-	friend int SLAPI Helper_CmpFunc_StrAssocByID(long, long, StrAssocArray *, LAssocArray *);
+	friend int Helper_CmpFunc_StrAssocByText(const LAssoc *, const LAssoc *, StrAssocArray *, LAssocArray *);
+	friend int Helper_CmpFunc_StrAssocByID(long, long, StrAssocArray *, LAssocArray *);
 
 	struct Item {
 		long   Id;
 		long   ParentId;
 		const  char * Txt;
 	};
-	SLAPI  StrAssocArray();
-	SLAPI  StrAssocArray(const StrAssocArray & rS);
+	StrAssocArray();
+	StrAssocArray(const StrAssocArray & rS);
 	StrAssocArray & FASTCALL operator = (const StrAssocArray & rS);
 	int    FASTCALL Copy(const StrAssocArray & rS);
-	StrAssocArray & SLAPI Z();
+	StrAssocArray & Z();
 	void   FASTCALL SetTextCmpProc(CompFunc fcmp);
 	//
 	// Descr: Сравнивает экземпляр this с экземпляром src.
@@ -7444,10 +7444,10 @@ public:
 	//   0 - массивы не равны
 	//
 	int    FASTCALL IsEqual(const StrAssocArray & src) const;
-	uint   SLAPI getCount() const { return LAssocArray::count; }
-	uint   SLAPI getPointer() const;
-	uint   SLAPI setPointer(uint p);
-	uint   SLAPI incPointer();
+	uint   getCount() const { return LAssocArray::count; }
+	uint   getPointer() const;
+	uint   setPointer(uint p);
+	uint   incPointer();
 	Item   FASTCALL Get(uint pos) const;
 	//
 	// Descr: То же, что и StrAssocArray::at, только не пытается инициализировать
@@ -7455,8 +7455,8 @@ public:
 	//   быстрее, чем предыдущая.
 	//
 	Item   FASTCALL at_WithoutParent(uint pos) const;
-	int    SLAPI AtFree(uint pos);
-	int    SLAPI Search(long id, uint * pPos) const;
+	int    AtFree(uint pos);
+	int    Search(long id, uint * pPos) const;
 	int    FASTCALL Search(long id) const;
 	//
 	// Descr: Ищет в массиве элемент, текст которого совпадает с параметром pTxt.
@@ -7467,8 +7467,8 @@ public:
 	//   !0 - элемент найден
 	//   0  - элемент не найден
 	//
-	int    SLAPI SearchByText(const char * pTxt, int ignoreCase, uint * pPos) const;
-	int    SLAPI SearchByText(const char * pTxt, CompFunc fcmp, uint * pPos) const;
+	int    SearchByText(const char * pTxt, int ignoreCase, uint * pPos) const;
+	int    SearchByText(const char * pTxt, CompFunc fcmp, uint * pPos) const;
 	//
 	// Descr: Извлекает из списка строку с идентификатором id.
 	// ARG(id    IN): идентификатор искомой строки
@@ -7479,7 +7479,7 @@ public:
 	//   <0 - элемент с идентификатором id найден, но соответствующая ему строка пустая.
 	//    0 - элемент с идентификатором id не найден (rBuf на выходе пуст)
 	//
-	int    SLAPI GetText(long id, SString & rBuf) const;
+	int    GetText(long id, SString & rBuf) const;
 	//
 	// Descr: Функционально то же самое, что и GetText, но осуществляет поиск
 	//   в расчете на то, что список пар {id, position} отсортирован по возрастанию
@@ -7490,7 +7490,7 @@ public:
 	//   когда внутрений список родительских ссылок пуст (то есть данный экземляр не
 	//   является иерархическим).
 	//
-	int    SLAPI GetTextBinary(long id, SString & rBuf) const;
+	int    GetTextBinary(long id, SString & rBuf) const;
 	//
 	// Descr: Находит максимальное значение идентификатора элемента в массиве.
 	// Returns:
@@ -7498,8 +7498,8 @@ public:
 	//        максимальное значение идентификатора.
 	//   <0 - в массиве нет ни одного элемента. По указателю pId ничего не присваивается.
 	//
-	int    SLAPI GetMaxID(long * pId) const;
-	int    SLAPI GetMaxLength(uint * pMaxLen) const;
+	int    GetMaxID(long * pId) const;
+	int    GetMaxLength(uint * pMaxLen) const;
 	//
 	// Descr: Добавляет в массив ассоциацию {id, pStr}. Если в массиве уже содержится элемент
 	//   с идентификатором id, то, в зависимости от параметра replaceDup функция либо
@@ -7523,8 +7523,8 @@ public:
 	//  -1 - элемент id уже содержится в массиве и функция ничего не сделала (replaceDup == 0)
 	//   0 - ошибка (SLibError)
 	//
-	int    SLAPI Add(long id, const char * pStr, int replaceDup = 1);
-	int    SLAPI Add(long id, long parentId, const char * pStr, int replaceDup = 1);
+	int    Add(long id, const char * pStr, int replaceDup = 1);
+	int    Add(long id, long parentId, const char * pStr, int replaceDup = 1);
 	//
 	// Descr: Функция, аналогичная Add(id, pStr, 0/*replaceDup*/).
 	//   Важное отличие - не проверяет наличие идентификатора id в списке. За счет
@@ -7535,7 +7535,7 @@ public:
 	//   1 - функция успешно добавила новый элемент в массив
 	//   0 - ошибка (SLibError)
 	//
-	int    SLAPI AddFast(long id, const char * pStr);
+	int    AddFast(long id, const char * pStr);
 	//
 	// Descr: Функция, аналогичная Add(id, parentId, pStr, 0/*replaceDup*/).
 	//   Важное отличие - не проверяет наличие идентификатора id в списке. За счет
@@ -7550,14 +7550,14 @@ public:
 	//   1 - функция успешно добавила новый элемент в массив
 	//   0 - ошибка (SLibError)
 	//
-	int    SLAPI AddFast(long id, long parentId, const char * pStr);
+	int    AddFast(long id, long parentId, const char * pStr);
 	//
 	// Descr: Изменяет значение идентификатора элемента в позиции pos на newId.
 	// Attention: Функция опасная. Не следует использовать ее в тех случаях, когда
 	//   массив содержит иерархические данные, а также не следует рассчитывать на то, что
 	//   эта функция обеспечит уникальность идентификаторов.
 	//
-	int    SLAPI UpdateByPos(uint pos, long newId);
+	int    UpdateByPos(uint pos, long newId);
 	//
 	// Descr: Вносит в массив rList все идентификаторы из this.
 	// Note: rList предварительно очищается, а по завершении функции сортируется и лишается дубликатов (sortAndUndup)
@@ -7565,10 +7565,10 @@ public:
 	//   >0 - в список rList внесен по крайней мере один элемент
 	//   <0 - список this пустой (соответственно и rList при выходе из функции пуст)
 	//
-	int    SLAPI GetIdList(LongArray & rList) const;
-	int    SLAPI GetListByParent(long parentId, int recursive, LongArray &) const;
+	int    GetIdList(LongArray & rList) const;
+	int    GetListByParent(long parentId, int recursive, LongArray &) const;
 	int    FASTCALL HasChild(long id) const;
-	int    SLAPI GetParent(long id, long * pParentId) const;
+	int    GetParent(long id, long * pParentId) const;
 	//
 	// Descr: Удаляет элемент с идентификатором id.
 	//   Так как строки массива плотно упакованы в пул, при удалении элемента
@@ -7579,19 +7579,19 @@ public:
 	//   <0 - элемент и идентификатором id не найден
 	//   0  - ошибка
 	//
-	int    SLAPI Remove(long id);
-	int    SLAPI Swap(uint p1, uint p2);
+	int    Remove(long id);
+	int    Swap(uint p1, uint p2);
 	//
 	// Descr: Обнуляет все родительские ссылки элементов.
 	//
-	void   SLAPI ClearParents();
-	int    SLAPI Pack();
-	void   SLAPI SortByID();
-	void   SLAPI SortByText();
-	void   SLAPI SortByTextInTreeOrder();
-	void   SLAPI SortByLength(int descend = 0);
-	void   SLAPI Reverse();
-	int    SLAPI RemoveRecursion(LongArray * pBadList);
+	void   ClearParents();
+	int    Pack();
+	void   SortByID();
+	void   SortByText();
+	void   SortByTextInTreeOrder();
+	void   SortByLength(int descend = 0);
+	void   Reverse();
+	int    RemoveRecursion(LongArray * pBadList);
 	//
 	// Descr: Узкоспециализированная функция, извлекающая позицию текстовой строки
 	//   по индексу записи.
@@ -7599,22 +7599,22 @@ public:
 	//   что позиции текста могут изменяться.
 	//
 	uint   FASTCALL GetTextPos(uint idx) const;
-	int    SLAPI GetTextByPos(uint textPos, SString & rBuf) const;
+	int    GetTextByPos(uint textPos, SString & rBuf) const;
 	int    FASTCALL Write(SBuffer & rBuf, long o) const;
 	int    FASTCALL Read(SBuffer & rBuf, long o);
 #ifndef _WIN32_WCE // {
-	int    SLAPI Write(SFile & rFile, long) const;
-	int    SLAPI Read(SFile & rFile, long);
+	int    Write(SFile & rFile, long) const;
+	int    Read(SFile & rFile, long);
 #endif // } _WIN32_WCE
 
-	// @v10.7.11 int    SLAPI Test_Cmp(const TaggedStringArray_obsolete &, int * pNEqPos) const;
-	static int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
+	// @v10.7.11 int    Test_Cmp(const TaggedStringArray_obsolete &, int * pNEqPos) const;
+	static int Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
 	CompFunc TextCmpProc; // @v9.5.9
 	LAssocArray ParentList;
 private:
-	int    SLAPI Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList);
-	void   SLAPI Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & rTempList);
+	int    Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList);
+	void   Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & rTempList);
 };
 //
 //
@@ -7625,17 +7625,17 @@ public:
 		const  char * Key;
 		const  char * Val;
 	};
-	SLAPI  StrStrAssocArray();
-	SLAPI  StrStrAssocArray(const StrStrAssocArray & rS);
+	StrStrAssocArray();
+	StrStrAssocArray(const StrStrAssocArray & rS);
 	StrStrAssocArray & FASTCALL operator = (const StrStrAssocArray &);
 	int    FASTCALL Copy(const StrStrAssocArray &);
-	StrStrAssocArray & SLAPI Z();
+	StrStrAssocArray & Z();
 	int    FASTCALL IsEqual(const StrStrAssocArray & src) const;
-	uint   SLAPI getCount() const;
+	uint   getCount() const;
 	Item   FASTCALL at(uint pos) const;
-	int    SLAPI Search(const char * pKey, SString * pVal, uint * pPos) const;
-	int    SLAPI Add(const char * pKey, const char * pVal, int replaceDup = 1);
-	int    SLAPI Remove(const char * pKey);
+	int    Search(const char * pKey, SString * pVal, uint * pPos) const;
+	int    Add(const char * pKey, const char * pVal, int replaceDup = 1);
+	int    Remove(const char * pKey);
 protected:
 	LAssocArray L;
 };
@@ -7646,8 +7646,8 @@ class SFileEntryPool : public SStrGroup {
 public:
 	friend DECL_CMPCFUNC(SFileEntryPool_Entry);
 	struct Entry {
-		SLAPI  Entry();
-		Entry & SLAPI Z();
+		Entry();
+		Entry & Z();
 
 		uint32 Attr; // SDirEntry::attrXXX
 		LDATETIME CreateTime;
@@ -7658,8 +7658,8 @@ public:
 		SString Path;
 		SString RemoteUrl; // @v10.8.2 Специальный "хвост" позволяющий сопоставить элемент пула с каким-либо серверным url-ом
 	};
-	SLAPI  SFileEntryPool();
-	SFileEntryPool & SLAPI Z();
+	SFileEntryPool();
+	SFileEntryPool & Z();
 	//
 	// Descr: Ищет в коллекции имя файла (без пути) pFileName. Если такое имя найдено,
 	//   то возвращает >0 и, если pEntry != 0, то присваивает по этому указателю полную структуру найденного элемента.
@@ -7678,19 +7678,19 @@ public:
 	//   <0 - не найдено ни одного файла
 	//   0  - ошибка
 	//
-	int    SLAPI Scan(const char * pPath, const char * pWildcard, long flags);
-	int    SLAPI Add(const char * pPath, const SDirEntry & rDe);
+	int    Scan(const char * pPath, const char * pWildcard, long flags);
+	int    Add(const char * pPath, const SDirEntry & rDe);
 	//
 	// Descr: Вставляет в пул файл с полным путем pPath.
 	// Returns:
 	//   >0 - функция завершилась успешно
 	//    0 - ошибка (в том числе если файл не найден)
 	//
-	int    SLAPI Add(const char * pPath);
-	int    SLAPI Add(const char * pPath, const char * pRemoteUrl);
-	int    SLAPI Add(SFileEntryPool::Entry & rDe);
-    uint   SLAPI GetCount() const;
-    int    SLAPI Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
+	int    Add(const char * pPath);
+	int    Add(const char * pPath, const char * pRemoteUrl);
+	int    Add(SFileEntryPool::Entry & rDe);
+    uint   GetCount() const;
+    int    Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
 	//
 	// Descr: Удаляет элемент по индексу pos.
 	// Note: Само-собой разумеется, что сам файл не удаляется.
@@ -7708,7 +7708,7 @@ public:
 
     	scDesc = 0x8000 // Флаг обратного порядка сортировки
     };
-    void   SLAPI Sort(int criteria);
+    void   Sort(int criteria);
 private:
 	struct InnerEntry {
 		uint   Attr;
@@ -7721,8 +7721,8 @@ private:
 		uint   RemoteUrlP; // @v10.8.2
 	};
 
-	void   SLAPI ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
-	int    SLAPI Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl);
+	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
+	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl);
 
     TSVector <InnerEntry> L; // @v9.8.4 TSArray-->TSVector
     long   State;
@@ -7738,7 +7738,7 @@ private:
 //
 class STimeChunkArray : public SArray { // @attention dont't change to SVector
 public:
-	SLAPI  STimeChunkArray();
+	STimeChunkArray();
 	//
 	// Descr: Добавляет в массив новый элемент. Если checkForFree != 0, то проверяет
 	//   чтобы pItem не пересекался ни с одним из существующих элементов массива.
@@ -7752,7 +7752,7 @@ public:
 	//   <0 - новый элемент не добавлен поскольку пересекается с одним из существующих элементов
 	//   0  - ошибка
 	//
-	int    SLAPI Add(const STimeChunk * pItem, int checkForFree);
+	int    Add(const STimeChunk * pItem, int checkForFree);
 	//
 	// Descr: Вырезает из массива отрезок времени, соответствующий pItem.
 	//   Суть вырезания заключается в том, что те элементы, которые пересекаются с pItem либо
@@ -7763,22 +7763,22 @@ public:
 	//   >0 - функция произвела изменения в массиве
 	//   <0 - функция ничего не изменила
 	//
-	int    SLAPI Excise(const STimeChunk * pItem);
-	int    SLAPI Intersect(const STimeChunkArray * pList, STimeChunkArray * pResult) const;
-	int    SLAPI Intersect(const STimeChunk & rChunk, STimeChunkArray * pResult) const;
+	int    Excise(const STimeChunk * pItem);
+	int    Intersect(const STimeChunkArray * pList, STimeChunkArray * pResult) const;
+	int    Intersect(const STimeChunk & rChunk, STimeChunkArray * pResult) const;
 	//
 	// Descr: Возвращает порядок пересечения отрезков в массиве.
 	//   Порядок пересечения представляет количество "этажей" в которое можно выстроить
 	//   отрезки так, что бы в каждом "этаже" не было пересечения //
 	//
-	uint   SLAPI GetIntersectionOrder(LAssocArray * pOrderList, long tolerance = 0) const;
+	uint   GetIntersectionOrder(LAssocArray * pOrderList, long tolerance = 0) const;
 	//
 	// Descr: Сортирует список
 	//   Если desc == 0, то порядок сортировки - по возрастанию моменту начала элементов (PrcBusy::Start)
 	//   в противном случае - по убыванию момента начала элементов
 	//   Функция может быть использована в порожденных класса, элементы которых унаследованы от STimeChunk
 	//
-	void   SLAPI Sort(int desc = 0);
+	void   Sort(int desc = 0);
 	//
 	// Descr: Ограничивает все элементы массива периодом pLimit.
 	//   Те элементы, которые выходят за пределы pLimit удаляются из массива,
@@ -7788,7 +7788,7 @@ public:
 	//   >0 - по крайней мере один из элементов массива был либо удален, либо изменен.
 	//   <0 - все элементы массива удовлетворяют ограничению. Ничего не изменено.
 	//
-	int    SLAPI Limit(const STimeChunk * pLimit);
+	int    Limit(const STimeChunk * pLimit);
 	//
 	// Descr: Проверяет элемент rEntry на непересечение с элементами массива *this.
 	//   Если rEntry пересекается с каким-либо элементов, то функция возвращает 0
@@ -7799,24 +7799,24 @@ public:
 	//   0  - отрезок rEntry пересекается по крайней мере с одним элементом массива.
 	//        Индекс этого элемента присваивается по указателю pPos.
 	//
-	int    SLAPI IsFreeEntry(const STimeChunk & rEntry, uint * pPos) const;
-	int    SLAPI IsFreeEntry(const LDATETIME &, long cont, uint * pPos) const;
+	int    IsFreeEntry(const STimeChunk & rEntry, uint * pPos) const;
+	int    IsFreeEntry(const LDATETIME &, long cont, uint * pPos) const;
 		// @>>STimeChunkArray::IsFreeEntry(const STimeChunk &, uint *);
 	//
 	// Descr: Получает список доступных периодов.
 	//   До вызова этой функции массив this должен быть отсортирован функцией STimeChunkArray::Sort.
 	//
-	int    SLAPI GetFreeList(STimeChunkArray * pList) const;
+	int    GetFreeList(STimeChunkArray * pList) const;
 	//
 	// Descr: Находит нижнюю и верхнюю границы списка. Если параметр update != 0, то
 	//   устанавилвает нижнюю границу не меньше, чем pBounds->Start,
 	//   а верхнюю не больше чем pBounds->Finish.
 	//
-	int    SLAPI GetBounds(STimeChunk * pBounds, int update) const;
+	int    GetBounds(STimeChunk * pBounds, int update) const;
 protected:
-	explicit SLAPI  STimeChunkArray(size_t itemSize);
+	explicit STimeChunkArray(size_t itemSize);
 private:
-	int    SLAPI Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
+	int    Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
 };
 //
 // Descr: Элемент массива STimeChunkAssocArray
@@ -7829,7 +7829,7 @@ private:
 #define STCHUNK_STATUS_HOLIDAY -1000
 
 struct STimeChunkAssoc {
-	SLAPI  STimeChunkAssoc();
+	STimeChunkAssoc();
 
 	STimeChunk Chunk;
 	long   Id;
@@ -7841,12 +7841,12 @@ struct STimeChunkAssoc {
 //
 class STimeChunkAssocArray : public STimeChunkArray {
 public:
-	explicit SLAPI STimeChunkAssocArray(long id);
-	int    SLAPI Add(long chunkId, const STimeChunk * pChunk, int checkForFree);
-	int    SLAPI Add(long chunkId, long status, const STimeChunk * pChunk, int checkForFree);
-	int    SLAPI Remove(long chunkId);
-	int    SLAPI Get(long chunkId, uint * pPos, STimeChunkAssoc *) const;
-	int    SLAPI GetStatus(long chunkId, long * pStatus) const;
+	explicit STimeChunkAssocArray(long id);
+	int    Add(long chunkId, const STimeChunk * pChunk, int checkForFree);
+	int    Add(long chunkId, long status, const STimeChunk * pChunk, int checkForFree);
+	int    Remove(long chunkId);
+	int    Get(long chunkId, uint * pPos, STimeChunkAssoc *) const;
+	int    GetStatus(long chunkId, long * pStatus) const;
 
 	long   Id;
 };
@@ -8251,17 +8251,17 @@ private:
 //
 class BitArray : private SBaseBuffer {
 public:
-	SLAPI  BitArray();
-	SLAPI  BitArray(const BitArray &);
-	SLAPI ~BitArray();
+	BitArray();
+	BitArray(const BitArray &);
+	~BitArray();
 	BitArray & FASTCALL operator = (const BitArray &);
 	int    FASTCALL Copy(const BitArray &);
-	int    SLAPI Init(const void *, size_t count);
+	int    Init(const void *, size_t count);
 	//
 	// Descr: Обнуляет внутренний буфер и сбрасывает счетчик битов в 0
 	//
-	void   SLAPI Clear();
-	size_t SLAPI getCount() const;
+	void   Clear();
+	size_t getCount() const;
 	int    FASTCALL IsEqual(const BitArray &) const;
 	//
 	// Descr: Возвращает количество бит, соответствующих величине val.
@@ -8281,8 +8281,8 @@ public:
 	//
 	// Descr: возвращает размер буфера в байтах
 	//
-	size_t SLAPI getBufSize() const;
-	int    SLAPI getBuf(void *, size_t maxLen) const;
+	size_t getBufSize() const;
+	int    getBuf(void *, size_t maxLen) const;
 private:
 	size_t Count;
 };
@@ -8453,8 +8453,8 @@ public:
 		coClearSymbTab = 0x0001 //
 	};
 	struct Param {
-		SLAPI  Param();
-		SLAPI  Param(long flags, int cp, const char * pDelim);
+		Param();
+		Param(long flags, int cp, const char * pDelim);
 		long   Flags;
 		int    Cp;
 		SString Delim; // Список символов-разделителей. Если строка пустая, то используется " \t\n\r"
@@ -8466,16 +8466,16 @@ public:
 		SString Resource;
 		SString Text;
 	};
-	SLAPI  STokenizer();
-	explicit SLAPI STokenizer(const Param & rParam);
-	SLAPI ~STokenizer();
-	void   SLAPI GetParam(Param * pParam) const;
-	int    SLAPI SetParam(const Param * pParam);
+	STokenizer();
+	explicit STokenizer(const Param & rParam);
+	~STokenizer();
+	void   GetParam(Param * pParam) const;
+	int    SetParam(const Param * pParam);
 	STokenizer & Reset(long options);
 	//
 	// Descr: Очищает внутренний буфер ввода.
 	//
-	void   SLAPI ClearInput();
+	void   ClearInput();
 	//
 	// Descr: Вносит новую порцию данных для обработки.
 	// ARG(pResource IN): Текстовый идентификатор источника данных. Вызывающий модуль самостоятельно определяет
@@ -8484,7 +8484,7 @@ public:
 	// ARG(pS        IN): Собственно данные для обработки
 	// ARG(sz        IN): Размер передаваемых данных в байтах
 	//
-	int    SLAPI Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz);
+	int    Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz);
 
 	struct ResultPosition {
 		uint   Start;
@@ -8495,20 +8495,20 @@ public:
 	// ARG(pIdxFirst OUT): Индекс первого элемента результата разбора. Получить результат можно функцией Get(uint, Item &)
 	// ARG(pIdxCount OUT): Количество элементов результатов разбора доступного в буфере.
 	//
-	int    SLAPI Run(uint * pIdxFirst, uint * pIdxCount);
+	int    Run(uint * pIdxFirst, uint * pIdxCount);
 	//
 	// Descr: Высокоуровневая функция, реализующая пару вызовов:
 	//   Write(const char * pResource, int64 orgOffs, rS, rS.Len()+1);
 	//   Run(pIdxFirst, pIdxCount);
 	//
-	int    SLAPI RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount);
-	uint   SLAPI GetCount() const;
-	int    SLAPI Get(uint idx, Item & rItem) const;
-	int    SLAPI Get_WithoutText(uint idx, STokenizer::Item & rItem) const;
-	uint   SLAPI GetCommCount() const;
-	int    SLAPI GetComm(uint idx, Item & rItem) const;
-	int    SLAPI GetTextById(uint txtId, SString & rBuf) const;
-	int    SLAPI GetSymbHashStat(SymbHashTable::Stat & rStat) const;
+	int    RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount);
+	uint   GetCount() const;
+	int    Get(uint idx, Item & rItem) const;
+	int    Get_WithoutText(uint idx, STokenizer::Item & rItem) const;
+	uint   GetCommCount() const;
+	int    GetComm(uint idx, Item & rItem) const;
+	int    GetTextById(uint txtId, SString & rBuf) const;
+	int    GetSymbHashStat(SymbHashTable::Stat & rStat) const;
 	//
 	// Descr: Флаги функции STokenizer::Search
 	//
@@ -8529,14 +8529,14 @@ public:
 		uint   P; // Позиция токена в исходном тексте
 		TSVector <STokenizer::ResourceToken> RL; // Список идентификаторов ресурсов, в которых встречается токен T // @v9.8.4 TSArray-->TSVector
 	};
-	int    SLAPI Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult);
-	int    SLAPI IndexResources(int force);
+	int    Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult);
+	int    IndexResources(int force);
 private:
-	uint16 SLAPI NextChr();
+	uint16 NextChr();
 	int    FASTCALL IsDelim(uint16 chr) const;
 	int    FASTCALL AddToken(TSVector <uint16> & rBuf, int tok, int64 sp);
-	int    SLAPI ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
-	void   SLAPI _CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf);
+	int    ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
+	void   _CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf);
 
 	struct Token {
 		int    T;  //
@@ -8727,7 +8727,7 @@ public:
 //
 //
 struct SFileSortProgressData {
-	SLAPI  SFileSortProgressData();
+	SFileSortProgressData();
 	const  char * P_SrcFileName;
 	int64  TotalFileSize;
 	int    Phase; // 1 - splitting, 2 - merging
@@ -8745,14 +8745,14 @@ public:
 	DECL_INVARIANT_C();
 
 	static int FASTCALL Remove(const char * pFileName);
-	static int SLAPI Rename(const char * pFileName, const char * pNewFileName);
-	static int SLAPI Compare(const char * pFileName1, const char * pFileName2, long flags);
+	static int Rename(const char * pFileName, const char * pNewFileName);
+	static int Compare(const char * pFileName1, const char * pFileName2, long flags);
 	static int FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
 	//
 	// Descr: Структура дополнительных параметров сортировки файла
 	//
 	struct SortParam {
-		SLAPI  SortParam();
+		SortParam();
 
         size_t MaxChunkSize;  // @def=(8*1024*1024)
         uint   MaxChunkCount; // @def=8
@@ -8761,7 +8761,7 @@ public:
 		const void * ProgressCbExtraPtr; // @def=0
 	};
 
-	static int SLAPI Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
+	static int Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
 	//
 	// Descr: возвращает меточные даты файла с именем pFileName
 	// ARG(pFileName    IN): полное имя файла
@@ -8772,7 +8772,7 @@ public:
 	//   1 - функция успешно выполнена
 	//   0 - ошибка
 	//
-	static int SLAPI GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
+	static int GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
 	//
 	// Descr: возвращает меточные даты файла, открытого с дескриптором fd
 	// ARG(fh           IN): дескриптор файла. В WIN32 этот дескриптор должен быть получен вызовом
@@ -8784,10 +8784,10 @@ public:
 	//   1 - функция успешно выполнена
 	//   0 - ошибка
 	//
-	static int SLAPI GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
-	static int SLAPI SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
-	static int SLAPI IdentifyFormat(const char * pFileName);
-	static int SLAPI IsOpenedForWriting(const char * pFileName);
+	static int GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
+	static int SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
+	static int IdentifyFormat(const char * pFileName);
+	static int IsOpenedForWriting(const char * pFileName);
 	//
 	// Descr: Ожидает момента, когда файл не открыт для записи.
 	// Returns:
@@ -8795,7 +8795,7 @@ public:
 	//   >0 - время в миллисекундах, в течении которого пришлось ждать освобождения файла
 	//    0 - истек предельный timeout ожидания //
 	//
-	static int SLAPI WaitForWriteSharingRelease(const char * pFileName, long timeout);
+	static int WaitForWriteSharingRelease(const char * pFileName, long timeout);
 	//
 	// Descr: Утилитная функция, вызывающая fclose(*ppF) если *ppF != 0 и обнуляющая после этого *ppF.
 	//
@@ -8816,13 +8816,13 @@ public:
 		mNullWrite = 0x1000, // Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает, а чтение возвращает ошибку
 		mBuffRd    = 0x2000  // При установленном mNoStd чтение из файла буферизуется.
 	};
-	SLAPI  SFile();
-	SLAPI  SFile(const char * pName, long mode);
-	SLAPI  SFile(SBuffer & rBuf, long mode);
-	SLAPI ~SFile();
-	int    SLAPI IsValid() const;
-	SLAPI  operator FILE * ();
-	SLAPI  operator SBuffer * ();
+	SFile();
+	SFile(const char * pName, long mode);
+	SFile(SBuffer & rBuf, long mode);
+	~SFile();
+	int    IsValid() const;
+	operator FILE * ();
+	operator SBuffer * ();
 	//
 	// Descr: Если экземпляр класса работает как SBuffer (T == tSBuffer), то данное преобразование
 	//   присвоит буферу rBuf указатель на область памяти буфера и доступный размер (SBuffer::GetAvailableSize()).
@@ -8835,52 +8835,52 @@ public:
 	//   1 - экземпляр использует SBuffer и переданный объект rBuf успешно инициализирован.
 	//   0 - экземпляр либо не инициализирован, либо связан с файлом.
 	//
-	int    SLAPI GetBuffer(SBaseBuffer & rBuf) const;
-	int    SLAPI FileNo() const;
-	const  SString & SLAPI GetName() const;
-	long   SLAPI GetMode() const;
-	int    SLAPI Open(const char * pName, long mode);
-	int    SLAPI Open(SBuffer & rBuf, long mode);
-	int    SLAPI OpenNullOutput();
-	int    SLAPI Close();
+	int    GetBuffer(SBaseBuffer & rBuf) const;
+	int    FileNo() const;
+	const  SString & GetName() const;
+	long   GetMode() const;
+	int    Open(const char * pName, long mode);
+	int    Open(SBuffer & rBuf, long mode);
+	int    OpenNullOutput();
+	int    Close();
 	//
 	// Descr: Устанавливает 32-битное значение текущей позиции в файле.
 	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
 	//
-	int    SLAPI Seek(long offs, int origin = SEEK_SET);
+	int    Seek(long offs, int origin = SEEK_SET);
 	//
 	// Descr: Устанавливает 64-битное значение текущей позиции в файле.
 	// Attention: Если файл открыт в стандартном режиме (без флага fNoStd) то
 	//   фактически применяется 32-битное значение позиции (младшие четыре байта offs).
 	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
 	//
-	int    SLAPI Seek64(int64 offs, int origin = SEEK_SET);
+	int    Seek64(int64 offs, int origin = SEEK_SET);
 	//
 	// Descr: Возвращает значение текущей позиции в файле.
 	//
-	long   SLAPI Tell();
+	long   Tell();
 	//
 	// Descr: Возвращает 64-битное значение текущей позиции в файле.
 	// Attention: Если файл открыт в стандартном режиме (без флага fNoStd) то
 	//   фактически возвращается 32-битное значение позиции.
 	//
-	int64  SLAPI Tell64();
-	int    SLAPI Flush();
-	int    SLAPI Write(const void * pBuf, size_t size);
+	int64  Tell64();
+	int    Flush();
+	int    Write(const void * pBuf, size_t size);
 	//
 	// Descr: Пытается считать size байт в буфер pBuf.
 	//   Действительное количество считанных байт присваивается по адресу pActualSize
 	//   (если pActualSize != 0).
 	//
-	int    SLAPI Read(void * pBuf, size_t size, size_t * pActualSize = 0);
+	int    Read(void * pBuf, size_t size, size_t * pActualSize = 0);
 	//
 	// Descr: То же, что и SFile::Read() но с проверкой равенства запрошенного
 	//   размера считанному. Если считанное количество байт не равно запрошенному,
 	//   то возвращает 0 и устанавливает код ошибки SLERR_SFILRDSIZE.
 	//
-	int    SLAPI ReadV(void * pBuf, size_t size);
+	int    ReadV(void * pBuf, size_t size);
 	int    FASTCALL WriteLine(const char *);
-	int    SLAPI WriteBlancLine();
+	int    WriteBlancLine();
 	int    FASTCALL ReadLine(SString &);
 	//
 	// Descr: Высокоуровневая функция записи буфера rBuf в поток.
@@ -8889,7 +8889,7 @@ public:
 	//   >0 - буфер записан успешно
 	//   0  - ошибка
 	//
-	int    SLAPI Write(const SBuffer & rBuf);
+	int    Write(const SBuffer & rBuf);
 	//
 	// Descr: Высокоуровневая функция чтения буфера rBuf из потока.
 	//   Сначала считывает размер буфера, распределяет необходимый размер в буфере и считывает данные.
@@ -8897,7 +8897,7 @@ public:
 	//   >0 - буфер считан успешно
 	//   0  - ошибка
 	//
-	int    SLAPI Read(SBuffer & rBuf);
+	int    Read(SBuffer & rBuf);
 	//
 	// Descr: Устанавливает либо снимает блокировку участка файла размером size со смещением offs.
 	//   При успешном выполнении функция возвращает дескриптор блокировки (>0) который
@@ -8915,7 +8915,7 @@ public:
 	//   0 - ошибка
 	//   >0 - при mode != 0 дескриптор блокировки. При mode == 0 просто означает успешное завершение операции.
 	//
-	int    SLAPI _Lock(int64 offs, int32 size, int mode);
+	int    _Lock(int64 offs, int32 size, int mode);
 	//
 	// Descr: Блокирует участок файла размером size со смещением offs.
 	//   При успешном выполнении функция возвращает дескриптор блокировки (>0) который
@@ -8927,11 +8927,11 @@ public:
 	//   0  - ошибка
 	//   >0 - значение дескриптора блокировки
 	//
-	int    SLAPI Lock(int64 offs, int32 size);
+	int    Lock(int64 offs, int32 size);
 	//
 	// Descr: Снимает блокировку, установленную перед этим функцией Lock(int64, int)
 	//
-	int    SLAPI Unlock(int lckHandle);
+	int    Unlock(int lckHandle);
 	//
 	// Descr: Рассчитывает размер файла. Размер определяется перемещением текущей позиции в конец файла
 	//   и определением после этого текущей позиции, которая и является размером.
@@ -8940,8 +8940,8 @@ public:
 	//   !0 - размер файла успешно вычислен
 	//   0  - ошибка
 	//
-	int    SLAPI CalcSize(int64 * pSize);
-	int    SLAPI GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
+	int    CalcSize(int64 * pSize);
+	int    GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
 	//
 	// Descr: Рассчитывает CRC32 файла, начиная со смещения offs.
 	//   После подсчета восстанавливает исходную текущую позицию файла.
@@ -8950,7 +8950,7 @@ public:
 	//   <0 - размер файла меньше offs
 	//   0  - ошибка
 	//
-	int    SLAPI CalcCRC(long offs, uint32 * pCrc);
+	int    CalcCRC(long offs, uint32 * pCrc);
 private:
 	struct LckChunk {
 		int32  Size;
@@ -8967,7 +8967,7 @@ private:
 		tSBuffer,
 		tNullOutput
 	};
-	void   SLAPI Init();
+	void   Init();
 
 	int    T;
 	long   Mode;
@@ -8997,10 +8997,10 @@ public:
 		tZLib = 1,
 		tLz4  = 2
 	};
-	SLAPI  SCompressor(int type);
-	SLAPI ~SCompressor();
-	int    SLAPI SetMaxTempBufSize(size_t sz);
-	size_t SLAPI GetMaxTempBufSize() const { return MaxTempBufSize; }
+	SCompressor(int type);
+	~SCompressor();
+	int    SetMaxTempBufSize(size_t sz);
+	size_t GetMaxTempBufSize() const { return MaxTempBufSize; }
 	//
 	// Descr: Сжимает данные из буфера pSrc размером srcSize в буфер rDest.
 	// ARG(pSrc    IN): Указатель на исходные данные для сжатия
@@ -9013,11 +9013,11 @@ public:
 	//   >0 - успех. Значение показывает количество байт, записанных в буфер rDest этим вызовом.
 	//    0 - ошибка
 	//
-	int    SLAPI CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt);
-	int    SLAPI DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest);
-	//void * SLAPI CompressIterStart(void * pDest, size_t destSize, const void * pExt);
-	//int    SLAPI CompressIterNext(void * pCtx, const void * pSrc, size_t srcSize, void * pDest, size_t * destSize);
-	//int    SLAPI CompressIterEnd(void * pDest, size_t destSize, const void * pExt);
+	int    CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest, int rate, const void * pExt);
+	int    DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDest);
+	//void * CompressIterStart(void * pDest, size_t destSize, const void * pExt);
+	//int    CompressIterNext(void * pCtx, const void * pSrc, size_t srcSize, void * pDest, size_t * destSize);
+	//int    CompressIterEnd(void * pDest, size_t destSize, const void * pExt);
 
 	enum {
 		estszMax = 0x01, // Функция GetEstimatedXXXSize определила максимальный размер результата
@@ -9067,15 +9067,15 @@ public:
 		int    Sis;    // ssisXXX
 		int    Var;    // Вариация
 	};
-	SLAPI  SArchive();
-	SLAPI ~SArchive();
-	int    SLAPI Open(int type, const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
-	int    SLAPI Close();
-	int    SLAPI IsValid() const;
+	SArchive();
+	~SArchive();
+	int    Open(int type, const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
+	int    Close();
+	int    IsValid() const;
 	//
 	// Descr: Возвращает количество файлов в архиве
 	//
-	int64  SLAPI GetEntriesCount() const;
+	int64  GetEntriesCount() const;
 	//
 	// Descr: Возвращает имя файла в архиве с индексом idx
 	//
@@ -9083,7 +9083,7 @@ public:
     //
     // Descr: Извлекает из архива файл с индексом idx и копирует его в pDestName
     //
-    int    SLAPI ExtractEntry(int64 idx, const char * pDestName);
+    int    ExtractEntry(int64 idx, const char * pDestName);
 
     enum {
     	aefRecursive = 0x0001, // Для AddEntries: рекурсивно добавлять файлы из подкаталогов
@@ -9094,8 +9094,8 @@ public:
 	//   Если pName == 0 || pName[0] == 0, то имя нового элемента соответствует имени файла без пути
 	//   в строчном регистре.
 	//
-    int    SLAPI AddEntry(const char * pSrcFileName, const char * pName, int flags);
-    int    SLAPI AddEntries(const char * pMask, int flags);
+    int    AddEntry(const char * pSrcFileName, const char * pName, int flags);
+    int    AddEntries(const char * pMask, int flags);
 private:
 	// @v10.4.4
 #if 0 // @construction {
@@ -9111,7 +9111,7 @@ private:
 	static int     cdecl LaCbClose(struct archive * pA, void * pClientData);
 #endif // } 0 @construction
 	// } @v10.4.4
-	int    SLAPI Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
+	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
 
 	int    Type;
 	void * H;
@@ -9349,21 +9349,21 @@ public:
 	// Descr: @ctr
 	// ARG(options IN): декларативные флаги. На текущий момент возможные значения: 0 или STextEncodingStat::fUseUCharDet
 	//
-	explicit SLAPI STextEncodingStat(long options = 0);
-	SLAPI ~STextEncodingStat();
+	explicit STextEncodingStat(long options = 0);
+	~STextEncodingStat();
 	//
 	// Descr: Инициализирует экземпляр объекта.
 	// ARG(options IN): декларативные флаги. На текущий момент возможные значения: 0 или STextEncodingStat::fUseUCharDet
 	// Returns: *this
 	//
-	STextEncodingStat & SLAPI Init(long options = 0);
-	int    SLAPI Add(const void * pData, size_t size);
-	int    SLAPI Finish();
-	SEOLFormat SLAPI GetEolFormat() const { return Eolf; }
-	SCodepageIdent SLAPI GetCp() const { return Cp; }
-	const char * SLAPI GetCpName() const { return CpName; }
+	STextEncodingStat & Init(long options = 0);
+	int    Add(const void * pData, size_t size);
+	int    Finish();
+	SEOLFormat GetEolFormat() const { return Eolf; }
+	SCodepageIdent GetCp() const { return Cp; }
+	const char * GetCpName() const { return CpName; }
 	int    FASTCALL CheckFlag(long f) const { return BIN(Flags & f); }
-	SCodepageIdent SLAPI GetAutodetectedCp() const;
+	SCodepageIdent GetAutodetectedCp() const;
 private:
 	long   Flags;
 	SCodepageIdent Cp;
@@ -9480,7 +9480,7 @@ public:
 		fRange        = 0x0002
 	};
 	struct Item32 {
-		SLAPI  Item32();
+		Item32();
 		uint32 U4;
 		uint8  Gc;   // General category
 		uint8  Ccc;  // Canonical Combining Class
@@ -9490,27 +9490,27 @@ public:
 		uint16 SNScriptId;
 	};
 	struct UPair {
-		SLAPI  UPair(uint32 key, uint32 val);
+		UPair(uint32 key, uint32 val);
 		uint32 K;
 		uint32 V;
 	};
 
 	static uint32 FASTCALL ParseUnicode(SString & rBuf);
 
-	SLAPI  SUnicodeTable();
+	SUnicodeTable();
 	uint32 FASTCALL GetU(uint idx) const;
 	uint   FASTCALL GetIndex(uint32 u) const;
 	const  Item32 * FASTCALL Get(uint32 u) const;
 
-	int    SLAPI ParseSource(const char * pFileName);
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    ParseSource(const char * pFileName);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	uint32 FASTCALL ToLower(uint32 u) const;
 	uint32 FASTCALL ToUpper(uint32 u) const;
 	uint32 FASTCALL ToCapital(uint32 u) const;
 private:
-	int    SLAPI PreprocessLine(SString & rLine) const;
-	int    SLAPI ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD);
+	int    PreprocessLine(SString & rLine) const;
+	int    ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD);
 
 	uint   LastIdx;
 	TSVector <Item32> List32; // @v9.8.4 TSArray-->TSVector
@@ -9527,7 +9527,7 @@ private:
 	struct CMapTranslIndexTest;
 public:
 	struct MapEntry {
-		SLAPI  MapEntry();
+		MapEntry();
 		int    FASTCALL operator == (const MapEntry & rS) const;
 		int    FASTCALL operator != (const MapEntry & rS) const;
 		int    FASTCALL Cmp(const MapEntry & rS) const;
@@ -9542,9 +9542,9 @@ public:
 		fHas3B    = 0x0004  // Один или более элементов таблицы имеет MB код, содержащий 3 байта
 	};
 	struct CpMap {
-		SLAPI  CpMap();
-		SLAPI ~CpMap();
-		void   SLAPI Clear();
+		CpMap();
+		~CpMap();
+		void   Clear();
 		//
 		// Descr: Ищет мультибайтовый символ b[] в таблице.
 		//   Длина массива b[] не должна превышать 4 байт. Если
@@ -9554,11 +9554,11 @@ public:
 		const  MapEntry * FASTCALL SearchU(wchar_t u, const LongArray * pIdx) const;
 		const  MapEntry * FASTCALL SearchU(uint32 u) const; // Test - very slow func
 		const  MapEntry * FASTCALL SearchFallback(uint32 u) const;
-		int    SLAPI TranslateToU(const uint8 * pSrc, size_t srcLen, SStringU & rBuf) const;
+		int    TranslateToU(const uint8 * pSrc, size_t srcLen, SStringU & rBuf) const;
 		//
 		// Descr: Транслирует unicode-строку pSrc длиной srcLen в мультибайтовую строку rBuf
 		//
-		int    SLAPI TranslateToB2(const wchar_t * pSrc, size_t srcLen, SString & rBuf);
+		int    TranslateToB2(const wchar_t * pSrc, size_t srcLen, SString & rBuf);
 		//
 		// Descr: Testing function
 		//
@@ -9566,7 +9566,7 @@ public:
 		const  MapEntry * Test_ToUpper(const MapEntry * pSrc, const SUnicodeTable * pUt) const;
 		const  MapEntry * Test_ToCapital(const MapEntry * pSrc, const SUnicodeTable * pUt) const;
 
-		int    SLAPI MakeUIndex(LongArray & rIdx) const;
+		int    MakeUIndex(LongArray & rIdx) const;
 
 		SCodepage Id;
 		uint8  MbMl;    // Максимальная длина мультибайтовых символов (в байтах)
@@ -9586,11 +9586,11 @@ public:
 	private:
 		class CpUToBHash {
 		public:
-			SLAPI  CpUToBHash(const SCodepageMapPool::CpMap & rMap);
-			int    SLAPI Translate(const wchar_t * pSrc, size_t srcLen, SString & rResult) const;
+			CpUToBHash(const SCodepageMapPool::CpMap & rMap);
+			int    Translate(const wchar_t * pSrc, size_t srcLen, SString & rResult) const;
 		private:
-			int    SLAPI Helper_TranslateResultToBuf(const void * pResultBuf, uint resultBufSize, SString & rBuf) const;
-			int    SLAPI FillUpHash(const uint mapCount, const SCodepageMapPool::MapEntry * pMap, const uint entrySize, const uint hashSize, void * pHash);
+			int    Helper_TranslateResultToBuf(const void * pResultBuf, uint resultBufSize, SString & rBuf) const;
+			int    FillUpHash(const uint mapCount, const SCodepageMapPool::MapEntry * pMap, const uint entrySize, const uint hashSize, void * pHash);
 
 			void * P_Buf;
 			uint   Count;
@@ -9603,7 +9603,7 @@ public:
 	// Descr: Временная структура для построения таблицы преобразования символьных таблиц
 	//
 	struct CMapTranslEntry {
-		SLAPI  CMapTranslEntry();
+		CMapTranslEntry();
 
 		enum {
 			fNone     = 0x0001,
@@ -9618,16 +9618,16 @@ public:
 	public:
 		friend class SCodepageMapPool;
 
-		SLAPI  TranslIndex();
-		SLAPI  TranslIndex(const TranslIndex & rS);
-		SLAPI ~TranslIndex();
+		TranslIndex();
+		TranslIndex(const TranslIndex & rS);
+		~TranslIndex();
 		int    FASTCALL Copy(const TranslIndex & rS);
 		TranslIndex & FASTCALL operator = (const TranslIndex & rS);
 		const  uint8 * FASTCALL Search(const uint8 * pSrc) const;
 	private:
-		void   SLAPI Reset();
-		size_t SLAPI GetEntrySize() const;
-		int    SLAPI Setup(const SCodepageMapPool::CMapTranslIndexTest & rS);
+		void   Reset();
+		size_t GetEntrySize() const;
+		int    Setup(const SCodepageMapPool::CMapTranslIndexTest & rS);
 
 		enum {
 			fIdentical = 0x0001,
@@ -9641,23 +9641,23 @@ public:
 		uint32 Flags;
 	};
 
-	SLAPI  SCodepageMapPool();
-	void   SLAPI Clear();
-	uint   SLAPI GetCount() const;
-	int    SLAPI GetByPos(uint pos, CpMap * pM) const;
-	int    SLAPI Get(SCodepage cp, CpMap * pM) const;
-	int    SLAPI GetByName(const char * pName, CpMap * pM) const;
+	SCodepageMapPool();
+	void   Clear();
+	uint   GetCount() const;
+	int    GetByPos(uint pos, CpMap * pM) const;
+	int    Get(SCodepage cp, CpMap * pM) const;
+	int    GetByName(const char * pName, CpMap * pM) const;
 	//
 	// Descr: Сравнивает две таблицы на идентичность.
 	//
-	uint   SLAPI Compare(const CpMap & rS1, const CpMap & rS2) const;
-	uint   SLAPI Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest);
+	uint   Compare(const CpMap & rS1, const CpMap & rS2) const;
+	uint   Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest);
 
-	int    SLAPI ParseXml(const char * pPath, SUnicodeTable * pUt);
-	int    SLAPI ParseXmlSingle(void * pXmlContext, const char * pFileName, const SUnicodeTable * pUt);
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    SLAPI Test(const SUnicodeTable * pUt, const char * pMapPoolFileName, const char * pMapTranslFileName);
-	int    SLAPI MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx);
+	int    ParseXml(const char * pPath, SUnicodeTable * pUt);
+	int    ParseXmlSingle(void * pXmlContext, const char * pFileName, const SUnicodeTable * pUt);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Test(const SUnicodeTable * pUt, const char * pMapPoolFileName, const char * pMapTranslFileName);
+	int    MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx);
 private:
 	struct CpEntry {
 		SCodepage Id;
@@ -9690,11 +9690,11 @@ private:
 		uint   SuccCount;
 		uint   FallbackCount;
 	};
-	int    SLAPI ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const;
-	int    SLAPI ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const;
-	void   SLAPI TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const;
-	int    SLAPI SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const;
-	int    SLAPI Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
+	int    ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const;
+	int    ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const;
+	void   TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const;
+	int    SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const;
+	int    Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
 
 	TSVector <CpEntry> CpL;  // @v9.8.4 TSArray-->TSVector
 	TSVector <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4] // @v9.8.4 TSArray-->TSVector
@@ -9704,12 +9704,12 @@ private:
 
 class SUnicodeBlock {
 public:
-    SLAPI  SUnicodeBlock();
-    SLAPI ~SUnicodeBlock();
+    SUnicodeBlock();
+    ~SUnicodeBlock();
 
-    int    SLAPI ReadRaw(const char * pUnicodePath, const char * pCpPath);
-    int    SLAPI Read(const char * pFileName);
-    int    SLAPI Write(const char * pFileName);
+    int    ReadRaw(const char * pUnicodePath, const char * pCpPath);
+    int    Read(const char * pFileName);
+    int    Write(const char * pFileName);
 
 	SUnicodeTable Ut;
 	SCodepageMapPool Cpmp;
@@ -9728,21 +9728,21 @@ private:
 class SLldAlphabetAnalyzer {
 public:
 	struct Entry {
-		SLAPI  Entry();
-		void   SLAPI Clear();
+		Entry();
+		void   Clear();
 
 		uint64 C;
 		uint64 LastP; // Последняя позиция потока, в которой встречался символ
 		double P1; // Сумма периодов появления
 		double P2; // Сумма квадратов периодов появления
 	};
-	SLAPI  SLldAlphabetAnalyzer();
-	SLAPI ~SLldAlphabetAnalyzer();
-	void   SLAPI Clear();
-	int    SLAPI CollectFileData(const char * pFileName);
+	SLldAlphabetAnalyzer();
+	~SLldAlphabetAnalyzer();
+	void   Clear();
+	int    CollectFileData(const char * pFileName);
     int    FASTCALL AddSymb(uint8 s);
 
-    uint64 SLAPI GetCount() const;
+    uint64 GetCount() const;
 	double FASTCALL GetFreq(uint8 s) const;
 	double FASTCALL GetPeriodExp(uint8 s) const;
 	double FASTCALL GetPeriodStdDev(uint8 s) const;
@@ -9985,7 +9985,7 @@ struct SStrScan : public SRegExpSet {
 	int    FASTCALL GetHex(SString & rBuf);
 	int    FASTCALL GetDigits(SString & rBuf);
 	int    FASTCALL GetEMail(SString & rBuf);
-	int    SLAPI GetDate(long datefmt, LDATE & rDate);
+	int    GetDate(long datefmt, LDATE & rDate);
 	//
 	// Descr: Если следующая последовательность символов равна pPattern (без учета регистра),
 	//   то копирует ее в rBuf и перемещает текущий указатель в позицию, следующую за паттерном.
@@ -9993,7 +9993,7 @@ struct SStrScan : public SRegExpSet {
 	//   >0 - сработало обнаружение паттерна
 	//   0  - паттерн не обнаружен в текущей позиции (ничего не изменилось)
 	//
-	int    SLAPI Get(const char * pPattern, SString & rBuf);
+	int    Get(const char * pPattern, SString & rBuf);
 	//
 	// Descr: Сканирует все символы до тех пор пока не встретится один из разделителей,
 	//   перечисленных в pDiv или конец строки.
@@ -10001,7 +10001,7 @@ struct SStrScan : public SRegExpSet {
 	//   >0 - если был сканирован по крайней мере один символ
 	//   0  - очередной символ является разделителем или мы уперлись в конец строки.
 	//
-	int    SLAPI GetWord(const char * pDiv, SString & rBuf);
+	int    GetWord(const char * pDiv, SString & rBuf);
 	//
 	// Descr: Если следующая последовательность равна: key = "value"
 	//   то копирует key в rKey, value в rVal и перемещает указатель в позицию, следующую за "value"
@@ -10009,7 +10009,7 @@ struct SStrScan : public SRegExpSet {
 	//   >0 - сработало обнаружение конструкции
 	//   0  - конструкция не обнаружена
 	//
-	int    SLAPI GetEqQ(SString & rKey, SString & rVal);
+	int    GetEqQ(SString & rKey, SString & rVal);
 	//
 	// Descr: Если следующая последовательность равна: key = number
 	//   то копирует key в rKey, number в rVal и перемещает указатель в позицию, следующую за "value"
@@ -10017,7 +10017,7 @@ struct SStrScan : public SRegExpSet {
 	//   >0 - сработало обнаружение конструкции
 	//   0  - конструкция не обнаружена
 	//
-	int    SLAPI GetEqN(SString & rKey, double & rVal);
+	int    GetEqN(SString & rKey, double & rVal);
 	//
 	// Descr: Если текущий символ вместе, возможно, с последующими, является допустимым UTF8 символом, то
 	//   копирует все необходимые символы в буфер rBuf и возвращает количество скопированных символов.
@@ -10052,12 +10052,12 @@ struct SStrScan : public SRegExpSet {
 	//
 	int    FASTCALL IncrChr(int chr);
 	SStrScan & FASTCALL Skip(int ws);
-	SStrScan & SLAPI Skip(int ws, uint * pLineCount);
+	SStrScan & Skip(int ws, uint * pLineCount);
 	//
 	// Descr: В большинстве случаев Skip(int) вызывается с параметром (wsSpace|wsTab) потому
 	//   для оптимизации кода сделана эта функция.
 	//
-	SStrScan & SLAPI Skip(); // wsSpace|wsTab
+	SStrScan & Skip(); // wsSpace|wsTab
 	//
 	// Descr: Пропускает один опциональный разделитель div.
 	//   Если skipWs != 0, то вызывает Skip до разделителя и,
@@ -10098,14 +10098,14 @@ struct SStrScan : public SRegExpSet {
 	//
 	int    FASTCALL GetTagBrace(SString & rText, int * pKind);
 	int    FASTCALL IsRe(long reHandler);
-	int    SLAPI GetRe(long reHandler, SString & rBuf);
+	int    GetRe(long reHandler, SString & rBuf);
 	int    FASTCALL Is(const char * pS) const;
 	//
 	// Descr: Проверяет, является ли следующим символом c.
 	//
 	int    FASTCALL Is(char c) const;
-	int    SLAPI IsDigits();
-	int    SLAPI IsDotPrefixedNumber();
+	int    IsDigits();
+	int    IsDotPrefixedNumber();
 	//
 	// Descr: Проверяет, является ли текущий символ (P_Buf+Offs) вместе, возможно, со следующими
 	//   за ним правильной комбинацией, представляющей UTF8 символ.
@@ -10122,7 +10122,7 @@ private:
 //
 //
 struct ApproxStrSrchParam {
-	SLAPI  ApproxStrSrchParam();
+	ApproxStrSrchParam();
 	double umin;     // Мин количество очков, при котором поиск считается успешным
 	double weight;   // Вес каждого последующего символа при сравнении
 	int    method;   // 0 - default, 1 - Papyrus
@@ -10157,8 +10157,8 @@ private:
 	ApproxStrSrchParam P;
 };
 
-int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam *);
-int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore);
+int ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam *);
+int ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore);
 //
 // Descr: Флаги функции ExtStrSrch
 //
@@ -10240,7 +10240,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 	// -9,999.99  +99'999,9  9 999.999  999
 
 struct SNaturalTokenStat {
-	SLAPI  SNaturalTokenStat();
+	SNaturalTokenStat();
     uint32 Len;  // Длина токена в байтах
     uint32 Seq;
 };
@@ -10252,21 +10252,21 @@ struct SNaturalToken { // @flat
 
 class SNaturalTokenArray : public TSVector <SNaturalToken> {
 public:
-	SNaturalTokenArray & SLAPI Z();
+	SNaturalTokenArray & Z();
 	float  FASTCALL Has(uint32 tok) const;
-	int    SLAPI Add(uint32 tok, float prob);
+	int    Add(uint32 tok, float prob);
 };
 
 class STokenRecognizer : public SRegExpSet {
 public:
-	static int SLAPI EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
-	SLAPI  STokenRecognizer();
-	SLAPI ~STokenRecognizer();
+	static int EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
+	STokenRecognizer();
+	~STokenRecognizer();
 	//
 	// Descr: Функция пытается идентифицировать natural token в строке pToken длиной len.
 	//   Если len < 0, то просматривается sstrlen(pToken) символов
 	//
-	int    SLAPI Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+	int    Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
 private:
 	static int FASTCALL IsUtf8(const uchar * p, size_t restLen);
 };
@@ -10317,7 +10317,7 @@ struct SMathResult {
 typedef long LMIDX;
 typedef TSVector <unsigned long> UlongArray; // @v9.8.4 TSArray-->TSVector
 
-int    SLAPI IsValidIEEE(double);
+int    IsValidIEEE(double);
 int    fisnan(double);
 int    fisinf(double);
 double fgetnan();    // NAN
@@ -10328,8 +10328,8 @@ double fgetneginf(); // -INF
 //   Список простых множителей заносится в массив pList.
 //   Сейчас используется самый наивный алгоритм перебора.
 //
-int    SLAPI Factorize(ulong val, UlongArray * pList);
-int    SLAPI MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList);
+int    Factorize(ulong val, UlongArray * pList);
+int    MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList);
 long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
 
@@ -10363,24 +10363,24 @@ public:
 			// Четная - слева и справа от среднего значения располагаются две корзины,
 			// Нечетная - среднее значение делит центральную корзину на две части.
 	};
-	SLAPI  SHistogram();
-	SLAPI ~SHistogram();
-	void   SLAPI Setup();
-	void   SLAPI SetupDynamic(double leftEdge, double step);
-	void   SLAPI SetupDev(int even, double widthSigm, uint binCount = 0);
-	int    SLAPI AddBin(long binId, double lowBound);
-	int    SLAPI GetBin(long binId, Val *) const;
-	int    SLAPI GetTotal(Val *) const;
-	int    SLAPI GetBinByVal(double val, long * pBinId) const;
+	SHistogram();
+	~SHistogram();
+	void   Setup();
+	void   SetupDynamic(double leftEdge, double step);
+	void   SetupDev(int even, double widthSigm, uint binCount = 0);
+	int    AddBin(long binId, double lowBound);
+	int    GetBin(long binId, Val *) const;
+	int    GetTotal(Val *) const;
+	int    GetBinByVal(double val, long * pBinId) const;
 	//
 	// Descr: Реализует первый проход добавления элемента в гистограмму с признаком kDeviation.
 	//
-	int    SLAPI PreparePut(double val);
-	long   SLAPI Put(double val);
-	const  StatBase * SLAPI GetDeviationStat() const;
-	int    SLAPI GetDeviationParams(double * pMean, double * pWidth) const;
-	uint   SLAPI GetResultCount() const;
-	int    SLAPI GetResult(uint pos, Result * pResult) const;
+	int    PreparePut(double val);
+	long   Put(double val);
+	const  StatBase * GetDeviationStat() const;
+	int    GetDeviationParams(double * pMean, double * pWidth) const;
+	uint   GetResultCount() const;
+	int    GetResult(uint pos, Result * pResult) const;
 private:
 	enum {
 		fDynBins   = 0x0001,
@@ -10409,23 +10409,23 @@ public:
 	enum {
 		fNotOwner = 0x0001
 	};
-	SLAPI  LVect();
-	explicit SLAPI LVect(LMIDX dim);
-	SLAPI ~LVect();
-	int    SLAPI init(LMIDX dim, const double * pVals = 0);
+	LVect();
+	explicit LVect(LMIDX dim);
+	~LVect();
+	int    init(LMIDX dim, const double * pVals = 0);
 	int    FASTCALL copy(const LVect &);
-	//const  char * SLAPI getname() const { return P_Name; }
+	//const  char * getname() const { return P_Name; }
 	//void   FASTCALL setname(const char * pName);
-	LMIDX  SLAPI size() const { return Dim; }
+	LMIDX  size() const { return Dim; }
 	double FASTCALL get(LMIDX) const;
-	int    SLAPI set(LMIDX, double);
-	void   SLAPI FillWithSequence(double startVal, double incr);
-	int    SLAPI zero(LMIDX = -1);
-	void   SLAPI mult(double val);           // this *= val
-	void   SLAPI div(double val);            // this /= val
-	int    SLAPI add(const LVect & s);       // this += s
-	double SLAPI dot(const LVect & s) const; // return this * s (scalar)
-	void   SLAPI saxpy(double a, const LVect & y); // this = this * a + y
+	int    set(LMIDX, double);
+	void   FillWithSequence(double startVal, double incr);
+	int    zero(LMIDX = -1);
+	void   mult(double val);           // this *= val
+	void   div(double val);            // this /= val
+	int    add(const LVect & s);       // this += s
+	double dot(const LVect & s) const; // return this * s (scalar)
+	void   saxpy(double a, const LVect & y); // this = this * a + y
 	friend LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
 	friend LMatrix * FASTCALL operator * (const LMatrix &, const LMatrix &);
 	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
@@ -10438,25 +10438,25 @@ private:
 
 class LMatrix {
 public:
-	SLAPI  LMatrix();
-	SLAPI ~LMatrix();
-	int    SLAPI init(LMIDX numRows, LMIDX numCols);
+	LMatrix();
+	~LMatrix();
+	int    init(LMIDX numRows, LMIDX numCols);
 	int    FASTCALL copy(const LMatrix &);
-	const  char * SLAPI getname() const { return P_Name; }
+	const  char * getname() const { return P_Name; }
 	void   FASTCALL setname(const char * pName);
-	int    SLAPI checktarget(LMIDX row, LMIDX col) const;
-	LMIDX  SLAPI rows() const { return NumRows; }
-	LMIDX  SLAPI cols() const { return NumCols; }
-	double SLAPI get(LMIDX row, LMIDX col) const;
-	LVect * SLAPI getrow(LMIDX row) const;
-	LVect * SLAPI getcol(LMIDX col) const;
-	int    SLAPI set(LMIDX row, LMIDX col, double);
-	int    SLAPI setrow(LMIDX row, const LVect &);
-	int    SLAPI setcol(LMIDX col, const LVect &);
-	void   SLAPI zero(LMIDX row, LMIDX col);
-	void   SLAPI swaprows(LMIDX r1, LMIDX r2);
-	int    SLAPI transpose(const LMatrix &);
-	double SLAPI Jacobian() const;
+	int    checktarget(LMIDX row, LMIDX col) const;
+	LMIDX  rows() const { return NumRows; }
+	LMIDX  cols() const { return NumCols; }
+	double get(LMIDX row, LMIDX col) const;
+	LVect * getrow(LMIDX row) const;
+	LVect * getcol(LMIDX col) const;
+	int    set(LMIDX row, LMIDX col, double);
+	int    setrow(LMIDX row, const LVect &);
+	int    setcol(LMIDX col, const LVect &);
+	void   zero(LMIDX row, LMIDX col);
+	void   swaprows(LMIDX r1, LMIDX r2);
+	int    transpose(const LMatrix &);
+	double Jacobian() const;
 	int    FASTCALL operator += (const LMatrix &);
 	int    FASTCALL operator -= (const LMatrix &);
 	friend LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
@@ -10464,9 +10464,9 @@ public:
 	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
 	friend LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 private:
-	double * SLAPI sget(LMIDX, LMIDX) const;
-	int    SLAPI add(const LMatrix &, int minus);
-	size_t SLAPI dim() const { return static_cast<size_t>(NumRows * NumCols); }
+	double * sget(LMIDX, LMIDX) const;
+	int    add(const LMatrix &, int minus);
+	size_t dim() const { return static_cast<size_t>(NumRows * NumCols); }
 
 	char * P_Name;
 	LMIDX  NumRows;
@@ -10477,10 +10477,10 @@ private:
 
 void   lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b);
 int    ludcmp(LMatrix & a, LMIDX indx[/*a.rows()*/], int & d);
-void   SLAPI print(const LVect &, FILE *, long fmt);
-void   SLAPI print(const LMatrix &, FILE *, long fmt);
-int    SLAPI read(LVect *, FILE *);
-int    SLAPI read(LMatrix *, FILE *);
+void   print(const LVect &, FILE *, long fmt);
+void   print(const LMatrix &, FILE *, long fmt);
+int    read(LVect *, FILE *);
+int    read(LMatrix *, FILE *);
 
 LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
 LMatrix * FASTCALL operator * (const LMatrix &, const LMatrix &);
@@ -10495,7 +10495,7 @@ LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 //
 //
 //
-LVect * SLAPI gaxpy(const LMatrix & a, const LVect & x, const LVect & y);
+LVect * gaxpy(const LMatrix & a, const LVect & x, const LVect & y);
 //
 // Descr: Матрица двухмерного аффинного преобразования.
 // Attention: Бинарный формат не менять. Он идентичен cairo_matrix_t.
@@ -10548,15 +10548,15 @@ const LMatrix2D & FASTCALL operator * (const LMatrix2D & rLeft, const LMatrix2D 
 
 class LMatrix3D {
 public:
-	SLAPI  LMatrix3D();
+	LMatrix3D();
 	LMatrix3D & FASTCALL operator = (double s);
 	LMatrix3D & FASTCALL operator = (const LMatrix3D & rS);
-	LMatrix3D & SLAPI InitUnit(double v);
-	LMatrix3D & SLAPI InitScale(double x, double y, double z);
-	LMatrix3D & SLAPI InitRotateX(double teta);
-	LMatrix3D & SLAPI InitRotateY(double teta);
-	LMatrix3D & SLAPI InitRotateZ(double teta);
-	LMatrix3D & SLAPI Mult(const LMatrix3D & rM1, const LMatrix3D & rM2);
+	LMatrix3D & InitUnit(double v);
+	LMatrix3D & InitScale(double x, double y, double z);
+	LMatrix3D & InitRotateX(double teta);
+	LMatrix3D & InitRotateY(double teta);
+	LMatrix3D & InitRotateZ(double teta);
+	LMatrix3D & Mult(const LMatrix3D & rM1, const LMatrix3D & rM2);
 public:
 	double M[4][4];
 };
@@ -10569,25 +10569,25 @@ public:
 		fGaussianTest = 0x0004, // @unimplemented Выполнить тест на нормальное распределение
 		fStoreVals    = 0x0008  // Сохранять значения в Series
 	};
-	explicit SLAPI  StatBase(long flags);
-	SLAPI  StatBase();
-	virtual SLAPI ~StatBase();
-	virtual int SLAPI Init(long flags);
-	virtual int SLAPI Finish();
-	void   SLAPI Step(double);
-	void   SLAPI Step(const RealArray & rVl);
-	long   SLAPI GetCount() const { return Count; }
-	double SLAPI GetMin() const { return Min; }
-	double SLAPI GetMax() const { return Max; }
-	double SLAPI GetExp() const { return Exp; }
-	double SLAPI GetVar() const { return Var; }
-	double SLAPI GetTestGamma() const { return Test_Z; }
-	double SLAPI GetTestGaussian() const { return Test_ChSq; }
-	double SLAPI GetSum() const;
-	double SLAPI GetVariance() const;
-	double SLAPI GetStdDev() const;
-	int    SLAPI GetValue(long idx, double * pVal) const;
-	void   SLAPI GetGammaParams(double * pAlpha, double * pBeta) const;
+	explicit StatBase(long flags);
+	StatBase();
+	virtual ~StatBase();
+	virtual int Init(long flags);
+	virtual int Finish();
+	void   Step(double);
+	void   Step(const RealArray & rVl);
+	long   GetCount() const { return Count; }
+	double GetMin() const { return Min; }
+	double GetMax() const { return Max; }
+	double GetExp() const { return Exp; }
+	double GetVar() const { return Var; }
+	double GetTestGamma() const { return Test_Z; }
+	double GetTestGaussian() const { return Test_ChSq; }
+	double GetSum() const;
+	double GetVariance() const;
+	double GetStdDev() const;
+	int    GetValue(long idx, double * pVal) const;
+	void   GetGammaParams(double * pAlpha, double * pBeta) const;
 	const  RealArray & GetSeries() const { return Series; }
 protected:
 	long   Flags;
@@ -10618,14 +10618,14 @@ typedef TSQueue <TimSerEntry> TimSerQueue;
 //
 class TimSerStat : public StatBase {
 public:
-	SLAPI  TimSerStat();
-	virtual SLAPI ~TimSerStat();
-	virtual int SLAPI Init(long flags);
-	virtual int SLAPI Finish();
-	int    SLAPI SetNumLags(long);
-	int    SLAPI Step(double, int whiteSpace = 0);
-	uint   SLAPI GetNumLags() const;
-	double SLAPI GetAutocorrel(uint lag) const;
+	TimSerStat();
+	virtual ~TimSerStat();
+	virtual int Init(long flags);
+	virtual int Finish();
+	int    SetNumLags(long);
+	int    Step(double, int whiteSpace = 0);
+	uint   GetNumLags() const;
+	double GetAutocorrel(uint lag) const;
 protected:
 	long   NumLags;
 	DblQueue * P_Queue;
@@ -10637,14 +10637,14 @@ protected:
 //
 class TimSerSpikes {
 public:
-	SLAPI  TimSerSpikes();
-	SLAPI ~TimSerSpikes();
+	TimSerSpikes();
+	~TimSerSpikes();
 
-	int    SLAPI Init(int sign /* > 0 - plus only, < 0 - minus only, 0 - both */);
-	int    SLAPI Step(long, double);
-	long   SLAPI GetNumSpikes() const;
-	double SLAPI GetSpike(long, long * pN) const;
-	long   SLAPI GetMostCommonDistance();
+	int    Init(int sign /* > 0 - plus only, < 0 - minus only, 0 - both */);
+	int    Step(long, double);
+	long   GetNumSpikes() const;
+	double GetSpike(long, long * pN) const;
+	long   GetMostCommonDistance();
 private:
 	struct Spike { // @flat
 		long   N;
@@ -10658,19 +10658,19 @@ private:
 
 class ARMA {
 public:
-	SLAPI  ARMA();
-	SLAPI ~ARMA();
-	void   SLAPI Init(int p, int q, const double * pInitTSeries /* p items */);
-	void   SLAPI Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *);
-	int    SLAPI Step(double);
-	double SLAPI Predict() const;
-	int    SLAPI GetModel(LVect *) const;
-	int    SLAPI GetPhi(LVect *) const;
-	int    SLAPI GetR(LMatrix *) const;
-	void   SLAPI GetPQ(int *, int *) const;
+	ARMA();
+	~ARMA();
+	void   Init(int p, int q, const double * pInitTSeries /* p items */);
+	void   Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *);
+	int    Step(double);
+	double Predict() const;
+	int    GetModel(LVect *) const;
+	int    GetPhi(LVect *) const;
+	int    GetR(LMatrix *) const;
+	void   GetPQ(int *, int *) const;
 private:
-	double SLAPI ComputePredictError(double) const;
-	int    SLAPI ComputeGainFactor(LVect *) const;
+	double ComputePredictError(double) const;
+	int    ComputeGainFactor(LVect *) const;
 
 	int    P;
 	int    Q;
@@ -10687,9 +10687,9 @@ private:
 //
 class STimeSeries {
 public:
-	SLAPI  STimeSeries();
-	SLAPI  STimeSeries(const STimeSeries & rS);
-	SLAPI ~STimeSeries();
+	STimeSeries();
+	STimeSeries(const STimeSeries & rS);
+	~STimeSeries();
 	STimeSeries & FASTCALL operator = (const STimeSeries & rS);
 	int    FASTCALL Copy(const STimeSeries & rS);
 	void   FASTCALL SetSymb(const char * pSymb);
@@ -10698,23 +10698,23 @@ public:
 	// Descr: Удаляет данные из экземпляра, но спецификацию (колонки и проч.) оставляет не изменной.
 	//   Данные удаляются методом clear() (то есть без освобождения памяти)
 	//
-	STimeSeries & SLAPI Z();
+	STimeSeries & Z();
 	//
 	// Descr: Полностью разрушает экземпляр (удаляет и данные и спецификацию).
 	//   Вся память, занятая под данные, возвращается в кучу.
 	//
-	void   SLAPI Destroy();
+	void   Destroy();
 	//
 	// Descr: Копирует спецификацию экземпляра (но не данные) из pSample.
 	//   Если pSample == 0, то экземпляр this просто разрушается (вызовом Destroy())
 	// Note: Функция исходит из предположения, что pSample (если не нулевой) полностью валиден.
 	//
-	int    SLAPI SetupBySample(const STimeSeries * pSample);
+	int    SetupBySample(const STimeSeries * pSample);
 	//
 	// Descr: Возвращает количество элементов в серии (фактически, в STimeSeries::T)
 	//
-	uint   SLAPI GetCount() const;
-	int    SLAPI SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const;
+	uint   GetCount() const;
+	int    SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const;
 	//
 	// Descr: Ищет первый элемент, время которого больше или равно rSince.
 	// Note: Смысл (но не формальное поведение) функции предполагает, что элементы отсортированы
@@ -10725,18 +10725,18 @@ public:
 	//   >0 - искомый элемент найден. По адресу pIdx присвоен его индекс.
 	//    0 - нет ни одного элемента, время которого было бы больше или равно rSince
 	//
-	int    SLAPI SearchFirstEntrySince(const SUniTime & rSince, uint * pIdx) const;
-	int    SLAPI SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const;
-	int    SLAPI SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const;
+	int    SearchFirstEntrySince(const SUniTime & rSince, uint * pIdx) const;
+	int    SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const;
+	int    SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const;
 	int    FASTCALL GetTime(uint itemIdx, SUniTime * pT) const;
-	int    SLAPI AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx);
-	uint   SLAPI GetValueVecCount() const;
-	int    SLAPI GetValueVecParam(uint vecIdx, TYPEID * pTyp, SString * pSymb, int * pFxPrec, uint * pFlags) const;
-	int    SLAPI GetValueVecIndex(const char * pSymb, uint * pIdx) const;
-    int    SLAPI GetValue(uint itemIdx, uint vecIdx, double * pValue) const;
-	int    SLAPI GetValue(uint itemIdx, uint vecIdx, float * pValue) const;
-	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const;
-	int    SLAPI GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const;
+	int    AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx);
+	uint   GetValueVecCount() const;
+	int    GetValueVecParam(uint vecIdx, TYPEID * pTyp, SString * pSymb, int * pFxPrec, uint * pFlags) const;
+	int    GetValueVecIndex(const char * pSymb, uint * pIdx) const;
+    int    GetValue(uint itemIdx, uint vecIdx, double * pValue) const;
+	int    GetValue(uint itemIdx, uint vecIdx, float * pValue) const;
+	int    GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const;
+	int    GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const;
 	//
 	// Descr: Извлекает из вектора с индексом vecIdx вектор значений размерности rV.size(), начиная с индекса startItemIdx.
 	// Returns:
@@ -10744,30 +10744,30 @@ public:
 	//   <0 - не нашлось достаточное количество элементов, начиная с startItemIdx
 	//   0  - ошибка
 	//
-	int    SLAPI GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const;
-	int    SLAPI GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const;
-	int    SLAPI GetTimeArray(uint startItemIdx, uint idxCount, DateTimeArray & rV) const;
-    int    SLAPI AddItem(SUniTime tm, uint * pItemIdx);
-	int    SLAPI AddItemFromSample(const STimeSeries & rSample, uint samplePos);
-	int    SLAPI RemoveItem(uint idx);
+	int    GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const;
+	int    GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const;
+	int    GetTimeArray(uint startItemIdx, uint idxCount, DateTimeArray & rV) const;
+    int    AddItem(SUniTime tm, uint * pItemIdx);
+	int    AddItemFromSample(const STimeSeries & rSample, uint samplePos);
+	int    RemoveItem(uint idx);
 	//
 	// Descr: Структура, предназначенная для хранения одного элемента серии
 	//   с целью обеспечения интерфеса.
 	//
 	struct SnapshotEntry {
-		SLAPI  SnapshotEntry();
-		SnapshotEntry & SLAPI Z();
+		SnapshotEntry();
+		SnapshotEntry & Z();
 
 		uint   Idx;
 		SUniTime Tm;
 		RAssocArray Values;
 	};
-	int    SLAPI GetSnapshotEntry(uint idx, SnapshotEntry & rEntry) const;
-	int    SLAPI SetSnapshotEntry(uint idx, const SnapshotEntry & rEntry);
-	int    SLAPI AppendSnapshotEntry(const SnapshotEntry & rEntry);
+	int    GetSnapshotEntry(uint idx, SnapshotEntry & rEntry) const;
+	int    SetSnapshotEntry(uint idx, const SnapshotEntry & rEntry);
+	int    AppendSnapshotEntry(const SnapshotEntry & rEntry);
 
 	struct AppendStat {
-		SLAPI  AppendStat();
+		AppendStat();
 		uint   AppendCount;
 		uint   UpdCount;
 		uint   SrcFldsCount;
@@ -10778,19 +10778,19 @@ public:
 		int    UpdCountVecIdx; // @v10.4.7 (>=0) : индекс единственного вектора, по которому требуется статистика изменений
 	};
 
-	int    SLAPI AddItems(const STimeSeries & rSrc, AppendStat * pStat);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, double value);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, float value);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int64 value);
-	int    SLAPI SetValue(uint itemIdx, uint vecIdx, int32 value);
+	int    AddItems(const STimeSeries & rSrc, AppendStat * pStat);
+	int    SetValue(uint itemIdx, uint vecIdx, double value);
+	int    SetValue(uint itemIdx, uint vecIdx, float value);
+	int    SetValue(uint itemIdx, uint vecIdx, int64 value);
+	int    SetValue(uint itemIdx, uint vecIdx, int32 value);
 	//
 	// Descr: Сортирует элементы объекта в хронологическом порядке
 	//
-	int    SLAPI Sort();
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Sort();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	struct Stat : public StatBase {
-		explicit SLAPI Stat(long flags);
+		explicit Stat(long flags);
 		enum {
 			stSorted   = 0x0001,
 			stHasTmDup = 0x0002
@@ -10802,11 +10802,11 @@ public:
 		double LocalDevAvg;     // @v10.7.1 Среднее стандартное отклонение по узким отрезкам длиной LocalDevPtCount
 	};
 
-	int    SLAPI Analyze(const char * pVecSymb, Stat & rS) const;
-	int    SLAPI Analyze(const char * pVecSymb, uint firstIdx, uint count, Stat & rS) const;
+	int    Analyze(const char * pVecSymb, Stat & rS) const;
+	int    Analyze(const char * pVecSymb, uint firstIdx, uint count, Stat & rS) const;
 
 	struct AnalyzeFitParam {
-		SLAPI  AnalyzeFitParam(uint distance, uint firstIdx, uint count);
+		AnalyzeFitParam(uint distance, uint firstIdx, uint count);
 		enum {
 			fEnchMode = 0x0001 // Отладочный флаг (не использовать)
 		};
@@ -10816,11 +10816,11 @@ public:
 		long   Flags;
 	};
 
-	static int SLAPI AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
+	static int AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
 		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11);
-	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList,
+	int    AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList,
 		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const;
-	int    SLAPI Repair(const char * pCriticalVecSymb);
+	int    Repair(const char * pCriticalVecSymb);
 	//
 	// Descr: Опции нормализации фрейма временного ряда
 	//
@@ -10842,24 +10842,24 @@ public:
 	//   !0 - функция выполнена успешно
 	//   0 - ошибка
 	//
-	int    SLAPI GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const;
-	int    SLAPI GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
-	int    SLAPI GetFrame(uint vecIdx, uint startIdx, uint count, long normFlags, RealArray & rList) const;
-	int    SLAPI GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
+	int    GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const;
+	int    GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
+	int    GetFrame(uint vecIdx, uint startIdx, uint count, long normFlags, RealArray & rList) const;
+	int    GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
 	//
 	// Descr: Извлекает подмножество временного ряда, состоящее из последних count элементов.
 	//
-	int    SLAPI GetChunkRecentCount(uint count, STimeSeries & rResult) const;
-	int    SLAPI GetChunkRecentSince(const SUniTime & rSince, const SUniTime * pTill, STimeSeries & rResult) const;
+	int    GetChunkRecentCount(uint count, STimeSeries & rResult) const;
+	int    GetChunkRecentSince(const SUniTime & rSince, const SUniTime * pTill, STimeSeries & rResult) const;
 private:
 	static int FASTCALL VerifyValuVecType(TYPEID typ) { return oneof4(typ, T_FLOAT, T_DOUBLE, T_INT32, T_INT64); }
 	struct ValuVec : public SVector {
 	public:
 		friend class STimeSeries;
 
-		SLAPI  ValuVec(const char * pSymb, TYPEID typ, int fxPrec);
-		SLAPI  ValuVec(); // really private. Is used only for serialization
-		const SString & SLAPI GetSymb() const { return Symb; }
+		ValuVec(const char * pSymb, TYPEID typ, int fxPrec);
+		ValuVec(); // really private. Is used only for serialization
+		const SString & GetSymb() const { return Symb; }
 		void   FASTCALL ConvertDoubleToInner(double outer, void * pInner) const;
 		void   FASTCALL ConvertFloatToInner(float outer, void * pInner) const;
 		void   FASTCALL ConvertInt32ToInner(int32 outer, void * pInner) const;
@@ -10868,7 +10868,7 @@ private:
 		float  FASTCALL ConvertInnerToFloat(const void * pInner) const;
 		int32  FASTCALL ConvertInnerToInt32(const void * pInner) const;
 		int64  FASTCALL ConvertInnerToInt64(const void * pInner) const;
-		//int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		//int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	private:
         /*const*/TYPEID Typ; // Из-за необходимости сериализации элемент не может быть const (фактически, изменять запрещено)
 		int16  FxPrec;
@@ -10877,9 +10877,9 @@ private:
 	};
 	ValuVec * FASTCALL GetVecBySymb(const char * pSymb, uint * pVecIdx) const;
 	ValuVec * FASTCALL GetVecByIdx(uint vecIdx) const;
-	int    SLAPI Helper_SetValue(uint itemIdx, ValuVec * pVec, const void * pValuePtr);
+	int    Helper_SetValue(uint itemIdx, ValuVec * pVec, const void * pValuePtr);
 	int    FASTCALL Swap(uint p1, uint p2);
-	int    SLAPI Helper_GetFrame(const ValuVec * pVec, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
+	int    Helper_GetFrame(const ValuVec * pVec, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const;
 
 	enum {
 		stOrdered = 0x0001
@@ -10897,26 +10897,26 @@ private:
 //
 class RDI {
 public:
-	SLAPI  RDI();
-	SLAPI ~RDI();
-	void   SLAPI Init(const DblQueue * pInitQueue);
-	void   SLAPI Init(const double * pInitQueue, uint interval);
-	double SLAPI StepDiff(double) const;
-	double SLAPI StepIntg(double) const;
-	int    SLAPI Step(double newVal);
-	int    SLAPI GetQueue(DblQueue * pQueue) const;
-	int    SLAPI GetSeason() const { return P_Queue ? P_Queue->size() : 0; }
+	RDI();
+	~RDI();
+	void   Init(const DblQueue * pInitQueue);
+	void   Init(const double * pInitQueue, uint interval);
+	double StepDiff(double) const;
+	double StepIntg(double) const;
+	int    Step(double newVal);
+	int    GetQueue(DblQueue * pQueue) const;
+	int    GetSeason() const { return P_Queue ? P_Queue->size() : 0; }
 private:
 	DblQueue * P_Queue;
 };
 
 class ARIMA : public ARMA {
 public:
-	SLAPI  ARIMA();
-	void   SLAPI Init(int p, int q, const double * pInitSeries, /* p items */ const DblQueue * pRDIInitQueue);
-	void   SLAPI Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *, const DblQueue * pRDIInitQueue);
-	int    SLAPI Step(double);
-	double SLAPI Predict() const;
+	ARIMA();
+	void   Init(int p, int q, const double * pInitSeries, /* p items */ const DblQueue * pRDIInitQueue);
+	void   Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix *, const DblQueue * pRDIInitQueue);
+	int    Step(double);
+	double Predict() const;
 private:
 	RDI    Rdi;
 };
@@ -10925,12 +10925,12 @@ private:
 //
 class LssLin {
 public:
-	SLAPI  LssLin();
-	void   SLAPI Solve(const LVect & x, const LVect & y);
-	void   SLAPI Solve(uint count, const double * pX, const double * pY);
-	void   SLAPI Solve_Simple(uint count, const double * pX, const double * pY);
-	void   SLAPI Solve_SSE(uint count, const double * pX, const double * pY);
-	double SLAPI Estimation(double x, double * pYErr) const;
+	LssLin();
+	void   Solve(const LVect & x, const LVect & y);
+	void   Solve(uint count, const double * pX, const double * pY);
+	void   Solve_Simple(uint count, const double * pX, const double * pY);
+	void   Solve_SSE(uint count, const double * pX, const double * pY);
+	double Estimation(double x, double * pYErr) const;
 
 	// y = A + x*B
 	double A;
@@ -11167,7 +11167,7 @@ inline double fpow3(double x) { return x * x * x; }
 //
 // Descr: Возводит число x в степень n
 //
-uint64 SLAPI ui64pow(uint64 x, uint n);
+uint64 ui64pow(uint64 x, uint n);
 
 #define FACT_TAB_SIZE 171
 
@@ -11187,12 +11187,12 @@ double fscale(double v, double low, double upp);
 // Descr: Возвращает значение логистической сигмоидальной функции
 //   y = 1 / (1 + exp(-a * x))
 //
-double SLAPI sigmoid(double a, double x);
+double sigmoid(double a, double x);
 //
 // Descr: Расчитывает коэффициент корреляции между последовательностями pData1 и pData2
 //   длиной n значений.
 //
-double SLAPI scorrelation(const double * pData1, const double * pData2, const size_t n);
+double scorrelation(const double * pData1, const double * pData2, const size_t n);
 //
 //
 //
@@ -11230,9 +11230,9 @@ int    flngamma(double x, SMathResult * pResult);
 //
 double flnfact(uint n);
 int    flnfact(uint n, SMathResult * pResult);
-double SLAPI Gamma(double x);
-double SLAPI GammaIncompleteP(double a, double x);
-double SLAPI GammaIncompleteQ(double a, double x);
+double Gamma(double x);
+double GammaIncompleteP(double a, double x);
+double GammaIncompleteQ(double a, double x);
 inline int fsign(double x)  { return (x >= 0.0) ? +1 : -1; }
 inline int fsignz(double x) { return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
 
@@ -11834,9 +11834,9 @@ public:
 	static size_t FASTCALL GetCompressPrefix(uint8 * pBuf); // size of pBuf >= 8
 	static int    FASTCALL IsCompressPrefix(const void * pBuf);
 
-	SLAPI  SSerializeContext();
-	SLAPI ~SSerializeContext();
-	void   SLAPI Init(long flags, LDATE suppDate);
+	SSerializeContext();
+	~SSerializeContext();
+	void   Init(long flags, LDATE suppDate);
 	int    FASTCALL CheckFlag(long f) const;
 	//
 	// Descr: Записывает (считывает) состояние объекта в (из) буфер rBuf.
@@ -11848,53 +11848,53 @@ public:
 	//   предварительно до чтения разрушается внутренний кэш символов и список
 	//   структур.
 	//
-	int    SLAPI SerializeStateOfContext(int dir, SBuffer & rBuf);
-	int    SLAPI Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf);
+	int    SerializeStateOfContext(int dir, SBuffer & rBuf);
+	int    Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf);
 	//
 	// Descr: Считывает из буфера rBuf запись таблицы БД в соответствии с внутренним описанием (в потоке)
 	//   структуры данных. Данные считываются в буфер, на который указывает pData.
 	// Note: Если pFldList == 0 тогда просто указатель считывания перемещается в конец
 	//   записи, но по указателю pData ничего не записывается.
 	//
-	int    SLAPI Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf);
+	int    Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf);
 
-	int    SLAPI Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, SString & rStr, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, SStringU & rStr, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, int64 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, int32 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, int16 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, int8 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, int & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, uint & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, uint64 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, uint32 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, uint16 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, uint8 & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, LDATE & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, LTIME & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, LDATETIME & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, DateRange & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, float & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, double & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, S_GUID & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf);
-	int    SLAPI SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, TPoint & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, FPoint & rV, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, SArray * pArray, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, SVector * pArray, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf);
-	int    SLAPI Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf);
-	int    SLAPI SerializeBlock(int dir, uint32 size, void * pData, SBuffer & rBuf, int skipMissizedBlock);
+	int    Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf);
+	int    Serialize(int dir, SString & rStr, SBuffer & rBuf);
+	int    Serialize(int dir, SStringU & rStr, SBuffer & rBuf);
+	int    Serialize(int dir, int64 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, int32 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, int16 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, int8 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, int & rV, SBuffer & rBuf);
+	int    Serialize(int dir, uint & rV, SBuffer & rBuf);
+	int    Serialize(int dir, uint64 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, uint32 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, uint16 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, uint8 & rV, SBuffer & rBuf);
+	int    Serialize(int dir, LDATE & rV, SBuffer & rBuf);
+	int    Serialize(int dir, LTIME & rV, SBuffer & rBuf);
+	int    Serialize(int dir, LDATETIME & rV, SBuffer & rBuf);
+	int    Serialize(int dir, DateRange & rV, SBuffer & rBuf);
+	int    Serialize(int dir, float & rV, SBuffer & rBuf);
+	int    Serialize(int dir, double & rV, SBuffer & rBuf);
+	int    Serialize(int dir, S_GUID & rV, SBuffer & rBuf);
+	int    Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf);
+	int    SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf);
+	int    Serialize(int dir, TPoint & rV, SBuffer & rBuf);
+	int    Serialize(int dir, FPoint & rV, SBuffer & rBuf);
+	int    Serialize(int dir, SArray * pArray, SBuffer & rBuf);
+	int    Serialize(int dir, SVector * pArray, SBuffer & rBuf);
+	int    Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf);
+	int    Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf);
+	int    SerializeBlock(int dir, uint32 size, void * pData, SBuffer & rBuf, int skipMissizedBlock);
 	//
 	// Descr: Возвращает опорную дату.
 	//   Опорная дата используется для сжатого хранения типа LDATE.
 	//   В поток заносится разница в днях между сохраняемой датой и опорной датой.
 	//
-	LDATE  SLAPI GetSupportingDate() const;
-	int    SLAPI AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID); // @v9.8.11 private-->public
-	int    SLAPI GetDbtDescr(uint id, BNFieldList * pList) const; // @v9.8.11 private-->public
+	LDATE  GetSupportingDate() const;
+	int    AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID); // @v9.8.11 private-->public
+	int    GetDbtDescr(uint id, BNFieldList * pList) const; // @v9.8.11 private-->public
 private:
 	long   State;
 	long   Flags;
@@ -11909,8 +11909,8 @@ private:
 
 class SSerializer {
 public:
-	SLAPI  SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    SLAPI Serialize(TYPEID typ, void * pData, uint8 * pInd);
+	SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Serialize(TYPEID typ, void * pData, uint8 * pInd);
 	int    FASTCALL Serialize(SString & rStr);
 	int    FASTCALL Serialize(SStringU & rStr);
 	int    FASTCALL Serialize(int64 & rV);
@@ -11928,14 +11928,14 @@ public:
 	int    FASTCALL Serialize(float & rV);
 	int    FASTCALL Serialize(double & rV);
 	int    FASTCALL Serialize(S_GUID & rV);
-	int    SLAPI Serialize(char * pV, size_t valBufLen);
-	int    SLAPI SerializeFieldList(BNFieldList * pFldList);
+	int    Serialize(char * pV, size_t valBufLen);
+	int    SerializeFieldList(BNFieldList * pFldList);
 	int    FASTCALL Serialize(TPoint & rV);
 	int    FASTCALL Serialize(FPoint & rV);
 	int    FASTCALL Serialize(SArray * pArray);
 	int    FASTCALL Serialize(SStrCollection * pColl);
 	int    FASTCALL Serialize(StrAssocArray & rArray);
-	int    SLAPI SerializeBlock(uint32 size, void * pData, int skipMissizedBlock);
+	int    SerializeBlock(uint32 size, void * pData, int skipMissizedBlock);
 private:
 	int    Dir;
 	SBuffer & R_Buf;
@@ -12031,26 +12031,26 @@ template <class T> int TSCollection_Serialize(TSCollection <T> & rC, int dir, SB
 
 class SIniFile {
 public:
-	explicit SLAPI SIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
-	SLAPI ~SIniFile();
-	int    SLAPI IsValid() const; // Вызывать после конструктора
-	SCodepageIdent SLAPI GetCp() const { return Cp; }
-	long   SLAPI GetFlags() const;
-	long   SLAPI SetFlag(long f, int set);
-	const  SString & SLAPI GetFileName() const;
-	int    SLAPI GetSections(StringSet * pSects);
-	int    SLAPI IsSectExists(const char * pSect);
-	int    SLAPI GetEntries(const char * pSect, StringSet * pEntries, int storeAllString = 0);
-	// @v9.2.10 int    SLAPI GetParam(const char * pSect, const char * pParam, char *, size_t);
-	int    SLAPI GetParam(const char * pSect, const char * pParam, SString & rBuf);
-	int    SLAPI GetIntParam(const char * pSect, const char * param, int *);
-	int    SLAPI GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal);
-	int    SLAPI AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite);
-	int    SLAPI AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite = 1);
-	int    SLAPI RemoveParam(const char * pSect, const char * param);
-	int	   SLAPI RemoveSection(const char * pSect);
-	int    SLAPI ClearSection(const char * pSect);
-	int    SLAPI FlashIniBuf(); // Saves buf to file
+	explicit SIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
+	~SIniFile();
+	int    IsValid() const; // Вызывать после конструктора
+	SCodepageIdent GetCp() const { return Cp; }
+	long   GetFlags() const;
+	long   SetFlag(long f, int set);
+	const  SString & GetFileName() const;
+	int    GetSections(StringSet * pSects);
+	int    IsSectExists(const char * pSect);
+	int    GetEntries(const char * pSect, StringSet * pEntries, int storeAllString = 0);
+	// @v9.2.10 int    GetParam(const char * pSect, const char * pParam, char *, size_t);
+	int    GetParam(const char * pSect, const char * pParam, SString & rBuf);
+	int    GetIntParam(const char * pSect, const char * param, int *);
+	int    GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal);
+	int    AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite);
+	int    AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite = 1);
+	int    RemoveParam(const char * pSect, const char * param);
+	int	   RemoveSection(const char * pSect);
+	int    ClearSection(const char * pSect);
+	int    FlashIniBuf(); // Saves buf to file
 	//
 	// Descr: Определяет изменилась ли дата модификации файла с момента
 	//   открытия его экземпляром этого класса.
@@ -12059,7 +12059,7 @@ public:
 	//   2 - файл был удален (не удалось получить по нему статистику)
 	//   0 - время модификации файла меньше или равно времени полседнего открытия экземпляром класса //
 	//
-	int    SLAPI WasModified() const;
+	int    WasModified() const;
 
 	enum {
 		fWinCoding      = 0x0001,
@@ -12067,7 +12067,7 @@ public:
 		fCpAutodetected = 0x0004 // @v10.3.11 Кодовая страница Cp идентифицирована автоматически
 	};
 protected:
-	int    SLAPI Init(const char * pFileName, int fcreate, int winCoding, int useIniBuf);
+	int    Init(const char * pFileName, int fcreate, int winCoding, int useIniBuf);
 	SString & FASTCALL EncodeText(SString & rBuf) const;
 	SString & FASTCALL DecodeText(SString & rBuf) const;
 
@@ -12080,12 +12080,12 @@ private:
 	//   <0 - файл уже был открыт
 	//    0 - ошибка
 	//
-	int    SLAPI Open(const char * pFileName);
-	int    SLAPI Close();
-	int    SLAPI Create(const char * pFileName);
-	int    SLAPI SearchParam(const char * pSect, const char * pParam, SString & rVal);
-	int    SLAPI InitIniBuf();
-	int    SLAPI IsSection(const SString & rLineBuf, const char * pPattern, SString * pRet);
+	int    Open(const char * pFileName);
+	int    Close();
+	int    Create(const char * pFileName);
+	int    SearchParam(const char * pSect, const char * pParam, SString & rVal);
+	int    InitIniBuf();
+	int    IsSection(const SString & rLineBuf, const char * pPattern, SString * pRet);
 	//
 	// Descr: intermediate-функция, реализующая вставку, удаление параметра, а также удаление целой секции.
 	// ARG(pSect     IN):
@@ -12094,7 +12094,7 @@ private:
 	// ARG(overwrite IN):
 	// Returns:
 	//
-	int    SLAPI SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite);
+	int    SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite);
 
 	SCodepageIdent Cp;
 	SFile  File;
@@ -12112,21 +12112,21 @@ public:
 	public:
 		friend class STab;
 
-		SLAPI  Row();
-		SLAPI ~Row();
+		Row();
+		~Row();
 		//
 		// Descr: Возвращает !0 если экземпляр является валидным. То есть,
 		//   это - действительно STab::Row и он не был разрушен деструктором.
 		//   Валидность проверяется по сигнатуре Sign.
 		//
-		int    SLAPI IsConsistent() const;
-		void   SLAPI Clear();
+		int    IsConsistent() const;
+		void   Clear();
 		int    FASTCALL Add(const char * pStr);
 		int    FASTCALL Add(long intVal);
-		int    SLAPI Add(double number);
-		uint   SLAPI GetCount() const;
-		int    SLAPI Get(uint pos, SString & rStr) const;
-		int    SLAPI Get(uint pos, double & rNumber) const;
+		int    Add(double number);
+		uint   GetCount() const;
+		int    Get(uint pos, SString & rStr) const;
+		int    Get(uint pos, double & rNumber) const;
 	private:
 		int    FASTCALL ToStr(SString & rBuf) const;
 		int    FASTCALL FromStr(const char *);
@@ -12136,14 +12136,14 @@ public:
 		StringSet Set;
 	};
 
-	SLAPI  STab();
-	STab & SLAPI Z();
-	uint   SLAPI GetCount() const;
-	int    SLAPI Find(uint columnPos, const char * pKey, uint * pRowPos) const;
-	int    SLAPI Find(uint columnPos, double key, uint * pRowPos) const;
-	int    SLAPI Find(uint columnPos, long key, uint * pRowPos) const;
+	STab();
+	STab & Z();
+	uint   GetCount() const;
+	int    Find(uint columnPos, const char * pKey, uint * pRowPos) const;
+	int    Find(uint columnPos, double key, uint * pRowPos) const;
+	int    Find(uint columnPos, long key, uint * pRowPos) const;
 	int    FASTCALL AddRow(const Row &);
-	int    SLAPI GetRow(uint pos, Row &) const;
+	int    GetRow(uint pos, Row &) const;
 private:
 	StrAssocArray Data;
 	long   LastRecId;
@@ -12180,21 +12180,21 @@ private:
 */
 class STabFile {
 public:
-	SLAPI  STabFile();
-	SLAPI  STabFile(const char * pFileName, int updateMode = 0);
-	int    SLAPI IsValid() const;
-	int    SLAPI Open(const char * pFileName, int updateMode);
-	int    SLAPI Close();
-	int    SLAPI GetTabList(StringSet * pResult);
-	int    SLAPI LoadTab(const char * pTabName, STab & rTab);
+	STabFile();
+	STabFile(const char * pFileName, int updateMode = 0);
+	int    IsValid() const;
+	int    Open(const char * pFileName, int updateMode);
+	int    Close();
+	int    GetTabList(StringSet * pResult);
+	int    LoadTab(const char * pTabName, STab & rTab);
 	//
 	// Descr: Записывает таблицу pTag с именем pTagName в файл.
 	//   Если pTag == 0 и таблица с именем pTabName в файле
 	//   существует, то она удаляется.
 	//
-	int    SLAPI WriteTab(const char * pTabName, const STab * pTab);
+	int    WriteTab(const char * pTabName, const STab * pTab);
 private:
-	int    SLAPI Helper_WriteTab(const char * pTabName, const STab * pTab, SFile & rFile);
+	int    Helper_WriteTab(const char * pTabName, const STab * pTab, SFile & rFile);
 
 	enum {
 		fUpdateMode = 0x0001
@@ -12277,7 +12277,7 @@ public:
 	static int FASTCALL Copy_TextUnicode(const wchar_t * pText, size_t len);
 	static int FASTCALL Copy_SYLK(const SString & rText);
 	static int FASTCALL Past_Text(SStringU & rBuf);
-	static int SLAPI CopyPaste(HWND hWnd, int copy, const char * pPath); // @todo to_remake
+	static int CopyPaste(HWND hWnd, int copy, const char * pPath); // @todo to_remake
 private:
 	static int FASTCALL Helper_OpenClipboardForCopy(int & rHasBeenOpened);
 	static int FASTCALL Helper_CloseClipboard(int hasBeenOpened);
@@ -12298,7 +12298,7 @@ public:
 		char   PrinterName[64];
 		char   ShareName[128];
 	};
-	static int SLAPI GetListOfPrinters(TSVector <PrnInfo> * pInfoList); // @v9.8.4 TSArray-->TSVector
+	static int GetListOfPrinters(TSVector <PrnInfo> * pInfoList); // @v9.8.4 TSArray-->TSVector
 	explicit SPrinting(HWND);
 	~SPrinting();
 	int    Init(const char * pPort);
@@ -12318,7 +12318,7 @@ private:
 
 #ifndef _WIN32_WCE // {
 
-int    SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw);
+int    SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw);
 //
 // Descr: Возвращает ЛОКАЛЬНОЕ время с сервера pServerName.
 // Returns:
@@ -12327,8 +12327,8 @@ int    SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserNam
 //   0  - ошибка. Если ошибка системная, то SLibError содержит ссылку на системную ошибку,
 //        а SLS.GetTLA().LastOsErr содержит код этой ошибки.
 //
-int    SLAPI SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm);
-int    SLAPI SGetComputerName(SString & rName);
+int    SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm);
+int    SGetComputerName(SString & rName);
 //
 // Descr: Класс-обертка для работы с динамическими библиотеками (DLL).
 // Example:
@@ -12345,9 +12345,9 @@ int    SLAPI SGetComputerName(SString & rName);
 //
 class SDynLibrary {
 public:
-	explicit SLAPI  SDynLibrary(const char * pFileName = 0);
-	SLAPI ~SDynLibrary();
-	int    SLAPI IsValid() const;
+	explicit SDynLibrary(const char * pFileName = 0);
+	~SDynLibrary();
+	int    IsValid() const;
 	int    FASTCALL Load(const char * pFileName);
 	FARPROC FASTCALL GetProcAddr(const char * pProcName);
 	FARPROC FASTCALL GetProcAddr(const char * pProcName, int unicodeSuffix);
@@ -12361,17 +12361,17 @@ class WinRegValue {
 public:
 	friend class WinRegKey;
 
-	explicit SLAPI  WinRegValue(size_t bufSize = 0);
-	SLAPI ~WinRegValue();
-	int    SLAPI  Alloc(size_t);
-	uint   SLAPI  GetType() const { return Type; }
-	uint32 SLAPI  GetDWord() const;
-	const  void * SLAPI GetBinary(size_t * pDataLen) const;
-	//const  char * SLAPI GetString() const;
-	int    SLAPI  GetString(SString & rBuf) const;
-	int    SLAPI  PutDWord(uint32);
-	int    SLAPI  PutBinary(const void * pBuf, size_t dataSize);
-	int    SLAPI  PutString(const char * pStr);
+	explicit WinRegValue(size_t bufSize = 0);
+	~WinRegValue();
+	int    Alloc(size_t);
+	uint   GetType() const { return Type; }
+	uint32 GetDWord() const;
+	const  void * GetBinary(size_t * pDataLen) const;
+	//const  char * GetString() const;
+	int    GetString(SString & rBuf) const;
+	int    PutDWord(uint32);
+	int    PutBinary(const void * pBuf, size_t dataSize);
+	int    PutString(const char * pStr);
 private:
 	uint   Type;
 	void * P_Buf;
@@ -12381,32 +12381,32 @@ private:
 
 class WinRegKey {
 public:
-	SLAPI  WinRegKey();
-	SLAPI  WinRegKey(HKEY, const char * pSubKey, int readOnly);
-	SLAPI ~WinRegKey();
+	WinRegKey();
+	WinRegKey(HKEY, const char * pSubKey, int readOnly);
+	~WinRegKey();
 	//
 	// Descr: Удаляет ветку реестра key\\pSubKey.
 	//   Ветку открывать перед удалением не следует.
 	//
-	int    SLAPI Delete(HKEY key, const char * pSubKey); // @>>SHLWAPI.SHDeleteKey
+	int    Delete(HKEY key, const char * pSubKey); // @>>SHLWAPI.SHDeleteKey
 	//
 	// Descr: Удаляет параметр pValue из реестра key\\pSubKey\\
 	//   Ветку открывать перед удалением не следует.
 	//
-	int    SLAPI DeleteValue(HKEY key, const char * pSubKey, const char * pValue);
-	int    SLAPI Open(HKEY, const char * pSubKey, int readOnly, int onlyOpen = 0);
-	void   SLAPI Close();
-	int    SLAPI GetDWord(const char * pParam, uint32 * pVal);
-	//int    SLAPI GetString(const char * pParam, char * pBuf, size_t bufLen);
-	int    SLAPI GetString(const char * pParam, SString & rBuf);
-	int    SLAPI GetBinary(const char * pParam, void * pBuf, size_t bufLen);
-	int    SLAPI GetRecSize(const char * pParam, size_t * pRecSize);
-	int    SLAPI EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal);
-	int    SLAPI EnumKeys(uint * pIdx, SString & rKey);
-	int    SLAPI PutDWord(const char * pParam, uint32 val);
-	int    SLAPI PutString(const char * pParam, const char *);
-	int    SLAPI PutBinary(const char * pParam, const void * pBuf, size_t bufLen);
-	int    SLAPI PutValue(const char * pParam, const WinRegValue *);
+	int    DeleteValue(HKEY key, const char * pSubKey, const char * pValue);
+	int    Open(HKEY, const char * pSubKey, int readOnly, int onlyOpen = 0);
+	void   Close();
+	int    GetDWord(const char * pParam, uint32 * pVal);
+	//int    GetString(const char * pParam, char * pBuf, size_t bufLen);
+	int    GetString(const char * pParam, SString & rBuf);
+	int    GetBinary(const char * pParam, void * pBuf, size_t bufLen);
+	int    GetRecSize(const char * pParam, size_t * pRecSize);
+	int    EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal);
+	int    EnumKeys(uint * pIdx, SString & rKey);
+	int    PutDWord(const char * pParam, uint32 val);
+	int    PutString(const char * pParam, const char *);
+	int    PutBinary(const char * pParam, const void * pBuf, size_t bufLen);
+	int    PutValue(const char * pParam, const WinRegValue *);
 private:
 	HKEY   Key;
 };
@@ -12415,16 +12415,16 @@ private:
 //
 class WinService {
 public:
-	static int SLAPI Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLoginName, const char * pPassword);
-	static int SLAPI Uninstall(const char * pServiceName);
-	static int SLAPI Start(const char * pServiceName, int stop = 0);
+	static int Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLoginName, const char * pPassword);
+	static int Uninstall(const char * pServiceName);
+	static int Start(const char * pServiceName, int stop = 0);
 
-	SLAPI  WinService(const WinServiceMngr &, const char * pServiceName, long desiredAccess = SERVICE_ALL_ACCESS);
-	SLAPI ~WinService();
-	SLAPI  operator SC_HANDLE () const { return H; }
-	int    SLAPI IsValid() const;
-	const SString & SLAPI GetName() const;
-	int    SLAPI Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw);
+	WinService(const WinServiceMngr &, const char * pServiceName, long desiredAccess = SERVICE_ALL_ACCESS);
+	~WinService();
+	operator SC_HANDLE () const { return H; }
+	int    IsValid() const;
+	const SString & GetName() const;
+	int    Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw);
 	//
 	// Descr: Удаляет сервис из базы данных сервисов.
 	//   Для успешного выполнения этой функции необходимо создать экземпляр класса
@@ -12435,17 +12435,17 @@ public:
 	//   !0 - сервис успешно удален
 	//   0  - ошибка
 	//
-	int    SLAPI Delete();
+	int    Delete();
 	//
 	// Descr:
 	//   desiredAccess = SERVICE_START
 	//
-	int    SLAPI Start();
+	int    Start();
 	//
 	// Descr:
 	//   desiredAccess = SERVICE_STOP
 	//
-	int    SLAPI Stop();
+	int    Stop();
 private:
 	const  WinServiceMngr * P_ScMngr;
 	SC_HANDLE H;
@@ -12460,14 +12460,14 @@ interface IWbemClassObject;
 
 class SWmi {
 public:
-	SLAPI  SWmi();
-	SLAPI ~SWmi();
-	int    SLAPI Connect(const char * pServer = 0, const char * pUserName = 0, const char * pPassword = 0);
-	int    SLAPI Method_CreateProcess(const char * pCmdLine);
-	int    SLAPI GetMethodList(IWbemClassObject * pCls, StrAssocArray * pList);
+	SWmi();
+	~SWmi();
+	int    Connect(const char * pServer = 0, const char * pUserName = 0, const char * pPassword = 0);
+	int    Method_CreateProcess(const char * pCmdLine);
+	int    GetMethodList(IWbemClassObject * pCls, StrAssocArray * pList);
 private:
-	void   SLAPI Release();
-	int    SLAPI GetSvcError(SString & rBuf);
+	void   Release();
+	int    GetSvcError(SString & rBuf);
 	enum {
 		sConnected	= 0x0001
 	};
@@ -12480,34 +12480,34 @@ private:
 //
 class ACount { // @#size=4
 public:
-	SLAPI  ACount();
+	ACount();
 	enum CtrOption {
 		ctrDontInitialize
 	};
 	//
 	// Descr: Этот конструктор используется тогда, когда не следует явно инициализировать переменную в ноль.
 	//
-	explicit SLAPI  ACount(CtrOption);
-	SLAPI  operator long() const;
+	explicit ACount(CtrOption);
+	operator long() const;
 	long   FASTCALL Add(long add);
 	long   FASTCALL Assign(long val);
-	long   SLAPI Incr();
-	long   SLAPI Decr();
+	long   Incr();
+	long   Decr();
 private:
 	long   C;
 };
 /*
 class ACount64 { // @#size=4
 public:
-	SLAPI  ACount64()	{C = 0;}
+	ACount64()	{C = 0;}
 	//
 	// Descr: Этот конструктор используется тогда, когда
 	//   не следует явно инициализировать переменную в ноль.
 	//
-	SLAPI  ACount64(int64) {}
-	SLAPI  operator int64() const { return C; }
-	int64  SLAPI Incr() { return ::InterlockedIncrement64(&C); }
-	int64  SLAPI Decr() { return ::InterlockedDecrement64(&C); }
+	ACount64(int64) {}
+	operator int64() const { return C; }
+	int64  Incr() { return ::InterlockedIncrement64(&C); }
+	int64  Decr() { return ::InterlockedDecrement64(&C); }
 private:
 	int64  C;
 };
@@ -12530,20 +12530,20 @@ class SCriticalSection {
 public:
 	class Data {
 	public:
-		explicit SLAPI Data(int dontDestroy = 0);
-		SLAPI ~Data();
-		void   SLAPI Enter();
-		int    SLAPI TryEnter();
-		void   SLAPI Leave();
+		explicit Data(int dontDestroy = 0);
+		~Data();
+		void   Enter();
+		int    TryEnter();
+		void   Leave();
 	private:
 		CRITICAL_SECTION C;
 		int    DontDestroyOnDestruction;
 	};
-	SLAPI  SCriticalSection(Data & rCsd) : R_Cs(rCsd)
+	SCriticalSection(Data & rCsd) : R_Cs(rCsd)
 	{
 		R_Cs.Enter();
 	}
-	SLAPI ~SCriticalSection()
+	~SCriticalSection()
 	{
 		R_Cs.Leave();
 	}
@@ -12567,10 +12567,10 @@ void   FASTCALL SDelay(uint msec);
 //
 class SWaitableObject {
 public:
-	SLAPI  SWaitableObject();
-	virtual SLAPI ~SWaitableObject();
-	int    SLAPI IsValid() const;
-	SLAPI  operator HANDLE() const { return H; }
+	SWaitableObject();
+	virtual ~SWaitableObject();
+	int    IsValid() const;
+	operator HANDLE() const { return H; }
 	int    FASTCALL operator == (const SWaitableObject &) const;
 	//
 	// Descr: If the object is in a signaled state, cosume it without waiting.
@@ -12582,7 +12582,7 @@ public:
 	//
 	int    FASTCALL Wait(long timeout = -1);
 protected:
-	explicit SLAPI SWaitableObject(HANDLE h);
+	explicit SWaitableObject(HANDLE h);
 	HANDLE H;
 };
 //
@@ -12590,26 +12590,26 @@ protected:
 //
 class DirChangeNotification : public SWaitableObject {
 public:
-	SLAPI  DirChangeNotification(const char * pName, int watchSubtree, long filtFlags);
-	virtual SLAPI ~DirChangeNotification();
-	int    SLAPI Next();
+	DirChangeNotification(const char * pName, int watchSubtree, long filtFlags);
+	virtual ~DirChangeNotification();
+	int    Next();
 };
 //
 //
 //
 class SMutex : public SWaitableObject {
 public:
-	SLAPI  SMutex(int initialValue, const char * pName = 0);
-	int    SLAPI Release();
+	SMutex(int initialValue, const char * pName = 0);
+	int    Release();
 };
 //
 //
 //
 class STimer : public SWaitableObject {
 public:
-	SLAPI  STimer(const char * pName = 0);
-	int    SLAPI Set(const LDATETIME & rDtm, long periodTime);
-	int    SLAPI Cancel();
+	STimer(const char * pName = 0);
+	int    Set(const LDATETIME & rDtm, long periodTime);
+	int    Cancel();
 };
 //
 //
@@ -12627,16 +12627,16 @@ public:
 	// ARG(pName     IN): @#{vptr} Создает именованное событие
 	// ARG(mode      IN): modeXXX
 	//
-	SLAPI  Evnt(const char * pName, int mode = modeCreate);
-	SLAPI  Evnt(int mode = modeCreate);
+	Evnt(const char * pName, int mode = modeCreate);
+	Evnt(int mode = modeCreate);
 	//
 	// Descr: Переводит событие в занятое состояние
 	//
-	int    SLAPI Signal();
+	int    Signal();
 	//
 	// Descr: Переводит событие в свободное состояние
 	//
-	int    SLAPI Reset();
+	int    Reset();
 };
 //
 //
@@ -12647,9 +12647,9 @@ public:
 		modeCreate = 1,
 		modeOpen   = 3
 	};
-	SLAPI  Sem(const char * pName, int mode = modeCreate, int initVal = 0);
-	SLAPI  Sem(int initVal = 0);
-	int    SLAPI Release(int count = 1);
+	Sem(const char * pName, int mode = modeCreate, int initVal = 0);
+	Sem(int initVal = 0);
+	int    Release(int count = 1);
 };
 //
 // Incrementing is non-blocking, decrementing is blocking.
@@ -12660,27 +12660,27 @@ public:
 	//
 	// Descr: A BlockingCounter instance may be initialized only with a non-negative value
 	//
-	SLAPI  BlockingCounter();
-	int    SLAPI Value() const;
-	int    SLAPI IsClear() const;
+	BlockingCounter();
+	int    Value() const;
+	int    IsClear() const;
 	//
 	// Descr: Blocks until the counter is clear
 	//
-	int    SLAPI WaitUntilClear();
+	int    WaitUntilClear();
 	//
 	// Descr: Blocks until the counter is dirty
 	//
-	int    SLAPI WaitUntilDirty();
+	int    WaitUntilDirty();
 	//
 	// Descr: Non-blocking increment
 	//
-	int    SLAPI Increment();
+	int    Increment();
 	//
 	// Descr: Blocking decrement
 	//
-	int    SLAPI BlockingDecrement();
-	BlockingCounter & SLAPI operator++ ();
-	BlockingCounter & SLAPI operator-- ();
+	int    BlockingDecrement();
+	BlockingCounter & operator++ ();
+	BlockingCounter & operator-- ();
 protected:
 	int    Count;
 	SMutex ExclusiveAccess;
@@ -12692,23 +12692,23 @@ protected:
 //
 class SemiMutex {
 public:
-	SLAPI  SemiMutex();
+	SemiMutex();
 	//
 	// Descr: Share execution with other "readers".
 	//
-	int    SLAPI ReadLock();
+	int    ReadLock();
 	//
 	// Descr: Terminate a shared execution.
 	//
-	int    SLAPI ReadUnlock();
+	int    ReadUnlock();
 	//
 	// Descr: Exclusive lock
 	//
-	int    SLAPI Lock();
+	int    Lock();
 	//
 	// Descr: Release an exclusive lock
 	//
-	int    SLAPI Unlock();
+	int    Unlock();
 protected:
 	SMutex ExclusiveAccess;
 	BlockingCounter ReadAccess;
@@ -12721,8 +12721,8 @@ public:
 	SMtLock() : Cs(0)
 	{
 	}
-	void   SLAPI Lock() { Cs.Enter(); }
-	void   SLAPI Unlock() { Cs.Leave(); }
+	void   Lock() { Cs.Enter(); }
+	void   Unlock() { Cs.Leave(); }
 private:
 	SCriticalSection::Data Cs;
 };
@@ -12731,8 +12731,8 @@ private:
 //
 class ReadWriteLock {
 public:
-	SLAPI  ReadWriteLock();
-	SLAPI ~ReadWriteLock();
+	ReadWriteLock();
+	~ReadWriteLock();
 	//
 	// Descr: Блокирует объект на чтение с ожиданием в течении timeout миллисекунд.
 	// ARG(timeout IN): время ожидания в миллисекундах. Если timeout < 0, то бесконечное ожидание.
@@ -12757,19 +12757,19 @@ public:
 	//   >0 - блокировка успешно установлена
 	//   0  - ошибка
 	//
-	int    SLAPI ReadLock_();
+	int    ReadLock_();
 	//
 	// Descr: Блокирует объект на запись с бесконечным ожиданием.
 	// Returns:
 	//   >0 - блокировка успешно установлена
 	//   0  - ошибка
 	//
-	int    SLAPI WriteLock_();
+	int    WriteLock_();
 	//
 	// Descr: Снимает блокировку. Функция унифицированная и для блокировки на чтение и на запись.
 	//   Функция должна быть вызвана после выполнения работы, следующей за WriteLock(T) или ReadLock(T).
 	//
-	int    SLAPI Unlock_();
+	int    Unlock_();
 private:
 	friend class SReadWriteLocker;
 	int    FASTCALL Helper_ReadLock(long timeout);
@@ -12803,20 +12803,20 @@ public:
 		stWLocked = 0x0008,
 		stTraced  = 0x0010  // Объект трассируется отладочным стеком (необходим для правильной работы деструктора)
 	};
-	SLAPI  SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout = -1);
+	SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout = -1);
 	//
 	// Descr: Специальный вариант конструктора для внесения информации о блокировке
 	//   в отладочный стек.
 	//
-	SLAPI  SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout, const char * pSrcFileName, uint srcLineNo);
-	SLAPI ~SReadWriteLocker();
-	int    SLAPI operator !() const;
-	int    SLAPI GetState() const;
+	SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout, const char * pSrcFileName, uint srcLineNo);
+	~SReadWriteLocker();
+	int    operator !() const;
+	int    GetState() const;
 	int    FASTCALL Toggle(Type t);
-	int    SLAPI Toggle(Type t, const char * pSrcFileName, uint srcLineNo);
+	int    Toggle(Type t, const char * pSrcFileName, uint srcLineNo);
 private:
 	void   FASTCALL InitInstance(Type t);
-	int    SLAPI Unlock();
+	int    Unlock();
 
 	ReadWriteLock & R_L;
 	const  long Timeout;
@@ -12839,10 +12839,10 @@ public:
 	// Descr: Транслирует тип блокировки SReadWriteLocker::Type в SLockStack::ltXXX
 	//
 	static uint FASTCALL WRLT_to_LSLT(SReadWriteLocker::Type wrlt);
-	SLAPI  SLockStack();
-	void   SLAPI Push(uint lockType, const char * pSrcFileName, uint lineNo);
-	void   SLAPI Pop();
-	void   SLAPI ToStr(SString & rBuf) const;
+	SLockStack();
+	void   Push(uint lockType, const char * pSrcFileName, uint lineNo);
+	void   Pop();
+	void   ToStr(SString & rBuf) const;
 private:
 	struct Entry {
         long   SrcFileSymbId; // Значение, ассоциированное с именем исходного файла, занесенным в SlSession::GlobSymbList
@@ -12941,7 +12941,7 @@ public:
 	enum {
 		statusEOT = 0x0001
 	};
-	SLAPI  SBufferPipe(size_t initSize = 0, long flags = fMovable);
+	SBufferPipe(size_t initSize = 0, long flags = fMovable);
 	//
 	// Descr: Записывает в буфер данные, на которые указывает pSrc в размере srcLen.
 	//
@@ -12950,7 +12950,7 @@ public:
 	// Descr: Возвращает количество доступных для считывания байт буфера.
 	// Note: Функция non-const в отличии от тезки в базовом классе (из-за блокировки).
 	//
-	size_t SLAPI GetAvailableSize();
+	size_t GetAvailableSize();
 	//
 	// Descr: Считывает в буфер pBuf, начиная со смещения RdOffs, доступное количество
 	//   байт данных, но не более чем bufLen.
@@ -12964,9 +12964,9 @@ public:
 	//   Таким образом, после выполнения этой операции буфер сохраняет
 	//   свой изначальный распределенный размер, но пуст.
 	//
-	void   SLAPI Reset();
-	long   SLAPI GetStatus();
-	void   SLAPI SetStatus(long st, int set);
+	void   Reset();
+	long   GetStatus();
+	void   SetStatus(long st, int set);
 private:
 	long   Status;
 	SMtLock Lck;
@@ -13017,18 +13017,18 @@ class SProfile {
 public:
 	class Measure {
 	public:
-		SLAPI  Measure();
-		uint64 SLAPI Get();
+		Measure();
+		uint64 Get();
 	private:
 		uint64 Start;
 	};
-	static __int64 SLAPI NSec100Clock();
+	static __int64 NSec100Clock();
 
-	explicit SLAPI SProfile(int singleThreaded = 0);
-	SLAPI ~SProfile();
-	uint64 SLAPI GetAbsTimeMicroseconds();
+	explicit SProfile(int singleThreaded = 0);
+	~SProfile();
+	uint64 GetAbsTimeMicroseconds();
 protected:
-	uint64 SLAPI Helper_GetAbsTimeMicroseconds();
+	uint64 Helper_GetAbsTimeMicroseconds();
 
 	const  int SingleThreaded;
 	int64  StartClock; // время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
@@ -13072,9 +13072,9 @@ public:
 	//
 	// Descr: Initialize the data members without creating an execution thread
 	//
-	explicit SLAPI  SlThread(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
-	virtual SLAPI ~SlThread();
-	int    SLAPI IsConsistent() const;
+	explicit SlThread(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
+	virtual ~SlThread();
+	int    IsConsistent() const;
 	operator HANDLE() const { return Handle; }
 	//
 	// Descr: Создает поток и запускает его на исполнение.
@@ -13092,44 +13092,44 @@ public:
 	//   Функция устанавливает флаг статуса stStop по которому функции потока
 	//   могут определить, что выставлено требование на остановку.
 	//
-	void   SLAPI Stop(long timeout);
+	void   Stop(long timeout);
 	//
 	// Descr: Terminate the execution thread brutally
 	//
-	int    SLAPI Terminate();
-	int    SLAPI WaitUntilFinished();
+	int    Terminate();
+	int    WaitUntilFinished();
 	//
 	// Descr: This implementation is guaranteed to be cancelable.
 	//
 	void   FASTCALL Sleep(uint milliseconds);
-	void   SLAPI SetStopState();
-	ThreadID SLAPI GetThreadID() const { return ID; }
-	int    SLAPI IsRunning() const;
-	int    SLAPI IsIdle() const;
+	void   SetStopState();
+	ThreadID GetThreadID() const { return ID; }
+	int    IsRunning() const;
+	int    IsIdle() const;
 	//
 	// Descr: Если поток находится в состоянии остановки, то возвращает !0,
 	//   в противном случае - 0.
 	//
-	int    SLAPI IsStopping() const;
+	int    IsStopping() const;
 protected:
 	//
 	// Descr: This method is invoked on behalf of the new thread before Run()
 	//
-	virtual void SLAPI Startup();
+	virtual void Startup();
 	//
 	// Descr: This method is invoked on behalf of the dying thread after Run()
 	//
-	virtual void SLAPI Shutdown();
+	virtual void Shutdown();
 	//
 	// Descr: This represents the main thread proc of the thread. It is invoked
 	//   after Startup() and before Shutdown(). The default implementation is void.
 	//
-	virtual void SLAPI Run();
-	void   SLAPI Reset(void * pInitData = 0, int withForce = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
-	int    SLAPI InitStartupSignal();
-	int    SLAPI SignalStartup();
-	void   SLAPI SetIdleState();
-	void   SLAPI ResetIdleState();
+	virtual void Run();
+	void   Reset(void * pInitData = 0, int withForce = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
+	int    InitStartupSignal();
+	int    SignalStartup();
+	void   SetIdleState();
+	void   ResetIdleState();
 
 	volatile void * P_InitData;
 	const void * P_Tla; // @v9.8.1
@@ -13162,9 +13162,9 @@ private:
 //
 class SlThread_WithStartupSignal : public SlThread {
 public:
-	explicit SLAPI SlThread_WithStartupSignal(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
+	explicit SlThread_WithStartupSignal(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
 protected:
-	virtual void SLAPI Startup();
+	virtual void Startup();
 };
 
 #endif // } _WIN32_WCE
@@ -13174,8 +13174,8 @@ protected:
 #ifndef _WIN32_WCE
 
 struct SGlobalSecureConfig {
-	SLAPI  SGlobalSecureConfig();
-	int    SLAPI IsEmpty() const;
+	SGlobalSecureConfig();
+	int    IsEmpty() const;
 
 	long   Flags;
 	SString CaFile;
@@ -13259,29 +13259,29 @@ enum {
 
 class SlThreadLocalArea {
 public:
-	SLAPI  SlThreadLocalArea();
-	SLAPI ~SlThreadLocalArea();
-	void   SLAPI Destroy();
-	int    SLAPI RegisterTempFileName(const char *);
-	void   SLAPI RemoveTempFiles();
+	SlThreadLocalArea();
+	~SlThreadLocalArea();
+	void   Destroy();
+	int    RegisterTempFileName(const char *);
+	void   RemoveTempFiles();
 	//
 	// Descr: Возвращает контекст вывода, используемый
 	//   для работы с Windows-функциями штрифтов.
 	//
-	HDC    SLAPI GetFontDC();
-	TVRez * SLAPI GetRez();
+	HDC    GetFontDC();
+	TVRez * GetRez();
 	//
 	// Descr: Устанавливает позицию левого верхнего угла диалогового окна, которое
 	//   потенциально может быть открыто. Если left < 0 || top < 0, то при создании
 	//   нового окна диалога программа будет считать, что такая позиция не определена.
 	//
-	void   SLAPI SetNextDialogLuPos(int left, int top);
+	void   SetNextDialogLuPos(int left, int top);
 	//
 	// Descr: Возвращает рекомендуемую позицию левого верхнего угла вновь открытого
 	//   диалогового окна.
 	// Note: Эта функция сразу же сбрасывает значение этого угла в неопределенное.
 	//
-	TPoint SLAPI GetNextDialogLuPos();
+	TPoint GetNextDialogLuPos();
 
 	long   Id;
 	int    LastErr;
@@ -13318,17 +13318,17 @@ private:
 
 class SlSession {
 public:
-	SLAPI  SlSession();
-	SLAPI ~SlSession();
-	void   SLAPI Init(const char * pAppName, HINSTANCE hInst = NULL);
+	SlSession();
+	~SlSession();
+	void   Init(const char * pAppName, HINSTANCE hInst = NULL);
 	//
 	// Descr: Устанавливает наименование приложения, ассоциированное с данным сеансом.
 	// Note: В общем случае правильно указывать наименование приложения аргументом функции SlSession::Init,
 	//   однако, если это не возможно по каким либо причинам, то это следует сделать вызовом данной функции.
 	//
-	void   SLAPI SetAppName(const char * pAppName);
-	int    SLAPI InitWSA(); // @>>::WSAStartup
-	int    SLAPI InitSSL();
+	void   SetAppName(const char * pAppName);
+	int    InitWSA(); // @>>::WSAStartup
+	int    InitSSL();
 	//
 	// Descr: Инициализирует новый поток. Функция должна быть вызвана
 	//   при создании основного потока. Каждый новый поток так же должен вызвать
@@ -13337,16 +13337,16 @@ public:
 	// Attention: Ни в коем случае нельзя менять никаких данных по этому указателю
 	//   он может быть использован исключительно для промотра информации в отладочных целях.
 	//
-	const void * SLAPI InitThread();
-	void   SLAPI ReleaseThread();
-	//SlThreadLocalArea & SLAPI GetTLA();
-	//const  SlThreadLocalArea & SLAPI GetConstTLA() const;
-	FORCEINLINE SlThreadLocalArea & SLAPI GetTLA() { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
-	FORCEINLINE const SlThreadLocalArea & SLAPI GetConstTLA() const { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
-	const SString & SLAPI GetExePath() const;
-	const SString & SLAPI GetAppName() const;
-	void   SLAPI SetUiLanguageId(int languageId, int currentThreadOnly);
-	int    SLAPI GetUiLanguageId() const;
+	const void * InitThread();
+	void   ReleaseThread();
+	//SlThreadLocalArea & GetTLA();
+	//const  SlThreadLocalArea & GetConstTLA() const;
+	FORCEINLINE SlThreadLocalArea & GetTLA() { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
+	FORCEINLINE const SlThreadLocalArea & GetConstTLA() const { return *static_cast<SlThreadLocalArea *>(SGetTls(TlsIdx)); }
+	const SString & GetExePath() const;
+	const SString & GetAppName() const;
+	void   SetUiLanguageId(int languageId, int currentThreadOnly);
+	int    GetUiLanguageId() const;
 	SString & GetStopEventName(SString & rBuf) const;
 	//
 	// Descr: Устанавливает флаг StopFlag и сигнализирует
@@ -13356,16 +13356,16 @@ public:
 	//   >0 - переключение в режим останова успешно реализовано
 	//   <0 - класс уже находился в режиме останова
 	//
-	int    SLAPI Stop();
-    HINSTANCE SLAPI GetHInst() const { return H_Inst; }
+	int    Stop();
+    HINSTANCE GetHInst() const { return H_Inst; }
 	//
 	// Descr: Отменяет режим останова для процесса
 	//
-	int    SLAPI ResetStopState();
+	int    ResetStopState();
 	//
 	// Descr: Проверяет, находится ли класс в режиме останова процесса
 	//
-	int    SLAPI CheckStopFlag() const;
+	int    CheckStopFlag() const;
 	void   FASTCALL SetExecutionContext(const char * pInfo);
 	void   FASTCALL SetAddedMsgString(const char *);
 	//
@@ -13380,14 +13380,14 @@ public:
 	// Returns: 0
 	//
 	int    FASTCALL SetOsError(const char * pAddedMsg = 0);
-	int    SLAPI GetOsError() const;
+	int    GetOsError() const;
 	const  SString & GetAddedMsgString() const;
-	int    SLAPI LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize = 0);
-	int    SLAPI InitGdiplus();
-	void   SLAPI ShutdownGdiplus();
-	int    SLAPI LoadString_(const char * pSignature, SString & rBuf) const;
-	int    SLAPI ExpandString(SString & rBuf, int ctransf) const;
-	int    SLAPI SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf); // @>>this->LoadString
+	int    LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize = 0);
+	int    InitGdiplus();
+	void   ShutdownGdiplus();
+	int    LoadString_(const char * pSignature, SString & rBuf) const;
+	int    ExpandString(SString & rBuf, int ctransf) const;
+	int    SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf); // @>>this->LoadString
 	//
 	// Descr: Обращается к функции запроса каталога, предоставляемой модулем верхнего уровня.
 	// ARG(pSignature IN): текстовая сигатура запрашиваемого каталога.
@@ -13400,14 +13400,14 @@ public:
 	//   0  - ошибка (в т.ч. возможно, из-за того, что модуль верхнего уровня не предоставил
 	//      соответствующей функции.
 	//
-	int    SLAPI QueryPath(const char * pSignature, SString & rBuf) const;
+	int    QueryPath(const char * pSignature, SString & rBuf) const;
 	int    FASTCALL SetCodepage(SCodepage cp);
-	SCodepage SLAPI GetCodepage() const;
-	int    SLAPI CallHelp(void * hWnd, uint cmd, uint ctx);
-	int    SLAPI RegisterTempFileName(const char *);
-	void   SLAPI RemoveTempFiles();
-	uint   SLAPI CreateGlobalObject(SClassWrapper & rCls);
-	int    SLAPI DestroyGlobalObject(uint idx);
+	SCodepage GetCodepage() const;
+	int    CallHelp(void * hWnd, uint cmd, uint ctx);
+	int    RegisterTempFileName(const char *);
+	void   RemoveTempFiles();
+	uint   CreateGlobalObject(SClassWrapper & rCls);
+	int    DestroyGlobalObject(uint idx);
 	void * FASTCALL GetGlobalObject(uint idx);
 	//
 	// Descr: Находит или, если нет, то создает ассоциацию глобального символа pSymb с целочисленным
@@ -13430,7 +13430,7 @@ public:
 	//   критической сессии, замкнутой внутри функции.
 	//   Если бы функций было 2, пришлось бы держать отдельный объект критической сессии.
 	//
-	long   SLAPI GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb); // @cs
+	long   GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb); // @cs
 	const  S_GUID & GetSessUuid() const { return SessUuid; }
 	//
 	// Descr: Возвращает инкрементируемое целочисленное значение, уникальное в пределах данного процесса.
@@ -13441,14 +13441,14 @@ public:
 	// Descr: Возвращает абсолютное время в микросекундах для целей профилирования //
 	// Note: использует локальный для потока объект SlThreadLocalArea::Prf
 	//
-	uint64 SLAPI GetProfileTime();
+	uint64 GetProfileTime();
 	//
 	// Descr: Устанавливает или снимает (в зависимости от параметра set) флаг пользовательского
 	//   интерфейса для текущего потока.
 	// Returns:
 	//   Предыдущее значение поля флагов пользовательского интерфейса текущего потока.
 	//
-	long    SLAPI SetUiFlag(long f, int set);
+	long    SetUiFlag(long f, int set);
 	//
 	// Descr: Проверят установлен ли заданный флаг пользовательского интерфейса текущего потока.
 	//
@@ -13461,18 +13461,18 @@ public:
 		ddotGlobalFile,
 		ddotLocalWhatmanToolArrayItem
 	};
-	int    SLAPI SetupDragndropObj(int ddoType, void * pObj);
-	int    SLAPI IsThereDragndropObj(void ** ppObj);
-	const  SGlobalSecureConfig & SLAPI GetGlobalSecureConfig();
-	void   SLAPI SetLogPath(const char *);
-	SString & SLAPI GetLogPath(SString & rPath) const;
-	void   SLAPI GetExtraProcBlock(SlExtraProcBlock * pBlk) const;
-	void   SLAPI SetExtraProcBlock(const SlExtraProcBlock * pBlk);
-	void   SLAPI LockPush(int lockType, const char * pSrcFileName, uint srcLineNo);
-	void   SLAPI LockPop();
-	SString  & SLAPI AcquireRvlStr();
-	SStringU & SLAPI AcquireRvlStrU();
-	SAlloc::Stat & SLAPI GetAllocStat() { return AllocStat; }
+	int    SetupDragndropObj(int ddoType, void * pObj);
+	int    IsThereDragndropObj(void ** ppObj);
+	const  SGlobalSecureConfig & GetGlobalSecureConfig();
+	void   SetLogPath(const char *);
+	SString & GetLogPath(SString & rPath) const;
+	void   GetExtraProcBlock(SlExtraProcBlock * pBlk) const;
+	void   SetExtraProcBlock(const SlExtraProcBlock * pBlk);
+	void   LockPush(int lockType, const char * pSrcFileName, uint srcLineNo);
+	void   LockPop();
+	SString  & AcquireRvlStr();
+	SStringU & AcquireRvlStrU();
+	SAlloc::Stat & GetAllocStat() { return AllocStat; }
 private:
 	long   TlsIdx;          // @firstmember
 	const  SSystem SSys;    //
@@ -14030,19 +14030,19 @@ enum SylkFontStyle {
 
 class SylkWriter {
 public:
-	explicit SLAPI SylkWriter(const char * pFileName = 0);
-	SLAPI ~SylkWriter();
-	int    SLAPI Open(const char * pFileName);
-	void   SLAPI Close();
-	int    SLAPI PutVal(const char *, int cvtOemToChr);
-	int    SLAPI PutVal(double);
-	void   SLAPI PutColumnWidth(int start, int end, int width);
-	void   SLAPI PutRec(const char * pTypeStr, const char *);
-	void   SLAPI PutRec(int typeChr, const char *);
+	explicit SylkWriter(const char * pFileName = 0);
+	~SylkWriter();
+	int    Open(const char * pFileName);
+	void   Close();
+	int    PutVal(const char *, int cvtOemToChr);
+	int    PutVal(double);
+	void   PutColumnWidth(int start, int end, int width);
+	void   PutRec(const char * pTypeStr, const char *);
+	void   PutRec(int typeChr, const char *);
 	void   FASTCALL PutLine(const char *);
-	void   SLAPI PutFont(int symb, const char * pFontName, int size, uint fontStyle);
-	void   SLAPI PutFormat(const char * pBuf, int fontId, int col, int row);
-	int    SLAPI GetBuf(SString * pBuf) const;
+	void   PutFont(int symb, const char * pFontName, int size, uint fontStyle);
+	void   PutFormat(const char * pBuf, int fontId, int col, int row);
+	int    GetBuf(SString * pBuf) const;
 private:
 	SString Buf;
 	FILE * Stream;
@@ -14088,19 +14088,19 @@ public:
 		SString Email1;
 		SString Email2;
 	};
-	SLAPI  VCard(const char * pFileName = 0, int forExport = 1);
-	SLAPI ~VCard();
-	int    SLAPI Open(const char * pFileName, int forExport);
-	int    SLAPI Close();
-	int    SLAPI Put(const Rec *);
-	int    SLAPI Get(Rec *);
+	VCard(const char * pFileName = 0, int forExport = 1);
+	~VCard();
+	int    Open(const char * pFileName, int forExport);
+	int    Close();
+	int    Put(const Rec *);
+	int    Get(Rec *);
 private:
-	int    SLAPI PutProp(Property prop, const void * pData, PropAttribute attrib = paNone);
-	int    SLAPI GetName(SString &);
-	int    SLAPI GetBirthDate(LDATE *);
-	int    SLAPI GetPhones(SString &);
-	int    SLAPI GetEmails(SString &);
-	int    SLAPI GetAddrs(SString &);
+	int    PutProp(Property prop, const void * pData, PropAttribute attrib = paNone);
+	int    GetName(SString &);
+	int    GetBirthDate(LDATE *);
+	int    GetPhones(SString &);
+	int    GetEmails(SString &);
+	int    GetAddrs(SString &);
 
 	int    Export;
 	SString Properties;
@@ -14182,17 +14182,17 @@ public:
 		SString Location;
 		SString Descr;
 	};
-	SLAPI  VCalendar(const char * pFileName = 0, int forExport = 1);
-	SLAPI ~VCalendar();
-	int    SLAPI Open(const char * pFileName, int forExport);
-	void   SLAPI Close();
-	int    SLAPI PutEvent(VCalendar::Event *);
-	int    SLAPI PutTodo(const VCalendar::Todo *);
-	int    SLAPI GetTodo(VCalendar::Todo *);
+	VCalendar(const char * pFileName = 0, int forExport = 1);
+	~VCalendar();
+	int    Open(const char * pFileName, int forExport);
+	void   Close();
+	int    PutEvent(VCalendar::Event *);
+	int    PutTodo(const VCalendar::Todo *);
+	int    GetTodo(VCalendar::Todo *);
 private:
-	int    SLAPI PutTodoProperty(TodoProperty prop, const void * pVal, long addedParam);
-	int    SLAPI GetDtm(const SString & rBuf, LDATETIME * pDtm);
-	int    SLAPI ReadProp(TodoProperty * pProp, SString & rVal, SString & rAttrib);
+	int    PutTodoProperty(TodoProperty prop, const void * pVal, long addedParam);
+	int    GetDtm(const SString & rBuf, LDATETIME * pDtm);
+	int    ReadProp(TodoProperty * pProp, SString & rVal, SString & rAttrib);
 
 	int    Export;
 	SString PrevTempBuf;
@@ -14289,10 +14289,10 @@ public:
 	//
 	class Finder {
 	public:
-		SLAPI  Finder(const SGeoGridTab & rTab);
+		Finder(const SGeoGridTab & rTab);
         uint   FASTCALL GetIdxLat(long lat);
         uint   FASTCALL GetIdxLon(long lon);
-        void   SLAPI GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon);
+        void   GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon);
         uint32 FASTCALL GetZIdx32(const SGeoPosLL_Int & rC);
         uint64 FASTCALL GetZIdx64(const SGeoPosLL_Int & rC);
 	private:
@@ -14303,22 +14303,22 @@ public:
 
 	friend class SGeoGridTab::Finder;
 
-	SLAPI  SGeoGridTab(uint dim);
+	SGeoGridTab(uint dim);
 	int    FASTCALL IsEqual(const SGeoGridTab & rS) const;
 	int    FASTCALL operator == (const SGeoGridTab & rS) const;
 	int    FASTCALL operator != (const SGeoGridTab & rS) const;
-	void   SLAPI SetSrcCountLat(uint64 c);
-	void   SLAPI SetSrcCountLon(uint64 c);
-	uint   SLAPI GetDim() const;
-    uint   SLAPI GetDensityLat() const;
-    uint   SLAPI GetDensityLon() const;
+	void   SetSrcCountLat(uint64 c);
+	void   SetSrcCountLon(uint64 c);
+	uint   GetDim() const;
+    uint   GetDensityLat() const;
+    uint   GetDensityLon() const;
     int    FASTCALL AddThresholdLat(long coord);
     int    FASTCALL AddThresholdLon(long coord);
-    uint   SLAPI GetCountLat() const;
-    uint   SLAPI GetCountLon() const;
+    uint   GetCountLat() const;
+    uint   GetCountLon() const;
 	//
-	int    SLAPI Save(const char * pFileName);
-	int    SLAPI Load(const char * pFileName);
+	int    Save(const char * pFileName);
+	int    Load(const char * pFileName);
 private:
     uint   Dim; // Размерность решетки (бит)
     uint64 SrcCountLat;
@@ -14689,8 +14689,8 @@ private:
 //
 class MemLeakTracer {
 public:
-	SLAPI  MemLeakTracer();
-	SLAPI ~MemLeakTracer();
+	MemLeakTracer();
+	~MemLeakTracer();
 private:
 	void * P_State;
 };
@@ -14710,9 +14710,9 @@ public:
 	//   0  - проблемы
 	//
 	static int Check();
-	SLAPI  MemHeapTracer();
-	int    SLAPI CalcStat(Stat * pSize);
-	int    SLAPI Dump(const char * pFileName, long flags);
+	MemHeapTracer();
+	int    CalcStat(Stat * pSize);
+	int    Dump(const char * pFileName, long flags);
 };
 
 void FASTCALL TraceFunc(const char * pFuncName, const char * pAddedMsg);

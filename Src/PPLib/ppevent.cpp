@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0), Flags(0), EventType(0), ObjType(0), MinDetectionInterval(0), Reserve2(0)
+PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0), Flags(0), EventType(0), ObjType(0), MinDetectionInterval(0), Reserve2(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Symb)[0] = 0;
@@ -31,16 +31,16 @@ int FASTCALL PPEventSubscription::IsEqual(const PPEventSubscription & rS) const
 	return eq;
 }
 
-SLAPI PPEventSubscriptionPacket::PPEventSubscriptionPacket() : P_Filt(0)
+PPEventSubscriptionPacket::PPEventSubscriptionPacket() : P_Filt(0)
 {
 }
 
-SLAPI PPEventSubscriptionPacket::PPEventSubscriptionPacket(const PPEventSubscriptionPacket & rS) : P_Filt(0)
+PPEventSubscriptionPacket::PPEventSubscriptionPacket(const PPEventSubscriptionPacket & rS) : P_Filt(0)
 {
 	Copy(rS);
 }
 
-SLAPI PPEventSubscriptionPacket::~PPEventSubscriptionPacket()
+PPEventSubscriptionPacket::~PPEventSubscriptionPacket()
 {
 	ZDELETE(P_Filt);
 }
@@ -88,11 +88,11 @@ int FASTCALL PPEventSubscriptionPacket::IsEqual(const PPEventSubscriptionPacket 
 	return eq;
 }
 
-SLAPI PPObjEventSubscription::PPObjEventSubscription(void * extraPtr) : PPObjReference(PPOBJ_EVENTSUBSCRIPTION, extraPtr)
+PPObjEventSubscription::PPObjEventSubscription(void * extraPtr) : PPObjReference(PPOBJ_EVENTSUBSCRIPTION, extraPtr)
 {
 }
 
-int SLAPI PPObjEventSubscription::SerializePacket_WithoutRec(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjEventSubscription::SerializePacket_WithoutRec(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(pPack->SerializeB(dir, rBuf, pSCtx));
@@ -108,7 +108,7 @@ int SLAPI PPObjEventSubscription::SerializePacket_WithoutRec(int dir, PPEventSub
 	return ok;
 }
 
-int SLAPI PPObjEventSubscription::SerializePacket(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjEventSubscription::SerializePacket(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -117,7 +117,7 @@ int SLAPI PPObjEventSubscription::SerializePacket(int dir, PPEventSubscriptionPa
 	return ok;
 }
 
-int SLAPI PPObjEventSubscription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pPack, int use_ta)
+int PPObjEventSubscription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
@@ -176,7 +176,7 @@ int SLAPI PPObjEventSubscription::PutPacket(PPID * pID, PPEventSubscriptionPacke
 	return ok;
 }
 
-int SLAPI PPObjEventSubscription::GetPacket(PPID id, PPEventSubscriptionPacket * pPack)
+int PPObjEventSubscription::GetPacket(PPID id, PPEventSubscriptionPacket * pPack)
 {
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
@@ -189,7 +189,19 @@ int SLAPI PPObjEventSubscription::GetPacket(PPID id, PPEventSubscriptionPacket *
 	return ok;
 }
 
-int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
+static void SetupEventTypeCombo(TDialog * pDlg, uint ctlselId, long initId)
+{
+	SString temp_buf;
+	StrAssocArray type_list;
+	type_list.Add(PPEVENTTYPE_OBJCREATED, PPLoadStringS("eventtype_objcreated", temp_buf));
+	type_list.Add(PPEVENTTYPE_OUTER, PPLoadStringS("eventtype_outer", temp_buf));
+	type_list.Add(PPEVENTTYPE_SPCBILLCHANGE, PPLoadStringS("eventtype_spcbillchange", temp_buf));
+	type_list.Add(PPEVENTTYPE_SYSJOURNAL, PPLoadStringS("eventtype_sysjournal", temp_buf));
+	type_list.Add(PPEVENTTYPE_LOTEXPIRATION, PPLoadStringS("eventtype_lotexpiration", temp_buf));
+	SetupStrAssocCombo(pDlg, ctlselId, &type_list, initId, 0);
+}
+
+int PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 {
 	class EventSubscriptionDialog : public TDialog {
 		DECL_DIALOG_DATA(PPEventSubscriptionPacket);
@@ -209,15 +221,7 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 			setCtrlData(CTL_EVNTSUBSCR_NAME, Data.Rec.Name);
 			setCtrlData(CTL_EVNTSUBSCR_SYMB, Data.Rec.Symb);
 			setCtrlLong(CTL_EVNTSUBSCR_ID, Data.Rec.ID);
-			{
-				StrAssocArray type_list;
-				type_list.Add(PPEVENTTYPE_OBJCREATED, PPLoadStringS("eventtype_objcreated", temp_buf));
-				type_list.Add(PPEVENTTYPE_OUTER, PPLoadStringS("eventtype_outer", temp_buf));
-				type_list.Add(PPEVENTTYPE_SPCBILLCHANGE, PPLoadStringS("eventtype_spcbillchange", temp_buf));
-				type_list.Add(PPEVENTTYPE_SYSJOURNAL, PPLoadStringS("eventtype_sysjournal", temp_buf));
-				type_list.Add(PPEVENTTYPE_LOTEXPIRATION, PPLoadStringS("eventtype_lotexpiration", temp_buf));
-				SetupStrAssocCombo(this, CTLSEL_EVNTSUBSCR_TYPE, &type_list, Data.Rec.EventType, 0);
-			}
+			SetupEventTypeCombo(this, CTLSEL_EVNTSUBSCR_TYPE, Data.Rec.EventType);
 			SetupObjListCombo(this, CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType, 0);
 			Data.GetExtStrData(Data.extssMessage, temp_buf);
 			setCtrlString(CTL_EVNTSUBSCR_MSG, temp_buf);
@@ -284,16 +288,14 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 					case PPEVENTTYPE_OUTER:
 						break;
 					case PPEVENTTYPE_SPCBILLCHANGE:
-						filt_id = PPFILT_BILL;
-						view_id = PPVIEW_BILL;
+						PPGetObjViewFiltMapping_Obj(PPOBJ_BILL, &view_id, &filt_id);
 						break;
 					case PPEVENTTYPE_SYSJOURNAL:
-						filt_id = PPFILT_SYSJOURNAL;
 						view_id = PPVIEW_SYSJOURNAL;
+						filt_id = PPFILT_SYSJOURNAL;
 						break;
 					case PPEVENTTYPE_LOTEXPIRATION:
-						filt_id = PPFILT_LOT;
-						view_id = PPVIEW_LOT;
+						PPGetObjViewFiltMapping_Obj(PPOBJ_LOT, &view_id, &filt_id);
 						break;
 				}
 				if(filt_id && view_id) {
@@ -384,7 +386,7 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjEventSubscription::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int PPObjEventSubscription::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    is_new = 0;
@@ -409,7 +411,7 @@ int SLAPI PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 
 class EventSubscriptionCache : public ObjCache {
 public:
-	SLAPI  EventSubscriptionCache() : ObjCache(PPOBJ_EVENTSUBSCRIPTION, sizeof(EventSubscriptionData)) {}
+	EventSubscriptionCache() : ObjCache(PPOBJ_EVENTSUBSCRIPTION, sizeof(EventSubscriptionData)) {}
 private:
 	struct EventSubscriptionData : public ObjCacheEntry {
 		long   Flags;          //
@@ -418,7 +420,7 @@ private:
 		SColor NotifColor;
 		long   MinDetectionInterval;
 	};
-	virtual int SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+	virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	{
 		int    ok = 1;
 		EventSubscriptionData * p_cache_rec = static_cast<EventSubscriptionData *>(pEntry);
@@ -461,7 +463,7 @@ private:
 			ok = -1;
 		return ok;
 	}
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 		PPEventSubscriptionPacket * p_data_pack = static_cast<PPEventSubscriptionPacket *>(pDataRec);
 		const EventSubscriptionData * p_cache_rec = static_cast<const EventSubscriptionData *>(pEntry);
@@ -496,7 +498,7 @@ IMPL_OBJ_FETCH(PPObjEventSubscription, PPEventSubscriptionPacket, EventSubscript
 //
 //
 //
-SLAPI PPEventCore::Packet::Packet() : ID(0), Dtm(ZERODATETIME), TypeID(0), Status(0), UserID(0), GlobalUserID(0), Flags(0), EvSubscrID(0)
+PPEventCore::Packet::Packet() : ID(0), Dtm(ZERODATETIME), EventType(0), Status(0), UserID(0), GlobalUserID(0), Flags(0), EvSubscrID(0)
 {
 	Oid.Z();
 }
@@ -505,7 +507,7 @@ PPEventCore::Packet & PPEventCore::Packet::Z()
 {
 	ID = 0;
 	Dtm.Z();
-	TypeID = 0;
+	EventType = 0;
 	Status = 0;
 	UserID = 0;
 	GlobalUserID = 0;
@@ -517,15 +519,15 @@ PPEventCore::Packet & PPEventCore::Packet::Z()
 	return *this;
 }
 
-SLAPI PPEventCore::PPEventCore() : EventTbl()
+PPEventCore::PPEventCore() : EventTbl()
 {
 }
 
-void SLAPI PPEventCore::PacketToRec(const Packet & rPack, EventTbl::Rec & rRec) const
+void PPEventCore::PacketToRec(const Packet & rPack, EventTbl::Rec & rRec) const
 {
 #define F(f) rRec.f = rPack.f
 	F(ID);
-	F(TypeID);
+	F(EventType);
 	F(Status);
 	F(UserID);
 	F(GlobalUserID);
@@ -538,11 +540,11 @@ void SLAPI PPEventCore::PacketToRec(const Packet & rPack, EventTbl::Rec & rRec) 
 	rRec.ObjID = rPack.Oid.Id;
 }
 
-void SLAPI PPEventCore::RecToPacket(const EventTbl::Rec & rRec, Packet & rPack) const
+void PPEventCore::RecToPacket(const EventTbl::Rec & rRec, Packet & rPack) const
 {
 #define F(f) rPack.f = rRec.f
 	F(ID);
-	F(TypeID);
+	F(EventType);
 	F(Status);
 	F(UserID);
 	F(GlobalUserID);
@@ -555,7 +557,7 @@ void SLAPI PPEventCore::RecToPacket(const EventTbl::Rec & rRec, Packet & rPack) 
 	rPack.Oid.Id = rRec.ObjID;
 }
 
-int SLAPI PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
+int PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -612,7 +614,7 @@ int SLAPI PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPEventCore::Get(PPID id, Packet * pPack)
+int PPEventCore::Get(PPID id, Packet * pPack)
 {
 	int    ok = -1;
 	if(SearchByID(this, PPOBJ_EVENT, id, 0) > 0) {
@@ -629,55 +631,111 @@ int SLAPI PPEventCore::Get(PPID id, Packet * pPack)
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(Event); SLAPI EventFilt::EventFilt() : PPBaseFilt(PPFILT_EVENT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Event); EventFilt::EventFilt() : PPBaseFilt(PPFILT_EVENT, 0, 0)
 {
 	SetFlatChunk(offsetof(EventFilt, ReserveStart),
 		offsetof(EventFilt, Reserve)-offsetof(EventFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewEvent::PPViewEvent() : PPView(0, &Filt, PPVIEW_EVENT), P_DsList(0), P_ObjColl(new ObjCollection)
+PPViewEvent::PPViewEvent() : 
+	PPView(0, &Filt, PPVIEW_EVENT, (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter), 0), P_DsList(0), 
+	P_ObjColl(new ObjCollection), EsObj(0)
 {
-	ImplementFlags |= (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter);
 }
 
-SLAPI PPViewEvent::~PPViewEvent()
+PPViewEvent::~PPViewEvent()
 {
 	ZDELETE(P_DsList);
 	ZDELETE(P_ObjColl);
 }
 
-int SLAPI PPViewEvent::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewEvent::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	ObjNameList.clear();
+	SubscrList.Set(0);
+	if(Filt.UserID) {
+		PPObjEventSubscription es_obj(0);
+		PPEventSubscription es_rec;
+		PPEventSubscriptionPacket es_pack;
+		PPIDArray es_list;
+		for(SEnum en = es_obj.Enum(0); en.Next(&es_rec) > 0;) {
+			if(es_obj.Fetch(es_rec.ID, &es_pack) > 0 && es_pack.UserList.Search(Filt.UserID, 0, 0))
+				es_list.add(es_rec.ID);
+		}
+		SubscrList.Set(&es_list);
+	}
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PPViewEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
+class EventFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(EventFilt);
+public:
+	EventFiltDialog() : TDialog(DLG_EVNTFILT)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		SetPeriodInput(this, CTL_EVNTFILT_PERIOD, &Data.Period);
+		SetupEventTypeCombo(this, CTLSEL_EVNTFILT_TYPE, Data.EventType);
+		SetupPPObjCombo(this, CTLSEL_EVNTFILT_SUBSCR, PPOBJ_EVENTSUBSCRIPTION, Data.EventSubscrID, 0);
+		SetupPPObjCombo(this, CTLSEL_EVNTFILT_USER, PPOBJ_USR, Data.UserID, 0);
+		AddClusterAssoc(CTL_EVNTFILT_STATUS, 0, (1 << PPEventCore::statusActual));
+		AddClusterAssoc(CTL_EVNTFILT_STATUS, 1, (1 << PPEventCore::statusViewed));
+		AddClusterAssoc(CTL_EVNTFILT_STATUS, 2, (1 << PPEventCore::statusArchived));
+		SetClusterData(CTL_EVNTFILT_STATUS, Data.StatusFlags);
+		//
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		GetPeriodInput(this, CTL_EVNTFILT_PERIOD, &Data.Period);
+		getCtrlData(CTLSEL_EVNTFILT_TYPE, &Data.EventType);
+		getCtrlData(CTLSEL_EVNTFILT_SUBSCR, &Data.EventSubscrID);
+		getCtrlData(CTLSEL_EVNTFILT_USER, &Data.UserID);
+		GetClusterData(CTL_EVNTFILT_STATUS, &Data.StatusFlags);
+		//
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+};
+
+int PPViewEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	int    ok = -1;
-	return ok;
+	if(!Filt.IsA(pBaseFilt))
+		return 0;
+	EventFilt * p_filt = static_cast<EventFilt *>(pBaseFilt);
+	DIALOG_PROC_BODY(EventFiltDialog, p_filt);
 }
 
-int SLAPI PPViewEvent::CheckForFilt(const EventFilt * pFilt, EventTbl::Rec * pRec)
+int PPViewEvent::CheckForFilt(const EventFilt * pFilt, EventTbl::Rec * pRec)
 {
 	int    ok = 0;
 	if(pFilt) {
 		if(pRec) {
-			if(!CheckFiltID(pFilt->TypeID, pRec->TypeID))
+			if(!CheckFiltID(pFilt->EventType, pRec->EventType))
 				ok = 0;
-			else if(!CheckFiltID(pFilt->UserID, pRec->UserID))
+			else if(pFilt->StatusFlags && !(pFilt->StatusFlags & (1 << pRec->Status)))
+				ok = 0;
+			/*else if(!CheckFiltID(pFilt->UserID, pRec->UserID))
 				ok = 0;
 			else if(!CheckFiltID(pFilt->GlobalUserID, pRec->GlobalUserID))
-				ok = 0;
+				ok = 0;*/
 			else if(!CheckFiltID(pFilt->ObjType, pRec->ObjType))
 				ok = 0;
+			else if(!CheckFiltID(pFilt->EventSubscrID, pRec->EvSubscrID))
+				ok = 0;
 			else if(!pFilt->Period.CheckDate(pRec->Dt))
+				ok = 0;
+			else if(!SubscrList.CheckID(pRec->EvSubscrID))
 				ok = 0;
 			else
 				ok = 1;
@@ -690,7 +748,7 @@ int SLAPI PPViewEvent::CheckForFilt(const EventFilt * pFilt, EventTbl::Rec * pRe
 	return ok;
 }
 
-int SLAPI PPViewEvent::InitIteration()
+int PPViewEvent::InitIteration()
 {
 	Counter.Init();
 	return 1;
@@ -710,7 +768,7 @@ int FASTCALL PPViewEvent::NextIteration(EventViewItem * pItem)
 		return 0;
 }
 
-int SLAPI PPViewEvent::MakeList(PPViewBrowser * pBrw)
+int PPViewEvent::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
 	PPTimeSeries item;
@@ -734,12 +792,12 @@ int SLAPI PPViewEvent::MakeList(PPViewBrowser * pBrw)
 		int    idx = 1;
 		MEMSZERO(k);
 		DBQ * dbq = 0;//&daterange(T.Dt, &Filt.Period);
-		if(Filt.TypeID) {
+		if(Filt.EventType) {
 			idx = 2;
-			k.k2.TypeID = Filt.TypeID;
+			k.k2.EventType = Filt.EventType;
 			k.k2.Dt = Filt.Period.low;
 		}
-		else if(Filt.UserID) {
+		/*else if(Filt.UserID) {
 			idx = 3;
 			k.k3.UserID = Filt.UserID;
 			k.k3.Dt = Filt.Period.low;
@@ -748,7 +806,7 @@ int SLAPI PPViewEvent::MakeList(PPViewBrowser * pBrw)
 			idx = 4;
 			k.k4.GlobalUserID = Filt.GlobalUserID;
 			k.k4.Dt = Filt.Period.low;
-		}
+		}*/
 		else if(Filt.ObjType) {
 			idx = 5;
 			k.k5.ObjType = Filt.ObjType;
@@ -759,12 +817,13 @@ int SLAPI PPViewEvent::MakeList(PPViewBrowser * pBrw)
 			k.k1.Dt = Filt.Period.low;
 		}
 		BExtQuery q(&T, idx);
-		dbq = ppcheckfiltid(dbq, T.TypeID, Filt.TypeID);
-		dbq = ppcheckfiltid(dbq, T.UserID, Filt.UserID);
-		dbq = ppcheckfiltid(dbq, T.GlobalUserID, Filt.GlobalUserID);
+		dbq = ppcheckfiltid(dbq, T.EventType, Filt.EventType);
+		//dbq = ppcheckfiltid(dbq, T.UserID, Filt.UserID);
+		//dbq = ppcheckfiltid(dbq, T.GlobalUserID, Filt.GlobalUserID);
+		dbq = ppcheckfiltid(dbq, T.EvSubscrID, Filt.EventSubscrID);
 		dbq = ppcheckfiltid(dbq, T.ObjType, Filt.ObjType);
 		dbq = & (*dbq && daterange(T.Dt, &Filt.Period));
-		q.select(T.ID, T.Dt, T.Tm, T.TypeID, T.Status, T.UserID, T.GlobalUserID, T.ObjType, T.ObjID, T.Flags, 0).where(*dbq);
+		q.select(T.ID, T.Dt, T.Tm, T.EventType, T.Status, T.UserID, T.GlobalUserID, T.EvSubscrID, T.ObjType, T.ObjID, T.Flags, 0).where(*dbq);
 		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 			if(CheckForFilt(&Filt, &T.data)) {
 				if(T.Get(T.data.ID, &pack)) {
@@ -772,10 +831,11 @@ int SLAPI PPViewEvent::MakeList(PPViewBrowser * pBrw)
 					MEMSZERO(new_item);
 					new_item.ID = pack.ID;
 					new_item.Dtm = pack.Dtm;
-					new_item.TypeID = pack.TypeID;
+					new_item.EventType = pack.EventType;
 					new_item.Status = pack.Status;
 					new_item.UserID = pack.UserID;
 					new_item.GlobalUserID = pack.GlobalUserID;
+					new_item.EventSubscrID = pack.EvSubscrID; // @v10.9.1
 					new_item.Oid = pack.Oid;
 					new_item.Flags = pack.Flags;
 					StrPool.AddS(pack.Text, &new_item.TextP);
@@ -823,7 +883,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-/*static*/int SLAPI PPViewEvent::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+/*static*/int PPViewEvent::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
@@ -831,19 +891,29 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		if(col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			const PPViewEvent::BrwItem * p_hdr = static_cast<const PPViewEvent::BrwItem *>(pData);
-			/*if(r_col.OrgOffs == 5) { // OprKind
-				if(p_hdr->Flags & PSNEVF_FORCEPAIR) {
-					pStyle->Color2 = GetColorRef(SClrViolet);
-					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-					ok = 1;
+			if(r_col.OrgOffs == 3) { // Status
+				switch(p_hdr->Status) {
+					case PPEventCore::statusActual:   pStyle->Color = GetColorRef(SClrLightgreen); break;
+					case PPEventCore::statusViewed:   pStyle->Color = GetColorRef(SClrOrange); break;
+					case PPEventCore::statusArchived: pStyle->Color = GetColorRef(SClrSnow); break;
+					default: pStyle->Color = GetColorRef(SClrGrey); break;
 				}
-			}*/
+				ok = 1;
+			}
+			else if(r_col.OrgOffs == 6) { // Subscription
+				if(p_hdr->EventSubscrID) {
+					PPObjEventSubscription es_obj(0);
+					PPEventSubscriptionPacket es_pack;
+					if(es_obj.Fetch(p_hdr->EventSubscrID, &es_pack) && !es_pack.Rec.NotifColor.IsEmpty())
+						ok = pStyle->SetRightFigCircleColor(static_cast<COLORREF>(es_pack.Rec.NotifColor));
+				}
+			}
 		}
 	}
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewEvent::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+/*virtual*/int PPViewEvent::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	int    ok = -1;
 	LDATETIME last_dtm;
@@ -858,18 +928,21 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-void SLAPI PPViewEvent::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewEvent::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewEvent::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewEvent::GetDataForBrowser, this);
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
 	pBrw->Advise(PPAdviseBlock::evSysJournalChanged, PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, 0);
 }
 
-int SLAPI PPViewEvent::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewEvent::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	return -1;
 }
 
-int SLAPI PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -885,7 +958,7 @@ int SLAPI PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			case 2: // @type
 				{
 					const char * p_tsign = 0;
-					switch(p_item->TypeID) {
+					switch(p_item->EventType) {
 						case PPEVENTTYPE_OBJCREATED: p_tsign = "eventtype_objcreated"; break;
 						case PPEVENTTYPE_OUTER: p_tsign = "eventtype_outer"; break;
 						case PPEVENTTYPE_SPCBILLCHANGE: p_tsign = "eventtype_spcbillchange"; break;
@@ -911,6 +984,16 @@ int SLAPI PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				StrPool.GetS(p_item->TextP, pBlk->TempBuf);
 				pBlk->Set(pBlk->TempBuf); 
 				break; 
+			case 6: // subscription
+				{
+					PPEventSubscriptionPacket es_pack;
+					if(EsObj.Fetch(p_item->EventSubscrID, &es_pack) > 0)
+						pBlk->TempBuf = es_pack.Rec.Name;
+					else
+						pBlk->TempBuf.Z();
+					pBlk->Set(pBlk->TempBuf);
+				}
+				break;
 		}
 	}
 	return ok;
@@ -922,7 +1005,7 @@ int SLAPI PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-SArray * SLAPI PPViewEvent::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewEvent::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_EVENT;
 	SArray * p_array = 0;
@@ -936,26 +1019,80 @@ SArray * SLAPI PPViewEvent::CreateBrowserArray(uint * pBrwId, SString * pSubTitl
 	return p_array;
 }
 
-int SLAPI PPViewEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewEvent::EditObj(const PPObjID * pObjID)
+{
+	return pObjID ? EditPPObj(pObjID->Obj, pObjID->Id) : -1;
+}
+
+int PPViewEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
+{
+	BrwItem item;
+	if(!RVALUEPTR(item, static_cast<const BrwItem *>(pHdr)))
+		MEMSZERO(item);
+	if(item.Oid.Obj && item.Oid.Id) {
+		EditObj(&item.Oid);
+	}
+	return -1;
+}
+
+int PPViewEvent::SelectStatus(PPID evID)
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	PPEventCore::Packet pack;
+	if(evID && T.Get(evID, &pack) > 0) {
+		const long org_status = pack.Status;
+		SString temp_buf;
+		dlg = new TDialog(DLG_SELEVNTSTATUS);
+		THROW(CheckDialogPtr(&dlg));
+		dlg->AddClusterAssocDef(CTL_SELEVNTSTATUS_ST, 0, PPEventCore::statusUndef);
+		dlg->AddClusterAssoc(CTL_SELEVNTSTATUS_ST, 1, PPEventCore::statusActual);
+		dlg->AddClusterAssoc(CTL_SELEVNTSTATUS_ST, 2, PPEventCore::statusViewed);
+		dlg->AddClusterAssoc(CTL_SELEVNTSTATUS_ST, 3, PPEventCore::statusArchived);
+		dlg->SetClusterData(CTL_SELEVNTSTATUS_ST, pack.Status);
+		if(ExecView(dlg) == cmOK) {
+			dlg->GetClusterData(CTL_SELEVNTSTATUS_ST, &pack.Status);
+			if(pack.Status != org_status && oneof3(pack.Status, PPEventCore::statusActual, PPEventCore::statusViewed, PPEventCore::statusArchived)) {
+				THROW(T.Put(&evID, &pack, 1));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
+}
+
+int PPViewEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		if(ppvCmd == PPVCMD_REFRESH) {
-			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
-			if(p_def) {
-				SArray * p_array = 0;
-				if(MakeList(pBrw)) {
-					p_array = new SArray(*P_DsList);
-					p_def->setArray(p_array, 0, 0);
-					ok = 1;
+		if(ppvCmd == PPVCMD_CHANGESTATUS) {
+			if(pHdr) {
+				const BrwItem * p_item = static_cast<const BrwItem *>(pHdr);
+				if(SelectStatus(p_item->ID) > 0) {
+					AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+					if(p_def && MakeList(pBrw)) {
+						SArray * p_array = new SArray(*P_DsList);
+						p_def->setArray(p_array, 0, 0);
+						ok = 1;
+					}
 				}
+			}
+		}
+		else if(ppvCmd == PPVCMD_REFRESH) {
+			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			if(p_def && MakeList(pBrw)) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 0);
+				ok = 1;
 			}
 		}
 	}
 	return ok;
 }
 
-int SLAPI PPObjEventSubscription::Run()
+int PPObjEventSubscription::Run()
 {
 	int    ok = -1;
 	TSCollection <PPEventCore::Packet> evp_list;
@@ -1000,7 +1137,7 @@ int SLAPI PPObjEventSubscription::Run()
 	return ok;
 }
 
-int SLAPI PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Packet> & rEvpList)
+int PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Packet> & rEvpList)
 {
 	int    ok = -1;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -1063,6 +1200,20 @@ int SLAPI PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Pac
 													skip = 0;
 											}
 											break;
+										case PPOBJ_PERSON:
+											{
+												PPViewPerson view;
+												if(view.Init_(pack.P_Filt) && view.CheckIDForFilt(sj_rec.ObjID, 0))
+													skip = 0;
+											}
+											break;
+										case PPOBJ_GOODS:
+											{
+												PPObjGoods obj;
+												if(obj.CheckForFilt(static_cast<GoodsFilt *>(pack.P_Filt), sj_rec.ObjID, 0))
+													skip = 0;
+											}
+											break;
 									}
 								}
 							}
@@ -1072,7 +1223,8 @@ int SLAPI PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Pac
 								p_evp->Dtm.Set(sj_rec.Dt, sj_rec.Tm);
 								p_evp->EvSubscrID = pack.Rec.ID;
 								p_evp->Oid.Set(sj_rec.ObjType, sj_rec.ObjID);
-								p_evp->TypeID = pack.Rec.EventType;
+								p_evp->EventType = pack.Rec.EventType;
+								p_evp->Status = PPEventCore::statusActual;
 								pack.GetExtStrData(pack.extssMessage, p_evp->Text);
 								new_last_det_dtm = p_evp->Dtm;
 								ok = 1;
@@ -1102,7 +1254,8 @@ int SLAPI PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Pac
 								p_evp->Dtm.Set(p_sj->data.Dt, p_sj->data.Tm);
 								p_evp->EvSubscrID = pack.Rec.ID;
 								p_evp->Oid.Set(p_sj->data.ObjType, p_sj->data.ObjID);
-								p_evp->TypeID = pack.Rec.EventType;
+								p_evp->EventType = pack.Rec.EventType;
+								p_evp->Status = PPEventCore::statusActual;
 								pack.GetExtStrData(pack.extssMessage, p_evp->Text);
 								new_last_det_dtm = p_evp->Dtm;
 								ok = 1;

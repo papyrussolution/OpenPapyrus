@@ -143,7 +143,7 @@ clb=fld_name              ; Custom Lading Bill number
 //
 //
 //
-static int SLAPI get_fld_number(PPIniFile * pIniFile, DbfTable * pTbl, uint sectId, uint aliasId, int * pFldN)
+static int get_fld_number(PPIniFile * pIniFile, DbfTable * pTbl, uint sectId, uint aliasId, int * pFldN)
 {
 	SString fld_name;
 	return (pIniFile->Get(sectId, aliasId, fld_name) > 0) ? pTbl->getFieldNumber(fld_name, pFldN) : -1;
@@ -151,7 +151,7 @@ static int SLAPI get_fld_number(PPIniFile * pIniFile, DbfTable * pTbl, uint sect
 //
 //
 //
-int SLAPI PPObjWorld::ImportCountry(int use_ta)
+int PPObjWorld::ImportCountry(int use_ta)
 {
 	int    ok = 1;
 	int    setcode = 0;
@@ -234,7 +234,7 @@ int SLAPI PPObjWorld::ImportCountry(int use_ta)
 //
 //
 //
-int SLAPI PPObjSCard::Import(int use_ta)
+int PPObjSCard::Import(int use_ta)
 {
 	int    ok = 1;
 	const  uint sect = PPINISECT_IMP_SCARD;
@@ -387,7 +387,7 @@ struct CodeToPersonTabEntry {
 	long   PersonID;
 };
 
-static SArray * SLAPI ReadCodeToPersonTab()
+static SArray * ReadCodeToPersonTab()
 {
 	SArray * p_list = new SArray(sizeof(CodeToPersonTabEntry));
 	SString file_name;
@@ -402,7 +402,7 @@ static SArray * SLAPI ReadCodeToPersonTab()
 	return p_list;
 }
 
-static int SLAPI ConvertCodeToArticle(PPID accSheetID, SArray * pTab, long code, PPID * pArID)
+static int ConvertCodeToArticle(PPID accSheetID, SArray * pTab, long code, PPID * pArID)
 {
 	int    ok = -1;
 	PPID   ar_id = 0;
@@ -426,7 +426,7 @@ static int SLAPI ConvertCodeToArticle(PPID accSheetID, SArray * pTab, long code,
 	return ok;
 }
 
-int SLAPI PPObjGoodsGroup::Import(int use_ta)
+int PPObjGoodsGroup::Import(int use_ta)
 {
 	int    ok = 1;
 	const  uint sect = PPINISECT_IMP_GOODSGROUP;
@@ -513,7 +513,7 @@ int SLAPI PPObjGoodsGroup::Import(int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjGoods::ImportQuotOld(int use_ta)
+int PPObjGoods::ImportQuotOld(int use_ta)
 {
 	int    ok = 1;
 	SString file_name, quotname, temp_buf2;
@@ -606,7 +606,7 @@ struct ImportGoodsParam {
 	long   Flags;
 };
 
-static int SLAPI RequestImportGoodsParam(ImportGoodsParam * pData)
+static int RequestImportGoodsParam(ImportGoodsParam * pData)
 {
 	int    ok = -1, valid_data = 0;
 	PPGoodsConfig goods_cfg;
@@ -638,7 +638,7 @@ static int SLAPI RequestImportGoodsParam(ImportGoodsParam * pData)
 	return ok;
 }
 
-static int SLAPI GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl, uint sectId, uint aliasId, int * pCodeFldN, int * pParentFldN)
+static int GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl, uint sectId, uint aliasId, int * pCodeFldN, int * pParentFldN)
 {
 	int    ok = -1;
 	SString fld_name, fld_name_code, fld_name_parent;
@@ -652,16 +652,16 @@ static int SLAPI GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl, uint 
 	return ok;
 }
 
-SLAPI HierArray::HierArray() : SVector(sizeof(HierArray::Item)) // @v9.9.3 SArray-->SVector
+HierArray::HierArray() : SVector(sizeof(HierArray::Item)) // @v9.9.3 SArray-->SVector
 {
 }
 
-const HierArray::Item & SLAPI HierArray::at(uint i) const
+const HierArray::Item & HierArray::at(uint i) const
 {
 	return *(HierArray::Item *)SVector::at(i); // @v9.9.3 SArray-->SVector
 }
 
-int SLAPI HierArray::Add(const char * pCode, const char * pParentCode)
+int HierArray::Add(const char * pCode, const char * pParentCode)
 {
 	Item item;
 	STRNSCPY(item.Code, pCode);
@@ -669,7 +669,7 @@ int SLAPI HierArray::Add(const char * pCode, const char * pParentCode)
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI HierArray::SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const
+int HierArray::SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const
 {
 	uint   pos = 0;
 	if(lsearch(pCode, &pos, PTR_CMPFUNC(Pchar))) {
@@ -679,13 +679,13 @@ int SLAPI HierArray::SearchParentOf(const char * pCode, char * pBuf, size_t bufL
 	return 0;
 }
 
-int SLAPI HierArray::IsThereChildOf(const char * pParentCode) const
+int HierArray::IsThereChildOf(const char * pParentCode) const
 {
 	uint   pos = 0;
 	return lsearch(pParentCode, &pos, PTR_CMPFUNC(Pchar), offsetof(HierArray::Item, ParentCode));
 }
 
-static int SLAPI LoadHierList(DbfTable * pTbl, int fldnCode, int fldnParent, HierArray * pList)
+static int LoadHierList(DbfTable * pTbl, int fldnCode, int fldnParent, HierArray * pList)
 {
 	int    ok = 1;
 	SString code_buf, parent_code_buf;
@@ -703,7 +703,7 @@ static int SLAPI LoadHierList(DbfTable * pTbl, int fldnCode, int fldnParent, Hie
 	return ok;
 }
 
-int SLAPI PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, PPID defUnitID, HierArray * pHierList)
+int PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, PPID defUnitID, HierArray * pHierList)
 {
 	int    ok = 1, is_hier = 0;
 	uint   i;
@@ -771,7 +771,7 @@ int SLAPI PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, P
 	return ok;
 }
 
-static SString & SLAPI CodeToHex(SString & rCode)
+static SString & CodeToHex(SString & rCode)
 {
 	SString temp_buf;
 	for(size_t i = 0; i < rCode.Len(); i++) {
@@ -785,7 +785,7 @@ static SString & SLAPI CodeToHex(SString & rCode)
 	return rCode;
 }
 
-SLAPI GoodsImportBillIdent::GoodsImportBillIdent(PPObjPerson * pPsnObj, PPID defSupplID)
+GoodsImportBillIdent::GoodsImportBillIdent(PPObjPerson * pPsnObj, PPID defSupplID)
 {
 	THISZERO();
 	RegTypeID = -1;
@@ -793,14 +793,14 @@ SLAPI GoodsImportBillIdent::GoodsImportBillIdent(PPObjPerson * pPsnObj, PPID def
 	AccSheetID = GetSupplAccSheet();
 }
 
-SLAPI GoodsImportBillIdent::~GoodsImportBillIdent()
+GoodsImportBillIdent::~GoodsImportBillIdent()
 {
 	delete P_ArObj;
 	ZDELETE(P_PackList);
 	delete P_CodeToPersonTab; // @v10.3.0 @fix
 }
 
-PPBillPacket * SLAPI GoodsImportBillIdent::GetPacket(PPID opID, PPID locID)
+PPBillPacket * GoodsImportBillIdent::GetPacket(PPID opID, PPID locID)
 {
 	PPBillPacket * p_pack = 0;
 	if(P_PackList) {
@@ -840,7 +840,7 @@ PPBillPacket * SLAPI GoodsImportBillIdent::GetPacket(PPID opID, PPID locID)
 	return p_pack;
 }
 
-int  SLAPI GoodsImportBillIdent::FinishPackets()
+int  GoodsImportBillIdent::FinishPackets()
 {
 	int    ok = 1;
 	if(P_PackList) {
@@ -856,7 +856,7 @@ int  SLAPI GoodsImportBillIdent::FinishPackets()
 	return ok;
 }
 
-void SLAPI GoodsImportBillIdent::GetFldSet(PPIniFile * pIniFile, uint sect, DbfTable * pTbl)
+void GoodsImportBillIdent::GetFldSet(PPIniFile * pIniFile, uint sect, DbfTable * pTbl)
 {
 	get_fld_number(pIniFile, pTbl, sect, PPINIPARAM_SUPPLID,       &fldn_suppl);
 	get_fld_number(pIniFile, pTbl, sect, PPINIPARAM_PERSONCODE,    &fldn_supplcode);
@@ -868,7 +868,7 @@ void SLAPI GoodsImportBillIdent::GetFldSet(PPIniFile * pIniFile, uint sect, DbfT
 	P_CodeToPersonTab = ReadCodeToPersonTab();
 }
 
-int SLAPI GoodsImportBillIdent::Get(Sdr_Goods2 * pRec, PPID supplID)
+int GoodsImportBillIdent::Get(Sdr_Goods2 * pRec, PPID supplID)
 {
 	int    ok = 1;
 	SString suppl_code;
@@ -909,7 +909,7 @@ int SLAPI GoodsImportBillIdent::Get(Sdr_Goods2 * pRec, PPID supplID)
 	return ok;
 }
 
-int SLAPI GoodsImportBillIdent::Get(DbfRecord * pRec)
+int GoodsImportBillIdent::Get(DbfRecord * pRec)
 {
 	int    ok = 1;
 	SString suppl_code;
@@ -947,7 +947,7 @@ int SLAPI GoodsImportBillIdent::Get(DbfRecord * pRec)
 	return ok;
 }
 
-int SLAPI PPObjGoods::ImportOld(int use_ta)
+int PPObjGoods::ImportOld(int use_ta)
 {
 	int    ok = 1;
 	IterCounter cntr;
@@ -1420,7 +1420,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjPerson::Import(int specKind, int use_ta)
+int PPObjPerson::Import(int specKind, int use_ta)
 {
 	int    ok = 1;
 	IterCounter cntr;
@@ -1661,7 +1661,7 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 	return ok;
 }
 
-int SLAPI Import(PPID objType, long extraParam)
+int Import(PPID objType, long extraParam)
 {
 	int    ok = 1;
 	if(objType == PPOBJ_GOODSGROUP) {
@@ -1712,7 +1712,7 @@ int SLAPI Import(PPID objType, long extraParam)
 //
 //
 //
-int SLAPI EditSpecSeriesFormatDescription()
+int EditSpecSeriesFormatDescription()
 {
 	int    ok = -1;
 	ImpExpParamDialog * dlg = 0;
@@ -1741,7 +1741,7 @@ int SLAPI EditSpecSeriesFormatDescription()
 	return ok;
 }
 
-int SLAPI ImportSpecSeries()
+int ImportSpecSeries()
 {
 	int    ok = 1, r;
 	PPLogger logger;
@@ -1944,7 +1944,7 @@ int PhoneListImpExpDialog::getDTS(PPPhoneListImpExpParam * pData)
 	return ok;
 }
 
-int SLAPI EditPhoneListParam(const char * pIniSection)
+int EditPhoneListParam(const char * pIniSection)
 {
 	int    ok = -1;
 	PhoneListImpExpDialog * dlg = 0;
@@ -2007,20 +2007,20 @@ public:
 		PPID   DefCityID;
 		SString CfgName;
 	};
-	SLAPI  PrcssrPhoneListImport()
+	PrcssrPhoneListImport()
 	{
 	}
-	int    SLAPI InitParam(Param *);
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
 private:
 	PPObjLocation LocObj;
 	Param  P;
 	PPPhoneListImpExpParam IeParam;
 };
 
-int SLAPI PrcssrPhoneListImport::InitParam(Param * pParam)
+int PrcssrPhoneListImport::InitParam(Param * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
@@ -2088,7 +2088,7 @@ int PrcssrPhoneListImport::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrPhoneListImport::Run()
+int PrcssrPhoneListImport::Run()
 {
 	int    ok = 1;
 	long   numrecs = 0;
@@ -2186,7 +2186,7 @@ int SLAPI PrcssrPhoneListImport::Run()
 	return ok;
 }
 
-int SLAPI ImportPhoneList()
+int ImportPhoneList()
 {
 	int    ok = -1;
 	PrcssrPhoneListImport prcssr;
@@ -2202,7 +2202,7 @@ int SLAPI ImportPhoneList()
 //
 //
 //
-int SLAPI ImportBanks()
+int ImportBanks()
 {
 	int    ok = 1, import = 0;
 	PPLogger logger;
@@ -2395,21 +2395,21 @@ public:
 		long   Flags;
 		SString ParentCodeString;
 	};
-	SLAPI  PrcssrImportKLADR() : StatusList(sizeof(Status)), P_TempTbl(0)
+	PrcssrImportKLADR() : StatusList(sizeof(Status)), P_TempTbl(0)
 	{
 		MEMSZERO(P);
 	}
-	SLAPI ~PrcssrImportKLADR()
+	~PrcssrImportKLADR()
 	{
 		ZDELETE(P_TempTbl);
 	}
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Run();
+	int    EditParam(Param *);
+	int    Run();
 private:
-	int    SLAPI PreImport();
-	int    SLAPI Import();
-	int    SLAPI ProcessTempTable();
-	int    SLAPI SearchStatus(const char * pName, int abbr, long * pCode) const;
+	int    PreImport();
+	int    Import();
+	int    ProcessTempTable();
+	int    SearchStatus(const char * pName, int abbr, long * pCode) const;
 	struct Status {
 		long   Code;
 		long   ID;       // Идентификатор в базе данных
@@ -2425,7 +2425,7 @@ private:
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempKLADR_File, TempKLADR);
 
-int SLAPI PrcssrImportKLADR::EditParam(Param * pData)
+int PrcssrImportKLADR::EditParam(Param * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_IMPKLADR);
@@ -2444,7 +2444,7 @@ int SLAPI PrcssrImportKLADR::EditParam(Param * pData)
 	return ok;
 }
 
-int SLAPI PrcssrImportKLADR::SearchStatus(const char * pName, int abbr, long * pCode) const
+int PrcssrImportKLADR::SearchStatus(const char * pName, int abbr, long * pCode) const
 {
 	Status * p_item;
 	for(uint i = 0; StatusList.enumItems(&i, (void **)&p_item);) {
@@ -2538,7 +2538,7 @@ struct KLADRCODE {
 	long   ID;
 };
 
-int SLAPI PrcssrImportKLADR::ProcessTempTable()
+int PrcssrImportKLADR::ProcessTempTable()
 {
 	int    ok = 1;
 	if(P_TempTbl) {
@@ -2586,7 +2586,7 @@ int SLAPI PrcssrImportKLADR::ProcessTempTable()
 	return ok;
 }
 
-int SLAPI PrcssrImportKLADR::PreImport()
+int PrcssrImportKLADR::PreImport()
 {
 	ZDELETE(P_TempTbl);
 
@@ -2717,7 +2717,7 @@ int SLAPI PrcssrImportKLADR::PreImport()
 	return ok;
 }
 
-int SLAPI PrcssrImportKLADR::Import()
+int PrcssrImportKLADR::Import()
 {
 	int    ok = 1;
 	PPID   native_country_id = 0;
@@ -2827,7 +2827,7 @@ int SLAPI PrcssrImportKLADR::Import()
 	return ok;
 }
 
-int SLAPI PrcssrImportKLADR::Run()
+int PrcssrImportKLADR::Run()
 {
 	int    ok = 1;
 	P.Flags = 0;
@@ -2839,7 +2839,7 @@ int SLAPI PrcssrImportKLADR::Run()
 	return ok;
 }
 
-int SLAPI ImportKLADR()
+int ImportKLADR()
 {
 	PrcssrImportKLADR prcssr;
 	return prcssr.Run();
@@ -3026,17 +3026,17 @@ int PersonImpExpDialog::getDTS(PPPersonImpExpParam * pData)
 class PrcssrPersonImport {
 public:
 	struct Param {
-		SLAPI  Param() : CategoryID(0)
+		Param() : CategoryID(0)
 		{
 		}
 		PPID   CategoryID;
 		SString CfgName;
 	};
-	SLAPI  PrcssrPersonImport();
-	int    SLAPI InitParam(Param *);
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	PrcssrPersonImport();
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
 private:
 	struct AddrEntry {
 		double Longitude;
@@ -3047,9 +3047,9 @@ private:
 		SString SubCityName;
 		SString Addr;
 	};
-	int    SLAPI ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr);
-	int    SLAPI ProcessComplexELinkText(const char * pText, PPPersonPacket * pPack);
-	int    SLAPI ProcessComplexEMailText(const char * pText, PPPersonPacket * pPack);
+	int    ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr);
+	int    ProcessComplexELinkText(const char * pText, PPPersonPacket * pPack);
+	int    ProcessComplexEMailText(const char * pText, PPPersonPacket * pPack);
 
 	PPObjPerson PsnObj;
 	PPObjWorld WObj;
@@ -3057,11 +3057,11 @@ private:
 	PPPersonImpExpParam IeParam;
 };
 
-SLAPI PrcssrPersonImport::PrcssrPersonImport()
+PrcssrPersonImport::PrcssrPersonImport()
 {
 }
 
-int SLAPI PrcssrPersonImport::InitParam(Param * pParam)
+int PrcssrPersonImport::InitParam(Param * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
@@ -3126,7 +3126,7 @@ int PrcssrPersonImport::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrPersonImport::ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr)
+int PrcssrPersonImport::ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr)
 {
 	int    ok = -1;
 	rEntry.Code.Strip();
@@ -3151,7 +3151,7 @@ int SLAPI PrcssrPersonImport::ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec &
 	return ok;
 }
 
-int SLAPI PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPacket * pPack)
+int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPacket * pPack)
 {
 	struct PrefixEntry {
 		const char * P_Prefix;
@@ -3234,7 +3234,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPers
 	return ok;
 }
 
-int SLAPI PrcssrPersonImport::ProcessComplexEMailText(const char * pText, PPPersonPacket * pPack)
+int PrcssrPersonImport::ProcessComplexEMailText(const char * pText, PPPersonPacket * pPack)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3261,7 +3261,7 @@ static uint FASTCALL MakeTextHash(const SString & rText)
 	return SlHash::BobJenc(rText.cptr(), rText.Len());
 }
 
-int SLAPI PrcssrPersonImport::Run()
+int PrcssrPersonImport::Run()
 {
 	int    ok = -1;
 	long   numrecs = 0;
@@ -3550,7 +3550,7 @@ int SLAPI PrcssrPersonImport::Run()
 	return ok;
 }
 
-int SLAPI PPObjPerson::Import()
+int PPObjPerson::Import()
 {
 	int    ok = -1;
 	PrcssrPersonImport prcssr;
@@ -3564,7 +3564,7 @@ int SLAPI PPObjPerson::Import()
 	return ok;
 }
 
-int SLAPI EditPersonImpExpParams()
+int EditPersonImpExpParams()
 {
 	int    ok = -1;
 	PPPersonImpExpParam param;
@@ -3777,7 +3777,7 @@ int FASTCALL ReadDBSR25::NextIteration(PPSuprWareAssoc & rGoodComp)
 	return ok;
 }
 
-int SLAPI ImportSR25()
+int ImportSR25()
 {
 	int    ok = 1, r = 1;
 	uint   count = 0, i = 0, pos = 0;
@@ -4000,7 +4000,7 @@ int SuprWareDB::NextIteration(SString & rName, TSArray <PPComps> & rArr)
 	return ok;
 }
 
-int SLAPI ImportCompGS()
+int ImportCompGS()
 {
 	int    ok = 1;
 	uint   total_gds_count = 0, gds_count = 0, total_comps_count = 0, comps_count = 0, i = 0;
@@ -4112,7 +4112,7 @@ FiasImporter::Param::Param() : Flags(0)
 {
 }
 
-int SLAPI FiasImporter::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int FiasImporter::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
@@ -4121,12 +4121,12 @@ int SLAPI FiasImporter::Param::Serialize(int dir, SBuffer & rBuf, SSerializeCont
 	return ok;
 }
 
-SLAPI FiasImporter::ProcessState::Item::Item()
+FiasImporter::ProcessState::Item::Item()
 {
 	THISZERO();
 }
 
-int SLAPI FiasImporter::ProcessState::Item::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int FiasImporter::ProcessState::Item::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, InputFileName, sizeof(InputFileName), rBuf));
@@ -4138,16 +4138,16 @@ int SLAPI FiasImporter::ProcessState::Item::Serialize(int dir, SBuffer & rBuf, S
 	return ok;
 }
 
-SLAPI FiasImporter::ProcessState::ProcessState()
+FiasImporter::ProcessState::ProcessState()
 {
 }
 
-int SLAPI FiasImporter::ProcessState::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int FiasImporter::ProcessState::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	return TSVector_Serialize <Item> (L, dir, rBuf, pSCtx) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI FiasImporter::ProcessState::Store(int use_ta)
+int FiasImporter::ProcessState::Store(int use_ta)
 {
 	int    ok = 1;
 	SBuffer buffer;
@@ -4158,7 +4158,7 @@ int SLAPI FiasImporter::ProcessState::Store(int use_ta)
 	return ok;
 }
 
-int SLAPI FiasImporter::ProcessState::Restore()
+int FiasImporter::ProcessState::Restore()
 {
 	int    ok = 1;
 	SBuffer buffer;
@@ -4173,7 +4173,7 @@ int SLAPI FiasImporter::ProcessState::Restore()
 	return ok;
 }
 
-int SLAPI FiasImporter::ProcessState::SearchItem(const char * pPath, int phase, uint * pPos, SString & rNormalizedName) const
+int FiasImporter::ProcessState::SearchItem(const char * pPath, int phase, uint * pPos, SString & rNormalizedName) const
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -4190,7 +4190,7 @@ int SLAPI FiasImporter::ProcessState::SearchItem(const char * pPath, int phase, 
 	return ok;
 }
 
-int SLAPI FiasImporter::ProcessState::SetItem(const char * pPath, int phase, uint * pPos, SString & rNormalizedName)
+int FiasImporter::ProcessState::SetItem(const char * pPath, int phase, uint * pPos, SString & rNormalizedName)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -4946,7 +4946,7 @@ int FiasImporter::EditParam(Param & rP)
 }
 
 /*
-int SLAPI ImportFias()
+int ImportFias()
 {
 	int    ok = 1;
 	FiasImporter prcssr("D:\\Papyrus\\Universe-HTT\\DATA\\KLADR\\FIAS");
@@ -4956,7 +4956,7 @@ int SLAPI ImportFias()
 }
 */
 
-int SLAPI FiasImporter::Run(const FiasImporter::Param & rP)
+int FiasImporter::Run(const FiasImporter::Param & rP)
 {
 	int    ok = 1;
 	P = rP;
@@ -4989,12 +4989,12 @@ int SLAPI FiasImporter::Run(const FiasImporter::Param & rP)
 //
 //
 //
-SLAPI PrcssrOsm::StatBlock::StatBlock()
+PrcssrOsm::StatBlock::StatBlock()
 {
 	Clear();
 }
 
-void SLAPI PrcssrOsm::StatBlock::Clear()
+void PrcssrOsm::StatBlock::Clear()
 {
 	NodeCount = 0;
 	NakedNodeCount = 0;
@@ -5007,7 +5007,7 @@ void SLAPI PrcssrOsm::StatBlock::Clear()
 	WayList.clear();
 }
 
-int SLAPI PrcssrOsm::StatBlock::Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx)
+int PrcssrOsm::StatBlock::Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, NodeCount, rBuffer));
@@ -5024,20 +5024,20 @@ int SLAPI PrcssrOsm::StatBlock::Serialize(int dir, SBuffer & rBuffer, SSerialize
 }
 
 #define _SUM_OF_VECTORMEMBER(_type, _vect, _memb) _type t = 0; for(uint i = 0; i < _vect.getCount(); i++) { t += _vect.at(i)._memb; } return t
-	uint64 SLAPI PrcssrOsm::StatBlock::GetNcActualCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ActualCount); }
-	uint64 SLAPI PrcssrOsm::StatBlock::GetNcProcessedCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ProcessedCount); }
-	uint64 SLAPI PrcssrOsm::StatBlock::GetNcClusterCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ClusterCount); }
-	uint64 SLAPI PrcssrOsm::StatBlock::GetNcSize() const { _SUM_OF_VECTORMEMBER(uint64, NcList, Size); }
-	uint64 SLAPI PrcssrOsm::StatBlock::GetWsCount() const { _SUM_OF_VECTORMEMBER(uint64, WayList, WayCount); }
-	uint64 SLAPI PrcssrOsm::StatBlock::GetWsProcessedCount() const { _SUM_OF_VECTORMEMBER(uint64, WayList, ProcessedCount); }
-	uint64 SLAPI PrcssrOsm::StatBlock::GetWsSize() const { _SUM_OF_VECTORMEMBER(uint64, WayList, Size); }
+	uint64 PrcssrOsm::StatBlock::GetNcActualCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ActualCount); }
+	uint64 PrcssrOsm::StatBlock::GetNcProcessedCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ProcessedCount); }
+	uint64 PrcssrOsm::StatBlock::GetNcClusterCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ClusterCount); }
+	uint64 PrcssrOsm::StatBlock::GetNcSize() const { _SUM_OF_VECTORMEMBER(uint64, NcList, Size); }
+	uint64 PrcssrOsm::StatBlock::GetWsCount() const { _SUM_OF_VECTORMEMBER(uint64, WayList, WayCount); }
+	uint64 PrcssrOsm::StatBlock::GetWsProcessedCount() const { _SUM_OF_VECTORMEMBER(uint64, WayList, ProcessedCount); }
+	uint64 PrcssrOsm::StatBlock::GetWsSize() const { _SUM_OF_VECTORMEMBER(uint64, WayList, Size); }
 #undef _SUM_OF_VECTORMEMBER
 
-SLAPI PrcssrOsm::RoadStone::RoadStone() : Phase(phaseUnkn)
+PrcssrOsm::RoadStone::RoadStone() : Phase(phaseUnkn)
 {
 }
 
-int SLAPI PrcssrOsm::RoadStone::Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx)
+int PrcssrOsm::RoadStone::Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, SrcFileName, rBuffer));
@@ -5047,7 +5047,7 @@ int SLAPI PrcssrOsm::RoadStone::Serialize(int dir, SBuffer & rBuffer, SSerialize
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(PrcssrOsm); SLAPI PrcssrOsmFilt::PrcssrOsmFilt() : PPBaseFilt(PPFILT_PRCSSROSMPARAM, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrcssrOsm); PrcssrOsmFilt::PrcssrOsmFilt() : PPBaseFilt(PPFILT_PRCSSROSMPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrOsmFilt, ReserveStart),
 		offsetof(PrcssrOsmFilt, SrcFileName)-offsetof(PrcssrOsmFilt, ReserveStart));
@@ -5061,7 +5061,7 @@ PrcssrOsmFilt & FASTCALL PrcssrOsmFilt::operator = (const PrcssrOsmFilt & rS)
 	return *this;
 }
 
-int SLAPI PrcssrOsmFilt::IsEmpty() const
+int PrcssrOsmFilt::IsEmpty() const
 {
 	if(Flags)
 		return 0;
@@ -5071,12 +5071,12 @@ int SLAPI PrcssrOsmFilt::IsEmpty() const
 		return 1;
 }
 
-SLAPI PrcssrOsm::CommonAttrSet::CommonAttrSet()
+PrcssrOsm::CommonAttrSet::CommonAttrSet()
 {
 	Reset();
 }
 
-void SLAPI PrcssrOsm::CommonAttrSet::Reset()
+void PrcssrOsm::CommonAttrSet::Reset()
 {
 	ID = 0;
 	Lat = 0.0;
@@ -5092,7 +5092,7 @@ void SLAPI PrcssrOsm::CommonAttrSet::Reset()
 	User.Z();
 }
 
-SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGrid()),
+PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGrid()),
 	P_SaxCtx(0), State(0), P_RoadStoneStat(0), P_LatOutF(0), P_LonOutF(0),
 	P_NodeToWayAssocOutF(0), P_NodeToWayAssocInF(0), P_TagOutF(0), P_TagNodeOutF(0),
 	P_TagWayOutF(0), P_TagRelOutF(0), P_SizeOutF(0), P_TestNodeBinF(0), P_TestNodeF(0),
@@ -5101,13 +5101,13 @@ SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGr
 	Reset();
 }
 
-SLAPI PrcssrOsm::~PrcssrOsm()
+PrcssrOsm::~PrcssrOsm()
 {
 	P_ShT = 0;
 	Reset();
 }
 
-int SLAPI PrcssrOsm::InitParam(PPBaseFilt * pBaseFilt)
+int PrcssrOsm::InitParam(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(P.IsA(pBaseFilt)) {
@@ -5152,7 +5152,7 @@ private:
 	PrcssrOsmFilt Data;
 };
 
-int SLAPI PrcssrOsm::EditParam(PPBaseFilt * pBaseFilt)
+int PrcssrOsm::EditParam(PPBaseFilt * pBaseFilt)
 {
 	if(!P.IsA(pBaseFilt))
 		return 0;
@@ -5160,7 +5160,7 @@ int SLAPI PrcssrOsm::EditParam(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(PrcssrOsmFiltDialog, p_filt);
 }
 
-int SLAPI PrcssrOsm::Init(const PPBaseFilt * pBaseFilt)
+int PrcssrOsm::Init(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(P.IsA(pBaseFilt));
@@ -5169,7 +5169,7 @@ int SLAPI PrcssrOsm::Init(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-void SLAPI PrcssrOsm::Reset()
+void PrcssrOsm::Reset()
 {
 	State = 0;
 	Phase = phaseUnkn;
@@ -5469,7 +5469,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 	return ok;
 }
 
-int SLAPI PrcssrOsm::GetPhaseSymb(long phase, SString & rSymb) const
+int PrcssrOsm::GetPhaseSymb(long phase, SString & rSymb) const
 {
 	rSymb.Z();
 	int    ok = 1;
@@ -5484,7 +5484,7 @@ int SLAPI PrcssrOsm::GetPhaseSymb(long phase, SString & rSymb) const
 	return ok;
 }
 
-int SLAPI PrcssrOsm::WriteRoadStone(RoadStone & rRs)
+int PrcssrOsm::WriteRoadStone(RoadStone & rRs)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -5510,7 +5510,7 @@ int SLAPI PrcssrOsm::WriteRoadStone(RoadStone & rRs)
 	return ok;
 }
 
-int SLAPI PrcssrOsm::ReadRoadStone(long phase, RoadStone & rRs)
+int PrcssrOsm::ReadRoadStone(long phase, RoadStone & rRs)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -5729,7 +5729,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 	return ok;
 }
 
-int SLAPI PrcssrOsm::ProcessWaySizes()
+int PrcssrOsm::ProcessWaySizes()
 {
 	int    ok = 1;
 	SrDatabase * p_db = O.GetDb();
@@ -5827,7 +5827,7 @@ int SLAPI PrcssrOsm::ProcessWaySizes()
 	return ok;
 }
 
-int SLAPI PrcssrOsm::OutputStat(int detail)
+int PrcssrOsm::OutputStat(int detail)
 {
 	SString stat_info_buf;
 	stat_info_buf.CatEq("Node", Stat.NodeCount).CatDiv(';', 2).
@@ -5967,7 +5967,7 @@ IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
 //
 // Descr: Построение пропорциональной гео-координатной решетки
 //
-int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList)
+int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList)
 {
 	rGridList.freeAll();
 
@@ -6202,7 +6202,7 @@ static SString & MakeSuffixedTxtFileName(const SString & rSrcFileName, const cha
 	return rResult;
 }
 
-int SLAPI PrcssrOsm::SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp)
+int PrcssrOsm::SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp)
 {
 	int    ok = -1;
 	//const size_t sort_max_chunk = 32 * 1024 * 1024;
@@ -6241,7 +6241,7 @@ int SLAPI PrcssrOsm::SortFile(const char * pSrcFileName, const char * pSuffix, C
 	return ok;
 }
 
-int SLAPI PrcssrOsm::Run()
+int PrcssrOsm::Run()
 {
 	int    ok = 1;
 	const  SString file_name = P.SrcFileName;
@@ -6549,7 +6549,7 @@ int SLAPI PrcssrOsm::Run()
 	return ok;
 }
 
-int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt)
+int DoProcessOsm(PrcssrOsmFilt * pFilt)
 {
 	int    ok = -1;
 	PrcssrOsm prcssr(0);
@@ -6579,10 +6579,10 @@ public:
 	/*enum {
 		rsrvid
 	};*/
-	SLAPI  PPHistoricalTimeSeries();
-	int    SLAPI Add(LDATETIME dtm, double value);
-    int    SLAPI GetDateRange(DateRange & rRange) const;
-    int    SLAPI GetLastValue(LDATETIME dtm, double * pValue) const;
+	PPHistoricalTimeSeries();
+	int    Add(LDATETIME dtm, double value);
+    int    GetDateRange(DateRange & rRange) const;
+    int    GetLastValue(LDATETIME dtm, double * pValue) const;
 private:
 	struct Entry {
 		LDATETIME Dtm;
@@ -6594,7 +6594,7 @@ private:
 	TSVector <Entry> List;
 };
 
-int SLAPI Import_Macrotrends(const char * pPath, TSCollection <PPHistoricalTimeSeries> & rDataList)
+int Import_Macrotrends(const char * pPath, TSCollection <PPHistoricalTimeSeries> & rDataList)
 {
 	int    ok = -1;
 	SDirEntry de;

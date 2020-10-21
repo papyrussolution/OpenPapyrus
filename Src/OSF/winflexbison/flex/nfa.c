@@ -55,7 +55,7 @@ void    add_accept(int mach, int accepting_number)
 	else {
 		int astate = mkstate(SYM_EPSILON);
 		accptnum[astate] = accepting_number;
-		(void)link_machines(mach, astate);
+		link_machines(mach, astate);
 	}
 }
 
@@ -576,7 +576,7 @@ void    mkxtion(int statefrom, int stateto)
 
 /* new_rule - initialize for a new rule */
 
-void    new_rule(void)
+void    new_rule()
 {
 	if(++num_rules >= current_max_rules) {
 		++num_reallocs;

@@ -228,7 +228,7 @@ int cclcmp(const void * a, const void * b)
 
 /* dataend - finish up a block of data declarations */
 
-void dataend(void)
+void dataend()
 {
 	/* short circuit any output */
 	if(gentables) {
@@ -244,14 +244,12 @@ void dataend(void)
 
 /* dataflush - flush generated data statements */
 
-void dataflush(void)
+void dataflush()
 {
 	/* short circuit any output */
 	if(!gentables)
 		return;
-
 	outc('\n');
-
 	if(++dataline >= NUMDATALINES) {
 		/* Put out a blank line so that the table is grouped into
 		 * large blocks that enable the user to find elements easily.
@@ -259,7 +257,6 @@ void dataflush(void)
 		outc('\n');
 		dataline = 0;
 	}
-
 	/* Reset the number of characters written on the current line. */
 	datapos = 0;
 }
@@ -356,7 +353,7 @@ void line_directive_out(FILE * output_file, int do_infile)
  *               representing where the user's section 1 definitions end
  *		 and the prolog begins
  */
-void mark_defs1(void)
+void mark_defs1()
 {
 	defs1_offset = 0;
 	action_array[action_index++] = '\0';
@@ -367,7 +364,7 @@ void mark_defs1(void)
 /* mark_prolog - mark the current position in the action array as
  *               representing the end of the action prolog
  */
-void mark_prolog(void)
+void mark_prolog()
 {
 	action_array[action_index++] = '\0';
 	action_offset = action_index;
@@ -433,7 +430,7 @@ void mkdata(int value)
 int myctoi(const char * array)
 {
 	int val = 0;
-	(void)sscanf(array, "%d", &val);
+	sscanf(array, "%d", &val);
 	return val;
 }
 
@@ -629,7 +626,7 @@ void   * reallocate_array(void * array, int size, size_t element_size)
  *    Copies skelfile or skel array to stdout until a line beginning with
  *    "%%" or EOF is found.
  */
-void skelout(void)
+void skelout()
 {
 	char buf_storage[MAXLINE];
 	char   * buf = buf_storage;

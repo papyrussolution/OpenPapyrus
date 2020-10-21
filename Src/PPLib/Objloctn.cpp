@@ -27,13 +27,13 @@ public:
 		LDATE  StartDt;
 		LDATE  EndDt;
 	};
-	SLAPI  FiasAddrCache();
-	SLAPI ~FiasAddrCache();
-	int    SLAPI GetAddrObjListByText(const char * pText, PPIDArray & rList);
+	FiasAddrCache();
+	~FiasAddrCache();
+	int    GetAddrObjListByText(const char * pText, PPIDArray & rList);
 	void   FASTCALL SetTable(PPFiasReference * pT);
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct TextEntry {
 		TextEntry(PPID textRefID, const PPIDArray & rList) : TextRefID(textRefID), AddrList(rList)
@@ -47,11 +47,11 @@ private:
 	PPFiasReference * P_T; // @notowned
 };
 
-SLAPI FiasAddrCache::FiasAddrCache() : ObjCacheHash(PPOBJ_FIAS, sizeof(Data), 16*1024*1024, 8), P_T(0)
+FiasAddrCache::FiasAddrCache() : ObjCacheHash(PPOBJ_FIAS, sizeof(Data), 16*1024*1024, 8), P_T(0)
 {
 }
 
-SLAPI FiasAddrCache::~FiasAddrCache()
+FiasAddrCache::~FiasAddrCache()
 {
 }
 
@@ -60,7 +60,7 @@ void FASTCALL FiasAddrCache::SetTable(PPFiasReference * pT)
 	P_T = pT;
 }
 
-int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rList)
+int FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -100,7 +100,7 @@ int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rL
 	return ok;
 }
 
-int SLAPI FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -132,7 +132,7 @@ int SLAPI FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraD
 	return ok;
 }
 
-void SLAPI FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	FiasAddrObjTbl::Rec * p_data_rec = static_cast<FiasAddrObjTbl::Rec *>(pDataRec);
 	if(p_data_rec) {
@@ -178,13 +178,13 @@ PPCountryBlock & PPCountryBlock::Z()
 //
 //
 //
-SLAPI PPLocationPacket::PPLocationPacket()
+PPLocationPacket::PPLocationPacket()
 {
 	memzero(static_cast<LocationTbl::Rec *>(this), sizeof(LocationTbl::Rec));
 	TagL.ObjType = PPOBJ_LOCATION;
 }
 
-SLAPI PPLocationPacket::PPLocationPacket(const PPLocationPacket & rS)
+PPLocationPacket::PPLocationPacket(const PPLocationPacket & rS)
 {
 	Copy(rS);
 }
@@ -197,7 +197,7 @@ int FASTCALL PPLocationPacket::Copy(const PPLocationPacket & rS)
 	return 1;
 }
 
-void SLAPI PPLocationPacket::destroy()
+void PPLocationPacket::destroy()
 {
 	memzero(static_cast<LocationTbl::Rec *>(this), sizeof(LocationTbl::Rec));
 	Regs.freeAll();
@@ -217,7 +217,7 @@ PPLocationPacket & FASTCALL PPLocationPacket::operator = (const PPLocationPacket
 	return *this;
 }
 
-int SLAPI PPLocationPacket::IsEmptyAddress() const
+int PPLocationPacket::IsEmptyAddress() const
 {
 	return LocationCore::IsEmptyAddressRec(*this);
 }
@@ -301,7 +301,7 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjLocation::EditConfig()
+/*static*/int PPObjLocation::EditConfig()
 {
 	int    ok = -1;
 	PPLocationConfig cfg, org_cfg;
@@ -361,7 +361,7 @@ int FASTCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, co
 	return SetupPPObjCombo(dlg, ctl, PPOBJ_LOCATION, id, flags, &flt);
 }
 
-/*static*/int SLAPI PPObjLocation::SelectWarehouse(PPID /*owner*/, PPID /*level*/)
+/*static*/int PPObjLocation::SelectWarehouse(PPID /*owner*/, PPID /*level*/)
 {
 	PPID   id = LConfig.Location;
 	int    r = PPSelectObject(PPOBJ_LOCATION, &id, PPTXT_SELECTLOCATION, 0);
@@ -370,7 +370,7 @@ int FASTCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, co
 	return r;
 }
 
-void SLAPI PPObjLocation::InitInstance(SCtrLite sctr, void * extraPtr)
+void PPObjLocation::InitInstance(SCtrLite sctr, void * extraPtr)
 {
 	Sctr = sctr;
 
@@ -387,17 +387,17 @@ void SLAPI PPObjLocation::InitInstance(SCtrLite sctr, void * extraPtr)
 		P_RegObj = new PPObjRegister;
 }
 
-SLAPI PPObjLocation::PPObjLocation(void * extraPtr) : PPObject(PPOBJ_LOCATION)
+PPObjLocation::PPObjLocation(void * extraPtr) : PPObject(PPOBJ_LOCATION)
 {
 	InitInstance(SConstructorDef, extraPtr);
 }
 
-SLAPI PPObjLocation::PPObjLocation(SCtrLite sctr) : PPObject(PPOBJ_LOCATION)
+PPObjLocation::PPObjLocation(SCtrLite sctr) : PPObject(PPOBJ_LOCATION)
 {
 	InitInstance(sctr, 0);
 }
 
-SLAPI PPObjLocation::~PPObjLocation()
+PPObjLocation::~PPObjLocation()
 {
 	delete P_WObj;
 	delete P_RegObj;
@@ -465,12 +465,12 @@ SString & PPObjLocation::MakeCodeString(const LocationTbl::Rec * pRec, int optio
 	return rBuf;
 }
 
-int SLAPI PPObjLocation::Search(PPID id, void * b)
+int PPObjLocation::Search(PPID id, void * b)
 {
 	return P_Tbl->Search(id, (LocationTbl::Rec *)b);
 }
 
-int SLAPI PPObjLocation::GetParentWarehouse(PPID locID, PPID * pWarehouseID)
+int PPObjLocation::GetParentWarehouse(PPID locID, PPID * pWarehouseID)
 {
 	int    ok = -1;
 	LocationTbl::Rec rec;
@@ -492,7 +492,7 @@ int SLAPI PPObjLocation::GetParentWarehouse(PPID locID, PPID * pWarehouseID)
 	return ok;
 }
 
-int SLAPI PPObjLocation::ReqAutoName(PPID id)
+int PPObjLocation::ReqAutoName(PPID id)
 {
 	int    ok = 0;
 	LocationTbl::Rec rec;
@@ -514,14 +514,14 @@ int SLAPI PPObjLocation::ReqAutoName(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjLocation::GetAddress(PPID locID, uint flags, SString & rBuf)
+int PPObjLocation::GetAddress(PPID locID, uint flags, SString & rBuf)
 {
 	rBuf.Z();
 	LocationTbl::Rec loc_rec;
 	return (!locID || Fetch(locID, &loc_rec) > 0) ? LocationCore::GetAddress(loc_rec, flags, rBuf) : 0;
 }
 
-int SLAPI PPObjLocation::GetCountry(const LocationTbl::Rec * pLocRec, PPID * pCountryID, PPCountryBlock * pBlk)
+int PPObjLocation::GetCountry(const LocationTbl::Rec * pLocRec, PPID * pCountryID, PPCountryBlock * pBlk)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pBlk, Z());
@@ -548,7 +548,7 @@ int SLAPI PPObjLocation::GetCountry(const LocationTbl::Rec * pLocRec, PPID * pCo
 	return ok;
 }
 
-int SLAPI PPObjLocation::GetCountry(PPID id, PPID * pCountryID, PPCountryBlock * pBlk)
+int PPObjLocation::GetCountry(PPID id, PPID * pCountryID, PPCountryBlock * pBlk)
 {
 	LocationTbl::Rec loc_rec;
 	const LocationTbl::Rec * p_loc_rec = 0;
@@ -557,7 +557,7 @@ int SLAPI PPObjLocation::GetCountry(PPID id, PPID * pCountryID, PPCountryBlock *
 	return GetCountry(p_loc_rec, pCountryID, pBlk);
 }
 
-int SLAPI PPObjLocation::InitCityCache()
+int PPObjLocation::InitCityCache()
 {
 	int    ok = 1;
 	IsCityCacheInited = 0;
@@ -577,7 +577,7 @@ int SLAPI PPObjLocation::InitCityCache()
 	return ok;
 }
 
-int SLAPI PPObjLocation::GetCityID(PPID locID, PPID * pCityID, int useCache)
+int PPObjLocation::GetCityID(PPID locID, PPID * pCityID, int useCache)
 {
 	int    use_search = 1;
 	PPID   city_id = 0;
@@ -595,7 +595,7 @@ int SLAPI PPObjLocation::GetCityID(PPID locID, PPID * pCityID, int useCache)
 	return city_id ? 1 : -1;
 }
 
-int SLAPI PPObjLocation::GetCity(PPID id, PPID * pCityID, SString * pCityName, int useCache)
+int PPObjLocation::GetCity(PPID id, PPID * pCityID, SString * pCityName, int useCache)
 {
 	int    ok = -1;
 	PPID   city_id = 0;
@@ -617,7 +617,7 @@ int SLAPI PPObjLocation::GetCity(PPID id, PPID * pCityID, SString * pCityName, i
 	return ok;
 }
 
-int SLAPI PPObjLocation::GetCityByName(const char * pName, PPID * pCityID)
+int PPObjLocation::GetCityByName(const char * pName, PPID * pCityID)
 {
 	int    ok = -1;
 	ASSIGN_PTR(pCityID, 0);
@@ -637,7 +637,7 @@ int SLAPI PPObjLocation::GetCityByName(const char * pName, PPID * pCityID)
 	return ok;
 }
 
-int SLAPI PPObjLocation::FetchCityByAddr(PPID locID, WorldTbl::Rec * pRec)
+int PPObjLocation::FetchCityByAddr(PPID locID, WorldTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPID   city_id = 0;
@@ -653,13 +653,13 @@ int SLAPI PPObjLocation::FetchCityByAddr(PPID locID, WorldTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPObjLocation::FetchCity(PPID cityID, WorldTbl::Rec * pRec)
+int PPObjLocation::FetchCity(PPID cityID, WorldTbl::Rec * pRec)
 {
 	SETIFZ(P_WObj, new PPObjWorld);
 	return P_WObj ? P_WObj->Fetch(cityID, pRec) : PPSetErrorNoMem();
 }
 
-const char * SLAPI PPObjLocation::GetNamePtr()
+const char * PPObjLocation::GetNamePtr()
 {
 	const LocationTbl::Rec & r_rec = P_Tbl->data;
 	if(r_rec.Type == LOCTYP_ADDRESS)
@@ -676,12 +676,12 @@ const char * SLAPI PPObjLocation::GetNamePtr()
 	return NameBuf.cptr();
 }
 
-int SLAPI PPObjLocation::DeleteObj(PPID id)
+int PPObjLocation::DeleteObj(PPID id)
 {
 	return PutRecord(&id, 0, 0);
 }
 
-int SLAPI PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
+int PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -759,7 +759,7 @@ int PPObjLocation::AddListItem(StrAssocArray * pList, const LocationTbl::Rec * p
 	return ok;
 }
 
-int SLAPI PPObjLocation::MakeListByType(PPID locType, PPID parentID, long zeroParentId, int flags, StrAssocArray * pList)
+int PPObjLocation::MakeListByType(PPID locType, PPID parentID, long zeroParentId, int flags, StrAssocArray * pList)
 {
 	int    ok = 1;
 	LocationTbl::Rec loc_rec, child_rec;
@@ -912,12 +912,12 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 	return p_list;
 }
 
-StrAssocArray * SLAPI PPObjLocation::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjLocation::MakeStrAssocList(void * extraPtr)
 {
 	return MakeList_(0, 0);
 }
 
-int SLAPI PPObjLocation::AssignImages(ListBoxDef * pDef)
+int PPObjLocation::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
@@ -945,14 +945,14 @@ int SLAPI PPObjLocation::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-/*virtual*/ListBoxDef * SLAPI PPObjLocation::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjLocation::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-/*virtual*/int SLAPI PPObjLocation::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int PPObjLocation::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
 	if(ok > 0)
@@ -960,7 +960,7 @@ int SLAPI PPObjLocation::AssignImages(ListBoxDef * pDef)
 	return ok;
 }
 
-int SLAPI PPObjLocation::GenerateWhCells(PPID whColumnID, const LocationTbl::Rec * pSampleRec, int use_ta)
+int PPObjLocation::GenerateWhCells(PPID whColumnID, const LocationTbl::Rec * pSampleRec, int use_ta)
 {
 	int    ok = 1;
 	LocationTbl::Rec column_rec;
@@ -1000,7 +1000,7 @@ int SLAPI PPObjLocation::GenerateWhCells(PPID whColumnID, const LocationTbl::Rec
 }
 
 /*
-int SLAPI PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID)
+int PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID)
 {
 	int    ok = -1;
 	PPID   ar_id = 0;
@@ -1022,7 +1022,7 @@ int SLAPI PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accShee
 }
 */
 
-int SLAPI PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * pSerial, const char * pNumber, PPIDArray & rList)
+int PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * pSerial, const char * pNumber, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = 1;
@@ -1063,7 +1063,7 @@ int SLAPI PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const c
 	return ok;
 }
 
-int SLAPI PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList)
+int PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -1079,7 +1079,7 @@ int SLAPI PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & 
 	return ok;
 }
 
-int SLAPI PPObjLocation::ResolveWarehouse(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace)
+int PPObjLocation::ResolveWarehouse(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace)
 {
 	int    ok = 1;
 	LocationTbl::Rec loc_rec;
@@ -1108,7 +1108,7 @@ int SLAPI PPObjLocation::ResolveWarehouse(PPID locID, PPIDArray & rDestList, PPI
 	return ok;
 }
 
-int SLAPI PPObjLocation::ResolveWarehouseList(const PPIDArray * pList, PPIDArray & rDestList)
+int PPObjLocation::ResolveWarehouseList(const PPIDArray * pList, PPIDArray & rDestList)
 {
 	int    ok = 1;
 	PPIDArray temp_list;
@@ -1123,7 +1123,7 @@ int SLAPI PPObjLocation::ResolveWarehouseList(const PPIDArray * pList, PPIDArray
 	return ok;
 }
 
-int SLAPI PPObjLocation::ResolveWhCellList(const PPIDArray * pList, long options, PPIDArray & rDestList)
+int PPObjLocation::ResolveWhCellList(const PPIDArray * pList, long options, PPIDArray & rDestList)
 {
 	int    ok = 1;
 	PPIDArray temp_list, wh_list;
@@ -1140,7 +1140,7 @@ int SLAPI PPObjLocation::ResolveWhCellList(const PPIDArray * pList, long options
 	return ok;
 }
 
-int SLAPI PPObjLocation::IsMemberOfGroup(PPID locID, PPID grpID)
+int PPObjLocation::IsMemberOfGroup(PPID locID, PPID grpID)
 {
 	int    ok = -1, r;
 	PPIDArray recur_trace;
@@ -1160,7 +1160,7 @@ int SLAPI PPObjLocation::IsMemberOfGroup(PPID locID, PPID grpID)
 	return ok;
 }
 
-int SLAPI PPObjLocation::BelongTo(PPID locID, PPID parentID, SString * pPathText)
+int PPObjLocation::BelongTo(PPID locID, PPID parentID, SString * pPathText)
 {
 	int    yes = 0;
 	ASSIGN_PTR(pPathText, 0);
@@ -1198,7 +1198,7 @@ int SLAPI PPObjLocation::BelongTo(PPID locID, PPID parentID, SString * pPathText
 	return yes;
 }
 
-int SLAPI PPObjLocation::SearchName(PPID locTyp, PPID parentID, const char * pName, PPID * pID)
+int PPObjLocation::SearchName(PPID locTyp, PPID parentID, const char * pName, PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -1389,7 +1389,7 @@ int LocationView::Restore()
 	return ok;
 }
 
-int SLAPI PPObjLocation::Browse(void * extraPtr)
+int PPObjLocation::Browse(void * extraPtr)
 {
 	int    ok = 0;
 	if(CheckRights(PPR_READ)) {
@@ -1455,7 +1455,7 @@ private:
 };
 
 #if 0 // @v10.7.11 {
-static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedStringArray * pStrings, long initID, uint /*flags*/)
+static int SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedStringArray * pStrings, long initID, uint /*flags*/)
 {
 	int    ok = 1;
 	ListWindow * p_lw = 0;
@@ -1590,7 +1590,7 @@ int LocationExtFieldsDialog::setupList()
 	return ok;
 }
 
-int SLAPI EditDlvrAddrExtFields(LocationTbl::Rec * pData) { DIALOG_PROC_BODYERR(LocationExtFieldsDialog, pData); }
+int EditDlvrAddrExtFields(LocationTbl::Rec * pData) { DIALOG_PROC_BODYERR(LocationExtFieldsDialog, pData); }
 
 class LocationDialog : public TDialog {
 public:
@@ -1960,7 +1960,7 @@ int LocationDialog::CopyFullAddr()
 	return 1;
 }
 
-int SLAPI PPObjLocation::EditDialog(PPID locTyp, LocationTbl::Rec * pData)
+int PPObjLocation::EditDialog(PPID locTyp, LocationTbl::Rec * pData)
 {
     PPLocationPacket temp_pack;
     temp_pack = *pData;
@@ -1971,7 +1971,7 @@ int SLAPI PPObjLocation::EditDialog(PPID locTyp, LocationTbl::Rec * pData)
     return ok;
 }
 
-int SLAPI PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long flags)
+int PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long flags)
 {
 	int    ok = cmCancel;
 	uint   dlg_id;
@@ -2008,7 +2008,7 @@ int SLAPI PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long 
 	return ok;
 }
 
-int SLAPI PPObjLocation::IsPacketEq(const PPLocationPacket & rS1, const PPLocationPacket & rS2, long flags)
+int PPObjLocation::IsPacketEq(const PPLocationPacket & rS1, const PPLocationPacket & rS2, long flags)
 {
 	int    eq = 1;
 	if(!LocationCore::IsEqualRec(rS1, rS2))
@@ -2020,7 +2020,7 @@ int SLAPI PPObjLocation::IsPacketEq(const PPLocationPacket & rS1, const PPLocati
 	return eq;
 }
 
-int SLAPI PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
+int PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 {
 	int    ok = 1;
 	pPack->destroy();
@@ -2041,7 +2041,7 @@ int SLAPI PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
+int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2130,7 +2130,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
+int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 {
 	int    ok = 1;
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
@@ -2210,7 +2210,7 @@ int SLAPI PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjLocation::InitCode(LocationTbl::Rec * pRec)
+int PPObjLocation::InitCode(LocationTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPLocationConfig cfg;
@@ -2305,7 +2305,7 @@ int SLAPI PPObjLocation::InitCode(LocationTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate, int inheritFromOwner, RegisterTbl::Rec * pRec)
+int PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate, int inheritFromOwner, RegisterTbl::Rec * pRec)
 {
 	int    ok = -1;
 	RegisterArray reg_list;
@@ -2328,19 +2328,19 @@ int SLAPI PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate,
 	return ok;
 }
 
-SLAPI PPObjLocation::CreateWhLocParam::CreateWhLocParam() : Type(0)
+PPObjLocation::CreateWhLocParam::CreateWhLocParam() : Type(0)
 {
 }
 
 /*struct CreateWhLocParam {
-	SLAPI  CreateWhLocParam() : Type(0)
+	CreateWhLocParam() : Type(0)
 	{
 	}
 	PPID   Type;
 	LocationTbl::Rec CellSample;
 };*/
 
-int SLAPI PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
+int PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
 {
 	class CreateWhLocParamDialog : public TDialog {
 		DECL_DIALOG_DATA(CreateWhLocParam);
@@ -2388,7 +2388,7 @@ int SLAPI PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
 	DIALOG_PROC_BODY(CreateWhLocParamDialog, pParam);
 }
 
-int SLAPI PPObjLocation::Edit(PPID * pID, void * extraPtr)
+int PPObjLocation::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	PPID   loc_typ = 0;
@@ -2471,7 +2471,7 @@ int SLAPI PPObjLocation::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjLocation::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjLocation::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -2524,7 +2524,7 @@ int SLAPI PPObjLocation::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 
 IMPL_DESTROY_OBJ_PACK(PPObjLocation, PPLocationPacket);
 
-int SLAPI PPObjLocation::SerializePacket(int dir, PPLocationPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjLocation::SerializePacket(int dir, PPLocationPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
@@ -2535,7 +2535,7 @@ int SLAPI PPObjLocation::SerializePacket(int dir, PPLocationPacket * pPack, SBuf
 	return ok;
 }
 
-int SLAPI PPObjLocation::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjLocation::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPLocationPacket);
@@ -2556,7 +2556,7 @@ int SLAPI PPObjLocation::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 	return ok;
 }
 
-int SLAPI PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1, r = 1;
 	if(p && p->Data) {
@@ -2624,7 +2624,7 @@ int SLAPI PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 	return ok;
 }
 
-int SLAPI PPObjLocation::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjLocation::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -2658,7 +2658,7 @@ int SLAPI PPObjLocation::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return ok;
 }
 
-int SLAPI PPObjLocation::MakeReserved(long flags)
+int PPObjLocation::MakeReserved(long flags)
 {
 	int    ok = 1;
 	LocationTbl::Key2 k2;
@@ -2691,7 +2691,7 @@ int SLAPI PPObjLocation::MakeReserved(long flags)
 //
 // DivisionCtrlGroup
 //
-SLAPI DivisionCtrlGroup::Rec::Rec(PPID orgID, PPID divID, PPID staffID, PPID postID) :
+DivisionCtrlGroup::Rec::Rec(PPID orgID, PPID divID, PPID staffID, PPID postID) :
 	OrgID(orgID), DivID(divID), StaffID(staffID), PostID(postID)
 {
 }
@@ -2863,14 +2863,14 @@ void DivisionView::viewStaffList()
 //
 //
 //
-/*static*/int SLAPI PPObjLocation::ViewWarehouse()
+/*static*/int PPObjLocation::ViewWarehouse()
 {
 	PPObjLocation locobj(0);
 	locobj.Browse(0);
 	return 1;
 }
 
-/*static*/int SLAPI PPObjLocation::ViewDivision()
+/*static*/int PPObjLocation::ViewDivision()
 {
 	DivisionView * dlg = new DivisionView();
 	return CheckDialogPtrErr(&dlg) ? ExecViewAndDestroy(dlg) : 0;
@@ -2880,22 +2880,22 @@ void DivisionView::viewStaffList()
 //
 class LocationCache : public ObjCacheHash {
 public:
-	SLAPI LocationCache() : ObjCacheHash(PPOBJ_LOCATION, sizeof(LocationData), 1024*1024, 4),
+	LocationCache() : ObjCacheHash(PPOBJ_LOCATION, sizeof(LocationData), 1024*1024, 4),
 		WhObjList(sizeof(WHObjEntry)), FullEaList(BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR)), IsWhObjTabInited(0)
 	{
 		LoadWarehouseTab();
 		MEMSZERO(Cfg);
 	}
-	PPID   SLAPI GetSingleWarehouse();
-	uint   SLAPI GetWarehouseList(PPIDArray * pList);
-	int    SLAPI CheckWarehouseFlags(PPID locID, long f);
+	PPID   GetSingleWarehouse();
+	uint   GetWarehouseList(PPIDArray * pList);
+	int    CheckWarehouseFlags(PPID locID, long f);
 	PPID   FASTCALL ObjToWarehouse(PPID arID, int ignoreRights);
 	PPID   FASTCALL WarehouseToObj(PPID locID, int ignoreRights);
-	int    SLAPI GetConfig(PPLocationConfig * pCfg, int enforce);
-	int    SLAPI GetCellList(PPID locID, PPIDArray * pList); // @sync_w
-	int    SLAPI DirtyCellList(PPID locID); // @sync_w
-	int    SLAPI ReleaseFullEaList(const StrAssocArray * pList);
-	const  StrAssocArray * SLAPI GetFullEaList();
+	int    GetConfig(PPLocationConfig * pCfg, int enforce);
+	int    GetCellList(PPID locID, PPIDArray * pList); // @sync_w
+	int    DirtyCellList(PPID locID); // @sync_w
+	int    ReleaseFullEaList(const StrAssocArray * pList);
+	const  StrAssocArray * GetFullEaList();
 	virtual int  FASTCALL Dirty(PPID); // @sync_w
 private:
 	struct WHObjEntry { // @flat
@@ -2907,10 +2907,10 @@ private:
 		PPID   LocID;
 		PPIDArray List;
 	};
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	int    SLAPI LoadWarehouseTab();
-	int    SLAPI AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID);
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	int    LoadWarehouseTab();
+	int    AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID);
 	//
 	// Descr: Полный список электронных адресов из хранилища EAddrCore
 	//   для быстрого поиска по подстроке
@@ -2955,7 +2955,7 @@ public:
 	};
 };
 
-const StrAssocArray * SLAPI LocationCache::GetFullEaList()
+const StrAssocArray * LocationCache::GetFullEaList()
 {
 	int    err = 0;
 	const  StrAssocArray * p_result = 0;
@@ -3015,7 +3015,7 @@ int LocationCache::ReleaseFullEaList(const StrAssocArray * pList)
 	return 1;
 }
 
-int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
+int LocationCache::GetCellList(PPID locID, PPIDArray * pList)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -3050,7 +3050,7 @@ int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjLocation::GetDirtyCellParentsList(PPID locID, PPIDArray & rDestList)
+int PPObjLocation::GetDirtyCellParentsList(PPID locID, PPIDArray & rDestList)
 {
 	int    ok = 1;
 	PPID   wh_id = 0;
@@ -3073,7 +3073,7 @@ int SLAPI PPObjLocation::GetDirtyCellParentsList(PPID locID, PPIDArray & rDestLi
 	return ok;
 }
 
-int SLAPI LocationCache::DirtyCellList(PPID locID)
+int LocationCache::DirtyCellList(PPID locID)
 {
 	{
 		SRWLOCKER(WhclLock, SReadWriteLocker::Write);
@@ -3092,7 +3092,7 @@ int SLAPI LocationCache::DirtyCellList(PPID locID)
 	return 1;
 }
 
-int SLAPI LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
+int LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
 {
 	{
 		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
@@ -3128,7 +3128,7 @@ int FASTCALL LocationCache::Dirty(PPID locID)
 	return 1;
 }
 
-int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID)
+int LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID)
 {
 	int    ok = -1;
 	WHObjEntry entry;
@@ -3156,7 +3156,7 @@ int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID a
 	return ok;
 }
 
-int SLAPI LocationCache::LoadWarehouseTab()
+int LocationCache::LoadWarehouseTab()
 {
 	int    ok = 1;
 	{
@@ -3188,7 +3188,7 @@ int SLAPI LocationCache::LoadWarehouseTab()
 	return ok;
 }
 
-PPID SLAPI LocationCache::GetSingleWarehouse()
+PPID LocationCache::GetSingleWarehouse()
 {
 	PPID   id = 0;
 	LoadWarehouseTab();
@@ -3210,7 +3210,7 @@ PPID SLAPI LocationCache::GetSingleWarehouse()
 	return id;
 }
 
-uint SLAPI LocationCache::GetWarehouseList(PPIDArray * pList)
+uint LocationCache::GetWarehouseList(PPIDArray * pList)
 {
 	uint   c = 0;
 	LoadWarehouseTab();
@@ -3228,7 +3228,7 @@ uint SLAPI LocationCache::GetWarehouseList(PPIDArray * pList)
 	return c;
 }
 
-int SLAPI LocationCache::CheckWarehouseFlags(PPID locID, long f)
+int LocationCache::CheckWarehouseFlags(PPID locID, long f)
 {
 	int    ok = 0;
 	LoadWarehouseTab();
@@ -3292,7 +3292,7 @@ PPID FASTCALL LocationCache::WarehouseToObj(PPID locID, int ignoreRights)
 	return id;
 }
 
-int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	LocationData * p_cache_rec = static_cast<LocationData *>(pEntry);
@@ -3326,7 +3326,7 @@ int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	LocationTbl::Rec * p_data_rec = static_cast<LocationTbl::Rec *>(pDataRec);
 	const LocationData * p_cache_rec = static_cast<const LocationData *>(pEntry);
@@ -3351,19 +3351,19 @@ void SLAPI LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 IMPL_OBJ_FETCH(PPObjLocation, LocationTbl::Rec, LocationCache);
 IMPL_OBJ_DIRTY(PPObjLocation, LocationCache);
 
-const StrAssocArray * SLAPI PPObjLocation::GetFullEaList()
+const StrAssocArray * PPObjLocation::GetFullEaList()
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	return p_cache ? p_cache->GetFullEaList() : 0;
 }
 
-void SLAPI PPObjLocation::ReleaseFullEaList(const StrAssocArray * pList)
+void PPObjLocation::ReleaseFullEaList(const StrAssocArray * pList)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	CALLPTRMEMB(p_cache, ReleaseFullEaList(pList));
 }
 
-int SLAPI PPObjLocation::Helper_GetEaListBySubstring(const char * pSubstr, void * pList, long flags)
+int PPObjLocation::Helper_GetEaListBySubstring(const char * pSubstr, void * pList, long flags)
 {
 	int    ok = 1, r = 0;
 	const  size_t substr_len = sstrlen(pSubstr);
@@ -3406,7 +3406,7 @@ int SLAPI PPObjLocation::Helper_GetEaListBySubstring(const char * pSubstr, void 
 	return ok;
 }
 
-int SLAPI PPObjLocation::GetEaListBySubstring(const char * pSubstr, StrAssocArray * pList, int fromBegStr)
+int PPObjLocation::GetEaListBySubstring(const char * pSubstr, StrAssocArray * pList, int fromBegStr)
 {
 	long   flags = clsfStrList;
 	if(fromBegStr)
@@ -3416,7 +3416,7 @@ int SLAPI PPObjLocation::GetEaListBySubstring(const char * pSubstr, StrAssocArra
 	return ok;
 }
 
-int SLAPI PPObjLocation::ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace, int useCache)
+int PPObjLocation::ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace, int useCache)
 {
 	int    ok = 1, done = 0;
 	if(useCache) {
@@ -3501,19 +3501,19 @@ int SLAPI PPObjLocation::ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDAr
 	}
 }
 
-/*static*/int SLAPI PPObjLocation::DirtyConfig()
+/*static*/int PPObjLocation::DirtyConfig()
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION, 0);
 	return p_cache ? p_cache->GetConfig(0, 1) : 0;
 }
 
-PPID SLAPI PPObjLocation::GetSingleWarehouse()
+PPID PPObjLocation::GetSingleWarehouse()
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (Obj);
 	return p_cache ? p_cache->GetSingleWarehouse() : 0;
 }
 
-uint SLAPI PPObjLocation::GetWarehouseList(PPIDArray * pList)
+uint PPObjLocation::GetWarehouseList(PPIDArray * pList)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (Obj);
 	return p_cache ? p_cache->GetWarehouseList(pList) : 0;
@@ -4215,16 +4215,16 @@ PPLocAddrStruc::DetectBlock & PPLocAddrStruc::DetectBlock::Init(int entityType, 
 	return *this;
 }
 
-SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(uint p1, uint p2, int reverse) : P1(p1), P2(p2), Reverse(reverse)
+PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(uint p1, uint p2, int reverse) : P1(p1), P2(p2), Reverse(reverse)
 {
 }
 
-SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_MatchEntry & rS) :
+PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_MatchEntry & rS) :
 	P1(rS.P1), P2(rS.P2), Reverse(rS.Reverse), CityStreetList(rS.CityStreetList)
 {
 }
 
-void SLAPI PPLocAddrStruc::Helper_Construct()
+void PPLocAddrStruc::Helper_Construct()
 {
 	State = 0;
 	P_Fr = 0;
@@ -4254,14 +4254,14 @@ void SLAPI PPLocAddrStruc::Helper_Construct()
 	Scan.RegisterRe("^[0-9]+[А-Яа-яA-Za-z][ \t]*\\/[ \t]*[0-9]+", &ReNumA_Sl_Num);
 }
 
-SLAPI PPLocAddrStruc::PPLocAddrStruc(const char * pText, PPFiasReference * pFr) : StrAssocArray()
+PPLocAddrStruc::PPLocAddrStruc(const char * pText, PPFiasReference * pFr) : StrAssocArray()
 {
 	Helper_Construct();
 	P_Fr = pFr;
 	Recognize(pText);
 }
 
-SLAPI PPLocAddrStruc::PPLocAddrStruc(ConditionalConstructWithFias ccwf) : StrAssocArray()
+PPLocAddrStruc::PPLocAddrStruc(ConditionalConstructWithFias ccwf) : StrAssocArray()
 {
 	Helper_Construct();
 	PPLocationConfig loc_cfg;
@@ -4272,7 +4272,7 @@ SLAPI PPLocAddrStruc::PPLocAddrStruc(ConditionalConstructWithFias ccwf) : StrAss
 	}
 }
 
-SLAPI PPLocAddrStruc::~PPLocAddrStruc()
+PPLocAddrStruc::~PPLocAddrStruc()
 {
 	ZDELETE(P_AmbigMatchEntry);
 	ZDELETE(P_AmbigMatchList);
@@ -4280,11 +4280,11 @@ SLAPI PPLocAddrStruc::~PPLocAddrStruc()
 		ZDELETE(P_Fr);
 }
 
-int SLAPI PPLocAddrStruc::HasAmbiguity() const { return P_AmbigMatchEntry ? 1 : (P_AmbigMatchList ? 2 : 0); }
-const TSCollection <PPLocAddrStruc_MatchEntry> * SLAPI PPLocAddrStruc::GetAmbiguityMatchList() const { return P_AmbigMatchList; }
-const PPLocAddrStruc_MatchEntry * SLAPI PPLocAddrStruc::GetAmbiguityMatchEntry() const { return P_AmbigMatchEntry; }
+int PPLocAddrStruc::HasAmbiguity() const { return P_AmbigMatchEntry ? 1 : (P_AmbigMatchList ? 2 : 0); }
+const TSCollection <PPLocAddrStruc_MatchEntry> * PPLocAddrStruc::GetAmbiguityMatchList() const { return P_AmbigMatchList; }
+const PPLocAddrStruc_MatchEntry * PPLocAddrStruc::GetAmbiguityMatchEntry() const { return P_AmbigMatchEntry; }
 
-int SLAPI PPLocAddrStruc::MatchEntryToStr(const PPLocAddrStruc_MatchEntry * pEntry, SString & rBuf)
+int PPLocAddrStruc::MatchEntryToStr(const PPLocAddrStruc_MatchEntry * pEntry, SString & rBuf)
 {
 	int    ok = 1;
     SString temp_buf;
@@ -4322,7 +4322,7 @@ int SLAPI PPLocAddrStruc::MatchEntryToStr(const PPLocAddrStruc_MatchEntry * pEnt
     return ok;
 }
 
-int SLAPI PPLocAddrStruc::DetectStreetName(DetectBlock & rDb)
+int PPLocAddrStruc::DetectStreetName(DetectBlock & rDb)
 {
 	int    ok = 0;
 	rDb.FiasCandidList.clear();
@@ -4348,7 +4348,7 @@ int SLAPI PPLocAddrStruc::DetectStreetName(DetectBlock & rDb)
 	return ok;
 }
 
-int SLAPI PPLocAddrStruc::DetectCityName(DetectBlock & rDb)
+int PPLocAddrStruc::DetectCityName(DetectBlock & rDb)
 {
 	int    ok = 0;
 	rDb.FiasCandidList.clear();
@@ -4406,7 +4406,7 @@ int SLAPI PPLocAddrStruc::DetectCityName(DetectBlock & rDb)
 	return ok;
 }
 
-int SLAPI PPLocAddrStruc::GetTok(AddrTok & rTok)
+int PPLocAddrStruc::GetTok(AddrTok & rTok)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4530,7 +4530,7 @@ int SLAPI PPLocAddrStruc::GetTok(AddrTok & rTok)
 	return ok;
 }
 
-int SLAPI PPLocAddrStruc::ProcessDescr(const AddrItemDescr & rDescr, DescrSelector & rSel)
+int PPLocAddrStruc::ProcessDescr(const AddrItemDescr & rDescr, DescrSelector & rSel)
 {
 	int    ok = 0;
 	rSel.Init();
@@ -4598,7 +4598,7 @@ int SLAPI PPLocAddrStruc::ProcessDescr(const AddrItemDescr & rDescr, DescrSelect
 	return ok;
 }
 
-int SLAPI PPLocAddrStruc::GetFiasAddrObjKind(PPID adrObjID, SString & rKind)
+int PPLocAddrStruc::GetFiasAddrObjKind(PPID adrObjID, SString & rKind)
 {
 	rKind.Z();
 	int    ok = -1;
@@ -4633,7 +4633,7 @@ int SLAPI PPLocAddrStruc::GetFiasAddrObjKind(PPID adrObjID, SString & rKind)
 	return ok;
 }
 
-int SLAPI PPLocAddrStruc::Recognize(const char * pText)
+int PPLocAddrStruc::Recognize(const char * pText)
 {
 	const char * p_enforcefias_prefix = "enforcefias";
 
@@ -5297,7 +5297,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 	return ok;
 }
 
-int SLAPI PPLocAddrStruc::Output(SString & rBuf)
+int PPLocAddrStruc::Output(SString & rBuf)
 {
 	rBuf.Z();
 	SString temp_buf, temp_buf2;
@@ -5358,7 +5358,7 @@ int SLAPI PPLocAddrStruc::Output(SString & rBuf)
 	return 1;
 }
 
-int SLAPI PPLocAddrStruc::OutputTokList(const TSCollection <AddrTok> & rList, SString & rBuf)
+int PPLocAddrStruc::OutputTokList(const TSCollection <AddrTok> & rList, SString & rBuf)
 {
 	for(uint i = 0; i < rList.getCount(); i++) {
 		const AddrTok * p_tok = rList.at(i);
@@ -5406,7 +5406,7 @@ int SLAPI PPLocAddrStruc::OutputTokList(const TSCollection <AddrTok> & rList, SS
 	return 1;
 }
 
-int SLAPI PPLocAddrStruc::Recognize(const char * pText, TSCollection <AddrTok> & rTokList) // @debug
+int PPLocAddrStruc::Recognize(const char * pText, TSCollection <AddrTok> & rTokList) // @debug
 {
 	Style = 0;
 	Flags = 0;
@@ -5618,12 +5618,12 @@ private:
 	PPLocAddrStruc Las;
 };
 
-int SLAPI PPObjLocation::EditAddrStruc(SString & rAddr)
+int PPObjLocation::EditAddrStruc(SString & rAddr)
 {
 	return PPDialogProcBody <AddrStrucDialog, SString> (&rAddr);
 }
 
-int SLAPI PPObjLocation::IndexPhones(PPLogger * pLogger, int use_ta)
+int PPObjLocation::IndexPhones(PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	SString phone, main_city_prefix, city_prefix, temp_buf;
@@ -5964,15 +5964,15 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 	return ok;
 }
 
-SLAPI PPFiasReference::PPFiasReference()
+PPFiasReference::PPFiasReference()
 {
 }
 
-SLAPI PPFiasReference::~PPFiasReference()
+PPFiasReference::~PPFiasReference()
 {
 }
 
-int SLAPI PPFiasReference::SearchObjByID(PPID id, FiasAddrObjTbl::Rec * pRec, int useCache)
+int PPFiasReference::SearchObjByID(PPID id, FiasAddrObjTbl::Rec * pRec, int useCache)
 {
 	int    ok = -1;
 	int    do_straight_search = 1;
@@ -5990,22 +5990,22 @@ int SLAPI PPFiasReference::SearchObjByID(PPID id, FiasAddrObjTbl::Rec * pRec, in
 	return ok;
 }
 
-int SLAPI PPFiasReference::SearchObjByUUID(const S_GUID & rUuid, FiasAddrObjTbl::Rec * pRec)
+int PPFiasReference::SearchObjByUUID(const S_GUID & rUuid, FiasAddrObjTbl::Rec * pRec)
 {
 	return FT.SearchAddrByUUID(rUuid, pRec);
 }
 
-int SLAPI PPFiasReference::SearchHouseByID(PPID id, FiasHouseObjTbl::Rec * pRec)
+int PPFiasReference::SearchHouseByID(PPID id, FiasHouseObjTbl::Rec * pRec)
 {
 	return FT.SearchHouse(id, pRec);
 }
 
-int SLAPI PPFiasReference::SearchHouseByUUID(const S_GUID & rUuid, FiasHouseObjTbl::Rec * pRec)
+int PPFiasReference::SearchHouseByUUID(const S_GUID & rUuid, FiasHouseObjTbl::Rec * pRec)
 {
 	return FT.SearchHouseByUUID(rUuid, pRec);
 }
 
-int SLAPI PPFiasReference::GetText(PPID textRef, SString & rBuf)
+int PPFiasReference::GetText(PPID textRef, SString & rBuf)
 {
 	int    ok = 0;
 	if(textRef) {
@@ -6019,7 +6019,7 @@ int SLAPI PPFiasReference::GetText(PPID textRef, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPFiasReference::Helper_GetHierarchy(PPID id, long flags, FiasHouseObjTbl::Rec * pHseRec, TSArray <FiasAddrObjTbl::Rec> & rList, long * pZip)
+int PPFiasReference::Helper_GetHierarchy(PPID id, long flags, FiasHouseObjTbl::Rec * pHseRec, TSArray <FiasAddrObjTbl::Rec> & rList, long * pZip)
 {
 	rList.clear();
 	int    ok = -1;
@@ -6048,7 +6048,7 @@ int SLAPI PPFiasReference::Helper_GetHierarchy(PPID id, long flags, FiasHouseObj
 	return ok;
 }
 
-uint SLAPI PPFiasReference::IsObjInHierarchy(PPID objID, const TSArray <FiasAddrObjTbl::Rec> & rList) const
+uint PPFiasReference::IsObjInHierarchy(PPID objID, const TSArray <FiasAddrObjTbl::Rec> & rList) const
 {
 	uint   result = 0;
 	for(uint p = 0; !result && p < rList.getCount(); p++) {
@@ -6058,7 +6058,7 @@ uint SLAPI PPFiasReference::IsObjInHierarchy(PPID objID, const TSArray <FiasAddr
 	return result;
 }
 
-int SLAPI PPFiasReference::Match(PPID obj1ID, PPID obj2ID, int vect)
+int PPFiasReference::Match(PPID obj1ID, PPID obj2ID, int vect)
 {
 	//
 	// Returns:
@@ -6118,7 +6118,7 @@ int SLAPI PPFiasReference::Match(PPID obj1ID, PPID obj2ID, int vect)
     return ok;
 }
 
-int SLAPI PPFiasReference::IdentifyHouse(PPID terminalObjID, const char * pHouseCode, PPID * pHouseID)
+int PPFiasReference::IdentifyHouse(PPID terminalObjID, const char * pHouseCode, PPID * pHouseID)
 {
 	int    ok = -1;
 	PPID   hse_id = 0;
@@ -6146,7 +6146,7 @@ int SLAPI PPFiasReference::IdentifyHouse(PPID terminalObjID, const char * pHouse
 	return ok;
 }
 
-int SLAPI PPFiasReference::GetRandomHouse(long extValue, PPID terminalObjID, PPID * pHouseID)
+int PPFiasReference::GetRandomHouse(long extValue, PPID terminalObjID, PPID * pHouseID)
 {
 	int    ok = -1;
 	PPID   hse_id = 0;
@@ -6170,7 +6170,7 @@ int SLAPI PPFiasReference::GetRandomHouse(long extValue, PPID terminalObjID, PPI
     return ok;
 }
 
-int SLAPI PPFiasReference::GetRandomAddress(long extValue, PPID cityID, PPID * pStreetID, PPID * pHouseID)
+int PPFiasReference::GetRandomAddress(long extValue, PPID cityID, PPID * pStreetID, PPID * pHouseID)
 {
 	int    ok = -1;
 	PPID   street_id = DEREFPTRORZ(pStreetID);
@@ -6202,7 +6202,7 @@ int SLAPI PPFiasReference::GetRandomAddress(long extValue, PPID cityID, PPID * p
     return ok;
 }
 
-int SLAPI PPFiasReference::MakeAddressText(PPID terminalID, long flags, SString & rBuf)
+int PPFiasReference::MakeAddressText(PPID terminalID, long flags, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -6238,7 +6238,7 @@ int SLAPI PPFiasReference::MakeAddressText(PPID terminalID, long flags, SString 
 	return ok;
 }
 
-int SLAPI PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList) // @v9.8.4 TSArray-->TSVector
+int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	const int use_bextq = 1;
@@ -6271,7 +6271,7 @@ int SLAPI PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> 
 	return ok;
 }
 
-int SLAPI PPFiasReference::SearchObjByText(const char * pText, long flags, PPID upperID, PPIDArray & rList)
+int PPFiasReference::SearchObjByText(const char * pText, long flags, PPID upperID, PPIDArray & rList)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -6392,7 +6392,7 @@ private:
 	PPFiasReference F;
 };
 
-int SLAPI TestFias()
+int TestFias()
 {
 	TestFiasProcessor prcssr;
 	return prcssr.Run();

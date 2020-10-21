@@ -626,11 +626,11 @@ public:
 //
 // Descr: Инициализирует параметры openssl
 //
-int SLAPI gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile);
+int gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile);
 //
 // Descr: Инициализирует вызов методов gSoap
 //
-int SLAPI gSoapClientInit(struct soap * pSoap, long flags, const char * pKeyfile);
+int gSoapClientInit(struct soap * pSoap, long flags, const char * pKeyfile);
 
 typedef int (*UHTT_DESTROYRESULT)(void *);
 typedef SString * (*UHTTAUTH_PROC)(PPSoapClientSession & rSess, const char * pName, const char * pPassword);

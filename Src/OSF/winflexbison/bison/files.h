@@ -41,10 +41,10 @@ extern char * mapped_dir_prefix; /* Directory prefix of output file name, adjust
    and therefore GCC warns about a name clash. */
 extern uniqstr grammar_file;
 extern char * all_but_ext; /* The computed base for output file names.  */
-char const * pkgdatadir(void); /* Where our data files are installed.  */
-char const * m4path(void); /* Where the m4 program is installed.  */
-void compute_output_file_names(void);
-void output_file_names_free(void);
+char const * pkgdatadir(); /* Where our data files are installed.  */
+char const * m4path(); /* Where the m4 program is installed.  */
+void compute_output_file_names();
+void output_file_names_free();
 
 /** Record that we generate a file.
  *
@@ -54,7 +54,7 @@ void output_file_names_free(void);
  */
 void output_file_name_check(char ** file_name, bool source);
 /** Remove all the generated source files. */
-void unlink_generated_sources(void);
+void unlink_generated_sources();
 FILE * xfopen(const char * name, char const * mode);
 void xfclose(FILE * ptr);
 FILE * xfdopen(int fd, char const * mode);

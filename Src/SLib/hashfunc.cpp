@@ -110,7 +110,7 @@ struct BdtTestItem {
 
 };
 
-int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection <BdtTestItem> & rData)
+int ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection <BdtTestItem> & rData)
 {
     int    ok = 1;
 	STempBuffer temp_data_buffer(4096);
@@ -1518,11 +1518,11 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	return result;
 }
 
-SLAPI SlHash::State::State() : Flags(fEmpty)
+SlHash::State::State() : Flags(fEmpty)
 {
 }
 
-SLAPI SlHash::State::~State()
+SlHash::State::~State()
 {
 }
 
@@ -1645,11 +1645,11 @@ struct CrcModel { // cm_t
 //
 //
 //
-SLAPI SCRC32::SCRC32() : P_Tab(0)
+SCRC32::SCRC32() : P_Tab(0)
 {
 }
 
-SLAPI SCRC32::~SCRC32()
+SCRC32::~SCRC32()
 {
 	delete P_Tab;
 }
@@ -2717,7 +2717,7 @@ void TestCRC()
   the information needed to generate CRC's on data a byte at a time for all
   combinations of CRC register values and incoming bytes.
 */
-int SLAPI SCRC32::MakeTab()
+int SCRC32::MakeTab()
 {
 	ulong  c;
 	uint   n, k;
@@ -2761,7 +2761,7 @@ int SLAPI SCRC32::MakeTab()
 		return (SLibError = SLERR_NOMEM, 0);
 }
 
-ulong SLAPI SCRC32::Calc(ulong crc, const void * pData, size_t dataLen)
+ulong SCRC32::Calc(ulong crc, const void * pData, size_t dataLen)
 {
 	#define DO1(buf)  crc = P_Tab[((int)crc ^ (*p_buf++)) & 0xff] ^ (crc >> 8);
 	#define DO2(buf)  DO1(buf); DO1(buf);

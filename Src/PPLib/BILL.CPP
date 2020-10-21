@@ -27,7 +27,7 @@
 	return code;
 }
 
-/*static*/double SLAPI BillCore::GetQttyEpsilon()
+/*static*/double BillCore::GetQttyEpsilon()
 {
 	int    eps = CConfig.IltiCvtQttyEpsilon;
 	return checkirange(eps, 1, 10000) ? (1.0E-7 * (double)eps) : 1.0E-7; // @v8.1.11 (eps <= 1000)-->(eps <= 10000) // @v9.3.10 (: 1.0E-6)-->(: 1.0E-7)
@@ -84,7 +84,7 @@
 	return recadv_conf_status;
 }
 
-/*static*/int SLAPI BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRec)
+/*static*/int BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRec)
 {
 	int    ok = -1;
 	const  long preserve_flags2 = rRec.Flags2;
@@ -113,14 +113,14 @@
 /*static*/SString & FASTCALL BillCore::GetCode(SString & rCode)
 	{ return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
 
-SLAPI BillCore::BillCore() : BillTbl()
+BillCore::BillCore() : BillTbl()
 {
 }
 
-int SLAPI BillCore::Search(PPID id, BillTbl::Rec * pRec)
+int BillCore::Search(PPID id, BillTbl::Rec * pRec)
 	{ return SearchByID(this, PPOBJ_BILL, id, pRec); }
 
-int SLAPI BillCore::CheckAmtTypeRef(PPID amtTypeID, PPID * pBillID)
+int BillCore::CheckAmtTypeRef(PPID amtTypeID, PPID * pBillID)
 {
 	BillAmountTbl::Key0 k;
 	BillAmountTbl * t = &AmtT;
@@ -136,7 +136,7 @@ int SLAPI BillCore::CheckAmtTypeRef(PPID amtTypeID, PPID * pBillID)
 		return -1;
 }
 
-int SLAPI BillCore::GetAmount(PPID billID, PPID amtTypeID, PPID curID, double * pAmount)
+int BillCore::GetAmount(PPID billID, PPID amtTypeID, PPID curID, double * pAmount)
 {
 	int    ok = -1;
 	double val = 0.0;
@@ -154,7 +154,7 @@ int SLAPI BillCore::GetAmount(PPID billID, PPID amtTypeID, PPID curID, double * 
 	return ok;
 }
 
-int SLAPI BillCore::GetAmountList(PPID billID, AmtList * pList)
+int BillCore::GetAmountList(PPID billID, AmtList * pList)
 {
 	const int use_ext_query = 0; // @v8.4.7 1-->0 (фактически, добавлен код, реализующий !use_ext_query)
 	int    ok = 1;
@@ -183,7 +183,7 @@ int SLAPI BillCore::GetAmountList(PPID billID, AmtList * pList)
 	return ok;
 }
 
-int SLAPI BillCore::UpdateAmount(PPID billID, const AmtEntry * pEntry, int removeZero)
+int BillCore::UpdateAmount(PPID billID, const AmtEntry * pEntry, int removeZero)
 {
 	int    ok = 1;
 	BillAmountTbl::Key0 k;
@@ -228,7 +228,7 @@ int SLAPI BillCore::UpdateAmount(PPID billID, const AmtEntry * pEntry, int remov
 	return ok;
 }
 
-int SLAPI BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc proc, void * extraPtr)
+int BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc proc, void * extraPtr)
 {
 	int    ok = 1;
 	PayPlanTbl::Key0 k0;
@@ -245,7 +245,7 @@ int SLAPI BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc
 	return ok;
 }
 
-int SLAPI BillCore::GetLastPayDate(PPID billID, LDATE * pDate)
+int BillCore::GetLastPayDate(PPID billID, LDATE * pDate)
 {
 	PayPlanTbl::Key0 k;
 	k.BillID  = billID;
@@ -260,7 +260,7 @@ int SLAPI BillCore::GetLastPayDate(PPID billID, LDATE * pDate)
 	}
 }
 
-int SLAPI BillCore::GetPayPlan(PPID billID, PayPlanArray * pList)
+int BillCore::GetPayPlan(PPID billID, PayPlanArray * pList)
 {
 	PayPlanTbl::Key0 k;
 	MEMSZERO(k);
@@ -274,7 +274,7 @@ int SLAPI BillCore::GetPayPlan(PPID billID, PayPlanArray * pList)
 	return PPDbSearchError() ? 1 : 0;
 }
 
-int SLAPI BillCore::PutPayPlan(PPID billID, const PayPlanArray * pList, int use_ta)
+int BillCore::PutPayPlan(PPID billID, const PayPlanArray * pList, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -295,7 +295,7 @@ int SLAPI BillCore::PutPayPlan(PPID billID, const PayPlanArray * pList, int use_
 	return ok;
 }
 
-int SLAPI BillCore::GetLastPayment(PPID billID, BillTbl::Rec * pRec)
+int BillCore::GetLastPayment(PPID billID, BillTbl::Rec * pRec)
 {
 	BillTbl::Key4 k;
 	MEMSZERO(k);
@@ -310,12 +310,12 @@ int SLAPI BillCore::GetLastPayment(PPID billID, BillTbl::Rec * pRec)
 	return PPDbSearchError();
 }
 
-int SLAPI BillCore::_GetBillNo(LDATE date, long * pBillNo)
+int BillCore::_GetBillNo(LDATE date, long * pBillNo)
 {
 	return IncDateKey(this, 1, date, pBillNo);
 }
 
-int SLAPI BillCore::GetRentCondition(PPID id, PPRentCondition * pRC)
+int BillCore::GetRentCondition(PPID id, PPRentCondition * pRC)
 {
 	PropertyTbl::Rec prp_rec;
 	int    r = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_RENT, &prp_rec, sizeof(prp_rec));
@@ -327,12 +327,12 @@ int SLAPI BillCore::GetRentCondition(PPID id, PPRentCondition * pRC)
 	return r;
 }
 
-int SLAPI BillCore::SetFreight(PPID id, const PPFreight * pFreight, int use_ta)
+int BillCore::SetFreight(PPID id, const PPFreight * pFreight, int use_ta)
 {
 	return PPRef->PutProp(PPOBJ_BILL, id, BILLPRP_FREIGHT, pFreight, sizeof(*pFreight), use_ta);
 }
 
-int SLAPI BillCore::GetFreight(PPID id, PPFreight * pFreight)
+int BillCore::GetFreight(PPID id, PPFreight * pFreight)
 {
 	PPFreight freight;
 	if(PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_FREIGHT, &freight, sizeof(freight)) > 0) {
@@ -345,7 +345,7 @@ int SLAPI BillCore::GetFreight(PPID id, PPFreight * pFreight)
 	}
 }
 
-int SLAPI BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTable & rList)
+int BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTable & rList)
 {
 	int    ok = -1;
 	if(!rFilt.ShipmPeriod.IsZero())
@@ -385,7 +385,7 @@ int SLAPI BillCore::GetListByFreightFilt(const FreightFilt & rFilt, UintHashTabl
 	return ok;
 }
 
-int SLAPI BillCore::GetDlvrAddrList(LAssocArray * pList)
+int BillCore::GetDlvrAddrList(LAssocArray * pList)
 {
 	int    ok = -1;
 	PropertyTbl * p_prop = &PPRef->Prop;
@@ -425,7 +425,7 @@ struct PPBillExtra_Strg_Before6407 {  // sizeof(PPBillExtra_Strg) == PROPRECFIXS
 	char   Reserve[32];        // @reserve
 };
 
-int SLAPI ConvertBillExtRec_6407(PropertyTbl::Rec * pRec)
+int ConvertBillExtRec_6407(PropertyTbl::Rec * pRec)
 {
 	int    ok = -1;
 	BillCore::Extra_Strg * p_rec = reinterpret_cast<BillCore::Extra_Strg *>(pRec);
@@ -452,7 +452,7 @@ int SLAPI ConvertBillExtRec_6407(PropertyTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
+int BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
 {
 	int    ok = -1, do_update = 0;
 	BillTbl::Rec rec;
@@ -483,7 +483,7 @@ int SLAPI BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
 	return ok;
 }
 
-int SLAPI BillCore::SetRecFlag2(PPID billID, long flag2, int set, int use_ta)
+int BillCore::SetRecFlag2(PPID billID, long flag2, int set, int use_ta)
 {
 	int    ok = -1, do_update = 0;
 	BillTbl::Rec rec;
@@ -510,7 +510,7 @@ int SLAPI BillCore::SetRecFlag2(PPID billID, long flag2, int set, int use_ta)
 	return ok;
 }
 
-int SLAPI BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
+int BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -540,7 +540,7 @@ int SLAPI BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 	return ok;
 }
 
-int SLAPI BillCore::GetExtraData(PPID id, PPBillExt * pExt)
+int BillCore::GetExtraData(PPID id, PPBillExt * pExt)
 {
 	BillCore::Extra_Strg exr;
 	int    r = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_EXTRA, &exr, sizeof(exr));
@@ -561,7 +561,7 @@ int SLAPI BillCore::GetExtraData(PPID id, PPBillExt * pExt)
 }
 
 /* @v10.1.12 (inlined)
-int SLAPI BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
+int BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
 {
 	int    ok = 1;
 	PPAdvanceRep advrep;
@@ -578,7 +578,7 @@ int SLAPI BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
 	return ok;
 }*/
 
-int SLAPI BillCore::Extract(PPID id, PPBill * pInfo)
+int BillCore::Extract(PPID id, PPBill * pInfo)
 {
 	int    ok = 1;
 	int    r = 1;
@@ -636,7 +636,7 @@ int SLAPI BillCore::Extract(PPID id, PPBill * pInfo)
 	return ok;
 }
 
-int SLAPI BillCore::Remove(PPID id, int use_ta)
+int BillCore::Remove(PPID id, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -652,7 +652,7 @@ int SLAPI BillCore::Remove(PPID id, int use_ta)
 	return ok;
 }
 
-void SLAPI BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
+void BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
 {
 	copyBufFrom(pRec);
 	BillCore::SetCode(data.Code, data.Flags);
@@ -660,7 +660,7 @@ void SLAPI BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
 	data.Flags2 &= ~BILLF2_DONTCLOSDRAFT;
 }
 
-int SLAPI BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
+int BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1, is_new = (*pID == 0);
 	uint   i;
@@ -721,13 +721,13 @@ int SLAPI BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI BillCore::PutBillProp(PPID billID, PPID propID, long isThere, void * pBuf, size_t bufSize)
+int BillCore::PutBillProp(PPID billID, PPID propID, long isThere, void * pBuf, size_t bufSize)
 {
 	Reference * p_ref = PPRef;
 	return isThere ? p_ref->PutProp(PPOBJ_BILL, billID, propID, pBuf, bufSize) : p_ref->RemoveProperty(PPOBJ_BILL, billID, propID, 0);
 }
 
-int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
+int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 {
 	int    ok = 1;
 	const  int is_new = BIN(*pID == 0);
@@ -838,7 +838,7 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 //
 // @v8.5.8 Новый вариант функции, включающий изменени поля BillTbl::Rec::PaymAmount
 //
-int SLAPI BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double orgAmt)
+int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double orgAmt)
 {
 	int    ok = 1;
 	double org_paym = 0.0;
@@ -887,7 +887,7 @@ int SLAPI BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, dou
 }
 
 #if 0 // @v8.5.8 Этот вариант заменен тем, что выше {
-int SLAPI BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double orgAmt)
+int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double orgAmt)
 {
 	int    ok = 1;
 	double org_paym = 0.0;
@@ -913,7 +913,7 @@ int SLAPI BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, dou
 }
 #endif // } 0
 
-int SLAPI BillCore::BreakOffLink(PPID linkBillID, PPID baseBillID, int linkKind, int use_ta)
+int BillCore::BreakOffLink(PPID linkBillID, PPID baseBillID, int linkKind, int use_ta)
 {
 	int    ok = -1;
 	BillTbl::Rec bill_rec, base_bill_rec;
@@ -938,7 +938,7 @@ int SLAPI BillCore::BreakOffLink(PPID linkBillID, PPID baseBillID, int linkKind,
 	return ok;
 }
 
-int SLAPI BillCore::_Enum(int idx, PPID id, DateIter * pDI, void * b)
+int BillCore::_Enum(int idx, PPID id, DateIter * pDI, void * b)
 {
 	int    ok = 1;
 	struct {
@@ -963,7 +963,7 @@ int SLAPI BillCore::_Enum(int idx, PPID id, DateIter * pDI, void * b)
 	return ok;
 }
 
-int SLAPI BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList)
+int BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList)
 {
 	int    ok = -1;
 	DateIter diter;
@@ -977,7 +977,7 @@ int SLAPI BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillL
 	return ok;
 }
 
-int SLAPI BillCore::GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList)
+int BillCore::GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList)
 {
 	rList.clear();
     int    ok = -1;
@@ -1014,7 +1014,7 @@ int SLAPI BillCore::GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, in
     return ok;
 }
 
-int SLAPI BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRec)
+int BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRec)
 {
 	int    r;
 	while((r = _Enum(4, id, diter, pRec)) > 0) {
@@ -1038,7 +1038,7 @@ int SLAPI BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec
 	return r;
 }
 
-int SLAPI BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long * pHandle)
+int BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long * pHandle)
 {
 	int    idx = 2;
 	BExtQuery * q = new BExtQuery(this, idx);
@@ -1054,22 +1054,22 @@ int SLAPI BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-int SLAPI BillCore::EnumByObj(PPID obj, DateIter * diter, void * b)
+int BillCore::EnumByObj(PPID obj, DateIter * diter, void * b)
 	{ return _Enum(3, obj, diter, b); }
-int SLAPI BillCore::EnumByOpr(PPID opr, DateIter * diter, void * b)
+int BillCore::EnumByOpr(PPID opr, DateIter * diter, void * b)
 	{ return _Enum(2, opr, diter, b); }
-int SLAPI BillCore::NextEnum(long enumHandle, BillTbl::Rec * pRec)
+int BillCore::NextEnum(long enumHandle, BillTbl::Rec * pRec)
 	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
-int SLAPI BillCore::DestroyIter(long enumHandle)
+int BillCore::DestroyIter(long enumHandle)
 	{ return EnumList.DestroyIterHandler(enumHandle); }
 
-SEnumImp * SLAPI BillCore::EnumByOp(PPID opID, const DateRange * pPeriod, int options)
+SEnumImp * BillCore::EnumByOp(PPID opID, const DateRange * pPeriod, int options)
 {
 	long   h = -1;
 	return InitEnumByOp(opID, pPeriod, options, &h) ? new PPTblEnum <BillCore>(this, h) : 0;
 }
 
-int SLAPI BillCore::GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDbt, double * pCrd)
+int BillCore::GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDbt, double * pCrd)
 {
 	double dbt = 0.0, crd = 0.0;
 	DateIter diter(pPeriod);
@@ -1089,7 +1089,7 @@ int SLAPI BillCore::GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPI
 	return 1;
 }
 
-int SLAPI BillCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray * pList)
+int BillCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray * pList)
 {
 	int    ok = 1;
 	IterCounter cntr;
@@ -1118,7 +1118,7 @@ int SLAPI BillCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocAr
 	return ok;
 }
 
-int SLAPI BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
+int BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
 {
 	int    ok = 1;
 	BillTbl::Key1 k;
@@ -1131,7 +1131,7 @@ int SLAPI BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec)
+int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec)
 {
 	int    ok = -1;
 	char   scode[32];
@@ -1181,7 +1181,7 @@ int SLAPI BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID 
 	return ok;
 }
 
-int SLAPI BillCore::GetCreditList(PPID id, PctChargeArray * pList)
+int BillCore::GetCreditList(PPID id, PctChargeArray * pList)
 {
 	int    r = 1;
 	PPIDArray id_list;
@@ -1205,7 +1205,7 @@ int SLAPI BillCore::GetCreditList(PPID id, PctChargeArray * pList)
 	return r ? 1 : 0;
 }
 
-int SLAPI BillCore::CalcPayment(PPID id, int byLinks, const DateRange * pPeriod, PPID curID, double * pPaym)
+int BillCore::CalcPayment(PPID id, int byLinks, const DateRange * pPeriod, PPID curID, double * pPaym)
 {
 	if(byLinks) {
 		if(pPeriod) {
@@ -1223,12 +1223,12 @@ int SLAPI BillCore::CalcPayment(PPID id, int byLinks, const DateRange * pPeriod,
 	}
 }
 
-int SLAPI BillCore::CalcPaymentSieve(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym)
+int BillCore::CalcPaymentSieve(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym)
 {
 	return Helper_CalcPayment(id, curID, pSieve, pList, pPaym);
 }
 
-int SLAPI BillCore::Helper_CalcPayment(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym)
+int BillCore::Helper_CalcPayment(PPID id, PPID curID, const PPCycleArray * pSieve, RAssocArray * pList, double * pPaym)
 {
 	int    r = 1;
 	uint   pos;
@@ -1288,7 +1288,7 @@ int SLAPI BillCore::Helper_CalcPayment(PPID id, PPID curID, const PPCycleArray *
 	return r ? 1 : 0;
 }
 
-int SLAPI BillCore::GetFirstDate(PPID opID, LDATE * pDate)
+int BillCore::GetFirstDate(PPID opID, LDATE * pDate)
 {
 	int    r = 1;
 	LDATE  dt = MAXDATE;
@@ -1310,7 +1310,7 @@ int SLAPI BillCore::GetFirstDate(PPID opID, LDATE * pDate)
 	return r ? (dt ? 1 : (PPSetError(PPERR_NOBILLS), -1)) : 0;
 }
 
-int SLAPI BillCore::GetLastDate(PPID opID, LDATE * pDt)
+int BillCore::GetLastDate(PPID opID, LDATE * pDt)
 {
 	int    r = 1;
 	LDATE  dt = ZERODATE;
@@ -1338,7 +1338,7 @@ int SLAPI BillCore::GetLastDate(PPID opID, LDATE * pDt)
 	return r ? ((dt < MAXLONG) ? 1 : (PPSetError(PPERR_NOBILLS), -1)) : 0;
 }
 
-int SLAPI BillCore::IsThereBill(PPID locID, const PPIDArray * pOpList, LDATE dt)
+int BillCore::IsThereBill(PPID locID, const PPIDArray * pOpList, LDATE dt)
 {
 	BillTbl::Key5 k5;
 	BExtQuery q(this, 5);
@@ -1350,7 +1350,7 @@ int SLAPI BillCore::IsThereBill(PPID locID, const PPIDArray * pOpList, LDATE dt)
 	return (q.nextIteration() > 0) ? 1 : -1;
 }
 
-int SLAPI BillCore::ScanHolidays(PPID locID, PPID opID, const DateRange * pPeriod, PPHolidays * pHld)
+int BillCore::ScanHolidays(PPID locID, PPID opID, const DateRange * pPeriod, PPHolidays * pHld)
 {
 	int    ok = 1;
 	if(locID == 0) {
@@ -1389,7 +1389,7 @@ int SLAPI BillCore::ScanHolidays(PPID locID, PPID opID, const DateRange * pPerio
 	return ok;
 }
 
-int SLAPI BillCore::SetShippedTag(PPID id, int mode)
+int BillCore::SetShippedTag(PPID id, int mode)
 {
 	int    ok = -1;
 	BillTbl::Rec rec;
@@ -1414,7 +1414,7 @@ int SLAPI BillCore::SetShippedTag(PPID id, int mode)
 	return ok;
 }
 
-int SLAPI BillCore::SetWLabel(PPID id, int mode, int use_ta)
+int BillCore::SetWLabel(PPID id, int mode, int use_ta)
 {
 	int    ok = -1;
 	BillTbl::Rec rec;
@@ -1447,7 +1447,7 @@ int SLAPI BillCore::SetWLabel(PPID id, int mode, int use_ta)
 	return ok;
 }
 
-int SLAPI BillCore::HasWLabel(PPID id)
+int BillCore::HasWLabel(PPID id)
 {
 	if(Search(id) > 0)
 		if(data.Flags & BILLF_WHITELABEL)
@@ -1460,16 +1460,16 @@ int SLAPI BillCore::HasWLabel(PPID id)
 //
 //
 //
-int SLAPI BillCore::EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMemberID, ObjAssocTbl::Rec * b)
+int BillCore::EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMemberID, ObjAssocTbl::Rec * b)
 	{ return PPRef->Assc.EnumByPrmr(poolType, poolOwnerID, pMemberID, b); }
-int SLAPI BillCore::GetPoolMembersList(PPID poolType, PPID poolOwnerID, PPIDArray * pList)
+int BillCore::GetPoolMembersList(PPID poolType, PPID poolOwnerID, PPIDArray * pList)
 	{ return PPRef->Assc.GetListByPrmr(poolType, poolOwnerID, pList); }
-int SLAPI BillCore::GetPoolList(PPID poolType, LAssocArray * pAry) 
+int BillCore::GetPoolList(PPID poolType, LAssocArray * pAry) 
 	{ return PPRef->Assc.GetList(poolType, pAry); }
-int SLAPI BillCore::RemoveFromPool(PPID billID, PPID poolType, PPID poolOwnerID, int use_ta)
+int BillCore::RemoveFromPool(PPID billID, PPID poolType, PPID poolOwnerID, int use_ta)
 	{ return PPRef->Assc.Remove(poolType, poolOwnerID, billID, use_ta); }
 
-int SLAPI BillCore::GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pList)
+int BillCore::GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pList)
 {
 	int    ok = -1;
 	ObjAssocTbl::Rec assc_rec;
@@ -1480,7 +1480,7 @@ int SLAPI BillCore::GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pLi
 	return ok;
 }
 
-int SLAPI BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
+int BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
 {
 	int    yes = 0;
 	PPID   owner_id = DEREFPTRORZ(pPoolOwnerID);
@@ -1500,7 +1500,7 @@ int SLAPI BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwner
 	return yes;
 }
 
-int SLAPI BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int use_ta)
+int BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int use_ta)
 {
 	int    ok = 1;
 	PPID   assc_id = 0;
@@ -1526,7 +1526,7 @@ int SLAPI BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int
 	return ok;
 }
 
-int SLAPI BillCore::CalcPoolAmounts(PPID poolType, PPID poolOwnerID, AmtList * pAmounts)
+int BillCore::CalcPoolAmounts(PPID poolType, PPID poolOwnerID, AmtList * pAmounts)
 {
 	int    ok = 1;
 	for(PPID member_id = 0; EnumMembersOfPool(poolType, poolOwnerID, &member_id) > 0;) {
@@ -1541,7 +1541,7 @@ int SLAPI BillCore::CalcPoolAmounts(PPID poolType, PPID poolOwnerID, AmtList * p
 	return ok;
 }
 
-int SLAPI BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rList)
+int BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -1571,7 +1571,7 @@ int SLAPI BillCore::GetBillListByExt(PPID agentID, PPID payerID, PPIDArray & rLi
 	return ok;
 }
 
-int SLAPI BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, const DateRange * pPeriod, double * pAdvRest, PPIDArray * pList)
+int BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, const DateRange * pPeriod, double * pAdvRest, PPIDArray * pList)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -1593,7 +1593,7 @@ int SLAPI BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, const DateRa
 	return ok;
 }
 
-int SLAPI BillCore::GetLocListByOp(PPID opID, PPIDArray & rList)
+int BillCore::GetLocListByOp(PPID opID, PPIDArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -1617,11 +1617,11 @@ int SLAPI BillCore::GetLocListByOp(PPID opID, PPIDArray & rList)
 //
 //
 //
-SLAPI CurRateCore::CurRateCore() : CurrencyRateTbl()
+CurRateCore::CurRateCore() : CurrencyRateTbl()
 {
 }
 
-int SLAPI CurRateCore::SearchRate(const CurRateIdent * pIdent, CurrencyRateTbl::Rec * pRec)
+int CurRateCore::SearchRate(const CurRateIdent * pIdent, CurrencyRateTbl::Rec * pRec)
 {
 	CurrencyRateTbl::Key0 k;
 	k.CurID      = pIdent->CurID;
@@ -1631,7 +1631,7 @@ int SLAPI CurRateCore::SearchRate(const CurRateIdent * pIdent, CurrencyRateTbl::
 	return SearchByKey(this, 0, &k, pRec);
 }
 
-int SLAPI CurRateCore::GetRate(PPID curID, PPID rateTypeID, PPID relCurID, LDATE * pDt, double * pRate)
+int CurRateCore::GetRate(PPID curID, PPID rateTypeID, PPID relCurID, LDATE * pDt, double * pRate)
 {
 	int    ok   = -1;
 	double rate = 0.0;
@@ -1656,7 +1656,7 @@ int SLAPI CurRateCore::GetRate(PPID curID, PPID rateTypeID, PPID relCurID, LDATE
 	return ok;
 }
 
-int SLAPI CurRateCore::UpdateRate(const CurRateIdent * pIdent, double rate, int use_ta)
+int CurRateCore::UpdateRate(const CurRateIdent * pIdent, double rate, int use_ta)
 {
 	int    ok = 1;
 	CurrencyRateTbl::Key0 k;
@@ -1686,7 +1686,7 @@ int SLAPI CurRateCore::UpdateRate(const CurRateIdent * pIdent, double rate, int 
 	return ok;
 }
 
-int SLAPI CurRateCore::RemoveRate(const CurRateIdent * pIdent, int use_ta)
+int CurRateCore::RemoveRate(const CurRateIdent * pIdent, int use_ta)
 {
 	return deleteFrom(this, use_ta, this->CurID == pIdent->CurID && this->RateTypeID == pIdent->RateTypeID &&
 		this->RelCurID == pIdent->BaseCurID && this->Dt == pIdent->Dt) ? 1 : PPSetErrorDB();

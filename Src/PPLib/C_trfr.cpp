@@ -9,7 +9,7 @@
 // Descr: Корректировка ошибок в лотах и товарных строках, возникших из-за ошибок объединения документов
 //   внутреннего перемещения.
 //
-int SLAPI Transfer::CorrectIntrUnite()
+int Transfer::CorrectIntrUnite()
 {
 	int    ok = 1;
 	SString fmt_buf, msg_buf;
@@ -111,7 +111,7 @@ int SLAPI Transfer::CorrectIntrUnite()
 	return ok;
 }
 
-int SLAPI Transfer::CorrectReverse()
+int Transfer::CorrectReverse()
 {
 	struct Param {
 		enum {
@@ -235,7 +235,7 @@ int SLAPI Transfer::CorrectReverse()
 	return ok;
 }
 
-int SLAPI RecoverAbsenceLots()
+int RecoverAbsenceLots()
 {
 	int    ok = -1, valid_data = 0;
 	PPObjBill * p_bobj = BillObj;
@@ -335,7 +335,7 @@ int SLAPI RecoverAbsenceLots()
 	return ok;
 }
 
-int SLAPI Transfer::CorrectByLot(PPID lot, int (*MsgProc)(int err, PPID lot, const TransferTbl::Rec*))
+int Transfer::CorrectByLot(PPID lot, int (*MsgProc)(int err, PPID lot, const TransferTbl::Rec*))
 {
 	int    ok = 1, ta = 0;
 	PPObjBill * p_bobj = BillObj;
@@ -418,7 +418,7 @@ int SLAPI Transfer::CorrectByLot(PPID lot, int (*MsgProc)(int err, PPID lot, con
 	return 0;
 }
 
-int SLAPI Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPLogger * pLogger, int correct)
+int Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPLogger * pLogger, int correct)
 {
 	int    ok = -1, ta = 0;
 	SString fmt_buf, log_msg;
@@ -501,7 +501,7 @@ int SLAPI Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPL
 	return ok;
 }
 
-int SLAPI Transfer::CorrectCurRest(const char * pLogName, int correct)
+int Transfer::CorrectCurRest(const char * pLogName, int correct)
 {
 	int    ok = 1;
 	SString log_msg, fmt_buf;
@@ -521,7 +521,7 @@ int SLAPI Transfer::CorrectCurRest(const char * pLogName, int correct)
 	return ok;
 }
 
-int SLAPI CorrectCurRest()
+int CorrectCurRest()
 {
 	int    ok = -1;
 	SString log_fname;
@@ -544,7 +544,7 @@ int SLAPI CorrectCurRest()
 	return ok;
 }
 
-int SLAPI CorrectLotsCloseTags()
+int CorrectLotsCloseTags()
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -609,7 +609,7 @@ static int test_taxgrp(const ReceiptTbl::Rec * pRec, void * extraPtr)
 	return BIN(pRec->InTaxGrpID != parent_tax_grp_id);
 }
 
-int SLAPI Transfer::CorrectLotTaxGrp()
+int Transfer::CorrectLotTaxGrp()
 {
 	int    ok = 1, ta = 0, frrl_tag = 0;
 	PPObjBill * p_bobj = BillObj;
@@ -652,7 +652,7 @@ int SLAPI Transfer::CorrectLotTaxGrp()
 	return ok;
 }
 
-int SLAPI CorrectLotSuppl()
+int CorrectLotSuppl()
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -693,7 +693,7 @@ int SLAPI CorrectLotSuppl()
 	return ok;
 }
 
-int SLAPI CorrectZeroQCertRefs()
+int CorrectZeroQCertRefs()
 {
 	int    ok = 1, r;
 	char   msg[64];
@@ -727,7 +727,7 @@ int SLAPI CorrectZeroQCertRefs()
 //
 //
 //
-SLAPI PPLotFaultArray::PPLotFaultArray(PPID lotID, PPLogger & rLogger) : SVector(sizeof(PPLotFault)), LotID(lotID), P_Logger(&rLogger) // @v9.8.10 SArray-->SVector
+PPLotFaultArray::PPLotFaultArray(PPID lotID, PPLogger & rLogger) : SVector(sizeof(PPLotFault)), LotID(lotID), P_Logger(&rLogger) // @v9.8.10 SArray-->SVector
 {
 }
 
@@ -736,7 +736,7 @@ PPLotFault & FASTCALL PPLotFaultArray::at(uint p) const
 	return *static_cast<PPLotFault *>(SVector::at(p)); // @v9.8.10 SArray-->SVector
 }
 
-int SLAPI PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPID childID, PPID parentID)
+int PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPID childID, PPID parentID)
 {
 	PPLotFault f;
 	MEMSZERO(f);
@@ -748,7 +748,7 @@ int SLAPI PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPI
 	return insert(&f) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPLotFaultArray::AddFault(int fault, const TransferTbl::Rec * pRec, double act, double valid)
+int PPLotFaultArray::AddFault(int fault, const TransferTbl::Rec * pRec, double act, double valid)
 {
 	PPLotFault f;
 	MEMSZERO(f);
@@ -762,7 +762,7 @@ int SLAPI PPLotFaultArray::AddFault(int fault, const TransferTbl::Rec * pRec, do
 	return insert(&f) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPLotFaultArray::_HasOpFault(int fault, LDATE dt, long oprno, uint * p) const
+int PPLotFaultArray::_HasOpFault(int fault, LDATE dt, long oprno, uint * p) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const PPLotFault & lf = at(i);
@@ -774,7 +774,7 @@ int SLAPI PPLotFaultArray::_HasOpFault(int fault, LDATE dt, long oprno, uint * p
 	return 0;
 }
 
-int SLAPI PPLotFaultArray::HasFault(int faultId, PPLotFault * pFault, uint * pPos) const
+int PPLotFaultArray::HasFault(int faultId, PPLotFault * pFault, uint * pPos) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const PPLotFault & lf = at(i);
@@ -787,7 +787,7 @@ int SLAPI PPLotFaultArray::HasFault(int faultId, PPLotFault * pFault, uint * pPo
 	return 0;
 }
 
-int SLAPI PPLotFaultArray::HasLcrFault() const
+int PPLotFaultArray::HasLcrFault() const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const PPLotFault & lf = at(i);
@@ -797,17 +797,17 @@ int SLAPI PPLotFaultArray::HasLcrFault() const
 	return 0;
 }
 
-int SLAPI PPLotFaultArray::HasCostOpFault(LDATE dt, long oprno, uint * p) const
+int PPLotFaultArray::HasCostOpFault(LDATE dt, long oprno, uint * p) const
 {
 	return _HasOpFault(PPLotFault::OpCost, dt, oprno, p);
 }
 
-int SLAPI PPLotFaultArray::HasPriceOpFault(LDATE dt, long oprno, uint * p) const
+int PPLotFaultArray::HasPriceOpFault(LDATE dt, long oprno, uint * p) const
 {
 	return _HasOpFault(PPLotFault::OpPrice, dt, oprno, p);
 }
 
-int SLAPI PPLotFaultArray::AddMessage()
+int PPLotFaultArray::AddMessage()
 {
 	if(P_Logger) {
 		SString msg;
@@ -817,7 +817,7 @@ int SLAPI PPLotFaultArray::AddMessage()
 	return 1;
 }
 
-SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
+SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 {
 	rBuf.Z();
 	if(p < getCount()) {
@@ -960,7 +960,7 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 	return  rBuf;
 }
 
-int SLAPI Transfer::ProcessLotFault(PPLotFaultArray & rList, int fault, double act, double valid)
+int Transfer::ProcessLotFault(PPLotFaultArray & rList, int fault, double act, double valid)
 {
 	return rList.AddFault(fault, &data, act, valid);
 }
@@ -975,18 +975,18 @@ public:
 		double NewCost;
 		double NewPrice;
 	};
-	SLAPI  RevalArray(double cost, double price) : SVector(sizeof(Reval)), LotCost(cost), LotPrice(price)
+	RevalArray(double cost, double price) : SVector(sizeof(Reval)), LotCost(cost), LotPrice(price)
 	{
 	}
-	int    SLAPI Add(const TransferTbl::Rec * pRec, int first);
-	int    SLAPI Shift();
-	int    SLAPI GetPrices(LDATE dt, long oprno, double * pCost, double * pPrice, long * pRevalIdx);
+	int    Add(const TransferTbl::Rec * pRec, int first);
+	int    Shift();
+	int    GetPrices(LDATE dt, long oprno, double * pCost, double * pPrice, long * pRevalIdx);
 	//
 	double LotCost;
 	double LotPrice;
 };
 
-int SLAPI RevalArray::Add(const TransferTbl::Rec * rec, int first)
+int RevalArray::Add(const TransferTbl::Rec * rec, int first)
 {
 	Reval reval;
 	if(first) {
@@ -1006,7 +1006,7 @@ int SLAPI RevalArray::Add(const TransferTbl::Rec * rec, int first)
 	return insert(&reval) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI RevalArray::Shift()
+int RevalArray::Shift()
 {
 	if(getCount()) {
 		double cost  = LotCost;
@@ -1027,7 +1027,7 @@ int SLAPI RevalArray::Shift()
 	return insert(&reval) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI RevalArray::GetPrices(LDATE dt, long oprno, double * pCost, double * pPrice, long * pRevalIdx)
+int RevalArray::GetPrices(LDATE dt, long oprno, double * pCost, double * pPrice, long * pRevalIdx)
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const Reval * p_rvl = static_cast<const Reval *>(at(i));
@@ -1044,7 +1044,7 @@ int SLAPI RevalArray::GetPrices(LDATE dt, long oprno, double * pCost, double * p
 	return 1;
 }
 
-int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPLotFaultArray & rResultList)
+int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPLotFaultArray & rResultList)
 {
 	int    ok = 1;
 	LcrBlock * p_lcr = 0;
@@ -1383,7 +1383,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 	return ok;
 }
 
-int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, int use_ta)
+int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, int use_ta)
 {
 	int    ok = 1, err_lot = 0, r;
 	ReceiptTbl::Rec lot_rec;
@@ -1788,7 +1788,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 	return ok;
 }
 
-int SLAPI Transfer::RecalcLcr()
+int Transfer::RecalcLcr()
 {
 	int    ok = 1;
 	int    inner_tbl = 0;
@@ -1873,7 +1873,7 @@ int SLAPI Transfer::RecalcLcr()
 	return ok;
 }
 
-int SLAPI PPObjBill::CorrectPckgCloseTag()
+int PPObjBill::CorrectPckgCloseTag()
 {
 	int    ok = 1;
 	if(CcFlags & CCFLG_USEGOODSPCKG) {
@@ -1914,7 +1914,7 @@ int SLAPI PPObjBill::CorrectPckgCloseTag()
 
 #if 0 // {
 
-int SLAPI CorrectIntrReverse(PPID billID)
+int CorrectIntrReverse(PPID billID)
 {
 	int ok = 1, ta = 0, r;
 	PPBillPacket pack;
@@ -1968,7 +1968,7 @@ int SLAPI CorrectIntrReverse(PPID billID)
 #endif // 0 }
 
 #if 0 // @v5.1.9 {
-int SLAPI ShrinkLots()
+int ShrinkLots()
 {
 	int    ok = 1, ta = 0;
 	Goods2Tbl::Rec goods_rec;
@@ -2018,27 +2018,27 @@ public:
 		long   Flags;
 		SString LogFileName;
 	};
-	SLAPI  PrcssrAbsentGoods()
+	PrcssrAbsentGoods()
 	{
 		P_BObj = BillObj;
 	}
-	int    SLAPI InitParam(Param * pParam)
+	int    InitParam(Param * pParam)
 	{
 		memzero(pParam, sizeof(Param));
 		PPGetFileName(PPFILNAM_ABSGOODS_LOG, pParam->LogFileName);
 		pParam->DefUnitID = GObj.GetConfig().DefUnitID;
 		return 1;
 	}
-	int    SLAPI Init(const Param * pParam)
+	int    Init(const Param * pParam)
 	{
 		P = *pParam;
 		AbsentCount = 0;
 		return 1;
 	}
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Run();
+	int    EditParam(Param *);
+	int    Run();
 private:
-	int    SLAPI ProcessGoods(PPID goodsID, PPID lotID, PPID billID, PPLogger &);
+	int    ProcessGoods(PPID goodsID, PPID lotID, PPID billID, PPLogger &);
 
 	Param  P;
 	long   AbsentCount;
@@ -2047,7 +2047,7 @@ private:
 	PPObjBill * P_BObj;
 };
 
-int SLAPI PrcssrAbsentGoods::EditParam(Param * pParam)
+int PrcssrAbsentGoods::EditParam(Param * pParam)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2071,7 +2071,7 @@ int SLAPI PrcssrAbsentGoods::EditParam(Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID, PPLogger & rLogger)
+int PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID, PPLogger & rLogger)
 {
 	int    ok = 1, r;
 	THROW(r = GObj.Search(goodsID, 0));
@@ -2110,7 +2110,7 @@ int SLAPI PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID,
 	return ok;
 }
 
-int SLAPI PrcssrAbsentGoods::Run()
+int PrcssrAbsentGoods::Run()
 {
 	int    ok = 1, ta = 0;
 	PPLogger logger;
@@ -2155,7 +2155,7 @@ int SLAPI PrcssrAbsentGoods::Run()
 	return ok;
 }
 
-int SLAPI RecoverAbsenceGoods()
+int RecoverAbsenceGoods()
 {
 	int    ok = -1;
 	PrcssrAbsentGoods prcssr;
@@ -2171,7 +2171,7 @@ int SLAPI RecoverAbsenceGoods()
 //
 //
 //
-static int SLAPI CheckLotList(PPIDArray & rLotList, PPIDArray & rAbsLotList, PPLogger & rLogger)
+static int CheckLotList(PPIDArray & rLotList, PPIDArray & rAbsLotList, PPLogger & rLogger)
 {
 	int    ok = 1;
 	SString msg_buf, fmt_buf, added_msg;
@@ -2243,7 +2243,7 @@ int BadTrfrEntryListDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI RecoverTransfer()
+int RecoverTransfer()
 {
 	int    ok = 1, ta = 0;
 	int    do_recover = 1;
@@ -2406,24 +2406,24 @@ public:
 		long   Flags;
 		SString LogFileName;
 	};
-	SLAPI  PrcssrAbsenceAccounts()
+	PrcssrAbsenceAccounts()
 	{
 	}
-	int    SLAPI InitParam(Param * pParam)
+	int    InitParam(Param * pParam)
 	{
 		memzero(pParam, sizeof(Param));
 		PPGetFileName(PPFILNAM_ABSACCOUNTS_LOG, pParam->LogFileName);
 		return 1;
 	}
-	int    SLAPI Init(const Param * pParam)
+	int    Init(const Param * pParam)
 	{
 		if(!RVALUEPTR(P, pParam))
 			MEMSZERO(P);
 		AbsentCount = 0;
 		return 1;
 	}
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Run();
+	int    EditParam(Param *);
+	int    Run();
 private:
 	Param  P;
 	long   AbsentCount;
@@ -2432,7 +2432,7 @@ private:
 	PPObjAccount AccObj;
 };
 
-int SLAPI PrcssrAbsenceAccounts::EditParam(Param * pParam)
+int PrcssrAbsenceAccounts::EditParam(Param * pParam)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2457,7 +2457,7 @@ int SLAPI PrcssrAbsenceAccounts::EditParam(Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrAbsenceAccounts::Run()
+int PrcssrAbsenceAccounts::Run()
 {
 	// @todo Протестировать обязательно!
 	int    ok = 1;
@@ -2508,7 +2508,7 @@ int SLAPI PrcssrAbsenceAccounts::Run()
 	return ok;
 }
 
-int SLAPI RecoverAbsenceAccounts()
+int RecoverAbsenceAccounts()
 {
 	int    ok = -1;
 	PrcssrAbsenceAccounts prcssr;
@@ -2529,31 +2529,31 @@ public:
 	struct Param {
 		long   Flags;
 	};
-	SLAPI  PrcssrAbsenceTrfr()
+	PrcssrAbsenceTrfr()
 	{
 		MEMSZERO(P);
 		P_BObj = BillObj;
 	}
-	int    SLAPI InitParam(Param * pParam)
+	int    InitParam(Param * pParam)
 	{
 		memzero(pParam, sizeof(*pParam));
 		return 1;
 	}
-	int    SLAPI EditParam(Param *)
+	int    EditParam(Param *)
 	{
 		return 1;
 	}
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	int    Init(const Param *);
+	int    Run();
 private:
-	int    SLAPI MakeTrfrByLot(const ReceiptTbl::Rec & rLotRec, const BillTbl::Rec & rBillRec,
+	int    MakeTrfrByLot(const ReceiptTbl::Rec & rLotRec, const BillTbl::Rec & rBillRec,
 		TransferTbl::Rec & rRec, Transfer::Rec & rMirrorRec);
 
 	Param  P;
 	PPObjBill * P_BObj;
 };
 
-int SLAPI PrcssrAbsenceTrfr::Init(const Param * pParam)
+int PrcssrAbsenceTrfr::Init(const Param * pParam)
 {
 	P = *pParam;
 	return 1;
@@ -2561,7 +2561,7 @@ int SLAPI PrcssrAbsenceTrfr::Init(const Param * pParam)
 
 long FASTCALL MASK_TFR_FLAGS(long f); // @prototype
 
-int SLAPI PrcssrAbsenceTrfr::MakeTrfrByLot(const ReceiptTbl::Rec & rLotRec, const BillTbl::Rec & rBillRec,
+int PrcssrAbsenceTrfr::MakeTrfrByLot(const ReceiptTbl::Rec & rLotRec, const BillTbl::Rec & rBillRec,
 	TransferTbl::Rec & rRec, Transfer::Rec & rMirrorRec)
 {
 	int    ok = 1;
@@ -2628,7 +2628,7 @@ int SLAPI PrcssrAbsenceTrfr::MakeTrfrByLot(const ReceiptTbl::Rec & rLotRec, cons
 	return ok;
 }
 
-int SLAPI PrcssrAbsenceTrfr::Run()
+int PrcssrAbsenceTrfr::Run()
 {
 	int    ok = -1, ta = 0;
 	PPLogger logger;
@@ -2689,7 +2689,7 @@ int SLAPI PrcssrAbsenceTrfr::Run()
 	return ok;
 }
 
-int SLAPI RecoverAbsenceTrfr()
+int RecoverAbsenceTrfr()
 {
 	int    ok = -1;
 	PrcssrAbsenceTrfr prcssr;
@@ -2715,27 +2715,27 @@ public:
 	struct Param {
 		long   Flags;
 	};
-	SLAPI  PrcssrReceiptPacking() : P_BObj(BillObj)
+	PrcssrReceiptPacking() : P_BObj(BillObj)
 	{
 		MEMSZERO(P);
 	}
-	int    SLAPI InitParam(Param * pParam)
+	int    InitParam(Param * pParam)
 	{
 		memzero(pParam, sizeof(*pParam));
 		return 1;
 	}
-	int    SLAPI EditParam(Param *)
+	int    EditParam(Param *)
 	{
 		return 1;
 	}
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	int    Init(const Param *);
+	int    Run();
 private:
 	Param  P;
 	PPObjBill * P_BObj;
 };
 
-int SLAPI PrcssrReceiptPacking::Run()
+int PrcssrReceiptPacking::Run()
 {
 	const uint max_free_count = 1000000;
 	const uint ta_quant = 100;
@@ -3013,7 +3013,7 @@ int SLAPI PrcssrReceiptPacking::Run()
 
 #endif // } 0 @construction
 
-int SLAPI ReceiptPacking()
+int ReceiptPacking()
 {
 	//PrcssrReceiptPacking prcssr;
 	//return prcssr.Run();

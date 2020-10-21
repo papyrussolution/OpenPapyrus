@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPObjRegisterType)
 //
-SLAPI PPRegisterTypePacket::PPRegisterTypePacket()
+PPRegisterTypePacket::PPRegisterTypePacket()
 {
 	MEMSZERO(Rec);
 	CntrPack.Head.ObjType = PPOBJ_REGISTERTYPE;
@@ -38,7 +38,7 @@ int FASTCALL GetRegisterTypeName(PPID rtID, SString & rBuf)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjRegisterType::IsDupRegType(PPID regTypeID)
+/*static*/int PPObjRegisterType::IsDupRegType(PPID regTypeID)
 {
 	PPObjRegisterType rt_obj;
 	PPRegisterType rt_rec;
@@ -58,11 +58,11 @@ int FASTCALL GetRegisterTypeName(PPID rtID, SString & rBuf)
 	return ok;
 }
 
-SLAPI PPObjRegisterType::PPObjRegisterType() : PPObjReference(PPOBJ_REGISTERTYPE, 0)
+PPObjRegisterType::PPObjRegisterType() : PPObjReference(PPOBJ_REGISTERTYPE, 0)
 {
 }
 
-int SLAPI PPObjRegisterType::GetCode(PPID id, long * pCounter, char * pBuf, size_t bufLen)
+int PPObjRegisterType::GetCode(PPID id, long * pCounter, char * pBuf, size_t bufLen)
 {
 	int    ok = -1;
 	PPRegisterType rt_rec;
@@ -75,7 +75,7 @@ int SLAPI PPObjRegisterType::GetCode(PPID id, long * pCounter, char * pBuf, size
 	return ok;
 }
 
-int SLAPI PPObjRegisterType::UngetCounter(PPID id, long counter)
+int PPObjRegisterType::UngetCounter(PPID id, long counter)
 {
 	int    ok = -1;
 	PPRegisterType rt_rec;
@@ -86,7 +86,7 @@ int SLAPI PPObjRegisterType::UngetCounter(PPID id, long counter)
 	return ok;
 }
 
-int SLAPI PPObjRegisterType::PutPacket(PPID * pID, PPRegisterTypePacket * pPack, int use_ta)
+int PPObjRegisterType::PutPacket(PPID * pID, PPRegisterTypePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPObjOpCounter opc_obj;
@@ -136,7 +136,7 @@ int SLAPI PPObjRegisterType::PutPacket(PPID * pID, PPRegisterTypePacket * pPack,
 	return ok;
 }
 
-int SLAPI PPObjRegisterType::GetPacket(PPID id, PPRegisterTypePacket * pPack)
+int PPObjRegisterType::GetPacket(PPID id, PPRegisterTypePacket * pPack)
 {
 	int    ok = 1;
 	if(Search(id, &pPack->Rec) > 0) {
@@ -237,7 +237,7 @@ private:
 	}
 };
 
-int SLAPI PPObjRegisterType::Edit(PPID * pID, void * extraPtr)
+int PPObjRegisterType::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel;
@@ -262,7 +262,7 @@ int SLAPI PPObjRegisterType::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PRSNKIND) {
@@ -277,12 +277,12 @@ int SLAPI PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extr
 	return ok;
 }
 
-int SLAPI PPObjRegisterType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRREGISTERTYPE, 0); }
-int SLAPI PPObjRegisterType::GetFormat(PPID id, SString & rBuf) { return ref->GetPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, rBuf); }
-int SLAPI PPObjRegisterType::PutFormat(PPID id, const char * pBuf) { return ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
-int SLAPI PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType, Symb)); }
+int PPObjRegisterType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRREGISTERTYPE, 0); }
+int PPObjRegisterType::GetFormat(PPID id, SString & rBuf) { return ref->GetPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, rBuf); }
+int PPObjRegisterType::PutFormat(PPID id, const char * pBuf) { return ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
+int PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType, Symb)); }
 
-int SLAPI PPObjRegisterType::ProcessReservedItem(TVRez & rez)
+int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 {
 	int    ok = 1, r;
 	SString name;
@@ -318,10 +318,10 @@ int SLAPI PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 //
 class RegisterTypeCache : public ObjCache {
 public:
-	SLAPI  RegisterTypeCache() : ObjCache(PPOBJ_REGISTERTYPE, sizeof(RegisterTypeData)) {}
+	RegisterTypeCache() : ObjCache(PPOBJ_REGISTERTYPE, sizeof(RegisterTypeData)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct RegisterTypeData : public ObjCacheEntry {
 		PPID   PersonKindID;
@@ -334,7 +334,7 @@ public:
 	};
 };
 
-int SLAPI RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	RegisterTypeData * p_cache_rec = static_cast<RegisterTypeData *>(pEntry);
@@ -357,7 +357,7 @@ int SLAPI RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPRegisterType2 * p_data_rec = static_cast<PPRegisterType *>(pDataRec);
 	const RegisterTypeData * p_cache_rec = static_cast<const RegisterTypeData *>(pEntry);
@@ -378,7 +378,7 @@ void SLAPI RegisterTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * p
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
 }
 
-int SLAPI PPObjRegisterType::Fetch(PPID id, PPRegisterType * pRec)
+int PPObjRegisterType::Fetch(PPID id, PPRegisterType * pRec)
 {
 	RegisterTypeCache * p_cache = GetDbLocalCachePtr <RegisterTypeCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);

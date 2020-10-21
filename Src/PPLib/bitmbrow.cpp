@@ -29,7 +29,7 @@ public:
 
 class BillItemBrowser : public BrowserWindow {
 public:
-	friend int SLAPI ViewBillDetails(PPBillPacket *, long, PPObjBill *);
+	friend int ViewBillDetails(PPBillPacket *, long, PPObjBill *);
 	struct TotalData {
 		void   Init()
 		{
@@ -66,15 +66,15 @@ public:
 	~BillItemBrowser();
 	const  PPBillPacket * GetPacket() const { return P_Pack; }
 	void   GetTotal(TotalData * pTotal) const { ASSIGN_PTR(pTotal, Total); }
-	const  LongArray & SLAPI GetPriceDevList() const;
-	const  StrAssocArray & SLAPI GetProblemsList() const;
+	const  LongArray & GetPriceDevList() const;
+	const  StrAssocArray & GetProblemsList() const;
 
 	struct ColumnPosBlock {
-		SLAPI  ColumnPosBlock() : QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), 
+		ColumnPosBlock() : QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), 
 			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2)
 		{
 		}
-		int    SLAPI IsEmpty() const
+		int    IsEmpty() const
 		{
 			return BIN(QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
 				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0);
@@ -97,8 +97,8 @@ public:
 	//
 	double FASTCALL GetLinkQtty(const PPTransferItem & rTi) const;
 	double FASTCALL GetOrderedQtty(const PPTransferItem & rTi) const;
-	int    SLAPI CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal);
-	int    SLAPI CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const BillGoodsBrwItem * pItem2);
+	int    CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal);
+	int    CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const BillGoodsBrwItem * pItem2);
 private:
 	static int PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	static int SortFunc(const LongArray * pSortColIdxList, void * extraPtr);
@@ -142,17 +142,17 @@ private:
 	void   selectPckg(PPID goodsID);
 	int    isAllGoodsInPckg(PPID goodsID);
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	enum {
 		cpdifRestrOnly = 0x0001
 	};
 	long   FASTCALL CalcPriceDevItem(long pos, long flags);
-	int    SLAPI GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
-	int    SLAPI UpdatePriceDevList(long pos, int op);
-	int    SLAPI CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
-	int    SLAPI EditExtCodeList(int rowIdx);
-	int    SLAPI ValidateExtCodeList();
-	int    SLAPI Sort(const LongArray * pSortColIdxList);
+	int    GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
+	int    UpdatePriceDevList(long pos, int op);
+	int    CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
+	int    EditExtCodeList(int rowIdx);
+	int    ValidateExtCodeList();
+	int    Sort(const LongArray * pSortColIdxList);
 
 	enum {
 		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
@@ -304,7 +304,7 @@ private:
 	LAssocArray CodeStatusList;
 };
 
-int SLAPI PPObjBill::ViewPckgDetail(PPID pckgID)
+int PPObjBill::ViewPckgDetail(PPID pckgID)
 {
 	int    ok = 1;
 	uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
@@ -326,7 +326,7 @@ int SLAPI PPObjBill::ViewPckgDetail(PPID pckgID)
 //
 //
 //
-int SLAPI ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
+int ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 {
 	uint   res_id;
 	const PPConfig & r_cfg = LConfig;
@@ -606,9 +606,9 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 	return ok;
 }
 
-const LongArray & SLAPI BillItemBrowser::GetPriceDevList() const { return PriceDevList; }
-const StrAssocArray & SLAPI BillItemBrowser::GetProblemsList() const { return ProblemsList; }
-int SLAPI BillItemBrowser::GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange)
+const LongArray & BillItemBrowser::GetPriceDevList() const { return PriceDevList; }
+const StrAssocArray & BillItemBrowser::GetProblemsList() const { return ProblemsList; }
+int BillItemBrowser::GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange)
 	{ return P_BObj->GetPriceRestrictions(*P_Pack, rTi, itemPos, pRange); }
 
 long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos, long flags)
@@ -663,7 +663,7 @@ long FASTCALL BillItemBrowser::CalcPriceDevItem(long pos, long flags)
 	return price_flags;
 }
 
-int SLAPI BillItemBrowser::UpdatePriceDevList(long pos, int op)
+int BillItemBrowser::UpdatePriceDevList(long pos, int op)
 {
 	int    ok = 1;
 	if(P_Pack) {
@@ -702,7 +702,7 @@ int SLAPI BillItemBrowser::UpdatePriceDevList(long pos, int op)
 	return ok;
 }
 
-int SLAPI BillItemBrowser::CheckRows()
+int BillItemBrowser::CheckRows()
 {
 	int    ok = 1;
 	SString buf;
@@ -1103,7 +1103,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 	return p_packed_list;
 }
 
-int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal)
+int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal)
 {
 	int    ok = 1;
 	double real_val = 0.0;
@@ -1175,7 +1175,7 @@ int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const
 // 33 - ЕГАИС RefB         @v10.8.4
 // 34 - ЕГАИС Код товара   @v10.8.4
 //
-int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData && P_Pack) {
@@ -1539,7 +1539,7 @@ static IMPL_CMPFUNC(BillGoodsBrwItem, i1, i2)
 		return 0;
 }
 
-int SLAPI BillItemBrowser::CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const BillGoodsBrwItem * pItem2)
+int BillItemBrowser::CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const BillGoodsBrwItem * pItem2)
 {
 	int    sn = 0;
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
@@ -2812,7 +2812,7 @@ private:
 		}
 		return ok;
 	}
-	int    SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
+	int    EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
 	{
 		int    ok = -1;
 		uint   sel = 0;
@@ -2877,7 +2877,7 @@ private:
 	long   ViewFlags;
 };
 
-int SLAPI BillItemBrowser::ValidateExtCodeList()
+int BillItemBrowser::ValidateExtCodeList()
 {
 	int    ok = -1;
 	ValidateLotXCodeListDialog * dlg = (P_Pack && P_Pack->XcL.GetCount()) ? new ValidateLotXCodeListDialog(P_Pack) : 0;
@@ -2892,7 +2892,7 @@ int SLAPI BillItemBrowser::ValidateExtCodeList()
 	return ok;
 }
 
-int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
+int BillItemBrowser::EditExtCodeList(int rowIdx)
 {
 	class LotXCodeListDialog : public LotXCodeListDialog_Base {
 	public:
@@ -3001,7 +3001,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			}
 			return ok;
 		}
-		int    SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
+		int    EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
 		{
 			PPObjBill * p_bobj = BillObj;
 			int    ok = -1;
@@ -3841,7 +3841,7 @@ void BillItemBrowser::addNewPackage()
 		}
 }
 
-int SLAPI PPObjBill::SelectPckgByCode(const char * pCode, PPID locID, PPID * pPckgID)
+int PPObjBill::SelectPckgByCode(const char * pCode, PPID locID, PPID * pPckgID)
 {
 	if(CcFlags & CCFLG_USEGOODSPCKG) {
 		PPIDArray pckg_id_list;
@@ -3864,7 +3864,7 @@ int SLAPI PPObjBill::SelectPckgByCode(const char * pCode, PPID locID, PPID * pPc
 	return -1;
 }
 
-int SLAPI PPObjBill::AddPckgToBillPacket(PPID pckgID, PPBillPacket * pPack)
+int PPObjBill::AddPckgToBillPacket(PPID pckgID, PPBillPacket * pPack)
 {
 	int    ok = 1;
 	if(CcFlags & CCFLG_USEGOODSPCKG) {
@@ -4130,7 +4130,7 @@ int CompleteBrowser::Print()
 	return PPAlddPrint(REPORT_COMPLETE, &pf);
 }
 
-int SLAPI PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
+int PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
 {
 	int    ok = -1;
 	MemLeakTracer mlt;

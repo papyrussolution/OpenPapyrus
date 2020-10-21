@@ -424,7 +424,7 @@ TreeWindow::~TreeWindow()
 	return r;
 }
 
-int SLAPI TreeWindow::TranslateKeyCode(ushort keyCode, uint * pCmd) const
+int TreeWindow::TranslateKeyCode(ushort keyCode, uint * pCmd) const
 {
 	return (P_Toolbar) ? P_Toolbar->TranslateKeyCode(keyCode, pCmd) : 0;
 }

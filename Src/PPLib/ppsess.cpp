@@ -20,17 +20,17 @@ class DbDict_DL600 : public DbDictionary {
 public:
 	static DbDictionary * CreateInstance(const char * pPath, long options);
 
-	SLAPI  DbDict_DL600() : DbDictionary()
+	DbDict_DL600() : DbDictionary()
 	{
 	}
-	virtual int SLAPI LoadTableSpec(DBTable * pTbl, const char * pTblName);
-	virtual int SLAPI CreateTableSpec(DBTable * pTbl);
-	virtual int SLAPI DropTableSpec(const char * pTblName, DbTableStat * pStat);
-	virtual int SLAPI GetTableID(const char * pTblName, long * pID, DbTableStat * pStat);
-	virtual int SLAPI GetTableInfo(long tblID, DbTableStat * pStat);
-	virtual int SLAPI GetListOfTables(long options, StrAssocArray * pList);
+	virtual int LoadTableSpec(DBTable * pTbl, const char * pTblName);
+	virtual int CreateTableSpec(DBTable * pTbl);
+	virtual int DropTableSpec(const char * pTblName, DbTableStat * pStat);
+	virtual int GetTableID(const char * pTblName, long * pID, DbTableStat * pStat);
+	virtual int GetTableInfo(long tblID, DbTableStat * pStat);
+	virtual int GetListOfTables(long options, StrAssocArray * pList);
 private:
-	int    SLAPI ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const;
+	int    ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const;
 };
 //
 // Descr: Процедура создания словаря DbDict_DL600. Используется для установки
@@ -41,7 +41,7 @@ private:
 	return new DbDict_DL600;
 }
 
-int SLAPI DbDict_DL600::LoadTableSpec(DBTable * pTbl, const char * pTblName)
+int DbDict_DL600::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 {
 	int    ok = 1;
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxDatabase);
@@ -51,7 +51,7 @@ int SLAPI DbDict_DL600::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 	return ok;
 }
 
-int SLAPI DbDict_DL600::CreateTableSpec(DBTable * pTbl)
+int DbDict_DL600::CreateTableSpec(DBTable * pTbl)
 {
 	int    ok = 1;
 	if(pTbl->GetTableName()[0] == 0) {
@@ -66,7 +66,7 @@ int SLAPI DbDict_DL600::CreateTableSpec(DBTable * pTbl)
 	return ok;
 }
 
-int SLAPI DbDict_DL600::DropTableSpec(const char * pTblName, DbTableStat * pStat)
+int DbDict_DL600::DropTableSpec(const char * pTblName, DbTableStat * pStat)
 {
 	int    ok = 1;
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxDatabase);
@@ -82,7 +82,7 @@ static void FASTCALL SetXtfByDlScope(const DlScope * pScope, DbTableStat * pStat
 		pStat->Flags |= flagToSet;
 }
 
-int SLAPI DbDict_DL600::ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const
+int DbDict_DL600::ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const
 {
 	CtmExprConst c;
 	pStat->Clear();
@@ -110,7 +110,7 @@ int SLAPI DbDict_DL600::ExtractStat(const DlContext * pCtx, const DlScope * pSco
 	return 1;
 }
 
-int SLAPI DbDict_DL600::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat)
+int DbDict_DL600::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat)
 {
 	int    ok = 1;
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxDatabase);
@@ -125,7 +125,7 @@ int SLAPI DbDict_DL600::GetTableID(const char * pTblName, long * pID, DbTableSta
 	return ok;
 }
 
-int SLAPI DbDict_DL600::GetTableInfo(long tblID, DbTableStat * pStat)
+int DbDict_DL600::GetTableInfo(long tblID, DbTableStat * pStat)
 {
 	int    ok = 1;
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxDatabase);
@@ -139,7 +139,7 @@ int SLAPI DbDict_DL600::GetTableInfo(long tblID, DbTableStat * pStat)
 	return ok;
 }
 
-int SLAPI DbDict_DL600::GetListOfTables(long options, StrAssocArray * pList)
+int DbDict_DL600::GetListOfTables(long options, StrAssocArray * pList)
 {
 	int    ok = 1;
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxDatabase);
@@ -393,7 +393,7 @@ int FASTCALL PPThreadLocalArea::IdleCommand::Run(const LDATETIME & rPrevRunTime)
 	return -1;
 }
 
-SLAPI PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
+PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 {
 	memzero(this, offsetof(PPThreadLocalArea, Rights));
 	Sign = SIGN_PPTLA;
@@ -401,7 +401,7 @@ SLAPI PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 	RegisterAdviseObjects();
 }
 
-SLAPI PPThreadLocalArea::~PPThreadLocalArea()
+PPThreadLocalArea::~PPThreadLocalArea()
 {
 	ZDELETE(P_WObj);
 	ZDELETE(P_WbObj);
@@ -423,7 +423,7 @@ SLAPI PPThreadLocalArea::~PPThreadLocalArea()
 	Sign = 0;
 }
 
-int  SLAPI PPThreadLocalArea::SetupEventResponder(int eventResponderId)
+int  PPThreadLocalArea::SetupEventResponder(int eventResponderId)
 {
 	int    ok = -1;
 	switch(eventResponderId) {
@@ -434,7 +434,7 @@ int  SLAPI PPThreadLocalArea::SetupEventResponder(int eventResponderId)
 	return ok;
 }
 
-void SLAPI PPThreadLocalArea::ReleaseEventResponder(int eventResponderId)
+void PPThreadLocalArea::ReleaseEventResponder(int eventResponderId)
 {
 	switch(eventResponderId) {
 		case eventresponderPhoneService: ZDELETE(P_PhnSvcEvRespr); break;
@@ -443,7 +443,7 @@ void SLAPI PPThreadLocalArea::ReleaseEventResponder(int eventResponderId)
 	}
 }
 
-int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
+int PPThreadLocalArea::RegisterAdviseObjects()
 {
 	class IdleCmdUpdateStatusWin : public IdleCommand {
 	public:
@@ -1063,11 +1063,11 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	return ok;
 }
 
-int    SLAPI PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
-int    SLAPI PPThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPTLA); }
-PPView * SLAPI PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= SrvViewList.getCountI()) ? SrvViewList.at(id-1) : 0; }
+int    PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
+int    PPThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPTLA); }
+PPView * PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= SrvViewList.getCountI()) ? SrvViewList.at(id-1) : 0; }
 
-int32 SLAPI PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
+int32 PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
 {
 	for(uint i = 0; i < SrvViewList.getCount(); i++) {
 		if(SrvViewList.at(i) == 0) {
@@ -1079,7 +1079,7 @@ int32 SLAPI PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
 	return SrvViewList.getCountI();
 }
 
-int SLAPI PPThreadLocalArea::ReleasePPViewPtr(int32 id)
+int PPThreadLocalArea::ReleasePPViewPtr(int32 id)
 {
 	if(id > 0 && id <= SrvViewList.getCountI()) {
 		SrvViewList.atPut(id-1, 0);
@@ -1093,11 +1093,11 @@ int SLAPI PPThreadLocalArea::ReleasePPViewPtr(int32 id)
 //
 static ACount TlpC(ACount::ctrDontInitialize); // @global @threadsafe
 
-SLAPI  __PPThrLocPtr::__PPThrLocPtr() : Idx(TlpC.Incr())
+__PPThrLocPtr::__PPThrLocPtr() : Idx(TlpC.Incr())
 {
 }
 
-int SLAPI __PPThrLocPtr::IsOpened()
+int __PPThrLocPtr::IsOpened()
 {
 	return BIN(DS.GetTLA().GetPtrNonIncrement(Idx));
 }
@@ -1141,7 +1141,7 @@ void * FASTCALL PPThreadLocalArea::GetPtrNonIncrement(uint idx) const
 	return p;
 }
 
-int SLAPI PPThreadLocalArea::CreatePtr(uint idx, void * ptr)
+int PPThreadLocalArea::CreatePtr(uint idx, void * ptr)
 {
 	if(idx > PtrVectDim) {
 		uint   new_dim = ALIGNSIZE(idx, 6);
@@ -1178,7 +1178,7 @@ int FASTCALL PPThreadLocalArea::ReleasePtr(uint idx)
 	return ok;
 }
 
-void SLAPI PPThreadLocalArea::PushErrContext()
+void PPThreadLocalArea::PushErrContext()
 {
 	ErrContext ctx;
 	ctx.Err = LastErr;
@@ -1193,7 +1193,7 @@ void SLAPI PPThreadLocalArea::PushErrContext()
 	*P_ErrCtx = ctx;
 }
 
-void SLAPI PPThreadLocalArea::PopErrContext()
+void PPThreadLocalArea::PopErrContext()
 {
 	if(P_ErrCtx) {
 		LastErr    = P_ErrCtx->Err;
@@ -1207,7 +1207,7 @@ void SLAPI PPThreadLocalArea::PopErrContext()
 	}
 }
 
-int SLAPI PPThreadLocalArea::InitMainOrgData(int reset)
+int PPThreadLocalArea::InitMainOrgData(int reset)
 {
 	int    ok = 1;
 	if(reset) {
@@ -1238,7 +1238,7 @@ int SLAPI PPThreadLocalArea::InitMainOrgData(int reset)
 	return ok;
 }
 
-int SLAPI PPThreadLocalArea::SetIfcConfigParam(const char * pParam, const char * pValue)
+int PPThreadLocalArea::SetIfcConfigParam(const char * pParam, const char * pValue)
 {
 	int    ok = 1;
 	SString param_buf(pParam);
@@ -1255,7 +1255,7 @@ int SLAPI PPThreadLocalArea::SetIfcConfigParam(const char * pParam, const char *
 	return ok;
 }
 
-SrDatabase * SLAPI PPThreadLocalArea::GetSrDatabase()
+SrDatabase * PPThreadLocalArea::GetSrDatabase()
 {
 	SrDatabase * p_db = 0;
 	if(P_SrDb)
@@ -1276,7 +1276,7 @@ SrDatabase * SLAPI PPThreadLocalArea::GetSrDatabase()
     return p_db;
 }
 
-int SLAPI PPThreadLocalArea::GetIfcConfigParam(const char * pParam, SString & rValue) const
+int PPThreadLocalArea::GetIfcConfigParam(const char * pParam, SString & rValue) const
 {
 	rValue.Z();
 	return IfcConfig.Search(pParam, &rValue, 0);
@@ -1541,12 +1541,12 @@ uint FASTCALL PPSession::ThreadCollection::GetCount(int kind)
 //
 //
 //
-SLAPI PPSession::RegSessData::RegSessData()
+PPSession::RegSessData::RegSessData()
 {
 	THISZERO();
 }
 
-SLAPI PPSession::LoggerIntermediateBlock::LoggerIntermediateBlock(const PPSession & rS) : CfgMaxFileSize(rS.GetMaxLogFileSize())
+PPSession::LoggerIntermediateBlock::LoggerIntermediateBlock(const PPSession & rS) : CfgMaxFileSize(rS.GetMaxLogFileSize())
 {
 }
 //
@@ -1571,13 +1571,13 @@ int PPSession::SetThreadSock(int32 uniqueSessID, TcpSocket & rSock, PPJobSrvRepl
 	return ok;
 }
 
-SLAPI PPSession::PPSession() : Id(1), ExtFlags_(0), P_ObjIdentBlk(0), P_LogQueue(0), P_DbCtx(0), P_AlbatrosCfg(0), P_SrStxSet(0),
+PPSession::PPSession() : Id(1), ExtFlags_(0), P_ObjIdentBlk(0), P_LogQueue(0), P_DbCtx(0), P_AlbatrosCfg(0), P_SrStxSet(0),
 	MaxLogFileSize(32768), State(0), TlsIdx(::TlsAlloc()), P_ExtCfgDb(0)
 {
 	InitThread(0);
 }
 
-SLAPI PPSession::~PPSession()
+PPSession::~PPSession()
 {
 	ReleaseThread();
 	TlsFree(TlsIdx);
@@ -1589,7 +1589,7 @@ SLAPI PPSession::~PPSession()
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
 
-int SLAPI PPSession::EnsureExtCfgDb()
+int PPSession::EnsureExtCfgDb()
 {
 	int    ok = -1;
 	SString dbpath_buf;
@@ -1616,7 +1616,7 @@ int SLAPI PPSession::EnsureExtCfgDb()
 //
 // Attention: вызов PPSession::InitExtCfgDb() должен быть защищен блокировкой ExtCfgDbLock
 //
-int SLAPI PPSession::InitExtCfgDb()
+int PPSession::InitExtCfgDb()
 {
 	int    ok = -1;	
 	if(!P_ExtCfgDb) {
@@ -1652,7 +1652,7 @@ int SLAPI PPSession::InitExtCfgDb()
 	return ok;
 }
 
-int SLAPI PPSession::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
+int PPSession::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
 {
 	int    ok = 0;
 	ExtCfgDbLock.Lock();
@@ -1663,7 +1663,7 @@ int SLAPI PPSession::GetStringHistory(const char * pKey, const char * pSubUtf8, 
 	return ok;
 }
 
-int SLAPI PPSession::GetStringHistoryRecent(const char * pKey, uint maxItems, StringSet & rList)
+int PPSession::GetStringHistoryRecent(const char * pKey, uint maxItems, StringSet & rList)
 {
 	int    ok = 0;
 	ExtCfgDbLock.Lock();
@@ -1674,7 +1674,7 @@ int SLAPI PPSession::GetStringHistoryRecent(const char * pKey, uint maxItems, St
 	return ok;
 }
 
-int SLAPI PPSession::AddStringHistory(const char * pKey, const char * pTextUtf8)
+int PPSession::AddStringHistory(const char * pKey, const char * pTextUtf8)
 {
 	int    ok = 0;
 	ExtCfgDbLock.Lock();
@@ -1685,7 +1685,7 @@ int SLAPI PPSession::AddStringHistory(const char * pKey, const char * pTextUtf8)
 	return ok;
 }
 
-int SLAPI PPSession::SaveStringHistory()
+int PPSession::SaveStringHistory()
 {
 	int    ok = 0;
 	ExtCfgDbLock.Lock();
@@ -1696,17 +1696,17 @@ int SLAPI PPSession::SaveStringHistory()
 	return ok;
 }
 
-/*uint64 SLAPI PPSession::GetProfileTime()
+/*uint64 PPSession::GetProfileTime()
 {
 	return GetTLA().Prf.GetAbsTimeMicroseconds();
 }*/
 
-void SLAPI PPSession::GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo)
+void PPSession::GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo)
 {
 	GPrf.Start(pFileName, lineNo, pAddedInfo);
 }
 
-void SLAPI PPSession::GProfileFinish(const char * pFileName, long lineNo)
+void PPSession::GProfileFinish(const char * pFileName, long lineNo)
 {
 	GPrf.Finish(pFileName, lineNo);
 }
@@ -1818,7 +1818,7 @@ static int _TestSymbols()
 #endif // } _DEBUG
 
 int TestSStringPerf(); // @prototype
-int SLAPI TestPPObjBillParseText(); // @prototype
+int TestPPObjBillParseText(); // @prototype
 
 static void InitTest()
 {
@@ -2072,7 +2072,7 @@ static int PPGetDefaultEncrKey(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
+int PPSession::Init(long flags, HINSTANCE hInst)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2247,7 +2247,7 @@ void FASTCALL PPSession::MoveCommonPathOnInitThread(long pathID)
 	}
 }
 
-int SLAPI PPSession::InitThread(const PPThread * pThread)
+int PPSession::InitThread(const PPThread * pThread)
 {
 	PPThreadLocalArea * p_tla = new PPThreadLocalArea;
 	ENTER_CRITICAL_SECTION
@@ -2268,7 +2268,7 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 	return 1;
 }
 
-void SLAPI PPSession::ReleaseThread()
+void PPSession::ReleaseThread()
 {
 	PPThreadLocalArea * p_tla = static_cast<PPThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
@@ -2285,8 +2285,8 @@ void SLAPI PPSession::ReleaseThread()
 //
 #define MAX_GETTLA_TRY 5
 
-PPThreadLocalArea & SLAPI PPSession::GetTLA() { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
-const PPThreadLocalArea & SLAPI PPSession::GetConstTLA() const { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
+PPThreadLocalArea & PPSession::GetTLA() { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
+const PPThreadLocalArea & PPSession::GetConstTLA() const { return *static_cast<PPThreadLocalArea *>(SGetTls(TlsIdx)); }
 int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList) { return ThreadList.GetInfoList(type, rList); }
 int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo) { return ThreadList.GetInfo(tId, rInfo); }
 int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem) { return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
@@ -2308,7 +2308,7 @@ void PPSession::LogLocStk()
 	PPLogMessage(PPFILNAM_DEBUG_LOG, out_buf, LOGMSGF_TIME);
 }
 
-int SLAPI PPSession::LockingDllServer(int cmd)
+int PPSession::LockingDllServer(int cmd)
 {
 	int    ok = 1;
 	if(cmd == ldsLock)
@@ -2326,7 +2326,7 @@ int SLAPI PPSession::LockingDllServer(int cmd)
 //
 //
 //
-int SLAPI PPSession::Helper_SetPath(int pathId, SString & rPath)
+int PPSession::Helper_SetPath(int pathId, SString & rPath)
 {
 	int    ok = 0;
 	if(rPath.NotEmptyS()) {
@@ -2341,7 +2341,7 @@ int SLAPI PPSession::Helper_SetPath(int pathId, SString & rPath)
 //
 //
 //
-int SLAPI PPSession::LogAction(PPID action, PPID obj, PPID id, long extData, int use_ta)
+int PPSession::LogAction(PPID action, PPID obj, PPID id, long extData, int use_ta)
 {
 	int    ok = -1;
 	if(action) {
@@ -2351,7 +2351,7 @@ int SLAPI PPSession::LogAction(PPID action, PPID obj, PPID id, long extData, int
 	return ok;
 }
 
-GtaJournalCore * SLAPI PPSession::GetGtaJ()
+GtaJournalCore * PPSession::GetGtaJ()
 {
 	PPThreadLocalArea & r_tla = GetTLA();
 	SETIFZ(r_tla.P_GtaJ, new GtaJournalCore);
@@ -2360,7 +2360,7 @@ GtaJournalCore * SLAPI PPSession::GetGtaJ()
 //
 //
 //
-int SLAPI PPSession::MakeMachineID(MACAddr * pMachineID)
+int PPSession::MakeMachineID(MACAddr * pMachineID)
 {
 	int    ok = -1;
 	MACAddr addr;
@@ -2377,7 +2377,7 @@ int SLAPI PPSession::MakeMachineID(MACAddr * pMachineID)
 	return ok;
 }
 
-int SLAPI PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
+int PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 {
 	int    ok = -1;
 	FILE * f = 0;
@@ -2425,7 +2425,7 @@ int SLAPI PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 	return ok;
 }
 
-int SLAPI LogTerminalSessInfo(ulong processID, ulong termSessID, const char * pAddMsgString)
+int LogTerminalSessInfo(ulong processID, ulong termSessID, const char * pAddMsgString)
 {
 	/* @v7.9.9 Пользы не получили, а журнал забивается //
 	SString msg_buf, buf;
@@ -2436,7 +2436,7 @@ int SLAPI LogTerminalSessInfo(ulong processID, ulong termSessID, const char * pA
 	return 1;
 }
 
-int SLAPI PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
+int PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
 {
 	int    ok = -1;
 	ulong  cur_term_sess_id = 0;
@@ -2501,7 +2501,7 @@ IMPL_CMPFUNC(_E, i1, i2)
 		return cmp_long(p_e1->TerminalSessID, p_e2->TerminalSessID);
 }
 
-int SLAPI PPSession::GetUsedLicCount(int32 * pUsedLicCount)
+int PPSession::GetUsedLicCount(int32 * pUsedLicCount)
 {
 	int    ok  = 1;
 	int32  used_lic_count = 0;
@@ -2543,7 +2543,7 @@ static int _dbLoadStructure(const char * pTblName, DBTable * pTbl, long options)
 //
 //
 //
-int SLAPI PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
+int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 {
 	int    ok = 1, r;
 	SString data_path, temp_path, temp_buf;
@@ -2607,7 +2607,7 @@ int SLAPI PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	return ok;
 }
 
-int SLAPI PPSession::SetupConfigByOps()
+int PPSession::SetupConfigByOps()
 {
 	int    ok = 1;
 	int    missingnoupdrestopflag = 0;
@@ -2627,7 +2627,7 @@ int SLAPI PPSession::SetupConfigByOps()
 	return ok;
 }
 
-int SLAPI PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
+int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 {
 	int    ok = 1, r;
 	PPConfig tmp, global;
@@ -2677,7 +2677,7 @@ int SLAPI PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	return ok;
 }
 
-int SLAPI PPSession::FetchAlbatrosConfig(PPAlbatrossConfig * pCfg)
+int PPSession::FetchAlbatrosConfig(PPAlbatrossConfig * pCfg)
 {
 	PPObjGlobalUserAcc gua_obj; // @v10.6.3
 	return gua_obj.FetchAlbatossConfig(pCfg); // @v10.6.3
@@ -2709,7 +2709,7 @@ int SLAPI PPSession::FetchAlbatrosConfig(PPAlbatrossConfig * pCfg)
 	*/
 }
 
-int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
+int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 {
 	int    ok = -1;
 	TCHAR  domain_user[64];
@@ -2740,7 +2740,7 @@ int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 	return ok;
 }
 
-int SLAPI PPSession::SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue)
+int PPSession::SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue)
 {
 	int    ok = 0;
 	int    iv = 0;
@@ -2751,7 +2751,7 @@ int SLAPI PPSession::SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, ui
 	return ok;
 }
 
-int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
+int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
 	enum {
         logmOrdinary          = 0,
@@ -3310,7 +3310,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			else {
 				class PPDbDispatchSession : public PPThread {
 				public:
-					SLAPI PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0),
+					PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0),
 						DbPathID(dbPathID), DbSymb(pDbSymb)
 					{
 					}
@@ -3386,7 +3386,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					{
 						class PPAdviseEventCollectorSjSession : public PPThread {
 						public:
-							SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, const PPPhoneServicePacket * pPhnSvcPack,
+							PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, const PPPhoneServicePacket * pPhnSvcPack,
 								PPMqbClient::InitParam * pMqbParam, long cycleMs) :
 								PPThread(PPThread::kEventCollector, 0, 0), /*CycleMs((cycleMs > 0) ? cycleMs : 29989),*/ /*CyclePhnSvcMs(1500),*/ LB(rLB), P_Sj(0), State(0)
 							{
@@ -3394,7 +3394,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								RVALUEPTR(StartUp_MqbParam, pMqbParam); // @v10.5.7
 							}
 						private:
-							virtual void SLAPI Shutdown()
+							virtual void Shutdown()
 							{
 								//
 								// То же, что и PPThread::Shutdown() но без DS.Logout()
@@ -3854,7 +3854,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 	return ok;
 }
 
-int SLAPI PPSession::Register()
+int PPSession::Register()
 {
 	int    ok = 1;
 	RegSessData data;
@@ -3868,7 +3868,7 @@ int SLAPI PPSession::Register()
 	return reg_key.PutBinary(uuid_buf, &data, sizeof(data)-offsetof(RegSessData, ReserveStart));
 }
 
-int SLAPI PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * pData)
+int PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * pData)
 {
 	int    ok = -1;
 	RegSessData data;
@@ -3884,7 +3884,7 @@ int SLAPI PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessD
 	return ok;
 }
 
-int SLAPI PPSession::Unregister()
+int PPSession::Unregister()
 {
 	WinRegKey reg_key;
 	SString uuid_buf;
@@ -3892,7 +3892,7 @@ int SLAPI PPSession::Unregister()
 	return reg_key.DeleteValue(HKEY_CURRENT_USER, PPRegKeys::Sessions, uuid_buf);
 }
 
-const SrSyntaxRuleSet * SLAPI PPSession::GetSrSyntaxRuleSet()
+const SrSyntaxRuleSet * PPSession::GetSrSyntaxRuleSet()
 {
 	ENTER_CRITICAL_SECTION
 	if(!P_SrStxSet && !(State & stSrStxInvalid)) {
@@ -3934,10 +3934,10 @@ const SrSyntaxRuleSet * SLAPI PPSession::GetSrSyntaxRuleSet()
 	return P_SrStxSet;
 }
 
-int    SLAPI PPSession::SetDbCacheDeferredState(long dbPathID, int set) { return CMng.SetDeferredState(dbPathID, set); }
+int    PPSession::SetDbCacheDeferredState(long dbPathID, int set) { return CMng.SetDeferredState(dbPathID, set); }
 int    FASTCALL PPSession::IsDbCacheDeferredState(long dbPathID) { return CMng.IsDeferredState(dbPathID); }
 
-int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAdviseEventQueue::Client * pCli)
+int PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAdviseEventQueue::Client * pCli)
 {
 	int    ok = 1;
 	if(dbPathID && DBS.IsConsistent()) {
@@ -4094,9 +4094,9 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 }
 
 // Prototype
-int SLAPI CreateBackupCopy(const char *, int);
+int CreateBackupCopy(const char *, int);
 
-void SLAPI PPThreadLocalArea::OnLogout()
+void PPThreadLocalArea::OnLogout()
 {
 	State &= ~stAuth;
 	SrvViewList.freeAll();
@@ -4120,7 +4120,7 @@ void SLAPI PPThreadLocalArea::OnLogout()
 	}
 }
 
-int SLAPI PPSession::Logout()
+int PPSession::Logout()
 {
 	PPThreadLocalArea & r_tla = GetTLA();
 	if(r_tla.State & PPThreadLocalArea::stAuth) {
@@ -4171,13 +4171,13 @@ int SLAPI PPSession::Logout()
 	return 1;
 }
 
-SVerT SLAPI PPSession::GetVersion() const
+SVerT PPSession::GetVersion() const
 {
 	PPVersionInfo _ver = GetVersionInfo();
 	return _ver.GetVersion(0);
 }
 
-int SLAPI PPSession::SetLocation(PPID locID, int notInteractive /*= 0*/)
+int PPSession::SetLocation(PPID locID, int notInteractive /*= 0*/)
 {
 	int    ok = 1;
 	LocationTbl::Rec rec;
@@ -4195,35 +4195,35 @@ int SLAPI PPSession::SetLocation(PPID locID, int notInteractive /*= 0*/)
 	return ok;
 }
 
-void SLAPI PPSession::SetOperDate(LDATE date)
+void PPSession::SetOperDate(LDATE date)
 {
 	int    d;
 	GetTLA().Lc.OperDate = date;
 	decodedate(&d, &DefaultMonth, &DefaultYear, &date);
 }
 
-int SLAPI PPSession::SetDemoMode(int s)
+int PPSession::SetDemoMode(int s)
 {
 	const int c = BIN(GetTLA().Lc.State & CFGST_DEMOMODE);
 	SETFLAG(GetTLA().Lc.State, CFGST_DEMOMODE, s);
 	return c;
 }
 
-long SLAPI PPSession::SetLCfgFlags(long f)
+long PPSession::SetLCfgFlags(long f)
 {
 	const long c = GetTLA().Lc.Flags;
 	GetTLA().Lc.Flags = f;
 	return c;
 }
 
-short SLAPI PPSession::SetRealizeOrder(short s)
+short PPSession::SetRealizeOrder(short s)
 {
 	const short c = GetTLA().Lc.RealizeOrder;
 	GetTLA().Lc.RealizeOrder = s;
 	return c;
 }
 
-int SLAPI PPSession::SetMainOrgID(PPID id, int enforce)
+int PPSession::SetMainOrgID(PPID id, int enforce)
 {
 	int    ok = 1;
 	PPThreadLocalArea & r_tla = GetTLA();
@@ -4266,7 +4266,7 @@ int SLAPI PPSession::SetMainOrgID(PPID id, int enforce)
 	return ok;
 }
 
-int SLAPI PPSession::RestCheckingStatus(int s)
+int PPSession::RestCheckingStatus(int s)
 {
 	long * p_flags = &GetTLA().Lc.Flags;
 	int    c = BIN((*p_flags) & CFGFLG_CHECKTURNREST);
@@ -4286,7 +4286,7 @@ int FASTCALL PPSession::CheckExtFlag(long f)
 	return result;
 }
 
-long SLAPI PPSession::SetExtFlag(long f, int set)
+long PPSession::SetExtFlag(long f, int set)
 {
 	long   prev = 0;
 	ExtFlagsLck.Lock();
@@ -4346,7 +4346,7 @@ int PPDriveMapping::ConvertPathToUnc(SString & rPath) const
 	return -1;
 }
 
-int SLAPI PPSession::GetLocalPath(SString & rBuf)
+int PPSession::GetLocalPath(SString & rBuf)
 {
 	SString comp_name;
 	if(!SGetComputerName(comp_name))
@@ -4357,7 +4357,7 @@ int SLAPI PPSession::GetLocalPath(SString & rBuf)
 	return 1;
 }
 
-int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
+int PPSession::GetPath(PPID pathID, SString & rBuf)
 {
 	int    ok = 1;
 	switch(pathID) {
@@ -4431,21 +4431,21 @@ int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
 
 #define PPRFILE_SIGN 0xfeedbac5U
 
-SLAPI PPRFile::PPRFile() : Sign(PPRFILE_SIGN), ID(0), PathID(0), SrcPathID(0), Flags(0)
+PPRFile::PPRFile() : Sign(PPRFILE_SIGN), ID(0), PathID(0), SrcPathID(0), Flags(0)
 {
 }
 
-SLAPI PPRFile::~PPRFile()
+PPRFile::~PPRFile()
 {
 	Sign = 0;
 }
 
-int SLAPI PPRFile::IsConsistent() const
+int PPRFile::IsConsistent() const
 {
 	return BIN(Sign == PPRFILE_SIGN);
 }
 
-PPRFile & SLAPI PPRFile::Z()
+PPRFile & PPRFile::Z()
 {
 	Sign = PPRFILE_SIGN;
 	ID = 0;
@@ -4480,8 +4480,8 @@ static int FASTCALL Helper_GetRFileInfo(PPID fileId, PPRFile & rInfo)
 	return ok;
 }
 
-long SLAPI PPSession::GetMaxLogFileSize() const { return MaxLogFileSize; }
-int  SLAPI PPSession::GetRFileInfo(PPID fileId, PPRFile & rInfo) { return Helper_GetRFileInfo(fileId, rInfo); }
+long PPSession::GetMaxLogFileSize() const { return MaxLogFileSize; }
+int  PPSession::GetRFileInfo(PPID fileId, PPRFile & rInfo) { return Helper_GetRFileInfo(fileId, rInfo); }
 
 SEnumImp * PPSession::EnumRFileInfo()
 {
@@ -4519,7 +4519,7 @@ ObjCache * FASTCALL PPSession::GetDbLocalObjCache(PPID objType)
 	return p_cache;
 }
 
-PPAdviseEventQueue * SLAPI PPSession::GetAdviseEventQueue(PPAdviseEventQueue::Client * pCli)
+PPAdviseEventQueue * PPSession::GetAdviseEventQueue(PPAdviseEventQueue::Client * pCli)
 {
 	PPAdviseEventQueue * p_queue = 0;
 	if(!CheckExtFlag(ECF_DISABLEASYNCADVQUEUE) && DBS.IsConsistent()) {
@@ -4531,10 +4531,10 @@ PPAdviseEventQueue * SLAPI PPSession::GetAdviseEventQueue(PPAdviseEventQueue::Cl
 	return p_queue;
 }
 
-void SLAPI PPSaveErrContext() { DS.GetTLA().PushErrContext(); }
-void SLAPI PPRestoreErrContext() { DS.GetTLA().PopErrContext(); }
+void PPSaveErrContext() { DS.GetTLA().PushErrContext(); }
+void PPRestoreErrContext() { DS.GetTLA().PopErrContext(); }
 
-DlContext * SLAPI PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit)
+DlContext * PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit)
 {
 	int    is_allocated = 0;
 	SCriticalSection::Data * p_csd = 0;
@@ -4563,7 +4563,7 @@ DlContext * SLAPI PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint
 	return *ppCtx;
 }
 
-DlContext * SLAPI PPSession::GetInterfaceContext(int ctxType)
+DlContext * PPSession::GetInterfaceContext(int ctxType)
 {
 	DlContext * p_ctx = 0;
 	if(oneof2(ctxType, ctxtExportData, ctxtInterface)) {
@@ -4578,16 +4578,16 @@ DlContext * SLAPI PPSession::GetInterfaceContext(int ctxType)
 	return p_ctx;
 }
 
-SLAPI PPNotifyEvent::PPNotifyEvent() : PPExtStrContainer(), Action(0), ObjType(0), ObjID(0), ExtInt_(0), ExtDtm(ZERODATETIME), P_MqbEnv(0)
+PPNotifyEvent::PPNotifyEvent() : PPExtStrContainer(), Action(0), ObjType(0), ObjID(0), ExtInt_(0), ExtDtm(ZERODATETIME), P_MqbEnv(0)
 {
 }
 
-SLAPI PPNotifyEvent::~PPNotifyEvent()
+PPNotifyEvent::~PPNotifyEvent()
 {
 	delete P_MqbEnv;
 }
 
-void SLAPI PPNotifyEvent::Clear()
+void PPNotifyEvent::Clear()
 {
 	Action = 0;
 	ObjType = 0;
@@ -4598,7 +4598,7 @@ void SLAPI PPNotifyEvent::Clear()
 	ZDELETE(P_MqbEnv);
 }
 
-PPNotifyEvent & SLAPI PPNotifyEvent::Finalize(const LDATETIME & rExtDtm, long extInt)
+PPNotifyEvent & PPNotifyEvent::Finalize(const LDATETIME & rExtDtm, long extInt)
 {
 	Action = -1;
 	ExtDtm = rExtDtm;
@@ -4606,17 +4606,17 @@ PPNotifyEvent & SLAPI PPNotifyEvent::Finalize(const LDATETIME & rExtDtm, long ex
 	return *this;
 }
 
-int SLAPI PPNotifyEvent::IsFinish() const
+int PPNotifyEvent::IsFinish() const
 {
 	return (Action == -1);
 }
 
-SLAPI PPAdviseBlock::PPAdviseBlock()
+PPAdviseBlock::PPAdviseBlock()
 {
 	THISZERO();
 }
 
-SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), O_ARRAY), LastCookie(0)
+PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), O_ARRAY), LastCookie(0)
 {
 }
 
@@ -4664,7 +4664,7 @@ int PPAdviseList::CreateList(int kind, ThreadID tId, long dbPathID, PPID objType
 	return ok;
 }
 
-int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
+int PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 {
 	int    ok = -1;
 	{
@@ -4688,12 +4688,12 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList)
+int PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList)
 	{ return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList); }
-StringSet & SLAPI PPSession::AcquireRvlSsSCD()
+StringSet & PPSession::AcquireRvlSsSCD()
 	{ return GetTLA().RvlSsSCD.Get(); }
 
-void SLAPI PPSession::ProcessIdle()
+void PPSession::ProcessIdle()
 {
 	ENTER_CRITICAL_SECTION // @v10.9.0
 	PPThreadLocalArea & r_tla = GetTLA();
@@ -4729,7 +4729,7 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 }
 
-int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
+int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -4787,7 +4787,7 @@ int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 	return ok;
 }
 
-PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
+PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 {
 	PPID   obj_type = 0;
 	long   ext = 0;
@@ -4850,7 +4850,7 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 	return obj_type;
 }
 
-int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
+int PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 {
 	int    ok = -1;
 	if(!P_ObjIdentBlk)
@@ -4901,7 +4901,7 @@ int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 	return ok;
 }
 
-PPJobSrvClient * SLAPI PPSession::GetClientSession(int dontReconnect)
+PPJobSrvClient * PPSession::GetClientSession(int dontReconnect)
 {
 	PPJobSrvClient * p_cli = &GetTLA().SrvSess;
 	if(p_cli && CConfig.Flags & CCFLG_3TIER) {
@@ -4931,25 +4931,25 @@ PPJobSrvClient * SLAPI PPSession::GetClientSession(int dontReconnect)
 	return p_cli;
 }
 
-PPSync & SLAPI PPSession::GetSync() { return GetTLA().Sync; }
-void   SLAPI PPSession::SetCurCashNodeID(PPID cashNodeID) { GetTLA().Lc.Cash = cashNodeID; }
-void   SLAPI PPSession::SetDefBillCashID(PPID billCashID) { GetTLA().Lc.DefBillCashID = billCashID; }
-void   SLAPI PPSession::SetMenu(short menuId) { GetTLA().Lc.Menu = menuId; }
-void   SLAPI PPSession::SetStateFlag(long f, int set) { SETFLAG(GetTLA().Lc.State, f, set); }
-int    SLAPI PPSession::CheckStateFlag(long f) const { return BIN(GetConstTLA().Lc.State & f); }
-int    SLAPI PPSession::SetPath(PPID pathID, const char * pBuf, short flags, int replace) { return GetTLA().Paths.SetPath(pathID, pBuf, flags, replace); }
-int    SLAPI PPSession::LoadDriveMapping(PPIniFile * pIniFile) { return DrvMap.Load(pIniFile); }
-int    SLAPI PPSession::GetDriveMapping(int drive, SString & rMapping) const { return DrvMap.Get(drive, rMapping); }
-int    SLAPI PPSession::ConvertPathToUnc(SString & rPath) const { return DrvMap.ConvertPathToUnc(rPath); }
-int    SLAPI PPSession::SetDbLocalObjCache(ObjCache * pCache) { return CMng.AddCache(DBS.GetDbPathID(), pCache); }
-int    SLAPI PPSession::Advise(long * pCookie, const PPAdviseBlock * pBlk) { return AdvList.Advise(pCookie, pBlk); }
-int    SLAPI PPSession::Unadvise(long cookie) { return AdvList.Advise(&cookie, 0); }
-void   SLAPI PPSession::SetTempLogFileName(const char * pFileName) { GetTLA().TempLogFile = pFileName; }
-int    SLAPI PPSession::SetPrivateBasket(PPBasketPacket * pPack, int use_ta) { return GetTLA().Cart.Set(pPack, use_ta); }
-PPBasketPacket * SLAPI PPSession::GetPrivateBasket() { return GetTLA().Cart.Get(); }
-int    SLAPI PPSession::StopThread(ThreadID tId) { return ThreadList.StopThread(tId); }
+PPSync & PPSession::GetSync() { return GetTLA().Sync; }
+void   PPSession::SetCurCashNodeID(PPID cashNodeID) { GetTLA().Lc.Cash = cashNodeID; }
+void   PPSession::SetDefBillCashID(PPID billCashID) { GetTLA().Lc.DefBillCashID = billCashID; }
+void   PPSession::SetMenu(short menuId) { GetTLA().Lc.Menu = menuId; }
+void   PPSession::SetStateFlag(long f, int set) { SETFLAG(GetTLA().Lc.State, f, set); }
+int    PPSession::CheckStateFlag(long f) const { return BIN(GetConstTLA().Lc.State & f); }
+int    PPSession::SetPath(PPID pathID, const char * pBuf, short flags, int replace) { return GetTLA().Paths.SetPath(pathID, pBuf, flags, replace); }
+int    PPSession::LoadDriveMapping(PPIniFile * pIniFile) { return DrvMap.Load(pIniFile); }
+int    PPSession::GetDriveMapping(int drive, SString & rMapping) const { return DrvMap.Get(drive, rMapping); }
+int    PPSession::ConvertPathToUnc(SString & rPath) const { return DrvMap.ConvertPathToUnc(rPath); }
+int    PPSession::SetDbLocalObjCache(ObjCache * pCache) { return CMng.AddCache(DBS.GetDbPathID(), pCache); }
+int    PPSession::Advise(long * pCookie, const PPAdviseBlock * pBlk) { return AdvList.Advise(pCookie, pBlk); }
+int    PPSession::Unadvise(long cookie) { return AdvList.Advise(&cookie, 0); }
+void   PPSession::SetTempLogFileName(const char * pFileName) { GetTLA().TempLogFile = pFileName; }
+int    PPSession::SetPrivateBasket(PPBasketPacket * pPack, int use_ta) { return GetTLA().Cart.Set(pPack, use_ta); }
+PPBasketPacket * PPSession::GetPrivateBasket() { return GetTLA().Cart.Get(); }
+int    PPSession::StopThread(ThreadID tId) { return ThreadList.StopThread(tId); }
 
-int SLAPI PPSession::IsThreadStopped()
+int PPSession::IsThreadStopped()
 {
 	int    ok = 0;
 	const PPThread * p_thread = ThreadList.SearchById(GetConstTLA().GetThreadID());
@@ -4957,7 +4957,7 @@ int SLAPI PPSession::IsThreadStopped()
 	return ok;
 }
 
-void SLAPI PPAdviseEvent::Clear()
+void PPAdviseEvent::Clear()
 {
 	THISZERO();
 }
@@ -4973,7 +4973,7 @@ PPAdviseEvent & FASTCALL PPAdviseEvent::operator = (const SysJournalTbl::Rec & r
 	return *this;
 }
 
-int SLAPI PPAdviseEvent::SetupAndAppendToVector(const PhnSvcChannelStatus & rS, int32 action, PPID phnSvcID, PPAdviseEventVector & rAev)
+int PPAdviseEvent::SetupAndAppendToVector(const PhnSvcChannelStatus & rS, int32 action, PPID phnSvcID, PPAdviseEventVector & rAev)
 {
 	int    ok = 1;
 	if(action) {
@@ -5010,7 +5010,7 @@ int SLAPI PPAdviseEvent::SetupAndAppendToVector(const PhnSvcChannelStatus & rS, 
 	return ok;
 }
 
-int SLAPI PPAdviseEvent::ConvertToMqbEnvelope(const PPAdviseEventVector & rAev, PPMqbClient::Envelope & rE) const
+int PPAdviseEvent::ConvertToMqbEnvelope(const PPAdviseEventVector & rAev, PPMqbClient::Envelope & rE) const
 {
 	int    ok = 1;
 	rE.Z();
@@ -5058,7 +5058,7 @@ int SLAPI PPAdviseEvent::ConvertToMqbEnvelope(const PPAdviseEventVector & rAev, 
 	return ok;
 }
 
-int SLAPI PPAdviseEvent::SetupAndAppendToVector(const PPMqbClient::Envelope & rS, PPAdviseEventVector & rAev)
+int PPAdviseEvent::SetupAndAppendToVector(const PPMqbClient::Envelope & rS, PPAdviseEventVector & rAev)
 {
 	int    ok = 1;
 	Action = PPEVNT_MQB_MESSAGE;
@@ -5107,18 +5107,18 @@ int SLAPI PPAdviseEvent::SetupAndAppendToVector(const PPMqbClient::Envelope & rS
 	return ok;
 }
 
-SLAPI PPAdviseEventVector::PPAdviseEventVector()
+PPAdviseEventVector::PPAdviseEventVector()
 {
 }
 
-void SLAPI PPAdviseEventVector::Clear()
+void PPAdviseEventVector::Clear()
 {
 	SVector::clear();
 	SStrGroup::ClearS();
 	MqbExtraList.freeAll();
 }
 
-PPAdviseEventVector::MqbExtra * SLAPI PPAdviseEventVector::CreateNewMqbExtra(uint * pPos)
+PPAdviseEventVector::MqbExtra * PPAdviseEventVector::CreateNewMqbExtra(uint * pPos)
 {
 	return MqbExtraList.CreateNewItem(pPos);
 }
@@ -5185,7 +5185,7 @@ uint FASTCALL PPAdviseEventVector::MoveItemTo(uint pos, PPAdviseEventVector & rD
 	return result;
 }
 
-int SLAPI PPAdviseEventVector::Pack()
+int PPAdviseEventVector::Pack()
 {
 	int    ok = -1;
 	if(Pool.getDataLen()) {
@@ -5285,7 +5285,7 @@ PPAdviseEventQueue::Stat::Stat() : LivingTime(0), StartClock(0), Push_Count(0), 
 {
 }
 
-SLAPI PPAdviseEventQueue::PPAdviseEventQueue() :
+PPAdviseEventQueue::PPAdviseEventQueue() :
 	/*TSVector <PPAdviseEvent> ()*/PPAdviseEventVector(), CliList(/*DEFCOLLECTDELTA,*/(aryDataOwner|aryPtrContainer)), LastIdent(0)
 {
 	S.StartClock = clock();
@@ -5315,7 +5315,7 @@ void FASTCALL PPAdviseEventQueue::AddStatCounters(const Stat & rAddendum)
     SLck.Unlock();
 }
 
-int SLAPI PPAdviseEventQueue::GetStat(PPAdviseEventQueue::Stat & rStat)
+int PPAdviseEventQueue::GetStat(PPAdviseEventQueue::Stat & rStat)
 {
 	int    ok = 1;
     SLck.Lock();
@@ -5493,7 +5493,7 @@ int PPAdviseEventQueue::Purge()
 //
 //
 //
-SLAPI SysMaintenanceEventResponder::SysMaintenanceEventResponder() : Signature(_PPConst.Signature_SysMaintenanceEventResponder), AdvCookie(0)
+SysMaintenanceEventResponder::SysMaintenanceEventResponder() : Signature(_PPConst.Signature_SysMaintenanceEventResponder), AdvCookie(0)
 {
 	{
 		PPAdviseBlock adv_blk;
@@ -5504,11 +5504,11 @@ SLAPI SysMaintenanceEventResponder::SysMaintenanceEventResponder() : Signature(_
 	}
 }
 
-SLAPI SysMaintenanceEventResponder::~SysMaintenanceEventResponder()
+SysMaintenanceEventResponder::~SysMaintenanceEventResponder()
 {
 }
 
-int SLAPI SysMaintenanceEventResponder::IsConsistent() const
+int SysMaintenanceEventResponder::IsConsistent() const
 	{ return (Signature == _PPConst.Signature_SysMaintenanceEventResponder); }
 
 /*static*/int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)

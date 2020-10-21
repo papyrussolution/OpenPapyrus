@@ -20,9 +20,9 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <filename.h> /* IS_PATH_WITH_DIR */
-#include <path-join.h>
-#include "scan-skel.h"
+//#include <filename.h>
+//#include <path-join.h>
+//#include "scan-skel.h"
 #include "tables.h"
 
 static struct obstack format_obstack;

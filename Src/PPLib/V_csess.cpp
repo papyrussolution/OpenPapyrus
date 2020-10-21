@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPViewCSess)
 //
-IMPLEMENT_PPFILT_FACTORY(CSess); SLAPI CSessFilt::CSessFilt() : PPBaseFilt(PPFILT_CSESS, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(CSess); CSessFilt::CSessFilt() : PPBaseFilt(PPFILT_CSESS, 0, 0)
 {
 	SetFlatChunk(offsetof(CSessFilt, ReserveStart),
 		offsetof(CSessFilt, NodeList_)-offsetof(CSessFilt, ReserveStart));
@@ -23,13 +23,13 @@ CSessFilt & FASTCALL CSessFilt::operator = (const CSessFilt & src)
 //
 //
 //
-SLAPI CSessCrDraftParam::CSessCrDraftParam() : Ver(0), RuleGrpID(0), RuleID(0), Flags(0)
+CSessCrDraftParam::CSessCrDraftParam() : Ver(0), RuleGrpID(0), RuleID(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 	Period.Z();
 }
 
-int SLAPI CSessCrDraftParam::Write(SBuffer & rBuf, long)
+int CSessCrDraftParam::Write(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	Ver = 0;
@@ -47,7 +47,7 @@ int SLAPI CSessCrDraftParam::Write(SBuffer & rBuf, long)
 	return ok;
 }
 
-int SLAPI CSessCrDraftParam::Read(SBuffer & rBuf, long)
+int CSessCrDraftParam::Read(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	if(rBuf.GetAvailableSize()) {
@@ -124,17 +124,18 @@ private:
 	}
 };
 
-static int SLAPI SelectRule(CSessCrDraftParam * pData) { DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_DFRULESEL, pData); }
+static int SelectRule(CSessCrDraftParam * pData) { DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_DFRULESEL, pData); }
 // static
-int SLAPI PPViewCSess::EditCreateDraftParam(CSessCrDraftParam * pParam) { DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_CSESSCRDRAFT, pParam); }
+int PPViewCSess::EditCreateDraftParam(CSessCrDraftParam * pParam) { DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_CSESSCRDRAFT, pParam); }
 //
 //
 //
-SLAPI PPViewCSess::PPViewCSess() : PPView(0, &Filt, PPVIEW_CSESS), P_CSessIterQuery(0), P_TempTbl(0), P_TempOrd(0), P_SessAmtAry(0), CurrentViewOrder(ordByDefault)
+PPViewCSess::PPViewCSess() : 
+	PPView(0, &Filt, PPVIEW_CSESS, 0, 0), P_CSessIterQuery(0), P_TempTbl(0), P_TempOrd(0), P_SessAmtAry(0), CurrentViewOrder(ordByDefault)
 {
 }
 
-SLAPI PPViewCSess::~PPViewCSess()
+PPViewCSess::~PPViewCSess()
 {
 	delete P_CSessIterQuery;
 	delete P_TempTbl;
@@ -144,7 +145,7 @@ SLAPI PPViewCSess::~PPViewCSess()
 		DBRemoveTempFiles();
 }
 
-PPBaseFilt * SLAPI PPViewCSess::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCSess::CreateFilt(void * extraPtr) const
 {
 	CSessFilt * p_filt = new CSessFilt;
 	if(extraPtr)
@@ -161,7 +162,7 @@ PPBaseFilt * SLAPI PPViewCSess::CreateFilt(void * extraPtr) const
 //
 // Диалог фильтра по кассовым сессиям
 //
-int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class CSessFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(CSessFilt);
@@ -230,7 +231,7 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 //
 PP_CREATE_TEMP_FILE_PROC(CreateTempCSessFile, TempCSessChecks);
 
-int SLAPI PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	const PPRights & r_rt = ObjRts;
@@ -307,7 +308,7 @@ int FASTCALL PPViewCSess::IsNotDefaultOrder(int ord) const
 		ordByCashNode_Dtm, ordByCashNumber_Dtm, ordBySessNumber, ordByAmount);
 }
 
-int SLAPI PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
+int PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = 1;
 	TempOrderTbl * p_o = 0;
@@ -381,7 +382,7 @@ int SLAPI PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 	return ok;
 }
 
-int SLAPI PPViewCSess::InitIteration(long ord)
+int PPViewCSess::InitIteration(long ord)
 {
 	int    ok = 1, r;
 	Counter.Init();
@@ -510,7 +511,7 @@ int FASTCALL PPViewCSess::NextIteration(CSessViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = (Filt.Flags & CSessFilt::fExtBill) ? BROWSER_CSESS_EXT : BROWSER_CSESS;
 	DBQuery * p_q = 0;
@@ -654,7 +655,7 @@ DBQuery * SLAPI PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	return p_q;
 }
 
-int SLAPI PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -730,7 +731,7 @@ int SLAPI PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	return ok;
 }
 
-int SLAPI PPViewCSess::InitCSessIteration()
+int PPViewCSess::InitCSessIteration()
 {
 	int    ok = 1;
 	int    idx = 0;
@@ -787,7 +788,7 @@ int SLAPI PPViewCSess::InitCSessIteration()
 	return ok;
 }
 
-int SLAPI PPViewCSess::NextCSessIteration(CSessionTbl::Rec * pRec)
+int PPViewCSess::NextCSessIteration(CSessionTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(P_CSessIterQuery && P_CSessIterQuery->nextIteration() > 0) {
@@ -807,7 +808,7 @@ struct SessAmtEntry {
 	double BnkDiscount;
 };
 
-int SLAPI PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
+int PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pRec) {
@@ -852,7 +853,7 @@ int SLAPI PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
+int PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
 	TempCSessChecksTbl::Rec csch_rec;
@@ -1116,29 +1117,29 @@ int DraftCreateRuleDialog::getDTS(PPDfCreateRulePacket * pData)
 //
 // PPObjDraftCreateRule
 //
-SLAPI PPDraftCreateRule2::PPDraftCreateRule2()
+PPDraftCreateRule2::PPDraftCreateRule2()
 {
 	THISZERO();
 }
 
-SLAPI PPDfCreateRulePacket::PPDfCreateRulePacket()
+PPDfCreateRulePacket::PPDfCreateRulePacket()
 {
 	// @v10.6.8 Init();
 }
 
-PPDfCreateRulePacket & SLAPI PPDfCreateRulePacket::Z()
+PPDfCreateRulePacket & PPDfCreateRulePacket::Z()
 {
 	MEMSZERO(Rec);
 	CashNN.clear();
 	return *this;
 }
 
-int SLAPI PPDfCreateRulePacket::CheckCash(PPID cash) const
+int PPDfCreateRulePacket::CheckCash(PPID cash) const
 {
 	return CashNN.getCount() ? CashNN.bsearch(cash) : 1;
 }
 
-void SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
+void PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 {
 	PPID * p_id = 0;
 	StringSet ss(static_cast<char>(delim), 0);
@@ -1150,12 +1151,12 @@ void SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 	ASSIGN_PTR(pBuf, ss.getBuf());
 }
 
-void SLAPI PPDfCreateRulePacket::GetCashNN(PPIDArray * pAry) const
+void PPDfCreateRulePacket::GetCashNN(PPIDArray * pAry) const
 {
 	ASSIGN_PTR(pAry, CashNN);
 }
 
-void SLAPI PPDfCreateRulePacket::SetCashNN(const PPIDArray * pAry)
+void PPDfCreateRulePacket::SetCashNN(const PPIDArray * pAry)
 {
 	if(pAry) {
 		CashNN = *pAry;
@@ -1165,7 +1166,7 @@ void SLAPI PPDfCreateRulePacket::SetCashNN(const PPIDArray * pAry)
 		CashNN.clear();
 }
 
-int SLAPI PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
+int PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 {
 	int    ok = 1;
 	if(pBuf) {
@@ -1190,7 +1191,7 @@ int SLAPI PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 	return ok;
 }
 
-static int SLAPI RulesListFilt(void * pRec, void * extraPtr)
+static int RulesListFilt(void * pRec, void * extraPtr)
 {
 	const PPDraftCreateRule * p_rule = static_cast<const PPDraftCreateRule *>(pRec);
 	const long extra_param = reinterpret_cast<long>(extraPtr);
@@ -1201,12 +1202,12 @@ static int SLAPI RulesListFilt(void * pRec, void * extraPtr)
 	return BIN(only_rules && is_rule || only_grps && is_grp || !extra_param || extra_param == p_rule->ParentID);
 }
 
-SLAPI PPObjDraftCreateRule::PPObjDraftCreateRule(void * extraPtr) : PPObjReference(PPOBJ_DFCREATERULE, extraPtr)
+PPObjDraftCreateRule::PPObjDraftCreateRule(void * extraPtr) : PPObjReference(PPOBJ_DFCREATERULE, extraPtr)
 {
 	FiltProc = RulesListFilt;
 }
 
-void SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
+void PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 {
 	PPIDArray rules;
 	PPDraftCreateRule rule;
@@ -1217,7 +1218,7 @@ void SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 	ASSIGN_PTR(pRules, rules);
 }
 
-/*virtual*/int SLAPI PPObjDraftCreateRule::Browse(void * extraPtr)
+/*virtual*/int PPObjDraftCreateRule::Browse(void * extraPtr)
 {
 	class DraftCreateRuleBrowseDialog : public ObjViewDialog {
 	public:
@@ -1251,7 +1252,7 @@ void SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 	return ok;
 }
 
-int SLAPI PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
+int PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
 {
 	int    ok = cmCancel;
 	SString temp_buf;
@@ -1288,7 +1289,7 @@ int SLAPI PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjDraftCreateRule::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int PPObjDraftCreateRule::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    r = cmCancel;
@@ -1330,7 +1331,7 @@ int SLAPI PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int SLAPI PPObjDraftCreateRule::GetPacket(PPID id, PPDfCreateRulePacket * pPack)
+int PPObjDraftCreateRule::GetPacket(PPID id, PPDfCreateRulePacket * pPack)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1346,7 +1347,7 @@ int SLAPI PPObjDraftCreateRule::GetPacket(PPID id, PPDfCreateRulePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjDraftCreateRule::PutPacket(PPID * pID, PPDfCreateRulePacket * pPack, int use_ta)
+int PPObjDraftCreateRule::PutPacket(PPID * pID, PPDfCreateRulePacket * pPack, int use_ta)
 {
 	int    ok = -1, del = 0;
 	{
@@ -1383,7 +1384,7 @@ int SLAPI PPObjDraftCreateRule::PutPacket(PPID * pID, PPDfCreateRulePacket * pPa
 }
 // } AHTOXA
 
-int SLAPI PPViewCSess::GetSessList(PPIDArray * pList)
+int PPViewCSess::GetSessList(PPIDArray * pList)
 {
 	int    ok = 1;
 	PPIDArray list;
@@ -1415,7 +1416,7 @@ IMPL_CMPFUNC(EGOODSLOC, i1, i2)
 	return r ? r : stricmp866(p_e1->GoodsName, p_e2->GoodsName);
 }
 
-int SLAPI PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
+int PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 {
 	int    ok = 1;
 	SString msg1, msg2, c_msg1, c_msg2;
@@ -1449,7 +1450,7 @@ int SLAPI PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, const SString & rMsg2, int use_ta)
+int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, const SString & rMsg2, int use_ta)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -1747,7 +1748,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 }
 // } AHTOXA
 
-int SLAPI PPViewCSess::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCSess::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -1769,7 +1770,7 @@ int SLAPI PPViewCSess::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewCSess::ViewExcesses(PPID id)
+int PPViewCSess::ViewExcesses(PPID id)
 {
 	int    ok = -1;
 	uint   one_or_all = 0;
@@ -1792,7 +1793,7 @@ int SLAPI PPViewCSess::ViewExcesses(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewCSess::SelectOneOrAll(uint * pResult, long * pFlags)
+int PPViewCSess::SelectOneOrAll(uint * pResult, long * pFlags)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(pFlags ? DLG_SELCSESSEXC : DLG_SELCSESS);
@@ -1817,7 +1818,7 @@ int SLAPI PPViewCSess::SelectOneOrAll(uint * pResult, long * pFlags)
 	return ok;
 }
 
-int SLAPI PPViewCSess::GetBillList(PPID sessID, ObjIdListFilt & rList)
+int PPViewCSess::GetBillList(PPID sessID, ObjIdListFilt & rList)
 {
 	int    ok = 1;
 	rList.InitEmpty();
@@ -1839,7 +1840,7 @@ int SLAPI PPViewCSess::GetBillList(PPID sessID, ObjIdListFilt & rList)
 	return ok;
 }
 
-int SLAPI PPViewCSess::ViewGoodsTaxAnlz(PPID sessID)
+int PPViewCSess::ViewGoodsTaxAnlz(PPID sessID)
 {
 	int    ok = -1;
 	uint   one_or_all = 0;
@@ -1856,7 +1857,7 @@ int SLAPI PPViewCSess::ViewGoodsTaxAnlz(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::ViewAllChecks()
+int PPViewCSess::ViewAllChecks()
 {
 	int    ok = -1;
 	CCheckFilt ccflt;
@@ -1877,7 +1878,7 @@ int SLAPI PPViewCSess::ViewAllChecks()
 	return ok;
 }
 
-int SLAPI PPViewCSess::ViewGoodsOpAnlz(PPID sessID)
+int PPViewCSess::ViewGoodsOpAnlz(PPID sessID)
 {
 	int    ok = -1;
 	uint   one_or_all = 0;
@@ -1894,7 +1895,7 @@ int SLAPI PPViewCSess::ViewGoodsOpAnlz(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::CloseSession()
+int PPViewCSess::CloseSession()
 {
 	int    ok = -1;
 	PPCashMachine * p_cm = 0;
@@ -1925,7 +1926,7 @@ int SLAPI PPViewCSess::CloseSession()
 	return ok;
 }
 
-int SLAPI PPViewCSess::CompleteSession(PPID sessID)
+int PPViewCSess::CompleteSession(PPID sessID)
 {
 	int    ok = -1;
 	CSessionTbl::Rec sess_rec;
@@ -1962,7 +1963,7 @@ int SLAPI PPViewCSess::CompleteSession(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::RecalcSession(PPID sessID)
+int PPViewCSess::RecalcSession(PPID sessID)
 {
 	int    ok = -1;
 	uint   v = 0;
@@ -2003,7 +2004,7 @@ int SLAPI PPViewCSess::RecalcSession(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::DetachSessFromSuperSess(PPID sessID)
+int PPViewCSess::DetachSessFromSuperSess(PPID sessID)
 {
 	int    ok = -1;
 	CSessionTbl::Rec sess_rec;
@@ -2023,7 +2024,7 @@ int SLAPI PPViewCSess::DetachSessFromSuperSess(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
+int PPViewCSess::Transmit(PPID id, int transmitKind)
 {
 	int    ok = -1;
 	if(transmitKind == 1) {
@@ -2075,18 +2076,18 @@ int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
 	return ok;
 }
 
-int SLAPI PPViewCSess::AddItem()
+int PPViewCSess::AddItem()
 {
 	PPID   id = 0;
 	return (CsObj.Edit(&id, 0) == cmOK) ? 1 : -1;
 }
 
-int SLAPI PPViewCSess::EditItem(PPID id)
+int PPViewCSess::EditItem(PPID id)
 {
 	return (id > 0 && CsObj.Edit(&id, 0) == cmOK) ? 1 : -1;
 }
 
-int SLAPI PPViewCSess::DeleteItem(PPID sessID)
+int PPViewCSess::DeleteItem(PPID sessID)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2129,7 +2130,7 @@ int SLAPI PPViewCSess::DeleteItem(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::CalcTotal(CSessTotal * pTotal)
+int PPViewCSess::CalcTotal(CSessTotal * pTotal)
 {
 	int    ok = 1;
 	CSessViewItem item;
@@ -2152,7 +2153,7 @@ int SLAPI PPViewCSess::CalcTotal(CSessTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPViewCSess::ViewTotal()
+int PPViewCSess::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2183,7 +2184,7 @@ int SLAPI PPViewCSess::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewCSess::PosPrint(PPID curID)
+int PPViewCSess::PosPrint(PPID curID)
 {
 	int   ok = -1;
 	PPID  parent_node_id = 0;
@@ -2203,12 +2204,12 @@ int SLAPI PPViewCSess::PosPrint(PPID curID)
 	return ok;
 }
 
-int SLAPI PPViewCSess::Print(const void * pHdr)
+int PPViewCSess::Print(const void * pHdr)
 {
 	return Helper_Print((Filt.Flags & CSessFilt::fExtBill) ? REPORT_CSESSVIEWEXT : REPORT_CSESSVIEW, 0);
 }
 
-int SLAPI PPViewCSess::PrintSession(PPID sessID)
+int PPViewCSess::PrintSession(PPID sessID)
 {
 	CSessionTbl::Rec ses_rec;
 	if(CsObj.Search(sessID, &ses_rec) > 0) {
@@ -2220,24 +2221,24 @@ int SLAPI PPViewCSess::PrintSession(PPID sessID)
 //
 // @ModuleDef(PPViewCSessExc)
 //
-IMPLEMENT_PPFILT_FACTORY(CSessExc); SLAPI CSessExcFilt::CSessExcFilt() : PPBaseFilt(PPFILT_CSESSEXC, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(CSessExc); CSessExcFilt::CSessExcFilt() : PPBaseFilt(PPFILT_CSESSEXC, 0, 0)
 {
 	SetFlatChunk(offsetof(CSessExcFilt, ReserveStart),
 		offsetof(CSessExcFilt, SessIDList)-offsetof(CSessExcFilt, ReserveStart));
-	SetBranchSVector(offsetof(CSessExcFilt, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(CSessExcFilt, SessIDList));
 	Init(1, 0);
 }
 
-SLAPI PPViewCSessExc::PPViewCSessExc() : PPView(0, &Filt, PPVIEW_CSESSEXC), P_TempTbl(0), CommonLocID(0)
+PPViewCSessExc::PPViewCSessExc() : PPView(0, &Filt, PPVIEW_CSESSEXC, 0, 0), P_TempTbl(0), CommonLocID(0)
 {
 }
 
-SLAPI PPViewCSessExc::~PPViewCSessExc()
+PPViewCSessExc::~PPViewCSessExc()
 {
 	delete P_TempTbl;
 }
 
-PPBaseFilt * SLAPI PPViewCSessExc::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCSessExc::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_CSESSEXC, &p_base_filt)) {
@@ -2247,7 +2248,7 @@ PPBaseFilt * SLAPI PPViewCSessExc::CreateFilt(void * extraPtr) const
 	return p_base_filt;
 }
 
-int SLAPI PPViewCSessExc::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewCSessExc::EditBaseFilt(PPBaseFilt * pFilt)
 {
 #define GRP_GOODS 1
 	int    ok = -1;
@@ -2282,7 +2283,7 @@ int SLAPI PPViewCSessExc::EditBaseFilt(PPBaseFilt * pFilt)
 #undef GRP_GOODS
 }
 
-int SLAPI PPViewCSessExc::GatherGoodsLines(int sign, PPID goodsID, CSessDfctList * pList)
+int PPViewCSessExc::GatherGoodsLines(int sign, PPID goodsID, CSessDfctList * pList)
 {
 	int    ok = -1;
 	if(!Filt.GoodsID || goodsID == Filt.GoodsID) {
@@ -2304,7 +2305,7 @@ int SLAPI PPViewCSessExc::GatherGoodsLines(int sign, PPID goodsID, CSessDfctList
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempCSessExc);
 
-int SLAPI PPViewCSessExc::SetRecValues(TempCSessExcTbl::Rec & trec, const CGoodsLineTbl::Rec * pRec, int add)
+int PPViewCSessExc::SetRecValues(TempCSessExcTbl::Rec & trec, const CGoodsLineTbl::Rec * pRec, int add)
 {
 	if(add) {
 		trec.Qtty += pRec->Qtty;
@@ -2326,7 +2327,7 @@ int SLAPI PPViewCSessExc::SetRecValues(TempCSessExcTbl::Rec & trec, const CGoods
 	return 1;
 }
 
-int SLAPI PPViewCSessExc::AddItemToTempTable(const PPID orgGoodsID, CGoodsLineTbl::Rec * pRec, LAssocArray * pRgAssoc)
+int PPViewCSessExc::AddItemToTempTable(const PPID orgGoodsID, CGoodsLineTbl::Rec * pRec, LAssocArray * pRgAssoc)
 {
 	int    ok  = 1;
 	uint   pos = 0;
@@ -2409,7 +2410,7 @@ int SLAPI PPViewCSessExc::AddItemToTempTable(const PPID orgGoodsID, CGoodsLineTb
 	return ok;
 }
 
-int SLAPI PPViewCSessExc::MakeTempTable(PPID sessID)
+int PPViewCSessExc::MakeTempTable(PPID sessID)
 {
 	int    ok = 1;
 	IterCounter counter;
@@ -2451,7 +2452,7 @@ int SLAPI PPViewCSessExc::MakeTempTable(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewCSessExc::_MakeTempTable(int clearBefore)
+int PPViewCSessExc::_MakeTempTable(int clearBefore)
 {
 	int    ok = 1;
 	if(P_TempTbl) {
@@ -2471,7 +2472,7 @@ int SLAPI PPViewCSessExc::_MakeTempTable(int clearBefore)
 	return ok;
 }
 
-PPID SLAPI PPViewCSessExc::GetCommonLoc()
+PPID PPViewCSessExc::GetCommonLoc()
 {
 	if(CommonLocID < 0) {
 		CommonLocID = 0;
@@ -2497,7 +2498,7 @@ PPID SLAPI PPViewCSessExc::GetCommonLoc()
 	return CommonLocID;
 }
 
-int SLAPI PPViewCSessExc::Init_(const PPBaseFilt * pFilt)
+int PPViewCSessExc::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	if(Helper_InitBaseFilt(pFilt)) {
@@ -2514,7 +2515,7 @@ int SLAPI PPViewCSessExc::Init_(const PPBaseFilt * pFilt)
 }
 
 // AHTOXA {
-int SLAPI PPViewCSessExc::GetAltGoodsPrice(PPID goodsID, double * pPrice)
+int PPViewCSessExc::GetAltGoodsPrice(PPID goodsID, double * pPrice)
 {
 	double price = 0.0;
 	if(goodsID) {
@@ -2535,7 +2536,7 @@ int SLAPI PPViewCSessExc::GetAltGoodsPrice(PPID goodsID, double * pPrice)
 }
 // } AHTOXA
 
-int SLAPI PPViewCSessExc::InitIteration()
+int PPViewCSessExc::InitIteration()
 {
 	int    ok = 1;
 	// @v10.6.8 char   k[MAXKEYLEN];
@@ -2560,7 +2561,7 @@ int FASTCALL PPViewCSessExc::NextIteration(CSessExcViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBE    dbe_goods;
 	TempCSessExcTbl * t = new TempCSessExcTbl(P_TempTbl->GetName());
@@ -2585,7 +2586,7 @@ DBQuery * SLAPI PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-int SLAPI PPViewCSessExc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCSessExc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	struct H {
 		PPID   GoodsID;
@@ -2737,7 +2738,7 @@ int CSessExcAltGoodsDialog::getDTS(PPID * pAltGoodsID)
 	return ok;
 }
 
-int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
+int PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 {
 	int    ok = -1, r;
 	uint   i;
@@ -2795,7 +2796,7 @@ int SLAPI PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 	return ok;
 }
 
-int SLAPI PPViewCSessExc::ConvertDeficitToBasket()
+int PPViewCSessExc::ConvertDeficitToBasket()
 {
 	int    ok = -1, r = 0;
 	SelBasketParam param;
@@ -2838,7 +2839,7 @@ int SLAPI PPViewCSessExc::ConvertDeficitToBasket()
 	return ok;
 }
 
-int SLAPI PPViewCSessExc::ViewTotal()
+int PPViewCSessExc::ViewTotal()
 {
 	int    ok = 1;
 	long   count = 0;
@@ -2883,7 +2884,7 @@ int SLAPI PPViewCSessExc::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewCSessExc::Print(const void *)
+int PPViewCSessExc::Print(const void *)
 {
 	uint   rpt_id = (Filt.Flags & CSessExcFilt::fNoZeroAltGoods) ? REPORT_CSESSEXCALT : REPORT_CSESSEXC;
 	return Helper_Print(rpt_id);

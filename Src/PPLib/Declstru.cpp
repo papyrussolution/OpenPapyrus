@@ -21,7 +21,7 @@
 		Item Type Name:   "Type_Name\0"
 	} Items Count Times
 */
-/*static*/PPDeclStruc * SLAPI PPDeclStruc::CreateInstance(long typeID, void * /*extraPtr*/, const PPDeclStruc * pOuter, PPLogger * pLogger)
+/*static*/PPDeclStruc * PPDeclStruc::CreateInstance(long typeID, void * /*extraPtr*/, const PPDeclStruc * pOuter, PPLogger * pLogger)
 {
 	PPDeclStruc * p_decl = 0;
 	switch(typeID) {
@@ -81,7 +81,7 @@
 }
 
 //
-int SLAPI SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
+int SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
 {
 	int    ok = 1;
 	PPDeclStruc * p_decl = 0;
@@ -132,29 +132,29 @@ public:
 		PPID   DestPersonID;
 		char   DestAddr[64];
 	};
-	SLAPI  PrcssrMailCharry()
+	PrcssrMailCharry()
 	{
 	}
-	int    SLAPI InitParam(Param * pParam)
+	int    InitParam(Param * pParam)
 	{
 		RestoreParam(pParam);
 		return 1;
 	}
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param * pParam)
+	int    EditParam(Param *);
+	int    Init(const Param * pParam)
 	{
 		RVALUEPTR(P, pParam);
 		return 1;
 	}
-	int    SLAPI Run();
+	int    Run();
 private:
-	int    SLAPI SaveParam(const Param *);
-	int    SLAPI RestoreParam(Param *);
+	int    SaveParam(const Param *);
+	int    RestoreParam(Param *);
 
 	Param  P;
 };
 
-int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
+int PrcssrMailCharry::EditParam(Param * pParam)
 {
 	class MailCharryParamDialog : public TDialog {
 		DECL_DIALOG_DATA(PrcssrMailCharry::Param);
@@ -234,7 +234,7 @@ struct __MailCharryParam {
 	char   DestAddr[64];
 };
 
-int SLAPI PrcssrMailCharry::SaveParam(const Param * pParam)
+int PrcssrMailCharry::SaveParam(const Param * pParam)
 {
 	int    ok = 1;
 	__MailCharryParam strg;
@@ -248,7 +248,7 @@ int SLAPI PrcssrMailCharry::SaveParam(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrMailCharry::RestoreParam(Param * pParam)
+int PrcssrMailCharry::RestoreParam(Param * pParam)
 {
 	int    ok = 1;
 	__MailCharryParam strg;
@@ -271,7 +271,7 @@ int SLAPI PrcssrMailCharry::RestoreParam(Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrMailCharry::Run()
+int PrcssrMailCharry::Run()
 {
 	int    ok = 1;
 	SString src_path;
@@ -284,7 +284,7 @@ int SLAPI PrcssrMailCharry::Run()
 	return ok;
 }
 
-int SLAPI SendCharryFiles()
+int SendCharryFiles()
 {
 	int    ok = -1;
 	PrcssrMailCharry prcssr;
@@ -304,7 +304,7 @@ RcvCharryParam::RcvCharryParam() : MailAccID(0), Action(0), Flags(0)
 {
 }
 
-int SLAPI RcvCharryParam::Edit()
+int RcvCharryParam::Edit()
 {
 	enum {
 		ctlgroupMailAcc = 1
@@ -340,7 +340,7 @@ int SLAPI RcvCharryParam::Edit()
 	return ok;
 }
 
-int SLAPI ReceiveCharryObjects(const RcvCharryParam * pParam)
+int ReceiveCharryObjects(const RcvCharryParam * pParam)
 {
 	int    ok = -1, r;
 	RcvCharryParam rcp;
@@ -400,7 +400,7 @@ int SLAPI ReceiveCharryObjects(const RcvCharryParam * pParam)
 
 #if 0 // {
 
-int SLAPI TestDeclDefinitionParsing()
+int TestDeclDefinitionParsing()
 {
 	PPDeclStrucProcessor dsp;
 	if(!dsp.ParseDefinition("pp.ds", "ppdsdefs.rc", "ppdsdefs.h")) {
@@ -411,7 +411,7 @@ int SLAPI TestDeclDefinitionParsing()
 	return 1;
 }
 
-int SLAPI TestOprKindOutput()
+int TestOprKindOutput()
 {
 	int    ok = 1;
 	PPID   op_id;
@@ -431,7 +431,7 @@ int SLAPI TestOprKindOutput()
 	return ok;
 }
 
-int SLAPI TestOprKindInput()
+int TestOprKindInput()
 {
 	int    ok = 1, r;
 	PPDeclStrucProcessor dsp;

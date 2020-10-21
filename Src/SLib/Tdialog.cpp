@@ -220,7 +220,7 @@ static void loadLocalMenu(TVRez & rez, TDialog * dlg)
 	*/
 }
 
-int (SLAPI * getUserControl)(TVRez*, TDialog*) = 0;
+int (* getUserControl)(TVRez*, TDialog*) = 0;
 
 int TDialog::SetCtlSymb(uint id, const char * pSymb)
 {
@@ -254,7 +254,7 @@ int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	return ok;
 }
 
-/*static*/int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags)
+/*static*/int TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags)
 {
 	assert(dlg != 0);
 	if(rez == 0)
@@ -439,7 +439,7 @@ int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	return 1;
 }
 
-/*static*/int SLAPI TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
+/*static*/int TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
 {
 	int    ok = 1;
 	SString symb(pSymb);
@@ -455,7 +455,7 @@ int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	return ok;
 }
 
-void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co)
+void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co)
 {
 	SubSign = TV_SUBSIGN_DIALOG;
 	P_PrevData = 0;
@@ -492,20 +492,20 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 	}
 }
 
-SLAPI TDialog::TDialog(const TRect & bounds, const char *aTitle) : TWindow(bounds, aTitle, wnNoNumber)
+TDialog::TDialog(const TRect & bounds, const char *aTitle) : TWindow(bounds, aTitle, wnNoNumber)
 	{ Helper_Constructor(0, 0, 0, coNothing); }
-SLAPI TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect(), 0, wnNoNumber)
+TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect(), 0, wnNoNumber)
 	{ Helper_Constructor(resID, dlgPreFunc, extraPtr, coNothing); }
-SLAPI TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber)
+TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber)
 	{ Helper_Constructor(resID, 0, 0, coNothing); }
-SLAPI TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber)
+TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber)
 	{ Helper_Constructor(resID, 0, 0, co); }
 void TDialog::ToCascade()
 	{ DlgFlags |= fCascade; }
 int FASTCALL TDialog::CheckFlag(long f) const
 	{ return BIN(DlgFlags & f); }
 
-SLAPI TDialog::~TDialog()
+TDialog::~TDialog()
 {
 	if(P_FontsAry) {
 		for(uint c = 0; c < P_FontsAry->getCount(); c++)
@@ -764,19 +764,19 @@ int TDialog::TransmitData(int dir, void * pData)
 	return s;
 }
 
-TLabel * SLAPI TDialog::getCtlLabel(uint ctlID)
+TLabel * TDialog::getCtlLabel(uint ctlID)
 {
 	TView  * v = getCtrlView(ctlID);
 	return v ? static_cast<TLabel *>(TView::messageBroadcast(this, cmSearchLabel, v)) : 0;
 }
 
-int SLAPI TDialog::getLabelText(uint ctlID, SString & rText)
+int TDialog::getLabelText(uint ctlID, SString & rText)
 {
 	TLabel * p_label = getCtlLabel(ctlID);
 	return p_label ? (p_label->getText(rText), 1) : 0;
 }
 
-int SLAPI TDialog::setLabelText(uint ctlID, const char * pText)
+int TDialog::setLabelText(uint ctlID, const char * pText)
 {
 	TLabel * p_label = getCtlLabel(ctlID);
 	return p_label ? p_label->setText(pText) : 0;

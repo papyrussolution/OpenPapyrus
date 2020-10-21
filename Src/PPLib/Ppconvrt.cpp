@@ -10,9 +10,9 @@
 //
 //
 //
-int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta);
+int PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta);
 
-int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName)
+int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName)
 {
 	int    ok = 1;
 	int    is_dict_opened = 0;
@@ -128,7 +128,7 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 //
 //
 #define CONVERT_PROC(proc_name, class_name) \
-int SLAPI proc_name() \
+int proc_name() \
 {                     \
 	PPWait(1);        \
 	class_name cvt;   \
@@ -139,21 +139,21 @@ int SLAPI proc_name() \
 
 class PPTableConversion {
 public:
-	int    SLAPI Convert();
+	int    Convert();
 protected:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion) = 0;
-	virtual void SLAPI DestroyTable(DBTable * pTbl);
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen) = 0;
-	virtual int SLAPI Final(DBTable * pTbl) { return -1; }
+	virtual DBTable * CreateTableInstance(int * pNeedConversion) = 0;
+	virtual void DestroyTable(DBTable * pTbl);
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen) = 0;
+	virtual int Final(DBTable * pTbl) { return -1; }
 	PPLogger Logger;
 };
 
-void SLAPI PPTableConversion::DestroyTable(DBTable * pTbl)
+void PPTableConversion::DestroyTable(DBTable * pTbl)
 {
 	delete pTbl;
 }
 
-int SLAPI PPTableConversion::Convert()
+int PPTableConversion::Convert()
 {
 	//
 	// Так как сеанс конвертации может состоять из нескольких конвертаций отдельных таблиц
@@ -305,7 +305,7 @@ int SLAPI PPTableConversion::Convert()
 //
 class PPCvtReceipt229 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * needConversion)
+	DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new ReceiptTbl;
 		if(!tbl)
@@ -319,7 +319,7 @@ public:
 		}
 		return tbl;
 	}
-	int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
+	int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
 		ReceiptTbl::Rec * data = static_cast<ReceiptTbl::Rec *>(tbl->getDataBuf());
 		memcpy(data, rec, sizeof(ReceiptTbl::Rec) - sizeof(LDATE));
@@ -328,7 +328,7 @@ public:
 	}
 };
 
-int SLAPI Convert229()
+int Convert229()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -344,7 +344,7 @@ int SLAPI Convert229()
 //
 class PPCvtVATBook253 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new VATBookTbl;
 		if(!tbl)
@@ -356,7 +356,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
 		VATBookTbl::Rec * data = static_cast<VATBookTbl::Rec *>(tbl->getDataBuf());
 		memcpy(data, rec, sizeof(VATBookTbl::Rec));
@@ -364,7 +364,7 @@ public:
 	}
 };
 
-int SLAPI Convert253()
+int Convert253()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -378,16 +378,16 @@ int SLAPI Convert253()
 //
 class GoodsConvertion270 {
 public:
-	SLAPI GoodsConvertion270() : GrpIdBias(1000L)
+	GoodsConvertion270() : GrpIdBias(1000L)
 	{
 	}
-	int SLAPI Convert();
+	int Convert();
 private:
-	int SLAPI ConvertGroups();
-	int SLAPI ConvertGoods();
-	int SLAPI ConvertGoodsRec(GoodsTbl::Rec *, Goods2Tbl::Rec *);
-	int SLAPI ConvertGroupRec(GoodsGroupTbl::Rec *, Goods2Tbl::Rec *, BarcodeTbl::Rec *);
-	int SLAPI CheckDupName(PPID gknd, char * name, size_t buflen);
+	int ConvertGroups();
+	int ConvertGoods();
+	int ConvertGoodsRec(GoodsTbl::Rec *, Goods2Tbl::Rec *);
+	int ConvertGroupRec(GoodsGroupTbl::Rec *, Goods2Tbl::Rec *, BarcodeTbl::Rec *);
+	int CheckDupName(PPID gknd, char * name, size_t buflen);
 
 	long          GrpIdBias;
 	GoodsCore     G2Tbl;
@@ -397,7 +397,7 @@ private:
 	ObjSyncTbl    SyncTbl;
 };
 
-int SLAPI GoodsConvertion270::CheckDupName(PPID gknd, char * name, size_t buflen)
+int GoodsConvertion270::CheckDupName(PPID gknd, char * name, size_t buflen)
 {
 	char name_buf[64];
 	STRNSCPY(name_buf, name);
@@ -407,7 +407,7 @@ int SLAPI GoodsConvertion270::CheckDupName(PPID gknd, char * name, size_t buflen
 	return 1;
 }
 
-int SLAPI GoodsConvertion270::ConvertGroups()
+int GoodsConvertion270::ConvertGroups()
 {
 	int    ok = 1;
 	RECORDNUMBER num_recs = 0, count = 0;
@@ -466,7 +466,7 @@ int SLAPI GoodsConvertion270::ConvertGroups()
 	return ok;
 }
 
-int SLAPI GoodsConvertion270::ConvertGoods()
+int GoodsConvertion270::ConvertGoods()
 {
 	int    ok = 1;
 	RECORDNUMBER num_recs = 0, count = 0;
@@ -484,7 +484,7 @@ int SLAPI GoodsConvertion270::ConvertGoods()
 	return ok;
 }
 
-int SLAPI GoodsConvertion270::ConvertGroupRec(GoodsGroupTbl::Rec * grec, Goods2Tbl::Rec * g2rec, BarcodeTbl::Rec * bcrec)
+int GoodsConvertion270::ConvertGroupRec(GoodsGroupTbl::Rec * grec, Goods2Tbl::Rec * g2rec, BarcodeTbl::Rec * bcrec)
 {
 	int    ok = 1;
 	char   buf[64];
@@ -517,7 +517,7 @@ int SLAPI GoodsConvertion270::ConvertGroupRec(GoodsGroupTbl::Rec * grec, Goods2T
 	return ok;
 }
 
-int SLAPI GoodsConvertion270::ConvertGoodsRec(GoodsTbl::Rec * grec, Goods2Tbl::Rec * g2rec)
+int GoodsConvertion270::ConvertGoodsRec(GoodsTbl::Rec * grec, Goods2Tbl::Rec * g2rec)
 {
 	int    ok = 1;
 	char   buf[64];
@@ -554,7 +554,7 @@ int SLAPI GoodsConvertion270::ConvertGoodsRec(GoodsTbl::Rec * grec, Goods2Tbl::R
 	return ok;
 }
 
-int SLAPI GoodsConvertion270::Convert()
+int GoodsConvertion270::Convert()
 {
 	int    ok = 1, ta = 0;
 	PPID   k = MAXLONG;
@@ -576,7 +576,7 @@ int SLAPI GoodsConvertion270::Convert()
 	return ok;
 }
 
-int SLAPI Convert270()
+int Convert270()
 {
 	GoodsConvertion270 gc270;
 	return gc270.Convert();
@@ -586,7 +586,7 @@ int SLAPI Convert270()
 //
 class PPCvtAccount290 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new AccountTbl;
 		if(!tbl)
@@ -597,7 +597,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
 	{
 		PPAccount * data = static_cast<PPAccount *>(tbl->getDataBuf());
 		OldAccountTbl::Rec * old_rec = (OldAccountTbl::Rec *)rec;
@@ -623,7 +623,7 @@ public:
 //
 class PPCvtAcctRel290 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new AcctRelTbl;
 		if(!tbl)
@@ -634,7 +634,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
 	{
 		AcctRelTbl::Rec * data = static_cast<AcctRelTbl::Rec *>(tbl->getDataBuf());
 		OldAcctRelTbl::Rec * old_rec = (OldAcctRelTbl::Rec *)rec;
@@ -657,7 +657,7 @@ public:
 
 class PPCvtBalance290 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new BalanceTbl;
 		if(!tbl)
@@ -668,7 +668,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
 	{
 		BalanceTbl::Rec * data = static_cast<BalanceTbl::Rec *>(tbl->getDataBuf());
 		OldBalanceTbl::Rec * old_rec = (OldBalanceTbl::Rec *)rec;
@@ -683,7 +683,7 @@ public:
 
 class PPCvtBill290 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new BillTbl;
 		if(!tbl)
@@ -694,7 +694,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		BillTbl::Rec    * data = static_cast<BillTbl::Rec *>(tbl->getDataBuf());
 		OldBillTbl::Rec * old_rec = (OldBillTbl::Rec *)rec;
@@ -722,7 +722,7 @@ public:
 
 class PPCvtBillAmount290 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new BillAmountTbl;
 		if(!tbl)
@@ -733,7 +733,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
 	{
 		BillAmountTbl::Rec * data = static_cast<BillAmountTbl::Rec *>(tbl->getDataBuf());
 		const OldBillAmountTbl::Rec * old_rec = static_cast<const OldBillAmountTbl::Rec *>(rec);
@@ -749,7 +749,7 @@ public:
 
 class PPCvtArticle290 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new ArticleTbl;
 		if(!tbl)
@@ -760,7 +760,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
 		ArticleTbl::Rec * p_data = (ArticleTbl::Rec*)tbl->getDataBuf();
 		memcpy(p_data, rec, sizeof(ArticleTbl::Rec) - 14);
@@ -775,7 +775,7 @@ public:
 //
 class PPCvtReceipt300 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new ReceiptTbl;
 		if(!tbl)
@@ -786,7 +786,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
 	{
 		ReceiptTbl::Rec * data = (ReceiptTbl::Rec*)tbl->getDataBuf();
 		ReceiptTbl::Rec * old_rec = (ReceiptTbl::Rec *)rec;
@@ -800,7 +800,7 @@ public:
 //
 class PPCvtTransfer300 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion)
+	virtual DBTable * CreateTableInstance(int * needConversion)
 	{
 		DBTable * tbl = new TransferTbl;
 		if(!tbl)
@@ -811,7 +811,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int *)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
 	{
 		TransferTbl::Rec * data = (TransferTbl::Rec*)tbl->getDataBuf();
 		TransferTbl::Rec * old_rec = (TransferTbl::Rec *)rec;
@@ -823,7 +823,7 @@ public:
 //
 //
 //
-int SLAPI PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t buflen)
+int PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t buflen)
 {
 	struct _Formula {
 		PPID Tag;      // Const = PPOBJ_FORMULA
@@ -861,7 +861,7 @@ int SLAPI PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t 
 	return ok;
 }
 
-static int SLAPI ConvertFormula290()
+static int ConvertFormula290()
 {
 	int    ok = 1;
 	PPObjFormula frmobj;
@@ -874,7 +874,7 @@ static int SLAPI ConvertFormula290()
 	return ok;
 }
 
-int SLAPI PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
+int PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
 {
 	const size_t LLC_LIMIT ((PROPRECFIXSIZE - 14) / sizeof(PPID)); // 17
 	const size_t ALS_LIMIT ((PROPRECFIXSIZE - 14) / sizeof(char)); // 70
@@ -938,7 +938,7 @@ int SLAPI PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
 	return ok;
 }
 
-static int SLAPI ConvertDBDiv290()
+static int ConvertDBDiv290()
 {
 	int    ok = 1;
 	PPObjDBDiv dbdivobj;
@@ -953,7 +953,7 @@ static int SLAPI ConvertDBDiv290()
 //
 //
 //
-int SLAPI Convert300()
+int Convert300()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -1006,13 +1006,13 @@ int SLAPI Convert300()
 //
 class CounterGrpList {
 public:
-	SLAPI  CounterGrpList() { count = 0; ptr = 0; }
-	SLAPI ~CounterGrpList() { SAlloc::F(ptr); }
-	int    SLAPI SearchID(long id, int * pos);
-	int    SLAPI Load();
+	CounterGrpList() { count = 0; ptr = 0; }
+	~CounterGrpList() { SAlloc::F(ptr); }
+	int    SearchID(long id, int * pos);
+	int    Load();
 private:
-	int    SLAPI GetNumGroups();
-	int    SLAPI GetGroup(int);
+	int    GetNumGroups();
+	int    GetGroup(int);
 
 	int    count;
 	long * ptr;
@@ -1038,7 +1038,7 @@ struct CntGrpCluster {
 	long   Items[ITEMS_PER_CLUSTER];
 };
 
-int SLAPI CounterGrpList::GetNumGroups()
+int CounterGrpList::GetNumGroups()
 {
 	int c = 0;
 	if(ptr)
@@ -1046,7 +1046,7 @@ int SLAPI CounterGrpList::GetNumGroups()
 	return c;
 }
 
-int SLAPI CounterGrpList::GetGroup(int g)
+int CounterGrpList::GetGroup(int g)
 {
 	int i, c = 0;
 	if(ptr && count) {
@@ -1056,7 +1056,7 @@ int SLAPI CounterGrpList::GetGroup(int g)
 	return -1;
 }
 
-int SLAPI CounterGrpList::SearchID(long id, int * pos)
+int CounterGrpList::SearchID(long id, int * pos)
 {
 	for(int i = 0, ng = GetNumGroups(); i < ng; i++)
 		for(int j = 0, p = GetGroup(i); j < ptr[p]; j++)
@@ -1067,7 +1067,7 @@ int SLAPI CounterGrpList::SearchID(long id, int * pos)
 	return -1;
 }
 
-int SLAPI CounterGrpList::Load()
+int CounterGrpList::Load()
 {
 	PPID   p = 0;
 	CntGrpCluster clu;
@@ -1096,7 +1096,7 @@ struct PPOprKind_Before301 {
 	long   AccSheet;         // Связанная таблица аналитических статей
 };
 
-int SLAPI Convert301()
+int Convert301()
 {
 	int    ok = 1, ta = 0;
 	PPObjOprKind opobj;
@@ -1192,7 +1192,7 @@ int SLAPI Convert301()
 //
 class PPCvtSJ329 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new SysJournalTbl;
 		if(!p_tbl)
@@ -1203,7 +1203,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
 		struct OldSjRec {
 			LDATE   Dt;
@@ -1238,7 +1238,7 @@ CONVERT_PROC(Convert329, PPCvtSJ329);
 //
 class PPCvtRegister3512 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new RegisterTbl;
 		if(!p_tbl)
@@ -1249,7 +1249,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		pTbl->clearDataBuf();
 		RegisterTbl::Rec tmp_buf;
@@ -1285,7 +1285,7 @@ CONVERT_PROC(Convert3512, PPCvtRegister3512);
 //
 class PPCvtCCheck372 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new CCheckTbl;
 		if(!p_tbl)
@@ -1296,7 +1296,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		const struct OldCCheckRec {
 			long    ID;
@@ -1334,7 +1334,7 @@ CONVERT_PROC(Convert372, PPCvtCCheck372);
 //
 class PPCvtAccount400 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new AccountTbl;
 		if(!p_tbl)
@@ -1345,7 +1345,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		const struct OldAccRec {
 			long    ID;
@@ -1398,7 +1398,7 @@ CONVERT_PROC(Convert400, PPCvtAccount400);
 //
 class PPCvtObjTag31102 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new ObjTagTbl;
 		if(!p_tbl)
@@ -1410,7 +1410,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		ObjTagTbl::Rec * p_data = static_cast<ObjTagTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(ObjTagTbl::Rec));
@@ -1424,7 +1424,7 @@ CONVERT_PROC(Convert31102, PPCvtObjTag31102);
 //
 class PPCvtCCheck31110 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new CCheckTbl;
 		if(!p_tbl)
@@ -1443,7 +1443,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		CCheckTbl::Rec * p_data = static_cast<CCheckTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(CCheckTbl::Rec));
@@ -1459,7 +1459,7 @@ CONVERT_PROC(Convert31110, PPCvtCCheck31110);
 //
 class PPCvtBill4108 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new BillTbl;
 		if(!tbl)
@@ -1473,7 +1473,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct OldBillRec { // Size = 76+160
 			long   ID;       // Ид. документа
@@ -1523,11 +1523,11 @@ public:
 
 class PPCvtCCheckLine4108 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtCCheckLine4108::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtCCheckLine4108::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new CCheckLineTbl;
 	if(!p_tbl)
@@ -1542,7 +1542,7 @@ DBTable * SLAPI PPCvtCCheckLine4108::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtCCheckLine4108::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtCCheckLine4108::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldCCheckLineRec {
 		long   CheckID;      // -> CCheck.ID
@@ -1572,7 +1572,7 @@ int SLAPI PPCvtCCheckLine4108::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 //
 class PPCvtSCardOp4108 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new SCardOpTbl;
 		if(!p_tbl)
@@ -1586,7 +1586,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		SCardOpTbl::Rec * p_data = static_cast<SCardOpTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(SCardOpTbl::Rec));
@@ -1594,7 +1594,7 @@ public:
 	}
 };
 
-int SLAPI Convert4108()
+int Convert4108()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -1621,7 +1621,7 @@ int SLAPI Convert4108()
 #if 0 // @v6.2.2 Moved to PPCvtAdvBillItem6202 {
 class PPCvtAdvBillItem4208 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new AdvBillItemTbl;
 		if(!p_tbl)
@@ -1638,7 +1638,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		AdvBillItemTbl::Rec * p_data = (AdvBillItemTbl::Rec*)pNewTbl->getDataBuf();
 		pNewTbl->clearDataBuf();
@@ -1656,11 +1656,11 @@ CONVERT_PROC(Convert4208, PPCvtAdvBillItem4208);
 //
 class PPCvtVatBook4402 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new VATBookTbl;
 	if(!p_tbl)
@@ -1678,7 +1678,7 @@ DBTable * SLAPI PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtVatBook4402::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtVatBook4402::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldRec {
 		long    ID;
@@ -1741,11 +1741,11 @@ CONVERT_PROC(Convert4402, PPCvtVatBook4402);
 
 class PPCvtGoods4405 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtGoods4405::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtGoods4405::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new Goods2Tbl;
 	if(!p_tbl)
@@ -1758,7 +1758,7 @@ DBTable * SLAPI PPCvtGoods4405::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtGoods4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtGoods4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldRec {
 		long    ID;
@@ -1804,7 +1804,7 @@ int SLAPI PPCvtGoods4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRe
 
 class PPCvtQCert4405 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new QualityCertTbl;
 		if(!p_tbl)
@@ -1816,7 +1816,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		QualityCertTbl::Rec * p_data = static_cast<QualityCertTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(QualityCertTbl::Rec));
@@ -1828,13 +1828,13 @@ public:
 //
 class PPCvtPriceLine4405 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 private:
 	int    _pre380format;
 };
 
-DBTable * SLAPI PPCvtPriceLine4405::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtPriceLine4405::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new PriceLineTbl;
 	if(!p_tbl)
@@ -1851,7 +1851,7 @@ DBTable * SLAPI PPCvtPriceLine4405::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtPriceLine4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtPriceLine4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldPriceLineRec1 {
 		long    ListID;
@@ -1939,7 +1939,7 @@ int SLAPI PPCvtPriceLine4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pN
 //
 class PPCvtRegister4405 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new RegisterTbl;
 		if(!p_tbl)
@@ -1956,7 +1956,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		pTbl->clearDataBuf();
 		SString temp_buf;
@@ -1991,7 +1991,7 @@ public:
 	}
 };
 
-int SLAPI Convert4405()
+int Convert4405()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -2021,11 +2021,11 @@ int SLAPI Convert4405()
 //
 class PPCvtHistBill4515 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtHistBill4515::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtHistBill4515::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new HistBillTbl;
 	if(!p_tbl)
@@ -2037,7 +2037,7 @@ DBTable * SLAPI PPCvtHistBill4515::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtHistBill4515::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtHistBill4515::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldRec {
 		long   ID;
@@ -2089,7 +2089,7 @@ CONVERT_PROC(Convert4515, PPCvtHistBill4515);
 //
 class PPCvtReceipt477 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new ReceiptTbl;
 		if(!tbl)
@@ -2100,7 +2100,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
 		struct OldRec {
 			long    ID;
@@ -2154,7 +2154,7 @@ public:
 	}
 };
 
-int SLAPI Convert4707()
+int Convert4707()
 {
 	int    ok = 1, is_billobj_existed = 0;
 	PPWait(1);
@@ -2175,7 +2175,7 @@ int SLAPI Convert4707()
 // AHTOXA {
 class PPPriceList4802 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new PriceListTbl;
 		if(!p_tbl)
@@ -2188,7 +2188,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		PriceListTbl::Rec * p_data = static_cast<PriceListTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(PriceListTbl::Rec));
@@ -2203,7 +2203,7 @@ CONVERT_PROC(Convert4802, PPPriceList4802);
 
 class PPCvtDlsObj4805 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new DlsObjTbl;
 		if(!tbl)
@@ -2214,7 +2214,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
 	{
 		struct OldRec {
 			long    DlsID;
@@ -2241,7 +2241,7 @@ CONVERT_PROC(Convert4805, PPCvtDlsObj4805);
 //
 class PPCvtBill4911 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new BillTbl;
 		if(!tbl)
@@ -2252,7 +2252,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct OldBillRec { // Size = 76+160
 			long   ID;       // Ид. документа
@@ -2300,7 +2300,7 @@ public:
 
 class PPCvtPayPlan4911 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new PayPlanTbl;
 		if(!tbl)
@@ -2311,7 +2311,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct OldPayPlanRec { // Size=16
 			long   BillID;      // Ид. документа ->Bill.ID
@@ -2331,11 +2331,11 @@ public:
 
 class PPCvtTransfer4911 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion);
-	virtual int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
+	virtual DBTable * CreateTableInstance(int * needConversion);
+	virtual int ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtTransfer4911::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtTransfer4911::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * tbl = new TransferTbl;
 	if(!tbl)
@@ -2347,7 +2347,7 @@ DBTable * SLAPI PPCvtTransfer4911::CreateTableInstance(int * pNeedConversion)
 	return tbl;
 }
 
-int SLAPI PPCvtTransfer4911::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+int PPCvtTransfer4911::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
 	struct OldTransferRec { // Size = 88
 		long   Location;    // Позиция                   ->Location.ID
@@ -2398,7 +2398,7 @@ int SLAPI PPCvtTransfer4911::ConvertRec(DBTable * tbl, void * rec, int * pNewRec
 
 class PPCvtCpTransf4911 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new CpTransfTbl;
 		if(!tbl)
@@ -2410,7 +2410,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		CpTransfTbl::Rec * data = static_cast<CpTransfTbl::Rec *>(tbl->getDataBuf());
 		memcpy(data, rec, sizeof(CpTransfTbl::Rec));
@@ -2420,7 +2420,7 @@ public:
 
 class PPCvtTSession4911 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new TSessionTbl;
 		if(!tbl)
@@ -2444,7 +2444,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		TSessionTbl::Rec * p_data = (TSessionTbl::Rec *)tbl->getDataBuf();
 		tbl->clearDataBuf();
@@ -2459,11 +2459,11 @@ public:
 
 class PPCvtCGoodsLine4911 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion);
-	virtual int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
+	virtual DBTable * CreateTableInstance(int * needConversion);
+	virtual int ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtCGoodsLine4911::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtCGoodsLine4911::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * tbl = new CGoodsLineTbl;
 	if(!tbl)
@@ -2481,7 +2481,7 @@ DBTable * SLAPI PPCvtCGoodsLine4911::CreateTableInstance(int * pNeedConversion)
 	return tbl;
 }
 
-int SLAPI PPCvtCGoodsLine4911::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+int PPCvtCGoodsLine4911::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
 	struct OldCGoodsLineRec { //
 		LDATE  Dt;
@@ -2519,7 +2519,7 @@ static CONVERT_PROC(_ConvertTransfer4911,   PPCvtTransfer4911);
 static CONVERT_PROC(_ConvertCpTransf4911,   PPCvtCpTransf4911);
 static CONVERT_PROC(_ConvertTSession4911,   PPCvtTSession4911);
 
-int SLAPI Convert4911()
+int Convert4911()
 {
 	return (_ConvertBill4911() && _ConvertPayPlan4911() && _ConvertCpTransf4911() &&
 		_ConvertTransfer4911() && _ConvertTSession4911() /*&& _ConvertCGoodsLine4911()*/);
@@ -2530,7 +2530,7 @@ int SLAPI Convert4911()
 #if 0 // @v6.2.2 Moved to PPCvtPrjTask6202 {
 class PPCvtPrjTask5006 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new PrjTaskTbl;
 		if(!tbl)
@@ -2542,7 +2542,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		PrjTaskTbl::Rec * p_data = (PrjTaskTbl::Rec *)tbl->getDataBuf();
 		tbl->clearDataBuf();
@@ -2559,7 +2559,7 @@ CONVERT_PROC(Convert5006, PPCvtPrjTask5006);
 // @v5.0.9 AHTOXA {
 class PPCvtInventory5009 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new InventoryTbl;
 		if(!tbl)
@@ -2571,7 +2571,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * pRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * pRec, int * pNewRecLen)
 	{
 		const struct OldRec { // size=92
 			long   BillID;
@@ -2624,7 +2624,7 @@ CONVERT_PROC(Convert5009, PPCvtInventory5009);
 //
 class PPCvtGoodsExt5109 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new GoodsExtTbl;
 		if(!p_tbl)
@@ -2636,7 +2636,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		GoodsExtTbl::Rec * data = (GoodsExtTbl::Rec*)tbl->getDataBuf();
 		memcpy(data, rec, sizeof(GoodsExtTbl::Rec));
@@ -2649,7 +2649,7 @@ class PPCvtGoods5200 : public PPTableConversion {
 public:
 	int    RecSizeChanged;
 
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		RecSizeChanged = 0;
 		DBTable * p_tbl = new Goods2Tbl;
@@ -2671,7 +2671,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * pNewRecLen)
 	{
 		Goods2Tbl::Rec * p_data = static_cast<Goods2Tbl::Rec *>(pTbl->getDataBuf());
 		if(RecSizeChanged) {
@@ -2720,7 +2720,7 @@ public:
 
 //CONVERT_PROC(Convert5109, PPCvtGoodsExt5109);
 
-int SLAPI Convert5200()
+int Convert5200()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -2742,13 +2742,13 @@ int SLAPI Convert5200()
 //
 class PPCvtCCheckLine5207 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 private:
 	int    ver;
 };
 
-DBTable * SLAPI PPCvtCCheckLine5207::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtCCheckLine5207::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new CCheckLineTbl;
 	if(!p_tbl)
@@ -2768,7 +2768,7 @@ DBTable * SLAPI PPCvtCCheckLine5207::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldCCheckLineRec {
 		long   CheckID;      // -> CCheck.ID
@@ -2819,7 +2819,7 @@ int SLAPI PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*p
 
 class PPCvtLocation5207 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new LocationTbl;
 		if(!p_tbl)
@@ -2831,7 +2831,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		const struct OldLocationRec {
 			long   ID;
@@ -2870,7 +2870,7 @@ public:
 
 #endif // } 0 @v6.2.2 Moved to PPCvtLocation6202
 
-int SLAPI Convert5207()
+int Convert5207()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -2905,11 +2905,11 @@ int SLAPI Convert5207()
 
 class PPCvtBarcode5305 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtBarcode5305::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtBarcode5305::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new BarcodeTbl;
 	if(!p_tbl)
@@ -2922,7 +2922,7 @@ DBTable * SLAPI PPCvtBarcode5305::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtBarcode5305::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtBarcode5305::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldBarcodeRec {
 		long   GoodsID;     // Ид товара
@@ -2945,7 +2945,7 @@ int SLAPI PPCvtBarcode5305::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNew
 //
 class PPCvtStaffPost5501 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new PersonPostTbl;
 		if(!p_tbl)
@@ -2956,7 +2956,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * newTbl, void * pRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * newTbl, void * pRec, int * pNewRecLen)
 	{
 		const struct OldRec {
 			long    ID;
@@ -2983,7 +2983,7 @@ public:
 
 class PPCvtStaffCal5501 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new StaffCalendarTbl;
 		if(!p_tbl)
@@ -2996,7 +2996,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * pNewRecLen)
 	{
 		StaffCalendarTbl::Rec * p_data = static_cast<StaffCalendarTbl::Rec *>(pTbl->getDataBuf());
 		memcpy(p_data, pRec, sizeof(StaffCalendarTbl::Rec));
@@ -3004,7 +3004,7 @@ public:
 	}
 };
 
-int SLAPI Convert5501()
+int Convert5501()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -3030,11 +3030,11 @@ int SLAPI Convert5501()
 
 class PPCvtProperty5506 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * needConversion);
-	int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * needConversion);
+	int ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtProperty5506::CreateTableInstance(int * needConversion)
+DBTable * PPCvtProperty5506::CreateTableInstance(int * needConversion)
 {
 	struct __PPCustDisp {     // @v4.7.6
 		PPID   Tag;           // Const = PPOBJ_CASHNODE
@@ -3106,12 +3106,12 @@ DBTable * SLAPI PPCvtProperty5506::CreateTableInstance(int * needConversion)
 	return 0;
 }
 
-int SLAPI PPCvtProperty5506::ConvertRec(DBTable * /*tbl*/, void * /*rec*/, int * /*pNewRecLen*/)
+int PPCvtProperty5506::ConvertRec(DBTable * /*tbl*/, void * /*rec*/, int * /*pNewRecLen*/)
 {
 	return -1;
 }
 
-int SLAPI Convert5506()
+int Convert5506()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -3130,7 +3130,7 @@ int SLAPI Convert5506()
 
 class PPCvtWorld5512 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new WorldTbl;
 		if(!tbl)
@@ -3152,7 +3152,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		WorldTbl::Rec * p_data = (WorldTbl::Rec *)tbl->getDataBuf();
 		tbl->clearDataBuf();
@@ -3170,7 +3170,7 @@ CONVERT_PROC(Convert5512, PPCvtWorld5512);
 //
 class PPCvtObjSync5608 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new ObjSyncTbl;
 		if(!tbl)
@@ -3184,7 +3184,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct OldObjSyncRec {
 			int32  ObjType;
@@ -3634,7 +3634,7 @@ IMPL_REF2CVT_FUNC(PPDraftCreateRule) // {
 
 #define CONVERT_REF2_OBJ(obj, rec) case obj: ConvertRef(*reinterpret_cast<const rec##_ *>(&ref.data), *reinterpret_cast<rec##2 *>(&ref2.data)); break
 
-static int SLAPI ConvertRef2()
+static int ConvertRef2()
 {
 	int    ok = 1, ta = 0, r;
 	RECORDNUMBER numrec2 = 0;
@@ -3738,13 +3738,13 @@ public:
 	PPCvtCGoodsLine5810() : PPTableConversion(), C4911(-1)
 	{
 	}
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion);
-	virtual int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
+	virtual DBTable * CreateTableInstance(int * needConversion);
+	virtual int ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
 private:
 	int    C4911; // Если !0, то исходный файл находится в состоянии, предшествующем v4.9.11
 };
 
-DBTable * SLAPI PPCvtCGoodsLine5810::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtCGoodsLine5810::CreateTableInstance(int * pNeedConversion)
 {
 	if(C4911 < 0)
 		C4911 = 0;
@@ -3763,7 +3763,7 @@ DBTable * SLAPI PPCvtCGoodsLine5810::CreateTableInstance(int * pNeedConversion)
 	return tbl;
 }
 
-int SLAPI PPCvtCGoodsLine5810::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+int PPCvtCGoodsLine5810::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
 	const struct OldCGoodsLineRec4911 { //
 		LDATE  Dt;
@@ -3824,11 +3824,11 @@ int SLAPI PPCvtCGoodsLine5810::ConvertRec(DBTable * tbl, void * rec, int * pNewR
 
 class PPCvtBankAccount5810 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion);
-	virtual int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
+	virtual DBTable * CreateTableInstance(int * needConversion);
+	virtual int ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtBankAccount5810::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtBankAccount5810::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * tbl = new BankAccount_Pre9004Tbl;
 	if(!tbl)
@@ -3840,7 +3840,7 @@ DBTable * SLAPI PPCvtBankAccount5810::CreateTableInstance(int * pNeedConversion)
 	return tbl;
 }
 
-int SLAPI PPCvtBankAccount5810::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+int PPCvtBankAccount5810::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
 	const struct OldBankAccountRec {
 		long   ID;
@@ -3869,7 +3869,7 @@ int SLAPI PPCvtBankAccount5810::ConvertRec(DBTable * tbl, void * rec, int * pNew
 	return 1;
 }
 
-int SLAPI Convert5810()
+int Convert5810()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -3889,11 +3889,11 @@ int SLAPI Convert5810()
 
 class PPCvtSpecSeries6109 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * needConversion);
-	virtual int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
+	virtual DBTable * CreateTableInstance(int * needConversion);
+	virtual int ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtSpecSeries6109::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtSpecSeries6109::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * tbl = new SpecSeriesTbl;
 	if(!tbl)
@@ -3905,7 +3905,7 @@ DBTable * SLAPI PPCvtSpecSeries6109::CreateTableInstance(int * pNeedConversion)
 	return tbl;
 }
 
-int SLAPI PPCvtSpecSeries6109::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+int PPCvtSpecSeries6109::ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 {
 	const struct OldSpecSeriesRec {
 		char   Serial[24];
@@ -3933,7 +3933,7 @@ int SLAPI PPCvtSpecSeries6109::ConvertRec(DBTable * tbl, void * rec, int * pNewR
 }
 
 /* Moved to Convert6202
-int SLAPI Convert6109()
+int Convert6109()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -3951,7 +3951,7 @@ int SLAPI Convert6109()
 //
 class PPCvtObjAssoc6202 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new ObjAssocTbl;
 		if(!tbl)
@@ -3963,7 +3963,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		ObjAssocTbl::Rec * p_data = static_cast<ObjAssocTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(ObjAssocTbl::Rec));
@@ -3973,7 +3973,7 @@ public:
 
 class PPCvtObjProp6202 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		int    ta = 0;
 		Reference * p_ref = 0;
@@ -4053,7 +4053,7 @@ public:
 		delete p_ref;
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		{
 			//
@@ -4104,7 +4104,7 @@ public:
 	};
 	int    Before5207;
 
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new LocationTbl;
 		if(!tbl)
@@ -4128,7 +4128,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
 		pNewTbl->clearDataBuf();
@@ -4206,7 +4206,7 @@ public:
 		char   ZIP[12];
 		uint8  Reserve[12];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new WorldTbl;
 		if(!tbl)
@@ -4218,7 +4218,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		WorldTbl::Rec * p_data = static_cast<WorldTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4254,7 +4254,7 @@ public:
 		long   CatID;
 		char   Memo[128];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new PersonTbl;
 		if(!tbl)
@@ -4266,7 +4266,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		PersonTbl::Rec * p_data = static_cast<PersonTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4294,7 +4294,7 @@ public:
 		long   PersonID;
 		char   Name[128];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new PersonKindTbl;
 		if(!tbl)
@@ -4306,7 +4306,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		PersonKindTbl::Rec * p_data = static_cast<PersonKindTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4333,7 +4333,7 @@ public:
 		long   Flags;
 		uint8  Reserve2[8];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new ArticleTbl;
 		if(!tbl)
@@ -4345,7 +4345,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		ArticleTbl::Rec * p_data = static_cast<ArticleTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4386,7 +4386,7 @@ struct Goods2_Before6202 {
 	long   Reserve;
 };
 
-static int SLAPI GetTransport_Before6202(PPID id, const Goods2_Before6202 * pOldRec, PPTransport * pRec)
+static int GetTransport_Before6202(PPID id, const Goods2_Before6202 * pOldRec, PPTransport * pRec)
 {
 	struct __TranspD {
 		PPID   TrModelID;       // ИД модели транспортного средства
@@ -4436,7 +4436,7 @@ public:
 	PPCvtGoods6202() : PPTableConversion(), Before4405(0)
 	{
 	}
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		Before4405 = 0;
 		GoodsCore * p_tbl = new GoodsCore;
@@ -4458,11 +4458,11 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual void SLAPI DestroyTable(DBTable * pTbl)
+	virtual void DestroyTable(DBTable * pTbl)
 	{
 		delete (GoodsCore *)pTbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pTbl, void * pOldRec, int * pNewRecLen)
 	{
 		int    ok = 1;
 #define FLD_ASSIGN(f) p_data->f = p_old_rec->f
@@ -4545,7 +4545,7 @@ public:
 		uint8  Reserve[36];
 		char   Memo[128];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new AdvBillItemTbl;
 		if(!p_tbl)
@@ -4557,7 +4557,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		AdvBillItemTbl::Rec * p_data = static_cast<AdvBillItemTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4621,7 +4621,7 @@ public:
 		char   Descr[224];
 		char   Memo[128];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new PrjTaskTbl;
 		if(!p_tbl)
@@ -4633,7 +4633,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		PrjTaskTbl::Rec * p_data = static_cast<PrjTaskTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4696,7 +4696,7 @@ public:
 		char   Descr[224];
 		char   Memo[128];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new ProjectTbl;
 		if(!p_tbl)
@@ -4708,7 +4708,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		ProjectTbl::Rec * p_data = static_cast<ProjectTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4757,7 +4757,7 @@ public:
 		long   RedirID;
 		char   ObjName[64];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new ObjSyncQueueTbl;
 		if(!p_tbl)
@@ -4769,7 +4769,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		ObjSyncQueueTbl::Rec * p_data = static_cast<ObjSyncQueueTbl::Rec *>(pNewTbl->getDataBuf());
@@ -4795,7 +4795,7 @@ public:
 	}
 };
 
-int SLAPI Convert6202()
+int Convert6202()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -4860,7 +4860,7 @@ int SLAPI Convert6202()
 //
 class PPCvtSalary6303 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * tbl = new SalaryTbl;
 		if(!tbl)
@@ -4876,7 +4876,7 @@ public:
 		}
 		return tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		SalaryTbl::Rec * p_data = static_cast<SalaryTbl::Rec *>(tbl->getDataBuf());
 		tbl->clearDataBuf();
@@ -4897,7 +4897,7 @@ public:
 	PPCvtInventory6407() : PPTableConversion(), Before5009(0)
 	{
 	}
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new InventoryTbl;
 		if(!p_tbl)
@@ -4920,7 +4920,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * pRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * pRec, int * pNewRecLen)
 	{
 		InventoryTbl::Rec * p_rec = static_cast<InventoryTbl::Rec *>(tbl->getDataBuf());
 		tbl->clearDataBuf();
@@ -5005,11 +5005,11 @@ public:
 	}
 };
 
-int SLAPI ConvertBillExtRec_6407(PropertyTbl::Rec * pRec); // @prototype @defined(bill.cpp)
+int ConvertBillExtRec_6407(PropertyTbl::Rec * pRec); // @prototype @defined(bill.cpp)
 
 class PPCvtProperty6407 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		//
 		// Конвертируем записи PropertyTbl с координатами:
@@ -5037,7 +5037,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		int    ok = 1;
 		PropertyTbl * p_tbl = static_cast<PropertyTbl *>(pNewTbl);
@@ -5065,7 +5065,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Final(DBTable * pNewTbl)
+	virtual int Final(DBTable * pNewTbl)
 	{
 		int    ok = -1;
 		if(pNewTbl) {
@@ -5080,7 +5080,7 @@ public:
 	}
 };
 
-int SLAPI Convert6407()
+int Convert6407()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -5100,7 +5100,7 @@ int SLAPI Convert6407()
 //
 //
 class PPCvtCurRest6611 : public PPTableConversion {
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		CurRestTbl * p_tbl = new CurRestTbl;
 		if(!p_tbl)
@@ -5112,7 +5112,7 @@ class PPCvtCurRest6611 : public PPTableConversion {
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		CurRestTbl::Rec * p_data = static_cast<CurRestTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(CurRestTbl::Rec));
@@ -5135,7 +5135,7 @@ class PPCvtCCheckExt6708 : public PPTableConversion {
 		int16  GuestCount;
 		uint8  Reserve[2];
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		CCheckExtTbl * p_tbl = new CCheckExtTbl;
 		if(!p_tbl)
@@ -5149,7 +5149,7 @@ class PPCvtCCheckExt6708 : public PPTableConversion {
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		CCheckExtTbl::Rec * p_data = (CCheckExtTbl::Rec *)pNewTbl->getDataBuf();
 		CCheckExt_Before6708 * p_old_rec = (CCheckExt_Before6708 *)pOldRec;
@@ -5173,7 +5173,7 @@ CONVERT_PROC(Convert6708, PPCvtCCheckExt6708);
 //
 //
 //
-int SLAPI ConvertQuot720()
+int ConvertQuot720()
 {
 	int    ok = 1;
 	IterCounter cntr;
@@ -5221,7 +5221,7 @@ int SLAPI ConvertQuot720()
 
 class PPCvtVatBook7208 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new VATBookTbl;
 		if(!p_tbl)
@@ -5234,7 +5234,7 @@ public:
 		}
 		return p_tbl;
 	}
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		VATBookTbl::Rec * p_data = (VATBookTbl::Rec*)pNewTbl->getDataBuf();
 		memcpy(p_data, pOldRec, sizeof(VATBookTbl::Rec));
@@ -5252,7 +5252,7 @@ CONVERT_PROC(Convert7208, PPCvtVatBook7208);
 //
 //
 class PPCvtQuot2Rel7305 : public PPTableConversion {
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		Quot2RelTbl * p_tbl = new Quot2RelTbl;
 		if(!p_tbl)
@@ -5267,7 +5267,7 @@ class PPCvtQuot2Rel7305 : public PPTableConversion {
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		Quot2RelTbl::Rec * p_data = static_cast<Quot2RelTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(Quot2RelTbl::Rec));
@@ -5276,7 +5276,7 @@ class PPCvtQuot2Rel7305 : public PPTableConversion {
 };
 
 class PPCvtObjTag7305 : public PPTableConversion {
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		ObjTagTbl * p_tbl = new ObjTagTbl;
 		if(!p_tbl)
@@ -5290,7 +5290,7 @@ class PPCvtObjTag7305 : public PPTableConversion {
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		ObjTagTbl::Rec * p_data = static_cast<ObjTagTbl::Rec *>(pNewTbl->getDataBuf());
 		ObjTagTbl::Rec * p_old_rec = static_cast<ObjTagTbl::Rec *>(pOldRec);
@@ -5308,7 +5308,7 @@ class PPCvtObjTag7305 : public PPTableConversion {
 	}
 };
 
-int SLAPI Convert7305()
+int Convert7305()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -5333,7 +5333,7 @@ public:
 	PPCvtVatBook7311() : PPTableConversion(), Pre7208(0)
 	{
 	}
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new VATBookTbl;
 		if(!p_tbl)
@@ -5357,7 +5357,7 @@ public:
 		}
 		return p_tbl;
 	}
-	int SLAPI PPCvtVatBook7311::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	int PPCvtVatBook7311::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		const struct OldRec {
 			int32  ID;
@@ -5436,7 +5436,7 @@ CONVERT_PROC(Convert7311, PPCvtVatBook7311);
 //
 //
 class PPCvtTech7506 : public PPTableConversion {
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		TechTbl * p_tbl = new TechTbl;
 		if(!p_tbl)
@@ -5449,7 +5449,7 @@ class PPCvtTech7506 : public PPTableConversion {
 		OrderN_Counter = 0;
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		TechTbl::Rec * p_data = static_cast<TechTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(TechTbl::Rec));
@@ -5498,7 +5498,7 @@ private:
 		LDATETIME EndOrdDtm;
 		char   Memo[256];  // note
 	};
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		CCheckExtTbl * p_tbl = new CCheckExtTbl;
 		if(!p_tbl)
@@ -5520,7 +5520,7 @@ private:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		CCheckExtTbl::Rec * p_data = static_cast<CCheckExtTbl::Rec *>(pNewTbl->getDataBuf());
 		CCheckExt_Before6708 * p_old_rec_6708 = static_cast<CCheckExt_Before6708 *>(pOldRec);
@@ -5587,7 +5587,7 @@ CONVERT_PROC(Convert7601, PPCvtCCheckExt7601);
 #if 0 // @v9.4.0 перенесено в PPCvtSCard9400 {
 
 class PPCvtSCard7702 : public PPTableConversion {
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		SCardTbl * p_tbl = new SCardTbl;
 		if(!p_tbl)
@@ -5604,7 +5604,7 @@ class PPCvtSCard7702 : public PPTableConversion {
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		struct SCard_Before7702 {  // size=104
 			long   ID;
@@ -5656,7 +5656,7 @@ CONVERT_PROC(Convert7702, PPCvtSCard7702);
 //
 class PPCvtSJ7708 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new SysJournalTbl;
 		if(!p_tbl)
@@ -5669,7 +5669,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		SysJournalTbl::Rec * p_data = static_cast<SysJournalTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(*p_data));
@@ -5679,7 +5679,7 @@ public:
 
 class PPCvtSJR7708 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new SjRsrvTbl;
 		if(!p_tbl)
@@ -5692,7 +5692,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		SjRsrvTbl::Rec * p_data = static_cast<SjRsrvTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(*p_data));
@@ -5700,7 +5700,7 @@ public:
 	}
 };
 
-int SLAPI Convert7708()
+int Convert7708()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -5721,7 +5721,7 @@ int SLAPI Convert7708()
 //
 class PPCvtSCardOp7712 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new SCardOpTbl;
 		if(!p_tbl)
@@ -5732,7 +5732,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		struct SCardOpRec_Before7712 { // size=48
 			long   SCardID;
@@ -5773,7 +5773,7 @@ public:
 
 class PPCvtCSession7712 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new CSessionTbl;
 		if(!p_tbl)
@@ -5785,7 +5785,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		CSessionTbl::Rec * p_data = static_cast<CSessionTbl::Rec *>(pNewTbl->getDataBuf());
 		memcpy(p_data, pOldRec, sizeof(*p_data));
@@ -5793,7 +5793,7 @@ public:
 	}
 };
 
-int SLAPI Convert7712()
+int Convert7712()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -5813,7 +5813,7 @@ int SLAPI Convert7712()
 //
 class PPCvtChkOpJrnl : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new CheckOpJrnlTbl;
 		if(!p_tbl)
@@ -5824,7 +5824,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		struct CheckOpJrnlRec_Before7909 {
 			LDATE  Dt;
@@ -5859,7 +5859,7 @@ public:
 };
 
 //@vmiller
-int SLAPI Convert7907()
+int Convert7907()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -5890,15 +5890,15 @@ struct PPWorkbook { // @size=sizeof(Reference2Tbl::Rec)
 
 class PPWorkbookPacket_Pre813 {
 public:
-	SLAPI PPWorkbookPacket_Pre813()
+	PPWorkbookPacket_Pre813()
 	{
 		destroy();
 	}
-	SLAPI ~PPWorkbookPacket_Pre813()
+	~PPWorkbookPacket_Pre813()
 	{
 		destroy();
 	}
-	void SLAPI destroy()
+	void destroy()
 	{
 		MEMSZERO(Rec);
 		TagL.Destroy();
@@ -5912,21 +5912,21 @@ public:
 
 class PPObjWorkbook_Pre813 : public PPObjReference {
 public:
-	explicit SLAPI PPObjWorkbook_Pre813(void * extraPtr = 0) : PPObjReference(PPOBJ_WORKBOOK_PRE813, extraPtr)
+	explicit PPObjWorkbook_Pre813(void * extraPtr = 0) : PPObjReference(PPOBJ_WORKBOOK_PRE813, extraPtr)
 	{
 		ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	}
-	int    SLAPI GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack);
-	int    SLAPI RemovePacket(PPID id, int use_ta);
+	int    GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack);
+	int    RemovePacket(PPID id, int use_ta);
 private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
-	int    SLAPI CheckParent(PPID itemID, PPID parentID);
-	int    SLAPI GetItemPath(PPID itemID, SString & rPath);
+	int    CheckParent(PPID itemID, PPID parentID);
+	int    GetItemPath(PPID itemID, SString & rPath);
 };
 
 IMPL_DESTROY_OBJ_PACK(PPObjWorkbook_Pre813, PPWorkbookPacket_Pre813);
 
-int SLAPI PPObjWorkbook_Pre813::RemovePacket(PPID id, int use_ta)
+int PPObjWorkbook_Pre813::RemovePacket(PPID id, int use_ta)
 {
 	int    ok = 1;
 	PPID   hid = 0;
@@ -5948,7 +5948,7 @@ int SLAPI PPObjWorkbook_Pre813::RemovePacket(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook_Pre813::GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack)
+int PPObjWorkbook_Pre813::GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack)
 {
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
@@ -5961,7 +5961,7 @@ int SLAPI PPObjWorkbook_Pre813::GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPa
 	return ok;
 }
 
-int SLAPI PPObjWorkbook_Pre813::CheckParent(PPID itemID, PPID parentID)
+int PPObjWorkbook_Pre813::CheckParent(PPID itemID, PPID parentID)
 {
 	int    ok = 1;
 	PPWorkbook rec;
@@ -5985,7 +5985,7 @@ int SLAPI PPObjWorkbook_Pre813::CheckParent(PPID itemID, PPID parentID)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook_Pre813::GetItemPath(PPID itemID, SString & rPath)
+int PPObjWorkbook_Pre813::GetItemPath(PPID itemID, SString & rPath)
 {
 	int   ok = 0;
 	PPWorkbook rec;
@@ -6005,7 +6005,7 @@ int SLAPI PPObjWorkbook_Pre813::GetItemPath(PPID itemID, SString & rPath)
 	return ok;
 }
 
-int SLAPI ConvertWorkbook813()
+int ConvertWorkbook813()
 {
 	int    ok = 1;
 	{
@@ -6072,7 +6072,7 @@ int SLAPI ConvertWorkbook813()
 #if 0 // @v8.3.6 Конвертация совмещена с PPCvtRegister8306 {
 class PPCvtRegister8203 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new RegisterTbl;
 		if(!p_tbl)
@@ -6084,7 +6084,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		RegisterTbl::Rec * p_data = (RegisterTbl::Rec*)pNewTbl->getDataBuf();
 		memcpy(p_data, pOldRec, sizeof(RegisterTbl::Rec));
@@ -6099,7 +6099,7 @@ CONVERT_PROC(Convert8203, PPCvtRegister8203);
 //
 class PPCvtRegister8306 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new RegisterTbl;
 		if(!p_tbl)
@@ -6112,7 +6112,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		struct RegisterTblRec_Before8306 {
 			long   ID;
@@ -6158,11 +6158,11 @@ CONVERT_PROC(Convert8306, PPCvtRegister8306);
 //
 class PPCvtBarcode8800 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtBarcode8800::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtBarcode8800::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new BarcodeTbl;
 	if(!p_tbl)
@@ -6174,7 +6174,7 @@ DBTable * SLAPI PPCvtBarcode8800::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtBarcode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtBarcode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldBarcodeRec {
 		long   GoodsID;
@@ -6195,11 +6195,11 @@ int SLAPI PPCvtBarcode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNew
 //
 class PPCvtArGoodsCode8800 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion);
-	int    SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
+	DBTable * CreateTableInstance(int * pNeedConversion);
+	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
 };
 
-DBTable * SLAPI PPCvtArGoodsCode8800::CreateTableInstance(int * pNeedConversion)
+DBTable * PPCvtArGoodsCode8800::CreateTableInstance(int * pNeedConversion)
 {
 	DBTable * p_tbl = new ArGoodsCodeTbl;
 	if(!p_tbl)
@@ -6211,7 +6211,7 @@ DBTable * SLAPI PPCvtArGoodsCode8800::CreateTableInstance(int * pNeedConversion)
 	return p_tbl;
 }
 
-int SLAPI PPCvtArGoodsCode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+int PPCvtArGoodsCode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 {
 	const struct OldArGoodsCodeRec {
 		long   GoodsID;
@@ -6228,7 +6228,7 @@ int SLAPI PPCvtArGoodsCode8800::ConvertRec(DBTable * pTbl, void * pRec, int * /*
 	return 1;
 }
 
-int SLAPI Convert8800()
+int Convert8800()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -6248,7 +6248,7 @@ int SLAPI Convert8800()
 //
 class PPCvtCpTransf8910 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new CpTransfTbl;
 		if(!p_tbl)
@@ -6259,7 +6259,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
 	{
 		struct CpTransfRec_Before8910 {
 			long   BillID;        // ->Bill.ID
@@ -6320,7 +6320,7 @@ CONVERT_PROC(Convert8910, PPCvtCpTransf8910);
 //
 #define STAFFLIST_EXCL_ID 1000000
 
-static int SLAPI ConvertStaffList9003()
+static int ConvertStaffList9003()
 {
 	int    ok = 1;
 	int    db_locked = 0;
@@ -6395,7 +6395,7 @@ static int SLAPI ConvertStaffList9003()
 }
 
 /*
-int SLAPI Convert9003()
+int Convert9003()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -6412,7 +6412,7 @@ int SLAPI Convert9003()
 #define ACCOUNT_EXCL_ID   1000000
 #define ACCOUNT_EXCL2_ID  1000001
 
-static int SLAPI ConvertAccount9004()
+static int ConvertAccount9004()
 {
 	int    ok = 1;
 	int    db_locked = 0;
@@ -6535,7 +6535,7 @@ static int SLAPI ConvertAccount9004()
 
 #define BANKACCOUNT_EXCL_ID 1000000
 
-static int SLAPI ConvertBankAccount9004()
+static int ConvertBankAccount9004()
 {
 	int    ok = 1;
 	int    db_locked = 0;
@@ -6615,7 +6615,7 @@ static int SLAPI ConvertBankAccount9004()
 
 class PPCvtCCheckPaym9004 : public PPTableConversion {
 public:
-	DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new CCheckPaymTbl;
 		if(!p_tbl)
@@ -6626,7 +6626,7 @@ public:
 		}
 		return p_tbl;
 	}
-	int    SLAPI ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	int    ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
 	{
 		const struct OldCCheckPaymRec {
 			long   CheckID;
@@ -6646,7 +6646,7 @@ public:
 	}
 };
 
-int SLAPI Convert9004()
+int Convert9004()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -6668,7 +6668,7 @@ int SLAPI Convert9004()
 //
 class PPCvtGoodsDebt9108 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new GoodsDebtTbl;
 		if(!p_tbl)
@@ -6679,7 +6679,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		struct GoodsDebtTblRec_Before9108 {
 			long   GoodsID;
@@ -6709,7 +6709,7 @@ CONVERT_PROC(Convert9108, PPCvtGoodsDebt9108);
 //
 class PPCvtEgaisProduct9214 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new EgaisProductTbl;
 		if(!p_tbl)
@@ -6720,7 +6720,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		struct EgaisProductTblRec_Before9214 {
 			long   ID;
@@ -6761,7 +6761,7 @@ public:
 	{
 	}
 private:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		SCardTbl * p_tbl = new SCardTbl;
 		if(!p_tbl)
@@ -6783,7 +6783,7 @@ private:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		struct SCard_Before7702 {  // size=104
 			long   ID;
@@ -6894,7 +6894,7 @@ CONVERT_PROC(Convert9400, PPCvtSCard9400);
 #if 0 // @v10.0.12 {
 class PPCvtLotExtCode9811 : public PPTableConversion {
 public:
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new LotExtCodeTbl;
 		if(!p_tbl)
@@ -6905,7 +6905,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		struct LotExtCodeRec_Before9811 {
 			long   LotID;
@@ -6921,7 +6921,7 @@ public:
 };
 #endif // } @v10.0.12
 
-int SLAPI Convert9811()
+int Convert9811()
 {
 	int    ok = 1;
 	SysJournal * p_sj = 0;
@@ -6975,7 +6975,7 @@ public:
 	PPCvtLotExtCode10012() : PPTableConversion(), Before9811(0)
 	{
 	}
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new LotExtCodeTbl;
 		if(!p_tbl)
@@ -6988,7 +6988,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
 		if(Before9811) {
@@ -7042,7 +7042,7 @@ public:
 	PPCvtLotExtCode10209() : PPTableConversion(), Before9811(0), Before10012(0)
 	{
 	}
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new LotExtCodeTbl;
 		if(!p_tbl)
@@ -7057,7 +7057,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
 	{
 		LotExtCodeTbl::Rec * p_data = static_cast<LotExtCodeTbl::Rec *>(pNewTbl->getDataBuf());
 		if(Before9811) {
@@ -7093,7 +7093,7 @@ CONVERT_PROC(Convert10209, PPCvtLotExtCode10209);
 //
 //
 //
-int SLAPI Convert10507()
+int Convert10507()
 {
 	struct Scale_Before10507 {  // size=128
 		long   Tag;
@@ -7269,7 +7269,7 @@ public:
 	{
 		ZDELETE(P_Ref);
 	}
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new PrjTaskTbl;
 		if(!p_tbl)
@@ -7292,7 +7292,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		int    ok = 1;
@@ -7450,7 +7450,7 @@ public:
 	{
 		delete P_Ref;
 	}
-	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
 		DBTable * p_tbl = new ProjectTbl;
 		if(!p_tbl)
@@ -7473,7 +7473,7 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		pNewTbl->clearDataBuf();
 		ProjectTbl::Rec * p_data = static_cast<ProjectTbl::Rec *>(pNewTbl->getDataBuf());
@@ -7549,7 +7549,7 @@ public:
 	}
 };
 
-int SLAPI Convert10702()
+int Convert10702()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -7567,7 +7567,7 @@ int SLAPI Convert10702()
 }
 
 //@erik v10.7.3 {
-int SLAPI Convert10703()
+int Convert10703()
 {
 	int    ok = 1;
 	// @v10.7.5 PPWait(1);

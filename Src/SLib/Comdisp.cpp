@@ -9,17 +9,17 @@
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI ComDispInterface::ComDispInterface() : P_ParamsAry(0), P_Disp(0), HRes(S_OK)
+ComDispInterface::ComDispInterface() : P_ParamsAry(0), P_Disp(0), HRes(S_OK)
 {
 }
 
-SLAPI ComDispInterface::~ComDispInterface()
+ComDispInterface::~ComDispInterface()
 {
 	CALLPTRMEMB(P_Disp, Release());
 	ClearParams();
 }
 
-int SLAPI ComDispInterface::Init(const char * pProgID, int inProcServer /*=1*/)
+int ComDispInterface::Init(const char * pProgID, int inProcServer /*=1*/)
 {
 	ProgIdent = pProgID;
 	int    ok = 1;
@@ -38,7 +38,7 @@ int SLAPI ComDispInterface::Init(const char * pProgID, int inProcServer /*=1*/)
 	return ok;
 }
 
-int SLAPI ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
+int ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
 {
 	ProgIdent.Z();
 
@@ -55,7 +55,7 @@ int SLAPI ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
 	return ok;
 }
 
-/*virtual*/int SLAPI ComDispInterface::Init(IDispatch * pIDisp)
+/*virtual*/int ComDispInterface::Init(IDispatch * pIDisp)
 {
 	ProgIdent.Z();
 	DispIDAry.clear();
@@ -63,7 +63,7 @@ int SLAPI ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
 	return 1;
 }
 
-int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
+int ComDispInterface::AssignIDByName(const char * pName, long nameID)
 {
 	int    ok = 1;
 	size_t wname_len = 0;
@@ -102,7 +102,7 @@ const DispIDEntry * FASTCALL ComDispInterface::GetDispIDEntry(long entryId) cons
 	return DispIDAry.lsearch(&id, &pos, CMPF_LONG) ? &DispIDAry.at(pos) : 0;
 }
 
-int SLAPI ComDispInterface::GetNameByID(long id, SString & rName) const
+int ComDispInterface::GetNameByID(long id, SString & rName) const
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = GetDispIDEntry(id);
@@ -115,7 +115,7 @@ int SLAPI ComDispInterface::GetNameByID(long id, SString & rName) const
 	return ok;
 }
 
-int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, int sendParams)
+int ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, int sendParams)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -148,7 +148,7 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 	return ok;
 }
 
-int SLAPI ComDispInterface::GetProperty(long propertyID, bool * pBuf)
+int ComDispInterface::GetProperty(long propertyID, bool * pBuf)
 {
 	int   ok = 1;
 	VARIANTARG var_arg;
@@ -163,7 +163,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, bool * pBuf)
 	return ok;
 }
 
-int SLAPI ComDispInterface::GetProperty(long propertyID, int * pBuf)
+int ComDispInterface::GetProperty(long propertyID, int * pBuf)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -178,7 +178,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, int * pBuf)
 	return ok;
 }
 
-int SLAPI ComDispInterface::GetProperty(long propertyID, long * pBuf)
+int ComDispInterface::GetProperty(long propertyID, long * pBuf)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -193,7 +193,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, long * pBuf)
 	return ok;
 }
 
-int SLAPI ComDispInterface::GetProperty(long propertyID, double * pBuf)
+int ComDispInterface::GetProperty(long propertyID, double * pBuf)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -208,7 +208,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, double * pBuf)
 	return ok;
 }
 
-int SLAPI ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t bufLen)
+int ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	OLECHAR    wstr[MAXPATH];
@@ -229,7 +229,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, char * pBuf, size_t buf
 	return ok;
 }
 
-int SLAPI ComDispInterface::GetProperty(long propertyID, ComDispInterface * pDisp)
+int ComDispInterface::GetProperty(long propertyID, ComDispInterface * pDisp)
 {
 	int    ok = 1;
 	VARIANTARG var_arg;
@@ -243,7 +243,7 @@ int SLAPI ComDispInterface::GetProperty(long propertyID, ComDispInterface * pDis
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetPropertyByParams(long propertyID)
+int ComDispInterface::SetPropertyByParams(long propertyID)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -261,7 +261,7 @@ int SLAPI ComDispInterface::SetPropertyByParams(long propertyID)
 	return ok;
 }
 
-int SLAPI ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
+int ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -288,7 +288,7 @@ int SLAPI ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
 	return ok;
 }
 
-int SLAPI ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
+int ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
 {
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
@@ -314,7 +314,7 @@ int SLAPI ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetProperty(long propertyID, int iVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(long propertyID, int iVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG var_arg;
@@ -326,7 +326,7 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, int iVal, int writeOnly
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetProperty(long propertyID, long lVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(long propertyID, long lVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -338,7 +338,7 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, long lVal, int writeOnl
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetProperty(long propertyID, double dVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(long propertyID, double dVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -350,7 +350,7 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, double dVal, int writeO
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetProperty(long propertyID, LDATE dtVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(long propertyID, LDATE dtVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG   var_arg;
@@ -362,7 +362,7 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, LDATE dtVal, int writeO
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetProperty(long propertyID, bool bVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(long propertyID, bool bVal, int writeOnly /*=0*/)
 {
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
@@ -373,7 +373,7 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, bool bVal, int writeOnl
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetProperty(long propertyID, const char * pStrVal, int writeOnly /*=0*/)
+int ComDispInterface::SetProperty(long propertyID, const char * pStrVal, int writeOnly /*=0*/)
 {
 	int   ok = 1;
 	VARIANTARG var_arg;
@@ -390,7 +390,7 @@ int SLAPI ComDispInterface::SetProperty(long propertyID, const char * pStrVal, i
 	return ok;
 }
 
-void SLAPI ComDispInterface::ClearParams()
+void ComDispInterface::ClearParams()
 {
 	if(P_ParamsAry) {
 		for(uint i = 0; i < P_ParamsAry->getCount(); i++)
@@ -399,7 +399,7 @@ void SLAPI ComDispInterface::ClearParams()
 	}
 }
 
-int SLAPI ComDispInterface::_SetParam(VARIANTARG * pVarArg)
+int ComDispInterface::_SetParam(VARIANTARG * pVarArg)
 {
 	int   ok = 1;
 	VARIANTARG  var_arg;
@@ -415,7 +415,7 @@ int SLAPI ComDispInterface::_SetParam(VARIANTARG * pVarArg)
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetParam(int iVal)
+int ComDispInterface::SetParam(int iVal)
 {
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
@@ -426,7 +426,7 @@ int SLAPI ComDispInterface::SetParam(int iVal)
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetParam(long lVal)
+int ComDispInterface::SetParam(long lVal)
 {
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
@@ -437,7 +437,7 @@ int SLAPI ComDispInterface::SetParam(long lVal)
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetParam(double dVal)
+int ComDispInterface::SetParam(double dVal)
 {
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
@@ -448,7 +448,7 @@ int SLAPI ComDispInterface::SetParam(double dVal)
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetParam(const char * pStrVal, int codepage/*=1251*/)
+int ComDispInterface::SetParam(const char * pStrVal, int codepage/*=1251*/)
 {
 	int   ok = 1;
 	VARIANTARG var_arg;
@@ -465,7 +465,7 @@ int SLAPI ComDispInterface::SetParam(const char * pStrVal, int codepage/*=1251*/
 	return ok;
 }
 
-int SLAPI ComDispInterface::SetParam(ComDispInterface * pParam)
+int ComDispInterface::SetParam(ComDispInterface * pParam)
 {
 	VARIANTARG   var_arg;
 	VariantInit(&var_arg);
@@ -482,7 +482,7 @@ int SLAPI ComDispInterface::SetParam(ComDispInterface * pParam)
 	return ok;
 }
 
-int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
+int ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 {
 	int    ok = 1;
 	const  int rcv_res = BIN(pVarArg);
@@ -526,7 +526,7 @@ int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	return ok;
 }
 
-int  SLAPI ComDispInterface::CallMethod(long methodID, ComDispInterface * pDisp)
+int  ComDispInterface::CallMethod(long methodID, ComDispInterface * pDisp)
 {
 	int    ok = 1;
 	VARIANTARG var_arg;
@@ -540,7 +540,7 @@ int  SLAPI ComDispInterface::CallMethod(long methodID, ComDispInterface * pDisp)
 	return ok;
 }
 
-void SLAPI ComDispInterface::SetErrCode()
+void ComDispInterface::SetErrCode()
 {
 	SString  err_msg, sys_err_buf, temp_buf;
 	{
@@ -571,15 +571,15 @@ void SLAPI ComDispInterface::SetErrCode()
 //
 // ComExcelFont
 //
-SLAPI ComExcelFont::ComExcelFont() : ComDispInterface()
+ComExcelFont::ComExcelFont() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelFont::~ComExcelFont()
+ComExcelFont::~ComExcelFont()
 {
 }
 
-int SLAPI ComExcelFont::Init(IDispatch * pDisp)
+int ComExcelFont::Init(IDispatch * pDisp)
 {
 	int    ok = 1;
 	ComDispInterface::Init(pDisp);
@@ -589,20 +589,20 @@ int SLAPI ComExcelFont::Init(IDispatch * pDisp)
 	return ok;
 }
 
-int SLAPI ComExcelFont::SetBold(int bold) { return SetProperty(Bold, bold); }
-int SLAPI ComExcelFont::SetColor(long color) { return SetProperty(Color, color); }
+int ComExcelFont::SetBold(int bold) { return SetProperty(Bold, bold); }
+int ComExcelFont::SetColor(long color) { return SetProperty(Color, color); }
 //
 // ComExcelShapes
 //
-SLAPI ComExcelShapes::ComExcelShapes() : ComDispInterface()
+ComExcelShapes::ComExcelShapes() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelShapes::~ComExcelShapes()
+ComExcelShapes::~ComExcelShapes()
 {
 }
 
-int SLAPI ComExcelShapes::Init(IDispatch * pIDisp)
+int ComExcelShapes::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
 	ComDispInterface::Init(pIDisp);
@@ -611,7 +611,7 @@ int SLAPI ComExcelShapes::Init(IDispatch * pIDisp)
 	return ok;
 }
 
-int SLAPI ComExcelShapes::PutPicture(const char * pPath, RECT * pRect)
+int ComExcelShapes::PutPicture(const char * pPath, RECT * pRect)
 {
 	int    ok = 1;
 	ComDispInterface * p_shape = new ComDispInterface;
@@ -631,15 +631,15 @@ int SLAPI ComExcelShapes::PutPicture(const char * pPath, RECT * pRect)
 //
 // ComExcelInterior
 //
-SLAPI ComExcelInterior::ComExcelInterior() : ComDispInterface()
+ComExcelInterior::ComExcelInterior() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelInterior::~ComExcelInterior()
+ComExcelInterior::~ComExcelInterior()
 {
 }
 
-int SLAPI ComExcelInterior::Init(IDispatch * pIDisp)
+int ComExcelInterior::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
 	THROW(ComDispInterface::Init(pIDisp));
@@ -648,22 +648,22 @@ int SLAPI ComExcelInterior::Init(IDispatch * pIDisp)
 	return ok;
 }
 
-int SLAPI ComExcelInterior::SetColor(long color)
+int ComExcelInterior::SetColor(long color)
 {
 	return SetProperty(Color, color);
 }
 //
 // ComExcelRange
 //
-SLAPI ComExcelRange::ComExcelRange() : ComDispInterface()
+ComExcelRange::ComExcelRange() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelRange::~ComExcelRange()
+ComExcelRange::~ComExcelRange()
 {
 }
 
-int SLAPI ComExcelRange::Init(IDispatch * pIDisp)
+int ComExcelRange::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
 	THROW(ComDispInterface::Init(pIDisp));
@@ -681,11 +681,11 @@ int SLAPI ComExcelRange::Init(IDispatch * pIDisp)
 	return ok;
 }
 
-int SLAPI ComExcelRange::SetValue(const char * pValue) { return SetProperty(Value, pValue); }
-int SLAPI ComExcelRange::SetValue(double value) { return SetProperty(Value, value); }
-int SLAPI ComExcelRange::SetFormat(const char * pFormat) { return SetProperty(NumberFormat, pFormat); }
+int ComExcelRange::SetValue(const char * pValue) { return SetProperty(Value, pValue); }
+int ComExcelRange::SetValue(double value) { return SetProperty(Value, value); }
+int ComExcelRange::SetFormat(const char * pFormat) { return SetProperty(NumberFormat, pFormat); }
 
-int SLAPI ComExcelRange::GetValue(SString & rValue)
+int ComExcelRange::GetValue(SString & rValue)
 {
 	char   buf[2048];
 	int    ok = GetProperty(Value, buf, sizeof(buf));
@@ -694,7 +694,7 @@ int SLAPI ComExcelRange::GetValue(SString & rValue)
 	return ok;
 }
 
-int SLAPI ComExcelRange::GetFormat(SString & rFormat)
+int ComExcelRange::GetFormat(SString & rFormat)
 {
 	int    ok = 0;
 	char   fmt[128];
@@ -705,7 +705,7 @@ int SLAPI ComExcelRange::GetFormat(SString & rFormat)
 	return ok;
 }
 
-ComExcelFont * SLAPI ComExcelRange::GetFont()
+ComExcelFont * ComExcelRange::GetFont()
 {
 	ComExcelFont * p_font = new ComExcelFont;
 	if(GetProperty(Font, p_font) <= 0)
@@ -713,7 +713,7 @@ ComExcelFont * SLAPI ComExcelRange::GetFont()
 	return p_font;
 }
 
-ComExcelInterior * SLAPI ComExcelRange::GetInterior()
+ComExcelInterior * ComExcelRange::GetInterior()
 {
 	ComExcelInterior * p_intr = new ComExcelInterior;
 	if(GetProperty(Interior, p_intr) <= 0)
@@ -721,7 +721,7 @@ ComExcelInterior * SLAPI ComExcelRange::GetInterior()
 	return p_intr;
 }
 
-int SLAPI ComExcelRange::SetBold(int bold)
+int ComExcelRange::SetBold(int bold)
 {
 	ComExcelFont * p_font = GetFont();
 	int    ok = p_font ? p_font->SetBold(bold) : 0;
@@ -729,7 +729,7 @@ int SLAPI ComExcelRange::SetBold(int bold)
 	return ok;
 }
 
-int SLAPI ComExcelRange::SetColor(long color)
+int ComExcelRange::SetColor(long color)
 {
 	ComExcelFont * p_font = GetFont();
 	int    ok = p_font ? p_font->SetColor(color) : 0;
@@ -737,7 +737,7 @@ int SLAPI ComExcelRange::SetColor(long color)
 	return ok;
 }
 
-int SLAPI ComExcelRange::SetBgColor(long color)
+int ComExcelRange::SetBgColor(long color)
 {
 	ComExcelInterior * p_intr = GetInterior();
 	int    ok = p_intr ? p_intr->SetColor(color) : 0;
@@ -745,12 +745,12 @@ int SLAPI ComExcelRange::SetBgColor(long color)
 	return ok;
 }
 
-int SLAPI ComExcelRange::SetWidth(long width) { return BIN(SetParam(width) > 0 && SetProperty(ColumnWidth, width) > 0); }
-int SLAPI ComExcelRange::SetHeight(long height) { return BIN(SetParam(height) > 0 && SetProperty(RowHeight, height) > 0); }
-int SLAPI ComExcelRange::DoClear() { return CallMethod(Clear); }
-int SLAPI ComExcelRange::DoMerge() { return CallMethod(Merge); }
+int ComExcelRange::SetWidth(long width) { return BIN(SetParam(width) > 0 && SetProperty(ColumnWidth, width) > 0); }
+int ComExcelRange::SetHeight(long height) { return BIN(SetParam(height) > 0 && SetProperty(RowHeight, height) > 0); }
+int ComExcelRange::DoClear() { return CallMethod(Clear); }
+int ComExcelRange::DoMerge() { return CallMethod(Merge); }
 
-ComExcelRange * SLAPI ComExcelRange::_Columns()
+ComExcelRange * ComExcelRange::_Columns()
 {
 	ComExcelRange * p_range = new ComExcelRange;
 	if(GetProperty(Columns, p_range) <= 0)
@@ -760,15 +760,15 @@ ComExcelRange * SLAPI ComExcelRange::_Columns()
 //
 // ComExcelWorksheet
 //
-SLAPI ComExcelWorksheet::ComExcelWorksheet() : ComDispInterface()
+ComExcelWorksheet::ComExcelWorksheet() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelWorksheet::~ComExcelWorksheet()
+ComExcelWorksheet::~ComExcelWorksheet()
 {
 }
 
-int SLAPI ComExcelWorksheet::Init(IDispatch * pIDisp)
+int ComExcelWorksheet::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
 	THROW(ComDispInterface::Init(pIDisp));
@@ -786,12 +786,12 @@ int SLAPI ComExcelWorksheet::Init(IDispatch * pIDisp)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::_Activate() { return CallMethod(Activate); }
-int SLAPI ComExcelWorksheet::Print() { return CallMethod(PrintOut); }
-int SLAPI ComExcelWorksheet::Preview() { return CallMethod(PrintPreview); }
-int SLAPI ComExcelWorksheet::SetName(const char * pName) { return pName ? SetProperty(Name, pName) : 1; }
+int ComExcelWorksheet::_Activate() { return CallMethod(Activate); }
+int ComExcelWorksheet::Print() { return CallMethod(PrintOut); }
+int ComExcelWorksheet::Preview() { return CallMethod(PrintPreview); }
+int ComExcelWorksheet::SetName(const char * pName) { return pName ? SetProperty(Name, pName) : 1; }
 
-int SLAPI ComExcelWorksheet::GetName(SString & rName)
+int ComExcelWorksheet::GetName(SString & rName)
 {
 	char   buf[2048];
 	int    ok = GetProperty(Name, buf, sizeof(buf));
@@ -800,12 +800,12 @@ int SLAPI ComExcelWorksheet::GetName(SString & rName)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::AddColumn(long before, long after, const char * pColumnName)
+int ComExcelWorksheet::AddColumn(long before, long after, const char * pColumnName)
 {
 	return -1;
 }
 
-int SLAPI ComExcelWorksheet::DelColumn(long pos)
+int ComExcelWorksheet::DelColumn(long pos)
 {
 	return -1;
 }
@@ -822,7 +822,7 @@ ComExcelRange * ComExcelWorksheet::Cell(long row, long col)
 	return p_range;
 }
 
-int SLAPI GetExcelCellCoordA1(long row, long col, SString & rBuf)
+int GetExcelCellCoordA1(long row, long col, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -842,7 +842,7 @@ int SLAPI GetExcelCellCoordA1(long row, long col, SString & rBuf)
 	return ok;
 }
 
-ComExcelRange * SLAPI ComExcelWorksheet::GetRange(long luRow, long luCol, long rbRow, long rbCol)
+ComExcelRange * ComExcelWorksheet::GetRange(long luRow, long luCol, long rbRow, long rbCol)
 {
 	ComExcelRange * p_range = new ComExcelRange;
 	SString c1, c2;
@@ -857,7 +857,7 @@ ComExcelRange * SLAPI ComExcelWorksheet::GetRange(long luRow, long luCol, long r
 	return p_range;
 }
 
-int SLAPI ComExcelWorksheet::PutPicture(const char * pPath, RECT * pRect)
+int ComExcelWorksheet::PutPicture(const char * pPath, RECT * pRect)
 {
 	int    ok = 0;
 	ComExcelShapes * p_shapes = GetShapes();
@@ -868,7 +868,7 @@ int SLAPI ComExcelWorksheet::PutPicture(const char * pPath, RECT * pRect)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::SetValue(long row, long col, const char * pValue)
+int ComExcelWorksheet::SetValue(long row, long col, const char * pValue)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->SetValue(pValue) : 0;
@@ -876,7 +876,7 @@ int SLAPI ComExcelWorksheet::SetValue(long row, long col, const char * pValue)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::SetValue(long row, long col, double value)
+int ComExcelWorksheet::SetValue(long row, long col, double value)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->SetValue(value) : 0;
@@ -947,7 +947,7 @@ int ComExcelWorksheet::_Delete()
 	return CallMethod(Delete);
 }
 
-int SLAPI ComExcelWorksheet::SetBold(long row, long col, int bold)
+int ComExcelWorksheet::SetBold(long row, long col, int bold)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->SetBold(bold) : 0;
@@ -955,7 +955,7 @@ int SLAPI ComExcelWorksheet::SetBold(long row, long col, int bold)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::SetColor(long row, long col, COLORREF color)
+int ComExcelWorksheet::SetColor(long row, long col, COLORREF color)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->SetColor((long)color) : 0;
@@ -963,7 +963,7 @@ int SLAPI ComExcelWorksheet::SetColor(long row, long col, COLORREF color)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::SetBgColor(long row, long col, COLORREF color)
+int ComExcelWorksheet::SetBgColor(long row, long col, COLORREF color)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->SetBgColor((long)color) : 0;
@@ -971,7 +971,7 @@ int SLAPI ComExcelWorksheet::SetBgColor(long row, long col, COLORREF color)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::SetColumnFormat(long pos, const char * pFormat)
+int ComExcelWorksheet::SetColumnFormat(long pos, const char * pFormat)
 {
 	ComExcelRange * p_range = GetColumn(pos);
 	int    ok = p_range ? p_range->SetFormat(pFormat) : 0;
@@ -979,7 +979,7 @@ int SLAPI ComExcelWorksheet::SetColumnFormat(long pos, const char * pFormat)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::SetCellFormat(long row, long col, const char * pFormat)
+int ComExcelWorksheet::SetCellFormat(long row, long col, const char * pFormat)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->SetFormat(pFormat) : 0;
@@ -987,7 +987,7 @@ int SLAPI ComExcelWorksheet::SetCellFormat(long row, long col, const char * pFor
 	return ok;
 }
 
-int SLAPI ComExcelWorksheet::GetCellFormat(long row, long col, SString & rFormat)
+int ComExcelWorksheet::GetCellFormat(long row, long col, SString & rFormat)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->GetFormat(rFormat) : 0;
@@ -995,7 +995,7 @@ int SLAPI ComExcelWorksheet::GetCellFormat(long row, long col, SString & rFormat
 	return ok;
 }
 
-ComExcelShapes * SLAPI ComExcelWorksheet::GetShapes()
+ComExcelShapes * ComExcelWorksheet::GetShapes()
 {
 	ComExcelShapes * p_shapes = new ComExcelShapes;
 	if(GetProperty(Shapes, static_cast<ComDispInterface *>(p_shapes)) <= 0)
@@ -1005,15 +1005,15 @@ ComExcelShapes * SLAPI ComExcelWorksheet::GetShapes()
 //
 // ComExcelWorksheets
 //
-SLAPI ComExcelWorksheets::ComExcelWorksheets() : ComDispInterface()
+ComExcelWorksheets::ComExcelWorksheets() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelWorksheets::~ComExcelWorksheets()
+ComExcelWorksheets::~ComExcelWorksheets()
 {
 }
 
-int SLAPI ComExcelWorksheets::Init(IDispatch * pDisp)
+int ComExcelWorksheets::Init(IDispatch * pDisp)
 {
 	int    ok = 1;
 	THROW(ComDispInterface::Init(pDisp));
@@ -1025,7 +1025,7 @@ int SLAPI ComExcelWorksheets::Init(IDispatch * pDisp)
 	return ok;
 }
 
-ComExcelWorksheet * SLAPI ComExcelWorksheets::_Add(long before, long after, const char * pName)
+ComExcelWorksheet * ComExcelWorksheets::_Add(long before, long after, const char * pName)
 {
 	ComExcelWorksheet * p_sheet = new ComExcelWorksheet;
 	ComExcelWorksheet * p_before_sheet = Get(before);
@@ -1042,7 +1042,7 @@ ComExcelWorksheet * SLAPI ComExcelWorksheets::_Add(long before, long after, cons
 	return p_sheet;
 }
 
-int SLAPI ComExcelWorksheets::Delete(long pos)
+int ComExcelWorksheets::Delete(long pos)
 {
 	int    ok = 1;
 	ComExcelWorksheet * p_sheet = Get(pos);
@@ -1055,7 +1055,7 @@ int SLAPI ComExcelWorksheets::Delete(long pos)
 	return ok;
 }
 
-int SLAPI ComExcelWorksheets::_Move(long before, long after)
+int ComExcelWorksheets::_Move(long before, long after)
 {
 	int    ok = 1;
 	ComExcelWorksheet * p_before_sheet = Get(before);
@@ -1093,14 +1093,14 @@ ComExcelWorksheet * ComExcelWorksheets::Get(long pos)
 	return p_sheet;
 }
 
-int SLAPI ComExcelWorksheets::GetCount()
+int ComExcelWorksheets::GetCount()
 {
 	long   count = 0;
 	GetProperty(Count, &count);
 	return count;
 }
 
-int SLAPI ComExcelWorksheets::Activate(long pos)
+int ComExcelWorksheets::Activate(long pos)
 {
 	int    ok = 0;
 	ComExcelWorksheet * p_sheet = Get(pos);
@@ -1113,15 +1113,15 @@ int SLAPI ComExcelWorksheets::Activate(long pos)
 //
 // ComExcelWorkbook
 //
-SLAPI ComExcelWorkbook::ComExcelWorkbook() : ComDispInterface()
+ComExcelWorkbook::ComExcelWorkbook() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelWorkbook::~ComExcelWorkbook()
+ComExcelWorkbook::~ComExcelWorkbook()
 {
 }
 
-int SLAPI ComExcelWorkbook::Init(IDispatch * pIDisp)
+int ComExcelWorkbook::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
 	THROW(ComDispInterface::Init(pIDisp) > 0);
@@ -1142,22 +1142,22 @@ ComExcelWorksheets * ComExcelWorkbook::Get()
 	return p_sheets;
 }
 
-int SLAPI ComExcelWorkbook::_Close()
+int ComExcelWorkbook::_Close()
 {
 	return CallMethod(Close);
 }
 
-int SLAPI ComExcelWorkbook::_SaveAs(const char * pPath)
+int ComExcelWorkbook::_SaveAs(const char * pPath)
 {
 	return BIN(SetParam(pPath) > 0 && CallMethod(SaveAs) > 0);
 }
 
-int SLAPI ComExcelWorkbook::_Save()
+int ComExcelWorkbook::_Save()
 {
 	return CallMethod(Save);
 }
 
-int SLAPI ComExcelWorkbook::_Activate()
+int ComExcelWorkbook::_Activate()
 {
 	return CallMethod(Activate);
 }
@@ -1178,7 +1178,7 @@ ComExcelWorksheet * ComExcelWorkbook::GetWorksheet(long pos)
 	return p_sheet;
 }
 
-ComExcelWorksheet * SLAPI ComExcelWorkbook::AddWorksheet(long before, long after, const char * pName)
+ComExcelWorksheet * ComExcelWorkbook::AddWorksheet(long before, long after, const char * pName)
 {
 	ComExcelWorksheets * p_sheets = Get();
 	ComExcelWorksheet  * p_sheet = p_sheets ? p_sheets->_Add(before, after, pName) : 0;
@@ -1188,15 +1188,15 @@ ComExcelWorksheet * SLAPI ComExcelWorkbook::AddWorksheet(long before, long after
 //
 // ComExcelWorkbooks
 //
-SLAPI ComExcelWorkbooks::ComExcelWorkbooks() : ComDispInterface()
+ComExcelWorkbooks::ComExcelWorkbooks() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelWorkbooks::~ComExcelWorkbooks()
+ComExcelWorkbooks::~ComExcelWorkbooks()
 {
 }
 
-int SLAPI ComExcelWorkbooks::Init(IDispatch * pIDisp)
+int ComExcelWorkbooks::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
 	THROW(ComDispInterface::Init(pIDisp) > 0);
@@ -1208,7 +1208,7 @@ int SLAPI ComExcelWorkbooks::Init(IDispatch * pIDisp)
 	return ok;
 }
 
-ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Add()
+ComExcelWorkbook * ComExcelWorkbooks::_Add()
 {
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
 	if(CallMethod(Add, static_cast<ComDispInterface *>(p_wkbook)) <= 0)
@@ -1216,7 +1216,7 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Add()
 	return p_wkbook;
 }
 
-ComExcelWorkbook * SLAPI ComExcelWorkbooks::Enum(long * pPos)
+ComExcelWorkbook * ComExcelWorkbooks::Enum(long * pPos)
 {
 	long   pos = DEREFPTRORZ(pPos);
 	ComExcelWorkbook * p_wkbook = 0;
@@ -1228,7 +1228,7 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::Enum(long * pPos)
 	return p_wkbook;
 }
 
-ComExcelWorkbook * SLAPI ComExcelWorkbooks::Get(long pos)
+ComExcelWorkbook * ComExcelWorkbooks::Get(long pos)
 {
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
 	THROW(checkirange(pos, 1, GetCount()));
@@ -1240,14 +1240,14 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::Get(long pos)
 	return p_wkbook;
 }
 
-long SLAPI ComExcelWorkbooks::GetCount()
+long ComExcelWorkbooks::GetCount()
 {
 	long   count = 0;
 	GetProperty(Count, &count);
 	return count;
 }
 
-ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Open(const char * pFileName)
+ComExcelWorkbook * ComExcelWorkbooks::_Open(const char * pFileName)
 {
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
 	THROW(SetParam(pFileName));
@@ -1258,7 +1258,7 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Open(const char * pFileName)
 	return p_wkbook;
 }
 
-int SLAPI ComExcelWorkbooks::SaveAs(long pos, const char * pPath)
+int ComExcelWorkbooks::SaveAs(long pos, const char * pPath)
 {
 	ComExcelWorkbook * p_wkbook = Get(pos);
 	int    ok = p_wkbook ? p_wkbook->_SaveAs(pPath) : 0;
@@ -1266,7 +1266,7 @@ int SLAPI ComExcelWorkbooks::SaveAs(long pos, const char * pPath)
 	return ok;
 }
 
-int SLAPI ComExcelWorkbooks::Close(long pos)
+int ComExcelWorkbooks::Close(long pos)
 {
 	ComExcelWorkbook * p_wkbook = Get(pos);
 	int    ok = p_wkbook ? p_wkbook->_Close() : 0;
@@ -1274,7 +1274,7 @@ int SLAPI ComExcelWorkbooks::Close(long pos)
 	return ok;
 }
 
-ComExcelWorksheet * SLAPI ComExcelWorkbooks::GetWorksheet(long bookPos, long sheetPos)
+ComExcelWorksheet * ComExcelWorkbooks::GetWorksheet(long bookPos, long sheetPos)
 {
 	ComExcelWorkbook * p_wkbook = Get(bookPos);
 	ComExcelWorksheet * p_sheet = p_wkbook ? p_wkbook->GetWorksheet(sheetPos) : 0;
@@ -1284,16 +1284,16 @@ ComExcelWorksheet * SLAPI ComExcelWorkbooks::GetWorksheet(long bookPos, long she
 //
 // ComExcelApp
 //
-SLAPI ComExcelApp::ComExcelApp() : ComDispInterface()
+ComExcelApp::ComExcelApp() : ComDispInterface()
 {
 }
 
-SLAPI ComExcelApp::~ComExcelApp()
+ComExcelApp::~ComExcelApp()
 {
 	CallMethod(Quit);
 }
 
-int SLAPI ComExcelApp::Init()
+int ComExcelApp::Init()
 {
 	int    ok = 1;
 	THROW(ComDispInterface::Init("Excel.Application", 0));
@@ -1304,7 +1304,7 @@ int SLAPI ComExcelApp::Init()
 	return ok;
 }
 
-ComExcelWorkbooks * SLAPI ComExcelApp::Get()
+ComExcelWorkbooks * ComExcelApp::Get()
 {
 	ComExcelWorkbooks * p_wkbooks = new ComExcelWorkbooks;
 	if(GetProperty(Workbooks, static_cast<ComDispInterface *>(p_wkbooks)) <= 0)
@@ -1312,7 +1312,7 @@ ComExcelWorkbooks * SLAPI ComExcelApp::Get()
 	return p_wkbooks;
 }
 
-ComExcelWorkbook * SLAPI ComExcelApp::OpenWkBook(const char * pFileName)
+ComExcelWorkbook * ComExcelApp::OpenWkBook(const char * pFileName)
 {
 	int    ok = 1;
 	ComExcelWorkbooks * p_wkbooks = Get();
@@ -1321,7 +1321,7 @@ ComExcelWorkbook * SLAPI ComExcelApp::OpenWkBook(const char * pFileName)
 	return p_wkbook;
 }
 
-ComExcelWorkbook * SLAPI ComExcelApp::AddWkbook()
+ComExcelWorkbook * ComExcelApp::AddWkbook()
 {
 	int    ok = 1;
 	ComExcelWorkbooks * p_wkbooks = Get();
@@ -1330,7 +1330,7 @@ ComExcelWorkbook * SLAPI ComExcelApp::AddWkbook()
 	return p_wkbook;
 }
 
-int SLAPI ComExcelApp::SaveAsWkbook(long pos, const char * pPath)
+int ComExcelApp::SaveAsWkbook(long pos, const char * pPath)
 {
 	int    ok = 1;
 	ComExcelWorkbooks * p_wkbooks = Get();
@@ -1339,12 +1339,12 @@ int SLAPI ComExcelApp::SaveAsWkbook(long pos, const char * pPath)
 	return ok;
 }
 
-int SLAPI ComExcelApp::_DisplayAlerts(int yes)
+int ComExcelApp::_DisplayAlerts(int yes)
 {
 	return SetProperty(DisplayAlerts, (BOOL)BIN(yes));
 }
 
-ComExcelShapes * SLAPI ComExcelApp::GetShapes(long bookPos, long sheetPos)
+ComExcelShapes * ComExcelApp::GetShapes(long bookPos, long sheetPos)
 {
 	ComExcelWorkbooks * p_wkbooks = Get();
 	ComExcelWorksheet * p_sheet = p_wkbooks ? p_wkbooks->GetWorksheet(bookPos, sheetPos) : 0;
@@ -1354,7 +1354,7 @@ ComExcelShapes * SLAPI ComExcelApp::GetShapes(long bookPos, long sheetPos)
 	return p_shapes;
 }
 
-ComExcelWorksheet * SLAPI ComExcelApp::GetWorksheet(long bookPos, long sheetPos)
+ComExcelWorksheet * ComExcelApp::GetWorksheet(long bookPos, long sheetPos)
 {
 	ComExcelWorkbooks * p_wkbooks = Get();
 	ComExcelWorksheet * p_sheet = p_wkbooks ? p_wkbooks->GetWorksheet(bookPos, sheetPos) : 0;
@@ -1362,7 +1362,7 @@ ComExcelWorksheet * SLAPI ComExcelApp::GetWorksheet(long bookPos, long sheetPos)
 	return p_sheet;
 }
 
-int SLAPI ComExcelApp::CloseWkbook(long pos)
+int ComExcelApp::CloseWkbook(long pos)
 {
 	ComExcelWorkbooks * p_wkbooks = Get();
 	int    ok = p_wkbooks ? p_wkbooks->Close(pos) : 0;

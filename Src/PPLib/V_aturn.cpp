@@ -8,19 +8,19 @@
 //
 class TempAssoc {
 public:
-	static TempAssoc * SLAPI CreateInstance();
-	SLAPI  TempAssoc();
-	int    SLAPI IsValid() const;
-	int    SLAPI Add(PPID prmrID, PPID scndID);
-	int    SLAPI EnumPrmr(PPID * pPrmrID);
-	int    SLAPI GetList(PPID prmrID, PPIDArray *);
+	static TempAssoc * CreateInstance();
+	TempAssoc();
+	int    IsValid() const;
+	int    Add(PPID prmrID, PPID scndID);
+	int    EnumPrmr(PPID * pPrmrID);
+	int    GetList(PPID prmrID, PPIDArray *);
 private:
 	TempAssocTbl * P_Tbl;
 };
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempAssoc);
 
-/*static*/TempAssoc * SLAPI TempAssoc::CreateInstance()
+/*static*/TempAssoc * TempAssoc::CreateInstance()
 {
 	TempAssoc * p_assc = new TempAssoc;
 	if(!p_assc)
@@ -29,16 +29,16 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempAssoc);
 		return p_assc->IsValid() ? p_assc : 0;
 }
 
-SLAPI TempAssoc::TempAssoc() : P_Tbl(CreateTempFile())
+TempAssoc::TempAssoc() : P_Tbl(CreateTempFile())
 {
 }
 
-int SLAPI TempAssoc::IsValid() const
+int TempAssoc::IsValid() const
 {
 	return BIN(P_Tbl);
 }
 
-int SLAPI TempAssoc::Add(PPID prmrID, PPID scndID)
+int TempAssoc::Add(PPID prmrID, PPID scndID)
 {
 	if(P_Tbl) {
 		P_Tbl->data.PrmrID = prmrID;
@@ -48,7 +48,7 @@ int SLAPI TempAssoc::Add(PPID prmrID, PPID scndID)
 	return 0;
 }
 
-int SLAPI TempAssoc::EnumPrmr(PPID * pPrmrID)
+int TempAssoc::EnumPrmr(PPID * pPrmrID)
 {
 	if(P_Tbl) {
 		TempAssocTbl::Key0 k0;
@@ -62,7 +62,7 @@ int SLAPI TempAssoc::EnumPrmr(PPID * pPrmrID)
 	return -1;
 }
 
-int SLAPI TempAssoc::GetList(PPID prmrID, PPIDArray * pList)
+int TempAssoc::GetList(PPID prmrID, PPIDArray * pList)
 {
 	int    ok = 1;
 	if(P_Tbl) {
@@ -82,7 +82,7 @@ int SLAPI TempAssoc::GetList(PPID prmrID, PPIDArray * pList)
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(Accturn); SLAPI AccturnFilt::AccturnFilt() : PPBaseFilt(PPFILT_ACCTURN, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Accturn); AccturnFilt::AccturnFilt() : PPBaseFilt(PPFILT_ACCTURN, 0, 0)
 {
 	SetFlatChunk(offsetof(AccturnFilt, ReserveStart),
 		offsetof(AccturnFilt, Reserve)-offsetof(AccturnFilt, ReserveStart)+sizeof(Reserve));
@@ -95,19 +95,19 @@ AccturnFilt & FASTCALL AccturnFilt::operator=(const AccturnFilt & s)
 	return *this;
 }
 
-SLAPI PPViewAccturn::PPViewAccturn() : PPView(0, &Filt, PPVIEW_ACCTURN),
+PPViewAccturn::PPViewAccturn() : PPView(0, &Filt, PPVIEW_ACCTURN, 0, 0),
 	P_BObj(BillObj), P_ATC(P_BObj->atobj->P_Tbl), P_TmpAGTbl(0), P_TmpBillTbl(0)
 {
 }
 
-SLAPI PPViewAccturn::~PPViewAccturn()
+PPViewAccturn::~PPViewAccturn()
 {
 	delete P_TmpAGTbl;
 	delete P_TmpBillTbl;
 	DBRemoveTempFiles();
 }
 
-PPBaseFilt * SLAPI PPViewAccturn::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewAccturn::CreateFilt(void * extraPtr) const
 {
 	AccturnFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_ACCTURN, reinterpret_cast<PPBaseFilt **>(&p_filt)))
@@ -115,7 +115,7 @@ PPBaseFilt * SLAPI PPViewAccturn::CreateFilt(void * extraPtr) const
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 
-int SLAPI PPViewAccturn::DeleteItem(PPID billID)
+int PPViewAccturn::DeleteItem(PPID billID)
 {
 	int    ok = -1;
 	if(!Filt.GrpAco && billID && !Filt.BillID) {
@@ -130,7 +130,7 @@ int SLAPI PPViewAccturn::DeleteItem(PPID billID)
 	return ok;
 }
 
-int SLAPI PPViewAccturn::EditItem(PPID billID)
+int PPViewAccturn::EditItem(PPID billID)
 {
 	int    ok = -1;
 	PPID   id = billID;
@@ -143,7 +143,7 @@ int SLAPI PPViewAccturn::EditItem(PPID billID)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccturn::Detail(const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewAccturn::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	if(Filt.GrpAco) {
 		AccturnFilt temp_flt = Filt;
@@ -174,7 +174,7 @@ int SLAPI PPViewAccturn::EditItem(PPID billID)
 		return -1;
 }
 
-/*virtual*/int SLAPI PPViewAccturn::ViewTotal()
+/*virtual*/int PPViewAccturn::ViewTotal()
 {
 	AccturnTotal total;
 	if(CalcTotal(&total)) {
@@ -187,7 +187,7 @@ int SLAPI PPViewAccturn::EditItem(PPID billID)
 	return 1;
 }
 
-int SLAPI PPViewAccturn::CalcTotal(AccturnTotal * pTotal)
+int PPViewAccturn::CalcTotal(AccturnTotal * pTotal)
 {
 	AccturnViewItem item;
 	pTotal->Count = 0;
@@ -202,7 +202,7 @@ int SLAPI PPViewAccturn::CalcTotal(AccturnTotal * pTotal)
 	return 1;
 }
 
-int SLAPI PPViewAccturn::PrintItem(PPID billID)
+int PPViewAccturn::PrintItem(PPID billID)
 {
 	int    ok = -1;
 	ushort v = 0;
@@ -225,7 +225,7 @@ int SLAPI PPViewAccturn::PrintItem(PPID billID)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccturn::Print(const void *)
+/*virtual*/int PPViewAccturn::Print(const void *)
 {
 	int    ok = 1;
 	uint   rpt_id;
@@ -256,7 +256,7 @@ struct ACGREC { // @flat
 IMPL_CMPFUNC(ACGREC, i1, i2) 
 	{ RET_CMPCASCADE4(static_cast<const ACGREC *>(i1), static_cast<const ACGREC *>(i2), Dt, DbtAccID, CrdAccID, CurID); }
 
-int SLAPI PPViewAccturn::CreateGrouping()
+int PPViewAccturn::CreateGrouping()
 {
 	class AccturnGroupingCache {
 	public:
@@ -413,7 +413,7 @@ int SLAPI PPViewAccturn::CreateGrouping()
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccturn::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewAccturn::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	if(P_TmpBillTbl)
@@ -447,7 +447,7 @@ int SLAPI PPViewAccturn::CreateGrouping()
 	return ok;
 }
 
-int SLAPI PPViewAccturn::InitIteration()
+int PPViewAccturn::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -496,7 +496,7 @@ int SLAPI PPViewAccturn::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem * pItem)
+int PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem * pItem)
 {
 	int    ok = -1;
 	PPAccTurn aturn;
@@ -535,7 +535,7 @@ int SLAPI PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnVie
 	return ok;
 }
 
-int SLAPI PPViewAccturn::InitViewItem(const TempAccturnGrpngTbl::Rec * pATGRec, AccturnViewItem * pItem)
+int PPViewAccturn::InitViewItem(const TempAccturnGrpngTbl::Rec * pATGRec, AccturnViewItem * pItem)
 {
 	int    ok = 1;
 	if(pItem && pATGRec) {
@@ -593,7 +593,7 @@ int FASTCALL PPViewAccturn::NextIteration(AccturnViewItem * pItem)
 	return ok;
 }
 
-void SLAPI PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
 	if(Filt.GrpAco)
 		Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
@@ -603,7 +603,7 @@ void SLAPI PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 //
 //
 //
-/*virtual*/int SLAPI PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class AccturnFiltDialog : public WLDialog {
 		DECL_DIALOG_DATA(AccturnFilt);
@@ -699,7 +699,7 @@ void SLAPI PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 	DIALOG_PROC_BODY(AccturnFiltDialog, static_cast<AccturnFilt *>(pFilt));
 }
 
-/*virtual*/void SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.BillID) {
@@ -784,7 +784,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 /*static*/int PPViewAccturn::DynFuncCheckRelRestrictions = 0;
 /*static*/int PPViewAccturn::DynFuncCurSymbByAccRelID = 0;
 
-/*virtual*/DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncCheckRelRestrictions, BTS_INT,    dbqf_accturn_checkrelrestriction_iii, 3, BTS_INT, BTS_INT, BTS_INT);
 	DbqFuncTab::RegisterDyn(&DynFuncCurSymbByAccRelID,    BTS_STRING, dbqf_objname_cursymbbyacctrel_i, 1, BTS_INT);
@@ -911,7 +911,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 	return q;
 }
 
-int SLAPI PPViewAccturn::AddBillToList(PPID billID)
+int PPViewAccturn::AddBillToList(PPID billID)
 {
 	int    ok = 1;
 	if(P_TmpBillTbl && billID) {
@@ -924,14 +924,14 @@ int SLAPI PPViewAccturn::AddBillToList(PPID billID)
 	return ok;
 }
 
-int SLAPI PPViewAccturn::RemoveBillFromList(PPID billID)
+int PPViewAccturn::RemoveBillFromList(PPID billID)
 {
 	if(P_TmpBillTbl && billID)
 		deleteFrom(P_TmpBillTbl, 1, P_TmpBillTbl->PrmrID == billID);
 	return 1;
 }
 
-/*virtual*/int SLAPI PPViewAccturn::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewAccturn::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd == PPVCMD_PRINT) ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    update = 0;
@@ -992,16 +992,16 @@ int SLAPI PPViewAccturn::RemoveBillFromList(PPID billID)
 	return (update > 0) ? ok : ((ok <= 0) ? ok : -1);
 }
 
-/*virtual*/int SLAPI PPViewAccturn::Browse(int modeless)
+/*virtual*/int PPViewAccturn::Browse(int modeless)
 {
 	return (P_BObj->atobj->CheckRights(PPR_READ)) ? PPView::Browse(modeless) : 0;
 }
 
-SLAPI CvtAt2Ab_Param::CvtAt2Ab_Param() : LocID(0), OpID(0), ObjID(0), ExtObjID(0), Flags(0), P_OpList(0)
+CvtAt2Ab_Param::CvtAt2Ab_Param() : LocID(0), OpID(0), ObjID(0), ExtObjID(0), Flags(0), P_OpList(0)
 {
 }
 
-int SLAPI PPViewAccturn::ConvertGenAccturnToExtAccBill()
+int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 {
 	class CvtAt2Ab_Dialog : public TDialog {
 		DECL_DIALOG_DATA(CvtAt2Ab_Param);

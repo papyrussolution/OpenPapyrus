@@ -56,7 +56,7 @@ PPScale2::PPScale2()
 	THISZERO();
 }
 
-int SLAPI PPScale::IsValidBcPrefix() const
+int PPScale::IsValidBcPrefix() const
 {
 	return BIN((BcPrefix >= 200 && BcPrefix <= 299) || (BcPrefix >= 20 && BcPrefix <= 29));
 }
@@ -83,7 +83,7 @@ struct ScalePLU { // @transient
 	SString AddMsgBuf;
 };
 
-/*static*/int SLAPI PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSize)
+/*static*/int PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSize)
 {
 	int    ok = 1;
 	char   ip[16], encoded_ip[8];
@@ -114,7 +114,7 @@ struct ScalePLU { // @transient
 	return ok;
 }
 
-/*static*/int SLAPI PPObjScale::DecodeIP(const char * pEncodedIP, char * pIP)
+/*static*/int PPObjScale::DecodeIP(const char * pEncodedIP, char * pIP)
 {
 	int    ok = 1;
 	uint   i = 0;
@@ -172,7 +172,7 @@ typedef	DWORD  (WINAPI *ICMPSENDECHO)(HANDLE, DWORD, LPVOID, WORD, PIP_OPTION_IN
 
 class PPScaleDevice {
 public:
-	SLAPI  PPScaleDevice(int portNo, const PPScalePacket * pData) : UseBuf(0), PortNo(0), ReadCycleCount(0), ReadCycleDelay(0), H_Port(INVALID_HANDLE_VALUE)
+	PPScaleDevice(int portNo, const PPScalePacket * pData) : UseBuf(0), PortNo(0), ReadCycleCount(0), ReadCycleDelay(0), H_Port(INVALID_HANDLE_VALUE)
 	{
 		if(pData) {
 			if(!(pData->Rec.Flags & SCALF_TCPIP) && !oneof2(pData->Rec.ScaleTypeID, PPSCLT_CRCSHSRV, PPSCLT_DIGI))
@@ -188,16 +188,16 @@ public:
 			MEMSZERO(Data);
 		}
 	}
-	virtual SLAPI ~PPScaleDevice() // @v10.3.2 @fix non-virtual-->virtual
+	virtual ~PPScaleDevice() // @v10.3.2 @fix non-virtual-->virtual
 	{
 		if(H_Port != INVALID_HANDLE_VALUE)
 			CloseHandle(H_Port);
 	}
-	virtual int  SLAPI SetConnection() = 0;
-	virtual int  SLAPI CloseConnection() { return -1; }
-	virtual int  SLAPI SendPLU(const ScalePLU *) = 0;
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket *) = 0;
-	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight)
+	virtual int  SetConnection() = 0;
+	virtual int  CloseConnection() { return -1; }
+	virtual int  SendPLU(const ScalePLU *) = 0;
+	virtual void GetDefaultSysParams(PPScalePacket *) = 0;
+	virtual int  GetData(int * pGdsNo, double * pWeight)
 	{
 		ASSIGN_PTR(pGdsNo, 0);
 		ASSIGN_PTR(pWeight, 0);
@@ -206,17 +206,17 @@ public:
 	int     NumGetColl;
 	int     MaxGetCollIters;
 protected:
-	int    SLAPI InitPort(int portNo);
-	int    SLAPI GetChr();
-	int    SLAPI PutChr(uint8, int direct = 0, int special = 0);
-	int    SLAPI _PutChr(uint8, int direct = 0);
-	int    SLAPI PutBuffer();
-	int    SLAPI CheckSync(int syncCode, int validRetCode);
-	int    SLAPI DistributeFile(const char * pFileName, int rmv);
+	int    InitPort(int portNo);
+	int    GetChr();
+	int    PutChr(uint8, int direct = 0, int special = 0);
+	int    _PutChr(uint8, int direct = 0);
+	int    PutBuffer();
+	int    CheckSync(int syncCode, int validRetCode);
+	int    DistributeFile(const char * pFileName, int rmv);
 	enum {
 		amlfMaxText   = 0x0001
 	};
-	int    SLAPI GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen, uint maxLineCount, long flags, StringSet & rLines);
+	int    GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen, uint maxLineCount, long flags, StringSet & rLines);
 
 	int     PortNo;
 	int     ReadCycleCount; // Количество попыток чтения из COM-порта
@@ -228,7 +228,7 @@ protected:
 	int    UseBuf;
 };
 
-int SLAPI PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen, uint maxLineCount, long flags, StringSet & rLines)
+int PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen, uint maxLineCount, long flags, StringSet & rLines)
 {
 	int    ok = -1;
 	uint   line_count = 0;
@@ -280,7 +280,7 @@ int SLAPI PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen
 	return ok;
 }
 
-static PPScaleDevice * SLAPI GetScaleDevice(const PPScalePacket * pScaleData);
+static PPScaleDevice * GetScaleDevice(const PPScalePacket * pScaleData);
 
 #define COM1            0
 #define COM2            1
@@ -348,7 +348,7 @@ static PPScaleDevice * SLAPI GetScaleDevice(const PPScalePacket * pScaleData);
 				Put_Tries = Ignored
 				Put_Delay = Ignored
 */
-int SLAPI PPScaleDevice::PutChr(uint8 c, int direct, int special)
+int PPScaleDevice::PutChr(uint8 c, int direct, int special)
 {
 	if(c == (uint8)0xff && Data.Rec.ScaleTypeID == PPSCLT_CAS && Data.Rec.LogNum && oneof2(Data.Rec.ProtocolVer, 1, 17) && !special)
 		if(!_PutChr((uint8)0xff, direct))
@@ -369,7 +369,7 @@ static SString & __GetLastSystemErr(SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI PPScaleDevice::InitPort(int portNo)
+int PPScaleDevice::InitPort(int portNo)
 {
 	PortNo = portNo;
 	NumGetColl = 0;
@@ -427,7 +427,7 @@ int SLAPI PPScaleDevice::InitPort(int portNo)
 	return ok;
 }
 
-int SLAPI PPScaleDevice::GetChr()
+int PPScaleDevice::GetChr()
 {
 	int    ok = 0;
 	char   buf[32];
@@ -478,7 +478,7 @@ int SLAPI PPScaleDevice::GetChr()
 	}
 }
 
-int SLAPI PPScaleDevice::_PutChr(uint8 c, int /*direct*/)
+int PPScaleDevice::_PutChr(uint8 c, int /*direct*/)
 {
 	if(UseBuf) {
 		return Buf.Write(&c, 1) ? 1 : PPSetErrorSLib();
@@ -493,7 +493,7 @@ int SLAPI PPScaleDevice::_PutChr(uint8 c, int /*direct*/)
 	}
 }
 
-int SLAPI PPScaleDevice::PutBuffer()
+int PPScaleDevice::PutBuffer()
 {
 	int    ok = -1;
 	if(H_Port != INVALID_HANDLE_VALUE) {
@@ -511,7 +511,7 @@ int SLAPI PPScaleDevice::PutBuffer()
 	return ok;
 }
 
-int SLAPI PPScaleDevice::CheckSync(int syncCode, int validRetCode)
+int PPScaleDevice::CheckSync(int syncCode, int validRetCode)
 {
 	int    ok = 0;
 	if(PutChr(syncCode)) {
@@ -522,7 +522,7 @@ int SLAPI PPScaleDevice::CheckSync(int syncCode, int validRetCode)
 	return ok;
 }
 
-int SLAPI PPScaleDevice::DistributeFile(const char * pFileName, int rmv)
+int PPScaleDevice::DistributeFile(const char * pFileName, int rmv)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -558,16 +558,16 @@ int SLAPI PPScaleDevice::DistributeFile(const char * pFileName, int rmv)
 
 class CommLP15 : public PPScaleDevice {
 public:
-	SLAPI  CommLP15(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), Err(0), MsgCode(0), SocketHandle(NULL), IsConnected(0)
+	CommLP15(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), Err(0), MsgCode(0), SocketHandle(NULL), IsConnected(0)
 	{
 		if(!(Data.Rec.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual int  GetData(int * pGdsNo, double * pWeight);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 		if(pData) {
 			if(Data.Rec.Flags & SCALF_TCPIP) {
@@ -583,18 +583,18 @@ public:
 		}
 	}
 private:
-	int    SLAPI Is_v16() const
+	int    Is_v16() const
 	{
 		return BIN(oneof2(Data.Rec.ProtocolVer, 16, 17));
 	}
-	int    SLAPI CheckSync_16();
-	int    SLAPI CheckAckForPLU();
-	int    SLAPI GetInt();
-	long   SLAPI GetLong();
-	void   SLAPI PutInt(int16);
-	void   SLAPI PutLong(long);
-	void   SLAPI PutStr(const char *);
-	int    SLAPI SendPLU_16(const ScalePLU * pPLU);
+	int    CheckSync_16();
+	int    CheckAckForPLU();
+	int    GetInt();
+	long   GetLong();
+	void   PutInt(int16);
+	void   PutLong(long);
+	void   PutStr(const char *);
+	int    SendPLU_16(const ScalePLU * pPLU);
 
 	int    Err;
 	int16  MsgCode;      //
@@ -603,7 +603,7 @@ private:
 	SOCKET SocketHandle; //
 };
 
-int SLAPI CommLP15::CheckSync_16()
+int CommLP15::CheckSync_16()
 {
 	int    ok = 1;
 	uint8  ret[2];
@@ -626,7 +626,7 @@ int SLAPI CommLP15::CheckSync_16()
 	return ok;
 }
 
-int SLAPI CommLP15::SetConnection()
+int CommLP15::SetConnection()
 {
 	int    ok = 1;
 	if(Data.Rec.Flags & SCALF_TCPIP) {
@@ -705,7 +705,7 @@ int SLAPI CommLP15::SetConnection()
 	return ok;
 }
 
-int SLAPI CommLP15::CloseConnection()
+int CommLP15::CloseConnection()
 {
 	int    ok = -1;
 	if(!(Data.Rec.Flags & SCALF_TCPIP)) {
@@ -729,7 +729,7 @@ int SLAPI CommLP15::CloseConnection()
 	return ok;
 }
 
-int SLAPI CommLP15::CheckAckForPLU()
+int CommLP15::CheckAckForPLU()
 {
 	if(Is_v16() || Data.Rec.Flags & SCALF_TCPIP) {
 		uint8 ret = 0;
@@ -757,7 +757,7 @@ int SLAPI CommLP15::CheckAckForPLU()
 	}
 }
 
-int SLAPI CommLP15::GetInt()
+int CommLP15::GetInt()
 {
 	union {
 		int16 result;
@@ -768,7 +768,7 @@ int SLAPI CommLP15::GetInt()
 	return result;
 }
 
-long SLAPI CommLP15::GetLong()
+long CommLP15::GetLong()
 {
 	union {
 		long  result;
@@ -779,20 +779,20 @@ long SLAPI CommLP15::GetLong()
 	return result;
 }
 
-void SLAPI CommLP15::PutStr(const char * str)
+void CommLP15::PutStr(const char * str)
 {
 	for(const char * p = str; *p; p++)
 		PutChr(*p);
 }
 
-void SLAPI CommLP15::PutInt(int16 s_data)
+void CommLP15::PutInt(int16 s_data)
 {
 	char * p_temp = (char *)&s_data;
 	PutChr(p_temp[1]);
 	PutChr(p_temp[0]);
 }
 
-void SLAPI CommLP15::PutLong(long s_data)
+void CommLP15::PutLong(long s_data)
 {
 	char * p_temp = (char *)&s_data;
 	for(int i = 3; i >= 0; i--)
@@ -814,7 +814,7 @@ static void FillMsgBuf_CAS(const char * pMsg, uint lineLen, uchar * pDataBuf, ui
 	ASSIGN_PTR(pIdx, p);
 }
 
-int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
+int CommLP15::SendPLU_16(const ScalePLU * pPLU)
 {
 	int    ok = 1;
 	char   buf[32];
@@ -946,7 +946,7 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	return ok;
 }
 
-int SLAPI CommLP15::SendPLU(const ScalePLU * pPLU)
+int CommLP15::SendPLU(const ScalePLU * pPLU)
 {
 	int   ok = 1, i;
 	if(Is_v16() || Data.Rec.Flags & SCALF_TCPIP) {
@@ -1022,7 +1022,7 @@ int SLAPI CommLP15::SendPLU(const ScalePLU * pPLU)
 	return ok;
 }
 
-int SLAPI CommLP15::GetData(int * pGdsNo, double * pWeight)
+int CommLP15::GetData(int * pGdsNo, double * pWeight)
 {
 	int    ok = -1, gds_no = 0;
 	double weight = 0.0;
@@ -1173,7 +1173,7 @@ int SLAPI CommLP15::GetData(int * pGdsNo, double * pWeight)
 //
 class CasCL5000J : public PPScaleDevice {
 public:
-	SLAPI  CasCL5000J(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), Err(0), MsgCode(0), SocketHandle(NULL), IsConnected(0)
+	CasCL5000J(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), Err(0), MsgCode(0), SocketHandle(NULL), IsConnected(0)
 	{
 		if(!(Data.Rec.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
@@ -1195,11 +1195,11 @@ public:
 			(WghtPrefix1 = WghtPrefix2).ShiftLeft();
 		}
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual int  GetData(int * pGdsNo, double * pWeight);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 		if(pData) {
 			if(Data.Rec.Flags & SCALF_TCPIP)
@@ -1209,15 +1209,15 @@ public:
 		}
 	}
 private:
-	int    SLAPI SendBarcodeFormat(const char * pBarcode);
-	int    SLAPI SendData(const char * pBuf, size_t bufLen);
-	int    SLAPI CheckSync();
-	int    SLAPI CheckAck();
-	int    SLAPI GetInt();
-	long   SLAPI GetLong();
-	void   SLAPI PutInt(int16);
-	void   SLAPI PutLong(long);
-	void   SLAPI PutStr(const char *);
+	int    SendBarcodeFormat(const char * pBarcode);
+	int    SendData(const char * pBuf, size_t bufLen);
+	int    CheckSync();
+	int    CheckAck();
+	int    GetInt();
+	long   GetLong();
+	void   PutInt(int16);
+	void   PutLong(long);
+	void   PutStr(const char *);
 
 	StrAssocArray ErrorCodes;
 	SString WghtPrefix1;
@@ -1229,7 +1229,7 @@ private:
 	SOCKET SocketHandle;
 };
 
-int SLAPI CasCL5000J::CheckSync()
+int CasCL5000J::CheckSync()
 {
 	return 1;
 	/*
@@ -1250,7 +1250,7 @@ int SLAPI CasCL5000J::CheckSync()
 	*/
 }
 
-int SLAPI CasCL5000J::SetConnection()
+int CasCL5000J::SetConnection()
 {
 	int    ok = 1;
 	if(Data.Rec.Flags & SCALF_TCPIP) {
@@ -1288,7 +1288,7 @@ int SLAPI CasCL5000J::SetConnection()
 	return ok;
 }
 
-int SLAPI CasCL5000J::CloseConnection()
+int CasCL5000J::CloseConnection()
 {
 	int    ok = -1;
 	if(IsConnected) {
@@ -1300,7 +1300,7 @@ int SLAPI CasCL5000J::CloseConnection()
 	return ok;
 }
 
-int SLAPI CasCL5000J::CheckAck()
+int CasCL5000J::CheckAck()
 {
 	int    ok = -1;
 	if(Data.Rec.Flags & SCALF_TCPIP) {
@@ -1321,7 +1321,7 @@ int SLAPI CasCL5000J::CheckAck()
 	return ok;
 }
 
-int SLAPI CasCL5000J::GetInt()
+int CasCL5000J::GetInt()
 {
 	union {
 		int16 result;
@@ -1332,7 +1332,7 @@ int SLAPI CasCL5000J::GetInt()
 	return result;
 }
 
-long SLAPI CasCL5000J::GetLong()
+long CasCL5000J::GetLong()
 {
 	union {
 		long  result;
@@ -1343,27 +1343,27 @@ long SLAPI CasCL5000J::GetLong()
 	return result;
 }
 
-void SLAPI CasCL5000J::PutStr(const char * str)
+void CasCL5000J::PutStr(const char * str)
 {
 	for(const char * p = str; *p; p++)
 		PutChr(*p);
 }
 
-void SLAPI CasCL5000J::PutInt(int16 s_data)
+void CasCL5000J::PutInt(int16 s_data)
 {
 	const char * p_temp = reinterpret_cast<const char *>(&s_data);
 	PutChr(p_temp[1]);
 	PutChr(p_temp[0]);
 }
 
-void SLAPI CasCL5000J::PutLong(long s_data)
+void CasCL5000J::PutLong(long s_data)
 {
 	const char * p_temp = reinterpret_cast<const char *>(&s_data);
 	for(int i = 3; i >= 0; i--)
 		PutChr(p_temp[i]);
 }
 
-int SLAPI CasCL5000J::SendData(const char * pBuf, size_t bufLen)
+int CasCL5000J::SendData(const char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	size_t data_size = bufLen + 3;
@@ -1393,7 +1393,7 @@ int SLAPI CasCL5000J::SendData(const char * pBuf, size_t bufLen)
 	return ok;
 }
 
-int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
+int CasCL5000J::SendPLU(const ScalePLU * pPLU)
 {
 	const  size_t direct_message_max_size = 300;
 	int    ok = 1;
@@ -1568,7 +1568,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 	return ok;
 }
 
-int SLAPI CasCL5000J::SendBarcodeFormat(const char * pFmt)
+int CasCL5000J::SendBarcodeFormat(const char * pFmt)
 {
 	int    ok = 1;
 	if(!isempty(pFmt)) {
@@ -1601,7 +1601,7 @@ int SLAPI CasCL5000J::SendBarcodeFormat(const char * pFmt)
 	return ok;
 }
 
-int SLAPI CasCL5000J::GetData(int * pGdsNo, double * pWeight)
+int CasCL5000J::GetData(int * pGdsNo, double * pWeight)
 {
 	return -1;
 }
@@ -1610,39 +1610,39 @@ int SLAPI CasCL5000J::GetData(int * pGdsNo, double * pWeight)
 //
 class CommMassaK : public PPScaleDevice {
 public:
-	SLAPI  CommMassaK(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), Err(0)
+	CommMassaK(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), Err(0)
 	{
 		if(!(Data.Rec.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 		CALLPTRMEMB(pData, SetSysParams(400, 5, 400, 5));
 	}
 private:
-	int    SLAPI CheckAck(uchar ackCode = 0x01);
-	int    SLAPI GetNumber(long *, int numBytes);
-	int    SLAPI PutBuf(char *, size_t numBytes);
-	int    SLAPI PutNumber(long number, size_t numBytes);
-	void   SLAPI MakeNumber(long number, char * pBuf, size_t bufLen);
-	void   SLAPI MakeString(const char * pStr, char * pBuf, size_t bufLen);
+	int    CheckAck(uchar ackCode = 0x01);
+	int    GetNumber(long *, int numBytes);
+	int    PutBuf(char *, size_t numBytes);
+	int    PutNumber(long number, size_t numBytes);
+	void   MakeNumber(long number, char * pBuf, size_t bufLen);
+	void   MakeString(const char * pStr, char * pBuf, size_t bufLen);
 
 	int    Err;
 };
 
-int SLAPI CommMassaK::SetConnection()
+int CommMassaK::SetConnection()
 {
 	//bioscom(SETS, (SCP_BAUD_9600 | SCP_DATA_8 | SCP_STOP_1 | SCP_PARITY_NO), PortNo);
 	InitPort(PortNo);
 	return 1;
 }
 
-int SLAPI CommMassaK::CheckAck(uchar ackCode)
+int CommMassaK::CheckAck(uchar ackCode)
 	{ return BIN(GetChr() == ackCode); }
 
-void SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
+void CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
 {
 	union {
 		long  n;
@@ -1653,14 +1653,14 @@ void SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
 		pBuf[i] = c[i];
 }
 
-void SLAPI CommMassaK::MakeString(const char * pStr, char * pBuf, size_t bufLen)
+void CommMassaK::MakeString(const char * pStr, char * pBuf, size_t bufLen)
 {
 	const size_t len = sstrlen(pStr);
 	for(size_t i = 0; i < bufLen; i++)
 		pBuf[i] = (i < len) ? pStr[i] : ' ';
 }
 
-int SLAPI CommMassaK::PutBuf(char * pBuf, size_t numBytes)
+int CommMassaK::PutBuf(char * pBuf, size_t numBytes)
 {
 	for(uint i = 0; i < numBytes; i++)
 		if(!PutChr(pBuf[i]))
@@ -1668,14 +1668,14 @@ int SLAPI CommMassaK::PutBuf(char * pBuf, size_t numBytes)
 	return 1;
 }
 
-int SLAPI CommMassaK::PutNumber(long number, size_t numBytes)
+int CommMassaK::PutNumber(long number, size_t numBytes)
 {
 	char   b[32];
 	MakeNumber(number, b, numBytes);
 	return PutBuf(b, numBytes);
 }
 
-int SLAPI CommMassaK::SendPLU(const ScalePLU * pPLU)
+int CommMassaK::SendPLU(const ScalePLU * pPLU)
 {
 	int    ok = 1;
 	char   b[128];
@@ -1709,7 +1709,7 @@ int SLAPI CommMassaK::SendPLU(const ScalePLU * pPLU)
 //
 class COMMassaK : public PPScaleDevice {
 public:
-	SLAPI  COMMassaK(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvMassaK(0), ResCode(mkErrOK)
+	COMMassaK(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvMassaK(0), ResCode(mkErrOK)
 	{
 		if(H_Port != INVALID_HANDLE_VALUE) {
 			CloseHandle(H_Port);
@@ -1719,14 +1719,14 @@ public:
 		PPObjGoods::ReadConfig(&goods_cfg);
 		WghtPrefix = atol(goods_cfg.WghtPrefix);
 	}
-	SLAPI ~COMMassaK()
+	~COMMassaK()
 	{
 		delete P_DrvMassaK;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
 private:
@@ -1746,17 +1746,17 @@ private:
 		mkErrAnswer,
 		mkErrParam
 	};
-	ComDispInterface * SLAPI InitDriver();
-	int  SLAPI SetMKProp(PPID id, long lVal);
-	int  SLAPI SetParam(long lVal);
-	int  SLAPI SetParam(const char * pStrVal);
-	int  SLAPI ExecMKOper(PPID id);
+	ComDispInterface * InitDriver();
+	int  SetMKProp(PPID id, long lVal);
+	int  SetParam(long lVal);
+	int  SetParam(const char * pStrVal);
+	int  ExecMKOper(PPID id);
 	ComDispInterface * P_DrvMassaK;
 	int  ResCode;
 	long WghtPrefix;
 };
 
-ComDispInterface * SLAPI COMMassaK::InitDriver()
+ComDispInterface * COMMassaK::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
 	THROW_MEM(p_drv = new ComDispInterface);
@@ -1772,11 +1772,11 @@ ComDispInterface * SLAPI COMMassaK::InitDriver()
 	return p_drv;
 }
 
-int SLAPI COMMassaK::SetMKProp(PPID id, long lVal)  { return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
-int SLAPI COMMassaK::SetParam(long lVal)            { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
-int SLAPI COMMassaK::SetParam(const char * pStrVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
+int COMMassaK::SetMKProp(PPID id, long lVal)  { return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
+int COMMassaK::SetParam(long lVal)            { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
+int COMMassaK::SetParam(const char * pStrVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
 
-int SLAPI COMMassaK::ExecMKOper(PPID id)
+int COMMassaK::ExecMKOper(PPID id)
 {
 	int    ok = BIN(P_DrvMassaK && P_DrvMassaK->CallMethod(id) > 0 && P_DrvMassaK->GetProperty(Result, &ResCode) > 0 &&  ResCode == mkErrOK);
 	if(!ok) {
@@ -1792,7 +1792,7 @@ int SLAPI COMMassaK::ExecMKOper(PPID id)
 	return ok;
 }
 
-int SLAPI COMMassaK::SetConnection()
+int COMMassaK::SetConnection()
 {
 	int    ok = 1;
 	long   log_num = 0;
@@ -1804,7 +1804,7 @@ int SLAPI COMMassaK::SetConnection()
 	return ok;
 }
 
-int SLAPI COMMassaK::SendPLU(const ScalePLU * pScalePLU)
+int COMMassaK::SendPLU(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	if(pScalePLU) {
@@ -1846,7 +1846,7 @@ int SLAPI COMMassaK::SendPLU(const ScalePLU * pScalePLU)
 	return ok;
 }
 
-int SLAPI COMMassaK::CloseConnection()
+int COMMassaK::CloseConnection()
 {
 	return ExecMKOper(Finalize);
 }
@@ -1855,25 +1855,25 @@ int SLAPI COMMassaK::CloseConnection()
 //
 class COMMassaKVPN : public PPScaleDevice {
 public:
-	SLAPI  COMMassaKVPN(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DbfTbl(0), P_Csv(0)
+	COMMassaKVPN(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DbfTbl(0), P_Csv(0)
 	{
 		PPGoodsConfig goods_cfg;
 		PPObjGoods::ReadConfig(&goods_cfg);
 		WghtPrefix = atol(goods_cfg.WghtPrefix);
 	}
-	SLAPI ~COMMassaKVPN()
+	~COMMassaKVPN()
 	{
 		delete P_DbfTbl;
 		delete P_Csv;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
 private:
-	int SLAPI CheckAckForPLU(); // @vmiller
+	int CheckAckForPLU(); // @vmiller
 
 	int    ResCode;
 	long   WghtPrefix;
@@ -1882,7 +1882,7 @@ private:
 };
 
 
-int SLAPI COMMassaKVPN::SetConnection()
+int COMMassaKVPN::SetConnection()
 {
 	int    ok = 1, num_flds = 0;
 	SString path;
@@ -1929,7 +1929,7 @@ int SLAPI COMMassaKVPN::SetConnection()
 	return ok;
 }
 
-int SLAPI COMMassaKVPN::CloseConnection()
+int COMMassaKVPN::CloseConnection()
 {
 	if(P_DbfTbl) {
 		P_DbfTbl->close();
@@ -1941,7 +1941,7 @@ int SLAPI COMMassaKVPN::CloseConnection()
 	return 1;
 }
 
-int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
+int COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	if(pScalePLU) {
@@ -2019,20 +2019,20 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 //
 class COMMassaKVer1 : public PPScaleDevice {
 public:
-	SLAPI  COMMassaKVer1(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvMassaK(0), ResCode(mkErrOK)
+	COMMassaKVer1(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvMassaK(0), ResCode(mkErrOK)
 	{
 	}
-	SLAPI ~COMMassaKVer1()
+	~COMMassaKVer1()
 	{
 		delete P_DrvMassaK;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *) { return 1; };
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  SendPLU(const ScalePLU *) { return 1; };
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
-	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
-	int SLAPI CloseConnection_();
+	virtual int  GetData(int * pGdsNo, double * pWeight);
+	int CloseConnection_();
 private:
 	enum {
 		Connection,
@@ -2051,19 +2051,19 @@ private:
 		mkErrParam,
 		mkErrSetParam
 	};
-	ComDispInterface * SLAPI InitDriver();
-	int  SLAPI SetMKProp(PPID id, long lVal);
-	int  SLAPI SetMKProp(PPID id, const char * pStrVal);
-	int  SLAPI SetParam(long lVal);
-	int  SLAPI SetParam(const char * pStrVal);
-	int  SLAPI GetMKProp(PPID id, int & rVal);
-	int  SLAPI GetMKProp(PPID id, double & rVal);
-	int  SLAPI ExecMKOper(PPID id);
+	ComDispInterface * InitDriver();
+	int  SetMKProp(PPID id, long lVal);
+	int  SetMKProp(PPID id, const char * pStrVal);
+	int  SetParam(long lVal);
+	int  SetParam(const char * pStrVal);
+	int  GetMKProp(PPID id, int & rVal);
+	int  GetMKProp(PPID id, double & rVal);
+	int  ExecMKOper(PPID id);
 	ComDispInterface * P_DrvMassaK;
 	int  ResCode;
 };
 
-ComDispInterface * SLAPI COMMassaKVer1::InitDriver()
+ComDispInterface * COMMassaKVer1::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
 	THROW_MEM(p_drv = new ComDispInterface);
@@ -2081,20 +2081,20 @@ ComDispInterface * SLAPI COMMassaKVer1::InitDriver()
 	return p_drv;
 }
 
-int SLAPI COMMassaKVer1::SetMKProp(PPID id, long lVal)
+int COMMassaKVer1::SetMKProp(PPID id, long lVal)
 	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
-int SLAPI COMMassaKVer1::SetMKProp(PPID id, const char * pStrVal)
+int COMMassaKVer1::SetMKProp(PPID id, const char * pStrVal)
 	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, pStrVal) > 0); }
-int SLAPI COMMassaKVer1::SetParam(long lVal)
+int COMMassaKVer1::SetParam(long lVal)
 	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
-int SLAPI COMMassaKVer1::SetParam(const char * pStrVal)
+int COMMassaKVer1::SetParam(const char * pStrVal)
 	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
-int SLAPI COMMassaKVer1::GetMKProp(PPID id, int & rVal)
+int COMMassaKVer1::GetMKProp(PPID id, int & rVal)
 	{ return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0); }
-int SLAPI COMMassaKVer1::GetMKProp(PPID id, double & rVal)
+int COMMassaKVer1::GetMKProp(PPID id, double & rVal)
 	{ return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0); }
 
-int SLAPI COMMassaKVer1::ExecMKOper(PPID id)
+int COMMassaKVer1::ExecMKOper(PPID id)
 {
 	int    ok = 1;
 	if(P_DrvMassaK) {
@@ -2121,7 +2121,7 @@ int SLAPI COMMassaKVer1::ExecMKOper(PPID id)
 	return ok;
 }
 
-int SLAPI COMMassaKVer1::SetConnection()
+int COMMassaKVer1::SetConnection()
 {
 	int    ok = 1;
 	long   log_num = 0;
@@ -2136,12 +2136,12 @@ int SLAPI COMMassaKVer1::SetConnection()
 	return ok;
 }
 
-int SLAPI COMMassaKVer1::CloseConnection_()
+int COMMassaKVer1::CloseConnection_()
 {
 	return ExecMKOper(CloseConnection);
 }
 
-int SLAPI COMMassaKVer1::GetData(int * pGdsNo, double * pWeight)
+int COMMassaKVer1::GetData(int * pGdsNo, double * pWeight)
 {
 	int    ok = 1;
 	int    division = 0, stable = 0;
@@ -2181,7 +2181,7 @@ typedef ushort (__cdecl * MT_CalcCrcProc)(const char *, uint);
 
 class TCPIPMToledo : public PPScaleDevice {
 public:
-	SLAPI  TCPIPMToledo(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvMT(0), P_AddStrAry(0),
+	TCPIPMToledo(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvMT(0), P_AddStrAry(0),
 		P_PLUStream(0), TrfrDLLHandle(0), TrfrDLLCall(0), CalcCrcCall(0), SocketHandle(0), IsConnected(0)
 	{
 		UseNewAlg = (Data.Rec.ProtocolVer >= 100) ? 0 : 1;
@@ -2190,16 +2190,16 @@ public:
 		SETIFZ(Data.Rec.LogNum, 1);
 		SOemToChar(Data.Rec.Name);
 	}
-	SLAPI ~TCPIPMToledo()
+	~TCPIPMToledo()
 	{
 		SFile::ZClose(&P_PLUStream);
 		delete P_DrvMT;
 		delete P_AddStrAry;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 		CALLPTRMEMB(pData, SetSysParams(0, 1000, 0, 1000));
 	}
@@ -2223,11 +2223,11 @@ private:
         mtErrCantDo,
         mtErrConnect
     };
-	ComDispInterface * SLAPI InitDriver();
-	int  SLAPI SetParam(long lVal);
-	int  SLAPI SetParam(const char * pStrVal);
-	int  SLAPI ExecMTOper(PPID id);
-	int  SLAPI NewAlgSendPLU(const ScalePLU *);
+	ComDispInterface * InitDriver();
+	int  SetParam(long lVal);
+	int  SetParam(const char * pStrVal);
+	int  ExecMTOper(PPID id);
+	int  NewAlgSendPLU(const ScalePLU *);
 	ComDispInterface * P_DrvMT;
 	SArray * P_AddStrAry;
 	FILE * P_PLUStream;
@@ -2239,7 +2239,7 @@ private:
 	int    UseNewAlg;
 };
 
-int SLAPI TCPIPMToledo::SetConnection()
+int TCPIPMToledo::SetConnection()
 {
 	int    ok = 1;
 	//char   ip[16];
@@ -2307,7 +2307,7 @@ int SLAPI TCPIPMToledo::SetConnection()
 	return ok;
 }
 
-int SLAPI TCPIPMToledo::CloseConnection()
+int TCPIPMToledo::CloseConnection()
 {
 	int     ok = -1;
 	SString buf, path, out_path;
@@ -2376,7 +2376,7 @@ int SLAPI TCPIPMToledo::CloseConnection()
 	return ok;
 }
 
-int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
+int TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 {
 	struct _PacketHeader {
 		uchar  StartByte;   // = 0x02
@@ -2614,7 +2614,7 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 	return ok;
 }
 
-int SLAPI TCPIPMToledo::SendPLU(const ScalePLU * pPLU)
+int TCPIPMToledo::SendPLU(const ScalePLU * pPLU)
 {
 	int    ok = 1;
 	if(UseNewAlg) {
@@ -2665,7 +2665,7 @@ int SLAPI TCPIPMToledo::SendPLU(const ScalePLU * pPLU)
 	return ok;
 }
 
-ComDispInterface * SLAPI TCPIPMToledo::InitDriver()
+ComDispInterface * TCPIPMToledo::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
 	THROW_MEM(p_drv = new ComDispInterface);
@@ -2679,17 +2679,17 @@ ComDispInterface * SLAPI TCPIPMToledo::InitDriver()
 	return p_drv;
 }
 
-int SLAPI TCPIPMToledo::SetParam(long lVal)
+int TCPIPMToledo::SetParam(long lVal)
 {
 	return BIN(P_DrvMT && P_DrvMT->SetParam(lVal) > 0);
 }
 
-int SLAPI TCPIPMToledo::SetParam(const char * pStrVal)
+int TCPIPMToledo::SetParam(const char * pStrVal)
 {
 	return BIN(P_DrvMT && P_DrvMT->SetParam(pStrVal) > 0);
 }
 
-int SLAPI TCPIPMToledo::ExecMTOper(PPID id)
+int TCPIPMToledo::ExecMTOper(PPID id)
 {
 	int  err_code = mtErrOK;
 	int  ok = BIN(P_DrvMT && P_DrvMT->CallMethod(id) > 0 &&
@@ -2711,21 +2711,21 @@ int SLAPI TCPIPMToledo::ExecMTOper(PPID id)
 //
 class CrystalCashServer : public PPScaleDevice {
 public:
-	SLAPI  CrystalCashServer(const PPScalePacket * pData) :
+	CrystalCashServer(const PPScalePacket * pData) :
 		PPScaleDevice(0, pData), P_OutTblScale(0), P_AddStrAry(0)
 	{
 		//ExpPaths = pExpPaths;
 		PPObjGoods::ReadConfig(&GCfg);
 	}
-	SLAPI ~CrystalCashServer()
+	~CrystalCashServer()
 	{
 		delete P_OutTblScale;
 		delete P_AddStrAry;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
 private:
@@ -2741,7 +2741,7 @@ private:
 	DbfTable * P_OutTblScale;
 };
 
-int SLAPI CrystalCashServer::SetConnection()
+int CrystalCashServer::SetConnection()
 {
 	int    ok = 1;
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_SCALE_DBF, ScalePath));
@@ -2759,7 +2759,7 @@ int SLAPI CrystalCashServer::SetConnection()
 	return ok;
 }
 
-int SLAPI CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
+int CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	if(P_OutTblScale) {
@@ -2812,7 +2812,7 @@ int SLAPI CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 	return ok;
 }
 
-int SLAPI CrystalCashServer::CloseConnection()
+int CrystalCashServer::CloseConnection()
 {
 	int    ok = 1;
 	SString add_msg_path;
@@ -2852,29 +2852,29 @@ int SLAPI CrystalCashServer::CloseConnection()
 //
 class WeightTerm : public PPScaleDevice {
 public:
-	SLAPI  WeightTerm(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData)
+	WeightTerm(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData)
 	{
 		if(!(Data.Rec.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *) { return -1; }
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData);
-	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
+	virtual int  SetConnection();
+	virtual int  SendPLU(const ScalePLU *) { return -1; }
+	virtual void GetDefaultSysParams(PPScalePacket * pData);
+	virtual int  GetData(int * pGdsNo, double * pWeight);
 };
 
-int SLAPI WeightTerm::SetConnection()
+int WeightTerm::SetConnection()
 {
 	InitPort(PortNo);
 	return 1;
 }
 
-void SLAPI WeightTerm::GetDefaultSysParams(PPScalePacket * pData)
+void WeightTerm::GetDefaultSysParams(PPScalePacket * pData)
 {
 	CALLPTRMEMB(pData, SetSysParams(100, 500, 100, 50));
 }
 
-int SLAPI WeightTerm::GetData(int * pGdsNo, double * pWeight)
+int WeightTerm::GetData(int * pGdsNo, double * pWeight)
 {
 	int    ok = -1, gds_no = 0;
 	double weight = 0.0;
@@ -2906,24 +2906,24 @@ int SLAPI WeightTerm::GetData(int * pGdsNo, double * pWeight)
 //
 class DIGI : public PPScaleDevice {
 public:
-	SLAPI  DIGI(const PPScalePacket * pData) : PPScaleDevice(0, pData), P_ScaleData(0), IntGrpCode(0), SocketHandle(NULL), Connected(0)
+	DIGI(const PPScalePacket * pData) : PPScaleDevice(0, pData), P_ScaleData(0), IntGrpCode(0), SocketHandle(NULL), Connected(0)
 	{
 		// @v10.5.7 ExpPaths = pExpPaths;
 	}
-	SLAPI ~DIGI()
+	~DIGI()
 	{
 		SFile::ZClose(&P_ScaleData);
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 		if(Data.Rec.Flags & SCALF_TCPIP)
 			CALLPTRMEMB(pData, SetSysParams(0, 15000, 0, 15000));
 	}
 private:
-	int    SLAPI ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName);
+	int    ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName);
 
 	long   IntGrpCode;
 	SString ScalePath;
@@ -2932,7 +2932,7 @@ private:
 	SOCKET SocketHandle;
 };
 
-int SLAPI DIGI::SetConnection()
+int DIGI::SetConnection()
 {
 	int    ok = 1;
 	if(!(Data.Rec.Flags & SCALF_TCPIP)) {
@@ -3016,7 +3016,7 @@ int FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
 	return 1;
 }
 
-int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName)
+int DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName)
 {
 	const int line_len_limit = oneof2(Data.Rec.ProtocolVer, 500, 503) ? 48 : 25;
 	if(lineLen == 0 || lineLen > 100)
@@ -3064,7 +3064,7 @@ int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lin
 	return 1;
 }
 
-int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
+int DIGI::SendPLU(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	long   expiry = 0;
@@ -3272,7 +3272,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 	return ok;
 }
 
-int SLAPI DIGI::CloseConnection()
+int DIGI::CloseConnection()
 {
 	int    ok = 1;
 	if(!(Data.Rec.Flags & SCALF_TCPIP)) {
@@ -3291,7 +3291,7 @@ int SLAPI DIGI::CloseConnection()
 //
 class Bizerba : public PPScaleDevice {
 public:
-	SLAPI  Bizerba(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData)
+	Bizerba(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData)
 	{
 		PPIniFile ini_file;
 		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_BIZERBA_WHOLEBARCODE, &CutBarcode);
@@ -3313,14 +3313,14 @@ public:
 		ResCode = bzErrOK;
 		UseNewAlg = BIN(Data.Rec.ProtocolVer >= 100);
 	}
-	SLAPI ~Bizerba()
+	~Bizerba()
 	{
 		delete P_DrvBizerba;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
 private:
@@ -3341,16 +3341,16 @@ private:
 		bzErrRead,
 		bzErrAnswer
 	};
-	int SLAPI SendPLUByDriver(const ScalePLU * pScalePLU);
-	ComDispInterface * SLAPI InitDriver();
-	int    SLAPI SetParam(int    iVal);
-	int    SLAPI SetParam(long   lVal);
-	int    SLAPI SetParam(double dVal);
-	int    SLAPI SetParam(const char * pStrVal);
-	int    SLAPI ExecBZOper(PPID id);
-	int    SLAPI PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t bufSize);
-	long   SLAPI PreparePrice(double price, long * pWeightClass);
-	long   SLAPI PrepareExpiry(LDATE expiry);
+	int SendPLUByDriver(const ScalePLU * pScalePLU);
+	ComDispInterface * InitDriver();
+	int    SetParam(int    iVal);
+	int    SetParam(long   lVal);
+	int    SetParam(double dVal);
+	int    SetParam(const char * pStrVal);
+	int    ExecBZOper(PPID id);
+	int    PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t bufSize);
+	long   PreparePrice(double price, long * pWeightClass);
+	long   PrepareExpiry(LDATE expiry);
 
 	ComDispInterface * P_DrvBizerba;
 	SOCKET SocketHandle;
@@ -3362,7 +3362,7 @@ private:
 	long   AddInfoFieldId;
 };
 
-ComDispInterface * SLAPI Bizerba::InitDriver()
+ComDispInterface * Bizerba::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
 	THROW_MEM(p_drv = new ComDispInterface);
@@ -3380,16 +3380,16 @@ ComDispInterface * SLAPI Bizerba::InitDriver()
 	return p_drv;
 }
 
-int SLAPI Bizerba::SetParam(int iVal)
+int Bizerba::SetParam(int iVal)
 	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(iVal) > 0); }
-int SLAPI Bizerba::SetParam(long lVal)
+int Bizerba::SetParam(long lVal)
 	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(lVal) > 0); }
-int SLAPI Bizerba::SetParam(double dVal)
+int Bizerba::SetParam(double dVal)
 	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(dVal) > 0); }
-int SLAPI Bizerba::SetParam(const char * pStrVal)
+int Bizerba::SetParam(const char * pStrVal)
 	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(pStrVal) > 0); }
 
-int SLAPI Bizerba::ExecBZOper(PPID id)
+int Bizerba::ExecBZOper(PPID id)
 {
 	int    ok = BIN(P_DrvBizerba && P_DrvBizerba->CallMethod(id) > 0 &&
 		P_DrvBizerba->GetProperty(ErrorCode, &ResCode) > 0 && ResCode == bzErrOK);
@@ -3407,7 +3407,7 @@ int SLAPI Bizerba::ExecBZOper(PPID id)
 	return ok;
 }
 
-int SLAPI Bizerba::SetConnection()
+int Bizerba::SetConnection()
 {
 	int    ok = 1;
 	//char   ip[16];
@@ -3452,7 +3452,7 @@ int SLAPI Bizerba::SetConnection()
 	return ok;
 }
 
-int SLAPI Bizerba::PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t bufSize)
+int Bizerba::PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t bufSize)
 {
 	char   gds_name[256];
 	SString temp_buf;
@@ -3481,7 +3481,7 @@ int SLAPI Bizerba::PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t
 	return 1;
 }
 
-long SLAPI Bizerba::PreparePrice(double price, long * pWeightClass)
+long Bizerba::PreparePrice(double price, long * pWeightClass)
 {
 	int    mult = 100, weight_class = 0;
 	if(price >= 10000) {
@@ -3492,7 +3492,7 @@ long SLAPI Bizerba::PreparePrice(double price, long * pWeightClass)
 	return R0i(price * mult);
 }
 
-long SLAPI Bizerba::PrepareExpiry(LDATE expiry)
+long Bizerba::PrepareExpiry(LDATE expiry)
 {
 	long expiry_days = 0;
 	if(expiry != ZERODATE) {
@@ -3503,7 +3503,7 @@ long SLAPI Bizerba::PrepareExpiry(LDATE expiry)
 	return expiry_days;
 }
 
-int SLAPI Bizerba::SendPLUByDriver(const ScalePLU * pScalePLU)
+int Bizerba::SendPLUByDriver(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	if(pScalePLU) {
@@ -3546,7 +3546,7 @@ int SLAPI Bizerba::SendPLUByDriver(const ScalePLU * pScalePLU)
 	return ok;
 }
 
-int SLAPI Bizerba::SendPLU(const ScalePLU * pScalePLU)
+int Bizerba::SendPLU(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	if(pScalePLU) {
@@ -3641,7 +3641,7 @@ int SLAPI Bizerba::SendPLU(const ScalePLU * pScalePLU)
 	return ok;
 }
 
-int SLAPI Bizerba::CloseConnection()
+int Bizerba::CloseConnection()
 {
 	int    ok = 1;
 	if(UseNewAlg) {
@@ -3665,7 +3665,7 @@ int SLAPI Bizerba::CloseConnection()
 
 class ShtrihPrint : public PPScaleDevice {
 public:
-	SLAPI  ShtrihPrint(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvShtrih(0), StrCountInMsg(1), ResCode(RESCODE_NO_ERROR)
+	ShtrihPrint(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_DrvShtrih(0), StrCountInMsg(1), ResCode(RESCODE_NO_ERROR)
 	{
 		if(H_Port != INVALID_HANDLE_VALUE) {
 			CloseHandle(H_Port);
@@ -3678,14 +3678,14 @@ public:
 		WghtCntPrefix = (temp_buf = goods_cfg.WghtCntPrefix).Strip().ToLong();
 		MsgN = 0;
 	}
-	SLAPI ~ShtrihPrint()
+	~ShtrihPrint()
 	{
 		delete P_DrvShtrih;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
 private:
@@ -3726,14 +3726,14 @@ private:
 		GetStringsCountInMessage, // Функция получения количества строк в сообщении
 		SetMessageData            // Функция записи сообщений к товару
 	};
-	ComDispInterface * SLAPI InitDriver();
-	int    SLAPI GetSPProp(PPID id, long & rVal);
-	int    SLAPI SetSPProp(PPID id, long lVal, int writeOnly = 0);
-	int    SLAPI SetSPProp(PPID id, double dVal, int writeOnly = 0);
-	int    SLAPI SetSPProp(PPID id, const char * pStrVal, int writeOnly = 0);
-	int    SLAPI SetSPProp(PPID id, LDATE dtVal, int writeOnly = 0);
-	int    SLAPI ExecSPOper(PPID id);
-	void   SLAPI SetErrorMessage();
+	ComDispInterface * InitDriver();
+	int    GetSPProp(PPID id, long & rVal);
+	int    SetSPProp(PPID id, long lVal, int writeOnly = 0);
+	int    SetSPProp(PPID id, double dVal, int writeOnly = 0);
+	int    SetSPProp(PPID id, const char * pStrVal, int writeOnly = 0);
+	int    SetSPProp(PPID id, LDATE dtVal, int writeOnly = 0);
+	int    ExecSPOper(PPID id);
+	void   SetErrorMessage();
 	ComDispInterface * P_DrvShtrih;
 	int    ResCode;
 	long   WghtPrefix;
@@ -3742,7 +3742,7 @@ private:
 	long   MsgN;          // Номер сообщения. Увеличивается после каждой новой загрузки сообщения.
 };
 
-ComDispInterface * SLAPI ShtrihPrint::InitDriver()
+ComDispInterface * ShtrihPrint::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
 	THROW_MEM(p_drv = new ComDispInterface);
@@ -3789,7 +3789,7 @@ ComDispInterface * SLAPI ShtrihPrint::InitDriver()
 	return p_drv;
 }
 
-void SLAPI ShtrihPrint::SetErrorMessage()
+void ShtrihPrint::SetErrorMessage()
 {
 	char   err_buf[MAXPATH];
 	MEMSZERO(err_buf);
@@ -3801,18 +3801,18 @@ void SLAPI ShtrihPrint::SetErrorMessage()
 	}
 }
 
-int SLAPI ShtrihPrint::GetSPProp(PPID id, long & rVal)
+int ShtrihPrint::GetSPProp(PPID id, long & rVal)
 	{ return (P_DrvShtrih && P_DrvShtrih->GetProperty(id, &rVal) > 0) ? 1 : 0; }
-int SLAPI ShtrihPrint::SetSPProp(PPID id, long lVal, int writeOnly /*=0*/)
+int ShtrihPrint::SetSPProp(PPID id, long lVal, int writeOnly /*=0*/)
 	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, lVal, writeOnly) > 0) ? 1 : 0; }
-int SLAPI ShtrihPrint::SetSPProp(PPID id, double dVal, int writeOnly /*=0*/)
+int ShtrihPrint::SetSPProp(PPID id, double dVal, int writeOnly /*=0*/)
 	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, dVal, writeOnly) > 0) ? 1 : 0; }
-int SLAPI ShtrihPrint::SetSPProp(PPID id, const char * pStrVal, int writeOnly /*=0*/)
+int ShtrihPrint::SetSPProp(PPID id, const char * pStrVal, int writeOnly /*=0*/)
 	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, pStrVal, writeOnly) > 0) ? 1 : 0; }
-int SLAPI ShtrihPrint::SetSPProp(PPID id, LDATE dtVal, int writeOnly /*=0*/)
+int ShtrihPrint::SetSPProp(PPID id, LDATE dtVal, int writeOnly /*=0*/)
 	{ return (P_DrvShtrih && P_DrvShtrih->SetProperty(id, dtVal, writeOnly) > 0) ? 1 : 0; }
 
-int SLAPI ShtrihPrint::ExecSPOper(PPID id)
+int ShtrihPrint::ExecSPOper(PPID id)
 {
 	int  ok = (P_DrvShtrih && P_DrvShtrih->CallMethod(id) > 0 &&
 		P_DrvShtrih->GetProperty(ResultCode, &ResCode) > 0 &&  ResCode == RESCODE_NO_ERROR) ? 1 : 0;
@@ -3821,7 +3821,7 @@ int SLAPI ShtrihPrint::ExecSPOper(PPID id)
 	return ok;
 }
 
-int SLAPI ShtrihPrint::SetConnection()
+int ShtrihPrint::SetConnection()
 {
 	int   ok = 1;
 	THROW(P_DrvShtrih = InitDriver());
@@ -3855,7 +3855,7 @@ int SLAPI ShtrihPrint::SetConnection()
 	return ok;
 }
 
-int SLAPI ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
+int ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	if(pScalePLU) {
@@ -3918,7 +3918,7 @@ int SLAPI ShtrihPrint::SendPLU(const ScalePLU * pScalePLU)
 	return ok;
 }
 
-int SLAPI ShtrihPrint::CloseConnection()
+int ShtrihPrint::CloseConnection()
 {
 	return ExecSPOper(Disconnect);
 }
@@ -3927,17 +3927,17 @@ int SLAPI ShtrihPrint::CloseConnection()
 //
 class ShtrihCE : public PPScaleDevice {
 public:
-	SLAPI  ShtrihCE(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), FixedMsgResID(0x00102030), P_FOut(0)
+	ShtrihCE(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), FixedMsgResID(0x00102030), P_FOut(0)
 	{
 	}
-	SLAPI ~ShtrihCE()
+	~ShtrihCE()
 	{
 		delete P_FOut;
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
 private:
@@ -3947,7 +3947,7 @@ private:
 	SFile * P_FOut;
 };
 
-int SLAPI ShtrihCE::SetConnection()
+int ShtrihCE::SetConnection()
 {
 	int    ok = 1;
 	ZDELETE(P_FOut);
@@ -3970,7 +3970,7 @@ int SLAPI ShtrihCE::SetConnection()
 	return ok;
 }
 
-int SLAPI ShtrihCE::CloseConnection()
+int ShtrihCE::CloseConnection()
 {
 	if(P_FOut) {
 		{
@@ -3995,7 +3995,7 @@ int SLAPI ShtrihCE::CloseConnection()
 	return 1;
 }
 
-int SLAPI ShtrihCE::SendPLU(const ScalePLU * pScalePLU)
+int ShtrihCE::SendPLU(const ScalePLU * pScalePLU)
 {
 /*
 ##@@&&
@@ -4081,17 +4081,17 @@ $$$RPL
 //
 class ExportToFile : public PPScaleDevice {
 public:
-	SLAPI  ExportToFile(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_GoodsExp(0)
+	ExportToFile(int p, const PPScalePacket * pData) : PPScaleDevice(p, pData), P_GoodsExp(0)
 	{
 	}
-	SLAPI ~ExportToFile()
+	~ExportToFile()
 	{
 		ZDELETE(P_GoodsExp);
 	}
-	virtual int  SLAPI SetConnection();
-	virtual int  SLAPI CloseConnection();
-	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScalePacket * pData)
+	virtual int  SetConnection();
+	virtual int  CloseConnection();
+	virtual int  SendPLU(const ScalePLU *);
+	virtual void GetDefaultSysParams(PPScalePacket * pData)
 	{
 	}
 private:
@@ -4099,7 +4099,7 @@ private:
 	PPObjGoods GObj;
 };
 
-int SLAPI ExportToFile::SetConnection()
+int ExportToFile::SetConnection()
 {
 	int    ok = -1;
 	SString ini_file_name;
@@ -4121,13 +4121,13 @@ int SLAPI ExportToFile::SetConnection()
 	return ok;
 }
 
-int SLAPI ExportToFile::CloseConnection()
+int ExportToFile::CloseConnection()
 {
 	ZDELETE(P_GoodsExp);
 	return 1;
 }
 
-int SLAPI ExportToFile::SendPLU(const ScalePLU * pScalePLU)
+int ExportToFile::SendPLU(const ScalePLU * pScalePLU)
 {
 	int    ok = -1;
 	if(pScalePLU && P_GoodsExp) {
@@ -4143,7 +4143,7 @@ int SLAPI ExportToFile::SendPLU(const ScalePLU * pScalePLU)
 //
 //
 //
-int SLAPI GetPort(const char * pPortName, int * pPortNo)
+int GetPort(const char * pPortName, int * pPortNo)
 {
 	int    p = -1;
 	if(IsComDvcSymb(pPortName, &p) == comdvcsCom && p > 0 && p < 32) {
@@ -4156,18 +4156,18 @@ int SLAPI GetPort(const char * pPortName, int * pPortNo)
 	}
 }
 
-SLAPI PPScalePacket::PPScalePacket() : PPExtStrContainer()
+PPScalePacket::PPScalePacket() : PPExtStrContainer()
 {
 }
 
-PPScalePacket & SLAPI PPScalePacket::Z()
+PPScalePacket & PPScalePacket::Z()
 {
 	PPExtStrContainer::Z();
 	MEMSZERO(Rec);
 	return *this;
 }
 
-void SLAPI PPScalePacket::SetSysParams(uint _getNumTries, uint _getDelay, uint _putNumTries, uint _putDelay)
+void PPScalePacket::SetSysParams(uint _getNumTries, uint _getDelay, uint _putNumTries, uint _putDelay)
 {
 	Rec.Get_NumTries = static_cast<uint16>(_getNumTries);
 	Rec.Get_Delay = static_cast<uint16>(_getDelay);
@@ -4175,12 +4175,12 @@ void SLAPI PPScalePacket::SetSysParams(uint _getNumTries, uint _getDelay, uint _
 	Rec.Put_Delay = static_cast<uint16>(_putDelay);
 }
 
-SLAPI PPObjScale::PPObjScale(void * extraPtr) : PPObjReference(PPOBJ_SCALE, extraPtr)
+PPObjScale::PPObjScale(void * extraPtr) : PPObjReference(PPOBJ_SCALE, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-int SLAPI PPObjScale::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRSCALE, 0); }
+int PPObjScale::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRSCALE, 0); }
 
 class ScaleDialog : public TDialog {
 public:
@@ -4455,7 +4455,7 @@ int ScaleDialog::getDTS(PPScalePacket * pData)
 	return ok;
 }
 
-int SLAPI PPObjScale::CheckDup(PPID objID, const PPScalePacket * pPack)
+int PPObjScale::CheckDup(PPID objID, const PPScalePacket * pPack)
 {
 	if(pPack->Rec.Flags & SCALF_TCPIP || pPack->Rec.BcPrefix) {
 		PPScale rec;
@@ -4508,7 +4508,7 @@ struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 };
 */
 
-int SLAPI PPObjScale::IsPacketEq(const PPScalePacket & rS1, const PPScalePacket & rS2, long flags)
+int PPObjScale::IsPacketEq(const PPScalePacket & rS1, const PPScalePacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 	CMP_MEMB(ID);
@@ -4559,7 +4559,7 @@ int SLAPI PPObjScale::IsPacketEq(const PPScalePacket & rS1, const PPScalePacket 
 	return 1;
 }
 
-int SLAPI PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
+int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	int    do_dirty = 0;
@@ -4628,7 +4628,7 @@ int SLAPI PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjScale::GetPacket(PPID id, PPScalePacket * pPack)
+int PPObjScale::GetPacket(PPID id, PPScalePacket * pPack)
 {
 	int    ok = -1;
 	assert(pPack);
@@ -4648,7 +4648,7 @@ int SLAPI PPObjScale::GetPacket(PPID id, PPScalePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjScale::Edit(PPID * pID, void * extraPtr)
+int PPObjScale::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel;
@@ -4697,7 +4697,7 @@ int SLAPI PPObjScale::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && oneof3(_obj, PPOBJ_GOODSGROUP, PPOBJ_QUOTKIND, PPOBJ_LOCATION)) {
@@ -4720,7 +4720,7 @@ int SLAPI PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjScale::SerializePacket(int dir, PPScalePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjScale::SerializePacket(int dir, PPScalePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -4731,10 +4731,10 @@ int SLAPI PPObjScale::SerializePacket(int dir, PPScalePacket * pPack, SBuffer & 
 
 IMPL_DESTROY_OBJ_PACK(PPObjScale, PPScalePacket);
 
-int SLAPI PPObjScale::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjScale::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjScale, PPScalePacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjScale::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjScale::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1, r;
 	if(p && p->Data) {
@@ -4798,7 +4798,7 @@ int SLAPI PPObjScale::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-int SLAPI PPObjScale::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjScale::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -4813,7 +4813,7 @@ int SLAPI PPObjScale::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	return ok;
 }
 
-int SLAPI PPObjScale::GetListWithBcPrefix(LAssocArray * pList)
+int PPObjScale::GetListWithBcPrefix(LAssocArray * pList)
 {
 	int    ok = -1;
 	PPScale rec;
@@ -4828,14 +4828,14 @@ int SLAPI PPObjScale::GetListWithBcPrefix(LAssocArray * pList)
 //
 // PPObjScale::PrepareData
 //
-static int SLAPI GetOutputFileName(PPID id, SString & rBuf)
+static int GetOutputFileName(PPID id, SString & rBuf)
 {
 	SString path;
 	path.Cat("SC").CatLongZ(id, 6).Dot().Cat("PLU");
 	return BIN(PPGetFilePath(PPPATH_OUT, path, rBuf));
 }
 
-int SLAPI PPObjScale::IsPassive(PPID id, const PPScale * pScale)
+int PPObjScale::IsPassive(PPID id, const PPScale * pScale)
 {
 	int    ok = 0;
 	PPScale scale;
@@ -4856,7 +4856,7 @@ int SLAPI PPObjScale::IsPassive(PPID id, const PPScale * pScale)
 	return reinterpret_cast<void *>((onlyGroups << 24) | groupID);
 }
 
-StrAssocArray * SLAPI PPObjScale::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjScale::MakeStrAssocList(void * extraPtr)
 {
 	const  long extra_param = reinterpret_cast<long>(extraPtr);
 	PPID   scale_type = extra_param >> 24;
@@ -4883,7 +4883,7 @@ StrAssocArray * SLAPI PPObjScale::MakeStrAssocList(void * extraPtr)
 
 static const char * P_ScalePrepareFormatSignature = "PPSCPF"; // @persistent
 
-int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
+int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 {
 	int    ok = -1;
 	PPViewGoodsRest * grv = 0;
@@ -5047,19 +5047,19 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 	return ok;
 }
 
-void SLAPI PPObjScale::InitStat()
+void PPObjScale::InitStat()
 {
 	MEMSZERO(StatBuf);
 }
 
-void SLAPI PPObjScale::GetStat(Stat * pStat) const
+void PPObjScale::GetStat(Stat * pStat) const
 {
 	ASSIGN_PTR(pStat, StatBuf);
 }
 //
 // PPObjScale::TransmitData
 //
-int SLAPI PPObjScale::SendPlu(PPScalePacket * pScaleData, const char * pFileName, int updateOnly, PPLogger * pLogger)
+int PPObjScale::SendPlu(PPScalePacket * pScaleData, const char * pFileName, int updateOnly, PPLogger * pLogger)
 {
 	int    ok = 1;
 	int    port = 0;
@@ -5200,7 +5200,7 @@ int SLAPI PPObjScale::SendPlu(PPScalePacket * pScaleData, const char * pFileName
 	return ok;
 }
 
-int SLAPI PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
+int PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 {
 	int    ok = -1;
 	PPScalePacket pack;
@@ -5292,7 +5292,7 @@ int SLAPI PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 	return ok;
 }
 
-static PPScaleDevice * SLAPI GetScaleDevice(const PPScalePacket * pScaleData)
+static PPScaleDevice * GetScaleDevice(const PPScalePacket * pScaleData)
 {
 	int    port = 0;
 	PPScaleDevice * p_comm = 0;
@@ -5428,7 +5428,7 @@ IMPL_HANDLE_EVENT(ScalePrepDlg)
 	}
 }
 
-int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
+int ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 {
 	int    r  = -1;
 	ScalePrepData data;
@@ -5450,7 +5450,7 @@ int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 	return r;
 }
 
-/*static*/int SLAPI PPObjScale::PrepareData(PPID scaleID)
+/*static*/int PPObjScale::PrepareData(PPID scaleID)
 {
 	PPID   id = scaleID;
 	long   flags = 0;
@@ -5473,7 +5473,7 @@ int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 	return 1;
 }
 
-/*static*/int SLAPI PPObjScale::TransmitData(PPID scaleID)
+/*static*/int PPObjScale::TransmitData(PPID scaleID)
 {
 	PPID   id = scaleID;
 	long   flags = 0;
@@ -5496,7 +5496,7 @@ int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 	return 1;
 }
 
-int SLAPI GetScaleData(PPID scaleID, TIDlgInitData * pData)
+int GetScaleData(PPID scaleID, TIDlgInitData * pData)
 {
 	int    ok = -1;
 	TIDlgInitData   tidi;
@@ -5541,7 +5541,7 @@ int SLAPI GetScaleData(PPID scaleID, TIDlgInitData * pData)
 	return ok;
 }
 
-int SLAPI GetDefScaleData(TIDlgInitData * pData)
+int GetDefScaleData(TIDlgInitData * pData)
 {
 	int    ok = -1;
 	PPEquipConfig  eq_cfg;
@@ -5568,10 +5568,10 @@ int SLAPI GetDefScaleData(TIDlgInitData * pData)
 //
 class ScaleCache : public ObjCache {
 public:
-	SLAPI  ScaleCache() : ObjCache(PPOBJ_SCALE, sizeof(ScaleData)) {}
+	ScaleCache() : ObjCache(PPOBJ_SCALE, sizeof(ScaleData)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct ScaleData : public ObjCacheEntry {
 		uint16 Get_NumTries;   //
@@ -5592,7 +5592,7 @@ public:
 	};
 };
 
-int SLAPI ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	ScaleData * p_cache_rec = static_cast<ScaleData *>(pEntry);
@@ -5628,7 +5628,7 @@ int SLAPI ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI ScaleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void ScaleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPScalePacket * p_data_pack = static_cast<PPScalePacket *>(pDataRec);
 	const ScaleData * p_cache_rec = static_cast<const ScaleData *>(pEntry);

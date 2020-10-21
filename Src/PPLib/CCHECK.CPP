@@ -13,8 +13,8 @@ static int DoCCheckTextLog()
 	return BIN(/* @temp(..31/12/2010) {*/r_ccfg.Flags & CCFLG_DEBUG || /*}*/ r_ccfg.Flags & CCFLG_LOGCCHECK);
 }
 
-//#define DECL_INVARIANT_C()    int SLAPI InvariantC(SInvariantParam * pInvP) const
-//#define IMPL_INVARIANT_C(cls) int SLAPI cls::InvariantC(SInvariantParam * pInvP) const
+//#define DECL_INVARIANT_C()    int InvariantC(SInvariantParam * pInvP) const
+//#define IMPL_INVARIANT_C(cls) int cls::InvariantC(SInvariantParam * pInvP) const
 //
 //
 //
@@ -644,17 +644,17 @@ IMPL_INVARIANT_C(CCheckPacket)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI CCheckPacket::CCheckPacket() : UpdFlags(0), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0)
+CCheckPacket::CCheckPacket() : UpdFlags(0), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0)
 {
 }
 
-SLAPI CCheckPacket::~CCheckPacket()
+CCheckPacket::~CCheckPacket()
 {
 	ZDELETE(P_DlvrAddr);
 	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb); // @v10.9.0
 }
 
-CCheckPacket & SLAPI CCheckPacket::Z()
+CCheckPacket & CCheckPacket::Z()
 {
 	UpdFlags = 0;
 	PctDis   = 0;
@@ -674,7 +674,7 @@ CCheckPacket & SLAPI CCheckPacket::Z()
 	return *this;
 }
 
-int SLAPI CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
+int CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
 {
 	/*
 	struct Rec {
@@ -727,17 +727,17 @@ int SLAPI CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
 	return 1;
 }
 
-int SLAPI CCheckPacket::HasExt() const
+int CCheckPacket::HasExt() const
 {
 	// @v10.6.8 Ext.CreationUserID
 	return BIN(Ext.TableNo || Ext.SalerID || Ext.GuestCount || Ext.LinkCheckID ||
 		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.CreationUserID || Ext.Memo[0] || Ext.AddrID);
 }
 
-uint  SLAPI CCheckPacket::GetCount() const { return Items_.getCount(); }
+uint  CCheckPacket::GetCount() const { return Items_.getCount(); }
 const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) const { return Items_.at(pos); }
 
-int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial) const
+int CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial) const
 {
 	CCheckLineTbl::Rec * p_item;
 	if(Items_.enumItems(pPos, (void **)&p_item)) {
@@ -752,7 +752,7 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SStri
 		return 0;
 }
 
-int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
+int CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 {
 	CCheckLineTbl::Rec * p_item;
 	if(Items_.enumItems(pPos, (void **)&p_item)) {
@@ -789,12 +789,12 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 		return 0;
 }
 
-void SLAPI CCheckPacket::InitLineIteration()
+void CCheckPacket::InitLineIteration()
 {
 	Items_.setPointer(0);
 }
 
-int SLAPI CCheckPacket::NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial)
+int CCheckPacket::NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial)
 {
 	uint   pos = Items_.getPointer();
 	int    ok = EnumLines(&pos, pItem, pSerial);
@@ -803,7 +803,7 @@ int SLAPI CCheckPacket::NextLineIteration(CCheckLineTbl::Rec * pItem, SString * 
 	return ok;
 }
 
-int SLAPI CCheckPacket::RemoveLine_(uint pos)
+int CCheckPacket::RemoveLine_(uint pos)
 {
 	if(pos < Items_.getCount()) {
 		Items_.atFree(pos);
@@ -818,7 +818,7 @@ int SLAPI CCheckPacket::RemoveLine_(uint pos)
 		return 0;
 }
 
-int SLAPI CCheckPacket::CopyLines(const CCheckPacket & rS)
+int CCheckPacket::CopyLines(const CCheckPacket & rS)
 {
 	int    ok = 1;
 	THROW_SL(Items_.copy(rS.Items_));
@@ -828,7 +828,7 @@ int SLAPI CCheckPacket::CopyLines(const CCheckPacket & rS)
 	return ok;
 }
 
-int SLAPI CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
+int CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 {
 	int16  rbc = static_cast<int16>(rByCheck);
 	return Items_.lsearch(&rbc, pPos, PTR_CMPFUNC(int16), offsetof(CCheckLineTbl::Rec, RByCheck));
@@ -836,7 +836,7 @@ int SLAPI CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 
 static const int ccpack_textext_ident_list[] = { CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl, CCheckPacket::extssRemoteProcessingTa };
 
-int SLAPI CCheckPacket::PackTextExt(SString & rResult) const
+int CCheckPacket::PackTextExt(SString & rResult) const
 {
 	rResult.Z();
 	int    ok = -1;
@@ -857,12 +857,12 @@ int SLAPI CCheckPacket::PackTextExt(SString & rResult) const
 	return ok;
 }
 
-int SLAPI CCheckPacket::UnpackTextExt(const SString & rBuf)
+int CCheckPacket::UnpackTextExt(const SString & rBuf)
 {
 	return Helper_UnpackTextExt(rBuf, this, &this->LnTextList);
 }
 
-int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
+int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 {
 	int    ok = -1;
 	SString line_buf;
@@ -887,13 +887,13 @@ int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/* @v10.3.9 int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
+/* @v10.3.9 int CCheckPacket::PackLineTextExt(SString & rResult) const
 {
 	rResult.Z();
 	return Helper_PackLineTextExt(rResult);
 }*/
 
-/*static*/int SLAPI CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList)
+/*static*/int CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList)
 {
 	int   ok = -1;
 	CALLPTRMEMB(pSc, SetBuffer(0));
@@ -924,7 +924,7 @@ int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/* @v10.3.9 (replaced with Helper_UnpackTextExt) int SLAPI CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList)
+/* @v10.3.9 (replaced with Helper_UnpackTextExt) int CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList)
 {
 	int   ok = 1;
 	rList.Z();
@@ -947,7 +947,7 @@ int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }*/
 
-/*static*/int SLAPI CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, StrAssocArray & rList, const char * pText)
+/*static*/int CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, StrAssocArray & rList, const char * pText)
 {
 	int    ok = 1;
 	SString common_buf;
@@ -958,7 +958,7 @@ int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/*static*/int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, const StrAssocArray & rList, SString & rBuf)
+/*static*/int CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, const StrAssocArray & rList, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -969,15 +969,15 @@ int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/* @v10.3.9 int SLAPI CCheckPacket::UnpackLineTextExt(const SString & rBuf) 
+/* @v10.3.9 int CCheckPacket::UnpackLineTextExt(const SString & rBuf) 
 { 
 	// @v10.3.9 return Helper_UnpackLineTextExt(rBuf, LnTextList); 
 	return Helper_UnpackTextExt(rBuf, 0, &LnTextList); // @v10.3.9 
 }*/
-int SLAPI CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText) { return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
-int SLAPI CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const { return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
+int CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText) { return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
+int CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const { return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
 
-int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
+int CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 {
 	int    ok = -1, found = 0;
 	uint   _p = 0;
@@ -1015,7 +1015,7 @@ int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 	return ok;
 }
 
-int SLAPI CCheckPacket::SetSCardSpecialTreatmentIdentifyReplyBlock(const void * pStirb)
+int CCheckPacket::SetSCardSpecialTreatmentIdentifyReplyBlock(const void * pStirb)
 {
 	const SCardSpecialTreatment::IdentifyReplyBlock * p_stirb_outer = static_cast<const SCardSpecialTreatment::IdentifyReplyBlock *>(pStirb);
 	SCardSpecialTreatment::IdentifyReplyBlock * p_stirb_inner = static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb);
@@ -1039,7 +1039,7 @@ int SLAPI CCheckPacket::SetSCardSpecialTreatmentIdentifyReplyBlock(const void * 
 	return 1;
 }
 
-int SLAPI CCheckPacket::GetSCardSpecialTreatmentIdentifyReplyBlock(void * pStirb) const
+int CCheckPacket::GetSCardSpecialTreatmentIdentifyReplyBlock(void * pStirb) const
 {
 	if(P_Stirb) {
 		ASSIGN_PTR(static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(pStirb), *static_cast<const SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb));
@@ -1052,7 +1052,7 @@ int SLAPI CCheckPacket::GetSCardSpecialTreatmentIdentifyReplyBlock(void * pStirb
 	}
 }
 
-int SLAPI CCheckPacket::_SetLineGoodsID(uint lineIdx/*0..*/, PPID goodsID)
+int CCheckPacket::_SetLineGoodsID(uint lineIdx/*0..*/, PPID goodsID)
 {
 	if(lineIdx < Items_.getCount()) {
 		Items_.at(lineIdx).GoodsID = goodsID;
@@ -1062,7 +1062,7 @@ int SLAPI CCheckPacket::_SetLineGoodsID(uint lineIdx/*0..*/, PPID goodsID)
 		return -1;
 }
 
-int SLAPI CCheckPacket::GetLineExt(int pos /* 1.. */, LineExt & rExt) const
+int CCheckPacket::GetLineExt(int pos /* 1.. */, LineExt & rExt) const
 {
 	int    ok = 0;
 	uint   _p = 0;
@@ -1075,7 +1075,7 @@ int SLAPI CCheckPacket::GetLineExt(int pos /* 1.. */, LineExt & rExt) const
 	return ok;
 }
 
-int SLAPI CCheckPacket::MergeLines(long /*options*/)
+int CCheckPacket::MergeLines(long /*options*/)
 {
 	int    ok = 1;
 	uint   i = Items_.getCount();
@@ -1090,14 +1090,14 @@ int SLAPI CCheckPacket::MergeLines(long /*options*/)
 	return ok;
 }
 
-void SLAPI CCheckPacket::ClearLines()
+void CCheckPacket::ClearLines()
 {
 	Items_.clear();
 	ExtList.clear();
 	LnTextList.Z();
 }
 
-int SLAPI CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char * pSerial, const char * pEgaisMark)
+int CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char * pSerial, const char * pEgaisMark)
 {
 	int    ok = 1;
 	THROW_SL(Items_.insert(pItem));
@@ -1112,7 +1112,7 @@ int SLAPI CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char
 	return ok;
 }
 
-int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
+int CCheckPacket::InsertItem(const CCheckItem & rItem)
 {
 	int    ok = 1;
 	CCheckLineTbl::Rec rec;
@@ -1159,7 +1159,7 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 	return ok;
 }
 
-int SLAPI CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div /* =0 */, int isPrinted /* =0 */)
+int CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div /* =0 */, int isPrinted /* =0 */)
 {
 	CCheckLineTbl::Rec item;
 	// @v10.6.4 MEMSZERO(item);
@@ -1173,7 +1173,7 @@ int SLAPI CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, doub
 	return InsertItem_(&item);
 }
 
-int SLAPI CCheckPacket::SetupPaymList(const CcAmountList * pList)
+int CCheckPacket::SetupPaymList(const CcAmountList * pList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -1225,7 +1225,7 @@ int SLAPI CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	return ok;
 }
 
-void SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int plusDiscount*/)
+void CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int plusDiscount*/)
 {
 	uint   i;
 	uint   last_index = 0;
@@ -1307,7 +1307,7 @@ double FASTCALL CCheckPacket::GetItemDiscount(const CCheckLineTbl::Rec & rItem) 
 	return (rItem.Dscnt * rItem.Quantity);
 }
 
-void SLAPI CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
+void CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 {
 	double amount = 0.0, discount = 0.0;
 	CCheckLineTbl::Rec item;
@@ -1322,7 +1322,7 @@ void SLAPI CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 	ASSIGN_PTR(pDscnt, discount);
 }
 
-void SLAPI CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
+void CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
 {
 	double amt = 0.0, dscnt = 0.0;
 	CalcAmount(&amt, &dscnt);
@@ -1332,7 +1332,7 @@ void SLAPI CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
 	ASSIGN_PTR(pDscnt, dscnt);
 }
 
-int SLAPI CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const
+int CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const
 {
 	int    yes = 0;
 	double amt = fabs(MONEYTOLDBL(Rec.Amount));
@@ -1377,7 +1377,7 @@ int SLAPI CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal
 	return yes;
 }
 
-double SLAPI CCheckPacket::GetFiscalAmount() const
+double CCheckPacket::GetFiscalAmount() const
 {
 	double amt = 0.0;
 	if(CcAl.getCount()) {
@@ -1405,7 +1405,7 @@ double SLAPI CCheckPacket::GetFiscalAmount() const
 	return amt;
 }
 
-/* @v9.0.11 int SLAPI CCheckPacket::PrepareForWriting(PPID ccheckID, int16 lastRbc)
+/* @v9.0.11 int CCheckPacket::PrepareForWriting(PPID ccheckID, int16 lastRbc)
 {
 	Rec.ID = ccheckID;
 	int16  last_rbc = NZOR(lastRbc, 1);
@@ -1417,7 +1417,7 @@ double SLAPI CCheckPacket::GetFiscalAmount() const
 	return 1;
 }*/
 
-int SLAPI CCheckPacket::SetDlvrAddr(const LocationTbl::Rec * pRec)
+int CCheckPacket::SetDlvrAddr(const LocationTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pRec && Rec.Flags & CCHKF_DELIVERY) {
@@ -1435,10 +1435,10 @@ int SLAPI CCheckPacket::SetDlvrAddr(const LocationTbl::Rec * pRec)
 	return ok;
 }
 
-const LocationTbl::Rec * SLAPI CCheckPacket::GetDlvrAddr() const { return P_DlvrAddr; }
-SString & SLAPI CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rBuf.Z().Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6); }
+const LocationTbl::Rec * CCheckPacket::GetDlvrAddr() const { return P_DlvrAddr; }
+SString & CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rBuf.Z().Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6); }
 
-/*static*/int SLAPI CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult)
+/*static*/int CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult)
 {
 	int    ok = 0;
 	const  size_t len = sstrlen(pIdent);
@@ -1477,7 +1477,7 @@ SString & SLAPI CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rB
 //
 //
 //
-SLAPI CSessTotal::CSessTotal()
+CSessTotal::CSessTotal()
 {
 	THISZERO();
 }
@@ -1506,7 +1506,7 @@ void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 	return rBuf.CatLongZ(pRec->CashID, 4).CatDiv(':', 1).Cat(pRec->Code);
 }
 
-SLAPI CCheckCore::CCheckCore() : CCheckTbl(), P_ChkOpJrnl(0)
+CCheckCore::CCheckCore() : CCheckTbl(), P_ChkOpJrnl(0)
 {
 	const PPCommConfig & r_ccfg = CConfig;
 	P_Ext = (r_ccfg.Flags & CCFLG_USECCHECKEXT) ? new CCheckExtTbl : 0;
@@ -1519,14 +1519,14 @@ SLAPI CCheckCore::CCheckCore() : CCheckTbl(), P_ChkOpJrnl(0)
 	}
 }
 
-SLAPI CCheckCore::~CCheckCore()
+CCheckCore::~CCheckCore()
 {
 	delete P_Ext;
 	delete P_LnExt;
 	ZDELETE(P_ChkOpJrnl);
 }
 
-int SLAPI CCheckCore::HasExt()
+int CCheckCore::HasExt()
 {
 	if(P_Ext) {
 		RECORDNUMBER num_recs = 0;
@@ -1537,12 +1537,12 @@ int SLAPI CCheckCore::HasExt()
 	return 0;
 }
 
-int SLAPI CCheckCore::Search(PPID id, CCheckTbl::Rec * pRec)
+int CCheckCore::Search(PPID id, CCheckTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_CCHECK, id, pRec);
 }
 
-int SLAPI CCheckCore::Search(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
+int CCheckCore::Search(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
 {
 	CCheckTbl::Key1 k;
 	k.Dt = dt;
@@ -1551,7 +1551,7 @@ int SLAPI CCheckCore::Search(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::Rec * p
 	return SearchByKey(this, 1, &k, pRec);
 }
 
-int SLAPI CCheckCore::SearchByTimeAndCard(PPID cardID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
+int CCheckCore::SearchByTimeAndCard(PPID cardID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
 {
 	CCheckTbl::Key4 k;
 	k.SCardID = cardID;
@@ -1560,7 +1560,7 @@ int SLAPI CCheckCore::SearchByTimeAndCard(PPID cardID, LDATE dt, LTIME tm, CChec
 	return SearchByKey(this, 4, &k, pRec);
 }
 
-int SLAPI CCheckCore::SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList)
+int CCheckCore::SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList)
 {
 	int    ok = -1;
 	if(pRecList) {
@@ -1580,7 +1580,7 @@ int SLAPI CCheckCore::SearchByDateAndCode(long code, LDATE dt, int unprintedOnly
 	return ok;
 }
 
-int SLAPI CCheckCore::SearchForwardZCheck(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
+int CCheckCore::SearchForwardZCheck(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
 {
 	LDATETIME dtm;
 	dtm.Set(dt, tm);
@@ -1597,7 +1597,7 @@ int SLAPI CCheckCore::SearchForwardZCheck(PPID cashID, LDATE dt, LTIME tm, CChec
 	return -1;
 }
 
-int SLAPI CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt & rList)
+int CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt & rList)
 {
 	int    ok = -1;
 	rList.Set(0);
@@ -1649,7 +1649,7 @@ int SLAPI CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt &
 	return ok;
 }
 
-int SLAPI CCheckCore::GetExt(PPID id, CCheckExtTbl::Rec * pExt)
+int CCheckCore::GetExt(PPID id, CCheckExtTbl::Rec * pExt)
 {
 	if(P_Ext && SearchByID(P_Ext, 0, id, pExt) > 0)
 		return 1;
@@ -1659,7 +1659,7 @@ int SLAPI CCheckCore::GetExt(PPID id, CCheckExtTbl::Rec * pExt)
 	}
 }
 
-int SLAPI CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
+int CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
 {
 	int    ok = -1;
 	if(P_Ext) {
@@ -1728,7 +1728,7 @@ int SLAPI CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use
 	return eq;
 }
 
-int SLAPI CCheckCore::PutExt(const CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pExt, int useTa)
+int CCheckCore::PutExt(const CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pExt, int useTa)
 {
 	int    ok = -1;
 	if(pExt && pRec) {
@@ -1771,7 +1771,7 @@ int SLAPI CCheckCore::PutExt(const CCheckTbl::Rec * pRec, CCheckExtTbl::Rec * pE
 	return ok;
 }
 
-int SLAPI CCheckCore::GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rList)
+int CCheckCore::GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rList)
 {
 	int    ok = -1;
 	SString cc_text;
@@ -1889,7 +1889,7 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 	return ok;
 }
 
-int SLAPI CCheckCore::GetNodeID(PPID checkID, PPID * pNodeID)
+int CCheckCore::GetNodeID(PPID checkID, PPID * pNodeID)
 {
 	int    ok = -1;
 	PPID   node_id = 0;
@@ -1906,7 +1906,7 @@ int SLAPI CCheckCore::GetNodeID(PPID checkID, PPID * pNodeID)
 	return ok;
 }
 
-int SLAPI CCheckCore::LineByCheck(PPID checkID, int16 * pLine)
+int CCheckCore::LineByCheck(PPID checkID, int16 * pLine)
 {
 	CCheckLineTbl::Key0 k;
 	k.CheckID  = checkID;
@@ -1921,7 +1921,7 @@ int SLAPI CCheckCore::LineByCheck(PPID checkID, int16 * pLine)
 	}
 }
 
-int SLAPI CCheckCore::EnumLines(PPID checkID, int * pRByCheck, CCheckLineTbl::Rec * b)
+int CCheckCore::EnumLines(PPID checkID, int * pRByCheck, CCheckLineTbl::Rec * b)
 {
 	CCheckLineTbl::Key0 k;
 	k.CheckID  = checkID;
@@ -1935,7 +1935,7 @@ int SLAPI CCheckCore::EnumLines(PPID checkID, int * pRByCheck, CCheckLineTbl::Re
 		return PPDbSearchError();
 }
 
-int SLAPI CCheckCore::LoadLinesBySessList(PPID goodsID, const PPIDArray * pSessList, const PPIDArray * pCashList,
+int CCheckCore::LoadLinesBySessList(PPID goodsID, const PPIDArray * pSessList, const PPIDArray * pCashList,
 	CCheckLineArray * pLinesList, LDATETIME * pLastCheckDtm)
 {
 	int    ok = 0;
@@ -1953,7 +1953,7 @@ int SLAPI CCheckCore::LoadLinesBySessList(PPID goodsID, const PPIDArray * pSessL
 	return ok;
 }
 
-int SLAPI CCheckCore::LoadChecksByList(const ObjIdListFilt * pSessList, const PPIDArray * pCashIDList,
+int CCheckCore::LoadChecksByList(const ObjIdListFilt * pSessList, const PPIDArray * pCashIDList,
 	ObjIdListFilt * pCheckList, LDATETIME * pLastCheckDtm)
 {
 	int    ok = -1;
@@ -1982,7 +1982,7 @@ int SLAPI CCheckCore::LoadChecksByList(const ObjIdListFilt * pSessList, const PP
 	return ok;
 }
 
-int SLAPI CCheckCore::LoadLinesByList(PPID goodsID, const ObjIdListFilt * pCheckList, CCheckLineArray * pLinesList)
+int CCheckCore::LoadLinesByList(PPID goodsID, const ObjIdListFilt * pCheckList, CCheckLineArray * pLinesList)
 {
 	int    ok = -1;
 	if(pCheckList && pCheckList->GetCount()) {
@@ -2018,7 +2018,7 @@ int SLAPI CCheckCore::LoadLinesByList(PPID goodsID, const ObjIdListFilt * pCheck
 	return ok;
 }
 
-int SLAPI CCheckCore::GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRec)
+int CCheckCore::GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRec)
 {
 	CCheckTbl::Key3 k;
 	k.SessID = sessID;
@@ -2034,7 +2034,7 @@ int SLAPI CCheckCore::GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRe
 	return PPDbSearchError();
 }
 
-int SLAPI CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
+int CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
 {
 	CCheckTbl::Key2 k;
 	k.CashID = cashN;
@@ -2049,7 +2049,7 @@ int SLAPI CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
 		return PPDbSearchError();
 }
 
-int SLAPI CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList) // @v9.8.5 TSArray-->TSVector
+int CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList) // @v9.8.5 TSArray-->TSVector
 {
 	int    ok = -1;
 	CCheckTbl::Key2 k;
@@ -2067,7 +2067,7 @@ int SLAPI CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::
 	return ok;
 }
 
-int SLAPI CCheckCore::GetLineExt(PPID checkID, int rByCheck, CCheckLineExtTbl::Rec * pRec)
+int CCheckCore::GetLineExt(PPID checkID, int rByCheck, CCheckLineExtTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(P_LnExt) {
@@ -2079,7 +2079,7 @@ int SLAPI CCheckCore::GetLineExt(PPID checkID, int rByCheck, CCheckLineExtTbl::R
 	return ok;
 }
 
-int SLAPI CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
+int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 {
 	int    ok = 1;
 	BExtQuery q(&Lines, 0);
@@ -2117,7 +2117,7 @@ int SLAPI CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack
 	return ok;
 }
 
-/*static*/int SLAPI CCheckCore::Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList)
+/*static*/int CCheckCore::Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList)
 {
 	int    ok = -1;
 	rList.Z();
@@ -2142,12 +2142,12 @@ int SLAPI CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack
 	return ok;
 }
 
-int SLAPI CCheckCore::GetPaymList(PPID id, CcAmountList & rList)
+int CCheckCore::GetPaymList(PPID id, CcAmountList & rList)
 {
 	return CCheckCore::Helper_GetPaymList(&PaymT, id, rList);
 }
 
-int SLAPI CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
+int CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 {
 	int    ok = -1;
 	pPack->Z(); // @v10.8.7
@@ -2179,7 +2179,7 @@ int SLAPI CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 	return ok;
 }
 
-void SLAPI CCheckCore::WriteCCheckLogFile(const CCheckTbl::Rec * pRec, int action, int use_ta)
+void CCheckCore::WriteCCheckLogFile(const CCheckTbl::Rec * pRec, int action, int use_ta)
 {
 	CCheckPacket pack;
 	pack.Rec = *pRec;
@@ -2192,7 +2192,7 @@ void SLAPI CCheckCore::WriteCCheckLogFile(const CCheckTbl::Rec * pRec, int actio
 	ENDCATCH
 }
 
-void SLAPI CCheckCore::WriteCCheckLogFile(const CCheckPacket * pPack, const CCheckLineTbl::Rec * pLineRec, int action, int use_ta)
+void CCheckCore::WriteCCheckLogFile(const CCheckPacket * pPack, const CCheckLineTbl::Rec * pLineRec, int action, int use_ta)
 {
 	if(DoCCheckTextLog()) {
 		SString  msg, temp_buf, saler_name;
@@ -2224,7 +2224,7 @@ void SLAPI CCheckCore::WriteCCheckLogFile(const CCheckPacket * pPack, const CChe
 	ENDCATCH
 }
 
-int SLAPI CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
+int CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -2292,7 +2292,7 @@ int SLAPI CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::Update(PPID id, const CCheckTbl::Rec * pRec, int use_ta)
+int CCheckCore::Update(PPID id, const CCheckTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	CCheckTbl::Rec header = *pRec;
@@ -2320,7 +2320,7 @@ int SLAPI CCheckCore::Update(PPID id, const CCheckTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double * pUfpFactor, double * pUfpFactorUhtt, int use_ta)
+int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double * pUfpFactor, double * pUfpFactorUhtt, int use_ta)
 {
 	int    ok = 1;
 	int    uhtt_err = 0;
@@ -2476,12 +2476,12 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 	return ok;
 }
 
-int SLAPI CCheckCore::TurnSCardPayment(CCheckPacket * pPack, long flags, int use_ta)
+int CCheckCore::TurnSCardPayment(CCheckPacket * pPack, long flags, int use_ta)
 {
 	return Helper_TurnSCardPayment(pPack, flags, 0, 0, use_ta);
 }
 
-int SLAPI CCheckCore::PreparePacketForWriting(PPID id, CCheckPacket * pPack, double & rUfpFactor)
+int CCheckCore::PreparePacketForWriting(PPID id, CCheckPacket * pPack, double & rUfpFactor)
 {
 	int    ok = 1;
 	assert(id != 0 && (pPack->Rec.ID == 0 || pPack->Rec.ID == id));
@@ -2508,7 +2508,7 @@ int SLAPI CCheckCore::PreparePacketForWriting(PPID id, CCheckPacket * pPack, dou
 	}
 	//THROW(LineByCheck(id, &last_rbc));
 	//THROW(pPack->PrepareForWriting(id, last_rbc));
-	//int SLAPI CCheckPacket::PrepareForWriting(PPID ccheckID, int16 lastRbc)
+	//int CCheckPacket::PrepareForWriting(PPID ccheckID, int16 lastRbc)
 	{
 		pPack->Rec.ID = id;
 		//int16  last_rbc = NZOR(lastRbc, 1);
@@ -2522,7 +2522,7 @@ int SLAPI CCheckCore::PreparePacketForWriting(PPID id, CCheckPacket * pPack, dou
 	return ok;
 }
 
-int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
+int CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	int    uhtt_err = 0;
@@ -2600,7 +2600,7 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::UpdateExtText(PPID id, int fldId, const char * pText, int use_ta)
+int CCheckCore::UpdateExtText(PPID id, int fldId, const char * pText, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2624,7 +2624,7 @@ int SLAPI CCheckCore::UpdateExtText(PPID id, int fldId, const char * pText, int 
 	return ok;
 }
 
-int SLAPI CCheckCore::PreprocessPacket(CCheckPacket * pPack)
+int CCheckCore::PreprocessPacket(CCheckPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack->Rec.Dt == 0)
@@ -2656,7 +2656,7 @@ int SLAPI CCheckCore::PreprocessPacket(CCheckPacket * pPack)
 	return ok;
 }
 
-int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
+int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	int    uhtt_err = 0;
@@ -2737,7 +2737,7 @@ int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::RemovePacket(PPID id, int use_ta)
+int CCheckCore::RemovePacket(PPID id, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2788,7 +2788,7 @@ int SLAPI CCheckCore::RemovePacket(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::RemoveSess(PPID sessID, int use_ta)
+int CCheckCore::RemoveSess(PPID sessID, int use_ta)
 {
 	int    ok = 1;
 	CCheckTbl::Key3 k;
@@ -2806,7 +2806,7 @@ int SLAPI CCheckCore::RemoveSess(PPID sessID, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::AddRecToSessTotal(const CCheckTbl::Rec * pRec, CSessTotal * pTotal)
+int CCheckCore::AddRecToSessTotal(const CCheckTbl::Rec * pRec, CSessTotal * pTotal)
 {
 	int    ok = 1;
 	if(pRec->Flags & CCHKF_SKIP) {
@@ -2890,7 +2890,7 @@ int SLAPI CCheckCore::AddRecToSessTotal(const CCheckTbl::Rec * pRec, CSessTotal 
 	return ok;
 }
 
-int SLAPI CCheckCore::GetListBySess(PPID sessID, long flags, PPIDArray & rList)
+int CCheckCore::GetListBySess(PPID sessID, long flags, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -2910,7 +2910,7 @@ int SLAPI CCheckCore::GetListBySess(PPID sessID, long flags, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATAccmArray * pVatList)
+int CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATAccmArray * pVatList)
 {
 	int    ok = 1;
 	CCheckPacket pack;
@@ -2972,7 +2972,7 @@ int SLAPI CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal,
 	return ok;
 }
 
-int SLAPI CCheckCore::UpdateSCard(PPID checkID, PPID newSCardID, int use_ta)
+int CCheckCore::UpdateSCard(PPID checkID, PPID newSCardID, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -2995,7 +2995,7 @@ int SLAPI CCheckCore::UpdateSCard(PPID checkID, PPID newSCardID, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::UpdateRec(PPID checkID, const CCheckTbl::Rec * pRec, int use_ta)
+int CCheckCore::UpdateRec(PPID checkID, const CCheckTbl::Rec * pRec, int use_ta)
 {
 	int    ok = -1;
 	CCheckTbl::Rec rec;
@@ -3020,7 +3020,7 @@ int SLAPI CCheckCore::UpdateRec(PPID checkID, const CCheckTbl::Rec * pRec, int u
 	return ok;
 }
 
-int SLAPI CCheckCore::UpdateFlags(PPID checkID, long flags, int use_ta)
+int CCheckCore::UpdateFlags(PPID checkID, long flags, int use_ta)
 {
 	int    ok = -1;
 	{
@@ -3040,7 +3040,7 @@ int SLAPI CCheckCore::UpdateFlags(PPID checkID, long flags, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::ToggleDeliveryCloseTag(PPID checkID, const LDATETIME & rDtm, int set, int use_ta)
+int CCheckCore::ToggleDeliveryCloseTag(PPID checkID, const LDATETIME & rDtm, int set, int use_ta)
 {
 	int    ok = -1;
 	CCheckTbl::Rec cc_rec;
@@ -3082,7 +3082,7 @@ int SLAPI CCheckCore::ToggleDeliveryCloseTag(PPID checkID, const LDATETIME & rDt
 	return ok;
 }
 
-int SLAPI CCheckCore::ReplaceSCard(PPID destCardID, PPID srcCardID, int use_ta)
+int CCheckCore::ReplaceSCard(PPID destCardID, PPID srcCardID, int use_ta)
 {
 	int    ok = -1;
 	if(destCardID && srcCardID != destCardID) {
@@ -3111,7 +3111,7 @@ int SLAPI CCheckCore::ReplaceSCard(PPID destCardID, PPID srcCardID, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::SetFlagsBySess(PPID sessID, long setFlags, long resetFlags, int use_ta)
+int CCheckCore::SetFlagsBySess(PPID sessID, long setFlags, long resetFlags, int use_ta)
 {
 	int    ok = 1;
 	CCheckTbl::Key3 k;
@@ -3134,7 +3134,7 @@ int SLAPI CCheckCore::SetFlagsBySess(PPID sessID, long setFlags, long resetFlags
 	return ok;
 }
 
-int SLAPI CCheckCore::IsCheckWFlags(PPID sessID, long chkFlags)
+int CCheckCore::IsCheckWFlags(PPID sessID, long chkFlags)
 {
 	int    is_found = 0;
 	CCheckTbl::Key3 k;
@@ -3151,7 +3151,7 @@ int SLAPI CCheckCore::IsCheckWFlags(PPID sessID, long chkFlags)
 	return is_found;
 }
 
-int SLAPI CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, DraftRcptArray * pList)
+int CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, DraftRcptArray * pList)
 {
 	int    ok = 1;
 	PPIDArray loc_list;
@@ -3193,7 +3193,7 @@ int SLAPI CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, D
 	return ok;
 }
 
-int SLAPI CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList)
+int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList)
 {
 	int    ok = -1;
 	rCcList.clear();
@@ -3227,17 +3227,17 @@ int SLAPI CCheckCore::Helper_GetListByMark(const char * pText, int markLnextText
 	return ok;
 }
 
-int SLAPI CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
+int CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
 {
 	return Helper_GetListByMark(pText, CCheckPacket::lnextEgaisMark, CCheckPacket::extssEgaisUrl, rCcList, pSentList);
 }
 
-int SLAPI CCheckCore::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
+int CCheckCore::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
 {
 	return Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, 0, rCcList, 0);
 }
 
-int SLAPI CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * pSerial, double * pResult)
+int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * pSerial, double * pResult)
 {
 	int    ok = 1;
 	double result = 0.0;
@@ -3296,7 +3296,7 @@ int SLAPI CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const ch
 	return ok;
 }
 
-int SLAPI CCheckCore::CalcGoodsRest(PPID goodsID, LDATE dt, PPID locID, double * pRest)
+int CCheckCore::CalcGoodsRest(PPID goodsID, LDATE dt, PPID locID, double * pRest)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -3315,7 +3315,7 @@ int SLAPI CCheckCore::CalcGoodsRest(PPID goodsID, LDATE dt, PPID locID, double *
 	return ok;
 }
 
-int SLAPI CCheckCore::IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSession::RegSessData * pSessData)
+int CCheckCore::IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSession::RegSessData * pSessData)
 {
 	int    yes = 0;
 	ObjTagItem tag_item;
@@ -3347,11 +3347,11 @@ int SLAPI CCheckCore::IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSessio
 //
 IMPL_CMPFUNC(CCheckGoodsEntry, i1, i2) { RET_CMPCASCADE4(static_cast<const CCheckGoodsEntry *>(i1), static_cast<const CCheckGoodsEntry *>(i2), Dt, Sign, GoodsID, SerialID); }
 
-SLAPI CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> (), Sum(0.0) // @v9.8.4 TSArray-->TSVector
+CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> (), Sum(0.0) // @v9.8.4 TSArray-->TSVector
 {
 }
 
-LDATE SLAPI CCheckGoodsArray::GetMaxDate() const
+LDATE CCheckGoodsArray::GetMaxDate() const
 {
 	LDATE  dt = ZERODATE;
 	uint   i = getCount();
@@ -3363,7 +3363,7 @@ LDATE SLAPI CCheckGoodsArray::GetMaxDate() const
 	return dt;
 }
 
-int SLAPI CCheckGoodsArray::Add(LDATE dt, const CCheckLineTbl::Rec * pRec, PPID serialID)
+int CCheckGoodsArray::Add(LDATE dt, const CCheckLineTbl::Rec * pRec, PPID serialID)
 {
 	int    ok = 1;
 	int    sign = (pRec->Quantity < 0) ? -1 : +1;
@@ -3399,7 +3399,7 @@ int SLAPI CCheckGoodsArray::Add(LDATE dt, const CCheckLineTbl::Rec * pRec, PPID 
 	return ok;
 }
 
-int SLAPI CCheckGoodsArray::AdjustToSess(double sessAmount)
+int CCheckGoodsArray::AdjustToSess(double sessAmount)
 {
 	int    ok = -1;
 	double diff = R2(sessAmount) - R2(Sum);
@@ -3436,7 +3436,7 @@ int SLAPI CCheckGoodsArray::AdjustToSess(double sessAmount)
 	return ok;
 }
 
-int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoodsArray * pCgList, long flags, int use_ta)
+int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoodsArray * pCgList, long flags, int use_ta)
 {
 	struct ChkItem {
 		PPID   ID;
@@ -3519,7 +3519,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 	return ok;
 }
 
-int SLAPI CCheckCore::GetListByCard(PPID cardID, const LDATETIME * pMoment, PPIDArray * pList)
+int CCheckCore::GetListByCard(PPID cardID, const LDATETIME * pMoment, PPIDArray * pList)
 {
 	CCheckTbl::Key4 k;
 	BExtQuery q(this, 4, 128);
@@ -3539,7 +3539,7 @@ int SLAPI CCheckCore::GetListByCard(PPID cardID, const LDATETIME * pMoment, PPID
 	return pList->getCount() ? 1 : -1;
 }
 
-int SLAPI CCheckCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray * pList)
+int CCheckCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray * pList)
 {
 	int    ok = 1;
 	const  int new_method = 0;
@@ -3594,7 +3594,7 @@ int SLAPI CCheckCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssoc
 // Счетчик прогресса функции оперирует значениями идентификаторов карточек, а не общим количеством
 // итераций (предварительный подсчет количества итераций - очень долгий процесс).
 //
-int SLAPI CCheckCore::RecalcSCardsTurnover(int use_ta)
+int CCheckCore::RecalcSCardsTurnover(int use_ta)
 {
 	int    ok = 1;
 	PPID   card_key = 0;
@@ -3639,7 +3639,7 @@ int SLAPI CCheckCore::RecalcSCardsTurnover(int use_ta)
 
 //double CPosProcessor::Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt)
 
-int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange * pPeriod,
+int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, const DateRange * pPeriod,
 	PPID restrGoodsGrpID, double * pDebit, double * pCredit)
 {
 	PPIDArray cc_list;
@@ -3748,7 +3748,7 @@ int SLAPI CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgX
 	return 1;
 }
 
-int SLAPI CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
+int CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
 {
 	int    ok = 1;
 	PPObjSCardSeries scs_obj;
@@ -3791,7 +3791,7 @@ int SLAPI CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
 	return ok;
 }
 
-int SLAPI CCheckCore::RemoveZeroLinkLines(int use_ta)
+int CCheckCore::RemoveZeroLinkLines(int use_ta)
 {
 	const  uint max_id_count = 1000L;
 	int    ok = 1;
@@ -3843,7 +3843,7 @@ int SLAPI CCheckCore::RemoveZeroLinkLines(int use_ta)
 	return ok;
 }
 
-int SLAPI RemoveZeroLinkCCLines()
+int RemoveZeroLinkCCLines()
 {
 	int    ok = 1;
 	CCheckCore cc;
@@ -3856,11 +3856,11 @@ int SLAPI RemoveZeroLinkCCLines()
 //
 // CGoodsLine
 //
-SLAPI CGoodsLine::CGoodsLine(char * pFileName) : CGoodsLineTbl(pFileName)
+CGoodsLine::CGoodsLine(char * pFileName) : CGoodsLineTbl(pFileName)
 {
 }
 
-int SLAPI CGoodsLine::HasAnyLineForSess(PPID sessID)
+int CGoodsLine::HasAnyLineForSess(PPID sessID)
 {
 	CGoodsLineTbl::Key0 k;
 	MEMSZERO(k);
@@ -3868,7 +3868,7 @@ int SLAPI CGoodsLine::HasAnyLineForSess(PPID sessID)
 	return (search(0, &k, spGe) && k.SessID == sessID) ? 1 : PPDbSearchError();
 }
 
-int SLAPI CGoodsLine::Search_ForUpdate(PPID sessID, LDATE dt, PPID goodsID, int sign, PPID serialID, CGoodsLineTbl::Rec * pRec)
+int CGoodsLine::Search_ForUpdate(PPID sessID, LDATE dt, PPID goodsID, int sign, PPID serialID, CGoodsLineTbl::Rec * pRec)
 {
 	CGoodsLineTbl::Key0 k;
 	MEMSZERO(k);
@@ -3880,7 +3880,7 @@ int SLAPI CGoodsLine::Search_ForUpdate(PPID sessID, LDATE dt, PPID goodsID, int 
 	return SearchByKey_ForUpdate(this, 0, &k, pRec);
 }
 
-int SLAPI CGoodsLine::Add(PPID sessID, const CCheckGoodsArray * pList, int use_ta)
+int CGoodsLine::Add(PPID sessID, const CCheckGoodsArray * pList, int use_ta)
 {
 	int    ok = 1;
 	CCheckGoodsEntry * p_entry;
@@ -3916,7 +3916,7 @@ int SLAPI CGoodsLine::Add(PPID sessID, const CCheckGoodsArray * pList, int use_t
 	return ok;
 }
 
-int SLAPI CGoodsLine::Update(const CGoodsLineTbl::Rec & rRec, int use_ta)
+int CGoodsLine::Update(const CGoodsLineTbl::Rec & rRec, int use_ta)
 {
 	int    ok = -1, r;
 	{
@@ -3935,12 +3935,12 @@ int SLAPI CGoodsLine::Update(const CGoodsLineTbl::Rec & rRec, int use_ta)
 	return ok;
 }
 
-int SLAPI CGoodsLine::RemoveSess(PPID sessID)
+int CGoodsLine::RemoveSess(PPID sessID)
 {
 	return deleteFrom(this, 0, this->SessID == sessID) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI CGoodsLine::UndoWritingOff(PPID sessID)
+int CGoodsLine::UndoWritingOff(PPID sessID)
 {
 	CGoodsLineTbl::Key0 k0;
 	MEMSZERO(k0);
@@ -3955,7 +3955,7 @@ int SLAPI CGoodsLine::UndoWritingOff(PPID sessID)
 	return (BTROKORNFOUND) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI CGoodsLine::CalcSessTotal(PPID sessID, CSessTotal * pTotal)
+int CGoodsLine::CalcSessTotal(PPID sessID, CSessTotal * pTotal)
 {
 	CGoodsLineTbl::Key0 k;
 	BExtQuery q(this, 0);
@@ -3979,11 +3979,11 @@ int SLAPI CGoodsLine::CalcSessTotal(PPID sessID, CSessTotal * pTotal)
 //
 IMPL_CMPFUNC(CSessDfctItem_DateGoods, i1, i2) { RET_CMPCASCADE2(static_cast<const CSessDfctItem *>(i1), static_cast<const CSessDfctItem *>(i2), Dt, GoodsID); }
 
-SLAPI CSessDfctList::CSessDfctList() : TSVector <CSessDfctItem> ()
+CSessDfctList::CSessDfctList() : TSVector <CSessDfctItem> ()
 {
 }
 
-int SLAPI CSessDfctList::Search(const CSessDfctItem * pItem, int unite, uint * pPos) const
+int CSessDfctList::Search(const CSessDfctItem * pItem, int unite, uint * pPos) const
 {
 	uint   pos = 0;
 	CompFunc cf = 0;
@@ -3999,7 +3999,7 @@ int SLAPI CSessDfctList::Search(const CSessDfctItem * pItem, int unite, uint * p
 		return 0;
 }
 
-int SLAPI CSessDfctList::SearchByDateGoods(LDATE dt, PPID goodsID, uint * pPos, CSessDfctItem * pItem) const
+int CSessDfctList::SearchByDateGoods(LDATE dt, PPID goodsID, uint * pPos, CSessDfctItem * pItem) const
 {
 	uint   pos = 0;
 	CSessDfctItem item;
@@ -4015,7 +4015,7 @@ int SLAPI CSessDfctList::SearchByDateGoods(LDATE dt, PPID goodsID, uint * pPos, 
 		return 0;
 }
 
-int SLAPI CSessDfctList::Add(const CSessDfctItem * pItem, int unite)
+int CSessDfctList::Add(const CSessDfctItem * pItem, int unite)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -4039,12 +4039,12 @@ int SLAPI CSessDfctList::Add(const CSessDfctItem * pItem, int unite)
 	return ok;
 }
 
-double SLAPI CSessDfctGoodsItem::GetPrice() const
+double CSessDfctGoodsItem::GetPrice() const
 {
 	return fabs(fdivnz(Sum, Qtty));
 }
 
-int SLAPI CSessDfctGoodsList::Search(PPID goodsID, CSessDfctGoodsItem * pItem)
+int CSessDfctGoodsList::Search(PPID goodsID, CSessDfctGoodsItem * pItem)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -4055,7 +4055,7 @@ int SLAPI CSessDfctGoodsList::Search(PPID goodsID, CSessDfctGoodsItem * pItem)
 	return ok;
 }
 
-int SLAPI CSessDfctGoodsList::Add(const CSessDfctGoodsItem * pItem)
+int CSessDfctGoodsList::Add(const CSessDfctGoodsItem * pItem)
 {
 	int    ok = -1;
 	if(pItem) {
@@ -4074,7 +4074,7 @@ int SLAPI CSessDfctGoodsList::Add(const CSessDfctGoodsItem * pItem)
 	return ok;
 }
 
-int SLAPI CGoodsLine::GetDfctGoodsList(int sign, PPID sessID, const DateRange * pPeriod, CSessDfctGoodsList * pList)
+int CGoodsLine::GetDfctGoodsList(int sign, PPID sessID, const DateRange * pPeriod, CSessDfctGoodsList * pList)
 {
 	int    ok = 1;
 	IterCounter cntr;
@@ -4105,7 +4105,7 @@ int SLAPI CGoodsLine::GetDfctGoodsList(int sign, PPID sessID, const DateRange * 
 	return ok;
 }
 
-int SLAPI CGoodsLine::GetDfctList(int sign, PPID sessID, PPID goodsID, const DateRange * pPeriod,
+int CGoodsLine::GetDfctList(int sign, PPID sessID, PPID goodsID, const DateRange * pPeriod,
 	int unite, CSessDfctList * pList, PPIDArray * pDateList)
 {
 	int    ok = 1;
@@ -4141,7 +4141,7 @@ int SLAPI CGoodsLine::GetDfctList(int sign, PPID sessID, PPID goodsID, const Dat
 	return ok;
 }
 
-int SLAPI CGoodsLine::GetDfctSubstList(PPID sessID, LAssocArray * pList)
+int CGoodsLine::GetDfctSubstList(PPID sessID, LAssocArray * pList)
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -4160,7 +4160,7 @@ int SLAPI CGoodsLine::GetDfctSubstList(PPID sessID, LAssocArray * pList)
 	return ok;
 }
 
-int SLAPI CGoodsLine::SetDfctSubstList(PPID sessID, const LAssocArray * pList, int use_ta)
+int CGoodsLine::SetDfctSubstList(PPID sessID, const LAssocArray * pList, int use_ta)
 {
 	int    ok = 1;
 	CGoodsLineTbl::Key0 k0;
@@ -4186,19 +4186,19 @@ int SLAPI CGoodsLine::SetDfctSubstList(PPID sessID, const LAssocArray * pList, i
 //
 //
 //
-SLAPI CSessGrouping::CSessGrouping() : RetOpID(GetCashRetOp()), SellOpID(GetCashOp())
+CSessGrouping::CSessGrouping() : RetOpID(GetCashRetOp()), SellOpID(GetCashOp())
 {
 	ReadEquipConfig(&EqCfg);
 	ComplDfct   = BIN(EqCfg.Flags & PPEquipConfig::fComplDeficit);
 	IgnGenGoods = BIN(EqCfg.Flags & PPEquipConfig::fIgnGenGoodsOnDeficit);
 }
 
-int SLAPI CSessGrouping::GetSess(PPID sessID, CSessionTbl::Rec * pRec)
+int CSessGrouping::GetSess(PPID sessID, CSessionTbl::Rec * pRec)
 {
 	return CS.Search(sessID, pRec);
 }
 
-long SLAPI CSessionCore::GetCcGroupingFlags(const CSessionTbl::Rec & rCsRec, PPID subSessID)
+long CSessionCore::GetCcGroupingFlags(const CSessionTbl::Rec & rCsRec, PPID subSessID)
 {
 	long   flags = 0;
 	PPObjCashNode cn_obj;
@@ -4221,7 +4221,7 @@ long SLAPI CSessionCore::GetCcGroupingFlags(const CSessionTbl::Rec & rCsRec, PPI
 	return flags;
 }
 
-int SLAPI CSessGrouping::Grouping(PPID sessID, CSessTotal * pTotal, const LAssocArray * pSubstList, int use_ta)
+int CSessGrouping::Grouping(PPID sessID, CSessTotal * pTotal, const LAssocArray * pSubstList, int use_ta)
 {
 	int    ok = 1, r;
 	long   ggl_flags = CCheckCore::gglfUpdChecks;
@@ -4262,7 +4262,7 @@ int SLAPI CSessGrouping::Grouping(PPID sessID, CSessTotal * pTotal, const LAssoc
 	return ok;
 }
 
-int SLAPI CSessGrouping::UndoGrouping(PPID sessID, LAssocArray * pSubstList, int use_ta)
+int CSessGrouping::UndoGrouping(PPID sessID, LAssocArray * pSubstList, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray sub_list;
@@ -4315,16 +4315,16 @@ IMPL_CMPFUNC(CgBillCvtItem_GoodsName, i1, i2)
 
 class CgBillCvtList : public TSVector <CgBillCvtItem> { // @v9.9.0 TSArray-->TSVector
 public:
-	SLAPI  CgBillCvtList() : TSVector <CgBillCvtItem> ()
+	CgBillCvtList() : TSVector <CgBillCvtItem> ()
 	{
 	}
-	int    SLAPI Add(const CGoodsLineTbl::Rec *);
+	int    Add(const CGoodsLineTbl::Rec *);
 private:
 	PPObjGoods GObj;
     LAssocArray UnifyGoodsList; // Список подстановки объединенных товаров. {OrgGoodsID, ReplacmentGoodsID}
 };
 
-int SLAPI CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
+int CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
 {
 	Goods2Tbl::Rec goods_rec;
 	const  PPID goods_id = pRec->GoodsID;
@@ -4362,7 +4362,7 @@ int SLAPI CgBillCvtList::Add(const CGoodsLineTbl::Rec * pRec)
 //
 // Без транзакции проводит документ pPack.
 //
-int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad)
+int CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad)
 {
 	int    ok = -1;
 	if(pPack && pPack->GetTCount()) {
@@ -4391,7 +4391,7 @@ int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int
 	return ok;
 }
 
-int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
+int CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
 {
 	int    ok = 1, r;
 	const  PPID  op_id = (sign < 0) ? RetOpID : SellOpID;
@@ -4554,7 +4554,7 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 	return ok;
 }
 
-int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
+int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 {
 	int    ok = -1, r = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -4714,7 +4714,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 	return ok;
 }
 
-int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTotal * pTotal, int use_ta)
+int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTotal * pTotal, int use_ta)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -4798,7 +4798,7 @@ int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CS
 	return ok;
 }
 
-int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, uint sessNo, uint sessCount, int use_ta)
+int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, uint sessNo, uint sessCount, int use_ta)
 {
 	int    ok = 1;
 	if(!(EqCfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
@@ -4927,7 +4927,7 @@ int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pM
 	return ok;
 }
 
-int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locID, PPID * pBillID, int use_ta)
+int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locID, PPID * pBillID, int use_ta)
 {
 	int    ok = -1;
 	PPID   bill_id = DEREFPTRORZ(pBillID);
@@ -5001,7 +5001,7 @@ int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPI
 	return ok;
 }
 
-int SLAPI CSessGrouping::RemoveSession(PPID sessID, int grade)
+int CSessGrouping::RemoveSession(PPID sessID, int grade)
 {
 	int    ok = 1;
 	PPObjCSession cs_obj;
@@ -5034,7 +5034,7 @@ int SLAPI CSessGrouping::RemoveSession(PPID sessID, int grade)
 	return ok;
 }
 
-int SLAPI CSessGrouping::AttachSessToSupersess(PPID nodeID, PPID sessID, PPID * pSuperSessID, int use_ta)
+int CSessGrouping::AttachSessToSupersess(PPID nodeID, PPID sessID, PPID * pSuperSessID, int use_ta)
 {
 	int     ok = -1;
 	PPObjCashNode cn_obj;
@@ -5123,7 +5123,7 @@ IMPL_CMPFUNC(__SessItem, p1, p2)
 	return static_cast<int>(diff_date ? diff_date : diff_time);
 }
 
-int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, PPIDArray * pOutList, PPIDArray * pOutTempList, int use_ta)
+int CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, PPIDArray * pOutList, PPIDArray * pOutTempList, int use_ta)
 {
 	int    ok = 1;
 	uint   i, j;
@@ -5259,7 +5259,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 	return ok;
 }
 
-int SLAPI CSessGrouping::ConvertSessListToBills(const PPIDArray * pSessList, PPID locID, int use_ta)
+int CSessGrouping::ConvertSessListToBills(const PPIDArray * pSessList, PPID locID, int use_ta)
 {
 	int    ok = 1;
 	const uint _count = pSessList->getCount();
@@ -5278,7 +5278,7 @@ int SLAPI CSessGrouping::ConvertSessListToBills(const PPIDArray * pSessList, PPI
 	return ok;
 }
 
-int SLAPI CSessGrouping::CompleteSession(PPID sessID)
+int CSessGrouping::CompleteSession(PPID sessID)
 {
 	int    ok = -1;
 	CSessionTbl::Rec sess_rec;
@@ -5321,7 +5321,7 @@ int SLAPI CSessGrouping::CompleteSession(PPID sessID)
 //
 //
 //
-SLAPI CTableStatus::CTableStatus(const CCheckViewItem * pCcItem)
+CTableStatus::CTableStatus(const CCheckViewItem * pCcItem)
 {
 	THISZERO();
 	if(pCcItem) {
@@ -5384,11 +5384,11 @@ public:
 	int    GetCTableStatus(long tableNo, CTableStatus * pStatus);
 	int    GetCTableOrderList(TSVector <CTableStatus> & rList); // @v9.8.5 TSArray-->TSVector
 private:
-	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 	{
 		return -1;
 	}
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 	}
 	int    RefreshCTableStatusList(int force);
@@ -5500,7 +5500,7 @@ int CCheckCache::RefreshCTableStatusList(int force)
 
 /* @v10.3.4 @useless
 //static
-int SLAPI CCheckCore::RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID)
+int CCheckCore::RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID)
 {
 	PPID   cc_id = 0;
 	if(!isempty(pCode)) {
@@ -5512,7 +5512,7 @@ int SLAPI CCheckCore::RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID
 	return BIN(cc_id);
 }*/
 
-int SLAPI CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx)
+int CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	//
@@ -5577,7 +5577,7 @@ int SLAPI CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & r
 //
 //
 //
-int SLAPI CCheckCore::CorrectCCLineProblem01()
+int CCheckCore::CorrectCCLineProblem01()
 {
 	int    ok = 1;
 	if(DS.CheckExtFlag(ECF_AVERAGE)) {

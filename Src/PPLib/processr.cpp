@@ -244,7 +244,7 @@ int PPProcessorPacket::ExtBlock::IsEmpty() const
 	return BIN(CheckInTime == 0 && CheckOutTime == 0 && TimeFlags == 0 && InitSessStatus == 0 && ExtStrP == 0 && !Places.getCount() && !GetOwnerGuaID());
 }
 
-int SLAPI PPProcessorPacket::ExtBlock::GetExtStrData(int fldID, SString & rBuf) const
+int PPProcessorPacket::ExtBlock::GetExtStrData(int fldID, SString & rBuf) const
 {
 	int    ok = -1;
 	if(ExtStrP) {
@@ -255,7 +255,7 @@ int SLAPI PPProcessorPacket::ExtBlock::GetExtStrData(int fldID, SString & rBuf) 
 	return ok;
 }
 
-int SLAPI PPProcessorPacket::ExtBlock::PutExtStrData(int fldID, const char * pBuf)
+int PPProcessorPacket::ExtBlock::PutExtStrData(int fldID, const char * pBuf)
 {
 	SString ext_string;
 	GetS(ExtStrP, ext_string);
@@ -284,7 +284,7 @@ int PPProcessorPacket::ExtBlock::Serialize(int dir, SBuffer & rBuf, SSerializeCo
 	return ok;
 }
 
-int SLAPI PPProcessorPacket::ExtBlock::Pack()
+int PPProcessorPacket::ExtBlock::Pack()
 {
 	int    ok = -1;
 	if(Pool.getDataLen()) {
@@ -306,22 +306,22 @@ int SLAPI PPProcessorPacket::ExtBlock::Pack()
 	return ok;
 }
 
-PPID SLAPI PPProcessorPacket::ExtBlock::GetOwnerGuaID() const
+PPID PPProcessorPacket::ExtBlock::GetOwnerGuaID() const
 {
 	return Fb.OwnerGuaID;
 }
 
-void SLAPI PPProcessorPacket::ExtBlock::SetOwnerGuaID(PPID id)
+void PPProcessorPacket::ExtBlock::SetOwnerGuaID(PPID id)
 {
 	Fb.OwnerGuaID = id;
 }
 
-long SLAPI PPProcessorPacket::ExtBlock::GetCipCancelTimeout() const
+long PPProcessorPacket::ExtBlock::GetCipCancelTimeout() const
 {
 	return Fb.CipCancelTimeout;
 }
 
-int  SLAPI PPProcessorPacket::ExtBlock::SetCipCancelTimeout(long t)
+int  PPProcessorPacket::ExtBlock::SetCipCancelTimeout(long t)
 {
 	if(t >= 0) {
 		Fb.CipCancelTimeout = t;
@@ -331,12 +331,12 @@ int  SLAPI PPProcessorPacket::ExtBlock::SetCipCancelTimeout(long t)
 		return 0;
 }
 
-long SLAPI PPProcessorPacket::ExtBlock::GetCipLockTimeout() const
+long PPProcessorPacket::ExtBlock::GetCipLockTimeout() const
 {
 	return Fb.CipLockTimeout;
 }
 
-int  SLAPI PPProcessorPacket::ExtBlock::SetCipLockTimeout(long t)
+int  PPProcessorPacket::ExtBlock::SetCipLockTimeout(long t)
 {
 	if(t >= 0) {
 		Fb.CipLockTimeout = t;
@@ -365,7 +365,7 @@ int PPProcessorPacket::ExtBlock::GetPlaceDescription(uint pos, PPProcessorPacket
 	return ok;
 }
 
-int SLAPI PPProcessorPacket::ExtBlock::GetPlaceDescriptionByCode(const char * pCode, PPProcessorPacket::PlaceDescription & rItem) const
+int PPProcessorPacket::ExtBlock::GetPlaceDescriptionByCode(const char * pCode, PPProcessorPacket::PlaceDescription & rItem) const
 {
 	int    ok = 0;
     if(Places.getCount()) {
@@ -442,28 +442,28 @@ TLP_IMPL(PPObjProcessor, ProcessorTbl, P_Tbl);
 	return r;
 }
 
-SLAPI PPObjProcessor::PPObjProcessor(void * extraPtr) : PPObject(PPOBJ_PROCESSOR), ExtraPtr(extraPtr)
+PPObjProcessor::PPObjProcessor(void * extraPtr) : PPObject(PPOBJ_PROCESSOR), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-SLAPI PPObjProcessor::~PPObjProcessor()
+PPObjProcessor::~PPObjProcessor()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjProcessor::Search(PPID id, void * b)
+int PPObjProcessor::Search(PPID id, void * b)
 {
 	return SearchByID(P_Tbl, Obj, id, b);
 }
 
-/*virtual*/const char * SLAPI PPObjProcessor::GetNamePtr()
+/*virtual*/const char * PPObjProcessor::GetNamePtr()
 {
 	return P_Tbl->data.Name;
 }
 
-int SLAPI PPObjProcessor::SearchByName(int kind, const char * pName, PPID * pID, ProcessorTbl::Rec * pRec)
+int PPObjProcessor::SearchByName(int kind, const char * pName, PPID * pID, ProcessorTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -486,7 +486,7 @@ int SLAPI PPObjProcessor::SearchByName(int kind, const char * pName, PPID * pID,
 	return ok;
 }
 
-int SLAPI PPObjProcessor::SearchByCode(const char * pCode, PPID * pID, ProcessorTbl::Rec * pRec)
+int PPObjProcessor::SearchByCode(const char * pCode, PPID * pID, ProcessorTbl::Rec * pRec)
 {
 	if(pCode) {
 		BExtQuery q(P_Tbl, 0);
@@ -503,7 +503,7 @@ int SLAPI PPObjProcessor::SearchByCode(const char * pCode, PPID * pID, Processor
 	return -1;
 }
 
-int SLAPI PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, ProcessorTbl::Rec * pRec)
+int PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, ProcessorTbl::Rec * pRec)
 {
 	int    ok = -1;
 	ProcessorTbl * p_t = P_Tbl;
@@ -520,7 +520,7 @@ int SLAPI PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, 
 	return ok;
 }
 
-int SLAPI PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pList)
+int PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pList)
 {
 	int    ok = -1;
 	ProcessorTbl * p_t = P_Tbl;
@@ -554,7 +554,7 @@ int SLAPI PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pLis
 	return ok;
 }
 
-int SLAPI PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
+int PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -582,7 +582,7 @@ int SLAPI PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjProcessor::GetParentsList(PPID prcID, PPIDArray * pList)
+int PPObjProcessor::GetParentsList(PPID prcID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPIDArray id_list;
@@ -605,7 +605,7 @@ int SLAPI PPObjProcessor::GetParentsList(PPID prcID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjProcessor::GetExtWithInheritance(PPID prcID, PPProcessorPacket::ExtBlock * pExt)
+int PPObjProcessor::GetExtWithInheritance(PPID prcID, PPProcessorPacket::ExtBlock * pExt)
 {
 	int    ok = -1;
 	ProcessorTbl::Rec rec, parent_rec;
@@ -639,7 +639,7 @@ int SLAPI PPObjProcessor::GetExtWithInheritance(PPID prcID, PPProcessorPacket::E
 	return ok;
 }
 
-int SLAPI PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, int useCache)
+int PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, int useCache)
 {
 	int    ok = -1;
 	ProcessorTbl::Rec rec, parent_rec;
@@ -723,7 +723,7 @@ int SLAPI PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * 
 	return ok;
 }
 
-int SLAPI PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
+int PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
 {
 	int    ok = -1;
 	ProcessorTbl::Rec prc_rec, parent_rec;
@@ -738,7 +738,7 @@ int SLAPI PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
 	return ok;
 }
 
-int SLAPI PPObjProcessor::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
+int PPObjProcessor::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 {
 	ProcessorTbl * p_t = P_Tbl;
 	if(objType == PPOBJ_PROCESSOR) {
@@ -788,7 +788,7 @@ int SLAPI PPObjProcessor::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	return -1;
 }
 
-int SLAPI PPObjProcessor::DeleteObj(PPID id)
+int PPObjProcessor::DeleteObj(PPID id)
 {
 	ProcessorTbl::Rec rec;
 	if(Search(id, &rec) > 0) {
@@ -803,7 +803,7 @@ int SLAPI PPObjProcessor::DeleteObj(PPID id)
 		return 0;
 }
 
-int SLAPI PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
+int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 {
 	int    ok = 1, ta = 0;
 	PPID   log_action_id = 0;
@@ -871,7 +871,7 @@ struct Strg_ProcessorExt { // @persistent
 };
 
 #if 0 // @v8.7.0 {
-int SLAPI PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
+int PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
 {
 	int    ok = 1;
 	Strg_ProcessorExt * p_strg = 0;
@@ -898,7 +898,7 @@ int SLAPI PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 }
 #endif // } @v8.7.0
 
-int SLAPI PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
+int PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pExt, int use_ta)
 {
 	int    ok = 1;
 	SBuffer buffer;
@@ -911,7 +911,7 @@ int SLAPI PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 	return ok;
 }
 
-int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
+int PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -948,7 +948,7 @@ int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 	return ok;
 }
 
-int SLAPI PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
+int PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
 {
 	int    ok = -1;
 	pPack->destroy();
@@ -966,12 +966,12 @@ int SLAPI PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
 //
 class ProcessorCache : public ObjCache {
 public:
-	SLAPI  ProcessorCache() : ObjCache(PPOBJ_PROCESSOR, sizeof(Data))
+	ProcessorCache() : ObjCache(PPOBJ_PROCESSOR, sizeof(Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		long   ParentID;
@@ -992,7 +992,7 @@ public:
 	};
 };
 
-int SLAPI ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1026,7 +1026,7 @@ int SLAPI ProcessorCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	ProcessorTbl::Rec * p_data_rec = static_cast<ProcessorTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -1054,13 +1054,13 @@ void SLAPI ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
 }
 
-int SLAPI PPObjProcessor::Fetch(PPID id, ProcessorTbl::Rec * pRec)
+int PPObjProcessor::Fetch(PPID id, ProcessorTbl::Rec * pRec)
 {
 	ProcessorCache * p_cache = GetDbLocalCachePtr <ProcessorCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
-int SLAPI PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -1117,7 +1117,7 @@ int SLAPI PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 //
 //
 //
-SLAPI PrcCtrlGroup::Rec::Rec(PPID prcID) : PrcID(prcID)
+PrcCtrlGroup::Rec::Rec(PPID prcID) : PrcID(prcID)
 {
 }
 
@@ -1164,7 +1164,7 @@ private:
 	long   InheritedFlags;
 };
 
-/*static*/int SLAPI PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem)
+/*static*/int PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem)
 {
 	#define GRP_GOODS 1
 
@@ -1623,7 +1623,7 @@ int ProcessorDialog::getDTS(PPProcessorPacket * pData)
 	return ok;
 }
 
-int SLAPI PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
+int PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 {
 	const  PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel, valid_data = 0;
@@ -1722,7 +1722,7 @@ int PPObjProcessor::AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec,
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
+StrAssocArray * PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
 {
 	const PPID outer_parent_id = reinterpret_cast<PPID>(extraPtr);
 	union {
@@ -1764,13 +1764,13 @@ StrAssocArray * SLAPI PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentI
 	return p_list;
 }
 
-int SLAPI PPObjProcessor::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_PROCESSOR, 0, 1, extraPtr); }
+int PPObjProcessor::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_PROCESSOR, 0, 1, extraPtr); }
 //
 //
 //
 IMPL_DESTROY_OBJ_PACK(PPObjProcessor, PPProcessorPacket);
 
-int SLAPI PPObjProcessor::SerializePacket(int dir, PPProcessorPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjProcessor::SerializePacket(int dir, PPProcessorPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString stub_extsting;
@@ -1783,10 +1783,10 @@ int SLAPI PPObjProcessor::SerializePacket(int dir, PPProcessorPacket * pPack, SB
 	return ok;
 }
 
-int SLAPI PPObjProcessor::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjProcessor::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjProcessor, PPProcessorPacket>(this, p, id, stream, pCtx); }
 
-int  SLAPI PPObjProcessor::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int  PPObjProcessor::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	PPProcessorPacket * p_pack = p ? static_cast<PPProcessorPacket *>(p->Data) : 0;
@@ -1829,7 +1829,7 @@ int  SLAPI PPObjProcessor::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 	return ok;
 }
 
-int  SLAPI PPObjProcessor::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int  PPObjProcessor::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1849,27 +1849,25 @@ int  SLAPI PPObjProcessor::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 //
 // @ModuleDef(PPViewProcessor)
 //
-IMPLEMENT_PPFILT_FACTORY(Processor); SLAPI ProcessorFilt::ProcessorFilt() : PPBaseFilt(PPFILT_PROCESSOR, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Processor); ProcessorFilt::ProcessorFilt() : PPBaseFilt(PPFILT_PROCESSOR, 0, 0)
 {
 	SetFlatChunk(offsetof(ProcessorFilt, ReserveStart),
 		offsetof(ProcessorFilt, Reserve)-offsetof(ProcessorFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-int SLAPI ProcessorFilt::Init(int fullyDestroy, long extraData)
+int ProcessorFilt::Init(int fullyDestroy, long extraData)
 {
 	PPBaseFilt::Init(fullyDestroy, extraData);
 	Kind = PPPRCK_PROCESSOR;
 	return 1;
 }
 
-SLAPI PPViewProcessor::PPViewProcessor() : PPView(&PrcObj, &Filt, PPVIEW_PROCESSOR)
+PPViewProcessor::PPViewProcessor() : PPView(&PrcObj, &Filt, PPVIEW_PROCESSOR, implDontEditNullFilter, REPORT_PROCESSOR)
 {
-	ImplementFlags |= implDontEditNullFilter;
-	DefReportId = REPORT_PROCESSOR;
 }
 
-PPBaseFilt * SLAPI PPViewProcessor::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewProcessor::CreateFilt(void * extraPtr) const
 {
 	ProcessorFilt * p_filt = new ProcessorFilt;
 	if(extraPtr) {
@@ -1879,7 +1877,7 @@ PPBaseFilt * SLAPI PPViewProcessor::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1908,14 +1906,14 @@ int SLAPI PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewProcessor::Init_(const PPBaseFilt * pFilt)
+int PPViewProcessor::Init_(const PPBaseFilt * pFilt)
 {
 	Counter.Init();
 	BExtQuery::ZDelete(&P_IterQuery);
 	return BIN(Helper_InitBaseFilt(pFilt));
 }
 
-int SLAPI PPViewProcessor::InitIteration()
+int PPViewProcessor::InitIteration()
 {
 	int    ok = 1, idx = 0;
 	union {
@@ -1955,12 +1953,12 @@ int FASTCALL PPViewProcessor::NextIteration(ProcessorViewItem * pItem)
 		return -1;
 }
 
-void * SLAPI PPViewProcessor::GetEditExtraParam()
+void * PPViewProcessor::GetEditExtraParam()
 {
 	return (Filt.Kind == PPPRCK_GROUP) ? reinterpret_cast<void *>(Filt.ParentID | PRCEXDF_GROUP) : reinterpret_cast<void *>(Filt.ParentID);
 }
 
-int SLAPI PPViewProcessor::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewProcessor::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	ProcessorTbl::Rec rec;
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -1973,7 +1971,7 @@ int SLAPI PPViewProcessor::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewProcessor::Transmit(PPID /*id*/)
+int PPViewProcessor::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -1992,7 +1990,7 @@ int SLAPI PPViewProcessor::Transmit(PPID /*id*/)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_PROCESSOR;
 	ProcessorTbl * p_prct = 0;
@@ -2035,7 +2033,7 @@ DBQuery * SLAPI PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-int SLAPI PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -2069,7 +2067,7 @@ int SLAPI PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-int SLAPI PPViewProcessor::ExportUhtt()
+int PPViewProcessor::ExportUhtt()
 {
 	int    ok = -1;
 	SString msg_buf, fmt_buf, temp_buf, loc_text_buf;

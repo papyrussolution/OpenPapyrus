@@ -138,7 +138,7 @@ private:
 	int    DataSrc; // 0 - cfg, 1 - filt
 };
 
-/*static*/int SLAPI PPStockOpt::EditConfig()
+/*static*/int PPStockOpt::EditConfig()
 {
 	int    ok = -1;
 	Config cfg;
@@ -631,7 +631,7 @@ int PPStockOpt::ProcessGoods(const PPStockOpt::Item & rItem, long mode, GoodsRes
 //
 // @ModuleDef(PPViewStockOpt)
 //
-IMPLEMENT_PPFILT_FACTORY(StockOpt); SLAPI StockOptFilt::StockOptFilt() : PPBaseFilt(PPFILT_STOCKOPT, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(StockOpt); StockOptFilt::StockOptFilt() : PPBaseFilt(PPFILT_STOCKOPT, 0, 1)
 {
 	SetFlatChunk(offsetof(StockOptFilt, ReserveStart),
 		offsetof(StockOptFilt, Reserve) - offsetof(StockOptFilt, ReserveStart) + sizeof(Reserve));
@@ -639,16 +639,15 @@ IMPLEMENT_PPFILT_FACTORY(StockOpt); SLAPI StockOptFilt::StockOptFilt() : PPBaseF
 	Mode = modeGoods;
 }
 
-PPViewStockOpt::PPViewStockOpt() : PPView(0, &Filt, PPVIEW_STOCKOPT)
+PPViewStockOpt::PPViewStockOpt() : PPView(0, &Filt, PPVIEW_STOCKOPT, implBrowseArray, 0)
 {
-	ImplementFlags |= implBrowseArray;
 }
 
 PPViewStockOpt::~PPViewStockOpt()
 {
 }
 
-PPBaseFilt * SLAPI PPViewStockOpt::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewStockOpt::CreateFilt(void * extraPtr) const
 {
 	StockOptFilt * p_filt = new StockOptFilt;
 	if(p_filt) {
@@ -657,7 +656,7 @@ PPBaseFilt * SLAPI PPViewStockOpt::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewStockOpt::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewStockOpt::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return PPErrorZ();
@@ -665,7 +664,7 @@ int SLAPI PPViewStockOpt::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return p_filt ? PPDialogProcBody <StockOptCfgDialog, StockOptFilt> (DLG_STOCKOPTFLT, p_filt) : 0;
 }
 
-int SLAPI PPViewStockOpt::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewStockOpt::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(!Helper_InitBaseFilt(pBaseFilt))
@@ -721,9 +720,9 @@ private:
 	PPStockOpt::Item Data;
 };
 
-int SLAPI PPViewStockOpt::EditItem(PPStockOpt::Item * pItem) { DIALOG_PROC_BODY(StockOptItemDialog, pItem); }
+int PPViewStockOpt::EditItem(PPStockOpt::Item * pItem) { DIALOG_PROC_BODY(StockOptItemDialog, pItem); }
 
-int SLAPI PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -762,12 +761,12 @@ int SLAPI PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-void SLAPI PPViewStockOpt::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewStockOpt::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewStockOpt::GetDataForBrowser, this));
 }
 
-SArray * SLAPI PPViewStockOpt::Helper_CreateBrowserArray()
+SArray * PPViewStockOpt::Helper_CreateBrowserArray()
 {
 	//LongArray * p_list = new LongArray;
 	TSArray <long> * p_list = new TSArray <long>;
@@ -788,7 +787,7 @@ SArray * SLAPI PPViewStockOpt::Helper_CreateBrowserArray()
 	return p_list;
 }
 
-SArray * SLAPI PPViewStockOpt::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewStockOpt::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	if(Filt.Mode == Filt.modeGoods) {
@@ -804,7 +803,7 @@ SArray * SLAPI PPViewStockOpt::CreateBrowserArray(uint * pBrwId, SString * pSubT
 	return Helper_CreateBrowserArray();
 }
 
-int SLAPI PPViewStockOpt::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewStockOpt::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	long   _pos = pHdr ? *static_cast<const long *>(pHdr) : 0;

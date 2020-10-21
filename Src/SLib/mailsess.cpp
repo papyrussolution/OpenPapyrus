@@ -242,16 +242,16 @@ int MailSession::getLine(SString & rBuf)
 //
 //
 //
-SLAPI SMailClient::SMailClient() : State(0), P_Pop3AuthSession(0)
+SMailClient::SMailClient() : State(0), P_Pop3AuthSession(0)
 {
 }
 
-SLAPI SMailClient::~SMailClient()
+SMailClient::~SMailClient()
 {
 	Disconnect();
 }
 
-int SLAPI SMailClient::Connect(InetUrl & rUrl, int timeout)
+int SMailClient::Connect(InetUrl & rUrl, int timeout)
 {
 	int    ok = 1;
 	if(State & stConnected)
@@ -348,7 +348,7 @@ int SLAPI SMailClient::Connect(InetUrl & rUrl, int timeout)
 	return ok;
 }
 
-int SLAPI SMailClient::Disconnect()
+int SMailClient::Disconnect()
 {
 	int    ok = 0;
 	if(State & stConnected) {
@@ -368,7 +368,7 @@ int SLAPI SMailClient::Disconnect()
 	return ok;
 }
 
-int SLAPI SMailClient::CheckReply(const SString & rReplyBuf, int onlyValidCode)
+int SMailClient::CheckReply(const SString & rReplyBuf, int onlyValidCode)
 {
 	int   ok = 1;
 	const int protocol = Url.GetProtocol();
@@ -391,7 +391,7 @@ int SLAPI SMailClient::CheckReply(const SString & rReplyBuf, int onlyValidCode)
 	return ok;
 }
 
-int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPassword)
+int SMailClient::Auth(int authtype, const char * pName, const char * pPassword)
 {
 	int    ok = 1;
 	SString cmd_buf, reply_buf, temp_buf;
@@ -488,7 +488,7 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 	return ok;
 }
 
-int SLAPI SMailClient::ReadLine(SString & rBuf)
+int SMailClient::ReadLine(SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -504,7 +504,7 @@ int SLAPI SMailClient::ReadLine(SString & rBuf)
 	return ok;
 }
 
-int SLAPI SMailClient::WriteLine(const char * pLine, SString * pReply)
+int SMailClient::WriteLine(const char * pLine, SString * pReply)
 {
 	int    ok = 1;
 	size_t wr_size = 0;
@@ -518,7 +518,7 @@ int SLAPI SMailClient::WriteLine(const char * pLine, SString * pReply)
 	return ok;
 }
 
-int SLAPI SMailClient::WriteBlock(const void * pData, size_t dataSize)
+int SMailClient::WriteBlock(const void * pData, size_t dataSize)
 {
 	int    ok = 1;
 	size_t wr_size = 0;
@@ -542,7 +542,7 @@ int SLAPI SMailClient::WriteBlock(const void * pData, size_t dataSize)
 	return rBuf.Strip();
 }
 
-int SLAPI SMailClient::Pop3_GetStat(long * pCount, long * pSize)
+int SMailClient::Pop3_GetStat(long * pCount, long * pSize)
 {
 	int    ok = 1;
 	SString cmd_buf, reply_buf;
@@ -563,7 +563,7 @@ int SLAPI SMailClient::Pop3_GetStat(long * pCount, long * pSize)
 	return ok;
 }
 
-int SLAPI SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
+int SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
 {
 	int    ok = 1;
 	SString cmd_buf, reply_buf;
@@ -582,7 +582,7 @@ int SLAPI SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
 	return ok;
 }
 
-int SLAPI SMailClient::Pop3_DeleteMsg(long msgN)
+int SMailClient::Pop3_DeleteMsg(long msgN)
 {
 	int    ok = 1;
 	SString cmd_buf, reply_buf;

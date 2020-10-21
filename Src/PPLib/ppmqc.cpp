@@ -22,12 +22,12 @@ int FASTCALL PPMqbClient::LoginParam::Copy(const PPMqbClient::LoginParam & rS)
 	return 1;
 }
 
-SLAPI PPMqbClient::RoutingParamEntry::RoutingParamEntry() : RtRsrv(0), QueueFlags(0), ExchangeType(exgtDefault), ExchangeFlags(0), RpcReplyQueueFlags(0),
+PPMqbClient::RoutingParamEntry::RoutingParamEntry() : RtRsrv(0), QueueFlags(0), ExchangeType(exgtDefault), ExchangeFlags(0), RpcReplyQueueFlags(0),
 	RpcReplyExchangeType(0), RpcReplyExchangeFlags(0)
 {
 }
 
-PPMqbClient::RoutingParamEntry & SLAPI PPMqbClient::RoutingParamEntry::Z()
+PPMqbClient::RoutingParamEntry & PPMqbClient::RoutingParamEntry::Z()
 {
 	RtRsrv = 0;
 	QueueFlags = 0;
@@ -54,7 +54,7 @@ static const SIntToSymbTabEntry MqbReservedRoutePrefix[] = {
 	{ PPMqbClient::rtrsrvRpcReply, "papyrusrpcreply" },
 };
 
-int SLAPI PPMqbClient::RoutingParamEntry::SetupRpcReply(const PPMqbClient::Envelope & rSrcEnv)
+int PPMqbClient::RoutingParamEntry::SetupRpcReply(const PPMqbClient::Envelope & rSrcEnv)
 {
 	Z();
 	int    ok = 1;
@@ -70,7 +70,7 @@ int SLAPI PPMqbClient::RoutingParamEntry::SetupRpcReply(const PPMqbClient::Envel
 	return ok;
 }
 
-int SLAPI PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain, const S_GUID * pDestGuid, long destId)
+int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain, const S_GUID * pDestGuid, long destId)
 {
 	Z();
 	int    ok = 1;
@@ -170,7 +170,7 @@ PPMqbClient::InitParam::InitParam() : Port(0)
 {
 }
 
-SLAPI  PPMqbClient::InitParam::InitParam(const InitParam & rS) : LoginParam(rS)
+PPMqbClient::InitParam::InitParam(const InitParam & rS) : LoginParam(rS)
 {
 	Copy(rS);
 }
@@ -225,11 +225,11 @@ PPMqbClient::Message & PPMqbClient::Message::Z()
 	return *this;
 }
 
-SLAPI PPMqbClient::Envelope::Envelope() : ChannelN(0), Reserve(0), DeliveryTag(0), Flags(0)
+PPMqbClient::Envelope::Envelope() : ChannelN(0), Reserve(0), DeliveryTag(0), Flags(0)
 {
 }
 
-PPMqbClient::Envelope & SLAPI PPMqbClient::Envelope::Z()
+PPMqbClient::Envelope & PPMqbClient::Envelope::Z()
 {
 	ChannelN = 0;
 	Reserve = 0;
@@ -249,16 +249,16 @@ int FASTCALL PPMqbClient::Envelope::IsReservedRoute(int * pRtRsrv) const
 	return rt;
 }
 
-SLAPI  PPMqbClient::PPMqbClient() : P_Conn(0), P_Sock(0), Port(0), ChannelN(0)
+PPMqbClient::PPMqbClient() : P_Conn(0), P_Sock(0), Port(0), ChannelN(0)
 {
 }
 
-SLAPI PPMqbClient::~PPMqbClient()
+PPMqbClient::~PPMqbClient()
 {
 	Disconnect();
 }
 
-int SLAPI PPMqbClient::Connect(const char * pHost, int port)
+int PPMqbClient::Connect(const char * pHost, int port)
 {
 	int    ok = 1;
 	int    amqp_status = 0;
@@ -274,7 +274,7 @@ int SLAPI PPMqbClient::Connect(const char * pHost, int port)
 	return ok;
 }
 
-int SLAPI PPMqbClient::Disconnect()
+int PPMqbClient::Disconnect()
 {
 	int    ok = -1;
 	if(P_Conn) {
@@ -310,13 +310,13 @@ int SLAPI PPMqbClient::Disconnect()
 	return ok;
 }
 
-int SLAPI PPMqbClient::VerifyRpcReply()
+int PPMqbClient::VerifyRpcReply()
 {
 	amqp_rpc_reply_t amqp_reply = amqp_get_rpc_reply(GetNativeConnHandle(P_Conn));
 	return ProcessAmqpRpcReply(amqp_reply);
 }
 
-int SLAPI PPMqbClient::Login(const LoginParam & rP)
+int PPMqbClient::Login(const LoginParam & rP)
 {
 	int    ok = 1;
 	if(P_Conn) {
@@ -330,7 +330,7 @@ int SLAPI PPMqbClient::Login(const LoginParam & rP)
 	return ok;
 }
 
-int SLAPI PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, const MessageProperties * pProps, const void * pData, size_t dataLen)
+int PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, const MessageProperties * pProps, const void * pData, size_t dataLen)
 {
 	int    ok = 1;
 	amqp_table_entry_t * p_amqp_tbl_entries = 0;
@@ -431,7 +431,7 @@ static void FASTCALL AmpqBytesToSString(const amqp_bytes_t & rS, SString & rDest
 		rDest.CatN(static_cast<const char *>(rS.bytes), rS.len);
 }
 
-int SLAPI PPMqbClient::Consume(const char * pQueue, SString * pConsumerTag, long consumeFlags)
+int PPMqbClient::Consume(const char * pQueue, SString * pConsumerTag, long consumeFlags)
 {
 	int    ok = 1;
 	THROW(P_Conn);
@@ -449,7 +449,7 @@ int SLAPI PPMqbClient::Consume(const char * pQueue, SString * pConsumerTag, long
 	return ok;
 }
 
-int SLAPI PPMqbClient::Cancel(const char * pConsumerTag, long flags)
+int PPMqbClient::Cancel(const char * pConsumerTag, long flags)
 {
 	int    ok = 1;
 	THROW(P_Conn);
@@ -463,7 +463,7 @@ int SLAPI PPMqbClient::Cancel(const char * pConsumerTag, long flags)
 	return ok;
 }
 
-int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
+int PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 {
 	rEnv.Z();
 	int    ok = -1;
@@ -552,7 +552,7 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 	return ok;
 }
 
-int SLAPI PPMqbClient::Ack(uint64 deliveryTag, long flags /*mqofMultiple*/)
+int PPMqbClient::Ack(uint64 deliveryTag, long flags /*mqofMultiple*/)
 {
 	int    ok = 1;
 	THROW(P_Conn);
@@ -564,7 +564,7 @@ int SLAPI PPMqbClient::Ack(uint64 deliveryTag, long flags /*mqofMultiple*/)
 	return ok;
 }
 
-int SLAPI PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
+int PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 {
 	int    ok = 1;
 	THROW(P_Conn);
@@ -592,7 +592,7 @@ int SLAPI PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 	return ok;
 }
 
-int SLAPI PPMqbClient::QueueDeclare(const char * pQueue, long queueFlags)
+int PPMqbClient::QueueDeclare(const char * pQueue, long queueFlags)
 {
 	int    ok = 1;
 	if(P_Conn) {
@@ -605,7 +605,7 @@ int SLAPI PPMqbClient::QueueDeclare(const char * pQueue, long queueFlags)
 	return ok;
 }
 
-int SLAPI PPMqbClient::ExchangeDeclare(const char * pExchange, int type /* exgtXXX */, long exchangeFlags)
+int PPMqbClient::ExchangeDeclare(const char * pExchange, int type /* exgtXXX */, long exchangeFlags)
 {
 	int    ok = 1;
 	THROW(P_Conn);
@@ -629,7 +629,7 @@ int SLAPI PPMqbClient::ExchangeDeclare(const char * pExchange, int type /* exgtX
 	return ok;
 }
 
-int SLAPI PPMqbClient::QueueBind(const char * pQueue, const char * pExchange, const char * pRoutingKey)
+int PPMqbClient::QueueBind(const char * pQueue, const char * pExchange, const char * pRoutingKey)
 {
 	int    ok = 1;
 	if(P_Conn) {
@@ -643,7 +643,7 @@ int SLAPI PPMqbClient::QueueBind(const char * pQueue, const char * pExchange, co
 	return ok;
 }
 
-int SLAPI PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const char * pRoutingKey)
+int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const char * pRoutingKey)
 {
 	int    ok = 1;
 	if(P_Conn) {
@@ -657,7 +657,7 @@ int SLAPI PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, 
 	return ok;
 }
 
-/*static*/int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP)
+/*static*/int PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP)
 {
 	int    ok = 1;
 	THROW(rC.Connect(rP.Host, NZOR(rP.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
@@ -674,7 +674,7 @@ int SLAPI PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, 
 	return ok;
 }
 
-/*static*/int SLAPI PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain)
+/*static*/int PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain)
 {
 	int    ok = 1;
 	SString data_domain;
@@ -697,7 +697,7 @@ int SLAPI PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, 
 	return ok;
 }
 
-/*static*/int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
+/*static*/int PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
 {
 	int    ok = 1;
 	PPMqbClient::InitParam lp;
@@ -711,7 +711,7 @@ int SLAPI PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, 
 
 // @v10.6.1 (moved to PPConst) static const uint32 MqbEventResponder_Signature = 0xB4C7E6F1;
 
-SLAPI MqbEventResponder::MqbEventResponder() : Signature(_PPConst.Signature_MqbEventResponder), AdvCookie_Msg(0), P_Cli(0)
+MqbEventResponder::MqbEventResponder() : Signature(_PPConst.Signature_MqbEventResponder), AdvCookie_Msg(0), P_Cli(0)
 {
 	{
 		PPAdviseBlock adv_blk;
@@ -722,21 +722,21 @@ SLAPI MqbEventResponder::MqbEventResponder() : Signature(_PPConst.Signature_MqbE
 	}
 }
 
-SLAPI MqbEventResponder::~MqbEventResponder()
+MqbEventResponder::~MqbEventResponder()
 {
 	DS.Unadvise(AdvCookie_Msg);
 	delete P_Cli;
 	Signature = 0;
 }
 	
-int SLAPI MqbEventResponder::IsConsistent() const
+int MqbEventResponder::IsConsistent() const
 	{ return BIN(Signature == _PPConst.Signature_MqbEventResponder); }
 
 MqbEventResponder::Command::Command() : Cmd(cmdNone), IdVal(0)
 {
 }
 
-int SLAPI MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd) const
+int MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd) const
 {
 	static const SIntToSymbTabEntry cmd_prefix_list[] = {
 		{ cmdGetGlobalAccountList, "GetGlobalAccountList" },
@@ -1020,7 +1020,7 @@ private:
 	}
 };
 
-int SLAPI TestMqc()
+int TestMqc()
 {
 	int    ok = -1;
 	TestMqcDialog * dlg = new TestMqcDialog;
@@ -1032,7 +1032,7 @@ int SLAPI TestMqc()
 }
 
 #if 0 // {
-int SLAPI TestMqc()
+int TestMqc()
 {
 	int    ok = 1;
 	const char * p_exchange_name = "papyrus-exchange-fanout-test";
@@ -1105,7 +1105,7 @@ public:
 	TestMqcThread(const PPMqbClient::InitParam & rP) : PPThread(kUnknown, "", 0), MqbcParam(rP)
 	{
 	}
-	virtual void SLAPI Startup()
+	virtual void Startup()
 	{
 		PPThread::Startup();
 		SignalStartup();

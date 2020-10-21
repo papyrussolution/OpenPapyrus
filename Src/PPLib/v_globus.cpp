@@ -7,7 +7,7 @@
 #pragma hdrstop
 #include <charry.h>
 
-IMPLEMENT_PPFILT_FACTORY(GlobalUserAcc); SLAPI GlobalUserAccFilt::GlobalUserAccFilt() : PPBaseFilt(PPFILT_GLOBALUSERACC, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GlobalUserAcc); GlobalUserAccFilt::GlobalUserAccFilt() : PPBaseFilt(PPFILT_GLOBALUSERACC, 0, 0)
 {
 	SetFlatChunk(offsetof(GlobalUserAccFilt, ReserveStart),	offsetof(GlobalUserAccFilt, ReserveEnd) - offsetof(GlobalUserAccFilt, ReserveStart));
 	Init(1, 0);
@@ -19,16 +19,16 @@ GlobalUserAccFilt & FASTCALL GlobalUserAccFilt::operator = (const GlobalUserAccF
 	return *this;
 }
 
-SLAPI PPViewGlobalUserAcc::PPViewGlobalUserAcc() : PPView(&ObjGlobAcc, &Filt, PPVIEW_GLOBALUSERACC), P_TempTbl(0)
+PPViewGlobalUserAcc::PPViewGlobalUserAcc() : PPView(&ObjGlobAcc, &Filt, PPVIEW_GLOBALUSERACC, 0, 0), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewGlobalUserAcc::~PPViewGlobalUserAcc()
+PPViewGlobalUserAcc::~PPViewGlobalUserAcc()
 {
 	ZDELETE(P_TempTbl);
 }
 
-TempGlobUserAccTbl::Rec & SLAPI PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserAcc & rRec, TempGlobUserAccTbl::Rec & rTempRec)
+TempGlobUserAccTbl::Rec & PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserAcc & rRec, TempGlobUserAccTbl::Rec & rTempRec)
 {
 	rTempRec.ID = rRec.ID;
 	rTempRec.PersonID = rRec.PersonID;
@@ -42,14 +42,14 @@ TempGlobUserAccTbl::Rec & SLAPI PPViewGlobalUserAcc::MakeTempEntry(const PPGloba
 	return rTempRec;
 }
 
-/*virtual*/int SLAPI PPViewGlobalUserAcc::EditBaseFilt(PPBaseFilt *)
+/*virtual*/int PPViewGlobalUserAcc::EditBaseFilt(PPBaseFilt *)
 {
 	return 1;
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGlobUserAcc);
 
-/*virtual*/int SLAPI PPViewGlobalUserAcc::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewGlobalUserAcc::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -77,7 +77,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGlobUserAcc);
 	return ok;
 }
 
-int SLAPI PPViewGlobalUserAcc::UpdateTempTable(const PPIDArray * pIdList)
+int PPViewGlobalUserAcc::UpdateTempTable(const PPIDArray * pIdList)
 {
 	int    ok = -1;
 	if(pIdList && P_TempTbl) {
@@ -108,7 +108,7 @@ int SLAPI PPViewGlobalUserAcc::UpdateTempTable(const PPIDArray * pIdList)
 	return ok;
 }
 
-int SLAPI PPViewGlobalUserAcc::InitIteration()
+int PPViewGlobalUserAcc::InitIteration()
 {
 	int    ok = 1;
 	TempGlobUserAccTbl::Key0 k, k_;
@@ -135,7 +135,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 	return -1;
 }
 
-/*virtual*/DBQuery * SLAPI PPViewGlobalUserAcc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewGlobalUserAcc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	TempGlobUserAccTbl * t = 0;
@@ -161,7 +161,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 	return q;
 }
 
-/*virtual*/int SLAPI PPViewGlobalUserAcc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewGlobalUserAcc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -193,7 +193,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewGlobalUserAcc::CheckForFilt(const PPGlobalUserAcc * pRec) const
+int PPViewGlobalUserAcc::CheckForFilt(const PPGlobalUserAcc * pRec) const
 {
 	int    ok = 1;
 	return ok;

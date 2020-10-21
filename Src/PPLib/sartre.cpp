@@ -677,11 +677,11 @@ int FASTCALL SrFlexiaModel::Add(const SrFlexiaModel::Item & rItem)
 //
 //
 //
-SLAPI SrNGram::SrNGram() : ID(0), Ver(0)
+SrNGram::SrNGram() : ID(0), Ver(0)
 {
 }
 
-SrNGram & SLAPI SrNGram::Z()
+SrNGram & SrNGram::Z()
 {
 	ID = 0;
 	Ver = 0;
@@ -696,11 +696,11 @@ static IMPL_CMPCFUNC(SrNGram_ByLength, p1, p2)
 	return CMPSIGN(p_ng1->WordIdList.getCount(), p_ng2->WordIdList.getCount());
 }
 
-SLAPI SrNGramCollection::SrNGramCollection() : TSCollection <SrNGram>()
+SrNGramCollection::SrNGramCollection() : TSCollection <SrNGram>()
 {
 }
 
-void SLAPI SrNGramCollection::SortByLength()
+void SrNGramCollection::SortByLength()
 {
 	sort(PTR_CMPCFUNC(SrNGram_ByLength));
 }
@@ -949,7 +949,7 @@ static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
 	return 0;
 }
 
-/*static*/int SLAPI SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb)
+/*static*/int SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb)
 {
 	int    ok = 0;
 	rSymb.Z();
@@ -977,7 +977,7 @@ static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
 	return ok;
 }
 
-/*static*/int SLAPI SrConcept::IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize)
+/*static*/int SrConcept::IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize)
 {
 	int    surrsymbpfx = surrsymbsrcUndef;
 	if(!isempty(pSymb)) {
@@ -1291,7 +1291,7 @@ SrWordInfo & SrWordInfo::Z()
 //
 //
 //
-SLAPI SrWordAssoc::SrWordAssoc() : ID(0), WordID(0), Flags(0), BaseFormID(0), FlexiaModelID(0), AccentModelID(0),
+SrWordAssoc::SrWordAssoc() : ID(0), WordID(0), Flags(0), BaseFormID(0), FlexiaModelID(0), AccentModelID(0),
 	PrefixID(0), AffixModelID(0), AbbrExpID(0)
 {
 }
@@ -1311,7 +1311,7 @@ int FASTCALL SrWordAssoc::IsEqual(const SrWordAssoc & rS) const
 	return 1;
 }
 
-SrWordAssoc & SLAPI SrWordAssoc::Normalize()
+SrWordAssoc & SrWordAssoc::Normalize()
 {
 	//Flags = 0;
 	SETFLAG(Flags, fHasFlexiaModel, FlexiaModelID);

@@ -173,10 +173,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionSelector", "VersionS
 		{26070AD0-2D76-41A2-AB8B-864EA198CC6F} = {26070AD0-2D76-41A2-AB8B-864EA198CC6F}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CProto", "CProto.vcproj", "{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cairo-1.16.0", "cairo-1.16.0.vcproj", "{530693B1-8B95-4993-8BCF-C0D0E225F4DF}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -746,28 +742,6 @@ Global
 		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.ServerRelease.Build.0 = Release|Win32
 		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Universe-HTT.ActiveCfg = Release|Win32
 		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Universe-HTT.Build.0 = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Debug.ActiveCfg = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Debug.Build.0 = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Debug Multithreaded.ActiveCfg = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Debug Multithreaded.Build.0 = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Debug Singlethreaded.ActiveCfg = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Debug Singlethreaded.Build.0 = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.MtDllDebug.ActiveCfg = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.MtDllDebug.Build.0 = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.MtDllRelease.ActiveCfg = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.MtDllRelease.Build.0 = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Release.ActiveCfg = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Release.Build.0 = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Release Multithreaded.ActiveCfg = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Release Multithreaded.Build.0 = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Release Singlethreaded.ActiveCfg = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Release Singlethreaded.Build.0 = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.ServerDebug.ActiveCfg = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.ServerDebug.Build.0 = Debug|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.ServerRelease.ActiveCfg = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.ServerRelease.Build.0 = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Universe-HTT.ActiveCfg = Release|Win32
-		{C24E0EB6-EB03-4AE5-8A64-9888247F34F3}.Universe-HTT.Build.0 = Release|Win32
 		{530693B1-8B95-4993-8BCF-C0D0E225F4DF}.Debug.ActiveCfg = Debug|Win32
 		{530693B1-8B95-4993-8BCF-C0D0E225F4DF}.Debug.Build.0 = Debug|Win32
 		{530693B1-8B95-4993-8BCF-C0D0E225F4DF}.Debug Multithreaded.ActiveCfg = Debug|Win32

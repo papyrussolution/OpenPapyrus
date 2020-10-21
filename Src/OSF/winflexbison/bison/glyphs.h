@@ -20,7 +20,7 @@
 #ifndef GLYPHS_H
 #define GLYPHS_H
 
-void glyphs_init(void); /* Initialize the following variables.  */
+void glyphs_init(); /* Initialize the following variables.  */
 /* In gnulib/lib/unicodeio.h unicode_to_mb uses a buffer of 25 bytes.
    In down_arrow, we append one space.  */
 typedef char glyph_buffer_t[26];

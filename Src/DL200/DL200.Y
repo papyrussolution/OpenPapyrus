@@ -9,7 +9,7 @@
 
 class DL2_ExprStack : public SStack {
 public:
-	SLAPI  DL2_ExprStack() : SStack(sizeof(void *), /*3,*/ aryDataOwner|aryPtrContainer)
+	DL2_ExprStack() : SStack(sizeof(void *), /*3,*/ aryDataOwner|aryPtrContainer)
 	{
 	}
 };
@@ -51,7 +51,7 @@ static void Fatal(const char * pMsg, const char * pAddStr)
 	yyerror(msg_buf);
 }
 
-static DL2_Data * SLAPI SetupDataHeader(const char * pName, const char * pDescript)
+static DL2_Data * SetupDataHeader(const char * pName, const char * pDescript)
 {
 	if(!G_Storage.CheckDupSymb(DL2ENT_DATA, pName))
 		Fatal("Data name '%s' redifinition", pName);
@@ -61,7 +61,7 @@ static DL2_Data * SLAPI SetupDataHeader(const char * pName, const char * pDescri
 	return GP_CurData;
 }
 
-static DL2_Formula * SLAPI ProcessFunc(uint16 op, int numArgs)
+static DL2_Formula * ProcessFunc(uint16 op, int numArgs)
 {
 	int i;
 	DL2_Formula * p_expr = new DL2_Formula;
@@ -450,7 +450,7 @@ expression : T_IDENT
 //
 // Copy of functions from  ACCT.CPP (PPKERNEL)
 //
-static int SLAPI delim(long format)
+static int delim(long format)
 {
 	if(format & ACCF_DELDOT)   return '.';
 	if(format & ACCF_DELSPACE) return ' ';
@@ -458,7 +458,7 @@ static int SLAPI delim(long format)
 	return 0;
 }
 
-char * SLAPI AccToStr(const Acct * acc, long format, char * buf)
+char * AccToStr(const Acct * acc, long format, char * buf)
 {
 	char * b = buf;
 	int dlm = delim(format);

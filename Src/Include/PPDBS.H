@@ -6244,7 +6244,7 @@ public:
 		int32  ID;
 		LDATE  Dt;
 		LTIME  Tm;
-		int32  TypeID;
+		int32  EventType;
 		int32  Status;
 		int32  UserID;
 		int32  GlobalUserID;
@@ -6263,7 +6263,7 @@ public:
 		LTIME  Tm;
 	};
 	struct Key2 {
-		int32  TypeID;
+		int32  EventType;
 		LDATE  Dt;
 		LTIME  Tm;
 	};
@@ -6285,7 +6285,7 @@ public:
 	DBField ID;
 	DBField Dt;
 	DBField Tm;
-	DBField TypeID;
+	DBField EventType;
 	DBField Status;
 	DBField UserID;
 	DBField GlobalUserID;

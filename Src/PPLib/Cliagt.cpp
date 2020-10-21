@@ -7,19 +7,19 @@
 #pragma hdrstop
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
-SLAPI PPClientAgreement::PPClientAgreement()
+PPClientAgreement::PPClientAgreement()
 {
 	Init();
 }
 
-SLAPI PPClientAgreement::PPClientAgreement(const PPClientAgreement & rSrc)
+PPClientAgreement::PPClientAgreement(const PPClientAgreement & rSrc)
 {
 	Init();
 	memcpy(this, &rSrc, offsetof(PPClientAgreement, DebtLimList));
 	DebtLimList = rSrc.DebtLimList;
 }
 
-void SLAPI PPClientAgreement::Init()
+void PPClientAgreement::Init()
 {
 	memzero(this, offsetof(PPClientAgreement, DebtLimList));
 	DebtLimList.freeAll();
@@ -65,7 +65,7 @@ int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
 	return 1;
 }
 
-int SLAPI PPClientAgreement::IsEmpty() const
+int PPClientAgreement::IsEmpty() const
 {
 	const long nempty_flags_mask = (AGTF_DONTCALCDEBTINBILL|AGTF_PRICEROUNDING);
 	return ((Flags & nempty_flags_mask) || BegDt || Expiry || MaxCredit || MaxDscnt || Dscnt || DefPayPeriod ||
@@ -86,7 +86,7 @@ struct DebtLimit_Before715 { // @flat
 	long   Flags;
 };
 
-int SLAPI PPClientAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPClientAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	uint8  ind = 0;
@@ -223,7 +223,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	return ok;
 }
 
-int SLAPI PPObjArticle::HasClientAgreement(PPID id)
+int PPObjArticle::HasClientAgreement(PPID id)
 {
 	int    yes = 0;
 	if(id > 0) {
@@ -240,7 +240,7 @@ int SLAPI PPObjArticle::HasClientAgreement(PPID id)
 	return yes;
 }
 
-int SLAPI PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_default)
+int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_default)
 {
 	int    ok = 1, r, is_default = 0;
 	int    r2 = 0;
@@ -307,7 +307,7 @@ int SLAPI PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, in
 	return ok;
 }
 
-int SLAPI PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_ta)
+int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_ta)
 {
 	int    ok = 1;
 	_PPClientAgt _agt;
@@ -562,9 +562,9 @@ int DebtLimListDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI EditDebtLimList(PPClientAgreement & rCliAgt) { DIALOG_PROC_BODY(DebtLimListDialog, &rCliAgt.DebtLimList); }
+int EditDebtLimList(PPClientAgreement & rCliAgt) { DIALOG_PROC_BODY(DebtLimListDialog, &rCliAgt.DebtLimList); }
 
-int SLAPI SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
+int SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 {
 	SString buf, id_buf, txt_buf;
 	StrAssocArray ary;
@@ -585,7 +585,7 @@ int SLAPI SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 	return SetupStrAssocCombo(pDlg, ctlID, &ary, initVal, 0);
 }
 
-int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
+int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 {
 	class CliAgtDialog : public AgtDialog {
 	public:
@@ -768,7 +768,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 	DIALOG_PROC_BODY(CliAgtDialog, agt);
 }
 
-int SLAPI PPObjArticle::EditAgreement(PPID arID)
+int PPObjArticle::EditAgreement(PPID arID)
 {
 	int    ok = -1, r;
 	ArticleTbl::Rec ar_rec;
@@ -798,7 +798,7 @@ int SLAPI PPObjArticle::EditAgreement(PPID arID)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjArticle::DefaultClientAgreement()
+/*static*/int PPObjArticle::DefaultClientAgreement()
 {
 	int    ok = 1;
 	PPObjArticle arobj;
@@ -814,7 +814,7 @@ int SLAPI PPObjArticle::EditAgreement(PPID arID)
 //
 //
 //
-SLAPI PPSupplAgreement::ExchangeParam::ExchangeParam()
+PPSupplAgreement::ExchangeParam::ExchangeParam()
 {
 	Z();
 }
@@ -852,7 +852,7 @@ PPSupplAgreement::ExchangeParam & FASTCALL PPSupplAgreement::ExchangeParam::oper
 // Начиная с @v8.5.0 структура устарела - применяется только для обратной совместимости при чтении из базы данных.
 //
 struct PPSupplExchangeCfg { // @persistent @store(PropertyTbl)
-	SLAPI  PPSupplExchangeCfg()
+	PPSupplExchangeCfg()
 	{
 		Z();
 	}
@@ -861,7 +861,7 @@ struct PPSupplExchangeCfg { // @persistent @store(PropertyTbl)
 		THISZERO();
 		return *this;
 	}
-	int    SLAPI IsEmpty() const
+	int    IsEmpty() const
 	{
 		return ((!SupplID || !GGrpID || !IP) && isempty(PrvdrSymb)); // @vmiller @added --> isempty(PrvdrSymb) // ???
 	}
@@ -908,7 +908,7 @@ PPSupplAgreement::ExchangeParam & FASTCALL PPSupplAgreement::ExchangeParam::oper
 	return *this;
 }
 
-PPSupplAgreement::ExchangeParam & SLAPI PPSupplAgreement::ExchangeParam::Z()
+PPSupplAgreement::ExchangeParam & PPSupplAgreement::ExchangeParam::Z()
 {
 	LastDt = ZERODATE;
 	GoodsGrpID = 0;
@@ -958,7 +958,7 @@ int FASTCALL PPSupplAgreement::ExchangeParam::IsEqual(const ExchangeParam & rS) 
 	return 1;
 }
 
-int SLAPI PPSupplAgreement::ExchangeParam::Helper_SerializeCommon(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPSupplAgreement::ExchangeParam::Helper_SerializeCommon(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, LastDt, rBuf));
@@ -978,7 +978,7 @@ int SLAPI PPSupplAgreement::ExchangeParam::Helper_SerializeCommon(int dir, SBuff
 	return ok;
 }
 
-int  SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9103_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int  PPSupplAgreement::ExchangeParam::Serialize_Before_v9103_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
@@ -986,7 +986,7 @@ int  SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9103_(int dir, SBu
 	return ok;
 }
 
-int SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9905_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPSupplAgreement::ExchangeParam::Serialize_Before_v9905_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
@@ -995,7 +995,7 @@ int SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9905_(int dir, SBuf
 	return ok;
 }
 
-int SLAPI PPSupplAgreement::ExchangeParam::Serialize_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPSupplAgreement::ExchangeParam::Serialize_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
@@ -1005,7 +1005,7 @@ int SLAPI PPSupplAgreement::ExchangeParam::Serialize_(int dir, SBuffer & rBuf, S
 	return ok;
 }
 
-int SLAPI PPSupplAgreement::ExchangeParam::IsEmpty() const
+int PPSupplAgreement::ExchangeParam::IsEmpty() const
 {
 	if(GoodsGrpID || !ConnAddr.IsEmpty() || ExpendOp || RcptOp || SupplRetOp || RetOp || MovInOp || MovOutOp || PriceQuotID)
 		return 0;
@@ -1024,12 +1024,12 @@ int SLAPI PPSupplAgreement::ExchangeParam::IsEmpty() const
 	}
 }
 
-int SLAPI PPSupplAgreement::ExchangeParam::GetExtStrData(int fldID, SString & rBuf) const
+int PPSupplAgreement::ExchangeParam::GetExtStrData(int fldID, SString & rBuf) const
 	{ return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPSupplAgreement::ExchangeParam::PutExtStrData(int fldID, const char * pStr)
+int PPSupplAgreement::ExchangeParam::PutExtStrData(int fldID, const char * pStr)
 	{ return PPPutExtStrData(fldID, ExtString, pStr); }
 
-SLAPI PPSupplAgreement::OrderParamEntry::OrderParamEntry()
+PPSupplAgreement::OrderParamEntry::OrderParamEntry()
 {
 	THISZERO();
 }
@@ -1047,7 +1047,7 @@ int FASTCALL PPSupplAgreement::OrderParamEntry::IsEqual(const OrderParamEntry & 
 	return 1;
 }
 
-int SLAPI PPSupplAgreement::OrderParamEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPSupplAgreement::OrderParamEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, GoodsGrpID, rBuf));
@@ -1060,7 +1060,7 @@ int SLAPI PPSupplAgreement::OrderParamEntry::Serialize(int dir, SBuffer & rBuf, 
 	return ok;
 }
 
-SLAPI PPSupplAgreement::PPSupplAgreement()
+PPSupplAgreement::PPSupplAgreement()
 {
 	Z();
 }
@@ -1105,7 +1105,7 @@ int FASTCALL PPSupplAgreement::IsEqual(const PPSupplAgreement & rS) const
 	return 1;
 }
 
-PPSupplAgreement & SLAPI PPSupplAgreement::Z()
+PPSupplAgreement & PPSupplAgreement::Z()
 {
 	memzero(this, offsetof(PPSupplAgreement, Ep));
 	Ep.Z();
@@ -1113,7 +1113,7 @@ PPSupplAgreement & SLAPI PPSupplAgreement::Z()
 	return *this;
 }
 
-int SLAPI PPSupplAgreement::IsEmpty() const
+int PPSupplAgreement::IsEmpty() const
 {
 	if(Flags || BegDt || Expiry || DefPayPeriod || DefAgentID || DefDlvrTerm || PctRet)
 		return 0;
@@ -1134,7 +1134,7 @@ void FASTCALL PPSupplAgreement::RestoreAutoOrderParams(const PPSupplAgreement & 
 	OrderParamList = rS.OrderParamList;
 }
 
-int SLAPI PPSupplAgreement::SearchOrderParamEntry(const OrderParamEntry & rKey, int thisPos, uint * pFoundPos) const
+int PPSupplAgreement::SearchOrderParamEntry(const OrderParamEntry & rKey, int thisPos, uint * pFoundPos) const
 {
 	for(uint i = 0; i < OrderParamList.getCount(); i++) {
 		if((int)i != thisPos) {
@@ -1148,7 +1148,7 @@ int SLAPI PPSupplAgreement::SearchOrderParamEntry(const OrderParamEntry & rKey, 
 	return 0;
 }
 
-int SLAPI PPSupplAgreement::SetOrderParamEntry(int pos, OrderParamEntry & rEntry, uint * pResultPos)
+int PPSupplAgreement::SetOrderParamEntry(int pos, OrderParamEntry & rEntry, uint * pResultPos)
 {
 	int    ok = 1;
 	const  uint _c = OrderParamList.getCount();
@@ -1166,7 +1166,7 @@ int SLAPI PPSupplAgreement::SetOrderParamEntry(int pos, OrderParamEntry & rEntry
 	return ok;
 }
 
-int SLAPI PPSupplAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPSupplAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -1320,7 +1320,7 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 	return ok;
 }
 
-int SLAPI PPObjArticle::PutSupplAgreement(PPID id, PPSupplAgreement * pAgt, int use_ta)
+int PPObjArticle::PutSupplAgreement(PPID id, PPSupplAgreement * pAgt, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1978,7 +1978,7 @@ int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
 
 /*static*/int FASTCALL PPObjArticle::EditSupplAgreement(PPSupplAgreement * pAgt) { DIALOG_PROC_BODY_P1(SupplAgtDialog, pAgt ? pAgt->SupplID : 0, pAgt); }
 
-/*static*/int SLAPI PPObjArticle::DefaultSupplAgreement()
+/*static*/int PPObjArticle::DefaultSupplAgreement()
 {
 	int    ok = 1;
 	PPObjArticle arobj;

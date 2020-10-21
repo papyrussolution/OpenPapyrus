@@ -7,7 +7,7 @@
 //
 //
 //
-int SLAPI PrcssrBillAutoCreate::CreateDraftByCSessRule(const CSessCrDraftParam * pParam)
+int PrcssrBillAutoCreate::CreateDraftByCSessRule(const CSessCrDraftParam * pParam)
 {
 	int    ok = -1;
 	if(pParam && (pParam->RuleGrpID || pParam->RuleID) && !pParam->Period.IsZero()) {
@@ -42,7 +42,7 @@ static SString & MakeOrderAutocreationTag(const _OrdArEntry & rEntry, LDATE dt, 
 }
 
 // static
-int SLAPI PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
+int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 {
 	_OrdArEntry ord_entry;
 	int    ok = 1, r = 0;
@@ -199,7 +199,7 @@ static SString & MakeTaAutocreationTag(PPID arID, PPID locID, LDATE dt, SString 
     return rBuf.Z().Cat("TAB").Dot().Cat(arID).Dot().Cat(locID).Dot().Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 }
 
-int SLAPI PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
+int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 {
 	//
 	// Очень специализированная функция, формирующая драфт-документы по бонусам, предоставленным
@@ -338,7 +338,7 @@ int SLAPI PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 //
 //
 //
-int SLAPI PPBillAutoCreateParam::InitInstance()
+int PPBillAutoCreateParam::InitInstance()
 {
 	P_TaF = 0;
     P_SsF = 0;
@@ -353,12 +353,12 @@ int SLAPI PPBillAutoCreateParam::InitInstance()
 	return Init(1, 0);
 }
 
-SLAPI PPBillAutoCreateParam::PPBillAutoCreateParam() : PPBaseFilt(PPFILT_BILLAUTOCREATEPARAM, 0, 0)
+PPBillAutoCreateParam::PPBillAutoCreateParam() : PPBaseFilt(PPFILT_BILLAUTOCREATEPARAM, 0, 0)
 {
 	InitInstance();
 }
 
-SLAPI PPBillAutoCreateParam::PPBillAutoCreateParam(const PPBillAutoCreateParam & rS) : PPBaseFilt(PPFILT_BILLAUTOCREATEPARAM, 0, 0)
+PPBillAutoCreateParam::PPBillAutoCreateParam(const PPBillAutoCreateParam & rS) : PPBaseFilt(PPFILT_BILLAUTOCREATEPARAM, 0, 0)
 {
 	InitInstance();
 	Copy(&rS, 1);
@@ -383,11 +383,11 @@ PPBaseFilt * FASTCALL PPBillAutoCreateParam::GetInnerFilt(int a) const
 	}
 }
 
-SLAPI PrcssrBillAutoCreate::PrcssrBillAutoCreate() : P_TaV(0), P_SsV(0), P_CcV(0), P_CsV(0)
+PrcssrBillAutoCreate::PrcssrBillAutoCreate() : P_TaV(0), P_SsV(0), P_CcV(0), P_CsV(0)
 {
 }
 
-SLAPI PrcssrBillAutoCreate::~PrcssrBillAutoCreate()
+PrcssrBillAutoCreate::~PrcssrBillAutoCreate()
 {
     ZDELETE(P_TaV);
     ZDELETE(P_SsV);
@@ -395,13 +395,13 @@ SLAPI PrcssrBillAutoCreate::~PrcssrBillAutoCreate()
     ZDELETE(P_CsV);
 }
 
-int SLAPI PrcssrBillAutoCreate::InitParam(PPBillAutoCreateParam * pParam)
+int PrcssrBillAutoCreate::InitParam(PPBillAutoCreateParam * pParam)
 {
 	int    ok = 1;
 	return ok;
 }
 
-int SLAPI PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
+int PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
 {
 	class BillAutoCreateParamDialog : public TDialog {
 	public:
@@ -518,14 +518,14 @@ int SLAPI PrcssrBillAutoCreate::EditParam(PPBillAutoCreateParam * pParam)
 	DIALOG_PROC_BODY(BillAutoCreateParamDialog, pParam);
 }
 
-int SLAPI PrcssrBillAutoCreate::Init(const PPBillAutoCreateParam * pParam)
+int PrcssrBillAutoCreate::Init(const PPBillAutoCreateParam * pParam)
 {
 	int    ok = 1;
 	RVALUEPTR(P, pParam);
 	return ok;
 }
 
-int SLAPI PrcssrBillAutoCreate::Run()
+int PrcssrBillAutoCreate::Run()
 {
 	int    ok = -1;
 	switch(P.A) {

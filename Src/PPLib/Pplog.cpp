@@ -9,14 +9,14 @@
 
 class LogListBoxDef : public StdListBoxDef {
 public:
-	SLAPI  LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) : StdListBoxDef(pArray, aOptions, t), P_MsgLog(pMl)
+	LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) : StdListBoxDef(pArray, aOptions, t), P_MsgLog(pMl)
 	{
 	}
-	SLAPI ~LogListBoxDef()
+	~LogListBoxDef()
 	{
 		ZDELETE(P_MsgLog);
 	}
-	virtual long SLAPI getRecsCount() { return P_MsgLog ? P_MsgLog->GetVisCount() : 0; }
+	virtual long getRecsCount() { return P_MsgLog ? P_MsgLog->GetVisCount() : 0; }
 	virtual void * FASTCALL getRow_(long r) { return P_MsgLog ? P_MsgLog->GetRow(r) : 0; }
 
 	TVMsgLog * P_MsgLog; // private. Don't use !
@@ -69,7 +69,7 @@ private:
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
 	int    WMHCreate();
-	int    SLAPI LoadToolbar(uint tbId);
+	int    LoadToolbar(uint tbId);
 	HWND   GetSciWnd() const { return HwndSci; }
 	int    Resize();
 
@@ -209,7 +209,7 @@ int LogListWindowSCI::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw
 	return ok;
 }
 
-int SLAPI LogListWindowSCI::LoadToolbar(uint tbId)
+int LogListWindowSCI::LoadToolbar(uint tbId)
 {
 	int    r = 0;
 	TVRez & rez = *P_SlRez;
@@ -511,16 +511,16 @@ int LogListWindowSCI::Resize()
 //
 // PPMsgLog
 //
-SLAPI PPMsgLog::PPMsgLog() : Valid(0), Stream(-1), InStream(-1), P_Index(0), NextStrOffset(0)
+PPMsgLog::PPMsgLog() : Valid(0), Stream(-1), InStream(-1), P_Index(0), NextStrOffset(0)
 {
 }
 
-SLAPI PPMsgLog::~PPMsgLog()
+PPMsgLog::~PPMsgLog()
 {
 	Destroy();
 }
 
-void SLAPI PPMsgLog::Destroy()
+void PPMsgLog::Destroy()
 {
 	if(Stream >= 0) {
 		close(Stream);
@@ -535,21 +535,21 @@ void SLAPI PPMsgLog::Destroy()
 	ZDELETE(P_Index);
 }
 
-int SLAPI PPMsgLog::ShowLogWnd(const char * pTitle)
+int PPMsgLog::ShowLogWnd(const char * pTitle)
 {
 	return -1;
 }
 
-long SLAPI PPMsgLog::ImplPutMsg(const char * pText, long flags)
+long PPMsgLog::ImplPutMsg(const char * pText, long flags)
 {
 	return 0;
 }
 
-long SLAPI PPMsgLog::GetCount() const { return AllCount; }
-long SLAPI PPMsgLog::GetCurMsg() const { return CurMsg; }
-long SLAPI PPMsgLog::GetVisCount() const { return SVectorBase::GetCount(P_Index); }
+long PPMsgLog::GetCount() const { return AllCount; }
+long PPMsgLog::GetCurMsg() const { return CurMsg; }
+long PPMsgLog::GetVisCount() const { return SVectorBase::GetCount(P_Index); }
 
-void * SLAPI PPMsgLog::GetRow(long r)
+void * PPMsgLog::GetRow(long r)
 {
 	int16  rr, hh;
 	if(r >= GetVisCount() || r < 0)
@@ -562,7 +562,7 @@ void * SLAPI PPMsgLog::GetRow(long r)
 	return (TmpText+hh);
 }
 
-PPLogIdx SLAPI PPMsgLog::GetLogIdx(long row)
+PPLogIdx PPMsgLog::GetLogIdx(long row)
 {
 	PPLogIdx li;
 	li.address = 0;
@@ -574,7 +574,7 @@ PPLogIdx SLAPI PPMsgLog::GetLogIdx(long row)
 	return li;
 }
 
-void SLAPI PPMsgLog::SetLogIdx(long row, const PPLogIdx * pLi)
+void PPMsgLog::SetLogIdx(long row, const PPLogIdx * pLi)
 {
 	if(row >= 0 && row <= GetCount()) {
 		lseek(InStream, row*sizeof(PPLogIdx), SEEK_SET);
@@ -582,7 +582,7 @@ void SLAPI PPMsgLog::SetLogIdx(long row, const PPLogIdx * pLi)
 	}
 }
 
-long SLAPI PPMsgLog::PutMessage(const char * pBody, long flags, const void * head, size_t hsize)
+long PPMsgLog::PutMessage(const char * pBody, long flags, const void * head, size_t hsize)
 {
 	long   rval = 0;
 	if(Valid) {
@@ -604,12 +604,12 @@ long SLAPI PPMsgLog::PutMessage(const char * pBody, long flags, const void * hea
 	return rval;
 }
 
-long SLAPI PPMsgLog::GetVisibleMessage(long nrow)
+long PPMsgLog::GetVisibleMessage(long nrow)
 {
 	return (Valid && nrow < GetVisCount()) ? *static_cast<const long *>(P_Index->at((uint)nrow)) : 0;
 }
 
-/*static*/int SLAPI PPMsgLog::RemoveTempFiles()
+/*static*/int PPMsgLog::RemoveTempFiles()
 {
 	int    ok = 0;
 	SString src_path, src_file_name;
@@ -623,7 +623,7 @@ long SLAPI PPMsgLog::GetVisibleMessage(long nrow)
 	return ok;
 }
 
-long SLAPI PPMsgLog::Init()
+long PPMsgLog::Init()
 {
 	Valid = 0;
 	Destroy();
@@ -668,7 +668,7 @@ long SLAPI PPMsgLog::Init()
 	return Valid;
 }
 
-void SLAPI PPMsgLog::DeleteVisibleMessage(long nrow)
+void PPMsgLog::DeleteVisibleMessage(long nrow)
 {
 	if(Valid && nrow < GetVisCount() && GetVisCount() || nrow >= 0) {
 		const long row = GetVisibleMessage(nrow);
@@ -679,7 +679,7 @@ void SLAPI PPMsgLog::DeleteVisibleMessage(long nrow)
 	}
 }
 
-long SLAPI PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * rsize, int16 * hsize)
+long PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * rsize, int16 * hsize)
 {
 	if((!nmsg && CurMsg > GetCount()) || nmsg > GetCount())
 		return 0;
@@ -695,7 +695,7 @@ long SLAPI PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * r
 	return CurMsg;
 }
 
-int SLAPI PPMsgLog::SaveLogFile(const char * pFileName, long options)
+int PPMsgLog::SaveLogFile(const char * pFileName, long options)
 {
 	int    ok = 1;
 	if(Valid) {
@@ -719,13 +719,13 @@ int SLAPI PPMsgLog::SaveLogFile(const char * pFileName, long options)
 	return ok;
 }
 
-int SLAPI PPMsgLog::Print()
+int PPMsgLog::Print()
 {
 	PView  pv(this);
 	return PPAlddPrint(REPORT_LOGLIST, &pv, 0);
 }
 
-int SLAPI PPMsgLog::InitIteration()
+int PPMsgLog::InitIteration()
 {
 	int    ok = 1;
 	if(Valid) {
@@ -770,7 +770,7 @@ int FASTCALL PPMsgLog::NextIteration(MsgLogItem * pItem)
 //
 // TVMsgLog
 //
-SLAPI TVMsgLog::TVMsgLog() : PPMsgLog(), P_LWnd(0), HorzRange(0)
+TVMsgLog::TVMsgLog() : PPMsgLog(), P_LWnd(0), HorzRange(0)
 {
 }
 
@@ -780,7 +780,7 @@ SLAPI TVMsgLog::TVMsgLog() : PPMsgLog(), P_LWnd(0), HorzRange(0)
 		ZDELETE(pMsgLog);
 }
 
-int SLAPI TVMsgLog::ShowLogWnd(const char * pTitle)
+int TVMsgLog::ShowLogWnd(const char * pTitle)
 {
 	int    ok = 1;
 	if(Valid) {
@@ -803,7 +803,7 @@ int SLAPI TVMsgLog::ShowLogWnd(const char * pTitle)
 	return ok;
 }
 
-SLAPI TVMsgLog::~TVMsgLog()
+TVMsgLog::~TVMsgLog()
 {
 #ifdef USE_LOGLISTWINDOWSCI
 #else
@@ -811,7 +811,7 @@ SLAPI TVMsgLog::~TVMsgLog()
 #endif
 }
 
-long SLAPI TVMsgLog::ImplPutMsg(const char * pText, long flags)
+long TVMsgLog::ImplPutMsg(const char * pText, long flags)
 {
 	if(flags & LF_SHOW) {
 		if(GetVisCount() >= LF_MAXMSG)
@@ -827,7 +827,7 @@ long SLAPI TVMsgLog::ImplPutMsg(const char * pText, long flags)
 	return 1;
 }
 
-void SLAPI TVMsgLog::RefreshList()
+void TVMsgLog::RefreshList()
 {
 #ifdef USE_LOGLISTWINDOWSCI
 	CALLPTRMEMB(P_LWnd, Append());
@@ -838,7 +838,7 @@ void SLAPI TVMsgLog::RefreshList()
 //
 //
 //
-SLAPI PPEmbeddedLogger::PPEmbeddedLogger(long ctrflags, PPLogger * pOuterLogger, uint fileNameId, uint defLogOptions) : 
+PPEmbeddedLogger::PPEmbeddedLogger(long ctrflags, PPLogger * pOuterLogger, uint fileNameId, uint defLogOptions) : 
 	ElState(0), LogFileNameId(fileNameId), DefLogOptions(defLogOptions), P_Logger(0)
 {
 	if(pOuterLogger) {
@@ -853,7 +853,7 @@ SLAPI PPEmbeddedLogger::PPEmbeddedLogger(long ctrflags, PPLogger * pOuterLogger,
 	}
 }
 
-SLAPI PPEmbeddedLogger::~PPEmbeddedLogger()
+PPEmbeddedLogger::~PPEmbeddedLogger()
 {
 	if(!(ElState & elstOuterLogger)) {
 		ZDELETE(P_Logger);
@@ -871,7 +871,7 @@ void FASTCALL PPEmbeddedLogger::Log(const SString & rMsg)
 	}
 }
 
-void SLAPI PPEmbeddedLogger::LogTextWithAddendum(int msgCode, const SString & rAddendum)
+void PPEmbeddedLogger::LogTextWithAddendum(int msgCode, const SString & rAddendum)
 {
 	if(msgCode) {
 		SString fmt_buf, msg_buf;
@@ -879,7 +879,7 @@ void SLAPI PPEmbeddedLogger::LogTextWithAddendum(int msgCode, const SString & rA
 	}
 }
 
-void SLAPI PPEmbeddedLogger::LogLastError()
+void PPEmbeddedLogger::LogLastError()
 {
 	if(P_Logger)
 		P_Logger->LogLastError();
@@ -889,7 +889,7 @@ void SLAPI PPEmbeddedLogger::LogLastError()
 	}
 }
 
-int SLAPI PPEmbeddedLogger::Save(uint fileNameId, long options)
+int PPEmbeddedLogger::Save(uint fileNameId, long options)
 {
 	int    ok = -1;
 	if(P_Logger) {
@@ -902,20 +902,20 @@ int SLAPI PPEmbeddedLogger::Save(uint fileNameId, long options)
 //
 //
 //
-SLAPI PPLogger::PPLogger() : Flags(0), P_Log(0)
+PPLogger::PPLogger() : Flags(0), P_Log(0)
 {
 }
 
-SLAPI PPLogger::PPLogger(long flags) : Flags(flags), P_Log(0)
+PPLogger::PPLogger(long flags) : Flags(flags), P_Log(0)
 {
 }
 
-SLAPI PPLogger::~PPLogger()
+PPLogger::~PPLogger()
 {
 	TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log), BIN(CS_SERVER));
 }
 
-void SLAPI PPLogger::Clear()
+void PPLogger::Clear()
 {
 	TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log));
 }
@@ -937,7 +937,7 @@ int FASTCALL PPLogger::Log(const char * pMsg)
 	return ok;
 }
 
-int SLAPI PPLogger::LogMsgCode(uint msgOptions, uint msgId, const char * pAddedInfo)
+int PPLogger::LogMsgCode(uint msgOptions, uint msgId, const char * pAddedInfo)
 {
 	int    ok = -1;
 	SString buf;
@@ -946,7 +946,7 @@ int SLAPI PPLogger::LogMsgCode(uint msgOptions, uint msgId, const char * pAddedI
 	return ok;
 }
 
-int SLAPI PPLogger::LogSubString(uint strId, int idx)
+int PPLogger::LogSubString(uint strId, int idx)
 {
 	int    ok = 0;
 	SString buf;
@@ -955,7 +955,7 @@ int SLAPI PPLogger::LogSubString(uint strId, int idx)
 	return ok;
 }
 
-int SLAPI PPLogger::LogString(uint strId, const char * pAddedInfo)
+int PPLogger::LogString(uint strId, const char * pAddedInfo)
 {
 	int    ok = 0;
 	SString fmt_buf, msg_buf;
@@ -964,13 +964,13 @@ int SLAPI PPLogger::LogString(uint strId, const char * pAddedInfo)
 	return ok;
 }
 
-int SLAPI PPLogger::LogAcceptMsg(PPID objType, PPID objID, int upd)
+int PPLogger::LogAcceptMsg(PPID objType, PPID objID, int upd)
 {
 	SString log_msg;
 	return Log(PPObject::GetAcceptMsg(objType, objID, upd, log_msg));
 }
 
-int SLAPI PPLogger::LogLastError()
+int PPLogger::LogLastError()
 {
 	int    ok = -1;
 	SString buf;
@@ -979,7 +979,7 @@ int SLAPI PPLogger::LogLastError()
 	return ok;
 }
 
-int SLAPI PPLogger::Save(uint fileId, long options)
+int PPLogger::Save(uint fileId, long options)
 {
 	int    ok = 0;
 	if(P_Log && fileId) {
@@ -996,7 +996,7 @@ int SLAPI PPLogger::Save(uint fileId, long options)
 	return ok;
 }
 
-int SLAPI PPLogger::Save(const char * pFileName, long options)
+int PPLogger::Save(const char * pFileName, long options)
 {
 	if(P_Log && !isempty(pFileName) && P_Log->GetCount()) {
 		const long f = NZOR(options, LOGMSGF_TIME|LOGMSGF_USER);
@@ -1145,7 +1145,7 @@ IMPL_HANDLE_EVENT(LogListWindow)
 //
 //
 //
-void SLAPI PPLogMsgItem::Clear()
+void PPLogMsgItem::Clear()
 {
 	Options = 0;
 	FileName.Z();
@@ -1154,16 +1154,16 @@ void SLAPI PPLogMsgItem::Clear()
 	Prefix.Z();
 }
 
-SLAPI PPLogMsgQueue::Stat::Stat()
+PPLogMsgQueue::Stat::Stat()
 {
 	THISZERO();
 }
 
-SLAPI PPLogMsgQueue::PPLogMsgQueue() : Q(sizeof(PPLogMsgQueue::InnerItem), 1024*1024), NonEmptyEv(Evnt::modeCreateAutoReset)
+PPLogMsgQueue::PPLogMsgQueue() : Q(sizeof(PPLogMsgQueue::InnerItem), 1024*1024), NonEmptyEv(Evnt::modeCreateAutoReset)
 {
 }
 
-SLAPI PPLogMsgQueue::~PPLogMsgQueue()
+PPLogMsgQueue::~PPLogMsgQueue()
 {
 }
 
@@ -1226,11 +1226,11 @@ int FASTCALL PPLogMsgQueue::Pop(PPLogMsgItem & rItem)
 	return ok;
 }
 
-SLAPI PPLogMsgSession::Stat::Stat() : PPLogMsgQueue::Stat(), MaxSingleOutputCount(0), OutputCount(0), FalseNonEmptyEvSwitchCount(0)
+PPLogMsgSession::Stat::Stat() : PPLogMsgQueue::Stat(), MaxSingleOutputCount(0), OutputCount(0), FalseNonEmptyEvSwitchCount(0)
 {
 }
 
-SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kLogger, "Logger Thread", pQueue), P_Queue(pQueue)
+PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kLogger, "Logger Thread", pQueue), P_Queue(pQueue)
 {
 }
 
@@ -1308,7 +1308,7 @@ SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThre
 	*/
 }
 
-/*static*/int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb)
+/*static*/int PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb)
 {
 	const long max_file_size = (rMsgItem.Options & LOGMSGF_UNLIMITSIZE) ? 0 : rLb.CfgMaxFileSize;
 	int   ok = 1;
@@ -1370,7 +1370,7 @@ SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThre
 	return ok;
 }
 
-int SLAPI PPSession::Log(const char * pFileName, const char * pStr, long options)
+int PPSession::Log(const char * pFileName, const char * pStr, long options)
 {
 	int    ok = 1;
 	PPLogMsgItem item;
@@ -1518,7 +1518,7 @@ void PPALDD_LogList::Destroy()
 //
 //
 //
-int SLAPI TestLogWindow()
+int TestLogWindow()
 {
 	const uint max_msg_count = 1000;
 	PPLogger logger;

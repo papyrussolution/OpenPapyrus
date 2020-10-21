@@ -270,7 +270,7 @@ S_GUID & FASTCALL S_GUID::operator = (const S_GUID_Base & rS)
 //
 //
 //
-SLAPI SVerT::SVerT(int j, int n, int r)
+SVerT::SVerT(int j, int n, int r)
 {
 	Set(j, n, r);
 }
@@ -280,13 +280,13 @@ SVerT::operator uint32() const
 	return ((static_cast<uint32>(V) << 16) | R);
 }
 
-void SLAPI SVerT::Set(uint32 n)
+void SVerT::Set(uint32 n)
 {
 	V = static_cast<uint16>(n >> 16);
 	R = static_cast<uint16>(n & 0x0000ffff);
 }
 
-int SLAPI SVerT::Get(int * pJ, int * pN, int * pR) const
+int SVerT::Get(int * pJ, int * pN, int * pR) const
 {
 	int j = static_cast<int>(V >> 8);
 	int n = static_cast<int>(V & 0x00ff);
@@ -297,13 +297,13 @@ int SLAPI SVerT::Get(int * pJ, int * pN, int * pR) const
 	return 1;
 }
 
-void SLAPI SVerT::Set(int j, int n, int r)
+void SVerT::Set(int j, int n, int r)
 {
 	V = (((uint16)j) << 8) | ((uint16)n);
 	R = (uint16)r;
 }
 
-int SLAPI SVerT::IsLt(int j, int n, int r) const
+int SVerT::IsLt(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
 	if(V < v2.V)
@@ -313,7 +313,7 @@ int SLAPI SVerT::IsLt(int j, int n, int r) const
 	return 0;
 }
 
-int SLAPI SVerT::IsGt(int j, int n, int r) const
+int SVerT::IsGt(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
 	if(V > v2.V)
@@ -323,7 +323,7 @@ int SLAPI SVerT::IsGt(int j, int n, int r) const
 	return 0;
 }
 
-int SLAPI SVerT::IsEq(int j, int n, int r) const
+int SVerT::IsEq(int j, int n, int r) const
 {
 	SVerT v2(j, n, r);
 	return (V == v2.V && R == v2.R) ? 1 : 0;
@@ -385,7 +385,7 @@ int FASTCALL SVerT::FromStr(const char * pStr)
 	return ok;
 }
 
-int SLAPI SVerT::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int SVerT::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW(pCtx->Serialize(dir, V, rBuf));

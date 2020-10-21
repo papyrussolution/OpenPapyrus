@@ -10,13 +10,13 @@
 // @v8.3.3 Удалено условие #ifdef __WIN32__
 //
 //
-SLAPI SDynLibrary::SDynLibrary(const char * pFileName) : H(0)
+SDynLibrary::SDynLibrary(const char * pFileName) : H(0)
 {
 	if(pFileName)
 		Load(pFileName);
 }
 
-SLAPI SDynLibrary::~SDynLibrary()
+SDynLibrary::~SDynLibrary()
 {
 	if(H)
 		::FreeLibrary(H);
@@ -37,7 +37,7 @@ int FASTCALL SDynLibrary::Load(const char * pFileName)
 	}
 }
 
-int SLAPI SDynLibrary::IsValid() const
+int SDynLibrary::IsValid() const
 {
 	if(H)
 		return 1;
@@ -82,17 +82,17 @@ FARPROC FASTCALL SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuf
 //
 //
 //
-SLAPI WinRegValue::WinRegValue(size_t bufSize) : Type(0), P_Buf(0), BufSize(0), DataSize(0)
+WinRegValue::WinRegValue(size_t bufSize) : Type(0), P_Buf(0), BufSize(0), DataSize(0)
 {
 	Alloc(bufSize);
 }
 
-SLAPI WinRegValue::~WinRegValue()
+WinRegValue::~WinRegValue()
 {
 	SAlloc::F(P_Buf);
 }
 
-int SLAPI WinRegValue::Alloc(size_t bufSize)
+int WinRegValue::Alloc(size_t bufSize)
 {
 	if(bufSize || P_Buf) {
 		P_Buf = SAlloc::R(P_Buf, bufSize);
@@ -106,7 +106,7 @@ int SLAPI WinRegValue::Alloc(size_t bufSize)
 	return 1;
 }
 
-uint32 SLAPI WinRegValue::GetDWord() const
+uint32 WinRegValue::GetDWord() const
 {
 	if(oneof3(Type, REG_DWORD, REG_DWORD_LITTLE_ENDIAN, REG_DWORD_BIG_ENDIAN))
 		if(P_Buf && DataSize >= sizeof(DWORD))
@@ -114,13 +114,13 @@ uint32 SLAPI WinRegValue::GetDWord() const
 	return 0;
 }
 
-const void * SLAPI WinRegValue::GetBinary(size_t * pDataLen) const
+const void * WinRegValue::GetBinary(size_t * pDataLen) const
 {
 	ASSIGN_PTR(pDataLen, DataSize);
 	return P_Buf;
 }
 
-int SLAPI WinRegValue::GetString(SString & rBuf) const
+int WinRegValue::GetString(SString & rBuf) const
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -131,7 +131,7 @@ int SLAPI WinRegValue::GetString(SString & rBuf) const
 	return ok;
 }
 
-int SLAPI WinRegValue::PutDWord(uint32 val)
+int WinRegValue::PutDWord(uint32 val)
 {
 	Type = REG_DWORD;
 	if(Alloc(sizeof(DWORD))) {
@@ -143,7 +143,7 @@ int SLAPI WinRegValue::PutDWord(uint32 val)
 		return 0;
 }
 
-int SLAPI WinRegValue::PutBinary(const void * pBuf, size_t dataSize)
+int WinRegValue::PutBinary(const void * pBuf, size_t dataSize)
 {
 	Type = REG_BINARY;
 	if(Alloc(dataSize)) {
@@ -155,7 +155,7 @@ int SLAPI WinRegValue::PutBinary(const void * pBuf, size_t dataSize)
 		return 0;
 }
 
-int SLAPI WinRegValue::PutString(const char * pStr)
+int WinRegValue::PutString(const char * pStr)
 {
 	Type = REG_SZ;
 	size_t len = pStr ? sstrlen(pStr)+1 : 0;
@@ -170,31 +170,31 @@ int SLAPI WinRegValue::PutString(const char * pStr)
 //
 //
 //
-SLAPI WinRegKey::WinRegKey() : Key(0)
+WinRegKey::WinRegKey() : Key(0)
 {
 }
 
-SLAPI WinRegKey::WinRegKey(HKEY key, const char * pSubKey, int readOnly) : Key(0)
+WinRegKey::WinRegKey(HKEY key, const char * pSubKey, int readOnly) : Key(0)
 {
 	Open(key, pSubKey, readOnly);
 }
 
-SLAPI WinRegKey::~WinRegKey()
+WinRegKey::~WinRegKey()
 {
 	Close();
 }
 
-int SLAPI WinRegKey::Delete(HKEY key, const char * pSubKey)
+int WinRegKey::Delete(HKEY key, const char * pSubKey)
 {
 	return (SHDeleteKey(key, SUcSwitch(pSubKey)) == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pSubKey); // @unicodeproblem
 }
 
-int SLAPI WinRegKey::DeleteValue(HKEY key, const char * pSubKey, const char * pValue)
+int WinRegKey::DeleteValue(HKEY key, const char * pSubKey, const char * pValue)
 {
 	return (SHDeleteValue(key, SUcSwitch(pSubKey), SUcSwitch(pValue)) == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pValue); // @unicodeproblem
 }
 
-int SLAPI WinRegKey::Open(HKEY key, const char * pSubKey, int readOnly, int onlyOpen)
+int WinRegKey::Open(HKEY key, const char * pSubKey, int readOnly, int onlyOpen)
 {
 	LONG   r = 0;
 	DWORD  dispos = 0;
@@ -206,7 +206,7 @@ int SLAPI WinRegKey::Open(HKEY key, const char * pSubKey, int readOnly, int only
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pSubKey);
 }
 
-void SLAPI WinRegKey::Close()
+void WinRegKey::Close()
 {
 	if(Key) {
 		RegCloseKey(Key);
@@ -214,7 +214,7 @@ void SLAPI WinRegKey::Close()
 	}
 }
 
-int SLAPI WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
+int WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
 {
 	int    ok = 1;
 	if(Key) {
@@ -235,7 +235,7 @@ int SLAPI WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
 	return ok;
 }
 
-/*int SLAPI WinRegKey::GetString(const char * pParam, char * pBuf, size_t bufLen)
+/*int WinRegKey::GetString(const char * pParam, char * pBuf, size_t bufLen)
 {
 	if(Key == 0)
 		return 0;
@@ -245,7 +245,7 @@ int SLAPI WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
 	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
 }*/
 
-int SLAPI WinRegKey::GetString(const char * pParam, SString & rBuf)
+int WinRegKey::GetString(const char * pParam, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -269,7 +269,7 @@ int SLAPI WinRegKey::GetString(const char * pParam, SString & rBuf)
 	return ok;
 }
 
-int SLAPI WinRegKey::GetBinary(const char * pParam, void * pBuf, size_t bufLen)
+int WinRegKey::GetBinary(const char * pParam, void * pBuf, size_t bufLen)
 {
 	if(Key == 0)
 		return 0;
@@ -279,7 +279,7 @@ int SLAPI WinRegKey::GetBinary(const char * pParam, void * pBuf, size_t bufLen)
 	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
 }
 
-int SLAPI WinRegKey::GetRecSize(const char * pParam, size_t * pRecSize)
+int WinRegKey::GetRecSize(const char * pParam, size_t * pRecSize)
 {
 	if(Key == 0)
 		return 0;
@@ -298,7 +298,7 @@ int SLAPI WinRegKey::GetRecSize(const char * pParam, size_t * pRecSize)
 		return SLS.SetOsError(pParam);
 }
 
-int SLAPI WinRegKey::PutDWord(const char * pParam, uint32 val)
+int WinRegKey::PutDWord(const char * pParam, uint32 val)
 {
 	if(Key == 0)
 		return 0;
@@ -306,7 +306,7 @@ int SLAPI WinRegKey::PutDWord(const char * pParam, uint32 val)
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 
-int SLAPI WinRegKey::PutString(const char * pParam, const char * pBuf)
+int WinRegKey::PutString(const char * pParam, const char * pBuf)
 {
 	if(Key == 0)
 		return 0;
@@ -317,7 +317,7 @@ int SLAPI WinRegKey::PutString(const char * pParam, const char * pBuf)
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 
-int SLAPI WinRegKey::PutBinary(const char * pParam, const void * pBuf, size_t bufLen)
+int WinRegKey::PutBinary(const char * pParam, const void * pBuf, size_t bufLen)
 {
 	if(Key == 0)
 		return 0;
@@ -325,7 +325,7 @@ int SLAPI WinRegKey::PutBinary(const char * pParam, const void * pBuf, size_t bu
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 
-int SLAPI WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
+int WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 {
 	if(Key == 0 || !pVal->GetType())
 		return 0;
@@ -333,7 +333,7 @@ int SLAPI WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 
-int SLAPI WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal)
+int WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal)
 {
 	CALLPTRMEMB(pParam, Z()); // @v10.3.11
 	const size_t init_name_len = 256;
@@ -358,7 +358,7 @@ int SLAPI WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVa
 		return SLS.SetOsError();
 }
 
-int SLAPI WinRegKey::EnumKeys(uint * pIdx, SString & rKey)
+int WinRegKey::EnumKeys(uint * pIdx, SString & rKey)
 {
 	int    ok = 0;
 	if(Key && pIdx) {

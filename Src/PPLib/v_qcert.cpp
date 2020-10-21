@@ -1,27 +1,27 @@
 // V_QCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(QCert); SLAPI QCertFilt::QCertFilt() : PPBaseFilt(PPFILT_QCERT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(QCert); QCertFilt::QCertFilt() : PPBaseFilt(PPFILT_QCERT, 0, 0)
 {
 	SetFlatChunk(offsetof(QCertFilt, ReserveStart),
 		offsetof(QCertFilt, Reserve)-offsetof(QCertFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewQCert::PPViewQCert() : PPView(&QcObj, &Filt, 0), P_TempTbl(0), P_RcptT(&BillObj->trfr->Rcpt)
+PPViewQCert::PPViewQCert() : PPView(&QcObj, &Filt, 0, 0, 0), P_TempTbl(0), P_RcptT(&BillObj->trfr->Rcpt)
 {
 }
 
-SLAPI PPViewQCert::~PPViewQCert()
+PPViewQCert::~PPViewQCert()
 {
 	delete P_TempTbl;
 }
 
-int SLAPI PPViewQCert::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewQCert::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1, valid_data = 0;
 	QCertFilt f;
@@ -60,7 +60,7 @@ int SLAPI PPViewQCert::EditBaseFilt(PPBaseFilt * pFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, QualityCert);
 
-int SLAPI PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -121,7 +121,7 @@ int SLAPI PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewQCert::InitIteration()
+int PPViewQCert::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
@@ -171,7 +171,7 @@ int FASTCALL PPViewQCert::NextIteration(QCertViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewQCert::ViewTotal()
+int PPViewQCert::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_QCERTTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -185,7 +185,7 @@ int SLAPI PPViewQCert::ViewTotal()
 		return 0;
 }
 
-int SLAPI PPViewQCert::Transmit()
+int PPViewQCert::Transmit()
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -204,7 +204,7 @@ int SLAPI PPViewQCert::Transmit()
 	return ok;
 }
 
-int SLAPI PPViewQCert::SetPassiveTag(int set)
+int PPViewQCert::SetPassiveTag(int set)
 {
 	int    ok = -1, r;
 	QCertViewItem item;
@@ -225,7 +225,7 @@ int SLAPI PPViewQCert::SetPassiveTag(int set)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_QCERT;
 	DBQuery * q = 0;
@@ -293,7 +293,7 @@ DBQuery * SLAPI PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	return q;
 }
 
-int SLAPI PPViewQCert::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewQCert::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

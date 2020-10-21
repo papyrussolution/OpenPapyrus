@@ -1,5 +1,5 @@
 // V_DLG.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -10,7 +10,7 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId);
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(Dialog); SLAPI DialogFilt::DialogFilt() : PPBaseFilt(PPFILT_DIALOG, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Dialog); DialogFilt::DialogFilt() : PPBaseFilt(PPFILT_DIALOG, 0, 0)
 {
 	SetFlatChunk(offsetof(DialogFilt, ReserveStart),
 		offsetof(DialogFilt, ReserveEnd)-offsetof(DialogFilt, ReserveStart)+sizeof(ReserveEnd));
@@ -20,21 +20,20 @@ IMPLEMENT_PPFILT_FACTORY(Dialog); SLAPI DialogFilt::DialogFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-SLAPI PPViewDialog::PPViewDialog() : PPView(0, &Filt, PPVIEW_DIALOG)
-{
-	ImplementFlags |= implBrowseArray;
-}
-
-SLAPI PPViewDialog::~PPViewDialog()
+PPViewDialog::PPViewDialog() : PPView(0, &Filt, PPVIEW_DIALOG, implBrowseArray, 0)
 {
 }
 
-int SLAPI PPViewDialog::EditBaseFilt(PPBaseFilt * pBaseFilt)
+PPViewDialog::~PPViewDialog()
+{
+}
+
+int PPViewDialog::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	return 1;
 }
 
-int SLAPI PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	SString file_name, text_buf;
@@ -75,7 +74,7 @@ int SLAPI PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-SArray * SLAPI PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(List);
 	uint   brw_id = BROWSER_DIALOG;
@@ -83,7 +82,7 @@ SArray * SLAPI PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTit
 	return p_array;
 }
 
-int SLAPI PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
@@ -92,7 +91,7 @@ int SLAPI PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewDialog::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDialog::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	/*

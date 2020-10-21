@@ -45,7 +45,7 @@ struct i_tbl {
 	int  b;
 };
 
-int SLAPI i_tab(const void * tbl, int req, int def)
+int i_tab(const void * tbl, int req, int def)
 {
 	const i_tbl * t = (const i_tbl *)tbl;
 	for(int i = 1; i <= t[0].a; i++)
@@ -54,7 +54,7 @@ int SLAPI i_tab(const void * tbl, int req, int def)
 	return def;
 }
 
-int SLAPI ai_tab(const void * tbl, int req, int def)
+int ai_tab(const void * tbl, int req, int def)
 {
 	const i_tbl * t = (const i_tbl *)tbl;
 	for(int i = 1; i <= t[0].a; i++)
@@ -72,22 +72,22 @@ int SLAPI ai_tab(const void * tbl, int req, int def)
 //
 #define STAB_ROW_SIGN 0x54425257U
 
-SLAPI STab::Row::Row() : Set("^\001"), Sign(STAB_ROW_SIGN)
+STab::Row::Row() : Set("^\001"), Sign(STAB_ROW_SIGN)
 {
 	Set.add("$."); // Zero position is invalid
 }
 
-SLAPI STab::Row::~Row()
+STab::Row::~Row()
 {
 	Sign = 0;
 }
 
-int SLAPI STab::Row::IsConsistent() const
+int STab::Row::IsConsistent() const
 {
 	return BIN(Sign == STAB_ROW_SIGN);
 }
 
-void SLAPI STab::Row::Clear()
+void STab::Row::Clear()
 {
 	PosList.clear();
 	Set.clear();
@@ -104,7 +104,7 @@ int FASTCALL STab::Row::Add(const char * pStr)
 	return ok;
 }
 
-int SLAPI STab::Row::Add(double realVal)
+int STab::Row::Add(double realVal)
 {
 	SString temp_buf;
 	return Add(temp_buf.CatReal(realVal));
@@ -116,12 +116,12 @@ int FASTCALL STab::Row::Add(long intVal)
 	return Add(temp_buf.Cat(intVal));
 }
 
-uint SLAPI STab::Row::GetCount() const
+uint STab::Row::GetCount() const
 {
 	return PosList.getCount();
 }
 
-int SLAPI STab::Row::Get(uint pos, SString & rStr) const
+int STab::Row::Get(uint pos, SString & rStr) const
 {
 	int    ok = 1;
 	if(pos < PosList.getCount()) {
@@ -134,7 +134,7 @@ int SLAPI STab::Row::Get(uint pos, SString & rStr) const
 	return ok;
 }
 
-int SLAPI STab::Row::Get(uint pos, double & rNumber) const
+int STab::Row::Get(uint pos, double & rNumber) const
 {
 	SString temp_buf;
 	int    ok = Get(pos, temp_buf);
@@ -181,17 +181,17 @@ int FASTCALL STab::Row::FromStr(const char * pStr)
 	return ok;
 }
 
-SLAPI STab::STab() : LastRecId(0)
+STab::STab() : LastRecId(0)
 {
 }
 
-STab & SLAPI STab::Z()
+STab & STab::Z()
 {
 	Data.Z();
 	return *this;
 }
 
-uint SLAPI STab::GetCount() const
+uint STab::GetCount() const
 {
 	return Data.getCount();
 }
@@ -203,7 +203,7 @@ int FASTCALL STab::AddRow(const Row & rRow)
 	return Data.Add(++LastRecId, temp_buf, 0);
 }
 
-int SLAPI STab::GetRow(uint pos, Row & rRow) const
+int STab::GetRow(uint pos, Row & rRow) const
 {
 	int    ok = 1;
 	if(pos < Data.getCount()) {
@@ -215,7 +215,7 @@ int SLAPI STab::GetRow(uint pos, Row & rRow) const
 	return ok;
 }
 
-int SLAPI STab::Find(uint columnPos, const char * pKey, uint * pRowPos) const
+int STab::Find(uint columnPos, const char * pKey, uint * pRowPos) const
 {
 	uint   row_pos = DEREFPTRORZ(pRowPos);
 	Row    row;
@@ -230,7 +230,7 @@ int SLAPI STab::Find(uint columnPos, const char * pKey, uint * pRowPos) const
 	return 0;
 }
 
-int SLAPI STab::Find(uint columnPos, double key, uint * pRowPos) const
+int STab::Find(uint columnPos, double key, uint * pRowPos) const
 {
 	uint   row_pos = DEREFPTRORZ(pRowPos);
 	Row    row;
@@ -245,7 +245,7 @@ int SLAPI STab::Find(uint columnPos, double key, uint * pRowPos) const
 	return 0;
 }
 
-int SLAPI STab::Find(uint columnPos, long key, uint * pRowPos) const
+int STab::Find(uint columnPos, long key, uint * pRowPos) const
 {
 	uint   row_pos = DEREFPTRORZ(pRowPos);
 	Row    row;
@@ -262,21 +262,21 @@ int SLAPI STab::Find(uint columnPos, long key, uint * pRowPos) const
 //
 //
 //
-SLAPI STabFile::STabFile() : Flags(0)
+STabFile::STabFile() : Flags(0)
 {
 }
 
-SLAPI STabFile::STabFile(const char * pFileName, int updateMode) : Flags(0)
+STabFile::STabFile(const char * pFileName, int updateMode) : Flags(0)
 {
 	Open(pFileName, updateMode);
 }
 
-int SLAPI STabFile::IsValid() const
+int STabFile::IsValid() const
 {
 	return F.IsValid();
 }
 
-int SLAPI STabFile::Open(const char * pFileName, int updateMode)
+int STabFile::Open(const char * pFileName, int updateMode)
 {
 	int    ok = 1;
 	if(F.Open(pFileName, (updateMode ? SFile::mReadWrite : SFile::mRead))) {
@@ -288,14 +288,14 @@ int SLAPI STabFile::Open(const char * pFileName, int updateMode)
 	return ok;
 }
 
-int SLAPI STabFile::Close()
+int STabFile::Close()
 {
 	F.Close();
 	Flags = 0;
 	return 1;
 }
 
-int SLAPI STabFile::GetTabList(StringSet * pResult)
+int STabFile::GetTabList(StringSet * pResult)
 {
 	int    ok = 1;
 	int    start_tab = 0;
@@ -326,7 +326,7 @@ int SLAPI STabFile::GetTabList(StringSet * pResult)
 	return ok;
 }
 
-int SLAPI STabFile::LoadTab(const char * pTabName, STab & rTab)
+int STabFile::LoadTab(const char * pTabName, STab & rTab)
 {
 	int    ok = -1;
 	int    start_tab = 0;
@@ -400,7 +400,7 @@ int SLAPI STabFile::LoadTab(const char * pTabName, STab & rTab)
 	return ok;
 }
 
-int SLAPI STabFile::Helper_WriteTab(const char * pTabName, const STab * pTab, SFile & rFile)
+int STabFile::Helper_WriteTab(const char * pTabName, const STab * pTab, SFile & rFile)
 {
 	int    ok = 1;
 	if(pTab) {
@@ -437,7 +437,7 @@ int SLAPI STabFile::Helper_WriteTab(const char * pTabName, const STab * pTab, SF
 	return ok;
 }
 
-int SLAPI STabFile::WriteTab(const char * pTabName, const STab * pTab)
+int STabFile::WriteTab(const char * pTabName, const STab * pTab)
 {
 	int    ok = -1;
 	SFile  temp_file;

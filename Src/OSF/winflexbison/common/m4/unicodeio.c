@@ -19,7 +19,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "unicodeio.h" /* Specification.  */
+//#include "unicodeio.h" /* Specification.  */
 //#include <stdio.h>
 //#include <string.h>
 //#include <errno.h>

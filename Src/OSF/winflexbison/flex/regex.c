@@ -33,7 +33,7 @@ regex_t regex_blank_line; /**< matches blank lines */
 /** Initialize the regular expressions.
  * @return true upon success.
  */
-bool flex_init_regex(void)
+bool flex_init_regex()
 {
 	flex_regcomp(&regex_linedir, REGEXP_LINEDIR, REG_EXTENDED);
 	flex_regcomp(&regex_blank_line, REGEXP_BLANK_LINE, REG_EXTENDED);

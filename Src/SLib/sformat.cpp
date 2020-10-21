@@ -5,7 +5,7 @@
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS), FStr(0), FReal(0)
+SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS), FStr(0), FReal(0)
 {
 }
 //
@@ -63,7 +63,7 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 //
 //
 //
-char * SLAPI strfmt(const char * str, long fmt, char * buf)
+char * strfmt(const char * str, long fmt, char * buf)
 {
 	char * p_org_buf = buf;
 	int    flag = SFMTFLAG(fmt);
@@ -259,7 +259,7 @@ char * FASTCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 	return pBuf;
 }
 
-char * SLAPI datefmt(const void * binDate, long fmt, char * txtDate)
+char * datefmt(const void * binDate, long fmt, char * txtDate)
 {
 	int    d, m, y;
 	uint   flag = SFMTFLAG(fmt);
@@ -293,7 +293,7 @@ char * FASTCALL periodfmt(const DateRange * pPeriod, char * pBuf)
 	return pBuf;
 }
 
-int SLAPI periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
+int periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 {
 	static const char * quart[4] = { "I", "II", "III", "IV" };
 	int  r = -1;
@@ -388,7 +388,7 @@ SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf)
 //
 // Time formatting
 //
-char * SLAPI timefmt(LTIME t, long fmt, char * pBuf)
+char * timefmt(LTIME t, long fmt, char * pBuf)
 {
 	char   fs[64];
 	if(t == 0 && (fmt & TIMF_BLANK))
@@ -435,7 +435,7 @@ char * SLAPI timefmt(LTIME t, long fmt, char * pBuf)
 	return _commfmt(fmt, pBuf);
 }
 
-char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen)
+char * datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen)
 {
 	int    df = SFMTFLAG(dtfmt);
 	int    tf = SFMTFLAG(tmfmt);
@@ -624,7 +624,7 @@ static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, 
 	return _commfmt(fmt, buf);
 }
 
-char * SLAPI decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
+char * decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
 {
 	char   str[64];
 	char * c, *s = str;

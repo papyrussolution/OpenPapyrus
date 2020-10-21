@@ -352,7 +352,9 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsOper,        "@{cmd_goodsoper}",         TBBM_GOODSANLZ
 	cmTrfrAnalyze,      "@{view_trfranlz}",         PPDV_TRFRANLZ
 	separator
-	cmOpenTextFile,     "@{cmd_opentextfile}",      TBBM_OPENTEXTFILE
+	cmEventsForCurrentUser, "@{cmd_events}",        PPDV_SIGNAL01           // @v10.9.1
+	cmOpenTextFile,     "@{cmd_opentextfile}",      PPDV_FILEDOCUMENTEDIT01 // @v10.9.1 TBBM_OPENTEXTFILE-->PPDV_FILEDOCUMENTEDIT01
+
 }
 
 toolbar export ACCBILL TB_FIRST_TOOLBAR {
@@ -680,7 +682,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	DORECOVER     : kbCtrlR,  PPDV_REPAIR02,        "@{verificationandrecovery}\tCtrl-R"
 	separator
 	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,        "@{filter}\tCtrl-V"
-	CHANGECLOSEPAR: kbCtrlA,  PPDV_TOGGLE01,        "Все/Только открытые"
+	CHANGECLOSEPAR: kbCtrlA,  PPDV_TOGGLE01,        "@{all}/@{openedonly_pl}"
 }
 
 toolbar export ORDLOTS TB_FIRST_TOOLBAR {
@@ -6294,8 +6296,14 @@ browser EVENT north(100), 1, 1, "Events", OWNER|GRID, 0
 	"Time",         1, zstring(20),  0, 12, BCO_USERPROC
 	"Type",         2, zstring(48),  0, 10, BCO_USERPROC
 	"Status",       3, zstring(48),  0, 10, BCO_USERPROC
+	"Subscription", 6, zstring(48),  0, 10, BCO_USERPROC
 	"Object",       4, zstring(128), 0, 10, BCO_USERPROC
 	"Text",         5, zstring(128), 0, 10, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		DETAIL       : kbEnter,  PPDV_EDITFILE02, "@{viewobject}\tEnter"
+		CHANGESTATUS : kbCtrlF6, TBBM_SWITCH,     "@{dochangeeventstatus}\tCtrl-F6"
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,   "@{filter}\tCtrl-V"
+	}
 }
 
 browser DBMONITOR north(100), 2, 1, "Монитор базы данных", OWNER|GRID, 0
@@ -8912,10 +8920,13 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_OPEN03   #4D4D4D
 	PPDV_UNIFYPRICE01
 	PPDV_UNIFYPRICE02
+	PPDV_FILEDOCUMENTEDIT01
+	PPDV_SIGNAL01
 }
 //
 // Следующие изображения используются без замещения цвета
 //
 drawvector "..\rsrc\svg" {
 	PPDV_LOGOPAPYRUS
+	PPDV_LOGOUDS
 }

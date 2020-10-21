@@ -47,7 +47,7 @@ int FASTCALL strtorrng(const char * pBuf, RealRange & rRng)
 }
 
 /* @v9.6.0
-int SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp)
+int strtoirng(const char * pBuf, long * pLow, long * pUpp)
 {
 	// @todo Очень слабая реализация //
 	double rlow, rupp;
@@ -60,7 +60,7 @@ int SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp)
 //
 //
 //
-int SLAPI IntRange::IsZero() const
+int IntRange::IsZero() const
 {
 	return BIN(low == 0 && upp == 0);
 }
@@ -112,7 +112,7 @@ int FASTCALL IntRange::Intersect(const IntRange & rD) const
 	return ret;
 }
 
-int SLAPI IntRange::Intersect(const IntRange & rD, IntRange * pResult) const
+int IntRange::Intersect(const IntRange & rD, IntRange * pResult) const
 {
 	int    ret = 0;
 	int32  c1 = 0;
@@ -131,7 +131,7 @@ int SLAPI IntRange::Intersect(const IntRange & rD, IntRange * pResult) const
 	return ret;
 }
 
-SString & SLAPI IntRange::Format(long fmt, SString & rBuf) const
+SString & IntRange::Format(long fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	if(low)
@@ -175,7 +175,7 @@ int SSzChunk::IsEmpty() const { return BIN(Len <= 0); }
 //
 //
 //
-RealRange & SLAPI RealRange::Z()
+RealRange & RealRange::Z()
 {
 	low = 0.0;
 	upp = 0.0;
@@ -187,10 +187,10 @@ int FASTCALL RealRange::IsEqual(const RealRange & rS) const { return BIN(low == 
 int FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }
 int FASTCALL RealRange::GreaterThan(double v) const { return (low > v && upp > v); }
 int FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEqual(rS); }
-int SLAPI RealRange::IsZero() const { return BIN(low == 0.0 && upp == 0.0); }
-int SLAPI RealRange::CheckVal(double v) const { return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp)); }
+int RealRange::IsZero() const { return BIN(low == 0.0 && upp == 0.0); }
+int RealRange::CheckVal(double v) const { return BIN((low == 0.0 || v >= low) && (upp == 0.0 || v <= upp)); }
 
-int SLAPI RealRange::CheckValEps(double val, double eps) const
+int RealRange::CheckValEps(double val, double eps) const
 {
 	if(low != 0.0) {
 		if(!feqeps(val, low, eps) && val < low)
@@ -203,12 +203,12 @@ int SLAPI RealRange::CheckValEps(double val, double eps) const
 	return 1;
 }
 
-int SLAPI RealRange::Check(double v) const
+int RealRange::Check(double v) const
 	{ return BIN(v >= low && v <= upp); }
-int SLAPI RealRange::CheckX(double v) const
+int RealRange::CheckX(double v) const
 	{ return BIN((low <= upp) ? (v >= low && v <= upp) : (v >= upp && v <= low)); }
 
-double SLAPI RealRange::Clip(double v) const
+double RealRange::Clip(double v) const
 {
 	if(low < upp) {
 		if(v > upp)
@@ -225,34 +225,34 @@ double SLAPI RealRange::Clip(double v) const
 	return v;
 }
 
-RealRange & SLAPI RealRange::SetVal(double v)
+RealRange & RealRange::SetVal(double v)
 {
 	low = upp = v;
 	return *this;
 }
 
-RealRange & SLAPI RealRange::Set(double lo, double up)
+RealRange & RealRange::Set(double lo, double up)
 {
 	low = lo;
 	upp = up;
 	return *this;
 }
 
-RealRange & SLAPI RealRange::SetupMinMax(double v)
+RealRange & RealRange::SetupMinMax(double v)
 {
 	SETMIN(low, v);
 	SETMAX(upp, v);
 	return *this;
 }
 
-RealRange & SLAPI RealRange::SetDelta(double lo, double delta)
+RealRange & RealRange::SetDelta(double lo, double delta)
 {
 	low = lo;
 	upp = lo+delta;
 	return *this;
 }
 
-RealRange & SLAPI RealRange::Scale(double sc)
+RealRange & RealRange::Scale(double sc)
 {
 	low *= sc;
 	upp *= sc;
@@ -266,17 +266,17 @@ RealRange & FASTCALL RealRange::Round(int prec)
 	return *this;
 }
 
-RealRange & SLAPI RealRange::SetMiddle(double middle, double delta)
+RealRange & RealRange::SetMiddle(double middle, double delta)
 {
 	low = middle-delta;
 	upp = middle+delta;
 	return *this;
 }
 
-double SLAPI RealRange::GetMiddle() const { return (low+upp) / 2.0; }
-double SLAPI RealRange::GetDistance() const { return (upp-low); }
-double SLAPI RealRange::GetActualLow() const { return MIN(low, upp); }
-double SLAPI RealRange::GetActualUpp() const { return MAX(low, upp); }
+double RealRange::GetMiddle() const { return (low+upp) / 2.0; }
+double RealRange::GetDistance() const { return (upp-low); }
+double RealRange::GetActualLow() const { return MIN(low, upp); }
+double RealRange::GetActualUpp() const { return MAX(low, upp); }
 
 int FASTCALL RealRange::Intersect(const RealRange & rTest, RealRange * pResult) const
 {
@@ -311,7 +311,7 @@ int FASTCALL DateRange::IsEqual(const DateRange & rS) const
 	return (low == rS.low && upp == rS.upp);
 }
 
-long SLAPI DateRange::GetLength() const
+long DateRange::GetLength() const
 {
 	long   len = 0;
 	if(low == upp) {
@@ -353,7 +353,7 @@ int FASTCALL DateRange::Cmp(const DateRange & rS) const
 	}
 }
 
-int SLAPI DateRange::IsZero() const
+int DateRange::IsZero() const
 {
 	return BIN(!low && !upp);
 }
@@ -385,7 +385,7 @@ int FASTCALL DateRange::CheckDate(LDATE dt) const
 	return r;
 }
 
-DateRange & SLAPI DateRange::Set(LDATE lo, LDATE up)
+DateRange & DateRange::Set(LDATE lo, LDATE up)
 {
 	low = lo;
 	upp = up;
@@ -453,7 +453,7 @@ int DateRange::SetPeriod(LDATE dt, int prd)
 	return ok;
 }
 
-DateRange & SLAPI DateRange::Z()
+DateRange & DateRange::Z()
 {
 	low = upp = ZERODATE;
 	return *this;
@@ -464,7 +464,7 @@ void FASTCALL DateRange::SetDate(LDATE dt)
 	low = upp = dt;
 }
 
-void SLAPI DateRange::CheckAndSwap()
+void DateRange::CheckAndSwap()
 {
 	if(upp && low > upp)
 		Exchange(&low.v, &upp.v);
@@ -485,7 +485,7 @@ int FASTCALL DateRange::Intersect(const DateRange * pR)
 		return 0;
 }
 
-int SLAPI DateRange::IsIntersect(DateRange r) const
+int DateRange::IsIntersect(DateRange r) const
 {
 	DateRange temp = *this;
 	return temp.Intersect(&r);
@@ -519,7 +519,7 @@ DateRange & FASTCALL DateRange::Actualize(LDATE rel)
 	return *this;
 }
 
-DateRange & SLAPI DateRange::ActualizeCmp(LDATE rel, LDATE cmp)
+DateRange & DateRange::ActualizeCmp(LDATE rel, LDATE cmp)
 {
 	low = low.getactualcmp(rel, cmp);
 	upp = upp.getactualcmp(rel, cmp);
@@ -528,19 +528,19 @@ DateRange & SLAPI DateRange::ActualizeCmp(LDATE rel, LDATE cmp)
 //
 //
 //
-void SLAPI TimeRange::Set(LTIME lowTm, LTIME uppTm)
+void TimeRange::Set(LTIME lowTm, LTIME uppTm)
 {
 	low = lowTm;
 	upp = uppTm;
 }
 
-void SLAPI TimeRange::SetZero()
+void TimeRange::SetZero()
 {
 	low = ZEROTIME;
 	upp = ZEROTIME;
 }
 
-int SLAPI TimeRange::IsZero() const
+int TimeRange::IsZero() const
 {
 	return (low == ZEROTIME && upp == ZEROTIME);
 }
@@ -562,7 +562,7 @@ int FASTCALL TimeRange::Check(LTIME tm) const
 	}
 }
 
-SString & SLAPI TimeRange::ToStr(long tmFormat, SString & rBuf) const
+SString & TimeRange::ToStr(long tmFormat, SString & rBuf) const
 {
 	rBuf.Z();
 	if(low != ZEROTIME || upp != ZEROTIME) {

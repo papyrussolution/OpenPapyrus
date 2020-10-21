@@ -21,8 +21,8 @@
 #define COUNTEREXAMPLE_H
 
 // Init/deinit this module.
-void counterexample_init(void);
-void counterexample_free(void);
+void counterexample_init();
+void counterexample_free();
 
 // Print the counterexamples for the conflicts of state S.
 //

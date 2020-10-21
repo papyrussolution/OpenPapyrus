@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI AcctCtrlGroup::Rec::Rec() : AccSheetID(0), AccSelParam(0), AccType(0)
+AcctCtrlGroup::Rec::Rec() : AccSheetID(0), AccSelParam(0), AccType(0)
 {
 	// @v10.7.3 @ctr AcctId.Z();
 }
@@ -249,16 +249,16 @@ void AcctCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 //
 //
 //
-SLAPI ArticleCtrlGroup::Rec::Rec() : AcsID(0), OpID(0)
+ArticleCtrlGroup::Rec::Rec() : AcsID(0), OpID(0)
 {
 }
 
-SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, const ObjIdListFilt * pArList) : AcsID(acsID), OpID(opID)
+ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, const ObjIdListFilt * pArList) : AcsID(acsID), OpID(opID)
 {
 	RVALUEPTR(ArList, pArList);
 }
 
-SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, PPID arID) : AcsID(acsID), OpID(opID)
+ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, PPID arID) : AcsID(acsID), OpID(opID)
 {
 	ArList.Add(arID); // ObjIdListFilt::Add(x) игнорирует нулевой аргумент
 }
@@ -370,7 +370,7 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 	return ok;
 }
 
-static int SLAPI EditArList(TDialog * pDlg, uint ctlID, PPID accSheetID, ObjIdListFilt * pArList)
+static int EditArList(TDialog * pDlg, uint ctlID, PPID accSheetID, ObjIdListFilt * pArList)
 {
 	int    ok = -1;
 	if(pArList && pDlg) {
@@ -440,7 +440,7 @@ void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-SLAPI CurAmtCtrlGroup::Rec::Rec()
+CurAmtCtrlGroup::Rec::Rec()
 {
 	THISZERO();
 }

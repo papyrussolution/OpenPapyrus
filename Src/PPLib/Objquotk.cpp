@@ -11,10 +11,10 @@ PPQuotKind2::PPQuotKind2()
 	THISZERO();
 }
 
-int SLAPI PPQuotKind2::HasWeekDayRestriction() const { return BIN(DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
-int SLAPI PPQuotKind2::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
+int PPQuotKind2::HasWeekDayRestriction() const { return BIN(DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
+int PPQuotKind2::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
 
-void SLAPI PPQuotKind2::SetTimeRange(const TimeRange & rRange)
+void PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 {
 	BeginTm = 0;
 	EndTm = 0;
@@ -28,7 +28,7 @@ void SLAPI PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 	}
 }
 
-int SLAPI PPQuotKind2::GetTimeRange(TimeRange & rRange) const
+int PPQuotKind2::GetTimeRange(TimeRange & rRange) const
 {
 	rRange.low = ZEROTIME;
 	rRange.upp = ZEROTIME;
@@ -49,7 +49,7 @@ int SLAPI PPQuotKind2::GetTimeRange(TimeRange & rRange) const
 	return (rRange.low || rRange.upp) ? 1 : -1;
 }
 
-int SLAPI PPQuotKind2::GetAmtRange(RealRange * pRange) const
+int PPQuotKind2::GetAmtRange(RealRange * pRange) const
 {
 	if(AmtRestr.IsZero()) {
 		CALLPTRMEMB(pRange, SetVal(0.0));
@@ -64,7 +64,7 @@ int SLAPI PPQuotKind2::GetAmtRange(RealRange * pRange) const
 	}
 }
 
-int SLAPI PPQuotKind2::SetAmtRange(const RealRange * pRange)
+int PPQuotKind2::SetAmtRange(const RealRange * pRange)
 {
 	if(pRange && !pRange->IsZero()) {
 		AmtRestr.low = dbltointmny(pRange->low);
@@ -77,7 +77,7 @@ int SLAPI PPQuotKind2::SetAmtRange(const RealRange * pRange)
 	}
 }
 
-int SLAPI PPQuotKind2::GetRestrText(SString & rBuf) const
+int PPQuotKind2::GetRestrText(SString & rBuf) const
 {
 	SString temp_buf;
 	rBuf.Z();
@@ -122,17 +122,17 @@ int SLAPI PPQuotKind2::GetRestrText(SString & rBuf) const
 //
 //
 //
-SLAPI PPQuotKindPacket::PPQuotKindPacket()
+PPQuotKindPacket::PPQuotKindPacket()
 {
 	// @v10.6.5 Init();
 }
 
-void SLAPI PPQuotKindPacket::Init()
+void PPQuotKindPacket::Init()
 {
 	MEMSZERO(Rec);
 }
 
-int SLAPI PPQuotKindPacket::GetCalculatedQuot(double cost, double basePrice, double * pQuot, long * pFlags) const
+int PPQuotKindPacket::GetCalculatedQuot(double cost, double basePrice, double * pQuot, long * pFlags) const
 {
 	int    ok = -1;
 	double quot = 0.0;
@@ -192,17 +192,17 @@ int FASTCALL PPObjQuotKind::Special::GetCategory(PPID qkID) const
 		return PPQC_PRICE;
 }
 
-/*static*/PPID SLAPI PPObjQuotKind::GetDefaultAccSheetID(int cls)
+/*static*/PPID PPObjQuotKind::GetDefaultAccSheetID(int cls)
 {
 	return (cls == PPQuot::clsSupplDeal) ? GetSupplAccSheet() : ((cls == PPQuot::clsGeneral) ? GetSellAccSheet() : 0);
 }
 
-SLAPI PPObjQuotKind::PPObjQuotKind(void * extraPtr) : PPObjReference(PPOBJ_QUOTKIND, extraPtr)
+PPObjQuotKind::PPObjQuotKind(void * extraPtr) : PPObjReference(PPOBJ_QUOTKIND, extraPtr)
 {
 	ImplementFlags |= implStrAssocMakeList;
 }
 
-int SLAPI PPObjQuotKind::Classify(PPID id, int * pCls)
+int PPObjQuotKind::Classify(PPID id, int * pCls)
 {
 	int    ok = -1;
 	int    cls = PPQuot::clsGeneral;
@@ -223,7 +223,7 @@ int SLAPI PPObjQuotKind::Classify(PPID id, int * pCls)
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::MakeReserved(long flags)
+int PPObjQuotKind::MakeReserved(long flags)
 {
 	int    ok = 1;
 	uint   num_recs, i;
@@ -253,7 +253,7 @@ int SLAPI PPObjQuotKind::MakeReserved(long flags)
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
+int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 {
 	PPObjGoods goods_obj;
 	const  int  intrexpnd = IsIntrExpndOp(opID);
@@ -317,7 +317,7 @@ IMPL_CMPFUNC(PPQuotKind_RankName, i1, i2)
 	return cmp;
 }
 
-int SLAPI PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList, long flags)
+int PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList, long flags)
 {
 	int    ok = 1;
 	const  uint c = rQkList.getCount();
@@ -359,7 +359,7 @@ int SLAPI PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, PPIDArray * pTmList, long flags)
+int PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, PPIDArray * pTmList, long flags)
 {
 	int    ok = -1;
 	if(pList || pTmList) {
@@ -405,7 +405,7 @@ int SLAPI PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * p
 	return  ok;
 }
 
-int SLAPI PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, long flags)
+int PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, long flags)
 {
 	int    ok = 1;
 	if(flags & RTLPF_USEQKCACHE) {
@@ -463,13 +463,13 @@ int SLAPI PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, lon
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::GetCalculatedQuot(PPID id, double cost, double basePrice, double * pQuot, long * pFlags)
+int PPObjQuotKind::GetCalculatedQuot(PPID id, double cost, double basePrice, double * pQuot, long * pFlags)
 {
 	PPQuotKindPacket pack;
 	return (Fetch(id, &pack.Rec) > 0) ? pack.GetCalculatedQuot(cost, basePrice, pQuot, pFlags) : 0;
 }
 
-int SLAPI PPObjQuotKind::IsPacketEq(const PPQuotKindPacket & rS1, const PPQuotKindPacket & rS2, long flags)
+int PPObjQuotKind::IsPacketEq(const PPQuotKindPacket & rS1, const PPQuotKindPacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 #define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
@@ -493,7 +493,7 @@ int SLAPI PPObjQuotKind::IsPacketEq(const PPQuotKindPacket & rS1, const PPQuotKi
 	return 1;
 }
 
-int SLAPI PPObjQuotKind::GetPacket(PPID id, PPQuotKindPacket * pPack)
+int PPObjQuotKind::GetPacket(PPID id, PPQuotKindPacket * pPack)
 {
 	int    ok = 1;
 	PPQuotKindPacket pack;
@@ -503,7 +503,7 @@ int SLAPI PPObjQuotKind::GetPacket(PPID id, PPQuotKindPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
+int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -541,9 +541,9 @@ int SLAPI PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use
 	return ok;
 }
 
-// /*virtual*/int  SLAPI PPObjQuotKind::Remove(PPID id, long, uint options /* = rmv_default */)
+// /*virtual*/int  PPObjQuotKind::Remove(PPID id, long, uint options /* = rmv_default */)
 
-/*virtual*/int  SLAPI PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+/*virtual*/int  PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    r = -1;
 	THROW(CheckRights(PPR_DEL));
@@ -593,12 +593,12 @@ int SLAPI PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use
 	return r;
 }
 
-int SLAPI PPObjQuotKind::SearchSymb(PPID * pID, const char * pSymb)
+int PPObjQuotKind::SearchSymb(PPID * pID, const char * pSymb)
 {
 	return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPQuotKind, Symb));
 }
 
-StrAssocArray * SLAPI PPObjQuotKind::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjQuotKind::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocArray * p_list = new StrAssocArray;
 	QuotKindFilt filt;
@@ -621,7 +621,7 @@ IMPL_CMPFUNC(PPQuotKind, i1, i2)
 		return stricmp866(p1->Name, p2->Name);
 }
 
-SArray * SLAPI PPObjQuotKind::MakeListByIDList(const PPIDArray * pList)
+SArray * PPObjQuotKind::MakeListByIDList(const PPIDArray * pList)
 {
 	PPObjQuotKind::ListEntry entry;
 	PPID   id = 0;
@@ -653,12 +653,12 @@ SArray * SLAPI PPObjQuotKind::MakeListByIDList(const PPIDArray * pList)
 	return p_ary;
 }
 
-SLAPI QuotKindFilt::QuotKindFilt()
+QuotKindFilt::QuotKindFilt()
 {
 	THISZERO();
 }
 
-int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
+int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 {
 	int    ok = -1, i;
 	// @v10.3.0 (never used) SArray * p_ary = 0;
@@ -1005,7 +1005,7 @@ IMPL_HANDLE_EVENT(QuotKindDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
+int PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
 {
 	int    r = cmCancel, ok = 1, valid_data = 0, is_new = 0;
 	PPQuotKindPacket pack;
@@ -1036,9 +1036,9 @@ int SLAPI PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjQuotKind::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRQUOTKIND, 0); }
+int PPObjQuotKind::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRQUOTKIND, 0); }
 
-int SLAPI PPObjQuotKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjQuotKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_OPRKIND) {
@@ -1054,7 +1054,7 @@ int SLAPI PPObjQuotKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 
 IMPL_DESTROY_OBJ_PACK(PPObjQuotKind, PPQuotKindPacket);
 
-int SLAPI PPObjQuotKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjQuotKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = -1;
 	if(p && p->Data) {
@@ -1067,7 +1067,7 @@ int SLAPI PPObjQuotKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::SerializePacket(int dir, PPQuotKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjQuotKind::SerializePacket(int dir, PPQuotKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -1075,10 +1075,10 @@ int SLAPI PPObjQuotKind::SerializePacket(int dir, PPQuotKindPacket * pPack, SBuf
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjQuotKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjQuotKind, PPQuotKindPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1133,12 +1133,12 @@ int SLAPI PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 	return ok;
 }
 
-int SLAPI PPObjQuotKind::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjQuotKind::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTQUOTK, 0, 0, bufSize, rt, pDlg);
 }
 
-int SLAPI PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
+int PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 {
 	rBuf.Z();
 	if(pQuot) {
@@ -1176,19 +1176,19 @@ int SLAPI PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 //
 class QuotKindCache : public ObjCache {
 public:
-	SLAPI  QuotKindCache() : ObjCache(PPOBJ_QUOTKIND, sizeof(Data)), SymbList(PPOBJ_QUOTKIND), RtlListInited(0),
+	QuotKindCache() : ObjCache(PPOBJ_QUOTKIND, sizeof(Data)), SymbList(PPOBJ_QUOTKIND), RtlListInited(0),
 		Sk(PPObjQuotKind::Special::ctrDefault)
 	{
 	}
-	int    SLAPI FetchRtlList(PPIDArray & rList, PPIDArray & rTmList);
-	int    SLAPI FetchBySymb(const char * pSymb, PPID * pID)
+	int    FetchRtlList(PPIDArray & rList, PPIDArray & rTmList);
+	int    FetchBySymb(const char * pSymb, PPID * pID)
 	{
 		return SymbList.FetchBySymb(pSymb, pID);
 	}
-	int    SLAPI FetchSpecialKinds(PPObjQuotKind::Special * pSk);
+	int    FetchSpecialKinds(PPObjQuotKind::Special * pSk);
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	virtual int  FASTCALL Dirty(PPID id); // @sync_w
 
 	int    RtlListInited;
@@ -1235,7 +1235,7 @@ int FASTCALL QuotKindCache::Dirty(PPID id)
 	return ok;
 }
 
-int SLAPI QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
+int QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 {
 	int    ok = 1;
 	{
@@ -1252,7 +1252,7 @@ int SLAPI QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 	return ok;
 }
 
-int SLAPI QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1278,7 +1278,7 @@ int SLAPI QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPQuotKind * p_data_rec = static_cast<PPQuotKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -1300,7 +1300,7 @@ void SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 }
 
-int SLAPI QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
+int QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
 {
 	{
 		//SkLock.ReadLock();
@@ -1328,7 +1328,7 @@ int SLAPI QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
 
 IMPL_OBJ_FETCH(PPObjQuotKind, PPQuotKind, QuotKindCache);
 
-int SLAPI PPObjQuotKind::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
+int PPObjQuotKind::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 {
 	QuotKindCache * p_cache = GetDbLocalCachePtr <QuotKindCache> (PPOBJ_QUOTKIND);
 	if(p_cache) {
@@ -1339,7 +1339,7 @@ int SLAPI PPObjQuotKind::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 	}
 }
 
-int SLAPI PPObjQuotKind::FetchBySymb(const char * pSymb, PPID * pID)
+int PPObjQuotKind::FetchBySymb(const char * pSymb, PPID * pID)
 {
 	QuotKindCache * p_cache = GetDbLocalCachePtr <QuotKindCache> (PPOBJ_QUOTKIND);
 	if(p_cache) {

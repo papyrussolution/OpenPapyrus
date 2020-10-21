@@ -4,32 +4,30 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPViewGoodsMov2::PPViewGoodsMov2() : PPView(0, &Filt, PPVIEW_GOODSMOV2), P_BObj(BillObj), P_TempTbl(0), PrintWoPacks(0)
+PPViewGoodsMov2::PPViewGoodsMov2() : PPView(0, &Filt, PPVIEW_GOODSMOV2, implUseServer, REPORT_GOODSMOV2), P_BObj(BillObj), P_TempTbl(0), PrintWoPacks(0)
 {
-	ImplementFlags |= implUseServer;
-	DefReportId = REPORT_GOODSMOV2;
 	PPLoadString("inrest", InRestText);
 	PPLoadString("outrest", OutRestText);
 }
 
-SLAPI PPViewGoodsMov2::~PPViewGoodsMov2()
+PPViewGoodsMov2::~PPViewGoodsMov2()
 {
 	delete P_TempTbl;
 }
 
-PPBaseFilt * SLAPI PPViewGoodsMov2::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsMov2::CreateFilt(void * extraPtr) const
 {
 	BillFilt * p_filt = 0;
 	PPView::CreateFiltInstance(PPFILT_GOODSMOV, reinterpret_cast<PPBaseFilt **>(&p_filt));
 	return p_filt;
 }
 
-/*virtual*/int SLAPI PPViewGoodsMov2::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int PPViewGoodsMov2::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
 }
 
-/*virtual*/void SLAPI PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
+/*virtual*/void PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
 {
 	if(opID) {
 		if(opID == -1)
@@ -43,17 +41,17 @@ PPBaseFilt * SLAPI PPViewGoodsMov2::CreateFilt(void * extraPtr) const
 
 class GoodsMovCrosstab : public Crosstab {
 public:
-	explicit SLAPI  GoodsMovCrosstab(PPViewGoodsMov2 * pV) : Crosstab(), P_V(pV)
+	explicit GoodsMovCrosstab(PPViewGoodsMov2 * pV) : Crosstab(), P_V(pV)
 	{
 	}
-	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+	virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 	{
 		PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 		SetupBrowserCtColumns(p_brw);
 		return p_brw;
 	}
 private:
-	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
 		if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
 			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -64,7 +62,7 @@ private:
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsMov2);
 
-int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
+int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	int    is_link = 0;
@@ -218,7 +216,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-double SLAPI PPViewGoodsMov2::GetUnitsPerPack(PPID goodsID)
+double PPViewGoodsMov2::GetUnitsPerPack(PPID goodsID)
 {
 	double pack = 0.0;
 	ReceiptCore & rcpt = P_BObj->trfr->Rcpt;
@@ -230,7 +228,7 @@ double SLAPI PPViewGoodsMov2::GetUnitsPerPack(PPID goodsID)
 	return pack;
 }
 
-int SLAPI PPViewGoodsMov2::InitIteration(IterOrder ord)
+int PPViewGoodsMov2::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	TempGoodsMov2Tbl::Key1 k1, k1_;
@@ -260,7 +258,7 @@ int FASTCALL PPViewGoodsMov2::NextIteration(GoodsMov2ViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov2::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsMov2::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	BrwHdr hdr;
@@ -281,7 +279,7 @@ int SLAPI PPViewGoodsMov2::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov2::EditGoods(PPID goodsID)
+int PPViewGoodsMov2::EditGoods(PPID goodsID)
 {
 	int    ok = -1;
 	if(goodsID > 0) {
@@ -294,7 +292,7 @@ int SLAPI PPViewGoodsMov2::EditGoods(PPID goodsID)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewGoodsMov2::Print(const void *)
+/*virtual*/int PPViewGoodsMov2::Print(const void *)
 {
 	int    ok = 1;
 	uint   rpt_id = REPORT_GOODSMOV2;
@@ -304,12 +302,12 @@ int SLAPI PPViewGoodsMov2::EditGoods(PPID goodsID)
 	return ok;
 }
 
-void SLAPI PPViewGoodsMov2::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewGoodsMov2::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetTempGoodsGrp(Filt.GoodsGrpID));
 }
 
-DBQuery * SLAPI PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * p_q = PPView::CrosstabDbQueryStub;
 	SString loc_names, subtitle;
@@ -320,7 +318,7 @@ DBQuery * SLAPI PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return p_q;
 }
 
-/*virtual*/int SLAPI PPViewGoodsMov2::ViewTotal()
+/*virtual*/int PPViewGoodsMov2::ViewTotal()
 {
 	int    ok = 1;
 	TDialog * p_dlg = 0;
@@ -339,7 +337,7 @@ DBQuery * SLAPI PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return ok;
 }
 
-void SLAPI PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr * pHdr, long col)
+void PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr * pHdr, long col)
 {
 	BrwHdr hdr;
 	MEMSZERO(hdr);
@@ -356,7 +354,7 @@ void SLAPI PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHd
 	ASSIGN_PTR(pHdr, hdr);
 }
 
-int SLAPI PPViewGoodsMov2::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsMov2::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -380,7 +378,7 @@ int SLAPI PPViewGoodsMov2::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov2::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewGoodsMov2::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -407,7 +405,7 @@ int SLAPI PPViewGoodsMov2::SerializeState(int dir, SBuffer & rBuf, SSerializeCon
 	return ok;
 }
 
-int SLAPI ViewGoodsMov(int modeless)
+int ViewGoodsMov(int modeless)
 {
 	int    ok = -1;
 	GoodsMovFilt  filt;

@@ -27,11 +27,11 @@ int CallbackCompress(long, long, const char *, int);
 //
 //
 //
-SLAPI BCopyData::BCopyData() : ID(0), BssFactor(0), Flags(0), Dtm(ZERODATETIME), SrcSize(0), DestSize(0), CheckSum(0)
+BCopyData::BCopyData() : ID(0), BssFactor(0), Flags(0), Dtm(ZERODATETIME), SrcSize(0), DestSize(0), CheckSum(0)
 {
 }
 
-BCopyData & SLAPI BCopyData::Z()
+BCopyData & BCopyData::Z()
 {
 	ID = 0;
 	BssFactor = 0;
@@ -49,7 +49,7 @@ BCopyData & SLAPI BCopyData::Z()
 
 #define DEFAULT_SPACE_SAFETY_FACTOR 1200
 
-SLAPI BCopySet::BCopySet(const char * pName) : TSCollection <BCopyData> (), Name(pName)
+BCopySet::BCopySet(const char * pName) : TSCollection <BCopyData> (), Name(pName)
 {
 }
 
@@ -61,7 +61,7 @@ static IMPL_CMPFUNC(BCopyData_DtDesc, i1, i2)
 	return r ? -r : 0;
 }
 
-int SLAPI BCopySet::Sort(BCopySet::Order ord)
+int BCopySet::Sort(BCopySet::Order ord)
 {
 	if(ord == ordByDate)
 		sort(PTR_CMPFUNC(BCopyData_Dt));
@@ -74,7 +74,7 @@ int SLAPI BCopySet::Sort(BCopySet::Order ord)
 //
 const char * BackupInfoFile = "BACKUP.INF";
 
-SLAPI DBBackup::InfoFile::InfoFile(DbProvider * pDb) : Stream(0)
+DBBackup::InfoFile::InfoFile(DbProvider * pDb) : Stream(0)
 {
 	if(pDb) {
 		SString data_path;
@@ -85,12 +85,12 @@ SLAPI DBBackup::InfoFile::InfoFile(DbProvider * pDb) : Stream(0)
 		FileName[0] = 0;
 }
 
-SLAPI DBBackup::InfoFile::~InfoFile()
+DBBackup::InfoFile::~InfoFile()
 {
 	CloseStream();
 }
 
-int SLAPI DBBackup::InfoFile::MakeFileName(const char * pPath, const char * pFileName, char * pBuf, size_t bufLen)
+int DBBackup::InfoFile::MakeFileName(const char * pPath, const char * pFileName, char * pBuf, size_t bufLen)
 {
 	SString temp;
 	if(pPath)
@@ -104,7 +104,7 @@ int SLAPI DBBackup::InfoFile::MakeFileName(const char * pPath, const char * pFil
 	return 1;
 }
 
-int SLAPI DBBackup::InfoFile::OpenStream(int readOnly)
+int DBBackup::InfoFile::OpenStream(int readOnly)
 {
 	char   mode[16];
 	CloseStream();
@@ -127,12 +127,12 @@ int SLAPI DBBackup::InfoFile::OpenStream(int readOnly)
 	return Stream ? 1 : (DBErrCode = SDBERR_FOPENFAULT, 0);
 }
 
-void SLAPI DBBackup::InfoFile::CloseStream()
+void DBBackup::InfoFile::CloseStream()
 {
 	SFile::ZClose(&Stream);
 }
 
-int SLAPI DBBackup::InfoFile::ReadSet(BCopySet * set)
+int DBBackup::InfoFile::ReadSet(BCopySet * set)
 {
 	int    ok = 1;
 	BCopyData bc_data;
@@ -147,7 +147,7 @@ int SLAPI DBBackup::InfoFile::ReadSet(BCopySet * set)
 	return ok;
 }
 
-int SLAPI DBBackup::InfoFile::ReadItem(long copyID, BCopyData * pData)
+int DBBackup::InfoFile::ReadItem(long copyID, BCopyData * pData)
 {
 	int    ok = -1;
 	BCopyData bc_data;
@@ -166,7 +166,7 @@ int SLAPI DBBackup::InfoFile::ReadItem(long copyID, BCopyData * pData)
 	return ok;
 }
 
-int SLAPI DBBackup::InfoFile::AddRecord(BCopyData * data)
+int DBBackup::InfoFile::AddRecord(BCopyData * data)
 {
 	int    ok = 1;
 	long   max_id = 1;
@@ -186,7 +186,7 @@ int SLAPI DBBackup::InfoFile::AddRecord(BCopyData * data)
 	return ok;
 }
 
-int SLAPI DBBackup::InfoFile::RemoveRecord(const char * pSet, long id)
+int DBBackup::InfoFile::RemoveRecord(const char * pSet, long id)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -223,7 +223,7 @@ int SLAPI DBBackup::InfoFile::RemoveRecord(const char * pSet, long id)
 	return ok;
 }
 
-int SLAPI DBBackup::InfoFile::WriteRecord(FILE * stream, const BCopyData * pData)
+int DBBackup::InfoFile::WriteRecord(FILE * stream, const BCopyData * pData)
 {
 	int    ok = 1;
 	int    copy_format = BIN(pData->Flags & BCOPYDF_USECOMPRESS);
@@ -252,7 +252,7 @@ int SLAPI DBBackup::InfoFile::WriteRecord(FILE * stream, const BCopyData * pData
 	return ok;
 }
 
-int SLAPI DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
+int DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
 {
 	int    ok = -1;
 	char   buf[1024];
@@ -288,31 +288,31 @@ int SLAPI DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
 //
 //
 //
-SLAPI DBBackup::DBBackup() : P_Db(0), InfoF(0), AbortProcessFlag(0), SpaceSafetyFactor(DEFAULT_SPACE_SAFETY_FACTOR),
+DBBackup::DBBackup() : P_Db(0), InfoF(0), AbortProcessFlag(0), SpaceSafetyFactor(DEFAULT_SPACE_SAFETY_FACTOR),
 	TotalCopySize(0), TotalCopyReady(0)
 {
 }
 
-SLAPI DBBackup::~DBBackup()
+DBBackup::~DBBackup()
 {
 }
 
-int SLAPI DBBackup::CBP_CopyProcess(const char *, const char *, int64, int64, int64, int64)
+int DBBackup::CBP_CopyProcess(const char *, const char *, int64, int64, int64, int64)
 {
 	return SPRGRS_CONTINUE;
 }
 
-uint SLAPI DBBackup::GetSpaceSafetyFactor()
+uint DBBackup::GetSpaceSafetyFactor()
 {
 	return SpaceSafetyFactor;
 }
 
-void SLAPI DBBackup::SetSpaceSafetyFactor(uint v)
+void DBBackup::SetSpaceSafetyFactor(uint v)
 {
 	SpaceSafetyFactor = v;
 }
 
-int SLAPI DBBackup::SetDictionary(DbProvider * pDb)
+int DBBackup::SetDictionary(DbProvider * pDb)
 {
 	P_Db = pDb;
 	ZDELETE(InfoF);
@@ -326,17 +326,17 @@ int SLAPI DBBackup::SetDictionary(DbProvider * pDb)
 	return 1;
 }
 
-int SLAPI DBBackup::GetCopySet(BCopySet * pSet)
+int DBBackup::GetCopySet(BCopySet * pSet)
 {
 	return P_Db ? InfoF->ReadSet(pSet) : (DBErrCode = SDBERR_BU_DICTNOPEN, 0);
 }
 
-int SLAPI DBBackup::GetCopyData(long copyID, BCopyData * pData)
+int DBBackup::GetCopyData(long copyID, BCopyData * pData)
 {
 	return P_Db ? InfoF->ReadItem(copyID, pData) : (DBErrCode = SDBERR_BU_DICTNOPEN, 0);
 }
 
-int SLAPI DBBackup::CheckAvailableDiskSpace(const char * pPath, int64 size)
+int DBBackup::CheckAvailableDiskSpace(const char * pPath, int64 size)
 {
 	int64 total, free_space;
 	SFileUtil::GetDiskSpace(pPath, &total, &free_space);
@@ -357,7 +357,7 @@ static void LogMessage(BackupLogFunc fnLog, int recId, const char * pInfo, void 
 		fnLog(recId, pInfo, extraPtr);
 }
 
-int SLAPI DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, void * extraPtr)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -408,7 +408,7 @@ int SLAPI DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, B
 	return ok;
 }
 
-int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 {
 	// DbProvider Implement_Open
 	EXCEPTVAR(DBErrCode);
@@ -525,7 +525,7 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraP
 	return ok;
 }
 
-int SLAPI DBBackup::GetCopyParams(const BCopyData * data, DBBackup::CopyParams * params)
+int DBBackup::GetCopyParams(const BCopyData * data, DBBackup::CopyParams * params)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -559,7 +559,7 @@ int SLAPI DBBackup::GetCopyParams(const BCopyData * data, DBBackup::CopyParams *
 	return ok;
 }
 
-int SLAPI DBBackup::RemoveDatabase(int safe)
+int DBBackup::RemoveDatabase(int safe)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -594,7 +594,7 @@ int SLAPI DBBackup::RemoveDatabase(int safe)
 	return ok;
 }
 
-int SLAPI DBBackup::RestoreRemovedDB(int restoreFiles)
+int DBBackup::RestoreRemovedDB(int restoreFiles)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -631,7 +631,7 @@ int SLAPI DBBackup::RestoreRemovedDB(int restoreFiles)
 
 #define SUBDIR_LINKFILES "LinkFiles" // PPTXT_LNKFILESDIR
 
-int SLAPI DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, void * extraPtr)
 {
 	int    ok = -1;
 	SString buf, src_dir, dest_dir;
@@ -659,7 +659,7 @@ int SLAPI DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath,
 	return ok;
 }
 
-int SLAPI DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr)
 {
 	SString redirect_file;
 	redirect_file.CopyFrom(pDBPath).SetLastSlash().Cat(FILE_REDIRECT);
@@ -695,7 +695,7 @@ int SLAPI DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, vo
 	return 1;
 }
 
-int SLAPI DBBackup::Restore(const BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::Restore(const BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -719,7 +719,7 @@ int SLAPI DBBackup::Restore(const BCopyData * pData, BackupLogFunc fnLog, void *
 	return ok;
 }
 
-int SLAPI DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -749,7 +749,7 @@ int SLAPI DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, voi
 	return ok;
 }
 
-int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
+int DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 {
 	int    ok = 1;
 	SString path, subdir;
@@ -787,7 +787,7 @@ int DBBackup::CopyProgressProc(const SDataMoveProgressInfo * scfd)
 	return dbb->CBP_CopyProcess(scfd->P_Src, scfd->P_Dest, dbb->TotalCopySize, scfd->SizeTotal, dbb->TotalCopyReady + scfd->SizeDone, scfd->SizeDone);
 }
 
-int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::DoCopy(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr)
 {
 	EXCEPTVAR(DBErrCode);
 #ifndef __CONFIG__
@@ -824,7 +824,7 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, v
 	return ok;
 }
 
-int SLAPI DBBackup::DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr)
+int DBBackup::DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr)
 {
 	//EXCEPTVAR(DBErrCode);
 #ifndef __CONFIG__

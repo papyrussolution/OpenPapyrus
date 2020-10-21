@@ -18,7 +18,7 @@
 //
 // PpyInetDataPrcssr
 //
-static void SLAPI SetInetError(HMODULE handle)
+static void SetInetError(HMODULE handle)
 {
 	const  int os_err_code = GetLastError();
 	const  int err_code = PPErrCode;
@@ -43,14 +43,14 @@ static void SLAPI SetInetError(HMODULE handle)
 	}
 }
 
-SLAPI PpyInetDataPrcssr::PpyInetDataPrcssr() : WinInetDLLHandle(0), InetSession(0)
+PpyInetDataPrcssr::PpyInetDataPrcssr() : WinInetDLLHandle(0), InetSession(0)
 {
 #ifdef __WIN32__
 	Uninit();
 #endif // __WIN32__
 }
 
-SLAPI PpyInetDataPrcssr::~PpyInetDataPrcssr()
+PpyInetDataPrcssr::~PpyInetDataPrcssr()
 {
 #ifdef __WIN32__
 	Uninit();
@@ -59,7 +59,7 @@ SLAPI PpyInetDataPrcssr::~PpyInetDataPrcssr()
 
 // @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
 
-int SLAPI PpyInetDataPrcssr::Init()
+int PpyInetDataPrcssr::Init()
 {
 	int    ok = 1;
 	ulong  access_type = 0;
@@ -81,7 +81,7 @@ int SLAPI PpyInetDataPrcssr::Init()
 	return ok;
 }
 
-void SLAPI PpyInetDataPrcssr::Uninit()
+void PpyInetDataPrcssr::Uninit()
 {
 	if(WinInetDLLHandle)
 		FreeLibrary((HMODULE)WinInetDLLHandle);
@@ -103,10 +103,10 @@ typedef TSArray <PPCurrency> CurrencyArray;
 //
 class XTagParser {
 public:
-	SLAPI  XTagParser();
-	SLAPI ~XTagParser();
+	XTagParser();
+	~XTagParser();
 
-	int    SLAPI Run(const char * pFileName);
+	int    Run(const char * pFileName);
 protected:
 	enum {
 		tokEOF = -1,
@@ -115,28 +115,28 @@ protected:
 		tokTag,
 		tokEndTag
 	};
-	virtual int SLAPI ProcessTag(const char * pTag, long) = 0;
+	virtual int ProcessTag(const char * pTag, long) = 0;
 	//
 	// Returns tokXXX
 	//
-	int    SLAPI GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen);
+	int    GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen);
 private:
 	char   FileName[MAXPATH];
 	FILE * P_Stream;
 };
 
-SLAPI XTagParser::XTagParser()
+XTagParser::XTagParser()
 {
 	FileName[0] = 0;
 	P_Stream = 0;
 }
 
-SLAPI XTagParser::~XTagParser()
+XTagParser::~XTagParser()
 {
 	SFile::ZClose(&P_Stream);
 }
 
-int SLAPI XTagParser::GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen)
+int XTagParser::GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen)
 {
 	int tok = tokErr;
 	if(P_Stream) {
@@ -187,7 +187,7 @@ int SLAPI XTagParser::GetToken(const char * pCurTag, char * pTagBuf, size_t bufL
 	return (tok == tokErr) ? (tok, SLibError = SLERR_INVFORMAT) : tok;
 }
 
-int SLAPI XTagParser::Run(const char * pFileName)
+int XTagParser::Run(const char * pFileName)
 {
 	int tok = tokErr;
 	char tag_buf[64];
@@ -214,13 +214,13 @@ int SLAPI XTagParser::Run(const char * pFileName)
 
 class CurrListTagParser : XTagParser {
 public:
-	SLAPI  CurrListTagParser();
-	SLAPI ~CurrListTagParser();
-	int    SLAPI ProcessNext(CurrencyArray * pCurrAry, const char * pPath);
+	CurrListTagParser();
+	~CurrListTagParser();
+	int    ProcessNext(CurrencyArray * pCurrAry, const char * pPath);
 protected:
-	virtual int SLAPI ProcessTag(const char * pTag, long);
+	virtual int ProcessTag(const char * pTag, long);
 private:
-	int    SLAPI SaveTagVal(const char * pTag);
+	int    SaveTagVal(const char * pTag);
 	CurrencyArray CurrAry;
 	PPCurrency CurrItem;
 	PPIDArray ParentTags;
@@ -228,18 +228,18 @@ private:
 	SString TagNamesStr;
 };
 
-SLAPI CurrListTagParser::CurrListTagParser()
+CurrListTagParser::CurrListTagParser()
 {
 	PPLoadText(PPTXT_CURRLISTTAGNAMES, TagNamesStr);
 	MEMSZERO(CurrItem);
 	CurrAry.freeAll();
 }
 
-SLAPI CurrListTagParser::~CurrListTagParser()
+CurrListTagParser::~CurrListTagParser()
 {
 }
 
-int SLAPI CurrListTagParser::ProcessNext(CurrencyArray * pCurrAry, const char * pPath)
+int CurrListTagParser::ProcessNext(CurrencyArray * pCurrAry, const char * pPath)
 {
 	int    r = -1;
 	CurrAry.freeAll();
@@ -247,7 +247,7 @@ int SLAPI CurrListTagParser::ProcessNext(CurrencyArray * pCurrAry, const char * 
 	return ((r = Run(pPath)) > 0 && pCurrAry) ? (pCurrAry->copy(CurrAry), r) : r;
 }
 
-int SLAPI CurrListTagParser::ProcessTag(const char * pTag, long)
+int CurrListTagParser::ProcessTag(const char * pTag, long)
 {
 	int    tok = tokErr;
 	char   tag_buf[64];
@@ -273,7 +273,7 @@ int SLAPI CurrListTagParser::ProcessTag(const char * pTag, long)
 	return tok;
 }
 
-int SLAPI CurrListTagParser::SaveTagVal(const char * pTag)
+int CurrListTagParser::SaveTagVal(const char * pTag)
 {
 	int    ok = 1;
 	int    tag_idx = 0;
@@ -313,7 +313,7 @@ int SLAPI CurrListTagParser::SaveTagVal(const char * pTag)
 	return ok ? ok : (SLibError = SLERR_INVFORMAT, ok);
 }
 
-int SLAPI PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_ta)
+int PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_ta)
 {
 	int    ok = 1;
 	char   filename[MAXFILE], url[256];
@@ -362,7 +362,7 @@ int SLAPI PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_t
 	return ok;
 }
 
-int SLAPI PpyInetDataPrcssr::DownloadData(const char * pURL, const char * pPath)
+int PpyInetDataPrcssr::DownloadData(const char * pURL, const char * pPath)
 {
 	int    ok = -1;
 	char   buf[512];
@@ -393,7 +393,7 @@ int SLAPI PpyInetDataPrcssr::DownloadData(const char * pURL, const char * pPath)
 }
 #endif // } @v9.7.10 @obsolete 
 
-void SLAPI PpyInetDataPrcssr::SetInetError()
+void PpyInetDataPrcssr::SetInetError()
 {
 	::SetInetError((HMODULE)WinInetDLLHandle);
 }
@@ -484,7 +484,7 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 		port = temp_buf.ToLong();
 	Account.GetExtField(FTPAEXSTR_USER, user);
 	Account.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
-	// @v9.9.6 int SLAPI PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
+	// @v9.9.6 int PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
 	// @v9.9.6 {
 	{
 		SString pw_buf;
@@ -577,7 +577,7 @@ int WinInetFTP::CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPat
 	return ok;
 }
 
-static int SLAPI FtpReInit(WinInetFTP * pFtp, PPLogger * pLog)
+static int FtpReInit(WinInetFTP * pFtp, PPLogger * pLog)
 {
 	int ok = 0;
 	if(pFtp) {
@@ -1042,7 +1042,7 @@ int WinInetFTP::CreateDir(const char * pDir)
 
 // @v8.6.1 #endif // __WIN32__
 
-/*static*/int SLAPI PpyInetDataPrcssr::EditCfg()
+/*static*/int PpyInetDataPrcssr::EditCfg()
 {
 	class InetConnConfigDialog : public TDialog {
 		DECL_DIALOG_DATA(PPInetConnConfig);
@@ -1112,7 +1112,7 @@ int WinInetFTP::CreateDir(const char * pDir)
 	return ok;
 }
 
-/*static*/int SLAPI PpyInetDataPrcssr::GetCfg(PPInetConnConfig * pCfg)
+/*static*/int PpyInetDataPrcssr::GetCfg(PPInetConnConfig * pCfg)
 {
 	PPInetConnConfig cfg;
 	int    ok = PPRef->GetPropMainConfig(PPPRP_INETCONNCFG, &cfg, sizeof(cfg));
@@ -1122,7 +1122,7 @@ int WinInetFTP::CreateDir(const char * pDir)
 	return ok;
 }
 
-/*static*/int SLAPI PpyInetDataPrcssr::PutCfg(const PPInetConnConfig * pCfg, int use_ta)
+/*static*/int PpyInetDataPrcssr::PutCfg(const PPInetConnConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1144,7 +1144,7 @@ int WinInetFTP::CreateDir(const char * pDir)
 //
 //
 //
-/* @v9.7.10 @obsolete int SLAPI ImportCurrencyList()
+/* @v9.7.10 @obsolete int ImportCurrencyList()
 {
 	int    ok = -1;
 	ulong  accepted_rows = 0;

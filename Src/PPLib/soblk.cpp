@@ -504,16 +504,16 @@ SelectObjectBlock::DistribCCheck::Line::Line()
 	THISZERO();
 }
 
-SLAPI SelectObjectBlock::DistribCCheck::DistribCCheck() : P_CsObj(0)
+SelectObjectBlock::DistribCCheck::DistribCCheck() : P_CsObj(0)
 {
 }
 
-SLAPI SelectObjectBlock::DistribCCheck::~DistribCCheck()
+SelectObjectBlock::DistribCCheck::~DistribCCheck()
 {
 	delete P_CsObj;
 }
 
-int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
+int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 {
 	int    ok = 1;
 	PPID   cc_id = 0;
@@ -609,13 +609,13 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 	return ok;
 }
 
-int SLAPI SelectObjectBlock::DistribCCheck::AddLine(PPID ccID, const Line & rLn)
+int SelectObjectBlock::DistribCCheck::AddLine(PPID ccID, const Line & rLn)
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI SelectObjectBlock::DistribCCheck::Finish(PPID ccID, PPID * pNewCcID)
+int SelectObjectBlock::DistribCCheck::Finish(PPID ccID, PPID * pNewCcID)
 {
 	int    ok = 1;
 	PPID   cc_id = 0;
@@ -922,7 +922,7 @@ GETOBJATTACHMENTINFO
 	ID
 
 */
-static int SLAPI FASTCALL Helper_ProcessTddo(long dataId, void * pAry, const char * pDataName, const SString & rOutTemplate, PPJobSrvReply & rResult)
+static int FASTCALL Helper_ProcessTddo(long dataId, void * pAry, const char * pDataName, const SString & rOutTemplate, PPJobSrvReply & rResult)
 {
 	int       ok = 1;
 	SString   temp_buf, txt_buf, file_name;

@@ -67,10 +67,10 @@ public:
 	static const char * GetClsName() { return "LuaModule"; }
 	static const Luna <PPLuaModule>::RegType LuaRegTab[];
 	//
-	SLAPI  PPLuaModule (lua_State * pL)
+	PPLuaModule (lua_State * pL)
 	{
 	}
-	SLAPI ~PPLuaModule ()
+	~PPLuaModule ()
 	{
 	}
 	int Version(lua_State * pL)
@@ -97,12 +97,12 @@ local pm = LuaModule()\nreturn pm:Version()\n
 
 #endif // } test lua script
 
-/*int SLAPI RegisterLuaModules()
+/*int RegisterLuaModules()
 {
 	Luna <LuaModule>::Register(L);
 }*/
 
-int SLAPI ExecuteLuaScript(const char * pScriptText)
+int ExecuteLuaScript(const char * pScriptText)
 {
 	int    ok = 1;
 	SString result_buf;
@@ -123,7 +123,7 @@ int SLAPI ExecuteLuaScript(const char * pScriptText)
 	return ok;
 }
 
-int SLAPI LuaTest()
+int LuaTest()
 {
 	int    ok = 1;
 	const char * p_lua_script = "local pm = LuaModule()\nreturn pm:Version()\n";
@@ -137,7 +137,7 @@ static const struct luaL_Reg PapyrusLib[] = {
 	{ NULL, NULL }
 };
 
-int SLAPI ExecuteLuaScriptFile(const char * pFileName)
+int ExecuteLuaScriptFile(const char * pFileName)
 {
 	int    ok = 1;
     lua_State * p_ctx = luaL_newstate();

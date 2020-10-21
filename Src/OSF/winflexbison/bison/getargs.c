@@ -21,7 +21,7 @@
 #include "bison.h"
 #pragma hdrstop
 //#include "getargs.h"
-#include <argmatch.h>
+//#include <argmatch.h>
 #include <c-strcase.h>
 //#include <configmake.h>
 //#include <error.h>
@@ -63,7 +63,7 @@ const char * skeleton = NULL;
 int language_prio = default_prio;
 struct bison_language const * language = &valid_languages[0];
 
-typedef int* (xargmatch_fn) (const char * context, const char * arg);
+typedef int * (xargmatch_fn)(const char * context, const char * arg);
 
 /** Decode an option's key.
  *

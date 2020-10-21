@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI DeleteTmpFilesParam::DeleteTmpFilesParam() : Flags(0), InDays(0), OutDays(0)
+DeleteTmpFilesParam::DeleteTmpFilesParam() : Flags(0), InDays(0), OutDays(0)
 {
 }
 
@@ -21,7 +21,7 @@ static void FASTCALL RemoveTempDataFiles(PPID pathID)
 	}
 }
 
-static void SLAPI _RemoveTempFiles(PPID pathID, const char * pExt, const char * pFilePart/* = 0*/)
+static void _RemoveTempFiles(PPID pathID, const char * pExt, const char * pFilePart/* = 0*/)
 {
 	SString src_path, src_file_name;
 	if(PPGetPath(pathID, src_path) > 0) {
@@ -50,7 +50,7 @@ static void FASTCALL RemoveInOutFiles(long diff_dt, PPID pathID)
 			SFile::Remove((src_file_name = src_path).Cat(sde.FileName));
 }
 
-int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
+int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 {
 	int    ok = 1;
 	SString _temp_path;
@@ -163,7 +163,7 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 	return ok;
 }
 
-int SLAPI DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
+int DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 {
 	class DeleteTmpFilesDialog : public TDialog {
 	public:
@@ -234,7 +234,7 @@ int SLAPI DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 	DIALOG_PROC_BODYERR(DeleteTmpFilesDialog, pParam);
 }
 
-int SLAPI DeleteTmpFiles()
+int DeleteTmpFiles()
 {
 	int    ok = -1;
 	DeleteTmpFilesParam param;

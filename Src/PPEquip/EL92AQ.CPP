@@ -8,13 +8,13 @@
 
 class ACS_EL92AQ : public CS_1 {
 public:
-	SLAPI  ACS_EL92AQ(PPID n);
-	virtual int SLAPI ExportData(int);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
+	ACS_EL92AQ(PPID n);
+	virtual int ExportData(int);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
 private:
-	int    SLAPI ConvertCashList(int);
-	int    SLAPI ConvertWareList(int);
+	int    ConvertCashList(int);
+	int    ConvertWareList(int);
 
 	int    Amounts100;
 	enum {
@@ -24,7 +24,7 @@ private:
 	};
 };
 
-SLAPI ACS_EL92AQ::ACS_EL92AQ(PPID n) : CS_1(n)
+ACS_EL92AQ::ACS_EL92AQ(PPID n) : CS_1(n)
 {
 	PPCashNode node;
 	if(SearchObject(PPOBJ_CASHNODE, NodeID, &node) > 0)
@@ -38,13 +38,13 @@ SLAPI ACS_EL92AQ::ACS_EL92AQ(PPID n) : CS_1(n)
 
 class CM_EL92AQ : public PPCashMachine {
 public:
-	SLAPI CM_EL92AQ(PPID cashID) : PPCashMachine(cashID) {}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_EL92AQ(NodeID); }
+	CM_EL92AQ(PPID cashID) : PPCashMachine(cashID) {}
+	PPAsyncCashSession * AsyncInterface() { return new ACS_EL92AQ(NodeID); }
 };
 
 REGISTER_CMT(EL92AQ,0,1);
 
-int SLAPI ACS_EL92AQ::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_EL92AQ::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int r = GetFileSet(0, 3);
 	*pSessCount = r ? NumEntries : 0;
@@ -52,7 +52,7 @@ int SLAPI ACS_EL92AQ::GetSessionData(int * pSessCount, int * pIsForwardSess, Dat
 	return r;
 }
 
-int SLAPI TranslateStringToDbfFields(DbfTable * pTbl, uint strID, int * pFldIdxList, int fldIdxListLen)
+int TranslateStringToDbfFields(DbfTable * pTbl, uint strID, int * pFldIdxList, int fldIdxListLen)
 {
 	int    i = 0, valid_count = 0;
 	SString temp_buf, sub;
@@ -72,7 +72,7 @@ int SLAPI TranslateStringToDbfFields(DbfTable * pTbl, uint strID, int * pFldIdxL
 		return 0;
 }
 
-int SLAPI ACS_EL92AQ::ConvertCashList(int num)
+int ACS_EL92AQ::ConvertCashList(int num)
 {
 	int         ok = 1, ta = 0;
 	DbfTable  * dbft = 0;
@@ -122,7 +122,7 @@ int SLAPI ACS_EL92AQ::ConvertCashList(int num)
 	return ok;
 }
 
-int SLAPI ACS_EL92AQ::ConvertWareList(int num)
+int ACS_EL92AQ::ConvertWareList(int num)
 {
 	int    ok = 1, ta = 0, r;
 	int    fld_idx_list[32];
@@ -197,7 +197,7 @@ int SLAPI ACS_EL92AQ::ConvertWareList(int num)
 	return ok;
 }
 
-int SLAPI ACS_EL92AQ::ImportSession(int num)
+int ACS_EL92AQ::ImportSession(int num)
 {
 	int    ok = 1;
 	THROW(CreateTables());
@@ -207,7 +207,7 @@ int SLAPI ACS_EL92AQ::ImportSession(int num)
 	return ok;
 }
 
-int SLAPI ACS_EL92AQ::ExportData(int)
+int ACS_EL92AQ::ExportData(int)
 {
 	int    ok = 1;
 	DbfTable * p_out_tbl = 0;

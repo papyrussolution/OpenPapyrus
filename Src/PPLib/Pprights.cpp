@@ -7,11 +7,11 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI ObjRights::ObjRights(PPID objType) : ObjType(objType), Size(sizeof(ObjRights)), Flags(PPRights::GetDefaultFlags()), OprFlags(PPRights::GetDefaultOprFlags())
+ObjRights::ObjRights(PPID objType) : ObjType(objType), Size(sizeof(ObjRights)), Flags(PPRights::GetDefaultFlags()), OprFlags(PPRights::GetDefaultOprFlags())
 {
 }
 
-/*static*/ObjRights * SLAPI ObjRights::Create(PPID objType, size_t totalSize)
+/*static*/ObjRights * ObjRights::Create(PPID objType, size_t totalSize)
 {
 	const size_t total_size = MAX(totalSize, sizeof(ObjRights));
 	ObjRights * ptr = reinterpret_cast<ObjRights *>(::new uint8[total_size]);
@@ -975,7 +975,7 @@ void RightsDialog::editQuotKindList()
 //
 //
 //
-int SLAPI EditRightsDialog(PPRights & rights)
+int EditRightsDialog(PPRights & rights)
 {
 	int    r = cmCancel;
 	RightsDialog * dlg = new RightsDialog;
@@ -992,23 +992,23 @@ int SLAPI EditRightsDialog(PPRights & rights)
 //
 class SecurCollection : public SCollection {
 public:
-	explicit SLAPI  SecurCollection(/*uint aDelta = DEFCOLLECTDELTA,*/uint o = O_COLLECTION) : SCollection(/*aDelta,*/o)
+	explicit SecurCollection(/*uint aDelta = DEFCOLLECTDELTA,*/uint o = O_COLLECTION) : SCollection(/*aDelta,*/o)
 	{
 	}
-	SLAPI  SecurCollection(const SecurCollection & src) : SCollection(src)
+	SecurCollection(const SecurCollection & src) : SCollection(src)
 	{
 	}
-	SLAPI ~SecurCollection()
+	~SecurCollection()
 	{
 		while(getCount())
 			atFree(0);
 	}
-	int    SLAPI copy(const SecurCollection & aSrc);
-	PPSecurPacket * SLAPI at(uint pos) const { return static_cast<PPSecurPacket *>(SCollection::at(pos)); }
+	int    copy(const SecurCollection & aSrc);
+	PPSecurPacket * at(uint pos) const { return static_cast<PPSecurPacket *>(SCollection::at(pos)); }
 	virtual void FASTCALL freeItem(void * item) { if(item) delete static_cast<PPSecurPacket *>(item); }
 };
 
-int SLAPI SecurCollection::copy(const SecurCollection & aSrc)
+int SecurCollection::copy(const SecurCollection & aSrc)
 {
 	int    ok = 1;
 	PPSecurPacket * p_pack = 0;
@@ -1032,19 +1032,19 @@ int SLAPI SecurCollection::copy(const SecurCollection & aSrc)
 //
 //   PPAccessRestriction
 //
-SLAPI PPAccessRestriction::PPAccessRestriction() : TimeBeg(ZEROTIME), TimeEnd(ZEROTIME), WeekDays(0), PwMinLen(0), PwPeriod(0), AccessLevel(0), CFlags(0), OnlyGoodsGrpID(0),
+PPAccessRestriction::PPAccessRestriction() : TimeBeg(ZEROTIME), TimeEnd(ZEROTIME), WeekDays(0), PwMinLen(0), PwPeriod(0), AccessLevel(0), CFlags(0), OnlyGoodsGrpID(0),
 	ShowInnerDates(0)
 {
 	RBillPeriod.Z();
 	WBillPeriod.Z();
 }
 
-void SLAPI PPAccessRestriction::SetSaveMode(int saveData)
+void PPAccessRestriction::SetSaveMode(int saveData)
 {
 	ShowInnerDates = saveData;
 }
 
-int SLAPI PPAccessRestriction::GetRBillPeriod(DateRange * pPeriod) const
+int PPAccessRestriction::GetRBillPeriod(DateRange * pPeriod) const
 {
 	DateRange  period = RBillPeriod;
 	if(!ShowInnerDates) {
@@ -1054,7 +1054,7 @@ int SLAPI PPAccessRestriction::GetRBillPeriod(DateRange * pPeriod) const
 	return pPeriod ? 1 : -1;
 }
 
-int SLAPI PPAccessRestriction::GetWBillPeriod(DateRange * pPeriod) const
+int PPAccessRestriction::GetWBillPeriod(DateRange * pPeriod) const
 {
 	DateRange  period = WBillPeriod;
 	if(!ShowInnerDates) {
@@ -1064,7 +1064,7 @@ int SLAPI PPAccessRestriction::GetWBillPeriod(DateRange * pPeriod) const
 	return pPeriod ? 1 : -1;
 }
 
-int SLAPI PPAccessRestriction::SetBillPeriod(const DateRange * pPeriod, int setROrW)
+int PPAccessRestriction::SetBillPeriod(const DateRange * pPeriod, int setROrW)
 {
 	int    ok = -1;
 	if(pPeriod && oneof2(setROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW)) {
@@ -1077,7 +1077,7 @@ int SLAPI PPAccessRestriction::SetBillPeriod(const DateRange * pPeriod, int setR
 	return ok;
 }
 
-int SLAPI ParseBound(const char * pBuf, long * pVal)
+int ParseBound(const char * pBuf, long * pVal)
 {
 	int    ok = 1;
 	char   buf[64];
@@ -1119,7 +1119,7 @@ int SLAPI ParseBound(const char * pBuf, long * pVal)
 	return ok;
 }
 
-int SLAPI PPAccessRestriction::GetPeriodInputExt(TDialog * pDlg, uint ctrlID, int setROrW)
+int PPAccessRestriction::GetPeriodInputExt(TDialog * pDlg, uint ctrlID, int setROrW)
 {
 	int    ok = -1;
 	assert(oneof2(setROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW));
@@ -1137,7 +1137,7 @@ int SLAPI PPAccessRestriction::GetPeriodInputExt(TDialog * pDlg, uint ctrlID, in
 	return ok;
 }
 
-int SLAPI PPAccessRestriction::SetPeriodInputExt(TDialog * pDlg, uint ctrlID, int getROrW) const
+int PPAccessRestriction::SetPeriodInputExt(TDialog * pDlg, uint ctrlID, int getROrW) const
 {
 	int    ok = -1;
 	assert(oneof2(getROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW));
@@ -1149,7 +1149,7 @@ int SLAPI PPAccessRestriction::SetPeriodInputExt(TDialog * pDlg, uint ctrlID, in
 	return ok;
 }
 
-int SLAPI PPAccessRestriction::GetOwnBillRestrict() const
+int PPAccessRestriction::GetOwnBillRestrict() const
 {
 	const long mask = (cfOwnBillRestr | cfOwnBillRestr2);
 	if((CFlags & mask) == cfOwnBillRestr)
@@ -1662,7 +1662,7 @@ int SaveGrpUsrRights(SecurCollection * pRights)
 	return ok;
 }
 
-int SLAPI FastEditRightsDialog()
+int FastEditRightsDialog()
 {
 	int    ok = -1;
 	int    valid_data = 0, read_only = 0;

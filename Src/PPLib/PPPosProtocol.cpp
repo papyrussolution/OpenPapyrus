@@ -81,7 +81,7 @@ destination:
 */
 class ACS_PAPYRUS_APN : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_PAPYRUS_APN(PPID n, PPID parent) : PPAsyncCashSession(n), ParentNodeID(parent), P_Pib(0), StatID(0)
+	ACS_PAPYRUS_APN(PPID n, PPID parent) : PPAsyncCashSession(n), ParentNodeID(parent), P_Pib(0), StatID(0)
 	{
 		if(GetNodeData(&Acn) > 0) {
 			Acn.GetLogNumList(LogNumList);
@@ -89,12 +89,12 @@ public:
 			ImpPath = Acn.ImpFiles;
 		}
 	}
-	SLAPI ~ACS_PAPYRUS_APN()
+	~ACS_PAPYRUS_APN()
 	{
 		delete P_Pib;
 	}
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0)
+	virtual int ExportData(int updOnly);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0)
 	{
 		int    ok = -1;
 		int    is_forward = 0;
@@ -119,13 +119,13 @@ public:
 		ASSIGN_PTR(pIsForwardSess, is_forward);
 		return ok;
 	}
-	virtual int SLAPI ImportSession(int sessN);
-	virtual int SLAPI FinishImportSession(PPIDArray * pList)
+	virtual int ImportSession(int sessN);
+	virtual int FinishImportSession(PPIDArray * pList)
 	{
 		Pp.DestroyReadBlock();
 		return 1;
 	}
-	virtual int SLAPI InteractiveQuery()
+	virtual int InteractiveQuery()
 	{
 		int    ok = -1;
 		TSVector <PPPosProtocol::QueryBlock> qb_list; // @v9.8.4 TSArray-->TSVector
@@ -150,7 +150,7 @@ private:
 	PPPosProtocol::ProcessInputBlock * P_Pib;
 };
 
-int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
+int ACS_PAPYRUS_APN::ImportSession(int sessN)
 {
 	int    ok = -1;
     int    local_n = 0;
@@ -330,10 +330,10 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
 
 class CM_PAPYRUS : public PPCashMachine {
 public:
-	explicit SLAPI CM_PAPYRUS(PPID posNodeID) : PPCashMachine(posNodeID)
+	explicit CM_PAPYRUS(PPID posNodeID) : PPCashMachine(posNodeID)
 	{
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface()
+	PPAsyncCashSession * AsyncInterface()
 	{
 		return new ACS_PAPYRUS_APN(NodeID, ParentNodeID);
 	}
@@ -341,12 +341,12 @@ public:
 
 REGISTER_CMT(PAPYRUS,0,1);
 
-/*virtual*/int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
+/*virtual*/int ACS_PAPYRUS_APN::ExportData(int updOnly)
 {
 	return Pp.ExportDataForPosNode(NodeID, updOnly, SinceDlsID);
 }
 
-int SLAPI PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & rInfo)
+int PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & rInfo)
 {
 	int    ok = 1;
 	PPCashNode cn_rec;
@@ -381,7 +381,7 @@ int SLAPI PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlo
 	return ok;
 }
 
-int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlock & rQ)
+int PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlock & rQ)
 {
 	int    ok = 1;
 	//StringSet ss_out_files;
@@ -481,7 +481,7 @@ int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlo
 	return ok;
 }
 
-int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsID)
+int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsID)
 {
 	int    ok = 1;
 	PPIDArray qk_list; // Список идентификаторов видов котировок, которые должны выгружаться
@@ -746,7 +746,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 	return ok;
 }
 
-int SLAPI PPPosProtocol::PreprocessFtpDescriptor(const SString & rDescriptor, PPID posNodeID, PPInternetAccount & rInaRec, SString & rFtpExtPath)
+int PPPosProtocol::PreprocessFtpDescriptor(const SString & rDescriptor, PPID posNodeID, PPInternetAccount & rInaRec, SString & rFtpExtPath)
 {
 	rInaRec.Init();
 	rFtpExtPath.Z();
@@ -789,7 +789,7 @@ int SLAPI PPPosProtocol::PreprocessFtpDescriptor(const SString & rDescriptor, PP
 	return ok;
 }
 
-int SLAPI PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix)
+int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix)
 {
 	int   ok = 1;
 	THROW_SL(fileExists(rOutFileName));
@@ -797,7 +797,7 @@ int SLAPI PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID src
 		int   copy_result = 0;
 		//StringSet ss_out_files;
 		//THROW(SelectOutFileName(srcPosNodeID, pInfix, ss_out_files));
-		//int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
+		//int PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
 		{
 			enum {
 				desttypeUnkn = 0,
@@ -922,12 +922,12 @@ int SLAPI PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID src
 //
 //
 //
-SLAPI PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0), P_Acgi(0), FileDtm(ZERODATETIME)
+PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0), P_Acgi(0), FileDtm(ZERODATETIME)
 {
 	FileUUID.Generate();
 }
 
-SLAPI PPPosProtocol::WriteBlock::~WriteBlock()
+PPPosProtocol::WriteBlock::~WriteBlock()
 {
 	Destroy();
 }
@@ -942,11 +942,11 @@ void PPPosProtocol::WriteBlock::Destroy()
 	UsedQkList.freeAll();
 }
 
-SLAPI PPPosProtocol::RouteBlock::RouteBlock()
+PPPosProtocol::RouteBlock::RouteBlock()
 {
 }
 
-void SLAPI PPPosProtocol::RouteBlock::Destroy()
+void PPPosProtocol::RouteBlock::Destroy()
 {
 	Uuid.Z();
 	System.Z();
@@ -954,7 +954,7 @@ void SLAPI PPPosProtocol::RouteBlock::Destroy()
 	Code.Z();
 }
 
-int SLAPI PPPosProtocol::RouteBlock::IsEmpty() const
+int PPPosProtocol::RouteBlock::IsEmpty() const
 {
 	return BIN(Uuid.IsZero() && System.Empty() && Version.Empty() && Code.Empty());
 }
@@ -975,55 +975,55 @@ int FASTCALL PPPosProtocol::RouteBlock::IsEqual(const RouteBlock & rS) const
 //
 //
 //
-SLAPI PPPosProtocol::ObjectBlock::ObjectBlock() : Flags_(0), ID(0), NativeID(0), NameP(0)
+PPPosProtocol::ObjectBlock::ObjectBlock() : Flags_(0), ID(0), NativeID(0), NameP(0)
 {
 }
 
-SLAPI PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock(), CodeP(0), CodeI(0)
+PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock(), CodeP(0), CodeI(0)
 {
 }
 
-SLAPI PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock(), CodeP(0), Rank(0), Reserve(0)
+PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock(), CodeP(0), Rank(0), Reserve(0)
 {
     Period.Z();
 	TimeRestriction.SetZero();
 	AmountRestriction.Z();
 }
 
-SLAPI PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock(), CodeP(0), SymbP(0), PhUnitBlkP(0), UnitFlags(0), BaseId(0), BaseRatio(0.0), PhRatio(0.0)
+PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock(), CodeP(0), SymbP(0), PhUnitBlkP(0), UnitFlags(0), BaseId(0), BaseRatio(0.0), PhRatio(0.0)
 {
 }
 
-SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() :
+PPPosProtocol::GoodsBlock::GoodsBlock() :
 	ObjectBlock(), ParentBlkP(0), InnerId(0),  GoodsFlags(0), SpecialFlags(0), UnitBlkP(0),
 	PhUnitBlkP(0),  PhUPerU(0.0), Price(0.0), Rest(0.0), AlcoProof(0), VatRate(0), SalesTaxRate(0),
 	TaxGrpID(0), GoodsTypeID(0), AlcoRuCatP(0), ChZnProdType(0)
 {
 }
 
-SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock(), CodeP(0), ParentBlkP(0)
+PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock(), CodeP(0), ParentBlkP(0)
 	{}
-SLAPI PPPosProtocol::LotBlock::LotBlock() : ObjectBlock(), GoodsBlkP(0), Dt(ZERODATE), Expiry(ZERODATE), Cost(0.0), Price(0.0), Rest(0.0), SerialP(0)
+PPPosProtocol::LotBlock::LotBlock() : ObjectBlock(), GoodsBlkP(0), Dt(ZERODATE), Expiry(ZERODATE), Cost(0.0), Price(0.0), Rest(0.0), SerialP(0)
 	{}
-SLAPI PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock(), CodeP(0)
+PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock(), CodeP(0)
 	{}
-SLAPI PPPosProtocol::SCardSeriesBlock::SCardSeriesBlock() : ObjectBlock(), RefP(0), CodeP(0), QuotKindBlkP(0)
+PPPosProtocol::SCardSeriesBlock::SCardSeriesBlock() : ObjectBlock(), RefP(0), CodeP(0), QuotKindBlkP(0)
 	{}
-SLAPI PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock(), CodeP(0), OwnerBlkP(0), SeriesBlkP(0), Discount(0.0)
+PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock(), CodeP(0), OwnerBlkP(0), SeriesBlkP(0), Discount(0.0)
 	{}
-SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock(), /*ID(0),*/ Code(0), PosBlkP(0), Dtm(ZERODATETIME)
+PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock(), /*ID(0),*/ Code(0), PosBlkP(0), Dtm(ZERODATETIME)
 	{}
-SLAPI PPPosProtocol::AddressBlock::AddressBlock() : ObjectBlock(), CCheckBlkP(0), CityP(0), ZipP(0), TextP(0), PhoneP(0), EMailP(0), ContactP(0)
+PPPosProtocol::AddressBlock::AddressBlock() : ObjectBlock(), CCheckBlkP(0), CityP(0), ZipP(0), TextP(0), PhoneP(0), EMailP(0), ContactP(0)
 	{}
-SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlags(0), SaCcFlags(0), CTableN(0), GuestCount(0), CSessionBlkP(0),
+PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlags(0), SaCcFlags(0), CTableN(0), GuestCount(0), CSessionBlkP(0),
 	AddrBlkP(0), AgentBlkP(0), Amount(0.0), Discount(0.0), Dtm(ZERODATETIME), CreationDtm(ZERODATETIME), SCardBlkP(0), MemoP(0)
 	{}
-SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock(), CcID(0), RByCheck(0), CclFlags(0), DivN(0), Queue(0), GoodsBlkP(0),
+PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock(), CcID(0), RByCheck(0), CclFlags(0), DivN(0), Queue(0), GoodsBlkP(0),
 	Qtty(0.0), Price(0.0), Discount(0.0), SumDiscount(0.0), Amount(0.0), CCheckBlkP(0), SerialP(0), EgaisMarkP(0), ChZnMarkP(0), RemoteProcessingTaP(0)
 	{}
-SLAPI PPPosProtocol::CcPaymentBlock::CcPaymentBlock() : CcID(0), PaymType(0), Amount(0.0), SCardBlkP(0)
+PPPosProtocol::CcPaymentBlock::CcPaymentBlock() : CcID(0), PaymType(0), Amount(0.0), SCardBlkP(0)
 	{}
-SLAPI PPPosProtocol::QueryBlock::QueryBlock()
+PPPosProtocol::QueryBlock::QueryBlock()
 	{ Init(qUnkn); }
 
 void FASTCALL PPPosProtocol::QueryBlock::Init(int q)
@@ -1032,53 +1032,53 @@ void FASTCALL PPPosProtocol::QueryBlock::Init(int q)
 	Q = oneof3(q, qTest, qCSession, qRefs) ? q : qUnkn;
 }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionLast()
+void PPPosProtocol::QueryBlock::SetQueryCSessionLast()
 {
 	Init(qCSession);
 	Flags = fCSessLast;
 }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionCurrent()
+void PPPosProtocol::QueryBlock::SetQueryCSessionCurrent()
 {
 	Init(qCSession);
 	Flags = fCSessCurrent;
 }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionByID(PPID sessID)
+void PPPosProtocol::QueryBlock::SetQueryCSessionByID(PPID sessID)
 {
 	Init(qCSession);
 	CSess = sessID;
 }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionByNo(long sessN)
+void PPPosProtocol::QueryBlock::SetQueryCSessionByNo(long sessN)
 {
 	Init(qCSession);
 	Flags = fCSessN;
 	CSess = sessN;
 }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryCSessionByDate(const DateRange & rPeriod)
+void PPPosProtocol::QueryBlock::SetQueryCSessionByDate(const DateRange & rPeriod)
 {
 	Init(qCSession);
 	Period = rPeriod;
 }
 
-void SLAPI PPPosProtocol::QueryBlock::SetQueryRefs() { Init(qRefs); }
-void SLAPI PPPosProtocol::QueryBlock::SetQueryTest() { Init(qTest); }
+void PPPosProtocol::QueryBlock::SetQueryRefs() { Init(qRefs); }
+void PPPosProtocol::QueryBlock::SetQueryTest() { Init(qTest); }
 
-SLAPI PPPosProtocol::QuotBlock::QuotBlock() { THISZERO(); }
-SLAPI PPPosProtocol::ParentBlock::ParentBlock() { THISZERO(); }
-SLAPI PPPosProtocol::GoodsCode::GoodsCode() { THISZERO(); }
+PPPosProtocol::QuotBlock::QuotBlock() { THISZERO(); }
+PPPosProtocol::ParentBlock::ParentBlock() { THISZERO(); }
+PPPosProtocol::GoodsCode::GoodsCode() { THISZERO(); }
 
-SLAPI PPPosProtocol::RouteObjectBlock::RouteObjectBlock() : ObjectBlock(), Direction(0), SystemP(0), VersionP(0), CodeP(0)
+PPPosProtocol::RouteObjectBlock::RouteObjectBlock() : ObjectBlock(), Direction(0), SystemP(0), VersionP(0), CodeP(0)
 {
 }
 
-SLAPI PPPosProtocol::ObjBlockRef::ObjBlockRef(int t, uint pos) : Type(t), P(pos)
+PPPosProtocol::ObjBlockRef::ObjBlockRef(int t, uint pos) : Type(t), P(pos)
 {
 }
 
-int SLAPI PPPosProtocol::ReadBlock::Implement_CreateItem(SVector & rList, const void * pNewBlk, int type, uint * pRefPos)
+int PPPosProtocol::ReadBlock::Implement_CreateItem(SVector & rList, const void * pNewBlk, int type, uint * pRefPos)
 {
 	int    ok = 1;
 	ObjBlockRef ref(type, rList.getCount());
@@ -1089,7 +1089,7 @@ int SLAPI PPPosProtocol::ReadBlock::Implement_CreateItem(SVector & rList, const 
 	return ok;
 }
 
-int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
+int  PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 {
 	int    ok = 1;
 	switch(type) {
@@ -1155,7 +1155,7 @@ PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosPr
 	return *this;
 }
 
-int SLAPI PPPosProtocol::ReadBlock::GetRouteItem(const RouteObjectBlock & rO, RouteBlock & rR) const
+int PPPosProtocol::ReadBlock::GetRouteItem(const RouteObjectBlock & rO, RouteBlock & rR) const
 {
 	int    ok = 1;
 	rR.Destroy();
@@ -1166,12 +1166,12 @@ int SLAPI PPPosProtocol::ReadBlock::GetRouteItem(const RouteObjectBlock & rO, Ro
 	return ok;
 }
 
-int SLAPI PPPosProtocol::ReadBlock::IsTagValueBoolTrue() const
+int PPPosProtocol::ReadBlock::IsTagValueBoolTrue() const
 {
 	return (TagValue.Empty() || TagValue.IsEqiAscii("true") || TagValue.IsEqiAscii("yes") || TagValue == "1");
 }
 
-void * SLAPI PPPosProtocol::ReadBlock::GetItemWithTest(uint refPos, int type) const
+void * PPPosProtocol::ReadBlock::GetItemWithTest(uint refPos, int type) const
 {
 	int    test_type = 0;
 	void * p_item = GetItem(refPos, &test_type);
@@ -1179,7 +1179,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItemWithTest(uint refPos, int type) co
 	return p_item;
 }
 
-void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
+void * PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 {
 	void * p_ret = 0;
 	int    type = 0;
@@ -1222,12 +1222,12 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 
 IMPL_CMPCFUNC(ObjBlockRef_, p1, p2) { RET_CMPCASCADE2((const PPPosProtocol::ObjBlockRef *)p1, (const PPPosProtocol::ObjBlockRef *)p2, Type, P); }
 
-/*void SLAPI PPPosProtocol::ReadBlock::SortRefList()
+/*void PPPosProtocol::ReadBlock::SortRefList()
 {
 	RefList.sort(PTR_CMPCFUNC(ObjBlockRef_));
 }*/
 
-int SLAPI PPPosProtocol::ReadBlock::SearchRef(int type, uint pos, uint * pRefPos) const
+int PPPosProtocol::ReadBlock::SearchRef(int type, uint pos, uint * pRefPos) const
 {
 	int    ok = 0;
 	const  uint _c = RefList.getCount();
@@ -1256,7 +1256,7 @@ struct PPPP_SearchAnalogResult {
 	uint   RefPos;
 };
 
-int SLAPI PPPosProtocol::ReadBlock::SearchAnalogRef_SCardSeries(const PPPosProtocol::SCardSeriesBlock & rBlk, uint exclPos, uint * pRefPos) const
+int PPPosProtocol::ReadBlock::SearchAnalogRef_SCardSeries(const PPPosProtocol::SCardSeriesBlock & rBlk, uint exclPos, uint * pRefPos) const
 {
 	PPPP_SearchAnalogResult result;
 	if(rBlk.Flags_ & rBlk.fRefItem) {
@@ -1293,7 +1293,7 @@ int SLAPI PPPosProtocol::ReadBlock::SearchAnalogRef_SCardSeries(const PPPosProto
 	return result.Ok;
 }
 
-int SLAPI PPPosProtocol::ReadBlock::SearchAnalogRef_QuotKind(const PPPosProtocol::QuotKindBlock & rBlk, uint exclPos, uint * pRefPos) const
+int PPPosProtocol::ReadBlock::SearchAnalogRef_QuotKind(const PPPosProtocol::QuotKindBlock & rBlk, uint exclPos, uint * pRefPos) const
 {
 	PPPP_SearchAnalogResult result;
 	if(rBlk.Flags_ & rBlk.fRefItem) {
@@ -1361,22 +1361,22 @@ const PPPosProtocol::PersonBlock * FASTCALL PPPosProtocol::ReadBlock::SearchAnal
 	return p_ret;
 }
 
-SLAPI PPPosProtocol::QueryProcessBlock::QueryProcessBlock() : PosNodeID(0)
+PPPosProtocol::QueryProcessBlock::QueryProcessBlock() : PosNodeID(0)
 {
 }
 
-SLAPI PPPosProtocol::ProcessInputBlock::ProcessInputBlock()
+PPPosProtocol::ProcessInputBlock::ProcessInputBlock()
 {
 	Helper_Construct();
 }
 
-SLAPI PPPosProtocol::ProcessInputBlock::ProcessInputBlock(PPAsyncCashSession * pAcs)
+PPPosProtocol::ProcessInputBlock::ProcessInputBlock(PPAsyncCashSession * pAcs)
 {
 	Helper_Construct();
 	P_ACS = pAcs;
 }
 
-void SLAPI PPPosProtocol::ProcessInputBlock::Helper_Construct()
+void PPPosProtocol::ProcessInputBlock::Helper_Construct()
 {
 	P_ACS = 0;
 	P_RbList = 0;
@@ -1387,7 +1387,7 @@ void SLAPI PPPosProtocol::ProcessInputBlock::Helper_Construct()
 	SessionPeriod.Z();
 }
 
-SLAPI PPPosProtocol::ProcessInputBlock::~ProcessInputBlock()
+PPPosProtocol::ProcessInputBlock::~ProcessInputBlock()
 {
 	if(P_RbList) {
 		delete (TSCollection <PPPosProtocol::ReadBlock> *)P_RbList;
@@ -1426,11 +1426,11 @@ int FASTCALL PPPosProtocol::ProcessInputBlock::RegisterProcessedFile(const SFile
 	return ok;
 }
 
-const void * SLAPI PPPosProtocol::ProcessInputBlock::GetStoredReadBlocks() const { return P_RbList; }
+const void * PPPosProtocol::ProcessInputBlock::GetStoredReadBlocks() const { return P_RbList; }
 
-SLAPI PPPosProtocol::PPPosProtocol() : P_BObj(BillObj)
+PPPosProtocol::PPPosProtocol() : P_BObj(BillObj)
 	{}
-SLAPI PPPosProtocol::~PPPosProtocol()
+PPPosProtocol::~PPPosProtocol()
 	{}
 
 const SString & FASTCALL PPPosProtocol::CorrectAndEncText(const char * pS)
@@ -1465,7 +1465,7 @@ const SString & FASTCALL PPPosProtocol::EncText(const char * pS)
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
-int SLAPI PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo)
+int PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo)
 {
     int    ok = 1;
 	SString temp_buf;
@@ -1490,7 +1490,7 @@ int SLAPI PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag
     return ok;
 }
 
-int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo)
+int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo)
 {
 	int    ok = 1;
 	PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
@@ -1707,7 +1707,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 	return ok;
 }
 
-int SLAPI PPPosProtocol::WriteGoodsGroupInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsGroupInfo & rInfo, const PPQuotArray * pQList)
+int PPPosProtocol::WriteGoodsGroupInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsGroupInfo & rInfo, const PPQuotArray * pQList)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1732,7 +1732,7 @@ int SLAPI PPPosProtocol::WriteGoodsGroupInfo(WriteBlock & rB, const char * pScop
 	return ok;
 }
 
-int SLAPI PPPosProtocol::WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPPosProtocol::RouteBlock & rInfo)
+int PPPosProtocol::WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPPosProtocol::RouteBlock & rInfo)
 {
 	int    ok = 1;
 	if(!rInfo.IsEmpty()) {
@@ -1753,7 +1753,7 @@ int SLAPI PPPosProtocol::WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlT
 	return ok;
 }
 
-int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList)
+int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList)
 {
 	int    ok = 1;
 	int    use_lookbackprices = 0;
@@ -1891,7 +1891,7 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 	return ok;
 }
 
-int SLAPI PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo)
+int PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo)
 {
     int    ok = 1;
     SString temp_buf;
@@ -1931,7 +1931,7 @@ int SLAPI PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeX
     return ok;
 }
 
-int SLAPI PPPosProtocol::WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID parentObj, const PPQuot & rInfo)
+int PPPosProtocol::WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID parentObj, const PPQuot & rInfo)
 {
     int    ok = -1;
 	SString temp_buf;
@@ -1967,7 +1967,7 @@ int SLAPI PPPosProtocol::WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTa
     return ok;
 }
 
-int SLAPI PPPosProtocol::WritePersonInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID codeRegTypeID, const PPPersonPacket & rPack)
+int PPPosProtocol::WritePersonInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID codeRegTypeID, const PPPersonPacket & rPack)
 {
     int    ok = 1;
 	SString temp_buf;
@@ -1985,7 +1985,7 @@ int SLAPI PPPosProtocol::WritePersonInfo(WriteBlock & rB, const char * pScopeXml
     return ok;
 }
 
-int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashSCardInfo & rInfo)
+int PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashSCardInfo & rInfo)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2036,7 +2036,7 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 	return ok;
 }
 
-int SLAPI PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBlock & rB)
+int PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBlock & rB)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2059,7 +2059,7 @@ int SLAPI PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::Wri
 	return ok;
 }
 
-int SLAPI PPPosProtocol::FinishWriting(PPPosProtocol::WriteBlock & rB)
+int PPPosProtocol::FinishWriting(PPPosProtocol::WriteBlock & rB)
 {
 	rB.Destroy();
 	return 1;
@@ -2444,13 +2444,13 @@ void FASTCALL PPPosProtocol::Helper_AddStringToPool(uint * pPos)
 		RdB.AddS(RdB.TagValue, pPos);
 }
 
-uint SLAPI PPPosProtocol::PeekRefPos() const
+uint PPPosProtocol::PeekRefPos() const
 {
 	const void * p_test = RdB.RefPosStack.SStack::peek();
 	return p_test ? *static_cast<const uint *>(p_test) : UINT_MAX;
 }
 
-void * SLAPI PPPosProtocol::PeekRefItem(uint * pRefPos, int * pType) const
+void * PPPosProtocol::PeekRefItem(uint * pRefPos, int * pType) const
 {
 	void * p_result = 0;
 	void * p_test = RdB.RefPosStack.SStack::peek();
@@ -3326,17 +3326,17 @@ int PPPosProtocol::Characters(const char * pS, size_t len)
 extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
-SLAPI PPPosProtocol::ReadBlock::ReadBlock() : P_SaxCtx(0), State(0), Phase(phUnkn), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), SrcFileDtm(ZERODATETIME)
+PPPosProtocol::ReadBlock::ReadBlock() : P_SaxCtx(0), State(0), Phase(phUnkn), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), SrcFileDtm(ZERODATETIME)
 {
 }
 
-SLAPI PPPosProtocol::ReadBlock::~ReadBlock()
+PPPosProtocol::ReadBlock::~ReadBlock()
 {
 	Destroy();
 	P_ShT = 0;
 }
 
-void SLAPI PPPosProtocol::ReadBlock::Destroy()
+void PPPosProtocol::ReadBlock::Destroy()
 {
 	if(P_SaxCtx) {
 		P_SaxCtx->sax = 0;
@@ -3378,7 +3378,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	AddressList.freeAll(); // @v10.7.5
 }
 
-int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, int isFolder, PPID * pID)
+int PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, int isFolder, PPID * pID)
 {
 	int    ok = -1;
 	SString name_buf, code_buf;
@@ -3476,7 +3476,7 @@ int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint ref
 	return ok;
 }
 
-int SLAPI PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder, PPID * pID)
+int PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder, PPID * pID)
 {
 	int    ok = -1;
 	PPID   native_id = 0;
@@ -3512,12 +3512,12 @@ int SLAPI PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int is
 	return ok;
 }
 
-SLAPI PPPosProtocol::ResolveGoodsParam::ResolveGoodsParam() : DefParentID(0), DefUnitID(0), LocID(0), SrcArID(0),
+PPPosProtocol::ResolveGoodsParam::ResolveGoodsParam() : DefParentID(0), DefUnitID(0), LocID(0), SrcArID(0),
 	AlcGdsClsID(0), AlcProofDim(0), AlcVolumeDim(0), AlcRuCatDim(0)
 {
 }
 
-void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const PPPosProtocol::ReadBlock & rRB, const GoodsBlock & rBlk, PPGoodsPacket & rPack) const
+void PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const PPPosProtocol::ReadBlock & rRB, const GoodsBlock & rBlk, PPGoodsPacket & rPack) const
 {
 	SETFLAGBYSAMPLE(rPack.Rec.Flags, GF_NODISCOUNT, rBlk.GoodsFlags);
 	rPack.Rec.GoodsTypeID = rBlk.GoodsTypeID;
@@ -3538,7 +3538,7 @@ void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const PPPosProtocol:
 	}
 }
 
-int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID)
+int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -3994,7 +3994,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 	return ok;
 }
 
-int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
+int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 {
 	int    ok = 1;
 	uint   qpb_list_idx = 0;
@@ -4827,7 +4827,7 @@ void PPPosProtocol::SaxStop()
 	xmlStopParser(RdB.P_SaxCtx);
 }
 
-int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, int silent)
+int PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, int silent)
 {
     int    ok = 1;
     SString msg_buf;
@@ -4868,12 +4868,12 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, in
     return ok;
 }
 
-void SLAPI PPPosProtocol::DestroyReadBlock()
+void PPPosProtocol::DestroyReadBlock()
 {
     RdB.Destroy();
 }
 
-int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList)
+int PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -4906,7 +4906,7 @@ int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNo
 }
 
 /* @v10.7.5 (replaced with PPBackupOperationFile) 
-int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
+int PPPosProtocol::BackupInputFile(const char * pFileName)
 {
 	int    ok = 1;
 	int    use_arc = 0;
@@ -4987,7 +4987,7 @@ int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 */
 
 struct PosProtocolFileProcessedEntry {
-	SLAPI  PosProtocolFileProcessedEntry() : FileDtm(ZERODATETIME)
+	PosProtocolFileProcessedEntry() : FileDtm(ZERODATETIME)
 	{
 	}
 	S_GUID FileUUID;
@@ -5072,7 +5072,7 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 	return ok;
 }
 
-int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs, StrAssocArray & rRemoteAssocList)
+int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs, StrAssocArray & rRemoteAssocList)
 {
 	enum {
 		srctypeUnkn = 0,
@@ -5189,7 +5189,7 @@ int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, Str
 	return ok;
 }
 
-int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
+int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 {
 	// InetUrl
 	int    ok = -1;
@@ -5591,7 +5591,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 	return ok;
 }
 
-/*int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
+/*int PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
 {
 	enum {
 		desttypeUnkn = 0,
@@ -5701,7 +5701,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 	return ok;
 }*/
 
-int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcPosNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination)
+int PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcPosNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination)
 {
 	int    ok = -1;
 	SString out_file_name;
@@ -5744,7 +5744,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 	return ok;
 }
 
-/*static*/int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList) // @v9.8.4 TSArray-->TSVector
+/*static*/int PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList) // @v9.8.4 TSArray-->TSVector
 {
 	enum {
 		qvLastSession = 1,
@@ -5758,7 +5758,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 	class PosQueryDialog : public TDialog {
 		DECL_DIALOG_DATA(TSVector <PPPosProtocol::QueryBlock>);
 	public:
-        SLAPI  PosQueryDialog() : TDialog(DLG_POSNQUERY)
+        PosQueryDialog() : TDialog(DLG_POSNQUERY)
         {
         	SetupCalPeriod(CTLCAL_POSNQUERY_PERIOD, CTL_POSNQUERY_PERIOD);
         }
@@ -5893,7 +5893,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 	DIALOG_PROC_BODY(PosQueryDialog, &rQList);
 }
 
-int SLAPI RunInputProcessThread(PPID posNodeID)
+int RunInputProcessThread(PPID posNodeID)
 {
 	class PosInputProcessThread : public PPThread {
 	public:
@@ -5907,12 +5907,12 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 			PPID   PosNodeID;
 			uint   ForcePeriodMs; // Период форсированной проверки входящего каталога (ms)
 		};
-		explicit SLAPI PosInputProcessThread(const InitBlock & rB) : PPThread(PPThread::kPpppProcessor, 0, 0), IB(rB), ProcessedFileTab(1024, 0)
+		explicit PosInputProcessThread(const InitBlock & rB) : PPThread(PPThread::kPpppProcessor, 0, 0), IB(rB), ProcessedFileTab(1024, 0)
 		{
 			InitStartupSignal();
 		}
 	private:
-		virtual void SLAPI Startup()
+		virtual void Startup()
 		{
 			PPThread::Startup();
 			SignalStartup();

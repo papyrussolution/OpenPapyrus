@@ -1,5 +1,5 @@
 // PPDS.H
-// Copyright (c) A.Sobolev 2001-2002, 2007, 2009, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2001-2002, 2007, 2009, 2011, 2015, 2016, 2020
 // @codepage windows-1251
 //
 #define FIRST_DECLSTRUC_ID 1001L
@@ -27,29 +27,29 @@ public:
 		tfdBufToData = 0,
 		tfdDataToBuf
 	};
-	static PPDeclStruc * SLAPI CreateInstance(long typeID, void * extraPtr, const PPDeclStruc * pOuter, PPLogger * pLogger);
+	static PPDeclStruc * CreateInstance(long typeID, void * extraPtr, const PPDeclStruc * pOuter, PPLogger * pLogger);
 
-	SLAPI  PPDeclStruc();
-	virtual SLAPI ~PPDeclStruc();
-	uint   SLAPI GetCount() const;
-	long   SLAPI GetId() const;
-	int    SLAPI SetHeader(PPID, const char * pName, long flags);
-	int    SLAPI AddItem(PPDeclStrucItem *);
-	int    SLAPI GetItem(uint idx, PPDeclStrucItem *);
-	int    SLAPI EnumItems(uint * pIdx, PPDeclStrucItem *);
-	int    SLAPI SearchItem(const char * pName, PPDeclStrucItem *);
-	int    SLAPI WriteDataToStream(FILE *, void * extraPtr);
-	void   SLAPI SetItemAddedMsgString(const char * pItemName);
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd, uint *, SString & rBuf);
+	PPDeclStruc();
+	virtual ~PPDeclStruc();
+	uint   GetCount() const;
+	long   GetId() const;
+	int    SetHeader(PPID, const char * pName, long flags);
+	int    AddItem(PPDeclStrucItem *);
+	int    GetItem(uint idx, PPDeclStrucItem *);
+	int    EnumItems(uint * pIdx, PPDeclStrucItem *);
+	int    SearchItem(const char * pName, PPDeclStrucItem *);
+	int    WriteDataToStream(FILE *, void * extraPtr);
+	void   SetItemAddedMsgString(const char * pItemName);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd, uint *, SString & rBuf);
 	//
 	// Descr: Принимает очередной элемент списка fldID, считанный из потока
 	//
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
 	//
 	// Descr: Создает очередной элемент списка fldID для записи в поток
 	//
-	virtual int SLAPI CreateListItem(long fldID, uint * pIter, PPDeclStruc *);
+	virtual int CreateListItem(long fldID, uint * pIter, PPDeclStruc *);
 
 	enum {
 		updNone = 0,
@@ -58,29 +58,29 @@ public:
 	int    UpdateProtocol;
 	LongArray AcceptedFields;
 protected:
-	int    SLAPI TransferData(int32 *,  Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(int16 *,  Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(uint16 *, Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(uint8  *, Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(double *, Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(char *, size_t, Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(SString & rData, Tfd dir, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(DateRange * pData, Tfd dir, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(LDATE *, Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(LTIME *, Tfd dir, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(long *, long fl, Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferData(PPIDArray *, Tfd, uint, SString & rBuf);
-	int    SLAPI TransferDataFlag(int16 *, long flag, Tfd, SString & rBuf, int skipZero = 0);
-	int    SLAPI TransferDataFlag(int32 *, long flag, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(int32 *,  Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(int16 *,  Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(uint16 *, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(uint8  *, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(double *, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(char *, size_t, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(SString & rData, Tfd dir, SString & rBuf, int skipZero = 0);
+	int    TransferData(DateRange * pData, Tfd dir, SString & rBuf, int skipZero = 0);
+	int    TransferData(LDATE *, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(LTIME *, Tfd dir, SString & rBuf, int skipZero = 0);
+	int    TransferData(long *, long fl, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferData(PPIDArray *, Tfd, uint, SString & rBuf);
+	int    TransferDataFlag(int16 *, long flag, Tfd, SString & rBuf, int skipZero = 0);
+	int    TransferDataFlag(int32 *, long flag, Tfd, SString & rBuf, int skipZero = 0);
 
 	long   Id; // Идентификатор типа структуры
 	const  PPDeclStruc * P_Outer;
-	PPLogger * P_Logger; // @notowned @v6.5.0
+	PPLogger * P_Logger; // @notowned
 	SString TempBuf; // Временный буфер для использования порожденными классами (ради ускорения)
 private:
-	int    SLAPI LoadFromResource(long);
-	int    SLAPI Helper_WriteDataToStream(FILE *, int putPrefix, int level, void * extraPtr);
-	int    SLAPI Helper_CreateListItem(long, long, uint *, FILE *, int level, void * extraPtr);
+	int    LoadFromResource(long);
+	int    Helper_WriteDataToStream(FILE *, int putPrefix, int level, void * extraPtr);
+	int    Helper_CreateListItem(long, long, uint *, FILE *, int level, void * extraPtr);
 };
 
 enum PPDeclStrucTerm {
@@ -98,13 +98,13 @@ enum PPDeclStrucTerm {
 
 class PPDeclStrucProcessor {
 public:
-	SLAPI  PPDeclStrucProcessor();
-	SLAPI ~PPDeclStrucProcessor();
-	int    SLAPI ParseDefinition(const char * pFileName, const char * pOutRcFileName, const char * pOutChFileName);
-	int    SLAPI InitDataParsing(const char * pFileName);
-	int    SLAPI NextDecl(PPDeclStruc ** ppDecl, int dontAccept = 0);
-	int    SLAPI ReleaseDataParsing();
-	int    SLAPI MakeErrMsgString(char * pBuf, size_t bufLen);
+	PPDeclStrucProcessor();
+	~PPDeclStrucProcessor();
+	int    ParseDefinition(const char * pFileName, const char * pOutRcFileName, const char * pOutChFileName);
+	int    InitDataParsing(const char * pFileName);
+	int    NextDecl(PPDeclStruc ** ppDecl, int dontAccept = 0);
+	int    ReleaseDataParsing();
+	int    MakeErrMsgString(char * pBuf, size_t bufLen);
 private:
 	struct NameTabItem {
 		int32  ID;
@@ -114,20 +114,20 @@ private:
 		long   Pos;
 		long   Lin;
 	};
-	int    SLAPI GetTerm(int * pTerm = 0);
-	PPDeclStruc * SLAPI GetData(long typeID, void * extraPtr, const PPDeclStruc * pOuter, int dontAccept);
-	int    SLAPI GetChar(int skipWS = 0);
-	int    SLAPI UngetChar();
-	int    SLAPI GetWord();
-	int    SLAPI SavePos(P *);
-	int    SLAPI RestorePos(const P *);
-	int    SLAPI GetValue(SString &);
-	int    SLAPI LoadNameTabFromResource();
-	int    SLAPI AddTypeName(long typeID, const char * pName);
-	int    SLAPI GetTypeByName(const char *, long *);
-	int    SLAPI GetNameByType(long, char *, size_t bufLen);
-	int    SLAPI GetNewTypeID(long * pTypeID);
-	int    SLAPI WriteDeclToFiles(FILE * pRcStream, FILE * pChStream, PPDeclStruc *);
+	int    GetTerm(int * pTerm = 0);
+	PPDeclStruc * GetData(long typeID, void * extraPtr, const PPDeclStruc * pOuter, int dontAccept);
+	int    GetChar(int skipWS = 0);
+	int    UngetChar();
+	int    GetWord();
+	int    SavePos(P *);
+	int    RestorePos(const P *);
+	int    GetValue(SString &);
+	int    LoadNameTabFromResource();
+	int    AddTypeName(long typeID, const char * pName);
+	int    GetTypeByName(const char *, long *);
+	int    GetNameByType(long, char *, size_t bufLen);
+	int    GetNewTypeID(long * pTypeID);
+	int    WriteDeclToFiles(FILE * pRcStream, FILE * pChStream, PPDeclStruc *);
 
 	SString WordBuf;
 	char * P_FileName;
@@ -161,11 +161,11 @@ private:
 //
 class PPDS_CrrAddress : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrAddress();
+	PPDS_CrrAddress();
 	LocationTbl::Rec Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 	SString CountryName;
 	SString CityName;
 	SString Address;
@@ -174,66 +174,65 @@ private:
 
 class PPDS_CrrBnkAcct : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrBnkAcct() : PPDeclStruc() {}
-	// @v9.0.4 BankAccountTbl::Rec Data;
-	PPBankAccount Data; // @v9.0.4
+	PPDS_CrrBnkAcct() : PPDeclStruc() {}
+	PPBankAccount Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 	BnkAcctData IntrData;
 };
 
 class PPDS_ELinkAddr : public PPDeclStruc {
 public:
-	SLAPI  PPDS_ELinkAddr() : PPDeclStruc() {}
+	PPDS_ELinkAddr() : PPDeclStruc() {}
 	PPELink Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 	PPID   KindID;
 	char   KindName[48];
-	char   Addr[128];    // @v6.3.10 [48]-->[128]
+	char   Addr[128];
 };
 
 class PPDS_CrrPerson : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrPerson() : PPDeclStruc(), OrigID(0) {}
+	PPDS_CrrPerson() : PPDeclStruc(), OrigID(0) {}
 	PPPersonPacket Data;
 	PPID   OrigID; // При приеме структуры из файла это поле аполняется из поля "ID"
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 };
 
 class PPDS_Barcode : public PPDeclStruc {
 public:
-	SLAPI  PPDS_Barcode() : PPDeclStruc() {}
+	PPDS_Barcode() : PPDeclStruc() {}
 	BarcodeTbl::Rec Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 };
 
 class PPDS_CrrGoods : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrGoods() : PPDeclStruc() {}
+	PPDS_CrrGoods() : PPDeclStruc() {}
 	PPGoodsPacket Data;
 	PPID   OrigID; // При приеме структуры из файла это поле заполняется из поля "ID"
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
-	int    SLAPI ExtractOuterData();
-	int    SLAPI AcceptOuterData(int use_ta);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
+	int    ExtractOuterData();
+	int    AcceptOuterData(int use_ta);
 
 	char   UnitName[48];
 	char   PhUnitName[48];
 	double PhUPerU;
-	char   GroupName[128];   // @v6.3.10 [64]-->[128]
-	char   ManufName[128];   // @v6.3.10 [48]-->[128]
+	char   GroupName[128];
+	char   ManufName[128];
 	char   ManufCountry[48];
 
 	PPObjGoods GObj;
@@ -241,19 +240,19 @@ private:
 
 class PPDS_CrrQCert : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrQCert() : PPDeclStruc() {}
+	PPDS_CrrQCert() : PPDeclStruc() {}
 	QualityCertTbl::Rec Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjQCert QcObj;
-	char   RegOrgName[128]; // @v6.3.10 [48]-->[128]
+	char   RegOrgName[128];
 };
 
 class PPDS_CrrBillItem : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrBillItem();
+	PPDS_CrrBillItem();
 
 	PPTransferItem Data;
 	char   CLB[64];
@@ -261,10 +260,10 @@ private:
 	//
 	// ARG(dataParam IN): Указатель на структуру PPTransferItem
 	//
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 };
 /*
 	Для корректного приема документа должны быть выполнены следующие условия:
@@ -279,7 +278,7 @@ private:
 */
 class PPDS_CrrBill : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrBill();
+	PPDS_CrrBill();
 
 	PPBillPacket Data;
 	PPPersonPacket Seller;
@@ -288,11 +287,11 @@ public:
 	LocationTbl::Rec DlvrAddr;
 	PPDBXchgConfig DbxCfg;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
-	int    SLAPI IdentifySuppl(PPID * pArID, int use_ta);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
+	int    IdentifySuppl(PPID * pArID, int use_ta);
 
 	PPObjPerson PsnObj;
 	PPObjArticle ArObj;
@@ -301,43 +300,43 @@ private:
 
 class PPDS_CrrAmountType : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrAmountType() : PPDeclStruc() {}
+	PPDS_CrrAmountType() : PPDeclStruc() {}
 	PPAmountTypePacket Pack;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjAmountType AmtObj;
 };
 
 class PPDS_CrrSalCharge : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrSalCharge() : PPDeclStruc() {}
+	PPDS_CrrSalCharge() : PPDeclStruc() {}
 	PPSalChargePacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjSalCharge Obj;
 };
 
 class PPDS_CrrSalChargeGroup : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrSalChargeGroup() : PPDeclStruc() {}
+	PPDS_CrrSalChargeGroup() : PPDeclStruc() {}
 	PPSalChargePacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 	PPObjSalCharge Obj;
 };
 
 class PPDS_CrrStaffCalEntry : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrStaffCalEntry() : PPDeclStruc() {}
+	PPDS_CrrStaffCalEntry() : PPDeclStruc() {}
 	StaffCalendarTbl::Rec Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	LTIME  Duration;
 	PPObjStaffCal Obj;
@@ -345,48 +344,47 @@ private:
 
 class PPDS_CrrStaffCal : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrStaffCal() : PPDeclStruc() {}
+	PPDS_CrrStaffCal() : PPDeclStruc() {}
 	PPStaffCalPacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint * pIter, PPDeclStruc * pData);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint * pIter, PPDeclStruc * pData);
 	PPObjStaffCal Obj;
 };
 
 class PPDS_CrrDbDiv : public PPDeclStruc {
 public:
-	SLAPI  PPDS_CrrDbDiv() : PPDeclStruc() {}
+	PPDS_CrrDbDiv() : PPDeclStruc() {}
 	DBDivPack Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjDBDiv Obj;
 	PPObjLocation LocObj;
 };
 
-// @v5.7.1 AHTOXA {
 class PPDS_CrrBarcodeStruc : public PPDeclStruc {
 public:
-	SLAPI PPDS_CrrBarcodeStruc() : PPDeclStruc() {}
+	PPDS_CrrBarcodeStruc() : PPDeclStruc() {}
 	PPBarcodeStruc Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjBarCodeStruc Obj;
 };
 
 class PPDS_CrrGoodsType : public PPDeclStruc {
 public:
-	SLAPI PPDS_CrrGoodsType() : PPDeclStruc() {}
+	PPDS_CrrGoodsType() : PPDeclStruc() {}
 	PPGoodsType Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	int SLAPI TransferAmtType(PPID * pAmttID, Tfd dir, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	int TransferAmtType(PPID * pAmttID, Tfd dir, SString & rBuf);
 
 	PPObjAmountType AmtTypeObj;
 	PPObjAssetWrOffGrp AsstWrOffObj;
@@ -401,22 +399,22 @@ public:
 		SString Expr;
 	};
 
-	SLAPI PPDS_CrrFormula() : PPDeclStruc() {}
+	PPDS_CrrFormula() : PPDeclStruc() {}
 	Formula Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjFormula Obj;
 };
 
 class PPDS_CrrScale : public PPDeclStruc {
 public:
-	SLAPI PPDS_CrrScale() : PPDeclStruc() {}
+	PPDS_CrrScale() : PPDeclStruc() {}
 	PPScalePacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	char StrPort[16];
 	PPObjGoodsGroup GGObj;
@@ -430,8 +428,8 @@ public:
 	PPDS_CrrRegisterType() : PPDeclStruc() {}
 	PPRegisterType Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjPersonKind   PsnKObj;
 	PPObjOpCounter    OpCounterObj;
@@ -440,11 +438,11 @@ private:
 
 class PPDS_CrrQuotKind : public PPDeclStruc {
 public:
-	SLAPI PPDS_CrrQuotKind() : PPDeclStruc() {}
+	PPDS_CrrQuotKind() : PPDeclStruc() {}
 	PPQuotKind Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjAccSheet ACCSObj;
 	PPObjOprKind  OpKObj;
@@ -456,8 +454,8 @@ public:
 	PPDS_CrrPersonKind() : PPDeclStruc() {}
 	PPPersonKind Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjRegisterType ObjRegT;
 	PPObjPersonKind   Obj;
@@ -465,11 +463,11 @@ private:
 
 class PPDS_CrrCurrency : public PPDeclStruc {
 public:
-	SLAPI PPDS_CrrCurrency() : PPDeclStruc() {}
+	PPDS_CrrCurrency() : PPDeclStruc() {}
 	PPCurrency Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjCurrency Obj;
 };
@@ -479,8 +477,8 @@ public:
 	PPDS_CrrCurRateType() : PPDeclStruc() {}
 	PPCurRateType Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjCurRateType Obj;
 };
@@ -490,8 +488,8 @@ public:
 	PPDS_CrrAssetWrOffGrp() : PPDeclStruc() {}
 	PPAssetWrOffGrp Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjAssetWrOffGrp Obj;
 };
@@ -501,9 +499,9 @@ public:
 	PPDS_CrrMailAccount() : PPDeclStruc() {}
 	PPInternetAccount Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	int SLAPI TransferMailField(int mailFldID, Tfd dir, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	int TransferMailField(int mailFldID, Tfd dir, SString & rBuf);
 
 	PPObjPerson PsnObj;
 	PPObjInternetAccount Obj;
@@ -514,8 +512,8 @@ public:
 	PPDS_CrrPersonRelType() : PPDeclStruc() {}
 	PPPersonRelTypePacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjRegisterType  ObjRegT;
 	PPObjPersonRelType Obj;
@@ -526,8 +524,8 @@ public:
 	PPDS_CrrObjTag() : PPDeclStruc() {}
 	PPObjTagPacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjTag Obj;
 };
@@ -537,8 +535,8 @@ public:
 	PPDS_CrrDraftWrOffEntry() : PPDeclStruc() {}
 	PPDraftWrOffEntry Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjLocation LocObj;
 	PPObjOprKind  OpKObj;
@@ -549,27 +547,25 @@ public:
 	PPDS_CrrDraftWrOff() : PPDeclStruc() {}
 	PPDraftWrOffPacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPObjArticle    ArObj;
 	PPObjOprKind    OpKObj;
 	PPObjDraftWrOff Obj;
 };
-// } @v5.7.1 AHTOXA
 
-// @v6.2.x AHTOXA {
 class PPDS_CrrLocation : public PPDeclStruc {
 public:
 	PPDS_CrrLocation() : PPDeclStruc() {}
 	LocationTbl::Rec Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPObjLocation Obj;
 };
@@ -579,10 +575,10 @@ public:
 	PPDS_CrrAccSheet() : PPDeclStruc() {}
 	PPAccSheet Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPObjAccSheet Obj;
 };
@@ -592,10 +588,10 @@ public:
 	PPDS_CrrAccount() : PPDeclStruc() {}
 	PPAccountPacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPObjAccount Obj;
 };
@@ -605,9 +601,9 @@ public:
 	PPDS_CrrAcctEntry() : PPDeclStruc() {}
 	AcctID Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPObjAccount Obj;
 };
@@ -617,10 +613,10 @@ public:
 	PPDS_CrrArticle() : PPDeclStruc() {}
 	ArticleTbl::Rec Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPObjArticle  Obj;
 	PPObjAccSheet AccSheetObj;
@@ -631,10 +627,10 @@ public:
 	PPDS_CrrAccturnTempl() : PPDeclStruc() {}
 	PPAccTurnTempl  Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 };
 
 class PPDS_CrrOprKindEntry : public PPDeclStruc {
@@ -642,10 +638,10 @@ public:
 	PPDS_CrrOprKindEntry() : PPDeclStruc() {}
 	PPOprKind       Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
 	PPObjOprKind    Obj;
@@ -656,10 +652,10 @@ public:
 	PPDS_CrrInvOpExEntry() : PPDeclStruc() {}
 	PPInventoryOpEx Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
 	PPObjOprKind    Obj;
@@ -670,10 +666,10 @@ public:
 	PPDS_CrrReckonOpExEntry() : PPDeclStruc() {}
 	PPReckonOpEx Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
 	PPObjOprKind    Obj;
@@ -684,10 +680,10 @@ public:
 	PPDS_CrrDraftOpExEntry() : PPDeclStruc() {}
 	PPDraftOpEx Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
 	PPObjOprKind    Obj;
@@ -698,8 +694,8 @@ public:
 	PPDS_CrrBillPoolOpExEntry() : PPDeclStruc() {}
 	PPBillPoolOpEx Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPOprKindPacket Pack;
 	PPObjOprKind    Obj;
@@ -710,14 +706,13 @@ public:
 	PPDS_CrrOprKind() : PPDeclStruc() {}
 	PPOprKindPacket Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
-	virtual int SLAPI AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
-	virtual int SLAPI CreateListItem(long fldID, uint *, PPDeclStruc *);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
+	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPObjOprKind    Obj;
 };
-// } @v6.2.x AHTOXA
 
 class PPDS_CrrBillStatus : public PPDeclStruc {
 public:
@@ -725,8 +720,8 @@ public:
 
 	PPBillStatus Data;
 private:
-	virtual int SLAPI InitData(Ido op, void * dataPtr, long addedParam);
-	virtual int SLAPI TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
+	virtual int InitData(Ido op, void * dataPtr, long addedParam);
+	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjBillStatus Obj;
 	PPObjOprKind    OpKObj;

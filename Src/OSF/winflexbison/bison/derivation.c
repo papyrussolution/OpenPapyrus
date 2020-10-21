@@ -19,7 +19,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <c-ctype.h>
+//#include <c-ctype.h>
 
 struct derivation {
 	symbol_number sym;

@@ -280,7 +280,7 @@ void GoodsTaxDialog::editList()
 	delete dlg;
 }
 
-int SLAPI PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
+int PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
 {
 	int    r = cmCancel;
 	PPGoodsTaxPacket pack;
@@ -308,7 +308,7 @@ int SLAPI PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
 
 //#define TEST_GTAX
 
-int SLAPI PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
+int PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 {
 	int    r = cmCancel;
 	int    valid_data = 0;

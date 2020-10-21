@@ -3625,7 +3625,7 @@ table Event {
 	autolong ID;
 	date   Dt;
 	time   Tm;
-	long   TypeID;
+	long   EventType;
 	long   Status;
 	long   UserID;         // 0 - for all
 	long   GlobalUserID;   // 0 - for all
@@ -3638,7 +3638,7 @@ table Event {
 index:
 	ID (unique);
 	Dt, Tm (unique mod);
-	TypeID, Dt, Tm (unique mod);
+	EventType, Dt, Tm (unique mod);
 	UserID, Dt, Tm (unique mod);
 	GlobalUserID, Dt, Tm (unique mod);
 	ObjType, Dt, Tm (unique mod);

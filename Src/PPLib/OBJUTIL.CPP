@@ -257,7 +257,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 /*static*/int FASTCALL PPObject::RetRefsExistsErr(PPID objType, PPID objID)
 	{ return PPSetObjError(PPERR_REFSEXISTS, objType, objID); }
 
-/*static*/SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf)
+/*static*/SString & PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf)
 {
 	SString fmt_buf, obj_type_name, obj_name;
 	PPGetSubStr(PPTXT_OBJACCEPTED, upd ? PPOBJACCP_OBJUPDATED : PPOBJACCP_OBJCREATED, fmt_buf);
@@ -266,7 +266,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return rBuf.Printf(fmt_buf, obj_type_name.cptr(), objID, obj_name.cptr());
 }
 
-/*static*/int SLAPI PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, const void * pData, size_t sz, int use_ta)
+/*static*/int PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, const void * pData, size_t sz, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -330,7 +330,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return ok;
 }
 
-/*static*/int SLAPI PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
+/*static*/int PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
 {
 	int    ok = 1;
 	PPCommSyncID dest_comm_id;
@@ -429,7 +429,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return ok;
 }
 
-/*static*/int SLAPI PPObject::IndexPhones()
+/*static*/int PPObject::IndexPhones()
 {
 	int    ok = 1;
 	THROW_PP(CConfig.Flags2 & CCFLG2_INDEXEADDR, PPERR_CCFG_INDEXEADDRNEEDED);
@@ -451,11 +451,11 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return ok;
 }
 
-SLAPI PPObjPack::PPObjPack() : Data(0), Mod(ZERODATETIME), Priority(PPObjectTransmit::DefaultPriority), Flags(0)
+PPObjPack::PPObjPack() : Data(0), Mod(ZERODATETIME), Priority(PPObjectTransmit::DefaultPriority), Flags(0)
 {
 }
 
-int SLAPI PPObject::CreateReservedObjects(long flags)
+int PPObject::CreateReservedObjects(long flags)
 {
 	// @todo Выдавать на экран список объектов, созданных в результате работы функции
 	int    ok = 1;
@@ -648,22 +648,22 @@ void FASTCALL PPObject::Helper_GetRights(int onStartUp)
 	}
 }
 
-SLAPI PPObject::PPObject(PPID aObj) : Obj(aObj), FiltProc(0), ImplementFlags(0), Rt_(0), ORt_(0)
+PPObject::PPObject(PPID aObj) : Obj(aObj), FiltProc(0), ImplementFlags(0), Rt_(0), ORt_(0)
 {
 	if(Obj != 0)
 		Helper_GetRights(1);
 }
 
-SLAPI PPObject::~PPObject()
+PPObject::~PPObject()
 {
 }
 
-int SLAPI PPObject::Browse(void * extraPtr)
+int PPObject::Browse(void * extraPtr)
 {
 	return 0;
 }
 
-int SLAPI PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
+int PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
 {
 	int    ok = 1, is_new = 0;
 	assert(pID);
@@ -682,24 +682,24 @@ int SLAPI PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
 	return ok;
 }
 
-int SLAPI PPObject::Edit(PPID * pID, void * extraPtr) { return 0; }
-int SLAPI PPObject::Search(PPID id, void *) { return 0; }
-int SLAPI PPObject::DeleteObj(PPID id) { return 0; }
-int SLAPI PPObject::ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx) { return 1; }
-const char * SLAPI PPObject::GetNamePtr() { return 0; }
-StrAssocArray * SLAPI PPObject::MakeStrAssocList(void * extraPtr) { return 0; }
-int SLAPI PPObject::MakeReserved(long flags) { return 1; }
-int SLAPI PPObject::HandleMsg(int msg, PPID /*_obj*/, PPID /*_id*/, void * extraPtr) { return (msg == DBMSG_SECURITY) ? DBRPL_CANCEL : DBRPL_OK; }
-int SLAPI PPObject::Read(PPObjPack *, PPID, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
-int SLAPI PPObject::Write(PPObjPack * /*pPack*/, PPID * /*pID*/, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
+int PPObject::Edit(PPID * pID, void * extraPtr) { return 0; }
+int PPObject::Search(PPID id, void *) { return 0; }
+int PPObject::DeleteObj(PPID id) { return 0; }
+int PPObject::ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx) { return 1; }
+const char * PPObject::GetNamePtr() { return 0; }
+StrAssocArray * PPObject::MakeStrAssocList(void * extraPtr) { return 0; }
+int PPObject::MakeReserved(long flags) { return 1; }
+int PPObject::HandleMsg(int msg, PPID /*_obj*/, PPID /*_id*/, void * extraPtr) { return (msg == DBMSG_SECURITY) ? DBRPL_CANCEL : DBRPL_OK; }
+int PPObject::Read(PPObjPack *, PPID, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
+int PPObject::Write(PPObjPack * /*pPack*/, PPID * /*pID*/, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
 
-int SLAPI PPObject::GetLastModifEvent(PPID objID, LDATETIME * pMoment, int * pCr, SysJournalTbl::Rec * b)
+int PPObject::GetLastModifEvent(PPID objID, LDATETIME * pMoment, int * pCr, SysJournalTbl::Rec * b)
 {
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
 	return p_sj ? p_sj->GetLastObjModifEvent(Obj, objID, pMoment, pCr, b) : 0;
 }
 
-int SLAPI PPObject::GetName(PPID id, char * pBuf, size_t bufLen)
+int PPObject::GetName(PPID id, char * pBuf, size_t bufLen)
 {
 	const char * ptr = 0;
 	int    r = Search(id);
@@ -711,7 +711,7 @@ int SLAPI PPObject::GetName(PPID id, char * pBuf, size_t bufLen)
 	return r;
 }
 
-int SLAPI PPObject::GetName(PPID id, SString * pBuf)
+int PPObject::GetName(PPID id, SString * pBuf)
 {
 	char   temp_buf[512];
 	int    ok = GetName(id, temp_buf, sizeof(temp_buf));
@@ -725,7 +725,7 @@ void FASTCALL PPObject::Destroy(PPObjPack * pPack)
 		ZDELETE(pPack->Data);
 }
 
-ListBoxDef * SLAPI PPObject::Selector(void * extraPtr)
+ListBoxDef * PPObject::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = 0;
 	if(ImplementFlags & implStrAssocMakeList) {
@@ -746,7 +746,7 @@ ListBoxDef * SLAPI PPObject::Selector(void * extraPtr)
 	return p_def;
 }
 
-int SLAPI PPObject::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+int PPObject::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = 1;
 	if(pDef)
@@ -768,7 +768,7 @@ int SLAPI PPObject::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr)
+int PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr)
 {
 	return 1;
 }
@@ -801,7 +801,7 @@ int FASTCALL PPObject::CheckRightsModByID(const PPID * pID)
 	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : PPSetErrorInvParam();
 }
 
-int SLAPI GenericObjRightsDialog(PPID obj, ObjRights * rt, EmbedDialog * pDlg)
+int GenericObjRightsDialog(PPID obj, ObjRights * rt, EmbedDialog * pDlg)
 {
 	class GenericObjRightsDlg : public TDialog {
 	public:
@@ -862,7 +862,7 @@ int SLAPI GenericObjRightsDialog(PPID obj, ObjRights * rt, EmbedDialog * pDlg)
 	return r;
 }
 
-int SLAPI PPObject::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObject::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	int    r = 0;
 	if(IS_DYN_OBJTYPE(Obj) || Obj == PPOBJ_DYNAMICOBJS) {
@@ -878,7 +878,7 @@ int SLAPI PPObject::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 	return r ? -1 : 0;
 }
 
-int SLAPI PPObject::EditSpcRightFlags(uint dlgID, uint flCtlID, uint sflCtlID, uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObject::EditSpcRightFlags(uint dlgID, uint flCtlID, uint sflCtlID, uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	class SpcRightFlagsDlg : public TDialog {
 	public:
@@ -948,7 +948,7 @@ int SLAPI PPObject::EditSpcRightFlags(uint dlgID, uint flCtlID, uint sflCtlID, u
 	return r;
 }
 
-int SLAPI PPObject::RemoveSync(PPID id)
+int PPObject::RemoveSync(PPID id)
 {
 	int    ok = 1;
 	if(LConfig.DBDiv && Obj) {
@@ -959,7 +959,7 @@ int SLAPI PPObject::RemoveSync(PPID id)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    r;
 	if(!(options & not_checkrights))
@@ -1038,7 +1038,7 @@ int FASTCALL PPObject::ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * 
 	return ok;
 }
 
-int SLAPI PPObject::ProcessObjListRefInArray(PPID objTypeID, PPIDArray & rList, PPObjIDArray * pArray, int replace)
+int PPObject::ProcessObjListRefInArray(PPID objTypeID, PPIDArray & rList, PPObjIDArray * pArray, int replace)
 {
 	const  uint c = rList.getCount();
 	for(uint i = 0; i < c; i++)
@@ -1047,7 +1047,7 @@ int SLAPI PPObject::ProcessObjListRefInArray(PPID objTypeID, PPIDArray & rList, 
 	return 1;
 }
 
-/*virtual*/void * SLAPI PPObject::CreateObjListWin(uint aFlags, void * extraPtr)
+/*virtual*/void * PPObject::CreateObjListWin(uint aFlags, void * extraPtr)
 {
 	return 0;
 }
@@ -1084,15 +1084,15 @@ int FASTCALL PPGetObjTypeList(PPIDArray * pList, long flags)
 //
 // ObjCollection
 //
-SLAPI ObjCollectionEntry::ObjCollectionEntry() : ObjType(0), ObjPtr(0)
+ObjCollectionEntry::ObjCollectionEntry() : ObjType(0), ObjPtr(0)
 {
 }
 
-SLAPI ObjCollection::ObjCollection() : TSArray <ObjCollectionEntry> (aryDataOwner | aryEachItem)
+ObjCollection::ObjCollection() : TSArray <ObjCollectionEntry> (aryDataOwner | aryEachItem)
 {
 }
 
-SLAPI ObjCollection::~ObjCollection()
+ObjCollection::~ObjCollection()
 {
 	ObjCollectionEntry * p_entry = 0;
 	for(uint i = 0; enumItems(&i, (void **)&p_entry) > 0;)
@@ -1262,7 +1262,7 @@ int FASTCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
 	return ok;
 }
 
-SString & SLAPI GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf)
+SString & GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf)
 {
 	if(rObjList.IsEmpty()) {
 		PPLoadString("allobjects", rBuf);
@@ -1293,7 +1293,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 	return DS.GetObjectTypeBySymb(pSymb, pExtraParam);
 }
 
-/*static*/int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent)
+/*static*/int PPObject::Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1457,7 +1457,7 @@ int FASTCALL SetupObjListCombo(TDialog * dlg, uint ctl, PPID id, const PPIDArray
 		return -1;
 }
 
-int SLAPI EditPPObj(PPID objType, PPID objID)
+int EditPPObj(PPID objType, PPID objID)
 {
 	int    ok = -1;
 	if(objType && objID) {
@@ -1517,7 +1517,7 @@ int FASTCALL SearchObject(PPID obj, PPID id, void * b)
 	return r;
 }
 
-int SLAPI PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
+int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 {
 	int    ok = -1;
 	PPID   id = DEREFPTRORZ(pObjID);
@@ -1565,7 +1565,7 @@ int FASTCALL CheckCfgRights(PPID id, ushort rt, int oprRights)
 	return ok;
 }
 
-int SLAPI PPGetConfigList(StrAssocArray * pAry)
+int PPGetConfigList(StrAssocArray * pAry)
 {
 	int    ok = -1;
 	if(pAry) {
@@ -1583,12 +1583,12 @@ int SLAPI PPGetConfigList(StrAssocArray * pAry)
 //
 #define MAX_LINKED_FILES 32
 
-SLAPI ObjLinkFiles::ObjLinkFiles()
+ObjLinkFiles::ObjLinkFiles()
 {
 	Clear();
 }
 
-SLAPI ObjLinkFiles::ObjLinkFiles(PPID objType)
+ObjLinkFiles::ObjLinkFiles(PPID objType)
 {
 	if(objType)
 		Init(objType);
@@ -1596,17 +1596,17 @@ SLAPI ObjLinkFiles::ObjLinkFiles(PPID objType)
 		Clear();
 }
 
-SLAPI ObjLinkFiles::ObjLinkFiles(const ObjLinkFiles & rS)
+ObjLinkFiles::ObjLinkFiles(const ObjLinkFiles & rS)
 {
 	Copy(rS);
 }
 
-void SLAPI ObjLinkFiles::SetMode_IgnoreCheckStorageDir(int set)
+void ObjLinkFiles::SetMode_IgnoreCheckStorageDir(int set)
 {
 	SETFLAG(State, stIgnoreCheckStorageDir, set);
 }
 
-void SLAPI ObjLinkFiles::Clear()
+void ObjLinkFiles::Clear()
 {
 	Files.freeAll();
 	State = 0;
@@ -1627,7 +1627,7 @@ void FASTCALL ObjLinkFiles::Init(PPID objType)
 	ObjType = objType;
 }
 
-void SLAPI ObjLinkFiles::Init(PPID objType, const char * pDir)
+void ObjLinkFiles::Init(PPID objType, const char * pDir)
 {
 	Clear();
 	(StoreDir = pDir).SetLastSlash();
@@ -1655,10 +1655,10 @@ ObjLinkFiles & FASTCALL ObjLinkFiles::operator = (const ObjLinkFiles & rSrc)
 	return *this;
 }
 
-long SLAPI ObjLinkFiles::GetState() const { return State; }
-uint SLAPI ObjLinkFiles::GetCount() const { return Files.getCount(); }
+long ObjLinkFiles::GetState() const { return State; }
+uint ObjLinkFiles::GetCount() const { return Files.getCount(); }
 
-int SLAPI ObjLinkFiles::CheckFile(uint pos, const char * pPath)
+int ObjLinkFiles::CheckFile(uint pos, const char * pPath)
 {
 	SString path(pPath);
 	const char * p_exist_file = (pos < Files.getCount()) ? Files.at(pos) : 0;
@@ -1669,7 +1669,7 @@ int SLAPI ObjLinkFiles::CheckFile(uint pos, const char * pPath)
 		return (path.NotEmptyS() && !is_store_path) ? 1 : PPSetError(PPERR_LNKFILESPATHINV);
 }
 
-int SLAPI ObjLinkFiles::IsChanged(PPID id, PPID addedID /*=0*/) const
+int ObjLinkFiles::IsChanged(PPID id, PPID addedID /*=0*/) const
 {
 	ObjLinkFiles lnk_files = *this;
 	lnk_files.Load(id, addedID);
@@ -1682,7 +1682,7 @@ int SLAPI ObjLinkFiles::IsChanged(PPID id, PPID addedID /*=0*/) const
 	return !r;
 }
 
-int SLAPI ObjLinkFiles::Replace(uint i, const char * pPath)
+int ObjLinkFiles::Replace(uint i, const char * pPath)
 {
 	int    ok = CheckFile(i, pPath);
 	if(ok > 0) {
@@ -1692,7 +1692,7 @@ int SLAPI ObjLinkFiles::Replace(uint i, const char * pPath)
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::SetupZeroPositionFile(PPID objType, PPID objID, const char * pPath)
+int ObjLinkFiles::SetupZeroPositionFile(PPID objType, PPID objID, const char * pPath)
 {
 	int    ok = 1;
 	Init(objType);
@@ -1703,7 +1703,7 @@ int SLAPI ObjLinkFiles::SetupZeroPositionFile(PPID objType, PPID objID, const ch
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::GetZeroPositionFile(PPID objType, PPID objID, SString & rPath)
+int ObjLinkFiles::GetZeroPositionFile(PPID objType, PPID objID, SString & rPath)
 {
 	int    ok = 1;
 	rPath.Z();
@@ -1715,7 +1715,7 @@ int SLAPI ObjLinkFiles::GetZeroPositionFile(PPID objType, PPID objID, SString & 
 }
 
 /*
-int SLAPI ObjLinkFiles::Add(const char * pPath)
+int ObjLinkFiles::Add(const char * pPath)
 {
 	int    ok = 1;
 	SString buf;
@@ -1729,7 +1729,7 @@ int SLAPI ObjLinkFiles::Add(const char * pPath)
 }
 */
 
-int SLAPI ObjLinkFiles::Remove(uint i)
+int ObjLinkFiles::Remove(uint i)
 {
 	int    ok = -1;
 	if(i < GetCount()) {
@@ -1743,7 +1743,7 @@ int SLAPI ObjLinkFiles::Remove(uint i)
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::MakeFilePath(PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
+int ObjLinkFiles::MakeFilePath(PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
 {
 	SString added_buf(pAddedStr);
 	if(added_buf.NotEmptyS()) {
@@ -1754,7 +1754,7 @@ int SLAPI ObjLinkFiles::MakeFilePath(PPID objID, /*PPID addedID*/const char * pA
 	return 1;
 }
 
-int SLAPI ObjLinkFiles::At(uint i, SString & rPath) const
+int ObjLinkFiles::At(uint i, SString & rPath) const
 {
 	int    ok = 1;
 	if(i < Files.getCount())
@@ -1766,7 +1766,7 @@ int SLAPI ObjLinkFiles::At(uint i, SString & rPath) const
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::GetFreeNum(uint * pNum) const
+int ObjLinkFiles::GetFreeNum(uint * pNum) const
 {
 	int    ok = 0;
 	for(uint i = 1, k = 1; !ok && i > 0; (i <<= 1), k++)
@@ -1791,7 +1791,7 @@ void ObjLinkFiles::Fns::Reset()
 	Ext[0] = 0;
 }
 
-/*static*/int SLAPI ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
+/*static*/int ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
 {
 	int    ok = 0;
 	if(pFileName) {
@@ -1821,7 +1821,7 @@ void ObjLinkFiles::Fns::Reset()
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::GetNum(const char * pPath, uint * pNum)
+int ObjLinkFiles::GetNum(const char * pPath, uint * pNum)
 {
 	Fns s;
 	if(SplitInnerFileName(pPath, &s)) {
@@ -1832,7 +1832,7 @@ int SLAPI ObjLinkFiles::GetNum(const char * pPath, uint * pNum)
 		return -1;
 }
 
-int SLAPI ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
+int ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
 {
 	int    ok = -1;
 	Files.freeAll();
@@ -1859,7 +1859,7 @@ int SLAPI ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::Load(PPID objID, PPID addedID /*=0*/)
+int ObjLinkFiles::Load(PPID objID, PPID addedID /*=0*/)
 {
 	if(addedID) {
 		SString added_str;
@@ -1869,7 +1869,7 @@ int SLAPI ObjLinkFiles::Load(PPID objID, PPID addedID /*=0*/)
 		return Load(objID, static_cast<const char *>(0));
 }
 
-int SLAPI ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
+int ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
 {
 	int    ok = 0;
 	if(i < MAX_LINKED_FILES) {
@@ -1887,7 +1887,7 @@ int SLAPI ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/c
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx, SString * pResultFileName)
+int ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx, SString * pResultFileName)
 {
 	int    ok = 1;
 	ASSIGN_PTR(pResultFileName, static_cast<const char *>(0));
@@ -1920,7 +1920,7 @@ int SLAPI ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::Helper_ClearBeforeSaving(PPID objID, const char * pAddedStr)
+int ObjLinkFiles::Helper_ClearBeforeSaving(PPID objID, const char * pAddedStr)
 {
 	int    ok = -1;
 	SDirEntry e;
@@ -1939,7 +1939,7 @@ int SLAPI ObjLinkFiles::Helper_ClearBeforeSaving(PPID objID, const char * pAdded
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::SaveSingle(PPID objID, const char * pAddedStr, uint idx, SString * pResultName)
+int ObjLinkFiles::SaveSingle(PPID objID, const char * pAddedStr, uint idx, SString * pResultName)
 {
 	int    ok = -1;
 	if(objID && idx < Files.getCount()) {
@@ -1950,7 +1950,7 @@ int SLAPI ObjLinkFiles::SaveSingle(PPID objID, const char * pAddedStr, uint idx,
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::Save(PPID objID, const char * pAddedStr)
+int ObjLinkFiles::Save(PPID objID, const char * pAddedStr)
 {
 	int    ok = -1;
 	if(objID) {
@@ -1963,7 +1963,7 @@ int SLAPI ObjLinkFiles::Save(PPID objID, const char * pAddedStr)
 	return ok;
 }
 
-int SLAPI ObjLinkFiles::Save(PPID objID, PPID addedID)
+int ObjLinkFiles::Save(PPID objID, PPID addedID)
 {
 	if(addedID) {
 		SString added_str;
@@ -1973,7 +1973,7 @@ int SLAPI ObjLinkFiles::Save(PPID objID, PPID addedID)
 		return Save(objID, static_cast<const char *>(0));
 }
 
-int SLAPI ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBuf, SSerializeContext * pSCtx)
+int ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	const size_t file_chunk_size = 8 * 1024 * 1024;
 
@@ -2126,7 +2126,7 @@ PPGlobalAccRights::~PPGlobalAccRights()
 	Recs.freeAll();
 }
 
-/*static*/int SLAPI PPGlobalAccRights::EditDialog(PPID tagID, SString & rLine)
+/*static*/int PPGlobalAccRights::EditDialog(PPID tagID, SString & rLine)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GUART);
@@ -2178,7 +2178,7 @@ PPGlobalAccRights::~PPGlobalAccRights()
 	return ok;
 }
 
-int SLAPI PPGlobalAccRights::Parse(const SString & rStr)
+int PPGlobalAccRights::Parse(const SString & rStr)
 {
 	int    ok = 1;
 	SString rec, s1, s2, temp_buf;
@@ -2227,7 +2227,7 @@ int SLAPI PPGlobalAccRights::Parse(const SString & rStr)
 	return ok;
 }
 
-int SLAPI PPGlobalAccRights::IsAllow(int flags, const char * pScope) const
+int PPGlobalAccRights::IsAllow(int flags, const char * pScope) const
 {
 	int    r = 0;
 	if(pScope) {
@@ -2548,7 +2548,7 @@ public:
 	}
 };
 
-int SLAPI UniFindObj()
+int UniFindObj()
 {
 	int    ok = -1;
 	UniFindObjParamDialog * dlg = new UniFindObjParamDialog();

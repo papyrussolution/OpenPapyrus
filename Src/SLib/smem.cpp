@@ -140,7 +140,7 @@ void * FASTCALL memzero(void * p, size_t s)
 	return p;
 }
 
-int SLAPI memdword(void * p, size_t size, uint32 key, size_t * pOffs)
+int memdword(void * p, size_t size, uint32 key, size_t * pOffs)
 {
 	const size_t s4 = size / 4;
 	uint32 * p32 = static_cast<uint32 *>(p);
@@ -254,7 +254,7 @@ void FASTCALL memswap(void * p1, void * p2, size_t size)
 	}
 }
 
-void * SLAPI catmem(void * pDest, size_t destSize, const void * pSrc, size_t srcSize)
+void * catmem(void * pDest, size_t destSize, const void * pSrc, size_t srcSize)
 {
 	size_t new_size = destSize + srcSize;
 	void * p_tmp = pDest;

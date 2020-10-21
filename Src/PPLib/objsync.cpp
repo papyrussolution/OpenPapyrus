@@ -8,19 +8,19 @@
 //
 //
 //
-SLAPI PPCommSyncID::PPCommSyncID() : P(0), I(0)
+PPCommSyncID::PPCommSyncID() : P(0), I(0)
 {
 }
 
 int FASTCALL PPCommSyncID::operator == (const PPCommSyncID s) const { return (P == s.P && I == s.I); }
 int FASTCALL PPCommSyncID::operator != (const PPCommSyncID s) const { return (P != s.P || I != s.I); }
 
-int SLAPI PPCommSyncID::IsZero() const
+int PPCommSyncID::IsZero() const
 {
 	return BIN(P == 0 && I == 0);
 }
 
-PPCommSyncID & SLAPI PPCommSyncID::Z()
+PPCommSyncID & PPCommSyncID::Z()
 {
 	P = 0;
 	I = 0;
@@ -96,11 +96,11 @@ int FASTCALL PPCommSyncID::FromStr(const char * pStr)
 //
 // ObjSync
 //
-SLAPI ObjSyncCore::ObjSyncCore() : ObjSyncTbl()
+ObjSyncCore::ObjSyncCore() : ObjSyncTbl()
 {
 }
 
-int SLAPI ObjSyncCore::SearchPrivate(PPID obj, PPID id, PPID dbid, ObjSyncTbl::Rec * pRec)
+int ObjSyncCore::SearchPrivate(PPID obj, PPID id, PPID dbid, ObjSyncTbl::Rec * pRec)
 {
 	ObjSyncTbl::Key1 k1;
 	k1.ObjType = (short)obj;
@@ -109,7 +109,7 @@ int SLAPI ObjSyncCore::SearchPrivate(PPID obj, PPID id, PPID dbid, ObjSyncTbl::R
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
-int SLAPI ObjSyncCore::SearchCommon(PPID obj, PPCommSyncID id, PPID dbid, ObjSyncTbl::Rec * pRec)
+int ObjSyncCore::SearchCommon(PPID obj, PPCommSyncID id, PPID dbid, ObjSyncTbl::Rec * pRec)
 {
 	ObjSyncTbl::Key0 k0;
 	k0.ObjType   = (short)obj;
@@ -119,7 +119,7 @@ int SLAPI ObjSyncCore::SearchCommon(PPID obj, PPCommSyncID id, PPID dbid, ObjSyn
 	return SearchByKey(this, 0, &k0, pRec);
 }
 
-int SLAPI ObjSyncCore::SearchSync(PPID obj, PPID privateID, PPID dbID, int foreign, ObjSyncTbl::Rec * pRec)
+int ObjSyncCore::SearchSync(PPID obj, PPID privateID, PPID dbID, int foreign, ObjSyncTbl::Rec * pRec)
 {
 	int    ok = -1, r;
 	ObjSyncTbl::Rec rec;
@@ -139,7 +139,7 @@ int SLAPI ObjSyncCore::SearchSync(PPID obj, PPID privateID, PPID dbID, int forei
 	return ok;
 }
 
-int SLAPI ObjSyncCore::GetSyncStatus(PPID objType, PPID privID, PPCommSyncID * pCommId, PPIDArray * pDbDivList)
+int ObjSyncCore::GetSyncStatus(PPID objType, PPID privID, PPCommSyncID * pCommId, PPIDArray * pDbDivList)
 {
 	int    ok = -1;
 	PPIDArray db_div_list;
@@ -174,7 +174,7 @@ int SLAPI ObjSyncCore::GetSyncStatus(PPID objType, PPID privID, PPCommSyncID * p
 	return ok;
 }
 
-int SLAPI ObjSyncCore::GetPrivateObjectsByForeignID(PPID objType, PPID foreignID, PPIDArray * pPrivateIdList)
+int ObjSyncCore::GetPrivateObjectsByForeignID(PPID objType, PPID foreignID, PPIDArray * pPrivateIdList)
 {
 	int    ok = -1;
 	const  PPID local_dbdiv_id = LConfig.DBDiv;
@@ -205,7 +205,7 @@ int SLAPI ObjSyncCore::GetPrivateObjectsByForeignID(PPID objType, PPID foreignID
 	return ok;
 }
 
-int SLAPI ObjSyncCore::Search(const ObjSyncIdent * pIdent, ObjSyncTbl::Rec * pRec)
+int ObjSyncCore::Search(const ObjSyncIdent * pIdent, ObjSyncTbl::Rec * pRec)
 {
 	if(pIdent->fComm)
 		return SearchCommon(pIdent->ObjType, pIdent->CommID, pIdent->DBID, pRec);
@@ -213,7 +213,7 @@ int SLAPI ObjSyncCore::Search(const ObjSyncIdent * pIdent, ObjSyncTbl::Rec * pRe
 		return SearchPrivate(pIdent->ObjType, pIdent->ObjID, pIdent->DBID, pRec);
 }
 
-int SLAPI ObjSyncCore::Remove_S(const ObjSyncIdent * pIdent, int use_ta)
+int ObjSyncCore::Remove_S(const ObjSyncIdent * pIdent, int use_ta)
 {
 	PPID   div_id = NZOR(pIdent->DBID, LConfig.DBDiv);
 	DBQ  * dbq = pIdent->fComm ?
@@ -224,7 +224,7 @@ int SLAPI ObjSyncCore::Remove_S(const ObjSyncIdent * pIdent, int use_ta)
 	// return (Search(pIdent, 0) > 0) ? (deleteRec() ? 1 : PPSetErrorDB()) : -1;
 }
 
-int SLAPI ObjSyncCore::AddRawRecord(ObjSyncTbl::Rec * pRec, int use_ta)
+int ObjSyncCore::AddRawRecord(ObjSyncTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	THROW_INVARG(pRec);
@@ -238,7 +238,7 @@ int SLAPI ObjSyncCore::AddRawRecord(ObjSyncTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI ObjSyncCore::Update(const ObjSyncIdent * pIdent, const ObjSyncTbl::Rec * pRec, int use_ta)
+int ObjSyncCore::Update(const ObjSyncIdent * pIdent, const ObjSyncTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	ObjSyncTbl::Rec rec;
@@ -254,7 +254,7 @@ int SLAPI ObjSyncCore::Update(const ObjSyncIdent * pIdent, const ObjSyncTbl::Rec
 	//return (Search(pIdent, 0) > 0) ? (updateRecBuf(pRec) ? 1 : PPSetErrorDB()) : -1;
 }
 
-int SLAPI ObjSyncCore::TransmitObj(PPObjID obj, PPCommSyncID * pCommID, int use_ta)
+int ObjSyncCore::TransmitObj(PPObjID obj, PPCommSyncID * pCommID, int use_ta)
 {
 	int    ok = 1, r;
 	PPCommSyncID ci;
@@ -296,7 +296,7 @@ static void LogRcvObjDiag(uint msgID, PPID obj, PPID id, PPCommSyncID commID)
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 }
 
-int SLAPI ObjSyncCore::_RcvObj(PPID obj, PPID id, PPCommSyncID commID, PPID dbid, const LDATETIME * pMoment, int use_ta)
+int ObjSyncCore::_RcvObj(PPID obj, PPID id, PPCommSyncID commID, PPID dbid, const LDATETIME * pMoment, int use_ta)
 {
 	int    ok = 1, r;
 	if(id) {
@@ -367,19 +367,19 @@ int SLAPI ObjSyncCore::_RcvObj(PPID obj, PPID id, PPCommSyncID commID, PPID dbid
 	return ok;
 }
 
-int SLAPI ObjSyncCore::SearchCommonObj(PPID objType, PPCommSyncID commID, PPID * pID, ObjSyncTbl::Rec * pRec)
+int ObjSyncCore::SearchCommonObj(PPID objType, PPCommSyncID commID, PPID * pID, ObjSyncTbl::Rec * pRec)
 {
 	int    r = SearchCommon(objType, commID, 0, pRec);
 	ASSIGN_PTR(pID, (r > 0) ? data.ObjID : 0);
 	return r;
 }
 
-int SLAPI ObjSyncCore::AckObj(PPID objType, PPID foreignID, PPCommSyncID commID, PPID dbid, const LDATETIME * pDtm, int use_ta)
+int ObjSyncCore::AckObj(PPID objType, PPID foreignID, PPCommSyncID commID, PPID dbid, const LDATETIME * pDtm, int use_ta)
 {
 	return _RcvObj(objType, foreignID, commID, dbid, pDtm, use_ta);
 }
 
-int SLAPI ObjSyncCore::GetFreeCommonID(PPID objType, PPCommSyncID * pCommID)
+int ObjSyncCore::GetFreeCommonID(PPID objType, PPCommSyncID * pCommID)
 {
 	// {ObjType, CommIdPfx, CommID, DBID (unique mod)};
 	int    ok = 1;
@@ -405,7 +405,7 @@ int SLAPI ObjSyncCore::GetFreeCommonID(PPID objType, PPCommSyncID * pCommID)
 	return ok;
 }
 
-int SLAPI ObjSyncCore::SelfSync(PPID obj, PPID id, PPID destDbID, int use_ta)
+int ObjSyncCore::SelfSync(PPID obj, PPID id, PPID destDbID, int use_ta)
 {
 	int    ok = 1;
 	int    prim_found = 0, foreign_found = 0;
@@ -451,7 +451,7 @@ int SLAPI ObjSyncCore::SelfSync(PPID obj, PPID id, PPID destDbID, int use_ta)
 	return ok;
 }
 
-int SLAPI ObjSyncCore::RemoveByPrivateID(PPID objType, PPID objID, int use_ta)
+int ObjSyncCore::RemoveByPrivateID(PPID objType, PPID objID, int use_ta)
 {
 	int    ok = -1;
 	if(objType > 0 && objID > 0) {
@@ -477,7 +477,7 @@ int SLAPI ObjSyncCore::RemoveByPrivateID(PPID objType, PPID objID, int use_ta)
 	return ok;
 }
 
-int SLAPI ObjSyncCore::RemoveByCommID(PPID objType, PPCommSyncID commID, PPID dbid, int use_ta)
+int ObjSyncCore::RemoveByCommID(PPID objType, PPCommSyncID commID, PPID dbid, int use_ta)
 {
 	DBQ  * dbq = &(this->ObjType == objType && this->CommIdPfx == (long)commID.P && this->CommID == commID.I);
 	if(dbid)
@@ -487,11 +487,11 @@ int SLAPI ObjSyncCore::RemoveByCommID(PPID objType, PPCommSyncID commID, PPID db
 //
 //
 //
-SLAPI ObjSyncQueueCore::FileInfo::FileInfo() : QueueID(0), Flags(0), Mod(ZERODATETIME)
+ObjSyncQueueCore::FileInfo::FileInfo() : QueueID(0), Flags(0), Mod(ZERODATETIME)
 {
 }
 
-int SLAPI ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo & rInfo, int use_ta)
+int ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo & rInfo, int use_ta)
 {
 	int    ok = 1;
 	ObjSyncQueueTbl::Rec rec;
@@ -512,7 +512,7 @@ int SLAPI ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::Fi
 	return ok;
 }
 
-int SLAPI ObjSyncQueueCore::GetFileRecord(PPID id, ObjSyncQueueCore::FileInfo & rInfo)
+int ObjSyncQueueCore::GetFileRecord(PPID id, ObjSyncQueueCore::FileInfo & rInfo)
 {
 	int    ok = 1;
 	SString left, right;
@@ -532,7 +532,7 @@ int SLAPI ObjSyncQueueCore::GetFileRecord(PPID id, ObjSyncQueueCore::FileInfo & 
 	return ok;
 }
 
-int SLAPI ObjSyncQueueCore::SearchRefToOrgFile(const char * pFileName, ObjSyncQueueCore::FileInfo * pInfo)
+int ObjSyncQueueCore::SearchRefToOrgFile(const char * pFileName, ObjSyncQueueCore::FileInfo * pInfo)
 {
 	int    ok = -1;
 	SString temp_buf, left, right, nam;
@@ -554,7 +554,7 @@ int SLAPI ObjSyncQueueCore::SearchRefToOrgFile(const char * pFileName, ObjSyncQu
 	return ok;
 }
 
-int SLAPI ObjSyncQueueCore::MarkAsProcessed(PPID queueID, PPID primaryID, int use_ta)
+int ObjSyncQueueCore::MarkAsProcessed(PPID queueID, PPID primaryID, int use_ta)
 {
 	int    ok = 1;
 	ObjSyncQueueTbl::Rec queue_rec;
@@ -572,16 +572,16 @@ int SLAPI ObjSyncQueueCore::MarkAsProcessed(PPID queueID, PPID primaryID, int us
 	return ok;
 }
 
-SLAPI ObjSyncQueueCore::ObjSyncQueueCore() : ObjSyncQueueTbl()
+ObjSyncQueueCore::ObjSyncQueueCore() : ObjSyncQueueTbl()
 {
 }
 
-int SLAPI ObjSyncQueueCore::Search(PPID queueID, ObjSyncQueueTbl::Rec * pRec)
+int ObjSyncQueueCore::Search(PPID queueID, ObjSyncQueueTbl::Rec * pRec)
 {
 	return SearchByID(this, 0, queueID, pRec);
 }
 
-int SLAPI ObjSyncQueueCore::SearchObject_(PPID objType, PPID objID, PPID dbID, ObjSyncQueueTbl::Rec * pRec)
+int ObjSyncQueueCore::SearchObject_(PPID objType, PPID objID, PPID dbID, ObjSyncQueueTbl::Rec * pRec)
 {
 	ObjSyncQueueTbl::Key1 k1;
 	k1.ObjType = (short)objType;
@@ -590,7 +590,7 @@ int SLAPI ObjSyncQueueCore::SearchObject_(PPID objType, PPID objID, PPID dbID, O
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
-int SLAPI ObjSyncQueueCore::PrintDebugObjList(PPID objType)
+int ObjSyncQueueCore::PrintDebugObjList(PPID objType)
 {
 	int    ok = 1;
     SString buf, temp_buf;
@@ -615,7 +615,7 @@ int SLAPI ObjSyncQueueCore::PrintDebugObjList(PPID objType)
     return ok;
 }
 
-int SLAPI ObjSyncQueueCore::GetUnprocessedList(PPIDArray * pList)
+int ObjSyncQueueCore::GetUnprocessedList(PPIDArray * pList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, clear());
@@ -634,7 +634,7 @@ int SLAPI ObjSyncQueueCore::GetUnprocessedList(PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI ObjSyncQueueCore::Clear()
+int ObjSyncQueueCore::Clear()
 {
 	int    ok = 1;
 	SString file_path;

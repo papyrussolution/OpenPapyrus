@@ -514,6 +514,7 @@
 		MENUITEM "@cmd_updatepassword",						cmUpdatePassword
 		MENUITEM "@cmd_activeuserslist",					cmActiveUsersList
 		MENUITEM "@cmd_viewsysj",							cmViewSysJ
+		MENUITEM "@cmd_events",                             cmEvents // @v10.9.1
 		MENUITEM "@cmd_viewlogsmon",						cmViewLogsMon
 		MENUITEM "@cmd_viewcheckopj",						cmViewCheckOpJ
 		MENUITEM "@cmd_userprofile",						cmUserProfile

@@ -8,34 +8,34 @@
 //
 //
 //
-SLAPI QuotIdent::QuotIdent(PPID locID, PPID quotKindID, PPID curID, PPID arID) :
+QuotIdent::QuotIdent(PPID locID, PPID quotKindID, PPID curID, PPID arID) :
 	Flags(0), Dt(ZERODATE), LocID(locID), QuotKindID(quotKindID), CurID(curID), ArID(arID), Qtty_(SMathConst::Max), PrevBase(0.0)
 {
 	Period.Z();
 }
 
-SLAPI QuotIdent::QuotIdent(LDATE dt, PPID locID, PPID quotKindID, PPID curID, PPID arID) :
+QuotIdent::QuotIdent(LDATE dt, PPID locID, PPID quotKindID, PPID curID, PPID arID) :
 	Flags(0), Dt(dt), LocID(locID), QuotKindID(quotKindID), CurID(curID), ArID(arID), Qtty_(SMathConst::Max), PrevBase(0.0)
 {
 	Period.Z();
 }
 
-SLAPI QuotIdent::QuotIdent(const QuotIdent & rS) : Flags(rS.Flags), Period(rS.Period), Dt(rS.Dt), LocID(rS.LocID),
+QuotIdent::QuotIdent(const QuotIdent & rS) : Flags(rS.Flags), Period(rS.Period), Dt(rS.Dt), LocID(rS.LocID),
 	QuotKindID(rS.QuotKindID), CurID(rS.CurID), ArID(rS.ArID), Qtty_(rS.Qtty_), PrevBase(rS.PrevBase)
 {
 }
 
-SLAPI QuotIdent::QuotIdent(const PPQuot & rS) : Flags((fUsePeriod|fUseQtty)), Period(rS.Period), Dt(ZERODATE), LocID(rS.LocID),
+QuotIdent::QuotIdent(const PPQuot & rS) : Flags((fUsePeriod|fUseQtty)), Period(rS.Period), Dt(ZERODATE), LocID(rS.LocID),
 	QuotKindID(rS.Kind), CurID(rS.CurID), ArID(rS.ArID), Qtty_(rS.MinQtty), PrevBase(0.0)
 {
 }
 
-void SLAPI QuotIdent::SetBase(double b)
+void QuotIdent::SetBase(double b)
 {
 	PrevBase = b;
 }
 
-double SLAPI QuotIdent::GetPrevBase() const
+double QuotIdent::GetPrevBase() const
 {
 	return PrevBase;
 }
@@ -103,7 +103,7 @@ int FASTCALL PPQuotItem_::Get(PPQuot & rDest) const
 	return ok;
 }
 
-int SLAPI PPQuotItem_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPQuotItem_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, GoodsID, rBuf));
@@ -136,7 +136,7 @@ int FASTCALL PPQuotItemArray::Add(const PPQuot & rQ)
 	return Add(item);
 }
 
-int SLAPI PPQuotItemArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPQuotItemArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	int32  c = getCountI();
@@ -155,7 +155,7 @@ int SLAPI PPQuotItemArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext 
 	return ok;
 }
 
-int SLAPI PPQuotItemArray::Set(const PPQuot & rQ, long flags)
+int PPQuotItemArray::Set(const PPQuot & rQ, long flags)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -195,7 +195,7 @@ int SLAPI PPQuotItemArray::Set(const PPQuot & rQ, long flags)
 	return ok;
 }
 
-void SLAPI PPQuotItemArray::Sort()
+void PPQuotItemArray::Sort()
 {
 	SVector::sort(PTR_CMPFUNC(PPQuotItem_)); // @v9.8.4 SArray-->SVector
 }
@@ -226,18 +226,18 @@ void SLAPI PPQuotItemArray::Sort()
 	return yes;
 }
 
-SLAPI PPQuot::PPQuot(PPID goodsID)
+PPQuot::PPQuot(PPID goodsID)
 {
 	Clear();
 	GoodsID = goodsID;
 }
 
-SLAPI PPQuot::PPQuot(const QuotationTbl::Rec & src)
+PPQuot::PPQuot(const QuotationTbl::Rec & src)
 {
 	GetFromRec(src);
 }
 
-void SLAPI PPQuot::Clear()
+void PPQuot::Clear()
 {
 	THISZERO();
 }
@@ -257,7 +257,7 @@ QuotIdent & FASTCALL PPQuot::MakeIdent(QuotIdent & rQi) const
 	return rQi;
 }
 
-int SLAPI PPQuot::IsEqual(const PPQuot & rS, long flags) const
+int PPQuot::IsEqual(const PPQuot & rS, long flags) const
 {
 	if(!(flags & cmpNoID) && ID != rS.ID)
 		return 0;
@@ -277,10 +277,10 @@ int SLAPI PPQuot::IsEqual(const PPQuot & rS, long flags) const
 	*/
 }
 
-int SLAPI PPQuot::IsRelative() const { return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }
-int SLAPI PPQuot::IsEmpty() const { return BIN(Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative()); }
+int PPQuot::IsRelative() const { return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)); }
+int PPQuot::IsEmpty() const { return BIN(Quot == 0.0 && !(Flags & (fPctDisabled|fZero)) && !IsRelative()); }
 
-double SLAPI PPQuot::CalcPrice(double cost, double price) const
+double PPQuot::CalcPrice(double cost, double price) const
 {
 	double val = 0.0;
 	if(Flags & fPctOnPrice)
@@ -445,7 +445,7 @@ int FASTCALL PPQuot::CheckForFilt(const QuotFilt * pFilt, const PPIDArray * pKin
 	return 1;
 }
 
-int SLAPI PPQuot::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPQuot::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, ID, rBuf));
@@ -469,11 +469,11 @@ IMPL_CMPFUNC(PPQuot, i1, i2)
 //
 // PPQuotArray
 //
-SLAPI PPQuotArray::PPQuotArray(PPID goodsID) : TSVector <PPQuot>(), GoodsID(goodsID) // @v9.8.4 TSArray-->TSVector
+PPQuotArray::PPQuotArray(PPID goodsID) : TSVector <PPQuot>(), GoodsID(goodsID) // @v9.8.4 TSArray-->TSVector
 {
 }
 
-SLAPI PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSVector <PPQuot> (s), GoodsID(s.GoodsID) // @v9.8.4 TSArray-->TSVector
+PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSVector <PPQuot> (s), GoodsID(s.GoodsID) // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -484,7 +484,7 @@ PPQuotArray & FASTCALL PPQuotArray::operator = (const PPQuotArray & s)
 	return *this;
 }
 
-int SLAPI PPQuotArray::RemoveHangedLocations()
+int PPQuotArray::RemoveHangedLocations()
 {
 	int    ok = -1;
 	PPQuot * p_quot;
@@ -497,7 +497,7 @@ int SLAPI PPQuotArray::RemoveHangedLocations()
 	return ok;
 }
 
-void SLAPI PPQuotArray::SetManagedLocList(const PPIDArray * pList)
+void PPQuotArray::SetManagedLocList(const PPIDArray * pList)
 {
 	if(pList)
 		ManagedLocList = *pList;
@@ -516,7 +516,7 @@ int FASTCALL PPQuotArray::CanUpdateQuot(const PPQuot & rQuot) const
 	return PPQuot::IsQuotAcceptableForLoc(rQuot.LocID, ManagedLocList);
 }
 
-int SLAPI PPQuotArray::SetQuot(const QuotIdent & rQi, double v, long flags, long minQtty, const DateRange * pPeriod)
+int PPQuotArray::SetQuot(const QuotIdent & rQi, double v, long flags, long minQtty, const DateRange * pPeriod)
 {
 	int    ret = 0;
 	uint   pos = 0;
@@ -634,7 +634,7 @@ int FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
 	return ok;
 }
 
-int SLAPI PPQuotArray::GetQuot(const QuotIdent & rIdent, PPQuot * pQuot) const
+int PPQuotArray::GetQuot(const QuotIdent & rIdent, PPQuot * pQuot) const
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -653,7 +653,7 @@ int SLAPI PPQuotArray::GetQuot(const QuotIdent & rIdent, PPQuot * pQuot) const
 	return ok;
 }
 
-int SLAPI PPQuotArray::SearchNearest(const QuotIdent & rQi, uint * pPos) const
+int PPQuotArray::SearchNearest(const QuotIdent & rQi, uint * pPos) const
 {
 	QuotIdent temp = rQi;
 	SETIFZ(temp.Dt, getcurdate_());
@@ -685,7 +685,7 @@ int SLAPI PPQuotArray::SearchNearest(const QuotIdent & rQi, uint * pPos) const
 	return r;
 }
 
-int SLAPI PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double price, double * pResult) const
+int PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double price, double * pResult) const
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -721,12 +721,12 @@ int SLAPI PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double p
 	return ok;
 }
 
-void SLAPI PPQuotArray::Sort()
+void PPQuotArray::Sort()
 {
 	SVector::sort(PTR_CMPFUNC(PPQuot)); // @v9.8.4 SArray-->SVector
 }
 
-int SLAPI PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQKList, PPQuotArray * pParentQuots)
+int PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQKList, PPQuotArray * pParentQuots)
 {
 	int    r = 0, not_found = 0;
 	uint   pos = 0;
@@ -749,7 +749,7 @@ int SLAPI PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQ
 	return (not_found && pParentQuots) ? pParentQuots->IsDisabled(rIdent, pQKList) : r;
 }
 
-int SLAPI PPQuotArray::Correct721(PPLogger * pLogger)
+int PPQuotArray::Correct721(PPLogger * pLogger)
 {
 	int    ok = -1;
 	uint   i;
@@ -787,7 +787,7 @@ int SLAPI PPQuotArray::Correct721(PPLogger * pLogger)
 	return ok;
 }
 
-int SLAPI PPQuotArray::DebugLog() const
+int PPQuotArray::DebugLog() const
 {
 #ifndef NDEBUG // {
 	SString temp_buf, quot_buf;
@@ -803,7 +803,7 @@ int SLAPI PPQuotArray::DebugLog() const
 	return 1;
 }
 
-static int SLAPI LogDeclineMsg(const PPQuot * pQuot, int quotCat)
+static int LogDeclineMsg(const PPQuot * pQuot, int quotCat)
 {
 	uint   msg_id = 0;
 	SString fmt_buf, msg_buf, quot_buf;
@@ -823,16 +823,16 @@ static int SLAPI LogDeclineMsg(const PPQuot * pQuot, int quotCat)
 //
 // QuotationCore
 //
-SLAPI QuotationCore::QuotationCore() : QuotationTbl()
+QuotationCore::QuotationCore() : QuotationTbl()
 {
 }
 
-int SLAPI QuotationCore::Search(PPID id, void * b)
+int QuotationCore::Search(PPID id, void * b)
 {
 	return SearchByID(this, PPOBJ_QUOT, id, b);
 }
 
-int SLAPI QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_ta)
+int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_ta)
 {
 	int    ok = -1;
 	int    is_mtx_upd = 0, is_mtx_restr_upd = 0, is_suppl_deal_upd = 0;
@@ -966,7 +966,7 @@ int SLAPI QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, in
 	return ok;
 }
 
-int SLAPI QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
 {
 	assert(!pTemplate || pTemplate->GoodsID == rQuotList.GoodsID);
 	int    ok = 1, r = 0;
@@ -1089,7 +1089,7 @@ int SLAPI QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuot
 	return ok;
 }
 
-int SLAPI QuotationCore::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList)
+int QuotationCore::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList)
 {
 	int    ok = 1;
 	QuotationTbl::Key2 k, k_;
@@ -1121,7 +1121,7 @@ int SLAPI QuotationCore::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, 
 	return ok;
 }
 
-int SLAPI QuotationCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
+int QuotationCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
 {
 	int    ok = 1;
 	uint   i = 0;
@@ -1146,7 +1146,7 @@ int SLAPI QuotationCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use
 	return ok;
 }
 
-int SLAPI QuotationCore::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rList, PPIDArray & rNegList)
+int QuotationCore::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rList, PPIDArray & rNegList)
 {
 	int    ok = 1;
 	QuotationTbl::Key0 k0;
@@ -1186,7 +1186,7 @@ int SLAPI QuotationCore::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray 
 	  то приоритет отдается значению Да. Это правило обусловлено тем, что лишнее значение в списке
 	  не так критично как отсутствие нужного значения.
 */
-static int SLAPI Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PPID mtxQkID, PPID locID, PPIDArray * pList)
+static int Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PPID mtxQkID, PPID locID, PPIDArray * pList)
 {
 	int    ok = 1;
 	PPIDArray final_list;
@@ -1305,7 +1305,7 @@ static int SLAPI Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvid
 	return ok;
 }
 
-int SLAPI QuotationCore::GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList)
+int QuotationCore::GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList)
 {
 	return Helper_GetMatrix(1, this, mtxQkID, locID, pList);
 }
@@ -1328,8 +1328,8 @@ public:
 		MtxQkID = goods_obj.GetConfig().MtxQkID;
 		IgnoreFolderMtx = BIN(goods_obj.GetConfig().Flags & GCF_IGNOREFOLDERMATRIX);
 	}
-	int    SLAPI Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock & rRwl, PPID locID, PPIDArray * pResult);
-	int    SLAPI Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPIDArray * pMtxLocList, int deferred);
+	int    Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock & rRwl, PPID locID, PPIDArray * pResult);
+	int    Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPIDArray * pMtxLocList, int deferred);
 	static int FASTCALL Helper_CallDirtyMatrix(PPIDArray * pMtxGoodsList);
 
 	struct MatrixEntry {
@@ -1338,7 +1338,7 @@ public:
 	};
 protected:
 	int    FASTCALL LogDirtyMatrix(PPID goodsID) const;
-	int    SLAPI LogStat();
+	int    LogStat();
 	void   FASTCALL SetQuotProvider(void * p) { P_QuotProvider = p; }
 	const  int  QuotProviderGeneration;
 	PPID   MtxQkID; // Вид котировки товарной матрицы
@@ -1359,7 +1359,7 @@ protected:
 	PPIDArray DeferredGoodsList;
 };
 
-int SLAPI QuotCacheBase::Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock & rRwl, PPID locID, PPIDArray * pResult)
+int QuotCacheBase::Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock & rRwl, PPID locID, PPIDArray * pResult)
 {
 	int    ok = -1;
 	const  PPIDArray * p_vect = 0;
@@ -1446,7 +1446,7 @@ int SLAPI QuotCacheBase::Implement_GetMatrix(int qpg, void * pProvider, ReadWrit
 	return ok;
 }
 
-int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPIDArray * pMtxLocList, int deferred)
+int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPIDArray * pMtxLocList, int deferred)
 {
 	const uint _threshould = 100;
 
@@ -1666,7 +1666,7 @@ int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, con
 	return ok;
 }
 
-int SLAPI QuotCacheBase::LogStat()
+int QuotCacheBase::LogStat()
 {
 	SString temp_buf;
 	temp_buf.Cat(LStatData.Hits).Semicol().Cat(LStatData.Misses).Semicol().
@@ -1718,7 +1718,7 @@ public:
 			long   MinQtty;
 			double Val;
 		};
-		void * SLAPI operator new(size_t sz, const PPQuotArray * pQuotList, QuotCache * pQuotCache)
+		void * operator new(size_t sz, const PPQuotArray * pQuotList, QuotCache * pQuotCache)
 		{
 			const uint c = pQuotList->getCount();
 			size_t s = sz + (pQuotList ? (sizeof(Entry) * c) : 0);
@@ -1738,7 +1738,7 @@ public:
 			}
 			return p;
 		}
-		int    SLAPI Get(PPQuotArray * pQuotList, PPID quotKindID, PPID locID, const QuotCache * pQuotCache)
+		int    Get(PPQuotArray * pQuotList, PPID quotKindID, PPID locID, const QuotCache * pQuotCache)
 		{
 			UseCount++;
 			pQuotList->GoodsID = GoodsID;
@@ -1761,30 +1761,30 @@ public:
 	};
 	class QuotCacheCollection : public SCollection {
 	public:
-		SLAPI  QuotCacheCollection() : SCollection() {}
+		QuotCacheCollection() : SCollection() {}
 		virtual void FASTCALL freeItem(void * pItem) { delete static_cast<CacheEntry *>(pItem); }
 	};
-	SLAPI  QuotCache();
-	SLAPI ~QuotCache();
+	QuotCache();
+	~QuotCache();
 	void   FASTCALL SetTable(QuotationCore * pTbl)
 	{
 		P_Qc = pTbl;
 		QuotCacheBase::SetQuotProvider(pTbl);
 	}
 	int    FASTCALL Put(const PPQuotArray *);
-	int    SLAPI Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray *); // non-virtual
-	int    SLAPI GetQuotParamID(const PPQuot * pQuot, uint * pID);
-	int    SLAPI GetQuotParam(uint id, PPQuot * pQuot) const;
-	int    SLAPI BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID locID);
+	int    Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray *); // non-virtual
+	int    GetQuotParamID(const PPQuot * pQuot, uint * pID);
+	int    GetQuotParam(uint id, PPQuot * pQuot) const;
+	int    BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID locID);
 	int    FASTCALL Dirty_(PPID goodsID); // @sync non-virtual
-	int    SLAPI Clear_(); // @sync
-	//int    SLAPI Lock()   { return RwL.WriteLock(); }
-	//int    SLAPI Unlock() { return RwL.Unlock();    }
+	int    Clear_(); // @sync
+	//int    Lock()   { return RwL.WriteLock(); }
+	//int    Unlock() { return RwL.Unlock();    }
 private:
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr); // PPAdviseProc()
 
-	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) { return 0; }
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const {}
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) { return 0; }
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const {}
 	int    FASTCALL Search(PPID goodsID, uint * pPos) const { return P_Ary->bsearch(&goodsID, pPos, CMPF_LONG); }
 	QuotationCore * P_Qc;
 };
@@ -1848,7 +1848,7 @@ static long FASTCALL _AdviseQuotCacheUpdate(long acn, PPAdviseProc proc, void * 
 	return cookie;
 }
 
-SLAPI QuotCache::QuotCache() : ObjCache(PPOBJ_QUOT, sizeof(ObjCacheEntry), ObjCache::fOwnerArray), QuotCacheBase(1)
+QuotCache::QuotCache() : ObjCache(PPOBJ_QUOT, sizeof(ObjCacheEntry), ObjCache::fOwnerArray), QuotCacheBase(1)
 {
 	P_Ary = new QuotCacheCollection();
 	long   cookie = 0;
@@ -1857,7 +1857,7 @@ SLAPI QuotCache::QuotCache() : ObjCache(PPOBJ_QUOT, sizeof(ObjCacheEntry), ObjCa
 	cookie = _AdviseQuotCacheUpdate(PPACN_MTXGOODSADD, QuotCache::OnSysJ, this);
 }
 
-SLAPI QuotCache::~QuotCache()
+QuotCache::~QuotCache()
 {
 	// DS.Unadvise(AdvCookie); Приводит к зависанию при завершении сессии
 	// @v6.7.1 (Приводит к зависанию при завершении сессии) LogStat();
@@ -1882,7 +1882,7 @@ int FASTCALL QuotCache::Put(const PPQuotArray * pItem)
 	return BIN(p_entry && P_Ary->ordInsert(p_entry, 0, CMPF_LONG));
 }
 
-int SLAPI QuotCache::Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray * pItem)
+int QuotCache::Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray * pItem)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -1937,7 +1937,7 @@ int FASTCALL QuotCache::Dirty_(PPID goodsID)
 	return ok;
 }
 
-int SLAPI QuotCache::Clear_()
+int QuotCache::Clear_()
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -1951,7 +1951,7 @@ int SLAPI QuotCache::Clear_()
 	return ok;
 }
 
-int SLAPI QuotCache::GetQuotParamID(const PPQuot * pQuot, uint * pID)
+int QuotCache::GetQuotParamID(const PPQuot * pQuot, uint * pID)
 {
 	int    ok = 0;
 	QuotParamEntry entry, * p_e;
@@ -1972,7 +1972,7 @@ int SLAPI QuotCache::GetQuotParamID(const PPQuot * pQuot, uint * pID)
 	return ok;
 }
 
-int SLAPI QuotCache::GetQuotParam(uint id, PPQuot * pQuot) const
+int QuotCache::GetQuotParam(uint id, PPQuot * pQuot) const
 {
 	if(id > 0 && id <= QpList.getCount()) {
 		const QuotParamEntry * p_entry = (QuotParamEntry *)QpList.at(id-1);
@@ -1986,7 +1986,7 @@ int SLAPI QuotCache::GetQuotParam(uint id, PPQuot * pQuot) const
 		return 0;
 }
 
-int SLAPI QuotCache::BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID locID)
+int QuotCache::BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID locID)
 {
 	int    ok = -1;
 	{
@@ -2021,19 +2021,19 @@ int SLAPI QuotCache::BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID loc
 	return ok;
 }
 
-int SLAPI QuotationCore::GetMatrix(PPID locID, PPIDArray * pResult)
+int QuotationCore::GetMatrix(PPID locID, PPIDArray * pResult)
 {
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT);
 	return p_cache ? p_cache->Implement_GetMatrix(1, this, p_cache->RwL, locID, pResult) : -1;
 }
 
-int SLAPI QuotationCore::BelongToMatrix(PPID goodsID, PPID locID)
+int QuotationCore::BelongToMatrix(PPID goodsID, PPID locID)
 {
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT);
 	return p_cache ? p_cache->BelongToMatrix(this, goodsID, locID) : -1;
 }
 
-int SLAPI QuotationCore::FetchList(PPID goodsID, PPQuotArray & rList)
+int QuotationCore::FetchList(PPID goodsID, PPQuotArray & rList)
 {
 	int    ok = 0;
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT);
@@ -2054,7 +2054,7 @@ int SLAPI QuotationCore::FetchList(PPID goodsID, PPQuotArray & rList)
 	return ok;
 }
 
-int SLAPI QuotationCore::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
+int QuotationCore::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
 {
 	int    ok = -1, r = -1;
 	long   val = 0;
@@ -2071,7 +2071,7 @@ int SLAPI QuotationCore::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, P
 	return ok;
 }
 
-int SLAPI QuotationCore::GetNearest(PPID goodsID, const QuotIdent & rIdent, PPQuot * pQuot, int useCache)
+int QuotationCore::GetNearest(PPID goodsID, const QuotIdent & rIdent, PPQuot * pQuot, int useCache)
 {
 	int    ok = -1, r = -1;
 	uint   pos = 0;
@@ -2084,7 +2084,7 @@ int SLAPI QuotationCore::GetNearest(PPID goodsID, const QuotIdent & rIdent, PPQu
 	return ok;
 }
 
-int SLAPI QuotationCore::GetCurr(PPID goodsID, const QuotIdent & rIdent, double cost, double price, double * pQ, int useCache)
+int QuotationCore::GetCurr(PPID goodsID, const QuotIdent & rIdent, double cost, double price, double * pQ, int useCache)
 {
 	int    ok = -1, r = -1;
 	double q = 0.0;
@@ -2095,7 +2095,7 @@ int SLAPI QuotationCore::GetCurr(PPID goodsID, const QuotIdent & rIdent, double 
 	return ok;
 }
 
-int SLAPI QuotationCore::DirtyGoodsID(PPID goodsID)
+int QuotationCore::DirtyGoodsID(PPID goodsID)
 {
 	int    ok = -1;
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT, 0);
@@ -2106,7 +2106,7 @@ int SLAPI QuotationCore::DirtyGoodsID(PPID goodsID)
 	return ok;
 }
 
-int SLAPI QuotationCore::ClearCache()
+int QuotationCore::ClearCache()
 {
 	int    ok = -1;
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT, 0);
@@ -2117,7 +2117,7 @@ int SLAPI QuotationCore::ClearCache()
 	return ok;
 }
 
-int SLAPI QuotationCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred)
+int QuotationCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred)
 {
 	int    ok = -1;
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT, 0);
@@ -2195,11 +2195,11 @@ const LDATE QIISuppDate = {0x07CB0C1F}; // 31/12/1995
 	return ok;
 }
 
-SLAPI Quotation2Core::Quotation2Core() : Quotation2Tbl()
+Quotation2Core::Quotation2Core() : Quotation2Tbl()
 {
 }
 
-void SLAPI Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
+void Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
 {
 	rQuot.Clear();
 	if(pRec->RelID)
@@ -2214,7 +2214,7 @@ void SLAPI Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & r
 	rQuot.Quot = pRec->Quot;
 }
 
-void SLAPI Quotation2Core::RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
+void Quotation2Core::RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
 {
 	if(rQuot.RelID != pRec->RelID) {
 		rQuot.Clear();
@@ -2231,7 +2231,7 @@ void SLAPI Quotation2Core::RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot 
 	rQuot.Quot = pRec->Quot;
 }
 
-int SLAPI Quotation2Core::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
+int Quotation2Core::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
 {
 	int    ok = -1, r = -1;
 	long   val = 0;
@@ -2248,7 +2248,7 @@ int SLAPI Quotation2Core::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, 
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetNearest(PPID goodsID, const QuotIdent & rIdent, PPQuot * pQuot, int useCache)
+int Quotation2Core::GetNearest(PPID goodsID, const QuotIdent & rIdent, PPQuot * pQuot, int useCache)
 {
 	int    ok = -1, r = -1;
 	uint   pos = 0;
@@ -2261,7 +2261,7 @@ int SLAPI Quotation2Core::GetNearest(PPID goodsID, const QuotIdent & rIdent, PPQ
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList)
+int Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList)
 {
 	int    ok = 1;
 	PPQuot quot;
@@ -2321,7 +2321,7 @@ int SLAPI Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID,
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetCurrListByRelList(PPID goodsID, const PPIDArray & rRelList, PPQuotArray & rQuotList)
+int Quotation2Core::GetCurrListByRelList(PPID goodsID, const PPIDArray & rRelList, PPQuotArray & rQuotList)
 {
 	int    ok = 1;
 	PPQuot quot;
@@ -2345,7 +2345,7 @@ int SLAPI Quotation2Core::GetCurrListByRelList(PPID goodsID, const PPIDArray & r
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetCurr(PPID goodsID, const QuotIdent & rIdent, double cost, double price, double * pQ, int useCache)
+int Quotation2Core::GetCurr(PPID goodsID, const QuotIdent & rIdent, double cost, double price, double * pQ, int useCache)
 {
 	int    ok = -1, r = -1;
 	double q = 0.0;
@@ -2356,7 +2356,7 @@ int SLAPI Quotation2Core::GetCurr(PPID goodsID, const QuotIdent & rIdent, double
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rList, PPIDArray & rNegList)
+int Quotation2Core::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rList, PPIDArray & rNegList)
 {
 	int    ok = 1;
 	PPIDArray rel_list;
@@ -2393,7 +2393,7 @@ int SLAPI Quotation2Core::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray
 	return ok;
 }
 
-int SLAPI Quotation2Core::Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArray * pList)
+int Quotation2Core::Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArray * pList)
 {
 	int    ok = -1;
 	Quotation2Tbl::Key0 k0;
@@ -2423,7 +2423,7 @@ int SLAPI Quotation2Core::Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQu
 	return ok;
 }
 
-int SLAPI  Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray * pList)  // @erik v10.5.8
+int Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray * pList)  // @erik v10.5.8
 {
 	int    ok = -1;
 	Quotation2Tbl::Key4 k4;
@@ -2452,7 +2452,7 @@ int SLAPI  Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray * pL
 	return ok;
 }
 
-int    SLAPI Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot) //v10.5.8 @erik
+int    Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot) //v10.5.8 @erik
 {
 	int    ok = -1;
 	Quotation2Tbl::Key0 k0;
@@ -2475,7 +2475,7 @@ int    SLAPI Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID &
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
+int Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
 {
 	class SellerLocWorldCritBlock {
 	public:
@@ -2584,7 +2584,7 @@ int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & r
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetRelByID(PPID relID, PPQuot * pVal)
+int Quotation2Core::GetRelByID(PPID relID, PPQuot * pVal)
 {
 	int    ok = 1;
 	Quot2RelTbl::Rec rec;
@@ -2610,7 +2610,7 @@ int SLAPI Quotation2Core::GetRelByID(PPID relID, PPQuot * pVal)
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists, int use_ta)
+int Quotation2Core::GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists, int use_ta)
 {
 	int    ok = -1;
 	Quot2RelTbl::Rec rec;
@@ -2643,12 +2643,12 @@ int SLAPI Quotation2Core::GetRel(const PPQuot * pVal, PPID * pID, int createIfNE
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList)
+int Quotation2Core::GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList)
 {
 	return Helper_GetMatrix(2, this, mtxQkID, locID, pList);
 }
 
-int SLAPI Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQuotArray * pTemplate, int noRmv, int use_ta)
 {
 	assert(!pTemplate || pTemplate->GoodsID == rQList.GoodsID);
 	int    ok = 1;
@@ -2781,7 +2781,7 @@ int SLAPI Quotation2Core::Set(const PPQuotArray & rQList, long qtaID, const PPQu
 	return ok;
 }
 
-int SLAPI Quotation2Core::AdjustTime(Quotation2Tbl::Rec & rRec)
+int Quotation2Core::AdjustTime(Quotation2Tbl::Rec & rRec)
 {
 	int    ok = -1;
 	LDATETIME dtm;
@@ -2812,7 +2812,7 @@ int SLAPI Quotation2Core::AdjustTime(Quotation2Tbl::Rec & rRec)
 	return ok;
 }
 
-int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_ta)
+int Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_ta)
 {
 	int    ok = 1;
 	PROFILE_START
@@ -2959,7 +2959,7 @@ int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetGoodsList(PPID relID, int actualOnly, PPIDArray & rList)
+int Quotation2Core::GetGoodsList(PPID relID, int actualOnly, PPIDArray & rList)
 {
 	int    ok = -1;
 	UintHashTable tab;
@@ -2998,7 +2998,7 @@ int SLAPI Quotation2Core::GetGoodsList(PPID relID, int actualOnly, PPIDArray & r
 	return ok;
 }
 
-int SLAPI Quotation2Core::RemoveAllForRel(PPID relID, const char * pPctMsg, int use_ta)
+int Quotation2Core::RemoveAllForRel(PPID relID, const char * pPctMsg, int use_ta)
 {
 	int    ok = -1;
 	{
@@ -3033,7 +3033,7 @@ int SLAPI Quotation2Core::RemoveAllForRel(PPID relID, const char * pPctMsg, int 
 	return ok;
 }
 
-int SLAPI Quotation2Core::RemoveAllForQuotKind(PPID quotKindID, int use_ta)
+int Quotation2Core::RemoveAllForQuotKind(PPID quotKindID, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -3065,7 +3065,7 @@ int SLAPI Quotation2Core::RemoveAllForQuotKind(PPID quotKindID, int use_ta)
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetAddressLocList(PPIDArray & rList)
+int Quotation2Core::GetAddressLocList(PPIDArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -3091,7 +3091,7 @@ int SLAPI Quotation2Core::GetAddressLocList(PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use_ta)
+int Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray goods_list1, goods_list2;
@@ -3149,7 +3149,7 @@ int SLAPI Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, i
 	return ok;
 }
 
-int SLAPI Quotation2Core::ReplaceObj(PPID objType, PPID replacedID, PPID newID, int use_ta)
+int Quotation2Core::ReplaceObj(PPID objType, PPID replacedID, PPID newID, int use_ta)
 {
 	int    ok = -1;
 	TSVector <Quot2RelTbl::Rec> rel_list; // @v9.8.4 TSArray-->TSVector
@@ -3207,7 +3207,7 @@ int SLAPI Quotation2Core::ReplaceObj(PPID objType, PPID replacedID, PPID newID, 
 	return ok;
 }
 
-int SLAPI Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
+int Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
 {
 	int    ok = 1;
 	Quot2RelTbl::Rec rel_rec;
@@ -3235,7 +3235,7 @@ int SLAPI Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
 	return ok;
 }
 
-int SLAPI Quotation2Core::Verify()
+int Quotation2Core::Verify()
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -3338,7 +3338,7 @@ struct Quotation2_DumpHeader {
 	uint8  Reserve[44];
 };
 
-int SLAPI Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount)
+int Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -3377,7 +3377,7 @@ int SLAPI Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItems
 	return ok;
 }
 
-int SLAPI Quotation2Core::UndumpCurrent(SBuffer & rBuf, int use_ta)
+int Quotation2Core::UndumpCurrent(SBuffer & rBuf, int use_ta)
 {
 	int    ok = 1;
 	long   qta_id = 0;
@@ -3413,11 +3413,11 @@ public:
 		long   MinQtty;
 		int32  PeriodIdx; // @v7.3.5
 	};
-	SLAPI  Quot2RelCache() : ObjCacheHash(PPOBJ_QUOT2REL, sizeof(Data), 512*1024, 4)
+	Quot2RelCache() : ObjCacheHash(PPOBJ_QUOT2REL, sizeof(Data), 512*1024, 4)
 	{
 		P_Qc = 0;
 	}
-	int    SLAPI Fetch(Quotation2Core * pTbl, PPID id, PPQuot * pVal)
+	int    Fetch(Quotation2Core * pTbl, PPID id, PPQuot * pVal)
 	{
 		int    ok = -1;
 		ENTER_CRITICAL_SECTION // Критическая секция защищает указатель P_Qc который инициализируется внешним параметром
@@ -3429,7 +3429,7 @@ public:
 		return ok;
 	}
 private:
-	virtual int SLAPI Quot2RelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+	virtual int Quot2RelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	{
 		int    ok = 1;
 		Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -3449,7 +3449,7 @@ private:
 			ok = -1;
 		return ok;
 	}
-	virtual void SLAPI Quot2RelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void Quot2RelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 		PPQuot * p_data_rec = static_cast<PPQuot *>(pDataRec);
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -3464,7 +3464,7 @@ private:
 	Quotation2Core * P_Qc; // @notowned
 };
 
-int SLAPI Quotation2Core::FetchRel(PPID relID, PPQuot * pVal)
+int Quotation2Core::FetchRel(PPID relID, PPQuot * pVal)
 {
 	Quot2RelCache * p_cache = GetDbLocalCachePtr <Quot2RelCache> (PPOBJ_QUOT2REL);
 	return p_cache ? p_cache->Fetch(this, relID, pVal) : -1;
@@ -3488,7 +3488,7 @@ public:
 			int32  PeriodIdx;
 			double Val;
 		};
-		void * SLAPI operator new(size_t sz, const PPQuotArray * pQuotList, Quot2Cache * pQuotCache)
+		void * operator new(size_t sz, const PPQuotArray * pQuotList, Quot2Cache * pQuotCache)
 		{
 			const uint c = SVectorBase::GetCount(pQuotList);
 			size_t s = sz + (sizeof(Entry) * c);
@@ -3509,7 +3509,7 @@ public:
 			}
 			return p;
 		}
-		int    SLAPI Get(PPQuotArray * pQuotList, PPID quotKindID, PPID locID, const Quot2Cache * pQuotCache)
+		int    Get(PPQuotArray * pQuotList, PPID quotKindID, PPID locID, const Quot2Cache * pQuotCache)
 		{
 			UseCount++;
 			pQuotList->GoodsID = GoodsID;
@@ -3533,33 +3533,33 @@ public:
 	};
 	class QuotCacheCollection : public SCollection {
 	public:
-		SLAPI  QuotCacheCollection() : SCollection() {}
+		QuotCacheCollection() : SCollection() {}
 		virtual void FASTCALL freeItem(void * pItem) { delete ((CacheEntry *)pItem); }
 	};
-	SLAPI  Quot2Cache();
-	SLAPI ~Quot2Cache();
+	Quot2Cache();
+	~Quot2Cache();
 	void   FASTCALL SetTable(Quotation2Core * pTbl)
 	{
 		P_Qc = pTbl;
 		QuotCacheBase::SetQuotProvider(pTbl);
 	}
 	int    FASTCALL Put(const PPQuotArray *);
-	int    SLAPI Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray *); // non-virtual
-	int    SLAPI GetQuotParamID(const PPQuot * pQuot, uint * pID);
-	int    SLAPI GetQuotParam(uint id, PPQuot * pQuot) const;
-	int    SLAPI BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID locID);
+	int    Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray *); // non-virtual
+	int    GetQuotParamID(const PPQuot * pQuot, uint * pID);
+	int    GetQuotParam(uint id, PPQuot * pQuot) const;
+	int    BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID locID);
 	int    FASTCALL Dirty_(PPID goodsID); // @sync non-virtual
-	int    SLAPI Clear_(); // @sync
-	//int    SLAPI Lock()   { return RwL.WriteLock(); }
-	//int    SLAPI Unlock() { return RwL.Unlock();    }
+	int    Clear_(); // @sync
+	//int    Lock()   { return RwL.WriteLock(); }
+	//int    Unlock() { return RwL.Unlock();    }
 private:
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr); // PPAdviseProc()
 
-	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0)
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0)
 	{
 		return 0;
 	}
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 	}
 	int    FASTCALL Search(PPID goodsID, uint * pPos) const
@@ -3614,7 +3614,7 @@ IMPL_CMPFUNC(GoodsQuot2CacheEntry_UseCountDesc, i1, i2)
 	return ok;
 }
 
-SLAPI Quot2Cache::Quot2Cache() : ObjCache(PPOBJ_QUOT2, sizeof(ObjCacheEntry), ObjCache::fOwnerArray), QuotCacheBase(2)
+Quot2Cache::Quot2Cache() : ObjCache(PPOBJ_QUOT2, sizeof(ObjCacheEntry), ObjCache::fOwnerArray), QuotCacheBase(2)
 {
 	P_Ary = new QuotCacheCollection();
 	{
@@ -3627,7 +3627,7 @@ SLAPI Quot2Cache::Quot2Cache() : ObjCache(PPOBJ_QUOT2, sizeof(ObjCacheEntry), Ob
 	}
 }
 
-SLAPI Quot2Cache::~Quot2Cache()
+Quot2Cache::~Quot2Cache()
 {
 	// DS.Unadvise(AdvCookie); Приводит к зависанию при завершении сессии
 	// @v6.7.1 (Приводит к зависанию при завершении сессии) LogStat();
@@ -3652,7 +3652,7 @@ int FASTCALL Quot2Cache::Put(const PPQuotArray * pItem)
 	return BIN(p_entry && P_Ary->ordInsert(p_entry, 0, CMPF_LONG));
 }
 
-int SLAPI Quot2Cache::Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray * pItem)
+int Quot2Cache::Get_(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray * pItem)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -3707,7 +3707,7 @@ int FASTCALL Quot2Cache::Dirty_(PPID goodsID)
 	return ok;
 }
 
-int SLAPI Quot2Cache::Clear_()
+int Quot2Cache::Clear_()
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -3719,7 +3719,7 @@ int SLAPI Quot2Cache::Clear_()
 	return ok;
 }
 
-int SLAPI Quot2Cache::GetQuotParamID(const PPQuot * pQuot, uint * pID)
+int Quot2Cache::GetQuotParamID(const PPQuot * pQuot, uint * pID)
 {
 	int    ok = 0;
 	QuotParamEntry entry, * p_e;
@@ -3740,7 +3740,7 @@ int SLAPI Quot2Cache::GetQuotParamID(const PPQuot * pQuot, uint * pID)
 	return ok;
 }
 
-int SLAPI Quot2Cache::GetQuotParam(uint id, PPQuot * pQuot) const
+int Quot2Cache::GetQuotParam(uint id, PPQuot * pQuot) const
 {
 	if(id > 0 && id <= QpList.getCount()) {
 		const QuotParamEntry * p_entry = (QuotParamEntry *)QpList.at(id-1);
@@ -3754,7 +3754,7 @@ int SLAPI Quot2Cache::GetQuotParam(uint id, PPQuot * pQuot) const
 		return 0;
 }
 
-int SLAPI Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID locID)
+int Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID locID)
 {
 	int    ok = -1;
 	{
@@ -3785,7 +3785,7 @@ int SLAPI Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID l
 	return ok;
 }
 
-int SLAPI Quotation2Core::FetchList(PPID goodsID, PPQuotArray & rList)
+int Quotation2Core::FetchList(PPID goodsID, PPQuotArray & rList)
 {
 	int    ok = 0;
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2);
@@ -3804,19 +3804,19 @@ int SLAPI Quotation2Core::FetchList(PPID goodsID, PPQuotArray & rList)
 	return ok;
 }
 
-int SLAPI Quotation2Core::GetMatrix(PPID locID, PPIDArray * pResult)
+int Quotation2Core::GetMatrix(PPID locID, PPIDArray * pResult)
 {
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2);
 	return p_cache ? p_cache->Implement_GetMatrix(2, this, p_cache->RwL, locID, pResult) : -1;
 }
 
-int SLAPI Quotation2Core::BelongToMatrix(PPID goodsID, PPID locID)
+int Quotation2Core::BelongToMatrix(PPID goodsID, PPID locID)
 {
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2);
 	return p_cache ? p_cache->BelongToMatrix(this, goodsID, locID) : -1;
 }
 
-int SLAPI Quotation2Core::DirtyGoodsID(PPID goodsID)
+int Quotation2Core::DirtyGoodsID(PPID goodsID)
 {
 	int    ok = -1;
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2, 0);
@@ -3827,7 +3827,7 @@ int SLAPI Quotation2Core::DirtyGoodsID(PPID goodsID)
 	return ok;
 }
 
-int SLAPI Quotation2Core::ClearCache()
+int Quotation2Core::ClearCache()
 {
 	int    ok = -1;
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2, 0);
@@ -3838,7 +3838,7 @@ int SLAPI Quotation2Core::ClearCache()
 	return ok;
 }
 
-int SLAPI Quotation2Core::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred)
+int Quotation2Core::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList, int deferred)
 {
 	int    ok = -1;
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2, 0);

@@ -9,19 +9,19 @@ class SStorage {
 public:
 	class Address {
 	public:
-		SLAPI   Address() : P(0)
+		Address() : P(0)
 		{
 		}
-		SLAPI   Address(uint64 p) : P(p)
+		Address(uint64 p) : P(p)
 		{
 		}
-		SLAPI   Address(const Address & rS) : P(rS.P)
+		Address(const Address & rS) : P(rS.P)
 		{
 		}
         uint64  P;
 	};
-	SLAPI  SStorage();
-	SLAPI ~SStorage();
+	SStorage();
+	~SStorage();
     int    Add(const void * pData, uint size, Address * pA);
 	int    Remove(const Address & rS);
     int    Get(const Address & rS, void * pData, uint * pSize);
@@ -44,9 +44,9 @@ private:
     //
     class Page : public SBaseBuffer {
 	public:
-		SLAPI  Page(const SStorage & rS, uint pgIndex);
-		SLAPI  Page(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex);
-		SLAPI ~Page();
+		Page(const SStorage & rS, uint pgIndex);
+		Page(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex);
+		~Page();
 		int    Add(const void * pData, uint size, SStorage::Address & rA);
 		int    Remove(const SStorage::Address & rA);
 		int    Get(const Address & rS, void * pData, uint * pSize);
@@ -92,11 +92,11 @@ private:
     };
     class PageAllocationTable : public TSArray <SStorage::Page> {
 	public:
-		SLAPI  PageAllocationTable() : TSArray <SStorage::Page> (aryEachItem|aryDataOwner), PageSize(0)
+		PageAllocationTable() : TSArray <SStorage::Page> (aryEachItem|aryDataOwner), PageSize(0)
 		{
 		}
-        int    SLAPI Put(const void * pData, uint size, SStorage::Address & rA);
-        const void * SLAPI GetDataPtr(SStorage::Address & rA) const;
+        int    Put(const void * pData, uint size, SStorage::Address & rA);
+        const void * GetDataPtr(SStorage::Address & rA) const;
 	private:
 		virtual	void FASTCALL freeItem(void * p)
 		{
@@ -109,17 +109,17 @@ private:
 
 const uint32 SStorage::DefPgDelta = 1024;
 
-SLAPI SStorage::Page::Page(const SStorage & rS, uint pgIndex)
+SStorage::Page::Page(const SStorage & rS, uint pgIndex)
 {
 	Helper_Construct(rS.GetPageSize(), rS.GetRecSize(), rS.GetFlags(), pgIndex);
 }
 
-SLAPI SStorage::Page::Page(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex)
+SStorage::Page::Page(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex)
 {
 	Helper_Construct(pgSize, rcSize, flags, pgIndex);
 }
 
-SLAPI SStorage::Page::~Page()
+SStorage::Page::~Page()
 {
 	Destroy();
 	DestroyEntries();
@@ -321,11 +321,11 @@ SStorage::Page::Entry32::Entry32(uint p, uint s) : P(p), S(s)
 {
 }
 
-SLAPI SStorage::SStorage() : Flags(0), PgSize(0), RcSize(0)
+SStorage::SStorage() : Flags(0), PgSize(0), RcSize(0)
 {
 }
 
-SLAPI SStorage::~SStorage()
+SStorage::~SStorage()
 {
 }
 

@@ -73,7 +73,7 @@ int FASTCALL PPTransferItem::SetupByRec(const LocTransfTbl::Rec * pTr)
 	return 1;
 }
 
-int SLAPI Transfer::SetupItemByLot(PPTransferItem * pItem, ReceiptTbl::Rec * pLotRec, int checkLotPrices, long oprno)
+int Transfer::SetupItemByLot(PPTransferItem * pItem, ReceiptTbl::Rec * pLotRec, int checkLotPrices, long oprno)
 {
 	if(!(pItem->Flags & PPTFR_UNLIM)) {
 		pItem->UnitPerPack = pLotRec->UnitPerPack;
@@ -112,7 +112,7 @@ int SLAPI Transfer::SetupItemByLot(PPTransferItem * pItem, ReceiptTbl::Rec * pLo
 	return 1;
 }
 
-int SLAPI Transfer::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTI)
+int Transfer::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTI)
 {
 	int    ok = -1;
 	TransferTbl::Key0 k0;
@@ -153,7 +153,7 @@ int SLAPI Transfer::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTI)
 	return ok;
 }
 
-int SLAPI Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice)
+int Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const PPIDArray & rBillChain, long options, double * pOrgQtty, double * pOrgPrice)
 {
 	int    ok = -1;
 	double org_qtty = 0.0;
@@ -184,7 +184,7 @@ int SLAPI Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, c
 	return ok;
 }
 
-int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
+int Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
 {
 	int    ok = 1;
 	assert(!pGoodsList || pGoodsList->isSorted());
@@ -312,7 +312,7 @@ int SLAPI Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList
 	return ok;
 }
 
-int SLAPI Transfer::CalcBillTotal(PPID billID, BillTotal * pTotal, PPIDArray * pList)
+int Transfer::CalcBillTotal(PPID billID, BillTotal * pTotal, PPIDArray * pList)
 {
 	int    ok = 1;
 	BExtQuery q(this, 0, 256);
@@ -333,7 +333,7 @@ int SLAPI Transfer::CalcBillTotal(PPID billID, BillTotal * pTotal, PPIDArray * p
 //
 //
 //
-SLAPI GoodsByTransferFilt::GoodsByTransferFilt(const GoodsFilt * pGoodsFilt) : SupplID(0), Flags(0)
+GoodsByTransferFilt::GoodsByTransferFilt(const GoodsFilt * pGoodsFilt) : SupplID(0), Flags(0)
 {
 	LotPeriod.Z();
 	if(pGoodsFilt) {
@@ -344,12 +344,12 @@ SLAPI GoodsByTransferFilt::GoodsByTransferFilt(const GoodsFilt * pGoodsFilt) : S
 	}
 }
 
-int SLAPI GoodsByTransferFilt::IsEmpty() const
+int GoodsByTransferFilt::IsEmpty() const
 {
 	return (SupplID || !LotPeriod.IsZero()) ? 0 : 1;
 }
 
-int SLAPI Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray & rList)
+int Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray & rList)
 {
 	int    ok = 1, idx = 0;
 	DBQ  * dbq = 0;

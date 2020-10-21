@@ -137,7 +137,7 @@ private:
 	GoodsStrucFilt Data;
 };
 
-PPBaseFilt * SLAPI PPViewGoodsStruc::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsStruc::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_GOODSSTRUC, &p_base_filt))
@@ -147,7 +147,7 @@ PPBaseFilt * SLAPI PPViewGoodsStruc::CreateFilt(void * extraPtr) const
 	return p_base_filt;
 }
 
-int SLAPI PPViewGoodsStruc::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewGoodsStruc::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -155,25 +155,24 @@ int SLAPI PPViewGoodsStruc::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(GoodsStrucFiltDialog, p_filt);
 }
 
-IMPLEMENT_PPFILT_FACTORY(GoodsStruc); SLAPI GoodsStrucFilt::GoodsStrucFilt() : PPBaseFilt(PPFILT_GOODSSTRUC, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GoodsStruc); GoodsStrucFilt::GoodsStrucFilt() : PPBaseFilt(PPFILT_GOODSSTRUC, 0, 0)
 {
 	SetFlatChunk(offsetof(GoodsStrucFilt, ReserveStart),
 		offsetof(GoodsStrucFilt, ReserveEnd) - offsetof(GoodsStrucFilt, ReserveStart));
 	Init(1, 0);
 }
 
-SLAPI PPViewGoodsStruc::PPViewGoodsStruc() : PPView(0, &Filt, PPVIEW_GOODSSTRUC), CurrentViewOrder(OrdByDefault), IterIdx(0), P_DsList__(0)
+PPViewGoodsStruc::PPViewGoodsStruc() : 
+	PPView(0, &Filt, PPVIEW_GOODSSTRUC, implBrowseArray, REPORT_GOODSSTRUCLIST), CurrentViewOrder(OrdByDefault), IterIdx(0), P_DsList__(0)
 {
-	DefReportId = REPORT_GOODSSTRUCLIST;
-	ImplementFlags |= implBrowseArray;
 }
 
-SLAPI PPViewGoodsStruc::~PPViewGoodsStruc()
+PPViewGoodsStruc::~PPViewGoodsStruc()
 {
 	ZDELETE(P_DsList__);
 }
 
-int SLAPI PPViewGoodsStruc::CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewGoodsStruc::ItemEntry * pItem1, const PPViewGoodsStruc::ItemEntry * pItem2)
+int PPViewGoodsStruc::CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewGoodsStruc::ItemEntry * pItem1, const PPViewGoodsStruc::ItemEntry * pItem2)
 {
 	return Implement_CmpSortIndexItems_OnArray(pBrw, pItem1, pItem2);
 }
@@ -193,7 +192,7 @@ static IMPL_CMPFUNC(ViewGoodsStruc_ItemEntry, i1, i2)
 	return si;
 }
 
-int SLAPI PPViewGoodsStruc::SortList(PPViewBrowser * pBrw)
+int PPViewGoodsStruc::SortList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
 	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
@@ -203,7 +202,7 @@ int SLAPI PPViewGoodsStruc::SortList(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
+int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 {
 	Problems.freeAll();
 	StrucList.clear();
@@ -259,7 +258,7 @@ int SLAPI PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -271,7 +270,7 @@ int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistance)
+int PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistance)
 {
 	int    ok = 1;
 	PPGoodsStruc struc;
@@ -367,7 +366,7 @@ int SLAPI PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, int checkExistan
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::InitIteration()
+int PPViewGoodsStruc::InitIteration()
 {
 	Counter.Init(ItemList.getCount());
 	IterIdx = 0;
@@ -410,7 +409,7 @@ int FASTCALL PPViewGoodsStruc::NextIteration(GoodsStrucViewItem * pItem)
 	return ok;
 }
 
-int SLAPI FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -483,7 +482,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+int PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
@@ -525,7 +524,7 @@ int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int pai
 	return ok;
 }
 
-void SLAPI PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewGoodsStruc::GetDataForBrowser, this);
@@ -534,7 +533,7 @@ void SLAPI PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-SArray * SLAPI PPViewGoodsStruc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewGoodsStruc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(ItemList);
 	uint   brw_id = BROWSER_GOODSSTRUC2;
@@ -542,7 +541,7 @@ SArray * SLAPI PPViewGoodsStruc::CreateBrowserArray(uint * pBrwId, SString * pSu
 	return p_array;
 }
 
-int SLAPI PPViewGoodsStruc::Transmit(PPID /*id*/)
+int PPViewGoodsStruc::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -567,7 +566,7 @@ int SLAPI PPViewGoodsStruc::Transmit(PPID /*id*/)
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::Recover()
+int PPViewGoodsStruc::Recover()
 {
 	enum {
 		cfCorrection   = 0x0001,
@@ -723,7 +722,7 @@ int SLAPI PPViewGoodsStruc::Recover()
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	PPID   parent_struc_id = 0;
@@ -885,7 +884,7 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::ViewTotal()
+int PPViewGoodsStruc::ViewTotal()
 {
 	int    ok = 1;
 	long   goods_count = 0, lines_count = 0;

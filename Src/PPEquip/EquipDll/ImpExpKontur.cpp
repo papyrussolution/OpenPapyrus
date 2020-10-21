@@ -396,7 +396,7 @@ public:
 	int    NextFileName(const char * pFtpSrc, SString & rFileName);
 	int    DeleteFile(const char * pFtpFile);
 
-	SEnumImp * SLAPI Enum(const char * pWildcard); // SDirEntry
+	SEnumImp * Enum(const char * pWildcard); // SDirEntry
 private:
 	int    Status;
     SString Login;

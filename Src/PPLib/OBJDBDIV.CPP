@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-static StrAssocArray * SLAPI MakeDBDivList(int skipCurrent)
+static StrAssocArray * MakeDBDivList(int skipCurrent)
 {
 	int    r;
 	PPID   id;
@@ -24,7 +24,7 @@ static StrAssocArray * SLAPI MakeDBDivList(int skipCurrent)
 	return p_list;
 }
 
-/*static*/PPID SLAPI PPObjDBDiv::Select(int skipCurrent, int * pSingle)
+/*static*/PPID PPObjDBDiv::Select(int skipCurrent, int * pSingle)
 {
 	PPID   id = 0;
 	ListWindow * p_lw = 0;
@@ -57,7 +57,7 @@ static StrAssocArray * SLAPI MakeDBDivList(int skipCurrent)
 //
 //
 //
-SLAPI DBDivPack::DBDivPack()
+DBDivPack::DBDivPack()
 {
 	MEMSZERO(Rec);
 }
@@ -70,17 +70,17 @@ DBDivPack & FASTCALL DBDivPack::operator = (const DBDivPack & rS)
 	return *this;
 }
 
-void SLAPI DBDivPack::Init()
+void DBDivPack::Init()
 {
 	MEMSZERO(Rec);
 	LocList.freeAll();
 	ExtString.Z();
 }
 
-int SLAPI DBDivPack::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
-int SLAPI DBDivPack::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, DBDIVEXSTR_ACCLIST, ExtString, rBuf); }
+int DBDivPack::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int DBDivPack::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, DBDIVEXSTR_ACCLIST, ExtString, rBuf); }
 
-int SLAPI DBDivPack::ResponsibleForLoc(PPID locID, int forQuot) const
+int DBDivPack::ResponsibleForLoc(PPID locID, int forQuot) const
 {
 	int    yes = 0;
 	if(forQuot)
@@ -90,7 +90,7 @@ int SLAPI DBDivPack::ResponsibleForLoc(PPID locID, int forQuot) const
 	return yes;
 }
 
-SLAPI PPObjDBDiv::PPObjDBDiv(void * extraPtr) : PPObjReference(PPOBJ_DBDIV, extraPtr)
+PPObjDBDiv::PPObjDBDiv(void * extraPtr) : PPObjReference(PPOBJ_DBDIV, extraPtr)
 {
 }
 
@@ -395,7 +395,7 @@ int DBDivDialog::getDTS(DBDivPack * p)
 	return ok;
 }
 
-int SLAPI PPObjDBDiv::Get(PPID id, DBDivPack * pPack)
+int PPObjDBDiv::Get(PPID id, DBDivPack * pPack)
 {
 	int    ok = 1;
 	if(pPack) {
@@ -411,7 +411,7 @@ int SLAPI PPObjDBDiv::Get(PPID id, DBDivPack * pPack)
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjDBDiv::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjDBDiv::MakeStrAssocList(void * extraPtr)
 {
 	const long extra_param = reinterpret_cast<long>(extraPtr);
 	PPDBDiv rec;
@@ -431,7 +431,7 @@ StrAssocArray * SLAPI PPObjDBDiv::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjDBDiv::Put(PPID * pID, DBDivPack * pPack, int use_ta)
+int PPObjDBDiv::Put(PPID * pID, DBDivPack * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -452,7 +452,7 @@ int SLAPI PPObjDBDiv::Put(PPID * pID, DBDivPack * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjDBDiv::AcceptUuid(PPID dbid, const S_GUID & rUuid, int use_ta)
+int PPObjDBDiv::AcceptUuid(PPID dbid, const S_GUID & rUuid, int use_ta)
 {
 	int    ok = -1;
 	PPDBDiv rec;
@@ -470,7 +470,7 @@ int SLAPI PPObjDBDiv::AcceptUuid(PPID dbid, const S_GUID & rUuid, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjDBDiv::GetUuid(PPID dbid, S_GUID * pUuid, int use_ta)
+int PPObjDBDiv::GetUuid(PPID dbid, S_GUID * pUuid, int use_ta)
 {
 	int    ok = 1;
 	PPDBDiv rec;
@@ -491,7 +491,7 @@ int SLAPI PPObjDBDiv::GetUuid(PPID dbid, S_GUID * pUuid, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjDBDiv::GetCounter(PPID dbid, long * pCounter, int use_ta)
+int PPObjDBDiv::GetCounter(PPID dbid, long * pCounter, int use_ta)
 {
 	int    ok = 1;
 	PPDBDiv rec;
@@ -513,7 +513,7 @@ int SLAPI PPObjDBDiv::GetCounter(PPID dbid, long * pCounter, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
+int PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
 {
 	int    r = cmCancel, valid_data = 0, is_new = 0;
 	DBDivPack pack;
@@ -536,7 +536,7 @@ int SLAPI PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
 	return r;
 }
 
-/*virtual*/int SLAPI PPObjDBDiv::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int PPObjDBDiv::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    r = -1;
 	THROW(CheckRights(PPR_DEL));
@@ -560,7 +560,7 @@ int SLAPI PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
 	return r;
 }
 
-int SLAPI PPObjDBDiv::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjDBDiv::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE) {
 		PPDBDiv rec;

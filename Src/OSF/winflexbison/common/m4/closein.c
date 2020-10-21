@@ -17,7 +17,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "closein.h"
+//#include "closein.h"
 //#include <errno.h>
 //#include <stdbool.h>
 //#include <stdio.h>
@@ -28,9 +28,9 @@
 //#include "close-stream.h"
 #include "closeout.h"
 //#include "error.h"
-#include "exitfail.h"
+//#include "exitfail.h"
 #include "freadahead.h"
-#include "quotearg.h"
+//#include "quotearg.h"
 
 static const char * file_name;
 

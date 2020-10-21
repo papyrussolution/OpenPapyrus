@@ -34,18 +34,18 @@
 	return rBuf;
 }
 
-SLAPI ObjTagItem::ObjTagItem()
+ObjTagItem::ObjTagItem()
 {
 	THISZERO();
 }
 
-SLAPI ObjTagItem::ObjTagItem(const ObjTagItem & rS)
+ObjTagItem::ObjTagItem(const ObjTagItem & rS)
 {
 	THISZERO();
 	Copy(rS);
 }
 
-SLAPI ObjTagItem::~ObjTagItem()
+ObjTagItem::~ObjTagItem()
 {
 	Destroy();
 }
@@ -125,7 +125,7 @@ int FASTCALL ObjTagItem::GetDate(LDATE * pVal) const
 	return ok;
 }
 
-int SLAPI ObjTagItem::GetEnumData(long * pID, long * pParentID, SString * pTxt, SString * pSymb) const
+int ObjTagItem::GetEnumData(long * pID, long * pParentID, SString * pTxt, SString * pSymb) const
 {
 	int    ok = 0;
 	PPID   item_id = 0;
@@ -234,7 +234,7 @@ int FASTCALL ObjTagItem::GetTimestamp(LDATETIME * pDtm) const
 	return ok;
 }
 
-int SLAPI ObjTagItem::SetInt(PPID tagID, long lVal)
+int ObjTagItem::SetInt(PPID tagID, long lVal)
 {
 	if(Init(tagID)) {
 		if(TagDataType == OTTYP_STRING) {
@@ -258,7 +258,7 @@ int SLAPI ObjTagItem::SetInt(PPID tagID, long lVal)
 		return 0;
 }
 
-int SLAPI ObjTagItem::SetReal(PPID tagID, double rVal)
+int ObjTagItem::SetReal(PPID tagID, double rVal)
 {
 	if(Init(tagID)) {
 		if(TagDataType == OTTYP_STRING) {
@@ -283,7 +283,7 @@ int SLAPI ObjTagItem::SetReal(PPID tagID, double rVal)
 		return 0;
 }
 
-int SLAPI ObjTagItem::SetDate(PPID tagID, LDATE dt)
+int ObjTagItem::SetDate(PPID tagID, LDATE dt)
 {
 	if(Init(tagID)) {
 		if(TagDataType == OTTYP_STRING) {
@@ -307,7 +307,7 @@ int SLAPI ObjTagItem::SetDate(PPID tagID, LDATE dt)
 		return 0;
 }
 
-int SLAPI ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
+int ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 {
 	int    ok = 1;
 	THROW(Init(tagID));
@@ -348,7 +348,7 @@ int SLAPI ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
     return ok;
 }
 
-int SLAPI ObjTagItem::AddKeyword(PPID tagID, const char * pKeyword)
+int ObjTagItem::AddKeyword(PPID tagID, const char * pKeyword)
 {
 	int    ok = 1;
 	if(TagDataType == OTTYP_STRING) {
@@ -385,7 +385,7 @@ int SLAPI ObjTagItem::AddKeyword(PPID tagID, const char * pKeyword)
 	return ok;
 }
 
-int SLAPI ObjTagItem::SetGuid(PPID tagID, const S_GUID_Base * pGuid)
+int ObjTagItem::SetGuid(PPID tagID, const S_GUID_Base * pGuid)
 {
 	int    ok = 0;
 	if(Init(tagID)) {
@@ -399,7 +399,7 @@ int SLAPI ObjTagItem::SetGuid(PPID tagID, const S_GUID_Base * pGuid)
 	return ok;
 }
 
-int SLAPI ObjTagItem::SetTimestamp(PPID tagID, LDATETIME dtm)
+int ObjTagItem::SetTimestamp(PPID tagID, LDATETIME dtm)
 {
 	int    ok = 1;
 	THROW(Init(tagID));
@@ -421,7 +421,7 @@ int SLAPI ObjTagItem::SetTimestamp(PPID tagID, LDATETIME dtm)
 	return ok;
 }
 
-int SLAPI ObjTagItem::AddReal(double rVal)
+int ObjTagItem::AddReal(double rVal)
 {
 	int    ok = 1;
 	switch(TagDataType) {
@@ -463,7 +463,7 @@ int SLAPI ObjTagItem::AddReal(double rVal)
 	return ok;
 }
 
-void SLAPI ObjTagItem::Destroy()
+void ObjTagItem::Destroy()
 {
 	if(oneof3(TagDataType, OTTYP_STRING, OTTYP_GUID, OTTYP_IMAGE))
 		delete Val.PStr;
@@ -492,7 +492,7 @@ ObjTagItem & FASTCALL ObjTagItem::operator = (const ObjTagItem & src)
 int FASTCALL ObjTagItem::operator == (const ObjTagItem & a) const { return (Cmp(a) == 0); }
 int FASTCALL ObjTagItem::operator != (const ObjTagItem & a) const { return (Cmp(a) != 0); }
 
-int SLAPI ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Rec * pRec) const
+int ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Rec * pRec) const
 {
 	memzero(pRec, sizeof(*pRec));
 	pRec->ObjType  = objType;
@@ -568,7 +568,7 @@ int FASTCALL ObjTagItem::Cmp(const ObjTagItem & a) const
 	return r;
 }
 
-int SLAPI ObjTagItem::IsZeroVal() const
+int ObjTagItem::IsZeroVal() const
 {
 	switch(TagDataType) {
 		case OTTYP_NUMBER: return (Val.RealVal == 0.0);
@@ -581,7 +581,7 @@ int SLAPI ObjTagItem::IsZeroVal() const
 	}
 }
 
-int SLAPI ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, TagID, rBuf));
@@ -641,7 +641,7 @@ int SLAPI ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSC
 	return ok;
 }
 
-int SLAPI ObjTagItem::IsWarnVal() const
+int ObjTagItem::IsWarnVal() const
 {
 	if(TagDataType == OTTYP_NUMBER)
 		return (Val.RealVal <= 0.0);
@@ -663,7 +663,7 @@ int SLAPI ObjTagItem::IsWarnVal() const
 //
 // @todo(eliminate) {
 //
-int SLAPI ObjTagItem::Write__(SBuffer & rBuf) const
+int ObjTagItem::Write__(SBuffer & rBuf) const
 {
 	rBuf.Write(TagID);
 	rBuf.Write(TagDataType);
@@ -693,7 +693,7 @@ int SLAPI ObjTagItem::Write__(SBuffer & rBuf) const
 	return 1;
 }
 
-int SLAPI ObjTagItem::Read__(SBuffer & rBuf)
+int ObjTagItem::Read__(SBuffer & rBuf)
 {
 	rBuf.Read(TagID);
 	rBuf.Read(TagDataType);
@@ -724,19 +724,19 @@ int SLAPI ObjTagItem::Read__(SBuffer & rBuf)
 //
 //
 //
-SLAPI ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem), ObjType(0), ObjID(0)
+ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem), ObjType(0), ObjID(0)
 {
 }
 //
 // Не используем унаследованный copy-constructor так как ObjTagList::Copy сама
 // все сделает правильно.
 //
-SLAPI ObjTagList::ObjTagList(const ObjTagList & s) : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
+ObjTagList::ObjTagList(const ObjTagList & s) : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
 {
 	Copy(s);
 }
 
-SLAPI ObjTagList::~ObjTagList()
+ObjTagList::~ObjTagList()
 {
     freeAll();
 }
@@ -773,7 +773,7 @@ int FASTCALL ObjTagList::IsEqual(const ObjTagList & rS) const
 	return eq;
 }
 
-uint SLAPI ObjTagList::GetCount() const { return count; }
+uint ObjTagList::GetCount() const { return count; }
 /*virtual*/void FASTCALL ObjTagList::freeItem(void * pItem) { static_cast<ObjTagItem *>(pItem)->Destroy(); }
 const ObjTagItem * FASTCALL ObjTagList::GetItemByPos(uint pos) const
 	{ return (pos < count) ? static_cast<const ObjTagItem *>(at(pos)) : 0; }
@@ -786,7 +786,7 @@ const ObjTagItem * FASTCALL ObjTagList::GetItem(PPID id) const
 	return lsearch(&id, &pos, CMPF_LONG) ? static_cast<const ObjTagItem *>(at(pos)) : 0;
 }
 
-int SLAPI ObjTagList::GetItemStr(PPID tagID, SString & rBuf) const
+int ObjTagList::GetItemStr(PPID tagID, SString & rBuf) const
 {
     rBuf.Z();
 	if(tagID) {
@@ -810,7 +810,7 @@ const ObjTagItem * FASTCALL ObjTagList::GetItem_ForceEmpty(PPID id)
 	return static_cast<const ObjTagItem *>(at(pos));
 }
 
-int SLAPI ObjTagList::PutItem(PPID id, const ObjTagItem * pi)
+int ObjTagList::PutItem(PPID id, const ObjTagItem * pi)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -833,13 +833,13 @@ int SLAPI ObjTagList::PutItem(PPID id, const ObjTagItem * pi)
 	return ok;
 }
 
-int SLAPI ObjTagList::PutItemStr(PPID tagID, const char * pStr)
+int ObjTagList::PutItemStr(PPID tagID, const char * pStr)
 {
 	ObjTagItem tag_item;
 	return tag_item.SetStr(tagID, pStr) ? PutItem(tagID, &tag_item) : 0;
 }
 
-int SLAPI ObjTagList::PutItemStrNE(PPID tagID, const char * pStr)
+int ObjTagList::PutItemStrNE(PPID tagID, const char * pStr)
 {
 	int    ok = -1;
     if(!isempty(pStr)) {
@@ -849,7 +849,7 @@ int SLAPI ObjTagList::PutItemStrNE(PPID tagID, const char * pStr)
 	return ok;
 }
 
-int SLAPI ObjTagList::PutItemNZ(const ObjTagItem * pItem, long flags)
+int ObjTagList::PutItemNZ(const ObjTagItem * pItem, long flags)
 {
 	int    ok = -1;
 	if(pItem) {
@@ -879,7 +879,7 @@ int FASTCALL ObjTagList::Copy(const ObjTagList & src)
 	return 1;
 }
 
-int SLAPI ObjTagList::Merge(const ObjTagList & src, int updateMode)
+int ObjTagList::Merge(const ObjTagList & src, int updateMode)
 {
 	int    ok = -1;
 	uint   i, j;
@@ -925,12 +925,12 @@ int SLAPI ObjTagList::Merge(const ObjTagList & src, int updateMode)
 	return ok;
 }
 
-void SLAPI ObjTagList::Destroy()
+void ObjTagList::Destroy()
 {
 	freeAll();
 }
 
-int SLAPI ObjTagList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int ObjTagList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir < 0)
@@ -956,7 +956,7 @@ int SLAPI ObjTagList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSC
 // @todo Эти 2 функции используются в PPPsnEventPacket::Write и PPPsnEventPacket::Read
 // Следует элиминировать и эти и вызывающие функции
 //
-int SLAPI ObjTagList::Write__(SBuffer & rBuf) const
+int ObjTagList::Write__(SBuffer & rBuf) const
 {
 	const long c = static_cast<long>(getCount());
 	rBuf.Write(c);
@@ -965,7 +965,7 @@ int SLAPI ObjTagList::Write__(SBuffer & rBuf) const
 	return 1;
 }
 
-int SLAPI ObjTagList::Read__(SBuffer & rBuf)
+int ObjTagList::Read__(SBuffer & rBuf)
 {
 	Destroy();
 	long   c = 0;
@@ -980,7 +980,7 @@ int SLAPI ObjTagList::Read__(SBuffer & rBuf)
 //
 // }
 //
-int SLAPI ObjTagList::ProcessObjRefs(PPObjIDArray * ary, int replace)
+int ObjTagList::ProcessObjRefs(PPObjIDArray * ary, int replace)
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
@@ -999,15 +999,15 @@ int SLAPI ObjTagList::ProcessObjRefs(PPObjIDArray * ary, int replace)
 //
 //
 //
-SLAPI ObjTagCore::ObjTagCore() : ObjTagTbl()
+ObjTagCore::ObjTagCore() : ObjTagTbl()
 {
 }
 
-SLAPI ObjTagCore::ObjTagCore(const char * pFileName) : ObjTagTbl(pFileName)
+ObjTagCore::ObjTagCore(const char * pFileName) : ObjTagTbl(pFileName)
 {
 }
 
-int SLAPI ObjTagCore::GetTagRec(PPID objType, PPID objID, PPID tagID, ObjTagTbl::Rec * pRec)
+int ObjTagCore::GetTagRec(PPID objType, PPID objID, PPID tagID, ObjTagTbl::Rec * pRec)
 {
 	ObjTagTbl::Key0 k;
 	k.ObjType  = objType;
@@ -1024,7 +1024,7 @@ int SLAPI ObjTagCore::GetTagRec(PPID objType, PPID objID, PPID tagID, ObjTagTbl:
 	}
 }
 
-int SLAPI ObjTagCore::GetTag(PPID objType, PPID objID, PPID tagID, ObjTagItem * pItem)
+int ObjTagCore::GetTag(PPID objType, PPID objID, PPID tagID, ObjTagItem * pItem)
 {
 	ObjTagTbl::Rec rec;
 	int    ok = GetTagRec(objType, objID, tagID, &rec);
@@ -1035,7 +1035,7 @@ int SLAPI ObjTagCore::GetTag(PPID objType, PPID objID, PPID tagID, ObjTagItem * 
 	return ok;
 }
 
-int SLAPI ObjTagCore::GetTagStr(PPID objType, PPID objID, PPID tagID, SString & rBuf)
+int ObjTagCore::GetTagStr(PPID objType, PPID objID, PPID tagID, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -1050,7 +1050,7 @@ int SLAPI ObjTagCore::GetTagStr(PPID objType, PPID objID, PPID tagID, SString & 
 	return ok;
 }
 
-int SLAPI ObjTagCore::GetTagGuid(PPID objType, PPID objID, PPID tagID, S_GUID & rGuid)
+int ObjTagCore::GetTagGuid(PPID objType, PPID objID, PPID tagID, S_GUID & rGuid)
 {
 	rGuid.Z();
 	int    ok = -1;
@@ -1063,7 +1063,7 @@ int SLAPI ObjTagCore::GetTagGuid(PPID objType, PPID objID, PPID tagID, S_GUID & 
 	return ok;
 }
 
-int SLAPI ObjTagCore::RemoveTag(PPID objType, PPID objID, PPID tagID, int use_ta)
+int ObjTagCore::RemoveTag(PPID objType, PPID objID, PPID tagID, int use_ta)
 {
 	int    ok = -1;
 	ObjTagTbl::Key0 k;
@@ -1094,7 +1094,7 @@ int SLAPI ObjTagCore::RemoveTag(PPID objType, PPID objID, PPID tagID, int use_ta
 	return ok;
 }
 
-int SLAPI ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, const PPIDArray * pExclList, int use_ta)
+int ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, const PPIDArray * pExclList, int use_ta)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -1143,13 +1143,13 @@ int SLAPI ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * p
 	return ok;
 }
 
-int SLAPI ObjTagCore::PutList(PPID objType, PPID objID, const ObjTagList * pList, int use_ta)
+int ObjTagCore::PutList(PPID objType, PPID objID, const ObjTagList * pList, int use_ta)
 {
 	return PutListExcl(objType, objID, pList, 0, use_ta);
 }
 
 #if 0 // {
-int SLAPI ObjTagCore::PutList(PPID objType, PPID objID, const ObjTagList * pList, int use_ta)
+int ObjTagCore::PutList(PPID objType, PPID objID, const ObjTagList * pList, int use_ta)
 {
 	int    ok = 1, ta = 0;
 	uint   pos = 0;
@@ -1169,7 +1169,7 @@ int SLAPI ObjTagCore::PutList(PPID objType, PPID objID, const ObjTagList * pList
 }
 #endif // } 0
 
-int SLAPI ObjTagCore::PutTag(PPID objType, PPID objID, const ObjTagItem * pItem, int use_ta)
+int ObjTagCore::PutTag(PPID objType, PPID objID, const ObjTagItem * pItem, int use_ta)
 {
 	int    ok = 1;
 	int    r = 1;
@@ -1212,7 +1212,7 @@ int SLAPI ObjTagCore::PutTag(PPID objType, PPID objID, const ObjTagItem * pItem,
 	return ok;
 }
 
-int SLAPI ObjTagCore::GetNewTagByObjCounter(PPID objType, PPID objID, PPID tagID, long * pTagByObj)
+int ObjTagCore::GetNewTagByObjCounter(PPID objType, PPID objID, PPID tagID, long * pTagByObj)
 {
 	int    ok = 1;
 	long   tag_by_obj = 0;
@@ -1233,7 +1233,7 @@ int SLAPI ObjTagCore::GetNewTagByObjCounter(PPID objType, PPID objID, PPID tagID
 	return ok;
 }
 
-int SLAPI ObjTagCore::PutTagToRec(PPID objType, PPID objID, long tagByObj, const ObjTagItem * pItem)
+int ObjTagCore::PutTagToRec(PPID objType, PPID objID, long tagByObj, const ObjTagItem * pItem)
 {
 	int    ok = 0;
 	if(tagByObj || GetNewTagByObjCounter(objType, objID, pItem->TagID, &tagByObj)) {
@@ -1279,7 +1279,7 @@ int FASTCALL ObjTagItem::Get_(const ObjTagTbl::Rec & rRec)
 	return ok;
 }
 
-int SLAPI ObjTagCore::EnumTags(PPID objType, PPID objID, PPID * pTagID, long * pTagByObj, ObjTagItem * pItem)
+int ObjTagCore::EnumTags(PPID objType, PPID objID, PPID * pTagID, long * pTagByObj, ObjTagItem * pItem)
 {
 	ObjTagTbl::Key0 k;
 	k.ObjType  = objType;
@@ -1300,7 +1300,7 @@ int SLAPI ObjTagCore::EnumTags(PPID objType, PPID objID, PPID * pTagID, long * p
 	return PPDbSearchError();
 }
 
-int SLAPI ObjTagCore::EnumTags(PPID objType, PPID objID, PPID tagID, long * pTagByObj, ObjTagItem * pItem)
+int ObjTagCore::EnumTags(PPID objType, PPID objID, PPID tagID, long * pTagByObj, ObjTagItem * pItem)
 {
 	PPID   _tagid = tagID;
 	int    r = EnumTags(objType, objID, &_tagid, pTagByObj, pItem);
@@ -1309,7 +1309,7 @@ int SLAPI ObjTagCore::EnumTags(PPID objType, PPID objID, PPID tagID, long * pTag
 	return r;
 }
 
-int SLAPI ObjTagCore::GetList(PPID objType, PPID objID, ObjTagList * pList)
+int ObjTagCore::GetList(PPID objType, PPID objID, ObjTagList * pList)
 {
 	int    ok = 1;
 	PPID   tag_id = 0;
@@ -1324,7 +1324,7 @@ int SLAPI ObjTagCore::GetList(PPID objType, PPID objID, ObjTagList * pList)
 	return ok;
 }
 
-int SLAPI ObjTagCore::GetObjectList(PPID objType, PPID tagID, UintHashTable & rList)
+int ObjTagCore::GetObjectList(PPID objType, PPID tagID, UintHashTable & rList)
 {
 	int    ok = -1;
 	ObjTagTbl::Key1 k1;
@@ -1339,7 +1339,7 @@ int SLAPI ObjTagCore::GetObjectList(PPID objType, PPID tagID, UintHashTable & rL
 	return ok;
 }
 
-int SLAPI ObjTagCore::SearchAnyRefToTagID(PPID tagID, PPObjID * pObjID)
+int ObjTagCore::SearchAnyRefToTagID(PPID tagID, PPObjID * pObjID)
 {
 	int    ok = 1;
 	ObjTagTbl::Key1 k1;
@@ -1356,7 +1356,7 @@ int SLAPI ObjTagCore::SearchAnyRefToTagID(PPID tagID, PPObjID * pObjID)
 	return ok;
 }
 
-int SLAPI ObjTagCore::SearchObjectsByStrExactly(PPID objType, PPID tagID, const char * pStr, PPIDArray * pList)
+int ObjTagCore::SearchObjectsByStrExactly(PPID objType, PPID tagID, const char * pStr, PPIDArray * pList)
 {
 	PPIDArray list;
 	if(!isempty(pStr)) {
@@ -1374,13 +1374,13 @@ int SLAPI ObjTagCore::SearchObjectsByStrExactly(PPID objType, PPID tagID, const 
 	return list.getCount() ? 1 : -1;
 }
 
-int SLAPI ObjTagCore::SearchObjectsByGuid(PPID objType, PPID tagID, const S_GUID & rGuid, PPIDArray * pList)
+int ObjTagCore::SearchObjectsByGuid(PPID objType, PPID tagID, const S_GUID & rGuid, PPIDArray * pList)
 {
 	ObjTagItem tag;
 	return tag.SetGuid(tagID, &rGuid) ? SearchObjectsByStrExactly(objType, tagID, tag.Val.PStr, pList) : 0;
 }
 
-int SLAPI ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, PPIDArray * pList)
+int ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, PPIDArray * pList)
 {
 	PPIDArray list;
 	if(!isempty(pStr)) {
@@ -1410,7 +1410,7 @@ int SLAPI ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * 
 	return list.getCount() ? 1 : -1;
 }
 
-int SLAPI ObjTagCore::GetObjTextList(PPID objType, PPID tagID, StrAssocArray & rList)
+int ObjTagCore::GetObjTextList(PPID objType, PPID tagID, StrAssocArray & rList)
 {
 	rList.Z();
 
@@ -1435,7 +1435,7 @@ int SLAPI ObjTagCore::GetObjTextList(PPID objType, PPID tagID, StrAssocArray & r
 }
 
 #if 0 // @obsolete since @v9.0.11 {
-int SLAPI ObjTagCore::CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, const char * pStr, int use_ta)
+int ObjTagCore::CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, const char * pStr, int use_ta)
 {
 	int    ok = -1;
 	PPID   obj_id = 0;

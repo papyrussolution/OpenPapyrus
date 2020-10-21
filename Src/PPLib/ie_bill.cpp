@@ -160,7 +160,7 @@ const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId)
 
 class DocNalogRu_Reader : public DocNalogRu_Base {
 public:
-	SLAPI  DocNalogRu_Reader() : DocNalogRu_Base()
+	DocNalogRu_Reader() : DocNalogRu_Base()
 	{
 	}
 	int    ReadFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList)
@@ -417,7 +417,7 @@ private:
 		}
 		return ok;
 	}
-	int    SLAPI ReadFIO(const xmlNode * pNode, FIO & rResult)
+	int    ReadFIO(const xmlNode * pNode, FIO & rResult)
 	{
 		SString temp_buf;
 		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
@@ -428,7 +428,7 @@ private:
 			rResult.Patronymic = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		return 1;
 	}
-	int    SLAPI ReadParticipant(const xmlNode * pNode, Participant & rResult)
+	int    ReadParticipant(const xmlNode * pNode, Participant & rResult)
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -501,23 +501,23 @@ public:
 		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp);
 		SXml::WNode N;
 	};
-	SLAPI  DocNalogRu_Generator();
-	SLAPI ~DocNalogRu_Generator();
-	int    SLAPI CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
-	int    SLAPI MakeOutFileIdent(FileInfo & rHi);
-	int    SLAPI MakeOutFileName(const char * pFileIdent, SString & rFileName);
-	int    SLAPI StartDoc(const char * pFileName);
-	void   SLAPI EndDoc();
-	int    SLAPI WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
-	int    SLAPI WriteAddress(const PPLocationPacket & rP, int regionCode);
-	int    SLAPI WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	DocNalogRu_Generator();
+	~DocNalogRu_Generator();
+	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
+	int    MakeOutFileIdent(FileInfo & rHi);
+	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
+	int    StartDoc(const char * pFileName);
+	void   EndDoc();
+	int    WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
+	int    WriteAddress(const PPLocationPacket & rP, int regionCode);
+	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	//
 	// Descr: Записывает тип "УчастникТип"
 	//
-	int    SLAPI WriteParticipant(const char * pHeaderTag, PPID psnID);
-	int    SLAPI WriteFIO(const char * pName);
-	int    SLAPI Underwriter(PPID psnID);
-	int    SLAPI GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
+	int    WriteParticipant(const char * pHeaderTag, PPID psnID);
+	int    WriteFIO(const char * pName);
+	int    Underwriter(PPID psnID);
+	int    GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
 	const  SString & FASTCALL EncText(const SString & rS);
 //private:
 	PPObjGoods GObj;
@@ -992,7 +992,7 @@ int BillHdrImpExpCfgListDialog::EditParam(const char * pIniSection)
 	return ok;
 }
 
-int SLAPI EditBillImpExpParams(int editBill)
+int EditBillImpExpParams(int editBill)
 {
 	int    ok = -1;
 	PPBillImpExpParam param;
@@ -1017,7 +1017,7 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 //
 //
 //
-SLAPI PPBillIterchangeFilt::PPBillIterchangeFilt() : LocID(0)
+PPBillIterchangeFilt::PPBillIterchangeFilt() : LocID(0)
 {
 	Period.Z();
 }
@@ -1058,7 +1058,7 @@ PPBillImpExpBaseProcessBlock & PPBillImpExpBaseProcessBlock::Z()
 	return *this;
 }
 
-int SLAPI PPBillImpExpBaseProcessBlock::SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPBillImpExpBaseProcessBlock::SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	int    is_ver_ok = 0;
@@ -1486,7 +1486,7 @@ PPBillImporter::~PPBillImporter()
 	delete P_Cc;
 }
 
-void SLAPI PPBillImporter::Init()
+void PPBillImporter::Init()
 {
 	PPBillImpExpBaseProcessBlock::Z();
 	AccSheetID = 0;
@@ -1496,7 +1496,7 @@ void SLAPI PPBillImporter::Init()
 	Logger.Clear();
 }
 
-int SLAPI PPBillImporter::LoadConfig(int import)
+int PPBillImporter::LoadConfig(int import)
 {
 	int    ok = 1;
 	SString name;
@@ -1531,7 +1531,7 @@ int SLAPI PPBillImporter::LoadConfig(int import)
 	return ok;
 }
 
-int SLAPI PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
+int PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
 {
 	int    ok = 1;
 	PPOprKind op_rec;
@@ -1553,7 +1553,7 @@ int SLAPI PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
 	return ok;
 }
 
-int SLAPI PPBillImporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
+int PPBillImporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
 {
 	int    ok = 1;
 	PPOprKind op_rec;
@@ -1573,7 +1573,7 @@ int SLAPI PPBillImporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 	return ok;
 }
 
-int SLAPI PPBillImporter::Helper_EnsurePersonArticle(PPID psnID, PPID accSheetID, PPID psnKindID, PPID * pArID)
+int PPBillImporter::Helper_EnsurePersonArticle(PPID psnID, PPID accSheetID, PPID psnKindID, PPID * pArID)
 {
 	int    ok = 1;
 	PPID   ar_id = 0;
@@ -1591,7 +1591,7 @@ int SLAPI PPBillImporter::Helper_EnsurePersonArticle(PPID psnID, PPID accSheetID
 	return ar_id;
 }
 
-int SLAPI PPBillImporter::RunUhttImport()
+int PPBillImporter::RunUhttImport()
 {
 	int    ok = -1;
 	const  PPID loc_id = NZOR(LocID, LConfig.Location);
@@ -1821,7 +1821,7 @@ int SLAPI PPBillImporter::RunUhttImport()
 	return ok;
 }
 
-const Sdr_Bill * SLAPI PPBillImporter::SearchBillForRow(const SString & rBillIdent, const Sdr_BRow & rRow) const
+const Sdr_Bill * PPBillImporter::SearchBillForRow(const SString & rBillIdent, const Sdr_BRow & rRow) const
 {
 	uint   p = 0;
 	while(Bills.lsearch(rBillIdent, &p, PTR_CMPFUNC(Pchar)) > 0) {
@@ -1836,7 +1836,7 @@ const Sdr_Bill * SLAPI PPBillImporter::SearchBillForRow(const SString & rBillIde
 	return 0;
 }
 
-int SLAPI PPBillImporter::SearchNextRowForBill(const Sdr_Bill & rBill, uint * pPos) const
+int PPBillImporter::SearchNextRowForBill(const Sdr_Bill & rBill, uint * pPos) const
 {
     uint p = DEREFPTRORZ(pPos);
 	while(BillsRows.lsearch(rBill.ID, &p, PTR_CMPFUNC(Pchar))) {
@@ -1851,7 +1851,7 @@ int SLAPI PPBillImporter::SearchNextRowForBill(const Sdr_Bill & rBill, uint * pP
 	return 0;
 }
 
-int SLAPI PPBillImporter::AddBRow(Sdr_BRow & rRow, uint * pRowId)
+int PPBillImporter::AddBRow(Sdr_BRow & rRow, uint * pRowId)
 {
 	LineIdSeq++;
 	rRow.LineId = LineIdSeq;
@@ -1874,7 +1874,7 @@ static int ResolveFormula(const char * pFormula, const SdRecord & rInrRec, doubl
 	return ok;
 }
 
-int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList)
+int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList)
 {
 	int    ok = -1;
 	SdbField dyn_fld;
@@ -2112,7 +2112,7 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 	return ok;
 }
 
-int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList)
+int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList)
 {
 	int    ok = 1;
 	long   count = 0;
@@ -2268,7 +2268,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 	return ok;
 }
 
-int SLAPI PPBillImporter::ReadSpecXmlData()
+int PPBillImporter::ReadSpecXmlData()
 {
 	int    ok = 1;
 	uint   p = 0;
@@ -2311,7 +2311,7 @@ NextImportIter
 FinishImpExp
 */
 
-int SLAPI PPBillImporter::AddBillToList(Sdr_Bill * pBill, long extraBillId)
+int PPBillImporter::AddBillToList(Sdr_Bill * pBill, long extraBillId)
 {
 	int    ok = 1;
 	int    found = 0;
@@ -2339,7 +2339,7 @@ int SLAPI PPBillImporter::AddBillToList(Sdr_Bill * pBill, long extraBillId)
 	return ok;
 }
 
-int SLAPI PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::PtTokenList & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow)
+int PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::PtTokenList & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow)
 {
 	int    ok = 1;
 	if(pRecHdr || pRecRow) {
@@ -2457,7 +2457,7 @@ int SLAPI PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpP
 	return ok;
 }
 
-int SLAPI PPBillImporter::ReadData()
+int PPBillImporter::ReadData()
 {
 	int    ok = -1;
 	int    r = -1;
@@ -2792,7 +2792,7 @@ int SLAPI PPBillImporter::ReadData()
 	return ok;
 }
 
-int SLAPI PPBillImporter::ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt, double * pUpp)
+int PPBillImporter::ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt, double * pUpp)
 {
 	double upp = 0.0;
 	ReceiptCore * p_rcpt = (P_BObj && P_BObj->trfr) ? &P_BObj->trfr->Rcpt : 0;
@@ -2817,7 +2817,7 @@ int SLAPI PPBillImporter::ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt,
 	return (upp > 0.0) ? 1 : -1;
 }
 
-int SLAPI PPBillImporter::Import(int useTa)
+int PPBillImporter::Import(int useTa)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3420,7 +3420,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 	return ok;
 }
 
-int SLAPI PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const char * pDlvrLocCode,
+int PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const char * pDlvrLocCode,
 	const char * pBillId, PPID accSheetID, PPID * pArID, int logErr /*=1*/)
 {
 	int    ok = -1;
@@ -3476,7 +3476,7 @@ int SLAPI PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const ch
 }
 
 // @vmiller
-int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,*/const char * pBillId, PPID accSheetID, PPID * pArID, int logErr /*=1*/)
+int PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,*/const char * pBillId, PPID accSheetID, PPID * pArID, int logErr /*=1*/)
 {
 
 	int    ok = -1;
@@ -3506,7 +3506,7 @@ int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,
 	return ok;
 }
 
-int SLAPI PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec)
+int PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec)
 {
 	int    ok = -1;
 	PPID   order_bill_id = 0;
@@ -3565,7 +3565,7 @@ int SLAPI PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk,
 // @vmiller
 // Descr: На данный момент проверяет наличие документа заказа (только драфт-документы), чьи параметры переданы в pBill
 //
-int SLAPI PPBillImporter::GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus & rStatus)
+int PPBillImporter::GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus & rStatus)
 {
 	int    ok = 1;
 	rStatus.DocStatus = statNoSuchDoc;
@@ -3615,7 +3615,7 @@ int SLAPI PPBillImporter::GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus 
 	return ok;
 }
 
-int SLAPI PPBillImporter::CheckBill(const Sdr_Bill * pBill)
+int PPBillImporter::CheckBill(const Sdr_Bill * pBill)
 {
 	int    ok = 0;
 	if(pBill) {
@@ -3633,7 +3633,7 @@ int SLAPI PPBillImporter::CheckBill(const Sdr_Bill * pBill)
 	return ok;
 }
 
-int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
+int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 {
 	int    ok = 0;
 	if(pBill && pPack) {
@@ -3672,7 +3672,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 					if(!isempty(pBill->GLN))
 						ResolveGLN(pBill->GLN, pBill->ID, acs_id, &ar_id);
 					if(!ar_id && !isempty(pBill->LocCode)) {
-						//int SLAPI PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID)
+						//int PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID)
 						PPIDArray loc_list;
 						LocationTbl::Rec loc_rec;
 						LocObj.P_Tbl->GetListByCode(LOCTYP_WAREHOUSE, pBill->LocCode, &loc_list);
@@ -3796,7 +3796,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 }
 
 #if 0 // @v9.8.5 (unused) {
-int SLAPI PPBillImporter::BillRowToBillRec(const Sdr_BRow * pRow, PPBillPacket * pPack)
+int PPBillImporter::BillRowToBillRec(const Sdr_BRow * pRow, PPBillPacket * pPack)
 {
 	int    ok = 0;
 	if(pRow && pPack) {
@@ -3867,7 +3867,7 @@ int SLAPI PPBillImporter::BillRowToBillRec(const Sdr_BRow * pRow, PPBillPacket *
 }
 #endif // } @v9.8.5 (unused)
 
-int SLAPI PPBillImporter::DoFullEdiProcess()
+int PPBillImporter::DoFullEdiProcess()
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4095,7 +4095,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 	return ok;
 }
 
-int SLAPI PPBillImporter::Run()
+int PPBillImporter::Run()
 {
 	int    ok = 1;
 	SString file_name;
@@ -4424,7 +4424,7 @@ int SLAPI PPBillImporter::Run()
 	return ok;
 }
 
-int SLAPI ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
+int ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
 {
 	int    ok = -1, r = 1;
 	PPBillImporter b_i;
@@ -4441,10 +4441,10 @@ int SLAPI ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowP
 //
 class BillExpExprEvalContext : public BillContext {
 public:
-	SLAPI  BillExpExprEvalContext(const PPBillPacket * pPack, const SdRecord & rRec) : BillContext(pPack, pPack->Rec.CurID, 0), R_Rec(rRec)
+	BillExpExprEvalContext(const PPBillPacket * pPack, const SdRecord & rRec) : BillContext(pPack, pPack->Rec.CurID, 0), R_Rec(rRec)
 	{
 	}
-	virtual int SLAPI Resolve(const char * pSymb, double * pVal)
+	virtual int Resolve(const char * pSymb, double * pVal)
 	{
 		if(PPImpExp::ResolveVarName(pSymb, R_Rec, pVal) > 0)
 			return 1;
@@ -4554,16 +4554,16 @@ int SignBillDialog::DrawList()
 	return ok;
 }
 
-SLAPI PPBillExporter::PPBillExporter() :  P_IEBill(0), P_IEBRow(0)
+PPBillExporter::PPBillExporter() :  P_IEBill(0), P_IEBRow(0)
 {
 }
 
-SLAPI PPBillExporter::~PPBillExporter()
+PPBillExporter::~PPBillExporter()
 {
 	Destroy();
 }
 
-void SLAPI PPBillExporter::Destroy()
+void PPBillExporter::Destroy()
 {
 	const int del_row = BIN(P_IEBill != P_IEBRow);
 	ZDELETE(P_IEBill);
@@ -4571,7 +4571,7 @@ void SLAPI PPBillExporter::Destroy()
 		ZDELETE(P_IEBRow);
 }
 
-int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, const PPBillPacket * pFirstPack, StringSet * pResultFileList)
+int PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, const PPBillPacket * pFirstPack, StringSet * pResultFileList)
 {
 	Destroy();
 	int    ok = 1;
@@ -4624,7 +4624,7 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 	return ok;
 }
 
-int SLAPI PPBillExporter::SignBill()
+int PPBillExporter::SignBill()
 {
 	int    ok = 1;
 	TDialog * p_sign_dlg = 0;
@@ -4637,7 +4637,7 @@ int SLAPI PPBillExporter::SignBill()
 	return ok;
 }
 
-int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll * pImpExpDll /*=0*/)
+int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll * pImpExpDll /*=0*/)
 {
 	int    ok = -1;
 	int    obj_id = 0;
@@ -5069,7 +5069,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 	return ok;
 }
 
-int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
+int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 {
 	int    ok = 0;
 	SString temp_buf, str_city;
@@ -5278,7 +5278,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 	return ok;
 }
 
-int SLAPI PPBillExporter::GetReg(PPID arID, PPID regTypeID, SString & rRegNum)
+int PPBillExporter::GetReg(PPID arID, PPID regTypeID, SString & rRegNum)
 {
 	rRegNum.Z();
 	int    ok = -1;
@@ -5293,7 +5293,7 @@ int SLAPI PPBillExporter::GetReg(PPID arID, PPID regTypeID, SString & rRegNum)
 // @vmiller
 // Descr: Получает список документов, которые были успешно отправлены и ставит в тегах этих документов пометку
 //
-int SLAPI PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
+int PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 {
 	int    ok = 1, r = 1;
 	{
@@ -5340,7 +5340,7 @@ int SLAPI PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 //
 //
 //
-int SLAPI DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
+int DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -5351,7 +5351,7 @@ int SLAPI DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
 	return ok;
 }
 
-int SLAPI DocNalogRu_Generator::MakeOutFileName(const char * pFileIdent, SString & rFileName)
+int DocNalogRu_Generator::MakeOutFileName(const char * pFileIdent, SString & rFileName)
 {
 	int    ok = 1;
 	SPathStruc ps(rFileName);
@@ -5361,7 +5361,7 @@ int SLAPI DocNalogRu_Generator::MakeOutFileName(const char * pFileIdent, SString
 	return ok;
 }
 
-int SLAPI DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo)
+int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -5506,16 +5506,16 @@ DocNalogRu_Generator::Invoice::Invoice(DocNalogRu_Generator & rG, const PPBillPa
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CODEOKV), "643");
 }
 
-SLAPI DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0)
+DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0)
 {
 }
 
-SLAPI DocNalogRu_Generator::~DocNalogRu_Generator()
+DocNalogRu_Generator::~DocNalogRu_Generator()
 {
 	EndDoc();
 }
 
-int SLAPI DocNalogRu_Generator::StartDoc(const char * pFileName)
+int DocNalogRu_Generator::StartDoc(const char * pFileName)
 {
 	int    ok = 1;
 	ZDELETE(P_Doc);
@@ -5529,7 +5529,7 @@ int SLAPI DocNalogRu_Generator::StartDoc(const char * pFileName)
 	return ok;
 }
 
-void SLAPI DocNalogRu_Generator::EndDoc()
+void DocNalogRu_Generator::EndDoc()
 {
 	xmlTextWriterFlush(P_X);
 	ZDELETE(P_Doc);
@@ -5707,7 +5707,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const FileInfo & rHi, const PPBillPa
 	return ok;
 }
 
-int SLAPI DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID)
+int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID)
 {
 	int    ok = 1;
 	PPPersonPacket psn_pack;
@@ -5748,7 +5748,7 @@ int SLAPI DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID p
 	return ok;
 }
 
-int SLAPI DocNalogRu_Generator::WriteFIO(const char * pName)
+int DocNalogRu_Generator::WriteFIO(const char * pName)
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -5778,7 +5778,7 @@ int SLAPI DocNalogRu_Generator::WriteFIO(const char * pName)
 	return ok;
 }
 
-int SLAPI DocNalogRu_Generator::Underwriter(PPID psnID)
+int DocNalogRu_Generator::Underwriter(PPID psnID)
 {
 	int    ok = 1;
 	int    is_free = 0; // Индивидуальный предприниматель
@@ -5820,7 +5820,7 @@ int SLAPI DocNalogRu_Generator::Underwriter(PPID psnID)
 	return ok;
 }
 
-int SLAPI DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCode)
+int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCode)
 {
 	int    ok = 1;
 	PPID   country_id = 0;
@@ -5870,7 +5870,7 @@ int SLAPI DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int re
 	return ok;
 }
 
-int SLAPI DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
+int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
 {
 	int    ok = 1;
 	int    region_code = 0;
@@ -5944,7 +5944,7 @@ const SString & FASTCALL DocNalogRu_Generator::EncText(const SString & rS)
 	return EncBuf.Transf(CTRANSF_INNER_TO_OUTER);
 }
 
-int SLAPI DocNalogRu_Generator::GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry)
+int DocNalogRu_Generator::GetAgreementParams(PPID arID, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry)
 {
 	rAgtCode.Z();
 	rAgtDate = ZERODATE;

@@ -8,26 +8,26 @@
 #include <pp.h>
 #include <ppds.h>
 
-SLAPI PPDeclStruc::PPDeclStruc() : SArray(sizeof(PPDeclStrucItem)), Id(0), P_Outer(0), UpdateProtocol(0), P_Logger(0)
+PPDeclStruc::PPDeclStruc() : SArray(sizeof(PPDeclStrucItem)), Id(0), P_Outer(0), UpdateProtocol(0), P_Logger(0)
 {
 }
 
-SLAPI PPDeclStruc::~PPDeclStruc()
+PPDeclStruc::~PPDeclStruc()
 {
 	InitData(idoDestroy, 0, 0);
 }
 
-uint SLAPI PPDeclStruc::GetCount() const
+uint PPDeclStruc::GetCount() const
 {
 	return getCount();
 }
 
-long SLAPI PPDeclStruc::GetId() const
+long PPDeclStruc::GetId() const
 {
 	return Id;
 }
 
-int SLAPI PPDeclStruc::InitData(Ido op, void * extraPtr, long)
+int PPDeclStruc::InitData(Ido op, void * extraPtr, long)
 {
 	int    ok = 1;
 	if(op == idoAlloc)
@@ -43,7 +43,7 @@ int SLAPI PPDeclStruc::InitData(Ido op, void * extraPtr, long)
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(int32 * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(int32 * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -58,7 +58,7 @@ int SLAPI PPDeclStruc::TransferData(int32 * pData, Tfd dir, SString & rBuf, int 
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferDataFlag(int32 * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferDataFlag(int32 * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
 {
 	int32  val = 0;
 	if(dir == tfdDataToBuf)
@@ -69,7 +69,7 @@ int SLAPI PPDeclStruc::TransferDataFlag(int32 * pData, long flag, Tfd dir, SStri
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferDataFlag(int16 * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferDataFlag(int16 * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
 {
 	int32 val = 0;
 	if(dir == tfdDataToBuf)
@@ -80,7 +80,7 @@ int SLAPI PPDeclStruc::TransferDataFlag(int16 * pData, long flag, Tfd dir, SStri
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(int16 * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(int16 * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -95,7 +95,7 @@ int SLAPI PPDeclStruc::TransferData(int16 * pData, Tfd dir, SString & rBuf, int 
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(uint16 * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(uint16 * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -110,7 +110,7 @@ int SLAPI PPDeclStruc::TransferData(uint16 * pData, Tfd dir, SString & rBuf, int
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(uint8 * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(uint8 * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -126,7 +126,7 @@ int SLAPI PPDeclStruc::TransferData(uint8 * pData, Tfd dir, SString & rBuf, int 
 
 }
 
-int SLAPI PPDeclStruc::TransferData(double * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(double * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -141,7 +141,7 @@ int SLAPI PPDeclStruc::TransferData(double * pData, Tfd dir, SString & rBuf, int
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -184,7 +184,7 @@ int SLAPI PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, in
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -225,7 +225,7 @@ int SLAPI PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SS
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(DateRange * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(DateRange * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -240,7 +240,7 @@ int SLAPI PPDeclStruc::TransferData(DateRange * pData, Tfd dir, SString & rBuf, 
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(LDATE * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(LDATE * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -255,7 +255,7 @@ int SLAPI PPDeclStruc::TransferData(LDATE * pData, Tfd dir, SString & rBuf, int 
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(LTIME * pData, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(LTIME * pData, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -270,7 +270,7 @@ int SLAPI PPDeclStruc::TransferData(LTIME * pData, Tfd dir, SString & rBuf, int 
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(long * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
+int PPDeclStruc::TransferData(long * pData, long flag, Tfd dir, SString & rBuf, int skipZero)
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
@@ -286,7 +286,7 @@ int SLAPI PPDeclStruc::TransferData(long * pData, long flag, Tfd dir, SString & 
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferData(PPIDArray * pList, Tfd dir, uint iter, SString & rBuf)
+int PPDeclStruc::TransferData(PPIDArray * pList, Tfd dir, uint iter, SString & rBuf)
 {
 	int    ok = -1;
 	if(dir == tfdDataToBuf) {
@@ -304,7 +304,7 @@ int SLAPI PPDeclStruc::TransferData(PPIDArray * pList, Tfd dir, uint iter, SStri
 	return ok;
 }
 
-int SLAPI PPDeclStruc::TransferField(long, Tfd dir, uint *, SString & rBuf)
+int PPDeclStruc::TransferField(long, Tfd dir, uint *, SString & rBuf)
 {
 	int    ok = -1;
 	if(dir == tfdDataToBuf) {
@@ -318,17 +318,17 @@ int SLAPI PPDeclStruc::TransferField(long, Tfd dir, uint *, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPDeclStruc::AcceptListItem(long, PPDeclStruc *, ObjTransmContext * pCtx)
+int PPDeclStruc::AcceptListItem(long, PPDeclStruc *, ObjTransmContext * pCtx)
 {
 	return -1;
 }
 
-int SLAPI PPDeclStruc::CreateListItem(long, uint *, PPDeclStruc *)
+int PPDeclStruc::CreateListItem(long, uint *, PPDeclStruc *)
 {
 	return -1;
 }
 
-int SLAPI PPDeclStruc::WriteDataToStream(FILE * stream, void * extraPtr)
+int PPDeclStruc::WriteDataToStream(FILE * stream, void * extraPtr)
 {
 	return Helper_WriteDataToStream(stream, 1, 1, extraPtr);
 }
@@ -352,7 +352,7 @@ static void FASTCALL WriteEqSign(FILE * stream)
 	//fputc(' ', stream);
 }
 
-int SLAPI PPDeclStruc::Helper_CreateListItem(long fldID, long typeID, uint * pIter, FILE * stream, int level, void * extraPtr)
+int PPDeclStruc::Helper_CreateListItem(long fldID, long typeID, uint * pIter, FILE * stream, int level, void * extraPtr)
 {
 	int    ok = -1;
 	PPDeclStruc * p_decl = PPDeclStruc::CreateInstance(typeID, extraPtr, this, P_Logger);
@@ -371,7 +371,7 @@ int SLAPI PPDeclStruc::Helper_CreateListItem(long fldID, long typeID, uint * pIt
 	return ok;
 }
 
-int SLAPI PPDeclStruc::Helper_WriteDataToStream(FILE * stream, int putPrefix, int level, void * extraPtr)
+int PPDeclStruc::Helper_WriteDataToStream(FILE * stream, int putPrefix, int level, void * extraPtr)
 {
 	int    ok = 1, r;
 	PPDeclStrucItem item;
@@ -444,7 +444,7 @@ int SLAPI PPDeclStruc::Helper_WriteDataToStream(FILE * stream, int putPrefix, in
 	return ok;
 }
 
-int SLAPI PPDeclStruc::SetHeader(PPID id, const char * pName, long flags)
+int PPDeclStruc::SetHeader(PPID id, const char * pName, long flags)
 {
 	PPDeclStrucItem item;
 	MEMSZERO(item);
@@ -460,7 +460,7 @@ int SLAPI PPDeclStruc::SetHeader(PPID id, const char * pName, long flags)
 	return 1;
 }
 
-int SLAPI PPDeclStruc::AddItem(PPDeclStrucItem * pItem)
+int PPDeclStruc::AddItem(PPDeclStrucItem * pItem)
 {
 	if(getCount() == 0)
 		if(!SetHeader(0, 0, 0))
@@ -468,7 +468,7 @@ int SLAPI PPDeclStruc::AddItem(PPDeclStrucItem * pItem)
 	return insert(pItem) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPDeclStruc::GetItem(uint idx, PPDeclStrucItem * pItem)
+int PPDeclStruc::GetItem(uint idx, PPDeclStrucItem * pItem)
 {
 	if(idx < getCount()) {
 		ASSIGN_PTR(pItem, *static_cast<const PPDeclStrucItem *>(at(idx)));
@@ -477,7 +477,7 @@ int SLAPI PPDeclStruc::GetItem(uint idx, PPDeclStrucItem * pItem)
 	return 0;
 }
 
-void SLAPI PPDeclStruc::SetItemAddedMsgString(const char * pName)
+void PPDeclStruc::SetItemAddedMsgString(const char * pName)
 {
 	SString msg;
 	if(getCount()) {
@@ -489,7 +489,7 @@ void SLAPI PPDeclStruc::SetItemAddedMsgString(const char * pName)
 	PPSetAddedMsgString(msg);
 }
 
-int SLAPI PPDeclStruc::SearchItem(const char * pName, PPDeclStrucItem * pItem)
+int PPDeclStruc::SearchItem(const char * pName, PPDeclStrucItem * pItem)
 {
 	PPDeclStrucItem * p_item;
 	for(uint i = 1; enumItems(&i, (void **)&p_item);) {
@@ -501,7 +501,7 @@ int SLAPI PPDeclStruc::SearchItem(const char * pName, PPDeclStrucItem * pItem)
 	return (PPErrCode = PPERR_DS_STRUCITEMNFOUND, -1);
 }
 
-int SLAPI PPDeclStruc::EnumItems(uint * pIdx, PPDeclStrucItem * pItem)
+int PPDeclStruc::EnumItems(uint * pIdx, PPDeclStrucItem * pItem)
 {
 	PPDeclStrucItem * p_item;
 	if(SArray::enumItems(pIdx, (void **)&p_item) > 0) {

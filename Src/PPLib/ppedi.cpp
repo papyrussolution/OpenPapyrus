@@ -7,7 +7,7 @@
 //
 //
 //
-SLAPI GtinStruc::GtinStruc() : StrAssocArray(), SpecialNaturalToken(0)
+GtinStruc::GtinStruc() : StrAssocArray(), SpecialNaturalToken(0)
 {
 }
 
@@ -112,7 +112,7 @@ static const GtinFixedLengthToken GtinFixedLengthTokenList[] = {
 	{ GtinStruc::fldCouponCode3,           2 }, // 2 num
 };
 
-int SLAPI GtinStruc::GetPrefixSpec(int prefixId, uint * pFixedLen) const
+int GtinStruc::GetPrefixSpec(int prefixId, uint * pFixedLen) const
 {
 	int    ok = 0;
 	ASSIGN_PTR(pFixedLen, 0);
@@ -229,7 +229,7 @@ static const SIntToSymbTabEntry GtinPrefix[] = {
 	{ GtinStruc::fldCouponCode3,           "8102" },
 };
 
-int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const
+int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const
 {
 	int    prefix_id = -1;
 	const  size_t src_len = sstrlen(pSrc);
@@ -283,7 +283,7 @@ int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, 
 	return prefix_id;
 }
 
-int SLAPI GtinStruc::AddOnlyToken(int token)
+int GtinStruc::AddOnlyToken(int token)
 {
 	int    ok = 1;
 	if(SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token))
@@ -293,7 +293,7 @@ int SLAPI GtinStruc::AddOnlyToken(int token)
 	return ok;
 }
 
-int SLAPI GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
+int GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 {
 	int    ok = 1;
 	if(fixedLen == 1000 || checkirange(fixedLen, 1, 50) && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) { // @v10.9.0 30-->50
@@ -305,7 +305,7 @@ int SLAPI GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 	return ok;
 }
 
-uint SLAPI GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId)
+uint GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId)
 {
 	uint   result_offs = 0;
 	SString temp_buf;
@@ -328,14 +328,14 @@ uint SLAPI GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen
 	return result_offs;
 }
 
-GtinStruc & SLAPI GtinStruc::Z()
+GtinStruc & GtinStruc::Z()
 {
 	StrAssocArray::Z();
 	SpecialNaturalToken = 0;
 	return *this;
 }
 
-int SLAPI GtinStruc::Debug_Output(SString & rBuf) const
+int GtinStruc::Debug_Output(SString & rBuf) const
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -368,7 +368,7 @@ GTIN – 14 знаков
 04606203098187o&zWeIyABr8l/nT
 */
 
-int SLAPI GtinStruc::GetToken(int tokenId, SString * pToken) const
+int GtinStruc::GetToken(int tokenId, SString * pToken) const
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -382,12 +382,12 @@ int SLAPI GtinStruc::GetToken(int tokenId, SString * pToken) const
 	return ok;
 }
 
-int SLAPI GtinStruc::GetSpecialNaturalToken() const
+int GtinStruc::GetSpecialNaturalToken() const
 {
 	return SpecialNaturalToken;
 }
 
-uint SLAPI GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
+uint GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
 {
 	uint   len = 0;
 	SString next_prefix_;
@@ -505,7 +505,7 @@ static int FASTCALL Base36ToTobaccoPrice(const SString & rS, SString & rBuf)
 	return ok;
 }
 
-int SLAPI GtinStruc::Parse(const char * pCode)
+int GtinStruc::Parse(const char * pCode)
 {
 	int    ok = 1;
 	SString code_buf(pCode);
@@ -613,7 +613,7 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 	return ok;
 }
 
-int SLAPI TestGtinStruc()
+int TestGtinStruc()
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -937,10 +937,10 @@ public:
 	static int FASTCALL GetPartyqBySymb(const char * pSymb);
 	static int FASTCALL GetIticSymb(int refq, SString & rSymb);
 	static int FASTCALL GetIticBySymb(const char * pSymb);
-	explicit SLAPI  PPEanComDocument(PPEdiProcessor::ProviderImplementation * pPi);
-	SLAPI ~PPEanComDocument();
-	int    SLAPI Write_MessageHeader(SXml::WDoc & rDoc, int msgType, const char * pMsgId);
-	int    SLAPI Read_MessageHeader(xmlNode * pFirstNode, SString & rMsgType, SString & rMsgId); // @notimplemented
+	explicit PPEanComDocument(PPEdiProcessor::ProviderImplementation * pPi);
+	~PPEanComDocument();
+	int    Write_MessageHeader(SXml::WDoc & rDoc, int msgType, const char * pMsgId);
+	int    Read_MessageHeader(xmlNode * pFirstNode, SString & rMsgType, SString & rMsgId); // @notimplemented
 	//
 	// Descr: Коды функций сообщения
 	// Message function code:
@@ -1042,10 +1042,10 @@ public:
 	// 401 = Transshipment order
 	// 402 = Cross docking order
 	//
-	int    SLAPI Write_BeginningOfMessage(SXml::WDoc & rDoc, const char * pDocCode, const char * pDocIdent, int funcMsgCode);
-	int    SLAPI Read_BeginningOfMessage(xmlNode * pFirstNode, SString & rDocCode, SString & rDocIdent, int * pFuncMsgCode);
-	int    SLAPI Write_UNT(SXml::WDoc & rDoc, const char * pDocCode, uint segCount);
-	int    SLAPI Read_UNT(xmlNode * pFirstNode, SString & rDocCode, uint * pSegCount);
+	int    Write_BeginningOfMessage(SXml::WDoc & rDoc, const char * pDocCode, const char * pDocIdent, int funcMsgCode);
+	int    Read_BeginningOfMessage(xmlNode * pFirstNode, SString & rDocCode, SString & rDocIdent, int * pFuncMsgCode);
+	int    Write_UNT(SXml::WDoc & rDoc, const char * pDocCode, uint segCount);
+	int    Read_UNT(xmlNode * pFirstNode, SString & rDocCode, uint * pSegCount);
 	//
 	//
 	//
@@ -1124,8 +1124,8 @@ public:
 		dtmfmtCCYYMMDD_CCYYMMDD = 718, // CCYYMMDD-CCYYMMDD
 	};
 	//
-	int    SLAPI Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt, const LDATETIME & rDtm, const LDATETIME * pFinish);
-	int    SLAPI Read_DTM(xmlNode * pFirstNode, TSVector <DtmValue> & rList);
+	int    Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt, const LDATETIME & rDtm, const LDATETIME * pFinish);
+	int    Read_DTM(xmlNode * pFirstNode, TSVector <DtmValue> & rList);
 	enum {
 		refqUndef = 0,
 		refqAAB = 1, // Proforma invoice number
@@ -1161,14 +1161,14 @@ public:
 		refqVN, // Order number (supplier)
 		refqXA, // Company/place registration number. Company registration and place as legally required.
 	};
-	int    SLAPI Write_RFF(SXml::WDoc & rDoc, int refQ, const char * pRef); // reference
-	int    SLAPI Read_RFF(xmlNode * pFirstNode, TSCollection <RefValue> & rList); // reference
-	int    SLAPI Write_NAD(SXml::WDoc & rDoc, int partyQ, const char * pGLN);
-	int    SLAPI Read_NAD(xmlNode * pFirstNode, PartyValue & rV);
-	int    SLAPI Write_CUX(SXml::WDoc & rDoc, const char * pCurrencyCode3);
-	int    SLAPI Read_CUX(xmlNode * pFirstNode, SString & rCurrencyCode3); // @notimplemented
-	int    SLAPI Write_CPS(SXml::WDoc & rDoc);
-	int    SLAPI Read_CPS(xmlNode * pFirstNode);
+	int    Write_RFF(SXml::WDoc & rDoc, int refQ, const char * pRef); // reference
+	int    Read_RFF(xmlNode * pFirstNode, TSCollection <RefValue> & rList); // reference
+	int    Write_NAD(SXml::WDoc & rDoc, int partyQ, const char * pGLN);
+	int    Read_NAD(xmlNode * pFirstNode, PartyValue & rV);
+	int    Write_CUX(SXml::WDoc & rDoc, const char * pCurrencyCode3);
+	int    Read_CUX(xmlNode * pFirstNode, SString & rCurrencyCode3); // @notimplemented
+	int    Write_CPS(SXml::WDoc & rDoc);
+	int    Read_CPS(xmlNode * pFirstNode);
 	enum { // values significat!
 		amtqAmtDue                =   9, // Amount due/amount payable
 		amtqCashDiscount          =  21, // Cash discount
@@ -1203,11 +1203,11 @@ public:
 			// и тарктуются как специализированные (часто справочные) значения.
 		amtqExt_XB5               = 10001 // XB5 Information amount (SWIFT Code). A monetary amount provided for information purposes.
 	};
-	int    SLAPI Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount);
+	int    Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount);
 	//
 	// Descr: Считывает суммовую величину и заносит ее в вектор rList.
 	//
-	int    SLAPI Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & rList);
+	int    Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & rList);
 	enum {
 		qtyqDiscrete      =  1, // Discrete quantity
 		qtyqSplit         = 11, // Split quantity
@@ -1221,16 +1221,16 @@ public:
 		qtyqFreeGoods     = 192, // Free goods quantity
 		qtyqFreeIncluded  = 193, // Free quantity included
 	};
-	int    SLAPI Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ, double qtty);
-	int    SLAPI Read_QTY(xmlNode * pFirstNode, TSVector <QValue> & rList);
+	int    Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ, double qtty);
+	int    Read_QTY(xmlNode * pFirstNode, TSVector <QValue> & rList);
 	enum {
 		cntqQuantity       = 1, // Algebraic total of the quantity values in line items in a message
 		cntqNumOfLn        = 2, // Number of line items in message
 		cntqNumOfLnAndSub  = 3, // Number of line and sub items in message
 		cntqNumOfInvcLn    = 4, // Number of invoice lines
 	};
-	int    SLAPI Write_CNT(SXml::WDoc & rDoc, int countQ, double value);
-	int    SLAPI Read_CNT(xmlNode * pFirstNode, int * pCountQ, double * pValue);
+	int    Write_CNT(SXml::WDoc & rDoc, int countQ, double value);
+	int    Read_CNT(xmlNode * pFirstNode, int * pCountQ, double * pValue);
 	enum {
 		// Use the codes AAH, AAQ, ABL, ABM when dealing with CSA (customer specific articles).
 		priceqAAA = 1, // Calculation net. The price stated is the net price including all allowances and charges and excluding taxes.
@@ -1242,8 +1242,8 @@ public:
 		priceqABL,     // Base price
 		priceqABM      // Base price difference
 	};
-	int    SLAPI Write_PRI(SXml::WDoc & rDoc, int priceQ, double amount);
-	int    SLAPI Read_PRI(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt); // @notimplemented
+	int    Write_PRI(SXml::WDoc & rDoc, int priceQ, double amount);
+	int    Read_PRI(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt); // @notimplemented
 	enum {
 		taxqCustomDuty = 5,
 		taxqTax        = 7
@@ -1257,12 +1257,12 @@ public:
 	// Descr: Записывает сегмент определения налога.
 	// Note: Пока функция заточена только на НДС.
 	//
-	int    SLAPI Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, double value);
-	int    SLAPI Read_TAX(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt); // @notimplemented
-	int    SLAPI Write_LIN(SXml::WDoc & rDoc, int lineN, const char * pGoodsCode);
-	int    SLAPI Read_LIN(xmlNode * pFirstNode, int * pLineN, SString & rGoodsCode);
-	int    SLAPI Write_PIA(SXml::WDoc & rDoc, const PiaValue & rV);
-	int    SLAPI Read_PIA(xmlNode * pFirstNode, TSArray <PiaValue> & rL);
+	int    Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, double value);
+	int    Read_TAX(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt); // @notimplemented
+	int    Write_LIN(SXml::WDoc & rDoc, int lineN, const char * pGoodsCode);
+	int    Read_LIN(xmlNode * pFirstNode, int * pLineN, SString & rGoodsCode);
+	int    Write_PIA(SXml::WDoc & rDoc, const PiaValue & rV);
+	int    Read_PIA(xmlNode * pFirstNode, TSArray <PiaValue> & rL);
 	//
 	// Descr: IMD Description format code
 	//
@@ -1274,8 +1274,8 @@ public:
 		imdqStructured,            // S = Structured (from industry code list)
 		imdqCodeAndText            // B = Code and text
 	};
-	int    SLAPI Write_IMD(SXml::WDoc & rDoc, int imdq, const char * pDescription);
-	int    SLAPI Read_IMD(xmlNode * pFirstNode, TSCollection <ImdValue> & rL);
+	int    Write_IMD(SXml::WDoc & rDoc, int imdq, const char * pDescription);
+	int    Read_IMD(xmlNode * pFirstNode, TSCollection <ImdValue> & rL);
 
 	struct BillGoodsItemsTotal {
 		BillGoodsItemsTotal() : Count(0), SegCount(0), Quantity(0.0), AmountWoTax(0.0), AmountWithTax(0.0)
@@ -1287,16 +1287,16 @@ public:
 		double AmountWoTax;
 		double AmountWithTax;
 	};
-	int    SLAPI Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal);
-	int    SLAPI Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal);
-	int    SLAPI Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPack);
-	int    SLAPI Write_ORDERS(xmlTextWriter * pX, const PPBillPacket & rPack);
-	int    SLAPI Write_ORDERRSP(xmlTextWriter * pX, const PPBillPacket & rPack, const PPBillPacket * pExtPack);
-	int    SLAPI Read_Document(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	int    Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal);
+	int    Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal);
+	int    Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPack);
+	int    Write_ORDERS(xmlTextWriter * pX, const PPBillPacket & rPack);
+	int    Write_ORDERRSP(xmlTextWriter * pX, const PPBillPacket & rPack, const PPBillPacket * pExtPack);
+	int    Read_Document(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 private:
-	int    SLAPI PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID);
+	int    PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID);
 	struct PartyResolveBlock {
-		SLAPI  PartyResolveBlock()
+		PartyResolveBlock()
 		{
 			THISZERO();
 		}
@@ -1308,9 +1308,9 @@ private:
 		PPID   DlvrLocID;
 		PPID   BillLocID;
 	};
-	int    SLAPI PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult);
-	void   SLAPI SetupPartyAddedMsg(const PartyValue * pVal, SString & rBuf);
-	int    SLAPI Read_CommonDocumentEntries(xmlNode * pFirstNode, DocumentValue & rVal);
+	int    PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult);
+	void   SetupPartyAddedMsg(const PartyValue * pVal, SString & rBuf);
+	int    Read_CommonDocumentEntries(xmlNode * pFirstNode, DocumentValue & rVal);
 
 	PPEdiProcessor::ProviderImplementation * P_Pi;
 };
@@ -1327,7 +1327,7 @@ private:
 	return edi_msg_type;
 }
 
-SLAPI PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
+PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
 	Epp(rEpp), MainOrgID(mainOrgID), Flags(flags), P_BObj(BillObj)
 {
 	PPAlbatrosCfgMngr::Get(&ACfg);
@@ -1335,7 +1335,7 @@ SLAPI PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdi
 	Arp.Init();
 }
 
-SLAPI PPEdiProcessor::ProviderImplementation::~ProviderImplementation()
+PPEdiProcessor::ProviderImplementation::~ProviderImplementation()
 {
 }
 
@@ -1354,7 +1354,7 @@ const SString & FASTCALL PPEdiProcessor::ProviderImplementation::EncXmlText(cons
 	return EncBuf.Transf(CTRANSF_INNER_TO_UTF8);
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::ValidateGLN(const SString & rGLN)
+int PPEdiProcessor::ProviderImplementation::ValidateGLN(const SString & rGLN)
 {
 	int    ok = 0;
 	if(rGLN.NotEmpty()) {
@@ -1367,7 +1367,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::ValidateGLN(const SString & rG
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec)
+int PPEdiProcessor::ProviderImplementation::GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec)
 {
 	int    ok = -1;
 	PPID   order_bill_id = 0;
@@ -1402,7 +1402,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetOriginOrderBill(const PPBil
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::Helper_GetPersonGLN(PPID psnID, SString & rGLN)
+int PPEdiProcessor::ProviderImplementation::Helper_GetPersonGLN(PPID psnID, SString & rGLN)
 {
 	int    ok = 0;
 	rGLN.Z();
@@ -1415,7 +1415,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::Helper_GetPersonGLN(PPID psnID
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetPersonGLN(PPID psnID, SString & rGLN)
+int PPEdiProcessor::ProviderImplementation::GetPersonGLN(PPID psnID, SString & rGLN)
 {
 	int    ok = Helper_GetPersonGLN(psnID, rGLN);
 	if(!ok) {
@@ -1426,7 +1426,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetPersonGLN(PPID psnID, SStri
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetArticleGLN(PPID arID, SString & rGLN)
+int PPEdiProcessor::ProviderImplementation::GetArticleGLN(PPID arID, SString & rGLN)
 {
 	PPID   psn_id = ObjectToPerson(arID, 0);
 	int    ok = Helper_GetPersonGLN(psn_id, rGLN);
@@ -1438,7 +1438,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetArticleGLN(PPID arID, SStri
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetMainOrgGLN(SString & rGLN)
+int PPEdiProcessor::ProviderImplementation::GetMainOrgGLN(SString & rGLN)
 {
 	PPID   psn_id = MainOrgID;
 	int    ok = Helper_GetPersonGLN(psn_id, rGLN);
@@ -1450,7 +1450,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetMainOrgGLN(SString & rGLN)
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetLocGLN(PPID locID, SString & rGLN)
+int PPEdiProcessor::ProviderImplementation::GetLocGLN(PPID locID, SString & rGLN)
 {
 	int    ok = 0;
 	rGLN.Z();
@@ -1471,7 +1471,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetLocGLN(PPID locID, SString 
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode)
+int PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode)
 {
 	rGtin.Z();
 	rArCode.Z();
@@ -1524,7 +1524,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPI
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetIntermediatePath(const char * pSub, int docType, SString & rBuf)
+int PPEdiProcessor::ProviderImplementation::GetIntermediatePath(const char * pSub, int docType, SString & rBuf)
 {
 	rBuf.Z();
 	PPGetPath(PPPATH_TEMP, rBuf);
@@ -1544,20 +1544,20 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetIntermediatePath(const char
 	return 1;
 }
 
-int SLAPI PPEdiProcessor::ProviderImplementation::GetTempOutputPath(int docType, SString & rBuf)
+int PPEdiProcessor::ProviderImplementation::GetTempOutputPath(int docType, SString & rBuf)
 	{ return GetIntermediatePath("OUT", docType, rBuf); }
-int SLAPI PPEdiProcessor::ProviderImplementation::GetTempInputPath(int docType, SString & rBuf)
+int PPEdiProcessor::ProviderImplementation::GetTempInputPath(int docType, SString & rBuf)
 	{ return GetIntermediatePath("IN", docType, rBuf); }
 
-SLAPI PPEanComDocument::PPEanComDocument(PPEdiProcessor::ProviderImplementation * pPi) : P_Pi(pPi)
+PPEanComDocument::PPEanComDocument(PPEdiProcessor::ProviderImplementation * pPi) : P_Pi(pPi)
 {
 }
 
-SLAPI PPEanComDocument::~PPEanComDocument()
+PPEanComDocument::~PPEanComDocument()
 {
 }
 
-int SLAPI PPEanComDocument::Write_MessageHeader(SXml::WDoc & rDoc, int msgType, const char * pMsgId)
+int PPEanComDocument::Write_MessageHeader(SXml::WDoc & rDoc, int msgType, const char * pMsgId)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1585,7 +1585,7 @@ int SLAPI PPEanComDocument::Write_MessageHeader(SXml::WDoc & rDoc, int msgType, 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_MessageHeader(xmlNode * pFirstNode, SString & rMsgType, SString & rMsgId) // @notimplemented
+int PPEanComDocument::Read_MessageHeader(xmlNode * pFirstNode, SString & rMsgType, SString & rMsgId) // @notimplemented
 {
 	rMsgType.Z();
 	rMsgId.Z();
@@ -1606,7 +1606,7 @@ int SLAPI PPEanComDocument::Read_MessageHeader(xmlNode * pFirstNode, SString & r
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_BeginningOfMessage(SXml::WDoc & rDoc, const char * pDocCode, const char * pDocIdent, int funcMsgCode)
+int PPEanComDocument::Write_BeginningOfMessage(SXml::WDoc & rDoc, const char * pDocCode, const char * pDocIdent, int funcMsgCode)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1630,7 +1630,7 @@ int SLAPI PPEanComDocument::Write_BeginningOfMessage(SXml::WDoc & rDoc, const ch
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_BeginningOfMessage(xmlNode * pFirstNode, SString & rDocCode, SString & rDocIdent, int * pFuncMsgCode)
+int PPEanComDocument::Read_BeginningOfMessage(xmlNode * pFirstNode, SString & rDocCode, SString & rDocIdent, int * pFuncMsgCode)
 {
 	rDocCode.Z();
 	rDocIdent.Z();
@@ -1660,7 +1660,7 @@ int SLAPI PPEanComDocument::Read_BeginningOfMessage(xmlNode * pFirstNode, SStrin
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_UNT(SXml::WDoc & rDoc, const char * pDocCode, uint segCount)
+int PPEanComDocument::Write_UNT(SXml::WDoc & rDoc, const char * pDocCode, uint segCount)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1670,7 +1670,7 @@ int SLAPI PPEanComDocument::Write_UNT(SXml::WDoc & rDoc, const char * pDocCode, 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_UNT(xmlNode * pFirstNode, SString & rDocCode, uint * pSegCount)
+int PPEanComDocument::Read_UNT(xmlNode * pFirstNode, SString & rDocCode, uint * pSegCount)
 {
 	int    ok = 1;
 	uint   seg_count = 0;
@@ -1688,7 +1688,7 @@ int SLAPI PPEanComDocument::Read_UNT(xmlNode * pFirstNode, SString & rDocCode, u
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt, const LDATETIME & rDtm, const LDATETIME * pFinish)
+int PPEanComDocument::Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt, const LDATETIME & rDtm, const LDATETIME * pFinish)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1788,7 +1788,7 @@ static int ParseDTM(int fmt, const SString & rBuf, LDATETIME & rDtm, LDATETIME &
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_DTM(xmlNode * pFirstNode, TSVector <DtmValue> & rList)
+int PPEanComDocument::Read_DTM(xmlNode * pFirstNode, TSVector <DtmValue> & rList)
 {
 	int    ok = 1;
 	int    dtm_fmt = 0;
@@ -1819,7 +1819,7 @@ int SLAPI PPEanComDocument::Read_DTM(xmlNode * pFirstNode, TSVector <DtmValue> &
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_RFF(SXml::WDoc & rDoc, int refQ, const char * pRef) // reference
+int PPEanComDocument::Write_RFF(SXml::WDoc & rDoc, int refQ, const char * pRef) // reference
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1837,7 +1837,7 @@ int SLAPI PPEanComDocument::Write_RFF(SXml::WDoc & rDoc, int refQ, const char * 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_RFF(xmlNode * pFirstNode, TSCollection <RefValue> & rList) // reference
+int PPEanComDocument::Read_RFF(xmlNode * pFirstNode, TSCollection <RefValue> & rList) // reference
 {
 	int    ok = 1;
 	RefValue * p_new_item = 0;
@@ -1865,7 +1865,7 @@ int SLAPI PPEanComDocument::Read_RFF(xmlNode * pFirstNode, TSCollection <RefValu
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_NAD(SXml::WDoc & rDoc, int partyQ, const char * pGLN)
+int PPEanComDocument::Write_NAD(SXml::WDoc & rDoc, int partyQ, const char * pGLN)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1884,7 +1884,7 @@ int SLAPI PPEanComDocument::Write_NAD(SXml::WDoc & rDoc, int partyQ, const char 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_NAD(xmlNode * pFirstNode, PartyValue & rV)
+int PPEanComDocument::Read_NAD(xmlNode * pFirstNode, PartyValue & rV)
 {
 	int    ok = 1;
 	int    party_q = 0;
@@ -1941,7 +1941,7 @@ int SLAPI PPEanComDocument::Read_NAD(xmlNode * pFirstNode, PartyValue & rV)
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_CUX(SXml::WDoc & rDoc, const char * pCurrencyCode3)
+int PPEanComDocument::Write_CUX(SXml::WDoc & rDoc, const char * pCurrencyCode3)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1957,13 +1957,13 @@ int SLAPI PPEanComDocument::Write_CUX(SXml::WDoc & rDoc, const char * pCurrencyC
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_CUX(xmlNode * pFirstNode, SString & rCurrencyCode3)
+int PPEanComDocument::Read_CUX(xmlNode * pFirstNode, SString & rCurrencyCode3)
 {
 	int    ok = 0;
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount)
+int PPEanComDocument::Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1976,7 +1976,7 @@ int SLAPI PPEanComDocument::Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & rList)
+int PPEanComDocument::Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & rList)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2009,7 +2009,7 @@ int SLAPI PPEanComDocument::Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & r
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ, double qtty)
+int PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ, double qtty)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2037,7 +2037,7 @@ int SLAPI PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ,
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_QTY(xmlNode * pFirstNode, TSVector <QValue> & rList)
+int PPEanComDocument::Read_QTY(xmlNode * pFirstNode, TSVector <QValue> & rList)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2066,7 +2066,7 @@ int SLAPI PPEanComDocument::Read_QTY(xmlNode * pFirstNode, TSVector <QValue> & r
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_CNT(SXml::WDoc & rDoc, int countQ, double value)
+int PPEanComDocument::Write_CNT(SXml::WDoc & rDoc, int countQ, double value)
 {
 	int    ok = 1;
 	SXml::WNode n_cnt(rDoc, "CNT");
@@ -2079,7 +2079,7 @@ int SLAPI PPEanComDocument::Write_CNT(SXml::WDoc & rDoc, int countQ, double valu
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_CNT(xmlNode * pFirstNode, int * pCountQ, double * pValue)
+int PPEanComDocument::Read_CNT(xmlNode * pFirstNode, int * pCountQ, double * pValue)
 {
 	int    ok = 1;
 	int    count_q = 0;
@@ -2102,7 +2102,7 @@ int SLAPI PPEanComDocument::Read_CNT(xmlNode * pFirstNode, int * pCountQ, double
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_PRI(SXml::WDoc & rDoc, int priceQ, double amount)
+int PPEanComDocument::Write_PRI(SXml::WDoc & rDoc, int priceQ, double amount)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2127,13 +2127,13 @@ int SLAPI PPEanComDocument::Write_PRI(SXml::WDoc & rDoc, int priceQ, double amou
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_PRI(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt) // @notimplemented
+int PPEanComDocument::Read_PRI(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt) // @notimplemented
 {
 	int    ok = 0;
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, double value)
+int PPEanComDocument::Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, double value)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2160,13 +2160,13 @@ int SLAPI PPEanComDocument::Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, dou
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_TAX(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt) // @notimplemented
+int PPEanComDocument::Read_TAX(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt) // @notimplemented
 {
 	int    ok = 0;
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_LIN(SXml::WDoc & rDoc, int lineN, const char * pGoodsCode)
+int PPEanComDocument::Write_LIN(SXml::WDoc & rDoc, int lineN, const char * pGoodsCode)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2180,7 +2180,7 @@ int SLAPI PPEanComDocument::Write_LIN(SXml::WDoc & rDoc, int lineN, const char *
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_LIN(xmlNode * pFirstNode, int * pLineN, SString & rGoodsCode)
+int PPEanComDocument::Read_LIN(xmlNode * pFirstNode, int * pLineN, SString & rGoodsCode)
 {
 	rGoodsCode.Z();
 	int    ok = 1;
@@ -2209,7 +2209,7 @@ int SLAPI PPEanComDocument::Read_LIN(xmlNode * pFirstNode, int * pLineN, SString
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_PIA(SXml::WDoc & rDoc, const PiaValue & rV)
+int PPEanComDocument::Write_PIA(SXml::WDoc & rDoc, const PiaValue & rV)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2228,7 +2228,7 @@ int SLAPI PPEanComDocument::Write_PIA(SXml::WDoc & rDoc, const PiaValue & rV)
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_PIA(xmlNode * pFirstNode, TSArray <PiaValue> & rL)
+int PPEanComDocument::Read_PIA(xmlNode * pFirstNode, TSArray <PiaValue> & rL)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2255,7 +2255,7 @@ int SLAPI PPEanComDocument::Read_PIA(xmlNode * pFirstNode, TSArray <PiaValue> & 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_IMD(SXml::WDoc & rDoc, int imdQ, const char * pDescription)
+int PPEanComDocument::Write_IMD(SXml::WDoc & rDoc, int imdQ, const char * pDescription)
 {
 	int    ok = 1;
 	if(!isempty(pDescription)) {
@@ -2285,7 +2285,7 @@ int SLAPI PPEanComDocument::Write_IMD(SXml::WDoc & rDoc, int imdQ, const char * 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_IMD(xmlNode * pFirstNode, TSCollection <ImdValue> & rL)
+int PPEanComDocument::Read_IMD(xmlNode * pFirstNode, TSCollection <ImdValue> & rL)
 {
 	int    ok = 1;
 	int    imd_q = 0;
@@ -2323,7 +2323,7 @@ int SLAPI PPEanComDocument::Read_IMD(xmlNode * pFirstNode, TSCollection <ImdValu
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal)
+int PPEanComDocument::Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal)
 {
 	int    ok = 1;
 	const  double qtty = fabs(rTi.Qtty());
@@ -2374,7 +2374,7 @@ int SLAPI PPEanComDocument::Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal)
+int PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, const PPTransferItem & rTi, int tiamt, BillGoodsItemsTotal & rTotal)
 {
 	int    ok = 1;
 	const  double qtty = fabs(rTi.Qtty());
@@ -2446,7 +2446,7 @@ int SLAPI PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, c
 	return ok;
 }
 
-int SLAPI PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID)
+int PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack, const DocumentDetailValue * pItem, PPID * pGoodsID)
 {
 	int    ok = 1;
 	PPID   goods_id = 0;
@@ -2503,14 +2503,14 @@ int SLAPI PPEanComDocument::PreprocessGoodsOnReading(const PPBillPacket * pPack,
 	return ok;
 }
 
-void SLAPI PPEanComDocument::SetupPartyAddedMsg(const PartyValue * pVal, SString & rBuf)
+void PPEanComDocument::SetupPartyAddedMsg(const PartyValue * pVal, SString & rBuf)
 {
 	rBuf.CatDivIfNotEmpty('/', 1).Cat(pVal->Code);
 	if(pVal->Name.NotEmpty())
 		rBuf.CatChar('[').Cat(pVal->Name).CatChar(']');
 }
 
-int SLAPI PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult)
+int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult)
 {
 	int    ok = 1;
 	const PPID reg_type_id = PPREGT_GLN;
@@ -2615,7 +2615,7 @@ int SLAPI PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const Docume
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_CommonDocumentEntries(xmlNode * pFirstNode, DocumentValue & rVal)
+int PPEanComDocument::Read_CommonDocumentEntries(xmlNode * pFirstNode, DocumentValue & rVal)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2637,7 +2637,7 @@ int SLAPI PPEanComDocument::Read_CommonDocumentEntries(xmlNode * pFirstNode, Doc
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+int PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -2879,7 +2879,7 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, c
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPack)
+int PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPack)
 {
 	int    ok = 1;
 	const  int edi_op = PPEDIOP_DESADV;
@@ -3000,13 +3000,13 @@ int SLAPI PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket 
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_ORDERRSP(xmlTextWriter * pX, const PPBillPacket & rPack, const PPBillPacket * pExtPack)
+int PPEanComDocument::Write_ORDERRSP(xmlTextWriter * pX, const PPBillPacket & rPack, const PPBillPacket * pExtPack)
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI PPEanComDocument::Write_ORDERS(xmlTextWriter * pX, const PPBillPacket & rPack)
+int PPEanComDocument::Write_ORDERS(xmlTextWriter * pX, const PPBillPacket & rPack)
 {
 	int    ok = 1;
 	const  int edi_op = PPEDIOP_ORDER;
@@ -3298,11 +3298,11 @@ static const SIntToSymbTabEntry EanComIticSymbList[] = {
 
 class EdiProviderImplementation_Kontur : public PPEdiProcessor::ProviderImplementation {
 public:
-	SLAPI  EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
-	virtual SLAPI ~EdiProviderImplementation_Kontur();
-	virtual int    SLAPI  GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
-	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
-	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+	EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+	virtual ~EdiProviderImplementation_Kontur();
+	virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
+	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	virtual int    SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
 	struct OwnFormatCommonAttr {
 		OwnFormatCommonAttr();
@@ -3341,49 +3341,49 @@ private:
 		//
 		OwnFormatAddress Addr;
 	};
-	int    SLAPI ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack);
-	int    SLAPI ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack);
-	int    SLAPI ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA);
-	int    SLAPI ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
-	int    SLAPI WriteOwnFormatContractor(SXml::WDoc & rDoc, PPID personID, PPID locID);
-	int    SLAPI ReadOwnFormatContractor(xmlNode * pNode, OwnFormatContractor & rC);
-	int    SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack);
+	int    ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack);
+	int    ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA);
+	int    ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	int    WriteOwnFormatContractor(SXml::WDoc & rDoc, PPID personID, PPID locID);
+	int    ReadOwnFormatContractor(xmlNode * pNode, OwnFormatContractor & rC);
+	int    Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	//
 	// Returns:
 	//   1 - accepted
 	//   2 - rejected
 	//   3 - changed
 	//
-	int    SLAPI IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp);
-	int    SLAPI Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
-	int    SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
-	int    SLAPI Write_OwnFormat_ALCODESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
-	int    SLAPI Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
-	void   SLAPI Write_OwnFormat_OriginOrder_Tag(SXml::WDoc & rDoc, const BillTbl::Rec & rOrderBillRec);
+	int    IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp);
+	int    Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
+	int    Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    Write_OwnFormat_ALCODESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	void   Write_OwnFormat_OriginOrder_Tag(SXml::WDoc & rDoc, const BillTbl::Rec & rOrderBillRec);
 };
 
 class EdiProviderImplementation_Exite : public PPEdiProcessor::ProviderImplementation {
 public:
-	SLAPI  EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
-	virtual SLAPI ~EdiProviderImplementation_Exite();
-	virtual int    SLAPI  GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
-	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
-	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+	EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+	virtual ~EdiProviderImplementation_Exite();
+	virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
+	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	virtual int    SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
-	int    SLAPI Implement_Auth(SString & rToken);
-	int    SLAPI Auth();
-	int    SLAPI Helper_SendDocument(const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent);
-	int    SLAPI Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
-	int    SLAPI Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
-	int    SLAPI Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
-	int    SLAPI Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack);
-	int    SLAPI Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
-	int    SLAPI ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
-	int    SLAPI ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
-	int    SLAPI SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
+	int    Implement_Auth(SString & rToken);
+	int    Auth();
+	int    Helper_SendDocument(const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent);
+	int    Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
+	int    Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack);
+	int    Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
+	int    ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
+	int    SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
 
 	struct AuthToken {
-		SLAPI  AuthToken() : Tm(ZERODATETIME)
+		AuthToken() : Tm(ZERODATETIME)
 		{
 		}
 		SString Token; // Токен авторизации
@@ -3439,7 +3439,7 @@ EdiProviderImplementation_Kontur::OwnFormatContractor & EdiProviderImplementatio
 	return *this;
 }
 
-int  SLAPI EdiProviderImplementation_Kontur::ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack)
+int  EdiProviderImplementation_Kontur::ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack)
 {
 	int    ok = -1;
 	if(rC.GLN.NotEmpty()) {
@@ -3478,7 +3478,7 @@ int  SLAPI EdiProviderImplementation_Kontur::ResolveDlvrLoc(const OwnFormatContr
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack)
+int EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack) {
@@ -3562,7 +3562,7 @@ int SLAPI EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const Own
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA)
+int EdiProviderImplementation_Kontur::ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -3586,7 +3586,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadCommonAttributes(const xmlNode *
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::WriteOwnFormatContractor(SXml::WDoc & rDoc, PPID personID, PPID locID)
+int EdiProviderImplementation_Kontur::WriteOwnFormatContractor(SXml::WDoc & rDoc, PPID personID, PPID locID)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3602,7 +3602,7 @@ int SLAPI EdiProviderImplementation_Kontur::WriteOwnFormatContractor(SXml::WDoc 
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatContractor(xmlNode * pNode, OwnFormatContractor & rC)
+int EdiProviderImplementation_Kontur::ReadOwnFormatContractor(xmlNode * pNode, OwnFormatContractor & rC)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3661,7 +3661,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatContractor(xmlNode * pN
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3757,7 +3757,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp)
+int EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 {
 	int    status = 1;
 	if(pExtBp && pExtBp != &rBp) {
@@ -3786,7 +3786,7 @@ int SLAPI EdiProviderImplementation_Kontur::IdentifyOrderRspStatus(const PPBillP
 	return status;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
+int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 {
 	int    ok = 1;
 	const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
@@ -3922,7 +3922,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWrit
 	return ok;
 }
 
-void SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_OriginOrder_Tag(SXml::WDoc & rDoc, const BillTbl::Rec & rOrderBillRec)
+void EdiProviderImplementation_Kontur::Write_OwnFormat_OriginOrder_Tag(SXml::WDoc & rDoc, const BillTbl::Rec & rOrderBillRec)
 {
 	SString temp_buf;
 	SXml::WNode n_i(rDoc, "originOrder"); // <originOrder number="ORSP0012" date="2014-02-07"/>
@@ -3930,7 +3930,7 @@ void SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_OriginOrder_Tag(SXm
 	n_i.PutAttrib("date", temp_buf.Z().Cat(rOrderBillRec.Dt, DATF_ISO8601|DATF_CENTURY));
 }
 
-int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4082,7 +4082,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4274,7 +4274,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWr
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4423,17 +4423,17 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 	return ok;
 }
 
-SLAPI PPEdiProcessor::DocumentInfo::DocumentInfo() : ID(0), EdiOp(0), Time(ZERODATETIME), Status(0), Flags(0), PrvFlags(0)
+PPEdiProcessor::DocumentInfo::DocumentInfo() : ID(0), EdiOp(0), Time(ZERODATETIME), Status(0), Flags(0), PrvFlags(0)
 {
 }
 
-SLAPI PPEdiProcessor::DocumentInfoList::DocumentInfoList()
+PPEdiProcessor::DocumentInfoList::DocumentInfoList()
 {
 }
 
-uint SLAPI PPEdiProcessor::DocumentInfoList::GetCount() const { return L.getCount(); }
+uint PPEdiProcessor::DocumentInfoList::GetCount() const { return L.getCount(); }
 
-int SLAPI PPEdiProcessor::DocumentInfoList::GetByIdx(uint idx, DocumentInfo & rItem) const
+int PPEdiProcessor::DocumentInfoList::GetByIdx(uint idx, DocumentInfo & rItem) const
 {
 	int    ok = 1;
 	if(idx < L.getCount()) {
@@ -4456,7 +4456,7 @@ int SLAPI PPEdiProcessor::DocumentInfoList::GetByIdx(uint idx, DocumentInfo & rI
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::DocumentInfoList::Add(const DocumentInfo & rItem, uint * pIdx)
+int PPEdiProcessor::DocumentInfoList::Add(const DocumentInfo & rItem, uint * pIdx)
 {
 	int    ok = 1;
 	Entry  new_entry;
@@ -4477,7 +4477,7 @@ int SLAPI PPEdiProcessor::DocumentInfoList::Add(const DocumentInfo & rItem, uint
 	return ok;
 }
 
-SLAPI PPEdiProcessor::RecadvPacket::RecadvPacket() : DesadvBillDate(ZERODATE), AllRowsAccepted(1), WrOffBillID(0), OrderBillID(0)
+PPEdiProcessor::RecadvPacket::RecadvPacket() : DesadvBillDate(ZERODATE), AllRowsAccepted(1), WrOffBillID(0), OrderBillID(0)
 {
 }
 
@@ -4521,7 +4521,7 @@ PPEdiProcessor::Packet::~Packet()
 	P_ExtData = 0;
 }
 
-/*static*/PPEdiProcessor::ProviderImplementation * SLAPI PPEdiProcessor::CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags)
+/*static*/PPEdiProcessor::ProviderImplementation * PPEdiProcessor::CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags)
 {
 	ProviderImplementation * p_imp = 0;
 	PPObjEdiProvider ep_obj;
@@ -4542,16 +4542,16 @@ PPEdiProcessor::Packet::~Packet()
 	return p_imp;
 }
 
-SLAPI PPEdiProcessor::PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger) : P_Prv(pImp), P_Logger(pLogger), P_BObj(BillObj)
+PPEdiProcessor::PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger) : P_Prv(pImp), P_Logger(pLogger), P_BObj(BillObj)
 {
 	PPAlbatrosCfgMngr::Get(&ACfg);
 }
 
-SLAPI PPEdiProcessor::~PPEdiProcessor()
+PPEdiProcessor::~PPEdiProcessor()
 {
 }
 
-int SLAPI PPEdiProcessor::SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+int PPEdiProcessor::SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
 {
 	int    ok = 1;
 	THROW_PP(P_Prv, PPERR_EDI_PRVUNDEF);
@@ -4563,7 +4563,7 @@ int SLAPI PPEdiProcessor::SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Pa
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::ReceiveDocument(const DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+int PPEdiProcessor::ReceiveDocument(const DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = 1;
 	THROW_PP(P_Prv, PPERR_EDI_PRVUNDEF);
@@ -4572,7 +4572,7 @@ int SLAPI PPEdiProcessor::ReceiveDocument(const DocumentInfo * pIdent, TSCollect
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList)
+int PPEdiProcessor::GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList)
 {
 	int    ok = 1;
 	THROW_PP(P_Prv, PPERR_EDI_PRVUNDEF);
@@ -4581,7 +4581,7 @@ int SLAPI PPEdiProcessor::GetDocumentList(const PPBillIterchangeFilt & rP, Docum
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
+int PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4654,7 +4654,7 @@ int SLAPI PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPID
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::CheckBillStatusForRecadvSending(const BillTbl::Rec & rBillRec)
+int PPEdiProcessor::CheckBillStatusForRecadvSending(const BillTbl::Rec & rBillRec)
 {
 	int    ok = -1;
 	if(P_BObj->CheckStatusFlag(rBillRec.StatusID, BILSTF_READYFOREDIACK))
@@ -4676,7 +4676,7 @@ int SLAPI PPEdiProcessor::CheckBillStatusForRecadvSending(const BillTbl::Rec & r
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
+int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4817,7 +4817,7 @@ int SLAPI PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPID
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
+int PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4882,7 +4882,7 @@ int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PP
 	return ok;
 }
 
-int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
+int PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const PPIDArray & rArList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4975,16 +4975,16 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP,
 //
 //
 //
-SLAPI EdiProviderImplementation_Kontur::EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
+EdiProviderImplementation_Kontur::EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
 	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
 {
 }
 
-SLAPI EdiProviderImplementation_Kontur::~EdiProviderImplementation_Kontur()
+EdiProviderImplementation_Kontur::~EdiProviderImplementation_Kontur()
 {
 }
 
-int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
+int EdiProviderImplementation_Kontur::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -5024,7 +5024,7 @@ int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(const PPBillIterchan
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -5638,7 +5638,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+int EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = 0;
@@ -5703,7 +5703,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
 {
 	int    ok = -1;
 	xmlTextWriter * p_x = 0;
@@ -5777,16 +5777,16 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 //
 //
 //
-SLAPI EdiProviderImplementation_Exite::EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
+EdiProviderImplementation_Exite::EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
 	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
 {
 }
 
-SLAPI EdiProviderImplementation_Exite::~EdiProviderImplementation_Exite()
+EdiProviderImplementation_Exite::~EdiProviderImplementation_Exite()
 {
 }
 
-int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
+int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
 {
 	int    ok = -1;
 	json_t * p_query = 0;
@@ -5897,7 +5897,7 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 3. Пароль: OVXmgv
 */
 
-int SLAPI EdiProviderImplementation_Exite::Auth()
+int EdiProviderImplementation_Exite::Auth()
 {
 	int    ok = -1;
 	if(AT.Token.Empty() || !AT.Tm || diffdatetimesec(getcurdatetime_(), AT.Tm) >= 3600) {
@@ -5909,7 +5909,7 @@ int SLAPI EdiProviderImplementation_Exite::Auth()
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
+int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 {
 	int    ok = -1;
 	json_t * p_query = 0;
@@ -5977,7 +5977,7 @@ int SLAPI EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent)
+int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, const char * pDocName, const char * pDocMime64, SString & rRetIdent)
 {
 	rRetIdent.Z();
 	int    ok = -1;
@@ -6046,7 +6046,7 @@ int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDoc
 	return ok;
 }
 
-int  SLAPI EdiProviderImplementation_Exite::ResolveDlvrLoc(const char * pText, PPBillPacket * pPack)
+int  EdiProviderImplementation_Exite::ResolveDlvrLoc(const char * pText, PPBillPacket * pPack)
 {
 	int    ok = -1;
 	if(!isempty(pText)) {
@@ -6105,7 +6105,7 @@ int  SLAPI EdiProviderImplementation_Exite::ResolveDlvrLoc(const char * pText, P
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack)
+int EdiProviderImplementation_Exite::ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -6168,7 +6168,7 @@ int SLAPI EdiProviderImplementation_Exite::ResolveContractor(const char * pText,
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec)
+int EdiProviderImplementation_Exite::SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec)
 {
 	int    ok = -1;
 	char   scode[32];
@@ -6227,7 +6227,7 @@ int SLAPI EdiProviderImplementation_Exite::SearchLinkedBill(const char * pCode, 
 }
 
 struct Exite_PositionBlock {
-	SLAPI  Exite_PositionBlock() : GoodsID_ByGTIN(0), GoodsID_ByArCode(0), OrdQtty(0.0), AccQtty(0.0), DlvrQtty(0.0),
+	Exite_PositionBlock() : GoodsID_ByGTIN(0), GoodsID_ByArCode(0), OrdQtty(0.0), AccQtty(0.0), DlvrQtty(0.0),
 		PriceWithVat(0.0), PriceWithoutVat(0.0), Vat(0.0)
 	{
 	}
@@ -6263,7 +6263,7 @@ struct Exite_PositionBlock {
 	PPTransferItem Ti;
 };
 
-int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = -1;
 	PPEdiProcessor::Packet * p_pack = 0;
@@ -7141,7 +7141,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+int EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
 {
 	int    ok = -1;
 	xmlTextWriter * p_x = 0;
@@ -7218,7 +7218,7 @@ int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::Document
     return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -7344,7 +7344,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
+int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
 {
 	int    ok = 1;
 	const  PPBillPacket & r_org_pack = pExtBp ? *pExtBp : rBp;
@@ -7436,7 +7436,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERRSP(xmlTextWrite
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+int EdiProviderImplementation_Exite::Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -7574,7 +7574,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_DESADV(xmlTextWriter 
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack)
+int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -7735,7 +7735,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 	return ok;
 }
 
-int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+int EdiProviderImplementation_Exite::Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
 	SString temp_buf;

@@ -82,18 +82,18 @@ IMPL_HANDLE_EVENT(GoodsTrnovrBrowser)
 //
 // @ModuleDef(PPViewGoodsTrnovr)
 //
-SLAPI PPViewGoodsTrnovr::PPViewGoodsTrnovr() : P_Items(0)
+PPViewGoodsTrnovr::PPViewGoodsTrnovr() : P_Items(0)
 {
 }
 
-SLAPI PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
+PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 {
 	delete P_Items;
 }
 
-const GoodsTrnovrFilt * SLAPI PPViewGoodsTrnovr::GetFilt() const { return &Filt; }
+const GoodsTrnovrFilt * PPViewGoodsTrnovr::GetFilt() const { return &Filt; }
 
-int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
+int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 {
 	class GCTFiltDialog : public WLDialog {
 		DECL_DIALOG_DATA(GCTFilt);
@@ -170,7 +170,7 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 	DIALOG_PROC_BODY_P2(GCTFiltDialog, DLG_GTO, (int)(pFilt->Flags & OPG_FORCEGOODS), pFilt);
 }
 
-int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
+int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 {
 	int    ok = 1;
 	LDATE dt = ZERODATE;
@@ -286,7 +286,7 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsTrnovr::InitIteration()
+int PPViewGoodsTrnovr::InitIteration()
 {
 	int    ok = 1;
 	Cntr.Init((P_Items && P_Items->getCount()) ? (P_Items->getCount()-1) : 0);
@@ -315,14 +315,14 @@ int FASTCALL PPViewGoodsTrnovr::NextIteration(GoodsTrnovrViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewGoodsTrnovr::GetIterationCount(long * pNumIteration, long * pIterCount)
+int PPViewGoodsTrnovr::GetIterationCount(long * pNumIteration, long * pIterCount)
 {
 	ASSIGN_PTR(pNumIteration, Cntr.GetTotal());
 	ASSIGN_PTR(pIterCount, Cntr);
 	return 1;
 }
 
-int SLAPI PPViewGoodsTrnovr::ViewGrouping(LDATE dt)
+int PPViewGoodsTrnovr::ViewGrouping(LDATE dt)
 {
 	int    ok = -1;
 	OpGroupingFilt op_grpng_flt;
@@ -336,7 +336,7 @@ int SLAPI PPViewGoodsTrnovr::ViewGrouping(LDATE dt)
 }
 
 #if 0 // @v9.3.6 {
-SArray * SLAPI PPViewGoodsTrnovr::MakeGoodsTurnover()
+SArray * PPViewGoodsTrnovr::MakeGoodsTurnover()
 {
 	GoodsTrnovrViewItem entry, total;
 	uint   i;
@@ -444,14 +444,14 @@ SArray * SLAPI PPViewGoodsTrnovr::MakeGoodsTurnover()
 }
 #endif // } 0 @v9.3.6
 
-SArray * SLAPI PPViewGoodsTrnovr::CreateBrowserQuery()
+SArray * PPViewGoodsTrnovr::CreateBrowserQuery()
 {
 	SArray * ary = new SArray(sizeof(GoodsTrnovrViewItem));
 	CALLPTRMEMB(ary, copy(*P_Items));
 	return ary;
 }
 
-int SLAPI PPViewGoodsTrnovr::Browse(int modeless)
+int PPViewGoodsTrnovr::Browse(int modeless)
 {
 	int    ok = 1;
 	uint   res_id = 0;
@@ -469,7 +469,7 @@ int SLAPI PPViewGoodsTrnovr::Browse(int modeless)
 	return ok;
 }
 
-int SLAPI PPViewGoodsTrnovr::Print()
+int PPViewGoodsTrnovr::Print()
 {
 	int    ok = -1;
 	PView  pv(this);
@@ -477,7 +477,7 @@ int SLAPI PPViewGoodsTrnovr::Print()
 	return ok;
 }
 
-int SLAPI ViewGoodsTurnover(long)
+int ViewGoodsTurnover(long)
 {
 	int    ok = 1, view_in_use = 0;
 	int    modeless = GetModelessStatus();

@@ -7,11 +7,11 @@
 //
 // @ModuleDecl(PPObjWorkbook)
 //
-SLAPI WorkbookCore::WorkbookCore() : WorkbookTbl()
+WorkbookCore::WorkbookCore() : WorkbookTbl()
 {
 }
 
-int SLAPI WorkbookCore::Helper_GetChildList(PPID id, int recursive, PPIDArray & rList, PPIDArray * pRecurTrace)
+int WorkbookCore::Helper_GetChildList(PPID id, int recursive, PPIDArray & rList, PPIDArray * pRecurTrace)
 {
 	assert(pRecurTrace != 0);
 	int    ok = -1;
@@ -41,13 +41,13 @@ int SLAPI WorkbookCore::Helper_GetChildList(PPID id, int recursive, PPIDArray & 
 	return ok;
 }
 
-int SLAPI WorkbookCore::GetChildList(PPID id, int recursive, PPIDArray & rList)
+int WorkbookCore::GetChildList(PPID id, int recursive, PPIDArray & rList)
 {
 	PPIDArray recur_trace;
 	return Helper_GetChildList(id, recursive, rList, &recur_trace);
 }
 
-int SLAPI WorkbookCore::InitEnum(int flags, long * pHandle)
+int WorkbookCore::InitEnum(int flags, long * pHandle)
 {
 	WorkbookTbl * t = this;
 	BExtQuery * q = new BExtQuery(t, 0);
@@ -66,7 +66,7 @@ int SLAPI WorkbookCore::InitEnum(int flags, long * pHandle)
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-int SLAPI WorkbookCore::InitEnumByParam(int fldId, PPID param, int flags, long * pHandle)
+int WorkbookCore::InitEnumByParam(int fldId, PPID param, int flags, long * pHandle)
 {
 	int    ok = 0;
 	int    idx = -1;
@@ -109,37 +109,37 @@ int SLAPI WorkbookCore::InitEnumByParam(int fldId, PPID param, int flags, long *
 	return ok;
 }
 
-SEnumImp * SLAPI WorkbookCore::Enum(int options)
+SEnumImp * WorkbookCore::Enum(int options)
 {
 	long   h = -1;
 	return InitEnum(options, &h) ? new PPTblEnum <WorkbookCore>(this, h) : 0;
 }
 
-SEnumImp * SLAPI WorkbookCore::EnumByParent(PPID parentID, int options)
+SEnumImp * WorkbookCore::EnumByParent(PPID parentID, int options)
 {
 	long   h = -1;
 	return InitEnumByParam(idxfldParent, parentID, options, &h) ? new PPTblEnum <WorkbookCore>(this, h) : 0;
 }
 
-SEnumImp * SLAPI WorkbookCore::EnumByType(long type, int options)
+SEnumImp * WorkbookCore::EnumByType(long type, int options)
 {
 	long   h = -1;
 	return InitEnumByParam(idxfldType, type, options, &h) ? new PPTblEnum <WorkbookCore>(this, h) : 0;
 }
 
-int SLAPI WorkbookCore::NextEnum(long enumHandle, WorkbookTbl::Rec * pRec)
+int WorkbookCore::NextEnum(long enumHandle, WorkbookTbl::Rec * pRec)
 {
 	return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1;
 }
 //
 //
 //
-SLAPI PPWorkbookPacket::PPWorkbookPacket()
+PPWorkbookPacket::PPWorkbookPacket()
 {
 	destroy();
 }
 
-SLAPI PPWorkbookPacket::~PPWorkbookPacket()
+PPWorkbookPacket::~PPWorkbookPacket()
 {
 	destroy();
 }
@@ -175,7 +175,7 @@ int FASTCALL PPWorkbookPacket::IsEqual(const PPWorkbookPacket & rS) const
 #undef NRECFLD
 }
 
-void SLAPI PPWorkbookPacket::destroy()
+void PPWorkbookPacket::destroy()
 {
 	MEMSZERO(Rec);
 	TagL.Destroy();
@@ -183,21 +183,21 @@ void SLAPI PPWorkbookPacket::destroy()
 	ExtString.Z();
 }
 
-int SLAPI PPWorkbookPacket::GetExtStrData(int fldID, SString & rBuf) const
+int PPWorkbookPacket::GetExtStrData(int fldID, SString & rBuf) const
 	{ return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPWorkbookPacket::PutExtStrData(int fldID, const char * pBuf)
+int PPWorkbookPacket::PutExtStrData(int fldID, const char * pBuf)
 	{ return PPPutExtStrData(fldID, ExtString, pBuf); }
-int SLAPI PPWorkbookPacket::SetLongSymb(const char * pSymb)
+int PPWorkbookPacket::SetLongSymb(const char * pSymb)
 	{ return TagL.PutItemStrNE(PPTAG_WORKBOOK_LONGCODE, pSymb); }
 //
 //
 //
-SLAPI PPWorkbookConfig::PPWorkbookConfig()
+PPWorkbookConfig::PPWorkbookConfig()
 {
 	Z();
 }
 
-PPWorkbookConfig & SLAPI PPWorkbookConfig::Z()
+PPWorkbookConfig & PPWorkbookConfig::Z()
 {
 	THISZERO();
 	return *this;
@@ -211,14 +211,14 @@ PPWorkbookConfig & SLAPI PPWorkbookConfig::Z()
 	return r;
 }
 
-static int SLAPI PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPacket * pCntr)
+static int PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPacket * pCntr)
 {
 	pCntr->Head.ObjType = PPOBJ_WORKBOOK;
 	pCntr->Head.OwnerObjID = -1;
 	return BIN(pOpcObj->PutPacket(pID, pCntr, 0));
 }
 
-static int SLAPI PPObjWorkbook_WriteConfig(PPWorkbookConfig * pCfg, PPOpCounterPacket * pCntr)
+static int PPObjWorkbook_WriteConfig(PPWorkbookConfig * pCfg, PPOpCounterPacket * pCntr)
 {
 	int    ok = 1;
 	int    is_new = 1;
@@ -259,12 +259,12 @@ static IMPL_CMPFUNC(WorkbookIdByRank_Name, p1, p2)
 	return si;
 }
 
-void SLAPI PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
+void PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
 {
 	rList.SVectorBase::sort(PTR_CMPFUNC(WorkbookIdByRank_Name), this);
 }
 
-/*static*/int SLAPI PPObjWorkbook::EditConfig()
+/*static*/int PPObjWorkbook::EditConfig()
 {
 	class WorkbookCfgDialog : public TDialog {
 	public:
@@ -321,23 +321,23 @@ void SLAPI PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
 
 TLP_IMPL(PPObjWorkbook, WorkbookCore, P_Tbl);
 
-SLAPI PPObjWorkbook::PPObjWorkbook(void * extraPtr) : PPObject(PPOBJ_WORKBOOK), ExtraPtr(extraPtr)
+PPObjWorkbook::PPObjWorkbook(void * extraPtr) : PPObject(PPOBJ_WORKBOOK), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-SLAPI PPObjWorkbook::~PPObjWorkbook()
+PPObjWorkbook::~PPObjWorkbook()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjWorkbook::Search(PPID id, void * pRec)
+int PPObjWorkbook::Search(PPID id, void * pRec)
 {
 	return SearchByID(P_Tbl, Obj, id, pRec);
 }
 
-int SLAPI PPObjWorkbook::SearchByName(const char * pName, PPID * pID, WorkbookTbl::Rec * pRec)
+int PPObjWorkbook::SearchByName(const char * pName, PPID * pID, WorkbookTbl::Rec * pRec)
 {
 	WorkbookTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -347,7 +347,7 @@ int SLAPI PPObjWorkbook::SearchByName(const char * pName, PPID * pID, WorkbookTb
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SearchBySymb(const char * pSymb, PPID * pID, WorkbookTbl::Rec * pRec)
+int PPObjWorkbook::SearchBySymb(const char * pSymb, PPID * pID, WorkbookTbl::Rec * pRec)
 {
 	//Symb (allsegnull unique mod);        // #5
 	WorkbookTbl::Key5 k5;
@@ -358,7 +358,7 @@ int SLAPI PPObjWorkbook::SearchBySymb(const char * pSymb, PPID * pID, WorkbookTb
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SearchByLongSymb(const char * pLongSymb, PPID * pID, WorkbookTbl::Rec * pRec)
+int PPObjWorkbook::SearchByLongSymb(const char * pLongSymb, PPID * pID, WorkbookTbl::Rec * pRec)
 {
     int    ok = -1;
     PPID   id = 0;
@@ -381,7 +381,7 @@ int SLAPI PPObjWorkbook::SearchByLongSymb(const char * pLongSymb, PPID * pID, Wo
 
 IMPL_DESTROY_OBJ_PACK(PPObjWorkbook, PPWorkbookPacket);
 
-int SLAPI PPObjWorkbook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjWorkbook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -418,7 +418,7 @@ int SLAPI PPObjWorkbook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	return DBRPL_OK;
 }
 
-int SLAPI PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -429,7 +429,7 @@ int SLAPI PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuf
 	return ok;
 }
 
-/*virtual*/int  SLAPI PPObjWorkbook::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+/*virtual*/int  PPObjWorkbook::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    ok = -1;
 	int    r;
@@ -473,7 +473,7 @@ int SLAPI PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuf
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Browse(void * extraPtr)
+int PPObjWorkbook::Browse(void * extraPtr)
 {
 	int    ok = -1;
 	ObjViewDialog * p_dlg = 0;
@@ -486,7 +486,7 @@ int SLAPI PPObjWorkbook::Browse(void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
+int PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 {
 	rKeyword.Z();
 
@@ -545,7 +545,7 @@ int SLAPI PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SelectKeyword(SString & rKeyword)
+int PPObjWorkbook::SelectKeyword(SString & rKeyword)
 {
 	rKeyword.Z();
 
@@ -864,7 +864,7 @@ private:
 			return;
 		clearEvent(event);
 	}
-	int SLAPI EditKeywordList(SString & rList)
+	int EditKeywordList(SString & rList)
 	{
 		int    ok = -1;
 		PPIDArray id_list;
@@ -954,11 +954,11 @@ public:
 	}
 };
 
-SLAPI PPObjWorkbook::AddBlock::AddBlock() : Type(0), ParentID(0), Flags(0)
+PPObjWorkbook::AddBlock::AddBlock() : Type(0), ParentID(0), Flags(0)
 {
 }
 
-int SLAPI PPObjWorkbook::AddItem(PPID * pID, PPID parentID)
+int PPObjWorkbook::AddItem(PPID * pID, PPID parentID)
 {
 	int    ok = -1;
 	PPObjWorkbook::AddBlock ab;
@@ -969,7 +969,7 @@ int SLAPI PPObjWorkbook::AddItem(PPID * pID, PPID parentID)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_Edit(PPID * pID, AddBlock * pAb)
+int PPObjWorkbook::Helper_Edit(PPID * pID, AddBlock * pAb)
 {
 	int    r = cmCancel, ok = 1, valid_data = 0;
 	PPWorkbookPacket pack;
@@ -1026,7 +1026,7 @@ int SLAPI PPObjWorkbook::Helper_Edit(PPID * pID, AddBlock * pAb)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjWorkbook::Edit(PPID * pID, void * extraPtr)
+int PPObjWorkbook::Edit(PPID * pID, void * extraPtr)
 {
 	return Helper_Edit(pID, 0);
 }
@@ -1042,7 +1042,7 @@ struct WorkbookAttachFileParam {
 	SString FileName;
 };
 
-static int SLAPI EditWorkbookAttachFileParam(WorkbookAttachFileParam * pData)
+static int EditWorkbookAttachFileParam(WorkbookAttachFileParam * pData)
 {
 	class WorkbookAttachFileDialog : public TDialog {
 	public:
@@ -1086,7 +1086,7 @@ static int SLAPI EditWorkbookAttachFileParam(WorkbookAttachFileParam * pData)
 	DIALOG_PROC_BODY(WorkbookAttachFileDialog, pData);
 }
 
-int SLAPI PPObjWorkbook::AttachFile(PPID id, const char * pFileName, int use_ta)
+int PPObjWorkbook::AttachFile(PPID id, const char * pFileName, int use_ta)
 {
 	int    ok = 1;
 	PPWorkbookPacket pack;
@@ -1099,7 +1099,7 @@ int SLAPI PPObjWorkbook::AttachFile(PPID id, const char * pFileName, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::AttachFile(PPID id)
+int PPObjWorkbook::AttachFile(PPID id)
 {
 	int    ok = -1;
 	PPWorkbookPacket pack;
@@ -1161,7 +1161,7 @@ int PPObjWorkbook::SelectLinkBlock::GetWbType(PPID * pType, PPID * pAddendumType
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
+int PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 {
 	class SelectLinkItemDialog : public TDialog {
 		DECL_DIALOG_DATA(PPObjWorkbook::SelectLinkBlock);
@@ -1226,7 +1226,7 @@ int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 	DIALOG_PROC_BODY(SelectLinkItemDialog, pData);
 }
 
-int SLAPI PPObjWorkbook::MakeUniqueCode(SString & rBuf, int use_ta)
+int PPObjWorkbook::MakeUniqueCode(SString & rBuf, int use_ta)
 {
 	rBuf.Z();
 
@@ -1251,7 +1251,7 @@ int SLAPI PPObjWorkbook::MakeUniqueCode(SString & rBuf, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
+int PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
 {
 	assert(pID != 0);
 	int    ok = 1;
@@ -1338,7 +1338,7 @@ int SLAPI PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::GetPacket(PPID id, PPWorkbookPacket * pPack)
+int PPObjWorkbook::GetPacket(PPID id, PPWorkbookPacket * pPack)
 {
 	pPack->TagL.Destroy();
 	pPack->F.Clear();
@@ -1354,7 +1354,7 @@ int SLAPI PPObjWorkbook::GetPacket(PPID id, PPWorkbookPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SearchAnalog(const WorkbookTbl::Rec * pSample, PPID * pID, WorkbookTbl::Rec * pRec)
+int PPObjWorkbook::SearchAnalog(const WorkbookTbl::Rec * pSample, PPID * pID, WorkbookTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPID   analog_id = 0;
@@ -1370,10 +1370,10 @@ int SLAPI PPObjWorkbook::SearchAnalog(const WorkbookTbl::Rec * pSample, PPID * p
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjWorkbook::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjWorkbook, PPWorkbookPacket>(this, pPack, id, stream, pCtx); }
 
-int SLAPI PPObjWorkbook::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjWorkbook::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1, r;
 	if(pPack && pPack->Data) {
@@ -1431,7 +1431,7 @@ int SLAPI PPObjWorkbook::Write(PPObjPack * pPack, PPID * pID, void * stream, Obj
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::ProcessObjRefs(PPObjPack * pPack, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjWorkbook::ProcessObjRefs(PPObjPack * pPack, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(pPack && pPack->Data) {
@@ -1445,7 +1445,7 @@ int SLAPI PPObjWorkbook::ProcessObjRefs(PPObjPack * pPack, PPObjIDArray * ary, i
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PPIDArray * pRecurTrace)
+int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PPIDArray * pRecurTrace)
 {
 	int    ok = 1;
 	PPIDArray local_recur_trace;
@@ -1477,7 +1477,7 @@ int SLAPI PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExport
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Export(PPID rootID)
+int PPObjWorkbook::Export(PPID rootID)
 {
 	int    ok = 1, r;
 	PPWorkbookExporter exporter;
@@ -1491,7 +1491,7 @@ int SLAPI PPObjWorkbook::Export(PPID rootID)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_Transmit(PPID rootID, PPIDArray & rResultList, PPIDArray * pRecurTrace)
+int PPObjWorkbook::Helper_Transmit(PPID rootID, PPIDArray & rResultList, PPIDArray * pRecurTrace)
 {
 	int    ok = 1;
 	PPIDArray local_recur_trace;
@@ -1521,7 +1521,7 @@ int SLAPI PPObjWorkbook::Helper_Transmit(PPID rootID, PPIDArray & rResultList, P
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Transmit(PPID rootID)
+int PPObjWorkbook::Transmit(PPID rootID)
 {
 	int    ok = 1;
 	ObjTransmitParam param;
@@ -1540,7 +1540,7 @@ int SLAPI PPObjWorkbook::Transmit(PPID rootID)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_RemoveAll(PPID id, PPIDArray * pRecurTrace)
+int PPObjWorkbook::Helper_RemoveAll(PPID id, PPIDArray * pRecurTrace)
 {
 	int    ok = 1;
 	PPIDArray local_recur_trace;
@@ -1570,7 +1570,7 @@ int SLAPI PPObjWorkbook::Helper_RemoveAll(PPID id, PPIDArray * pRecurTrace)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::RemoveAll()
+int PPObjWorkbook::RemoveAll()
 {
 	int    ok = 1;
 	PPWait(1);
@@ -1585,12 +1585,12 @@ int SLAPI PPObjWorkbook::RemoveAll()
 	return ok;
 }
 
-/*virtual*/const char * SLAPI PPObjWorkbook::GetNamePtr()
+/*virtual*/const char * PPObjWorkbook::GetNamePtr()
 {
 	return P_Tbl->data.Name;
 }
 
-/*virtual*/void * SLAPI PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjWorkBookListWindow : public PPObjListWindow {
 	public:
@@ -1699,7 +1699,7 @@ int SLAPI PPObjWorkbook::RemoveAll()
 	return new PPObjWorkBookListWindow(this, flags, extraPtr);
 }
 
-int SLAPI PPObjWorkbook::AddListItem(StrAssocArray * pList, const WorkbookTbl::Rec * pRec, PPIDArray * pRecurTrace)
+int PPObjWorkbook::AddListItem(StrAssocArray * pList, const WorkbookTbl::Rec * pRec, PPIDArray * pRecurTrace)
 {
 	int    ok = 1, r;
 	PPIDArray local_recur_trace;
@@ -1736,7 +1736,7 @@ int SLAPI PPObjWorkbook::AddListItem(StrAssocArray * pList, const WorkbookTbl::R
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_MakeStrAssocList(PPID parentID, StrAssocArray * pList, UintHashTable & rRecurTrace)
+int PPObjWorkbook::Helper_MakeStrAssocList(PPID parentID, StrAssocArray * pList, UintHashTable & rRecurTrace)
 {
 	int    ok = 1;
 	WorkbookTbl::Rec rec;
@@ -1760,7 +1760,7 @@ int SLAPI PPObjWorkbook::Helper_MakeStrAssocList(PPID parentID, StrAssocArray * 
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjWorkbook::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjWorkbook::MakeStrAssocList(void * extraPtr)
 {
 	PPID   parent_id = reinterpret_cast<PPID>(extraPtr);
 	PPIDArray hang_parent_list;
@@ -1781,7 +1781,7 @@ StrAssocArray * SLAPI PPObjWorkbook::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID parentID)
+int PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID parentID)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
@@ -1816,7 +1816,7 @@ int SLAPI PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemTyp
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SetupCSSCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID cssID)
+int PPObjWorkbook::SetupCSSCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID cssID)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
@@ -1843,7 +1843,7 @@ int SLAPI PPObjWorkbook::SetupCSSCombo(TDialog * dlg, uint ctlID, int itemType, 
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SetupLinkCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID linkID)
+int PPObjWorkbook::SetupLinkCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID, PPID linkID)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
@@ -1871,7 +1871,7 @@ int SLAPI PPObjWorkbook::SetupLinkCombo(TDialog * dlg, uint ctlID, int itemType,
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::SetupItemCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID)
+int PPObjWorkbook::SetupItemCombo(TDialog * dlg, uint ctlID, int itemType, PPID itemID)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
@@ -1902,7 +1902,7 @@ int SLAPI PPObjWorkbook::SetupItemCombo(TDialog * dlg, uint ctlID, int itemType,
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::CheckParent(PPID itemID, PPID parentID)
+int PPObjWorkbook::CheckParent(PPID itemID, PPID parentID)
 {
 	int    ok = 1;
 	WorkbookTbl::Rec rec;
@@ -1926,7 +1926,7 @@ int SLAPI PPObjWorkbook::CheckParent(PPID itemID, PPID parentID)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::GetItemPath(PPID itemID, SString & rPath)
+int PPObjWorkbook::GetItemPath(PPID itemID, SString & rPath)
 {
 	int   ok = 0;
 	WorkbookTbl::Rec rec;
@@ -1946,11 +1946,11 @@ int SLAPI PPObjWorkbook::GetItemPath(PPID itemID, SString & rPath)
 	return ok;
 }
 
-SLAPI PPObjWorkbook::ImpExpParam::ImpExpParam() : RootID(0), Flags(0)
+PPObjWorkbook::ImpExpParam::ImpExpParam() : RootID(0), Flags(0)
 {
 }
 
-int SLAPI PPObjWorkbook::EditImportParam(PPObjWorkbook::ImpExpParam * pParam)
+int PPObjWorkbook::EditImportParam(PPObjWorkbook::ImpExpParam * pParam)
 {
 	int    ok = -1;
 	ImpExpParam param = *pParam;
@@ -1985,7 +1985,7 @@ int SLAPI PPObjWorkbook::EditImportParam(PPObjWorkbook::ImpExpParam * pParam)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam & rParam, const SString & rBasePath, const SString & rNakedWc)
+int PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam & rParam, const SString & rBasePath, const SString & rNakedWc)
 {
 	int    ok = 1;
 	SString wildcard, name_buf, file_name;
@@ -2119,7 +2119,7 @@ int SLAPI PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpP
 	return ok;
 }
 
-LDATETIME SLAPI PPObjWorkbook::GetLastModifTime(PPID id)
+LDATETIME PPObjWorkbook::GetLastModifTime(PPID id)
 {
 	LDATETIME mod_dtm = ZERODATETIME;
 	if(id) {
@@ -2132,7 +2132,7 @@ LDATETIME SLAPI PPObjWorkbook::GetLastModifTime(PPID id)
 	return mod_dtm;
 }
 
-LDATETIME SLAPI PPObjWorkbook::GetContentLastModifTime(PPID id)
+LDATETIME PPObjWorkbook::GetContentLastModifTime(PPID id)
 {
 	LDATETIME mod_dtm = ZERODATETIME;
 	if(id) {
@@ -2152,7 +2152,7 @@ PPObjWorkbook::ProcessUhttImportBlock::ProcessUhttImportBlock(PPUhttClient & rUc
 {
 }
 
-int SLAPI PPObjWorkbook::Helper_UhttToNativePacket(ProcessUhttImportBlock & rBlk, const UhttWorkbookItemPacket * pUhttPacket, const SString & rSymb, PPWorkbookPacket & rPack)
+int PPObjWorkbook::Helper_UhttToNativePacket(ProcessUhttImportBlock & rBlk, const UhttWorkbookItemPacket * pUhttPacket, const SString & rSymb, PPWorkbookPacket & rPack)
 {
 	int    ok = 1;
 	STRNSCPY(rPack.Rec.Name, pUhttPacket->Name);
@@ -2215,7 +2215,7 @@ int SLAPI PPObjWorkbook::Helper_UhttToNativePacket(ProcessUhttImportBlock & rBlk
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_CreatePacketByUhttList(PPID * pID, ProcessUhttImportBlock & rBlk, uint srcListPos, int use_ta)
+int PPObjWorkbook::Helper_CreatePacketByUhttList(PPID * pID, ProcessUhttImportBlock & rBlk, uint srcListPos, int use_ta)
 {
 	int    ok = -1;
 	PPID   result_id = 0;
@@ -2262,7 +2262,7 @@ int SLAPI PPObjWorkbook::Helper_CreatePacketByUhttList(PPID * pID, ProcessUhttIm
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::InterchangeUhtt()
+int PPObjWorkbook::InterchangeUhtt()
 {
 	int    ok = -1;
 	int    is_allowed = 0;
@@ -2392,7 +2392,7 @@ int SLAPI PPObjWorkbook::InterchangeUhtt()
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
+int PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 	const TSCollection <UhttWorkbookItemPacket> * pForeignList, PPLogger * pLogger)
 {
 	int    ok = 1;
@@ -2487,7 +2487,7 @@ int SLAPI PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::ExportToUhtt(PPID id)
+int PPObjWorkbook::ExportToUhtt(PPID id)
 {
 	int    ok = -1;
 	PPUhttClient uhtt_cli;
@@ -2497,7 +2497,7 @@ int SLAPI PPObjWorkbook::ExportToUhtt(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::TestImportFromUhtt()
+int PPObjWorkbook::TestImportFromUhtt()
 {
 	int    ok = -1;
 	PPUhttClient uhtt_cli;
@@ -2532,7 +2532,7 @@ int SLAPI PPObjWorkbook::TestImportFromUhtt()
 	return ok;
 }
 
-int SLAPI PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * pParam)
+int PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * pParam)
 {
 	int    ok = -1;
 	PPObjWorkbook::ImpExpParam param;
@@ -2570,12 +2570,12 @@ int SLAPI PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * p
 
 class WorkbookCache : public ObjCache {
 public:
-	SLAPI  WorkbookCache() : ObjCache(PPOBJ_WORKBOOK, sizeof(Workbook2Data))
+	WorkbookCache() : ObjCache(PPOBJ_WORKBOOK, sizeof(Workbook2Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Workbook2Data : public ObjCacheEntry {
 		long   Rank;
@@ -2587,7 +2587,7 @@ public:
 	};
 };
 
-int SLAPI WorkbookCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int WorkbookCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Workbook2Data * p_cache_rec = static_cast<Workbook2Data *>(pEntry);
@@ -2610,7 +2610,7 @@ int SLAPI WorkbookCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	WorkbookTbl::Rec * p_data_rec = static_cast<WorkbookTbl::Rec *>(pDataRec);
 	const Workbook2Data * p_cache_rec = static_cast<const Workbook2Data *>(pEntry);
@@ -2628,7 +2628,7 @@ void SLAPI WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 }
 // }
 
-int SLAPI PPObjWorkbook::Fetch(PPID id, WorkbookTbl::Rec * pRec)
+int PPObjWorkbook::Fetch(PPID id, WorkbookTbl::Rec * pRec)
 {
 	WorkbookCache * p_cache = GetDbLocalCachePtr <WorkbookCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
@@ -2647,20 +2647,20 @@ public:
 	struct Param {
 		SString CfgName;
 	};
-	SLAPI  PrcssrWorkbookImport();
-	int    SLAPI InitParam(Param *);
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
+	PrcssrWorkbookImport();
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
 private:
-	int    SLAPI ResolveLink(const char * pLinkName, const char * pLinkSymb, PPID * pID);
+	int    ResolveLink(const char * pLinkName, const char * pLinkSymb, PPID * pID);
 
 	PPObjWorkbook WbObj;
 	Param  P;
 	PPWorkbookImpExpParam IeParam;
 };
 
-int SLAPI EditWorkbookImpExpParams()
+int EditWorkbookImpExpParams()
 {
 	int    ok = -1;
 	PPWorkbookImpExpParam param;
@@ -2672,7 +2672,7 @@ int SLAPI EditWorkbookImpExpParams()
 	return ok;
 }
 
-static int SLAPI SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int import)
+static int SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int import)
 {
 	int    ok = -1;
 	uint   p = 0;
@@ -2702,11 +2702,11 @@ static int SLAPI SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int 
 	return ok;
 }
 
-SLAPI PrcssrWorkbookImport::PrcssrWorkbookImport()
+PrcssrWorkbookImport::PrcssrWorkbookImport()
 {
 }
 
-int SLAPI PrcssrWorkbookImport::InitParam(Param * pParam)
+int PrcssrWorkbookImport::InitParam(Param * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
@@ -2743,7 +2743,7 @@ int PrcssrWorkbookImport::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrWorkbookImport::ResolveLink(const char * pLinkName, const char * pLinkSymb, PPID * pID)
+int PrcssrWorkbookImport::ResolveLink(const char * pLinkName, const char * pLinkSymb, PPID * pID)
 {
 	PPID   id = 0, same_id = 0;
 	WorkbookTbl::Rec same_rec;
@@ -2757,7 +2757,7 @@ int SLAPI PrcssrWorkbookImport::ResolveLink(const char * pLinkName, const char *
 	return id ? 1 : -1;
 }
 
-int SLAPI PrcssrWorkbookImport::Run()
+int PrcssrWorkbookImport::Run()
 {
 	int    ok = -1, ta = 0;
 	long   numrecs = 0;
@@ -2829,7 +2829,7 @@ int SLAPI PrcssrWorkbookImport::Run()
 	return ok;
 }
 
-int SLAPI ImportWorkbook()
+int ImportWorkbook()
 {
 	int    ok = -1;
 	PrcssrWorkbookImport prcssr;
@@ -2845,16 +2845,16 @@ int SLAPI ImportWorkbook()
 //
 //
 //
-SLAPI PPWorkbookExporter::PPWorkbookExporter() : P_IEWorkbook(0)
+PPWorkbookExporter::PPWorkbookExporter() : P_IEWorkbook(0)
 {
 }
 
-SLAPI PPWorkbookExporter::~PPWorkbookExporter()
+PPWorkbookExporter::~PPWorkbookExporter()
 {
 	delete P_IEWorkbook;
 }
 
-int SLAPI PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
+int PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 {
 	int    ok = 1;
 	DestFilesPath = 0;
@@ -2877,7 +2877,7 @@ int SLAPI PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 	return ok;
 }
 
-int SLAPI PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
+int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 {
 	int    ok = 1;
 	SString temp_buf;

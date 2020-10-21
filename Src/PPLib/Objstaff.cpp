@@ -8,7 +8,7 @@
 //
 // Helper function
 //
-int SLAPI SetupStaffListCombo(TDialog * dlg, uint ctl, PPID id, uint flags, PPID orgID, PPID divID)
+int SetupStaffListCombo(TDialog * dlg, uint ctl, PPID id, uint flags, PPID orgID, PPID divID)
 {
 	PPObjStaffList::Filt flt;
 	MEMSZERO(flt);
@@ -29,7 +29,7 @@ IMPL_INVARIANT_C(StaffAmtEntry)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI StaffAmtEntry::StaffAmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID), CurID(curID), Amt(amt)
+StaffAmtEntry::StaffAmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID), CurID(curID), Amt(amt)
 {
 	Period.Z();
 }
@@ -50,7 +50,7 @@ int FASTCALL StaffAmtEntry::IsEqual(const StaffAmtEntry & rS) const
 //
 //
 //
-SLAPI StaffAmtList::StaffAmtList() : TSVector <StaffAmtEntry>() // @v9.8.6 TSArray-->TSVector
+StaffAmtList::StaffAmtList() : TSVector <StaffAmtEntry>() // @v9.8.6 TSArray-->TSVector
 {
 }
 
@@ -72,7 +72,7 @@ int FASTCALL StaffAmtList::IsEqual(const StaffAmtList & rS) const
 	return eq;
 }
 
-int SLAPI StaffAmtList::Search(PPID amtTypeID, PPID curID, LDATE dt, uint * pPos) const
+int StaffAmtList::Search(PPID amtTypeID, PPID curID, LDATE dt, uint * pPos) const
 {
 	StaffAmtEntry * p_entry = 0;
 	for(uint i = 0; enumItems(&i, reinterpret_cast<void **>(&p_entry));) {
@@ -84,7 +84,7 @@ int SLAPI StaffAmtList::Search(PPID amtTypeID, PPID curID, LDATE dt, uint * pPos
 	return 0;
 }
 
-int SLAPI StaffAmtList::Search(PPID amtTypeID, uint * pPos) const
+int StaffAmtList::Search(PPID amtTypeID, uint * pPos) const
 {
 	StaffAmtEntry * p_entry = 0;
 	for(uint i = 0; enumItems(&i, (void **)&p_entry);) {
@@ -96,7 +96,7 @@ int SLAPI StaffAmtList::Search(PPID amtTypeID, uint * pPos) const
 	return 0;
 }
 
-int SLAPI StaffAmtList::Get(PPID amtTypeID, PPID curID, LDATE dt, double * pAmount) const
+int StaffAmtList::Get(PPID amtTypeID, PPID curID, LDATE dt, double * pAmount) const
 {
 	int    ok = -1;
 	double amt = 0.0;
@@ -109,7 +109,7 @@ int SLAPI StaffAmtList::Get(PPID amtTypeID, PPID curID, LDATE dt, double * pAmou
 	return ok;
 }
 
-int SLAPI StaffAmtList::CheckDup(int pos, const StaffAmtEntry * pEntry) const
+int StaffAmtList::CheckDup(int pos, const StaffAmtEntry * pEntry) const
 {
 	StaffAmtEntry * p_entry = 0;
 	for(uint i = 0; enumItems(&i, (void **)&p_entry);)
@@ -120,7 +120,7 @@ int SLAPI StaffAmtList::CheckDup(int pos, const StaffAmtEntry * pEntry) const
 	return 1;
 }
 
-int SLAPI StaffAmtList::Add(const StaffAmtEntry * pItem)
+int StaffAmtList::Add(const StaffAmtEntry * pItem)
 {
 	int    ok = 1;
 	THROW_INVARG(pItem);
@@ -130,7 +130,7 @@ int SLAPI StaffAmtList::Add(const StaffAmtEntry * pItem)
 	return ok;
 }
 
-int SLAPI StaffAmtList::Put(uint pos, const StaffAmtEntry * pItem)
+int StaffAmtList::Put(uint pos, const StaffAmtEntry * pItem)
 {
 	int    ok = 1;
 	THROW_SL(checkupper(pos, getCount()));
@@ -146,7 +146,7 @@ int SLAPI StaffAmtList::Put(uint pos, const StaffAmtEntry * pItem)
 //
 //
 //
-SLAPI PersonPostArray::PersonPostArray() : TSVector <PersonPostTbl::Rec> () // @v9.8.4 TSArray-->TSVector
+PersonPostArray::PersonPostArray() : TSVector <PersonPostTbl::Rec> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -164,12 +164,12 @@ static IMPL_CMPFUNC(PersonPost_Closed_Finish_Dt, i1, i2)
 		return CMPSIGN(p2->Finish, p1->Finish);
 }
 
-void SLAPI PersonPostArray::Sort()
+void PersonPostArray::Sort()
 {
 	SVector::sort(PTR_CMPFUNC(PersonPost_Closed_Finish_Dt), 0); // @v9.8.4 SArray-->SVector
 }
 
-uint SLAPI PersonPostArray::GetBusyCount() const
+uint PersonPostArray::GetBusyCount() const
 {
 	uint   c = 0;
 	for(uint i = 0; i < getCount(); i++) {
@@ -181,12 +181,12 @@ uint SLAPI PersonPostArray::GetBusyCount() const
 //
 //
 //
-SLAPI PPStaffPacket::PPStaffPacket()
+PPStaffPacket::PPStaffPacket()
 {
 	Init();
 }
 
-void SLAPI PPStaffPacket::Init()
+void PPStaffPacket::Init()
 {
 	MEMSZERO(Rec);
 	Amounts.freeAll();
@@ -199,12 +199,12 @@ PPStaffPacket & FASTCALL PPStaffPacket::operator = (const PPStaffPacket & rSrc)
 	return *this;
 }
 
-SLAPI PPPsnPostPacket::PPPsnPostPacket()
+PPPsnPostPacket::PPPsnPostPacket()
 {
 	Init();
 }
 
-void SLAPI PPPsnPostPacket::Init()
+void PPPsnPostPacket::Init()
 {
 	MEMSZERO(Rec);
 	Amounts.freeAll();
@@ -219,28 +219,28 @@ PPPsnPostPacket & FASTCALL PPPsnPostPacket::operator = (const PPPsnPostPacket & 
 
 TLP_IMPL(PPObjStaffList, PersonPostTbl, P_PostTbl);
 
-SLAPI PPObjStaffList::PPObjStaffList(void * extraPtr) : PPObjReference(PPOBJ_STAFFLIST2, extraPtr)
+PPObjStaffList::PPObjStaffList(void * extraPtr) : PPObjReference(PPOBJ_STAFFLIST2, extraPtr)
 {
 	ImplementFlags |= implStrAssocMakeList;
 	TLP_OPEN(P_PostTbl);
 }
 
-SLAPI PPObjStaffList::~PPObjStaffList()
+PPObjStaffList::~PPObjStaffList()
 {
 	TLP_CLOSE(P_PostTbl);
 }
 
-int SLAPI PPObjStaffList::DeleteObj(PPID id)
+int PPObjStaffList::DeleteObj(PPID id)
 {
 	return PutPacket(&id, 0, 0);
 }
 
-int SLAPI PPObjStaffList::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjStaffList::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTSTAFF, CTL_RTSTAFF_FLAGS, CTL_RTSTAFF_SFLAGS, bufSize, rt, pDlg);
 }
 
-int SLAPI PPObjStaffList::SerializePacket(int dir, PPStaffPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjStaffList::SerializePacket(int dir, PPStaffPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -249,10 +249,10 @@ int SLAPI PPObjStaffList::SerializePacket(int dir, PPStaffPacket * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI PPObjStaffList::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjStaffList::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjStaffList, PPStaffPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -304,7 +304,7 @@ int SLAPI PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	return ok;
 }
 
-int SLAPI PPObjStaffList::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjStaffList::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = -1;
 	if(p && p->Data) {
@@ -322,7 +322,7 @@ int SLAPI PPObjStaffList::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 	return ok;
 }
 
-int SLAPI PPObjStaffList::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjStaffList::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -349,7 +349,7 @@ int SLAPI PPObjStaffList::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 	return ok;
 }
 
-int SLAPI PPObjStaffList::Recover(PPID staffID, int use_ta)
+int PPObjStaffList::Recover(PPID staffID, int use_ta)
 {
 	int    ok = -1;
 	uint   busy_count = 0;
@@ -374,7 +374,7 @@ int SLAPI PPObjStaffList::Recover(PPID staffID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjStaffList::IncrementStaffVacancy(PPID staffID, int decr, int use_ta)
+int PPObjStaffList::IncrementStaffVacancy(PPID staffID, int decr, int use_ta)
 {
 	int    ok = 1;
 	PPStaffEntry staff_rec;
@@ -397,7 +397,7 @@ int SLAPI PPObjStaffList::IncrementStaffVacancy(PPID staffID, int decr, int use_
 	return ok;
 }
 
-int SLAPI PPObjStaffList::AssignPersonToStaff(PPID psnID, PPID staffID, LDATE dt, int use_ta)
+int PPObjStaffList::AssignPersonToStaff(PPID psnID, PPID staffID, LDATE dt, int use_ta)
 {
 	PPPsnPostPacket pack;
 	PPID   post_id = 0;
@@ -407,12 +407,12 @@ int SLAPI PPObjStaffList::AssignPersonToStaff(PPID psnID, PPID staffID, LDATE dt
 	return PutPostPacket(&post_id, &pack, use_ta);
 }
 
-int SLAPI PPObjStaffList::SearchPost(PPID postID, PersonPostTbl::Rec * pRec)
+int PPObjStaffList::SearchPost(PPID postID, PersonPostTbl::Rec * pRec)
 {
 	return SearchByID(P_PostTbl, PPOBJ_PERSONPOST, postID, pRec);
 }
 
-int SLAPI PPObjStaffList::GetPostPacket(PPID postID, PPPsnPostPacket * pPack)
+int PPObjStaffList::GetPostPacket(PPID postID, PPPsnPostPacket * pPack)
 {
 	int    ok = -1;
 	PPPsnPostPacket pack;
@@ -423,7 +423,7 @@ int SLAPI PPObjStaffList::GetPostPacket(PPID postID, PPPsnPostPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_ta)
+int PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_ta)
 {
 	int    ok = 1, r;
 	SString msg_buf;
@@ -541,7 +541,7 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 	return ok;
 }
 
-int SLAPI PPObjStaffList::MakeCodeString(const PersonPostTbl::Rec * pRec, SString & rBuf)
+int PPObjStaffList::MakeCodeString(const PersonPostTbl::Rec * pRec, SString & rBuf)
 {
 	PPStaffEntry sl_rec;
 	PersonTbl::Rec psn_rec;
@@ -558,7 +558,7 @@ int SLAPI PPObjStaffList::MakeCodeString(const PersonPostTbl::Rec * pRec, SStrin
 	return 1;
 }
 
-int SLAPI PPObjStaffList::RevokePersonPost(PPID personID, PPID staffID, LDATE dt, int use_ta)
+int PPObjStaffList::RevokePersonPost(PPID personID, PPID staffID, LDATE dt, int use_ta)
 {
 	int    ok = -1;
 	PersonPostTbl::Rec rec;
@@ -574,7 +574,7 @@ int SLAPI PPObjStaffList::RevokePersonPost(PPID personID, PPID staffID, LDATE dt
 	return ok;
 }
 
-int SLAPI PPObjStaffList::RevokeAllPersonPosts(PPID personID, PPID orgID, LDATE dt, int use_ta)
+int PPObjStaffList::RevokeAllPersonPosts(PPID personID, PPID orgID, LDATE dt, int use_ta)
 {
 	int    ok = -1, r;
 	PersonPostArray post_list;
@@ -597,7 +597,7 @@ int SLAPI PPObjStaffList::RevokeAllPersonPosts(PPID personID, PPID orgID, LDATE 
 	return ok;
 }
 
-int SLAPI PPObjStaffList::GetPersonPostList(PPID staffID, PPID personID, SArray * pList)
+int PPObjStaffList::GetPersonPostList(PPID staffID, PPID personID, SArray * pList)
 {
 	int    ok = -1;
 	if(pList == 0 || pList->getItemSize() != sizeof(PersonPostTbl::Rec))
@@ -617,7 +617,7 @@ int SLAPI PPObjStaffList::GetPersonPostList(PPID staffID, PPID personID, SArray 
 	return ok;
 }
 
-int SLAPI PPObjStaffList::GetPersonPost(int closed, PPID staffID, PPID personID, PersonPostTbl::Rec * pRec)
+int PPObjStaffList::GetPersonPost(int closed, PPID staffID, PPID personID, PersonPostTbl::Rec * pRec)
 {
 	int    ok = -1, sp = spEq;
 	PersonPostTbl::Key1 k1;
@@ -642,7 +642,7 @@ int SLAPI PPObjStaffList::GetPersonPost(int closed, PPID staffID, PPID personID,
 	return ok;
 }
 
-int SLAPI PPObjStaffList::GetList(const Filt & rFilt, PPIDArray * pList, StrAssocArray * pNameList)
+int PPObjStaffList::GetList(const Filt & rFilt, PPIDArray * pList, StrAssocArray * pNameList)
 {
 	int    ok = -1;
 	{
@@ -668,7 +668,7 @@ int SLAPI PPObjStaffList::GetList(const Filt & rFilt, PPIDArray * pList, StrAsso
 	return ok;
 }
 
-int SLAPI PPObjStaffList::GetPostByPersonList(PPID personID, PPID employerID, int openedOnly, PersonPostArray * pList)
+int PPObjStaffList::GetPostByPersonList(PPID personID, PPID employerID, int openedOnly, PersonPostArray * pList)
 {
 	int    ok = -1;
 	PersonPostTbl::Key2 k2;
@@ -693,7 +693,7 @@ int SLAPI PPObjStaffList::GetPostByPersonList(PPID personID, PPID employerID, in
 	return ok;
 }
 
-int SLAPI PPObjStaffList::GetPostList(PPID staffID, PersonPostArray * pList)
+int PPObjStaffList::GetPostList(PPID staffID, PersonPostArray * pList)
 {
 	int    ok = -1;
 	PersonPostTbl::Key1 k1;
@@ -771,9 +771,9 @@ private:
 	PPObjStaffList SlObj;
 };
 
-int SLAPI PPObjStaffList::EditDialog(PPStaffPacket * pPack) { DIALOG_PROC_BODY(StaffDialog, pPack); }
+int PPObjStaffList::EditDialog(PPStaffPacket * pPack) { DIALOG_PROC_BODY(StaffDialog, pPack); }
 
-int SLAPI PPObjStaffList::GetPacket(PPID id, PPStaffPacket * pPack)
+int PPObjStaffList::GetPacket(PPID id, PPStaffPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
@@ -782,7 +782,7 @@ int SLAPI PPObjStaffList::GetPacket(PPID id, PPStaffPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_ta)
+int PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_ta)
 {
 	int    ok = 1, r;
 	uint   i;
@@ -835,7 +835,7 @@ int SLAPI PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_t
 	return ok;
 }
 
-int SLAPI PPObjStaffList::Edit(PPID * pID, void * extraPtr)
+int PPObjStaffList::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1, r = cmCancel, is_new = 0;
 	PPStaffPacket pack;
@@ -860,7 +860,7 @@ int SLAPI PPObjStaffList::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjStaffList::EditAmounts(PPID id)
+int PPObjStaffList::EditAmounts(PPID id)
 {
 	int    ok = -1, r = cmCancel;
 	PPStaffPacket pack;
@@ -881,7 +881,7 @@ int SLAPI PPObjStaffList::EditAmounts(PPID id)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjStaffList::EditPostAmounts(PPID id)
+int PPObjStaffList::EditPostAmounts(PPID id)
 {
 	int    ok = -1;
 	PPPsnPostPacket pack;
@@ -1006,7 +1006,7 @@ int PersonPostDialog::getDTS(PPPsnPostPacket * pData)
 	return ok;
 }
 
-int SLAPI PPObjStaffList::EditPostDialog(PPPsnPostPacket * pPack, long flags)
+int PPObjStaffList::EditPostDialog(PPPsnPostPacket * pPack, long flags)
 {
 	int    ok = -1;
 	PersonPostDialog * dlg = new PersonPostDialog;
@@ -1024,7 +1024,7 @@ int SLAPI PPObjStaffList::EditPostDialog(PPPsnPostPacket * pPack, long flags)
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjStaffList::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjStaffList::MakeStrAssocList(void * extraPtr)
 {
 	Filt filt;
 	if(extraPtr)
@@ -1042,7 +1042,7 @@ StrAssocArray * SLAPI PPObjStaffList::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjStaffList::MakePostStrAssocList(PPID orgID, PPID divID, PPID staffID, StrAssocArray * pList)
+int PPObjStaffList::MakePostStrAssocList(PPID orgID, PPID divID, PPID staffID, StrAssocArray * pList)
 {
 	int    ok = 1;
 	uint   i;
@@ -1076,7 +1076,7 @@ int SLAPI PPObjStaffList::MakePostStrAssocList(PPID orgID, PPID divID, PPID staf
 	return ok;
 }
 
-int SLAPI PPObjStaffList::Browse(void * extraPtr /*lFilt*/)
+int PPObjStaffList::Browse(void * extraPtr /*lFilt*/)
 {
 	const Filt * p_obj_filt = static_cast<const Filt *>(extraPtr);
 	StaffListFilt * p_filt = 0;
@@ -1091,7 +1091,7 @@ int SLAPI PPObjStaffList::Browse(void * extraPtr /*lFilt*/)
 //
 //
 //
-int SLAPI PPObjStaffList::GetFixedStaffList(PPID orgID, PPID fixID, PPIDArray * pList)
+int PPObjStaffList::GetFixedStaffList(PPID orgID, PPID fixID, PPIDArray * pList)
 {
 	CALLPTRMEMB(pList, clear());
 	int    ok = 1;
@@ -1106,7 +1106,7 @@ int SLAPI PPObjStaffList::GetFixedStaffList(PPID orgID, PPID fixID, PPIDArray * 
 	return ok;
 }
 
-int SLAPI PPObjStaffList::CreateFixedStaff(PPID * pID, PPID orgID, PPID divID, PPID fixID, int use_ta)
+int PPObjStaffList::CreateFixedStaff(PPID * pID, PPID orgID, PPID divID, PPID fixID, int use_ta)
 {
 	int    ok = -1;
 	SString str, item_buf, id_str, name_str;
@@ -1132,7 +1132,7 @@ int SLAPI PPObjStaffList::CreateFixedStaff(PPID * pID, PPID orgID, PPID divID, P
 	return ok;
 }
 
-int SLAPI PPObjStaffList::GetFixedPostList(PPID orgID, PPID fixID, PersonPostArray * pList)
+int PPObjStaffList::GetFixedPostList(PPID orgID, PPID fixID, PersonPostArray * pList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, freeAll());
@@ -1146,7 +1146,7 @@ int SLAPI PPObjStaffList::GetFixedPostList(PPID orgID, PPID fixID, PersonPostArr
 	return ok;
 }
 
-int SLAPI PPObjStaffList::GetFixedPostOnDate(PPID orgID, PPID fixID, LDATE dt, PersonPostTbl::Rec * pRec)
+int PPObjStaffList::GetFixedPostOnDate(PPID orgID, PPID fixID, LDATE dt, PersonPostTbl::Rec * pRec)
 {
 	int    ok = -1;
 	int    pos = -1;
@@ -1184,7 +1184,7 @@ int SLAPI PPObjStaffList::GetFixedPostOnDate(PPID orgID, PPID fixID, LDATE dt, P
 	return ok;
 }
 
-int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
+int PPObjStaffList::EditFixedStaffPost(PPID orgID)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1238,7 +1238,7 @@ int SLAPI PPObjStaffList::EditFixedStaffPost(PPID orgID)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjStaffList::SetupPostCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, PPID orgID, PPID divID, PPID staffID)
+/*static*/int PPObjStaffList::SetupPostCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/, PPID orgID, PPID divID, PPID staffID)
 {
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
@@ -1268,15 +1268,15 @@ public:
 		long   FixedStaff;    // Зарезервированный ИД должности (PPFIXSTF_XXX)
 		long   ChargeGrpID;   // ->Ref(PPOBJ_SALCHARGE) Группа начислений, используемая для этой должности
 	};
-	SLAPI  StaffListCache() : ObjCache(PPOBJ_STAFFLIST2, sizeof(Data))
+	StaffListCache() : ObjCache(PPOBJ_STAFFLIST2, sizeof(Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int SLAPI StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1298,7 +1298,7 @@ int SLAPI StaffListCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPStaffEntry * p_data_rec = static_cast<PPStaffEntry *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -1340,15 +1340,15 @@ public:
 		int16  Reserve;       // @alignment
 	};
 
-	SLAPI  PersonPostCache() : ObjCache(PPOBJ_PERSONPOST, sizeof(Data))
+	PersonPostCache() : ObjCache(PPOBJ_PERSONPOST, sizeof(Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int SLAPI PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1369,7 +1369,7 @@ int SLAPI PersonPostCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PersonPostTbl::Rec * p_data_rec = static_cast<PersonPostTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -1384,13 +1384,13 @@ void SLAPI PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	#undef FLD
 }
 
-int SLAPI PPObjStaffList::FetchPost(PPID id, PersonPostTbl::Rec * pRec)
+int PPObjStaffList::FetchPost(PPID id, PersonPostTbl::Rec * pRec)
 {
 	PersonPostCache * p_cache = GetDbLocalCachePtr <PersonPostCache> (PPOBJ_PERSONPOST);
 	return p_cache ? p_cache->Get(id, pRec) : SearchPost(id, pRec);
 }
 
-int SLAPI PPObjStaffList::DirtyPost(PPID id)
+int PPObjStaffList::DirtyPost(PPID id)
 {
 	PersonPostCache * p_cache = GetDbLocalCachePtr <PersonPostCache> (PPOBJ_PERSONPOST, 0);
 	return p_cache ? p_cache->Dirty(id) : -1;

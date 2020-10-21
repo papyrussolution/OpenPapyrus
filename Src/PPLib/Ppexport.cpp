@@ -26,7 +26,7 @@ BEGIN
 END
 #endif // } 0
 
-int SLAPI ProcessExportJob(const char * pJobName)
+int ProcessExportJob(const char * pJobName)
 {
 	int    ok = 0;
 	PPID   cash_id = 0;
@@ -44,9 +44,9 @@ int SLAPI ProcessExportJob(const char * pJobName)
    	return ok;
 }
 
-int SLAPI ImportGeoCity(const char * pPath);
+int ImportGeoCity(const char * pPath);
 
-int SLAPI ProcessImportJob(const char * pJobName)
+int ProcessImportJob(const char * pJobName)
 {
 	int    ok = 0;
 	const  SString job_name(pJobName);
@@ -78,11 +78,11 @@ int SLAPI ProcessImportJob(const char * pJobName)
 //
 //
 //
-SLAPI PPDbTableXmlExporter::BaseParam::BaseParam(uint32 sign) : Sign(sign), Flags(0), RefDbID(0)
+PPDbTableXmlExporter::BaseParam::BaseParam(uint32 sign) : Sign(sign), Flags(0), RefDbID(0)
 {
 }
 
-int SLAPI PPDbTableXmlExporter::BaseParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPDbTableXmlExporter::BaseParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(pSCtx->Serialize(dir, Sign, rBuf));
@@ -93,15 +93,15 @@ int SLAPI PPDbTableXmlExporter::BaseParam::Serialize(int dir, SBuffer & rBuf, SS
 	return ok;
 }
 
-SLAPI PPDbTableXmlExporter::PPDbTableXmlExporter()
+PPDbTableXmlExporter::PPDbTableXmlExporter()
 {
 }
 
-/*virtual*/SLAPI PPDbTableXmlExporter::~PPDbTableXmlExporter()
+/*virtual*/PPDbTableXmlExporter::~PPDbTableXmlExporter()
 {
 }
 
-int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
+int PPDbTableXmlExporter::Run(const char * pOutFileName)
 {
 	int    ok = 1;
 	const  long preserve_dt_def_fmt = SLS.GetConstTLA().TxtDateFmt_;
@@ -172,7 +172,7 @@ PPDbTableXmlExportParam_TrfrBill::PPDbTableXmlExportParam_TrfrBill() : PPDbTable
 	Period.Z();
 }
 
-int SLAPI PPDbTableXmlExportParam_TrfrBill::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPDbTableXmlExportParam_TrfrBill::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(PPDbTableXmlExporter::BaseParam::Serialize(dir, rBuf, pSCtx));
@@ -233,7 +233,7 @@ protected:
 
 #undef GRP_BROWSE
 
-int SLAPI PPDbTableXmlExportParam_TrfrBill::Edit(PPDbTableXmlExportParam_TrfrBill * pData)
+int PPDbTableXmlExportParam_TrfrBill::Edit(PPDbTableXmlExportParam_TrfrBill * pData)
 {
     int    ok = -1;
     DbTableXmlExportParamDialog * dlg = new DbTableXmlExportParamDialog(DLG_DBTEXPTRFR);
@@ -262,7 +262,7 @@ int SLAPI PPDbTableXmlExportParam_TrfrBill::Edit(PPDbTableXmlExportParam_TrfrBil
 //
 //
 //
-SLAPI PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTableXmlExportParam_TrfrBill & rParam) : 
+PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTableXmlExportParam_TrfrBill & rParam) : 
 	PPDbTableXmlExporter(), P_Q(0), P(rParam)
 {
 	P.Period.Actualize(ZERODATE);
@@ -300,7 +300,7 @@ SLAPI PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTab
 //
 //
 //
-SLAPI PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExportParam_TrfrBill & rParam) : 
+PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExportParam_TrfrBill & rParam) : 
 	PPDbTableXmlExporter(), P(rParam), P_Q(0)
 {
 	P.Period.Actualize(ZERODATE);

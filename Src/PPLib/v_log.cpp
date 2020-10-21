@@ -154,7 +154,7 @@ int LogsDialog::CreateVerHistLog(long id)
 	return ok;
 }
 
-int SLAPI ViewLogs()
+int ViewLogs()
 {
 	LogsDialog * p_dlg = 0;
 	return CheckDialogPtrErr(&(p_dlg = new LogsDialog)) ? ExecViewAndDestroy(p_dlg) : 0;

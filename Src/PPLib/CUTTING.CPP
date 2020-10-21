@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
+int Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
 {
 	int    ok = 1, recalc_rests = 0;
 	int    is_forward_op = 0; // Признак того, что по лоту есть операции после усекаемого периода.
@@ -87,7 +87,7 @@ int SLAPI Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEn
 	return ok;
 }
 
-int SLAPI Transfer::Cutting(LDATE endDate, int use_ta)
+int Transfer::Cutting(LDATE endDate, int use_ta)
 {
 	int    ok = 1, ta = 0;
 	LDATE  prev_date = ZERODATE;
@@ -122,7 +122,7 @@ int SLAPI Transfer::Cutting(LDATE endDate, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::CuttingUntiedCLB(int use_ta)
+int PPObjBill::CuttingUntiedCLB(int use_ta)
 {
 	int    ok = 1, ta = 0;
 	ObjTagTbl::Key1 k;
@@ -143,7 +143,7 @@ int SLAPI PPObjBill::CuttingUntiedCLB(int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::Cutting(LDATE endDate, int use_ta)
+int PPObjBill::Cutting(LDATE endDate, int use_ta)
 {
 	trfr->__DontCheckQttyInUpdateTransferItem__ = 1;
 	int    ok = 1, ta = 0, frrl_tag = 0;
@@ -272,7 +272,7 @@ int SLAPI PPObjBill::Cutting(LDATE endDate, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::SaveBalance(LDATE endDate, const char * pFileName)
+int PPObjBill::SaveBalance(LDATE endDate, const char * pFileName)
 {
 	int    ok = 1;
 	char   msg_buf[64], format[64];
@@ -301,7 +301,7 @@ int SLAPI PPObjBill::SaveBalance(LDATE endDate, const char * pFileName)
 	return ok;
 }
 
-int SLAPI PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_ta)
+int PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_ta)
 {
 	int    ok = 1, ta = 0;
 	char   buf[256], msg_buf[64], format[64];
@@ -381,7 +381,7 @@ int SLAPI PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_
 	return ok;
 }
 
-static int SLAPI EditSaveBalanceDialog(LDATE * pDt, char * pFileName)
+static int EditSaveBalanceDialog(LDATE * pDt, char * pFileName)
 {
 	int    ok = -1;
 	LDATE  dt = *pDt;
@@ -407,7 +407,7 @@ static int SLAPI EditSaveBalanceDialog(LDATE * pDt, char * pFileName)
 	return ok;
 }
 
-int SLAPI SaveBalance()
+int SaveBalance()
 {
 	int    ok = -1;
 	LDATE  dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
@@ -424,7 +424,7 @@ int SLAPI SaveBalance()
 	return ok;
 }
 
-int SLAPI RestoreBalance()
+int RestoreBalance()
 {
 	int    ok = -1;
 	LDATE  dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
@@ -441,7 +441,7 @@ int SLAPI RestoreBalance()
 	return ok;
 }
 
-int SLAPI DatabaseCutting()
+int DatabaseCutting()
 {
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = new TDialog(DLG_CUTTING);

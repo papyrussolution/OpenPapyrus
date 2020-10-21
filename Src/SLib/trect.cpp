@@ -968,15 +968,15 @@ TRect & TRect::Normalize()
 //
 const FPoint ZEROFPOINT;
 
-SLAPI FPoint::FPoint() : X(0.0f), Y(0.0f)
+FPoint::FPoint() : X(0.0f), Y(0.0f)
 {
 }
 
-SLAPI FPoint::FPoint(float xy) : X(xy), Y(xy)
+FPoint::FPoint(float xy) : X(xy), Y(xy)
 {
 }
 
-SLAPI FPoint::FPoint(float x, float y) : X(x), Y(y)
+FPoint::FPoint(float x, float y) : X(x), Y(y)
 {
 }
 
@@ -993,47 +993,47 @@ FPoint & FASTCALL FPoint::operator = (float f)
 	return *this;
 }
 
-FPoint SLAPI FPoint::Set(float xy)
+FPoint FPoint::Set(float xy)
 {
 	X = Y = xy;
 	return *this;
 }
 
-FPoint SLAPI FPoint::Set(float x, float y)
+FPoint FPoint::Set(float x, float y)
 {
 	X = x;
 	Y = y;
 	return *this;
 }
 
-FPoint SLAPI FPoint::SetZero()
+FPoint FPoint::SetZero()
 {
 	X = Y = 0;
 	return *this;
 }
 
-FPoint SLAPI FPoint::Scale(float factor)
+FPoint FPoint::Scale(float factor)
 {
 	X *= factor;
 	Y *= factor;
 	return *this;
 }
 
-int    SLAPI FPoint::IsZero() const { return (X != 0.0f && Y != 0.0f); }
-int    SLAPI FPoint::IsPositive() const { return (X > 0.0f && Y > 0.0f); }
+int    FPoint::IsZero() const { return (X != 0.0f && Y != 0.0f); }
+int    FPoint::IsPositive() const { return (X > 0.0f && Y > 0.0f); }
 int    FASTCALL FPoint::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
 int    FASTCALL FPoint::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
-FPoint SLAPI FPoint::Neg()   const { return FPoint(-X, -Y); }
-float  SLAPI FPoint::Ratio() const { return (Y / X); }
-float  SLAPI FPoint::Add()   const { return X + Y; }
-FPoint SLAPI FPoint::AddX(float x) const { return FPoint(X + x, Y); }
-FPoint SLAPI FPoint::AddY(float y) const { return FPoint(X, Y + y); }
-float  SLAPI FPoint::Sub()  const { return X - Y; }
-float  SLAPI FPoint::Sq()   const { return (X * X + Y * Y); }
-double SLAPI FPoint::Hypot() const { return _hypot(X, Y); }
-float  SLAPI FPoint::Hypotf() const { return static_cast<float>(_hypot(X, Y)); }
-FPoint SLAPI FPoint::Swap() const { return FPoint(Y, X); }
-FPoint SLAPI FPoint::Combine(FPoint a, FPoint b) const { return FPoint(a.X*X + a.Y*Y, b.X*X + b.Y*Y); }
+FPoint FPoint::Neg()   const { return FPoint(-X, -Y); }
+float  FPoint::Ratio() const { return (Y / X); }
+float  FPoint::Add()   const { return X + Y; }
+FPoint FPoint::AddX(float x) const { return FPoint(X + x, Y); }
+FPoint FPoint::AddY(float y) const { return FPoint(X, Y + y); }
+float  FPoint::Sub()  const { return X - Y; }
+float  FPoint::Sq()   const { return (X * X + Y * Y); }
+double FPoint::Hypot() const { return _hypot(X, Y); }
+float  FPoint::Hypotf() const { return static_cast<float>(_hypot(X, Y)); }
+FPoint FPoint::Swap() const { return FPoint(Y, X); }
+FPoint FPoint::Combine(FPoint a, FPoint b) const { return FPoint(a.X*X + a.Y*Y, b.X*X + b.Y*Y); }
 
 FPoint FASTCALL operator + (FPoint p,  float addendum) { return FPoint(p.X + addendum, p.Y + addendum); }
 FPoint FASTCALL operator + (FPoint p1, FPoint p2)      { return FPoint(p1.X + p2.X, p1.Y + p2.Y); }

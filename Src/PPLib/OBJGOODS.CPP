@@ -16,13 +16,13 @@ TLP_IMPL(PPObjGoods, GoodsCore, P_Tbl);
 //
 class HistGoodsCore : public HistGoodsTbl {
 public:
-	int    SLAPI Insert(PPID * pHistID, SBuffer * pBuf, int use_ta);
-	int    SLAPI Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec);
-	int    SLAPI Search(PPID histID, SBuffer * pBuf);
-	long   SLAPI GetNextVer(PPID goodsID);
+	int    Insert(PPID * pHistID, SBuffer * pBuf, int use_ta);
+	int    Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec);
+	int    Search(PPID histID, SBuffer * pBuf);
+	long   GetNextVer(PPID goodsID);
 };
 
-int SLAPI HistGoodsCore::Insert(PPID * pHistID, SBuffer * pBuf, int use_ta)
+int HistGoodsCore::Insert(PPID * pHistID, SBuffer * pBuf, int use_ta)
 {
 	int    ok = -1;
 	if(pBuf) {
@@ -45,7 +45,7 @@ int SLAPI HistGoodsCore::Insert(PPID * pHistID, SBuffer * pBuf, int use_ta)
 	return ok;
 }
 
-int SLAPI HistGoodsCore::Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec)
+int HistGoodsCore::Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec)
 {
 	int    ok = -1;
 	int    sp = 0;
@@ -66,7 +66,7 @@ int SLAPI HistGoodsCore::Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec
 	return ok;
 }
 
-int SLAPI HistGoodsCore::Search(PPID histID, SBuffer * pBuf)
+int HistGoodsCore::Search(PPID histID, SBuffer * pBuf)
 {
 	int    ok = -1;
 	HistGoodsTbl::Key0 k;
@@ -83,14 +83,14 @@ int SLAPI HistGoodsCore::Search(PPID histID, SBuffer * pBuf)
 	return ok;
 }
 
-long SLAPI HistGoodsCore::GetNextVer(PPID goodsID)
+long HistGoodsCore::GetNextVer(PPID goodsID)
 {
 	HistGoodsTbl::Rec rec;
 	return (Search(goodsID, 0, &rec) > 0) ? (rec.Ver + 1) : 1;
 }
 #endif // } 0
 //
-/*static*/int SLAPI PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
+/*static*/int PPObjGoods::GetBarcodeDiagText(int diag, SString & rBuf)
 {
 	/*
 	const char * p_line = "OK;Пустой код;Код содержит нецифровые символы;Неверная контрольная цифра EAN13;Неверная контрольная цифра UPCA;\
@@ -106,7 +106,7 @@ long SLAPI HistGoodsCore::GetNextVer(PPID goodsID)
 	return PPGetSubStr(line_buf, diag, rBuf);
 }
 
-/*static*/int SLAPI PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode)
+/*static*/int PPObjGoods::DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode)
 {
 	int    ok = 0;
 	uint   bclen = sstrlen(pBarcode);
@@ -394,7 +394,7 @@ long SLAPI HistGoodsCore::GetNextVer(PPID goodsID)
 //
 #define DEF_MIN_UNIQ_BC_LEN  -11002
 
-static int SLAPI _Lock(PPID id)
+static int _Lock(PPID id)
 {
 	int    r;
 	if(id) {
@@ -408,12 +408,12 @@ static int SLAPI _Lock(PPID id)
 	return 1;
 }
 
-static int SLAPI _Unlock(PPID id)
+static int _Unlock(PPID id)
 {
 	return id ? DS.GetSync().ReleaseMutex(PPOBJ_GOODS, id) : 1;
 }
 
-int SLAPI PPObjGoods::Lock(PPID id)
+int PPObjGoods::Lock(PPID id)
 {
 	int    ok = 1, is_locked = 0;
 	if(id && !Locks.bsearch(id)) {
@@ -429,7 +429,7 @@ int SLAPI PPObjGoods::Lock(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjGoods::Unlock(PPID id)
+int PPObjGoods::Unlock(PPID id)
 {
 	int    ok = 1;
 	uint   p = 0;
@@ -440,7 +440,7 @@ int SLAPI PPObjGoods::Unlock(PPID id)
 	return ok;
 }
 
-void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, PPID kind, void * extraPtr)
+void PPObjGoods::InitInstance(SCtrLite sctr, PPID kind, void * extraPtr)
 {
 	Sctr = sctr;
 	P_Cfg = 0;
@@ -465,19 +465,19 @@ void PPObjGoods::InitConfig()
 }
 
 // Protected constructor
-SLAPI PPObjGoods::PPObjGoods(PPID objType, PPID kind, void * extraPtr) : PPObject(objType)
+PPObjGoods::PPObjGoods(PPID objType, PPID kind, void * extraPtr) : PPObject(objType)
 {
 	InitInstance(SConstructorDef, kind, extraPtr);
 	InitConfig();
 }
 
-SLAPI PPObjGoods::PPObjGoods(void * extraPtr) : PPObject(PPOBJ_GOODS)
+PPObjGoods::PPObjGoods(void * extraPtr) : PPObject(PPOBJ_GOODS)
 {
 	InitInstance(SConstructorDef, PPGDSK_GOODS, extraPtr);
 	InitConfig();
 }
 
-SLAPI PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
+PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
 {
 	InitInstance(sctr, PPGDSK_GOODS, 0);
 	if(Sctr != SConstructorLite) {
@@ -485,7 +485,7 @@ SLAPI PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
 	}
 }
 
-SLAPI PPObjGoods::~PPObjGoods()
+PPObjGoods::~PPObjGoods()
 {
 	delete P_PsnObj;
 	/* @v9.8.11
@@ -496,10 +496,10 @@ SLAPI PPObjGoods::~PPObjGoods()
 	delete P_Cfg;
 }
 
-int SLAPI PPObjGoods::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
-const char * SLAPI PPObjGoods::GetNamePtr() { return P_Tbl->data.Name; }
+int PPObjGoods::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+const char * PPObjGoods::GetNamePtr() { return P_Tbl->data.Name; }
 
-int SLAPI PPObjGoods::FetchNameR(PPID goodsID, SString & rBuf)
+int PPObjGoods::FetchNameR(PPID goodsID, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -515,7 +515,7 @@ int SLAPI PPObjGoods::FetchNameR(PPID goodsID, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPObjGoods::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjGoods::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return (Kind == PPGDSK_GOODS) ? EditSpcRightFlags(DLG_RTGOODS, 0, 0, bufSize, rt, pDlg) : PPObject::EditRights(bufSize, rt, pDlg);
 }
@@ -532,7 +532,7 @@ static PPID SetSingleRefAsEnumProp(PPID objTypeID, PPID * pRefID)
 	return single_id;
 }
 
-int SLAPI PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPID parentID, PPID clsID, const char * pBarcode)
+int PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPID parentID, PPID clsID, const char * pBarcode)
 {
 	MEMSZERO(pPack->Rec);
 	MEMSZERO(pPack->ExtRec);
@@ -616,7 +616,7 @@ int SLAPI PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPI
 	PPERR_DUPBARCODE
 	PPERR_BARCODENEEDED
 */
-int SLAPI PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
+int PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack) {
@@ -642,7 +642,7 @@ int SLAPI PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2, long options, long * pResultFlags)
+int PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2, long options, long * pResultFlags)
 {
 	int    eq = 1;
 	long   result_flags = 0;
@@ -714,7 +714,7 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 	return eq;
 }
 
-int SLAPI PPObjGoods::GetValueAddedData(PPID id, PPGoodsPacket * pPack)
+int PPObjGoods::GetValueAddedData(PPID id, PPGoodsPacket * pPack)
 {
 	int    ok = -1;
 	pPack->ExtString.Z();
@@ -730,7 +730,7 @@ int SLAPI PPObjGoods::GetValueAddedData(PPID id, PPGoodsPacket * pPack)
 #if 0 // @v9.8.11 {
 #define GOODSPACK_VER 3 // @v6.2.0 0-->1; @v7.2.0 1-->2; @v7.7.12 2-->3
 
-int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf)
+int PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf)
 {
 	/* Фиксированная часть записи HistGoodsTbl
 	{
@@ -844,7 +844,7 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 }
 #endif // } 0 @v9.8.11
 
-int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
+int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 {
 	int    ok = 1;
 	id = labs(id);
@@ -939,7 +939,7 @@ int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 	return ok;
 }
 
-int SLAPI PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
+int PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 {
 	int    ok = -1;
 	const  size_t max_nm_len = sizeof(((Goods2Tbl::Rec*)0)->Name)-1;
@@ -973,7 +973,7 @@ int SLAPI PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
+int PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 {
 	int    ok = -1;
 	SString new_name(pNewName);
@@ -1015,7 +1015,7 @@ int SLAPI PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
+int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	int    no_changes = 0; // Устанавливается в 1, если пакет не изменился по сравнению с образом в БД.
@@ -1345,7 +1345,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetGoodsByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, int createIfNExists, int use_ta)
+int PPObjGoods::GetGoodsByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, int createIfNExists, int use_ta)
 {
 	int    ok = -1;
 	PPID   goods_id = 0;
@@ -1373,13 +1373,13 @@ int SLAPI PPObjGoods::GetGoodsByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGo
 	return ok;
 }
 
-int SLAPI PPObjGoods::FetchUnit(PPID unitID, PPUnit * pUnitRec)
+int PPObjGoods::FetchUnit(PPID unitID, PPUnit * pUnitRec)
 {
 	PPObjUnit unit_obj;
 	return unit_obj.Fetch(unitID, pUnitRec);
 }
 
-int SLAPI PPObjGoods::TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec, PPID baseUnitID, double * pRate)
+int PPObjGoods::TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec, PPID baseUnitID, double * pRate)
 {
 	int    ok = -1;
 	double rate = 0.0;
@@ -1408,14 +1408,14 @@ int SLAPI PPObjGoods::TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec,
 	return ok;
 }
 
-int SLAPI PPObjGoods::FetchTax(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
+int PPObjGoods::FetchTax(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
 {
 	Goods2Tbl::Rec grec;
 	memzero(pGtx, sizeof(*pGtx));
 	return (Fetch(goodsID, &grec) > 0 && grec.TaxGrpID) ? GTxObj.Fetch(grec.TaxGrpID, dt, opID, pGtx) : -1;
 }
 
-int SLAPI PPObjGoods::FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * pClsPack)
+int PPObjGoods::FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * pClsPack)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
@@ -1427,7 +1427,7 @@ int SLAPI PPObjGoods::FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPack
 	return ok;
 }
 
-void SLAPI PPObjGoods::AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * pPrice, int exclSTax)
+void PPObjGoods::AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * pPrice, int exclSTax)
 {
 	double p = *pPrice;
 	GTaxVect vect;
@@ -1439,19 +1439,19 @@ void SLAPI PPObjGoods::AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double *
 	*pPrice = p;
 }
 
-void SLAPI PPObjGoods::AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
+void PPObjGoods::AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 	LDATE lotDate, double qtty, double * pCost /* In, Out */, int withOrWithout, int vatFreeSuppl)
 {
 	Helper_AdjCostToVat(lotTaxGrpID, goodsTaxGrpID, lotDate, qtty, pCost, 0, withOrWithout, vatFreeSuppl, 2);
 }
 
-void SLAPI PPObjGoods::CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
+void PPObjGoods::CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 	LDATE lotDate, double qtty, double cost, double * pSum, int withOrWithout, int vatFreeSuppl, int roundPrec)
 {
 	Helper_AdjCostToVat(lotTaxGrpID, goodsTaxGrpID, lotDate, qtty, &cost, pSum, withOrWithout, vatFreeSuppl, roundPrec);
 }
 
-void SLAPI PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
+void PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 	LDATE lotDate, double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec)
 {
 	double c = *pCost;
@@ -1493,7 +1493,7 @@ void SLAPI PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 	ASSIGN_PTR(pVatSum, vat_sum);
 }
 
-int SLAPI PPObjGoods::Helper_SearchMaxLikeByBarcode(const char * pCode, PPID * pID)
+int PPObjGoods::Helper_SearchMaxLikeByBarcode(const char * pCode, PPID * pID)
 {
 	int    ok = -1;
 	InitConfig();
@@ -1512,7 +1512,7 @@ int SLAPI PPObjGoods::Helper_SearchMaxLikeByBarcode(const char * pCode, PPID * p
 	return ok;
 }
 
-int SLAPI PPObjGoods::SearchMaxLike(const PPGoodsPacket * pPack, PPID * pID)
+int PPObjGoods::SearchMaxLike(const PPGoodsPacket * pPack, PPID * pID)
 {
 	int    ok = -1;
 	if(SearchByName(pPack->Rec.Name, pID) > 0)
@@ -1541,18 +1541,18 @@ int SLAPI PPObjGoods::SearchMaxLike(const PPGoodsPacket * pPack, PPID * pID)
 //
 //
 //
-SLAPI GoodsSubstItem::GoodsSubstItem()
+GoodsSubstItem::GoodsSubstItem()
 {
 	THISZERO();
 }
 
 IMPL_CMPFUNC(GoodsSubstList_AssocItem, p1, p2) { RET_CMPCASCADE4((const GoodsSubstList::AssocItem *)p1, (const GoodsSubstList::AssocItem *)p2, SrcGoodsID, LocID, LotID, Dt); }
 
-SLAPI GoodsSubstList::InnerAssocItem::InnerAssocItem(PPID substID) : SubstID(substID)
+GoodsSubstList::InnerAssocItem::InnerAssocItem(PPID substID) : SubstID(substID)
 {
 }
 
-int SLAPI GoodsSubstList::InnerAssocItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int GoodsSubstList::InnerAssocItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, SubstID, rBuf));
@@ -1561,17 +1561,17 @@ int SLAPI GoodsSubstList::InnerAssocItem::Serialize(int dir, SBuffer & rBuf, SSe
 	return ok;
 }
 
-uint SLAPI GoodsSubstList::InnerAssocItem::SearchAssoc(const GoodsSubstList::AssocItem & rPattern) const
+uint GoodsSubstList::InnerAssocItem::SearchAssoc(const GoodsSubstList::AssocItem & rPattern) const
 {
 	uint   pos = 0;
 	return List.lsearch(&rPattern, &pos, PTR_CMPFUNC(GoodsSubstList_AssocItem)) ? (pos+1) : 0;
 }
 
-SLAPI GoodsSubstList::AssocCollection::AssocCollection() : TSCollection <InnerAssocItem> ()
+GoodsSubstList::AssocCollection::AssocCollection() : TSCollection <InnerAssocItem> ()
 {
 }
 
-int SLAPI GoodsSubstList::AssocCollection::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int GoodsSubstList::AssocCollection::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	InnerAssocItem * p_new_item = 0;
@@ -1600,18 +1600,18 @@ int SLAPI GoodsSubstList::AssocCollection::Serialize(int dir, SBuffer & rBuf, SS
 	return ok;
 }
 
-SLAPI GoodsSubstList::GoodsSubstList(int saveAssoc) : SStrGroup(), P_Arp(0), P_Goa(0), SaveAssoc(saveAssoc)
+GoodsSubstList::GoodsSubstList(int saveAssoc) : SStrGroup(), P_Arp(0), P_Goa(0), SaveAssoc(saveAssoc)
 {
 	//StrPool.add("$"); // zero index - is empty string
 }
 
-SLAPI GoodsSubstList::~GoodsSubstList()
+GoodsSubstList::~GoodsSubstList()
 {
 	delete P_Arp;
 	delete P_Goa;
 }
 
-void SLAPI GoodsSubstList::Init(int saveAssoc, const GoodsSubstList * pSrc)
+void GoodsSubstList::Init(int saveAssoc, const GoodsSubstList * pSrc)
 {
 	SaveAssoc = saveAssoc;
 	Clear();
@@ -1619,7 +1619,7 @@ void SLAPI GoodsSubstList::Init(int saveAssoc, const GoodsSubstList * pSrc)
 		List = pSrc->List;
 }
 
-int SLAPI GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, SaveAssoc, rBuf));
@@ -1662,7 +1662,7 @@ IMPL_CMPFUNC(GoodsSubstItem_Srch, p1, p2)
 	}
 }
 
-int SLAPI GoodsSubstList::AddItem(const GoodsSubstItem & rItem, const AssocItem & rAssocItem, PPID * pID)
+int GoodsSubstList::AddItem(const GoodsSubstItem & rItem, const AssocItem & rAssocItem, PPID * pID)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -1689,7 +1689,7 @@ int SLAPI GoodsSubstList::AddItem(const GoodsSubstItem & rItem, const AssocItem 
 	return ok;
 }
 
-int SLAPI GoodsSubstList::GetItem(PPID id, GoodsSubstItem * pItem) const
+int GoodsSubstList::GetItem(PPID id, GoodsSubstItem * pItem) const
 {
 	uint   pos = 0;
 	if(List.lsearch(&id, &pos, CMPF_LONG)) {
@@ -1708,7 +1708,7 @@ int SLAPI GoodsSubstList::GetItem(PPID id, GoodsSubstItem * pItem) const
 		return -1;
 }
 
-void SLAPI GoodsSubstList::Clear()
+void GoodsSubstList::Clear()
 {
 	List.freeAll();
 	AsscList.freeAll();
@@ -1717,7 +1717,7 @@ void SLAPI GoodsSubstList::Clear()
 	SStrGroup::ClearS();
 }
 
-int SLAPI GoodsSubstList::AddToAssoc(PPID substID, const AssocItem & rAssocItem)
+int GoodsSubstList::AddToAssoc(PPID substID, const AssocItem & rAssocItem)
 {
 	int    ok = -1;
 	if(SaveAssoc) {
@@ -1738,13 +1738,13 @@ int SLAPI GoodsSubstList::AddToAssoc(PPID substID, const AssocItem & rAssocItem)
 	return ok;
 }
 
-long SLAPI GoodsSubstList::GetAssocCount(PPID substID) const
+long GoodsSubstList::GetAssocCount(PPID substID) const
 {
 	uint   pos = 0;
 	return AsscList.lsearch(&substID, &pos, CMPF_LONG) ? AsscList.at(pos)->List.getCount() : 0;
 }
 
-int SLAPI GoodsSubstList::GetSubstList(PPIDArray & rList) const
+int GoodsSubstList::GetSubstList(PPIDArray & rList) const
 {
 	int    ok = -1;
 	rList.clear();
@@ -1756,7 +1756,7 @@ int SLAPI GoodsSubstList::GetSubstList(PPIDArray & rList) const
 	return ok;
 }
 
-int SLAPI GoodsSubstList::GetGoodsBySubstID(PPID substID, PPIDArray * pList) const
+int GoodsSubstList::GetGoodsBySubstID(PPID substID, PPIDArray * pList) const
 {
 	int    ok = -1;
 	if(pList) {
@@ -1777,7 +1777,7 @@ int SLAPI GoodsSubstList::GetGoodsBySubstID(PPID substID, PPIDArray * pList) con
 	return ok;
 }
 
-int SLAPI GoodsSubstList::GetGoodsBySubstID(PPID substID, ObjIdListFilt * pGoodsList) const
+int GoodsSubstList::GetGoodsBySubstID(PPID substID, ObjIdListFilt * pGoodsList) const
 {
 	int    ok = -1;
 	if(pGoodsList) {
@@ -1792,7 +1792,7 @@ int SLAPI GoodsSubstList::GetGoodsBySubstID(PPID substID, ObjIdListFilt * pGoods
 	return ok;
 }
 
-PPID SLAPI GoodsSubstList::SubstAlcoCategory(PPID goodsID)
+PPID GoodsSubstList::SubstAlcoCategory(PPID goodsID)
 {
 	long   arp_pos = 0;
 	if(P_Arp == 0) {
@@ -1811,7 +1811,7 @@ PPID SLAPI GoodsSubstList::SubstAlcoCategory(PPID goodsID)
 	return (arp_pos | GOODSSUBSTMASK);
 }
 
-int SLAPI GoodsSubstList::GetAlcoCategoryText(PPID substID, SString & rBuf) const
+int GoodsSubstList::GetAlcoCategoryText(PPID substID, SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -1823,7 +1823,7 @@ int SLAPI GoodsSubstList::GetAlcoCategoryText(PPID substID, SString & rBuf) cons
 	return ok;
 }
 
-PPID SLAPI GoodsSubstList::SubstLocAssoc(PPID goodsID)
+PPID GoodsSubstList::SubstLocAssoc(PPID goodsID)
 {
 	PPID   assoc_id = 0;
 	if(P_Goa == 0) {
@@ -1834,7 +1834,7 @@ PPID SLAPI GoodsSubstList::SubstLocAssoc(PPID goodsID)
 	return (assoc_id | GOODSSUBSTMASK);
 }
 
-int SLAPI GoodsSubstList::GetLocAssocText(PPID substID, SString & rBuf) const
+int GoodsSubstList::GetLocAssocText(PPID substID, SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -1846,12 +1846,12 @@ int SLAPI GoodsSubstList::GetLocAssocText(PPID substID, SString & rBuf) const
 	return ok;
 }
 
-SLAPI PPObjGoods::SubstBlock::SubstBlock()
+PPObjGoods::SubstBlock::SubstBlock()
 {
 	THISZERO();
 }
 
-int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const SubstBlock * pBlk, GoodsSubstList * pGsl)
+int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const SubstBlock * pBlk, GoodsSubstList * pGsl)
 {
 	int    ok = 1;
 	PPID   goods_id = srcID;
@@ -2067,7 +2067,7 @@ int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, 
 	return ok;
 }
 
-void SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList * pGsl, SString & rBuf)
+void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList * pGsl, SString & rBuf)
 {
 	rBuf.Z();
 	if(sgg > sggTagBias) {
@@ -2206,7 +2206,7 @@ void SLAPI PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubst
 	}
 }
 
-int SLAPI PPObjGoods::GetParentID(PPID id, PPID * pParentID)
+int PPObjGoods::GetParentID(PPID id, PPID * pParentID)
 {
 	Goods2Tbl::Rec goods_rec;
 	if(id > 0 && Search(id, &goods_rec) > 0) {
@@ -2219,7 +2219,7 @@ int SLAPI PPObjGoods::GetParentID(PPID id, PPID * pParentID)
 	}
 }
 
-int SLAPI PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, double * pPhUPerU)
+int PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, double * pPhUPerU)
 {
 	int    ok = -1;
 	PPID   ph_unit_id = 0;
@@ -2242,14 +2242,14 @@ int SLAPI PPObjGoods::GetPhUPerU(const Goods2Tbl::Rec * pRec, PPID * pPhUnitID, 
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetPhUPerU(PPID goodsID, PPID * pPhUnitID, double * pPhUPerU)
+int PPObjGoods::GetPhUPerU(PPID goodsID, PPID * pPhUnitID, double * pPhUPerU)
 {
 	Goods2Tbl::Rec goods_rec;
 	return (goodsID && Fetch(goodsID, &goods_rec) > 0) ?
 		GetPhUPerU(&goods_rec, pPhUnitID, pPhUPerU) : GetPhUPerU(static_cast<const Goods2Tbl::Rec *>(0), pPhUnitID, pPhUPerU);
 }
 
-int SLAPI PPObjGoods::ValidateGoodsParent(PPID parentID)
+int PPObjGoods::ValidateGoodsParent(PPID parentID)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
@@ -2262,25 +2262,25 @@ int SLAPI PPObjGoods::ValidateGoodsParent(PPID parentID)
 	return ok;
 }
 
-int SLAPI PPObjGoods::Fetch(PPID id, Goods2Tbl::Rec * rec) { return P_Tbl->Fetch(id, rec); }
-int SLAPI PPObjGoods::SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec) { return P_Tbl->SearchByName(Kind, pName, pID, pRec); }
-int SLAPI PPObjGoods::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID) { return P_Tbl->BelongToGroup(id, grp, pSubGrpID); }
-int SLAPI PPObjGoods::IsAltGroup(PPID grpID) { return P_Tbl->IsAltGroup(grpID); }
-int SLAPI PPObjGoods::IsTempAltGroup(PPID grpID) { return P_Tbl->IsTempAltGroup(grpID); }
-int SLAPI PPObjGoods::IsDynamicAltGroup(PPID grpID) { return P_Tbl->IsDynamicAltGroup(grpID); }
-int SLAPI PPObjGoods::IsGoodsCompatibleByUnit(PPID id1, PPID id2, double * ratio) { return P_Tbl->IsCompatibleByUnit(id1, id2, ratio); }
-int SLAPI PPObjGoods::GetGenericList(PPID genID, PPIDArray * pList) { return P_Tbl->GetGenericList(genID, pList); }
-int SLAPI PPObjGoods::BelongToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b) { return P_Tbl->BelongToGen(goodsID, gen, b); }
-int SLAPI PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta) { return P_Tbl->AssignGoodsToGen(goodsID, genID, abbr, use_ta); }
-int SLAPI PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta) { return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
-int SLAPI PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta) { return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
-int SLAPI PPObjGoods::ReadBarcodes(PPID id, BarcodeArray & rAry) { return P_Tbl->ReadBarcodes(id, rAry); }
-int SLAPI PPObjGoods::GetSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->GetSingleBarcode(id, rBuf); }
-int SLAPI PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->FetchSingleBarcode(id, rBuf); }
-int SLAPI PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
-int SLAPI PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
+int PPObjGoods::Fetch(PPID id, Goods2Tbl::Rec * rec) { return P_Tbl->Fetch(id, rec); }
+int PPObjGoods::SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec) { return P_Tbl->SearchByName(Kind, pName, pID, pRec); }
+int PPObjGoods::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID) { return P_Tbl->BelongToGroup(id, grp, pSubGrpID); }
+int PPObjGoods::IsAltGroup(PPID grpID) { return P_Tbl->IsAltGroup(grpID); }
+int PPObjGoods::IsTempAltGroup(PPID grpID) { return P_Tbl->IsTempAltGroup(grpID); }
+int PPObjGoods::IsDynamicAltGroup(PPID grpID) { return P_Tbl->IsDynamicAltGroup(grpID); }
+int PPObjGoods::IsGoodsCompatibleByUnit(PPID id1, PPID id2, double * ratio) { return P_Tbl->IsCompatibleByUnit(id1, id2, ratio); }
+int PPObjGoods::GetGenericList(PPID genID, PPIDArray * pList) { return P_Tbl->GetGenericList(genID, pList); }
+int PPObjGoods::BelongToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b) { return P_Tbl->BelongToGen(goodsID, gen, b); }
+int PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta) { return P_Tbl->AssignGoodsToGen(goodsID, genID, abbr, use_ta); }
+int PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta) { return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
+int PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta) { return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
+int PPObjGoods::ReadBarcodes(PPID id, BarcodeArray & rAry) { return P_Tbl->ReadBarcodes(id, rAry); }
+int PPObjGoods::GetSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->GetSingleBarcode(id, rBuf); }
+int PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->FetchSingleBarcode(id, rBuf); }
+int PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
+int PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
 
-int SLAPI PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // @obsolete
+int PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // @obsolete
 {
 	SString temp_buf;
 	int ok = P_Tbl->GetSingleBarcode(id, temp_buf);
@@ -2288,12 +2288,12 @@ int SLAPI PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // 
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetBarcodeByTemplate(PPID grp, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
+int PPObjGoods::GetBarcodeByTemplate(PPID grp, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
 	{ return P_Tbl->GetBarcodeByTemplate(grp, GetConfig(), pTempl, pCurrentList, rBuf); }
 
-/* @v9.1.4 int SLAPI PPObjGoods::GetGoodsArticle(PPID id, PPID * pArticle) { return tbl->GetGoodsArticle(id, pArticle); } */
+/* @v9.1.4 int PPObjGoods::GetGoodsArticle(PPID id, PPID * pArticle) { return tbl->GetGoodsArticle(id, pArticle); } */
 
-int SLAPI PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
+int PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
 {
 	int      is_found = 0;
 	SString  gds_code;
@@ -2307,24 +2307,24 @@ int SLAPI PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
 	return is_found;
 }
 
-int SLAPI PPObjGoods::CheckFlag(PPID goodsID, long flag)
+int PPObjGoods::CheckFlag(PPID goodsID, long flag)
 {
 	Goods2Tbl::Rec goods_rec;
 	return BIN(Fetch(labs(goodsID), &goods_rec) > 0 && (goods_rec.Flags & flag) == flag);
 }
 
-int SLAPI PPObjGoods::IsAssetType(PPID goodsTypeID)
+int PPObjGoods::IsAssetType(PPID goodsTypeID)
 {
 	PPGoodsType gt_rec;
 	return BIN(goodsTypeID && GtObj.Fetch(goodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ASSETS);
 }
 
-int SLAPI PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec)
+int PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec)
 {
 	return GtObj.Fetch(goodsTypeID, pGtRec);
 }
 
-int SLAPI PPObjGoods::MultTaxFactor(PPID goodsID, double * pVal)
+int PPObjGoods::MultTaxFactor(PPID goodsID, double * pVal)
 {
 	if(CConfig.Flags & CCFLG_USEGDSCLS) {
 		GoodsExtTbl::Rec gext_rec;
@@ -2336,7 +2336,7 @@ int SLAPI PPObjGoods::MultTaxFactor(PPID goodsID, double * pVal)
 	return -1;
 }
 
-int SLAPI PPObjGoods::Unite(PPID destID, PPID srcID)
+int PPObjGoods::Unite(PPID destID, PPID srcID)
 {
 	int    ok = 1;
 	if(Obj == PPOBJ_GOODS) {
@@ -2385,7 +2385,7 @@ int SLAPI PPObjGoods::Unite(PPID destID, PPID srcID)
 	return ok;
 }
 
-int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	Goods2Tbl::Rec rec;
@@ -2504,7 +2504,7 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 //
 // @v10.7.9 Удалено использование TaggedStringArray
 //
-int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
+int PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 {
 	int    ok = 1;
 	const  int  all = BIN(GetConfig().Flags & GCF_ADDTOALTGRPWITHOUTMSG);
@@ -2553,7 +2553,7 @@ int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 }
 
 #if 0 // @v10.7.9 {
-int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
+int PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 {
 	int    ok = 1;
 	int    all = BIN(GetConfig().Flags & GCF_ADDTOALTGRPWITHOUTMSG);
@@ -2599,7 +2599,7 @@ int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 }
 #endif // } 0
 
-int SLAPI PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec, PPID * pCountryID, PPCountryBlock * pBlk)
+int PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec, PPID * pCountryID, PPCountryBlock * pBlk)
 {
 	Goods2Tbl::Rec rec;
 	CALLPTRMEMB(pBlk, Z());
@@ -2611,7 +2611,7 @@ int SLAPI PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec,
 	return SETIFZ(P_PsnObj, new PPObjPerson) ? P_PsnObj->GetCountry(pRec->ManufID, pCountryID, pBlk) : PPSetErrorNoMem();
 }
 
-int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
+int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 {
 	#define CFF_RET  return negation ? 1 : 0
 
@@ -2813,7 +2813,7 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 #undef CFF_RET
 }
 
-int SLAPI PPObjGoods::GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHashTable & rHash)
+int PPObjGoods::GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHashTable & rHash)
 {
 	const uint Threshold = 30;
 
@@ -2902,7 +2902,7 @@ int SLAPI PPObjGoods::GetOpenedList(PPID locID, const PPIDArray * pOverlapList, 
 	return ok;
 }
 
-ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long options, void * extraPtr, PPID locID, PPID mtxLocID)
+ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long options, void * extraPtr, PPID locID, PPID mtxLocID)
 {
 	struct LbxDataGoods {
 		long   ParentID;
@@ -3074,7 +3074,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 	return p_def;
 }
 
-/*virtual*/StrAssocArray * SLAPI PPObjGoods::MakeStrAssocList(void * extraPtr)
+/*virtual*/StrAssocArray * PPObjGoods::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocListBoxDef * p_def = static_cast<StrAssocListBoxDef *>(PPObjGoods::Selector(extraPtr));
 	StrAssocArray * p_ret_list = 0;
@@ -3086,7 +3086,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 	return p_ret_list;
 }
 
-void SLAPI PPObjGoods::GenGroupCode(int numDigits, SString & rBuf)
+void PPObjGoods::GenGroupCode(int numDigits, SString & rBuf)
 {
 	char   temp[32], code[32];
 	if(numDigits <= 0 || numDigits > 8)
@@ -3103,7 +3103,7 @@ void SLAPI PPObjGoods::GenGroupCode(int numDigits, SString & rBuf)
 	rBuf = temp;
 }
 
-int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
+int PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack) {
@@ -3171,7 +3171,7 @@ int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 //   0  - после модификации код не найден
 //   <0 - не удалось модифицировать код
 //
-int SLAPI PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec)
+int PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec)
 {
 	int    ok = -1;
 	const  SString org_bc(pCode);
@@ -3226,7 +3226,7 @@ int SLAPI PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, 
 	return ok;
 }
 
-int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * b, int adoptSearching)
+int PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * b, int adoptSearching)
 {
 	int    r = 1;
 	const  int bcchkdig = BIN(GetConfig().Flags & GCF_BCCHKDIG);
@@ -3267,12 +3267,12 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 	return r;
 }
 
-int SLAPI PPObjGoods::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
+int PPObjGoods::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
 	{ return P_Tbl->SearchBy2dBarcode(pCodeLine, pRec, pGoodsRec); }
-int SLAPI PPObjGoods::DeleteObj(PPID id)
+int PPObjGoods::DeleteObj(PPID id)
 	{ return PutPacket(&id, 0, 0); }
 
-StrAssocArray * SLAPI PPObjGoods::CreateListByList(const PPIDArray * pIdList)
+StrAssocArray * PPObjGoods::CreateListByList(const PPIDArray * pIdList)
 {
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
@@ -3288,7 +3288,7 @@ StrAssocArray * SLAPI PPObjGoods::CreateListByList(const PPIDArray * pIdList)
 	return p_list;
 }
 
-StrAssocArray * SLAPI PPObjGoods::CreateListByPrice(PPID locID, double price)
+StrAssocArray * PPObjGoods::CreateListByPrice(PPID locID, double price)
 {
 	StrAssocArray * p_list = 0;
 	PPIDArray id_list;
@@ -3329,7 +3329,7 @@ StrAssocArray * SLAPI PPObjGoods::CreateListByPrice(PPID locID, double price)
 	return p_list;
 }
 
-int SLAPI PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
+int PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 {
 	CALLPTRMEMB(pList, Z());
 	int    ok = -1;
@@ -3353,12 +3353,12 @@ int SLAPI PPObjGoods::GetHierarchy(PPID goodsID, StrAssocArray * pList)
 	return ok;
 }
 
-ListBoxDef * SLAPI PPObjGoods::Selector(void * extraPtr)
+ListBoxDef * PPObjGoods::Selector(void * extraPtr)
 	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::Selector(extraPtr) : _Selector2(0, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0); }
-int SLAPI PPObjGoods::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+int PPObjGoods::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 	{ return (ImplementFlags & implStrAssocMakeList) ? PPObject::UpdateSelector(pDef, extraPtr) : BIN(_Selector2(pDef, reinterpret_cast<long>(extraPtr), 0, 0, 0, 0)); }
 
-int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
+int PPObjGoods::Browse(void * extraPtr /*groupID*/)
 {
 	const PPID group_id = reinterpret_cast<PPID>(extraPtr);
 	if(group_id) {
@@ -3370,12 +3370,12 @@ int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
 		return PPView::Execute(PPVIEW_GOODS, 0, 1, 0);
 }
 
-const PPGoodsConfig & SLAPI PPObjGoods::GetConfig() const
+const PPGoodsConfig & PPObjGoods::GetConfig() const
 	{ return *P_Cfg; }
-int SLAPI PPObjGoods::Edit(PPID * pID, void * extraPtr /*group*/)
+int PPObjGoods::Edit(PPID * pID, void * extraPtr /*group*/)
 	{ return Edit(pID, gpkndGoods, reinterpret_cast<PPID>(extraPtr), 0, 0); }
 
-int SLAPI PPObjGoods::ViewVersion(PPID histID)
+int PPObjGoods::ViewVersion(PPID histID)
 {
 	int    ok = -1;
 	if(histID) {
@@ -3396,7 +3396,7 @@ int SLAPI PPObjGoods::ViewVersion(PPID histID)
 	return ok;
 }
 
-int SLAPI PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
+int PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 {
 	int    ok = -1, cmd = 0;
 	PPObjGoodsClass gc_obj;
@@ -3421,7 +3421,7 @@ int SLAPI PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 	return ok;
 }
 
-int SLAPI PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind gpk, int isNew, int viewOnly /*=0*/)
+int PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind gpk, int isNew, int viewOnly /*=0*/)
 {
 	MemLeakTracer mlt;
 	int    r = cmCancel;
@@ -3509,7 +3509,7 @@ int SLAPI PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacket
 	return r;
 }
 
-int SLAPI PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
+int PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack && pPack->Rec.Kind == PPGDSK_GOODS) {
@@ -3531,7 +3531,7 @@ int SLAPI PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjGoods::Edit(PPID * pID, GoodsPacketKind gpk, long group, PPID clsID, const char * pBarcode)
+int PPObjGoods::Edit(PPID * pID, GoodsPacketKind gpk, long group, PPID clsID, const char * pBarcode)
 {
 	int    r = cmCancel, is_locked = 0, is_new = 0;
 	TDialog * kind_dlg = 0;
@@ -3573,7 +3573,7 @@ int SLAPI PPObjGoods::Edit(PPID * pID, GoodsPacketKind gpk, long group, PPID cls
 	return r;
 }
 
-int SLAPI PPObjGoods::AddBySample(PPID * pID, PPID sampleID)
+int PPObjGoods::AddBySample(PPID * pID, PPID sampleID)
 {
 	int    ok = cmCancel;
 	PPGoodsPacket pack;
@@ -3605,7 +3605,7 @@ int SLAPI PPObjGoods::AddBySample(PPID * pID, PPID sampleID)
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoods, PPGoodsPacket);
 
-int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		uint   i;
@@ -3685,7 +3685,7 @@ int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	return -1;
 }
 
-int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv)
+int PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv)
 {
 	int    ok = 1;
 	InitConfig();
@@ -3753,7 +3753,7 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 	return ok;
 }
 
-int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPGoodsPacket);
@@ -3796,7 +3796,7 @@ int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 // на пустой код.
 //
 // private
-int SLAPI PPObjGoods::RemoveDupBarcodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
+int PPObjGoods::RemoveDupBarcodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 {
 	if(oneof2(pPack->Rec.Kind, PPGDSK_GROUP, PPGDSK_GOODS)) {
 		SString fmt_buf, msg_buf, text_buf, code_buf;
@@ -3816,7 +3816,7 @@ int SLAPI PPObjGoods::RemoveDupBarcodes(PPGoodsPacket * pPack, ObjTransmContext 
 	return 1;
 }
 
-int SLAPI PPObjGoods::RemoveDupArCodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
+int PPObjGoods::RemoveDupArCodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 {
 	if(pPack->Rec.Kind == PPGDSK_GOODS) {
 		SString fmt_buf, msg_buf;
@@ -3836,7 +3836,7 @@ int SLAPI PPObjGoods::RemoveDupArCodes(PPGoodsPacket * pPack, ObjTransmContext *
 	return 1;
 }
 
-int SLAPI PPObjGoods::AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx)
+int PPObjGoods::AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(*pID) {
@@ -3852,7 +3852,7 @@ int SLAPI PPObjGoods::AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmCon
 	return ok;
 }
 
-int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx)
+int PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 {
 	//
 	// Если в пакете установлен флаг GF_TRANSQUOT, то сам пакет не изменяем, а меняем только котировки.
@@ -3906,7 +3906,7 @@ int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmC
 //
 //
 //
-int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -3961,15 +3961,15 @@ int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 //
 //
 //
-int SLAPI GoodsStockExt::Pallet::IsValid() const
+int GoodsStockExt::Pallet::IsValid() const
 	{ return BIN(PalletTypeID && PacksPerLayer > 0 && MaxLayers > 0); }
 
-SLAPI GoodsStockExt::GoodsStockExt()
+GoodsStockExt::GoodsStockExt()
 {
 	Init();
 }
 
-int SLAPI GoodsStockExt::IsEmpty() const
+int GoodsStockExt::IsEmpty() const
 {
 	int    min_stock_empty = 1;
 	uint   min_stock_count = MinStockList.getCount();
@@ -4004,7 +4004,7 @@ int FASTCALL GoodsStockExt::IsEqual(const GoodsStockExt & rS) const
 		return 1;
 }
 
-int SLAPI GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, Brutto, rBuf));
@@ -4023,7 +4023,7 @@ int SLAPI GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	return ok;
 }
 
-double SLAPI GoodsStockExt::CalcBrutto(double qtty) const
+double GoodsStockExt::CalcBrutto(double qtty) const
 {
 	double count = 0.0;
 	if(Package > 0) {
@@ -4039,7 +4039,7 @@ double SLAPI GoodsStockExt::CalcBrutto(double qtty) const
 	return (count * (double)Brutto) / 1000.0;
 }
 
-double SLAPI GoodsStockExt::CalcVolume(double qtty) const
+double GoodsStockExt::CalcVolume(double qtty) const
 {
 	double count = 0.0;
 	if(Package > 0.0) {
@@ -4055,10 +4055,10 @@ double SLAPI GoodsStockExt::CalcVolume(double qtty) const
 	return (count * PckgDim.CalcVolumeM());
 }
 
-void SLAPI GoodsStockExt::SetVolume(double volume)
+void GoodsStockExt::SetVolume(double volume)
 	{ PckgDim.SetVolumeM(volume); }
 
-void SLAPI GoodsStockExt::Init()
+void GoodsStockExt::Init()
 {
 	memzero(this, offsetof(GoodsStockExt, MinStockList));
 	MinStockList.clear();
@@ -4073,7 +4073,7 @@ GoodsStockExt & FASTCALL GoodsStockExt::operator = (const GoodsStockExt & rSrc)
 	return *this;
 }
 
-double SLAPI GoodsStockExt::GetMaxMinStock(PPID * pLocID)
+double GoodsStockExt::GetMaxMinStock(PPID * pLocID)
 {
 	uint min_stock_count = MinStockList.getCount();
 	double min_stock = 0;
@@ -4090,7 +4090,7 @@ double SLAPI GoodsStockExt::GetMaxMinStock(PPID * pLocID)
 	return min_stock;
 }
 
-double SLAPI GoodsStockExt::GetMinStock(PPID locID, int useZeroLoc /*=1*/)
+double GoodsStockExt::GetMinStock(PPID locID, int useZeroLoc /*=1*/)
 {
 	double min_stock = MinStockList.Get(locID, 0);
 	if(min_stock == 0.0 && locID && useZeroLoc)
@@ -4098,7 +4098,7 @@ double SLAPI GoodsStockExt::GetMinStock(PPID locID, int useZeroLoc /*=1*/)
 	return min_stock;
 }
 
-void SLAPI GoodsStockExt::SetMinStock(PPID locID, double qtty)
+void GoodsStockExt::SetMinStock(PPID locID, double qtty)
 {
 	uint pos = 0;
 	if(MinStockList.Search(locID, 0, &pos, 1) > 0)
@@ -4107,7 +4107,7 @@ void SLAPI GoodsStockExt::SetMinStock(PPID locID, double qtty)
 		MinStockList.Add(locID, qtty, 0, 1);
 }
 
-int SLAPI GoodsStockExt::GetPalletEntry(PPID palletTypeID, Pallet * pEntry) const
+int GoodsStockExt::GetPalletEntry(PPID palletTypeID, Pallet * pEntry) const
 {
 	int    ok = -1;
 	if(palletTypeID <= 0)
@@ -4124,7 +4124,7 @@ int SLAPI GoodsStockExt::GetPalletEntry(PPID palletTypeID, Pallet * pEntry) cons
 	return ok;
 }
 
-int SLAPI GoodsStockExt::GetSinglePalletEntry(Pallet * pEntry) const
+int GoodsStockExt::GetSinglePalletEntry(Pallet * pEntry) const
 {
 	int    ok = -1;
 	const  uint c = PltList.getCount();
@@ -4155,7 +4155,7 @@ int SLAPI GoodsStockExt::GetSinglePalletEntry(Pallet * pEntry) const
 	return ok;
 }
 
-int SLAPI GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, PPID palletTypeID, double srcVal, double * pDestVal, long flags) const
+int GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, PPID palletTypeID, double srcVal, double * pDestVal, long flags) const
 {
 	int    ok = -1;
 	double result = 0.0;
@@ -4240,10 +4240,10 @@ int SLAPI GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, P
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
+int PPObjGoods::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
 	{ return P_Tbl->GetStockExt(id, pData, useCache); }
 
-int SLAPI PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
+int PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
 {
 	int    ok = -1;
 	PPID   gen_id = 0;
@@ -4263,7 +4263,7 @@ int SLAPI PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * p
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray * pList)
+int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray * pList)
 {
 	int    ok = -1;
 	PPGoodsStruc gs;
@@ -4281,7 +4281,7 @@ int SLAPI PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList)
+int PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray & rList)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4295,13 +4295,13 @@ int SLAPI PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray
 	return ok;
 }
 
-/*virtual*/int  SLAPI PPObjGoods::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int  PPObjGoods::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	SETFLAG(options, not_addtolog, 1);
 	return PPObject::RemoveObjV(id, pObjColl, options, pExtraParam);
 }
 
-int SLAPI PPObjGoods::GetRandomIdsAry(int count, PPIDArray * pAry)
+int PPObjGoods::GetRandomIdsAry(int count, PPIDArray * pAry)
 {
 	int    ok = -1;
 	if(pAry) {
@@ -4323,7 +4323,7 @@ int SLAPI PPObjGoods::GetRandomIdsAry(int count, PPIDArray * pAry)
 	return ok;
 }
 
-int SLAPI PPObjGoods::CheckSpecQuot(PPID supplID, PPID goodsID, PPID locID, PPID currID)
+int PPObjGoods::CheckSpecQuot(PPID supplID, PPID goodsID, PPID locID, PPID currID)
 {
 	int    ok = 1;
 	if(supplID) {
@@ -4338,7 +4338,7 @@ int SLAPI PPObjGoods::CheckSpecQuot(PPID supplID, PPID goodsID, PPID locID, PPID
 	return ok;
 }
 
-double SLAPI PPObjGoods::CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2Tbl::Rec * pRec2, int * pSwap, long extra)
+double PPObjGoods::CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2Tbl::Rec * pRec2, int * pSwap, long extra)
 {
 	int    swap = (sstrlen(pRec1->Name) > sstrlen(pRec2->Name)) ? 0 : 1;
 	double rate = 0.0;
@@ -4347,16 +4347,16 @@ double SLAPI PPObjGoods::CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2
 	return rate;
 }
 
-int SLAPI PPObjGoods::GetTagList(PPID goodsID, ObjTagList * pTagList)
+int PPObjGoods::GetTagList(PPID goodsID, ObjTagList * pTagList)
 	{ return PPRef->Ot.GetList(Obj, goodsID, pTagList); }
-int SLAPI PPObjGoods::SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta)
+int PPObjGoods::SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta)
 	{ return PPRef->Ot.PutList(Obj, goodsID, pTagList, use_ta); }
 
-SLAPI PPObjGoodsInfo::PPObjGoodsInfo(void * extraPtr) : PPObjReference(PPOBJ_GOODSINFO, extraPtr)
+PPObjGoodsInfo::PPObjGoodsInfo(void * extraPtr) : PPObjReference(PPOBJ_GOODSINFO, extraPtr)
 {
 }
 
-int SLAPI PPObjGoodsInfo::Edit(PPID * pID, void * extraPtr)
+int PPObjGoodsInfo::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0;
 	ushort v = 0;
@@ -4395,7 +4395,7 @@ int SLAPI PPObjGoodsInfo::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjGoodsInfo::GetPacket(PPID id, PPGoodsInfo * pPack)
+int PPObjGoodsInfo::GetPacket(PPID id, PPGoodsInfo * pPack)
 {
 	int    ok = 1;
 	PPGoodsInfo pack;
@@ -4405,7 +4405,7 @@ int SLAPI PPObjGoodsInfo::GetPacket(PPID id, PPGoodsInfo * pPack)
 	return ok;
 }
 
-int SLAPI PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
+int PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
 {
 	int    ok = -1;
 	PPID   id = 0, action = 0;
@@ -4759,7 +4759,7 @@ int UhttIndexStores(const SString & rOutPath)
 //
 //
 //
-int SLAPI PPObjGoods::ProcessName(const ProcessNameBlock & rBlk, SString & rResult)
+int PPObjGoods::ProcessName(const ProcessNameBlock & rBlk, SString & rResult)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -4790,7 +4790,7 @@ int SLAPI PPObjGoods::ProcessName(const ProcessNameBlock & rBlk, SString & rResu
 	string := '"' [.]* '"'
 	ident := [A-Za-z][A-Za-z0-9_]*
 */
-int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_ta)
+int PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_ta)
 {
 	int    ok = -1;
 	int    updated = 0;

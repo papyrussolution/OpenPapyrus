@@ -9,7 +9,7 @@
 //
 // DBItem
 //
-void SLAPI DBItem::destroy()
+void DBItem::destroy()
 {
 	switch(Id) {
 		case DBQ_ID: reinterpret_cast<DBQ *>(this)->destroy(); break;
@@ -18,7 +18,7 @@ void SLAPI DBItem::destroy()
 	}
 }
 
-int SLAPI DBItem::typeOfItem() const
+int DBItem::typeOfItem() const
 {
 	switch(Id) {
 		case DBQ_ID: return DBQ_ID;
@@ -32,7 +32,7 @@ int SLAPI DBItem::typeOfItem() const
 	return 0;
 }
 
-TYPEID SLAPI DBItem::stype() const
+TYPEID DBItem::stype() const
 {
 	int    bt;
 	TYPEID st = 0;
@@ -65,7 +65,7 @@ TYPEID SLAPI DBItem::stype() const
 	return st;
 }
 
-int SLAPI DBItem::baseType() const
+int DBItem::baseType() const
 {
 	int    bt = BTS_VOID;
 	if(Id > 0)
@@ -140,7 +140,7 @@ DBConst FASTCALL dbconst(LTIME v)
 	return c;
 }
 
-void SLAPI DBConst::Helper_Init(int _id, int _flags, int _tag)
+void DBConst::Helper_Init(int _id, int _flags, int _tag)
 {
 	Id = _id;
 	Flags = _flags;
@@ -460,7 +460,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 //
 // DBField
 //
-int SLAPI DBField::getIndex(BNKey * pKey, int * pKeyPos, int * pSeg)
+int DBField::getIndex(BNKey * pKey, int * pKeyPos, int * pSeg)
 {
 	BNKeyList & key_list = _GetTable(Id)->indexes;
 	uint   nk = key_list.getNumKeys();
@@ -479,14 +479,14 @@ int SLAPI DBField::getIndex(BNKey * pKey, int * pKeyPos, int * pSeg)
 	return 0;
 }
 
-void * SLAPI DBField::getValuePtr() const
+void * DBField::getValuePtr() const
 {
 	DBTable * tbl = _GetTable(Id);
 	return tbl ? (PTR8(tbl->getDataBuf()) + tbl->fields[fld].Offs) : 0;
 }
 
-DBTable * SLAPI DBField::getTable() const { return _GetTable(Id); }
-const  BNField & SLAPI DBField::getField() const { return _GetTable(Id)->fields[fld]; }
+DBTable * DBField::getTable() const { return _GetTable(Id); }
+const  BNField & DBField::getField() const { return _GetTable(Id)->fields[fld]; }
 
 int FASTCALL DBField::getValue(void * d, size_t * pSize) const
 {
@@ -494,7 +494,7 @@ int FASTCALL DBField::getValue(void * d, size_t * pSize) const
 	return tbl ? tbl->fields[fld].getValue(tbl->getDataBufConst(), d, pSize) : 0;
 }
 
-int SLAPI DBField::putValue(const void * pBuf) const
+int DBField::putValue(const void * pBuf) const
 {
 	DBTable * tbl = _GetTable(Id);
 	return tbl ? tbl->fields[fld].setValue(tbl->getDataBuf(), pBuf) : 0;
@@ -502,12 +502,12 @@ int SLAPI DBField::putValue(const void * pBuf) const
 //
 //
 //
-SLAPI DBFieldList::DBFieldList(uint n) : Count(0), P_Flds(0)
+DBFieldList::DBFieldList(uint n) : Count(0), P_Flds(0)
 {
 	Alloc(n);
 }
 
-SLAPI DBFieldList::~DBFieldList()
+DBFieldList::~DBFieldList()
 {
 	Destroy();
 }
@@ -519,12 +519,12 @@ DBFieldList & FASTCALL DBFieldList::operator = (const DBFieldList & s)
 	return *this;
 }
 
-void SLAPI DBFieldList::Destroy()
+void DBFieldList::Destroy()
 {
 	Alloc(0);
 }
 
-int SLAPI DBFieldList::Search(const DBField & rFld, uint * pPos) const
+int DBFieldList::Search(const DBField & rFld, uint * pPos) const
 {
 	for(uint i = 0; i < Count; i++)
 		if(P_Flds[i].Id == rFld.Id && P_Flds[i].fld == rFld.fld) {
@@ -571,27 +571,27 @@ int FASTCALL DBFieldList::Add(const DBFieldList & s)
 	return 1;
 }
 
-uint   SLAPI DBFieldList::GetCount() const { return Count; }
+uint   DBFieldList::GetCount() const { return Count; }
 const  DBField & FASTCALL DBFieldList::Get(uint fldN) const { return (fldN < Count) ? P_Flds[fldN] : *(DBField *)0; }
 const  BNField & FASTCALL DBFieldList::GetField(uint fldN) const { return (fldN < Count) ? P_Flds[fldN].getField() : *(BNField *)0; }
-int    SLAPI DBFieldList::GetValue(uint fldN, void * pBuf, size_t * pSize) const { return (fldN < Count) ? P_Flds[fldN].getValue(pBuf, pSize) : 0; }
+int    DBFieldList::GetValue(uint fldN, void * pBuf, size_t * pSize) const { return (fldN < Count) ? P_Flds[fldN].getValue(pBuf, pSize) : 0; }
 //
 // DBDataCell
 //
-SLAPI DBDataCell::DBDataCell()
+DBDataCell::DBDataCell()
 {
 	THISZERO();
 }
 
-SLAPI DBDataCell::DBDataCell(DBConst & r) : C(r)
+DBDataCell::DBDataCell(DBConst & r) : C(r)
 {
 }
 
-SLAPI DBDataCell::DBDataCell(DBE & r) : E(r)
+DBDataCell::DBDataCell(DBE & r) : E(r)
 {
 }
 
-SLAPI DBDataCell::DBDataCell(DBField & r) : F(r)
+DBDataCell::DBDataCell(DBField & r) : F(r)
 {
 }
 
@@ -644,7 +644,7 @@ int FASTCALL DBDataCell::getValue(DBConst * val)
 		return E.evaluate(0, val); // Expression (id == DBE_ID)
 }
 
-int SLAPI DBDataCell::toString(SString & rBuf, long options) const
+int DBDataCell::toString(SString & rBuf, long options) const
 {
 	rBuf.Z();
 	if(GetId() > 0) {
@@ -662,7 +662,7 @@ int SLAPI DBDataCell::toString(SString & rBuf, long options) const
 //
 // DBQ
 //
-SLAPI DBQ::DBQ(DBItem & left, int cmp, DBItem & right) : count(1), items(new T)
+DBQ::DBQ(DBItem & left, int cmp, DBItem & right) : count(1), items(new T)
 {
 	items[0].flags = 0;
 	if(cmp == _OUTER_EQ_) {
@@ -684,7 +684,7 @@ SLAPI DBQ::DBQ(DBItem & left, int cmp, DBItem & right) : count(1), items(new T)
 	tree->addLeaf(0, 0, &tree->Root);
 }
 
-SLAPI DBQ::DBQ(int logic, DBQ & left, DBQ & right)
+DBQ::DBQ(int logic, DBQ & left, DBQ & right)
 {
 	int    i, l;
 	union {
@@ -728,7 +728,7 @@ int FASTCALL _invertComp(int cmp);
 
 #define INVALID_IDENTIFIER 0
 
-int SLAPI DBQ::testForKey(int itm, int tblID, int * pIsDyn)
+int DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 {
 	const int l = items[itm].left.GetId();
 	const int r = items[itm].right.GetId();
@@ -766,7 +766,7 @@ int SLAPI DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 	return 1;
 }
 
-int SLAPI DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
+int DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 {
 	int    dyn = 0;
 	if(kr->P_h == 0 || testForKey(itm, tblID, &dyn) == 0)
@@ -859,7 +859,7 @@ int FASTCALL DBQ::checkTerm(int itm)
 //
 // DBTree
 //
-SLAPI DBTree::DBTree(DBQ * pOwner)
+DBTree::DBTree(DBQ * pOwner)
 {
 	init(pOwner);
 }
@@ -872,7 +872,7 @@ void FASTCALL DBTree::init(DBQ * pOwner)
 	Root = -1;
 }
 
-void SLAPI DBTree::destroy()
+void DBTree::destroy()
 {
 	ZFREE(P_Items);
 	Count = 0;
@@ -889,7 +889,7 @@ int FASTCALL DBTree::expand(int * pos)
 	return FALSE;
 }
 
-int SLAPI DBTree::addLeaf(int term, int flags, int * pPos)
+int DBTree::addLeaf(int term, int flags, int * pPos)
 {
 	if(expand(pPos)) {
 		T    * t = P_Items + *pPos;
@@ -903,7 +903,7 @@ int SLAPI DBTree::addLeaf(int term, int flags, int * pPos)
 		return 0;
 }
 
-int SLAPI DBTree::addNode(int link, int left, int right, int * pPos)
+int DBTree::addNode(int link, int left, int right, int * pPos)
 {
 	if(expand(pPos)) {
 		T    * t = P_Items + *pPos;
@@ -918,7 +918,7 @@ int SLAPI DBTree::addNode(int link, int left, int right, int * pPos)
 		return 0;
 }
 
-int SLAPI DBTree::addTree(DBTree * pTree, int p, int * pPos)
+int DBTree::addTree(DBTree * pTree, int p, int * pPos)
 {
 	int    link, left, right;
 	T    & t = pTree->P_Items[p];
@@ -935,7 +935,7 @@ int SLAPI DBTree::addTree(DBTree * pTree, int p, int * pPos)
 // 1 - произошли изменения в dest
 // 2 - изменений в dest не произошло
 //
-int SLAPI DBTree::chooseKey(int n, int tblID, int seg, KR * dest, uint * pTrace)
+int DBTree::chooseKey(int n, int tblID, int seg, KR * dest, uint * pTrace)
 {
 	int    result = 2;
 	if(n != -1 && !(P_Items[n].flags & NOKEY)) {
@@ -1026,7 +1026,7 @@ int FASTCALL DBTree::checkRestriction(int node)
 	return ok;
 }
 
-int SLAPI DBTree::CreateSqlExpr(Generator_SQL * pGen, int node) const
+int DBTree::CreateSqlExpr(Generator_SQL * pGen, int node) const
 {
 	int    ok = 1;
 	if(Root != -1) {
@@ -1056,7 +1056,7 @@ int SLAPI DBTree::CreateSqlExpr(Generator_SQL * pGen, int node) const
 	return ok;
 }
 
-int SLAPI DBDataCell::CreateSqlExpr(Generator_SQL * pGen) const
+int DBDataCell::CreateSqlExpr(Generator_SQL * pGen) const
 {
 	if(GetId() > 0) {
 		pGen->/*Text(f.getTable()->tableName).Text(".").*/Text(F.getField().Name);
@@ -1073,7 +1073,7 @@ int SLAPI DBDataCell::CreateSqlExpr(Generator_SQL * pGen) const
 	return 1;
 }
 
-int SLAPI DBQ::CreateSqlExpr(Generator_SQL * pGen, int itm) const
+int DBQ::CreateSqlExpr(Generator_SQL * pGen, int itm) const
 {
 	int    ok = 1;
 	T    * t = &items[itm];

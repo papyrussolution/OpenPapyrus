@@ -303,7 +303,7 @@ Generator_GnuPlot::Generator_GnuPlot(const char * pFileName) : SFile()
 	}
 }
 
-const char * SLAPI Generator_GnuPlot::GetDataFileName() const
+const char * Generator_GnuPlot::GetDataFileName() const
 {
 	return DataFileName.cptr();
 }

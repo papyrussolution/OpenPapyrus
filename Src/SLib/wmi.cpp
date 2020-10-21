@@ -9,12 +9,12 @@
 //
 //
 //
-SLAPI SWmi::SWmi() : State(0), P_Loc(0), P_Svc(0)
+SWmi::SWmi() : State(0), P_Loc(0), P_Svc(0)
 {
 	CoInitializeEx(0, COINIT_APARTMENTTHREADED);
 }
 
-SLAPI SWmi::~SWmi()
+SWmi::~SWmi()
 {
 	Release();
 	CoUninitialize();
@@ -28,7 +28,7 @@ SLAPI SWmi::~SWmi()
 //const char * const SWmi::P_UNC_LOCAL  = ".";
 //static const char *p_name_space = "root\\cimv2";
 
-int SLAPI SWmi::Connect(const char * pServer, const char * pUserName, const char * pPassword)
+int SWmi::Connect(const char * pServer, const char * pUserName, const char * pPassword)
 {
 	EXCEPTVAR(SLibError);
 	Release(); // если соединения не было, то никаких побочных действий не выполнится //
@@ -67,7 +67,7 @@ int SLAPI SWmi::Connect(const char * pServer, const char * pUserName, const char
 	return ok;
 }
 
-int SLAPI SWmi::GetSvcError(SString & rBuf)
+int SWmi::GetSvcError(SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -84,7 +84,7 @@ int SLAPI SWmi::GetSvcError(SString & rBuf)
 	return ok;
 }
 
-int SLAPI SWmi::GetMethodList(IWbemClassObject * pCls, StrAssocArray * pList)
+int SWmi::GetMethodList(IWbemClassObject * pCls, StrAssocArray * pList)
 {
 	int    ok = 0;
 	if(pCls) {
@@ -105,7 +105,7 @@ int SLAPI SWmi::GetMethodList(IWbemClassObject * pCls, StrAssocArray * pList)
 //
 // запуск процесса
 //
-int SLAPI SWmi::Method_CreateProcess(const char * pCmdLine)
+int SWmi::Method_CreateProcess(const char * pCmdLine)
 {
 	enum {
 		sWin32Process = 0,
@@ -181,7 +181,7 @@ int SLAPI SWmi::Method_CreateProcess(const char * pCmdLine)
 	return ok;
 }
 
-void SLAPI SWmi::Release()
+void SWmi::Release()
 {
 	if(P_Svc) {
 		P_Svc->Release();

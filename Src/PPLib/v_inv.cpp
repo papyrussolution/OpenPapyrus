@@ -8,7 +8,7 @@
 
 /*static*/int PPViewInventory::DynFuncInvLnWrOff = 0;
 
-IMPLEMENT_PPFILT_FACTORY(Inventory); SLAPI InventoryFilt::InventoryFilt() : PPBaseFilt(PPFILT_INVENTORY, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(Inventory); InventoryFilt::InventoryFilt() : PPBaseFilt(PPFILT_INVENTORY, 0, 1)
 {
 	SetFlatChunk(offsetof(InventoryFilt, ReserveStart),
 		offsetof(InventoryFilt, Reserve)-offsetof(InventoryFilt, ReserveStart)+sizeof(Reserve));
@@ -24,21 +24,21 @@ InventoryFilt & FASTCALL InventoryFilt::operator = (const InventoryFilt & rS)
 }
 
 void FASTCALL InventoryFilt::SetSingleBillID(PPID billID) { BillList.SetSingle(billID); }
-PPID SLAPI InventoryFilt::GetSingleBillID() const { return BillList.GetSingle(); }
-int  SLAPI InventoryFilt::HasSubst() const { return BIN(!!Sgb || Sgg); }
+PPID InventoryFilt::GetSingleBillID() const { return BillList.GetSingle(); }
+int  InventoryFilt::HasSubst() const { return BIN(!!Sgb || Sgg); }
 
-void SLAPI InventoryFilt::Setup(PPID billID)
+void InventoryFilt::Setup(PPID billID)
 {
 	Init(1, 0);
 	SetSingleBillID(billID);
 }
 
-SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0),
+PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY, 0, 0), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0),
 	P_TempSubstTbl(0), P_GgIter(0), P_GIter(0), Flags(0), CommonLocID(0), CommonDate(ZERODATE), LastSurrID(0), P_OuterPack(0)
 {
 }
 
-SLAPI PPViewInventory::~PPViewInventory()
+PPViewInventory::~PPViewInventory()
 {
 	delete P_TempOrd;
 	delete P_TempTbl;
@@ -47,9 +47,9 @@ SLAPI PPViewInventory::~PPViewInventory()
 	delete P_GIter;
 }
 
-void SLAPI PPViewInventory::SetOuterPack(PPBillPacket * pPack) { P_OuterPack = pPack; }
-int  SLAPI PPViewInventory::GetZeroByDefaultStatus() const { return BIN(Flags & fIsZeroByDefault); }
-int  SLAPI PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpdated); }
+void PPViewInventory::SetOuterPack(PPBillPacket * pPack) { P_OuterPack = pPack; }
+int  PPViewInventory::GetZeroByDefaultStatus() const { return BIN(Flags & fIsZeroByDefault); }
+int  PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpdated); }
 
 class InventoryFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(InventoryFilt);
@@ -205,7 +205,7 @@ private:
 	}
 };
 
-int SLAPI PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1, valid_data = 0;
 	InventoryFilt * p_filt = static_cast<InventoryFilt *>(pFilt);
@@ -224,7 +224,7 @@ int SLAPI PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-static int SLAPI CheckInventoryLineForWrOff(long fltFlags, PPID billID, long lnFlags, double diffQtty)
+static int CheckInventoryLineForWrOff(long fltFlags, PPID billID, long lnFlags, double diffQtty)
 {
 	int    ok = 1;
 	const  long   f = (fltFlags & (InventoryFilt::fWrOff | InventoryFilt::fUnwrOff));
@@ -245,7 +245,7 @@ static int SLAPI CheckInventoryLineForWrOff(long fltFlags, PPID billID, long lnF
 	return ok;
 }
 
-int SLAPI PPViewInventory::CheckLineForFilt(const InventoryTbl::Rec * pRec) const
+int PPViewInventory::CheckLineForFilt(const InventoryTbl::Rec * pRec) const
 {
 	if(!Filt.BillList.CheckID(pRec->BillID))
 		return 0;
@@ -282,7 +282,7 @@ int SLAPI PPViewInventory::CheckLineForFilt(const InventoryTbl::Rec * pRec) cons
 	return 1;
 }
 
-int SLAPI PPViewInventory::UpdateTempTable(PPID billID, long oprno)
+int PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 {
 	int    ok = 1;
 	{
@@ -359,13 +359,13 @@ int SLAPI PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 	return ok;
 }
 
-//int SLAPI PPViewInventory::
+//int PPViewInventory::
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, Inventory);
 PP_CREATE_TEMP_FILE_PROC(CreateTempSubstFile, TempInventorySubst);
 PP_CREATE_TEMP_FILE_PROC(CreateTempOrder2IDFile, TempDoubleID);
 
-int SLAPI PPViewInventory::MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDoubleIDTbl::Rec * pOutRec)
+int PPViewInventory::MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDoubleIDTbl::Rec * pOutRec)
 {
 	SString temp_buf;
 	TempDoubleIDTbl::Rec rec;
@@ -387,7 +387,7 @@ int SLAPI PPViewInventory::MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDo
 	return 1;
 }
 
-int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
+int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec gg_rec;
@@ -708,7 +708,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewInventory::InitIteration()
+int PPViewInventory::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_GgIter);
@@ -865,7 +865,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewInventory::UpdatePacket(PPID billID)
+int PPViewInventory::UpdatePacket(PPID billID)
 {
 	int    ok = -1;
 	if(billID) {
@@ -1202,7 +1202,7 @@ void InventoryItemDialog::setupQuantity()
 	setGroupData(ctlgroupQtty, &qcg_rec);
 }
 
-int SLAPI PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, const char * pSerial, double initQtty, int accelMode)
+int PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, const char * pSerial, double initQtty, int accelMode)
 {
 	int    ok = -1;
 	int    valid_data = 0;
@@ -1298,7 +1298,7 @@ int SLAPI PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, co
 //
 //
 //
-int SLAPI PPViewInventory::AddItem(TIDlgInitData * pInitData)
+int PPViewInventory::AddItem(TIDlgInitData * pInitData)
 {
 	int    ok = -1;
 	const  int accel_mode = pInitData ? BIN(pInitData->Flags & TIDIF_AUTOQTTY) : 0;
@@ -1320,7 +1320,7 @@ int SLAPI PPViewInventory::AddItem(TIDlgInitData * pInitData)
 
 #define INVDBQ_GOODSIDOFFS (sizeof(long) * 2)
 
-/*static int SLAPI InvItemQuickInputDialog(int initChar, SString & rBuf, double & rQtty)
+/*static int InvItemQuickInputDialog(int initChar, SString & rBuf, double & rQtty)
 {
 	int    ok = -1;
 	SString code;
@@ -1350,7 +1350,7 @@ int SLAPI PPViewInventory::AddItem(TIDlgInitData * pInitData)
 	return ok;
 }*/
 
-int SLAPI PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
+int PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
 	class QuickSearchDialog : public TDialog {
 	public:
@@ -1411,7 +1411,7 @@ int SLAPI PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2T
 	return ok;
 }
 
-int SLAPI PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
+int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 {
 	const int  skip_dlg = BIN(P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE);
 	//const int  is_accel = BIN(CommonIoeFlags & INVOPF_ACCELADDITEMS);
@@ -1500,7 +1500,7 @@ int SLAPI PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewInventory::ConvertBillToBasket()
+int PPViewInventory::ConvertBillToBasket()
 {
 	int    ok = -1, r = 0;
 	SelBasketParam param;
@@ -1539,7 +1539,7 @@ int SLAPI PPViewInventory::ConvertBillToBasket()
 	return ok;
 }
 
-int SLAPI PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta)
+int PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgoption, int priceByLastLot, int use_ta)
 {
 	int    ok = 1;
 	const  PPID   bill_id = Filt.GetSingleBillID();
@@ -1596,7 +1596,7 @@ int SLAPI PPViewInventory::ConvertBasket(const PPBasketPacket * pPack, int sgopt
 	return ok;
 }
 
-int SLAPI PPViewInventory::ConvertBasketToBill()
+int PPViewInventory::ConvertBasketToBill()
 {
 	int    ok = -1, r = 0;
 	PPObjGoodsBasket gb_obj;
@@ -1627,7 +1627,7 @@ int SLAPI PPViewInventory::ConvertBasketToBill()
 //
 //
 //
-static int SLAPI AutoFillInventryDlg(AutoFillInvFilt * pFilt)
+static int AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 {
 	class AutoFillInventryFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(AutoFillInvFilt);
@@ -1678,7 +1678,7 @@ AutoFillInvFilt::AutoFillInvFilt() : BillID(0), GoodsGrpID(0), Method(0), Flags(
 {
 }
 
-int SLAPI PPViewInventory::Build()
+int PPViewInventory::Build()
 {
 	int    ok = -1;
 	const  PPID bill_id = Filt.GetSingleBillID();
@@ -1708,14 +1708,14 @@ int SLAPI PPViewInventory::Build()
 	return ok;
 }
 
-int SLAPI PPViewInventory::ViewTotal()
+int PPViewInventory::ViewTotal()
 {
 	PPIDArray id_list;
 	Filt.BillList.Get(id_list);
 	return BillObj->ViewInventoryTotal(id_list, &Filt);
 }
 
-int SLAPI PPViewInventory::Print(const void *)
+int PPViewInventory::Print(const void *)
 {
 	Filt.Flags |= InventoryFilt::fShowAbsenseGoods;
 	int    ok = Helper_Print(REPORT_INVENT);
@@ -1723,7 +1723,7 @@ int SLAPI PPViewInventory::Print(const void *)
 	return ok;
 }
 
-int SLAPI PPViewInventory::Correct()
+int PPViewInventory::Correct()
 {
 	int    ok = -1;
 	long   rif_flags = 0;
@@ -1755,7 +1755,7 @@ int SLAPI PPViewInventory::Correct()
 	return ok;
 }
 
-int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	BrwHdr hdr;
 	if(pHdr)
@@ -1901,7 +1901,7 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-int SLAPI PPViewInventory::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewInventory::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
     int    ok = -1;
 	if(Filt.HasSubst()) {
@@ -2000,7 +2000,7 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 	return ok;
 }
 
-/*virtual*/void SLAPI PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
 }
@@ -2015,7 +2015,7 @@ static IMPL_DBE_PROC(dbqf_invlnwroff_iiir)
 	result->init(r);
 }
 
-DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncInvLnWrOff, BTS_INT, dbqf_invlnwroff_iiir, 4, BTS_INT, BTS_INT, BTS_INT, BTS_REAL);
 	DBQuery * q  = 0;

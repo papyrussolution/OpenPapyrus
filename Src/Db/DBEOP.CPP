@@ -801,17 +801,17 @@ static DbqFuncTab * __GetRegFuncTab()
 	return p_tab ? p_tab->GetFuncPtr(funcId) : 0;
 }
 
-SLAPI DbqFuncTab::DbqFuncTab() : P_Tab(0)
+DbqFuncTab::DbqFuncTab() : P_Tab(0)
 {
 	PreRegister();
 }
 
-SLAPI DbqFuncTab::~DbqFuncTab()
+DbqFuncTab::~DbqFuncTab()
 {
 	delete P_Tab;
 }
 
-int SLAPI DbqFuncTab::GetDynFuncId(int * pId)
+int DbqFuncTab::GetDynFuncId(int * pId)
 {
 	for(int i = FIRST_DYN_DBQFUNC_ID; i <= LAST_DYN_DBQFUNC_ID; i++)
 		if(SearchFunc(i, 0) < 0) {
@@ -830,7 +830,7 @@ int SLAPIV DbqFuncTab::RegisterFunc(int funcId, int isAggr, int retType, DBQProc
 	return ok;
 }
 
-int SLAPI DbqFuncTab::_RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, va_list paramList)
+int DbqFuncTab::_RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, va_list paramList)
 {
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
@@ -856,7 +856,7 @@ DBFuncInfo * FASTCALL DbqFuncTab::GetFuncPtr(int funcId)
 	return (P_Tab && P_Tab->bsearch(&funcId, &pos, CMPF_LONG)) ? static_cast<DBFuncInfo *>(P_Tab->at(pos)) : 0;
 }
 
-int SLAPI DbqFuncTab::SearchFunc(int funcId, DBFuncInfo * pInfo)
+int DbqFuncTab::SearchFunc(int funcId, DBFuncInfo * pInfo)
 {
 	if(P_Tab) {
 		uint pos = 0;
@@ -868,7 +868,7 @@ int SLAPI DbqFuncTab::SearchFunc(int funcId, DBFuncInfo * pInfo)
 	return -1;
 }
 
-int SLAPI DbqFuncTab::PreRegister()
+int DbqFuncTab::PreRegister()
 {
 	RegisterFunc(dbq_ltoa,    0, BTS_STRING, _ltoa_i, 1, BTS_INT);
 	RegisterFunc(dbq_enumtoa, 0, BTS_STRING, _enumtoa_iii, 3, BTS_INT, BTS_INT, BTS_INT);

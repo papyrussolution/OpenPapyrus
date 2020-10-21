@@ -8,12 +8,12 @@
 //
 //
 //
-SLAPI TWhatmanObject::TextParam::TextParam()
+TWhatmanObject::TextParam::TextParam()
 {
 	SetDefault();
 }
 
-void SLAPI TWhatmanObject::TextParam::SetDefault()
+void TWhatmanObject::TextParam::SetDefault()
 {
 	Side = SIDE_BOTTOM;
 	Flags = 0;
@@ -137,7 +137,7 @@ static WhatmanObjectRegTable * GetRegTable()
 	return p_tab;
 }
 
-/*static*/int SLAPI TWhatmanObject::Register(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory)
+/*static*/int TWhatmanObject::Register(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory)
 {
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
@@ -147,14 +147,14 @@ static WhatmanObjectRegTable * GetRegTable()
 	return ok;
 }
 
-/*static*/TWhatmanObject * SLAPI TWhatmanObject::CreateInstance(long id)
+/*static*/TWhatmanObject * TWhatmanObject::CreateInstance(long id)
 {
 	WhatmanObjectRegTable::Item item;
 	WhatmanObjectRegTable * p_tab = GetRegTable();
 	return (p_tab && p_tab->Search(id, 0, &item) && item.Factory) ? item.Factory() : 0;
 }
 
-/*static*/TWhatmanObject * SLAPI TWhatmanObject::CreateInstance(const char * pSymb)
+/*static*/TWhatmanObject * TWhatmanObject::CreateInstance(const char * pSymb)
 {
 	WhatmanObjectRegTable::Item item;
 	WhatmanObjectRegTable * p_tab = GetRegTable();

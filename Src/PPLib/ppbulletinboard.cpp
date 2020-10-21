@@ -12,8 +12,8 @@ public:
 	public:
 		friend class PPBulletinBoard;
 
-		SLAPI  Sticker();
-		virtual SLAPI ~Sticker();
+		Sticker();
+		virtual ~Sticker();
 
 		enum {
 			fPinned = 0x0001
@@ -23,13 +23,13 @@ public:
 		LDATETIME SuspendTill; // Время, до которого отложена некоторая работа.
 		SString Symb;
 	protected:
-		virtual Sticker * SLAPI Dup() const;
+		virtual Sticker * Dup() const;
 	private:
 		uint   ID;
 	};
 
-	SLAPI  PPBulletinBoard();
-	uint   SLAPI GetCount();
+	PPBulletinBoard();
+	uint   GetCount();
 	//
 	// Descr: Находит стикер по идентификатору
 	// Note: В случае успешного поиска возвращается указатель на копию найденного
@@ -38,25 +38,25 @@ public:
 	//   0 - стикер по идентификатору не найден
 	//  !0 - КОПИЯ найденного стикера
 	//
-	Sticker * SLAPI SearchStickerByID(uint id);
-	Sticker * SLAPI SearchStickerBySymb(const char * pSymb);
-	int    SLAPI PutSticker(Sticker * pNewSticker, uint * pId);
-	int    SLAPI RemoveStickerByID(uint id);
+	Sticker * SearchStickerByID(uint id);
+	Sticker * SearchStickerBySymb(const char * pSymb);
+	int    PutSticker(Sticker * pNewSticker, uint * pId);
+	int    RemoveStickerByID(uint id);
 private:
 	uint   LastId;
 	TSCollection <Sticker> StL;
 	ReadWriteLock RwL;
 };
 
-SLAPI PPBulletinBoard::Sticker::Sticker() : ID(0), Flags(0), Dtm(getcurdatetime_()), SuspendTill(ZERODATETIME)
+PPBulletinBoard::Sticker::Sticker() : ID(0), Flags(0), Dtm(getcurdatetime_()), SuspendTill(ZERODATETIME)
 {
 }
 
-SLAPI PPBulletinBoard::Sticker::~Sticker()
+PPBulletinBoard::Sticker::~Sticker()
 {
 }
 
-/*virtual*/PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::Sticker::Dup() const
+/*virtual*/PPBulletinBoard::Sticker * PPBulletinBoard::Sticker::Dup() const
 {
 	Sticker * p_new_item = new Sticker;
 	if(p_new_item) {
@@ -69,11 +69,11 @@ SLAPI PPBulletinBoard::Sticker::~Sticker()
 	return p_new_item;
 }
 
-SLAPI PPBulletinBoard::PPBulletinBoard() : LastId(0)
+PPBulletinBoard::PPBulletinBoard() : LastId(0)
 {
 }
 
-int SLAPI PPBulletinBoard::PutSticker(Sticker * pNewSticker, uint * pId)
+int PPBulletinBoard::PutSticker(Sticker * pNewSticker, uint * pId)
 {
 	int    ok = 0;
 	uint   new_id = 0;
@@ -88,7 +88,7 @@ int SLAPI PPBulletinBoard::PutSticker(Sticker * pNewSticker, uint * pId)
 	return ok;
 }
 
-int SLAPI PPBulletinBoard::RemoveStickerByID(uint id)
+int PPBulletinBoard::RemoveStickerByID(uint id)
 {
 	int    ok = -1;
 	if(id) {
@@ -107,7 +107,7 @@ int SLAPI PPBulletinBoard::RemoveStickerByID(uint id)
 	return ok;
 }
 
-uint SLAPI PPBulletinBoard::GetCount()
+uint PPBulletinBoard::GetCount()
 {
 	uint   c = 0;
 	{
@@ -117,7 +117,7 @@ uint SLAPI PPBulletinBoard::GetCount()
 	return c;
 }
 
-PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::SearchStickerByID(uint id)
+PPBulletinBoard::Sticker * PPBulletinBoard::SearchStickerByID(uint id)
 {
 	Sticker * p_result = 0;
 	if(id) {
@@ -132,7 +132,7 @@ PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::SearchStickerByID(uint id)
 	return p_result;
 }
 
-PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::SearchStickerBySymb(const char * pSymb)
+PPBulletinBoard::Sticker * PPBulletinBoard::SearchStickerBySymb(const char * pSymb)
 {
 	Sticker * p_result = 0;
 	if(!isempty(pSymb)) {
@@ -173,15 +173,15 @@ public:
 		double Value;
 	};
 	struct TimeSeriesBlock {
-		SLAPI  TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0), VolumeMin(0.0), VolumeMax(0.0), VolumeStep(0.0),
+		TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0), VolumeMin(0.0), VolumeMax(0.0), VolumeStep(0.0),
 			Actual_Regular_Parity(0), LastStakeTime(ZERODATETIME)
 		{
 		}
-		double SLAPI GetAverageSpread() const
+		double GetAverageSpread() const
 		{
 			return fdivui(SpreadSum, SpreadCount);
 		}
-		double SLAPI GetAverageSpread_WithAdjustment() const
+		double GetAverageSpread_WithAdjustment() const
 		{
 			// @20190703 2.0-->1.2 // @20190707 1.2-->1.5 // @20190708 1.5-->2.0 // @20200207 2.0-->1.2 // @20200329 1.2-->1.0
 			return fdivui(SpreadSum, SpreadCount) * 1.0; 
@@ -228,7 +228,7 @@ public:
 		//   переносится в TempLastEntry с тегом 2.
 		//
 		struct TempLastEntry {
-			SLAPI  TempLastEntry() : Tag(0)
+			TempLastEntry() : Tag(0)
 			{
 			}
 			int    Tag; // 0 - empty, 1 - main series value, 2 - tick value
@@ -240,7 +240,7 @@ public:
 		PPObjTimeSeries::StrategyContainer::Index1 StratIndex;
 
 		long   Actual_Regular_Parity;
-		void SLAPI Make_T_Regular()
+		void Make_T_Regular()
 		{
 			if(!UseRegularValuesOnlyForStakes) {
 				Actual_Regular_Parity--;
@@ -260,7 +260,7 @@ public:
 				}
 			}
 		}
-		void SLAPI Make_T_Actual()
+		void Make_T_Actual()
 		{
 			if(!UseRegularValuesOnlyForStakes) {
 				Actual_Regular_Parity++;
@@ -283,7 +283,7 @@ public:
 		}
 	};
 	struct PotentialStakeEntry {
-		explicit SLAPI PotentialStakeEntry(const TimeSeriesBlock & rBlk) : R_Blk(rBlk), Flags(0), StrategyPos(0), Volume(0.0),
+		explicit PotentialStakeEntry(const TimeSeriesBlock & rBlk) : R_Blk(rBlk), Flags(0), StrategyPos(0), Volume(0.0),
 			ResultPerDay(0.0), MarginReq(0.0), Tv(0.0), Tv2(0.0), ArrangeCritValue(0.0), AdjustedResultPerDay(0.0)
 		{
 		}
@@ -340,27 +340,27 @@ public:
 	}
 	TimeSeriesCache();
 	~TimeSeriesCache();
-	int    SLAPI SetTimeSeries(STimeSeries & rTs);
-	int    SLAPI GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
-	int    SLAPI SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv, TsStakeEnvironment::StakeRequestBlock * pRet);
-	int    SLAPI SetTransactionNotification(const TsStakeEnvironment::TransactionNotification * pTan);
-	int    SLAPI SetVolumeParams(const char * pSymb, double volumeMin, double volumeMax, double volumeStep);
-	int    SLAPI Flash();
-	int    SLAPI FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, 
+	int    SetTimeSeries(STimeSeries & rTs);
+	int    GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList);
+	int    SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv, TsStakeEnvironment::StakeRequestBlock * pRet);
+	int    SetTransactionNotification(const TsStakeEnvironment::TransactionNotification * pTan);
+	int    SetVolumeParams(const char * pSymb, double volumeMin, double volumeMax, double volumeStep);
+	int    Flash();
+	int    FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, 
 		PotentialStakeEntry * pPse, TsStakeEnvironment::StakeRequestBlock & rResult) const;
-	int    SLAPI FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const;
+	int    FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const;
 	enum {
 		ecfTrickChf = 0x0001 // Специальный флаг, предписывающий увеличивать плечо для CHF-пар на форексе
 	};
-	double SLAPI EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume, uint flags) const;
-	int    SLAPI EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const;
-	double SLAPI EvaluateUsedMargin() const;
+	double EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume, uint flags) const;
+	int    EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const;
+	double EvaluateUsedMargin() const;
 private:
-	void   SLAPI LogStateEnvironment(const TsStakeEnvironment & rEnv);
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	int    SLAPI LoadConfig(int force);
-	int    SLAPI Helper_LoadStrategies(PPObjTimeSeries & rTsObj, PPID tsID, TimeSeriesBlock * pBlk)
+	void   LogStateEnvironment(const TsStakeEnvironment & rEnv);
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	int    LoadConfig(int force);
+	int    Helper_LoadStrategies(PPObjTimeSeries & rTsObj, PPID tsID, TimeSeriesBlock * pBlk)
 	{
 		int    ok = 1;
 		if(pBlk) {
@@ -389,7 +389,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI LoadStrategies(PPObjTimeSeries & rTsObj, PPID tsID)
+	int    LoadStrategies(PPObjTimeSeries & rTsObj, PPID tsID)
 	{
 		int    ok = -1;
 		for(uint i = 0; ok < 0 && i < TsC.getCount(); i++) {
@@ -403,14 +403,14 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	TimeSeriesBlock * SLAPI SearchBlockBySymb(const char * pSymb, uint * pIdx) const;
-	const TimeSeriesBlock * SLAPI SearchRateConvertionBlock(const char * pSymb, int * pRevese) const;
-	TimeSeriesBlock * SLAPI InitBlock(PPObjTimeSeries & rTsObj, const char * pSymb);
+	TimeSeriesBlock * SearchBlockBySymb(const char * pSymb, uint * pIdx) const;
+	const TimeSeriesBlock * SearchRateConvertionBlock(const char * pSymb, int * pRevese) const;
+	TimeSeriesBlock * InitBlock(PPObjTimeSeries & rTsObj, const char * pSymb);
 	//
 	// ARG(onActualTicks IN): Расчет ведется на данных, полученных из последних актуальных тиков (вероятно, необходимо внесение поправки в результаты расчетов)
 	//
-	int    SLAPI EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs, int onActualTicks);
-	long   SLAPI GetFlashTimeout() const
+	int    EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs, int onActualTicks);
+	long   GetFlashTimeout() const
 	{
 		const long cfg_tmr = Cfg.E.TsFlashTimer;
 		return checkirange(cfg_tmr, 1, (24*3600)) ? cfg_tmr : 600;
@@ -430,7 +430,7 @@ private:
 	PPObjTimeSeries::Config Cfg;
 };
 
-void SLAPI TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
+void TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 {
 	SString file_name;
 	SString line_buf;
@@ -547,7 +547,7 @@ TimeSeriesCache::~TimeSeriesCache()
 {
 }
 
-int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
+int TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
 {
 	int    ok = -1;
 	STimeSeries::AppendStat apst;
@@ -642,7 +642,7 @@ int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::LoadConfig(int force)
+int TimeSeriesCache::LoadConfig(int force)
 {
 	int    ok = 1;
 	if(force || !(State & stConfigLoaded)) {
@@ -670,7 +670,7 @@ int SLAPI TimeSeriesCache::LoadConfig(int force)
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList)
+int TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -730,7 +730,7 @@ int SLAPI TimeSeriesCache::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv, TsStakeEnvironment::StakeRequestBlock * pRet)
+int TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment * pEnv, TsStakeEnvironment::StakeRequestBlock * pRet)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -783,7 +783,7 @@ int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment *
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::TransactionNotification * pTan)
+int TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::TransactionNotification * pTan)
 {
 	int    ok = 1;
 	SString log_msg;
@@ -842,7 +842,7 @@ int SLAPI TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::SetVolumeParams(const char * pSymb, double volumeMin, double volumeMax, double volumeStep)
+int TimeSeriesCache::SetVolumeParams(const char * pSymb, double volumeMin, double volumeMax, double volumeStep)
 {
 	int    ok = 1;
 	uint   idx = 0;
@@ -872,7 +872,7 @@ int SLAPI TimeSeriesCache::SetVolumeParams(const char * pSymb, double volumeMin,
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::Flash()
+int TimeSeriesCache::Flash()
 {
 	int    ok = 1;
 	SFile * p_f_imp_out = 0;
@@ -1011,7 +1011,7 @@ struct StakeCommentBlock {
 	long   Flags;
 };
 
-int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, 
+int TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rBlk, const TsStakeEnvironment::Stake & rStk, 
 	PotentialStakeEntry * pPse, TsStakeEnvironment::StakeRequestBlock & rResult) const
 {
 	int    ok = -1;
@@ -1235,7 +1235,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyAtStake(const TimeSeriesBlock & rB
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const
+int TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUsedMargin, PotentialStakeEntry & rPse) const
 {
 	int    ok = -1;
 	const TimeSeriesBlock & r_blk = rPse.R_Blk;
@@ -1407,7 +1407,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 	return ok;
 }
 
-double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume, uint flags) const
+double TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool sell, double volume, uint flags) const
 {
 	const char * p_base_symb = "USD";
 	double cost = 0.0;
@@ -1456,7 +1456,7 @@ double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool se
 	return cost;
 }
 
-double SLAPI TimeSeriesCache::EvaluateUsedMargin() const
+double TimeSeriesCache::EvaluateUsedMargin() const
 {
 	double evaluated_used_margin = 0.0;
 	const uint current_stake_count = StkEnv.SL.getCount();
@@ -1474,7 +1474,7 @@ double SLAPI TimeSeriesCache::EvaluateUsedMargin() const
 	return evaluated_used_margin;
 }
 
-int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const
+int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const
 {
 	int    ok = -1;
 	PPUserFuncProfiler ufp(PPUPRF_TSEVALSTAKES); // @v10.3.3
@@ -1684,7 +1684,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	return ok;
 }
 
-int SLAPI TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1713,7 +1713,7 @@ int SLAPI TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPTimeSeries * p_data_rec = static_cast<PPTimeSeries *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -1737,7 +1737,7 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	b.Get(p_data_rec->CurrencySymb, sizeof(p_data_rec->CurrencySymb));
 }
 
-const TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchRateConvertionBlock(const char * pSymb, int * pRevese) const
+const TimeSeriesCache::TimeSeriesBlock * TimeSeriesCache::SearchRateConvertionBlock(const char * pSymb, int * pRevese) const
 {
 	TimeSeriesBlock * p_result = 0;
 	int    reverse = 0;
@@ -1775,7 +1775,7 @@ const TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchRateConver
 	return p_result;
 }
 
-TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchBlockBySymb(const char * pSymb, uint * pIdx) const
+TimeSeriesCache::TimeSeriesBlock * TimeSeriesCache::SearchBlockBySymb(const char * pSymb, uint * pIdx) const
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	for(uint i = 0; i < TsC.getCount(); i++) {
@@ -1791,7 +1791,7 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchBlockBySymb(cons
 	return 0;
 }
 
-int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs, int onActualTicks)
+int TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs, int onActualTicks)
 {
 	int    ok = 1;
 	PROFILE_START
@@ -1875,7 +1875,7 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 	return ok;
 }
 
-TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSeries & rTsObj, const char * pSymb)
+TimeSeriesCache::TimeSeriesBlock * TimeSeriesCache::InitBlock(PPObjTimeSeries & rTsObj, const char * pSymb)
 {
 	TimeSeriesBlock * p_fblk = 0;
 	PROFILE_START
@@ -1946,31 +1946,31 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 	return p_fblk;
 }
 
-int SLAPI PPObjTimeSeries::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList)
+int PPObjTimeSeries::GetReqQuotes(TSVector <PPObjTimeSeries::QuoteReqEntry> & rList)
 {
 	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 	return p_cache ? p_cache->GetReqQuotes(rList) : 0;
 }
 
-int SLAPI PPObjTimeSeries::SetExternTimeSeries(STimeSeries & rTs)
+int PPObjTimeSeries::SetExternTimeSeries(STimeSeries & rTs)
 {
 	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 	return p_cache ? p_cache->SetTimeSeries(rTs) : 0;
 }
 
-int SLAPI PPObjTimeSeries::SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet)
+int PPObjTimeSeries::SetExternStakeEnvironment(const TsStakeEnvironment & rEnv, TsStakeEnvironment::StakeRequestBlock & rRet)
 {
 	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 	return p_cache ? p_cache->SetCurrentStakeEnvironment(&rEnv, &rRet) : 0;
 }
 
-int SLAPI PPObjTimeSeries::SetExternTransactionNotification(const TsStakeEnvironment::TransactionNotification & rTa)
+int PPObjTimeSeries::SetExternTransactionNotification(const TsStakeEnvironment::TransactionNotification & rTa)
 {
 	TimeSeriesCache * p_cache = GetDbLocalCachePtr <TimeSeriesCache> (PPOBJ_TIMESERIES);
 	return p_cache ? p_cache->SetTransactionNotification(&rTa) : 0;
 }
 
-int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal)
+int PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const char * pPropSymb, const char * pPropVal)
 {
 	int    ok = -1;
 	int    do_update = 0;

@@ -219,12 +219,12 @@ typedef enum yysymbol_kind_t yysymbol_kind_t;
 #line 41 "src/parse-gram.y"
 
   //#include "system.h"
-  #include <c-ctype.h>
+  //#include <c-ctype.h>
   //#include <errno.h>
-  #include <intprops.h>
+  //#include <intprops.h>
   //#include <quotearg.h>
-  #include <vasnprintf.h>
-  #include <xmemdup0.h>
+  //#include <vasnprintf.h>
+  //#include <xmemdup0.h>
   //#include "complain.h"
   //#include "conflicts.h"
   //#include "files.h"

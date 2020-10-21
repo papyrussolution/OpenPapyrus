@@ -320,12 +320,11 @@ bool filter_apply_chain(struct filter * chain, FILE* in_file, FILE* out_file)
 		close(pipes[0]);
 		fseek(stdin, 0, SEEK_CUR);
 		ungetc(' ', stdin); /* still an evil hack, but one that works better */
-		(void)fgetc(stdin); /* on NetBSD than the fseek attempt does */
+		fgetc(stdin); /* on NetBSD than the fseek attempt does */
 
 		/* run as a filter, either internally or by exec */
 		if(chain->filter_func) {
 			int r;
-
 			if((r = chain->filter_func(chain)) == -1)
 				flexfatal(_("filter_func failed"));
 			FLEX_EXIT(0);

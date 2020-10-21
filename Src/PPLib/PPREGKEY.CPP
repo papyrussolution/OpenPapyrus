@@ -17,7 +17,7 @@ static const uint16 MaskMatrix[MASK_MATRIX_SIZE] = {
 	0xD396, 0x698B, 0x5B2D, 0x64E8, 0x7D79, 0x591A, 0xE17E, 0xF1D1
 };
 
-int SLAPI Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
+int Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 {
 	char   buf[64];
 	size_t i = 0, l = sstrlen(pName);
@@ -51,7 +51,7 @@ int SLAPI Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 	return 1;
 }
 
-int SLAPI PPCalcRegisterKey(const char * pName, char * pBuf)
+int PPCalcRegisterKey(const char * pName, char * pBuf)
 {
 	char   buf[64];
 	IdeaRandMem(buf, sizeof(buf));
@@ -59,7 +59,7 @@ int SLAPI PPCalcRegisterKey(const char * pName, char * pBuf)
 	return Helper_CalcRegisterKey(mi, pName, pBuf);
 }
 
-int SLAPI PPCheckRegisterKey(const char * pName, const char * pRegKey)
+int PPCheckRegisterKey(const char * pName, const char * pRegKey)
 {
 	for(size_t i = 0; i < MASK_MATRIX_SIZE; i++) {
 		char   buf[32];
@@ -74,14 +74,14 @@ int SLAPI PPCheckRegisterKey(const char * pName, const char * pRegKey)
 //
 //
 //
-SLAPI PPLicData::PPLicData()
+PPLicData::PPLicData()
 {
     THISZERO();
 }
 //
 //
 //
-static void SLAPI GetRegDataSign(char * pSign)
+static void GetRegDataSign(char * pSign)
 {
 	// "-{+7g./0a"
 	pSign[7] = '0';
@@ -96,7 +96,7 @@ static void SLAPI GetRegDataSign(char * pSign)
 	pSign[6] = '/';
 }
 
-int SLAPI PPWriteLicData(const char * pFileName, const PPLicData * pData)
+int PPWriteLicData(const char * pFileName, const PPLicData * pData)
 {
 	int    ok = 1;
 	const  size_t file_size = 4096;
@@ -126,12 +126,12 @@ int SLAPI PPWriteLicData(const char * pFileName, const PPLicData * pData)
 #ifdef PPMKREG // {
 
 int FASTCALL PPSetError(int errCode) { PPErrCode = errCode; return 0; }
-int SLAPI PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
-int SLAPI PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
+int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
 
 #endif // } PPMKREG
 
-int SLAPI PPReadLicData(const char * pFileName, PPLicData * pData)
+int PPReadLicData(const char * pFileName, PPLicData * pData)
 {
 	int    ok = 1;
 	size_t file_size = 0;
@@ -165,7 +165,7 @@ int SLAPI PPReadLicData(const char * pFileName, PPLicData * pData)
 
 #ifndef PPMKREG // {
 
-int SLAPI PPGetLicData(PPLicData * pData)
+int PPGetLicData(PPLicData * pData)
 {
 	int    ok = -1;
 	SString path;
@@ -187,7 +187,7 @@ int SLAPI PPGetLicData(PPLicData * pData)
 	return ok;
 }
 
-int SLAPI PPUpdateLic(const char * pSrcFile, const char * pRegName, const char * pRegNum)
+int PPUpdateLic(const char * pSrcFile, const char * pRegName, const char * pRegNum)
 {
 	int    ok = 1;
 	SString path;
@@ -224,7 +224,7 @@ int SLAPI PPUpdateLic(const char * pSrcFile, const char * pRegName, const char *
 	return ok;
 }
 
-int SLAPI PPUpdateLic(const char * pSrcFile)
+int PPUpdateLic(const char * pSrcFile)
 {
 	int    ok = -1;
 	PPLicData data;
@@ -240,7 +240,7 @@ int SLAPI PPUpdateLic(const char * pSrcFile)
 //
 #ifdef REGKEY_GENMATRIX
 
-static int SLAPI GenMaskMatrix()
+static int GenMaskMatrix()
 {
 	size_t i;
 	FILE * f = fopen("matrix.", "w");
@@ -275,7 +275,7 @@ static PPLicFuncKey LfKeys[] = {
 	{ "EGAIS",      PPLicData::effEgais } // @v8.8.2
 };
 
-int SLAPI PPCreateLic(PPCreateLicParam * pParam)
+int PPCreateLic(PPCreateLicParam * pParam)
 {
 	int    ok = 1;
 	int    is_new = 0;

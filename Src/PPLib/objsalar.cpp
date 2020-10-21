@@ -5,12 +5,12 @@
 #pragma hdrstop
 #include <charry.h>
 
-SLAPI PPSalChargePacket::PPSalChargePacket()
+PPSalChargePacket::PPSalChargePacket()
 {
 	MEMSZERO(Rec);
 }
 
-void SLAPI PPSalChargePacket::Init()
+void PPSalChargePacket::Init()
 {
 	MEMSZERO(Rec);
 	Formula.Z();
@@ -26,7 +26,7 @@ static int SalChargeFilt(void * pRec, void * extraPtr)
 		return (extra_param == -1000) ? 0 : 1;
 }
 
-SLAPI PPObjSalCharge::PPObjSalCharge(void * extraPtr) : PPObjReference(PPOBJ_SALCHARGE, extraPtr)
+PPObjSalCharge::PPObjSalCharge(void * extraPtr) : PPObjReference(PPOBJ_SALCHARGE, extraPtr)
 {
 	FiltProc = SalChargeFilt;
 }
@@ -180,7 +180,7 @@ int SalChargeDialog::moveItem(long pos, long id, int up)
 	return Data.GrpList.swap(pos, up ? pos-1 : pos+1) ? 1 : -1;
 }
 
-int SLAPI PPObjSalCharge::Edit(PPID * pID, void * extraPtr)
+int PPObjSalCharge::Edit(PPID * pID, void * extraPtr)
 {
 	const  long extra_param = reinterpret_cast<long>(extraPtr);
 	int    ok = -1, r = cmCancel, is_new = 0;
@@ -208,7 +208,7 @@ int SLAPI PPObjSalCharge::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjSalCharge::Browse(void * extraPtr)
+int PPObjSalCharge::Browse(void * extraPtr)
 {
 	class SalChargeView : public ObjViewDialog {
 	public:
@@ -256,7 +256,7 @@ int SLAPI PPObjSalCharge::Browse(void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjSalCharge::GetPacket(PPID id, PPSalChargePacket * pPack)
+int PPObjSalCharge::GetPacket(PPID id, PPSalChargePacket * pPack)
 {
 	int    ok = -1, r;
 	if(pPack) {
@@ -272,7 +272,7 @@ int SLAPI PPObjSalCharge::GetPacket(PPID id, PPSalChargePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjSalCharge::PutPacket(PPID * pID, PPSalChargePacket * pPack, int useTa)
+int PPObjSalCharge::PutPacket(PPID * pID, PPSalChargePacket * pPack, int useTa)
 {
 	int    ok = 1;
 	{
@@ -307,7 +307,7 @@ int SLAPI PPObjSalCharge::PutPacket(PPID * pID, PPSalChargePacket * pPack, int u
 	return ok;
 }
 
-int  SLAPI PPObjSalCharge::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int  PPObjSalCharge::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -336,7 +336,7 @@ int  SLAPI PPObjSalCharge::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 
 IMPL_DESTROY_OBJ_PACK(PPObjSalCharge, PPSalChargePacket);
 
-int SLAPI PPObjSalCharge::SerializePacket(int dir, PPSalChargePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjSalCharge::SerializePacket(int dir, PPSalChargePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -346,10 +346,10 @@ int SLAPI PPObjSalCharge::SerializePacket(int dir, PPSalChargePacket * pPack, SB
 	return ok;
 }
 
-int SLAPI PPObjSalCharge::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjSalCharge::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjSalCharge, PPSalChargePacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -384,7 +384,7 @@ int SLAPI PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	return ok;
 }
 
-int SLAPI PPObjSalCharge::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjSalCharge::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -412,12 +412,12 @@ int SLAPI PPObjSalCharge::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 //
 class SalChargeCache : public ObjCache {
 public:
-	SLAPI  SalChargeCache() : ObjCache(PPOBJ_SALCHARGE, sizeof(Data))
+	SalChargeCache() : ObjCache(PPOBJ_SALCHARGE, sizeof(Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   EnumObjType;
@@ -429,7 +429,7 @@ public:
 	};
 };
 
-int SLAPI SalChargeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int SalChargeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -455,7 +455,7 @@ int SLAPI SalChargeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSalChargePacket * p_data_rec = static_cast<PPSalChargePacket *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -476,7 +476,7 @@ void SLAPI SalChargeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	b.Get(p_data_rec->Formula);
 }
 
-int SLAPI PPObjSalCharge::Fetch(PPID id, PPSalChargePacket * pRec)
+int PPObjSalCharge::Fetch(PPID id, PPSalChargePacket * pRec)
 {
 	SalChargeCache * p_cache = GetDbLocalCachePtr <SalChargeCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : GetPacket(id, pRec);
@@ -669,7 +669,7 @@ IMPL_INVARIANT_C(PPStaffCal)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-/*static*/int SLAPI PPStaffCalPacket::InvariantEntry(const StaffCalendarTbl::Rec * pRec)
+/*static*/int PPStaffCalPacket::InvariantEntry(const StaffCalendarTbl::Rec * pRec)
 {
 	int    ok = 1;
 	CALDATE cd;
@@ -687,7 +687,7 @@ IMPL_INVARIANT_C(PPStaffCal)
 	return ok;
 }
 
-/*static*/int SLAPI PPStaffCalPacket::SetupEntry(StaffCalendarTbl::Rec * pEntry)
+/*static*/int PPStaffCalPacket::SetupEntry(StaffCalendarTbl::Rec * pEntry)
 {
 	int    ok = -1;
 	LTIME  tm = ZEROTIME;
@@ -716,13 +716,13 @@ IMPL_INVARIANT_C(PPStaffCal)
 	return InvariantEntry(pEntry) ? ok : 0;
 }
 
-SLAPI PPStaffCalPacket::PPStaffCalPacket()
+PPStaffCalPacket::PPStaffCalPacket()
 {
 	MEMSZERO(Rec);
 	Rec.Tag = PPOBJ_STAFFCAL;
 }
 
-void SLAPI PPStaffCalPacket::Init(const StaffCalFilt * pFilt)
+void PPStaffCalPacket::Init(const StaffCalFilt * pFilt)
 {
 	MEMSZERO(Rec);
 	Items.freeAll();
@@ -741,7 +741,7 @@ PPStaffCalPacket & FASTCALL PPStaffCalPacket::operator = (const PPStaffCalPacket
 	return *this;
 }
 
-int SLAPI PPStaffCalPacket::Helper_Get(LDATE dt, CALDATE * pCdt, uint * pPos) const
+int PPStaffCalPacket::Helper_Get(LDATE dt, CALDATE * pCdt, uint * pPos) const
 {
 	int    ok = 0;
 	CALDATE cdt;
@@ -765,7 +765,7 @@ int SLAPI PPStaffCalPacket::Helper_Get(LDATE dt, CALDATE * pCdt, uint * pPos) co
 	return ok;
 }
 
-int SLAPI PPStaffCalPacket::Get(LDATE dt, double * pHours, uint * pPos) const
+int PPStaffCalPacket::Get(LDATE dt, double * pHours, uint * pPos) const
 {
 	int    ok = 0;
 	CALDATE cdt;
@@ -790,7 +790,7 @@ int SLAPI PPStaffCalPacket::Get(LDATE dt, double * pHours, uint * pPos) const
 	return ok;
 }
 
-int SLAPI PPStaffCalPacket::GetTimeChunkList(const DateRange & rPeriod, STimeChunkArray * pList) const
+int PPStaffCalPacket::GetTimeChunkList(const DateRange & rPeriod, STimeChunkArray * pList) const
 {
 	int    ok = -1;
 	LDATE  dt;
@@ -828,7 +828,7 @@ IMPL_CMPFUNC(STAFFCALREC, i1, i2)
 IMPL_CMPFUNC(STAFFCALREC_WO_TM, i1, i2) 
 	{ RET_CMPCASCADE2(static_cast<const StaffCalendarTbl::Rec *>(i1), static_cast<const StaffCalendarTbl::Rec *>(i2), CalID, DtVal); }
 
-int SLAPI PPStaffCalPacket::SearchContinuousEntry(long dtVal, StaffCalendarTbl::Rec * pRec) const
+int PPStaffCalPacket::SearchContinuousEntry(long dtVal, StaffCalendarTbl::Rec * pRec) const
 {
 	//
 	// ѕредполагаем, что массив Items отсортирован по критерию CMPFUNC(STAFFCALREC)
@@ -876,7 +876,7 @@ int FASTCALL PPStaffCalPacket::CheckContinuousEntry(const StaffCalendarTbl::Rec 
 	return ok;
 }
 
-int SLAPI PPStaffCalPacket::AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos)
+int PPStaffCalPacket::AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos)
 {
 	int    ok = 1;
 	int    f_day_gap = 0;
@@ -905,7 +905,7 @@ int SLAPI PPStaffCalPacket::AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos)
 	return ok;
 }
 
-int SLAPI PPStaffCalPacket::RemoveItem(uint pos)
+int PPStaffCalPacket::RemoveItem(uint pos)
 {
 	int    ok = 1;
 	if(pos < Items.getCount())
@@ -934,7 +934,7 @@ PPObjStaffCal::~PPObjStaffCal()
 	TLP_CLOSE(P_ScT);
 }
 
-int SLAPI PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE)
 		if(_obj == PPOBJ_STAFFCAL) {
@@ -952,7 +952,7 @@ int SLAPI PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 
 IMPL_DESTROY_OBJ_PACK(PPObjStaffCal, PPStaffCalPacket);
 
-int SLAPI PPObjStaffCal::SerializePacket(int dir, PPStaffCalPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjStaffCal::SerializePacket(int dir, PPStaffCalPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -961,10 +961,10 @@ int SLAPI PPObjStaffCal::SerializePacket(int dir, PPStaffCalPacket * pPack, SBuf
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjStaffCal::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjStaffCal, PPStaffCalPacket>(this, p, id, stream, pCtx); }
 
-int  SLAPI PPObjStaffCal::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int  PPObjStaffCal::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	PPStaffCalPacket * p_pack = 0;
@@ -997,7 +997,7 @@ int  SLAPI PPObjStaffCal::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjStaffCal::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1012,7 +1012,7 @@ int SLAPI PPObjStaffCal::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal * pRec) const
+int PPObjStaffCal::CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal * pRec) const
 {
 	if(pFilt) {
 		if(pFilt->LinkObjType >= 0 && pRec->LinkObjType != pFilt->LinkObjType)
@@ -1025,7 +1025,7 @@ int SLAPI PPObjStaffCal::CheckForFilt(const StaffCalFilt * pFilt, const PPStaffC
 	return 1;
 }
 
-StrAssocArray * SLAPI PPObjStaffCal::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjStaffCal::MakeStrAssocList(void * extraPtr)
 {
 	StaffCalFilt filt;
 	if(extraPtr)
@@ -1429,7 +1429,7 @@ int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::EditEntry(const PPStaffCalPacket * pPack, StaffCalendarTbl::Rec * pRec) { DIALOG_PROC_BODY_P1(StaffCalDayDialog, pPack, pRec); }
+int PPObjStaffCal::EditEntry(const PPStaffCalPacket * pPack, StaffCalendarTbl::Rec * pRec) { DIALOG_PROC_BODY_P1(StaffCalDayDialog, pPack, pRec); }
 
 int StaffCalDialog::addItem(long * pPos, long * pID)
 {
@@ -1482,7 +1482,7 @@ int StaffCalDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::Edit(PPID * pID, void * extraPtr)
+int PPObjStaffCal::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
 	StaffCalFilt filt;
@@ -1512,7 +1512,7 @@ int SLAPI PPObjStaffCal::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjStaffCal::PutItems(PPID id, PPStaffCalPacket * pPack, int logAction)
+int PPObjStaffCal::PutItems(PPID id, PPStaffCalPacket * pPack, int logAction)
 {
 	int    ok = 1;
 	THROW_DB(deleteFrom(P_ScT, 0, P_ScT->CalID == id));
@@ -1533,7 +1533,7 @@ int SLAPI PPObjStaffCal::PutItems(PPID id, PPStaffCalPacket * pPack, int logActi
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::PutPacket(PPID * pID, PPStaffCalPacket * pPack, int useTa)
+int PPObjStaffCal::PutPacket(PPID * pID, PPStaffCalPacket * pPack, int useTa)
 {
 	int    ok = 1;
 	{
@@ -1565,7 +1565,7 @@ int SLAPI PPObjStaffCal::PutPacket(PPID * pID, PPStaffCalPacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::GetPacket(PPID id, PPStaffCalPacket * pPack)
+int PPObjStaffCal::GetPacket(PPID id, PPStaffCalPacket * pPack)
 {
 	int    ok = -1;
 	if(id && pPack && Search(id, &pPack->Rec) > 0) {
@@ -1588,7 +1588,7 @@ int SLAPI PPObjStaffCal::GetPacket(PPID id, PPStaffCalPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec)
+int PPObjStaffCal::SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec)
 {
 	int    ok = -1;
 	PPStaffCal rec;
@@ -1600,7 +1600,7 @@ int SLAPI PPObjStaffCal::SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal 
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::CreateChild(PPID * pID, PPID parentID, PPObjID linkObj, int use_ta)
+int PPObjStaffCal::CreateChild(PPID * pID, PPID parentID, PPObjID linkObj, int use_ta)
 {
 	int    ok = 1;
 	int    r;
@@ -1628,7 +1628,7 @@ int SLAPI PPObjStaffCal::CreateChild(PPID * pID, PPID parentID, PPObjID linkObj,
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::RemoveEntriesByPsnEvent(PPID psnEvID, int use_ta)
+int PPObjStaffCal::RemoveEntriesByPsnEvent(PPID psnEvID, int use_ta)
 {
 	int    ok = 1;
 	StaffCalendarTbl::Key2 k2;
@@ -1648,7 +1648,7 @@ int SLAPI PPObjStaffCal::RemoveEntriesByPsnEvent(PPID psnEvID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket * pDsPack, const DateRange & rPeriod, int use_ta)
+int PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket * pDsPack, const DateRange & rPeriod, int use_ta)
 {
 	int    ok = -1;
 	THROW_INVARG(pDsPack);
@@ -1722,7 +1722,7 @@ int FASTCALL PPObjStaffCal::CheckContinuousEntry(const StaffCalendarTbl::Rec * p
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SearchContinuousEntry(PPID calID, long dtVal, StaffCalendarTbl::Rec * pRec)
+int PPObjStaffCal::SearchContinuousEntry(PPID calID, long dtVal, StaffCalendarTbl::Rec * pRec)
 {
 	int    ok = -1;
 	StaffCalendarTbl::Key0 k0;
@@ -1738,7 +1738,7 @@ int SLAPI PPObjStaffCal::SearchContinuousEntry(PPID calID, long dtVal, StaffCale
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SearchEntry(PPID calID, long dtVal, LTIME tmStart, StaffCalendarTbl::Rec * pRec)
+int PPObjStaffCal::SearchEntry(PPID calID, long dtVal, LTIME tmStart, StaffCalendarTbl::Rec * pRec)
 {
 	int    ok = -1;
 	StaffCalendarTbl::Key0 k0;
@@ -1754,7 +1754,7 @@ int SLAPI PPObjStaffCal::SearchEntry(PPID calID, long dtVal, LTIME tmStart, Staf
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffCalendarTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffCalendarTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -1775,7 +1775,7 @@ int SLAPI PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSVector <StaffCalendarTbl::Rec> & rList)
+int PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSVector <StaffCalendarTbl::Rec> & rList)
 {
 	int    ok = -1;
 	StaffCalendarTbl::Rec rec;
@@ -1835,7 +1835,7 @@ int SLAPI PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSVector <StaffCalenda
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::RemoveEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
+int PPObjStaffCal::RemoveEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 {
 	int    ok = -1;
 	StaffCalendarTbl::Key0 k0;
@@ -1858,7 +1858,7 @@ int SLAPI PPObjStaffCal::RemoveEntry(const StaffCalendarTbl::Rec & rEntry, int u
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
+int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 {
 	int    ok = 1;
 	int    allow_day_gap = 0;
@@ -1943,7 +1943,7 @@ int SLAPI PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::GetChildList(PPID calID, PPIDArray * pList)
+int PPObjStaffCal::GetChildList(PPID calID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPStaffCal rec;
@@ -1962,7 +1962,7 @@ int SLAPI PPObjStaffCal::GetChildList(PPID calID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonPostTbl::Rec * pPostRec, ScObjAssoc * pAssc)
+int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonPostTbl::Rec * pPostRec, ScObjAssoc * pAssc)
 {
 	int    ok = 1;
 	PPID   cal_id = calID;        // ћожет быть замещен подстановочным календарем
@@ -2000,7 +2000,7 @@ int SLAPI PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonP
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID, ScObjAssoc * pAssc)
+int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID, ScObjAssoc * pAssc)
 {
 	int    ok = 1;
 	PPID   cal_id = calID;        // ћожет быть замещен подстановочным календарем
@@ -2034,7 +2034,7 @@ int SLAPI PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
+int PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 	const TSVector <StaffCalendarTbl::Rec> & rCalList, const TSVector <StaffCalendarTbl::Rec> & rProjCalList,
 	STimeChunkArray * pList, long & rDays, double & rHour)
 {
@@ -2128,7 +2128,7 @@ int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 	return 1;
 }
 
-int SLAPI PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const PPIDArray & rEvList, int inverse,
+int PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const PPIDArray & rEvList, int inverse,
 	long * pDays, double * pHours, STimeChunkArray * pList)
 {
 	int    ok = 1;
@@ -2174,7 +2174,7 @@ int SLAPI PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::CalcPeriod(const ScObjAssoc & rAssc, const DateRange & rPeriod, int inverse,
+int PPObjStaffCal::CalcPeriod(const ScObjAssoc & rAssc, const DateRange & rPeriod, int inverse,
 	long * pDays, double * pHours, STimeChunkArray * pList)
 {
 	int    ok = 1;
@@ -2214,7 +2214,7 @@ int SLAPI PPObjStaffCal::CalcPeriod(const ScObjAssoc & rAssc, const DateRange & 
 //
 //
 //
-int SLAPI PPObjStaffCal::Browse(void * extraPtr)
+int PPObjStaffCal::Browse(void * extraPtr)
 {
 	class StaffCalView : public ObjViewDialog {
 	public:
@@ -2265,12 +2265,12 @@ int SLAPI PPObjStaffCal::Browse(void * extraPtr)
 //
 class StaffCalCache : public ObjCache {
 public:
-	SLAPI  StaffCalCache() : ObjCache(PPOBJ_STAFFCAL, sizeof(Data))
+	StaffCalCache() : ObjCache(PPOBJ_STAFFCAL, sizeof(Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   LinkObjType;
@@ -2282,7 +2282,7 @@ public:
 	};
 };
 
-int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2307,7 +2307,7 @@ int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPStaffCal * p_data_rec = static_cast<PPStaffCal *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);

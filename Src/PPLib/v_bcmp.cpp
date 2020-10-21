@@ -6,7 +6,7 @@
 //
 // @ModuleDef(PPViewGoodsBillCmp)
 //
-IMPLEMENT_PPFILT_FACTORY(GoodsBillCmp); SLAPI GoodsBillCmpFilt::GoodsBillCmpFilt() : PPBaseFilt(PPFILT_GOODSBILLCMP, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(GoodsBillCmp); GoodsBillCmpFilt::GoodsBillCmpFilt() : PPBaseFilt(PPFILT_GOODSBILLCMP, 0, 1)
 {
 	SetFlatChunk(offsetof(GoodsBillCmpFilt, ReserveStart), offsetof(GoodsBillCmpFilt, Reserve)+sizeof(Reserve)-offsetof(GoodsBillCmpFilt, ReserveStart));
 	SetBranchSVector(offsetof(GoodsBillCmpFilt, LhBillList));
@@ -20,17 +20,16 @@ GoodsBillCmpFilt & FASTCALL GoodsBillCmpFilt::operator = (const GoodsBillCmpFilt
 	return *this;
 }
 
-SLAPI PPViewGoodsBillCmp::PPViewGoodsBillCmp() : PPView(0, &Filt, PPVIEW_GOODSBILLCMP), P_TempTbl(0), P_BObj(BillObj), IterIdx(1)
+PPViewGoodsBillCmp::PPViewGoodsBillCmp() : PPView(0, &Filt, PPVIEW_GOODSBILLCMP, 0, REPORT_GOODSBILLCMP), P_TempTbl(0), P_BObj(BillObj), IterIdx(1)
 {
-	DefReportId = REPORT_GOODSBILLCMP;
 }
 
-SLAPI PPViewGoodsBillCmp::~PPViewGoodsBillCmp()
+PPViewGoodsBillCmp::~PPViewGoodsBillCmp()
 {
 	delete P_TempTbl;
 }
 
-PPBaseFilt * SLAPI PPViewGoodsBillCmp::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGoodsBillCmp::CreateFilt(void * extraPtr) const
 {
 	GoodsBillCmpFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_GOODSBILLCMP, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
@@ -43,7 +42,7 @@ PPBaseFilt * SLAPI PPViewGoodsBillCmp::CreateFilt(void * extraPtr) const
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 
-int SLAPI PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & rLhCode, SString & rRhCode)
+int PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & rLhCode, SString & rRhCode)
 {
 	int    r = 0;
 	const  PPID lh_bill_id = pFilt->LhBillList.getCount() ? pFilt->LhBillList.get(0) : 0;
@@ -113,7 +112,7 @@ int SLAPI PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SStri
 	return 1;
 }
 
-int SLAPI PPViewGoodsBillCmp::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewGoodsBillCmp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	ushort v = 0;
@@ -157,7 +156,7 @@ int SLAPI PPViewGoodsBillCmp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - rh */, int isHistory, const LDATETIME & rSjTime)
+int PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - rh */, int isHistory, const LDATETIME & rSjTime)
 {
 	int    ok = 1, r = 0;
 	PPBillPacket pack;
@@ -248,7 +247,7 @@ int SLAPI PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsBillCmp);
 
-int SLAPI PPViewGoodsBillCmp::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewGoodsBillCmp::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -272,7 +271,7 @@ int SLAPI PPViewGoodsBillCmp::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsBillCmp::InitIteration()
+int PPViewGoodsBillCmp::InitIteration()
 {
 	int    ok = 1;
 	// @v10.6.8 char   k[MAXKEYLEN];
@@ -311,7 +310,7 @@ int FASTCALL PPViewGoodsBillCmp::NextIteration(GoodsBillCmpViewItem * pItem)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewGoodsBillCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewGoodsBillCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_GBILLCMP;
 	DBQuery * q = 0;
@@ -358,7 +357,7 @@ DBQuery * SLAPI PPViewGoodsBillCmp::CreateBrowserQuery(uint * pBrwId, SString * 
 	return q;
 }
 
-int SLAPI PPViewGoodsBillCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsBillCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -390,12 +389,12 @@ int SLAPI PPViewGoodsBillCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 //
 //
 //
-int SLAPI PPViewGoodsBillCmp::Print(const void * pHdr)
+int PPViewGoodsBillCmp::Print(const void * pHdr)
 {
 	return Helper_Print(REPORT_GOODSBILLCMP, Filt.Order);
 }
 
-int SLAPI PPViewGoodsBillCmp::AddToBasketAll(int diffSign)
+int PPViewGoodsBillCmp::AddToBasketAll(int diffSign)
 {
 	int    ok = -1, r;
 	RAssocArray list;
@@ -452,7 +451,7 @@ int SLAPI PPViewGoodsBillCmp::AddToBasketAll(int diffSign)
 	return ok;
 }
 
-int SLAPI PPViewGoodsBillCmp::ViewTotal()
+int PPViewGoodsBillCmp::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GBILLCMPTTL);
@@ -477,7 +476,7 @@ int SLAPI PPViewGoodsBillCmp::ViewTotal()
 	return ok;
 }
 
-int SLAPI ViewGoodsBillCmp(PPID lhBillID, const PPIDArray & rRhBillList, int _modeless, int whatBillIsHistory, const LDATETIME * pLhEvDtm, const LDATETIME * pRhEvDtm)
+int ViewGoodsBillCmp(PPID lhBillID, const PPIDArray & rRhBillList, int _modeless, int whatBillIsHistory, const LDATETIME * pLhEvDtm, const LDATETIME * pRhEvDtm)
 {
 	GoodsBillCmpFilt flt;
 	flt.LhBillList.add(lhBillID);

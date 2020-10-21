@@ -18,22 +18,19 @@
 #ifndef XMEMDUP_H_
 #define XMEMDUP_H_
 
-#include <stddef.h>
+//#include <stddef.h>
 
-# ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
-
-/* This function is always triggered when memory is exhausted.
-   It must be defined by the application, either explicitly
-   or by using gnulib's xalloc-die module.  This is the
-   function to call when one wants the program to die because of a
-   memory allocation failure.  */
-//extern _Noreturn void xalloc_die (void);
-
-char * xmemdup0(void const * p, size_t s);
-
-# ifdef __cplusplus
+	/* This function is always triggered when memory is exhausted.
+	   It must be defined by the application, either explicitly
+	   or by using gnulib's xalloc-die module.  This is the
+	   function to call when one wants the program to die because of a
+	   memory allocation failure.  */
+	//extern _Noreturn void xalloc_die (void);
+	char * xmemdup0(void const * p, size_t s);
+#ifdef __cplusplus
 }
 #endif
 

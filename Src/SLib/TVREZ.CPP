@@ -5,18 +5,18 @@
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI TVRez::TVRez(const char * fName, int useIndex) : Stream(0), P_Index(0), HeaderType(hdrUnknown)
+TVRez::TVRez(const char * fName, int useIndex) : Stream(0), P_Index(0), HeaderType(hdrUnknown)
 {
 	open(fName, useIndex);
 }
 
-SLAPI TVRez::~TVRez()
+TVRez::~TVRez()
 {
 	delete P_Index;
 	SFile::ZClose(&Stream);
 }
 
-int SLAPI TVRez::open(const char * fName, int useIndex)
+int TVRez::open(const char * fName, int useIndex)
 {
 	int    ok = 1;
 	error = 0;
@@ -38,12 +38,12 @@ int SLAPI TVRez::open(const char * fName, int useIndex)
 	return ok;
 }
 
-int SLAPI TVRez::getChar()
+int TVRez::getChar()
 {
 	return fgetc(Stream);
 }
 
-uint SLAPI TVRez::getUINT()
+uint TVRez::getUINT()
 {
 	uint16 t;
 	fread(&t, sizeof(t), 1, Stream);
@@ -116,14 +116,14 @@ char * FASTCALL TVRez::getString(char * buf, int kind /*0 - 866, 1 - w_char, 2 -
 	return buf;
 }
 
-TRect SLAPI TVRez::getRect()
+TRect TVRez::getRect()
 {
 	TRect r;
 	fread(&r, sizeof(r), 1, Stream);
 	return r;
 }
 
-TYPEID SLAPI TVRez::getType(int defaultLen)
+TYPEID TVRez::getType(int defaultLen)
 {
 	struct { uint16 N, Len, Dec; } tp;
 	fread(&tp, sizeof(tp), 1, Stream);
@@ -144,7 +144,7 @@ TYPEID SLAPI TVRez::getType(int defaultLen)
 	return 0;
 }
 
-long SLAPI TVRez::getFormat(int defaultLen)
+long TVRez::getFormat(int defaultLen)
 {
 	struct {
 		uint16 flags;
@@ -164,7 +164,7 @@ long SLAPI TVRez::getFormat(int defaultLen)
 	return 0;
 }
 
-int SLAPI TVRez::setHdrType()
+int TVRez::setHdrType()
 {
 	int    ok = 0;
 	uchar  buf[32];
@@ -197,7 +197,7 @@ struct ResIdxItem { // @flat
 
 static IMPL_CMPFUNC(ResIdxItem, _i1, _i2) { RET_CMPCASCADE2(static_cast<const ResIdxItem *>(_i1), static_cast<const ResIdxItem *>(_i2), type, id); }
 
-int SLAPI TVRez::buildIndex()
+int TVRez::buildIndex()
 {
 	if(P_Index)
 		P_Index->freeAll();
@@ -229,7 +229,7 @@ int SLAPI TVRez::buildIndex()
 	return 1;
 }
 
-int SLAPI TVRez::_readHeader16(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
+int TVRez::_readHeader16(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
 {
 	uint16  w;
 	uint32 dw;
@@ -268,7 +268,7 @@ int SLAPI TVRez::_readHeader16(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos
 	return 0;
 }
 
-int SLAPI TVRez::_readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
+int TVRez::_readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
 {
 	int    ok = 1;
 	uint16 w  = 0;
@@ -320,7 +320,7 @@ int SLAPI TVRez::_readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos
 	return ok;
 }
 
-int SLAPI TVRez::readHeader(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
+int TVRez::readHeader(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
 {
 	if(HeaderType == hdr32)
 		return _readHeader32(ofs, hdr, rpos);
@@ -330,7 +330,7 @@ int SLAPI TVRez::readHeader(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
 		return 0;
 }
 
-int SLAPI TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
+int TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
 {
 	int    ok = 0;
 	long   offs = 0L, sz = 0L;
@@ -342,7 +342,7 @@ int SLAPI TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
 			item.type = rscType;
 			item.id = id;
 			if(P_Index->bsearch(&item, &p, PTR_CMPFUNC(ResIdxItem))) {
-				item = *(const ResIdxItem *)P_Index->at(p);
+				item = *static_cast<const ResIdxItem *>(P_Index->at(p));
 				offs = item.pos;
 				sz   = item.sz;
 				fseek(Stream, item.pos, SEEK_SET);
@@ -361,7 +361,7 @@ int SLAPI TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
 	return ok;
 }
 
-int SLAPI TVRez::getSizeField(long * pSz)
+int TVRez::getSizeField(long * pSz)
 {
 	long   sz;
 	fread(&sz, sizeof(sz), 1, Stream);
@@ -369,12 +369,12 @@ int SLAPI TVRez::getSizeField(long * pSz)
 	return 1;
 }
 
-long SLAPI TVRez::getStreamPos()
+long TVRez::getStreamPos()
 {
 	return ftell(Stream);
 }
 
-int SLAPI TVRez::enumResources(uint rscType, uint * pRscID, ulong * pDwPos)
+int TVRez::enumResources(uint rscType, uint * pRscID, ulong * pDwPos)
 {
 	WResHeaderInfo hdr;
 	for(ulong ofs = *pDwPos; readHeader(ofs, &hdr, beginOfData/*nextResource*/); ofs = hdr.Next)
@@ -427,7 +427,7 @@ static void CheckDlgCtrl(TView * pV, void * ptr)
 
 #include <crtdbg.h>
 
-int SLAPI TVRez::CheckDialogs(const char * pLogFileName)
+int TVRez::CheckDialogs(const char * pLogFileName)
 {
 	double debug_val = 0; // @debug
 	char   msg_buf[512];
@@ -480,7 +480,7 @@ int SLAPI TVRez::CheckDialogs(const char * pLogFileName)
 
 #else
 
-int SLAPI TVRez::CheckDialogs(const char * pLogFileName)
+int TVRez::CheckDialogs(const char * pLogFileName)
 {
 	return -1;
 }

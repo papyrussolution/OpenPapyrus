@@ -6,7 +6,7 @@
 #include <tv.h>
 #pragma hdrstop
 
-static int SLAPI getkey(int key[], ulong * addendum)
+static int getkey(int key[], ulong * addendum)
 {
 	key[0] = 5;
 	key[1] = 4;
@@ -19,7 +19,7 @@ static int SLAPI getkey(int key[], ulong * addendum)
 	return 7;
 }
 
-static ulong SLAPI mix(ulong v)
+static ulong mix(ulong v)
 {
 	int i;
 	int key[16];
@@ -34,7 +34,7 @@ static ulong SLAPI mix(ulong v)
 	return v;
 }
 
-static ulong SLAPI unmix(ulong v)
+static ulong unmix(ulong v)
 {
 	int i;
 	int key[16];
@@ -49,7 +49,7 @@ static ulong SLAPI unmix(ulong v)
 	return v;
 }
 
-void * SLAPI encrypt(void * pBuf, size_t len)
+void * encrypt(void * pBuf, size_t len)
 {
 	len = ((len + 3) >> 2);
 	for(size_t i = 0; i < len; i++)
@@ -57,7 +57,7 @@ void * SLAPI encrypt(void * pBuf, size_t len)
 	return pBuf;
 }
 
-void * SLAPI decrypt(void * pBuf, size_t len)
+void * decrypt(void * pBuf, size_t len)
 {
 	len >>= 2;
 	for(size_t i = 0; i < len; i++)
@@ -65,7 +65,7 @@ void * SLAPI decrypt(void * pBuf, size_t len)
 	return pBuf;
 }
 
-ulong SLAPI _checksum__(const char * buf, size_t len)
+ulong _checksum__(const char * buf, size_t len)
 {
 	ulong r = 0xc22cc22cUL;
 	size_t i;

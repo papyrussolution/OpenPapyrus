@@ -81,19 +81,19 @@ void * FASTCALL DbThreadLocalArea::DbRegList::GetBySupplementPtr(const void * pS
 		return 0;
 }
 
-SLAPI DbThreadLocalArea::DbThreadLocalArea() : P_StFileName(0), P_CurDict(0)
+DbThreadLocalArea::DbThreadLocalArea() : P_StFileName(0), P_CurDict(0)
 {
 	PTR32(ClientID)[0] = 0; // @v10.3.0
 	Init();
 }
 
-SLAPI DbThreadLocalArea::~DbThreadLocalArea()
+DbThreadLocalArea::~DbThreadLocalArea()
 {
 	delete P_CurDict;
 	delete P_StFileName;
 }
 
-void SLAPI DbThreadLocalArea::Init()
+void DbThreadLocalArea::Init()
 {
 	Id = 0;
 	State = 0;
@@ -119,7 +119,7 @@ int FASTCALL DbThreadLocalArea::FreeTableEntry(int handle)
 	return DbTableReg.FreeEntry(handle, 0);
 }
 
-DBTable * SLAPI DbThreadLocalArea::GetCloneEntry(BTBLID tblID) const
+DBTable * DbThreadLocalArea::GetCloneEntry(BTBLID tblID) const
 {
 	for(int i = 1; i <= DbTableReg.GetMaxEntries(); i++) {
 		DBTable * p_tbl = static_cast<DBTable *>(DbTableReg.GetPtr(i));
@@ -137,12 +137,12 @@ void FASTCALL DbThreadLocalArea::InitErrFileName(const char * pFileName)
 	}
 }
 
-const char * SLAPI DbThreadLocalArea::GetLastErrFileName() const
+const char * DbThreadLocalArea::GetLastErrFileName() const
 {
 	return P_StFileName;
 }
 
-int SLAPI DbThreadLocalArea::StartTransaction()
+int DbThreadLocalArea::StartTransaction()
 {
 	int    ok = P_CurDict ? P_CurDict->StartTransaction() : Btrieve::StartTransaction(1);
 	if(ok) {
@@ -151,7 +151,7 @@ int SLAPI DbThreadLocalArea::StartTransaction()
 	return ok;
 }
 
-int SLAPI DbThreadLocalArea::StartTransaction_DbDepend()
+int DbThreadLocalArea::StartTransaction_DbDepend()
 {
 	int    ok = 1;
 	if(P_CurDict) {
@@ -168,7 +168,7 @@ int SLAPI DbThreadLocalArea::StartTransaction_DbDepend()
 	return ok;
 }
 
-int SLAPI DbThreadLocalArea::CommitWork()
+int DbThreadLocalArea::CommitWork()
 {
 	int    ok = P_CurDict ? P_CurDict->CommitWork() : Btrieve::CommitWork();
 	if(ok) {
@@ -177,7 +177,7 @@ int SLAPI DbThreadLocalArea::CommitWork()
 	return ok;
 }
 
-int SLAPI DbThreadLocalArea::RollbackWork()
+int DbThreadLocalArea::RollbackWork()
 {
 	int    ok = P_CurDict ? P_CurDict->RollbackWork() : Btrieve::RollbackWork();
 	if(ok) {
@@ -190,27 +190,27 @@ int SLAPI DbThreadLocalArea::RollbackWork()
 //
 class SRowId : public DataType {
 public:
-	SLAPI  SRowId();
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const;
-	void   SLAPI tobase(const void * s, void * b) const;
-	int    SLAPI baseto(void * s, const void * b) const;
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
+	SRowId();
+	int    comp(const void *, const void *) const;
+	char * tostr(const void *, long, char *) const;
+	int    fromstr(void *, long, const char *) const;
+	int    base() const;
+	void   tobase(const void * s, void * b) const;
+	int    baseto(void * s, const void * b) const;
+	void   minval(void *) const;
+	void   maxval(void *) const;
 };
 
-SLAPI SRowId::SRowId() : DataType(sizeof(DBRowId))
+SRowId::SRowId() : DataType(sizeof(DBRowId))
 {
 }
 
-int SLAPI SRowId::comp(const void * i1, const void * i2) const
+int SRowId::comp(const void * i1, const void * i2) const
 {
 	return memcmp(i1, i2, sizeof(DBRowId));
 }
 
-char * SLAPI SRowId::tostr(const void * pData, long, char * pStr) const
+char * SRowId::tostr(const void * pData, long, char * pStr) const
 {
 	const DBRowId * p_row_id = static_cast<const DBRowId *>(pData);
 	if(p_row_id) {
@@ -222,24 +222,24 @@ char * SLAPI SRowId::tostr(const void * pData, long, char * pStr) const
 	return pStr;
 }
 
-int SLAPI SRowId::fromstr(void * pData, long, const char * pStr) const
+int SRowId::fromstr(void * pData, long, const char * pStr) const
 {
 	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
 	CALLPTRMEMB(p_row_id, FromStr(pStr));
 	return 1;
 }
 
-int  SLAPI SRowId::base() const { return BTS_STRING; }
-void SLAPI SRowId::tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
-int  SLAPI SRowId::baseto(void * s, const void * b) const  { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
+int  SRowId::base() const { return BTS_STRING; }
+void SRowId::tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
+int  SRowId::baseto(void * s, const void * b) const  { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 
-void SLAPI SRowId::minval(void * pData) const
+void SRowId::minval(void * pData) const
 {
 	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
 	CALLPTRMEMB(p_row_id, SetZero());
 }
 
-void SLAPI SRowId::maxval(void * pData) const
+void SRowId::maxval(void * pData) const
 {
 	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
 	CALLPTRMEMB(p_row_id, SetMaxVal());
@@ -247,20 +247,20 @@ void SLAPI SRowId::maxval(void * pData) const
 
 class SLobType : public DataType {
 public:
-	explicit SLAPI SLobType(size_t sz = 32) : DataType(sz)
+	explicit SLobType(size_t sz = 32) : DataType(sz)
 	{
 	}
-	int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
-int SLAPI SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
+int SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	return static_cast<SLob *>(pData)->Serialize(dir, S, pInd, rBuf);
 }
 //
 //
 //
-SLAPI DbSession::DbSession() : LastThread(), Id__(1), TlsIdx(-1L), _Oe(0)
+DbSession::DbSession() : LastThread(), Id__(1), TlsIdx(-1L), _Oe(0)
 {
 	memzero(__dbdata__, sizeof(__dbdata__)); // @v10.3.0
 	SetConfig(0); // Устанавливаем конфигурацию по умолчанию
@@ -272,7 +272,7 @@ SLAPI DbSession::DbSession() : LastThread(), Id__(1), TlsIdx(-1L), _Oe(0)
 	RegisterSType(S_BLOB,  &SLobType());
 }
 
-SLAPI DbSession::~DbSession()
+DbSession::~DbSession()
 {
 	Id__ = -0x01abcdef;
 	ReleaseThread();
@@ -320,7 +320,7 @@ void DbSession::SetConfig(const Config * pCfg)
 }*/
 
 #if 0 // {
-void SLAPI DbSession::SetFlag(long f, int set)
+void DbSession::SetFlag(long f, int set)
 {
 	ENTER_CRITICAL_SECTION
 	assert(f == fDetectExistByOpen);
@@ -332,19 +332,19 @@ void SLAPI DbSession::SetFlag(long f, int set)
 	LEAVE_CRITICAL_SECTION
 }
 
-long SLAPI DbSession::GetFlag(long f) const
+long DbSession::GetFlag(long f) const
 {
 	return BIN(Flags & f);
 }
 #endif // } 0
 
-int SLAPI DbSession::GetTaState()
+int DbSession::GetTaState()
 {
 	const DbThreadLocalArea & r_tla = GetConstTLA();
 	return BIN(r_tla.GetState() & DbThreadLocalArea::stTransaction);
 }
 
-int SLAPI DbSession::InitThread()
+int DbSession::InitThread()
 {
 	DbThreadLocalArea * p_tla = new DbThreadLocalArea;
 	TlsSetValue(TlsIdx, p_tla);
@@ -355,7 +355,7 @@ int SLAPI DbSession::InitThread()
 	return 1;
 }
 
-void SLAPI DbSession::ReleaseThread()
+void DbSession::ReleaseThread()
 {
 	DbThreadLocalArea * p_tla = static_cast<DbThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
@@ -366,12 +366,12 @@ void SLAPI DbSession::ReleaseThread()
 //
 // См. примечание к определению функций DB.H
 //
-DbThreadLocalArea & SLAPI DbSession::GetTLA()
+DbThreadLocalArea & DbSession::GetTLA()
 {
 	return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx));
 }
 
-const DbThreadLocalArea & SLAPI DbSession::GetConstTLA() const
+const DbThreadLocalArea & DbSession::GetConstTLA() const
 {
 	return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx));
 }
@@ -389,13 +389,13 @@ int FASTCALL DbSession::SetError(int errCode, const char * pAddedMsg)
 	return 0;
 }
 
-long SLAPI DbSession::GetDbPathID() const
+long DbSession::GetDbPathID() const
 {
 	const DbThreadLocalArea & r_tla = GetConstTLA();
 	return r_tla.P_CurDict ? r_tla.P_CurDict->GetDbPathID() : 0;
 }
 
-int SLAPI DbSession::GetDbPathID(const char * pPath, long * pID)
+int DbSession::GetDbPathID(const char * pPath, long * pID)
 {
 	SString unc_path;
 	pathToUNC(pPath, unc_path);
@@ -414,7 +414,7 @@ int SLAPI DbSession::GetDbPathID(const char * pPath, long * pID)
 	return 1;
 }
 
-int SLAPI DbSession::GetDbPath(long dbPathID, SString & rBuf) const
+int DbSession::GetDbPath(long dbPathID, SString & rBuf) const
 {
 	int    ok = 0;
 	uint   pos = (dbPathID > 0) ? (dbPathID-1) : UNDEFPOS;
@@ -427,7 +427,7 @@ int SLAPI DbSession::GetDbPath(long dbPathID, SString & rBuf) const
 	return ok;
 }
 
-int SLAPI DbSession::OpenDictionary2(DbProvider * pDb)
+int DbSession::OpenDictionary2(DbProvider * pDb)
 {
 	DbThreadLocalArea & r_tla = GetTLA();
 	r_tla.P_CurDict = pDb;
@@ -438,7 +438,7 @@ int SLAPI DbSession::OpenDictionary2(DbProvider * pDb)
 }
 
 #if 0 // @v7.9.9 {
-int SLAPI DbSession::OpenDictionary(int serverType, const char * pLocation, const char * pDataPath, const char * pTempPath)
+int DbSession::OpenDictionary(int serverType, const char * pLocation, const char * pDataPath, const char * pTempPath)
 {
 	CloseDictionary();
 	DbThreadLocalArea & r_tla = GetTLA();
@@ -450,7 +450,7 @@ int SLAPI DbSession::OpenDictionary(int serverType, const char * pLocation, cons
 }
 #endif // } 0 @v7.9.9
 
-int SLAPI DbSession::CloseDictionary()
+int DbSession::CloseDictionary()
 {
 	DbThreadLocalArea & r_tla = GetTLA();
 	ZDELETE(r_tla.P_CurDict);
@@ -467,19 +467,19 @@ const  SString & DbSession::GetAddedMsgString() const
 	return GetConstTLA().AddedMsgString;
 }
 
-void SLAPI DbSession::GetProtectData(void * pBuf, int decr) const
+void DbSession::GetProtectData(void * pBuf, int decr) const
 {
 	memcpy(pBuf, __dbdata__, sizeof(__dbdata__));
 	if(decr)
 		::decrypt(pBuf, sizeof(__dbdata__));
 }
 
-void SLAPI DbSession::SetProtectData(const void * pBuf)
+void DbSession::SetProtectData(const void * pBuf)
 {
 	memcpy(__dbdata__, pBuf, sizeof(__dbdata__));
 }
 
-void SLAPI DbSession::InitProtectData()
+void DbSession::InitProtectData()
 {
 	uint16 * p = __dbdata__;
 	p[ 0] = 0x290a, p[ 1] = 0x874a, p[ 2] = 0xc97a,

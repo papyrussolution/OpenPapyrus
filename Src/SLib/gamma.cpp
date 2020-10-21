@@ -2054,21 +2054,21 @@ int gamma_inc_e(double a, double x, SMathResult * result)
 	return ok;
 }
 
-double SLAPI Gamma(double x)
+double Gamma(double x)
 {
 	SMathResult result;
 	fgamma(x, &result);
 	return result;
 }
 
-double SLAPI GammaIncompleteP(double a, double x)
+double GammaIncompleteP(double a, double x)
 {
 	SMathResult result;
 	gamma_inc_P_e(a, x, &result);
 	return result;
 }
 
-double SLAPI GammaIncompleteQ(double a, double x)
+double GammaIncompleteQ(double a, double x)
 {
 	SMathResult result;
 	gamma_inc_Q_e(a, x, &result);

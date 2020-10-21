@@ -8,18 +8,18 @@
 //
 // CSessionCore
 //
-SLAPI CSessionCore::CSessionCore() : CSessionTbl()
+CSessionCore::CSessionCore() : CSessionTbl()
 {
 }
 
-int SLAPI CSessionCore::Search(PPID id, CSessionTbl::Rec * pRec)
+int CSessionCore::Search(PPID id, CSessionTbl::Rec * pRec)
 	{ return SearchByID(this, PPOBJ_CSESSION, id, pRec); }
-int SLAPI CSessionCore::SetSessIncompletness(PPID id, int grade, int use_ta)
+int CSessionCore::SetSessIncompletness(PPID id, int grade, int use_ta)
 	{ return updateFor(this, use_ta, (this->ID == id), set(this->Incomplete, dbconst((long)grade))) ? 1 : PPSetErrorDB(); }
-int SLAPI CSessionCore::ResetTempSessTag(PPID id, int use_ta)
+int CSessionCore::ResetTempSessTag(PPID id, int use_ta)
 	{ return updateFor(this, use_ta, (this->ID == id), set(this->Temporary, dbconst(0L))) ? 1 : PPSetErrorDB(); }
 
-int SLAPI CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATE dt)
+int CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATE dt)
 {
 	CSessionTbl::Key2 k;
 	k.CashNodeID = cashNodeID;
@@ -35,7 +35,7 @@ int SLAPI CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, 
 	return -1;
 }
 
-int SLAPI CSessionCore::SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSessionTbl::Rec * pRec)
+int CSessionCore::SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSessionTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPObjCashNode cn_obj;
@@ -66,7 +66,7 @@ int SLAPI CSessionCore::SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSe
 	return ok;
 }
 
-int SLAPI CSessionCore::HasChild(PPID sessID)
+int CSessionCore::HasChild(PPID sessID)
 {
 	int    ok = -1;
 	CSessionTbl::Key3 k;
@@ -77,7 +77,7 @@ int SLAPI CSessionCore::HasChild(PPID sessID)
 	return (BTROKORNFOUND) ? ok : PPSetErrorDB();
 }
 
-int SLAPI CSessionCore::GetSubSessList(PPID superSessID, PPIDArray * pList)
+int CSessionCore::GetSubSessList(PPID superSessID, PPIDArray * pList)
 {
 	int    ok = -1;
 	CSessionTbl::Key3 k;
@@ -89,7 +89,7 @@ int SLAPI CSessionCore::GetSubSessList(PPID superSessID, PPIDArray * pList)
 	return (BTROKORNFOUND) ? ok : PPSetErrorDB();
 }
 
-int SLAPI CSessionCore::GetLastNumber(PPID cashNodeID, long cashN, long * pNumber, CSessionTbl::Rec * pRec)
+int CSessionCore::GetLastNumber(PPID cashNodeID, long cashN, long * pNumber, CSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
 	CSessionTbl::Key2 k;
@@ -108,7 +108,7 @@ int SLAPI CSessionCore::GetLastNumber(PPID cashNodeID, long cashN, long * pNumbe
 	return ok;
 }
 
-int SLAPI CSessionCore::SetSessDateTime(PPID sessID, const LDATETIME & rDtm, int use_ta)
+int CSessionCore::SetSessDateTime(PPID sessID, const LDATETIME & rDtm, int use_ta)
 {
 	int    ok = 1;
 	CSessionTbl::Key0 k0;
@@ -134,7 +134,7 @@ int SLAPI CSessionCore::SetSessDateTime(PPID sessID, const LDATETIME & rDtm, int
 	return ok;
 }
 
-int SLAPI CSessionCore::GetIncompleteSessList(int grade, PPID cashNodeID, PPIDArray * pSessList)
+int CSessionCore::GetIncompleteSessList(int grade, PPID cashNodeID, PPIDArray * pSessList)
 {
 	int    ok = -1;
 	int    idx = 0;
@@ -161,7 +161,7 @@ int SLAPI CSessionCore::GetIncompleteSessList(int grade, PPID cashNodeID, PPIDAr
 	return ok ? (pSessList->getCount() ? 1 : -1) : 0;
 }
 
-int SLAPI CSessionCore::CheckUniqueDateTime(PPID superSessID, long posNumber, LDATE * pDt, LTIME * pTm)
+int CSessionCore::CheckUniqueDateTime(PPID superSessID, long posNumber, LDATE * pDt, LTIME * pTm)
 {
 	//
 	// Проверяем уникальность даты и времени для новой записи.
@@ -212,7 +212,7 @@ int SLAPI CSessionCore::CheckUniqueDateTime(PPID superSessID, long posNumber, LD
 	return ok;
 }
 
-int SLAPI CSessionCore::CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME * pTm)
+int CSessionCore::CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME * pTm)
 {
 	//
 	// Проверяем уникальность даты и времени для новой записи.
@@ -261,7 +261,7 @@ int SLAPI CSessionCore::CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME 
 	return ok;
 }
 
-int SLAPI CSessionCore::CreateSess(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATETIME dtm, int temporary)
+int CSessionCore::CreateSess(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATETIME dtm, int temporary)
 {
 	CSessionTbl::Rec rec;
 	// @v10.6.4 MEMSZERO(rec);
@@ -275,7 +275,7 @@ int SLAPI CSessionCore::CreateSess(PPID * pID, PPID cashNodeID, long cashN, long
 	return AddObjRecByID(this, PPOBJ_CSESSION, pID, &rec, 0);
 }
 
-int SLAPI CSessionCore::AttachToSuperSess(PPID superSessID, const PPIDArray & rSessList, int use_ta)
+int CSessionCore::AttachToSuperSess(PPID superSessID, const PPIDArray & rSessList, int use_ta)
 {
 	int    ok = -1;
 	PPTransaction tra(use_ta);
@@ -314,7 +314,7 @@ int SLAPI CSessionCore::AttachToSuperSess(PPID superSessID, const PPIDArray & rS
 	return ok;
 }
 
-int SLAPI CSessionCore::CreateSuperSess(PPID * pID, PPID cashNodeID, const PPIDArray & rSessList, int use_ta)
+int CSessionCore::CreateSuperSess(PPID * pID, PPID cashNodeID, const PPIDArray & rSessList, int use_ta)
 {
 	int    ok = 1;
 	PPID   super_id = 0;
@@ -342,7 +342,7 @@ int SLAPI CSessionCore::CreateSuperSess(PPID * pID, PPID cashNodeID, const PPIDA
 	return ok;
 }
 
-int SLAPI CSessionCore::UpdateTotal(PPID id, const CSessTotal * pTotal, int wrOffSum, int completness, int use_ta)
+int CSessionCore::UpdateTotal(PPID id, const CSessTotal * pTotal, int wrOffSum, int completness, int use_ta)
 {
 	int    ok = -1;
 	CSessionTbl::Rec rec;
@@ -390,7 +390,7 @@ int CSessionCore::GetTempAsyncSessList(PPID nodeID, const DateRange * pPeriod, P
 
 #define ASYNCSESS_BYLASTDAYS 7L
 
-int SLAPI CSessionCore::GetActiveSessList(PPID locID, ObjIdListFilt * pActiveSessList)
+int CSessionCore::GetActiveSessList(PPID locID, ObjIdListFilt * pActiveSessList)
 {
 	int    ok = -1;
 	if(pActiveSessList) {

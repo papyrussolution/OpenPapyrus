@@ -37,7 +37,7 @@ public:
 
 #if 0 // {
 
-int SLAPI BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, int16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
+int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, int16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
 {
 #ifndef _MT // {
 	static BtrCallProc _dll_btrcall = 0;
@@ -102,17 +102,17 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	return BRet(BTRV(op, 0, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-/*static*/int SLAPI Btrieve::RollbackWork()
+/*static*/int Btrieve::RollbackWork()
 {
 	return BRet(BTRV(B_ABORTTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-/*static*/int SLAPI Btrieve::CommitWork()
+/*static*/int Btrieve::CommitWork()
 {
 	return BRet(BTRV(B_ENDTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-/*static*/int SLAPI Btrieve::AddContinuous(const char * pFileName /* "volume:\path[,volume:\path]*" */)
+/*static*/int Btrieve::AddContinuous(const char * pFileName /* "volume:\path[,volume:\path]*" */)
 {
 	int    index = 0;
 	const  size_t fnlen = sstrlen(pFileName);
@@ -123,7 +123,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	return BRet(BTRV(B_CONTINUOUSOPR, 0, temp_buf, &bl, 0, WBTRVTAIL_Z));
 }
 
-/*static*/int SLAPI Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then remove all files */)
+/*static*/int Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then remove all files */)
 {
 	int    index;
 	uint16 bl;
@@ -141,7 +141,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	return BRet(BTRV(B_CONTINUOUSOPR, 0, temp_buf, &bl, 0, WBTRVTAIL_Z));
 }
 
-/*static*/int SLAPI Btrieve::GetVersion(int * pMajor, int * pMinor, int * pIsNet)
+/*static*/int Btrieve::GetVersion(int * pMajor, int * pMinor, int * pIsNet)
 {
 	struct {
 		int16 major, minor;
@@ -160,7 +160,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	return ok;
 }
 
-/*static*/int SLAPI Btrieve::Reset(int station)
+/*static*/int Btrieve::Reset(int station)
 {
 	char   buf[256];
 	int    index;
@@ -173,7 +173,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	return BRet(BTRV(B_RESET, buf, buf, reinterpret_cast<uint16 *>(buf), buf, WBTRVTAIL_Z));
 }
 
-/*static*/int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, int createMode, const char * pAltCode)
+/*static*/int Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, int createMode, const char * pAltCode)
 {
 	int    ok = 0;
 	char   fpb[256];
@@ -267,7 +267,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 //
 //
 //
-SLAPI DbDict_Btrieve::DbDict_Btrieve(const char * pPath) : DbDictionary()
+DbDict_Btrieve::DbDict_Btrieve(const char * pPath) : DbDictionary()
 {
 	MEMSZERO(flq);
 	MEMSZERO(ilq);
@@ -299,14 +299,14 @@ SLAPI DbDict_Btrieve::DbDict_Btrieve(const char * pPath) : DbDictionary()
 	}
 }
 
-SLAPI DbDict_Btrieve::~DbDict_Btrieve()
+DbDict_Btrieve::~DbDict_Btrieve()
 {
 	xfile.close();
 	xfield.close();
 	xindex.close();
 }
 
-int SLAPI DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
+int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 {
 	int    ok = 1;
 	DBTable * p_clone = 0;
@@ -353,7 +353,7 @@ int SLAPI DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 	return ok;
 }
 
-static BTBLID SLAPI getUniqueKey(DBTable * tbl, BTBLID idx)
+static BTBLID getUniqueKey(DBTable * tbl, BTBLID idx)
 {
 	int16  k = SHRT_MAX;
 	if(tbl->searchKey(idx, &k, spLast)) {
@@ -370,7 +370,7 @@ static BTBLID SLAPI getUniqueKey(DBTable * tbl, BTBLID idx)
 	return 0;
 }
 
-int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
+int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 {
 	// EXCEPTVAR(BtrError);
 	int    ok = 1, ta = 0;
@@ -473,7 +473,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	return ok;
 }
 
-int SLAPI DbDict_Btrieve::DropTableSpec(const char * pTblName, DbTableStat * pStat)
+int DbDict_Btrieve::DropTableSpec(const char * pTblName, DbTableStat * pStat)
 {
 	int    ok = 1;
 	long   tbl_id = 0;
@@ -508,7 +508,7 @@ int SLAPI DbDict_Btrieve::DropTableSpec(const char * pTblName, DbTableStat * pSt
 	return ok;
 }
 
-int SLAPI DbDict_Btrieve::ExtractStat(const XFile & rRec, DbTableStat * pStat) const
+int DbDict_Btrieve::ExtractStat(const XFile & rRec, DbTableStat * pStat) const
 {
 	if(pStat) {
 		pStat->Clear();
@@ -532,7 +532,7 @@ int SLAPI DbDict_Btrieve::ExtractStat(const XFile & rRec, DbTableStat * pStat) c
 	return 1;
 }
 
-int SLAPI DbDict_Btrieve::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat)
+int DbDict_Btrieve::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat)
 {
 	int    ok = 0;
 	char   key[BTRMAXKEYLEN];
@@ -550,7 +550,7 @@ int SLAPI DbDict_Btrieve::GetTableID(const char * pTblName, long * pID, DbTableS
 	return ok;
 }
 
-int SLAPI DbDict_Btrieve::GetTableInfo(long tblID, DbTableStat * pStat)
+int DbDict_Btrieve::GetTableInfo(long tblID, DbTableStat * pStat)
 {
 	int    ok = 1;
 	BTBLID tbl_id = static_cast<BTBLID>(tblID);
@@ -561,7 +561,7 @@ int SLAPI DbDict_Btrieve::GetTableInfo(long tblID, DbTableStat * pStat)
 	return ok;
 }
 
-int SLAPI DbDict_Btrieve::GetListOfTables(long options, StrAssocArray * pList)
+int DbDict_Btrieve::GetListOfTables(long options, StrAssocArray * pList)
 {
 	int    ok = -1;
 	char   key[256];
@@ -588,7 +588,7 @@ int SLAPI DbDict_Btrieve::GetListOfTables(long options, StrAssocArray * pList)
 #define EG_sign 0x4745U
 #define UC_sign 0x4355U
 
-void SLAPI DbDict_Btrieve::makeFldListQuery(BTBLID tblID, int numRecs)
+void DbDict_Btrieve::makeFldListQuery(BTBLID tblID, int numRecs)
 {
 	if(flq.h.bufLen != sizeof(flq)) {
 		flq.h.bufLen     = sizeof(flq);
@@ -616,7 +616,7 @@ void SLAPI DbDict_Btrieve::makeFldListQuery(BTBLID tblID, int numRecs)
 	flq.th.numRecs  = numRecs;
 }
 
-void SLAPI DbDict_Btrieve::makeIdxListQuery(BTBLID tblID, int numRecs)
+void DbDict_Btrieve::makeIdxListQuery(BTBLID tblID, int numRecs)
 {
 	if(ilq.h.bufLen != sizeof(ilq)) {
 		ilq.h.bufLen     = sizeof(ilq);
@@ -636,7 +636,7 @@ void SLAPI DbDict_Btrieve::makeIdxListQuery(BTBLID tblID, int numRecs)
 	ilq.th.numRecs  = numRecs;
 }
 
-int SLAPI DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
+int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 {
 	EXCEPTVAR(BtrError);
 	struct _XFR {
@@ -683,7 +683,7 @@ int SLAPI DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 	return r;
 }
 
-int SLAPI DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
+int DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 {
 	EXCEPTVAR(BtrError);
 	const  int  num_recs = 32;

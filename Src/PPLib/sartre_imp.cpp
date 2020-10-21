@@ -2087,7 +2087,7 @@ int SrConceptParser::Run(const char * pFileName)
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(PrcssrSartre); SLAPI PrcssrSartreFilt::PrcssrSartreFilt() : PPBaseFilt(PPFILT_PRCSSRSARTREPARAM, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrcssrSartre); PrcssrSartreFilt::PrcssrSartreFilt() : PPBaseFilt(PPFILT_PRCSSRSARTREPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrSartreFilt, ReserveStart),
 		offsetof(PrcssrSartreFilt, SrcPath)-offsetof(PrcssrSartreFilt, ReserveStart));
@@ -2101,7 +2101,7 @@ PrcssrSartreFilt & FASTCALL PrcssrSartreFilt::operator = (const PrcssrSartreFilt
 	return *this;
 }
 
-int SLAPI PrcssrSartreFilt::IsEmpty() const
+int PrcssrSartreFilt::IsEmpty() const
 {
 	return BIN(!Flags && SrcPath.Empty());
 }
@@ -2142,15 +2142,15 @@ private:
 	PrcssrSartreFilt Data;
 };
 
-SLAPI PrcssrSartre::PrcssrSartre(const char * pDbPath)
+PrcssrSartre::PrcssrSartre(const char * pDbPath)
 {
 }
 
-SLAPI PrcssrSartre::~PrcssrSartre()
+PrcssrSartre::~PrcssrSartre()
 {
 }
 
-int SLAPI PrcssrSartre::InitParam(PPBaseFilt * pBaseFilt)
+int PrcssrSartre::InitParam(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(P.IsA(pBaseFilt)) {
@@ -2163,7 +2163,7 @@ int SLAPI PrcssrSartre::InitParam(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PrcssrSartre::Init(const PPBaseFilt * pBaseFilt)
+int PrcssrSartre::Init(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(P.IsA(pBaseFilt));
@@ -2172,7 +2172,7 @@ int SLAPI PrcssrSartre::Init(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PrcssrSartre::EditParam(PPBaseFilt * pBaseFilt)
+int PrcssrSartre::EditParam(PPBaseFilt * pBaseFilt)
 {
 	if(!P.IsA(pBaseFilt))
 		return 0;
@@ -2244,7 +2244,7 @@ private:
 	TSVector <InnerEntry> L; // @v9.8.6 TSArray-->TSVector
 };
 
-int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
+int PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
 {
 	int    ok = 1;
 	const  uint max_items_per_tx = 512; // @v10.0.08 128-->512
@@ -2471,7 +2471,7 @@ struct BioTaxonomyCPropEntry {
 	uint8  PropVariant; // 1 - prop_instance, 2 - prop_subclass
 };
 
-int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
+int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 {
 	struct InnerMethods {
 		static int FASTCALL AddTaxonomyFactorToSymbHash(const SString & rSymb, SymbHashTable & rSht, LongArray & rIdList, uint & rLastSymbId)
@@ -3023,7 +3023,7 @@ int SLAPI PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileNa
 //
 //
 //
-int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, const char * pFileName)
+int PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, const char * pFileName)
 {
 	struct InnerMethods {
 		static int FASTCALL AddFactorToSymbHash(const SString & rSymb, SymbHashTable & rSht, LongArray & rIdList, uint & rLastSymbId)
@@ -3386,7 +3386,7 @@ int SLAPI PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSy
 //   Формируется из репозитория https://github.com/umpirsky/country-list.git
 //   в котором добрый человек сложил все необходимые для этого данные.
 //
-int SLAPI PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
+int PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
 {
 	int    ok = 1;
     SString result_file_name;
@@ -3429,7 +3429,7 @@ int SLAPI PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
 	return ok;
 }
 
-int SLAPI PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
+int PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
 {
 	int    ok = 1;
     SString result_file_name;
@@ -3472,7 +3472,7 @@ int SLAPI PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
 	return ok;
 }
 
-int SLAPI PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
+int PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
 {
 	int    ok = 1;
     SString result_file_name;
@@ -3515,7 +3515,7 @@ int SLAPI PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
 	return ok;
 }
 
-int SLAPI PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
+int PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
 {
 	int    ok = 1;
     SString result_file_name;
@@ -3559,7 +3559,7 @@ int SLAPI PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
 }
 #endif // } 0
 
-int SLAPI PrcssrSartre::Run()
+int PrcssrSartre::Run()
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3680,7 +3680,7 @@ int SLAPI PrcssrSartre::Run()
 	return ok;
 }
 
-int SLAPI PrcssrSartre::TestSearchWords()
+int PrcssrSartre::TestSearchWords()
 {
 	int    ok = 1;
 	SString line_buf, temp_buf;
@@ -3825,7 +3825,7 @@ int PrcssrSartre::TestConcept()
 	return ok;
 }
 
-int SLAPI DoProcessSartre(PrcssrSartreFilt * pFilt)
+int DoProcessSartre(PrcssrSartreFilt * pFilt)
 {
 	int    ok = -1;
 	PrcssrSartre prcssr(0);
@@ -4162,7 +4162,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 }
 #endif // } 0
 #if 0 // {
-int SLAPI ImportSartre()
+int ImportSartre()
 {
 	int    ok = 1;
 	//const  char * p_db_path = "/PAPYRUS/PPY/BIN/SARTRDB";
@@ -4257,7 +4257,7 @@ int main(int argc, char * argv[])
 
 #endif // } 0
 
-SLAPI SrSyntaxRuleSet::MatchEntry::MatchEntry(uint textIdxStart, uint textIdxEnd, const SrSyntaxRuleSet::Rule * pRule, uint stkP) :
+SrSyntaxRuleSet::MatchEntry::MatchEntry(uint textIdxStart, uint textIdxEnd, const SrSyntaxRuleSet::Rule * pRule, uint stkP) :
 	TextIdxStart(textIdxStart), TextIdxEnd(textIdxEnd), P_Rule(pRule), StackP(stkP), ConceptId(0)
 {
 }
@@ -4279,7 +4279,7 @@ SrSyntaxRuleSet::ResolveRuleBlock::ResolveRuleBlock(SrDatabase & rDb, const STok
 	SetupRule(pRule);
 }
 
-int SLAPI SrSyntaxRuleSet::MatchListToStr(const TSVector <MatchEntry> & rML, const STokenizer & rT, SString & rBuf) const
+int SrSyntaxRuleSet::MatchListToStr(const TSVector <MatchEntry> & rML, const STokenizer & rT, SString & rBuf) const
 {
 	STokenizer::Item titem;
 	for(uint i = 0; i < rML.getCount(); i++) {
@@ -4308,7 +4308,7 @@ int SLAPI SrSyntaxRuleSet::MatchListToStr(const TSVector <MatchEntry> & rML, con
 }
 
 
-/*int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const
+/*int SrSyntaxRuleSet::ResolveRuleBlock::MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const
 {
 	STokenizer::Item titem;
 	for(uint i = 0; i < MatchList.getCount(); i++) {
@@ -4342,14 +4342,14 @@ void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::GetTextItemWithAdvance(uint & r
 		rTIdx++;
 }
 
-int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd, CONCEPTID conceptId)
+int SrSyntaxRuleSet::ResolveRuleBlock::PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd, CONCEPTID conceptId)
 {
 	MatchEntry entry(txtIdxStart, txtIdxEnd, P_Rule, StackP);
 	entry.ConceptId = conceptId;
 	return MatchList.insert(&entry) ? 1 : PPSetErrorSLib();
 }
 
-uint SLAPI SrSyntaxRuleSet::ResolveRuleBlock::GetMatchListPreservedP()
+uint SrSyntaxRuleSet::ResolveRuleBlock::GetMatchListPreservedP()
 	{ return MatchList.getCount(); }
 
 void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::TrimMatchListOnFailure(uint preservedP)
@@ -4366,7 +4366,7 @@ void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::SetupRule(const SrSyntaxRuleSet
 	StackP = P_Rule ? P_Rule->ES.getPointer() : 0;
 }
 
-void SLAPI SrSyntaxRuleSet::ResolveRuleBlock::PushInnerState()
+void SrSyntaxRuleSet::ResolveRuleBlock::PushInnerState()
 {
 	InnerStackItem item;
 	item.P_Rule = P_Rule;
@@ -4388,11 +4388,11 @@ int FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::PopInnerState(int dontRestoreTex
 	return ok;
 }
 
-SLAPI SrSyntaxRuleSet::ExprItem::ExprItem(uint16 kind) : K(kind), ArgCount(0), Op(0), RSymb(0), VarP(0), VarItemRef(-1)
+SrSyntaxRuleSet::ExprItem::ExprItem(uint16 kind) : K(kind), ArgCount(0), Op(0), RSymb(0), VarP(0), VarItemRef(-1)
 {
 }
 
-SLAPI SrSyntaxRuleSet::ExprStack::ExprStack() : TSStack <ExprItem>()
+SrSyntaxRuleSet::ExprStack::ExprStack() : TSStack <ExprItem>()
 {
 }
 
@@ -4406,11 +4406,11 @@ int FASTCALL SrSyntaxRuleSet::ExprStack::Push(const ExprStack & rS)
     return ok;
 }
 
-SLAPI SrSyntaxRuleSet::Rule::Rule() : Flags(0), NameP(0)
+SrSyntaxRuleSet::Rule::Rule() : Flags(0), NameP(0)
 {
 }
 
-int SLAPI SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf) const
+int SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4464,7 +4464,7 @@ int SLAPI SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::ExprItemToStr(ExprStack & rS, const ExprItem & rI, SString & rBuf) const
+int SrSyntaxRuleSet::ExprItemToStr(ExprStack & rS, const ExprItem & rI, SString & rBuf) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4495,7 +4495,7 @@ int SLAPI SrSyntaxRuleSet::ExprItemToStr(ExprStack & rS, const ExprItem & rI, SS
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::ExprStackToStr(ExprStack & rS, SString & rBuf) const
+int SrSyntaxRuleSet::ExprStackToStr(ExprStack & rS, SString & rBuf) const
 {
 	int    ok = 1;
 	ExprItem item;
@@ -4510,7 +4510,7 @@ int SLAPI SrSyntaxRuleSet::ExprStackToStr(ExprStack & rS, SString & rBuf) const
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::RuleToStr(const Rule * pR, SString & rBuf) const
+int SrSyntaxRuleSet::RuleToStr(const Rule * pR, SString & rBuf) const
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -4526,20 +4526,20 @@ int SLAPI SrSyntaxRuleSet::RuleToStr(const Rule * pR, SString & rBuf) const
 	return ok;
 }
 
-SLAPI SrSyntaxRuleSet::SrSyntaxRuleSet() : SStrGroup(), LineNo(0), State(0)
+SrSyntaxRuleSet::SrSyntaxRuleSet() : SStrGroup(), LineNo(0), State(0)
 {
 }
 
-SLAPI SrSyntaxRuleSet::~SrSyntaxRuleSet()
+SrSyntaxRuleSet::~SrSyntaxRuleSet()
 {
 }
 
-uint SLAPI SrSyntaxRuleSet::GetRuleCount() const
+uint SrSyntaxRuleSet::GetRuleCount() const
 	{ return RL.getCount(); }
 const SrSyntaxRuleSet::Rule * FASTCALL SrSyntaxRuleSet::GetRule(uint pos) const
 	{ return (pos < RL.getCount()) ? RL.at(pos) : 0; }
 
-int SLAPI SrSyntaxRuleSet::GetRuleName(uint pos, SString & rBuf) const
+int SrSyntaxRuleSet::GetRuleName(uint pos, SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -4624,7 +4624,7 @@ int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan, uint * pLen)
 	return k;
 }
 
-int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr)
+int SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr)
 {
 	int    ok = -1;
 	uint   seq_count = 0; // Количество последовательных операндов (их соединяем операцией &)
@@ -4791,7 +4791,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::Parse(const SString & rS)
+int SrSyntaxRuleSet::Parse(const SString & rS)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4826,7 +4826,7 @@ int SLAPI SrSyntaxRuleSet::Parse(const SString & rS)
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::ResolveSyntaxRules(SrDatabase & rDb)
+int SrSyntaxRuleSet::ResolveSyntaxRules(SrDatabase & rDb)
 {
 	int    ok = 1;
 	CONCEPTID cid = 0;
@@ -4901,7 +4901,7 @@ int SLAPI SrSyntaxRuleSet::ResolveSyntaxRules(SrDatabase & rDb)
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const
+int SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const
 {
 	int    ok = -1;
 	int    r;
@@ -5129,7 +5129,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, const SrSyntaxRuleSet::ExprItem * pSti, CONCEPTID targetCID, uint tidx) const
+int SrSyntaxRuleSet::TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, const SrSyntaxRuleSet::ExprItem * pSti, CONCEPTID targetCID, uint tidx) const
 {
 	int    ok = -1;
 	long   tryconcept_option = -1;
@@ -5149,18 +5149,18 @@ int SLAPI SrSyntaxRuleSet::TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, con
 //
 //
 //
-SLAPI SrSyntaxRuleTokenizer::SrSyntaxRuleTokenizer() : STokenizer(Param(STokenizer::fDivAlNum|STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%"))
+SrSyntaxRuleTokenizer::SrSyntaxRuleTokenizer() : STokenizer(Param(STokenizer::fDivAlNum|STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%"))
 {
 }
 
-int SLAPI SrSyntaxRuleTokenizer::ProcessString(const char *pResource, const SString & rTextUtf8, uint * pIdxFirst, uint * pIdxCount)
+int SrSyntaxRuleTokenizer::ProcessString(const char *pResource, const SString & rTextUtf8, uint * pIdxFirst, uint * pIdxCount)
 {
 	return RunSString(pResource, 0, rTextUtf8, pIdxFirst, pIdxCount);
 }
 //
 //
 //
-int SLAPI SrSyntaxRuleSet::ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const
+int SrSyntaxRuleSet::ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const
 {
 	int    ok = -1;
 	rResultList.freeAll();
@@ -5195,7 +5195,7 @@ int SLAPI SrSyntaxRuleSet::ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer &
 	return ok;
 }
 
-int SLAPI SrSyntaxRuleSet::__ProcessText2(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const
+int SrSyntaxRuleSet::__ProcessText2(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const
 {
 	int    ok = 1;
 	SFile * p_f_out = 0;
@@ -5245,7 +5245,7 @@ int SLAPI SrSyntaxRuleSet::__ProcessText2(SrDatabase & rDb, const char * pResour
 	return ok;
 }
 
-int SLAPI PrcssrSartre::TestSyntax()
+int PrcssrSartre::TestSyntax()
 {
 	int    ok = 1;
 	PPLogger logger;

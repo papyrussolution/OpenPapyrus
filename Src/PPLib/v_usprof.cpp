@@ -5,19 +5,18 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(UserProfile); SLAPI UserProfileFilt::UserProfileFilt() : PPBaseFilt(PPFILT_USERPROFILE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(UserProfile); UserProfileFilt::UserProfileFilt() : PPBaseFilt(PPFILT_USERPROFILE, 0, 0)
 {
 	SetFlatChunk(offsetof(UserProfileFilt, ReserveStart),
 		offsetof(UserProfileFilt, ReserveEnd)-offsetof(UserProfileFilt, ReserveStart)+sizeof(ReserveEnd));
 	Init(1, 0);
 }
 
-SLAPI PPViewUserProfile::PPViewUserProfile() : PPView(0, &Filt, 0), ParserBusy(0)
+PPViewUserProfile::PPViewUserProfile() : PPView(0, &Filt, 0, implDontEditNullFilter, 0), ParserBusy(0)
 {
-	ImplementFlags |= implDontEditNullFilter;
 }
 
-SLAPI PPViewUserProfile::~PPViewUserProfile()
+PPViewUserProfile::~PPViewUserProfile()
 {
 }
 
@@ -72,7 +71,7 @@ private:
 	TSArray <PPUserProfileFileItem> * P_OffsList;
 };
 
-/*virtual*/int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -81,7 +80,7 @@ private:
 	DIALOG_PROC_BODY_P1ERR(UserProfileFiltDialog, ufp_db_list, static_cast<UserProfileFilt *>(pBaseFilt))
 }
 
-/*virtual*/int SLAPI PPViewUserProfile::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewUserProfile::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Counter.Init();
@@ -91,7 +90,7 @@ private:
 	return ok;
 }
 
-int SLAPI PPViewUserProfile::InitIteration()
+int PPViewUserProfile::InitIteration()
 {
 	int    ok = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -109,12 +108,12 @@ int FASTCALL PPViewUserProfile::NextIteration(UserProfileViewItem * pItem)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempUserProfile);
 
-int SLAPI PPViewUserProfile::RemoveAll()
+int PPViewUserProfile::RemoveAll()
 {
 	return Tbl.ClearState(0, 1) ? 1 : PPErrorZ();
 }
 
-int SLAPI PPViewUserProfile::LoadFromFile(PPIDArray * pAddedIdList)
+int PPViewUserProfile::LoadFromFile(PPIDArray * pAddedIdList)
 {
 	int    ok = 1;
 	PPWait(1);
@@ -142,7 +141,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-/*virtual*/void SLAPI PPViewUserProfile::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewUserProfile::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
@@ -150,7 +149,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	}
 }
 
-/*virtual*/DBQuery * SLAPI PPViewUserProfile::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewUserProfile::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	TempUserProfileTbl * t = 0;
@@ -205,7 +204,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return q;
 }
 
-int SLAPI PPViewUserProfile::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+int PPViewUserProfile::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	int    ok = -1, update = 0, lock = 0;
 	PPIDArray id_list;
@@ -228,7 +227,7 @@ int SLAPI PPViewUserProfile::HandleNotifyEvent(int kind, const PPNotifyEvent * p
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewUserProfile::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewUserProfile::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    update = 0;

@@ -33,7 +33,7 @@ typedef enum {
 muscle_kind muscle_kind_new(char const * k); /* Conversion from string.  */
 char const * muscle_kind_string(muscle_kind k); /* Conversion to string.  */
 /* Create the MUSCLE_TABLE, and initialize it with default values. Also set up the MUSCLE_OBSTACK.  */
-void muscle_init(void);
+void muscle_init();
 
 /* Insert (KEY, VALUE).  If KEY already existed, overwrite the
    previous value.  Otherwise create as a muscle_string type.  */
@@ -46,7 +46,7 @@ char const * muscle_find_const(char const * key);
    more recently than muscle_grow for KEY since muscle_find can't
    return a char const *.  */
 char * muscle_find(char const * key);
-void muscle_free(void); /* Free all the memory consumed by the muscle machinery only.  */
+void muscle_free(); /* Free all the memory consumed by the muscle machinery only.  */
 extern struct obstack muscle_obstack; /* An obstack dedicated to receive muscle keys and values.  */
 
 #define MUSCLE_INSERT_BOOL(Key, Value)         \

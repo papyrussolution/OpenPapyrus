@@ -6,14 +6,14 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI Balance::Balance(const char * pName) : BalanceTbl(pName)
+Balance::Balance(const char * pName) : BalanceTbl(pName)
 {
 }
 
-double SLAPI Balance::_Rest() const { return (MONEYTOLDBL(data.DbtRest) - MONEYTOLDBL(data.CrdRest)); }
-double SLAPI Balance::_Rest(int side) const { return ((side == PPDEBIT) ? MONEYTOLDBL(data.DbtRest) : MONEYTOLDBL(data.CrdRest)); }
+double Balance::_Rest() const { return (MONEYTOLDBL(data.DbtRest) - MONEYTOLDBL(data.CrdRest)); }
+double Balance::_Rest(int side) const { return ((side == PPDEBIT) ? MONEYTOLDBL(data.DbtRest) : MONEYTOLDBL(data.CrdRest)); }
 
-void SLAPI Balance::_SetRest(int side, double val)
+void Balance::_SetRest(int side, double val)
 {
 	if(side == PPDEBIT)
 		LDBLTOMONEY(val, data.DbtRest);
@@ -26,10 +26,10 @@ void SLAPI Balance::_SetRest(int side, double val)
 #define USE_TRANSACTION 0x0001
 #define TURN_ROLLBACK   0x0002
 
-int SLAPI Balance::Turn(PPID bal, LDATE date, AccTurnParam * p, int use_ta) { return _Turn(bal, date, p, use_ta ? USE_TRANSACTION : 0); }
-int SLAPI Balance::RollbackTurn(PPID bal, LDATE date, AccTurnParam * p, int use_ta) { return _Turn(bal, date, p, (use_ta ? USE_TRANSACTION : 0) | TURN_ROLLBACK); }
+int Balance::Turn(PPID bal, LDATE date, AccTurnParam * p, int use_ta) { return _Turn(bal, date, p, use_ta ? USE_TRANSACTION : 0); }
+int Balance::RollbackTurn(PPID bal, LDATE date, AccTurnParam * p, int use_ta) { return _Turn(bal, date, p, (use_ta ? USE_TRANSACTION : 0) | TURN_ROLLBACK); }
 
-int SLAPI Balance::Search(PPID * pAccID, LDATE * pDt, int spMode)
+int Balance::Search(PPID * pAccID, LDATE * pDt, int spMode)
 {
 	BalanceTbl::Key1 k1;
 	k1.AccID = *pAccID;
@@ -43,7 +43,7 @@ int SLAPI Balance::Search(PPID * pAccID, LDATE * pDt, int spMode)
 		return PPDbSearchError();
 }
 
-int SLAPI Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
+int Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 {
 	int    ok = 1;
 	int    r, rollback = BIN(flags & TURN_ROLLBACK);
@@ -115,7 +115,7 @@ int SLAPI Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 	return ok;
 }
 
-int SLAPI Balance::GetRest(PPID accID, LDATE dt, double * pDbt, double * pCrd)
+int Balance::GetRest(PPID accID, LDATE dt, double * pDbt, double * pCrd)
 {
 	PPID acc_id = accID;
 	int  r = Search(&acc_id, &dt, spLe);
@@ -128,7 +128,7 @@ int SLAPI Balance::GetRest(PPID accID, LDATE dt, double * pDbt, double * pCrd)
 	return BIN(r);
 }
 
-int SLAPI Balance::GetTurnover(PPID bal, LDATE beg, LDATE end, double * dbt, double * crd)
+int Balance::GetTurnover(PPID bal, LDATE beg, LDATE end, double * dbt, double * crd)
 {
 	int    ok = 1;
 	double d, c;
@@ -140,7 +140,7 @@ int SLAPI Balance::GetTurnover(PPID bal, LDATE beg, LDATE end, double * dbt, dou
 	return ok;
 }
 
-int SLAPI Balance::GetBalance(PPID bal, LDATE beg, LDATE end, double row[])
+int Balance::GetBalance(PPID bal, LDATE beg, LDATE end, double row[])
 {
 	double d, c;
 	SETIFZ(end, encodedate(31, 12, 3000));

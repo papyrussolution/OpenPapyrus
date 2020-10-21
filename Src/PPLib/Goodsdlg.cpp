@@ -21,7 +21,7 @@ struct UhttSearchGoodsParam {
 	SString Barcode;
 };
 
-int SLAPI PPObjGoods::SearchUhttInteractive(const SString & rName, const SString & rBarcode, UhttGoodsPacket * pResultItem)
+int PPObjGoods::SearchUhttInteractive(const SString & rName, const SString & rBarcode, UhttGoodsPacket * pResultItem)
 {
 	class UhttSearchGoodsDialog : public TDialog {
 		DECL_DIALOG_DATA(UhttSearchGoodsParam);
@@ -209,7 +209,7 @@ static int MergeUhttRestList(TSCollection <UhttGoodsRestListItem> & rDest, const
     return ok;
 }
 
-int SLAPI PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
+int PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 {
 	class SelectDialog : public PPListDialog {
 	public:
@@ -274,7 +274,7 @@ int SLAPI PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 }
 
 // utility
-int SLAPI PPObjGoods::SelectBarcode(int kind, PPID parentID, SString & rBuf)
+int PPObjGoods::SelectBarcode(int kind, PPID parentID, SString & rBuf)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -446,7 +446,7 @@ void GoodsFiltCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		return;
 }
 
-static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
+static int _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 {
 	class BarcodeItemDialog : public TDialog {
 		DECL_DIALOG_DATA(BarcodeTbl::Rec);
@@ -770,7 +770,7 @@ IMPL_HANDLE_EVENT(ArGoodsCodeDialog)
 	clearEvent(event);
 }
 
-static int SLAPI _EditArGoodsCodeItem(ArGoodsCodeTbl::Rec * pRec, int ownCode) { DIALOG_PROC_BODY_P1(ArGoodsCodeDialog, ownCode, pRec); }
+static int _EditArGoodsCodeItem(ArGoodsCodeTbl::Rec * pRec, int ownCode) { DIALOG_PROC_BODY_P1(ArGoodsCodeDialog, ownCode, pRec); }
 
 class ArGoodsCodeListDialog : public PPListDialog {
 	DECL_DIALOG_DATA(ArGoodsCodeArray);
@@ -884,7 +884,7 @@ int ArGoodsCodeListDialog::delItem(long pos, long id)
 	return Data.atFree(static_cast<uint>(pos)) ? 1 : -1;
 }
 
-int SLAPI PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)
+int PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)
 {
 	int    ok = -1;
 	PPGoodsPacket pack;
@@ -1210,7 +1210,7 @@ void GoodsDialog::setupInhTaxGrpName()
 	}
 }
 
-static int SLAPI __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound)
+static int __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound)
 {
 	int    ok = -1;
 	rBound = 0.0;
@@ -1659,7 +1659,7 @@ void GoodsDialog::setupWrOffGrpButton()
 //
 //
 //
-int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
+int EditGoodsExTitles(SString & rGoodsExTitles)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GOODSEXTITLES);
@@ -2110,7 +2110,7 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjGoods::EditVad(PPID goodsID)
+int PPObjGoods::EditVad(PPID goodsID)
 {
 	int    ok = -1;
 	PPGoodsPacket pack;
@@ -2395,7 +2395,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 //
 // GoodsCtrlGroup
 //
-SLAPI GoodsCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, uint flags) : GrpID(grpID), GoodsID(goodsID), LocID(locID), ArID(0), Flags(flags)
+GoodsCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, uint flags) : GrpID(grpID), GoodsID(goodsID), LocID(locID), ArID(0), Flags(flags)
 {
 }
 
@@ -2828,11 +2828,11 @@ private:
 	PPObjGoods GObj;
 };
 
-SLAPI PPObjGoods::ExtUniteBlock::ExtUniteBlock() : Flags(0), ResultID(0), DestList()
+PPObjGoods::ExtUniteBlock::ExtUniteBlock() : Flags(0), ResultID(0), DestList()
 {
 }
 
-/*static*/int SLAPI PPObjGoods::ReplaceGoods(/*PPID srcID, PPObjGoods::ExtUniteBlock * pEub*/ExtUniteBlock & rEub)
+/*static*/int PPObjGoods::ReplaceGoods(/*PPID srcID, PPObjGoods::ExtUniteBlock * pEub*/ExtUniteBlock & rEub)
 {
 	int    ok = -1;
 	PPIDArray total_dest_list;
@@ -3060,7 +3060,7 @@ int GoodsAsscDialog::addItem(long * pPos, long * pID)
 	return r;
 }
 
-int SLAPI PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
+int PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
 {
 	int    ok = -1;
 	if(goodsID) {
@@ -3194,7 +3194,7 @@ private:
 //
 // Диалог дополнительных опций фильтра по товарам
 //
-int SLAPI GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
+int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 {
 	class GoodsFiltAdvDialog : public TDialog {
 		DECL_DIALOG_DATA(GoodsFilt);
@@ -3686,4 +3686,4 @@ void GoodsFiltDialog::SetupCtrls()
 	// } @v10.6.8 
 }
 
-int SLAPI GoodsFilterDialog(GoodsFilt * pFilt) { DIALOG_PROC_BODY(GoodsFiltDialog, pFilt); }
+int GoodsFilterDialog(GoodsFilt * pFilt) { DIALOG_PROC_BODY(GoodsFiltDialog, pFilt); }

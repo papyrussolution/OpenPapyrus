@@ -6,16 +6,16 @@
 //
 // Журнал чековых операций
 //
-SLAPI CheckOpJrnl::CheckOpJrnl(CCheckCore * pCc) : CheckOpJrnlTbl(), P_Cc(pCc)
+CheckOpJrnl::CheckOpJrnl(CCheckCore * pCc) : CheckOpJrnlTbl(), P_Cc(pCc)
 {
 }
 
-SLAPI CheckOpJrnl::~CheckOpJrnl()
+CheckOpJrnl::~CheckOpJrnl()
 {
 	P_Cc = 0; // @notowned
 }
 
-int SLAPI CheckOpJrnl::LogEvent(int16 action, const CCheckPacket * pPack, const CCheckLineTbl::Rec * pLineRec, int useTa /*= 0*/)
+int CheckOpJrnl::LogEvent(int16 action, const CCheckPacket * pPack, const CCheckLineTbl::Rec * pLineRec, int useTa /*= 0*/)
 {
 	int    ok = 1;
 	CheckOpJrnlTbl::Rec log_rec;
@@ -47,7 +47,7 @@ int SLAPI CheckOpJrnl::LogEvent(int16 action, const CCheckPacket * pPack, const 
 	return ok;
 }
 
-int SLAPI CheckOpJrnl::Search(LDATE dt, LTIME tm, CheckOpJrnlTbl::Rec * pRec)
+int CheckOpJrnl::Search(LDATE dt, LTIME tm, CheckOpJrnlTbl::Rec * pRec)
 {
 	int    ok = -1;
 	CheckOpJrnlTbl::Key0 k0;
@@ -61,7 +61,7 @@ int SLAPI CheckOpJrnl::Search(LDATE dt, LTIME tm, CheckOpJrnlTbl::Rec * pRec)
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(CheckOpJrnl); SLAPI CheckOpJrnlFilt::CheckOpJrnlFilt() : PPBaseFilt(PPFILT_CHECKOPJRNL, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(CheckOpJrnl); CheckOpJrnlFilt::CheckOpJrnlFilt() : PPBaseFilt(PPFILT_CHECKOPJRNL, 0, 1)
 {
 	SetFlatChunk(offsetof(CheckOpJrnlFilt, ReserveStart),
 		offsetof(CheckOpJrnlFilt, ActionIDList)-offsetof(CheckOpJrnlFilt, ReserveStart));
@@ -69,7 +69,7 @@ IMPLEMENT_PPFILT_FACTORY(CheckOpJrnl); SLAPI CheckOpJrnlFilt::CheckOpJrnlFilt() 
 	Init(1, 0);
 }
 
-int SLAPI CheckOpJrnlFilt::IsEmpty() const
+int CheckOpJrnlFilt::IsEmpty() const
 {
 	if(!Period.IsZero())
 		return 0;
@@ -166,14 +166,14 @@ int CheckOpJFiltDialog::getDTS(CheckOpJrnlFilt * pFilt)
 //
 //
 //
-PPBaseFilt * SLAPI PPViewCheckOpJrnl::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCheckOpJrnl::CreateFilt(void * extraPtr) const
 {
 	CheckOpJrnlFilt * p_filt = new CheckOpJrnlFilt;
 	p_filt->Period.SetDate(getcurdate_());
 	return p_filt;
 }
 
-int SLAPI PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -181,11 +181,11 @@ int SLAPI PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODYERR(CheckOpJFiltDialog, p_filt);
 }
 
-SLAPI PPViewCheckOpJrnl::PPViewCheckOpJrnl() : PPView(0, &Filt, PPVIEW_CHECKOPJRNL), P_Tbl(new CheckOpJrnl(0))
+PPViewCheckOpJrnl::PPViewCheckOpJrnl() : PPView(0, &Filt, PPVIEW_CHECKOPJRNL, 0, 0), P_Tbl(new CheckOpJrnl(0))
 {
 }
 
-SLAPI PPViewCheckOpJrnl::~PPViewCheckOpJrnl()
+PPViewCheckOpJrnl::~PPViewCheckOpJrnl()
 {
 	delete P_Tbl;
 }
@@ -208,7 +208,7 @@ int FASTCALL PPViewCheckOpJrnl::CheckRecForFilt(const CheckOpJrnlTbl::Rec * pRec
 	return ok;
 }
 
-int SLAPI PPViewCheckOpJrnl::Init_(const PPBaseFilt * pFilt)
+int PPViewCheckOpJrnl::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString temp_buf;     // @vmiller
@@ -221,7 +221,7 @@ int SLAPI PPViewCheckOpJrnl::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewCheckOpJrnl::InitIteration()
+int PPViewCheckOpJrnl::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -258,7 +258,7 @@ int FASTCALL PPViewCheckOpJrnl::NextIteration(CheckOpJrnlViewItem * pItem)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewCheckOpJrnl::CreateBrowserQuery(uint * pBrwId, SString *)
+DBQuery * PPViewCheckOpJrnl::CreateBrowserQuery(uint * pBrwId, SString *)
 {
 	int    add_dbe = 0;
 	uint   brw_id = BROWSER_CHKOPJ;
@@ -310,7 +310,7 @@ DBQuery * SLAPI PPViewCheckOpJrnl::CreateBrowserQuery(uint * pBrwId, SString *)
 	return q;
 }
 
-int SLAPI PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -345,7 +345,7 @@ int SLAPI PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	return ok;
 }
 
-int SLAPI PPViewCheckOpJrnl::Print(const void *)
+int PPViewCheckOpJrnl::Print(const void *)
 {
 	return Helper_Print(/*REPORT_CHECKOPJ*/0, 0);
 }

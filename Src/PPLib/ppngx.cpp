@@ -10,7 +10,7 @@
 int NgxStartUp(const NgxStartUpOptions & rO); // prototype
 ngx_thread_value_t __stdcall ngx_worker_thread(void * data);
 
-int SLAPI RunNginxServer()
+int RunNginxServer()
 {
 	NgxStartUpOptions o;
 	SString temp_buf;
@@ -22,7 +22,7 @@ int SLAPI RunNginxServer()
 	return BIN(NgxStartUp(o) == 0);
 }
 
-int SLAPI RunNginxWorker()
+int RunNginxWorker()
 {
 	class NgxWorkerThread : public PPThread {
 	public:
@@ -257,12 +257,12 @@ private:
 //
 class PPWorkingPipeSession : public PPWorkerSession {
 public:
-	SLAPI  PPWorkingPipeSession(NgxReqQueue * pReqQueue, const DbLoginBlock & rDblBlk) : 
+	PPWorkingPipeSession(NgxReqQueue * pReqQueue, const DbLoginBlock & rDblBlk) : 
 		PPWorkerSession(PPThread::kWorkerSession), WakeUpEv(Evnt::modeCreateAutoReset), DblBlk(rDblBlk), P_Queue(pReqQueue), P_OutPipe(0)
 	{
 		InitStartupSignal();
 	}
-	SLAPI ~PPWorkingPipeSession()
+	~PPWorkingPipeSession()
 	{
 	}
 	void   WakeUp()
@@ -270,12 +270,12 @@ public:
 		WakeUpEv.Signal();
 	}
 private:
-	virtual void SLAPI Startup()
+	virtual void Startup()
 	{
 		PPWorkerSession::Startup();
 		SignalStartup();
 	}
-	virtual void SLAPI Run()
+	virtual void Run()
 	{
 		#define INTERNAL_ERR_INVALID_WAITING_MODE 0
 		//
@@ -341,7 +341,7 @@ private:
 			}
 		}
 	}
-	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+	virtual CmdRet ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
 	{
 		CmdRet ok = PPWorkerSession::ProcessCommand(pEv, rReply);
 		if(ok == cmdretUnprocessed) {
@@ -528,7 +528,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 	return ok;
 }
 
-int SLAPI PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
+int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 {
 	static NgxReqQueue * P_Queue = 0;
 

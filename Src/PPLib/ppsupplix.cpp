@@ -19,7 +19,7 @@ void SupplExpFilt::Init()
 	memzero(this, offsetof(SupplExpFilt, EncodeStr));
 }
 
-int SLAPI SupplExpFilt::Write(SBuffer & rBuf, long) const
+int SupplExpFilt::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
 	THROW_SL(rBuf.Write(SupplID));
@@ -55,7 +55,7 @@ int SLAPI SupplExpFilt::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-int SLAPI SupplExpFilt::Read(SBuffer & rBuf, long)
+int SupplExpFilt::Read(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	long   count = 0;
@@ -130,35 +130,35 @@ public:
 		expWeakAlc,
 		expWoTareBeer
 	};
-	explicit SLAPI  PPSupplExchange_Baltika(PrcssrSupplInterchange::ExecuteBlock & rEb) : PrcssrSupplInterchange::ExecuteBlock(rEb), KegUnitID(-1)
+	explicit PPSupplExchange_Baltika(PrcssrSupplInterchange::ExecuteBlock & rEb) : PrcssrSupplInterchange::ExecuteBlock(rEb), KegUnitID(-1)
 	{
 	}
-	int    SLAPI Init(/*const SupplExpFilt * pFilt*/);
-	int    SLAPI Import(const char * pPath);
-	int    SLAPI Export(PPLogger & rLogger);
+	int    Init(/*const SupplExpFilt * pFilt*/);
+	int    Import(const char * pPath);
+	int    Export(PPLogger & rLogger);
 private:
-	int    SLAPI Send();
-	int    SLAPI ExportPrice();
-	int    SLAPI ExportRest();
-	int    SLAPI ExportRestParties();
-	int    SLAPI ExportSpoilageRest(PPID locID, uint filesIdx);
-	int    SLAPI ExportBills(const BillExpParam &, const char * pClientCode, PPLogger & rLogger);
-	int    SLAPI ExportSaldo2(const PPIDArray & rExclArList, const char * pClientCode, PPLogger * pLog);
-	// @v10.3.1 (inlined) void   SLAPI DelFiles(const char * pFileName);
-	PPID   SLAPI GetSaleChannelTagID();
-	PPID   SLAPI GetConsigLocGroupID();
-	long   SLAPI GetSaleChannelExtFld();
-	int    SLAPI GetWeakAlcInfo(PPID * pLocID, PPID * pGGrpID, int getWoTareBeer);
-	int    SLAPI GetSpoilageLocList(PPIDArray * pList);
-	int    SLAPI GetBarcode(PPID goodsID, char * pBuf, size_t bufSize, int * pPackCode, int * pIsHoreca, double * pMult);
-	int    SLAPI GetQtty(PPID goodsID, int calcByPhPerU, double * pQtty, double * pPrice);
-	int    SLAPI GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode);
-	int    SLAPI GetConsigLocInfo(const BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode);
-	int    SLAPI GetInfoFromMemo(const char * pMemo, LDATE * pParentDt, SString & rParentCode, int simple = 0);
-	void   SLAPI GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial);
-	int    SLAPI IsKegUnit(PPID goodsId);
-	const char * SLAPI GetEaText() const;
-	int    SLAPI GetSerial(PPID lotID, PPID goodsID, SString & rSerial);
+	int    Send();
+	int    ExportPrice();
+	int    ExportRest();
+	int    ExportRestParties();
+	int    ExportSpoilageRest(PPID locID, uint filesIdx);
+	int    ExportBills(const BillExpParam &, const char * pClientCode, PPLogger & rLogger);
+	int    ExportSaldo2(const PPIDArray & rExclArList, const char * pClientCode, PPLogger * pLog);
+	// @v10.3.1 (inlined) void   DelFiles(const char * pFileName);
+	PPID   GetSaleChannelTagID();
+	PPID   GetConsigLocGroupID();
+	long   GetSaleChannelExtFld();
+	int    GetWeakAlcInfo(PPID * pLocID, PPID * pGGrpID, int getWoTareBeer);
+	int    GetSpoilageLocList(PPIDArray * pList);
+	int    GetBarcode(PPID goodsID, char * pBuf, size_t bufSize, int * pPackCode, int * pIsHoreca, double * pMult);
+	int    GetQtty(PPID goodsID, int calcByPhPerU, double * pQtty, double * pPrice);
+	int    GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode);
+	int    GetConsigLocInfo(const BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode);
+	int    GetInfoFromMemo(const char * pMemo, LDATE * pParentDt, SString & rParentCode, int simple = 0);
+	void   GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial);
+	int    IsKegUnit(PPID goodsId);
+	const char * GetEaText() const;
+	int    GetSerial(PPID lotID, PPID goodsID, SString & rSerial);
 
 	PPID   KegUnitID;
 	PPID   DlvrAddrExtFldID; // Идентификатор дополнительного поля адреса доставки, хранящего код адреса у получателя отчета
@@ -166,7 +166,7 @@ private:
 	PPObjGoodsClass GCObj;
 };
 
-int SLAPI PPSupplExchange_Baltika::Init(/*const SupplExpFilt * pFilt*/)
+int PPSupplExchange_Baltika::Init(/*const SupplExpFilt * pFilt*/)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -189,7 +189,7 @@ int SLAPI PPSupplExchange_Baltika::Init(/*const SupplExpFilt * pFilt*/)
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString & rSerial)
+int PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString & rSerial)
 {
 	// @construction
 	int    ok = -1;
@@ -214,7 +214,7 @@ int SLAPI PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString &
 
 class SoapExporter {
 public:
-	explicit SLAPI SoapExporter(bool flatStruc = false) : HeaderRecCount(0), LinesRecCount(0), FilesCount(0), MaxTransmitSize(0), AddedRecType(0), FlatStruc(flatStruc)
+	explicit SoapExporter(bool flatStruc = false) : HeaderRecCount(0), LinesRecCount(0), FilesCount(0), MaxTransmitSize(0), AddedRecType(0), FlatStruc(flatStruc)
 	{
 	}
 	void   SetMaxTransmitSize(uint32 maxTransmitSize)
@@ -233,7 +233,7 @@ public:
 	{
 		ClientCode = pClientCode;
 	}
-	int    SLAPI Init(const char * pFile, uint headRecType, uint lineRecType, const char * pHeadScheme, const char * pLineScheme,
+	int    Init(const char * pFile, uint headRecType, uint lineRecType, const char * pHeadScheme, const char * pLineScheme,
 		/*const SupplExpFilt * pFilt,*/ const char * pSchemeName /*=0*/)
 	{
 		int    ok = 1;
@@ -263,7 +263,7 @@ public:
 		HeaderRecCount = LinesRecCount = 0;
 		return ok;
 	}
-	int SLAPI Init(const char * pFile, uint headRecType, uint lineRecType, uint addLineRecType, uint promoLineRecType,
+	int Init(const char * pFile, uint headRecType, uint lineRecType, uint addLineRecType, uint promoLineRecType,
 		const char * pHeadScheme, const char * pLineScheme, const char * pAddLineScheme, const char * pPromoLineScheme,
 		const char * pSchemeName)
 	{
@@ -304,7 +304,7 @@ public:
 		HeaderRecCount = LinesRecCount = 0;
 		return ok;
 	}
-	int    SLAPI AppendRecT(uint recTypeID, void * pRec, size_t recSize, int isFirstRec, int schemeNum, const char * pSchemeName /*=0*/)
+	int    AppendRecT(uint recTypeID, void * pRec, size_t recSize, int isFirstRec, int schemeNum, const char * pSchemeName /*=0*/)
 	{
 		int    ok = -1;
 		if(recTypeID) {
@@ -331,7 +331,7 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI AppendRecP(void * pHeadRec, size_t headRecSize, void * pLineRec, size_t lineRecSize, int headRecForNewFile /*=0*/)
+	int    AppendRecP(void * pHeadRec, size_t headRecSize, void * pLineRec, size_t lineRecSize, int headRecForNewFile /*=0*/)
 	{
 		int    ok = -1;
 		if(pHeadRec && headRecSize || pLineRec && lineRecSize) {
@@ -376,7 +376,7 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	void   SLAPI EndDocument(int ok)
+	void   EndDocument(int ok)
 	{
 		if(ok > 0) {
 			WriteFooter();
@@ -388,7 +388,7 @@ public:
 			SFile::Remove(fname);
 		}
 	}
-	void   SLAPI EndRecBlock()
+	void   EndRecBlock()
 	{
 		if(F.IsValid()) {
 			F.WriteLine("</d>");
@@ -396,7 +396,7 @@ public:
 		}
 	}
 private:
-	int    SLAPI InitExportParam(PPImpExpParam & rParam, uint recTyp)
+	int    InitExportParam(PPImpExpParam & rParam, uint recTyp)
 	{
 		int    ok = 1;
 		rParam.Init();
@@ -410,7 +410,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI WriteHeader()
+	int    WriteHeader()
 	{
 		int    ok = -1;
 		if(F.IsValid() && HeadScheme.Len()) {
@@ -456,7 +456,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI WriteFooter()
+	int    WriteFooter()
 	{
 		int    ok = -1;
 		if(F.IsValid()) {
@@ -474,7 +474,7 @@ private:
 		}
 		return ok;
 	}
-	int    SLAPI WriteScheme(const SdRecord * pRec, const char * pSchemeName)
+	int    WriteScheme(const SdRecord * pRec, const char * pSchemeName)
 	{
 		int    ok = -1;
 		if(F.IsValid() && pSchemeName) {
@@ -507,7 +507,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI WriteRec(const SdRecord * pRec, const char * pSchemeName, int endRecord)
+	int    WriteRec(const SdRecord * pRec, const char * pSchemeName, int endRecord)
 	{
 		int    ok = -1;
 		if(F.IsValid()) {
@@ -569,7 +569,7 @@ private:
 	SFile  F;
 };
 
-/* @v10.3.1 (inlined) void SLAPI PPSupplExchange_Baltika::DelFiles(const char * pFileName)
+/* @v10.3.1 (inlined) void PPSupplExchange_Baltika::DelFiles(const char * pFileName)
 {
 	SString wc_path, wild_card;
 	SString full_path;
@@ -588,7 +588,7 @@ private:
 	}
 }*/
 
-int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
+int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -687,9 +687,9 @@ int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 //#define SOAP_SCHEMESALDODOC       "CRMSaldoDoc"
 //#define SOAP_SCHEMESALDOWARE      "CRMSaldoWare"
 
-const char * SLAPI PPSupplExchange_Baltika::GetEaText() const { return (Ep.ProtVer == 0) ? "ea" : "кг"; }
+const char * PPSupplExchange_Baltika::GetEaText() const { return (Ep.ProtVer == 0) ? "ea" : "кг"; }
 
-int SLAPI PPSupplExchange_Baltika::ExportPrice()
+int PPSupplExchange_Baltika::ExportPrice()
 {
 	int    ok = 1;
 	uint   count = 0;
@@ -739,7 +739,7 @@ IMPL_CMPFUNC(Sdr_Baltika_RestPartLine, i1, i2)
 	return r;
 }
 
-void SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial)
+void PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial)
 {
 	//
 	// @v8.6.10 Извлечение срока годности скорректировано так, чтобы приоритет был у даты, установленной у порожденного лота против оригинального
@@ -771,7 +771,7 @@ void SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferIte
 	ASSIGN_PTR(pSerial, serial);
 }
 
-int SLAPI PPSupplExchange_Baltika::ExportRestParties()
+int PPSupplExchange_Baltika::ExportRestParties()
 {
 	int    ok = 1;
 	int    skip_delete = 0;
@@ -943,7 +943,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::ExportRest()
+int PPSupplExchange_Baltika::ExportRest()
 {
 	int    ok = 1;
 	uint   count = 0, files_count = 0, i;
@@ -1111,7 +1111,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
+int PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 {
 	int    ok = 1;
 	int    is_weak_alc = 0, is_wotare = 0;
@@ -1188,7 +1188,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetBarcode(PPID goodsID, char * pBuf, size_t bufSize, int * pPackCode, int * pIsHoreca, double * pMult)
+int PPSupplExchange_Baltika::GetBarcode(PPID goodsID, char * pBuf, size_t bufSize, int * pPackCode, int * pIsHoreca, double * pMult)
 {
 	int    ok = -1, pack_code = 0, is_horeca = 0;
 	double mult = 1.0;
@@ -1244,7 +1244,7 @@ IMPL_CMPFUNC(Sdr_BaltikaBillItemAttrs, i1, i2)
 	return r;
 }
 
-int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const char * pClientCode, PPLogger & rLogger)
+int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const char * pClientCode, PPLogger & rLogger)
 {
 	int    ok = 1;
 	int    is_first_item = 1;
@@ -1837,7 +1837,7 @@ static int FASTCALL _WriteRec(SXml::WDoc & rXmlDoc, const SdRecord & rRd, const 
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const char * pClientCode, PPLogger * pLog)
+int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const char * pClientCode, PPLogger * pLog)
 {
 	const   LDATE _curdt = getcurdate_();
 	const   PPID acs_id = GetSellAccSheet();
@@ -2049,7 +2049,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
     return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetInfoFromMemo(const char * pMemo, LDATE * pParentDt, SString & rParentCode, int simple)
+int PPSupplExchange_Baltika::GetInfoFromMemo(const char * pMemo, LDATE * pParentDt, SString & rParentCode, int simple)
 {
 	int    ok = -1;
 	LDATE  dt = ZERODATE;
@@ -2074,7 +2074,7 @@ int SLAPI PPSupplExchange_Baltika::GetInfoFromMemo(const char * pMemo, LDATE * p
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetConsigLocInfo(const BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode)
+int PPSupplExchange_Baltika::GetConsigLocInfo(const BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode)
 {
 	int    ok = 0;
 	rParentCode.Z();
@@ -2087,7 +2087,7 @@ int SLAPI PPSupplExchange_Baltika::GetConsigLocInfo(const BillViewItem * pItem, 
 	return ok;
 }
 
-PPID SLAPI PPSupplExchange_Baltika::GetConsigLocGroupID()
+PPID PPSupplExchange_Baltika::GetConsigLocGroupID()
 {
 	PPID loc_grp_id = 0L;
 	PPObjLocation obj_loc;
@@ -2102,7 +2102,7 @@ PPID SLAPI PPSupplExchange_Baltika::GetConsigLocGroupID()
 	return loc_grp_id;
 }
 
-PPID SLAPI PPSupplExchange_Baltika::GetSaleChannelTagID()
+PPID PPSupplExchange_Baltika::GetSaleChannelTagID()
 {
 	PPID   sale_channel_tag = 0;
 	SString sale_channel_tag_symb;
@@ -2121,7 +2121,7 @@ PPID SLAPI PPSupplExchange_Baltika::GetSaleChannelTagID()
 	return sale_channel_tag;
 }
 
-long SLAPI PPSupplExchange_Baltika::GetSaleChannelExtFld()
+long PPSupplExchange_Baltika::GetSaleChannelExtFld()
 {
 	long   ext_fld = 0L;
 	PPIniFile ini_file;
@@ -2133,7 +2133,7 @@ long SLAPI PPSupplExchange_Baltika::GetSaleChannelExtFld()
 	return ext_fld;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetWeakAlcInfo(PPID * pLocID, PPID * pGGrpID, int getWoTareBeer)
+int PPSupplExchange_Baltika::GetWeakAlcInfo(PPID * pLocID, PPID * pGGrpID, int getWoTareBeer)
 {
 	PPID   loc_id = 0, ggrp_id = 0;
 	PPIniFile ini_file;
@@ -2156,7 +2156,7 @@ int SLAPI PPSupplExchange_Baltika::GetWeakAlcInfo(PPID * pLocID, PPID * pGGrpID,
 }
 
 // @vmiller
-int SLAPI PPSupplExchange_Baltika::IsKegUnit(PPID goodsID)
+int PPSupplExchange_Baltika::IsKegUnit(PPID goodsID)
 {
 	int    yes = 0;
 	if(KegUnitID < 0) {
@@ -2178,7 +2178,7 @@ int SLAPI PPSupplExchange_Baltika::IsKegUnit(PPID goodsID)
 	return yes;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetSpoilageLocList(PPIDArray * pList)
+int PPSupplExchange_Baltika::GetSpoilageLocList(PPIDArray * pList)
 {
 	int    ok = -1;
 	PPIniFile ini_file;
@@ -2204,7 +2204,7 @@ int SLAPI PPSupplExchange_Baltika::GetSpoilageLocList(PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetQtty(PPID goodsID, int calcByPhPerU, double * pQtty, double * pPrice)
+int PPSupplExchange_Baltika::GetQtty(PPID goodsID, int calcByPhPerU, double * pQtty, double * pPrice)
 {
 	double qtty = DEREFPTRORZ(pQtty);
 	double price = DEREFPTRORZ(pPrice);
@@ -2229,7 +2229,7 @@ int SLAPI PPSupplExchange_Baltika::GetQtty(PPID goodsID, int calcByPhPerU, doubl
 	return 1;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode)
+int PPSupplExchange_Baltika::GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode)
 {
 	rCode.Z();
 	int    ok = -1;
@@ -2246,7 +2246,7 @@ int SLAPI PPSupplExchange_Baltika::GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SSt
 	return ok;
 }
 
-int SLAPI PPSupplExchange_Baltika::Send()
+int PPSupplExchange_Baltika::Send()
 {
 	/*
 	int    ok = 1;
@@ -2270,7 +2270,7 @@ int SLAPI PPSupplExchange_Baltika::Send()
 	return -1;
 }
 
-int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
+int EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 {
 	class SupplExpFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(SupplExpFilt);
@@ -2463,12 +2463,12 @@ private:
 //
 // Import suppl data
 //
-int SLAPI PPSupplExchange_Baltika::Import(const char * pPath)
+int PPSupplExchange_Baltika::Import(const char * pPath)
 {
 #if 0 // @unused {
 	class Exchanger : public PpyInetDataPrcssr {
 	public:
-		int SLAPI SendRequest(const char * pURL, const char * request)
+		int SendRequest(const char * pURL, const char * request)
 		{
 			int    ok = 0;
 			char * p_types[1] = {"text/*"};
@@ -2574,34 +2574,34 @@ public:
 		SString ItemDescr;
 		SString ErrMsg;
 	};
-	SLAPI  iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
-	SLAPI ~iSalesPepsi();
-	int    SLAPI Init();
-	int    SLAPI ParseResultString(const char * pText, TSCollection <iSalesPepsi::ResultItem> & rList, long * pErrItemCount) const;
-	int    SLAPI ReceiveGoods(int forceSettings, int useStorage);
-	int    SLAPI ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult);
-	int    SLAPI ReceiveReceipts();
-	int    SLAPI ReceiveOrders();
-	int    SLAPI ReceiveVDocs();
-	int    SLAPI ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & rResult);
-	int    SLAPI SendPrices();
-	int    SLAPI SendStocks();
-	int    SLAPI SendInvoices();
-	int    SLAPI SendDebts();
-	int    SLAPI SendStatus(const TSCollection <iSalesTransferStatus> & rList);
+	iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
+	~iSalesPepsi();
+	int    Init();
+	int    ParseResultString(const char * pText, TSCollection <iSalesPepsi::ResultItem> & rList, long * pErrItemCount) const;
+	int    ReceiveGoods(int forceSettings, int useStorage);
+	int    ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult);
+	int    ReceiveReceipts();
+	int    ReceiveOrders();
+	int    ReceiveVDocs();
+	int    ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & rResult);
+	int    SendPrices();
+	int    SendStocks();
+	int    SendInvoices();
+	int    SendDebts();
+	int    SendStatus(const TSCollection <iSalesTransferStatus> & rList);
 private:
-	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
+	int    PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
-	int    SLAPI Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
-	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
-	void   SLAPI Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const;
-	void   SLAPI Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const;
-	void   SLAPI SetupLocalPeriod(DateRange & rPeriod) const;
-	int    SLAPI GetGoodsStoreFileName(SString & rBuf) const;
-	int    SLAPI StoreGoods(TSCollection <iSalesGoodsPacket> & rList);
-	int    SLAPI RestoreGoods(TSCollection <iSalesGoodsPacket> & rList);
-	int    SLAPI SetGoodsArCode(PPID goodsID, const char * pArCode, int use_ta);
-	int    SLAPI LogErrors(const TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg);
+	int    Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
+	int    Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
+	void   Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const;
+	void   Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const;
+	void   SetupLocalPeriod(DateRange & rPeriod) const;
+	int    GetGoodsStoreFileName(SString & rBuf) const;
+	int    StoreGoods(TSCollection <iSalesGoodsPacket> & rList);
+	int    RestoreGoods(TSCollection <iSalesGoodsPacket> & rList);
+	int    SetGoodsArCode(PPID goodsID, const char * pArCode, int use_ta);
+	int    LogErrors(const TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg);
 	const iSalesGoodsPacket * SearchGoodsMappingEntry(const char * pOuterCode) const
 	{
 		const iSalesGoodsPacket * p_result = 0;
@@ -2645,7 +2645,7 @@ private:
 	PPLogger & R_Logger;
 };
 
-SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) :
+iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) :
 	PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), State(0), P_DestroyFunc(0), UnknAgentID(0)
 {
 	PPGetFilePath(PPPATH_LOG, "isalespepsi.log", LogFileName);
@@ -2661,13 +2661,13 @@ SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLog
 	}
 }
 
-SLAPI iSalesPepsi::~iSalesPepsi()
+iSalesPepsi::~iSalesPepsi()
 {
 	P_DestroyFunc = 0;
 	delete P_Lib;
 }
 
-int SLAPI iSalesPepsi::Init()
+int iSalesPepsi::Init()
 {
 	State = 0;
 	UnknAgentID = 0; // @v10.8.11
@@ -2707,7 +2707,7 @@ int SLAPI iSalesPepsi::Init()
 	return ok;
 }
 
-int SLAPI iSalesPepsi::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
+int iSalesPepsi::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
 	LastMsg = rSess.GetMsg();
     return BIN(pResult);
@@ -2721,7 +2721,7 @@ void FASTCALL iSalesPepsi::DestroyResult(void ** ppResult)
 	}
 }
 
-int SLAPI iSalesPepsi::ParseResultString(const char * pText, TSCollection <iSalesPepsi::ResultItem> & rList, long * pErrItemCount) const
+int iSalesPepsi::ParseResultString(const char * pText, TSCollection <iSalesPepsi::ResultItem> & rList, long * pErrItemCount) const
 {
 	int    ok = 1;
 	long   err_item_count = 0;
@@ -2762,7 +2762,7 @@ int SLAPI iSalesPepsi::ParseResultString(const char * pText, TSCollection <iSale
 	return ok;
 }
 
-int SLAPI iSalesPepsi::LogErrors(const TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg)
+int iSalesPepsi::LogErrors(const TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -2781,7 +2781,7 @@ int SLAPI iSalesPepsi::LogErrors(const TSCollection <iSalesPepsi::ResultItem> & 
 }
 
 struct iSalesGoodsStorageHeader {
-	SLAPI  iSalesGoodsStorageHeader() : CRC(0)
+	iSalesGoodsStorageHeader() : CRC(0)
 	{
 		memcpy(Signature, "ISGS", 4);
 		MEMSZERO(Reserve);
@@ -2791,12 +2791,12 @@ struct iSalesGoodsStorageHeader {
     uint8  Reserve[24];
 };
 
-int SLAPI iSalesPepsi::GetGoodsStoreFileName(SString & rBuf) const
+int iSalesPepsi::GetGoodsStoreFileName(SString & rBuf) const
 {
 	return PPGetFilePath(PPPATH_OUT, "isalesgoodsstorage", rBuf = 0);
 }
 
-int SLAPI iSalesPepsi::StoreGoods(TSCollection <iSalesGoodsPacket> & rList)
+int iSalesPepsi::StoreGoods(TSCollection <iSalesGoodsPacket> & rList)
 {
     int    ok = 1;
     SString file_name;
@@ -2821,7 +2821,7 @@ int SLAPI iSalesPepsi::StoreGoods(TSCollection <iSalesGoodsPacket> & rList)
     return ok;
 }
 
-int SLAPI iSalesPepsi::RestoreGoods(TSCollection <iSalesGoodsPacket> & rList)
+int iSalesPepsi::RestoreGoods(TSCollection <iSalesGoodsPacket> & rList)
 {
     int    ok = 1;
     SString file_name;
@@ -2846,7 +2846,7 @@ int SLAPI iSalesPepsi::RestoreGoods(TSCollection <iSalesGoodsPacket> & rList)
     return ok;
 }
 
-int SLAPI iSalesPepsi::SetGoodsArCode(PPID goodsID, const char * pArCode, int use_ta)
+int iSalesPepsi::SetGoodsArCode(PPID goodsID, const char * pArCode, int use_ta)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
@@ -2884,7 +2884,7 @@ int SLAPI iSalesPepsi::SetGoodsArCode(PPID goodsID, const char * pArCode, int us
 	return ok;
 }
 
-int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
+int iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 {
 	int    ok = -1;
 	State &= ~stGoodsMappingInited;
@@ -3011,7 +3011,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 	return ok;
 }
 
-int SLAPI iSalesPepsi::ReceiveReceipts()
+int iSalesPepsi::ReceiveReceipts()
 {
     int    ok = -1;
 	PPSoapClientSession sess;
@@ -3125,7 +3125,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
     return ok;
 }
 
-void SLAPI iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
+void iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
 {
 	rPeriod = P.ExpPeriod;
 	if(!checkdate(rPeriod.low))
@@ -3134,7 +3134,7 @@ void SLAPI iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
 		rPeriod.upp = encodedate(31, 12, 2030);
 }
 
-int SLAPI iSalesPepsi::ReceiveVDocs()
+int iSalesPepsi::ReceiveVDocs()
 {
     int    ok = -1;
 	int    treat_duedate_as_maindate = 0; // @v10.8.11
@@ -3309,7 +3309,7 @@ int SLAPI iSalesPepsi::ReceiveVDocs()
 	return ok;
 }
 
-int SLAPI iSalesPepsi::ReceiveOrders()
+int iSalesPepsi::ReceiveOrders()
 {
     int    ok = -1;
 	int    treat_duedate_as_maindate = 0; // @v10.8.11
@@ -3474,7 +3474,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
     return ok;
 }
 
-int SLAPI iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & rResult)
+int iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & rResult)
 {
 	rResult.freeAll();
 
@@ -3519,7 +3519,7 @@ int SLAPI iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & r
 	return ok;
 }
 
-int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
+int iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 {
 	rResult.freeAll();
 	int    ok = -1;
@@ -3577,7 +3577,7 @@ int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 	return ok;
 }
 
-int SLAPI iSalesPepsi::SendStatus(const TSCollection <iSalesTransferStatus> & rList)
+int iSalesPepsi::SendStatus(const TSCollection <iSalesTransferStatus> & rList)
 {
 	int    ok = -1;
 	SString * p_result = 0;
@@ -3606,7 +3606,7 @@ IMPL_CMPFUNC(iSalesBillDebt, p1, p2)
 	return si;
 }
 
-int SLAPI iSalesPepsi::SendDebts()
+int iSalesPepsi::SendDebts()
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -3618,6 +3618,7 @@ int SLAPI iSalesPepsi::SendDebts()
 	THROW(ReceiveUnclosedInvoices(outer_debt_list));
 	if(outer_debt_list.getCount()) {
 		PPIDArray processed_id_list;
+		StringSet processed_outer_list;
 		int    result = 0;
 		int    do_send = 0;
 		uint   i;
@@ -3639,7 +3640,7 @@ int SLAPI iSalesPepsi::SendDebts()
 								int    found = 0;
 								for(uint j = first_idx_by_date; !found && j < i; j++) {
 									const iSalesBillDebt * p_temp_item = outer_debt_list.at(j);
-									if(p_temp_item->Code.CmpNC(temp_buf) == 0) {
+									if(p_temp_item->Code.CmpNC(temp_buf) == 0 && !processed_outer_list.search(p_temp_item->iSalesId, 0, 1)) {
 										double payment = 0.0;
 										P_BObj->P_Tbl->CalcPayment(bill_rec.ID, 1, 0, 0, &payment);
 										iSalesBillDebt * p_new_item = current_debt_list.CreateNewItem();
@@ -3648,6 +3649,7 @@ int SLAPI iSalesPepsi::SendDebts()
 										p_new_item->Code.Transf(CTRANSF_INNER_TO_UTF8);
 										p_new_item->Debt = (payment >= p_new_item->Amount) ? 0.0 : (p_new_item->Amount - payment);
 										processed_id_list.add(bill_rec.ID); // @v10.9.0
+										processed_outer_list.add(p_temp_item->iSalesId); // @v10.9.1
 										found = 1;
 									}
 								}
@@ -3696,7 +3698,7 @@ int SLAPI iSalesPepsi::SendDebts()
 	return ok;
 }
 
-int SLAPI iSalesPepsi::SendPrices()
+int iSalesPepsi::SendPrices()
 {
 	int    ok = -1;
 	SString * p_result = 0;
@@ -3827,7 +3829,7 @@ int SLAPI iSalesPepsi::SendPrices()
 	return ok;
 }
 
-int SLAPI iSalesPepsi::SendStocks()
+int iSalesPepsi::SendStocks()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -3892,7 +3894,10 @@ int SLAPI iSalesPepsi::SendStocks()
 		{
 			SString check_file_name;
 			SString line_buf;
-			temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("stock").Dot().Cat("csv");
+			temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("stock");
+			if(P.Flags & P.fTestMode)
+				temp_buf.CatChar('-').Cat('t');
+			temp_buf.Dot().Cat("csv");
 			PPGetFilePath(PPPATH_OUT, temp_buf, check_file_name);
 			SFile f_check(check_file_name, SFile::mWrite);
 			//№ п/п	Наименование поля	Комментарии
@@ -3959,14 +3964,14 @@ int SLAPI iSalesPepsi::SendStocks()
 	return ok;
 }
 
-void SLAPI iSalesPepsi::Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const
+void iSalesPepsi::Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const
 {
 	rIdent.Z();
 	BillCore::GetCode(rIdent = rRec.Code);
 	rIdent.Space().Cat(rRec.Dt, DATF_GERMAN|DATF_CENTURY).Space().Cat(labs(outerDocType));
 }
 
-void SLAPI iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const
+void iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const
 {
 	rCode.Z();
 	LDATE   dt = ZERODATE;
@@ -3986,7 +3991,7 @@ void SLAPI iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString
 //
 // Если outerDocType < 0, то это - отмена документа
 //
-int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
+int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
 {
 	int    ok = 1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
@@ -4382,7 +4387,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const
 	return ok;
 }
 
-int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
+int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
 {
 	int    ok = -1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
@@ -4406,66 +4411,68 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PP
 		b_filt.Period = P.ExpPeriod;
 		SETIFZ(b_filt.Period.low, encodedate(1, 1, 2020)); // @v10.8.8 2016-->2020
 		{
-			SString org_isales_code;
-			PPIDArray acn_list;
-			acn_list.add(PPACN_UPDBILL);
-			LDATETIME since;
-			since.Set(b_filt.Period.low, ZEROTIME);
 			PPIDArray upd_bill_list;
-			p_sj->GetObjListByEventPeriod(PPOBJ_BILL, 0, &acn_list, &b_filt.Period, upd_bill_list);
-			upd_bill_list.sortAndUndup();
-			for(uint i = 0; i < upd_bill_list.getCount(); i++) {
-				const PPID upd_bill_id = upd_bill_list.get(i);
-				//
-				// Теги PPTAG_BILL_EDIACK используются так же для обмена с ЕГАИС.
-				// Дабы отличить документ isales от ЕГАИС попытаемся преобразовать значение
-				// тега в GUID. Если не получилось - значит не ЕГАИС.
-				// Метод очень плохой, но пока оставим так.
-				// @v9.5.7 В конфигурацию обмена данными добавлен спец тег для этого.
-				//
-				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, org_isales_code) > 0 && !test_uuid.FromStr(org_isales_code)) {
-                    if(P_BObj->Search(upd_bill_id, &bill_rec) > 0 && IsOpBelongTo(bill_rec.OpID, b_filt.OpID) && b_filt.LocList.CheckID(bill_rec.LocID)) {
-						if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
-							Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
-							if(pack.GetTCount() == 0) {
-								Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
-								force_bill_list.add(upd_bill_id);
-							}
-							else {
-								int    is_my_goods = 0;
-								long   tiiterpos = 0;
-								for(uint tiidx = 0; !is_my_goods && tiidx < pack.GetTCount(); tiidx++) {
-									const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
-									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0) {
-										int   skip_goods = 0;
-										if(State & stGoodsMappingInited) {
-											const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
-											if(p_entry && p_entry->NativeCode.ToLong() == 0)
-												skip_goods = 1;
-										}
-										if(!skip_goods)
-											is_my_goods = 1;
-									}
-								}
-								if(is_my_goods) {
-									if(isales_code != org_isales_code) { 
-										Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
-									}
+			if(!(P.Flags & P.fTestMode)) { // @v10.9.1
+				SString org_isales_code;
+				PPIDArray acn_list;
+				acn_list.add(PPACN_UPDBILL);
+				LDATETIME since;
+				since.Set(b_filt.Period.low, ZEROTIME);
+				p_sj->GetObjListByEventPeriod(PPOBJ_BILL, 0, &acn_list, &b_filt.Period, upd_bill_list);
+				upd_bill_list.sortAndUndup();
+				for(uint i = 0; i < upd_bill_list.getCount(); i++) {
+					const PPID upd_bill_id = upd_bill_list.get(i);
+					//
+					// Теги PPTAG_BILL_EDIACK используются так же для обмена с ЕГАИС.
+					// Дабы отличить документ isales от ЕГАИС попытаемся преобразовать значение
+					// тега в GUID. Если не получилось - значит не ЕГАИС.
+					// Метод очень плохой, но пока оставим так.
+					// @v9.5.7 В конфигурацию обмена данными добавлен спец тег для этого.
+					//
+					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, org_isales_code) > 0 && !test_uuid.FromStr(org_isales_code)) {
+						if(P_BObj->Search(upd_bill_id, &bill_rec) > 0 && IsOpBelongTo(bill_rec.OpID, b_filt.OpID) && b_filt.LocList.CheckID(bill_rec.LocID)) {
+							if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
+								Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
+								if(pack.GetTCount() == 0) {
+									Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
 									force_bill_list.add(upd_bill_id);
+								}
+								else {
+									int    is_my_goods = 0;
+									long   tiiterpos = 0;
+									for(uint tiidx = 0; !is_my_goods && tiidx < pack.GetTCount(); tiidx++) {
+										const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
+										if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0) {
+											int   skip_goods = 0;
+											if(State & stGoodsMappingInited) {
+												const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
+												if(p_entry && p_entry->NativeCode.ToLong() == 0)
+													skip_goods = 1;
+											}
+											if(!skip_goods)
+												is_my_goods = 1;
+										}
+									}
+									if(is_my_goods) {
+										if(isales_code != org_isales_code) { 
+											Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
+										}
+										force_bill_list.add(upd_bill_id);
+									}
 								}
 							}
 						}
-                    }
+					}
 				}
 			}
 		}
 		force_bill_list.sortAndUndup();
 		THROW(b_view.Init_(&b_filt));
 		for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
-			if(!force_bill_list.bsearch(view_item.ID)) {
+			if(!force_bill_list.bsearch(view_item.ID)) { 
 				int    dont_send = 0;
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK))
-					dont_send = 1; // Статус не позволяет отправку
+					dont_send = 1; // Статус не допускает отправку
 				else {
 					if(!(P.Flags & P.fTestMode)) { // @v10.9.0 При подготовке файла сверки нельзя пропускать документы, которые уже были отправлены
 						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf))
@@ -4494,7 +4501,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PP
 	return ok;
 }
 
-int SLAPI iSalesPepsi::SendInvoices()
+int iSalesPepsi::SendInvoices()
 {
 	/*
 		Возврат обратной реализацией (4) – это документ, без привязки к расходной накладной, и тут также не нужно передавать теги REFS (<DOC_TP> = 4)
@@ -4638,7 +4645,10 @@ int SLAPI iSalesPepsi::SendInvoices()
 		*/
 		SString check_file_name;
 		SString line_buf;
-		temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("invoices").Dot().Cat("csv");
+		temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("invoices");
+		if(P.Flags & P.fTestMode)
+			temp_buf.CatChar('-').Cat('t');
+		temp_buf.Dot().Cat("csv");
 		PPGetFilePath(PPPATH_OUT, temp_buf, check_file_name);
 		SFile f_check(check_file_name, SFile::mWrite);
 		SString own_code;
@@ -4842,25 +4852,25 @@ int SLAPI iSalesPepsi::SendInvoices()
 //
 class SapEfes : public PrcssrSupplInterchange::ExecuteBlock {
 public:
-	SLAPI  SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
-	SLAPI ~SapEfes();
-	void   SLAPI Init();
-	int    SLAPI ReceiveOrders();
-	int    SLAPI SendStocks();
-	int    SLAPI SendInvoices();
-	int    SLAPI SendDebts();
-	int    SLAPI SendSales_ByGoods();
-	int    SLAPI SendSales_ByDlvrLoc();
+	SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
+	~SapEfes();
+	void   Init();
+	int    ReceiveOrders();
+	int    SendStocks();
+	int    SendInvoices();
+	int    SendDebts();
+	int    SendSales_ByGoods();
+	int    SendSales_ByDlvrLoc();
 private:
-	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
+	int    PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
-	void   SLAPI InitCallHeader(SapEfesCallHeader & rHdr);
-	int    SLAPI Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList, PPIDArray & rToCancelBillList);
-	int    SLAPI LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgList);
-	int    SLAPI PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList);
-	int    SLAPI Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rList);
-	int    SLAPI Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportEntry> & rList);
-	int    SLAPI MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, const SapEfesOrder * pSrcPack, PPID resultOrderID, const char * pRetCode);
+	void   InitCallHeader(SapEfesCallHeader & rHdr);
+	int    Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList, PPIDArray & rToCancelBillList);
+	int    LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgList);
+	int    PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList);
+	int    Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rList);
+	int    Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportEntry> & rList);
+	int    MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, const SapEfesOrder * pSrcPack, PPID resultOrderID, const char * pRetCode);
 
 	enum {
 		stInited             = 0x0001,
@@ -4884,7 +4894,7 @@ private:
 	PPLogger & R_Logger;
 };
 
-SLAPI SapEfes::SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger),
+SapEfes::SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger),
 	State(0), P_DestroyFunc(0)
 {
 	PPGetFilePath(PPPATH_LOG, "sapefes.log", LogFileName);
@@ -4900,13 +4910,13 @@ SLAPI SapEfes::SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rL
 	}
 }
 
-SLAPI SapEfes::~SapEfes()
+SapEfes::~SapEfes()
 {
 	P_DestroyFunc = 0;
 	delete P_Lib;
 }
 
-void SLAPI SapEfes::Init()
+void SapEfes::Init()
 {
 	Reference * p_ref = PPRef;
 	State = 0;
@@ -4936,7 +4946,7 @@ void SLAPI SapEfes::Init()
 	State |= stInited;
 }
 
-int SLAPI SapEfes::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
+int SapEfes::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
 	LastMsg = rSess.GetMsg();
     return BIN(pResult);
@@ -4950,14 +4960,14 @@ void FASTCALL SapEfes::DestroyResult(void ** ppResult)
 	}
 }
 
-void SLAPI SapEfes::InitCallHeader(SapEfesCallHeader & rHdr)
+void SapEfes::InitCallHeader(SapEfesCallHeader & rHdr)
 {
 	GetSequence(&rHdr.SessionID, 1);
 	rHdr.P_SalesOrg = SalesOrg;
 	rHdr.P_Wareh = Wareh;
 }
 
-int SLAPI SapEfes::MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, const SapEfesOrder * pSrcPack, PPID resultOrderID, const char * pRetCode)
+int SapEfes::MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, const SapEfesOrder * pSrcPack, PPID resultOrderID, const char * pRetCode)
 {
 	int    ok = 1;
 	SapEfesBillStatus * p_new_status = rList.CreateNewItem();
@@ -4969,7 +4979,7 @@ int SLAPI SapEfes::MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, cons
 	return ok;
 }
 
-int SLAPI SapEfes::ReceiveOrders()
+int SapEfes::ReceiveOrders()
 {
     int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -5184,7 +5194,7 @@ int SLAPI SapEfes::ReceiveOrders()
     return ok;
 }
 
-int SLAPI SapEfes::SendSales_ByDlvrLoc()
+int SapEfes::SendSales_ByDlvrLoc()
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -5242,7 +5252,7 @@ int SLAPI SapEfes::SendSales_ByDlvrLoc()
 	return ok;
 }
 
-int SLAPI SapEfes::SendSales_ByGoods()
+int SapEfes::SendSales_ByGoods()
 {
 	int    ok = 1;
 	const  LDATE _curdate = getcurdate_();
@@ -5292,7 +5302,7 @@ int SLAPI SapEfes::SendSales_ByGoods()
 	return ok;
 }
 
-int SLAPI SapEfes::SendStocks()
+int SapEfes::SendStocks()
 {
     int    ok = -1;
     const  LDATE _curdate = getcurdate_();
@@ -5343,7 +5353,7 @@ int SLAPI SapEfes::SendStocks()
     return ok;
 }
 
-int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList, PPIDArray & rToCancelBillList)
+int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & rList, PPIDArray & rToCancelBillList)
 {
 	rToCancelBillList.clear();
 	int    ok = -1;
@@ -5504,7 +5514,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 	return ok;
 }
 
-int SLAPI SapEfes::SendInvoices()
+int SapEfes::SendInvoices()
 {
     int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -5589,7 +5599,7 @@ int SLAPI SapEfes::SendInvoices()
     return ok;
 }
 
-int SLAPI SapEfes::LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgList)
+int SapEfes::LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgList)
 {
 	int    ok = 1;
 	if(pMsgList) {
@@ -5613,7 +5623,7 @@ int SLAPI SapEfes::LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgLis
 	return ok;
 }
 
-int SLAPI SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList)
+int SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSCollection <SapEfesDebtDetailReportEntry> & rDetailList)
 {
     int    ok = 1;
 	{
@@ -5692,7 +5702,7 @@ int SLAPI SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rLis
     return ok;
 }
 
-int SLAPI SapEfes::Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rList)
+int SapEfes::Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rList)
 {
     int    ok = -1;
 	if(rList.getCount()) {
@@ -5718,7 +5728,7 @@ int SLAPI SapEfes::Helper_SendDebts(TSCollection <SapEfesDebtReportEntry> & rLis
     return ok;
 }
 
-int SLAPI SapEfes::Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportEntry> & rList)
+int SapEfes::Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportEntry> & rList)
 {
     int    ok = -1;
 	if(rList.getCount()) {
@@ -5744,7 +5754,7 @@ int SLAPI SapEfes::Helper_SendDebtsDetail(TSCollection <SapEfesDebtDetailReportE
     return ok;
 }
 
-int SLAPI SapEfes::SendDebts()
+int SapEfes::SendDebts()
 {
     int    ok = -1;
 	TSCollection <SapEfesDebtReportEntry> outp_list;
@@ -5761,24 +5771,24 @@ int SLAPI SapEfes::SendDebts()
 //
 class SfaHeineken : public PrcssrSupplInterchange::ExecuteBlock {
 public:
-	SLAPI  SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
-	SLAPI ~SfaHeineken();
-	void   SLAPI Init();
-	int    SLAPI ReceiveGoods();
-	int    SLAPI ReceiveOrders();
-	int    SLAPI SendStocks();
-	int    SLAPI SendSales();
-	int    SLAPI SendReceipts();
-	int    SLAPI SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
-	int    SLAPI SendDebts();
+	SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
+	~SfaHeineken();
+	void   Init();
+	int    ReceiveGoods();
+	int    ReceiveOrders();
+	int    SendStocks();
+	int    SendSales();
+	int    SendReceipts();
+	int    SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
+	int    SendDebts();
 private:
-	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList);
-	int    SLAPI Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList,
+	int    Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList);
+	int    Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList,
 		TSCollection <SfaHeinekenInvoice> & rToDeleteList);
-	int    SLAPI Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArray & rTiPosList, TSCollection <SfaHeinekenDeliveryPosition> & rDeliveryList);
+	int    Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArray & rTiPosList, TSCollection <SfaHeinekenDeliveryPosition> & rDeliveryList);
 
 	struct ReplyInfo {
-		SLAPI  ReplyInfo() : ErrCode(0), ErrInternalCode(0), ErrSeverity(0)
+		ReplyInfo() : ErrCode(0), ErrInternalCode(0), ErrSeverity(0)
 		{
 		}
 		int    ErrCode;
@@ -5793,11 +5803,11 @@ private:
 		SString Name;
 	};
 	struct OrderEntry {
-		SLAPI  OrderEntry() : Dtm(ZERODATETIME), DlvrDtm(ZERODATETIME), ForeignDlvrAddrID(0), PaidSum(0.0), UserID(0), WarehouseID(0)
+		OrderEntry() : Dtm(ZERODATETIME), DlvrDtm(ZERODATETIME), ForeignDlvrAddrID(0), PaidSum(0.0), UserID(0), WarehouseID(0)
 		{
 		}
 		struct Item {
-			SLAPI  Item() : SkuID(0), UnitID(0), Qtty(0)
+			Item() : SkuID(0), UnitID(0), Qtty(0)
 			{
 			}
 			int    SkuID;
@@ -5818,9 +5828,9 @@ private:
 		SString UserName;   // Фамилия Имя Отчество торгового представителя
 		TSCollection <Item> ItemList;
 	};
-	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
+	int    PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
-	int    SLAPI ParseReplyInfo(const xmlNode * pNode, ReplyInfo * pInfo)
+	int    ParseReplyInfo(const xmlNode * pNode, ReplyInfo * pInfo)
 	{
 		int    ok = -1;
 		SString temp_buf;
@@ -5851,7 +5861,7 @@ private:
 		}
 		return ok;
 	}
-	int    SLAPI ParseOrdersPacket(const SString * pSrc, ReplyInfo * pInfo, TSCollection <OrderEntry> & rList)
+	int    ParseOrdersPacket(const SString * pSrc, ReplyInfo * pInfo, TSCollection <OrderEntry> & rList)
 	{
 		int    ok = -1;
 		xmlParserCtxt * p_ctx = 0;
@@ -5927,7 +5937,7 @@ private:
 		xmlFreeParserCtxt(p_ctx);
 		return ok;
 	}
-	int    SLAPI ParseGoodsPacket(const SString * pSrc, ReplyInfo * pInfo, TSCollection <GoodsEntry> & rList)
+	int    ParseGoodsPacket(const SString * pSrc, ReplyInfo * pInfo, TSCollection <GoodsEntry> & rList)
 	{
 		int    ok = -1;
 		xmlParserCtxt * p_ctx = 0;
@@ -5987,7 +5997,7 @@ private:
 	PPLogger & R_Logger;
 };
 
-SLAPI SfaHeineken::SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger),
+SfaHeineken::SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger),
 	State(0), P_DestroyFunc(0)
 {
 	PPGetFilePath(PPPATH_LOG, "sfaheineken.log", LogFileName);
@@ -6003,13 +6013,13 @@ SLAPI SfaHeineken::SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLog
 	}
 }
 
-SLAPI SfaHeineken::~SfaHeineken()
+SfaHeineken::~SfaHeineken()
 {
 	P_DestroyFunc = 0;
 	delete P_Lib;
 }
 
-void SLAPI SfaHeineken::Init()
+void SfaHeineken::Init()
 {
 	Reference * p_ref = PPRef;
 	State = 0;
@@ -6026,7 +6036,7 @@ void SLAPI SfaHeineken::Init()
 	State |= stInited;
 }
 
-int SLAPI SfaHeineken::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
+int SfaHeineken::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
 	LastMsg = rSess.GetMsg();
     return BIN(pResult);
@@ -6040,7 +6050,7 @@ void FASTCALL SfaHeineken::DestroyResult(void ** ppResult)
 	}
 }
 
-int SLAPI SfaHeineken::ReceiveOrders()
+int SfaHeineken::ReceiveOrders()
 {
 	int    ok = -1;
 	LDATE  query_date = ZERODATE;
@@ -6212,7 +6222,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	return ok;
 }
 
-int SLAPI SfaHeineken::ReceiveGoods()
+int SfaHeineken::ReceiveGoods()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -6241,7 +6251,7 @@ int SLAPI SfaHeineken::ReceiveGoods()
 	return ok;
 }
 
-int SLAPI SfaHeineken::SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList)
+int SfaHeineken::SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList)
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -6269,7 +6279,7 @@ int SLAPI SfaHeineken::SendStatus(const TSCollection <SfaHeinekenOrderStatusEntr
 	return ok;
 }
 
-int SLAPI SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArray & rTiPosList, TSCollection <SfaHeinekenDeliveryPosition> & rDeliveryList)
+int SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArray & rTiPosList, TSCollection <SfaHeinekenDeliveryPosition> & rDeliveryList)
 {
 	int    ok = 1;
 	long   tiiterpos = 0;
@@ -6299,7 +6309,7 @@ int SLAPI SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAs
 	return ok;
 }
 
-int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList)
+int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -6435,7 +6445,7 @@ int SLAPI SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 	return ok;
 }
 
-int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList)
+int SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <SfaHeinekenInvoice> & rList, TSCollection <SfaHeinekenInvoice> & rToDeleteList)
 {
 	int    ok = -1;
 	const  PPID bill_ack_tag_id = Ep.Fb.BillAckTagID;
@@ -6493,7 +6503,7 @@ int SLAPI SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 	return ok;
 }
 
-int SLAPI SfaHeineken::SendDebts()
+int SfaHeineken::SendDebts()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -6545,7 +6555,7 @@ int SLAPI SfaHeineken::SendDebts()
 	return ok;
 }
 
-int SLAPI SfaHeineken::SendReceipts()
+int SfaHeineken::SendReceipts()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -6607,7 +6617,7 @@ int SLAPI SfaHeineken::SendReceipts()
 	return ok;
 }
 
-int SLAPI SfaHeineken::SendSales()
+int SfaHeineken::SendSales()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -6650,7 +6660,7 @@ int SLAPI SfaHeineken::SendSales()
 	return ok;
 }
 
-int SLAPI SfaHeineken::SendStocks()
+int SfaHeineken::SendStocks()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
@@ -6728,7 +6738,7 @@ int SLAPI SfaHeineken::SendStocks()
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SLAPI SupplInterchangeFilt::SupplInterchangeFilt() : PPBaseFilt(PPFILT_SUPPLINTERCHANGE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SupplInterchangeFilt::SupplInterchangeFilt() : PPBaseFilt(PPFILT_SUPPLINTERCHANGE, 0, 0)
 {
 	SetFlatChunk(offsetof(SupplInterchangeFilt, ReserveStart),
 		offsetof(SupplInterchangeFilt, Reserve) - offsetof(SupplInterchangeFilt, ReserveStart) + sizeof(Reserve));
@@ -6737,7 +6747,7 @@ IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SLAPI SupplInterchangeFilt::SupplInt
 	Init(1, 0);
 }
 
-int SLAPI SupplInterchangeFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int SupplInterchangeFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
     int    ok = -1;
     if(ver == RpvInvSignValue) {
@@ -6780,17 +6790,17 @@ SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplExp
 //
 //
 //
-SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock() : P_BObj(BillObj), SeqID(0), BaseState(0)
+PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock() : P_BObj(BillObj), SeqID(0), BaseState(0)
 {
 }
 
-SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS) :
+PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS) :
 	P_BObj(BillObj), Ep(rS.Ep), P(rS.P), SeqID(Ep.Fb.SequenceID), BaseState(rS.BaseState), GoodsList(rS.GoodsList), ArName(rS.ArName)
 {
 }
 
 #if 0 // @v9.6.2 {
-int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger)
+int PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger)
 {
 	int    ok = 1;
 	SString msg_buf, fmt_buf;
@@ -6816,7 +6826,7 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString 
 }
 #endif // } 0 @v9.6.2
 
-int SLAPI PrcssrSupplInterchange::ExecuteBlock::InitGoodsList(long flags)
+int PrcssrSupplInterchange::ExecuteBlock::InitGoodsList(long flags)
 {
 	int    ok = 1;
 	if(BaseState & bstGoodsListInited) {
@@ -6863,10 +6873,10 @@ int FASTCALL PrcssrSupplInterchange::ExecuteBlock::IsGoodsUsed(PPID goodsID) con
 
 const PPIDArray * PrcssrSupplInterchange::ExecuteBlock::GetGoodsList() const
 	{ return (BaseState & bstGoodsListInited && !(BaseState & bstAnyGoods)) ? &GoodsList : 0; }
-void SLAPI PrcssrSupplInterchange::ExecuteBlock::GetLogFileName(SString & rFileName) const
+void PrcssrSupplInterchange::ExecuteBlock::GetLogFileName(SString & rFileName) const
 	{ rFileName = LogFileName; }
 
-int SLAPI PrcssrSupplInterchange::ExecuteBlock::GetSequence(long * pSeq, int use_ta)
+int PrcssrSupplInterchange::ExecuteBlock::GetSequence(long * pSeq, int use_ta)
 {
 	int    ok = 1;
 	long   seq = 0;
@@ -6901,16 +6911,16 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::GetSequence(long * pSeq, int use
 //
 //
 //
-SLAPI PrcssrSupplInterchange::PrcssrSupplInterchange() : State(0), P_Eb(0)
+PrcssrSupplInterchange::PrcssrSupplInterchange() : State(0), P_Eb(0)
 {
 }
 
-SLAPI PrcssrSupplInterchange::~PrcssrSupplInterchange()
+PrcssrSupplInterchange::~PrcssrSupplInterchange()
 {
 	delete P_Eb;
 }
 
-int SLAPI PrcssrSupplInterchange::InitParam(PPBaseFilt * pBaseFilt)
+int PrcssrSupplInterchange::InitParam(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	SupplInterchangeFilt temp_filt;
@@ -6922,7 +6932,7 @@ int SLAPI PrcssrSupplInterchange::InitParam(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PrcssrSupplInterchange::EditParam(PPBaseFilt * pBaseFilt)
+int PrcssrSupplInterchange::EditParam(PPBaseFilt * pBaseFilt)
 {
 	SupplInterchangeFilt temp_filt;
 	if(!temp_filt.IsA(pBaseFilt))
@@ -6931,7 +6941,7 @@ int SLAPI PrcssrSupplInterchange::EditParam(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(SupplInterchangeFiltDialog, p_filt);
 }
 
-int SLAPI PrcssrSupplInterchange::InitExecuteBlock(const SupplInterchangeFilt * pParam, PrcssrSupplInterchange::ExecuteBlock & rBlk)
+int PrcssrSupplInterchange::InitExecuteBlock(const SupplInterchangeFilt * pParam, PrcssrSupplInterchange::ExecuteBlock & rBlk)
 {
 	int    ok = 1;
 	ArticleTbl::Rec ar_rec;
@@ -6951,7 +6961,7 @@ int SLAPI PrcssrSupplInterchange::InitExecuteBlock(const SupplInterchangeFilt * 
 	return ok;
 }
 
-int SLAPI PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
+int PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	ArticleTbl::Rec ar_rec;
@@ -6979,7 +6989,7 @@ int SLAPI PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI SupplGoodsImport()
+int SupplGoodsImport()
 {
 	int    ok = -1;
 	SupplExpFilt filt;
@@ -7003,7 +7013,7 @@ int SLAPI SupplGoodsImport()
 	return ok;
 }
 
-int SLAPI DoSupplInterchange(SupplInterchangeFilt * pFilt)
+int DoSupplInterchange(SupplInterchangeFilt * pFilt)
 {
 	int    ok = -1;
 	PrcssrSupplInterchange prcssr;
@@ -7025,7 +7035,7 @@ int SLAPI DoSupplInterchange(SupplInterchangeFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PrcssrSupplInterchange::Run()
+int PrcssrSupplInterchange::Run()
 {
 	int    ok = -1;
 	SString temp_buf;

@@ -6,19 +6,19 @@
 #pragma hdrstop
 #include <db.h>
 
-SLAPI DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) :
+DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) :
 	BrowserDef(captionHight, aOptions), query(0)
 {
 	setQuery(rQuery, aBufSize);
 }
 
-SLAPI DBQBrowserDef::~DBQBrowserDef()
+DBQBrowserDef::~DBQBrowserDef()
 {
 	if(options & BRO_OWNER)
 		delete query;
 }
 
-int SLAPI DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
+int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 {
 	uint   prev_view_height = 1;
 	if(query && query->P_Frame)
@@ -34,7 +34,7 @@ int SLAPI DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	return 1;
 }
 
-/*virtual*/int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
+/*virtual*/int DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
 	BroColumn bc;
 	bc.OrgOffs = fldNo;
@@ -65,26 +65,26 @@ int SLAPI DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 		return 0;
 }
 
-/*virtual*/int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
+/*virtual*/int DBQBrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
 {
 	uint   fld_no = 0;
 	return (query->getFieldPosByName(pFldName, &fld_no) > 0) ? insertColumn(atPos, pTxt, fld_no, typ, fmt, opt) : 0;
 }
 
-void SLAPI DBQBrowserDef::setViewHight(int h)
+void DBQBrowserDef::setViewHight(int h)
 {
 	query->setFrame(h, UNDEF, UNDEF);
 	BrowserDef::setViewHight(h);
 }
 
-void SLAPI DBQBrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
+void DBQBrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	*pScrollDelta = static_cast<long>(query->P_Frame->sdelta);
 	//*pScrollPos = (long)query->P_Frame->spos;
 	*pScrollPos = 500L;
 }
 
-void SLAPI DBQBrowserDef::setupView()
+void DBQBrowserDef::setupView()
 {
 	topItem = query->P_Frame->top;
 	curItem = query->P_Frame->cur;
@@ -99,30 +99,30 @@ int FASTCALL DBQBrowserDef::step(long d)
 	return r;
 }
 
-int SLAPI DBQBrowserDef::top()
+int DBQBrowserDef::top()
 {
 	int r = query->top();
 	setupView();
 	return r;
 }
 
-int SLAPI DBQBrowserDef::bottom()
+int DBQBrowserDef::bottom()
 {
 	int r = query->bottom();
 	setupView();
 	return r;
 }
 
-int SLAPI DBQBrowserDef::refresh()
+int DBQBrowserDef::refresh()
 {
 	int r = query->refresh();
 	setupView();
 	return r;
 }
 
-int    SLAPI DBQBrowserDef::valid() { return !query->error; }
+int    DBQBrowserDef::valid() { return !query->error; }
 int    FASTCALL DBQBrowserDef::go(long p) { return step(p-curItem); }
-long   SLAPI DBQBrowserDef::getRecsCount() { return query->P_Frame->srange+1; }
+long   DBQBrowserDef::getRecsCount() { return query->P_Frame->srange+1; }
 const  void * FASTCALL DBQBrowserDef::getRow(long r) const { return query->getRecord(static_cast<uint>(r)); }
 // @v10.9.0 int    FASTCALL DBQBrowserDef::getData(void *) { return 1; }
 // @v10.9.0 int    FASTCALL DBQBrowserDef::setData(void *) { return 1; }

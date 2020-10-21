@@ -6,7 +6,7 @@
 //
 // Фильтр по виду составной продукции и строке, содержащейся в названии
 //
-int SLAPI SuprWareFilt::InitInstance()
+int SuprWareFilt::InitInstance()
 {
 	SetFlatChunk(offsetof(SuprWareFilt, ReserveStart), offsetof(SuprWareFilt, SrchStr) - offsetof(SuprWareFilt, ReserveStart));
 	SetBranchSVector(offsetof(SuprWareFilt, TypeIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
@@ -16,12 +16,12 @@ int SLAPI SuprWareFilt::InitInstance()
 //
 // @vmiller
 //
-IMPLEMENT_PPFILT_FACTORY(SuprWare); SLAPI SuprWareFilt::SuprWareFilt() : PPBaseFilt(PPFILT_SUPRWARE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(SuprWare); SuprWareFilt::SuprWareFilt() : PPBaseFilt(PPFILT_SUPRWARE, 0, 0)
 {
 	InitInstance();
 }
 
-/*virtual*/int SLAPI SuprWareFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SuprWareFilt::Describe(long flags, SString & rBuf) const
 {
 	PutMembToBuf(SuprWareType, STRINGIZE(SuprWareType), rBuf);
 	PutMembToBuf(SuprWareCat, STRINGIZE(SuprWareCat), rBuf);
@@ -29,7 +29,7 @@ IMPLEMENT_PPFILT_FACTORY(SuprWare); SLAPI SuprWareFilt::SuprWareFilt() : PPBaseF
 	return 1;
 }
 
-int SLAPI SuprWareFilt::IsEmpty() const
+int SuprWareFilt::IsEmpty() const
 {
 	if(SuprWareType)
 		return 0;
@@ -42,15 +42,15 @@ int SLAPI SuprWareFilt::IsEmpty() const
 //
 //
 //
-SLAPI PPViewSuprWare::PPViewSuprWare() : PPView(&SwObj, &Filt, PPVIEW_SUPRWARE)
+PPViewSuprWare::PPViewSuprWare() : PPView(&SwObj, &Filt, PPVIEW_SUPRWARE, 0, 0)
 {
 }
 
-SLAPI PPViewSuprWare::~PPViewSuprWare()
+PPViewSuprWare::~PPViewSuprWare()
 {
 }
 
-int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class SuprWareFilterDlg : public TDialog {
 		DECL_DIALOG_DATA(SuprWareFilt);
@@ -104,7 +104,7 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		return 0;
 }
 
-DBQuery * SLAPI PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	DBE    dbe_brand, dbe_group, dbe_strexst;
@@ -146,7 +146,7 @@ DBQuery * SLAPI PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-int SLAPI PPViewSuprWare::Init_(const PPBaseFilt * pFilt)
+int PPViewSuprWare::Init_(const PPBaseFilt * pFilt)
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	return Helper_InitBaseFilt(pFilt);
@@ -154,7 +154,7 @@ int SLAPI PPViewSuprWare::Init_(const PPBaseFilt * pFilt)
 //
 //
 //
-int SLAPI PPViewSuprWare::InitIteration()
+int PPViewSuprWare::InitIteration()
 {
 	Goods2Tbl * _t = SwObj.P_Tbl;
 	DBQ * dbq = 0;
@@ -188,7 +188,7 @@ int FASTCALL PPViewSuprWare::NextIteration(SuprWareViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewSuprWare::ViewTotal()
+int PPViewSuprWare::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_GOODSTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -209,7 +209,7 @@ int SLAPI PPViewSuprWare::ViewTotal()
 //
 //
 //
-int SLAPI PPViewSuprWare::DeleteAll()
+int PPViewSuprWare::DeleteAll()
 {
 	int    ok = -1;
 	THROW(SwObj.CheckRights(PPR_DEL));
@@ -244,13 +244,13 @@ int SLAPI PPViewSuprWare::DeleteAll()
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewSuprWare::Detail(const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewSuprWare::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return (id && SwObj.EditList(&id) == cmOK) ? 1 : -1;
 }
 
-int SLAPI PPViewSuprWare::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSuprWare::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

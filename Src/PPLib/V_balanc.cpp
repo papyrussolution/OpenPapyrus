@@ -5,20 +5,18 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(Balance); SLAPI BalanceFilt::BalanceFilt() : PPBaseFilt(PPFILT_BALANCE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Balance); BalanceFilt::BalanceFilt() : PPBaseFilt(PPFILT_BALANCE, 0, 0)
 {
 	SetFlatChunk(offsetof(BalanceFilt, ReserveStart),
 		offsetof(BalanceFilt, ReserveEnd) - offsetof(BalanceFilt, ReserveStart) + sizeof(ReserveEnd));
 	Init(1, 0);
 }
 
-SLAPI PPViewBalance::PPViewBalance() : PPView(0, &Filt, PPVIEW_BALANCE), P_ATC(BillObj->atobj->P_Tbl)
+PPViewBalance::PPViewBalance() : PPView(0, &Filt, PPVIEW_BALANCE, implBrowseArray, REPORT_BALANCE), P_ATC(BillObj->atobj->P_Tbl)
 {
-	ImplementFlags |= implBrowseArray;
-	DefReportId = REPORT_BALANCE;
 }
 
-SLAPI PPViewBalance::~PPViewBalance()
+PPViewBalance::~PPViewBalance()
 {
 }
 
@@ -32,7 +30,7 @@ struct Balance_AccItem {
 
 IMPL_CMPCFUNC(Balance_AccItem_AcSb, p1, p2) { RET_CMPCASCADE2(static_cast<const Balance_AccItem *>(p1), static_cast<const Balance_AccItem *>(p2), Ac, Sb); }
 
-int SLAPI PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -182,7 +180,7 @@ int SLAPI PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewBalance::InitIteration()
+int PPViewBalance::InitIteration()
 {
 	IterPos = 0;
 	return 1;
@@ -198,7 +196,7 @@ int FASTCALL PPViewBalance::NextIteration(BalanceViewItem * pItem)
 	return -1;
 }
 
-PPBaseFilt * SLAPI PPViewBalance::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewBalance::CreateFilt(void * extraPtr) const
 {
 	BalanceFilt * p_filt = new BalanceFilt;
 	if(p_filt) {
@@ -283,7 +281,7 @@ public:
 };
 
 
-int SLAPI PPViewBalance::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewBalance::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -291,7 +289,7 @@ int SLAPI PPViewBalance::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(BalanceFiltDialog, p_filt);
 }
 
-int SLAPI PPViewBalance::ViewTotal()
+int PPViewBalance::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_BALTOTAL);
@@ -363,12 +361,12 @@ int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-void SLAPI PPViewBalance::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewBalance::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewBalance::GetDataForBrowser, this));
 }
 
-SArray * SLAPI PPViewBalance::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewBalance::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_BALANCE;
 	TSArray <BalanceViewItem> * p_array = new TSArray <BalanceViewItem>;
@@ -378,7 +376,7 @@ SArray * SLAPI PPViewBalance::CreateBrowserArray(uint * pBrwId, SString * pSubTi
 	return p_array;
 }
 
-int SLAPI PPViewBalance::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewBalance::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -396,7 +394,7 @@ int SLAPI PPViewBalance::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return ok;
 }
 
-int SLAPI PPViewBalance::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewBalance::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = 1;
 	const BalanceViewItem * p_item = static_cast<const BalanceViewItem *>(pHdr);

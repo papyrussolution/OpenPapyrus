@@ -41,8 +41,8 @@ static const char flex_version[] = "2.6.4";//FLEX_VERSION;
 /* declare functions that have forward references */
 
 void flexinit(int, char **);
-void readin(void);
-void set_up_initial_allocations(void);
+void readin();
+void set_up_initial_allocations();
 static char * basename2(char * path, int should_strip_ext, char ** ext_path);
 
 /* these globals are all defined and commented in flexdef.h */
@@ -303,7 +303,7 @@ int main(int argc, char * argv[])
 
 /* check_options - check user-specified options */
 
-void check_options(void)
+void check_options()
 {
 	int i;
 	const char * m4 = NULL;
@@ -1248,7 +1248,7 @@ void flexinit(int argc, char ** argv)
 
 /* readin - read in the rules section of the input file(s) */
 
-void readin(void)
+void readin()
 {
 	static char yy_stdinit[] = "FILE *yyin = stdin, *yyout = stdout;";
 	static char yy_nostdinit[] = "FILE *yyin = NULL, *yyout = NULL;";
@@ -1443,7 +1443,7 @@ void readin(void)
 
 /* set_up_initial_allocations - allocate memory for internal tables */
 
-void set_up_initial_allocations(void)
+void set_up_initial_allocations()
 {
 	maximum_mns = (long_align ? MAXIMUM_MNS_LONG : MAXIMUM_MNS);
 	current_mns = INITIAL_MNS;
@@ -1521,15 +1521,13 @@ static char * basename2(char * path, int strip_ext/*boolean*/, char ** ext_path)
 	return b;
 }
 
-void usage(void)
+void usage()
 {
 	FILE   * f = stdout;
 	if(!did_outfilename) {
-		snprintf(outfile_path, sizeof(outfile_path), outfile_template,
-		    prefix, C_plus_plus ? "cc" : "c");
+		snprintf(outfile_path, sizeof(outfile_path), outfile_template, prefix, C_plus_plus ? "cc" : "c");
 		outfilename = outfile_path;
 	}
-
 	fprintf(f, _("Usage: %s [OPTIONS] [FILE]...\n"), program_name);
 	fprintf(f,
 	    _

@@ -7,10 +7,10 @@
 class PPTex2HtmlPrcssr {
 public:
 	struct Param : public PPBaseFilt {
-		SLAPI  Param();
+		Param();
 		Param & FASTCALL operator = (const Param & rS);
-		int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
-		int    SLAPI PutExtStrData(int fldID, const char * pBuf);
+		int    GetExtStrData(int fldID, SString & rBuf) const;
+		int    PutExtStrData(int fldID, const char * pBuf);
 
 		enum {
 			fDivideByChapter  = 0x0001,
@@ -147,7 +147,7 @@ private:
 	PPObjWorkbook WbObj;
 };
 
-SLAPI PPTex2HtmlPrcssr::Param::Param() : PPBaseFilt(PPFILT_TEX2HTMLPARAM, 0, 0)
+PPTex2HtmlPrcssr::Param::Param() : PPBaseFilt(PPFILT_TEX2HTMLPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(Param, ReserveStart), offsetof(Param, ExtString)-offsetof(Param, ReserveStart));
 	SetBranchSString(offsetof(Param, ExtString));
@@ -160,8 +160,8 @@ PPTex2HtmlPrcssr::Param & FASTCALL PPTex2HtmlPrcssr::Param::operator = (const PP
 	return *this;
 }
 
-int SLAPI PPTex2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPTex2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int PPTex2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PPTex2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 //
 //
 //
@@ -1690,7 +1690,7 @@ private:
     return PPDialogProcBody <Tex2HtmlParamDialog, PPTex2HtmlPrcssr::Param> (pParam);
 }
 
-int SLAPI PPTex2Html()
+int PPTex2Html()
 {
 	int    ok = 1;
 	PPTex2HtmlPrcssr::Param param;
@@ -1714,10 +1714,10 @@ int SLAPI PPTex2Html()
 //
 class CMD_HDL_CLS(CONVERTLATEXTOHTML) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(CONVERTLATEXTOHTML)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(CONVERTLATEXTOHTML)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -1739,7 +1739,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -1763,10 +1763,10 @@ IMPLEMENT_CMD_HDL_FACTORY(CONVERTLATEXTOHTML);
 class PPVer2HtmlPrcssr {
 public:
 	struct Param : public PPBaseFilt {
-		SLAPI  Param();
+		Param();
 		Param & FASTCALL operator = (const Param & rS);
-		int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
-		int    SLAPI PutExtStrData(int fldID, const char * pBuf);
+		int    GetExtStrData(int fldID, SString & rBuf) const;
+		int    PutExtStrData(int fldID, const char * pBuf);
 		enum {
 			fDivide           = 0x0001,
 			fAttachToWorkbook = 0x0002,
@@ -1900,7 +1900,7 @@ IMPL_CMPFUNC(PPVer2HtmlPrcssr_VersionEntry, i1, i2)
 //
 //
 //
-SLAPI PPVer2HtmlPrcssr::Param::Param() : PPBaseFilt(PPFILT_VER2HTMLPARAM, 0, 0)
+PPVer2HtmlPrcssr::Param::Param() : PPBaseFilt(PPFILT_VER2HTMLPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(Param, ReserveStart), offsetof(Param, ExtString)-offsetof(Param, ReserveStart));
 	SetBranchSString(offsetof(Param, ExtString));
@@ -1913,8 +1913,8 @@ PPVer2HtmlPrcssr::Param & FASTCALL PPVer2HtmlPrcssr::Param::operator = (const PP
 	return *this;
 }
 
-int SLAPI PPVer2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPVer2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int PPVer2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PPVer2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
 class Ver2HtmlParamDialog : public TDialog {
 	DECL_DIALOG_DATA(PPVer2HtmlPrcssr::Param);
@@ -2475,7 +2475,7 @@ int PPVer2HtmlPrcssr::Run()
 	return ok;
 }
 
-int SLAPI PPVer2Html()
+int PPVer2Html()
 {
 	int    ok = 1;
 	PPVer2HtmlPrcssr::Param param;
@@ -2494,10 +2494,10 @@ int SLAPI PPVer2Html()
 //
 class CMD_HDL_CLS(CONVERTVERSIONTOHTML) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(CONVERTVERSIONTOHTML)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(CONVERTVERSIONTOHTML)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2518,7 +2518,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {

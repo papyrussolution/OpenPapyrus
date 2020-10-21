@@ -7,14 +7,14 @@
 //
 // @ModuleDef(PPViewStaffList)
 //
-IMPLEMENT_PPFILT_FACTORY(StaffList); SLAPI StaffListFilt::StaffListFilt() : PPBaseFilt(PPFILT_STAFFLIST, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(StaffList); StaffListFilt::StaffListFilt() : PPBaseFilt(PPFILT_STAFFLIST, 0, 0)
 {
 	SetFlatChunk(offsetof(StaffListFilt, ReserveStart),
 		offsetof(StaffListFilt, Reserve)-offsetof(StaffListFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-int SLAPI StaffListFilt::Init(int fullyDestroy, long extraData)
+int StaffListFilt::Init(int fullyDestroy, long extraData)
 {
 	PPBaseFilt::Init(fullyDestroy, extraData);
 	if(extraData)
@@ -25,10 +25,8 @@ int SLAPI StaffListFilt::Init(int fullyDestroy, long extraData)
 //
 //
 //
-SLAPI PPViewStaffList::PPViewStaffList() : PPView(&SlObj, &Filt, PPVIEW_STAFFLIST)
+PPViewStaffList::PPViewStaffList() : PPView(&SlObj, &Filt, PPVIEW_STAFFLIST, implBrowseArray, REPORT_STAFFLIST)
 {
-	ImplementFlags |= (implBrowseArray /* @v9.0.4 |implOnAddSetupPos*/ );
-	DefReportId = REPORT_STAFFLIST;
 	int     type_no;
 	SString buf;
 	PPAmountType    at_rec;
@@ -40,7 +38,7 @@ SLAPI PPViewStaffList::PPViewStaffList() : PPView(&SlObj, &Filt, PPVIEW_STAFFLIS
 			SalaryAmountTypes[type_no] = at_rec.ID;
 }
 
-void * SLAPI PPViewStaffList::GetEditExtraParam()
+void * PPViewStaffList::GetEditExtraParam()
 {
 	MEMSZERO(TempExtra);
 	TempExtra.OrgID = Filt.OrgID;
@@ -48,7 +46,7 @@ void * SLAPI PPViewStaffList::GetEditExtraParam()
 	return &TempExtra;
 }
 
-int SLAPI PPViewStaffList::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewStaffList::EditBaseFilt(PPBaseFilt * pFilt)
 {
 #define GRP_DIV 1
 	int    ok = -1, valid_data = 0;
@@ -107,7 +105,7 @@ IMPL_CMPCFUNC(PPViewStaffList_BrwEntry_Name, p1, p2)
 	return si;
 }
 
-int SLAPI PPViewStaffList::FetchData(PPID id)
+int PPViewStaffList::FetchData(PPID id)
 {
 	int    ok = 1;
 	BrwEntry entry;
@@ -149,7 +147,7 @@ int SLAPI PPViewStaffList::FetchData(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewStaffList::Init_(const PPBaseFilt * pFilt)
+int PPViewStaffList::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -183,7 +181,7 @@ int SLAPI PPViewStaffList::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewStaffList::InitIteration()
+int PPViewStaffList::InitIteration()
 {
 	int    ok = 1;
 	Counter.Init(Data.getCount());
@@ -215,7 +213,7 @@ int FASTCALL PPViewStaffList::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -269,12 +267,12 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-void SLAPI PPViewStaffList::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewStaffList::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewStaffList::GetDataForBrowser, this));
 }
 
-SArray * SLAPI PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(Data);
 	uint   brw_id = BROWSER_STAFFLIST;
@@ -293,7 +291,7 @@ SArray * SLAPI PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSub
 	return p_array;
 }
 
-int SLAPI PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	const  PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -389,30 +387,30 @@ int SLAPI PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-PPID SLAPI PPViewStaffList::GetSalaryAmountType(int typeNo)
+PPID PPViewStaffList::GetSalaryAmountType(int typeNo)
 {
 	return SalaryAmountTypes[typeNo];
 }
 //
 // @ModuleDef(PPViewStaffPost)
 //
-IMPLEMENT_PPFILT_FACTORY(StaffPost); SLAPI StaffPostFilt::StaffPostFilt() : PPBaseFilt(PPFILT_STAFFPOST, 0, 1) // @v6.2.2 ver 0-->1
+IMPLEMENT_PPFILT_FACTORY(StaffPost); StaffPostFilt::StaffPostFilt() : PPBaseFilt(PPFILT_STAFFPOST, 0, 1)
 {
 	SetFlatChunk(offsetof(StaffPostFilt, ReserveStart),
 		offsetof(StaffPostFilt, Reserve)-offsetof(StaffPostFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewStaffPost::PPViewStaffPost() : PPView(0, &Filt, PPVIEW_STAFFPOST), P_TempTbl(0)
+PPViewStaffPost::PPViewStaffPost() : PPView(0, &Filt, PPVIEW_STAFFPOST, 0, 0), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewStaffPost::~PPViewStaffPost()
+PPViewStaffPost::~PPViewStaffPost()
 {
 	delete P_TempTbl;
 }
 
-void * SLAPI PPViewStaffPost::GetEditExtraParam()
+void * PPViewStaffPost::GetEditExtraParam()
 {
 	return 0;
 }
@@ -427,7 +425,7 @@ PPBaseFilt * PPViewStaffPost::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewStaffPost::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewStaffPost::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 #define GRP_DIV 1
 	int    ok = -1, valid_data = 0;
@@ -481,7 +479,7 @@ int SLAPI PPViewStaffPost::EditBaseFilt(PPBaseFilt * pBaseFilt)
 #undef GRP_DIV
 }
 
-int SLAPI PPViewStaffPost::CreateTempTable(int order)
+int PPViewStaffPost::CreateTempTable(int order)
 {
 	ZDELETE(P_TempTbl);
 
@@ -544,7 +542,7 @@ int SLAPI PPViewStaffPost::CreateTempTable(int order)
 	return ok;
 }
 
-int SLAPI PPViewStaffPost::Init_(const PPBaseFilt * pFilt)
+int PPViewStaffPost::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	StaffList.Set(0);
@@ -572,7 +570,7 @@ int SLAPI PPViewStaffPost::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewStaffPost::InitIteration(int order)
+int PPViewStaffPost::InitIteration(int order)
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1, idx = 0;
@@ -649,7 +647,7 @@ int FASTCALL PPViewStaffPost::NextIteration(StaffPostViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	uint   brw_id = BROWSER_PERSONPOST;
@@ -704,7 +702,7 @@ DBQuery * SLAPI PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-int SLAPI PPViewStaffPost::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewStaffPost::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -1488,8 +1486,8 @@ int FastEditDivBySumDlg::EditCalendar(PPID divID, PPID parentCalID)
 	return ok;
 }
 
-int SLAPI FastEditSumByDivDialog() { return ExecViewAndDestroy(new FastEditSumByDivDlg()); }
-int SLAPI FastViewDivBySumDialog() { return ExecViewAndDestroy(new FastEditDivBySumDlg()); }
+int FastEditSumByDivDialog() { return ExecViewAndDestroy(new FastEditSumByDivDlg()); }
+int FastViewDivBySumDialog() { return ExecViewAndDestroy(new FastEditDivBySumDlg()); }
 //
 // Implementation of PPALDD_StaffListView
 //

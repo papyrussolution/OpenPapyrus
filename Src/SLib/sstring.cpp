@@ -139,7 +139,7 @@ int FASTCALL SStrScan::IsRe(long reHandler)
 	return 0;
 }
 
-int SLAPI SStrScan::GetRe(long reHandler, SString & rBuf)
+int SStrScan::GetRe(long reHandler, SString & rBuf)
 {
 	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
 		CRegExp * p_re = ReList.at(reHandler-1);
@@ -243,7 +243,7 @@ static int FASTCALL _is_eqq_ident_chr(char c)
 	return BIN((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_');
 }
 
-int SLAPI SStrScan::GetEqQ(SString & rKey, SString & rVal)
+int SStrScan::GetEqQ(SString & rKey, SString & rVal)
 {
 	int    ok = 0;
 	const  size_t preserve_offs = Offs;
@@ -271,7 +271,7 @@ int SLAPI SStrScan::GetEqQ(SString & rKey, SString & rVal)
 	return ok;
 }
 
-int SLAPI SStrScan::GetEqN(SString & rKey, double & rVal)
+int SStrScan::GetEqN(SString & rKey, double & rVal)
 {
 	int    ok = 0;
 	const  size_t preserve_offs = Offs;
@@ -301,7 +301,7 @@ int SLAPI SStrScan::GetEqN(SString & rKey, double & rVal)
 	return ok;
 }
 
-int SLAPI SStrScan::Get(const char * pPattern, SString & rBuf)
+int SStrScan::Get(const char * pPattern, SString & rBuf)
 {
 	const size_t len = sstrlen(pPattern);
 	if(len && strnicmp((P_Buf+Offs), pPattern, len) == 0) {
@@ -340,7 +340,7 @@ int FASTCALL SStrScan::GetDigits(SString & rBuf)
     return ok;
 }
 
-int SLAPI SStrScan::IsDigits()
+int SStrScan::IsDigits()
 {
     int    ok = 0;
     if(SETIFZ(P_ReDigits, new CRegExp("^[0-9]+"))) {
@@ -350,17 +350,17 @@ int SLAPI SStrScan::IsDigits()
 	return ok;
 }
 
-int SLAPI SStrScan::IsEnd() const
+int SStrScan::IsEnd() const
 {
 	return (!P_Buf || P_Buf[Offs] == 0);
 }
 
-int SLAPI SStrScan::IsNumber()
+int SStrScan::IsNumber()
 {
 	return BIN(InitReNumber() && P_ReNumber->Find(P_Buf+Offs));
 }
 
-int SLAPI SStrScan::IsDotPrefixedNumber()
+int SStrScan::IsDotPrefixedNumber()
 {
     int    ok = 0;
     const size_t preserve_offs = Offs;
@@ -475,7 +475,7 @@ int FASTCALL SStrScan::GetHex(SString & rBuf)
 		return 0;
 }
 
-int SLAPI SStrScan::GetDate(long datefmt, LDATE & rDate)
+int SStrScan::GetDate(long datefmt, LDATE & rDate)
 {
 	rDate = ZERODATE;
 	int    ok = 0;
@@ -506,7 +506,7 @@ int FASTCALL SStrScan::GetEMail(SString & rBuf)
 		return 0;
 }
 
-int SLAPI SStrScan::GetWord(const char * pDiv, SString & rBuf)
+int SStrScan::GetWord(const char * pDiv, SString & rBuf)
 {
 	const char * p_def_div = " \t\n\r.,;:()[]{}+=^&@!$%/"; // @v8.9.10 append '/'
 	SETIFZ(pDiv, p_def_div);
@@ -619,7 +619,7 @@ int FASTCALL SStrScan::Search(const char * pPattern)
 	return 0;
 }
 
-SStrScan & SLAPI SStrScan::Skip()
+SStrScan & SStrScan::Skip()
 {
 	if(P_Buf) {
 		const char * p = (P_Buf+Offs);
@@ -695,7 +695,7 @@ int FASTCALL SStrScan::IsSpace(int ws) const
 	return yes;
 }
 
-SStrScan & SLAPI SStrScan::Skip(int ws, uint * pLineCount)
+SStrScan & SStrScan::Skip(int ws, uint * pLineCount)
 {
 	uint   line_count = 0;
 	if(P_Buf && ws) {
@@ -749,27 +749,27 @@ IMPL_INVARIANT_C(SString)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI SString::SString() : L(0), Size(0), P_Buf(0)
+SString::SString() : L(0), Size(0), P_Buf(0)
 {
 }
 
-SLAPI SString::SString(size_t initSize) : L(0), Size(0), P_Buf(0)
+SString::SString(size_t initSize) : L(0), Size(0), P_Buf(0)
 {
 	if(initSize)
 		Alloc(initSize);
 }
 
-SLAPI SString::SString(const char * pS) : L(0), Size(0), P_Buf(0)
+SString::SString(const char * pS) : L(0), Size(0), P_Buf(0)
 {
 	CopyFrom(pS);
 }
 
-SLAPI SString::SString(const SString & s) : L(0), Size(0), P_Buf(0)
+SString::SString(const SString & s) : L(0), Size(0), P_Buf(0)
 {
 	CopyFrom(s);
 }
 
-SLAPI SString::~SString()
+SString::~SString()
 {
 	L = Size = 0;
 	//
@@ -780,7 +780,7 @@ SLAPI SString::~SString()
 		ZFREE(P_Buf);
 }
 
-void SLAPI SString::Destroy()
+void SString::Destroy()
 {
 	L = Size = 0;
 	ZFREE(P_Buf);
@@ -788,11 +788,11 @@ void SLAPI SString::Destroy()
 //
 // trivial functions {
 //
-// (inlined) size_t SLAPI SString::Len() const { return L ? (L-1) : 0; }
-size_t SLAPI SString::Len() const { return L ? (L-1) : 0; }
-size_t SLAPI SString::BufSize() const { return Size; }
+// (inlined) size_t SString::Len() const { return L ? (L-1) : 0; }
+size_t SString::Len() const { return L ? (L-1) : 0; }
+size_t SString::BufSize() const { return Size; }
 int    FASTCALL SString::C(size_t n) const { return (n < Len()) ? P_Buf[n] : 0; }
-int    SLAPI SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
+int    SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
 SString & FASTCALL SString::operator = (const SString & s) { return CopyFrom(s); }
 SString & FASTCALL SString::operator = (const char * pS) { return CopyFrom(pS); }
 SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom(reinterpret_cast<const char *>(pS)); }
@@ -802,19 +802,19 @@ int    FASTCALL SString::operator == (const SString & rS) const { return IsEqual
 int    FASTCALL SString::operator != (const SString & rS) const { return BIN(!IsEqual(rS)); }
 int    FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
 int    FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
-int    SLAPI SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
-int    SLAPI SString::Empty() const { return BIN(Len() == 0); }
-int    SLAPI SString::NotEmpty() const { return BIN(Len()); }
-int    SLAPI SString::NotEmptyS() { return Strip().NotEmpty(); }
+int    SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
+int    SString::Empty() const { return BIN(Len() == 0); }
+int    SString::NotEmpty() const { return BIN(Len()); }
+int    SString::NotEmptyS() { return Strip().NotEmpty(); }
 SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
-SString & SLAPI SString::Tab()     { return CatChar('\t'); }
-SString & SLAPI SString::Space()   { return CatChar(' ');  }
-SString & SLAPI SString::Dot()     { return CatChar('.');  }
-SString & SLAPI SString::Comma()   { return CatChar(',');  }
-SString & SLAPI SString::Semicol() { return CatChar(';');  }
-SString & SLAPI SString::Eq()      { return CatChar('=');  }
-SString & SLAPI SString::CR()      { return CatChar('\n'); }
-SString & SLAPI SString::CRB()     { return CatChar('\xD').CatChar('\xA'); }
+SString & SString::Tab()     { return CatChar('\t'); }
+SString & SString::Space()   { return CatChar(' ');  }
+SString & SString::Dot()     { return CatChar('.');  }
+SString & SString::Comma()   { return CatChar(',');  }
+SString & SString::Semicol() { return CatChar(';');  }
+SString & SString::Eq()      { return CatChar('=');  }
+SString & SString::CR()      { return CatChar('\n'); }
+SString & SString::CRB()     { return CatChar('\xD').CatChar('\xA'); }
 SString & FASTCALL SString::CatQStr(const char * pStr) { return CatChar('\"').Cat(pStr).CatChar('\"'); }
 SString & FASTCALL SString::CatParStr(const char * pStr) { return CatChar('(').Cat(pStr).CatChar(')'); }
 SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).CatChar(')'); }
@@ -823,25 +823,25 @@ SString & FASTCALL SString::CatLongZ(int    val, uint numDigits) { return CatLon
 SString & FASTCALL SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
 SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ(static_cast<long>(val), numDigits); }
 SString & FASTCALL SString::SetInt(int val) { return Z().Cat(val); }
-SString & SLAPI SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
-SString & SLAPI SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }
-SString & SLAPI SString::Utf8ToOem() { return Helper_MbToMb(CP_UTF8, CP_OEMCP); }
+SString & SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
+SString & SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }
+SString & SString::Utf8ToOem() { return Helper_MbToMb(CP_UTF8, CP_OEMCP); }
 SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(CP_UTF8, static_cast<int>(cp)); }
-SString & SLAPI SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).CatChar('=').Cat(pVal); }
-SString & SLAPI SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"'); }
-SString & SLAPI SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, long val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, ulong val)  { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, int64 val)  { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SLAPI SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SLAPI SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SLAPI SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SLAPI SString::CatEq(const char * pKey, LDATETIME val, long dtFmt, long tmFmt) { return Cat(pKey).CatChar('=').Cat(val, dtFmt, tmFmt); }
+SString & SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).CatChar('=').Cat(pVal); }
+SString & SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"'); }
+SString & SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, long val)   { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, ulong val)  { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, int64 val)  { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SString::CatEq(const char * pKey, LDATETIME val, long dtFmt, long tmFmt) { return Cat(pKey).CatChar('=').Cat(val, dtFmt, tmFmt); }
 // } trivial functions
 
-void SLAPI SString::Obfuscate()
+void SString::Obfuscate()
 {
 	if(Size && P_Buf) {
 		SlThreadLocalArea & r_tla = SLS.GetTLA();
@@ -855,7 +855,7 @@ void SLAPI SString::Obfuscate()
 	}
 }
 
-const char * SLAPI SString::SearchCharPos(size_t startPos, int c, size_t * pPos) const
+const char * SString::SearchCharPos(size_t startPos, int c, size_t * pPos) const
 {
 	size_t pos = 0;
 	const  char * p = 0;
@@ -868,7 +868,7 @@ const char * SLAPI SString::SearchCharPos(size_t startPos, int c, size_t * pPos)
 	return p;
 }
 
-const char * SLAPI SString::SearchChar(int c, size_t * pPos) const
+const char * SString::SearchChar(int c, size_t * pPos) const
 {
 	/* @v10.3.11
 	size_t pos = 0;
@@ -902,7 +902,7 @@ int FASTCALL SString::HasChr(int c) const
 	}
 }
 
-int SLAPI SString::IsLatin() const
+int SString::IsLatin() const
 {
 	int    ok = 1;
 	for(uint i = 0; ok && i < Len(); i++) {
@@ -913,7 +913,7 @@ int SLAPI SString::IsLatin() const
 	return ok;
 }
 
-int SLAPI SString::GetWord(size_t * pPos, SString & rBuf) const
+int SString::GetWord(size_t * pPos, SString & rBuf) const
 {
 	size_t pos = DEREFPTRORZ(pPos);
 	rBuf.Z();
@@ -930,7 +930,7 @@ int SLAPI SString::GetWord(size_t * pPos, SString & rBuf) const
 	return static_cast<int>(rBuf.Len());
 }
 
-int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
+int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 {
 	int    ok = 1;
 	const size_t len = Len();
@@ -978,12 +978,12 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 
 #ifndef _WIN32_WCE // {
 
-int SLAPI SString::Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const
+int SString::Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const
 {
 	return (pBlk && startPos < Len()) ? pBlk->Search(P_Buf, startPos, Len(), pPos) : 0;
 }
 
-int SLAPI SString::Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const
+int SString::Search(const char * pPattern, size_t startPos, int ignoreCase, size_t * pPos) const
 {
 	int    ok = 0;
 	const size_t _len = Len();
@@ -1021,7 +1021,7 @@ int SLAPI SString::Search(const char * pPattern, size_t startPos, int ignoreCase
 
 #endif // }
 
-int SLAPI SString::Divide(int divChr, SString & rLeft, SString & rRight) const
+int SString::Divide(int divChr, SString & rLeft, SString & rRight) const
 {
 	rLeft.Z();
 	rRight.Z();
@@ -1041,7 +1041,7 @@ int SLAPI SString::Divide(int divChr, SString & rLeft, SString & rRight) const
 	return ok;
 }
 
-int SLAPI SString::Wrap(uint maxLen, SString & rHead, SString & rTail) const
+int SString::Wrap(uint maxLen, SString & rHead, SString & rTail) const
 {
 	int    ok = 1;
 	size_t len = Len();
@@ -1205,7 +1205,7 @@ SString & FASTCALL SString::SetIfEmpty(const SString & rS)
 	return *this;
 }
 
-int SLAPI SString::GetSubFrom(const char * pStr, int div, int idx)
+int SString::GetSubFrom(const char * pStr, int div, int idx)
 {
 	uint   pos = 0;
 	StringSet ss(div, pStr);
@@ -1216,7 +1216,7 @@ int SLAPI SString::GetSubFrom(const char * pStr, int div, int idx)
 	return 0;
 }
 
-int  SLAPI SString::GetIdxBySub(const char * pSubStr, int div)
+int  SString::GetIdxBySub(const char * pSubStr, int div)
 {
 	int    idx = -1;
 	uint   pos = 0;
@@ -1298,7 +1298,7 @@ SString & FASTCALL SString::CopyFromOleStr(const BSTR s)
 	return *this;
 }
 
-SString & SLAPI SString::Z()
+SString & SString::Z()
 {
 	//
 	// Функция вызывается экстремально часто. Потому максимально оптимизирована.
@@ -1316,13 +1316,13 @@ SString & SLAPI SString::Z()
 	return *this;
 }
 
-SString & SLAPI SString::Quot(int leftQuotChar, int rightQuotChar)
+SString & SString::Quot(int leftQuotChar, int rightQuotChar)
 {
 	ShiftRight(1, leftQuotChar);
 	return CatChar(rightQuotChar);
 }
 
-SString & SLAPI SString::ReplaceChar(int patternChr, int replaceChr)
+SString & SString::ReplaceChar(int patternChr, int replaceChr)
 {
 	/* @todo
 	if(L > 1) {
@@ -1341,7 +1341,7 @@ SString & SLAPI SString::ReplaceChar(int patternChr, int replaceChr)
 	return *this;
 }
 
-int SLAPI SString::ReplaceStrR(const char * pPattern, const char * pReplacer, int once)
+int SString::ReplaceStrR(const char * pPattern, const char * pReplacer, int once)
 {
 	int    count = 0;
 	const size_t patt_len = sstrlen(pPattern);
@@ -1362,7 +1362,7 @@ int SLAPI SString::ReplaceStrR(const char * pPattern, const char * pReplacer, in
 	return count;
 }
 
-SString & SLAPI SString::ReplaceStr(const char * pPattern, const char * pReplacer, int once)
+SString & SString::ReplaceStr(const char * pPattern, const char * pReplacer, int once)
 {
 	ReplaceStrR(pPattern, pReplacer, once);
 	return *this;
@@ -1478,7 +1478,7 @@ SString & FASTCALL SString::RevertSpecSymb(int fileFormat)
 }
 
 #if 0 // @v8.8.3 {
-SString & SLAPI SString::ReplaceHtmlSpecSymb()
+SString & SString::ReplaceHtmlSpecSymb()
 {
 	if(P_Buf && L > 1) {
 		SString temp_buf;
@@ -1501,7 +1501,7 @@ SString & SLAPI SString::ReplaceHtmlSpecSymb()
 	return *this;
 }
 
-SString & SLAPI SString::RevertHtmlSpecSymb()
+SString & SString::RevertHtmlSpecSymb()
 {
 	if(P_Buf && L > 1) {
 		SString temp_buf, ent_buf;
@@ -1529,7 +1529,7 @@ SString & SLAPI SString::RevertHtmlSpecSymb()
 }
 #endif // } 0 @v8.8.3
 
-SString & SLAPI SString::ReplaceCR()
+SString & SString::ReplaceCR()
 {
 	if(P_Buf && L > 1) {
 		size_t len = Len();
@@ -1555,7 +1555,7 @@ SString & SLAPI SString::ReplaceCR()
 	return *this;
 }
 
-SString & SLAPI SString::Escape()
+SString & SString::Escape()
 {
 	const size_t _len = Len();
 	if(_len) {
@@ -1614,7 +1614,7 @@ SString & SLAPI SString::Escape()
 	return *this;
 }
 
-SString & SLAPI SString::Unescape()
+SString & SString::Unescape()
 {
 	const size_t _len = Len();
 	if(_len) {
@@ -1722,7 +1722,7 @@ SString & SLAPI SString::Unescape()
 	return *this;
 }
 
-SString & SLAPI SString::ToUrl()
+SString & SString::ToUrl()
 {
 #define NORMURLC(c) (((c)>='0'&&(c)<= '9')||((c)>='a'&&(c)<='z')||((c)>='A'&&(c)<='Z')||oneof9((c),'-','_','.','!','~','*','\'','(',')'))
     const size_t _len = Len();
@@ -1754,7 +1754,7 @@ SString & SLAPI SString::ToUrl()
 #undef NORMURLC
 }
 
-SString & SLAPI SString::FromUrl()
+SString & SString::FromUrl()
 {
     const size_t _len = Len();
     if(_len) {
@@ -1796,14 +1796,14 @@ SString & SLAPI SString::FromUrl()
     return *this;
 }
 
-SString & SLAPI SString::ToOem()
+SString & SString::ToOem()
 {
 	if(Len())
 		CharToOemA(P_Buf, P_Buf); // @unicodeproblem
 	return *this;
 }
 
-SString & SLAPI SString::ToChar()
+SString & SString::ToChar()
 {
 	if(Len())
 		OemToCharA(P_Buf, P_Buf); // @unicodeproblem
@@ -1827,7 +1827,7 @@ SString & FASTCALL SString::Transf(int ctransf)
 	return *this;
 }
 
-SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
+SString & SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 {
 	const size_t middle_buf_len = 2048;
 	WCHAR wtext[middle_buf_len];
@@ -1884,7 +1884,7 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 	}
 }
 
-SString & SLAPI SString::Utf8ToLower()
+SString & SString::Utf8ToLower()
 {
 	if(L > 1) {
 		SStringU & r_us = SLS.AcquireRvlStrU(); // @v9.9.4
@@ -1896,7 +1896,7 @@ SString & SLAPI SString::Utf8ToLower()
 	return *this;
 }
 
-SString & SLAPI SString::Utf8ToUpper()
+SString & SString::Utf8ToUpper()
 {
 	if(L > 1) {
 		SStringU & r_us = SLS.AcquireRvlStrU(); // @v9.9.4
@@ -1908,25 +1908,25 @@ SString & SLAPI SString::Utf8ToUpper()
 	return *this;
 }
 
-SString & SLAPI SString::ToUpper()
+SString & SString::ToUpper()
 {
 	strupr866(P_Buf);
 	return *this;
 }
 
-SString & SLAPI SString::ToLower()
+SString & SString::ToLower()
 {
 	strlwr866(P_Buf);
 	return *this;
 }
 
-SString & SLAPI SString::ToUpper1251()
+SString & SString::ToUpper1251()
 {
 	strupr1251(P_Buf);
 	return *this;
 }
 
-SString & SLAPI SString::ToLower1251()
+SString & SString::ToLower1251()
 {
 	strlwr1251(P_Buf);
 	return *this;
@@ -2118,7 +2118,7 @@ int FASTCALL SString::CmpSuffix(const char * pS, int ignoreCase) const
 	}
 }
 
-uint SLAPI SString::OneOf(int div, const char * pPattern, int ignoreCase) const
+uint SString::OneOf(int div, const char * pPattern, int ignoreCase) const
 {
 	if(P_Buf && !isempty(pPattern)) {
 		StringSet ss(div, pPattern);
@@ -2130,7 +2130,7 @@ uint SLAPI SString::OneOf(int div, const char * pPattern, int ignoreCase) const
 	return 0;
 }
 
-SString & SLAPI SString::TrimRight()
+SString & SString::TrimRight()
 {
 	if(L > 1) {
 		P_Buf[L-2] = 0;
@@ -2160,7 +2160,7 @@ SString & FASTCALL SString::Trim(size_t n)
 	return *this;
 }
 
-SString & SLAPI SString::TrimToDiv(size_t n, const char * pDivList)
+SString & SString::TrimToDiv(size_t n, const char * pDivList)
 {
 	if(n < Len()) {
 		if(pDivList) {
@@ -2184,7 +2184,7 @@ SString & SLAPI SString::TrimToDiv(size_t n, const char * pDivList)
 ----------
 */
 
-SString & SLAPI SString::Excise(size_t start, size_t size)
+SString & SString::Excise(size_t start, size_t size)
 {
 	size_t len = Len();
 	if(start < len) {
@@ -2201,7 +2201,7 @@ SString & SLAPI SString::Excise(size_t start, size_t size)
 	return *this;
 }
 
-SString & SLAPI SString::Chomp()
+SString & SString::Chomp()
 {
 	const char _last = Last();
 	if(_last == '\xA') {
@@ -2214,7 +2214,7 @@ SString & SLAPI SString::Chomp()
 	return *this;
 }
 
-SString & SLAPI SString::Strip(int dir)
+SString & SString::Strip(int dir)
 {
 	if(dir == 0 || dir == 1) {
 		while(Last() == ' ')
@@ -2229,7 +2229,7 @@ SString & SLAPI SString::Strip(int dir)
 	return *this;
 }
 
-SString & SLAPI SString::Strip()
+SString & SString::Strip()
 {
 	while(Last() == ' ')
 		TrimRight();
@@ -2242,7 +2242,7 @@ SString & SLAPI SString::Strip()
 	return *this;
 }
 
-SString & SLAPI SString::StripQuotes()
+SString & SString::StripQuotes()
 {
 	Strip();
 	if(C(0) == '\"') {
@@ -2300,7 +2300,7 @@ SString & FASTCALL SString::ShiftLeftChr(int chr)
 }
 
 /*
-void SLAPI SVectorBase::reverse(uint pos, uint numItems)
+void SVectorBase::reverse(uint pos, uint numItems)
 {
 	const  uint last_pos = pos+numItems-1;
 	uint   i = numItems/2;
@@ -2312,7 +2312,7 @@ void SLAPI SVectorBase::reverse(uint pos, uint numItems)
 }
 */
 
-SString & SLAPI SString::Reverse()
+SString & SString::Reverse()
 {
 	const size_t len = Len();
 	size_t i = (len >> 1);
@@ -2332,14 +2332,14 @@ SString & SLAPI SString::Reverse()
 	return *this;
 }
 
-SString & SLAPI SString::PadLeft(size_t n, int pad)
+SString & SString::PadLeft(size_t n, int pad)
 {
 	if(pad != 0)
 		ShiftRight(n, pad);
 	return *this;
 }
 
-SString & SLAPI SString::Align(size_t width, int adj)
+SString & SString::Align(size_t width, int adj)
 {
 	size_t diff = Strip().Len();
 	diff = (width > diff) ? (width - diff) : 0;
@@ -2356,7 +2356,7 @@ SString & SLAPI SString::Align(size_t width, int adj)
 	return *this;
 }
 
-SString & SLAPI SString::ShiftRight(size_t n, int chr)
+SString & SString::ShiftRight(size_t n, int chr)
 {
 	if(n) {
 		const size_t new_len = (L ? L : 1) + n;
@@ -2469,13 +2469,13 @@ SString & FASTCALL SString::Cat(ulong i)
 
 #ifndef _WIN32_WCE // {
 
-SString & SLAPI SString::Cat(int64 i)
+SString & SString::Cat(int64 i)
 {
 	char   temp_buf[512];
 	return Cat(_i64toa(i, temp_buf, 10));
 }
 
-SString & SLAPI SString::Cat(uint64 i)
+SString & SString::Cat(uint64 i)
 {
 	char   temp_buf[512];
 	return Cat(_ui64toa(i, temp_buf, 10));
@@ -2569,25 +2569,25 @@ SString & FASTCALL SString::CatHexUpper(uint8 val)
 	return *this;
 }
 
-SString & SLAPI SString::CatDotTriplet(int ver, int mjr, int mnr)
+SString & SString::CatDotTriplet(int ver, int mjr, int mnr)
 {
 	return Cat(ver).Dot().Cat(mjr).Dot().Cat(mnr);
 }
 
-SString & SLAPI SString::CatPercentMsg(long p, long t, const char * pMsg)
+SString & SString::CatPercentMsg(long p, long t, const char * pMsg)
 {
 	if(pMsg)
 		Cat(pMsg).Space();
 	return Cat(static_cast<long>(t ? (100.0 * (static_cast<double>(p) / static_cast<double>(t))) : 100.0)).CatChar('%');
 }
 
-SString & SLAPI SString::Cat(double v, long fmt)
+SString & SString::Cat(double v, long fmt)
 {
 	char   temp_buf[512];
 	return Cat(realfmt(v, fmt, temp_buf));
 }
 
-SString & SLAPI SString::Cat(const RealRange & rR, long fmt)
+SString & SString::Cat(const RealRange & rR, long fmt)
 {
 	char   temp_buf[512];
 	Cat(realfmt(rR.low, fmt, temp_buf));
@@ -2596,13 +2596,13 @@ SString & SLAPI SString::Cat(const RealRange & rR, long fmt)
 	return *this;
 }
 
-SString & SLAPI SString::Cat(double v)
+SString & SString::Cat(double v)
 {
 	char   temp_buf[512];
 	return Cat(realfmt(v, MKSFMTD(0, 6, NMBF_NOTRAILZ), temp_buf));
 }
 
-SString & SLAPI SString::CatReal(double v)
+SString & SString::CatReal(double v)
 {
 	char   temp_buf[512];
 	return Cat(_gcvt(v, 40, temp_buf));
@@ -2659,12 +2659,12 @@ SString & FASTCALL SString::Cat(const S_GUID & rUuid, int fmt)
     return Cat(rUuid.ToStr(fmt, r_temp_buf));
 }
 
-SString & SLAPI SString::CatTag(const char * pTag, const char * pData)
+SString & SString::CatTag(const char * pTag, const char * pData)
 {
 	return CatTagBrace(pTag, 0).Cat(pData).CatTagBrace(pTag, 1);
 }
 
-SString & SLAPI SString::CatTagBrace(const char * pTag, int kind)
+SString & SString::CatTagBrace(const char * pTag, int kind)
 {
 	CatChar('<');
 	if(kind == 1)
@@ -2676,7 +2676,7 @@ SString & SLAPI SString::CatTagBrace(const char * pTag, int kind)
 	return *this;
 }
 
-SString & SLAPI SString::CatXmlElem(const char * pName, int kind, const StringSet * pList)
+SString & SString::CatXmlElem(const char * pName, int kind, const StringSet * pList)
 {
 	CatChar('<').CatChar('!').Cat("ELEMENT").Space().Cat(pName).Space().CatChar('(');
 	if(kind == 0)
@@ -2691,7 +2691,7 @@ SString & SLAPI SString::CatXmlElem(const char * pName, int kind, const StringSe
 	return *this;
 }
 
-SString & SLAPI SString::Insert(size_t pos, const char * pS)
+SString & SString::Insert(size_t pos, const char * pS)
 {
 	const size_t add_len = sstrlen(pS);
 	if(add_len) {
@@ -2733,7 +2733,7 @@ SString & __cdecl SString::VPrintf(const char * pFormat, va_list vl)
 	return *this;
 }
 
-int SLAPI SString::IsDigit() const
+int SString::IsDigit() const
 {
 	const  size_t len = Len();
 	int    ok = 1;
@@ -2748,7 +2748,7 @@ int SLAPI SString::IsDigit() const
 	return ok;
 }
 
-ulong SLAPI SString::ToULong() const
+ulong SString::ToULong() const
 {
 	if(L > 1) {
 		const char * p = P_Buf;
@@ -2992,7 +2992,7 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 	return result;
 }
 
-long SLAPI SString::ToLong() const
+long SString::ToLong() const
 {
 	// @v9.6.1 return (long)ToULong();
 	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
@@ -3000,7 +3000,7 @@ long SLAPI SString::ToLong() const
 	// } @v9.6.1
 }
 
-int64 SLAPI SString::ToInt64() const
+int64 SString::ToInt64() const
 {
 	/* @v9.6.1
 	if(L > 1) {
@@ -3017,7 +3017,7 @@ int64 SLAPI SString::ToInt64() const
 	// } @v9.6.1
 }
 
-double SLAPI SString::ToReal() const
+double SString::ToReal() const
 {
 	double v = 0.0;
 	if(L > 1)
@@ -3025,7 +3025,7 @@ double SLAPI SString::ToReal() const
 	return v;
 }
 
-float SLAPI SString::ToFloat() const
+float SString::ToFloat() const
 {
 	// @todo Полностью перевести на float (реализовать strtofloat)
 	double v = 0.0;
@@ -3034,7 +3034,7 @@ float SLAPI SString::ToFloat() const
 	return static_cast<float>(v);
 }
 
-int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
+int SString::ToIntRange(IntRange & rRange, long flags) const
 {
 	int    result = 0;
 	if(L > 1) {
@@ -3113,7 +3113,7 @@ int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
 	return result;
 }
 
-SString & SLAPI SString::Sub(size_t startPos, size_t len, SString & rBuf) const
+SString & SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 {
 	rBuf.Z();
 	if(startPos < Len()) {
@@ -3123,7 +3123,7 @@ SString & SLAPI SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 	return rBuf;
 }
 
-SString & SLAPI SString::Fmt(long fmt)
+SString & SString::Fmt(long fmt)
 {
 	int    flag = SFMTFLAG(fmt);
 	if(flag & STRF_OEM) {
@@ -3148,7 +3148,7 @@ SString & SLAPI SString::Fmt(long fmt)
 	return _commfmt(fmt, *this);
 }
 
-SString & SLAPI SString::SetLastDSlash()
+SString & SString::SetLastDSlash()
 {
 	int    last = Last();
 	if(last) {
@@ -3162,7 +3162,7 @@ SString & SLAPI SString::SetLastDSlash()
 	return *this;
 }
 
-SString & SLAPI SString::SetLastSlash()
+SString & SString::SetLastSlash()
 {
 	int    last = Last();
 	if(last && last != '\\' && last != '/')
@@ -3170,7 +3170,7 @@ SString & SLAPI SString::SetLastSlash()
 	return *this;
 }
 
-SString & SLAPI SString::RmvLastSlash()
+SString & SString::RmvLastSlash()
 {
 	int    last = Last();
 	if(last == '\\' || last == '/')
@@ -3178,7 +3178,7 @@ SString & SLAPI SString::RmvLastSlash()
 	return *this;
 }
 
-int SLAPI SString::Read(FILE * fStream, size_t size)
+int SString::Read(FILE * fStream, size_t size)
 {
 	int    ok = -1;
 	if(fStream && size) {
@@ -3202,7 +3202,7 @@ int SLAPI SString::Read(FILE * fStream, size_t size)
 	return ok;
 }
 
-int SLAPI SString::DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const
+int SString::DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const
 {
 	int    ok = 1;
 	const size_t src_len = (Len() & ~0x1);
@@ -3230,7 +3230,7 @@ int SLAPI SString::DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRe
 	return ok;
 }
 
-SString & SLAPI SString::EncodeMime64(const void * pBuf, size_t dataLen)
+SString & SString::EncodeMime64(const void * pBuf, size_t dataLen)
 {
 	size_t needed_size = (dataLen * 2) + 2;
 	size_t real_size = 0;
@@ -3258,7 +3258,7 @@ size_t FASTCALL SString::CharToQp(char c)
 	return n;
 }
 
-SString & SLAPI SString::Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen)
+SString & SString::Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen)
 {
 	const  size_t slen = sstrlen(pBuf);
 	uint   linepos = 0; // Line-length counter for line wrapping in the output.
@@ -3289,7 +3289,7 @@ SString & SLAPI SString::Encode_QuotedPrintable(const char * pBuf, size_t maxLin
 	return *this;
 }
 
-int SLAPI SString::Decode_QuotedPrintable(SString & rBuf) const
+int SString::Decode_QuotedPrintable(SString & rBuf) const
 {
 	int    ok = 1;
 	const size_t src_len = Len();
@@ -3390,7 +3390,7 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 }
 // } @construction
 
-int SLAPI SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const
+int SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const
 {
 	size_t out_len = bufLen;
 	char   zero_buf[32];
@@ -3400,7 +3400,7 @@ int SLAPI SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) c
 	return ok;
 }
 
-SString & SLAPI SString::Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepageIdent cp, int rfc2207enc)
+SString & SString::Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepageIdent cp, int rfc2207enc)
 {
 	Z();
 	SString temp_buf;
@@ -3426,7 +3426,7 @@ SString & SLAPI SString::Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepa
 	return *this;
 }
 
-size_t SLAPI SString::Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const
+size_t SString::Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const
 {
 	rBuf.Z();
 	size_t result = 0;
@@ -3505,7 +3505,7 @@ size_t SLAPI SString::Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent *
 	return result;
 }
 
-SString & SLAPI SString::EncodeUrl(const char * pSrc, int mode)
+SString & SString::EncodeUrl(const char * pSrc, int mode)
 {
 	Z();
 	const  size_t slen = sstrlen(pSrc);
@@ -3521,7 +3521,7 @@ SString & SLAPI SString::EncodeUrl(const char * pSrc, int mode)
 	return *this;
 }
 
-int SLAPI SString::DecodeUrl(SString & rBuf) const
+int SString::DecodeUrl(SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -3596,21 +3596,21 @@ SString & SString::FormatFileParsingMessage(const char * pFileName, int lineNo, 
 //
 //
 //
-SLAPI SStringU::SStringU() : L(0), Size(0), P_Buf(0)
+SStringU::SStringU() : L(0), Size(0), P_Buf(0)
 {
 }
 
-SLAPI SStringU::SStringU(const SStringU & rS) : L(0), Size(0), P_Buf(0)
+SStringU::SStringU(const SStringU & rS) : L(0), Size(0), P_Buf(0)
 {
 	CopyFrom(rS);
 }
 
-SLAPI SStringU::SStringU(const wchar_t * pS) : L(0), Size(0), P_Buf(0)
+SStringU::SStringU(const wchar_t * pS) : L(0), Size(0), P_Buf(0)
 {
 	CopyFrom(pS);
 }
 
-SLAPI SStringU::~SStringU()
+SStringU::~SStringU()
 {
 	L = 0;
 	Size = 0;
@@ -3618,7 +3618,7 @@ SLAPI SStringU::~SStringU()
 		ZFREE(P_Buf);
 }
 
-size_t SLAPI SStringU::Len() const { return L ? (L-1) : 0; }
+size_t SStringU::Len() const { return L ? (L-1) : 0; }
 wchar_t FASTCALL SStringU::C(size_t n) const { return (n < Len()) ? P_Buf[n] : 0; }
 
 int FASTCALL SStringU::Alloc(size_t sz)
@@ -3739,7 +3739,7 @@ int FASTCALL SStringU::CmpPrefix(const wchar_t * pS) const
 		return -1;
 }
 
-int SLAPI SStringU::Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const
+int SStringU::Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const
 {
 	int    ok = 0;
 	const size_t plen = sstrlen(pPattern);
@@ -3756,7 +3756,7 @@ int SLAPI SStringU::Search(const wchar_t * pPattern, size_t startPos, size_t * p
 	return ok;
 }
 
-wchar_t SLAPI SStringU::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
+wchar_t SStringU::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
 
 int FASTCALL SStringU::HasChr(wchar_t c) const
 {
@@ -3779,7 +3779,7 @@ int FASTCALL SStringU::HasChr(wchar_t c) const
 SStringU & FASTCALL SStringU::operator = (const SStringU & s) { return CopyFrom(s); }
 SStringU & FASTCALL SStringU::operator = (const wchar_t * pS) { return CopyFrom(pS); }
 
-SStringU & SLAPI SStringU::Z()
+SStringU & SStringU::Z()
 {
 	if(2 <= Size || Alloc(2)) { // 4 байта быстрее обнуляются, чем 2 поэтому требуем минимальную длину - 2 символа (4 байта)
 		PTR32(P_Buf)[0] = 0;
@@ -3908,7 +3908,7 @@ SStringU & FASTCALL SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
 	return *this;
 }
 
-int SLAPI SStringU::CopyToMb(int cp, SString & rBuf) const
+int SStringU::CopyToMb(int cp, SString & rBuf) const
 {
 	rBuf.Z();
 	int   ok = 1;
@@ -3936,7 +3936,7 @@ int SLAPI SStringU::CopyToMb(int cp, SString & rBuf) const
 	return ok;
 }
 
-SStringU & SLAPI SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
+SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 {
 	rBuf.Z();
 	if(startPos < Len()) {
@@ -4162,7 +4162,7 @@ void FASTCALL SString::Cat_Unsafe(const uint8 * pChr, size_t numChr)
 	}
 }
 
-int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
+int SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
 {
 	CopyFrom(0); // Обрезаем строку до пустой
 	int    ok = 1;
@@ -4296,7 +4296,7 @@ int FASTCALL SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, in
     return ok;
 }
 
-long SLAPI SStringU::ToLong() const
+long SStringU::ToLong() const
 {
 	if(L) {
 		const wchar_t * p = P_Buf;
@@ -4312,7 +4312,7 @@ long SLAPI SStringU::ToLong() const
 		return 0;
 }
 
-int64 SLAPI SStringU::ToInt64() const
+int64 SStringU::ToInt64() const
 {
 	if(L) {
 		const wchar_t * p = P_Buf;
@@ -4324,7 +4324,7 @@ int64 SLAPI SStringU::ToInt64() const
 		return 0;
 }
 
-SStringU & SLAPI SStringU::ToUpper()
+SStringU & SStringU::ToUpper()
 {
 	if(P_Buf && L > 1) {
 		for(size_t i = 0; i < (L-1); i++) {
@@ -4334,7 +4334,7 @@ SStringU & SLAPI SStringU::ToUpper()
 	return *this;
 }
 
-SStringU & SLAPI SStringU::ToLower()
+SStringU & SStringU::ToLower()
 {
 	if(P_Buf) {
 		for(size_t i = 0; i < (L-1); i++) {
@@ -4344,7 +4344,7 @@ SStringU & SLAPI SStringU::ToLower()
 	return *this;
 }
 
-int SLAPI SStringU::AnalyzeCase() const
+int SStringU::AnalyzeCase() const
 {
 	int    tc = tcEmpty;
 	if(L) {
@@ -6056,35 +6056,35 @@ wchar_t FASTCALL UToLowerCase(wchar_t code) { return u_to_case(code, 2); }
 //
 // } @Muxa
 //
-SLAPI STokenizer::Param::Param() : Flags(0), Cp(0)
+STokenizer::Param::Param() : Flags(0), Cp(0)
 {
 }
 
-SLAPI STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(pDelim), Flags(flags), Cp(cp)
+STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(pDelim), Flags(flags), Cp(cp)
 {
 }
 
-SLAPI STokenizer::STokenizer() : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
+STokenizer::STokenizer() : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
 {
 	SetParam(0);
 }
 
-SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
+STokenizer::STokenizer(const Param & rParam) : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
 {
 	SetParam(&rParam);
 }
 
-SLAPI STokenizer::~STokenizer()
+STokenizer::~STokenizer()
 {
 	delete P_ResourceIndex;
 }
 
-void SLAPI STokenizer::GetParam(Param * pParam) const
+void STokenizer::GetParam(Param * pParam) const
 {
 	ASSIGN_PTR(pParam, P);
 }
 
-int SLAPI STokenizer::SetParam(const Param * pParam)
+int STokenizer::SetParam(const Param * pParam)
 {
 	RVALUEPTR(P, pParam);
 	if(P.Cp == cpUTF8) {
@@ -6094,7 +6094,7 @@ int SLAPI STokenizer::SetParam(const Param * pParam)
 	return 1;
 }
 
-STokenizer & SLAPI STokenizer::Reset(long options)
+STokenizer & STokenizer::Reset(long options)
 {
 	RP = 0;
 	SO = 0;
@@ -6108,12 +6108,12 @@ STokenizer & SLAPI STokenizer::Reset(long options)
 	return *this;
 }
 
-void SLAPI STokenizer::ClearInput()
+void STokenizer::ClearInput()
 {
 	S.Z();
 }
 
-int SLAPI STokenizer::Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz)
+int STokenizer::Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz)
 {
 	int    ok = 1;
 	THROW(S.Write(pS, sz));
@@ -6135,7 +6135,7 @@ int SLAPI STokenizer::Write(const char * pResource, int64 orgOffs, const void * 
 	return ok;
 }
 
-uint16 SLAPI STokenizer::NextChr()
+uint16 STokenizer::NextChr()
 {
 	uchar c;
 	uint16 result = 0;
@@ -6202,7 +6202,7 @@ int FASTCALL STokenizer::IsDelim(uint16 chr) const
 	return 0;
 }
 
-void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf)
+void STokenizer::_CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf)
 {
 	AddTokenBuf.Z();
 	const uint bc = rBuf.getCount();
@@ -6259,7 +6259,7 @@ int FASTCALL STokenizer::AddToken(TSVector <uint16> & rBuf, int tokType, int64 s
 	return ok;
 }
 
-int SLAPI STokenizer::IndexResources(int force)
+int STokenizer::IndexResources(int force)
 {
 	int    ok = 1;
 	if(!P_ResourceIndex || force) {
@@ -6298,7 +6298,7 @@ int SLAPI STokenizer::IndexResources(int force)
 	return ok;
 }
 
-int SLAPI STokenizer::ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
+int STokenizer::ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
 {
 	int    ok = -1;
 	if(tokType != tokDelim) {
@@ -6361,7 +6361,7 @@ int SLAPI STokenizer::ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, 
 	return ok;
 }
 
-int SLAPI STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult)
+int STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult)
 {
 	int    ok = 1;
 	uint16 chr = 0;
@@ -6470,7 +6470,7 @@ int SLAPI STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEn
 	return ok;
 }
 
-int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
+int STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 {
 	int    ok = 1;
 	const  uint preserve_count = L.getCount();
@@ -6535,16 +6535,16 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 	return ok;
 }
 
-int SLAPI STokenizer::RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount)
+int STokenizer::RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount)
 	{ return BIN(Write(pResource, orgOffs, rS, rS.Len()+1) && Run(pIdxFirst, pIdxCount)); }
-uint SLAPI STokenizer::GetCommCount() const
+uint STokenizer::GetCommCount() const
 	{ return CL.getCount(); }
-uint SLAPI STokenizer::GetCount() const
+uint STokenizer::GetCount() const
 	{ return L.getCount(); }
-int SLAPI STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const
+int STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const
 	{ return T.CalcStat(rStat); }
 
-int SLAPI STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
+int STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
 {
 	if(idx < CL.getCount()) {
 		const CToken & r_token = CL.at(idx);
@@ -6559,13 +6559,13 @@ int SLAPI STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
 		return 0;
 }
 
-int SLAPI STokenizer::GetTextById(uint txtId, SString & rBuf) const
+int STokenizer::GetTextById(uint txtId, SString & rBuf) const
 {
 	rBuf.Z();
 	return T.Get(txtId, rBuf);
 }
 
-int SLAPI STokenizer::Get(uint idx, STokenizer::Item & rItem) const
+int STokenizer::Get(uint idx, STokenizer::Item & rItem) const
 {
 	if(idx < L.getCount()) {
 		const Token & r_token = L.at(idx);
@@ -6580,7 +6580,7 @@ int SLAPI STokenizer::Get(uint idx, STokenizer::Item & rItem) const
 		return 0;
 }
 
-int SLAPI STokenizer::Get_WithoutText(uint idx, STokenizer::Item & rItem) const
+int STokenizer::Get_WithoutText(uint idx, STokenizer::Item & rItem) const
 {
 	if(idx < L.getCount()) {
 		const Token & r_token = L.at(idx);
@@ -6601,11 +6601,11 @@ int SLAPI STokenizer::Get_WithoutText(uint idx, STokenizer::Item & rItem) const
 //
 // {9}-[*]
 
-SLAPI SNaturalTokenStat::SNaturalTokenStat() : Len(0), Seq(0)
+SNaturalTokenStat::SNaturalTokenStat() : Len(0), Seq(0)
 {
 }
 
-SNaturalTokenArray & SLAPI SNaturalTokenArray::Z()
+SNaturalTokenArray & SNaturalTokenArray::Z()
 {
 	clear();
 	return *this;
@@ -6617,7 +6617,7 @@ float FASTCALL SNaturalTokenArray::Has(uint32 tok) const
     return lsearch(&tok, &pos, CMPF_LONG) ? at(pos).Prob : 0.0f;
 }
 
-int SLAPI SNaturalTokenArray::Add(uint32 tok, float prob)
+int SNaturalTokenArray::Add(uint32 tok, float prob)
 {
 	SNaturalToken item;
 	item.ID = tok;
@@ -6625,7 +6625,7 @@ int SLAPI SNaturalTokenArray::Add(uint32 tok, float prob)
 	return insert(&item);
 }
 
-/*static*/int SLAPI STokenRecognizer::EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
+/*static*/int STokenRecognizer::EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
 {
 	int   ret = 0;
 	uint8  _buf[256];
@@ -6655,11 +6655,11 @@ int SLAPI SNaturalTokenArray::Add(uint32 tok, float prob)
 	return ret;
 }
 
-SLAPI STokenRecognizer::STokenRecognizer() : SRegExpSet()
+STokenRecognizer::STokenRecognizer() : SRegExpSet()
 {
 }
 
-SLAPI STokenRecognizer::~STokenRecognizer()
+STokenRecognizer::~STokenRecognizer()
 {
 }
 
@@ -6702,7 +6702,7 @@ static int FASTCALL _ProbeDate(const SString & rText)
 	return ok;
 }
 
-int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
+int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
 {
 	int    ok = 1;
 	uint32 h = 0;

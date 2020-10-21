@@ -8,7 +8,7 @@
 #include <uri.h>
 #include <snet.h>
 
-/*static*/ulong SLAPI InetAddr::IPToULong(const char * pIP)
+/*static*/ulong InetAddr::IPToULong(const char * pIP)
 {
 	ulong  addr = 0;
 	SString buf;
@@ -25,7 +25,7 @@
 	return addr;
 }
 
-/*static*/void SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
+/*static*/void InetAddr::ULongToIP(ulong ip, SString & rIP)
 {
 	rIP.Z();
 	for(uint i = 4; i > 0; i--) {
@@ -35,11 +35,11 @@
 	}
 }
 
-SLAPI InetAddr::InetAddr() : V4(0), Port(0)
+InetAddr::InetAddr() : V4(0), Port(0)
 {
 }
 
-SLAPI InetAddr::InetAddr(const InetAddr & rS)
+InetAddr::InetAddr(const InetAddr & rS)
 {
 	Copy(rS);
 }
@@ -57,7 +57,7 @@ void FASTCALL InetAddr::Copy(const InetAddr & rS)
 	Port = rS.Port;
 }
 
-InetAddr & SLAPI InetAddr::Z()
+InetAddr & InetAddr::Z()
 {
 	V4 = 0;
 	HostName.Z();
@@ -68,10 +68,10 @@ InetAddr & SLAPI InetAddr::Z()
 int FASTCALL InetAddr::IsEqual(const InetAddr & rS) const { return BIN(V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName); }
 int FASTCALL InetAddr::operator == (const InetAddr & rS) const { return IsEqual(rS); }
 int FASTCALL InetAddr::operator != (const InetAddr & rS) const { return BIN(!IsEqual(rS)); }
-int SLAPI    InetAddr::IsEmpty() const { return BIN(V4 == 0 && HostName.Empty()); }
-int SLAPI    InetAddr::Set(const sockaddr_in * pAddr) { return Set(pAddr->sin_addr.s_addr, pAddr->sin_port); }
+int InetAddr::IsEmpty() const { return BIN(V4 == 0 && HostName.Empty()); }
+int InetAddr::Set(const sockaddr_in * pAddr) { return Set(pAddr->sin_addr.s_addr, pAddr->sin_port); }
 
-int SLAPI InetAddr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int InetAddr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(pSCtx->Serialize(dir, V4, rBuf));
@@ -81,7 +81,7 @@ int SLAPI InetAddr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	return ok;
 }
 
-SString & SLAPI InetAddr::ToStr(long flags, SString & rBuf) const
+SString & InetAddr::ToStr(long flags, SString & rBuf) const
 {
 	rBuf.Z();
 	if(flags & fmtAddr || !(flags & (fmtAddr | fmtHost)))
@@ -122,14 +122,14 @@ int InetAddr::FromStr(const char * pStr)
 	return ok;
 }
 
-int SLAPI InetAddr::SetPort_(int port)
+int InetAddr::SetPort_(int port)
 {
 	const int preserve_port = Port;
 	Port = port;
 	return preserve_port;
 }
 
-sockaddr * SLAPI InetAddr::Get(sockaddr_in * pAddr) const
+sockaddr * InetAddr::Get(sockaddr_in * pAddr) const
 {
 	sockaddr_in addr;
 	MEMSZERO(addr);
@@ -140,14 +140,14 @@ sockaddr * SLAPI InetAddr::Get(sockaddr_in * pAddr) const
 	return reinterpret_cast<sockaddr *>(pAddr);
 }
 
-int SLAPI InetAddr::Set(ulong addr, int port)
+int InetAddr::Set(ulong addr, int port)
 {
 	V4 = addr;
 	Port = port;
 	return 1;
 }
 
-/*static*/int SLAPI InetAddr::GetNameByAddr(const char * pIP, SString & aHost)
+/*static*/int InetAddr::GetNameByAddr(const char * pIP, SString & aHost)
 {
 	int    ok = -1;
 	if(pIP) {
@@ -166,7 +166,7 @@ int SLAPI InetAddr::Set(ulong addr, int port)
 	return ok;
 }
 
-int SLAPI InetAddr::Set(const char * pHostName, int port)
+int InetAddr::Set(const char * pHostName, int port)
 {
 	int    ok = 0;
 	Port = port;

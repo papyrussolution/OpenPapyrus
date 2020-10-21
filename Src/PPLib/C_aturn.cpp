@@ -27,7 +27,7 @@ static int ReplyProc(PPID accRelID, LDATE dt, long oprno, double delta, void * p
 		return -1;
 }
 
-int SLAPI CorrectAccTurnRest()
+int CorrectAccTurnRest()
 {
 	int    ok = -1;
 	ushort v;
@@ -67,7 +67,7 @@ int SLAPI CorrectAccTurnRest()
 	return ok;
 }
 
-int SLAPI RemoveEmptyAcctRels()
+int RemoveEmptyAcctRels()
 {
 	PPWait(1);
 	PPObjAccTurn atobj;
@@ -101,7 +101,7 @@ static int CorrectAccturnMsgProc(int msgCode, PPID accID, PPID billID, LDATE dt,
 	return ok;
 }
 
-int SLAPI CorrectAccturn()
+int CorrectAccturn()
 {
 	int    ok = -1;
 	long   flags = 0;

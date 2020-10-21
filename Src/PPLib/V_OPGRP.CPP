@@ -5,12 +5,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI OpGroupingViewItem::OpGroupingViewItem()
+OpGroupingViewItem::OpGroupingViewItem()
 {
 	THISZERO();
 }
 
-IMPLEMENT_PPFILT_FACTORY(OpGrouping); SLAPI OpGroupingFilt::OpGroupingFilt() : PPBaseFilt(PPFILT_OPGROUPING, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(OpGrouping); OpGroupingFilt::OpGroupingFilt() : PPBaseFilt(PPFILT_OPGROUPING, 0, 1)
 {
 	SetFlatChunk(offsetof(OpGroupingFilt, ReserveStart),
 		offsetof(OpGroupingFilt, LocList)-offsetof(OpGroupingFilt, ReserveStart));
@@ -24,7 +24,7 @@ OpGroupingFilt & FASTCALL OpGroupingFilt::operator = (const OpGroupingFilt & s)
 	return *this;
 }
 
-int SLAPI OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) const
+int OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) const
 {
 	if(flags & eqxCycleStat) {
 		OpGroupingFilt temp1, temp2;
@@ -38,15 +38,15 @@ int SLAPI OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) c
 		return IsEqual(&rS, 1);
 }
 
-SLAPI PPViewOpGrouping::OpGroupingStatEntry::OpGroupingStatEntry() : OpID(0), Sign(0), S(0)
+PPViewOpGrouping::OpGroupingStatEntry::OpGroupingStatEntry() : OpID(0), Sign(0), S(0)
 {
 }
 
-SLAPI PPViewOpGrouping::PPViewOpGrouping() : PPView(0, &Filt, PPVIEW_OPGROUPING), P_TempTbl(0), P_TempStatTbl(0), P_ViewTrfrAnlz(0), P_ViewBill(0)
+PPViewOpGrouping::PPViewOpGrouping() : PPView(0, &Filt, PPVIEW_OPGROUPING, 0, 0), P_TempTbl(0), P_TempStatTbl(0), P_ViewTrfrAnlz(0), P_ViewBill(0)
 {
 }
 
-SLAPI PPViewOpGrouping::~PPViewOpGrouping()
+PPViewOpGrouping::~PPViewOpGrouping()
 {
 	delete P_TempTbl;
 	delete P_TempStatTbl;
@@ -72,7 +72,7 @@ enum {
 	siNumItems
 };
 
-int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1, done = 0, create_stat = 0;
 	SString temp_buf;
@@ -269,7 +269,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewOpGrouping::InitIteration()
+int PPViewOpGrouping::InitIteration()
 {
 	// @v10.6.8 char   k[MAXKEYLEN];
 	BtrDbKey k_; // @v10.6.8
@@ -313,7 +313,7 @@ int FASTCALL PPViewOpGrouping::NextIteration(OpGroupingViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewOpGrouping::CalcStat(BillStatArray * pList)
+int PPViewOpGrouping::CalcStat(BillStatArray * pList)
 {
 	int    ok = -1;
 	if(pList) {
@@ -331,12 +331,12 @@ int SLAPI PPViewOpGrouping::CalcStat(BillStatArray * pList)
 	return ok;
 }
 
-void SLAPI PPViewOpGrouping::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void PPViewOpGrouping::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
 	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
 
-int SLAPI PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec * pRec, int * pSign) const
+int PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec * pRec, int * pSign) const
 {
 	int    ok = -1;
 	int    sign = 0;
@@ -371,7 +371,7 @@ int SLAPI PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec * pRec, int * p
 	return ok;
 }
 
-void SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
+void PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
 {
 	int    sign = 0;
 	int    r = GetRecSign(pRec, &sign);
@@ -403,7 +403,7 @@ void SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
 	GdsOpTotal.Income += rec.Income;
 }
 
-void SLAPI PPViewOpGrouping::GetGdsOpTotal(OpGroupingViewItem * pItem)
+void PPViewOpGrouping::GetGdsOpTotal(OpGroupingViewItem * pItem)
 {
 	memzero(pItem, sizeof(OpGroupingViewItem));
 	pItem->Dt       = GdsOpTotal.Dt;
@@ -420,7 +420,7 @@ void SLAPI PPViewOpGrouping::GetGdsOpTotal(OpGroupingViewItem * pItem)
 	pItem->Income   = GdsOpTotal.Income;
 }
 
-int SLAPI PPViewOpGrouping::AddStatItem(PPID opID, int sign, double val, uint si, TSCollection <OpGroupingStatEntry> * pList)
+int PPViewOpGrouping::AddStatItem(PPID opID, int sign, double val, uint si, TSCollection <OpGroupingStatEntry> * pList)
 {
 	int    ok = 1, found = 0;
 	assert(si < siNumItems);
@@ -441,7 +441,7 @@ int SLAPI PPViewOpGrouping::AddStatItem(PPID opID, int sign, double val, uint si
 	return ok;
 }
 
-double SLAPI PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint si, const TSCollection <OpGroupingStatEntry> * pList)
+double PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint si, const TSCollection <OpGroupingStatEntry> * pList)
 {
 	int    ok = 1;
 	assert(si < siNumItems);
@@ -487,7 +487,7 @@ double SLAPI PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint s
 IMPL_CMPFUNC(OpGroupingViewItem, i1, i2) 
 	{ RET_CMPCASCADE3(static_cast<const OpGroupingViewItem *>(i1), static_cast<const OpGroupingViewItem *>(i2), Dt, OpID, Sign); }
 
-int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList) // @v9.8.4 TSArray-->TSVector
+int PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(CycleList.getCount()) {
@@ -684,7 +684,7 @@ IMPL_HANDLE_EVENT(OpGroupingFiltDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPViewOpGrouping::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewOpGrouping::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
@@ -728,7 +728,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-void SLAPI PPViewOpGrouping::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewOpGrouping::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & OpGroupingFilt::fCalcAvgLn) {
@@ -740,7 +740,7 @@ void SLAPI PPViewOpGrouping::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	DBQuery * q = 0;
@@ -807,7 +807,7 @@ DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pS
 	return q;
 }
 
-int SLAPI PPViewOpGrouping::Print(const void * pHdr)
+int PPViewOpGrouping::Print(const void * pHdr)
 {
 	int    ok = 1;
 	uint   rpt_id = 0, sel = 0;
@@ -830,7 +830,7 @@ int SLAPI PPViewOpGrouping::Print(const void * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	TempOpGrpngTbl * p_tbl = NZOR(P_TempStatTbl, P_TempTbl);
@@ -906,7 +906,7 @@ int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewOpGrouping::InitBillList(PPID opID)
+int PPViewOpGrouping::InitBillList(PPID opID)
 {
 	int    ok = 1;
 	if(Filt.GoodsGrpID || Filt.GoodsID) {
@@ -959,7 +959,7 @@ int SLAPI PPViewOpGrouping::InitBillList(PPID opID)
 	return ok;
 }
 
-int SLAPI PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem)
+int PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem)
 {
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pPos);
@@ -1011,7 +1011,7 @@ int SLAPI PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem
 	return ok;
 }
 
-int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	const  int col = pBrw ? pBrw->GetCurColumn() : -1;
@@ -1200,7 +1200,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewOpGrouping::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewOpGrouping::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -1214,7 +1214,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI ViewOpGrouping(const OpGroupingFilt * pFilt) { return PPView::Execute(PPVIEW_OPGROUPING, pFilt, 1, 0); }
+int ViewOpGrouping(const OpGroupingFilt * pFilt) { return PPView::Execute(PPVIEW_OPGROUPING, pFilt, 1, 0); }
 //
 // Implementation of PPALDD_OpGrouping
 //

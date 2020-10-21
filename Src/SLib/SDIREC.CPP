@@ -10,22 +10,22 @@ IMPL_CMPFUNC(SDirEntry_Time, i1, i2)
 	return cmp(static_cast<const SDirEntry *>(i1)->WriteTime, static_cast<const SDirEntry *>(i2)->WriteTime);
 }
 
-SLAPI SDirec::SDirec() : InitFlag(0), lPosData(-1), vPosData(0), PosDataSize(0)
+SDirec::SDirec() : InitFlag(0), lPosData(-1), vPosData(0), PosDataSize(0)
 {
 	memzero(InitPath, sizeof(InitPath));
 }
 
-SLAPI SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), lPosData(-1), vPosData(0)
+SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), lPosData(-1), vPosData(0)
 {
 	Init(pPath, enumDir);
 }
 
 #define FFIND_DATA struct _finddatai64_t
 
-int SLAPI SDirEntry::IsFolder() const { return BIN(Attr & 0x10); }
-int SLAPI SDirEntry::IsUpFolder() const { return BIN(FileName[0] == '.' && FileName[1] == '.' && FileName[2] == 0); }
-int SLAPI SDirEntry::IsSelf() const { return BIN(FileName[0] == '.' && FileName[1] == 0); }
-int SLAPI SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
+int SDirEntry::IsFolder() const { return BIN(Attr & 0x10); }
+int SDirEntry::IsUpFolder() const { return BIN(FileName[0] == '.' && FileName[1] == '.' && FileName[2] == 0); }
+int SDirEntry::IsSelf() const { return BIN(FileName[0] == '.' && FileName[1] == 0); }
+int SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
 
 static LDATETIME _tm_to_ldatetime(const struct tm * pTm)
 {
@@ -120,18 +120,18 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
 	return *this;
 }
 
-int SLAPI SDirec::FindFirst()
+int SDirec::FindFirst()
 {
 	lPosData = _findfirsti64(InitPath, static_cast<FFIND_DATA *>(vPosData));
 	return (lPosData >= 0) ? 1 : -1;
 }
 
-int SLAPI SDirec::FindNext()
+int SDirec::FindNext()
 {
 	return (_findnexti64(lPosData, static_cast<FFIND_DATA *>(vPosData)) == 0) ? 1 : -1;
 }
 
-/*static*/int SLAPI SDirec::GetSingle(const char * pPath, SDirEntry * pEntry)
+/*static*/int SDirec::GetSingle(const char * pPath, SDirEntry * pEntry)
 {
 	int    ok = 0;
 	if(!isempty(pPath)) {
@@ -146,7 +146,7 @@ int SLAPI SDirec::FindNext()
 	return ok;
 }
 
-int SLAPI SDirec::FindClose()
+int SDirec::FindClose()
 {
 	if(lPosData >= 0) {
 		_findclose(lPosData);
@@ -155,12 +155,12 @@ int SLAPI SDirec::FindClose()
 	return 1;
 }
 
-SLAPI SDirec::~SDirec()
+SDirec::~SDirec()
 {
 	SAlloc::F(vPosData);
 }
 
-int SLAPI SDirec::Init(const char * pPathName, int enumDir)
+int SDirec::Init(const char * pPathName, int enumDir)
 {
 	FindClose();
 	STRNSCPY(InitPath, pPathName);
@@ -198,11 +198,11 @@ int FASTCALL SDirec::Next(SDirEntry * pEntry)
 //
 //
 //
-SLAPI SFileEntryPool::Entry::Entry() : Attr(0), CreateTime(ZERODATETIME), AccessTime(ZERODATETIME), WriteTime(ZERODATETIME), Size(0)
+SFileEntryPool::Entry::Entry() : Attr(0), CreateTime(ZERODATETIME), AccessTime(ZERODATETIME), WriteTime(ZERODATETIME), Size(0)
 {
 }
 
-SFileEntryPool::Entry & SLAPI SFileEntryPool::Entry::Z()
+SFileEntryPool::Entry & SFileEntryPool::Entry::Z()
 {
 	Attr = 0;
 	CreateTime.Z();
@@ -215,11 +215,11 @@ SFileEntryPool::Entry & SLAPI SFileEntryPool::Entry::Z()
 	return *this;
 }
 
-SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup(), State(0), InitPathP(0)
+SFileEntryPool::SFileEntryPool() : SStrGroup(), State(0), InitPathP(0)
 {
 }
 
-SFileEntryPool & SLAPI SFileEntryPool::Z()
+SFileEntryPool & SFileEntryPool::Z()
 {
 	ClearS();
 	L.clear();
@@ -262,12 +262,12 @@ int FASTCALL SFileEntryPool::GetInitPath(SString & rPath) const
 	return rPath.NotEmpty() ? 1 : -1;
 }
 
-int SLAPI SFileEntryPool::Add(const char * pPath)
+int SFileEntryPool::Add(const char * pPath)
 {
 	return Add(pPath, 0/*pRemoteUrl*/);
 }
 
-int SLAPI SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
+int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
 {
 	int    ok = 0;
 	SDirEntry de;
@@ -280,7 +280,7 @@ int SLAPI SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
 	return ok;
 }
 
-int SLAPI SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
+int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 {
 	int    ok = -1;
 	Z();
@@ -307,7 +307,7 @@ int SLAPI SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long 
 	return ok;
 }
 
-uint SLAPI SFileEntryPool::GetCount() const
+uint SFileEntryPool::GetCount() const
 {
 	return L.getCount();
 }
@@ -322,7 +322,7 @@ int FASTCALL SFileEntryPool::Remove(uint pos)
 	return ok;
 }
 
-int SLAPI SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const
+int SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const
 {
 	CALLPTRMEMB(pFullPath, Z());
     if(pos < L.getCount()) {
@@ -346,7 +346,7 @@ int SLAPI SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString 
 		return 0;
 }
 
-int SLAPI SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
+int SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
 {
 	int    ok = 1;
     InnerEntry new_entry;
@@ -366,12 +366,12 @@ int SLAPI SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
     return ok;
 }
 
-int SLAPI SFileEntryPool::Add(const char * pPath, const SDirEntry & rDe)
+int SFileEntryPool::Add(const char * pPath, const SDirEntry & rDe)
 {
 	return Implement_Add(pPath, rDe, 0);
 }
 
-int SLAPI SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl)
+int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl)
 {
 	int    ok = 1;
     InnerEntry new_entry;
@@ -394,7 +394,7 @@ int SLAPI SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rD
     return ok;
 }
 
-void SLAPI SFileEntryPool::ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const
+void SFileEntryPool::ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const
 {
 	rEntry.Attr = rIEntry.Attr;
 	rEntry.CreateTime = rIEntry.CreateTime;
@@ -459,7 +459,7 @@ IMPL_CMPCFUNC(SFileEntryPool_Entry, p1, p2)
     return (si && _desc) ? -si : si;
 }
 
-void SLAPI SFileEntryPool::Sort(int criteria)
+void SFileEntryPool::Sort(int criteria)
 {
 	SFileEntryPool_SortExtraBlock blk;
 	blk.Order = criteria;

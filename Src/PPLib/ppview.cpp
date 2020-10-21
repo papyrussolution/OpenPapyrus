@@ -8,7 +8,7 @@
 //
 //
 //
-/*static*/int SLAPI PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
+/*static*/int PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -308,11 +308,11 @@ PPObject * PPView::GetObj() const
 //
 //
 //
-SLAPI PPViewDisplayExtList::PPViewDisplayExtList() : SStrGroup()
+PPViewDisplayExtList::PPViewDisplayExtList() : SStrGroup()
 {
 }
 
-PPViewDisplayExtList & SLAPI PPViewDisplayExtList::Z()
+PPViewDisplayExtList & PPViewDisplayExtList::Z()
 {
 	L.clear();
 	SStrGroup::ClearS();
@@ -344,7 +344,7 @@ int FASTCALL PPViewDisplayExtList::IsEqual(const PPViewDisplayExtList & rS) cons
 	return ok;
 }
 
-int SLAPI PPViewDisplayExtList::SearchItem(int dataId, uint * pPos) const
+int PPViewDisplayExtList::SearchItem(int dataId, uint * pPos) const
 {
 	uint   pos = 0;
 	int    ok = L.lsearch(&dataId, &pos, CMPF_LONG);
@@ -352,7 +352,7 @@ int SLAPI PPViewDisplayExtList::SearchItem(int dataId, uint * pPos) const
 	return ok;
 }
 
-int SLAPI PPViewDisplayExtList::SetItem(int dataId, int position, const char * pTitle)
+int PPViewDisplayExtList::SetItem(int dataId, int position, const char * pTitle)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -374,7 +374,7 @@ int SLAPI PPViewDisplayExtList::SetItem(int dataId, int position, const char * p
 	return ok;
 }
 
-int SLAPI PPViewDisplayExtList::GetItemByPos(uint pos, PPViewDisplayExtItem * pItem) const
+int PPViewDisplayExtList::GetItemByPos(uint pos, PPViewDisplayExtItem * pItem) const
 {
 	int    ok = 0;
 	if(pos < L.getCount()) {
@@ -389,7 +389,7 @@ int SLAPI PPViewDisplayExtList::GetItemByPos(uint pos, PPViewDisplayExtItem * pI
 	return ok;
 }
 
-int SLAPI PPViewDisplayExtList::GetItemByDataId(int dataId, PPViewDisplayExtItem * pItem) const
+int PPViewDisplayExtList::GetItemByDataId(int dataId, PPViewDisplayExtItem * pItem) const
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -405,7 +405,7 @@ int SLAPI PPViewDisplayExtList::GetItemByDataId(int dataId, PPViewDisplayExtItem
 	return ok;
 }
 
-int SLAPI PPViewDisplayExtList::RemoveItem(int dataId)
+int PPViewDisplayExtList::RemoveItem(int dataId)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -416,7 +416,7 @@ int SLAPI PPViewDisplayExtList::RemoveItem(int dataId)
 	return ok;
 }
 
-int SLAPI PPViewDisplayExtList::Pack()
+int PPViewDisplayExtList::Pack()
 {
 	int    ok = -1;
 	if(Pool.getDataLen()) {
@@ -436,7 +436,7 @@ int SLAPI PPViewDisplayExtList::Pack()
 	return ok;
 }
 
-int SLAPI PPViewDisplayExtList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewDisplayExtList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -483,12 +483,12 @@ IMPL_INVARIANT_C(PPBaseFilt)
 
 /*static*/const char * PPBaseFilt::P_TextSignature = "#TFD";
 
-SLAPI PPBaseFilt::PPBaseFilt(long signature, long capability, int32 ver) : BranchList(sizeof(Branch)),
+PPBaseFilt::PPBaseFilt(long signature, long capability, int32 ver) : BranchList(sizeof(Branch)),
 	Signature(signature), Capability(capability), Ver(ver), FlatOffs(0), FlatSize(0)
 {
 }
 
-SLAPI PPBaseFilt::~PPBaseFilt()
+PPBaseFilt::~PPBaseFilt()
 {
 	const uint blc = BranchList.getCount();
 	if(blc) {
@@ -503,7 +503,7 @@ SLAPI PPBaseFilt::~PPBaseFilt()
 	Signature = 0; // Очищаем сигнатуру для того, чтобы можно было идентифицировать указатель на разрущенный объект
 }
 
-int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
+int PPBaseFilt::Describe(long flags, SString & rBuf) const
 {
 	rBuf.Z();
 	return 1;
@@ -601,7 +601,7 @@ int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
 	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 }
 
-void SLAPI PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SString & rBuf) const
+void PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SString & rBuf) const
 {
 	struct SggStruc {
 		uint32 SggID;
@@ -639,7 +639,7 @@ void SLAPI PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName
 		}
 }
 
-void SLAPI PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName, SString & rBuf) const
+void PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName, SString & rBuf) const
 {
 	struct SgpStruc {
 		uint32 SgpID;
@@ -666,7 +666,7 @@ void SLAPI PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembNam
 		}
 }
 
-void SLAPI PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName, SString & rBuf) const
+void PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName, SString & rBuf) const
 {
 	struct SgdStruc {
 		uint32 SgpID;
@@ -694,7 +694,7 @@ PPBaseFilt & FASTCALL PPBaseFilt::operator = (const PPBaseFilt & s)
 	return *this;
 }
 
-void SLAPI PPBaseFilt::SetFlatChunk(size_t offs, size_t size)
+void PPBaseFilt::SetFlatChunk(size_t offs, size_t size)
 {
 	FlatOffs = static_cast<uint16>(offs);
 	FlatSize = static_cast<uint16>(size);
@@ -707,7 +707,7 @@ int FASTCALL PPBaseFilt::CheckBranchOffs(size_t offs)
 	return 1;
 }
 
-int SLAPI PPBaseFilt::AddBranch(uint type, size_t offs, int32 extraId)
+int PPBaseFilt::AddBranch(uint type, size_t offs, int32 extraId)
 {
 	Branch b;
 	b.Type = type;
@@ -726,7 +726,7 @@ int FASTCALL PPBaseFilt::SetBranchObjIdListFilt(size_t offs)
 	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tObjIdListFilt, offs, 0) : 0; }
 int FASTCALL PPBaseFilt::SetBranchStrAssocArray(size_t offs)
 	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tStrAssocArray, offs, 0) : 0; }
-int SLAPI PPBaseFilt::SetBranchBaseFiltPtr(int filtID, size_t offs)
+int PPBaseFilt::SetBranchBaseFiltPtr(int filtID, size_t offs)
 	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tBaseFiltPtr, offs, filtID) : 0; }
 int FASTCALL PPBaseFilt::SetBranchDisplayExtList(size_t offs)
 	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tDisplayExtList, offs, 0) : 0; }
@@ -736,10 +736,10 @@ int FASTCALL PPBaseFilt::IsA(const PPBaseFilt * pS) const
 	return (pS && pS->Signature == Signature) ? 1 : PPSetError(PPERR_FILTNEQTYPE);
 }
 
-long  SLAPI PPBaseFilt::GetSignature() const { return Signature; }
-int32 SLAPI PPBaseFilt::GetVer() const { return Ver; }
+long  PPBaseFilt::GetSignature() const { return Signature; }
+int32 PPBaseFilt::GetVer() const { return Ver; }
 
-int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
+int PPBaseFilt::Init(int fullyDestroy, long extraData)
 {
 	if(FlatSize)
 		memzero(PTR8(this) + FlatOffs, FlatSize);
@@ -831,7 +831,7 @@ static const char * P_FiltTag = "PPFILT";
 	return ok;
 }
 
-int SLAPI PPBaseFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPBaseFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = -1;
 	if(dir > 0) {
@@ -843,7 +843,7 @@ int SLAPI PPBaseFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCt
 	return ok;
 }
 
-int SLAPI PPBaseFilt::Write(SBuffer & rBuf, long) const
+int PPBaseFilt::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -886,12 +886,12 @@ int SLAPI PPBaseFilt::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-/*virtual*/int SLAPI PPBaseFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int PPBaseFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	return -1;
 }
 
-int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
+int PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 {
 	const uint16 flat_offs = FlatOffs;
 	const uint16 flat_size = FlatSize;
@@ -991,12 +991,12 @@ int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 	return ok;
 }
 
-int SLAPI PPBaseFilt::ReadText(const char * pText, long)
+int PPBaseFilt::ReadText(const char * pText, long)
 {
 	return -1;
 }
 
-/*static*/int SLAPI PPBaseFilt::CopyBaseFiltPtr(int filtId, const PPBaseFilt * pSrcFilt, PPBaseFilt ** ppDestFilt)
+/*static*/int PPBaseFilt::CopyBaseFiltPtr(int filtId, const PPBaseFilt * pSrcFilt, PPBaseFilt ** ppDestFilt)
 {
 	int    ok = 1;
 	if(pSrcFilt) {
@@ -1010,7 +1010,7 @@ int SLAPI PPBaseFilt::ReadText(const char * pText, long)
 	return ok;
 }
 
-int SLAPI PPBaseFilt::Copy(const PPBaseFilt * pS, int)
+int PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 {
 	int    ok = 1;
 	THROW(IsA(pS));
@@ -1062,7 +1062,7 @@ int SLAPI PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 	return ok;
 }
 
-int SLAPI PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
+int PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 {
 	int    ok = 0;
 	if(IsA(pS)) {
@@ -1124,7 +1124,7 @@ int SLAPI PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 	return ok;
 }
 
-/*virtual*/int SLAPI PPBaseFilt::IsEmpty() const
+/*virtual*/int PPBaseFilt::IsEmpty() const
 {
 	PPBaseFilt * p_filt = 0;
 	PPView::CreateFiltInstance(Signature, &p_filt);
@@ -1137,8 +1137,10 @@ int SLAPI PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 //
 #define SIGN_PPVIEW 0x099A099BUL
 
-SLAPI PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId) : P_Obj(pObj), Sign(SIGN_PPVIEW), ExecFlags(0), ServerInstId(0),
-	ViewId(viewId), BaseState(0), ExtToolbarId(0), P_IterQuery(0), P_Ct(0), P_F(pBaseFilt), ImplementFlags(0), DefReportId(0), P_LastUpdatedObjects(0)
+PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId, long implFlags, long defReportId) : 
+	P_Obj(pObj), Sign(SIGN_PPVIEW), ExecFlags(0), ServerInstId(0),
+	ViewId(viewId), BaseState(0), ExtToolbarId(0), P_IterQuery(0), P_Ct(0), P_F(pBaseFilt), ImplementFlags(implFlags), 
+	DefReportId(defReportId), P_LastUpdatedObjects(0)
 {
 	if(ViewId) {
 		Rc rc;
@@ -1149,7 +1151,7 @@ SLAPI PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId) : P_Ob
 	}
 }
 
-SLAPI PPView::~PPView()
+PPView::~PPView()
 {
 	if(ServerInstId) {
 		if(BaseState & bsServerInst) {
@@ -1178,8 +1180,8 @@ SLAPI PPView::~PPView()
 	delete P_Ct;
 }
 
-int    SLAPI PPView::IsConsistent() const { return BIN(Sign == SIGN_PPVIEW); }
-const  PPBaseFilt * SLAPI PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0); }
+int    PPView::IsConsistent() const { return BIN(Sign == SIGN_PPVIEW); }
+const  PPBaseFilt * PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0); }
 
 int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
 {
@@ -1199,7 +1201,7 @@ int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-PPBaseFilt * SLAPI PPView::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPView::CreateFilt(void * extraPtr) const
 {
 	if(P_F) {
 		PPBaseFilt * p_filt = 0;
@@ -1225,7 +1227,7 @@ public:
 	}
 };
 
-/*static*/int SLAPI PPView::SerializeTableSpec(int dir, DBTable ** ppTbl, TDBTWrapper & rCw, SBuffer & rBuf, SSerializeContext * pCtx)
+/*static*/int PPView::SerializeTableSpec(int dir, DBTable ** ppTbl, TDBTWrapper & rCw, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	uint8  ind = 0;
@@ -1259,7 +1261,7 @@ public:
 
 #endif // } 0 @construction
 
-/*static*/int SLAPI PPView::Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+/*static*/int PPView::Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	int32  inst_id = 0;
@@ -1270,7 +1272,7 @@ public:
 	return ok;
 }
 
-/*static*/int SLAPI PPView::Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+/*static*/int PPView::Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
 	int    ok = -2;
 	int32  inst_id = 0;
@@ -1348,7 +1350,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 	return ok;
 }
 
-/*static*/int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
+/*static*/int PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
 {
 	rResultFileName.Z();
 	int    ok = 1;
@@ -1447,7 +1449,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-/*static*/int SLAPI PPView::EditExecNfViewParam(ExecNfViewParam & rData)
+/*static*/int PPView::EditExecNfViewParam(ExecNfViewParam & rData)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1489,7 +1491,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-/*static*/int SLAPI PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+/*static*/int PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	PPView * p_view = 0;
@@ -1545,7 +1547,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-int SLAPI PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
+int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 {
 	int    ok = 1, do_local = 1;
 	int    try_reconnect = 2;
@@ -1605,7 +1607,7 @@ int SLAPI PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 	return ok;
 }
 
-int SLAPI PPView::InitLocal(const PPBaseFilt * pBaseFilt)
+int PPView::InitLocal(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	SString filt_desc;
@@ -1618,33 +1620,33 @@ int SLAPI PPView::InitLocal(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-void SLAPI PPView::SetOuterTitle(const char * pOuterTitle)
+void PPView::SetOuterTitle(const char * pOuterTitle)
 {
 	(OuterTitle = pOuterTitle).Strip();
 }
 
-int SLAPI PPView::GetOuterTitle(SString * pBuf) const
+int PPView::GetOuterTitle(SString * pBuf) const
 {
 	ASSIGN_PTR(pBuf, OuterTitle);
 	return BIN(OuterTitle.NotEmpty());
 }
 
-int SLAPI PPView::EditBaseFilt(PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
-int SLAPI PPView::Init_(const PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
-int SLAPI PPView::GetOuterChangesStatus() const { return BIN(BaseState & bsOuterChangesStatus); }
-const char * SLAPI PPView::GetSymb() const { return Symb.cptr(); }
-const char * SLAPI PPView::GetDescr() const { return Descr.cptr(); }
-int SLAPI PPView::IsCrosstab() const { return BIN(P_Ct);}
-const IterCounter & SLAPI PPView::GetCounter() const { return Counter; }
-void * SLAPI PPView::GetEditExtraParam() { return 0; }
-DBQuery * SLAPI PPView::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle) { return 0; }
-SArray * SLAPI PPView::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) { return 0; }
-void SLAPI PPView::PreprocessBrowser(PPViewBrowser * pBrw) {}
-int SLAPI PPView::OnExecBrowser(PPViewBrowser *) { return -1; }
-int SLAPI PPView::Detail(const void *, PPViewBrowser * pBrw) { return -1; }
-int SLAPI PPView::ViewTotal() { return -1; }
+int PPView::EditBaseFilt(PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
+int PPView::Init_(const PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
+int PPView::GetOuterChangesStatus() const { return BIN(BaseState & bsOuterChangesStatus); }
+const char * PPView::GetSymb() const { return Symb.cptr(); }
+const char * PPView::GetDescr() const { return Descr.cptr(); }
+int PPView::IsCrosstab() const { return BIN(P_Ct);}
+const IterCounter & PPView::GetCounter() const { return Counter; }
+void * PPView::GetEditExtraParam() { return 0; }
+DBQuery * PPView::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle) { return 0; }
+SArray * PPView::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) { return 0; }
+void PPView::PreprocessBrowser(PPViewBrowser * pBrw) {}
+int PPView::OnExecBrowser(PPViewBrowser *) { return -1; }
+int PPView::Detail(const void *, PPViewBrowser * pBrw) { return -1; }
+int PPView::ViewTotal() { return -1; }
 
-void SLAPI PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen)
+void PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen)
 {
 	if(rCf.Cycle)
 		rCa.formatCycle(dt, pBuf, bufLen);
@@ -1652,7 +1654,7 @@ void SLAPI PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArra
 		ASSIGN_PTR(pBuf, 0);
 }
 
-int SLAPI PPView::Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, const void * pItem1, const void * pItem2)
+int PPView::Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, const void * pItem1, const void * pItem2)
 {
 	int    sn = 0;
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
@@ -1676,7 +1678,7 @@ int SLAPI PPView::Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, cons
 	return sn;
 }
 
-int SLAPI PPView::Print(const void *)
+int PPView::Print(const void *)
 {
 	return DefReportId ? Helper_Print(DefReportId, 0) : -1;
 }
@@ -1695,7 +1697,7 @@ int FASTCALL PPView::Helper_Print(uint rptId, int ord)
 	return ok;
 }
 
-int SLAPI PPView::ExportXml(uint rptId, int ord)
+int PPView::ExportXml(uint rptId, int ord)
 {
 	int    ok = 1;
 	if(rptId) {
@@ -1710,7 +1712,7 @@ int SLAPI PPView::ExportXml(uint rptId, int ord)
 	return ok;
 }
 
-int SLAPI PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
+int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 {
 	int    ok = -1;
 	uint   prev_rez_id = pW ? pW->GetResID() : 0;
@@ -1801,7 +1803,7 @@ int SLAPI PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 	return ok;
 }
 
-int SLAPI PPView::GetLastUpdatedObjects(long extId, LongArray & rList) const
+int PPView::GetLastUpdatedObjects(long extId, LongArray & rList) const
 {
 	rList.clear();
 	if(extId)
@@ -1815,7 +1817,7 @@ int SLAPI PPView::GetLastUpdatedObjects(long extId, LongArray & rList) const
 	return rList.getCount() ? +1 : -1;
 }
 
-int SLAPI PPView::UpdateTimeBrowser(const STimeChunkGrid * pGrid, const char * pTitle, int destroy)
+int PPView::UpdateTimeBrowser(const STimeChunkGrid * pGrid, const char * pTitle, int destroy)
 {
 	int    ok = -1;
 	STimeChunkBrowser * p_brw = PPFindLastTimeChunkBrowser();
@@ -1834,12 +1836,12 @@ int SLAPI PPView::UpdateTimeBrowser(const STimeChunkGrid * pGrid, const char * p
 	return ok;
 }
 
-void SLAPI PPView::SetExtToolbar(uint toolbarId)
+void PPView::SetExtToolbar(uint toolbarId)
 {
 	ExtToolbarId = toolbarId;
 }
 
-int SLAPI PPView::Browse(int modeless)
+int PPView::Browse(int modeless)
 {
 	int    ok = 1;
 	DBQuery * q = 0;
@@ -1896,12 +1898,12 @@ int SLAPI PPView::Browse(int modeless)
 	return ok;
 }
 
-int SLAPI PPView::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPView::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	return DefaultCmdProcessor(ppvCmd, pHdr, pBrw);
 }
 
-int SLAPI PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
 	ZDELETEFAST(P_LastUpdatedObjects);
@@ -1975,12 +1977,12 @@ int SLAPI PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrow
 	return ok;
 }
 
-/*virtual*/int SLAPI PPView::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+/*virtual*/int PPView::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	return -1;
 }
 
-/*virtual*/int SLAPI PPView::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+/*virtual*/int PPView::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, ServerInstId, rBuf));

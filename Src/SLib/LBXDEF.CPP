@@ -12,14 +12,14 @@ static int FASTCALL substFCMP(const void * i1, const void * i2, void * pExtraDat
 //
 // ListBoxDef
 //
-SLAPI ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType),
+ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType),
 	ViewHight(1), TopItem(0), CurItem(0), CFlags(0), ScrollDelta(0)
 {
 	SetCapability(0, LBDEFSIGN_DEFAULT);
 	UserData.Init();
 }
 
-SLAPI ListBoxDef::~ListBoxDef()
+ListBoxDef::~ListBoxDef()
 {
 	Sign = 0; // Помечаем instance как разрушенный
 	UserData.Destroy();
@@ -31,7 +31,7 @@ void ListBoxDef::SetCapability(long c, uint32 sign)
 	Sign = sign;
 }
 
-int SLAPI ListBoxDef::SetUserData(const void * pData, size_t size)
+int ListBoxDef::SetUserData(const void * pData, size_t size)
 {
 	if(UserData.Alloc(size)) {
 		memcpy(UserData.P_Buf, pData, size);
@@ -41,7 +41,7 @@ int SLAPI ListBoxDef::SetUserData(const void * pData, size_t size)
 		return 0;
 }
 
-int SLAPI ListBoxDef::GetUserData(void * pData, size_t * pSize) const
+int ListBoxDef::GetUserData(void * pData, size_t * pSize) const
 {
 	size_t s = *pSize;
 	if(UserData.Size > s) {
@@ -56,13 +56,13 @@ int SLAPI ListBoxDef::GetUserData(void * pData, size_t * pSize) const
 	}
 }
 
-void SLAPI ListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
+void ListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	ASSIGN_PTR(pScrollDelta, ScrollDelta);
 	ASSIGN_PTR(pScrollPos, CurItem);
 }
 
-const char * SLAPI ListBoxDef::getText(long item, SString & rBuf)
+const char * ListBoxDef::getText(long item, SString & rBuf)
 {
 	const char * p = static_cast<const char *>(getRow_(item));
 	if(p) {
@@ -76,7 +76,7 @@ const char * SLAPI ListBoxDef::getText(long item, SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI ListBoxDef::getCurID(long * pId)
+int ListBoxDef::getCurID(long * pId)
 {
 	union {
 		void * vp;
@@ -92,13 +92,13 @@ int SLAPI ListBoxDef::getCurID(long * pId)
 	return 1;
 }
 
-int SLAPI ListBoxDef::getCurString(SString & rBuf)
+int ListBoxDef::getCurString(SString & rBuf)
 {
 	getText(_curItem(), rBuf);
 	return 1;
 }
 
-int SLAPI ListBoxDef::getCurData(void * b)
+int ListBoxDef::getCurData(void * b)
 {
 	const char * p = static_cast<const char *>(getRow_(_curItem()));
 	if(p) {
@@ -111,33 +111,33 @@ int SLAPI ListBoxDef::getCurData(void * b)
 		return 0;
 }
 
-void   SLAPI ListBoxDef::SetOption(uint option, int set) { SETFLAG(Options, option, set); }
-long   SLAPI ListBoxDef::_topItem() const { return TopItem; }
-long   SLAPI ListBoxDef::_curItem() const { return CurItem; }
-int    SLAPI ListBoxDef::_isTreeList() const { return BIN(CFlags & cTree); }
-void   SLAPI ListBoxDef::setViewHight(int vh) { ViewHight = vh; }
-int    SLAPI ListBoxDef::GetFrameSize() { return -1; }
-int    SLAPI ListBoxDef::GetFrameState() { return 0; }
-int    SLAPI ListBoxDef::getIdList(LongArray &) { return -1; }
-int    SLAPI ListBoxDef::search(const void *, CompFunc, int srchMode) { return 0; }
-int    SLAPI ListBoxDef::valid() { return 1; }
-int    SLAPI ListBoxDef::addItem(long id, const char *, long * pPos) { return -1; }
-int    SLAPI ListBoxDef::removeItem(long pos) { return -1; }
-void   SLAPI ListBoxDef::freeAll() {}
-int    SLAPI ListBoxDef::step(long delta) { return go(CurItem + delta); }
-int    SLAPI ListBoxDef::top() { return go(0); }
-int    SLAPI ListBoxDef::bottom() { return go(getRecsCount()-1); }
-long   SLAPI ListBoxDef::getRecsCount() { return 0; }
+void   ListBoxDef::SetOption(uint option, int set) { SETFLAG(Options, option, set); }
+long   ListBoxDef::_topItem() const { return TopItem; }
+long   ListBoxDef::_curItem() const { return CurItem; }
+int    ListBoxDef::_isTreeList() const { return BIN(CFlags & cTree); }
+void   ListBoxDef::setViewHight(int vh) { ViewHight = vh; }
+int    ListBoxDef::GetFrameSize() { return -1; }
+int    ListBoxDef::GetFrameState() { return 0; }
+int    ListBoxDef::getIdList(LongArray &) { return -1; }
+int    ListBoxDef::search(const void *, CompFunc, int srchMode) { return 0; }
+int    ListBoxDef::valid() { return 1; }
+int    ListBoxDef::addItem(long id, const char *, long * pPos) { return -1; }
+int    ListBoxDef::removeItem(long pos) { return -1; }
+void   ListBoxDef::freeAll() {}
+int    ListBoxDef::step(long delta) { return go(CurItem + delta); }
+int    ListBoxDef::top() { return go(0); }
+int    ListBoxDef::bottom() { return go(getRecsCount()-1); }
+long   ListBoxDef::getRecsCount() { return 0; }
 void * FASTCALL ListBoxDef::getRow_(long) { return 0; }
-int    SLAPI ListBoxDef::refresh() { return 1; }
-int    SLAPI ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
-int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~_SlConst.VectorImageMask), 0); }
-int    SLAPI ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | _SlConst.VectorImageMask), 0); }
-int    SLAPI ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount()); }
+int    ListBoxDef::refresh() { return 1; }
+int    ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
+int    ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~_SlConst.VectorImageMask), 0); }
+int    ListBoxDef::AddVecImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID | _SlConst.VectorImageMask), 0); }
+int    ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount()); }
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
 
-int SLAPI ListBoxDef::go(long row)
+int ListBoxDef::go(long row)
 {
 	if(valid()) {
 		const long  c = getRecsCount();
@@ -186,7 +186,7 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 	return s;
 }
 
-HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
+HIMAGELIST ListBoxDef::CreateImageList(HINSTANCE hInst)
 {
 	HIMAGELIST himl = NULL;
 	LAssocArray added_list;
@@ -259,13 +259,13 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 	return himl;
 }
 
-void SLAPI ListBoxDef::ClearImageAssocList()
+void ListBoxDef::ClearImageAssocList()
 {
 	ImageAssoc.freeAll();
 	ImageIdxAssoc.freeAll();
 }
 
-int SLAPI ListBoxDef::ResetItemColor(long itemID)
+int ListBoxDef::ResetItemColor(long itemID)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -276,7 +276,7 @@ int SLAPI ListBoxDef::ResetItemColor(long itemID)
 	return ok;
 }
 
-int SLAPI ListBoxDef::SetItemColor(long itemID, SColor fgColor, SColor bckgColor)
+int ListBoxDef::SetItemColor(long itemID, SColor fgColor, SColor bckgColor)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -297,7 +297,7 @@ int SLAPI ListBoxDef::SetItemColor(long itemID, SColor fgColor, SColor bckgColor
 	return ok;
 }
 
-int SLAPI ListBoxDef::GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const
+int ListBoxDef::GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -329,24 +329,24 @@ StrAssocArray * ListBoxDef::GetListByPattern(const char * pText)
 //
 // StdListBoxDef
 //
-SLAPI StdListBoxDef::StdListBoxDef(SArray * pArray, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), P_Data(pArray)
+StdListBoxDef::StdListBoxDef(SArray * pArray, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), P_Data(pArray)
 {
 	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, LBDEFSIGN_STD);
 	top();
 }
 
-SLAPI StdListBoxDef::~StdListBoxDef()
+StdListBoxDef::~StdListBoxDef()
 {
 	if(Options & lbtDisposeData)
 		delete P_Data;
 }
 
-int    SLAPI StdListBoxDef::GetFrameSize() { return (int)getRecsCount(); }
-int    SLAPI StdListBoxDef::GetFrameState() { return -1; }
-int    SLAPI StdListBoxDef::valid() { return (P_Data != 0); }
-long   SLAPI StdListBoxDef::getRecsCount() { return SVectorBase::GetCount(P_Data); }
+int    StdListBoxDef::GetFrameSize() { return (int)getRecsCount(); }
+int    StdListBoxDef::GetFrameState() { return -1; }
+int    StdListBoxDef::valid() { return (P_Data != 0); }
+long   StdListBoxDef::getRecsCount() { return SVectorBase::GetCount(P_Data); }
 
-int SLAPI StdListBoxDef::setArray(SArray * pArray)
+int StdListBoxDef::setArray(SArray * pArray)
 {
 	if(Options & lbtDisposeData)
 		delete P_Data;
@@ -355,7 +355,7 @@ int SLAPI StdListBoxDef::setArray(SArray * pArray)
 	return 1;
 }
 
-int SLAPI StdListBoxDef::getIdList(LongArray & rList)
+int StdListBoxDef::getIdList(LongArray & rList)
 {
 	int    ok = -1;
 	if(P_Data) {
@@ -373,7 +373,7 @@ void * FASTCALL StdListBoxDef::getRow_(long r)
 	return (!P_Data || r >= P_Data->getCountI()) ? 0 : P_Data->at((uint)r);
 }
 
-int SLAPI StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
+int StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    r   = 0;
 	int    dir = (srchMode & ~srchFlags);
@@ -408,7 +408,7 @@ int SLAPI StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 //
 //
 //
-SLAPI StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options) :
+StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options) :
 	ListBoxDef(options, MKSTYPE(S_ZSTRING, 252)), P_Data(pList)
 {
 	OneItem.Init();
@@ -416,14 +416,14 @@ SLAPI StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options
 	top();
 }
 
-SLAPI StrAssocListBoxDef::~StrAssocListBoxDef()
+StrAssocListBoxDef::~StrAssocListBoxDef()
 {
 	OneItem.Destroy();
 	if(Options & lbtDisposeData)
 		delete P_Data;
 }
 
-int SLAPI StrAssocListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
+int StrAssocListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    r   = 0;
 	int    dir = (srchMode & ~srchFlags);
@@ -451,14 +451,14 @@ int SLAPI StrAssocListBoxDef::search(const void * pPattern, CompFunc fcmp, int s
 	return r;
 }
 
-int    SLAPI StrAssocListBoxDef::valid() { return (P_Data != 0); }
-long   SLAPI StrAssocListBoxDef::getRecsCount() { return P_Data ? P_Data->getCount() : 0; }
-int    SLAPI StrAssocListBoxDef::GetFrameSize() { return P_Data ? P_Data->getCount() : 0; }
-int    SLAPI StrAssocListBoxDef::GetFrameState() { return -1; }
-int    SLAPI StrAssocListBoxDef::removeItem(long pos) { return (P_Data && pos >= 0) ? P_Data->AtFree(static_cast<uint>(pos)) : 0; }
-void   SLAPI StrAssocListBoxDef::freeAll() { CALLPTRMEMB(P_Data, Z()); }
+int    StrAssocListBoxDef::valid() { return (P_Data != 0); }
+long   StrAssocListBoxDef::getRecsCount() { return P_Data ? P_Data->getCount() : 0; }
+int    StrAssocListBoxDef::GetFrameSize() { return P_Data ? P_Data->getCount() : 0; }
+int    StrAssocListBoxDef::GetFrameState() { return -1; }
+int    StrAssocListBoxDef::removeItem(long pos) { return (P_Data && pos >= 0) ? P_Data->AtFree(static_cast<uint>(pos)) : 0; }
+void   StrAssocListBoxDef::freeAll() { CALLPTRMEMB(P_Data, Z()); }
 
-int SLAPI StrAssocListBoxDef::getIdList(LongArray & rList)
+int StrAssocListBoxDef::getIdList(LongArray & rList)
 {
 	int    ok = -1;
 	if(P_Data) {
@@ -486,7 +486,7 @@ void * FASTCALL StrAssocListBoxDef::getRow_(long r)
 	return p_row;
 }
 
-int SLAPI StrAssocListBoxDef::setArray(StrAssocArray * pData)
+int StrAssocListBoxDef::setArray(StrAssocArray * pData)
 {
 	if(Options & lbtDisposeData)
 		delete P_Data;
@@ -495,7 +495,7 @@ int SLAPI StrAssocListBoxDef::setArray(StrAssocArray * pData)
 	return 1;
 }
 
-int SLAPI StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
+int StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
 {
 	if(P_Data) {
 		P_Data->Add(id, pStr);
@@ -508,19 +508,19 @@ int SLAPI StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
 //
 // StdTreeListBoxDef
 //
-SLAPI StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
+StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
 {
 	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, LBDEFSIGN_STDTREE);
 	setArray(pList);
 }
 
-SLAPI StdTreeListBoxDef::~StdTreeListBoxDef()
+StdTreeListBoxDef::~StdTreeListBoxDef()
 {
 	if(Options & lbtDisposeData)
 		delete P_SaList;
 }
 
-int SLAPI StdTreeListBoxDef::Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos)
+int StdTreeListBoxDef::Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos)
 {
 	int    ok = 1;
 	if(!rAddedIdxList.Has(idx)) {
@@ -558,7 +558,7 @@ int SLAPI StdTreeListBoxDef::Helper_AddTreeItem(uint idx, UintHashTable & rAdded
 	return ok;
 }
 
-int SLAPI StdTreeListBoxDef::Helper_CreateTree()
+int StdTreeListBoxDef::Helper_CreateTree()
 {
 	int    ok = 1;
 	if(P_SaList) {
@@ -572,7 +572,7 @@ int SLAPI StdTreeListBoxDef::Helper_CreateTree()
 	return ok;
 }
 
-int SLAPI StdTreeListBoxDef::setArray(StrAssocArray * pList)
+int StdTreeListBoxDef::setArray(StrAssocArray * pList)
 {
 	if(Options & lbtDisposeData) {
 		delete P_SaList;
@@ -584,7 +584,7 @@ int SLAPI StdTreeListBoxDef::setArray(StrAssocArray * pList)
 	return 1;
 }
 
-int SLAPI StdTreeListBoxDef::getCurString(SString & rBuf)
+int StdTreeListBoxDef::getCurString(SString & rBuf)
 {
 	long   cur_id = 0L;
 	getCurID(&cur_id);
@@ -592,7 +592,7 @@ int SLAPI StdTreeListBoxDef::getCurString(SString & rBuf)
 	return GetStringByID(cur_id, rBuf);
 }
 
-int SLAPI StdTreeListBoxDef::getCurID(long * pId)
+int StdTreeListBoxDef::getCurID(long * pId)
 {
 	int    ok = 0;
 	if(P_SaList) {
@@ -605,7 +605,7 @@ int SLAPI StdTreeListBoxDef::getCurID(long * pId)
 	return ok;
 }
 
-int SLAPI StdTreeListBoxDef::getCurData(void * b)
+int StdTreeListBoxDef::getCurData(void * b)
 {
 	if(P_SaList) {
 		const void * p = getRow_(_curItem());
@@ -615,10 +615,10 @@ int SLAPI StdTreeListBoxDef::getCurData(void * b)
 	return 0;
 }
 
-int  SLAPI StdTreeListBoxDef::valid() { return BIN(P_SaList); }
-long SLAPI StdTreeListBoxDef::getRecsCount() { return P_SaList ? P_SaList->getCount() : 0; }
+int  StdTreeListBoxDef::valid() { return BIN(P_SaList); }
+long StdTreeListBoxDef::getRecsCount() { return P_SaList ? P_SaList->getCount() : 0; }
 
-int SLAPI StdTreeListBoxDef::getIdList(LongArray & rList)
+int StdTreeListBoxDef::getIdList(LongArray & rList)
 {
 	int    ok = -1;
 	if(P_SaList) {
@@ -643,7 +643,7 @@ void * FASTCALL StdTreeListBoxDef::getRow_(long r)
 		return 0;
 }
 
-int SLAPI StdTreeListBoxDef::go(long pos)
+int StdTreeListBoxDef::go(long pos)
 {
 	if(valid() && pos >= 0 && pos < getRecsCount()) {
 		CurItem = pos;
@@ -653,21 +653,21 @@ int SLAPI StdTreeListBoxDef::go(long pos)
 		return -1;
 }
 
-int SLAPI StdTreeListBoxDef::step(long delta) { return go(CurItem + delta); }
+int StdTreeListBoxDef::step(long delta) { return go(CurItem + delta); }
 
-int SLAPI StdTreeListBoxDef::top()
+int StdTreeListBoxDef::top()
 {
 	CurItem = 0;
 	return 1;
 }
 
-int SLAPI StdTreeListBoxDef::bottom()
+int StdTreeListBoxDef::bottom()
 {
 	CurItem = getRecsCount();
 	return 1;
 }
 
-void SLAPI StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
+void StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	ASSIGN_PTR(pScrollPos, 0);
 	if(P_SaList) {
@@ -682,11 +682,11 @@ void SLAPI StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollP
 	ASSIGN_PTR(pScrollDelta, 0);
 }
 
-int  SLAPI StdTreeListBoxDef::GetFrameState() { return -1; }
-int  SLAPI StdTreeListBoxDef::GetFrameSize() { return -1; }
-void SLAPI StdTreeListBoxDef::setViewHight(int h) { ListBoxDef::setViewHight(h); }
+int  StdTreeListBoxDef::GetFrameState() { return -1; }
+int  StdTreeListBoxDef::GetFrameSize() { return -1; }
+void StdTreeListBoxDef::setViewHight(int h) { ListBoxDef::setViewHight(h); }
 
-int  SLAPI StdTreeListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
+int  StdTreeListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    r   = 0;
 	if(valid()) {
@@ -710,7 +710,7 @@ int  SLAPI StdTreeListBoxDef::search(const void * pPattern, CompFunc fcmp, int s
 	return r;
 }
 
-int SLAPI StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
+int StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -723,7 +723,7 @@ int SLAPI StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
 	return ok;
 }
 
-int SLAPI StdTreeListBoxDef::GoByID(long id)
+int StdTreeListBoxDef::GoByID(long id)
 {
 	uint   pos = 0;
 	if(valid() && P_SaList && P_SaList->Search(id, &pos))
@@ -733,20 +733,20 @@ int SLAPI StdTreeListBoxDef::GoByID(long id)
 
 int FASTCALL StdTreeListBoxDef::HasChild(long id) const
 	{ return P_SaList ? P_SaList->HasChild(id) : 0; }
-int SLAPI StdTreeListBoxDef::GetListByParent(long parentId, LongArray & rList) const
+int StdTreeListBoxDef::GetListByParent(long parentId, LongArray & rList) const
 	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
-int SLAPI StdTreeListBoxDef::GetParent(long child, long * pParent) const
+int StdTreeListBoxDef::GetParent(long child, long * pParent) const
 	{ return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0; }
 //
 // StringListBoxDef
 //
-SLAPI StringListBoxDef::StringListBoxDef(uint stringSize, uint aOptions) :
+StringListBoxDef::StringListBoxDef(uint stringSize, uint aOptions) :
 	StdListBoxDef(new SArray(sizeof(long) + stringSize), aOptions, MKSTYPE(S_ZSTRING, stringSize))
 {
 	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, LBDEFSIGN_STRING);
 }
 
-int SLAPI StringListBoxDef::addItem(long id, const char * s, long * pPos)
+int StringListBoxDef::addItem(long id, const char * s, long * pPos)
 {
 	struct {
 		long   id;
@@ -764,37 +764,37 @@ int SLAPI StringListBoxDef::addItem(long id, const char * s, long * pPos)
    	return 0;
 }
 
-int SLAPI StringListBoxDef::removeItem(long pos)
+int StringListBoxDef::removeItem(long pos)
 	{ return (P_Data && pos >= 0) ? P_Data->atFree(static_cast<uint>(pos)) : 0; }
-void SLAPI StringListBoxDef::freeAll()
+void StringListBoxDef::freeAll()
 	{ CALLPTRMEMB(P_Data, freeAll()); }
 //
 // DBQListBoxDef
 //
-SLAPI DBQListBoxDef::DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize) : ListBoxDef(aOptions, 0), query(0)
+DBQListBoxDef::DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize) : ListBoxDef(aOptions, 0), query(0)
 {
 	SetCapability(0, LBDEFSIGN_DBQ);
 	setQuery(rQuery, aBufSize);
 }
 
-SLAPI DBQListBoxDef::~DBQListBoxDef()
+DBQListBoxDef::~DBQListBoxDef()
 {
 	if(Options & lbtDisposeData)
 		delete query;
 }
 
-int SLAPI DBQListBoxDef::GetFrameSize()
+int DBQListBoxDef::GetFrameSize()
 {
 	return query->P_Frame->count;
 }
 
-int SLAPI DBQListBoxDef::GetFrameState()
+int DBQListBoxDef::GetFrameState()
 {
 	int    st = query->P_Frame->state;
 	return (st == 3) ? -1 : st;
 }
 
-int SLAPI DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
+int DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
 {
 	if(Options & lbtDisposeData)
 		delete query;
@@ -821,40 +821,40 @@ int SLAPI DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	return 0;
 }
 
-int SLAPI DBQListBoxDef::setRestrict(DBQ & rQ)
+int DBQListBoxDef::setRestrict(DBQ & rQ)
 {
 	return query ? (query->where(rQ), query->top(), 1) : 0;
 }
 
-void SLAPI DBQListBoxDef::setViewHight(int h)
+void DBQListBoxDef::setViewHight(int h)
 {
 	CALLPTRMEMB(query, setFrame(h, UNDEF, UNDEF));
 	ListBoxDef::setViewHight(h);
 }
 
-void SLAPI DBQListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
+void DBQListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	*pScrollDelta = query ? (long)query->P_Frame->sdelta : 0;
 	*pScrollPos = query ? (long)query->P_Frame->spos : 0;
 }
 
-int SLAPI DBQListBoxDef::valid()
+int DBQListBoxDef::valid()
 {
 	return (query && !query->error);
 }
 
-void SLAPI DBQListBoxDef::setupView()
+void DBQListBoxDef::setupView()
 {
 	TopItem = query ? query->P_Frame->top : 0;
 	CurItem = query ? query->P_Frame->cur : 0;
 }
 
-int SLAPI DBQListBoxDef::go(long p)
+int DBQListBoxDef::go(long p)
 {
 	return step(p-CurItem);
 }
 
-int SLAPI DBQListBoxDef::step(long d)
+int DBQListBoxDef::step(long d)
 {
 	int    ok = 0;
 	if(query) {
@@ -864,7 +864,7 @@ int SLAPI DBQListBoxDef::step(long d)
 	return ok;
 }
 
-int SLAPI DBQListBoxDef::top()
+int DBQListBoxDef::top()
 {
 	int    ok = 0;
 	if(query) {
@@ -874,7 +874,7 @@ int SLAPI DBQListBoxDef::top()
 	return ok;
 }
 
-int SLAPI DBQListBoxDef::bottom()
+int DBQListBoxDef::bottom()
 {
 	int    ok = 0;
 	if(query) {
@@ -884,7 +884,7 @@ int SLAPI DBQListBoxDef::bottom()
 	return ok;
 }
 
-int SLAPI DBQListBoxDef::refresh()
+int DBQListBoxDef::refresh()
 {
 	int    ok = 0;
 	if(query) {
@@ -894,12 +894,12 @@ int SLAPI DBQListBoxDef::refresh()
 	return 0;
 }
 
-long  SLAPI DBQListBoxDef::getRecsCount()
+long  DBQListBoxDef::getRecsCount()
 {
 	return query ? (query->P_Frame->srange+1) : 0;
 }
 
-int SLAPI DBQListBoxDef::getIdList(LongArray & rList)
+int DBQListBoxDef::getIdList(LongArray & rList)
 {
 	// @todo Реализовать метод
 	return -1;
@@ -918,7 +918,7 @@ int DBQListBoxDef::TransmitData(int dir, void * pData)
 	return s;
 }
 
-int SLAPI DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
+int DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
 	int    ok = 1;
 	int    f;

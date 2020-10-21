@@ -8,28 +8,28 @@
 //
 // @prototype {
 //
-int SLAPI ExportDialogs(const char * pFileName);
+int ExportDialogs(const char * pFileName);
 int TestAddressRecognition();
-int SLAPI SelfBuild();
-int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
-int SLAPI RemoveZeroLinkCCLines();
-int SLAPI ReceiptPacking();
-int SLAPI PPTex2Html();
-int SLAPI PPVer2Html();
-int SLAPI Test_KeywordListGenerator(); // txtanlz.cpp
-int SLAPI TestFias(); // objloctn.cpp
-int SLAPI TestCURL(); // pputil.cpp
-int SLAPI TestEGAIS(const PPEgaisProcessor::TestParam *); // egais.cpp
-int SLAPI BuildLocalDL600(); // ppbuild.cpp
-int SLAPI TestLogWindow(); // pplog.cpp
-int SLAPI TestTddo2(); // tddo2.cpp
-int SLAPI TestVetis(); // vetis.cpp
-int SLAPI TestMqc(); // ppmqc.cpp
-int SLAPI RecoverAbsenceTrfr();
-int SLAPI PPValidateXml();
-int SLAPI OpenPhonePane();
-int SLAPI UniFindObj();
-//int SLAPI ImportSartre();
+int SelfBuild();
+int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
+int RemoveZeroLinkCCLines();
+int ReceiptPacking();
+int PPTex2Html();
+int PPVer2Html();
+int Test_KeywordListGenerator(); // txtanlz.cpp
+int TestFias(); // objloctn.cpp
+int TestCURL(); // pputil.cpp
+int TestEGAIS(const PPEgaisProcessor::TestParam *); // egais.cpp
+int BuildLocalDL600(); // ppbuild.cpp
+int TestLogWindow(); // pplog.cpp
+int TestTddo2(); // tddo2.cpp
+int TestVetis(); // vetis.cpp
+int TestMqc(); // ppmqc.cpp
+int RecoverAbsenceTrfr();
+int PPValidateXml();
+int OpenPhonePane();
+int UniFindObj();
+//int ImportSartre();
 // } @prototype
 //
 //
@@ -149,7 +149,7 @@ IMPL_HANDLE_EVENT(PPApp)
 //
 // Аварийная функция восстановления товаров
 //
-int SLAPI RestoreGoods2()
+int RestoreGoods2()
 {
 	char   fname[MAXPATH], out_fname[MAXPATH];
 	GoodsCore goods_tbl;
@@ -305,7 +305,7 @@ int SLAPI RestoreGoods2()
 
 #endif // } 0
 //
-static int SLAPI PPAbout()
+static int PPAbout()
 {
 	int    ok = 1;
 	TDialog * dlg = new TDialog(DLG_ABOUT);
@@ -556,6 +556,14 @@ int PPApp::processCommand(uint cmd)
 		case cmQuoteReqAnalyze:      PPView::Execute(PPVIEW_QUOTEREQANALYZE, 0, PPView::exefModeless, 0); break; // @v10.5.7
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break; // @v10.1.2
 		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break; // @v10.8.9
+		case cmEventsForCurrentUser:
+			{
+				EventFilt ev_filt;
+				ev_filt.UserID = LConfig.UserID;
+				ev_filt.StatusFlags = ((1 << PPEventCore::statusActual) | (1 << PPEventCore::statusViewed));
+				PPView::Execute(PPVIEW_EVENT, &ev_filt, PPView::exefModeless, 0);
+			}
+			break;
 		case cmTimeSeriesSA: // @construction
 			break;
 		case cmCTblOrdTimeGraph:
@@ -905,7 +913,7 @@ int PPApp::processCommand(uint cmd)
 	return 1;
 }
 
-static int SLAPI GetStartUpPath(PPID pi, SString & rArgBuf)
+static int GetStartUpPath(PPID pi, SString & rArgBuf)
 {
 	int    ok = 0;
 	if(pi == PPPATH_IN)
@@ -919,10 +927,10 @@ static int SLAPI GetStartUpPath(PPID pi, SString & rArgBuf)
 //
 // Prototype
 //
-int SLAPI ProcessExportJob(const char *);
-int SLAPI ProcessImportJob(const char *);
+int ProcessExportJob(const char *);
+int ProcessImportJob(const char *);
 
-int SLAPI PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
+int PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 	LDATE * pDate, PPDbEntrySet2 * pDbes, int forcePrompt, int sysAccLogin, int retryLogin)
 {
 	class LoginDialog : public TDialog {
@@ -1054,7 +1062,7 @@ int SLAPI PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 	return ok;
 }
 
-static int SLAPI StoreLastBinPath()
+static int StoreLastBinPath()
 {
 	// @v10.7.10 static const char * WrParam_BinPath = "BinPath"; // @global @threadsafe
 	SString path, param;
@@ -1076,7 +1084,7 @@ static int SLAPI StoreLastBinPath()
 	return BIN(reg_key.PutString(param, path));
 }
 
-static int SLAPI GetCashNodeIDByName(PPID * pID, const char * pName)
+static int GetCashNodeIDByName(PPID * pID, const char * pName)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -1089,7 +1097,7 @@ static int SLAPI GetCashNodeIDByName(PPID * pID, const char * pName)
 	return ok;
 }
 
-static int SLAPI GetPrcIDByName(PPID * pID, const char * pName)
+static int GetPrcIDByName(PPID * pID, const char * pName)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -1113,7 +1121,7 @@ static int SLAPI GetPrcIDByName(PPID * pID, const char * pName)
 	return ok;
 }
 
-static int SLAPI GetGoodsInfoIDByName(PPID * pID, const char * pName)
+static int GetGoodsInfoIDByName(PPID * pID, const char * pName)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -1128,15 +1136,15 @@ static int SLAPI GetGoodsInfoIDByName(PPID * pID, const char * pName)
 	return ok;
 }
 
-SLAPI PPVerHistory::Info::Info()
+PPVerHistory::Info::Info()
 {
 }
 
-SLAPI PPVerHistory::PPVerHistory()
+PPVerHistory::PPVerHistory()
 {
 }
 
-int SLAPI PPVerHistory::Read(const char * pDataPath, Info * pInfo)
+int PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 {
 	int    ok = -1;
 	if(pDataPath) {
@@ -1168,7 +1176,7 @@ int SLAPI PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 	return ok;
 }
 
-int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
+int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 {
 	int    ok = -1;
 	uint32 crc = 0;
@@ -1214,7 +1222,7 @@ int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 	return ok;
 }
 
-/*static*/int SLAPI PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
+/*static*/int PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
 {
 	int    ok = 0;
 	SString path, fname;
@@ -1257,7 +1265,7 @@ int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 	return ok;
 }
 
-/*static*/int SLAPI PPVerHistory::Log()
+/*static*/int PPVerHistory::Log()
 {
 	int    ok = -1;
 	SString arg_buf;
@@ -1564,7 +1572,7 @@ int PPBackupSystemFiles_Arc()
 
 #if 0 // {
 
-int SLAPI PreprocessCmdLine()
+int PreprocessCmdLine()
 {
 	int    ok = 1;
 	char   buf[512];
@@ -1641,10 +1649,10 @@ int SLAPI PreprocessCmdLine()
 
 #endif // } 0
 
-int SLAPI ExecuteLuaScript(const char * pScriptText);
-int SLAPI ExecuteLuaScriptFile(const char * pFileName);
-int SLAPI ExportUhttForGitHub();
-int SLAPI ParseWinRcForNativeText();
+int ExecuteLuaScript(const char * pScriptText);
+int ExecuteLuaScriptFile(const char * pFileName);
+int ExportUhttForGitHub();
+int ParseWinRcForNativeText();
 
 void PPApp::login(int processCmdLine)
 {

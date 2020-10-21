@@ -88,13 +88,13 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 	return static_cast<uint16>(logFuncId/1000);
 }
 
-long SLAPI PPUserProfileFuncEntry::GetLoggedFuncId() const
+long PPUserProfileFuncEntry::GetLoggedFuncId() const
 {
 	return (static_cast<long>(FuncId)*1000) + static_cast<long>(FuncVer);
 }
 
 struct ProfileEntry {
-	SLAPI  ProfileEntry();
+	ProfileEntry();
 	// @nodestructor
 	void   Destroy();
 
@@ -116,7 +116,7 @@ static uint32 FASTCALL PeHashString(const char * pSymb)
 	return SlHash::BobJenc(pSymb, len);
 }
 
-SLAPI ProfileEntry::ProfileEntry() : P_FileName(0), P_AddedInfo(0)
+ProfileEntry::ProfileEntry() : P_FileName(0), P_AddedInfo(0)
 {
 	THISZERO();
 }
@@ -127,7 +127,7 @@ void ProfileEntry::Destroy()
 	ZFREE(P_AddedInfo);
 }
 
-SLAPI Profile::Profile(int singleThreaded) : SProfile(singleThreaded), SArray(sizeof(ProfileEntry), /*64,*/O_ARRAY|aryEachItem)
+Profile::Profile(int singleThreaded) : SProfile(singleThreaded), SArray(sizeof(ProfileEntry), /*64,*/O_ARRAY|aryEachItem)
 {
 	/*
 	StartClock = 0;
@@ -143,7 +143,7 @@ SLAPI Profile::Profile(int singleThreaded) : SProfile(singleThreaded), SArray(si
 	*/
 }
 
-SLAPI Profile::~Profile()
+Profile::~Profile()
 {
 	freeAll();
 }
@@ -174,12 +174,12 @@ void * FASTCALL Profile::Search(const char * pFileName, long lineNum) const
 	return bsearch(&pe, &pos, PTR_CMPFUNC(PrflEnKey)) ? &at(pos) : 0;
 }
 
-int SLAPI Profile::Insert(ProfileEntry * e, uint * pPos)
+int Profile::Insert(ProfileEntry * e, uint * pPos)
 {
 	return ordInsert(e, pPos, PTR_CMPFUNC(PrflEnKey)) ? 1 : PPSetErrorSLib();
 }
 
-void SLAPI Profile::Output(uint fileId, const char * pDescription)
+void Profile::Output(uint fileId, const char * pDescription)
 {
 	Lck.Lock();
 	if(getCount()) {
@@ -215,7 +215,7 @@ enum {
 	addIter = 1
 };
 
-int SLAPI Profile::AddEntry(const char * pFileName, long lineNum, int iterOp, const char * pAddedInfo)
+int Profile::AddEntry(const char * pFileName, long lineNum, int iterOp, const char * pAddedInfo)
 {
 	int64  finish = NSec100Clock();
 	int64  finish_mks = Helper_GetAbsTimeMicroseconds();
@@ -265,34 +265,34 @@ int SLAPI Profile::AddEntry(const char * pFileName, long lineNum, int iterOp, co
 	return 1;
 }
 
-void SLAPI Profile::Helper_Start(const char * pFileName, long lineNum, const char * pAddedInfo)
+void Profile::Helper_Start(const char * pFileName, long lineNum, const char * pAddedInfo)
 {
 	SETIFZ(StartClock, NSec100Clock());
 	AddEntry(pFileName, lineNum, addIter, pAddedInfo);
 	EndClock = NSec100Clock();
 }
 
-void SLAPI Profile::Helper_Finish(const char * pFileName, long lineNum)
+void Profile::Helper_Finish(const char * pFileName, long lineNum)
 {
 	EndClock = NSec100Clock();
 	AddEntry(pFileName, lineNum, rmvIter);
 }
 
-void SLAPI Profile::Start(const char * pFileName, long lineNum, const char * pAddedInfo)
+void Profile::Start(const char * pFileName, long lineNum, const char * pAddedInfo)
 {
 	Lck.Lock();
 	Helper_Start(pFileName, lineNum, pAddedInfo);
 	Lck.Unlock();
 }
 
-void SLAPI Profile::Finish(const char * pFileName, long lineNum)
+void Profile::Finish(const char * pFileName, long lineNum)
 {
 	Lck.Lock();
 	Helper_Finish(pFileName, lineNum);
 	Lck.Unlock();
 }
 
-int SLAPI Profile::Start(uint logFileId, const char * pName, const char * pAddedInfo)
+int Profile::Start(uint logFileId, const char * pName, const char * pAddedInfo)
 {
 	int    ok = 1;
 	uint32 stub = 0;
@@ -311,7 +311,7 @@ int SLAPI Profile::Start(uint logFileId, const char * pName, const char * pAdded
 	return ok;
 }
 
-int SLAPI Profile::Finish(uint logFileId, const char * pName, const char * pAddedInfo)
+int Profile::Finish(uint logFileId, const char * pName, const char * pAddedInfo)
 {
 	int    ok = 1;
 	uint32 stub = 0;
@@ -335,7 +335,7 @@ int SLAPI Profile::Finish(uint logFileId, const char * pName, const char * pAdde
 //
 //
 //
-int SLAPI Profile::InitUserProfile(const char * pUserName)
+int Profile::InitUserProfile(const char * pUserName)
 {
 	int    ok = 1;
 	DbProvider * p_dict = CurDict;
@@ -451,7 +451,7 @@ int FASTCALL Profile::GetUserProfileFuncID(uint handle) const
 	return p_profile_entry->Fe.FuncId;
 }
 
-double SLAPI Profile::GetUserProfileFactor(uint handle, uint factorN) const
+double Profile::GetUserProfileFactor(uint handle, uint factorN) const
 {
 	assert(handle > 0 && handle <= UserProfileStack.getCount());
 	const UserProfileEntry * p_profile_entry = (const UserProfileEntry *)UserProfileStack.at(handle-1);
@@ -459,7 +459,7 @@ double SLAPI Profile::GetUserProfileFactor(uint handle, uint factorN) const
 	return p_profile_entry->Factors[factorN];
 }
 
-int SLAPI Profile::SetUserProfileFactor(uint handle, uint factorN, double value)
+int Profile::SetUserProfileFactor(uint handle, uint factorN, double value)
 {
 	int    ok = 1;
 	assert(handle > 0 && handle <= UserProfileStack.getCount());
@@ -538,7 +538,7 @@ int FASTCALL Profile::FinishUserProfileFunc(uint handle)
 	return ok;
 }
 
-int SLAPI Profile::FlashUserProfileAccumEntries()
+int Profile::FlashUserProfileAccumEntries()
 {
 	int    ok = 1;
 	if(UserProfileAccum.getCount()) {
@@ -567,7 +567,7 @@ int SLAPI Profile::FlashUserProfileAccumEntries()
 	return ok;
 }
 
-SString & SLAPI Profile::GetUserProfileFileName(int fk, SString & rBuf)
+SString & Profile::GetUserProfileFileName(int fk, SString & rBuf)
 {
 	rBuf.Z();
 	if(oneof3(fk, fkSession, fkStart, fkFinish)) {
@@ -592,31 +592,31 @@ SString & SLAPI Profile::GetUserProfileFileName(int fk, SString & rBuf)
 //
 //
 //
-/*static*/int SLAPI PPUserFuncProfiler::Init()
+/*static*/int PPUserFuncProfiler::Init()
 {
 	return DS.GetTLA().Prf.InitUserProfile(0);
 }
 
-/*static*/SString & SLAPI PPUserFuncProfiler::GetFileName_(int fk, SString & rBuf)
+/*static*/SString & PPUserFuncProfiler::GetFileName_(int fk, SString & rBuf)
 {
  	return DS.GetTLA().Prf.GetUserProfileFileName(fk, rBuf);
 }
 
-SLAPI PPUserFuncProfiler::PPUserFuncProfiler(int funcId) : H(funcId ? DS.GetTLA().Prf.StartUserProfileFunc(funcId) : 0)
+PPUserFuncProfiler::PPUserFuncProfiler(int funcId) : H(funcId ? DS.GetTLA().Prf.StartUserProfileFunc(funcId) : 0)
 {
 }
 
-SLAPI PPUserFuncProfiler::~PPUserFuncProfiler()
+PPUserFuncProfiler::~PPUserFuncProfiler()
 {
 	Commit();
 }
 
-int SLAPI PPUserFuncProfiler::operator !() const
+int PPUserFuncProfiler::operator !() const
 {
 	return (H == 0);
 }
 
-int SLAPI PPUserFuncProfiler::FlashAccumEntries()
+int PPUserFuncProfiler::FlashAccumEntries()
 {
 	return DS.GetTLA().Prf.FlashUserProfileAccumEntries();
 }
@@ -634,7 +634,7 @@ int FASTCALL PPUserFuncProfiler::Begin(int funcId)
 	return ok;
 }
 
-int SLAPI PPUserFuncProfiler::Commit()
+int PPUserFuncProfiler::Commit()
 {
 	int    ok = -1;
 	if(H) {
@@ -644,7 +644,7 @@ int SLAPI PPUserFuncProfiler::Commit()
 	return ok;
 }
 
-int SLAPI PPUserFuncProfiler::CommitAndRestart()
+int PPUserFuncProfiler::CommitAndRestart()
 {
 	int    ok = -1;
 	if(H) {
@@ -662,24 +662,24 @@ int SLAPI PPUserFuncProfiler::CommitAndRestart()
 	return ok;
 }
 
-int SLAPI PPUserFuncProfiler::SetFactor(uint factorN, double value)
+int PPUserFuncProfiler::SetFactor(uint factorN, double value)
 {
 	return H ? DS.GetTLA().Prf.SetUserProfileFactor(H, factorN, value) : -1;
 }
 
-double SLAPI PPUserFuncProfiler::GetFactor(uint factorN) const
+double PPUserFuncProfiler::GetFactor(uint factorN) const
 {
 	return H ? DS.GetConstTLA().Prf.GetUserProfileFactor(H, factorN) : 0.0;
 }
 //
 //
 //
-SLAPI PPUserProfileCore::StateItem::StateItem()
+PPUserProfileCore::StateItem::StateItem()
 {
 	Z();
 }
 
-PPUserProfileCore::StateItem & SLAPI PPUserProfileCore::StateItem::Z()
+PPUserProfileCore::StateItem & PPUserProfileCore::StateItem::Z()
 {
 	DbID.Z();
 	SessCrDtm.Z();
@@ -824,15 +824,15 @@ int PPUserProfileCore::StateBlock::Serialize(int dir, SBuffer & rBuf, SSerialize
 	return ok;
 }
 
-SLAPI PPUserProfileCore::PPUserProfileCore() : UserFuncPrfTbl()
+PPUserProfileCore::PPUserProfileCore() : UserFuncPrfTbl()
 {
 }
 
-SLAPI PPUserProfileCore::~PPUserProfileCore()
+PPUserProfileCore::~PPUserProfileCore()
 {
 }
 
-int SLAPI PPUserProfileCore::WriteState(int use_ta)
+int PPUserProfileCore::WriteState(int use_ta)
 {
 	int    ok = 1;
 	SSerializeContext sctx;
@@ -843,7 +843,7 @@ int SLAPI PPUserProfileCore::WriteState(int use_ta)
 	return ok;
 }
 
-int SLAPI PPUserProfileCore::ReadState()
+int PPUserProfileCore::ReadState()
 {
 	int    ok = 1;
 	SSerializeContext sctx;
@@ -860,7 +860,7 @@ int SLAPI PPUserProfileCore::ReadState()
 	return ok;
 }
 
-int SLAPI PPUserProfileCore::ClearState(const S_GUID * pDbId, int use_ta)
+int PPUserProfileCore::ClearState(const S_GUID * pDbId, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -889,7 +889,7 @@ int SLAPI PPUserProfileCore::ClearState(const S_GUID * pDbId, int use_ta)
 	return ok;
 }
 
-int SLAPI PPUserProfileCore::GetDbEntyList(TSArray <PPUserProfileCore::UfpDbEntry> & rList)
+int PPUserProfileCore::GetDbEntyList(TSArray <PPUserProfileCore::UfpDbEntry> & rList)
 {
 	rList.clear();
 
@@ -909,7 +909,7 @@ int SLAPI PPUserProfileCore::GetDbEntyList(TSArray <PPUserProfileCore::UfpDbEntr
 	return ok;
 }
 
-static int SLAPI ParseUfpFileName(const char * pFileName, S_GUID & rDbUuid, SString & rDbSymb)
+static int ParseUfpFileName(const char * pFileName, S_GUID & rDbUuid, SString & rDbSymb)
 {
 	rDbSymb.Z();
 
@@ -971,7 +971,7 @@ PPUserProfileCore::UfpLine & PPUserProfileCore::UfpLine::Z()
 	return *this;
 }
 
-/*static*/int SLAPI PPUserProfileCore::ParseUfpLine(StringSet & rSs, SString & rTempBuf, int kind, PPUserProfileCore::UfpLine & rItem)
+/*static*/int PPUserProfileCore::ParseUfpLine(StringSet & rSs, SString & rTempBuf, int kind, PPUserProfileCore::UfpLine & rItem)
 {
 	assert(oneof3(kind, Profile::fkSession, Profile::fkStart, Profile::fkFinish));
 	int    ok = 1;
@@ -1034,7 +1034,7 @@ PPUserProfileCore::UfpLine & PPUserProfileCore::UfpLine::Z()
 #define DB_REC          -1000
 #define PREFIX_AGGR_REC "AGGR"
 
-int SLAPI PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine, long funcId /*=0*/)
+int PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine, long funcId /*=0*/)
 {
 	int    ok = 1;
 	long   sess_id = 0;
@@ -1111,7 +1111,7 @@ struct UserProfileLoadCacheStartEntry { // @flat
 
 IMPL_CMPFUNC(UserProfileLoadCacheEntry, i1, i2) { RET_CMPCASCADE2((const UserProfileLoadCacheStartEntry *)i1, (const UserProfileLoadCacheStartEntry *)i2, SessID, SeqID); }
 
-int SLAPI PPUserProfileCore::OpenInputFile(const char * pFileName, int64 offset, SFile & rF)
+int PPUserProfileCore::OpenInputFile(const char * pFileName, int64 offset, SFile & rF)
 {
 	int    ok = 1;
 	THROW_SL(rF.Open(pFileName, SFile::mRead));
@@ -1120,7 +1120,7 @@ int SLAPI PPUserProfileCore::OpenInputFile(const char * pFileName, int64 offset,
 	return ok;
 }
 
-int SLAPI PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec & rRec, const UfpLine & rLine)
+int PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec & rRec, const UfpLine & rLine)
 {
 	int    ok = 1;
 	/* Не закончено
@@ -1180,7 +1180,7 @@ int SLAPI PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl
 	return ok;
 }
 
-int SLAPI PPUserProfileCore::Load(const char * pPath)
+int PPUserProfileCore::Load(const char * pPath)
 {
 	int    ok = -1;
 	UfpLine ufp_line;

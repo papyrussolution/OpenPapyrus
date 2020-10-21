@@ -29,7 +29,7 @@ void closure_new(int n);
    rules could be run and which items could be accepted when those
    items are the active ones.  */
 void closure(item_index const * items, size_t n);
-void closure_free(void); /* Free ITEMSET, RULESET and internal data.  */
+void closure_free(); /* Free ITEMSET, RULESET and internal data.  */
 
 /* ITEMSET is a sorted vector of item indices; NITEMSET is its size
    (actually, points to just beyond the end of the part of it that is

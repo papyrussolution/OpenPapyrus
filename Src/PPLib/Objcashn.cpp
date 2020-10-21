@@ -5,16 +5,16 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPCashNode2::PPCashNode2()
+PPCashNode2::PPCashNode2()
 {
 	THISZERO();
 }
 
-SLAPI PPGenCashNode::PosIdentEntry::PosIdentEntry() : N_(0)
+PPGenCashNode::PosIdentEntry::PosIdentEntry() : N_(0)
 {
 }
 
-int SLAPI PPGenCashNode::PosIdentEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPGenCashNode::PosIdentEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
     int    ok = 1;
     THROW(pSCtx->Serialize(dir, N_, rBuf));
@@ -24,14 +24,14 @@ int SLAPI PPGenCashNode::PosIdentEntry::Serialize(int dir, SBuffer & rBuf, SSeri
     return ok;
 }
 
-SLAPI PPGenCashNode::PPGenCashNode() : ID(0), CurRestBillID(0), CashType(0), DrvVerMajor(0), DrvVerMinor(0), DisRoundPrec(0), AmtRoundPrec(0),
+PPGenCashNode::PPGenCashNode() : ID(0), CurRestBillID(0), CashType(0), DrvVerMajor(0), DrvVerMinor(0), DisRoundPrec(0), AmtRoundPrec(0),
 	P_DivGrpList(0), LocID(0), ExtQuotID(0), Flags(0), ExtFlags(0), GoodsLocAssocID(0), ParentID(0), GoodsGrpID(0)
 {
 	memzero(Name, sizeof(Name));
 	memzero(Symb, sizeof(Symb));
 }
 
-SLAPI PPGenCashNode::~PPGenCashNode()
+PPGenCashNode::~PPGenCashNode()
 {
 	ZDELETE(P_DivGrpList);
 }
@@ -64,7 +64,7 @@ PPGenCashNode & FASTCALL PPGenCashNode::operator = (const PPGenCashNode & rS)
 	return *this;
 }
 
-int SLAPI PPGenCashNode::SetRoundParam(const RoundParam * pParam)
+int PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 {
 	int    ok = 1;
 	DisRoundPrec = 0;
@@ -104,7 +104,7 @@ int SLAPI PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 	return ok;
 }
 
-int SLAPI PPGenCashNode::GetRoundParam(RoundParam * pParam) const
+int PPGenCashNode::GetRoundParam(RoundParam * pParam) const
 {
 	int    ok = -1;
 	if(pParam) {
@@ -123,14 +123,14 @@ int SLAPI PPGenCashNode::GetRoundParam(RoundParam * pParam) const
 	return ok;
 }
 
-void SLAPI PPGenCashNode::DrvVerToStr(SString & rS) const
+void PPGenCashNode::DrvVerToStr(SString & rS) const
 {
 	rS.Z();
 	if(DrvVerMajor >= 0 || DrvVerMinor >= 0)
         rS.Cat(DrvVerMajor).Dot().Cat(DrvVerMinor);
 }
 
-int SLAPI PPGenCashNode::DrvVerFromStr(const char * pS)
+int PPGenCashNode::DrvVerFromStr(const char * pS)
 {
 	int    ok = 1;
 	if(isempty(pS)) {
@@ -157,7 +157,7 @@ int SLAPI PPGenCashNode::DrvVerFromStr(const char * pS)
 //
 //
 //
-SLAPI PPAsyncCashNode::PPAsyncCashNode() : PPGenCashNode()
+PPAsyncCashNode::PPAsyncCashNode() : PPGenCashNode()
 {
 }
 
@@ -179,7 +179,7 @@ int FASTCALL PPAsyncCashNode::Copy(const PPAsyncCashNode & rS)
 	return ok;
 }
 
-int SLAPI PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
+int PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
 {
 	int    ok = 1;
 	rList.clear();
@@ -291,17 +291,17 @@ struct __PosNodeExt {       // @persistent
 	int32  Reserve2;        // @reserve
 };
 
-SLAPI PPSyncCashNode::SuspCheckFilt::SuspCheckFilt()
+PPSyncCashNode::SuspCheckFilt::SuspCheckFilt()
 {
 	THISZERO();
 }
 
-int SLAPI PPSyncCashNode::SuspCheckFilt::IsEmpty() const
+int PPSyncCashNode::SuspCheckFilt::IsEmpty() const
 {
 	return BIN(DaysPeriod == 0 && DlvrItemsShowTag == 0 && Flags == 0);
 }
 
-SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(ZERODATE), CurSessID(0), TouchScreenID(0), ExtCashNodeID(0),
+PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(ZERODATE), CurSessID(0), TouchScreenID(0), ExtCashNodeID(0),
 	AlternateRegID(0), ScaleID(0), CustDispType(0), CustDispFlags(0), BnkTermType(0), BnkTermLogNum(0),
 	BnkTermFlags(0), ClearCDYTimeout(0), EgaisMode(0), SleepTimeout(0), LocalTouchScrID(0)
 {
@@ -311,10 +311,10 @@ SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(Z
 	memzero(BnkTermPort, sizeof(BnkTermPort));
 }
 
-int SLAPI PPSyncCashNode::SetPropString(int propId, const char * pValue) { return PPPutExtStrData(propId, ExtString, pValue); }
-int SLAPI PPSyncCashNode::GetPropString(int propId, SString & rBuf) const { return PPGetExtStrData(propId, ExtString, rBuf); }
+int PPSyncCashNode::SetPropString(int propId, const char * pValue) { return PPPutExtStrData(propId, ExtString, pValue); }
+int PPSyncCashNode::GetPropString(int propId, SString & rBuf) const { return PPGetExtStrData(propId, ExtString, rBuf); }
 
-SString & SLAPI PPSyncCashNode::CTblListToString(SString & rBuf) const
+SString & PPSyncCashNode::CTblListToString(SString & rBuf) const
 {
 	rBuf.Z();
 	LongArray temp_list = CTblList;
@@ -348,7 +348,7 @@ SString & SLAPI PPSyncCashNode::CTblListToString(SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
+int PPSyncCashNode::CTblListFromString(const char * pBuf)
 {
 	int    ok = 1;
 	LongArray temp_list;
@@ -403,7 +403,7 @@ int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
 //
 // Logic locking
 //
-/*static*/int SLAPI PPObjCashNode::IsExtCashNode(PPID nodeID, PPID * pParentID)
+/*static*/int PPObjCashNode::IsExtCashNode(PPID nodeID, PPID * pParentID)
 {
 	Reference * p_ref = PPRef;
 	int    is_ext_cash_node = 0;
@@ -420,7 +420,7 @@ int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
 	return is_ext_cash_node;
 }
 
-/*static*/int SLAPI PPObjCashNode::IsLocked(PPID id)
+/*static*/int PPObjCashNode::IsLocked(PPID id)
 {
 	int    ok = -1;
 	PPID   parent_id = 0;
@@ -436,7 +436,7 @@ int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjCashNode::Lock(PPID id)
+/*static*/int PPObjCashNode::Lock(PPID id)
 {
 	int    ok = -1;
 	int    no_locking = 0;
@@ -448,7 +448,7 @@ int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjCashNode::Unlock(PPID id)
+/*static*/int PPObjCashNode::Unlock(PPID id)
 {
 	SString  added_msg_str = DS.GetTLA().AddedMsgString;
 	int    ok = DS.GetSync().ReleaseMutex(PPOBJ_CASHNODE, id);
@@ -458,7 +458,7 @@ int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
 //
 //
 //
-StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 {
 	SelFilt f;
 	if(!RVALUEPTR(f, static_cast<const SelFilt *>(extraPtr)))
@@ -511,7 +511,7 @@ StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	return p_ary;
 }
 
-/*static*/PPID SLAPI PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int isAny)
+/*static*/PPID PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int isAny)
 {
 	int    valid_data = 0;
 	PPID   id = -1;
@@ -564,7 +564,7 @@ StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 
 /*static*/const int PPObjCashNode::SubstCTblID = 999; // Специализированный идентификатор стола, применяемый для замещения не определенного списка столов. =999
 
-/*static*/int  SLAPI PPObjCashNode::GetCafeTableName(int ctblN, SString & rBuf)
+/*static*/int  PPObjCashNode::GetCafeTableName(int ctblN, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -595,12 +595,12 @@ PPObjCashNode::SelFilt::SelFilt() : LocID(0), SyncGroup(0), OnlyGroups(-1), Pare
 {
 }
 
-SLAPI PPObjCashNode::PPObjCashNode(void * extraPtr) : PPObjReference(PPOBJ_CASHNODE, extraPtr)
+PPObjCashNode::PPObjCashNode(void * extraPtr) : PPObjReference(PPOBJ_CASHNODE, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-int SLAPI PPObjCashNode::DeleteObj(PPID id)
+int PPObjCashNode::DeleteObj(PPID id)
 {
 	const PPCashNode * p_cn_rec = reinterpret_cast<const PPCashNode *>(&ref->data);
 	if(!(p_cn_rec->Flags & CASHF_DAYCLOSED) && p_cn_rec->CurDate)
@@ -609,7 +609,7 @@ int SLAPI PPObjCashNode::DeleteObj(PPID id)
 		return PPObjReference::DeleteObj(id);
 }
 
-int  SLAPI PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int  PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -648,7 +648,7 @@ int  SLAPI PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	return ok;
 }
 
-int SLAPI PPObjCashNode::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjCashNode::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = -1;
 	if(p && p->Data) {
@@ -662,7 +662,7 @@ int SLAPI PPObjCashNode::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return ok;
 }
 
-int SLAPI PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
+int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 {
 	int    r;
 	PPCashNode cn_rec;
@@ -696,7 +696,7 @@ int SLAPI PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 	return r;
 }
 
-int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
+int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 {
 	int    ok = -1;
 	PPCashNode cn_rec;
@@ -807,7 +807,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 	return ok;
 }
 
-int SLAPI PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
+int PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 {
 	int    ok = 1, r;
 	PPCashNode cn_rec;
@@ -848,7 +848,7 @@ int SLAPI PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 	return ok;
 }
 
-int SLAPI PPObjCashNode::GetListByLoc(PPID locID, PPIDArray & rList)
+int PPObjCashNode::GetListByLoc(PPID locID, PPIDArray & rList)
 {
 	int    ok = -1;
 	PPCashNode cn_rec;
@@ -861,7 +861,7 @@ int SLAPI PPObjCashNode::GetListByLoc(PPID locID, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjCashNode::GetListByGroup(PPID grpID, PPIDArray & rList)
+int PPObjCashNode::GetListByGroup(PPID grpID, PPIDArray & rList)
 {
 	int    ok = -1;
 	PPCashNode cn_rec;
@@ -874,7 +874,7 @@ int SLAPI PPObjCashNode::GetListByGroup(PPID grpID, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjCashNode::Helper_ResolveItem(PPID id, PPIDArray & rDestList, LAssocArray & rFullList)
+int PPObjCashNode::Helper_ResolveItem(PPID id, PPIDArray & rDestList, LAssocArray & rFullList)
 {
 	int    ok = -1;
 	PPCashNode cn_rec;
@@ -892,7 +892,7 @@ int SLAPI PPObjCashNode::Helper_ResolveItem(PPID id, PPIDArray & rDestList, LAss
 	return ok;
 }
 
-int SLAPI PPObjCashNode::ResolveList(const PPIDArray * pSrcList, PPIDArray & rDestList)
+int PPObjCashNode::ResolveList(const PPIDArray * pSrcList, PPIDArray & rDestList)
 {
 	int    ok = -1;
 	rDestList.clear();
@@ -913,7 +913,7 @@ int SLAPI PPObjCashNode::ResolveList(const PPIDArray * pSrcList, PPIDArray & rDe
 	return ok;
 }
 
-int SLAPI PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
+int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 {
 	int    ok = -1;
 	PPID   tax_sys_id = TAXSYSK_GENERAL;
@@ -955,7 +955,7 @@ int SLAPI PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 	return ok;
 }
 
-int SLAPI PPObjCashNode::IsVatFree(PPID id)
+int PPObjCashNode::IsVatFree(PPID id)
 {
 	int    result = -1;
 	PPObjPerson psn_obj;
@@ -977,7 +977,7 @@ int SLAPI PPObjCashNode::IsVatFree(PPID id)
 	return result;
 }
 
-int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
+int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 {
 	int    ok = 1;
 	int    is_new = 0;
@@ -1277,7 +1277,7 @@ int DivGrpAsscListDialog::delItem(long pos, long /*id*/)
 //
 // ExtDevicesDialog
 //
-int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
+int SelectPrinterFromWinPool(SString & rPrinter)
 {
 	int    ok = 1;
 	long   sel_prn_id = 0, def_prn_id = 0;
@@ -1936,9 +1936,9 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjCashNode::EditSync(PPSyncCashNode * pSCN) { DIALOG_PROC_BODY(SyncCashNodeCfgDialog, pSCN); }
+int PPObjCashNode::EditSync(PPSyncCashNode * pSCN) { DIALOG_PROC_BODY(SyncCashNodeCfgDialog, pSCN); }
 
-int SLAPI PPObjCashNode::DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult)
+int PPObjCashNode::DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult)
 {
 	int    ok = -1;
 	rSsResult.clear();
@@ -1956,7 +1956,7 @@ int SLAPI PPObjCashNode::DiagnoseNode(const PPGenCashNode & rNode, StringSet & r
 	return ok;
 }
 
-int SLAPI PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
+int PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 {
 	class GroupCashNodeCfgDialog : public TDialog {
 	public:
@@ -1999,7 +1999,7 @@ int SLAPI PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 	DIALOG_PROC_BODY(GroupCashNodeCfgDialog, pGroup);
 }
 
-int SLAPI PPObjCashNode::EditDistrib(PPGenCashNode * pData)
+int PPObjCashNode::EditDistrib(PPGenCashNode * pData)
 {
 	class DistribCashNodeCfgDialog : public TDialog {
 	public:
@@ -2261,7 +2261,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjCashNode::Validate(PPGenCashNode * pRec, long)
+int PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 {
 	int    ok = 1;
 	THROW_PP(*strip(pRec->Name) != 0, PPERR_NAMENEEDED);
@@ -2302,7 +2302,7 @@ int SLAPI PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 	return ok;
 }
 
-int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
+int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 {
 	int    ok = -1;
 	int    r = cmCancel;
@@ -2453,7 +2453,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	return ok;
 }
 
-int SLAPI PPObjCashNode::Edit(PPID * pID, void * extraPtr)
+int PPObjCashNode::Edit(PPID * pID, void * extraPtr)
 {
 	class SelCashTypeDialog : public TDialog {
 	public:
@@ -2568,7 +2568,7 @@ int SLAPI PPObjCashNode::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI ViewCashNodes()
+int ViewCashNodes()
 {
 	int       ok = 1;
 	SString   host_name, impexp_path;
@@ -2607,12 +2607,12 @@ int SLAPI ViewCashNodes()
 //
 class CashNodeCache : public ObjCache {
 public:
-	SLAPI CashNodeCache() : ObjCache(PPOBJ_CASHNODE, sizeof(Data))
+	CashNodeCache() : ObjCache(PPOBJ_CASHNODE, sizeof(Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   CashType;
@@ -2626,7 +2626,7 @@ public:
 	};
 };
 
-int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2652,7 +2652,7 @@ int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPCashNode * p_data_rec = static_cast<PPCashNode *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -2677,12 +2677,12 @@ IMPL_OBJ_FETCH(PPObjCashNode, PPCashNode, CashNodeCache);
 //
 //
 //
-SLAPI PPEquipConfig::PPEquipConfig()
+PPEquipConfig::PPEquipConfig()
 {
 	THISZERO();
 }
 
-PPID SLAPI PPEquipConfig::GetCashierTabNumberRegTypeID()
+PPID PPEquipConfig::GetCashierTabNumberRegTypeID()
 {
 	PPID   result = 0;
 	PPIniFile ini_file;
@@ -2703,7 +2703,7 @@ PPID SLAPI PPEquipConfig::GetCashierTabNumberRegTypeID()
 //
 static const char * RpCheckScaleInput = "CheckScaleInput";
 
-int SLAPI ReadEquipConfig(PPEquipConfig * pCfg)
+int ReadEquipConfig(PPEquipConfig * pCfg)
 {
 	int    use_scale_input = 0;
 	{
@@ -2970,7 +2970,7 @@ IMPL_HANDLE_EVENT(EquipConfigDialog)
 	clearEvent(event);
 }
 
-int SLAPI EditEquipConfig()
+int EditEquipConfig()
 {
 	int    ok = -1;
 	int    is_new = 0;
@@ -3004,7 +3004,7 @@ int SLAPI EditEquipConfig()
 	return ok;
 }
 
-PPID SLAPI GetCashiersPsnKindID()
+PPID GetCashiersPsnKindID()
 {
 	PPEquipConfig  eq_cfg;
 	return (ReadEquipConfig(&eq_cfg) > 0) ? eq_cfg.CshrsPsnKindID : 0L;
@@ -3012,12 +3012,12 @@ PPID SLAPI GetCashiersPsnKindID()
 //
 // @ModuleDef(PPObjTouchScreen)
 //
-SLAPI PPTouchScreen2::PPTouchScreen2()
+PPTouchScreen2::PPTouchScreen2()
 {
 	THISZERO();
 }
 
-SLAPI PPTouchScreenPacket::PPTouchScreenPacket()
+PPTouchScreenPacket::PPTouchScreenPacket()
 {
 }
 
@@ -3028,11 +3028,11 @@ PPTouchScreenPacket & FASTCALL PPTouchScreenPacket::operator = (const PPTouchScr
 	return *this;
 }
 
-SLAPI PPObjTouchScreen::PPObjTouchScreen(void * extraPtr) : PPObjReference(PPOBJ_TOUCHSCREEN, extraPtr)
+PPObjTouchScreen::PPObjTouchScreen(void * extraPtr) : PPObjReference(PPOBJ_TOUCHSCREEN, extraPtr)
 {
 }
 
-int SLAPI PPObjTouchScreen::GetPacket(PPID id, PPTouchScreenPacket * pPack)
+int PPObjTouchScreen::GetPacket(PPID id, PPTouchScreenPacket * pPack)
 {
 	int    ok = 1;
 	PPTouchScreenPacket  ts_pack;
@@ -3047,7 +3047,7 @@ int SLAPI PPObjTouchScreen::GetPacket(PPID id, PPTouchScreenPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjTouchScreen::PutPacket(PPID * pID, PPTouchScreenPacket * pPack, int use_ta)
+int PPObjTouchScreen::PutPacket(PPID * pID, PPTouchScreenPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray * p_grp_list = (pPack && pPack->GrpIDList.getCount()) ? &pPack->GrpIDList : 0;
@@ -3152,7 +3152,7 @@ int TouchScreenDlg::SelGrpList()
 	return ListToListDialog(&ll_data) ? 1 : PPErrorZ();
 }
 
-int SLAPI PPObjTouchScreen::Edit(PPID * pID, void * extraPtr)
+int PPObjTouchScreen::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
 	TouchScreenDlg * dlg = 0;
@@ -3176,16 +3176,16 @@ int SLAPI PPObjTouchScreen::Edit(PPID * pID, void * extraPtr)
 //
 // @ModuleDef(PPLocPrinter)
 //
-SLAPI PPLocPrinter2::PPLocPrinter2()
+PPLocPrinter2::PPLocPrinter2()
 {
 	THISZERO();
 }
 
-SLAPI PPObjLocPrinter::PPObjLocPrinter(void * extraPtr) : PPObjReference(PPOBJ_LOCPRINTER, extraPtr)
+PPObjLocPrinter::PPObjLocPrinter(void * extraPtr) : PPObjReference(PPOBJ_LOCPRINTER, extraPtr)
 {
 }
 
-int SLAPI PPObjLocPrinter::GetPacket(PPID id, PPLocPrinter * pPack)
+int PPObjLocPrinter::GetPacket(PPID id, PPLocPrinter * pPack)
 {
 	PPLocPrinter  loc_prn;
 	int   ok = Search(id, &loc_prn);
@@ -3193,7 +3193,7 @@ int SLAPI PPObjLocPrinter::GetPacket(PPID id, PPLocPrinter * pPack)
 	return ok;
 }
 
-int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int use_ta)
+int PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -3219,7 +3219,7 @@ int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjLocPrinter::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int PPObjLocPrinter::Edit(PPID * pID, void * extraPtr)
 {
 	class LocPrinterDialog : public TDialog {
 		DECL_DIALOG_DATA(PPLocPrinter);
@@ -3341,7 +3341,7 @@ void PPALDD_LocPrnTest::Destroy()
 	Extra[1].Ptr = 0;
 }
 
-int SLAPI PPObjLocPrinter::Browse(void * extraPtr)
+int PPObjLocPrinter::Browse(void * extraPtr)
 {
 	class LocPrinterView : public ObjViewDialog {
 	public:
@@ -3382,7 +3382,7 @@ int SLAPI PPObjLocPrinter::Browse(void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjLocPrinter::GetPrinterByLocation(PPID locID, SString & rPrnPort, PPLocPrinter * pRec)
+int PPObjLocPrinter::GetPrinterByLocation(PPID locID, SString & rPrnPort, PPLocPrinter * pRec)
 {
 	int    ok = -1;
 	PPLocPrinter lp_rec;
@@ -3397,7 +3397,7 @@ int SLAPI PPObjLocPrinter::GetPrinterByLocation(PPID locID, SString & rPrnPort, 
 	return ok;
 }
 
-int SLAPI PPObjLocPrinter::GetLocPrnAssoc(LAssocArray & rList)
+int PPObjLocPrinter::GetLocPrnAssoc(LAssocArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -3409,7 +3409,7 @@ int SLAPI PPObjLocPrinter::GetLocPrnAssoc(LAssocArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjLocPrinter::IsPrinter()
+int PPObjLocPrinter::IsPrinter()
 {
 	PPID   lp_id = 0;
 	PPLocPrinter lp_rec;

@@ -30,8 +30,7 @@ extern "C" {
    Use the globals error_print_progname and error_message_count similarly
    to error().  */
 
-extern void verror (int __status, int __errnum, const char *__format,
-                    va_list __args);
+extern void verror(int __status, int __errnum, const char * __format, va_list __args);
 //     __attribute__ ((__format__ (__printf__, 3, 0)));
 
 /* Print a message with `vfprintf (stderr, FORMAT, ARGS)';
@@ -41,9 +40,7 @@ extern void verror (int __status, int __errnum, const char *__format,
    Use the globals error_print_progname, error_message_count, and
    error_one_per_line similarly to error_at_line().  */
 
-extern void verror_at_line (int __status, int __errnum, const char *__fname,
-                            uint __lineno, const char *__format,
-                            va_list __args);
+extern void verror_at_line(int __status, int __errnum, const char * __fname, uint __lineno, const char * __format, va_list __args);
 //     __attribute__ ((__format__ (__printf__, 5, 0)));
 
 #ifdef __cplusplus

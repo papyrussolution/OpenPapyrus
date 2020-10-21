@@ -11,17 +11,17 @@
 //
 //
 //
-SLAPI SylkWriter::SylkWriter(const char * pFileName) : Stream(0)
+SylkWriter::SylkWriter(const char * pFileName) : Stream(0)
 {
 	Open(pFileName);
 }
 
-SLAPI SylkWriter::~SylkWriter()
+SylkWriter::~SylkWriter()
 {
 	Close();
 }
 
-int SLAPI SylkWriter::Open(const char * pFileName)
+int SylkWriter::Open(const char * pFileName)
 {
 	Close();
 	if(pFileName) {
@@ -32,7 +32,7 @@ int SLAPI SylkWriter::Open(const char * pFileName)
 		return 1;
 }
 
-void SLAPI SylkWriter::Close()
+void SylkWriter::Close()
 {
 	SFile::ZClose(&Stream);
 	Buf.Z();
@@ -48,7 +48,7 @@ void FASTCALL SylkWriter::PutLine(const char * pStr)
 		Buf.Cat(pStr).CR();
 }
 
-void SLAPI SylkWriter::PutRec(const char * pTypeStr, const char * pStr)
+void SylkWriter::PutRec(const char * pTypeStr, const char * pStr)
 {
 	if(Stream) {
 		fputs(pTypeStr, Stream);
@@ -58,7 +58,7 @@ void SLAPI SylkWriter::PutRec(const char * pTypeStr, const char * pStr)
 	PutLine(pStr);
 }
 
-void SLAPI SylkWriter::PutRec(int typeChr, const char * pStr)
+void SylkWriter::PutRec(int typeChr, const char * pStr)
 {
 	char temp_buf[8];
 	temp_buf[0] = typeChr;
@@ -66,7 +66,7 @@ void SLAPI SylkWriter::PutRec(int typeChr, const char * pStr)
 	PutRec(temp_buf, pStr);
 }
 
-int SLAPI SylkWriter::PutVal(const char * pStr, int cvtOemToChr)
+int SylkWriter::PutVal(const char * pStr, int cvtOemToChr)
 {
 	char temp_buf[128];
 	if(pStr) {
@@ -89,7 +89,7 @@ int SLAPI SylkWriter::PutVal(const char * pStr, int cvtOemToChr)
 	return 1;
 }
 
-int SLAPI SylkWriter::PutVal(double val)
+int SylkWriter::PutVal(double val)
 {
 	if(Stream)
 		fprintf(Stream, "C;K%lf\n", val);
@@ -97,19 +97,19 @@ int SLAPI SylkWriter::PutVal(double val)
 	return 1;
 }
 
-void SLAPI SylkWriter::PutColumnWidth(int start, int end, int width)
+void SylkWriter::PutColumnWidth(int start, int end, int width)
 {
 	char temp_buf[32];
 	sprintf(temp_buf, "W%d %d %d", start, end, width);
 	PutRec('F', temp_buf);
 }
 
-int SLAPI SylkWriter::GetBuf(SString * pBuf) const
+int SylkWriter::GetBuf(SString * pBuf) const
 {
 	return pBuf ? ((*pBuf = Buf), 1) : 0;
 }
 
-void SLAPI SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row)
+void SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row)
 {
 	char   temp_buf[128];
 	size_t p = 0;
@@ -143,7 +143,7 @@ void SLAPI SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row
 	PutRec('F', temp_buf);
 }
 
-void SLAPI SylkWriter::PutFont(int symb, const char * pFontName, int size, uint fontStyle)
+void SylkWriter::PutFont(int symb, const char * pFontName, int size, uint fontStyle)
 {
 	char   temp_buf[128];
 	size_t p = 0;
@@ -247,10 +247,10 @@ int TBaseBrowserWindow::Insert()
 	return ret;
 }
 
-uint SLAPI TBaseBrowserWindow::GetResID() const
+uint TBaseBrowserWindow::GetResID() const
 	{ return ResourceID; }
 
-void SLAPI TBaseBrowserWindow::SetResID(uint res)
+void TBaseBrowserWindow::SetResID(uint res)
 {
 	ResourceID = res;
 	if(res && res < TBaseBrowserWindow::IdBiasBrowser) {
@@ -267,7 +267,7 @@ void SLAPI TBaseBrowserWindow::SetResID(uint res)
 	}
 }
 
-void SLAPI TBaseBrowserWindow::SetToolbarID(uint toolbarID)
+void TBaseBrowserWindow::SetToolbarID(uint toolbarID)
 {
 	ToolbarID = toolbarID;
 }
@@ -461,7 +461,7 @@ BrowserWindow::CellStyle::CellStyle() : Color(0), Color2(0), RightFigColor(0), F
 {
 }
 
-int SLAPI LoadToolbar(TVRez * rez, uint tbType, uint tbID, ToolbarList * pList)
+int LoadToolbar(TVRez * rez, uint tbType, uint tbID, ToolbarList * pList)
 {
 	return rez->findResource(tbID, tbType, 0, 0) ? ImpLoadToolbar(*rez, pList) : 0;
 }
@@ -795,7 +795,7 @@ void BrowserWindow::Insert_(TView *p)
 	P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->ViewSize.y - 1); // @v9.0.1
 }
 
-SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOptions /*=0*/) :
+BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOptions /*=0*/) :
 	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0), Font(0), DefFont(0), ToolBarWidth(0),
 	RezID(_rezID), MainCursor(LoadCursor(NULL, IDC_ARROW)), ResizeCursor(LoadCursor(NULL, IDC_SIZEWE))
 {
@@ -806,7 +806,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOpt
 	HelpCtx = _rezID; // @Muxa
 }
 
-SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOptions /*=0*/) :
+BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOptions /*=0*/) :
 	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0), Font(0), DefFont(0), ToolBarWidth(0),
 	RezID(_rezID), MainCursor(LoadCursor(NULL, IDC_ARROW)), ResizeCursor(LoadCursor(NULL, IDC_SIZEWE))
 {
@@ -872,7 +872,7 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 	return ok;
 }
 
-SLAPI BrowserWindow::~BrowserWindow()
+BrowserWindow::~BrowserWindow()
 {
 	CALLPTRMEMB(P_Toolbar, SaveUserSettings(ToolbarID));
 	{

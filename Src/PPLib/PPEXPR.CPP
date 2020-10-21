@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-void SLAPI ExprEvalContext::FC::Init()
+void ExprEvalContext::FC::Init()
 {
 	ArgList.clear();
 	StrArg.Z();
@@ -16,15 +16,15 @@ void SLAPI ExprEvalContext::FC::Init()
 	RetStr.Z();
 }
 
-SLAPI ExprEvalContext::ExprEvalContext() : ImplementFlags(0), P_Next__(0)
+ExprEvalContext::ExprEvalContext() : ImplementFlags(0), P_Next__(0)
 {
 }
 
-SLAPI ExprEvalContext::~ExprEvalContext()
+ExprEvalContext::~ExprEvalContext()
 {
 }
 
-int SLAPI ExprEvalContext::SetInnerContext(ExprEvalContext * pInner)
+int ExprEvalContext::SetInnerContext(ExprEvalContext * pInner)
 {
 	int    ok = -1;
 	if(pInner) {
@@ -55,17 +55,17 @@ int SLAPI ExprEvalContext::SetInnerContext(ExprEvalContext * pInner)
 	return ok;
 }
 
-int SLAPI ExprEvalContext::SelfScanArgList() const
+int ExprEvalContext::SelfScanArgList() const
 {
 	return BIN(ImplementFlags & fSelfScanArgList);
 }
 
-int SLAPI ExprEvalContext::IsFunc(const char * pSymb, int * pFuncId)
+int ExprEvalContext::IsFunc(const char * pSymb, int * pFuncId)
 {
 	return 0;
 }
 
-int SLAPI ExprEvalContext::ResolveFunc(int funcId, FC & rFc)
+int ExprEvalContext::ResolveFunc(int funcId, FC & rFc)
 {
 	return 0;
 }
@@ -78,12 +78,12 @@ int SLAPI ExprEvalContext::ResolveFunc(int funcId, FC & rFc)
 //
 // BillContext
 //
-SLAPI BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data)), sDELIM(0x0000005CL)
+BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data)), sDELIM(0x0000005CL)
 {
 	FormSet.setDelim(reinterpret_cast<const char *>(&sDELIM));
 }
 
-int SLAPI DirtyBillSymbCache(const char * pSymb)
+int DirtyBillSymbCache(const char * pSymb)
 {
 	int    ok = -1;
 	if(pSymb) {
@@ -96,7 +96,7 @@ int SLAPI DirtyBillSymbCache(const char * pSymb)
 	return ok;
 }
 
-int SLAPI BillSymbCache::Add(int F, PPID id, const char * symb, const char * form)
+int BillSymbCache::Add(int F, PPID id, const char * symb, const char * form)
 {
 	int    ok = 1;
 	uint   pos;
@@ -111,7 +111,7 @@ int SLAPI BillSymbCache::Add(int F, PPID id, const char * symb, const char * for
 	return ok;
 }
 
-int SLAPI BillSymbCache::Search(const char * pSymb, PPID * pID, SString & rBuf) const
+int BillSymbCache::Search(const char * pSymb, PPID * pID, SString & rBuf) const
 {
 	int    ok = 0;
 	SString s, f;
@@ -139,7 +139,7 @@ int SLAPI BillSymbCache::Search(const char * pSymb, PPID * pID, SString & rBuf) 
 	return ok;
 }
 
-int SLAPI BillSymbCache::DirtySymb(const char * pSymb)
+int BillSymbCache::DirtySymb(const char * pSymb)
 {
 	int    ok = 0;
 	SString s;
@@ -156,7 +156,7 @@ int SLAPI BillSymbCache::DirtySymb(const char * pSymb)
 	return ok;
 }
 
-int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
+int BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 {
 	int    ok = 0;
 	int    r;
@@ -235,12 +235,12 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 #define ARTSYMB_QTTY   1
 #define ARTSYMB_PHQTTY 2
 
-SLAPI BillContext::BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx) : ExprEvalContext(),
+BillContext::BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx) : ExprEvalContext(),
 	P_Pack(p), CurID(curID), LinkID(p ? p->Rec.LinkBillID : 0), ReckonID(p ? p->PaymBillID : 0), AdvLineIdx(advLineIdx)
 {
 }
 
-int SLAPI BillContext::IsFunc(const char * pSymb, int * pFuncId)
+int BillContext::IsFunc(const char * pSymb, int * pFuncId)
 {
 	// amountbyvat(x)
 	int    func_id = 0;
@@ -271,7 +271,7 @@ int SLAPI BillContext::IsFunc(const char * pSymb, int * pFuncId)
 	return BIN(func_id);
 }
 
-int SLAPI BillContext::ResolveFunc(int funcId, FC & rFc)
+int BillContext::ResolveFunc(int funcId, FC & rFc)
 {
 	int    ok = 1;
 	double result = 0.0;
@@ -344,7 +344,7 @@ int SLAPI BillContext::ResolveFunc(int funcId, FC & rFc)
 	return ok;
 }
 
-int SLAPI BillContext::CalcTotalBlock()
+int BillContext::CalcTotalBlock()
 {
 	int    ok = -1;
 	if(!(Bt.Flags & BillTotalData::fInitialized) && P_Pack) {
@@ -354,7 +354,7 @@ int SLAPI BillContext::CalcTotalBlock()
 	return ok;
 }
 
-int SLAPI BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID addCurID, int errOnDefault, double * pResult)
+int BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID addCurID, int errOnDefault, double * pResult)
 {
 	int    ok = 1;
 	double result = 0.0;
@@ -384,7 +384,7 @@ int SLAPI BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb
 	return ok;
 }
 
-int SLAPI BillContext::Resolve(const char * b, double * pResult)
+int BillContext::Resolve(const char * b, double * pResult)
 {
 	int    ok = 1, r, sel = CURR_BILL;
 	int    err_on_default = 0;
@@ -488,11 +488,11 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 //
 //
 //
-SLAPI PPExprParser::State::State() : OidObjType(0), OidObjTypeExt(0)
+PPExprParser::State::State() : OidObjType(0), OidObjTypeExt(0)
 {
 }
 
-SLAPI PPExprParser::State::State(const State & rS) : OidObjType(rS.OidObjType), OidObjTypeExt(rS.OidObjTypeExt)
+PPExprParser::State::State(const State & rS) : OidObjType(rS.OidObjType), OidObjTypeExt(rS.OidObjTypeExt)
 {
 }
 
@@ -503,18 +503,18 @@ PPExprParser::State & FASTCALL PPExprParser::State::operator = (const PPExprPars
 	return *this;
 }
 
-SLAPI PPExprParser::PPExprParser(const char * pStr, const PPCalcFuncList * pCFL, ExprEvalContext * pContext) :
+PPExprParser::PPExprParser(const char * pStr, const PPCalcFuncList * pCFL, ExprEvalContext * pContext) :
 	Token(0), Number(0.0), Pos(0), P_Ctx(pContext), P_CFL(pCFL), P_S(newStr(pStr)), Func(0)
 {
 	Next();
 }
 
-SLAPI PPExprParser::~PPExprParser()
+PPExprParser::~PPExprParser()
 {
 	delete P_S;
 }
 
-int SLAPI PPExprParser::Next()
+int PPExprParser::Next()
 {
 	return P_S[Pos] ? (Cur = static_cast<int>(P_S[Pos++])) : (Cur = -1);
 }
@@ -522,7 +522,7 @@ int SLAPI PPExprParser::Next()
 // sieve[1.; 20000. ? 2.5; 40000 ? 4]
 // sieve[1.; @pp:alc_price_limit]
 
-int SLAPI PPExprParser::GetSieve()
+int PPExprParser::GetSieve()
 {
 	int    ok = 1;
 	SString temp_buf, sub;
@@ -595,13 +595,13 @@ int SLAPI PPExprParser::GetSieve()
 	return ok;
 }
 
-void SLAPI PPExprParser::Skip()
+void PPExprParser::Skip()
 {
 	while(oneof4(Cur, ' ', '\t', '\r', '\n'))
 		Next();
 }
 
-int SLAPI PPExprParser::ResolveContextName(const char * pSymb, double * pResult)
+int PPExprParser::ResolveContextName(const char * pSymb, double * pResult)
 {
 	int    ok = 0;
 	for(ExprEvalContext * p_ctx = P_Ctx; !ok && p_ctx; p_ctx = p_ctx->P_Next__) {
@@ -611,7 +611,7 @@ int SLAPI PPExprParser::ResolveContextName(const char * pSymb, double * pResult)
 	return ok;
 }
 
-int SLAPI PPExprParser::GetToken()
+int PPExprParser::GetToken()
 {
 	char   buf[256];
 	char * p = buf;
@@ -898,7 +898,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 	return ok;
 }
 
-int SLAPI PPExprParser::ReadArgString(SString & rBuf, size_t * pOffs) const
+int PPExprParser::ReadArgString(SString & rBuf, size_t * pOffs) const
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -1014,12 +1014,12 @@ int FASTCALL PPExprParser::CalcExpr(double * pResult)
 //
 // GoodsContext
 //
-SLAPI GoodsContext::Param::Param()
+GoodsContext::Param::Param()
 {
 	THISZERO();
 }
 
-SLAPI GoodsContext::GoodsContext(GdsClsCalcExprContext * pCtx) : ExprEvalContext()
+GoodsContext::GoodsContext(GdsClsCalcExprContext * pCtx) : ExprEvalContext()
 {
 	Init();
 	P_ClsPack = pCtx->P_GcPack;
@@ -1037,13 +1037,13 @@ SLAPI GoodsContext::GoodsContext(GdsClsCalcExprContext * pCtx) : ExprEvalContext
 		P_TSesObj = new PPObjTSession;
 }
 
-SLAPI GoodsContext::GoodsContext(Param & rParam)
+GoodsContext::GoodsContext(Param & rParam)
 {
 	Init();
 	P = rParam;
 }
 
-SLAPI GoodsContext::GoodsContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack) : ExprEvalContext()
+GoodsContext::GoodsContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack) : ExprEvalContext()
 {
 	Init();
 	P_Ti = pTi;
@@ -1051,14 +1051,14 @@ SLAPI GoodsContext::GoodsContext(const PPTransferItem * pTi, const PPBillPacket 
 	P.GoodsID = P_Ti ? P_Ti->GoodsID : 0;
 }
 
-SLAPI GoodsContext::GoodsContext(const CCheckItem * pCi) : ExprEvalContext()
+GoodsContext::GoodsContext(const CCheckItem * pCi) : ExprEvalContext()
 {
 	Init();
 	P_Ci = pCi;
 	P.GoodsID = P_Ci ? P_Ci->GoodsID : 0;
 }
 
-void SLAPI GoodsContext::Init()
+void GoodsContext::Init()
 {
 	P_ClsPack = 0;
 	P_Pack = 0;
@@ -1069,7 +1069,7 @@ void SLAPI GoodsContext::Init()
 	P_TSesObj = 0;
 }
 
-SLAPI GoodsContext::~GoodsContext()
+GoodsContext::~GoodsContext()
 {
 	delete P_TSesObj;
 }
@@ -1079,13 +1079,13 @@ const GoodsContext::Param & GoodsContext::GetParam() const
 	return P;
 }
 
-int SLAPI GoodsContext::SetParam(const GoodsContext::Param & rP)
+int GoodsContext::SetParam(const GoodsContext::Param & rP)
 {
     P = rP;
     return 1;
 }
 
-int SLAPI GoodsContext::AllocGoodsStruc()
+int GoodsContext::AllocGoodsStruc()
 {
 	int    ok = -1;
 	if(P_Gs == 0) {
@@ -1120,7 +1120,7 @@ int SLAPI GoodsContext::AllocGoodsStruc()
 	return ok;
 }
 
-int SLAPI GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
+int GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
 {
 	int    func_id = 0;
 	SString temp_buf;
@@ -1144,7 +1144,7 @@ int SLAPI GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
 	return BIN(func_id);
 }
 
-int SLAPI GoodsContext::ResolveFunc(int funcId, FC & rFc)
+int GoodsContext::ResolveFunc(int funcId, FC & rFc)
 {
 	double result = 0.0;
 	double arg = rFc.ArgList.getCount() ? rFc.ArgList.at(0) : 0.0;
@@ -1214,7 +1214,7 @@ int SLAPI GoodsContext::ResolveFunc(int funcId, FC & rFc)
 	return 1;
 }
 
-int SLAPI GoodsContext::IsRef(const char * pStr, size_t * pPos, SString & rRef)
+int GoodsContext::IsRef(const char * pStr, size_t * pPos, SString & rRef)
 {
 	size_t pos = *pPos;
 	SString temp_buf;
@@ -1231,7 +1231,7 @@ int SLAPI GoodsContext::IsRef(const char * pStr, size_t * pPos, SString & rRef)
 		return 0;
 }
 
-int SLAPI GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, double * pVal)
+int GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, double * pVal)
 {
 	int    ok = 1;
 	double v = 0.0;
@@ -1280,7 +1280,7 @@ int SLAPI GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty
 	return ok;
 }
 
-int SLAPI GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, double * pVal)
+int GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, double * pVal)
 {
 	int    ok = 1;
 	int    ref_dim = 0;
@@ -1344,7 +1344,7 @@ int SLAPI GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, do
 	return ok;
 }
 
-int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
+int GoodsContext::Resolve(const char * pSymb, double * pVal)
 {
 	int    ok = 1;
 	int    prev_goods_prefix = 0;
@@ -1578,12 +1578,12 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 //
 //
 //
-int SLAPI PPCalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL)
+int PPCalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL)
 {
 	return PPExprParser::CalcExpression(pStr, pResult, pCFL, 0);
 }
 
-int SLAPI PPCalcExpression(const char * pStr, double * pResult, PPBillPacket * pPack, PPID curID, uint advItemIdx)
+int PPCalcExpression(const char * pStr, double * pResult, PPBillPacket * pPack, PPID curID, uint advItemIdx)
 {
 	int    ok = 1;
 	BillContext * p_ctx = 0;
@@ -1607,35 +1607,35 @@ int SLAPI PPCalcExpression(const char * pStr, double * pResult, PPBillPacket * p
 //
 //
 //
-SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPGdsClsPacket * pGcPack, const PPGoodsPacket * pGPack)
+GdsClsCalcExprContext::GdsClsCalcExprContext(const PPGdsClsPacket * pGcPack, const PPGoodsPacket * pGPack)
 {
 	THISZERO();
 	P_GcPack = pGcPack;
 	P_GPack = pGPack;
 }
 
-SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPGoodsStruc * pGs, PPID sessID)
+GdsClsCalcExprContext::GdsClsCalcExprContext(const PPGoodsStruc * pGs, PPID sessID)
 {
 	THISZERO();
 	P_GsPack = pGs;
 	TSessID = sessID;
 }
 
-SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPGoodsStruc * pGs, const PPBillPacket * pBillPack)
+GdsClsCalcExprContext::GdsClsCalcExprContext(const PPGoodsStruc * pGs, const PPBillPacket * pBillPack)
 {
 	THISZERO();
 	P_GsPack = pGs;
 	P_BillPack = pBillPack;
 }
 
-SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(PPID goodsID, PPID prevGoodsID)
+GdsClsCalcExprContext::GdsClsCalcExprContext(PPID goodsID, PPID prevGoodsID)
 {
 	THISZERO();
 	GoodsID = goodsID;
 	PrevGoodsID = prevGoodsID;
 }
 
-SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack)
+GdsClsCalcExprContext::GdsClsCalcExprContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack)
 {
 	THISZERO();
 	P_Ti = pTi;
@@ -1643,14 +1643,14 @@ SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPTransferItem * pTi, c
 	GoodsID = P_Ti ? P_Ti->GoodsID : 0;
 }
 
-SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi) // @v10.7.6
+GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi) // @v10.7.6
 {
 	THISZERO();
 	P_Ci = pCi;
 	GoodsID = P_Ci ? P_Ci->GoodsID : 0;
 }
 
-int SLAPI PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext * pCtx)
+int PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext * pCtx)
 {
 	GoodsContext * p_ctx = (pCtx && (pCtx->P_GPack || pCtx->P_GsPack ||
 		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti || pCtx->P_Ci)))) ? new GoodsContext(pCtx) : static_cast<GoodsContext *>(0);

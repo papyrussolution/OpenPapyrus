@@ -709,8 +709,8 @@ void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 //
 // Utils
 //
-ListWindow * SLAPI CreateListWindow(SArray * pAry, uint options, TYPEID type) { return new ListWindow(new StdListBoxDef(pAry, options, type), 0, 0); }
-ListWindow * SLAPI CreateListWindow(StrAssocArray * pAry, uint options) { return new ListWindow(new StrAssocListBoxDef(pAry, options), 0, 0); }
-ListWindow * SLAPI CreateListWindow(DBQuery & rQuery, uint options) { return new ListWindow(new DBQListBoxDef(rQuery, options, 32), 0, 0); }
-ListWindow * SLAPI CreateListWindow(uint sz, uint options) { return new ListWindow(new StringListBoxDef(sz, options), 0, 0); }
-// @v9.8.12 (unused) WordSelector * SLAPI CreateWordSelector(WordSel_ExtraBlock * pBlk) { return new WordSelector(pBlk); }
+ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID type) { return new ListWindow(new StdListBoxDef(pAry, options, type), 0, 0); }
+ListWindow * CreateListWindow(StrAssocArray * pAry, uint options) { return new ListWindow(new StrAssocListBoxDef(pAry, options), 0, 0); }
+ListWindow * CreateListWindow(DBQuery & rQuery, uint options) { return new ListWindow(new DBQListBoxDef(rQuery, options, 32), 0, 0); }
+ListWindow * CreateListWindow(uint sz, uint options) { return new ListWindow(new StringListBoxDef(sz, options), 0, 0); }
+// @v9.8.12 (unused) WordSelector * CreateWordSelector(WordSel_ExtraBlock * pBlk) { return new WordSelector(pBlk); }

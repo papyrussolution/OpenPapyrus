@@ -8,7 +8,7 @@
 //
 // @ModuleDef(PPViewArticle)
 //
-IMPLEMENT_PPFILT_FACTORY(Article); SLAPI ArticleFilt::ArticleFilt() : PPBaseFilt(PPFILT_ARTICLE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Article); ArticleFilt::ArticleFilt() : PPBaseFilt(PPFILT_ARTICLE, 0, 0)
 {
 	SetFlatChunk(offsetof(ArticleFilt, ReserveStart),
 		offsetof(ArticleFilt, Reserve)-offsetof(ArticleFilt, ReserveStart)+sizeof(Reserve));
@@ -21,17 +21,17 @@ ArticleFilt & FASTCALL ArticleFilt::operator = (const ArticleFilt & s)
 	return *this;
 }
 
-SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt, 0), P_TempTbl(0), AgtProp(0), P_DebtDimList(0),
+PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt, 0, 0, 0), P_TempTbl(0), AgtProp(0), P_DebtDimList(0),
 	LimitTerm(0), AddedLimitTerm(0), CtrlX(0), CurIterOrd(ordByName)
 {
 }
 
-SLAPI PPViewArticle::~PPViewArticle()
+PPViewArticle::~PPViewArticle()
 {
 	delete P_TempTbl;
 }
 
-void * SLAPI PPViewArticle::GetEditExtraParam()
+void * PPViewArticle::GetEditExtraParam()
 {
 	return (void *)ArObj.GetCurrFilt(); // @badcast
 }
@@ -43,7 +43,7 @@ PPBaseFilt * PPViewArticle::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewArticle::UpdateTempTable(PPID arID)
+int PPViewArticle::UpdateTempTable(PPID arID)
 {
 	int    ok = -1, r = -1;
 	if(P_TempTbl) {
@@ -103,7 +103,7 @@ int SLAPI PPViewArticle::UpdateTempTable(PPID arID)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempArAgt);
 
-int SLAPI PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, const PPClientAgreement * pCliAgt)
+int PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, const PPClientAgreement * pCliAgt)
 {
 	if(P_DebtDimList && pRec && pCliAgt) {
 		uint   lim_count = (P_DebtDimList->getCount() < DEBTDIM_BRW_SHOWCOUNT) ? P_DebtDimList->getCount() : DEBTDIM_BRW_SHOWCOUNT;
@@ -121,7 +121,7 @@ int SLAPI PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, const PPClientAgr
 	return 1;
 }
 
-int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	AgtProp = 0;
@@ -286,7 +286,7 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewArticle::InitIteration()
+int PPViewArticle::InitIteration()
 {
 	int    ok = 1;
 	PPAccSheet acs_rec;
@@ -350,11 +350,11 @@ int FASTCALL PPViewArticle::NextIteration(ArticleViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class ArticleFiltDialog : public TDialog {
 	public:
-		SLAPI  ArticleFiltDialog() : TDialog(DLG_ARTICLEFLT)
+		ArticleFiltDialog() : TDialog(DLG_ARTICLEFLT)
 		{
 		}
 		int setDTS(ArticleFilt * pData)
@@ -443,7 +443,7 @@ int SLAPI PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewArticle::Transmit(PPID /*id*/)
+int PPViewArticle::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -462,7 +462,7 @@ int SLAPI PPViewArticle::Transmit(PPID /*id*/)
 	return ok;
 }
 
-int SLAPI PPViewArticle::RecoverLinkObjects()
+int PPViewArticle::RecoverLinkObjects()
 {
 	int    ok = -1;
 	if(Filt.AccSheetID) {
@@ -502,7 +502,7 @@ int SLAPI PPViewArticle::RecoverLinkObjects()
 	return ok;
 }
 
-int SLAPI PPViewArticle::EditLinkObject(PPID arID)
+int PPViewArticle::EditLinkObject(PPID arID)
 {
 	int    ok = -1;
 	ArticleTbl::Rec rec;
@@ -516,7 +516,7 @@ int SLAPI PPViewArticle::EditLinkObject(PPID arID)
 	return ok;
 }
 
-int SLAPI PPViewArticle::EditDebtDimList(PPID arID)
+int PPViewArticle::EditDebtDimList(PPID arID)
 {
 	int    ok = -1;
 	ArticleTbl::Rec ar_rec;
@@ -538,7 +538,7 @@ int SLAPI PPViewArticle::EditDebtDimList(PPID arID)
 }
 
 struct ArMassUpdParam {
-	SLAPI  ArMassUpdParam();
+	ArMassUpdParam();
 	enum {
 		aUndef  = 0,
 		aUpdate = 1,
@@ -553,7 +553,7 @@ struct ArMassUpdParam {
 	long   DeliveryPeriod;
 };
 
-SLAPI ArMassUpdParam::ArMassUpdParam() : Action(aUpdate), Flags(0), PayPeriod(0), DeliveryPeriod(0)
+ArMassUpdParam::ArMassUpdParam() : Action(aUpdate), Flags(0), PayPeriod(0), DeliveryPeriod(0)
 {
 }
 
@@ -613,7 +613,7 @@ private:
 };
 
 // @v9.8.8 {
-int SLAPI PPViewArticle::UpdateAll()
+int PPViewArticle::UpdateAll()
 {
 	int    ok = -1;
 	ArMassUpdParam param;
@@ -728,7 +728,7 @@ int SLAPI PPViewArticle::UpdateAll()
 }
 
 #if 0 // @v9.8.8 {
-int SLAPI PPViewArticle::DeleteAll()
+int PPViewArticle::DeleteAll()
 {
 	int    ok = -1;
 	THROW(ArObj.CheckRights(PPR_DEL));
@@ -765,7 +765,7 @@ int SLAPI PPViewArticle::DeleteAll()
 }
 #endif // } 0 @v9.8.8
 
-int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -857,13 +857,13 @@ int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return ok;
 }
 
-int SLAPI PPViewArticle::OnExecBrowser(PPViewBrowser * pBrw) // @v10.2.8
+int PPViewArticle::OnExecBrowser(PPViewBrowser * pBrw) // @v10.2.8
 {
 	pBrw->SetupToolbarCombo(PPOBJ_ACCSHEET, Filt.AccSheetID, 0, 0);
 	return -1;
 }
 
-DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst stop_subst(2);  // @global @threadsafe
 	DBQuery * p_q = 0;
@@ -1028,7 +1028,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return p_q;
 }
 
-void SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.PersonID) {
@@ -1070,7 +1070,7 @@ void SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewArticle::Print(const void * pHdr)
+int PPViewArticle::Print(const void * pHdr)
 {
 	uint  rpt_id = 0;
 	if(AgtProp == ARTPRP_CLIAGT)
@@ -1084,7 +1084,7 @@ int SLAPI PPViewArticle::Print(const void * pHdr)
 //
 //
 //
-int SLAPI ViewArticle(const ArticleFilt * pFilt) { return PPView::Execute(PPVIEW_ARTICLE, pFilt, PPView::exefModeless, 0); }
+int ViewArticle(const ArticleFilt * pFilt) { return PPView::Execute(PPVIEW_ARTICLE, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_ArticleView
 //

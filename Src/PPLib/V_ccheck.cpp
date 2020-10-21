@@ -7,7 +7,7 @@
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(CCheck); SLAPI CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 4)
+IMPLEMENT_PPFILT_FACTORY(CCheck); CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 4)
 {
 	SetFlatChunk(offsetof(CCheckFilt, ReserveStart), offsetof(CCheckFilt, SessIDList)-offsetof(CCheckFilt, ReserveStart));
 	SetBranchSVector(offsetof(CCheckFilt, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
@@ -24,13 +24,13 @@ CCheckFilt & FASTCALL CCheckFilt::operator = (const CCheckFilt & src)
 	return *this;
 }
 
-/*virtual*/int SLAPI CCheckFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int CCheckFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 3) {
 		class CCheckFilt_v3 : public PPBaseFilt {
 		public:
-			SLAPI  CCheckFilt_v3() : PPBaseFilt(PPFILT_CCHECK, 0, 3)
+			CCheckFilt_v3() : PPBaseFilt(PPFILT_CCHECK, 0, 3)
 			{
 				SetFlatChunk(offsetof(CCheckFilt_v3, ReserveStart), offsetof(CCheckFilt_v3, SessIDList)-offsetof(CCheckFilt_v3, ReserveStart));
 				SetBranchSVector(offsetof(CCheckFilt_v3, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
@@ -119,7 +119,7 @@ CCheckFilt & FASTCALL CCheckFilt::operator = (const CCheckFilt & src)
 	return ok;
 }
 
-int SLAPI CCheckFilt::SetLocList(const PPIDArray * pLocList)
+int CCheckFilt::SetLocList(const PPIDArray * pLocList)
 {
 	int    ok = -1;
 	if(pLocList && pLocList->getCount()) {
@@ -141,7 +141,7 @@ int SLAPI CCheckFilt::SetLocList(const PPIDArray * pLocList)
 //
 //
 //
-SLAPI CCheckViewItem::CCheckViewItem() : CCheckTbl::Rec(), TableCode(0), Div(0), GuestCount(0), AgentID(0), AddrID(0), BnkAmt(0.0),
+CCheckViewItem::CCheckViewItem() : CCheckTbl::Rec(), TableCode(0), Div(0), GuestCount(0), AgentID(0), AddrID(0), BnkAmt(0.0),
 	CrdCardAmt(0.0), G_GoodsID(0), G_Goods2ID(0), G_Count(0), G_Amount(0.0), G_Price(0.0), G_Discount(0.0),
 	G_PctPart(0.0), G_Qtty(0.0), G_SkuCount(0), G_LinesCount(0), CashNodeID(0), LinesCount(0), LinkCheckID(0),
 	RByCheck(0), LineFlags(0), LineQueue(0), CreationDtm(ZERODATETIME), CreationUserID(0)
@@ -152,9 +152,8 @@ SLAPI CCheckViewItem::CCheckViewItem() : CCheckTbl::Rec(), TableCode(0), Div(0),
 //
 //
 //
-void SLAPI PPViewCCheck::Helper_Construct()
+void PPViewCCheck::Helper_Construct()
 {
-	ImplementFlags |= (implDontSetupCtColumnsOnChgFilt|implUseServer);
 	P_CC = 0;
 	P_TmpTbl = 0;
 	P_TmpGrpTbl = 0;
@@ -165,14 +164,14 @@ void SLAPI PPViewCCheck::Helper_Construct()
 	P_InnerIterItem = 0; // @v10.2.6
 }
 
-SLAPI PPViewCCheck::PPViewCCheck() : PPView(0, &Filt, PPVIEW_CCHECK)
+PPViewCCheck::PPViewCCheck() : PPView(0, &Filt, PPVIEW_CCHECK, implDontSetupCtColumnsOnChgFilt|implUseServer, 0)
 {
 	Helper_Construct();
 	P_CC = new CCheckCore;
 	SETFLAG(State, stHasExt, P_CC->HasExt());
 }
 
-SLAPI PPViewCCheck::PPViewCCheck(CCheckCore & rOuterCc) : PPView(0, &Filt, PPVIEW_CCHECK)
+PPViewCCheck::PPViewCCheck(CCheckCore & rOuterCc) : PPView(0, &Filt, PPVIEW_CCHECK, implDontSetupCtColumnsOnChgFilt|implUseServer, 0)
 {
 	Helper_Construct();
 	P_CC = &rOuterCc;
@@ -180,7 +179,7 @@ SLAPI PPViewCCheck::PPViewCCheck(CCheckCore & rOuterCc) : PPView(0, &Filt, PPVIE
 	SETFLAG(State, stHasExt, P_CC->HasExt());
 }
 
-SLAPI PPViewCCheck::~PPViewCCheck()
+PPViewCCheck::~PPViewCCheck()
 {
 	delete P_TmpGrpTbl;
 	delete P_TmpTbl;
@@ -193,7 +192,7 @@ SLAPI PPViewCCheck::~PPViewCCheck()
 		delete P_CC;
 }
 
-int SLAPI PPViewCCheck::AllocInnerIterItem()
+int PPViewCCheck::AllocInnerIterItem()
 {
 	SETIFZ(P_InnerIterItem, new CCheckViewItem);
 	return P_InnerIterItem ? 1 : PPSetErrorNoMem();
@@ -204,12 +203,12 @@ const LAssocArray & PPViewCCheck::GetProblems() const { return Problems; }
 
 class CCheckCrosstab : public Crosstab {
 public:
-	SLAPI  CCheckCrosstab(PPViewCCheck * pV) : Crosstab(), P_V(pV)
+	CCheckCrosstab(PPViewCCheck * pV) : Crosstab(), P_V(pV)
 	{
 	}
-	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+	virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 		{ return new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner); }
-	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{ 
 		if(pVal && P_V) 
 			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf); 
@@ -218,7 +217,7 @@ protected:
 	PPViewCCheck * P_V;
 };
 
-void SLAPI PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
+void PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
 {
 	rBuf.Z();
 	if(Filt.CtKind == CCheckFilt::ctDate) {
@@ -229,9 +228,9 @@ void SLAPI PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
 }
 
 const BVATAccmArray * PPViewCCheck::GetInOutVATList() const { return P_InOutVATList; }
-CCheckCore * SLAPI PPViewCCheck::GetCc() { return P_CC; }
+CCheckCore * PPViewCCheck::GetCc() { return P_CC; }
 
-int SLAPI PPViewCCheck::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewCCheck::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW(PPView::SerializeState(dir, rBuf, pCtx));
@@ -258,7 +257,7 @@ int SLAPI PPViewCCheck::SerializeState(int dir, SBuffer & rBuf, SSerializeContex
 	return ok;
 }
 
-PPBaseFilt * SLAPI PPViewCCheck::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCCheck::CreateFilt(void * extraPtr) const
 {
 	CCheckFilt * p_filt = new CCheckFilt;
 	if(p_filt) {
@@ -584,7 +583,7 @@ private:
 //
 //
 //
-int SLAPI PPViewCCheck::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewCCheck::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -592,7 +591,7 @@ int SLAPI PPViewCCheck::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY_P1(CCheckFiltDialog, BIN(State & stHasExt), p_filt);
 }
 
-void SLAPI PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec)
+void PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec)
 {
 	rResultRec = *pRec;
 	MEMSZERO(rExtRec);
@@ -794,7 +793,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempCCheckQtty);
 PP_CREATE_TEMP_FILE_PROC(CreateTempGrpFile, TempCCheckGrp);
 PP_CREATE_TEMP_FILE_PROC(CreateTempGdsCorrFile, TempCCheckGdsCorr);
 
-int SLAPI PPViewCCheck::DoProcessLines() const
+int PPViewCCheck::DoProcessLines() const
 {
 	return BIN((State & stUseGoodsList) || !Filt.QttyR.IsZero() ||
 		(!(Filt.Flags & CCheckFilt::fFiltByCheck) && (!Filt.AmtR.IsZero() || !Filt.PcntR.IsZero())) ||
@@ -847,7 +846,7 @@ static CCheckTbl::Rec & FASTCALL TempCCheckQttyRec_To_CCheckRec(const TempCCheck
 	return rDest;
 }
 
-int SLAPI PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei)
+int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei)
 {
 	int    ok = -1;
 	CCheckLineTbl::Rec ln_rec;
@@ -969,11 +968,11 @@ IMPL_CMPFUNC(CCheckGrpItem, p1, p2)
 
 class CCheckGrpCache : SVector { // @v9.8.4 SArray-->SVector
 public:
-	SLAPI  CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SVector(sizeof(CCheckGrpItem)), P_Tbl(pTbl), MaxItems((maxItems > 0) ? maxItems : 1024) // @v9.8.4 SArray-->SVector
+	CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SVector(sizeof(CCheckGrpItem)), P_Tbl(pTbl), MaxItems((maxItems > 0) ? maxItems : 1024) // @v9.8.4 SArray-->SVector
 	{
 	}
 	int    FASTCALL AddItem(const CCheckGrpItem *);
-	int    SLAPI Flash()
+	int    Flash()
 	{
 		for(uint j = 0; j < getCount(); j++) {
 			if(!FlashItem(static_cast<const CCheckGrpItem *>(at(j))))
@@ -982,14 +981,14 @@ public:
 		return 1;
 	}
 private:
-	int    SLAPI SearchItem(const CCheckGrpItem * pKey, CCheckGrpItem * pItem);
-	int    SLAPI FlashItem(const CCheckGrpItem *);
+	int    SearchItem(const CCheckGrpItem * pKey, CCheckGrpItem * pItem);
+	int    FlashItem(const CCheckGrpItem *);
 
 	size_t MaxItems;
 	TempCCheckGrpTbl * P_Tbl;
 };
 
-int SLAPI CCheckGrpCache::SearchItem(const CCheckGrpItem * pKey, CCheckGrpItem * pItem)
+int CCheckGrpCache::SearchItem(const CCheckGrpItem * pKey, CCheckGrpItem * pItem)
 {
 	TempCCheckGrpTbl::Key1 k1;
 	k1.Dt = pKey->Dt;
@@ -1021,7 +1020,7 @@ int SLAPI CCheckGrpCache::SearchItem(const CCheckGrpItem * pKey, CCheckGrpItem *
 	return -1;
 }
 
-int SLAPI CCheckGrpCache::FlashItem(const CCheckGrpItem * pItem)
+int CCheckGrpCache::FlashItem(const CCheckGrpItem * pItem)
 {
 	int    ok = 1;
 	TempCCheckGrpTbl::Rec rec;
@@ -1098,7 +1097,7 @@ int FASTCALL CCheckGrpCache::AddItem(const CCheckGrpItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::IsTempTblNeeded() const
+int PPViewCCheck::IsTempTblNeeded() const
 {
 	return BIN((State & stUseGoodsList) || SessIdList.GetCount() > 1 ||
 		Filt.SCardSerID || Filt.SCardID || Filt.ScsList.GetCount() || Filt.HourBefore || Filt.WeekDays || !Filt.QttyR.IsZero() ||
@@ -1106,7 +1105,7 @@ int SLAPI PPViewCCheck::IsTempTblNeeded() const
 		(Filt.Flags & (CCheckFilt::fCalcSkuStat|CCheckFilt::fStartOrderPeriod)) || !!CcIdList);
 }
 
-int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
+int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, r;
 	SString temp_buf, name_buf, goods_name;
@@ -1309,7 +1308,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					case CCheckFilt::gCashiersNGoods:
 					case CCheckFilt::gGoodsSCSer:
 					case CCheckFilt::gAmountNGoods:
-					case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
+					case CCheckFilt::gAgentGoodsSCSer:
 					case CCheckFilt::gGoodsCard:       // @erik v10.5.2
 						if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
 							THROW(GdsObj.SubstGoods(item.G_GoodsID, &ccgitem.GoodsID, Filt.Sgg, &sgg_blk, &Gsl));
@@ -1742,7 +1741,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::InitIteration(int order)
+int PPViewCCheck::InitIteration(int order)
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 
@@ -2136,7 +2135,7 @@ static IMPL_DBE_PROC(dbqf_ccheck_postext_ii) // @construction
 	}
 }
 
-DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncPosText, BTS_STRING, dbqf_ccheck_postext_ii, 2, BTS_INT, BTS_INT);
 
@@ -2518,7 +2517,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewCCheck::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
+int PPViewCCheck::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 {
 	int    ok = 1;
 	memzero(pHdr, sizeof(*pHdr));
@@ -2540,7 +2539,7 @@ int SLAPI PPViewCCheck::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	return ok;
 }
 
-void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	SString title, buf;
 	if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
@@ -2628,7 +2627,7 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewCCheck::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewCCheck::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	if(Filt.Flags & CCheckFilt::fImmOpenPanel && Filt.Flags & CCheckFilt::fActiveSess) {
 		int    r = AddItem();
@@ -2645,12 +2644,12 @@ int SLAPI PPViewCCheck::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewCCheck::PosPrint(PPID checkID, long)
+int PPViewCCheck::PosPrint(PPID checkID, long)
 {
 	return -1;
 }
 
-static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, const SString & rG1Name, const SString & rG2Name, long intersectChkCount, long goods1ChkCount, long goods2ChkCount, long totalChkCount)
+static int PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, const SString & rG1Name, const SString & rG2Name, long intersectChkCount, long goods1ChkCount, long goods2ChkCount, long totalChkCount)
 {
 	int    ok = 1;
 	TempCCheckGdsCorrTbl::Rec gc_rec;
@@ -2677,7 +2676,7 @@ static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, con
 	return ok;
 }
 
-int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
+int PPViewCCheck::CreateGoodsCorrTbl()
 {
 	int    ok = 1, c;
 	uint   pos, pos1, goods_chk_pos = 0;
@@ -2776,48 +2775,46 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 					PPID     goods1_id = p_la_ary->at(pos).Key;
 					p_goods_ary = reinterpret_cast<LAssocArray *>(p_la_ary->at(pos).Val);
 					const uint term_count = p_goods_ary->getCount();
-					TempCCheckGdsCorrTbl::Rec gc_rec;
 					min_at_ary = MIN(min_at_ary, term_count);
 					max_at_ary = MAX(max_at_ary, term_count);
 					if(Filt.Sgg)
 						GdsObj.GetSubstText(goods1_id, Filt.Sgg, &Gsl, goods1_name);
-					else {
-						// @v9.5.5 GetGoodsName(goods1_id, goods1_name);
-						GdsObj.FetchNameR(goods1_id, goods1_name); // @v9.5.5
-					}
+					else
+						GdsObj.FetchNameR(goods1_id, goods1_name);
 					goods_chk_ary.BSearch(goods1_id, &goods1_chk_count, 0);
 					for(uint pos1 = 0; pos1 < term_count; pos1++) {
 						long  count = p_goods_ary->at(pos1).Val;
 						if(count >= Filt.GcoMinCount) {
-							PPID     goods2_id = p_goods_ary->at(pos1).Key;
-							long goods2_chk_count = 0;
+							const  PPID goods2_id = p_goods_ary->at(pos1).Key;
+							long   goods2_chk_count = 0;
 							if(Filt.Sgg)
 								GdsObj.GetSubstText(goods2_id, Filt.Sgg, &Gsl, goods2_name);
-							else {
-								// @v9.5.5 GetGoodsName(goods2_id, goods2_name);
-								GdsObj.FetchNameR(goods2_id, goods2_name); // @v9.5.5
+							else
+								GdsObj.FetchNameR(goods2_id, goods2_name);
+							{
+								TempCCheckGdsCorrTbl::Rec gc_rec;
+								gc_rec.Goods1ID = goods1_id;
+								gc_rec.Goods2ID = goods2_id;
+								goods1_name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
+								goods2_name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
+								gc_rec.Count       = count;
+								gc_rec.ChecksCount = goods1_chk_count;
+								gc_rec.ChecksCountPct = (chk_count) ? fdivi(count, goods1_chk_count) * 100 : 0;
+								THROW_DB(bei.insert(&gc_rec));
 							}
-							MEMSZERO(gc_rec);
-							gc_rec.Goods1ID = goods1_id;
-							gc_rec.Goods2ID = goods2_id;
-							goods1_name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
-							goods2_name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
-							gc_rec.Count       = count;
-							gc_rec.ChecksCount = goods1_chk_count;
-							gc_rec.ChecksCountPct = (chk_count) ? fdivi(count, goods1_chk_count) * 100 : 0;
-							THROW_DB(bei.insert(&gc_rec));
-
 							goods_chk_ary.BSearch(goods2_id, &goods2_chk_count, 0);
 							goods2_chk_count = MAX(goods2_chk_count, 1);
-							MEMSZERO(gc_rec);
-							gc_rec.Goods1ID = goods2_id;
-							gc_rec.Goods2ID = goods1_id;
-							goods1_name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
-							goods2_name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
-							gc_rec.Count       = count;
-							gc_rec.ChecksCount = goods2_chk_count;
-							gc_rec.ChecksCountPct = (chk_count) ? fdivi(count, goods2_chk_count) * 100 : 0;
-							THROW_DB(bei.insert(&gc_rec));
+							{
+								TempCCheckGdsCorrTbl::Rec gc_rec;
+								gc_rec.Goods1ID = goods2_id;
+								gc_rec.Goods2ID = goods1_id;
+								goods1_name.CopyTo(gc_rec.GoodsName2, sizeof(gc_rec.GoodsName2));
+								goods2_name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
+								gc_rec.Count       = count;
+								gc_rec.ChecksCount = goods2_chk_count;
+								gc_rec.ChecksCountPct = (chk_count) ? fdivi(count, goods2_chk_count) * 100 : 0;
+								THROW_DB(bei.insert(&gc_rec));
+							}
 						}
 					}
 					delete p_goods_ary;
@@ -2878,7 +2875,7 @@ static int SetGoodsCorr(CCheckFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::ViewGoodsCorr()
+int PPViewCCheck::ViewGoodsCorr()
 {
 	int    ok = -1;
 	CCheckFilt temp_flt;
@@ -2890,7 +2887,7 @@ int SLAPI PPViewCCheck::ViewGoodsCorr()
 	return ok;
 }
 
-int SLAPI PPViewCCheck::ChangeFilt(PPViewBrowser * pBrw)
+int PPViewCCheck::ChangeFilt(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && Filt.Flags & CCheckFilt::fGoodsCorr) {
@@ -2911,7 +2908,7 @@ int SLAPI PPViewCCheck::ChangeFilt(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::EditGoods(const void * pHdr, int goodsNo)
+int PPViewCCheck::EditGoods(const void * pHdr, int goodsNo)
 {
 	int    ok = -1;
 	if(pHdr) {
@@ -2943,7 +2940,7 @@ int SLAPI PPViewCCheck::EditGoods(const void * pHdr, int goodsNo)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::ToggleDlvrTag(PPID checkID)
+int PPViewCCheck::ToggleDlvrTag(PPID checkID)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2977,7 +2974,7 @@ int SLAPI PPViewCCheck::ToggleDlvrTag(PPID checkID)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::ViewGraph()
+int PPViewCCheck::ViewGraph()
 {
 	int    ok = -1;
 	if(Filt.Grp) {
@@ -3059,7 +3056,7 @@ int SLAPI PPViewCCheck::ViewGraph()
 	return ok;
 }
 
-int SLAPI PPViewCCheck::AddGoodsToBasket(PPID checkID)
+int PPViewCCheck::AddGoodsToBasket(PPID checkID)
 {
 	int    ok = -1, r = 0;
 	SelBasketParam param;
@@ -3106,7 +3103,7 @@ int SLAPI PPViewCCheck::AddGoodsToBasket(PPID checkID)
 	return ok;
 }
 
-SString & SLAPI PPViewCCheck::GetCtColumnTitle(int ct, SString & rBuf)
+SString & PPViewCCheck::GetCtColumnTitle(int ct, SString & rBuf)
 {
 	rBuf.Space() = 0;
 	SString temp_buf;
@@ -3171,7 +3168,7 @@ static int DetectCcDups(TSVector <CcDupEntry> & rList, TSVector <CcDupEntry> & r
 	return ok;
 }
 
-int SLAPI PPViewCCheck::Recover()
+int PPViewCCheck::Recover()
 {
 	int    ok = -1;
 	if(Filt.Grp == Filt.gNone) { // @v10.0.04
@@ -3374,7 +3371,7 @@ int SLAPI PPViewCCheck::Recover()
 	return ok;
 }
 
-int SLAPI PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -3468,7 +3465,7 @@ int SLAPI PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 	return ok;
 }
 
-int SLAPI PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
+int PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 {
 	int    ok = 1;
 	CCheckViewItem item;
@@ -3518,7 +3515,7 @@ int SLAPI PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::RemoveAll()
+int PPViewCCheck::RemoveAll()
 {
 	int    ok = -1;
 	if(Filt.Flags & CCheckFilt::fZeroSess && CONFIRMCRIT(PPCFM_DELETE)) {
@@ -3542,7 +3539,7 @@ int SLAPI PPViewCCheck::RemoveAll()
 	return ok;
 }
 
-int SLAPI PPViewCCheck::ViewTotal()
+int PPViewCCheck::ViewTotal()
 {
 	int    ok = 1;
 	TDialog * dlg = 0;
@@ -3567,7 +3564,7 @@ int SLAPI PPViewCCheck::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewCCheck::AddItem()
+int PPViewCCheck::AddItem()
 {
 	if(!Filt.Grp) {
 		int  to_view = 0, close_imm = 0;
@@ -3623,7 +3620,7 @@ int SLAPI PPViewCCheck::AddItem()
 }
 
 // @<<PPViewCSess::CreateDraft
-int SLAPI PPViewCCheck::GetPacket(PPID id, CCheckPacket * pPack)
+int PPViewCCheck::GetPacket(PPID id, CCheckPacket * pPack)
 {
 	return P_CC->LoadPacket(id, 0, pPack);
 }
@@ -3821,7 +3818,7 @@ private:
 			}
 		}
 	}
-	int    SLAPI FiscalPrintintgEnabled() const
+	int    FiscalPrintintgEnabled() const
 	{
 		return (!(Data.Rec.Flags & (CCHKF_PRINTED|CCHKF_SUSPENDED)) && (Data.Rec.Flags & CCHKF_SYNC) && Data.Rec.CashID && Data.Rec.SessID);
 	}
@@ -3831,7 +3828,7 @@ private:
 };
 
 // static
-int SLAPI PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
+int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 {
 	int    ok = -1, valid_data = 0;
 	CCheckInfoDialog * dlg = 0;
@@ -3891,7 +3888,7 @@ int SLAPI PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::EditItemInfo(PPID id)
+int PPViewCCheck::EditItemInfo(PPID id)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -3928,7 +3925,7 @@ int SLAPI PPViewCCheck::EditItemInfo(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pHdr) {
@@ -4095,7 +4092,7 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 }
 
 // static
-int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
+int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 {
 	int    ok = -1;
 	const PPEquipConfig & r_eq_cfg = pV->CsObj.GetEqCfg();
@@ -4178,7 +4175,7 @@ int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::CalcVATData()
+int PPViewCCheck::CalcVATData()
 {
 	int    ok = -1;
 	SString msg_buf;
@@ -4205,7 +4202,7 @@ int SLAPI PPViewCCheck::CalcVATData()
 	return ok;
 }
 
-int SLAPI PPViewCCheck::GetReportId() const
+int PPViewCCheck::GetReportId() const
 {
 	int    rpt_id = 0;
 	if(P_TmpGdsCorrTbl)
@@ -4233,7 +4230,7 @@ int SLAPI PPViewCCheck::GetReportId() const
 	return rpt_id;
 }
 
-int SLAPI PPViewCCheck::Print(const void *)
+int PPViewCCheck::Print(const void *)
 {
 	uint   rpt_id = GetReportId();
 	if(!P_TmpGdsCorrTbl && Filt.Grp == CCheckFilt::gNone) {
@@ -4244,7 +4241,7 @@ int SLAPI PPViewCCheck::Print(const void *)
 	return Helper_Print(rpt_id, 0);
 }
 
-int SLAPI ViewCCheck(const CCheckFilt * pFilt, int exeFlags) { return PPView::Execute(PPVIEW_CCHECK, pFilt, exeFlags, 0); }
+int ViewCCheck(const CCheckFilt * pFilt, int exeFlags) { return PPView::Execute(PPVIEW_CCHECK, pFilt, exeFlags, 0); }
 //
 // Implementation of PPALDD_CCheck
 //

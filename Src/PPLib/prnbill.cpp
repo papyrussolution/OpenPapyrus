@@ -11,7 +11,7 @@ static const char * BillMultiplePrintOnlyPriceChanged = "BillMultiplePrintOnlyPr
 
 #define BILL_FORM_COUNT 13
 
-static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPID oprType, int * pDivCopiesFlag, int * pOnlyPriceChangedFlag)
+static int SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPID oprType, int * pDivCopiesFlag, int * pOnlyPriceChangedFlag)
 {
 	class BillPrintDialog : public TDialog {
 	public:
@@ -282,7 +282,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 	return ok;
 }
 
-static int SLAPI PrintInvoice(PPBillPacket * pPack, int prnflags)
+static int PrintInvoice(PPBillPacket * pPack, int prnflags)
 {
 	int    ok = 1, val = 0;
 	PPReportEnv env;
@@ -298,7 +298,7 @@ static int SLAPI PrintInvoice(PPBillPacket * pPack, int prnflags)
 	return ok;
 }
 
-static int SLAPI IsPriceChanged(const PPTransferItem * pTi, long procFlags)
+static int IsPriceChanged(const PPTransferItem * pTi, long procFlags)
 {
 	int price_chng = 1; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
 	if(procFlags & PPBillPacket::pfPrintChangedPriceOnly) {
@@ -324,7 +324,7 @@ static int SLAPI IsPriceChanged(const PPTransferItem * pTi, long procFlags)
 	return price_chng;
 }
 
-static int SLAPI PrintBillImages(const PPBillPacket * pPack, int prnFlags)
+static int PrintBillImages(const PPBillPacket * pPack, int prnFlags)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -615,7 +615,7 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 	return ok;
 }
 
-int SLAPI PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags)
+int PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags)
 {
 	int    ok = 1;
 	const  double amt = BR2(pPack->Rec.Amount);
@@ -646,7 +646,7 @@ int SLAPI PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags)
 	return ok;
 }
 
-int SLAPI PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
+int PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
 {
 	PPFilt pf(pPack);
 	pf.ID  = pay_rcv ? 1 : 2;

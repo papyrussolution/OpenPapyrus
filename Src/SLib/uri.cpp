@@ -786,8 +786,7 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 						}
 						break;
 				    default:
-						// Copy two chars unmodified and 
-						// look at this char again 
+						// Copy two chars unmodified and  look at this char again 
 						if(p_read > p_write) {
 							p_write[0] = p_read[0];
 							p_write[1] = p_read[1];
@@ -798,8 +797,7 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 				}
 				break;
 			    default:
-					// Copy one char unmodified and 
-					// look at this char again 
+					// Copy one char unmodified and  look at this char again 
 					if(p_read > p_write)
 						p_write[0] = p_read[0];
 					p_read++;
@@ -1409,14 +1407,12 @@ int UriCopyPath(UriUri * dest, const UriUri * source)
 int UriCopyAuthority(UriUri * dest, const UriUri * source)
 {
 	// From this functions usage we know that the dest URI cannot be uri->owner  
-	/* Copy userInfo */
-	dest->UserInfo = source->UserInfo;
-	/* Copy hostText */
-	dest->HostText = source->HostText;
+	dest->UserInfo = source->UserInfo; /* Copy userInfo */
+	dest->HostText = source->HostText; /* Copy hostText */
 	/* Copy hostData */
 	if(source->HostData.ip4) {
-		dest->HostData.ip4 =(UriUri::UriIp4 *)SAlloc::M(sizeof(UriUri::UriIp4));
-		if(dest->HostData.ip4 == NULL) {
+		dest->HostData.ip4 = static_cast<UriUri::UriIp4 *>(SAlloc::M(sizeof(UriUri::UriIp4)));
+		if(!dest->HostData.ip4) {
 			return FALSE; // Raises SAlloc::M error 
 		}
 		*(dest->HostData.ip4) = *(source->HostData.ip4);
@@ -1425,8 +1421,8 @@ int UriCopyAuthority(UriUri * dest, const UriUri * source)
 	}
 	else if(source->HostData.ip6) {
 		dest->HostData.ip4 = NULL;
-		dest->HostData.ip6 = (UriUri::UriIp6 *)SAlloc::M(sizeof(UriUri::UriIp6));
-		if(dest->HostData.ip6 == NULL) {
+		dest->HostData.ip6 = static_cast<UriUri::UriIp6 *>(SAlloc::M(sizeof(UriUri::UriIp6)));
+		if(!dest->HostData.ip6) {
 			return FALSE; // Raises SAlloc::M error 
 		}
 		*(dest->HostData.ip6) = *(source->HostData.ip6);
@@ -1437,8 +1433,7 @@ int UriCopyAuthority(UriUri * dest, const UriUri * source)
 		dest->HostData.ip6 = NULL;
 		dest->HostData.ipFuture = source->HostData.ipFuture;
 	}
-	/* Copy portText */
-	dest->PortText = source->PortText;
+	dest->PortText = source->PortText; /* Copy portText */
 	return TRUE;
 }
 
@@ -1481,23 +1476,23 @@ void UriFixEmptyTrailSegment(UriUri * uri)
 static void FASTCALL UriPreventLeakage(UriUri * uri, uint revertMask)
 {
 	if(revertMask&URI_NORMALIZE_SCHEME) {
-		SAlloc::F((char *)uri->Scheme.P_First);
+		SAlloc::F((char *)uri->Scheme.P_First); // @badcast
 		uri->Scheme.Clear();
 	}
 	if(revertMask&URI_NORMALIZE_USER_INFO) {
-		SAlloc::F((char *)uri->UserInfo.P_First);
+		SAlloc::F((char *)uri->UserInfo.P_First); // @badcast
 		uri->UserInfo.Clear();
 	}
 	if(revertMask&URI_NORMALIZE_HOST) {
 		if(uri->HostData.ipFuture.P_First) {
 			// IPvFuture 
-			SAlloc::F((char *)uri->HostData.ipFuture.P_First);
+			SAlloc::F((char *)uri->HostData.ipFuture.P_First); // @badcast
 			uri->HostData.ipFuture.Clear();
 			uri->HostText.Clear();
 		}
 		else if(uri->HostText.P_First && !uri->HostData.ip4 && !uri->HostData.ip6) {
 			// Regname 
-			SAlloc::F((char *)uri->HostText.P_First);
+			SAlloc::F((char *)uri->HostText.P_First); // @badcast
 			uri->HostText.Clear();
 		}
 	}
@@ -1507,7 +1502,7 @@ static void FASTCALL UriPreventLeakage(UriUri * uri, uint revertMask)
 		while(p_walker) {
 			UriUri::PathSegment * const next = p_walker->next;
 			if(p_walker->text.Len() > 0) {
-				SAlloc::F((char *)p_walker->text.P_First);
+				SAlloc::F((char *)p_walker->text.P_First); // @badcast
 			}
 			delete p_walker;
 			p_walker = next;
@@ -1516,11 +1511,11 @@ static void FASTCALL UriPreventLeakage(UriUri * uri, uint revertMask)
 		uri->pathTail = NULL;
 	}
 	if(revertMask&URI_NORMALIZE_QUERY) {
-		SAlloc::F((char *)uri->query.P_First);
+		SAlloc::F((char *)uri->query.P_First); // @badcast
 		uri->query.Clear();
 	}
 	if(revertMask&URI_NORMALIZE_FRAGMENT) {
-		SAlloc::F((char *)uri->fragment.P_First);
+		SAlloc::F((char *)uri->fragment.P_First); // @badcast
 		uri->fragment.Clear();
 	}
 }
@@ -1802,7 +1797,7 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 				for(UriUri::PathSegment * p_ranger = uri->pathHead; p_ranger->next != p_walker;) {
 					UriUri::PathSegment * const next = p_ranger->next;
 					if(p_ranger->text.P_First && p_ranger->text.P_AfterLast && p_ranger->text.Len() > 0) {
-						SAlloc::F((char *)p_ranger->text.P_First);
+						SAlloc::F((char *)p_ranger->text.P_First); // @badcast
 						delete p_ranger;
 					}
 					p_ranger = next;
@@ -3726,13 +3721,11 @@ const char * FASTCALL UriParserState::ParsePctEncoded(const char * pFirst, const
 		StopSyntax(pFirst);
 		return NULL;
 	}
-	/*
-	   First character has already been
-	   checked before entering this rule.
-
-	   switch(*first) {
-	   case _UT('%'):
-	*/
+	// 
+	// First character has already been checked before entering this rule.
+	// switch(*first) {
+	//   case _UT('%'):
+	// 
 	else if(pFirst+1 >= afterLast) {
 		StopSyntax(pFirst+1);
 		return NULL;
@@ -4130,26 +4123,25 @@ UriUri::PathSegment::PathSegment(const char * pFirst, const char * pAfterLast) :
 {
 }
 
-//void UriFreeUriMembers(UriUri * pUri)
 void UriUri::Destroy()
 {
 	if(IsOwner) {
 		// Scheme 
 		if(Scheme.P_First) {
 			if(Scheme.P_First != Scheme.P_AfterLast)
-				SAlloc::F(const_cast<char *>(Scheme.P_First));
+				SAlloc::F(const_cast<char *>(Scheme.P_First)); // @badcast
 			Scheme.Clear();
 		}
 		// User info 
 		if(UserInfo.P_First) {
 			if(UserInfo.P_First != UserInfo.P_AfterLast)
-				SAlloc::F(const_cast<char *>(UserInfo.P_First));
+				SAlloc::F(const_cast<char *>(UserInfo.P_First)); // @badcast
 			UserInfo.Clear();
 		}
 		// Host data - IPvFuture 
 		if(HostData.ipFuture.P_First) {
 			if(HostData.ipFuture.Len())
-				SAlloc::F(const_cast<char *>(HostData.ipFuture.P_First));
+				SAlloc::F(const_cast<char *>(HostData.ipFuture.P_First)); // @badcast
 			HostData.ipFuture.Clear();
 			HostText.Clear();
 		}
@@ -4157,7 +4149,7 @@ void UriUri::Destroy()
 		if(HostText.P_First && !HostData.ip4 && !HostData.ip6) {
 			// Real regname 
 			if(HostText.Len())
-				SAlloc::F(const_cast<char *>(HostText.P_First));
+				SAlloc::F(const_cast<char *>(HostText.P_First)); // @badcast
 			HostText.Clear();
 		}
 	}
@@ -4175,7 +4167,7 @@ void UriUri::Destroy()
 		while(p_seg_walk) {
 			UriUri::PathSegment * const next = p_seg_walk->next;
 			if(IsOwner && p_seg_walk->text.P_First && p_seg_walk->text.Len() > 0)
-				SAlloc::F(const_cast<char *>(p_seg_walk->text.P_First));
+				SAlloc::F(const_cast<char *>(p_seg_walk->text.P_First)); // @badcast
 			delete p_seg_walk;
 			p_seg_walk = next;
 		}
@@ -4186,13 +4178,13 @@ void UriUri::Destroy()
 		// Query 
 		if(query.P_First) {
 			if(query.Len())
-				SAlloc::F(const_cast<char *>(query.P_First));
+				SAlloc::F(const_cast<char *>(query.P_First)); // @badcast
 			query.Clear();
 		}
 		// Fragment 
 		if(fragment.P_First) {
 			if(fragment.Len())
-				SAlloc::F(const_cast<char *>(fragment.P_First));
+				SAlloc::F(const_cast<char *>(fragment.P_First)); // @badcast
 			fragment.Clear();
 		}
 	}
@@ -4210,14 +4202,14 @@ int Uri_TESTING_ONLY_ParseIpSix(const char * pText)
 	parser.P_Uri->HostData.ip6 = static_cast<UriUri::UriIp6 *>(SAlloc::M(1*sizeof(UriUri::UriIp6)));
 	res = parser.ParseIPv6address2(pText, p_after_ip_six);
 	uri.Destroy();
-	return (res == p_after_ip_six) ? TRUE : FALSE;
+	return BIN(res == p_after_ip_six);
 }
 
 int Uri_TESTING_ONLY_ParseIpFour(const char * pText)
 {
 	uchar  octets[4];
 	int    res = UriParseIpFourAddress(octets, pText, pText + sstrlen(pText));
-	return (res == SLERR_SUCCESS) ? TRUE : FALSE;
+	return BIN(res == SLERR_SUCCESS);
 }
 
 #undef URI_SET_DIGIT

@@ -14,18 +14,18 @@ static void __LogDebugMessage(ObjTransmContext * pCtx, const char * pMsg)
 //#endif
 }
 
-SLAPI ILTI::ILTI(const PPTransferItem * pTI)
+ILTI::ILTI(const PPTransferItem * pTI)
 {
 	THISZERO();
 	Init(pTI);
 }
 
-int SLAPI ILTI::HasDeficit() const
+int ILTI::HasDeficit() const
 {
 	return BIN(fabs(Rest) >= BillCore::GetQttyEpsilon());
 }
 
-void SLAPI ILTI::Setup(PPID goodsID, int sign, double qtty, double cost, double price)
+void ILTI::Setup(PPID goodsID, int sign, double qtty, double cost, double price)
 {
 	GoodsID = goodsID;
 	if(sign > 0)
@@ -36,7 +36,7 @@ void SLAPI ILTI::Setup(PPID goodsID, int sign, double qtty, double cost, double 
 	Price = price;
 }
 
-void SLAPI ILTI::SetQtty(double qtty, double wtQtty, long flags)
+void ILTI::SetQtty(double qtty, double wtQtty, long flags)
 {
 	if(flags & PPTFR_PLUS)
 		qtty = fabs(qtty);
@@ -106,7 +106,7 @@ struct _LotCmp { // @flat
 
 IMPL_CMPFUNC(_LotCmp, p1, p2) { RET_CMPCASCADE3(static_cast<const _LotCmp *>(p1), static_cast<const _LotCmp *>(p2), cost_diff, price_diff, pos); }
 
-int SLAPI PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID genGoodsID, double cost, double price, double qtty)
+int PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID genGoodsID, double cost, double price, double qtty)
 {
 	int    ok = 1;
 	uint   i;
@@ -138,7 +138,7 @@ int SLAPI PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PP
 }
 
 struct CmpGenLots { // @flat
-	SLAPI  CmpGenLots(PPID lot, LDATE d, long oprNo) : lotID(lot), dt(d), o(oprNo)
+	CmpGenLots(PPID lot, LDATE d, long oprNo) : lotID(lot), dt(d), o(oprNo)
 	{
 	}
 	LDATE  dt;
@@ -148,7 +148,7 @@ struct CmpGenLots { // @flat
 
 static IMPL_CMPFUNC(CmpGenLots, i1, i2) { return memcmp(i1, i2, sizeof(CmpGenLots)); }
 
-static int SLAPI SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID goodsID, PPID lotID)
+static int SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID goodsID, PPID lotID)
 {
 	int    ok = 1;
 	memzero(pTI, sizeof(*pTI));
@@ -159,7 +159,7 @@ static int SLAPI SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID 
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
+int PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 	double * pQtty, long flags, const GoodsReplacementArray * pGra, char * pSerial)
 {
 	int    ok = 1, r;
@@ -285,14 +285,14 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 	return ok;
 }
 
-int SLAPI PPObjBill::CmpSnrWithLotSnr(PPID lotID, const char * pSerial)
+int PPObjBill::CmpSnrWithLotSnr(PPID lotID, const char * pSerial)
 {
 	SString serial;
 	GetSerialNumberByLot(lotID, serial, 0);
 	return (pSerial && serial.Cmp(pSerial, 0) == 0);
 }
 
-int SLAPI PPObjBill::AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice)
+int PPObjBill::AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice)
 {
 	int    ok = -1;
 	double adj_intr_price_val = 0.0;
@@ -621,7 +621,7 @@ private:
 	double RunningPriceVat;
 };
 
-int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows, uint flags, const char * pSerial, const GoodsReplacementArray * pGra)
+int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows, uint flags, const char * pSerial, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
 	int    full_sync = 0; // Признак того, что сформированная строка документа полностью идентична ilti
@@ -1087,7 +1087,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 //
 //
 //
-SLAPI ComplItem::ComplItem()
+ComplItem::ComplItem()
 {
 	THISZERO();
 }
@@ -1100,7 +1100,7 @@ struct GRII { // @flat
 	double Ratio;  // Отношение, в котором следует использовать товар SrcID для компенсации
 };
 
-SLAPI GRI::GRI(PPID destID) : SVector(sizeof(GRII)), DestID(destID) // @v10.6.4 SArray-->SVector
+GRI::GRI(PPID destID) : SVector(sizeof(GRII)), DestID(destID) // @v10.6.4 SArray-->SVector
 {
 }
 
@@ -1108,7 +1108,7 @@ PPID   FASTCALL GRI::GetSrcID(uint i) const { return static_cast<const GRII *>(a
 double FASTCALL GRI::GetQtty(uint i) const { return static_cast<const GRII *>(at(i))->Qtty; }
 double FASTCALL GRI::GetRatio(uint i) const { return static_cast<const GRII *>(at(i))->Ratio; }
 
-int SLAPI GRI::GetPosByGoods(PPID goodsID, uint * pPos) const
+int GRI::GetPosByGoods(PPID goodsID, uint * pPos) const
 {
 	uint   pos = 0;
 	if(lsearch(&goodsID, &pos, CMPF_LONG)) {
@@ -1119,7 +1119,7 @@ int SLAPI GRI::GetPosByGoods(PPID goodsID, uint * pPos) const
 		return 0;
 }
 
-int SLAPI GRI::Add(PPID srcID, double qtty, double ratio)
+int GRI::Add(PPID srcID, double qtty, double ratio)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -1137,7 +1137,7 @@ int SLAPI GRI::Add(PPID srcID, double qtty, double ratio)
 	return ok;
 }
 
-SLAPI GoodsReplacementArray::GoodsReplacementArray(PPID specialSubstGroupID) : TSCollection <GRI> (), SpecialSubstGroupID(specialSubstGroupID)
+GoodsReplacementArray::GoodsReplacementArray(PPID specialSubstGroupID) : TSCollection <GRI> (), SpecialSubstGroupID(specialSubstGroupID)
 {
 	// @v10.0.12 {
 	if(SpecialSubstGroupID) {
@@ -1146,12 +1146,12 @@ SLAPI GoodsReplacementArray::GoodsReplacementArray(PPID specialSubstGroupID) : T
 	// } @v10.0.12
 }
 
-const  PPIDArray * SLAPI GoodsReplacementArray::GetSpecialSubstGoodsList() const
+const  PPIDArray * GoodsReplacementArray::GetSpecialSubstGoodsList() const
 {
 	return SpecialSubstGroupID ? &SpecialSubstGoodsList : 0;
 }
 
-const GRI * SLAPI GoodsReplacementArray::Search(PPID destID) const
+const GRI * GoodsReplacementArray::Search(PPID destID) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const GRI * p_item = at(i);
@@ -1161,7 +1161,7 @@ const GRI * SLAPI GoodsReplacementArray::Search(PPID destID) const
 	return 0;
 }
 
-GRI * SLAPI GoodsReplacementArray::SearchNC(PPID destID)
+GRI * GoodsReplacementArray::SearchNC(PPID destID)
 {
 	for(uint i = 0; i < getCount(); i++) {
 		GRI * p_item = at(i);
@@ -1171,7 +1171,7 @@ GRI * SLAPI GoodsReplacementArray::SearchNC(PPID destID)
 	return 0;
 }
 
-int SLAPI GoodsReplacementArray::Add(PPID destID, PPID srcID, double qtty, double ratio)
+int GoodsReplacementArray::Add(PPID destID, PPID srcID, double qtty, double ratio)
 {
 	int    ok = 2;
 	GRI * p_gri = SearchNC(destID);
@@ -1190,16 +1190,16 @@ int SLAPI GoodsReplacementArray::Add(PPID destID, PPID srcID, double qtty, doubl
 //
 //
 //
-SLAPI ILBillPacket::ILBillPacket() : PPBill(), IlbFlags(0), LocObj(0)
+ILBillPacket::ILBillPacket() : PPBill(), IlbFlags(0), LocObj(0)
 {
 }
 
-SLAPI ILBillPacket::~ILBillPacket()
+ILBillPacket::~ILBillPacket()
 {
 	destroy();
 }
 
-void SLAPI ILBillPacket::destroy()
+void ILBillPacket::destroy()
 {
 	PPBill::BaseDestroy();
 	IlbFlags = 0;
@@ -1213,13 +1213,13 @@ void SLAPI ILBillPacket::destroy()
 	// @v9.8.11 BTagL.Destroy();
 }
 
-int SLAPI ILBillPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
+int ILBillPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
 {
 	*pPos = 0;
 	return Lots.lsearch(&goodsID, pPos, CMPF_LONG, offsetof(ILTI, GoodsID));
 }
 
-int SLAPI ILBillPacket::SearchRByBill(int rbb, uint * pPos) const
+int ILBillPacket::SearchRByBill(int rbb, uint * pPos) const
 {
 	int    ok = 0;
 	if(rbb) {
@@ -1233,7 +1233,7 @@ int SLAPI ILBillPacket::SearchRByBill(int rbb, uint * pPos) const
 	return ok;
 }
 
-int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
+int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 {
 	int    ok = 1, rbybill, r;
 	const  int free_amt = (flags & ILBPF_LOADAMTNOTLOTS) ? 0 : 1;
@@ -1481,7 +1481,7 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
 	return rBuf.CatChar('}');
 }
 
-int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, ObjTransmContext * pCtx, int use_ta)
+int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, ObjTransmContext * pCtx, int use_ta)
 {
 	assert(rPack.Rec.ID >= 0);
 	const int trace_sync_lot = BIN(DS.CheckExtFlag(ECF_TRACESYNCLOT));
@@ -1829,7 +1829,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	return ok;
 }
 
-int SLAPI ILBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int ILBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir < 0)
@@ -1869,11 +1869,11 @@ int SLAPI ILBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext
 //
 PP_CREATE_TEMP_FILE_PROC(CreateTempDeficitTable, TempDeficit);
 
-SLAPI BillTransmDeficit::BillTransmDeficit() : DiffGoodsBySuppl(1), Tbl(CreateTempDeficitTable()), BObj(BillObj)
+BillTransmDeficit::BillTransmDeficit() : DiffGoodsBySuppl(1), Tbl(CreateTempDeficitTable()), BObj(BillObj)
 {
 }
 
-SLAPI BillTransmDeficit::~BillTransmDeficit()
+BillTransmDeficit::~BillTransmDeficit()
 {
 	delete Tbl;
 	DBRemoveTempFiles();
@@ -1899,7 +1899,7 @@ BillTransmDeficit::LocPeriod * BillTransmDeficit::GetLocPeriod(PPID locID)
 	return p_result;
 }
 
-int SLAPI BillTransmDeficit::Search(PPID locID, PPID goodsID, PPID supplID, TempDeficitTbl::Rec * pRec)
+int BillTransmDeficit::Search(PPID locID, PPID goodsID, PPID supplID, TempDeficitTbl::Rec * pRec)
 {
 	TempDeficitTbl::Key0 k;
 	k.Location = locID;
@@ -1908,7 +1908,7 @@ int SLAPI BillTransmDeficit::Search(PPID locID, PPID goodsID, PPID supplID, Temp
 	return SearchByKey(Tbl, 0, &k, pRec);
 }
 
-int SLAPI BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID, SArray * pRecList, uint startPos, double supplQtty)
+int BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID, SArray * pRecList, uint startPos, double supplQtty)
 {
 	int    ok = 1;
 	const  int round_prec = GObj.CheckFlag(goodsID, GF_INTVAL) ? 0 : 6;
@@ -1947,7 +1947,7 @@ int SLAPI BillTransmDeficit::_CompleteGoodsRest(PPID locID, PPID goodsID, SArray
 	return ok;
 }
 
-int SLAPI BillTransmDeficit::CompleteGoodsRest()
+int BillTransmDeficit::CompleteGoodsRest()
 {
 	int    ok = 1;
 	double suppl_qtty = 0.0;
@@ -1985,7 +1985,7 @@ int SLAPI BillTransmDeficit::CompleteGoodsRest()
 	return ok;
 }
 
-int SLAPI BillTransmDeficit::GetGoodsDeficitList(PPIDArray * pList)
+int BillTransmDeficit::GetGoodsDeficitList(PPIDArray * pList)
 {
 	int    ok = -1;
 	if(pList) {
@@ -2003,7 +2003,7 @@ int SLAPI BillTransmDeficit::GetGoodsDeficitList(PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
+int BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 {
 	TempDeficitTbl::Key0 k;
 	BExtQuery q(Tbl, 0);
@@ -2026,7 +2026,7 @@ int SLAPI BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 	return 1;
 }
 
-void SLAPI BillTransmDeficit::CalcReqSalesTax(const ILTI * pIlti, LDATE dt, PPID opID, double * pSalesTax)
+void BillTransmDeficit::CalcReqSalesTax(const ILTI * pIlti, LDATE dt, PPID opID, double * pSalesTax)
 {
 	double stax = 0.0;
 	if(pIlti->Flags & PPTFR_RMVEXCISE) {
@@ -2041,7 +2041,7 @@ void SLAPI BillTransmDeficit::CalcReqSalesTax(const ILTI * pIlti, LDATE dt, PPID
 	ASSIGN_PTR(pSalesTax, stax);
 }
 
-int SLAPI BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, PPID supplID, double qtty)
+int BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, PPID supplID, double qtty)
 {
 	TempDeficitTbl::Rec tdt_rec;
 	// @v10.6.4 MEMSZERO(tdt_rec);
@@ -2059,7 +2059,7 @@ int SLAPI BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillT
 	return Tbl->insertRecBuf(&tdt_rec) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI BillTransmDeficit::UpdateRec(TempDeficitTbl::Rec * pTdtr,
+int BillTransmDeficit::UpdateRec(TempDeficitTbl::Rec * pTdtr,
 	ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, double qtty)
 {
 	double sum_qtty = R6(pTdtr->Req + qtty);
@@ -2077,7 +2077,7 @@ int SLAPI BillTransmDeficit::UpdateRec(TempDeficitTbl::Rec * pTdtr,
 	return Tbl->updateRecBuf(pTdtr) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI BillTransmDeficit::AddItem(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, int skipped)
+int BillTransmDeficit::AddItem(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, int skipped)
 {
 	int    ok = 1;
 	if(pIlti->Quantity < 0.0) {
@@ -2118,7 +2118,7 @@ int SLAPI BillTransmDeficit::AddItem(ILTI * pIlti, const char * pClbNumber, Bill
 	return ok;
 }
 
-int SLAPI BillTransmDeficit::InitDeficitBill(PPBillPacket * pPack, PPID oprKind, LDATE dt, PPID locID, PPID supplID)
+int BillTransmDeficit::InitDeficitBill(PPBillPacket * pPack, PPID oprKind, LDATE dt, PPID locID, PPID supplID)
 {
 	DS.SetLocation(locID);
 	if(pPack->CreateBlank(oprKind, 0, locID, 1)) {
@@ -2133,7 +2133,7 @@ int SLAPI BillTransmDeficit::InitDeficitBill(PPBillPacket * pPack, PPID oprKind,
 		return 0;
 }
 
-int SLAPI BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAddition, const ObjTransmContext * pCtx)
+int BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAddition, const ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	int    first_rec = 1;
@@ -2191,7 +2191,7 @@ int SLAPI BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAdditio
 	return ok;
 }
 
-int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
+int BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 {
 	class TDeficitDialog : public PPListDialog {
 	public:
@@ -2289,7 +2289,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 	return ok;
 }
 
-int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNextPassNeeded)
+int BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNextPassNeeded)
 {
 	int    ok = 1;
 	if(pCtx->Cfg.Flags & (DBDXF_TURNTOTALDEFICITE|DBDXF_CALCTOTALDEFICITE)) {
@@ -2364,7 +2364,7 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBill::TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded)
+/*static*/int PPObjBill::TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded)
 {
 	int    ok = -1;
 	if(pCtx && pCtx->P_Btd) {
@@ -2376,7 +2376,7 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 	return ok;
 }
 
-void SLAPI PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket * pIlBp, int skipped, ObjTransmContext * pCtx)
+void PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket * pIlBp, int skipped, ObjTransmContext * pCtx)
 {
 	const double new_amt = pPack->GetAmount();
 	const double org_amt = BR2(pIlBp->Rec.Amount);
@@ -2408,7 +2408,7 @@ void SLAPI PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacke
 	}
 }
 
-int SLAPI PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pPack->Ver.Serialize(dir, rBuf, pSCtx)); // Номер версии идет самым первым сериализируемым объектом
@@ -2459,7 +2459,7 @@ int SLAPI PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBu
 	return ok;
 }
 
-int SLAPI PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir < 0) {
@@ -2488,7 +2488,7 @@ int SLAPI PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & 
 	return ok;
 }
 
-int SLAPI PPObjBill::SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjBill::SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(SerializePacket_Base(dir, pPack, rBuf, pSCtx));
@@ -2501,7 +2501,7 @@ int SLAPI PPObjBill::SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & 
 }
 
 /* @v9.8.11 (preserve)
-int SLAPI PPObjBill::SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjBill::SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -2555,7 +2555,7 @@ int SLAPI PPObjBill::SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & 
 }
 */
 
-int SLAPI PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket & rIBp, ObjTransmContext * pCtx, int use_ta)
+int PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket & rIBp, ObjTransmContext * pCtx, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -2618,7 +2618,7 @@ int SLAPI PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket 
 	return ok;
 }
 
-int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	const  int trace_sync_lot = BIN(DS.CheckExtFlag(ECF_TRACESYNCLOT));
 
@@ -2929,7 +2929,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 	return ok;
 }
 
-int SLAPI PPObjBill::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjBill::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	ILBillPacket * p_pack = new ILBillPacket;
@@ -2965,7 +2965,7 @@ int SLAPI PPObjBill::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContex
 	return ok;
 }
 
-int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -3084,7 +3084,7 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 
 IMPL_DESTROY_OBJ_PACK(PPObjBill, ILBillPacket);
 
-int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransmContext * pCtx)
+int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransmContext * pCtx)
 {
 	int    ok = -1, r;
 	uint   msg_id = 0;

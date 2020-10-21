@@ -8,7 +8,7 @@
 //
 // @ModuleDef(PPViewScale)
 //
-IMPLEMENT_PPFILT_FACTORY(Scale); SLAPI ScaleFilt::ScaleFilt() : PPBaseFilt(PPFILT_SCALE, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(Scale); ScaleFilt::ScaleFilt() : PPBaseFilt(PPFILT_SCALE, 0, 1)
 {
 	SetFlatChunk(offsetof(ScaleFilt, ReserveStart), offsetof(ScaleFilt, ReserveEnd) - offsetof(ScaleFilt, ReserveStart));
 	Init(1, 0);
@@ -20,9 +20,8 @@ ScaleFilt & FASTCALL ScaleFilt::operator = (const ScaleFilt & s)
 	return *this;
 }
 
-PPViewScale::PPViewScale() : PPView(&ObjScale, &Filt, PPVIEW_SCALE), P_TempTbl(0)
+PPViewScale::PPViewScale() : PPView(&ObjScale, &Filt, PPVIEW_SCALE, implDontEditNullFilter, 0), P_TempTbl(0)
 {
-	ImplementFlags |= PPView::implDontEditNullFilter;
 	PPLoadText(PPTXT_SCLT, ScaleTypeNames);
 }
 
@@ -31,7 +30,7 @@ PPViewScale::~PPViewScale()
 	ZDELETE(P_TempTbl);
 }
 
-int SLAPI PPViewScale::CheckForFilt(const PPScalePacket * pPack) const
+int PPViewScale::CheckForFilt(const PPScalePacket * pPack) const
 {
 	if(pPack) {
 		const int is_tcp = BIN(pPack->Rec.Flags & SCALF_TCPIP);
@@ -51,7 +50,7 @@ int SLAPI PPViewScale::CheckForFilt(const PPScalePacket * pPack) const
 	return 1;
 }
 
-TempScaleTbl::Rec & SLAPI PPViewScale::MakeTempEntry(const PPScalePacket & rPack, TempScaleTbl::Rec & rTempRec)
+TempScaleTbl::Rec & PPViewScale::MakeTempEntry(const PPScalePacket & rPack, TempScaleTbl::Rec & rTempRec)
 {
 	SString temp_buf;
 	rTempRec.ID = rPack.Rec.ID;
@@ -73,7 +72,7 @@ TempScaleTbl::Rec & SLAPI PPViewScale::MakeTempEntry(const PPScalePacket & rPack
 	return rTempRec;
 }
 
-int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	ScaleFilt filt;
@@ -108,7 +107,7 @@ int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempScale);
 
-int SLAPI PPViewScale::Init_(const PPBaseFilt * pFilt)
+int PPViewScale::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -139,7 +138,7 @@ int SLAPI PPViewScale::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewScale::UpdateTempTable(const PPIDArray * pIdList)
+int PPViewScale::UpdateTempTable(const PPIDArray * pIdList)
 {
 	int    ok = -1;
 	if(pIdList && P_TempTbl) {
@@ -169,7 +168,7 @@ int SLAPI PPViewScale::UpdateTempTable(const PPIDArray * pIdList)
 	return ok;
 }
 
-int SLAPI PPViewScale::InitIteration()
+int PPViewScale::InitIteration()
 {
 	int    ok = 1;
 	TempScaleTbl::Key0 k, k_;
@@ -198,7 +197,7 @@ int FASTCALL PPViewScale::NextIteration(ScaleViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewScale::CheckScaleStatus(PPID scaleID, int statusFromList)
+int PPViewScale::CheckScaleStatus(PPID scaleID, int statusFromList)
 {
 	long   ok = 0;
 	if(statusFromList) {
@@ -250,12 +249,12 @@ static int ScaleReadyColorFunc(const void * pData, long col, int paintAction, Br
 	return ok;
 }
 
-void SLAPI PPViewScale::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewScale::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(ScaleReadyColorFunc, this));
 }
 
-DBQuery * SLAPI PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	TempScaleTbl * t = 0;
@@ -284,7 +283,7 @@ DBQuery * SLAPI PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	return q;
 }
 
-int SLAPI PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int        ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPIDArray  id_list;

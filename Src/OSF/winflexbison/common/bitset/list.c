@@ -25,7 +25,7 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <string.h>
-#include "obstack.h"
+//#include "obstack.h"
 
 /* This file implements linked-list bitsets.  These bitsets can be of
    arbitrary length and are more efficient than arrays of bits for

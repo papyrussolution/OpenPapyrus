@@ -35,16 +35,16 @@ union BNKeyCell { // @flat
 #define NUMCELLS (data ? (HEAD.numSeg + 1) : 0)
 #define DATALEN  (NUMCELLS * sizeof(BNKeyCell))
 
-SLAPI BNKey::BNKey() : data(0)
+BNKey::BNKey() : data(0)
 {
 }
 
-void SLAPI BNKey::destroy()
+void BNKey::destroy()
 {
 	ZFREE(data);
 }
 
-int SLAPI BNKey::reset()
+int BNKey::reset()
 {
 	if((data = SAlloc::R(data, sizeof(BNKeyCell))) != 0) {
 		HEAD.numSeg = HEAD.keyNumber = HEAD.acsNumber = 0;
@@ -54,7 +54,7 @@ int SLAPI BNKey::reset()
 		return 0;
 }
 
-int SLAPI BNKey::addSegment(int fldID, int flags)
+int BNKey::addSegment(int fldID, int flags)
 {
 	BNKeyCell cell;
 	if(data == 0)
@@ -74,7 +74,7 @@ int SLAPI BNKey::addSegment(int fldID, int flags)
 		return 0;
 }
 
-int SLAPI BNKey::setFieldID(int seg, int newID)
+int BNKey::setFieldID(int seg, int newID)
 {
 	if(data && seg >= 0 && seg < HEAD.numSeg) {
 		SEG(seg).fldID = newID;
@@ -84,7 +84,7 @@ int SLAPI BNKey::setFieldID(int seg, int newID)
 		return 0;
 }
 
-int SLAPI BNKey::setKeyParams(int keyNumber, int acsNumber)
+int BNKey::setKeyParams(int keyNumber, int acsNumber)
 {
 	if(data) {
 		if(keyNumber != (int)UNDEF)
@@ -97,19 +97,19 @@ int SLAPI BNKey::setKeyParams(int keyNumber, int acsNumber)
 		return 0;
 }
 
-int SLAPI BNKey::getNumSeg() const { return data ? HEAD.numSeg : 0; }
-int SLAPI BNKey::getKeyNumber() const { return data ? HEAD.keyNumber : UNDEF; }
-int SLAPI BNKey::getACSNumber() const { return data ? HEAD.acsNumber : UNDEF; }
-int SLAPI BNKey::getFieldID(int seg) const { return (data && seg >= 0 && seg < HEAD.numSeg) ? SEG(seg).fldID : UNDEF; }
+int BNKey::getNumSeg() const { return data ? HEAD.numSeg : 0; }
+int BNKey::getKeyNumber() const { return data ? HEAD.keyNumber : UNDEF; }
+int BNKey::getACSNumber() const { return data ? HEAD.acsNumber : UNDEF; }
+int BNKey::getFieldID(int seg) const { return (data && seg >= 0 && seg < HEAD.numSeg) ? SEG(seg).fldID : UNDEF; }
 
-int SLAPI BNKey::getFlags(int seg) const
+int BNKey::getFlags(int seg) const
 {
 	if(seg == static_cast<int>(UNDEF))
 		seg = 0;
 	return (data && seg >= 0 && seg < HEAD.numSeg) ? SEG(seg).flags : UNDEF;
 }
 
-int SLAPI BNKey::setFlags(int flags, int seg)
+int BNKey::setFlags(int flags, int seg)
 {
 	int    ok = 0;
 	if(data) {
@@ -133,7 +133,7 @@ int SLAPI BNKey::setFlags(int flags, int seg)
 	return ok;
 }
 
-int SLAPI BNKey::containsField(int fldID, int * pSeg) const
+int BNKey::containsField(int fldID, int * pSeg) const
 {
 	if(data) {
 		const int _ns = HEAD.numSeg;
@@ -148,7 +148,7 @@ int SLAPI BNKey::containsField(int fldID, int * pSeg) const
 /*
 	BNKeyList implementation
 */
-SLAPI BNKeyList::BNKeyList() : P_Data(SAlloc::M(sizeof(BNKeyCell)))
+BNKeyList::BNKeyList() : P_Data(SAlloc::M(sizeof(BNKeyCell)))
 {
 	if(P_Data) {
 		BNKeyCell * p_cell = static_cast<BNKeyCell *>(P_Data);
@@ -157,17 +157,17 @@ SLAPI BNKeyList::BNKeyList() : P_Data(SAlloc::M(sizeof(BNKeyCell)))
 	}
 }
 
-SLAPI BNKeyList::BNKeyList(const BNKeyList & rS) :  P_Data(0)
+BNKeyList::BNKeyList(const BNKeyList & rS) :  P_Data(0)
 {
 	copy(&rS);
 }
 
-SLAPI BNKeyList::~BNKeyList()
+BNKeyList::~BNKeyList()
 {
 	reset();
 }
 
-void SLAPI BNKeyList::reset()
+void BNKeyList::reset()
 {
 	ZFREE(P_Data);
 }
@@ -192,7 +192,7 @@ int FASTCALL BNKeyList::copy(const BNKeyList * src)
 	return 1;
 }
 
-int SLAPI BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	uint32 sz;
@@ -214,7 +214,7 @@ int SLAPI BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-uint SLAPI BNKeyList::GetNumCells() const
+uint BNKeyList::GetNumCells() const
 {
 	uint   count = 0;
 	if(P_Data) {
@@ -258,7 +258,7 @@ int FASTCALL BNKeyList::findKey(int key) const
 	return 0;
 }
 
-uint SLAPI BNKeyList::getNumKeys() const
+uint BNKeyList::getNumKeys() const
 {
 	return P_Data ? static_cast<uint>((static_cast<BNKeyCell *>(P_Data))->ih.numKeys) : 0;
 }
@@ -295,7 +295,7 @@ int FASTCALL BNKeyList::addKey(BNKey & key)
 	return ok;
 }
 
-int SLAPI BNKeyList::removeKey(int key)
+int BNKeyList::removeKey(int key)
 {
 	int    ok = 1;
 	int    pos = findKey(key);
@@ -325,13 +325,13 @@ void FASTCALL BNKeyList::setTableRef(uint ofs)
 		static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset = ofs;
 }
 
-const DBTable & SLAPI BNKeyList::table() const
+const DBTable & BNKeyList::table() const
 {
 	assert(P_Data);
 	return *reinterpret_cast<const DBTable *>(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset);
 }
 
-const BNField & SLAPI BNKeyList::field(int key, int seg) const
+const BNField & BNKeyList::field(int key, int seg) const
 {
 	if(P_Data) {
 		const DBTable * p_tbl = reinterpret_cast<const DBTable *>(reinterpret_cast<const char *>(this) - static_cast<BNKeyCell *>(P_Data)->ih.tblBackOffset);
@@ -361,7 +361,7 @@ uint FASTCALL BNKeyList::getKeySize(int key) const
 	}
 }
 
-uint SLAPI BNKeyList::getSegOffset(int key, int seg) const
+uint BNKeyList::getSegOffset(int key, int seg) const
 {
 	if(seg == 0)
 		return 0;
@@ -397,7 +397,7 @@ uint SLAPI BNKeyList::getSegOffset(int key, int seg) const
 //
 // Returns length of filled rest of key
 //
-uint SLAPI BNKeyList::setBound(int key, int seg, int min_max /* 0 - min, !0 - max */ , void * pDest) const
+uint BNKeyList::setBound(int key, int seg, int min_max /* 0 - min, !0 - max */ , void * pDest) const
 {
 	assert(key >= 0 && key < static_cast<int>(getNumKeys()));
 	BNKey  k = getKey(key);
@@ -431,7 +431,7 @@ int FASTCALL _invertComp(int cmp)
 	return 0;
 }
 
-int SLAPI BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void * dest) const
+int BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void * dest) const
 {
 	struct I {
 		uchar  low;
@@ -524,7 +524,7 @@ int FASTCALL BNKeyList::compareKey(int key, const void * k1, const void * k2) co
 	return getKey(key).compareKey(&table(), k1, k2);
 }
 
-int SLAPI BNKey::compareKey(const DBTable * tbl, const void * k1, const void * k2) const
+int BNKey::compareKey(const DBTable * tbl, const void * k1, const void * k2) const
 {
 	int    ns = HEAD.numSeg;
 	uint   ofs = 0;

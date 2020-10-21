@@ -8,7 +8,7 @@
 //
 // @ModuleDef(PPObjDateTimeRep)
 //
-SLAPI PPObjDateTimeRep::PPObjDateTimeRep(void * extraPtr) : PPObjReference(PPOBJ_DATETIMEREP, extraPtr)
+PPObjDateTimeRep::PPObjDateTimeRep(void * extraPtr) : PPObjReference(PPOBJ_DATETIMEREP, extraPtr)
 {
 }
 
@@ -65,7 +65,7 @@ static int EditDtr(PPDateTimeRep * pData)
 	DIALOG_PROC_BODY(DtrDialog, pData);
 }
 
-int SLAPI PPObjDateTimeRep::Edit(PPID * pID, void * extraPtr)
+int PPObjDateTimeRep::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	PPDateTimeRep rec;
@@ -90,12 +90,12 @@ int SLAPI PPObjDateTimeRep::Edit(PPID * pID, void * extraPtr)
 //
 IMPL_CMPFUNC(PPDutyCountPoint_Dt, i1, i2) { return CMPFUNC(LDATE, &static_cast<const PPDutyCountPoint *>(i1)->Dtm.d, &static_cast<const PPDutyCountPoint *>(i2)->Dtm.d); }
 
-SLAPI PPDutySchedPacket::PPDutySchedPacket()
+PPDutySchedPacket::PPDutySchedPacket()
 {
 	MEMSZERO(Rec);
 }
 
-int SLAPI PPDutySchedPacket::Normalyze()
+int PPDutySchedPacket::Normalyze()
 {
 	if(CpList.getCount()) {
 		CpList.sort(PTR_CMPFUNC(PPDutyCountPoint_Dt));
@@ -119,7 +119,7 @@ int SLAPI PPDutySchedPacket::Normalyze()
 	return 1;
 }
 
-int SLAPI PPDutySchedPacket::InitIteration(EnumParam * pEnum, const STimeChunk & rBounds) const
+int PPDutySchedPacket::InitIteration(EnumParam * pEnum, const STimeChunk & rBounds) const
 {
 	int    ok = 1;
 	EnumParam ep;
@@ -178,7 +178,7 @@ int FASTCALL PPDutySchedPacket::NextIteration(EnumParam * pEnum) const
 		return PPSetError(PPERR_DUTYSCHEDNOCP, Rec.Name);
 }
 
-int SLAPI PPDutySchedPacket::IsCountPoint(LDATETIME * pDtm) const
+int PPDutySchedPacket::IsCountPoint(LDATETIME * pDtm) const
 {
 	PPDutyCountPoint * p_point;
 	LTIME count_time = ZEROTIME;
@@ -193,7 +193,7 @@ int SLAPI PPDutySchedPacket::IsCountPoint(LDATETIME * pDtm) const
 	return 0;
 }
 
-int SLAPI PPDutySchedPacket::AddCountPointDate(LDATE dt, uint * pPos)
+int PPDutySchedPacket::AddCountPointDate(LDATE dt, uint * pPos)
 {
 	if(checkdate(&dt)) {
 		uint pos = 0;
@@ -214,12 +214,12 @@ int SLAPI PPDutySchedPacket::AddCountPointDate(LDATE dt, uint * pPos)
 		return PPSetErrorSLib();
 }
 
-int SLAPI PPDutySchedPacket::RemoveCountPoint(uint pos)
+int PPDutySchedPacket::RemoveCountPoint(uint pos)
 {
 	return CpList.atFree(pos);
 }
 
-int SLAPI PPDutySchedPacket::Test(const char * pOutFile) const
+int PPDutySchedPacket::Test(const char * pOutFile) const
 {
 	int    ok = 1;
 	SString msg_buf, add_buf;
@@ -250,11 +250,11 @@ int SLAPI PPDutySchedPacket::Test(const char * pOutFile) const
 //
 //
 //
-SLAPI PPObjDutySched::PPObjDutySched(void * extraPtr) : PPObjReference(PPOBJ_DUTYSCHED, extraPtr)
+PPObjDutySched::PPObjDutySched(void * extraPtr) : PPObjReference(PPOBJ_DUTYSCHED, extraPtr)
 {
 }
 
-int SLAPI PPObjDutySched::SearchByObjType(PPID objType, long objGroup, PPID * pID)
+int PPObjDutySched::SearchByObjType(PPID objType, long objGroup, PPID * pID)
 {
 	PPDutySched rec;
 	for(PPID id = 0; EnumItems(&id, &rec) > 0;)
@@ -265,7 +265,7 @@ int SLAPI PPObjDutySched::SearchByObjType(PPID objType, long objGroup, PPID * pI
 	return -1;
 }
 
-int SLAPI PPObjDutySched::PutPacket(PPID * pID, PPDutySchedPacket * pPack, int use_ta)
+int PPObjDutySched::PutPacket(PPID * pID, PPDutySchedPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -292,7 +292,7 @@ int SLAPI PPObjDutySched::PutPacket(PPID * pID, PPDutySchedPacket * pPack, int u
 	return ok;
 }
 
-int SLAPI PPObjDutySched::GetPacket(PPID id, PPDutySchedPacket * pPack)
+int PPObjDutySched::GetPacket(PPID id, PPDutySchedPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
@@ -560,7 +560,7 @@ int DutySchedDialog::setupObjType()
 	return 1;
 }
 
-int SLAPI PPObjDutySched::Edit(PPID * pID, void * extraPtr)
+int PPObjDutySched::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0;
 	DutySchedDialog * dlg = 0;

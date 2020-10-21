@@ -31,7 +31,7 @@ class  TWhatman;
 // @v9.2.0 typedef bool (*ccTestFunc)(void *, void *);
 // @v9.2.0 typedef void (*ccAppFunc)(void *, void *);
 // @v9.2.0 const int ccNotFound = -1;
-// @v9.2.0 TRect SLAPI makeCenterRect(int w, int h);
+// @v9.2.0 TRect makeCenterRect(int w, int h);
 //
 //
 //
@@ -99,15 +99,15 @@ struct KeyDownCommand { // @flat @noctr @size=4
 		stateCtrl  = 0x0002,
 		stateShift = 0x0004
 	};
-	//SLAPI  KeyDownCommand();
-	void   SLAPI Clear();
+	//KeyDownCommand();
+	void   Clear();
 	int    FASTCALL operator == (const KeyDownCommand & rS) const { return (State == rS.State && Code == rS.Code); }
 	operator long() const { return *reinterpret_cast<const long *>(this); }
-	int    SLAPI GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
-	int    SLAPI SetKeyName(const char * pStr, uint * pLen);
+	int    GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
+	int    SetKeyName(const char * pStr, uint * pLen);
 	void   FASTCALL SetWinMsgCode(uint32 wParam);
 	int    FASTCALL SetTvKeyCode(uint16 tvKeyCode);
-	uint16 SLAPI GetTvKeyCode() const;
+	uint16 GetTvKeyCode() const;
 	//
 	// Descr: Транслирует символ chr во внутреннее состояние данного экземпляра класса в
 	//   соответствии с текущей раскладкой клавиатуры.
@@ -125,7 +125,7 @@ struct KeyDownCommand { // @flat @noctr @size=4
 	//   !0 - код символа, соответствующий виртуальной клавише
 	//   0  - клавишу нельзя преобразовать в символ
 	//
-	uint   SLAPI GetChar() const;
+	uint   GetChar() const;
 
 	uint16 State;
 	uint16 Code;
@@ -171,7 +171,7 @@ struct SizeEvent {
 // Descr: Структура, передаваемая с сообщением cmPaint.
 //
 struct PaintEvent {
-	SLAPI  PaintEvent();
+	PaintEvent();
 	enum {
 		tPaint = 1,
 		tNcPaint,
@@ -326,8 +326,8 @@ struct TEvent {
 	int  FASTCALL isCbSelected(uint ctlID) const;
 	int  FASTCALL isClusterClk(uint ctlID) const;
 	int  FASTCALL wasFocusChanged(uint ctlID) const;
-	int  SLAPI wasFocusChanged2(uint ctl01, uint ctl02) const;
-	int  SLAPI wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const;
+	int  wasFocusChanged2(uint ctl01, uint ctl02) const;
+	int  wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const;
 };
 
 #define TVEVENT     event.what
@@ -1124,9 +1124,9 @@ public:
     	oprHSL_COLOR,
     	oprHSL_LUMINOSITY
 	};
-	SLAPI  TCanvas2(SPaintToolBox & rTb, HDC);
-	SLAPI  TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf);
-	SLAPI ~TCanvas2();
+	TCanvas2(SPaintToolBox & rTb, HDC);
+	TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf);
+	~TCanvas2();
 	//
 	// Descr: Возвращает манипулятор контекста рисования, ассоциированный с данным
 	//   экземпляром.
@@ -1143,7 +1143,7 @@ public:
 	SPaintToolBox & GetToolBox() { return R_Tb; }
 	// @v9.1.7 {
 	int    FASTCALL SelectObjectAndPush(HGDIOBJ);
-	int    SLAPI PopObject();
+	int    PopObject();
 	int    FASTCALL PopObjectN(uint c);
 	// } @v9.1.7
 	//
@@ -1156,18 +1156,18 @@ public:
 	void   FASTCALL LineH(float xTo);
 	void   FASTCALL Rect(const FRect & rRect);
 	void   FASTCALL Rect(const TRect & rRect);
-	void   SLAPI    RoundRect(const FRect &, float radius);
+	void   RoundRect(const FRect &, float radius);
 	int    FASTCALL Ellipse(const FRect & rRect);
-	void   SLAPI Arc(FPoint center, float radius, float startAngleRad, float endAngleRad);
-	void   SLAPI Bezier(FPoint middle1, FPoint middle2, FPoint end);
-	int    SLAPI Text(const char * pText, int identFont);
-	void   SLAPI ClosePath();
-	void   SLAPI SubPath();
+	void   Arc(FPoint center, float radius, float startAngleRad, float endAngleRad);
+	void   Bezier(FPoint middle1, FPoint middle2, FPoint end);
+	int    Text(const char * pText, int identFont);
+	void   ClosePath();
+	void   SubPath();
 	void   FASTCALL GetClipExtents(FRect & rR);
-	void   SLAPI SetColorReplacement(SColor original, SColor replacement);
-	void   SLAPI ResetColorReplacement();
+	void   SetColorReplacement(SColor original, SColor replacement);
+	void   ResetColorReplacement();
 	int    FASTCALL SetOperator(int opr);
-	int    SLAPI GetOperator() const;
+	int    GetOperator() const;
 	//
 	// Descr: Устанавливает матрицу преобразования равной rMtx.
 	//
@@ -1180,40 +1180,40 @@ public:
 	//
 	// Descr: Подготавливает запись области отрисовки.
 	//
-	int    SLAPI BeginScope();
+	int    BeginScope();
 	//
 	// Descr: Завершает запись границ области отрисовки и возвращает
 	//   регион, содержащий границы отрисовки, совершенной с момента
 	//   предыдущего вызова BeginScope().
 	//
 	int    FASTCALL EndScope(SRegion & rR);
-	int    SLAPI Stroke(int paintObjIdent, int preserve);
-	int    SLAPI Fill(int paintObjIdent, int preserve);
-	int    SLAPI Fill(SColor c, int preserve);
+	int    Stroke(int paintObjIdent, int preserve);
+	int    Fill(int paintObjIdent, int preserve);
+	int    Fill(SColor c, int preserve);
 	//
 	// Descr: Сохраняет во внутреннем стеке текущую матрицу преобразования.
 	//
-	void   SLAPI PushTransform();
+	void   PushTransform();
 	//
 	// Descr: Восстанавливает из внутреннего стека матрицу преобразования,
 	//   которая до этого была там сохранена вызовом PushTransform().
 	//
-	int    SLAPI PopTransform();
-	void   SLAPI LineVert(int x, int yFrom, int yTo);
-	void   SLAPI LineHorz(int xFrom, int xTo, int y);
-	void   SLAPI Rect(const TRect & rRect, int penIdent, int brushIdent);
-	void   SLAPI Rect(const FRect & rRect, int penIdent, int brushIdent);
-	void   SLAPI RoundRect(const FRect &, float radius, int penIdent, int brushIdent);
-	// @construction int    SLAPI RoundRect(const TRect & rRect, int penIdent, int brushIdent);
-	int    SLAPI PatBlt(const TRect & rR, int brushId, int opr);
+	int    PopTransform();
+	void   LineVert(int x, int yFrom, int yTo);
+	void   LineHorz(int xFrom, int xTo, int y);
+	void   Rect(const TRect & rRect, int penIdent, int brushIdent);
+	void   Rect(const FRect & rRect, int penIdent, int brushIdent);
+	void   RoundRect(const FRect &, float radius, int penIdent, int brushIdent);
+	// @construction int    RoundRect(const TRect & rRect, int penIdent, int brushIdent);
+	int    PatBlt(const TRect & rR, int brushId, int opr);
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
-	void   SLAPI SetBkTranparent();
-	TPoint SLAPI GetTextSize(const char * pStr);
+	void   SetBkTranparent();
+	TPoint GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
-	int    SLAPI TextOut(TPoint p, const char * pText);
-	int    SLAPI _DrawText(const TRect & rRect, const char * pText, uint options);
-	int    SLAPI DrawTextLayout(STextLayout * pTlo);
+	int    TextOut(TPoint p, const char * pText);
+	int    _DrawText(const TRect & rRect, const char * pText, uint options);
+	int    DrawTextLayout(STextLayout * pTlo);
 	int    FASTCALL Draw(const SImageBuffer * pImg);
 	int    FASTCALL Draw(const SDrawFigure * pDraw);
 	int    FASTCALL Draw(const SDrawPath * pPath);
@@ -1259,8 +1259,8 @@ public:
 		borderDiagEndBottomLeft  = borderDiagonal|borderBottom|borderLeft,
 		borderDiagEndBottomRight = borderDiagonal|borderBottom|borderRight
 	};
-	int    SLAPI DrawEdge(TRect & rR, long edge, long flags);
-	int    SLAPI DrawFrame(const TRect & rR, int clFrame, int brushId);
+	int    DrawEdge(TRect & rR, long edge, long flags);
+	int    DrawFrame(const TRect & rR, int clFrame, int brushId);
 	int    FASTCALL SelectFont(SPaintObj::Font * pFont);
 private:
 	enum {
@@ -1284,16 +1284,16 @@ private:
 
 	//void   Init(); // @<<TCanvas2::TCanvas2()
 	int    FASTCALL SetCairoColor(SColor c);
-	int    SLAPI Helper_SelectPen(SPaintToolBox * pTb, int penId);
-	int    SLAPI Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrapper & rPw);
-	int    SLAPI Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint);
-	int    SLAPI Implement_Stroke(SPaintToolBox * pTb, int paintObjIdent, int preserve);
+	int    Helper_SelectPen(SPaintToolBox * pTb, int penId);
+	int    Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrapper & rPw);
+	int    Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint);
+	int    Implement_Stroke(SPaintToolBox * pTb, int paintObjIdent, int preserve);
 	//
 	// Descr: Отрисовывает линии без выбора инструментов (предполагается, что они до этого уже были выбраны).
 	//
 	int    FASTCALL Implement_Stroke(int preserve);
-	int    SLAPI Implement_Fill(SPaintToolBox * pTb, int paintObjIdent, int preserve);
-	int    SLAPI Implement_StrokeAndFill(SPaintToolBox * pTb, int penIdent, int brushIdent);
+	int    Implement_Fill(SPaintToolBox * pTb, int paintObjIdent, int preserve);
+	int    Implement_StrokeAndFill(SPaintToolBox * pTb, int penIdent, int brushIdent);
 	enum {
 		dfoDrawSymbol = 0x0001 // Опция обеспечивающая отрисовку фигуры с признаком SDrawFigure::fSymbolGroup
 	};
@@ -1330,30 +1330,30 @@ private:
 //
 class TCanvas {
 public:
-	SLAPI  TCanvas(HDC);
-	SLAPI ~TCanvas();
+	TCanvas(HDC);
+	~TCanvas();
 	operator HDC() const;
 
 	void   FASTCALL SetBounds(const TRect &);
 	//const  TRect & GetBounds() const { return Bounds; }
 
 	int    FASTCALL SelectObjectAndPush(HGDIOBJ);
-	int    SLAPI PopObject();
+	int    PopObject();
 	int    FASTCALL PopObjectN(uint c);
 	int    FASTCALL MoveTo(TPoint);
 	int    FASTCALL Line(TPoint);
-	void   SLAPI LineVert(int x, int yFrom, int yTo);
-	void   SLAPI LineHorz(int xFrom, int xTo, int y);
-	void   SLAPI SetBkTranparent();
+	void   LineVert(int x, int yFrom, int yTo);
+	void   LineHorz(int xFrom, int xTo, int y);
+	void   SetBkTranparent();
 	int    FASTCALL SetBkColor(COLORREF);
 	int    FASTCALL SetTextColor(COLORREF);
 	int    FASTCALL Rectangle(const TRect &);
-	int    SLAPI RoundRect(const TRect &, const TPoint & rRoundPt);
-	int    SLAPI FillRect(const TRect & rRect, HBRUSH brush);
+	int    RoundRect(const TRect &, const TPoint & rRoundPt);
+	int    FillRect(const TRect & rRect, HBRUSH brush);
 	TPoint FASTCALL GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
-	int    SLAPI TextOut_(TPoint p, const char * pText);
-	int    SLAPI DrawText_(const TRect & rRect, const char * pText, uint options);
+	int    TextOut_(TPoint p, const char * pText);
+	int    DrawText_(const TRect & rRect, const char * pText, uint options);
 private:
 	enum {
 		fOuterDC = 0x0001
@@ -1422,7 +1422,7 @@ public:
 	// Descr: Специализированный метод, вызывающий для всех элементов группы TGroup
 	//   метод P_WordSelBlk->OnAcceptInput()
 	//
-	static void SLAPI CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG);
+	static void CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG);
 	//
 	// Descr: перебирает дочерние окна родительского окна hWnd и
 	//   выполняет подстановку шаблонизированных текстовых строк
@@ -1584,8 +1584,8 @@ protected:
 
 class TGroup : public TView {
 public:
-	explicit SLAPI TGroup(const TRect & bounds);
-	SLAPI ~TGroup();
+	explicit TGroup(const TRect & bounds);
+	~TGroup();
 	DECL_HANDLE_EVENT;
 	virtual void   Insert_(TView *p);
 	virtual void   setState(uint aState, bool enable);
@@ -1722,21 +1722,21 @@ class TWindow : public TGroup {
 public:
 	static int IsMDIClientWindow(HWND);
 
-	SLAPI  TWindow(const TRect& bounds, const char * pTitle, short aNumber);
-	SLAPI ~TWindow();
+	TWindow(const TRect& bounds, const char * pTitle, short aNumber);
+	~TWindow();
 	void   endModal(ushort command);
-	void * SLAPI  messageToCtrl(ushort ctl, ushort command, void * ptr);
+	void * messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
 	TView * FASTCALL getCtrlByHandle(HWND h);
-	HWND   SLAPI H() const { return this ? HW : static_cast<HWND>(0); }
+	HWND   H() const { return this ? HW : static_cast<HWND>(0); }
 	HWND   FASTCALL getCtrlHandle(ushort ctlID);
 	void   FASTCALL setCtrlReadOnly(ushort ctlID, int set);
 	void   FASTCALL disableCtrl(ushort ctl, int toDisable);
 	void   __cdecl  disableCtrls(int toDisable, ...);
 	void   FASTCALL selectCtrl(ushort ctl);
-	int    SLAPI  selectButton(ushort cmd);
-	void   SLAPI  setCtrlOption(ushort id, ushort flag, int s);
-	int    SLAPI  destroyCtrl(uint ctl);
+	int    selectButton(ushort cmd);
+	void   setCtrlOption(ushort id, ushort flag, int s);
+	int    destroyCtrl(uint ctl);
 	//
 	// Функции setCtrlData и getCtrlData возвращают !0 если существует
 	// управляющий элемент с ид. ctl и 0 в противном случае.
@@ -1749,35 +1749,35 @@ public:
 	int    FASTCALL getCtrlString(uint ctlID, SString &);
 	LDATE  FASTCALL getCtrlDate(uint ctlID);
 	LTIME  FASTCALL getCtrlTime(uint ctlID);
-	int    SLAPI getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm);
+	int    getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm);
 	int    FASTCALL setCtrlUInt16(uint ctlID, int s);
 	int    FASTCALL setCtrlLong(uint ctlID, long);
 	int    FASTCALL setCtrlReal(uint ctlID, double);
 	int    FASTCALL setCtrlString(uint ctlID, const SString &);
 	int    FASTCALL setCtrlDate(uint ctlID, LDATE val);
 	int    FASTCALL setCtrlTime(uint ctlID, LTIME val);
-	int    SLAPI setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm);
-	int    SLAPI setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm);
+	int    setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm);
+	int    setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm);
 	//
 	// Descr: Высокоуровневая функция, устанавливающая опцию option для SmartListBox::def
 	//   с идентификатором ctlID (вызывает ListBoxDef::SetOption(option, 1)
 	//
-	int    SLAPI setSmartListBoxOption(uint ctlID, uint option);
+	int    setSmartListBoxOption(uint ctlID, uint option);
 	void   FASTCALL drawCtrl(ushort ctlID);
-	void   SLAPI showCtrl(ushort ctl, int s /* 1 - show, 0 - hide */);
-	void   SLAPI showButton(uint cmd, int s /* 1 - show, 0 - hide */);
-	int    SLAPI setButtonText(uint cmd, const char * pText);
-	int    SLAPI setButtonBitmap(uint cmd, uint bmpID);
+	void   showCtrl(ushort ctl, int s /* 1 - show, 0 - hide */);
+	void   showButton(uint cmd, int s /* 1 - show, 0 - hide */);
+	int    setButtonText(uint cmd, const char * pText);
+	int    setButtonBitmap(uint cmd, uint bmpID);
 	void   FASTCALL setTitle(const char *);
 	void   FASTCALL setOrgTitle(const char *);
 	void   FASTCALL setSubTitle(const char *);
-	int    SLAPI setStaticText(ushort ctl, const char *);
-	int    SLAPI getStaticText(ushort ctl, SString &);
+	int    setStaticText(ushort ctl, const char *);
+	int    getStaticText(ushort ctl, SString &);
 	const  SString & getTitle() const;
 	void   close();
 	DECL_HANDLE_EVENT;
 	virtual void setState(uint aState, bool enable);
-	int    SLAPI translateKeyCode(ushort keyCode, uint * pCmd) const;
+	int    translateKeyCode(ushort keyCode, uint * pCmd) const;
 	void   setupToolbar(const ToolbarList * pToolBar);
 	int    AddLocalMenuItem(uint ctrlId, uint buttonId, long keyCode, const char * pText);
 	HWND   showToolbar();
@@ -2300,8 +2300,8 @@ public:
 	// Descr: Параметры текста, сопоставленного объекту.
 	//
 	struct TextParam { // @persistent
-		SLAPI  TextParam();
-		void   SLAPI SetDefault();
+		TextParam();
+		void   SetDefault();
 
 		int16  Side;        // SIDE_XXX Сторона объекта, с которой располагается текст.
 			// Если Side == SIDE_CENTER, то центр текста располагается по центру объекта.
@@ -2330,17 +2330,17 @@ public:
 	//
 	// Descr: Регистрирует класс, порожденный от TWhatmanObject.
 	//
-	static int SLAPI Register(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory);
+	static int Register(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory);
 	//
 	// Descr: Создает экземпляр класса, порожденного от TWhatmanObject по регистрационному
 	//   идентификатору id.
 	//
-	static TWhatmanObject * SLAPI CreateInstance(long id);
+	static TWhatmanObject * CreateInstance(long id);
 	//
 	// Descr: Создает экземпляр класса, порожденного от TWhatmanObject по зарегистрированному
 	//   символу pSymb.
 	//
-	static TWhatmanObject * SLAPI CreateInstance(const char * pSymb);
+	static TWhatmanObject * CreateInstance(const char * pSymb);
 	static int GetRegSymbById(long id, SString & rSymb);
 	static long GetRegIdBySymb(const char * pSymb);
 	static StrAssocArray * MakeStrAssocList();
@@ -2744,11 +2744,11 @@ public:
 	enum {
 		ldfDL600_Cvt = 0x0001
 	};
-	static int SLAPI LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags);
+	static int LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags);
 	//
 	// Descr: Специализированная функция, используемая для обработки описаний диалогов.
 	//
-	static int SLAPI GetSymbolBody(const char * pSymb, SString & rBodyBuf);
+	static int GetSymbolBody(const char * pSymb, SString & rBodyBuf);
 	//
 	// Descr: Флаги состояния объекта (DlgFlags)
 	//
@@ -2771,16 +2771,16 @@ public:
 	int     SetCtrlFont(uint ctlID, const SFontDescr & rFd);
 	int     __cdecl SetCtrlsFont(const char * pFontName, int height, ...);
 	int     SetCtrlToolTip(uint ctrlID, const char * pToolTipText);
-	SLAPI  TDialog(const TRect & bounds, const char * pTitle);
-	SLAPI  TDialog(uint resID, DialogPreProcFunc, void * extraPtr);
-	explicit SLAPI TDialog(uint resID);
+	TDialog(const TRect & bounds, const char * pTitle);
+	TDialog(uint resID, DialogPreProcFunc, void * extraPtr);
+	explicit TDialog(uint resID);
 
 	enum ConstructorOption {
 		coNothing = 0,
 		coExport = 1
 	};
-	SLAPI  TDialog(uint resID, ConstructorOption); // special constructor.
-	SLAPI ~TDialog();
+	TDialog(uint resID, ConstructorOption); // special constructor.
+	~TDialog();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual int    FASTCALL valid(ushort command);
 	//
@@ -2798,9 +2798,9 @@ public:
 	int    FASTCALL getGroupData(ushort, void *);
 	CtrlGroup * FASTCALL getGroup(ushort);
 	long   getVirtButtonID(uint ctlID);
-	TLabel * SLAPI getCtlLabel(uint ctlID);
-	int    SLAPI getLabelText(uint ctlID, SString & rText);
-	int    SLAPI setLabelText(uint ctlID, const char * pText);
+	TLabel * getCtlLabel(uint ctlID);
+	int    getLabelText(uint ctlID, SString & rText);
+	int    setLabelText(uint ctlID, const char * pText);
 	int    GetCtlSymb(uint id, SString & rBuf) const;
 	int    SaveUserSettings();
 	int    RestoreUserSettings();
@@ -2902,8 +2902,8 @@ protected:
 	void * P_PrevData;
 private:
 	static int  FASTCALL PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	void   SLAPI Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
-	void    SLAPI RemoveUnusedControls();
+	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
+	void    RemoveUnusedControls();
 	TView * FASTCALL CtrlIdToView(long id) const;
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
@@ -2954,9 +2954,9 @@ public:
 //
 class Helper_WordSelector {
 protected:
-	SLAPI  Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId);
-	SLAPI ~Helper_WordSelector();
-	int    SLAPI IsWsVisible() const;
+	Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId);
+	~Helper_WordSelector();
+	int    IsWsVisible() const;
 	
 	uint   InputCtlId;
 	WordSel_ExtraBlock * P_OuterWordSelBlk; // @notowner
@@ -3200,21 +3200,21 @@ public:
 		cFullInMem = 0x0004  // Данные полностью содержатся в памяти: можно относительно быстро просмотреть все записи списка.
 	};
 
-	SLAPI  ListBoxDef(uint aOptions, TYPEID aType);
-	virtual SLAPI ~ListBoxDef();
-	virtual void   SLAPI setViewHight(int vh);
-	virtual void   SLAPI getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    SLAPI getCurID(long * pId);
-	virtual int    SLAPI getCurString(SString & rBuf);
-	virtual int    SLAPI getCurData(void *);
-	virtual int    SLAPI search(const void *, CompFunc, int srchMode);
-	virtual int    SLAPI valid();
-	virtual int    SLAPI go(long);
-	virtual int    SLAPI step(long);
-	virtual int    SLAPI top();
-	virtual int    SLAPI bottom();
-	virtual long   SLAPI getRecsCount();
-	virtual int    SLAPI getIdList(LongArray &);
+	ListBoxDef(uint aOptions, TYPEID aType);
+	virtual ~ListBoxDef();
+	virtual void   setViewHight(int vh);
+	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int    getCurID(long * pId);
+	virtual int    getCurString(SString & rBuf);
+	virtual int    getCurData(void *);
+	virtual int    search(const void *, CompFunc, int srchMode);
+	virtual int    valid();
+	virtual int    go(long);
+	virtual int    step(long);
+	virtual int    top();
+	virtual int    bottom();
+	virtual long   getRecsCount();
+	virtual int    getIdList(LongArray &);
 	virtual void * FASTCALL getRow_(long);
 	//
 	// Descr:
@@ -3225,28 +3225,28 @@ public:
 	//
 	//
 	virtual int    TransmitData(int dir, void * pData);
-	virtual int    SLAPI refresh();
-	virtual int    SLAPI addItem(long id, const char *, long * pPos = 0);
-	virtual int    SLAPI removeItem(long pos);
-	virtual void   SLAPI freeAll();
-	virtual int    SLAPI GetFrameSize();
-	virtual int    SLAPI GetFrameState();
-	const  char * SLAPI getText(long item, SString & rBuf);
-	long   SLAPI _topItem() const;
-	long   SLAPI _curItem() const;
-	int    SLAPI _isTreeList() const;
-	void   SLAPI SetOption(uint option, int set = 1);
-	int    SLAPI SetUserData(const void * pData, size_t size);
-	int    SLAPI GetUserData(void * pData, size_t * pSize) const;
-	int    SLAPI HasCapability(long c) const { return BIN(CFlags & c); }
-	int    SLAPI GetImageIdxByID(long id, long * pIDx);
-	HIMAGELIST SLAPI CreateImageList(HINSTANCE hInst);
+	virtual int    refresh();
+	virtual int    addItem(long id, const char *, long * pPos = 0);
+	virtual int    removeItem(long pos);
+	virtual void   freeAll();
+	virtual int    GetFrameSize();
+	virtual int    GetFrameState();
+	const  char * getText(long item, SString & rBuf);
+	long   _topItem() const;
+	long   _curItem() const;
+	int    _isTreeList() const;
+	void   SetOption(uint option, int set = 1);
+	int    SetUserData(const void * pData, size_t size);
+	int    GetUserData(void * pData, size_t * pSize) const;
+	int    HasCapability(long c) const { return BIN(CFlags & c); }
+	int    GetImageIdxByID(long id, long * pIDx);
+	HIMAGELIST CreateImageList(HINSTANCE hInst);
 	//
 	// Descr: Устанавливает ассоциацию элемента списка, имеющего идентификатор itemID, с иконкой,
 	//   идентифицируемой как imageID.
 	//   Значение imageID должно быть либо нулевым, либо ссылаться на ресурс иконок ICON_XXX.
 	//
-	int    SLAPI AddImageAssoc(long itemID, long imageID);
+	int    AddImageAssoc(long itemID, long imageID);
 	//
 	// Descr: Устанавливает ассоциацию элемента списка, имеющего идентификатор itemID, с векторной иконкой,
 	//   идентифицируемой как imageID.
@@ -3254,13 +3254,13 @@ public:
 	// Note: Идентификатор imageID хранится в списке ImageAssoc с дополнительным битом 0x40000000 чтобы
 	//   можно было отличить векторную иконку от растровой.
 	//
-	int    SLAPI AddVecImageAssoc(long itemID, long imageID);
-	void   SLAPI ClearImageAssocList();
-	int    SLAPI SetItemColor(long itemID, SColor fgColor, SColor bckgColor);
-	int    SLAPI ResetItemColor(long itemID);
-	int    SLAPI HasItemColorSpec() const;
-	int    SLAPI GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const;
-	long   SLAPI GetCapability() const { return CFlags; }
+	int    AddVecImageAssoc(long itemID, long imageID);
+	void   ClearImageAssocList();
+	int    SetItemColor(long itemID, SColor fgColor, SColor bckgColor);
+	int    ResetItemColor(long itemID);
+	int    HasItemColorSpec() const;
+	int    GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const;
+	long   GetCapability() const { return CFlags; }
 	StrAssocArray * GetListByPattern(const char * pText);
 //protected:
 	uint   Options;
@@ -3291,36 +3291,36 @@ private:
 
 class StdListBoxDef : public ListBoxDef {
 public:
-	SLAPI  StdListBoxDef(SArray * pArray, uint aOptions, TYPEID);
-	SLAPI ~StdListBoxDef();
-	virtual int    SLAPI search(const void *, CompFunc, int srchMode);
-	virtual int    SLAPI valid();
-	virtual long   SLAPI getRecsCount();
-	virtual int    SLAPI getIdList(LongArray & rList);
+	StdListBoxDef(SArray * pArray, uint aOptions, TYPEID);
+	~StdListBoxDef();
+	virtual int    search(const void *, CompFunc, int srchMode);
+	virtual int    valid();
+	virtual long   getRecsCount();
+	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long r);
-	virtual int    SLAPI GetFrameSize();
-	virtual int    SLAPI GetFrameState();
-	int    SLAPI setArray(SArray *);
+	virtual int    GetFrameSize();
+	virtual int    GetFrameState();
+	int    setArray(SArray *);
 //protected:
 	SArray * P_Data;
 };
 
 class StrAssocListBoxDef : public ListBoxDef {
 public:
-	SLAPI  StrAssocListBoxDef(StrAssocArray *, uint options);
-	SLAPI ~StrAssocListBoxDef();
-	virtual int    SLAPI search(const void *, CompFunc, int srchMode);
-	virtual int    SLAPI valid();
-	virtual long   SLAPI getRecsCount();
-	virtual int    SLAPI getIdList(LongArray & rList);
+	StrAssocListBoxDef(StrAssocArray *, uint options);
+	~StrAssocListBoxDef();
+	virtual int    search(const void *, CompFunc, int srchMode);
+	virtual int    valid();
+	virtual long   getRecsCount();
+	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long r);
-	virtual int    SLAPI GetFrameSize();
-	virtual int    SLAPI GetFrameState();
-	virtual int    SLAPI addItem(long id, const char *, long * pPos = 0);
-	virtual int    SLAPI removeItem(long pos);
-	virtual void   SLAPI freeAll();
-	int    SLAPI setArray(StrAssocArray *);
-	const StrAssocArray * SLAPI getArray() const { return P_Data; }
+	virtual int    GetFrameSize();
+	virtual int    GetFrameState();
+	virtual int    addItem(long id, const char *, long * pPos = 0);
+	virtual int    removeItem(long pos);
+	virtual void   freeAll();
+	int    setArray(StrAssocArray *);
+	const StrAssocArray * getArray() const { return P_Data; }
 protected:
 	StrAssocArray * P_Data;
 private:
@@ -3331,35 +3331,35 @@ class StdTreeListBoxDef : public ListBoxDef {
 public:
 	friend class SmartListBox;
 
-	SLAPI  StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID);
-	SLAPI ~StdTreeListBoxDef();
-	virtual void   SLAPI setViewHight(int);
-	virtual void   SLAPI getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    SLAPI valid();
-	virtual int    SLAPI go(long);
-	virtual int    SLAPI step(long);
-	virtual int    SLAPI top();
-	virtual int    SLAPI bottom();
-	virtual long   SLAPI getRecsCount();
-	virtual int    SLAPI getIdList(LongArray & rList);
+	StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID);
+	~StdTreeListBoxDef();
+	virtual void   setViewHight(int);
+	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int    valid();
+	virtual int    go(long);
+	virtual int    step(long);
+	virtual int    top();
+	virtual int    bottom();
+	virtual long   getRecsCount();
+	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long);
-	virtual int    SLAPI getCurString(SString & rBuf);
-	virtual int    SLAPI getCurID(long *);
-	virtual int    SLAPI getCurData(void *);
-	virtual int    SLAPI search(const void * pPattern, CompFunc fcmp, int srchMode);
-	virtual int    SLAPI GetFrameSize();
-	virtual int    SLAPI GetFrameState();
-	int    SLAPI setArray(StrAssocArray *);
-	int    SLAPI GetStringByID(long id, SString & rBuf);
-	int    SLAPI GoByID(long id);
+	virtual int    getCurString(SString & rBuf);
+	virtual int    getCurID(long *);
+	virtual int    getCurData(void *);
+	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
+	virtual int    GetFrameSize();
+	virtual int    GetFrameState();
+	int    setArray(StrAssocArray *);
+	int    GetStringByID(long id, SString & rBuf);
+	int    GoByID(long id);
 	int    FASTCALL HasChild(long id) const;
-	int    SLAPI GetListByParent(long parentId, LongArray & rList) const;
-	int    SLAPI GetParent(long child, long * pParent) const;
-	int    SLAPI GetChildList(long parentId, LongArray * pChildList);
+	int    GetListByParent(long parentId, LongArray & rList) const;
+	int    GetParent(long child, long * pParent) const;
+	int    GetChildList(long parentId, LongArray * pChildList);
 protected:
-	void   SLAPI setupView();
-	int    SLAPI Helper_CreateTree();
-	int    SLAPI Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
+	void   setupView();
+	int    Helper_CreateTree();
+	int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
 private:
 	StrAssocArray * P_SaList;
 	struct TreeItem {
@@ -3379,35 +3379,35 @@ private:
 
 class StringListBoxDef : public StdListBoxDef {
 public:
-	SLAPI  StringListBoxDef(uint stringSize, uint aOptions);
-	virtual int    SLAPI addItem(long id, const char *, long * pPos = 0);
-	virtual int    SLAPI removeItem(long pos);
-	virtual void   SLAPI freeAll();
+	StringListBoxDef(uint stringSize, uint aOptions);
+	virtual int    addItem(long id, const char *, long * pPos = 0);
+	virtual int    removeItem(long pos);
+	virtual void   freeAll();
 };
 
 class DBQListBoxDef : public ListBoxDef {
 public:
-	SLAPI  DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize = 64);
-	SLAPI ~DBQListBoxDef();
-	virtual void   SLAPI setViewHight(int);
-	virtual void   SLAPI getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    SLAPI valid();
-	virtual int    SLAPI go(long);
-	virtual int    SLAPI step(long);
-	virtual int    SLAPI top();
-	virtual int    SLAPI bottom();
-	virtual long   SLAPI getRecsCount();
-	virtual int    SLAPI getIdList(LongArray & rList);
+	DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize = 64);
+	~DBQListBoxDef();
+	virtual void   setViewHight(int);
+	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int    valid();
+	virtual int    go(long);
+	virtual int    step(long);
+	virtual int    top();
+	virtual int    bottom();
+	virtual long   getRecsCount();
+	virtual int    getIdList(LongArray & rList);
 	virtual void * FASTCALL getRow_(long);
 	virtual int    TransmitData(int dir, void * pData);
-	virtual int    SLAPI refresh();
-	virtual int    SLAPI search(const void * pPattern, CompFunc fcmp, int srchMode);
-	virtual int    SLAPI GetFrameSize();
-	virtual int    SLAPI GetFrameState();
-	int    SLAPI setQuery(DBQuery & rQuery, uint aBufSize = 32);
-	int    SLAPI setRestrict(DBQ & rQ);
+	virtual int    refresh();
+	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
+	virtual int    GetFrameSize();
+	virtual int    GetFrameState();
+	int    setQuery(DBQuery & rQuery, uint aBufSize = 32);
+	int    setRestrict(DBQ & rQ);
 protected:
-	void   SLAPI setupView();
+	void   setupView();
 	DBQuery * query;
 };
 
@@ -3647,12 +3647,12 @@ private:
 	WordSel_ExtraBlock * P_Blk; // not owner
 };
 
-ListWindow * SLAPI CreateListWindow(DBQuery & rQuery, uint options);
-ListWindow * SLAPI CreateListWindow(SArray * pAry, uint options, TYPEID);
-ListWindow * SLAPI CreateListWindow(StrAssocArray * pAry, uint options);
-ListWindow * SLAPI CreateListWindow(uint sz, uint options);
-// WordSelector * SLAPI CreateWordSelector(StrAssocArray * pAry, uint optons, UiWordSel_Helper * pHelper);
-// @v9.8.12 (unused) WordSelector * SLAPI CreateWordSelector(WordSel_ExtraBlock * pBlk);
+ListWindow * CreateListWindow(DBQuery & rQuery, uint options);
+ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID);
+ListWindow * CreateListWindow(StrAssocArray * pAry, uint options);
+ListWindow * CreateListWindow(uint sz, uint options);
+// WordSelector * CreateWordSelector(StrAssocArray * pAry, uint optons, UiWordSel_Helper * pHelper);
+// @v9.8.12 (unused) WordSelector * CreateWordSelector(WordSel_ExtraBlock * pBlk);
 
 class ComboBoxInputLine : public TInputLine {
 public:
@@ -4086,8 +4086,8 @@ public:
 	//   Завершается либо при возврате функции MsgLoopIter <= 0,
 	//   либо когда rExitSignal != 0.
 	//
-	int    SLAPI MsgLoop(TWindow * pV, int & rExitSignal);
-	TRect  SLAPI MakeCenterRect(int width, int height) const;
+	int    MsgLoop(TWindow * pV, int & rExitSignal);
+	TRect  MakeCenterRect(int width, int height) const;
 	HWND   GetFrameWindow() const;
 	void   NotifyFrame(int post);
 	int    PushModalWindow(TWindow * pV, HWND h);
@@ -4333,8 +4333,8 @@ struct BroColumn {
 };
 
 struct BroGroup {
-	SLAPI  BroGroup();
-	uint   SLAPI NextColumn() const;
+	BroGroup();
+	uint   NextColumn() const;
 
 	uint   First;
 	uint   Count;
@@ -4353,8 +4353,8 @@ struct BroCrosstab {
 
 class BrowserDef : public SArray {
 public:
-	SLAPI  BrowserDef(int captionHight, uint aOptions, void * extraPtr = 0);
-	SLAPI ~BrowserDef();
+	BrowserDef(int captionHight, uint aOptions, void * extraPtr = 0);
+	~BrowserDef();
 	//
 	// Descr: Функция должна добавлять колонку в конец списка колонок
 	// ARG(atPos IN): Позиция, в которую вставляется столбец. Если atPos < 0, то столбец
@@ -4366,58 +4366,58 @@ public:
 	// ARG(fmt   IN): Формат вывода данных (используйте MKSFMT или MKSFMTD)
 	// ARG(opt   IN): Опции вывода данных в столбце (BCO_XXX see tvdefs.h)
 	//
-	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
-	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
-	virtual void  SLAPI setViewHight(int);
-	virtual void  SLAPI getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int   SLAPI valid();
+	virtual int   insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
+	virtual int   insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
+	virtual void  setViewHight(int);
+	virtual void  getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int   valid();
 	virtual int   FASTCALL go(long);
 	virtual int   FASTCALL step(long);
-	virtual int   SLAPI top();
-	virtual int   SLAPI bottom();
-	virtual long  SLAPI getRecsCount();
+	virtual int   top();
+	virtual int   bottom();
+	virtual long  getRecsCount();
 	virtual const void * FASTCALL getRow(long) const;
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
-	virtual int   SLAPI refresh();
-	virtual int   SLAPI search(const void * pPattern, CompFunc, int srchMode, int srchCol);
-	virtual int   SLAPI search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
+	virtual int   refresh();
+	virtual int   search(const void * pPattern, CompFunc, int srchMode, int srchCol);
+	virtual int   search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
 	BroColumn & FASTCALL at(uint) const;
-	void   SLAPI initOffset(int);
-	int    SLAPI addColumn(const BroColumn *, int = UNDEF);
-	int    SLAPI removeColumn(int);
-	int    SLAPI setColumnTitle(int colN, const char * pText);
-	int    SLAPI addGroup(BroGroup *);
-	const  BroGroup * SLAPI groupOf(uint column, uint * pGrpPos = 0) const;
-	uint   SLAPI groupWidth(uint group, uint atColumn) const;
-	uint   SLAPI groupWidth(const BroGroup *, uint atColumn) const;
-	int    SLAPI GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
-	int    SLAPI GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
-	char * SLAPI getText(long row, int column, char * pBuf);
+	void   initOffset(int);
+	int    addColumn(const BroColumn *, int = UNDEF);
+	int    removeColumn(int);
+	int    setColumnTitle(int colN, const char * pText);
+	int    addGroup(BroGroup *);
+	const  BroGroup * groupOf(uint column, uint * pGrpPos = 0) const;
+	uint   groupWidth(uint group, uint atColumn) const;
+	uint   groupWidth(const BroGroup *, uint atColumn) const;
+	int    GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
+	int    GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
+	char * getText(long row, int column, char * pBuf);
 	//
 	// Descr: Извлекает текст полностью (512 символов), независимо от ширины колонки в броузере
 	//
-	SString & SLAPI getFullText(long row, int column, SString & rBuf);
-	SString & SLAPI getFullText(const void * pRowData, int column, SString & rBuf);
-	char * SLAPI getMultiLinesText(long, int, char *, uint = 0, uint * = 0);
-	// @v10.6.3 (unused) int    SLAPI setText(long, int, const char *);
-	long   SLAPI _topItem() const { return topItem; }
-	long   SLAPI _curItem() const { return curItem; }
+	SString & getFullText(long row, int column, SString & rBuf);
+	SString & getFullText(const void * pRowData, int column, SString & rBuf);
+	char * getMultiLinesText(long, int, char *, uint = 0, uint * = 0);
+	// @v10.6.3 (unused) int    setText(long, int, const char *);
+	long   _topItem() const { return topItem; }
+	long   _curItem() const { return curItem; }
 	int    FASTCALL isColInGroup(uint col, uint * idx) const;
-	int    SLAPI GetCapHeight() const;
-	void   SLAPI VerifyCapHeight();
-	uint   SLAPI GetGroupCount() const;
+	int    GetCapHeight() const;
+	void   VerifyCapHeight();
+	uint   GetGroupCount() const;
 	const  BroGroup * FASTCALL GetGroup(uint) const;
-	void   SLAPI ClearGroupIndexies();
-	uint * SLAPI GetGroupIndexPtr(uint grpN);
-	int    SLAPI AddCrosstab(BroCrosstab *);
-	uint   SLAPI GetCrosstabCount() const;
-	const  BroCrosstab * SLAPI GetCrosstab(uint) const;
-	int    SLAPI FreeAllCrosstab();
-	int    SLAPI IsBOQ() const;
-	int    SLAPI IsEOQ() const;
-	int    SLAPI CheckFlag(uint) const;
-	void   SLAPI SetUserProc(SBrowserDataProc proc, void * extraPtr);
+	void   ClearGroupIndexies();
+	uint * GetGroupIndexPtr(uint grpN);
+	int    AddCrosstab(BroCrosstab *);
+	uint   GetCrosstabCount() const;
+	const  BroCrosstab * GetCrosstab(uint) const;
+	int    FreeAllCrosstab();
+	int    IsBOQ() const;
+	int    IsEOQ() const;
+	int    CheckFlag(uint) const;
+	void   SetUserProc(SBrowserDataProc proc, void * extraPtr);
 protected:
 	SBrowserDataProc UserProc;
 	void * ExtraPtr;
@@ -4441,13 +4441,13 @@ public:
 
 class AryBrowserDef : public BrowserDef {
 public:
-	SLAPI   AryBrowserDef(SArray * pData, const BNFieldList * pFl, int captionHight, uint aOptions, void * extraPtr = 0);
-	SLAPI  ~AryBrowserDef();
-	int     SLAPI setArray(SArray * pData, const BNFieldList * pFl, int setupPosition /*= 1*/);
-	const   SArray * SLAPI getArray() const;
-	virtual int   SLAPI valid();
-	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
-	virtual long  SLAPI getRecsCount();
+	AryBrowserDef(SArray * pData, const BNFieldList * pFl, int captionHight, uint aOptions, void * extraPtr = 0);
+	~AryBrowserDef();
+	int     setArray(SArray * pData, const BNFieldList * pFl, int setupPosition /*= 1*/);
+	const   SArray * getArray() const;
+	virtual int   valid();
+	virtual int   insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
+	virtual long  getRecsCount();
 	virtual const void * FASTCALL getRow(long) const;
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
@@ -4463,26 +4463,26 @@ public:
 	enum {
 		defaultFrameSize = 100
 	};
-	SLAPI  DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize = defaultFrameSize);
-	SLAPI ~DBQBrowserDef();
-	const  DBQuery * SLAPI getQuery() const { return query; }
-	int    SLAPI setQuery(DBQuery & rQuery, uint aBufSize = defaultFrameSize);
-	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID, long fmt, uint opt);
-	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
-	virtual void  SLAPI setViewHight(int);
-	virtual void  SLAPI getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int   SLAPI valid();
+	DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize = defaultFrameSize);
+	~DBQBrowserDef();
+	const  DBQuery * getQuery() const { return query; }
+	int    setQuery(DBQuery & rQuery, uint aBufSize = defaultFrameSize);
+	virtual int   insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID, long fmt, uint opt);
+	virtual int   insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
+	virtual void  setViewHight(int);
+	virtual void  getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int   valid();
 	virtual int   FASTCALL go(long);
 	virtual int   FASTCALL step(long);
-	virtual int   SLAPI top();
-	virtual int   SLAPI bottom();
-	virtual long  SLAPI getRecsCount();
+	virtual int   top();
+	virtual int   bottom();
+	virtual long  getRecsCount();
 	virtual const void * FASTCALL getRow(long) const;
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
-	virtual int   SLAPI refresh();
+	virtual int   refresh();
 protected:
-	void   SLAPI setupView();
+	void   setupView();
 	DBQuery * query;
 };
 
@@ -4567,9 +4567,9 @@ public:
 	//   0  - ошибка.
 	//
 	int    Insert();
-	uint   SLAPI GetResID() const;
-	void   SLAPI SetResID(uint res);
-	void   SLAPI SetToolbarID(uint toolbarID);
+	uint   GetResID() const;
+	void   SetResID(uint res);
+	void   SetToolbarID(uint toolbarID);
 
 	enum {
 		IdBiasBrowser          = 0x00100000,
@@ -4644,9 +4644,9 @@ public:
 
 	static LPCTSTR WndClsName;
 
-	SLAPI  BrowserWindow(uint resID, DBQuery *, uint broDefOptions = 0);
-	SLAPI  BrowserWindow(uint resID, SArray *, uint broDefOptions = 0);
-	SLAPI ~BrowserWindow();
+	BrowserWindow(uint resID, DBQuery *, uint broDefOptions = 0);
+	BrowserWindow(uint resID, SArray *, uint broDefOptions = 0);
+	~BrowserWindow();
 	//
 	// Descr: Меняет запрос и, возможно, загружает другой ресурс таблицы для отображения.
 	//   Если resID не равен текущему значению ResourceID, то загружает ресурс resID.
@@ -4711,8 +4711,8 @@ public:
 	//
 	// For modeless
 	//
-	const  void * SLAPI getCurItem();
-	const  void * SLAPI getItemByPos(long pos);
+	const  void * getCurItem();
+	const  void * getItemByPos(long pos);
 	//
 	// Descr: Сохраняет в реестре параметры таблицы, установленные пользователем.
 	// ARG(ifChangedOnly IN): Если !0, то параметры будут сохранены только в случае, если
@@ -5105,7 +5105,7 @@ public:
 	int    Set(const KeyDownCommand & rK, int cmd);
 };
 
-int SLAPI ImpLoadToolbar(TVRez & rez, ToolbarList * pList);
+int ImpLoadToolbar(TVRez & rez, ToolbarList * pList);
 
 class SScEditorStyleSet : private SStrGroup {
 public:
@@ -5145,16 +5145,16 @@ public:
 		SString KeywordClass;
 		SString KeywordList;
 	};
-	SLAPI  SScEditorStyleSet();
-	SLAPI ~SScEditorStyleSet();
+	SScEditorStyleSet();
+	~SScEditorStyleSet();
 	void   Destroy();
 
-	int    SLAPI GetStyle(int group, int lexerId, int styleId, Style & rS) const;
-	int    SLAPI GetStyles(int group, int lexerId, TSCollection <Style> * pList) const;
-	int    SLAPI GetModel(int lexerId, LangModel * pModel) const;
-	int    SLAPI GetModelKeywords(int lexerId, TSCollection <LangModelKeywords> * pList) const;
-	int    SLAPI ParseStylesXml(const char * pFileName);
-	int    SLAPI ParseModelXml(const char * pFileName);
+	int    GetStyle(int group, int lexerId, int styleId, Style & rS) const;
+	int    GetStyles(int group, int lexerId, TSCollection <Style> * pList) const;
+	int    GetModel(int lexerId, LangModel * pModel) const;
+	int    GetModelKeywords(int lexerId, TSCollection <LangModelKeywords> * pList) const;
+	int    ParseStylesXml(const char * pFileName);
+	int    ParseModelXml(const char * pFileName);
 private:
 	struct InnerStyle {
 		int    Group;
@@ -5184,7 +5184,7 @@ private:
 	void   FASTCALL InnerToOuter(const InnerStyle & rS, Style & rD) const;
 	void   FASTCALL InnerToOuter(const InnerLangModel & rS, LangModel & rD) const;
 	void   FASTCALL InnerToOuter(const InnerLangModelKeywords & rS, LangModelKeywords & rD) const;
-	int    SLAPI ReadStyleAttributes(const xmlNode * pNode, InnerStyle & rS);
+	int    ReadStyleAttributes(const xmlNode * pNode, InnerStyle & rS);
 
 	TSVector <InnerLangModel> ML; // @v9.8.4 TSArray-->TSVector
 	TSVector <InnerLangModelKeywords> KwL; // @v9.8.4 TSArray-->TSVector
@@ -5341,40 +5341,40 @@ public:
 	enum {
 		hdrUnknown, hdr16, hdr32
 	};
-	SLAPI  TVRez(const char * fName, int useIndex = 0);
-	SLAPI ~TVRez();
-	int    SLAPI open(const char *, int useIndex = 0);
-	int    SLAPI setHdrType();
-	int    SLAPI buildIndex();
-	int    SLAPI getChar();
-	uint   SLAPI getUINT();
+	TVRez(const char * fName, int useIndex = 0);
+	~TVRez();
+	int    open(const char *, int useIndex = 0);
+	int    setHdrType();
+	int    buildIndex();
+	int    getChar();
+	uint   getUINT();
 	char * FASTCALL getString(char *, int kind = 0 /*0 - 866, 1 - w_char, 2 - 1251*/);
 	SString & FASTCALL getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/);
-	TRect  SLAPI getRect();
-	TYPEID SLAPI getType(int defaultLen);
-	long   SLAPI getFormat(int defaultLen);
-	int    SLAPI readHeader(ulong ofs, WResHeaderInfo * hdr, ResPosition);
-	int    SLAPI findResource(uint rscID, uint rscType, long * pOffs = 0, long * pSz = 0);
-	int    SLAPI getSizeField(long *);
-	long   SLAPI getStreamPos();
-	int    SLAPI enumResources(uint rscType, uint * rscID, ulong * dwPos);
-	FILE * SLAPI getStream() const { return Stream; }
-	int    SLAPI CheckDialogs(const char * pLogFileName); // @debug
+	TRect  getRect();
+	TYPEID getType(int defaultLen);
+	long   getFormat(int defaultLen);
+	int    readHeader(ulong ofs, WResHeaderInfo * hdr, ResPosition);
+	int    findResource(uint rscID, uint rscType, long * pOffs = 0, long * pSz = 0);
+	int    getSizeField(long *);
+	long   getStreamPos();
+	int    enumResources(uint rscType, uint * rscID, ulong * dwPos);
+	FILE * getStream() const { return Stream; }
+	int    CheckDialogs(const char * pLogFileName); // @debug
 
 	int    error;
 private:
-	int    SLAPI _readHeader16(ulong ofs, WResHeaderInfo * hdr, ResPosition);
-	int    SLAPI _readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition);
+	int    _readHeader16(ulong ofs, WResHeaderInfo * hdr, ResPosition);
+	int    _readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition);
 	SString FileName;
 	FILE   * Stream;
 	SVector * P_Index;
 	int      HeaderType;
 };
 
-extern int (SLAPI * getUserControl)(TVRez *, TDialog*);
+extern int (* getUserControl)(TVRez *, TDialog*);
 
-// @v9.5.10 HMENU  SLAPI LoadMenu(TVRez *, uint menuID);
-int    SLAPI LoadToolbar(TVRez *, uint tbType, uint tbID, ToolbarList *);
+// @v9.5.10 HMENU  LoadMenu(TVRez *, uint menuID);
+int    LoadToolbar(TVRez *, uint tbType, uint tbID, ToolbarList *);
 
 // @v9.8.12 #endif // } _TURBOVISION
 //

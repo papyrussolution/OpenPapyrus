@@ -56,9 +56,9 @@
 //#ifndef VASNPRINTF
 //#include <config.h>
 //#endif
-#ifndef IN_LIBINTL
+//#ifndef IN_LIBINTL
 //#include <alloca.h>
-#endif
+//#endif
 /* Specification.  */
 #ifndef VASNPRINTF
 	#if WIDE_CHAR_VERSION
@@ -85,7 +85,7 @@
 	#endif
 #endif
 //#include "xsize.h" /* Checked size_t computations.  */
-#include "verify.h"
+//#include "verify.h"
 #if (NEED_PRINTF_DOUBLE || NEED_PRINTF_LONG_DOUBLE) && !defined IN_LIBINTL
 	#include <math.h>
 	#include "float+.h"
@@ -154,43 +154,38 @@
 #  define SNPRINTF swprintf
 #endif
 #else
-/* TCHAR_T is char.  */
-/* Use snprintf if it exists under the name 'snprintf' or '_snprintf'.
-   But don't use it on BeOS, since BeOS snprintf produces no output if the
-   size argument is >= 0x3000000.
-   Also don't use it on Linux libc5, since there snprintf with size = 1
-   writes any output without bounds, like sprintf.  */
-#if (HAVE_DECL__SNPRINTF || HAVE_SNPRINTF) && !defined __BEOS__ && !(__GNU_LIBRARY__ == 1)
-#  define USE_SNPRINTF 1
-#else
-#  define USE_SNPRINTF 0
+	/* TCHAR_T is char.  */
+	/* Use snprintf if it exists under the name 'snprintf' or '_snprintf'.
+	   But don't use it on BeOS, since BeOS snprintf produces no output if the
+	   size argument is >= 0x3000000.
+	   Also don't use it on Linux libc5, since there snprintf with size = 1
+	   writes any output without bounds, like sprintf.  */
+	#if (HAVE_DECL__SNPRINTF || HAVE_SNPRINTF) && !defined __BEOS__ && !(__GNU_LIBRARY__ == 1)
+		#define USE_SNPRINTF 1
+	#else
+		#define USE_SNPRINTF 0
+	#endif
+	#if HAVE_DECL__SNPRINTF
+		/* Windows.  The mingw function snprintf() has fewer bugs than the MSVCRT function _snprintf(), so prefer that.  */
+		#if defined __MINGW32__
+			#define SNPRINTF snprintf
+			/* Here we need to call the native snprintf, not rpl_snprintf.  */
+			#undef snprintf
+		#else
+			#define SNPRINTF _snprintf
+		#endif
+	#else
+		#define SNPRINTF snprintf /* Unix.  */
+		#undef snprintf /* Here we need to call the native snprintf, not rpl_snprintf.  */
+	#endif
 #endif
-#if HAVE_DECL__SNPRINTF
-/* Windows.  The mingw function snprintf() has fewer bugs than the MSVCRT
-   function _snprintf(), so prefer that.  */
-#  if defined __MINGW32__
-#   define SNPRINTF snprintf
-/* Here we need to call the native snprintf, not rpl_snprintf.  */
-#   undef snprintf
-#  else
-#   define SNPRINTF _snprintf
-#  endif
-#else
-/* Unix.  */
-#  define SNPRINTF snprintf
-/* Here we need to call the native snprintf, not rpl_snprintf.  */
-#  undef snprintf
-#endif
-#endif
-/* Here we need to call the native sprintf, not rpl_sprintf.  */
-#undef sprintf
-
+#undef sprintf /* Here we need to call the native sprintf, not rpl_sprintf.  */
 /* GCC >= 4.0 with -Wall emits unjustified "... may be used uninitialized"
    warnings in this file.  Use -Dlint to suppress them.  */
 #ifdef lint
-#define IF_LINT(Code) Code
+	#define IF_LINT(Code) Code
 #else
-#define IF_LINT(Code) /* empty */
+	#define IF_LINT(Code) /* empty */
 #endif
 
 /* Avoid some warnings from "gcc -Wshadow".
@@ -249,12 +244,10 @@ static size_t local_wcslen(const wchar_t * s)
 static size_t local_wcsnlen(const wchar_t * s, size_t maxlen)
 {
 	const wchar_t * ptr;
-
 	for(ptr = s; maxlen > 0 && *ptr != (wchar_t)0; ptr++, maxlen--)
 		;
 	return ptr - s;
 }
-
 #  endif
 #endif
 #endif
@@ -627,8 +620,7 @@ static void * divide(mpn_t a, mpn_t b, mpn_t * q)
 					   If yes, jump directly to the subtraction loop.
 					   (Otherwise, r[j+n]*beta+r[j+n-1] - (beta-1)*b[n-1] < beta
 					    <==> floor((r[j+n]*beta+r[j+n-1]+b[n-1])/beta) = b[n-1] ) */
-					if(r_ptr[j + b_len] > b_msd
-					    || (c1 = r_ptr[j + b_len - 1] + b_msd) < b_msd)
+					if(r_ptr[j + b_len] > b_msd || (c1 = r_ptr[j + b_len - 1] + b_msd) < b_msd)
 						/* r[j+n] >= b[n-1]+1 or
 						   r[j+n] = b[n-1] and the addition r[j+n-1]+b[n-1] gives a
 						   carry.  */

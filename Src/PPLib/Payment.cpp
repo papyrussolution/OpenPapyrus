@@ -45,7 +45,7 @@ typedef _PaymentEntry PaymBillViewItem;
 //   reserved 4 - Зачетные документы, соответствующие оплатам долгового документа
 //   5 - Документы списания драфт-документа
 //
-SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
+SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 {
 	_PaymentEntry entry;
 	uint   i;
@@ -177,24 +177,22 @@ SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 	return p_ary;
 }
 
-IMPLEMENT_PPFILT_FACTORY(LinkedBill); SLAPI LinkedBillFilt::LinkedBillFilt() : PPBaseFilt(PPFILT_LINKEDBILL, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(LinkedBill); LinkedBillFilt::LinkedBillFilt() : PPBaseFilt(PPFILT_LINKEDBILL, 0, 1)
 {
 	SetFlatChunk(offsetof(LinkedBillFilt, ReserveStart),
 		offsetof(LinkedBillFilt, ReserveEnd)-offsetof(LinkedBillFilt, ReserveStart)+sizeof(ReserveEnd));
 	Init(1, 0);
 }
 
-SLAPI PPViewLinkedBill::PPViewLinkedBill() : PPView(0, &Filt, PPVIEW_LINKEDBILL), P_BObj(BillObj), PrevPaym(0.0), PrevKind(-1)
-{
-	ImplementFlags |= implBrowseArray;
-	// @v10.6.4 MEMSZERO(Rec);
-}
-
-SLAPI PPViewLinkedBill::~PPViewLinkedBill()
+PPViewLinkedBill::PPViewLinkedBill() : PPView(0, &Filt, PPVIEW_LINKEDBILL, implBrowseArray, 0), P_BObj(BillObj), PrevPaym(0.0), PrevKind(-1)
 {
 }
 
-PPBaseFilt * SLAPI PPViewLinkedBill::CreateFilt(void * extraPtr) const
+PPViewLinkedBill::~PPViewLinkedBill()
+{
+}
+
+PPBaseFilt * PPViewLinkedBill::CreateFilt(void * extraPtr) const
 {
 	LinkedBillFilt * p_filt = new LinkedBillFilt;
 	if(p_filt)
@@ -204,12 +202,12 @@ PPBaseFilt * SLAPI PPViewLinkedBill::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewLinkedBill::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewLinkedBill::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	return 1;
 }
 
-int SLAPI PPViewLinkedBill::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewLinkedBill::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -221,7 +219,7 @@ int SLAPI PPViewLinkedBill::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewLinkedBill::InitIteration()
+int PPViewLinkedBill::InitIteration()
 {
 	Counter.Init(List.getCount());
 	return 1;
@@ -250,7 +248,7 @@ int FASTCALL PPViewLinkedBill::NextIteration(LinkedBillViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -297,18 +295,18 @@ int SLAPI PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-void SLAPI PPViewLinkedBill::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewLinkedBill::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewLinkedBill::GetDataForBrowser, this));
 }
 
-int SLAPI PPViewLinkedBill::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewLinkedBill::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetupToolbarStringCombo(PPTXT_LINKBILLVIEWKINDS, Filt.Kind__));
 	return -1;
 }
 
-SArray  * SLAPI PPViewLinkedBill::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray  * PPViewLinkedBill::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(List);
 	uint   brw_id = 0;
@@ -345,7 +343,7 @@ SArray  * SLAPI PPViewLinkedBill::CreateBrowserArray(uint * pBrwId, SString * pS
 	return p_array;
 }
 
-int SLAPI PPViewLinkedBill::MakeList()
+int PPViewLinkedBill::MakeList()
 {
 	List.freeAll();
 	MemoList.Z();
@@ -483,7 +481,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 	return ok;
 }
 
-int SLAPI PPViewLinkedBill::ViewTotal()
+int PPViewLinkedBill::ViewTotal()
 {
 	TDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYMTOTAL)))) {
@@ -503,7 +501,7 @@ int SLAPI PPViewLinkedBill::ViewTotal()
 	return -1;
 }
 
-int SLAPI PPViewLinkedBill::Print(const void * pHdr)
+int PPViewLinkedBill::Print(const void * pHdr)
 {
 	int    ok = -1;
 	if(pHdr) {
@@ -524,7 +522,7 @@ int SLAPI PPViewLinkedBill::Print(const void * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd == PPVCMD_PRINT) ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -723,9 +721,9 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI PPObjBill::ViewPayments(PPID id, int kind)
+int PPObjBill::ViewPayments(PPID id, int kind)
 {
-	//static int SLAPI Execute(int viewID, const PPBaseFilt * pFilt, int asModeless, long extraParam = 0);
+	//static int Execute(int viewID, const PPBaseFilt * pFilt, int asModeless, long extraParam = 0);
 	LinkedBillFilt filt;
 	filt.BillID = id;
 	filt.Kind__ = kind;
@@ -735,21 +733,21 @@ int SLAPI PPObjBill::ViewPayments(PPID id, int kind)
 //
 // Reckoning
 //
-SLAPI ReckonOpArItem::ReckonOpArItem()
+ReckonOpArItem::ReckonOpArItem()
 {
 	THISZERO();
 }
 
-SLAPI ReckonOpArList::ReckonOpArList() : TSArray <ReckonOpArItem> ()
+ReckonOpArList::ReckonOpArList() : TSArray <ReckonOpArItem> ()
 {
 }
 
-SLAPI ReckonOpArList::~ReckonOpArList()
+ReckonOpArList::~ReckonOpArList()
 {
 	Destroy();
 }
 
-void SLAPI ReckonOpArList::Destroy()
+void ReckonOpArList::Destroy()
 {
 	for(uint i = 0; i < getCount(); i++) {
 		ZDELETE(at(i).P_BillIDList);
@@ -766,7 +764,7 @@ PPID FASTCALL ReckonOpArList::GetPaymOpIDByBillID(PPID billID) const
 	return 0;
 }
 
-int SLAPI ReckonOpArList::IsBillListSortingNeeded() const
+int ReckonOpArList::IsBillListSortingNeeded() const
 {
 	int    c = 0;
 	for(uint i = 0; i < getCount(); i++) {
@@ -777,7 +775,7 @@ int SLAPI ReckonOpArList::IsBillListSortingNeeded() const
 	return (c > 1) ? 1 : 0;
 }
 
-int SLAPI PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * pReckonBillID, 
+int PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * pReckonBillID, 
 	int negativePayment, int dateOption /* RECKON_DATE_XXX */, LDATE reckonDate, int use_ta)
 {
 	int    ok = 1;
@@ -851,7 +849,7 @@ int SLAPI PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, P
 	return ok;
 }
 
-int SLAPI PPObjBill::GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID)
+int PPObjBill::GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID)
 {
 	int    ok = -1;
 	PPObjAccSheet acs_obj;
@@ -872,7 +870,7 @@ int SLAPI PPObjBill::GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArI
 	return ok;
 }
 
-int SLAPI PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, PPID arID, ReckonOpArList * pList)
+int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, PPID arID, ReckonOpArList * pList)
 {
 	int    ok = -1;
 	uint   i;
@@ -924,7 +922,7 @@ int SLAPI PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, 
 	return ok;
 }
 
-int SLAPI PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList * pList)
+int PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList * pList)
 {
 	int    ok = 1;
 	uint   i, j;
@@ -982,7 +980,7 @@ int SLAPI PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOp
 	return ok;
 }
 
-int SLAPI PPObjBill::GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID locID, PPID obj2ID, const DateRange * pPeriod, double * pDebt)
+int PPObjBill::GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID locID, PPID obj2ID, const DateRange * pPeriod, double * pDebt)
 {
 	int    ok = 1;
 	double debt = 0.0;
@@ -1216,7 +1214,7 @@ int CfmReckoningDialog::getDateSettings()
 	return ok;
 }
 
-static int SLAPI ConfirmReckoning(PPObjBill * pBObj, CfmReckoningParam * pCRP)
+static int ConfirmReckoning(PPObjBill * pBObj, CfmReckoningParam * pCRP)
 {
 	int    ok = -1, valid_data = 0, r;
 	CfmReckoningDialog * dlg = new CfmReckoningDialog((pCRP->DebtOrPaym ? DLG_CFM_RECKONDEBT : DLG_CFM_RECKONING), pBObj);
@@ -1234,7 +1232,7 @@ static int SLAPI ConfirmReckoning(PPObjBill * pBObj, CfmReckoningParam * pCRP)
 	return ok;
 }
 
-static int SLAPI SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
+static int SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
 {
 	struct _i { // @flat
 		LDATE dt;
@@ -1259,7 +1257,7 @@ static int SLAPI SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_Reckon(PPID billID, const ReckonOpArList & rOpList, CfmReckoningParam & rParam, int negativePayment, int dontConfirm, int use_ta)
+int PPObjBill::Helper_Reckon(PPID billID, const ReckonOpArList & rOpList, CfmReckoningParam & rParam, int negativePayment, int dontConfirm, int use_ta)
 {
 	int    ok = -1, r = 1;
 	PPID   op_id = 0;
@@ -1309,12 +1307,12 @@ int SLAPI PPObjBill::Helper_Reckon(PPID billID, const ReckonOpArList & rOpList, 
 	return ok;
 }
 
-SLAPI CfmReckoningParam::CfmReckoningParam() : P_BillList(0), DebtOrPaym(0), DateOption(RECKON_DATE_PAYM),
+CfmReckoningParam::CfmReckoningParam() : P_BillList(0), DebtOrPaym(0), DateOption(RECKON_DATE_PAYM),
 	ArticleID(0), CurID(0), TotalDebt(0.0), PaymAmount(0.0), BillDt(ZERODATE), Dt(ZERODATE), ForceBillID(0), SelectedBillID(0)
 {
 }
 
-void SLAPI CfmReckoningParam::Init(int debtOrPaym, BillTbl::Rec * pRec, double debt, double paym, PPIDArray * pBillList)
+void CfmReckoningParam::Init(int debtOrPaym, BillTbl::Rec * pRec, double debt, double paym, PPIDArray * pBillList)
 {
 	DebtOrPaym = debtOrPaym;
 	DateOption = RECKON_DATE_PAYM;
@@ -1330,7 +1328,7 @@ void SLAPI CfmReckoningParam::Init(int debtOrPaym, BillTbl::Rec * pRec, double d
 	P_BillList = pBillList;
 }
 
-static int SLAPI SelectAltObject(PPID * pArID)
+static int SelectAltObject(PPID * pArID)
 {
 	class SelectAltReckonObjDialog : public TDialog {
 	public:
@@ -1370,7 +1368,7 @@ static int SLAPI SelectAltObject(PPID * pArID)
 	return ok;
 }
 
-void SLAPI PPObjBill::Helper_PopupReckonInfo(PPIDArray & rResultBillList)
+void PPObjBill::Helper_PopupReckonInfo(PPIDArray & rResultBillList)
 {
 	SString fmt_buf, msg_buf;
 	long   result_count = 0;
@@ -1400,7 +1398,7 @@ void SLAPI PPObjBill::Helper_PopupReckonInfo(PPIDArray & rResultBillList)
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 }
 
-int SLAPI PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int use_ta)
+int PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int use_ta)
 {
 	int    ok = 1;
 	BillTbl::Rec bill_rec;
@@ -1511,7 +1509,7 @@ int SLAPI PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int 
 	return ok;
 }
 
-int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int use_ta)
+int PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int use_ta)
 {
 	int    ok = 1;
 	BillTbl::Rec bill_rec;
@@ -1579,7 +1577,7 @@ int SLAPI PPObjBill::ReckoningDebt(PPID billID, const ReckonParam & rParam, int 
 	return ok;
 }
 
-int SLAPI PPObjBill::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID curID, PayableBillList * pList)
+int PPObjBill::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID curID, PayableBillList * pList)
 {
 	int    ok = 1;
 	const  LDATE current_date = getcurdate_();
@@ -1625,7 +1623,7 @@ int SLAPI PPObjBill::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, P
 	return ok;
 }
 
-int SLAPI PPObjBill::GetReceivableBillList(PPID arID, PPID curID, PayableBillList * pList)
+int PPObjBill::GetReceivableBillList(PPID arID, PPID curID, PayableBillList * pList)
 {
 	int    ok = 1, m;
 	ReckonOpArList op_list;
@@ -1657,7 +1655,7 @@ int SLAPI PPObjBill::GetReceivableBillList(PPID arID, PPID curID, PayableBillLis
 //
 //
 //
-SLAPI PPObjBill::DebtBlock::DebtBlock() : Amount(0.0), Debt(0.0), HasMatured(0), MaxDelay(0), MaxExpiry(0)
+PPObjBill::DebtBlock::DebtBlock() : Amount(0.0), Debt(0.0), HasMatured(0), MaxDelay(0), MaxExpiry(0)
 {
 }
 
@@ -1672,7 +1670,7 @@ PPObjBill::DebtBlock & PPObjBill::DebtBlock::Z()
 	return *this;
 }
 
-int SLAPI PPObjBill::DebtBlock::AddDimItem(PPID dimID, double debt, int expiry)
+int PPObjBill::DebtBlock::AddDimItem(PPID dimID, double debt, int expiry)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -1692,7 +1690,7 @@ int SLAPI PPObjBill::DebtBlock::AddDimItem(PPID dimID, double debt, int expiry)
 	return ok;
 }
 
-void SLAPI PPObjBill::DebtBlock::GetDimList(RAssocArray & rList) const
+void PPObjBill::DebtBlock::GetDimList(RAssocArray & rList) const
 {
 	rList.clear();
 	for(uint i = 0; i < DebtDimList.getCount(); i++) {
@@ -1717,7 +1715,7 @@ DateRange * FASTCALL PPObjBill::GetDefaultClientDebtPeriod(DateRange & rPeriod) 
 //
 //
 //
-int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diffByDebtDim, DebtBlock & rBlk)
+int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diffByDebtDim, DebtBlock & rBlk)
 {
 	int    ok = 1;
 	int    has_matured_debt = 0;
@@ -1891,7 +1889,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 //
 //
 struct CBO_BillEntry { // @flat
-	SLAPI  CBO_BillEntry() : ID(0), Dt(ZERODATE), ArID(0), Ar2ID(0), Amount(0.0)
+	CBO_BillEntry() : ID(0), Dt(ZERODATE), ArID(0), Ar2ID(0), Amount(0.0)
 	{
 		PTR32(Code)[0] = 0;
 	}
@@ -1905,7 +1903,7 @@ struct CBO_BillEntry { // @flat
 
 IMPL_CMPFUNC(CBO_BillEntry, i1, i2) { RET_CMPCASCADE4(static_cast<const CBO_BillEntry *>(i1), static_cast<const CBO_BillEntry *>(i2), ArID, Ar2ID, Dt, Amount); }
 
-int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList & rOrderList)
+int PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList & rOrderList)
 {
 	int    ok = -1;
 	SVector list(sizeof(CBO_BillEntry)); // @v9.8.4 SArray-->SVector
@@ -2005,13 +2003,13 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 //
 class PPViewPaymBill {
 public:
-	SLAPI  PPViewPaymBill();
-	SLAPI ~PPViewPaymBill();
-	void   SLAPI Init(const PaymBillFilt *);
-	int    SLAPI InitIteration();
+	PPViewPaymBill();
+	~PPViewPaymBill();
+	void   Init(const PaymBillFilt *);
+	int    InitIteration();
 	int    FASTCALL NextIteration(PaymBillViewItem *);
-	const  PaymBillFilt * SLAPI GetFilt() const { return &Filt; }
-	const  IterCounter & SLAPI GetIterCounter() const { return Counter; }
+	const  PaymBillFilt * GetFilt() const { return &Filt; }
+	const  IterCounter & GetIterCounter() const { return Counter; }
 private:
 	PPObjBill * P_BObj;
 	PaymBillFilt Filt;
@@ -2019,22 +2017,22 @@ private:
 	SArray * P_PaymBillList;
 };
 
-SLAPI PPViewPaymBill::PPViewPaymBill() : P_BObj(BillObj), P_PaymBillList(0)
+PPViewPaymBill::PPViewPaymBill() : P_BObj(BillObj), P_PaymBillList(0)
 {
 }
 
-SLAPI PPViewPaymBill::~PPViewPaymBill()
+PPViewPaymBill::~PPViewPaymBill()
 {
 	ZDELETE(P_PaymBillList);
 }
 
-void SLAPI PPViewPaymBill::Init(const PaymBillFilt * pFilt)
+void PPViewPaymBill::Init(const PaymBillFilt * pFilt)
 {
 	if(!RVALUEPTR(Filt, pFilt))
 		MEMSZERO(Filt);
 }
 
-int SLAPI PPViewPaymBill::InitIteration()
+int PPViewPaymBill::InitIteration()
 {
 	int    ok = -1;
 	if(P_BObj) {

@@ -16,11 +16,11 @@ int dummy_ppserver() { return 0; }
 //
 /*static*/int FASTCALL PPThread::GetKindText(int kind, SString & rBuf) { return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf); }
 
-SLAPI PPThread::PPThread(int kind, const char * pText, void * pInitData) : SlThread(pInitData), Kind(kind), JobID(0), Text(pText), StartMoment(ZERODATETIME)
+PPThread::PPThread(int kind, const char * pText, void * pInitData) : SlThread(pInitData), Kind(kind), JobID(0), Text(pText), StartMoment(ZERODATETIME)
 {
 }
 
-void SLAPI PPThread::Startup()
+void PPThread::Startup()
 {
 	SlThread::Startup();
 	DBS.InitThread();
@@ -29,7 +29,7 @@ void SLAPI PPThread::Startup()
 	StartMoment = getcurdatetime_();
 }
 
-void SLAPI PPThread::Shutdown()
+void PPThread::Shutdown()
 {
 	DS.Logout();
 	//
@@ -72,7 +72,7 @@ void FASTCALL PPThread::LockStackToStr(SString & rBuf) const
 		rBuf.Cat("TLA inaccessible");
 }
 
-int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, Id, rBuf));
@@ -88,7 +88,7 @@ int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 //
 //
 //
-int SLAPI PPTextCommandBlock::GetWord(const char * pBuf, size_t * pPos)
+int PPTextCommandBlock::GetWord(const char * pBuf, size_t * pPos)
 {
 	int    ok = 1;
 	size_t p = DEREFPTRORZ(pPos);
@@ -130,25 +130,25 @@ int SLAPI PPTextCommandBlock::GetWord(const char * pBuf, size_t * pPos)
 //
 //
 //
-SLAPI PPServerCmd::PPServerCmd() : PPJobSrvCmd(), P_SoBlk(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
+PPServerCmd::PPServerCmd() : PPJobSrvCmd(), P_SoBlk(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
 {
 	Init();
 }
 
-SLAPI PPServerCmd::~PPServerCmd()
+PPServerCmd::~PPServerCmd()
 {
 	ZDELETE(P_SoBlk);
 	P_ShT = 0;
 }
 
-void SLAPI PPServerCmd::Init()
+void PPServerCmd::Init()
 {
 	SessID = 0;
 	ClearParams();
 	ZDELETE(P_SoBlk);
 }
 
-void SLAPI PPServerCmd::ClearParams() { ParamL.Z(); }
+void PPServerCmd::ClearParams() { ParamL.Z(); }
 int  FASTCALL PPServerCmd::GetParam(int parid, SString & rVal) const { return ParamL.GetText(parid, rVal); }
 
 int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
@@ -168,7 +168,7 @@ int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
 }
 
 #if 0 // @v10.5.7 (moved to PPTextCommandBlock) {
-int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
+int PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
 {
 	int    ok = 1;
 	size_t p = DEREFPTRORZ(pPos);
@@ -209,7 +209,7 @@ int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
 }
 #endif // } 0
 
-int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
+int PPServerCmd::ParseLine(const SString & rLine, long flags)
 {
 	// PPJobSrvProtocol
 	//
@@ -700,31 +700,31 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 //
 class PPJobSession : public PPThread {
 public:
-	SLAPI  PPJobSession(PPJob * p, const PPJobPool & rPool) : PPThread(PPThread::kJob, p->Name, p), P_Pool(&rPool)
+	PPJobSession(PPJob * p, const PPJobPool & rPool) : PPThread(PPThread::kJob, p->Name, p), P_Pool(&rPool)
 	{
 		SetJobID(p->ID);
 		PPGetFilePath(PPPATH_LOG, PPFILNAM_JOB_LOG, _LogFileName);
 		InitStartupSignal();
 	}
 private:
-	virtual void SLAPI Startup();
-	virtual void SLAPI Run();
-	int    SLAPI DoJob(PPJobMngr * pMngr, PPJob * pJob);
-	int    SLAPI MailNotify(const char * pTmpLogFileName);
+	virtual void Startup();
+	virtual void Run();
+	int    DoJob(PPJobMngr * pMngr, PPJob * pJob);
+	int    MailNotify(const char * pTmpLogFileName);
 
 	SString _LogFileName;
 	PPJob  Job;
 	const PPJobPool * P_Pool;
 };
 
-void SLAPI PPJobSession::Startup()
+void PPJobSession::Startup()
 {
 	PPThread::Startup();
 	Job = *(PPJob *)(P_InitData);
 	SignalStartup();
 }
 
-void SLAPI PPJobSession::Run()
+void PPJobSession::Run()
 {
 	int    ok = 1;
 	int    debug_r = 0;
@@ -765,7 +765,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 	PPWaitPercent(bytesCounter, msg);
 }
 
-int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
+int PPJobSession::MailNotify(const char * pTmpLogFileName)
 {
 	int    ok = 1;
 	PPDeclStruc	* p_ds = 0;
@@ -853,7 +853,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 	return ok;
 }
 
-int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
+int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 {
 	int    ok = 1;
 	SString tmp_log_fpath, fmt_buf, msg_buf;
@@ -957,8 +957,8 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 
 class PPJobServer : public PPThread {
 public:
-	SLAPI  PPJobServer();
-	SLAPI ~PPJobServer();
+	PPJobServer();
+	~PPJobServer();
 private:
 	struct StatItem { // @flat
 		long   JobID;
@@ -967,13 +967,13 @@ private:
 		long   AvgDuration; // Средняя продолжительность (ms)
 	};
 
-	virtual void SLAPI Run();
-	int    SLAPI GetLastStat(PPID jobID, uint * pPos, StatItem * pItem, uint * pCount) const;
-	int    SLAPI RemoveOldStat(PPID jobID, uint countToRemove);
-	int    SLAPI AddStat(PPID jobID, const LDATETIME & lastTime, long duration);
-	int    SLAPI SaveStat();
-	int    SLAPI LoadStat();
-	int    SLAPI Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate);
+	virtual void Run();
+	int    GetLastStat(PPID jobID, uint * pPos, StatItem * pItem, uint * pCount) const;
+	int    RemoveOldStat(PPID jobID, uint countToRemove);
+	int    AddStat(PPID jobID, const LDATETIME & lastTime, long duration);
+	int    SaveStat();
+	int    LoadStat();
+	int    Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate);
 
 	PPJobMngr Mngr;
 	SString StatFilePath;
@@ -981,18 +981,18 @@ private:
 	SVector * P_Stat; // @v9.9.4 SArray-->SVector
 };
 
-SLAPI PPJobServer::PPJobServer() : PPThread(PPThread::kJobServer, 0, 0), P_Stat(0)
+PPJobServer::PPJobServer() : PPThread(PPThread::kJobServer, 0, 0), P_Stat(0)
 {
 	PPGetFilePath(PPPATH_LOCAL, PPFILNAM_JOBSTAT,  StatFilePath);
 	PPGetFilePath(PPPATH_LOG,   PPFILNAM_SERVER_LOG, LogFileName);
 }
 
-SLAPI PPJobServer::~PPJobServer()
+PPJobServer::~PPJobServer()
 {
 	delete P_Stat;
 }
 
-int SLAPI PPJobServer::GetLastStat(PPID jobID, uint * pPos, StatItem * pItem, uint * pCount) const
+int PPJobServer::GetLastStat(PPID jobID, uint * pPos, StatItem * pItem, uint * pCount) const
 {
 	int    ok = -1;
 	uint   count = 0;
@@ -1019,7 +1019,7 @@ int SLAPI PPJobServer::GetLastStat(PPID jobID, uint * pPos, StatItem * pItem, ui
 	return ok;
 }
 
-int SLAPI PPJobServer::RemoveOldStat(PPID jobID, uint countToRemove)
+int PPJobServer::RemoveOldStat(PPID jobID, uint countToRemove)
 {
 	int    ok = -1;
 	uint   count = 0;
@@ -1035,7 +1035,7 @@ int SLAPI PPJobServer::RemoveOldStat(PPID jobID, uint countToRemove)
 	return ok;
 }
 
-int SLAPI PPJobServer::AddStat(PPID jobID, const LDATETIME & lastTime, long duration)
+int PPJobServer::AddStat(PPID jobID, const LDATETIME & lastTime, long duration)
 {
 	int    ok = 1;
 	StatItem last_stat;
@@ -1063,7 +1063,7 @@ int SLAPI PPJobServer::AddStat(PPID jobID, const LDATETIME & lastTime, long dura
 	return ok;
 }
 
-int SLAPI PPJobServer::SaveStat()
+int PPJobServer::SaveStat()
 {
 	int    ok = -1;
 	if(P_Stat && P_Stat->getCount()) {
@@ -1081,7 +1081,7 @@ int SLAPI PPJobServer::SaveStat()
 	return ok;
 }
 
-int SLAPI PPJobServer::LoadStat()
+int PPJobServer::LoadStat()
 {
 	int    ok = -1;
 	SFile  f;
@@ -1111,7 +1111,7 @@ int SLAPI PPJobServer::LoadStat()
 	return ok;
 }
 
-int SLAPI PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate)
+int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate)
 {
 	int    ok = -1, r;
 	LDATETIME curdtm = getcurdatetime_();
@@ -1169,7 +1169,7 @@ int SLAPI PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray
 	return ok;
 }
 
-void SLAPI PPJobServer::Run()
+void PPJobServer::Run()
 {
 	SString temp_buf, msg_buf;
 	STimer timer;
@@ -1313,16 +1313,16 @@ public:
 		scRowNum
 	};
 
-	SLAPI  CPosNodeBlock();
-	SLAPI ~CPosNodeBlock();
-	int    SLAPI Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply);
+	CPosNodeBlock();
+	~CPosNodeBlock();
+	int    Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply);
 private:
-	static Sdr_CPosCheckRow & SLAPI MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow);
-	int    SLAPI Parse(uint cmd, int crit, int subcriterion, const SString & rArg);
-	int    SLAPI ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID);
-	int    SLAPI ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID);
-	int    SLAPI GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList);
-	int    SLAPI OpenSession(PPID cnId, const S_GUID_Base * pUuid);
+	static Sdr_CPosCheckRow & MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow);
+	int    Parse(uint cmd, int crit, int subcriterion, const SString & rArg);
+	int    ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID);
+	int    ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID);
+	int    GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList);
+	int    OpenSession(PPID cnId, const S_GUID_Base * pUuid);
 
 	struct CashNodeBlock {
 		PPID   ID;
@@ -1347,8 +1347,8 @@ private:
 		char   Code[128];
 	};
 	struct CommandBlock {
-		SLAPI  CommandBlock();
-		void   SLAPI Clear();
+		CommandBlock();
+		void   Clear();
 
 		union {
 			CashNodeBlock    CN;
@@ -1375,27 +1375,27 @@ private:
 	S_GUID DeviceUuid;
 };
 
-SLAPI CPosNodeBlock::CommandBlock::CommandBlock()
+CPosNodeBlock::CommandBlock::CommandBlock()
 {
 	Clear();
 }
 
-void SLAPI CPosNodeBlock::CommandBlock::Clear()
+void CPosNodeBlock::CommandBlock::Clear()
 {
 	MEMSZERO(U);
 	ModifList.clear();
 }
 
-SLAPI CPosNodeBlock::CPosNodeBlock() : P_Prcssr(0)
+CPosNodeBlock::CPosNodeBlock() : P_Prcssr(0)
 {
 }
 
-SLAPI CPosNodeBlock::~CPosNodeBlock()
+CPosNodeBlock::~CPosNodeBlock()
 {
 	ZDELETE(P_Prcssr);
 }
 
-/*static*/Sdr_CPosCheckRow & SLAPI CPosNodeBlock::MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow)
+/*static*/Sdr_CPosCheckRow & CPosNodeBlock::MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow)
 {
 	rRow._id     = idx;
 	rRow.CheckId = ccID;
@@ -1407,7 +1407,7 @@ SLAPI CPosNodeBlock::~CPosNodeBlock()
 	return rRow;
 }
 
-int SLAPI CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SString & rArg)
+int CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SString & rArg)
 {
 	int    ok = -1;
 	switch(cmd) {
@@ -1528,7 +1528,7 @@ int SLAPI CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SStri
 	return ok;
 }
 
-int SLAPI CPosNodeBlock::ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID)
+int CPosNodeBlock::ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID)
 {
 	PPID   id = 0;
 	switch(subcriterion) {
@@ -1553,7 +1553,7 @@ int SLAPI CPosNodeBlock::ResolveCrit_PosNode(int subcriterion, const SString & r
 	return (id ? 1 : -1);
 }
 
-int SLAPI CPosNodeBlock::ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID)
+int CPosNodeBlock::ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID)
 {
 	int    ok = 1;
 	const PPID acs_id = NZOR(accSheetID, GetSupplAccSheet());
@@ -1605,7 +1605,7 @@ int SLAPI CPosNodeBlock::ResolveCrit_ArByPerson(int subcriterion, const SString 
 	return ok;
 }
 
-int SLAPI CPosNodeBlock::GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList)
+int CPosNodeBlock::GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList)
 {
 	int    ok = 1;
 	CCheckViewItem item;
@@ -1634,7 +1634,7 @@ int SLAPI CPosNodeBlock::GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pLis
 	return ok;
 }
 
-int SLAPI CPosNodeBlock::OpenSession(PPID cnId, const S_GUID_Base * pUuid)
+int CPosNodeBlock::OpenSession(PPID cnId, const S_GUID_Base * pUuid)
 {
 	int    ok = 1;
 	LDATE  cur_dt = getcurdate_();
@@ -1647,7 +1647,7 @@ int SLAPI CPosNodeBlock::OpenSession(PPID cnId, const S_GUID_Base * pUuid)
 	return ok;
 }
 
-int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply)
+int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply)
 {
 	static const SIntToSymbTabEntry crit_titles[] = {
 		{ cPosNode, "POSNODE" },
@@ -1950,7 +1950,7 @@ public:
 	static int TestingClient(TcpSocket & rSo, StrAssocArray & rStrList);
 
 	struct InitBlock {
-		SLAPI  InitBlock();
+		InitBlock();
 		enum {
 			fDebugMode = 0x0001
 		};
@@ -1961,24 +1961,24 @@ public:
 		long   Flags;
 	};
 
-	SLAPI  PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, InetAddr & rAddr);
-	SLAPI ~PPServerSession();
+	PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, InetAddr & rAddr);
+	~PPServerSession();
 	int    FASTCALL SendReply(PPJobSrvReply & rReply);
-	virtual int SLAPI SubstituteSock(TcpSocket & rSo, PPJobSrvReply * pReply);
-	virtual void SLAPI Shutdown();
+	virtual int SubstituteSock(TcpSocket & rSo, PPJobSrvReply * pReply);
+	virtual void Shutdown();
 private:
 	static int TestSend(TcpSocket & rSo, const void * pBuf, size_t sz, size_t * pActualSize);
 	static int TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
 	static int TestRecvBlock(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
-	virtual void SLAPI Run();
-	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
-	CmdRet SLAPI Testing();
-	CmdRet SLAPI ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
-	size_t SLAPI Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
-	CmdRet SLAPI SetTimeSeries(PPJobSrvReply & rReply);
-	CmdRet SLAPI SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply);
-	CmdRet SLAPI SetTimeSeriesTaNotification(PPJobSrvReply & rReply);
-	CmdRet SLAPI GetReqQuotes(PPJobSrvReply & rReply);
+	virtual void Run();
+	virtual CmdRet ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	CmdRet Testing();
+	CmdRet ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
+	size_t Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
+	CmdRet SetTimeSeries(PPJobSrvReply & rReply);
+	CmdRet SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply);
+	CmdRet SetTimeSeriesTaNotification(PPJobSrvReply & rReply);
+	CmdRet GetReqQuotes(PPJobSrvReply & rReply);
 
 	uint32 SuspendTimeout;     // Таймаут (ms) ожидания восстановления приостановленной сессии         //
 	uint32 CloseSocketTimeout; // Таймаут (ms) ожидания восстановления сессии после разрыва соединения //
@@ -1991,33 +1991,33 @@ private:
 	InetAddr Addr; // Адрес инициатора соединения
 };
 
-SLAPI PPWorkerSession::FTB::FTB()
+PPWorkerSession::FTB::FTB()
 {
 	THISZERO();
 }
 
-SLAPI PPWorkerSession::FTB::~FTB()
+PPWorkerSession::FTB::~FTB()
 {
 	delete P_F;
 }
 
-SLAPI PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), State(0), Counter(0), P_TxtCmdTerminal(0)
+PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), State(0), Counter(0), P_TxtCmdTerminal(0)
 {
 }
 
-SLAPI PPWorkerSession::~PPWorkerSession()
+PPWorkerSession::~PPWorkerSession()
 {
 	ZDELETE(P_CPosBlk);
 }
 
-/*virtual*/void SLAPI PPWorkerSession::Shutdown()
+/*virtual*/void PPWorkerSession::Shutdown()
 {
 	ZDELETE(P_CPosBlk);
 	FtbList.freeAll();
 	PPThread::Shutdown();
 }
 
-SString & SLAPI PPWorkerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
+SString & PPWorkerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
 {
 	rBuf.Z();
 	if(P_TxtCmdTerminal == 0) {
@@ -2037,7 +2037,7 @@ SString & SLAPI PPWorkerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI PPWorkerSession::SetupTxtCmdTerm(int code)
+int PPWorkerSession::SetupTxtCmdTerm(int code)
 {
 	int    ok = 1;
 	switch(code) {
@@ -2053,7 +2053,7 @@ int SLAPI PPWorkerSession::SetupTxtCmdTerm(int code)
 	return ok;
 }
 
-PPWorkerSession::CmdRet SLAPI PPWorkerSession::Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply)
+PPWorkerSession::CmdRet PPWorkerSession::Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
 	CmdRet ret = cmdretOK;
 	xmlTextWriter * p_writer = 0;
@@ -2165,7 +2165,7 @@ void FASTCALL PPWorkerSession::RealeasFtbEntry(uint pos)
 	}
 }
 
-PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply)
+PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply)
 {
 	const uint32 DefFileChunkSize = SMEGABYTE(4);
 
@@ -2303,7 +2303,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char
 	return ret;
 }
 
-int SLAPI PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply)
+int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	ObjLinkFiles lf;
@@ -2343,7 +2343,7 @@ int SLAPI PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFile
 	return ok;
 }
 
-PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
 	CmdRet ok = cmdretOK;
 	int    disable_err_reply = 0;
@@ -3140,12 +3140,12 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 //
 //
 //
-SLAPI PPServerSession::InitBlock::InitBlock()
+PPServerSession::InitBlock::InitBlock()
 {
 	THISZERO();
 }
 
-SLAPI PPServerSession::PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, InetAddr & rAddr) :
+PPServerSession::PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, InetAddr & rAddr) :
 	PPWorkerSession(PPThread::kNetSession)/*PPThread(PPThread::kNetSession, 0, 0)*/,
 	EvSubstSockFinish(Evnt::modeCreate), EvSubstSockStart(Evnt::modeCreate), EvSubstSockReady(Evnt::modeCreate),
 	SuspendTimeout(rBlk.SuspTimeout), CloseSocketTimeout(rBlk.ClosedSockTimeout), SleepTimeout(rBlk.SleepTimeout), P_SbiiBlk(0), Addr(rAddr)
@@ -3156,12 +3156,12 @@ SLAPI PPServerSession::PPServerSession(TcpSocket & rSock, const InitBlock & rBlk
 	rSock.MoveToS(So);
 }
 
-SLAPI PPServerSession::~PPServerSession()
+PPServerSession::~PPServerSession()
 {
 	ZDELETE(P_SbiiBlk);
 }
 
-size_t SLAPI PPServerSession::Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF)
+size_t PPServerSession::Helper_ReceiveFilePart(const PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF)
 {
 	size_t rd_size = 0;
 	uint   try_no = 0;
@@ -3186,7 +3186,7 @@ size_t SLAPI PPServerSession::Helper_ReceiveFilePart(const PPJobSrvReply::Transm
 	return rd_size;
 }
 
-PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply)
+PPServerSession::CmdRet PPServerSession::ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply)
 {
 	char * p_buf = 0;
 	long   ftb_pos_todel = -1;
@@ -3292,7 +3292,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 	return ret;
 }
 
-PPServerSession::CmdRet SLAPI PPServerSession::GetReqQuotes(PPJobSrvReply & rReply)
+PPServerSession::CmdRet PPServerSession::GetReqQuotes(PPJobSrvReply & rReply)
 {
 	CmdRet ret = cmdretOK;
 	PPObjTimeSeries ts_obj;
@@ -3311,7 +3311,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::GetReqQuotes(PPJobSrvReply & rRep
 	return ret;
 }
 
-PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesTaNotification(PPJobSrvReply & rReply)
+PPServerSession::CmdRet PPServerSession::SetTimeSeriesTaNotification(PPJobSrvReply & rReply)
 {
 	CmdRet ret = cmdretOK;
 	uint32 size_to_read = 0;
@@ -3335,7 +3335,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesTaNotification(PPJob
 	return ret;
 }
 
-PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply) // @construction
+PPServerSession::CmdRet PPServerSession::SetTimeSeriesStakeEnvironment(PPJobSrvReply & rReply) // @construction
 {
 	CmdRet ret = cmdretOK;
 	uint32 size_to_read = 0;
@@ -3367,7 +3367,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeriesStakeEnvironment(PPJ
 }
 
 // @v10.2.3 {
-PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
+PPServerSession::CmdRet PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
 {
 	CmdRet ret = cmdretOK;
 	uint32 size_to_read = 0;
@@ -3560,7 +3560,7 @@ static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 	return ok;
 }
 
-PPServerSession::CmdRet SLAPI PPServerSession::Testing()
+PPServerSession::CmdRet PPServerSession::Testing()
 {
 	CmdRet ok = cmdretQuit;
 	uint   max_size = 16*1024;
@@ -3662,7 +3662,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 	}
 
 */
-PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+PPServerSession::CmdRet PPServerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
 	CmdRet ok = PPWorkerSession::ProcessCommand(pEv, rReply);
 	if(ok == cmdretUnprocessed) {
@@ -3849,7 +3849,7 @@ int FASTCALL PPJobSrvReply::SendInformer(const char * pMsg)
 	return ok;
 }
 
-int SLAPI PPJobSrvReply::SetError()
+int PPJobSrvReply::SetError()
 {
 	int    ok = 1;
 	SString text;
@@ -3880,7 +3880,7 @@ int FASTCALL PPServerSession::SendReply(PPJobSrvReply & rReply)
 	return So.SendBuf(rReply, 0) ? 1 : PPSetErrorSLib();
 }
 
-/*virtual*/int SLAPI PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply)
+/*virtual*/int PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply)
 {
 	//
 	// Note: Функция выполняется вне потока PPServerSession
@@ -3917,13 +3917,13 @@ int FASTCALL PPServerSession::SendReply(PPJobSrvReply & rReply)
 	return ok;
 }
 
-/*virtual*/void SLAPI PPServerSession::Shutdown()
+/*virtual*/void PPServerSession::Shutdown()
 {
 	ZDELETE(P_SbiiBlk);
 	PPWorkerSession::Shutdown();
 }
 
-void SLAPI PPServerSession::Run()
+void PPServerSession::Run()
 {
 	#define INTERNAL_ERR_INVALID_WAITING_MODE 0
 
@@ -4205,7 +4205,7 @@ void SLAPI PPServerSession::Run()
 //
 //
 //
-int SLAPI CheckVersion()
+int CheckVersion()
 {
 	int    ok = 1;
 	SVerT ppws_ver = DS.GetVersion();
@@ -4240,9 +4240,9 @@ int SLAPI CheckVersion()
 //
 //
 //
-int SLAPI RunNginxServer(); // @prototype(ppngx.cpp)
+int RunNginxServer(); // @prototype(ppngx.cpp)
 
-int SLAPI run_server()
+int run_server()
 {
 	DS.SetExtFlag(ECF_SYSSERVICE, 1);
 	DS.SetExtFlag(ECF_FULLGOODSCACHE, 1);
@@ -4274,11 +4274,11 @@ int SLAPI run_server()
 		{
 			class PPServer : public TcpServer {
 			public:
-				SLAPI  PPServer(const InetAddr & rAddr, int clientTimeout, const PPServerSession::InitBlock & rSib) :
+				PPServer(const InetAddr & rAddr, int clientTimeout, const PPServerSession::InitBlock & rSib) :
 					TcpServer(rAddr), ClientTimeout(clientTimeout), Sib(rSib)
 				{
 				}
-				virtual int SLAPI ExecSession(::TcpSocket & rSock, InetAddr & rAddr)
+				virtual int ExecSession(::TcpSocket & rSock, InetAddr & rAddr)
 				{
 					if(ClientTimeout > 0)
 						rSock.SetTimeout(ClientTimeout);
@@ -4345,7 +4345,7 @@ static int informer_proc(const char * pMsg, void * pParam)
 	return 1;
 }
 
-int SLAPI run_client()
+int run_client()
 {
 	int    err = 0;
 	SString reply_str, msg_buf;
@@ -4448,7 +4448,7 @@ int SLAPI run_client()
 #define SERVER_STOP_WAIT  4000
 #define SERVER_START_WAIT 8000
 
-int SLAPI run_service()
+int run_service()
 {
 	static SERVICE_STATUS ServiceStatus;
 	static SERVICE_STATUS_HANDLE ServiceStatusHandle = NULL;
@@ -4516,7 +4516,7 @@ int SLAPI run_service()
 	return StartServiceCtrlDispatcher(dispatch_table) ? 1 : 0; // @unicodeproblem
 }
 
-int SLAPI RFIDPrcssr()
+int RFIDPrcssr()
 {
 #if 0 // {
 	SString file_name;
@@ -4652,7 +4652,7 @@ int SLAPI RFIDPrcssr()
 }
 //
 //
-int SLAPI install_service(int inst, const char * pLoginName, const char * pLoginPassword)
+int install_service(int inst, const char * pLoginName, const char * pLoginPassword)
 {
 	int    ok = 0;
 	if(inst) {
@@ -4669,14 +4669,14 @@ int SLAPI install_service(int inst, const char * pLoginName, const char * pLogin
 	return ok;
 }
 
-int SLAPI start_service(int start)
+int start_service(int start)
 {
 	return start ? WinService::Start(SERVICE_NAME, 0) : WinService::Start(SERVICE_NAME, 1);
 }
 //
 //
 //
-int SLAPI TestReconnect()
+int TestReconnect()
 {
 	int    ok = 1;
 	PPJobSrvClient * p_cli = DS.GetClientSession(0);

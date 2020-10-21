@@ -6,7 +6,7 @@
 //
 //
 //
-int SLAPI DL2_ObjList::Get(int32 id, PPID * pObjType, ObjIdListFilt & rList)
+int DL2_ObjList::Get(int32 id, PPID * pObjType, ObjIdListFilt & rList)
 {
 	int    ok = -1;
 	PPObjLocation * p_loc_obj = 0;

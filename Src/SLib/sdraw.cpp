@@ -1266,7 +1266,7 @@ int SDraw::ConvertCoord(const USize & rUsz, double * pR) const
 	return ok;
 }
 
-int SLAPI _ParseSvgFile(const char * pFileName, SDraw & rResult); // @prototype @defined(ssvg.cpp)
+int _ParseSvgFile(const char * pFileName, SDraw & rResult); // @prototype @defined(ssvg.cpp)
 
 int SDraw::ParseSvgFile(const char * pFileName)
 {

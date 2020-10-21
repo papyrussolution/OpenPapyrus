@@ -11,7 +11,7 @@
 #define _INTRPTR(ptr) ((VFlags&aryPtrContainer)?&(ptr):(ptr))
 #define _BDATA        PTR8(P_VData)
 
-SLAPI SStack::SStack(uint itemSize, uint o) : SArray(itemSize, o)
+SStack::SStack(uint itemSize, uint o) : SArray(itemSize, o)
 {
 	pointer = 0;
 	// @v9.8.1 {
@@ -53,7 +53,7 @@ int FASTCALL SStack::push(const void * pItem)
 	return ok;
 }
 
-void * SLAPI SStack::pop()
+void * SStack::pop()
 {
 	if(pointer)
 		return at(--pointer);
@@ -92,12 +92,12 @@ int FASTCALL SStack::pop(void * pItem)
 		return (SLibError = SLERR_ARYZEROCOUNT, 0);
 }
 
-int SLAPI SStack::undo(uint ptr)
+int SStack::undo(uint ptr)
 {
 	return checkupper(ptr, count+1) ? ((pointer = ptr), 1) : 0;
 }
 
-void * SLAPI SStack::peek() const
+void * SStack::peek() const
 {
 	if(pointer)
 		return at(pointer-1);
@@ -111,11 +111,11 @@ void * SLAPI SStack::peek() const
 //
 //
 //
-SLAPI SQueue::SQueue(uint itemSize, uint queueSize, uint o) : SArray(itemSize, /*8,*/ o), QueueSize(queueSize), Front(0), End(0)
+SQueue::SQueue(uint itemSize, uint queueSize, uint o) : SArray(itemSize, /*8,*/ o), QueueSize(queueSize), Front(0), End(0)
 {
 }
 
-SLAPI SQueue::SQueue(const SQueue & rS) : SArray(rS), QueueSize(rS.QueueSize), Front(rS.Front), End(rS.End)
+SQueue::SQueue(const SQueue & rS) : SArray(rS), QueueSize(rS.QueueSize), Front(rS.Front), End(rS.End)
 {
 }
 
@@ -127,7 +127,7 @@ int FASTCALL SQueue::copy(const SQueue & src)
 	return SArray::copy(src);
 }
 
-void SLAPI SQueue::clear()
+void SQueue::clear()
 {
 	SArray::clear();
 	Front = End = 0;
@@ -156,7 +156,7 @@ int FASTCALL SQueue::push(const void * pItem)
 	return 1;
 }
 
-void * SLAPI SQueue::pop()
+void * SQueue::pop()
 {
 	void * p_item;
 	if(Front < End) {
@@ -168,17 +168,17 @@ void * SLAPI SQueue::pop()
 	return p_item;
 }
 
-void * SLAPI SQueue::peek() const
+void * SQueue::peek() const
 {
 	return (Front < End) ? at(Front % QueueSize) : 0;
 }
 
-uint SLAPI SQueue::getNumItems() const
+uint SQueue::getNumItems() const
 {
 	return (End - Front);
 }
 
-void * SLAPI SQueue::get(uint p) const
+void * SQueue::get(uint p) const
 {
 	return checkupper(p, End - Front) ? at((Front + p) % QueueSize) : 0;
 }

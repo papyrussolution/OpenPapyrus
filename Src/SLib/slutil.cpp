@@ -101,7 +101,7 @@ int FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp)
 //
 // IterCounter
 //
-SLAPI IterCounter::IterCounter() : Total(0), Count(0)
+IterCounter::IterCounter() : Total(0), Count(0)
 {
 }
 
@@ -111,7 +111,7 @@ void FASTCALL IterCounter::Init(ulong total)
 	Count = 0L;
 }
 
-//int SLAPI IterCounter::Init(DBTable * pTbl)
+//int IterCounter::Init(DBTable * pTbl)
 //{
 //	RECORDNUMBER num_recs = 0;
 //	return (!pTbl || pTbl->getNumRecs(&num_recs)) ? (Init(num_recs), 1) : 0; /*PPSetErrorDB()*/ // @todo Проекция DBERR_XXX в SLERR_XXX
@@ -192,7 +192,7 @@ void foo()
 //
 //
 //
-long SLAPI MsecClock()
+long MsecClock()
 {
 #ifdef __WIN32__
 	return clock();
@@ -211,7 +211,7 @@ FILETIME QuadWordToFileTime(__int64 src)
 
 #define FILE_TIME_TO_QWORD(ft) (Int64ShllMod32(ft.dwHighDateTime, 32) | ft.dwLowDateTime)
 
-/*static*/__int64 SLAPI SProfile::NSec100Clock()
+/*static*/__int64 SProfile::NSec100Clock()
 {
 	FILETIME ct_tm, end_tm, k_tm, user_tm;
 	GetThreadTimes(GetCurrentThread(), &ct_tm, &end_tm, &k_tm, &user_tm);
@@ -224,7 +224,7 @@ FILETIME QuadWordToFileTime(__int64 src)
 // integers are available, the return value is valid for 2^63
 // clock cycles (over 104 years w/ clock frequency 2.8 GHz).
 //
-uint64 SLAPI SProfile::Helper_GetAbsTimeMicroseconds()
+uint64 SProfile::Helper_GetAbsTimeMicroseconds()
 {
 	//
 	// Compute the number of elapsed clock cycles since the clock was created/reset.
@@ -274,7 +274,7 @@ uint64 SLAPI SProfile::Helper_GetAbsTimeMicroseconds()
 	return (sec * 1000000 + usec);
 }
 
-uint64 SLAPI SProfile::GetAbsTimeMicroseconds()
+uint64 SProfile::GetAbsTimeMicroseconds()
 {
 	uint64 result = 0;
 	if(SingleThreaded)
@@ -287,7 +287,7 @@ uint64 SLAPI SProfile::GetAbsTimeMicroseconds()
 	return result;
 }
 
-SLAPI SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded)), StartClock(0), EndClock(0)
+SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded)), StartClock(0), EndClock(0)
 {
 	LARGE_INTEGER cf;
 	QueryPerformanceFrequency(&cf);
@@ -298,15 +298,15 @@ SLAPI SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded
 	Gtb.StartTick = GetTickCount();
 }
 
-SLAPI SProfile::~SProfile()
+SProfile::~SProfile()
 {
 }
 
-SLAPI SProfile::Measure::Measure() : Start(SLS.GetProfileTime())
+SProfile::Measure::Measure() : Start(SLS.GetProfileTime())
 {
 }
 
-uint64 SLAPI SProfile::Measure::Get()
+uint64 SProfile::Measure::Get()
 {
 	return (SLS.GetProfileTime() - Start);
 }

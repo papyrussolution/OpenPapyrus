@@ -35,7 +35,7 @@
 //
 //
 //
-static void SLAPI WriteLogFile_PageWidthOver(const char * pFormatName)
+static void WriteLogFile_PageWidthOver(const char * pFormatName)
 {
 	SString msg_fmt, msg;
 	msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName);
@@ -44,15 +44,15 @@ static void SLAPI WriteLogFile_PageWidthOver(const char * pFormatName)
 
 class SCS_ATOLDRV : public PPSyncCashSession {
 public:
-	SLAPI  SCS_ATOLDRV(PPID n, char * name, char * port);
-	SLAPI ~SCS_ATOLDRV();
-	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI PrintXReport(const CSessInfo *) { return PrintReport(0); }
-	virtual int SLAPI CloseSession(PPID sessID) { return PrintReport(1); }
-	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
-	virtual int SLAPI PrintIncasso(double sum, int isIncome);
-	virtual int SLAPI OpenBox()
+	SCS_ATOLDRV(PPID n, char * name, char * port);
+	~SCS_ATOLDRV();
+	virtual int PrintCheck(CCheckPacket *, uint flags);
+	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int PrintXReport(const CSessInfo *) { return PrintReport(0); }
+	virtual int CloseSession(PPID sessID) { return PrintReport(1); }
+	virtual int PrintZReportCopy(const CSessInfo *);
+	virtual int PrintIncasso(double sum, int isIncome);
+	virtual int OpenBox()
 	{
 		int     ok = -1;
 		ResCode = RESCODE_NO_ERROR;
@@ -89,7 +89,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI GetSummator(double * pVal)
+	virtual int GetSummator(double * pVal)
 	{
 		int    ok = 1;
 		StateBlock stb;
@@ -100,7 +100,7 @@ public:
 		ASSIGN_PTR(pVal, stb.Summator);
 		return ok;
 	}
-	virtual int SLAPI GetDeviceTime(LDATETIME * pDtm) 
+	virtual int GetDeviceTime(LDATETIME * pDtm) 
 	{ 
 		int    ok = -1;
 		ASSIGN_PTR(pDtm, ZERODATETIME); 
@@ -120,8 +120,8 @@ public:
 		}
 		return ok; 
 	}
-	virtual int SLAPI EditParam(void *);
-	virtual int SLAPI CheckForSessionOver()
+	virtual int EditParam(void *);
+	virtual int CheckForSessionOver()
 	{
 		int    ok = -1;
 		long   err_code = 0L;
@@ -142,8 +142,8 @@ public:
 			Exec(ResetMode);
 		return ok;
 	}
-	virtual int SLAPI PrintBnkTermReport(const char * pZCheck);
-	virtual int SLAPI Diagnose(StringSet * pSs) // @v10.5.12
+	virtual int PrintBnkTermReport(const char * pZCheck);
+	virtual int Diagnose(StringSet * pSs) // @v10.5.12
 	{ 
 		if(pSs) {
 			SString temp_buf;
@@ -335,10 +335,10 @@ private:
 		long   State;
 		SDynLibrary Lib;
 	};
-	// @v10.3.9 virtual int SLAPI InitChannel();
-	int  SLAPI ReadSettingsBulk(SString & rJsonBuf); // handler
-	int  SLAPI WriteSettingsBukl(const SString & rJsonBuf); // handler
-	int  SLAPI Connect(StateBlock * pStB)
+	// @v10.3.9 virtual int InitChannel();
+	int  ReadSettingsBulk(SString & rJsonBuf); // handler
+	int  WriteSettingsBukl(const SString & rJsonBuf); // handler
+	int  Connect(StateBlock * pStB)
 	{
 		int    ok = 1;
 		bool   enabled = false;
@@ -390,7 +390,7 @@ private:
 		ENDCATCH
 		return ok;
 	}
-	int  SLAPI GetState(StateBlock & rBlk)
+	int  GetState(StateBlock & rBlk)
 	{
 		int    ok = 0;
 		rBlk.Flags = 0;
@@ -478,7 +478,7 @@ private:
 		ptfDoubleWidth  = 0x0002,
 		ptfDoubleHeight = 0x0004
 	};
-	int  SLAPI PrintText(const char * pText, long flags, int alignment/*ALIGN_XXX*/)
+	int  PrintText(const char * pText, long flags, int alignment/*ALIGN_XXX*/)
 	{
 		int    ok = 0;
 		if(P_Fptr10) {
@@ -514,7 +514,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI RegisterPayment(double amount, int paymType)
+	int    RegisterPayment(double amount, int paymType)
 	{
 		int    ok = 0;
 		if(P_Fptr10) {
@@ -542,7 +542,7 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	void   SLAPI CutPaper(int partial)
+	void   CutPaper(int partial)
 	{
 		if(P_Fptr10) {
 			P_Fptr10->SetParamIntProc(P_Fptr10->Handler, LIBFPTR_PARAM_CUT_TYPE, partial ? LIBFPTR_CT_PART : LIBFPTR_CT_FULL);
@@ -552,7 +552,7 @@ private:
 			ExecOper(FullCut);
 		}
 	}
-	void   SLAPI DoBeep()
+	void   DoBeep()
 	{
 		if(P_Fptr10) {
 			P_Fptr10->BeepProc(P_Fptr10->Handler);
@@ -561,12 +561,12 @@ private:
 			Exec(Beep);
 		}
 	}
-	int  SLAPI CheckForCash(double sum)
+	int  CheckForCash(double sum)
 	{
 		double cash_sum = 0.0;
 		return GetSummator(&cash_sum) ? ((cash_sum < sum) ? -1 : 1) : 0;
 	}
-	int  SLAPI Annulate(long mode)
+	int  Annulate(long mode)
 	{
 		int    ok = 1;
 		if(P_Fptr10) {
@@ -588,26 +588,26 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	void SLAPI WriteLogFile(PPID id);
-	void SLAPI CutLongTail(SString & rBuf) const { rBuf.Trim(CheckStrLen).TrimRightChr(' '); }
-	int  SLAPI AllowPrintOper(uint id);
-	int  SLAPI AllowPrintOper_Fptr10();
-	int  SLAPI PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
-	int  SLAPI PrintReport(int withCleaning);
-	//int  SLAPI GetCheckInfo(PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
-	ComDispInterface * SLAPI InitDisp();
-	int  SLAPI SetErrorMessage();
-	int  SLAPI SetProp(uint propID, bool propValue);
-	int  SLAPI SetProp(uint propID, int  propValue);
-	int  SLAPI SetProp(uint propID, long propValue);
-	int  SLAPI SetProp(uint propID, double propValue);
-	int  SLAPI SetProp(uint propID, const char * pPropValue);
-	int  SLAPI GetProp(uint propID, bool  * pPropValue);
-	int  SLAPI GetProp(uint propID, int   * pPropValue);
-	int  SLAPI GetProp(uint propID, long  * pPropValue);
-	int  SLAPI GetProp(uint propID, double  * pPropValue);
-	int  SLAPI Exec(uint id);
-	int  SLAPI ExecOper(uint id);
+	void WriteLogFile(PPID id);
+	void CutLongTail(SString & rBuf) const { rBuf.Trim(CheckStrLen).TrimRightChr(' '); }
+	int  AllowPrintOper(uint id);
+	int  AllowPrintOper_Fptr10();
+	int  PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
+	int  PrintReport(int withCleaning);
+	//int  GetCheckInfo(PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
+	ComDispInterface * InitDisp();
+	int  SetErrorMessage();
+	int  SetProp(uint propID, bool propValue);
+	int  SetProp(uint propID, int  propValue);
+	int  SetProp(uint propID, long propValue);
+	int  SetProp(uint propID, double propValue);
+	int  SetProp(uint propID, const char * pPropValue);
+	int  GetProp(uint propID, bool  * pPropValue);
+	int  GetProp(uint propID, int   * pPropValue);
+	int  GetProp(uint propID, long  * pPropValue);
+	int  GetProp(uint propID, double  * pPropValue);
+	int  Exec(uint id);
+	int  ExecOper(uint id);
 	enum {
 		ShowProperties, // Методы
 		OpenCheck,
@@ -706,10 +706,10 @@ int  SCS_ATOLDRV::RefToIntrf = 0;          // @global
 
 class CM_ATOLDRV : public PPCashMachine {
 public:
-	SLAPI CM_ATOLDRV(PPID cashID) : PPCashMachine(cashID) 
+	CM_ATOLDRV(PPID cashID) : PPCashMachine(cashID) 
 	{
 	}
-	virtual PPSyncCashSession * SLAPI SyncInterface()
+	virtual PPSyncCashSession * SyncInterface()
 	{
 		PPSyncCashSession * cs = IsValid() ? new SCS_ATOLDRV(NodeID, NodeRec.Name, NodeRec.Port) : 0;
 		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
@@ -719,7 +719,7 @@ public:
 
 REGISTER_CMT(ATOLDRV,1,0);
 
-SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : 
+SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : 
 	PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR), ErrCode(0), CheckStrLen(0)
 {
 	SString temp_buf;
@@ -781,7 +781,7 @@ SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 		Flags |= sfDontUseCutter;
 }
 
-SLAPI SCS_ATOLDRV::~SCS_ATOLDRV()
+SCS_ATOLDRV::~SCS_ATOLDRV()
 {
 	if(RefToIntrf > 0) {
 		RefToIntrf--;
@@ -792,7 +792,7 @@ SLAPI SCS_ATOLDRV::~SCS_ATOLDRV()
 	}
 }
 
-int SLAPI SCS_ATOLDRV::ReadSettingsBulk(SString & rJsonBuf)
+int SCS_ATOLDRV::ReadSettingsBulk(SString & rJsonBuf)
 {
 	int    ok = 0;
 	rJsonBuf.Z();
@@ -813,7 +813,7 @@ int SLAPI SCS_ATOLDRV::ReadSettingsBulk(SString & rJsonBuf)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::WriteSettingsBukl(const SString & rJsonBuf)
+int SCS_ATOLDRV::WriteSettingsBukl(const SString & rJsonBuf)
 {
 	int    ok = 0;
 	if(P_Fptr10 && P_Fptr10->IsValid()) {
@@ -821,7 +821,7 @@ int SLAPI SCS_ATOLDRV::WriteSettingsBukl(const SString & rJsonBuf)
 	return ok;
 }
 
-ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
+ComDispInterface * SCS_ATOLDRV::InitDisp()
 {
 	int    r = 0;
 	ComDispInterface * p_disp = 0;
@@ -912,7 +912,7 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	return p_disp;
 }
 
-/*virtual*/int SLAPI SCS_ATOLDRV::EditParam(void * pDevNum)
+/*virtual*/int SCS_ATOLDRV::EditParam(void * pDevNum)
 {
 	int    ok = 1;
 	long   dev_num = pDevNum ? *static_cast<const long *>(pDevNum) : 1;
@@ -928,7 +928,7 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::SetErrorMessage()
+int SCS_ATOLDRV::SetErrorMessage()
 {
 	int    ok = -1;
 	THROW_INVARG(P_Fptr10 || P_Disp);
@@ -965,18 +965,18 @@ int SLAPI SCS_ATOLDRV::SetErrorMessage()
 	return ok;
 }
 
-// @v10.3.9 int SLAPI SCS_ATOLDRV::InitChannel() { return -1; }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, bool propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, int propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, long propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, double propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::SetProp(uint propID, const char * pPropValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, bool  * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, int * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, long * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
-int SLAPI SCS_ATOLDRV::GetProp(uint propID, double * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+// @v10.3.9 int SCS_ATOLDRV::InitChannel() { return -1; }
+int SCS_ATOLDRV::SetProp(uint propID, bool propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::SetProp(uint propID, int propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::SetProp(uint propID, long propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::SetProp(uint propID, double propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::SetProp(uint propID, const char * pPropValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::GetProp(uint propID, bool  * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::GetProp(uint propID, int * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::GetProp(uint propID, long * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
+int SCS_ATOLDRV::GetProp(uint propID, double * pPropValue) { return BIN(P_Disp && P_Disp->GetProperty(propID, pPropValue) > 0 && SetErrorMessage() == -1); }
 
-int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
+int	SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
 	double amt = R2(fabs(MONEYTOLDBL(pPack->Rec.Amount)));
@@ -1017,7 +1017,7 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 	return ok;
 }
 
-void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
+void SCS_ATOLDRV::WriteLogFile(PPID id)
 {
 	if(P_Disp && (CConfig.Flags & CCFLG_DEBUG)) {
 		long   mode = 0, adv_mode = 0;
@@ -1040,7 +1040,7 @@ void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
 static int FASTCALL IsModeOffPrint(int mode)
 	{ return BIN(oneof4(mode, MODE_REGISTER, MODE_XREPORT, MODE_ZREPORT, MODE_EKLZ_REPORT)); }
 
-int SLAPI SCS_ATOLDRV::AllowPrintOper_Fptr10()
+int SCS_ATOLDRV::AllowPrintOper_Fptr10()
 {
 	int    ok = 1;
 	if(P_Fptr10) {
@@ -1066,7 +1066,7 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper_Fptr10()
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
+int SCS_ATOLDRV::AllowPrintOper(uint id)
 {
 	//
 	// Функция AllowPrintOper разбирается со всеми ситуациями,
@@ -1164,7 +1164,7 @@ int SLAPI SCS_ATOLDRV::AllowPrintOper(uint id)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::Exec(uint id)
+int SCS_ATOLDRV::Exec(uint id)
 {
 	int    ok = 1;
 	THROW_INVARG(P_Disp);
@@ -1175,7 +1175,7 @@ int SLAPI SCS_ATOLDRV::Exec(uint id)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::ExecOper(uint id)
+int SCS_ATOLDRV::ExecOper(uint id)
 {
 	int    ok = 1;
 	THROW(P_Disp/* && P_Disp->SetProperty(Password, CashierPassword) > 0 && SetErrorMessage() == -1*/); // @debug
@@ -1191,7 +1191,7 @@ int SLAPI SCS_ATOLDRV::ExecOper(uint id)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
+int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1, is_format = 0;
 	bool   enabled = true;
@@ -1737,7 +1737,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	return ok;
 }
 
-/*virtual*/int SLAPI SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
+/*virtual*/int SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;
 	SlipDocCommonParam sdc_param;
@@ -1778,7 +1778,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
+int SCS_ATOLDRV::PrintReport(int withCleaning)
 {
 	int     ok = 1, mode = 0;
 	SString cshr_pssw;
@@ -1858,7 +1858,7 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
+int SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 {
 	int  ok = -1;
 	ResCode = RESCODE_NO_ERROR;
@@ -1909,7 +1909,7 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 	return ok;
 }
 
-int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
+int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 {
 	int    ok = 1;
 	StateBlock stb;
@@ -1958,7 +1958,7 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 	return ok;
 }
 
-/*virtual*/int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
+/*virtual*/int SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
 {
 	int    ok = 1;
 	size_t zc_len = sstrlen(pZCheck);

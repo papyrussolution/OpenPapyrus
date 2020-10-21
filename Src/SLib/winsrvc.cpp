@@ -11,45 +11,45 @@
 //
 class WinServiceMngr {
 public:
-	SLAPI  WinServiceMngr()
+	WinServiceMngr()
 	{
 		H = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 	}
-	SLAPI ~WinServiceMngr()
+	~WinServiceMngr()
 	{
 		if(H)
 			CloseServiceHandle(H);
 	}
-	SLAPI  operator SC_HANDLE () const { return H; }
-	int    SLAPI IsValid() const { return H ? 1 : 0; }
+	operator SC_HANDLE () const { return H; }
+	int    IsValid() const { return H ? 1 : 0; }
 private:
 	SC_HANDLE H;
 };
 //
 //
 //
-/*static*/int SLAPI WinService::Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPassword)
+/*static*/int WinService::Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPassword)
 {
 	WinServiceMngr sm;
 	WinService s(sm, pServiceName);
 	return s.Create(pDisplayName, pModuleName, pLogin, pPassword);
 }
 
-/*static*/int SLAPI WinService::Uninstall(const char * pServiceName)
+/*static*/int WinService::Uninstall(const char * pServiceName)
 {
 	WinServiceMngr sm;
 	WinService s(sm, pServiceName, DELETE);
 	return s.Delete();
 }
 
-/*static*/int SLAPI WinService::Start(const char * pServiceName, int stop)
+/*static*/int WinService::Start(const char * pServiceName, int stop)
 {
 	WinServiceMngr sm;
 	WinService s(sm, pServiceName, stop ? SERVICE_STOP : SERVICE_START);
 	return stop ? s.Stop() : s.Start();
 }
 
-SLAPI WinService::WinService(const WinServiceMngr & rMngr, const char * pServiceName, long desiredAccess) : P_ScMngr(&rMngr), H(0), Name(pServiceName)
+WinService::WinService(const WinServiceMngr & rMngr, const char * pServiceName, long desiredAccess) : P_ScMngr(&rMngr), H(0), Name(pServiceName)
 {
 	if(P_ScMngr->IsValid()) {
 		H = ::OpenService(*P_ScMngr, SUcSwitch(pServiceName), desiredAccess); // @unicodeproblem
@@ -64,18 +64,18 @@ SLAPI WinService::WinService(const WinServiceMngr & rMngr, const char * pService
 	}
 }
 
-SLAPI WinService::~WinService()
+WinService::~WinService()
 {
 	if(H)
 		CloseServiceHandle(H);
 }
 
-int SLAPI WinService::IsValid() const
+int WinService::IsValid() const
 {
 	return BIN(H);
 }
 
-int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw)
+int WinService::Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw)
 {
 	int    ok = 0;
 	if(P_ScMngr->IsValid()) {
@@ -146,7 +146,7 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 	return ok;
 }
 
-int SLAPI WinService::Delete()
+int WinService::Delete()
 {
 	int    ok = 0;
 	if(H && P_ScMngr->IsValid()) {
@@ -159,12 +159,12 @@ int SLAPI WinService::Delete()
 	return ok;
 }
 
-int SLAPI WinService::Start()
+int WinService::Start()
 {
 	return BIN(H && StartService(H, 0, 0));
 }
 
-int SLAPI WinService::Stop()
+int WinService::Stop()
 {
 	int    ok = 0;
 	SERVICE_STATUS r;

@@ -214,14 +214,12 @@ struct GRAM_LTYPE {
 #define GRAM_LTYPE_IS_TRIVIAL 1
 #endif
 
-int gram_parse(void);
+int gram_parse();
 /* "%code provides" blocks.  */
 #line 27 "src/parse-gram.y"
 
-/* Initialize unquote.  */
-void parser_init(void);
-/* Deallocate storage for unquote.  */
-void parser_free(void);
+void parser_init(); /* Initialize unquote.  */
+void parser_free(); /* Deallocate storage for unquote.  */
 
 #line 232 "src/parse-gram.h"
 

@@ -7,11 +7,11 @@
 //
 //
 //
-SLAPI PPObjAdvBillKind::PPObjAdvBillKind(void * extraPtr) : PPObjReference(PPOBJ_ADVBILLKIND, extraPtr)
+PPObjAdvBillKind::PPObjAdvBillKind(void * extraPtr) : PPObjReference(PPOBJ_ADVBILLKIND, extraPtr)
 {
 }
 
-int SLAPI PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
+int PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    valid_data = 0;
@@ -51,7 +51,7 @@ int SLAPI PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjAdvBillKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjAdvBillKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPAdvBillKind * p_rec = static_cast<PPAdvBillKind *>(p->Data);
@@ -63,7 +63,7 @@ int SLAPI PPObjAdvBillKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 //
 //
 //
-SLAPI PPAdvBillItemList::Item::Item()
+PPAdvBillItemList::Item::Item()
 {
 	THISZERO();
 }
@@ -91,7 +91,7 @@ int FASTCALL PPAdvBillItemList::Item::IsEqual(const PPAdvBillItemList::Item & rS
 //
 //
 //
-SLAPI PPAdvBillItemList::PPAdvBillItemList() : SArray(sizeof(PPAdvBillItemList::Item))
+PPAdvBillItemList::PPAdvBillItemList() : SArray(sizeof(PPAdvBillItemList::Item))
 {
 }
 
@@ -116,7 +116,7 @@ int FASTCALL PPAdvBillItemList::IsEqual(const PPAdvBillItemList & rS) const
 	return eq;
 }
 
-uint SLAPI PPAdvBillItemList::GetCount() const
+uint PPAdvBillItemList::GetCount() const
 {
 	return getCount();
 }
@@ -126,7 +126,7 @@ PPAdvBillItemList::Item & FASTCALL PPAdvBillItemList::Get(uint pos) const
 	return (pos < getCount()) ? *static_cast<Item *>(SArray::at(pos)) : *static_cast<Item *>(0);
 }
 
-int SLAPI PPAdvBillItemList::SearchBillLink(PPID billID, uint * pPos) const
+int PPAdvBillItemList::SearchBillLink(PPID billID, uint * pPos) const
 {
 	if(billID)
 		for(uint i = 0; i < getCount(); i++)
@@ -137,7 +137,7 @@ int SLAPI PPAdvBillItemList::SearchBillLink(PPID billID, uint * pPos) const
 	return 0;
 }
 
-int SLAPI PPAdvBillItemList::GetStorageForm(uint pos, AdvBillItemTbl::Rec * pItem) const
+int PPAdvBillItemList::GetStorageForm(uint pos, AdvBillItemTbl::Rec * pItem) const
 {
 	if(pos < GetCount()) {
 		const Item & item = Get(pos);
@@ -160,7 +160,7 @@ int SLAPI PPAdvBillItemList::GetStorageForm(uint pos, AdvBillItemTbl::Rec * pIte
 		return 0;
 }
 
-int SLAPI PPAdvBillItemList::AddStorageForm(const AdvBillItemTbl::Rec * pItem)
+int PPAdvBillItemList::AddStorageForm(const AdvBillItemTbl::Rec * pItem)
 {
 	Item item;
 	item.BillID  = pItem->BillID;
@@ -178,22 +178,22 @@ int SLAPI PPAdvBillItemList::AddStorageForm(const AdvBillItemTbl::Rec * pItem)
 	return Add(&item);
 }
 
-int SLAPI PPAdvBillItemList::Add(const PPAdvBillItemList::Item * pItem)
+int PPAdvBillItemList::Add(const PPAdvBillItemList::Item * pItem)
 {
 	return insert(pItem) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPAdvBillItemList::Remove(uint pos)
+int PPAdvBillItemList::Remove(uint pos)
 {
 	return atFree(pos);
 }
 
-void SLAPI PPAdvBillItemList::Clear()
+void PPAdvBillItemList::Clear()
 {
 	freeAll();
 }
 
-int SLAPI PPAdvBillItemList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPAdvBillItemList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	return pCtx->Serialize(dir, static_cast<SArray *>(this), rBuf) ? 1 : PPSetErrorSLib();
 }
@@ -561,7 +561,7 @@ IMPL_HANDLE_EVENT(AdvBillItemBrowser)
 	clearEvent(event);
 }
 
-static char * SLAPI TotalLinesStr(char * pBuf, int numLines)
+static char * TotalLinesStr(char * pBuf, int numLines)
 {
 	PPGetWord(PPWORD_TOTAL, 0, pBuf, 0);
 	if(numLines) {
@@ -722,7 +722,7 @@ int AdvBillItemBrowser::delItem()
 //
 // Used by class BillDialog (BILLDLG.CPP)
 //
-int SLAPI ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj)
+int ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj)
 {
 	int    r = -1;
 	uint   res_id;
@@ -754,7 +754,7 @@ int SLAPI ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj)
 //
 //
 //
-int SLAPI PPObjBill::WriteOffDebtInventory(PPID billID, int use_ta)
+int PPObjBill::WriteOffDebtInventory(PPID billID, int use_ta)
 {
 	int    ok = -1;
 	uint   i;

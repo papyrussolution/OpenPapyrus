@@ -101,9 +101,7 @@ static int addsym(char sym[], char * str_def, int int_def, hash_table table, int
 	new_entry->name = sym;
 	new_entry->str_val = str_def;
 	new_entry->int_val = int_def;
-
 	table[hash_val] = new_entry;
-
 	return 0;
 }
 
@@ -114,16 +112,13 @@ void    cclinstal(char ccltxt[], int cclnum)
 	/* We don't bother checking the return status because we are not
 	 * called unless the symbol is new.
 	 */
-
-	(void)addsym(xstrdup(ccltxt),
-	    (char*)0, cclnum, ccltab, CCL_HASH_SIZE);
+	addsym(xstrdup(ccltxt), (char*)0, cclnum, ccltab, CCL_HASH_SIZE);
 }
 
 /* ccllookup - lookup the number associated with character class text
  *
  * Returns 0 if there's no CCL associated with the text.
  */
-
 int     ccllookup(char ccltxt[])
 {
 	return findsym(ccltxt, ccltab, CCL_HASH_SIZE)->int_val;
@@ -131,20 +126,17 @@ int     ccllookup(char ccltxt[])
 
 /* findsym - find symbol in symbol table */
 
-static struct hash_entry * findsym(const char * sym, hash_table table, int table_size) {
+static struct hash_entry * findsym(const char * sym, hash_table table, int table_size) 
+{
 	static struct hash_entry empty_entry = {
 		NULL, NULL, NULL, NULL, 0,
 	};
-	struct hash_entry * sym_entry =
-
-	    table[hashfunct(sym, table_size)];
-
+	struct hash_entry * sym_entry = table[hashfunct(sym, table_size)];
 	while(sym_entry) {
 		if(!strcmp(sym, sym_entry->name))
 			return sym_entry;
 		sym_entry = sym_entry->next;
 	}
-
 	return &empty_entry;
 }
 
@@ -181,14 +173,14 @@ void    ndinstal(const char * name, char definition[])
  * Returns a nil pointer if the name definition does not exist.
  */
 
-char   * ndlookup(const char * nd)
+char * ndlookup(const char * nd)
 {
 	return findsym(nd, ndtbl, NAME_TABLE_HASH_SIZE)->str_val;
 }
 
 /* scextend - increase the maximum number of start conditions */
 
-void    scextend(void)
+void scextend()
 {
 	current_max_scs += MAX_SCS_INCREMENT;
 	++num_reallocs;
@@ -204,8 +196,7 @@ void    scextend(void)
  * NOTE
  *    The start condition is "exclusive" if xcluflg is true.
  */
-
-void    scinstal(const char * str, int xcluflg)
+void scinstal(const char * str, int xcluflg)
 {
 	if(++lastsc >= current_max_scs)
 		scextend();

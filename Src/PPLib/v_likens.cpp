@@ -7,7 +7,7 @@
 // @ModuleDef(PPViewObjLikeness)
 //
 
-IMPLEMENT_PPFILT_FACTORY(ObjLikeness); SLAPI ObjLikenessFilt::ObjLikenessFilt() : PPBaseFilt(PPFILT_OBJLIKENESS, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(ObjLikeness); ObjLikenessFilt::ObjLikenessFilt() : PPBaseFilt(PPFILT_OBJLIKENESS, 0, 0)
 {
 	SetFlatChunk(offsetof(ObjLikenessFilt, ReserveStart),
 		offsetof(ObjLikenessFilt, Reserve) - offsetof(ObjLikenessFilt, ReserveStart) + sizeof(Reserve));
@@ -20,11 +20,11 @@ ObjLikenessFilt & FASTCALL ObjLikenessFilt::operator = (const ObjLikenessFilt &s
 	return *this;
 }
 
-SLAPI PPViewObjLikeness::PPViewObjLikeness() : PPView(0, &Filt, PPVIEW_OBJLIKENESS)
+PPViewObjLikeness::PPViewObjLikeness() : PPView(0, &Filt, PPVIEW_OBJLIKENESS, 0, 0)
 {
 }
 
-SLAPI PPViewObjLikeness::~PPViewObjLikeness()
+PPViewObjLikeness::~PPViewObjLikeness()
 {
 }
 
@@ -69,14 +69,14 @@ int ObjLikenessFiltDialog::getDTS(ObjLikenessFilt * pData)
 	return ok;
 }
 
-int SLAPI PPViewObjLikeness::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewObjLikeness::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODYERR(ObjLikenessFiltDialog, static_cast<ObjLikenessFilt *>(pBaseFilt));
 }
 
-int SLAPI PPViewObjLikeness::Init_(const PPBaseFilt * pFilt)
+int PPViewObjLikeness::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString buf;
@@ -87,7 +87,7 @@ int SLAPI PPViewObjLikeness::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewObjLikeness::InitIteration()
+int PPViewObjLikeness::InitIteration()
 {
 	int    ok  = 1;
 	Counter.Init();
@@ -116,7 +116,7 @@ int FASTCALL PPViewObjLikeness::NextIteration(ObjLikenessViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	int    func_name = 0;
 	uint   brw_id = BROWSER_OBJLIKENESS;
@@ -166,7 +166,7 @@ DBQuery * SLAPI PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * p
 	return q;
 }
 
-int SLAPI PPViewObjLikeness::UniteObjects(PPID objType, PPID srcID, PPID destID)
+int PPViewObjLikeness::UniteObjects(PPID objType, PPID srcID, PPID destID)
 {
 	int    ok = -1;
 	if(CONFIRM(PPCFM_UNITEOBJ)) {
@@ -182,7 +182,7 @@ int SLAPI PPViewObjLikeness::UniteObjects(PPID objType, PPID srcID, PPID destID)
 	return ok;
 }
 
-int SLAPI PPViewObjLikeness::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewObjLikeness::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	BrwHdr hdr;
@@ -211,14 +211,14 @@ int SLAPI PPViewObjLikeness::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	return ok;
 }
 
-int SLAPI PPViewObjLikeness::Print(const void *)
+int PPViewObjLikeness::Print(const void *)
 {
 	int    ok = -1;
 	return ok;
 }
 
 // static
-int SLAPI PPViewObjLikeness::CreateLikenessTable()
+int PPViewObjLikeness::CreateLikenessTable()
 {
 	int    ok = -1;
 	double rate = 0.5;

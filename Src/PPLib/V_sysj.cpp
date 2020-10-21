@@ -22,7 +22,7 @@ SysJournalViewItem & SysJournalViewItem::Z()
 	return *this;
 }
 
-IMPLEMENT_PPFILT_FACTORY(SysJournal); SLAPI SysJournalFilt::SysJournalFilt() : PPBaseFilt(PPFILT_SYSJOURNAL, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(SysJournal); SysJournalFilt::SysJournalFilt() : PPBaseFilt(PPFILT_SYSJOURNAL, 0, 2)
 {
 	SetFlatChunk(offsetof(SysJournalFilt, ReserveStart),
 		offsetof(SysJournalFilt, ActionIDList)-offsetof(SysJournalFilt, ReserveStart));
@@ -30,7 +30,7 @@ IMPLEMENT_PPFILT_FACTORY(SysJournal); SLAPI SysJournalFilt::SysJournalFilt() : P
 	Init(1, 0);
 }
 
-int  SLAPI SysJournalFilt::IsEmpty() const
+int  SysJournalFilt::IsEmpty() const
 {
 	if(!Period.IsZero())
 		return 0;
@@ -137,27 +137,26 @@ int SysJFiltDialog::getDTS(SysJournalFilt * pFilt)
 //
 //
 //
-PPBaseFilt * SLAPI PPViewSysJournal::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSysJournal::CreateFilt(void * extraPtr) const
 {
 	SysJournalFilt * p_filt = new SysJournalFilt;
 	p_filt->Period.SetDate(getcurdate_());
 	return p_filt;
 }
 
-int SLAPI PPViewSysJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewSysJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT, static_cast<SysJournalFilt *>(pBaseFilt));
 }
 
-SLAPI PPViewSysJournal::PPViewSysJournal() : PPView(0, &Filt, PPVIEW_SYSJOURNAL), P_TmpTbl(0), P_SubstTbl(0),
+PPViewSysJournal::PPViewSysJournal() : PPView(0, &Filt, PPVIEW_SYSJOURNAL, implUseServer, 0), P_TmpTbl(0), P_SubstTbl(0),
 	LockUpByNotify(0), LastRefreshDtm(ZERODATETIME), P_Tbl(new SysJournal), P_ObjColl(new ObjCollection)
 {
-	ImplementFlags |= implUseServer;
 }
 
-SLAPI PPViewSysJournal::~PPViewSysJournal()
+PPViewSysJournal::~PPViewSysJournal()
 {
 	delete P_Tbl;
 	delete P_TmpTbl;
@@ -165,7 +164,7 @@ SLAPI PPViewSysJournal::~PPViewSysJournal()
 	delete P_ObjColl;
 }
 
-int SLAPI PPViewSysJournal::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewSysJournal::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW(PPView::SerializeState(dir, rBuf, pCtx));
@@ -180,7 +179,7 @@ int SLAPI PPViewSysJournal::SerializeState(int dir, SBuffer & rBuf, SSerializeCo
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, SysJournal);
 PP_CREATE_TEMP_FILE_PROC(CreateSubstFile, TempSysJournal);
 
-int SLAPI PPViewSysJournal::IsTempTblNeeded() const
+int PPViewSysJournal::IsTempTblNeeded() const
 {
 	return BIN(Filt.ActionIDList.isList() || (Filt.Flags & (SysJournalFilt::fShowObjects|SysJournalFilt::fShowHistoryObj)) || Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone);
 }
@@ -207,7 +206,7 @@ int FASTCALL PPViewSysJournal::CheckRecForFilt(const SysJournalTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
+int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -417,7 +416,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::InitIteration()
+int PPViewSysJournal::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 0;
@@ -509,7 +508,7 @@ int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewSysJournal::GetObjName(const PPObjID & rOid, SString & rBuf) const
+int PPViewSysJournal::GetObjName(const PPObjID & rOid, SString & rBuf) const
 {
 	rBuf.Z();
 	uint   p = 0;
@@ -540,7 +539,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvsj_iip)
 	}
 }
 
-int SLAPI PPViewSysJournal::GetEvVerText(const EvVerEntry & rKey, SString & rBuf) const
+int PPViewSysJournal::GetEvVerText(const EvVerEntry & rKey, SString & rBuf) const
 {
 	rBuf.Z();
 	uint   p = 0;
@@ -584,7 +583,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+int PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
@@ -620,7 +619,7 @@ int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int pai
 	return ok;
 }
 
-/*virtual*/void SLAPI PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & SysJournalFilt::fShowObjects) {
@@ -639,7 +638,7 @@ int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int pai
 /*static*/int PPViewSysJournal::DynFuncObjNameFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_objnamefromlist_ppvsj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);;
 /*static*/int PPViewSysJournal::DynFuncEvVerTextFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_evvertextfromlist_ppvsj_iidtp, 5, BTS_INT, BTS_INT, BTS_DATE, BTS_TIME, BTS_PTR);
 
-DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
+DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 {
 	int    add_dbe = 0;
 	uint   brw_id = BROWSER_SYSJ;
@@ -768,7 +767,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	return q;
 }
 
-int SLAPI PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -878,7 +877,7 @@ int SLAPI PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSysJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	BrwHdr hdr;
 	if(!RVALUEPTR(hdr, static_cast<const PPViewSysJournal::BrwHdr *>(pHdr)))
@@ -936,7 +935,7 @@ int SLAPI PPViewSysJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewSysJournal::Print(const void *)
+int PPViewSysJournal::Print(const void *)
 {
 	uint rpt_id = (Filt.Flags & SysJournalFilt::fShowObjects) ? REPORT_SYSJOBJ : REPORT_SYSJ;
 	if(Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone) {
@@ -948,12 +947,12 @@ int SLAPI PPViewSysJournal::Print(const void *)
 	return Helper_Print(rpt_id, 0);
 }
 
-int SLAPI PPViewSysJournal::EditObj(const PPObjID * pObjID)
+int PPViewSysJournal::EditObj(const PPObjID * pObjID)
 {
 	return pObjID ? EditPPObj(pObjID->Obj, pObjID->Id) : -1;
 }
 
-int SLAPI PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
+int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 {
 	int    ok = -1;
 	if(histID) {
@@ -1002,7 +1001,7 @@ int SLAPI PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::Transmit()
+int PPViewSysJournal::Transmit()
 {
 	int    ok = -1;
 	LockUpByNotify = 1;
@@ -1030,7 +1029,7 @@ int SLAPI PPViewSysJournal::Transmit()
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::RefreshTempTable(LDATETIME since)
+int PPViewSysJournal::RefreshTempTable(LDATETIME since)
 {
 	int    ok = -1;
 	if(P_TmpTbl || Filt.Flags & Filt.fShowObjects) {
@@ -1098,7 +1097,7 @@ int SLAPI PPViewSysJournal::RefreshTempTable(LDATETIME since)
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+int PPViewSysJournal::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	int    ok = -1, update = 0;
 	if(!LockUpByNotify) {
@@ -1217,7 +1216,7 @@ void PPALDD_SysJournal::Destroy() { DESTROY_PPVIEW_ALDD(SysJournal); }
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(GtaJournal); SLAPI GtaJournalFilt::GtaJournalFilt() : PPBaseFilt(PPFILT_GTAJOURNAL, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GtaJournal); GtaJournalFilt::GtaJournalFilt() : PPBaseFilt(PPFILT_GTAJOURNAL, 0, 0)
 {
 	SetFlatChunk(offsetof(GtaJournalFilt, ReserveStart),
 		offsetof(GtaJournalFilt, ActionIDList)-offsetof(GtaJournalFilt, ReserveStart));
@@ -1225,7 +1224,7 @@ IMPLEMENT_PPFILT_FACTORY(GtaJournal); SLAPI GtaJournalFilt::GtaJournalFilt() : P
 	Init(1, 0);
 }
 
-int  SLAPI GtaJournalFilt::IsEmpty() const
+int  GtaJournalFilt::IsEmpty() const
 {
 	if(!Period.IsZero())
 		return 0;
@@ -1239,24 +1238,25 @@ int  SLAPI GtaJournalFilt::IsEmpty() const
 		return 1;
 }
 
-SLAPI PPViewGtaJournal::PPViewGtaJournal() : PPView(0, &Filt, PPVIEW_GTAJOURNAL), P_TmpTbl(0), LockUpByNotify(0), LastRefreshDtm(ZERODATETIME), P_ObjColl(new ObjCollection)
+PPViewGtaJournal::PPViewGtaJournal() : 
+	PPView(0, &Filt, PPVIEW_GTAJOURNAL, 0, 0), P_TmpTbl(0), LockUpByNotify(0), LastRefreshDtm(ZERODATETIME), P_ObjColl(new ObjCollection)
 {
 }
 
-SLAPI PPViewGtaJournal::~PPViewGtaJournal()
+PPViewGtaJournal::~PPViewGtaJournal()
 {
 	delete P_ObjColl;
 	delete P_TmpTbl;
 }
 
-PPBaseFilt * SLAPI PPViewGtaJournal::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewGtaJournal::CreateFilt(void * extraPtr) const
 {
 	GtaJournalFilt * p_filt = new GtaJournalFilt;
 	p_filt->Period.SetDate(getcurdate_());
 	return p_filt;
 }
 
-int SLAPI PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class GtaJFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(GtaJournalFilt);
@@ -1329,14 +1329,14 @@ int SLAPI PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(GtaJFiltDialog, static_cast<GtaJournalFilt *>(pBaseFilt));
 }
 
-int SLAPI PPViewGtaJournal::IsTempTblNeeded() const
+int PPViewGtaJournal::IsTempTblNeeded() const
 {
 	return BIN(Filt.ActionIDList.isList() || (Filt.Flags & SysJournalFilt::fShowObjects));
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempGtaFile, GtaJournal);
 
-int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
+int PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1394,7 +1394,7 @@ int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewGtaJournal::InitIteration()
+int PPViewGtaJournal::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 0;
@@ -1459,7 +1459,7 @@ int FASTCALL PPViewGtaJournal::NextIteration(GtaJournalViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewGtaJournal::GetObjName(const PPObjID & rOid, SString & rBuf) const
+int PPViewGtaJournal::GetObjName(const PPObjID & rOid, SString & rBuf) const
 {
 	rBuf.Z();
 	uint   p = 0;
@@ -1492,7 +1492,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvgtaj_iip)
 
 /*static*/int PPViewGtaJournal::DynFuncObjNameFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_objnamefromlist_ppvgtaj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
 
-DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	int    add_dbe = 0;
 	uint   brw_id = (Filt.Flags & GtaJournalFilt::fShowObjects) ? BROWSER_GTAJ_OBJ : BROWSER_GTAJ;
@@ -1562,7 +1562,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 	return q;
 }
 
-int SLAPI PPViewGtaJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGtaJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pHdr) {

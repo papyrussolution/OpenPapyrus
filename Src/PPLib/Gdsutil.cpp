@@ -168,7 +168,7 @@ static char * FASTCALL EncodeEAN13(int upca, const char * pCode, char * pBuf)
 	}
 }
 
-int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBuf, size_t bufLen)
+int CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBuf, size_t bufLen)
 {
 	enum {
 		undef = 0,
@@ -299,7 +299,7 @@ SString & FASTCALL GetGoodsName(PPID goodsID, SString & rBuf)
 	return rBuf;
 }
 
-static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
+static int BarcodeList(BarcodeArray * pCodes, int * pSelection)
 {
 	class SelByBCListDlg : public PPListDialog {
 	public:
@@ -349,7 +349,7 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 	return ok;
 }
 
-SLAPI GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0)
+GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0)
 {
 	PTR32(Code)[0] = 0;
 	PTR32(RetCode)[0] = 0;
@@ -359,12 +359,12 @@ SLAPI GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), 
 	// @v10.6.4 MEMSZERO(Rec);
 }
 
-SLAPI GoodsCodeSrchBlock::~GoodsCodeSrchBlock()
+GoodsCodeSrchBlock::~GoodsCodeSrchBlock()
 {
 	delete P_List;
 }
 
-int SLAPI PPObjGoods::GenerateScaleBarcode(PPID goodsID, PPID scaleID, SString & rCode)
+int PPObjGoods::GenerateScaleBarcode(PPID goodsID, PPID scaleID, SString & rCode)
 {
 	int    ok = -1;
 	rCode.Z();
@@ -394,7 +394,7 @@ int SLAPI PPObjGoods::GenerateScaleBarcode(PPID goodsID, PPID scaleID, SString &
 	return ok;
 }
 
-int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID * pGoodsID, double * pQtty)
+int PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID * pGoodsID, double * pQtty)
 {
 	int    ok = -1;
 	PPID   goods_id = 0;
@@ -473,7 +473,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 	return ok;
 }
 
-int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
+int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 {
 	int    ok = -1;
 	if(pBlk) {
@@ -625,7 +625,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
+int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
 	int    ok = -1, r;
 	GoodsCodeSrchBlock blk;
@@ -662,7 +662,7 @@ int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2
 	return ok;
 }
 
-int SLAPI PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
+int PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
 	int    r = -1;
 	SString code(DS.GetTLA().Lid.Barcode);
@@ -676,13 +676,13 @@ int SLAPI PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::R
 	return r;
 }
 
-int SLAPI LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
+int LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
 {
 	PPObjGoods gobj;
 	return gobj.LoadGoodsStruc(pIdent, pGs);
 }
 
-int SLAPI PPObjGoods::GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * pStrucID)
+int PPObjGoods::GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * pStrucID)
 {
 	PPID   gs_id = 0;
 	PPID   dyn_gen_id = 0;
@@ -696,7 +696,7 @@ int SLAPI PPObjGoods::GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * 
 	return gs_id ? 1 : -1;
 }
 
-int SLAPI PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
+int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoodsStruc * pGs)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
@@ -714,7 +714,7 @@ int SLAPI PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, PPGoods
 	return ok;
 }
 
-int SLAPI PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, TSCollection <PPGoodsStruc> & rGsList)
+int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, TSCollection <PPGoodsStruc> & rGsList)
 {
 	rGsList.freeAll();
 
@@ -734,7 +734,7 @@ int SLAPI PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident * pIdent, TSColle
 	return ok;
 }
 
-int SLAPI PPObjGoods::Helper_EditGoodsStruc(PPID goodsID, int isDynGen)
+int PPObjGoods::Helper_EditGoodsStruc(PPID goodsID, int isDynGen)
 {
 	int    ok = -1;
 	PPGoodsPacket pack;
@@ -760,12 +760,12 @@ int SLAPI PPObjGoods::Helper_EditGoodsStruc(PPID goodsID, int isDynGen)
 	return ok;
 }
 
-int SLAPI PPObjGoods::EditGoodsStruc(PPID goodsID)
+int PPObjGoods::EditGoodsStruc(PPID goodsID)
 {
 	return Helper_EditGoodsStruc(goodsID, 0);
 }
 
-int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles,
+int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles,
 	PPOpCounterPacket * pOwnAcCntr, int rebuild, int use_ta)
 {
 	int    ok = 1;
@@ -900,7 +900,7 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 	return gpkndUndef;
 }
 
-/*static*/int SLAPI PPObjGoods::GenerateOwnArCode(SString & rCode, int use_ta)
+/*static*/int PPObjGoods::GenerateOwnArCode(SString & rCode, int use_ta)
 {
 	int    ok = -1;
 	PPObjGoods goods_obj;
@@ -920,12 +920,12 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 //
 //
 //
-SLAPI PPGoodsConfig::PPGoodsConfig()
+PPGoodsConfig::PPGoodsConfig()
 {
 	Z();
 }
 
-PPGoodsConfig & SLAPI PPGoodsConfig::Z()
+PPGoodsConfig & PPGoodsConfig::Z()
 {
 	memzero(this, static_cast<size_t>(PTR8(&TagIndFilt) - PTR8(this)));
 	// @v9.7.2 (expensive call) Ver = DS.GetVersion();
@@ -945,7 +945,7 @@ int FASTCALL PPGoodsConfig::IsWghtPrefix(const char * pCode) const
 	return yes;
 }
 
-int SLAPI PPGoodsConfig::GetCodeLenList(PPIDArray * pList, int * pAllowEmpty) const
+int PPGoodsConfig::GetCodeLenList(PPIDArray * pList, int * pAllowEmpty) const
 {
 	int    allow_empty = 1;
 	SString len_str(BarCodeLen);
@@ -967,7 +967,7 @@ int SLAPI PPGoodsConfig::GetCodeLenList(PPIDArray * pList, int * pAllowEmpty) co
 }
 
 // Prototype. Defined in PPGoods\GoodsDlg.cpp
-int SLAPI EditGoodsExTitles(SString & rGoodsExTitles);
+int EditGoodsExTitles(SString & rGoodsExTitles);
 
 class GoodsCfgDialog : public TDialog {
 public:
@@ -1095,12 +1095,12 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	return ok;
 }
 
-int SLAPI PPObjGoods::WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles, int use_ta)
+int PPObjGoods::WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles, int use_ta)
 {
 	return Helper_WriteConfig(pCfg, pGoodsExTitles, 0, 0, use_ta);
 }
 
-/*static*/int SLAPI PPObjGoods::EditConfig()
+/*static*/int PPObjGoods::EditConfig()
 {
 	int    ok = -1, ta = 0, is_new = 0;
 	int    valid_data = 0;
@@ -1145,14 +1145,14 @@ void RetailGoodsInfo::Init()
 	THISZERO();
 }
 
-int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, RetailGoodsInfo * pInfo)
+int PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, RetailGoodsInfo * pInfo)
 	{ return Helper_GetRetailGoodsInfo(goodsID, locID, 0, 0, ZERODATETIME, 0.0, pInfo, 0); }
-int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
+int PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
 	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, actualDtm, qtty, pInfo, flags); }
-int SLAPI PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, double qtty, RetailGoodsInfo * pInfo, long flags)
+int PPObjGoods::GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPID arID, double qtty, RetailGoodsInfo * pInfo, long flags)
 	{ return Helper_GetRetailGoodsInfo(goodsID, locID, pEqBlk, arID, ZERODATETIME, qtty, pInfo, flags); }
 
-int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
+int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
 	PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags)
 {
 	int    ok = 1;
@@ -1233,7 +1233,7 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 //
 //
 //
-int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
+int EditQuotVal(PPQuot * pQ, int quotCls)
 {
 	class SetQuotDialog : public TDialog {
 		DECL_DIALOG_DATA(PPQuot);
@@ -2284,7 +2284,7 @@ void QuotationDialog::updatePage()
 	}
 }
 
-int SLAPI PPObjGoods::EditQuotations(PPID id, PPID initLocID, PPID initCurID, PPID initArID, int quotCls, int toCascade, PPID accSheetID /*=0*/)
+int PPObjGoods::EditQuotations(PPID id, PPID initLocID, PPID initCurID, PPID initArID, int quotCls, int toCascade, PPID accSheetID /*=0*/)
 {
 	int    ok = -1, valid_data = 0;
 	// @debug int    corrected = 0;
@@ -2321,7 +2321,7 @@ int SLAPI PPObjGoods::EditQuotations(PPID id, PPID initLocID, PPID initCurID, PP
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetMatrixRestrict(PPID goodsID, PPID locID, int srchNearest, PPID * pGoodsGrpID, long * pResult)
+int PPObjGoods::GetMatrixRestrict(PPID goodsID, PPID locID, int srchNearest, PPID * pGoodsGrpID, long * pResult)
 {
 	int    ok = -1, r;
 	PPID   grp_id = goodsID;
@@ -2336,7 +2336,7 @@ int SLAPI PPObjGoods::GetMatrixRestrict(PPID goodsID, PPID locID, int srchNeares
 	return ok;
 }
 
-int SLAPI PPObjGoods::CheckMatrixRestrict(PPID goodsID, PPID locID, long restrict)
+int PPObjGoods::CheckMatrixRestrict(PPID goodsID, PPID locID, long restrict)
 {
 	int    ok = 1;
 	long   max_count = 0;
@@ -2376,7 +2376,7 @@ int SLAPI PPObjGoods::CheckMatrixRestrict(PPID goodsID, PPID locID, long restric
 	return ok;
 }
 
-int SLAPI PPSupplDeal::CheckCost(double c) const
+int PPSupplDeal::CheckCost(double c) const
 {
 	int    ok = 1;
 	if(c > 0.0 && Cost > 0.0) {
@@ -2408,7 +2408,7 @@ SString & FASTCALL PPSupplDeal::Format(SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplDeal * pResult, int useCache)
+int PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplDeal * pResult, int useCache)
 {
 	int    ok = -1, r;
 	const  PPThreadLocalArea & r_tla = DS.GetConstTLA();
@@ -2443,7 +2443,7 @@ int SLAPI PPObjGoods::GetSupplDeal(PPID goodsID, const QuotIdent & rQi, PPSupplD
 	return ok;
 }
 
-int SLAPI PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PPSupplDeal * pDeal, int useTa)
+int PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PPSupplDeal * pDeal, int useTa)
 {
 	int    ok = 1;
 	long   flags = 0;
@@ -2478,7 +2478,7 @@ int SLAPI PPObjGoods::SetSupplDeal(PPID goodsID, const QuotIdent & rQi, const PP
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
+int PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
 {
 	int    ok = 0;
 	if(useCache == 1000 && pResult)
@@ -2488,7 +2488,7 @@ int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cos
 	return ok;
 }
 
-int SLAPI PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
+int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
 {
 	// @>>PPObjGoods::GetQuot >> GoodsCore::GetQuot >>
 	//    QuotationCore::GetCurr >> QuotationCore::GetCurrList
@@ -2540,7 +2540,7 @@ int SLAPI PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, dou
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetQuotExtByList(const PPQuotArray * pQList, const QuotIdent & rQi, double cost, double price, double * pResult)
+int PPObjGoods::GetQuotExtByList(const PPQuotArray * pQList, const QuotIdent & rQi, double cost, double price, double * pResult)
 {
 	int    ok = -1, r;
 	double result = 0.0;
@@ -2578,7 +2578,7 @@ int SLAPI PPObjGoods::GetQuotExtByList(const PPQuotArray * pQList, const QuotIde
 	return ok;
 }
 
-int SLAPI PPObjGoods::CheckMatrix(PPID goodsID, PPID locID, PPID opID, PPID billArID)
+int PPObjGoods::CheckMatrix(PPID goodsID, PPID locID, PPID opID, PPID billArID)
 {
 	int    ok = 1;
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX && (!opID || CheckOpFlags(opID, OPKF_RESTRICTBYMTX))) {
@@ -2590,16 +2590,16 @@ int SLAPI PPObjGoods::CheckMatrix(PPID goodsID, PPID locID, PPID opID, PPID bill
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
+int PPObjGoods::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache)
 	{ return P_Tbl->GetQuot(goodsID, rQi, cost, price, pResult, useCache); }
-int SLAPI PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double * pResult, int useCache)
+int PPObjGoods::GetQuotExt(PPID goodsID, const QuotIdent & rQi, double * pResult, int useCache)
 	{ return Helper_GetQuotExt(goodsID, rQi, 0.0, 0.0, pResult, (useCache == 1000 && pResult) ? 1 : useCache); }
-int SLAPI PPObjGoods::BelongToMatrix(PPID goodsID, PPID locID)
+int PPObjGoods::BelongToMatrix(PPID goodsID, PPID locID)
 	{ return P_Tbl->BelongToMatrix(goodsID, locID); }
-int SLAPI PPObjGoods::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
+int PPObjGoods::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
 	{ return P_Tbl->GetQuotList(goodsID, locID, rList); }
 
-int SLAPI PPObjGoods::PutQuotList(PPID goodsID, const PPQuotArray * pList, int use_ta)
+int PPObjGoods::PutQuotList(PPID goodsID, const PPQuotArray * pList, int use_ta)
 {
 	int    ok = 1;
 	if(pList)
@@ -2611,7 +2611,7 @@ int SLAPI PPObjGoods::PutQuotList(PPID goodsID, const PPQuotArray * pList, int u
 	return ok;
 }
 
-int SLAPI PPObjGoods::UpdateFlags(PPID goodsID, long setF, long resetF, int use_ta)
+int PPObjGoods::UpdateFlags(PPID goodsID, long setF, long resetF, int use_ta)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec rec;
@@ -2648,7 +2648,7 @@ int SLAPI PPObjGoods::UpdateFlags(PPID goodsID, long setF, long resetF, int use_
 //
 //
 //
-int SLAPI PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, PPID * pReplaceGoodsID)
+int PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, PPID * pReplaceGoodsID)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2699,7 +2699,7 @@ int SLAPI PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGood
 //
 //
 //
-SLAPI RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), ExtPrice(0.0), OuterPrice(0.0),
+RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), ExtPrice(0.0), OuterPrice(0.0),
 	Flags(0), QuotKindUsedForPrice(0), QuotKindUsedForExtPrice(0), CurLotDate(ZERODATE), Expiry(ZERODATE)
 {
 	AllowedPriceR.Z(); // @v10.6.4
@@ -2716,27 +2716,27 @@ RetailPriceExtractor::ExtQuotBlock::ExtQuotBlock(const PPSCardSerPacket & rScsPa
 		QkList.addnz(rScsPack.Rec.QuotKindID_s);
 }
 
-SLAPI RetailPriceExtractor::RetailPriceExtractor() : EqBlk(0), LocID(0), ArID(0), Flags(0), P_GObj(new PPObjGoods)
+RetailPriceExtractor::RetailPriceExtractor() : EqBlk(0), LocID(0), ArID(0), Flags(0), P_GObj(new PPObjGoods)
 {
 }
 
-SLAPI RetailPriceExtractor::RetailPriceExtractor(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags) :
+RetailPriceExtractor::RetailPriceExtractor(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags) :
 	EqBlk(0), P_GObj(new PPObjGoods)
 {
 	Init(locID, pEqBlk, arID, actualDtm, flags);
 }
 
-SLAPI RetailPriceExtractor::~RetailPriceExtractor()
+RetailPriceExtractor::~RetailPriceExtractor()
 {
 	delete P_GObj;
 }
 
-void SLAPI RetailPriceExtractor::SetLocation(PPID locID)
+void RetailPriceExtractor::SetLocation(PPID locID)
 {
 	LocID = locID;
 }
 
-int SLAPI RetailPriceExtractor::Init(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags)
+int RetailPriceExtractor::Init(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags)
 {
 	PPObjQuotKind qk_obj;
 	LocID = locID;
@@ -2767,7 +2767,7 @@ int SLAPI RetailPriceExtractor::Init(PPID locID, const ExtQuotBlock * pEqBlk, PP
 	return 1;
 }
 
-int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtty, RetailExtrItem * pItem)
+int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtty, RetailExtrItem * pItem)
 {
 	int    use_quot_cache = 1000; // @v8.2.7 1-->1000 // @v9.2.2 1000-->0 // @v9.3.1 0-->1000
 	int    ok = -1;
@@ -3063,7 +3063,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
     return bcstd;
 }
 
-SLAPI PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputFormat(0), Angle(0), ColorFg(ZEROCOLOR), ColorBg(ZEROCOLOR)
+PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputFormat(0), Angle(0), ColorFg(ZEROCOLOR), ColorBg(ZEROCOLOR)
 {
 	Size.Z();
 }

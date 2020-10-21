@@ -19,7 +19,7 @@
 		return 1;
 }
 
-/*static*/SString & SLAPI PPHolidays::Format(LDATE dt, SString & rBuf)
+/*static*/SString & PPHolidays::Format(LDATE dt, SString & rBuf)
 {
 	rBuf.Z();
 	int    d, m, y;
@@ -152,7 +152,7 @@ int HldDialog::getDTS(LDATE * pDt)
 	return ok;
 }
 
-static int SLAPI EditHoliday(PPID locID, LDATE * pDt)
+static int EditHoliday(PPID locID, LDATE * pDt)
 {
 	int    ok = -1;
 	HldDialog * dlg = new HldDialog();
@@ -272,7 +272,7 @@ int HolidaysDialog::delItem(long /*pos*/, long id)
 	return ok;
 }
 
-int SLAPI EditHolidays()
+int EditHolidays()
 {
 	int    ok = -1;
 	PredictSalesCore t;

@@ -18,7 +18,7 @@
 #ifndef FIXITS_H_
 #define FIXITS_H_ 1
 	void fixits_register(Location const * loc, char const* update); /* Declare a fix to apply.  */
-	void fixits_run(void); /* Apply the fixits: update the source file.  */
-	bool fixits_empty(void); /* Whether there are no fixits. */
-	void fixits_free(void); /* Free the registered fixits.  */
+	void fixits_run(); /* Apply the fixits: update the source file.  */
+	bool fixits_empty(); /* Whether there are no fixits. */
+	void fixits_free(); /* Free the registered fixits.  */
 #endif /* !FIXITS_H_ */

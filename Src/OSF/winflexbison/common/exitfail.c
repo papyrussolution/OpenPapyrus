@@ -17,6 +17,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "exitfail.h"
+//#include "exitfail.h"
 
 int volatile exit_failure = EXIT_FAILURE;

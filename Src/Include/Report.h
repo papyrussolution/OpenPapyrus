@@ -108,10 +108,10 @@ class TVRez;
 
 class SPrnCmdSet {
 public:
-	static SPrnCmdSet * SLAPI CreateInstance(long, long = 0);
+	static SPrnCmdSet * CreateInstance(long, long = 0);
 
-	SLAPI SPrnCmdSet();
-	virtual SLAPI ~SPrnCmdSet();
+	SPrnCmdSet();
+	virtual ~SPrnCmdSet();
 	//
 	// Каждая из виртуальных функций этого (и порожденных) классов
 	// должна занести в буфер, заданный последним параметром, управляющую
@@ -120,18 +120,18 @@ public:
 	// последовательность нулем, так как длина все равно определяетс
 	// возвращаемым значением.
 	//
-	virtual int SLAPI InitPrinter(char *) { return 0; }
-	virtual int SLAPI ResetPrinter(char *) { return 0; }
+	virtual int InitPrinter(char *) { return 0; }
+	virtual int ResetPrinter(char *) { return 0; }
 	//
 	// SetPageLength задает длину листа (строк - НЕ ДЮЙМОВ !)
 	//
-	virtual int SLAPI SetPageLength(int, char *) { return 0; }
-	virtual int SLAPI SetOrientation(int /* 0 - portrait, !0 - landscapce */, char *) { return 0; }
-	virtual int SLAPI SetMargin(int what, int, char *) { return 0; }
-	virtual int SLAPI SetQuality(int, char *) { return 0; }
-	virtual int SLAPI SetCPI(int, char *) { return 0; }
-	virtual int SLAPI SetFontStyle(int, int on_off, char *) { return 0; }
-	virtual int SLAPI SetLinesPerInch(int, char *) { return 0; }
+	virtual int SetPageLength(int, char *) { return 0; }
+	virtual int SetOrientation(int /* 0 - portrait, !0 - landscapce */, char *) { return 0; }
+	virtual int SetMargin(int what, int, char *) { return 0; }
+	virtual int SetQuality(int, char *) { return 0; }
+	virtual int SetCPI(int, char *) { return 0; }
+	virtual int SetFontStyle(int, int on_off, char *) { return 0; }
+	virtual int SetLinesPerInch(int, char *) { return 0; }
 private:
 	int    dummy;
 };
@@ -155,9 +155,9 @@ struct ReportDescrEntry {
 	};
 	static int FASTCALL GetIniToken(const char * pBuf, SString * pFileName);
 
-	SLAPI  ReportDescrEntry();
-	int    SLAPI ParseIniString(const char * pLine, const ReportDescrEntry * pBaseEntry);
-	int    SLAPI SetReportFileName(const char * pFileName);
+	ReportDescrEntry();
+	int    ParseIniString(const char * pLine, const ReportDescrEntry * pBaseEntry);
+	int    SetReportFileName(const char * pFileName);
 
 	enum {
 		fInheritedTblNames = 0x0001,
@@ -176,11 +176,11 @@ struct ReportDescrEntry {
 };
 
 struct PrnDlgAns {
-	SLAPI  PrnDlgAns(const char * pReportName);
-	SLAPI  PrnDlgAns(const PrnDlgAns & rS);
-	SLAPI ~PrnDlgAns();
+	PrnDlgAns(const char * pReportName);
+	PrnDlgAns(const PrnDlgAns & rS);
+	~PrnDlgAns();
 	PrnDlgAns & FASTCALL operator = (const PrnDlgAns & rS);
-	int    SLAPI SetupReportEntries(const char * pContextSymb);
+	int    SetupReportEntries(const char * pContextSymb);
 	PrnDlgAns & FASTCALL Copy(const PrnDlgAns & rS);
 
 	enum {
@@ -211,29 +211,29 @@ struct PrnDlgAns {
 	TSCollection <ReportDescrEntry> Entries;
 	DEVMODEA * P_DevMode; // @v10.4.10
 private:
-	int    SLAPI PreprocessReportFileName(const char * pFileName, ReportDescrEntry * pEntry);
+	int    PreprocessReportFileName(const char * pFileName, ReportDescrEntry * pEntry);
 };
 
 class SPrinter {
 public:
-	SLAPI  SPrinter();
-	SLAPI ~SPrinter();
-	int    SLAPI setupCmdSet(long cmdsetID, long extra = 0);
-	int    SLAPI setPort(char *);
-	int    SLAPI startDoc();
-	int    SLAPI endDoc();
-	int    SLAPI abortDoc();
-	int    SLAPI startPage();
-	int    SLAPI endPage();
-	int    SLAPI escape(int, char *);
-	int    SLAPI printLine(const char * buf, size_t maxLen);
-	int    SLAPI printChar(int c);
-	int    SLAPI checkPort();
-	uint   SLAPI getStyle();
-	int    SLAPI setEffect(int);
-	int    SLAPI initDevice();
-	int    SLAPI resetDevice();
-	int    SLAPI checkNWCapture();
+	SPrinter();
+	~SPrinter();
+	int    setupCmdSet(long cmdsetID, long extra = 0);
+	int    setPort(char *);
+	int    startDoc();
+	int    endDoc();
+	int    abortDoc();
+	int    startPage();
+	int    endPage();
+	int    escape(int, char *);
+	int    printLine(const char * buf, size_t maxLen);
+	int    printChar(int c);
+	int    checkPort();
+	uint   getStyle();
+	int    setEffect(int);
+	int    initDevice();
+	int    resetDevice();
+	int    checkNWCapture();
 	//
 	// Descr: Функция HandlePrintError может быть установленна прикладной программой для интерактивной обработки
 	//   ошибки печати. Если эта функция возвращает 0, то печать будет прервана по ошибке, в противном случае
@@ -255,7 +255,7 @@ public:
 	uint   options;
 };
 
-SPrinter * SLAPI getDefaultPrinter();
+SPrinter * getDefaultPrinter();
 //
 // Функция ReportIterator должна возвращать следующие значения:
 // -1 - Конец итерации
@@ -298,7 +298,7 @@ public:
 		char  * lastval;
 	};
 	struct Band {
-		int     SLAPI addField(int id);
+		int     addField(int id);
 		int16   kind;
 		int16   ht;
 		int16   group;
@@ -308,45 +308,45 @@ public:
 
 	static int defaultIterator(int);
 	static SArray * FillRptArray();
-	explicit SLAPI SReport(const char *);
-	SLAPI  SReport(uint rezID, long flags /* INIREPF_XXX */);
-	SLAPI ~SReport();
-	int    SLAPI IsValid() const;
-	void   SLAPI disableGrouping();
-	int    SLAPI addField(int id, TYPEID typ, long fmt, uint rptfmt, char * nam);
-	int    SLAPI setAggrToField(int fld, int aggr, int dpnd);
-	int    SLAPI addText(char * txt);
-	int    SLAPI addBand(SReport::Band * band, int * grp_fld, uint * pos);
-	int    SLAPI calcAggr(int grp, int mode); // 0 - init, 1 - calc, 2 - summary
-	int    SLAPI check();
-	int    SLAPI setData(int id, void * data);
-	int    SLAPI skipField(int id, int enable);
-	int    SLAPI setIterator(ReportIterator);
-	int    SLAPI setPrinter(SPrinter*);
-	int    SLAPI setDefaultPrinter();
-	int    SLAPI getNumCopies() const;
-	void   SLAPI setNumCopies(int);
-	int    SLAPI enumFields(SReport::Field **, SReport::Band *, int *);
-	int    SLAPI getFieldName(SReport::Field *, char * buf, size_t buflen);
-	int    SLAPI getFieldName(int id, char * buf, size_t buflen);
-	int    SLAPI printDataField(SReport::Field * f);
-	int    SLAPI printPageHead(int kind, int _newpage);
-	int    SLAPI printGroupHead(int kind, int grp);
-	int    SLAPI checkval(int16 * flds, char ** ptr);
-	int    SLAPI printDetail();
-	int    SLAPI printTitle(int kind);
-	int    SLAPI writeResource(FILE *, uint);
-	int    SLAPI readResource(TVRez *, uint resID);
-	SReport::Band * SLAPI searchBand(int kind, int grp);
-	int    SLAPI createDataFiles(const char * pDataName, const char * pRptPath);
-	const  SString & SLAPI getDataName() const { return DataName; }
+	explicit SReport(const char *);
+	SReport(uint rezID, long flags /* INIREPF_XXX */);
+	~SReport();
+	int    IsValid() const;
+	void   disableGrouping();
+	int    addField(int id, TYPEID typ, long fmt, uint rptfmt, char * nam);
+	int    setAggrToField(int fld, int aggr, int dpnd);
+	int    addText(char * txt);
+	int    addBand(SReport::Band * band, int * grp_fld, uint * pos);
+	int    calcAggr(int grp, int mode); // 0 - init, 1 - calc, 2 - summary
+	int    check();
+	int    setData(int id, void * data);
+	int    skipField(int id, int enable);
+	int    setIterator(ReportIterator);
+	int    setPrinter(SPrinter*);
+	int    setDefaultPrinter();
+	int    getNumCopies() const;
+	void   setNumCopies(int);
+	int    enumFields(SReport::Field **, SReport::Band *, int *);
+	int    getFieldName(SReport::Field *, char * buf, size_t buflen);
+	int    getFieldName(int id, char * buf, size_t buflen);
+	int    printDataField(SReport::Field * f);
+	int    printPageHead(int kind, int _newpage);
+	int    printGroupHead(int kind, int grp);
+	int    checkval(int16 * flds, char ** ptr);
+	int    printDetail();
+	int    printTitle(int kind);
+	int    writeResource(FILE *, uint);
+	int    readResource(TVRez *, uint resID);
+	SReport::Band * searchBand(int kind, int grp);
+	int    createDataFiles(const char * pDataName, const char * pRptPath);
+	const  SString & getDataName() const { return DataName; }
 	int    PrnDest;
-	int    SLAPI Export();
-	int    SLAPI preview();
+	int    Export();
+	int    preview();
 private:
-	int    SLAPI prepareData();
-	int    SLAPI createBodyDataFile(SString & rFileName, SCollection * fldIDs);
-	int    SLAPI createVarDataFile(SString & rFileName, SCollection * fldIDs);
+	int    prepareData();
+	int    createBodyDataFile(SString & rFileName, SCollection * fldIDs);
+	int    createVarDataFile(SString & rFileName, SCollection * fldIDs);
 public:
 	enum rptFlags {
 		DisableGrouping = 0x0001,
@@ -389,9 +389,9 @@ private:
 	char * P_Text;
 };
 
-int SLAPI EditPrintParam(PrnDlgAns * pData);
-int SLAPI CrystalReportPrint(const char *, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
-int SLAPI CrystalReportExport(const char *, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
+int EditPrintParam(PrnDlgAns * pData);
+int CrystalReportPrint(const char *, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
+int CrystalReportExport(const char *, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
 
 #endif /* __REPORT_H */
 

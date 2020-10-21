@@ -45,11 +45,11 @@ void   FASTCALL stmaxval(TYPEID t, void * d) { DataType _t; stype(t, &_t).maxval
 //
 //
 //
-uint32 SLAPI DataType::size() const { return S; } // @v10.2.1
-int    SLAPI DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
-char * SLAPI DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0); }
+uint32 DataType::size() const { return S; } // @v10.2.1
+int    DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
+char * DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0); }
 
-/*virtual*/SString & SLAPI DataType::ToStr(const void * pData, long format, SString & rBuf) const
+/*virtual*/SString & DataType::ToStr(const void * pData, long format, SString & rBuf) const
 {
 	rBuf.Z();
 	char    temp_buf[4096];
@@ -58,23 +58,23 @@ char * SLAPI DataType::tostr(const void *, long, char * b) const { return &(b[0]
 	return rBuf;
 }
 
-int    SLAPI DataType::fromstr(void *, long, const char *) const { return 0; }
-int    SLAPI DataType::base() const { return BTS_VOID; }
-void   SLAPI DataType::tobase(const void * data, void * baseData) const {}
-int    SLAPI DataType::baseto(void * data, const void * baseData) const { return 0; }
+int    DataType::fromstr(void *, long, const char *) const { return 0; }
+int    DataType::base() const { return BTS_VOID; }
+void   DataType::tobase(const void * data, void * baseData) const {}
+int    DataType::baseto(void * data, const void * baseData) const { return 0; }
 void   FASTCALL DataType::destroy(void *) const {} // @v9.8.5 const
-void   SLAPI DataType::minval(void *) const { }
-void   SLAPI DataType::maxval(void *) const { }
+void   DataType::minval(void *) const { }
+void   DataType::maxval(void *) const { }
 /*
-TYPEID SLAPI DataType::recornsymb(const char *) const { return 0; }
-int    SLAPI DataType::getsymb(int style, char * pBuf, size_t bufLen) const
+TYPEID DataType::recornsymb(const char *) const { return 0; }
+int    DataType::getsymb(int style, char * pBuf, size_t bufLen) const
 {
 	strnzcpy(pBuf, "unknown", bufLen);
 	return -1;
 }
 */
 
-int SLAPI DataType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
+int DataType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	if(dir > 0) {

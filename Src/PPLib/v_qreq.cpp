@@ -7,25 +7,24 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(QuoteReqAnalyze); SLAPI QuoteReqAnalyzeFilt::QuoteReqAnalyzeFilt() : PPBaseFilt(PPFILT_QUOTEREQANALYZE, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(QuoteReqAnalyze); QuoteReqAnalyzeFilt::QuoteReqAnalyzeFilt() : PPBaseFilt(PPFILT_QUOTEREQANALYZE, 0, 1)
 {
 	SetFlatChunk(offsetof(QuoteReqAnalyzeFilt, ReserveStart),
 		offsetof(QuoteReqAnalyzeFilt, ReserveEnd)-offsetof(QuoteReqAnalyzeFilt, ReserveStart)+sizeof(ReserveEnd));
 	Init(1, 0);
 }
 
-SLAPI PPViewQuoteReqAnalyze::PPViewQuoteReqAnalyze() : PPView(0, &Filt, PPVIEW_QUOTEREQANALYZE), P_BObj(BillObj), P_DsList(0)
+PPViewQuoteReqAnalyze::PPViewQuoteReqAnalyze() : PPView(0, &Filt, PPVIEW_QUOTEREQANALYZE, implBrowseArray, 0), P_BObj(BillObj), P_DsList(0)
 {
-	ImplementFlags |= (implBrowseArray);
 }
 
-SLAPI PPViewQuoteReqAnalyze::~PPViewQuoteReqAnalyze()
+PPViewQuoteReqAnalyze::~PPViewQuoteReqAnalyze()
 {
 	ZDELETE(P_DsList);
 	P_BObj = 0;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::FinishListBySeq(PPID leadBillID, int leadRbb)
+int PPViewQuoteReqAnalyze::FinishListBySeq(PPID leadBillID, int leadRbb)
 {
 	int    ok = 1;
 	TSArray <PPObjBill::QuoteReqLink> qrl_list;
@@ -130,12 +129,12 @@ static IMPL_CMPFUNC(QuoteReqAnalyze_Item_LeadBill, i1, i2)
 	return p_view ? p_view->CmpBrwItems(QuoteReqAnalyzeFilt::ordByLeadBill, p1, p2) : 0;
 }
 
-void SLAPI PPViewQuoteReqAnalyze::SortList(int ord)
+void PPViewQuoteReqAnalyze::SortList(int ord)
 {
 	List.sort2(PTR_CMPFUNC(QuoteReqAnalyze_Item_LeadBill), this);
 }
 
-int SLAPI PPViewQuoteReqAnalyze::CreateList(PPID leadBillID, int leadRbb)
+int PPViewQuoteReqAnalyze::CreateList(PPID leadBillID, int leadRbb)
 {
 	int    ok = 1;
 	if(!leadBillID) {
@@ -186,7 +185,7 @@ int SLAPI PPViewQuoteReqAnalyze::CreateList(PPID leadBillID, int leadRbb)
 	return ok;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewQuoteReqAnalyze::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -239,7 +238,7 @@ public:
 	}
 };
 
-int SLAPI PPViewQuoteReqAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewQuoteReqAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -247,7 +246,7 @@ int SLAPI PPViewQuoteReqAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(QuoteReqFiltDialog, p_filt);
 }
 
-int SLAPI PPViewQuoteReqAnalyze::InitIteration()
+int PPViewQuoteReqAnalyze::InitIteration()
 {
 	int    ok = -1;
 	return ok;
@@ -259,7 +258,7 @@ int FASTCALL PPViewQuoteReqAnalyze::NextIteration(QuoteReqAnalyzeViewItem * pIte
 	return ok;
 }
 
-/*static*/int SLAPI PPViewQuoteReqAnalyze::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+/*static*/int PPViewQuoteReqAnalyze::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pCellStyle && col >= 0) {
@@ -309,7 +308,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-SArray * SLAPI PPViewQuoteReqAnalyze::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewQuoteReqAnalyze::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_QUOTEREQANALYZE;
 	SArray * p_array = 0;
@@ -322,7 +321,7 @@ SArray * SLAPI PPViewQuoteReqAnalyze::CreateBrowserArray(uint * pBrwId, SString 
 	return p_array;
 }
 
-void SLAPI PPViewQuoteReqAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewQuoteReqAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewQuoteReqAnalyze::GetDataForBrowser, this);
@@ -330,12 +329,12 @@ void SLAPI PPViewQuoteReqAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewQuoteReqAnalyze::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewQuoteReqAnalyze::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	return -1;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRbb)
+int PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRbb)
 {
 	int    ok = -1;
 	if(leadBillID && leadRbb) {
@@ -380,7 +379,7 @@ int SLAPI PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRb
 	return ok;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::EditSeqItem(PPID seqBillID, int seqRbb)
+int PPViewQuoteReqAnalyze::EditSeqItem(PPID seqBillID, int seqRbb)
 {
 	int    ok = -1;
 	if(seqBillID > 0 && seqRbb > 0) {
@@ -399,7 +398,7 @@ int SLAPI PPViewQuoteReqAnalyze::EditSeqItem(PPID seqBillID, int seqRbb)
 	return ok;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewQuoteReqAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -424,13 +423,13 @@ int SLAPI PPViewQuoteReqAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, 
 	return ok;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::Detail(const void *, PPViewBrowser * pBrw)
+int PPViewQuoteReqAnalyze::Detail(const void *, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewQuoteReqAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -525,7 +524,7 @@ int SLAPI PPViewQuoteReqAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	return ok;
 }
 
-int SLAPI PPViewQuoteReqAnalyze::MakeViewList()
+int PPViewQuoteReqAnalyze::MakeViewList()
 {
 	int    ok = 1;
 	if(P_DsList)

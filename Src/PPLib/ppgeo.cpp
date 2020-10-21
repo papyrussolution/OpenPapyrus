@@ -9,29 +9,29 @@
 //
 //
 //
-SLAPI PPOsm::NodeCluster::Put__Param::Put__Param(const Node * pN, uint nodeCount) :
+PPOsm::NodeCluster::Put__Param::Put__Param(const Node * pN, uint nodeCount) :
 	P_N(pN), P_NrWayRefs(0), P_NrRelRefs(0), NCount(nodeCount), NrWayRefsCount(0), NrRelRefsCount(0)
 {
 }
 
-SLAPI PPOsm::NodeCluster::Put__Result::Put__Result() : ActualCount(0), ActualNrWayCount(0), ActualNrRelCount(0), NrWayShift(0), NrRelShift(0)
+PPOsm::NodeCluster::Put__Result::Put__Result() : ActualCount(0), ActualNrWayCount(0), ActualNrRelCount(0), NrWayShift(0), NrRelShift(0)
 {
 }
 
-SLAPI PPOsm::NodeCluster::NodeCluster() : SBuffer(32)
+PPOsm::NodeCluster::NodeCluster() : SBuffer(32)
 {
 }
 
-SLAPI PPOsm::NodeCluster::~NodeCluster()
+PPOsm::NodeCluster::~NodeCluster()
 {
 }
 
-size_t SLAPI PPOsm::NodeCluster::GetSize() const
+size_t PPOsm::NodeCluster::GetSize() const
 {
 	return GetAvailableSize();
 }
 
-/*static*/uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic)
+/*static*/uint PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic)
 {
 	static const uint __row[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
 	uint   possible_count = 0;
@@ -155,8 +155,8 @@ size_t SLAPI PPOsm::NodeCluster::GetSize() const
 	]
 */
 
-//int SLAPI PPOsm::NodeCluster::Put__(const Node * pN, const NodeRefs * pNrList, size_t count, uint64 * pOuterID, Put__Result * pResult, uint forceLogicalCount)
-int SLAPI PPOsm::NodeCluster::Put__(const Put__Param & rP, uint64 * pOuterID, Put__Result * pResult, uint forceLogicalCount)
+//int PPOsm::NodeCluster::Put__(const Node * pN, const NodeRefs * pNrList, size_t count, uint64 * pOuterID, Put__Result * pResult, uint forceLogicalCount)
+int PPOsm::NodeCluster::Put__(const Put__Param & rP, uint64 * pOuterID, Put__Result * pResult, uint forceLogicalCount)
 {
 	assert(oneof9(forceLogicalCount, 0, 1, 2, 4, 8, 16, 32, 64, 128));
 	int    ok = 1;
@@ -414,7 +414,7 @@ int SLAPI PPOsm::NodeCluster::Put__(const Put__Param & rP, uint64 * pOuterID, Pu
 	return ok;
 }
 
-int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSVector <Node> * pList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
+int PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSVector <Node> * pList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
 {
 	int    ok = 1;
 	uint   count_logic = 0;
@@ -568,17 +568,17 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSVector <Node> * pL
 	return ok;
 }
 
-int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSVector <Node> & rList, NodeRefs * pNrList)
+int PPOsm::NodeCluster::Get(uint64 outerID, TSVector <Node> & rList, NodeRefs * pNrList)
 {
 	return Implement_Get(outerID, &rList, pNrList, 0, 0, 0);
 }
 
-int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSVector <Node> & rList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
+int PPOsm::NodeCluster::Get(uint64 outerID, TSVector <Node> & rList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
 {
 	return Implement_Get(outerID, &rList, pNrList, pHead, pCountLogic, pCountActual);
 }
 
-int SLAPI PPOsm::NodeCluster::GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount)
+int PPOsm::NodeCluster::GetCount(uint64 outerID, uint * pLogicCount, uint * pActualCount)
 {
 	return Implement_Get(outerID, 0, 0, 0, pLogicCount, pActualCount);
 }
@@ -610,7 +610,7 @@ const void * FASTCALL PPOsm::NodeCluster::GetBuffer(size_t * pSize) const
     return ptr;
 }
 
-int SLAPI PPOsm::NodeCluster::SetBuffer(const void * pData, size_t size)
+int PPOsm::NodeCluster::SetBuffer(const void * pData, size_t size)
 {
 	int    ok = 1;
 	SBuffer::Z();
@@ -621,11 +621,11 @@ int SLAPI PPOsm::NodeCluster::SetBuffer(const void * pData, size_t size)
 //
 //
 //
-SLAPI PPOsm::WayBuffer::WayBuffer() : SBuffer()
+PPOsm::WayBuffer::WayBuffer() : SBuffer()
 {
 }
 
-int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
+int PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 {
 	int    ok = 1;
 	Z();
@@ -756,7 +756,7 @@ int SLAPI PPOsm::WayBuffer::Put(const Way * pW, uint64 * pOuterID)
 	return ok;
 }
 
-int SLAPI PPOsm::WayBuffer::Get(uint64 outerID, Way * pW)
+int PPOsm::WayBuffer::Get(uint64 outerID, Way * pW)
 {
 	// (IND) [ID] (TileLevel) [COUNT] ([INFIND] (POINT-ID))+
 
@@ -881,7 +881,7 @@ const void * FASTCALL PPOsm::WayBuffer::GetBuffer(size_t * pSize) const
     return ptr;
 }
 
-int SLAPI PPOsm::WayBuffer::SetBuffer(const void * pData, size_t size)
+int PPOsm::WayBuffer::SetBuffer(const void * pData, size_t size)
 {
 	int    ok = 1;
 	SBuffer::Z();
@@ -890,18 +890,18 @@ int SLAPI PPOsm::WayBuffer::SetBuffer(const void * pData, size_t size)
 	return ok;
 }
 
-size_t SLAPI PPOsm::WayBuffer::GetSize() const
+size_t PPOsm::WayBuffer::GetSize() const
 {
 	return SBuffer::GetAvailableSize();
 }
 //
 //
 //
-SLAPI PPOsm::Tile::Tile() : V(0)
+PPOsm::Tile::Tile() : V(0)
 {
 }
 
-SLAPI PPOsm::Tile::Tile(const Tile & rS)
+PPOsm::Tile::Tile(const Tile & rS)
 {
 	V = rS.V;
 }
@@ -912,7 +912,7 @@ PPOsm::Tile & FASTCALL PPOsm::Tile::operator = (const Tile & rS)
 	return *this;
 }
 
-void SLAPI PPOsm::Tile::SetInvisible()
+void PPOsm::Tile::SetInvisible()
 {
 	V |= 0xff000000;
 }
@@ -922,19 +922,19 @@ void FASTCALL PPOsm::Tile::SetLevel(uint8 level)
 	V = ((V & 0x00ffffff) | (((uint32)level) << 24));
 }
 
-uint8 SLAPI PPOsm::Tile::GetLevel() const
+uint8 PPOsm::Tile::GetLevel() const
 {
 	return (uint8)((V & 0xff000000) >> 24);
 }
 
-uint32 SLAPI PPOsm::Tile::GetZValue() const
+uint32 PPOsm::Tile::GetZValue() const
 {
 	return (V & 0x00ffffff);
 }
 //
 //
 //
-SLAPI PPOsm::NPoint::NPoint() : ID(0)
+PPOsm::NPoint::NPoint() : ID(0)
 {
 }
 
@@ -953,7 +953,7 @@ int FASTCALL PPOsm::NPoint::operator != (const PPOsm::NPoint & rS) const
 	return BIN(!IsEqual(rS));
 }
 
-SLAPI PPOsm::Node::Node() : NPoint()
+PPOsm::Node::Node() : NPoint()
 {
 }
 
@@ -972,7 +972,7 @@ int FASTCALL PPOsm::Node::operator != (const Node & rS) const
 	return BIN(!IsEqual(rS));
 }
 
-SLAPI PPOsm::NodeRefs::NodeRefs()
+PPOsm::NodeRefs::NodeRefs()
 {
 }
 
@@ -981,7 +981,7 @@ int FASTCALL PPOsm::NodeRefs::IsEqual(const NodeRefs & rS) const
 	return BIN(WayRefs == rS.WayRefs && RelRefs == rS.RelRefs);
 }
 
-int SLAPI PPOsm::NodeRefs::AddWayRef(uint64 nodeID, uint64 wayID)
+int PPOsm::NodeRefs::AddWayRef(uint64 nodeID, uint64 wayID)
 {
 	if(!WayRefs.SearchPair(nodeID, wayID, 0))
 		return WayRefs.Add(nodeID, wayID, 0) ? 1 : PPSetErrorSLib();
@@ -989,7 +989,7 @@ int SLAPI PPOsm::NodeRefs::AddWayRef(uint64 nodeID, uint64 wayID)
 		return -1;
 }
 
-int SLAPI PPOsm::NodeRefs::AddRelRef(uint64 nodeID, uint64 relID)
+int PPOsm::NodeRefs::AddRelRef(uint64 nodeID, uint64 relID)
 {
 	if(!RelRefs.SearchPair(nodeID, relID, 0))
 		return RelRefs.Add(nodeID, relID, 0) ? 1 : PPSetErrorSLib();
@@ -997,19 +997,19 @@ int SLAPI PPOsm::NodeRefs::AddRelRef(uint64 nodeID, uint64 relID)
 		return -1;
 }
 
-void SLAPI PPOsm::NodeRefs::Clear()
+void PPOsm::NodeRefs::Clear()
 {
 	WayRefs.clear();
 	RelRefs.clear();
 }
 
-void SLAPI PPOsm::NodeRefs::Sort()
+void PPOsm::NodeRefs::Sort()
 {
 	WayRefs.Sort();
 	RelRefs.Sort();
 }
 
-SLAPI PPOsm::Way::Way() : ID(0)
+PPOsm::Way::Way() : ID(0)
 {
 }
 
@@ -1040,15 +1040,15 @@ int FASTCALL PPOsm::Way::operator != (const Way & rS) const
 	return BIN(!IsEqual(rS));
 }
 
-SLAPI PPOsm::RelMember::RelMember() : RefID(0), TypeSymbID(0), RoleSymbID(0)
+PPOsm::RelMember::RelMember() : RefID(0), TypeSymbID(0), RoleSymbID(0)
 {
 }
 
-SLAPI PPOsm::Relation::Relation() : ID(0)
+PPOsm::Relation::Relation() : ID(0)
 {
 }
 
-SLAPI PPOsm::Tag::Tag() : KeySymbID(0), ValID(0)
+PPOsm::Tag::Tag() : KeySymbID(0), ValID(0)
 {
 }
 
@@ -1161,18 +1161,18 @@ SLAPI PPOsm::Tag::Tag() : KeySymbID(0), ValID(0)
 	return ok;
 }
 
-SLAPI PPOsm::PPOsm(const char * pDbPath) : Ht(1024*1024, 0), Grid(12), P_SrDb(0), LastSymbID(0), Status(0)
+PPOsm::PPOsm(const char * pDbPath) : Ht(1024*1024, 0), Grid(12), P_SrDb(0), LastSymbID(0), Status(0)
 {
 	if(!isempty(pDbPath))
 		OpenDatabase(pDbPath);
 }
 
-SLAPI PPOsm::~PPOsm()
+PPOsm::~PPOsm()
 {
 	delete P_SrDb;
 }
 
-int SLAPI PPOsm::OpenDatabase(const char * pDbPath)
+int PPOsm::OpenDatabase(const char * pDbPath)
 {
 	int    ok = 1;
 	ZDELETE(P_SrDb);
@@ -1190,7 +1190,7 @@ SrDatabase * PPOsm::GetDb()
 	return P_SrDb;
 }
 
-int SLAPI PPOsm::LoadGeoGrid()
+int PPOsm::LoadGeoGrid()
 {
     int    ok = -1;
     if(!(Status & stGridLoaded)) {
@@ -1211,7 +1211,7 @@ int SLAPI PPOsm::LoadGeoGrid()
     return ok;
 }
 
-int SLAPI PPOsm::BuildHashAssoc()
+int PPOsm::BuildHashAssoc()
 {
 	return Ht.BuildAssoc();
 }
@@ -1240,14 +1240,14 @@ uint FASTCALL PPOsm::CreateSymb(const char * pSymb)
 	return val;
 }
 
-int SLAPI PPOsm::GetSymbByID(uint id, SString & rSymb) const
+int PPOsm::GetSymbByID(uint id, SString & rSymb) const
 {
 	return Ht.GetByAssoc(id, rSymb);
 }
 //
 //
 //
-SLAPI PPGeoTrackItem::PPGeoTrackItem()
+PPGeoTrackItem::PPGeoTrackItem()
 {
 	THISZERO();
 }
@@ -1306,11 +1306,11 @@ int FASTCALL PPGeoTrackItem::Get(GeoTrackTbl::Rec & rD) const
 	return result;
 }
 
-SLAPI GeoTrackCore::GeoTrackCore() : GeoTrackTbl()
+GeoTrackCore::GeoTrackCore() : GeoTrackTbl()
 {
 }
 
-int SLAPI GeoTrackCore::Search(PPObjID oid, LDATETIME dtm, PPGeoTrackItem * pItem)
+int GeoTrackCore::Search(PPObjID oid, LDATETIME dtm, PPGeoTrackItem * pItem)
 {
 	int    ok = 1;
 	GeoTrackTbl::Key0 k0;
@@ -1327,7 +1327,7 @@ int SLAPI GeoTrackCore::Search(PPObjID oid, LDATETIME dtm, PPGeoTrackItem * pIte
 	return ok;
 }
 
-int SLAPI GeoTrackCore::PutItem(const PPGeoTrackItem & rItem, int use_ta)
+int GeoTrackCore::PutItem(const PPGeoTrackItem & rItem, int use_ta)
 {
 	int    ok = 1;
 	int    r;
@@ -1355,7 +1355,7 @@ int SLAPI GeoTrackCore::PutItem(const PPGeoTrackItem & rItem, int use_ta)
 	return ok;
 }
 
-int SLAPI GeoTrackCore::PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta) // @v9.8.4 TSArray-->TSVector
+int GeoTrackCore::PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	const  uint _c = rList.getCount();
@@ -1374,40 +1374,39 @@ int SLAPI GeoTrackCore::PutChunk(const TSVector <PPGeoTrackItem> & rList, int us
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(GeoTracking); SLAPI GeoTrackingFilt::GeoTrackingFilt() : PPBaseFilt(PPFILT_GEOTRACKING, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(GeoTracking); GeoTrackingFilt::GeoTrackingFilt() : PPBaseFilt(PPFILT_GEOTRACKING, 0, 0)
 {
 	SetFlatChunk(offsetof(GeoTrackingFilt, ReserveStart),
 		offsetof(GeoTrackingFilt, Reserve)+sizeof(Reserve)-offsetof(GeoTrackingFilt, ReserveStart));
 	Init(1, 0);
 }
 
-int  SLAPI GeoTrackingFilt::IsEmpty() const
+int  GeoTrackingFilt::IsEmpty() const
 {
 	return BIN(Period.IsZero() && !Oi.Obj && !ExtOi.Obj && !Flags);
 }
 //
 //
 //
-SLAPI GeoTrackingTotal::GeoTrackingTotal() : Count(0), ObjCount(0)
+GeoTrackingTotal::GeoTrackingTotal() : Count(0), ObjCount(0)
 {
 }
 
-SLAPI PPViewGeoTracking::PPViewGeoTracking() : PPView(0, &Filt, PPVIEW_GEOTRACKING)
-{
-	DefReportId = REPORT_GEOTRACKING;
-}
-
-SLAPI PPViewGeoTracking::~PPViewGeoTracking()
+PPViewGeoTracking::PPViewGeoTracking() : PPView(0, &Filt, PPVIEW_GEOTRACKING, 0, REPORT_GEOTRACKING)
 {
 }
 
-/*virtual*/PPBaseFilt * SLAPI PPViewGeoTracking::CreateFilt(void * extraPtr) const
+PPViewGeoTracking::~PPViewGeoTracking()
+{
+}
+
+/*virtual*/PPBaseFilt * PPViewGeoTracking::CreateFilt(void * extraPtr) const
 {
 	GeoTrackingFilt * p_filt = new GeoTrackingFilt;
 	return p_filt;
 }
 
-/*virtual*/int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int  PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class GeoTrackFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(GeoTrackingFilt);
@@ -1475,7 +1474,7 @@ SLAPI PPViewGeoTracking::~PPViewGeoTracking()
 	DIALOG_PROC_BODY(GeoTrackFiltDialog, p_filt);
 }
 
-/*virtual*/int SLAPI PPViewGeoTracking::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewGeoTracking::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	// @v10.3.0 (never used) BExtInsert * p_bei = 0;
@@ -1486,7 +1485,7 @@ SLAPI PPViewGeoTracking::~PPViewGeoTracking()
 	return ok;
 }
 
-int SLAPI PPViewGeoTracking::InitIteration()
+int PPViewGeoTracking::InitIteration()
 {
 	const  LDATE base_date = encodedate(1, 1, 2010);
 
@@ -1542,7 +1541,7 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 	return 1;
 }
 
-/*virtual*/DBQuery * SLAPI PPViewGeoTracking::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewGeoTracking::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	int    add_dbe = 0;
 	uint   brw_id = BROWSER_GEOTRACKING;
@@ -1611,7 +1610,7 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 	return q;
 }
 
-int SLAPI PPViewGeoTracking::CalcTotal(GeoTrackingTotal * pTotal)
+int PPViewGeoTracking::CalcTotal(GeoTrackingTotal * pTotal)
 {
 	int    ok = 1;
     GeoTrackingTotal total;
@@ -1631,7 +1630,7 @@ int SLAPI PPViewGeoTracking::CalcTotal(GeoTrackingTotal * pTotal)
     return ok;
 }
 
-/*virtual*/int SLAPI PPViewGeoTracking::ViewTotal()
+/*virtual*/int PPViewGeoTracking::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1647,12 +1646,12 @@ int SLAPI PPViewGeoTracking::CalcTotal(GeoTrackingTotal * pTotal)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewGeoTracking::Detail(const void *, PPViewBrowser * pBrw)
+/*virtual*/int PPViewGeoTracking::Detail(const void *, PPViewBrowser * pBrw)
 {
 	return -1;
 }
 
-int SLAPI PPViewGeoTracking::Export()
+int PPViewGeoTracking::Export()
 {
 	const  int gpx_ver_major = 1;
 	const  int gpx_ver_minor = 1;
@@ -1741,7 +1740,7 @@ int SLAPI PPViewGeoTracking::Export()
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewGeoTracking::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewGeoTracking::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    update = 0;

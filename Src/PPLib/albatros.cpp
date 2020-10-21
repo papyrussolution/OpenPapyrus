@@ -259,24 +259,24 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrossConfig * pCfg)
 	return 1;
 }
 
-SLAPI PPAlbatrossConfig::PPAlbatrossConfig()
+PPAlbatrossConfig::PPAlbatrossConfig()
 {
 	MEMSZERO(Hdr);
 }
 
-PPAlbatrossConfig & SLAPI PPAlbatrossConfig::Z()
+PPAlbatrossConfig & PPAlbatrossConfig::Z()
 {
 	MEMSZERO(Hdr);
 	ExtString.Z();
 	return *this;
 }
 
-int SLAPI PPAlbatrossConfig::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPAlbatrossConfig::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
+int PPAlbatrossConfig::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PPAlbatrossConfig::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 
 #define UHTT_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 
-int SLAPI PPAlbatrossConfig::SetPassword(int fld, const char * pPassword)
+int PPAlbatrossConfig::SetPassword(int fld, const char * pPassword)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -289,7 +289,7 @@ int SLAPI PPAlbatrossConfig::SetPassword(int fld, const char * pPassword)
 	return ok;
 }
 
-int SLAPI PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
+int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 {
 	rPw.Z();
 	int    ok = 1;
@@ -303,7 +303,7 @@ int SLAPI PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 	return ok;
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrossConfig & rCfg, SString & rBuf)
+/*static*/int PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrossConfig & rCfg, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -361,7 +361,7 @@ int SLAPI PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 	return ok;
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrossConfig * pCfg)
+/*static*/int PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrossConfig * pCfg)
 {
 	int    ok = -1;
 	xmlParserCtxt * p_ctx = 0;
@@ -434,7 +434,7 @@ static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN_unused, ALBATR
 	ALBATROSEXSTR_EGAISSRVURL, ALBATROSEXSTR_VETISUSER, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISAPIKEY,
 	ALBATROSEXSTR_VETISDOCTUSER, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_HOST, ALBATROSEXSTR_MQC_USER, ALBATROSEXSTR_MQC_SECRET, ALBATROSEXSTR_MQC_DATADOMAIN };
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrossConfig * pCfg, int use_ta)
+/*static*/int PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrossConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	size_t p = 0;
@@ -466,12 +466,12 @@ static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN_unused, ALBATR
 	return ok;
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrossConfig * pCfg, int use_ta)
+/*static*/int PPAlbatrosCfgMngr::Put(PPAlbatrossConfig * pCfg, int use_ta)
 {
 	return Helper_Put(PPRef, pCfg, use_ta);
 }
 
-int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
+int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 {
 	int    ok = 1, r;
 	SString tail;
@@ -550,12 +550,12 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pC
 	return ok;
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrossConfig * pCfg)
+/*static*/int PPAlbatrosCfgMngr::Get(PPAlbatrossConfig * pCfg)
 {
 	return Helper_Get(PPRef, pCfg);
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCfg)
+/*static*/int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCfg)
 {
 	int    ok = 1, r;
 	PPAlbatrosCfgHdr cfg;
@@ -616,12 +616,12 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pC
 	return ok;
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
+/*static*/int PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
 {
 	return Helper_Get(PPRef, pCfg);
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::Put(const PPAlbatrosCfgHdr * pCfg, int use_ta)
+/*static*/int PPAlbatrosCfgMngr::Put(const PPAlbatrosCfgHdr * pCfg, int use_ta)
 {
 	int    ok = 1;
 	PPAlbatrosCfgHdr cfg = *pCfg;
@@ -630,7 +630,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pC
 	return ok;
 }
 
-/*static*/int SLAPI PPAlbatrosCfgMngr::Edit()
+/*static*/int PPAlbatrosCfgMngr::Edit()
 {
 	int    ok = -1, valid_data = 0, is_new = 0;
 	AlbatrosConfigDialog * p_dlg = new AlbatrosConfigDialog();
@@ -655,7 +655,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pC
 }
 
 #if 0 // @v9.6.3 @obsolete {
-void SLAPI AlbatrosOrder::Init()
+void AlbatrosOrder::Init()
 {
 	MEMSZERO(Head);
 	Items.freeAll();
@@ -665,7 +665,7 @@ void SLAPI AlbatrosOrder::Init()
 //
 // AlbatrosTagParser
 //
-SLAPI AlbatrosTagParser::AlbatrosTagParser()
+AlbatrosTagParser::AlbatrosTagParser()
 {
 	SymbNum = 0;
 	P_TagValBuf = new char[ALBATROS_MAXTAGVALSIZE];
@@ -673,18 +673,18 @@ SLAPI AlbatrosTagParser::AlbatrosTagParser()
 	MEMSZERO(OrderItem);
 }
 
-SLAPI AlbatrosTagParser::~AlbatrosTagParser()
+AlbatrosTagParser::~AlbatrosTagParser()
 {
 	delete [] P_TagValBuf;
 }
 
-int SLAPI AlbatrosTagParser::ProcessNext(AlbatrosOrder * pOrder, const char * pPath)
+int AlbatrosTagParser::ProcessNext(AlbatrosOrder * pOrder, const char * pPath)
 {
 	P_Order = pOrder;
 	return Run(pPath);
 }
 
-/*static*/int SLAPI AlbatrosTagParser::ResolveClientID(PPID inID, PPID opID, AlbatrosOrderHeader * pHead, PPID * pOutID, int use_ta)
+/*static*/int AlbatrosTagParser::ResolveClientID(PPID inID, PPID opID, AlbatrosOrderHeader * pHead, PPID * pOutID, int use_ta)
 {
 	int    ok = -1, ta = 0;
 	if(pHead && inID > 0) {
@@ -754,7 +754,7 @@ int SLAPI AlbatrosTagParser::ProcessNext(AlbatrosOrder * pOrder, const char * pP
 	return ok;
 }
 
-/*static*/int SLAPI AlbatrosTagParser::ResolveArticleByPerson(PPID psnID, PPID opID, PPID * pOutID, int use_ta)
+/*static*/int AlbatrosTagParser::ResolveArticleByPerson(PPID psnID, PPID opID, PPID * pOutID, int use_ta)
 {
 	int    ok = -1;
 	if(psnID > 0) {
@@ -908,7 +908,7 @@ IMPL_HANDLE_EVENT(ClientAddDialog)
 	}
 }
 
-/*static*/int SLAPI AlbatrosTagParser::ConfirmClientAdd(PPPersonPacket * pPack, const char * pClientINNInOrder, int add)
+/*static*/int AlbatrosTagParser::ConfirmClientAdd(PPPersonPacket * pPack, const char * pClientINNInOrder, int add)
 {
 	int    ok = -1, valid_data = 0;
 	ClientAddDialog *p_dlg = new ClientAddDialog(add, pClientINNInOrder);
@@ -927,7 +927,7 @@ IMPL_HANDLE_EVENT(ClientAddDialog)
 	return ok;
 }
 
-int SLAPI AlbatrosTagParser::ProcessTag(const char * pTag, long)
+int AlbatrosTagParser::ProcessTag(const char * pTag, long)
 {
 	int    tok = tokErr;
 	char   tag_buf[64];
@@ -953,7 +953,7 @@ int SLAPI AlbatrosTagParser::ProcessTag(const char * pTag, long)
 	return tok;
 }
 
-int SLAPI AlbatrosTagParser::LoadPersonPacket(AlbatrosOrderHeader * pHead, PPID albClID,
+int AlbatrosTagParser::LoadPersonPacket(AlbatrosOrderHeader * pHead, PPID albClID,
 	PPPersonPacket * pPacket, int update, int use_ta)
 {
 	int    ok = -1, ta = 0;
@@ -990,7 +990,7 @@ int SLAPI AlbatrosTagParser::LoadPersonPacket(AlbatrosOrderHeader * pHead, PPID 
 	return ok;
 }
 
-int SLAPI AlbatrosTagParser::SaveTagVal(const char * pTag)
+int AlbatrosTagParser::SaveTagVal(const char * pTag)
 {
 	int    ok = 1;
 	int    tag_idx = 0;
@@ -1064,7 +1064,7 @@ int SLAPI AlbatrosTagParser::SaveTagVal(const char * pTag)
 	return ok ? ok : (SLibError = SLERR_INVFORMAT, ok);
 }
 
-int SLAPI ImportOrders()
+int ImportOrders()
 {
 	int    ok = -1;
 	int    clean = 0; // Очистить приемник от старых файлов
@@ -1211,13 +1211,13 @@ public:
 
 class UhttGoodsValueMgr {
 public:
-	SLAPI  UhttPriceMgr();
-	SLAPI ~UhttGoodsValueMgr();
-	int    SLAPI Set(UhttGoodsValue * pVal, int use_ta);
-	int    SLAPI Remove(UhttGoodsValueFilt * pFilt, int use_ta);
-	int    SLAPI Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pList);
+	UhttPriceMgr();
+	~UhttGoodsValueMgr();
+	int    Set(UhttGoodsValue * pVal, int use_ta);
+	int    Remove(UhttGoodsValueFilt * pFilt, int use_ta);
+	int    Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pList);
 private:
-	int    SLAPI GetRel(const UhttGoodsValue * pVal, PPID * pID, int createIfNExists, int use_ta);
+	int    GetRel(const UhttGoodsValue * pVal, PPID * pID, int createIfNExists, int use_ta);
 
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
@@ -1233,19 +1233,19 @@ UhttGoodsValueArray::UhttGoodsValueArray() : TSArray <UhttGoodsValue>()
 TLP_IMPL(UhttGoodsValueMgr, UhttGoodsValueTbl, P_Tbl);
 TLP_IMPL(UhttGoodsValueMgr, UhttGoodsValueRelTbl, P_Rel);
 
-SLAPI  UhttGoodsValueMgr::UhttGoodsValueMgr()
+UhttGoodsValueMgr::UhttGoodsValueMgr()
 {
 	TLP_OPEN(P_Tbl);
 	TLP_OPEN(P_Rel);
 }
 
-SLAPI UhttGoodsValueMgr::~UhttGoodsValueMgr()
+UhttGoodsValueMgr::~UhttGoodsValueMgr()
 {
 	TLP_CLOSE(P_Tbl);
 	TLP_CLOSE(P_Rel);
 }
 
-int SLAPI UhttGoodsValueMgr::GetRel(const UhttGoodsValue * pVal, PPID * pID, int createIfNExists, int use_ta)
+int UhttGoodsValueMgr::GetRel(const UhttGoodsValue * pVal, PPID * pID, int createIfNExists, int use_ta)
 {
 	int    ok = -1;
 	PPID   rel_id = 0;
@@ -1273,7 +1273,7 @@ int SLAPI UhttGoodsValueMgr::GetRel(const UhttGoodsValue * pVal, PPID * pID, int
 	return ok;
 }
 
-int SLAPI UhttGoodsValueMgr::Set(const UhttGoodsValue * pRec, int use_ta)
+int UhttGoodsValueMgr::Set(const UhttGoodsValue * pRec, int use_ta)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1316,7 +1316,7 @@ int SLAPI UhttGoodsValueMgr::Set(const UhttGoodsValue * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI UhttGoodsValueMgr::Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pList)
+int UhttGoodsValueMgr::Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pList)
 {
 	int    ok = -1, empty = 0;
 	PPIDArray goods_list;

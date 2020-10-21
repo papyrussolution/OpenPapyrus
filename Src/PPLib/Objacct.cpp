@@ -5,12 +5,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPObjAccount::PPObjAccount(void * extraPtr) : PPObjReference(PPOBJ_ACCOUNT2, extraPtr)
+PPObjAccount::PPObjAccount(void * extraPtr) : PPObjReference(PPOBJ_ACCOUNT2, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
-SLAPI PPObjAccount::~PPObjAccount()
+PPObjAccount::~PPObjAccount()
 {
 }
 
@@ -21,7 +21,7 @@ SLAPI PPObjAccount::~PPObjAccount()
     return rKey;
 }
 
-/*static*/void SLAPI PPObjAccount::GenerateCode(PPAccount & rRec)
+/*static*/void PPObjAccount::GenerateCode(PPAccount & rRec)
 {
 	char   buf[48];
 	Acct   acct;
@@ -32,7 +32,7 @@ SLAPI PPObjAccount::~PPObjAccount()
 	STRNSCPY(rRec.Code, buf);
 }
 
-int SLAPI PPObjAccount::SearchCode(const char * pCode, PPID curID, PPAccount * pRec)
+int PPObjAccount::SearchCode(const char * pCode, PPID curID, PPAccount * pRec)
 {
 	// @todo Это - дорогая функция. Для увеличения производительности необходимо оптимизировать
 	int    ok = -1;
@@ -48,7 +48,7 @@ int SLAPI PPObjAccount::SearchCode(const char * pCode, PPID curID, PPAccount * p
 	return ok;
 }
 
-int SLAPI PPObjAccount::ParseString(const char * pStr, int tok[])
+int PPObjAccount::ParseString(const char * pStr, int tok[])
 {
 	int    i = 0;
 	PPAccount rec;
@@ -67,7 +67,7 @@ int SLAPI PPObjAccount::ParseString(const char * pStr, int tok[])
 	return 1;
 }
 
-int SLAPI PPObjAccount::AddCurRecord(const PPAccount * pBaseRec, PPID curID)
+int PPObjAccount::AddCurRecord(const PPAccount * pBaseRec, PPID curID)
 {
 	PPAccount cur_acc_rec = *pBaseRec;
 	cur_acc_rec.ID = 0;
@@ -76,7 +76,7 @@ int SLAPI PPObjAccount::AddCurRecord(const PPAccount * pBaseRec, PPID curID)
 	return EditItem(Obj, 0, &cur_acc_rec, 0);
 }
 
-int SLAPI PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
+int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -98,7 +98,7 @@ int SLAPI PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_t
 			if(acc_type == ACY_AGGR) {
 				if(pPack->Rec.A.Ac == 0) {
 					//GetAggrNumber(&pPack->Rec);
-					//int SLAPI AccountCore::GetAggrNumber(PPAccount * pRec)
+					//int AccountCore::GetAggrNumber(PPAccount * pRec)
 					for(int _n = MINGENACCNUMBER; pPack->Rec.A.Ac == 0 && _n <= MAXGENACCNUMBER; _n++)
 						if(SearchNum(_n, 0, 0L) < 0) {
 							pPack->Rec.A.Ac = _n;
@@ -175,7 +175,7 @@ int SLAPI PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_t
 	return ok;
 }
 
-int SLAPI PPObjAccount::GetPacket(PPID id, PPAccountPacket * pPack)
+int PPObjAccount::GetPacket(PPID id, PPAccountPacket * pPack)
 {
 	int    ok = 1;
 	MEMSZERO(pPack->Rec);
@@ -194,7 +194,7 @@ int SLAPI PPObjAccount::GetPacket(PPID id, PPAccountPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjAccount::InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheetID)
+int PPObjAccount::InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheetID)
 {
 	int    r = 1;
 	*pAccSheetID = 0;
@@ -211,7 +211,7 @@ int SLAPI PPObjAccount::InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheet
 	return r;
 }
 
-int SLAPI PPObjAccount::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * pCurList)
+int PPObjAccount::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * pCurList)
 {
 	int    ok = 1;
 	Reference2Tbl::Key2 k2;
@@ -233,7 +233,7 @@ int SLAPI PPObjAccount::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArr
 	return ok;
 }
 
-int SLAPI PPObjAccount::GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArray * pCurList)
+int PPObjAccount::GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArray * pCurList)
 {
 	PPIDArray cur_list, cur_list1;
 	GetCurList(accID_1, 0, &cur_list);
@@ -247,7 +247,7 @@ int SLAPI PPObjAccount::GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArra
 	return 1;
 }
 
-int SLAPI PPObjAccount::GetCurList(PPID accID, PPIDArray * pAccList, PPIDArray * pCurList)
+int PPObjAccount::GetCurList(PPID accID, PPIDArray * pAccList, PPIDArray * pCurList)
 {
 	int    ok = -1;
 	PPAccount rec;
@@ -263,7 +263,7 @@ int SLAPI PPObjAccount::GetCurList(PPID accID, PPIDArray * pAccList, PPIDArray *
 	return ok;
 }
 
-int SLAPI PPObjAccount::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList)
+int PPObjAccount::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList)
 {
 	int    ok = -1;
 	Reference2Tbl::Key2 k2;
@@ -285,7 +285,7 @@ int SLAPI PPObjAccount::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * p
 	return ok;
 }
 
-int SLAPI PPObjAccount::HasAnySubacct(int ac)
+int PPObjAccount::HasAnySubacct(int ac)
 {
 	int    ok = -1;
 	Reference2Tbl::Key2 k2;
@@ -306,7 +306,7 @@ int SLAPI PPObjAccount::HasAnySubacct(int ac)
 	return ok;
 }
 
-int SLAPI PPObjAccount::SearchNum(int ac, int sb, PPID curID, PPAccount * pRec)
+int PPObjAccount::SearchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 {
 	int    ok = -1;
 	Reference2Tbl::Key2 k2;
@@ -335,7 +335,7 @@ int SLAPI PPObjAccount::SearchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 	return ok;
 }
 
-int SLAPI PPObjAccount::SearchBase(PPID curAccID, PPID * pBaseAccID, PPAccount * pRec)
+int PPObjAccount::SearchBase(PPID curAccID, PPID * pBaseAccID, PPAccount * pRec)
 {
 	int    ok = 1;
 	PPAccount rec;
@@ -349,7 +349,7 @@ int SLAPI PPObjAccount::SearchBase(PPID curAccID, PPID * pBaseAccID, PPAccount *
 	return ok;
 }
 
-int SLAPI PPObjAccount::SearchCur(PPID accID, PPID curID, PPID * pCurAccID, PPAccount * pRec)
+int PPObjAccount::SearchCur(PPID accID, PPID curID, PPID * pCurAccID, PPAccount * pRec)
 {
 	int    ok = 1;
 	PPAccount rec;
@@ -363,7 +363,7 @@ int SLAPI PPObjAccount::SearchCur(PPID accID, PPID curID, PPID * pCurAccID, PPAc
 	return ok;
 }
 
-int SLAPI PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
+int PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 {
 	int    ok = -1;
 	int    r = 1;
@@ -405,7 +405,7 @@ int SLAPI PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 	return ok;
 }
 
-int SLAPI PPObjAccount::GenerateNumber(PPAccount * pRec)
+int PPObjAccount::GenerateNumber(PPAccount * pRec)
 {
 	int    ok = -1, r;
 	int    start = 0, finish = 0;
@@ -447,7 +447,7 @@ int SLAPI PPObjAccount::GenerateNumber(PPAccount * pRec)
 	return ok;
 }
 
-int SLAPI PPObjAccount::GetListByAccSheet(PPID accSheetID, PPIDArray & rList)
+int PPObjAccount::GetListByAccSheet(PPID accSheetID, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = 1;
@@ -461,7 +461,7 @@ int SLAPI PPObjAccount::GetListByAccSheet(PPID accSheetID, PPIDArray & rList)
     return ok;
 }
 
-StrAssocArray * SLAPI PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
+StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 {
 	const  long acy_sel_type = reinterpret_cast<long>(extraPtr);
 	SString temp_buf;
@@ -542,7 +542,7 @@ StrAssocArray * SLAPI PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelTyp
 	return p_list;
 }
 
-int SLAPI PPObjAccount::Browse(void * extraPtr /*accType*/)
+int PPObjAccount::Browse(void * extraPtr /*accType*/)
 {
 	AccountFilt flt;
 	flt.Type = reinterpret_cast<long>(extraPtr);
@@ -990,7 +990,7 @@ int AccountDialog::delItem(long, long id)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjAccount::CheckRecursion(PPID id, PPID parentID)
+/*static*/int PPObjAccount::CheckRecursion(PPID id, PPID parentID)
 {
 	int    ok = 1;
 	if(id) {
@@ -1007,7 +1007,7 @@ int AccountDialog::delItem(long, long id)
 	return ok;
 }
 
-int SLAPI PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
+int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 {
 	const  int extra_acc_type = reinterpret_cast<int>(extraPtr);
 	int    ok = -1, valid_data = 0, is_new = 0;
@@ -1099,7 +1099,7 @@ int SLAPI PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 	return (ok > 0) ? cmOK : ((ok < 0) ? cmCancel : 0);
 }
 
-int SLAPI PPObjAccount::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjAccount::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	PPAccount rec;
 	if(msg == DBMSG_OBJDELETE) {
@@ -1121,7 +1121,7 @@ int SLAPI PPObjAccount::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 IMPL_DESTROY_OBJ_PACK(PPObjAccount, PPAccountPacket);
 
-int SLAPI PPObjAccount::SerializePacket(int dir, PPAccountPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjAccount::SerializePacket(int dir, PPAccountPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -1131,7 +1131,7 @@ int SLAPI PPObjAccount::SerializePacket(int dir, PPAccountPacket * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	PPAccountPacket * p_pack = 0;
@@ -1184,10 +1184,10 @@ int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	return ok;
 }
 
-int SLAPI PPObjAccount::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjAccount::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjAccount, PPAccountPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjAccount::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjAccount::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1213,13 +1213,13 @@ int SLAPI PPObjAccount::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 //
 class AccountCache : public ObjCache {
 public:
-	SLAPI  AccountCache() : ObjCache(PPOBJ_ACCOUNT2, sizeof(Data))
+	AccountCache() : ObjCache(PPOBJ_ACCOUNT2, sizeof(Data))
 	{
 	}
-	int    SLAPI FetchNum(int ac, int sb, PPID curID, PPAccount * pRec);
+	int    FetchNum(int ac, int sb, PPID curID, PPAccount * pRec);
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		int16  Ac;
@@ -1237,7 +1237,7 @@ public:
 
 IMPL_CMPFUNC(AccCacheNum, i1, i2) { RET_CMPCASCADE3(static_cast<const AccountCache::Data *>(i1), static_cast<const AccountCache::Data *>(i2), Ac, Sb, CurID); }
 
-int SLAPI AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
+int AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 {
 	int    ok = -1;
 	AccountCache::Data key;
@@ -1264,7 +1264,7 @@ int SLAPI AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 	return ok;
 }
 
-int SLAPI AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1293,7 +1293,7 @@ int SLAPI AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPAccount * p_data_rec = static_cast<PPAccount *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -1322,13 +1322,13 @@ void SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 IMPL_OBJ_FETCH(PPObjAccount, PPAccount, AccountCache);
 IMPL_OBJ_DIRTY(PPObjAccount, AccountCache);
 
-int SLAPI PPObjAccount::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
+int PPObjAccount::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 {
 	AccountCache * p_cache = GetDbLocalCachePtr <AccountCache> (Obj);
 	return p_cache ? p_cache->FetchNum(ac, sb, curID, pRec) : SearchNum(ac, sb, curID, pRec);
 }
 
-int SLAPI PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
+int PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
 {
 	int    ok = -1;
 	StrAssocArray * p_list = MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BUDGET));
@@ -1345,7 +1345,7 @@ int SLAPI PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
 	return ok;
 }
 
-int SLAPI PPObjAccount::GetParentList(PPID acctID, StrAssocArray * pParentList)
+int PPObjAccount::GetParentList(PPID acctID, StrAssocArray * pParentList)
 {
 	int    ok = -1;
 	StrAssocArray * p_list = MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BUDGET));
@@ -1362,7 +1362,7 @@ int SLAPI PPObjAccount::GetParentList(PPID acctID, StrAssocArray * pParentList)
 	return ok;
 }
 
-int SLAPI PPObjAccount::BelongTo(PPID acctID, PPID parentID)
+int PPObjAccount::BelongTo(PPID acctID, PPID parentID)
 {
 	int    ok = -1;
 	PPAccount rec;

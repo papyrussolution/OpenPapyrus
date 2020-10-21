@@ -79,11 +79,11 @@ PPGravityUnitTestData & PPGravityUnitTestData::Z()
 	return *this;
 }
 
-SLAPI PPGravityModule::PPGravityModule() : P_OuterLogger(0), P_Utd(0)
+PPGravityModule::PPGravityModule() : P_OuterLogger(0), P_Utd(0)
 {
 }
 
-SLAPI PPGravityModule::~PPGravityModule()
+PPGravityModule::~PPGravityModule()
 {
 	if(P_Utd) {
 		delete static_cast<PPGravityUnitTestData *>(P_Utd);
@@ -136,7 +136,7 @@ SLAPI PPGravityModule::~PPGravityModule()
 	PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
 }
 
-int SLAPI PPGravityModule::LoadFile(const char * pFileName, SBuffer & rBuffer)
+int PPGravityModule::LoadFile(const char * pFileName, SBuffer & rBuffer)
 {
 	int    ok = 1;
 	SString file_name;
@@ -209,12 +209,12 @@ static void CbUnitTest(void * pVm, GravityErrorType errorType, const char * pDes
 	}
 }
 
-void SLAPI PPGravityModule::LogToOuterLogger(const char * pMsg) // @temporary
+void PPGravityModule::LogToOuterLogger(const char * pMsg) // @temporary
 {
 	CALLPTRMEMB(P_OuterLogger, Log(pMsg));
 }
 
-int SLAPI PPGravityModule::RunBuffer(const char * pText, PPLogger * pOuterLogger, GravityValue * pResult)
+int PPGravityModule::RunBuffer(const char * pText, PPLogger * pOuterLogger, GravityValue * pResult)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -272,7 +272,7 @@ int SLAPI PPGravityModule::RunBuffer(const char * pText, PPLogger * pOuterLogger
 	return ok;
 }
 
-int SLAPI PPGravityModule::RunFile(const char * pFileName, PPLogger * pOuterLogger, GravityValue * pResult)
+int PPGravityModule::RunFile(const char * pFileName, PPLogger * pOuterLogger, GravityValue * pResult)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -349,7 +349,7 @@ static bool GravityProc_PapyrusGravityTestIfc_SetProp(gravity_vm * vm, GravityVa
 {
 }
 
-void SLAPI TestGravity()
+void TestGravity()
 {
 	int    ok = 1;
 	PPLogger logger;
@@ -370,7 +370,7 @@ void SLAPI TestGravity()
 
 #endif // } 0
 #else
-void SLAPI TestGravity()
+void TestGravity()
 {
 }
 #endif // } _MSC_VER >= 1600

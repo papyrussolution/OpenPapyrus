@@ -65,9 +65,7 @@ int glthread_lock_destroy(gl_lock_t * lock)
 
 int glthread_rwlock_init(gl_rwlock_t * lock)
 {
-	if(mtx_init(&lock->lock, mtx_plain) != thrd_success
-	    || cnd_init(&lock->waiting_readers) != thrd_success
-	    || cnd_init(&lock->waiting_writers) != thrd_success)
+	if(mtx_init(&lock->lock, mtx_plain) != thrd_success || cnd_init(&lock->waiting_readers) != thrd_success || cnd_init(&lock->waiting_writers) != thrd_success)
 		return ENOMEM;
 	lock->waiting_writers_count = 0;
 	lock->runcount = 0;

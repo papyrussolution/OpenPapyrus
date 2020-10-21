@@ -316,7 +316,7 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 	return ok;
 }
 
-int SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw)
+int SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw)
 {
 	TCHAR  domain[128];
 	TCHAR  user[128];
@@ -329,7 +329,7 @@ int SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserName, 
 //
 //
 //
-int SLAPI SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
+int SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 {
 	int    ok = 0;
 	LDATETIME dtm = ZERODATETIME;
@@ -371,7 +371,7 @@ int SLAPI SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 	return ok;
 }
 
-int SLAPI SGetComputerName(SString & rName)
+int SGetComputerName(SString & rName)
 {
 	int    ok = 1;
 	rName = 0;

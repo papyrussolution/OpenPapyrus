@@ -8,7 +8,7 @@
 //
 //
 //
-int SLAPI Helper_EditSCardFilt(SCardFilt * pFilt, int cascade);
+int Helper_EditSCardFilt(SCardFilt * pFilt, int cascade);
 //
 //
 //
@@ -138,7 +138,7 @@ int SCardSelPrcssrParam::Read(SBuffer & rBuf, long)
 //
 // @ModuleDef(PPViewSCard)
 //
-IMPLEMENT_PPFILT_FACTORY(SCard); SLAPI SCardFilt::SCardFilt() : PPBaseFilt(PPFILT_SCARD, 0, 3), // @v7.7.11 1-->2 // @v8.4.2 2-->3
+IMPLEMENT_PPFILT_FACTORY(SCard); SCardFilt::SCardFilt() : PPBaseFilt(PPFILT_SCARD, 0, 3), // @v7.7.11 1-->2 // @v8.4.2 2-->3
 	P_SjF(0), P_ExludeOwnerF(0), P_OwnerF(0)
 {
 	SetFlatChunk(offsetof(SCardFilt, ReserveStart),
@@ -157,7 +157,7 @@ SCardFilt & FASTCALL SCardFilt::operator = (const SCardFilt & rS)
 	return *this;
 }
 
-PPID SLAPI SCardFilt::GetOwnerPersonKind() const
+PPID SCardFilt::GetOwnerPersonKind() const
 {
 	PPID   pk_id = 0;
 	if(ScsList.IsExists()) {
@@ -192,11 +192,11 @@ PPID SLAPI SCardFilt::GetOwnerPersonKind() const
 	return pk_id;
 }
 
-int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	struct SCardFilt_v1 : public PPBaseFilt {
-		SLAPI  SCardFilt_v1() : PPBaseFilt(PPFILT_SCARD, 0, 1)
+		SCardFilt_v1() : PPBaseFilt(PPFILT_SCARD, 0, 1)
 		{
 			SetFlatChunk(offsetof(SCardFilt, ReserveStart),
 				offsetof(SCardFilt, Reserve) - offsetof(SCardFilt, ReserveStart) + sizeof(Reserve));
@@ -220,7 +220,7 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		SString Number;
 	};
 	struct SCardFilt_v2 : public PPBaseFilt {
-		SLAPI  SCardFilt_v2() : PPBaseFilt(PPFILT_SCARD, 0, 2), P_SjF(0)
+		SCardFilt_v2() : PPBaseFilt(PPFILT_SCARD, 0, 2), P_SjF(0)
 		{
 			SetFlatChunk(offsetof(SCardFilt, ReserveStart),
 				offsetof(SCardFilt, Reserve) - offsetof(SCardFilt, ReserveStart) + sizeof(Reserve));
@@ -294,19 +294,18 @@ PPViewSCard::PreprocessScRecBlock::PreprocessScRecBlock() : ScID(0), InTurnover(
 {
 }
 
-SLAPI PPViewSCard::PPViewSCard() : PPView(&SCObj, &Filt, PPVIEW_SCARD), P_StffObj(0), P_TmpTbl(0), P_TempOrd(0)
+PPViewSCard::PPViewSCard() : PPView(&SCObj, &Filt, PPVIEW_SCARD, 0, REPORT_SCARDLIST), P_StffObj(0), P_TmpTbl(0), P_TempOrd(0)
 {
-	DefReportId = REPORT_SCARDLIST;
 }
 
-SLAPI PPViewSCard::~PPViewSCard()
+PPViewSCard::~PPViewSCard()
 {
 	delete P_StffObj;
 	delete P_TmpTbl;
 	delete P_TempOrd;
 }
 
-PPBaseFilt * SLAPI PPViewSCard::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSCard::CreateFilt(void * extraPtr) const
 {
 	PPObjSCardSeries scs_obj;
 	SCardFilt * p_filt = new SCardFilt;
@@ -317,7 +316,7 @@ PPBaseFilt * SLAPI PPViewSCard::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewSCard::IsTempTblNeeded() const
+int PPViewSCard::IsTempTblNeeded() const
 {
 	return BIN(!Filt.TrnovrPeriod.IsZero() || Filt.EmployerID || Filt.Number.NotEmpty() ||
 		(Filt.Flags & (SCardFilt::fSinceLastPDisUpdating|SCardFilt::fShowOwnerAddrDetail)) ||
@@ -325,7 +324,7 @@ int SLAPI PPViewSCard::IsTempTblNeeded() const
 		SeriesList.GetCount() > 1);
 }
 
-int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
+int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -396,7 +395,7 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 //PP_CREATE_TEMP_FILE_PROC(CreateTempFile, SCard);
 // @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempSCard);
 
-int SLAPI PPViewSCard::GetPDisUpdateDate(PPID cardID, LDATE before, LDATE * pDate)
+int PPViewSCard::GetPDisUpdateDate(PPID cardID, LDATE before, LDATE * pDate)
 {
 	SysJournalTbl::Key0 k;
 	k.Dt = NZOR(before, MAXDATE);
@@ -413,7 +412,7 @@ int SLAPI PPViewSCard::GetPDisUpdateDate(PPID cardID, LDATE before, LDATE * pDat
 	return -1;
 }
 
-int SLAPI PPViewSCard::CreateTempTable()
+int PPViewSCard::CreateTempTable()
 {
 	ZDELETE(P_TmpTbl);
 
@@ -536,7 +535,7 @@ int SLAPI PPViewSCard::CreateTempTable()
 	return ok;
 }
 
-int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock * pBlk)
+int PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock * pBlk)
 {
 	int    ok = 1;
 	double in_turnover = 0.0;
@@ -611,7 +610,7 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 	return ok;
 }
 
-int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/)
+int PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/)
 {
 	int    ok = 1;
 	PreprocessScRecBlock pblk;
@@ -719,7 +718,7 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 	return ok;
 }
 
-int SLAPI PPViewSCard::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
+int PPViewSCard::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = 1;
 	TempOrderTbl * p_o = 0;
@@ -754,7 +753,7 @@ int SLAPI PPViewSCard::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 	return ok;
 }
 
-int SLAPI PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, TempOrderTbl::Rec * pOrdRec)
+int PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, TempOrderTbl::Rec * pOrdRec)
 {
 	int    ok = -1;
 	if(pRec && pOrdRec) {
@@ -787,7 +786,7 @@ int SLAPI PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, Te
 	return ok;
 }
 
-int SLAPI PPViewSCard::UpdateTempTable(PPIDArray * pIdList)
+int PPViewSCard::UpdateTempTable(PPIDArray * pIdList)
 {
 	int    ok = 1;
 	if(P_TmpTbl || P_TempOrd) {
@@ -825,7 +824,7 @@ int SLAPI PPViewSCard::UpdateTempTable(PPIDArray * pIdList)
 	return ok;
 }
 
-int SLAPI PPViewSCard::InitIteration()
+int PPViewSCard::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -1123,7 +1122,7 @@ void SCardFiltDialog::SetupPerson(PPID series)
 	SetupPersonCombo(this, CTLSEL_SCARDFLT_PERSON, Data.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
 }
 
-int SLAPI Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)
+int Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)
 {
 	int    ok = -1;
 	SCardFiltDialog * dlg = new SCardFiltDialog;
@@ -1144,7 +1143,7 @@ int SLAPI Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)
 	return ok;
 }
 
-int SLAPI PPViewSCard::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewSCard::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 0;
 	if(Filt.IsA(pBaseFilt)) {
@@ -1153,12 +1152,12 @@ int SLAPI PPViewSCard::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-void * SLAPI PPViewSCard::GetEditExtraParam()
+void * PPViewSCard::GetEditExtraParam()
 {
 	return reinterpret_cast<void *>(SeriesList.GetSingle());
 }
 
-int SLAPI PPViewSCard::DeleteItem(PPID id)
+int PPViewSCard::DeleteItem(PPID id)
 {
 	int    ok = -1;
 	RemoveAllDialog * p_dlg = 0;
@@ -1208,7 +1207,7 @@ int SLAPI PPViewSCard::DeleteItem(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewSCard::RecalcRests()
+int PPViewSCard::RecalcRests()
 {
 	int    ok = -1;
 	if(/*Filt.SeriesID*/SeriesList.GetSingle()) {
@@ -1222,7 +1221,7 @@ int SLAPI PPViewSCard::RecalcRests()
 	return ok;
 }
 
-int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
+int PPViewSCard::RenameDup(PPIDArray * pIdList)
 {
 	int    ok = -1;
 	uint   replace_trnovr = 1;
@@ -1287,7 +1286,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 	return ok;
 }
 
-int SLAPI PPViewSCard::RecalcTurnover()
+int PPViewSCard::RecalcTurnover()
 {
 	int    ok = -1;
 	if(CONFIRM(PPCFM_RECALCSCARDTRNOVR)) {
@@ -1319,7 +1318,7 @@ struct SCardChrgCrdParam {
 	double Amount;
 };
 
-static int SLAPI EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * pData)
+static int EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_SCCHRGCRD);
@@ -1358,7 +1357,7 @@ static int SLAPI EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * p
 	return ok;
 }
 
-int SLAPI PPViewSCard::ChargeCredit()
+int PPViewSCard::ChargeCredit()
 {
 	int    ok = -1;
 	int    scst = 0;
@@ -1530,7 +1529,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 	return ok;
 }
 
-int SLAPI PPViewSCard::ChangeDiscount()
+int PPViewSCard::ChangeDiscount()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1580,7 +1579,7 @@ int SLAPI PPViewSCard::ChangeDiscount()
 //
 //
 //
-int SLAPI PPViewSCard::ReplaceCardInChecks(PPID destCardID)
+int PPViewSCard::ReplaceCardInChecks(PPID destCardID)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1613,7 +1612,7 @@ int SLAPI PPViewSCard::ReplaceCardInChecks(PPID destCardID)
 	return ok;
 }
 
-int SLAPI PPViewSCard::Transmit(PPID /*id*/)
+int PPViewSCard::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -1632,7 +1631,7 @@ int SLAPI PPViewSCard::Transmit(PPID /*id*/)
 	return ok;
 }
 
-int SLAPI PPViewSCard::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewSCard::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	pBrw->SetupToolbarCombo(PPOBJ_SCARDSERIES, /*Filt.SeriesID*/SeriesList.GetSingle(), 0, 0);
 	return -1;
@@ -1644,7 +1643,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle) : -1;
 }
 
-int SLAPI PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle)
+int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle)
 {
 	int    ok = -1;
 	if(pData && pCellStyle && col >= 0) {
@@ -1670,7 +1669,7 @@ int SLAPI PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAct
 	return ok;
 }
 
-void SLAPI PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail && P_TmpTbl) {
@@ -1688,7 +1687,7 @@ void SLAPI PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_SCARD;
 	SString sub_title;
@@ -1876,7 +1875,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	return q;
 }
 
-int SLAPI EditSCardFlags(long * pSetFlags, long * pResetFlags)
+int EditSCardFlags(long * pSetFlags, long * pResetFlags)
 {
 	class SCardFlagsDialog : public TDialog {
 	public:
@@ -1928,7 +1927,7 @@ int SLAPI EditSCardFlags(long * pSetFlags, long * pResetFlags)
 	return ok;
 }
 
-int SLAPI PPViewSCard::ChangeFlags()
+int PPViewSCard::ChangeFlags()
 {
 	int    ok = -1;
 	long   set = 0, reset = 0;
@@ -2062,7 +2061,7 @@ IMPL_HANDLE_EVENT(SCardSelPrcssrDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger * pLog)
+int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger * pLog)
 {
 	int    ok = -1, valid_data = 0;
 	SCardSelPrcssrDialog * dlg = 0;
@@ -2344,7 +2343,7 @@ int SLAPI PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLo
 	return ok;
 }
 
-int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	BrwHdr hdr;
@@ -2462,7 +2461,7 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	return ok;
 }
 
-int SLAPI PPViewSCard::ViewTotal()
+int PPViewSCard::ViewTotal()
 {
 	int    ok = 1;
 	SCardTotal total;
@@ -2485,7 +2484,7 @@ int SLAPI PPViewSCard::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewSCard::ViewOps(PPID cardID)
+int PPViewSCard::ViewOps(PPID cardID)
 {
 	if(cardID) {
 		if(SCObj.CheckRights(SCRDRT_VIEWOPS)) {
@@ -2501,42 +2500,41 @@ int SLAPI PPViewSCard::ViewOps(PPID cardID)
 		return -1;
 }
 
-int SLAPI ViewSCard(const SCardFilt * pFilt, int asModeless) { return PPView::Execute(PPVIEW_SCARD, pFilt, (asModeless ? PPView::exefModeless : 0), 0); }
+int ViewSCard(const SCardFilt * pFilt, int asModeless) { return PPView::Execute(PPVIEW_SCARD, pFilt, (asModeless ? PPView::exefModeless : 0), 0); }
 //
 // @ModuleDef(PPViewSCardOp)
 //
-IMPLEMENT_PPFILT_FACTORY(SCardOp); SLAPI SCardOpFilt::SCardOpFilt() : PPBaseFilt(PPFILT_SCARDOP, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(SCardOp); SCardOpFilt::SCardOpFilt() : PPBaseFilt(PPFILT_SCARDOP, 0, 1)
 {
 	SetFlatChunk(offsetof(SCardOpFilt, ReserveStart),
 		offsetof(SCardOpFilt, Reserve) - offsetof(SCardOpFilt, ReserveStart) + sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewSCardOp::PPViewSCardOp() : PPView(0, &Filt, PPVIEW_SCARDOP), IterPos(ZERODATETIME)
+PPViewSCardOp::PPViewSCardOp() : PPView(0, &Filt, PPVIEW_SCARDOP, 0, REPORT_SCARDOPLIST), IterPos(ZERODATETIME)
 {
-	DefReportId = REPORT_SCARDOPLIST;
 }
 
-int SLAPI PPViewSCardOp::Init_(const PPBaseFilt * pFilt)
+int PPViewSCardOp::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Counter.Init(0UL);
 	if(Helper_InitBaseFilt(pFilt)) {
-        Filt.Period.Actualize(ZERODATE); // @v9.5.11
+        Filt.Period.Actualize(ZERODATE);
 	}
 	else
 		ok = 0;
 	return ok;
 }
 
-PPBaseFilt * SLAPI PPViewSCardOp::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSCardOp::CreateFilt(void * extraPtr) const
 {
 	SCardOpFilt * p_filt = new SCardOpFilt;
 	p_filt->SCardID = reinterpret_cast<long>(extraPtr);
 	return p_filt;
 }
 
-int SLAPI PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class SCardOpFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(SCardOpFilt);
@@ -2594,7 +2592,7 @@ int SLAPI PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(SCardOpFiltDialog, p_filt);
 }
 
-int SLAPI PPViewSCardOp::InitIteration()
+int PPViewSCardOp::InitIteration()
 {
 	IterPos.Set(Filt.Period.low, ZEROTIME);
 	return 1;
@@ -2606,7 +2604,7 @@ int FASTCALL PPViewSCardOp::NextIteration(SCardOpViewItem * pItem)
 		(!Filt.Period.upp || IterPos.d <= Filt.Period.upp)) ? 1 : -1;
 }
 
-int SLAPI PPViewSCardOp::CalcTotal(SCardOpTotal * pTotal)
+int PPViewSCardOp::CalcTotal(SCardOpTotal * pTotal)
 {
 	int    ok = 1;
 	if(pTotal) {
@@ -2630,7 +2628,7 @@ int SLAPI PPViewSCardOp::CalcTotal(SCardOpTotal * pTotal)
 	return ok;
 }
 
-static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
+static int EditSCardOp(SCardCore::OpBlock & rBlk)
 {
 	class SCardOpDialog : public TDialog {
 		DECL_DIALOG_DATA(SCardCore::OpBlock);
@@ -2805,7 +2803,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 	return ok;
 }
 
-int SLAPI PPViewSCardOp::AddItem(int freezing)
+int PPViewSCardOp::AddItem(int freezing)
 {
 	int    ok = -1;
 	if(Filt.SCardID) {
@@ -2872,7 +2870,7 @@ static IMPL_DBE_PROC(dbqf_scardop_extobj_ii)
 // static
 int PPViewSCardOp::DynFuncExtObjName = 0;
 
-DBQuery * SLAPI PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncExtObjName, BTS_STRING, dbqf_scardop_extobj_ii, 2, BTS_INT, BTS_INT);
 
@@ -2939,7 +2937,7 @@ DBQuery * SLAPI PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return q;
 }
 
-int SLAPI PPViewSCardOp::Recover()
+int PPViewSCardOp::Recover()
 {
 	struct FaultItem { // @flat
 		PPID   CCheckID;
@@ -3009,7 +3007,7 @@ int SLAPI PPViewSCardOp::Recover()
 	return ok;
 }
 
-int SLAPI PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	SCardOpTbl::Rec rec;
@@ -3453,24 +3451,23 @@ void PPALDD_SCardOpList::Destroy() { DESTROY_PPVIEW_ALDD(SCardOp); }
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(UhttSCardOp); SLAPI UhttSCardOpFilt::UhttSCardOpFilt() : PPBaseFilt(PPFILT_UHTTSCARDOP, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(UhttSCardOp); UhttSCardOpFilt::UhttSCardOpFilt() : PPBaseFilt(PPFILT_UHTTSCARDOP, 0, 1)
 {
 	SetFlatChunk(offsetof(UhttSCardOpFilt, ReserveStart),
 		offsetof(UhttSCardOpFilt, Reserve) - offsetof(UhttSCardOpFilt, ReserveStart) + sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewUhttSCardOp::PPViewUhttSCardOp() : PPView(0, &Filt, PPVIEW_UHTTSCARDOP)
+PPViewUhttSCardOp::PPViewUhttSCardOp() : PPView(0, &Filt, PPVIEW_UHTTSCARDOP, implBrowseArray, 0)
 {
-	ImplementFlags |= implBrowseArray;
 }
 
-SLAPI PPViewUhttSCardOp::~PPViewUhttSCardOp()
+PPViewUhttSCardOp::~PPViewUhttSCardOp()
 {
-	List.freeAll();
+	// @v10.9.1 (redundunt) List.freeAll();
 }
 
-int SLAPI PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
+int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	List.freeAll();
@@ -3570,7 +3567,7 @@ int SLAPI PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 	dest.WithdrawAmt += src.WithdrawAmt;  \
 	dest.WithdrawCount += src.WithdrawCount;
 
-int SLAPI PPViewUhttSCardOp::Helper_AddItem(UhttSCardOpViewItem & rItem)
+int PPViewUhttSCardOp::Helper_AddItem(UhttSCardOpViewItem & rItem)
 {
 	int    ok = 1;
 	switch(Filt.Grp) {
@@ -3651,7 +3648,7 @@ int SLAPI PPViewUhttSCardOp::Helper_AddItem(UhttSCardOpViewItem & rItem)
 
 #undef _INCREASE_VAL
 
-int SLAPI PPViewUhttSCardOp::InitIteration()
+int PPViewUhttSCardOp::InitIteration()
 {
 	Counter.Init(List.getCount());
 	return 1;
@@ -3668,7 +3665,7 @@ int FASTCALL PPViewUhttSCardOp::NextIteration(UhttSCardOpViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewUhttSCardOp::CalcTotal(UhttSCardOpViewItem * pTotal, int grp) const
+int PPViewUhttSCardOp::CalcTotal(UhttSCardOpViewItem * pTotal, int grp) const
 {
 	int   ok = 0;
 	if(pTotal) {

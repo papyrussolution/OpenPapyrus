@@ -20,7 +20,7 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "bitset.h"
-#include "obstack.h"
+//#include "obstack.h"
 #include "bitset/array.h"
 #include "bitset/list.h"
 #include "bitset/stats.h"

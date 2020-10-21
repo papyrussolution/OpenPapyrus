@@ -270,10 +270,7 @@ static void grammar_rule_check_and_complete(symbol_list * r)
 	}
 
 	/* Check that empty rule => %empty.  */
-	if(!(r->next && r->next->content.sym)
-	    && !r->midrule_parent_rule
-	    && !r->percent_empty_loc.start.file
-	    && warning_is_enabled(Wempty_rule)) {
+	if(!(r->next && r->next->content.sym) && !r->midrule_parent_rule && !r->percent_empty_loc.start.file && warning_is_enabled(Wempty_rule)) {
 		complain(&r->rhs_loc, Wempty_rule, _("empty rule without %%empty"));
 		if(feature_flag & feature_caret)
 			location_caret_suggestion(r->rhs_loc, "%empty", stderr);
@@ -338,17 +335,14 @@ void grammar_midrule_action(void)
 	    /* type */ NULL,
 	    current_rule->action_props.is_predicate);
 	code_props_none_init(&current_rule->action_props);
-
 	midrule->expected_sr_conflicts = current_rule->expected_sr_conflicts;
 	midrule->expected_rr_conflicts = current_rule->expected_rr_conflicts;
 	current_rule->expected_sr_conflicts = -1;
 	current_rule->expected_rr_conflicts = -1;
-
 	if(previous_rule_end)
 		previous_rule_end->next = midrule;
 	else
 		grammar = midrule;
-
 	/* End the dummy's rule.  */
 	midrule->next = symbol_list_sym_new(NULL, dummy_loc);
 	midrule->next->next = current_rule;
@@ -377,8 +371,7 @@ void grammar_current_rule_prec_set(Symbol * precsym, Location loc)
 	   not defined separately as a token.  */
 	symbol_class_set(precsym, token_sym, loc, false);
 	if(current_rule->ruleprec)
-		duplicate_rule_directive("%prec",
-		    current_rule->ruleprec->location, loc);
+		duplicate_rule_directive("%prec", current_rule->ruleprec->location, loc);
 	else
 		current_rule->ruleprec = precsym;
 }
@@ -392,8 +385,7 @@ void grammar_current_rule_empty_set(Location loc)
 	if(warning_is_unset(Wempty_rule))
 		warning_argmatch("empty-rule", 0, 0);
 	if(current_rule->percent_empty_loc.start.file)
-		duplicate_rule_directive("%empty",
-		    current_rule->percent_empty_loc, loc);
+		duplicate_rule_directive("%empty", current_rule->percent_empty_loc, loc);
 	else
 		current_rule->percent_empty_loc = loc;
 }
@@ -403,14 +395,11 @@ void grammar_current_rule_empty_set(Location loc)
 void grammar_current_rule_dprec_set(int dprec, Location loc)
 {
 	if(!glr_parser)
-		complain(&loc, Wother, _("%s affects only GLR parsers"),
-		    "%dprec");
+		complain(&loc, Wother, _("%s affects only GLR parsers"), "%dprec");
 	if(dprec <= 0)
-		complain(&loc, complaint, _("%s must be followed by positive number"),
-		    "%dprec");
+		complain(&loc, complaint, _("%s must be followed by positive number"), "%dprec");
 	else if(current_rule->dprec != 0)
-		duplicate_rule_directive("%dprec",
-		    current_rule->dprec_loc, loc);
+		duplicate_rule_directive("%dprec", current_rule->dprec_loc, loc);
 	else {
 		current_rule->dprec = dprec;
 		current_rule->dprec_loc = loc;
@@ -423,11 +412,9 @@ void grammar_current_rule_dprec_set(int dprec, Location loc)
 void grammar_current_rule_merge_set(uniqstr name, Location loc)
 {
 	if(!glr_parser)
-		complain(&loc, Wother, _("%s affects only GLR parsers"),
-		    "%merge");
+		complain(&loc, Wother, _("%s affects only GLR parsers"), "%merge");
 	if(current_rule->merger != 0)
-		duplicate_rule_directive("%merge",
-		    current_rule->merger_declaration_loc, loc);
+		duplicate_rule_directive("%merge", current_rule->merger_declaration_loc, loc);
 	else {
 		current_rule->merger = get_merge_function(name);
 		current_rule->merger_declaration_loc = loc;

@@ -21,13 +21,13 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "argmatch.h" /* Specification.  */
+//#include "argmatch.h" /* Specification.  */
 
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)
 
 //#include "error.h"
-#include "quotearg.h"
+//#include "quotearg.h"
 //#include "getprogname.h"
 #if USE_UNLOCKED_IO
 	#include "unlocked-io.h"
@@ -38,10 +38,9 @@
 #ifndef ARGMATCH_QUOTING_STYLE
 	#define ARGMATCH_QUOTING_STYLE locale_quoting_style
 #endif
-
 /* Non failing version of argmatch call this function after failing. */
 #ifndef ARGMATCH_DIE
-	#include "exitfail.h"
+	//#include "exitfail.h"
 	#define ARGMATCH_DIE exit(exit_failure)
 #endif
 #ifdef ARGMATCH_DIE_DECL

@@ -1521,7 +1521,7 @@ void SSuffixTree::DebugOutput(long flags, SString & rBuf)
 //
 //
 //
-int SLAPI TestSuffixTree()
+int TestSuffixTree()
 {
 	int    ok = 1;
 	{

@@ -17,7 +17,7 @@
 //
 // Prototype
 int  FASTCALL CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName);
-int  SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
+int  SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
 //
 //
 //
@@ -44,9 +44,8 @@ static int FindExeByExt2(const char * pExt, SString & rResult, const char * pAdd
 				if(val_buf.C(0) == '"') {
 					val_buf.ShiftLeft();
 					size_t s_pos = 0;
-					if(val_buf.SearchChar('"', &s_pos)) {
+					if(val_buf.SearchChar('"', &s_pos))
 						val_buf.Excise(s_pos, 1);
-					}
 					s_pos = 0;
 					if(val_buf.SearchChar('.', &s_pos)) {
 						size_t space_pos = 0;
@@ -70,16 +69,16 @@ PPReportEnv::PPReportEnv() : Sort(0), PrnFlags(0)
 //
 //
 //
-SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), ReportName(pReportName), P_DevMode(0) // @erik
+PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), ReportName(pReportName), P_DevMode(0) // @erik
 {
 }
 
-SLAPI PrnDlgAns::PrnDlgAns(const PrnDlgAns & rS) : Dest(0), Selection(0), NumCopies(1), Flags(0), ReportName(rS.ReportName), DefPrnForm(rS.DefPrnForm), P_DevMode(0)
+PrnDlgAns::PrnDlgAns(const PrnDlgAns & rS) : Dest(0), Selection(0), NumCopies(1), Flags(0), ReportName(rS.ReportName), DefPrnForm(rS.DefPrnForm), P_DevMode(0)
 {
 	Copy(rS);
 }
 
-SLAPI PrnDlgAns::~PrnDlgAns()
+PrnDlgAns::~PrnDlgAns()
 {
 	ZDELETE(P_DevMode);  //@v10.4.10
 }
@@ -112,7 +111,7 @@ PrnDlgAns & FASTCALL PrnDlgAns::Copy(const PrnDlgAns & rS)
 //
 //
 //
-static TVRez * SLAPI PPOpenReportResource()
+static TVRez * PPOpenReportResource()
 {
 	SString path;
 	makeExecPathFileName("PPRPT", "RES", path);
@@ -126,26 +125,13 @@ static TVRez * SLAPI PPOpenReportResource()
 	return p_rez;
 }
 
-int SLAPI GetReportIDByName(const char * pRptName, uint * pRptID)
+int GetReportIDByName(const char * pRptName, uint * pRptID)
 {
 	int    ok = 0;
 	ulong  ofs = 0;
 	SString name_buf;
 	TVRez::WResHeaderInfo hdr;
 	ASSIGN_PTR(pRptID, 0);
-#if 0 // @v8.9.8 {
-	TVRez * p_rez = PPOpenReportResource();
-	if(p_rez)
-		for(ofs = 0; !ok && p_rez->readHeader(ofs, &hdr, TVRez::beginOfData); ofs = hdr.Next)
-			if(hdr.Type == TV_REPORT && p_rez->getString(name_buf, 0).CmpNC(pRptName) == 0) {
-				ASSIGN_PTR(pRptID, hdr.IntID);
-				ok = 1;
-			}
-	delete p_rez;
-#endif // } 0 @v8.9.8
-	//
-	//
-	//
 	if(P_SlRez) {
 		for(ofs = 0; !ok && P_SlRez->readHeader(ofs, &hdr, TVRez::beginOfData); ofs = hdr.Next)
 			if(hdr.Type == PP_RCDECLREPORTSTUB && P_SlRez->getString(name_buf, 0).CmpNC(pRptName) == 0) {
@@ -159,13 +145,16 @@ int SLAPI GetReportIDByName(const char * pRptName, uint * pRptID)
 //
 //
 struct PPReportStub {
+	PPReportStub() : ID(0)
+	{
+	}
 	long   ID;
 	SString Name;
 	SString DataName;
 	SString Descr;
 };
 
-int SLAPI PPLoadReportStub(long rptID, PPReportStub * pData)
+int PPLoadReportStub(long rptID, PPReportStub * pData)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -184,7 +173,7 @@ int SReport::defaultIterator(int)
 	return 0;
 }
 
-SLAPI SReport::SReport(const char * pName)
+SReport::SReport(const char * pName)
 {
 	THISZERO();
 	Name = pName;
@@ -196,7 +185,7 @@ SLAPI SReport::SReport(const char * pName)
 	PrnDest = 0;
 }
 
-SLAPI SReport::SReport(uint rezID, long flags)
+SReport::SReport(uint rezID, long flags)
 {
 	THISZERO();
 	iterator = defaultIterator;
@@ -240,7 +229,7 @@ SLAPI SReport::SReport(uint rezID, long flags)
 	ENDCATCH
 }
 
-SLAPI SReport::~SReport()
+SReport::~SReport()
 {
 	int    i;
 	delete fields;
@@ -257,12 +246,12 @@ SLAPI SReport::~SReport()
 	SAlloc::F(P_Text);
 }
 
-int SLAPI SReport::IsValid() const
+int SReport::IsValid() const
 {
 	return !Error;
 }
 
-int SLAPI SReport::createDataFiles(const char * pDataName, const char * pRptPath)
+int SReport::createDataFiles(const char * pDataName, const char * pRptPath)
 {
 	int    ok = -1;
 	DlRtm * p_rtm = 0;
@@ -297,7 +286,7 @@ int SLAPI SReport::createDataFiles(const char * pDataName, const char * pRptPath
 	return ok;
 }
 
-int SLAPI SReport::readResource(TVRez * rez, uint resID)
+int SReport::readResource(TVRez * rez, uint resID)
 {
 	int    ok = 1;
 	int16  i, j;
@@ -375,7 +364,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 				THROW_MEM(b->fields = static_cast<int16 *>(SAlloc::M(sizeof(int16) * (len+1))));
 				b->fields[0] = len;
 				for(j = 1; j <= len; j++)
-					b->fields[j] = (int16)rez->getUINT();
+					b->fields[j] = static_cast<int16>(rez->getUINT());
 			}
 			else
 				ZFREE(b->fields);
@@ -383,20 +372,20 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	}
 	else
 		ZFREE(bands);
-	PageLen    = (int)rez->getUINT();
-	LeftMarg   = (int)rez->getUINT();
-	PrnOptions = (int)rez->getUINT();
+	PageLen    = static_cast<int>(rez->getUINT());
+	LeftMarg   = static_cast<int>(rez->getUINT());
+	PrnOptions = static_cast<int>(rez->getUINT());
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI SReport::setPrinter(SPrinter * p)
+int SReport::setPrinter(SPrinter * p)
 {
 	P_Prn = p;
 	return 1;
 }
 
-int SLAPI SReport::setData(int i, void *d)
+int SReport::setData(int i, void *d)
 {
 	i--;
 	if(i >= 0 && i < fldCount && fields[i].type) {
@@ -406,12 +395,12 @@ int SLAPI SReport::setData(int i, void *d)
 	return 0;
 }
 
-void SLAPI SReport::disableGrouping()
+void SReport::disableGrouping()
 {
 	PrnOptions |= SPRN_SKIPGRPS;
 }
 
-int SLAPI SReport::skipField(int i, int skip)
+int SReport::skipField(int i, int skip)
 {
 	i--;
 	if(i >= 0 && i < fldCount) {
@@ -421,12 +410,12 @@ int SLAPI SReport::skipField(int i, int skip)
 	return 0;
 }
 
-int SLAPI SReport::check()
+int SReport::check()
 {
 	return 1;
 }
 
-int SLAPI SReport::calcAggr(int grp, int mode)
+int SReport::calcAggr(int grp, int mode)
 {
 	double dd = 0;
 	for(int i = 0; i < agrCount; i++) {
@@ -505,7 +494,7 @@ static const int row_band_types[] = { DETAIL_BODY, GROUP_HEAD, GROUP_FOOT };
 //
 //
 //
-int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int * pSilent, SString & rPath)
+int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, int * pSilent, SString & rPath)
 {
 	int    ok = 1;
 	int    silent = 0;
@@ -715,7 +704,7 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 	return ok;
 }
 
-SLAPI ReportDescrEntry::ReportDescrEntry() : Flags(0)
+ReportDescrEntry::ReportDescrEntry() : Flags(0)
 {
 }
 
@@ -760,7 +749,7 @@ SLAPI ReportDescrEntry::ReportDescrEntry() : Flags(0)
 	return tok;
 }
 
-int SLAPI ReportDescrEntry::ParseIniString(const char * pLine, const ReportDescrEntry * pBaseEntry)
+int ReportDescrEntry::ParseIniString(const char * pLine, const ReportDescrEntry * pBaseEntry)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -768,7 +757,7 @@ int SLAPI ReportDescrEntry::ParseIniString(const char * pLine, const ReportDescr
 	return ok;
 }
 
-int SLAPI ReportDescrEntry::SetReportFileName(const char * pFileName)
+int ReportDescrEntry::SetReportFileName(const char * pFileName)
 {
 	int    ok = -1;
 	SString file_name(pFileName);
@@ -793,13 +782,12 @@ int SLAPI ReportDescrEntry::SetReportFileName(const char * pFileName)
 	return ok;
 }
 
-int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
+int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 {
 	Entries.freeAll();
 	(ContextSymb = pContextSymb).Strip();
 	int    ok = 1;
 	uint   pos = 0;
-	// @v10.3.11 int    win_coding = 0;
 	int    diffidbyscope = 0;
 	int    force_ddf = 0;
 	const uint16 cr_dll_ver = PEGetVersion(PE_GV_DLL);
@@ -839,7 +827,6 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			SString section_name;
 			PPIniFile std_ini_file(fname);
 			THROW(std_ini_file.IsValid());
-			// @v10.3.11 win_coding = std_ini_file.IsWinCoding();
 			{
 				if(ContextSymb.NotEmpty()) {
 					(section_name = ReportName).Strip().CatChar(':').Cat(ContextSymb);
@@ -856,16 +843,12 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 					case ReportDescrEntry::tData:
 						std_ini_file.GetParam(section_name, param_buf, Entries.at(0)->DataName_);
 						Entries.at(0)->DataName_.Strip();
-						//if(!win_coding)
 						Entries.at(0)->DataName_.Transf(CTRANSF_INNER_TO_OUTER);
-						//
 						break;
 					case ReportDescrEntry::tDescr:
 						std_ini_file.GetParam(section_name, param_buf, Entries.at(0)->Description_);
 						Entries.at(0)->Description_.Strip();
-						//if(!win_coding)
 						Entries.at(0)->Description_.Transf(CTRANSF_INNER_TO_OUTER);
-						//
 						break;
 					case ReportDescrEntry::tDiffIdByScope:
 						{
@@ -885,9 +868,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 							THROW_MEM(p_new_entry);
 							p_new_entry->SetReportFileName(fname);
 							std_ini_file.GetParam(section_name, param_buf, temp_buf);
-							//if(!win_coding)
 							temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-							//
 							StringSet tok_list(';', temp_buf);
 							uint   tok_p = 0;
 							if(tok_list.get(&tok_p, left)) {
@@ -917,7 +898,6 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			SString section_name;
 			PPIniFile ini_file(fname);
 			THROW(ini_file.IsValid());
-			// @v10.3.11 win_coding = ini_file.IsWinCoding();
 			{
 				if(ContextSymb.NotEmpty()) {
 					(section_name = ReportName).Strip().CatChar(':').Cat(ContextSymb);
@@ -956,9 +936,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 							p_new_entry->SetReportFileName(fname);
 							ini_file.GetParam(section_name, param_buf, temp_buf);
 							temp_buf.Strip();
-							// @v10.3.11 if(!win_coding)
 							temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-							//
 							int    is_equal = 0;
 							StringSet tok_list(';', temp_buf);
 							uint   tok_p = 0;
@@ -1182,11 +1160,7 @@ private:
 			setStaticText(CTL_PRINT2_ST_DATANAME, 0);
 		}
 		if(oneof2(Data.Dest, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {
-			/* @v9.8.9 PPIniFile ini_file;
-			ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path);
-			if(path.Empty())
-				PPGetPath(PPPATH_TEMP, path);*/
-			PPGetPath(PPPATH_REPORTDATA, path); // @v9.8.9
+			PPGetPath(PPPATH_REPORTDATA, path);
 			if(data_name.NotEmpty())
 				path.SetLastSlash().Cat(data_name);
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
@@ -1209,12 +1183,12 @@ private:
 	int    EnableEMail;
 	PPPrinterCfg PrnCfg;
 	SString InitPrepareDataPath;
-	TSVector <SPrinting::PrnInfo> PrnList; // @v9.8.4 TSArray-->TSVector
+	TSVector <SPrinting::PrnInfo> PrnList;
 };
 
-int  SLAPI EditPrintParam(PrnDlgAns * pData) { return PPDialogProcBody <Print2Dialog, PrnDlgAns> (pData); }
-void SLAPI SReport::setNumCopies(int n) { NumCopies = (n > 0 && n <= 10) ? n : 1; }
-int  SLAPI SReport::getNumCopies() const { return NumCopies; }
+int  EditPrintParam(PrnDlgAns * pData) { return PPDialogProcBody <Print2Dialog, PrnDlgAns> (pData); }
+void SReport::setNumCopies(int n) { NumCopies = (n > 0 && n <= 10) ? n : 1; }
+int  SReport::getNumCopies() const { return NumCopies; }
 
 static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 {
@@ -1224,7 +1198,7 @@ static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 	return (rDest = t).SetLastSlash().Cat(pFileName);
 }
 
-int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
+int SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 {
 	int    ok = 1, i;
 	Band * b;
@@ -1311,7 +1285,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 	return 1;
 }
 
-int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
+int SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 {
 	int    ok = 1, i;
 	page = line = 1;
@@ -1363,7 +1337,7 @@ int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 	return 1;
 }
 
-int SLAPI SReport::prepareData()
+int SReport::prepareData()
 {
 	page = line = 1;
 
@@ -1499,7 +1473,7 @@ void ReportError(short printJob)
 	SAlloc::F(p_error_text);
 }
 
-static void SLAPI SetupGroupSkipping(short hJob)
+static void SetupGroupSkipping(short hJob)
 {
 	PESectionOptions sectopt;
 	sectopt.StructSize = sizeof(PESectionOptions);
@@ -1522,7 +1496,7 @@ static void SLAPI SetupGroupSkipping(short hJob)
 	PESetGroupOptions(hJob, 0, &grpopt);
 }
 
-static int SLAPI GetDataFilePath(int locN, const char * pPath, int isPrint, SString & rBuf /*char * pBuf, size_t bufLen*/)
+static void GetDataFilePath(int locN, const char * pPath, int isPrint, SString & rBuf)
 {
 	if(pPath) {
 		const  char * p_fname = (locN == 0) ? "head" : "iter";
@@ -1542,7 +1516,6 @@ static int SLAPI GetDataFilePath(int locN, const char * pPath, int isPrint, SStr
 		const  char * p_fname = (locN == 0) ? BODY_DBF_NAME : VAR_DBF_NAME;
 		GetTempFileName_(p_fname, rBuf);
 	}
-	return 1;
 }
 
 struct RptTblLoc {
@@ -1550,7 +1523,7 @@ struct RptTblLoc {
 	PETableLocation Iter;
 };
 
-static int SLAPI SetupSubReportLocations(short hJob, RptTblLoc & rLoc, int section)
+static int SetupSubReportLocations(short hJob, RptTblLoc & rLoc, int section)
 {
 	int    ok = 1;
 	for(short sn = 0; sn < 3; sn++) {
@@ -1574,7 +1547,7 @@ static int SLAPI SetupSubReportLocations(short hJob, RptTblLoc & rLoc, int secti
 	return ok;
 }
 
-static int SLAPI SetupReportLocations(short hJob, const char * pPath, int isPrint)
+static int SetupReportLocations(short hJob, const char * pPath, int isPrint)
 {
 	SString temp_buf;
 	RptTblLoc loc;
@@ -1617,7 +1590,7 @@ static int SLAPI SetupReportLocations(short hJob, const char * pPath, int isPrin
 	return 1;
 }
 
-static int SLAPI RemoveCompName(SString & rPrintDevice)
+static int RemoveCompName(SString & rPrintDevice)
 {
 	TCHAR  buf[256];
 	SString sbuf;
@@ -1643,7 +1616,7 @@ static int SLAPI RemoveCompName(SString & rPrintDevice)
 	return 1;
 }
 
-static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options, const DEVMODEA *pDevMode)
+static int SetPrinterParam(short hJob, const char * pPrinter, long options, const DEVMODEA *pDevMode)
 {
 	int    ok = 1;
 	SString print_device(isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter);
@@ -1694,7 +1667,7 @@ static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options
 
 // @v10.7.10 const char * DefaultWindowsPrinter = "DefaultWindowsPrinter";
 
-int SLAPI GetWindowsPrinter(PPID * pPrnID, SString * pPort)
+int GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 {
 	int    ok = -1;
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
@@ -1710,7 +1683,7 @@ int SLAPI GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 	return ok;
 }
 
-int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
+int CrystalReportPrint(const char * pReportName, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
 {
 	// __@erik v10.4.10 {
 	//char   printer_tmp[128];
@@ -1797,22 +1770,19 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 	}
 	CATCH
 		CrwError = PEGetErrorCode(h_job);
-	// @v8.3.4 @debug {
-	{
-		// @v9.4.9 (msg_buf = "Crystal Reports error:").CatDiv(':', 2).Cat(CrwError);
-		// @v9.4.9 {
-		PPLoadString("err_crpe", msg_buf);
-		msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		msg_buf.CatDiv(':', 2).Cat(CrwError);
-		// } @v9.4.9
-		PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP | LOGMSGF_DBINFO | LOGMSGF_TIME | LOGMSGF_USER);
-	}
-	// } @v8.3.4 @debug
-	ok = 0;
+		// @debug {
+		{
+			PPLoadString("err_crpe", msg_buf);
+			msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			msg_buf.CatDiv(':', 2).Cat(CrwError);
+			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		}
+		// } @debug
+		ok = 0;
 	ENDCATCH
-		if (h_job)
-			PEClosePrintJob(h_job);
-	if (zero_print_device)
+	if(h_job)
+		PEClosePrintJob(h_job);
+	if(zero_print_device)
 		DS.GetTLA().PrintDevice = 0;
 	return ok;
 //	else {
@@ -1906,10 +1876,11 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 //	}
 }   // }@erik v10.4.10
 
-int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options)
+int CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options)
 {
 	int    ok = 1, silent = 0;
 	SString path;
+	SString temp_buf;
 	PEExportOptions eo;
 	PEReportOptions ro;
 	short  h_job = PEOpenPrintJob(pReportPath);
@@ -1929,14 +1900,45 @@ int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const
 		if(options & SPRN_SKIPGRPS)
 			SetupGroupSkipping(h_job);
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-		if(/* @v10.7.6 silent &&*/pEMailAddr && fileExists(/*path*/p_dest_fn)) { // @v10.7.6 path-->p_dest_fn
-			//
-			// Отправка на определенный почтовый адрес
-			//
-			PPAlbatrossConfig alb_cfg;
-			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
-			if(alb_cfg.Hdr.MailAccID) {
-				THROW(SendMailWithAttach(pReportName, /*path*/p_dest_fn, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID));
+		if(/* @v10.7.6 silent &&*/pEMailAddr) {
+			if(fileExists(/*path*/p_dest_fn)) { // @v10.7.6 path-->p_dest_fn
+				//
+				// Отправка на определенный почтовый адрес
+				//
+				PPAlbatrossConfig alb_cfg;
+				if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0) {
+					if(alb_cfg.Hdr.MailAccID) {
+						if(SendMailWithAttach(pReportName, /*path*/p_dest_fn, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID)) {
+							// Отправка отчета на электронную почту: success 
+							PPLoadString("reportsendmail", temp_buf);
+							temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(pReportName).Space().Cat(pEMailAddr);
+							PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						else {
+							// PPERR_REPORT_SENDMAIL_IMPL Ошибка отправки отчета на электронную почту"
+							PPGetLastErrorMessage(1, temp_buf); // last error text
+							SString msg_buf;
+							PPGetMessage(mfError, PPERR_REPORT_SENDMAIL_IMPL, 0, 1, msg_buf);
+							msg_buf.CatDiv(':', 2).Cat(temp_buf);
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						}
+					}
+					else {
+						// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
+						PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					}
+				}
+				else {
+					// PPERR_REPORT_SENDMAIL_NOCFG Отправка отчета на электронную почту: не удалось получить конфигурацию глобального обмена
+					PPSetError(PPERR_REPORT_SENDMAIL_NOCFG);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				}
+			}
+			else {
+				// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
+				PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p_dest_fn);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 			}
 		}
 	}
@@ -1949,7 +1951,7 @@ int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const
 	return ok;
 }
 
-SReport::Band * SLAPI SReport::searchBand(int kind, int grp)
+SReport::Band * SReport::searchBand(int kind, int grp)
 {
 	Band *b = 0;
 	for(int i = 0; i < bandCount && b == 0; i++)
@@ -1958,7 +1960,7 @@ SReport::Band * SLAPI SReport::searchBand(int kind, int grp)
 	return b;
 }
 
-int SLAPI SReport::printDataField(SReport::Field * f)
+int SReport::printDataField(SReport::Field * f)
 {
 	char   buf[256];
 	if(f->fldfmt & FLDFMT_SKIP)
@@ -1972,7 +1974,7 @@ int SLAPI SReport::printDataField(SReport::Field * f)
 	return P_Prn->printLine(buf, 0);
 }
 
-int SLAPI SReport::enumFields(SReport::Field ** f, SReport::Band * b, int *i)
+int SReport::enumFields(SReport::Field ** f, SReport::Band * b, int *i)
 {
 	if(b && b->fields) {
 		if(*f == 0)
@@ -1985,7 +1987,7 @@ int SLAPI SReport::enumFields(SReport::Field ** f, SReport::Band * b, int *i)
 	return 0;
 }
 
-int SLAPI SReport::printPageHead(int kind, int _newpage)
+int SReport::printPageHead(int kind, int _newpage)
 {
 	int     ok = 1, i;
 	Band  * b;
@@ -2027,7 +2029,7 @@ int SLAPI SReport::printPageHead(int kind, int _newpage)
 	return ok;
 }
 
-int SLAPI SReport::printGroupHead(int kind, int grp)
+int SReport::printGroupHead(int kind, int grp)
 {
 	if(searchBand(kind, grp))
 		if(kind == GROUP_HEAD)
@@ -2037,7 +2039,7 @@ int SLAPI SReport::printGroupHead(int kind, int grp)
 	return 1;
 }
 
-int SLAPI SReport::checkval(int16 *flds, char **ptr)
+int SReport::checkval(int16 *flds, char **ptr)
 {
 	int     i, r;
 	uint    s, ofs;
@@ -2077,7 +2079,7 @@ int SLAPI SReport::checkval(int16 *flds, char **ptr)
 	return r;
 }
 
-int SLAPI SReport::printDetail()
+int SReport::printDetail()
 {
 	int     ok = 1, i, c;
 	Band  * b;
@@ -2119,7 +2121,7 @@ int SLAPI SReport::printDetail()
 	return ok;
 }
 
-int SLAPI SReport::printTitle(int kind)
+int SReport::printTitle(int kind)
 {
 	int     ok = 1, i;
 	Band  * b = searchBand(kind, 0);
@@ -2156,7 +2158,7 @@ int SLAPI SReport::printTitle(int kind)
 	return ok;
 }
 
-int SLAPI SReport::getFieldName(SReport::Field * f, char * buf, size_t buflen)
+int SReport::getFieldName(SReport::Field * f, char * buf, size_t buflen)
 {
 	if(f->name >= 0) {
 		strnzcpy(buf, P_Text + f->name, buflen);
@@ -2167,7 +2169,7 @@ int SLAPI SReport::getFieldName(SReport::Field * f, char * buf, size_t buflen)
 	return -1;
 }
 
-int SLAPI SReport::getFieldName(int i, char * buf, size_t buflen)
+int SReport::getFieldName(int i, char * buf, size_t buflen)
 {
 	return (i >= 0 && i < fldCount) ? getFieldName(&fields[i], buf, buflen) : 0;
 }
@@ -2183,7 +2185,7 @@ struct SvdtStrDlgAns { // @{savereportdata}
 	SString EdRepPath_; // @v10.8.12
 };
 
-static int SLAPI GetSvdtStrOpt(SvdtStrDlgAns * pSsda) 
+static int GetSvdtStrOpt(SvdtStrDlgAns * pSsda) 
 { 
 	class SvdtStrDialog : public TDialog {
 		DECL_DIALOG_DATA(SvdtStrDlgAns);
@@ -2227,7 +2229,7 @@ static int SLAPI GetSvdtStrOpt(SvdtStrDlgAns * pSsda)
 	DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda); 
 }
 
-int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName)
+int SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName)
 {
 	int    ok = -1;
 	SString path, fname;
@@ -2264,7 +2266,7 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 //
 //
 //
-int SLAPI EditDefaultPrinterCfg()
+int EditDefaultPrinterCfg()
 {
 	int    ok = 1;
 	ushort v = 0;
@@ -2298,7 +2300,7 @@ int SLAPI EditDefaultPrinterCfg()
 	return ok;
 }
 
-int SLAPI VerifyCrpt(const char * pRptPath, const char * pDataPath)
+int VerifyCrpt(const char * pRptPath, const char * pDataPath)
 {
 	int    ok = -1;
 #if 0 // {
@@ -2336,7 +2338,7 @@ int SLAPI VerifyCrpt(const char * pRptPath, const char * pDataPath)
 	return ok;
 }
 
-int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
+int MakeCRptDataFiles(int verifyAll /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_MKRPTFLS);
@@ -2646,7 +2648,7 @@ int FASTCALL PPAlddPrint(int rptId, PPFilt * pf, const PPReportEnv * pEnv)
 int FASTCALL PPAlddPrint(int rptId, PView * pview, const PPReportEnv * pEnv)
 	{ return __PPAlddPrint(rptId, reinterpret_cast<PPFilt *>(pview), 1, pEnv); }
 
-static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, long epFlags, SCodepageIdent cp, SString & rBuf)
+static int Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, long epFlags, SCodepageIdent cp, SString & rBuf)
 {
 	rBuf.Z();
 

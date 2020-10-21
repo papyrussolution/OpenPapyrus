@@ -9,7 +9,7 @@
 // CashiersArray
 //
 struct CashierEntry { // @flat
-	SLAPI  CashierEntry() : TabNum(0), Expiry(ZERODATE), PsnID(0)
+	CashierEntry() : TabNum(0), Expiry(ZERODATE), PsnID(0)
 	{
 	}
 	PPID   TabNum;
@@ -35,7 +35,7 @@ IMPL_CMPFUNC(CashierEnKey, i1, i2)
 
 class CashiersArray : public SVector { // @v9.8.11 SArray-->SVector
 public:
-	SLAPI  CashiersArray() : SVector(sizeof(CashierEntry)) // @v9.8.11 SArray-->SVector
+	CashiersArray() : SVector(sizeof(CashierEntry)) // @v9.8.11 SArray-->SVector
 	{
 	}
 	CashierEntry & FASTCALL at(uint p) const
@@ -47,21 +47,21 @@ public:
 		uint   p = 0;
 		return Search(pEntry->TabNum, pEntry->Expiry, &p) ? -1 : Insert(pEntry);
 	}
-	PPID   SLAPI GetCshrID(long tabNum, LDATE dt) const
+	PPID   GetCshrID(long tabNum, LDATE dt) const
 	{
 		uint  pos = 0;
 		return SearchNearest(tabNum, dt, &pos) ? at(pos).PsnID : 0;
 	}
 private:
-	int    SLAPI Search(long tabNum, LDATE dt, uint * pPos = 0) const;
-	int    SLAPI SearchNearest(long tabNum, LDATE dt, uint * pPos = 0) const;
-	int    SLAPI Insert(const CashierEntry * pEntry, uint * pPos = 0)
+	int    Search(long tabNum, LDATE dt, uint * pPos = 0) const;
+	int    SearchNearest(long tabNum, LDATE dt, uint * pPos = 0) const;
+	int    Insert(const CashierEntry * pEntry, uint * pPos = 0)
 	{
 		return ordInsert(pEntry, pPos, PTR_CMPFUNC(CashierEnKey)) ? 1 : PPSetErrorSLib();
 	}
 };
 
-int SLAPI CashiersArray::Search(long tabNum, LDATE dt, uint * pPos) const
+int CashiersArray::Search(long tabNum, LDATE dt, uint * pPos) const
 {
 	CashierEntry ce;
 	ce.TabNum = tabNum;
@@ -69,7 +69,7 @@ int SLAPI CashiersArray::Search(long tabNum, LDATE dt, uint * pPos) const
 	return bsearch(&ce, pPos, PTR_CMPFUNC(CashierEnKey));
 }
 
-int SLAPI CashiersArray::SearchNearest(long tabNum, LDATE dt, uint * pPos) const
+int CashiersArray::SearchNearest(long tabNum, LDATE dt, uint * pPos) const
 {
 	int    is_found = 0;
 	long   tab_num  = tabNum;
@@ -96,7 +96,7 @@ public:
 		LTIME Tm;
 	};
 
-	explicit SLAPI ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
+	explicit ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
 	{
 		int    ipar = 0;
 		PPIniFile  ini_file;
@@ -114,20 +114,20 @@ public:
 			ModuleSubVer = acn.DrvVerMinor;
 		}
 	}
-	SLAPI ~ACS_CRCSHSRV()
+	~ACS_CRCSHSRV()
 	{
 		for(size_t i = 0; i < SIZEOFARRAY(P_IEParam); i++)
 			delete P_IEParam[i];
 		delete P_SCardPaymTbl;
 	}
-	virtual int  SLAPI ExportData(int updOnly);
-	virtual int  SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int  SLAPI ImportSession(int);
-	virtual int  SLAPI FinishImportSession(PPIDArray *);
-	virtual void SLAPI CleanUpSession();
-	int SLAPI ExportDataV10(int updOnly);
-	int SLAPI ExportData__(int updOnly);
-	int SLAPI Prev_ExportData(int updOnly);
+	virtual int  ExportData(int updOnly);
+	virtual int  GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int  ImportSession(int);
+	virtual int  FinishImportSession(PPIDArray *);
+	virtual void CleanUpSession();
+	int ExportDataV10(int updOnly);
+	int ExportData__(int updOnly);
+	int Prev_ExportData(int updOnly);
 private:
 	enum {
 		filTypZRep = 0,
@@ -137,28 +137,28 @@ private:
 		filTypZRepXml,
 		filTypChkXml
 	};
-	virtual int SLAPI IsReadyForExport();
-	int    SLAPI ImportZRepList(SVector * pZRepList, int isLocalFiles);
-	int    SLAPI ConvertWareList(const SVector * pZRepList, const char *);
-	int    SLAPI ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char *);
-	int    SLAPI ConvertCheckHeads(const SVector * pZRepList, const char *);
-	int    SLAPI ConvertCheckRows(const char *);
-	int    SLAPI GetSeparatedFileSet(int filTyp);
-	int    SLAPI CreateSCardPaymTbl();
-	int    SLAPI PrepareImpFileName(int filTyp, int subStrId, const char * pPath, int sigNum);
-	//int    SLAPI PrepareImpFileName(int filTyp, const char * pName, const char * pPath, int sigNum);
-	int    SLAPI PrepareImpFileNameV10(int filTyp, const char * pName, const char * pPath);
-	SString & SLAPI MakeQueryBuf(LDATE dt, SString & rBuf) const;
-	SString & SLAPI MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const;
-	int    SLAPI QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate);
-	int    SLAPI IsFileExists(uint fileId, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
-	int    SLAPI IsFileExists(const char * pFile, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
-	int    SLAPI GetCashiersList();
-	int    SLAPI SearchCardCode(SCardCore * pSc, const char * pCode, SCardTbl::Rec * pRec);
-	int    SLAPI GetFilesLocal();
-	PPBillImpExpParam * SLAPI CreateImpExpParam(uint sdRecID);
-	void   SLAPI Backup(const char * pPrefix, const char * pPath);
-	int    SLAPI Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
+	virtual int IsReadyForExport();
+	int    ImportZRepList(SVector * pZRepList, int isLocalFiles);
+	int    ConvertWareList(const SVector * pZRepList, const char *);
+	int    ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char *);
+	int    ConvertCheckHeads(const SVector * pZRepList, const char *);
+	int    ConvertCheckRows(const char *);
+	int    GetSeparatedFileSet(int filTyp);
+	int    CreateSCardPaymTbl();
+	int    PrepareImpFileName(int filTyp, int subStrId, const char * pPath, int sigNum);
+	//int    PrepareImpFileName(int filTyp, const char * pName, const char * pPath, int sigNum);
+	int    PrepareImpFileNameV10(int filTyp, const char * pName, const char * pPath);
+	SString & MakeQueryBuf(LDATE dt, SString & rBuf) const;
+	SString & MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const;
+	int    QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate);
+	int    IsFileExists(uint fileId, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
+	int    IsFileExists(const char * pFile, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
+	int    GetCashiersList();
+	int    SearchCardCode(SCardCore * pSc, const char * pCode, SCardTbl::Rec * pRec);
+	int    GetFilesLocal();
+	PPBillImpExpParam * CreateImpExpParam(uint sdRecID);
+	void   Backup(const char * pPrefix, const char * pPath);
+	int    Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
 		AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName);
 
 	class DeferredRemovingFileList : public SStrGroup {
@@ -232,27 +232,27 @@ private:
 
 class CM_CRCSHSRV : public PPCashMachine {
 public:
-	SLAPI CM_CRCSHSRV(PPID cashID) : PPCashMachine(cashID) {}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_CRCSHSRV(NodeID); }
+	CM_CRCSHSRV(PPID cashID) : PPCashMachine(cashID) {}
+	PPAsyncCashSession * AsyncInterface() { return new ACS_CRCSHSRV(NodeID); }
 };
 
 REGISTER_CMT(CRCSHSRV,0,1);
 
-int SLAPI ACS_CRCSHSRV::IsFileExists(uint fileId, const char * pSubDir)
+int ACS_CRCSHSRV::IsFileExists(uint fileId, const char * pSubDir)
 {
 	SString path;
 	PPGetFilePath(PPPATH_OUT, fileId, path);
 	return BIN(DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
 }
 
-int SLAPI ACS_CRCSHSRV::IsFileExists(const char * pFile, const char * pSubDir)
+int ACS_CRCSHSRV::IsFileExists(const char * pFile, const char * pSubDir)
 {
 	SString path;
 	PPGetFilePath(PPPATH_OUT, pFile, path);
 	return BIN(DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
 }
 
-int SLAPI ACS_CRCSHSRV::GetFilesLocal()
+int ACS_CRCSHSRV::GetFilesLocal()
 {
 	int    r = 0;
 	const  char * p_ready_fname = "ascready.";
@@ -273,7 +273,7 @@ int SLAPI ACS_CRCSHSRV::GetFilesLocal()
 #define SUBDIR_PRODUCTS "\\products\\source"
 
 
-int SLAPI ACS_CRCSHSRV::IsReadyForExport()
+int ACS_CRCSHSRV::IsReadyForExport()
 {
 	int    ready = 1;
 	if(ModuleVer == 10) {
@@ -322,7 +322,7 @@ int SLAPI ACS_CRCSHSRV::IsReadyForExport()
 	28 Печать контрольной ленты из ЭКЛЗ
 	29 Дисконтная карта
 */
-static void SLAPI ConvertCashierRightsToCrystalRightsSet(const char * pRights, char * pCrystalRights, size_t szCrRts)
+static void ConvertCashierRightsToCrystalRightsSet(const char * pRights, char * pCrystalRights, size_t szCrRts)
 {
 	static const char correspondance[32] = {
 		12, 27,  1,  3,  4, 5, 15,  9,
@@ -339,7 +339,7 @@ static void SLAPI ConvertCashierRightsToCrystalRightsSet(const char * pRights, c
 	}
 }
 
-static int SLAPI PrepareDscntCodeBiasList(LAssocArray * pAry)
+static int PrepareDscntCodeBiasList(LAssocArray * pAry)
 {
 	int    ok = 1;
 	uint   i, k;
@@ -397,25 +397,25 @@ class XmlWriter {
 public:
 	XmlWriter(const char * pPath, int replaceSpecSymb);
 	~XmlWriter();
-	int SLAPI StartElement(const char * pName, const char * pAttribName = 0, const char * pAttribValue = 0);
-	void   SLAPI EndElement();
-	int SLAPI AddAttrib(const char * pAttribName, const char * pAttribValue);
-	int SLAPI AddAttrib(const char * pAttribName, bool attribValue);
-	int SLAPI AddAttrib(const char * pAttribName, long attribValue);
-	int SLAPI AddAttrib(const char * pAttribName, double attribValue);
-	int SLAPI AddAttrib(const char * pAttribName, LDATETIME);
-	int SLAPI AddAttrib(const char * pAttribName, LDATE);
-	int SLAPI PutElement(const char * pName, const char * pValue);
-	int SLAPI PutElement(const char * pName, long);
-	int SLAPI PutElement(const char * pName, double);
-	int SLAPI PutElement(const char * pName, bool);
-	int SLAPI PutElement(const char * pName, LDATETIME);
-	int SLAPI PutElement(const char * pName, LDATE);
-	int SLAPI PutElement(const char * pName, LTIME);
-	void SLAPI PutPlugin(const char * pKey, const char * pVal);
-	void SLAPI PutPlugin(const char * pKey, double val);
-	void SLAPI PutPlugin(const char * pKey, long val);
-	void SLAPI PutPlugin(const char * pKey, LDATE val);
+	int StartElement(const char * pName, const char * pAttribName = 0, const char * pAttribValue = 0);
+	void   EndElement();
+	int AddAttrib(const char * pAttribName, const char * pAttribValue);
+	int AddAttrib(const char * pAttribName, bool attribValue);
+	int AddAttrib(const char * pAttribName, long attribValue);
+	int AddAttrib(const char * pAttribName, double attribValue);
+	int AddAttrib(const char * pAttribName, LDATETIME);
+	int AddAttrib(const char * pAttribName, LDATE);
+	int PutElement(const char * pName, const char * pValue);
+	int PutElement(const char * pName, long);
+	int PutElement(const char * pName, double);
+	int PutElement(const char * pName, bool);
+	int PutElement(const char * pName, LDATETIME);
+	int PutElement(const char * pName, LDATE);
+	int PutElement(const char * pName, LTIME);
+	void PutPlugin(const char * pKey, const char * pVal);
+	void PutPlugin(const char * pKey, double val);
+	void PutPlugin(const char * pKey, long val);
+	void PutPlugin(const char * pKey, LDATE val);
 private:
 	int    ReplaceSpecSymb;
 	xmlTextWriter * P_Writer;
@@ -440,7 +440,7 @@ XmlWriter::~XmlWriter()
 	}
 }
 
-void SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
+void XmlWriter::PutPlugin(const char * pKey, const char * pVal)
 {
 	if(sstrlen(pKey) && sstrlen(pVal)) {
 		SString key, val;
@@ -456,7 +456,7 @@ void SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
 	}
 }
 
-void SLAPI XmlWriter::PutPlugin(const char * pKey, double val)
+void XmlWriter::PutPlugin(const char * pKey, double val)
 {
 	if(val != 0.0) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -464,7 +464,7 @@ void SLAPI XmlWriter::PutPlugin(const char * pKey, double val)
 	}
 }
 
-void SLAPI XmlWriter::PutPlugin(const char * pKey, long val)
+void XmlWriter::PutPlugin(const char * pKey, long val)
 {
 	if(val != 0) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -472,7 +472,7 @@ void SLAPI XmlWriter::PutPlugin(const char * pKey, long val)
 	}
 }
 
-void SLAPI XmlWriter::PutPlugin(const char * pKey, LDATE val)
+void XmlWriter::PutPlugin(const char * pKey, LDATE val)
 {
 	if(val != ZERODATE) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -480,7 +480,7 @@ void SLAPI XmlWriter::PutPlugin(const char * pKey, LDATE val)
 	}
 }
 
-int SLAPI XmlWriter::StartElement(const char * pName, const char * pAttribName /*=0*/, const char * pAttribValue /*=0*/)
+int XmlWriter::StartElement(const char * pName, const char * pAttribName /*=0*/, const char * pAttribValue /*=0*/)
 {
 	int    ok = 0;
 	if(P_Writer && sstrlen(pName)) {
@@ -492,16 +492,16 @@ int SLAPI XmlWriter::StartElement(const char * pName, const char * pAttribName /
 	return ok;
 }
 
-void SLAPI XmlWriter::EndElement()
+void XmlWriter::EndElement()
 {
 	xmlTextWriterEndElement(P_Writer);
 }
 
-int SLAPI XmlWriter::AddAttrib(const char * pAttribName, bool attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(STextConst::GetBool(attribValue))); }
-int SLAPI XmlWriter::AddAttrib(const char * pAttribName, long attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue)); }
-int SLAPI XmlWriter::AddAttrib(const char * pAttribName, double attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue, MKSFMTD(0, 2, NMBF_NOTRAILZ))); }
+int XmlWriter::AddAttrib(const char * pAttribName, bool attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(STextConst::GetBool(attribValue))); }
+int XmlWriter::AddAttrib(const char * pAttribName, long attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue)); }
+int XmlWriter::AddAttrib(const char * pAttribName, double attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue, MKSFMTD(0, 2, NMBF_NOTRAILZ))); }
 
-int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
+int XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
 {
 	int    ok = 0;
 	if(P_Writer && sstrlen(pAttribName) && sstrlen(pAttribValue)) {
@@ -517,16 +517,16 @@ int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribVal
 	return ok;
 }
 
-int SLAPI XmlWriter::AddAttrib(const char * pName, LDATETIME val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
-int SLAPI XmlWriter::AddAttrib(const char * pName, LDATE val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
-int SLAPI XmlWriter::PutElement(const char * pName, long val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
-int SLAPI XmlWriter::PutElement(const char * pName, double val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
-int SLAPI XmlWriter::PutElement(const char * pName, bool val) { return PutElement(pName, TempBuf.Z().Cat(STextConst::GetBool(val))); }
-int SLAPI XmlWriter::PutElement(const char * pName, LDATETIME val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
-int SLAPI XmlWriter::PutElement(const char * pName, LDATE val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
-int SLAPI XmlWriter::PutElement(const char * pName, LTIME val) { return PutElement(pName, TempBuf.Z().Cat(val, TIMF_HMS|TIMF_MSEC)); }
+int XmlWriter::AddAttrib(const char * pName, LDATETIME val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
+int XmlWriter::AddAttrib(const char * pName, LDATE val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
+int XmlWriter::PutElement(const char * pName, long val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
+int XmlWriter::PutElement(const char * pName, double val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
+int XmlWriter::PutElement(const char * pName, bool val) { return PutElement(pName, TempBuf.Z().Cat(STextConst::GetBool(val))); }
+int XmlWriter::PutElement(const char * pName, LDATETIME val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
+int XmlWriter::PutElement(const char * pName, LDATE val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
+int XmlWriter::PutElement(const char * pName, LTIME val) { return PutElement(pName, TempBuf.Z().Cat(val, TIMF_HMS|TIMF_MSEC)); }
 
-int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
+int XmlWriter::PutElement(const char * pName, const char * pValue)
 {
 	int    ok = 0;
 	if(P_Writer && sstrlen(pName) && sstrlen(pValue)) {
@@ -561,7 +561,7 @@ struct _MinPriceEntry { // @flat
 	int16  Reserve; // @alignment
 };
 
-int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
+int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
 	AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName)
 {
 	assert(oneof3(mode, 0, 1, 2));
@@ -986,7 +986,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
+int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1483,7 +1483,7 @@ static SString & GetDatetimeStrEnd(LDATE dt, int16 tm, SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
+int ACS_CRCSHSRV::ExportData__(int updOnly)
 {
 	const long alco_special_grp_id = 100000000;
 	const char * p_alco_special_grp_name = "Alcohol-EGAIS";
@@ -2025,12 +2025,12 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ExportData(int updOnly)
+int ACS_CRCSHSRV::ExportData(int updOnly)
 {
 	return (ModuleVer == 10) ? ExportDataV10(updOnly) : ExportData__(updOnly);
 }
 
-int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
+int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 {
 	int    ok = 1;;
 	DbfTable * p_out_tbl_goods = 0;
@@ -2530,7 +2530,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPath, int sigNum)
+int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPath, int sigNum)
 {
 	int    ok = 1;
 	SString sig_num_file;
@@ -2545,7 +2545,7 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char 
 	return ok;
 }
 
-/*int SLAPI ACS_CRCSHSRV::PrepareImpFileName(int filTyp, const char * pName, const char * pPath, int sigNum)
+/*int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, const char * pName, const char * pPath, int sigNum)
 {
 	SString sig_num_file;
 	PathRpt[filTyp] = pName;
@@ -2558,7 +2558,7 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char 
 	return 1;
 }*/
 
-int SLAPI ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, const char * pPath)
+int ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, const char * pPath)
 {
 	PathRpt[filTyp] = pName;
 	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
@@ -2566,7 +2566,7 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, co
 	return 1;
 }
 
-/* @v9.7.4 static void SLAPI RemoveQuotations(char * pBuf)
+/* @v9.7.4 static void RemoveQuotations(char * pBuf)
 {
 	if(pBuf && pBuf[0] == '"' && pBuf[sstrlen(pBuf) - 1] == '"') {
 		strcpy(pBuf, pBuf + 1);
@@ -2575,7 +2575,7 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, co
 	}
 } */
 
-static void SLAPI ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * pCshrRights)
+static void ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * pCshrRights)
 {
 	int    i;
 	char   correspondance[] = {3,18,4,5,6,20,12,22,8,9,30,1,10,31,7,23,19,24,25,26,27,17,28,21,29,0,2,0,11,0,0,0}; // 32 items
@@ -2591,7 +2591,7 @@ static void SLAPI ConvertCrystalRightsSetToCashierRights(long crystCshrRights, l
 	rights_ary.getBuf(pCshrRights, sizeof(long));
 }
 
-int SLAPI ACS_CRCSHSRV::GetCashiersList()
+int ACS_CRCSHSRV::GetCashiersList()
 {
 	int    ok = -1;
 	if(EqCfg.CshrsPsnKindID) {
@@ -2723,7 +2723,7 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 	return ok;
 }
 
-PPBillImpExpParam * SLAPI ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
+PPBillImpExpParam * ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
 {
 	int   ok = -1;
 	StringSet  sections;
@@ -2771,7 +2771,7 @@ PPBillImpExpParam * SLAPI ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
 	return p_param;
 }
 
-int SLAPI ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2839,7 +2839,7 @@ int SLAPI ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempOrderTbl, TempOrder);
 
-int SLAPI ACS_CRCSHSRV::SearchCardCode(SCardCore * pSc, const char * pCode, SCardTbl::Rec * pRec)
+int ACS_CRCSHSRV::SearchCardCode(SCardCore * pSc, const char * pCode, SCardTbl::Rec * pRec)
 {
 	if(pSc->SearchCode(0, pCode, pRec) > 0)
 		return 1;
@@ -2862,7 +2862,7 @@ static void FASTCALL ReplaceFilePath(SString & destFileName, const SString & src
 	SPathStruc::ReplacePath(destFileName, file_path, 1);
 }
 
-int SLAPI ACS_CRCSHSRV::CreateSCardPaymTbl()
+int ACS_CRCSHSRV::CreateSCardPaymTbl()
 {
 	int    ok = 1;
 	SCardCore     sc_core;
@@ -2968,7 +2968,7 @@ int SLAPI ACS_CRCSHSRV::CreateSCardPaymTbl()
 	return ok;
 }
 
-static int SLAPI GetCrCshSrvDateTime(const char * pDttmBuf, long chk, LDATETIME * pDttm)
+static int GetCrCshSrvDateTime(const char * pDttmBuf, long chk, LDATETIME * pDttm)
 {
 	size_t pos = 0;
 	LDATE  dt;
@@ -3060,7 +3060,7 @@ public:
 
 	class Packet {
 	public:
-		SLAPI Packet()
+		Packet()
 		{
 		}
 		Packet & FASTCALL operator = (const Packet & rPack)
@@ -3071,25 +3071,25 @@ public:
 			Items.copy(rPack.Items);
 			return *this;
 		}
-		int SLAPI PutHead(const Header * pHead)
+		int PutHead(const Header * pHead)
 		{
 			return (pHead) ? (Head = *pHead, 1) : (MEMSZERO(Head), 0);
 		}
-		int SLAPI AddItem(const Item * pItem)
+		int AddItem(const Item * pItem)
 		{
 			return (pItem) ? Items.insert(pItem) : 0;
 		}
-		int SLAPI SetItemDiscount(long pos, double discount)
+		int SetItemDiscount(long pos, double discount)
 		{
 			uint p = 0;
 			return (Items.lsearch(&pos, &p, PTR_CMPFUNC(long)) > 0) ? (Items.at(p).Discount = discount, 1) : -1;
 		}
-		int SLAPI GetHead(Header * pHead)
+		int GetHead(Header * pHead)
 		{
 			ASSIGN_PTR(pHead, Head);
 			return 1;
 		}
-		int SLAPI EnumItems(long * pPos, Item * pItem)
+		int EnumItems(long * pPos, Item * pItem)
 		{
 			if(pPos && *pPos < Items.getCountI())  {
 				ASSIGN_PTR(pItem, Items.at((*pPos)++));
@@ -3102,11 +3102,11 @@ public:
 		Header Head;
 		TSArray <Item> Items;
 	};
-	SLAPI  XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer);
-	SLAPI ~XmlReader();
-	int    SLAPI Next(Packet *);
+	XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer);
+	~XmlReader();
+	int    Next(Packet *);
 private:
-	int    SLAPI GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym);
+	int    GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym);
 
 	int    SubVer;
 	long   ChecksCount;
@@ -3116,7 +3116,7 @@ private:
 	xmlTextReader * P_Reader;
 };
 
-SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer) : P_Reader(0), P_LogNumList(pLogNumList), ChecksCount(0), P_CurRec(0), P_Doc(0)
+XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer) : P_Reader(0), P_LogNumList(pLogNumList), ChecksCount(0), P_CurRec(0), P_Doc(0)
 {
 	const char * p_chr_tag = "purchase";
 	if(pPath)
@@ -3143,7 +3143,7 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 	SubVer = subVer;
 }
 
-SLAPI XmlReader::~XmlReader()
+XmlReader::~XmlReader()
 {
 	if(P_Reader) {
 		xmlFreeTextReader(P_Reader);
@@ -3152,7 +3152,7 @@ SLAPI XmlReader::~XmlReader()
 	xmlFreeDoc(P_Doc);
 }
 
-int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym)
+int XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym)
 {
 	int    ok = -1;
 	int    is_gift_card = 0;
@@ -3193,7 +3193,7 @@ int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isP
 	return ok;
 }
 
-int SLAPI XmlReader::Next(Packet * pPack)
+int XmlReader::Next(Packet * pPack)
 {
 	//const char * p_attribs = "shop;operationType;operDay;cash;shift;saletime;number;amount;discountAmount;username;userTabNumber;tabNumber";
 	int    ok = -1;
@@ -3510,7 +3510,7 @@ IMPL_CMPFUNC(AcceptedCheck_, i1, i2)
 		return 0;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char * pWaitMsg)
+int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char * pWaitMsg)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -3659,7 +3659,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitMsg)
+int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitMsg)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -3855,7 +3855,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWaitMsg)
+int ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWaitMsg)
 {
 	int     ok = 1;
 	SString file_name, save_file_name;
@@ -3918,7 +3918,7 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char 
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
+int ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 {
 	int     ok = 1;
 	SString file_name, save_file_name, barcode, goods_name, article;
@@ -4020,7 +4020,7 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
+int ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 {
 	int  ok = -1;
 	SString    buf, file_name, sect_name, param;
@@ -4099,7 +4099,7 @@ int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate)
+int ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate)
 {
 	int    ok = 1;
 	uint   pos;
@@ -4165,21 +4165,21 @@ int SLAPI ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE quer
 	return ok;
 }
 
-SString & SLAPI ACS_CRCSHSRV::MakeQueryBuf(LDATE dt, SString & rBuf) const
+SString & ACS_CRCSHSRV::MakeQueryBuf(LDATE dt, SString & rBuf) const
 {
 	return rBuf.Z().CatLongZ(dt.year(), 4).CatLongZ(dt.month(), 2).CatLongZ(dt.day(), 2);
 }
 
-SString & SLAPI ACS_CRCSHSRV::MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const
+SString & ACS_CRCSHSRV::MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const
 {
 	return rBuf.Z().Cat("date:").Space().Cat(dt).CR().Cat("report:").Space().Cat((isZRep) ? "Zreports" : "purchases");
 }
 
 class XmlZRepReader {
 public:
-	SLAPI  XmlZRepReader(const char * pPath);
-	SLAPI ~XmlZRepReader();
-	int    SLAPI Next(ZRep *);
+	XmlZRepReader(const char * pPath);
+	~XmlZRepReader();
+	int    Next(ZRep *);
 private:
 	long   ZRepsCount;
 	xmlDoc  * P_Doc;
@@ -4187,7 +4187,7 @@ private:
 	xmlTextReader * P_Reader;
 };
 
-SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
+XmlZRepReader::XmlZRepReader(const char * pPath)
 {
 	ZRepsCount = 0;
 	P_CurRec    = 0;
@@ -4216,7 +4216,7 @@ SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
 	}
 }
 
-SLAPI XmlZRepReader::~XmlZRepReader()
+XmlZRepReader::~XmlZRepReader()
 {
 	if(P_Reader) {
 		xmlFreeTextReader(P_Reader);
@@ -4225,7 +4225,7 @@ SLAPI XmlZRepReader::~XmlZRepReader()
 	xmlFreeDoc(P_Doc);
 }
 
-int SLAPI XmlZRepReader::Next(ZRep * pItem)
+int XmlZRepReader::Next(ZRep * pItem)
 {
 	int    ok = -1;
 	const char * p_tag_names = "shiftNumber;cashNumber;dateShiftClose";
@@ -4278,7 +4278,7 @@ int SLAPI XmlZRepReader::Next(ZRep * pItem)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
+int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 {
 	int    ok = -1, r = 1;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
@@ -4409,7 +4409,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 	return ok;
 }
 
-void SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
+void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 {
 	const long _max_copies = 10L; //#define MAX_COPIES 10L
 	long   start = 1L;
@@ -4438,7 +4438,7 @@ void SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 	SCopyFile(pPath, dest_path, 0, FILE_SHARE_READ, 0);
 }
 
-int SLAPI ACS_CRCSHSRV::ImportSession(int)
+int ACS_CRCSHSRV::ImportSession(int)
 {
 	int    ok = -1;
 	int    r = 1, files_local = GetFilesLocal();
@@ -4551,12 +4551,12 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::FinishImportSession(PPIDArray * pSessList)
+int ACS_CRCSHSRV::FinishImportSession(PPIDArray * pSessList)
 {
 	return pSessList->addUnique(&SessAry);
 }
 
-void SLAPI ACS_CRCSHSRV::CleanUpSession()
+void ACS_CRCSHSRV::CleanUpSession()
 {
 	const uint c = DrfL.GetCount();
 	SString backup_prefix, path;

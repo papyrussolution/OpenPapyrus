@@ -37,11 +37,11 @@ Data Matrix для табачной продукции и фармацевтик
 // 46 bytes
 //
 #if 0 // @v10.6.9 {
-SLAPI ChZnCodeStruc::ChZnCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), SkuP(0), TailP(0)
+ChZnCodeStruc::ChZnCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), SkuP(0), TailP(0)
 {
 }
 	
-ChZnCodeStruc & SLAPI ChZnCodeStruc::Z()
+ChZnCodeStruc & ChZnCodeStruc::Z()
 {
 	GtinPrefixP = 0;
 	GtinP = 0;
@@ -53,7 +53,7 @@ ChZnCodeStruc & SLAPI ChZnCodeStruc::Z()
 	return *this;
 }
 
-int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
+int ChZnCodeStruc::Parse(const char * pRawCode)
 {
 	int    ok = 0;
 	Z();
@@ -120,7 +120,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 }
 #endif // } 0 @v10.6.9
 
-/*static*/int SLAPI PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
+/*static*/int PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
 {
 	uint16 product_type_bytes = 0;
 	switch(productType) {
@@ -132,7 +132,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 	return product_type_bytes ? STokenRecognizer::EncodeChZn1162(product_type_bytes, pGTIN, pSerial, pResultBuf, resultBufSize) : 0;
 }
 
-/*static*/int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS, long flags)
+/*static*/int PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS, long flags)
 {
 	int    ok = 0;
 	rS.Z();
@@ -262,7 +262,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 	return result;
 }
 
-/*static*/int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
+/*static*/int PPChZnPrcssr::InputMark(SString & rMark)
 {
 	class ChZnMarkDialog : public TDialog {
 	public:
@@ -386,10 +386,10 @@ public:
 		qDocumentSend,
 		qGetTicket
 	};
-	SLAPI  ChZnInterface()
+	ChZnInterface()
 	{
 	}
-	SLAPI ~ChZnInterface()
+	~ChZnInterface()
 	{
 	}
 	enum {
@@ -525,11 +525,11 @@ public:
 	};
 	class Document {
 	public:
-		SLAPI  Document() : Dtm(ZERODATETIME), ReceivedDtm(ZERODATETIME), Type(doctypUnkn), 
+		Document() : Dtm(ZERODATETIME), ReceivedDtm(ZERODATETIME), Type(doctypUnkn), 
 			Format(SFileFormat::Unkn), Status(docstUnkn), DownloadStatus(0), Flags(0)
 		{
 		}
-		SLAPI  Document(const Document & rS)
+		Document(const Document & rS)
 		{
 			Copy(rS);
 		}
@@ -537,9 +537,9 @@ public:
 		{
 			return Copy(rS);
 		}
-		int    SLAPI Parse(const char * pBuffer);
-		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
-		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
+		int    Parse(const char * pBuffer);
+		int    GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
+		int    Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
 		Document & FASTCALL Copy(const Document & rS)
 		{
 			Uuid = rS.Uuid;
@@ -634,28 +634,28 @@ public:
 		void * P_Data;
 	};
 	
-	int    SLAPI ParseDocument(const json_t * pJsonObj, Document & rItem);
-	int    SLAPI ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
-	int    SLAPI SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
-	int    SLAPI GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf);
-	//SString & SLAPI MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
-	//SString & SLAPI MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
-	SString & SLAPI MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	int    ParseDocument(const json_t * pJsonObj, Document & rItem);
+	int    ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
+	int    SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
+	int    GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf);
+	//SString & MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	//SString & MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	SString & MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	enum {
 		mhffTokenOnly  = 0x0001,
 		mhffAuthBearer = 0x0002 // auth: Bearer else auth: Token
 	};
-	SString & SLAPI MakeHeaderFields(const char * pToken, uint flags, StrStrAssocArray * pHdrFlds, SString & rBuf);
-	const CERT_CONTEXT * SLAPI GetClientSslCertificate(InitBlock & rIb);
-	int    SLAPI MakeAuthRequest(InitBlock & rBlk, SString & rBuf);
-	int    SLAPI MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
-	int    SLAPI MakeAuthRequest2(InitBlock & rBlk, SString & rBuf);
-	int    SLAPI MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
-	int    SLAPI MakeDocumentRequest(const InitBlock & rIb, const void * pData, size_t dataLen, S_GUID & rReqId, SString & rBuf);
-	uint   SLAPI GetLastWinInternetResponse(SString & rMsgBuf);
-	uint   SLAPI ReadReply(HINTERNET hReq, SString & rBuf);
-	int    SLAPI GetUserInfo2(InitBlock & rIb);
-	int    SLAPI GetIncomeDocList2_temp(InitBlock & rIb);
+	SString & MakeHeaderFields(const char * pToken, uint flags, StrStrAssocArray * pHdrFlds, SString & rBuf);
+	const CERT_CONTEXT * GetClientSslCertificate(InitBlock & rIb);
+	int    MakeAuthRequest(InitBlock & rBlk, SString & rBuf);
+	int    MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
+	int    MakeAuthRequest2(InitBlock & rBlk, SString & rBuf);
+	int    MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
+	int    MakeDocumentRequest(const InitBlock & rIb, const void * pData, size_t dataLen, S_GUID & rReqId, SString & rBuf);
+	uint   GetLastWinInternetResponse(SString & rMsgBuf);
+	uint   ReadReply(HINTERNET hReq, SString & rBuf);
+	int    GetUserInfo2(InitBlock & rIb);
+	int    GetIncomeDocList2_temp(InitBlock & rIb);
 	enum {
 		docfoldDocs     = 0,
 		docfoldArc      = 1,
@@ -664,7 +664,7 @@ public:
 		docfoldRejected = 4
 	};
 	struct DocumentFilt {
-		SLAPI  DocumentFilt() : Flags(0), Folder(docfoldDocs), CountLimit(0), CountOffset(0)
+		DocumentFilt() : Flags(0), Folder(docfoldDocs), CountLimit(0), CountOffset(0)
 		{
 			Period.Z();
 		}
@@ -678,22 +678,22 @@ public:
 		uint   CountLimit;
 		DateRange Period;
 	};
-	int    SLAPI GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList);
-	int    SLAPI GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc);
-	int    SLAPI ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
-	int    SLAPI TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
-	int    SLAPI GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
-	int    SLAPI Connect(InitBlock & rIb);
-	// @v10.8.0 int    SLAPI Connect2(InitBlock & rIb);
-	int    SLAPI GetToken2(const char * pAuthCode, InitBlock & rIb);
-	int    SLAPI GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
-	int    SLAPI CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
-	int    SLAPI ParseTicket(const char * pTicket, Packet ** ppP);
-	int    SLAPI GetDebugPath(const InitBlock & rIb, SString & rPath);
+	int    GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList);
+	int    GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc);
+	int    ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
+	int    TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
+	int    GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
+	int    Connect(InitBlock & rIb);
+	// @v10.8.0 int    Connect2(InitBlock & rIb);
+	int    GetToken2(const char * pAuthCode, InitBlock & rIb);
+	int    GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
+	int    CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
+	int    ParseTicket(const char * pTicket, Packet ** ppP);
+	int    GetDebugPath(const InitBlock & rIb, SString & rPath);
 private:
-	int    SLAPI LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
-	int    SLAPI GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
-	int    SLAPI CreatePendingFile(const char * pPath, const char * pIdent);
+	int    LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
+	int    GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
+	int    CreatePendingFile(const char * pPath, const char * pIdent);
 };
 
 static const SIntToSymbTabEntry ChZnDocStatusList[] = {
@@ -795,7 +795,7 @@ static int ChZnDocTypeFromStr(const char * pText, int * pType, int * pFormat)
 	return BIN(type);
 }
 
-int SLAPI ChZnInterface::ParseDocument(const json_t * pJsonObj, Document & rItem)
+int ChZnInterface::ParseDocument(const json_t * pJsonObj, Document & rItem)
 {
 	int    ok = -1;
 	if(pJsonObj && pJsonObj->Type == json_t::tOBJECT) {
@@ -859,7 +859,7 @@ int SLAPI ChZnInterface::ParseDocument(const json_t * pJsonObj, Document & rItem
 	return ok;
 }
 
-int  SLAPI ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList)
+int  ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList)
 {
 	int    ok = -1;
 	json_t * p_json_doc = 0;
@@ -893,7 +893,7 @@ int  SLAPI ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollectio
 	return ok;
 }
 
-int SLAPI ChZnInterface::Document::Parse(const char * pBuffer)
+int ChZnInterface::Document::Parse(const char * pBuffer)
 {
 	int    ok = 0;
 	if(!isempty(pBuffer)) {
@@ -911,7 +911,7 @@ int SLAPI ChZnInterface::Document::Parse(const char * pBuffer)
 	return ok;
 }
 
-int SLAPI ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode)
+int ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -923,7 +923,7 @@ int SLAPI ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locI
 	return ok;
 }
 
-int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack)
+int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1085,7 +1085,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 	return ok;
 }
 
-int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk)
+int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk)
 {
 	int    ok = 1;
 	int    protocol_id = 0;
@@ -1146,7 +1146,7 @@ int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, Init
 	return ok;
 }
 	
-int SLAPI ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf)
+int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf)
 {
 	int    ok = -1;
 	rResultBuf.Z();
@@ -1213,7 +1213,7 @@ int SLAPI ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size
 	return ok;
 }
 
-SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
+SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
 {
 	if(rIb.EndPoint.NotEmpty())
 		rResult = rIb.EndPoint;
@@ -1328,7 +1328,7 @@ SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum,
 }
 	
 #if 0 // {
-SString & SLAPI ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
+SString & ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
 {
 	//rResult = "http://api.sb.mdlp.crpt.ru";
 	//(rResult = (oneof2(query, qAuth, qToken) ? "http" : "https")).Cat("://");
@@ -1358,7 +1358,7 @@ SString & SLAPI ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, 
 	return rResult;
 }
 
-SString & SLAPI ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
+SString & ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
 {
 	//rResult = "http://api.sb.mdlp.crpt.ru";
 	//(rResult = (oneof2(query, qAuth, qToken) ? "http" : "https")).Cat("://");
@@ -1392,21 +1392,21 @@ SString & SLAPI ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum,
 }
 #endif // } 0
 
-int SLAPI ChZnInterface::MakeAuthRequest2(InitBlock & rBlk, SString & rBuf)
+int ChZnInterface::MakeAuthRequest2(InitBlock & rBlk, SString & rBuf)
 {
 	// GET https://ismp.crpt.ru/api/v3/auth/cert/key
 	int    ok = 0;
 	return ok;
 }
 
-int SLAPI ChZnInterface::MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf)
+int ChZnInterface::MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf)
 {
 	// POST https://ismp.crpt.ru/api/v3/auth/cert
 	int    ok = 0;
 	return ok;
 }
 
-int SLAPI ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
+int ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -1424,7 +1424,7 @@ int SLAPI ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 	return ok;
 }
 
-int SLAPI ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SString & rBuf)
+int ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -1442,7 +1442,7 @@ int SLAPI ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCod
 	return ok;
 }
 
-int SLAPI ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const void * pData, size_t dataLen, S_GUID & rReqId, SString & rBuf)
+int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const void * pData, size_t dataLen, S_GUID & rReqId, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -1466,7 +1466,7 @@ int SLAPI ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const void *
 	return ok;
 }
 
-const CERT_CONTEXT * SLAPI ChZnInterface::GetClientSslCertificate(InitBlock & rIb)
+const CERT_CONTEXT * ChZnInterface::GetClientSslCertificate(InitBlock & rIb)
 {
 	uint  sys_err = 0;
 	const CERT_CONTEXT * p_cert_context = NULL;
@@ -1500,7 +1500,7 @@ const CERT_CONTEXT * SLAPI ChZnInterface::GetClientSslCertificate(InitBlock & rI
 	return p_cert_context;
 }
 
-uint SLAPI ChZnInterface::GetLastWinInternetResponse(SString & rMsgBuf)
+uint ChZnInterface::GetLastWinInternetResponse(SString & rMsgBuf)
 {
 	rMsgBuf.Z();
 	DWORD last_err = 0;
@@ -1511,7 +1511,7 @@ uint SLAPI ChZnInterface::GetLastWinInternetResponse(SString & rMsgBuf)
 	return last_err;
 }
 
-SString & SLAPI ChZnInterface::MakeHeaderFields(const char * pToken, uint flags, StrStrAssocArray * pHdrFlds, SString & rBuf)
+SString & ChZnInterface::MakeHeaderFields(const char * pToken, uint flags, StrStrAssocArray * pHdrFlds, SString & rBuf)
 {
 	StrStrAssocArray hdr_flds;
 	SETIFZ(pHdrFlds, &hdr_flds);
@@ -1533,7 +1533,7 @@ SString & SLAPI ChZnInterface::MakeHeaderFields(const char * pToken, uint flags,
 	return rBuf;
 }
 
-int SLAPI ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket)
+int ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket)
 {
 	rTicket.Z();
 	int    ok = -1;
@@ -1607,7 +1607,7 @@ int SLAPI ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * p
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetPendingIdentList(const InitBlock & rIb, StringSet & rResult)
+int ChZnInterface::GetPendingIdentList(const InitBlock & rIb, StringSet & rResult)
 {
 	int    ok = -1;
 	SString path;
@@ -1626,7 +1626,7 @@ int SLAPI ChZnInterface::GetPendingIdentList(const InitBlock & rIb, StringSet & 
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetDebugPath(const InitBlock & rIb, SString & rPath)
+int ChZnInterface::GetDebugPath(const InitBlock & rIb, SString & rPath)
 {
 	rPath.Z();
     int    ok = 1;
@@ -1639,7 +1639,7 @@ int SLAPI ChZnInterface::GetDebugPath(const InitBlock & rIb, SString & rPath)
     return ok;
 }
 
-int SLAPI ChZnInterface::GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn)
+int ChZnInterface::GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn)
 {
 	int    ok = 1;
 	rFn.Z();
@@ -1657,7 +1657,7 @@ int SLAPI ChZnInterface::GetTemporaryFileName(const char * pPath, const char * p
 	return ok;
 }
 
-int SLAPI ChZnInterface::CreatePendingFile(const char * pPath, const char * pIdent)
+int ChZnInterface::CreatePendingFile(const char * pPath, const char * pIdent)
 {
 	int    ok = 1;
 	SString temp_path;
@@ -1677,7 +1677,7 @@ int SLAPI ChZnInterface::CreatePendingFile(const char * pPath, const char * pIde
 	return ok;
 }
 
-int SLAPI ChZnInterface::ParseTicket(const char * pTicket, Packet ** ppP)
+int ChZnInterface::ParseTicket(const char * pTicket, Packet ** ppP)
 {
 	ASSIGN_PTR(ppP, 0);
 	int    ok = -1;
@@ -1736,7 +1736,7 @@ int SLAPI ChZnInterface::ParseTicket(const char * pTicket, Packet ** ppP)
 	return ok;
 }
 
-int SLAPI ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const char * pTicket)
+int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const char * pTicket)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -1827,7 +1827,7 @@ int SLAPI ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, c
 	return ok;
 }
 
-int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply)
+int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply)
 {
 	rReply.Z();
 	int    ok = -1;
@@ -1915,7 +1915,7 @@ int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInte
 	return ok;
 }
 
-uint SLAPI ChZnInterface::ReadReply(HINTERNET hReq, SString & rBuf)
+uint ChZnInterface::ReadReply(HINTERNET hReq, SString & rBuf)
 {
 	rBuf.Z();
 	DWORD  read_bytes = 0;
@@ -1931,7 +1931,7 @@ uint SLAPI ChZnInterface::ReadReply(HINTERNET hReq, SString & rBuf)
 	return read_bytes;
 }
 
-int SLAPI ChZnInterface::GetUserInfo2(InitBlock & rIb)
+int ChZnInterface::GetUserInfo2(InitBlock & rIb)
 {
 	int    ok = -1;
 	int    wininet_err = 0;
@@ -1974,7 +1974,7 @@ int SLAPI ChZnInterface::GetUserInfo2(InitBlock & rIb)
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetToken2(const char * pAuthCode, InitBlock & rIb)
+int ChZnInterface::GetToken2(const char * pAuthCode, InitBlock & rIb)
 {
 	int    ok = -1;
 	int    wininet_err = 0;
@@ -2007,7 +2007,7 @@ int SLAPI ChZnInterface::GetToken2(const char * pAuthCode, InitBlock & rIb)
 	return ok;
 }
 
-int SLAPI ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult)
+int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult)
 {
 	rResult.Z();
 	int    ok = -1;
@@ -2034,7 +2034,7 @@ int SLAPI ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const c
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc)
+int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc)
 {
 	int    ok = -1;
 	json_t * p_json_req = 0;
@@ -2105,7 +2105,7 @@ int SLAPI ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList)
+int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList)
 {
 	int    ok = -1;
 	json_t * p_json_req = 0;
@@ -2186,7 +2186,7 @@ int SLAPI ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * p
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
+int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 {
 	int    ok = -1;
 	int    wininet_err = 0;
@@ -2249,7 +2249,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 }
 
 #if 0 // @v10.8.0 {
-int SLAPI ChZnInterface::Connect2(InitBlock & rIb)
+int ChZnInterface::Connect2(InitBlock & rIb)
 {
 	int    ok = -1;
 	int    wininet_err = 0;
@@ -2289,7 +2289,7 @@ int SLAPI ChZnInterface::Connect2(InitBlock & rIb)
 }
 #endif // } 0 @v10.8.0
 
-int SLAPI ChZnInterface::LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg)
+int ChZnInterface::LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg)
 {
 	int    ok = 1;
 	SString file_name;
@@ -2313,7 +2313,7 @@ int SLAPI ChZnInterface::LogTalking(const char * pPrefix, const char * pTargetUr
 	return ok;
 }
 
-int SLAPI ChZnInterface::Connect(InitBlock & rIb)
+int ChZnInterface::Connect(InitBlock & rIb)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -2456,25 +2456,25 @@ int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 //
 //
 //
-SLAPI PPChZnPrcssr::Param::Param() : GuaID(0), LocID(0)
+PPChZnPrcssr::Param::Param() : GuaID(0), LocID(0)
 {
 	Period.Z();
 }
 
-SLAPI  PPChZnPrcssr::QueryParam::QueryParam() : DocType(0), Flags(0), GuaID(0), LocID(0)
+PPChZnPrcssr::QueryParam::QueryParam() : DocType(0), Flags(0), GuaID(0), LocID(0)
 {
 }
 
-SLAPI PPChZnPrcssr::PPChZnPrcssr(PPLogger * pOuterLogger) : PPEmbeddedLogger(0, pOuterLogger, PPFILNAM_CHZN_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER), P_Ib(new ChZnInterface::InitBlock)
+PPChZnPrcssr::PPChZnPrcssr(PPLogger * pOuterLogger) : PPEmbeddedLogger(0, pOuterLogger, PPFILNAM_CHZN_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER), P_Ib(new ChZnInterface::InitBlock)
 {
 }
 
-SLAPI PPChZnPrcssr::~PPChZnPrcssr()
+PPChZnPrcssr::~PPChZnPrcssr()
 {
 	delete static_cast<ChZnInterface::InitBlock *>(P_Ib);
 }
 
-int SLAPI PPChZnPrcssr::EditParam(Param * pParam)
+int PPChZnPrcssr::EditParam(Param * pParam)
 {
 	class ChZnPrcssrParamDialog : public TDialog {
 		DECL_DIALOG_DATA(PPChZnPrcssr::Param);
@@ -2499,7 +2499,7 @@ int SLAPI PPChZnPrcssr::EditParam(Param * pParam)
 	DIALOG_PROC_BODY(ChZnPrcssrParamDialog, pParam);
 }
 
-int SLAPI PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
+int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 {
 	class EditChZnQueryParamDialog : public TDialog {
 		DECL_DIALOG_DATA(PPChZnPrcssr::QueryParam);
@@ -2533,7 +2533,7 @@ int SLAPI PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 	DIALOG_PROC_BODY(EditChZnQueryParamDialog, pData);
 }
 
-int SLAPI PPChZnPrcssr::InteractiveQuery()
+int PPChZnPrcssr::InteractiveQuery()
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -2568,7 +2568,7 @@ int SLAPI PPChZnPrcssr::InteractiveQuery()
 	return ok;
 }
 
-int SLAPI PPChZnPrcssr::Run(const Param & rP)
+int PPChZnPrcssr::Run(const Param & rP)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -2702,7 +2702,7 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 	return ok;
 }
 
-/*static*/int SLAPI PPChZnPrcssr::Test()
+/*static*/int PPChZnPrcssr::Test()
 {
 	int    ok = 1;
 	SString temp_buf;

@@ -9,7 +9,7 @@
 //
 // @ModuleDef(PPViewPalm)
 //
-IMPLEMENT_PPFILT_FACTORY(Palm); SLAPI PalmFilt::PalmFilt() : PPBaseFilt(PPFILT_PALM, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Palm); PalmFilt::PalmFilt() : PPBaseFilt(PPFILT_PALM, 0, 0)
 {
 	SetFlatChunk(offsetof(PalmFilt, ReserveStart), offsetof(PalmFilt, ReserveEnd) - offsetof(PalmFilt, ReserveStart) + sizeof(ReserveEnd));
 	SetBranchObjIdListFilt(offsetof(PalmFilt, LocList));
@@ -22,9 +22,8 @@ PalmFilt & FASTCALL PalmFilt::operator = (const PalmFilt & s)
 	return *this;
 }
 
-PPViewPalm::PPViewPalm() : PPView(&ObjPalm, &Filt, PPVIEW_PALM), P_TempTbl(0)
+PPViewPalm::PPViewPalm() : PPView(&ObjPalm, &Filt, PPVIEW_PALM, 0, 0), P_TempTbl(0)
 {
-	// @v10.1.9 ImplementFlags |= implDontEditNullFilter;
 }
 
 PPViewPalm::~PPViewPalm()
@@ -32,7 +31,7 @@ PPViewPalm::~PPViewPalm()
 	ZDELETE(P_TempTbl);
 }
 
-int SLAPI PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
+int PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 {
 	if(pRec) {
 		PPID   ord_op_id = pRec->OrderOpID;
@@ -75,7 +74,7 @@ int SLAPI PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 	return 1;
 }
 
-TempPalmTbl::Rec & SLAPI PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPack, TempPalmTbl::Rec & rTempRec)
+TempPalmTbl::Rec & PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPack, TempPalmTbl::Rec & rTempRec)
 {
 	int    ok = -1;
 	memzero(&rTempRec, sizeof(TempPalmTbl::Rec));
@@ -107,7 +106,7 @@ TempPalmTbl::Rec & SLAPI PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPa
 
 #define GRP_LOC 1
 
-int SLAPI PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	PalmFilt filt;
@@ -154,7 +153,7 @@ int SLAPI PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 
 // @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPalm);
 
-int SLAPI PPViewPalm::Init_(const PPBaseFilt * pFilt)
+int PPViewPalm::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	PPStyloPalm rec;
@@ -183,7 +182,7 @@ int SLAPI PPViewPalm::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewPalm::UpdateTempTable(const PPIDArray * pIdList)
+int PPViewPalm::UpdateTempTable(const PPIDArray * pIdList)
 {
 	int    ok = -1;
 	if(pIdList && P_TempTbl) {
@@ -214,7 +213,7 @@ int SLAPI PPViewPalm::UpdateTempTable(const PPIDArray * pIdList)
 	return ok;
 }
 
-int SLAPI PPViewPalm::InitIteration()
+int PPViewPalm::InitIteration()
 {
 	int    ok = 1;
 	TempPalmTbl::Key0 k, k_;
@@ -249,7 +248,7 @@ int FASTCALL PPViewPalm::NextIteration(PalmViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	TempPalmTbl * t = 0;
@@ -282,7 +281,7 @@ DBQuery * SLAPI PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	return q;
 }
 
-int SLAPI PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPID   id = 0;
@@ -327,7 +326,7 @@ int SLAPI PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	return ok;
 }
 
-int SLAPI PPViewPalm::ExportUhtt()
+int PPViewPalm::ExportUhtt()
 {
 	int    ok = -1;
 	SString msg_buf, fmt_buf, temp_buf, loc_text_buf;

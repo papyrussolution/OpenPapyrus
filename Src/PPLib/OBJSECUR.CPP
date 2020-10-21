@@ -7,12 +7,12 @@
 
 #define SECUREXTRAPARAMSIGN 0xABCDEF07
 
-SLAPI PPConfig::PPConfig()
+PPConfig::PPConfig()
 {
 	THISZERO();
 }
 
-int SLAPI PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, Tag, rBuf));
@@ -91,20 +91,20 @@ PPObjSecur::ExtraParam & PPObjSecur::ExtraParam::operator = (const PPObjSecur::E
 
 int PPObjSecur::ExtraParam::IsConsistent() const { return BIN(Signature == SECUREXTRAPARAMSIGN); }
 
-static int SLAPI UsrListFilt(void * rec, void * extraPtr/*grp*/)
+static int UsrListFilt(void * rec, void * extraPtr/*grp*/)
 {
 	const PPID parent_id = reinterpret_cast<PPID>(extraPtr);
 	return (!parent_id || (rec && static_cast<const PPSecur *>(rec)->ParentID == parent_id));
 }
 
-SLAPI PPObjSecur::PPObjSecur(PPID aObj, void * extraPtr) : PPObjReference(aObj, extraPtr)
+PPObjSecur::PPObjSecur(PPID aObj, void * extraPtr) : PPObjReference(aObj, extraPtr)
 {
 	if(Obj == PPOBJ_USR)
 		FiltProc = UsrListFilt;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-int SLAPI PPObjSecur::AssignImages(ListBoxDef * pDef)
+int PPObjSecur::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
@@ -131,7 +131,7 @@ int SLAPI PPObjSecur::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-/*virtual*/ListBoxDef * SLAPI PPObjSecur::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjSecur::Selector(void * extraPtr)
 {
 	if(extraPtr && static_cast<const ExtraParam *>(extraPtr)->IsConsistent())
 		SelectorP = *static_cast<const ExtraParam *>(extraPtr);
@@ -140,7 +140,7 @@ int SLAPI PPObjSecur::AssignImages(ListBoxDef * pDef)
 	return p_def;
 }
 
-/*virtual*/int SLAPI PPObjSecur::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int PPObjSecur::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, &SelectorP);
 	if(ok > 0)
@@ -148,7 +148,7 @@ int SLAPI PPObjSecur::AssignImages(ListBoxDef * pDef)
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjSecur::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjSecur::MakeStrAssocList(void * extraPtr)
 {
 	ExtraParam param;
 	if(extraPtr && static_cast<const ExtraParam *>(extraPtr)->IsConsistent())
@@ -222,7 +222,7 @@ StrAssocArray * SLAPI PPObjSecur::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
+int PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 {
 	int    ok = -1;
 	PPID   dt_id = 0;
@@ -269,12 +269,12 @@ int SLAPI PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 	return ok;
 }
 
-int SLAPI PPObjSecur::GetPacket(PPID id, PPSecurPacket * pPack)
+int PPObjSecur::GetPacket(PPID id, PPSecurPacket * pPack)
 {
 	return ref->LoadSecur(Obj, id, pPack);
 }
 
-int SLAPI PPObjSecur::PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta)
+int PPObjSecur::PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	if(pID && *pID) {
@@ -295,7 +295,7 @@ int SLAPI PPObjSecur::PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * pDeskName, int use_ta)
+int PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * pDeskName, int use_ta)
 {
 	int    ok = -1;
 	PPConfig cfg_rec;
@@ -332,7 +332,7 @@ int SLAPI PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const ch
 	return ok;
 }
 
-int SLAPI PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE)
@@ -352,7 +352,7 @@ int SLAPI PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjSecur::SerializePacket(int dir, PPSecurPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjSecur::SerializePacket(int dir, PPSecurPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Secur, rBuf, pSCtx));
@@ -361,10 +361,10 @@ int SLAPI PPObjSecur::SerializePacket(int dir, PPSecurPacket * pPack, SBuffer & 
 	return ok;
 }
 
-int SLAPI PPObjSecur::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjSecur::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjSecur, PPSecurPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -399,7 +399,7 @@ int SLAPI PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-int SLAPI PPObjSecur::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjSecur::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPSecurPacket * p_pack = static_cast<PPSecurPacket *>(p->Data);
@@ -412,13 +412,13 @@ int SLAPI PPObjSecur::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 
 IMPL_DESTROY_OBJ_PACK(PPObjSecur, PPSecurPacket);
 
-int SLAPI PPObjSecur::Edit(PPID * pID, void * extraPtr)
+int PPObjSecur::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = CheckRights(*pID ? PPR_MOD : PPR_INS) ? EditSecurDialog(Obj, pID, extraPtr) : PPErrorZ();
 	return ok;
 }
 
-/*virtual*/int  SLAPI PPObjSecur::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int  PPObjSecur::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    ok = -1;
 	THROW(CheckRights(PPR_DEL));
@@ -548,7 +548,7 @@ void Grp_n_UsrDialog::removeItem()
 	}
 }
 
-int SLAPI PPObjSecur::Browse(void * extraPtr)
+int PPObjSecur::Browse(void * extraPtr)
 {
 	int    ok = 1;
 	if(!CheckRights(PPR_READ))
@@ -558,7 +558,7 @@ int SLAPI PPObjSecur::Browse(void * extraPtr)
 	return ok;
 }
 
-/*virtual*/void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjSecurListWindow : public PPObjListWindow {
 	public:
@@ -679,7 +679,7 @@ int SLAPI PPObjSecur::Browse(void * extraPtr)
 	return new PPObjSecurListWindow(this, flags, extraPtr);
 }
 
-int SLAPI PPObjSecur::ProcessReservedItem(TVRez & rez)
+int PPObjSecur::ProcessReservedItem(TVRez & rez)
 {
 	int    ok = 1;
 	int    r = 0;
@@ -719,7 +719,7 @@ int SLAPI PPObjSecur::ProcessReservedItem(TVRez & rez)
 	return ok;
 }
 
-int SLAPI EditMainConfig()
+int EditMainConfig()
 {
 	PPID   id = PPCFG_MAIN;
 	PPObjSecur cfg_obj(PPOBJ_CONFIG, 0);
@@ -731,12 +731,12 @@ int SLAPI EditMainConfig()
 //
 class UserCache : public ObjCache {
 public:
-	SLAPI  UserCache() : ObjCache(PPOBJ_USR, sizeof(Data))
+	UserCache() : ObjCache(PPOBJ_USR, sizeof(Data))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   PersonID;
@@ -747,7 +747,7 @@ public:
 	};
 };
 
-int SLAPI UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -766,7 +766,7 @@ int SLAPI UserCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPSecur * p_data_rec = static_cast<PPSecur *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);

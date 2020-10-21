@@ -20,12 +20,12 @@
 #include "bison.h"
 #pragma hdrstop
 #include <progname.h>
-#include <vasnprintf.h>
+//#include <vasnprintf.h>
 
-typedef struct {
+struct fixit {
 	Location location;
 	char * fix;
-} fixit;
+};
 
 gl_list_t fixits = NULL;
 
@@ -63,11 +63,7 @@ static void fixit_print(fixit const * f, FILE * out)
 void fixits_register(Location const * loc, char const* fix)
 {
 	if(!fixits)
-		fixits = gl_list_create_empty(GL_ARRAY_LIST,
-		        /* equals */ NULL,
-		        /* hashcode */ NULL,
-			(gl_listelement_dispose_fn)fixit_free,
-			true);
+		fixits = gl_list_create_empty(GL_ARRAY_LIST, /* equals */ NULL, /* hashcode */ NULL, (gl_listelement_dispose_fn)fixit_free, true);
 	fixit * f = fixit_new(loc, fix);
 	gl_sortedlist_add(fixits, (gl_listelement_compar_fn)fixit_cmp, f);
 	if(feature_flag & feature_fixit)
@@ -83,7 +79,6 @@ void fixits_run(void)
 {
 	if(!fixits)
 		return;
-
 	/* This is not unlike what is done in location_caret.  */
 	uniqstr input = ((fixit*)gl_list_get_at(fixits, 0))->location.start.file;
 	/* Backup the file. */
@@ -113,7 +108,6 @@ void fixits_run(void)
 			}
 			putc(c, out);
 		}
-
 		/* Look for the right offset. */
 		bool need_eol = false;
 		while((int)offset < f->location.start.byte) {

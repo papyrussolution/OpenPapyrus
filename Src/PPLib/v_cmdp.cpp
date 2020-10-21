@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu);
+int MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu);
 //
 //
 //
@@ -15,7 +15,7 @@ int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu);
 //
 //
 //
-int SLAPI EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, int isDekstopCmd)
+int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, int isDekstopCmd)
 {
 	class CmdItemDialog : public TDialog {
 		DECL_DIALOG_DATA(PPCommand);
@@ -620,7 +620,7 @@ int PPDesktop::EditAssocCmdList(long desktopID)
 //
 // MenusDialog
 //
-int SLAPI EditName(SString & rName)
+int EditName(SString & rName)
 {
 	int    ok = -1;
 	SString name = rName;
@@ -972,7 +972,7 @@ int EditMenusDlg::EditMenu(long id)
 	return ok;
 }
 
-int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
+int EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 {
 	int    ok = -1;
 	PPCommandGroup command_group;
@@ -1012,7 +1012,7 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 	return ok;
 }
 
-int SLAPI EditMenusFromFile()
+int EditMenusFromFile()
 {
 	int    ok = -1;
 	PPCommandMngr * p_mgr = 0;
@@ -1087,7 +1087,7 @@ struct MIT {
 	char   mtString[256];
 };
 
-static int SLAPI readMIT(TVRez & rez, MIT & mit, long ofs)
+static int readMIT(TVRez & rez, MIT & mit, long ofs)
 {
 	if(rez.getStreamPos() >= ofs)
 		return 0;
@@ -1128,8 +1128,8 @@ void readMenuRez(HMENU hm, TVRez * rez, long length)
 	}
 }
 
-//void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocArray * pItems) //@erik v10.7.5
-void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandGroup * pMenu, StrAssocArray * pItems) //@erik v10.7.5
+//void ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocArray * pItems) //@erik v10.7.5
+void ReadMenu(HMENU hm, PPID parentID, PPCommandGroup * pMenu, StrAssocArray * pItems) //@erik v10.7.5
 {
 	SString name;
 	if(pMenu && pItems) {
@@ -1163,7 +1163,7 @@ void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandGroup * pMenu, StrAssocArr
 	}
 }
 
-HMENU SLAPI PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
+HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 {
 	int    not_found = 1;
 	HMENU  m = 0;
@@ -1242,7 +1242,7 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 	}
 }
 
-int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu)
+int MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu)
 {
 	int    ok = -1;
 	TVRez * p_slrez = P_SlRez;

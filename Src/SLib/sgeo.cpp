@@ -295,7 +295,7 @@ int FASTCALL SGeoPosLL_Int::FromStr(const char * pStr)
 //
 //
 //
-SLAPI  SGeoGridTab::Finder::Finder(const SGeoGridTab & rTab) : R_Tab(rTab), LastPosLat(0), LastPosLon(0)
+SGeoGridTab::Finder::Finder(const SGeoGridTab & rTab) : R_Tab(rTab), LastPosLat(0), LastPosLon(0)
 {
 }
 
@@ -345,7 +345,7 @@ uint FASTCALL SGeoGridTab::Finder::GetIdxLon(long c)
 	return idx;
 }
 
-void SLAPI SGeoGridTab::Finder::GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon)
+void SGeoGridTab::Finder::GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon)
 {
 	rIdxLat = GetIdxLat(rC.GetIntLat());
 	rIdxLon = GetIdxLon(rC.GetIntLon());
@@ -367,7 +367,7 @@ uint64 FASTCALL SGeoGridTab::Finder::GetZIdx64(const SGeoPosLL_Int & rC)
 	return SZIndex2::Combine((uint32)idx_lat, (uint32)idx_lon);
 }
 //
-SLAPI SGeoGridTab::SGeoGridTab(uint dim) : Dim(dim), SrcCountLat(0), SrcCountLon(0)
+SGeoGridTab::SGeoGridTab(uint dim) : Dim(dim), SrcCountLat(0), SrcCountLon(0)
 {
 	assert(dim >= 4 && dim <= 32);
 }
@@ -399,27 +399,27 @@ int FASTCALL SGeoGridTab::operator != (const SGeoGridTab & rS) const
 	return !IsEqual(rS);
 }
 
-void SLAPI SGeoGridTab::SetSrcCountLat(uint64 c)
+void SGeoGridTab::SetSrcCountLat(uint64 c)
 {
 	SrcCountLat = c;
 }
 
-void SLAPI SGeoGridTab::SetSrcCountLon(uint64 c)
+void SGeoGridTab::SetSrcCountLon(uint64 c)
 {
 	SrcCountLon = c;
 }
 
-uint SLAPI SGeoGridTab::GetDim() const
+uint SGeoGridTab::GetDim() const
 {
 	return Dim;
 }
 
-uint SLAPI SGeoGridTab::GetDensityLat() const
+uint SGeoGridTab::GetDensityLat() const
 {
 	return (uint)(SrcCountLat / (1ULL << Dim));
 }
 
-uint SLAPI SGeoGridTab::GetDensityLon() const
+uint SGeoGridTab::GetDensityLon() const
 {
 	return (uint)(SrcCountLon / (1ULL << Dim));
 }
@@ -448,17 +448,17 @@ int FASTCALL SGeoGridTab::AddThresholdLon(long coord)
 	}
 }
 
-uint SLAPI SGeoGridTab::GetCountLat() const
+uint SGeoGridTab::GetCountLat() const
 {
 	return LatIdx.getCount();
 }
 
-uint SLAPI SGeoGridTab::GetCountLon() const
+uint SGeoGridTab::GetCountLon() const
 {
 	return LonIdx.getCount();
 }
 
-int SLAPI SGeoGridTab::Save(const char * pFileName)
+int SGeoGridTab::Save(const char * pFileName)
 {
     int   ok = 1;
     SString line_buf;
@@ -489,7 +489,7 @@ int SLAPI SGeoGridTab::Save(const char * pFileName)
     return ok;
 }
 
-int SLAPI SGeoGridTab::Load(const char * pFileName)
+int SGeoGridTab::Load(const char * pFileName)
 {
     Dim = 0;
     SrcCountLat = 0;

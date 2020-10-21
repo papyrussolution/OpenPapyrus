@@ -6,17 +6,17 @@
 #pragma hdrstop
 #include <stylopalm.h>
 
-SLAPI PalmBillQueue::IdAssocItem::IdAssocItem(PPID dvcID, PPID outerBillID, PPID innerBillID) : DvcID(dvcID), OuterBillID(outerBillID), InnerBillID(innerBillID)
+PalmBillQueue::IdAssocItem::IdAssocItem(PPID dvcID, PPID outerBillID, PPID innerBillID) : DvcID(dvcID), OuterBillID(outerBillID), InnerBillID(innerBillID)
 {
 }
 
-SLAPI PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), aryPtrContainer)
+PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), aryPtrContainer)
 {
 }
 
-uint SLAPI PalmBillQueue::GetItemsCount() const { return getCount(); }
-int  SLAPI PalmBillQueue::IsEmpty() const { return getCount() ? 0 : 1; }
-int  SLAPI PalmBillQueue::Push(PalmBillPacket * pPack) { return insert(pPack) ? 1 : PPSetErrorSLib(); }
+uint PalmBillQueue::GetItemsCount() const { return getCount(); }
+int  PalmBillQueue::IsEmpty() const { return getCount() ? 0 : 1; }
+int  PalmBillQueue::Push(PalmBillPacket * pPack) { return insert(pPack) ? 1 : PPSetErrorSLib(); }
 
 // @v10.7.2 #define COMPARE(a,b) ((a)>(b)) ? 1 : (((a)<(b)) ? -1 : 0)
 
@@ -31,7 +31,7 @@ IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 	return si; // @v10.7.2 
 }
 
-int SLAPI PalmBillQueue::PushUnique(PalmBillPacket * pPack)
+int PalmBillQueue::PushUnique(PalmBillPacket * pPack)
 {
 	int    ok = -1;
 	uint pos = 0;
@@ -47,7 +47,7 @@ int SLAPI PalmBillQueue::PushUnique(PalmBillPacket * pPack)
 	return ok;
 }
 
-PalmBillPacket * SLAPI PalmBillQueue::Pop()
+PalmBillPacket * PalmBillQueue::Pop()
 {
 	PalmBillPacket * p_pack = 0;
 	if(getCount()) {
@@ -57,12 +57,12 @@ PalmBillPacket * SLAPI PalmBillQueue::Pop()
 	return p_pack;
 }
 
-PalmBillPacket * SLAPI PalmBillQueue::Peek()
+PalmBillPacket * PalmBillQueue::Peek()
 {
 	return getCount() ? static_cast<PalmBillPacket *>(at(0)) : 0;
 }
 
-void SLAPI PalmBillQueue::Destroy()
+void PalmBillQueue::Destroy()
 {
 	while(!IsEmpty()) {
 		PalmBillPacket * p_pack = Pop();
@@ -70,7 +70,7 @@ void SLAPI PalmBillQueue::Destroy()
 	}
 }
 
-long SLAPI PalmBillQueue::GetBillIdBias() const
+long PalmBillQueue::GetBillIdBias() const
 {
 	long   bias = 0;
 	for(uint i = 0; i < getCount(); i++) {
@@ -81,7 +81,7 @@ long SLAPI PalmBillQueue::GetBillIdBias() const
 	return bias;
 }
 
-int SLAPI PalmBillQueue::AddItem(PPID billID, const PalmBillItem * pItem, uint * pPos)
+int PalmBillQueue::AddItem(PPID billID, const PalmBillItem * pItem, uint * pPos)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -111,14 +111,14 @@ int SLAPI PalmBillQueue::AddItem(PPID billID, const PalmBillItem * pItem, uint *
 	return ok;
 }
 
-PPID SLAPI PalmBillQueue::GetInnerIdByOuter(PPID dvcID, PPID outerID) const
+PPID PalmBillQueue::GetInnerIdByOuter(PPID dvcID, PPID outerID) const
 {
 	uint   pos = 0;
 	const  IdAssocItem key(dvcID, outerID);
 	return IdAssocList.lsearch(&key, &pos, PTR_CMPFUNC(_2long)) ? IdAssocList.at(pos).InnerBillID : 0;
 }
 
-int SLAPI PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
+int PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -146,26 +146,26 @@ int SLAPI PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
 //
 //
 //
-SLAPI PalmBillItem::PalmBillItem() : GoodsID(0), Qtty(0.0), Price(0.0)
+PalmBillItem::PalmBillItem() : GoodsID(0), Qtty(0.0), Price(0.0)
 {
 }
 
-SLAPI PalmBillPacket::PalmBillPacket() : SVector(sizeof(PalmBillItem))
+PalmBillPacket::PalmBillPacket() : SVector(sizeof(PalmBillItem))
 {
 	Init();
 }
 
-void SLAPI PalmBillPacket::Init()
+void PalmBillPacket::Init()
 {
 	MEMSZERO(Hdr);
 	freeAll();
 }
 
-uint SLAPI PalmBillPacket::GetItemsCount() const { return getCount(); }
-int  SLAPI PalmBillPacket::AddItem(const PalmBillItem * pItem) { return insert(pItem) ? 1 : PPSetErrorSLib(); }
-int  SLAPI PalmBillPacket::RemoveItem(uint idx) { return atFree(idx) ? 1 : PPSetErrorSLib(); }
+uint PalmBillPacket::GetItemsCount() const { return getCount(); }
+int  PalmBillPacket::AddItem(const PalmBillItem * pItem) { return insert(pItem) ? 1 : PPSetErrorSLib(); }
+int  PalmBillPacket::RemoveItem(uint idx) { return atFree(idx) ? 1 : PPSetErrorSLib(); }
 
-int SLAPI PalmBillPacket::EnumItems(uint * pIdx, PalmBillItem * pItem) const
+int PalmBillPacket::EnumItems(uint * pIdx, PalmBillItem * pItem) const
 {
 	PalmBillItem * p_item;
 	if(SVector::enumItems(pIdx, (void **)&p_item) > 0) {
@@ -177,11 +177,11 @@ int SLAPI PalmBillPacket::EnumItems(uint * pIdx, PalmBillItem * pItem) const
 //
 //
 //
-SLAPI PPGeoTrackingMode::PPGeoTrackingMode() : Mode(0), Cycle(0)
+PPGeoTrackingMode::PPGeoTrackingMode() : Mode(0), Cycle(0)
 {
 }
 
-PPGeoTrackingMode & SLAPI PPGeoTrackingMode::Z()
+PPGeoTrackingMode & PPGeoTrackingMode::Z()
 {
 	Mode = 0;
 	Cycle = 0;
@@ -191,17 +191,17 @@ PPGeoTrackingMode & SLAPI PPGeoTrackingMode::Z()
 int FASTCALL PPGeoTrackingMode::operator == (const PPGeoTrackingMode & rS) const { return BIN(Mode == rS.Mode && Cycle == rS.Cycle); }
 int FASTCALL PPGeoTrackingMode::operator != (const PPGeoTrackingMode & rS) const { return BIN(Mode != rS.Mode || Cycle != rS.Cycle); }
 
-SLAPI PPStyloPalmPacket::PPStyloPalmPacket() : P_Path(0), P_FTPPath(0)
+PPStyloPalmPacket::PPStyloPalmPacket() : P_Path(0), P_FTPPath(0)
 {
 	destroy();
 }
 
-SLAPI PPStyloPalmPacket::~PPStyloPalmPacket()
+PPStyloPalmPacket::~PPStyloPalmPacket()
 {
 	destroy();
 }
 
-void SLAPI PPStyloPalmPacket::destroy()
+void PPStyloPalmPacket::destroy()
 {
 	MEMSZERO(Rec);
 	ZDELETE(P_Path);
@@ -224,7 +224,7 @@ PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPac
 	return *this;
 }
 
-void SLAPI PPStyloPalmPacket::Setup()
+void PPStyloPalmPacket::Setup()
 {
 	if(P_Path && *strip(P_Path) == 0)
 		ZDELETE(P_Path);
@@ -232,7 +232,7 @@ void SLAPI PPStyloPalmPacket::Setup()
 		ZDELETE(P_FTPPath);
 }
 
-int SLAPI PPStyloPalmPacket::MakePath(const char * pSuffix, SString & rBuf) const
+int PPStyloPalmPacket::MakePath(const char * pSuffix, SString & rBuf) const
 {
 	rBuf = P_Path;
 	if(rBuf.NotEmptyS()) {
@@ -245,39 +245,39 @@ int SLAPI PPStyloPalmPacket::MakePath(const char * pSuffix, SString & rBuf) cons
 		return 0;
 }
 
-int SLAPI PPStyloPalmPacket::MakeOutputPath(SString & rBuf) const
+int PPStyloPalmPacket::MakeOutputPath(SString & rBuf) const
 {
 	return MakePath("IN", rBuf);
 }
 
-int SLAPI PPStyloPalmPacket::MakeInputPath(SString & rBuf) const
+int PPStyloPalmPacket::MakeInputPath(SString & rBuf) const
 {
 	return (Rec.Flags & PLMF_ANDROID) ? MakePath(0, rBuf) : MakePath("OUT", rBuf);
 }
 //
 //
 //
-SLAPI PalmPaneData::PalmPaneData()
+PalmPaneData::PalmPaneData()
 {
 	THISZERO();
 }
 //
 //
 //
-static int SLAPI StyloPalmListFilt(void * pRec, void * extraPtr)
+static int StyloPalmListFilt(void * pRec, void * extraPtr)
 {
 	const long extra_param = reinterpret_cast<long>(extraPtr);
 	const PPStyloPalm * p_rec = static_cast<const PPStyloPalm *>(pRec);
 	return extra_param ? ((p_rec->Flags & extra_param) == extra_param) : 1;
 }
 
-SLAPI PPObjStyloPalm::PPObjStyloPalm(void * extraPtr) : PPObjReference(PPOBJ_STYLOPALM, extraPtr)
+PPObjStyloPalm::PPObjStyloPalm(void * extraPtr) : PPObjReference(PPOBJ_STYLOPALM, extraPtr)
 {
 	FiltProc = StyloPalmListFilt;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-StrAssocArray * SLAPI PPObjStyloPalm::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjStyloPalm::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);
@@ -299,7 +299,7 @@ StrAssocArray * SLAPI PPObjStyloPalm::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	PPID   k = 0;
@@ -383,7 +383,7 @@ int SLAPI PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 	return r;
 }
 
-/*static*/int SLAPI PPObjStyloPalm::EditConfig()
+/*static*/int PPObjStyloPalm::EditConfig()
 {
 	int    ok = -1, valid_data = 0, is_new = 0;
 	PPStyloPalmConfig cfg;
@@ -434,7 +434,7 @@ int SLAPI PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 	return ok;
 }
 
-static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
+static int EditGeoTrackingMode(PPGeoTrackingMode * pData)
 {
 	class GeoTrackingModeDialog : public TDialog {
 		DECL_DIALOG_DATA(PPGeoTrackingMode);
@@ -688,7 +688,7 @@ void StyloPalmDialog::SetupInheritance()
 	DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags);
 }
 
-int SLAPI PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)
+int PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel;
@@ -733,7 +733,7 @@ int SLAPI PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
+int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -780,7 +780,7 @@ int SLAPI PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int u
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::GetLocList(PPID id, ObjIdListFilt & rLocList)
+int PPObjStyloPalm::GetLocList(PPID id, ObjIdListFilt & rLocList)
 {
 	PPIDArray list;
 	int    ok = ref->GetPropArray(Obj, id, PLMPRP_LOCLIST, &list);
@@ -788,7 +788,7 @@ int SLAPI PPObjStyloPalm::GetLocList(PPID id, ObjIdListFilt & rLocList)
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::GetQuotKindList(PPID id, ObjIdListFilt & rQuotKindList)
+int PPObjStyloPalm::GetQuotKindList(PPID id, ObjIdListFilt & rQuotKindList)
 {
 	PPIDArray list;
 	int    ok = ref->GetPropArray(Obj, id, PLMPRP_QUOTKINDLIST, &list);
@@ -796,7 +796,7 @@ int SLAPI PPObjStyloPalm::GetQuotKindList(PPID id, ObjIdListFilt & rQuotKindList
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArray * pStack)
+int PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArray * pStack)
 {
 	int    ok = -1;
 	PPIDArray inner_stack;
@@ -846,7 +846,7 @@ int SLAPI PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, P
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::GetPacket(PPID id, PPStyloPalmPacket * pPack)
+int PPObjStyloPalm::GetPacket(PPID id, PPStyloPalmPacket * pPack)
 {
 	return Helper_GetPacket(id, pPack, 0);
 }
@@ -857,7 +857,7 @@ struct PdaClientRec {
 	char   Code[16];
 };
 
-static int SLAPI SearchClientInPdaTbl(const char * pInTblPath, PPID id, PdaClientRec * pRec)
+static int SearchClientInPdaTbl(const char * pInTblPath, PPID id, PdaClientRec * pRec)
 {
 	int    ok = -1;
 	DbfTable * p_cli_tbl = PPOpenDbfTable(pInTblPath);
@@ -879,7 +879,7 @@ static int SLAPI SearchClientInPdaTbl(const char * pInTblPath, PPID id, PdaClien
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PPID * pOutID)
+int PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PPID * pOutID)
 {
 	int    ok = -1;
 	PPID   acsh_id = GetSellAccSheet();
@@ -922,7 +922,7 @@ int SLAPI PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PP
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::CheckSignalForInput(const char * pPath)
+int PPObjStyloPalm::CheckSignalForInput(const char * pPath)
 {
 	SString sig_file_name;
 	if(fileExists((sig_file_name = pPath).SetLastSlash().Cat("sp_ready"))) {
@@ -933,7 +933,7 @@ int SLAPI PPObjStyloPalm::CheckSignalForInput(const char * pPath)
 		return 0;
 }
 
-void SLAPI PPObjStyloPalm::ClearInputSemaphore(const char * pPath)
+void PPObjStyloPalm::ClearInputSemaphore(const char * pPath)
 {
 	SString sig_file_name;
 	SFile::Remove((sig_file_name = pPath).SetLastSlash().Cat("sp_ready"));
@@ -954,7 +954,7 @@ static SString & GetImpFileName(const char * pPath, uint fnameID, SString & rBuf
 	//return strcat(setLastSlash(strnzcpy(pBuf, pPath, bufLen)), fname);
 }
 
-int SLAPI PPObjStyloPalm::ReadInputToDo(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/, PPLogger * pLogger)
+int PPObjStyloPalm::ReadInputToDo(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/, PPLogger * pLogger)
 {
 	int    ok = 1;
 	DbfTable * p_todo_tbl = 0;
@@ -1010,7 +1010,7 @@ int SLAPI PPObjStyloPalm::ReadInputToDo(PPStyloPalm * pRec, const char * pPath, 
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::ReadInputDebtMemo(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/)
+int PPObjStyloPalm::ReadInputDebtMemo(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/)
 {
 	int    ok = 1;
 	DbfTable * p_tbl = 0;
@@ -1043,7 +1043,7 @@ int SLAPI PPObjStyloPalm::ReadInputDebtMemo(PPStyloPalm * pRec, const char * pPa
 
 class AndroidReader {
 public:
-	SLAPI AndroidReader(const char * pPath, PPStyloPalm * pRec) : P_Doc(0)
+	AndroidReader(const char * pPath, PPStyloPalm * pRec) : P_Doc(0)
 	{
 		if(!RVALUEPTR(PalmRec, pRec))
 			MEMSZERO(PalmRec);
@@ -1051,7 +1051,7 @@ public:
 			P_Doc = xmlReadFile(pPath, "UTF-8", XML_PARSE_NOENT);
 		}
 	}
-	SLAPI ~AndroidReader()
+	~AndroidReader()
 	{
 		xmlFreeDoc(P_Doc);
 	}
@@ -1063,14 +1063,14 @@ public:
 		}
 		return p_result;
 	}
-	int SLAPI ReadBills(PalmInputParam * pParam, long billIdBias, long * pOrdCount);
-	int SLAPI ReadGeoTracks(PalmInputParam * pParam);
+	int ReadBills(PalmInputParam * pParam, long billIdBias, long * pOrdCount);
+	int ReadGeoTracks(PalmInputParam * pParam);
 private:
 	PPStyloPalm PalmRec;
 	xmlDoc * P_Doc;
 };
 
-int SLAPI AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
+int AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
 {
 	const char * p_hdr_tag = "GeoTrackTable";
 	const char * p_item_tag = "Item";
@@ -1139,7 +1139,7 @@ int SLAPI AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
 	return ok;
 }
 
-int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, long * pOrdCount)
+int AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, long * pOrdCount)
 {
 	const char * p_hdr_tag = "OrderHeaderTable";
 	const char * p_item_tag = "Item";
@@ -1300,7 +1300,7 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/, PPLogger * pLogger, long * pOrdCount)
+int PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/, PPLogger * pLogger, long * pOrdCount)
 {
 	int    ok = 1;
 	long   ord_count = 0L;
@@ -1444,7 +1444,7 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::ReadInputInv(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/, PPLogger * pLogger)
+int PPObjStyloPalm::ReadInputInv(PPStyloPalm * pRec, const char * pPath, PalmInputParam * pParam, long /*flags*/, PPLogger * pLogger)
 {
 	int    ok = 1;
 	DbfTable * p_bill_tbl = 0, * p_line_tbl = 0;
@@ -1539,7 +1539,7 @@ int SLAPI PPObjStyloPalm::ReadInputInv(PPStyloPalm * pRec, const char * pPath, P
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::ReadInput(PPID id, PalmInputParam * pParam, long flags, PPLogger * pLogger, long * pOrdCount)
+int PPObjStyloPalm::ReadInput(PPID id, PalmInputParam * pParam, long flags, PPLogger * pLogger, long * pOrdCount)
 {
 	int    ok = -1;
 	if(pParam) {
@@ -1563,7 +1563,7 @@ int SLAPI PPObjStyloPalm::ReadInput(PPID id, PalmInputParam * pParam, long flags
 	return ok;
 }
 
-static SString & SLAPI MakeBillCode(const PPStyloPalm & rDvcRec, int orderCodeFormatType, const char * pSrcCode, SString & rBuf)
+static SString & MakeBillCode(const PPStyloPalm & rDvcRec, int orderCodeFormatType, const char * pSrcCode, SString & rBuf)
 {
 	rBuf.Z();
 	const size_t max_len = sizeof(((BillTbl::Rec *)0)->Code)-1;
@@ -1595,7 +1595,7 @@ static SString & SLAPI MakeBillCode(const PPStyloPalm & rDvcRec, int orderCodeFo
 	return rBuf;
 }
 
-int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID, const PPStyloPalmConfig & rCfg, PPID * pResultID, PPLogger * pLogger, int use_ta)
+int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID, const PPStyloPalmConfig & rCfg, PPID * pResultID, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -1756,7 +1756,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, PPID locID, PPLogger * pLogger, int use_ta)
+int PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, PPID locID, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -1808,7 +1808,7 @@ int SLAPI PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, 
 }
 
 // @<<PPObjStyloPalm::ImportData
-int SLAPI PPObjStyloPalm::ImportBill(PalmBillQueue * pQueue, PPID opID, PPID locID, PPLogger * pLogger, long ordCount, int use_ta)
+int PPObjStyloPalm::ImportBill(PalmBillQueue * pQueue, PPID opID, PPID locID, PPLogger * pLogger, long ordCount, int use_ta)
 {
 	int    ok = -1;
 	long   accepted_ord_count = 0L, ord_already_ex_count = 0L;
@@ -1845,7 +1845,7 @@ int SLAPI PPObjStyloPalm::ImportBill(PalmBillQueue * pQueue, PPID opID, PPID loc
 const char * PalmMemo = "Palm memo: ";
 
 // @<<PPObjStyloPalm::ImportData
-int SLAPI PPObjStyloPalm::ImportDebtMemo(SQueue * pQueue, PPLogger * pLogger, int use_ta)
+int PPObjStyloPalm::ImportDebtMemo(SQueue * pQueue, PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	/*
@@ -1881,7 +1881,7 @@ int SLAPI PPObjStyloPalm::ImportDebtMemo(SQueue * pQueue, PPLogger * pLogger, in
 }
 
 /*
-static int SLAPI DeleteImportFile(int fileID, const char * pFileName, const char * pExpPath, const char * pDeviceName)
+static int DeleteImportFile(int fileID, const char * pFileName, const char * pExpPath, const char * pDeviceName)
 {
   	int    ok = 1;
 	char   fname[32], path[MAXPATH];
@@ -1902,7 +1902,7 @@ static int SLAPI DeleteImportFile(int fileID, const char * pFileName, const char
 }
 */
 
-static int SLAPI DeleteImportFiles(const PPStyloPalmPacket * pPack)
+static int DeleteImportFiles(const PPStyloPalmPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack->P_Path) {
@@ -1932,7 +1932,7 @@ int CallbackFTPTransfer(long count, long total, const char * pMsg, int)
 	return 1;
 }
 
-static int SLAPI DelFtpFile(const char * pFileName, const char * pFTPPath, WinInetFTP * pFtp, PPLogger * pLogger)
+static int DelFtpFile(const char * pFileName, const char * pFTPPath, WinInetFTP * pFtp, PPLogger * pLogger)
 {
 	int    ok = 1;
 	if(pFtp) {
@@ -1946,7 +1946,7 @@ static int SLAPI DelFtpFile(const char * pFileName, const char * pFTPPath, WinIn
 	return ok;
 }
 
-static int SLAPI DelFtpFile(int fileID, const char * pFTPPath, WinInetFTP * pFtp, PPLogger * pLogger)
+static int DelFtpFile(int fileID, const char * pFTPPath, WinInetFTP * pFtp, PPLogger * pLogger)
 {
 	int    ok = 1;
 	if(pFtp) {
@@ -1978,7 +1978,7 @@ static int DelLocalFile(const char * pPath, int fileID)
 	return DelLocalFile(pPath, (const char *)fname);
 }
 
-static int SLAPI CopyFileToFtp(int fileID, const char * pFileName, const char * pExpPath, const char * pFTPPath,
+static int CopyFileToFtp(int fileID, const char * pFileName, const char * pExpPath, const char * pFTPPath,
 	const char * pDeviceName, WinInetFTP * pFtp, int toFtp, PPLogger * pLogger)
 {
 	int    ok = 1;
@@ -2176,7 +2176,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::Helper_GetChildList(PPID id, PPIDArray & rPalmList, PPIDArray * pStack)
+int PPObjStyloPalm::Helper_GetChildList(PPID id, PPIDArray & rPalmList, PPIDArray * pStack)
 {
 	int    ok = 1;
 	PPIDArray inner_stack;
@@ -2202,7 +2202,7 @@ int SLAPI PPObjStyloPalm::Helper_GetChildList(PPID id, PPIDArray & rPalmList, PP
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmPacket & rS2, long flags)
+int PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyloPalmPacket & rS2, long flags)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 #define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
@@ -2244,12 +2244,12 @@ int SLAPI PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyl
 	return 1;
 }
 
-int SLAPI PPObjStyloPalm::GetChildList(PPID id, PPIDArray & rPalmList)
+int PPObjStyloPalm::GetChildList(PPID id, PPIDArray & rPalmList)
 {
 	return Helper_GetChildList(id, rPalmList, 0);
 }
 
-int SLAPI PPObjStyloPalm::CopyFromFTP(PPID id, int delAfterCopy, PPLogger * pLog)
+int PPObjStyloPalm::CopyFromFTP(PPID id, int delAfterCopy, PPLogger * pLog)
 {
 	int    ok = 1;
 	PPIDArray palm_list;
@@ -2278,7 +2278,7 @@ int SLAPI PPObjStyloPalm::CopyFromFTP(PPID id, int delAfterCopy, PPLogger * pLog
 }
 
 // @<<PPObjStyloPalm::ImpExp
-int SLAPI PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * pLogger)
+int PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * pLogger)
 {
 	int    ok = -1, r = 1;
 	uint   i = 0;
@@ -2339,7 +2339,7 @@ int SLAPI PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * 
 	return ok;
 }
 
-static DbfTable * SLAPI Palm_CreateDbfTable(uint fileNameId, uint dbfsId)
+static DbfTable * Palm_CreateDbfTable(uint fileNameId, uint dbfsId)
 {
 	SString path;
 	return CreateDbfTable(dbfsId, PPGetFilePathS(PPPATH_OUT, fileNameId, path), 1);
@@ -2365,27 +2365,27 @@ public:
 		PPGeoTrackingMode Gtm;
 		int32 StyloFlags;
 	};
-	SLAPI  AndroidXmlWriter(const char * pPath, Header * pHdr, const char * pRoot = 0);
-	SLAPI ~AndroidXmlWriter();
-	int    SLAPI PutTableInfo(const char * pName, int32 recsCount, LDATETIME crtDtm);
-	int    SLAPI StartElement(const char * pName, const char * pAttribName = 0, const char * pAttribValue = 0);
-	int    SLAPI EndElement();
-	int    SLAPI PutElement(const char * pName, const char * pValue);
-	int    SLAPI PutElement(const char * pName, long v);
-	int    SLAPI PutElement(const char * pName, double v);
-	int    SLAPI PutElement(const char * pName, LDATE v);
-	int    SLAPI AddAttrib(const char * pName, const char * pAttribValue);
-	int    SLAPI AddAttrib(const char * pName, bool attribValue);
-	int    SLAPI AddAttrib(const char * pName, long attribValue);
-	int    SLAPI AddAttrib(const char * pName, double attribValue);
-	int    SLAPI AddAttrib(const char * pName, LDATETIME val);
-	int    SLAPI AddAttrib(const char * pName, LTIME val);
-	int    SLAPI AddAttrib(const char * pName, LDATE val);
-	int    SLAPI AddAttrib(const char * pName, const S_GUID & rUuid);
+	AndroidXmlWriter(const char * pPath, Header * pHdr, const char * pRoot = 0);
+	~AndroidXmlWriter();
+	int    PutTableInfo(const char * pName, int32 recsCount, LDATETIME crtDtm);
+	int    StartElement(const char * pName, const char * pAttribName = 0, const char * pAttribValue = 0);
+	int    EndElement();
+	int    PutElement(const char * pName, const char * pValue);
+	int    PutElement(const char * pName, long v);
+	int    PutElement(const char * pName, double v);
+	int    PutElement(const char * pName, LDATE v);
+	int    AddAttrib(const char * pName, const char * pAttribValue);
+	int    AddAttrib(const char * pName, bool attribValue);
+	int    AddAttrib(const char * pName, long attribValue);
+	int    AddAttrib(const char * pName, double attribValue);
+	int    AddAttrib(const char * pName, LDATETIME val);
+	int    AddAttrib(const char * pName, LTIME val);
+	int    AddAttrib(const char * pName, LDATE val);
+	int    AddAttrib(const char * pName, const S_GUID & rUuid);
 
-	int    SLAPI GetBuffer(SBuffer & rBuf);
+	int    GetBuffer(SBuffer & rBuf);
 private:
-	int    SLAPI Helper_CloseWriter();
+	int    Helper_CloseWriter();
 
 	xmlTextWriter * P_Writer;
 	xmlBuffer * P_Buffer;
@@ -2394,7 +2394,7 @@ private:
 #define PALM_FIRST_QUOTFLD 13
 #define PALM_MAX_QUOT      20
 
-SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, const char * pRoot /*=0*/) : P_Buffer(0)
+AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, const char * pRoot /*=0*/) : P_Buffer(0)
 {
 	if(!isempty(pPath)) {
 		SFile::Remove(pPath);
@@ -2446,7 +2446,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 	}
 }
 
-int SLAPI AndroidXmlWriter::Helper_CloseWriter()
+int AndroidXmlWriter::Helper_CloseWriter()
 {
 	int    ok = 0;
 	if(P_Writer) {
@@ -2459,13 +2459,13 @@ int SLAPI AndroidXmlWriter::Helper_CloseWriter()
 	return ok;
 }
 
-SLAPI AndroidXmlWriter::~AndroidXmlWriter()
+AndroidXmlWriter::~AndroidXmlWriter()
 {
 	Helper_CloseWriter();
 	xmlBufferFree(P_Buffer);
 }
 
-int SLAPI AndroidXmlWriter::GetBuffer(SBuffer & rBuf)
+int AndroidXmlWriter::GetBuffer(SBuffer & rBuf)
 {
 	int    ok = -1;
 	if(P_Buffer) {
@@ -2478,7 +2478,7 @@ int SLAPI AndroidXmlWriter::GetBuffer(SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI AndroidXmlWriter::PutTableInfo(const char * pName, int32 recsCount, LDATETIME crtDtm)
+int AndroidXmlWriter::PutTableInfo(const char * pName, int32 recsCount, LDATETIME crtDtm)
 {
 	int    ok = -1;
 	if(P_Writer && sstrlen(pName) /* @v9.4.7 && recsCount > 0*/) {
@@ -2492,7 +2492,7 @@ int SLAPI AndroidXmlWriter::PutTableInfo(const char * pName, int32 recsCount, LD
 	return ok;
 }
 
-int SLAPI AndroidXmlWriter::StartElement(const char * pName, const char * pAttribName /*=0*/, const char * pAttribValue /*=0*/)
+int AndroidXmlWriter::StartElement(const char * pName, const char * pAttribName /*=0*/, const char * pAttribValue /*=0*/)
 {
 	int    ok = 0;
 	if(P_Writer && !isempty(pName)) {
@@ -2505,7 +2505,7 @@ int SLAPI AndroidXmlWriter::StartElement(const char * pName, const char * pAttri
 	return ok;
 }
 
-int SLAPI AndroidXmlWriter::EndElement()
+int AndroidXmlWriter::EndElement()
 {
 	int    ok = 0;
 	if(P_Writer) {
@@ -2515,7 +2515,7 @@ int SLAPI AndroidXmlWriter::EndElement()
 	return ok;
 }
 
-int SLAPI AndroidXmlWriter::PutElement(const char * pName, const char * pValue)
+int AndroidXmlWriter::PutElement(const char * pName, const char * pValue)
 {
 	int    ok = 0;
 	if(P_Writer && !isempty(pName) && !isempty(pValue)) {
@@ -2530,25 +2530,25 @@ int SLAPI AndroidXmlWriter::PutElement(const char * pName, const char * pValue)
 	return ok;
 }
 
-int SLAPI AndroidXmlWriter::PutElement(const char * pName, long v)
+int AndroidXmlWriter::PutElement(const char * pName, long v)
 {
 	SString val;
 	return PutElement(pName, val.Cat(v));
 }
 
-int SLAPI AndroidXmlWriter::PutElement(const char * pName, double v)
+int AndroidXmlWriter::PutElement(const char * pName, double v)
 {
 	SString val;
 	return PutElement(pName, val.Cat(v));
 }
 
-int SLAPI AndroidXmlWriter::PutElement(const char * pName, LDATE v)
+int AndroidXmlWriter::PutElement(const char * pName, LDATE v)
 {
 	SString val;
 	return PutElement(pName, val.Cat(v, DATF_DMY));
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
+int AndroidXmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
 {
 	int    ok = 0;
 	if(P_Writer && !isempty(pAttribName) && !isempty(pAttribValue)) {
@@ -2563,7 +2563,7 @@ int SLAPI AndroidXmlWriter::AddAttrib(const char * pAttribName, const char * pAt
 	return ok;
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, const S_GUID & rUuid)
+int AndroidXmlWriter::AddAttrib(const char * pName, const S_GUID & rUuid)
 {
 	int    ok = 0;
 	if(!rUuid.IsZero()) {
@@ -2574,37 +2574,37 @@ int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, const S_GUID & rUuid)
 	return ok;
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pAttribName, bool attribValue)
+int AndroidXmlWriter::AddAttrib(const char * pAttribName, bool attribValue)
 {
 	SString attr_val;
 	return AddAttrib(pAttribName, attr_val.Cat(STextConst::GetBool(attribValue)));
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pAttribName, long attribValue)
+int AndroidXmlWriter::AddAttrib(const char * pAttribName, long attribValue)
 {
 	SString attr_val;
 	return AddAttrib(pAttribName, attr_val.Cat(attribValue));
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pAttribName, double attribValue)
+int AndroidXmlWriter::AddAttrib(const char * pAttribName, double attribValue)
 {
 	SString attr_val;
 	return AddAttrib(pAttribName, attr_val.Cat(attribValue, MKSFMTD(0, 2, NMBF_NOTRAILZ)));
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, LDATETIME val)
+int AndroidXmlWriter::AddAttrib(const char * pName, LDATETIME val)
 {
 	SString attr_val;
 	return AddAttrib(pName, attr_val.Cat(val));
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, LTIME val)
+int AndroidXmlWriter::AddAttrib(const char * pName, LTIME val)
 {
 	SString attr_val;
 	return AddAttrib(pName, attr_val.Cat(val));
 }
 
-int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, LDATE val)
+int AndroidXmlWriter::AddAttrib(const char * pName, LDATE val)
 {
 	SString attr_val;
 	return AddAttrib(pName, attr_val.Cat(val));
@@ -2964,7 +2964,7 @@ struct PalmCfgItem {
 	PalmConfig C;
 };
 
-static int SLAPI MoveOutFilePlain(int fileID, const char * pFileName, const PalmCfgItem * pCfgItem, AndroidDevs * pDevs)
+static int MoveOutFilePlain(int fileID, const char * pFileName, const PalmCfgItem * pCfgItem, AndroidDevs * pDevs)
 {
 	int    ok = -1;
 	SString fname, path, out_path;
@@ -2985,8 +2985,8 @@ static int SLAPI MoveOutFilePlain(int fileID, const char * pFileName, const Palm
 	return ok;
 }
 
-//static int SLAPI MoveOutFile(int fileID, const char * pFileName, const char * pExpPath, PPID palmId, AndroidDevs * pDevs)
-static int SLAPI MoveOutFile(int fileID, const PalmCfgItem * pCfgItem, AndroidDevs * pDevs)
+//static int MoveOutFile(int fileID, const char * pFileName, const char * pExpPath, PPID palmId, AndroidDevs * pDevs)
+static int MoveOutFile(int fileID, const PalmCfgItem * pCfgItem, AndroidDevs * pDevs)
 {
 	const  int force_empty = BIN(pCfgItem->PalmFlags & PLMF_BLOCKED);
 	int    ok = pDevs ? pDevs->MoveOutFile(pCfgItem->ID, fileID, force_empty) : -1;
@@ -2996,7 +2996,7 @@ static int SLAPI MoveOutFile(int fileID, const PalmCfgItem * pCfgItem, AndroidDe
 	return ok;
 }
 
-/*static*/int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
+/*static*/int PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 {
 	int    r = -1;
 	const  char * p_tag = "StyloPalm";
@@ -3048,7 +3048,7 @@ static int SLAPI MoveOutFile(int fileID, const PalmCfgItem * pCfgItem, AndroidDe
 	return r;
 }
 
-int SLAPI PPObjStyloPalm::ImportToDo(SQueue * pQueue, PPLogger * pLogger, int use_ta)
+int PPObjStyloPalm::ImportToDo(SQueue * pQueue, PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	if(pQueue) {
@@ -3074,7 +3074,7 @@ int SLAPI PPObjStyloPalm::ImportToDo(SQueue * pQueue, PPLogger * pLogger, int us
 	return ok;
 }
 
-SLAPI PPObjStyloPalm::ExportBlock::ExportBlock() : P_DebtView(0), P_GrView(0), P_BrandList(0), P_WhList(0), P_GgList(0)
+PPObjStyloPalm::ExportBlock::ExportBlock() : P_DebtView(0), P_GrView(0), P_BrandList(0), P_WhList(0), P_GgList(0)
 {
 	P_GObj = new PPObjGoods;
 	P_BrObj = new PPObjBrand;
@@ -3083,7 +3083,7 @@ SLAPI PPObjStyloPalm::ExportBlock::ExportBlock() : P_DebtView(0), P_GrView(0), P
 	P_ArObj = new PPObjArticle;
 }
 
-SLAPI PPObjStyloPalm::ExportBlock::~ExportBlock()
+PPObjStyloPalm::ExportBlock::~ExportBlock()
 {
 	delete P_GObj;
 	delete P_BrObj;
@@ -3097,7 +3097,7 @@ SLAPI PPObjStyloPalm::ExportBlock::~ExportBlock()
 	delete P_GgList;
 }
 
-int SLAPI PPObjStyloPalm::CreateWhList(ExportBlock & rBlk)
+int PPObjStyloPalm::CreateWhList(ExportBlock & rBlk)
 {
 	int    ok = -1;
 	if(!rBlk.P_WhList) {
@@ -3120,7 +3120,7 @@ int SLAPI PPObjStyloPalm::CreateWhList(ExportBlock & rBlk)
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::CreateBrandList(ExportBlock & rBlk)
+int PPObjStyloPalm::CreateBrandList(ExportBlock & rBlk)
 {
 	int    ok = -1;
     if(!rBlk.P_BrandList) {
@@ -3153,7 +3153,7 @@ int SLAPI PPObjStyloPalm::CreateBrandList(ExportBlock & rBlk)
     return ok;
 }
 
-int SLAPI PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
+int PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
 {
 	int    ok = -1;
     if(!rBlk.P_GgList) {
@@ -3176,7 +3176,7 @@ int SLAPI PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
     return ok;
 }
 
-/* @v10.8.6 int SLAPI PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
+/* @v10.8.6 int PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
 {
 	int    ok = 1;
 	rBlk.QkList.Z();
@@ -3200,7 +3200,7 @@ struct StyloPalmGoodsEntry {
 	double UnitPerPack;
 };
 
-int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & rBlk)
+int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & rBlk)
 {
 	int    ok = -1;
 	uint   i;
@@ -3509,7 +3509,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::CopyToFTP(PPID id, int delAfterCopy, PPLogger * pLog)
+int PPObjStyloPalm::CopyToFTP(PPID id, int delAfterCopy, PPLogger * pLog)
 {
 	int    ok = 1;
 	PPIDArray palm_list;
@@ -3537,7 +3537,7 @@ int SLAPI PPObjStyloPalm::CopyToFTP(PPID id, int delAfterCopy, PPLogger * pLog)
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::DeleteImportData(PPID id)
+int PPObjStyloPalm::DeleteImportData(PPID id)
 {
 	int    ok = 1;
 	PPIDArray palm_list;
@@ -3553,7 +3553,7 @@ int SLAPI PPObjStyloPalm::DeleteImportData(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjStyloPalm::RegisterDevice(PPID id, RegisterDeviceBlock * pBlk, int use_ta)
+int PPObjStyloPalm::RegisterDevice(PPID id, RegisterDeviceBlock * pBlk, int use_ta)
 {
 	int    ok = 1;
 	PPStyloPalmPacket pack;
@@ -3626,7 +3626,7 @@ static PalmCfgItem * FASTCALL GetPalmConfigItem(TSCollection <PalmCfgItem> & rLi
 	return rList.lsearch(&palmID, &pos, CMPF_LONG) ? rList.at(pos) : 0;
 }
 
-int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk)
+int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -3768,7 +3768,7 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 }
 
 /*
-int SLAPI PPObjStyloPalm::UpdateLicense()
+int PPObjStyloPalm::UpdateLicense()
 {
 	struct PalmLic {
 		long  AgentID;
@@ -3837,7 +3837,7 @@ int SLAPI PPObjStyloPalm::UpdateLicense()
 	}
 }
 */
-int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
+int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 {
 	int    ok = 1;
 	const  int dont_prepare_debt_data = BIN(rParam.Flags & PalmPaneData::fExclExpDebts);
@@ -4179,7 +4179,7 @@ private:
 	}
 };
 
-/*static*/int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
+/*static*/int PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
 {
 	int    ok = -1;
 	PalmPaneDialog * dlg = 0;
@@ -4198,7 +4198,7 @@ private:
 	return ok;
 }
 
-/*static*/int SLAPI PPObjStyloPalm::ImpExp(const PalmPaneData * pData)
+/*static*/int PPObjStyloPalm::ImpExp(const PalmPaneData * pData)
 {
 	int    ok = 1;
 	const  PPConfig & r_cfg = LConfig;
@@ -4272,18 +4272,18 @@ private:
 	return ok;
 }
 
-SLAPI PalmImportWaiter::PalmImportWaiter(PalmImportProc proc, void * procExtraPtr) : Semaphore(0), P_DeviceList(0), Proc(proc), ProcExtraPtr(procExtraPtr)
+PalmImportWaiter::PalmImportWaiter(PalmImportProc proc, void * procExtraPtr) : Semaphore(0), P_DeviceList(0), Proc(proc), ProcExtraPtr(procExtraPtr)
 {
 	InitDeviceList();
 }
 
-SLAPI PalmImportWaiter::~PalmImportWaiter()
+PalmImportWaiter::~PalmImportWaiter()
 {
 	delete P_DeviceList;
 	Queue.Destroy();
 }
 
-int SLAPI PalmImportWaiter::InitDeviceList()
+int PalmImportWaiter::InitDeviceList()
 {
 	P_DeviceList = new SArray(sizeof(DeviceEntry));
 	PPStyloPalm rec;
@@ -4302,7 +4302,7 @@ int SLAPI PalmImportWaiter::InitDeviceList()
 	return 1;
 }
 
-int SLAPI PalmImportWaiter::ProcessQueue()
+int PalmImportWaiter::ProcessQueue()
 {
 	if(Proc) {
 		while(!Queue.IsEmpty()) {
@@ -4328,7 +4328,7 @@ int SLAPI PalmImportWaiter::ProcessQueue()
 	return 1;
 }
 
-int SLAPI PalmImportWaiter::Activate()
+int PalmImportWaiter::Activate()
 {
 	int    ok = 1;
 	if(!Semaphore) {
@@ -4349,18 +4349,18 @@ int SLAPI PalmImportWaiter::Activate()
 //
 //
 //
-SLAPI PalmInputParam::PalmInputParam() : P_BillQueue(0), P_ToDoQueue(0), P_DebtMemoQueue(0), P_GtList(0)
+PalmInputParam::PalmInputParam() : P_BillQueue(0), P_ToDoQueue(0), P_DebtMemoQueue(0), P_GtList(0)
 {
 }
 //
 //
 //
-SLAPI PalmDisplayBlock::PalmDisplayBlock()
+PalmDisplayBlock::PalmDisplayBlock()
 {
 	Clear();
 }
 
-void SLAPI PalmDisplayBlock::Clear()
+void PalmDisplayBlock::Clear()
 {
 	Ver = DS.GetVersion();
 	DvcID = 0;
@@ -4412,7 +4412,7 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	uint   SLAPI Peek(PalmDisplayBlock & rBlk, int doLock)
+	uint   Peek(PalmDisplayBlock & rBlk, int doLock)
 	{
 		int    ok = -1;
 		if(doLock)
@@ -4430,7 +4430,7 @@ public:
 			Unlock();
 		return ok;
 	}
-	int    SLAPI Pop(PalmDisplayBlock * pBlk, int doLock)
+	int    Pop(PalmDisplayBlock * pBlk, int doLock)
 	{
 		int    ok = -1;
 		if(doLock)
@@ -4487,7 +4487,7 @@ static StyloDisplayQueue * FASTCALL GetStyloDisplayQueue(PPID dvcID)
 }
 
 //static
-int SLAPI PPObjStyloPalm::PutDisplayBlock(const PalmDisplayBlock & rBlk)
+int PPObjStyloPalm::PutDisplayBlock(const PalmDisplayBlock & rBlk)
 {
 	int    ok = 1;
 	assert(rBlk.DvcID);
@@ -4500,7 +4500,7 @@ int SLAPI PPObjStyloPalm::PutDisplayBlock(const PalmDisplayBlock & rBlk)
 }
 
 //static
-int SLAPI PPObjStyloPalm::LockDisplayQueue(PPID dvcID)
+int PPObjStyloPalm::LockDisplayQueue(PPID dvcID)
 {
 	int    ok = 1;
 	assert(dvcID);
@@ -4513,7 +4513,7 @@ int SLAPI PPObjStyloPalm::LockDisplayQueue(PPID dvcID)
 }
 
 //static
-int SLAPI PPObjStyloPalm::UnlockDisplayQueue(PPID dvcID)
+int PPObjStyloPalm::UnlockDisplayQueue(PPID dvcID)
 {
 	int    ok = 1;
 	assert(dvcID);
@@ -4526,7 +4526,7 @@ int SLAPI PPObjStyloPalm::UnlockDisplayQueue(PPID dvcID)
 }
 
 //static
-int SLAPI PPObjStyloPalm::PeekDisplayBlock(PPID dvcID, PalmDisplayBlock & rBlk, int lock)
+int PPObjStyloPalm::PeekDisplayBlock(PPID dvcID, PalmDisplayBlock & rBlk, int lock)
 {
 	int    ok = -1;
 	assert(dvcID);
@@ -4539,7 +4539,7 @@ int SLAPI PPObjStyloPalm::PeekDisplayBlock(PPID dvcID, PalmDisplayBlock & rBlk, 
 }
 
 //static
-int SLAPI PPObjStyloPalm::PopDisplayBlock(PPID dvcID, PalmDisplayBlock * pBlk, int lock)
+int PPObjStyloPalm::PopDisplayBlock(PPID dvcID, PalmDisplayBlock * pBlk, int lock)
 {
 	int    ok = 1;
 	assert(dvcID);

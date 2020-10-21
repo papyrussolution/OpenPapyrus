@@ -5,12 +5,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPCheckInPersonConfig::PPCheckInPersonConfig()
+PPCheckInPersonConfig::PPCheckInPersonConfig()
 {
 	THISZERO();
 }
 
-SLAPI PPCheckInPersonConfig::PPCheckInPersonConfig(PPObjTSession & rTSesObj, const TSessionPacket & rTSessPack)
+PPCheckInPersonConfig::PPCheckInPersonConfig(PPObjTSession & rTSesObj, const TSessionPacket & rTSessPack)
 {
 	THISZERO();
 	{
@@ -35,12 +35,12 @@ SLAPI PPCheckInPersonConfig::PPCheckInPersonConfig(PPObjTSession & rTSesObj, con
 	ENDCATCH
 }
 
-int SLAPI PPCheckInPersonConfig::operator !() const
+int PPCheckInPersonConfig::operator !() const
 {
 	return BIN(Flags & fError);
 }
 
-SLAPI PPCheckInPersonItem::Total::Total() : RegCount(0), CiCount(0), CalceledCount(0)
+PPCheckInPersonItem::Total::Total() : RegCount(0), CiCount(0), CalceledCount(0)
 {
 }
 
@@ -63,18 +63,18 @@ IMPL_INVARIANT_C(PPCheckInPersonItem)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI PPCheckInPersonItem::PPCheckInPersonItem()
+PPCheckInPersonItem::PPCheckInPersonItem()
 {
 	THISZERO();
 }
 
-PPCheckInPersonItem & SLAPI PPCheckInPersonItem::Z()
+PPCheckInPersonItem & PPCheckInPersonItem::Z()
 {
 	THISZERO();
 	return *this;
 }
 
-int SLAPI PPCheckInPersonItem::CalcPinCode(SString & rCode) const
+int PPCheckInPersonItem::CalcPinCode(SString & rCode) const
 {
     rCode.Z();
     SString temp_buf;
@@ -84,7 +84,7 @@ int SLAPI PPCheckInPersonItem::CalcPinCode(SString & rCode) const
 	return 1;
 }
 
-int SLAPI PPCheckInPersonItem::Cancel(long flags, const char * pPinCode)
+int PPCheckInPersonItem::Cancel(long flags, const char * pPinCode)
 {
 	int    ok = -1;
     if(flags & opfVerifyPinCode) {
@@ -104,7 +104,7 @@ int SLAPI PPCheckInPersonItem::Cancel(long flags, const char * pPinCode)
 	return ok;
 }
 
-int SLAPI PPCheckInPersonItem::CheckIn(long flags, const char * pPinCode)
+int PPCheckInPersonItem::CheckIn(long flags, const char * pPinCode)
 {
 	int    ok = -1;
 	const  int current_status = GetStatus();
@@ -140,12 +140,12 @@ int FASTCALL PPCheckInPersonItem::SetPerson(PPID personID)
 	return 1;
 }
 
-PPID SLAPI PPCheckInPersonItem::GetPerson() const
+PPID PPCheckInPersonItem::GetPerson() const
 {
 	return (Flags & fAnonym) ? 0 : PersonID;
 }
 
-int SLAPI PPCheckInPersonItem::GetPersonName(SString & rBuf) const
+int PPCheckInPersonItem::GetPersonName(SString & rBuf) const
 {
 	int    ok = 1;
 	if(Flags & fAnonym) {
@@ -157,18 +157,18 @@ int SLAPI PPCheckInPersonItem::GetPersonName(SString & rBuf) const
 	return ok;
 }
 
-void SLAPI PPCheckInPersonItem::SetAnonym()
+void PPCheckInPersonItem::SetAnonym()
 {
 	PersonID = 0;
 	Flags |= fAnonym;
 }
 
-int SLAPI PPCheckInPersonItem::IsAnonym() const
+int PPCheckInPersonItem::IsAnonym() const
 {
 	return BIN(Flags & fAnonym);
 }
 
-void SLAPI PPCheckInPersonItem::Count(Total & rT) const
+void PPCheckInPersonItem::Count(Total & rT) const
 {
 	const uint rc = (RegCount > 0) ? RegCount : 1;
 	const int  status = GetStatus();
@@ -183,7 +183,7 @@ void SLAPI PPCheckInPersonItem::Count(Total & rT) const
 	rT.RegCount += rc;
 }
 
-int SLAPI PPCheckInPersonItem::CalcAmount(const PPCheckInPersonConfig * pCfg, double * pPrice, double * pAmount) const
+int PPCheckInPersonItem::CalcAmount(const PPCheckInPersonConfig * pCfg, double * pPrice, double * pAmount) const
 {
 	int    ok = -1;
 	double price = 0.0;
@@ -206,7 +206,7 @@ int SLAPI PPCheckInPersonItem::CalcAmount(const PPCheckInPersonConfig * pCfg, do
 	return ok;
 }
 
-int SLAPI PPCheckInPersonItem::GetStatus() const
+int PPCheckInPersonItem::GetStatus() const
 {
 	int    status = statusUnkn;
 	if(Flags & fCheckedIn)
@@ -218,7 +218,7 @@ int SLAPI PPCheckInPersonItem::GetStatus() const
 	return status;
 }
 
-int SLAPI PPCheckInPersonItem::SetStatus(int status)
+int PPCheckInPersonItem::SetStatus(int status)
 {
 	int    ok = 1;
 	if(status == statusRegistered) {
@@ -289,7 +289,7 @@ IMPL_INVARIANT_C(PPCheckInPersonArray)
 }
 
 
-SLAPI PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim), // @v9.8.6 TSArray-->TSVector
+PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim), // @v9.8.6 TSArray-->TSVector
 	Ver(DS.GetVersion()), Kind(0), PrmrID(0), LastAnonymN(0)
 {
 	MemoPool.add("$"); // zero index - is empty string
@@ -311,7 +311,7 @@ PPCheckInPersonArray & FASTCALL PPCheckInPersonArray::operator = (const PPCheckI
 	return Copy(rS);
 }
 
-PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Init(int kind, PPID prmrID)
+PPCheckInPersonArray & PPCheckInPersonArray::Init(int kind, PPID prmrID)
 {
 	Z();
 	Ver = DS.GetVersion();
@@ -328,7 +328,7 @@ void FASTCALL PPCheckInPersonArray::InitItem(PPCheckInPersonItem & rItem) const
 	rItem.RegDtm = getcurdatetime_();
 }
 
-PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Z()
+PPCheckInPersonArray & PPCheckInPersonArray::Z()
 {
 	LastAnonymN = 0;
 	SVector::clear(); // @v9.8.6 SArray-->SVector
@@ -337,7 +337,7 @@ PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Z()
 	return *this;
 }
 
-int SLAPI PPCheckInPersonArray::SetMemo(uint rowPos, const char * pMemo)
+int PPCheckInPersonArray::SetMemo(uint rowPos, const char * pMemo)
 {
 	int    ok = 0;
 	if(rowPos < getCount()) {
@@ -352,7 +352,7 @@ int SLAPI PPCheckInPersonArray::SetMemo(uint rowPos, const char * pMemo)
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::GetMemo(uint rowPos, SString & rMemo) const
+int PPCheckInPersonArray::GetMemo(uint rowPos, SString & rMemo) const
 {
 	int    ok = 0;
 	if(rowPos < getCount()) {
@@ -363,7 +363,7 @@ int SLAPI PPCheckInPersonArray::GetMemo(uint rowPos, SString & rMemo) const
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::AddItem(const PPCheckInPersonItem & rItem, const PPCheckInPersonConfig * pCipCfg, uint * pPos)
+int PPCheckInPersonArray::AddItem(const PPCheckInPersonItem & rItem, const PPCheckInPersonConfig * pCipCfg, uint * pPos)
 {
 	int    ok = 1;
 	PPCheckInPersonItem item;
@@ -410,7 +410,7 @@ int SLAPI PPCheckInPersonArray::AddItem(const PPCheckInPersonItem & rItem, const
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::UpdateItem(uint pos, const PPCheckInPersonItem & rItem, const PPCheckInPersonConfig * pCipCfg)
+int PPCheckInPersonArray::UpdateItem(uint pos, const PPCheckInPersonItem & rItem, const PPCheckInPersonConfig * pCipCfg)
 {
 	if(pos < getCount()) {
 		PPCheckInPersonItem item;
@@ -437,7 +437,7 @@ int FASTCALL PPCheckInPersonArray::RemoveItem(uint pos)
 	return ok;
 }
 
-void SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
+void PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
 {
 	Kind = kind;
 	PrmrID = prmrID;
@@ -456,7 +456,7 @@ void SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
 	MemoPool = temp_memo_pool;
 }
 
-int SLAPI PPCheckInPersonArray::ProcessObjRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPCheckInPersonArray::ProcessObjRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	// Ссылка CCheckID не разрешается.
@@ -471,7 +471,7 @@ int SLAPI PPCheckInPersonArray::ProcessObjRefs(PPObjIDArray * ary, int replace, 
 	return ok;
 }
 
-uint SLAPI PPCheckInPersonArray::GetCount() const
+uint PPCheckInPersonArray::GetCount() const
 {
 	return SVector::getCount(); // @v9.8.6 SArray-->SVector
 }
@@ -481,7 +481,7 @@ const  PPCheckInPersonItem & FASTCALL PPCheckInPersonArray::Get(uint pos) const
 	return at(pos);
 }
 
-void SLAPI PPCheckInPersonArray::InitIteration()
+void PPCheckInPersonArray::InitIteration()
 {
 	SVector::setPointer(0); // @v9.8.6 SArray-->SVector
 }
@@ -499,8 +499,8 @@ int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
 	return ok;
 }
 
-//int SLAPI PPCheckInPersonArray::Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const
-void SLAPI PPCheckInPersonArray::Count(PPCheckInPersonItem::Total & rT) const
+//int PPCheckInPersonArray::Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const
+void PPCheckInPersonArray::Count(PPCheckInPersonItem::Total & rT) const
 {
 	//uint   reg_count = 0;
 	//uint   ci_count = 0;
@@ -522,7 +522,7 @@ void SLAPI PPCheckInPersonArray::Count(PPCheckInPersonItem::Total & rT) const
 	//return 1;
 }
 
-int SLAPI PPCheckInPersonArray::CalcAmount(const PPCheckInPersonConfig * pCfg, double * pAmount) const
+int PPCheckInPersonArray::CalcAmount(const PPCheckInPersonConfig * pCfg, double * pAmount) const
 {
 	int    ok = -1;
 	double amount = 0.0;
@@ -539,10 +539,10 @@ int SLAPI PPCheckInPersonArray::CalcAmount(const PPCheckInPersonConfig * pCfg, d
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::SearchByID(PPID id, uint * pPos) const { return lsearch(&id, pPos, CMPF_LONG); }
-int SLAPI PPCheckInPersonArray::SearchByNum(long num, uint * pPos) const { return lsearch(&num, pPos, CMPF_LONG, offsetof(PPCheckInPersonItem, Num)); }
+int PPCheckInPersonArray::SearchByID(PPID id, uint * pPos) const { return lsearch(&id, pPos, CMPF_LONG); }
+int PPCheckInPersonArray::SearchByNum(long num, uint * pPos) const { return lsearch(&num, pPos, CMPF_LONG, offsetof(PPCheckInPersonItem, Num)); }
 
-int SLAPI PPCheckInPersonArray::SearchItem(const PPCheckInPersonItem & rItem, uint * pPos) const
+int PPCheckInPersonArray::SearchItem(const PPCheckInPersonItem & rItem, uint * pPos) const
 {
 	int    ok = 0;
 	for(uint   i = DEREFPTRORZ(pPos); !ok && i < getCount(); i++) {
@@ -555,7 +555,7 @@ int SLAPI PPCheckInPersonArray::SearchItem(const PPCheckInPersonItem & rItem, ui
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPCheckInPersonArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -582,11 +582,11 @@ int SLAPI PPCheckInPersonArray::Serialize(int dir, SBuffer & rBuf, SSerializeCon
 //
 //
 //
-SLAPI PPCheckInPersonMngr::PPCheckInPersonMngr()
+PPCheckInPersonMngr::PPCheckInPersonMngr()
 {
 }
 
-int SLAPI PPCheckInPersonMngr::Search(PPID id, PPCheckInPersonItem * pItem)
+int PPCheckInPersonMngr::Search(PPID id, PPCheckInPersonItem * pItem)
 {
 	ObjAssocTbl::Rec rec;
 	int    ok = PPRef->Assc.Search(id, &rec);
@@ -597,7 +597,7 @@ int SLAPI PPCheckInPersonMngr::Search(PPID id, PPCheckInPersonItem * pItem)
 	return ok;
 }
 
-int SLAPI PPCheckInPersonMngr::Search(/*int kind, PPID prmrID, PPID personID*/const PPCheckInPersonItem & rKeyItem, PPCheckInPersonItem * pItem)
+int PPCheckInPersonMngr::Search(/*int kind, PPID prmrID, PPID personID*/const PPCheckInPersonItem & rKeyItem, PPCheckInPersonItem * pItem)
 {
 	int    ok = -1;
 	PPID   assc_type = GetAssocType(rKeyItem.Kind);
@@ -615,7 +615,7 @@ int SLAPI PPCheckInPersonMngr::Search(/*int kind, PPID prmrID, PPID personID*/co
 	return ok;
 }
 
-int SLAPI PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArray & rList)
+int PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArray & rList)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -642,7 +642,7 @@ int SLAPI PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArr
 	return ok;
 }
 
-int SLAPI PPCheckInPersonMngr::Put(PPCheckInPersonItem & rItem, int use_ta)
+int PPCheckInPersonMngr::Put(PPCheckInPersonItem & rItem, int use_ta)
 {
 	int    ok = 1, r = 0;
 	PPCheckInPersonItem org_item;
@@ -688,7 +688,7 @@ int SLAPI PPCheckInPersonMngr::Put(PPCheckInPersonItem & rItem, int use_ta)
 	return ok;
 }
 
-int SLAPI PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
+int PPCheckInPersonMngr::Put(PPCheckInPersonArray & rList, int use_ta)
 {
 	int    ok = -1, r = 0;
 	PPCheckInPersonItem org_item;
@@ -1057,7 +1057,7 @@ private:
 	SString & R_MemoBuf;
 };
 
-int SLAPI EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData, SString & rMemo) { DIALOG_PROC_BODY_P2(CheckInPersonDialog, pCfg, rMemo, pData); }
+int EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData, SString & rMemo) { DIALOG_PROC_BODY_P2(CheckInPersonDialog, pCfg, rMemo, pData); }
 
 class CheckInPersonListDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPCheckInPersonArray);
@@ -1354,7 +1354,7 @@ int CheckInPersonListDialog::delItem(long pos, long id)
 	return Data.RemoveItem(static_cast<uint>(pos)) ? 1 : -1;
 }
 
-int SLAPI EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData) { DIALOG_PROC_BODY_P1(CheckInPersonListDialog, pCfg, pData); }
+int EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData) { DIALOG_PROC_BODY_P1(CheckInPersonListDialog, pCfg, pData); }
 //
 // Implementation of PPALDD_CheckInPerson
 //

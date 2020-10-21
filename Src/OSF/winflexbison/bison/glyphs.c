@@ -19,7 +19,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <unicodeio.h>
+//#include <unicodeio.h>
 
 glyph_buffer_t arrow;
 int arrow_width;

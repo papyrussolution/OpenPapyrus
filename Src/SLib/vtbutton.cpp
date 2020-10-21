@@ -9,7 +9,7 @@
 // @v8.3.3 Удалены условия __WIN32__
 //
 // Prototype
-int SLAPI showInputLineCalc(TDialog *, uint);
+int showInputLineCalc(TDialog *, uint);
 
 #pragma warn -par
 
@@ -377,7 +377,7 @@ IMPL_HANDLE_EVENT(InputLineCalc)
 	clearEvent(event);
 }
 
-int SLAPI showInputLineCalc(TDialog * pParentDlg, uint fieldCtlId)
+int showInputLineCalc(TDialog * pParentDlg, uint fieldCtlId)
 {
 	int    ok = -1;
 	if(APPL && APPL->P_DeskTop) {

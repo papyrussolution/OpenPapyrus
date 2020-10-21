@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPViewLot)
 //
-int SLAPI LotFilt::InitInstance()
+int LotFilt::InitInstance()
 {
 	P_TagF = 0;
 	SetFlatChunk(offsetof(LotFilt, ReserveStart),
@@ -18,12 +18,12 @@ int SLAPI LotFilt::InitInstance()
 	return Init(1, 0);
 }
 
-IMPLEMENT_PPFILT_FACTORY(Lot); SLAPI LotFilt::LotFilt() : PPBaseFilt(PPFILT_LOT, 0, 3) // @v7.4.5 ver 0-->1 // @v8.4.11 1-->2 // @v10.6.8 2-->3
+IMPLEMENT_PPFILT_FACTORY(Lot); LotFilt::LotFilt() : PPBaseFilt(PPFILT_LOT, 0, 3) // @v7.4.5 ver 0-->1 // @v8.4.11 1-->2 // @v10.6.8 2-->3
 {
 	InitInstance();
 }
 
-SLAPI LotFilt::LotFilt(const LotFilt & rS) : PPBaseFilt(PPFILT_LOT, 0, 3) // @v10.6.8 1-->3
+LotFilt::LotFilt(const LotFilt & rS) : PPBaseFilt(PPFILT_LOT, 0, 3) // @v10.6.8 1-->3
 {
 	InitInstance();
 	Copy(&rS, 1);
@@ -35,15 +35,15 @@ LotFilt & FASTCALL LotFilt::operator = (const LotFilt & s)
 	return *this;
 }
 
-int SLAPI LotFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int LotFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
-/*virtual*/int SLAPI LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {
 		struct LotFilt_v0 : public PPBaseFilt {
-			SLAPI LotFilt_v0() : PPBaseFilt(PPFILT_LOT, 0, 0)
+			LotFilt_v0() : PPBaseFilt(PPFILT_LOT, 0, 0)
 			{
 				SetFlatChunk(offsetof(LotFilt_v0, ReserveStart),
 					offsetof(LotFilt_v0, Reserve)-offsetof(LotFilt_v0, ReserveStart)+sizeof(Reserve));
@@ -98,7 +98,7 @@ int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtS
 	}
 	else if(ver == 1) {
 		struct LotFilt_v1 : public PPBaseFilt {
-			SLAPI  LotFilt_v1() : PPBaseFilt(PPFILT_LOT, 0, 1)
+			LotFilt_v1() : PPBaseFilt(PPFILT_LOT, 0, 1)
 			{
 				SetFlatChunk(offsetof(LotFilt_v1, ReserveStart), offsetof(LotFilt_v1, Reserve)-offsetof(LotFilt_v1, ReserveStart)+sizeof(Reserve));
 				Init(1, 0);
@@ -160,7 +160,7 @@ int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtS
 	else if(ver == 2) {
 		class LotFilt_v2 : public PPBaseFilt {
 		public:
-			SLAPI  LotFilt_v2() : PPBaseFilt(PPFILT_LOT, 0, 2), P_TagF(0)
+			LotFilt_v2() : PPBaseFilt(PPFILT_LOT, 0, 2), P_TagF(0)
 			{
 				SetFlatChunk(offsetof(LotFilt_v2, ReserveStart), offsetof(LotFilt_v2, Reserve)-offsetof(LotFilt_v2, ReserveStart)+sizeof(Reserve));
 				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(LotFilt_v2, P_TagF));
@@ -226,7 +226,7 @@ int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtS
 	return ok;
 }
 
-/*virtual*/int SLAPI LotFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int LotFilt::Describe(long flags, SString & rBuf) const
 {
 	{
 		SString buf;
@@ -291,7 +291,7 @@ int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtS
 //
 //
 //
-int SLAPI ConvertLandQCertToLotTag()
+int ConvertLandQCertToLotTag()
 {
 	return (PPError(PPERR_FUNCNOTMORESUPPORTED), 0);
 }
@@ -320,13 +320,13 @@ void PPViewLot::IterData::Reset()
 //
 //
 //
-SLAPI PPViewLot::PPViewLot() : PPView(0, &Filt, PPVIEW_LOT), P_BObj(BillObj), State(0), P_Tbl(&P_BObj->trfr->Rcpt),
+PPViewLot::PPViewLot() : PPView(0, &Filt, PPVIEW_LOT, 0, 0), P_BObj(BillObj), State(0), P_Tbl(&P_BObj->trfr->Rcpt),
 	P_TempTbl(0), P_SpoilTbl(0), P_PplBlkBeg(0), P_PplBlkEnd(0)
 {
 	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 }
 
-SLAPI PPViewLot::~PPViewLot()
+PPViewLot::~PPViewLot()
 {
 	delete P_TempTbl;
 	delete P_SpoilTbl;
@@ -514,7 +514,7 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 	}
 }
 
-int SLAPI PPViewLot::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewLot::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -571,7 +571,7 @@ private:
 	}
 };
 
-int SLAPI PPViewLot::MovLotOps(PPID srcLotID)
+int PPViewLot::MovLotOps(PPID srcLotID)
 {
 	int    ok = -1;
 	ReceiptTbl::Rec lot_rec;
@@ -605,7 +605,7 @@ int FASTCALL PPViewLot::AddDerivedLotToTotal(const ReceiptTbl::Rec * pRec)
 	return (p_lv && pLotRec->LocID != p_lv->Total.LocID) ? p_lv->AddDerivedLotToTotal(pLotRec) : 0;
 }
 
-int SLAPI PPViewLot::CalcTotal(LotTotal::Status stat, LotTotal * pTotal)
+int PPViewLot::CalcTotal(LotTotal::Status stat, LotTotal * pTotal)
 {
 	int    ok = 1;
 	LotViewItem item;
@@ -660,7 +660,7 @@ int SLAPI PPViewLot::CalcTotal(LotTotal::Status stat, LotTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPViewLot::ViewTotal()
+int PPViewLot::ViewTotal()
 {
 	class LotTotalDialog : public TDialog {
 	public:
@@ -729,7 +729,7 @@ struct LotRecoverParam {
 	SString LogFileName;
 };
 
-static int SLAPI RecoverLotsDialog(LotRecoverParam & rParam)
+static int RecoverLotsDialog(LotRecoverParam & rParam)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_CORLOTS);
@@ -782,7 +782,7 @@ static int SLAPI RecoverLotsDialog(LotRecoverParam & rParam)
 	return ok;
 }
 
-int SLAPI PPViewLot::RecoverLots()
+int PPViewLot::RecoverLots()
 {
 	int    ok = -1, ta = 0;
 	int    frrl_tag = 0, r;
@@ -886,7 +886,7 @@ int SLAPI PPViewLot::RecoverLots()
 	return ok;
 }
 
-int SLAPI PPViewLot::EditLot(PPID id)
+int PPViewLot::EditLot(PPID id)
 {
 	int    ok = 0, valid = 0;
 	uint   pos = 0, del = 0;
@@ -967,7 +967,7 @@ int SLAPI PPViewLot::EditLot(PPID id)
 //
 //
 //
-int SLAPI PPViewLot::GetItem(PPID lotID, LotViewItem * pItem)
+int PPViewLot::GetItem(PPID lotID, LotViewItem * pItem)
 {
 	memzero(pItem, sizeof(*pItem));
 	if(P_Tbl->Search(lotID, pItem) > 0) {
@@ -988,12 +988,12 @@ int SLAPI PPViewLot::GetItem(PPID lotID, LotViewItem * pItem)
 		return -1;
 }
 
-int SLAPI PPViewLot::ViewBillInfo(PPID billID)
+int PPViewLot::ViewBillInfo(PPID billID)
 {
 	return P_BObj->ViewBillInfo(billID);
 }
 
-int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
+int PPViewLot::Init_(const PPBaseFilt * pFilt)
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
@@ -1121,7 +1121,7 @@ int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewLot::IsTempTblNeeded() const
+int PPViewLot::IsTempTblNeeded() const
 {
 	int    yes = 0;
 	if(!(State & stNoTempTbl)) {
@@ -1140,7 +1140,7 @@ int SLAPI PPViewLot::IsTempTblNeeded() const
 	return yes;
 }
 
-int SLAPI PPViewLot::PutAllToBasket()
+int PPViewLot::PutAllToBasket()
 {
 	int    ok = -1, r = 0;
 	SelBasketParam param;
@@ -1178,7 +1178,7 @@ int SLAPI PPViewLot::PutAllToBasket()
 	return ok;
 }
 
-int SLAPI PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID opID, PPID locID, RAssocArray & rList)
+int PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID opID, PPID locID, RAssocArray & rList)
 {
 	int    ok = -1;
 	if(opID) {
@@ -1243,7 +1243,7 @@ int SLAPI PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID
 	return ok;
 }
 
-int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -1535,7 +1535,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 	return ok;
 }
 
-int SLAPI PPViewLot::Debug()
+int PPViewLot::Debug()
 {
 	LotViewItem item;
 	SString buf;
@@ -1557,7 +1557,7 @@ int SLAPI PPViewLot::Debug()
 	return -1;
 }
 
-int SLAPI PPViewLot::UpdateTempTable(PPID lotID)
+int PPViewLot::UpdateTempTable(PPID lotID)
 {
 	int    ok = -1;
 	TempLotTbl::Rec rec;
@@ -1597,7 +1597,7 @@ int SLAPI PPViewLot::UpdateTempTable(PPID lotID)
 	return ok;
 }
 
-int SLAPI PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHashTable * pHt, int showPercentage)
+int PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHashTable * pHt, int showPercentage)
 {
 	int    ok = 1, r;
 	long   nr = DEREFPTRORZ(pCounter);
@@ -1683,7 +1683,7 @@ int SLAPI PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, Ui
 	return ok;
 }
 
-int SLAPI PPViewLot::CreateTempTable()
+int PPViewLot::CreateTempTable()
 {
 	ZDELETE(P_TempTbl);
 	int    ok = 1;
@@ -1762,7 +1762,7 @@ int SLAPI PPViewLot::CreateTempTable()
 	return ok;
 }
 
-int SLAPI PPViewLot::InitIteration(IterOrder order)
+int PPViewLot::InitIteration(IterOrder order)
 {
 	int    ok = 1, no_recs = 0;
 	DBQ  * dbq = 0;
@@ -1912,7 +1912,7 @@ int SLAPI PPViewLot::InitIteration(IterOrder order)
 	return ok;
 }
 
-int SLAPI PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pItem)
+int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pItem)
 {
 	int    ok = -1;
 	LotViewItem item;
@@ -2193,7 +2193,7 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 	return ok;
 }
 
-void SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & LotFilt::fOrders) {
@@ -2231,7 +2231,7 @@ void SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	DBDataCell fld_list[20];
@@ -2479,13 +2479,13 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 //
 //
 //
-int SLAPI PPViewLot::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLot::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return lot_id ? ::ViewOpersByLot(lot_id, 0) : -1;
 }
 
-int SLAPI PPViewLot::Print(const void *)
+int PPViewLot::Print(const void *)
 {
 	int    ok = 1;
 	PPReportEnv env;
@@ -2520,7 +2520,7 @@ int SLAPI PPViewLot::Print(const void *)
 	return ok;
 }
 
-int SLAPI PPViewLot::Export()
+int PPViewLot::Export()
 {
 	int    ok = 1, r;
 	PPLotExporter l_e;
@@ -2540,7 +2540,7 @@ int SLAPI PPViewLot::Export()
 //
 // PPViewLot::ExportGoodsLabelData
 //
-int SLAPI PPViewLot::ExportGoodsLabelData()
+int PPViewLot::ExportGoodsLabelData()
 {
 	int    ok = 1;
 	SString path;
@@ -2595,9 +2595,9 @@ int SLAPI PPViewLot::ExportGoodsLabelData()
 //
 //
 //
-//int SLAPI EditPrcssrUnifyPriceFiltDialog(PrcssrUnifyPriceFilt *);
+//int EditPrcssrUnifyPriceFiltDialog(PrcssrUnifyPriceFilt *);
 
-int SLAPI PPViewLot::RevalCostByLots()
+int PPViewLot::RevalCostByLots()
 {
 	int    ok = 1;
 	PrcssrUnifyPriceFilt param;
@@ -2788,7 +2788,7 @@ void PPALDD_Lots::Destroy() { DESTROY_PPVIEW_ALDD(Lot); }
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(LOT, PPLotImpExpParam);
 
-SLAPI PPLotImpExpParam::PPLotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), UhttGoodsCodeArID(0)
+PPLotImpExpParam::PPLotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), UhttGoodsCodeArID(0)
 {
 }
 
@@ -2892,7 +2892,7 @@ int LotImpExpDialog::getDTS(PPLotImpExpParam * pData)
 	return ok;
 }
 
-int SLAPI EditLotImpExpParam(const char * pIniSection)
+int EditLotImpExpParam(const char * pIniSection)
 {
 	int    ok = -1;
 	LotImpExpDialog * dlg = 0;
@@ -2931,7 +2931,7 @@ int SLAPI EditLotImpExpParam(const char * pIniSection)
    	return ok;
 }
 
-int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
+int SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 {
 	int    ok = -1, valid_data = 0;
 	uint   p = 0;
@@ -2978,16 +2978,16 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 	return ok;
 }
 
-SLAPI PPLotExporter::PPLotExporter() : Param(0, 0), P_IE(0)
+PPLotExporter::PPLotExporter() : Param(0, 0), P_IE(0)
 {
 }
 
-SLAPI PPLotExporter::~PPLotExporter()
+PPLotExporter::~PPLotExporter()
 {
 	ZDELETE(P_IE);
 }
 
-int SLAPI PPLotExporter::Init(const PPLotImpExpParam * pParam)
+int PPLotExporter::Init(const PPLotImpExpParam * pParam)
 {
 	int    ok = 1;
 	RVALUEPTR(Param, pParam);
@@ -3003,7 +3003,7 @@ int SLAPI PPLotExporter::Init(const PPLotImpExpParam * pParam)
 	return ok;
 }
 
-int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
+int PPLotExporter::Export(const LotViewItem * pItem)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -3159,7 +3159,7 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 //
 //
 //
-int SLAPI EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
+int EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
 {
 	int    ok = -1;
 	uint   sel = 0;
@@ -3206,7 +3206,7 @@ int SLAPI EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(LotExtCode); SLAPI LotExtCodeFilt::LotExtCodeFilt() : PPBaseFilt(PPFILT_LOTEXTCODE, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(LotExtCode); LotExtCodeFilt::LotExtCodeFilt() : PPBaseFilt(PPFILT_LOTEXTCODE, 0, 1)
 {
 	SetFlatChunk(offsetof(LotExtCodeFilt, ReserveStart),
 		offsetof(LotExtCodeFilt, Reserve)-offsetof(LotExtCodeFilt, ReserveStart)+sizeof(Reserve));
@@ -3214,16 +3214,15 @@ IMPLEMENT_PPFILT_FACTORY(LotExtCode); SLAPI LotExtCodeFilt::LotExtCodeFilt() : P
 	Init(1, 0);
 }
 
-SLAPI PPViewLotExtCode::PPViewLotExtCode() : PPView(0, &Filt, PPVIEW_LOTEXTCODE), P_BObj(BillObj)
-{
-	ImplementFlags |= implDontEditNullFilter;
-}
-
-SLAPI PPViewLotExtCode::~PPViewLotExtCode()
+PPViewLotExtCode::PPViewLotExtCode() : PPView(0, &Filt, PPVIEW_LOTEXTCODE, implDontEditNullFilter, 0), P_BObj(BillObj)
 {
 }
 
-int SLAPI PPViewLotExtCode::Init_(const PPBaseFilt * pBaseFilt)
+PPViewLotExtCode::~PPViewLotExtCode()
+{
+}
+
+int PPViewLotExtCode::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -3231,7 +3230,7 @@ int SLAPI PPViewLotExtCode::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewLotExtCode::InitIteration()
+int PPViewLotExtCode::InitIteration()
 {
 	int    ok = 1;
 	LotExtCodeTbl::Key0 k0, k0_;
@@ -3261,7 +3260,7 @@ int FASTCALL PPViewLotExtCode::NextIteration(LotExtCodeViewItem * pItem)
 	return ok;
 }
 
-PPBaseFilt * SLAPI PPViewLotExtCode::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewLotExtCode::CreateFilt(void * extraPtr) const
 {
 	LotExtCodeFilt * p_filt = new LotExtCodeFilt;
 	if(p_filt)
@@ -3269,12 +3268,12 @@ PPBaseFilt * SLAPI PPViewLotExtCode::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewLotExtCode::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewLotExtCode::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	return -1;
 }
 
-int SLAPI PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
+int PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 {
 	int    ok = 0;
 	if(pHdr) {
@@ -3290,7 +3289,7 @@ int SLAPI PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewLotExtCode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewLotExtCode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_LOTEXTCODE;
 	DBDataCell fld_list[20];
@@ -3329,7 +3328,7 @@ DBQuery * SLAPI PPViewLotExtCode::CreateBrowserQuery(uint * pBrwId, SString * pS
 	return q;
 }
 
-int SLAPI PPViewLotExtCode::CheckDupCode(const LotExtCodeTbl::Rec & rRec)
+int PPViewLotExtCode::CheckDupCode(const LotExtCodeTbl::Rec & rRec)
 {
 	int    ok = 1;
 	LotExtCodeTbl::Key1 k1;
@@ -3349,7 +3348,7 @@ int SLAPI PPViewLotExtCode::CheckDupCode(const LotExtCodeTbl::Rec & rRec)
 	return ok;
 }
 
-int SLAPI PPViewLotExtCode::ViewTotal()
+int PPViewLotExtCode::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_LOTEXTCTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -3367,7 +3366,7 @@ int SLAPI PPViewLotExtCode::ViewTotal()
 		return 0;
 }
 
-int SLAPI PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

@@ -24,9 +24,9 @@ struct LocValEntry { // @flat
 
 class LocValList : public SVector { // @v9.8.10 SArray-->SVector
 public:
-	SLAPI  LocValList();
-	int    SLAPI Setup(LDATE startDate, const GoodsRestParam *);
-	int    SLAPI Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList); // @v9.8.4 TSArray-->TSVect
+	LocValList();
+	int    Setup(LDATE startDate, const GoodsRestParam *);
+	int    Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList); // @v9.8.4 TSArray-->TSVect
 	LocValEntry * FASTCALL GetEntry(PPID locID);
 private:
 	int    FASTCALL AddEntry(PPID locID, double rest)
@@ -37,11 +37,11 @@ private:
 	LDATE  StartDate;
 };
 
-SLAPI LocValList::LocValList() : SVector(sizeof(LocValEntry)) // @v9.8.10 SArray-->SVector
+LocValList::LocValList() : SVector(sizeof(LocValEntry)) // @v9.8.10 SArray-->SVector
 {
 }
 
-int SLAPI LocValList::Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList) // @v9.8.4 TSArray-->TSVect
+int LocValList::Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList) // @v9.8.4 TSArray-->TSVect
 {
 	assert(pList);
 	StartDate = startDate;
@@ -71,7 +71,7 @@ int SLAPI LocValList::Setup(LDATE startDate, PPID goodsID, const TSVector <Prcss
 	return 1;
 }
 
-int SLAPI LocValList::Setup(LDATE startDate, const GoodsRestParam * pGrp)
+int LocValList::Setup(LDATE startDate, const GoodsRestParam * pGrp)
 {
 	StartDate = startDate;
 	for(uint i = 0; i < pGrp->getCount(); i++) {
@@ -110,7 +110,7 @@ LocValEntry * FASTCALL LocValList::GetEntry(PPID locID)
 	return ok;
 }
 
-/*static*/int SLAPI Predictor::PutPredictCfg(const PPPredictConfig * pCfg, int use_ta)
+/*static*/int Predictor::PutPredictCfg(const PPPredictConfig * pCfg, int use_ta)
 {
 	int    ok = 1, is_new = 1;
 	Reference * p_ref = PPRef;
@@ -129,12 +129,12 @@ LocValEntry * FASTCALL LocValList::GetEntry(PPID locID)
 	return ok;
 }
 
-SLAPI Predictor::Predictor()
+Predictor::Predictor()
 {
 	GetPredictCfg(&Cfg);
 }
 
-int SLAPI Predictor::IsWorkDay(const ObjIdListFilt * pLocList, LDATE dt)
+int Predictor::IsWorkDay(const ObjIdListFilt * pLocList, LDATE dt)
 {
 	return !T.IsHoliday(pLocList, dt);
 }
@@ -174,7 +174,7 @@ Predictor::EvalParam & Predictor::EvalParam::Set(const ObjIdListFilt * pLocList,
 //
 // rParam.Period должен быть закрытым с обеих сторон (rParam.Period->low != 0 && rParam.Period->up != 0).
 //
-int SLAPI Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSalesStat * pStat, int * pCanTrust)
+int Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSalesStat * pStat, int * pCanTrust)
 {
 	int    ok = 1, result = 0, r, can_trust = 0;
 	double predict_qtty = 0.0, model_qtty = 0.0, proto_qtty = 0.0, total_qtty = 0.0;
@@ -324,12 +324,12 @@ int SLAPI Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSa
 	return ok;
 }
 
-int SLAPI Predictor::GetStat(PPID goodsID, const ObjIdListFilt & rLocList, PredictSalesStat * pStat)
+int Predictor::GetStat(PPID goodsID, const ObjIdListFilt & rLocList, PredictSalesStat * pStat)
 {
 	return T.GetStat(goodsID, rLocList, pStat);
 }
 
-int SLAPI GetEstimatedSales(const ObjIdListFilt * pLocList, PPID goodsID, const DateRange * pPeriod, double * pQtty)
+int GetEstimatedSales(const ObjIdListFilt * pLocList, PPID goodsID, const DateRange * pPeriod, double * pQtty)
 {
 	int    ok = 1;
 	Predictor predictor;
@@ -350,7 +350,7 @@ DateRange PrcssrPrediction::Param::GetNormPeriod() const
 	return norm;
 }
 
-SLAPI PPPredictConfig::PPPredictConfig()
+PPPredictConfig::PPPredictConfig()
 {
 	THISZERO();
 }
@@ -387,7 +387,7 @@ SLAPI PPPredictConfig::PPPredictConfig()
 	return f;
 }
 
-/*static*/int SLAPI PrcssrPrediction::EditPredictCfg()
+/*static*/int PrcssrPrediction::EditPredictCfg()
 {
 	int    ok = -1, is_new = 0;
 	ushort v = 0;
@@ -499,18 +499,18 @@ SLAPI PPPredictConfig::PPPredictConfig()
 	return ok;
 }
 
-SLAPI PrcssrPrediction::PrcssrPrediction() : Predictor(), P_BObj(BillObj), P_IterQuery(0), MaxTime(0)
+PrcssrPrediction::PrcssrPrediction() : Predictor(), P_BObj(BillObj), P_IterQuery(0), MaxTime(0)
 {
 	if(!Cfg.StartDate)
 		P_BObj->P_Tbl->GetFirstDate(Cfg.OpID, &Cfg.StartDate);
 }
 
-SLAPI PrcssrPrediction::~PrcssrPrediction()
+PrcssrPrediction::~PrcssrPrediction()
 {
 	delete P_IterQuery;
 }
 
-int SLAPI PrcssrPrediction::InitParam(Param * pParam)
+int PrcssrPrediction::InitParam(Param * pParam)
 {
 	memzero(pParam, sizeof(Param));
 	DateRange p;
@@ -519,7 +519,7 @@ int SLAPI PrcssrPrediction::InitParam(Param * pParam)
 	return 1;
 }
 
-int SLAPI PrcssrPrediction::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rLocList, LDATE * pLastDate)
+int PrcssrPrediction::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rLocList, LDATE * pLastDate)
 {
 	return T.GetLastUpdate(goodsID, rLocList, pLastDate);
 }
@@ -728,7 +728,7 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::EditParam(Param * pParam)
+int PrcssrPrediction::EditParam(Param * pParam)
 {
 	int    ok = -1;
 	TDialog * p_dlg_ = 0;
@@ -774,7 +774,7 @@ int SLAPI PrcssrPrediction::EditParam(Param * pParam)
 	return ok;
 }
 
-/*static*/int SLAPI PrcssrPrediction::IsLocked()
+/*static*/int PrcssrPrediction::IsLocked()
 {
 	int    ok = -1, r;
 	PPSync & r_sync = DS.GetSync();
@@ -790,7 +790,7 @@ int SLAPI PrcssrPrediction::EditParam(Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::Init(const Param * pParam)
+int PrcssrPrediction::Init(const Param * pParam)
 {
 	int    ok = 1;
 	int    goods_quant = 0;
@@ -826,7 +826,7 @@ int SLAPI PrcssrPrediction::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::CheckInterruption()
+int PrcssrPrediction::CheckInterruption()
 {
 	int    ok = 0;
 	int    msg_id = 0;
@@ -852,7 +852,7 @@ int SLAPI PrcssrPrediction::CheckInterruption()
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::Run()
+int PrcssrPrediction::Run()
 {
 	const  int use_ta = 1;
 	const  long preserve_replace_param = P.Replace;
@@ -1119,7 +1119,7 @@ int SLAPI PrcssrPrediction::Run()
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE commonLastDate, PredictSalesCore::StatStoreErr * pErr, int use_ta)
+int PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE commonLastDate, PredictSalesCore::StatStoreErr * pErr, int use_ta)
 {
 	//
 	// Расчет и сохранение статистики по товарам разнесено для ускорения //
@@ -1307,7 +1307,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 
 #if 1 // @construction {
 
-int SLAPI PrcssrPrediction::FlashStat(PredictSalesStat * pList, uint count, PredictSalesCore::StatStoreErr * pErr, int use_ta)
+int PrcssrPrediction::FlashStat(PredictSalesStat * pList, uint count, PredictSalesCore::StatStoreErr * pErr, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -1365,7 +1365,7 @@ int SLAPI PrcssrPrediction::FlashStat(PredictSalesStat * pList, uint count, Pred
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::StatStoreErr * pErr, int use_ta)
+int PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::StatStoreErr * pErr, int use_ta)
 {
 	const uint max_stat_entries = 128 * 1024;
 	int    ok = 1, ta = 0;
@@ -1461,17 +1461,17 @@ static IMPL_CMPFUNC(__HI, i1, i2) { RET_CMPCASCADE2(static_cast<const __HI *>(i1
 
 class __HolidayArray : public TSVector <__HI> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  __HolidayArray(const PredictSalesCore & rT, const DateRange & rPeriod) : TSVector <__HI>(), T(rT), Period(rPeriod)
+	__HolidayArray(const PredictSalesCore & rT, const DateRange & rPeriod) : TSVector <__HI>(), T(rT), Period(rPeriod)
 	{
 	}
-	int    SLAPI Is(int16 locIdx, LDATE dt);
+	int    Is(int16 locIdx, LDATE dt);
 private:
 	const DateRange Period;
 	const PredictSalesCore & T;
 	BitArray LocIdxList;
 };
 
-int SLAPI __HolidayArray::Is(int16 locIdx, LDATE dt)
+int __HolidayArray::Is(int16 locIdx, LDATE dt)
 {
 	while((uint)locIdx >= LocIdxList.getCount())
 		LocIdxList.insertN(0, 1024);
@@ -1493,7 +1493,7 @@ int SLAPI __HolidayArray::Is(int16 locIdx, LDATE dt)
 	return bsearch(&key, 0, PTR_CMPFUNC(__HI));
 }
 
-int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _MassGoodsRestBlock * pRestBlk, int calcStat, int use_ta)
+int PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _MassGoodsRestBlock * pRestBlk, int calcStat, int use_ta)
 {
 	PPUserFuncProfiler ufp((P.Process == P.prcsTest) ? PPUPRF_PSALBLDGOODSTEST : PPUPRF_PSALBLDGOODS);
 	int    ok = 1, /*ta = 0,*/ r;
@@ -1810,7 +1810,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goodsID, LDATE date, __HolidayArray & rHa, SArray * pVect)
+int PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goodsID, LDATE date, __HolidayArray & rHa, SArray * pVect)
 {
 	int    ok = 1;
 	LDATE  last_date = rLvEntry.LastOpDate;
@@ -1870,17 +1870,17 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::DeleteAllItems()
+int PrcssrPrediction::DeleteAllItems()
 {
 	return T.ClearAll();
 }
 
-int SLAPI PrcssrPrediction::DeleteItemsByPeriod(DateRange period, PPID gGrpID, int use_ta)
+int PrcssrPrediction::DeleteItemsByPeriod(DateRange period, PPID gGrpID, int use_ta)
 {
 	return T.ClearByPeriod(period, gGrpID, use_ta);
 }
 
-int SLAPI PrcssrPrediction::SetContinueMode(int reset, PPID lastGoodsID, int use_ta)
+int PrcssrPrediction::SetContinueMode(int reset, PPID lastGoodsID, int use_ta)
 {
 	int    ok = 1;
 	PPPredictConfig cfg;
@@ -1909,7 +1909,7 @@ int SLAPI PrcssrPrediction::SetContinueMode(int reset, PPID lastGoodsID, int use
 	return ok;
 }
 
-int SLAPI PrcssrPrediction::GetContinueMode(int checkOnly, PPID * pLastGoodsID)
+int PrcssrPrediction::GetContinueMode(int checkOnly, PPID * pLastGoodsID)
 {
 	int    ok = -1;
 	PPPredictConfig cfg;

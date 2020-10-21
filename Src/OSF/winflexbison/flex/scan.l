@@ -65,7 +65,7 @@ extern const char *escaped_qstart, *escaped_qend;
 
 #define MARK_END_OF_PROLOG mark_prolog();
 
-#define YY_DECL int flexscan(void)
+#define YY_DECL int flexscan()
 
 #define RETURNCHAR \
 	yylval = (uchar)yytext[0]; \
@@ -1008,8 +1008,7 @@ nmstr[yyleng - 2 - end_is_ws] = '\0';  /* chop trailing brace */
 
 %%
 
-
-int yywrap(void)
+int yywrap()
 {
 	if(--num_input_files > 0) {
 		set_input_file( *++input_files );

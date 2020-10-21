@@ -1,5 +1,5 @@
 // GRAPH.H
-// Copyright (c) A.Starodub 2003
+// Copyright (c) A.Starodub 2003, 2020
 //
 #ifndef __GRAPH_H
 #define __GRAPH_H
@@ -14,10 +14,10 @@ struct AbcissaInfo {
 };
 
 struct PPGraphParam {
-	SLAPI  PPGraphParam();
-	SLAPI ~PPGraphParam();
-	void   SLAPI AllocMem();
-	int    SLAPI copy(const PPGraphParam &aParam);
+	PPGraphParam();
+	~PPGraphParam();
+	void   AllocMem();
+	int    copy(const PPGraphParam &aParam);
 
 	enum {
 		gKindBasic = 1,
@@ -37,48 +37,47 @@ struct PPGraphParam {
 #ifdef __WIN32__
 class PPGraphView {
 public:
-	SLAPI  PPGraphView();
-	int    SLAPI Init(const PPGraphParam *);
-	int    SLAPI DrawDiagram(HDC hdc);
-	int    SLAPI GetPixelInfo(HDC hdc, long x, long y, char * pBuf, int bufLen);
-	const  PPGraphParam * SLAPI GetGraphParam() const { return &GraphParam; }
+	PPGraphView();
+	int    Init(const PPGraphParam *);
+	int    DrawDiagram(HDC hdc);
+	int    GetPixelInfo(HDC hdc, long x, long y, char * pBuf, int bufLen);
+	const  PPGraphParam * GetGraphParam() const { return &GraphParam; }
 private:
-	int    SLAPI DrawBasicDiagram(HDC hdc);
-	int    SLAPI DrawColDiagram(HDC hdc);
-	int    SLAPI DrawPieDiagram(HDC hdc);
-	int    SLAPI DrawAxis(HDC hdc);
-	int    SLAPI PrintAbcissa(HDC hdc);
-	int    SLAPI PrintOrdinata(HDC hdc);
-	int    SLAPI PrintLegenda(HDC hdc);
-	int    SLAPI AngleTextPrint(HDC hdc, double x, double y, char * pBuf, int bufLen,
+	int    DrawBasicDiagram(HDC hdc);
+	int    DrawColDiagram(HDC hdc);
+	int    DrawPieDiagram(HDC hdc);
+	int    DrawAxis(HDC hdc);
+	int    PrintAbcissa(HDC hdc);
+	int    PrintOrdinata(HDC hdc);
+	int    PrintLegenda(HDC hdc);
+	int    AngleTextPrint(HDC hdc, double x, double y, char * pBuf, int bufLen,
 		COLORREF color, char * pFontName, int fontSize, int angle);
-	int    SLAPI TextPrint(HDC, double x1, double y1, char * pBuf,
+	int    TextPrint(HDC, double x1, double y1, char * pBuf,
 		int bufLen, COLORREF, char * pFontName, int fontSize);
-	int    SLAPI DrawCvtLine(HDC, double x1, double y1, double x2, double y2, COLORREF, int lineThickness);
-	int    SLAPI DrawLine(HDC, double x1, double y1, double x2, double y2, COLORREF, int lineThickness);
-	int    SLAPI DrawCvtRectangle(HDC, double x1, double y1, double x2,
+	int    DrawCvtLine(HDC, double x1, double y1, double x2, double y2, COLORREF, int lineThickness);
+	int    DrawLine(HDC, double x1, double y1, double x2, double y2, COLORREF, int lineThickness);
+	int    DrawCvtRectangle(HDC, double x1, double y1, double x2,
 		double y2, COLORREF, int lineThickness);
-	int    SLAPI DrawRectangle(HDC, double x1, double y1, double x2,
+	int    DrawRectangle(HDC, double x1, double y1, double x2,
 		double y2, COLORREF, int lineThickness);
-	int    SLAPI DrawCvtPie(HDC, double leftX, double topY, double rightX, double bottomY, double xRadial1,
+	int    DrawCvtPie(HDC, double leftX, double topY, double rightX, double bottomY, double xRadial1,
 		double yRadial1, double xRadial2, double yRaidal2 , COLORREF, int lineThickness);
-	int    SLAPI DrawPie(HDC, double leftX, double topY, double rightX, double bottomY, double xRadial1,
+	int    DrawPie(HDC, double leftX, double topY, double rightX, double bottomY, double xRadial1, 
 		double yRadial1, double xRadial2, double yRaidal2 , COLORREF, int lineThickness);
-	int    SLAPI AbcissaOpsTypeBasic(uint idx, AbcissaInfo * pInfo, long action);
-	int    SLAPI AbcissaOpsColInit();
-	int    SLAPI AbcissaOpsTypeCol(uint idx, AbcissaInfo * pInfo, long action);
-	int    SLAPI AbcissaOps(uint idx, AbcissaInfo * pInfo, long action);
-	int    SLAPI CalcScaleY();
-	int    SLAPI CalcCoordOnCircle(double x, double y, double sqrSideLen,
-		double * pCircleX, double * pCircleY, int * pAngle);
-	double SLAPI ScaleX(double x) const;
-	double SLAPI ScaleY(double y) const;
-	double SLAPI OffsetX(double x) const;
-	double SLAPI OffsetY(double y) const;
-	long   SLAPI GetFirstX() const;
-	long   SLAPI GetTopY() const;
-	long   SLAPI GetLastX() const;
-	long   SLAPI GetBottomY() const;
+	int    AbcissaOpsTypeBasic(uint idx, AbcissaInfo * pInfo, long action);
+	int    AbcissaOpsColInit();
+	int    AbcissaOpsTypeCol(uint idx, AbcissaInfo * pInfo, long action);
+	int    AbcissaOps(uint idx, AbcissaInfo * pInfo, long action);
+	int    CalcScaleY();
+	int    CalcCoordOnCircle(double x, double y, double sqrSideLen, double * pCircleX, double * pCircleY, int * pAngle);
+	double ScaleX(double x) const;
+	double ScaleY(double y) const;
+	double OffsetX(double x) const;
+	double OffsetY(double y) const;
+	long   GetFirstX() const;
+	long   GetTopY() const;
+	long   GetLastX() const;
+	long   GetBottomY() const;
 
 	PPGraphParam GraphParam;
 	long   RemsCount;
@@ -92,13 +91,13 @@ private:
 
 class PPGraphWindow {
 public:
-	SLAPI  PPGraphWindow();
-	SLAPI ~PPGraphWindow();
-	int    SLAPI Init(const PPGraphParam * pParam);
+	PPGraphWindow();
+	~PPGraphWindow();
+	int    Init(const PPGraphParam * pParam);
 	static BOOL  CALLBACK GraphWndProc(HWND , UINT , WPARAM , LPARAM);
-	int    SLAPI Browse();
-	void   SLAPI OnPaint(HWND hWnd);
-	int    SLAPI GetPixelInfo(HWND hWnd, long x, long y, char * pBuf, int bufLen);
+	int    Browse();
+	void   OnPaint(HWND hWnd);
+	int    GetPixelInfo(HWND hWnd, long x, long y, char * pBuf, int bufLen);
 private:
 	PPGraphView * P_View;
 	HWND   hWnd;
@@ -111,11 +110,11 @@ class PPGraphWindow {
 
 class PPGraph {
 public:
-	SLAPI  PPGraph();
-	SLAPI ~PPGraph();
-	int    SLAPI Init(const PPGraphParam * pParam);
-	int    SLAPI Browse();
-	int    SLAPI Print();
+	PPGraph();
+	~PPGraph();
+	int    Init(const PPGraphParam * pParam);
+	int    Browse();
+	int    Print();
 private:
 	PPGraphWindow * P_Window;
 };

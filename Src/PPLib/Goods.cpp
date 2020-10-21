@@ -6,12 +6,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI ClsdGoodsFilt::ClsdGoodsFilt()
+ClsdGoodsFilt::ClsdGoodsFilt()
 {
 	Z();
 }
 
-ClsdGoodsFilt & SLAPI ClsdGoodsFilt::Z()
+ClsdGoodsFilt & ClsdGoodsFilt::Z()
 {
 	GdsClsID = 0;
 	Flags = 0;
@@ -40,13 +40,13 @@ int FASTCALL ClsdGoodsFilt::IsEqual(const ClsdGoodsFilt & rS) const
 	return 1;
 }
 
-int SLAPI ClsdGoodsFilt::HasAttrRestrictions() const
+int ClsdGoodsFilt::HasAttrRestrictions() const
 {
 	return (KindList.GetCount() || GradeList.GetCount() || AddObjList.GetCount() || AddObj2List.GetCount() ||
 		!DimX_Rng.IsZero() || !DimY_Rng.IsZero() || !DimZ_Rng.IsZero() || !DimW_Rng.IsZero());
 }
 
-int SLAPI ClsdGoodsFilt::SetDimRange(int dim, double low, double upp)
+int ClsdGoodsFilt::SetDimRange(int dim, double low, double upp)
 {
 	int    ok = 1;
 	switch(dim) {
@@ -59,12 +59,12 @@ int SLAPI ClsdGoodsFilt::SetDimRange(int dim, double low, double upp)
 	return ok;
 }
 
-SLAPI BarcodeArrangeConfig::BarcodeArrangeConfig()
+BarcodeArrangeConfig::BarcodeArrangeConfig()
 {
 	THISZERO();
 }
 
-int SLAPI BarcodeArrangeConfig::Load()
+int BarcodeArrangeConfig::Load()
 {
 	THISZERO();
 	int    ok = -1;
@@ -79,12 +79,12 @@ int SLAPI BarcodeArrangeConfig::Load()
 	return ok;
 }
 
-int SLAPI BarcodeArrangeConfig::Save()
+int BarcodeArrangeConfig::Save()
 {
 	return -1;
 }
 
-int SLAPI BarcodeArrangeConfig::IsLowPrior(const char * pBarcode) const
+int BarcodeArrangeConfig::IsLowPrior(const char * pBarcode) const
 {
 	const size_t lpp_len = sstrlen(LowPriorPrefix);
 	if(lpp_len) {
@@ -181,7 +181,7 @@ int FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt)
 //
 //
 //
-int SLAPI BarcodeArray::Add(const char * pCode, long codeType, double qtty)
+int BarcodeArray::Add(const char * pCode, long codeType, double qtty)
 {
 	BarcodeTbl::Rec item;
 	// @v10.6.4 MEMSZERO(item);
@@ -191,7 +191,7 @@ int SLAPI BarcodeArray::Add(const char * pCode, long codeType, double qtty)
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI BarcodeArray::Arrange()
+int BarcodeArray::Arrange()
 {
 	const  BarcodeArrangeConfig & bac = DS.GetConstTLA().Bac;
 	uint   last = getCount();
@@ -207,7 +207,7 @@ int SLAPI BarcodeArray::Arrange()
 	return 1;
 }
 
-int SLAPI BarcodeArray::SearchCode(const char * pCode, uint * pPos) const
+int BarcodeArray::SearchCode(const char * pCode, uint * pPos) const
 {
 	int    ok = 0;
 	if(!isempty(pCode)) {
@@ -295,7 +295,7 @@ const BarcodeTbl::Rec * FASTCALL BarcodeArray::GetPreferredItem(uint * pPos) con
 	return 0;
 }
 
-int SLAPI BarcodeArray::Replace(const char * pSearchCode, const char * pReplaceCode)
+int BarcodeArray::Replace(const char * pSearchCode, const char * pReplaceCode)
 {
 	int    ok = -1;
 	uint   c = getCount();
@@ -329,11 +329,11 @@ public:
 	{
 		Init();
 	}
-	int    SLAPI Init();
-	int    SLAPI Search(GoodsCore * pGoodsTbl, const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec) const;
+	int    Init();
+	int    Search(GoodsCore * pGoodsTbl, const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec) const;
 };
 
-int SLAPI TwoDimBarcodeFormatArray::Init()
+int TwoDimBarcodeFormatArray::Init()
 {
 	int    ok = -1;
 	SString buf;
@@ -364,7 +364,7 @@ int SLAPI TwoDimBarcodeFormatArray::Init()
 	return ok;
 }
 
-int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec) const
+int TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec) const
 {
 	int    ok = -1;
 	size_t len = sstrlen(pCodeLine);
@@ -404,7 +404,7 @@ int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * p
 //
 //
 //
-void SLAPI GoodsCore::InitQc()
+void GoodsCore::InitQc()
 {
 	if(!P_Qc && !P_Qc2) {
 		if(CConfig.Flags2 & CCFLG2_QUOT2)
@@ -415,17 +415,17 @@ void SLAPI GoodsCore::InitQc()
 	assert(BIN(P_Qc) != BIN(P_Qc2));
 }
 
-SLAPI GoodsCore::GoodsCore() : P_Ref(PPRef), P_Qc(0), P_Qc2(0)
+GoodsCore::GoodsCore() : P_Ref(PPRef), P_Qc(0), P_Qc2(0)
 {
 }
 
-SLAPI GoodsCore::~GoodsCore()
+GoodsCore::~GoodsCore()
 {
 	delete P_Qc;
 	delete P_Qc2;
 }
 
-int SLAPI GoodsCore::Validate(const Goods2Tbl::Rec * pRec)
+int GoodsCore::Validate(const Goods2Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	const  long  k = pRec->Kind;
@@ -449,7 +449,7 @@ int SLAPI GoodsCore::Validate(const Goods2Tbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
+int GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1, r;
 	PPID   id = *pGoodsID;
@@ -513,7 +513,7 @@ int SLAPI GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI GoodsCore::AddBarcode(PPID goodsID, const char * pBarcode, double qtty, int use_ta)
+int GoodsCore::AddBarcode(PPID goodsID, const char * pBarcode, double qtty, int use_ta)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
@@ -534,7 +534,7 @@ int SLAPI GoodsCore::AddBarcode(PPID goodsID, const char * pBarcode, double qtty
 	return ok;
 }
 
-int SLAPI GoodsCore::UpdateBarcodes(PPID goodsID, const BarcodeArray * pCodeList, int use_ta)
+int GoodsCore::UpdateBarcodes(PPID goodsID, const BarcodeArray * pCodeList, int use_ta)
 {
 	int    ok = 1;
 	if(goodsID) {
@@ -554,7 +554,7 @@ int SLAPI GoodsCore::UpdateBarcodes(PPID goodsID, const BarcodeArray * pCodeList
 	return ok;
 }
 
-int SLAPI GoodsCore::UpdateArCodes(PPID goodsID, const ArGoodsCodeArray * pCodeList, int use_ta)
+int GoodsCore::UpdateArCodes(PPID goodsID, const ArGoodsCodeArray * pCodeList, int use_ta)
 {
 	int    ok = 1;
 	if(goodsID) {
@@ -574,7 +574,7 @@ int SLAPI GoodsCore::UpdateArCodes(PPID goodsID, const ArGoodsCodeArray * pCodeL
 	return ok;
 }
 
-int SLAPI GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int32 pack, int use_ta)
+int GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int32 pack, int use_ta)
 {
 	int    ok = 1;
 	if(goodsID) {
@@ -597,12 +597,12 @@ int SLAPI GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int3
 	return ok;
 }
 
-int SLAPI GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int use_ta)
+int GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int use_ta)
 {
 	return SetArCode(goodsID, arID, pCode, 1000, use_ta);
 }
 
-int SLAPI GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogger * pLogger, int use_ta)
+int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	SString code_buf;
@@ -700,7 +700,7 @@ struct __GoodsStockExt {  // @persistent @store(PropertyTbl)
 	PalletList PltList;   // @last
 };
 
-int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_ta)
+int GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_ta)
 {
 	int    ok = 1;
 	__GoodsStockExt * p_strg = 0;
@@ -737,7 +737,7 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 	return ok;
 }
 
-int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
+int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
 {
 	int    ok = -1;
 	__GoodsStockExt * p_strg = 0;
@@ -795,7 +795,7 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 	return ok;
 }
 
-int SLAPI GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rList)
+int GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rList)
 {
 	rList.clear();
 
@@ -841,7 +841,7 @@ int SLAPI GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rL
 	return ok;
 }
 
-int SLAPI GoodsCore::GetListBySubstring(const char * pSubstr, PPIDArray * pList, int skipPassive, int srchByExtStr)
+int GoodsCore::GetListBySubstring(const char * pSubstr, PPIDArray * pList, int skipPassive, int srchByExtStr)
 {
 	long flags = 0;
 	if(skipPassive < 0)
@@ -853,7 +853,7 @@ int SLAPI GoodsCore::GetListBySubstring(const char * pSubstr, PPIDArray * pList,
 	return Helper_GetListBySubstring(pSubstr, pList, flags);
 }
 
-int SLAPI GoodsCore::GetListBySubstring(const char * pSubstr, StrAssocArray * pList, int skipPassive, int srchByExtStr)
+int GoodsCore::GetListBySubstring(const char * pSubstr, StrAssocArray * pList, int skipPassive, int srchByExtStr)
 {
 	long flags = glsfStrList;
 	if(skipPassive < 0)
@@ -894,17 +894,17 @@ public:
 	PPTextSrchPattern() : TSCollection <PPTextSrchPatternEntry>()
 	{
 	}
-	int    SLAPI Init(const char * pPattern)
+	int    Init(const char * pPattern)
 	{
 		freeAll();
 		return Helper_Init(pPattern);
 	}
-	int    SLAPI Detect(const char * pText)
+	int    Detect(const char * pText)
 	{
 		return getCount() ? Helper_Detect(pText, sstrlen(pText), 0) : 0;
 	}
 private:
-	int    SLAPI Helper_Detect(const char * pText, size_t textLen, uint entryIdx)
+	int    Helper_Detect(const char * pText, size_t textLen, uint entryIdx)
 	{
 		int    ok = 0;
 		const uint _c = getCount();
@@ -939,7 +939,7 @@ private:
 		}
 		return ok;
 	}
-    int    SLAPI Helper_Init(const char * pPattern)
+    int    Helper_Init(const char * pPattern)
     {
 		int    ok = 1;
 		SString temp_buf;
@@ -1025,7 +1025,7 @@ private:
 };
 
 
-int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags)
+int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags)
 {
 	int    ok = 1;
 	int    skip_passive = 0;
@@ -1175,7 +1175,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 	return ok;
 }
 
-int SLAPI GoodsCore::GetListByBrandList(const PPIDArray & rBrandList, PPIDArray & rGoodsList)
+int GoodsCore::GetListByBrandList(const PPIDArray & rBrandList, PPIDArray & rGoodsList)
 {
 	rGoodsList.clear();
 	int    ok = 1;
@@ -1212,12 +1212,12 @@ int SLAPI GoodsCore::GetListByBrandList(const PPIDArray & rBrandList, PPIDArray 
 	return ok;
 }
 
-int SLAPI GoodsCore::Search(PPID id, void * b)
+int GoodsCore::Search(PPID id, void * b)
 {
 	return SearchByID(this, PPOBJ_GOODS, id, b);
 }
 
-int SLAPI GoodsCore::GetExt(PPID id, GoodsExtTbl::Rec * pRec)
+int GoodsCore::GetExt(PPID id, GoodsExtTbl::Rec * pRec)
 {
 	int    r = SearchByID(&GeT, PPOBJ_GOODS, id, pRec);
 	if(r <= 0)
@@ -1225,7 +1225,7 @@ int SLAPI GoodsCore::GetExt(PPID id, GoodsExtTbl::Rec * pRec)
 	return r;
 }
 
-int SLAPI GoodsCore::PutExt(PPID id, GoodsExtTbl::Rec * pRec, int use_ta)
+int GoodsCore::PutExt(PPID id, GoodsExtTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	PPID   k = id;
@@ -1274,7 +1274,7 @@ int SLAPI GoodsCore::PutExt(PPID id, GoodsExtTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, long newScale, int use_ta)
+int GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, long newScale, int use_ta)
 {
 	int    ok = -1;
 	GoodsExtTbl::Key1 k1;
@@ -1345,7 +1345,7 @@ int SLAPI GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, lo
 	return ok;
 }
 
-int SLAPI GoodsCore::ReplaceExtObjRefs(PPID clsID, int gcProp, const LAssocArray * pSubstList, int use_ta)
+int GoodsCore::ReplaceExtObjRefs(PPID clsID, int gcProp, const LAssocArray * pSubstList, int use_ta)
 {
 	int    ok = 1;
 	SArray temp_list(sizeof(GoodsExtTbl::Rec));
@@ -1391,7 +1391,7 @@ int SLAPI GoodsCore::ReplaceExtObjRefs(PPID clsID, int gcProp, const LAssocArray
 	return ok;
 }
 
-int SLAPI GoodsCore::GetExtPropRefList(PPID clsID, int gcProp, PPID propVal, LAssocArray * pGoodsList)
+int GoodsCore::GetExtPropRefList(PPID clsID, int gcProp, PPID propVal, LAssocArray * pGoodsList)
 {
 	int    ok = -1;
 	BExtQuery q(&GeT, 1);
@@ -1452,7 +1452,7 @@ int SLAPI GoodsCore::GetExtPropRefList(PPID clsID, int gcProp, PPID propVal, LAs
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchAnyDynObjRef(PPID objType, PPID objID, PPID * pID)
+int GoodsCore::SearchAnyDynObjRef(PPID objType, PPID objID, PPID * pID)
 {
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket gc_pack;
@@ -1497,7 +1497,7 @@ int SLAPI GoodsCore::SearchAnyDynObjRef(PPID objType, PPID objID, PPID * pID)
 	return -1;
 }
 
-int SLAPI GoodsCore::SearchGListByStruc(PPID strucID, PPIDArray * pList)
+int GoodsCore::SearchGListByStruc(PPID strucID, PPIDArray * pList)
 {
 	int    ok = -1;
 	Goods2Tbl::Key5 k5;
@@ -1511,7 +1511,7 @@ int SLAPI GoodsCore::SearchGListByStruc(PPID strucID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchAnyRef(PPID objType, PPID objID, PPID *pID)
+int GoodsCore::SearchAnyRef(PPID objType, PPID objID, PPID *pID)
 {
 	if(oneof2(objType, PPOBJ_GOODS, PPOBJ_GOODSGROUP)) {
 		Goods2Tbl::Key1 k;
@@ -1577,7 +1577,7 @@ int SLAPI GoodsCore::SearchAnyRef(PPID objType, PPID objID, PPID *pID)
 	return -1;
 }
 
-int SLAPI GoodsCore::SearchByName(long kind, const char * pName, PPID * pID, Goods2Tbl::Rec * pRec)
+int GoodsCore::SearchByName(long kind, const char * pName, PPID * pID, Goods2Tbl::Rec * pRec)
 {
 	Goods2Tbl::Key2 k;
 	MEMSZERO(k);
@@ -1588,7 +1588,7 @@ int SLAPI GoodsCore::SearchByName(long kind, const char * pName, PPID * pID, Goo
 	return ok;
 }
 
-int SLAPI GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
+int GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
 {
 	int    ok = 1;
 	rCodeList.clear();
@@ -1614,7 +1614,7 @@ int SLAPI GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
 	return ok;
 }
 
-int SLAPI GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArray * pCodeList, PPIDArray * pIdList)
+int GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArray * pCodeList, PPIDArray * pIdList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pCodeList, clear());
@@ -1670,21 +1670,21 @@ int SLAPI GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArra
 	return ok;
 }
 
-int SLAPI GoodsCore::ReadArCodes(PPID goodsID, ArGoodsCodeArray * pCodeList)
+int GoodsCore::ReadArCodes(PPID goodsID, ArGoodsCodeArray * pCodeList)
 	{ return Helper_ReadArCodes(goodsID, -1, pCodeList, 0); }
-int SLAPI GoodsCore::ReadArCodesByAr(PPID goodsID, PPID arID, ArGoodsCodeArray * pCodeList)
+int GoodsCore::ReadArCodesByAr(PPID goodsID, PPID arID, ArGoodsCodeArray * pCodeList)
 	{ return Helper_ReadArCodes(goodsID, arID, pCodeList, 0); }
-int SLAPI GoodsCore::GetListByAr(PPID codeArID, PPIDArray * pList)
+int GoodsCore::GetListByAr(PPID codeArID, PPIDArray * pList)
 	{ return Helper_ReadArCodes(0, codeArID, 0, pList); }
 
-int SLAPI GoodsCore::GetSingleBarcode(PPID goodsID, SString & rBuf)
+int GoodsCore::GetSingleBarcode(PPID goodsID, SString & rBuf)
 {
 	rBuf.Z();
 	BarcodeArray codes;
 	return ReadBarcodes(goodsID, codes) ? codes.GetSingle(rBuf) : 0;
 }
 
-/* @v9.1.4 int SLAPI GoodsCore::GetGoodsArticle(PPID id, PPID * pArticle)
+/* @v9.1.4 int GoodsCore::GetGoodsArticle(PPID id, PPID * pArticle)
 {
 	int    ok = -1;
 	long   article = 0;
@@ -1706,7 +1706,7 @@ int SLAPI GoodsCore::GetSingleBarcode(PPID goodsID, SString & rBuf)
 	return ok;
 } */
 
-int SLAPI GoodsCore::SearchBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec)
+int GoodsCore::SearchBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec)
 {
 	BarcodeTbl::Key0 k;
 	MEMSZERO(k);
@@ -1717,7 +1717,7 @@ int SLAPI GoodsCore::SearchBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec)
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec)
+int GoodsCore::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec)
 {
 	BarcodeTbl::Rec bc_rec;
 	int    ok = SearchBarcode(pBarcode, &bc_rec);
@@ -1736,7 +1736,7 @@ int SLAPI GoodsCore::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec * pB
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchBarcodeSubstr(const char * substr, BarcodeArray * codes)
+int GoodsCore::SearchBarcodeSubstr(const char * substr, BarcodeArray * codes)
 {
 	int    ok = -1;
 	BarcodeTbl::Key0 k;
@@ -1753,7 +1753,7 @@ int SLAPI GoodsCore::SearchBarcodeSubstr(const char * substr, BarcodeArray * cod
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchBarcodeSubstrExt(const char * pText, BarcodeArray * pCodes)
+int GoodsCore::SearchBarcodeSubstrExt(const char * pText, BarcodeArray * pCodes)
 {
 	int    ok = -1;
 	SString text_buf(pText);
@@ -1781,7 +1781,7 @@ int SLAPI GoodsCore::SearchBarcodeSubstrExt(const char * pText, BarcodeArray * p
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchArCodeSubstr(PPID arID, const char * substr, BarcodeArray * codes)
+int GoodsCore::SearchArCodeSubstr(PPID arID, const char * substr, BarcodeArray * codes)
 {
 	int    ok = -1;
 	union {
@@ -1825,7 +1825,7 @@ int SLAPI GoodsCore::SearchArCodeSubstr(PPID arID, const char * substr, BarcodeA
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCodeTbl::Rec * pArCodeRec, Goods2Tbl::Rec * pGoodsRec)
+int GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCodeTbl::Rec * pArCodeRec, Goods2Tbl::Rec * pGoodsRec)
 {
 	int    ok = -1;
 	SString msg_buf;
@@ -1850,7 +1850,7 @@ int SLAPI GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCod
 	return ok;
 }
 
-int SLAPI GoodsCore::GetArCode(PPID arID, PPID goodsID, SString & rCode, int32 * pPack)
+int GoodsCore::GetArCode(PPID arID, PPID goodsID, SString & rCode, int32 * pPack)
 {
 	int    ok = -1;
 	rCode.Z();
@@ -1884,7 +1884,7 @@ struct BarcodeTemplateBlock {
 };
 
 //static
-int SLAPI GoodsCore::Helper_SearchTemplatedBarcode(const BarcodeArray & rList, const void * pBlk, SString & rBarcode)
+int GoodsCore::Helper_SearchTemplatedBarcode(const BarcodeArray & rList, const void * pBlk, SString & rBarcode)
 {
 	const BarcodeTemplateBlock * p_btblk = static_cast<const BarcodeTemplateBlock *>(pBlk);
 	int    ok = 0;
@@ -1917,8 +1917,8 @@ int SLAPI GoodsCore::Helper_SearchTemplatedBarcode(const BarcodeArray & rList, c
 	return ok;
 }
 
-//int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode)
-int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const void * pBlk, SString & rBarcode)
+//int GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode)
+int GoodsCore::Helper_GetBarcodeByTempl(const void * pBlk, SString & rBarcode)
 {
 	const BarcodeTemplateBlock * p_btblk = static_cast<const BarcodeTemplateBlock *>(pBlk);
 	int    ok = 0;
@@ -1981,7 +1981,7 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const void * pBlk, SString & rBarc
 	return ok;
 }
 
-int SLAPI GoodsCore::ParseBarcodeTemplate(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, void * pBlk)
+int GoodsCore::ParseBarcodeTemplate(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, void * pBlk)
 {
 	const char * p_meta_grp = "GRP";
 	const char * p_meta_gr  = "@GR";
@@ -2062,7 +2062,7 @@ int SLAPI GoodsCore::ParseBarcodeTemplate(PPID grpID, const PPGoodsConfig & rCfg
 	return ok;
 }
 
-int SLAPI GoodsCore::IsTemplatedBarcode(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, const char * pCode)
+int GoodsCore::IsTemplatedBarcode(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, const char * pCode)
 {
 	int    ok = 0;
 	BarcodeTemplateBlock btblk;
@@ -2092,7 +2092,7 @@ int SLAPI GoodsCore::IsTemplatedBarcode(PPID grpID, const PPGoodsConfig & rCfg, 
 	return ok;
 }
 
-int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
+int GoodsCore::GetBarcodeByTemplate(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -2113,7 +2113,7 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grpID, const PPGoodsConfig & rCfg
 	return ok;
 }
 
-int SLAPI GoodsCore::RemoveDupBarcode(PPID goodsID, const char * pCode, int use_ta)
+int GoodsCore::RemoveDupBarcode(PPID goodsID, const char * pCode, int use_ta)
 {
 	int    ok = -1;
 	if(!isempty(pCode)) {
@@ -2136,7 +2136,7 @@ int SLAPI GoodsCore::RemoveDupBarcode(PPID goodsID, const char * pCode, int use_
 	return ok;
 }
 
-int SLAPI GoodsCore::RemoveBarcodeLeadingZeros(int use_ta)
+int GoodsCore::RemoveBarcodeLeadingZeros(int use_ta)
 {
 	int    ok = -1;
 	long   item_id = 0;
@@ -2184,7 +2184,7 @@ int SLAPI GoodsCore::RemoveBarcodeLeadingZeros(int use_ta)
 	return ok;
 }
 
-int SLAPI GoodsCore::MoveGrpToGrp(PPID srcGrp, PPID destGrp, int use_ta)
+int GoodsCore::MoveGrpToGrp(PPID srcGrp, PPID destGrp, int use_ta)
 {
 	int    ok = 1;
 	Goods2Tbl::Key1 k;
@@ -2209,25 +2209,25 @@ int SLAPI GoodsCore::MoveGrpToGrp(PPID srcGrp, PPID destGrp, int use_ta)
 	return ok;
 }
 
-int SLAPI GoodsCore::IsAltGroup(PPID grpID)
+int GoodsCore::IsAltGroup(PPID grpID)
 {
 	Goods2Tbl::Rec rec;
 	return (Fetch(grpID, &rec) > 0) ? BIN(rec.Flags & GF_ALTGROUP) : -1;
 }
 
-int SLAPI GoodsCore::IsTempAltGroup(PPID grpID)
+int GoodsCore::IsTempAltGroup(PPID grpID)
 {
 	Goods2Tbl::Rec rec;
 	return (Fetch(grpID, &rec) > 0) ? BIN((rec.Flags & GF_TEMPALTGROUP) == GF_TEMPALTGROUP) : -1;
 }
 
-int SLAPI GoodsCore::IsDynamicAltGroup(PPID grpID)
+int GoodsCore::IsDynamicAltGroup(PPID grpID)
 {
 	Goods2Tbl::Rec rec;
 	return (Fetch(grpID, &rec) > 0) ? BIN((rec.Flags & GF_DYNAMICALTGRP) == GF_DYNAMICALTGRP) : -1;
 }
 
-int SLAPI GoodsCore::GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInnerNum)
+int GoodsCore::GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInnerNum)
 {
 	int    ok = -1;
 	long   num = 0;
@@ -2245,7 +2245,7 @@ int SLAPI GoodsCore::GetGoodsCodeInAltGrp(PPID goodsID, PPID grpID, long * pInne
 	return ok;
 }
 
-int SLAPI GoodsCore::GetAltGroupsForGoods(PPID goodsID, PPIDArray * pGrpIDList)
+int GoodsCore::GetAltGroupsForGoods(PPID goodsID, PPIDArray * pGrpIDList)
 {
 	ObjAssocTbl::Rec assc_rec;
 	for(SEnum en = P_Ref->Assc.Enum(PPASS_ALTGOODSGRP, goodsID, 1); en.Next(&assc_rec) > 0;) {
@@ -2255,7 +2255,7 @@ int SLAPI GoodsCore::GetAltGroupsForGoods(PPID goodsID, PPIDArray * pGrpIDList)
 	return 1;
 }
 
-int SLAPI GoodsCore::IsExclusiveAltGrp(PPID altGrpID, PPID * pParentID)
+int GoodsCore::IsExclusiveAltGrp(PPID altGrpID, PPID * pParentID)
 {
 	int    ok = 0;
 	PPID   parent_id = 0;
@@ -2274,7 +2274,7 @@ int SLAPI GoodsCore::IsExclusiveAltGrp(PPID altGrpID, PPID * pParentID)
 	return ok;
 }
 
-int SLAPI GoodsCore::GetExclusiveAltParent(PPID goodsID, PPID parentID, PPID * pAltGrpID)
+int GoodsCore::GetExclusiveAltParent(PPID goodsID, PPID parentID, PPID * pAltGrpID)
 {
 	int    ok = -1;
 	PPID   alt_grp_id = 0;
@@ -2298,7 +2298,7 @@ int SLAPI GoodsCore::GetExclusiveAltParent(PPID goodsID, PPID parentID, PPID * p
 	return ok;
 }
 
-int SLAPI GoodsCore::CheckGoodsForExclusiveAltGrp(PPID goodsID, PPID altGrpID)
+int GoodsCore::CheckGoodsForExclusiveAltGrp(PPID goodsID, PPID altGrpID)
 {
 	int    ok = 1;
 	PPID   parent_id = 0;
@@ -2318,7 +2318,7 @@ int SLAPI GoodsCore::CheckGoodsForExclusiveAltGrp(PPID goodsID, PPID altGrpID)
 	return ok;
 }
 
-int SLAPI GoodsCore::AssignGoodsToAltGrp(PPID goodsID, PPID altGrpID, long innerNum, int use_ta)
+int GoodsCore::AssignGoodsToAltGrp(PPID goodsID, PPID altGrpID, long innerNum, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -2353,7 +2353,7 @@ int SLAPI GoodsCore::AssignGoodsToAltGrp(PPID goodsID, PPID altGrpID, long inner
 	return ok;
 }
 
-int SLAPI GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_ta)
+int GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_ta)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec grp_rec;
@@ -2391,7 +2391,7 @@ int SLAPI GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_
 	return ok;
 }
 
-int SLAPI GoodsCore::IsCompatibleByUnit(PPID id1, PPID id2, double * pRatio)
+int GoodsCore::IsCompatibleByUnit(PPID id1, PPID id2, double * pRatio)
 {
 	double _ratio = 0.0;
 	Goods2Tbl::Rec rec1, rec2;
@@ -2415,7 +2415,7 @@ int SLAPI GoodsCore::IsCompatibleByUnit(PPID id1, PPID id2, double * pRatio)
 	return (_ratio == 0.0) ? 0 : ((!(rec1.Flags & GF_INTVAL) || ffrac(_ratio) == 0.0) ? 1 : -1);
 }
 
-int SLAPI GoodsCore::IsChildOf(PPID id, PPID parent)
+int GoodsCore::IsChildOf(PPID id, PPID parent)
 {
 	Goods2Tbl::Rec rec;
 	if(Fetch(id, &rec) > 0) {
@@ -2430,7 +2430,7 @@ int SLAPI GoodsCore::IsChildOf(PPID id, PPID parent)
 	return 0;
 }
 
-int SLAPI GoodsCore::GetGroupFilt(PPID grpID, GoodsFilt * pFilt)
+int GoodsCore::GetGroupFilt(PPID grpID, GoodsFilt * pFilt)
 {
 	int    ok = (grpID && pFilt) ? GetAltGroupFilt(grpID, pFilt) : -1;
 	if(ok > 0) {
@@ -2441,7 +2441,7 @@ int SLAPI GoodsCore::GetGroupFilt(PPID grpID, GoodsFilt * pFilt)
 	return ok;
 }
 
-int SLAPI GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArray * pDynGrpList)
+int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArray * pDynGrpList)
 {
 	int    r = 0;
     PPID   sub_grp_id = 0;
@@ -2487,12 +2487,12 @@ int SLAPI GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, P
 	return r;
 }
 
-int SLAPI GoodsCore::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID)
+int GoodsCore::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID)
 {
 	return Helper_BelongToGroup(id, grp, pSubGrpID, 0);
 }
 
-int SLAPI GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * b)
+int GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * b)
 {
 	int    ok = -1;
 	if(pGenID) {
@@ -2517,7 +2517,7 @@ int SLAPI GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec *
 	return ok;
 }
 
-int SLAPI GoodsCore::GetGenericList(PPID genID, PPIDArray * pList)
+int GoodsCore::GetGenericList(PPID genID, PPIDArray * pList)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec gen_rec;
@@ -2534,7 +2534,7 @@ int SLAPI GoodsCore::GetGenericList(PPID genID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
+int GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -2567,12 +2567,12 @@ int SLAPI GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int us
 	return ok;
 }
 
-int SLAPI GoodsCore::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta)
+int GoodsCore::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta)
 {
 	return P_Ref->Assc.Remove(PPASS_GENGOODS, genID, goodsID, use_ta);
 }
 
-int SLAPI GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int use_ta)
+int GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int use_ta)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec gen_rec, goods_rec;
@@ -2625,17 +2625,17 @@ public:
 		int16  Pad;        // @alignment
 	};
 
-	SLAPI  GoodsCache();
-	SLAPI ~GoodsCache();
+	GoodsCache();
+	~GoodsCache();
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
-	int    SLAPI GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList); // @sync_r
-	int    SLAPI GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt); // @sync_r
-	int    SLAPI PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt); // @sync_w
-	int    SLAPI GetConfig(PPGoodsConfig * pCfg, int enforce); // @sync_w
-	int    SLAPI GetStockExt(PPID goodsID, GoodsStockExt * pExt); // @sync_w
-	int    SLAPI GetSingleBarcode(PPID goodsID, SString & rBuf); // @sync_w
+	int    GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList); // @sync_r
+	int    GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt); // @sync_r
+	int    PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt); // @sync_w
+	int    GetConfig(PPGoodsConfig * pCfg, int enforce); // @sync_w
+	int    GetStockExt(PPID goodsID, GoodsStockExt * pExt); // @sync_w
+	int    GetSingleBarcode(PPID goodsID, SString & rBuf); // @sync_w
 	const  TwoDimBarcodeFormatArray * GetBc2dSpec();
-	const  StrAssocArray * SLAPI GetFullList(); // @sync_w
+	const  StrAssocArray * GetFullList(); // @sync_w
 	void   ReleaseFullList(const StrAssocArray * pList);
 	//
 	// Descr: Сбрасывает содержимое кэша наименований товаров
@@ -2643,8 +2643,8 @@ public:
 	void   ResetFullList(); // @sync_w
 	int    SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf); // @sync_w
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct GroupTermList {
 		PPID   GrpID;
@@ -2727,14 +2727,14 @@ private:
 	static  void FASTCALL AssignGoodsStockExtCacheRec(const GoodsCache::StockExt & rSrc, GoodsStockExt * pExt);
 };
 
-SLAPI GoodsCache::GoodsCache() : ObjCacheHash(PPOBJ_GOODS, sizeof(Data),
+GoodsCache::GoodsCache() : ObjCacheHash(PPOBJ_GOODS, sizeof(Data),
 	(DS.CheckExtFlag(ECF_SYSSERVICE) ? (8*1024*1024) : (2*1024U*1024U)), // @v9.0.8 (1024U*1024U)-->(2*1024U*1024U)
 	(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
 	FullGoodsList(DS.CheckExtFlag(ECF_FULLGOODSCACHE)), P_Bc2dSpec(0), P_ObjTkn(0)
 {
 }
 
-SLAPI GoodsCache::~GoodsCache()
+GoodsCache::~GoodsCache()
 {
 	ZDELETE(P_Bc2dSpec);
 	ZDELETE(P_ObjTkn);
@@ -2772,7 +2772,7 @@ const TwoDimBarcodeFormatArray * GoodsCache::GetBc2dSpec()
 	return P_Bc2dSpec;
 }
 
-int SLAPI GoodsCache::GetConfig(PPGoodsConfig * pCfg, int enforce)
+int GoodsCache::GetConfig(PPGoodsConfig * pCfg, int enforce)
 {
 	{
 		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
@@ -2801,7 +2801,7 @@ void FASTCALL GoodsCache::AssignGoodsStockExtCacheRec(const GoodsCache::StockExt
 	pExt->PltList = rSrc.PltList;
 }
 
-int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
+int GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 {
 	int    ok = 0;
 	pExt->Init();
@@ -2865,7 +2865,7 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 	return ok;
 }
 
-int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
+int GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -2924,7 +2924,7 @@ void GoodsCache::ResetFullList()
 	}
 }
 
-const StrAssocArray * SLAPI GoodsCache::GetFullList()
+const StrAssocArray * GoodsCache::GetFullList()
 {
 	int    err = 0;
 	const  StrAssocArray * p_result = 0;
@@ -3063,7 +3063,7 @@ int FASTCALL GoodsCache::Dirty(PPID id)
 	return ok;
 }
 
-int SLAPI GoodsCache::GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt)
+int GoodsCache::GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -3078,7 +3078,7 @@ int SLAPI GoodsCache::GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt)
 	return ok;
 }
 
-int SLAPI GoodsCache::PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt)
+int GoodsCache::PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -3104,7 +3104,7 @@ int SLAPI GoodsCache::PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt)
 	return ok;
 }
 
-int SLAPI GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList)
+int GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -3149,7 +3149,7 @@ int SLAPI GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermL
 	return ok;
 }
 
-int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -3224,7 +3224,7 @@ int SLAPI GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 	return ok;
 }
 
-void SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	Goods2Tbl::Rec * p_data_rec = static_cast<Goods2Tbl::Rec *>(pDataRec);
 	if(p_data_rec) {
@@ -3256,19 +3256,19 @@ void SLAPI GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 //
 //
 //
-const StrAssocArray * SLAPI GoodsCore::GetFullList()
+const StrAssocArray * GoodsCore::GetFullList()
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
 	return p_cache ? p_cache->GetFullList() : 0;
 }
 
-void SLAPI GoodsCore::ReleaseFullList(const StrAssocArray * pList)
+void GoodsCore::ReleaseFullList(const StrAssocArray * pList)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
 	CALLPTRMEMB(p_cache, ReleaseFullList(pList));
 }
 
-void SLAPI GoodsCore::ResetFullList()
+void GoodsCore::ResetFullList()
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
 	CALLPTRMEMB(p_cache, ResetFullList());
@@ -3281,7 +3281,7 @@ int FASTCALL GoodsCore::Fetch(PPID id, Goods2Tbl::Rec * pRec)
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
-int SLAPI GoodsCore::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
+int GoodsCore::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
 {
 	int    ok = -1;
 	memzero(pRec, sizeof(*pRec));
@@ -3300,19 +3300,19 @@ int FASTCALL GoodsCore::Dirty(PPID id)
 	return p_cache ? p_cache->Dirty(id) : -1;
 }
 
-int SLAPI GoodsCore::FetchStockExt(PPID id, GoodsStockExt * pExt)
+int GoodsCore::FetchStockExt(PPID id, GoodsStockExt * pExt)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
 	return p_cache ? p_cache->GetStockExt(id, pExt) : GetStockExt(id, pExt, 0);
 }
 
-int SLAPI GoodsCore::FetchSingleBarcode(PPID id, SString & rBuf)
+int GoodsCore::FetchSingleBarcode(PPID id, SString & rBuf)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
 	return p_cache ? p_cache->GetSingleBarcode(id, rBuf) : GetSingleBarcode(id, rBuf);
 }
 
-int SLAPI GoodsCore::SearchGoodsAnalogs(PPID id, PPIDArray & rList, SString * pTransitComponentBuf)
+int GoodsCore::SearchGoodsAnalogs(PPID id, PPIDArray & rList, SString * pTransitComponentBuf)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
 	return p_cache ? p_cache->SearchGoodsAnalogs(id, rList, pTransitComponentBuf) : 0;
@@ -3330,13 +3330,13 @@ int FASTCALL GoodsCore::FetchConfig(PPGoodsConfig * pCfg)
 	}
 }
 
-int SLAPI GoodsCore::DirtyConfig()
+int GoodsCore::DirtyConfig()
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 0);
 	return p_cache ? p_cache->GetConfig(0, 1) : 0;
 }
 
-int SLAPI GoodsCore::Helper_GetGroupTerminalList(PPID parentID, PPIDArray & rList, PPIDArray & rUntermList)
+int GoodsCore::Helper_GetGroupTerminalList(PPID parentID, PPIDArray & rList, PPIDArray & rUntermList)
 {
 	int    ok = 1;
 	int    is_there_branches = 0;
@@ -3369,7 +3369,7 @@ int SLAPI GoodsCore::Helper_GetGroupTerminalList(PPID parentID, PPIDArray & rLis
 	return ok;
 }
 
-int SLAPI GoodsCore::GetGroupTerminalList(PPID parentID, PPIDArray * pList, PPIDArray * pUntermList)
+int GoodsCore::GetGroupTerminalList(PPID parentID, PPIDArray * pList, PPIDArray * pUntermList)
 {
 	int    ok = 1;
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
@@ -3388,7 +3388,7 @@ int SLAPI GoodsCore::GetGroupTerminalList(PPID parentID, PPIDArray * pList, PPID
 	return ok;
 }
 
-int SLAPI GoodsCore::GetAltGroupFilt(PPID grpID, GoodsFilt * pFilt)
+int GoodsCore::GetAltGroupFilt(PPID grpID, GoodsFilt * pFilt)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
@@ -3409,7 +3409,7 @@ int SLAPI GoodsCore::GetAltGroupFilt(PPID grpID, GoodsFilt * pFilt)
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, Goods2Tbl::Rec * pRec)
+int GoodsCore::SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, Goods2Tbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPID   goods_id = 0;
@@ -3440,7 +3440,7 @@ int SLAPI GoodsCore::SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoods
 	return ok;
 }
 
-DBQ & SLAPI GoodsCore::SetupDimDBQ(const PPGdsClsPacket * pPack, int dim, const RealRange * pRng)
+DBQ & GoodsCore::SetupDimDBQ(const PPGdsClsPacket * pPack, int dim, const RealRange * pRng)
 {
 	DBQ * dbq = 0;
 	DBItem * p_dbi = 0;
@@ -3459,7 +3459,7 @@ DBQ & SLAPI GoodsCore::SetupDimDBQ(const PPGdsClsPacket * pPack, int dim, const 
 	return *dbq;
 }
 
-int SLAPI GoodsCore::GetListByExtFilt(const ClsdGoodsFilt * pFilt, PPIDArray * pList)
+int GoodsCore::GetListByExtFilt(const ClsdGoodsFilt * pFilt, PPIDArray * pList)
 {
 	int    ok = -1;
 	if(pFilt->GdsClsID == 0)
@@ -3509,7 +3509,7 @@ int SLAPI GoodsCore::GetListByExtFilt(const ClsdGoodsFilt * pFilt, PPIDArray * p
 	return ok;
 }
 
-int SLAPI GoodsCore::BelongToDynGen(PPID goodsID, PPID * pGenID, PPIDArray * pList)
+int GoodsCore::BelongToDynGen(PPID goodsID, PPID * pGenID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPIDArray list;
@@ -3551,7 +3551,7 @@ int SLAPI GoodsCore::BelongToDynGen(PPID goodsID, PPID * pGenID, PPIDArray * pLi
 	return ok;
 }
 
-int SLAPI GoodsCore::GetDynGenericList(PPID genGoodsID, PPIDArray * pList)
+int GoodsCore::GetDynGenericList(PPID genGoodsID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPIDArray list;
@@ -3586,7 +3586,7 @@ int SLAPI GoodsCore::GetDynGenericList(PPID genGoodsID, PPIDArray * pList)
 //
 //
 //
-int SLAPI GoodsCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
+int GoodsCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
 {
 	int    ok = 0;
 	InitQc();
@@ -3597,7 +3597,7 @@ int SLAPI GoodsCore::ReplaceArticleRefs(PPID replacedID, PPID newID, int use_ta)
 	return ok;
 }
 
-int SLAPI GoodsCore::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pVal, int useCache)
+int GoodsCore::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pVal, int useCache)
 {
 	int    ok = 0;
 	InitQc();
@@ -3608,7 +3608,7 @@ int SLAPI GoodsCore::GetQuot(PPID goodsID, const QuotIdent & rQi, double cost, d
 	return ok;
 }
 
-int SLAPI GoodsCore::GetQuotNearest(PPID goodsID, const QuotIdent & rQi, PPQuot * pQuot, int useCache)
+int GoodsCore::GetQuotNearest(PPID goodsID, const QuotIdent & rQi, PPQuot * pQuot, int useCache)
 {
 	int    ok = 0;
 	InitQc();
@@ -3619,7 +3619,7 @@ int SLAPI GoodsCore::GetQuotNearest(PPID goodsID, const QuotIdent & rQi, PPQuot 
 	return ok;
 }
 
-int SLAPI GoodsCore::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
+int GoodsCore::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
 {
 	int    ok = 0;
 	InitQc();
@@ -3630,7 +3630,7 @@ int SLAPI GoodsCore::GetQuotList(PPID goodsID, PPID locID, PPQuotArray & rList)
 	return ok;
 }
 
-int SLAPI GoodsCore::RemoveAllQuotForQuotKind(PPID qkID, int use_ta)
+int GoodsCore::RemoveAllQuotForQuotKind(PPID qkID, int use_ta)
 {
 	int    ok = 1;
 	InitQc();
@@ -3649,7 +3649,7 @@ int SLAPI GoodsCore::RemoveAllQuotForQuotKind(PPID qkID, int use_ta)
 	return ok;
 }
 
-int SLAPI GoodsCore::ClearQuotCache()
+int GoodsCore::ClearQuotCache()
 {
 	int    ok = 0;
 	InitQc();
@@ -3660,7 +3660,7 @@ int SLAPI GoodsCore::ClearQuotCache()
 	return ok;
 }
 
-int SLAPI GoodsCore::FetchQuotList(PPID goodsID, PPID qkID, PPID locID, PPQuotArray & rList)
+int GoodsCore::FetchQuotList(PPID goodsID, PPID qkID, PPID locID, PPQuotArray & rList)
 {
 	int    ok = 0;
 	rList.clear();
@@ -3683,7 +3683,7 @@ int SLAPI GoodsCore::FetchQuotList(PPID goodsID, PPID qkID, PPID locID, PPQuotAr
 	return ok;
 }
 
-int SLAPI GoodsCore::GetMatrix(PPID locID, PPIDArray * pResult)
+int GoodsCore::GetMatrix(PPID locID, PPIDArray * pResult)
 {
 	int    ok = 0;
 	InitQc();
@@ -3694,7 +3694,7 @@ int SLAPI GoodsCore::GetMatrix(PPID locID, PPIDArray * pResult)
 	return ok;
 }
 
-int SLAPI GoodsCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList)
+int GoodsCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList)
 {
 	int    ok = 0;
 	InitQc();
@@ -3706,7 +3706,7 @@ int SLAPI GoodsCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxL
 	return ok;
 }
 
-int SLAPI GoodsCore::SetQuotList(const PPQuotArray & rQList, int use_ta)
+int GoodsCore::SetQuotList(const PPQuotArray & rQList, int use_ta)
 {
 	int    ok = 0;
 	InitQc();
@@ -3717,7 +3717,7 @@ int SLAPI GoodsCore::SetQuotList(const PPQuotArray & rQList, int use_ta)
 	return ok;
 }
 
-int SLAPI GoodsCore::SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
+int GoodsCore::SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray * pTemplate, int noRmv, int use_ta)
 {
 	int    ok = 0;
 	assert(!(pTemplate && use_ta));
@@ -3729,7 +3729,7 @@ int SLAPI GoodsCore::SetQuotListQ(const PPQuotArray & rQList, const PPQuotArray 
 	return ok;
 }
 
-int SLAPI GoodsCore::SetQuot(const PPQuot & rQuot, int use_ta)
+int GoodsCore::SetQuot(const PPQuot & rQuot, int use_ta)
 {
 	int    ok = 0;
 	InitQc();
@@ -3743,7 +3743,7 @@ int SLAPI GoodsCore::SetQuot(const PPQuot & rQuot, int use_ta)
 	return ok;
 }
 
-int  SLAPI GoodsCore::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
+int  GoodsCore::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
 {
 	int    ok = 0;
 	InitQc();
@@ -3754,7 +3754,7 @@ int  SLAPI GoodsCore::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID
 	return ok;
 }
 
-int SLAPI GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
+int GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
 {
 	int    ok = 1, r = 0;
 	rResult.clear();
@@ -3785,7 +3785,7 @@ int SLAPI GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
 	return ok;
 }
 
-int SLAPI GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDArray * pResult)
+int GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDArray * pResult)
 {
 	int    ok = 1;
 	if(pResult) {
@@ -3818,7 +3818,7 @@ int SLAPI GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDA
 	return ok;
 }
 
-int SLAPI GoodsCore::BelongToMatrix(PPID goodsID, PPID locID)
+int GoodsCore::BelongToMatrix(PPID goodsID, PPID locID)
 {
 	int    ok = -1;
 	InitQc();
@@ -3833,7 +3833,7 @@ int SLAPI GoodsCore::BelongToMatrix(PPID goodsID, PPID locID)
 	return ok;
 }
 
-int SLAPI GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAssocArray * pNameList)
+int GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAssocArray * pNameList)
 {
 	int    ok = 1;
 	const  uint max_query_items = 32;
@@ -3873,7 +3873,7 @@ int SLAPI GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAsso
 	return ok;
 }
 
-int SLAPI GoodsCore::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
+int GoodsCore::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec rec;

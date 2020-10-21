@@ -7,20 +7,20 @@
 //
 // @ModuleDef(PPObjGoodsGroup)
 //
-SLAPI GoodsGroupRecoverParam::GoodsGroupRecoverParam() : EgaFolderID(0), Ega(egaNone), Flags(0)
+GoodsGroupRecoverParam::GoodsGroupRecoverParam() : EgaFolderID(0), Ega(egaNone), Flags(0)
 {
 }
 
-SLAPI GoodsGroupTotal::GoodsGroupTotal() : MaxLevel(0), Count(0), AltCount(0), FoldCount(0), GrpCount(0)
+GoodsGroupTotal::GoodsGroupTotal() : MaxLevel(0), Count(0), AltCount(0), FoldCount(0), GrpCount(0)
 {
 }
 
-SLAPI PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODSGROUP, PPGDSK_GROUP, extraPtr)
+PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODSGROUP, PPGDSK_GROUP, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::IsAlt(PPID id)
+/*static*/int PPObjGoodsGroup::IsAlt(PPID id)
 {
 	if(id) {
 		PPObjGoodsGroup ggobj;
@@ -29,7 +29,7 @@ SLAPI PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODS
 	return -1;
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::IsTempAlt(PPID id)
+/*static*/int PPObjGoodsGroup::IsTempAlt(PPID id)
 {
 	if(id) {
 		PPObjGoodsGroup ggobj;
@@ -38,7 +38,7 @@ SLAPI PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODS
 	return -1;
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::IsDynamicAlt(PPID id)
+/*static*/int PPObjGoodsGroup::IsDynamicAlt(PPID id)
 {
 	if(id) {
 		PPObjGoodsGroup ggobj;
@@ -47,7 +47,7 @@ SLAPI PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODS
 	return -1;
 }
 
-int SLAPI PPObjGoodsGroup::SearchCode(const char * pCode, BarcodeTbl::Rec * pRec)
+int PPObjGoodsGroup::SearchCode(const char * pCode, BarcodeTbl::Rec * pRec)
 {
 	char   bar_code[32];
 	bar_code[0] = '@';
@@ -56,7 +56,7 @@ int SLAPI PPObjGoodsGroup::SearchCode(const char * pCode, BarcodeTbl::Rec * pRec
 	return P_Tbl->SearchByBarcode(bar_code, pRec);
 }
 
-int SLAPI PPObjGoodsGroup::GetLevel(PPID grpID, long * pLevel)
+int PPObjGoodsGroup::GetLevel(PPID grpID, long * pLevel)
 {
 	int    r = -1;
 	long   level = 0;
@@ -75,7 +75,7 @@ int SLAPI PPObjGoodsGroup::GetLevel(PPID grpID, long * pLevel)
 	return (r > 0) ? 1 : -1;
 }
 
-int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
+int PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 {
 	GoodsGroupTotal total;
 	// @v10.8.1 @ctr MEMSZERO(total);
@@ -108,7 +108,7 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	return 1;
 }
 
-/*virtual*/int SLAPI PPObjGoodsGroup::MakeReserved(long flags)
+/*virtual*/int PPObjGoodsGroup::MakeReserved(long flags)
 {
     int    ok = -1;
     if(flags & mrfInitializeDb) {
@@ -127,8 +127,8 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
     return ok;
 }
 
-//int SLAPI PPObjGoodsGroup::Remove(PPID id, long extraData, uint flags /* = user_request | use_transaction */)
-/*virtual*/int  SLAPI PPObjGoodsGroup::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+//int PPObjGoodsGroup::Remove(PPID id, long extraData, uint flags /* = user_request | use_transaction */)
+/*virtual*/int  PPObjGoodsGroup::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    ok = -1;
 	int    user_request = BIN(options & PPObject::user_request);
@@ -140,7 +140,7 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPObjGoodsGroup::DeleteObj(PPID id)
+int PPObjGoodsGroup::DeleteObj(PPID id)
 {
 	int    ok = 1, r;
 	PPID   branch_id = 0;
@@ -173,7 +173,7 @@ int SLAPI PPObjGoodsGroup::DeleteObj(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjGoodsGroup::Transmit()
+int PPObjGoodsGroup::Transmit()
 {
 	int    ok = -1;
 	PPIDArray id_list;
@@ -208,7 +208,7 @@ int SLAPI PPObjGoodsGroup::Transmit()
 	return ok;
 }
 
-static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
+static int EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 {
 	class RcvrGoodsGroupsDialog : public TDialog {
 		DECL_DIALOG_DATA(GoodsGroupRecoverParam);
@@ -266,7 +266,7 @@ static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 	DIALOG_PROC_BODY(RcvrGoodsGroupsDialog, pData);
 }
 
-int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * pLogger)
+int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * pLogger)
 {
 	int    ok = -1;
 	int    outer_logger = 0;
@@ -544,13 +544,13 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 	return ok;
 }
 
-int SLAPI RecoverGoodsGroups(const GoodsGroupRecoverParam * pParam)
+int RecoverGoodsGroups(const GoodsGroupRecoverParam * pParam)
 {
 	PPObjGoodsGroup gg_obj;
 	return gg_obj.Recover(pParam, 0);
 }
 
-int SLAPI RecoverGoodsGroupsNIA()
+int RecoverGoodsGroupsNIA()
 {
 	GoodsGroupRecoverParam param;
 	PPGetFileName(PPFILNAM_ERR_LOG, param.LogFileName);
@@ -559,7 +559,7 @@ int SLAPI RecoverGoodsGroupsNIA()
 	return gg_obj.Recover(&param, 0);
 }
 
-int SLAPI PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
+int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
@@ -590,14 +590,14 @@ int SLAPI PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-/*virtual*/ListBoxDef * SLAPI PPObjGoodsGroup::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjGoodsGroup::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-/*virtual*/int SLAPI PPObjGoodsGroup::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int PPObjGoodsGroup::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
 	if(ok > 0)
@@ -922,7 +922,7 @@ int GoodsGroupView::Print()
 //
 //
 //
-int SLAPI PPObjGoodsGroup::Browse(void * extraPtr)
+int PPObjGoodsGroup::Browse(void * extraPtr)
 {
 	int    ok = -1;
 	ExtraPtr = 0;
@@ -940,18 +940,18 @@ int SLAPI PPObjGoodsGroup::Browse(void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjGoodsGroup::ReadGoodsFilt(PPID id, GoodsFilt * flt)
+int PPObjGoodsGroup::ReadGoodsFilt(PPID id, GoodsFilt * flt)
 {
 	return flt->ReadFromProp(PPOBJ_GOODSGROUP, id, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_);
 }
 
-int SLAPI PPObjGoodsGroup::Edit(PPID * pID, void * extraPtr /*parentID*/)
+int PPObjGoodsGroup::Edit(PPID * pID, void * extraPtr /*parentID*/)
 {
 	const PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
 	return PPObjGoods::Edit(pID, gpkndUndef, NZOR(extra_parent_id, reinterpret_cast<PPID>(ExtraPtr)), 0, 0);
 }
 
-int SLAPI PPObjGoodsGroup::AddSimple(PPID * pID, GoodsPacketKind kind, PPID parentID, const char * pName, const char * pCode, PPID unitID, int use_ta)
+int PPObjGoodsGroup::AddSimple(PPID * pID, GoodsPacketKind kind, PPID parentID, const char * pName, const char * pCode, PPID unitID, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -995,11 +995,11 @@ int SLAPI PPObjGoodsGroup::AddSimple(PPID * pID, GoodsPacketKind kind, PPID pare
 //
 // @ModuleDef(PPObjPckgType)
 //
-SLAPI PPObjPckgType::PPObjPckgType(void * extraPtr) : PPObjGoods(PPOBJ_PCKGTYPE, PPGDSK_PCKGTYPE, extraPtr)
+PPObjPckgType::PPObjPckgType(void * extraPtr) : PPObjGoods(PPOBJ_PCKGTYPE, PPGDSK_PCKGTYPE, extraPtr)
 {
 }
 
-int SLAPI PPObjPckgType::Get(PPID id, PPGdsPckgType * pRec)
+int PPObjPckgType::Get(PPID id, PPGdsPckgType * pRec)
 {
 	int    r = PPObjGoods::Search(id);
 	if(r > 0)
@@ -1014,7 +1014,7 @@ int SLAPI PPObjPckgType::Get(PPID id, PPGdsPckgType * pRec)
 	return r;
 }
 
-PPID SLAPI PPObjPckgType::GetSingle()
+PPID PPObjPckgType::GetSingle()
 {
 	PPID   id = 0;
 	int    count = 0;
@@ -1031,7 +1031,7 @@ PPID SLAPI PPObjPckgType::GetSingle()
 	return id;
 }
 
-int SLAPI PPObjPckgType::Put(PPID * pID, PPGdsPckgType * pRec, int use_ta)
+int PPObjPckgType::Put(PPID * pID, PPGdsPckgType * pRec, int use_ta)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec raw_rec;
@@ -1070,17 +1070,17 @@ int SLAPI PPObjPckgType::Put(PPID * pID, PPGdsPckgType * pRec, int use_ta)
 	return ok;
 }
 
-ListBoxDef * SLAPI PPObjPckgType::Selector(void * extraPtr)
+ListBoxDef * PPObjPckgType::Selector(void * extraPtr)
 {
 	return _Selector2(0, 0, PPObjGoods::selfByName, 0, 0, 0);
 }
 
-int SLAPI PPObjPckgType::Browse(void * extraPtr)
+int PPObjPckgType::Browse(void * extraPtr)
 {
 	return CheckRights(PPR_READ) ? SimpleObjView(this, extraPtr) : PPErrorZ();
 }
 
-int SLAPI PPObjPckgType::Edit(long * pID, void * extraPtr)
+int PPObjPckgType::Edit(long * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0;
 	ushort v;
@@ -1147,7 +1147,7 @@ int SLAPI PPObjPckgType::Edit(long * pID, void * extraPtr)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjPckgType::CodeByTemplate(const char * pTempl, long counter, char * pBuf, size_t bufLen)
+/*static*/int PPObjPckgType::CodeByTemplate(const char * pTempl, long counter, char * pBuf, size_t bufLen)
 {
 	char   temp_buf[128];
 	int    div_list_count = 0;
@@ -1208,7 +1208,7 @@ int SLAPI PPObjPckgType::Edit(long * pID, void * extraPtr)
 //
 // @ModuleDef(PPObjTransport)
 //
-SLAPI PPTransportConfig::PPTransportConfig() : Flags(0), OwnerKindID(0), CaptainKindID(0)
+PPTransportConfig::PPTransportConfig() : Flags(0), OwnerKindID(0), CaptainKindID(0)
 {
 }
 
@@ -1321,7 +1321,7 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjTransport::EditConfig()
+/*static*/int PPObjTransport::EditConfig()
 {
 	int    ok = -1;
 	PPTransportConfig cfg, org_cfg;
@@ -1376,11 +1376,11 @@ int FASTCALL PPTransport::IsEqual(const PPTransport & rS) const
 #undef CMP_FLD
 }
 
-SLAPI PPObjTransport::PPObjTransport(void * extraPtr) : PPObjGoods(PPOBJ_TRANSPORT, PPGDSK_TRANSPORT, extraPtr)
+PPObjTransport::PPObjTransport(void * extraPtr) : PPObjGoods(PPOBJ_TRANSPORT, PPGDSK_TRANSPORT, extraPtr)
 {
 }
 
-int SLAPI PPObjTransport::Get(PPID id, PPTransport * pRec)
+int PPObjTransport::Get(PPID id, PPTransport * pRec)
 {
 	int    ok = -1, r;
 	Goods2Tbl::Rec goods_rec;
@@ -1418,7 +1418,7 @@ int SLAPI PPObjTransport::Get(PPID id, PPTransport * pRec)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjTransport::MakeStorage(PPID id, const PPTransport * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
+/*static*/int PPObjTransport::MakeStorage(PPID id, const PPTransport * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
 {
 	int    ok = 1;
 	memzero(pRawRec, sizeof(*pRawRec));
@@ -1463,7 +1463,7 @@ int SLAPI PPObjTransport::Get(PPID id, PPTransport * pRec)
 	return ok;
 }
 
-int SLAPI PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
+int PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
 {
 	int    ok = 1;
 	int    action = 0;
@@ -1508,12 +1508,12 @@ int SLAPI PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
 	return ok;
 }
 
-ListBoxDef * SLAPI PPObjTransport::Selector(void * extraPtr)
+ListBoxDef * PPObjTransport::Selector(void * extraPtr)
 {
 	return _Selector2(0, 0, PPObjGoods::selfByName, extraPtr, 0, 0);
 }
 
-LongArray * SLAPI PPObjTransport::MakeList(long trType)
+LongArray * PPObjTransport::MakeList(long trType)
 {
 	LongArray * p_list = 0;
 	StrAssocListBoxDef * p_lbx_def = static_cast<StrAssocListBoxDef *>(Selector(reinterpret_cast<void *>(trType)));
@@ -1526,7 +1526,7 @@ LongArray * SLAPI PPObjTransport::MakeList(long trType)
 	return p_list;
 }
 
-int SLAPI PPObjTransport::Browse(void * extraPtr)
+int PPObjTransport::Browse(void * extraPtr)
 {
 	return CheckRights(PPR_READ) ? SimpleObjView(this, extraPtr) : PPErrorZ();
 }
@@ -1619,7 +1619,7 @@ private:
 	PPObjTransport TrObj;
 };
 
-int SLAPI PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
+int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 {
 	int    ok = -1, valid_data = 0;
 	uint   dlg_id = 0;
@@ -1667,7 +1667,7 @@ int SLAPI PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 
 IMPL_DESTROY_OBJ_PACK(PPObjTransport, PPTransport);
 
-int SLAPI PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
@@ -1680,7 +1680,7 @@ int SLAPI PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 	return -1;
 }
 
-int SLAPI PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *)
+int PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *)
 {
 	int    ok = -1;
 	PPTransport * p_pack = 0;
@@ -1695,7 +1695,7 @@ int SLAPI PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmC
 	return ok;
 }
 
-int SLAPI PPObjTransport::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjTransport::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1725,7 +1725,7 @@ int SLAPI PPObjTransport::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	return ok;
 }
 
-int SLAPI PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pTemplate, SString & rBuf) const
+int PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pTemplate, SString & rBuf) const
 {
 	int    ok = 1;
 	SString buf, temp_buf;
@@ -1773,7 +1773,7 @@ int SLAPI PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pT
 //
 // @ModuleDef(PPObjBrand)
 //
-SLAPI PPBrand::PPBrand()
+PPBrand::PPBrand()
 {
 	THISZERO();
 }
@@ -1805,7 +1805,7 @@ int FASTCALL PPBrand::CheckForFilt(const BrandFilt * pFilt) const
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(Brand); SLAPI BrandFilt::BrandFilt() : PPBaseFilt(PPFILT_BRAND, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(Brand); BrandFilt::BrandFilt() : PPBaseFilt(PPFILT_BRAND, 0, 1)
 {
 	SetFlatChunk(offsetof(BrandFilt, ReserveStart), offsetof(BrandFilt, SrchStr) - offsetof(BrandFilt, ReserveStart));
 	SetBranchSString(offsetof(BrandFilt, SrchStr));
@@ -1820,7 +1820,7 @@ BrandFilt & FASTCALL BrandFilt::operator = (const BrandFilt & rS)
 	return *this;
 }
 
-int SLAPI BrandFilt::IsEmpty() const
+int BrandFilt::IsEmpty() const
 {
 	int    yes = 1;
 	if(Flags != 0)
@@ -1834,17 +1834,17 @@ int SLAPI BrandFilt::IsEmpty() const
 	return yes;
 }
 
-SLAPI PPBrandPacket::PPBrandPacket()
+PPBrandPacket::PPBrandPacket()
 {
 	// @v10.4.10 (ctrs will do it) Init();
 }
 
-SLAPI PPBrandPacket::~PPBrandPacket()
+PPBrandPacket::~PPBrandPacket()
 {
 	LinkFiles.Clear();
 }
 
-void SLAPI PPBrandPacket::Init()
+void PPBrandPacket::Init()
 {
 	// @v10.6.4 MEMSZERO(Rec);
 	LinkFiles.Clear();
@@ -1859,7 +1859,7 @@ PPBrandPacket & FASTCALL PPBrandPacket::operator = (const PPBrandPacket & rSrc)
 //
 // @ModuleDef(PPObjBrand)
 //
-SLAPI PPObjBrand::PPObjBrand(void * extraPtr) : PPObjGoods(PPOBJ_BRAND, PPGDSK_BRAND, extraPtr)
+PPObjBrand::PPObjBrand(void * extraPtr) : PPObjGoods(PPOBJ_BRAND, PPGDSK_BRAND, extraPtr)
 {
 }
 
@@ -1882,7 +1882,7 @@ SLAPI PPObjBrand::PPObjBrand(void * extraPtr) : PPObjGoods(PPOBJ_BRAND, PPGDSK_B
 	return ok;
 }
 
-int SLAPI PPObjBrand::Fetch(PPID id, PPBrand * pRec)
+int PPObjBrand::Fetch(PPID id, PPBrand * pRec)
 {
 	Goods2Tbl::Rec goods_rec;
 	int    ok = PPObjGoods::Fetch(id, &goods_rec);
@@ -1890,13 +1890,13 @@ int SLAPI PPObjBrand::Fetch(PPID id, PPBrand * pRec)
 }
 
 
-int SLAPI PPObjBrand::Get(PPID id, PPBrandPacket * pPack)
+int PPObjBrand::Get(PPID id, PPBrandPacket * pPack)
 {
 	int    ok = PPObjGoods::Search(id);
 	return (ok > 0) ? Helper_GetRec(P_Tbl->data, &pPack->Rec) : ok;
 }
 
-int SLAPI PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
+int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec raw_rec;
@@ -1954,7 +1954,7 @@ int SLAPI PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBrand::AddSimple(PPID * pID, const char * pName, PPID ownerID, int use_ta)
+int PPObjBrand::AddSimple(PPID * pID, const char * pName, PPID ownerID, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -1981,7 +1981,7 @@ int SLAPI PPObjBrand::AddSimple(PPID * pID, const char * pName, PPID ownerID, in
 	return ok;
 }
 
-int SLAPI PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
+int PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPIDArray result_list;
@@ -2004,12 +2004,12 @@ int SLAPI PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
 	return ok;
 }
 
-ListBoxDef * SLAPI PPObjBrand::Selector(void * extraPtr)
+ListBoxDef * PPObjBrand::Selector(void * extraPtr)
 {
 	return _Selector2(0, 0, PPObjGoods::selfByName, 0, 0, 0);
 }
 
-/*virtual*/void * SLAPI PPObjBrand::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjBrand::CreateObjListWin(uint flags, void * extraPtr)
 {
 	return 0;
 #if 0 // {
@@ -2054,7 +2054,7 @@ ListBoxDef * SLAPI PPObjBrand::Selector(void * extraPtr)
 #endif // } 0
 }
 
-int SLAPI PPObjBrand::Browse(void * extraPtr)
+int PPObjBrand::Browse(void * extraPtr)
 {
 	return PPView::Execute(PPVIEW_BRAND, 0, 1, 0);
 #if 0 // {
@@ -2101,7 +2101,7 @@ int SLAPI PPObjBrand::Browse(void * extraPtr)
 
 #define GRP_IBG 1
 
-int SLAPI PPObjBrand::Edit(PPID * pID, void * extraPtr)
+int PPObjBrand::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1, valid_data = 0, is_new = 0;
 	TDialog * dlg = 0;
@@ -2155,7 +2155,7 @@ int SLAPI PPObjBrand::Edit(PPID * pID, void * extraPtr)
 
 IMPL_DESTROY_OBJ_PACK(PPObjBrand, PPBrand);
 
-int SLAPI PPObjBrand::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjBrand::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPBrand * p_pack = static_cast<PPBrand *>(p->Data);
@@ -2164,7 +2164,7 @@ int SLAPI PPObjBrand::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	return -1;
 }
 
-int SLAPI PPObjBrand::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *)
+int PPObjBrand::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *)
 {
 	int    ok = -1;
 	PPBrand * p_pack = 0;
@@ -2181,7 +2181,7 @@ int SLAPI PPObjBrand::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	return ok;
 }
 
-int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -2212,7 +2212,7 @@ int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::SetOwner(PPID id, long curOwner, long newOwner)
+/*static*/int PPObjGoodsGroup::SetOwner(PPID id, long curOwner, long newOwner)
 {
 	int    ok = -1;
 	if(id && PPObjGoodsGroup::IsTempAlt(id)) {
@@ -2236,7 +2236,7 @@ int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::RemoveTempAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
+/*static*/int PPObjGoodsGroup::RemoveTempAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
 {
 	int    ok = -1;
 	if(id && PPObjGoodsGroup::IsTempAlt(id) > 0) {
@@ -2251,7 +2251,7 @@ int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::AddDynamicAltGroupByFilt(const GoodsFilt * pFilt, PPID * pGrpID, long owner, int useTa)
+/*static*/int PPObjGoodsGroup::AddDynamicAltGroupByFilt(const GoodsFilt * pFilt, PPID * pGrpID, long owner, int useTa)
 {
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {
@@ -2285,7 +2285,7 @@ int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::SetDynamicOwner(PPID id, long curOwner, long newOwner)
+/*static*/int PPObjGoodsGroup::SetDynamicOwner(PPID id, long curOwner, long newOwner)
 {
 	int    ok = -1;
 	PPObjGoodsGroup gg_obj;
@@ -2309,7 +2309,7 @@ int SLAPI PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsGroup::RemoveDynamicAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
+/*static*/int PPObjGoodsGroup::RemoveDynamicAlt(PPID id, long owner, int forceDel /*=0*/, int useTa /*=1*/)
 {
 	int    ok = -1;
 	PPObjGoodsGroup gg_obj;
@@ -2338,7 +2338,7 @@ struct _GCompItem {       // @persistent @store(ObjAssocTbl)
 	char   Reserve[52];   //
 };
 
-SLAPI PPSuprWare::PPSuprWare()
+PPSuprWare::PPSuprWare()
 {
 	THISZERO();
 }
@@ -2360,7 +2360,7 @@ int FASTCALL PPSuprWare::IsEqual(const PPSuprWare & rS) const
 	return 1;
 }
 
-SLAPI PPSuprWareAssoc::PPSuprWareAssoc()
+PPSuprWareAssoc::PPSuprWareAssoc()
 {
 	THISZERO();
 }
@@ -2398,7 +2398,7 @@ PPSuprWarePacket & FASTCALL PPSuprWarePacket::operator = (const PPSuprWarePacket
 	return *this;
 }
 
-void SLAPI PPSuprWarePacket::Init()
+void PPSuprWarePacket::Init()
 {
 	MEMSZERO(Rec);
 	Items.clear();
@@ -2406,11 +2406,11 @@ void SLAPI PPSuprWarePacket::Init()
 //
 //
 //
-SLAPI PPObjSuprWare::PPObjSuprWare(void * extraPtr) : PPObjGoods(PPOBJ_COMPGOODS, PPGDSK_SUPRWARE, extraPtr)
+PPObjSuprWare::PPObjSuprWare(void * extraPtr) : PPObjGoods(PPOBJ_COMPGOODS, PPGDSK_SUPRWARE, extraPtr)
 {
 }
 
-int SLAPI PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
+int PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 {
 	int    ok = -1, r;
 	uint   i;
@@ -2455,7 +2455,7 @@ int SLAPI PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjSuprWare::MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
+/*static*/int PPObjSuprWare::MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList)
 {
 	int    ok = 1;
 	memzero(pRawRec, sizeof(*pRawRec));
@@ -2481,7 +2481,7 @@ int SLAPI PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
+int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 {
 	assert(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
 	const  PPID assoc_type = PPASS_GOODSCOMP;
@@ -2598,7 +2598,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjSuprWare::PutAssoc(const PPSuprWareAssoc & rItem, int use_ta)
+int PPObjSuprWare::PutAssoc(const PPSuprWareAssoc & rItem, int use_ta)
 {
 	assert(sizeof(_GCompItem)==sizeof(ObjAssocTbl::Rec));
 	const  PPID assoc_type = PPASS_GOODSCOMP;
@@ -2637,7 +2637,7 @@ int SLAPI PPObjSuprWare::PutAssoc(const PPSuprWareAssoc & rItem, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjSuprWare::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec * pBcRec)
+int PPObjSuprWare::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec * pBcRec)
 {
 	int    ok = -1;
 	if(!isempty(pBarcode)) {
@@ -2654,7 +2654,7 @@ int SLAPI PPObjSuprWare::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec 
 	return ok;
 }
 
-int SLAPI PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
+int PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
 {
 	const  PPID assoc_type = PPASS_GOODSCOMP;
 	int    ok = -1;
@@ -2683,7 +2683,7 @@ private:
 	PPSuprWarePacket P_SuprWarePack;
 };
 
-int SLAPI SuprWareListDialog::setupList()
+int SuprWareListDialog::setupList()
 {
 	PPObjGoods goods_o;
 	StringSet ss(SLBColumnDelim);
@@ -2709,7 +2709,7 @@ int SLAPI SuprWareListDialog::setupList()
 }
 
 // Не редактирует запись. Просто показывает таблицу с содержанием товара
-int SLAPI PPObjSuprWare::EditList(PPID * pID)
+int PPObjSuprWare::EditList(PPID * pID)
 {
 	int    ok = -1;
 	PPSuprWarePacket pack;
@@ -2759,7 +2759,7 @@ public:
 	}
 };
 
-int SLAPI PPObjSuprWare::Edit(PPID * pID, void * extraPtr)
+int PPObjSuprWare::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	PPSuprWarePacket pack;
@@ -2777,7 +2777,7 @@ int SLAPI PPObjSuprWare::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjSuprWare::DeleteObj(PPID id)
+int PPObjSuprWare::DeleteObj(PPID id)
 {
 	return Put(&id, 0, 0);
 }
@@ -2801,17 +2801,16 @@ PPViewBrand::BrwItem::BrwItem(const PPBrand * pS) : ID(0), OwnerID(0), Flags(0),
 	}
 }
 
-SLAPI PPViewBrand::PPViewBrand() : PPView(&Obj, &Filt, PPVIEW_BRAND), P_DsList(0)
+PPViewBrand::PPViewBrand() : PPView(&Obj, &Filt, PPVIEW_BRAND, (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter), 0), P_DsList(0)
 {
-	ImplementFlags |= (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter);
 }
 
-SLAPI PPViewBrand::~PPViewBrand()
+PPViewBrand::~PPViewBrand()
 {
 	ZDELETE(P_DsList);
 }
 
-int SLAPI PPViewBrand::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewBrand::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -2859,7 +2858,7 @@ public:
 	}
 };
 
-int SLAPI PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -2867,7 +2866,7 @@ int SLAPI PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(BrandFiltDialog, p_filt);
 }
 
-/*virtual*/int SLAPI PPViewBrand::ViewTotal()
+/*virtual*/int PPViewBrand::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_BRANDTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -2885,7 +2884,7 @@ int SLAPI PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		return 0;
 }
 
-int SLAPI PPViewBrand::InitIteration()
+int PPViewBrand::InitIteration()
 {
 	return MakeList();
 }
@@ -2905,7 +2904,7 @@ int FASTCALL PPViewBrand::NextIteration(BrandViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewBrand::MakeList()
+int PPViewBrand::MakeList()
 {
 	int    ok = 1;
 	PPBrand item;
@@ -2944,7 +2943,7 @@ int SLAPI PPViewBrand::MakeList()
 	return ok;
 }
 
-int SLAPI PPViewBrand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewBrand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -2978,7 +2977,7 @@ static int PPViewBrand_CellStyleFunc(const void * pData, long col, int paintActi
 	return ok;
 }
 
-int SLAPI PPViewBrand::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+int PPViewBrand::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pCellStyle && col >= 0) {
@@ -2998,7 +2997,7 @@ int SLAPI PPViewBrand::CellStyleFunc_(const void * pData, long col, int paintAct
 	return ok;
 }
 
-void SLAPI PPViewBrand::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewBrand::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewBrand::GetDataForBrowser, this);
@@ -3009,7 +3008,7 @@ void SLAPI PPViewBrand::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-SArray * SLAPI PPViewBrand::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewBrand::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_BRAND;
 	SArray * p_array = 0;
@@ -3023,12 +3022,12 @@ SArray * SLAPI PPViewBrand::CreateBrowserArray(uint * pBrwId, SString * pSubTitl
 	return p_array;
 }
 
-int SLAPI PPViewBrand::OnExecBrowser(PPViewBrowser *)
+int PPViewBrand::OnExecBrowser(PPViewBrowser *)
 {
 	return -1;
 }
 
-int SLAPI PPViewBrand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewBrand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	PPID   preserve_id = 0;

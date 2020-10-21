@@ -6,7 +6,7 @@
 //
 //
 //
-static int SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream)
+static int WriteSArrayToFile(const SArray * pAry, FILE * pStream)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -24,7 +24,7 @@ static int SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream)
 	return ok;
 }
 
-static int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
+static int ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -49,7 +49,7 @@ static int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 	return ok;
 }
 
-static int SLAPI WritePStrToFile(const char * pStr, FILE * pStream)
+static int WritePStrToFile(const char * pStr, FILE * pStream)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -67,7 +67,7 @@ static int SLAPI WritePStrToFile(const char * pStr, FILE * pStream)
 	return ok;
 }
 
-static int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream)
+static int ReadPStrFromFile(char ** ppStr, FILE * pStream)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -83,7 +83,7 @@ static int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream)
 	return ok;
 }
 
-/*static int SLAPI ReadPStrFromFile(SString & rStr, FILE * pStream)
+/*static int ReadPStrFromFile(SString & rStr, FILE * pStream)
 {
 	int    ok = 1;
 	uint16 s;
@@ -103,8 +103,8 @@ static int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream)
 //
 #ifdef DL200C // {
 
-int SLAPI PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
-int SLAPI PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
+int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
+int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
 int FASTCALL PPSetError(int errCode) { return PPSetError(errCode, static_cast<const char *>(0)); }
 int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 {
@@ -142,7 +142,7 @@ static int FASTCALL chkch(char ** pp, int c, uint16 * pFlags, long f)
 	p_result->Init(a);\
 	return p_result;
 
-static DL2_CI * SLAPI _plus2(const DL2_CI * pA1, const DL2_CI * pA2)
+static DL2_CI * _plus2(const DL2_CI * pA1, const DL2_CI * pA2)
 {
 	DL2_CI * p_result = 0;
 	dl2cit t1 = pA1->CiType, t2 = pA2->CiType;
@@ -189,7 +189,7 @@ static DL2_CI * SLAPI _plus2(const DL2_CI * pA1, const DL2_CI * pA2)
 	return p_result;
 }
 
-static DL2_CI * SLAPI _minus2(const DL2_CI * pA1, const DL2_CI * pA2)
+static DL2_CI * _minus2(const DL2_CI * pA1, const DL2_CI * pA2)
 {
 	DL2_CI * p_result = 0;
 	dl2cit t1 = pA1->CiType, t2 = pA2->CiType;
@@ -228,7 +228,7 @@ static DL2_CI * SLAPI _minus2(const DL2_CI * pA1, const DL2_CI * pA2)
 }
 
 
-static DL2_CI * SLAPI _mult2(const DL2_CI * pA1, const DL2_CI * pA2)
+static DL2_CI * _mult2(const DL2_CI * pA1, const DL2_CI * pA2)
 {
 	DL2_CI * p_result = 0;
 	dl2cit t1 = pA1->CiType, t2 = pA2->CiType;
@@ -257,7 +257,7 @@ static DL2_CI * SLAPI _mult2(const DL2_CI * pA1, const DL2_CI * pA2)
 	return p_result;
 }
 
-static DL2_CI * SLAPI _div2(const DL2_CI * pA1, const DL2_CI * pA2)
+static DL2_CI * _div2(const DL2_CI * pA1, const DL2_CI * pA2)
 {
 	DL2_CI * p_result = 0;
 	dl2cit t1 = pA1->CiType, t2 = pA2->CiType;
@@ -286,7 +286,7 @@ static DL2_CI * SLAPI _div2(const DL2_CI * pA1, const DL2_CI * pA2)
 	return p_result;
 }
 
-DL2_CI * SLAPI DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pArgList) const
+DL2_CI * DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pArgList) const
 {
 	DL2_CI * p_result = 0;
 	switch(pOp->CiType) {
@@ -317,12 +317,12 @@ DL2_CI * SLAPI DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pA
 //
 //
 //
-SLAPI DL2_Entry::DL2_Entry(uint16 type) : EntryType(type), Flags(0), P_Descript(0)
+DL2_Entry::DL2_Entry(uint16 type) : EntryType(type), Flags(0), P_Descript(0)
 {
 	Name[0] = 0;
 }
 
-int SLAPI DL2_Entry::Setup(const char * pName, const char * pDescript, int isRef)
+int DL2_Entry::Setup(const char * pName, const char * pDescript, int isRef)
 {
 	STRNSCPY(Name, pName);
 	P_Descript = newStr(pDescript);
@@ -339,7 +339,7 @@ DL2_Entry & FASTCALL DL2_Entry::operator = (const DL2_Entry & s)
 	return *this;
 }
 
-void SLAPI DL2_Entry::destroy()
+void DL2_Entry::destroy()
 {
 	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
 		Name[0] = 0;
@@ -347,7 +347,7 @@ void SLAPI DL2_Entry::destroy()
 	}
 }
 
-int SLAPI DL2_Entry::Write(DL2_Storage * pStrg) const
+int DL2_Entry::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
 	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
@@ -369,7 +369,7 @@ int SLAPI DL2_Entry::Write(DL2_Storage * pStrg) const
 	return ok;
 }
 
-/*static*/uint16 SLAPI DL2_Entry::ReadEntryType(FILE * pStream)
+/*static*/uint16 DL2_Entry::ReadEntryType(FILE * pStream)
 {
 	uint32 t;
 	if(fread(&t, sizeof(t), 1, pStream) == 1) {
@@ -380,7 +380,7 @@ int SLAPI DL2_Entry::Write(DL2_Storage * pStrg) const
 		return PPSetError(PPERR_DL200_READFAULT);
 }
 
-int SLAPI DL2_Entry::Read(FILE * pStream)
+int DL2_Entry::Read(FILE * pStream)
 {
 	int    ok = 1;
 	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
@@ -403,7 +403,7 @@ int SLAPI DL2_Entry::Read(FILE * pStream)
 	return ok;
 }
 
-int SLAPI DL2_Entry::Print(FILE * pStream) const
+int DL2_Entry::Print(FILE * pStream) const
 {
 	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
 		SString temp_buf;
@@ -422,7 +422,7 @@ int SLAPI DL2_Entry::Print(FILE * pStream) const
 	return 1;
 }
 //
-SLAPI DL2_Row::DL2_Row() : DL2_Entry(DL2ENT_ROW), P_F(0)
+DL2_Row::DL2_Row() : DL2_Entry(DL2ENT_ROW), P_F(0)
 {
 }
 
@@ -434,13 +434,13 @@ DL2_Row & FASTCALL DL2_Row::operator = (const DL2_Row & s)
 	return *this;
 }
 
-void SLAPI DL2_Row::destroy()
+void DL2_Row::destroy()
 {
 	DL2_Entry::destroy();
 	ZDELETE(P_F);
 }
 
-int SLAPI DL2_Row::Write(DL2_Storage * pStrg) const
+int DL2_Row::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
 	FILE * f = pStrg->P_Stream;
@@ -457,7 +457,7 @@ int SLAPI DL2_Row::Write(DL2_Storage * pStrg) const
 	return ok;
 }
 
-int SLAPI DL2_Row::Read(FILE * pStream)
+int DL2_Row::Read(FILE * pStream)
 {
 	int    ok = 1;
 	DL2_Formula f;
@@ -473,7 +473,7 @@ int SLAPI DL2_Row::Read(FILE * pStream)
 	return ok;
 }
 
-int SLAPI DL2_Row::Print(FILE * pStream) const
+int DL2_Row::Print(FILE * pStream) const
 {
 	DL2_Entry::Print(pStream);
 	if(P_F) {
@@ -483,27 +483,27 @@ int SLAPI DL2_Row::Print(FILE * pStream) const
 	return 1;
 }
 //
-SLAPI DL2_Group::DL2_Group() : DL2_Entry(DL2ENT_GROUP)
+DL2_Group::DL2_Group() : DL2_Entry(DL2ENT_GROUP)
 {
 	Items.setFlag(aryEachItem, 0);
 }
 
-SLAPI DL2_Group::DL2_Group(uint16 type) : DL2_Entry(type)
+DL2_Group::DL2_Group(uint16 type) : DL2_Entry(type)
 {
 	Items.setFlag(aryEachItem, 0);
 }
 
-uint SLAPI DL2_Group::GetCount() const
+uint DL2_Group::GetCount() const
 {
 	return Items.getCount();
 }
 
-int SLAPI DL2_Group::AddItem(DL2_Entry * pItem)
+int DL2_Group::AddItem(DL2_Entry * pItem)
 {
 	return Items.insert(pItem) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI DL2_Group::RemoveAll()
+int DL2_Group::RemoveAll()
 {
 	for(uint i = 0; i < Items.getCount(); i++) {
 		DL2_Entry * p_entry = GetItem(i);
@@ -520,18 +520,18 @@ int SLAPI DL2_Group::RemoveAll()
 	return 1;
 }
 
-DL2_Entry * SLAPI DL2_Group::GetItem(uint i) const
+DL2_Entry * DL2_Group::GetItem(uint i) const
 {
 	return (DL2_Entry *)Items.at(i);
 }
 
-void SLAPI DL2_Group::destroy()
+void DL2_Group::destroy()
 {
 	DL2_Entry::destroy();
 	RemoveAll();
 }
 
-uint SLAPI DL2_Group::GetMaxNesting() const
+uint DL2_Group::GetMaxNesting() const
 {
 	uint max_nesting = 0;
 	for(uint i = 0; i < GetCount(); i++) {
@@ -545,7 +545,7 @@ uint SLAPI DL2_Group::GetMaxNesting() const
 	return max_nesting;
 }
 
-size_t SLAPI DL2_Group::GetMaxDescriptionSize(uint level) const
+size_t DL2_Group::GetMaxDescriptionSize(uint level) const
 {
 	size_t max_size = 0;
 	if(level == 0) {
@@ -564,7 +564,7 @@ size_t SLAPI DL2_Group::GetMaxDescriptionSize(uint level) const
 	return max_size;
 }
 
-int SLAPI DL2_Group::Write(DL2_Storage * pStrg) const
+int DL2_Group::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
 	uint32 c = GetCount();
@@ -581,7 +581,7 @@ int SLAPI DL2_Group::Write(DL2_Storage * pStrg) const
 	return ok;
 }
 
-int SLAPI DL2_Group::Read(FILE * pStream)
+int DL2_Group::Read(FILE * pStream)
 {
 	int    ok = 1;
 	uint32 c, i = 0;
@@ -613,7 +613,7 @@ int SLAPI DL2_Group::Read(FILE * pStream)
 	return ok;
 }
 
-int SLAPI DL2_Group::Print(FILE * pStream) const
+int DL2_Group::Print(FILE * pStream) const
 {
 	DL2_Entry::Print(pStream);
 	fprintf(pStream, "\n");
@@ -626,23 +626,23 @@ int SLAPI DL2_Group::Print(FILE * pStream) const
 	return 1;
 }
 //
-SLAPI DL2_Data::DL2_Data() : DL2_Group(DL2ENT_DATA)
+DL2_Data::DL2_Data() : DL2_Group(DL2ENT_DATA)
 {
 	P_Columns = 0;
 }
 
-SLAPI DL2_Data::~DL2_Data()
+DL2_Data::~DL2_Data()
 {
 	DestroyColumns();
 }
 
-void SLAPI DL2_Data::destroy()
+void DL2_Data::destroy()
 {
 	DL2_Group::destroy();
 	DestroyColumns();
 }
 
-void SLAPI DL2_Data::DestroyColumns()
+void DL2_Data::DestroyColumns()
 {
 	if(P_Columns) {
 		for(uint i = 0; i < P_Columns->getCount(); i++)
@@ -651,7 +651,7 @@ void SLAPI DL2_Data::DestroyColumns()
 	}
 }
 
-int SLAPI DL2_Data::Write(DL2_Storage * pStrg) const
+int DL2_Data::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
 	uint   i;
@@ -672,7 +672,7 @@ int SLAPI DL2_Data::Write(DL2_Storage * pStrg) const
 	return ok;
 }
 
-int SLAPI DL2_Data::Read(FILE * pStream)
+int DL2_Data::Read(FILE * pStream)
 {
 	int    ok = 1;
 	uint32 c, i = 0;
@@ -695,7 +695,7 @@ int SLAPI DL2_Data::Read(FILE * pStream)
 	return ok;
 }
 
-int SLAPI DL2_Data::AddColumn(const DL2_Column * pColumn)
+int DL2_Data::AddColumn(const DL2_Column * pColumn)
 {
 	if(!P_Columns) {
 		P_Columns = new SArray(sizeof(DL2_Column));
@@ -707,7 +707,7 @@ int SLAPI DL2_Data::AddColumn(const DL2_Column * pColumn)
 	return 1;
 }
 
-int SLAPI DL2_Data::SearchColumnByName(const char * pName, uint * pPos, DL2_Column * pColumn) const
+int DL2_Data::SearchColumnByName(const char * pName, uint * pPos, DL2_Column * pColumn) const
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -724,17 +724,17 @@ int SLAPI DL2_Data::SearchColumnByName(const char * pName, uint * pPos, DL2_Colu
 	return ok;
 }
 
-uint SLAPI DL2_Data::GetColumnsCount() const
+uint DL2_Data::GetColumnsCount() const
 {
 	return SVectorBase::GetCount(P_Columns);
 }
 
-const DL2_Column * SLAPI DL2_Data::GetColumn(uint pos) const
+const DL2_Column * DL2_Data::GetColumn(uint pos) const
 {
 	return (P_Columns && pos < P_Columns->getCount()) ? static_cast<const DL2_Column *>(P_Columns->at(pos)) : 0;
 }
 
-int SLAPI DL2_Data::Print(FILE * pStream) const
+int DL2_Data::Print(FILE * pStream) const
 {
 	char   dummy[4];
 	dummy[0] = 0;
@@ -751,13 +751,13 @@ int SLAPI DL2_Data::Print(FILE * pStream) const
 //
 //
 //
-SLAPI DL2_GroupStack::DL2_GroupStack() : SStack(sizeof(void *), /*3,*/aryDataOwner|aryPtrContainer)
+DL2_GroupStack::DL2_GroupStack() : SStack(sizeof(void *), /*3,*/aryDataOwner|aryPtrContainer)
 {
 }
 //
 //
 //
-/*static*/DL2_CI * SLAPI DL2_CI::Copy(const DL2_CI * s)
+/*static*/DL2_CI * DL2_CI::Copy(const DL2_CI * s)
 {
 	DL2_CI * n = 0;
 	if(s->CiType == DL2CIT_STRING)
@@ -769,7 +769,7 @@ SLAPI DL2_GroupStack::DL2_GroupStack() : SStack(sizeof(void *), /*3,*/aryDataOwn
 	return n;
 }
 
-/*static*/DL2_CI * SLAPI DL2_CI::MakeStr(const char * pStr)
+/*static*/DL2_CI * DL2_CI::MakeStr(const char * pStr)
 {
 	uint16 len = static_cast<uint16>(pStr ? sstrlen(pStr)+1 : 0);
 	DL2_CI * p_str = new(pStr) DL2_CI;
@@ -789,7 +789,7 @@ SLAPI DL2_GroupStack::DL2_GroupStack() : SStack(sizeof(void *), /*3,*/aryDataOwn
 	delete p;
 }
 
-void * SLAPI DL2_CI::operator new(size_t sz, const char * pStr)
+void * DL2_CI::operator new(size_t sz, const char * pStr)
 {
 	size_t len = pStr ? sstrlen(pStr)+1 : 0;
 	DL2_CI * p = (DL2_CI *)::new char[sz + len];
@@ -799,71 +799,71 @@ void * SLAPI DL2_CI::operator new(size_t sz, const char * pStr)
 	return p;
 }
 
-int SLAPI DL2_CI::IsConst() const
+int DL2_CI::IsConst() const
 {
 	return (CiType >= DL2CIT_CONST_FIRST_ && CiType <= DL2CIT_CONST_LAST_);
 }
 
-void SLAPI DL2_CI::InitOp(uint16 op, uint16 argCount)
+void DL2_CI::InitOp(uint16 op, uint16 argCount)
 {
 	CiType = op;
 	ArgCount = argCount;
 }
 
-void SLAPI DL2_CI::Init(double v)
+void DL2_CI::Init(double v)
 {
 	CiType = DL2CIT_REAL;
 	R = v;
 }
 
-void SLAPI DL2_CI::Init(long v)
+void DL2_CI::Init(long v)
 {
 	CiType = DL2CIT_INT;
 	I = v;
 }
 
-void SLAPI DL2_CI::Init(LDATE v)
+void DL2_CI::Init(LDATE v)
 {
 	CiType = DL2CIT_DATE;
 	D = v;
 }
 
-void SLAPI DL2_CI::Init(LTIME v)
+void DL2_CI::Init(LTIME v)
 {
 	CiType = DL2CIT_TIME;
 	T = v;
 }
 
-void SLAPI DL2_CI::Init(const DateRange * pV)
+void DL2_CI::Init(const DateRange * pV)
 {
 	CiType = DL2CIT_PERIOD;
 	P = *pV;
 }
 
-void SLAPI DL2_CI::Init(const DL2_Acc * pV)
+void DL2_CI::Init(const DL2_Acc * pV)
 {
 	CiType = DL2CIT_ACC;
 	A = *pV;
 }
 
-void SLAPI DL2_CI::Init(const DL2_Score * pV)
+void DL2_CI::Init(const DL2_Score * pV)
 {
 	CiType = DL2CIT_SCORE;
 	Score = *pV;
 }
 
-void SLAPI DL2_CI::InitMetavar(long id)
+void DL2_CI::InitMetavar(long id)
 {
 	CiType = DL2CIT_METAVAR;
 	MvID = id;
 }
 
-size_t SLAPI DL2_CI::Size() const
+size_t DL2_CI::Size() const
 {
 	return (CiType == DL2CIT_STRING) ? (sizeof(DL2_CI)+Len) : sizeof(DL2_CI);
 }
 
-int SLAPI DL2_CI::GetStr(char * pBuf, size_t bufLen) const
+int DL2_CI::GetStr(char * pBuf, size_t bufLen) const
 {
 	if(Len)
 		strnzcpy(pBuf, (const char *)(this+1), bufLen);
@@ -872,12 +872,12 @@ int SLAPI DL2_CI::GetStr(char * pBuf, size_t bufLen) const
 	return 1;
 }
 
-const char * SLAPI DL2_CI::GetStr() const
+const char * DL2_CI::GetStr() const
 {
 	return Len ? (const char *)(this+1) : 0;
 }
 
-int SLAPI DL2_CI::ToString(char * pBuf, size_t bufLen) const
+int DL2_CI::ToString(char * pBuf, size_t bufLen) const
 {
 	char   buf[128];
 	char * p = buf;
@@ -993,13 +993,13 @@ int SLAPI DL2_CI::ToString(char * pBuf, size_t bufLen) const
 //
 //
 //
-SLAPI DL2_ObjList::DL2_ObjList() : SCollection()
+DL2_ObjList::DL2_ObjList() : SCollection()
 {
 }
 
 /*virtual*/void FASTCALL DL2_ObjList::freeItem(void * ptr) { delete static_cast<Item *>(ptr); }
 
-int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
+int DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 {
 	int    ok = 1;
 	int32  id = 0;
@@ -1050,7 +1050,7 @@ int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 	return ok;
 }
 
-int SLAPI DL2_ObjList::ToString(int32 id, SString & rBuf) const
+int DL2_ObjList::ToString(int32 id, SString & rBuf) const
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -1079,7 +1079,7 @@ int SLAPI DL2_ObjList::ToString(int32 id, SString & rBuf) const
 	return ok;
 }
 
-int SLAPI DL2_ObjList::FromString(const char * pStr, PPID & rObjType, int32 * pId)
+int DL2_ObjList::FromString(const char * pStr, PPID & rObjType, int32 * pId)
 {
 	int    ok = -1;
 	int32  id = 0;
@@ -1133,20 +1133,20 @@ int SLAPI DL2_ObjList::FromString(const char * pStr, PPID & rObjType, int32 * pI
 //
 //
 //
-void SLAPI DL2_Score::Helper_Init()
+void DL2_Score::Helper_Init()
 {
 	DL2_Resolver * p_save_ctx = P_Ctx;
 	THISZERO();
 	P_Ctx = p_save_ctx;
 }
 
-void SLAPI DL2_Score::Init(DL2_Resolver * pCtx)
+void DL2_Score::Init(DL2_Resolver * pCtx)
 {
 	Helper_Init();
 	P_Ctx = pCtx;
 }
 
-int SLAPI DL2_Score::ScanArg(SStrScan & rScan, SString & rBuf)
+int DL2_Score::ScanArg(SStrScan & rScan, SString & rBuf)
 {
 	int    ok = -1;
 	int    par = 0; // Счетчик внутренних скобок
@@ -1175,7 +1175,7 @@ int SLAPI DL2_Score::ScanArg(SStrScan & rScan, SString & rBuf)
 	return ok;
 }
 
-int SLAPI DL2_Score::ScanArgList(const char * pStr, size_t * pOffs)
+int DL2_Score::ScanArgList(const char * pStr, size_t * pOffs)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1250,7 +1250,7 @@ int SLAPI DL2_Score::ScanArgList(const char * pStr, size_t * pOffs)
 	return ok;
 }
 
-int SLAPI DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
+int DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 {
 	int    ok = 1;
 	size_t offs = 0;
@@ -1334,7 +1334,7 @@ int SLAPI DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 	return ok;
 }
 
-int SLAPI DL2_Score::PutToStr(SString & rBuf) const
+int DL2_Score::PutToStr(SString & rBuf) const
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -1428,12 +1428,12 @@ const char * p_test_score_err[] = {
 //
 //
 //
-void SLAPI DL2_Acc::Init()
+void DL2_Acc::Init()
 {
 	THISZERO();
 }
 
-int SLAPI DL2_Acc::GetAco() const
+int DL2_Acc::GetAco() const
 {
 	if(Flags & fAco1) return ACO_1;
 	if(Flags & fAco2) return ACO_2;
@@ -1441,7 +1441,7 @@ int SLAPI DL2_Acc::GetAco() const
 	return 0;
 }
 
-int SLAPI DL2_Acc::GetCorrAco() const
+int DL2_Acc::GetCorrAco() const
 {
 	if(Flags & fCorAco1) return ACO_1;
 	if(Flags & fCorAco2) return ACO_2;
@@ -1449,7 +1449,7 @@ int SLAPI DL2_Acc::GetCorrAco() const
 	return 0;
 }
 
-int SLAPI DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
+int DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 {
 	int    ok = 1;
 	int    i = 0, a = 0;
@@ -1522,7 +1522,7 @@ int SLAPI DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 	return ok;
 }
 
-int SLAPI DL2_Acc::GetFromStr(const char * pStr, int substAr)
+int DL2_Acc::GetFromStr(const char * pStr, int substAr)
 {
 	Init();
 
@@ -1592,7 +1592,7 @@ IMPL_CMPFUNC(DL2_IndexItem, i1, i2)
 }
 
 #ifndef DL200C // {
-/*static*/int SLAPI DL2_Storage::IsDL200File(const char * pFileName)
+/*static*/int DL2_Storage::IsDL200File(const char * pFileName)
 {
 	int    ok = -1;
 	Header hdr;
@@ -1611,7 +1611,7 @@ IMPL_CMPFUNC(DL2_IndexItem, i1, i2)
 }
 #endif // } DL200C
 
-SLAPI DL2_Storage::DL2_Storage()
+DL2_Storage::DL2_Storage()
 {
 	P_Stream = 0;
 	RO_Mode  = 0;
@@ -1619,13 +1619,13 @@ SLAPI DL2_Storage::DL2_Storage()
 	P_Index = 0;
 }
 
-SLAPI DL2_Storage::~DL2_Storage()
+DL2_Storage::~DL2_Storage()
 {
 	SFile::ZClose(&P_Stream);
 	delete P_Index;
 }
 
-int SLAPI DL2_Storage::Open(const char * pFileName, int readOnly)
+int DL2_Storage::Open(const char * pFileName, int readOnly)
 {
 	int    ok = 1;
 	Close();
@@ -1660,7 +1660,7 @@ int SLAPI DL2_Storage::Open(const char * pFileName, int readOnly)
 	return ok;
 }
 
-int SLAPI DL2_Storage::Close()
+int DL2_Storage::Close()
 {
 	int    ok = 1;
 	if(P_Stream) {
@@ -1673,7 +1673,7 @@ int SLAPI DL2_Storage::Close()
 	return ok;
 }
 
-int SLAPI DL2_Storage::GetDataEntriesList(SStrCollection * pList)
+int DL2_Storage::GetDataEntriesList(SStrCollection * pList)
 {
 	IndexItem * p_item;
 	pList->freeAll();
@@ -1685,12 +1685,12 @@ int SLAPI DL2_Storage::GetDataEntriesList(SStrCollection * pList)
 	return pList->getCount() ? 1 : -1;
 }
 
-int SLAPI DL2_Storage::AddSymb(const DL2_Entry * pEntry)
+int DL2_Storage::AddSymb(const DL2_Entry * pEntry)
 {
 	return AddSymb(pEntry, 0);
 }
 
-int SLAPI DL2_Storage::AddSymb(const DL2_Entry * pEntry, uint32 offs)
+int DL2_Storage::AddSymb(const DL2_Entry * pEntry, uint32 offs)
 {
 	int    ok = 1;
 	if(pEntry->Name[0] && !(pEntry->Flags & DL2_Entry::fRef)) {
@@ -1717,7 +1717,7 @@ int SLAPI DL2_Storage::AddSymb(const DL2_Entry * pEntry, uint32 offs)
 	return ok;
 }
 
-int SLAPI DL2_Storage::LookupSymb(uint type, const char * pName, uint * pPos, uint32 * pOffs)
+int DL2_Storage::LookupSymb(uint type, const char * pName, uint * pPos, uint32 * pOffs)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -1741,7 +1741,7 @@ int SLAPI DL2_Storage::LookupSymb(uint type, const char * pName, uint * pPos, ui
 	return ok;
 }
 
-int SLAPI DL2_Storage::CheckDupSymb(uint type, const char * pName)
+int DL2_Storage::CheckDupSymb(uint type, const char * pName)
 {
 	int    ok = 1;
 	if(LookupSymb(type, pName, 0, 0) > 0) {
@@ -1752,7 +1752,7 @@ int SLAPI DL2_Storage::CheckDupSymb(uint type, const char * pName)
 	return ok;
 }
 
-int SLAPI DL2_Storage::WriteEntry(const DL2_Entry * pEntry)
+int DL2_Storage::WriteEntry(const DL2_Entry * pEntry)
 {
 	int    ok = 1;
 	THROW_PP(P_Stream, PPERR_DL200_FILENOPENED);
@@ -1762,7 +1762,7 @@ int SLAPI DL2_Storage::WriteEntry(const DL2_Entry * pEntry)
 	return ok;
 }
 
-int SLAPI DL2_Storage::_ReadEntry(uint type, const char * pName, int hdrOnly, DL2_Entry * pEntry)
+int DL2_Storage::_ReadEntry(uint type, const char * pName, int hdrOnly, DL2_Entry * pEntry)
 {
 	int    ok = 1;
 	uint32 offs;
@@ -1781,17 +1781,17 @@ int SLAPI DL2_Storage::_ReadEntry(uint type, const char * pName, int hdrOnly, DL
 	return ok;
 }
 
-int SLAPI DL2_Storage::ReadEntry(uint type, const char * pName, DL2_Entry * pEntry)
+int DL2_Storage::ReadEntry(uint type, const char * pName, DL2_Entry * pEntry)
 {
 	return _ReadEntry(type, pName, 0, pEntry);
 }
 
-int SLAPI DL2_Storage::ReadEntryHeader(uint type, const char * pName, DL2_Entry * pEntry)
+int DL2_Storage::ReadEntryHeader(uint type, const char * pName, DL2_Entry * pEntry)
 {
 	return _ReadEntry(type, pName, 1, pEntry);
 }
 
-int SLAPI DL2_Storage::WriteHeader()
+int DL2_Storage::WriteHeader()
 {
 	int    ok = 1;
 	THROW_PP(P_Stream, PPERR_DL200_FILENOPENED);
@@ -1803,7 +1803,7 @@ int SLAPI DL2_Storage::WriteHeader()
 	return ok;
 }
 
-int SLAPI DL2_Storage::ReadHeader()
+int DL2_Storage::ReadHeader()
 {
 	int    ok = 1;
 	THROW_PP(P_Stream, PPERR_DL200_FILENOPENED);
@@ -1814,7 +1814,7 @@ int SLAPI DL2_Storage::ReadHeader()
 	return ok;
 }
 
-int SLAPI DL2_Storage::WriteIndex()
+int DL2_Storage::WriteIndex()
 {
 	int   ok = 1;
 	ulong offs = ftell(P_Stream);
@@ -1829,7 +1829,7 @@ int SLAPI DL2_Storage::WriteIndex()
 	return ok;
 }
 
-int SLAPI DL2_Storage::ReadIndex()
+int DL2_Storage::ReadIndex()
 {
 	int    ok = 1;
 	THROW_PP(P_Stream, PPERR_DL200_FILENOPENED);
@@ -1845,42 +1845,42 @@ int SLAPI DL2_Storage::ReadIndex()
 //
 typedef uint16 dl2_exprsize;
 
-SLAPI DL2_Formula::DL2_Formula()
+DL2_Formula::DL2_Formula()
 {
 	Count = 0;
 	Size = 0;
 	P_Stack = 0;
 }
 
-SLAPI DL2_Formula::DL2_Formula(const DL2_Formula & s)
+DL2_Formula::DL2_Formula(const DL2_Formula & s)
 {
 	P_Stack = 0;
 	Copy(&s);
 }
 
-SLAPI DL2_Formula::~DL2_Formula()
+DL2_Formula::~DL2_Formula()
 {
 	// no delete P_Stack (use destroy() insteed
 }
 
-void SLAPI DL2_Formula::destroy()
+void DL2_Formula::destroy()
 {
 	Count = 0;
 	Size = 0;
 	ZFREE(P_Stack);
 }
 
-int SLAPI DL2_Formula::IsEmpty() const
+int DL2_Formula::IsEmpty() const
 {
 	return (Count == 0);
 }
 
-int SLAPI DL2_Formula::GetCount() const
+int DL2_Formula::GetCount() const
 {
 	return Count;
 }
 
-int SLAPI DL2_Formula::Write(FILE * pStream) const
+int DL2_Formula::Write(FILE * pStream) const
 {
 	int    ok = 1;
 	uint32 s = Size;
@@ -1903,7 +1903,7 @@ int SLAPI DL2_Formula::Write(FILE * pStream) const
 	return ok;
 }
 
-int SLAPI DL2_Formula::Read(FILE * pStream)
+int DL2_Formula::Read(FILE * pStream)
 {
 	int    ok = 1;
 	uint32 s, c;
@@ -1930,7 +1930,7 @@ int SLAPI DL2_Formula::Read(FILE * pStream)
 	return ok;
 }
 
-int SLAPI DL2_Formula::Copy(const DL2_Formula * pS)
+int DL2_Formula::Copy(const DL2_Formula * pS)
 {
 	destroy();
 	P_Stack = (uint8 *)SAlloc::M(pS->Size);
@@ -1944,7 +1944,7 @@ int SLAPI DL2_Formula::Copy(const DL2_Formula * pS)
 		return PPSetErrorNoMem();
 }
 
-int SLAPI DL2_Formula::Push(const void * pSrc, size_t srcSize)
+int DL2_Formula::Push(const void * pSrc, size_t srcSize)
 {
 	if(srcSize) {
 		SETIFZ(Size, sizeof(dl2_exprsize));
@@ -1971,12 +1971,12 @@ int SLAPI DL2_Formula::Push(const void * pSrc, size_t srcSize)
 	return -1;
 }
 
-int SLAPI DL2_Formula::PushItem(const DL2_CI * pDl2CiObj)
+int DL2_Formula::PushItem(const DL2_CI * pDl2CiObj)
 {
 	return Push(pDl2CiObj, pDl2CiObj->Size());
 }
 
-int SLAPI DL2_Formula::PushExpression(const DL2_Formula * pF)
+int DL2_Formula::PushExpression(const DL2_Formula * pF)
 {
 	if(pF && pF->Size > sizeof(dl2_exprsize))
 		return Push(pF->P_Stack+sizeof(dl2_exprsize), (pF->Size - sizeof(dl2_exprsize)));
@@ -1984,7 +1984,7 @@ int SLAPI DL2_Formula::PushExpression(const DL2_Formula * pF)
 		return -1;
 }
 
-int SLAPI DL2_Formula::AddExpression(const DL2_Formula * pF)
+int DL2_Formula::AddExpression(const DL2_Formula * pF)
 {
 	int    ok = -1;
 	if(pF)
@@ -2005,7 +2005,7 @@ int SLAPI DL2_Formula::AddExpression(const DL2_Formula * pF)
 	return ok;
 }
 
-int SLAPI DL2_Formula::AddItem(const DL2_CI * pItem)
+int DL2_Formula::AddItem(const DL2_CI * pItem)
 {
 	int    ok = -1;
 	if(pItem) {
@@ -2029,7 +2029,7 @@ int SLAPI DL2_Formula::AddItem(const DL2_CI * pItem)
 	return ok;
 }
 
-const DL2_CI * SLAPI DL2_Formula::Get(size_t pos, size_t * pNextPos) const
+const DL2_CI * DL2_Formula::Get(size_t pos, size_t * pNextPos) const
 {
 	DL2_CI * p = 0;
 	if(pos < Size) {
@@ -2039,7 +2039,7 @@ const DL2_CI * SLAPI DL2_Formula::Get(size_t pos, size_t * pNextPos) const
 	return p;
 }
 
-const DL2_CI * SLAPI DL2_Formula::GetByN(uint n) const
+const DL2_CI * DL2_Formula::GetByN(uint n) const
 {
 	size_t p = 0;
 	if(P_Stack && Size > sizeof(dl2_exprsize)) {
@@ -2055,7 +2055,7 @@ const DL2_CI * SLAPI DL2_Formula::GetByN(uint n) const
 	return 0;
 }
 
-DL2_CI * SLAPI DL2_Formula::Calc(int exprNo, DL2_Resolver * pRslvr) const
+DL2_CI * DL2_Formula::Calc(int exprNo, DL2_Resolver * pRslvr) const
 {
 	DL2_CI * p_result = 0;
 	uint   p = 0;
@@ -2077,7 +2077,7 @@ DL2_CI * SLAPI DL2_Formula::Calc(int exprNo, DL2_Resolver * pRslvr) const
 	return p_result;
 }
 
-DL2_CI * SLAPI DL2_Formula::Calc(int exprNo, size_t pos, size_t * pNextPos, DL2_Resolver * pRslvr) const
+DL2_CI * DL2_Formula::Calc(int exprNo, size_t pos, size_t * pNextPos, DL2_Resolver * pRslvr) const
 {
 	DL2_CI * p_result = 0;
 	size_t next_pos;
@@ -2112,7 +2112,7 @@ DL2_CI * SLAPI DL2_Formula::Calc(int exprNo, size_t pos, size_t * pNextPos, DL2_
 	return p_result;
 }
 
-int SLAPI DL2_Formula::Print(FILE * pStream) const
+int DL2_Formula::Print(FILE * pStream) const
 {
 	uint32 p = 0;
 	fprintf(pStream, "formula: count = %u, size = %u\n", Count, Size);

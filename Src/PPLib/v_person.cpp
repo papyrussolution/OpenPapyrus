@@ -8,7 +8,7 @@
 #include <process.h>
 #include <ppsoapclient.h>
 
-int SLAPI ViewPersonInfoBySCard(const char * pCode)
+int ViewPersonInfoBySCard(const char * pCode)
 {
 	int    ok = -1;
 	SCardTbl::Rec scard_rec;
@@ -52,11 +52,11 @@ int SLAPI ViewPersonInfoBySCard(const char * pCode)
 //
 //
 //
-SLAPI PPViewPerson::PPViewPerson() : PPView(0, &Filt, PPVIEW_PERSON), DefaultTagID(0), P_TempPsn(0), P_Fr(0)
+PPViewPerson::PPViewPerson() : PPView(0, &Filt, PPVIEW_PERSON, 0, 0), DefaultTagID(0), P_TempPsn(0), P_Fr(0)
 {
 }
 
-SLAPI PPViewPerson::~PPViewPerson()
+PPViewPerson::~PPViewPerson()
 {
 	delete P_TempPsn;
 	delete P_Fr;
@@ -64,7 +64,7 @@ SLAPI PPViewPerson::~PPViewPerson()
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempPersonFile, TempPerson);
 
-int SLAPI PPViewPerson::IsTempTblNeeded()
+int PPViewPerson::IsTempTblNeeded()
 {
 	int    yes = 0;
 	if(Filt.AttribType || Filt.P_RegF || Filt.P_TagF || Filt.P_SjF || (Filt.Flags & PersonFilt::fTagsCrsstab))
@@ -88,7 +88,7 @@ int SLAPI PPViewPerson::IsTempTblNeeded()
 	return yes;
 }
 
-int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
+int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, use_ta = 1;
 	SString srch_buf;
@@ -344,17 +344,17 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 		{
 			class PersonTagsCrosstab : public Crosstab {
 			public:
-				explicit SLAPI  PersonTagsCrosstab(PPViewPerson * pV) : Crosstab(), P_V(pV)
+				explicit PersonTagsCrosstab(PPViewPerson * pV) : Crosstab(), P_V(pV)
 				{
 				}
-				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+				virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 				{
 					PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 					SetupBrowserCtColumns(p_brw);
 					return p_brw;
 				}
 			protected:
-				virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+				virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 				{
 					if(pVal && P_V) 
 						P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -391,11 +391,11 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-void SLAPI PPViewPerson::GetTabTitle(long tabID, SString & rBuf) const { GetObjectName(PPOBJ_TAG, tabID, rBuf.Z()); }
-int  SLAPI PPViewPerson::ViewRelations(PPID id) { return PsnObj.EditRelationList(id); }
-int  SLAPI PPViewPerson::AddRelation(PPID id) { return PsnObj.EditRelation(&id, 0, 0); }
+void PPViewPerson::GetTabTitle(long tabID, SString & rBuf) const { GetObjectName(PPOBJ_TAG, tabID, rBuf.Z()); }
+int  PPViewPerson::ViewRelations(PPID id) { return PsnObj.EditRelationList(id); }
+int  PPViewPerson::AddRelation(PPID id) { return PsnObj.EditRelation(&id, 0, 0); }
 
-int SLAPI PPViewPerson::UpdateHungedAddr(PPID addrID)
+int PPViewPerson::UpdateHungedAddr(PPID addrID)
 {
 	int    ok = 1;
 	LocationTbl::Rec loc_rec;
@@ -429,7 +429,7 @@ int SLAPI PPViewPerson::UpdateHungedAddr(PPID addrID)
 	return ok;
 }
 
-int SLAPI PPViewPerson::AddItem(PPID * pID)
+int PPViewPerson::AddItem(PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -441,7 +441,7 @@ int SLAPI PPViewPerson::AddItem(PPID * pID)
 	return ok;
 }
 
-int SLAPI PPViewPerson::EditItem(PPID id)
+int PPViewPerson::EditItem(PPID id)
 {
 	int    ok = -1;
 	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.Kind)) == cmOK) {
@@ -451,7 +451,7 @@ int SLAPI PPViewPerson::EditItem(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewPerson::OpenClientDir(PPID PersonId)
+int PPViewPerson::OpenClientDir(PPID PersonId)
 {
 	int    ok = 0;
 	SString cl_dir_name = PsnObj.GetConfig().TopFolder;
@@ -509,7 +509,7 @@ int SLAPI PPViewPerson::OpenClientDir(PPID PersonId)
 	return ok;
 }
 
-int SLAPI PPViewPerson::EditRegs(PPID id, int oneReg)
+int PPViewPerson::EditRegs(PPID id, int oneReg)
 {
 	int    ok = -1, r = 0;
 	PPPersonPacket pack;
@@ -546,7 +546,7 @@ int SLAPI PPViewPerson::EditRegs(PPID id, int oneReg)
 	return ok;
 }
 
-int SLAPI PPViewPerson::EditDlvrAddrExtFlds(PPID id)
+int PPViewPerson::EditDlvrAddrExtFlds(PPID id)
 {
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
@@ -660,7 +660,7 @@ private:
 	}
 };
 
-int SLAPI PPViewPerson::UpdateList()
+int PPViewPerson::UpdateList()
 {
 	int    ok = -1;
 	UpdPersonListParam param;
@@ -753,7 +753,7 @@ int SLAPI PPViewPerson::UpdateList()
 	return ok;
 }
 
-int SLAPI PPViewPerson::DeleteItem(PPID id)
+int PPViewPerson::DeleteItem(PPID id)
 {
 	int    ok = -1;
 	if(id) {
@@ -796,7 +796,7 @@ int SLAPI PPViewPerson::DeleteItem(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewPerson::ViewTotal()
+int PPViewPerson::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_PERSONTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -822,7 +822,7 @@ int SLAPI PPViewPerson::ViewTotal()
 		return 0;
 }
 
-int SLAPI PPViewPerson::ViewTasks(PPID id)
+int PPViewPerson::ViewTasks(PPID id)
 {
 	if(id) {
 		int    is_client = (Filt.Kind == PPPRK_CLIENT) ? 1 : (Filt.Kind == PPPRK_EMPL) ? 0 : -1; // -1 - undef kind
@@ -843,7 +843,7 @@ int SLAPI PPViewPerson::ViewTasks(PPID id)
 	return -1;
 }
 
-int SLAPI PPViewPerson::ViewPersonEvents(PPID id)
+int PPViewPerson::ViewPersonEvents(PPID id)
 {
 	int    ok = -1;
 	if(id) {
@@ -854,7 +854,7 @@ int SLAPI PPViewPerson::ViewPersonEvents(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
+int PPViewPerson::Transmit(PPID id, int transmitKind)
 {
 	int    ok = -1;
 	if(transmitKind == 0) {
@@ -969,50 +969,56 @@ int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
 	return ok;
 }
 
-int FASTCALL PPViewPerson::CheckForFilt(const PersonTbl::Rec * pRec)
+int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
 {
 	int    ok = 1;
-	if(!CheckFiltID(Filt.Status, pRec->Status))
-		ok = 0;
-	else if((Filt.Flags & PersonFilt::fVatFree) && !(pRec->Flags & PSNF_NOVATAX))
-		ok = 0;
-	else if((Filt.Flags & PersonFilt::fHasImages) && !(pRec->Flags & PSNF_HASIMAGES))
-		ok = 0;
-	else if(!CheckFiltID(Filt.Category, pRec->CatID))
-		ok = 0;
-	else if(!CheckFiltID(Filt.PersonID, pRec->ID))
-		ok = 0;
-	else {
-		SString srch_buf;
-		Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
-		if(srch_buf.NotEmptyS()) {
-			if(Filt.Flags & PersonFilt::fPrecName) {
-				if(srch_buf.CmpNC(pRec->Name) != 0)
-					ok = 0;
-			}
-			else {
-				if(!ExtStrSrch(pRec->Name, srch_buf, 0))
-					ok = 0;
-			}
-		}
-	}
-	if(ok) {
-		if(!(Filt.Flags & PersonFilt::fLocTagF) && !PPObjTag::CheckForTagFilt(PPOBJ_PERSON, pRec->ID, Filt.P_TagF))
+	PersonTbl::Rec _rec;
+	if(pRec || PsnObj.Search(id, &_rec) > 0) {
+		SETIFZ(pRec, &_rec);
+		if(!CheckFiltID(Filt.Status, pRec->Status))
 			ok = 0;
-		else if(Filt.CityID && !oneof3(Filt.AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
-			PPID   city_id = 0;
-			if(!pRec->MainLoc)
+		else if((Filt.Flags & PersonFilt::fVatFree) && !(pRec->Flags & PSNF_NOVATAX))
+			ok = 0;
+		else if((Filt.Flags & PersonFilt::fHasImages) && !(pRec->Flags & PSNF_HASIMAGES))
+			ok = 0;
+		else if(!CheckFiltID(Filt.Category, pRec->CatID))
+			ok = 0;
+		else if(!CheckFiltID(Filt.PersonID, pRec->ID))
+			ok = 0;
+		else {
+			SString srch_buf;
+			Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
+			if(srch_buf.NotEmptyS()) {
+				if(Filt.Flags & PersonFilt::fPrecName) {
+					if(srch_buf.CmpNC(pRec->Name) != 0)
+						ok = 0;
+				}
+				else {
+					if(!ExtStrSrch(pRec->Name, srch_buf, 0))
+						ok = 0;
+				}
+			}
+		}
+		if(ok) {
+			if(!(Filt.Flags & PersonFilt::fLocTagF) && !PPObjTag::CheckForTagFilt(PPOBJ_PERSON, pRec->ID, Filt.P_TagF))
 				ok = 0;
-			else if(PsnObj.LocObj.GetCity(pRec->MainLoc, &city_id, 0, 1) <= 0)
-				ok = 0;
-			else if(WObj.IsChildOf(city_id, Filt.CityID) <= 0)
-				ok = 0;
+			else if(Filt.CityID && !oneof3(Filt.AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
+				PPID   city_id = 0;
+				if(!pRec->MainLoc)
+					ok = 0;
+				else if(PsnObj.LocObj.GetCity(pRec->MainLoc, &city_id, 0, 1) <= 0)
+					ok = 0;
+				else if(WObj.IsChildOf(city_id, Filt.CityID) <= 0)
+					ok = 0;
+			}
 		}
 	}
+	else
+		ok = 0;
 	return ok;
 }
 
-int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, const char * pAddrKindText, PsnAttrViewItem * pItem)
+int PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, const char * pAddrKindText, PsnAttrViewItem * pItem)
 {
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
@@ -1081,7 +1087,7 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 	return ok;
 }
 
-int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrViewItem * pItem)
+int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrViewItem * pItem)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1195,7 +1201,7 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 	return ok;
 }
 
-int SLAPI PPViewPerson::Helper_InsertTempRec(const TempPersonTbl::Rec & rRec)
+int PPViewPerson::Helper_InsertTempRec(const TempPersonTbl::Rec & rRec)
 {
 	int    ok = 1;
 	TempPersonTbl::Key0 k0;
@@ -1209,7 +1215,7 @@ int SLAPI PPViewPerson::Helper_InsertTempRec(const TempPersonTbl::Rec & rRec)
 	return ok;
 }
 
-int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
+int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 {
 	int    ok = -1;
 	if(P_TempPsn && id) {
@@ -1224,7 +1230,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 		SString buf2;
 		PPTransaction tra(ppDbDependTransaction, use_ta);
 		THROW(tra);
-		if(PsnObj.Search(id, &psn_rec) > 0 && CheckForFilt(&psn_rec)) {
+		if(PsnObj.Search(id, &psn_rec) > 0 && CheckIDForFilt(id, &psn_rec)) {
 			if(is_crsst) {
 				THROW(PPRef->Ot.GetList(PPOBJ_PERSON, id, &tags));
 				for(uint i = 0; i < tags.GetCount(); i++) {
@@ -1388,7 +1394,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 	return ok;
 }
 
-int SLAPI PPViewPerson::EditTempRec(PPID id, int use_ta)
+int PPViewPerson::EditTempRec(PPID id, int use_ta)
 {
 	int    ok = -1;
 	if(P_TempPsn && id) {
@@ -1402,7 +1408,7 @@ int SLAPI PPViewPerson::EditTempRec(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI PPViewPerson::InitPersonAttribIteration()
+int PPViewPerson::InitPersonAttribIteration()
 {
 	int    ok = 1;
 	if(!P_TempPsn)
@@ -1420,7 +1426,7 @@ int SLAPI PPViewPerson::InitPersonAttribIteration()
 	return ok;
 }
 
-int SLAPI PPViewPerson::InitPersonIteration()
+int PPViewPerson::InitPersonIteration()
 {
 	int    ok = 1;
 	PersonTbl * pt = PsnObj.P_Tbl;
@@ -1449,7 +1455,7 @@ int SLAPI PPViewPerson::InitPersonIteration()
 	return ok;
 }
 
-int SLAPI PPViewPerson::InitIteration()
+int PPViewPerson::InitIteration()
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1486,7 +1492,7 @@ int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 			}
 			else {
 				PPID   id = Filt.Kind ? PsnObj.P_Tbl->Kind.data.PersonID : PsnObj.P_Tbl->data.ID;
-				if(PsnObj.Search(id, &item) > 0 && CheckForFilt(&item))
+				if(PsnObj.Search(id, &item) > 0 && CheckIDForFilt(id, &item))
 					ok = 1;
 			}
 			Counter.Increment();
@@ -1503,7 +1509,7 @@ struct ExtRegEntry {
 	int    AttribType;
 };
 
-static SArray * SLAPI CreateExtRegList(const PersonFilt * pFilt, PPID * pAttrID, int onlyRegs)
+static SArray * CreateExtRegList(const PersonFilt * pFilt, PPID * pAttrID, int onlyRegs)
 {
 	PPID   id = 0, attr_id = 0;
 	SArray * p_ary = 0;
@@ -1578,7 +1584,7 @@ static SArray * SLAPI CreateExtRegList(const PersonFilt * pFilt, PPID * pAttrID,
 	return p_ary;
 }
 
-static int SLAPI SetupExtRegCombo(TDialog * dlg, uint ctl, const PersonFilt * pFilt, int idFromRegFilt, int onlyRegs)
+static int SetupExtRegCombo(TDialog * dlg, uint ctl, const PersonFilt * pFilt, int idFromRegFilt, int onlyRegs)
 {
 	int    ok = 1;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
@@ -1609,7 +1615,7 @@ static int SLAPI SetupExtRegCombo(TDialog * dlg, uint ctl, const PersonFilt * pF
 	return ok;
 }
 
-static int SLAPI GetExtRegData(TDialog * dlg, uint ctl, int *pAttrType, PPID *pRegId)
+static int GetExtRegData(TDialog * dlg, uint ctl, int *pAttrType, PPID *pRegId)
 {
 	int    ok = -1;
 	if(pAttrType && pRegId) {
@@ -1635,7 +1641,7 @@ static int SLAPI GetExtRegData(TDialog * dlg, uint ctl, int *pAttrType, PPID *pR
 	return ok;
 }
 
-int SLAPI GetExtRegListIds(PPID psnKindID, PPID statusID, PPIDArray * pList)
+int GetExtRegListIds(PPID psnKindID, PPID statusID, PPIDArray * pList)
 {
 	pList->clear();
 	int    ok = -1;
@@ -1657,7 +1663,7 @@ int SLAPI GetExtRegListIds(PPID psnKindID, PPID statusID, PPIDArray * pList)
 //
 // Фильтр по персоналиям
 //
-IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PPFILT_PERSON, 0, 1), P_RegF(0), P_TagF(0), P_SjF(0)
+IMPLEMENT_PPFILT_FACTORY(Person); PersonFilt::PersonFilt() : PPBaseFilt(PPFILT_PERSON, 0, 1), P_RegF(0), P_TagF(0), P_SjF(0)
 {
 	SetFlatChunk(offsetof(PersonFilt, ReserveStart),
 		offsetof(PersonFilt, P_RegF) - offsetof(PersonFilt, ReserveStart));
@@ -1669,7 +1675,7 @@ IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-void SLAPI PersonFilt::Setup()
+void PersonFilt::Setup()
 {
 	SrchStr_.Strip();
 	if(P_RegF) {
@@ -1683,7 +1689,7 @@ void SLAPI PersonFilt::Setup()
 		ZDELETE(P_TagF);
 }
 
-int SLAPI PersonFilt::IsEmpty() const
+int PersonFilt::IsEmpty() const
 {
 	int    yes = 1;
 	if(Kind || Category || Status || CityID || (P_RegF && !P_RegF->IsEmpty()) ||
@@ -1706,15 +1712,15 @@ PersonFilt & FASTCALL PersonFilt::operator = (const PersonFilt &src)
 	return *this;
 }
 
-int SLAPI PersonFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, extssNameText, SrchStr_, rBuf); }
-int SLAPI PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, SrchStr_, pBuf); }
+int PersonFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, extssNameText, SrchStr_, rBuf); }
+int PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, SrchStr_, pBuf); }
 
-/*virtual*/int SLAPI PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {
 		struct PersonFilt_v0 : public PPBaseFilt {
-			SLAPI  PersonFilt_v0() : PPBaseFilt(PPFILT_PERSON, 0, 0), P_RegF(0), P_TagF(0)
+			PersonFilt_v0() : PPBaseFilt(PPFILT_PERSON, 0, 0), P_RegF(0), P_TagF(0)
 			{
 				SetFlatChunk(offsetof(PersonFilt, ReserveStart), offsetof(PersonFilt, P_RegF) - offsetof(PersonFilt, ReserveStart));
 				SetBranchBaseFiltPtr(PPFILT_REGISTER, offsetof(PersonFilt, P_RegF));
@@ -1777,7 +1783,7 @@ int SLAPI PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutE
 //
 // Диалог дополнительных опций фильтра по персоналиям
 //
-static int SLAPI EditRegFilt(PersonFilt * pFilt)
+static int EditRegFilt(PersonFilt * pFilt)
 {
 	class PersonFiltAdvDialog : public TDialog {
 		DECL_DIALOG_DATA(PersonFilt);
@@ -1823,7 +1829,7 @@ static int SLAPI EditRegFilt(PersonFilt * pFilt)
 //
 //
 //
-int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class PersonFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(PersonFilt);
@@ -2008,13 +2014,13 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 //
 //
 //
-int SLAPI PPViewPerson::CreateLikenessTable()
+int PPViewPerson::CreateLikenessTable()
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI PPViewPerson::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewPerson::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	pBrw->SetupToolbarCombo(PPOBJ_PRSNKIND, Filt.Kind, 0, 0);
 	return -1;
@@ -2127,7 +2133,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-/*virtual*/void SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & PersonFilt::fShowFiasRcgn && Filt.IsLocAttr() && P_TempPsn) {
@@ -2149,7 +2155,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	}
 }
 
-DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	PersonTbl * p  = 0;
@@ -2406,7 +2412,7 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	return q;
 }
 
-int SLAPI PPViewPerson::Recover()
+int PPViewPerson::Recover()
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -2552,7 +2558,7 @@ int SLAPI PPViewPerson::Recover()
 	return ok;
 }
 
-int SLAPI PPViewPerson::RemoveHangedAddr()
+int PPViewPerson::RemoveHangedAddr()
 {
 	int    ok = -1;
 	if(Filt.AttribType == PPPSNATTR_HANGEDADDR && P_TempPsn && CONFIRMCRIT(PPCFM_DELALLHANGEDADDR)) {
@@ -2585,7 +2591,7 @@ int SLAPI PPViewPerson::RemoveHangedAddr()
 	return ok;
 }
 
-int SLAPI PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLogger * pLogger)
+int PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLogger * pLogger)
 {
 	int    ok = -1;
 	SendMailDialog * p_dlg = 0;
@@ -2630,7 +2636,7 @@ int SLAPI PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList
 	return ok;
 }
 
-int SLAPI PPViewPerson::ExportUhtt()
+int PPViewPerson::ExportUhtt()
 {
 	int    ok = -1;
 	SString msg_buf, fmt_buf, temp_buf, loc_text_buf;
@@ -2738,7 +2744,7 @@ int SLAPI PPViewPerson::ExportUhtt()
 	return ok;
 }
 
-int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	BrwHdr hdr;
 	if(pHdr) {
@@ -3009,7 +3015,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 	return ok;
 }
 
-int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
+int PPViewPerson::CreateAuthFile(PPID psnId)
 {
 	int    ok = 1;
 	DbProvider * p_dict = CurDict;
@@ -3052,7 +3058,7 @@ int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 	return ok;
 }
 
-int SLAPI PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, uint what /*=0*/)
+int PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, uint what /*=0*/)
 {
 	long   i = 0;
  	SString buf, phone;
@@ -3081,9 +3087,9 @@ int SLAPI PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rP
 //
 //
 //
-int SLAPI ViewPerson(const PersonFilt * pFilt) { return PPView::Execute(PPVIEW_PERSON, pFilt, PPView::exefModeless, 0); }
+int ViewPerson(const PersonFilt * pFilt) { return PPView::Execute(PPVIEW_PERSON, pFilt, PPView::exefModeless, 0); }
 
-int SLAPI EditMainOrg()
+int EditMainOrg()
 {
 	int    ok = -1;
 	PersonFilt flt;
@@ -3112,7 +3118,7 @@ int SLAPI EditMainOrg()
 //
 // Printing
 //
-int SLAPI PPViewPerson::Print(const void *)
+int PPViewPerson::Print(const void *)
 {
 	int    rpt_id = 0;
 	PView  pv(this);

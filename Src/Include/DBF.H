@@ -83,8 +83,8 @@ struct DBFF { // Size = 32
 };
 
 struct DBFCreateFld {
-	SLAPI  DBFCreateFld();
-	void   SLAPI Init(const char * pName, int typ, uint sz, uint prec);
+	DBFCreateFld();
+	void   Init(const char * pName, int typ, uint sz, uint prec);
 	char   Name[32];
 	uint8  Type;
 	uint8  Size;
@@ -101,40 +101,40 @@ struct DBFDate {
 
 class DbfRecord {
 public:
-	SLAPI  DbfRecord(const DbfTable *);
-	SLAPI ~DbfRecord();
-	SCodepage SLAPI getCodePage() const;
-	int    SLAPI copy(DbfRecord * toRec);
-	int    SLAPI empty();
+	DbfRecord(const DbfTable *);
+	~DbfRecord();
+	SCodepage getCodePage() const;
+	int    copy(DbfRecord * toRec);
+	int    empty();
 	//
 	// Для параметра fldN во всех следующих функциях диапазон [1..]
 	//
 #ifndef _WIN32_WCE // @v5.1.7 AHTOXA
-	int    SLAPI put(int fldN, TYPEID, const void *);
-	int    SLAPI put(const SdRecord & rRec);
+	int    put(int fldN, TYPEID, const void *);
+	int    put(const SdRecord & rRec);
 #endif
-	int    SLAPI put(int fldN, const char *);
-	int    SLAPI put(int fldN, double);
-	int    SLAPI put(int fldN, float);
-	int    SLAPI put(int fldN, long);
-	int    SLAPI put(int fldN, int);
-	int    SLAPI put(int fldN, const DBFDate *);
-	int    SLAPI put(int fldN, LDATE);
+	int    put(int fldN, const char *);
+	int    put(int fldN, double);
+	int    put(int fldN, float);
+	int    put(int fldN, long);
+	int    put(int fldN, int);
+	int    put(int fldN, const DBFDate *);
+	int    put(int fldN, LDATE);
 #ifndef _WIN32_WCE // @v5.1.7 AHTOXA
-	int    SLAPI get(int fldN, TYPEID typ, void * pBuf) const;
-	int    SLAPI get(SdRecord & rRec) const;
+	int    get(int fldN, TYPEID typ, void * pBuf) const;
+	int    get(SdRecord & rRec) const;
 #endif
-	int    SLAPI get(int fldN, char *, int skipEmpty = 0) const;
-	int    SLAPI get(int fldN, SString &, int skipEmpty = 0) const;
-	int    SLAPI get(int fldN, double &) const;
-	int    SLAPI get(int fldN, float &) const;
-	int    SLAPI get(int fldN, long &) const;
-	int    SLAPI get(int fldN, int &) const;
-	int    SLAPI get(int fldN, int64 & data) const;
-	int    SLAPI get(int fldN, DBFDate *) const;
-	int    SLAPI get(int fldN, LDATE &) const;
-	int    SLAPI get(int fldN, LTIME &) const;
-	int    SLAPI getFieldName(uint fldN /* 1.. */, char * pFldName, size_t bufLen) const;
+	int    get(int fldN, char *, int skipEmpty = 0) const;
+	int    get(int fldN, SString &, int skipEmpty = 0) const;
+	int    get(int fldN, double &) const;
+	int    get(int fldN, float &) const;
+	int    get(int fldN, long &) const;
+	int    get(int fldN, int &) const;
+	int    get(int fldN, int64 & data) const;
+	int    get(int fldN, DBFDate *) const;
+	int    get(int fldN, LDATE &) const;
+	int    get(int fldN, LTIME &) const;
+	int    getFieldName(uint fldN /* 1.. */, char * pFldName, size_t bufLen) const;
 	int    FASTCALL getFieldNumber(const char * pFldName, int * pFldN /* 1.. */) const;
 	int    FASTCALL getFieldType(uint fldN /* 1.. */, int * pType);
 protected:
@@ -147,53 +147,53 @@ protected:
 
 class DbfTable {
 public:
-	SLAPI  DbfTable(const char * pTblName);
-	SLAPI ~DbfTable();
+	DbfTable(const char * pTblName);
+	~DbfTable();
 
-	int    SLAPI isOpened() const { return Opened; }
-	const char * SLAPI getName() const { return P_Name; }
-	SCodepage SLAPI getCodePage() const;
+	int    isOpened() const { return Opened; }
+	const char * getName() const { return P_Name; }
+	SCodepage getCodePage() const;
 
-	int    SLAPI getFieldName(uint fldN /* 1.. */, char * pFldName, size_t bufLen) const;
+	int    getFieldName(uint fldN /* 1.. */, char * pFldName, size_t bufLen) const;
 	int    FASTCALL getFieldNumber(const char * pFldName, int * pFldN /* 1.. */) const;
 	int    FASTCALL getField(uint fldN /* 1.. */, DBFF *) const;
-	ulong  SLAPI getNumRecs() const;
-	size_t SLAPI getRecSize() const;
-	uint   SLAPI getNumFields() const;
-	int    SLAPI getPosition(ulong * pPos) const;
+	ulong  getNumRecs() const;
+	size_t getRecSize() const;
+	uint   getNumFields() const;
+	int    getPosition(ulong * pPos) const;
 
-	int    SLAPI open();
-	int    SLAPI close();
-	int    SLAPI create(int aNumFlds, const DBFCreateFld * pFldsDescr, SCodepage = cpOEM, int infoByte = -1);
-	int    SLAPI copy(DbfTable * toTbl);
-	int    SLAPI rename(char * newName);
-	int    SLAPI empty();
-	int    SLAPI del();
-	int    SLAPI add(DbfTable * toTbl);
+	int    open();
+	int    close();
+	int    create(int aNumFlds, const DBFCreateFld * pFldsDescr, SCodepage = cpOEM, int infoByte = -1);
+	int    copy(DbfTable * toTbl);
+	int    rename(char * newName);
+	int    empty();
+	int    del();
+	int    add(DbfTable * toTbl);
 	int    FASTCALL goToRec(ulong);
-	int    SLAPI top();
-	int    SLAPI bottom();
-	int    SLAPI next();
-	int    SLAPI prev();
-	int    SLAPI deleteRec();
-	DbfRecord * SLAPI makeRec() const;
+	int    top();
+	int    bottom();
+	int    next();
+	int    prev();
+	int    deleteRec();
+	DbfRecord * makeRec() const;
 	int    FASTCALL getRec(DbfRecord *);
 	int    FASTCALL insertRec(DbfRecord *);
 	int    FASTCALL appendRec(const DbfRecord *);
 	int    FASTCALL updateRec(const DbfRecord *);
-	int    SLAPI flush();
-	int    SLAPI initBuffer();
-	int    SLAPI releaseBuffer();
-	int    SLAPI isDeletedRec();
+	int    flush();
+	int    initBuffer();
+	int    releaseBuffer();
+	int    isDeletedRec();
 protected:
-	ulong  SLAPI recPerBuffer() const;
-	int    SLAPI flushBuffer();
-	int    SLAPI loadBuffer(long beg, long end);
-	int    SLAPI loadBuffer(ulong recNo);
-	int    SLAPI getHeader();
-	int    SLAPI getFields();
-	int    SLAPI putHeader();
-	int    SLAPI putFields();
+	ulong  recPerBuffer() const;
+	int    flushBuffer();
+	int    loadBuffer(long beg, long end);
+	int    loadBuffer(ulong recNo);
+	int    getHeader();
+	int    getFields();
+	int    putHeader();
+	int    putFields();
 private:
 	DBFH   Head;
 	DBFF * P_Flds;

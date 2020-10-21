@@ -7,19 +7,18 @@
 //
 // @ModuleDef(PPViewPrcBusy)
 //
-IMPLEMENT_PPFILT_FACTORY(PrcBusy); SLAPI PrcBusyFilt::PrcBusyFilt() : PPBaseFilt(PPFILT_PRCBUSY, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrcBusy); PrcBusyFilt::PrcBusyFilt() : PPBaseFilt(PPFILT_PRCBUSY, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcBusyFilt, ReserveStart),
 		offsetof(PrcBusyFilt, Reserve)-offsetof(PrcBusyFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY), P_TempTbl(0), Grid(this), P_OCtx(0)
+PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY, implChangeFilt, 0), P_TempTbl(0), Grid(this), P_OCtx(0)
 {
-	ImplementFlags |= implChangeFilt;
 }
 
-SLAPI PPViewPrcBusy::~PPViewPrcBusy()
+PPViewPrcBusy::~PPViewPrcBusy()
 {
 	UpdateTimeBrowser(1);
 	delete P_TempTbl;
@@ -88,7 +87,7 @@ public:
 	}
 };
 
-int SLAPI PPViewPrcBusy::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewPrcBusy::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
@@ -96,18 +95,18 @@ int SLAPI PPViewPrcBusy::EditBaseFilt(PPBaseFilt * pFilt)
 	DIALOG_PROC_BODY(PrcBusyFiltDialog, p_filt);
 }
 
-SLAPI PPViewPrcBusy::OuterContext::OuterContext() : PersonID(0),  SCardID(0), LocID(0)
+PPViewPrcBusy::OuterContext::OuterContext() : PersonID(0),  SCardID(0), LocID(0)
 {
 }
 
-void SLAPI PPViewPrcBusy::SetOuterContext(const OuterContext * pOCtx)
+void PPViewPrcBusy::SetOuterContext(const OuterContext * pOCtx)
 {
 	ZDELETE(P_OCtx);
 	if(pOCtx)
 		P_OCtx = new OuterContext(*pOCtx);
 }
 
-int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
+int PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 {
 	int    ok = 1;
 	STimeChunkAssocArray * p_tch_list = 0; // @test
@@ -226,7 +225,7 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPrcBusy);
 
-int SLAPI PPViewPrcBusy::Update(const PPIDArray & rPrcList)
+int PPViewPrcBusy::Update(const PPIDArray & rPrcList)
 {
 	int    ok = 1;
 	if(P_TempTbl && rPrcList.getCount()) {
@@ -251,7 +250,7 @@ int SLAPI PPViewPrcBusy::Update(const PPIDArray & rPrcList)
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::Init_(const PPBaseFilt * pFilt)
+int PPViewPrcBusy::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Grid.freeAll();
@@ -282,7 +281,7 @@ int SLAPI PPViewPrcBusy::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::InitIteration()
+int PPViewPrcBusy::InitIteration()
 {
 	int    ok = 1;
 	// @v10.6.8 char   k[MAXKEYLEN];
@@ -300,7 +299,7 @@ int SLAPI PPViewPrcBusy::InitIteration()
 	return ok;
 }
 
-void SLAPI PPViewPrcBusy::RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const
+void PPViewPrcBusy::RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const
 {
 	PrcBusyViewItem item;
 	MEMSZERO(item);
@@ -325,7 +324,7 @@ int FASTCALL PPViewPrcBusy::NextIteration(PrcBusyViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewPrcBusy::AddSession(const PrcBusyViewItem * pItem)
+int PPViewPrcBusy::AddSession(const PrcBusyViewItem * pItem)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -353,7 +352,7 @@ int SLAPI PPViewPrcBusy::AddSession(const PrcBusyViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::ViewTSessLines(PPID sessID)
+int PPViewPrcBusy::ViewTSessLines(PPID sessID)
 {
 	int    ok = -1;
 	if(sessID) {
@@ -364,7 +363,7 @@ int SLAPI PPViewPrcBusy::ViewTSessLines(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::Print(const void * pHdr)
+int PPViewPrcBusy::Print(const void * pHdr)
 {
 	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	PrcBusyViewItem item;
@@ -375,12 +374,12 @@ int SLAPI PPViewPrcBusy::Print(const void * pHdr)
 	return -1;
 }
 
-/*virtual*/void SLAPI PPViewPrcBusy::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewPrcBusy::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evTSessChanged, 0, PPOBJ_TSESSION, 0));
 }
 
-int SLAPI PPViewPrcBusy::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+int PPViewPrcBusy::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	int    ok = -1;
 	if(pEv && P_TempTbl) {
@@ -416,7 +415,7 @@ int SLAPI PPViewPrcBusy::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, 
 	return ok;
 }
 
-DBQuery * SLAPI PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst status_subst(5); // @global @threadsafe
 
@@ -466,7 +465,7 @@ DBQuery * SLAPI PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return p_q;
 }
 
-int SLAPI PPViewPrcBusy::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewPrcBusy::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	pBrw->SetupToolbarCombo(PPOBJ_PROCESSOR, Filt.PrcID, OLW_CANSELUPLEVEL, 0);
 	if(Filt.Flags & PrcBusyFilt::fShowTimeGraph) {
@@ -475,7 +474,7 @@ int SLAPI PPViewPrcBusy::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewPrcBusy::GetItem(PPID id, PrcBusyViewItem * pItem)
+int PPViewPrcBusy::GetItem(PPID id, PrcBusyViewItem * pItem)
 {
 	int    ok = 0;
 	if(P_TempTbl) {
@@ -488,7 +487,7 @@ int SLAPI PPViewPrcBusy::GetItem(PPID id, PrcBusyViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPrcBusy::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -502,7 +501,7 @@ int SLAPI PPViewPrcBusy::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm)
+int PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm)
 {
 	int    ok = -1;
 	if(*pID) {
@@ -579,7 +578,7 @@ int SLAPI PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIM
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::UpdateTimeGridItem(PPID sessID, PPID prcID, const STimeChunk & rNewChunk)
+int PPViewPrcBusy::UpdateTimeGridItem(PPID sessID, PPID prcID, const STimeChunk & rNewChunk)
 {
 	int    ok = -1;
 	PPID   prev_prc_id = 0;
@@ -605,7 +604,7 @@ int SLAPI PPViewPrcBusy::UpdateTimeGridItem(PPID sessID, PPID prcID, const STime
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPrcBusy::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -789,11 +788,11 @@ void PPALDD_PrcBusyView::Destroy() { DESTROY_PPVIEW_ALDD(PrcBusy); }
 //
 // STimeChunkBrowser {
 //
-SLAPI PPViewPrcBusy::PrcBusyTimeChunkGrid::PrcBusyTimeChunkGrid(PPViewPrcBusy * pV) : STimeChunkGrid(), P_View(pV)
+PPViewPrcBusy::PrcBusyTimeChunkGrid::PrcBusyTimeChunkGrid(PPViewPrcBusy * pV) : STimeChunkGrid(), P_View(pV)
 {
 }
 
-SLAPI PPViewPrcBusy::PrcBusyTimeChunkGrid::~PrcBusyTimeChunkGrid()
+PPViewPrcBusy::PrcBusyTimeChunkGrid::~PrcBusyTimeChunkGrid()
 {
 }
 
@@ -980,7 +979,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::MoveChunk(int mode, long id, long rowId
 	return ok;
 }
 
-int SLAPI PPViewPrcBusy::UpdateTimeBrowser(int destroy)
+int PPViewPrcBusy::UpdateTimeBrowser(int destroy)
 {
 	SString temp_buf;
 	ProcessorTbl::Rec prc_rec;
@@ -992,7 +991,7 @@ int SLAPI PPViewPrcBusy::UpdateTimeBrowser(int destroy)
 	return PPView::UpdateTimeBrowser(&Grid, title_buf, destroy);
 }
 
-int SLAPI PPViewPrcBusy::TimeChunkBrowser()
+int PPViewPrcBusy::TimeChunkBrowser()
 {
 	UpdateTimeBrowser(1);
 	PPTimeChunkBrowser * p_brw = new PPTimeChunkBrowser;

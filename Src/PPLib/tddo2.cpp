@@ -4,13 +4,13 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI TddoProcessBlock::TddoProcessBlock() : P_Rtm(0)
+TddoProcessBlock::TddoProcessBlock() : P_Rtm(0)
 {
 }
 
 #ifndef USE_TDDO_2 // {
 
-int SLAPI TestTddo2() // @stub
+int TestTddo2() // @stub
 {
 	return -1;
 }
@@ -49,7 +49,7 @@ int SLAPI TestTddo2() // @stub
 #end{}
 */
 
-/*static*/int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult)
+/*static*/int Tddo::GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult)
 {
 	int    ok = 0;
 	SString path, result;
@@ -92,7 +92,7 @@ int SLAPI TestTddo2() // @stub
 	return (ok || fileExists(rResult)) ? 1 : PPSetErrorSLib();
 }
 
-/*static*/int SLAPI Tddo::LoadFile(const char * pFileName, SString & rBuf)
+/*static*/int Tddo::LoadFile(const char * pFileName, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -108,7 +108,7 @@ int SLAPI TestTddo2() // @stub
 	return ok;
 }
 
-SLAPI Tddo::Tddo()
+Tddo::Tddo()
 {
 	P_Ctx = DS.GetInterfaceContext(PPSession::ctxtExportData);
 	Flags = 0;
@@ -141,11 +141,11 @@ SLAPI Tddo::Tddo()
 	*/
 }
 
-SLAPI Tddo::~Tddo()
+Tddo::~Tddo()
 {
 }
 
-void SLAPI Tddo::SetInputFileName(const char * pFileName)
+void Tddo::SetInputFileName(const char * pFileName)
 {
 	InputFileName = pFileName;
 }
@@ -183,7 +183,7 @@ Tddo::Result & Tddo::Result::Clear()
 // A.B(X().E, D, F.G)
 // A.B(X().E, D, F.G) > 5
 
-int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, SStrScan & rScan, Result & rR)
+int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, SStrScan & rScan, Result & rR)
 {
 	rR.Clear();
 	int    ok = 1, r;
@@ -394,7 +394,7 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 	return ok;
 }
 
-int SLAPI Tddo::GetVar(const SString & rInput, SString & rBuf) const
+int Tddo::GetVar(const SString & rInput, SString & rBuf) const
 {
 	uint   i = 1;
 	int    c;
@@ -406,12 +406,12 @@ int SLAPI Tddo::GetVar(const SString & rInput, SString & rBuf) const
 	return 1;
 }
 
-void SLAPI Tddo::Skip()
+void Tddo::Skip()
 {
 	Scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine, &LineNo);
 }
 
-int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut)
+int Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut)
 {
 	int    ok = 1;
 	LineNo = 1;
@@ -431,7 +431,7 @@ int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::Export
 	return ok;
 }
 
-int SLAPI Tddo::ResolveArgN(const SString & rText, Result & rR)
+int Tddo::ResolveArgN(const SString & rText, Result & rR)
 {
 	rR.Clear();
 	int    ok = -1;
@@ -448,7 +448,7 @@ int SLAPI Tddo::ResolveArgN(const SString & rText, Result & rR)
 	return ok;
 }
 
-int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
+int Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
 {
 	rR.Clear();
 	int    ok = 1;
@@ -656,7 +656,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 	return ok;
 }
 
-int SLAPI Tddo::IsTextSection(const SString & rLineBuf, const char * pPattern, SString * pRet)
+int Tddo::IsTextSection(const SString & rLineBuf, const char * pPattern, SString * pRet)
 {
 	int    ok = -1;
 	SString sect_name;
@@ -675,7 +675,7 @@ int SLAPI Tddo::IsTextSection(const SString & rLineBuf, const char * pPattern, S
 	return ok;
 }
 
-int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langId, SBuffer & rOut)
+int Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langId, SBuffer & rOut)
 {
 	int    ok = -1;
 	SString temp_buf, sect_buf, defsect_buf;
@@ -723,7 +723,7 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 	return ok;
 }
 
-/*int SLAPI Tddo::Helper_RecognizeExprToken(long flags, SString & rText)
+/*int Tddo::Helper_RecognizeExprToken(long flags, SString & rText)
 {
 	int    t = 0;
 	char   text[512];
@@ -886,7 +886,7 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 	return t;
 }*/
 
-int SLAPI Tddo::Helper_RecognizeMetaKeyword()
+int Tddo::Helper_RecognizeMetaKeyword()
 {
 	int    m = 0;
 	char   text[512];
@@ -1002,7 +1002,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 	return ok;
 }
 
-int SLAPI Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
+int Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
 {
 	int    ok = 1;
 	uint   prev_scan_stack_pos = 0;
@@ -1308,17 +1308,17 @@ public:
 	static int FASTCALL IsFirstCharOfIdent(char c);
 	static int FASTCALL IsCharOfIdent(char c);
 
-	SLAPI  TddoContentGraph(/*Tddo & rT*/);
-	SLAPI ~TddoContentGraph();
-	int    SLAPI SetSourceName(const char * pSrcName);
-	int    SLAPI Parse(const char * pSrc);
-	int    SLAPI Execute(const char * pDataName, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut);
+	TddoContentGraph(/*Tddo & rT*/);
+	~TddoContentGraph();
+	int    SetSourceName(const char * pSrcName);
+	int    Parse(const char * pSrc);
+	int    Execute(const char * pDataName, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut);
 
-	int    SLAPI Helper_Parse(uint parentChunkP, int isBranch, int stopEvent);
-	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
+	int    Helper_Parse(uint parentChunkP, int isBranch, int stopEvent);
+	int    Helper_RecognizeExprToken(long flags, SString & rText);
 	int    FASTCALL Helper_RecognizeMetaKeyword(SString & rAddendum);
-	void   SLAPI Skip();
-	int    SLAPI Output(SString & rBuf) const;
+	void   Skip();
+	int    Output(SString & rBuf) const;
 private:
 	enum {
 		untiltokEot    = 0x0001,
@@ -1345,7 +1345,7 @@ private:
 			kFormalArg
 		};
 		struct Item {
-			explicit SLAPI  Item(uint16 k);
+			explicit Item(uint16 k);
 			TYPEID GetNumberType() const;
 
 			uint16 K;
@@ -1359,8 +1359,8 @@ private:
 		};
 		class Stack : public TSStack <TddoContentGraph::ExprSet::Item> {
 		public:
-			SLAPI  Stack();
-			int    SLAPI IsSingleOp() const;
+			Stack();
+			int    IsSingleOp() const;
 			int    FASTCALL Push(const Stack & rS);
 			const  TddoContentGraph::ExprSet::Item & Get(uint p) const
 			{
@@ -1369,8 +1369,8 @@ private:
 		};
 		class Expression {
 		public:
-			SLAPI  Expression();
-			SLAPI  Expression(const Expression & rS) : ES(rS.ES), Next(rS.Next), Flags(rS.Flags)
+			Expression();
+			Expression(const Expression & rS) : ES(rS.ES), Next(rS.Next), Flags(rS.Flags)
 			{
 			}
 
@@ -1379,25 +1379,25 @@ private:
 			TddoContentGraph::ExprSet::Stack ES; // Стэк выражения //
 		};
 
-		explicit SLAPI  ExprSet(TddoContentGraph & rG);
-		SLAPI ~ExprSet();
+		explicit ExprSet(TddoContentGraph & rG);
+		~ExprSet();
 		const  Expression * FASTCALL Get(uint p) const
 		{
 			return (p > 0 && p < EL.getCount()) ? EL.at(p) : 0;
 		}
-		int    SLAPI CreateFormalArgExpr(const char * pArg, uint * pPos);
-		int    SLAPI SetNextPos(uint itemToUpdatePos, uint nextPos);
+		int    CreateFormalArgExpr(const char * pArg, uint * pPos);
+		int    SetNextPos(uint itemToUpdatePos, uint nextPos);
 		// untilToken: } | ) | , | EOF
-		int    SLAPI Parse(uint untilToken, uint * pPos);
-		void   SLAPI DebugOutput(uint exprPos, SString & rBuf) const;
+		int    Parse(uint untilToken, uint * pPos);
+		void   DebugOutput(uint exprPos, SString & rBuf) const;
 	private:
 		static int FASTCALL CmpOpPrior(int op1, int op2);
-		int    SLAPI Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack);
+		int    Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack);
 		//
 		// Descr: Ранжирует список выражений rExprList в порядке приоритета операций.
 		//   Результирующий стек rStack содержит готовое выражение, где все операции исполняются в правильном порядке.
 		//
-		int    SLAPI ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack); // @recursion
+		int    ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack); // @recursion
 
 		TddoContentGraph & R_G;
 		TSCollection <Expression> EL;
@@ -1416,7 +1416,7 @@ private:
 		uint   ExprP;   // Выражение
 	};
 	struct Current {
-		SLAPI  Current() : LineNo(0), SourceNameP(0), ScanOffs(0), P_Src(0)
+		Current() : LineNo(0), SourceNameP(0), ScanOffs(0), P_Src(0)
 		{
 		}
 		uint   LineNo;
@@ -1425,7 +1425,7 @@ private:
 		const char * P_Src;
 	};
 	struct Error {
-		SLAPI  Error()
+		Error()
 		{
 			THISZERO();
 		}
@@ -1448,26 +1448,26 @@ private:
 	};
 	class LocalScope : public DlScope {
 	public:
-		SLAPI  LocalScope();
-		SLAPI ~LocalScope();
-		uint   SLAPI SetVar(const char * pName, const STypEx & rT, const void * pData);
-		int    SLAPI GetVar(const char * pName, ExprResult & rResult) const;
+		LocalScope();
+		~LocalScope();
+		uint   SetVar(const char * pName, const STypEx & rT, const void * pData);
+		int    GetVar(const char * pName, ExprResult & rResult) const;
 	private:
 		class DataPool : public SArray {
 		public:
-			SLAPI  DataPool();
+			DataPool();
 		private:
 			virtual void FASTCALL freeItem(void * p);
 		};
 		DataPool DP;
 	};
-	int    SLAPI ChunkToStr(uint cp, uint tabLevel, SString & rBuf) const;
-	uint   SLAPI AddBlock(int kind, uint exprP, const SString & rText);
-	void   SLAPI CurrentPush()
+	int    ChunkToStr(uint cp, uint tabLevel, SString & rBuf) const;
+	uint   AddBlock(int kind, uint exprP, const SString & rText);
+	void   CurrentPush()
 	{
 		ScStk.push(C);
 	}
-	int    SLAPI CurrentPop()
+	int    CurrentPop()
 	{
 		int    ok = 1;
 		Current t;
@@ -1481,9 +1481,9 @@ private:
 		return ok;
 	}
 
-	int    SLAPI ConvertExpression(TddoProcessBlock & rBlk, const ExprSet::Expression & rExpr, uint & rExprPointer, CtmExpr & rResult);
-	int    SLAPI ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult);
-	int    SLAPI Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf);
+	int    ConvertExpression(TddoProcessBlock & rBlk, const ExprSet::Expression & rExpr, uint & rExprPointer, CtmExpr & rResult);
+	int    ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult);
+	int    Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf);
 
 	TSVector <ChunkInner> L;
 	// Блок по индексу 0 всегда стартовый (фиктивный блок)
@@ -1499,7 +1499,7 @@ private:
 	DlContext * P_Ctx;
 };
 
-int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf)
+int TddoContentGraph::Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf)
 {
 	int    ok = 1;
 	int    done = 0;
@@ -1567,7 +1567,7 @@ int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, TddoProcessBlock & rBlk,
 	return ok;
 }
 
-SLAPI TddoContentGraph::LocalScope::DataPool::DataPool() : SArray(sizeof(void *), aryPtrContainer|aryEachItem)
+TddoContentGraph::LocalScope::DataPool::DataPool() : SArray(sizeof(void *), aryPtrContainer|aryEachItem)
 {
 }
 
@@ -1576,15 +1576,15 @@ SLAPI TddoContentGraph::LocalScope::DataPool::DataPool() : SArray(sizeof(void *)
 	SAlloc::F(p);
 }
 
-SLAPI TddoContentGraph::LocalScope::LocalScope() : DlScope(0, DlScope::kLocal, "", 0)
+TddoContentGraph::LocalScope::LocalScope() : DlScope(0, DlScope::kLocal, "", 0)
 {
 }
 
-SLAPI TddoContentGraph::LocalScope::~LocalScope()
+TddoContentGraph::LocalScope::~LocalScope()
 {
 }
 
-int SLAPI TddoContentGraph::LocalScope::GetVar(const char * pName, ExprResult & rResult) const
+int TddoContentGraph::LocalScope::GetVar(const char * pName, ExprResult & rResult) const
 {
 	int    ok = 0;
 	uint   vp = 0;
@@ -1610,7 +1610,7 @@ int SLAPI TddoContentGraph::LocalScope::GetVar(const char * pName, ExprResult & 
 	return ok;
 }
 
-uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx & rT, const void * pData)
+uint TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx & rT, const void * pData)
 {
 	int    ok = 1;
 	uint   vp = 0;
@@ -1646,7 +1646,7 @@ uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx
 	return ok;
 }
 
-int SLAPI TddoContentGraph::Execute(const char * pDataName, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut)
+int TddoContentGraph::Execute(const char * pDataName, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut)
 {
 	int    ok = 1;
 	LocalScope local_scope;
@@ -1669,7 +1669,7 @@ int SLAPI TddoContentGraph::Execute(const char * pDataName, DlRtm::ExportParam &
 	return ok;
 }
 
-int SLAPI TddoContentGraph::ConvertExpression(TddoProcessBlock & rBlk, const ExprSet::Expression & rExpr, uint & rExprPointer, CtmExpr & rResult)
+int TddoContentGraph::ConvertExpression(TddoProcessBlock & rBlk, const ExprSet::Expression & rExpr, uint & rExprPointer, CtmExpr & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1756,7 +1756,7 @@ int SLAPI TddoContentGraph::ConvertExpression(TddoProcessBlock & rBlk, const Exp
 	return ok;
 }
 
-int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult)
+int TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1923,7 +1923,7 @@ int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr,
 	return ok;
 }
 
-SLAPI TddoContentGraph::ExprSet::Item::Item(uint16 k) : K(k), ArgCount(0), Stub(0)
+TddoContentGraph::ExprSet::Item::Item(uint16 k) : K(k), ArgCount(0), Stub(0)
 {
 }
 
@@ -1945,11 +1945,11 @@ TYPEID TddoContentGraph::ExprSet::Item::GetNumberType() const
 	return typ;
 }
 
-SLAPI TddoContentGraph::ExprSet::Stack::Stack()
+TddoContentGraph::ExprSet::Stack::Stack()
 {
 }
 
-int SLAPI TddoContentGraph::ExprSet::Stack::IsSingleOp() const
+int TddoContentGraph::ExprSet::Stack::IsSingleOp() const
 {
 	const uint pt = getPointer();
 	if(pt == 1 && static_cast<const Item *>(at(pt-1))->K == kOp)
@@ -1968,11 +1968,11 @@ int FASTCALL TddoContentGraph::ExprSet::Stack::Push(const Stack & rS)
 	return ok;
 }
 
-SLAPI TddoContentGraph::ExprSet::Expression::Expression() : Next(0), Flags(0)
+TddoContentGraph::ExprSet::Expression::Expression() : Next(0), Flags(0)
 {
 }
 
-SLAPI TddoContentGraph::ExprSet::ExprSet(TddoContentGraph & rG) : R_G(rG)
+TddoContentGraph::ExprSet::ExprSet(TddoContentGraph & rG) : R_G(rG)
 {
 	//
 	// Для того, чтобы 0-позиция считалась инвалидной, необходимо
@@ -1983,11 +1983,11 @@ SLAPI TddoContentGraph::ExprSet::ExprSet(TddoContentGraph & rG) : R_G(rG)
 	assert(zerop == 0);
 }
 
-SLAPI TddoContentGraph::ExprSet::~ExprSet()
+TddoContentGraph::ExprSet::~ExprSet()
 {
 }
 
-int SLAPI TddoContentGraph::ExprSet::SetNextPos(uint itemToUpdatePos, uint nextPos)
+int TddoContentGraph::ExprSet::SetNextPos(uint itemToUpdatePos, uint nextPos)
 {
 	int    ok = 0;
 	if(itemToUpdatePos && itemToUpdatePos < EL.getCount()) {
@@ -2000,7 +2000,7 @@ int SLAPI TddoContentGraph::ExprSet::SetNextPos(uint itemToUpdatePos, uint nextP
 	return ok;
 }
 
-int SLAPI TddoContentGraph::ExprSet::CreateFormalArgExpr(const char * pArg, uint * pPos)
+int TddoContentGraph::ExprSet::CreateFormalArgExpr(const char * pArg, uint * pPos)
 {
 	int    ok = 0;
 	uint   ep = 0;
@@ -2019,7 +2019,7 @@ int SLAPI TddoContentGraph::ExprSet::CreateFormalArgExpr(const char * pArg, uint
 }
 
 // untilToken: } | ) | , | EOF
-int SLAPI TddoContentGraph::ExprSet::Parse(uint untilToken, uint * pPos)
+int TddoContentGraph::ExprSet::Parse(uint untilToken, uint * pPos)
 {
 	int    ok = 1;
 	uint   ep = 0;
@@ -2038,7 +2038,7 @@ int SLAPI TddoContentGraph::ExprSet::Parse(uint untilToken, uint * pPos)
 	return ok;
 }
 
-int SLAPI TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack)
+int TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack)
 {
 	int    ok = 1;
 	Tddo::Meta meta;
@@ -2195,7 +2195,7 @@ int SLAPI TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGr
 	}
 }
 
-int SLAPI TddoContentGraph::ExprSet::ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack)
+int TddoContentGraph::ExprSet::ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack)
 {
 	int    ok = 1;
 	const  uint _c = rExprList.getCount();
@@ -2295,7 +2295,7 @@ int SLAPI TddoContentGraph::ExprSet::ArrangeLocalExprList(const TSCollection <St
 	return ok;
 }
 
-void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) const
+void TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) const
 {
 	if(exprPos < EL.getCount()) {
 		const Expression * p_expr = EL.at(exprPos);
@@ -2370,16 +2370,16 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 		rBuf.Cat("invalid-expression-pos").CatChar('[').Cat(exprPos).CatChar(']');
 }
 
-SLAPI TddoContentGraph::TddoContentGraph(/*Tddo & rT*/) : /*R_T(rT),*/ ES(*this),
+TddoContentGraph::TddoContentGraph(/*Tddo & rT*/) : /*R_T(rT),*/ ES(*this),
 	P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), P_Ctx(DS.GetInterfaceContext(PPSession::ctxtExportData))
 {
 }
 
-SLAPI TddoContentGraph::~TddoContentGraph()
+TddoContentGraph::~TddoContentGraph()
 {
 }
 
-int SLAPI TddoContentGraph::SetSourceName(const char * pSrcName)
+int TddoContentGraph::SetSourceName(const char * pSrcName)
 {
 	if(isempty(pSrcName)) {
 		C.SourceNameP = 0;
@@ -2392,7 +2392,7 @@ int SLAPI TddoContentGraph::SetSourceName(const char * pSrcName)
 	return 1;
 }
 
-int SLAPI TddoContentGraph::Parse(const char * pSrc)
+int TddoContentGraph::Parse(const char * pSrc)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2410,7 +2410,7 @@ int SLAPI TddoContentGraph::Parse(const char * pSrc)
 	return ok;
 }
 
-int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int stopEvent)
+int TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int stopEvent)
 {
 	int    ok = 1;
 	uint   prev_scan_stack_pos = 0;
@@ -2418,7 +2418,7 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 	Tddo::Meta   meta;
 
 	struct CurrentBlock {
-		SLAPI  CurrentBlock(uint parentChunkP, int isBrach) : Kind(0), P(parentChunkP), ExprP(0), IsBranch(isBrach)
+		CurrentBlock(uint parentChunkP, int isBrach) : Kind(0), P(parentChunkP), ExprP(0), IsBranch(isBrach)
 		{
 		}
 		void   FASTCALL AppendToList(TddoContentGraph * pG)
@@ -2436,7 +2436,7 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 				Text.Z();
 			}
 		}
-		void   SLAPI Set(int kind, uint exprP, int isBranch)
+		void   Set(int kind, uint exprP, int isBranch)
 		{
 			Kind = kind;
 			ExprP = exprP;
@@ -2760,7 +2760,7 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 	return (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c));
 }
 
-int SLAPI TddoContentGraph::Helper_RecognizeExprToken(long flags, SString & rText)
+int TddoContentGraph::Helper_RecognizeExprToken(long flags, SString & rText)
 {
 	int    t = 0;
 	char   text[512];
@@ -2996,18 +2996,18 @@ int FASTCALL TddoContentGraph::Helper_RecognizeMetaKeyword(SString & rAddendum)
 	return m;
 }
 
-void SLAPI TddoContentGraph::Skip()
+void TddoContentGraph::Skip()
 {
 	Scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine, &C.LineNo);
 }
 
-int SLAPI TddoContentGraph::Output(SString & rBuf) const
+int TddoContentGraph::Output(SString & rBuf) const
 {
 	rBuf.Z();
 	return ChunkToStr(0, 0, rBuf);
 }
 
-int SLAPI TddoContentGraph::ChunkToStr(uint cp, uint tabLevel, SString & rBuf) const
+int TddoContentGraph::ChunkToStr(uint cp, uint tabLevel, SString & rBuf) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3049,7 +3049,7 @@ int SLAPI TddoContentGraph::ChunkToStr(uint cp, uint tabLevel, SString & rBuf) c
 	return ok;
 }
 
-uint SLAPI TddoContentGraph::AddBlock(int kind, uint exprP, const SString & rText)
+uint TddoContentGraph::AddBlock(int kind, uint exprP, const SString & rText)
 {
 	uint   result_pos = 0;
 	ChunkInner chunk;
@@ -3074,7 +3074,7 @@ int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int SLAPI TestTddo2()
+int TestTddo2()
 {
 	int    ok = 1;
 	SString inp_file_name;
@@ -3138,7 +3138,7 @@ int SLAPI TestTddo2()
 //
 //
 //
-int SLAPI TestTddo()
+int TestTddo()
 {
 	int    ok = 1;
 	SString temp_buf, in_buf;

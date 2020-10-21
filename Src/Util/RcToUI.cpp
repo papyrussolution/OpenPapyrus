@@ -31,7 +31,7 @@ SpcSymbEntry SpcSymbTab[] = {
 	{ '\x5d', 0, "rsq"    }
 };
 
-int SLAPI ReplaceSpecSymb(SString & rBuf)
+int ReplaceSpecSymb(SString & rBuf)
 {
 	SString subst;
 	for(size_t i = 0; i < (sizeof(SpcSymbTab)/sizeof(SpcSymbEntry)); i++) {
@@ -729,7 +729,7 @@ public:
 	int Init(const char * pRcwFile, const char * pRcFile);
 	int ProcessNext(const char * pUIPath);
 protected:
-	virtual int SLAPI ProcessTag(const char * pTag, long);
+	virtual int ProcessTag(const char * pTag, long);
 private:
 	SFile UIFile;
 	SFile RcFile;
@@ -786,7 +786,7 @@ int UITagParser::ProcessTag(const char * pTag, long)
 	return tok;
 }
 
-int SLAPI UITagParser::SaveTagVal(const char * pTag)
+int UITagParser::SaveTagVal(const char * pTag)
 {
 	int    ok = 1;
 	int    tag_idx = 0;

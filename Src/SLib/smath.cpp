@@ -76,7 +76,7 @@ static double FASTCALL MakePositiveDouble(uint64 mantissa, int32 order)
 		return 0.0;
 }
 
-void SLAPI ExploreIEEE754()
+void ExploreIEEE754()
 {
 	static double temp;
 	double r = atof("2.625");
@@ -84,9 +84,9 @@ void SLAPI ExploreIEEE754()
 }
 */
 
-//int SLAPI IsValidIEEE(double v) { return _finite(v) ? 1 : 0; }
+//int IsValidIEEE(double v) { return _finite(v) ? 1 : 0; }
 
-int SLAPI IsValidIEEE(double v)
+int IsValidIEEE(double v)
 {
 	// _FPCLASS_SNAN	Signaling NaN
 	// _FPCLASS_QNAN	Quiet NaN
@@ -362,7 +362,7 @@ double feuclideandistance(uint count, const double * pV1, const double * pV2)
 	return result;
 }
 
-uint64 SLAPI ui64pow(uint64 x, uint n)
+uint64 ui64pow(uint64 x, uint n)
 {
 	uint64 result = 1;
 	if(n) {
@@ -553,7 +553,7 @@ float  FASTCALL degtorad(float deg) { return ((float)SMathConst::PiDiv180 * deg)
 double FASTCALL degtorad(int deg) { return (SMathConst::PiDiv180 * deg); }
 double FASTCALL radtodeg(double rad) { return (rad / SMathConst::PiDiv180); }
 double fscale(double v, double low, double upp) { return (v - low) / (upp - low); }
-double SLAPI sigmoid(double a, double x) { return (1.0 / (1.0 + exp(-(a * x)))); }
+double sigmoid(double a, double x) { return (1.0 / (1.0 + exp(-(a * x)))); }
 //
 //
 //
@@ -591,7 +591,7 @@ double lnfact(uint n)
 //
 // S_n = S_{n-1} + ((n-1)/n) * (x_n - mu_x_{n-1}) * (y_n - mu_y_{n-1})
 //
-double SLAPI scorrelation(const double * pData1, const double * pData2, const size_t n)
+double scorrelation(const double * pData1, const double * pData2, const size_t n)
 {
 	double result = 0.0;
 	if(pData1 && pData2 && n > 1) {
@@ -625,16 +625,16 @@ double SLAPI scorrelation(const double * pData1, const double * pData2, const si
 //
 //
 //
-SLAPI SHistogram::SHistogram() : Flags(0), LeftEdge(0.0), Step(0.0), P_Stat(0), DevMean(0.0), DevWidth(0.0)
+SHistogram::SHistogram() : Flags(0), LeftEdge(0.0), Step(0.0), P_Stat(0), DevMean(0.0), DevWidth(0.0)
 {
 }
 
-SLAPI SHistogram::~SHistogram()
+SHistogram::~SHistogram()
 {
 	delete P_Stat;
 }
 
-void SLAPI SHistogram::Setup()
+void SHistogram::Setup()
 {
 	BinList.freeAll();
 	ValList.freeAll();
@@ -648,7 +648,7 @@ void SLAPI SHistogram::Setup()
 	DevWidth = 0.0;
 }
 
-void SLAPI SHistogram::SetupDynamic(double leftEdge, double step)
+void SHistogram::SetupDynamic(double leftEdge, double step)
 {
 	Setup();
 	Flags |= fDynBins;
@@ -656,7 +656,7 @@ void SLAPI SHistogram::SetupDynamic(double leftEdge, double step)
 	Step = step;
 }
 
-void SLAPI SHistogram::SetupDev(int even, double widthSigm, uint binCount)
+void SHistogram::SetupDev(int even, double widthSigm, uint binCount)
 {
 	Setup();
 	Flags |= fDeviation;
@@ -668,7 +668,7 @@ void SLAPI SHistogram::SetupDev(int even, double widthSigm, uint binCount)
 	DevBinCount = binCount;
 }
 
-int SLAPI SHistogram::AddBin(long binId, double lowBound)
+int SHistogram::AddBin(long binId, double lowBound)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -682,7 +682,7 @@ int SLAPI SHistogram::AddBin(long binId, double lowBound)
 	return ok;
 }
 
-int SLAPI SHistogram::GetBin(long binId, Val * pVal) const
+int SHistogram::GetBin(long binId, Val * pVal) const
 {
 	uint   pos = 0;
 	if(ValList.bsearch(&binId, &pos, CMPF_LONG)) {
@@ -693,7 +693,7 @@ int SLAPI SHistogram::GetBin(long binId, Val * pVal) const
 		return 0;
 }
 
-int SLAPI SHistogram::GetBinByVal(double val, long * pBinId) const
+int SHistogram::GetBinByVal(double val, long * pBinId) const
 {
 	int    r = 0;
 	uint   c = BinList.getCount();
@@ -712,12 +712,12 @@ int SLAPI SHistogram::GetBinByVal(double val, long * pBinId) const
 	return r;
 }
 
-const StatBase * SLAPI SHistogram::GetDeviationStat() const
+const StatBase * SHistogram::GetDeviationStat() const
 {
 	return (Flags & fDeviation) ? P_Stat : 0;
 }
 
-int SLAPI SHistogram::GetDeviationParams(double * pMean, double * pWidth) const
+int SHistogram::GetDeviationParams(double * pMean, double * pWidth) const
 {
 	if(Flags & fDeviation) {
 		ASSIGN_PTR(pMean, DevMean);
@@ -731,7 +731,7 @@ int SLAPI SHistogram::GetDeviationParams(double * pMean, double * pWidth) const
 	}
 }
 
-int SLAPI SHistogram::PreparePut(double val)
+int SHistogram::PreparePut(double val)
 {
 	int    ok = 1;
 	assert(Flags & fDeviation);
@@ -740,7 +740,7 @@ int SLAPI SHistogram::PreparePut(double val)
 	return ok;
 }
 
-long SLAPI SHistogram::Put(double val)
+long SHistogram::Put(double val)
 {
 	int    r = 0;
 	uint   i;
@@ -849,7 +849,7 @@ long SLAPI SHistogram::Put(double val)
 	return val_id;
 }
 
-int SLAPI SHistogram::GetTotal(Val * pVal) const
+int SHistogram::GetTotal(Val * pVal) const
 {
 	int    ok = -1;
 	Val t;
@@ -866,12 +866,12 @@ int SLAPI SHistogram::GetTotal(Val * pVal) const
 	return ok;
 }
 
-uint SLAPI SHistogram::GetResultCount() const
+uint SHistogram::GetResultCount() const
 {
 	return ValList.getCount();
 }
 
-int  SLAPI SHistogram::GetResult(uint pos, Result * pResult) const
+int  SHistogram::GetResult(uint pos, Result * pResult) const
 {
 	int    ok = 1;
 	if(pos < ValList.getCount()) {
@@ -1022,7 +1022,7 @@ double FASTCALL roundnev(double n, int prec)
 	return n;
 }
 
-double SLAPI trunc(double n, int prec)
+double trunc(double n, int prec)
 {
 	double p = fpow10i(prec);
 	double f = floor(n * p);
@@ -1302,7 +1302,7 @@ int FASTCALL IsPrime(ulong val)
 	return Helper_IsPrime(val, 0);
 }
 
-int SLAPI MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList)
+int MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pReduceList, clear());
@@ -1320,7 +1320,7 @@ int SLAPI MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, Ul
     return ok;
 }
 
-int SLAPI Factorize(ulong val, UlongArray * pList)
+int Factorize(ulong val, UlongArray * pList)
 {
 	if(val != 0 && val != 1) {
 		if(val == 2 || val == 3)

@@ -26,7 +26,7 @@
 #endif
 
 #define _GL_USE_STDLIB_ALLOC 1
-#include "relocatable.h" /* Specification.  */
+//#include "relocatable.h"
 #if ENABLE_RELOCATABLE
 //#include <stddef.h>
 //#include <stdio.h>

@@ -76,24 +76,24 @@ public:
 		TSCollection <ConfigEntry> ConfigList;
 	};
 
-	static int SLAPI FindMsvs(int prefMajor, StrAssocArray & rList, SString * pPrefPath);
-	int	   SLAPI InitParam(Param *);
-	int	   SLAPI EditParam(Param *);
-	int	   SLAPI Init(const Param *);
-	int	   SLAPI Run();
-	int    SLAPI Build();
-	int    SLAPI BuildLocalDl600(const char * pPath);
-	Param::ConfigEntry * SLAPI SetupParamByEntryIdx(Param * pParam, int supplementalConfig);
+	static int FindMsvs(int prefMajor, StrAssocArray & rList, SString * pPrefPath);
+	int	   InitParam(Param *);
+	int	   EditParam(Param *);
+	int	   Init(const Param *);
+	int	   Run();
+	int    Build();
+	int    BuildLocalDl600(const char * pPath);
+	Param::ConfigEntry * SetupParamByEntryIdx(Param * pParam, int supplementalConfig);
 private:
 	static int CopyProgressProc(const SDataMoveProgressInfo * scfd); // SDataMoveProgressProc
-	int	   SLAPI UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo);
-	int	   SLAPI InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry);
-	int    SLAPI Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger);
+	int	   UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo);
+	int	   InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry);
+	int    Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger);
 
 	Param  P;
 };
 
-int	SLAPI PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry)
+int	PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -141,7 +141,7 @@ int	SLAPI PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSecti
 	return ok;
 }
 
-PrcssrBuild::Param::ConfigEntry * SLAPI PrcssrBuild::SetupParamByEntryIdx(Param * pParam, int supplementalConfig)
+PrcssrBuild::Param::ConfigEntry * PrcssrBuild::SetupParamByEntryIdx(Param * pParam, int supplementalConfig)
 {
 	Param::ConfigEntry * p_entry = 0;
 	const uint cfg_entry_idx = supplementalConfig ? pParam->XpConfigEntryIdx : pParam->ConfigEntryIdx;
@@ -180,7 +180,7 @@ PrcssrBuild::Param::ConfigEntry * SLAPI PrcssrBuild::SetupParamByEntryIdx(Param 
 	return p_entry;
 }
 
-int	SLAPI PrcssrBuild::InitParam(Param * pParam)
+int	PrcssrBuild::InitParam(Param * pParam)
 {
 	int    ok = 1;
 	SString temp_buf, full_path_buf;
@@ -216,7 +216,7 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 	return ok;
 }
 
-int	SLAPI PrcssrBuild::EditParam(Param * pParam)
+int	PrcssrBuild::EditParam(Param * pParam)
 {
 	class SelfBuildDialog : public TDialog {
 		DECL_DIALOG_DATA(PrcssrBuild::Param);
@@ -328,7 +328,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 	DIALOG_PROC_BODY_P1(SelfBuildDialog, *this, pParam);
 }
 
-int	SLAPI PrcssrBuild::Init(const Param * pParam)
+int	PrcssrBuild::Init(const Param * pParam)
 {
 	int    ok = 1;
 	RVALUEPTR(P, pParam);
@@ -364,7 +364,7 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 
 #endif // } 0
 
-/*static*/int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SString * pPrefPath)
+/*static*/int PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SString * pPrefPath)
 {
 	int    ok = -1;
 	rList.Z();
@@ -431,7 +431,7 @@ echo status > %PPYSRC%\build\log\%BUILD_STATUS%
 	return SPRGRS_CONTINUE;
 }
 
-int	SLAPI PrcssrBuild::UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo)
+int	PrcssrBuild::UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo)
 {
 	int    ok = 1;
 	PPUhttClient uhtt_cli;
@@ -441,7 +441,7 @@ int	SLAPI PrcssrBuild::UploadFileToUhtt(const char * pFileName, const char * pKe
 	return ok;
 }
 
-int SLAPI PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger)
+int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -562,7 +562,7 @@ int SLAPI PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int 
 	return ok;
 }
 
-int	SLAPI PrcssrBuild::Run()
+int	PrcssrBuild::Run()
 {
 	int    ok = 1;
 	uint   i;
@@ -751,7 +751,7 @@ int	SLAPI PrcssrBuild::Run()
 	return ok;
 }
 
-int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
+int PrcssrBuild::BuildLocalDl600(const char * pPath)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -833,7 +833,7 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
 	return ok;
 }
 
-int SLAPI SelfBuild()
+int SelfBuild()
 {
 	int    ok = 1;
 	PrcssrBuild prc;
@@ -847,13 +847,13 @@ int SLAPI SelfBuild()
 	return ok;
 }
 
-int SLAPI BuildLocalDL600()
+int BuildLocalDL600()
 {
 	PrcssrBuild prc;
 	return prc.BuildLocalDl600(0);
 }
 
-int SLAPI ParseWinRcForNativeText()
+int ParseWinRcForNativeText()
 {
 	int    ok = 1;
 	SString line_buf;

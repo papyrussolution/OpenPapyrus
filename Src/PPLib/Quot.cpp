@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
+int ViewQuotValueInfo(const PPQuot & rQuot)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -452,7 +452,7 @@ int QuotUpdDialog::editAdvOptions()
 //
 class QuotUpdFilt_v1 : public PPBaseFilt {
 public:
-	SLAPI  QuotUpdFilt_v1();
+	QuotUpdFilt_v1();
 	char   ReserveStart[32]; // @anchor
 	PPID   QuotKindID;       //
 	PPID   GoodsGrpID;       //
@@ -472,7 +472,7 @@ public:
 	SString Formula;         //
 };
 
-SLAPI QuotUpdFilt_v1::QuotUpdFilt_v1() : PPBaseFilt(PPFILT_QUOTUPD, 0, 1)
+QuotUpdFilt_v1::QuotUpdFilt_v1() : PPBaseFilt(PPFILT_QUOTUPD, 0, 1)
 {
 	SetFlatChunk(offsetof(QuotUpdFilt_v1, ReserveStart),
 		offsetof(QuotUpdFilt_v1, Reserve)-offsetof(QuotUpdFilt_v1, ReserveStart)+sizeof(Reserve));
@@ -483,7 +483,7 @@ SLAPI QuotUpdFilt_v1::QuotUpdFilt_v1() : PPBaseFilt(PPFILT_QUOTUPD, 0, 1)
 }
 
 
-IMPLEMENT_PPFILT_FACTORY(QuotUpd); SLAPI QuotUpdFilt::QuotUpdFilt() : PPBaseFilt(PPFILT_QUOTUPD, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(QuotUpd); QuotUpdFilt::QuotUpdFilt() : PPBaseFilt(PPFILT_QUOTUPD, 0, 2)
 {
 	SetFlatChunk(offsetof(QuotUpdFilt, ReserveStart),
 		offsetof(QuotUpdFilt, Reserve)-offsetof(QuotUpdFilt, ReserveStart)+sizeof(Reserve));
@@ -521,7 +521,7 @@ int FASTCALL QuotUpdFilt::IsQuotSuitesToAdvOpt(const PPQuot & rQ) const
 }
 
 /*
-int SLAPI QuotUpdFilt::Write(SBuffer & rBuf, long) const
+int QuotUpdFilt::Write(SBuffer & rBuf, long) const
 {
 	PPIDArray loc_list;
 	LocList.CopyTo(&loc_list);
@@ -539,7 +539,7 @@ int SLAPI QuotUpdFilt::Write(SBuffer & rBuf, long) const
 }
 */
 
-int SLAPI QuotUpdFilt::Read_Pre720(SBuffer & rBuf, long)
+int QuotUpdFilt::Read_Pre720(SBuffer & rBuf, long)
 {
 	PPIDArray loc_list;
 	if(rBuf.Read(QuotKindID) &&
@@ -557,7 +557,7 @@ int SLAPI QuotUpdFilt::Read_Pre720(SBuffer & rBuf, long)
 		return PPSetErrorSLib();
 }
 
-int SLAPI QuotUpdFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int QuotUpdFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 1) {
@@ -587,7 +587,7 @@ int SLAPI QuotUpdFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-static int SLAPI WarnUpdQuot(PPID goodsID, const PPQuot * pOldQuot, const PPQuot * pNewQuot)
+static int WarnUpdQuot(PPID goodsID, const PPQuot * pOldQuot, const PPQuot * pNewQuot)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_W_UPDQUOT);
@@ -615,7 +615,7 @@ static int SLAPI WarnUpdQuot(PPID goodsID, const PPQuot * pOldQuot, const PPQuot
 	return ok;
 }
 
-static int SLAPI _SetQuot(PPQuotArray * pList, const QuotIdent & rQi, double v, long flags, long minQtty, const DateRange * pPeriod)
+static int _SetQuot(PPQuotArray * pList, const QuotIdent & rQi, double v, long flags, long minQtty, const DateRange * pPeriod)
 {
 	SString prev_q_buf, new_q_buf;
     const  PPQuotArray preserve_list(*pList);
@@ -644,7 +644,7 @@ static int SLAPI _SetQuot(PPQuotArray * pList, const QuotIdent & rQi, double v, 
     return ret;
 }
 
-static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PPIDArray * pQuotKindList, PPQuotArray * pList, PPQuotArray * pUpdList, int * pForAll)
+static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PPIDArray * pQuotKindList, PPQuotArray * pList, PPQuotArray * pUpdList, int * pForAll)
 {
 	int    ok = -1, r = 0;
 	int    for_all = *pForAll;
@@ -808,7 +808,7 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 	return ok;
 }
 
-static int SLAPI SetupQuotUpdRegBill(const QuotUpdFilt & rF, const PPQuotArray & rQList, TSCollection <PPBillPacket> & rPackList)
+static int SetupQuotUpdRegBill(const QuotUpdFilt & rF, const PPQuotArray & rQList, TSCollection <PPBillPacket> & rPackList)
 {
 	int    ok = -1;
 	if(rF.RegisterOpID) {
@@ -838,7 +838,7 @@ static int SLAPI SetupQuotUpdRegBill(const QuotUpdFilt & rF, const PPQuotArray &
 	return ok;
 }
 
-static int SLAPI FinishUpdateQuots(TSCollection <PPBillPacket> & rRegPackList, int use_ta)
+static int FinishUpdateQuots(TSCollection <PPBillPacket> & rRegPackList, int use_ta)
 {
 	const uint max_tries = 3;
 
@@ -862,7 +862,7 @@ static int SLAPI FinishUpdateQuots(TSCollection <PPBillPacket> & rRegPackList, i
 	return ok;
 }
 
-int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
+int UpdateQuots(const QuotUpdFilt * pFilt)
 {
 	int    ok = 1;
 	int    r = 0;
@@ -1190,7 +1190,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 	return ok;
 }
 
-int SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialog, pFilt); }
+int EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialog, pFilt); }
 
 
 //v10.5.8 @erik{
@@ -1241,10 +1241,10 @@ public:
 	}
 };
 
-int SLAPI EditQuotRollbackDialog(LDATETIME *pDateTime) { DIALOG_PROC_BODY(QuotRollbackDialog, pDateTime); }
+int EditQuotRollbackDialog(LDATETIME *pDateTime) { DIALOG_PROC_BODY(QuotRollbackDialog, pDateTime); }
 
 //
-int SLAPI RollbackQuots(const LDATETIME * pDateTime)
+int RollbackQuots(const LDATETIME * pDateTime)
 {	
 	int    ok = -1;
 	int state_flag = 0;

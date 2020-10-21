@@ -28,7 +28,7 @@
 typedef gl_list_t derivation_list;
 typedef struct derivation derivation;
 
-static inline derivation_list derivation_list_new(void)
+static inline derivation_list derivation_list_new()
 {
 	return gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, true);
 }
@@ -63,6 +63,6 @@ void derivation_free(derivation * deriv);
 void derivation_retain(derivation * deriv);
 
 // A derivation denoting the position of the dot.
-derivation * derivation_dot(void);
+derivation * derivation_dot();
 
 #endif /* DERIVATION_H */

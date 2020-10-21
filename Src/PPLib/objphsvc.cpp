@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI TestAsteriskAmiClient(PPID phnSvcID);
+int TestAsteriskAmiClient(PPID phnSvcID);
 //
 //
 //
@@ -197,12 +197,12 @@ Some standard AMI headers
 //
 //
 //
-SLAPI PPPhoneService::PPPhoneService()
+PPPhoneService::PPPhoneService()
 {
 	THISZERO();
 }
 
-SLAPI PPPhoneServicePacket::PPPhoneServicePacket()
+PPPhoneServicePacket::PPPhoneServicePacket()
 {
 }
 
@@ -233,7 +233,7 @@ int FASTCALL PPPhoneServicePacket::GetPrimaryOriginateSymb(SString & rChannel)
 	return ok;
 }
 
-int SLAPI PPPhoneServicePacket::GetExField(int fldId, SString & rBuf) const
+int PPPhoneServicePacket::GetExField(int fldId, SString & rBuf) const
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -243,7 +243,7 @@ int SLAPI PPPhoneServicePacket::GetExField(int fldId, SString & rBuf) const
 	return ok;
 }
 
-int SLAPI PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
+int PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(oneof4(fldId, PHNSVCEXSTR_ADDR, PHNSVCEXSTR_PORT, PHNSVCEXSTR_USER, PHNSVCEXSTR_PASSWORD)) {
@@ -254,7 +254,7 @@ int SLAPI PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
 
 #define PHNSVC_PW_SIZE 64 // @v9.8.11 20-->64 // @attention изменение значения требует конвертации хранимого пароля
 
-int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
+int PPPhoneServicePacket::GetPassword(SString & rBuf) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -263,7 +263,7 @@ int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
 	return ok;
 }
 
-int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
+int PPPhoneServicePacket::SetPassword(const char * pPassword)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -294,7 +294,7 @@ int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjPhoneService::PhoneTo(const SString & rPhone)
+/*static*/int PPObjPhoneService::PhoneTo(const SString & rPhone)
 {
 	int    ok = -1;
 	if(rPhone.NotEmpty()) {
@@ -313,7 +313,7 @@ int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
 	return ok;
 }
 
-SLAPI PPObjPhoneService::PPObjPhoneService(void * extraPtr) : PPObjReference(PPOBJ_PHONESERVICE, extraPtr)
+PPObjPhoneService::PPObjPhoneService(void * extraPtr) : PPObjReference(PPOBJ_PHONESERVICE, extraPtr)
 {
 }
 
@@ -367,7 +367,7 @@ public:
 	}
 };
 
-int SLAPI PPObjPhoneService::Edit(PPID * pID, void * extraPtr)
+int PPObjPhoneService::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1, r = cmCancel, valid_data = 0, is_new = 0;
 	PhoneServiceDialog * dlg = 0;
@@ -394,7 +394,7 @@ int SLAPI PPObjPhoneService::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjPhoneService::Browse(void * extraPtr)
+int PPObjPhoneService::Browse(void * extraPtr)
 {
 	class PhoneServiceView : public ObjViewDialog {
 	public:
@@ -429,7 +429,7 @@ int SLAPI PPObjPhoneService::Browse(void * extraPtr)
 // @v10.7.10 static const char * RpPhnSvcLocalUpChannelSymbol = "PhnSvcLocalChannelSymbol";
 // @v10.7.10 static const char * RpPhnSvcLocalScanChannelSymbol = "PhnSvcLocalScanChannelSymbol";
 
-int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack, int use_ta)
+int PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	SString tail;
@@ -462,7 +462,7 @@ int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack,
 	return ok;
 }
 
-int SLAPI PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
+int PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
 {
 	int    ok = 1, r;
 	THROW(r = Search(id, &pPack->Rec));
@@ -480,7 +480,7 @@ int SLAPI PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
 	return ok;
 }
 
-AsteriskAmiClient * SLAPI PPObjPhoneService::InitAsteriskAmiClient(PPID id)
+AsteriskAmiClient * PPObjPhoneService::InitAsteriskAmiClient(PPID id)
 {
 	AsteriskAmiClient * p_cli = 0;
 	PPPhoneServicePacket ps_pack;
@@ -543,7 +543,7 @@ PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SVector(sizeof(Item_)), SSt
 {
 }
 
-PhnSvcChannelStatusPool & SLAPI PhnSvcChannelStatusPool::Z()
+PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Z()
 {
 	ClearS();
 	SVector::clear(); // @v9.8.11 SArray-->SVector
@@ -552,7 +552,7 @@ PhnSvcChannelStatusPool & SLAPI PhnSvcChannelStatusPool::Z()
 
 uint PhnSvcChannelStatusPool::GetCount() const { return getCount(); }
 
-int SLAPI PhnSvcChannelStatusPool::GetByChannel(const char * pChannel, PhnSvcChannelStatus & rStatus) const
+int PhnSvcChannelStatusPool::GetByChannel(const char * pChannel, PhnSvcChannelStatus & rStatus) const
 {
 	int    ok = -1;
 	rStatus.Z();
@@ -570,7 +570,7 @@ int SLAPI PhnSvcChannelStatusPool::GetByChannel(const char * pChannel, PhnSvcCha
 	return ok;
 }
 
-int SLAPI PhnSvcChannelStatusPool::GetListWithSameBridge(const char * pBridgeId, int excludePos, PhnSvcChannelStatusPool & rList) const
+int PhnSvcChannelStatusPool::GetListWithSameBridge(const char * pBridgeId, int excludePos, PhnSvcChannelStatusPool & rList) const
 {
 	rList.Z();
 	int    ok = -1;
@@ -659,7 +659,7 @@ int FASTCALL PhnSvcChannelStatusPool::Get(uint idx, PhnSvcChannelStatus & rStatu
 	return ok;
 }
 
-int SLAPI PhnSvcChannelStatusPool::SetIdentifiedCallerName(uint idx, const char * pName)
+int PhnSvcChannelStatusPool::SetIdentifiedCallerName(uint idx, const char * pName)
 {
 	int    ok = 1;
 	if(idx < getCount()) {
@@ -1238,7 +1238,7 @@ int AsteriskAmiClient::Logout()
 }
 
 
-int SLAPI TestAsteriskAmiClient(PPID phnSvcID)
+int TestAsteriskAmiClient(PPID phnSvcID)
 {
 	int    ok = 1;
 #ifndef NDEBUG // {

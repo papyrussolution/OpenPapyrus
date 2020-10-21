@@ -901,7 +901,7 @@ int SdRecord::ConvertDataFields(int cvt, void * pBuf) const
 //
 //
 //
-SLAPI SdRecordBuffer::SdRecordBuffer(size_t maxSize) : MaxSize(NZOR(maxSize, 4096)), MaxRecSize(0), Flags(fEqRec)
+SdRecordBuffer::SdRecordBuffer(size_t maxSize) : MaxSize(NZOR(maxSize, 4096)), MaxRecSize(0), Flags(fEqRec)
 {
 	SBaseBuffer::Init();
 	if(Alloc(MaxSize)) {
@@ -912,12 +912,12 @@ SLAPI SdRecordBuffer::SdRecordBuffer(size_t maxSize) : MaxSize(NZOR(maxSize, 409
 		Pos = 0;
 }
 
-SLAPI SdRecordBuffer::~SdRecordBuffer()
+SdRecordBuffer::~SdRecordBuffer()
 {
 	SBaseBuffer::Destroy();
 }
 
-int SLAPI SdRecordBuffer::Reset()
+int SdRecordBuffer::Reset()
 {
 	MaxRecSize = 0;
 	Flags = fEqRec;
@@ -932,7 +932,7 @@ int SLAPI SdRecordBuffer::Reset()
 	}
 }
 
-int SLAPI SdRecordBuffer::Add(const void * pRecData, size_t recSize)
+int SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 {
 	int    ok = 0;
 	if(P_Buf && recSize < SKILOBYTE(32)) {
@@ -957,8 +957,8 @@ int SLAPI SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 	return ok;
 }
 
-int  SLAPI SdRecordBuffer::IsEqRec() const { return BIN(Flags & fEqRec); }
-uint SLAPI SdRecordBuffer::GetCount() const { return P_Buf ? *PTR16(P_Buf) : 0; }
+int  SdRecordBuffer::IsEqRec() const { return BIN(Flags & fEqRec); }
+uint SdRecordBuffer::GetCount() const { return P_Buf ? *PTR16(P_Buf) : 0; }
 
 SBaseBuffer FASTCALL SdRecordBuffer::Get(uint recNo) const
 {
@@ -980,7 +980,7 @@ SBaseBuffer FASTCALL SdRecordBuffer::Get(uint recNo) const
 	return ret_buf;
 }
 
-SBaseBuffer SLAPI SdRecordBuffer::GetBuf() const
+SBaseBuffer SdRecordBuffer::GetBuf() const
 {
 	SBaseBuffer ret_buf;
 	ret_buf.P_Buf = P_Buf;

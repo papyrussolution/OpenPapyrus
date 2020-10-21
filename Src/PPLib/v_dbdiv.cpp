@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(DBDiv); SLAPI DBDivFilt::DBDivFilt() : PPBaseFilt(PPFILT_DBDIV, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(DBDiv); DBDivFilt::DBDivFilt() : PPBaseFilt(PPFILT_DBDIV, 0, 0)
 {
 	SetFlatChunk(offsetof(DBDivFilt, ReserveStart), offsetof(DBDivFilt, ReserveEnd) - offsetof(DBDivFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(DBDivFilt, LocList));
@@ -18,17 +18,16 @@ DBDivFilt & FASTCALL DBDivFilt::operator=(const DBDivFilt & s)
 	return *this;
 }
 
-SLAPI PPViewDBDiv::PPViewDBDiv() : PPView(&ObjDBDiv, &Filt, PPVIEW_DBDIV), P_TempTbl(0)
+PPViewDBDiv::PPViewDBDiv() : PPView(&ObjDBDiv, &Filt, PPVIEW_DBDIV, implDontEditNullFilter, 0), P_TempTbl(0)
 {
-	ImplementFlags |= PPView::implDontEditNullFilter;
 }
 
-SLAPI PPViewDBDiv::~PPViewDBDiv()
+PPViewDBDiv::~PPViewDBDiv()
 {
 	ZDELETE(P_TempTbl);
 }
 
-int SLAPI PPViewDBDiv::CheckForFilt(const DBDivPack * pPack) const
+int PPViewDBDiv::CheckForFilt(const DBDivPack * pPack) const
 {
 	if(pPack) {
 		if(!Filt.LocList.IsEmpty()) {
@@ -41,7 +40,7 @@ int SLAPI PPViewDBDiv::CheckForFilt(const DBDivPack * pPack) const
 	return 1;
 }
 
-TempDBDivTbl::Rec & SLAPI PPViewDBDiv::MakeTempEntry(const DBDivPack & rPack, TempDBDivTbl::Rec & rTempRec)
+TempDBDivTbl::Rec & PPViewDBDiv::MakeTempEntry(const DBDivPack & rPack, TempDBDivTbl::Rec & rTempRec)
 {
 	rTempRec.ID = rPack.Rec.ID;
 	STRNSCPY(rTempRec.Name, rPack.Rec.Name);
@@ -52,7 +51,7 @@ TempDBDivTbl::Rec & SLAPI PPViewDBDiv::MakeTempEntry(const DBDivPack & rPack, Te
 
 #define GRP_LOC 1
 
-int SLAPI PPViewDBDiv::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewDBDiv::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	DBDivFilt filt;
@@ -78,7 +77,7 @@ int SLAPI PPViewDBDiv::EditBaseFilt(PPBaseFilt * pFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempDBDiv);
 
-int SLAPI PPViewDBDiv::Init_(const PPBaseFilt * pFilt)
+int PPViewDBDiv::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -109,7 +108,7 @@ int SLAPI PPViewDBDiv::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewDBDiv::UpdateTempTable(const PPIDArray * pIdList)
+int PPViewDBDiv::UpdateTempTable(const PPIDArray * pIdList)
 {
 	int    ok = -1;
 	if(pIdList && P_TempTbl) {
@@ -140,7 +139,7 @@ int SLAPI PPViewDBDiv::UpdateTempTable(const PPIDArray * pIdList)
 	return ok;
 }
 
-int SLAPI PPViewDBDiv::InitIteration()
+int PPViewDBDiv::InitIteration()
 {
 	int    ok = 1;
 	TempDBDivTbl::Key0 k, k_;
@@ -167,7 +166,7 @@ int FASTCALL PPViewDBDiv::NextIteration(DBDivViewItem * pItem)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewDBDiv::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewDBDiv::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	TempDBDivTbl * t = 0;
@@ -190,7 +189,7 @@ DBQuery * SLAPI PPViewDBDiv::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	return q;
 }
 
-int SLAPI PPViewDBDiv::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDBDiv::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPIDArray id_list;

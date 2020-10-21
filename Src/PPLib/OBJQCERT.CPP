@@ -7,22 +7,22 @@
 
 TLP_IMPL(PPObjQCert, QualityCertTbl, P_Tbl);
 
-SLAPI PPObjQCert::PPObjQCert(void * extraPtr) : PPObject(PPOBJ_QCERT), ExtraPtr(extraPtr)
+PPObjQCert::PPObjQCert(void * extraPtr) : PPObject(PPOBJ_QCERT), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 }
 
-SLAPI PPObjQCert::~PPObjQCert()
+PPObjQCert::~PPObjQCert()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjQCert::Search(PPID id, void * b)
+int PPObjQCert::Search(PPID id, void * b)
 {
 	return SearchByID(P_Tbl, Obj, id, b);
 }
 
-int SLAPI PPObjQCert::SearchByCode(const char * pCode, PPID * pID, QualityCertTbl::Rec * pRec)
+int PPObjQCert::SearchByCode(const char * pCode, PPID * pID, QualityCertTbl::Rec * pRec)
 {
 	QualityCertTbl::Key1 k;
 	MEMSZERO(k);
@@ -33,7 +33,7 @@ int SLAPI PPObjQCert::SearchByCode(const char * pCode, PPID * pID, QualityCertTb
 	return ok;
 }
 
-int SLAPI PPObjQCert::PutPacket(PPID * pID, QualityCertTbl::Rec * pPack, int use_ta)
+int PPObjQCert::PutPacket(PPID * pID, QualityCertTbl::Rec * pPack, int use_ta)
 {
 	int    ok = 1;
 	int    action = 0;
@@ -70,7 +70,7 @@ int SLAPI PPObjQCert::PutPacket(PPID * pID, QualityCertTbl::Rec * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjQCert::SetPassiveTag(PPID id, int set, int use_ta)
+int PPObjQCert::SetPassiveTag(PPID id, int set, int use_ta)
 {
 	int    ok = -1;
 	QualityCertTbl::Rec rec;
@@ -91,12 +91,12 @@ int SLAPI PPObjQCert::SetPassiveTag(PPID id, int set, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjQCert::DeleteObj(PPID id)
+int PPObjQCert::DeleteObj(PPID id)
 {
 	return PutPacket(&id, 0, 0);
 }
 
-ListBoxDef * SLAPI PPObjQCert::Selector(void * extraPtr)
+ListBoxDef * PPObjQCert::Selector(void * extraPtr)
 {
 	ListBoxDef * def = 0;
 	DBQuery   * q = 0;
@@ -143,7 +143,7 @@ ListBoxDef * SLAPI PPObjQCert::Selector(void * extraPtr)
 	return def;
 }
 
-int SLAPI EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
+int EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
 {
 	int    ok = 1;
 	int    r = 0, valid_data = 0;
@@ -203,7 +203,7 @@ int SLAPI EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
 	return ok ? r : 0;
 }
 
-int SLAPI ViewQCertDialog(PPID id)
+int ViewQCertDialog(PPID id)
 {
 	if(id) {
 		PPObjQCert qcobj(0);
@@ -213,7 +213,7 @@ int SLAPI ViewQCertDialog(PPID id)
 		return -1;
 }
 
-int SLAPI PPObjQCert::Edit(PPID * pID, void * extraPtr /*sampleID*/)
+int PPObjQCert::Edit(PPID * pID, void * extraPtr /*sampleID*/)
 {
 	const  PPID sample_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = 1, r = 0;
@@ -238,12 +238,12 @@ int SLAPI PPObjQCert::Edit(PPID * pID, void * extraPtr /*sampleID*/)
 	return ok ? r : 0;
 }
 
-const char * SLAPI PPObjQCert::GetNamePtr()
+const char * PPObjQCert::GetNamePtr()
 {
 	return P_Tbl->data.Code;
 }
 
-int SLAPI PPObjQCert::HandleMsg(int msg, PPID objType, PPID objID, void * extraPtr)
+int PPObjQCert::HandleMsg(int msg, PPID objType, PPID objID, void * extraPtr)
 {
 	QualityCertTbl::Key3 k;
 	if(msg == DBMSG_OBJDELETE && objType == PPOBJ_PERSON) {
@@ -261,9 +261,9 @@ int SLAPI PPObjQCert::HandleMsg(int msg, PPID objType, PPID objID, void * extraP
 	return DBRPL_OK;
 }
 
-int SLAPI PPObjQCert::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_QCERT, 0, PPView::exefModeless, 0); }
+int PPObjQCert::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_QCERT, 0, PPView::exefModeless, 0); }
 
-int SLAPI PPObjQCert::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjQCert::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new QualityCertTbl::Rec);
@@ -279,7 +279,7 @@ int SLAPI PPObjQCert::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	return ok;
 }
 
-int SLAPI PPObjQCert::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjQCert::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	THROW(p && p->Data);
@@ -318,7 +318,7 @@ int SLAPI PPObjQCert::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-int SLAPI PPObjQCert::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjQCert::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		QualityCertTbl::Rec * r = static_cast<QualityCertTbl::Rec *>(p->Data);
@@ -480,7 +480,7 @@ IMPL_HANDLE_EVENT(SelQCertDialog)
 //
 //
 //
-SLAPI QCertCtrlGroup::Rec::Rec(PPID qCertID) : QCertID(qCertID)
+QCertCtrlGroup::Rec::Rec(PPID qCertID) : QCertID(qCertID)
 {
 }
 

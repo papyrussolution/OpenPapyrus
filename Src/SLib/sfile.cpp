@@ -980,12 +980,12 @@ backtrack:
 	return isempty(pFileName) ? -1 : ((::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName));
 }
 
-/*static*/int SLAPI SFile::Rename(const char * pFileName, const char * pNewFileName)
+/*static*/int SFile::Rename(const char * pFileName, const char * pNewFileName)
 {
 	return (::rename(pFileName, pNewFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_RENAME, pFileName);
 }
 
-/*static*/int SLAPI SFile::Compare(const char * pFileName1, const char * pFileName2, long flags)
+/*static*/int SFile::Compare(const char * pFileName1, const char * pFileName2, long flags)
 {
 	int    ok = 1;
 	int    r1 = 0, r2 = 0;
@@ -1028,7 +1028,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	LocalFileTimeToFileTime(wt, wt); // debug
 }
 
-/*static*/int SLAPI SFile::SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
+/*static*/int SFile::SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
 {
 #ifdef __WIN32__
 	FILETIME w_cr_ft;
@@ -1053,7 +1053,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 #endif
 }
 
-/*static*/int SLAPI SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
+/*static*/int SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
 {
 	int    ok = 1;
 	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
@@ -1066,7 +1066,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	return ok;
 }
 
-/*static*/int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif)
+/*static*/int SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif)
 {
 #ifdef __WIN32__
 	FILETIME w_cr_ft;
@@ -1102,7 +1102,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 //		0 - файл доступен для открытия на чтение
 //	   -1 - ошибка
 //
-/*static*/int SLAPI SFile::IsOpenedForWriting(const char * pFileName)
+/*static*/int SFile::IsOpenedForWriting(const char * pFileName)
 {
 	int    ok = 0;
 	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
@@ -1123,7 +1123,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
     return ok;
 }
 
-/*static*/int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout)
+/*static*/int SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout)
 {
 	int    ok = -1;
 	int    r = IsOpenedForWriting(pFileName);
@@ -1157,7 +1157,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	}
 }
 
-void SLAPI SFile::Init()
+void SFile::Init()
 {
 	T = tNone;
 	F = 0;
@@ -1166,7 +1166,7 @@ void SLAPI SFile::Init()
 	Name = 0;
 }
 
-int SLAPI SFile::InvariantC(SInvariantParam * pInvP) const
+int SFile::InvariantC(SInvariantParam * pInvP) const
 {
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(T != tStdFile || F, pInvP);
@@ -1175,12 +1175,12 @@ int SLAPI SFile::InvariantC(SInvariantParam * pInvP) const
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI SFile::SFile() : LB(0)
+SFile::SFile() : LB(0)
 {
 	Init();
 }
 
-SLAPI SFile::SFile(const char * pName, long mode) : LB(0)
+SFile::SFile(const char * pName, long mode) : LB(0)
 {
 	Init();
 	if(mode & mNullWrite)
@@ -1189,24 +1189,24 @@ SLAPI SFile::SFile(const char * pName, long mode) : LB(0)
 		Open(pName, mode);
 }
 
-SLAPI SFile::SFile(SBuffer & rBuf, long mode) : LB(0)
+SFile::SFile(SBuffer & rBuf, long mode) : LB(0)
 {
 	Init();
 	Open(rBuf, mode);
 }
 
-SLAPI SFile::~SFile()
+SFile::~SFile()
 {
 	Close();
 }
 
-SLAPI SFile::operator FILE * () { return (T == tStdFile) ? F : 0; }
-SLAPI SFile::operator SBuffer * () { return (T == tSBuffer) ? P_Sb : 0; }
-int   SLAPI SFile::FileNo() const { return (T == tStdFile && F) ? fileno(F) : IH; }
-const SString & SLAPI SFile::GetName() const { return Name; }
-long  SLAPI SFile::GetMode() const { return Mode; }
+SFile::operator FILE * () { return (T == tStdFile) ? F : 0; }
+SFile::operator SBuffer * () { return (T == tSBuffer) ? P_Sb : 0; }
+int   SFile::FileNo() const { return (T == tStdFile && F) ? fileno(F) : IH; }
+const SString & SFile::GetName() const { return Name; }
+long  SFile::GetMode() const { return Mode; }
 
-int SLAPI SFile::GetBuffer(SBaseBuffer & rBuf) const
+int SFile::GetBuffer(SBaseBuffer & rBuf) const
 {
 	if(T == tSBuffer && P_Sb) {
 		rBuf.P_Buf = (char *)P_Sb->GetBuf(0); // @attention
@@ -1217,13 +1217,13 @@ int SLAPI SFile::GetBuffer(SBaseBuffer & rBuf) const
 		return 0;
 }
 
-int SLAPI SFile::IsValid() const
+int SFile::IsValid() const
 {
 	assert(InvariantC(0));
 	return F ? 1 : ((IH >= 0 || T == tNullOutput) ? 1 : (SLibError = SLERR_FILENOTOPENED, 0));
 }
 
-int SLAPI SFile::Open(SBuffer & rBuf, long mode)
+int SFile::Open(SBuffer & rBuf, long mode)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
@@ -1240,7 +1240,7 @@ int SLAPI SFile::Open(SBuffer & rBuf, long mode)
 	return ok;
 }
 
-int SLAPI SFile::OpenNullOutput()
+int SFile::OpenNullOutput()
 {
 	Close();
 	IH = -1;
@@ -1248,7 +1248,7 @@ int SLAPI SFile::OpenNullOutput()
 	return 1;
 }
 
-int SLAPI SFile::Open(const char * pName, long mode)
+int SFile::Open(const char * pName, long mode)
 {
 	int    ok = 1;
 	SString mode_buf;
@@ -1326,7 +1326,7 @@ int SLAPI SFile::Open(const char * pName, long mode)
 	return ok;
 }
 
-int SLAPI SFile::Close()
+int SFile::Close()
 {
 	assert(InvariantC(0));
 	int    ok = 1;
@@ -1357,7 +1357,7 @@ int SLAPI SFile::Close()
 	return ok;
 }
 
-int SLAPI SFile::Seek(long offs, int origin)
+int SFile::Seek(long offs, int origin)
 {
 	int    ok = 1;
 	assert(InvariantC(0));
@@ -1388,7 +1388,7 @@ int SLAPI SFile::Seek(long offs, int origin)
 	return ok;
 }
 
-int SLAPI SFile::Seek64(int64 offs, int origin)
+int SFile::Seek64(int64 offs, int origin)
 {
 	assert(InvariantC(0));
 	int   ok = (T == tFile) ? BIN(IH >= 0 && _lseeki64(IH, offs, origin) >= 0) : Seek((long)offs, origin);
@@ -1396,7 +1396,7 @@ int SLAPI SFile::Seek64(int64 offs, int origin)
 	return ok;
 }
 
-long SLAPI SFile::Tell()
+long SFile::Tell()
 {
 	assert(InvariantC(0));
 	long   t = 0;
@@ -1421,7 +1421,7 @@ long SLAPI SFile::Tell()
 	return t;
 }
 
-int64 SLAPI SFile::Tell64()
+int64 SFile::Tell64()
 {
 	assert(InvariantC(0));
 	//return (T == tFile) ? ((IH >= 0) ? _telli64(IH) : 0) : (int64)Tell();
@@ -1447,7 +1447,7 @@ int64 SLAPI SFile::Tell64()
 	return t;
 }
 
-int SLAPI SFile::Flush()
+int SFile::Flush()
 {
 	int    ok = -1;
 	if(T == tStdFile) {
@@ -1457,7 +1457,7 @@ int SLAPI SFile::Flush()
 	return ok;
 }
 
-int SLAPI SFile::Write(const void * pBuf, size_t size)
+int SFile::Write(const void * pBuf, size_t size)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
@@ -1474,7 +1474,7 @@ int SLAPI SFile::Write(const void * pBuf, size_t size)
 	return ok;
 }
 
-int SLAPI SFile::ReadV(void * pBuf, size_t size)
+int SFile::ReadV(void * pBuf, size_t size)
 {
 	int    ok = 1;
 	if(T == tNullOutput)
@@ -1490,7 +1490,7 @@ int SLAPI SFile::ReadV(void * pBuf, size_t size)
 	return ok;
 }
 
-int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
+int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
@@ -1571,7 +1571,7 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 	return ok;
 }
 
-int SLAPI SFile::WriteBlancLine()
+int SFile::WriteBlancLine()
 {
 	return WriteLine(0);
 }
@@ -1707,14 +1707,14 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 	return ok;
 }
 
-int SLAPI SFile::Write(const SBuffer & rBuf)
+int SFile::Write(const SBuffer & rBuf)
 {
 	const size_t offs = rBuf.GetRdOffs();
 	const uint32 size = rBuf.GetAvailableSize();
 	return (Write(&size, sizeof(size)) && Write(rBuf.GetBuf(offs), size));
 }
 
-int SLAPI SFile::Read(SBuffer & rBuf)
+int SFile::Read(SBuffer & rBuf)
 {
 	int    ok = 1;
 	uint32 size = 0;
@@ -1783,7 +1783,7 @@ int FASTCALL SFile::ReleaseLckDescriptor(int h)
 	return ok;
 }
 
-int SLAPI SFile::_Lock(int64 offs, int32 size, int mode)
+int SFile::_Lock(int64 offs, int32 size, int mode)
 {
 	int    handle = 0;
 	int    r = -1; // Результат выполнения _locking()
@@ -1818,12 +1818,12 @@ int SLAPI SFile::_Lock(int64 offs, int32 size, int mode)
 	return handle;
 }
 
-int SLAPI SFile::Lock(int64 offs, int32 size)
+int SFile::Lock(int64 offs, int32 size)
 {
 	return _Lock(offs, size, 1);
 }
 
-int SLAPI SFile::Unlock(int lckHandle)
+int SFile::Unlock(int lckHandle)
 {
 	const  LckChunk * p_lck = GetLckDescriptor(lckHandle);
 	int    ret = p_lck ? _Lock(p_lck->Offs, p_lck->Size, 0) : 0;
@@ -1831,7 +1831,7 @@ int SLAPI SFile::Unlock(int lckHandle)
 	return ret;
 }
 
-int SLAPI SFile::CalcSize(int64 * pSize)
+int SFile::CalcSize(int64 * pSize)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
@@ -1852,7 +1852,7 @@ int SLAPI SFile::CalcSize(int64 * pSize)
 	return ok;
 }
 
-int SLAPI SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif)
+int SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif)
 {
 	if(T == tSBuffer)
 		return -1;
@@ -1860,7 +1860,7 @@ int SLAPI SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATE
 		return IsValid() ? SFile::GetTime(_get_osfhandle(fileno(F)), pCreate, pLastAccess, pModif) : 0;
 }
 
-int SLAPI SFile::CalcCRC(long offs, uint32 * pCrc)
+int SFile::CalcCRC(long offs, uint32 * pCrc)
 {
 	int    ok = 1;
 	SCRC32 c;
@@ -2637,12 +2637,12 @@ SEncodingFormat::operator int () const
 //
 // Descr: Low level data alphabet analyzer
 //
-SLAPI SLldAlphabetAnalyzer::Entry::Entry()
+SLldAlphabetAnalyzer::Entry::Entry()
 {
 	Clear();
 }
 
-void SLAPI SLldAlphabetAnalyzer::Entry::Clear()
+void SLldAlphabetAnalyzer::Entry::Clear()
 {
 	C = 0;
 	LastP = 0;
@@ -2650,7 +2650,7 @@ void SLAPI SLldAlphabetAnalyzer::Entry::Clear()
 	P2 = 0.0;
 }
 
-SLAPI SLldAlphabetAnalyzer::SLldAlphabetAnalyzer() : Count(0), Status(0)
+SLldAlphabetAnalyzer::SLldAlphabetAnalyzer() : Count(0), Status(0)
 {
 	for(uint i = 0; i < 256; i++) {
 		Entry entry;
@@ -2658,11 +2658,11 @@ SLAPI SLldAlphabetAnalyzer::SLldAlphabetAnalyzer() : Count(0), Status(0)
 	}
 }
 
-SLAPI SLldAlphabetAnalyzer::~SLldAlphabetAnalyzer()
+SLldAlphabetAnalyzer::~SLldAlphabetAnalyzer()
 {
 }
 
-void SLAPI SLldAlphabetAnalyzer::Clear()
+void SLldAlphabetAnalyzer::Clear()
 {
 	assert(Alphabet.getCount() == 256);
     Status = 0;
@@ -2672,7 +2672,7 @@ void SLAPI SLldAlphabetAnalyzer::Clear()
 	}
 }
 
-uint64 SLAPI SLldAlphabetAnalyzer::GetCount() const
+uint64 SLldAlphabetAnalyzer::GetCount() const
 {
 	return Count;
 }
@@ -2737,7 +2737,7 @@ int FASTCALL SLldAlphabetAnalyzer::AddSymb(uint8 s)
     return ok;
 }
 
-int SLAPI SLldAlphabetAnalyzer::CollectFileData(const char * pFileName)
+int SLldAlphabetAnalyzer::CollectFileData(const char * pFileName)
 {
 	int    ok = 1;
     SFile  f_in(pFileName, SFile::mRead|SFile::mBinary|SFile::mNoStd);

@@ -11,14 +11,14 @@
 /*static*/int FASTCALL PPIniFile::GetParamSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
 /*static*/int FASTCALL PPIniFile::GetSectSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
 
-SLAPI PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) :
+PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) :
 	SIniFile(pFileName, fcreate, winCoding, useIniBuf)
 {
 	if(!pFileName)
 		Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), fcreate, winCoding, useIniBuf);
 }
 
-SLAPI PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
+PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
 {
 	Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), 0, 0, 0);
 }
@@ -35,7 +35,7 @@ SLAPI PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
 	}
 }
 
-int SLAPI PPIniFile::Get(uint sectId, uint paramId, SString & rBuf)
+int PPIniFile::Get(uint sectId, uint paramId, SString & rBuf)
 {
 	SString & r_sect_name = SLS.AcquireRvlStr();
 	SString & r_param_name = SLS.AcquireRvlStr();
@@ -43,21 +43,21 @@ int SLAPI PPIniFile::Get(uint sectId, uint paramId, SString & rBuf)
 	return GetParam(r_sect_name, r_param_name, rBuf);
 }
 
-int SLAPI PPIniFile::Get(uint sectId, const char * pParamName, SString & rBuf)
+int PPIniFile::Get(uint sectId, const char * pParamName, SString & rBuf)
 {
 	SString & r_sect_name = SLS.AcquireRvlStr();
 	ParamIdToStrings(sectId, 0, &r_sect_name, 0);
 	return GetParam(r_sect_name, pParamName, rBuf);
 }
 
-int SLAPI PPIniFile::Get(const char * pSectName, uint paramId, SString & rBuf)
+int PPIniFile::Get(const char * pSectName, uint paramId, SString & rBuf)
 {
 	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
 	ParamIdToStrings(0, paramId, 0, &r_param_name);
 	return GetParam(pSectName, r_param_name, rBuf);
 }
 
-int SLAPI PPIniFile::GetInt(uint sectId, uint paramId, int * pVal)
+int PPIniFile::GetInt(uint sectId, uint paramId, int * pVal)
 {
 	SString & r_sect_name = SLS.AcquireRvlStr(); // @v9.9.12
 	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
@@ -65,21 +65,21 @@ int SLAPI PPIniFile::GetInt(uint sectId, uint paramId, int * pVal)
 	return GetIntParam(r_sect_name, r_param_name, pVal);
 }
 
-int SLAPI PPIniFile::GetInt(const char * pSectName, uint paramId, int * pVal)
+int PPIniFile::GetInt(const char * pSectName, uint paramId, int * pVal)
 {
 	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
 	ParamIdToStrings(0, paramId, 0, &r_param_name);
 	return GetIntParam(pSectName, r_param_name, pVal);
 }
 
-int SLAPI PPIniFile::GetDataSize(const char * pSectName, uint paramId, int64 * pVal)
+int PPIniFile::GetDataSize(const char * pSectName, uint paramId, int64 * pVal)
 {
 	SString & r_param_name = SLS.AcquireRvlStr();
 	ParamIdToStrings(0, paramId, 0, &r_param_name);
 	return GetDataSizeParam(pSectName, r_param_name, pVal);
 }
 
-int SLAPI PPIniFile::GetDataSize(uint sectId, uint paramId, int64 * pVal)
+int PPIniFile::GetDataSize(uint sectId, uint paramId, int64 * pVal)
 {
 	SString & r_sect_name = SLS.AcquireRvlStr();
 	SString & r_param_name = SLS.AcquireRvlStr();
@@ -87,14 +87,14 @@ int SLAPI PPIniFile::GetDataSize(uint sectId, uint paramId, int64 * pVal)
 	return GetDataSizeParam(r_sect_name, r_param_name, pVal);
 }
 
-int SLAPI PPIniFile::GetEntryList(uint sectId, StringSet * pEntries, int storeAllString)
+int PPIniFile::GetEntryList(uint sectId, StringSet * pEntries, int storeAllString)
 {
 	SString sect_name; // don't use SLS.AcquireRvlStr() (GetEnties uses loop)
 	ParamIdToStrings(sectId, 0, &sect_name, 0);
 	return SIniFile::GetEntries(sect_name, pEntries, storeAllString);
 }
 
-int SLAPI PPIniFile::Append(uint sectId, uint paramId, const char * pVal, int overwrite)
+int PPIniFile::Append(uint sectId, uint paramId, const char * pVal, int overwrite)
 {
 	SString sect_name;
 	SString param_name;
@@ -102,7 +102,7 @@ int SLAPI PPIniFile::Append(uint sectId, uint paramId, const char * pVal, int ov
 	return AppendParam(sect_name, param_name, pVal, overwrite);
 }
 
-int SLAPI PPIniFile::IsWinCoding()
+int PPIniFile::IsWinCoding()
 {
 	int    is_win_coding = BIN(Flags & fWinCoding);
 	if(!is_win_coding) {
@@ -113,7 +113,7 @@ int SLAPI PPIniFile::IsWinCoding()
 	return is_win_coding;
 }
 
-int SLAPI PPIniFile::Backup(uint maxCopies)
+int PPIniFile::Backup(uint maxCopies)
 {
 	int    ok = 1;
 	struct FE { // @flat
@@ -160,7 +160,7 @@ int SLAPI PPIniFile::Backup(uint maxCopies)
 	return ok;
 }
 
-int SLAPI PPIniFile::UpdateFromFile(const char * pSrcFileName)
+int PPIniFile::UpdateFromFile(const char * pSrcFileName)
 {
 	int    ok = -1;
 	int    backup_done = 0;
@@ -216,7 +216,7 @@ int PPConfigDatabase::CObjHeader::Cmp(const CObjHeader & rS, long flags) const
 	return c;
 }
 
-SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobj", 0, 0, 0), pDb), SeqID(0)
+PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobj", 0, 0, 0), pDb), SeqID(0)
 {
 	//
 	// Индекс по идент
@@ -255,7 +255,7 @@ SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable:
 	ENDCATCH
 }
 
-SLAPI PPConfigDatabase::CObjTbl::~CObjTbl()
+PPConfigDatabase::CObjTbl::~CObjTbl()
 {
 	CALLPTRMEMB(P_Db, CloseSequence(SeqID));
 }
@@ -290,7 +290,7 @@ SLAPI PPConfigDatabase::CObjTbl::~CObjTbl()
 	return c;
 }
 
-int SLAPI PPConfigDatabase::CObjTbl::SerializeKeyBuf(int dir, CObjHeader * pRec, SBuffer & rBuf)
+int PPConfigDatabase::CObjTbl::SerializeKeyBuf(int dir, CObjHeader * pRec, SBuffer & rBuf)
 {
 	int    ok = 1;
 	SSerializeContext * p_sctx = GetSCtx();
@@ -306,7 +306,7 @@ int SLAPI PPConfigDatabase::CObjTbl::SerializeKeyBuf(int dir, CObjHeader * pRec,
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::AddStringHistory(const char * pKey, const char * pTextUtf8)
+int PPConfigDatabase::AddStringHistory(const char * pKey, const char * pTextUtf8)
 {
 	int    ok = 0;
 	SString key;
@@ -334,7 +334,7 @@ int SLAPI PPConfigDatabase::AddStringHistory(const char * pKey, const char * pTe
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::GetRecentStringHistory(const char * pKey, uint maxItems, StringSet & rList)
+int PPConfigDatabase::GetRecentStringHistory(const char * pKey, uint maxItems, StringSet & rList)
 {
 	rList.clear();
 	int    ok = 0;
@@ -362,7 +362,7 @@ int SLAPI PPConfigDatabase::GetRecentStringHistory(const char * pKey, uint maxIt
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
+int PPConfigDatabase::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
 {
 	rList.clear();
 	int    ok = 0;
@@ -390,7 +390,7 @@ int SLAPI PPConfigDatabase::GetStringHistory(const char * pKey, const char * pSu
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::LoadStringHistory(StringHistoryPool & rPool)
+int PPConfigDatabase::LoadStringHistory(StringHistoryPool & rPool)
 {
 	int    ok = -1;
 	BDbTable::Buffer key_buf, data_buf;
@@ -423,7 +423,7 @@ int SLAPI PPConfigDatabase::LoadStringHistory(StringHistoryPool & rPool)
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use_ta)
+int PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use_ta)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -493,32 +493,32 @@ int SLAPI PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use
 	return ok;
 }
 
-SLAPI PPConfigDatabase::CObjTailTbl::CObjTailTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobjtail", 0, 0, 0), pDb)
+PPConfigDatabase::CObjTailTbl::CObjTailTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobjtail", 0, 0, 0), pDb)
 {
 }
 
-SLAPI PPConfigDatabase::CObjTailTbl::~CObjTailTbl()
+PPConfigDatabase::CObjTailTbl::~CObjTailTbl()
 {
 }
 
-SLAPI PPConfigDatabase::StringHistoryTbl::StringHistoryTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->stringhistory", 0, 0, 0), pDb)
+PPConfigDatabase::StringHistoryTbl::StringHistoryTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->stringhistory", 0, 0, 0), pDb)
 {
 }
 
-SLAPI PPConfigDatabase::StringHistoryTbl::~StringHistoryTbl()
+PPConfigDatabase::StringHistoryTbl::~StringHistoryTbl()
 {
 }
 
-SLAPI  PPConfigDatabase::StringHistoryPool::StringHistoryPool(const char * pKey) : Key(pKey), Ht(8192)
+PPConfigDatabase::StringHistoryPool::StringHistoryPool(const char * pKey) : Key(pKey), Ht(8192)
 {
 }
 
-const SString & SLAPI PPConfigDatabase::StringHistoryPool::GetKey() const
+const SString & PPConfigDatabase::StringHistoryPool::GetKey() const
 {
 	return Key;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPConfigDatabase::StringHistoryPool::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int   ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, Key, rBuf));
@@ -528,7 +528,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Serialize(int dir, SBuffer & rBuf
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::SearchEntries(const char * pSubUtf8, long flags, LongArray & rPosList) const
+int PPConfigDatabase::StringHistoryPool::SearchEntries(const char * pSubUtf8, long flags, LongArray & rPosList) const
 {
 	int    ok = 0;
 	rPosList.clear();
@@ -569,7 +569,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::SearchEntries(const char * pSubUt
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
+int PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
 {
 	int   ok = 0;
 	LongArray pos_list;
@@ -608,7 +608,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::BuildHash()
+int PPConfigDatabase::StringHistoryPool::BuildHash()
 {
 	Ht.Clear();
 	int    ok = 1;
@@ -627,7 +627,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::BuildHash()
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::Merge(StringHistoryPool & rS)
+int PPConfigDatabase::StringHistoryPool::Merge(StringHistoryPool & rS)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -668,13 +668,13 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Merge(StringHistoryPool & rS)
 	return ok;
 }
 
-void SLAPI PPConfigDatabase::StringHistoryPool::OnSave()
+void PPConfigDatabase::StringHistoryPool::OnSave()
 {
 	St.Dirty = 0;
 	St.LastSaveTm = getcurdatetime_();
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::IsSavingNeeded() const
+int PPConfigDatabase::StringHistoryPool::IsSavingNeeded() const
 {
 	return St.Dirty;
 }
@@ -694,7 +694,7 @@ static IMPL_CMPFUNC(StringHistoryPool_EntryIndex, p1, p2)
 	return p_pool ? p_pool->CmpEntryIndices(p1, p2) : 0;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::GetRecent(uint maxItems, StringSet & rList) const
+int PPConfigDatabase::StringHistoryPool::GetRecent(uint maxItems, StringSet & rList) const
 {
 	int    ok = 0;
 	rList.clear();
@@ -716,7 +716,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::GetRecent(uint maxItems, StringSe
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long flags, StringSet & rList) const
+int PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long flags, StringSet & rList) const
 {
 	int   ok = 0;
 	rList.clear();
@@ -739,18 +739,18 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long f
 	return ok;
 }
 
-SLAPI PPConfigDatabase::PPConfigDatabase(const char * pDbDir) : P_OT(0), P_OtT(0), P_ShT(0), P_Db(0)
+PPConfigDatabase::PPConfigDatabase(const char * pDbDir) : P_OT(0), P_OtT(0), P_ShT(0), P_Db(0)
 {
 	if(pDbDir)
 		Open(pDbDir);
 }
 
-SLAPI PPConfigDatabase::~PPConfigDatabase()
+PPConfigDatabase::~PPConfigDatabase()
 {
 	Close();
 }
 
-int SLAPI PPConfigDatabase::Open(const char * pDbPath)
+int PPConfigDatabase::Open(const char * pDbPath)
 {
 	int    ok = 1;
 	Close();
@@ -788,7 +788,7 @@ int SLAPI PPConfigDatabase::Open(const char * pDbPath)
 	return ok;
 }
 
-void SLAPI PPConfigDatabase::Close()
+void PPConfigDatabase::Close()
 {
 	ZDELETE(P_OT);
 	ZDELETE(P_OtT);
@@ -796,7 +796,7 @@ void SLAPI PPConfigDatabase::Close()
 	ZDELETE(P_Db);
 }
 
-int SLAPI PPConfigDatabase::GetObjList(int type, const char * pSubSymb, const char * pDbSymb, const char * pOwner, StrAssocArray & rList)
+int PPConfigDatabase::GetObjList(int type, const char * pSubSymb, const char * pDbSymb, const char * pOwner, StrAssocArray & rList)
 {
 	int    ok = 1;
 	BDbTable::Buffer key_buf, data_buf;
@@ -827,7 +827,7 @@ int SLAPI PPConfigDatabase::GetObjList(int type, const char * pSubSymb, const ch
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::DeleteObj(int32 id, int use_ta)
+int PPConfigDatabase::DeleteObj(int32 id, int use_ta)
 {
 	int    ok = 1;
 	BDbTable::Buffer key_buf, data_buf;
@@ -843,7 +843,7 @@ int SLAPI PPConfigDatabase::DeleteObj(int32 id, int use_ta)
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rData, int use_ta)
+int PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rData, int use_ta)
 {
 	int    ok = 1;
 	BDbTable::Buffer key_buf, data_buf;
@@ -890,7 +890,7 @@ int SLAPI PPConfigDatabase::PutObj(int32 * pID, CObjHeader & rHdr, SBuffer & rDa
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::GetObj(int32 id, CObjHeader * pHdr, SBuffer * pData)
+int PPConfigDatabase::GetObj(int32 id, CObjHeader * pHdr, SBuffer * pData)
 {
 	int    ok = -1;
 	BDbTable::Buffer key_buf, data_buf;
@@ -915,7 +915,7 @@ int SLAPI PPConfigDatabase::GetObj(int32 id, CObjHeader * pHdr, SBuffer * pData)
 	return ok;
 }
 
-int SLAPI TestConfigDatabase_StringHistory_Interactive()
+int TestConfigDatabase_StringHistory_Interactive()
 {
 	int    ok = -1;
 	const char * p_key = "test-string-history-key";
@@ -928,7 +928,7 @@ int SLAPI TestConfigDatabase_StringHistory_Interactive()
 	return ok;
 }
 
-int SLAPI TestConfigDatabase_StringHistory()
+int TestConfigDatabase_StringHistory()
 {
 	int    ok = 1;
 	SString temp_buf;

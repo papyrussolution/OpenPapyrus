@@ -7,21 +7,21 @@
 #pragma hdrstop
 #include <db.h>
 
-SLAPI KR::KR() : P_b(0)
+KR::KR() : P_b(0)
 {
 }
 
-int SLAPI KR::operator !() const
+int KR::operator !() const
 {
 	return (P_b == 0);
 }
 
-SLAPI KR::KR(int hdlTable, int keyPosition)
+KR::KR(int hdlTable, int keyPosition)
 {
 	init(hdlTable, keyPosition);
 }
 
-int SLAPI KR::init(int hdlTable, int keyPosition)
+int KR::init(int hdlTable, int keyPosition)
 {
 	P_h = static_cast<H *>(SAlloc::M(sizeof(H)));
 	if(P_h == 0)
@@ -39,7 +39,7 @@ int SLAPI KR::init(int hdlTable, int keyPosition)
 	}
 }
 
-int SLAPI KR::trim()
+int KR::trim()
 {
 	P_h = static_cast<H *>(SAlloc::R(P_h, sizeof(H)));
 	if(P_h) {
@@ -52,7 +52,7 @@ int SLAPI KR::trim()
 		return 0;
 }
 
-int SLAPI KR::copy(KR src, int trim_data)
+int KR::copy(KR src, int trim_data)
 {
 	destroy();
 	if(src.P_h) {
@@ -70,7 +70,7 @@ int SLAPI KR::copy(KR src, int trim_data)
 	return 1;
 }
 
-void SLAPI KR::destroy()
+void KR::destroy()
 {
 	ZFREE(P_b);
 }
@@ -94,13 +94,13 @@ int FASTCALL KR::walk(uint16 * pPos) const
 		return BIN(*pPos < P_h->len && (*pPos += itemSize(P_b + *pPos)) < P_h->len);
 }
 
-int SLAPI KR::first()
+int KR::first()
 {
 	P_h->current = 0;
 	return walk(&P_h->current);
 }
 
-int SLAPI KR::last()
+int KR::last()
 {
 	uint16 pos = 0;
 	uint16 prev = sizeof(H);
@@ -109,12 +109,12 @@ int SLAPI KR::last()
 	return ((P_h->current = prev) > 0);
 }
 
-int SLAPI KR::operator++()
+int KR::operator++()
 {
 	return walk(&P_h->current);
 }
 
-int SLAPI KR::operator--()
+int KR::operator--()
 {
 	if(P_h->current <= sizeof(H))
 		return 0;
@@ -144,7 +144,7 @@ int FASTCALL KR::add(const void * item)
 	return 1;
 }
 
-int SLAPI KR::remove()
+int KR::remove()
 {
 	int    ok = 1;
 	if(P_h->count && P_h->current < P_h->len) {
@@ -161,7 +161,7 @@ int SLAPI KR::remove()
 	return ok;
 }
 
-void SLAPI KR::makeRange(const void * d, __range & r) const
+void KR::makeRange(const void * d, __range & r) const
 {
 	const I * ih = static_cast<const I *>(d);
 	r.ol = r.ou = 0;
@@ -181,7 +181,7 @@ void SLAPI KR::makeRange(const void * d, __range & r) const
 	}
 }
 
-void SLAPI KR::rangeToBuf(const __range & C, void * buf, int equal)
+void KR::rangeToBuf(const __range & C, void * buf, int equal)
 {
 	KR::I & ih = *static_cast<KR::I *>(buf);
 	uint8 * ptr = PTR8(buf)+sizeof(KR::I);
@@ -203,7 +203,7 @@ void SLAPI KR::rangeToBuf(const __range & C, void * buf, int equal)
 	}
 }
 
-int SLAPI KR::conjunction(__range & A /*dest*/, const __range & B, int * comp, int * eq)
+int KR::conjunction(__range & A /*dest*/, const __range & B, int * comp, int * eq)
 {
 	int    c;
 	__range C;
@@ -262,7 +262,7 @@ int SLAPI KR::conjunction(__range & A /*dest*/, const __range & B, int * comp, i
 	return empty ? -1 : 1;
 }
 
-int SLAPI KR::conjunction(void * d, int assign, int * comp, int * eq)
+int KR::conjunction(void * d, int assign, int * comp, int * eq)
 {
 	__range A, B;
 	makeRange(P_b + P_h->current, A);
@@ -278,7 +278,7 @@ int SLAPI KR::conjunction(void * d, int assign, int * comp, int * eq)
 	return (empty ? -1 : 1);
 }
 
-int SLAPI KR::disjunction(void * d)
+int KR::disjunction(void * d)
 {
 	char    buf[sizeof(I) + 2 * BTRMAXKEYLEN];
 	int     c, tc, eq;
@@ -332,7 +332,7 @@ int SLAPI KR::disjunction(void * d)
 // 0 error
 // 1 ok
 //
-int SLAPI KR::link(int logic, KR kr)
+int KR::link(int logic, KR kr)
 {
 	if(logic == _AND___) {
 		if(kr.first()) {
@@ -381,7 +381,7 @@ int SLAPI KR::link(int logic, KR kr)
 
 #define INVALID_KR_ITEM 0
 
-int SLAPI KR::getKey(void * d, int * sp)
+int KR::getKey(void * d, int * sp)
 {
 	assert(sp && (*sp == spNext || *sp == spPrev));
 	if(P_b == 0 || P_h->current == 0)
@@ -480,7 +480,7 @@ int FASTCALL KR::checkKey(const void * d) const
 	Если и после этого ключи оказываются эквивалентны, то для //
 	определенности предпочтем ключ с меньшим номером.
 */
-int SLAPI KR::rating()
+int KR::rating()
 {
 	if(this == 0 || P_b == 0 || !first())
 		return 0;

@@ -213,11 +213,11 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 			STRNSCPY(TaxPayerKPP, pItem->TaxPayerKPP);
 		}
 	}
-	const char * SLAPI GetContragentName() const { return WeArePayer ? ReceiverName : PayerName; }
-	const char * SLAPI GetContragentINN()  const { return WeArePayer ? ReceiverINN  : PayerINN;  }
-	const char * SLAPI GetContragentBnkAcc() const { return WeArePayer ? ReceiverBankAcc  : PayerBankAcc;  } // @v10.0.03
-	const char * SLAPI GetOurBIC() const { return WeArePayer ? PayerBankCode : ReceiverBankCode; }
-	SString & SLAPI MakeDescrText(SString &) const;
+	const char * GetContragentName() const { return WeArePayer ? ReceiverName : PayerName; }
+	const char * GetContragentINN()  const { return WeArePayer ? ReceiverINN  : PayerINN;  }
+	const char * GetContragentBnkAcc() const { return WeArePayer ? ReceiverBankAcc  : PayerBankAcc;  } // @v10.0.03
+	const char * GetOurBIC() const { return WeArePayer ? PayerBankCode : ReceiverBankCode; }
+	SString & MakeDescrText(SString &) const;
 
 	int    WeArePayer;              // !0 - главная организация является плательщиком
 	PPID   PayerPersonID;			// ИД персоналии плательщика //
@@ -225,7 +225,7 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 	char   WhKPP[24];               // @v9.1.1 Кпп склада, к которому привязан документ
 };
 
-SString & SLAPI BankStmntItem::MakeDescrText(SString & rBuf) const
+SString & BankStmntItem::MakeDescrText(SString & rBuf) const
 {
 	return rBuf.Z().Cat(Date, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(Code).CatDiv('-', 1).
 		Cat(GetContragentName()).Space().Eq().Cat(Amount, SFMT_MONEY);
@@ -233,10 +233,10 @@ SString & SLAPI BankStmntItem::MakeDescrText(SString & rBuf) const
 
 class Helper_ClientBank2 {
 public:
-	SLAPI  Helper_ClientBank2(const DateRange * pPeriod);
-	SLAPI ~Helper_ClientBank2();
-	int    SLAPI ReadDefinition(const char * pIniSection); // *
-	int    SLAPI GetRecord(BankStmntItem * pItem)
+	Helper_ClientBank2(const DateRange * pPeriod);
+	~Helper_ClientBank2();
+	int    ReadDefinition(const char * pIniSection); // *
+	int    GetRecord(BankStmntItem * pItem)
 	{
 		PPSetAddedMsgString(P.FileName);
 		memzero(pItem, sizeof(*pItem));
@@ -247,11 +247,11 @@ public:
 		}
 		return ok;
 	}
-	int    SLAPI OpenInputFile()
+	int    OpenInputFile()
 	{
 		return P_ImEx ? P_ImEx->OpenFileForReading(0) : 0;
 	}
-	int    SLAPI CreateOutputFile(StringSet * pResultFileList)
+	int    CreateOutputFile(StringSet * pResultFileList)
 	{
 		int    ok = 1;
 		if(P_ImEx) {
@@ -271,16 +271,16 @@ public:
 		return ok;
 		// @v9.6.3 @fix (не понятная лишняя строка) return P_ImEx ? P_ImEx->OpenFileForWriting(0, 1) : 0;
 	}
-	int    SLAPI PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger);
-	int    SLAPI PutHeader()
+	int    PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger);
+	int    PutHeader()
 	{
 		return -1;
 	}
-	int    SLAPI PutEnd()
+	int    PutEnd()
 	{
 		return -1;
 	}
-	int    SLAPI GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount) const
+	int    GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount) const
 	{
 		ASSIGN_PTR(pAcceptedCount, AcceptedCount);
 		ASSIGN_PTR(pRejectedCount, RejectedCount);
@@ -301,13 +301,13 @@ private:
 	DateRange Period;
 };
 
-SLAPI ClientBankImportDef::ClientBankImportDef()
+ClientBankImportDef::ClientBankImportDef()
 	{ P_Helper = new Helper_ClientBank2(0); }
-SLAPI ClientBankImportDef::~ClientBankImportDef()
+ClientBankImportDef::~ClientBankImportDef()
 	{ delete static_cast<Helper_ClientBank2 *>(P_Helper); }
-PPImpExpParam & SLAPI ClientBankImportDef::GetParam() const
+PPImpExpParam & ClientBankImportDef::GetParam() const
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
-int SLAPI ClientBankImportDef::ReadDefinition(const char * pIniSection)
+int ClientBankImportDef::ReadDefinition(const char * pIniSection)
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->ReadDefinition(pIniSection); }
 
 // AHTOXA {
@@ -442,7 +442,7 @@ static int ResolveAssocCollision(SArray *pA, const BankStmntItem * pItem)
 	return ok;
 }
 
-static int SLAPI TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pItem, PPID obj2ID, PPID agentID, PPLogger & rLogger)
+static int TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pItem, PPID obj2ID, PPID agentID, PPLogger & rLogger)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -519,7 +519,7 @@ static int IsOurINN(const char * pINN)
 	return yes;
 }
 
-/*static*/int SLAPI ClientBankImportDef::ReadAssocList(SVector * pList)
+/*static*/int ClientBankImportDef::ReadAssocList(SVector * pList)
 {
 	struct BankStmntAssocItem_Pre578 { // @persistent @store(PropertyTbl)[as item of array] @flat
 		PPID   AccSheetID;       //
@@ -557,7 +557,7 @@ static int IsOurINN(const char * pINN)
 	return ok;
 }
 
-/*static*/int SLAPI ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta) // @v9.8.8 SArray-->SVector
+/*static*/int ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta) // @v9.8.8 SArray-->SVector
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -575,7 +575,7 @@ static int IsOurINN(const char * pINN)
 	return ok;
 }
 
-int SLAPI ClientBankImportDef::ImportAll()
+int ClientBankImportDef::ImportAll()
 {
 	int    ok = 1;
 	int    status = 1;
@@ -759,25 +759,25 @@ int Helper_ClientBank2::ReadDefinition(const char * pIniSection)
 //
 //
 //
-SLAPI ClientBankExportDef::ClientBankExportDef(const DateRange * pPeriod) : P_Helper(new Helper_ClientBank2(pPeriod))
+ClientBankExportDef::ClientBankExportDef(const DateRange * pPeriod) : P_Helper(new Helper_ClientBank2(pPeriod))
 	{}
-SLAPI ClientBankExportDef::~ClientBankExportDef()
+ClientBankExportDef::~ClientBankExportDef()
 	{ delete static_cast<Helper_ClientBank2 *>(P_Helper); }
-PPImpExpParam & SLAPI ClientBankExportDef::GetParam() const
+PPImpExpParam & ClientBankExportDef::GetParam() const
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
-int SLAPI ClientBankExportDef::ReadDefinition(const char * pIniSection)
+int ClientBankExportDef::ReadDefinition(const char * pIniSection)
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->ReadDefinition(pIniSection); }
-int SLAPI ClientBankExportDef::CreateOutputFile(StringSet * pResultFileList)
+int ClientBankExportDef::CreateOutputFile(StringSet * pResultFileList)
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->CreateOutputFile(pResultFileList); }
-int SLAPI ClientBankExportDef::CloseOutputFile()
+int ClientBankExportDef::CloseOutputFile()
 	{ return 1; }
-int SLAPI ClientBankExportDef::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
+int ClientBankExportDef::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->PutRecord(pPack, debtBillID, pLogger); }
-int SLAPI ClientBankExportDef::PutHeader()
+int ClientBankExportDef::PutHeader()
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->PutHeader(); }
-int SLAPI ClientBankExportDef::PutEnd()
+int ClientBankExportDef::PutEnd()
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->PutEnd(); }
-int SLAPI ClientBankExportDef::GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount)
+int ClientBankExportDef::GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount)
 	{ return static_cast<const Helper_ClientBank2 *>(P_Helper)->GetStat(pAcceptedCount, pRejectedCount, pAmount); }
 
 /*static*/SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & rBuf)
@@ -800,7 +800,7 @@ int SLAPI ClientBankExportDef::GetStat(long * pAcceptedCount, long * pRejectedCo
 static SString & FASTCALL _EncodeStr(const char * pStr, SString & rBuf)
 	{ return (rBuf = pStr).Transf(CTRANSF_INNER_TO_OUTER); }
 
-int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
+int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
 {
 	int    ok = -1;
 	const  PPBankingOrder * p_order = pPack ? pPack->P_PaymOrder : 0;
@@ -1084,7 +1084,7 @@ int SetupCliBnkFormatsDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI SetupCliBnkFormats()
+int SetupCliBnkFormats()
 {
 	MemLeakTracer mlt;
 	SetupCliBnkFormatsDialog * dlg = new SetupCliBnkFormatsDialog();
@@ -1235,7 +1235,7 @@ int SetupCliBnkAssocDialog::delItem(long pos, long id)
 // @todo Сохранение конфигурации должно осуществляться единой транзакцией, а не отдельными
 //   методами диалога.
 //
-int SLAPI SetupCliBnkAssoc()
+int SetupCliBnkAssoc()
 {
 	int    ok = 0;
 	SetupCliBnkAssocDialog * dlg = new SetupCliBnkAssocDialog();
@@ -1251,7 +1251,7 @@ int SLAPI SetupCliBnkAssoc()
 	return ok;
 }
 
-int SLAPI CliBnkSelectCfgDialog(int kind/*1 - export, 2 - import*/, SString & rSection)
+int CliBnkSelectCfgDialog(int kind/*1 - export, 2 - import*/, SString & rSection)
 {
 	int    ok = -1;
 	uint   id = 0;
@@ -1299,7 +1299,7 @@ int SLAPI CliBnkSelectCfgDialog(int kind/*1 - export, 2 - import*/, SString & rS
 	return ok;
 }
 
-int SLAPI CliBnkImport()
+int CliBnkImport()
 {
 	int    ok = -1;
 	SString section;
@@ -1328,7 +1328,7 @@ reg.txt
 20	МОСКВА	1	АКБ "БАЛТИЙСКИЙ БАНК РАЗВИТИЯ" (ЗАО)		044579769	30101810600000000769
 */
 
-int SLAPI ConvertRbcBnk(const char * pPath)
+int ConvertRbcBnk(const char * pPath)
 {
 	int    ok = 1, r;
 	SString path(pPath);
@@ -1398,7 +1398,7 @@ int SLAPI ConvertRbcBnk(const char * pPath)
 //
 //
 //
-int SLAPI GenerateCliBnkImpData()
+int GenerateCliBnkImpData()
 {
 	struct BillEntry {
 		enum {

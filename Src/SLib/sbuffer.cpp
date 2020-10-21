@@ -54,7 +54,7 @@ IMPL_INVARIANT_C(SBuffer)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI SBuffer::SBuffer(size_t initSize, long flags)
+SBuffer::SBuffer(size_t initSize, long flags)
 {
 	Reset(0);
 	Flags = (flags & ~fError);
@@ -62,7 +62,7 @@ SLAPI SBuffer::SBuffer(size_t initSize, long flags)
 		Alloc(initSize);
 }
 
-SLAPI SBuffer::SBuffer(const SBuffer & s)
+SBuffer::SBuffer(const SBuffer & s)
 {
 	Reset(0);
 	Copy(s);
@@ -98,7 +98,7 @@ int FASTCALL SBuffer::Copy(const SBuffer & s)
 		return 0;
 }
 
-int SLAPI SBuffer::IsValid()
+int SBuffer::IsValid()
 {
 	if(!(Flags & fError)) {
 		SInvariantParam ip;
@@ -119,7 +119,7 @@ SBuffer & FASTCALL SBuffer::Reset(int freeBuf)
 	return *this;
 }
 
-SLAPI SBuffer::~SBuffer()
+SBuffer::~SBuffer()
 {
 	SAlloc::F(P_Buf);
 }
@@ -129,7 +129,7 @@ void SBuffer::Destroy()
 	Reset(1);
 }
 
-SBuffer & SLAPI SBuffer::Z()
+SBuffer & SBuffer::Z()
 {
 	WrOffs = RdOffs = 0;
 	Flags &= ~fError;
@@ -143,7 +143,7 @@ const  int8 * FASTCALL SBuffer::GetBufI8(size_t offs) const { return static_cast
 const  uint8 * FASTCALL SBuffer::GetBufU8(size_t offs) const { return static_cast<const uint8 *>(Ptr(offs)); }
 void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = MIN(offs, WrOffs); }
 void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = MAX(MIN(offs, Size), RdOffs); }
-size_t SLAPI SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
+size_t SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
 
 int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 {
@@ -227,7 +227,7 @@ int FASTCALL SBuffer::Unread(size_t offs)
 		return 0;
 }
 
-int SLAPI SBuffer::Search(const char * pStr, size_t * pPos) const
+int SBuffer::Search(const char * pStr, size_t * pPos) const
 {
 	int    ok = 0;
 	const  size_t avl_size = GetAvailableSize();
@@ -257,7 +257,7 @@ int SLAPI SBuffer::Search(const char * pStr, size_t * pPos) const
 	return ok;
 }
 
-size_t SLAPI SBuffer::ReadTerm(const char * pTerm, void * pBuf, size_t bufLen)
+size_t SBuffer::ReadTerm(const char * pTerm, void * pBuf, size_t bufLen)
 {
 	size_t sz = 0;
 	if(pBuf) {
@@ -303,7 +303,7 @@ size_t FASTCALL SBuffer::ReadLine(SString & rBuf)
 	return sz;
 }
 
-size_t SLAPI SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
+size_t SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
 {
 	rBuf.Z();
 
@@ -509,7 +509,7 @@ int FASTCALL SBuffer::Read(SString & rBuf)
 	return ok;
 }
 
-int SLAPI SBuffer::WriteToFile(FILE * f, uint sign, uint32 * pActualBytes)
+int SBuffer::WriteToFile(FILE * f, uint sign, uint32 * pActualBytes)
 {
 	int    ok = 1;
 	uint32 actual_size = 0;
@@ -532,7 +532,7 @@ int SLAPI SBuffer::WriteToFile(FILE * f, uint sign, uint32 * pActualBytes)
 	return ok;
 }
 
-int SLAPI SBuffer::ReadFromFile(FILE * f, uint sign)
+int SBuffer::ReadFromFile(FILE * f, uint sign)
 {
 	int    ok = 1;
 	THROW(f);
@@ -562,13 +562,13 @@ int SLAPI SBuffer::ReadFromFile(FILE * f, uint sign)
 //
 //
 //
-void SLAPI SBaseBuffer::Init()
+void SBaseBuffer::Init()
 {
 	P_Buf = 0;
 	Size = 0;
 }
 
-void SLAPI SBaseBuffer::Destroy()
+void SBaseBuffer::Destroy()
 {
 	ZFREE(P_Buf);
 	Size = 0;
@@ -609,18 +609,18 @@ int FASTCALL SBaseBuffer::Alloc(size_t sz)
 	return ok;
 }
 
-void SLAPI SBaseBuffer::Zero()
+void SBaseBuffer::Zero()
 {
 	memzero(P_Buf, Size);
 }
 
-void SLAPI SBaseBuffer::Set(void * pBuf, size_t size)
+void SBaseBuffer::Set(void * pBuf, size_t size)
 {
 	P_Buf = static_cast<char *>(pBuf);
 	Size = size;
 }
 
-int SLAPI SBaseBuffer::Put(size_t offs, const void * pSrc, size_t size)
+int SBaseBuffer::Put(size_t offs, const void * pSrc, size_t size)
 {
 	assert(pSrc);
 	int    ok = 1;
@@ -633,16 +633,16 @@ int SLAPI SBaseBuffer::Put(size_t offs, const void * pSrc, size_t size)
 	return ok;
 }
 
-int SLAPI SBaseBuffer::Put(size_t offs, uint8 v) { return Put(offs, &v, sizeof(v)); }
-int SLAPI SBaseBuffer::Put(size_t offs, uint16 v) { return Put(offs, &v, sizeof(v)); }
-int SLAPI SBaseBuffer::Put(size_t offs, uint32 v) { return Put(offs, &v, sizeof(v)); }
-int SLAPI SBaseBuffer::Put(size_t offs, uint64 v) { return Put(offs, &v, sizeof(v)); }
-int SLAPI SBaseBuffer::Put(size_t offs, int8 v) { return Put(offs, &v, sizeof(v)); }
-int SLAPI SBaseBuffer::Put(size_t offs, int16 v) { return Put(offs, &v, sizeof(v)); }
-int SLAPI SBaseBuffer::Put(size_t offs, int32 v) { return Put(offs, &v, sizeof(v)); }
-int SLAPI SBaseBuffer::Put(size_t offs, int64 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, uint8 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, uint16 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, uint32 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, uint64 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, int8 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, int16 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, int32 v) { return Put(offs, &v, sizeof(v)); }
+int SBaseBuffer::Put(size_t offs, int64 v) { return Put(offs, &v, sizeof(v)); }
 
-int SLAPI SBaseBuffer::Get(size_t offs, void * pDest, size_t size) const
+int SBaseBuffer::Get(size_t offs, void * pDest, size_t size) const
 {
 	int    ok = 1;
     if((offs + size) <= Size) {
@@ -653,24 +653,24 @@ int SLAPI SBaseBuffer::Get(size_t offs, void * pDest, size_t size) const
 	return ok;
 }
 
-int SLAPI SBaseBuffer::Get(size_t offs, uint8 & rV) const { return Get(offs, &rV, sizeof(rV)); }
-int SLAPI SBaseBuffer::Get(size_t offs, uint16 & rV) const { return Get(offs, &rV, sizeof(rV)); }
-int SLAPI SBaseBuffer::Get(size_t offs, uint32 & rV) const { return Get(offs, &rV, sizeof(rV)); }
-int SLAPI SBaseBuffer::Get(size_t offs, uint64 & rV) const { return Get(offs, &rV, sizeof(rV)); }
-int SLAPI SBaseBuffer::Get(size_t offs, int8 & rV) const { return Get(offs, &rV, sizeof(rV)); }
-int SLAPI SBaseBuffer::Get(size_t offs, int16 & rV) const { return Get(offs, &rV, sizeof(rV)); }
-int SLAPI SBaseBuffer::Get(size_t offs, int32 & rV) const { return Get(offs, &rV, sizeof(rV)); }
-int SLAPI SBaseBuffer::Get(size_t offs, int64 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, uint8 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, uint16 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, uint32 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, uint64 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, int8 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, int16 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, int32 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SBaseBuffer::Get(size_t offs, int64 & rV) const { return Get(offs, &rV, sizeof(rV)); }
 //
 //
 //
-SLAPI STempBuffer::STempBuffer(size_t sz)
+STempBuffer::STempBuffer(size_t sz)
 {
 	Init();
 	Alloc(sz);
 }
 
-SLAPI STempBuffer::~STempBuffer()
+STempBuffer::~STempBuffer()
 {
 	Destroy();
 }
@@ -709,19 +709,19 @@ STempBuffer & FASTCALL STempBuffer::operator = (const STempBuffer & rS)
 	return *this;
 }
 
-int SLAPI STempBuffer::IsValid() const
+int STempBuffer::IsValid() const
 {
 	return BIN(P_Buf);
 }
 
-size_t SLAPI STempBuffer::GetSize() const { return Size; }
-SLAPI  STempBuffer::operator char * () { return P_Buf; }
-SLAPI  STempBuffer::operator const char * () const { return P_Buf; }
-const  uchar * SLAPI STempBuffer::ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
-const  char * SLAPI STempBuffer::cptr() const { return P_Buf; }
-const  void * SLAPI STempBuffer::vcptr() const { return P_Buf; }
-void * SLAPI STempBuffer::vptr() { return P_Buf; }
-void * SLAPI STempBuffer::vptr(size_t offs) { return (PTR8(P_Buf)+offs); }
+size_t STempBuffer::GetSize() const { return Size; }
+STempBuffer::operator char * () { return P_Buf; }
+STempBuffer::operator const char * () const { return P_Buf; }
+const  uchar * STempBuffer::ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
+const  char * STempBuffer::cptr() const { return P_Buf; }
+const  void * STempBuffer::vcptr() const { return P_Buf; }
+void * STempBuffer::vptr() { return P_Buf; }
+void * STempBuffer::vptr(size_t offs) { return (PTR8(P_Buf)+offs); }
 //
 //
 //
@@ -742,16 +742,16 @@ struct SscDbtItem {
 	return BIN(*reinterpret_cast<const uint64 *>(pBuf) == _SlConst.Ssc_CompressionSignature);
 }
 
-SLAPI SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0), P_DbtDescrList(0)
+SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0), P_DbtDescrList(0)
 {
 }
 
-SLAPI SSerializeContext::~SSerializeContext()
+SSerializeContext::~SSerializeContext()
 {
 	ZDELETE(P_DbtDescrList);
 }
 
-void SLAPI SSerializeContext::Init(long flags, LDATE suppDate)
+void SSerializeContext::Init(long flags, LDATE suppDate)
 {
 	Flags |= flags;
 	SuppDate = suppDate;
@@ -761,9 +761,9 @@ void SLAPI SSerializeContext::Init(long flags, LDATE suppDate)
 }
 
 int FASTCALL SSerializeContext::CheckFlag(long f) const { return BIN(Flags & f); }
-LDATE SLAPI SSerializeContext::GetSupportingDate() const { return SuppDate; }
+LDATE SSerializeContext::GetSupportingDate() const { return SuppDate; }
 
-int SLAPI SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID)
+int SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID)
 {
 	int    ok = -1;
 	(TempStrBuf = pName).ToUpper();
@@ -784,7 +784,7 @@ int SLAPI SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList *
 	return ok;
 }
 
-int SLAPI SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
+int SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
 {
 	int    ok = 0;
 	if(P_DbtDescrList) {
@@ -799,7 +799,7 @@ int SLAPI SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
 	return ok;
 }
 
-int SLAPI SSerializeContext::SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf)
+int SSerializeContext::SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -838,7 +838,7 @@ enum SSrlzSign {
 	ssrsignStructData
 };
 
-int SLAPI SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
+int SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 {
 	int    ok = 1;
 	uint16 sign = 0;
@@ -908,7 +908,7 @@ int SLAPI SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf)
 {
 	int    ok = 1;
 	DataType _t;
@@ -934,27 +934,27 @@ int SLAPI SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, int64  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, int32  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, int16  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, int8   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, int    & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, uint   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, uint64 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, uint32 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, uint16 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, uint8  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, LDATE  & rV, SBuffer & rBuf) { return Serialize(dir, T_DATE, &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, LTIME  & rV, SBuffer & rBuf) { return Serialize(dir, T_TIME, &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, LDATETIME & rV, SBuffer & rBuf) { return Serialize(dir, T_DATETIME, &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, float  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, double & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); } // @v8.1.1
-int SLAPI SSerializeContext::Serialize(int dir, TPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, FPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
-int SLAPI SSerializeContext::Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_ZSTRING, valBufLen), pV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, int64  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, int32  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, int16  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, int8   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, int    & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, uint   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, uint64 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, uint32 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, uint16 & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, uint8  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UINT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, LDATE  & rV, SBuffer & rBuf) { return Serialize(dir, T_DATE, &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, LTIME  & rV, SBuffer & rBuf) { return Serialize(dir, T_TIME, &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, LDATETIME & rV, SBuffer & rBuf) { return Serialize(dir, T_DATETIME, &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, float  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, double & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); } // @v8.1.1
+int SSerializeContext::Serialize(int dir, TPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, FPoint & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
+int SSerializeContext::Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_ZSTRING, valBufLen), pV, 0, rBuf); }
 
-int SLAPI SSerializeContext::Serialize(int dir, DateRange & rV, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, DateRange & rV, SBuffer & rBuf)
 {
     int    ok = 1;
     THROW(Serialize(dir, rV.low, rBuf));
@@ -963,7 +963,7 @@ int SLAPI SSerializeContext::Serialize(int dir, DateRange & rV, SBuffer & rBuf)
     return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf)
+int SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf)
 {
 	int    ok = 1;
 	uint32 dbt_id = 0;
@@ -1013,7 +1013,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 	return ok;
 }
 
-int SLAPI SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf)
+int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf)
 {
 	int    ok = 1, r;
 	uint32 dbt_id = 0;
@@ -1090,7 +1090,7 @@ int SLAPI SSerializeContext::Unserialize(const char * pDbtName, const BNFieldLis
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1122,7 +1122,7 @@ int SLAPI SSerializeContext::Serialize(int dir, SStrCollection * pColl, SBuffer 
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, SArray * pArray, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, SArray * pArray, SBuffer & rBuf)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -1134,7 +1134,7 @@ int SLAPI SSerializeContext::Serialize(int dir, SArray * pArray, SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, SVector * pArray, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, SVector * pArray, SBuffer & rBuf)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -1146,7 +1146,7 @@ int SLAPI SSerializeContext::Serialize(int dir, SVector * pArray, SBuffer & rBuf
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -1158,7 +1158,7 @@ int SLAPI SSerializeContext::Serialize(int dir, StrAssocArray & rArray, SBuffer 
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, SString & rStr, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, SString & rStr, SBuffer & rBuf)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -1170,7 +1170,7 @@ int SLAPI SSerializeContext::Serialize(int dir, SString & rStr, SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI SSerializeContext::Serialize(int dir, SStringU & rStr, SBuffer & rBuf)
+int SSerializeContext::Serialize(int dir, SStringU & rStr, SBuffer & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1186,7 +1186,7 @@ int SLAPI SSerializeContext::Serialize(int dir, SStringU & rStr, SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI SSerializeContext::SerializeBlock(int dir, uint32 size, void * pData, SBuffer & rBuf, int skipMissizedBlock)
+int SSerializeContext::SerializeBlock(int dir, uint32 size, void * pData, SBuffer & rBuf, int skipMissizedBlock)
 {
 	int    ok = 1;
 	uint32 sz;
@@ -1225,11 +1225,11 @@ int SLAPI SSerializeContext::SerializeBlock(int dir, uint32 size, void * pData, 
 //
 //
 //
-SLAPI  SSerializer::SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) : R_Buf(rBuf), Dir(dir), P_SCtx(pSCtx)
+SSerializer::SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) : R_Buf(rBuf), Dir(dir), P_SCtx(pSCtx)
 {
 }
 
-int SLAPI SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd) { return P_SCtx->Serialize(Dir, typ, pData, pInd, R_Buf); }
+int SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd) { return P_SCtx->Serialize(Dir, typ, pData, pInd, R_Buf); }
 int FASTCALL SSerializer::Serialize(SString & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
 int FASTCALL SSerializer::Serialize(SStringU & rStr) { return P_SCtx->Serialize(Dir, rStr, R_Buf); }
 int FASTCALL SSerializer::Serialize(int64 & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
@@ -1247,18 +1247,18 @@ int FASTCALL SSerializer::Serialize(LDATETIME & rV) { return P_SCtx->Serialize(D
 int FASTCALL SSerializer::Serialize(float & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(double & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(S_GUID & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
-int SLAPI SSerializer::Serialize(char * pV, size_t valBufLen) { return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf); }
-int SLAPI SSerializer::SerializeFieldList(BNFieldList * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
+int SSerializer::Serialize(char * pV, size_t valBufLen) { return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf); }
+int SSerializer::SerializeFieldList(BNFieldList * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
 int FASTCALL SSerializer::Serialize(TPoint & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(FPoint & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(SArray * pArray) { return P_SCtx->Serialize(Dir, pArray, R_Buf); }
 int FASTCALL SSerializer::Serialize(SStrCollection * pColl) { return P_SCtx->Serialize(Dir, pColl, R_Buf); }
 int FASTCALL SSerializer::Serialize(StrAssocArray & rArray) { return P_SCtx->Serialize(Dir, rArray, R_Buf); }
-int SLAPI SSerializer::SerializeBlock(uint32 size, void * pData, int skipMissizedBlock) { return P_SCtx->SerializeBlock(Dir, size, pData, R_Buf, skipMissizedBlock); }
+int SSerializer::SerializeBlock(uint32 size, void * pData, int skipMissizedBlock) { return P_SCtx->SerializeBlock(Dir, size, pData, R_Buf, skipMissizedBlock); }
 //
 //
 //
-SLAPI SBufferPipe::SBufferPipe(size_t initSize, long flags) : SBuffer(initSize, flags), Status(0)
+SBufferPipe::SBufferPipe(size_t initSize, long flags) : SBuffer(initSize, flags), Status(0)
 {
 }
 
@@ -1270,7 +1270,7 @@ int FASTCALL SBufferPipe::Put(const void * pSrc, size_t srcLen)
 	return ok;
 }
 
-size_t SLAPI SBufferPipe::GetAvailableSize()
+size_t SBufferPipe::GetAvailableSize()
 {
 	Lck.Lock();
 	size_t s = SBuffer::GetAvailableSize();
@@ -1286,7 +1286,7 @@ size_t FASTCALL SBufferPipe::Get(void * pBuf, size_t bufLen)
 	return s;
 }
 
-void SLAPI SBufferPipe::Reset()
+void SBufferPipe::Reset()
 {
 	Lck.Lock();
 	SBuffer::Z();
@@ -1294,7 +1294,7 @@ void SLAPI SBufferPipe::Reset()
 	Lck.Unlock();
 }
 
-long SLAPI SBufferPipe::GetStatus()
+long SBufferPipe::GetStatus()
 {
 	Lck.Lock();
 	long st = Status;
@@ -1302,7 +1302,7 @@ long SLAPI SBufferPipe::GetStatus()
 	return st;
 }
 
-void SLAPI SBufferPipe::SetStatus(long st, int set)
+void SBufferPipe::SetStatus(long st, int set)
 {
 	Lck.Lock();
 	SETFLAG(Status, st, set);

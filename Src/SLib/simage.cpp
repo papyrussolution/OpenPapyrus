@@ -11,7 +11,7 @@
 #include <gdiplus.h>
 using namespace Gdiplus;
 
-int SLAPI SlSession::InitGdiplus()
+int SlSession::InitGdiplus()
 {
 	int    ok = 1;
 	if(!GdiplusToken) {
@@ -21,7 +21,7 @@ int SLAPI SlSession::InitGdiplus()
 	return ok;
 }
 
-void SLAPI SlSession::ShutdownGdiplus()
+void SlSession::ShutdownGdiplus()
 {
 	if(GdiplusToken) {
 		GdiplusShutdown(GdiplusToken);

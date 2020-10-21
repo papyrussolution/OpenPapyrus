@@ -37,7 +37,7 @@
 scanflags_t* _sf_stk = NULL;
 size_t _sf_top_ix = 0, _sf_max = 0;
 
-void sf_push(void)
+void sf_push()
 {
 	if(_sf_top_ix + 1 >= _sf_max) {
 		_sf_max += 32;
@@ -48,14 +48,14 @@ void sf_push(void)
 	++_sf_top_ix;
 }
 
-void sf_pop(void)
+void sf_pop()
 {
 	assert(_sf_top_ix > 0);
 	--_sf_top_ix;
 }
 
 /* one-time initialization. Should be called before any sf_ functions. */
-void sf_init(void)
+void sf_init()
 {
 	assert(_sf_stk == NULL);
 	_sf_max = 32;

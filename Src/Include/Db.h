@@ -395,9 +395,9 @@ private:
 //
 class SdRecordBuffer : public SBaseBuffer {
 public:
-	explicit SLAPI SdRecordBuffer(size_t maxSize);
-	SLAPI ~SdRecordBuffer();
-	int    SLAPI Reset();
+	explicit SdRecordBuffer(size_t maxSize);
+	~SdRecordBuffer();
+	int    Reset();
 	//
 	// Descr: Добавляет в буфер очередную запись.
 	// Returns:
@@ -405,17 +405,17 @@ public:
 	//   <0 - запись не добавлена поскольку буфер полностью заполнен.
 	//    0 - ошибка
 	//
-	int    SLAPI Add(const void * pRecData, size_t recSize);
-	uint   SLAPI GetCount() const;
+	int    Add(const void * pRecData, size_t recSize);
+	uint   GetCount() const;
 	//
 	// Descr: Возвращает !0 если все записи в буфере имеют одинаковый размер.
 	//
-	int    SLAPI IsEqRec() const;
+	int    IsEqRec() const;
 	SBaseBuffer FASTCALL Get(uint recNo) const;
 	//
 	// Descr: Возвращает буфер в котором значение Size равно this->Pos.
 	//
-	SBaseBuffer SLAPI GetBuf() const;
+	SBaseBuffer GetBuf() const;
 private:
 	enum {
 		fEqRec = 0x0001
@@ -1054,7 +1054,7 @@ public:
 //
 //
 struct ChunkHeader {
-	SLAPI  ChunkHeader(long pos, long func, long aNum = 0);
+	ChunkHeader(long pos, long func, long aNum = 0);
 
 	long   recPos; // Pos of the requested rec (for GetChunk, not for UpdateChunk)
 	long   subFunc;
@@ -1068,7 +1068,7 @@ struct ChunkHeader {
 //
 //
 struct RandChunkItem {
-	SLAPI  RandChunkItem(long ofs, long aLen, void * p = 0);
+	RandChunkItem(long ofs, long aLen, void * p = 0);
 
 	long   offset;
 	long   len;
@@ -1078,7 +1078,7 @@ struct RandChunkItem {
 //
 //
 struct RectChunk {
-	SLAPI  RectChunk(long ofs, long rs, long pDist, long p, long aDist);
+	RectChunk(long ofs, long rs, long pDist, long p, long aDist);
 
 	long   offset;  //  Record
 	long   rowSize; //  |------|****|------|****|---------------------------
@@ -1090,8 +1090,8 @@ struct RectChunk {
 // XFile (DDF struct)
 //
 struct XFile {
-	SString & SLAPI GetTableName(SString & rBuf) const;
-	// @v5.8.10 char   * SLAPI GetTableName(char * pBuf, size_t bufLen) const; // @obsolete
+	SString & GetTableName(SString & rBuf) const;
+	// @v5.8.10 char   * GetTableName(char * pBuf, size_t bufLen) const; // @obsolete
 
 	int16  XfId;        // Internal ID
 	//
@@ -1180,9 +1180,9 @@ struct DBFileSpec {
 	int16  AllocPages; // B_STAT returns # of unused pages
 };
 
-DBFileSpec  & SLAPI operator + (DBFileSpec &, DBIdxSpec &);
-ChunkHeader & SLAPI operator + (ChunkHeader &, RandChunkItem &);
-ChunkHeader & SLAPI operator + (ChunkHeader &, RectChunk &);
+DBFileSpec  & operator + (DBFileSpec &, DBIdxSpec &);
+ChunkHeader & operator + (ChunkHeader &, RandChunkItem &);
+ChunkHeader & operator + (ChunkHeader &, RectChunk &);
 //
 // Extended operation buffer format
 //
@@ -1272,13 +1272,13 @@ enum {
 class Btrieve {
 public:
 	static int FASTCALL StartTransaction(int concurrent = 0, int lock = 0);
-	static int SLAPI RollbackWork();
-	static int SLAPI CommitWork();
-	static int SLAPI AddContinuous(const char * fname /* "volume:\path[,volume:\path]*" */);
-	static int SLAPI RemoveContinuous(const char * fname /* if fname == 0 then remove all files */);
-	static int SLAPI GetVersion(int * pMajor, int * pMinor, int * pIsNet);
-	static int SLAPI Reset(int station);
-	static int SLAPI CreateTable(const char * pFileName, DBFileSpec & rTblDesc, int createMode, const char * pAltCode);
+	static int RollbackWork();
+	static int CommitWork();
+	static int AddContinuous(const char * fname /* "volume:\path[,volume:\path]*" */);
+	static int RemoveContinuous(const char * fname /* if fname == 0 then remove all files */);
+	static int GetVersion(int * pMajor, int * pMinor, int * pIsNet);
+	static int Reset(int station);
+	static int CreateTable(const char * pFileName, DBFileSpec & rTblDesc, int createMode, const char * pAltCode);
 
 	static const PageSzInfo LimitPgInfo[NUMPGSIZES];
 };
@@ -1287,7 +1287,7 @@ public:
 //
 int    FASTCALL Btr2SLibType(int);
 int    FASTCALL SLib2BtrType(int);
-void   SLAPI DBRemoveTempFiles();
+void   DBRemoveTempFiles();
 //
 // Класс BNKey ссылается на поля таблицы DBTable
 // по индексу в списке DBTable::fields
@@ -1295,60 +1295,60 @@ void   SLAPI DBRemoveTempFiles();
 class BNKey {
 friend class BNKeyList;
 public:
-	SLAPI  BNKey();
-	int    SLAPI operator !() const { return (data == 0); }
+	BNKey();
+	int    operator !() const { return (data == 0); }
 	//
 	// Don't call BNKey::addSegment for
 	// object returned by BNKeyList::getKey
 	//
-	int    SLAPI addSegment(int fldID, int flags);
-	int    SLAPI setFieldID(int seg, int newID);
-	int    SLAPI setKeyParams(int keyNumber, int acsNumber = 0);
-	int    SLAPI getNumSeg() const;
-	int    SLAPI getKeyNumber() const;
-	int    SLAPI getACSNumber() const;
-	int    SLAPI getFieldID(int seg) const;
+	int    addSegment(int fldID, int flags);
+	int    setFieldID(int seg, int newID);
+	int    setKeyParams(int keyNumber, int acsNumber = 0);
+	int    getNumSeg() const;
+	int    getKeyNumber() const;
+	int    getACSNumber() const;
+	int    getFieldID(int seg) const;
 	//
 	// seg = 0.., if UNDEF, then for all
 	//
-	int    SLAPI getFlags(int seg = UNDEF) const;
-	int    SLAPI setFlags(int flags, int seg = UNDEF);
-	int    SLAPI containsField(int fldID, int * pSeg) const;
-	int    SLAPI compareKey(const DBTable *, const void *, const void *) const;
+	int    getFlags(int seg = UNDEF) const;
+	int    setFlags(int flags, int seg = UNDEF);
+	int    containsField(int fldID, int * pSeg) const;
+	int    compareKey(const DBTable *, const void *, const void *) const;
 private:
-	void   SLAPI destroy();
-	int    SLAPI reset();
+	void   destroy();
+	int    reset();
 	void * data;
 };
 
 class BNKeyList {
 friend class DBTable;
 public:
-	SLAPI  BNKeyList();
-	SLAPI  BNKeyList(const BNKeyList & rS);
-	SLAPI ~BNKeyList();
+	BNKeyList();
+	BNKeyList(const BNKeyList & rS);
+	~BNKeyList();
 	BNKeyList & FASTCALL operator = (const BNKeyList & s);
-	void   SLAPI reset();
+	void   reset();
 	int    FASTCALL copy(const BNKeyList *);
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	//
 	// Function MNKeyList::addKey calls BNKey::destroy()
 	//
 	int    FASTCALL addKey(BNKey &);
-	uint   SLAPI getNumKeys() const;
+	uint   getNumKeys() const;
 	//
 	// Descr: Удаляет ключ с номером (позиции) key
 	//
-	int    SLAPI removeKey(int key);
+	int    removeKey(int key);
 	uint   FASTCALL getKeySize(int key) const;
-	uint   SLAPI getSegOffset(int key, int seg) const;
-	const BNField & SLAPI field(int key, int seg) const;
+	uint   getSegOffset(int key, int seg) const;
+	const BNField & field(int key, int seg) const;
 	//
 	// makeKey returns:
 	//   0 - segment can not be assigned (parameter seg > 0 || cmp == _NE_)
 	//   1 - key assigned
 	//
-	int    SLAPI makeKey(int key, int seg, int cmp, const void * val, void * dest) const;
+	int    makeKey(int key, int seg, int cmp, const void * val, void * dest) const;
 	int    FASTCALL compareKey(int key, const void *, const void *) const;
 	//
 	// Don't call BNKeyList::addKey and BNKeyList::removeKey
@@ -1357,13 +1357,13 @@ public:
 	BNKey  FASTCALL getKey(int position) const;
 	BNKey  FASTCALL operator[](int i) const { return getKey(i); }
 
-	uint   SLAPI setBound(int key, int seg, int min_max /*0 - min, !0 - max*/, void * dest) const;
+	uint   setBound(int key, int seg, int min_max /*0 - min, !0 - max*/, void * dest) const;
 	void   FASTCALL setTableRef(uint);
 private:
-	const  DBTable & SLAPI table() const;
+	const  DBTable & table() const;
 	int    FASTCALL findKey(int key) const;
 	int    FASTCALL findKeyByNumber(int keyNumber) const;
-	uint   SLAPI GetNumCells() const;
+	uint   GetNumCells() const;
 	void * P_Data;
 };
 //
@@ -1373,7 +1373,7 @@ private:
 // Returns:
 //   pBuf
 //
-char * SLAPI GetRusNCaseACS(char * pBuf);
+char * GetRusNCaseACS(char * pBuf);
 
 extern int _db_open_count; // Счетчик открытых таблиц DBTable
 extern int _db_open_peak;  // Пиковое количество открытых таблиц DBTable
@@ -1607,12 +1607,12 @@ public:
 	friend struct DBField;
 
 	static void   FASTCALL InitErrFileName(const char * pFileName);
-	static const  char * SLAPI GetLastErrorFileName();
+	static const  char * GetLastErrorFileName();
 	static int (*OpenExceptionProc)(const char * pFileName, int btrErr);
 	static const char * CrTempFileNamePtr; // =0x0003 Специальное значение указателя. Если функция DBTable::open
 		// получает такой указатель в качестве имени файла, то создает временный файл.
 
-	SLAPI  DBTable();
+	DBTable();
 	//
 	// Descr: Создает экземпляр таблицы базы данных с именем спецификации pTblName.
 	// ARG(pTblName  IN): Наименование спецификации таблицы в словаре данных.
@@ -1635,19 +1635,19 @@ public:
 	// ARG(pDbP      IN): Провайдер БД, в области действия которого создается экземпляр
 	//   объекта. Если pDbP == 0, то экземпляр создается в области действия CurDict.
 	//
-	SLAPI  DBTable(const char * pTblName, const char * pFileName = 0, int openMode = omNormal, DbProvider * pDbP = 0);
-	SLAPI ~DBTable();
+	DBTable(const char * pTblName, const char * pFileName = 0, int openMode = omNormal, DbProvider * pDbP = 0);
+	~DBTable();
 	DbProvider * GetDb() { return P_Db; }
-	int    SLAPI open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
-	int    SLAPI close();
-	int    SLAPI IsOpened() const;
+	int    open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
+	int    close();
+	int    IsOpened() const;
 	int    FASTCALL getField(uint fldN, DBField *) const;
-	int    SLAPI getFieldByName(const char * pName, DBField *) const;
-	int    SLAPI getFieldValue(uint fldN, void * pVal, size_t * pSize) const;
-	int    SLAPI setFieldValue(uint fldN, const void * pVal);
-	int    SLAPI getFieldValByName(const char * pName, void * pVal, size_t * pSize) const;
-	int    SLAPI setFieldValByName(const char * pName, const void * pVal);
-	int    SLAPI putRecToString(SString &, int withFieldNames);
+	int    getFieldByName(const char * pName, DBField *) const;
+	int    getFieldValue(uint fldN, void * pVal, size_t * pSize) const;
+	int    setFieldValue(uint fldN, const void * pVal);
+	int    getFieldValByName(const char * pName, void * pVal, size_t * pSize) const;
+	int    setFieldValByName(const char * pName, const void * pVal);
+	int    putRecToString(SString &, int withFieldNames);
 	const  char * GetFileName() const { return OpenedFileName; }
 	int    FASTCALL HasNote(DBField * pLastFld) const;
 	int    FASTCALL HasLob(DBField * pLastFld) const;
@@ -1657,19 +1657,19 @@ public:
 	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer FASTCALL getBuffer() const;
 	int    allocOwnBuffer(int size = -1);
-	int    SLAPI InitLob();
-	uint   SLAPI GetLobCount() const;
-	int    SLAPI GetLobField(uint n, DBField * pFld) const;
+	int    InitLob();
+	uint   GetLobCount() const;
+	int    GetLobField(uint n, DBField * pFld) const;
 	int    setLobSize(DBField fld, size_t sz);
 	int    getLobSize(DBField fld, size_t * pSz) const;
 	int    readLobData(DBField fld, SBuffer & rBuf) const;
 	int    writeLobData(DBField fld, const void * pBuf, size_t dataSize, int forceCanonical = 0);
 	void   FASTCALL destroyLobData(DBField fld);
 	DBLobBlock * getLobBlock();
-	int    SLAPI StoreAndTrimLob();
-	int    SLAPI RestoreLob();
+	int    StoreAndTrimLob();
+	int    RestoreLob();
 	DBRowId * getCurRowIdPtr(); // @realy private function
-	void   SLAPI clearDataBuf();
+	void   clearDataBuf();
 	void   FASTCALL copyBufTo(void * pBuf) const;
 	void   FASTCALL copyBufFrom(const void * pBuf);
 	void   FASTCALL copyBufFrom(const void * pBuf, size_t srcBufSize);
@@ -1677,14 +1677,14 @@ public:
 	// Descr: Копирует данные полей, соответствующих индексу idx в буфер
 	//   ключа pKey.
 	//
-	int    SLAPI copyBufToKey(int idx, void * pKey) const;
+	int    copyBufToKey(int idx, void * pKey) const;
 	//
 	// Descr: Специальная версия copyBufFrom учитывающая последнее LOB-поле
 	//
 	int    FASTCALL copyBufLobFrom(const void * pBuf, size_t srcBufSize);
-	RECORDSIZE SLAPI getBufLen() const;
-	RECORDSIZE SLAPI getRetBufLen() const { return retBufLen; }
-	int    SLAPI getCurIndex() const { return index; }
+	RECORDSIZE getBufLen() const;
+	RECORDSIZE getRetBufLen() const { return retBufLen; }
+	int    getCurIndex() const { return index; }
 	void   FASTCALL setIndex(int i) { index = static_cast<int16>(i); }
 	//
 	// Descr: Флаги поиска (DbProvider::Implement_Search)
@@ -1712,50 +1712,50 @@ public:
 	//
 	// Descr: Считывает текущую запись с блокировкой для изменения.
 	//
-	int    SLAPI rereadForUpdate(int idx, void * pKey);
-	int    SLAPI searchKey(int idx, void * pKey, int srchMode);
-	int    SLAPI step(int srchMode);
-	int    SLAPI getExtended(void * key, int srchMode, int lock = 0);
-	int    SLAPI stepExtended(int srchMode, int lock = 0); // @unused
+	int    rereadForUpdate(int idx, void * pKey);
+	int    searchKey(int idx, void * pKey, int srchMode);
+	int    step(int srchMode);
+	int    getExtended(void * key, int srchMode, int lock = 0);
+	int    stepExtended(int srchMode, int lock = 0); // @unused
 	//
 	// В функциях getDirect допускается (key == 0).
 	//
-	int    SLAPI getDirect(int idx, void * pKey, const DBRowId &);
-	int    SLAPI getDirectForUpdate(int idx, void * pKey, const DBRowId &);
-	int    SLAPI getChunk(const ChunkHeader * pChunk, int lock = 0); // @unused
+	int    getDirect(int idx, void * pKey, const DBRowId &);
+	int    getDirectForUpdate(int idx, void * pKey, const DBRowId &);
+	int    getChunk(const ChunkHeader * pChunk, int lock = 0); // @unused
 	int    FASTCALL getPosition(DBRowId * pPos);
-	int    SLAPI findPercentage(void * pKey, int16 * pRelPos); // @unused
-	int    SLAPI getByPercentage(int16 relPos, int keyIndex); // @unused
+	int    findPercentage(void * pKey, int16 * pRelPos); // @unused
+	int    getByPercentage(int16 relPos, int keyIndex); // @unused
 	int    FASTCALL insertRec();
 	int    FASTCALL insertRec(int idx, void * pKey);
 	int    FASTCALL insertRecBuf(const void * pDataBuf);
-	int    SLAPI insertRecBuf(const void * pDataBuf, int idx, void * pKeyBuf);
+	int    insertRecBuf(const void * pDataBuf, int idx, void * pKeyBuf);
 	int    FASTCALL updateRec();
 	int    FASTCALL updateRecBuf(const void * pDataBuf);
 	//
 	// Descr: То же, что и updateRec, но не изменяет текущую позицию курсора таблицы
 	//
 	int    FASTCALL updateRecNCC(); // @<<::updateForCb()
-	int    SLAPI deleteRec();
-	int    SLAPI deleteByQuery(int useTa, DBQ & rQ);
-	int    SLAPI updateChunk();
-	int    SLAPI unlock(int isAll);
-	int    SLAPI getNumKeys(int16 * pNumKeys);
+	int    deleteRec();
+	int    deleteByQuery(int useTa, DBQ & rQ);
+	int    updateChunk();
+	int    unlock(int isAll);
+	int    getNumKeys(int16 * pNumKeys);
 	//
 	// Caller must destroy ptr returned by getIndexSpec
 	//
-	DBIdxSpec * SLAPI getIndexSpec(int idxNo, int * pNumSeg);
+	DBIdxSpec * getIndexSpec(int idxNo, int * pNumSeg);
 	int    FASTCALL getNumRecs(RECORDNUMBER * pNumRecs);
-	int    SLAPI getTabFlags(int16 * pFlags);
+	int    getTabFlags(int16 * pFlags);
 	//
 	// Descr: Возвращает размер фиксированной части записи (без "хвостов" переменной длины)
 	//
 	RECORDSIZE FASTCALL getRecSize() const;
-	int    SLAPI GetFileStat(long reqItems, DbTableStat * pStat);
-	int    SLAPI SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    SLAPI SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    SLAPI SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    SLAPI SerializeArrayOfRecords(int dir, SVector * pList, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    GetFileStat(long reqItems, DbTableStat * pStat);
+	int    SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    SerializeArrayOfRecords(int dir, SVector * pList, SBuffer & rBuf, SSerializeContext * pCtx);
 	//
 	// Format of data buffer for Insert Extended operation:
 	//     Fixed portion:
@@ -1768,27 +1768,27 @@ public:
 	int    Btr_Implement_BExtInsert(BExtInsert * pBei); // really private
 	void   FASTCALL SetPageSize(uint newPageSize);
 	int    Debug_Output(SString & rBuf) const;
-	int    SLAPI GetHandle() const { return handle; }
-	BTBLID SLAPI GetTableID() const { return tableID; }
+	int    GetHandle() const { return handle; }
+	BTBLID GetTableID() const { return tableID; }
 	void   FASTCALL SetTableID(BTBLID _id);
-	const  BNKeyList & SLAPI GetIndices() const { return indexes; }
-	void   SLAPI SetIndicesTblRef();
-	const  BNFieldList & SLAPI GetFields() const { return fields; }
-	BNFieldList & SLAPI GetFieldsNonConst() { return fields; }
+	const  BNKeyList & GetIndices() const { return indexes; }
+	void   SetIndicesTblRef();
+	const  BNFieldList & GetFields() const { return fields; }
+	BNFieldList & GetFieldsNonConst() { return fields; }
 	//
 	// Descr: returns fileName
 	//
-	const SString & SLAPI GetName() const { return fileName; }
+	const SString & GetName() const { return fileName; }
 	//
 	// Descr: set fileName
 	//
 	void   FASTCALL SetName(const char * pN);
-	const  char * SLAPI GetTableName() const { return tableName; }
+	const  char * GetTableName() const { return tableName; }
 	void   FASTCALL SetTableName(const char * pN);
-	int    SLAPI GetFlags() const { return flags; }
+	int    GetFlags() const { return flags; }
 	void   FASTCALL SetFlag(int f);
 	void   FASTCALL ResetFlag(int f);
-	int    SLAPI AddField(const char * pName, TYPEID fldType, int fldId = UNDEF);
+	int    AddField(const char * pName, TYPEID fldType, int fldId = UNDEF);
 	int    FASTCALL AddField(const BNField & rF);
 	int    FASTCALL AddKey(BNKey & rK);
 public:
@@ -1800,29 +1800,29 @@ public:
 		long   Sf;
 		int8   Key[512];
 	};
-	int    SLAPI SetStmt(SelectStmt * pStmt); // @private
-	SelectStmt * SLAPI GetStmt();             // @private
-	int    SLAPI ToggleStmt(int release);     // @private
+	int    SetStmt(SelectStmt * pStmt); // @private
+	SelectStmt * GetStmt();             // @private
+	int    ToggleStmt(int release);     // @private
 protected:
-	SLAPI  DBTable(const char *, const char *, void * pFlds, void * pData, int openMode, DbProvider * pDbP = 0);
-	int    SLAPI getStat(void ** ppInfo, uint16 * pBufSize);
+	DBTable(const char *, const char *, void * pFlds, void * pData, int openMode, DbProvider * pDbP = 0);
+	int    getStat(void ** ppInfo, uint16 * pBufSize);
 private:
-	int    SLAPI Init(DbProvider * pDbP);
-	void   SLAPI InitErrFileName();
+	int    Init(DbProvider * pDbP);
+	void   InitErrFileName();
 	int    FASTCALL Ret(int ret);
-	int    SLAPI Btr_Open(const char * pName, int openMode = omNormal, char * pPassword = 0);
-	int    SLAPI Btr_Close();
-	int    SLAPI Btr_GetStat(long reqItems, DbTableStat * pStat);
-	int    SLAPI Btr_Encrypt(char * pPassword, int protectMode);
-	int    SLAPI Btr_Decrypt();
-	int    SLAPI Btr_ProcessLobOnReading();
+	int    Btr_Open(const char * pName, int openMode = omNormal, char * pPassword = 0);
+	int    Btr_Close();
+	int    Btr_GetStat(long reqItems, DbTableStat * pStat);
+	int    Btr_Encrypt(char * pPassword, int protectMode);
+	int    Btr_Decrypt();
+	int    Btr_ProcessLobOnReading();
 	int    Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData);
 	int    Btr_Implement_UpdateRec(const void * pDataBuf, int ncc);
 	int    Btr_Implement_DeleteRec();
 	int    Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf);
 	int    FASTCALL Btr_Implement_GetPosition(DBRowId * pPos);
 	void   FASTCALL OutOfTransactionLogging(const char * pOp) const;
-	int    SLAPI Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffer & rBuf, SSerializeContext * pCtx);
 
 	enum {
 		sOpened_    = 0x0001, // Таблица открыта на низком уровне (open_)
@@ -1914,12 +1914,12 @@ private:
 //
 class BRecoverParam {
 public:
-	SLAPI  BRecoverParam();
+	BRecoverParam();
 	//
 	// Функция callbackProc должна вернуть значение (>0) если следует
 	// продолжить процесс и 0 - если процесс следует прервать
 	//
-	virtual int SLAPI callbackProc(int event, const void * lp1 = 0, const void * lp2 = 0, const void * vp = 0);
+	virtual int callbackProc(int event, const void * lp1 = 0, const void * lp2 = 0, const void * vp = 0);
 	// IN {
 	const  char * P_DestPath;
 	const  char * P_BakPath;
@@ -1939,26 +1939,26 @@ public:
 	static void SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options));
 	static DbDictionary * CreateInstance(const char * pPath, long options);
 
-	SLAPI  DbDictionary();
-	virtual SLAPI ~DbDictionary();
+	DbDictionary();
+	virtual ~DbDictionary();
 	//
 	// Note: Функции DbDictionary в структуре DbTableStat по умолчанию должны
 	//   заполнить следующие поля: {ID, OwnerLevel, Flags, TblName, Location}
 	//
 
-	virtual int SLAPI LoadTableSpec(DBTable * pTbl, const char * pTblName) = 0;
-	virtual int SLAPI CreateTableSpec(DBTable * pTbl) = 0;
-	virtual int SLAPI DropTableSpec(const char * pTblName, DbTableStat * pStat) = 0;
-	virtual int SLAPI GetTableID(const char * pTblName, long * pID, DbTableStat * pStat) = 0;
-	virtual int SLAPI GetTableInfo(long tblID, DbTableStat * pStat) = 0;
+	virtual int LoadTableSpec(DBTable * pTbl, const char * pTblName) = 0;
+	virtual int CreateTableSpec(DBTable * pTbl) = 0;
+	virtual int DropTableSpec(const char * pTblName, DbTableStat * pStat) = 0;
+	virtual int GetTableID(const char * pTblName, long * pID, DbTableStat * pStat) = 0;
+	virtual int GetTableInfo(long tblID, DbTableStat * pStat) = 0;
 
 	enum {
 		gltSkipDict     = 0x0001,
 		gltSkipEmptyLoc = 0x0002
 	};
-	virtual int SLAPI GetListOfTables(long options, StrAssocArray * pList) = 0;
+	virtual int GetListOfTables(long options, StrAssocArray * pList) = 0;
 
-	int    SLAPI IsValid() const;
+	int    IsValid() const;
 protected:
 	enum {
 		stError  = 0x0001
@@ -1970,14 +1970,14 @@ private:
 
 class DbDict_Btrieve : public DbDictionary {
 public:
-	SLAPI  DbDict_Btrieve(const char * pPath);
-	virtual SLAPI ~DbDict_Btrieve();
-	virtual int SLAPI LoadTableSpec(DBTable * pTbl, const char * pTblName);
-	virtual int SLAPI CreateTableSpec(DBTable * pTbl);
-	virtual int SLAPI DropTableSpec(const char * pTblName, DbTableStat * pStat);
-	virtual int SLAPI GetTableID(const char * pTblName, long * pID, DbTableStat * pStat);
-	virtual int SLAPI GetTableInfo(long tblID, DbTableStat * pStat);
-	virtual int SLAPI GetListOfTables(long options, StrAssocArray * pList);
+	DbDict_Btrieve(const char * pPath);
+	virtual ~DbDict_Btrieve();
+	virtual int LoadTableSpec(DBTable * pTbl, const char * pTblName);
+	virtual int CreateTableSpec(DBTable * pTbl);
+	virtual int DropTableSpec(const char * pTblName, DbTableStat * pStat);
+	virtual int GetTableID(const char * pTblName, long * pID, DbTableStat * pStat);
+	virtual int GetTableInfo(long tblID, DbTableStat * pStat);
+	virtual int GetListOfTables(long options, StrAssocArray * pList);
 private:
 	struct _FldListQuery {
 		BExtHeader   h;
@@ -1996,12 +1996,12 @@ private:
 		BExtTailItem ti[1];
 	} ilq;
 
-	void   SLAPI makeFldListQuery(BTBLID tblID, int numRecs);
-	void   SLAPI makeIdxListQuery(BTBLID tblID, int numRecs);
-	int    SLAPI getFieldList(BTBLID tblID, BNFieldList * fields);
-	int    SLAPI getIndexList(BTBLID tblID, BNKeyList * pKeyList);
-	SString & SLAPI GetTemporaryFileName(SString & rFileName, long * pCounter, int forceInDataPath = 0);
-	int    SLAPI ExtractStat(const XFile & rRec, DbTableStat * pStat) const;
+	void   makeFldListQuery(BTBLID tblID, int numRecs);
+	void   makeIdxListQuery(BTBLID tblID, int numRecs);
+	int    getFieldList(BTBLID tblID, BNFieldList * fields);
+	int    getIndexList(BTBLID tblID, BNKeyList * pKeyList);
+	SString & GetTemporaryFileName(SString & rFileName, long * pCounter, int forceInDataPath = 0);
+	int    ExtractStat(const XFile & rRec, DbTableStat * pStat) const;
 
 	DBTable xfile;
 	DBTable xfield;
@@ -2112,7 +2112,7 @@ public:
 		stError    = 0x0001,
 		stLoggedIn = 0x0002
 	};
-	virtual SLAPI ~DbProvider();
+	virtual ~DbProvider();
 	//
 	// Descr: Опции состояния базы данных, возвращаемые функцией GetDatabaseState()
 	//
@@ -2128,22 +2128,22 @@ public:
 	//   <0 - функция не поддерживается
 	//    0 - ошибка
 	//
-	virtual int SLAPI GetDatabaseState(uint * pStateFlags);
-	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf) = 0;
-	virtual int SLAPI IsFileExists_(const char * pFileName) = 0;
-	virtual SString & SLAPI GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath) = 0;
+	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf) = 0;
+	virtual int IsFileExists_(const char * pFileName) = 0;
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath) = 0;
 	//
 	// Descr: Создает файл данных с именем pFileName по спецификации pTbl.
 	//
-	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode) = 0;
-	virtual int SLAPI DropFile(const char * pFileName) = 0;
-	virtual int SLAPI Login(const DbLoginBlock * pBlk, long options);
-	virtual int SLAPI Logout();
-	virtual int SLAPI PostProcessAfterUndump(DBTable * pTbl);
-	virtual int SLAPI StartTransaction() = 0;
-	virtual int SLAPI CommitWork() = 0;
-	virtual int SLAPI RollbackWork() = 0;
-	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat) = 0;
+	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode) = 0;
+	virtual int DropFile(const char * pFileName) = 0;
+	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int Logout();
+	virtual int PostProcessAfterUndump(DBTable * pTbl);
+	virtual int StartTransaction() = 0;
+	virtual int CommitWork() = 0;
+	virtual int RollbackWork() = 0;
+	virtual int GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat) = 0;
 	//
 	// Descr: Реализует механизм открытия таблицы базы данных с именем pFileName.
 	// ARG(pTbl      IN): Указатель на экземпляр открываемой таблицы
@@ -2157,17 +2157,17 @@ public:
 	//   >0 - таблица открыта успешно
 	//    0 - ошибка
 	//
-	virtual int SLAPI Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword) = 0;
-	virtual int SLAPI Implement_Close(DBTable * pTbl) = 0;
-	virtual int SLAPI Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf) = 0;
-	virtual int SLAPI Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData) = 0;
-	virtual int SLAPI Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc) = 0;
-	virtual int SLAPI Implement_DeleteRec(DBTable * pTbl) = 0;
-	virtual int SLAPI Implement_BExtInsert(BExtInsert * pBei) = 0;
-	virtual int SLAPI Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
-	virtual int SLAPI Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
-	virtual int SLAPI ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection) = 0;
-	virtual int SLAPI RecoverTable(BTBLID tblID, BRecoverParam * pParam);
+	virtual int Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword) = 0;
+	virtual int Implement_Close(DBTable * pTbl) = 0;
+	virtual int Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf) = 0;
+	virtual int Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData) = 0;
+	virtual int Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc) = 0;
+	virtual int Implement_DeleteRec(DBTable * pTbl) = 0;
+	virtual int Implement_BExtInsert(BExtInsert * pBei) = 0;
+	virtual int Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
+	virtual int Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
+	virtual int ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection) = 0;
+	virtual int RecoverTable(BTBLID tblID, BRecoverParam * pParam);
 	//
 	// Виртуальные методы, реализующие работу с SQL-сервером
 	//
@@ -2194,12 +2194,12 @@ public:
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 
-	int    SLAPI IsValid() const;
-	long   SLAPI GetState() const { return State; }
-	long   SLAPI GetCapability() const { return Capability; }
-	int    SLAPI LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists);
-	int    SLAPI RenewFile(DBTable & rTbl, int createMode, const char * pAltCode);
-	int    SLAPI DropTable(const char * pTblName, int inDictOnly);
+	int    IsValid() const;
+	long   GetState() const { return State; }
+	long   GetCapability() const { return Capability; }
+	int    LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists);
+	int    RenewFile(DBTable & rTbl, int createMode, const char * pAltCode);
+	int    DropTable(const char * pTblName, int inDictOnly);
 	//
 	// Descr: Создает таблицу и файл данных по спецификации **ppTblSpec.
 	//   При успешном завершении функции разрушает экземпляр *ppTblSpec и создает новый
@@ -2208,58 +2208,58 @@ public:
 	//   с предустановленными верными значениями DBTable::tableName и DBTable::fileName.
 	//   Значения ppTblSpec и *ppTblSpec, подаваемые как аргумент не должны быть нулевыми.
 	//
-	int    SLAPI CreateTableAndFileBySpec(DBTable ** ppTblSpec);
-	int    SLAPI CreateTempFile(const char * pTblName, SString & rFileNameBuf, int forceInDataPath);
+	int    CreateTableAndFileBySpec(DBTable ** ppTblSpec);
+	int    CreateTempFile(const char * pTblName, SString & rFileNameBuf, int forceInDataPath);
 	//
 	// Descr: удаляет все временные файлы, которые не
 	//   открыты в текущем объекте BDictionary. Для удаления файлов
 	//   используется функция DOS remove(); Если файл прихвачен другим
 	//   приложением или пользователем, то он просто не удаляется и все.
 	//
-	void   SLAPI RemoveTempFiles();
+	void   RemoveTempFiles();
 	//
 	// Descr: Добавляет в коллекцию имен временных файлов имя файла pFileName.
 	//   При разрушении экземпляра словаря все файлы, имена которых находятся в
 	//   этой коллекции, удаляются.
 	//
-	int    SLAPI AddTempFileName(const char * pFileName);
+	int    AddTempFileName(const char * pFileName);
 	//
 	// Descr: Если имя файла pFileName находится в списке на удаление, то убирает его из этого списка.
 	//
-	int    SLAPI DelTempFileName(const char * pFileName);
+	int    DelTempFileName(const char * pFileName);
 	//
 	// Descr: Устанавливает имя и символ открытой базы данных.
 	//   Смысл этих имен транслируется приложением, использующим класс DbProvider
 	//
-	int    SLAPI SetDbName(const char * pName, const char * pSymb);
-	int    SLAPI GetDbName(SString & rBuf) const;
-	int    SLAPI GetDbSymb(SString & rBuf) const;
+	int    SetDbName(const char * pName, const char * pSymb);
+	int    GetDbName(SString & rBuf) const;
+	int    GetDbSymb(SString & rBuf) const;
 	//
 	// Descr: Возвращает идентификатор пути к базе данных. Этот идентификатор
 	//   используется для дифференциации потоков выполнения (в многопоточном процессе) по
 	//   признаку соединения с той или иной базой данных.
 	//   Основное высокоуровневое назначение - дифференциация кэшей баз данных.
 	//
-	long   SLAPI GetDbPathID() const { return DbPathID; }
-	int    SLAPI GetDataPath(SString & rBuf) const;
-	int    SLAPI GetSysPath(SString & rBuf) const;
-	int    SLAPI GetDbUUID(S_GUID * pUuid) const;
-	int    SLAPI SetupProtectData(const char * pOldPw, const char * pNewPw);
-	int    SLAPI CreateTableSpec(DBTable *);
-	int    SLAPI GetTableID(const char * pTblName, long * pID, DbTableStat * pStat);
-	int    SLAPI GetTableInfo(long tblID, DbTableStat * pStat);
-	int    SLAPI GetListOfTables(long options, StrAssocArray * pList);
-	int    SLAPI GetUniqueTableName(const char * pPrefix, DBTable *);
+	long   GetDbPathID() const { return DbPathID; }
+	int    GetDataPath(SString & rBuf) const;
+	int    GetSysPath(SString & rBuf) const;
+	int    GetDbUUID(S_GUID * pUuid) const;
+	int    SetupProtectData(const char * pOldPw, const char * pNewPw);
+	int    CreateTableSpec(DBTable *);
+	int    GetTableID(const char * pTblName, long * pID, DbTableStat * pStat);
+	int    GetTableInfo(long tblID, DbTableStat * pStat);
+	int    GetListOfTables(long options, StrAssocArray * pList);
+	int    GetUniqueTableName(const char * pPrefix, DBTable *);
 protected:
 	//
 	// ARG(pDict IN): Передается в собственность экземпляру DbProvider. Т.е. деструктор
 	//   этого класса разрушит объект по адресу pDict.
 	//
-	SLAPI  DbProvider(DbDictionary * pDict, long capability);
-	int    SLAPI GetProtectData();
-	int    SLAPI GetProtectData(FILE * f, uint16 * buf);
-	void   SLAPI Common_Login(const DbLoginBlock * pBlk);
-	void   SLAPI Common_Logout();
+	DbProvider(DbDictionary * pDict, long capability);
+	int    GetProtectData();
+	int    GetProtectData(FILE * f, uint16 * buf);
+	void   Common_Login(const DbLoginBlock * pBlk);
+	void   Common_Logout();
 
 	long   State;
 	long   DbPathID; // Идентификатор каталога базы данных. Ссылается на таблицу DbSession::DbPathList
@@ -2284,34 +2284,34 @@ public:
 	static const char * DdfFieldFileName;
 	static const char * DdfIndexFileName;
 
-	static BDictionary * SLAPI CreateBtrDictInstance(const char * pPath);
-	SLAPI  BDictionary(const char * pPath, const char * pDataPath = 0, const char * pTempPath = 0);
-	SLAPI ~BDictionary();
-	virtual int SLAPI GetDatabaseState(uint * pStateFlags);
-	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf);
-	virtual int SLAPI IsFileExists_(const char * pFileName);
-	virtual SString & SLAPI GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
-	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
-	virtual int SLAPI DropFile(const char * pFileName);
-	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
-	virtual int SLAPI Login(const DbLoginBlock * pBlk, long options);
-	virtual int SLAPI Logout();
-	virtual int SLAPI StartTransaction();
-	virtual int SLAPI CommitWork();
-	virtual int SLAPI RollbackWork();
-	virtual int SLAPI Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
-	virtual int SLAPI Implement_Close(DBTable * pTbl);
-	virtual int SLAPI Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf);
-	virtual int SLAPI Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData);
-	virtual int SLAPI Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc);
-	virtual int SLAPI Implement_DeleteRec(DBTable * pTbl);
-	virtual int SLAPI Implement_BExtInsert(BExtInsert * pBei);
-	virtual int SLAPI Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
-	virtual int SLAPI ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
-	virtual int SLAPI RecoverTable(BTBLID, BRecoverParam *);
+	static BDictionary * CreateBtrDictInstance(const char * pPath);
+	BDictionary(const char * pPath, const char * pDataPath = 0, const char * pTempPath = 0);
+	~BDictionary();
+	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
+	virtual int IsFileExists_(const char * pFileName);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
+	virtual int DropFile(const char * pFileName);
+	virtual int GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
+	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int Logout();
+	virtual int StartTransaction();
+	virtual int CommitWork();
+	virtual int RollbackWork();
+	virtual int Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
+	virtual int Implement_Close(DBTable * pTbl);
+	virtual int Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf);
+	virtual int Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData);
+	virtual int Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc);
+	virtual int Implement_DeleteRec(DBTable * pTbl);
+	virtual int Implement_BExtInsert(BExtInsert * pBei);
+	virtual int Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
+	virtual int ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
+	virtual int RecoverTable(BTBLID, BRecoverParam *);
 private:
-	SLAPI  BDictionary(int btrDict, const char * pPath);
-	int    SLAPI Init(const char * pDataPath, const char * pTempPath);
+	BDictionary(int btrDict, const char * pPath);
+	int    Init(const char * pDataPath, const char * pTempPath);
 };
 
 #define FILE_REDIRECT "redirect.rtc"
@@ -2323,8 +2323,8 @@ private:
 #define BCOPYDF_RELEASECONT 0x00000004 // Форсированное освобождение файлов из режима CopyContinuous
 
 struct BCopyData {
-	SLAPI  BCopyData();
-	BCopyData & SLAPI Z();
+	BCopyData();
+	BCopyData & Z();
 	long   ID;         // IN/OUT   ID of copy
 	long   BssFactor;  // IN       Backup safety space factor
 	long   Flags;      // IN       0x01 - use compression
@@ -2345,8 +2345,8 @@ public:
 		ordByDate = 1,
 		ordByDateDesc = 2
 	};
-	explicit SLAPI BCopySet(const char * pName);
-	int    SLAPI Sort(Order);
+	explicit BCopySet(const char * pName);
+	int    Sort(Order);
 	SString Name;
 };
 //
@@ -2374,10 +2374,10 @@ typedef int (*BackupLogFunc)(int, const char *, void * extraPtr); // @v10.8.2 lo
 //
 class TablePartsEnum {
 public:
-	explicit SLAPI TablePartsEnum(const char * pPath);
-	int    SLAPI Init(const char * pPath);
-	int    SLAPI Next(SString & rPath, int * pFirst = 0);
-	int    SLAPI ReplaceExt(int first, const SString & rIn, SString & rOut);
+	explicit TablePartsEnum(const char * pPath);
+	int    Init(const char * pPath);
+	int    Next(SString & rPath, int * pFirst = 0);
+	int    ReplaceExt(int first, const SString & rIn, SString & rOut);
 private:
 	SString Dir;
 	SString MainPart;
@@ -2414,7 +2414,7 @@ private:
 	int    Helper_GetEntry(long andF, long notF, Entry & rEntry) const;
 
 	struct _InnerEntry { // @flat
-		SLAPI  _InnerEntry();
+		_InnerEntry();
 		long   Id;
 		long   Flags;
 		uint   P;
@@ -2430,7 +2430,7 @@ private:
 class DBBackup {
 public:
 	struct CopyParams {
-		SLAPI  CopyParams() : TotalSize(0), CheckSum(0)
+		CopyParams() : TotalSize(0), CheckSum(0)
 		{
 		}
 		SString Path;
@@ -2439,57 +2439,57 @@ public:
 		int64  TotalSize;
 		ulong  CheckSum;
 	};
-	SLAPI  DBBackup();
-	SLAPI ~DBBackup();
-	int    SLAPI SetDictionary(DbProvider * pDb);
-	int    SLAPI Backup(BCopyData *, BackupLogFunc, void * extraPtr);
-	int    SLAPI Restore(const BCopyData *, BackupLogFunc, void * extraPtr);
-	int    SLAPI RemoveCopy(const BCopyData *, BackupLogFunc, void * extraPtr);
-	int    SLAPI GetCopySet(BCopySet *);
-	int    SLAPI GetCopyData(long copyID, BCopyData *);
-	uint   SLAPI GetSpaceSafetyFactor();
-	void   SLAPI SetSpaceSafetyFactor(uint);
-	int    SLAPI GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
+	DBBackup();
+	~DBBackup();
+	int    SetDictionary(DbProvider * pDb);
+	int    Backup(BCopyData *, BackupLogFunc, void * extraPtr);
+	int    Restore(const BCopyData *, BackupLogFunc, void * extraPtr);
+	int    RemoveCopy(const BCopyData *, BackupLogFunc, void * extraPtr);
+	int    GetCopySet(BCopySet *);
+	int    GetCopyData(long copyID, BCopyData *);
+	uint   GetSpaceSafetyFactor();
+	void   SetSpaceSafetyFactor(uint);
+	int    GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
 protected:
 	//
 	// Function CBP_CopyProgress must return one of SPRGRS_XXX value
 	// (see file SLIB.H for explain that constants)
 	//
-	virtual int SLAPI CBP_CopyProcess(const char * pSrcFile, const char * pDestFile, int64 totalSize, int64 fileSize, int64 totalBytesReady, int64 fileBytesReady);
+	virtual int CBP_CopyProcess(const char * pSrcFile, const char * pDestFile, int64 totalSize, int64 fileSize, int64 totalBytesReady, int64 fileBytesReady);
 	DbProvider * P_Db;
 	uint   SpaceSafetyFactor; // space_needed = actual * SpaceSafetyFactor / 1000
 	int    AbortProcessFlag;
 private:
 	class InfoFile {
 	public:
-		explicit SLAPI InfoFile(DbProvider *);
-		SLAPI ~InfoFile();
-		int    SLAPI ReadSet(BCopySet *);
-		int    SLAPI ReadItem(long copyID, BCopyData *);
-		int    SLAPI AddRecord(BCopyData *);
-		int    SLAPI RemoveRecord(const char * pSet, long id);
+		explicit InfoFile(DbProvider *);
+		~InfoFile();
+		int    ReadSet(BCopySet *);
+		int    ReadItem(long copyID, BCopyData *);
+		int    AddRecord(BCopyData *);
+		int    RemoveRecord(const char * pSet, long id);
 	private:
-		int    SLAPI OpenStream(int readOnly);
-		void   SLAPI CloseStream();
-		int    SLAPI MakeFileName(const char *, const char *, char *, size_t);
-		int    SLAPI WriteRecord(FILE *, const BCopyData *);
-		int    SLAPI ReadRecord(FILE *, BCopyData *);
+		int    OpenStream(int readOnly);
+		void   CloseStream();
+		int    MakeFileName(const char *, const char *, char *, size_t);
+		int    WriteRecord(FILE *, const BCopyData *);
+		int    ReadRecord(FILE *, BCopyData *);
 		char   FileName[MAXPATH];
 		FILE * Stream;
 	};
 
-	int    SLAPI WriteCopyData(FILE *, BCopyData *);
-	int    SLAPI ReadCopyData(FILE *, BCopyData *);
-	int    SLAPI MakeCopyPath(BCopyData * data, SString & rDestPath);
-	int    SLAPI CheckAvailableDiskSpace(const char *, int64 sizeNeeded);
-	int    SLAPI DoCopy(DBBackup::CopyParams *, BackupLogFunc, void * extraPtr);
-	int    SLAPI DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr);
-	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr);
-	int    SLAPI RemoveDatabase(int safe);
-	int    SLAPI RestoreRemovedDB(int restoreFiles);
+	int    WriteCopyData(FILE *, BCopyData *);
+	int    ReadCopyData(FILE *, BCopyData *);
+	int    MakeCopyPath(BCopyData * data, SString & rDestPath);
+	int    CheckAvailableDiskSpace(const char *, int64 sizeNeeded);
+	int    DoCopy(DBBackup::CopyParams *, BackupLogFunc, void * extraPtr);
+	int    DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr);
+	int    CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr);
+	int    RemoveDatabase(int safe);
+	int    RestoreRemovedDB(int restoreFiles);
 	static int   CopyProgressProc(const SDataMoveProgressInfo *);
-	int    SLAPI CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, void * extraPtr);
-	int    SLAPI CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, void * extraPtr);
+	int    CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, void * extraPtr);
+	int    CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, void * extraPtr);
 
 	int64  TotalCopySize;
 	int64  TotalCopyReady;
@@ -2595,27 +2595,27 @@ public:
 	//friend class SSqlStmt;
 	SOraDbProvider(const char * pDataPath);
 	virtual ~SOraDbProvider();
-	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf);
-	virtual int SLAPI IsFileExists_(const char * pFileName);
-	virtual SString & SLAPI GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
-	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
-	virtual int SLAPI DropFile(const char * pFileName);
-	virtual int SLAPI Login(const DbLoginBlock * pBlk, long options);
-	virtual int SLAPI Logout();
-	virtual int SLAPI PostProcessAfterUndump(const DBTable * pTbl);
-	virtual int SLAPI StartTransaction();
-	virtual int SLAPI CommitWork();
-	virtual int SLAPI RollbackWork();
-	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
-	virtual int SLAPI Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
-	virtual int SLAPI Implement_Close(DBTable * pTbl);
-	virtual int SLAPI Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf);
-	virtual int SLAPI Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData);
-	virtual int SLAPI Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc);
-	virtual int SLAPI Implement_DeleteRec(DBTable * pTbl);
-	virtual int SLAPI Implement_BExtInsert(BExtInsert * pBei);
-	virtual int SLAPI Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
-	virtual int SLAPI ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
+	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
+	virtual int IsFileExists_(const char * pFileName);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
+	virtual int DropFile(const char * pFileName);
+	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int Logout();
+	virtual int PostProcessAfterUndump(const DBTable * pTbl);
+	virtual int StartTransaction();
+	virtual int CommitWork();
+	virtual int RollbackWork();
+	virtual int GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
+	virtual int Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
+	virtual int Implement_Close(DBTable * pTbl);
+	virtual int Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf);
+	virtual int Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData);
+	virtual int Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc);
+	virtual int Implement_DeleteRec(DBTable * pTbl);
+	virtual int Implement_BExtInsert(BExtInsert * pBei);
+	virtual int Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
+	virtual int ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
 	virtual int CreateStmt(SSqlStmt * pS, const char * pText, long flags);
 	virtual int DestroyStmt(SSqlStmt * pS);
 	virtual int Binding(SSqlStmt & rS, int dir);
@@ -2726,7 +2726,7 @@ private:
 	int    ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	static OH FASTCALL StmtHandle(const SSqlStmt & rS);
-	int    SLAPI GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
+	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
 
 	enum {
 		fError   = 0x0001
@@ -2783,15 +2783,15 @@ public:
 		stTransaction = 0x0001
 	};
 	//
-	SLAPI  DbThreadLocalArea();
-	SLAPI ~DbThreadLocalArea();
-	void   SLAPI Init();
+	DbThreadLocalArea();
+	~DbThreadLocalArea();
+	void   Init();
 	long   GetState() const { return State; }
 	int    FASTCALL AddTableEntry(DBTable *);
 	int    FASTCALL FreeTableEntry(int handle);
 	uint   GetTabEntriesCount() const;
 	DBTable * FASTCALL GetTableEntry(int handle) const { return static_cast<DBTable *>(DbTableReg.GetPtr(handle)); }
-	DBTable * SLAPI GetCloneEntry(BTBLID) const;
+	DBTable * GetCloneEntry(BTBLID) const;
 	//
 	// Descr: Временная функция (до завершения разработки интерфейса с BerkeleyDB).
 	//   Возвращает ссылку на таблицу открытых BDB-файлов.
@@ -2799,8 +2799,8 @@ public:
 	DbRegList & GetBDbRegList() { return BDbTableReg; }
 	const DbRegList & GetBDbRegList_Const() const { return BDbTableReg; }
 	void   FASTCALL InitErrFileName(const char * pFileName);
-	const  char * SLAPI GetLastErrFileName() const;
-	int    SLAPI StartTransaction();
+	const  char * GetLastErrFileName() const;
+	int    StartTransaction();
 	//
 	// Descr: Запускает транзакцию в случае, если провайдер БД (P_CurDict)
 	//   имеет установленный флаг Capability & cDbDependTa.
@@ -2822,9 +2822,9 @@ public:
 	//   <0 - транзакция не запущена по причине того, что провайдер БД не требует этого
 	//   0  - ошибка
 	//
-	int    SLAPI StartTransaction_DbDepend();
-	int    SLAPI CommitWork();
-	int    SLAPI RollbackWork();
+	int    StartTransaction_DbDepend();
+	int    CommitWork();
+	int    RollbackWork();
 	//
 	long   Id;
 	int    LastBtrErr;
@@ -2852,19 +2852,19 @@ public:
 		int  NWaitLockTries;       // Макс количество попыток заблокировать запись блокировкой без ожидания. Если <=0, то применяется блокировка с ожиданием
 		int  NWaitLockTryTimeout;  // Таймаут (ms) между попытками заблокировать запись блокировкой без ожидания. Если <= 0, то применяется значение по умолчанию.
 	};
-	SLAPI  DbSession();
-	SLAPI ~DbSession();
+	DbSession();
+	~DbSession();
 	int    IsConsistent() const;
-	//void   SLAPI SetFlag(long f, int set);
-	//long   SLAPI GetFlag(long f) const;
+	//void   SetFlag(long f, int set);
+	//long   GetFlag(long f) const;
 	void   SetConfig(const Config * pCfg);
 	// @v10.0.0 void   FASTCALL GetConfig(Config & rCfg);
 	const  Config & GetConfig() const { return Cfg; } // @v10.0.0
-	int    SLAPI GetTaState();
-	int    SLAPI InitThread();
-	void   SLAPI ReleaseThread();
-	DbThreadLocalArea & SLAPI GetTLA(); // { return *(DbThreadLocalArea *)TlsGetValue(TlsIdx); }
-	const DbThreadLocalArea & SLAPI GetConstTLA() const; // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
+	int    GetTaState();
+	int    InitThread();
+	void   ReleaseThread();
+	DbThreadLocalArea & GetTLA(); // { return *(DbThreadLocalArea *)TlsGetValue(TlsIdx); }
+	const DbThreadLocalArea & GetConstTLA() const; // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
 	//
 	// Descr: Устанавливает код ошибки BtrError = errCode
 	// Returns:
@@ -2877,20 +2877,20 @@ public:
 	//   0
 	//
 	int    FASTCALL SetError(int errCode, const char * pAddedMsg);
-	int    SLAPI OpenDictionary2(DbProvider * pDb);
-	int    SLAPI CloseDictionary();
-	void   SLAPI GetProtectData(void * pBuf, int decr) const; // size of buffer must be at least 64 bytes
-	void   SLAPI SetProtectData(const void * pBuf);
+	int    OpenDictionary2(DbProvider * pDb);
+	int    CloseDictionary();
+	void   GetProtectData(void * pBuf, int decr) const; // size of buffer must be at least 64 bytes
+	void   SetProtectData(const void * pBuf);
 	void   FASTCALL SetAddedMsgString(const char *);
 	const  SString & GetAddedMsgString() const;
-	int    SLAPI GetDbPathID(const char * pPath, long * pID);
-	int    SLAPI GetDbPath(long dbPathID, SString &) const;
+	int    GetDbPathID(const char * pPath, long * pID);
+	int    GetDbPath(long dbPathID, SString &) const;
 	//
 	// Descr: Возвращает ИД каталога базы данных текущего потока
 	//
-	long   SLAPI GetDbPathID() const;
+	long   GetDbPathID() const;
 private:
-	void   SLAPI InitProtectData();
+	void   InitProtectData();
 
 	//struct DbSessInit { DbSessInit() { SLS.SlSession::SlSession(); } } __Init;
 	long   TlsIdx;       // Ид локальной области потока    //
@@ -3024,14 +3024,14 @@ extern DbSession DBS;
 	extern BtrCallProc   _BtrCall;
 	extern BtrCallProcID _BtrCallID;
 
-	//int SLAPI BTRCALL(int,char *,char *,int16 *,char *,int,int);
+	//int BTRCALL(int,char *,char *,int16 *,char *,int,int);
 	FORCEINLINE int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
 		{ return _BtrCallID(OP, POS_BLK, DATA_BUF, DATA_LEN, KEY_BUF, KEY_LEN, KEY_NUM, &DBS.GetTLA().ClientID); }
 #elif defined(_Windows)
-	int SLAPI BTRCALL(int,char *,char far*,uint16 far*,char far*,int,int);
+	int BTRCALL(int,char *,char far*,uint16 far*,char far*,int,int);
 #else
-	int SLAPI BTRCALL(int, char *, char *, uint16 *, char *, int);
-	int SLAPI BTRCALLID(int,char *,char *, uint16 *, char *, int, char *);
+	int BTRCALL(int, char *, char *, uint16 *, char *, int);
+	int BTRCALLID(int,char *,char *, uint16 *, char *, int, char *);
 #endif
 //
 // DBQuery
@@ -3051,8 +3051,8 @@ extern DbSession DBS;
 // option == AGGR_END в параметр result должно быть занесено
 // окончательное значение.
 //
-typedef void (SLAPI * DBQProc)(int option, DBConst * result, const DBConst * params);
-#define IMPL_DBE_PROC(name) void SLAPI name(int option, DBConst * result, const DBConst * params)
+typedef void (* DBQProc)(int option, DBConst * result, const DBConst * params);
+#define IMPL_DBE_PROC(name) void name(int option, DBConst * result, const DBConst * params)
 
 enum DBFunc {
 	dbq_error = 0,
@@ -3150,15 +3150,15 @@ public:
 	//
 	static int SLAPIV RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
 	static DBFuncInfo * FASTCALL Get(int);
-	SLAPI  DbqFuncTab();
-	SLAPI ~DbqFuncTab();
+	DbqFuncTab();
+	~DbqFuncTab();
 private:
-	int    SLAPI GetDynFuncId(int * pId);
-	int    SLAPI _RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, va_list);
+	int    GetDynFuncId(int * pId);
+	int    _RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, va_list);
 	int    SLAPIV RegisterFunc(int funcId, int isAggr, int retType, DBQProc pProc, int paramCount, ...);
-	int    SLAPI SearchFunc(int funcId, DBFuncInfo *);
+	int    SearchFunc(int funcId, DBFuncInfo *);
 	DBFuncInfo * FASTCALL GetFuncPtr(int funcId);
-	int    SLAPI PreRegister();
+	int    PreRegister();
 	SArray * P_Tab;
 };
 
@@ -3175,39 +3175,39 @@ struct DBItem {
 	// id ==  DBE_ID     DBE
 	// id >   0          DBField (id == table handle)
 	//
-	void   SLAPI destroy();
-	int    SLAPI baseType() const;
-	TYPEID SLAPI stype() const;
-	int    SLAPI typeOfItem() const;
+	void   destroy();
+	int    baseType() const;
+	TYPEID stype() const;
+	int    typeOfItem() const;
 
 	int    Id;
 };
 
 struct DBField : public DBItem {
-	DBTable * SLAPI getTable() const;
-	const BNField & SLAPI getField() const;
+	DBTable * getTable() const;
+	const BNField & getField() const;
 	int    FASTCALL getValue(void *, size_t * pSize) const;
-	int    SLAPI putValue(const void *) const;
-	void * SLAPI getValuePtr() const;
+	int    putValue(const void *) const;
+	void * getValuePtr() const;
 	// if !*k then getFirst index, else getNext index
-	int    SLAPI getIndex(BNKey * pK, int * pKeyPos, int * pSeg);
+	int    getIndex(BNKey * pK, int * pKeyPos, int * pSeg);
 
 	int    fld;
 };
 
 class DBFieldList {
 public:
-	explicit SLAPI DBFieldList(uint n = 0);
-	SLAPI ~DBFieldList();
+	explicit DBFieldList(uint n = 0);
+	~DBFieldList();
 	DBFieldList & FASTCALL operator = (const DBFieldList &);
-	void   SLAPI Destroy();
-	int    SLAPI Search(const DBField & rFld, uint * pPos) const;
+	void   Destroy();
+	int    Search(const DBField & rFld, uint * pPos) const;
 	int    FASTCALL Add(const DBField &);
 	int    FASTCALL Add(const DBFieldList &);
-	uint   SLAPI GetCount() const;
+	uint   GetCount() const;
 	const  DBField & FASTCALL Get(uint) const;
 	const  BNField & FASTCALL GetField(uint) const;
-	int    SLAPI GetValue(uint fldN, void * pBuf, size_t * pSize) const;
+	int    GetValue(uint fldN, void * pBuf, size_t * pSize) const;
 private:
 	int    FASTCALL Alloc(uint n);
 	uint   Count;
@@ -3257,7 +3257,7 @@ public:
 	int16  Flags;
 	int16  Tag;
 private:
-	void   SLAPI Helper_Init(int _id, int _flags, int _tag);
+	void   Helper_Init(int _id, int _flags, int _tag);
 };
 
 DBConst FASTCALL dbconst(long);
@@ -3322,17 +3322,17 @@ struct DBE : public DBItem {
 #define DBQ_OUTER  0x0004
 
 union DBDataCell {
-	SLAPI  DBDataCell();
-	SLAPI  DBDataCell(DBConst & r);
-	SLAPI  DBDataCell(DBE & r);
-	SLAPI  DBDataCell(DBField & r);
-	int    SLAPI GetId() const { return I.Id; }
+	DBDataCell();
+	DBDataCell(DBConst & r);
+	DBDataCell(DBE & r);
+	DBDataCell(DBField & r);
+	int    GetId() const { return I.Id; }
 	int    FASTCALL containsTblRef(int tblID) const;
 		// @<<DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 	int    FASTCALL getValue(TYPEID, void *);
 	int    FASTCALL getValue(DBConst *);
-	int    SLAPI toString(SString & rBuf, long options) const;
-	int    SLAPI CreateSqlExpr(Generator_SQL * pGen) const;
+	int    toString(SString & rBuf, long options) const;
+	int    CreateSqlExpr(Generator_SQL * pGen) const;
 
 	DBItem  I;
 	DBConst C;
@@ -3341,15 +3341,15 @@ union DBDataCell {
 };
 
 struct DBQ {
-	SLAPI  DBQ(DBItem &, int comp, DBItem &);
-	SLAPI  DBQ(int logic, DBQ &, DBQ &);
+	DBQ(DBItem &, int comp, DBItem &);
+	DBQ(int logic, DBQ &, DBQ &);
 	void   FASTCALL destroy(int withTree = 0);
-	int    SLAPI testForKey(int itm, int tblID, int * pIsDyn);
+	int    testForKey(int itm, int tblID, int * pIsDyn);
 		// @<<DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
-	int    SLAPI getPotentialKey(int itm, int tblID, int segment, KR * pKr);
+	int    getPotentialKey(int itm, int tblID, int segment, KR * pKr);
 		// @<<DBTree::chooseKey(int n, int tblID, int seg, PKR dest, uint * pTrace)
 	int    FASTCALL checkTerm(int);
-	int    SLAPI CreateSqlExpr(Generator_SQL * pGen, int itm) const;
+	int    CreateSqlExpr(Generator_SQL * pGen, int itm) const;
 
 	DBTree * tree;
 	uint   count;
@@ -3369,16 +3369,16 @@ struct DBQ {
 #define NOKEY 0x0001
 
 struct DBTree {
-	explicit SLAPI DBTree(DBQ * pOwner = 0);
+	explicit DBTree(DBQ * pOwner = 0);
 	void   FASTCALL init(DBQ * pOwner);
-	int    SLAPI addNode(int link, int left, int right, int * pPos);
-	int    SLAPI addLeaf(int term, int flags, int * pPos);
-	int    SLAPI addTree(DBTree *, int p, int * pPos);
-	int    SLAPI chooseKey(int node, int tblID, int seg, KR * dest, uint *);
+	int    addNode(int link, int left, int right, int * pPos);
+	int    addLeaf(int term, int flags, int * pPos);
+	int    addTree(DBTree *, int p, int * pPos);
+	int    chooseKey(int node, int tblID, int seg, KR * dest, uint *);
 	int    FASTCALL checkRestriction(int = -1);
 	int    FASTCALL expand(int *);
-	void   SLAPI destroy();
-	int    SLAPI CreateSqlExpr(Generator_SQL * pGen, int node) const;
+	void   destroy();
+	int    CreateSqlExpr(Generator_SQL * pGen, int node) const;
 
 	DBQ  * P_Terms;
 	int    Root;
@@ -3434,29 +3434,29 @@ class KR { // Key Restriction
 		Second Key value  KeyLen bytes (if LowBound != 0 && UppBound != 0)
 */
 public:
-	SLAPI  KR();
-	SLAPI  KR(int, int);
-	int    SLAPI init(int hdlTable, int keyPosition);
-	int    SLAPI trim();
-	int    SLAPI copy(KR, int = 0);
-	void   SLAPI destroy();
-	int    SLAPI operator !() const;
+	KR();
+	KR(int, int);
+	int    init(int hdlTable, int keyPosition);
+	int    trim();
+	int    copy(KR, int = 0);
+	void   destroy();
+	int    operator !() const;
 	int    FASTCALL add(const void *);
-	int    SLAPI remove();
+	int    remove();
 	uint   FASTCALL itemSize(const void *) const;
 	int    FASTCALL walk(uint16 *) const;
-	int    SLAPI first();
-	int    SLAPI last();
-	int    SLAPI operator++();
-	int    SLAPI operator--();
-	void   SLAPI makeRange(const void *, __range &) const;
-	void   SLAPI rangeToBuf(const __range &, void *, int);
-	int    SLAPI disjunction(void *);                         // OR
-	int    SLAPI conjunction(__range & /*dest*/, const __range &, int *, int *);
-	int    SLAPI conjunction(void *, int assign, int *, int *); // AND
-	int    SLAPI link(int logic, KR);
-	int    SLAPI rating();
-	int    SLAPI getKey(void *, int * /* spXXX constant */);
+	int    first();
+	int    last();
+	int    operator++();
+	int    operator--();
+	void   makeRange(const void *, __range &) const;
+	void   rangeToBuf(const __range &, void *, int);
+	int    disjunction(void *);                         // OR
+	int    conjunction(__range & /*dest*/, const __range &, int *, int *);
+	int    conjunction(void *, int assign, int *, int *); // AND
+	int    link(int logic, KR);
+	int    rating();
+	int    getKey(void *, int * /* spXXX constant */);
 	int    FASTCALL checkKey(const void *) const;
 	struct H {
 		uint8  keyNum;
@@ -3482,7 +3482,7 @@ int FASTCALL compare(KR, KR);
 DBQuery & FASTCALL selectbycell(int count, const DBDataCell *);
 DBQuery & FASTCALL select(const DBFieldList &);
 DBQuery & SLAPIV select(DBField,...);
-DBQuery & SLAPI  selectAll();
+DBQuery & selectAll();
 
 #define DBQTF_OUTER_JOIN         0x0004 // По таблице определен OUTER JOIN
 #define DBQTF_OVRRD_DESTROY_TAG  0x0008 // Не разрушать таблицу при разрушении запроса
@@ -3501,7 +3501,7 @@ DBQuery & SLAPI  selectAll();
 
 class DBQuery {
 	friend DBQuery & SLAPIV select(DBField, ...);
-	friend DBQuery & SLAPI  selectAll();
+	friend DBQuery & selectAll();
 public:
 	enum {
 		smart_frame    = 0x0001,
@@ -3512,7 +3512,7 @@ public:
 		correct_search_more_problem = 0x0020 // Опционально исправляет пероблему функции DBQuery::_search
 			// (см. примечание @todo в теле функции).
 	};
-	SLAPI ~DBQuery();
+	~DBQuery();
 	//
 	// Descr: Определяет режим владения таблицами. Если set != 0,
 	//   то при разрушении экземпляра будут разрушены и таблицы. В противном
@@ -3520,7 +3520,7 @@ public:
 	// Returns:
 	//   1
 	//
-	void   SLAPI setDestroyTablesMode(int set);
+	void   setDestroyTablesMode(int set);
 	//
 	// Descr: Определяет режим извлечения записей запросом.
 	//   Если set != 0, то записи будут извлекаться для изменения.
@@ -3530,57 +3530,57 @@ public:
 	// Returns:
 	//   1
 	//
-	void   SLAPI setSearchForUpdateMode(int set);
+	void   setSearchForUpdateMode(int set);
 	DBQuery & SLAPIV from(DBTable *,...);
 	DBQuery & SLAPIV groupBy(DBField,...);
 	DBQuery & SLAPIV orderBy(DBField,...);
 	DBQuery & FASTCALL where(DBQ &);
-	DBQuery & SLAPI  having(DBQ &);
+	DBQuery & having(DBQ &);
 	int    FASTCALL addField(DBConst &);
 	int    FASTCALL addField(DBE &);
 	int    FASTCALL addField(const DBField &);
 	int    FASTCALL addTable(DBTable *);
-	int    SLAPI addOrderField(const DBField & rFld);
-	int    SLAPI getFieldPosByName(const char * pFldName, uint * pPos) const;
-	int    SLAPI setFrame(uint viewHight, uint = static_cast<uint>(_defaultBufSize), uint = static_cast<uint>(_defaultBufDelta));
-	void * SLAPI getBuffer();
+	int    addOrderField(const DBField & rFld);
+	int    getFieldPosByName(const char * pFldName, uint * pPos) const;
+	int    setFrame(uint viewHight, uint = static_cast<uint>(_defaultBufSize), uint = static_cast<uint>(_defaultBufDelta));
+	void * getBuffer();
 	void * FASTCALL getRecord(uint);
 	const void * FASTCALL getRecordC(uint r) const;
-	void * SLAPI getCurrent();
-	int    SLAPI fetch(long count, char * buf, int dir);
-	int    SLAPI fetch(long, char *, RECORDNUMBER *, int);
-	int    SLAPI single_fetch(char *, RECORDNUMBER *, int);
-	int    SLAPI top();
-	int    SLAPI bottom();
+	void * getCurrent();
+	int    fetch(long count, char * buf, int dir);
+	int    fetch(long, char *, RECORDNUMBER *, int);
+	int    single_fetch(char *, RECORDNUMBER *, int);
+	int    top();
+	int    bottom();
 	int    FASTCALL step(long);
-	int    SLAPI page();
-	int    SLAPI refresh();
-	char * SLAPI tostr(void * rec, int fld, long fmt, char * buf);
-	int    SLAPI search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode, void * pExtraData = 0);
+	int    page();
+	int    refresh();
+	char * tostr(void * rec, int fld, long fmt, char * buf);
+	int    search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode, void * pExtraData = 0);
 
 	static long _defaultBufSize;
 	static long _defaultBufDelta;
 //private:
-	SLAPI  DBQuery();
-	int    SLAPI checkWhereRestriction();
-	int    SLAPI _max_hdl(DBDataCell *, const int * pList, int);
-	void   SLAPI arrangeTerms();
-	int    SLAPI makeNode(int tblN, int * pNode, int option, int * pPos);
+	DBQuery();
+	int    checkWhereRestriction();
+	int    _max_hdl(DBDataCell *, const int * pList, int);
+	void   arrangeTerms();
+	int    makeNode(int tblN, int * pNode, int option, int * pPos);
 	int    FASTCALL analyzeOrder(int * pKeyArray);
 	int    FASTCALL chooseKey(int tblN);
-	// @v9.8.6 int    SLAPI optimizeTree(int tblN);
-	int    SLAPI calcRecSize();
-	int    SLAPI allocFrame(uint);
+	// @v9.8.6 int    optimizeTree(int tblN);
+	int    calcRecSize();
+	int    allocFrame(uint);
 	void   FASTCALL fillRecord(char *, RECORDNUMBER *);
 	int    FASTCALL _search(uint n, int dir);
-	int    SLAPI _fetch_next(uint count, uint p, int dir);
-	int    SLAPI _fetch_prev(uint count, uint p);
-	int    SLAPI _fetch_last(uint count, uint p);
-	int    SLAPI searchOnPage(const void *, uint *, CompFunc, uint ofs, int srchMode, int nxt, void * pExtraData = 0);
-	int    SLAPI reverse();
+	int    _fetch_next(uint count, uint p, int dir);
+	int    _fetch_prev(uint count, uint p);
+	int    _fetch_last(uint count, uint p);
+	int    searchOnPage(const void *, uint *, CompFunc, uint ofs, int srchMode, int nxt, void * pExtraData = 0);
+	int    reverse();
 	uint   FASTCALL addr(uint) const;
-	void   SLAPI moveRec(uint rd, uint rs);
-	void   SLAPI moveBuf(uint dest, uint src, uint recs);
+	void   moveRec(uint rd, uint rs);
+	void   moveBuf(uint dest, uint src, uint recs);
 	void   FASTCALL setCount(uint);
 	void   FASTCALL frameOnBottom(int undefSDelta);
 	int    FASTCALL normalizeFrame(int dir);
@@ -3600,7 +3600,7 @@ public:
 		s_rec_cut          = 0x0004
 	};
 	struct Frame {
-		SLAPI ~Frame();
+		~Frame();
 		void FASTCALL topByCur(int dir);
 		enum {
 			Undef,
@@ -3751,8 +3751,8 @@ DBQ & __stdcall intrange(DBItem  & i, const IntRange & rR);
 //
 class BExtInsert : public SdRecordBuffer {
 public:
-	SLAPI  BExtInsert(DBTable * pTbl, size_t aBufSize = 0);
-	SLAPI ~BExtInsert();
+	BExtInsert(DBTable * pTbl, size_t aBufSize = 0);
+	~BExtInsert();
 	//
 	// Если sz == 0, то размер записи полагается равным fixRecSize.
 	// Если sz >  0, то размер записи полагается равным sz
@@ -3760,9 +3760,9 @@ public:
 	//      FixRecSize + sstrlen(((char *)b) + FixRecSize) + 1
 	//
 	int    FASTCALL insert(const void * b);
-	int    SLAPI flash();
-	uint   SLAPI getActualCount() const;
-	DBTable * SLAPI getTable();
+	int    flash();
+	uint   getActualCount() const;
+	DBTable * getTable();
 private:
 	enum {
 		stValid   = 0x0001,
@@ -3802,20 +3802,20 @@ public:
 	//
 	// ARG(aBufSize IN): Количество записей, которое должно обрабатываться буфером.
 	//
-	SLAPI  BExtQuery(DBTable * pTbl, int idx, uint aBufSize /*= 32*/);
-	SLAPI  BExtQuery(DBTable * pTbl, int idx);
-	SLAPI ~BExtQuery();
-	void   SLAPI setMaxReject(uint);
+	BExtQuery(DBTable * pTbl, int idx, uint aBufSize /*= 32*/);
+	BExtQuery(DBTable * pTbl, int idx);
+	~BExtQuery();
+	void   setMaxReject(uint);
 	//
 	// Descr: Снимает внутренний признак окончания чтения. Необходим для случаев,
 	//   когда требуется продолжить чтение с текущей позиции в предположении, что
 	//   с момента последнего чтения появились новые записи.
 	//
-	void   SLAPI resetEof();
-	BExtQuery & SLAPI  select(const DBFieldList &);
-	BExtQuery & SLAPI  selectAll();
+	void   resetEof();
+	BExtQuery & select(const DBFieldList &);
+	BExtQuery & selectAll();
 	BExtQuery & SLAPIV select(DBField,...);
-	int    SLAPI addField(const DBField &);
+	int    addField(const DBField &);
 	void   FASTCALL where(DBQ &);
 	//
 	// Вызов функции fetchFirst должен обязательно предшествовать вызовам fetchNext.
@@ -3827,32 +3827,32 @@ public:
 	// оптимальную стартовую позицию (пока не реализовано). Если же и initKey == 0 и initSpMode < 0,
 	// то fetchFirst полагается на ту позицию, которая установлена перед ее вызовом.
 	//
-	int    SLAPI fetchFirst(void * initKey = 0, int initSpMode = spFirst);
-	int    SLAPI initIteration(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
-	int    SLAPI nextIteration();
-	long   SLAPI countIterations(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
+	int    fetchFirst(void * initKey = 0, int initSpMode = spFirst);
+	int    initIteration(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
+	int    nextIteration();
+	long   countIterations(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
 	int    FASTCALL getRecPosition(DBRowId * pPos);
-	uint   SLAPI getActualCount() const { return ActCount; }
-	int    SLAPI CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const;
+	uint   getActualCount() const { return ActCount; }
+	int    CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const;
 private:
-	void   SLAPI Init(DBTable * pTbl, int idx, uint aBufSize);
-	int    SLAPI search_first(const char * pInitKey, int initSpMode, int spMode);
+	void   Init(DBTable * pTbl, int idx, uint aBufSize);
+	int    search_first(const char * pInitKey, int initSpMode, int spMode);
 	int    FASTCALL _search(int spMode, uint16 signature);
 	int    FASTCALL add_term(int link, int n);
 	int    FASTCALL add_tree(int link, int n);
-	// @v9.8.6 (inlined) BExtTerm * SLAPI get_term(int);
+	// @v9.8.6 (inlined) BExtTerm * get_term(int);
 	//
 	// Descr: Перекидывает данные записи с текущим индексом cur
 	//   из буфера BExtQuery::Buf в буфер записи таблицы данных DBTable::buf.
 	//
-	int    SLAPI fillTblBuf();
+	int    fillTblBuf();
 	//
 	// Descr: Возвращает указатель на образ записи, полученной при
 	//   вызове fetchFirst или fetchNext. n = (0..). Если n == UNDEF, то
 	//   возвращается образ по индексу BExtQuery::cur. Первые
 	//   sizeof(BExtResultItem) байт образа занимает заголовок (см. DB.H).
 	//
-	char * SLAPI getRecImage();
+	char * getRecImage();
 
 	DBTable * P_Tbl;
 	DBQ * P_Restrict;

@@ -6,7 +6,7 @@
 //
 // @ModuleDef(PPViewLocTransf)
 //
-IMPLEMENT_PPFILT_FACTORY(LocTransf); SLAPI LocTransfFilt::LocTransfFilt() : PPBaseFilt(PPFILT_LOCTRANSF, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(LocTransf); LocTransfFilt::LocTransfFilt() : PPBaseFilt(PPFILT_LOCTRANSF, 0, 2)
 {
 	SetFlatChunk(offsetof(LocTransfFilt, ReserveStart),
 		offsetof(LocTransfFilt, LocList) - offsetof(LocTransfFilt, ReserveStart));
@@ -322,22 +322,22 @@ int LocTransfDialog::getDTS(LocTransfTbl::Rec * pData)
 	return ok;
 }
 
-int SLAPI EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec * pData) { DIALOG_PROC_BODY_P1(LocTransfDialog, pPack, pData); }
+int EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec * pData) { DIALOG_PROC_BODY_P1(LocTransfDialog, pPack, pData); }
 //
 //
 //
 int PPViewLocTransf::DynCheckCellParent = 0;
 
-SLAPI PPViewLocTransf::PPViewLocTransf() : PPView(0, &Filt, PPVIEW_LOCTRANSF), P_TempTbl(0)
+PPViewLocTransf::PPViewLocTransf() : PPView(0, &Filt, PPVIEW_LOCTRANSF, 0, 0), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewLocTransf::~PPViewLocTransf()
+PPViewLocTransf::~PPViewLocTransf()
 {
 	delete P_TempTbl;
 }
 
-PPBaseFilt * SLAPI PPViewLocTransf::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewLocTransf::CreateFilt(void * extraPtr) const
 {
 	LocTransfFilt * p_filt = new LocTransfFilt;
 	return p_filt;
@@ -407,7 +407,7 @@ private:
 	}
 };
 
-int SLAPI PPViewLocTransf::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewLocTransf::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	enum {
 		grpLoc = 1,
@@ -420,7 +420,7 @@ int SLAPI PPViewLocTransf::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::UpdateTempRec(PPID tempRecID, PPID locID, int rByLoc, int use_ta)
+int PPViewLocTransf::UpdateTempRec(PPID tempRecID, PPID locID, int rByLoc, int use_ta)
 {
 	int    ok = 1;
 	if(P_TempTbl) {
@@ -453,7 +453,7 @@ int SLAPI PPViewLocTransf::UpdateTempRec(PPID tempRecID, PPID locID, int rByLoc,
 	return ok;
 }
 
-void SLAPI PPViewLocTransf::MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfTbl::Rec & rTempRec)
+void PPViewLocTransf::MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfTbl::Rec & rTempRec)
 {
 	rTempRec.Op = rRec.Op;
 	rTempRec.LocID = rRec.LocID;
@@ -470,7 +470,7 @@ void SLAPI PPViewLocTransf::MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocT
 	rTempRec.Flags = rRec.Flags;
 }
 
-int SLAPI PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
+int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 {
 	int    ok = 1;
 	BExtInsert * p_local_bei = 0;
@@ -542,7 +542,7 @@ int SLAPI PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int u
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::Helper_BuildDispTable(int clearBefore, int use_ta)
+int PPViewLocTransf::Helper_BuildDispTable(int clearBefore, int use_ta)
 {
 	int    ok = -1;
 	if(P_TempTbl) {
@@ -563,7 +563,7 @@ int SLAPI PPViewLocTransf::Helper_BuildDispTable(int clearBefore, int use_ta)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempLocTransf);
 
-int SLAPI PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
+int PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
@@ -608,7 +608,7 @@ int SLAPI PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::InitIteration()
+int PPViewLocTransf::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 0, sp = spFirst;
@@ -728,7 +728,7 @@ static IMPL_DBE_PROC(dbqf_checkcellparent_ii)
 	result->init(r);
 }
 
-DBQuery * SLAPI PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	// LocTransfFilt
 	static DbqStringSubst optype_subst(3);  // @global @threadsafe
@@ -848,7 +848,7 @@ DBQuery * SLAPI PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return p_q;
 }
 
-int SLAPI PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
+int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 {
 	int    ok = -1;
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
@@ -925,7 +925,7 @@ int SLAPI PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
+int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 {
 	int    ok = -1;
 	LocTransfTbl::Rec rec;
@@ -1016,7 +1016,7 @@ int SLAPI PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLo
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::DeleteItem(PPID tempRecID, PPID curLocID, long curRByLoc)
+int PPViewLocTransf::DeleteItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 {
 	int    ok = -1;
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
@@ -1044,7 +1044,7 @@ int SLAPI PPViewLocTransf::DeleteItem(PPID tempRecID, PPID curLocID, long curRBy
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLocTransf::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	Hdr    hdr;
@@ -1062,7 +1062,7 @@ int SLAPI PPViewLocTransf::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLocTransf::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

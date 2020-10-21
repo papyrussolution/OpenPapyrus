@@ -1,5 +1,5 @@
 // _PPO.H
-// Copyright (c) A.Sobolev 2009
+// Copyright (c) A.Sobolev 2009, 2020
 //
 struct PPObjectTag_ {   // @persistent @store(ReferenceTbl+)
 	PPID   Tag;         // Const=PPOBJ_TAG
@@ -136,8 +136,8 @@ struct PPCurRateType_ {    // @persistent @store(ReferenceTbl+)
 };
 
 struct PPAmountType_ {     // @persistent @store(ReferenceTbl+)
-	int    SLAPI IsTax(PPID taxID  /* GTAX_XXX */) const;
-	int    SLAPI IsComplementary() const;
+	int    IsTax(PPID taxID  /* GTAX_XXX */) const;
+	int    IsComplementary() const;
 	enum {
 		fErrOnDefault = 0x0001, // Если сумма в документе отсутствует, то
 			// генерировать сообщение об ошибке
@@ -201,8 +201,8 @@ struct PPOpCounter_ {      // @persistent @store(ReferenceTbl+)
 };
 
 struct PPGdsCls_ {         // @persistent @store(ReferenceTbl+)
-	static int   SLAPI IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, const GoodsExtTbl::Rec * p2);
-	void   SLAPI SetDynGenMask(int fld, int val);
+	static int   IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, const GoodsExtTbl::Rec * p2);
+	void   SetDynGenMask(int fld, int val);
 	int    FASTCALL GetDynGenMask(int fld) const;
 
 	enum { // @persistent
@@ -265,7 +265,7 @@ struct PPAssetWrOffGrp_ {  // @persistent @store(ReferenceTbl+)
 };
 
 struct PPOprKind_ {        // @persistent @store(ReferenceTbl+)
-	SLAPI  PPOprKind_()
+	PPOprKind_()
 	{
 		THISZERO();
 	}
@@ -347,7 +347,7 @@ struct PPCashNode_ {       // @persistent @store(ReferenceTbl+)
 };
 
 struct PPLocPrinter_ {     // @persistent @store(ReferenceTbl+)
-	SLAPI  PPLocPrinter_()
+	PPLocPrinter_()
 	{
 		THISZERO();
 	}
@@ -361,11 +361,11 @@ struct PPLocPrinter_ {     // @persistent @store(ReferenceTbl+)
 };
 
 struct PPBarcodePrinter_ { // @persistent @store(ReferenceTbl+)
-	SLAPI  PPBarcodePrinter_()
+	PPBarcodePrinter_()
 	{
 		THISZERO();
 	}
-	int    SLAPI Normalyze();
+	int    Normalyze();
 
 	enum {
 		fPortEx = 0x0001 // Запись использует расширенное поле имени порта вывода
@@ -402,7 +402,7 @@ struct PPStyloPalm_ {      // @persistent @store(ReferenceTbl+)
 };
 
 struct PPTouchScreen_ {    // @persistent @store(ReferenceTbl+)
-	SLAPI  PPTouchScreen_()
+	PPTouchScreen_()
 	{
 		THISZERO();
 	}
@@ -424,26 +424,26 @@ struct PPInternetAccount_ { // @persistent @store(ReferenceTbl+)
 	enum {
 		fFtpAccount = 0x00000001L
 	};
-	SLAPI  PPInternetAccount_()
+	PPInternetAccount_()
 	{
 		THISZERO();
 	}
-	void   SLAPI Init()
+	void   Init()
 	{
 		ExtStr = 0;
 		memzero(this, sizeof(*this)-sizeof(ExtStr));
 	}
-	int    SLAPI Cmp(PPInternetAccount_ * pAccount);
-	int    SLAPI NotEmpty();
-	int    SLAPI GetExtField(int fldID, char * pBuf, size_t bufLen);
-	int    SLAPI GetExtField(int fldID, SString & rBuf);
-	int    SLAPI SetExtField(int fldID, const char * pBuf);
-	int    SLAPI SetPassword(const char *, int fldID = MAEXSTR_RCVPASSWORD); // @v5.0.1 AHTOXA change
-	int    SLAPI GetPassword(char * pBuf, size_t bufLen, int fldID = MAEXSTR_RCVPASSWORD); // @v5.0.1 AHTOXA change
-	int    SLAPI SetMimedPassword(const char * pPassword, int fldID  = MAEXSTR_RCVPASSWORD); // @v5.3.5 AHTOXA
-	int    SLAPI GetMimedPassword(char * pBuf, size_t bufLen, int fldID = MAEXSTR_RCVPASSWORD); // @v5.3.5 AHTOXA
-	int    SLAPI GetSendPort();
-	int    SLAPI GetRcvPort();
+	int    Cmp(PPInternetAccount_ * pAccount);
+	int    NotEmpty();
+	int    GetExtField(int fldID, char * pBuf, size_t bufLen);
+	int    GetExtField(int fldID, SString & rBuf);
+	int    SetExtField(int fldID, const char * pBuf);
+	int    SetPassword(const char *, int fldID = MAEXSTR_RCVPASSWORD); // @v5.0.1 AHTOXA change
+	int    GetPassword(char * pBuf, size_t bufLen, int fldID = MAEXSTR_RCVPASSWORD); // @v5.0.1 AHTOXA change
+	int    SetMimedPassword(const char * pPassword, int fldID  = MAEXSTR_RCVPASSWORD); // @v5.3.5 AHTOXA
+	int    GetMimedPassword(char * pBuf, size_t bufLen, int fldID = MAEXSTR_RCVPASSWORD); // @v5.3.5 AHTOXA
+	int    GetSendPort();
+	int    GetRcvPort();
 	//
 	long   Tag;            // Const=PPOBJ_INTERNETACCOUNT
 	long   ID;             //
@@ -510,8 +510,8 @@ struct PPGoodsStrucHeader_ { // @persistent @store(ReferenceTbl+)
 };
 
 struct PPGoodsTax_ {       // @persistent @store(ReferenceTbl+)
-	int    SLAPI ToEntry(PPGoodsTaxEntry *) const;
-	int    SLAPI FromEntry(const PPGoodsTaxEntry *);
+	int    ToEntry(PPGoodsTaxEntry *) const;
+	int    FromEntry(const PPGoodsTaxEntry *);
 	PPID   Tag;            // Const=PPOBJ_GOODSTAX
 	PPID   ID;             //
 	char   Name[30];       //
@@ -697,7 +697,7 @@ struct PPGoodsInfo_ {      // @persistent @store(ReferenceTbl+)
 };
 
 struct PPScale_ {          // @persistent @store(ReferenceTbl+)
-	int    SLAPI IsValidBcPrefix() const
+	int    IsValidBcPrefix() const
 	{
 		return BIN((BcPrefix >= 200 && BcPrefix <= 299) || (BcPrefix >= 20 && BcPrefix <= 29));
 	}

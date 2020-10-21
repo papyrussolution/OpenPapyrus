@@ -18,22 +18,22 @@ static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter 
 
 class ACS_FRONTOL : public PPAsyncCashSession {
 public:
-	explicit SLAPI ACS_FRONTOL(PPID id);
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
-	virtual int SLAPI FinishImportSession(PPIDArray *);
-	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly);
+	explicit ACS_FRONTOL(PPID id);
+	virtual int ExportData(int updOnly);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
+	virtual int FinishImportSession(PPIDArray *);
+	virtual int SetGoodsRestLoadFlag(int updOnly);
 protected:
 	PPID   StatID;
 private:
-	int    SLAPI IsXPos(const PPAsyncCashNode & rCn) const { return BIN(rCn.DrvVerMajor >= 10); }
-	int    SLAPI ConvertWareList(const char * pImpPath);
-	long   SLAPI ModifDup(long cashNo, long chkNo);
-	int    SLAPI ImportFiles();
-	int    SLAPI GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList);
-	int    SLAPI QueryFile(uint setNo, const char * pImpPath);
-	int    SLAPI ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult); // @construction
+	int    IsXPos(const PPAsyncCashNode & rCn) const { return BIN(rCn.DrvVerMajor >= 10); }
+	int    ConvertWareList(const char * pImpPath);
+	long   ModifDup(long cashNo, long chkNo);
+	int    ImportFiles();
+	int    GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList);
+	int    QueryFile(uint setNo, const char * pImpPath);
+	int    ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult); // @construction
 
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
@@ -56,10 +56,10 @@ private:
 
 class CM_FRONTOL : public PPCashMachine {
 public:
-	SLAPI CM_FRONTOL(PPID cashID) : PPCashMachine(cashID)
+	CM_FRONTOL(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_FRONTOL(NodeID); }
+	PPAsyncCashSession * AsyncInterface() { return new ACS_FRONTOL(NodeID); }
 };
 
 #define CM_ATOLWOATOLCARD  CM_ATOL
@@ -67,7 +67,7 @@ public:
 
 REGISTER_CMT(FRONTOL,0,1);
 
-SLAPI ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0), SkipExportingDiscountSchemes(0)
+ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0), SkipExportingDiscountSchemes(0)
 {
 	int    v = 0;
 	PPIniFile ini_file;
@@ -82,7 +82,7 @@ SLAPI ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(
 	ChkRepPeriod.Z();
 }
 
-int SLAPI ACS_FRONTOL::SetGoodsRestLoadFlag(int updOnly)
+int ACS_FRONTOL::SetGoodsRestLoadFlag(int updOnly)
 {
 	int    ok = -1, use_replace_qtty_wosale = 0;
 	PPIniFile  ini_file;
@@ -96,7 +96,7 @@ int SLAPI ACS_FRONTOL::SetGoodsRestLoadFlag(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult) // @construction
+int ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult) // @construction
 {
 	int    ok = 1;
 	// $$$ADDMARKETINGACTIONS (1..12)
@@ -178,7 +178,7 @@ int SLAPI ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsR
 		for(uint scsidx = 0; scsidx < scs_list.getCount(); scsidx++) {
 			const PPID scs_id = scs_list.get(scsidx);
 			if(scs_obj.GetPacket(scs_id, &scs_pack) > 0 && scs_pack.Rec.PDis != 0) {
-				//int SLAPI SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
+				//int SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
 				TSCollection <SCardCore::PrefixRange> prefix_ranges;
 				CC.Cards.GetPrefixRanges(scs_id, 10, prefix_ranges);
 				if(prefix_ranges.getCount()) {
@@ -214,7 +214,7 @@ int SLAPI ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsR
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::ExportData(int updOnly)
+int ACS_FRONTOL::ExportData(int updOnly)
 {
 	int    ok = 1, next_barcode = 0;
 	uint   i;
@@ -787,7 +787,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::ImportFiles()
+int ACS_FRONTOL::ImportFiles()
 {
 	long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  char * p_ftp_flag = "ftp:";
@@ -939,7 +939,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = -1;
 	const  LDATE _cur_date = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
@@ -1029,7 +1029,7 @@ int SLAPI ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, Da
 
 #define FRONTOL_DUPCHECK_OFFS 0x3FFF8000
 
-long SLAPI ACS_FRONTOL::ModifDup(long cashNo, long chkNo)
+long ACS_FRONTOL::ModifDup(long cashNo, long chkNo)
 {
 	/*
 	if(Acn.ExtFlags & CASHFX_CREATEOBJSONIMP)
@@ -1039,7 +1039,7 @@ long SLAPI ACS_FRONTOL::ModifDup(long cashNo, long chkNo)
 	return chkNo;
 }
 
-int SLAPI ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
+int ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 {
 	int    ok = 1, field_no = 0;
 	SString path, buf;
@@ -1122,7 +1122,7 @@ int SLAPI ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRep
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
+int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 {
 	int    ok = 1;
 	int    field_no;
@@ -1500,7 +1500,7 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
+int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 {
 	int    ok = 1, notify_timeout = NZOR(ImpExpTimeout, 5000);
 	const  int is_xpos = IsXPos(Acn); // @v10.8.2
@@ -1578,7 +1578,7 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::ImportSession(int)
+int ACS_FRONTOL::ImportSession(int)
 {
 	int    ok = 1;
 	THROW(CreateTables());
@@ -1597,7 +1597,7 @@ int SLAPI ACS_FRONTOL::ImportSession(int)
 	return ok;
 }
 
-int SLAPI ACS_FRONTOL::FinishImportSession(PPIDArray * pSessList)
+int ACS_FRONTOL::FinishImportSession(PPIDArray * pSessList)
 {
 	//
 	// Удалим файлы импорта.

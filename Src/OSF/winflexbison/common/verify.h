@@ -32,16 +32,16 @@
    For now, use this only with GCC.  Eventually whether _Static_assert
    and static_assert works should be determined by 'configure'.  */
 #if (4 < __GNUC__ || (__GNUC__ == 4 && 6 <= __GNUC_MINOR__)) && !defined __cplusplus
-#  define HAVE__STATIC_ASSERT 1
+	#define HAVE__STATIC_ASSERT 1
 #endif
 /* The condition (99 < __GNUC__) is temporary, until we know about the
    first G++ release that supports static_assert.  */
 #if (99 < __GNUC__) && defined __cplusplus
-#  define HAVE_STATIC_ASSERT 1
+	#define HAVE_STATIC_ASSERT 1
 #endif
 
 // for windows compiler
-#  define HAVE_STATIC_ASSERT 1
+#define HAVE_STATIC_ASSERT 1
 
 /* Each of these macros verifies that its argument R is nonzero.  To
    be portable, R should be an integer constant expression.  Unlike

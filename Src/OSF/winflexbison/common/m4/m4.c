@@ -36,39 +36,19 @@
 
 static void usage(int) M4_GNUC_NORETURN;
 
-/* Enable sync output for /lib/cpp (-s).  */
-int sync_output = 0;
-
-/* Debug (-d[flags]).  */
-int debug_level = 0;
-
-/* Hash table size (should be a prime) (-Hsize).  */
-size_t hash_table_size = HASHMAX;
-
-/* Disable GNU extensions (-G).  */
-int no_gnu_extensions = 0;
-
-/* Prefix all builtin functions by `m4_'.  */
-int prefix_all_builtins = 0;
-
-/* Max length of arguments in trace output (-lsize).  */
-int max_debug_argument_length = 0;
-
-/* Suppress warnings about missing arguments.  */
-int suppress_warnings = 0;
-
-/* If true, then warnings affect exit status.  */
-static bool fatal_warnings = false;
-
-/* If not zero, then value of exit status for warning diagnostics.  */
-int warning_status = 0;
-
-/* Artificial limit for expansion_level in macro.c.  */
-int nesting_limit = 1024;
+int sync_output = 0; /* Enable sync output for /lib/cpp (-s).  */
+int debug_level = 0; /* Debug (-d[flags]).  */
+size_t hash_table_size = HASHMAX; /* Hash table size (should be a prime) (-Hsize).  */
+int no_gnu_extensions = 0; /* Disable GNU extensions (-G).  */
+int prefix_all_builtins = 0; /* Prefix all builtin functions by `m4_'.  */
+int max_debug_argument_length = 0; /* Max length of arguments in trace output (-lsize).  */
+int suppress_warnings = 0; /* Suppress warnings about missing arguments.  */
+static bool fatal_warnings = false; /* If true, then warnings affect exit status.  */
+int warning_status = 0; /* If not zero, then value of exit status for warning diagnostics.  */
+int nesting_limit = 1024; /* Artificial limit for expansion_level in macro.c.  */
 
 #ifdef ENABLE_CHANGEWORD
-/* User provided regexp for describing m4 words.  */
-const char * user_word_regexp = "";
+	const char * user_word_regexp = ""; /* User provided regexp for describing m4 words.  */
 #endif
 
 /* Global catchall for any errors that should affect final error status, but
@@ -76,8 +56,8 @@ const char * user_word_regexp = "";
 int retcode;
 
 struct macro_definition {
-	struct macro_definition * next;
-	int code; /* D, U, s, t, '\1', or DEBUGFILE_OPTION.  */
+	macro_definition * next;
+	int code; // D, U, s, t, '\1', or DEBUGFILE_OPTION
 	const char * arg;
 };
 
@@ -93,8 +73,7 @@ void m4_error(int status, int errnum, const char * format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	verror_at_line(status, errnum, current_line ? current_file : NULL,
-	    current_line, format, args);
+	verror_at_line(status, errnum, current_line ? current_file : NULL, current_line, format, args);
 	if(fatal_warnings && !retcode)
 		retcode = EXIT_FAILURE;
 }
@@ -103,8 +82,7 @@ void m4_error(int status, int errnum, const char * format, ...)
 | Wrapper around error_at_line.  |
    `-------------------------------*/
 
-void m4_error_at_line(int status, int errnum, const char * file, int line,
-    const char * format, ...)
+void m4_error_at_line(int status, int errnum, const char * file, int line, const char * format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -114,15 +92,13 @@ void m4_error_at_line(int status, int errnum, const char * file, int line,
 }
 
 #ifndef SIGBUS
-#define SIGBUS SIGILL
+	#define SIGBUS SIGILL
 #endif
-
 #ifndef NSIG
-# ifndef MAX
-#  define MAX(a, b) ((a) < (b) ? (b) : (a))
-#endif
-#define NSIG (MAX(SIGABRT, MAX(SIGILL, MAX(SIGFPE,  \
-	MAX(SIGSEGV, SIGBUS)))) + 1)
+	#ifndef MAX
+		#define MAX(a, b) ((a) < (b) ? (b) : (a))
+	#endif
+	#define NSIG (MAX(SIGABRT, MAX(SIGILL, MAX(SIGFPE, MAX(SIGSEGV, SIGBUS)))) + 1)
 #endif
 
 /* Pre-translated messages for program errors.  Do not translate in

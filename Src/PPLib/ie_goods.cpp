@@ -9,12 +9,12 @@
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(QUOTVAL, PPQuotImpExpParam);
 
-SLAPI PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
 {
 	Clear();
 }
 
-void SLAPI PPQuotImpExpParam::Clear()
+void PPQuotImpExpParam::Clear()
 {
 	QuotKindID = 0;
 	CurrID = 0;
@@ -174,7 +174,7 @@ void QuotImpExpDialog::SetupCtrls(long direction)
 	disableCtrls(direction == 0, CTLSEL_IMPEXPQUOT_QK, CTLSEL_IMPEXPQUOT_CURR, CTLSEL_IMPEXPQUOT_AR, CTLSEL_IMPEXPQUOT_LOC, 0L);
 }
 
-int SLAPI EditQuotImpExpParam(const char * pIniSection)
+int EditQuotImpExpParam(const char * pIniSection)
 {
 	int    ok = -1;
 	QuotImpExpDialog * dlg = 0;
@@ -217,16 +217,16 @@ int SLAPI EditQuotImpExpParam(const char * pIniSection)
 //
 class PPQuotImporter {
 public:
-	SLAPI  PPQuotImporter() : P_IE(0)
+	PPQuotImporter() : P_IE(0)
 	{
 	}
-	SLAPI ~PPQuotImporter()
+	~PPQuotImporter()
 	{
 		ZDELETE(P_IE);
 	}
-	int    SLAPI Run(const char * pCfgName, int use_ta);
+	int    Run(const char * pCfgName, int use_ta);
 private:
-	PPID   SLAPI IdentifyArticle(const Sdr_QuotVal & rRec, ArticleTbl::Rec * pArRec)
+	PPID   IdentifyArticle(const Sdr_QuotVal & rRec, ArticleTbl::Rec * pArRec)
 	{
 		PPID   ar_id = 0;
 		ArticleTbl::Rec ar_rec;
@@ -248,7 +248,7 @@ private:
 	PPObjLocation LocObj;
 };
 
-static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
+static int SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 {
 	const uint _rec_ident = PPREC_QUOTVAL;
 
@@ -295,7 +295,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 	return ok;
 }
 
-int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
+int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 {
 	const uint _rec_ident = PPREC_QUOTVAL;
 
@@ -447,7 +447,7 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjGoods::ImportQuot(const char * pCfgName, int use_ta)
+int PPObjGoods::ImportQuot(const char * pCfgName, int use_ta)
 {
 	PPQuotImporter qi;
 	return qi.Run(pCfgName, use_ta);
@@ -457,12 +457,12 @@ int SLAPI PPObjGoods::ImportQuot(const char * pCfgName, int use_ta)
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(GOODS2, PPGoodsImpExpParam);
 
-SLAPI PPGoodsImpExpParam::PPGoodsImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPGoodsImpExpParam::PPGoodsImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
 {
 	Clear();
 }
 
-void SLAPI PPGoodsImpExpParam::Clear()
+void PPGoodsImpExpParam::Clear()
 {
 	AccSheetID    = 0;
 	SupplID       = 0;
@@ -703,7 +703,7 @@ void GoodsImpExpDialog::SetupCtrls(long direction)
 	DisableClusterItem(CTL_IMPEXPGOODS_FLAGS, 5, direction == 0);
 }
 
-int SLAPI EditGoodsImpExpParams(const char * pIniSection)
+int EditGoodsImpExpParams(const char * pIniSection)
 {
 	int    ok = -1;
 	GoodsImpExpDialog * dlg = 0;
@@ -766,7 +766,7 @@ int EditGoodsImpExpParams()
 	return ok;
 }
 
-int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
+int SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 {
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = 0;
@@ -837,7 +837,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 //
 // Export
 //
-SLAPI PPGoodsExporter::PPGoodsExporter()
+PPGoodsExporter::PPGoodsExporter()
 {
 	P_GObj = new PPObjGoods;
 	P_PsnObj = new PPObjPerson;
@@ -849,7 +849,7 @@ SLAPI PPGoodsExporter::PPGoodsExporter()
 	STRNSCPY(WeightPrefix, goods_cfg.WghtPrefix);
 }
 
-SLAPI PPGoodsExporter::~PPGoodsExporter()
+PPGoodsExporter::~PPGoodsExporter()
 {
 	ZDELETE(P_IEGoods);
 	delete P_QcObj;
@@ -857,7 +857,7 @@ SLAPI PPGoodsExporter::~PPGoodsExporter()
 	delete P_GObj;
 }
 
-int SLAPI PPGoodsExporter::Init(const PPGoodsImpExpParam * pParam)
+int PPGoodsExporter::Init(const PPGoodsImpExpParam * pParam)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(Param, pParam)) {
@@ -879,7 +879,7 @@ static void FASTCALL PreprocessGoodsExtText(SString & rBuf, char * pDestBuf, siz
     strnzcpy(pDestBuf, rBuf, destBufLen);
 }
 
-int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID /*=0*/)
+int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID /*=0*/)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1170,14 +1170,14 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 //
 class PPGoodsImporter {
 public:
-	SLAPI  PPGoodsImporter() : P_IE(0), IsHier(0), UseTaxes(1)
+	PPGoodsImporter() : P_IE(0), IsHier(0), UseTaxes(1)
 	{
 	}
-	SLAPI ~PPGoodsImporter()
+	~PPGoodsImporter()
 	{
 		ZDELETE(P_IE);
 	}
-	int    SLAPI Run(const char * pCfgName, int use_ta);
+	int    Run(const char * pCfgName, int use_ta);
 private:
 	class ImageFileBlock : public SStrGroup {
 	public:
@@ -1197,20 +1197,20 @@ private:
 		SPathStruc Ps;
 		SString TempBuf; // @allocreuse
 	};
-	int    SLAPI Helper_ImportHier(PPID defUnitID, HierArray * pHierList);
-	int    SLAPI LoadHierList(HierArray * pList);
-	int    SLAPI PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID);
-	int    SLAPI PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
-	int    SLAPI PutExtStrData(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
-	int    SLAPI PutUnit(const Sdr_Goods2 & pRec, PPID defPhUnitID, PPID defUnitID, PPGoodsPacket * pPack);
-	int    SLAPI Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID);
-	int    SLAPI Resolve_Manuf(const Sdr_Goods2 & rRec, PPID * pManufID);
-	int    SLAPI CreateGoodsPacket(const Sdr_Goods2 & rRec, const char * pBarcode, PPGoodsPacket * pPack, PPLogger & rLogger);
-	int    SLAPI AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
-	int    SLAPI AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack, PPLogger & rLogger);
-	int    SLAPI AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack); // @v10.3.4
-	int    SLAPI Helper_ProcessDirForImages(const char * pPath, ImageFileBlock & rBlk);
-	void   SLAPI SetupNameExt(PPGoodsPacket & rPack, const SString & rGoodsNameExt, const char * pExtLongNameLetter);
+	int    Helper_ImportHier(PPID defUnitID, HierArray * pHierList);
+	int    LoadHierList(HierArray * pList);
+	int    PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID);
+	int    PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
+	int    PutExtStrData(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
+	int    PutUnit(const Sdr_Goods2 & pRec, PPID defPhUnitID, PPID defUnitID, PPGoodsPacket * pPack);
+	int    Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID);
+	int    Resolve_Manuf(const Sdr_Goods2 & rRec, PPID * pManufID);
+	int    CreateGoodsPacket(const Sdr_Goods2 & rRec, const char * pBarcode, PPGoodsPacket * pPack, PPLogger & rLogger);
+	int    AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
+	int    AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack, PPLogger & rLogger);
+	int    AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack); // @v10.3.4
+	int    Helper_ProcessDirForImages(const char * pPath, ImageFileBlock & rBlk);
+	void   SetupNameExt(PPGoodsPacket & rPack, const SString & rGoodsNameExt, const char * pExtLongNameLetter);
 
 	int    IsHier;
 	int    UseTaxes;
@@ -1231,7 +1231,7 @@ struct CommonUnit { // @flat
 	double Rate;     // Отношение base / this
 };
 
-int SLAPI PPLoadCommonUnits(TSVector <CommonUnit> * pList) // @v9.8.4 TSArray-->TSVector
+int PPLoadCommonUnits(TSVector <CommonUnit> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -1265,9 +1265,9 @@ public:
 		uint   LexCount;
 		SString ProcessedText;
 	};
-	SLAPI  TextFieldAnalyzer();
-	SLAPI ~TextFieldAnalyzer();
-	int    SLAPI Process(const char * pText, RetBlock * pBlk);
+	TextFieldAnalyzer();
+	~TextFieldAnalyzer();
+	int    Process(const char * pText, RetBlock * pBlk);
 
 	SymbHashTable Words;
 	RAssocArray WordCounter;
@@ -1302,13 +1302,13 @@ private:
 	SString TempBuf; // @allocreuse
 };
 
-SLAPI TextFieldAnalyzer::TextFieldAnalyzer() : Words(100000, 1), ReInit(0), LastWordId(0)
+TextFieldAnalyzer::TextFieldAnalyzer() : Words(100000, 1), ReInit(0), LastWordId(0)
 {
 	PPLoadCommonUnits(&Units);
 	PPLoadText(PPTXT_GOODSPREFIXES_RUS, Prefixes);
 }
 
-SLAPI TextFieldAnalyzer::~TextFieldAnalyzer()
+TextFieldAnalyzer::~TextFieldAnalyzer()
 {
 }
 
@@ -1365,7 +1365,7 @@ int FASTCALL TextFieldAnalyzer::ScanLex(SString & rBuf)
 	return lex;
 }
 
-int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
+int TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 {
 	// "бесплатно!,бесплатно,беспл"
 	int    ok = 1;
@@ -1532,7 +1532,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::LoadHierList(HierArray * pList)
+int PPGoodsImporter::LoadHierList(HierArray * pList)
 {
 	int    ok = 1;
 	P_IE->CloseFile();
@@ -1549,7 +1549,7 @@ int SLAPI PPGoodsImporter::LoadHierList(HierArray * pList)
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::Helper_ImportHier(PPID defUnitID, HierArray * pHierList)
+int PPGoodsImporter::Helper_ImportHier(PPID defUnitID, HierArray * pHierList)
 {
 	int    ok = 1;
 	uint   i = 0;
@@ -1608,7 +1608,7 @@ int SLAPI PPGoodsImporter::Helper_ImportHier(PPID defUnitID, HierArray * pHierLi
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID)
+int PPGoodsImporter::PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID)
 {
 	int    ok = 1;
 	PPID   qcert_id = 0;
@@ -1634,7 +1634,7 @@ int SLAPI PPGoodsImporter::PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID)
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::PutExtStrData(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
+int PPGoodsImporter::PutExtStrData(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack) {
@@ -1649,7 +1649,7 @@ int SLAPI PPGoodsImporter::PutExtStrData(const Sdr_Goods2 & rRec, PPGoodsPacket 
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
+int PPGoodsImporter::PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
 {
 	int    ok = -1;
 	if(UseTaxes && pPack) {
@@ -1660,7 +1660,7 @@ int SLAPI PPGoodsImporter::PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PPID defUnitID, PPGoodsPacket * pPack)
+int PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PPID defUnitID, PPGoodsPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack) {
@@ -1711,7 +1711,7 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID)
+int PPGoodsImporter::Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID)
 {
 	int    ok = 1;
 	PPID   parent_id = 0;
@@ -1742,7 +1742,7 @@ int SLAPI PPGoodsImporter::Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID)
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::Resolve_Manuf(const Sdr_Goods2 & rRec, PPID * pManufID)
+int PPGoodsImporter::Resolve_Manuf(const Sdr_Goods2 & rRec, PPID * pManufID)
 {
 	int    ok = 1;
 	PPID   manuf_id = 0;
@@ -1770,7 +1770,7 @@ int SLAPI PPGoodsImporter::Resolve_Manuf(const Sdr_Goods2 & rRec, PPID * pManufI
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
+int PPGoodsImporter::AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack->Rec.GdsClsID) {
@@ -1815,7 +1815,7 @@ int SLAPI PPGoodsImporter::AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket 
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::CreateGoodsPacket(const Sdr_Goods2 & rRec, const char * pBarcode, PPGoodsPacket * pPack, PPLogger & rLogger)
+int PPGoodsImporter::CreateGoodsPacket(const Sdr_Goods2 & rRec, const char * pBarcode, PPGoodsPacket * pPack, PPLogger & rLogger)
 {
 	int    ok = 1;
 	PPID   parent_id = 0;
@@ -1921,7 +1921,7 @@ int PPGoodsImporter::ImageFileBlock::SetFile(const char * pFileName, PPID goodsI
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageFileBlock & rBlk)
+int PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageFileBlock & rBlk)
 {
 	int    ok = 1;
 	SString temp_buf, code_buf;
@@ -2012,7 +2012,7 @@ int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageF
 	return ok;
 }
 
-void SLAPI PPGoodsImporter::SetupNameExt(PPGoodsPacket & rPack, const SString & rGoodsNameExt, const char * pExtLongNameLetter)
+void PPGoodsImporter::SetupNameExt(PPGoodsPacket & rPack, const SString & rGoodsNameExt, const char * pExtLongNameLetter)
 {
 	const char ext_letter = pExtLongNameLetter ? toupper(pExtLongNameLetter[0]) : 0;
 	if(ext_letter && rGoodsNameExt.NotEmpty()) {
@@ -2028,7 +2028,7 @@ void SLAPI PPGoodsImporter::SetupNameExt(PPGoodsPacket & rPack, const SString & 
 	}
 }
 
-int SLAPI PPGoodsImporter::AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack) 	// @v10.3.4 
+int PPGoodsImporter::AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack) 	// @v10.3.4 
 {
 	const  long org_flags = pPack->Rec.Flags;
 	if(!isempty(rRec.FlgPassive)) {
@@ -2043,7 +2043,7 @@ int SLAPI PPGoodsImporter::AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * 
 	return (pPack->Rec.Flags != org_flags) ? 1 : -1;
 }
 
-int SLAPI PPGoodsImporter::AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack, PPLogger & rLogger)
+int PPGoodsImporter::AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack, PPLogger & rLogger)
 {
 	int    ok = -1;
 	if(rRec.EgaisCode[0]) {
@@ -2070,7 +2070,7 @@ int SLAPI PPGoodsImporter::AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacke
 	return ok;
 }
 
-int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
+int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 {
 	const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
 
@@ -2803,7 +2803,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjGoods::Import(const char * pCfgName, int analyze, int use_ta)
+int PPObjGoods::Import(const char * pCfgName, int analyze, int use_ta)
 {
 	PPGoodsImporter gi;
 	return gi.Run(pCfgName, use_ta);
@@ -2883,7 +2883,7 @@ static IMPL_CMPFUNC(CategoryConcordAssoc_ByText, p1, p2)
 		return 0;
 }
 
-int SLAPI ExportUhttForGitHub()
+int ExportUhttForGitHub()
 {
 	int    ok = 1;
 	struct Stat {
@@ -3125,7 +3125,7 @@ int SLAPI ExportUhttForGitHub()
 	return ok;
 }
 
-int SLAPI ReformatIceCat(const char * pFileName)
+int ReformatIceCat(const char * pFileName)
 {
 	int    ok = 1;
 	SString line_buf;

@@ -69,29 +69,29 @@ int TcpSocket::SslBlock::Select(int mode /* TcpSocket::mXXX */, int timeout, siz
 int TcpSocket::SslBlock::Read(void * pBuf, int bufLen) { return P_S ? SSL_read(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
 int TcpSocket::SslBlock::Write(const void * pBuf, int bufLen) { return P_S ? SSL_write(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
 
-SLAPI TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), MaxConn(maxConn), LastSockErr(0), P_Ssl(0)
+TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), MaxConn(maxConn), LastSockErr(0), P_Ssl(0)
 {
 	Reset();
 }
 
-SLAPI TcpSocket::~TcpSocket()
+TcpSocket::~TcpSocket()
 {
 	Disconnect();
 }
 
-int SLAPI TcpSocket::IsValid() const { return BIN(S != INVALID_SOCKET); }
-int SLAPI TcpSocket::GetTimeout() const { return Timeout; }
-int SLAPI TcpSocket::Connect(SslMode sslm, const InetAddr & rAddr) { return Helper_Connect(sslm, rAddr); }
-int SLAPI TcpSocket::Connect(const InetAddr & rAddr) { return Helper_Connect(sslmNone, rAddr); }
+int TcpSocket::IsValid() const { return BIN(S != INVALID_SOCKET); }
+int TcpSocket::GetTimeout() const { return Timeout; }
+int TcpSocket::Connect(SslMode sslm, const InetAddr & rAddr) { return Helper_Connect(sslm, rAddr); }
+int TcpSocket::Connect(const InetAddr & rAddr) { return Helper_Connect(sslmNone, rAddr); }
 
-void SLAPI TcpSocket::Reset()
+void TcpSocket::Reset()
 {
 	ZDELETE(P_Ssl);
 	S = INVALID_SOCKET;
 	MEMSZERO(StatData);
 }
 
-int SLAPI TcpSocket::MoveToS(TcpSocket & rDest, int force /*=0*/)
+int TcpSocket::MoveToS(TcpSocket & rDest, int force /*=0*/)
 {
 	int    ok = 0;
 	if(!rDest.IsValid()) {
@@ -112,7 +112,7 @@ int SLAPI TcpSocket::MoveToS(TcpSocket & rDest, int force /*=0*/)
 	return ok;
 }
 
-int SLAPI TcpSocket::CopyS(TcpSocket & rSrc)
+int TcpSocket::CopyS(TcpSocket & rSrc)
 {
 	int    ok = 0;
 	WSAPROTOCOL_INFO sock_info;
@@ -133,7 +133,7 @@ int SLAPI TcpSocket::CopyS(TcpSocket & rSrc)
 }
 
 // private
-int SLAPI TcpSocket::Init(SOCKET s)
+int TcpSocket::Init(SOCKET s)
 {
 	Disconnect();
 	Reset();
@@ -150,7 +150,7 @@ int SLAPI TcpSocket::Init(SOCKET s)
 	return IsValid();
 }
 
-int SLAPI TcpSocket::CheckErrorStatus()
+int TcpSocket::CheckErrorStatus()
 {
 	int    ok = 1;
 	int    err = 0;
@@ -176,7 +176,7 @@ int FASTCALL TcpSocket::SetTimeout(int timeout)
 		return 0;
 }
 
-int SLAPI TcpSocket::Helper_Connect(SslMode sslm, const InetAddr & rAddr)
+int TcpSocket::Helper_Connect(SslMode sslm, const InetAddr & rAddr)
 {
 	int    ok = 1, err;
 	sockaddr_in addr;
@@ -230,7 +230,7 @@ int SLAPI TcpSocket::Helper_Connect(SslMode sslm, const InetAddr & rAddr)
 	return ok;
 }
 
-int SLAPI TcpSocket::Bind(const InetAddr & rAddr)
+int TcpSocket::Bind(const InetAddr & rAddr)
 {
 	int    ok = 1;
 	sockaddr_in addr;
@@ -243,7 +243,7 @@ int SLAPI TcpSocket::Bind(const InetAddr & rAddr)
 	return ok;
 }
 
-int SLAPI TcpSocket::GetSockName(InetAddr * pAddr, int peer)
+int TcpSocket::GetSockName(InetAddr * pAddr, int peer)
 {
 	int    ok = 1;
 	struct sockaddr_in addr;
@@ -265,7 +265,7 @@ int SLAPI TcpSocket::GetSockName(InetAddr * pAddr, int peer)
 	return ok;
 }
 
-int SLAPI TcpSocket::Disconnect()
+int TcpSocket::Disconnect()
 {
 	int    ok = 1;
 	ZDELETE(P_Ssl);
@@ -279,12 +279,12 @@ int SLAPI TcpSocket::Disconnect()
 	return ok;
 }
 
-int SLAPI TcpSocket::Listen()
+int TcpSocket::Listen()
 {
 	return ::listen(S, MaxConn) ? (SLibError = SLERR_SOCK_LISTEN, 0) : 1;
 }
 
-int SLAPI TcpSocket::Accept(TcpSocket * pCliSock, InetAddr * pCliAdr)
+int TcpSocket::Accept(TcpSocket * pCliSock, InetAddr * pCliAdr)
 {
 	int    ok = 1;
 	struct sockaddr_in cli_addr;
@@ -309,7 +309,7 @@ int SLAPI TcpSocket::Accept(TcpSocket * pCliSock, InetAddr * pCliAdr)
 //
 //
 //
-int SLAPI TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize)
+int TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize)
 {
 	int    ok = 1;
 	if(P_Ssl) {
@@ -385,7 +385,7 @@ int FASTCALL TcpSocket::Helper_Recv(void * pBuf, size_t size)
 	return (P_Ssl == 0) ? ::recv(S, (char *)pBuf, size, 0) : P_Ssl->Read(pBuf, size);
 }
 
-int SLAPI TcpSocket::Recv(void * pBuf, size_t size, size_t * pRcvdSize)
+int TcpSocket::Recv(void * pBuf, size_t size, size_t * pRcvdSize)
 {
 	int    ok = 1;
 	size_t rcvd_size = 0;
@@ -404,7 +404,7 @@ int SLAPI TcpSocket::Recv(void * pBuf, size_t size, size_t * pRcvdSize)
 	return ok;
 }
 
-int SLAPI TcpSocket::RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcvdSize)
+int TcpSocket::RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcvdSize)
 {
 	int    ok = 1;
 	const  size_t term_len = (pTerminator == 0) ? 0 : ((pTerminator[0] == 0) ? 1 : sstrlen(pTerminator));
@@ -445,7 +445,7 @@ int SLAPI TcpSocket::RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t 
 	return ok;
 }
 
-int SLAPI TcpSocket::RecvBuf(SBuffer & rBuf, size_t size, size_t * pRcvdSize)
+int TcpSocket::RecvBuf(SBuffer & rBuf, size_t size, size_t * pRcvdSize)
 {
 	int    ok = 1;
 	size_t total_sz = 0;
@@ -478,7 +478,7 @@ int SLAPI TcpSocket::RecvBuf(SBuffer & rBuf, size_t size, size_t * pRcvdSize)
 	return ok;
 }
 
-int SLAPI TcpSocket::RecvBlock(void * pBuf, size_t size, size_t * pRcvdSize)
+int TcpSocket::RecvBlock(void * pBuf, size_t size, size_t * pRcvdSize)
 {
 	int    ok = 1;
 	size_t rcvd_size = 0;
@@ -499,7 +499,7 @@ int SLAPI TcpSocket::RecvBlock(void * pBuf, size_t size, size_t * pRcvdSize)
 	return ok;
 }
 
-int SLAPI TcpSocket::Send(const void * pBuf, size_t size, size_t * pSendedSize)
+int TcpSocket::Send(const void * pBuf, size_t size, size_t * pSendedSize)
 {
 	int    ok = 1;
 	int    len = 0;
@@ -521,7 +521,7 @@ int SLAPI TcpSocket::Send(const void * pBuf, size_t size, size_t * pSendedSize)
 	return ok;
 }
 
-int SLAPI TcpSocket::SendBuf(SBuffer & rBuf, size_t * pSendedSize)
+int TcpSocket::SendBuf(SBuffer & rBuf, size_t * pSendedSize)
 {
 	int    ok = -1;
 	size_t sz, total_sz = 0;
@@ -539,7 +539,7 @@ int SLAPI TcpSocket::SendBuf(SBuffer & rBuf, size_t * pSendedSize)
 	return ok;
 }
 
-int SLAPI TcpSocket::GetStat(long * pRdCount, long * pWrCount)
+int TcpSocket::GetStat(long * pRdCount, long * pWrCount)
 {
 	ASSIGN_PTR(pRdCount, StatData.RdCount);
 	ASSIGN_PTR(pWrCount, StatData.WrCount);
@@ -548,20 +548,20 @@ int SLAPI TcpSocket::GetStat(long * pRdCount, long * pWrCount)
 //
 //
 //
-SLAPI TcpServer::TcpServer(const InetAddr & rAddr) : TcpSocket(1000), Addr(rAddr)
+TcpServer::TcpServer(const InetAddr & rAddr) : TcpSocket(1000), Addr(rAddr)
 {
 }
 
-SLAPI TcpServer::~TcpServer()
+TcpServer::~TcpServer()
 {
 }
 
-int SLAPI TcpServer::ExecSession(TcpSocket & rSock, InetAddr & rAddr)
+int TcpServer::ExecSession(TcpSocket & rSock, InetAddr & rAddr)
 {
 	return 1;
 }
 
-int SLAPI TcpServer::Run()
+int TcpServer::Run()
 {
 	int    ok = 1;
 #ifndef _WIN32_WCE
@@ -660,12 +660,12 @@ static const SIntToSymbTabEntry ContentDispositionTypeNameList_[] = { // @v10.7.
 	return type;*/
 }
 
-SLAPI SMailMessage::ContentDispositionBlock::ContentDispositionBlock()
+SMailMessage::ContentDispositionBlock::ContentDispositionBlock()
 {
 	Destroy();
 }
 
-void SLAPI SMailMessage::ContentDispositionBlock::Destroy()
+void SMailMessage::ContentDispositionBlock::Destroy()
 {
 	Type = tUnkn;
 	NameP = 0;
@@ -676,12 +676,12 @@ void SLAPI SMailMessage::ContentDispositionBlock::Destroy()
 	RdDtm.Z();
 }
 
-SLAPI SMailMessage::ContentTypeBlock::ContentTypeBlock()
+SMailMessage::ContentTypeBlock::ContentTypeBlock()
 {
 	Destroy();
 }
 
-void SLAPI SMailMessage::ContentTypeBlock::Destroy()
+void SMailMessage::ContentTypeBlock::Destroy()
 {
 	MimeP = 0;
 	TypeP = 0;
@@ -690,12 +690,12 @@ void SLAPI SMailMessage::ContentTypeBlock::Destroy()
 	Cp = cpUndef;
 }
 
-SLAPI SMailMessage::Boundary::Boundary() : LineNo_Start(0), LineNo_Finish(0), OuterFileNameP(0), P_Parent(0), ContentTransfEnc(SFileFormat::cteUndef),
+SMailMessage::Boundary::Boundary() : LineNo_Start(0), LineNo_Finish(0), OuterFileNameP(0), P_Parent(0), ContentTransfEnc(SFileFormat::cteUndef),
 	ContentDescrP(0), ContentIdP(0)
 {
 }
 
-void SLAPI SMailMessage::Boundary::Destroy()
+void SMailMessage::Boundary::Destroy()
 {
 	Ct.Destroy();
 	Cd.Destroy();
@@ -710,7 +710,7 @@ void SLAPI SMailMessage::Boundary::Destroy()
 	Children.freeAll();
 }
 
-uint SLAPI SMailMessage::Boundary::GetAttachmentCount() const
+uint SMailMessage::Boundary::GetAttachmentCount() const
 {
 	uint   c = 0;
 	if(Cd.Type == Cd.tAttachment)
@@ -746,30 +746,30 @@ const SMailMessage::Boundary * FASTCALL SMailMessage::Boundary::GetAttachmentByI
 	return Helper_GetAttachmentByIndex(iidx);
 }
 
-SLAPI SMailMessage::ParserBlock::ParserBlock()
+SMailMessage::ParserBlock::ParserBlock()
 {
 	Destroy();
 }
 
-void SLAPI SMailMessage::ParserBlock::Destroy()
+void SMailMessage::ParserBlock::Destroy()
 {
 	State = 0;
 	LineNo = 0;
 	P_B = 0;
 }
 
-SLAPI SMailMessage::SMailMessage() : Flags(0), Size(0)
+SMailMessage::SMailMessage() : Flags(0), Size(0)
 {
 	memzero(Zero, sizeof(Zero));
 	Init();
 }
 
-SLAPI SMailMessage::~SMailMessage()
+SMailMessage::~SMailMessage()
 {
 	Init();
 }
 
-void SLAPI SMailMessage::Init()
+void SMailMessage::Init()
 {
 	Flags = 0;
 	Size = 0;
@@ -780,7 +780,7 @@ void SLAPI SMailMessage::Init()
 	ClearS();
 }
 
-SString & SLAPI SMailMessage::GetBoundary(int start, SString & rBuf) const
+SString & SMailMessage::GetBoundary(int start, SString & rBuf) const
 {
 	rBuf.Z();
 	if(B.Ct.BoundaryP) {
@@ -793,12 +793,12 @@ SString & SLAPI SMailMessage::GetBoundary(int start, SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI SMailMessage::IsPpyData() const
+int SMailMessage::IsPpyData() const
 {
 	return BIN(Flags & (fPpyOrder|fPpyObject));
 }
 
-int SLAPI SMailMessage::AttachFile(const char * pFileName)
+int SMailMessage::AttachFile(const char * pFileName)
 {
 	int    ok = 0;
 	if(fileExists(pFileName)) {
@@ -811,7 +811,7 @@ int SLAPI SMailMessage::AttachFile(const char * pFileName)
 	return ok;
 }
 
-int SLAPI SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPath)
+int SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPath)
 {
 	rFileName.Z();
 	rFullPath.Z();
@@ -829,7 +829,7 @@ int SLAPI SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & r
 	return ok;
 }
 
-int SLAPI SMailMessage::SetField(int fldId, const char * pVal)
+int SMailMessage::SetField(int fldId, const char * pVal)
 {
 	SString temp_buf(pVal);
 	switch(fldId) {
@@ -870,7 +870,7 @@ int FASTCALL SMailMessage::IsField(int fldId) const
 	return 0;
 }
 
-SString & SLAPI SMailMessage::GetField(int fldId, SString & rBuf) const
+SString & SMailMessage::GetField(int fldId, SString & rBuf) const
 {
 	uint   _p = 0;
 	switch(fldId) {
@@ -895,14 +895,14 @@ SString & SLAPI SMailMessage::GetField(int fldId, SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI SMailMessage::CmpField(int fldId, const char * pStr, size_t len) const
+int SMailMessage::CmpField(int fldId, const char * pStr, size_t len) const
 {
 	SString temp_buf;
 	GetField(fldId, temp_buf);
 	return temp_buf.NotEmpty() ? strnicmp(pStr, temp_buf, (len) ? len : temp_buf.Len()) : 0;
 }
 
-int SLAPI SMailMessage::IsFrom(const char * pEmail) const
+int SMailMessage::IsFrom(const char * pEmail) const
 {
 	int    ok = 0;
 	if(!isempty(pEmail)) {
@@ -920,7 +920,7 @@ int SLAPI SMailMessage::IsFrom(const char * pEmail) const
 	return ok;
 }
 
-int SLAPI SMailMessage::IsSubj(const char * pSubj, int substr) const
+int SMailMessage::IsSubj(const char * pSubj, int substr) const
 {
 	int    ok = 0;
 	if(!isempty(pSubj)) {
@@ -940,7 +940,7 @@ int SLAPI SMailMessage::IsSubj(const char * pSubj, int substr) const
 	return ok;
 }
 
-SString & SLAPI SMailMessage::PutField(const char * pFld, const char * pVal, SString & rBuf)
+SString & SMailMessage::PutField(const char * pFld, const char * pVal, SString & rBuf)
 {
 	rBuf.Z();
 	if(pVal) {
@@ -949,7 +949,7 @@ SString & SLAPI SMailMessage::PutField(const char * pFld, const char * pVal, SSt
 	return rBuf;
 }
 
-/*static*/int SLAPI SMailMessage::IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue)
+/*static*/int SMailMessage::IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue)
 {
 	rValue.Z();
 	size_t hl = sstrlen(pHeader);
@@ -965,7 +965,7 @@ SString & SLAPI SMailMessage::PutField(const char * pFld, const char * pVal, SSt
 	return 0;
 }
 
-int SLAPI DecodeMimeStringToBuffer(const SString & rLine, int contentTransfEnc, SBuffer & rBuf)
+int DecodeMimeStringToBuffer(const SString & rLine, int contentTransfEnc, SBuffer & rBuf)
 {
 	int    ok = 1;
 	const size_t src_len = rLine.Len();
@@ -990,7 +990,7 @@ int SLAPI DecodeMimeStringToBuffer(const SString & rLine, int contentTransfEnc, 
 	return ok;
 }
 
-int SLAPI SMailMessage::ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf)
+int SMailMessage::ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf)
 {
 	int    ok = 1;
 	int    do_read_field = 1;
@@ -1214,7 +1214,7 @@ SMailMessage::Boundary * FASTCALL SMailMessage::SearchBoundary(const SString & r
 	return Helper_SearchBoundary(rIdent, &B);
 }
 
-SMailMessage::Boundary * SLAPI SMailMessage::Helper_SearchBoundary(const SString & rIdent, Boundary * pParent)
+SMailMessage::Boundary * SMailMessage::Helper_SearchBoundary(const SString & rIdent, Boundary * pParent)
 {
 	Boundary * p_result = 0;
 	if(pParent) {
@@ -1230,7 +1230,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::Helper_SearchBoundary(const SString
 	return p_result;
 }
 
-int SLAPI SMailMessage::ReadFromFile(SFile & rF)
+int SMailMessage::ReadFromFile(SFile & rF)
 {
 	int    ok = -1;
 	int    prev_full_line_was_empty = 0;
@@ -1263,7 +1263,7 @@ int SLAPI SMailMessage::ReadFromFile(SFile & rF)
 	return ok;
 }
 
-uint SLAPI SMailMessage::GetAttachmentCount() const
+uint SMailMessage::GetAttachmentCount() const
 {
 	return B.GetAttachmentCount();
 }
@@ -1273,7 +1273,7 @@ const SMailMessage::Boundary * FASTCALL SMailMessage::GetAttachmentByIndex(uint 
 	return B.GetAttachmentByIndex(attIdx);
 }
 
-int SLAPI SMailMessage::GetAttachmentFileName(const SMailMessage::Boundary * pB, SString & rFileName) const
+int SMailMessage::GetAttachmentFileName(const SMailMessage::Boundary * pB, SString & rFileName) const
 {
 	rFileName.Z();
 	int    ok = 0;
@@ -1297,7 +1297,7 @@ int SLAPI SMailMessage::GetAttachmentFileName(const SMailMessage::Boundary * pB,
 	return ok;
 }
 
-int SLAPI SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const
+int SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const
 {
 	int    ok = 0;
 	SString result_file_name;
@@ -1352,7 +1352,7 @@ int SLAPI SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SS
 }
 
 #if !defined(NDEBUG) || SLTEST_RUNNING
-int SLAPI SMailMessage::DebugOutput(SString & rBuf) const
+int SMailMessage::DebugOutput(SString & rBuf) const
 {
 	SString temp_buf;
 	if(GetS(HFP.FromP, temp_buf) > 0)
@@ -1397,7 +1397,7 @@ int SLAPI SMailMessage::DebugOutput(SString & rBuf) const
 	return 1;
 }
 
-int SLAPI SMailMessage::DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const
+int SMailMessage::DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const
 {
 	SString temp_buf;
 	temp_buf.Z().Cat(rB.LineNo_Start).Dot().Dot().Cat(rB.LineNo_Finish);
@@ -1448,7 +1448,7 @@ int SLAPI SMailMessage::DebugOutput_Boundary(const Boundary & rB, uint tab, SStr
 #endif // !NDEBUG
 
 #if 0 // @v10.0.0 {
-SString & SLAPI SMailMessage::MakeBoundaryCode(SString & rBuf) const
+SString & SMailMessage::MakeBoundaryCode(SString & rBuf) const
 {
 	rBuf.Z();
 	uint16 hash[16];
@@ -1468,7 +1468,7 @@ SString & SLAPI SMailMessage::MakeBoundaryCode(SString & rBuf) const
 	return rBuf;
 }
 
-static int SLAPI _PUTS(const char * pLine, SFile & rOut)
+static int _PUTS(const char * pLine, SFile & rOut)
 {
 	rOut.WriteLine(pLine);
 	if(pLine)
@@ -1479,7 +1479,7 @@ static int SLAPI _PUTS(const char * pLine, SFile & rOut)
 	return 1;
 }
 
-int SLAPI SMailMessage::PutToFile(SFile & rF)
+int SMailMessage::PutToFile(SFile & rF)
 {
 /*
 186 /!/ "From:;To:;Subject:;Content-Type:;Content-Disposition:;Content-Transfer-Encoding:;MIME-Version:;boundary=;charset=;\
@@ -1614,7 +1614,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 }
 #endif // } 0 @v10.0.0
 
-SMailMessage::Boundary * SLAPI SMailMessage::Helper_CreateBoundary(SMailMessage::Boundary * pParent, int format)
+SMailMessage::Boundary * SMailMessage::Helper_CreateBoundary(SMailMessage::Boundary * pParent, int format)
 {
 	SMailMessage::Boundary * p_result = 0;
 	SString temp_buf;
@@ -1641,7 +1641,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::Helper_CreateBoundary(SMailMessage:
 	return p_result;
 }
 
-SMailMessage::Boundary * SLAPI SMailMessage::AttachContent(SMailMessage::Boundary * pB, int format, SCodepageIdent cp, const void * pData, size_t dataSize)
+SMailMessage::Boundary * SMailMessage::AttachContent(SMailMessage::Boundary * pB, int format, SCodepageIdent cp, const void * pData, size_t dataSize)
 {
 	SMailMessage::Boundary * p_result = Helper_CreateBoundary(pB, format);
 	THROW(p_result);
@@ -1655,7 +1655,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachContent(SMailMessage::Boundar
 	return p_result;
 }
 
-SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int format, const char * pFilePath)
+SMailMessage::Boundary * SMailMessage::AttachFile(Boundary * pB, int format, const char * pFilePath)
 {
 	SMailMessage::Boundary * p_result = 0;
 	THROW(fileExists(pFilePath));
@@ -1702,7 +1702,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int forma
 	return p_result;
 }
 
-int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString & rResult, StringSet * pSs) const
+int SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString & rResult, StringSet * pSs) const
 {
 	rResult.Z();
 
@@ -1796,16 +1796,16 @@ static void EncodedStringWithWrapping(const char * pOrgBuf, uint hdrLen, SString
 	}
 }
 
-SLAPI SMailMessage::WriterBlock::WriterBlock(const SMailMessage & rMsg) : R_Msg(rMsg), Phase(phsUndef), P_Cb(0), RdDataOff(0), P_InStream(0)
+SMailMessage::WriterBlock::WriterBlock(const SMailMessage & rMsg) : R_Msg(rMsg), Phase(phsUndef), P_Cb(0), RdDataOff(0), P_InStream(0)
 {
 }
 
-SLAPI SMailMessage::WriterBlock::~WriterBlock()
+SMailMessage::WriterBlock::~WriterBlock()
 {
 	ZDELETE(P_InStream);
 }
 
-int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
+int SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3024,7 +3024,7 @@ int ScURL::SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSys
 	return ok;
 }
 
-int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
+int ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 {
 	/*
 		drwxr-xr-x   1 ftp      ftp             0 Aug 11  2015 Altarix
@@ -3648,12 +3648,12 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 //
 //
 //
-SLAPI SUniformFileTransmParam::ResultItem::ResultItem()
+SUniformFileTransmParam::ResultItem::ResultItem()
 {
 	THISZERO();
 }
 
-SLAPI SUniformFileTransmParam::SUniformFileTransmParam() : Flags(0), Format(SFileFormat::Unkn), Pop3TopMaxLines(0)
+SUniformFileTransmParam::SUniformFileTransmParam() : Flags(0), Format(SFileFormat::Unkn), Pop3TopMaxLines(0)
 {
 }
 
@@ -3974,7 +3974,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 //
 //
 #if !defined(NDEBUG) || SLTEST_RUNNING
-void SLAPI Test_MailMsg_ReadFromFile()
+void Test_MailMsg_ReadFromFile()
 {
 	const char * src_file_name_list[] = {
 		"test-01.eml",
@@ -4014,7 +4014,7 @@ void SLAPI Test_MailMsg_ReadFromFile()
 	}
 }
 
-static void SLAPI Test_MakeEmailMessage(SMailMessage & rMsg)
+static void Test_MakeEmailMessage(SMailMessage & rMsg)
 {
 	SString path;
 	SString temp_buf;
@@ -4049,7 +4049,7 @@ static void SLAPI Test_MakeEmailMessage(SMailMessage & rMsg)
 	}
 }
 
-void SLAPI Test_MakeEmailMessage()
+void Test_MakeEmailMessage()
 {
 	SMailMessage msg;
 	Test_MakeEmailMessage(msg);

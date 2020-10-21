@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI GoodsGrpngEntry::GoodsGrpngEntry()
+GoodsGrpngEntry::GoodsGrpngEntry()
 {
 	THISZERO();
 }
@@ -96,17 +96,17 @@ IMPL_CMPFUNC(GGAKey, i1, i2)
 		return 0;
 }
 
-SLAPI GoodsGrpngArray::GoodsGrpngArray(PPLogger * pLogger) : SVector(sizeof(GoodsGrpngEntry)), // @v9.8.11 SArray-->SVector
+GoodsGrpngArray::GoodsGrpngArray(PPLogger * pLogger) : SVector(sizeof(GoodsGrpngEntry)), // @v9.8.11 SArray-->SVector
 	P_BObj(BillObj), ExtCostAmtID(0), ExtPriceAmtID(0), ExtDisAmtID(0), P_Logger(pLogger), ErrDetected(0), P_PplBlk(0)
 {
 }
 
-SLAPI GoodsGrpngArray::~GoodsGrpngArray()
+GoodsGrpngArray::~GoodsGrpngArray()
 {
 	ZDELETE(P_PplBlk);
 }
 
-void SLAPI GoodsGrpngArray::Reset()
+void GoodsGrpngArray::Reset()
 {
 	ExtCostAmtID = ExtPriceAmtID = ExtDisAmtID = 0;
 	ErrDetected = 0;
@@ -114,7 +114,7 @@ void SLAPI GoodsGrpngArray::Reset()
 	clear();
 }
 
-int SLAPI GoodsGrpngArray::WasErrDetected() const
+int GoodsGrpngArray::WasErrDetected() const
 {
 	return ErrDetected;
 }
@@ -124,7 +124,7 @@ GoodsGrpngEntry & FASTCALL GoodsGrpngArray::at(uint p)
 	return *static_cast<GoodsGrpngEntry *>(SVector::at(p)); // @v9.8.11 SArray-->SVector
 }
 
-int SLAPI GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
+int GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
 {
 	GoodsGrpngEntry k;
 	k = *pGGE;
@@ -136,12 +136,12 @@ int SLAPI GoodsGrpngArray::Search(const GoodsGrpngEntry * pGGE, uint * p)
 	return bsearch(&k, p, PTR_CMPFUNC(GGAKey));
 }
 
-int SLAPI GoodsGrpngArray::Insert(const GoodsGrpngEntry * pEntry, uint * p)
+int GoodsGrpngArray::Insert(const GoodsGrpngEntry * pEntry, uint * p)
 {
 	return ordInsert(pEntry, p, PTR_CMPFUNC(GGAKey)) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon)
+int AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon)
 {
 	int    ok = 1, r = 1;
 	uint   i = 0;
@@ -200,12 +200,12 @@ int SLAPI AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpL
 	return ok;
 }
 
-SLAPI AdjGdsGrpng::AdjGdsGrpng()
+AdjGdsGrpng::AdjGdsGrpng()
 {
 	Period.Z();
 }
 
-int SLAPI AdjGdsGrpng::CorrectionList(const GCTFilt & rF)
+int AdjGdsGrpng::CorrectionList(const GCTFilt & rF)
 {
 	int    ok = 1;
 	PPID   op_id = 0;
@@ -244,7 +244,7 @@ int SLAPI AdjGdsGrpng::CorrectionList(const GCTFilt & rF)
 	return ok;
 }
 
-int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
+int AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
 {
 	int    ok = 1;
 	PPID   op_id = 0;
@@ -314,7 +314,7 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
 	return ok;
 }
 
-int SLAPI AdjGdsGrpng::BeginGoodsGroupingProcess(const GCTFilt & rFilt)
+int AdjGdsGrpng::BeginGoodsGroupingProcess(const GCTFilt & rFilt)
 {
 	int    ok = 1;
 	THROW(PrevPaymentList(rFilt));
@@ -325,7 +325,7 @@ int SLAPI AdjGdsGrpng::BeginGoodsGroupingProcess(const GCTFilt & rFilt)
 	return ok;
 }
 
-int SLAPI AdjGdsGrpng::EndGoodsGroupingProcess()
+int AdjGdsGrpng::EndGoodsGroupingProcess()
 {
 	return 1;
 }
@@ -334,13 +334,13 @@ int SLAPI AdjGdsGrpng::EndGoodsGroupingProcess()
 //
 class GCT_Iterator {
 public:
-	SLAPI  GCT_Iterator(const GCTFilt & rF, const DateRange * pDR, const AdjGdsGrpng * pAgg);
-	SLAPI ~GCT_Iterator();
-	int    SLAPI First(TransferTbl::Rec *);
-	int    SLAPI Next(TransferTbl::Rec *);
+	GCT_Iterator(const GCTFilt & rF, const DateRange * pDR, const AdjGdsGrpng * pAgg);
+	~GCT_Iterator();
+	int    First(TransferTbl::Rec *);
+	int    Next(TransferTbl::Rec *);
 private:
-	int    SLAPI TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec);
-	int    SLAPI AcceptTrfrRec(const TransferTbl::Rec *, TransferTbl::Rec * pOuterRec);
+	int    TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec);
+	int    AcceptTrfrRec(const TransferTbl::Rec *, TransferTbl::Rec * pOuterRec);
 	GCTFilt Filt;
 	DateRange Period;
 	Transfer   * Trfr;
@@ -349,20 +349,20 @@ private:
 	const AdjGdsGrpng * P_Agg;
 };
 
-SLAPI GCT_Iterator::GCT_Iterator(const GCTFilt & rF, const DateRange * pDR, const AdjGdsGrpng * pAgg) : P_Agg(pAgg), trfr_q(0), rcpt_q(0), Filt(rF)
+GCT_Iterator::GCT_Iterator(const GCTFilt & rF, const DateRange * pDR, const AdjGdsGrpng * pAgg) : P_Agg(pAgg), trfr_q(0), rcpt_q(0), Filt(rF)
 {
 	if(!RVALUEPTR(Period, pDR))
 		Period.Z();
 	Trfr = BillObj->trfr;
 }
 
-SLAPI GCT_Iterator::~GCT_Iterator()
+GCT_Iterator::~GCT_Iterator()
 {
 	delete trfr_q;
 	delete rcpt_q;
 }
 
-int SLAPI GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl::Rec * pOuterRec)
+int GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl::Rec * pOuterRec)
 {
 	int    ok = 1;
 	PPID   lot_id = pRec->LotID;
@@ -388,7 +388,7 @@ int SLAPI GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl
 	return ok;
 }
 
-int SLAPI GCT_Iterator::TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec)
+int GCT_Iterator::TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec)
 {
 	Transfer * p_tfr = Trfr;
 	BExtQuery * q = new BExtQuery(p_tfr, lotID ? 2 : (Filt.GoodsID ? 3 : 1), 128);
@@ -429,7 +429,7 @@ int SLAPI GCT_Iterator::TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec)
 	}
 }
 
-int SLAPI GCT_Iterator::First(TransferTbl::Rec * pRec)
+int GCT_Iterator::First(TransferTbl::Rec * pRec)
 {
 	DBQ  * dbq = 0;
 	PPID   lot_id = 0;
@@ -474,7 +474,7 @@ int SLAPI GCT_Iterator::First(TransferTbl::Rec * pRec)
 	return -1;
 }
 
-int SLAPI GCT_Iterator::Next(TransferTbl::Rec * pRec)
+int GCT_Iterator::Next(TransferTbl::Rec * pRec)
 {
 	while(trfr_q->nextIteration() > 0)
 		if(AcceptTrfrRec(&Trfr->data, pRec) > 0)
@@ -487,7 +487,7 @@ int SLAPI GCT_Iterator::Next(TransferTbl::Rec * pRec)
 //
 //
 //
-int SLAPI GoodsGrpngArray::CalcRest(GoodsRestParam & rP, const PPOprKind & rOpRec, double phuperu)
+int GoodsGrpngArray::CalcRest(GoodsRestParam & rP, const PPOprKind & rOpRec, double phuperu)
 {
 	if(P_BObj->trfr->GetRest(rP)) {
 		GoodsGrpngEntry entry;
@@ -612,11 +612,11 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 	return 1;
 }
 
-SLAPI GoodsGrpngArray::AddEntryBlock::AddEntryBlock() : Part(0.0), Flags(0)
+GoodsGrpngArray::AddEntryBlock::AddEntryBlock() : Part(0.0), Flags(0)
 {
 }
 
-int SLAPI GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec * pTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
+int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec * pTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
 {
 	int    ok = 1, r;
 	BillCore * p_bc = P_BObj->P_Tbl;
@@ -891,7 +891,7 @@ struct AddBillEntry {
 	double Part;
 };
 
-int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
+int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 {
 	int    ok = 1, idx;
 	IterCounter counter;
@@ -1129,7 +1129,7 @@ int FASTCALL GoodsGrpngArray::IsLockPaymStatus(PPID statusID) const
 	return (LockPaymStatusList.IsExists() && LockPaymStatusList.CheckID(statusID));
 }
 
-int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrpng * pAgg)
+int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrpng * pAgg)
 {
 	int    ok = 1;
 	uint   i;
@@ -1286,7 +1286,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const Adj
 	return ok;
 }
 
-void SLAPI GoodsGrpngArray::InitOpNames()
+void GoodsGrpngArray::InitOpNames()
 {
 	GoodsGrpngEntry * p_entry;
 	SString temp_buf;

@@ -54,7 +54,7 @@ static void closure_print(char const * title, item_index const * array, size_t s
 	fputs("\n\n", stderr);
 }
 
-static void print_firsts(void)
+static void print_firsts()
 {
 	fprintf(stderr, "FIRSTS\n");
 	for(symbol_number i = ntokens; i < nsyms; ++i) {
@@ -67,7 +67,7 @@ static void print_firsts(void)
 	fprintf(stderr, "\n\n");
 }
 
-static void print_fderives(void)
+static void print_fderives()
 {
 	fprintf(stderr, "FDERIVES\n");
 	for(symbol_number i = ntokens; i < nsyms; ++i) {
@@ -95,7 +95,7 @@ static void print_fderives(void)
 | (5)) is set.                                                       |
    `-------------------------------------------------------------------*/
 
-static void set_firsts(void)
+static void set_firsts()
 {
 	firsts = bitsetv_create(nnterms, nnterms, BITSET_FIXED);
 	for(symbol_number i = ntokens; i < nsyms; ++i)
@@ -123,7 +123,7 @@ static void set_firsts(void)
 | the [5 - NTOKENS, 4] bit in FDERIVES is set.                       |
    `-------------------------------------------------------------------*/
 
-static void set_fderives(void)
+static void set_fderives()
 {
 	fderives = bitsetv_create(nnterms, nrules, BITSET_FIXED);
 	set_firsts();
@@ -172,7 +172,6 @@ void closure(item_index const * core, size_t n)
 		itemset[nitemset] = itemno;
 		nitemset++;
 	};
-
 	while(c < n) {
 		itemset[nitemset] = core[c];
 		nitemset++;
@@ -182,7 +181,7 @@ void closure(item_index const * core, size_t n)
 		closure_print("output", itemset, nitemset);
 }
 
-void closure_free(void)
+void closure_free()
 {
 	SAlloc::F(itemset);
 	bitset_free(ruleset);

@@ -32,7 +32,7 @@ public:
 	long (*Writeu)(const char *, long);
 	long (*Stateu)();
 private:
-	int SLAPI ConvertStrToTyssoCodePage(SString & rStr);
+	int ConvertStrToTyssoCodePage(SString & rStr);
 };
 
 static PosiflexEquip * P_PosiflexDisp = 0;
@@ -149,7 +149,7 @@ int PosiflexEquip::PrintLine()
 	return ok;
 }
 
-int SLAPI PosiflexEquip::ConvertStrToTyssoCodePage(SString & rStr)
+int PosiflexEquip::ConvertStrToTyssoCodePage(SString & rStr)
 {
 	int  ok = -1;
 	SString str;

@@ -13,7 +13,7 @@
 	return pIfc ? static_cast<const TabEntry *>(pIfc)->ThisPtr->ExtraPtr : 0;
 }
 
-/*static*/int SLAPI SCoClass::SetExtraPtrByInterface(const void * pIfc, void * extraPtr)
+/*static*/int SCoClass::SetExtraPtrByInterface(const void * pIfc, void * extraPtr)
 {
 	int    ok = -1;
 	if(pIfc && static_cast<const TabEntry *>(pIfc)->ThisPtr->ExtraPtr == 0) {
@@ -43,7 +43,7 @@ SCoClass::~SCoClass()
 	ReleaseVTable();
 }
 
-int SLAPI SCoClass::CreateInnerInstance(const char * pClsName, const char * pIfcName, void ** ppIfc)
+int SCoClass::CreateInnerInstance(const char * pClsName, const char * pIfcName, void ** ppIfc)
 {
 	int    ok = 1;
 	DLSYMBID clsid = 0, ifcid = 0;
@@ -67,13 +67,13 @@ int SLAPI SCoClass::CreateInnerInstance(const char * pClsName, const char * pIfc
 	return ok;
 }
 
-int SLAPI SCoClass::RaiseAppError()
+int SCoClass::RaiseAppError()
 {
 	AppError = 1;
 	return 0; // @important!
 }
 
-void * SLAPI SCoClass::RaiseAppErrorPtr()
+void * SCoClass::RaiseAppErrorPtr()
 {
 	AppError = 1;
 	return 0; // @important!
@@ -89,7 +89,7 @@ int FASTCALL SCoClass::SetAppError(int assertion)
 		return 1;
 }
 
-int SLAPI SCoClass::GetInnerUUID(const char * pScopeName, S_GUID & rIID) const
+int SCoClass::GetInnerUUID(const char * pScopeName, S_GUID & rIID) const
 {
 	int    ok = 1;
 	DLSYMBID symb_id = 0;
@@ -100,7 +100,7 @@ int SLAPI SCoClass::GetInnerUUID(const char * pScopeName, S_GUID & rIID) const
 	return ok;
 }
 
-int SLAPI SCoClass::SetupError()
+int SCoClass::SetupError()
 {
 	int    ok = 0;
 	ICreateErrorInfo * p_cer = 0;
@@ -122,13 +122,13 @@ int SLAPI SCoClass::SetupError()
 	return ok;
 }
 
-int SLAPI SCoClass::FuncNotSupported()
+int SCoClass::FuncNotSupported()
 {
 	AppError = 1;
 	return PPSetError(PPERR_PPIFCFUNCNSUPPORTED);
 }
 
-HRESULT SLAPI SCoClass::Epilog()
+HRESULT SCoClass::Epilog()
 {
 	if(AppError) {
 		SetupError();
@@ -183,7 +183,7 @@ int FASTCALL SCoClass::InitVTable(void * pVt)
 	return ok;
 }
 
-int SLAPI SCoClass::ReleaseVTable()
+int SCoClass::ReleaseVTable()
 {
 	if(TabCount >= MAX_COCLASS_STTAB)
 		delete [] P_Tab;
@@ -294,7 +294,7 @@ HRESULT __stdcall SCoClass::InterfaceSupportsErrorInfo(REFIID rIID) { return (re
 //
 class SCoFactory : public SCoClass {
 public:
-	explicit SLAPI  SCoFactory(REFCLSID);
+	explicit SCoFactory(REFCLSID);
 	HRESULT __stdcall CreateInstance(IUnknown * pUnknownOuter, const IID & iID, void ** ppV);
 	HRESULT __stdcall LockServer(BOOL bLock);
 private:
@@ -317,7 +317,7 @@ struct SCoFactory_VTab {
 
 static SCoFactory_VTab VT_SCoFactory;
 
-SLAPI SCoFactory::SCoFactory(REFCLSID rClsID) : SCoClass(scccFactory, &VT_SCoFactory/*new SCoFactory_VTab*/)
+SCoFactory::SCoFactory(REFCLSID rClsID) : SCoClass(scccFactory, &VT_SCoFactory/*new SCoFactory_VTab*/)
 {
 	ClsUuid.Init(rClsID);
 }
@@ -347,7 +347,7 @@ HRESULT __stdcall SCoFactory::LockServer(BOOL bLock)
 //
 // DLL helpers
 //
-/*static*/HRESULT SLAPI SCoClass::Helper_DllGetClassObject(REFCLSID rClsID, REFIID rIID, void ** ppV)
+/*static*/HRESULT SCoClass::Helper_DllGetClassObject(REFCLSID rClsID, REFIID rIID, void ** ppV)
 {
 	SCoFactory * p_cf = new SCoFactory(rClsID);
 	HRESULT ok = p_cf ? p_cf->ImpQueryInterface(rIID, ppV) : E_OUTOFMEMORY;
@@ -365,12 +365,12 @@ HRESULT __stdcall SCoFactory::LockServer(BOOL bLock)
 	return ok;
 }
 
-/*static*/HRESULT SLAPI SCoClass::Helper_DllCanUnloadNow()
+/*static*/HRESULT SCoClass::Helper_DllCanUnloadNow()
 {
 	return DS.LockingDllServer(PPSession::ldsCanUnload) ? S_OK : S_FALSE;
 }
 
-/*static*/int SLAPI SCoClass::Helper_DllRegisterServer(int unreg)
+/*static*/int SCoClass::Helper_DllRegisterServer(int unreg)
 {
 	int    ok = 0;
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxtInterface);

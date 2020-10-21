@@ -68,9 +68,9 @@
 #endif
 #define low16(x) (x)
 
-static void SLAPI en_key_idea(uint16 *userkey, uint16 *Z);
-static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK);
-static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z);
+static void en_key_idea(uint16 *userkey, uint16 *Z);
+static void de_key_idea(IDEAkey Z, IDEAkey DK);
+static void cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z);
 //
 // Multiplication, modulo (2**16)+1
 // Note that this code is structured like this on the assumption that
@@ -79,7 +79,7 @@ static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z);
 //
 #ifdef SMALL_CACHE
 
-const static uint16 SLAPI mul(uint16 a, uint16 b)
+const static uint16 mul(uint16 a, uint16 b)
 {
 	uint32 p;
 	if(a)
@@ -128,7 +128,7 @@ static uint16 FASTCALL inv(uint16 x)
 //
 // Compute IDEA encryption subkeys Z
 //
-static void SLAPI en_key_idea(uint16 *userkey, uint16 *Z)
+static void en_key_idea(uint16 *userkey, uint16 *Z)
 {
 	int i,j;
 	// shifts
@@ -145,7 +145,7 @@ static void SLAPI en_key_idea(uint16 *userkey, uint16 *Z)
 // Compute IDEA decryption subkeys DK from encryption subkeys Z
 // Note: these buffers *may* overlap!
 //
-static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK)
+static void de_key_idea(IDEAkey Z, IDEAkey DK)
 {
 	int    j;
 	uint16 t1, t2, t3;
@@ -216,7 +216,7 @@ static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK)
 //
 #pragma warn -pia
 
-static void SLAPI cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z)
+static void cipher_idea(uint16 in[4], uint16 out[4], IDEAkey Z)
 {
 // Microsoft specific
 // warning C4244: '=' : conversion from 'unsigned long' to
@@ -356,7 +356,7 @@ void main(void)
 // Can be applied for any block encryption algorithm,
 // with any block size, such as the DES or the IDEA cipher.
 //
-static void SLAPI xorbuf(uint8 * buf, uint8 * mask, int count)
+static void xorbuf(uint8 * buf, uint8 * mask, int count)
 // count must be > 0
 {
 	if(count) do {
@@ -369,7 +369,7 @@ static void SLAPI xorbuf(uint8 * buf, uint8 * mask, int count)
 // Can be applied for any block encryption algorithm with any
 // block size, such as the DES or the IDEA cipher.
 //
-static void SLAPI cfbshift(uint8 * iv, uint8 * buf, int count, int blocksize)
+static void cfbshift(uint8 * iv, uint8 * buf, int count, int blocksize)
 //
 // iv is the initialization vector.
 // buf is the buffer pointer.
@@ -394,7 +394,7 @@ static void SLAPI cfbshift(uint8 * iv, uint8 * buf, int count, int blocksize)
 //
 // initkey_idea initializes IDEA for ECB mode operations
 //
-static void SLAPI initkey_idea(IDEAkey Z, uint8 key[16], int decryp)
+static void initkey_idea(IDEAkey Z, uint8 key[16], int decryp)
 {
 	uint16 userkey[8]; // IDEA key is 16 bytes long
 	int i;
@@ -413,7 +413,7 @@ static void SLAPI initkey_idea(IDEAkey Z, uint8 key[16], int decryp)
 // Run a 64-bit block thru IDEA in ECB (Electronic Code Book) mode,
 // using the currently selected key schedule.
 //
-static void SLAPI idea_ecb(IDEAkey Z, uint16 * inbuf, uint16 * outbuf)
+static void idea_ecb(IDEAkey Z, uint16 * inbuf, uint16 * outbuf)
 {
 	/* Assume each pair of bytes comprising a word is ordered MSB-first. */
 #ifndef HIGHFIRST	/* If this is a least-significant-byte-first CPU */
@@ -435,7 +435,7 @@ static void SLAPI idea_ecb(IDEAkey Z, uint16 * inbuf, uint16 * outbuf)
 #endif	/* HIGHFIRST */
 }
 
-SLAPI IDEACFB::IDEACFB() : iv_idea(0), cfb_dc_idea(0)
+IDEACFB::IDEACFB() : iv_idea(0), cfb_dc_idea(0)
 {
 }
 //
@@ -443,7 +443,7 @@ SLAPI IDEACFB::IDEACFB() : iv_idea(0), cfb_dc_idea(0)
 // and initializes the Cipher Feedback mode IV.
 // References context variables cfb_dc_idea and iv_idea.
 //
-SLAPI IDEACFB::IDEACFB(uint16 iv0[4], uint8 key[16], int decryp)
+IDEACFB::IDEACFB(uint16 iv0[4], uint8 key[16], int decryp)
 //
 // iv0 is copied to global iv_idea, buffer will be destroyed by ideacfb.
 // key is pointer to key buffer.
@@ -453,7 +453,7 @@ SLAPI IDEACFB::IDEACFB(uint16 iv0[4], uint8 key[16], int decryp)
 	init(iv0, key, decryp);
 }
 
-void SLAPI IDEACFB::init(uint16 iv0[4], uint8 key[16], int decryp)
+void IDEACFB::init(uint16 iv0[4], uint8 key[16], int decryp)
 {
 	iv_idea = iv0;
 	cfb_dc_idea = decryp;
@@ -467,7 +467,7 @@ void SLAPI IDEACFB::init(uint16 iv0[4], uint8 key[16], int decryp)
 // Assumes initcfb_idea has already been called.
 // References context variables cfb_dc_idea and iv_idea.
 //
-void SLAPI IDEACFB::run(uint8 * buf, int count)
+void IDEACFB::run(uint8 * buf, int count)
 //
 // buf is input, output buffer, may be more than 1 block.
 // count is byte count of buffer.  May be > IDEABLOCKSIZE.
@@ -490,7 +490,7 @@ void SLAPI IDEACFB::run(uint8 * buf, int count)
 	}
 }
 
-SLAPI IDEACFB::~IDEACFB() // erase current key schedule tables
+IDEACFB::~IDEACFB() // erase current key schedule tables
 {
 	close();
 }
@@ -501,7 +501,7 @@ SLAPI IDEACFB::~IDEACFB() // erase current key schedule tables
 	context.  This is to prevent any sensitive data from being left
 	around in memory.
 */
-void SLAPI IDEACFB::close()
+void IDEACFB::close()
 {
 	/* @v9.6.3
 	for(int i = 0; i < IDEA_KEYLEN; i++)
@@ -512,16 +512,16 @@ void SLAPI IDEACFB::close()
 //
 // IDEARAND
 //
-SLAPI IDEARAND::IDEARAND()
+IDEARAND::IDEARAND()
 {
 }
 
-SLAPI IDEARAND::IDEARAND(uint8 key[16], uint8 seed[8], uint32 tstamp)
+IDEARAND::IDEARAND(uint8 key[16], uint8 seed[8], uint32 tstamp)
 {
 	init(key, seed, tstamp);
 }
 
-SLAPI IDEARAND::~IDEARAND()
+IDEARAND::~IDEARAND()
 {
 	close();
 }
@@ -534,7 +534,7 @@ SLAPI IDEARAND::~IDEARAND()
 //   seed is pointer to random number seed buffer.
 //   tstamp is a 32-bit timestamp
 //
-void SLAPI IDEARAND::init(uint8 key[16], uint8 seed[8], uint32 tstamp)
+void IDEARAND::init(uint8 key[16], uint8 seed[8], uint32 tstamp)
 {
 	int i;
 	en_key_idea((uint16 *)key, randkey);
@@ -556,7 +556,7 @@ void SLAPI IDEARAND::init(uint8 key[16], uint8 seed[8], uint32 tstamp)
 //   Used for generating cryptographically strong random numbers.
 //   Much of the design comes from Appendix C of ANSI X9.17.
 //
-uint8 SLAPI IDEARAND::rand()
+uint8 IDEARAND::rand()
 {
 	int i;
 	if(randbuf_counter == 0) { // if random buffer is spent...
@@ -574,7 +574,7 @@ uint8 SLAPI IDEARAND::rand()
 	return (((uint8 *)randbuf)[--randbuf_counter]);
 }
 
-void SLAPI IDEARAND::close()
+void IDEARAND::close()
 {
 	// Erase random IDEA buffers and wipe out IDEA key info
 	memzero(randbuf, sizeof(randbuf));
@@ -587,7 +587,7 @@ void SLAPI IDEARAND::close()
 // keylen must be less than 1024.
 // Use the MD5 algorithm.
 //
-void SLAPI hashpass(char * keystring, int keylen, uint8 * hash)
+void hashpass(char * keystring, int keylen, uint8 * hash)
 {
 	S_MD5 md;
 	md.Calc((unsigned char *)keystring, keylen, hash);
@@ -595,7 +595,7 @@ void SLAPI hashpass(char * keystring, int keylen, uint8 * hash)
 	//md.final(hash);
 }
 
-static void SLAPI IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int decrypt)
+static void IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int decrypt)
 {
 	uint16 iv[4];
 	uint8  key[16];
@@ -617,12 +617,12 @@ static void SLAPI IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int de
 	idea.run((uint8 *)pBuf, bufLen);
 }
 
-void SLAPI IdeaEncrypt(const char * pw, void * buf, size_t len)
+void IdeaEncrypt(const char * pw, void * buf, size_t len)
 {
 	IdeaCrypt(pw, buf, len, 0);
 }
 
-void SLAPI IdeaDecrypt(const char * pw, void * buf, size_t len)
+void IdeaDecrypt(const char * pw, void * buf, size_t len)
 {
 	IdeaCrypt(pw, buf, len, 1);
 }

@@ -55,7 +55,7 @@
 
 // @v10.4.5 static const char * zero_word = "ноль";
 
-static void SLAPI ParseNumber(double nmb, int parts[])
+static void ParseNumber(double nmb, int parts[])
 {
 	for(int i = 0; i < 5; i++) {
 		const double d = fpow10i((i == 4) ? -2 : (3 * (3 - i)));
@@ -67,14 +67,14 @@ static void SLAPI ParseNumber(double nmb, int parts[])
 	}
 }
 
-static char * SLAPI CopyDigitWord(const char * pStrings, char * pBuf, int i)
+static char * CopyDigitWord(const char * pStrings, char * pBuf, int i)
 {
 	*pBuf++ = ' ';
 	PPGetSubStr(pStrings, i, pBuf, 0);
 	return (pBuf + sstrlen(pBuf));
 }
 
-static void SLAPI BelowThousandToText(int n, int fem, const char * pStrings, char * pBuf)
+static void BelowThousandToText(int n, int fem, const char * pStrings, char * pBuf)
 {
 	char * p = pBuf;
 	const int h = n / 100;
@@ -101,7 +101,7 @@ static int _fastcall sfx_form(int n)
 	return (n > 9 && n < 20) ? 2 : one_form[n % 10];
 }
 
-char * SLAPI numbertotext(double nmb, long fmt, char * pBuf)
+char * numbertotext(double nmb, long fmt, char * pBuf)
 {
 	SString temp_buf;
 	int    n, i;

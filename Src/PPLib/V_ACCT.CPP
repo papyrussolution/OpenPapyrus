@@ -7,7 +7,7 @@
 #pragma hdrstop
 #include <charry.h>
 
-IMPLEMENT_PPFILT_FACTORY(Account); SLAPI AccountFilt::AccountFilt() : PPBaseFilt(PPFILT_ACCOUNT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Account); AccountFilt::AccountFilt() : PPBaseFilt(PPFILT_ACCOUNT, 0, 0)
 {
 	SetFlatChunk(offsetof(AccountFilt, ReserveStart),
 		offsetof(AccountFilt, Reserve)-offsetof(AccountFilt, ReserveStart)+sizeof(Reserve));
@@ -20,23 +20,21 @@ AccountFilt & FASTCALL AccountFilt::operator = (const AccountFilt & s)
 	return *this;
 }
 
-SLAPI PPViewAccount::PPViewAccount() : PPView(&AccObj, &Filt, PPVIEW_ACCOUNT), P_AnlzFilt(0)
+PPViewAccount::PPViewAccount() : PPView(&AccObj, &Filt, PPVIEW_ACCOUNT, implBrowseArray, REPORT_ACCOUNTVIEW), P_AnlzFilt(0)
 {
-	ImplementFlags |= implBrowseArray;
-	DefReportId = REPORT_ACCOUNTVIEW;
 }
 
-SLAPI PPViewAccount::~PPViewAccount()
+PPViewAccount::~PPViewAccount()
 {
 	delete P_AnlzFilt;
 }
 
-/*virtual*/void * SLAPI PPViewAccount::GetEditExtraParam()
+/*virtual*/void * PPViewAccount::GetEditExtraParam()
 {
 	return reinterpret_cast<void *>(Filt.Type);
 }
 
-/*virtual*/PPBaseFilt * SLAPI PPViewAccount::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewAccount::CreateFilt(void * extraPtr) const
 {
 	AccountFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_ACCOUNT, reinterpret_cast<PPBaseFilt **>(&p_filt)))
@@ -44,7 +42,7 @@ SLAPI PPViewAccount::~PPViewAccount()
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 
-/*virtual*/int SLAPI PPViewAccount::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int PPViewAccount::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	uint   v = 0;
@@ -71,7 +69,7 @@ SLAPI PPViewAccount::~PPViewAccount()
 	return ok;
 }
 
-int SLAPI PPViewAccount::ViewArticles(PPID accID)
+int PPViewAccount::ViewArticles(PPID accID)
 {
 	PPAccount acc_rec;
 	if(accID && AccObj.Search(accID, &acc_rec) > 0 && acc_rec.AccSheetID) {
@@ -82,7 +80,7 @@ int SLAPI PPViewAccount::ViewArticles(PPID accID)
 	return -1;
 }
 
-int SLAPI PPViewAccount::ViewAccAnalyze(PPID accID)
+int PPViewAccount::ViewAccAnalyze(PPID accID)
 {
 	PPAccount acc_rec;
 	if(accID && AccObj.Search(accID, &acc_rec) > 0) {
@@ -134,7 +132,7 @@ int FASTCALL PPViewAccount::CheckForFilt(const PPAccount & rItem) const
 
 IMPL_CMPCFUNC(PPViewAccount_BrwEntry_A, p1, p2) { RET_CMPCASCADE2(static_cast<const PPViewAccount::BrwEntry *>(p1), static_cast<const PPViewAccount::BrwEntry *>(p2), A.Ac, A.Sb); }
 
-int SLAPI PPViewAccount::FetchData(long id)
+int PPViewAccount::FetchData(long id)
 {
 	int    ok = 1;
 	BrwEntry entry;
@@ -167,7 +165,7 @@ int SLAPI PPViewAccount::FetchData(long id)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccount::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewAccount::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -176,7 +174,7 @@ int SLAPI PPViewAccount::FetchData(long id)
 	return ok;
 }
 
-int SLAPI PPViewAccount::InitIteration()
+int PPViewAccount::InitIteration()
 {
 	int    ok = 1;
 	Counter.Init(Data.getCount());
@@ -217,7 +215,7 @@ int FASTCALL PPViewAccount::NextIteration(AccountViewItem * pItem)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -274,12 +272,12 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-void SLAPI PPViewAccount::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewAccount::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewAccount::GetDataForBrowser, this));
 }
 
-SArray * SLAPI PPViewAccount::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewAccount::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(Data);
 	uint   brw_id = 0;
@@ -295,7 +293,7 @@ SArray * SLAPI PPViewAccount::CreateBrowserArray(uint * pBrwId, SString * pSubTi
 
 #if 0 // {
 
-static void SLAPI dbqf_account_checkrights_i(int option, DBConst * result, DBConst * params)
+static void dbqf_account_checkrights_i(int option, DBConst * result, DBConst * params)
 {
 	long   ok = 1;
 	PPID   acc_id = params[0].lval;
@@ -306,7 +304,7 @@ static void SLAPI dbqf_account_checkrights_i(int option, DBConst * result, DBCon
 
 /*static*/int PPViewAccount::DynFuncCheckRights = 0;
 
-/*virtual*/DBQuery * SLAPI PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncCheckRights, BTS_INT, dbqf_account_checkrights_i, 1, BTS_INT);
 
@@ -364,7 +362,7 @@ static void SLAPI dbqf_account_checkrights_i(int option, DBConst * result, DBCon
 
 #endif // } 0
 
-int SLAPI PPViewAccount::Transmit(PPID id, int transmitKind)
+int PPViewAccount::Transmit(PPID id, int transmitKind)
 {
 	int    ok = -1;
 	if(transmitKind == 0) {
@@ -397,7 +395,7 @@ int SLAPI PPViewAccount::Transmit(PPID id, int transmitKind)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccount::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewAccount::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	Hdr    hdr;
 	if(!RVALUEPTR(hdr, static_cast<const Hdr *>(pHdr)))

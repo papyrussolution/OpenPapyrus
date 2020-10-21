@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPObjBarcodePrinter)
 //
-SLAPI PPBarcodePrinter2::PPBarcodePrinter2() : Tag(PPOBJ_BCODEPRINTER), ID(0), BcNarrowPt(0), BcWidePt(0), Cp(0), Flags(0), 
+PPBarcodePrinter2::PPBarcodePrinter2() : Tag(PPOBJ_BCODEPRINTER), ID(0), BcNarrowPt(0), BcWidePt(0), Cp(0), Flags(0), 
 	PrinterType(0), Reserve3(0)
 {
 	PTR32(Name)[0] = 0;
@@ -16,17 +16,17 @@ SLAPI PPBarcodePrinter2::PPBarcodePrinter2() : Tag(PPOBJ_BCODEPRINTER), ID(0), B
 	MEMSZERO(Reserve);
 }
 
-void SLAPI PPBarcodePrinter2::Normalyze()
+void PPBarcodePrinter2::Normalyze()
 {
 	PortEx.CopyTo(Port, sizeof(Port));
 	SETFLAG(Flags, fPortEx, (PortEx.Len() >= (sizeof(Port)-1))); // @v10.8.0 @fix (sizeof(Port))-->(sizeof(Port)-1)
 }
 
-SLAPI PPObjBarcodePrinter::PPObjBarcodePrinter(void * extraPtr) : PPObjReference(PPOBJ_BCODEPRINTER, extraPtr)
+PPObjBarcodePrinter::PPObjBarcodePrinter(void * extraPtr) : PPObjReference(PPOBJ_BCODEPRINTER, extraPtr)
 {
 }
 
-int SLAPI PPObjBarcodePrinter::GetPacket(PPID id, PPBarcodePrinter * pPack)
+int PPObjBarcodePrinter::GetPacket(PPID id, PPBarcodePrinter * pPack)
 {
 	PPBarcodePrinter rec;
 	int    ok = Search(id, &rec);
@@ -40,7 +40,7 @@ int SLAPI PPObjBarcodePrinter::GetPacket(PPID id, PPBarcodePrinter * pPack)
 	return ok;
 }
 
-int SLAPI PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pPack, int use_ta)
+int PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -70,7 +70,7 @@ int SLAPI PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pP
 	return ok;
 }
 
-int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
+int PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 {
 	class BarcodePrinterDialog : public TDialog {
 	public:
@@ -316,27 +316,27 @@ enum BarcodeFormatToken {
 
 class BarcodeLabel : private SArray {
 public:
-	SLAPI  BarcodeLabel();
-	SLAPI ~BarcodeLabel();
-	const  BarcodeLabelParam * SLAPI GetParam() const;
-	uint   SLAPI GetEntryCount() const;
-	const  BarcodeLabelEntry * SLAPI GetEntry(uint);
-	int    SLAPI AddEntry(BarcodeLabelEntry *);
-	int    SLAPI ParseFormat(const RetailGoodsInfo *, const char * pFileName, const char * pFormatName);
-	void   SLAPI SetBarcodeWidth(int narrowPt, int widePt)
+	BarcodeLabel();
+	~BarcodeLabel();
+	const  BarcodeLabelParam * GetParam() const;
+	uint   GetEntryCount() const;
+	const  BarcodeLabelEntry * GetEntry(uint);
+	int    AddEntry(BarcodeLabelEntry *);
+	int    ParseFormat(const RetailGoodsInfo *, const char * pFileName, const char * pFormatName);
+	void   SetBarcodeWidth(int narrowPt, int widePt)
 	{
 		BLP.BcNarrowPt = narrowPt;
 		BLP.BcWidePt = widePt;
 	}
 private:
-	BarcodeFormatToken SLAPI NextToken(char ** ppLine, char * pBuf, size_t buflen);
-	int    SLAPI GetNumber(char ** ppLine, int * pNumber);
-	int    SLAPI GetPoint(char ** ppLine, int * pX, int * pY);
-	int    SLAPI GetText(int wrap, char ** ppLine);
-	int    SLAPI GetBarcode(int serial, char ** ppLine);
-	int    SLAPI SubstVar(char ** ppSrc, char ** ppDest);
-	int    SLAPI WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail);
-	void   SLAPI UpdateText(uint entryPos, const SString & rText);
+	BarcodeFormatToken NextToken(char ** ppLine, char * pBuf, size_t buflen);
+	int    GetNumber(char ** ppLine, int * pNumber);
+	int    GetPoint(char ** ppLine, int * pX, int * pY);
+	int    GetText(int wrap, char ** ppLine);
+	int    GetBarcode(int serial, char ** ppLine);
+	int    SubstVar(char ** ppSrc, char ** ppDest);
+	int    WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail);
+	void   UpdateText(uint entryPos, const SString & rText);
 
 	StringSet StrBuf;
 	BarcodeLabelParam BLP;
@@ -349,41 +349,41 @@ private:
 
 class DatamaxLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  DatamaxLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack), NumCopies(1)
+	DatamaxLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack), NumCopies(1)
 	{
 	}
-	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
-	virtual int SLAPI EndLabel();
-	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *);
+	virtual int StartLabel(const BarcodeLabelParam *, int numCopies);
+	virtual int EndLabel();
+	virtual int PutDataEntry(const BarcodeLabelEntry *);
 private:
 	int    NumCopies;
 };
 
 class ZebraLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  ZebraLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack), NumCopies(1)
+	ZebraLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack), NumCopies(1)
 	{
 	}
-	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
-	virtual int SLAPI EndLabel();
-	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *);
+	virtual int StartLabel(const BarcodeLabelParam *, int numCopies);
+	virtual int EndLabel();
+	virtual int PutDataEntry(const BarcodeLabelEntry *);
 private:
-	int    SLAPI PutCtrl(uint16);
-	int    SLAPI PutPosition(uint16 ctrl, int x, int y);
+	int    PutCtrl(uint16);
+	int    PutPosition(uint16 ctrl, int x, int y);
 	int    NumCopies;
 };
 
 class EltronLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  EltronLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack),
+	EltronLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack),
 		NumCopies(1), BcNarrowPt(0), BcWidePt(0)
 	{
 	}
-	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
-	virtual int SLAPI EndLabel();
-	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *);
+	virtual int StartLabel(const BarcodeLabelParam *, int numCopies);
+	virtual int EndLabel();
+	virtual int PutDataEntry(const BarcodeLabelEntry *);
 private:
-	int    SLAPI PutDataEntryPrefix(char letter, const BarcodeLabelEntry *);
+	int    PutDataEntryPrefix(char letter, const BarcodeLabelEntry *);
 	int    NumCopies;
 	int    BcNarrowPt;
 	int    BcWidePt;
@@ -391,18 +391,18 @@ private:
 
 class WindowsLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  WindowsLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	WindowsLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
 	{
 	}
-	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies)
-	{
-		return -1;
-	}
-	virtual int SLAPI EndLabel()
+	virtual int StartLabel(const BarcodeLabelParam *, int numCopies)
 	{
 		return -1;
 	}
-	virtual int SLAPI PutDataEntry(const BarcodeLabelEntry *)
+	virtual int EndLabel()
+	{
+		return -1;
+	}
+	virtual int PutDataEntry(const BarcodeLabelEntry *)
 	{
 		return -1;
 	}
@@ -476,30 +476,30 @@ enum BarcodeVarStr {
 #define FIRSTSUBSTVAR bcvsGoodsName
 #define NUMSUBSTVARS  41 // 24-->33, @v7.2.12 34->36, @v7.5.1 36-->37 @v7.6.10 37-->38 @v8.1.3 38-->39 @v9.8.11 39-->41
 
-SLAPI BarcodeLabel::BarcodeLabel() : SArray(sizeof(BarcodeLabelEntry)), P_GPack(0), P_GcPack(0)
+BarcodeLabel::BarcodeLabel() : SArray(sizeof(BarcodeLabelEntry)), P_GPack(0), P_GcPack(0)
 {
 	MEMSZERO(BLP);
 	uint   pos = 0;
 	StrBuf.add("!", &pos);
 }
 
-SLAPI BarcodeLabel::~BarcodeLabel()
+BarcodeLabel::~BarcodeLabel()
 {
 	delete P_GPack;
 	delete P_GcPack;
 }
 
-const BarcodeLabelParam * SLAPI BarcodeLabel::GetParam() const
+const BarcodeLabelParam * BarcodeLabel::GetParam() const
 {
 	return &BLP;
 }
 
-uint SLAPI BarcodeLabel::GetEntryCount() const
+uint BarcodeLabel::GetEntryCount() const
 {
 	return getCount();
 }
 
-const BarcodeLabelEntry * SLAPI BarcodeLabel::GetEntry(uint pos)
+const BarcodeLabelEntry * BarcodeLabel::GetEntry(uint pos)
 {
 	BarcodeLabelEntry * p_entry = static_cast<BarcodeLabelEntry *>(at(pos));
 	if(p_entry->TextIdx) {
@@ -512,7 +512,7 @@ const BarcodeLabelEntry * SLAPI BarcodeLabel::GetEntry(uint pos)
 	return static_cast<const BarcodeLabelEntry *>(p_entry);
 }
 
-int SLAPI BarcodeLabel::AddEntry(BarcodeLabelEntry * pEntry)
+int BarcodeLabel::AddEntry(BarcodeLabelEntry * pEntry)
 {
 	if(pEntry->Text) {
 		uint   pos = 0;
@@ -525,7 +525,7 @@ int SLAPI BarcodeLabel::AddEntry(BarcodeLabelEntry * pEntry)
 	return insert(pEntry) ? 1 : PPSetErrorSLib();
 }
 
-void SLAPI BarcodeLabel::UpdateText(uint entryPos, const SString & rText)
+void BarcodeLabel::UpdateText(uint entryPos, const SString & rText)
 {
 	BarcodeLabelEntry * p_entry = static_cast<BarcodeLabelEntry *>(at(entryPos));
 	if(rText.NotEmpty()) {
@@ -537,7 +537,7 @@ void SLAPI BarcodeLabel::UpdateText(uint entryPos, const SString & rText)
 		p_entry->TextIdx = 0;
 }
 
-BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t buflen)
+BarcodeFormatToken BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t buflen)
 {
 	BarcodeFormatToken tok;
 	char * s = *ppLine;
@@ -633,7 +633,7 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 	return tok;
 }
 
-int SLAPI BarcodeLabel::GetNumber(char ** ppLine, int * pNumber)
+int BarcodeLabel::GetNumber(char ** ppLine, int * pNumber)
 {
 	char   temp[32];
 	const char * p_org = *ppLine;
@@ -646,13 +646,13 @@ int SLAPI BarcodeLabel::GetNumber(char ** ppLine, int * pNumber)
 		return PPSetError(PPERR_BARLAB_NMBEXP, p_org);
 }
 
-int SLAPI BarcodeLabel::GetPoint(char ** ppLine, int * pX, int * pY)
+int BarcodeLabel::GetPoint(char ** ppLine, int * pX, int * pY)
 {
 	const char * p_org = *ppLine;
 	return (GetNumber(ppLine, pX) && GetNumber(ppLine, pY)) ? 1 : PPSetError(PPERR_BARLAB_POINTEXP, p_org);
 }
 
-int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
+int BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 {
 	PPObjGoods goods_obj;
 	char * s = *ppSrc;
@@ -845,7 +845,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 }
 
 // @todo Заменить использование этой функции методом SString::Wrap
-int SLAPI BarcodeLabel::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail)
+int BarcodeLabel::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail)
 {
 	int    ok = 1;
 	const  size_t len = sstrlen(pText);
@@ -873,7 +873,7 @@ int SLAPI BarcodeLabel::WrapText(const char * pText, uint maxLen, SString & rHea
 	return ok;
 }
 
-int SLAPI BarcodeLabel::GetText(int wrap, char ** ppLine)
+int BarcodeLabel::GetText(int wrap, char ** ppLine)
 {
 	int    ok = 1;
 	BarcodeLabelEntry entry;
@@ -950,7 +950,7 @@ int SLAPI BarcodeLabel::GetText(int wrap, char ** ppLine)
 	return ok;
 }
 
-int SLAPI BarcodeLabel::GetBarcode(int serial, char ** ppLine)
+int BarcodeLabel::GetBarcode(int serial, char ** ppLine)
 {
 	int    ok = 1;
 	size_t len = 0;
@@ -993,7 +993,7 @@ int SLAPI BarcodeLabel::GetBarcode(int serial, char ** ppLine)
 	return ok;
 }
 
-int SLAPI BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * pFileName, const char * pFormatName)
+int BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * pFileName, const char * pFormatName)
 {
 	int    ok = -1;
 	char   buf[512];
@@ -1121,7 +1121,7 @@ int SLAPI BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * p
 //
 // BarcodeLabelPrinter
 //
-/*static*/BarcodeLabelPrinter * SLAPI BarcodeLabelPrinter::CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack)
+/*static*/BarcodeLabelPrinter * BarcodeLabelPrinter::CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack)
 {
 	if(rPrnPack.PrinterType == PPBCPT_ZEBRA)
 		return new ZebraLabelPrinter(rPrnPack);
@@ -1137,11 +1137,11 @@ int SLAPI BarcodeLabel::ParseFormat(const RetailGoodsInfo * pRgi, const char * p
 
 //#define BLPF_PRINTALL   0x0001L // Печать всей выборки
 
-SLAPI BarcodeLabelPrinter::BarcodeLabelPrintParam::BarcodeLabelPrintParam() : PrinterID(0), NumCopies(0), Pad(0), LocID(0), Flags(0)
+BarcodeLabelPrinter::BarcodeLabelPrintParam::BarcodeLabelPrintParam() : PrinterID(0), NumCopies(0), Pad(0), LocID(0), Flags(0)
 {
 }
 
-static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintParam * pParam, int isExtDlg)
+static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintParam * pParam, int isExtDlg)
 {
 	class PrintBarcodeLabelDialog : public TDialog {
 	public:
@@ -1204,7 +1204,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPri
 	return ok;
 }
 
-/*static*/int SLAPI BarcodeLabelPrinter::UpLoad(PPID prnID, const char * pLoadName, int silent)
+/*static*/int BarcodeLabelPrinter::UpLoad(PPID prnID, const char * pLoadName, int silent)
 {
 	int    ok = 1;
 	SFile  f;
@@ -1275,7 +1275,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPri
 	return ok;
 }
 
-/*static*/int SLAPI BarcodeLabelPrinter::PrintGoodsLabel(PPID goodsID)
+/*static*/int BarcodeLabelPrinter::PrintGoodsLabel(PPID goodsID)
 {
 	int    ok = -1;
 	RetailGoodsInfo rgi;
@@ -1285,7 +1285,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPri
 	return ok;
 }
 
-/*static*/int SLAPI BarcodeLabelPrinter::PrintLotLabel(PPID lotID)
+/*static*/int BarcodeLabelPrinter::PrintLotLabel(PPID lotID)
 {
 	int    ok = -1;
 	RetailGoodsInfo rgi;
@@ -1294,7 +1294,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPri
 	return ok;
 }
 
-/*static*/int SLAPI BarcodeLabelPrinter::PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID prnID, int silent)
+/*static*/int BarcodeLabelPrinter::PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID prnID, int silent)
 {
 	int    ok = 1;
 	PPBarcodePrinter rec;
@@ -1357,7 +1357,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPri
 	return ok;
 }
 
-/*static*/int SLAPI BarcodeLabelPrinter::PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prnID, int silent)
+/*static*/int BarcodeLabelPrinter::PrintGoodsLabel2(RetailGoodsInfo * pRgi, PPID prnID, int silent)
 {
 	int    ok = 1;
 	PPBarcodePrinter rec;
@@ -1409,7 +1409,7 @@ static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPri
 	return ok;
 }
 
-int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam & rBclpp, TSCollection <RetailGoodsInfo> & rList)
+int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam & rBclpp, TSCollection <RetailGoodsInfo> & rList)
 {
 	int    ok = 1;
 	PPObjGoods gobj;
@@ -1484,7 +1484,7 @@ int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrint
 	return ok;
 }
 
-/*static*/int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uint pos)
+/*static*/int BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -1586,7 +1586,7 @@ int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrint
 	return ok;
 }
 
-/*static*/int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, uint pos)
+/*static*/int BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, uint pos)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -1717,11 +1717,11 @@ int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrint
 	return ok;
 }
 
-SLAPI BarcodeLabelPrinter::BarcodeLabelPrinter(const PPBarcodePrinter & rPrnPack) : PrnPack(rPrnPack)
+BarcodeLabelPrinter::BarcodeLabelPrinter(const PPBarcodePrinter & rPrnPack) : PrnPack(rPrnPack)
 {
 }
 
-SLAPI BarcodeLabelPrinter::~BarcodeLabelPrinter()
+BarcodeLabelPrinter::~BarcodeLabelPrinter()
 {
 }
 
@@ -1740,13 +1740,13 @@ static char * FASTCALL PutIntToBuf(char * pBuf, int n, int numDigits)
 	return longfmtz(n, numDigits, pBuf, 0);
 }
 
-int SLAPI BarcodeLabelPrinter::PutInt(int n, int numDigits)
+int BarcodeLabelPrinter::PutInt(int n, int numDigits)
 {
 	char   buf[32];
 	return PutStr(PutIntToBuf(buf, n, numDigits));
 }
 
-int SLAPI BarcodeLabelPrinter::PrintLabel(const char * pPort, const CommPortParams * pCpp)
+int BarcodeLabelPrinter::PrintLabel(const char * pPort, const CommPortParams * pCpp)
 {
 	int    c = 0;
 	int    comdvcs = IsComDvcSymb(pPort, &c);
@@ -1809,7 +1809,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabel(const char * pPort, const CommPortPara
 }
 
 // @vmiller
-int SLAPI BarcodeLabelPrinter::PrintLabelUsb(PPID devType)
+int BarcodeLabelPrinter::PrintLabelUsb(PPID devType)
 {
 	int    ok = 1, got_dev = 0;
 	uint   i = 0;
@@ -1876,7 +1876,7 @@ static BarCStdToDatamaxEntry _BarCStdTab[] = {
 	{BARCSTD_POSTNET,     'p'}
 };
 
-int SLAPI DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
+int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 {
 	char   buf[512];
 	size_t i = 0, j;
@@ -1956,7 +1956,7 @@ int SLAPI DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	return PutStr(buf);
 }
 
-int SLAPI DatamaxLabelPrinter::StartLabel(const BarcodeLabelParam * pParam, int numCopies)
+int DatamaxLabelPrinter::StartLabel(const BarcodeLabelParam * pParam, int numCopies)
 {
 	char   buf[256];
 	if(pParam->MemModule[0]) {
@@ -1989,7 +1989,7 @@ int SLAPI DatamaxLabelPrinter::StartLabel(const BarcodeLabelParam * pParam, int 
 	return 1;
 }
 
-int SLAPI DatamaxLabelPrinter::EndLabel()
+int DatamaxLabelPrinter::EndLabel()
 {
 	char   buf[256];
 	if(NumCopies > 1) {
@@ -2017,7 +2017,7 @@ int SLAPI DatamaxLabelPrinter::EndLabel()
 #define ZPL_B  0x0042U
 #define ZPL_PQ 0x5150U
 
-int SLAPI ZebraLabelPrinter::PutCtrl(uint16 code)
+int ZebraLabelPrinter::PutCtrl(uint16 code)
 {
 	const  char * cc = reinterpret_cast<const char *>(&code);
 	if(*cc) {
@@ -2033,7 +2033,7 @@ int SLAPI ZebraLabelPrinter::PutCtrl(uint16 code)
 	return 1;
 }
 
-int SLAPI ZebraLabelPrinter::PutPosition(uint16 ctrl, int x, int y)
+int ZebraLabelPrinter::PutPosition(uint16 ctrl, int x, int y)
 {
 	PutCtrl(ctrl);
 	PutInt(x, 0);
@@ -2042,7 +2042,7 @@ int SLAPI ZebraLabelPrinter::PutPosition(uint16 ctrl, int x, int y)
 	return 1;
 }
 
-int SLAPI ZebraLabelPrinter::StartLabel(const BarcodeLabelParam * param, int numCopies)
+int ZebraLabelPrinter::StartLabel(const BarcodeLabelParam * param, int numCopies)
 {
 	NumCopies = numCopies;
 	PutCtrl(ZPL_XA);   // ^XA
@@ -2052,7 +2052,7 @@ int SLAPI ZebraLabelPrinter::StartLabel(const BarcodeLabelParam * param, int num
 	return 1;
 }
 
-int SLAPI ZebraLabelPrinter::EndLabel()
+int ZebraLabelPrinter::EndLabel()
 {
 	if(NumCopies > 1) {
 		PutCtrl(ZPL_PQ);
@@ -2091,7 +2091,7 @@ static BarCStdToZebraEntry _Z_BarCStdTab[] = {
 	{BARCSTD_POSTNET,     'Z'}
 };
 
-int SLAPI ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
+int ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 {
 	int    c = 0;
 	PutPosition(ZPL_FO, pEntry->XPos, pEntry->YPos);
@@ -2163,7 +2163,7 @@ int SLAPI ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 #define ZPL_B  0x0042U
 #define ZPL_PQ 0x5150U
 
-int SLAPI EltronLabelPrinter::StartLabel(const BarcodeLabelParam * param, int numCopies)
+int EltronLabelPrinter::StartLabel(const BarcodeLabelParam * param, int numCopies)
 {
 	NumCopies = numCopies;
 	BcNarrowPt = param->BcNarrowPt; // @v8.0.9
@@ -2201,7 +2201,7 @@ int SLAPI EltronLabelPrinter::StartLabel(const BarcodeLabelParam * param, int nu
 	return 1;
 }
 
-int SLAPI EltronLabelPrinter::EndLabel()
+int EltronLabelPrinter::EndLabel()
 {
 	PutChr('P');   // Print
 	//PutInt(1, 0);  // Number of label sets
@@ -2238,7 +2238,7 @@ static const BarCStdToEltronEntry _E_BarCStdTab[] = {
 	{BARCSTD_POSTNET,     "P"}
 };
 
-int SLAPI EltronLabelPrinter::PutDataEntryPrefix(char letter, const BarcodeLabelEntry * pEntry)
+int EltronLabelPrinter::PutDataEntryPrefix(char letter, const BarcodeLabelEntry * pEntry)
 {
 	int    rot_c = '0';
 	const  int rot = pEntry->Rotation % 360;
@@ -2262,7 +2262,7 @@ int SLAPI EltronLabelPrinter::PutDataEntryPrefix(char letter, const BarcodeLabel
 	return 1;
 }
 
-int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
+int EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 {
 	size_t buf_size = 256;
 	char * p_temp_str = static_cast<char *>(SAlloc::C(buf_size, 1));

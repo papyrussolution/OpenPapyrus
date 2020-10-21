@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI UpdatePassword()
+int UpdatePassword()
 {
 	int    ok = 1;
 	char   password[64];
@@ -202,7 +202,7 @@ IMPL_HANDLE_EVENT(SecurDialog)
 	}
 }
 
-static int SLAPI ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
+static int ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
 {
 	int    ok = 1;
 	PPID   temp_id = 0;
@@ -224,7 +224,7 @@ static int SLAPI ValidateSecurData(TDialog * dlg, PPID objType, const void * pDa
 	return ok;
 }
 
-int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
+int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 {
 	int    ok = 1, valid_data = 0, r;
 	Reference * p_ref = PPRef;
@@ -329,7 +329,7 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-static int SLAPI CfgRoundDialog(PPConfig * pCfg)
+static int CfgRoundDialog(PPConfig * pCfg)
 {
 	int    r;
 	ushort v = 0;
@@ -478,7 +478,7 @@ private:
 	}
 };
 
-int SLAPI EditCfgOptionsDialog(PPConfig * pCfg, long, EmbedDialog * pDlg)
+int EditCfgOptionsDialog(PPConfig * pCfg, long, EmbedDialog * pDlg)
 {
 	int    r = 0, valid_data = 0;
 	CfgOptionsDialog * dlg = 0;
@@ -645,7 +645,7 @@ int ActiveUserListDlg::setupList()
 	return 1;
 }
 
-int SLAPI ActiveUsersListDialog()
+int ActiveUsersListDialog()
 {
 	int    ok = -1;
 	ActiveUserListDlg * dlg = new ActiveUserListDlg();

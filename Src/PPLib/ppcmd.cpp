@@ -10,12 +10,12 @@
 //
 /*static*/const char * PPCommandDescr::P_FactoryPrfx = "CFF_";
 
-SLAPI PPCommandDescr::PPCommandDescr()
+PPCommandDescr::PPCommandDescr()
 {
 	Init();
 }
 
-void SLAPI PPCommandDescr::Init()
+void PPCommandDescr::Init()
 {
 	CmdID = 0;
 	Flags = 0;
@@ -36,7 +36,7 @@ SString & FASTCALL PPCommandDescr::GetFactoryFuncName(SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI PPCommandDescr::Write(SBuffer & rBuf, long) const
+int PPCommandDescr::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
 	THROW_SL(rBuf.Write(CmdID));
@@ -54,7 +54,7 @@ int SLAPI PPCommandDescr::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-int SLAPI PPCommandDescr::Read(SBuffer & rBuf, long)
+int PPCommandDescr::Read(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	THROW_SL(rBuf.Read(CmdID));
@@ -72,7 +72,7 @@ int SLAPI PPCommandDescr::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-int SLAPI PPCommandDescr::LoadResource(long cmdDescrID)
+int PPCommandDescr::LoadResource(long cmdDescrID)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -95,7 +95,7 @@ int SLAPI PPCommandDescr::LoadResource(long cmdDescrID)
 	return ok;
 }
 
-/*static*/int SLAPI PPCommandDescr::GetResourceList(LAssocArray & rList)
+/*static*/int PPCommandDescr::GetResourceList(LAssocArray & rList)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -112,7 +112,7 @@ int SLAPI PPCommandDescr::LoadResource(long cmdDescrID)
 	return ok;
 }
 
-int SLAPI PPCommandDescr::GetResourceList(int loadText, StrAssocArray & rList)
+int PPCommandDescr::GetResourceList(int loadText, StrAssocArray & rList)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -129,7 +129,7 @@ int SLAPI PPCommandDescr::GetResourceList(int loadText, StrAssocArray & rList)
 	return ok;
 }
 
-PPCommandHandler * SLAPI PPCommandDescr::CreateInstance(long cmdDescrID)
+PPCommandHandler * PPCommandDescr::CreateInstance(long cmdDescrID)
 {
 	PPCommandHandler * p_h = 0;
 	SString ffn;
@@ -151,7 +151,7 @@ PPCommandHandler * SLAPI PPCommandDescr::CreateInstance(long cmdDescrID)
 	return p_h;
 }
 
-int SLAPI PPCommandDescr::DoCommand(PPCommand * pCmd, void * extraPtr)
+int PPCommandDescr::DoCommand(PPCommand * pCmd, void * extraPtr)
 {
 	int    ok = -1;
 	PPCommandHandler * p_h = 0;
@@ -178,7 +178,7 @@ int SLAPI PPCommandDescr::DoCommand(PPCommand * pCmd, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPCommandDescr::DoCommandSimple(PPID cmdDescrID, int allowEditParam, const char * pTextFilt, void * extraPtr)
+int PPCommandDescr::DoCommandSimple(PPID cmdDescrID, int allowEditParam, const char * pTextFilt, void * extraPtr)
 {
 	int    ok = -1;
 	SBuffer * p_filt_buf = 0;
@@ -205,7 +205,7 @@ int SLAPI PPCommandDescr::DoCommandSimple(PPID cmdDescrID, int allowEditParam, c
 	return ok;
 }
 
-int SLAPI PPCommandDescr::EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer * pParam, void * extraPtr)
+int PPCommandDescr::EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer * pParam, void * extraPtr)
 {
 	PPCommandHandler * p_h = CreateInstance(cmdDescrID);
 	return p_h ? p_h->EditParam(pParam, cmdID, extraPtr) : 0;
@@ -213,15 +213,15 @@ int SLAPI PPCommandDescr::EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer 
 //
 //
 //
-SLAPI PPCommandItem::PPCommandItem(int kind) : Kind(kind), Flags(0), ID(0)
+PPCommandItem::PPCommandItem(int kind) : Kind(kind), Flags(0), ID(0)
 {
 }
 
-SLAPI PPCommandItem::PPCommandItem(const PPCommandItem & rS) : Kind(rS.Kind), Flags(rS.Flags), ID(rS.ID), Name(rS.Name), Icon(rS.Icon)
+PPCommandItem::PPCommandItem(const PPCommandItem & rS) : Kind(rS.Kind), Flags(rS.Flags), ID(rS.ID), Name(rS.Name), Icon(rS.Icon)
 {
 }
 
-SLAPI PPCommandItem::~PPCommandItem()
+PPCommandItem::~PPCommandItem()
 {
 }
 
@@ -241,12 +241,12 @@ int FASTCALL PPCommandItem::Copy(const PPCommandItem & s)
 	return 1;
 }
 
-const PPCommandItem * SLAPI PPCommandItem::Next(uint * pPos) const
+const PPCommandItem * PPCommandItem::Next(uint * pPos) const
 {
 	return 0;
 }
 
-int SLAPI PPCommandItem::Enumerate(CmdItemIterFunc func, long parentID, void * extraPtr) const
+int PPCommandItem::Enumerate(CmdItemIterFunc func, long parentID, void * extraPtr) const
 {
 	int    ok = 1;
 	const PPCommandItem * p_item = 0;
@@ -258,7 +258,7 @@ int SLAPI PPCommandItem::Enumerate(CmdItemIterFunc func, long parentID, void * e
 	return ok;
 }
 
-PPCommandItem * SLAPI PPCommandItem::Dup() const
+PPCommandItem * PPCommandItem::Dup() const
 {
 	PPCommandItem * p_item = new PPCommandItem;
 	p_item->Copy(*this);
@@ -273,7 +273,7 @@ struct _kf_block {
 	int16  Flags;
 };
 
-int SLAPI PPCommandItem::Write(SBuffer & rBuf, long) const
+int PPCommandItem::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
 	_kf_block _kf(this);
@@ -285,7 +285,7 @@ int SLAPI PPCommandItem::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-int SLAPI PPCommandItem::Read(SBuffer & rBuf, long)
+int PPCommandItem::Read(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	_kf_block _kf(0);
@@ -299,7 +299,7 @@ int SLAPI PPCommandItem::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-int SLAPI PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@erik v10.6.1
+int PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@erik v10.6.1
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -327,7 +327,7 @@ int SLAPI PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@er
 	return ok;
 }
 
-int SLAPI PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6.1
+int PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6.1
 {
 	int ok = 1;
 	SString temp_buf;
@@ -362,7 +362,7 @@ int SLAPI PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6
 	return ok;
 }
 
-int SLAPI PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
 {
 	int yes = 1;
 	if(!pCommand)
@@ -380,7 +380,7 @@ int SLAPI PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
 	return 1;
 }
 
-/*virtual*/void SLAPI PPCommandItem::SetUniqueID(long * pID)
+/*virtual*/void PPCommandItem::SetUniqueID(long * pID)
 {
 	ID = *pID;
 	(*pID)++;
@@ -388,7 +388,7 @@ int SLAPI PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
 //
 //
 //
-SLAPI PPCommand::PPCommand() : PPCommandItem(kCommand), CmdID(0)
+PPCommand::PPCommand() : PPCommandItem(kCommand), CmdID(0)
 {
 	P = 0;
 	memzero(Reserve, sizeof(Reserve));
@@ -404,14 +404,14 @@ int FASTCALL PPCommand::Copy(const PPCommand & s)
 	return 1;
 }
 
-PPCommandItem * SLAPI PPCommand::Dup() const
+PPCommandItem * PPCommand::Dup() const
 {
 	PPCommand * p_item = new PPCommand;
 	p_item->Copy(*this);
 	return p_item;
 }
 
-int SLAPI PPCommand::Write(SBuffer & rBuf, long extraParam) const
+int PPCommand::Write(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
 	THROW(PPCommandItem::Write(rBuf, extraParam));
@@ -436,7 +436,7 @@ int SLAPI PPCommand::Write(SBuffer & rBuf, long extraParam) const
 	return ok;
 }
 
-int SLAPI PPCommand::Read(SBuffer & rBuf, const long extraParam)
+int PPCommand::Read(SBuffer & rBuf, const long extraParam)
 {
 	int    ok = 1;
 	THROW(PPCommandItem::Read(rBuf, extraParam));
@@ -448,7 +448,7 @@ int SLAPI PPCommand::Read(SBuffer & rBuf, const long extraParam)
 	return ok;
 }
 
-int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
+int PPCommand::Write2(void * pHandler, const long rwFlag) const
 {
 	int ok = 1;
 	SString temp_buf;
@@ -474,7 +474,7 @@ int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
 	return ok;
 }
 
-int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
+int PPCommand::Read2(void * pHandler, const long rwFlag)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -514,7 +514,7 @@ int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int SLAPI PPCommand::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommand::IsEqual(const void * pCommand) const  //@erik v10.6.1
 {
 	if(!pCommand)
 		return 0;
@@ -537,11 +537,11 @@ int SLAPI PPCommand::IsEqual(const void * pCommand) const  //@erik v10.6.1
 //
 //
 //
-SLAPI PPCommandFolder::PPCommandFolder() : PPCommandItem(kFolder)
+PPCommandFolder::PPCommandFolder() : PPCommandItem(kFolder)
 {
 }
 
-SLAPI PPCommandFolder::PPCommandFolder(const PPCommandFolder & rS) : PPCommandItem(rS)
+PPCommandFolder::PPCommandFolder(const PPCommandFolder & rS) : PPCommandItem(rS)
 {
 	Copy(rS);
 }
@@ -559,7 +559,7 @@ static int _GetIdList(const PPCommandItem * pItem, long parentID, void * extraPt
 	return 1;
 }
 
-int SLAPI PPCommandFolder::GetUniqueID(long * pID) const
+int PPCommandFolder::GetUniqueID(long * pID) const
 {
 	long   id = 0;
 	PPIDArray id_list;
@@ -571,7 +571,7 @@ int SLAPI PPCommandFolder::GetUniqueID(long * pID) const
 	return 1;
 }
 
-/*virtual*/void SLAPI PPCommandFolder::SetUniqueID(long * pID)
+/*virtual*/void PPCommandFolder::SetUniqueID(long * pID)
 {
 	PPCommandItem::SetUniqueID(pID);
 	for(uint i = 0; i < List.getCount(); i++)
@@ -591,7 +591,7 @@ int FASTCALL PPCommandFolder::Copy(const PPCommandFolder & s)
 	return ok;
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::Next(uint * pPos) const
+const PPCommandItem * PPCommandFolder::Next(uint * pPos) const
 {
 	if(*pPos < GetCount()) {
 		(*pPos)++;
@@ -601,7 +601,7 @@ const PPCommandItem * SLAPI PPCommandFolder::Next(uint * pPos) const
 		return 0;
 }
 
-int SLAPI PPCommandFolder::Write(SBuffer & rBuf, long extraParam) const
+int PPCommandFolder::Write(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
 	uint16 c = 0, i;
@@ -614,7 +614,7 @@ int SLAPI PPCommandFolder::Write(SBuffer & rBuf, long extraParam) const
 	return ok;
 }
 
-int SLAPI PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
+int PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
 {
 	int    ok = 1;
 	uint16 c = 0, i;
@@ -650,7 +650,7 @@ int SLAPI PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
 //
 // @erik v10.6.1 {
 //
-int SLAPI PPCommandFolder::Write2(void * pHandler, const long rwFlag) const // @recursion
+int PPCommandFolder::Write2(void * pHandler, const long rwFlag) const // @recursion
 {
 	int    ok = 1;
 	assert(pHandler);
@@ -684,7 +684,7 @@ int SLAPI PPCommandFolder::Write2(void * pHandler, const long rwFlag) const // @
 	return ok;
 }
 
-int SLAPI PPCommandFolder::Read2(void * pHandler, const long rwFlag)
+int PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 {
 	int    ok = 1;
 	PPCommandItem * p_command_item = 0;
@@ -736,7 +736,7 @@ int SLAPI PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int SLAPI PPCommandFolder::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommandFolder::IsEqual(const void * pCommand) const  //@erik v10.6.1
 {
 	int    yes = 1;
 	if(pCommand) {
@@ -765,17 +765,17 @@ int SLAPI PPCommandFolder::IsEqual(const void * pCommand) const  //@erik v10.6.1
 }
 // } @erik
 
-PPCommandItem * SLAPI PPCommandFolder::Dup() const
+PPCommandItem * PPCommandFolder::Dup() const
 {
 	PPCommandFolder * p_item = new PPCommandFolder;
 	p_item->Copy(*this);
 	return p_item;
 }
 
-uint SLAPI PPCommandFolder::GetCount() const { return List.getCount(); }
-const PPCommandItem * SLAPI PPCommandFolder::Get(uint pos) const { return (pos < GetCount()) ? List.at(pos) : 0; }
+uint PPCommandFolder::GetCount() const { return List.getCount(); }
+const PPCommandItem * PPCommandFolder::Get(uint pos) const { return (pos < GetCount()) ? List.at(pos) : 0; }
 
-int SLAPI PPCommandFolder::Update(uint pos, const PPCommandItem * pItem)
+int PPCommandFolder::Update(uint pos, const PPCommandItem * pItem)
 {
 	int    ok = 1;
 	const  uint c = GetCount();
@@ -805,7 +805,7 @@ int SLAPI PPCommandFolder::Update(uint pos, const PPCommandItem * pItem)
 	return ok;
 }
 
-int SLAPI PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
+int PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
 {
 	int    ok = 1;
 	THROW_INVARG(pItem);
@@ -835,7 +835,7 @@ int SLAPI PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
 	return ok;
 }
 
-int SLAPI PPCommandFolder::AddSeparator(int pos)
+int PPCommandFolder::AddSeparator(int pos)
 {
 	int    ok = 1;
 	PPCommandItem * p_item = new PPCommandItem(kSeparator);
@@ -847,7 +847,7 @@ int SLAPI PPCommandFolder::AddSeparator(int pos)
 	return ok;
 }
 
-int SLAPI PPCommandFolder::Remove(uint pos)
+int PPCommandFolder::Remove(uint pos)
 {
 	if(pos < GetCount()) {
 		List.atFree(pos);
@@ -857,7 +857,7 @@ int SLAPI PPCommandFolder::Remove(uint pos)
 		return 0;
 }
 
-/*static*/int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArray * pAry, int isDesktop)
+/*static*/int PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArray * pAry, int isDesktop)
 {
 	int    ok = 1;
 	SString db_symb;
@@ -919,7 +919,7 @@ int _GetIdParentList(const PPCommandItem * pItem, long parentID, void * extraPtr
 	return ok;
 }
 
-int SLAPI PPCommandFolder::GetCommandList(StrAssocArray * pList, int onlyFolders)
+int PPCommandFolder::GetCommandList(StrAssocArray * pList, int onlyFolders)
 {
 	int    ok = -1;
 	if(pList) {
@@ -939,7 +939,7 @@ int SLAPI PPCommandFolder::GetCommandList(StrAssocArray * pList, int onlyFolders
 	return ok;
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::SearchByName(const char * pName, const char * pDbSymb, uint * pPos) const
+const PPCommandItem * PPCommandFolder::SearchByName(const char * pName, const char * pDbSymb, uint * pPos) const
 {
 	uint   pos = 0;
 	const  PPCommandItem * p_ret_item = 0;
@@ -956,7 +956,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchByName(const char * pName, co
 	return p_ret_item;
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::SearchByID(long id, uint * pPos) const
+const PPCommandItem * PPCommandFolder::SearchByID(long id, uint * pPos) const
 {
 	uint   pos = 0;
 	PPCommandItem * p_item = 0;
@@ -990,7 +990,7 @@ static int _SearchByID(const PPCommandItem * pItem, long parentID, void * extraP
 	return ok;
 }
 
-PPCommandItem * SLAPI PPCommandFolder::SearchByIDRecursive(long id, long * pParentID)
+PPCommandItem * PPCommandFolder::SearchByIDRecursive(long id, long * pParentID)
 {
 	_Srch _s(0, id, 0);
 	if(Enumerate(_SearchByID, ID, &_s) > 0)
@@ -998,7 +998,7 @@ PPCommandItem * SLAPI PPCommandFolder::SearchByIDRecursive(long id, long * pPare
 	return const_cast<PPCommandItem *>(_s.P_Item); // @badcast
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::SearchByIDRecursive_Const(long id, long * pParentID) const
+const PPCommandItem * PPCommandFolder::SearchByIDRecursive_Const(long id, long * pParentID) const
 {
 	_Srch _s(0, id, 0);
 	if(Enumerate(_SearchByID, ID, &_s) > 0)
@@ -1006,7 +1006,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchByIDRecursive_Const(long id, 
 	return _s.P_Item;
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::SearchByCoord(TPoint coord, const PPDesktop & rD, uint * pPos) const
+const PPCommandItem * PPCommandFolder::SearchByCoord(TPoint coord, const PPDesktop & rD, uint * pPos) const
 {
 	const  int _igap = rD.GetIconGap();
 	const  int _isz  = rD.GetIconSize();
@@ -1024,7 +1024,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchByCoord(TPoint coord, const P
 	return p_item;
 }
 
-int SLAPI PPCommandFolder::SearchFreeCoord(RECT r, const PPDesktop & rD, TPoint * pCoord) const
+int PPCommandFolder::SearchFreeCoord(RECT r, const PPDesktop & rD, TPoint * pCoord) const
 {
 	const  int _igap = rD.GetIconGap();
 	const  int _isz  = rD.GetIconSize();
@@ -1046,7 +1046,7 @@ int SLAPI PPCommandFolder::SearchFreeCoord(RECT r, const PPDesktop & rD, TPoint 
 	return ok;
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::SearchFirst(uint * pPos)
+const PPCommandItem * PPCommandFolder::SearchFirst(uint * pPos)
 {
 	POINT  c;
 	long   pos = -1;
@@ -1067,7 +1067,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchFirst(uint * pPos)
 	return (pos >= 0) ? Get(static_cast<uint>(pos)) : 0;
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::SearchNextByCoord(POINT coord, const PPDesktop & rD, Direction next, uint * pPos)
+const PPCommandItem * PPCommandFolder::SearchNextByCoord(POINT coord, const PPDesktop & rD, Direction next, uint * pPos)
 {
 	const  int _igap = rD.GetIconGap();
 	const  int _isz  = rD.GetIconSize();
@@ -1097,7 +1097,7 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchNextByCoord(POINT coord, cons
 	return (pos >= 0) ? Get(static_cast<uint>(pos)) : 0;
 }
 
-int SLAPI PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPIDArray * pAry)
+int PPCommandFolder::GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPIDArray * pAry)
 {
 	const  int _isz  = rD.GetIconSize();
 	int    found = 0;
@@ -1138,7 +1138,7 @@ int PPCommandFolder::GetIntersectIDs(TPoint coord, const PPDesktop & rD, PPIDArr
 	return GetIntersectIDs(ir, rD, pAry);
 }
 
-int SLAPI PPCommandFolder::GetIconRect(long id, const PPDesktop & rD, TRect * pRect) const
+int PPCommandFolder::GetIconRect(long id, const PPDesktop & rD, TRect * pRect) const
 {
 	//const  int _isz = rD.GetIconSize();
 	int    ok = -1;
@@ -1154,12 +1154,12 @@ int SLAPI PPCommandFolder::GetIconRect(long id, const PPDesktop & rD, TRect * pR
 //
 //
 //
-SLAPI PPCommandGroup::PPCommandGroup() : PPCommandFolder()
+PPCommandGroup::PPCommandGroup() : PPCommandFolder()
 {
 	Kind = kGroup;
 }
 
-SLAPI PPCommandGroup::PPCommandGroup(const PPCommandGroup & rS)
+PPCommandGroup::PPCommandGroup(const PPCommandGroup & rS)
 {
 	Copy(rS);
 }
@@ -1175,7 +1175,7 @@ const SString & PPCommandGroup::GetLogo() const
 	return Logo_;
 }
 
-int SLAPI PPCommandGroup::SetLogo(const char * pPath)
+int PPCommandGroup::SetLogo(const char * pPath)
 {
 	int   ok = 1;
 	Flags &= ~fBkgndImage;
@@ -1209,7 +1209,7 @@ int FASTCALL PPCommandGroup::IsDbSymbEq(const PPCommandGroup & rGrp) const
 	return BIN(DbSymb.CmpNC(rGrp.DbSymb) == 0);
 }
 
-void SLAPI PPCommandGroup::GenerateGuid()
+void PPCommandGroup::GenerateGuid()
 {
 	DeskGuid.Generate();
 }
@@ -1228,14 +1228,14 @@ int FASTCALL PPCommandGroup::Copy(const PPCommandGroup & s)
 	return PPCommandFolder::Copy(s);
 }
 
-PPCommandItem * SLAPI PPCommandGroup::Dup() const
+PPCommandItem * PPCommandGroup::Dup() const
 {
 	PPCommandGroup * p_item = new PPCommandGroup;
 	p_item->Copy(*this);
 	return p_item;
 }
 
-int SLAPI PPCommandGroup::Write(SBuffer & rBuf, long extraParam) const
+int PPCommandGroup::Write(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
 	THROW(PPCommandFolder::Write(rBuf, extraParam));
@@ -1260,7 +1260,7 @@ int SLAPI PPCommandGroup::Write(SBuffer & rBuf, long extraParam) const
 	return ok;
 }
 
-int SLAPI PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
+int PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
 {
 	int    ok = 1;
 	THROW(PPCommandFolder::Read(rBuf, extraParam));
@@ -1290,7 +1290,7 @@ int SLAPI PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
 }
 
 //@erik v10.7.6 {
-int SLAPI PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
+int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1338,7 +1338,7 @@ int SLAPI PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 	return ok;
 }
 
-int SLAPI PPCommandGroup::Read2(void * pHandler, const long rwFlag)
+int PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 {
 	int    ok = 1, state = 0;
 	SString temp_buf;
@@ -1390,7 +1390,7 @@ int SLAPI PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int SLAPI PPCommandGroup::IsEqual(const void * pCommand) const  //@erik v10.6.1
+int PPCommandGroup::IsEqual(const void * pCommand) const  //@erik v10.6.1
 {
 	int yes = 1;
 	if(pCommand){
@@ -1413,7 +1413,7 @@ int SLAPI PPCommandGroup::IsEqual(const void * pCommand) const  //@erik v10.6.1
 }
 // } @erik
 
-int SLAPI PPCommandGroup::LoadLogo()
+int PPCommandGroup::LoadLogo()
 {
 	int    ok = -1;
 	SString buf, dir;
@@ -1428,7 +1428,7 @@ int SLAPI PPCommandGroup::LoadLogo()
 	return ok;
 }
 
-int SLAPI PPCommandGroup::StoreLogo()
+int PPCommandGroup::StoreLogo()
 {
 	int    ok = 1;
 	SString buf, dir;
@@ -1453,7 +1453,7 @@ PPCommandGroup * FASTCALL PPCommandGroup::GetDesktop(long id)
 	return (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(List.at(pos)) : 0;
 }
 
-void SLAPI PPCommandGroup::InitDefaultDesktop(const char * pName)
+void PPCommandGroup::InitDefaultDesktop(const char * pName)
 {
 	Name = pName;
 	CurDict->GetDbSymb(DbSymb);
@@ -1464,7 +1464,7 @@ void SLAPI PPCommandGroup::InitDefaultDesktop(const char * pName)
 //
 #define PPCS_SIGNATURE 0x54435050L
 
-PPCommandMngr * SLAPI GetCommandMngr(int readOnly, int isDesktop, const char * pPath /*=0*/)
+PPCommandMngr * GetCommandMngr(int readOnly, int isDesktop, const char * pPath /*=0*/)
 {
 	PPCommandMngr * p_mgr = 0;
 	SString path;
@@ -1487,12 +1487,12 @@ PPCommandMngr * SLAPI GetCommandMngr(int readOnly, int isDesktop, const char * p
 }
 
 /*
-int SLAPI PPCommandMngr::Backup()
+int PPCommandMngr::Backup()
 {
 }
 */
 
-SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly, int isDesktop) : ReadOnly(readOnly)
+PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly, int isDesktop) : ReadOnly(readOnly)
 {
 	SString temp_buf;
 	long   mode = 0;
@@ -1521,16 +1521,16 @@ SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly, int isD
 	}
 }
 
-SLAPI PPCommandMngr::~PPCommandMngr()
+PPCommandMngr::~PPCommandMngr()
 {
 }
 
-int SLAPI PPCommandMngr::IsValid_() const
+int PPCommandMngr::IsValid_() const
 {
 	return F.IsValid() ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPCommandMngr::Save__(const PPCommandGroup * pCmdGrp)
+int PPCommandMngr::Save__(const PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1;
 	Hdr    hdr;
@@ -1552,7 +1552,7 @@ int SLAPI PPCommandMngr::Save__(const PPCommandGroup * pCmdGrp)
 	return ok;
 }
 
-int SLAPI PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
+int PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1, r = 0;
 	Hdr    hdr;
@@ -1575,7 +1575,7 @@ int SLAPI PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 }
 
 //@erik v10.6.1 {
-int SLAPI PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
+int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 {
 	int    ok = 1;
 	SString path, guid_str;
@@ -1629,7 +1629,7 @@ int SLAPI PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFl
 	return ok;
 }
 
-int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
+int PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_xml_parser = 0;
@@ -1736,7 +1736,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 	return ok;
 }
 
-int SLAPI PPCommandMngr::SaveFromAllTo(const long rwFlag)
+int PPCommandMngr::SaveFromAllTo(const long rwFlag)
 {
 	int    ok = 1;
 	PPCommandGroup cg_from_xml, cg_from_bin, cg_final;
@@ -1758,7 +1758,7 @@ int SLAPI PPCommandMngr::SaveFromAllTo(const long rwFlag)
 	return ok;
 }
 
-int SLAPI PPCommandMngr::ConvertDesktopTo(const long rwFlag)
+int PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1782,7 +1782,7 @@ int SLAPI PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 	return ok;
 }
 
-int SLAPI PPCommandMngr::DeleteDesktopByGUID(const SString &guid, const long rwFlag)
+int PPCommandMngr::DeleteDesktopByGUID(const SString &guid, const long rwFlag)
 {
 	int    ok = -1; // @v10.8.9 @fix ok;-->ok=-1;
 	SString path, temp_buf;
@@ -1811,22 +1811,22 @@ int PPCommandMngr::GetMenuDir(SString &rDesksPath)
 	return 1;
 }
 
-SLAPI PPCommandHandler::PPCommandHandler(const PPCommandDescr * pDescr)
+PPCommandHandler::PPCommandHandler(const PPCommandDescr * pDescr)
 {
 	if(!RVALUEPTR(D, pDescr))
 		MEMSZERO(D);
 }
 
-SLAPI PPCommandHandler::~PPCommandHandler()
+PPCommandHandler::~PPCommandHandler()
 {
 }
 
-int SLAPI PPCommandHandler::EditParam(SBuffer * pParam, long, void * extraPtr)
+int PPCommandHandler::EditParam(SBuffer * pParam, long, void * extraPtr)
 {
 	return -1;
 }
 
-int SLAPI PPCommandHandler::Run(SBuffer * pParam, long, void * extraPtr)
+int PPCommandHandler::Run(SBuffer * pParam, long, void * extraPtr)
 {
 	return -1;
 }
@@ -1835,7 +1835,7 @@ int SLAPI PPCommandHandler::Run(SBuffer * pParam, long, void * extraPtr)
 //
 #define ICON_COMMAND_BIAS 10000L
 
-int SLAPI EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
+int EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
 {
 	int    ok = 1;
 	size_t sav_offs = 0;
@@ -1862,7 +1862,7 @@ int SLAPI EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
 	return ok;
 }
 
-int SLAPI RunPPViewCmd(int viewID, SBuffer * pParam, long menuCm, long cmdID, void * extraPtr)
+int RunPPViewCmd(int viewID, SBuffer * pParam, long menuCm, long cmdID, void * extraPtr)
 {
 	int    ok = 1;
 	PPBaseFilt * p_filt = 0;
@@ -1883,10 +1883,10 @@ int SLAPI RunPPViewCmd(int viewID, SBuffer * pParam, long menuCm, long cmdID, vo
 
 class CMD_HDL_CLS(DEFAULT) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(DEFAULT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(DEFAULT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(D.ViewId) {
@@ -1899,7 +1899,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(D.ViewId) {
@@ -1926,14 +1926,14 @@ IMPLEMENT_CMD_HDL_FACTORY(DEFAULT);
 //
 class CMD_HDL_CLS(ADDPERSON) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(ADDPERSON)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(ADDPERSON)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		return -1;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2076,10 +2076,10 @@ static int WritePrjTaskPacket(const PPPrjTaskPacket * pPack, SBuffer & rBuf, lon
 
 class CMD_HDL_CLS(ADDTASK) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(ADDTASK)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(ADDTASK)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2104,7 +2104,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if((D.MenuCm || cmdID)&& APPL) {
@@ -2134,10 +2134,10 @@ IMPLEMENT_CMD_HDL_FACTORY(ADDTASK);
 //
 class CMD_HDL_CLS(ADDPERSONEVENT) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(ADDPERSONEVENT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(ADDPERSONEVENT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
 		size_t sav_offs = 0;
@@ -2156,9 +2156,9 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr);
+	virtual int Run(SBuffer * pParam, long, void * extraPtr);
 private:
-	int    SLAPI RunBySymb(SBuffer * pSymb);
+	int    RunBySymb(SBuffer * pSymb);
 	PPObjPersonEvent PsnEvObj;
 };
 
@@ -2279,7 +2279,7 @@ int SelectPersonByCodeDialog::getDTS(Rec * pData)
 	return ok;
 }
 
-int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
+int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 {
 	int    ok = -1;
 	SelectPersonByCodeDialog * p_dlg = 0;
@@ -2466,7 +2466,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 	return ok;
 }
 
-int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, void * extraPtr)
+int CMD_HDL_CLS(ADDPERSONEVENT)::Run(SBuffer * pParam, long cmdID, void * extraPtr)
 {
 	int    ok = -1;
 	int    interactive_level = 2;
@@ -2637,10 +2637,10 @@ int CashNodeFiltDialog::getDTS(CashNodePaneFilt * pData)
 
 class CMD_HDL_CLS(CASHNODEPANEL) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(CASHNODEPANEL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(CASHNODEPANEL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
 		size_t sav_offs = 0;
@@ -2672,7 +2672,7 @@ public:
 		ZDELETE(p_filt);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if((D.MenuCm || cmdID) && APPL) {
@@ -2692,10 +2692,10 @@ IMPLEMENT_CMD_HDL_FACTORY(CASHNODEPANEL);
 //
 class CMD_HDL_CLS(ADDBILL) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(ADDBILL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(ADDBILL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2717,7 +2717,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(APPL) {
@@ -2751,7 +2751,7 @@ public:
 
 IMPLEMENT_CMD_HDL_FACTORY(ADDBILL);
 
-int SLAPI SearchDlvrAddr()
+int SearchDlvrAddr()
 {
 	int    ok = -1;
 	SString title, inp_title, srch_str;
@@ -2781,14 +2781,14 @@ int SLAPI SearchDlvrAddr()
 
 class CMD_HDL_CLS(SEARCHDLVRADDR) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(SEARCHDLVRADDR)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(SEARCHDLVRADDR)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		return -1;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		PPApp * p_app = static_cast<PPApp *>(APPL);
@@ -2814,7 +2814,7 @@ public:
 		memcpy(PrivateSignature, P_PrivSign, sizeof(PrivateSignature));
 		memzero(Reserve2, sizeof(Reserve2));
 	}
-	int    SLAPI Write(SBuffer & rBuf, long) const
+	int    Write(SBuffer & rBuf, long) const
 	{
 		//return (rBuf.Write(GrpID) && rBuf.Write(PrcID) && rBuf.Write(Status) && rBuf.Write(Reserve)) ? 1 : PPSetErrorSLib();
 		int    ok = 1;
@@ -2829,7 +2829,7 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	int    SLAPI Read(SBuffer & rBuf, long)
+	int    Read(SBuffer & rBuf, long)
 	{
 		int    ok = 1;
 		if(rBuf.GetAvailableSize()) {
@@ -2872,10 +2872,10 @@ public:
 
 class CMD_HDL_CLS(CREATETECHSESS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(CREATETECHSESS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(CREATETECHSESS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -2924,7 +2924,7 @@ public:
 		delete p_dlg;
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		PPApp * p_app = static_cast<PPApp *>(APPL);
@@ -2994,10 +2994,10 @@ IMPLEMENT_CMD_HDL_FACTORY(CREATETECHSESS);
 
 class CMD_HDL_CLS(CTBLORDCREATE) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(CTBLORDCREATE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(CTBLORDCREATE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3020,7 +3020,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		PPApp * p_app = static_cast<PPApp *>(APPL);
@@ -3055,10 +3055,10 @@ IMPLEMENT_CMD_HDL_FACTORY(CTBLORDCREATE);
 
 class CMD_HDL_CLS(UPDATEQUOTS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(UPDATEQUOTS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(UPDATEQUOTS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3083,7 +3083,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		PPApp * p_app = static_cast<PPApp *>(APPL);
@@ -3120,10 +3120,10 @@ IMPLEMENT_CMD_HDL_FACTORY(UPDATEQUOTS);
 
 class CMD_HDL_CLS(TRANSMITMODIFICATIONS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(TRANSMITMODIFICATIONS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(TRANSMITMODIFICATIONS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3146,7 +3146,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
 		int    ok = -1;
 		if(APPL) {
@@ -3183,14 +3183,14 @@ IMPLEMENT_CMD_HDL_FACTORY(TRANSMITMODIFICATIONS);
 //
 //
 // prototype @defined(filtrnsm.cpp)
-int SLAPI EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions);
+int EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions);
 
 class CMD_HDL_CLS(RECEIVEPACKETS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(RECEIVEPACKETS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(RECEIVEPACKETS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r;
 		ObjReceiveParam param;
@@ -3206,7 +3206,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		ObjReceiveParam param;
@@ -3225,14 +3225,14 @@ IMPLEMENT_CMD_HDL_FACTORY(RECEIVEPACKETS);
 //
 class CMD_HDL_CLS(SEARCHBILLBYCTX) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(SEARCHBILLBYCTX)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(SEARCHBILLBYCTX)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		return -1;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3326,10 +3326,10 @@ IMPLEMENT_CMD_HDL_FACTORY(SEARCHBILLBYCTX);
 //
 class CMD_HDL_CLS(WRITEOFFDRAFTS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(WRITEOFFDRAFTS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(WRITEOFFDRAFTS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrWrOffDraftFilt filt; // PPBaseFilt
@@ -3344,7 +3344,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrWrOffDraftFilt filt, * p_filt = 0;
@@ -3371,10 +3371,10 @@ IMPLEMENT_CMD_HDL_FACTORY(WRITEOFFDRAFTS);
 //
 class CMD_HDL_CLS(INFOKIOSK) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(INFOKIOSK)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(INFOKIOSK)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		InfoKioskPaneFilt filt;
@@ -3389,7 +3389,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		InfoKioskPaneFilt filt, * p_filt = 0;
@@ -3411,10 +3411,10 @@ IMPLEMENT_CMD_HDL_FACTORY(INFOKIOSK);
 //
 class CMD_HDL_CLS(UNIFYGOODSPRICE) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(UNIFYGOODSPRICE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(UNIFYGOODSPRICE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3430,7 +3430,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3453,15 +3453,15 @@ IMPLEMENT_CMD_HDL_FACTORY(UNIFYGOODSPRICE);
 //
 //
 //
-int SLAPI FASTCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
-int SLAPI FASTCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);  // @prototype(ppjob.cpp)
+int FASTCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
+int FASTCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);  // @prototype(ppjob.cpp)
 
 class CMD_HDL_CLS(TESTPREDICTSALESTBL) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(TESTPREDICTSALESTBL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(TESTPREDICTSALESTBL)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
 		PrcssrPrediction::Param param;
@@ -3478,7 +3478,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrPrediction::Param param;
@@ -3500,10 +3500,10 @@ IMPLEMENT_CMD_HDL_FACTORY(TESTPREDICTSALESTBL);
 //
 class CMD_HDL_CLS(EXPORTGOODSRESTUHTT) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(EXPORTGOODSRESTUHTT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(EXPORTGOODSRESTUHTT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		uint   val = 0;
@@ -3524,7 +3524,7 @@ public:
 			pParam->SetRdOffs(sav_offs);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize() != 0) {
@@ -3546,10 +3546,10 @@ IMPLEMENT_CMD_HDL_FACTORY(EXPORTGOODSRESTUHTT);
 //
 class CMD_HDL_CLS(IMPORTBILLS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(IMPORTBILLS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(IMPORTBILLS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3571,7 +3571,7 @@ public:
 		CATCHZOKPPERR
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize()) {
@@ -3598,10 +3598,10 @@ IMPLEMENT_CMD_HDL_FACTORY(IMPORTBILLS);
 #if 0 // @construction {
 class CMD_HDL_CLS(IMPORTGOODS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(IMPORTGOODS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(IMPORTGOODS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3623,7 +3623,7 @@ public:
 		CATCHZOKPPERR
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize()) {
@@ -3650,10 +3650,10 @@ IMPLEMENT_CMD_HDL_FACTORY(IMPORTGOODS);
 //
 class CMD_HDL_CLS(PROCESSOBJTEXT) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(PROCESSOBJTEXT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(PROCESSOBJTEXT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3669,7 +3669,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3694,10 +3694,10 @@ IMPLEMENT_CMD_HDL_FACTORY(PROCESSOBJTEXT);
 //
 class CMD_HDL_CLS(PERSONEVENTBYREADER) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(PERSONEVENTBYREADER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(PERSONEVENTBYREADER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
@@ -3716,7 +3716,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3738,10 +3738,10 @@ IMPLEMENT_CMD_HDL_FACTORY(PERSONEVENTBYREADER);
 // @vmiller
 class CMD_HDL_CLS(TSESSAUTOSMS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(TSESSAUTOSMS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(TSESSAUTOSMS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1, r = 1;
 		uint   val = 0;
@@ -3764,7 +3764,7 @@ public:
 		CATCHZOKPPERR
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam->GetAvailableSize()) {
@@ -3787,10 +3787,10 @@ IMPLEMENT_CMD_HDL_FACTORY(TSESSAUTOSMS);
 //
 class CMD_HDL_CLS(CREATEDRAFTBYSUPPLORDER) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(CREATEDRAFTBYSUPPLORDER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(CREATEDRAFTBYSUPPLORDER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t preserve_offs = 0;
@@ -3815,7 +3815,7 @@ public:
 		ZDELETE(p_filt);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -3835,10 +3835,10 @@ IMPLEMENT_CMD_HDL_FACTORY(CREATEDRAFTBYSUPPLORDER);
 //
 class CMD_HDL_CLS(SENDBILLS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(SENDBILLS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(SENDBILLS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		size_t preserve_offs = 0;
@@ -3862,7 +3862,7 @@ public:
 		ZDELETE(p_filt);
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam && pParam->GetAvailableSize()) {
@@ -3885,10 +3885,10 @@ IMPLEMENT_CMD_HDL_FACTORY(SENDBILLS);
 // @v10.4.1 {
 class CMD_HDL_CLS(SENDBILLSWITHFILT) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(SENDBILLSWITHFILT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(SENDBILLSWITHFILT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		const size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
@@ -3920,7 +3920,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = 1;
 		if(pParam && pParam->GetAvailableSize()) {
@@ -3944,10 +3944,10 @@ IMPLEMENT_CMD_HDL_FACTORY(SENDBILLSWITHFILT);
 //
 class CMD_HDL_CLS(EXPORTDBTBLTRANSFER) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(EXPORTDBTBLTRANSFER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(EXPORTDBTBLTRANSFER)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -3970,7 +3970,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -3992,10 +3992,10 @@ IMPLEMENT_CMD_HDL_FACTORY(EXPORTDBTBLTRANSFER);
 //
 class CMD_HDL_CLS(EXPORTDBTBLBILL) : public CMD_HDL_CLS(EXPORTDBTBLTRANSFER) {
 public:
-	SLAPI  CMD_HDL_CLS(EXPORTDBTBLBILL)(const PPCommandDescr * pDescr) : CMD_HDL_CLS(EXPORTDBTBLTRANSFER)(pDescr)
+	CMD_HDL_CLS(EXPORTDBTBLBILL)(const PPCommandDescr * pDescr) : CMD_HDL_CLS(EXPORTDBTBLTRANSFER)(pDescr)
 	{
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPDbTableXmlExportParam_TrfrBill filt;
@@ -4017,10 +4017,10 @@ IMPLEMENT_CMD_HDL_FACTORY(EXPORTDBTBLBILL);
 //
 class CMD_HDL_CLS(IMPORTFIAS) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(IMPORTFIAS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(IMPORTFIAS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		FiasImporter::Param filt;
@@ -4043,7 +4043,7 @@ public:
 		ENDCATCH
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		FiasImporter::Param filt;
@@ -4065,10 +4065,10 @@ IMPLEMENT_CMD_HDL_FACTORY(IMPORTFIAS);
 //
 class CMD_HDL_CLS(SUPPLINTERCHANGE) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(SUPPLINTERCHANGE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(SUPPLINTERCHANGE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4084,7 +4084,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4109,10 +4109,10 @@ IMPLEMENT_CMD_HDL_FACTORY(SUPPLINTERCHANGE);
 //
 class CMD_HDL_CLS(PROCESSOSM) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(PROCESSOSM)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(PROCESSOSM)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4128,7 +4128,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrOsmFilt filt;
@@ -4149,10 +4149,10 @@ IMPLEMENT_CMD_HDL_FACTORY(PROCESSOSM);
 //
 class CMD_HDL_CLS(PROCESSSARTRE) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(PROCESSSARTRE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(PROCESSSARTRE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4168,7 +4168,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrSartreFilt filt;
@@ -4189,10 +4189,10 @@ IMPLEMENT_CMD_HDL_FACTORY(PROCESSSARTRE);
 //
 class CMD_HDL_CLS(BILLAUTOCREATE) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(BILLAUTOCREATE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(BILLAUTOCREATE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4208,7 +4208,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PPBillAutoCreateParam filt;
@@ -4236,10 +4236,10 @@ IMPLEMENT_CMD_HDL_FACTORY(BILLAUTOCREATE);
 //
 class CMD_HDL_CLS(TIMESERIESSA) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(TIMESERIESSA)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(TIMESERIESSA)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4255,7 +4255,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		PrcssrTsStrategyAnalyze prc;
@@ -4278,10 +4278,10 @@ IMPLEMENT_CMD_HDL_FACTORY(TIMESERIESSA);
 //
 class CMD_HDL_CLS(EXPORTVIEW) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(EXPORTVIEW)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(EXPORTVIEW)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4295,7 +4295,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = 1;
 		PPView::ExecNfViewParam param;
@@ -4347,10 +4347,10 @@ static int EditTextFileParamDialog(EditTextFileParam * pData)
 
 class CMD_HDL_CLS(OPENTEXTFILE) : public PPCommandHandler {
 public:
-	SLAPI  CMD_HDL_CLS(OPENTEXTFILE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(OPENTEXTFILE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4364,7 +4364,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = 1;
 		EditTextFileParam filt;
@@ -4386,10 +4386,10 @@ IMPLEMENT_CMD_HDL_FACTORY(OPENTEXTFILE);
 //
 class CMD_HDL_CLS(SETSCARDBYRULE) : public PPCommandHandler { // @v10.8.8 
 public:
-	SLAPI  CMD_HDL_CLS(SETSCARDBYRULE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	CMD_HDL_CLS(SETSCARDBYRULE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
 	}
-	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
 		if(pParam) {
@@ -4401,7 +4401,7 @@ public:
 		}
 		return ok;
 	}
-	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = 1;
 		SCardChargeRule param;

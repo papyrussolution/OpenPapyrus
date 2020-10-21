@@ -17,11 +17,11 @@ int (*SPrinter::HandlePrintError)(int) = 0;
 //
 // Win32 stubs
 //
-SLAPI SPrinter::SPrinter()              {}
-SLAPI SPrinter::~SPrinter()             {}
-int   SLAPI SPrinter::printLine(const char *, size_t) { return 1; }
-int   SLAPI SPrinter::startPage()       { return 1; }
-int   SLAPI SPrinter::endPage()         { return 1; }
+SPrinter::SPrinter()              {}
+SPrinter::~SPrinter()             {}
+int   SPrinter::printLine(const char *, size_t) { return 1; }
+int   SPrinter::startPage()       { return 1; }
+int   SPrinter::endPage()         { return 1; }
 //
 // @todo перенести функционал в SPrinter
 //
@@ -136,7 +136,7 @@ int SPrinting::PrintImage(const char * pImgPath)
 	return ok;
 }
 
-/*static*/int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.4 TSArray-->TSVector
+/*static*/int SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 0;
 	STempBuffer info_buf(32*1024);
@@ -182,39 +182,39 @@ int SPrinting::PrintImage(const char * pImgPath)
 
 class EpsonCmdSet : public SPrnCmdSet {
 public:
-	SLAPI EpsonCmdSet();
-	virtual int SLAPI InitPrinter(char *);
-	virtual int SLAPI ResetPrinter(char *);
-	virtual int SLAPI SetPageLength(int, char *);
-	virtual int SLAPI SetMargin(int, int, char *);
-	virtual int SLAPI SetQuality(int, char *);
-	virtual int SLAPI SetCPI(int, char *);
-	virtual int SLAPI SetFontStyle(int, int, char *);
-	//virtual int SLAPI SetLinesPerInch(int, char *);
+	EpsonCmdSet();
+	virtual int InitPrinter(char *);
+	virtual int ResetPrinter(char *);
+	virtual int SetPageLength(int, char *);
+	virtual int SetMargin(int, int, char *);
+	virtual int SetQuality(int, char *);
+	virtual int SetCPI(int, char *);
+	virtual int SetFontStyle(int, int, char *);
+	//virtual int SetLinesPerInch(int, char *);
 };
 
 class PCLCmdSet : public SPrnCmdSet {
 public:
-	SLAPI PCLCmdSet();
-	virtual int SLAPI InitPrinter(char *);
-	virtual int SLAPI ResetPrinter(char *);
-	virtual int SLAPI SetPageLength(int, char *);
-	virtual int SLAPI SetOrientation(int, char *);
-	virtual int SLAPI SetMargin(int, int, char *);
-	virtual int SLAPI SetCPI(int, char *);
-	virtual int SLAPI SetFontStyle(int, int, char *);
-	virtual int SLAPI SetLinesPerInch(int, char *);
+	PCLCmdSet();
+	virtual int InitPrinter(char *);
+	virtual int ResetPrinter(char *);
+	virtual int SetPageLength(int, char *);
+	virtual int SetOrientation(int, char *);
+	virtual int SetMargin(int, int, char *);
+	virtual int SetCPI(int, char *);
+	virtual int SetFontStyle(int, int, char *);
+	virtual int SetLinesPerInch(int, char *);
 };
 
-SLAPI SPrnCmdSet::SPrnCmdSet()
+SPrnCmdSet::SPrnCmdSet()
 {
 }
 
-SLAPI SPrnCmdSet::~SPrnCmdSet()
+SPrnCmdSet::~SPrnCmdSet()
 {
 }
 
-/*static*/SPrnCmdSet * SLAPI SPrnCmdSet::CreateInstance(long id, long /* extra */)
+/*static*/SPrnCmdSet * SPrnCmdSet::CreateInstance(long id, long /* extra */)
 {
 	if(id == SPCMDSET_PCL)
 		return new PCLCmdSet;
@@ -226,23 +226,23 @@ SLAPI SPrnCmdSet::~SPrnCmdSet()
 //
 // EpsonCmdSet
 //
-SLAPI EpsonCmdSet::EpsonCmdSet() : SPrnCmdSet()
+EpsonCmdSet::EpsonCmdSet() : SPrnCmdSet()
 {
 }
 
-int SLAPI EpsonCmdSet::InitPrinter(char * b)
+int EpsonCmdSet::InitPrinter(char * b)
 {
 	b[0] = ESC;
 	b[1] = '@';
 	return 2;
 }
 
-int SLAPI EpsonCmdSet::ResetPrinter(char * b)
+int EpsonCmdSet::ResetPrinter(char * b)
 {
 	return InitPrinter(b);
 }
 
-int SLAPI EpsonCmdSet::SetPageLength(int l, char * b)
+int EpsonCmdSet::SetPageLength(int l, char * b)
 {
 	if(checkirange(l, 1, 127)) {
 		b[0] = ESC;
@@ -253,7 +253,7 @@ int SLAPI EpsonCmdSet::SetPageLength(int l, char * b)
 	return 0;
 }
 
-int SLAPI EpsonCmdSet::SetMargin(int what, int m, char * b)
+int EpsonCmdSet::SetMargin(int what, int m, char * b)
 {
 	if(what == SPMRG_LEFT) {
 		b[0] = ESC;
@@ -264,7 +264,7 @@ int SLAPI EpsonCmdSet::SetMargin(int what, int m, char * b)
 	return 0;
 }
 
-int SLAPI EpsonCmdSet::SetQuality(int q, char * b)
+int EpsonCmdSet::SetQuality(int q, char * b)
 {
    	b[0] = ESC;
 	b[1] = 'x';
@@ -272,7 +272,7 @@ int SLAPI EpsonCmdSet::SetQuality(int q, char * b)
 	return 3;
 }
 
-int SLAPI EpsonCmdSet::SetCPI(int cpi, char * b)
+int EpsonCmdSet::SetCPI(int cpi, char * b)
 {
 	int i = 0;
 	if(cpi == SPCPI_10) {
@@ -294,7 +294,7 @@ int SLAPI EpsonCmdSet::SetCPI(int cpi, char * b)
 	return i;
 }
 
-int SLAPI EpsonCmdSet::SetFontStyle(int s, int on_off, char * b)
+int EpsonCmdSet::SetFontStyle(int s, int on_off, char * b)
 {
 	switch(s) {
 		case SPFS_BOLD:
@@ -316,11 +316,11 @@ int SLAPI EpsonCmdSet::SetFontStyle(int s, int on_off, char * b)
 //
 // PCLCmdSet
 //
-SLAPI PCLCmdSet::PCLCmdSet() : SPrnCmdSet()
+PCLCmdSet::PCLCmdSet() : SPrnCmdSet()
 {
 }
 
-int SLAPI PCLCmdSet::InitPrinter(char * b)
+int PCLCmdSet::InitPrinter(char * b)
 {
 	int i = 0;
 	b[i++] = ESC;
@@ -334,12 +334,12 @@ int SLAPI PCLCmdSet::InitPrinter(char * b)
 	return i;
 }
 
-int SLAPI PCLCmdSet::ResetPrinter(char * b)
+int PCLCmdSet::ResetPrinter(char * b)
 {
 	return InitPrinter(b);
 }
 
-int SLAPI PCLCmdSet::SetPageLength(int l, char * b)
+int PCLCmdSet::SetPageLength(int l, char * b)
 {
 	// Esc&l#P
 	int i = 0;
@@ -354,7 +354,7 @@ int SLAPI PCLCmdSet::SetPageLength(int l, char * b)
 	return i;
 }
 
-int SLAPI PCLCmdSet::SetOrientation(int o, char * b)
+int PCLCmdSet::SetOrientation(int o, char * b)
 {
 	// Esc&l#O
 	b[0] = ESC;
@@ -365,7 +365,7 @@ int SLAPI PCLCmdSet::SetOrientation(int o, char * b)
 	return 5;
 }
 
-int SLAPI PCLCmdSet::SetMargin(int what, int m, char * b)
+int PCLCmdSet::SetMargin(int what, int m, char * b)
 {
 	int i = 0;
 	if(what == SPMRG_LEFT) {     // Esc&a#L
@@ -385,7 +385,7 @@ int SLAPI PCLCmdSet::SetMargin(int what, int m, char * b)
 	return i;
 }
 
-int SLAPI PCLCmdSet::SetCPI(int cpi, char * b)
+int PCLCmdSet::SetCPI(int cpi, char * b)
 {
 	// Esc(s#H
 	int c, i = 0;
@@ -405,7 +405,7 @@ int SLAPI PCLCmdSet::SetCPI(int cpi, char * b)
 	return i;
 }
 
-int SLAPI PCLCmdSet::SetFontStyle(int s, int on_off, char * b)
+int PCLCmdSet::SetFontStyle(int s, int on_off, char * b)
 {
 	switch(s) {
 		case SPFS_BOLD:   // Esc(s#B
@@ -439,7 +439,7 @@ int SLAPI PCLCmdSet::SetFontStyle(int s, int on_off, char * b)
 	return 0;
 }
 
-int SLAPI PCLCmdSet::SetLinesPerInch(int l, char * b)
+int PCLCmdSet::SetLinesPerInch(int l, char * b)
 {
 	// Esc&l#D
 	int i = 0;
@@ -451,7 +451,7 @@ int SLAPI PCLCmdSet::SetLinesPerInch(int l, char * b)
 	return i;
 }
 
-SPrinter * SLAPI getDefaultPrinter()
+SPrinter * getDefaultPrinter()
 {
 	static SPrinter _printer; // @global
 	_printer.device     = 0;
@@ -468,7 +468,7 @@ SPrinter * SLAPI getDefaultPrinter()
 	return &_printer;
 }
 
-SLAPI SPrinter::SPrinter()
+SPrinter::SPrinter()
 {
 	THISZERO();
 	setupCmdSet(SPCMDSET_DEFAULT, 0);
@@ -486,7 +486,7 @@ SLAPI SPrinter::SPrinter()
 	fd         = -1;
 }
 
-SLAPI SPrinter::~SPrinter()
+SPrinter::~SPrinter()
 {
 	delete device;
 	if(fd >= 0)
@@ -494,7 +494,7 @@ SLAPI SPrinter::~SPrinter()
 	delete cmdSet;
 }
 
-int SLAPI SPrinter::setupCmdSet(long scmdsetID, long extra)
+int SPrinter::setupCmdSet(long scmdsetID, long extra)
 {
 	if(cmdSet)
 		delete cmdSet;
@@ -502,12 +502,12 @@ int SLAPI SPrinter::setupCmdSet(long scmdsetID, long extra)
 	return 1;
 }
 
-int SLAPI SPrinter::setPort(char *aPort)
+int SPrinter::setPort(char *aPort)
 {
 	return (strcpy(port, aPort), 1);
 }
 
-int SLAPI SPrinter::checkPort()
+int SPrinter::checkPort()
 {
 	ushort st;
 	int err = 0;
@@ -529,14 +529,14 @@ int SLAPI SPrinter::checkPort()
 	return !err;
 }
 
-int SLAPI SPrinter::printChar(int c)
+int SPrinter::printChar(int c)
 {
 	if(checkPort())
 		return (write(fd, &c, 1) < 0) ? (SLibError = SLERR_WRITEFAULT, 0) : 1;
 	return 0;
 }
 
-int SLAPI SPrinter::printLine(const char * b, size_t maxLen)
+int SPrinter::printLine(const char * b, size_t maxLen)
 {
 	size_t p = 0;
 	while(b[p] && (!maxLen || p < maxLen))
@@ -545,7 +545,7 @@ int SLAPI SPrinter::printLine(const char * b, size_t maxLen)
 	return 1;
 }
 
-int SLAPI SPrinter::escape(int c, char * s)
+int SPrinter::escape(int c, char * s)
 {
 	for(int i = 0; i < c; i++)
 		if(!checkPort())
@@ -555,7 +555,7 @@ int SLAPI SPrinter::escape(int c, char * s)
 	return 1;
 }
 
-int SLAPI SPrinter::setEffect(int s)
+int SPrinter::setEffect(int s)
 {
 	int  i = 0;
 	char b[128];
@@ -567,7 +567,7 @@ int SLAPI SPrinter::setEffect(int s)
 	return escape(i, b);
 }
 
-int SLAPI SPrinter::initDevice()
+int SPrinter::initDevice()
 {
 	int  i = 0;
 	char b[128];
@@ -587,7 +587,7 @@ int SLAPI SPrinter::initDevice()
 	return escape(i, b);
 }
 
-int SLAPI SPrinter::resetDevice()
+int SPrinter::resetDevice()
 {
 	int i = 0;
 	char b[32];
@@ -595,7 +595,7 @@ int SLAPI SPrinter::resetDevice()
 	return escape(i, b);
 }
 
-int SLAPI SPrinter::startDoc()
+int SPrinter::startDoc()
 {
 	if(*strip(port) == 0) {
 		char   port_buf[32];
@@ -628,7 +628,7 @@ int SLAPI SPrinter::startDoc()
 	return 0;
 }
 
-int SLAPI SPrinter::endDoc()
+int SPrinter::endDoc()
 {
 	if(fd >= 0) {
 		if(options & SPRN_EJECTAFTER)
@@ -640,7 +640,7 @@ int SLAPI SPrinter::endDoc()
 	return 1;
 }
 
-int SLAPI SPrinter::abortDoc()
+int SPrinter::abortDoc()
 {
 	if(fd >= 0) {
 		//resetDevice();
@@ -650,12 +650,12 @@ int SLAPI SPrinter::abortDoc()
 	return 1;
 }
 
-int SLAPI SPrinter::startPage()
+int SPrinter::startPage()
 {
 	return checkPort();
 }
 
-int SLAPI SPrinter::endPage()
+int SPrinter::endPage()
 {
 	return printChar('\x0C');
 }

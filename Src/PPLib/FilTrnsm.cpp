@@ -9,13 +9,13 @@
 //
 // Descr: Удаляет или добавляет (в зависимости от remove) заголовок из файла pFile
 //
-int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, int remove);
+int RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, int remove);
 //
 // Descr: Упаковывает или распаковывает файлы из pFileList в дириктории pDir
 //   pack == 1 - упаковать, pack == 0 - распаковать. Упакованные и распакованные файлы
 //   будут иметь одинаковые имена
 //
-static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack);
+static int PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack);
 //
 // ObjReceiveParamDialog
 //
@@ -142,20 +142,20 @@ void ObjReceiveParamDialog::updateList()
 //
 //
 //
-int SLAPI EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions) { DIALOG_PROC_BODY_P1(ObjReceiveParamDialog, editOptions, pParam); }
+int EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions) { DIALOG_PROC_BODY_P1(ObjReceiveParamDialog, editOptions, pParam); }
 
-static int SLAPI IsEmailAddr(const char * pPath)
+static int IsEmailAddr(const char * pPath)
 {
 	return BIN(pPath && sstrchr(pPath, '@'));
 }
 
-static int SLAPI IsFtpAddr(const char * pPath)
+static int IsFtpAddr(const char * pPath)
 {
 	const char * p_ftp_prefx = "ftp:";
 	return BIN(pPath && strnicmp(pPath, p_ftp_prefx, sstrlen(p_ftp_prefx)) == 0);
 }
 
-static int SLAPI IsRemovableDrive(const char drive)
+static int IsRemovableDrive(const char drive)
 {
 	int    ok = 0;
 	uint   drive_type = 0;
@@ -200,7 +200,7 @@ static int GetFilesFromMailServerProgressProc(const SDataMoveProgressInfo * pInf
 	return 0;
 }
 
-int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg)
+int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -272,7 +272,7 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 	return ok;
 }
 
-/* @v9.8.11 int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile)
+/* @v9.8.11 int Debug_GetFilesFromMessage(const char * pMsgFile)
 {
 	int    ok = 0;
 	SString dest_path;
@@ -288,7 +288,7 @@ static int CallbackFTPTransfer(long count, long total, const char * pMsg, int)
 	return 1;
 }
 
-int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, long filtFlags, int clean, int delFromFtp, PPIDArray * pDbDivList)
+int GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, long filtFlags, int clean, int delFromFtp, PPIDArray * pDbDivList)
 {
 	int    ok = 1;
 	PPID   ftp_acc_id = ftpAccID;
@@ -349,7 +349,7 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 	return ok;
 }
 
-int SLAPI PutFilesToEmail(const SFileEntryPool * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
+int PutFilesToEmail(const SFileEntryPool * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
 {
 	StringSet ss_file_list;
 	SString file_path;
@@ -362,8 +362,8 @@ int SLAPI PutFilesToEmail(const SFileEntryPool * pFileList, PPID mailAccID, cons
 	return PutFilesToEmail2((pFileList ? &ss_file_list : (const StringSet *)0), mailAccID, pDestAddr, pSubj, trnsmFlags);
 }
 
-//int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
-int SLAPI PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+//int PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+int PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -395,7 +395,7 @@ int SLAPI PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg,
 	return ok;
 }
 
-int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
+int PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
 {
 	int    ok = 1;
 	PPID   mail_acc_id = mailAccID;
@@ -459,7 +459,7 @@ int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const ch
 	return ok;
 }
 
-static int SLAPI PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileList, PPID ftpAccID, const char * pDestAddr, long trnsmFlags)
+static int PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileList, PPID ftpAccID, const char * pDestAddr, long trnsmFlags)
 {
 	int    ok = 1;
 	uint   i;
@@ -554,7 +554,7 @@ int ObjTransmMqProps::GetFromMqbMessage(const PPMqbClient::MessageProperties & r
 	return ok;
 }
 
-int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
+int GetTransmitFiles(ObjReceiveParam * pParam)
 {
 	int    ok = 1, user_accept = 1;
 	const  PPConfig & r_cfg = LConfig;
@@ -721,7 +721,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 	return ok;
 }
 
-static int SLAPI PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDestPath, long trnsmFlags)
+static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDestPath, long trnsmFlags)
 {
 	int    ok = 1;
 	int    removable_drive = 0;
@@ -806,7 +806,7 @@ static int RemoveTransmittedFiles(SFileEntryPool & rFep, long trnsmFlags)
 	return ok;
 }
 
-int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
+int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 {
 	int    ok = 1;
 	SString dest, src;
@@ -915,7 +915,7 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 // AHTOXA {
 int CallbackCompress(long, long, const char *, int);
 
-int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, int remove)
+int RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, int remove)
 {
 	int    ok = -1;
 	SString dest_file_name;
@@ -955,7 +955,7 @@ int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * p
 	return ok;
 }
 
-int SLAPI PackTransmitFile(const char * pFileName, int pack, PercentFunc callbackProc)
+int PackTransmitFile(const char * pFileName, int pack, PercentFunc callbackProc)
 {
 	int    ok = -1, rmv_temp_file = 0;
 	SString dest_file;
@@ -996,7 +996,7 @@ int SLAPI PackTransmitFile(const char * pFileName, int pack, PercentFunc callbac
 	return ok;
 }
 
-static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack)
+static int PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack)
 {
 #ifndef __CONFIG__
 	int (* p_callback_proc)(long, long, const char *, int) = CallbackCompress;
@@ -1020,7 +1020,7 @@ static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFi
 }
 // } AHTOXA
 
-int SLAPI PPBackupOperationFile(const char * pFileName, const char * pFolderName, long flags)
+int PPBackupOperationFile(const char * pFileName, const char * pFolderName, long flags)
 {
 	int    ok = 1;
 	const  int use_arc = BIN(flags & bofCompress);

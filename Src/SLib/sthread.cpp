@@ -19,15 +19,15 @@ void FASTCALL SDelay(uint msec)
 //
 //
 //
-SLAPI SWaitableObject::SWaitableObject() : H(0)
+SWaitableObject::SWaitableObject() : H(0)
 {
 }
 
-SLAPI SWaitableObject::SWaitableObject(HANDLE h) : H(h)
+SWaitableObject::SWaitableObject(HANDLE h) : H(h)
 {
 }
 
-SLAPI SWaitableObject::~SWaitableObject()
+SWaitableObject::~SWaitableObject()
 {
 	if(H)
 		CloseHandle(H);
@@ -38,7 +38,7 @@ int FASTCALL SWaitableObject::operator == (const SWaitableObject & s) const
 	return BIN(H == s.H);
 }
 
-int SLAPI SWaitableObject::IsValid() const
+int SWaitableObject::IsValid() const
 {
 	return BIN(H);
 }
@@ -75,17 +75,17 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 //
 //
 //
-SLAPI ACount::ACount() : C(0)
+ACount::ACount() : C(0)
 {
 }
 //
 // Descr: Этот конструктор используется тогда, когда не следует явно инициализировать переменную в ноль.
 //
-SLAPI ACount::ACount(CtrOption option)
+ACount::ACount(CtrOption option)
 {
 }
 
-SLAPI ACount::operator long() const
+ACount::operator long() const
 {
 	return C;
 }
@@ -102,42 +102,42 @@ long FASTCALL ACount::Assign(long val)
 	return C;
 }
 
-long SLAPI ACount::Incr()
+long ACount::Incr()
 {
 	return ::InterlockedIncrement(&C);
 }
 
-long SLAPI ACount::Decr()
+long ACount::Decr()
 {
 	return ::InterlockedDecrement(&C);
 }
 //
 //
 //
-SLAPI SCriticalSection::Data::Data(int dontDestroy)  : DontDestroyOnDestruction(dontDestroy)
+SCriticalSection::Data::Data(int dontDestroy)  : DontDestroyOnDestruction(dontDestroy)
 {
 	InitializeCriticalSection(&C);
 }
 
-SLAPI SCriticalSection::Data::~Data()
+SCriticalSection::Data::~Data()
 {
 	if(!DontDestroyOnDestruction)
 		DeleteCriticalSection(&C);
 }
 
-void SLAPI SCriticalSection::Data::Enter()
+void SCriticalSection::Data::Enter()
 {
 	EnterCriticalSection(&C);
 }
 
 /*
-int SLAPI SCriticalSection::Data::TryEnter()
+int SCriticalSection::Data::TryEnter()
 {
 	return TryEnterCriticalSection(&C);
 }
 */
 
-void SLAPI SCriticalSection::Data::Leave()
+void SCriticalSection::Data::Leave()
 {
 	LeaveCriticalSection(&C);
 }
@@ -146,19 +146,19 @@ void SLAPI SCriticalSection::Data::Leave()
 //
 // A BlockingCounter instance may be initialized
 // only with a non-negative value
-SLAPI BlockingCounter::BlockingCounter() : ExclusiveAccess(0, 0), Count(0)
+BlockingCounter::BlockingCounter() : ExclusiveAccess(0, 0), Count(0)
 {
 }
 
-int SLAPI BlockingCounter::Value() const { return Count; }
-int SLAPI BlockingCounter::IsClear() const { return (Count == 0); }
+int BlockingCounter::Value() const { return Count; }
+int BlockingCounter::IsClear() const { return (Count == 0); }
 // Blocks until the counter is clear
-int SLAPI BlockingCounter::WaitUntilClear() { return ClearEvent.Wait(-1); }
+int BlockingCounter::WaitUntilClear() { return ClearEvent.Wait(-1); }
 // Blocks until the counter is dirty
-int SLAPI SLAPI BlockingCounter::WaitUntilDirty() { return DirtyEvent.Wait(-1); }
+int BlockingCounter::WaitUntilDirty() { return DirtyEvent.Wait(-1); }
 
 // Non-blocking increment
-int SLAPI BlockingCounter::Increment()
+int BlockingCounter::Increment()
 {
 	int    ok = ExclusiveAccess.Wait();
 	if(ok) {
@@ -178,7 +178,7 @@ int SLAPI BlockingCounter::Increment()
 }
 
 // Blocking decrement
-int SLAPI BlockingCounter::BlockingDecrement()
+int BlockingCounter::BlockingDecrement()
 {
 	int    ok = 1;
 	int    is_raced = 1;
@@ -211,13 +211,13 @@ int SLAPI BlockingCounter::BlockingDecrement()
 	return ok;
 }
 
-BlockingCounter & SLAPI BlockingCounter::operator++()
+BlockingCounter & BlockingCounter::operator++()
 {
 	Increment();
 	return *this;
 }
 
-BlockingCounter & SLAPI BlockingCounter::operator--()
+BlockingCounter & BlockingCounter::operator--()
 {
 	BlockingDecrement();
 	return *this;
@@ -225,12 +225,12 @@ BlockingCounter & SLAPI BlockingCounter::operator--()
 //
 //
 //
-SLAPI SemiMutex::SemiMutex() : ExclusiveAccess(0, 0)
+SemiMutex::SemiMutex() : ExclusiveAccess(0, 0)
 {
 }
 
 // Share execution with other "readers".
-int SLAPI SemiMutex::ReadLock()
+int SemiMutex::ReadLock()
 {
 	// Lock exclusively for a moment
 	// to make sure there is no "writer" on the way.
@@ -245,7 +245,7 @@ int SLAPI SemiMutex::ReadLock()
 }
 
 // Terminate a shared execution.
-int SLAPI SemiMutex::ReadUnlock()
+int SemiMutex::ReadUnlock()
 {
 	// Decrement the blocking counter.
 	// That may signal an event for a blocked "writer".
@@ -253,7 +253,7 @@ int SLAPI SemiMutex::ReadUnlock()
 }
 
 // Exclusive lock
-int SLAPI SemiMutex::Lock()
+int SemiMutex::Lock()
 {
 	// Lock exclusively to stop all following threads -
 	// "readers" and "writers". There still might be some
@@ -266,14 +266,14 @@ int SLAPI SemiMutex::Lock()
 	return ok;
 }
 
-int SLAPI SemiMutex::Unlock()
+int SemiMutex::Unlock()
 {
 	return ExclusiveAccess.Release();
 }
 //
 //
 //
-SLAPI Evnt::Evnt(const char * pName, int mode) : SWaitableObject()
+Evnt::Evnt(const char * pName, int mode) : SWaitableObject()
 {
 	assert(oneof3(mode, modeCreate, modeCreateAutoReset, modeOpen));
 	assert(!isempty(pName));
@@ -285,43 +285,43 @@ SLAPI Evnt::Evnt(const char * pName, int mode) : SWaitableObject()
 	}
 }
 
-SLAPI Evnt::Evnt(int mode) : SWaitableObject()
+Evnt::Evnt(int mode) : SWaitableObject()
 {
 	assert(oneof2(mode, modeCreate, modeCreateAutoReset));
 	H = CreateEvent(0, (mode == modeCreateAutoReset) ? 0 : 1, 0, 0);
 }
 
-int SLAPI Evnt::Signal()
+int Evnt::Signal()
 {
 	return BIN(SetEvent(H));
 }
 
-int SLAPI Evnt::Reset()
+int Evnt::Reset()
 {
 	return BIN(ResetEvent(H));
 }
 //
 //
 //
-SLAPI Sem::Sem(const char * pName, int mode, int initVal)
+Sem::Sem(const char * pName, int mode, int initVal)
 {
 	assert(!isempty(pName));
 	const TCHAR * p_name = SUcSwitch(pName); // @unicodeproblem
 	H = (mode == modeCreate) ? ::CreateSemaphore(0, initVal, MAXLONG, p_name) : ::OpenSemaphore(EVENT_ALL_ACCESS, 0, p_name);
 }
 
-SLAPI Sem::Sem(int initVal) : SWaitableObject(::CreateSemaphore(0, initVal, MAXLONG, 0))
+Sem::Sem(int initVal) : SWaitableObject(::CreateSemaphore(0, initVal, MAXLONG, 0))
 {
 }
 
-int SLAPI Sem::Release(int count)
+int Sem::Release(int count)
 {
 	return BIN(ReleaseSemaphore(H, count, 0));
 }
 //
 //
 //
-SLAPI SMutex::SMutex(int initialValue, const char * pName) : SWaitableObject()
+SMutex::SMutex(int initialValue, const char * pName) : SWaitableObject()
 {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(sa);
@@ -330,18 +330,18 @@ SLAPI SMutex::SMutex(int initialValue, const char * pName) : SWaitableObject()
 	H = ::CreateMutex(&sa, initialValue ? TRUE : FALSE, SUcSwitch(pName)); // @unicodeproblem
 }
 
-int SLAPI SMutex::Release()
+int SMutex::Release()
 {
 	return BIN(::ReleaseMutex(H));
 }
 //
 //
 //
-SLAPI STimer::STimer(const char * pName) : SWaitableObject(CreateWaitableTimer(0, 1, SUcSwitch(pName))) // @unicodeproblem
+STimer::STimer(const char * pName) : SWaitableObject(CreateWaitableTimer(0, 1, SUcSwitch(pName))) // @unicodeproblem
 {
 }
 
-int SLAPI STimer::Set(const LDATETIME & rDtm, long period)
+int STimer::Set(const LDATETIME & rDtm, long period)
 {
 	int    ok = 0;
 	if(IsValid()) {
@@ -358,36 +358,36 @@ int SLAPI STimer::Set(const LDATETIME & rDtm, long period)
 	return ok;
 }
 
-int SLAPI STimer::Cancel()
+int STimer::Cancel()
 {
 	return BIN(H && CancelWaitableTimer(H));
 }
 //
 //
 //
-SLAPI DirChangeNotification::DirChangeNotification(const char * pName, int watchSubtree, long filtFlags) : 
+DirChangeNotification::DirChangeNotification(const char * pName, int watchSubtree, long filtFlags) : 
 	SWaitableObject(::FindFirstChangeNotification(SUcSwitch(pName), watchSubtree, filtFlags)) // @unicodeproblem
 {
 }
 
-SLAPI DirChangeNotification::~DirChangeNotification()
+DirChangeNotification::~DirChangeNotification()
 {
 	FindCloseChangeNotification(H);
 	H = 0;
 }
 
-int SLAPI DirChangeNotification::Next()
+int DirChangeNotification::Next()
 {
 	return BIN(FindNextChangeNotification(H));
 }
 //
 //
 //
-SLAPI ReadWriteLock::ReadWriteLock() : Dr(0), Dw(0), ActiveCount(0)
+ReadWriteLock::ReadWriteLock() : Dr(0), Dw(0), ActiveCount(0)
 {
 }
 
-SLAPI ReadWriteLock::~ReadWriteLock()
+ReadWriteLock::~ReadWriteLock()
 {
 	//assert(ActiveCount == 0);
 }
@@ -424,7 +424,7 @@ int FASTCALL ReadWriteLock::ReadLockT_(long timeout)
 	return Helper_ReadLock(timeout);
 }
 
-int SLAPI ReadWriteLock::ReadLock_()
+int ReadWriteLock::ReadLock_()
 {
 	return Helper_ReadLock(-1);
 }
@@ -458,12 +458,12 @@ int FASTCALL ReadWriteLock::WriteLockT_(long timeout)
 	return Helper_WriteLock(timeout);
 }
 
-int SLAPI ReadWriteLock::WriteLock_()
+int ReadWriteLock::WriteLock_()
 {
 	return Helper_WriteLock(-1);
 }
 
-int SLAPI ReadWriteLock::Unlock_()
+int ReadWriteLock::Unlock_()
 {
 	int    ok = 1;
 	Sem  * p_sem = 0;
@@ -523,12 +523,12 @@ void FASTCALL SReadWriteLocker::InitInstance(Type t)
 	}
 }
 
-SLAPI SReadWriteLocker::SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout) : R_L(rL), Timeout(timeout)
+SReadWriteLocker::SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout) : R_L(rL), Timeout(timeout)
 {
 	InitInstance(t);
 }
 
-SLAPI SReadWriteLocker::SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout, const char * pSrcFileName, uint srcLineNo) : R_L(rL), Timeout(timeout)
+SReadWriteLocker::SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout, const char * pSrcFileName, uint srcLineNo) : R_L(rL), Timeout(timeout)
 {
 	int    s = 0;
 	if(t != None) {
@@ -540,22 +540,22 @@ SLAPI SReadWriteLocker::SReadWriteLocker(ReadWriteLock & rL, Type t, long timeou
 		State |= stTraced;
 }
 
-int SLAPI SReadWriteLocker::operator !() const
+int SReadWriteLocker::operator !() const
 {
 	return BIN(State & stError);
 }
 
-int SLAPI SReadWriteLocker::GetState() const
+int SReadWriteLocker::GetState() const
 {
 	return State;
 }
 
-SLAPI SReadWriteLocker::~SReadWriteLocker()
+SReadWriteLocker::~SReadWriteLocker()
 {
 	Unlock();
 }
 
-int SLAPI SReadWriteLocker::Unlock()
+int SReadWriteLocker::Unlock()
 {
 	int    ok = 1;
 	if(State & (stRLocked|stWLocked)) {
@@ -610,7 +610,7 @@ int FASTCALL SReadWriteLocker::Toggle(Type t)
 	*/
 }
 
-int SLAPI SReadWriteLocker::Toggle(Type t, const char * pSrcFileName, uint srcLineNo)
+int SReadWriteLocker::Toggle(Type t, const char * pSrcFileName, uint srcLineNo)
 {
 	assert(oneof3(t, Read, Write, None));
 	int    ok = 0;
@@ -663,12 +663,12 @@ int SLAPI SReadWriteLocker::Toggle(Type t, const char * pSrcFileName, uint srcLi
 //
 #define SIGN_SLTHREAD 0x09970199UL
 
-SLAPI SlThread::SlThread(void * pInitData, long stopTimeout) : Sign(SIGN_SLTHREAD), P_StartupSignal(0), P_Creation(0), P_Tla(0)
+SlThread::SlThread(void * pInitData, long stopTimeout) : Sign(SIGN_SLTHREAD), P_StartupSignal(0), P_Creation(0), P_Tla(0)
 {
 	Reset(pInitData, 1, stopTimeout);
 }
 
-SLAPI SlThread::~SlThread()
+SlThread::~SlThread()
 {
 	Stop(0);
 	delete P_Creation;
@@ -676,7 +676,7 @@ SLAPI SlThread::~SlThread()
 	Sign = 0;
 }
 
-int SLAPI SlThread::InitStartupSignal()
+int SlThread::InitStartupSignal()
 {
 	if(P_StartupSignal)
 		return -1;
@@ -686,12 +686,12 @@ int SLAPI SlThread::InitStartupSignal()
 	}
 }
 
-int  SLAPI SlThread::IsConsistent() const { return BIN(Sign == SIGN_SLTHREAD); }
-int  SLAPI SlThread::SignalStartup() { return P_StartupSignal ? P_StartupSignal->Signal() : 0; }
-void SLAPI SlThread::SetIdleState() { State |= stIdle; }
-void SLAPI SlThread::ResetIdleState() { State &= ~stIdle; }
+int  SlThread::IsConsistent() const { return BIN(Sign == SIGN_SLTHREAD); }
+int  SlThread::SignalStartup() { return P_StartupSignal ? P_StartupSignal->Signal() : 0; }
+void SlThread::SetIdleState() { State |= stIdle; }
+void SlThread::ResetIdleState() { State &= ~stIdle; }
 
-void SLAPI SlThread::Reset(void * pInitData, int withForce, long stopTimeout)
+void SlThread::Reset(void * pInitData, int withForce, long stopTimeout)
 {
 	State  = 0;
 	Handle = 0;
@@ -726,7 +726,7 @@ int FASTCALL SlThread::Start(int waitOnStartup)
 	return BIN(State & stRunning);
 }
 
-void SLAPI SlThread::Stop(long timeout)
+void SlThread::Stop(long timeout)
 {
 	if(State & stRunning) {
 		if(WaitForSingleObject(Handle, NZOR(timeout, StopTimeout)) == WAIT_TIMEOUT)
@@ -736,14 +736,14 @@ void SLAPI SlThread::Stop(long timeout)
 //
 // Terminate the execution thread brutally
 //
-int SLAPI SlThread::Terminate()
+int SlThread::Terminate()
 {
 	int    ok = BIN(TerminateThread(Handle, static_cast<DWORD>(-1)));
 	State &= ~stRunning;
 	return ok;
 }
 
-int SLAPI SlThread::WaitUntilFinished()
+int SlThread::WaitUntilFinished()
 {
 	int    ok = (State & stRunning) ? 0 : 1;
 	if(!ok)
@@ -758,42 +758,42 @@ void FASTCALL SlThread::Sleep(uint milliseconds)
 	SleepEx(milliseconds, TRUE);
 }
 
-void SLAPI SlThread::SetStopState()
+void SlThread::SetStopState()
 {
 	State |= stLocalStop;
 	EvLocalStop.Signal();
 }
 
-int SLAPI SlThread::IsRunning() const
+int SlThread::IsRunning() const
 {
 	return BIN(State & stRunning);
 }
 
-int SLAPI SlThread::IsIdle() const
+int SlThread::IsIdle() const
 {
 	return BIN(State & stIdle);
 }
 
-int SLAPI SlThread::IsStopping() const
+int SlThread::IsStopping() const
 {
 	return BIN(State & stLocalStop);
 }
 //
 // This method is invoked on behalf of the new thread before Run()
 //
-void SLAPI SlThread::Startup()
+void SlThread::Startup()
 {
 	P_Tla = SLS.InitThread();
 }
 //
 // This method is invoked on behalf of the dying thread after Run()
 //
-void SLAPI SlThread::Shutdown()
+void SlThread::Shutdown()
 {
 	SLS.ReleaseThread();
 }
 
-void SLAPI SlThread::Run()
+void SlThread::Run()
 {
 }
 //
@@ -815,13 +815,13 @@ void SLAPI SlThread::Run()
 //
 //
 //
-SLAPI SlThread_WithStartupSignal::SlThread_WithStartupSignal(void * pInitData, long stopTimeout /*= SLTHREAD_DEFAULT_STOP_TIMEOUT*/) :
+SlThread_WithStartupSignal::SlThread_WithStartupSignal(void * pInitData, long stopTimeout /*= SLTHREAD_DEFAULT_STOP_TIMEOUT*/) :
 	SlThread(pInitData, stopTimeout)
 {
 	InitStartupSignal();
 }
 
-/*virtual*/void SlThread_WithStartupSignal::SLAPI Startup()
+/*virtual*/void SlThread_WithStartupSignal::Startup()
 {
 	SlThread::Startup();
 	SignalStartup();
@@ -839,11 +839,11 @@ SLAPI SlThread_WithStartupSignal::SlThread_WithStartupSignal(void * pInitData, l
 	}
 }
 
-SLAPI SLockStack::SLockStack()
+SLockStack::SLockStack()
 {
 }
 
-void SLAPI SLockStack::Push(uint lockType, const char * pSrcFileName, uint lineNo)
+void SLockStack::Push(uint lockType, const char * pSrcFileName, uint lineNo)
 {
 	Entry new_entry;
 	MEMSZERO(new_entry);
@@ -859,14 +859,14 @@ void SLAPI SLockStack::Push(uint lockType, const char * pSrcFileName, uint lineN
     S.push(new_entry);
 }
 
-void SLAPI SLockStack::Pop()
+void SLockStack::Pop()
 {
 	Entry entry;
 	int    r = S.pop(entry);
 	assert(r);
 }
 
-void SLAPI SLockStack::ToStr(SString & rBuf) const
+void SLockStack::ToStr(SString & rBuf) const
 {
 	SString temp_buf;
 	for(uint i = 0; i < S.getPointer(); i++) {

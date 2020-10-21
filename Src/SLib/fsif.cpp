@@ -42,7 +42,7 @@ Modified by Anton Sobolev: Jan-2001, 2010, 2016
 
 #define BUFFERSIZE  512
 
-long SLAPI SearchStrInFile(FILE * fpFile, long lOffset, const char *pszStr, int ignoreCase)
+long SearchStrInFile(FILE * fpFile, long lOffset, const char *pszStr, int ignoreCase)
 {
 	long lStatusFlag = -1l;  /* Status: -1 = not found */
 	long lPosInFile  = 0l;   /* Position in file       */

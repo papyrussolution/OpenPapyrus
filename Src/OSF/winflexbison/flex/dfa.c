@@ -320,12 +320,10 @@ int    * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int *
 
 /* increase_max_dfas - increase the maximum number of DFAs */
 
-void increase_max_dfas(void)
+void increase_max_dfas()
 {
 	current_max_dfas += MAX_DFAS_INCREMENT;
-
 	++num_reallocs;
-
 	base = (int *)reallocate_integer_array(base, current_max_dfas);
 	def = (int *)reallocate_integer_array(def, current_max_dfas);
 	dfasiz = (int *)reallocate_integer_array(dfasiz, current_max_dfas);
@@ -342,8 +340,7 @@ void increase_max_dfas(void)
  * Creates the dfa corresponding to the ndfa we've constructed.  The
  * dfa starts out in state #1.
  */
-
-void ntod(void)
+void ntod()
 {
 	int    * accset, ds, nacc, newds;
 	int sym, hashval, numstates, dsize;
@@ -353,10 +350,8 @@ void ntod(void)
 	int symlist[CSIZE + 1];
 	int num_start_states;
 	int todo_head, todo_next;
-
 	struct yytbl_data * yynxt_tbl = 0;
 	flex_int32_t * yynxt_data = 0, yynxt_curr = 0;
-
 	/* Note that the following are indexed by *equivalence classes*
 	 * and not by characters.  Since equivalence classes are indexed
 	 * beginning with 1, even if the scanner accepts NUL's, this

@@ -11,7 +11,7 @@ struct PckgViewListEntry {
 
 #pragma warn -stv
 
-static int SLAPI CreatePckgViewList(PackageCore * pPckgCore, ReceiptCore * pRcptCore, const PckgFilt * pFilt, SArray * pList)
+static int CreatePckgViewList(PackageCore * pPckgCore, ReceiptCore * pRcptCore, const PckgFilt * pFilt, SArray * pList)
 {
 	PPIDArray lot_list, pckg_list;
 	PckgViewListEntry entry;
@@ -170,7 +170,7 @@ IMPL_HANDLE_EVENT(SelPckgDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjBill::SelectPckg(PckgFilt * pFilt, PPID * pPckgID)
+int PPObjBill::SelectPckg(PckgFilt * pFilt, PPID * pPckgID)
 {
 	int    ok = -1;
 	if(CcFlags & CCFLG_USEGOODSPCKG) {
@@ -218,24 +218,24 @@ struct PckgViewItem {
 
 class PPViewPckg {
 public:
-	SLAPI  PPViewPckg();
-	SLAPI ~PPViewPckg();
+	PPViewPckg();
+	~PPViewPckg();
 
-	const  PckgFilt * SLAPI GetFilt() const;
-	int    SLAPI EditFilt(PckgFilt *);
+	const  PckgFilt * GetFilt() const;
+	int    EditFilt(PckgFilt *);
 
-	int    SLAPI Init(PckgFilt *);
-	int    SLAPI InitIteration();
-	int    SLAPI NextIteration(PckgViewItem *);
-	int    SLAPI GetIterationCount(long * pNumIterations, long * pLastCount);
+	int    Init(PckgFilt *);
+	int    InitIteration();
+	int    NextIteration(PckgViewItem *);
+	int    GetIterationCount(long * pNumIterations, long * pLastCount);
 
-	int    SLAPI Browse(int modeless);
-	int    SLAPI Print();
-	int    SLAPI ViewTotal();
-	int    SLAPI ViewDetail(PPID);
+	int    Browse(int modeless);
+	int    Print();
+	int    ViewTotal();
+	int    ViewDetail(PPID);
 private:
-	DBQuery * SLAPI CreateBrowserQuery();
-	int    SLAPI CreateTempTable();
+	DBQuery * CreateBrowserQuery();
+	int    CreateTempTable();
 
 	PckgFilt Filt;
 	//BExtQuery * P_IterQuery;
@@ -251,20 +251,20 @@ private:
 //
 //
 //
-SLAPI PPViewPckg::PPViewPckg()
+PPViewPckg::PPViewPckg()
 {
 }
 
-SLAPI PPViewPckg::~PPViewPckg()
+PPViewPckg::~PPViewPckg()
 {
 }
 
-const PckgFilt * SLAPI PPViewPckg::GetFilt() const
+const PckgFilt * PPViewPckg::GetFilt() const
 {
 	return &Filt;
 }
 
-int SLAPI PPViewPckg::Init(PckgFilt * pFilt)
+int PPViewPckg::Init(PckgFilt * pFilt)
 {
 	Filt = *pFilt;
 	return 1;

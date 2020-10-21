@@ -9,17 +9,17 @@
 //
 // @ModuleDef(PPObjBillStatus)
 //
-SLAPI PPBillStatus2::PPBillStatus2()
+PPBillStatus2::PPBillStatus2()
 {
 	THISZERO();
 }
 
-SLAPI PPObjBillStatus::PPObjBillStatus(void * extraPtr) : PPObjReference(PPOBJ_BILLSTATUS, extraPtr)
+PPObjBillStatus::PPObjBillStatus(void * extraPtr) : PPObjReference(PPOBJ_BILLSTATUS, extraPtr)
 {
 	ImplementFlags |= implStrAssocMakeList;
 }
 
-int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
+int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 {
 	enum {
 		ctlgroupColor
@@ -120,7 +120,7 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-/*virtual*/void * SLAPI PPObjBillStatus::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjBillStatus::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjBillStatusListWindow : public PPObjListWindow {
 	public:
@@ -159,9 +159,9 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	return new PPObjBillStatusListWindow(this, flags, extraPtr);
 }
 
-int SLAPI PPObjBillStatus::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRBILLSTATUS, 0); }
+int PPObjBillStatus::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRBILLSTATUS, 0); }
 
-int SLAPI PPObjBillStatus::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjBillStatus::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	PPBillStatus rec;
@@ -188,7 +188,7 @@ int SLAPI PPObjBillStatus::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 	return ok;
 }
 
-int SLAPI PPObjBillStatus::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjBillStatus::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPBillStatus);
@@ -202,7 +202,7 @@ int SLAPI PPObjBillStatus::Read(PPObjPack * p, PPID id, void * stream, ObjTransm
 	return ok;
 }
 
-int SLAPI PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -236,7 +236,7 @@ int SLAPI PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 	return ok;
 }
 
-int SLAPI PPObjBillStatus::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjBillStatus::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPID * p_id = 0;
@@ -252,10 +252,10 @@ int SLAPI PPObjBillStatus::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 //
 class BillStatusCache : public ObjCache {
 public:
-	SLAPI BillStatusCache() : ObjCache(PPOBJ_BILLSTATUS, sizeof(Data)) {}
+	BillStatusCache() : ObjCache(PPOBJ_BILLSTATUS, sizeof(Data)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		int16  Rank;
@@ -267,7 +267,7 @@ public:
 	};
 };
 
-int SLAPI BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -292,7 +292,7 @@ int SLAPI BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPBillStatus * p_data_rec = static_cast<PPBillStatus *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);

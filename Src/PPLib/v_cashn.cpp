@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(CashNode); SLAPI CashNodeFilt::CashNodeFilt() : PPBaseFilt(PPFILT_CASHNODE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(CashNode); CashNodeFilt::CashNodeFilt() : PPBaseFilt(PPFILT_CASHNODE, 0, 0)
 {
 	SetFlatChunk(offsetof(CashNodeFilt, ReserveStart),	offsetof(CashNodeFilt, ReserveEnd) - offsetof(CashNodeFilt, ReserveStart));
 	Init(1, 0);
@@ -19,13 +19,11 @@ CashNodeFilt & FASTCALL CashNodeFilt::operator = (const CashNodeFilt & s)
 	return *this;
 }
 
-SLAPI PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE), P_TempTbl(0)
+PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE, PPView::implDontEditNullFilter, 0), P_TempTbl(0)
 {
-	ImplementFlags |= PPView::implDontEditNullFilter; // @v9.6.1
 	PPLoadText(PPTXT_CMT, CashTypeNames);
 	// @vmiller {
 	int    s = 0, a = 0;
-	//int    idx = 0;
 	SString line_buf;
 	SString symbol, drv_name;
 	SString path;
@@ -45,12 +43,12 @@ SLAPI PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNOD
 	// } @vmiller
 }
 
-SLAPI PPViewCashNode::~PPViewCashNode()
+PPViewCashNode::~PPViewCashNode()
 {
 	ZDELETE(P_TempTbl);
 }
 
-int SLAPI PPViewCashNode::CheckForFilt(const PPCashNode * pRec) const
+int PPViewCashNode::CheckForFilt(const PPCashNode * pRec) const
 {
 	if(pRec) {
 		if(!CheckFiltID(Filt.CashTypeID, pRec->CashType))
@@ -63,7 +61,7 @@ int SLAPI PPViewCashNode::CheckForFilt(const PPCashNode * pRec) const
 	return 1;
 }
 
-TempCashNodeTbl::Rec & SLAPI PPViewCashNode::MakeTempEntry(const PPCashNode & rRec, TempCashNodeTbl::Rec & rTempRec)
+TempCashNodeTbl::Rec & PPViewCashNode::MakeTempEntry(const PPCashNode & rRec, TempCashNodeTbl::Rec & rTempRec)
 {
 	memzero(&rTempRec, sizeof(rTempRec));
 	rTempRec.ID = rRec.ID;
@@ -87,7 +85,7 @@ TempCashNodeTbl::Rec & SLAPI PPViewCashNode::MakeTempEntry(const PPCashNode & rR
 	return rTempRec;
 }
 
-int SLAPI PPViewCashNode::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewCashNode::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	CashNodeFilt filt;
@@ -120,7 +118,7 @@ int SLAPI PPViewCashNode::EditBaseFilt(PPBaseFilt * pFilt)
 
 // @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempCashNode);
 
-int SLAPI PPViewCashNode::Init_(const PPBaseFilt * pFilt)
+int PPViewCashNode::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -148,7 +146,7 @@ int SLAPI PPViewCashNode::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewCashNode::UpdateTempTable(const PPIDArray * pIdList)
+int PPViewCashNode::UpdateTempTable(const PPIDArray * pIdList)
 {
 	int    ok = -1;
 	if(pIdList && P_TempTbl) {
@@ -179,7 +177,7 @@ int SLAPI PPViewCashNode::UpdateTempTable(const PPIDArray * pIdList)
 	return ok;
 }
 
-int SLAPI PPViewCashNode::InitIteration()
+int PPViewCashNode::InitIteration()
 {
 	int    ok = 1;
 	TempCashNodeTbl::Key0 k, k_;
@@ -206,7 +204,7 @@ int FASTCALL PPViewCashNode::NextIteration(CashNodeViewItem * pItem)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	TempCashNodeTbl * t = 0;
@@ -235,7 +233,7 @@ DBQuery * SLAPI PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-/* @v10.1.0 (inlined) int SLAPI PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
+/* @v10.1.0 (inlined) int PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
 {
 	CashNodePaneFilt filt;
 	filt.CashNodeID = cashID;
@@ -243,7 +241,7 @@ DBQuery * SLAPI PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return ::ExecCSPanel(&filt);
 }*/
 
-int SLAPI PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPIDArray  id_list;
@@ -287,7 +285,7 @@ int SLAPI PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 						for(uint i = 0; i < cash_list.getCount(); i++) {
 							const PPID node_id = cash_list.get(i);
 							//ok = ExecCPanel(ppvCmd, node_id);
-							//int SLAPI PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
+							//int PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
 							{
 								CashNodePaneFilt filt;
 								filt.CashNodeID = node_id;

@@ -7,25 +7,25 @@
 //
 //
 //
-SLAPI PPGenericDevice::PPGenericDevice() : Tag(PPOBJ_GENERICDEVICE), ID(0), Flags(0), DeviceClass(0), Reserve2(0)
+PPGenericDevice::PPGenericDevice() : Tag(PPOBJ_GENERICDEVICE), ID(0), Flags(0), DeviceClass(0), Reserve2(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Symb)[0] = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
-SLAPI PPGenericDevicePacket::PPGenericDevicePacket()
+PPGenericDevicePacket::PPGenericDevicePacket()
 {
 }
 
-int SLAPI PPGenericDevicePacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPGenericDevicePacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int PPGenericDevicePacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PPGenericDevicePacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
-SLAPI PPObjGenericDevice::PPObjGenericDevice(void * extraPtr) : PPObjReference(PPOBJ_GENERICDEVICE, extraPtr)
+PPObjGenericDevice::PPObjGenericDevice(void * extraPtr) : PPObjReference(PPOBJ_GENERICDEVICE, extraPtr)
 {
 }
 
-StrAssocArray * SLAPI PPObjGenericDevice::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjGenericDevice::MakeStrAssocList(void * extraPtr)
 {
 	const long dvc_cls = reinterpret_cast<long>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray();
@@ -47,7 +47,7 @@ StrAssocArray * SLAPI PPObjGenericDevice::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjGenericDevice::PutPacket(PPID * pID, PPGenericDevicePacket * pPack, int use_ta)
+int PPObjGenericDevice::PutPacket(PPID * pID, PPGenericDevicePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -81,7 +81,7 @@ int SLAPI PPObjGenericDevice::PutPacket(PPID * pID, PPGenericDevicePacket * pPac
 	return ok;
 }
 
-int SLAPI PPObjGenericDevice::GetPacket(PPID id, PPGenericDevicePacket * pPack)
+int PPObjGenericDevice::GetPacket(PPID id, PPGenericDevicePacket * pPack)
 {
 	int    ok = 0;
 	if(pPack) {
@@ -94,7 +94,7 @@ int SLAPI PPObjGenericDevice::GetPacket(PPID id, PPGenericDevicePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
+int PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
 {
 	class GenDvcDialog : public TDialog {
 		DECL_DIALOG_DATA(PPGenericDevicePacket);
@@ -218,7 +218,7 @@ int PPAbstractDevice::IdentBlock::Set(SDynLibrary * pLib, int setOwnership)
 //
 //
 //
-/*static*/int SLAPI PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserveTypesStrId, SString * pSectName)
+/*static*/int PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserveTypesStrId, SString * pSectName)
 {
 	int    sect_id = 0;
 	int    rts_id = 0;
@@ -260,7 +260,7 @@ PPAbstractDevice::PPAbstractDevice(const char * pDvcName) : RetBuf(4096), State(
 }
 
 // @vmiller {
-int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & rBuf)
+int GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & rBuf)
 {
 	int    ok = 1;
 	StringSet set;
@@ -287,7 +287,7 @@ int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, 
 	return ok;
 }
 
-/*static*/int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol, SString & rDrvName, SString & rDrvPath, int * pDrvImpl)
+/*static*/int PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol, SString & rDrvName, SString & rDrvPath, int * pDrvImpl)
 {
 	// Shtrih-DPD201=DRV:Shtrih-DPD201 (Петроглиф),dll,ppdrv-cd-Shtrih-DPD201.dll
 
@@ -568,7 +568,7 @@ int PPAbstractDevice::RunCmd(const char * pCmd, StrAssocArray & rOut)
 	return ok;
 }
 
-/*static*/int SLAPI PPAbstractDevice::CreateInstance(const char * pSymb, PPAbstractDevice ** ppDvc)
+/*static*/int PPAbstractDevice::CreateInstance(const char * pSymb, PPAbstractDevice ** ppDvc)
 {
 	int    ok = 0;
 	PPAbstractDevice * p_dvc = 0;

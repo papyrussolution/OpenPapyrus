@@ -7,7 +7,7 @@
 
 TLP_IMPL(PPObjRegister, RegisterCore, P_Tbl);
 
-/*static*/int SLAPI PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPID objType, PPID objID)
+/*static*/int PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPID objType, PPID objID)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -25,22 +25,22 @@ TLP_IMPL(PPObjRegister, RegisterCore, P_Tbl);
 	return ok;
 }
 
-SLAPI PPObjRegister::PPObjRegister(void * extraPtr) : PPObject(PPOBJ_REGISTER), ExtraPtr(extraPtr)
+PPObjRegister::PPObjRegister(void * extraPtr) : PPObject(PPOBJ_REGISTER), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
 }
 
-SLAPI PPObjRegister::~PPObjRegister()
+PPObjRegister::~PPObjRegister()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int    SLAPI PPObjRegister::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<RegisterTbl::Rec *>(b)); }
-const  char * SLAPI PPObjRegister::GetNamePtr() { return P_Tbl->data.Num; }
-int    SLAPI PPObjRegister::DeleteObj(PPID id) { return P_Tbl->Remove(id, 0); }
+int    PPObjRegister::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<RegisterTbl::Rec *>(b)); }
+const  char * PPObjRegister::GetNamePtr() { return P_Tbl->data.Num; }
+int    PPObjRegister::DeleteObj(PPID id) { return P_Tbl->Remove(id, 0); }
 
-StrAssocArray * SLAPI PPObjRegister::MakeStrAssocList(void * extraPtr /* (RegisterFilt*) */)
+StrAssocArray * PPObjRegister::MakeStrAssocList(void * extraPtr /* (RegisterFilt*) */)
 {
 	const RegisterFilt * p_filt = static_cast<const RegisterFilt *>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
@@ -61,12 +61,12 @@ StrAssocArray * SLAPI PPObjRegister::MakeStrAssocList(void * extraPtr /* (Regist
 	return p_list;
 }
 
-int SLAPI PPObjRegister::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSn, const char * pNmbr, RegisterTbl::Rec * pRec)
+int PPObjRegister::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSn, const char * pNmbr, RegisterTbl::Rec * pRec)
 	{ return P_Tbl->SearchByNumber(pID, regTypeID, pSn, pNmbr, pRec); }
-int SLAPI PPObjRegister::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
+int PPObjRegister::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
 	{ return P_Tbl->SearchByFilt(pFilt, pResList, pObjList); } // @todo memory leak
 
-int SLAPI PPObjRegister::CheckUnique(PPID regTypeID, const RegisterArray * pAry) const
+int PPObjRegister::CheckUnique(PPID regTypeID, const RegisterArray * pAry) const
 {
 	int    ok = 1;
 	PPRegisterType    rt;
@@ -78,7 +78,7 @@ int SLAPI PPObjRegister::CheckUnique(PPID regTypeID, const RegisterArray * pAry)
 	return ok;
 }
 
-int SLAPI PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const RegisterArray * /*pAry*/, PPID objType, PPID objID)
+int PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const RegisterArray * /*pAry*/, PPID objType, PPID objID)
 {
 	PPID   id = 0;
 	RegisterTbl::Rec out_rec;
@@ -98,7 +98,7 @@ int SLAPI PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const 
 	return 1;
 }
 
-int SLAPI PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE)
@@ -120,7 +120,7 @@ int SLAPI PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	return ok;
 }
 
-int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, PPID outerObjType, const void * pOuterPacket)
+int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, PPID outerObjType, const void * pOuterPacket)
 {
 	class RegisterDialog : public TDialog {
 		DECL_DIALOG_DATA(RegisterTbl::Rec);
@@ -433,12 +433,12 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 	return ok;
 }
 
-int SLAPI PPObjRegister::EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPPersonPacket * pOuterPack)
+int PPObjRegister::EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPPersonPacket * pOuterPack)
 	{ return Helper_EditDialog(pRec, pRegList, PPOBJ_PERSON, pOuterPack); }
-int SLAPI PPObjRegister::EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPLocationPacket * pOuterPack)
+int PPObjRegister::EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPLocationPacket * pOuterPack)
 	{ return Helper_EditDialog(pRec, pRegList, PPOBJ_LOCATION, pOuterPack); }
 
-int SLAPI PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regTypeID)
+int PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regTypeID)
 {
 	int    r = cmCancel;
 	long   counter = 0;
@@ -488,7 +488,7 @@ int SLAPI PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regType
 	return r;
 }
 
-int SLAPI PPObjRegister::Edit(PPID * pID, void * extraPtr /*personID*/)
+int PPObjRegister::Edit(PPID * pID, void * extraPtr /*personID*/)
 {
 	const PPID extra_person_id = reinterpret_cast<PPID>(extraPtr);
 	return Edit(pID, PPOBJ_PERSON, extra_person_id, 0);
@@ -628,19 +628,19 @@ private:
 	PPLocationPacket * P_LocPack;
 };
 
-int SLAPI PPObjRegister::EditList(PPPersonPacket * pPsnPack, PPID psnEventID)
+int PPObjRegister::EditList(PPPersonPacket * pPsnPack, PPID psnEventID)
 {
 	RegisterListDialog * dlg = new RegisterListDialog(pPsnPack, psnEventID);
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
-int SLAPI PPObjRegister::EditList(PPLocationPacket * pLocPack)
+int PPObjRegister::EditList(PPLocationPacket * pLocPack)
 {
 	RegisterListDialog * dlg = new RegisterListDialog(pLocPack);
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
-int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
+int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 {
 	class BankAccountDialog : public TDialog {
 	public:
@@ -855,7 +855,7 @@ private:
 	PPPersonPacket * P_PsnPack;
 };
 
-int SLAPI PPObjRegister::EditBankAccountList(PPPersonPacket * pPsnPack)
+int PPObjRegister::EditBankAccountList(PPPersonPacket * pPsnPack)
 {
 	int    ok = -1;
 	BankAccountListDialog * dlg = new BankAccountListDialog(pPsnPack);
@@ -866,7 +866,7 @@ int SLAPI PPObjRegister::EditBankAccountList(PPPersonPacket * pPsnPack)
 	return ok;
 }
 
-int SLAPI PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList) // @v9.8.6 TSArray-->TSVector
+int PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList) // @v9.8.6 TSArray-->TSVector
 {
 	CALLPTRMEMB(pList, clear());
 	int   ok = -1;
@@ -904,7 +904,7 @@ int SLAPI PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccou
 @regorg  Регистрирующий орган
 
 ===== */
-int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, char * pBuf, size_t bufLen)
+int PPObjRegister::Format(PPID id, const char * pFormat, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	int    ok = Format(id, pFormat, temp_buf);
@@ -912,7 +912,7 @@ int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, char * pBuf, size
 	return ok;
 }
 
-/*static*/int SLAPI PPObjRegister::Format(const RegisterTbl::Rec & rRec, const char * pFormat, SString & rBuf)
+/*static*/int PPObjRegister::Format(const RegisterTbl::Rec & rRec, const char * pFormat, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -949,7 +949,7 @@ int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, char * pBuf, size
 	return ok;
 }
 
-int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, SString & rBuf)
+int PPObjRegister::Format(PPID id, const char * pFormat, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -962,7 +962,7 @@ int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPObjRegister::GetTabNumber(PPID personID, SString & rTabNum)
+int PPObjRegister::GetTabNumber(PPID personID, SString & rTabNum)
 {
 	int   ok = -1;
 	PPPersonKind    psn_kind;
@@ -1047,15 +1047,15 @@ public:
 		LDATE  Expiry;
 		long   Flags;
 	};
-	SLAPI  RegisterCache() : ObjCacheHash(PPOBJ_REGISTER, sizeof(RegisterData), (512*1024), 4)
+	RegisterCache() : ObjCacheHash(PPOBJ_REGISTER, sizeof(RegisterData), (512*1024), 4)
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int SLAPI RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	RegisterData * p_cache_rec = static_cast<RegisterData *>(pEntry);
@@ -1082,7 +1082,7 @@ int SLAPI RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	RegisterTbl::Rec * p_data_rec = static_cast<RegisterTbl::Rec *>(pDataRec);
 	const RegisterData * p_cache_rec = static_cast<const RegisterData *>(pEntry);
@@ -1105,7 +1105,7 @@ void SLAPI RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	}
 }
 
-int SLAPI PPObjRegister::Fetch(PPID id, RegisterTbl::Rec * pRec)
+int PPObjRegister::Fetch(PPID id, RegisterTbl::Rec * pRec)
 {
 	RegisterCache * p_cache = GetDbLocalCachePtr <RegisterCache> (PPOBJ_REGISTER);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);

@@ -304,7 +304,7 @@ int SmsClient::StSMResults::GetResult(int kindOfResult)
 //
 //
 //
-/*static*/int SLAPI PPObjSmsAccount::VerifyString(const SString & rStr, int options)
+/*static*/int PPObjSmsAccount::VerifyString(const SString & rStr, int options)
 {
 	int    ok = 1;
 	for(size_t i = 0; ok && i < rStr.Len(); i++) {
@@ -315,11 +315,11 @@ int SmsClient::StSMResults::GetResult(int kindOfResult)
 	return ok;
 }
 
-SLAPI PPObjSmsAccount::PPObjSmsAccount(void * extraPtr) : PPObjReference(PPOBJ_SMSPRVACCOUNT, extraPtr)
+PPObjSmsAccount::PPObjSmsAccount(void * extraPtr) : PPObjReference(PPOBJ_SMSPRVACCOUNT, extraPtr)
 {
 }
 
-int SLAPI PPObjSmsAccount::Browse(void * extraPtr)
+int PPObjSmsAccount::Browse(void * extraPtr)
 {
 	int    ok = -1;
 	ObjViewDialog * p_dlg = 0;
@@ -332,7 +332,7 @@ int SLAPI PPObjSmsAccount::Browse(void * extraPtr)
 	return ok;
 }
 
-SLAPI PPSmsAccount::PPSmsAccount()
+PPSmsAccount::PPSmsAccount()
 {
 	THISZERO();
 }
@@ -363,11 +363,11 @@ int FASTCALL PPSmsAccount::IsEqual(const PPSmsAccount & rS) const
     return yes;
 }
 
-SLAPI PPSmsAccPacket::PPSmsAccPacket()
+PPSmsAccPacket::PPSmsAccPacket()
 {
 }
 
-void SLAPI PPSmsAccPacket::Init()
+void PPSmsAccPacket::Init()
 {
 	ExtStr.Z();
 	// @v10.6.5 @ctr MEMSZERO(Rec);
@@ -391,7 +391,7 @@ int FASTCALL PPSmsAccPacket::IsEqual(const PPSmsAccPacket & rS) const
 	return yes;
 }
 
-int SLAPI PPSmsAccPacket::Verify(long flags) const
+int PPSmsAccPacket::Verify(long flags) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -423,7 +423,7 @@ int SLAPI PPSmsAccPacket::Verify(long flags) const
 	return ok;
 }
 
-int SLAPI PPSmsAccPacket::SetPassword(const char * pPassword)
+int PPSmsAccPacket::SetPassword(const char * pPassword)
 {
 	/*
 	const  size_t temp_buf_len = 128;
@@ -443,7 +443,7 @@ int SLAPI PPSmsAccPacket::SetPassword(const char * pPassword)
 	return PPPutExtStrData(SMEXTSTR_PASSWORD, ExtStr, temp_buf);
 }
 
-int SLAPI PPSmsAccPacket::GetPassword(SString & rBuf) const
+int PPSmsAccPacket::GetPassword(SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -498,12 +498,12 @@ int PPAutoSmsConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-SLAPI PPSendSmsParam::PPSendSmsParam()
+PPSendSmsParam::PPSendSmsParam()
 {
 	Init();
 }
 
-void SLAPI PPSendSmsParam::Init()
+void PPSendSmsParam::Init()
 {
 	Tag = 0;
 	ID = 0;
@@ -833,7 +833,7 @@ int SendSmsDialog::SendSmsText()
 	return ok;
 }
 
-int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
+int PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 {
 	class SmsAcctDialog : public TDialog {
 	public:
@@ -968,7 +968,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjSmsAccount::PutPacket(PPID * pID, PPSmsAccPacket * pPack, int use_ta)
+int PPObjSmsAccount::PutPacket(PPID * pID, PPSmsAccPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -995,7 +995,7 @@ int SLAPI PPObjSmsAccount::PutPacket(PPID * pID, PPSmsAccPacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjSmsAccount::GetPacket(PPID id, PPSmsAccPacket * pPack)
+int PPObjSmsAccount::GetPacket(PPID id, PPSmsAccPacket * pPack)
 {
 	int    ok = 1;
 	PPSmsAccPacket pack;
@@ -2241,7 +2241,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 //
 // Descr: Инициализирует смс-клиента и устанавливает соединение с СМСЦ для обычной рассылки через диалог
 //
-/*static*/int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr)
+/*static*/int PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr)
 {
 	int    ok = 1;
 	PPSendSmsParam send_sms;
@@ -2258,7 +2258,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 //
 // Descr: Инициализирует смс-клиента и устанавливает соединение с СМСЦ для автоматической рассылки через шаблон tddo
 //
-/*static*/int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr)
+/*static*/int PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr)
 {
 	int    ok = 1;
 	PPSendSmsParam send_sms;
@@ -2271,7 +2271,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 	return ok;
 }
 
-int SLAPI SmsClient::SmsInit_(PPID accID, const char * pFrom)
+int SmsClient::SmsInit_(PPID accID, const char * pFrom)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -2373,7 +2373,7 @@ int SmsClient::Unbind()
 //
 // Descr: Закрывает соединение с СМСЦ
 //
-int SLAPI SmsClient::SmsRelease_()
+int SmsClient::SmsRelease_()
 {
 	int    ok = 1;
 	if(ConnectionState == SMPP_BINDED) {
@@ -2389,7 +2389,7 @@ int SLAPI SmsClient::SmsRelease_()
 	return ok;
 }
 
-int SLAPI SmsClient::SendingSms_(PPID personID, const char * pPhone, const char * pText)
+int SmsClient::SendingSms_(PPID personID, const char * pPhone, const char * pText)
 {
 	int    ok = 1, skip = 0;
 	SString temp_buf, msg_buf, result, err_msg;
@@ -2451,11 +2451,11 @@ int SLAPI SmsClient::SendingSms_(PPID personID, const char * pPhone, const char 
 //
 //
 //
-SLAPI PPSmsSender::PPSmsSender()
+PPSmsSender::PPSmsSender()
 {
 }
 
-SLAPI PPSmsSender::~PPSmsSender()
+PPSmsSender::~PPSmsSender()
 {
 }
 
@@ -2561,7 +2561,7 @@ enum SmsVarStr {
 
 #endif // } 0 @obsolete
 
-/*static*/int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
+/*static*/int PPSmsSender::GetSubstVar(long p, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -2577,7 +2577,7 @@ enum SmsVarStr {
 	return ok;
 }
 
-/*static*/int SLAPI PPSmsSender::FormatMessage_(const char * pTemplate, SString & rResult, PPSmsSender::FormatMessageBlock * pFmBlk)
+/*static*/int PPSmsSender::FormatMessage_(const char * pTemplate, SString & rResult, PPSmsSender::FormatMessageBlock * pFmBlk)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -2647,7 +2647,7 @@ struct VerifyPhoneNumberBySmsParam {
     int    SendSmsStatus; // 0 - error, 1 - ok, -1 - no try
 };
 
-int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly)
+int VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly)
 {
 	class VerifyPhoneBySmsDialog : public TDialog {
 	public:

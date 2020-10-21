@@ -6,20 +6,20 @@
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI BitArray::BitArray() : Count(0) 
+BitArray::BitArray() : Count(0) 
 {
 	Size = 64;
 	P_Buf = static_cast<char *>(SAlloc::M(Size));
 	resetbitstring(P_Buf, Size);
 }
 
-SLAPI BitArray::BitArray(const BitArray & s) : Count(0)
+BitArray::BitArray(const BitArray & s) : Count(0)
 {
 	SBaseBuffer::Init();
 	Copy(s);
 }
 
-SLAPI BitArray::~BitArray()
+BitArray::~BitArray()
 {
 	SBaseBuffer::Destroy();
 }
@@ -44,7 +44,7 @@ int FASTCALL BitArray::Copy(const BitArray & s)
 		return 0;
 }
 
-int SLAPI BitArray::Init(const void * pBits, size_t count)
+int BitArray::Init(const void * pBits, size_t count)
 {
 	int    ok = -1;
 	if(count && pBits) {
@@ -61,13 +61,13 @@ int SLAPI BitArray::Init(const void * pBits, size_t count)
 	return ok;
 }
 
-void SLAPI BitArray::Clear()
+void BitArray::Clear()
 {
 	Zero();
 	Count = 0;
 }
 
-size_t SLAPI BitArray::getCount() const
+size_t BitArray::getCount() const
 	{ return Count; }
 int FASTCALL BitArray::get(size_t pos) const
 	{ return (pos < Count) ? getbit32(P_Buf, Size, pos) : -1; }
@@ -77,7 +77,7 @@ int FASTCALL BitArray::operator [] (size_t pos) const
 	{ return get(pos); }
 int FASTCALL BitArray::insert(int val)
 	{ return atInsert(Count, val); }
-size_t SLAPI BitArray::getBufSize() const
+size_t BitArray::getBufSize() const
 	{ return ((Count + 31) / 32) * 4; }
 
 int FASTCALL BitArray::IsEqual(const BitArray & rS) const
@@ -217,7 +217,7 @@ int FASTCALL BitArray::atFree(size_t pos)
 		return 0;
 }
 
-int SLAPI BitArray::getBuf(void * pBits, size_t maxLen) const
+int BitArray::getBuf(void * pBits, size_t maxLen) const
 {
 	int    ok = -1;
 	if(pBits && maxLen) {

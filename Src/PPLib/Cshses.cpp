@@ -8,7 +8,7 @@
 //
 // PPSyncCashSession
 //
-SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) : State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
+PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) : State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Port)[0] = 0;
@@ -18,16 +18,16 @@ SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const
 		State |= stError;
 }
 
-SLAPI PPSyncCashSession::~PPSyncCashSession()
+PPSyncCashSession::~PPSyncCashSession()
 {
 	ZDELETE(P_SlipFmt);
 	if(PortType == 0 && Handle >= 0)
 		close(Handle);
 }
 
-int SLAPI PPSyncCashSession::IsError() const { return BIN(State & stError); }
+int PPSyncCashSession::IsError() const { return BIN(State & stError); }
 
-int SLAPI PPSyncCashSession::Init(const char * pName, const char * pPort)
+int PPSyncCashSession::Init(const char * pName, const char * pPort)
 {
 	PortType = 0;
 	Handle = -1;
@@ -58,7 +58,7 @@ int SLAPI PPSyncCashSession::Init(const char * pName, const char * pPort)
 	return Handle;
 }
 
-int SLAPI PPSyncCashSession::CompleteSession(PPID sessID)
+int PPSyncCashSession::CompleteSession(PPID sessID)
 {
 	int    ok = -1, r;
 	CSessGrouping csg;
@@ -99,12 +99,12 @@ int SLAPI PPSyncCashSession::CompleteSession(PPID sessID)
 //
 // PPAsyncCashSession
 //
-SLAPI PPAsyncCashSession::PPAsyncCashSession(PPID n) : CSessGrouping(), NodeID(n), Flags(0), SinceDlsID(0),
+PPAsyncCashSession::PPAsyncCashSession(PPID n) : CSessGrouping(), NodeID(n), Flags(0), SinceDlsID(0),
 	CnFlags(~0L), CnExtFlags(~0L), P_TmpCcTbl(0), P_TmpCclTbl(0), P_TmpCpTbl(0), P_LastSessList(0), P_GCfg(0), P_Dls(0)
 {
 }
 
-SLAPI PPAsyncCashSession::~PPAsyncCashSession()
+PPAsyncCashSession::~PPAsyncCashSession()
 {
 	DestroyTables();
 	delete P_LastSessList;
@@ -112,13 +112,13 @@ SLAPI PPAsyncCashSession::~PPAsyncCashSession()
 	delete P_Dls;
 }
 
-int  SLAPI PPAsyncCashSession::FinishImportSession(PPIDArray * pSessList) { return -1; }
-void SLAPI PPAsyncCashSession::CleanUpSession() {}
-int  SLAPI PPAsyncCashSession::IsReadyForExport() { return -1; }
-int  SLAPI PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly) { return -1; }
-int  SLAPI PPAsyncCashSession::InteractiveQuery() { return -1; }
+int  PPAsyncCashSession::FinishImportSession(PPIDArray * pSessList) { return -1; }
+void PPAsyncCashSession::CleanUpSession() {}
+int  PPAsyncCashSession::IsReadyForExport() { return -1; }
+int  PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly) { return -1; }
+int  PPAsyncCashSession::InteractiveQuery() { return -1; }
 
-const PPGoodsConfig & SLAPI PPAsyncCashSession::GetGoodsCfg()
+const PPGoodsConfig & PPAsyncCashSession::GetGoodsCfg()
 {
 	if(!P_GCfg) {
 		P_GCfg = new PPGoodsConfig;
@@ -127,7 +127,7 @@ const PPGoodsConfig & SLAPI PPAsyncCashSession::GetGoodsCfg()
 	return P_GCfg ? *P_GCfg : (PPSetErrorNoMem(), *static_cast<PPGoodsConfig *>(0));
 }
 
-PPID SLAPI PPAsyncCashSession::GetLocation()
+PPID PPAsyncCashSession::GetLocation()
 {
 	PPObjCashNode cnobj(0);
 	PPGenCashNode cndata;
@@ -138,7 +138,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempCCheckTbl,     TempCCheck);
 PP_CREATE_TEMP_FILE_PROC(CreateTempCCheckLineTbl, TempCCheckLine);
 PP_CREATE_TEMP_FILE_PROC(CreateTempCCheckPaymTbl, CCheckPaym);
 
-int SLAPI PPAsyncCashSession::CreateTables()
+int PPAsyncCashSession::CreateTables()
 {
 	int    ok = 1;
 	DestroyTables();
@@ -152,14 +152,14 @@ int SLAPI PPAsyncCashSession::CreateTables()
 	return ok;
 }
 
-void SLAPI PPAsyncCashSession::DestroyTables()
+void PPAsyncCashSession::DestroyTables()
 {
    	ZDELETE(P_TmpCcTbl);
    	ZDELETE(P_TmpCclTbl);
 	ZDELETE(P_TmpCpTbl);
 }
 
-void SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID)
+void PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID)
 {
 	SETIFZ(pRec, &P_TmpCclTbl->data);
 	memzero(pRec, sizeof(*pRec));
@@ -170,8 +170,8 @@ void SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec,
 	pRec->GoodsID   = goodsID;
 }
 
-//void SLAPI PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, /*const char * pSerial*/ /*=0*/)
-/*void SLAPI PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const PPExtStrContainer * pLnExtStrings)
+//void PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, /*const char * pSerial*/ /*=0*/)
+/*void PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const PPExtStrContainer * pLnExtStrings)
 {
 	SETIFZ(pRec, &P_TmpCclTbl->data);
 	pRec->Quantity = qtty;
@@ -180,7 +180,7 @@ void SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec,
 	STRNSCPY(pRec->Serial, pSerial);
 }*/
 
-int SLAPI PPAsyncCashSession::SetTempCcLineValuesAndInsert(TempCCheckLineTbl * pTbl, double qtty, double price, double discount, PPExtStrContainer * pLnExtStrings)
+int PPAsyncCashSession::SetTempCcLineValuesAndInsert(TempCCheckLineTbl * pTbl, double qtty, double price, double discount, PPExtStrContainer * pLnExtStrings)
 {
 	int    ok = 1;
 	assert(pTbl);
@@ -213,7 +213,7 @@ int SLAPI PPAsyncCashSession::SetTempCcLineValuesAndInsert(TempCCheckLineTbl * p
 
 }
 
-int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME * pDT, PPID * pTempReplaceID)
+int PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME * pDT, PPID * pTempReplaceID)
 {
 	int    ok = 0;
 	PPID   temp_replace_id = 0;
@@ -265,7 +265,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::SearchTempCheckByTime(PPID cashID, const LDATETIME * pDT)
+int PPAsyncCashSession::SearchTempCheckByTime(PPID cashID, const LDATETIME * pDT)
 {
 	CCheckTbl::Key1 k1;
 	k1.Dt = pDT->d;
@@ -274,7 +274,7 @@ int SLAPI PPAsyncCashSession::SearchTempCheckByTime(PPID cashID, const LDATETIME
 	return SearchByKey(P_TmpCcTbl, 1, &k1, 0);
 }
 
-int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long flags,
+int PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long flags,
 	PPID cashID, PPID code, PPID user, PPID cardID, const LDATETIME & rDT, double amt, double dscnt/*, double addPaym, double extAmt*/)
 {
 	int    ok = 1;
@@ -324,7 +324,7 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::AddTempCheckAmounts(PPID checkID, double amt, double dis)
+int PPAsyncCashSession::AddTempCheckAmounts(PPID checkID, double amt, double dis)
 {
 	int    ok = -1;
 	CCheckTbl::Key0 k0;
@@ -340,7 +340,7 @@ int SLAPI PPAsyncCashSession::AddTempCheckAmounts(PPID checkID, double amt, doub
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::UpdateTempCheckFlags(long checkID, long flags)
+int PPAsyncCashSession::UpdateTempCheckFlags(long checkID, long flags)
 {
 	int    ok = -1;
 	CCheckTbl::Key0 k0;
@@ -355,7 +355,7 @@ int SLAPI PPAsyncCashSession::UpdateTempCheckFlags(long checkID, long flags)
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::AddTempCheckPaym(long checkID, int paymType, double amount, long scardID)
+int PPAsyncCashSession::AddTempCheckPaym(long checkID, int paymType, double amount, long scardID)
 {
 	int    ok = 1;
 	CCheckTbl::Key0 k0;
@@ -379,7 +379,7 @@ int SLAPI PPAsyncCashSession::AddTempCheckPaym(long checkID, int paymType, doubl
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::SetTempCheckAmounts(PPID checkID, double amt, double dis)
+int PPAsyncCashSession::SetTempCheckAmounts(PPID checkID, double amt, double dis)
 {
 	int    ok = -1;
 	CCheckTbl::Key0 k0;
@@ -392,7 +392,7 @@ int SLAPI PPAsyncCashSession::SetTempCheckAmounts(PPID checkID, double amt, doub
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::AddTempCheckSCardID(PPID checkID, PPID scardID)
+int PPAsyncCashSession::AddTempCheckSCardID(PPID checkID, PPID scardID)
 {
 	int    ok = -1;
 	CCheckTbl::Key0 k0;
@@ -404,7 +404,7 @@ int SLAPI PPAsyncCashSession::AddTempCheckSCardID(PPID checkID, PPID scardID)
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::AddTempCheckGiftCardID(PPID checkID, PPID giftCardID)
+int PPAsyncCashSession::AddTempCheckGiftCardID(PPID checkID, PPID giftCardID)
 {
 	int    ok = -1;
 	CCheckTbl::Key0 k0;
@@ -416,7 +416,7 @@ int SLAPI PPAsyncCashSession::AddTempCheckGiftCardID(PPID checkID, PPID giftCard
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::SearchTempCheckByCode(PPID cashID, PPID code, PPID sessNo)
+int PPAsyncCashSession::SearchTempCheckByCode(PPID cashID, PPID code, PPID sessNo)
 {
 	int    ok = -1;
 	CCheckTbl::Key2 k;
@@ -445,7 +445,7 @@ int SLAPI PPAsyncCashSession::SearchTempCheckByCode(PPID cashID, PPID code, PPID
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::GetLastSess(long cashNumber, LDATETIME dtm, long * pSessNumber, PPID * pSessID)
+int PPAsyncCashSession::GetLastSess(long cashNumber, LDATETIME dtm, long * pSessNumber, PPID * pSessID)
 {
 	int    ok = -1;
 	LDATETIME last_sess_dtm;
@@ -468,7 +468,7 @@ int SLAPI PPAsyncCashSession::GetLastSess(long cashNumber, LDATETIME dtm, long *
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::SetLastSess(long cashNumber, long sessNumber, PPID sessID, LDATETIME dtm)
+int PPAsyncCashSession::SetLastSess(long cashNumber, long sessNumber, PPID sessID, LDATETIME dtm)
 {
 	int    ok = -1;
 	uint   i;
@@ -494,7 +494,7 @@ int SLAPI PPAsyncCashSession::SetLastSess(long cashNumber, long sessNumber, PPID
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long sessNumber, int forwardSess, int temporary, PPID * pSessID)
+int PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long sessNumber, int forwardSess, int temporary, PPID * pSessID)
 {
 	int    ok = 1, r;
 	PPID   sess_id = 0;
@@ -563,7 +563,7 @@ int SLAPI PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
+int PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 {
 	CCheckTbl::Key3 k;
 	MEMSZERO(k);
@@ -604,7 +604,7 @@ struct CclExtTextItem {
 	StrAssocArray LnTextList;
 };
 
-int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pHasExLineList)
+int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pHasExLineList)
 {
 	int    ok = 1;
 	if(pList && pList->getCount()) {
@@ -737,7 +737,7 @@ struct TotalLogCSessEntry { // @flat
 	double CcAmount;
 };
 
-int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessList, void * pTotalLogData)
+int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessList, void * pTotalLogData)
 {
 	P_LastSessList = 0;
 
@@ -911,7 +911,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rS
 //
 //
 //
-int SLAPI PPAsyncCashSession::LogExportingGoodsItem(const AsyncCashGoodsInfo * pInfo)
+int PPAsyncCashSession::LogExportingGoodsItem(const AsyncCashGoodsInfo * pInfo)
 {
 	int    ok = 1;
 	SString msg_buf, added_info;
@@ -926,12 +926,12 @@ int SLAPI PPAsyncCashSession::LogExportingGoodsItem(const AsyncCashGoodsInfo * p
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::LogDebug(const char * pMsg)
+int PPAsyncCashSession::LogDebug(const char * pMsg)
 {
 	return (CConfig.Flags & CCFLG_DEBUG) ? PPLogMessage(PPFILNAM_DEBUG_LOG, pMsg, LOGMSGF_TIME|LOGMSGF_USER) : -1;
 }
 
-int SLAPI PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
+int PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 {
 	int    ok = 1;
 	const  long lmf = LOGMSGF_TIME|LOGMSGF_USER;
@@ -969,7 +969,7 @@ int SLAPI PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
+int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 {
 	SurveyPeriod.Z();
 	int    ok = 1;
@@ -1105,7 +1105,7 @@ int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0
 #undef LOG_DEBUG
 }
 
-int SLAPI PPAsyncCashSession::GetExpPathSet(StringSet * pSs)
+int PPAsyncCashSession::GetExpPathSet(StringSet * pSs)
 {
 	int    ok = 1;
 	PPAsyncCashNode acn;
@@ -1124,7 +1124,7 @@ int SLAPI PPAsyncCashSession::GetExpPathSet(StringSet * pSs)
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::CheckCnFlag(long f)
+int PPAsyncCashSession::CheckCnFlag(long f)
 {
 	PPAsyncCashNode cn_data;
 	return BIN((CnFlags != ~0L || GetNodeData(&cn_data) > 0) && (CnFlags & f));
@@ -1136,7 +1136,7 @@ int FASTCALL PPAsyncCashSession::CheckCnExtFlag(long f)
 	return BIN((CnExtFlags != ~0L || GetNodeData(&cn_data) > 0) && (CnExtFlags & f));
 }
 
-int SLAPI PPAsyncCashSession::GetNodeData(PPAsyncCashNode * pData)
+int PPAsyncCashSession::GetNodeData(PPAsyncCashNode * pData)
 {
 	PPObjCashNode cnobj;
 	const int r = cnobj.GetAsync(NodeID, pData);
@@ -1165,7 +1165,7 @@ int FASTCALL PPAsyncCashSession::AddCheckDigToBarcode(char * pCode)
 		return -1;
 }
 
-int SLAPI PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEndFileName, int action, const char * pSubDir /*=0*/, const char * pEmailSubj /*=0*/)
+int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEndFileName, int action, const char * pSubDir /*=0*/, const char * pEmailSubj /*=0*/)
 {
 	const char * p_ftp_flag = "ftp:";
 	StringSet ss(';', 0);
@@ -1331,13 +1331,13 @@ int SLAPI PPAsyncCashSession::DistributeFile_(const char * pFileName, const char
 //
 // AsyncCashGoodsIterator
 //
-SLAPI AsyncCashGoodsIterator::AsyncCashGoodsIterator(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls) :
+AsyncCashGoodsIterator::AsyncCashGoodsIterator(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls) :
 	P_Dls(0), P_G2OAssoc(0), P_G2DAssoc(0), P_AcggIter(0), P_AlcPrc(0), Algorithm(algDefault)
 {
 	Init(cashNodeID, flags, sinceDlsID, pDls);
 }
 
-SLAPI AsyncCashGoodsIterator::~AsyncCashGoodsIterator()
+AsyncCashGoodsIterator::~AsyncCashGoodsIterator()
 {
 	delete P_G2OAssoc;
 	delete P_AcggIter;
@@ -1345,14 +1345,14 @@ SLAPI AsyncCashGoodsIterator::~AsyncCashGoodsIterator()
 }
 
 AsyncCashGoodsGroupIterator * AsyncCashGoodsIterator::GetGroupIterator() { return P_AcggIter; }
-PPID SLAPI AsyncCashGoodsIterator::GetTobaccoGoodsCls() const { return TobaccoGoodsClsID; }
-PPID SLAPI AsyncCashGoodsIterator::GetGiftCardGoodsCls() const { return GiftCardGoodsClsID; }
-const IterCounter & SLAPI AsyncCashGoodsIterator::GetIterCounter() const
+PPID AsyncCashGoodsIterator::GetTobaccoGoodsCls() const { return TobaccoGoodsClsID; }
+PPID AsyncCashGoodsIterator::GetGiftCardGoodsCls() const { return GiftCardGoodsClsID; }
+const IterCounter & AsyncCashGoodsIterator::GetIterCounter() const
 	{ return (Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills) ? InnerCounter : Iter.GetIterCounter(); }
-int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goodsID, double basePrice, RealArray & rList)
+int AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goodsID, double basePrice, RealArray & rList)
 	{ return AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(goodsID, LocID, basePrice, PricesLookBackPeriod, rList); }
 
-/*static*/int SLAPI AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goodsID, PPID locID, double basePrice, int lookBackPeriod, RealArray & rList)
+/*static*/int AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goodsID, PPID locID, double basePrice, int lookBackPeriod, RealArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -1388,7 +1388,7 @@ int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goods
     return ok;
 }
 
-PPID SLAPI AsyncCashGoodsIterator::GetAlcoGoodsCls(SString * pProofExpr, SString * pVolumeExpr) const
+PPID AsyncCashGoodsIterator::GetAlcoGoodsCls(SString * pProofExpr, SString * pVolumeExpr) const
 {
 	if(AlcoGoodsClsID) {
 		ASSIGN_PTR(pProofExpr, AlcoProofExpr);
@@ -1401,7 +1401,7 @@ PPID SLAPI AsyncCashGoodsIterator::GetAlcoGoodsCls(SString * pProofExpr, SString
 	return AlcoGoodsClsID;
 }
 
-int SLAPI AsyncCashGoodsIterator::GetAlcoGoodsExtension(PPID goodsID, PPID lotID, PrcssrAlcReport::GoodsItem & rExt)
+int AsyncCashGoodsIterator::GetAlcoGoodsExtension(PPID goodsID, PPID lotID, PrcssrAlcReport::GoodsItem & rExt)
 {
 	int    ok = -1;
 	if(goodsID) {
@@ -1418,7 +1418,7 @@ int SLAPI AsyncCashGoodsIterator::GetAlcoGoodsExtension(PPID goodsID, PPID lotID
 	return ok;
 }
 
-int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls)
+int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls)
 {
 	int    ok = 1;
 	int    is_redo = 0; // Признак того, что выгрузка осуществляется в режиме REDO (товары, выгруженные ранее, начиная с заданной sinceDlsID)
@@ -1761,7 +1761,7 @@ const PPIDArray * FASTCALL AsyncCashGoodsIterator::GetRefList(int refType) const
 	}
 }
 
-int SLAPI AsyncCashGoodsIterator::SearchCPrice(PPID goodsID, double * pPrice)
+int AsyncCashGoodsIterator::SearchCPrice(PPID goodsID, double * pPrice)
 {
 	int    ok = 1;
 	CCurPriceTbl::Key0 k;
@@ -1781,7 +1781,7 @@ int SLAPI AsyncCashGoodsIterator::SearchCPrice(PPID goodsID, double * pPrice)
 	return ok;
 }
 
-int SLAPI AsyncCashGoodsIterator::UpdateCPrice(PPID goodsID, double price)
+int AsyncCashGoodsIterator::UpdateCPrice(PPID goodsID, double price)
 {
 	int    ok = 1, r = 0;
 	double p = price;
@@ -1802,7 +1802,7 @@ int SLAPI AsyncCashGoodsIterator::UpdateCPrice(PPID goodsID, double price)
 	return ok;
 }
 
-int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
+int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 {
 	int    ok = -1;
 	const  LDATETIME _now = getcurdatetime_();
@@ -2061,12 +2061,12 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 	return ok;
 }
 
-SLAPI AsyncCashGoodsInfo::AsyncCashGoodsInfo()
+AsyncCashGoodsInfo::AsyncCashGoodsInfo()
 {
 	Init();
 }
 
-void SLAPI AsyncCashGoodsInfo::Init()
+void AsyncCashGoodsInfo::Init()
 {
 	ID = 0;
 	memzero(Name, sizeof(Name));
@@ -2118,7 +2118,7 @@ IMPL_INVARIANT_C(AsyncCashGoodsInfo)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
+int AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 {
 	const size_t bclen = sstrlen(BarCode);
 	if(bclen > 3 && bclen < 7) {
@@ -2133,12 +2133,12 @@ int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 //
 // AsyncCashSCardsIterator
 //
-SLAPI AsyncCashSCardInfo::AsyncCashSCardInfo() : IsClosed(0), Rest(0.0)
+AsyncCashSCardInfo::AsyncCashSCardInfo() : IsClosed(0), Rest(0.0)
 {
 	// @v10.6.4 MEMSZERO(Rec);
 }
 
-AsyncCashSCardInfo & SLAPI AsyncCashSCardInfo::Z()
+AsyncCashSCardInfo & AsyncCashSCardInfo::Z()
 {
 	MEMSZERO(Rec);
 	IsClosed = 0;
@@ -2148,7 +2148,7 @@ AsyncCashSCardInfo & SLAPI AsyncCashSCardInfo::Z()
 	return *this;
 }
 
-SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID) :
+AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID) :
 	P_IterQuery(0), UpdatedOnly(updOnly), P_DLS(pDLS), StatID(statID), Since(ZERODATETIME)
 {
 	// @v10.6.4 MEMSZERO(Rec);
@@ -2200,12 +2200,12 @@ SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updO
 	}
 }
 
-SLAPI AsyncCashSCardsIterator::~AsyncCashSCardsIterator()
+AsyncCashSCardsIterator::~AsyncCashSCardsIterator()
 {
 	delete P_IterQuery;
 }
 
-int SLAPI AsyncCashSCardsIterator::Init(const PPSCardSerPacket * pScsPack)
+int AsyncCashSCardsIterator::Init(const PPSCardSerPacket * pScsPack)
 {
 	int    ok = 1;
 	ScsPack = *pScsPack;
@@ -2222,7 +2222,7 @@ int SLAPI AsyncCashSCardsIterator::Init(const PPSCardSerPacket * pScsPack)
 	return ok;
 }
 
-int SLAPI AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
+int AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 {
 	int    ok = -1;
 	if(pInfo) {
@@ -2268,7 +2268,7 @@ int SLAPI AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 	return ok;
 }
 
-int SLAPI AsyncCashSCardsIterator::SetStat()
+int AsyncCashSCardsIterator::SetStat()
 {
 	int    ok = -1;
 	if(P_DLS && StatID && Rec.ID) {
@@ -2284,16 +2284,16 @@ int SLAPI AsyncCashSCardsIterator::SetStat()
 //
 // AsyncCashiersIterator
 //
-SLAPI AsyncCashiersIterator::AsyncCashiersIterator() : ProsessUnworkedPos(0), TabNumRegID(0), P_IterQuery(0), Since(ZERODATETIME)
+AsyncCashiersIterator::AsyncCashiersIterator() : ProsessUnworkedPos(0), TabNumRegID(0), P_IterQuery(0), Since(ZERODATETIME)
 {
 }
 
-SLAPI AsyncCashiersIterator::~AsyncCashiersIterator()
+AsyncCashiersIterator::~AsyncCashiersIterator()
 {
 	delete P_IterQuery;
 }
 
-int SLAPI AsyncCashiersIterator::Init(PPID cashNodeID)
+int AsyncCashiersIterator::Init(PPID cashNodeID)
 {
 	int    ok = -1;
 	PPID   psn_kind_id = 0;
@@ -2329,7 +2329,7 @@ int SLAPI AsyncCashiersIterator::Init(PPID cashNodeID)
 	return ok;
 }
 
-int SLAPI AsyncCashiersIterator::Next(AsyncCashierInfo * pInfo)
+int AsyncCashiersIterator::Next(AsyncCashierInfo * pInfo)
 {
 	int    ok = -1;
 	if(pInfo) {
@@ -2388,28 +2388,28 @@ int SLAPI AsyncCashiersIterator::Next(AsyncCashierInfo * pInfo)
 //
 // AsyncCashGoodsGroupIterator
 //
-SLAPI AsyncCashGoodsGroupInfo::AsyncCashGoodsGroupInfo()
+AsyncCashGoodsGroupInfo::AsyncCashGoodsGroupInfo()
 {
 	Init();
 }
 
-void SLAPI AsyncCashGoodsGroupInfo::Init()
+void AsyncCashGoodsGroupInfo::Init()
 {
 	THISZERO();
 }
 
-SLAPI AsyncCashGoodsGroupIterator::AsyncCashGoodsGroupIterator(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList) :
+AsyncCashGoodsGroupIterator::AsyncCashGoodsGroupIterator(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList) :
 	P_GrpList(0)
 {
 	Init(cashNodeID, flags, pDls, pTermGrpList);
 }
 
-SLAPI AsyncCashGoodsGroupIterator::~AsyncCashGoodsGroupIterator()
+AsyncCashGoodsGroupIterator::~AsyncCashGoodsGroupIterator()
 {
 	ZDELETE(P_GrpList);
 }
 
-int SLAPI AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, PPID parentID, uint level)
+int AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, PPID parentID, uint level)
 {
 	int    ok = -1;
 	for(uint i = 0; i < pTreeList->getCount(); i++) {
@@ -2440,7 +2440,7 @@ int SLAPI AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, 
 	return ok;
 }
 
-int SLAPI AsyncCashGoodsGroupIterator::Init(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList)
+int AsyncCashGoodsGroupIterator::Init(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList)
 {
 	int    ok = 1;
 	PPID   grp_id = 0;
@@ -2495,7 +2495,7 @@ int SLAPI AsyncCashGoodsGroupIterator::Init(PPID cashNodeID, long flags, DeviceL
 	return ok;
 }
 
-int SLAPI AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
+int AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 {
 	int    ok = -1;
 	if(P_GrpList && Pos < P_GrpList->getCount()) {

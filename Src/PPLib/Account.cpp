@@ -37,7 +37,7 @@ int FASTCALL GetAcctIDName(const AcctID & rAci, long, SString & rBuf)
 	return ok;
 }
 
-int SLAPI AccIDToAcct(PPID id, int ord, Acct * pAcct)
+int AccIDToAcct(PPID id, int ord, Acct * pAcct)
 {
 	int    ok = 1;
 	PPObjAccTurn atobj(0);
@@ -57,18 +57,18 @@ int SLAPI AccIDToAcct(PPID id, int ord, Acct * pAcct)
 	return ok;
 }
 
-SLAPI PPAccount::PPAccount()
+PPAccount::PPAccount()
 {
 	THISZERO();
 }
 //
 // PPAccountPacket
 //
-SLAPI PPAccountPacket::PPAccountPacket()
+PPAccountPacket::PPAccountPacket()
 {
 }
 
-PPAccountPacket & SLAPI PPAccountPacket::Z()
+PPAccountPacket & PPAccountPacket::Z()
 {
 	MEMSZERO(Rec);
 	CurList.Z();
@@ -81,7 +81,7 @@ PPAccountPacket & SLAPI PPAccountPacket::Z()
 
 #if 0 // @v9.0.4 {
 
-/*static*/void SLAPI AccountCore::GenerateCode(PPAccount & rRec)
+/*static*/void AccountCore::GenerateCode(PPAccount & rRec)
 {
 	char   buf[48];
 	Acct   acct;
@@ -92,11 +92,11 @@ PPAccountPacket & SLAPI PPAccountPacket::Z()
 	STRNSCPY(rRec.Code, buf);
 }
 
-SLAPI AccountCore::AccountCore() : AccountTbl()
+AccountCore::AccountCore() : AccountTbl()
 {
 }
 
-int SLAPI AccountCore::GenerateNumber(PPAccount * pRec)
+int AccountCore::GenerateNumber(PPAccount * pRec)
 {
 	int    ok = -1, r;
 	int    start = 0, finish = 0;
@@ -138,7 +138,7 @@ int SLAPI AccountCore::GenerateNumber(PPAccount * pRec)
 	return ok;
 }
 
-int SLAPI AccountCore::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * pCurList)
+int AccountCore::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * pCurList)
 {
 	AccountTbl::Key1 k1;
 	k1.Ac = ac;
@@ -154,7 +154,7 @@ int SLAPI AccountCore::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArra
 	return (BTROKORNFOUND) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI AccountCore::GetCurList(PPID accID, PPIDArray * pAccList, PPIDArray * pCurList)
+int AccountCore::GetCurList(PPID accID, PPIDArray * pAccList, PPIDArray * pCurList)
 {
 	if(Search(accID) > 0) {
 		if(data.Flags & ACF_CURRENCY)
@@ -168,7 +168,7 @@ int SLAPI AccountCore::GetCurList(PPID accID, PPIDArray * pAccList, PPIDArray * 
 	return -1;
 }
 
-int SLAPI AccountCore::GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArray * pCurList)
+int AccountCore::GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArray * pCurList)
 {
 	PPIDArray cur_list, cur_list1;
 	GetCurList(accID_1, 0, &cur_list);
@@ -183,7 +183,7 @@ int SLAPI AccountCore::GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArray
 	return 1;
 }
 
-int SLAPI AccountCore::GetPacket(PPID id, PPAccountPacket * pAccPack)
+int AccountCore::GetPacket(PPID id, PPAccountPacket * pAccPack)
 {
 	int    ok = 1;
 	MEMSZERO(pAccPack->Rec);
@@ -202,7 +202,7 @@ int SLAPI AccountCore::GetPacket(PPID id, PPAccountPacket * pAccPack)
 	return ok;
 }
 
-int SLAPI AccountCore::AddCurRecord(PPAccount * pBaseRec, PPID curID)
+int AccountCore::AddCurRecord(PPAccount * pBaseRec, PPID curID)
 {
 	PPAccount cur_acc_rec = *pBaseRec;
 	cur_acc_rec.ID = 0;
@@ -211,7 +211,7 @@ int SLAPI AccountCore::AddCurRecord(PPAccount * pBaseRec, PPID curID)
 	return insertRecBuf(&cur_acc_rec) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI AccountCore::GetAggrNumber(PPAccount * pRec)
+int AccountCore::GetAggrNumber(PPAccount * pRec)
 {
 	for(int i = MINGENACCNUMBER; i <= MAXGENACCNUMBER; i++) {
 		if(SearchNum(i, 0, 0L) < 0) {
@@ -222,7 +222,7 @@ int SLAPI AccountCore::GetAggrNumber(PPAccount * pRec)
 	return 0;
 }
 
-int SLAPI AccountCore::PutPacket(PPID * pID, PPAccountPacket * pAccPack, int use_ta)
+int AccountCore::PutPacket(PPID * pID, PPAccountPacket * pAccPack, int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -308,17 +308,17 @@ int SLAPI AccountCore::PutPacket(PPID * pID, PPAccountPacket * pAccPack, int use
 	return ok;
 }
 
-int SLAPI AccountCore::Remove(PPID id, int use_ta)
+int AccountCore::Remove(PPID id, int use_ta)
 {
 	return PutPacket(&id, 0, use_ta);
 }
 
-int SLAPI AccountCore::Search(PPID id, PPAccount * pRec)
+int AccountCore::Search(PPID id, PPAccount * pRec)
 {
 	return SearchByID(this, PPOBJ_ACCOUNT, id, pRec);
 }
 
-int SLAPI AccountCore::SearchBase(PPID curAccID, PPID * pBaseAccID, void * b)
+int AccountCore::SearchBase(PPID curAccID, PPID * pBaseAccID, void * b)
 {
 	int    ok = 1;
 	PPAccount rec;
@@ -332,7 +332,7 @@ int SLAPI AccountCore::SearchBase(PPID curAccID, PPID * pBaseAccID, void * b)
 	return ok;
 }
 
-int SLAPI AccountCore::SearchCur(PPID accID, PPID curID, PPID * pCurAccID, void * b)
+int AccountCore::SearchCur(PPID accID, PPID curID, PPID * pCurAccID, void * b)
 {
 	int    ok = 1;
 	PPAccount rec;
@@ -346,7 +346,7 @@ int SLAPI AccountCore::SearchCur(PPID accID, PPID curID, PPID * pCurAccID, void 
 	return ok;
 }
 
-int SLAPI AccountCore::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList)
+int AccountCore::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList)
 {
 	AccountTbl::Key1 k1;
 	k1.Ac = ac;
@@ -361,7 +361,7 @@ int SLAPI AccountCore::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pL
 		return PPSetErrorDB();
 }
 
-int SLAPI AccountCore::HasAnySubacct(int ac)
+int AccountCore::HasAnySubacct(int ac)
 {
 	AccountTbl::Key1 k1;
 	k1.Ac = ac;
@@ -373,7 +373,7 @@ int SLAPI AccountCore::HasAnySubacct(int ac)
 	return PPDbSearchError();
 }
 
-int SLAPI AccountCore::SearchCode(const char * pCode, PPID curID, PPAccount * pRec)
+int AccountCore::SearchCode(const char * pCode, PPID curID, PPAccount * pRec)
 {
 	AccountTbl::Key2 k2;
 	MEMSZERO(k2);
@@ -384,7 +384,7 @@ int SLAPI AccountCore::SearchCode(const char * pCode, PPID curID, PPAccount * pR
 	return (BTROKORNFOUND) ? (PPSetError(PPERR_ACCNFOUND, pCode), -1) : PPSetErrorDB();
 }
 
-int SLAPI AccountCore::InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheetID)
+int AccountCore::InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheetID)
 {
 	int    r = 1;
 	*pAccSheetID = 0;
@@ -399,7 +399,7 @@ int SLAPI AccountCore::InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheetI
 	return r;
 }
 
-int SLAPI AccountCore::ParseString(const char * pStr, int tok[])
+int AccountCore::ParseString(const char * pStr, int tok[])
 {
 	int    i = 0;
 	char   temp_buf[64];
@@ -420,16 +420,16 @@ int SLAPI AccountCore::ParseString(const char * pStr, int tok[])
 //
 // ArticleCore
 //
-SLAPI ArticleCore::ArticleCore() : ArticleTbl()
+ArticleCore::ArticleCore() : ArticleTbl()
 {
 }
 
-int SLAPI ArticleCore::Search(PPID id, void * b)
+int ArticleCore::Search(PPID id, void * b)
 {
 	return SearchByID(this, PPOBJ_ARTICLE, id, b);
 }
 
-int SLAPI ArticleCore::SearchName(PPID accSheetID, const char * pName, void * b)
+int ArticleCore::SearchName(PPID accSheetID, const char * pName, void * b)
 {
 	ArticleTbl::Key2 k2;
 	MEMSZERO(k2);
@@ -438,7 +438,7 @@ int SLAPI ArticleCore::SearchName(PPID accSheetID, const char * pName, void * b)
 	return SearchByKey(this, 2, &k2, b);
 }
 
-int SLAPI ArticleCore::EnumBySheet(PPID accSheetID, long * pArticleNo, void * b)
+int ArticleCore::EnumBySheet(PPID accSheetID, long * pArticleNo, void * b)
 {
 	ArticleTbl::Key1 k;
 	k.AccSheetID = accSheetID;
@@ -451,7 +451,7 @@ int SLAPI ArticleCore::EnumBySheet(PPID accSheetID, long * pArticleNo, void * b)
 	return PPDbSearchError();
 }
 
-int SLAPI ArticleCore::Count(PPID accSheetID, long * pCount)
+int ArticleCore::Count(PPID accSheetID, long * pCount)
 {
 	ArticleTbl::Key1 k;
 	k.AccSheetID = accSheetID;
@@ -463,7 +463,7 @@ int SLAPI ArticleCore::Count(PPID accSheetID, long * pCount)
 	return 1;
 }
 
-int SLAPI ArticleCore::GetListBySheet(PPID accSheetID, PPIDArray * pList, long * pCount)
+int ArticleCore::GetListBySheet(PPID accSheetID, PPIDArray * pList, long * pCount)
 {
 	int    ok = -1;
 	long   count = 0;
@@ -487,7 +487,7 @@ int SLAPI ArticleCore::GetListBySheet(PPID accSheetID, PPIDArray * pList, long *
 	return ok;
 }
 
-int SLAPI ArticleCore::GetListByGroup(PPID grpArID, PPIDArray * pList)
+int ArticleCore::GetListByGroup(PPID grpArID, PPIDArray * pList)
 {
 	int    ok = 1;
 	if(pList) {
@@ -500,7 +500,7 @@ int SLAPI ArticleCore::GetListByGroup(PPID grpArID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI ArticleCore::_SearchNum(PPID accSheetID, long articleNo, int spMode, void * b)
+int ArticleCore::_SearchNum(PPID accSheetID, long articleNo, int spMode, void * b)
 {
 	ArticleTbl::Key1 k;
 	k.AccSheetID = accSheetID;
@@ -510,7 +510,7 @@ int SLAPI ArticleCore::_SearchNum(PPID accSheetID, long articleNo, int spMode, v
 	return (BTROKORNFOUND) ? (PPErrCode = PPERR_ARTICLENFOUND, -1) : PPSetErrorDB();
 }
 
-int SLAPI ArticleCore::SearchFreeNum(PPID accSheetID, long * pAr, void * b)
+int ArticleCore::SearchFreeNum(PPID accSheetID, long * pAr, void * b)
 {
 	int    r;
 	if(*pAr)
@@ -525,7 +525,7 @@ int SLAPI ArticleCore::SearchFreeNum(PPID accSheetID, long * pAr, void * b)
 	return r;
 }
 
-int SLAPI ArticleCore::SearchObjRef(PPID sheet, PPID id, ArticleTbl::Rec * b)
+int ArticleCore::SearchObjRef(PPID sheet, PPID id, ArticleTbl::Rec * b)
 {
 	ArticleTbl::Key3 k;
 	k.AccSheetID = sheet;
@@ -533,7 +533,7 @@ int SLAPI ArticleCore::SearchObjRef(PPID sheet, PPID id, ArticleTbl::Rec * b)
 	return SearchByKey(this, 3, &k, b);
 }
 
-int SLAPI ArticleCore::PersonToArticle(PPID personID, PPID accSheetID, PPID * pArID)
+int ArticleCore::PersonToArticle(PPID personID, PPID accSheetID, PPID * pArID)
 {
 	int    ok = -1;
 	PPID   ar_id = 0;
@@ -546,7 +546,7 @@ int SLAPI ArticleCore::PersonToArticle(PPID personID, PPID accSheetID, PPID * pA
 	return ok;
 }
 
-int SLAPI ArticleCore::LocationToArticle(PPID locID, PPID accSheetID, PPID * pArID)
+int ArticleCore::LocationToArticle(PPID locID, PPID accSheetID, PPID * pArID)
 {
 	int    ok = -1;
 	PPID   ar_id = 0;
@@ -559,38 +559,38 @@ int SLAPI ArticleCore::LocationToArticle(PPID locID, PPID accSheetID, PPID * pAr
 	return ok;
 }
 
-int SLAPI ArticleCore::SearchNum(PPID sheet, long ar, void * b)
+int ArticleCore::SearchNum(PPID sheet, long ar, void * b)
 {
 	return _SearchNum(sheet, ar, ar ? spEq : spGe, b);
 }
 
-int SLAPI ArticleCore::Add(PPID * pID, void * b, int use_ta)
+int ArticleCore::Add(PPID * pID, void * b, int use_ta)
 {
 	return AddObjRecByID(this, PPOBJ_ARTICLE, pID, b, use_ta);
 }
 
-int SLAPI ArticleCore::Update(PPID id, const void * pRec, int use_ta)
+int ArticleCore::Update(PPID id, const void * pRec, int use_ta)
 {
 	return UpdateByID(this, PPOBJ_ARTICLE, id, pRec, use_ta);
 }
 
-int SLAPI ArticleCore::Remove(PPID id, int use_ta)
+int ArticleCore::Remove(PPID id, int use_ta)
 {
    return RemoveByID(this, id, use_ta);
 }
 //
 // AcctRel
 //
-SLAPI AcctRel::AcctRel() : AcctRelTbl()
+AcctRel::AcctRel() : AcctRelTbl()
 {
 }
 
-int SLAPI AcctRel::Search(PPID id, AcctRelTbl::Rec * pRec)
+int AcctRel::Search(PPID id, AcctRelTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_ACCTREL, id, pRec);
 }
 
-int SLAPI AcctRel::SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec)
+int AcctRel::SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec)
 {
 	AcctRelTbl::Key1 k1;
 	k1.AccID     = pAcctId->ac;
@@ -598,7 +598,7 @@ int SLAPI AcctRel::SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec)
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
-int SLAPI AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRelTbl::Rec * pRec)
+int AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRelTbl::Rec * pRec)
 {
 	int    sp;
 	AcctRelTbl::Key3 k3;
@@ -620,7 +620,7 @@ int SLAPI AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRel
 		return PPDbSearchError();
 }
 
-int SLAPI AcctRel::OpenAcct(PPID * pID, const Acct * pAcct, PPID curID, const AcctID * pAcctId, int accKind, int accsLevel)
+int AcctRel::OpenAcct(PPID * pID, const Acct * pAcct, PPID curID, const AcctID * pAcctId, int accKind, int accsLevel)
 {
 	clearDataBuf();
 	data.AccID    = pAcctId->ac;
@@ -634,7 +634,7 @@ int SLAPI AcctRel::OpenAcct(PPID * pID, const Acct * pAcct, PPID curID, const Ac
 	return insertRec(0, pID) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI AcctRel::CloseAcct(PPID id, int use_ta)
+int AcctRel::CloseAcct(PPID id, int use_ta)
 {
 	int    ok = 1;
 	int    r, closed;
@@ -656,7 +656,7 @@ int SLAPI AcctRel::CloseAcct(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI AcctRel::ReplaceAcct(int oldAc, int oldSb, int newAc, int newSb)
+int AcctRel::ReplaceAcct(int oldAc, int oldSb, int newAc, int newSb)
 {
 	int    ok = 1;
 	AcctRelTbl::Key3 k;
@@ -680,7 +680,7 @@ int SLAPI AcctRel::ReplaceAcct(int oldAc, int oldSb, int newAc, int newSb)
 	return ok;
 }
 
-int SLAPI AcctRel::EnumByAcc(PPID accID, PPID * pArID, AcctRelTbl::Rec * pRec)
+int AcctRel::EnumByAcc(PPID accID, PPID * pArID, AcctRelTbl::Rec * pRec)
 {
 	AcctRelTbl::Key1 k;
 	PPID   ar_id = (*pArID < 0) ? 0 : *pArID;
@@ -696,7 +696,7 @@ int SLAPI AcctRel::EnumByAcc(PPID accID, PPID * pArID, AcctRelTbl::Rec * pRec)
 		return PPDbSearchError();
 }
 
-int SLAPI AcctRel::EnumByArticle(PPID arID, PPID * pAccID, AcctRelTbl::Rec * pRec)
+int AcctRel::EnumByArticle(PPID arID, PPID * pAccID, AcctRelTbl::Rec * pRec)
 {
 	AcctRelTbl::Key2 k;
 	PPID   acc_id = (*pAccID < 0) ? 0 : *pAccID;
@@ -712,7 +712,7 @@ int SLAPI AcctRel::EnumByArticle(PPID arID, PPID * pAccID, AcctRelTbl::Rec * pRe
 		return PPDbSearchError();
 }
 
-SEnumImp * SLAPI AcctRel::Enum(int keyN, PPID keyID)
+SEnumImp * AcctRel::Enum(int keyN, PPID keyID)
 {
 	union {
 		AcctRelTbl::Key1 k1;
@@ -742,17 +742,17 @@ SEnumImp * SLAPI AcctRel::Enum(int keyN, PPID keyID)
 	return p_enum;
 }
 
-SEnumImp * SLAPI AcctRel::EnumByAcc(PPID accID) { return Enum(1, accID); }
-SEnumImp * SLAPI AcctRel::EnumByArticle(PPID arID) { return Enum(2, arID); }
+SEnumImp * AcctRel::EnumByAcc(PPID accID) { return Enum(1, accID); }
+SEnumImp * AcctRel::EnumByArticle(PPID arID) { return Enum(2, arID); }
 //
 //
 //
 class AcctRelCache : public ObjCache {
 public:
-	SLAPI  AcctRelCache() : ObjCache(PPOBJ_ACCTREL, sizeof(Data)) {}
+	AcctRelCache() : ObjCache(PPOBJ_ACCTREL, sizeof(Data)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   AccID;
@@ -767,7 +767,7 @@ public:
 	};
 };
 
-int SLAPI AcctRelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int AcctRelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -791,7 +791,7 @@ int SLAPI AcctRelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	AcctRelTbl::Rec * p_data_pack = static_cast<AcctRelTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -809,7 +809,7 @@ void SLAPI AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 #undef CPY_FLD
 }
 
-int SLAPI AcctRel::Fetch(PPID id, AcctRelTbl::Rec * pRec)
+int AcctRel::Fetch(PPID id, AcctRelTbl::Rec * pRec)
 {
 	AcctRelCache * p_cache = GetDbLocalCachePtr <AcctRelCache> (PPOBJ_ACCTREL);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);

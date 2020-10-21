@@ -6,21 +6,21 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(ShipmAnalyze); SLAPI ShipmAnalyzeFilt::ShipmAnalyzeFilt() : PPBaseFilt(PPFILT_SHIPMANALYZE, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(ShipmAnalyze); ShipmAnalyzeFilt::ShipmAnalyzeFilt() : PPBaseFilt(PPFILT_SHIPMANALYZE, 0, 1)
 {
 	SetFlatChunk(offsetof(ShipmAnalyzeFilt, ReserveStart),
 		offsetof(ShipmAnalyzeFilt, ReserveEnd) - offsetof(ShipmAnalyzeFilt, ReserveStart));
 	Init(1, 0);
 }
 
-/*virtual*/int SLAPI ShipmAnalyzeFilt::Init(int fullyDestroy, long extraData)
+/*virtual*/int ShipmAnalyzeFilt::Init(int fullyDestroy, long extraData)
 {
 	int   ok = PPBaseFilt::Init(1, 0);
 	Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	return ok;
 }
 
-int SLAPI ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
+int ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
 {
 	if(pBillFilt) {
 		pBillFilt->Period = Period;
@@ -36,7 +36,7 @@ int SLAPI ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
 }
 //
 //
-/*virtual*/PPBaseFilt * SLAPI PPViewShipmAnalyze::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewShipmAnalyze::CreateFilt(void * extraPtr) const
 {
 	ShipmAnalyzeFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_SHIPMANALYZE, reinterpret_cast<PPBaseFilt **>(&p_filt)))
@@ -46,17 +46,17 @@ int SLAPI ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 
-SLAPI PPViewShipmAnalyze::PPViewShipmAnalyze() : PPView(0, &Filt, PPVIEW_SHIPMANALYZE), BObj(BillObj), Tbl(0)
+PPViewShipmAnalyze::PPViewShipmAnalyze() : PPView(0, &Filt, PPVIEW_SHIPMANALYZE, 0, 0), BObj(BillObj), Tbl(0)
 {
 }
 
-SLAPI PPViewShipmAnalyze::~PPViewShipmAnalyze()
+PPViewShipmAnalyze::~PPViewShipmAnalyze()
 {
 	delete Tbl;
 	DBRemoveTempFiles();
 }
 
-int SLAPI PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class ShipmAnalyzeFiltDialog : public WLDialog {
 	public:
@@ -231,7 +231,7 @@ int ShipmAnalyzeCache::Add(int kind, long flags, const BillTbl::Rec * pBillRec, 
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempShipmentAnlz);
 
-int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
+int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Counter.Init();
@@ -348,7 +348,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewShipmAnalyze::InitIteration()
+int PPViewShipmAnalyze::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	PPInitIterCounter(Counter, Tbl);
@@ -380,7 +380,7 @@ int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 		return -1;
 }
 
-/*virtual*/DBQuery * SLAPI PPViewShipmAnalyze::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewShipmAnalyze::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	DBQuery * q = 0;
@@ -425,13 +425,13 @@ int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 //
 //
 //
-int SLAPI PPViewShipmAnalyze::Print(const void * pHdr)
+int PPViewShipmAnalyze::Print(const void * pHdr)
 {
 	uint   rpt_id = (Filt.Flags & ShipmAnalyzeFilt::fDiffByBill) ? REPORT_SHIPMANLZBYBILL : REPORT_SHIPMANLZ;
 	return Helper_Print(rpt_id);
 }
 
-/*virtual*/int SLAPI PPViewShipmAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewShipmAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -468,7 +468,7 @@ int SLAPI PPViewShipmAnalyze::Print(const void * pHdr)
 	return ok;
 }
 
-/*virtual*/void SLAPI PPViewShipmAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewShipmAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 }
 //

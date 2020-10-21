@@ -6,7 +6,7 @@
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(CurRate); SLAPI CurRateFilt::CurRateFilt() : PPBaseFilt(PPFILT_CURRATE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(CurRate); CurRateFilt::CurRateFilt() : PPBaseFilt(PPFILT_CURRATE, 0, 0)
 {
 	SetFlatChunk(offsetof(CurRateFilt, ReserveStart),
 		offsetof(CurRateFilt, Reserve)-offsetof(CurRateFilt, ReserveStart)+sizeof(Reserve));
@@ -15,11 +15,11 @@ IMPLEMENT_PPFILT_FACTORY(CurRate); SLAPI CurRateFilt::CurRateFilt() : PPBaseFilt
 //
 //
 //
-SLAPI PPViewCurRate::PPViewCurRate() : PPView(0, &Filt, 0)
+PPViewCurRate::PPViewCurRate() : PPView(0, &Filt, 0, 0, 0)
 {
 }
 
-PPBaseFilt * SLAPI PPViewCurRate::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewCurRate::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_CURRATE, &p_base_filt)) {
@@ -33,7 +33,7 @@ PPBaseFilt * SLAPI PPViewCurRate::CreateFilt(void * extraPtr) const
 	return p_base_filt;
 }
 
-int SLAPI PPViewCurRate::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewCurRate::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1, valid_data = 0;
 	CurRateFilt * p_filt = 0;
@@ -58,7 +58,7 @@ int SLAPI PPViewCurRate::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewCurRate::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewCurRate::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
@@ -69,7 +69,7 @@ int SLAPI PPViewCurRate::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewCurRate::InitIteration()
+int PPViewCurRate::InitIteration()
 {
 	int    idx = 0;
 	DBQ  * dbq = 0;
@@ -116,7 +116,7 @@ int FASTCALL PPViewCurRate::NextIteration(CurRateViewItem * pItem)
 	return PPSetError(PPERR_ITERNOTINITED);
 }
 
-int SLAPI PPViewCurRate::GetRate(const CurRateIdent * pIdent, double * pRate)
+int PPViewCurRate::GetRate(const CurRateIdent * pIdent, double * pRate)
 {
 	CurrencyRateTbl::Rec rec;
 	if(Tbl.SearchRate(pIdent, &rec) > 0) {
@@ -127,7 +127,7 @@ int SLAPI PPViewCurRate::GetRate(const CurRateIdent * pIdent, double * pRate)
 		return -1;
 }
 
-int SLAPI PPViewCurRate::AddItem(CurRateIdent * pIdent)
+int PPViewCurRate::AddItem(CurRateIdent * pIdent)
 {
 	int    ok = -1;
 	CurrencyRateTbl::Rec rec;
@@ -146,18 +146,18 @@ int SLAPI PPViewCurRate::AddItem(CurRateIdent * pIdent)
 	return ok;
 }
 
-int SLAPI PPViewCurRate::EditItem(const CurRateIdent * pIdent)
+int PPViewCurRate::EditItem(const CurRateIdent * pIdent)
 {
 	CurrencyRateTbl::Rec rec;
 	return (Tbl.SearchRate(pIdent, &rec) > 0 && EditRecord(&rec, 0) > 0) ? BIN(Tbl.UpdateRate(pIdent, rec.Rate, 1)) : -1;
 }
 
-int SLAPI PPViewCurRate::DeleteItem(const CurRateIdent * pIdent)
+int PPViewCurRate::DeleteItem(const CurRateIdent * pIdent)
 {
 	return CONFIRM(PPCFM_DELETE) ? (Tbl.RemoveRate(pIdent, 1) ? 1 : PPErrorZ()) : -1;
 }
 
-int SLAPI PPViewCurRate::EditRecord(CurrencyRateTbl::Rec * pRec, int isNew)
+int PPViewCurRate::EditRecord(CurrencyRateTbl::Rec * pRec, int isNew)
 {
 	int    ok = -1, valid_data = 0;
 	TDialog * dlg = new TDialog(DLG_CURRATE);
@@ -207,7 +207,7 @@ int SLAPI PPViewCurRate::EditRecord(CurrencyRateTbl::Rec * pRec, int isNew)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_CURRATE;
 	CurrencyRateTbl * crt = 0;
@@ -240,7 +240,7 @@ DBQuery * SLAPI PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return q;
 }
 
-int SLAPI PPViewCurRate::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewCurRate::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -273,7 +273,7 @@ int SLAPI PPViewCurRate::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return ok;
 }
 
-int SLAPI PPViewCurRate::Print(const void *)
+int PPViewCurRate::Print(const void *)
 {
 	uint   rpt_id = 0;
 	if(Filt.BaseCurID && Filt.CurID && Filt.RateTypeID)
@@ -428,7 +428,7 @@ IMPL_HANDLE_EVENT(SelCRateDialog)
 	clearEvent(event);
 }
 
-int SLAPI SelectCurRate(PPID curID, PPID rateTypeID, double * pRate)
+int SelectCurRate(PPID curID, PPID rateTypeID, double * pRate)
 {
 	int    ok = -1;
 	CurRateFilt filt;

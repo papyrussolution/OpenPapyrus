@@ -7,7 +7,7 @@
 //
 //
 //
-void SLAPI PrcBusy::Init(const LDATETIME & start, const LDATETIME & finish, int status, int idle)
+void PrcBusy::Init(const LDATETIME & start, const LDATETIME & finish, int status, int idle)
 {
 	STimeChunk::Init(start, finish);
 	TSessID = 0;
@@ -15,7 +15,7 @@ void SLAPI PrcBusy::Init(const LDATETIME & start, const LDATETIME & finish, int 
 	Idle   = BIN(idle);
 }
 
-void SLAPI PrcBusy::Init(const LDATETIME & start, long cont, int status, int idle)
+void PrcBusy::Init(const LDATETIME & start, long cont, int status, int idle)
 {
 	STimeChunk::Init(start, cont);
 	TSessID = 0;
@@ -23,7 +23,7 @@ void SLAPI PrcBusy::Init(const LDATETIME & start, long cont, int status, int idl
 	Idle = BIN(idle);
 }
 
-int SLAPI PrcBusy::Intersect(const PrcBusy & test, PrcBusy * pResult) const
+int PrcBusy::Intersect(const PrcBusy & test, PrcBusy * pResult) const
 {
 	int    is = STimeChunk::Intersect(test, pResult);
 	if(pResult) {
@@ -36,11 +36,11 @@ int SLAPI PrcBusy::Intersect(const PrcBusy & test, PrcBusy * pResult) const
 //
 //
 //
-SLAPI PrcBusyArray::PrcBusyArray() : STimeChunkArray(sizeof(PrcBusy))
+PrcBusyArray::PrcBusyArray() : STimeChunkArray(sizeof(PrcBusy))
 {
 }
 
-int SLAPI PrcBusyArray::IsFreeEntry(const PrcBusy & entry, PPID * pTSessID) const
+int PrcBusyArray::IsFreeEntry(const PrcBusy & entry, PPID * pTSessID) const
 {
 	uint   pos = 0;
 	int    ok = STimeChunkArray::IsFreeEntry(*static_cast<const STimeChunk *>(&entry), &pos);
@@ -49,14 +49,14 @@ int SLAPI PrcBusyArray::IsFreeEntry(const PrcBusy & entry, PPID * pTSessID) cons
 	return ok;
 }
 
-int SLAPI PrcBusyArray::IsFreeEntry(const LDATETIME & start, long cont, PPID * pTSessID) const
+int PrcBusyArray::IsFreeEntry(const LDATETIME & start, long cont, PPID * pTSessID) const
 {
 	PrcBusy entry;
 	entry.Init(start, cont, 0);
 	return start.d ? IsFreeEntry(entry, pTSessID) : 1;
 }
 
-int SLAPI PrcBusyArray::Add(const PrcBusy & entry, int checkForFree)
+int PrcBusyArray::Add(const PrcBusy & entry, int checkForFree)
 {
 	int    ok = STimeChunkArray::Add(&entry, checkForFree);
 	if(!ok)
@@ -64,7 +64,7 @@ int SLAPI PrcBusyArray::Add(const PrcBusy & entry, int checkForFree)
 	return ok;
 }
 
-int SLAPI PrcBusyArray::GetFreeList(PrcBusyArray * pList) const
+int PrcBusyArray::GetFreeList(PrcBusyArray * pList) const
 {
 	int    ok = 1;
 	STimeChunkArray free_list;
@@ -82,16 +82,16 @@ int SLAPI PrcBusyArray::GetFreeList(PrcBusyArray * pList) const
 //
 //
 //
-SLAPI TSessionCore::TSessionCore() : TSessionTbl()
+TSessionCore::TSessionCore() : TSessionTbl()
 {
 }
 
-int SLAPI TSessionCore::Search(PPID id, TSessionTbl::Rec * pRec)
+int TSessionCore::Search(PPID id, TSessionTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_TSESSION, id, pRec);
 }
 
-int SLAPI TSessionCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
+int TSessionCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 {
 	int   ok = -1;
 	if(objType == PPOBJ_TECH) {
@@ -143,7 +143,7 @@ int SLAPI TSessionCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	return ok;
 }
 
-int SLAPI TSessionCore::ReplaceArticle(PPID dest, PPID src)
+int TSessionCore::ReplaceArticle(PPID dest, PPID src)
 {
 	int    ok = -1;
 	uint   i;
@@ -176,7 +176,7 @@ int SLAPI TSessionCore::ReplaceArticle(PPID dest, PPID src)
 	return ok;
 }
 
-int SLAPI TSessionCore::ReplaceGoods(PPID dest, PPID src)
+int TSessionCore::ReplaceGoods(PPID dest, PPID src)
 {
 	int    ok = -1;
 	TSessLineTbl::Key2 k2;
@@ -192,7 +192,7 @@ int SLAPI TSessionCore::ReplaceGoods(PPID dest, PPID src)
 	return ok;
 }
 
-int SLAPI TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & rDtm, TSessionTbl::Rec * pRec)
+int TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & rDtm, TSessionTbl::Rec * pRec)
 {
 	int    ok = -1;
 	int    sp = spLe;
@@ -225,7 +225,7 @@ int SLAPI TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & 
 	return ok;
 }
 
-int SLAPI TSessionCore::Helper_GetChildIDList(PPID superSessID, long flags, PPIDArray * pList)
+int TSessionCore::Helper_GetChildIDList(PPID superSessID, long flags, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPIDArray list;
@@ -255,12 +255,12 @@ int SLAPI TSessionCore::Helper_GetChildIDList(PPID superSessID, long flags, PPID
 	return ok;
 }
 
-int SLAPI TSessionCore::GetChildIDList(PPID superSessID, long flags, PPIDArray * pList)
+int TSessionCore::GetChildIDList(PPID superSessID, long flags, PPIDArray * pList)
 {
 	return Helper_GetChildIDList(superSessID, flags, pList);
 }
 
-int SLAPI TSessionCore::SearchSessNumber(PPID prcID, long * pNumber, TSessionTbl::Rec * pRec)
+int TSessionCore::SearchSessNumber(PPID prcID, long * pNumber, TSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
 	TSessionTbl::Key1 k1;
@@ -276,7 +276,7 @@ int SLAPI TSessionCore::SearchSessNumber(PPID prcID, long * pNumber, TSessionTbl
 	return ok;
 }
 
-int SLAPI TSessionCore::SearchOprNo(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec)
+int TSessionCore::SearchOprNo(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec)
 {
 	int    ok = 1;
 	TSessLineTbl::Key0 k0;
@@ -296,12 +296,12 @@ int SLAPI TSessionCore::SearchOprNo(PPID sessID, long * pOprNo, TSessLineTbl::Re
 	return ok;
 }
 
-int SLAPI TSessionCore::SearchLine(PPID sessID, long oprNo, TSessLineTbl::Rec * pRec)
+int TSessionCore::SearchLine(PPID sessID, long oprNo, TSessLineTbl::Rec * pRec)
 {
 	return oprNo ? SearchOprNo(sessID, &oprNo, pRec) : -1;
 }
 
-int SLAPI TSessionCore::SearchLineByTime(PPID sessID, const LDATETIME & rDtm, TSessLineTbl::Rec * pRec)
+int TSessionCore::SearchLineByTime(PPID sessID, const LDATETIME & rDtm, TSessLineTbl::Rec * pRec)
 {
 	TSessLineTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -313,7 +313,7 @@ int SLAPI TSessionCore::SearchLineByTime(PPID sessID, const LDATETIME & rDtm, TS
 //
 //
 //
-int SLAPI TSessionCore::InitLineEnum(PPID sessID, long * pHandle)
+int TSessionCore::InitLineEnum(PPID sessID, long * pHandle)
 {
 	int    ok = 1;
 	BExtQuery * q = new BExtQuery(&Lines, 0);
@@ -326,7 +326,7 @@ int SLAPI TSessionCore::InitLineEnum(PPID sessID, long * pHandle)
 	return ok;
 }
 
-int SLAPI TSessionCore::InitLineEnumBySerial(const char * pSerial, int sign, long * pHandle)
+int TSessionCore::InitLineEnumBySerial(const char * pSerial, int sign, long * pHandle)
 {
 	int    ok = 1;
 	char   temp_serial[32];
@@ -342,7 +342,7 @@ int SLAPI TSessionCore::InitLineEnumBySerial(const char * pSerial, int sign, lon
 	return ok;
 }
 
-int SLAPI TSessionCore::NextLineEnum(long enumHandle, TSessLineTbl::Rec * pRec)
+int TSessionCore::NextLineEnum(long enumHandle, TSessLineTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(Lines.EnumList.NextIter(enumHandle) > 0) {
@@ -352,28 +352,28 @@ int SLAPI TSessionCore::NextLineEnum(long enumHandle, TSessLineTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI TSessionCore::DestroyIter(long enumHandle)
+int TSessionCore::DestroyIter(long enumHandle)
 {
 	return Lines.EnumList.DestroyIterHandler(enumHandle);
 }
 
-SEnumImp * SLAPI TSessionCore::EnumLines(PPID sessID)
+SEnumImp * TSessionCore::EnumLines(PPID sessID)
 {
 	long   h = -1;
 	return InitLineEnum(sessID, &h) ? new PPTblEnum <TSessLineCore>(&Lines, h) : 0;
 }
 
-SEnumImp * SLAPI TSessionCore::EnumLinesBySerial(const char * pSerial, int sign)
+SEnumImp * TSessionCore::EnumLinesBySerial(const char * pSerial, int sign)
 {
 	long   h = -1;
 	return InitLineEnumBySerial(pSerial, sign, &h) ? new PPTblEnum <TSessLineCore>(&Lines, h) : 0;
 }
 
-SLAPI TSessGoodsTotal::TSessGoodsTotal() : Count(0), Qtty(0.0), PhQtty(0.0), Amount(0.0)
+TSessGoodsTotal::TSessGoodsTotal() : Count(0), Qtty(0.0), PhQtty(0.0), Amount(0.0)
 {
 }
 
-int SLAPI TSessionCore::CalcGoodsTotal(PPID sessID, PPID goodsID, TSessGoodsTotal * pTotal)
+int TSessionCore::CalcGoodsTotal(PPID sessID, PPID goodsID, TSessGoodsTotal * pTotal)
 {
 	int    ok = -1;
 	long   eh = -1;
@@ -416,7 +416,7 @@ int SLAPI TSessionCore::CalcGoodsTotal(PPID sessID, PPID goodsID, TSessGoodsTota
 	return ok;
 }
 
-void SLAPI TSessionCore::InitPrcEntry(const TSessionTbl::Rec & rRec, PrcBusy & rEntry) const
+void TSessionCore::InitPrcEntry(const TSessionTbl::Rec & rRec, PrcBusy & rEntry) const
 {
 	rEntry.Start.Set(rRec.StDt, rRec.StTm);
 	rEntry.Finish.Set(rRec.FinDt, rRec.FinTm);
@@ -425,7 +425,7 @@ void SLAPI TSessionCore::InitPrcEntry(const TSessionTbl::Rec & rRec, PrcBusy & r
 	rEntry.Idle    = BIN(rRec.Flags & TSESF_IDLE);
 }
 
-int SLAPI TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STimeChunk * pPeriod, PrcBusyArray * pList)
+int TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STimeChunk * pPeriod, PrcBusyArray * pList)
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -467,7 +467,7 @@ int SLAPI TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, con
 	return ok;
 }
 
-int SLAPI TSessionCore::GetProcessed(PPID prcID, int kind, TSessionTbl::Rec * pRec)
+int TSessionCore::GetProcessed(PPID prcID, int kind, TSessionTbl::Rec * pRec)
 {
 	int    ok = -1;
 	TSessionTbl::Key4 k4;
@@ -487,7 +487,7 @@ int SLAPI TSessionCore::GetProcessed(PPID prcID, int kind, TSessionTbl::Rec * pR
 	return ok;
 }
 
-int SLAPI TSessionCore::AdjustTime(TSessionTbl::Rec * pRec)
+int TSessionCore::AdjustTime(TSessionTbl::Rec * pRec)
 {
 	TSessionTbl::Key4 k4;
 	MEMSZERO(k4);
@@ -500,7 +500,7 @@ int SLAPI TSessionCore::AdjustTime(TSessionTbl::Rec * pRec)
 	return 1;
 }
 
-int SLAPI TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
+int TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	PPID   log_action_id = 0;
@@ -570,7 +570,7 @@ int SLAPI TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI TSessionCore::AdjustLineTime(TSessLineTbl::Rec * pRec)
+int TSessionCore::AdjustLineTime(TSessLineTbl::Rec * pRec)
 {
 	TSessLineTbl::Key1 k1;
 	k1.TSessID = pRec->TSessID;
@@ -581,7 +581,7 @@ int SLAPI TSessionCore::AdjustLineTime(TSessLineTbl::Rec * pRec)
 	return 1;
 }
 
-int SLAPI TSessionCore::UpdateFlags(PPID id, long setF, long resetF, int use_ta)
+int TSessionCore::UpdateFlags(PPID id, long setF, long resetF, int use_ta)
 {
 	int    ok = -1;
 	TSessionTbl::Rec rec;
@@ -604,7 +604,7 @@ int SLAPI TSessionCore::UpdateFlags(PPID id, long setF, long resetF, int use_ta)
 	return ok;
 }
 
-int SLAPI TSessionCore::UpdateSuperSessCompleteness(PPID sessID, int use_ta)
+int TSessionCore::UpdateSuperSessCompleteness(PPID sessID, int use_ta)
 {
 	int    ok = -1;
 	TSessionTbl::Rec rec;

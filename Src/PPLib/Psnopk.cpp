@@ -38,7 +38,7 @@ struct VerbObjAssoc {
 //
 //
 //
-SLAPI PoClauseArray_::PoClauseArray_()
+PoClauseArray_::PoClauseArray_()
 {
 	Pool.add("$"); // zero index - is empty string
 }
@@ -50,7 +50,7 @@ PoClauseArray_ & FASTCALL PoClauseArray_::operator = (const PoClauseArray_ & rS)
 	return *this;
 }
 
-int SLAPI PoClauseArray_::IsEqual(const PoClauseArray_ & rS, int options) const
+int PoClauseArray_::IsEqual(const PoClauseArray_ & rS, int options) const
 {
 	if(L.getCount() != rS.L.getCount())
 		return 0;
@@ -66,7 +66,7 @@ int SLAPI PoClauseArray_::IsEqual(const PoClauseArray_ & rS, int options) const
 	}
 }
 
-PoClauseArray_ & SLAPI PoClauseArray_::Z()
+PoClauseArray_ & PoClauseArray_::Z()
 {
 	L.clear();
 	Pool.clear();
@@ -74,12 +74,12 @@ PoClauseArray_ & SLAPI PoClauseArray_::Z()
 	return *this;
 }
 
-uint SLAPI PoClauseArray_::GetCount() const
+uint PoClauseArray_::GetCount() const
 {
 	return L.getCount();
 }
 
-int SLAPI PoClauseArray_::Get(uint pos, PoClause_ & rItem) const
+int PoClauseArray_::Get(uint pos, PoClause_ & rItem) const
 {
 	int    ok = 1;
 	if(pos < L.getCount()) {
@@ -96,7 +96,7 @@ int SLAPI PoClauseArray_::Get(uint pos, PoClause_ & rItem) const
 	return ok;
 }
 
-int SLAPI PoClauseArray_::Add(const PoClause_ & rItem)
+int PoClauseArray_::Add(const PoClause_ & rItem)
 {
 	int    ok = 1;
 	Item   item;
@@ -114,7 +114,7 @@ int SLAPI PoClauseArray_::Add(const PoClause_ & rItem)
 	return ok;
 }
 
-int SLAPI PoClauseArray_::Set(uint pos, const PoClause_ * pItem)
+int PoClauseArray_::Set(uint pos, const PoClause_ * pItem)
 {
 	int    ok = 1;
 	if(pos < L.getCount()) {
@@ -141,7 +141,7 @@ int SLAPI PoClauseArray_::Set(uint pos, const PoClause_ * pItem)
 	return ok;
 }
 
-int SLAPI PoClauseArray_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PoClauseArray_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	PoClauseArray_Pre780 list_pre780;
@@ -210,7 +210,7 @@ static const VerbObjAssoc __VerbObjAssocList[] = {
 //
 //
 //
-SLAPI PoClause_::PoClause_() : Num(0), VerbID(0), Subj(0), DirObj(0), Flags(0)
+PoClause_::PoClause_() : Num(0), VerbID(0), Subj(0), DirObj(0), Flags(0)
 {
 }
 
@@ -232,7 +232,7 @@ int FASTCALL PoClause_::IsEqual(const PoClause_ & rS) const
 		return 1;
 }
 
-PPID SLAPI PoClause_::GetDirObjType() const
+PPID PoClause_::GetDirObjType() const
 {
 	PPID   obj_type = 0;
 	if(VerbID)
@@ -243,7 +243,7 @@ PPID SLAPI PoClause_::GetDirObjType() const
 	return obj_type;
 }
 
-long SLAPI PoClause_::GetDirFlags() const
+long PoClause_::GetDirFlags() const
 {
 	long   flags = 0;
 	if(VerbID)
@@ -258,11 +258,11 @@ long SLAPI PoClause_::GetDirFlags() const
 //
 //
 //
-SLAPI PsnOpKindFilt::PsnOpKindFilt(PPID show, PPID parentID, int cantSelParent) : Show(show), ParentID(parentID), CantSelParent(cantSelParent)
+PsnOpKindFilt::PsnOpKindFilt(PPID show, PPID parentID, int cantSelParent) : Show(show), ParentID(parentID), CantSelParent(cantSelParent)
 {
 }
 
-SLAPI PPPsnOpKind2::PPPsnOpKind2()
+PPPsnOpKind2::PPPsnOpKind2()
 {
 	THISZERO();
 }
@@ -326,12 +326,12 @@ PPPsnOpKindPacket::PsnConstr & PPPsnOpKindPacket::PsnConstr::Z()
 	return *this;
 }
 
-SLAPI PPPsnOpKindPacket::PPPsnOpKindPacket()
+PPPsnOpKindPacket::PPPsnOpKindPacket()
 {
 	// @v10.6.6 @ctr MEMSZERO(Rec);
 }
 
-void SLAPI PPPsnOpKindPacket::destroy()
+void PPPsnOpKindPacket::destroy()
 {
 	MEMSZERO(Rec);
 	PCPrmr.Z();
@@ -350,7 +350,7 @@ PPPsnOpKindPacket & FASTCALL PPPsnOpKindPacket::operator = (const PPPsnOpKindPac
 	return *this;
 }
 
-int SLAPI PPPsnOpKindPacket::CheckExVal()
+int PPPsnOpKindPacket::CheckExVal()
 {
 	int    ok = 1;
 	if(Rec.ExValGrp == POKEVG_TAG) {
@@ -527,7 +527,7 @@ int PsnOpKindView::CopyList(PPID parentID, StrAssocArray * pSrc, StrAssocArray *
 	return 1;
 }
 
-/*static*/PPID SLAPI PPObjPsnOpKind::Select(long)
+/*static*/PPID PPObjPsnOpKind::Select(long)
 {
 	PPID   id = 0;
 	int    r = PPSelectObject(PPOBJ_PERSONOPKIND, &id, PPTXT_SELECTPSNOP, 0);
@@ -551,14 +551,14 @@ int PsnOpKindView::CopyList(PPID parentID, StrAssocArray * pSrc, StrAssocArray *
 	return ok;
 }
 
-SLAPI PPObjPsnOpKind::PPObjPsnOpKind(void * extraPtr) : PPObjReference(PPOBJ_PERSONOPKIND, extraPtr)
+PPObjPsnOpKind::PPObjPsnOpKind(void * extraPtr) : PPObjReference(PPOBJ_PERSONOPKIND, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	if(extraPtr)
 		CurrFilt = *static_cast<const PsnOpKindFilt *>(extraPtr);
 }
 
-long SLAPI PPObjPsnOpKind::GetLevel(PPID id)
+long PPObjPsnOpKind::GetLevel(PPID id)
 {
 	long   level = 0;
 	PPPsnOpKind item;
@@ -575,7 +575,7 @@ long SLAPI PPObjPsnOpKind::GetLevel(PPID id)
 	return level;
 }
 
-/*virtual*/void * SLAPI PPObjPsnOpKind::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjPsnOpKind::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjPsnOpKindListWindow : public PPObjListWindow {
 	public:
@@ -638,7 +638,7 @@ long SLAPI PPObjPsnOpKind::GetLevel(PPID id)
 	return new PPObjPsnOpKindListWindow(this, flags, extraPtr);
 }
 
-/*virtual*/int SLAPI PPObjPsnOpKind::Browse(void * extraPtr)
+/*virtual*/int PPObjPsnOpKind::Browse(void * extraPtr)
 {
 	int    ok = 0;
 	if(CheckRights(PPR_READ)) {
@@ -654,7 +654,7 @@ long SLAPI PPObjPsnOpKind::GetLevel(PPID id)
 	return ok;
 }
 
-/*virtual*/int  SLAPI PPObjPsnOpKind::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
+/*virtual*/int  PPObjPsnOpKind::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
 {
 	int    ok = 0;
 	PPPsnOpKind rec;
@@ -702,7 +702,7 @@ struct _POKClause {        // @persistent @store(PropertyTbl)
 	// .. ExtString
 };
 
-int SLAPI PoClause_::PutToPropBuf(STempBuffer & rBuf) const
+int PoClause_::PutToPropBuf(STempBuffer & rBuf) const
 {
 	int    ok = 1;
 	SString ext_string;
@@ -725,7 +725,7 @@ int SLAPI PoClause_::PutToPropBuf(STempBuffer & rBuf) const
 	return ok;
 }
 
-int SLAPI PoClause_::GetFromPropBuf(const STempBuffer & rBuf, long exValSrc)
+int PoClause_::GetFromPropBuf(const STempBuffer & rBuf, long exValSrc)
 {
 	int    ok = 1;
 	const _POKClause * p_sbuf = static_cast<const _POKClause *>(rBuf.vcptr());
@@ -753,7 +753,7 @@ int SLAPI PoClause_::GetFromPropBuf(const STempBuffer & rBuf, long exValSrc)
 	return ok;
 }
 
-int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
+int PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 {
 	int    ok = 1, r = -1;
 	int    allowed_tags_processed = 0;
@@ -838,7 +838,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 	return ok;
 }
 
-void * SLAPI PPPsnOpKindPacket::AllocExtraProp(size_t * pSz) const
+void * PPPsnOpKindPacket::AllocExtraProp(size_t * pSz) const
 {
 	_POKExtra * p_ex = 0;
 	size_t sz = 0;
@@ -893,7 +893,7 @@ void * SLAPI PPPsnOpKindPacket::AllocExtraProp(size_t * pSz) const
 	return p_ex;
 }
 
-int SLAPI PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int use_ta)
+int PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -944,7 +944,7 @@ int SLAPI PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int u
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjPsnOpKind::MakeList(const PsnOpKindFilt * pFilt)
+StrAssocArray * PPObjPsnOpKind::MakeList(const PsnOpKindFilt * pFilt)
 {
 	int    r;
 	PPID   id = 0;
@@ -975,13 +975,13 @@ StrAssocArray * SLAPI PPObjPsnOpKind::MakeList(const PsnOpKindFilt * pFilt)
 	return p_list;
 }
 
-StrAssocArray * SLAPI PPObjPsnOpKind::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjPsnOpKind::MakeStrAssocList(void * extraPtr)
 	{ return MakeList(static_cast<const PsnOpKindFilt *>(extraPtr)); }
 
-int SLAPI PPObjPsnOpKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjPsnOpKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjPsnOpKind, PPPsnOpKindPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1, ta = 0;
 	if(p && p->Data) {
@@ -1023,7 +1023,7 @@ int SLAPI PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 	return ok;
 }
 
-int SLAPI PPObjPsnOpKind::SerializePacket(int dir, PPPsnOpKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPObjPsnOpKind::SerializePacket(int dir, PPPsnOpKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pCtx));
@@ -1045,7 +1045,7 @@ int SLAPI PPObjPsnOpKind::SerializePacket(int dir, PPPsnOpKindPacket * pPack, SB
 	return ok;
 }
 
-int SLAPI PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1416,7 +1416,7 @@ long PoVerbListDialog::getIncNum()
 	return (max_num+1);
 }
 
-int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
+int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 {
 	class PoClauseDialog : public TDialog {
 		DECL_DIALOG_DATA(PoClause_);
@@ -1686,7 +1686,7 @@ IMPL_HANDLE_EVENT(PsnOpDialog)
 //
 //
 //
-int SLAPI PPObjPsnOpKind::Edit(PPID * pID, void * extraPtr)
+int PPObjPsnOpKind::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0, apply = 1;
 	uint   what = 0;
@@ -1721,10 +1721,10 @@ int SLAPI PPObjPsnOpKind::Edit(PPID * pID, void * extraPtr)
 //
 class PsnOpKindCache : public ObjCache {
 public:
-	SLAPI  PsnOpKindCache() : ObjCache(PPOBJ_PERSONOPKIND, sizeof(Data)) {}
+	PsnOpKindCache() : ObjCache(PPOBJ_PERSONOPKIND, sizeof(Data)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		PPID   RegTypeID;
@@ -1737,7 +1737,7 @@ public:
 	};
 };
 
-int SLAPI PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1763,7 +1763,7 @@ int SLAPI PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void PsnOpKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPsnOpKind * p_data_rec = static_cast<PPPsnOpKind *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);

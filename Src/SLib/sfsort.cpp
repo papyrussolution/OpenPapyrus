@@ -8,11 +8,11 @@
 
 class SfSortStringPool : public SStrGroup {
 public:
-	static int SLAPI Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray);
-	SLAPI  SfSortStringPool(CompFunc fcmp) : SStrGroup(), TextCmpProc(fcmp)
+	static int Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray);
+	SfSortStringPool(CompFunc fcmp) : SStrGroup(), TextCmpProc(fcmp)
 	{
 	}
-	SLAPI  SfSortStringPool(const StrAssocArray & rS) : TextCmpProc(0)
+	SfSortStringPool(const StrAssocArray & rS) : TextCmpProc(0)
 	{
 		Copy(rS);
 	}
@@ -21,7 +21,7 @@ public:
 		Copy(rS);
 		return *this;
 	}
-	void SLAPI Clear()
+	void Clear()
 	{
 		SPosList.clear();
 		ClearS();
@@ -33,7 +33,7 @@ public:
 		SPosList = rS.SPosList;
 		return 1;
 	}
-	uint   SLAPI getCount() const
+	uint   getCount() const
 	{
 		return SPosList.getCount();
 	}
@@ -55,7 +55,7 @@ public:
 		}
 		return ok;
 	}
-	void   SLAPI Sort();
+	void   Sort();
 private:
 	CompFunc TextCmpProc;
 	TSVector <uint> SPosList; // @v9.8.4 TSArray-->TSVector
@@ -63,12 +63,12 @@ private:
 
 class SFSortChunkInfo {
 public:
-	SLAPI  SFSortChunkInfo();
-	SLAPI ~SFSortChunkInfo();
-	void   SLAPI CleanUp();
-	int    SLAPI Finish(const char * pSrcFileName, SfSortStringPool & rChunk);
-	int    SLAPI ChargeForMerging();
-	int    SLAPI ShiftNext();
+	SFSortChunkInfo();
+	~SFSortChunkInfo();
+	void   CleanUp();
+	int    Finish(const char * pSrcFileName, SfSortStringPool & rChunk);
+	int    ChargeForMerging();
+	int    ShiftNext();
 
 	uint   ChunkNo;
 	//
@@ -86,16 +86,16 @@ public:
 
 class SFSortChunkInfoList : public TSCollection <SFSortChunkInfo> {
 public:
-	SLAPI  SFSortChunkInfoList(const char * pSrcFileName, uint maxChunkCount, CompFunc fcmp, SFile::SortParam * pSp);
-	SLAPI ~SFSortChunkInfoList();
-	void   SLAPI Destroy();
-	SFSortChunkInfoList * SLAPI CreateChild();
-	SFSortChunkInfo * SLAPI CreateItem();
-	void   SLAPI Sort();
-	int    SLAPI ChargeForMerging(uint firstIdx, uint lastIdx);
-	int    SLAPI FlashCurrent(uint itemIdx, uint lastIdx, SFile & rFOut, SFSortChunkInfo * pResultChunk);
-	int    SLAPI FlashFinal(SFile & rFOut);
-	int    SLAPI Merge(uint firstIdx, uint lastIdx, SFSortChunkInfoList & rDest, SFileSortProgressData * pCbInfo);
+	SFSortChunkInfoList(const char * pSrcFileName, uint maxChunkCount, CompFunc fcmp, SFile::SortParam * pSp);
+	~SFSortChunkInfoList();
+	void   Destroy();
+	SFSortChunkInfoList * CreateChild();
+	SFSortChunkInfo * CreateItem();
+	void   Sort();
+	int    ChargeForMerging(uint firstIdx, uint lastIdx);
+	int    FlashCurrent(uint itemIdx, uint lastIdx, SFile & rFOut, SFSortChunkInfo * pResultChunk);
+	int    FlashFinal(SFile & rFOut);
+	int    Merge(uint firstIdx, uint lastIdx, SFSortChunkInfoList & rDest, SFileSortProgressData * pCbInfo);
 private:
 	const size_t MaxFlashAccumBufLen;
 	const SString SrcFileName;
@@ -121,16 +121,16 @@ IMPL_CMPCFUNC(SFSortChunkInfo, i1, i2)
 	}
 }
 
-SLAPI SFSortChunkInfo::SFSortChunkInfo() : ChunkNo(0), LineCount_(0), CurrentFlushIdx_(0), P_RdStream(0)
+SFSortChunkInfo::SFSortChunkInfo() : ChunkNo(0), LineCount_(0), CurrentFlushIdx_(0), P_RdStream(0)
 {
 }
 
-SLAPI SFSortChunkInfo::~SFSortChunkInfo()
+SFSortChunkInfo::~SFSortChunkInfo()
 {
 	CleanUp();
 }
 
-void SLAPI SFSortChunkInfo::CleanUp()
+void SFSortChunkInfo::CleanUp()
 {
 	ZDELETE(P_RdStream);
 	if(FileName.NotEmpty()) {
@@ -139,7 +139,7 @@ void SLAPI SFSortChunkInfo::CleanUp()
 	}
 }
 	
-int SLAPI SFSortChunkInfo::Finish(const char * pSrcFileName, SfSortStringPool & rChunk)
+int SFSortChunkInfo::Finish(const char * pSrcFileName, SfSortStringPool & rChunk)
 {
 	const  size_t accum_limit = 512*1024;
 	int    ok = 1;
@@ -177,7 +177,7 @@ int SLAPI SFSortChunkInfo::Finish(const char * pSrcFileName, SfSortStringPool & 
 	return ok;
 }
 
-int SLAPI SFSortChunkInfo::ChargeForMerging()
+int SFSortChunkInfo::ChargeForMerging()
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -193,7 +193,7 @@ int SLAPI SFSortChunkInfo::ChargeForMerging()
 	return ok;
 }
 
-int SLAPI SFSortChunkInfo::ShiftNext()
+int SFSortChunkInfo::ShiftNext()
 {
 	int    ok = 1;
 	if(CurrentFlushIdx_ < LineCount_) {
@@ -212,26 +212,26 @@ int SLAPI SFSortChunkInfo::ShiftNext()
 //
 //
 //
-SLAPI SFSortChunkInfoList::SFSortChunkInfoList(const char * pSrcFileName, uint maxChunkCount, CompFunc fcmp, SFile::SortParam * pSp) :
+SFSortChunkInfoList::SFSortChunkInfoList(const char * pSrcFileName, uint maxChunkCount, CompFunc fcmp, SFile::SortParam * pSp) :
 	TSCollection <SFSortChunkInfo>(), MaxFlashAccumBufLen(1024*1024), SrcFileName(pSrcFileName), MaxChunkCount(maxChunkCount), FCmp(fcmp), P_Parent(0)
 {
 	assert(MaxChunkCount > 1);
 	RVALUEPTR(Sp, pSp);
 }
 
-SLAPI SFSortChunkInfoList::~SFSortChunkInfoList()
+SFSortChunkInfoList::~SFSortChunkInfoList()
 {
 	freeAll();
 	delete P_Parent; // @recursion
 }
 
-void SFSortChunkInfoList::SLAPI Destroy()
+void SFSortChunkInfoList::Destroy()
 {
 	LineBuf.Destroy();
 	FlashAccumBuf.Destroy();
 }
 
-SFSortChunkInfoList * SLAPI SFSortChunkInfoList::CreateChild()
+SFSortChunkInfoList * SFSortChunkInfoList::CreateChild()
 {
 	SFSortChunkInfoList * p_child = new SFSortChunkInfoList(SrcFileName, MaxChunkCount, FCmp, &Sp);
 	THROW_S(p_child, SLERR_NOMEM);
@@ -242,7 +242,7 @@ SFSortChunkInfoList * SLAPI SFSortChunkInfoList::CreateChild()
 	return p_child;
 }
 
-SFSortChunkInfo * SLAPI SFSortChunkInfoList::CreateItem()
+SFSortChunkInfo * SFSortChunkInfoList::CreateItem()
 {
 	SFSortChunkInfo * p_new_item = CreateNewItem();
 	if(p_new_item) {
@@ -258,12 +258,12 @@ SFSortChunkInfo * SLAPI SFSortChunkInfoList::CreateItem()
 	return p_new_item;
 }
 
-void SLAPI SFSortChunkInfoList::Sort()
+void SFSortChunkInfoList::Sort()
 {
 	sort(PTR_CMPCFUNC(SFSortChunkInfo), FCmp);
 }
 
-int SLAPI SFSortChunkInfoList::ChargeForMerging(uint firstIdx, uint lastIdx)
+int SFSortChunkInfoList::ChargeForMerging(uint firstIdx, uint lastIdx)
 {
 	int    ok = 1;
 	const  uint _c = getCount();
@@ -276,7 +276,7 @@ int SLAPI SFSortChunkInfoList::ChargeForMerging(uint firstIdx, uint lastIdx)
 	return ok;
 }
 
-int SLAPI SFSortChunkInfoList::FlashCurrent(uint itemIdx, uint lastIdx, SFile & rFOut, SFSortChunkInfo * pResultChunk)
+int SFSortChunkInfoList::FlashCurrent(uint itemIdx, uint lastIdx, SFile & rFOut, SFSortChunkInfo * pResultChunk)
 {
 	int    ok = 1;
 	SFSortChunkInfo * p_head_item = at(itemIdx);
@@ -317,7 +317,7 @@ int SLAPI SFSortChunkInfoList::FlashCurrent(uint itemIdx, uint lastIdx, SFile & 
 	return ok;
 }
 
-int SLAPI SFSortChunkInfoList::FlashFinal(SFile & rFOut)
+int SFSortChunkInfoList::FlashFinal(SFile & rFOut)
 {
 	int    ok = 1;
 	if(FlashAccumBuf.Len()) {
@@ -328,7 +328,7 @@ int SLAPI SFSortChunkInfoList::FlashFinal(SFile & rFOut)
 	return ok;
 }
 
-int SLAPI SFSortChunkInfoList::Merge(uint firstIdx, uint lastIdx, SFSortChunkInfoList & rDest, SFileSortProgressData * pCbInfo)
+int SFSortChunkInfoList::Merge(uint firstIdx, uint lastIdx, SFSortChunkInfoList & rDest, SFileSortProgressData * pCbInfo)
 {
 	int    ok = 1;
 	assert(firstIdx <= lastIdx);
@@ -405,7 +405,7 @@ static SString & FASTCALL _SfSortMakeFinishEvntName(const char * pSrcFileName, S
 IMPL_CMPFUNC(SfSortStringPool, i1, i2) 
 	{ return SfSortStringPool::Helper_CmpFunc_ByText(static_cast<const uint *>(i1), static_cast<const uint *>(i2), static_cast<SfSortStringPool *>(pExtraData)); }
 
-/*static*/int SLAPI SfSortStringPool::Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray)
+/*static*/int SfSortStringPool::Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray)
 {
 	uint   pos1 = *p1;
 	uint   pos2 = *p2;
@@ -418,21 +418,21 @@ IMPL_CMPFUNC(SfSortStringPool, i1, i2)
 	return pArray->TextCmpProc ? pArray->TextCmpProc(p_str1, p_str2, 0) : stricmp866(p_str1, p_str2);
 }
 
-void SLAPI SfSortStringPool::Sort()
+void SfSortStringPool::Sort()
 {
 	SPosList.sort(PTR_CMPFUNC(SfSortStringPool), this);
 }
 
-SLAPI SFileSortProgressData::SFileSortProgressData()
+SFileSortProgressData::SFileSortProgressData()
 {
 	THISZERO();
 }
 
-SLAPI SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8), MaxThread(0), ProgressCbProc(0), ProgressCbExtraPtr(0)
+SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8), MaxThread(0), ProgressCbProc(0), ProgressCbExtraPtr(0)
 {
 }
 
-/*static*/int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, CompFunc fcmp, SFile::SortParam * pExtraParam)
+/*static*/int SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, CompFunc fcmp, SFile::SortParam * pExtraParam)
 {
 	int    ok = 1;
 	const  uint max_chunk_size = (pExtraParam && pExtraParam->MaxChunkSize >= (512*1024) && pExtraParam->MaxChunkSize <= 64*1024*1024) ? pExtraParam->MaxChunkSize : (8*1024*1024);
@@ -506,7 +506,7 @@ SLAPI SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8
                         }
 					}
 				private:
-					// @v10.7.3 (SlThread_WithStartupSignal) virtual void SLAPI Startup() { SlThread::Startup(); SignalStartup(); }
+					// @v10.7.3 (SlThread_WithStartupSignal) virtual void Startup() { SlThread::Startup(); SignalStartup(); }
 					InitBlock B;
 				};
 				if(max_thread > 1) {

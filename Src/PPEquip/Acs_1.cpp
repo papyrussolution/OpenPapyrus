@@ -8,16 +8,16 @@
 //
 //
 //
-SLAPI CS_1::CS_1(PPID n) : PPAsyncCashSession(n), Valid(1), P_Entries(0), NumEntries(0), FilesPerSet(0)
+CS_1::CS_1(PPID n) : PPAsyncCashSession(n), Valid(1), P_Entries(0), NumEntries(0), FilesPerSet(0)
 {
 }
 
-SLAPI CS_1::~CS_1()
+CS_1::~CS_1()
 {
 	SAlloc::F(P_Entries);
 }
 
-int SLAPI CS_1::GetFileSet(char *, uint filesPerSet)
+int CS_1::GetFileSet(char *, uint filesPerSet)
 {
 	int    ok = 1;
 	SString in_path, temp_buf, temp_path;
@@ -61,7 +61,7 @@ int SLAPI CS_1::GetFileSet(char *, uint filesPerSet)
 	return ok;
 }
 
-DbfTable * SLAPI CS_1::OpenDBFTable(uint num, uint fn)
+DbfTable * CS_1::OpenDBFTable(uint num, uint fn)
 {
 	DbfTable * t = 0;
 	THROW_INVARG(P_Entries && num >= 0 && num < NumEntries && fn >= 0 && fn < FilesPerSet);
@@ -75,7 +75,7 @@ DbfTable * SLAPI CS_1::OpenDBFTable(uint num, uint fn)
 
 PP_CREATE_TEMP_FILE_PROC(TempBarcodeTbl, Barcode);
 
-BarcodeTbl * SLAPI CS_1::CreateTmpBarToID(int num, int fn, int fldGoodsID, int fldBarCode, int fldUnitPerPack)
+BarcodeTbl * CS_1::CreateTmpBarToID(int num, int fn, int fldGoodsID, int fldBarCode, int fldUnitPerPack)
 {
 	BarcodeTbl * p_tbl = 0;
 	char   code[24], * c;

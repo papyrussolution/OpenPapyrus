@@ -110,21 +110,21 @@ Return: Spearman rank correlation coefficient
 	return r;
 }*/
 
-SLAPI StatBase::StatBase(long flags)
+StatBase::StatBase(long flags)
 {
 	Init(flags);
 }
 
-SLAPI StatBase::StatBase()
+StatBase::StatBase()
 {
 	Init(0);
 }
 
-SLAPI StatBase::~StatBase()
+StatBase::~StatBase()
 {
 }
 
-int SLAPI StatBase::Init(long flags /*=0*/)
+int StatBase::Init(long flags /*=0*/)
 {
 	Flags = flags;
 	Count = 0;
@@ -144,7 +144,7 @@ int SLAPI StatBase::Init(long flags /*=0*/)
 // @prototype
 static double Lockes_Z_Test(const RealArray & x);
 
-int SLAPI StatBase::Finish()
+int StatBase::Finish()
 {
 	if(Count > 0) {
 		Exp = Sum[0] / Count;
@@ -165,7 +165,7 @@ int SLAPI StatBase::Finish()
 	return 1;
 }
 
-void SLAPI StatBase::Step(const RealArray & rVl)
+void StatBase::Step(const RealArray & rVl)
 {
 	const uint sc = rVl.getCount();
 	Count += sc;
@@ -187,7 +187,7 @@ void SLAPI StatBase::Step(const RealArray & rVl)
 	}
 }
 
-void SLAPI StatBase::Step(double val)
+void StatBase::Step(double val)
 {
 	Count++;
 	IterCount++;
@@ -205,19 +205,19 @@ void SLAPI StatBase::Step(double val)
 	}
 }
 
-double SLAPI StatBase::GetSum() const { return Sum[0]; }
-double SLAPI StatBase::GetVariance() const 
+double StatBase::GetSum() const { return Sum[0]; }
+double StatBase::GetVariance() const 
 { 
 	// Если все значения, поданные на вход были равны, то без проверки (Min != Max) результат может быть NAN
 	return (Count > 1 && Min != Max) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0; // @v10.7.1 (&& Min != Max) 
 }
 
-double SLAPI StatBase::GetStdDev() const 
+double StatBase::GetStdDev() const 
 { 
 	return sqrt(GetVariance()); 
 }
 
-int SLAPI StatBase::GetValue(long idx, double * pVal) const
+int StatBase::GetValue(long idx, double * pVal) const
 {
 	int    ok = -1;
 	if(idx < Series.getCountI()) {
@@ -227,7 +227,7 @@ int SLAPI StatBase::GetValue(long idx, double * pVal) const
 	return ok;
 }
 
-void SLAPI StatBase::GetGammaParams(double * pAlpha, double * pBeta) const
+void StatBase::GetGammaParams(double * pAlpha, double * pBeta) const
 {
 	double beta = fdivnz(GetVariance(), GetExp());
 	double alpha = fdivnz(GetExp(), beta);
@@ -447,19 +447,19 @@ static double Lockes_Z_Test(const RealArray & x)
 //
 //
 //
-SLAPI TimSerStat::TimSerStat() : StatBase(0), P_Queue(0), P_AC_Add(0), P_AC_Mul(0)
+TimSerStat::TimSerStat() : StatBase(0), P_Queue(0), P_AC_Add(0), P_AC_Mul(0)
 {
 	Init(0);
 }
 
-SLAPI TimSerStat::~TimSerStat()
+TimSerStat::~TimSerStat()
 {
 	delete P_Queue;
 	delete P_AC_Add;
 	delete P_AC_Mul;
 }
 
-int SLAPI TimSerStat::Init(long flags)
+int TimSerStat::Init(long flags)
 {
 	StatBase::Init(flags);
 	NumLags = 0;
@@ -469,7 +469,7 @@ int SLAPI TimSerStat::Init(long flags)
 	return 1;
 }
 
-int SLAPI TimSerStat::SetNumLags(long numLags)
+int TimSerStat::SetNumLags(long numLags)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -489,7 +489,7 @@ int SLAPI TimSerStat::SetNumLags(long numLags)
 	return ok;
 }
 
-int SLAPI TimSerStat::Step(double val, int /*whiteSpace*/)
+int TimSerStat::Step(double val, int /*whiteSpace*/)
 {
 	StatBase::Step(val);
 	if(NumLags > 0) {
@@ -505,7 +505,7 @@ int SLAPI TimSerStat::Step(double val, int /*whiteSpace*/)
 	return 1;
 }
 
-int SLAPI TimSerStat::Finish()
+int TimSerStat::Finish()
 {
 	StatBase::Finish();
 	if(NumLags > 0) {
@@ -519,28 +519,28 @@ int SLAPI TimSerStat::Finish()
 		return -1;
 }
 
-uint SLAPI TimSerStat::GetNumLags() const
+uint TimSerStat::GetNumLags() const
 {
 	return P_Queue ? P_Queue->getNumItems() : 0;
 }
 
-double SLAPI TimSerStat::GetAutocorrel(uint lag) const
+double TimSerStat::GetAutocorrel(uint lag) const
 {
 	return (lag < GetNumLags()) ? P_AC_Add[lag] : 0L;
 }
 //
 //
 //
-SLAPI TimSerSpikes::TimSerSpikes() : Sign(0), Count(0), P_Spikes(0)
+TimSerSpikes::TimSerSpikes() : Sign(0), Count(0), P_Spikes(0)
 {
 }
 
-SLAPI TimSerSpikes::~TimSerSpikes()
+TimSerSpikes::~TimSerSpikes()
 {
 	delete P_Spikes;
 }
 
-int SLAPI TimSerSpikes::Init(int sign)
+int TimSerSpikes::Init(int sign)
 {
 	Sign = sign;
 	Count = 0;
@@ -549,7 +549,7 @@ int SLAPI TimSerSpikes::Init(int sign)
 	return P_Spikes ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
 
-int SLAPI TimSerSpikes::Step(long n, double val)
+int TimSerSpikes::Step(long n, double val)
 {
 	Count++;
 	if(Count > 2) {
@@ -572,12 +572,12 @@ int SLAPI TimSerSpikes::Step(long n, double val)
 	return 1;
 }
 
-long SLAPI TimSerSpikes::GetNumSpikes() const
+long TimSerSpikes::GetNumSpikes() const
 {
 	return SVectorBase::GetCount(P_Spikes);
 }
 
-double SLAPI TimSerSpikes::GetSpike(long n, long * pN) const
+double TimSerSpikes::GetSpike(long n, long * pN) const
 {
 	if(n < GetNumSpikes()) {
 		Spike * p_spike = static_cast<Spike *>(P_Spikes->at((uint)n));
@@ -592,7 +592,7 @@ struct _PRDINF { // @flat
 	long   Count;
 };
 
-long SLAPI TimSerSpikes::GetMostCommonDistance()
+long TimSerSpikes::GetMostCommonDistance()
 {
 	uint   i = 0;
 	_PRDINF prd, * p_prd;
@@ -626,13 +626,13 @@ long SLAPI TimSerSpikes::GetMostCommonDistance()
 //
 //
 //
-SLAPI STimeSeries::ValuVec::ValuVec(const char * pSymb, TYPEID typ, int fxPrec) : Typ(typ), SVector(stsize(typ), O_ARRAY), Symb(pSymb), FxPrec(fxPrec), Flags(0)
+STimeSeries::ValuVec::ValuVec(const char * pSymb, TYPEID typ, int fxPrec) : Typ(typ), SVector(stsize(typ), O_ARRAY), Symb(pSymb), FxPrec(fxPrec), Flags(0)
 {
 	assert(STimeSeries::VerifyValuVecType(typ));
 	assert(!oneof2(Typ, T_FLOAT, T_DOUBLE) || FxPrec == 0);
 }
 
-SLAPI STimeSeries::ValuVec::ValuVec() : Typ(T_DOUBLE), SVector(stsize(T_DOUBLE), O_ARRAY), FxPrec(0), Flags(0)
+STimeSeries::ValuVec::ValuVec() : Typ(T_DOUBLE), SVector(stsize(T_DOUBLE), O_ARRAY), FxPrec(0), Flags(0)
 {
 	assert(STimeSeries::VerifyValuVecType(Typ));
 }
@@ -747,17 +747,17 @@ int64 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt64(const void * pInner) co
 	}
 }
 
-SLAPI STimeSeries::STimeSeries() : Ver(1), Id(0), State(0)
+STimeSeries::STimeSeries() : Ver(1), Id(0), State(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
 
-SLAPI STimeSeries::STimeSeries(const STimeSeries & rS) 
+STimeSeries::STimeSeries(const STimeSeries & rS) 
 {
 	Copy(rS);
 }
 
-SLAPI STimeSeries::~STimeSeries()
+STimeSeries::~STimeSeries()
 {
 }
 
@@ -790,7 +790,7 @@ const char * FASTCALL STimeSeries::GetSymb() const
 	return Symb;
 }
 
-STimeSeries & SLAPI STimeSeries::Z()
+STimeSeries & STimeSeries::Z()
 {
 	for(uint i = 0; i < VL.getCount(); i++) {
 		ValuVec * p_vv = VL.at(i);
@@ -800,13 +800,13 @@ STimeSeries & SLAPI STimeSeries::Z()
 	return *this;
 }
 
-void SLAPI STimeSeries::Destroy()
+void STimeSeries::Destroy()
 {
 	VL.freeAll();
 	T.freeAll();
 }
 
-int SLAPI STimeSeries::SetupBySample(const STimeSeries * pSample)
+int STimeSeries::SetupBySample(const STimeSeries * pSample)
 {
 	int    ok = 1;
 	Destroy();
@@ -824,7 +824,7 @@ int SLAPI STimeSeries::SetupBySample(const STimeSeries * pSample)
 	return ok;
 }
 
-uint SLAPI STimeSeries::GetCount() const
+uint STimeSeries::GetCount() const
 {
 	return T.getCount();
 }
@@ -857,7 +857,7 @@ int FASTCALL STimeSeries::Swap(uint p1, uint p2)
 	return ok;
 }
 
-int SLAPI STimeSeries::AddItemFromSample(const STimeSeries & rSample, uint samplePos)
+int STimeSeries::AddItemFromSample(const STimeSeries & rSample, uint samplePos)
 {
 	int    ok = 1;
 	uint   idx = 0;
@@ -879,7 +879,7 @@ int SLAPI STimeSeries::AddItemFromSample(const STimeSeries & rSample, uint sampl
 	return ok;
 }
 
-int SLAPI STimeSeries::SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const
+int STimeSeries::SearchEntry(const SUniTime & rUt, uint startPos, uint * pIdx) const
 {
 	int    ok = 0;
 	for(uint i = startPos; !ok && i < T.getCount(); i++) {
@@ -893,7 +893,7 @@ int SLAPI STimeSeries::SearchEntry(const SUniTime & rUt, uint startPos, uint * p
 	return ok;
 }
 
-int SLAPI STimeSeries::SearchFirstEntrySince(const SUniTime & rSince, uint * pIdx) const
+int STimeSeries::SearchFirstEntrySince(const SUniTime & rSince, uint * pIdx) const
 {
 	int    ok = 0;
 	for(uint i = 0; !ok && i < T.getCount(); i++) {
@@ -908,7 +908,7 @@ int SLAPI STimeSeries::SearchFirstEntrySince(const SUniTime & rSince, uint * pId
 	return ok;
 }
 
-int SLAPI STimeSeries::SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const
+int STimeSeries::SearchEntryReverse(const SUniTime & rUt, uint startPos, uint * pIdx) const
 {
 	int    ok = 0;
 	uint   i = startPos;
@@ -929,17 +929,17 @@ static IMPL_CMPFUNC(SUniTime, p1, p2)
 	return static_cast<const SUniTime *>(p1)->Compare(*static_cast<const SUniTime *>(p2), &sq);
 }
 
-int SLAPI STimeSeries::SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const
+int STimeSeries::SearchEntryBinary(const SUniTime & rUt, uint * pIdx) const
 {
 	return T.bsearch(&rUt, pIdx, PTR_CMPFUNC(SUniTime));
 }
 
-SLAPI STimeSeries::AppendStat::AppendStat() : AppendCount(0), UpdCount(0), SrcFldsCount(0), 
+STimeSeries::AppendStat::AppendStat() : AppendCount(0), UpdCount(0), SrcFldsCount(0), 
 	IntersectFldsCount(0), TmProfile(0), SpreadSum(0), SpreadCount(0), UpdCountVecIdx(-1)
 {
 }
 
-int SLAPI STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
+int STimeSeries::AddItems(const STimeSeries & rSrc, AppendStat * pStat)
 {
 	int    ok = -1;
 	SProfile::Measure pm;
@@ -1047,7 +1047,7 @@ static IMPL_CMPFUNC(STimeSeriesIndex, p1, p2)
 	return si;
 }
 
-int SLAPI STimeSeries::Sort(/*CompFunc fcmp, void * pExtraData*/ /*=0*/)
+int STimeSeries::Sort(/*CompFunc fcmp, void * pExtraData*/ /*=0*/)
 {
 	int    ok = 1;
 	const  uint tc = T.getCount();
@@ -1083,7 +1083,7 @@ int SLAPI STimeSeries::Sort(/*CompFunc fcmp, void * pExtraData*/ /*=0*/)
 	return ok;
 }
 
-int SLAPI STimeSeries::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int STimeSeries::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(pSCtx->Serialize(dir, Ver, rBuf));
@@ -1156,7 +1156,7 @@ STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecByIdx(uint vecIdx) const
 	return (vecIdx < VL.getCount()) ? VL.at(vecIdx) : 0;
 }
 
-int SLAPI STimeSeries::AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx)
+int STimeSeries::AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, uint * pVecIdx)
 {
 	int    ok = 1;
 	uint   vec_idx = 0;
@@ -1173,12 +1173,12 @@ int SLAPI STimeSeries::AddValueVec(const char * pSymb, TYPEID typ, int fxPrec, u
 	return ok;
 }
 
-uint SLAPI STimeSeries::GetValueVecCount() const
+uint STimeSeries::GetValueVecCount() const
 {
 	return VL.getCount();
 }
 
-int  SLAPI STimeSeries::GetValueVecParam(uint vecIdx, TYPEID * pTyp, SString * pSymb, int * pFxPrec, uint * pFlags) const
+int  STimeSeries::GetValueVecParam(uint vecIdx, TYPEID * pTyp, SString * pSymb, int * pFxPrec, uint * pFlags) const
 {
 	int    ok = 0;
 	if(vecIdx < VL.getCount()) {
@@ -1194,12 +1194,12 @@ int  SLAPI STimeSeries::GetValueVecParam(uint vecIdx, TYPEID * pTyp, SString * p
 	return ok;
 }
 
-int SLAPI STimeSeries::GetValueVecIndex(const char * pSymb, uint * pIdx) const
+int STimeSeries::GetValueVecIndex(const char * pSymb, uint * pIdx) const
 {
 	return BIN(GetVecBySymb(pSymb, pIdx));
 }
 
-int SLAPI STimeSeries::AddItem(SUniTime tm, uint * pItemIdx)
+int STimeSeries::AddItem(SUniTime tm, uint * pItemIdx)
 {
 	if(T.insert(&tm)) {
 		ASSIGN_PTR(pItemIdx, T.getCount()-1);
@@ -1209,7 +1209,7 @@ int SLAPI STimeSeries::AddItem(SUniTime tm, uint * pItemIdx)
 		return 0;
 }
 
-int SLAPI STimeSeries::Helper_SetValue(uint itemIdx, STimeSeries::ValuVec * pVec, const void * pValuePtr)
+int STimeSeries::Helper_SetValue(uint itemIdx, STimeSeries::ValuVec * pVec, const void * pValuePtr)
 {
 	assert(pValuePtr);
 	int    ok = 1;
@@ -1236,7 +1236,7 @@ int SLAPI STimeSeries::Helper_SetValue(uint itemIdx, STimeSeries::ValuVec * pVec
 	return ok;
 }
 
-int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, double value)
+int STimeSeries::SetValue(uint itemIdx, uint vecIdx, double value)
 {
 	uint8 value_buf[16];
 	memzero(value_buf, sizeof(value_buf));
@@ -1249,7 +1249,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, double value)
 		return 0;
 }
 
-int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, float value)
+int STimeSeries::SetValue(uint itemIdx, uint vecIdx, float value)
 {
 	uint8 value_buf[16];
 	memzero(value_buf, sizeof(value_buf));
@@ -1262,7 +1262,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, float value)
 		return 0;
 }
 
-int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int32 value)
+int STimeSeries::SetValue(uint itemIdx, uint vecIdx, int32 value)
 {
 	uint8 value_buf[16];
 	memzero(value_buf, sizeof(value_buf));
@@ -1275,7 +1275,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int32 value)
 		return 0;
 }
 
-int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int64 value)
+int STimeSeries::SetValue(uint itemIdx, uint vecIdx, int64 value)
 {
 	uint8 value_buf[16];
 	memzero(value_buf, sizeof(value_buf));
@@ -1288,7 +1288,7 @@ int SLAPI STimeSeries::SetValue(uint itemIdx, uint vecIdx, int64 value)
 		return 0;
 }
 
-int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, double * pValue) const
+int STimeSeries::GetValue(uint itemIdx, uint vecIdx, double * pValue) const
 {
 	int    ok = 0;
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
@@ -1302,7 +1302,7 @@ int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, double * pValue) cons
 	return ok;
 }
 
-int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, float * pValue) const
+int STimeSeries::GetValue(uint itemIdx, uint vecIdx, float * pValue) const
 {
 	int    ok = 0;
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
@@ -1316,7 +1316,7 @@ int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, float * pValue) const
 	return ok;
 }
 
-int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const
+int STimeSeries::GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const
 {
 	int    ok = 0;
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
@@ -1330,7 +1330,7 @@ int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int32 * pValue) const
 	return ok;
 }
 
-int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const
+int STimeSeries::GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const
 {
 	int    ok = 0;
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
@@ -1344,11 +1344,11 @@ int SLAPI STimeSeries::GetValue(uint itemIdx, uint vecIdx, int64 * pValue) const
 	return ok;
 }
 
-SLAPI STimeSeries::SnapshotEntry::SnapshotEntry() : Idx(0)
+STimeSeries::SnapshotEntry::SnapshotEntry() : Idx(0)
 {
 }
 
-STimeSeries::SnapshotEntry & SLAPI STimeSeries::SnapshotEntry::Z()
+STimeSeries::SnapshotEntry & STimeSeries::SnapshotEntry::Z()
 {
 	Idx = 0;
 	Tm.Z();
@@ -1356,7 +1356,7 @@ STimeSeries::SnapshotEntry & SLAPI STimeSeries::SnapshotEntry::Z()
 	return *this;
 }
 
-int SLAPI STimeSeries::GetSnapshotEntry(uint idx, SnapshotEntry & rEntry) const
+int STimeSeries::GetSnapshotEntry(uint idx, SnapshotEntry & rEntry) const
 {
 	int    ok = 1;
 	THROW(idx < GetCount());
@@ -1374,7 +1374,7 @@ int SLAPI STimeSeries::GetSnapshotEntry(uint idx, SnapshotEntry & rEntry) const
 	return ok;
 }
 
-int SLAPI STimeSeries::SetSnapshotEntry(uint idx, const SnapshotEntry & rEntry)
+int STimeSeries::SetSnapshotEntry(uint idx, const SnapshotEntry & rEntry)
 {
 	int    ok = 1;
 	THROW(idx < GetCount());
@@ -1392,7 +1392,7 @@ int SLAPI STimeSeries::SetSnapshotEntry(uint idx, const SnapshotEntry & rEntry)
 	return ok;
 }
 
-int SLAPI STimeSeries::AppendSnapshotEntry(const SnapshotEntry & rEntry)
+int STimeSeries::AppendSnapshotEntry(const SnapshotEntry & rEntry)
 {
 	int    ok = 1;
 	uint   idx = 0;
@@ -1410,7 +1410,7 @@ int SLAPI STimeSeries::AppendSnapshotEntry(const SnapshotEntry & rEntry)
 	return ok;
 }
 
-int SLAPI STimeSeries::GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const
+int STimeSeries::GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) const
 {
 	int    ok = -1;
 	STimeSeries::ValuVec * p_vec = GetVecByIdx(vecIdx);
@@ -1430,7 +1430,7 @@ int SLAPI STimeSeries::GetLVect(uint vecIdx, uint startItemIdx, LVect & rV) cons
 	return ok;
 }
 
-int SLAPI STimeSeries::GetTimeArray(uint startItemIdx, uint idxCount, DateTimeArray & rV) const
+int STimeSeries::GetTimeArray(uint startItemIdx, uint idxCount, DateTimeArray & rV) const
 {
 	rV.clear();
 	int   ok = -1;
@@ -1450,7 +1450,7 @@ int SLAPI STimeSeries::GetTimeArray(uint startItemIdx, uint idxCount, DateTimeAr
 	return ok;
 }
 
-int SLAPI STimeSeries::GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const
+int STimeSeries::GetRealArray(uint vecIdx, uint startItemIdx, uint idxCount, RealArray & rV) const
 {
 	rV.clear();
 	int    ok = -1;
@@ -1482,11 +1482,11 @@ int SLAPI STimeSeries::GetRealArray(uint vecIdx, uint startItemIdx, uint idxCoun
 	return ok;
 }
 
-SLAPI STimeSeries::Stat::Stat(long flags) : StatBase(flags), State(0), DeltaAvg(0.0), LocalDevPtCount(0), Reserve(0), LocalDevAvg(0.0)
+STimeSeries::Stat::Stat(long flags) : StatBase(flags), State(0), DeltaAvg(0.0), LocalDevPtCount(0), Reserve(0), LocalDevAvg(0.0)
 {
 }
 
-int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count, Stat & rS) const
+int STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count, Stat & rS) const
 {
 	int    ok = 1;
 	uint   vec_idx = 0;
@@ -1607,12 +1607,12 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count,
 	return ok;
 }
 
-int SLAPI STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
+int STimeSeries::Analyze(const char * pVecSymb, Stat & rS) const
 {
 	return Analyze(pVecSymb, 0, GetCount(), rS);
 }
 
-int SLAPI STimeSeries::RemoveItem(uint idx)
+int STimeSeries::RemoveItem(uint idx)
 {
 	int    ok = -1;
 	if(idx < GetCount()) {
@@ -1630,7 +1630,7 @@ int SLAPI STimeSeries::RemoveItem(uint idx)
 	return ok;
 }
 
-int SLAPI STimeSeries::Repair(const char * pCriticalVecSymb)
+int STimeSeries::Repair(const char * pCriticalVecSymb)
 {
 	int    ok = -1;
 	const  uint _c = GetCount();
@@ -1678,11 +1678,11 @@ int SLAPI STimeSeries::Repair(const char * pCriticalVecSymb)
 	return ok;
 }
 
-SLAPI STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx, uint count) : Distance(distance), FirstIdx(firstIdx), IdxCount(count), Flags(0)
+STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx, uint count) : Distance(distance), FirstIdx(firstIdx), IdxCount(count), Flags(0)
 {
 }
 
-/*static*/int SLAPI STimeSeries::AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
+/*static*/int STimeSeries::AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
 	RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11)
 {
 	CALLPTRMEMB(pTrendList, clear());
@@ -1768,7 +1768,7 @@ SLAPI STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx
 	return ok;
 }
 
-int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList,
+int STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList,
 	RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const
 {
 	CALLPTRMEMB(pTrendList, clear());
@@ -1793,7 +1793,7 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 	return ok;
 }
 
-int SLAPI STimeSeries::Helper_GetFrame(const ValuVec * pVec, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
+int STimeSeries::Helper_GetFrame(const ValuVec * pVec, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
 {
 	rList.clear();
 	int    ok = 1;
@@ -1849,16 +1849,16 @@ int SLAPI STimeSeries::Helper_GetFrame(const ValuVec * pVec, uint startIdx, uint
 	return ok;
 }
 
-int SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const
+int STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, long normFlags, RealArray & rList) const
 	{ return Helper_GetFrame(GetVecBySymb(pVecSymb, 0), startIdx, count, 0.0, normFlags, rList); }
-int SLAPI STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
+int STimeSeries::GetFrame(const char * pVecSymb, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
 	{ return Helper_GetFrame(GetVecBySymb(pVecSymb, 0), startIdx, count, diffScale, normFlags, rList); }
-int SLAPI STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, long normFlags, RealArray & rList) const
+int STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, long normFlags, RealArray & rList) const
 	{ return Helper_GetFrame(GetVecByIdx(vecIdx), startIdx, count, 0.0, normFlags, rList); }
-int SLAPI STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
+int STimeSeries::GetFrame(uint vecIdx, uint startIdx, uint count, double diffScale, long normFlags, RealArray & rList) const
 	{ return Helper_GetFrame(GetVecByIdx(vecIdx), startIdx, count, diffScale, normFlags, rList); }
 
-int SLAPI STimeSeries::GetChunkRecentCount(uint count, STimeSeries & rResult) const
+int STimeSeries::GetChunkRecentCount(uint count, STimeSeries & rResult) const
 {
 	int    ok = -1;
 	THROW(rResult.SetupBySample(this));
@@ -1875,7 +1875,7 @@ int SLAPI STimeSeries::GetChunkRecentCount(uint count, STimeSeries & rResult) co
 	return ok;
 }
 
-int SLAPI STimeSeries::GetChunkRecentSince(const SUniTime & rSince, const SUniTime * pTill, STimeSeries & rResult) const
+int STimeSeries::GetChunkRecentSince(const SUniTime & rSince, const SUniTime * pTill, STimeSeries & rResult) const
 {
 	int    ok = -1;
 	uint   first_idx = 0;

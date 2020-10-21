@@ -29,7 +29,7 @@ private:
 		sCOST                   // @v5.2.0  Ввод стоимости
 	};
 	struct Header {
-		SLAPI  Header() : PrcID(0), SessID(0), MainGoodsID(0), MainGoodsPack(0.0), LinkBillID(0)
+		Header() : PrcID(0), SessID(0), MainGoodsID(0), MainGoodsPack(0.0), LinkBillID(0)
 		{
 			PTR32(SessText)[0] = 0;
 			PTR32(MainGoodsName)[0] = 0;
@@ -44,7 +44,7 @@ private:
 		PPID   LinkBillID;         // @v5.1.3 ИД связанного документа
 	};
 	struct Entry : public TSessLineTbl::Rec {
-		SLAPI  Entry() : TSessLineTbl::Rec(), Pack(0.0), PackQtty(0.0)
+		Entry() : TSessLineTbl::Rec(), Pack(0.0), PackQtty(0.0)
 		{
 			PTR32(GoodsName)[0] = 0;
 		}
@@ -1017,7 +1017,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 	}
 }
 
-int SLAPI ExecPrcPane(PPID prcID)
+int ExecPrcPane(PPID prcID)
 {
 	int    ok = -1;
 	if(prcID || ListBoxSelDialog(PPOBJ_PROCESSOR, &prcID, 0) > 0) {

@@ -11,7 +11,7 @@
 //#define TEST_REGEXP
 //#define TEST_DL600
 
-// @v9.8.11 int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile); // filtrnsm.cpp
+// @v9.8.11 int Debug_GetFilesFromMessage(const char * pMsgFile); // filtrnsm.cpp
 
 #if 0 // {
 
@@ -75,15 +75,15 @@ void test_foo2(int * a, int b) { *a = *a+b; }
 int ClassfGoods();
 int TestTddo();
 int GetGoodsFromService(SString & rCode, PPGoodsPacket * pPack);
-int SLAPI TestSTree();
+int TestSTree();
 
-int SLAPI TestNoLogin()
+int TestNoLogin()
 {
 	//TestSTree(); // @debug
 	return -1;
 }
 
-int SLAPI TestLogin()
+int TestLogin()
 {
 	//ClassfGoods(); // @debug
 	//TestTddo(); // @debug
@@ -409,7 +409,7 @@ int Test_Alg_SS_Z(const char * pInputFileName);
 int TestTextDbFile(const char * pInDbfFile);
 int Test_InterfaceCall();
 
-int SLAPI TestNoLogin()
+int TestNoLogin()
 {
 	int    ok = -1;
 	STestSuite s;
@@ -443,10 +443,10 @@ int SLAPI TestNoLogin()
 	return ok;
 }
 
-int SLAPI Test_ImpExpParamDialog();
+int Test_ImpExpParamDialog();
 int Test_DL6_Rtm();
 
-int SLAPI TestLogin()
+int TestLogin()
 {
 	STestSuite s;
 	s.Run("\\papyrus\\src\\pptest\\testdef_login.ini");
@@ -766,7 +766,7 @@ int GetRandom(int min, int max)
 	return (int)(((double)rand() / (RAND_MAX + 1)) * (max - min) + min);  //генератор псевдослучайных чисел
 }
 
-int SLAPI GenerateGoodsBills()
+int GenerateGoodsBills()
 {
 	int    ok = -1;
 	PPViewOpGrouping * p_vop = 0;
@@ -1272,36 +1272,36 @@ protected:
 //
 //
 //
-int SLAPI TestSuffixTree(); //
+int TestSuffixTree(); //
 // @v10.2.4 int TestFann();
 int  TestFann2();
-int  SLAPI LuaTest();
-int  SLAPI CollectLldFileStat();
-int  SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
-void SLAPI TestSArchive();
-int  SLAPI TestLargeVlrInputOutput();
-void SLAPI Test_MailMsg_ReadFromFile();
-void SLAPI Test_MakeEmailMessage();
-int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
-void SLAPI TestCRC();
-int  SLAPI TestUhttClient();
-int  SLAPI TestReadXmlMem_EgaisAck();
-int  SLAPI TestGtinStruc();
-int  SLAPI TestConfigDatabase_StringHistory();
-int  SLAPI TestConfigDatabase_StringHistory_Interactive();
-void SLAPI TestGravity();
+int  LuaTest();
+int  CollectLldFileStat();
+int  ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
+void TestSArchive();
+int  TestLargeVlrInputOutput();
+void Test_MailMsg_ReadFromFile();
+void Test_MakeEmailMessage();
+int  PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
+void TestCRC();
+int  TestUhttClient();
+int  TestReadXmlMem_EgaisAck();
+int  TestGtinStruc();
+int  TestConfigDatabase_StringHistory();
+int  TestConfigDatabase_StringHistory_Interactive();
+void TestGravity();
 int  TestAddressRecognition(); 
 int  TestTsDensityMap(); // @debug
-int  SLAPI TestUdsInterface();
+int  TestUdsInterface();
 
-/*static int SLAPI TestWorkspacePath()
+/*static int TestWorkspacePath()
 {
 	SString path;
 	PPGetPath(PPPATH_WORKSPACE, path);
 	return BIN(path.NotEmpty());
 }*/
 
-int SLAPI DoConstructionTest()
+int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
@@ -1365,7 +1365,7 @@ int SLAPI DoConstructionTest()
 
 #else // }{
 
-int SLAPI DoConstructionTest()
+int DoConstructionTest()
 {
 	int    ok = -1;
 	return ok;

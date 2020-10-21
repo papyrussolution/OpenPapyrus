@@ -488,14 +488,12 @@ static void muscle_percent_define_use(char const * variable)
 /* The value of %define variable VARIABLE (corresponding to FIELD, if
    defined).  Do not register as used, but diagnose unset variables.  */
 
-static
-char const * muscle_percent_define_get_raw(char const * variable, char const * field)
+static char const * muscle_percent_define_get_raw(char const * variable, char const * field)
 {
 	uniqstr name = muscle_name(variable, field);
 	char const * res = muscle_find_const(name);
 	if(!res)
-		complain(NULL, fatal, _("%s: undefined %%define variable %s"),
-		    "muscle_percent_define_get_raw", quote(variable));
+		complain(NULL, fatal, _("%s: undefined %%define variable %s"), "muscle_percent_define_get_raw", quote(variable));
 	return res;
 }
 
@@ -558,7 +556,6 @@ bool muscle_percent_define_flag_if(char const * variable)
 {
 	uniqstr invalid_boolean_name = muscle_name(variable, "invalid_boolean");
 	bool res = false;
-
 	if(muscle_percent_define_ifdef(variable)) {
 		char * value = muscle_percent_define_get(variable);
 		muscle_percent_define_check_kind(variable, muscle_keyword);

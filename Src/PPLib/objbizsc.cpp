@@ -5,16 +5,16 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPBizScore::PPBizScore()
+PPBizScore::PPBizScore()
 {
 	THISZERO();
 }
 
-SLAPI PPObjBizScore::PPObjBizScore(void * extraPtr) : PPObjReference(PPOBJ_BIZSCORE, extraPtr), P_Resolver(0), P_ValTbl(0)
+PPObjBizScore::PPObjBizScore(void * extraPtr) : PPObjReference(PPOBJ_BIZSCORE, extraPtr), P_Resolver(0), P_ValTbl(0)
 {
 }
 
-SLAPI PPObjBizScore::~PPObjBizScore()
+PPObjBizScore::~PPObjBizScore()
 {
 	delete P_Resolver;
 	delete P_ValTbl;
@@ -23,8 +23,8 @@ SLAPI PPObjBizScore::~PPObjBizScore()
 #define BIZSCEXSTR_DESCR   1
 #define BIZSCEXSTR_FORMULA 2
 
-//int SLAPI PPObjBizScore::Remove(PPID id, long, uint options)
-/*virtual*/int  SLAPI PPObjBizScore::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+//int PPObjBizScore::Remove(PPID id, long, uint options)
+/*virtual*/int  PPObjBizScore::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    r = -1, conf = 1;
 	THROW(CheckRights(PPR_DEL));
@@ -53,7 +53,7 @@ SLAPI PPObjBizScore::~PPObjBizScore()
 	return r;
 }
 
-int SLAPI PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use_ta)
+int PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPID   action = 0;
@@ -109,7 +109,7 @@ int SLAPI PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjBizScore::GetPacket(PPID id, PPBizScorePacket * pPack)
+int PPObjBizScore::GetPacket(PPID id, PPBizScorePacket * pPack)
 {
 	int    ok = 1;
 	PPBizScorePacket pack;
@@ -128,7 +128,7 @@ int SLAPI PPObjBizScore::GetPacket(PPID id, PPBizScorePacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjBizScore::ReverseFormula(PPBizScorePacket * pPack, SString & rResult)
+int PPObjBizScore::ReverseFormula(PPBizScorePacket * pPack, SString & rResult)
 {
 	int    ok = -1;
 	rResult.Z();
@@ -139,7 +139,7 @@ int SLAPI PPObjBizScore::ReverseFormula(PPBizScorePacket * pPack, SString & rRes
 	return ok;
 }
 
-int SLAPI PPObjBizScore::TestPacket(PPBizScorePacket * pPack, SString & rResult)
+int PPObjBizScore::TestPacket(PPBizScorePacket * pPack, SString & rResult)
 {
 	int    ok = -1;
 	rResult.Z();
@@ -570,7 +570,7 @@ private:
 	PPObjBizScore BscObj;
 };
 
-int SLAPI PPObjBizScore::Edit(PPID * pID, void * extraPtr /*userID*/)
+int PPObjBizScore::Edit(PPID * pID, void * extraPtr /*userID*/)
 {
 	const  PPID extra_user_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel;
@@ -593,7 +593,7 @@ int SLAPI PPObjBizScore::Edit(PPID * pID, void * extraPtr /*userID*/)
 	return ok;
 }
 
-int SLAPI PPObjBizScore::AddBySample(PPID * pID, PPID sampleID)
+int PPObjBizScore::AddBySample(PPID * pID, PPID sampleID)
 {
 	int    ok = -1;
 	if(sampleID > 0) {
@@ -634,16 +634,16 @@ int SLAPI PPObjBizScore::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int SLAPI PPObjBizScore::Browse(void * extraPtr /*userID*/) { return PPView::Execute(PPVIEW_BIZSCORE, 0, 1, extraPtr /*userID*/); }
+int PPObjBizScore::Browse(void * extraPtr /*userID*/) { return PPView::Execute(PPVIEW_BIZSCORE, 0, 1, extraPtr /*userID*/); }
 //
 //
 //
 class BizScoreCache : public ObjCache {
 public:
-	SLAPI  BizScoreCache() : ObjCache(PPOBJ_BIZSCORE, sizeof(Data)) {}
+	BizScoreCache() : ObjCache(PPOBJ_BIZSCORE, sizeof(Data)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
 		long   Flags;
@@ -652,7 +652,7 @@ public:
 	};
 };
 
-int SLAPI BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -676,7 +676,7 @@ int SLAPI BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPBizScorePacket * p_data_pack = static_cast<PPBizScorePacket *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -698,7 +698,7 @@ void SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	ss.get(&p, p_data_pack->Formula);
 }
 
-int SLAPI PPObjBizScore::Fetch(PPID id, PPBizScorePacket * pRec)
+int PPObjBizScore::Fetch(PPID id, PPBizScorePacket * pRec)
 {
 	BizScoreCache * p_cache = GetDbLocalCachePtr <BizScoreCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : GetPacket(id, pRec);
@@ -706,7 +706,7 @@ int SLAPI PPObjBizScore::Fetch(PPID id, PPBizScorePacket * pRec)
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(BizScore); SLAPI BizScoreFilt::BizScoreFilt() : PPBaseFilt(PPFILT_BIZSCORE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(BizScore); BizScoreFilt::BizScoreFilt() : PPBaseFilt(PPFILT_BIZSCORE, 0, 0)
 {
 	SetFlatChunk(offsetof(BizScoreFilt, ReserveStart),
 		offsetof(BizScoreFilt, DescrPattern)-offsetof(BizScoreFilt, ReserveStart));
@@ -723,12 +723,11 @@ BizScoreFilt & FASTCALL BizScoreFilt::operator = (const BizScoreFilt & s)
 //
 //
 //
-SLAPI PPViewBizScore::PPViewBizScore() : PPView(&BscObj, &Filt, PPVIEW_BIZSCORE)
+PPViewBizScore::PPViewBizScore() : PPView(&BscObj, &Filt, PPVIEW_BIZSCORE, implDontEditNullFilter, 0)
 {
-	ImplementFlags |= implDontEditNullFilter;
 }
 
-int SLAPI PPViewBizScore::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewBizScore::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class BizScoreFiltDialog : public TDialog {
 	public:
@@ -757,7 +756,7 @@ int SLAPI PPViewBizScore::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(BizScoreFiltDialog, p_filt);
 }
 
-int SLAPI PPViewBizScore::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewBizScore::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	if(Helper_InitBaseFilt(pBaseFilt))
@@ -767,7 +766,7 @@ int SLAPI PPViewBizScore::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewBizScore::InitIteration()
+int PPViewBizScore::InitIteration()
 {
 	return -1;
 }
@@ -777,7 +776,7 @@ int FASTCALL PPViewBizScore::NextIteration(BizScoreViewItem * pItem)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	uint   brw_id = BROWSER_BIZSCORE;
@@ -840,13 +839,13 @@ DBQuery * SLAPI PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-int SLAPI PPViewBizScore::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewBizScore::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	pBrw->SetupToolbarCombo(PPOBJ_USR, Filt.UserID, 0, 0);
 	return -1;
 }
 
-int SLAPI PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -889,18 +888,18 @@ int SLAPI PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	return ok;
 }
 
-void * SLAPI PPViewBizScore::GetEditExtraParam()
+void * PPViewBizScore::GetEditExtraParam()
 {
 	return reinterpret_cast<void *>(Filt.UserID);
 }
 //
 //
 //
-SLAPI BizScoreCore::BizScoreCore() : BizScoreTbl()
+BizScoreCore::BizScoreCore() : BizScoreTbl()
 {
 }
 
-int SLAPI BizScoreCore::Search(LDATE actualDate, PPID scID, PPID objID, BizScoreTbl::Rec * pRec)
+int BizScoreCore::Search(LDATE actualDate, PPID scID, PPID objID, BizScoreTbl::Rec * pRec)
 {
 	BizScoreTbl::Key0 k0;
 	MEMSZERO(k0);
@@ -910,7 +909,7 @@ int SLAPI BizScoreCore::Search(LDATE actualDate, PPID scID, PPID objID, BizScore
 	return SearchByKey(this, 0, &k0, pRec);
 }
 
-int SLAPI BizScoreCore::DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta)
+int BizScoreCore::DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta)
 {
 	int    ok = -1, r;
 	BizScoreTbl::Rec rec;
@@ -928,7 +927,7 @@ int SLAPI BizScoreCore::DeleteItem(LDATE actualDate, PPID scID, PPID objID, int 
 	return ok;
 }
 
-int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, long flags, double val, int use_ta)
+int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, long flags, double val, int use_ta)
 {
 	int    ok = -1, r;
 	BizScoreTbl::Rec rec;
@@ -963,7 +962,7 @@ int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, long f
 	return ok;
 }
 
-int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char * pStr, int use_ta)
+int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char * pStr, int use_ta)
 {
 	int    ok = -1, r;
 	BizScoreTbl::Rec rec;
@@ -996,7 +995,7 @@ int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const 
 	return ok;
 }
 
-int SLAPI BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj, const char * pStr, int use_ta)
+int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj, const char * pStr, int use_ta)
 {
 	int    ok = -1, r;
 	BizScoreTbl::Rec rec;
@@ -1068,7 +1067,7 @@ private:
 	Param Data;
 };
 
-int SLAPI CreateBizScGlblUserAcct()
+int CreateBizScGlblUserAcct()
 {
 	int    ok = -1, valid_data = 0;
 	CreateBizScGblAcctDlg::Param data;
@@ -1113,7 +1112,7 @@ int SLAPI CreateBizScGlblUserAcct()
 	return ok;
 }
 
-int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock)
+int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock)
 {
 	int    ok = 1, stop = 0;
 	char   secret[64];
@@ -1295,7 +1294,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(BizScoreVal); SLAPI BizScoreValFilt::BizScoreValFilt() : PPBaseFilt(PPFILT_BIZSCOREVAL, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(BizScoreVal); BizScoreValFilt::BizScoreValFilt() : PPBaseFilt(PPFILT_BIZSCOREVAL, 0, 0)
 {
 	SetFlatChunk(offsetof(BizScoreValFilt, ReserveStart),
 		offsetof(BizScoreValFilt, Reserve)-offsetof(BizScoreFilt, ReserveStart)+sizeof(Reserve));
@@ -1310,23 +1309,22 @@ BizScoreValFilt & FASTCALL BizScoreValFilt::operator = (const BizScoreValFilt & 
 //
 //
 //
-SLAPI PPViewBizScoreVal::PPViewBizScoreVal() : PPView(0, &Filt, PPVIEW_BIZSCOREVAL)
-{
-	DefReportId = REPORT_BIZSCOREVALVIEW;
-}
-
-SLAPI PPViewBizScoreVal::~PPViewBizScoreVal()
+PPViewBizScoreVal::PPViewBizScoreVal() : PPView(0, &Filt, PPVIEW_BIZSCOREVAL, 0, REPORT_BIZSCOREVALVIEW)
 {
 }
 
-PPBaseFilt * SLAPI PPViewBizScoreVal::CreateFilt(void * extraPtr) const
+PPViewBizScoreVal::~PPViewBizScoreVal()
+{
+}
+
+PPBaseFilt * PPViewBizScoreVal::CreateFilt(void * extraPtr) const
 {
 	BizScoreValFilt * p_filt = new BizScoreValFilt;
 	p_filt->UserID = reinterpret_cast<long>(extraPtr);
 	return p_filt;
 }
 
-int SLAPI PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class BizScoreValFiltDialog : public TDialog {
 	public:
@@ -1367,7 +1365,7 @@ int SLAPI PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(BizScoreValFiltDialog, p_filt);
 }
 
-int SLAPI PPViewBizScoreVal::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewBizScoreVal::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
@@ -1379,7 +1377,7 @@ int SLAPI PPViewBizScoreVal::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewBizScoreVal::CheckForFilt(const BizScoreTbl::Rec * pRec) const
+int PPViewBizScoreVal::CheckForFilt(const BizScoreTbl::Rec * pRec) const
 {
 	if(pRec) {
 		if(!CheckFiltID(Filt.UserID, pRec->UserID))
@@ -1394,7 +1392,7 @@ int SLAPI PPViewBizScoreVal::CheckForFilt(const BizScoreTbl::Rec * pRec) const
 	return 1;
 }
 
-int SLAPI PPViewBizScoreVal::InitIteration()
+int PPViewBizScoreVal::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 0;
@@ -1430,7 +1428,7 @@ int FASTCALL PPViewBizScoreVal::NextIteration(BizScoreValViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewBizScoreVal::CalcTotal(BizScoreValTotal * pTotal)
+int PPViewBizScoreVal::CalcTotal(BizScoreValTotal * pTotal)
 {
 	int    ok = 1;
 	BizScoreValTotal total;
@@ -1445,7 +1443,7 @@ int SLAPI PPViewBizScoreVal::CalcTotal(BizScoreValTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPViewBizScoreVal::ViewGraph()
+int PPViewBizScoreVal::ViewGraph()
 {
 	int    ok = -1;
 	if(Filt.BizScoreID) {
@@ -1513,12 +1511,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-void SLAPI PPViewBizScoreVal::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewBizScoreVal::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, 0));
 }
 
-DBQuery * SLAPI PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	uint   brw_id = BROWSER_BIZSCOREVAL;
@@ -1567,7 +1565,7 @@ DBQuery * SLAPI PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * p
 	return q;
 }
 
-int SLAPI PPViewBizScoreVal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewBizScoreVal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	struct Hdr {
 		PPID  ScoreID;
@@ -1629,7 +1627,7 @@ int CallbackBizScToFtpTransfer(long count, long total, const char * pMsg, int)
 	return 1;
 }
 
-/*static*/int SLAPI PPViewBizScoreVal::SendXml(PPID ftpAcctID, const char * pFilePath)
+/*static*/int PPViewBizScoreVal::SendXml(PPID ftpAcctID, const char * pFilePath)
 {
 	int    ok = -1;
 	SString ftp_path;
@@ -1669,18 +1667,18 @@ int CallbackBizScToFtpTransfer(long count, long total, const char * pMsg, int)
 //
 const uint32 PrcssrBizScore::Param::CVer = 2;
 
-SLAPI PrcssrBizScore::Param::Param()
+PrcssrBizScore::Param::Param()
 {
 	Init();
 }
 
-void SLAPI PrcssrBizScore::Param::Init()
+void PrcssrBizScore::Param::Init()
 {
 	THISZERO();
 	Ver = CVer;
 }
 
-int SLAPI PrcssrBizScore::Param::Read(SBuffer & rBuf, long)
+int PrcssrBizScore::Param::Read(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	if(rBuf.GetAvailableSize()) {
@@ -1714,7 +1712,7 @@ int SLAPI PrcssrBizScore::Param::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-int SLAPI PrcssrBizScore::Param::Write(SBuffer & rBuf, long)
+int PrcssrBizScore::Param::Write(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	Ver = CVer;
@@ -1731,23 +1729,23 @@ int SLAPI PrcssrBizScore::Param::Write(SBuffer & rBuf, long)
 	return ok;
 }
 
-SLAPI PrcssrBizScore::PrcssrBizScore() : P_Resolver(0)
+PrcssrBizScore::PrcssrBizScore() : P_Resolver(0)
 {
 	// @v10.9.0 @ctr MEMSZERO(P);
 }
 
-SLAPI PrcssrBizScore::~PrcssrBizScore()
+PrcssrBizScore::~PrcssrBizScore()
 {
 	delete P_Resolver;
 }
 
-int SLAPI PrcssrBizScore::InitParam(Param * pParam)
+int PrcssrBizScore::InitParam(Param * pParam)
 {
 	CALLPTRMEMB(pParam, Init());
 	return 1;
 }
 
-int SLAPI PrcssrBizScore::EditParam(Param * pParam)
+int PrcssrBizScore::EditParam(Param * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
@@ -1784,7 +1782,7 @@ int SLAPI PrcssrBizScore::EditParam(Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrBizScore::Init(const Param * pParam)
+int PrcssrBizScore::Init(const Param * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
@@ -1808,7 +1806,7 @@ struct __BizScoreStoreItem {
 	double Val;
 };
 
-int SLAPI PrcssrBizScore::Helper_Calc(LDATE actualDate, PPLogger & rLogger, int use_ta)
+int PrcssrBizScore::Helper_Calc(LDATE actualDate, PPLogger & rLogger, int use_ta)
 {
 	int    ok = -1, r;
 	uint   i;
@@ -1867,7 +1865,7 @@ int SLAPI PrcssrBizScore::Helper_Calc(LDATE actualDate, PPLogger & rLogger, int 
 	return ok;
 }
 
-int SLAPI PrcssrBizScore::Run()
+int PrcssrBizScore::Run()
 {
 	int    ok = -1, r;
 	PPLogger logger;
@@ -1923,7 +1921,7 @@ int SLAPI PrcssrBizScore::Run()
 	return ok;
 }
 
-int SLAPI DoBizScore(PPID bzsID)
+int DoBizScore(PPID bzsID)
 {
 	int    ok = -1;
 	PrcssrBizScore::Param p;
@@ -1943,7 +1941,7 @@ int SLAPI DoBizScore(PPID bzsID)
 //
 //
 //
-SLAPI GlobalBizScoreArray::GlobalBizScoreArray() : TSCollection <GlobalBizScoreVal>()
+GlobalBizScoreArray::GlobalBizScoreArray() : TSCollection <GlobalBizScoreVal>()
 {
 }
 
@@ -2019,11 +2017,11 @@ int GlobalBizScoreArray::Add(const PPGlobalUserAcc & rGuaRec, const GlobalBizSco
 //
 //
 //
-SLAPI GlobalBizScoreCore::GlobalBizScoreCore() : GlobalBizScoreTbl()
+GlobalBizScoreCore::GlobalBizScoreCore() : GlobalBizScoreTbl()
 {
 }
 
-int SLAPI GlobalBizScoreCore::GetLastList(PPID globalUserID, GlobalBizScoreArray * pList)
+int GlobalBizScoreCore::GetLastList(PPID globalUserID, GlobalBizScoreArray * pList)
 {
 	int    ok = -1;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -2054,7 +2052,7 @@ int SLAPI GlobalBizScoreCore::GetLastList(PPID globalUserID, GlobalBizScoreArray
 	return ok;
 }
 
-int SLAPI GlobalBizScoreCore::SetList(const GlobalBizScoreArray & rList, int use_ta)
+int GlobalBizScoreCore::SetList(const GlobalBizScoreArray & rList, int use_ta)
 {
 	int    ok = -1;
 	long   counter = 0;
@@ -2081,7 +2079,7 @@ int SLAPI GlobalBizScoreCore::SetList(const GlobalBizScoreArray & rList, int use
 	return ok;
 }
 
-int SLAPI GlobalBizScoreCore::SetItem(long counter, const GlobalBizScoreVal & rVal, int use_ta)
+int GlobalBizScoreCore::SetItem(long counter, const GlobalBizScoreVal & rVal, int use_ta)
 {
 	int    ok = 1;
 	PPObjGlobalUserAcc gua_obj;

@@ -14,11 +14,11 @@
 //
 //
 //
-SLAPI ObjCache::MultTextBlock::MultTextBlock() : /*Ss("/&")*/R_Ss(DS.AcquireRvlSsSCD()), RdMode(0), CurPos(0)
+ObjCache::MultTextBlock::MultTextBlock() : /*Ss("/&")*/R_Ss(DS.AcquireRvlSsSCD()), RdMode(0), CurPos(0)
 {
 }
 
-SLAPI ObjCache::MultTextBlock::MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry) : /*Ss("/&")*/R_Ss(DS.AcquireRvlSsSCD()), RdMode(1), CurPos(0)
+ObjCache::MultTextBlock::MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry) : /*Ss("/&")*/R_Ss(DS.AcquireRvlSsSCD()), RdMode(1), CurPos(0)
 {
 	char   temp_buf[4096];
 	pCache->GetName(pEntry, temp_buf, sizeof(temp_buf));
@@ -60,7 +60,7 @@ void FASTCALL ObjCache::ExtTextBlock::Dirty(PPID id)
 	}
 }
 
-int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr)
+int ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr)
 {
 	int    ok = -1;
 	if(id > 0) {
@@ -83,7 +83,7 @@ int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr
 	return ok;
 }
 
-/*virtual*/int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * extraPtr)
+/*virtual*/int ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * extraPtr)
 {
 	rBuf.Z();
 	return -1;
@@ -91,7 +91,7 @@ int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr
 //
 //
 //
-SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(objType), EntrySize(entrySize), UnusedNameSpace(0), 
+ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(objType), EntrySize(entrySize), UnusedNameSpace(0), 
 	Flags(flags), LastPackNamesClock(0), EntryToDataFailed(0)
 {
 	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, O_ARRAY);
@@ -100,12 +100,12 @@ SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(o
 	Ss.add("$"); // zero index - is empty string
 }
 
-SLAPI ObjCache::~ObjCache()
+ObjCache::~ObjCache()
 {
 	delete P_Ary;
 }
 /*
-int SLAPI ObjCache::LogStat() const
+int ObjCache::LogStat() const
 {
 	// "STAT  Cache (ObjType=%ld): hits=%ld misses=%ld count=%ld; data size=%u; data count=%u; string size=%u"
 	int    ok = -1;
@@ -137,7 +137,7 @@ void FASTCALL ObjCache::GetName(const ObjCacheEntry * pEntry, char * pBuf, size_
 	}
 }
 
-int SLAPI ObjCache::PackNames()
+int ObjCache::PackNames()
 {
 	int    ok = -1;
 	const size_t ss_len = Ss.getDataLen();
@@ -173,7 +173,7 @@ int SLAPI ObjCache::PackNames()
 	return ok;
 }
 
-uint SLAPI ObjCache::GetCount() const
+uint ObjCache::GetCount() const
 {
 	return SVector::GetCount(P_Ary);
 }
@@ -199,7 +199,7 @@ ObjCacheEntry * FASTCALL ObjCache::SearchByPos(uint pos, int incr) const
 	return p_entry;
 }
 
-int SLAPI ObjCache::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
+int ObjCache::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 {
 	int    ok = -1;
 	uint   idx = *pPos;
@@ -252,7 +252,7 @@ int FASTCALL ObjCache::Dirty(PPID id)
 	return ok;
 }
 
-int SLAPI ObjCache::Put(PPID id, uint * p, long extraData)
+int ObjCache::Put(PPID id, uint * p, long extraData)
 {
 	int    ok = 1;
 	char   temp_buf[256];
@@ -299,7 +299,7 @@ int FASTCALL ObjCache::Helper_GetByPos(uint pos, void * pDataRec)
 	return ok;
 }
 
-int SLAPI ObjCache::GetBySrchFunc(const void * pKey, CompFunc f, void * pDataRec)
+int ObjCache::GetBySrchFunc(const void * pKey, CompFunc f, void * pDataRec)
 {
 	int    ok = -1;
 	uint   p = 0;
@@ -344,7 +344,7 @@ int FASTCALL ObjCache::Helper_Get(PPID id, void * pDataRec)
 	return ok;
 }
 
-int SLAPI ObjCache::Get(PPID id, void * pDataRec, long extraData)
+int ObjCache::Get(PPID id, void * pDataRec, long extraData)
 {
 	int    ok = -1;
 	uint   p = 0;
@@ -376,7 +376,7 @@ int SLAPI ObjCache::Get(PPID id, void * pDataRec, long extraData)
 	return ok;
 }
 
-int SLAPI ObjCache::GetStat(ObjCacheStat * pStat)
+int ObjCache::GetStat(ObjCacheStat * pStat)
 {
 	if(pStat) {
 		memzero(pStat, sizeof(*pStat));
@@ -411,7 +411,7 @@ int SLAPI ObjCache::GetStat(ObjCacheStat * pStat)
 //
 //
 //
-SLAPI ObjCache::RefSymbArray::RefSymbArray(PPID objType) : StrAssocArray(), ObjType(objType), Inited(0)
+ObjCache::RefSymbArray::RefSymbArray(PPID objType) : StrAssocArray(), ObjType(objType), Inited(0)
 {
 	assert(ObjType > 0 && ObjType < 1000);
 }
@@ -430,7 +430,7 @@ void FASTCALL ObjCache::RefSymbArray::Dirty(PPID id) // @sync_w
 	}
 }
 
-int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
+int ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -484,18 +484,18 @@ int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 //
 //
 //
-SLAPI ObjCacheHash::ObjCacheHash(PPID objType, size_t entrySize, size_t cacheSize, uint maxTries, long flags) :
+ObjCacheHash::ObjCacheHash(PPID objType, size_t entrySize, size_t cacheSize, uint maxTries, long flags) :
 	ObjCache(objType, entrySize, flags), P_Items(0)
 {
 	Init(cacheSize, maxTries);
 }
 
-SLAPI ObjCacheHash::~ObjCacheHash()
+ObjCacheHash::~ObjCacheHash()
 {
 	delete P_Items;
 }
 
-int SLAPI ObjCacheHash::Init(size_t cacheSize, uint maxTries)
+int ObjCacheHash::Init(size_t cacheSize, uint maxTries)
 {
 	int    ok = 1;
 	ZDELETE(P_Ary);
@@ -536,7 +536,7 @@ uint FASTCALL ObjCacheHash::Hash(PPID id, uint n) const
 	// @v7.8.3 return (uint)((id + (long)(n * n)) % (long)MaxItems);
 }
 
-uint SLAPI ObjCacheHash::GetCount() const { return MaxItems; }
+uint ObjCacheHash::GetCount() const { return MaxItems; }
 
 ObjCacheEntry * FASTCALL ObjCacheHash::SearchByPos(uint pos, int incr) const
 {
@@ -566,7 +566,7 @@ int FASTCALL ObjCacheHash::Search(PPID id, uint * pIndex) const
 	return found;
 }
 
-int SLAPI ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
+int ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 {
 	int    ok = 0;
 	int    pos_undefined = 1; // @debug
@@ -615,11 +615,11 @@ int SLAPI ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 //
 // Менеджер локальных по отношению к базе данных объектных кэшей
 //
-SLAPI DbLocalCacheMng::DbLocalCacheMng() : TSArray <DbLocalCacheEntry> (aryDataOwner | aryEachItem), DbEntryList(sizeof(CDbEntry))
+DbLocalCacheMng::DbLocalCacheMng() : TSArray <DbLocalCacheEntry> (aryDataOwner | aryEachItem), DbEntryList(sizeof(CDbEntry))
 {
 }
 
-SLAPI DbLocalCacheMng::~DbLocalCacheMng()
+DbLocalCacheMng::~DbLocalCacheMng()
 {
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
@@ -627,7 +627,7 @@ SLAPI DbLocalCacheMng::~DbLocalCacheMng()
 	}
 }
 
-int SLAPI DbLocalCacheMng::CreateDbEntry(long dbPathID)
+int DbLocalCacheMng::CreateDbEntry(long dbPathID)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -648,7 +648,7 @@ int SLAPI DbLocalCacheMng::CreateDbEntry(long dbPathID)
 	return ok;
 }
 
-int SLAPI DbLocalCacheMng::SetDeferredState(long dbPathID, int set)
+int DbLocalCacheMng::SetDeferredState(long dbPathID, int set)
 {
 	int    ok = 0;
 	{
@@ -676,7 +676,7 @@ int FASTCALL DbLocalCacheMng::IsDeferredState(long dbPathID)
 	return result;
 }
 
-int SLAPI DbLocalCacheMng::HasDbEntry(long dbPathID)
+int DbLocalCacheMng::HasDbEntry(long dbPathID)
 {
 	int    ok = 1;
 	{
@@ -701,7 +701,7 @@ int SLAPI DbLocalCacheMng::HasDbEntry(long dbPathID)
 	}
 }
 
-int SLAPI DbLocalCacheMng::AddCache(long dbPathID, ObjCache * pCache)
+int DbLocalCacheMng::AddCache(long dbPathID, ObjCache * pCache)
 {
 	int    ok = 0;
 	if(dbPathID) {
@@ -721,7 +721,7 @@ int SLAPI DbLocalCacheMng::AddCache(long dbPathID, ObjCache * pCache)
 	return ok;
 }
 
-void * SLAPI DbLocalCacheMng::Helper_GetEntry(long dbPathID, PPID objType, int lock)
+void * DbLocalCacheMng::Helper_GetEntry(long dbPathID, PPID objType, int lock)
 {
 	void * p_entry = 0;
 	if(dbPathID) {
@@ -773,7 +773,7 @@ PPAdviseEventQueue * FASTCALL DbLocalCacheMng::GetAdviseEventQueue(long dbPathID
 	return p_queue;
 }
 
-void SLAPI ObjCacheStat::Init()
+void ObjCacheStat::Init()
 {
 	DbPathID = 0;
 	ObjType = 0;
@@ -804,7 +804,7 @@ LDATETIME FASTCALL DbLocalCacheMng::GetLastUpdate(long dbPathID)
 	return dtm;
 }
 
-int SLAPI DbLocalCacheMng::SetLastUpdate(long dbPathID, LDATETIME dtm)
+int DbLocalCacheMng::SetLastUpdate(long dbPathID, LDATETIME dtm)
 {
 	uint   pos = 0;
 	{
@@ -822,7 +822,7 @@ int SLAPI DbLocalCacheMng::SetLastUpdate(long dbPathID, LDATETIME dtm)
 	return 1;
 }
 
-int SLAPI DbLocalCacheMng::GetCacheStat(uint pos, ObjCacheStat * pStat)
+int DbLocalCacheMng::GetCacheStat(uint pos, ObjCacheStat * pStat)
 {
 	int    ok = 0;
 	{
@@ -848,7 +848,7 @@ int SLAPI DbLocalCacheMng::GetCacheStat(uint pos, ObjCacheStat * pStat)
 	return 1;
 }
 
-int SLAPI DbLocalCacheMng::LogCacheStat()
+int DbLocalCacheMng::LogCacheStat()
 {
 	if(getCount()) {
 		int    is_new_file = 1;

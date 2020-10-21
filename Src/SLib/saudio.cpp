@@ -10,7 +10,7 @@
 #include <mmdeviceapi.h>
 #include <endpointvolume.h> 
 
-int SLAPI SGetAudioVolume(int decibels, double * pVolume)
+int SGetAudioVolume(int decibels, double * pVolume)
 {
 	int    ok = 0;
 	float current_volume = 0.0f;
@@ -48,7 +48,7 @@ int SLAPI SGetAudioVolume(int decibels, double * pVolume)
 //
 // if(decibels) newVolume 
 //
-int SLAPI SSetAudioVolume(int decibels, double volume)
+int SSetAudioVolume(int decibels, double volume)
 {
 	int    ok = 1;
 	CoInitialize(NULL);
@@ -79,7 +79,7 @@ int SLAPI SSetAudioVolume(int decibels, double volume)
 
 #else
 
-int SLAPI SGetAudioVolume(int decibels, double * pVolume)
+int SGetAudioVolume(int decibels, double * pVolume)
 {
 	int    ok = 0;
 	double real_volume = 0.0;
@@ -97,7 +97,7 @@ int SLAPI SGetAudioVolume(int decibels, double * pVolume)
 	return ok;
 }
 
-int SLAPI SSetAudioVolume(int decibels, double volume)
+int SSetAudioVolume(int decibels, double volume)
 {
 	int    ok = 0;
 	WAVEOUTCAPSA woc;

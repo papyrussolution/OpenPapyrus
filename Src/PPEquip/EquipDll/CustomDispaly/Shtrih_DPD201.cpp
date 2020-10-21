@@ -13,7 +13,7 @@ public:
 	int PrintLine();
 	int Connect(); // new
 private:
-	int SLAPI ConvertStrTo850CodePage(SString & rStr);
+	int ConvertStrTo850CodePage(SString & rStr);
 };
 
 static ShtrhDpdEquip * P_ShtrhDpdDisp = 0;
@@ -106,7 +106,7 @@ int ShtrhDpdEquip::PrintLine()
 	return ok;
 }
 
-int SLAPI ShtrhDpdEquip::ConvertStrTo850CodePage(SString & rStr)
+int ShtrhDpdEquip::ConvertStrTo850CodePage(SString & rStr)
 {
 	int  ok = -1;
 	SString str;

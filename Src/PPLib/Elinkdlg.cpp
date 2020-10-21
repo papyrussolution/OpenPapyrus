@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI EditELink(PPELink * pLink)
+int EditELink(PPELink * pLink)
 {
 	class ELinkDialog : public TDialog {
 		DECL_DIALOG_DATA(PPELink);
@@ -183,7 +183,7 @@ int ELinkListDialog::delItem(long, long id)
 	return -1;
 }
 
-static int SLAPI CompareELinkKinds2(const PPELinkKind * k1, const PPELinkKind * k2)
+static int CompareELinkKinds2(const PPELinkKind * k1, const PPELinkKind * k2)
 {
 	if(k1->Type == k2->Type)
 		return stricmp866(k1->Name, k2->Name);
@@ -210,7 +210,7 @@ static IMPL_CMPFUNC(PPELinkKind, i1, i2)
 	   	return CompareELinkKinds2(k1, k2);
 }
 
-static int SLAPI OrderELinkArray(PPELinkArray * ary, SArray * kinds)
+static int OrderELinkArray(PPELinkArray * ary, SArray * kinds)
 {
 	int    ok = 1;
 	//
@@ -240,7 +240,7 @@ static int SLAPI OrderELinkArray(PPELinkArray * ary, SArray * kinds)
 	return ok;
 }
 
-int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
+int EditELinks(const char * pInfo, PPELinkArray * pList)
 {
 	static const uint SlotCount = 5;
 	class ELinkDialog : public TDialog {

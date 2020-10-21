@@ -15,22 +15,22 @@ void   FASTCALL SBrowserDataProcBlock::Set(LTIME tm) { *static_cast<LTIME *>(P_D
 //
 //
 //
-SLAPI BroGroup::BroGroup()
+BroGroup::BroGroup()
 {
 	THISZERO();
 }
 
-uint SLAPI BroGroup::NextColumn() const { return (First+Count); }
+uint BroGroup::NextColumn() const { return (First+Count); }
 //
 //
 //
-SLAPI BrowserDef::BrowserDef(int captionHight, unsigned aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
+BrowserDef::BrowserDef(int captionHight, unsigned aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
 	capHight(captionHight), options(aOptions), NumGroups(0), P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
 	ExtraPtr(extraPtr), UserProc(0), isBOQ(0), isEOQ(0)
 {
 }
 
-SLAPI BrowserDef::~BrowserDef()
+BrowserDef::~BrowserDef()
 {
 	freeAll();
 	if(P_Groups) {
@@ -52,7 +52,7 @@ BroColumn & FASTCALL BrowserDef::at(uint pos) const
 
 #pragma warn -rng // Prevent warn "Constant out of range..." at (pos == UNDEF)
 
-int SLAPI BrowserDef::addColumn(const BroColumn * pCol, int pos)
+int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 {
 	int    ok = 1;
 	if(pos == UNDEF)
@@ -96,11 +96,11 @@ int FASTCALL BrowserDef::isColInGroup(uint col, uint * pIdx) const
 	return 0;
 }
 
-/*virtual*/int SLAPI BrowserDef::insertColumn(int, const char *, uint, TYPEID, long, uint) { return 0; }
-/*virtual*/int SLAPI BrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt) { return 0; }
-int SLAPI BrowserDef::removeColumn(int pos) { return atFree(pos); }
+/*virtual*/int BrowserDef::insertColumn(int, const char *, uint, TYPEID, long, uint) { return 0; }
+/*virtual*/int BrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt) { return 0; }
+int BrowserDef::removeColumn(int pos) { return atFree(pos); }
 
-int SLAPI BrowserDef::setColumnTitle(int colN, const char * pText)
+int BrowserDef::setColumnTitle(int colN, const char * pText)
 {
 	if(colN >= 0 && colN < static_cast<int>(getCount())) {
 		BroColumn & r_column = at(colN);
@@ -112,7 +112,7 @@ int SLAPI BrowserDef::setColumnTitle(int colN, const char * pText)
 		return 0;
 }
 
-void SLAPI BrowserDef::initOffset(int pos)
+void BrowserDef::initOffset(int pos)
 {
 	BroColumn & r_column = at(pos);
 	if(r_column.Offs == UNDEF)
@@ -124,7 +124,7 @@ void SLAPI BrowserDef::initOffset(int pos)
 			r_column.Offs = 0;
 }
 
-int SLAPI BrowserDef::addGroup(BroGroup * pGroup)
+int BrowserDef::addGroup(BroGroup * pGroup)
 {
 	int    ok = 1;
 	if(pGroup) {
@@ -141,17 +141,17 @@ int SLAPI BrowserDef::addGroup(BroGroup * pGroup)
 	return ok;
 }
 
-int SLAPI BrowserDef::AddCrosstab(BroCrosstab * pCt)
+int BrowserDef::AddCrosstab(BroCrosstab * pCt)
 {
 	return SETIFZ(P_CtList, new SArray(sizeof(BroCrosstab))) ? P_CtList->insert(pCt) : 0;
 }
 
-uint  SLAPI BrowserDef::GetCrosstabCount() const
+uint  BrowserDef::GetCrosstabCount() const
 	{ return SVectorBase::GetCount(P_CtList); }
-const BroCrosstab * SLAPI BrowserDef::GetCrosstab(uint ctN) const
+const BroCrosstab * BrowserDef::GetCrosstab(uint ctN) const
 	{ return (P_CtList && ctN < P_CtList->getCount()) ? static_cast<const BroCrosstab *>(P_CtList->at(ctN)) : 0; }
 
-int SLAPI BrowserDef::FreeAllCrosstab()
+int BrowserDef::FreeAllCrosstab()
 {
 	if(P_CtList) {
 		for(uint i = 0; i < P_CtList->getCount(); i++)
@@ -163,29 +163,29 @@ int SLAPI BrowserDef::FreeAllCrosstab()
 		return -1;
 }
 
-void SLAPI BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
+void BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	ASSIGN_PTR(pScrollDelta, scrollDelta);
 	ASSIGN_PTR(pScrollPos, curItem);
 }
 
-int    SLAPI BrowserDef::GetCapHeight() const { return capHight; }
-void   SLAPI BrowserDef::VerifyCapHeight() { capHight = MIN(2, capHight); }
-uint   SLAPI BrowserDef::GetGroupCount() const { return NumGroups; }
+int    BrowserDef::GetCapHeight() const { return capHight; }
+void   BrowserDef::VerifyCapHeight() { capHight = MIN(2, capHight); }
+uint   BrowserDef::GetGroupCount() const { return NumGroups; }
 const  BroGroup * FASTCALL BrowserDef::GetGroup(uint grpN) const { return (grpN < NumGroups) ? (P_Groups+grpN) : 0; }
 
-void SLAPI BrowserDef::ClearGroupIndexies()
+void BrowserDef::ClearGroupIndexies()
 {
 	for(uint i = 0; i < NumGroups; i++)
 		P_Groups[i].Index = 0;
 }
 
-uint * SLAPI BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
-int    SLAPI BrowserDef::IsBOQ() const { return isBOQ; }
-int    SLAPI BrowserDef::IsEOQ() const { return isEOQ; }
-int    SLAPI BrowserDef::CheckFlag(uint f) const { return BIN(options & f); }
+uint * BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
+int    BrowserDef::IsBOQ() const { return isBOQ; }
+int    BrowserDef::IsEOQ() const { return isEOQ; }
+int    BrowserDef::CheckFlag(uint f) const { return BIN(options & f); }
 
-void SLAPI BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
+void BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 {
 	UserProc = proc;
 	ExtraPtr = extraPtr;
@@ -197,7 +197,7 @@ void SLAPI BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 		delete static_cast<BroColumn *>(pItem)->text;
 }
 
-const BroGroup * SLAPI BrowserDef::groupOf(uint column, uint * pGrpPos) const
+const BroGroup * BrowserDef::groupOf(uint column, uint * pGrpPos) const
 {
 	for(uint i = 0; i < NumGroups; i++) {
 		BroGroup * p_gr = P_Groups + i;
@@ -210,7 +210,7 @@ const BroGroup * SLAPI BrowserDef::groupOf(uint column, uint * pGrpPos) const
 	return 0;
 }
 
-uint SLAPI BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
+uint BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 {
 	int    _n = 0, wd = 0;
 	for(uint i = atColumn, c = pGroup->NextColumn(); i < c; i++) {
@@ -221,10 +221,10 @@ uint SLAPI BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 	return wd;
 }
 
-uint SLAPI BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
-void SLAPI BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
+uint BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
+void BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
 
-int SLAPI BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
+int BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
 {
 	int    ok = 0;
 	const char * p_src_data = static_cast<const char *>(pRow);
@@ -257,12 +257,12 @@ int SLAPI BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType,
 	return ok;
 }
 
-int SLAPI BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
+int BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
 {
 	return GetCellData(getRow(row), column, pType, pDataBuf, dataBufLen);
 }
 
-char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
+char * BrowserDef::getText(long row, int column, char * pBuf)
 {
 	if(pBuf) {
 		*pBuf = 0;
@@ -300,7 +300,7 @@ char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
 	return pBuf;
 }
 
-SString & SLAPI BrowserDef::getFullText(const void * pRowData, int column, SString & rBuf)
+SString & BrowserDef::getFullText(const void * pRowData, int column, SString & rBuf)
 {
 	rBuf.Z();
 	if(pRowData && column >= 0 && column < static_cast<int>(getCount())) {
@@ -341,7 +341,7 @@ SString & SLAPI BrowserDef::getFullText(const void * pRowData, int column, SStri
 	return rBuf;
 }
 
-SString & SLAPI BrowserDef::getFullText(long row, int column, SString & rBuf)
+SString & BrowserDef::getFullText(long row, int column, SString & rBuf)
 {
 	return getFullText(getRow(row), column, rBuf);
 }
@@ -409,7 +409,7 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 	}
 }
 
-char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint heightMult, uint * pCalcHeight)
+char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint heightMult, uint * pCalcHeight)
 {
 	char   ptr[4096]; // @v9.0.5 [256]-->[1024] // @v10.7.7 [1024]-->[4096]
 	char   buf[4096]; // @v10.7.7 [1024]-->[4096]
@@ -466,7 +466,7 @@ char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, ui
 	return strnzcpy(pBuf, buf, 0);
 }
 
-/* @v10.6.3 (unused) int SLAPI BrowserDef::setText(long row, int column, const char * b)
+/* @v10.6.3 (unused) int BrowserDef::setText(long row, int column, const char * b)
 {
 	int    ok = 1;
 	if(column >= 0 && column < static_cast<int>(getCount())) {
@@ -517,7 +517,7 @@ int FASTCALL BrowserDef::go(long row)
 	return 0;
 }
 
-int SLAPI BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_t offs)
+int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_t offs)
 {
 	int    found = 0;
 	if(data) {
@@ -532,17 +532,17 @@ int SLAPI BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode,
 	return found;
 }
 
-int    SLAPI BrowserDef::valid() { return 1; }
+int    BrowserDef::valid() { return 1; }
 int    FASTCALL BrowserDef::step(long delta) { return go(curItem + delta); }
-int    SLAPI BrowserDef::top() { return go(0); }
-int    SLAPI BrowserDef::bottom() { return go(getRecsCount() - 1); }
-long   SLAPI BrowserDef::getRecsCount() { return 0; }
+int    BrowserDef::top() { return go(0); }
+int    BrowserDef::bottom() { return go(getRecsCount() - 1); }
+long   BrowserDef::getRecsCount() { return 0; }
 const  void * FASTCALL BrowserDef::getRow(long) const { return 0; }
-int    SLAPI BrowserDef::refresh() { return 1; }
+int    BrowserDef::refresh() { return 1; }
 // @v10.9.0 int    FASTCALL BrowserDef::setData(void *) { return 1; }
 // @v10.9.0 int    FASTCALL BrowserDef::getData(void *) { return 1; }
 
-int SLAPI BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, int srchCol)
+int BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, int srchCol)
 {
 	char   str[256];
 	const  char * p = static_cast<const char *>(pPattern);
@@ -562,20 +562,20 @@ int SLAPI BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMo
 //
 //
 //
-SLAPI AryBrowserDef::AryBrowserDef(SArray * pAry, const BNFieldList * pFl, int captionHight, uint aOptions, void * extraPtr /*=0*/) :
+AryBrowserDef::AryBrowserDef(SArray * pAry, const BNFieldList * pFl, int captionHight, uint aOptions, void * extraPtr /*=0*/) :
 	BrowserDef(captionHight, aOptions, extraPtr), P_Array(0), P_Fields(0)
 {
 	setArray(pAry, pFl, 1);
 }
 
-SLAPI AryBrowserDef::~AryBrowserDef()
+AryBrowserDef::~AryBrowserDef()
 {
 	delete P_Fields;
 	if(P_Array && (options & BRO_OWNER))
 		delete P_Array;
 }
 
-int SLAPI AryBrowserDef::setArray(SArray * pAry, const BNFieldList * pFl, int setupPosition /*= 1*/)
+int AryBrowserDef::setArray(SArray * pAry, const BNFieldList * pFl, int setupPosition /*= 1*/)
 {
 	int    ok = 1;
 	ZDELETE(P_Fields);
@@ -592,17 +592,17 @@ int SLAPI AryBrowserDef::setArray(SArray * pAry, const BNFieldList * pFl, int se
 	return ok;
 }
 
-const SArray * SLAPI AryBrowserDef::getArray() const
+const SArray * AryBrowserDef::getArray() const
 {
 	return P_Array;
 }
 
-int SLAPI AryBrowserDef::valid()
+int AryBrowserDef::valid()
 {
 	return (P_Array != 0);
 }
 
-/*virtual*/int SLAPI AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
+/*virtual*/int AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
 	BroColumn c;
 	c.OrgOffs = fldNo;
@@ -626,7 +626,7 @@ int SLAPI AryBrowserDef::valid()
 		return 0;
 }
 
-long SLAPI AryBrowserDef::getRecsCount()
+long AryBrowserDef::getRecsCount()
 {
 	//return (long)(P_Array ? P_Array->getCount() : 0);
 	return static_cast<long>(SVectorBase::GetCount(P_Array));

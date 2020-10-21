@@ -20,6 +20,6 @@
 #ifndef OUTPUT_H_
 #define OUTPUT_H_
 
-void output(void); /* Output the parsing tables and the parser code to FTABLE.  */
+void output(); /* Output the parsing tables and the parser code to FTABLE.  */
 
 #endif /* !OUTPUT_H_ */

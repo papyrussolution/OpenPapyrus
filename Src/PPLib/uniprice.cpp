@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(PrcssrUnifyPrice); SLAPI PrcssrUnifyPriceFilt::PrcssrUnifyPriceFilt() : PPBaseFilt(PPFILT_PRCSSRUNIFYPRICEPARAM, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrcssrUnifyPrice); PrcssrUnifyPriceFilt::PrcssrUnifyPriceFilt() : PPBaseFilt(PPFILT_PRCSSRUNIFYPRICEPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrUnifyPriceFilt, ReserveStart),
 		offsetof(PrcssrUnifyPriceFilt, ReserveEnd)-offsetof(PrcssrUnifyPriceFilt, ReserveStart)+sizeof(ReserveEnd));
@@ -14,7 +14,7 @@ IMPLEMENT_PPFILT_FACTORY(PrcssrUnifyPrice); SLAPI PrcssrUnifyPriceFilt::PrcssrUn
 	Mode = mLastLot;
 }
 
-int SLAPI PrcssrUnifyPriceFilt::Setup(int _costReval, PPID _loc, PPID _suppl)
+int PrcssrUnifyPriceFilt::Setup(int _costReval, PPID _loc, PPID _suppl)
 {
 	int    ok = 1;
 	Init(1, 0);
@@ -41,14 +41,14 @@ int SLAPI PrcssrUnifyPriceFilt::Setup(int _costReval, PPID _loc, PPID _suppl)
 	return ok;
 }
 
-int SLAPI PrcssrUnifyPriceFilt::IsCostBase() const
+int PrcssrUnifyPriceFilt::IsCostBase() const
 {
 	return BIN(Flags & fCostBase && PctVal != 0.0);
 }
 //
 //
 //
-static int SLAPI GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec * pGoodsRec, double * pNewPrice)
+static int GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec * pGoodsRec, double * pNewPrice)
 {
 	class NewPriceDialog : public TDialog {
 	public:
@@ -102,11 +102,11 @@ static int SLAPI GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec
 	return r;
 }
 
-SLAPI PrcssrUnifyPrice::PrcssrUnifyPrice() : P_BObj(BillObj)
+PrcssrUnifyPrice::PrcssrUnifyPrice() : P_BObj(BillObj)
 {
 }
 
-int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
+int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 {
 	class UnifyPriceDialog : public TDialog {
 		DECL_DIALOG_DATA(PrcssrUnifyPriceFilt);
@@ -236,12 +236,12 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 	DIALOG_PROC_BODY_P1(UnifyPriceDialog, pParam->CostReval ? DLG_UNICOST : DLG_UNIPRICE, pParam);
 }
 
-int SLAPI PrcssrUnifyPrice::InitBillPack()
+int PrcssrUnifyPrice::InitBillPack()
 {
 	return BPack.CreateBlank(P.OpKindID, 0, P.LocID, 1) ? ((BPack.Rec.LocID = P.LocID), 1) : 0;
 }
 
-int SLAPI PrcssrUnifyPrice::TurnBillPack()
+int PrcssrUnifyPrice::TurnBillPack()
 {
 	int    ok = 1;
 	if(BPack.GetTCount()) {
@@ -260,7 +260,7 @@ int SLAPI PrcssrUnifyPrice::TurnBillPack()
 
 #if 0 // {
 
-int SLAPI PrcssrUnifyPrice::ProcessGoods(const Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID)
+int PrcssrUnifyPrice::ProcessGoods(const Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID)
 {
 	int    ok = 1, r;
 	uint   i;
@@ -342,7 +342,7 @@ int SLAPI PrcssrUnifyPrice::ProcessGoods(const Goods2Tbl::Rec * pGoodsRec, PPID 
 
 #endif // } 0
 
-double SLAPI PrcssrUnifyPriceFilt::CalcPrice(double cost, double price) const
+double PrcssrUnifyPriceFilt::CalcPrice(double cost, double price) const
 {
 	double base_price = price;
 	if(!QuotKindID) {
@@ -356,7 +356,7 @@ double SLAPI PrcssrUnifyPriceFilt::CalcPrice(double cost, double price) const
 	return base_price;
 }
 
-int SLAPI PrcssrUnifyPrice::CalcNewPrice(const ReceiptTbl::Rec & rLotRec, double * pPrice)
+int PrcssrUnifyPrice::CalcNewPrice(const ReceiptTbl::Rec & rLotRec, double * pPrice)
 {
 	int    ok = 1;
 	double new_price = 0.0;
@@ -382,7 +382,7 @@ int SLAPI PrcssrUnifyPrice::CalcNewPrice(const ReceiptTbl::Rec & rLotRec, double
 	return ok ? (dbl_cmp(price, new_price) ? 1 : -1) : 0;
 }
 
-int SLAPI PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID)
+int PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID * pTurnedBillID)
 {
 	int    ok = 1, r;
 	LotArray lot_list, unify_lot_list;
@@ -487,7 +487,7 @@ int SLAPI PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID
 	return ok;
 }
 
-int SLAPI PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
+int PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 {
 	int    ok = 1;
 	uint   i;
@@ -532,7 +532,7 @@ int SLAPI PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 //
 //
 //
-int SLAPI UnifyGoodsPrice()
+int UnifyGoodsPrice()
 {
 	int    ok = -1;
 	PrcssrUnifyPriceFilt param;

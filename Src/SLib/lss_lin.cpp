@@ -20,12 +20,12 @@
 //   variance-covariance matrix estimates the error in the coefficients
 //   from the observed variance of the points around the best fit line.
 //
-SLAPI LssLin::LssLin()
+LssLin::LssLin()
 {
 	THISZERO();
 }
 
-void SLAPI LssLin::Solve(const LVect & x, const LVect & y)
+void LssLin::Solve(const LVect & x, const LVect & y)
 {
 	THISZERO();
 	if(x.size() == y.size()) {
@@ -73,7 +73,7 @@ void SLAPI LssLin::Solve(const LVect & x, const LVect & y)
 	}
 }
 
-void SLAPI LssLin::Solve_Simple(uint count, const double * pX, const double * pY)
+void LssLin::Solve_Simple(uint count, const double * pX, const double * pY)
 {
 	THISZERO();
 	if(count > 2) {
@@ -127,7 +127,7 @@ void SLAPI LssLin::Solve_Simple(uint count, const double * pX, const double * pY
 #define INSTRSET 7 // AVX
 #include <..\osf\vectorclass\V1\vectorclass.h>
 
-void SLAPI LssLin::Solve_SSE(uint count, const double * pX, const double * pY)
+void LssLin::Solve_SSE(uint count, const double * pX, const double * pY)
 {
 	THISZERO();
 	if(count > 2) {
@@ -236,7 +236,7 @@ void SLAPI LssLin::Solve_SSE(uint count, const double * pX, const double * pY)
 #endif // } 0
 #endif // } (_MSC_VER >= 1910)
 
-void SLAPI LssLin::Solve(uint count, const double * pX, const double * pY)
+void LssLin::Solve(uint count, const double * pX, const double * pY)
 {
 	/*#if (_MSC_VER >= 1910)
 		Solve_SSE(count, pX, pY);
@@ -246,7 +246,7 @@ void SLAPI LssLin::Solve(uint count, const double * pX, const double * pY)
 	Solve_Simple(count, pX, pY);
 }
 
-double SLAPI LssLin::Estimation(double x, double * pYErr) const
+double LssLin::Estimation(double x, double * pYErr) const
 {
 	const double y = A + B * x;
 	if(pYErr)
@@ -260,7 +260,7 @@ double SLAPI LssLin::Estimation(double x, double * pYErr) const
 
 #ifdef LSS_LIN_TEST // {
 
-int SLAPI LssTest(const char * pFileName)
+int LssTest(const char * pFileName)
 {
 	const LDATE start_date = encodedate(1, 1, 2000);
 	FILE * f_in = fopen(pFileName, "r");

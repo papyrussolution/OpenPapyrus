@@ -12,24 +12,24 @@
 
 class AtolCardIntrf {
 public:
-	SLAPI  AtolCardIntrf();
-	SLAPI ~AtolCardIntrf();
-	int    SLAPI InitIntrf();
-	int    SLAPI ACStartTransaction();
-	int    SLAPI ACEndTransaction();
-	int    SLAPI ACCancelTransaction();
-	int    SLAPI ACOpenTable(const char * pTableName);
-	int    SLAPI ACCloseTable();
-	int    SLAPI ACClearTable(const char * pTableName);
-	int    SLAPI ACNewRecord();
-	int    SLAPI ACPut(int fieldNo, long value);
-	int    SLAPI ACPut(int fieldNo, const char * pStr);
-	int    SLAPI ACInsert(PPID * pID = 0);
-	int    SLAPI ACGetIDsAry(const char * pTableName, int fieldNo, LAssocArray * pAry);
+	AtolCardIntrf();
+	~AtolCardIntrf();
+	int    InitIntrf();
+	int    ACStartTransaction();
+	int    ACEndTransaction();
+	int    ACCancelTransaction();
+	int    ACOpenTable(const char * pTableName);
+	int    ACCloseTable();
+	int    ACClearTable(const char * pTableName);
+	int    ACNewRecord();
+	int    ACPut(int fieldNo, long value);
+	int    ACPut(int fieldNo, const char * pStr);
+	int    ACInsert(PPID * pID = 0);
+	int    ACGetIDsAry(const char * pTableName, int fieldNo, LAssocArray * pAry);
 private:
-	int    SLAPI CheckForOperCount();
-	int    SLAPI ExecAtolOper(PPID id);
-	int    SLAPI SetErrorMessage();
+	int    CheckForOperCount();
+	int    ExecAtolOper(PPID id);
+	int    SetErrorMessage();
 	enum {
 		ResultCode,
 		ResultDescription,
@@ -58,7 +58,7 @@ private:
 	int    OperCount;
 };
 
-SLAPI AtolCardIntrf::AtolCardIntrf()
+AtolCardIntrf::AtolCardIntrf()
 {
 	P_DispIntrf   = 0;
 	ResCode       = 0;
@@ -67,7 +67,7 @@ SLAPI AtolCardIntrf::AtolCardIntrf()
 	OperCount     = 0;
 }
 
-SLAPI AtolCardIntrf::~AtolCardIntrf()
+AtolCardIntrf::~AtolCardIntrf()
 {
 	if(P_DispIntrf) {
 		P_DispIntrf->SetProperty(Active, FALSE);
@@ -75,7 +75,7 @@ SLAPI AtolCardIntrf::~AtolCardIntrf()
 	}
 }
 
-int SLAPI AtolCardIntrf::InitIntrf()
+int AtolCardIntrf::InitIntrf()
 {
 	int    ok = 1;
 	THROW_MEM(P_DispIntrf = new ComDispInterface);
@@ -108,7 +108,7 @@ int SLAPI AtolCardIntrf::InitIntrf()
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACStartTransaction()
+int AtolCardIntrf::ACStartTransaction()
 {
 	int    ok = -1;
 	if(!IsStartedTransaction) {
@@ -121,7 +121,7 @@ int SLAPI AtolCardIntrf::ACStartTransaction()
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACEndTransaction()
+int AtolCardIntrf::ACEndTransaction()
 {
 	int    ok = -1;
 	if(IsStartedTransaction) {
@@ -134,7 +134,7 @@ int SLAPI AtolCardIntrf::ACEndTransaction()
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACCancelTransaction()
+int AtolCardIntrf::ACCancelTransaction()
 {
 	int    ok = -1;
 	THROW(ACCloseTable());
@@ -148,7 +148,7 @@ int SLAPI AtolCardIntrf::ACCancelTransaction()
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACOpenTable(const char * pTableName)
+int AtolCardIntrf::ACOpenTable(const char * pTableName)
 {
 	int    ok = 1;
 	THROW(P_DispIntrf->SetProperty(TableName, pTableName));
@@ -158,7 +158,7 @@ int SLAPI AtolCardIntrf::ACOpenTable(const char * pTableName)
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACCloseTable()
+int AtolCardIntrf::ACCloseTable()
 {
 	int    ok = -1;
 	if(IsOpenedTable) {
@@ -171,7 +171,7 @@ int SLAPI AtolCardIntrf::ACCloseTable()
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACClearTable(const char * pTableName)
+int AtolCardIntrf::ACClearTable(const char * pTableName)
 {
 	int    ok = 1;
 	long   numrec = 0;
@@ -186,7 +186,7 @@ int SLAPI AtolCardIntrf::ACClearTable(const char * pTableName)
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACNewRecord()
+int AtolCardIntrf::ACNewRecord()
 {
 	int    ok = 1;
 	THROW(ExecAtolOper(AddRecord));
@@ -195,7 +195,7 @@ int SLAPI AtolCardIntrf::ACNewRecord()
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACPut(int fieldNo, long value)
+int AtolCardIntrf::ACPut(int fieldNo, long value)
 {
 	int    ok = 1;
 	THROW(P_DispIntrf->SetProperty(FieldIndex, fieldNo));
@@ -204,7 +204,7 @@ int SLAPI AtolCardIntrf::ACPut(int fieldNo, long value)
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACPut(int fieldNo, const char * pStr)
+int AtolCardIntrf::ACPut(int fieldNo, const char * pStr)
 {
 	int    ok = 1;
 	THROW(P_DispIntrf->SetProperty(FieldIndex, fieldNo));
@@ -213,7 +213,7 @@ int SLAPI AtolCardIntrf::ACPut(int fieldNo, const char * pStr)
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACInsert(PPID * pID)
+int AtolCardIntrf::ACInsert(PPID * pID)
 {
 	int    ok = 1;
 	long   id = 0;
@@ -226,7 +226,7 @@ int SLAPI AtolCardIntrf::ACInsert(PPID * pID)
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ACGetIDsAry(const char * pTableName, int fieldNo, LAssocArray * pAry)
+int AtolCardIntrf::ACGetIDsAry(const char * pTableName, int fieldNo, LAssocArray * pAry)
 {
 	int    ok = 1;
 	if(pAry) {
@@ -247,7 +247,7 @@ int SLAPI AtolCardIntrf::ACGetIDsAry(const char * pTableName, int fieldNo, LAsso
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::CheckForOperCount()
+int AtolCardIntrf::CheckForOperCount()
 {
 	int    ok = 1;
 	char   table_name[32];
@@ -262,12 +262,12 @@ int SLAPI AtolCardIntrf::CheckForOperCount()
 	return ok;
 }
 
-int SLAPI AtolCardIntrf::ExecAtolOper(PPID id)
+int AtolCardIntrf::ExecAtolOper(PPID id)
 {
 	return P_DispIntrf->CallMethod(id) ? 1 : (SetErrorMessage(), 0);
 }
 
-int SLAPI AtolCardIntrf::SetErrorMessage()
+int AtolCardIntrf::SetErrorMessage()
 {
 	int    ok = -1;
 	char   err_buf[MAXPATH];
@@ -310,17 +310,17 @@ int SLAPI AtolCardIntrf::SetErrorMessage()
 
 class ACS_ATOL : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_ATOL(PPID id);
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
-	virtual int SLAPI FinishImportSession(PPIDArray *);  // @v6.0.5 VADIM
-	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly); // @v5.3.6 VADIM
+	ACS_ATOL(PPID id);
+	virtual int ExportData(int updOnly);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
+	virtual int FinishImportSession(PPIDArray *);  // @v6.0.5 VADIM
+	virtual int SetGoodsRestLoadFlag(int updOnly); // @v5.3.6 VADIM
 protected:
-	virtual int SLAPI ExportSCard(FILE * pFile, int updOnly);
+	virtual int ExportSCard(FILE * pFile, int updOnly);
 	int    UseInnerAutoDscnt; // @v5.4.12 VADIM
 private:
-	int    SLAPI ConvertWareList(const char * pImpPath, const char * pExpPath);
+	int    ConvertWareList(const char * pImpPath, const char * pExpPath);
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
 	PPIDArray SessAry; // @v6.0.5 VADIM
@@ -338,35 +338,35 @@ private:
 
 class CM_ATOL : public PPCashMachine {
 public:
-	SLAPI CM_ATOL(PPID cashID) : PPCashMachine(cashID) {}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_ATOL(NodeID); }
+	CM_ATOL(PPID cashID) : PPCashMachine(cashID) {}
+	PPAsyncCashSession * AsyncInterface() { return new ACS_ATOL(NodeID); }
 };
 
 REGISTER_CMT(ATOL,0,1);
 
 class ACS_ATOLWOATOLCARD : public ACS_ATOL {
 public:
-	SLAPI  ACS_ATOLWOATOLCARD(PPID id);
+	ACS_ATOLWOATOLCARD(PPID id);
 private:
-	virtual int SLAPI ExportSCard(FILE * pFile, int updOnly);
+	virtual int ExportSCard(FILE * pFile, int updOnly);
 };
 
 class CM_ATOLWOATOLCARD : public PPCashMachine {
 public:
-	SLAPI CM_ATOLWOATOLCARD(PPID cashID) : PPCashMachine(cashID)
+	CM_ATOLWOATOLCARD(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_ATOLWOATOLCARD(NodeID); }
+	PPAsyncCashSession * AsyncInterface() { return new ACS_ATOLWOATOLCARD(NodeID); }
 };
 
 REGISTER_CMT(ATOLWOATOLCARD,0,1);
 
-SLAPI ACS_ATOLWOATOLCARD::ACS_ATOLWOATOLCARD(PPID id) : ACS_ATOL(id)
+ACS_ATOLWOATOLCARD::ACS_ATOLWOATOLCARD(PPID id) : ACS_ATOL(id)
 {
 	UseInnerAutoDscnt = 1;
 }
 
-int SLAPI ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
+int ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 {
 	int    ok = -1;
 	if(pFile) {
@@ -431,7 +431,7 @@ int SLAPI ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 	return ok;
 }
 
-SLAPI ACS_ATOL::ACS_ATOL(PPID id) : PPAsyncCashSession(id)
+ACS_ATOL::ACS_ATOL(PPID id) : PPAsyncCashSession(id)
 {
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ATOL_TIMEOUT, &ImpExpTimeout);
@@ -440,7 +440,7 @@ SLAPI ACS_ATOL::ACS_ATOL(PPID id) : PPAsyncCashSession(id)
 	ChkRepPeriod.Z();
 }
 
-int SLAPI ACS_ATOL::ExportSCard(FILE *, int)
+int ACS_ATOL::ExportSCard(FILE *, int)
 {
 	int   ok = 1, r;
 	AtolCardIntrf ac_intrf;
@@ -540,7 +540,7 @@ int SLAPI ACS_ATOL::ExportSCard(FILE *, int)
 	return ok;
 }
 
-int SLAPI ACS_ATOL::SetGoodsRestLoadFlag(int updOnly)
+int ACS_ATOL::SetGoodsRestLoadFlag(int updOnly)
 {
 	int    ok = -1, use_replace_qtty_wosale = 0;
 	PPIniFile  ini_file;
@@ -554,7 +554,7 @@ int SLAPI ACS_ATOL::SetGoodsRestLoadFlag(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_ATOL::ExportData(int updOnly)
+int ACS_ATOL::ExportData(int updOnly)
 {
 	int    ok = 1, next_barcode = 0;
 	//char   load_symb = '$';
@@ -715,7 +715,7 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -796,7 +796,7 @@ int SLAPI ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 	return ok;
 }
 
-int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
+int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 {
 	int    ok = 1, ta = 0, field_no;
 	uint   pos;
@@ -1089,7 +1089,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 	return ok;
 }
 
-int SLAPI ACS_ATOL::ImportSession(int)
+int ACS_ATOL::ImportSession(int)
 {
 	int    ok = 1, notify_timeout = ImpExpTimeout ? ImpExpTimeout : 5000;
 	uint   set_no = 0;
@@ -1148,7 +1148,7 @@ int SLAPI ACS_ATOL::ImportSession(int)
 	return ok;
 }
 
-int SLAPI ACS_ATOL::FinishImportSession(PPIDArray * pSessList)
+int ACS_ATOL::FinishImportSession(PPIDArray * pSessList)
 {
 	return pSessList->addUnique(&SessAry);
 }

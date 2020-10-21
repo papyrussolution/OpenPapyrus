@@ -20,6 +20,6 @@
 #ifndef LR0_H_
 #define LR0_H_
 
-void generate_states(void);
+void generate_states();
 
 #endif /* !LR0_H_ */

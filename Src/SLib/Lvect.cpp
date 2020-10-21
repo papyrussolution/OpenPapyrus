@@ -8,17 +8,17 @@
 //
 //
 //
-SLAPI LMatrix::LMatrix() : P_Name(0), NumRows(0), NumCols(0), Flags(0), P_Vals(0)
+LMatrix::LMatrix() : P_Name(0), NumRows(0), NumCols(0), Flags(0), P_Vals(0)
 {
 }
 
-SLAPI LMatrix::~LMatrix()
+LMatrix::~LMatrix()
 {
 	delete P_Vals;
 	delete P_Name;
 }
 
-int SLAPI LMatrix::init(LMIDX numRows, LMIDX numCols)
+int LMatrix::init(LMIDX numRows, LMIDX numCols)
 {
 	NumRows = numRows;
 	NumCols = numCols;
@@ -48,24 +48,24 @@ void FASTCALL LMatrix::setname(const char * pName)
 	P_Name = newStr(pName);
 }
 
-int SLAPI LMatrix::checktarget(LMIDX row, LMIDX col) const
+int LMatrix::checktarget(LMIDX row, LMIDX col) const
 {
 	assert(row >= 0 && row < NumRows);
 	assert(col >= 0 && col < NumCols);
 	return (checkirange(row, 0, NumRows-1) && checkirange(col, 0, NumCols-1)) ? 1 : 0;
 }
 
-double * SLAPI LMatrix::sget(LMIDX row, LMIDX col) const
+double * LMatrix::sget(LMIDX row, LMIDX col) const
 {
 	return &P_Vals[(size_t)(col * NumRows + row)];
 }
 
-double SLAPI LMatrix::get(LMIDX row, LMIDX col) const
+double LMatrix::get(LMIDX row, LMIDX col) const
 {
 	return P_Vals && checktarget(row, col) ? *sget(row, col) : 0L;
 }
 
-LVect * SLAPI LMatrix::getrow(LMIDX r) const
+LVect * LMatrix::getrow(LMIDX r) const
 {
 	LVect * p_x = 0;
 	if(checktarget(r, 0) && (p_x = new LVect) != 0 && p_x->init(NumCols))
@@ -76,7 +76,7 @@ LVect * SLAPI LMatrix::getrow(LMIDX r) const
 	return p_x;
 }
 
-LVect * SLAPI LMatrix::getcol(LMIDX c) const
+LVect * LMatrix::getcol(LMIDX c) const
 {
 	LVect * p_x = 0;
 	if(!checktarget(0, c) || !(p_x = new LVect) || !p_x->init(NumRows, P_Vals+(size_t)(c*NumRows)))
@@ -84,7 +84,7 @@ LVect * SLAPI LMatrix::getcol(LMIDX c) const
 	return p_x;
 }
 
-int SLAPI LMatrix::set(LMIDX row, LMIDX col, double val)
+int LMatrix::set(LMIDX row, LMIDX col, double val)
 {
 	if(checktarget(row, col)) {
 		*sget(row, col) = val;
@@ -94,7 +94,7 @@ int SLAPI LMatrix::set(LMIDX row, LMIDX col, double val)
 		return 0;
 }
 
-int SLAPI LMatrix::setrow(LMIDX row, const LVect & rVect)
+int LMatrix::setrow(LMIDX row, const LVect & rVect)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -107,7 +107,7 @@ int SLAPI LMatrix::setrow(LMIDX row, const LVect & rVect)
 	return ok;
 }
 
-int SLAPI LMatrix::setcol(LMIDX col, const LVect & rVect)
+int LMatrix::setcol(LMIDX col, const LVect & rVect)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -118,7 +118,7 @@ int SLAPI LMatrix::setcol(LMIDX col, const LVect & rVect)
 	return ok;
 }
 
-void SLAPI LMatrix::zero(LMIDX row, LMIDX col)
+void LMatrix::zero(LMIDX row, LMIDX col)
 {
 	if(P_Vals)
 		if(row < 0)
@@ -137,7 +137,7 @@ void SLAPI LMatrix::zero(LMIDX row, LMIDX col)
 				set(row, col, 0L);
 }
 
-void SLAPI LMatrix::swaprows(LMIDX r1, LMIDX r2)
+void LMatrix::swaprows(LMIDX r1, LMIDX r2)
 {
 	if(r1 != r2)
 		for(LMIDX i = 0; i < NumCols; i++) {
@@ -147,7 +147,7 @@ void SLAPI LMatrix::swaprows(LMIDX r1, LMIDX r2)
 		}
 }
 
-int SLAPI LMatrix::add(const LMatrix & s, int minus)
+int LMatrix::add(const LMatrix & s, int minus)
 {
 	if(cols() != s.cols() || rows() != s.rows())
 		return (SLibError = SLERR_MTX_INCOMPATDIM_MMADD, 0);
@@ -173,21 +173,21 @@ int FASTCALL LMatrix::operator -= (const LMatrix & s)
 //
 //
 //
-SLAPI LVect::LVect() : Dim(0), P_Vals(0)/*, P_Name(0)*/
+LVect::LVect() : Dim(0), P_Vals(0)/*, P_Name(0)*/
 {
 }
 
-SLAPI LVect::LVect(LMIDX dim) : Dim(0), P_Vals(0)
+LVect::LVect(LMIDX dim) : Dim(0), P_Vals(0)
 {
 	init(dim, 0);
 }
 
-SLAPI LVect::~LVect()
+LVect::~LVect()
 {
 	delete [] P_Vals;
 }
 
-int SLAPI LVect::init(LMIDX dim, const double * pVals)
+int LVect::init(LMIDX dim, const double * pVals)
 {
 	ZDELETE(P_Vals);
 	Dim = dim;
@@ -217,12 +217,12 @@ double FASTCALL LVect::get(LMIDX p) const
 	return checkupper((uint)p, (uint)Dim) ? P_Vals[p] : 0;
 }
 
-int SLAPI LVect::set(LMIDX p, double v)
+int LVect::set(LMIDX p, double v)
 {
 	return checkupper((uint)p, (uint)Dim) ? ((P_Vals[p] = v), 1) : 0;
 }
 
-void SLAPI LVect::FillWithSequence(double startVal, double incr)
+void LVect::FillWithSequence(double startVal, double incr)
 {
 	double value = startVal;
 	for(LMIDX i = 0; i < Dim; i++) {
@@ -231,7 +231,7 @@ void SLAPI LVect::FillWithSequence(double startVal, double incr)
 	}
 }
 
-int SLAPI LVect::zero(LMIDX p)
+int LVect::zero(LMIDX p)
 {
 	if(p < 0) {
 		memzero(P_Vals, Dim * sizeof(double));
@@ -241,21 +241,21 @@ int SLAPI LVect::zero(LMIDX p)
 		return set(p, 0);
 }
 
-void SLAPI LVect::mult(double v)
+void LVect::mult(double v)
 {
 	if(P_Vals)
 		for(LMIDX i = 0; i < Dim; i++)
 			P_Vals[i] *= v;
 }
 
-void SLAPI LVect::div(double v)
+void LVect::div(double v)
 {
 	if(P_Vals)
 		for(LMIDX i = 0; i < Dim; i++)
 			P_Vals[i] /= v;
 }
 
-int SLAPI LVect::add(const LVect & v)
+int LVect::add(const LVect & v)
 {
 	if(size() != v.size())
 		return (SLibError = SLERR_MTX_INCOMPATDIM_VADD, 0);
@@ -267,7 +267,7 @@ int SLAPI LVect::add(const LVect & v)
 	}
 }
 
-double SLAPI LVect::dot(const LVect & s) const // return this * s (scalar)
+double LVect::dot(const LVect & s) const // return this * s (scalar)
 {
 	double r = 0;
 	if(P_Vals && s.P_Vals) {
@@ -278,7 +278,7 @@ double SLAPI LVect::dot(const LVect & s) const // return this * s (scalar)
 	return r;
 }
 
-void SLAPI LVect::saxpy(double a, const LVect & y) // this = this * a + y
+void LVect::saxpy(double a, const LVect & y) // this = this * a + y
 {
 	if(P_Vals && y.P_Vals) {
 		LMIDX d = MIN(Dim, y.Dim);
@@ -311,7 +311,7 @@ LVect * FASTCALL operator * (const LMatrix & m, const LVect & v)
 //
 // z = y + a * x
 //
-LVect * SLAPI gaxpy(const LMatrix & a, const LVect & x, const LVect & y)
+LVect * gaxpy(const LMatrix & a, const LVect & x, const LVect & y)
 {
 	LVect * p_result = a * x;
 	CALLPTRMEMB(p_result, add(y));
@@ -380,7 +380,7 @@ LMatrix * FASTCALL operator * (const LVect & x, const LVect & y)
 	return p_z;
 }
 
-void SLAPI print(const LVect & vect, FILE * pF, long fmt)
+void print(const LVect & vect, FILE * pF, long fmt)
 {
 	fprintf(pF, "\n[");
 	/*if(vect.getname())
@@ -394,7 +394,7 @@ void SLAPI print(const LVect & vect, FILE * pF, long fmt)
 	}
 }
 
-void SLAPI print(const LMatrix & matrix, FILE * pF, long fmt)
+void print(const LMatrix & matrix, FILE * pF, long fmt)
 {
 	fprintf(pF, "\n[");
 	if(matrix.getname())
@@ -411,7 +411,7 @@ void SLAPI print(const LMatrix & matrix, FILE * pF, long fmt)
 	}
 }
 
-static int SLAPI read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols, char * pName, size_t bufSize)
+static int read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols, char * pName, size_t bufSize)
 {
 	int    ok = 1, c;
 	char   buf[256], sub[64];
@@ -443,7 +443,7 @@ static int SLAPI read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols, char * pNa
 	return ok;
 }
 
-static int SLAPI read_row(FILE * pF, LVect * pVect)
+static int read_row(FILE * pF, LVect * pVect)
 {
 	int  ok = 1, c = 0;
 	for(LMIDX i = 0; i < pVect->size(); i++) {
@@ -461,7 +461,7 @@ static int SLAPI read_row(FILE * pF, LVect * pVect)
 	return ok;
 }
 
-int SLAPI read(LVect * pVect, FILE * pF)
+int read(LVect * pVect, FILE * pF)
 {
 	int    ok = 1;
 	LMIDX  rows = 0, cols = 0;
@@ -475,7 +475,7 @@ int SLAPI read(LVect * pVect, FILE * pF)
 	return ok;
 }
 
-int SLAPI read(LMatrix * pMtx, FILE * pF)
+int read(LMatrix * pMtx, FILE * pF)
 {
 	int    ok = 1;
 	LMIDX  rows = 0, cols = 0, i;
@@ -493,7 +493,7 @@ int SLAPI read(LMatrix * pMtx, FILE * pF)
 	return ok;
 }
 
-int SLAPI minv(LMatrix & a)
+int minv(LMatrix & a)
 {
 	double s, t, tq = 0., zr = 1.e-15;
 	//double *pa, *pd, *ps, *p, *q;
@@ -1047,12 +1047,12 @@ int LMatrix2D::FromStr(const char * pStr, int fmt)
 //
 //
 //
-SLAPI LMatrix3D::LMatrix3D()
+LMatrix3D::LMatrix3D()
 {
 	InitUnit(1.0);
 }
 
-LMatrix3D & SLAPI LMatrix3D::InitUnit(double mult)
+LMatrix3D & LMatrix3D::InitUnit(double mult)
 {
 	memzero(M, sizeof(M));
 	M[0][0] = mult;
@@ -1073,7 +1073,7 @@ LMatrix3D & FASTCALL LMatrix3D::operator = (const LMatrix3D & rS)
 	return *this;
 }
 
-LMatrix3D & SLAPI LMatrix3D::InitScale(double x, double y, double z)
+LMatrix3D & LMatrix3D::InitScale(double x, double y, double z)
 {
 	InitUnit(1.0);
     M[0][0] = x;
@@ -1082,7 +1082,7 @@ LMatrix3D & SLAPI LMatrix3D::InitScale(double x, double y, double z)
 	return *this;
 }
 
-LMatrix3D & SLAPI LMatrix3D::InitRotateX(double teta)
+LMatrix3D & LMatrix3D::InitRotateX(double teta)
 {
 	teta = degtorad(teta);
 	double cos_teta = cos(teta);
@@ -1095,7 +1095,7 @@ LMatrix3D & SLAPI LMatrix3D::InitRotateX(double teta)
 	return *this;
 }
 
-LMatrix3D & SLAPI LMatrix3D::InitRotateY(double teta)
+LMatrix3D & LMatrix3D::InitRotateY(double teta)
 {
 	teta = degtorad(teta);
 	double cos_teta = cos(teta);
@@ -1108,7 +1108,7 @@ LMatrix3D & SLAPI LMatrix3D::InitRotateY(double teta)
 	return *this;
 }
 
-LMatrix3D & SLAPI LMatrix3D::InitRotateZ(double teta)
+LMatrix3D & LMatrix3D::InitRotateZ(double teta)
 {
 	teta = degtorad(teta);
 	double cos_teta = cos(teta);
@@ -1121,7 +1121,7 @@ LMatrix3D & SLAPI LMatrix3D::InitRotateZ(double teta)
 	return *this;
 }
 
-LMatrix3D & SLAPI LMatrix3D::Mult(const LMatrix3D & rM1, const LMatrix3D & rM2)
+LMatrix3D & LMatrix3D::Mult(const LMatrix3D & rM1, const LMatrix3D & rM2)
 {
 	for(uint i = 0; i < 4; i++) {
 		M[i][0] = rM1.M[i][0]*rM2.M[0][0] + rM1.M[i][1]*rM2.M[1][0] + rM1.M[i][2]*rM2.M[2][0] + rM1.M[i][3]*rM2.M[3][0];

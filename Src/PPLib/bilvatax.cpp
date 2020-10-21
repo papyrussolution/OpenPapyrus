@@ -18,16 +18,16 @@ IMPL_CMPFUNC(BVATAccm_DiffByCVat, p1, p2)
 	return NZOR(r, cmp_double(static_cast<const BVATAccm *>(p1)->CRate, static_cast<const BVATAccm *>(p2)->CRate));
 }
 
-SLAPI BVATAccm::BVATAccm()
+BVATAccm::BVATAccm()
 {
 	THISZERO();
 }
 
-SLAPI BVATAccmArray::BVATAccmArray(uint aFlags) : TSVector <BVATAccm> (), Flags(aFlags) // @v9.8.4 TSArray-->TSVector
+BVATAccmArray::BVATAccmArray(uint aFlags) : TSVector <BVATAccm> (), Flags(aFlags) // @v9.8.4 TSArray-->TSVector
 {
 }
 
-int SLAPI BVATAccmArray::Add(const BVATAccm * pItem, int dontRound)
+int BVATAccmArray::Add(const BVATAccm * pItem, int dontRound)
 {
 	int    ok = 1;
 	uint   p = 0;
@@ -55,7 +55,7 @@ int SLAPI BVATAccmArray::Add(const BVATAccm * pItem, int dontRound)
 	return ok;
 }
 
-int SLAPI BVATAccmArray::Add(const PPTransferItem & rTi, PPID opID)
+int BVATAccmArray::Add(const PPTransferItem & rTi, PPID opID)
 {
 	int    ok = 1;
 	BVATAccm item;
@@ -92,7 +92,7 @@ int SLAPI BVATAccmArray::Add(const PPTransferItem & rTi, PPID opID)
 	return ok;
 }
 
-void SLAPI BVATAccmArray::Scale_(double part, int useRounding)
+void BVATAccmArray::Scale_(double part, int useRounding)
 {
 	BVATAccm * p_item;
 	if(part != 1.0 /* @v6.7.12 && part != 0.0*/) {
@@ -111,7 +111,7 @@ void SLAPI BVATAccmArray::Scale_(double part, int useRounding)
 	}
 }
 
-int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
+int BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 {
 	int    ok = 1;
 	int    inited = 0;
@@ -170,7 +170,7 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI BVATAccmArray::CalcBill(PPID id)
+int BVATAccmArray::CalcBill(PPID id)
 {
 	int    r = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -183,7 +183,7 @@ int SLAPI BVATAccmArray::CalcBill(PPID id)
 	return BIN(r);
 }
 
-int SLAPI BVATAccmArray::IsVataxableSuppl(PPID suppl)
+int BVATAccmArray::IsVataxableSuppl(PPID suppl)
 {
 	return (!(Flags & BVATF_IGNORESUPPL) && suppl && IsSupplVATFree(suppl) > 0) ? 0 : 1;
 }

@@ -7,11 +7,11 @@
 //
 // @ModuleDef(PPObjWorldObjStatus)
 //
-SLAPI PPObjWorldObjStatus::PPObjWorldObjStatus(void * extraPtr) : PPObjReference(PPOBJ_CITYSTATUS, extraPtr)
+PPObjWorldObjStatus::PPObjWorldObjStatus(void * extraPtr) : PPObjReference(PPOBJ_CITYSTATUS, extraPtr)
 {
 }
 
-int SLAPI PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PPWorldObjStatus * pRec)
+int PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PPWorldObjStatus * pRec)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -33,7 +33,7 @@ int SLAPI PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PP
 	return ok;
 }
 
-int SLAPI PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
+int PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    valid_data = 0;
@@ -87,7 +87,7 @@ int SLAPI PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const char * pAbbr, long kind, long code, int use_ta)
+int PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const char * pAbbr, long kind, long code, int use_ta)
 {
 	int    ok = -1;
 	long   h = -1;
@@ -119,12 +119,12 @@ int SLAPI PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const c
 //
 //
 //
-SLAPI PPWorldPacket::PPWorldPacket()
+PPWorldPacket::PPWorldPacket()
 {
 	// @v10.8.0 (ctr of WorldTbl::Rec will do everything) Init();
 }
 
-void SLAPI PPWorldPacket::Init()
+void PPWorldPacket::Init()
 {
 	THISZERO();
 }
@@ -181,7 +181,7 @@ PPID PPObjWorld::SelFilt::GetSingleKind() const
 	return reinterpret_cast<void *>(v);
 }
 
-/*static*/int SLAPI PPObjWorld::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
+/*static*/int PPObjWorld::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 {
 	const long extra_param = reinterpret_cast<long>(extraPtr);
 	pFilt->KindFlags = (extra_param & ~0x80000000) >> 24;
@@ -196,7 +196,7 @@ PPID PPObjWorld::SelFilt::GetSingleKind() const
 	return 1;
 }
 
-/*static*/SString & SLAPI PPObjWorld::GetNativeCountryName(SString & rBuf)
+/*static*/SString & PPObjWorld::GetNativeCountryName(SString & rBuf)
 {
 	PPLoadString("nativecountry", rBuf);
 	return rBuf;
@@ -206,18 +206,18 @@ PPID PPObjWorld::SelFilt::GetSingleKind() const
 //
 TLP_IMPL(PPObjWorld, WorldTbl, P_Tbl);
 
-SLAPI PPObjWorld::PPObjWorld(void * extraPtr) : PPObject(PPOBJ_WORLD), ExtraPtr(extraPtr)
+PPObjWorld::PPObjWorld(void * extraPtr) : PPObject(PPOBJ_WORLD), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-SLAPI PPObjWorld::~PPObjWorld()
+PPObjWorld::~PPObjWorld()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjWorld::GetParentCountry(PPID id, PPID * pParentCountryID)
+int PPObjWorld::GetParentCountry(PPID id, PPID * pParentCountryID)
 {
 	PPID   temp_id = id;
 	WorldTbl::Rec rec;
@@ -233,7 +233,7 @@ int SLAPI PPObjWorld::GetParentCountry(PPID id, PPID * pParentCountryID)
 	return -1;
 }
 
-int SLAPI PPObjWorld::GetNativeCountry(PPID * pID)
+int PPObjWorld::GetNativeCountry(PPID * pID)
 {
 	int    ok = -1;
 	PPID   main_org_id = 0;
@@ -396,12 +396,12 @@ private:
 	}
 };
 
-/*virtual*/void * SLAPI PPObjWorld::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjWorld::CreateObjListWin(uint flags, void * extraPtr)
 {
 	return /*0; */ new PPObjWorldListWindow(this, flags, extraPtr);
 }
 
-/*static*/int SLAPI PPObjWorld::UniteMaxLike()
+/*static*/int PPObjWorld::UniteMaxLike()
 {
 	int    ok = 1;
 	StrAssocArray * p_list = 0;
@@ -443,7 +443,7 @@ private:
 	return ok;
 }
 
-int SLAPI PPObjWorld::Browse(void * extraPtr)
+int PPObjWorld::Browse(void * extraPtr)
 {
 	int    ok = cmCancel;
 	if(extraPtr == 0) {
@@ -648,7 +648,7 @@ int EditWorldDialog::getDTS(PPWorldPacket * pData)
 	return ok;
 }
 
-int SLAPI PPObjWorld::Edit(PPID * pID, void * extraPtr /*parent*/)
+int PPObjWorld::Edit(PPID * pID, void * extraPtr /*parent*/)
 {
 	int    ok = 0, edit = 0;
 	int    is_new = BIN(!pID || !(*pID));
@@ -760,12 +760,12 @@ int SLAPI PPObjWorld::Edit(PPID * pID, void * extraPtr /*parent*/)
 	return (ok > 0) ? cmOK : cmCancel;
 }
 
-int SLAPI PPObjWorld::Search(PPID id, void * b)
+int PPObjWorld::Search(PPID id, void * b)
 {
 	return SearchByID(P_Tbl, Obj, id, b);
 }
 
-int SLAPI PPObjWorld::SearchByCode(const char * pCode, WorldTbl::Rec * pRec)
+int PPObjWorld::SearchByCode(const char * pCode, WorldTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pCode) {
@@ -783,7 +783,7 @@ int SLAPI PPObjWorld::SearchByCode(const char * pCode, WorldTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PPObjWorld::SearchCountry(const char * pName, const char * pCode, const char * pAlpha2, WorldTbl::Rec * pRec)
+int PPObjWorld::SearchCountry(const char * pName, const char * pCode, const char * pAlpha2, WorldTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -835,7 +835,7 @@ int SLAPI PPObjWorld::SearchCountry(const char * pName, const char * pCode, cons
 	return ok;
 }
 
-int SLAPI PPObjWorld::SearchByName(int kind, const char * pName, WorldTbl::Rec * pRec)
+int PPObjWorld::SearchByName(int kind, const char * pName, WorldTbl::Rec * pRec)
 {
 	SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 	int    ok = GetListByName(kind, pName, &list);
@@ -849,7 +849,7 @@ int SLAPI PPObjWorld::SearchByName(int kind, const char * pName, WorldTbl::Rec *
 	return ok;
 }
 
-int SLAPI PPObjWorld::GetListByName(int kind, const char * pName, SVector * pList) // @v10.6.7 SArray-->SVector
+int PPObjWorld::GetListByName(int kind, const char * pName, SVector * pList) // @v10.6.7 SArray-->SVector
 {
 	int    ok = -1;
 	WorldTbl::Key3 k3;
@@ -866,7 +866,7 @@ int SLAPI PPObjWorld::GetListByName(int kind, const char * pName, SVector * pLis
 }
 
 // @Muxa {
-int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList) // @v10.6.7 SArray-->SVector
+int PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList) // @v10.6.7 SArray-->SVector
 {
 	int    ok = -1;
 	WorldTbl::Rec * p_rec;
@@ -890,7 +890,7 @@ int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList) // @
 }
 // } @Muxa
 
-int SLAPI PPObjWorld::GetListByCode(int kind, const char * pCode, SVector * pList) // @v10.6.7 SArray-->SVector
+int PPObjWorld::GetListByCode(int kind, const char * pCode, SVector * pList) // @v10.6.7 SArray-->SVector
 {
 	int    ok = -1;
 	size_t len = sstrlen(pCode);
@@ -909,7 +909,7 @@ int SLAPI PPObjWorld::GetListByCode(int kind, const char * pCode, SVector * pLis
 	return ok;
 }
 
-int SLAPI PPObjWorld::GetCountryByChild(PPID id, WorldTbl::Rec * pCountryRec)
+int PPObjWorld::GetCountryByChild(PPID id, WorldTbl::Rec * pCountryRec)
 {
 	WorldTbl::Rec rec;
 	while(id && Fetch(id, &rec) > 0)
@@ -922,7 +922,7 @@ int SLAPI PPObjWorld::GetCountryByChild(PPID id, WorldTbl::Rec * pCountryRec)
 	return -1;
 }
 
-int SLAPI PPObjWorld::Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace)
+int PPObjWorld::Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace)
 {
 	int    ok = 0;
 	if(id == parentID)
@@ -954,18 +954,18 @@ int SLAPI PPObjWorld::Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecu
 	return ok;
 }
 
-int SLAPI PPObjWorld::IsChildOf(PPID id, PPID parentID)
+int PPObjWorld::IsChildOf(PPID id, PPID parentID)
 {
 	PPIDArray recur_trace;
 	return Helper_IsChildOf(id, parentID, &recur_trace);
 }
 
-int SLAPI PPObjWorld::DeleteObj(PPID id)
+int PPObjWorld::DeleteObj(PPID id)
 {
 	return PutPacket(&id, 0, 0);
 }
 
-int SLAPI PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
+int PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
 {
 	int    ok = 1;
 	if(pID) {
@@ -1018,7 +1018,7 @@ int SLAPI PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
 	return ok;
 }
 
-int SLAPI PPObjWorld::AddSimple(PPID * pID, int kind, const char * pName, const char * pCountry, int use_ta)
+int PPObjWorld::AddSimple(PPID * pID, int kind, const char * pName, const char * pCountry, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0, country_id = 0;
@@ -1067,7 +1067,7 @@ int SLAPI PPObjWorld::AddSimple(PPID * pID, int kind, const char * pName, const 
 	return ok;
 }
 
-int SLAPI PPObjWorld::GetPacket(PPID id, PPWorldPacket * pPack)
+int PPObjWorld::GetPacket(PPID id, PPWorldPacket * pPack)
 {
 	int    ok = -1;
 	if(id) {
@@ -1080,7 +1080,7 @@ int SLAPI PPObjWorld::GetPacket(PPID id, PPWorldPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack)
+int PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack)
 {
 	int    ok = -1;
 	PPIDArray inner_stack;
@@ -1132,7 +1132,7 @@ int SLAPI PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * 
 	return ok;
 }
 
-int SLAPI PPObjWorld::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
+int PPObjWorld::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
 {
 	int    ok = 0;
 	WorldTbl::Rec rec;
@@ -1151,7 +1151,7 @@ int SLAPI PPObjWorld::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjWorld::AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBlock & rBlk)
+int PPObjWorld::AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBlock & rBlk)
 {
 	int    ok = -1;
 	if(!rBlk.El.Has(rRec.ID)) {
@@ -1183,7 +1183,7 @@ int SLAPI PPObjWorld::AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBloc
 	return ok;
 }
 
-int SLAPI PPObjWorld::AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack)
+int PPObjWorld::AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack)
 {
 	int    ok = -1;
 	if(!pList->Search(id)) {
@@ -1220,7 +1220,7 @@ int SLAPI PPObjWorld::AddItemToSelectorList(PPID id, StrAssocArray * pList, int 
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjWorld::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjWorld::MakeStrAssocList(void * extraPtr)
 {
 	SelFilt sf;
 	ConvertExtraParam(extraPtr, &sf);
@@ -1271,7 +1271,7 @@ StrAssocArray * SLAPI PPObjWorld::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPID * pID)
+int PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPID * pID)
 {
 	int    ok = -1;
 	PPIDArray excl_list;
@@ -1314,7 +1314,7 @@ int SLAPI PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPI
 	return ok;
 }
 
-int SLAPI PPObjWorld::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjWorld::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPWorldPacket);
@@ -1333,7 +1333,7 @@ int SLAPI PPObjWorld::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 	return ok;
 }
 
-int SLAPI PPObjWorld::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjWorld::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1370,7 +1370,7 @@ int SLAPI PPObjWorld::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-int SLAPI PPObjWorld::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjWorld::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPWorldPacket * gp = static_cast<PPWorldPacket *>(p->Data);
@@ -1382,7 +1382,7 @@ int SLAPI PPObjWorld::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 	return -1;
 }
 
-int SLAPI PPObjWorld::Unite(PPID destID, PPID srcID)
+int PPObjWorld::Unite(PPID destID, PPID srcID)
 {
 	int    ok = 1;
 	if(Obj == PPOBJ_WORLD) {
@@ -1406,7 +1406,7 @@ int SLAPI PPObjWorld::Unite(PPID destID, PPID srcID)
 	return ok;
 }
 
-int SLAPI PPObjWorld::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjWorld::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE) {
 		union {
@@ -1451,14 +1451,14 @@ int SLAPI PPObjWorld::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 IMPL_DESTROY_OBJ_PACK(PPObjWorld, PPWorldPacket);
 
-const char * SLAPI PPObjWorld::GetNamePtr()
+const char * PPObjWorld::GetNamePtr()
 {
 	return P_Tbl->data.Name;
 }
 //
 // @todo Срочно!!!
 //
-int SLAPI PPObjWorld::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
+int PPObjWorld::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	PPWorldPacket pack;
@@ -1546,7 +1546,7 @@ int SLAPI PPObjWorld::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjWorld::Recover(PPLogger * pLogger)
+int PPObjWorld::Recover(PPLogger * pLogger)
 {
     int    ok = -1;
 	int    outer_logger = 0;
@@ -1579,7 +1579,7 @@ int SLAPI PPObjWorld::Recover(PPLogger * pLogger)
     return ok;
 }
 
-/*static*/int SLAPI PPObjWorld::Recover()
+/*static*/int PPObjWorld::Recover()
 {
 	PPObjWorld wobj;
 	return wobj.Recover(0);
@@ -1589,12 +1589,12 @@ int SLAPI PPObjWorld::Recover(PPLogger * pLogger)
 //
 class WorldCache : public ObjCache {
 public:
-	SLAPI  WorldCache() : ObjCache(PPOBJ_WORLD, sizeof(WorldData))
+	WorldCache() : ObjCache(PPOBJ_WORLD, sizeof(WorldData))
 	{
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct WorldData : public ObjCacheEntry {
 		long   Kind;
@@ -1608,7 +1608,7 @@ public:
 	};
 };
 
-int SLAPI WorldCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int WorldCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	WorldData * p_cache_rec = static_cast<WorldData *>(pEntry);
@@ -1638,7 +1638,7 @@ int SLAPI WorldCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	WorldTbl::Rec * p_data_rec = static_cast<WorldTbl::Rec *>(pDataRec);
 	const WorldData * p_cache_rec = static_cast<const WorldData *>(pEntry);
@@ -1662,7 +1662,7 @@ void SLAPI WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 	b.Get(p_data_rec->ZIP,   sizeof(p_data_rec->ZIP));
 }
 
-int SLAPI PPObjWorld::Fetch(PPID id, WorldTbl::Rec * pRec)
+int PPObjWorld::Fetch(PPID id, WorldTbl::Rec * pRec)
 {
 	WorldCache * p_cache = GetDbLocalCachePtr <WorldCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
@@ -1676,13 +1676,13 @@ int SLAPI PPObjWorld::Fetch(PPID id, WorldTbl::Rec * pRec)
 	return rBuf;
 }
 
-SLAPI FiasObjCore::HouseCode::HouseCode(const char * pCode)
+FiasObjCore::HouseCode::HouseCode(const char * pCode)
 {
 	if(pCode)
 		Decode(pCode);
 }
 
-FiasObjCore::HouseCode & SLAPI FiasObjCore::HouseCode::Z()
+FiasObjCore::HouseCode & FiasObjCore::HouseCode::Z()
 {
 	HseNum = 0;
 	BldNum = 0;
@@ -1706,16 +1706,16 @@ int FASTCALL FiasObjCore::HouseCode::Decode(const char * pCode)
 	return ok;
 }
 
-SLAPI FiasObjCore::FiasObjCore()
+FiasObjCore::FiasObjCore()
 {
 }
 
-int SLAPI FiasObjCore::SearchAddr(long recID, FiasAddrObjTbl::Rec * pRec)
+int FiasObjCore::SearchAddr(long recID, FiasAddrObjTbl::Rec * pRec)
 {
     return SearchByID(&AdrT, PPOBJ_FIAS, recID, pRec);
 }
 
-int SLAPI FiasObjCore::SearchAddrByID(long addrID, FiasAddrObjTbl::Rec * pRec)
+int FiasObjCore::SearchAddrByID(long addrID, FiasAddrObjTbl::Rec * pRec)
 {
 	int    ok = -1;
 	FiasAddrObjTbl::Key1 k1;
@@ -1730,12 +1730,12 @@ int SLAPI FiasObjCore::SearchAddrByID(long addrID, FiasAddrObjTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI FiasObjCore::SearchHouse(long hseID, FiasHouseObjTbl::Rec * pRec)
+int FiasObjCore::SearchHouse(long hseID, FiasHouseObjTbl::Rec * pRec)
 {
 	return SearchByID(&HseT, PPOBJ_FIAS, hseID, pRec);
 }
 
-int SLAPI FiasObjCore::SearchAddrByUUID(const S_GUID & rUuid, FiasAddrObjTbl::Rec * pRec)
+int FiasObjCore::SearchAddrByUUID(const S_GUID & rUuid, FiasAddrObjTbl::Rec * pRec)
 {
 	long   ui = 0;
 	int    ok = UrT.SearchUuid(rUuid, 0, &ui);
@@ -1745,7 +1745,7 @@ int SLAPI FiasObjCore::SearchAddrByUUID(const S_GUID & rUuid, FiasAddrObjTbl::Re
 	return ok;
 }
 
-int SLAPI FiasObjCore::SearchHouseByUUID(const S_GUID & rUuid, FiasHouseObjTbl::Rec * pRec)
+int FiasObjCore::SearchHouseByUUID(const S_GUID & rUuid, FiasHouseObjTbl::Rec * pRec)
 {
 	long   ui = 0;
 	int    ok = UrT.SearchUuid(rUuid, 0, &ui);
@@ -1755,7 +1755,7 @@ int SLAPI FiasObjCore::SearchHouseByUUID(const S_GUID & rUuid, FiasHouseObjTbl::
 	return ok;
 }
 
-int SLAPI FiasObjCore::GetChildList(PPID parentID, int level, PPIDArray & rList)
+int FiasObjCore::GetChildList(PPID parentID, int level, PPIDArray & rList)
 {
     int    ok = -1;
     rList.clear();
@@ -1772,7 +1772,7 @@ int SLAPI FiasObjCore::GetChildList(PPID parentID, int level, PPIDArray & rList)
 
 }
 
-int SLAPI FiasObjCore::Helper_GetChildList(PPID parentID, int level, PPIDArray & rList)
+int FiasObjCore::Helper_GetChildList(PPID parentID, int level, PPIDArray & rList)
 {
     int    ok = 1;
 	PPIDArray this_level_list;
@@ -1810,7 +1810,7 @@ int SLAPI FiasObjCore::Helper_GetChildList(PPID parentID, int level, PPIDArray &
     return ok;
 }
 
-int SLAPI FiasObjCore::GetHouseListByZIP(const char * pZip, PPIDArray & rList)
+int FiasObjCore::GetHouseListByZIP(const char * pZip, PPIDArray & rList)
 {
 	int    ok = -1;
 	long   zip_val = pZip ? atol(pZip) : 0;
@@ -1829,13 +1829,13 @@ int SLAPI FiasObjCore::GetHouseListByZIP(const char * pZip, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI GetAddrListByZIP(const char * pZip, PPIDArray & rList)
+int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 {
 	int    ok = -1;
 	return ok;
 }
 
-/*static*/int SLAPI PPObjWorld::Convert()
+/*static*/int PPObjWorld::Convert()
 {
 	const char * p_spec_name = "special";
 	int    ok = -1;
@@ -2205,7 +2205,7 @@ int GeoCityImportBlock::Import(const char * pPath)
 	return ok;
 }
 
-int SLAPI ImportGeoCity(const char * pPath)
+int ImportGeoCity(const char * pPath)
 {
 	int    ok = 1;
 	GeoCityImportBlock blk;

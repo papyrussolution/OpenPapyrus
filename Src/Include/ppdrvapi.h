@@ -1,5 +1,5 @@
 // PPDRVAPI.H
-// Copyright (c) A.Sobolev 2013, 2019
+// Copyright (c) A.Sobolev 2013, 2019, 2020
 //
 #include <slib.h>
 
@@ -12,11 +12,11 @@ typedef PPBaseDriver * (*PPDrv_CreateInstanceProc)();
 class PPDrvThreadLocalArea {
 public:
 	friend class PPDrvSession;
-	SLAPI  PPDrvThreadLocalArea();
-	SLAPI ~PPDrvThreadLocalArea();
-	int    SLAPI IsConsistent() const;
-	long   SLAPI GetId() const;
-	ThreadID SLAPI GetThreadID() const;
+	PPDrvThreadLocalArea();
+	~PPDrvThreadLocalArea();
+	int    IsConsistent() const;
+	long   GetId() const;
+	ThreadID GetThreadID() const;
 private:
 	int    ResetFinishEvent();
 	int    SignalFinishEvent();
@@ -63,11 +63,11 @@ public:
 
 	PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc, uint verMajor, uint verMinor, uint errMsgCount, const SIntToSymbTabEntry * pErrMsgTab);
 	~PPDrvSession();
-	int    SLAPI Init(HINSTANCE hInst);
-	int    SLAPI InitThread();
-	int    SLAPI ReleaseThread();
-	PPDrvThreadLocalArea & SLAPI GetTLA();
-	const PPDrvThreadLocalArea & SLAPI GetConstTLA() const;
+	int    Init(HINSTANCE hInst);
+	int    InitThread();
+	int    ReleaseThread();
+	PPDrvThreadLocalArea & GetTLA();
+	const PPDrvThreadLocalArea & GetConstTLA() const;
 	PPBaseDriver * GetI();
 	//
 	// Descr: Задает таблицу с соответствием текст сообщения об ошибке с кодами.

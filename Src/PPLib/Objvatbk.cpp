@@ -8,7 +8,7 @@
 //
 // @VATBCfg {
 //
-SLAPI VATBCfg::VATBCfg() : Kind(0), AccSheetID(0), Flags(0), AcctgBasis(0), AcctgBasisAtPeriod(0)
+VATBCfg::VATBCfg() : Kind(0), AccSheetID(0), Flags(0), AcctgBasis(0), AcctgBasisAtPeriod(0)
 {
 	Period.Z();
 }
@@ -25,18 +25,18 @@ VATBCfg & FASTCALL VATBCfg::operator = (const VATBCfg & s)
 	return *this;
 }
 
-int SLAPI VATBCfg::CheckFlag(PPID opID, long f) const
+int VATBCfg::CheckFlag(PPID opID, long f) const
 {
 	uint   p = 0;
 	return BIN(List.lsearch(&opID, &p, CMPF_LONG) && List.at(p).Flags & f);
 }
 
-int SLAPI VATBCfg::CheckOp(PPID /*opID*/, PPID * /*pAccSheetID*/)
+int VATBCfg::CheckOp(PPID /*opID*/, PPID * /*pAccSheetID*/)
 {
 	return 1;
 }
 
-int SLAPI VATBCfg::CheckList(PPID * pAccSheetID)
+int VATBCfg::CheckList(PPID * pAccSheetID)
 {
 	for(uint j = 0; j < List.getCount(); j++) {
 		if(!CheckOp(List.at(j).OpID, pAccSheetID))
@@ -45,7 +45,7 @@ int SLAPI VATBCfg::CheckList(PPID * pAccSheetID)
 	return 1;
 }
 
-int SLAPI VATBCfg::Setup()
+int VATBCfg::Setup()
 {
 	int    ok = 1;
 	PPID   acc_sheet_id = 0;
@@ -59,7 +59,7 @@ int SLAPI VATBCfg::Setup()
 	return ok;
 }
 
-int SLAPI VATBCfg::CheckAccSheet(PPID accSheetID)
+int VATBCfg::CheckAccSheet(PPID accSheetID)
 {
 	int    ok = 1;
 	const  PPID  preserve_acs_id = AccSheetID;
@@ -93,22 +93,22 @@ int SLAPI VATBCfg::CheckAccSheet(PPID accSheetID)
 
 TLP_IMPL(PPObjVATBook, VATBookTbl, P_Tbl);
 
-SLAPI PPObjVATBook::PPObjVATBook(void * extraPtr) : PPObject(PPOBJ_VATBOOK), ExtraPtr(extraPtr)
+PPObjVATBook::PPObjVATBook(void * extraPtr) : PPObject(PPOBJ_VATBOOK), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ReadConfig();
 }
 
-SLAPI PPObjVATBook::~PPObjVATBook()
+PPObjVATBook::~PPObjVATBook()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjVATBook::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
-int SLAPI PPObjVATBook::DeleteObj(PPID) { return P_Tbl->deleteRec() ? 1 : PPSetErrorDB(); }
-const char * SLAPI PPObjVATBook::GetNamePtr() { return P_Tbl->data.Code; }
+int PPObjVATBook::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+int PPObjVATBook::DeleteObj(PPID) { return P_Tbl->deleteRec() ? 1 : PPSetErrorDB(); }
+const char * PPObjVATBook::GetNamePtr() { return P_Tbl->data.Code; }
 
-int SLAPI PPObjVATBook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjVATBook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	VATBookTbl::Key1 k1;
@@ -147,7 +147,7 @@ int SLAPI PPObjVATBook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 static const SVerT __VATBookFormatVer(7, 6, 1);
 
-/*static*/int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
+/*static*/int PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 {
 	int    r = 1, i;
 	uint   sz = sizeof(PPVATBConfig);
@@ -228,7 +228,7 @@ static const SVerT __VATBookFormatVer(7, 6, 1);
 	return r;
 }
 
-/*static*/int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use_ta)
+/*static*/int PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use_ta)
 {
 	int    ok = 1;
 	const  uint items_count = pConfig->List.getCount();
@@ -276,7 +276,7 @@ static const SVerT __VATBookFormatVer(7, 6, 1);
 	return ok;
 }
 
-int SLAPI PPObjVATBook::ReadConfig()
+int PPObjVATBook::ReadConfig()
 {
 	int   ok = 1;
 	THROW(ReadCfgList(PPVTB_SELL, &VATBCSell));
@@ -287,7 +287,7 @@ int SLAPI PPObjVATBook::ReadConfig()
 }
 
 /*
-int SLAPI PPObjVATBook::WriteConfig()
+int PPObjVATBook::WriteConfig()
 {
 	int    ok = 1, ta = 0;
 	THROW(PPStartTransaction(&ta, 1));
@@ -317,7 +317,7 @@ const VATBCfg & FASTCALL PPObjVATBook::GetConfig(PPID kind) const
 	}
 }
 
-int SLAPI PPObjVATBook::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_VATBOOK, 0, PPView::exefModeless, 0); }
+int PPObjVATBook::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_VATBOOK, 0, PPView::exefModeless, 0); }
 //
 // @VATBookDialog {
 //
@@ -649,7 +649,7 @@ IMPL_HANDLE_EVENT(SimpleLedgerDialog)
 //
 // } SimpleLedgerDialog
 //
-PPID SLAPI PPObjVATBook::SelectLineType(uint * pResID, PPID what)
+PPID PPObjVATBook::SelectLineType(uint * pResID, PPID what)
 {
 	uint   ri = 0;
 	ushort v  = 0;
@@ -687,7 +687,7 @@ PPID SLAPI PPObjVATBook::SelectLineType(uint * pResID, PPID what)
 	return what;
 }
 
-int SLAPI PPObjVATBook::ValidateData(void * pData, long)
+int PPObjVATBook::ValidateData(void * pData, long)
 {
 	int    ok = 1;
 	VATBookTbl::Rec * p_rec = static_cast<VATBookTbl::Rec *>(pData);
@@ -702,7 +702,7 @@ int SLAPI PPObjVATBook::ValidateData(void * pData, long)
 	return ok;
 }
 
-int SLAPI PPObjVATBook::EditObj(PPID * pID, void * pData, int use_ta)
+int PPObjVATBook::EditObj(PPID * pID, void * pData, int use_ta)
 {
 	int    ok = 1;
 	VATBookTbl::Rec * p_rec = static_cast<VATBookTbl::Rec *>(pData);
@@ -727,7 +727,7 @@ int SETVATBOOKDTS(TDialog * pDlg, VATBookTbl::Rec * pRec, PPID kind)
 int GETVATBOOKDTS(TDialog * pDlg, VATBookTbl::Rec * pRec, PPID kind)
 	{ return (kind == PPVTB_SIMPLELEDGER) ? static_cast<SimpleLedgerDialog *>(pDlg)->getDTS(pRec) : static_cast<VATBookDialog *>(pDlg)->getDTS(pRec); }
 
-int SLAPI PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
+int PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
 {
 	int    ok = -1, valid_data = 0;
 	uint   res_id = 0;
@@ -766,7 +766,7 @@ int SLAPI PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int SLAPI PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
+int PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 {
 	const  PPID extra_kind = reinterpret_cast<const PPID>(extraPtr);
 	int    ok = -1, valid_data = 0;
@@ -1079,7 +1079,7 @@ IMPL_HANDLE_EVENT(VATBCfgDialog)
 //
 // } @VATBCfgDialog
 //
-/*static*/int SLAPI PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
+/*static*/int PPObjVATBook::EditConfig(PPID kind, VATBCfg * pConfig)
 {
 	int    ok = -1;
 	uint   dlg_id = 0;
@@ -1136,7 +1136,7 @@ IMPL_HANDLE_EVENT(VATBCfgDialog)
 //
 // @ModuleDef(PPViewVatBook)
 //
-IMPLEMENT_PPFILT_FACTORY(VatBook); SLAPI VatBookFilt::VatBookFilt() : PPBaseFilt(PPFILT_VATBOOK, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(VatBook); VatBookFilt::VatBookFilt() : PPBaseFilt(PPFILT_VATBOOK, 0, 1)
 {
 	SetFlatChunk(offsetof(VatBookFilt, ReserveStart),
 		offsetof(VatBookFilt, Reserve)-offsetof(VatBookFilt, ReserveStart)+sizeof(Reserve));
@@ -1149,22 +1149,22 @@ VatBookFilt & FASTCALL VatBookFilt::operator = (const VatBookFilt & s)
 	return *this;
 }
 
-SLAPI PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK), P_BObj(BillObj), IsMainOrgVatFree(-1), P_GObj(0), P_ClbList(0)
+PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK, 0, 0), P_BObj(BillObj), IsMainOrgVatFree(-1), P_GObj(0), P_ClbList(0)
 {
 }
 
-SLAPI PPViewVatBook::~PPViewVatBook()
+PPViewVatBook::~PPViewVatBook()
 {
 	ZDELETE(P_ClbList);
 	ZDELETE(P_GObj);
 }
 
-PPBaseFilt * SLAPI PPViewVatBook::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewVatBook::CreateFilt(void * extraPtr) const
 {
 	return new VatBookFilt;
 }
 
-int SLAPI PPViewVatBook::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewVatBook::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
@@ -1179,7 +1179,7 @@ int SLAPI PPViewVatBook::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewVatBook::LoadClbList(PPID billID)
+int PPViewVatBook::LoadClbList(PPID billID)
 {
 	int    ok = -1;
 	SString clb;
@@ -1221,7 +1221,7 @@ int SLAPI PPViewVatBook::LoadClbList(PPID billID)
 	return ok;
 }
 
-int SLAPI PPViewVatBook::InitIteration()
+int PPViewVatBook::InitIteration()
 {
 	int    ok = 1;
 	int    idx = (Filt.Flags & VatBookFilt::fPaymPeriod) ? 5 : 3;
@@ -1334,7 +1334,7 @@ int FASTCALL PPViewVatBook::NextIteration(VatBookViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewVatBook::CalcTotal(VatBookTotal * pTotal)
+int PPViewVatBook::CalcTotal(VatBookTotal * pTotal)
 {
 	VatBookViewItem item;
 	memzero(pTotal, sizeof(*pTotal));
@@ -1355,7 +1355,7 @@ int SLAPI PPViewVatBook::CalcTotal(VatBookTotal * pTotal)
 	return 1;
 }
 
-int SLAPI PPViewVatBook::ViewTotal()
+int PPViewVatBook::ViewTotal()
 {
 	int    ok = 1;
 	uint   res_id = (Filt.Kind == PPVTB_SIMPLELEDGER) ? DLG_SLEDGTOTAL : DLG_VATBOOKTOTAL;
@@ -1504,7 +1504,7 @@ void VATBFiltDialog::SetupCtrls()
 	SetClusterData(CTL_VATBFLT_FLAGS, Data.Flags);
 }
 
-int SLAPI PPViewVatBook::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewVatBook::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return PPErrorZ();
@@ -1513,7 +1513,7 @@ int SLAPI PPViewVatBook::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY_P2(VATBFiltDialog, DLG_VATBFLT, &VBObj, p_filt);
 }
 
-DBQuery * SLAPI PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst flag_subst(2);  // @global @threadsafe
 	uint   brw_id = 0;
@@ -1610,7 +1610,7 @@ DBQuery * SLAPI PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return q;
 }
 
-int SLAPI PPViewVatBook::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewVatBook::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -1663,7 +1663,7 @@ int SLAPI PPViewVatBook::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return ok;
 }
 
-int SLAPI PPViewVatBook::Print(const void * pBrwHdr)
+int PPViewVatBook::Print(const void * pBrwHdr)
 {
 	uint   rpt_id = 0;
 	if(Filt.Kind == PPVTB_BUY)
@@ -1675,7 +1675,7 @@ int SLAPI PPViewVatBook::Print(const void * pBrwHdr)
 	return Helper_Print(rpt_id, 0);
 }
 
-int SLAPI PPViewVatBook::DeleteItem(PPID id)
+int PPViewVatBook::DeleteItem(PPID id)
 {
 	int    ok = -1;
 	if(id) {
@@ -1706,7 +1706,7 @@ int SLAPI PPViewVatBook::DeleteItem(PPID id)
 //
 //
 //
-int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray * pVatA, double scale, int selling, int slUseCostVatAddendum)
+int PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray * pVatA, double scale, int selling, int slUseCostVatAddendum)
 {
 	int    result = 1;
 	double amount = 0.0;
@@ -1802,7 +1802,7 @@ int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArr
 	return result;
 }
 
-int SLAPI PPViewVatBook::CheckBillRec(const AutoBuildFilt * pFilt, const BillTbl::Rec * pRec)
+int PPViewVatBook::CheckBillRec(const AutoBuildFilt * pFilt, const BillTbl::Rec * pRec)
 {
 	int    ok = 1;
 	THROW(!pFilt->LocID || pRec->LocID == pFilt->LocID);
@@ -1819,7 +1819,7 @@ int SLAPI PPViewVatBook::CheckBillRec(const AutoBuildFilt * pFilt, const BillTbl
 //
 //
 //
-int SLAPI PPViewVatBook::RemoveZeroBillLinks(int use_ta)
+int PPViewVatBook::RemoveZeroBillLinks(int use_ta)
 {
 	int    ok = -1;
 	uint   i;
@@ -1927,7 +1927,7 @@ int AutoBuildFiltDialog::getDTS(PPViewVatBook::AutoBuildFilt * pData)
 	return 1;
 }
 
-int SLAPI PPViewVatBook::EditAutoBuildFilt(AutoBuildFilt * pFilt)
+int PPViewVatBook::EditAutoBuildFilt(AutoBuildFilt * pFilt)
 {
 	DIALOG_PROC_BODY_P1(AutoBuildFiltDialog, Filt.Kind, pFilt);
 }
@@ -1944,7 +1944,7 @@ static int FASTCALL IsSimpleLedgerRecEmpty(const VATBookTbl::Rec & r)
 		MONEYTOLDBL(r.Excise) == 0.0 && MONEYTOLDBL(r.VAT0) == 0 && MONEYTOLDBL(r.Export) == 0.0);
 }
 
-int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs * pTai, long mrbbf, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID)
+int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs * pTai, long mrbbf, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID)
 {
 	int    ok = 1;
 	int    is_ebf_rec = 0;
@@ -2255,7 +2255,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 //  2 - по зачетам
 //  3 - себестоимость доходных операций по отгрузкам
 //
-int SLAPI PPViewVatBook::ProcessOp(uint i, const PPIDArray * pOpList,
+int PPViewVatBook::ProcessOp(uint i, const PPIDArray * pOpList,
 	const PPIDArray * pNegOpList, const AutoBuildFilt * pFilt, int mode, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID)
 {
 	int    ok = 1;
@@ -2339,7 +2339,7 @@ int SLAPI PPViewVatBook::ProcessOp(uint i, const PPIDArray * pOpList,
 	return ok;
 }
 
-void SLAPI PPViewVatBook::ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList)
+void PPViewVatBook::ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList)
 {
 	PPIDArray temp_op_list;
 	temp_op_list.addUnique(&rList);
@@ -2350,7 +2350,7 @@ void SLAPI PPViewVatBook::ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList)
 	rList = temp_op_list;
 }
 
-int SLAPI PPViewVatBook::AutoBuild()
+int PPViewVatBook::AutoBuild()
 {
 	int    ok = 1;
 	//
@@ -2670,7 +2670,7 @@ void PPALDD_VatBook::Destroy()
 //
 //
 //
-int SLAPI WriteNalogRuPersonBlock(PPObjPerson & rPsnObj, PPID psnID, xmlTextWriter * pWriter)
+int WriteNalogRuPersonBlock(PPObjPerson & rPsnObj, PPID psnID, xmlTextWriter * pWriter)
 {
 	int    ok = -1;
     if(pWriter && psnID) {
@@ -2696,7 +2696,7 @@ int SLAPI WriteNalogRuPersonBlock(PPObjPerson & rPsnObj, PPID psnID, xmlTextWrit
     return ok;
 }
 
-int SLAPI PPViewVatBook::GetNalogRuOpIdent(const VatBookViewItem & rItem, SString & rBuf)
+int PPViewVatBook::GetNalogRuOpIdent(const VatBookViewItem & rItem, SString & rBuf)
 {
 	// @todo Необходима полная реализация.
 	/*
@@ -2748,7 +2748,7 @@ int SLAPI PPViewVatBook::GetNalogRuOpIdent(const VatBookViewItem & rItem, SStrin
 	return 1;
 }
 
-int SLAPI PPViewVatBook::Export()
+int PPViewVatBook::Export()
 {
 	int    ok = 1;
 	uint   i;

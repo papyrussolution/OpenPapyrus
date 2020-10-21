@@ -657,7 +657,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	return p_pgm->PrevCloseWndProc(hWnd, message, wParam, lParam);
 }
 
-void SLAPI AlignWaitDlg(HWND hw = 0);
+void AlignWaitDlg(HWND hw = 0);
 
 BOOL CALLBACK SendMainWndSizeMessage(HWND hwnd, LPARAM lParam)
 {
@@ -1101,7 +1101,7 @@ IMPL_HANDLE_EVENT(TProgram)
 	}
 }
 
-int SLAPI TProgram::MsgLoop(TWindow * pV, int & rExitSignal)
+int TProgram::MsgLoop(TWindow * pV, int & rExitSignal)
 {
 	rExitSignal = 0;
 	MSG    msg;
@@ -1132,7 +1132,7 @@ void TProgram::run()
 	}
 }
 
-TRect SLAPI TProgram::MakeCenterRect(int width, int height) const
+TRect TProgram::MakeCenterRect(int width, int height) const
 {
 	const int dx = (P_DeskTop->ViewSize.x - width) / 2;
 	const int dy = (P_DeskTop->ViewSize.y - height) / 2;

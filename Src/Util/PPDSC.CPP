@@ -33,21 +33,21 @@ void FASTCALL PPSetAddedMsgString(const char * pStr)
 	AddedMsgString = pStr;
 }
 
-int SLAPI PPOutputMessage(char * pMsg, uint /*options*/)
+int PPOutputMessage(char * pMsg, uint /*options*/)
 {
 	printf("%s\n", pMsg);
 	return 1;
 }
 
 //static
-PPDeclStruc * SLAPI PPDeclStruc::CreateInstance(long typeID, void * extraPtr, const PPDeclStruc * pOuter, PPLogger * pLogger)
+PPDeclStruc * PPDeclStruc::CreateInstance(long typeID, void * extraPtr, const PPDeclStruc * pOuter, PPLogger * pLogger)
 {
 	return 0;
 }
 //
 //
 //
-int SLAPI PPDeclStrucProcessor::WriteDeclToFiles(FILE * pRcStream, FILE * pChStream, PPDeclStruc * pDecl)
+int PPDeclStrucProcessor::WriteDeclToFiles(FILE * pRcStream, FILE * pChStream, PPDeclStruc * pDecl)
 {
 	int    ok = 1;
 	char   decl_symb[64], decl_define[64], fld_define[128];
@@ -87,7 +87,7 @@ int SLAPI PPDeclStrucProcessor::WriteDeclToFiles(FILE * pRcStream, FILE * pChStr
 	return ok;
 }
 
-static int SLAPI PrintGenHeader(FILE * pStream, const char * pFileName, const char * pSrcFileName)
+static int PrintGenHeader(FILE * pStream, const char * pFileName, const char * pSrcFileName)
 {
 	SString dtm_buf;
 	dtm_buf.Cat(getcurdatetime_(), DATF_DMY | DATF_CENTURY, TIMF_HMS);
@@ -96,7 +96,7 @@ static int SLAPI PrintGenHeader(FILE * pStream, const char * pFileName, const ch
 	return 1;
 }
 
-int SLAPI PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
+int PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 	const char * pOutRcFileName, const char * pOutChFileName)
 {
 	Line = 1;

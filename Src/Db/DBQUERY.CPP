@@ -7,13 +7,13 @@
 #pragma hdrstop
 #include <db.h>
 
-SLAPI DBQuery::DBQuery()
+DBQuery::DBQuery()
 {
 	THISZERO();
 	options = destroy_tables;
 }
 
-SLAPI DBQuery::~DBQuery()
+DBQuery::~DBQuery()
 {
 	uint   i;
 	if(w_restrict) {
@@ -47,12 +47,12 @@ SLAPI DBQuery::~DBQuery()
 	SAlloc::F(order);
 }
 
-void SLAPI DBQuery::setDestroyTablesMode(int set)
+void DBQuery::setDestroyTablesMode(int set)
 {
 	SETFLAG(options, DBQuery::destroy_tables, set);
 }
 
-void SLAPI DBQuery::setSearchForUpdateMode(int set)
+void DBQuery::setSearchForUpdateMode(int set)
 {
 	for(uint i = 0; i < tblCount; i++) {
 		SETFLAG(tbls[i].flg, DBQTF_SEARCHFORUPDATE, set);
@@ -67,7 +67,7 @@ static int FASTCALL _search_item(int count, const int * pArray, int item)
 	return -1;
 }
 
-int SLAPI DBQuery::_max_hdl(DBDataCell * c, const int * pList, int _max)
+int DBQuery::_max_hdl(DBDataCell * c, const int * pList, int _max)
 {
 	if(c->GetId() > 0) {
 		const int tmp = _search_item(tblCount, pList, c->GetId());
@@ -85,7 +85,7 @@ int SLAPI DBQuery::_max_hdl(DBDataCell * c, const int * pList, int _max)
 	return _max;
 }
 
-void SLAPI DBQuery::arrangeTerms()
+void DBQuery::arrangeTerms()
 {
 	int   list[32];
 	assert(tblCount <= sizeof(list));
@@ -110,7 +110,7 @@ void SLAPI DBQuery::arrangeTerms()
 //
 //	Return: 0 - error, 1 - bind, 2 - not bind
 //
-int SLAPI DBQuery::makeNode(int tblN, int * pNode, int option, int * pPos)
+int DBQuery::makeNode(int tblN, int * pNode, int option, int * pPos)
 {
 	int    result = 0;
 	if(*pNode == -1) {
@@ -432,7 +432,7 @@ DBQuery & SLAPIV select(DBField first_arg, ...)
 	return q;
 }
 
-DBQuery & SLAPI selectAll()
+DBQuery & selectAll()
 {
 	DBQuery & q = *new DBQuery;
 	q.syntax |= (DBQuery::t_select | DBQuery::t_all);
@@ -492,7 +492,7 @@ int FASTCALL DBQuery::addTable(DBTable * pTbl)
 	return ok;
 }
 
-int SLAPI DBQuery::addOrderField(const DBField & rFld)
+int DBQuery::addOrderField(const DBField & rFld)
 {
 	if(&rFld) {
 		order = static_cast<DBField *>(SAlloc::R(order, sizeof(DBField) * (ordCount+1)));
@@ -522,7 +522,7 @@ DBQuery & SLAPIV DBQuery::orderBy(DBField first_arg, ...)
 	return *this;
 }
 
-int SLAPI DBQuery::checkWhereRestriction()
+int DBQuery::checkWhereRestriction()
 {
 	return TRUE;
 }
@@ -557,7 +557,7 @@ DBQuery & FASTCALL DBQuery::where(DBQ & q)
 	return *this;
 }
 
-int SLAPI DBQuery::calcRecSize()
+int DBQuery::calcRecSize()
 {
 	recSize  = 0;
 	if(syntax & t_all) {
@@ -573,7 +573,7 @@ int SLAPI DBQuery::calcRecSize()
 	return 1;
 }
 
-int SLAPI DBQuery::getFieldPosByName(const char * pFldName, uint * pPos) const
+int DBQuery::getFieldPosByName(const char * pFldName, uint * pPos) const
 {
 	for(uint i = 0; i < fldCount; i++)
 		if(flds[i].cell.GetId() > 0 && sstreqi_ascii(flds[i].cell.F.getField().Name, pFldName)) {
@@ -736,7 +736,7 @@ void FASTCALL DBQuery::fillRecord(char * buf, RECORDNUMBER * pPos)
 
 #define INVALID_DIRECTION_CODE 0
 
-int SLAPI DBQuery::single_fetch(char * buf, RECORDNUMBER * pPos, int dir)
+int DBQuery::single_fetch(char * buf, RECORDNUMBER * pPos, int dir)
 {
 	if(_search(0, dir)) {
 		fillRecord(buf, pPos);
@@ -747,7 +747,7 @@ int SLAPI DBQuery::single_fetch(char * buf, RECORDNUMBER * pPos, int dir)
 	return static_cast<int>(actCount);
 }
 
-int SLAPI DBQuery::fetch(long count, char * pBuf, RECORDNUMBER * pPos, int dir)
+int DBQuery::fetch(long count, char * pBuf, RECORDNUMBER * pPos, int dir)
 {
 	long   i = 0L;
 	assert(oneof4(dir, spNext, spFirst, spPrev, spLast));
@@ -764,7 +764,7 @@ int SLAPI DBQuery::fetch(long count, char * pBuf, RECORDNUMBER * pPos, int dir)
 	return (i < count) ? 0 : 1;
 }
 
-int SLAPI DBQuery::fetch(long count, char * pBuf, int dir)
+int DBQuery::fetch(long count, char * pBuf, int dir)
 {
 	return fetch(count, pBuf, 0, dir);
 }
@@ -778,10 +778,10 @@ long DBQuery::_defaultBufDelta =  4L;
 inline uint FASTCALL DBQuery::addr(uint p) const { return ((P_Frame->zero+p) % P_Frame->size); }
 void * FASTCALL DBQuery::getRecord(uint r) { return (r < P_Frame->count) ? (P_Frame->buf + recSize * addr(r)) : 0; }
 const void * FASTCALL DBQuery::getRecordC(uint r) const { return (r < P_Frame->count) ? (P_Frame->buf + recSize * addr(r)) : 0; }
-void * SLAPI DBQuery::getCurrent() { return getRecord(P_Frame->cur); }
-void * SLAPI DBQuery::getBuffer() { return P_Frame->buf; }
+void * DBQuery::getCurrent() { return getRecord(P_Frame->cur); }
+void * DBQuery::getBuffer() { return P_Frame->buf; }
 
-int SLAPI DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
+int DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 {
 	if(bufSize != UNDEF && !allocFrame(bufSize))
 		return 0;
@@ -803,7 +803,7 @@ int SLAPI DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 	return 1;
 }
 
-int SLAPI DBQuery::allocFrame(uint bufSize)
+int DBQuery::allocFrame(uint bufSize)
 {
 	if(P_Frame && P_Frame->size == bufSize)
 		return 1;
@@ -847,7 +847,7 @@ int SLAPI DBQuery::allocFrame(uint bufSize)
 	return 1;
 }
 
-void SLAPI DBQuery::moveRec(uint rd, uint rs)
+void DBQuery::moveRec(uint rd, uint rs)
 {
 	ulong * pp = P_Frame->posBuf;
 	char * b = P_Frame->buf;
@@ -858,7 +858,7 @@ void SLAPI DBQuery::moveRec(uint rd, uint rs)
 	}
 }
 
-void SLAPI DBQuery::moveBuf(uint dest, uint src, uint recs)
+void DBQuery::moveBuf(uint dest, uint src, uint recs)
 {
 	if(dest > src) // Копируем сверху-вниз
 		for(int i = (recs-1); i >= 0; i--)
@@ -907,7 +907,7 @@ void FASTCALL DBQuery::setCount(uint c)
 #define _ltop     3
 #define _lprev    4
 
-int SLAPI DBQuery::_fetch_next(uint count, uint p, int dir)
+int DBQuery::_fetch_next(uint count, uint p, int dir)
 {
 	uint i;
 	for(i = 0; i < count; i++)
@@ -925,7 +925,7 @@ int SLAPI DBQuery::_fetch_next(uint count, uint p, int dir)
 	return !error;
 }
 
-int SLAPI DBQuery::_fetch_prev(uint count, uint p)
+int DBQuery::_fetch_prev(uint count, uint p)
 {
 	uint i, s = P_Frame->size;
 	for(i = 0; i < count; i++)
@@ -943,7 +943,7 @@ int SLAPI DBQuery::_fetch_prev(uint count, uint p)
 	return !error;
 }
 
-int SLAPI DBQuery::_fetch_last(uint count, uint p)
+int DBQuery::_fetch_last(uint count, uint p)
 {
 	uint   i;
 	const  uint s = P_Frame->size;
@@ -1003,7 +1003,7 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 	return !error;
 }
 
-int SLAPI DBQuery::refresh()
+int DBQuery::refresh()
 {
 	P_Frame->sdelta = 0;
 	if(BOQ) {
@@ -1028,7 +1028,7 @@ int SLAPI DBQuery::refresh()
 	return !error;
 }
 
-int SLAPI DBQuery::top()
+int DBQuery::top()
 {
 	if(BOQ)
 		P_Frame->sdelta = -static_cast<long>(P_Frame->top);
@@ -1042,7 +1042,7 @@ int SLAPI DBQuery::top()
 	return !error;
 }
 
-int SLAPI DBQuery::bottom()
+int DBQuery::bottom()
 {
 	if(!error) {
 		if(!EOQ) {
@@ -1132,7 +1132,7 @@ int FASTCALL DBQuery::step(long delta)
 
 #pragma warn .sig
 
-SLAPI DBQuery::Frame::~Frame()
+DBQuery::Frame::~Frame()
 {
 	SAlloc::F(buf);
 	SAlloc::F(posBuf);
@@ -1151,7 +1151,7 @@ void FASTCALL DBQuery::Frame::topByCur(int dir)
 		top = ((cur+1) >= hight) ? (cur+1-hight) : 0;
 }
 
-int SLAPI DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode, void * pExtraData)
+int DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint srchMode, void * pExtraData)
 {
 	int    dir = (srchMode & ~srchFlags);
 	int    nxt;
@@ -1201,7 +1201,7 @@ int SLAPI DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint sr
 	return r;
 }
 
-int SLAPI DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcmp, uint ofs, int srchMode, int nxt, void * pExtraData)
+int DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcmp, uint ofs, int srchMode, int nxt, void * pExtraData)
 {
 	int  r = 0;
 	uint p = addr(P_Frame->cur);
@@ -1254,7 +1254,7 @@ DBUpdateSet::~DBUpdateSet()
 	freeAll();
 }
 
-uint SLAPI DBUpdateSet::GetCount() const
+uint DBUpdateSet::GetCount() const
 {
 	return count;
 }

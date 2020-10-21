@@ -9,11 +9,11 @@
 //
 // GoodsSaldoCore
 //
-SLAPI GoodsSaldoCore::GoodsSaldoCore() : GoodsDebtTbl()
+GoodsSaldoCore::GoodsSaldoCore() : GoodsDebtTbl()
 {
 }
 
-int SLAPI GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE * pDt, GoodsDebtTbl::Rec * pRec)
+int GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE * pDt, GoodsDebtTbl::Rec * pRec)
 {
 	int    ok = -1;
 	LDATE  dt = ZERODATE;
@@ -55,7 +55,7 @@ int SLAPI GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, 
 	return ok;
 }
 
-int SLAPI GoodsSaldoCore::GetLastCalcDate(PPID goodsGrpID, PPID goodsID, PPID arID, PPID dlvrLocID, LDATE * pDt)
+int GoodsSaldoCore::GetLastCalcDate(PPID goodsGrpID, PPID goodsID, PPID arID, PPID dlvrLocID, LDATE * pDt)
 {
 	int    ok = 1;
 	LDATE  dt = ZERODATE;
@@ -106,7 +106,7 @@ int SLAPI GoodsSaldoCore::GetLastCalcDate(PPID goodsGrpID, PPID goodsID, PPID ar
 //   CalcSaldoList
 //
 struct CalcSaldoEntry { // @flat
-	SLAPI  CalcSaldoEntry()
+	CalcSaldoEntry()
 	{
 		THISZERO();
 	}
@@ -117,11 +117,11 @@ struct CalcSaldoEntry { // @flat
 
 class CalcSaldoList : public SVector { // @v9.8.4 SArray-->SVector
 public:
-	SLAPI  CalcSaldoList() : SVector(sizeof(CalcSaldoEntry))
+	CalcSaldoList() : SVector(sizeof(CalcSaldoEntry))
 	{
 	}
-	int   SLAPI Search(PPID gdsID, PPID artID, uint * p = 0);
-	int   SLAPI Insert(const CalcSaldoEntry * pEntry, uint * p = 0);
+	int   Search(PPID gdsID, PPID artID, uint * p = 0);
+	int   Insert(const CalcSaldoEntry * pEntry, uint * p = 0);
 	CalcSaldoEntry & FASTCALL at(uint p) const
 	{
 		return *static_cast<CalcSaldoEntry *>(SVector::at(p));
@@ -131,7 +131,7 @@ public:
 IMPL_CMPFUNC(CalcSaldoEnKey, i1, i2)
 	{ RET_CMPCASCADE2(static_cast<const CalcSaldoEntry *>(i1), static_cast<const CalcSaldoEntry *>(i2), GoodsID, ArticleID); }
 
-int SLAPI CalcSaldoList::Search(PPID gdsID, PPID artID, uint * p)
+int CalcSaldoList::Search(PPID gdsID, PPID artID, uint * p)
 {
 	CalcSaldoEntry dse;
 	dse.GoodsID   = gdsID;
@@ -139,7 +139,7 @@ int SLAPI CalcSaldoList::Search(PPID gdsID, PPID artID, uint * p)
 	return bsearch(&dse, p, PTR_CMPFUNC(CalcSaldoEnKey));
 }
 
-int SLAPI CalcSaldoList::Insert(const CalcSaldoEntry * pEntry, uint * p)
+int CalcSaldoList::Insert(const CalcSaldoEntry * pEntry, uint * p)
 {
 	return ordInsert(pEntry, p, PTR_CMPFUNC(CalcSaldoEnKey)) ? 1 : PPSetErrorSLib();
 }
@@ -167,7 +167,7 @@ struct GArSLastEntry {
 class PrcssrGoodsSaldo {
 public:
 	struct Param {
-		SLAPI Param() : GoodsGrpID(0), GoodsID(0), ArID(0), Dt(ZERODATE), CalcPeriod(0), FullCalc(0)
+		Param() : GoodsGrpID(0), GoodsID(0), ArID(0), Dt(ZERODATE), CalcPeriod(0), FullCalc(0)
 		{
 		}
 		PPID  GoodsGrpID;
@@ -178,23 +178,23 @@ public:
 		int   FullCalc;
 	};
 
-	SLAPI  PrcssrGoodsSaldo()
+	PrcssrGoodsSaldo()
 	{
 	}
-	int    SLAPI InitParam(Param *);
-	int    SLAPI EditParam(Param *);
-	int    SLAPI Init(const Param *);
-	int    SLAPI Run();
-	int    SLAPI Test(PPID goodsID, PPID arID, PPID dlvrID, const DateRange * pPeriod);
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
+	int    Test(PPID goodsID, PPID arID, PPID dlvrID, const DateRange * pPeriod);
 private:
-	int    SLAPI SetUnworkingContragentsSaldo(LDATE dt, CalcSaldoList * pList);
-	int    SLAPI SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList); // @v9.8.4 SArray-->SVector
+	int    SetUnworkingContragentsSaldo(LDATE dt, CalcSaldoList * pList);
+	int    SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList); // @v9.8.4 SArray-->SVector
 
 	GoodsSaldoCore GSCore;
 	Param  Par;
 };
 
-int SLAPI PrcssrGoodsSaldo::InitParam(Param * pPar)
+int PrcssrGoodsSaldo::InitParam(Param * pPar)
 {
 	if(pPar) {
 		memzero(pPar, sizeof(*pPar));
@@ -293,7 +293,7 @@ int GoodsSaldoParamDlg::getDTS(PrcssrGoodsSaldo::Param * pPar)
 //
 //
 //
-int SLAPI PrcssrGoodsSaldo::EditParam(Param * pPar)
+int PrcssrGoodsSaldo::EditParam(Param * pPar)
 {
 	int    ok = -1, valid_data;
 	GoodsSaldoParamDlg * dlg = 0;
@@ -308,7 +308,7 @@ int SLAPI PrcssrGoodsSaldo::EditParam(Param * pPar)
 	return ok;
 }
 
-int SLAPI PrcssrGoodsSaldo::Init(const Param * pPar)
+int PrcssrGoodsSaldo::Init(const Param * pPar)
 {
 	return RVALUEPTR(Par, pPar) ? 1 : PPSetErrorInvParam();
 }
@@ -316,7 +316,7 @@ int SLAPI PrcssrGoodsSaldo::Init(const Param * pPar)
 IMPL_CMPFUNC(GArSEntry, i1, i2)
 	{ RET_CMPCASCADE4(static_cast<const GArSEntry *>(i1), static_cast<const GArSEntry *>(i2), GoodsID, ArID, DlvrLocID, Dt); }
 
-int SLAPI PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList) // @v9.8.4 SArray-->SVector
+int PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList) // @v9.8.4 SArray-->SVector
 {
 	int    ok = 1;
 	if(checkdate(dt)) {
@@ -373,7 +373,7 @@ int SLAPI PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, L
 	return ok;
 }
 
-int SLAPI PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const DateRange * pPeriod)
+int PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const DateRange * pPeriod)
 {
 	int    ok = 1;
 	PPLogger logger;
@@ -416,7 +416,7 @@ int SLAPI PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const 
 	return ok;
 }
 
-int SLAPI PrcssrGoodsSaldo::Run()
+int PrcssrGoodsSaldo::Run()
 {
 	int    ok = 1;
 	const  LDATE end_date = plusdate(NZOR(Par.Dt, getcurdate_()), -1);
@@ -525,7 +525,7 @@ int SLAPI PrcssrGoodsSaldo::Run()
 	return ok;
 }
 
-int SLAPI ProcessGoodsSaldo()
+int ProcessGoodsSaldo()
 {
 	int    ok = -1;
 	PrcssrGoodsSaldo prcssr;

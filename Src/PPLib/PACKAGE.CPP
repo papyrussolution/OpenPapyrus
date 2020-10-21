@@ -13,7 +13,7 @@ struct LPII { // @flat
 	int32  ID;
 };
 
-SLAPI LPackage::LPackage() : SVector(sizeof(LPII)) // @v9.8.11 SArray-->SVector
+LPackage::LPackage() : SVector(sizeof(LPII)) // @v9.8.11 SArray-->SVector
 {
 	Init();
 }
@@ -43,7 +43,7 @@ LPackage & FASTCALL LPackage::operator = (const LPackage & s)
 	return *this;
 }
 
-void SLAPI LPackage::Init()
+void LPackage::Init()
 {
 	ID = 0;
 	PrevID = 0;
@@ -59,7 +59,7 @@ void SLAPI LPackage::Init()
 	freeAll();
 }
 
-int SLAPI LPackage::EnumItems(uint * pI, int * pIdx, PPID * pID) const
+int LPackage::EnumItems(uint * pI, int * pIdx, PPID * pID) const
 {
 	LPII * p_item;
 	if(enumItems(pI, (void **)&p_item)) {
@@ -72,7 +72,7 @@ int SLAPI LPackage::EnumItems(uint * pI, int * pIdx, PPID * pID) const
 	return 0;
 }
 
-int SLAPI LPackage::UpdateItem(uint i, int idx, PPID id)
+int LPackage::UpdateItem(uint i, int idx, PPID id)
 {
 	if(i < getCount()) {
 		static_cast<LPII *>(at(i))->Idx = idx;
@@ -82,7 +82,7 @@ int SLAPI LPackage::UpdateItem(uint i, int idx, PPID id)
 	return 0;
 }
 
-int SLAPI LPackage::GetLotIDList(PPIDArray * pList) const
+int LPackage::GetLotIDList(PPIDArray * pList) const
 {
 	if(pList) {
 		for(uint i = 0; i < getCount(); i++)
@@ -95,7 +95,7 @@ int SLAPI LPackage::GetLotIDList(PPIDArray * pList) const
 		return -1;
 }
 
-int SLAPI LPackage::SearchByID(PPID lotID, int * pIdx) const
+int LPackage::SearchByID(PPID lotID, int * pIdx) const
 {
 	for(uint i = 0; i < getCount(); i++)
 		if(static_cast<LPII *>(at(i))->ID == lotID) {
@@ -105,7 +105,7 @@ int SLAPI LPackage::SearchByID(PPID lotID, int * pIdx) const
 	return 0;
 }
 
-int SLAPI LPackage::SearchByIdx(int idx, PPID * pLotID) const
+int LPackage::SearchByIdx(int idx, PPID * pLotID) const
 {
 	for(uint i = 0; i < getCount(); i++)
 		if(static_cast<LPII *>(at(i))->Idx == idx) {
@@ -115,7 +115,7 @@ int SLAPI LPackage::SearchByIdx(int idx, PPID * pLotID) const
 	return 0;
 }
 
-int SLAPI LPackage::AddLotIDList(const PPIDArray * pList)
+int LPackage::AddLotIDList(const PPIDArray * pList)
 {
 	for(uint i = 0; i < pList->getCount(); i++)
 		if(!AddItem(pList->at(i), -1))
@@ -123,7 +123,7 @@ int SLAPI LPackage::AddLotIDList(const PPIDArray * pList)
 	return 1;
 }
 
-int SLAPI LPackage::AddItem(PPID lotID, int idx)
+int LPackage::AddItem(PPID lotID, int idx)
 {
 	if(lotID) {
 		if(SearchByID(lotID, 0) > 0)
@@ -137,7 +137,7 @@ int SLAPI LPackage::AddItem(PPID lotID, int idx)
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI LPackage::RemoveByID(PPID lotID)
+int LPackage::RemoveByID(PPID lotID)
 {
 	for(int i = getCount()-1; i >= 0; i--)
 		if(static_cast<LPII *>(at(i))->ID == lotID)
@@ -145,7 +145,7 @@ int SLAPI LPackage::RemoveByID(PPID lotID)
 	return 1;
 }
 
-int SLAPI LPackage::RemoveByIdx(int idx)
+int LPackage::RemoveByIdx(int idx)
 {
 	for(int i = getCount()-1; i >= 0; i--)
 		if(static_cast<LPII *>(at(i))->Idx == idx)
@@ -164,18 +164,18 @@ int FASTCALL LPackage::ShiftIdx(int idx)
 //
 // Implementation of LPackageList
 //
-SLAPI LPackageList::LPackageList() : SCollection()
+LPackageList::LPackageList() : SCollection()
 {
 }
 
-SLAPI LPackageList::~LPackageList()
+LPackageList::~LPackageList()
 {
 	freeAll();
 }
 
 /*virtual*/void FASTCALL LPackageList::freeItem(void * pItem) { delete static_cast<LPackage *>(pItem); }
 
-int SLAPI LPackageList::Add(const LPackage * pItem)
+int LPackageList::Add(const LPackage * pItem)
 {
 	LPackage * p_temp = new LPackage;
 	if(p_temp) {
@@ -186,7 +186,7 @@ int SLAPI LPackageList::Add(const LPackage * pItem)
 		return PPSetErrorNoMem();
 }
 
-int SLAPI LPackageList::ShiftIdx(int16 idx)
+int LPackageList::ShiftIdx(int16 idx)
 {
 	LPackage * p_pckg;
 	for(uint i = 0; enumItems(&i, (void **)&p_pckg);) {
@@ -197,7 +197,7 @@ int SLAPI LPackageList::ShiftIdx(int16 idx)
 	return 1;
 }
 
-int SLAPI LPackageList::RemoveByIdx(int16 idx)
+int LPackageList::RemoveByIdx(int16 idx)
 {
 	LPackage * p_pckg;
 	if(idx >= 0)
@@ -209,7 +209,7 @@ int SLAPI LPackageList::RemoveByIdx(int16 idx)
 	return 1;
 }
 
-LPackage * SLAPI LPackageList::GetByID(PPID id)
+LPackage * LPackageList::GetByID(PPID id)
 {
 	for(uint i = 0; i < getCount(); i++)
 		if(static_cast<const LPackage *>(at(i))->ID == id)
@@ -217,7 +217,7 @@ LPackage * SLAPI LPackageList::GetByID(PPID id)
 	return 0;
 }
 
-LPackage * SLAPI LPackageList::GetByIdx(int16 idx)
+LPackage * LPackageList::GetByIdx(int16 idx)
 {
 	for(uint i = 0; i < getCount(); i++)
 		if(static_cast<const LPackage *>(at(i))->PckgIdx == idx)
@@ -225,12 +225,12 @@ LPackage * SLAPI LPackageList::GetByIdx(int16 idx)
 	return 0;
 }
 
-int SLAPI LPackageList::EnumItems(uint * pI, LPackage ** ppPckg)
+int LPackageList::EnumItems(uint * pI, LPackage ** ppPckg)
 {
 	return enumItems(pI, (void **)ppPckg);
 }
 
-int SLAPI LPackageList::CheckCodeUnique(PPID pckgTypeID, const char * pCode, int pos)
+int LPackageList::CheckCodeUnique(PPID pckgTypeID, const char * pCode, int pos)
 {
 	LPackage * p_pckg;
 	for(uint i = 0; EnumItems(&i, &p_pckg);)
@@ -243,16 +243,16 @@ int SLAPI LPackageList::CheckCodeUnique(PPID pckgTypeID, const char * pCode, int
 //
 // Implementation of PackageCore
 //
-SLAPI PackageCore::PackageCore() : PackageTbl()
+PackageCore::PackageCore() : PackageTbl()
 {
 }
 
-int SLAPI PackageCore::Search(PPID id, PackageTbl::Rec * pPckg)
+int PackageCore::Search(PPID id, PackageTbl::Rec * pPckg)
 {
 	return SearchByID(this, PPOBJ_PACKAGE, id, pPckg);
 }
 
-int SLAPI PackageCore::SearchPrev(PPID prevID, PackageTbl::Rec * pPckg)
+int PackageCore::SearchPrev(PPID prevID, PackageTbl::Rec * pPckg)
 {
 	PackageTbl::Key2 k2;
 	k2.PrevID = prevID;
@@ -264,7 +264,7 @@ int SLAPI PackageCore::SearchPrev(PPID prevID, PackageTbl::Rec * pPckg)
 	return PPDbSearchError();
 }
 
-int SLAPI PackageCore::GetLotLink(PPID lotID, PPID * pPckgID, PackageTbl::Rec * pRec)
+int PackageCore::GetLotLink(PPID lotID, PPID * pPckgID, PackageTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PackageLinkTbl::Key1 k;
@@ -290,7 +290,7 @@ int SLAPI PackageCore::GetLotLink(PPID lotID, PPID * pPckgID, PackageTbl::Rec * 
 	return ok;
 }
 
-int SLAPI PackageCore::GetPckgLinkList(PPID id, PPIDArray * pList)
+int PackageCore::GetPckgLinkList(PPID id, PPIDArray * pList)
 {
 	PackageLinkTbl::Key0 k;
 	BExtQuery q(&PL, 0);
@@ -303,7 +303,7 @@ int SLAPI PackageCore::GetPckgLinkList(PPID id, PPIDArray * pList)
 	return 1;
 }
 
-int SLAPI PackageCore::GetPckg(PPID id, LPackage * pPckg)
+int PackageCore::GetPckg(PPID id, LPackage * pPckg)
 {
 	int    ok = 1;
 	PackageTbl::Rec rec;
@@ -325,7 +325,7 @@ int SLAPI PackageCore::GetPckg(PPID id, LPackage * pPckg)
 	return ok;
 }
 
-int SLAPI PackageCore::AddPckgLink(PPID pckgID, PPID lotID)
+int PackageCore::AddPckgLink(PPID pckgID, PPID lotID)
 {
 	if(pckgID == 0 || lotID == 0)
 		return -1;
@@ -335,12 +335,12 @@ int SLAPI PackageCore::AddPckgLink(PPID pckgID, PPID lotID)
 	return PL.insertRecBuf(&rec) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI PackageCore::RemovePckgLink(PPID pckgID, PPID lotID)
+int PackageCore::RemovePckgLink(PPID pckgID, PPID lotID)
 {
 	return deleteFrom(&PL, 0, lotID ? (PL.PckgID == pckgID && PL.LotID == lotID) : (PL.PckgID == pckgID));
 }
 
-int SLAPI PackageCore::SetClosedTag(PPID id, int tag, int use_ta)
+int PackageCore::SetClosedTag(PPID id, int tag, int use_ta)
 {
 	int    ok = 1;
 	PackageTbl::Rec rec;
@@ -377,7 +377,7 @@ int SLAPI PackageCore::SetClosedTag(PPID id, int tag, int use_ta)
 	return ok;
 }
 
-int SLAPI PackageCore::AdjustUniqCntr(PackageTbl::Rec * pRec)
+int PackageCore::AdjustUniqCntr(PackageTbl::Rec * pRec)
 {
 	int    ok = 1;
 	PPIDArray dup_list;
@@ -417,7 +417,7 @@ int SLAPI PackageCore::AdjustUniqCntr(PackageTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI PackageCore::PutPckg(PPID id, const LPackage * pPckg, int use_ta)
+int PackageCore::PutPckg(PPID id, const LPackage * pPckg, int use_ta)
 {
 	int    ok = 1, insert_links = 0;
 	PackageTbl::Rec rec;
@@ -477,7 +477,7 @@ int SLAPI PackageCore::PutPckg(PPID id, const LPackage * pPckg, int use_ta)
 	return ok;
 }
 
-int SLAPI PackageCore::SearchByCode(PPID pckgTypeID, const char * pCode, PPIDArray * pList)
+int PackageCore::SearchByCode(PPID pckgTypeID, const char * pCode, PPIDArray * pList)
 {
 	int    sp = spGe, found = 0;
 	PackageTbl::Key1 k;
@@ -495,7 +495,7 @@ int SLAPI PackageCore::SearchByCode(PPID pckgTypeID, const char * pCode, PPIDArr
 	return found ? 1 : -1;
 }
 
-int SLAPI PackageCore::CheckCodeUnique(PPID pckgTypeID, PPID pckgID, const char * pCode, long * pCntr)
+int PackageCore::CheckCodeUnique(PPID pckgTypeID, PPID pckgID, const char * pCode, long * pCntr)
 {
 	int    ok = 1;
 	long   cntr = 0;

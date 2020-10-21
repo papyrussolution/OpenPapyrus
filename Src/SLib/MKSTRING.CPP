@@ -15,14 +15,14 @@
 int    line = 1;
 SString InputFileName;
 
-void SLAPI error(const char * pStr)
+void error(const char * pStr)
 {
 	printf("%s(%d): error: %s\n", InputFileName.cptr(), line, pStr);
 	//printf("Error (%d): %s\n", line, s);
 	exit(1);
 }
 
-void SLAPI warning(const char * pStr)
+void warning(const char * pStr)
 {
 	printf("%s(%d): warning: %s\n", InputFileName.cptr(), line, pStr);
 	//printf("Warning (%d): %s\n", line, s);
@@ -35,7 +35,7 @@ int getsymb(FILE * f, uchar * pC)
 	return feof(f) ? 0 : 1;
 }
 
-void SLAPI get(char * inFile, char * outFile)
+void get(char * inFile, char * outFile)
 {
 	const  size_t buf_size = 2048;
 	

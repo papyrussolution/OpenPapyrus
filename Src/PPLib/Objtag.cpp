@@ -13,7 +13,7 @@ const char * P_EmptyTagValRestrict = "#EMPTY";
 const char * P_ExistTagValRestrict = "#EXIST";
 const char * P_ListTagValRestrict = "#LIST";
 
-/*static*/int SLAPI TagFilt::ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf)
+/*static*/int TagFilt::ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf)
 {
 	int    ok = 0;
 	const  char * p = 0;
@@ -80,7 +80,7 @@ const char * P_ListTagValRestrict = "#LIST";
 	return ok;
 }
 
-void SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf)
+void TagFilt::MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf)
 {
 	rItemBuf.Z();
 	SString temp_buf(pRestrictionString);
@@ -127,7 +127,7 @@ void SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pC
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(Tag); SLAPI TagFilt::TagFilt() : PPBaseFilt(PPFILT_TAG, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(Tag); TagFilt::TagFilt() : PPBaseFilt(PPFILT_TAG, 0, 1)
 {
 	SetFlatChunk(offsetof(TagFilt, ReserveStart),
 		offsetof(TagFilt, TagsRestrict) - offsetof(TagFilt, ReserveStart));
@@ -141,12 +141,12 @@ TagFilt & FASTCALL TagFilt::operator = (const TagFilt & rS)
 	return *this;
 }
 
-int SLAPI TagFilt::IsEmpty() const
+int TagFilt::IsEmpty() const
 {
 	return BIN(TagsRestrict.getCount() == 0);
 }
 
-int SLAPI TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
+int TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 {
 	int    select_ok = 0;
 	SString restrict;
@@ -193,7 +193,7 @@ int SLAPI TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 	return select_ok;
 }
 
-int SLAPI TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, long restrictVal) const
+int TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, long restrictVal) const
 {
 	int    check_ok = 0;
 	if(restrictVal == pItem->Val.IntVal)
@@ -226,7 +226,7 @@ int SLAPI TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pIte
 	return check_ok;
 }
 
-int SLAPI TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const
+int TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const
 {
 	int    check_ok = 1;
 	if(pItem) {
@@ -304,12 +304,12 @@ int FASTCALL TagFilt::Check(const ObjTagList * pList) const
 //
 // PPObjTagPacket
 //
-SLAPI PPObjTagPacket::PPObjTagPacket()
+PPObjTagPacket::PPObjTagPacket()
 {
 	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
-PPObjTagPacket & SLAPI PPObjTagPacket::Z()
+PPObjTagPacket & PPObjTagPacket::Z()
 {
 	MEMSZERO(Rec);
 	Rule.Z();
@@ -324,14 +324,14 @@ PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (const PPObjTagPacket & rS)
 	return *this;
 }
 
-SLAPI PPObjectTag2::PPObjectTag2()
+PPObjectTag2::PPObjectTag2()
 {
 	THISZERO();
 }
 //
 // PPTagEnumList
 //
-SLAPI PPTagEnumList::PPTagEnumList(PPID enumID) : StrAssocArray(), EnumID(enumID), Flags(0)
+PPTagEnumList::PPTagEnumList(PPID enumID) : StrAssocArray(), EnumID(enumID), Flags(0)
 {
 }
 
@@ -348,17 +348,17 @@ int FASTCALL PPTagEnumList::Copy(const PPTagEnumList & src)
 	return StrAssocArray::Copy(src);
 }
 
-void SLAPI PPTagEnumList::SetEnumID(PPID enumID)
+void PPTagEnumList::SetEnumID(PPID enumID)
 {
 	EnumID = enumID;
 }
 
-void SLAPI PPTagEnumList::SetFlags(long flags)
+void PPTagEnumList::SetFlags(long flags)
 {
 	SETFLAG(Flags, PPCommObjEntry::fHierarchical, flags & PPCommObjEntry::fHierarchical);
 }
 
-int SLAPI PPTagEnumList::PutItem(PPID * pID, const char * pName, PPID parentID)
+int PPTagEnumList::PutItem(PPID * pID, const char * pName, PPID parentID)
 {
 	int    ok = 1;
 	if(!*pID) {
@@ -379,7 +379,7 @@ int SLAPI PPTagEnumList::PutItem(PPID * pID, const char * pName, PPID parentID)
 	return ok;
 }
 
-int SLAPI PPTagEnumList::Read(PPID enumID)
+int PPTagEnumList::Read(PPID enumID)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -399,7 +399,7 @@ int SLAPI PPTagEnumList::Read(PPID enumID)
 	return ok;
 }
 
-int SLAPI PPTagEnumList::Write(int use_ta)
+int PPTagEnumList::Write(int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -450,7 +450,7 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 	return ok;
 }
 
-/*virtual*/void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjTagListWindow : public PPObjListWindow {
 	public:
@@ -544,7 +544,7 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 //
 //
 //
-static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
+static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 {
 	class SelectObjTagTypeDialog : public TDialog {
 		DECL_DIALOG_DATA(PPObjectTag);
@@ -693,7 +693,7 @@ int FASTCALL SetupObjTagCombo(TDialog * dlg, uint ctl, PPID id, uint flags, ObjT
 	return yes;
 }
 
-SLAPI ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
+ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
 {
 	Flags = CHKXORFLAGS(flags, fOnlyGroups, fOnlyTags) | (flags & ~(fOnlyGroups|fOnlyTags));
 	if(objTypeID)
@@ -705,7 +705,7 @@ SLAPI ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
 	ParentID = parentID;
 }
 
-/*static*/PPID SLAPI PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
+/*static*/PPID PPObjTag::Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb)
 {
 	long   sur_id = 0;
 	Reference * p_ref = PPRef;
@@ -719,7 +719,7 @@ SLAPI ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
 	return sur_id;
 }
 
-/*static*/PPID SLAPI PPObjTag::Helper_GetTagByID(PPID objType, PPID objID, PPID tagID)
+/*static*/PPID PPObjTag::Helper_GetTagByID(PPID objType, PPID objID, PPID tagID)
 {
 	long   sur_id = 0;
 	if(tagID) {
@@ -734,16 +734,16 @@ SLAPI ObjTagFilt::ObjTagFilt(PPID objTypeID, long flags, PPID parentID)
 	return sur_id;
 }
 
-SLAPI PPObjTag::PPObjTag(void * extraPtr) : PPObjReference(PPOBJ_TAG, extraPtr)
+PPObjTag::PPObjTag(void * extraPtr) : PPObjReference(PPOBJ_TAG, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-SLAPI PPObjTag::~PPObjTag()
+PPObjTag::~PPObjTag()
 {
 }
 
-int SLAPI PPObjTag::MakeReserved(long flags)
+int PPObjTag::MakeReserved(long flags)
 {
 	/*
 \begin{description}
@@ -853,7 +853,7 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 	return ok;
 }
 
-ObjTagFilt & SLAPI PPObjTag::InitFilt(void * extraPtr, ObjTagFilt & rFilt) const
+ObjTagFilt & PPObjTag::InitFilt(void * extraPtr, ObjTagFilt & rFilt) const
 {
 	if(extraPtr) {
 		rFilt = *static_cast<const ObjTagFilt *>(extraPtr);
@@ -871,7 +871,7 @@ int FASTCALL PPObjTag::IsUnmirrored(PPID tagID)
 	return BIN(oneof3(tagID, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_VETIS_UUID)); // @v10.2.5 PPTAG_LOT_VETIS_UUID
 }
 
-int SLAPI PPObjTag::GetPacket(PPID id, PPObjTagPacket * pPack)
+int PPObjTag::GetPacket(PPID id, PPObjTagPacket * pPack)
 {
 	int    ok = -1;
 	assert(pPack);
@@ -882,7 +882,7 @@ int SLAPI PPObjTag::GetPacket(PPID id, PPObjTagPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjTag::Helper_CreateEnumObject(PPObjTagPacket & rPack)
+int PPObjTag::Helper_CreateEnumObject(PPObjTagPacket & rPack)
 {
 	int    ok = 1;
 	if(rPack.Rec.TagDataType == OTTYP_ENUM) {
@@ -907,7 +907,7 @@ int SLAPI PPObjTag::Helper_CreateEnumObject(PPObjTagPacket & rPack)
 	return ok;
 }
 
-int SLAPI PPObjTag::PutPacket(PPID * pID, PPObjTagPacket * pPack, int use_ta)
+int PPObjTag::PutPacket(PPID * pID, PPObjTagPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -933,7 +933,7 @@ int SLAPI PPObjTag::PutPacket(PPID * pID, PPObjTagPacket * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
+int PPObjTag::Edit(PPID * pID, void * extraPtr)
 {
 	class ObjTagDialog : public TDialog {
 		DECL_DIALOG_DATA(PPObjTagPacket);
@@ -1077,7 +1077,7 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 }
 
 #if 0 // @v10.7.8 (unused) {
-/*static*/int SLAPI PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
+/*static*/int PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
 {
 	class TagEnumListDialog : public PPListDialog {
 		DECL_DIALOG_DATA(PPTagEnumList);
@@ -1153,7 +1153,7 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 }
 #endif // } 0 @v10.7.8 (unused)
 
-SArray * SLAPI PPObjTag::CreateList(long current, long parent)
+SArray * PPObjTag::CreateList(long current, long parent)
 {
 	int    grpOnly = BIN(parent < 0);
 	ReferenceTbl::Key1 k;
@@ -1195,7 +1195,7 @@ SArray * SLAPI PPObjTag::CreateList(long current, long parent)
 	return p_ary;
 }
 
-int SLAPI PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) const
+int PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & rRec) const
 {
 	int    ok = 1;
 	if(pFilt) {
@@ -1215,7 +1215,7 @@ int SLAPI PPObjTag::CheckForFilt(const ObjTagFilt * pFilt, const PPObjectTag & r
 	return ok;
 }
 
-int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTable & rList, UintHashTable & rExcludeList)
+int PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTable & rList, UintHashTable & rExcludeList)
 {
 	int    ok = -1;
 	int    intersect_list_inited = 0;
@@ -1282,7 +1282,7 @@ int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHa
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjTag::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjTag::MakeStrAssocList(void * extraPtr)
 {
 	ObjTagFilt ot_filt;
 	InitFilt(extraPtr, ot_filt);
@@ -1311,7 +1311,7 @@ StrAssocArray * SLAPI PPObjTag::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
+int PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
 {
 	int    ok  = -1;
 	SEnum en = ref->Enum(Obj, 0);
@@ -1325,7 +1325,7 @@ int SLAPI PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & rNormCrit)
+int PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & rNormCrit)
 {
 	int    ok = 1;
 	PPObjectTag tag_rec;
@@ -1360,7 +1360,7 @@ int SLAPI PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SStri
 	return ok;
 }
 
-int SLAPI PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pResultList, StrAssocArray * pInfoList)
+int PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pResultList, StrAssocArray * pInfoList)
 {
 	int    ok = -1;
 	PPIDArray warn_tag_list;
@@ -1400,13 +1400,13 @@ int SLAPI PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pRe
 	return ok;
 }
 
-int SLAPI PPObjTag::GetCurrTagVal(const ObjTagItem * pItem, SString & rBuf)
+int PPObjTag::GetCurrTagVal(const ObjTagItem * pItem, SString & rBuf)
 {
 	rBuf.Z();
 	return pItem ? pItem->GetStr(rBuf) : -1;
 }
 
-int SLAPI PPObjTag::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjTag::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	p->Data = new PPObjectTag;
@@ -1422,7 +1422,7 @@ int SLAPI PPObjTag::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext
 	return ok;
 }
 
-int SLAPI PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1441,7 +1441,7 @@ int SLAPI PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 	return ok;
 }
 
-/*static*/int SLAPI PPObjTag::RecoverLostUnifiedLinks()
+/*static*/int PPObjTag::RecoverLostUnifiedLinks()
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -1534,7 +1534,7 @@ int SLAPI PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 	return ok;
 }
 
-int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -1704,7 +1704,7 @@ private:
 };
 
 struct SelTagDialogData {
-	explicit SLAPI  SelTagDialogData(StrAssocArray::Item * pItem = 0) : Id(0)
+	explicit SelTagDialogData(StrAssocArray::Item * pItem = 0) : Id(0)
 	{
 		if(pItem) {
 			Id = pItem->Id;
@@ -2032,7 +2032,7 @@ int FASTCALL EditTagFilt(PPID objType, TagFilt * pData)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjTag::CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt)
+/*static*/int PPObjTag::CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt)
 {
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {
@@ -2046,7 +2046,7 @@ int FASTCALL EditTagFilt(PPID objType, TagFilt * pData)
 //
 //
 //
-int SLAPI SelectObjTag(PPID * pTagID, const PPIDArray * pAllowedTags, ObjTagFilt * pFilt)
+int SelectObjTag(PPID * pTagID, const PPIDArray * pAllowedTags, ObjTagFilt * pFilt)
 {
 	return PPSelectObject(PPOBJ_TAG, pTagID, PPTXT_SELECTOBJTAG, pFilt);
 }
@@ -2062,7 +2062,7 @@ union TagDlgVal {
 
 #define GRP_IMG 1
 
-int SLAPI TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
+int TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
 {
 	uint   rez_id = 0;
 	switch(tagDataType) {
@@ -2080,7 +2080,7 @@ int SLAPI TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
 	return BIN(rez_id);
 }
 
-int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
+int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 {
 	int    ok = 1;
 	long   typ;
@@ -2146,7 +2146,7 @@ int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 	return ok;
 }
 
-int SLAPI TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
+int TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 {
 	int    ok = 1;
 	long   typ = pItem->TagDataType;
@@ -2215,7 +2215,7 @@ int SLAPI TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 	return ok;
 }
 
-static int SLAPI EditPosRights(ObjTagItem * pItem)
+static int EditPosRights(ObjTagItem * pItem)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -2562,7 +2562,7 @@ int TagValListDialog::delItem(long, long id)
 	return id ? Data.PutItem(id, 0) : 0;
 }
 
-int SLAPI EditObjTagValList(ObjTagList * pList, const PPIDArray * pAllowedTags)
+int EditObjTagValList(ObjTagList * pList, const PPIDArray * pAllowedTags)
 {
 	int    ok = -1;
 	TagValListDialog::DataBlock blk;
@@ -2587,7 +2587,7 @@ int SLAPI EditObjTagValList(ObjTagList * pList, const PPIDArray * pAllowedTags)
 	return ok;
 }
 
-int SLAPI EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowedTags, int * pUpdateMode)
+int EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowedTags, int * pUpdateMode)
 {
 	int    ok = -1;
 	TagValListDialog::DataBlock blk;
@@ -2613,7 +2613,7 @@ int SLAPI EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowed
 	return ok;
 }
 
-int SLAPI EditObjTagValList(PPID objType, PPID objID, const PPIDArray * pAllowedTags)
+int EditObjTagValList(PPID objType, PPID objID, const PPIDArray * pAllowedTags)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -3052,22 +3052,22 @@ int FASTCALL ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 //
 class TagCache : public ObjCache {
 public:
-	SLAPI TagCache() : ObjCache(PPOBJ_TAG, sizeof(TagCacheEntry)), SymbList(PPOBJ_TAG), P_Ic(0)
+	TagCache() : ObjCache(PPOBJ_TAG, sizeof(TagCacheEntry)), SymbList(PPOBJ_TAG), P_Ic(0)
 	{
 	}
-	SLAPI ~TagCache()
+	~TagCache()
 	{
 		delete P_Ic;
 	}
-	int    SLAPI FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem);
-	int    SLAPI DirtyTag(PPID objType, PPID objID, PPID tagID);
-	int    SLAPI FetchBySymb(const char * pSymb, PPID * pID)
+	int    FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem);
+	int    DirtyTag(PPID objType, PPID objID, PPID tagID);
+	int    FetchBySymb(const char * pSymb, PPID * pID)
 	{
 		return SymbList.FetchBySymb(pSymb, pID);
 	}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	virtual int  FASTCALL Dirty(PPID id); // @sync_w
 
 	struct TagCacheEntry : public ObjCacheEntry {
@@ -3091,19 +3091,19 @@ int FASTCALL TagCache::Dirty(PPID id)
 	return ok;
 }
 
-int SLAPI TagCache::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
+int TagCache::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
 {
 	SETIFZ(P_Ic, new ObjTagCache);
 	return P_Ic ? P_Ic->Fetch(objID, tagID, pItem) : 0;
 }
 
-int SLAPI TagCache::DirtyTag(PPID objType, PPID objID, PPID tagID)
+int TagCache::DirtyTag(PPID objType, PPID objID, PPID tagID)
 {
 	CALLPTRMEMB(P_Ic, Dirty(objType, objID, tagID));
 	return 1;
 }
 
-int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	TagCacheEntry * p_rec = static_cast<TagCacheEntry *>(pEntry);
@@ -3178,7 +3178,7 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPObjectTag   * p_tag = static_cast<PPObjectTag *>(pDataRec);
 	const TagCacheEntry * p_cr  = static_cast<const TagCacheEntry *>(pEntry);
@@ -3202,13 +3202,13 @@ void SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	r_ss.get(&p, p_tag->Symb, sizeof(p_tag->Symb));
 }
 
-int SLAPI PPObjTag::Fetch(PPID id, PPObjectTag * pRec)
+int PPObjTag::Fetch(PPID id, PPObjectTag * pRec)
 {
 	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
-int SLAPI PPObjTag::FetchBySymb(const char * pSymb, PPID * pID)
+int PPObjTag::FetchBySymb(const char * pSymb, PPID * pID)
 {
 	TagCache * p_cache = GetDbLocalCachePtr <TagCache> (Obj);
 	return p_cache ? p_cache->FetchBySymb(pSymb, pID) : SearchBySymb(pSymb, pID, 0);

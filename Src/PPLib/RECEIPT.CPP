@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagItem * pItem)
+int ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagItem * pItem)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -48,12 +48,12 @@ int SLAPI ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, Ob
 	return ok;
 }
 
-SLAPI ReceiptCore::LotDimensions::LotDimensions() : X(0.0), Y(0.0), Z(0.0)
+ReceiptCore::LotDimensions::LotDimensions() : X(0.0), Y(0.0), Z(0.0)
 {
 	MEMSZERO(Reserve);
 }
 
-void SLAPI ReceiptCore::LotDimensions::Clear()
+void ReceiptCore::LotDimensions::Clear()
 {
 	X = 0.0;
 	Y = 0.0;
@@ -95,18 +95,18 @@ int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
 	return PPFormatT(PPTXT_CODELOT, &rBuf, pRec->GoodsID, pRec->Dt, pRec->OprNo, pRec->SupplID);
 }
 
-SLAPI ReceiptCore::ReceiptCore() : ReceiptTbl(), IgnoreGpretMostRecentFlags(-1)
+ReceiptCore::ReceiptCore() : ReceiptTbl(), IgnoreGpretMostRecentFlags(-1)
 {
 }
 
-int SLAPI ReceiptCore::Search(PPID id, ReceiptTbl::Rec * pRec)
+int ReceiptCore::Search(PPID id, ReceiptTbl::Rec * pRec)
 	{ return SearchByID(this, PPOBJ_LOT, id, pRec); }
-int SLAPI ReceiptCore::Update(PPID id, ReceiptTbl::Rec * pRec, int use_ta)
+int ReceiptCore::Update(PPID id, ReceiptTbl::Rec * pRec, int use_ta)
 	{ return UpdateByID(this, PPOBJ_LOT, id, pRec, use_ta); }
-int SLAPI ReceiptCore::Add(PPID * pID, ReceiptTbl::Rec * pRec, int use_ta)
+int ReceiptCore::Add(PPID * pID, ReceiptTbl::Rec * pRec, int use_ta)
 	{ return AddByID(this, pID, pRec, use_ta); }
 
-int SLAPI ReceiptCore::Remove(PPID id, int use_ta)
+int ReceiptCore::Remove(PPID id, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -123,7 +123,7 @@ int SLAPI ReceiptCore::Remove(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI ReceiptCore::SearchLoop(PPID * pLotID, PPID locID)
+int ReceiptCore::SearchLoop(PPID * pLotID, PPID locID)
 {
 	for(PPID id = *pLotID; id; id = data.PrevLotID) {
 		if(Search(id, 0) <= 0)
@@ -134,7 +134,7 @@ int SLAPI ReceiptCore::SearchLoop(PPID * pLotID, PPID locID)
 	return ((*pLotID = 0), -1);
 }
 
-int SLAPI ReceiptCore::Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec)
+int ReceiptCore::Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec)
 {
 	int    ok = 1;
 	PPID   org_lot_id = pInitLotRec ? pInitLotRec->ID : 0;
@@ -175,12 +175,12 @@ int SLAPI ReceiptCore::Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, 
 	return ok;
 }
 
-int SLAPI ReceiptCore::SearchOrigin(PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec)
+int ReceiptCore::SearchOrigin(PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec)
 {
 	return Helper_SearchOrigin(0, lotID, pOrgLotID, pThisRec, pOrgRec);
 }
 
-int SLAPI ReceiptCore::GetOriginDate(const ReceiptTbl::Rec * pLotRec, LDATE * pDate, PPID * pBillID)
+int ReceiptCore::GetOriginDate(const ReceiptTbl::Rec * pLotRec, LDATE * pDate, PPID * pBillID)
 {
 	int    ok = 1;
 	PPID   bill_id = 0;
@@ -203,7 +203,7 @@ int SLAPI ReceiptCore::GetOriginDate(const ReceiptTbl::Rec * pLotRec, LDATE * pD
 	return ok;
 }
 
-int SLAPI ReceiptCore::_SearchLot(int closed, PPID goodsID, PPID locID, LDATE dt, long oprno, int sp)
+int ReceiptCore::_SearchLot(int closed, PPID goodsID, PPID locID, LDATE dt, long oprno, int sp)
 {
 	ReceiptTbl::Key3 k;
 	k.Closed   = closed;
@@ -214,7 +214,7 @@ int SLAPI ReceiptCore::_SearchLot(int closed, PPID goodsID, PPID locID, LDATE dt
 	return search(3, &k, sp) ? 1 : PPDbSearchError();
 }
 
-int SLAPI ReceiptCore::GetLastOpenedLot(PPID goodsID, PPID locID, LDATE date, void * b)
+int ReceiptCore::GetLastOpenedLot(PPID goodsID, PPID locID, LDATE date, void * b)
 {
 	int    r = _SearchLot(0, goodsID, locID, NZOR(date, encodedate(31, 12, 2999)), MAXLONG, spLt);
 	if(r > 0 && data.Closed == 0 && data.GoodsID == goodsID && data.LocID == locID) {
@@ -225,12 +225,12 @@ int SLAPI ReceiptCore::GetLastOpenedLot(PPID goodsID, PPID locID, LDATE date, vo
 		return r ? -1 : 0;
 }
 
-int SLAPI ReceiptCore::GetCurrentGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
+int ReceiptCore::GetCurrentGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
 	{ return Helper_GetCurrentGoodsPrice(goodsID, locID, MAXDATE, flags, pPrice, pRec); }
-int SLAPI ReceiptCore::GetGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
+int ReceiptCore::GetGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
 	{ return Helper_GetCurrentGoodsPrice(goodsID, locID, date, flags, pPrice, pRec); }
 
-int SLAPI ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
+int ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
 {
 	int    r  = GPRET_NOLOTS;
 	PROFILE_START
@@ -295,7 +295,7 @@ int SLAPI ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDA
 	return r;
 }
 
-int SLAPI ReceiptCore::GetPreviousLot(PPID goodsID, PPID locID, LDATE dt, long oprNo, ReceiptTbl::Rec * pRec)
+int ReceiptCore::GetPreviousLot(PPID goodsID, PPID locID, LDATE dt, long oprNo, ReceiptTbl::Rec * pRec)
 {
 	int    ok = -1, r;
 	ReceiptTbl::Key2 k2;
@@ -313,7 +313,7 @@ int SLAPI ReceiptCore::GetPreviousLot(PPID goodsID, PPID locID, LDATE dt, long o
 	return ok;
 }
 
-int SLAPI ReceiptCore::GetReserve(PPID goodsID, PPID locID, double * pValue)
+int ReceiptCore::GetReserve(PPID goodsID, PPID locID, double * pValue)
 {
 	PPID   goods_id = -labs(goodsID);
 	double rest = 0.0;
@@ -333,7 +333,7 @@ int SLAPI ReceiptCore::GetReserve(PPID goodsID, PPID locID, double * pValue)
 	return (rest > 0) ? 1 : -1;
 }
 
-int SLAPI ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long * pOprNo, ReceiptTbl::Rec * pRec)
+int ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long * pOprNo, ReceiptTbl::Rec * pRec)
 {
 	ReceiptTbl::Key2 k, prev_k;
 	k.GoodsID = goodsID;
@@ -355,7 +355,7 @@ int SLAPI ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long 
 	return PPDbSearchError();
 }
 
-int SLAPI ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec)
+int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec)
 {
 	int    ok = -1;
 	ReceiptTbl::Key2 k;
@@ -460,7 +460,7 @@ int SLAPI ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, Rec
 	return (BTROKORNFOUND) ? ok : PPSetErrorDB();
 }
 
-int SLAPI ReceiptCore::GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec)
+int ReceiptCore::GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec)
 {
 	int    ok = -1;
 	PROFILE_START
@@ -477,7 +477,7 @@ int SLAPI ReceiptCore::GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptT
 	return ok;
 }
 
-int SLAPI ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec)
+int ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec)
 {
 	int    ok = -1;
 	if(locID == 0) {
@@ -534,7 +534,7 @@ int SLAPI ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * p
 	return ok;
 }
 
-int SLAPI ReceiptCore::EnumLots(PPID goods, PPID loc, DateIter * iter, void * b)
+int ReceiptCore::EnumLots(PPID goods, PPID loc, DateIter * iter, void * b)
 {
 	int    r = _SearchLot(0, goods, loc, iter->dt, iter->oprno, spGt);
 	if(r > 0 && !data.Closed && data.GoodsID == goods && data.LocID == loc && iter->Advance(data.Dt, data.OprNo) > 0) {
@@ -544,7 +544,7 @@ int SLAPI ReceiptCore::EnumLots(PPID goods, PPID loc, DateIter * iter, void * b)
 	return r ? -1 : 0;
 }
 
-int SLAPI ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::Rec * pRec)
+int ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::Rec * pRec)
 {
 	ReceiptTbl::Key2 k2;
 	k2.GoodsID = goodsID;
@@ -587,7 +587,7 @@ IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc, i1, i2)
 	return si;
 }
 
-int SLAPI ReceiptCore::GetListOfOpenedLots(const PPIDArray & rGoodsList, PPID locID, LotArray * pList)
+int ReceiptCore::GetListOfOpenedLots(const PPIDArray & rGoodsList, PPID locID, LotArray * pList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, clear());
@@ -622,7 +622,7 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(const PPIDArray & rGoodsList, PPID lo
 	return ok;
 }
 
-int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LDATE beforeDt, LotArray * pList)
+int ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LDATE beforeDt, LotArray * pList)
 {
 	const int use_bextq = 0;
 	int    ok = -1;
@@ -683,7 +683,7 @@ int SLAPI ReceiptCore::GetListOfOpenedLots(int dir, PPID goodsID, PPID locID, LD
 	return ok;
 }
 
-int SLAPI ReceiptCore::EnumRefs(PPID prevLotID, LDATE * pDt, long * pOprNo, void * b)
+int ReceiptCore::EnumRefs(PPID prevLotID, LDATE * pDt, long * pOprNo, void * b)
 {
 	int    ok = -1;
 	ReceiptTbl::Key4 k;
@@ -701,7 +701,7 @@ int SLAPI ReceiptCore::EnumRefs(PPID prevLotID, LDATE * pDt, long * pOprNo, void
 	return ok;
 }
 
-int SLAPI ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr)
+int ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr)
 {
 	int    r;
 	PPID   id;
@@ -724,7 +724,7 @@ int SLAPI ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(
 	return r;
 }
 
-int SLAPI ReceiptCore::GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCertID, PPID * pLotID)
+int ReceiptCore::GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCertID, PPID * pLotID)
 {
 	ASSIGN_PTR(pQCertID, 0);
 	ReceiptTbl::Key2 k;
@@ -746,7 +746,7 @@ int SLAPI ReceiptCore::GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCer
 	return (goodsID > 0) ? GetLastQCert(-goodsID, beforeDate, pQCertID, pLotID) /* @recursion */ : -1; 
 }
 
-int SLAPI ReceiptCore::IsThereOpenedLotForQCert(PPID qcertID)
+int ReceiptCore::IsThereOpenedLotForQCert(PPID qcertID)
 {
 	int    ok = -1;
 	ReceiptTbl::Key6 k;
@@ -760,7 +760,7 @@ int SLAPI ReceiptCore::IsThereOpenedLotForQCert(PPID qcertID)
 	return ok;
 }
 
-int SLAPI ReceiptCore::GetSupplList(PPID goodsID, const PPIDArray * pLocList, LDATE lastDate, PPIDArray * pSupplList)
+int ReceiptCore::GetSupplList(PPID goodsID, const PPIDArray * pLocList, LDATE lastDate, PPIDArray * pSupplList)
 {
 	int    ok = -1;
 	LDATE  upp_date = NZOR(lastDate, getcurdate_());
@@ -793,11 +793,11 @@ int FASTCALL GetCurGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPr
 //
 //
 //
-SLAPI LotExtCodeCore::LotExtCodeCore() : LotExtCodeTbl(0)
+LotExtCodeCore::LotExtCodeCore() : LotExtCodeTbl(0)
 {
 }
 
-int SLAPI LotExtCodeCore::RemoveAllByBill(PPID billID, int use_ta)
+int LotExtCodeCore::RemoveAllByBill(PPID billID, int use_ta)
 {
 	int    ok = -1;
 	LotExtCodeTbl::Key2 k2;
@@ -817,7 +817,7 @@ int SLAPI LotExtCodeCore::RemoveAllByBill(PPID billID, int use_ta)
 	return ok;
 }
 
-int SLAPI LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, int use_ta)
+int LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, int use_ta)
 {
 	int    ok = -1;
 	LongArray found_idx_list;
@@ -875,7 +875,7 @@ int SLAPI LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer 
 	return ok;
 }
 
-int SLAPI LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
+int LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 {
 	int    ok = -1;
 	rC.Release();
@@ -899,7 +899,7 @@ int SLAPI LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 	return ok;
 }
 
-int SLAPI LotExtCodeCore::GetMarkListByLot(PPID lotID, const StringSet * pExcludeList, StringSet & rSsExtCodes, uint * pExtCodeCount)
+int LotExtCodeCore::GetMarkListByLot(PPID lotID, const StringSet * pExcludeList, StringSet & rSsExtCodes, uint * pExtCodeCount)
 {
 	rSsExtCodes.clear();
 	int    ok = -1;
@@ -924,7 +924,7 @@ int SLAPI LotExtCodeCore::GetMarkListByLot(PPID lotID, const StringSet * pExclud
 	return ok;
 }
 
-int SLAPI LotExtCodeCore::GetRecListByMark(const char * pCode, TSVector <LotExtCodeTbl::Rec> & rList)
+int LotExtCodeCore::GetRecListByMark(const char * pCode, TSVector <LotExtCodeTbl::Rec> & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -943,7 +943,7 @@ int SLAPI LotExtCodeCore::GetRecListByMark(const char * pCode, TSVector <LotExtC
 	return ok;
 }
 
-int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult)
+int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult)
 {
 	int    ok = -1;
 	rResult.Clear();

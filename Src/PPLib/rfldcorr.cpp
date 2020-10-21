@@ -4,11 +4,10 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 // Сопоставление полей импорта/экспорта со структурой SdRecord
 //
-static int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecord * pRec) // @v9.8.12 static
+static int SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecord * pRec) // @v9.8.12 static
 {
 	StrAssocArray list;
 	SdbField fld;
@@ -23,7 +22,7 @@ static int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const 
 	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(id), 0);
 }
 
-static int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ) // @v9.8.12 static
+static int SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ)
 {
 	StrAssocArray list;
 	LongArray bt_list;
@@ -36,7 +35,7 @@ static int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ) // @v9.
 	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(typ), 0);
 }
 
-static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
+static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 {
 	class SdFieldCorrDialog : public TDialog {
 		DECL_DIALOG_DATA(SdbField);
@@ -266,7 +265,7 @@ int SdFieldCorrListDialog::setupList()
 	return ok;
 }
 
-int SLAPI EditFieldCorrList(const SdRecord * pInnerRec, SdRecord * pCorrRec) { DIALOG_PROC_BODY_P1(SdFieldCorrListDialog, pInnerRec, pCorrRec); }
+int EditFieldCorrList(const SdRecord * pInnerRec, SdRecord * pCorrRec) { DIALOG_PROC_BODY_P1(SdFieldCorrListDialog, pInnerRec, pCorrRec); }
 //
 //
 //
@@ -845,12 +844,10 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 					{
 						if(pInfo) {
 							SString msg;
-							if(pInfo->P_Src) {
-								msg.Cat(pInfo->P_Src);
-							}
+							msg.Cat(pInfo->P_Src);
 							if(pInfo->P_Dest) {
 								if(msg.NotEmpty())
-									msg.Cat(" >> ");
+									msg.Space().Cat(">>").Space();
 								msg.Cat(pInfo->P_Dest);
 							}
 							PPWaitPercent(static_cast<ulong>(pInfo->OverallSizeDone), static_cast<ulong>(pInfo->OverallSizeTotal), msg);
@@ -860,7 +857,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				};
 				PPGetPath(PPPATH_IN, uftp.DestPath);
 				uftp.SrcPath = uni_url_buf;
-				uftp.Flags |= uftp.fRenameExistantFiles; // @v9.9.1
+				uftp.Flags |= uftp.fRenameExistantFiles;
 				THROW_SL(uftp.Run(ProgressInfo::Proc, 0));
 				//temp_buf = uftp.Reply;
 				for(uint i = 0; i < uftp.ResultList.getCount(); i++) {
@@ -979,8 +976,8 @@ enum {
 	iedllGoodsVolSymb, // goodsvolsymb   По какому параметру искать емкость товара: x, y, z ,w
 	iedllManufINNID,   // manufinnid   ИД тега лота с инфой об ИНН поставщика/импортера
 	iefBaseFlags,      // Флаг, предписывающий удалять исходные файлы после удачного импорта
-	iefFtpAccSymb,     // @v8.6.1 Символ FTP-аккаунта
-	iefFtpAccID        // @v8.6.1 Идентификатор FTP-аккаунта
+	iefFtpAccSymb,     // Символ FTP-аккаунта
+	iefFtpAccID        // Идентификатор FTP-аккаунта
 };
 
 /*virtual*/int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
@@ -1708,12 +1705,12 @@ int PPImpExp::SetHeaderData(const Sdr_ImpExpHeader * pData)
 	return ok;
 }
 
-const PPImpExpParam & SLAPI PPImpExp::GetParamConst() const
+const PPImpExpParam & PPImpExp::GetParamConst() const
 {
 	return P;
 }
 
-PPImpExpParam & SLAPI PPImpExp::GetParam()
+PPImpExpParam & PPImpExp::GetParam()
 {
 	return P;
 }
@@ -1954,7 +1951,7 @@ int PPImpExp::Push(const PPImpExpParam * pParam)
 	return ok;
 }
 
-int SLAPI PPImpExp::Pop()
+int PPImpExp::Pop()
 {
 	if(ExtractSubChild) {
 		int    pos = 0;
@@ -1987,7 +1984,7 @@ int FASTCALL PPImpExp::GetFileName(SString & rFileName) const
 	return 1;
 }
 
-const SString & SLAPI PPImpExp::GetPreservedOrgFileName() const
+const SString & PPImpExp::GetPreservedOrgFileName() const
 {
 	return PreserveOrgFileName;
 }
@@ -2035,11 +2032,11 @@ enum {
 	return ok;
 }
 
-SLAPI ImpExpExprEvalContext::ImpExpExprEvalContext(const SdRecord & rRec) : ExprEvalContext(), R_Rec(rRec)
+ImpExpExprEvalContext::ImpExpExprEvalContext(const SdRecord & rRec) : ExprEvalContext(), R_Rec(rRec)
 {
 }
 
-int SLAPI ImpExpExprEvalContext::Resolve(const char * pSymb, double * pVal)
+int ImpExpExprEvalContext::Resolve(const char * pSymb, double * pVal)
 {
 	return PPImpExp::ResolveVarName(pSymb, R_Rec, pVal);
 }
@@ -2521,7 +2518,7 @@ int PPImpExp::ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec)
 //
 //
 //
-int SLAPI Test_ImpExpParamDialog()
+int Test_ImpExpParamDialog()
 {
 	int    ok = -1;
 	PPImpExpParam param;
@@ -2541,7 +2538,7 @@ int SLAPI Test_ImpExpParamDialog()
 //
 //
 //
-int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam, StrAssocArray * pList, int kind)
+int GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam, StrAssocArray * pList, int kind)
 {
 	int    ok = 1;
 	uint   p = 0;
@@ -2559,7 +2556,7 @@ int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pPara
 	return ok;
 }
 
-int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam, StringSet * pSectNames, int kind /*0 - all, 1 - export, 2 - import*/)
+int GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam, StringSet * pSectNames, int kind /*0 - all, 1 - export, 2 - import*/)
 {
 	int    ok = 1;
 	SString ini_file_name, section;
@@ -2589,10 +2586,9 @@ int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pPara
 	return ok;
 }
 
-int SLAPI GetImpExpSectionsCDb(PPConfigDatabase & rCDb, uint sdRecID, StrAssocArray & rList, int kind)
+int GetImpExpSectionsCDb(PPConfigDatabase & rCDb, uint sdRecID, StrAssocArray & rList, int kind)
 {
 	rList.Z();
-
 	int    ok = 1;
 	PPConfigDatabase::CObjHeader cobj_hdr;
 	PPImpExpParam * p_param = PPImpExpParam::CreateInstance(sdRecID, 0);
@@ -2613,7 +2609,7 @@ int SLAPI GetImpExpSectionsCDb(PPConfigDatabase & rCDb, uint sdRecID, StrAssocAr
 	return ok;
 }
 
-int SLAPI Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializeContext & rSCtx, uint iniFileNameId, uint sdRecID, /*PPImpExpParam * pParam,*/ PPLogger * pLogger)
+int Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializeContext & rSCtx, uint iniFileNameId, uint sdRecID, /*PPImpExpParam * pParam,*/ PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString ini_file_name, section, db_dir;
@@ -2657,7 +2653,7 @@ int SLAPI Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializ
 	return ok;
 }
 
-int SLAPI ConvertImpExpConfig_IniToBdb()
+int ConvertImpExpConfig_IniToBdb()
 {
 	int    ok = 1;
 	SString db_dir;
@@ -2677,7 +2673,6 @@ int SLAPI ConvertImpExpConfig_IniToBdb()
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_SCARD, &logger));
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_LOT,   &logger));
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_WORKBOOK, &logger));
-		// @v9.1.3 THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_IMPEXP_INI, PPREC_CSESSCOMPLEX, &logger)); // @v8.2.7
 		THROW(Helper_ConvertImpExpConfig_IniToBdb(cfg_db, sctx, PPFILNAM_CLIBNK_INI, PPREC_CLIBNKDATA, &logger));
 	}
 	{
@@ -2810,7 +2805,7 @@ int ImpExpCfgsListDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	char   section[256];
-	section[0] = 0;
+	PTR32(section)[0] = 0;
 	if(DS.CheckExtFlag(ECF_USECDB))
 		ok = EditParam(section, &id);
 	else
@@ -3096,7 +3091,7 @@ int ImpExpCfgsListDialog::setupList()
 	return ok;
 }
 
-int SLAPI EditImpExpConfigs()
+int EditImpExpConfigs()
 {
 	ImpExpCfgsListDialog * dlg = new ImpExpCfgsListDialog();
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
@@ -3145,7 +3140,7 @@ int ImpExpCfgListDialog::setupList()
 		THROW(PPGetFilePath(PPPATH_BIN, IniFileID, ini_file_name));
 		THROW(LoadSdRecord(SDRecID, &P_Param->InrRec));
 		{
-			int    is_exists = fileExists(ini_file_name);
+			const int is_exists = fileExists(ini_file_name);
 			PPIniFile ini_file(ini_file_name, is_exists ? 0 : 1, 1, 1);
 			THROW(ini_file.IsValid());
 			THROW(ini_file.GetSections(&all_sections));
@@ -3204,9 +3199,8 @@ int ImpExpCfgListDialog::delItem(long pos, long id)
 	int    ok = 1;
 	SString ini_file_name, section;
 	if(Sections.get(reinterpret_cast<uint *>(&id), section)) {
-		int    is_exists = 0;
 		THROW(PPGetFilePath(PPPATH_BIN, IniFileID, ini_file_name));
-		is_exists = fileExists(ini_file_name);
+		const int is_exists = fileExists(ini_file_name);
 		{
 			PPIniFile ini_file(ini_file_name, is_exists ? 0 : 1, 1, 1);
 			THROW(ini_file.RemoveSection(section));
@@ -3223,10 +3217,9 @@ int ImpExpCfgListDialog::delItem(long pos, long id)
 int ImpExpCfgListDialog::EditParam(const char * pIniSection)
 {
 	int    ok = -1;
-	int    is_exists = 0;
 	SString ini_file_name;
 	THROW(PPGetFilePath(PPPATH_BIN, IniFileID, ini_file_name));
-	is_exists = fileExists(ini_file_name);
+	const int is_exists = fileExists(ini_file_name);
 	{
 		int direction = 0;
 		PPIniFile ini_file(ini_file_name, is_exists ? 0 : 1, 1, 1);
@@ -3258,7 +3251,7 @@ int ImpExpCfgListDialog::EditParam(const char * pIniSection)
 	return ok;
 }
 
-int SLAPI EditImpExpParams(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pParamDlg)
+int EditImpExpParams(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pParamDlg)
 {
 	ImpExpCfgListDialog * dlg = new ImpExpCfgListDialog(iniFileID, sdRecID, pParam, pParamDlg);
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;

@@ -101,7 +101,7 @@ void * Crosstab::Summary::GetExtPtr(uint lineNo, uint ctValPos)
 	return p_result;
 }
 
-int SLAPI Crosstab::Summary::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int Crosstab::Summary::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->SerializeBlock(dir, sizeof(AggrFldCount)+sizeof(ExtSize), &AggrFldCount, rBuf, 0));
@@ -136,11 +136,11 @@ int SLAPI Crosstab::Summary::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 //
 //
 //
-SLAPI Crosstab::Crosstab() : Flags(0), P_Tbl(0), P_RTbl(0), P_CtValList(0), P_TotalRows(0), P_TotalCols(0)
+Crosstab::Crosstab() : Flags(0), P_Tbl(0), P_RTbl(0), P_CtValList(0), P_TotalRows(0), P_TotalCols(0)
 {
 }
 
-SLAPI Crosstab::~Crosstab()
+Crosstab::~Crosstab()
 {
 	delete P_CtValList;
 	ZDELETE(P_TotalRows);
@@ -148,13 +148,13 @@ SLAPI Crosstab::~Crosstab()
 	DestroyTable();
 }
 
-int    SLAPI Crosstab::SetupFixFields(int initialCall) { return -1; }
-DBTable * SLAPI Crosstab::GetResultTable() { return P_RTbl; }
-uint   SLAPI Crosstab::GetAggrCount() const { return AggrFldList.GetCount(); }
-uint   SLAPI Crosstab::GetTotalRowsCount() const { return P_TotalRows ? P_TotalRows->GetCount() : 0; }
-uint   SLAPI Crosstab::GetTotalColsCount() const { return P_TotalCols ? P_TotalCols->GetCount() : 0; }
+int    Crosstab::SetupFixFields(int initialCall) { return -1; }
+DBTable * Crosstab::GetResultTable() { return P_RTbl; }
+uint   Crosstab::GetAggrCount() const { return AggrFldList.GetCount(); }
+uint   Crosstab::GetTotalRowsCount() const { return P_TotalRows ? P_TotalRows->GetCount() : 0; }
+uint   Crosstab::GetTotalColsCount() const { return P_TotalCols ? P_TotalCols->GetCount() : 0; }
 
-int SLAPI Crosstab::SetTable(DBTable * pTbl, const DBField & crssFld)
+int Crosstab::SetTable(DBTable * pTbl, const DBField & crssFld)
 {
 	P_Tbl = pTbl;
 	CrssFld = crssFld;
@@ -172,9 +172,9 @@ int SLAPI Crosstab::SetTable(DBTable * pTbl, const DBField & crssFld)
 	return 1;
 }
 
-int SLAPI Crosstab::AddIdxField(const DBField & fld) { return IdxFldList.Add(fld); }
-int SLAPI Crosstab::AddFixField(const char * pName, TYPEID type) { return FixFldList.addField(pName, type); }
-int SLAPI Crosstab::AddInheritedFixField(const DBField & fld) { return InhFldList.Add(fld); }
+int Crosstab::AddIdxField(const DBField & fld) { return IdxFldList.Add(fld); }
+int Crosstab::AddFixField(const char * pName, TYPEID type) { return FixFldList.addField(pName, type); }
+int Crosstab::AddInheritedFixField(const DBField & fld) { return InhFldList.Add(fld); }
 
 int SLAPIV Crosstab::SetSortIdx(const char * pFldName, ...)
 {
@@ -190,7 +190,7 @@ int SLAPIV Crosstab::SetSortIdx(const char * pFldName, ...)
 	return 1;
 }
 
-int SLAPI Crosstab::AddAggrField(const DBField & fld, AggrFunc af /*=afSum*/, const char * pColName /*=0*/, long format /*=0*/, long options /*=0*/)
+int Crosstab::AddAggrField(const DBField & fld, AggrFunc af /*=afSum*/, const char * pColName /*=0*/, long format /*=0*/, long options /*=0*/)
 {
 	char * p_col_name = newStr(pColName);
 	AggrFldColNames.insert(p_col_name);
@@ -200,7 +200,7 @@ int SLAPI Crosstab::AddAggrField(const DBField & fld, AggrFunc af /*=afSum*/, co
 	return 1;
 }
 
-int  SLAPI Crosstab::AddTotalRow(const DBFieldList & rAggrFldList, size_t extSize, const char * pTitle)
+int  Crosstab::AddTotalRow(const DBFieldList & rAggrFldList, size_t extSize, const char * pTitle)
 {
 	int    ok = 1;
 	uint32 mask = 0;
@@ -216,7 +216,7 @@ int  SLAPI Crosstab::AddTotalRow(const DBFieldList & rAggrFldList, size_t extSiz
 	return ok;
 }
 
-int  SLAPI Crosstab::AddTotalColumn(const DBField & rAggrFld, size_t extSize, const char * pTitle)
+int  Crosstab::AddTotalColumn(const DBField & rAggrFld, size_t extSize, const char * pTitle)
 {
 	int    ok = 1;
 	uint32 mask = 0;
@@ -229,7 +229,7 @@ int  SLAPI Crosstab::AddTotalColumn(const DBField & rAggrFld, size_t extSize, co
 	return ok;
 }
 
-int SLAPI Crosstab::DestroyTable()
+int Crosstab::DestroyTable()
 {
 	if(P_RTbl) {
 		char   tbl_name[64], file_name[MAXPATH];
@@ -249,7 +249,7 @@ int SLAPI Crosstab::DestroyTable()
 		return -1;
 }
 
-int SLAPI Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STypArray ** ppList)
+int Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STypArray ** ppList)
 {
 	int    ok = 1;
 	STypArray * p_list = 0;
@@ -277,7 +277,7 @@ int SLAPI Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STyp
 	return ok;
 }
 
-int SLAPI Crosstab::CreateTable()
+int Crosstab::CreateTable()
 {
 	/*
 	Структура результирующей кросс-таблицы следующая:
@@ -378,10 +378,10 @@ int SLAPI Crosstab::CreateTable()
 	return ok;
 }
 
-uint SLAPI Crosstab::GetFixFieldOffs() const { return (1 + IdxFldList.GetCount() + InhFldList.GetCount()); }
-uint SLAPI Crosstab::GetTabFldPos(uint ctValPos, uint aggrFldPos) const { return (GetFixFieldOffs() + FixFldList.getCount() + ctValPos * AggrFldList.GetCount() + aggrFldPos); }
+uint Crosstab::GetFixFieldOffs() const { return (1 + IdxFldList.GetCount() + InhFldList.GetCount()); }
+uint Crosstab::GetTabFldPos(uint ctValPos, uint aggrFldPos) const { return (GetFixFieldOffs() + FixFldList.getCount() + ctValPos * AggrFldList.GetCount() + aggrFldPos); }
 
-int SLAPI Crosstab::CalcSummary(int action, CalcSummaryBlock & rBlk)
+int Crosstab::CalcSummary(int action, CalcSummaryBlock & rBlk)
 {
 	if(action == 0) {
 		if(rBlk.AggrFunc == afSum)
@@ -394,7 +394,7 @@ int SLAPI Crosstab::CalcSummary(int action, CalcSummaryBlock & rBlk)
 	return 1;
 }
 
-int SLAPI Crosstab::SetAggrValues(uint ctValPos)
+int Crosstab::SetAggrValues(uint ctValPos)
 {
 	const uint aggr_count = AggrFldList.GetCount();
 	for(uint j = 0; j < aggr_count; j++) {
@@ -416,7 +416,7 @@ int SLAPI Crosstab::SetAggrValues(uint ctValPos)
 	return 1;
 }
 
-int SLAPI Crosstab::SetSummaryRows()
+int Crosstab::SetSummaryRows()
 {
 	int   ok = 1;
 	const uint total_rows_count = GetTotalRowsCount();
@@ -444,7 +444,7 @@ int SLAPI Crosstab::SetSummaryRows()
 	return ok;
 }
 
-int SLAPI Crosstab::SetAggrSummaryValues()
+int Crosstab::SetAggrSummaryValues()
 {
 	int    ok = 1;
 	const  uint total_cols_count = P_TotalCols ? P_TotalCols->GetCount() : 0;
@@ -482,7 +482,7 @@ int SLAPI Crosstab::SetAggrSummaryValues()
 	return ok;
 }
 
-int SLAPI Crosstab::Create(int use_ta)
+int Crosstab::Create(int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -622,7 +622,7 @@ int SLAPI Crosstab::Create(int use_ta)
 	return ok;
 }
 
-DBQuery * SLAPI Crosstab::CreateBrowserQuery()
+DBQuery * Crosstab::CreateBrowserQuery()
 {
 	DBFieldList fld_list;
 	DBField fld;
@@ -653,7 +653,7 @@ DBQuery * SLAPI Crosstab::CreateBrowserQuery()
 	return p_q;
 }
 
-void SLAPI Crosstab::GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+void Crosstab::GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 {
 	rBuf.Z();
 	if(pVal) {
@@ -663,7 +663,7 @@ void SLAPI Crosstab::GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) 
 	}
 }
 
-int SLAPI Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, const SString & rTitle) const
+int Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, const SString & rTitle) const
 {
 	int    ok = 1;
 	const  uint aggr_count = AggrFldList.GetCount();
@@ -700,7 +700,7 @@ int SLAPI Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctVal
 	return ok;
 }
 
-int SLAPI Crosstab::SetupBrowserCtColumns(BrowserWindow * pBrw) const
+int Crosstab::SetupBrowserCtColumns(BrowserWindow * pBrw) const
 {
 	const uint ct_val_count = P_CtValList->getCount();
 	if(ct_val_count) {
@@ -727,14 +727,14 @@ int SLAPI Crosstab::SetupBrowserCtColumns(BrowserWindow * pBrw) const
 	return 1;
 }
 
-BrowserWindow * SLAPI Crosstab::CreateBrowser(uint rezID, int dataOwner)
+BrowserWindow * Crosstab::CreateBrowser(uint rezID, int dataOwner)
 {
 	BrowserWindow * p_brw = new BrowserWindow(rezID, CreateBrowserQuery());
 	SetupBrowserCtColumns(p_brw);
 	return p_brw;
 }
 
-int SLAPI Crosstab::GetIdxFields(PPID id, DBFieldList * pFldList)
+int Crosstab::GetIdxFields(PPID id, DBFieldList * pFldList)
 {
 	int    ok = -1;
 	if(pFldList) {
@@ -750,7 +750,7 @@ int SLAPI Crosstab::GetIdxFields(PPID id, DBFieldList * pFldList)
 	return ok;
 }
 
-int SLAPI Crosstab::GetTab(uint tabIdx, void * pTabVal)
+int Crosstab::GetTab(uint tabIdx, void * pTabVal)
 {
 	char   buf[512];
 	size_t sz = stsize(P_CtValList->getType());
@@ -759,7 +759,7 @@ int SLAPI Crosstab::GetTab(uint tabIdx, void * pTabVal)
 		(memcpy(pTabVal, P_CtValList->at(tabIdx), sz), 1) : -1;
 }
 
-int SLAPI Crosstab::SetFixFieldValByCTID(long ctID, uint fldPos, const void * pBuf)
+int Crosstab::SetFixFieldValByCTID(long ctID, uint fldPos, const void * pBuf)
 {
 	int    ok = -1;
 	const  int ci = P_RTbl->getCurIndex();
@@ -774,7 +774,7 @@ int SLAPI Crosstab::SetFixFieldValByCTID(long ctID, uint fldPos, const void * pB
 	return ok;
 }
 
-int SLAPI Crosstab::GetFixFieldValByCTID(long ctID, uint fldPos, void * pBuf, size_t bufSize)
+int Crosstab::GetFixFieldValByCTID(long ctID, uint fldPos, void * pBuf, size_t bufSize)
 {
 	int    ok = -1;
 	const  int ci = P_RTbl->getCurIndex();
@@ -787,7 +787,7 @@ int SLAPI Crosstab::GetFixFieldValByCTID(long ctID, uint fldPos, void * pBuf, si
 	return ok;
 }
 
-int SLAPI Crosstab::GetIdxFieldVal(uint idxFldN, const void * pDataBuf, void * pBuf, size_t bufSize)
+int Crosstab::GetIdxFieldVal(uint idxFldN, const void * pDataBuf, void * pBuf, size_t bufSize)
 {
 	int    ok = 0;
 	if(!pDataBuf)
@@ -805,7 +805,7 @@ int SLAPI Crosstab::GetIdxFieldVal(uint idxFldN, const void * pDataBuf, void * p
 	return ok;
 }
 
-int SLAPI Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDataBuf, void * pBuf, size_t bufSize)
+int Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDataBuf, void * pBuf, size_t bufSize)
 {
 	int    ok = -1;
 	if(pDataBuf && aggrFldN < GetAggrCount()) {
@@ -832,7 +832,7 @@ int SLAPI Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDa
 }
 
 /*
-int SLAPI Crosstab::SetAggrFieldVal(uint tabIdx, uint aggrFldN, void * pBuf, const void * pData, size_t bufSize)
+int Crosstab::SetAggrFieldVal(uint tabIdx, uint aggrFldN, void * pBuf, const void * pData, size_t bufSize)
 {
 	int    ok = -1;
 	if(pDataBuf && aggrFldN < GetAggrCount()) {
@@ -858,7 +858,7 @@ int SLAPI Crosstab::SetAggrFieldVal(uint tabIdx, uint aggrFldN, void * pBuf, con
 }
 */
 
-int SLAPI Crosstab::Write(SBuffer & rBuf, SSerializeContext * pCtx)
+int Crosstab::Write(SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -903,7 +903,7 @@ int SLAPI Crosstab::Write(SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCtx)
+int Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -977,7 +977,7 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 	return ok;
 }
 
-int SLAPI Crosstab::WriteDbFieldList(const DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
+int Crosstab::WriteDbFieldList(const DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	int32  c = static_cast<int32>(rList.GetCount());
@@ -990,7 +990,7 @@ int SLAPI Crosstab::WriteDbFieldList(const DBFieldList & rList, SBuffer & rBuf, 
 	return ok;
 }
 
-int SLAPI Crosstab::ReadDbFieldList(const DBTable * pTbl, DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
+int Crosstab::ReadDbFieldList(const DBTable * pTbl, DBFieldList & rList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	int32  c = 0;

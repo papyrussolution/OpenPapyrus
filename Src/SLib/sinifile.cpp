@@ -7,37 +7,37 @@
 
 class SIniSectBuffer : public TSCollection <StringSet> {
 public:
-	SLAPI  SIniSectBuffer(const char * pName = 0);
-	int    SLAPI SetParam(const char * pParam, const char * pVal, int overwrite);
-	int    SLAPI GetParam(const char * pParam, SString & rBuf) const;
-	int    SLAPI RemoveParam(const char * pParam);
-	int    SLAPI EnumParams(uint * pPos, SString *, SString *) const;
-	int    SLAPI ShiftParam(uint pos, int up); // (up != 0) - вверх, (up == 0) - вниз
+	SIniSectBuffer(const char * pName = 0);
+	int    SetParam(const char * pParam, const char * pVal, int overwrite);
+	int    GetParam(const char * pParam, SString & rBuf) const;
+	int    RemoveParam(const char * pParam);
+	int    EnumParams(uint * pPos, SString *, SString *) const;
+	int    ShiftParam(uint pos, int up); // (up != 0) - вверх, (up == 0) - вниз
 
 	SString Name;
 private:
-	StringSet * SLAPI SearchParam(const char * pParam, uint * pPos) const;
+	StringSet * SearchParam(const char * pParam, uint * pPos) const;
 };
 
 class SIniFileBuffer : public TSCollection <SIniSectBuffer> {
 public:
-	SLAPI  SIniFileBuffer();
-	SIniSectBuffer * SLAPI GetSect(const char * pName, uint * pPos = 0);
-	int    SLAPI EnumSections(uint * pPos, SIniSectBuffer ** pSectBuf) const;
-	int    SLAPI AddSect(SIniSectBuffer *);
-	int    SLAPI AddSect(const char * pSectName);
-	int    SLAPI RemoveSect(const char * pSectName);
-	int    SLAPI ClearSect(const char * pSectName);
-	int    SLAPI SetParam(const char * pSectName, const char * pParam, const char * pVal, int overwrite);
-	int    SLAPI GetParam(const char * pSectName, const char * pParam, SString & rBuf);
-	int    SLAPI RemoveParam(const char * pSectName, const char * pParam);
+	SIniFileBuffer();
+	SIniSectBuffer * GetSect(const char * pName, uint * pPos = 0);
+	int    EnumSections(uint * pPos, SIniSectBuffer ** pSectBuf) const;
+	int    AddSect(SIniSectBuffer *);
+	int    AddSect(const char * pSectName);
+	int    RemoveSect(const char * pSectName);
+	int    ClearSect(const char * pSectName);
+	int    SetParam(const char * pSectName, const char * pParam, const char * pVal, int overwrite);
+	int    GetParam(const char * pSectName, const char * pParam, SString & rBuf);
+	int    RemoveParam(const char * pSectName, const char * pParam);
 };
 
-SLAPI SIniFileBuffer::SIniFileBuffer() : TSCollection <SIniSectBuffer> ()
+SIniFileBuffer::SIniFileBuffer() : TSCollection <SIniSectBuffer> ()
 {
 }
 
-SIniSectBuffer * SLAPI SIniFileBuffer::GetSect(const char * pName, uint * pPos)
+SIniSectBuffer * SIniFileBuffer::GetSect(const char * pName, uint * pPos)
 {
 	SIniSectBuffer * p_result = 0;
 	for(uint i = 0; !p_result && i < getCount(); i++) {
@@ -50,7 +50,7 @@ SIniSectBuffer * SLAPI SIniFileBuffer::GetSect(const char * pName, uint * pPos)
 	return p_result;
 }
 
-int SLAPI SIniFileBuffer::EnumSections(uint * pPos, SIniSectBuffer ** ppSectBuf) const
+int SIniFileBuffer::EnumSections(uint * pPos, SIniSectBuffer ** ppSectBuf) const
 {
 	int    ok = 0;
 	if(pPos && *pPos < getCount()) {
@@ -61,7 +61,7 @@ int SLAPI SIniFileBuffer::EnumSections(uint * pPos, SIniSectBuffer ** ppSectBuf)
 	return ok;
 }
 
-int SLAPI SIniFileBuffer::SetParam(const char * pSectName, const char * pParam, const char * pVal, int overwrite)
+int SIniFileBuffer::SetParam(const char * pSectName, const char * pParam, const char * pVal, int overwrite)
 {
 	int    ok = -1;
 	SIniSectBuffer * p_sect_buf = GetSect(pSectName);
@@ -74,19 +74,19 @@ int SLAPI SIniFileBuffer::SetParam(const char * pSectName, const char * pParam, 
 	return ok;
 }
 
-int SLAPI SIniFileBuffer::GetParam(const char * pSectName, const char * pParam, SString & rBuf)
+int SIniFileBuffer::GetParam(const char * pSectName, const char * pParam, SString & rBuf)
 {
 	SIniSectBuffer * p_sect_buf = GetSect(pSectName);
 	return p_sect_buf ? p_sect_buf->GetParam(pParam, rBuf) : -1;
 }
 
-int SLAPI SIniFileBuffer::RemoveParam(const char * pSectName, const char * pParam)
+int SIniFileBuffer::RemoveParam(const char * pSectName, const char * pParam)
 {
 	SIniSectBuffer * p_sect_buf = GetSect(pSectName, 0);
 	return p_sect_buf ? p_sect_buf->RemoveParam(pParam) : -1;
 }
 
-int SLAPI SIniFileBuffer::AddSect(SIniSectBuffer * pSectBuf)
+int SIniFileBuffer::AddSect(SIniSectBuffer * pSectBuf)
 {
 	int    ok = -1;
 	if(pSectBuf) {
@@ -104,7 +104,7 @@ int SLAPI SIniFileBuffer::AddSect(SIniSectBuffer * pSectBuf)
 	return ok;
 }
 
-int SLAPI SIniFileBuffer::AddSect(const char * pSectName)
+int SIniFileBuffer::AddSect(const char * pSectName)
 {
 	int    ok = -1;
 	if(pSectName) {
@@ -115,14 +115,14 @@ int SLAPI SIniFileBuffer::AddSect(const char * pSectName)
 	return ok;
 }
 
-int SLAPI SIniFileBuffer::RemoveSect(const char * pSectName)
+int SIniFileBuffer::RemoveSect(const char * pSectName)
 {
 	uint   pos = 0;
 	SIniSectBuffer * p_sect_buf = GetSect(pSectName, &pos);
 	return p_sect_buf ? atFree(pos) : -1;
 }
 
-int SLAPI SIniFileBuffer::ClearSect(const char * pSectName)
+int SIniFileBuffer::ClearSect(const char * pSectName)
 {
 	SIniSectBuffer * p_sect_buf = GetSect(pSectName);
 	return p_sect_buf ? (p_sect_buf->freeAll(), 1) : -1;
@@ -130,11 +130,11 @@ int SLAPI SIniFileBuffer::ClearSect(const char * pSectName)
 //
 // SIniSectBuffer
 //
-SLAPI SIniSectBuffer::SIniSectBuffer(const char * pName) : TSCollection <StringSet> (), Name(pName)
+SIniSectBuffer::SIniSectBuffer(const char * pName) : TSCollection <StringSet> (), Name(pName)
 {
 }
 
-StringSet * SLAPI SIniSectBuffer::SearchParam(const char * pParam, uint * pPos) const
+StringSet * SIniSectBuffer::SearchParam(const char * pParam, uint * pPos) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		StringSet * p_ss = at(i);
@@ -146,7 +146,7 @@ StringSet * SLAPI SIniSectBuffer::SearchParam(const char * pParam, uint * pPos) 
 	return 0;
 }
 
-int SLAPI SIniSectBuffer::EnumParams(uint * pPos, SString * pParam, SString * pVal) const
+int SIniSectBuffer::EnumParams(uint * pPos, SString * pParam, SString * pVal) const
 {
 	if(pPos && *pPos < getCount()) {
 		uint pos = 0;
@@ -162,7 +162,7 @@ int SLAPI SIniSectBuffer::EnumParams(uint * pPos, SString * pParam, SString * pV
 		return 0;
 }
 
-int SLAPI SIniSectBuffer::GetParam(const char * pParam, SString & rBuf) const
+int SIniSectBuffer::GetParam(const char * pParam, SString & rBuf) const
 {
 	StringSet * p_ss = SearchParam(pParam, 0);
 	if(p_ss) {
@@ -175,7 +175,7 @@ int SLAPI SIniSectBuffer::GetParam(const char * pParam, SString & rBuf) const
 		return 0;
 }
 
-int SLAPI SIniSectBuffer::SetParam(const char * pParam, const char * pVal, int overwrite)
+int SIniSectBuffer::SetParam(const char * pParam, const char * pVal, int overwrite)
 {
 	uint   pos = 0;
 	StringSet * p_ss = SearchParam(pParam, &pos);
@@ -207,13 +207,13 @@ int SLAPI SIniSectBuffer::SetParam(const char * pParam, const char * pVal, int o
 	return 1;
 }
 
-int SLAPI SIniSectBuffer::RemoveParam(const char * pParam)
+int SIniSectBuffer::RemoveParam(const char * pParam)
 {
 	uint   pos = 0;
 	return SearchParam(pParam, &pos) ? atFree(pos) : -1;
 }
 
-int SLAPI SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - вверх, (up == 0) - вниз
+int SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - вверх, (up == 0) - вниз
 {
 	int    ok = -1;
 	if(pos < getCount()) {
@@ -239,12 +239,12 @@ int SLAPI SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - вверх, (up
 //
 //
 //
-SLAPI SIniFile::SIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) : P_IniBuf(0), Flags(0), Cp(cpUndef)
+SIniFile::SIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) : P_IniBuf(0), Flags(0), Cp(cpUndef)
 {
 	Init(pFileName, fcreate, winCoding, useIniBuf);
 }
 
-int SLAPI SIniFile::WasModified() const
+int SIniFile::WasModified() const
 {
 	SFileUtil::Stat fs;
 	if(!SFileUtil::GetStat(FileName, &fs))
@@ -256,7 +256,7 @@ int SLAPI SIniFile::WasModified() const
 }
 
 // protected
-int SLAPI SIniFile::Init(const char * pFileName, int fcreate, int winCoding, int useIniBuf)
+int SIniFile::Init(const char * pFileName, int fcreate, int winCoding, int useIniBuf)
 {
 	int    ok = 1;
 	Flags = 0;
@@ -277,27 +277,27 @@ int SLAPI SIniFile::Init(const char * pFileName, int fcreate, int winCoding, int
 	return ok;
 }
 
-SLAPI SIniFile::~SIniFile()
+SIniFile::~SIniFile()
 {
 	//FlashIniBuf();
 	delete P_IniBuf;
 	Close();
 }
 
-int  SLAPI SIniFile::IsValid() const { return (File.IsValid() || (Flags & fIniBufInited)) ? 1 : SLS.SetError(SLERR_INIOPENFAULT, FileName); }
-long SLAPI SIniFile::GetFlags() const { return Flags; }
-const SString & SLAPI SIniFile::GetFileName() const { return FileName; }
-int  SLAPI SIniFile::Close() { return File.Close(); }
-int  SLAPI SIniFile::GetParam(const char * pSect, const char * pParam, SString & rBuf)
+int  SIniFile::IsValid() const { return (File.IsValid() || (Flags & fIniBufInited)) ? 1 : SLS.SetError(SLERR_INIOPENFAULT, FileName); }
+long SIniFile::GetFlags() const { return Flags; }
+const SString & SIniFile::GetFileName() const { return FileName; }
+int  SIniFile::Close() { return File.Close(); }
+int  SIniFile::GetParam(const char * pSect, const char * pParam, SString & rBuf)
 	{ return (Flags & fIniBufInited) ? P_IniBuf->GetParam(pSect, pParam, rBuf) : SearchParam(pSect, pParam, rBuf); }
-int  SLAPI SIniFile::AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite)
+int  SIniFile::AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite)
 	{ return AppendParam(pSect, pParam, TempBuf.Z().Cat((long)val), BIN(overwrite)); }
-int  SLAPI SIniFile::RemoveSection(const char * pSect)
+int  SIniFile::RemoveSection(const char * pSect)
 	{ return SetParam(pSect, 0, 0, 0); }
-int  SLAPI SIniFile::ClearSection(const char * pSect)
+int  SIniFile::ClearSection(const char * pSect)
 	{ return (Flags & fIniBufInited) ? P_IniBuf->ClearSect(pSect) : RemoveSection(pSect); }
 
-long SLAPI SIniFile::SetFlag(long f, int set)
+long SIniFile::SetFlag(long f, int set)
 {
 	const long prev = Flags;
 	SETFLAG(Flags, f, set);
@@ -322,7 +322,7 @@ SString & FASTCALL SIniFile::DecodeText(SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI SIniFile::FlashIniBuf()
+int SIniFile::FlashIniBuf()
 {
 	int    ok = 1;
 	if(P_IniBuf) {
@@ -350,7 +350,7 @@ int SLAPI SIniFile::FlashIniBuf()
 	return ok;
 }
 
-int SLAPI SIniFile::InitIniBuf()
+int SIniFile::InitIniBuf()
 {
 	int    ok = 1;
 	THROW(File.IsValid());
@@ -377,7 +377,7 @@ int SLAPI SIniFile::InitIniBuf()
 }
 // } AHTOXA
 
-int SLAPI SIniFile::Open(const char * pFileName)
+int SIniFile::Open(const char * pFileName)
 {
 	const  int already_opened = File.IsValid();
 	int    ok = already_opened ? -1 : File.Open(pFileName, SFile::mRead);
@@ -415,7 +415,7 @@ int SLAPI SIniFile::Open(const char * pFileName)
 	return ok;
 }
 
-int SLAPI SIniFile::Create(const char * pFileName)
+int SIniFile::Create(const char * pFileName)
 {
 	int    ok = 1;
 	if(!File.IsValid()) {
@@ -427,7 +427,7 @@ int SLAPI SIniFile::Create(const char * pFileName)
 
 #pragma warn -aus
 
-int SLAPI SIniFile::IsSection(const SString & rLineBuf, const char * pPattern, SString * pRet)
+int SIniFile::IsSection(const SString & rLineBuf, const char * pPattern, SString * pRet)
 {
 	int    ok = -1;
 	SString sect_name;
@@ -448,7 +448,7 @@ int SLAPI SIniFile::IsSection(const SString & rLineBuf, const char * pPattern, S
 	return ok;
 }
 
-int SLAPI SIniFile::IsSectExists(const char * pSect)
+int SIniFile::IsSectExists(const char * pSect)
 {
 	int    ok = 0;
 	if(pSect) {
@@ -464,7 +464,7 @@ int SLAPI SIniFile::IsSectExists(const char * pSect)
 	return ok;
 }
 
-int SLAPI SIniFile::GetSections(StringSet * pSects)
+int SIniFile::GetSections(StringSet * pSects)
 {
 	int    ok = 1;
 	int    do_close = 0;
@@ -490,7 +490,7 @@ int SLAPI SIniFile::GetSections(StringSet * pSects)
 	return ok;
 }
 
-int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int storeAllString)
+int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int storeAllString)
 {
 	int    ok = 1;
 	int    do_close = 0;
@@ -542,7 +542,7 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 	return ok;
 }
 
-int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString & rVal)
+int SIniFile::SearchParam(const char * pSect, const char * pParam, SString & rVal)
 {
 	int    ok = -1;
 	int    do_close_file = 0;
@@ -588,7 +588,7 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 
 #pragma warn .aus
 
-int SLAPI SIniFile::GetIntParam(const char * pSect, const char * pParam, int * pVal)
+int SIniFile::GetIntParam(const char * pSect, const char * pParam, int * pVal)
 {
 	int    r = SearchParam(pSect, pParam, TempBuf);
 	if(pVal)
@@ -634,7 +634,7 @@ static int FASTCALL ParseDataSizeString(const char * pText, int64 * pSize, int64
 	return ok;
 }
 
-int SLAPI SIniFile::GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal)
+int SIniFile::GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal)
 {
 	int    r = SearchParam(pSect, pParam, TempBuf);
 	if(pVal) {
@@ -652,7 +652,7 @@ int SLAPI SIniFile::GetDataSizeParam(const char * pSect, const char * pParam, in
 	return r;
 }
 
-int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
+int SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
 {
 	int    ok = 1;
 	int    do_close_file = 0;
@@ -752,7 +752,7 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 	return ok;
 }
 
-int SLAPI SIniFile::AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
+int SIniFile::AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
 {
 	SString val(pVal);
 	if(val.cptr() == 0)
@@ -760,7 +760,7 @@ int SLAPI SIniFile::AppendParam(const char * pSect, const char * pParam, const c
 	return SetParam(pSect, pParam, val, BIN(overwrite));
 }
 
-int SLAPI SIniFile::RemoveParam(const char * pSect, const char * pParam)
+int SIniFile::RemoveParam(const char * pSect, const char * pParam)
 {
 	SString param(pParam);
 	if(param.cptr() == 0)

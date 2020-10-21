@@ -163,7 +163,7 @@ SArray * SelectLogsDialog::getSelected()
 //
 // @implement PPViewLogsMonitor {
 //
-int SLAPI PPViewLogsMonitor::EditBaseFilt(PPBaseFilt *pBaseFilt)
+int PPViewLogsMonitor::EditBaseFilt(PPBaseFilt *pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -173,7 +173,7 @@ int SLAPI PPViewLogsMonitor::EditBaseFilt(PPBaseFilt *pBaseFilt)
 //
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempLogFileMon);
 //
-SLAPI PPViewLogsMonitor::PPViewLogsMonitor() : PPView(0, &Filt, PPVIEW_LOGSMONITOR), P_TmpTbl(0), FirstTime(1)
+PPViewLogsMonitor::PPViewLogsMonitor() : PPView(0, &Filt, PPVIEW_LOGSMONITOR, 0, 0), P_TmpTbl(0), FirstTime(1)
 {
 	// смещения строк для всех журналов установить равным 0
 	LogsArray all_logs;
@@ -182,12 +182,12 @@ SLAPI PPViewLogsMonitor::PPViewLogsMonitor() : PPView(0, &Filt, PPVIEW_LOGSMONIT
 		LogsOffsets.AddUnique(all_logs.at(i).ID, 0, 0);
 }
 //
-SLAPI PPViewLogsMonitor::~PPViewLogsMonitor()
+PPViewLogsMonitor::~PPViewLogsMonitor()
 {
 	delete P_TmpTbl;
 }
 //
-int SLAPI PPViewLogsMonitor::InitIteration()
+int PPViewLogsMonitor::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -216,7 +216,7 @@ int FASTCALL PPViewLogsMonitor::NextIteration(LogsMonitorViewItem * pItem)
 	return ret;
 }
 //
-int SLAPI PPViewLogsMonitor::Init_(const PPBaseFilt *pFilt)
+int PPViewLogsMonitor::Init_(const PPBaseFilt *pFilt)
 {
 	P_TmpTbl = CreateTempFile();
 	if(Helper_InitBaseFilt(pFilt))
@@ -225,7 +225,7 @@ int SLAPI PPViewLogsMonitor::Init_(const PPBaseFilt *pFilt)
 		return -1;
 }
 //
-DBQuery * SLAPI PPViewLogsMonitor::CreateBrowserQuery(uint *pBrwId, SString *)
+DBQuery * PPViewLogsMonitor::CreateBrowserQuery(uint *pBrwId, SString *)
 {
 	DBQuery	 *q = 0;
 	DBE		 dbe_logfname;
@@ -247,7 +247,7 @@ DBQuery * SLAPI PPViewLogsMonitor::CreateBrowserQuery(uint *pBrwId, SString *)
 	return q;
 }
 //
-int SLAPI PPViewLogsMonitor::ProcessCommand(uint ppvCmd, const void *pHdr, PPViewBrowser *pBrw)
+int PPViewLogsMonitor::ProcessCommand(uint ppvCmd, const void *pHdr, PPViewBrowser *pBrw)
 {
 	int ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -261,18 +261,18 @@ int SLAPI PPViewLogsMonitor::ProcessCommand(uint ppvCmd, const void *pHdr, PPVie
 }
 //
 #if 0
-int SLAPI PPViewLogsMonitor::Print(const void *)
+int PPViewLogsMonitor::Print(const void *)
 {
 	return Helper_Print(REPORT_LOGSMON, 0);
 }
 #endif // 0
 //
-void SLAPI PPViewLogsMonitor::PreprocessBrowser(PPViewBrowser *pBrw)
+void PPViewLogsMonitor::PreprocessBrowser(PPViewBrowser *pBrw)
 {
 	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evLogsChanged, 0, -1, 0));
 }
 //
-int SLAPI PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser *pBrw, void * extraProcPtr)
+int PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser *pBrw, void * extraProcPtr)
 {
 	int    ok = 1, update = 0;
 	if(FirstTime) {

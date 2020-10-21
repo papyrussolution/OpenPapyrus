@@ -36,20 +36,20 @@
 
 class ACS_SHTRIHMFRK : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_SHTRIHMFRK(PPID id);
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
-	virtual int SLAPI FinishImportSession(PPIDArray *);
-	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly);
+	ACS_SHTRIHMFRK(PPID id);
+	virtual int ExportData(int updOnly);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
+	virtual int FinishImportSession(PPIDArray *);
+	virtual int SetGoodsRestLoadFlag(int updOnly);
 protected:
-	virtual int SLAPI ExportSCard(FILE * pFile, int updOnly);
-	int    SLAPI GetZRepList(LAssocArray *);
-	int    SLAPI ImportFiles();
+	virtual int ExportSCard(FILE * pFile, int updOnly);
+	int    GetZRepList(LAssocArray *);
+	int    ImportFiles();
 
 	int    UseInnerAutoDscnt;
 private:
-	int    SLAPI ConvertWareList(const char * pImpPath, int numSmena);
+	int    ConvertWareList(const char * pImpPath, int numSmena);
 	DateRange    ChkRepPeriod;
 	PPIDArray    LogNumList;
 	SString      PathRpt;
@@ -63,20 +63,20 @@ private:
 
 class CM_SHTRIHMFRK : public PPCashMachine {
 public:
-	SLAPI CM_SHTRIHMFRK(PPID cashID) : PPCashMachine(cashID) {}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_SHTRIHMFRK(NodeID); }
+	CM_SHTRIHMFRK(PPID cashID) : PPCashMachine(cashID) {}
+	PPAsyncCashSession * AsyncInterface() { return new ACS_SHTRIHMFRK(NodeID); }
 };
 
 REGISTER_CMT(SHTRIHMFRK, 0, 1);
 
-SLAPI ACS_SHTRIHMFRK::ACS_SHTRIHMFRK(PPID id) : PPAsyncCashSession(id), UseInnerAutoDscnt(0)
+ACS_SHTRIHMFRK::ACS_SHTRIHMFRK(PPID id) : PPAsyncCashSession(id), UseInnerAutoDscnt(0)
 {
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHMFRK_TIMEOUT, &ImpExpTimeout);
 	ChkRepPeriod.Z();
 }
 
-int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
+int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 {
 	int   ok = 1, r = 0;
 	PPWait(1);
@@ -172,14 +172,14 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::SetGoodsRestLoadFlag(int updOnly)
+int ACS_SHTRIHMFRK::SetGoodsRestLoadFlag(int updOnly)
 {
 	int    ok = 1;
 	Flags &= ~PPACSF_LOADRESTWOSALES;
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
+int ACS_SHTRIHMFRK::ExportData(int updOnly)
 {
 	int    ok = 1, load_groups = 0;
 	const  char * p_format = "%s\n";
@@ -316,7 +316,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	}
 	*/
 	//THROW(ExportSCard(p_file, updOnly));
-	//int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
+	//int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 	{
 		int    r = 0;
 		long   scheme_id = 0;
@@ -462,7 +462,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -527,7 +527,7 @@ int SLAPI ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess,
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::ImportFiles()
+int ACS_SHTRIHMFRK::ImportFiles()
 {
 	long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  char * p_ftp_flag = "ftp:";
@@ -665,7 +665,7 @@ int SLAPI ACS_SHTRIHMFRK::ImportFiles()
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::GetZRepList(LAssocArray * pZRepList)
+int ACS_SHTRIHMFRK::GetZRepList(LAssocArray * pZRepList)
 {
 	int    ok = 1;
 	SString path, buf;
@@ -708,7 +708,7 @@ int SLAPI ACS_SHTRIHMFRK::GetZRepList(LAssocArray * pZRepList)
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
+int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 {
 	int    ok = 1, smena_found = 0;
 	uint   pos = 0;
@@ -949,7 +949,7 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::ImportSession(int idx)
+int ACS_SHTRIHMFRK::ImportSession(int idx)
 {
 	int    ok = 1;
 	SString path;
@@ -965,7 +965,7 @@ int SLAPI ACS_SHTRIHMFRK::ImportSession(int idx)
 	return ok;
 }
 
-int SLAPI ACS_SHTRIHMFRK::FinishImportSession(PPIDArray * pSessList)
+int ACS_SHTRIHMFRK::FinishImportSession(PPIDArray * pSessList)
 {
 	//
 	// @v6.6.5 AHTOXA Удалим файлы импорта.

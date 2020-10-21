@@ -271,12 +271,12 @@ int ToolbarList::moveItem(uint pos, int up)
 	return (cls_name == "MDICLIENT");
 }
 
-SLAPI TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0), Title(pTitle)
+TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0), Title(pTitle)
 {
 	ViewOptions  |= ofSelectable;
 }
 
-SLAPI TWindow::~TWindow()
+TWindow::~TWindow()
 {
 	delete P_Lmp;
 	if(HW) {
@@ -359,10 +359,10 @@ TView * FASTCALL TWindow::getCtrlByHandle(HWND h)
 
 HWND FASTCALL TWindow::getCtrlHandle(ushort ctlID)
 	{ return GetDlgItem(HW, ctlID); }
-void * SLAPI TWindow::messageToCtrl(ushort ctlID, ushort cmd, void *ptr)
+void * TWindow::messageToCtrl(ushort ctlID, ushort cmd, void *ptr)
 	{ return TView::messageCommand(getCtrlView(ctlID), cmd, ptr); }
 
-int SLAPI TWindow::setSmartListBoxOption(uint ctlID, uint option)
+int TWindow::setSmartListBoxOption(uint ctlID, uint option)
 {
 	int    ok = 1;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(ctlID));
@@ -436,7 +436,7 @@ TButton * FASTCALL TWindow::SearchButton(uint cmd)
 	return (p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) ? static_cast<TButton *>(p_view) : 0;
 }
 
-int SLAPI TWindow::selectButton(ushort cmd)
+int TWindow::selectButton(ushort cmd)
 {
 	int    ok = 1;
 	TButton * p_view = SearchButton(cmd);
@@ -447,13 +447,13 @@ int SLAPI TWindow::selectButton(ushort cmd)
 	return ok;
 }
 
-void SLAPI TWindow::showButton(uint cmd, int s)
+void TWindow::showButton(uint cmd, int s)
 {
 	TButton * p_view = SearchButton(cmd);
 	CALLPTRMEMB(p_view, Show(s));
 }
 
-int SLAPI TWindow::setButtonText(uint cmd, const char * pText)
+int TWindow::setButtonText(uint cmd, const char * pText)
 {
 	int    ok = 1;
 	TButton * p_ctl = SearchButton(cmd);
@@ -467,13 +467,13 @@ int SLAPI TWindow::setButtonText(uint cmd, const char * pText)
 	return ok;
 }
 
-int SLAPI TWindow::setButtonBitmap(uint cmd, uint bmpID)
+int TWindow::setButtonBitmap(uint cmd, uint bmpID)
 {
 	TButton * p_ctl = SearchButton(cmd);
 	return p_ctl ? p_ctl->SetBitmap(bmpID) : 0;
 }
 
-int SLAPI TWindow::destroyCtrl(uint ctlID)
+int TWindow::destroyCtrl(uint ctlID)
 {
 	int    ok = -1;
 	if(ctlID) {
@@ -610,18 +610,18 @@ int FASTCALL TWindow::setCtrlLong(uint ctlID, long val) { return setCtrlData(ctl
 int FASTCALL TWindow::setCtrlReal(uint ctlID, double val) { return setCtrlData(ctlID, &val); }
 int FASTCALL TWindow::setCtrlDate(uint ctlID, LDATE val) { return setCtrlData(ctlID, &val); }
 int FASTCALL TWindow::setCtrlTime(uint ctlID, LTIME val) { return setCtrlData(ctlID, &val); }
-int SLAPI TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm) { return BIN(setCtrlData(dtCtlID, &dtm.d) && setCtrlData(tmCtlID, &dtm.t)); }
-int SLAPI TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm) { return BIN(setCtrlData(dtCtlID, &dt) && setCtrlData(tmCtlID, &tm)); }
-int SLAPI TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm) { return BIN(getCtrlData(dtCtlID, &rDtm.d) && getCtrlData(tmCtlID, &rDtm.t)); }
+int TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm) { return BIN(setCtrlData(dtCtlID, &dtm.d) && setCtrlData(tmCtlID, &dtm.t)); }
+int TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm) { return BIN(setCtrlData(dtCtlID, &dt) && setCtrlData(tmCtlID, &tm)); }
+int TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm) { return BIN(getCtrlData(dtCtlID, &rDtm.d) && getCtrlData(tmCtlID, &rDtm.t)); }
 
-void SLAPI TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
+void TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v)
 		SETFLAG(v->ViewOptions, flags, s);
 }
 
-int SLAPI TWindow::getStaticText(ushort ctlID, SString & rBuf)
+int TWindow::getStaticText(ushort ctlID, SString & rBuf)
 {
 	int    ok = 1;
 	TStaticText * p_st = static_cast<TStaticText *>(getCtrlView(ctlID));
@@ -634,7 +634,7 @@ int SLAPI TWindow::getStaticText(ushort ctlID, SString & rBuf)
 	return ok;
 }
 
-int SLAPI TWindow::setStaticText(ushort ctlID, const char * pText)
+int TWindow::setStaticText(ushort ctlID, const char * pText)
 {
 	int    ok = 1;
 	TStaticText * p_st = static_cast<TStaticText *>(getCtrlView(ctlID));
@@ -645,7 +645,7 @@ int SLAPI TWindow::setStaticText(ushort ctlID, const char * pText)
 	return ok;
 }
 
-void SLAPI TWindow::showCtrl(ushort ctlID, int s)
+void TWindow::showCtrl(ushort ctlID, int s)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v)
@@ -716,7 +716,7 @@ void TWindow::showLocalMenu()
 	}
 }
 
-int SLAPI TWindow::translateKeyCode(ushort keyCode, uint * pCmd) const
+int TWindow::translateKeyCode(ushort keyCode, uint * pCmd) const
 {
 	int    ok = 0;
 	uint   idx = 0;
@@ -1403,7 +1403,7 @@ int TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEve
 	return 1;
 }
 
-SLAPI PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
+PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 {
 	Rect.Z();
 }

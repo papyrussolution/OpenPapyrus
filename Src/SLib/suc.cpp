@@ -7,20 +7,20 @@
 //
 //
 //
-SLAPI SUnicodeTable::Item32::Item32()
+SUnicodeTable::Item32::Item32()
 {
 	THISZERO();
 }
 
-SLAPI SUnicodeTable::UPair::UPair(uint32 key, uint32 val) : K(key), V(val)
+SUnicodeTable::UPair::UPair(uint32 key, uint32 val) : K(key), V(val)
 {
 }
 
-SLAPI SUnicodeTable::SUnicodeTable() : LastIdx(0)
+SUnicodeTable::SUnicodeTable() : LastIdx(0)
 {
 }
 
-int SLAPI SUnicodeTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int SUnicodeTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	uint32 sver = 0;
@@ -80,7 +80,7 @@ uint32 FASTCALL SUnicodeTable::ToCapital(uint32 u) const
 	}
 }
 
-int SLAPI SUnicodeTable::ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD)
+int SUnicodeTable::ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD)
 {
     int    ok = 1; // 0 - error, 1 - normal, 2 - lower range bound, 3 - upper range bound
     if(rDescr.IsEqiAscii("<control>")) {
@@ -117,7 +117,7 @@ int SLAPI SUnicodeTable::ParseDescription(SString & rDescr, SUnicodeTable::Item3
     return ok;
 }
 
-int SLAPI SUnicodeTable::PreprocessLine(SString & rLine) const
+int SUnicodeTable::PreprocessLine(SString & rLine) const
 {
 	size_t comment_pos = 0;
 	rLine.Chomp();
@@ -145,7 +145,7 @@ uint32 FASTCALL SUnicodeTable::ParseUnicode(SString & rBuf)
 	return u;
 }
 
-int SLAPI SUnicodeTable::ParseSource(const char * /*pFileName*/pPath)
+int SUnicodeTable::ParseSource(const char * /*pFileName*/pPath)
 {
     int   ok = 1;
     SString file_name;
@@ -372,7 +372,7 @@ int SLAPI SUnicodeTable::ParseSource(const char * /*pFileName*/pPath)
 //
 //
 //
-SLAPI SCodepageMapPool::CpMap::CpUToBHash::CpUToBHash(const SCodepageMapPool::CpMap & rMap) : P_Buf(0), Count(0), EntrySize(rMap.MbMl)
+SCodepageMapPool::CpMap::CpUToBHash::CpUToBHash(const SCodepageMapPool::CpMap & rMap) : P_Buf(0), Count(0), EntrySize(rMap.MbMl)
 {
 	int    ok = -1;
 	const uint mc = rMap.MapCount;
@@ -426,7 +426,7 @@ SLAPI SCodepageMapPool::CpMap::CpUToBHash::CpUToBHash(const SCodepageMapPool::Cp
 	delete [] p_fallback;
 }
 
-int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Translate(const wchar_t * pSrc, size_t srcLen, SString & rResult) const
+int SCodepageMapPool::CpMap::CpUToBHash::Translate(const wchar_t * pSrc, size_t srcLen, SString & rResult) const
 {
 	int    ok = 1;
 	const uint hs = Count;
@@ -615,7 +615,7 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Translate(const wchar_t * pSrc, s
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const void * pResultBuf, uint resultBufSize, SString & rBuf) const
+int SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const void * pResultBuf, uint resultBufSize, SString & rBuf) const
 {
 	int    ok = 1;
 	switch(EntrySize) {
@@ -692,7 +692,7 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::CpMap::CpUToBHash::FillUpHash(const uint mapCount, const SCodepageMapPool::MapEntry * pMap, const uint entrySize, const uint hashSize, void * pHash)
+int SCodepageMapPool::CpMap::CpUToBHash::FillUpHash(const uint mapCount, const SCodepageMapPool::MapEntry * pMap, const uint entrySize, const uint hashSize, void * pHash)
 {
 	int    is_dup = 0;
 	for(uint i = 0; !is_dup && i < mapCount; i++) {
@@ -737,17 +737,17 @@ int SLAPI SCodepageMapPool::CpMap::CpUToBHash::FillUpHash(const uint mapCount, c
 	return is_dup ? -1 : 1;
 }
 
-SLAPI SCodepageMapPool::CpMap::CpMap() : P_U2B_Hash(0)
+SCodepageMapPool::CpMap::CpMap() : P_U2B_Hash(0)
 {
 	Clear();
 }
 
-SLAPI SCodepageMapPool::CpMap::~CpMap()
+SCodepageMapPool::CpMap::~CpMap()
 {
 	delete P_U2B_Hash;
 }
 
-void SLAPI SCodepageMapPool::CpMap::Clear()
+void SCodepageMapPool::CpMap::Clear()
 {
 	Id = cpUndef;
 	MbMl = 0;
@@ -832,7 +832,7 @@ const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchFallb
 	return 0;
 }
 
-int SLAPI SCodepageMapPool::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int SCodepageMapPool::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	uint32 sver = 0;
@@ -846,7 +846,7 @@ int SLAPI SCodepageMapPool::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	return ok;
 }
 
-void SLAPI SCodepageMapPool::Clear()
+void SCodepageMapPool::Clear()
 {
 	ClearS();
 	CpL.freeAll();
@@ -855,12 +855,12 @@ void SLAPI SCodepageMapPool::Clear()
 	NScrL.freeAll();
 }
 
-uint SLAPI SCodepageMapPool::GetCount() const
+uint SCodepageMapPool::GetCount() const
 {
 	return CpL.getCount();
 }
 
-void SLAPI SCodepageMapPool::TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const
+void SCodepageMapPool::TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const
 {
 	rDest.Clear();
 	rDest.Id = rSrc.Id;
@@ -880,7 +880,7 @@ void SLAPI SCodepageMapPool::TranslateEntry(const CpEntry & rSrc, CpMap & rDest)
 	GetS(rSrc.VersionP, rDest.Version);
 }
 
-int SLAPI SCodepageMapPool::GetByPos(uint pos, CpMap * pM) const
+int SCodepageMapPool::GetByPos(uint pos, CpMap * pM) const
 {
 	int    ok = 0;
 	if(pos < CpL.getCount()) {
@@ -892,7 +892,7 @@ int SLAPI SCodepageMapPool::GetByPos(uint pos, CpMap * pM) const
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::Get(SCodepage cp, SCodepageMapPool::CpMap * pM) const
+int SCodepageMapPool::Get(SCodepage cp, SCodepageMapPool::CpMap * pM) const
 {
 	int    ok = 0;
 	for(uint i = 0; !ok && i < CpL.getCount(); i++) {
@@ -906,7 +906,7 @@ int SLAPI SCodepageMapPool::Get(SCodepage cp, SCodepageMapPool::CpMap * pM) cons
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::GetByName(const char * pName, SCodepageMapPool::CpMap * pM) const
+int SCodepageMapPool::GetByName(const char * pName, SCodepageMapPool::CpMap * pM) const
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -954,7 +954,7 @@ IMPL_CMPCFUNC(CPMCPENTRYUREF, p1, p2)
 	return CMPSIGN(p_list[r1].U2, p_list[r2].U2);
 }
 
-SLAPI SCodepageMapPool::MapEntry::MapEntry() : U2(0)
+SCodepageMapPool::MapEntry::MapEntry() : U2(0)
 {
 	PTR32(B)[0] = 0;
 }
@@ -975,11 +975,11 @@ int FASTCALL SCodepageMapPool::MapEntry::Cmp(const MapEntry & rS) const
 	return si ? si : CMPSIGN(U2, rS.U2);
 }
 
-SLAPI SCodepageMapPool::SCodepageMapPool() : SStrGroup()
+SCodepageMapPool::SCodepageMapPool() : SStrGroup()
 {
 }
 
-int SLAPI SCodepageMapPool::ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const
+int SCodepageMapPool::ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const
 {
 	int    ret = 0;
 	int    sis = 0;
@@ -1002,7 +1002,7 @@ int SLAPI SCodepageMapPool::ParseCpName(const SString & rName, int * pSis, SStri
     return ret;
 }
 
-int SLAPI SCodepageMapPool::ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const
+int SCodepageMapPool::ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const
 {
 	int    ok = -1;
 	uint8  mbml = DEREFPTRORZ(pMbMl);
@@ -1035,7 +1035,7 @@ int SLAPI SCodepageMapPool::ParseSymbols(SString & rU, const SString & rMb, MapE
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const
+int SCodepageMapPool::SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const
 {
     int    ok = 0;
     const  uint _c = rSeq.getCount();
@@ -1059,7 +1059,7 @@ int SLAPI SCodepageMapPool::SearchMapSeq(const TSVector <MapEntry> & rSeq, uint 
     return ok;
 }
 
-int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName, const SUnicodeTable * pUt)
+int SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName, const SUnicodeTable * pUt)
 {
     int    ok = 1;
     xmlParserCtxt * p_ctx = 0;
@@ -1287,7 +1287,7 @@ const SCodepageMapPool::MapEntry * SCodepageMapPool::CpMap::Test_ToCapital(const
 	return 0;
 }
 
-int SLAPI SCodepageMapPool::CpMap::TranslateToB2(const wchar_t * pSrc, size_t srcLen, SString & rBuf)
+int SCodepageMapPool::CpMap::TranslateToB2(const wchar_t * pSrc, size_t srcLen, SString & rBuf)
 {
 	int    ok = 1;
 	if(SETIFZ(P_U2B_Hash, new CpUToBHash(*this)))
@@ -1297,7 +1297,7 @@ int SLAPI SCodepageMapPool::CpMap::TranslateToB2(const wchar_t * pSrc, size_t sr
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
+int SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
 {
 	int    ok = 1;
     rIdx.clear();
@@ -1355,7 +1355,7 @@ int FASTCALL SCodepageMapPool::CpMap::Helper_BSearchB(uint32 b4, wchar_t * pU) c
 	return 0;
 }
 
-int SLAPI SCodepageMapPool::CpMap::TranslateToU(const uint8 * pSrc, size_t srcSize, SStringU & rBuf) const
+int SCodepageMapPool::CpMap::TranslateToU(const uint8 * pSrc, size_t srcSize, SStringU & rBuf) const
 {
 	const uint _count = MapCount;
 	if(_count) {
@@ -1555,7 +1555,7 @@ void SCodepageMapPool::CMapTranslIndexTest::Reset()
 IMPL_CMPCFUNC(CMapTranslEntry, p1, p2) 
 	{ RET_CMPCASCADE4(static_cast<const SCodepageMapPool::CMapTranslEntry *>(p1), static_cast<const SCodepageMapPool::CMapTranslEntry *>(p2), S[0], S[1], S[2], S[3]); }
 
-SLAPI SCodepageMapPool::CMapTranslEntry::CMapTranslEntry()
+SCodepageMapPool::CMapTranslEntry::CMapTranslEntry()
 {
 	THISZERO();
 }
@@ -1565,17 +1565,17 @@ void SCodepageMapPool::CMapTranslIndexTest::Sort()
 	sort(PTR_CMPCFUNC(CMapTranslEntry));
 }
 
-SLAPI SCodepageMapPool::TranslIndex::TranslIndex() : P_Tab(0)
+SCodepageMapPool::TranslIndex::TranslIndex() : P_Tab(0)
 {
 	Reset();
 }
 
-SLAPI SCodepageMapPool::TranslIndex::TranslIndex(const SCodepageMapPool::TranslIndex & rS)
+SCodepageMapPool::TranslIndex::TranslIndex(const SCodepageMapPool::TranslIndex & rS)
 {
 	Copy(rS);
 }
 
-SLAPI SCodepageMapPool::TranslIndex::~TranslIndex()
+SCodepageMapPool::TranslIndex::~TranslIndex()
 {
 	Reset();
 }
@@ -1607,7 +1607,7 @@ SCodepageMapPool::TranslIndex & FASTCALL SCodepageMapPool::TranslIndex::operator
 	return *this;
 }
 
-void SLAPI SCodepageMapPool::TranslIndex::Reset()
+void SCodepageMapPool::TranslIndex::Reset()
 {
 	ZFREE(P_Tab);
 	Count = 0;
@@ -1617,7 +1617,7 @@ void SLAPI SCodepageMapPool::TranslIndex::Reset()
 	Flags = 0;
 }
 
-int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTranslIndexTest & rIdx)
+int SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTranslIndexTest & rIdx)
 {
     int    ok = 1;
 	ZFREE(P_Tab);
@@ -1710,7 +1710,7 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
 	return ok;
 }
 
-size_t SLAPI SCodepageMapPool::TranslIndex::GetEntrySize() const
+size_t SCodepageMapPool::TranslIndex::GetEntrySize() const
 {
 	assert(oneof4(SL, 1, 2, 3, 4));
 	assert(oneof4(DL, 1, 2, 3, 4));
@@ -1854,7 +1854,7 @@ const uint8 * FASTCALL SCodepageMapPool::TranslIndex::Search(const uint8 * pSrc)
 	return p_result;
 }
 
-int SLAPI SCodepageMapPool::Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx)
+int SCodepageMapPool::Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx)
 {
 	rIdx.Reset();
 	rFinalIdx.Reset();
@@ -1911,13 +1911,13 @@ int SLAPI SCodepageMapPool::Helper_MakeTranslIndex(const CpMap & rFrom, const Cp
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx)
+int SCodepageMapPool::MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx)
 {
 	CMapTranslIndexTest intr_idx;
 	return Helper_MakeTranslIndex(rFrom, rTo, intr_idx, rIdx);
 }
 
-uint SLAPI SCodepageMapPool::Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest)
+uint SCodepageMapPool::Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest)
 {
     for(size_t i = 0; i < srcLen; i++) {
         const uint8 c = pSrc[i];
@@ -1926,7 +1926,7 @@ uint SLAPI SCodepageMapPool::Translate(const CpMap & rFrom, const CpMap & rTo, c
 	return 0;
 }
 
-uint SLAPI SCodepageMapPool::Compare(const CpMap & rS1, const CpMap & rS2) const
+uint SCodepageMapPool::Compare(const CpMap & rS1, const CpMap & rS2) const
 {
     uint   result = 0;
     {
@@ -2037,7 +2037,7 @@ struct _TestTranslIndexEntry {
 	SCodepageMapPool::TranslIndex Ti;
 };
 
-int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileName, const char * pMapTranslFileName)
+int SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileName, const char * pMapTranslFileName)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2425,16 +2425,16 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 	return ok;
 }
 
-SLAPI SUnicodeBlock::SUnicodeBlock()
+SUnicodeBlock::SUnicodeBlock()
 {
 }
 
-SLAPI SUnicodeBlock::~SUnicodeBlock()
+SUnicodeBlock::~SUnicodeBlock()
 {
 }
 
 /* use PPReadUnicodeBlockRawData instead
-int SLAPI SUnicodeBlock::ReadRaw(const char * pUnicodePath, const char * pCpPath)
+int SUnicodeBlock::ReadRaw(const char * pUnicodePath, const char * pCpPath)
 {
 	int    ok = 1;
 	THROW(Ut.ParseSource(pUnicodePath));
@@ -2444,7 +2444,7 @@ int SLAPI SUnicodeBlock::ReadRaw(const char * pUnicodePath, const char * pCpPath
 }
 */
 
-int SLAPI SUnicodeBlock::Read(const char * pFileName)
+int SUnicodeBlock::Read(const char * pFileName)
 {
     int    ok = 1;
     SSerializeContext sctx;
@@ -2469,7 +2469,7 @@ int SLAPI SUnicodeBlock::Read(const char * pFileName)
     return ok;
 }
 
-int SLAPI SUnicodeBlock::Write(const char * pFileName)
+int SUnicodeBlock::Write(const char * pFileName)
 {
     int    ok = 1;
     SSerializeContext sctx;

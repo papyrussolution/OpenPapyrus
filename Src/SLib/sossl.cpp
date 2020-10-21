@@ -14,7 +14,7 @@ typedef void (*SSL_LOAD_ERROR_STRINGS_PROC)();
 ..\OSF\OPENSSL\lib\ssleay32.lib
 */
 
-int SLAPI SlSession::InitSSL()
+int SlSession::InitSSL()
 {
 	int    ok = -1;
 	if(SslInitCounter == 0) {

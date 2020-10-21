@@ -1413,7 +1413,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	result->init(_d);
 }
 
-/*static*/int SLAPI PPDbqFuncPool::Register()
+/*static*/int PPDbqFuncPool::Register()
 {
 	int    ok = 1;
 	THROW(DbqFuncTab::RegisterDyn(&IdEmpty,               BTS_STRING, dbqf_empty,                  0));

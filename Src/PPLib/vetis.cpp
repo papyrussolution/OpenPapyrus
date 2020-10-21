@@ -859,7 +859,7 @@ struct VetisTransportNumber {
 		FlightNumber.Z();
 		return *this;
 	}
-	int    SLAPI IsEmpty() const
+	int    IsEmpty() const
 	{
 		return (ContainerNumber.Empty() && WagonNumber.Empty() && VehicleNumber.Empty() &&
 			TrailerNumber.Empty() && ShipName.Empty() && FlightNumber.Empty());
@@ -1774,11 +1774,11 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	return ok;
 }
 
-SLAPI VetisEntityCore::Entity::Entity() : ID(0), Kind(kUndef), Flags(0), Status(0), GuidRef(0), UuidRef(0)
+VetisEntityCore::Entity::Entity() : ID(0), Kind(kUndef), Flags(0), Status(0), GuidRef(0), UuidRef(0)
 {
 }
 
-SLAPI VetisEntityCore::Entity::Entity(int kind, const VetisProductItem & rS) : ID(0), Kind(kind), Status(rS.Status), Flags(rS.Flags)
+VetisEntityCore::Entity::Entity(int kind, const VetisProductItem & rS) : ID(0), Kind(kind), Status(rS.Status), Flags(rS.Flags)
 {
 	assert(oneof3(kind, kProductItem, kProduct, kSubProduct));
 	if(kind == kProductItem) {
@@ -1798,19 +1798,19 @@ SLAPI VetisEntityCore::Entity::Entity(int kind, const VetisProductItem & rS) : I
 	}
 }
 
-SLAPI VetisEntityCore::Entity::Entity(int kind, const VetisNamedGenericVersioningEntity & rS) : ID(0), Kind(kind), Status(rS.Status), Flags(rS.Flags)
+VetisEntityCore::Entity::Entity(int kind, const VetisNamedGenericVersioningEntity & rS) : ID(0), Kind(kind), Status(rS.Status), Flags(rS.Flags)
 {
 	Guid = rS.Guid;
 	Uuid = rS.Uuid;
 	Name = rS.Name;
 }
 
-SLAPI VetisEntityCore::Entity::Entity(const VetisVetDocument & rS) : ID(0), Kind(kVetDocument), Status(0), Flags(rS.Flags)
+VetisEntityCore::Entity::Entity(const VetisVetDocument & rS) : ID(0), Kind(kVetDocument), Status(0), Flags(rS.Flags)
 {
 	Uuid = rS.Uuid;
 }
 
-SLAPI VetisEntityCore::Entity::Entity(const VetisStockEntry & rS) : ID(0), Kind(kStockEntry), Status(0), Flags(rS.Flags)
+VetisEntityCore::Entity::Entity(const VetisStockEntry & rS) : ID(0), Kind(kStockEntry), Status(0), Flags(rS.Flags)
 {
 	Guid = rS.Guid;
 	Uuid = rS.Uuid;
@@ -1824,7 +1824,7 @@ void FASTCALL VetisEntityCore::Entity::Get(VetisNamedGenericVersioningEntity & r
 	rD.Name = Name;
 }
 
-VetisEntityCore::Entity & SLAPI VetisEntityCore::Entity::Z()
+VetisEntityCore::Entity & VetisEntityCore::Entity::Z()
 {
 	ID = 0;
 	Kind = 0;
@@ -1838,13 +1838,13 @@ VetisEntityCore::Entity & SLAPI VetisEntityCore::Entity::Z()
 	return *this;
 }
 
-void SLAPI VetisEntityCore::Entity::SetupVetDocument()
+void VetisEntityCore::Entity::SetupVetDocument()
 {
 	Uuid.Generate();
 	Kind = VetisEntityCore::kVetDocument;
 }
 
-SLAPI VetisEntityCore::VetisEntityCore()
+VetisEntityCore::VetisEntityCore()
 {
 }
 
@@ -1854,7 +1854,7 @@ SLAPI VetisEntityCore::VetisEntityCore()
 		kUOM, kCountry, kRegion, kVetDocument, kStockEntry);
 }
 
-int SLAPI VetisEntityCore::CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & rList)
+int VetisEntityCore::CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & rList)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1887,7 +1887,7 @@ int SLAPI VetisEntityCore::CollectUnresolvedEntityList(TSVector <UnresolvedEntit
 	return ok;
 }
 
-int SLAPI VetisEntityCore::GetEntityByGuid(const S_GUID & rGuid, Entity & rE)
+int VetisEntityCore::GetEntityByGuid(const S_GUID & rGuid, Entity & rE)
 {
 	int     ok = -1;
 	long    uuid_id = 0;
@@ -1903,7 +1903,7 @@ int SLAPI VetisEntityCore::GetEntityByGuid(const S_GUID & rGuid, Entity & rE)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::GetEntityByUuid(const S_GUID & rUuid, Entity & rE)
+int VetisEntityCore::GetEntityByUuid(const S_GUID & rUuid, Entity & rE)
 {
 	int     ok = -1;
 	long    uuid_id = 0;
@@ -1919,7 +1919,7 @@ int SLAPI VetisEntityCore::GetEntityByUuid(const S_GUID & rUuid, Entity & rE)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::EntityRecToEntity(const VetisEntityTbl::Rec & rRec, Entity & rE)
+int VetisEntityCore::EntityRecToEntity(const VetisEntityTbl::Rec & rRec, Entity & rE)
 {
 	int    ok = 1;
 	rE.ID = rRec.ID;
@@ -1943,7 +1943,7 @@ int SLAPI VetisEntityCore::EntityRecToEntity(const VetisEntityTbl::Rec & rRec, E
 	return ok;
 }
 
-int SLAPI VetisEntityCore::GetEntity(PPID id, Entity & rE)
+int VetisEntityCore::GetEntity(PPID id, Entity & rE)
 {
 	rE.Z();
 	VetisEntityTbl::Rec rec;
@@ -1954,7 +1954,7 @@ int SLAPI VetisEntityCore::GetEntity(PPID id, Entity & rE)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::DeleteEntity(PPID id, int use_ta)
+int VetisEntityCore::DeleteEntity(PPID id, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2018,7 +2018,7 @@ int SLAPI VetisEntityCore::DeleteEntity(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, PPID * pID, int use_ta)
+int VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, PPID * pID, int use_ta)
 {
 	int    ok = 1;
 	int    is_new_entity = 0;
@@ -2100,12 +2100,12 @@ int SLAPI VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * 
 	return ok;
 }
 
-int SLAPI VetisEntityCore::SearchPerson(PPID id, VetisPersonTbl::Rec * pRec)
+int VetisEntityCore::SearchPerson(PPID id, VetisPersonTbl::Rec * pRec)
 	{ return SearchByID(&BT, 0, id, pRec); }
-int SLAPI VetisEntityCore::SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec)
+int VetisEntityCore::SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec)
 	{ return SearchByID(&DT, 0, id, pRec); }
 
-int SLAPI VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta)
+int VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -2171,7 +2171,7 @@ int SLAPI VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN
 	return ok;
 }
 
-int SLAPI VetisEntityCore::MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta)
+int VetisEntityCore::MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta)
 {
 	assert(oneof2(side, 0, 1));
 	int    ok = -1;
@@ -2309,7 +2309,7 @@ int SLAPI VetisEntityCore::MatchPersonInDocument(PPID docEntityID, int side /*0 
 	return ok;
 }
 
-int SLAPI VetisEntityCore::ResolveEntityByID(PPID entityID, VetisNamedGenericVersioningEntity & rD)
+int VetisEntityCore::ResolveEntityByID(PPID entityID, VetisNamedGenericVersioningEntity & rD)
 {
 	int    ok = -1;
 	if(entityID) {
@@ -2322,7 +2322,7 @@ int SLAPI VetisEntityCore::ResolveEntityByID(PPID entityID, VetisNamedGenericVer
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
+int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 {
 	Reference * p_ref = PPRef;
 	Entity entity;
@@ -2442,7 +2442,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid,
+int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid,
 	const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
@@ -2562,7 +2562,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 	return ok;
 }
 
-int SLAPI VetisEntityCore::SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta)
+int VetisEntityCore::SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -2586,7 +2586,7 @@ int SLAPI VetisEntityCore::SetOutgoingDocApplicationIdent(PPID id, const S_GUID 
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags, TSVector <UnresolvedEntity> * pUreList, int use_ta)
+int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
 	PPID   result_id = 0;
@@ -2814,7 +2814,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long 
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Get(PPID id, VetisBusinessEntity & rItem)
+int VetisEntityCore::Get(PPID id, VetisBusinessEntity & rItem)
 {
 	rItem.Z();
 	Reference * p_ref = PPRef;
@@ -2842,7 +2842,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisBusinessEntity & rItem)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
+int VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2903,7 +2903,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TS
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
+int VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
 {
 	rItem.Z();
 	Reference * p_ref = PPRef;
@@ -2937,7 +2937,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
+int VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2993,7 +2993,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVect
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
+int VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
 {
 	Reference * p_ref = PPRef;
 	Entity entity;
@@ -3027,7 +3027,7 @@ int SLAPI VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
+int VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -3081,19 +3081,19 @@ int SLAPI VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rI
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Get(PPID id, VetisProduct & rItem)
+int VetisEntityCore::Get(PPID id, VetisProduct & rItem)
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI VetisEntityCore::Get(PPID id, VetisSubProduct & rItem)
+int VetisEntityCore::Get(PPID id, VetisSubProduct & rItem)
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI VetisEntityCore::RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem)
+int VetisEntityCore::RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem)
 {
 	int    ok = -1;
 	return ok;
@@ -3114,8 +3114,8 @@ public:
 		stInited = 0x0001
 	};
 	struct Param : public PPExtStrContainer {
-		SLAPI  Param(PPID mainOrgID, PPID locID, long flags);
-		void   SLAPI Clear();
+		Param(PPID mainOrgID, PPID locID, long flags);
+		void   Clear();
 		enum {
 			fTestContour           = 0x0001,
 			fSkipLocInitialization = 0x0002
@@ -3222,12 +3222,12 @@ public:
 	};
 
 	static int FASTCALL SetupParam(Param & rP);
-	static int SLAPI GoodsDateToString(const SUniTime & rUt, SString & rBuf);
-	explicit SLAPI PPVetisInterface(PPLogger * pLogger);
-	SLAPI ~PPVetisInterface();
-	int    SLAPI Init(const Param & rP);
-	int    SLAPI GetStockEntryList(uint startOffset, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetStockEntryChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
+	static int GoodsDateToString(const SUniTime & rUt, SString & rBuf);
+	explicit PPVetisInterface(PPLogger * pLogger);
+	~PPVetisInterface();
+	int    Init(const Param & rP);
+	int    GetStockEntryList(uint startOffset, uint count, VetisApplicationBlock & rReply);
+	int    GetStockEntryChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
 	//
 	// Операция GetVetDocumentListOperation предназначена для получения всех ветеринарно-сопроводительных документов предприятия.
 	//   При этом список ВСД может быть отфильтрован по следующим критериям:
@@ -3241,10 +3241,10 @@ public:
 	//     пользователю передаются сведения о запрашиваемых ВСД.
 	//   Запрашиваться пользователем могут только те ВСД, где ветеринарное управление инициатор запроса обслуживает предприятия.
 	//
-	int    SLAPI GetVetDocumentList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetVetDocumentChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply);
-	int    SLAPI GetStockEntryByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply); // @v10.5.9
+	int    GetVetDocumentList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
+	int    GetVetDocumentChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
+	int    GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply);
+	int    GetStockEntryByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply); // @v10.5.9
 	//
 	// Операция IncomingOperation предназначена для оформления в системе Меркурий входящей партии.
 	//   На вход системы, в зависимости от сценария, передаются следующие сведения:
@@ -3260,7 +3260,7 @@ public:
 	//     возвратный ВСД (формируется в случае, если принимается не весь объем продукции);
 	//     акт несоответствия (формируется в случае, если фактические сведения о продукции не совпадают с указанными в ВСД).
 	//
-	int    SLAPI ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisApplicationBlock & rReply);
+	int    ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisApplicationBlock & rReply);
 	//
 	// Операция PrepareOutgoingConsignmentOperation предназначена для оформления в системе Меркурий транспортной партии.
 	//   На вход системы передаются следующие сведения:
@@ -3274,15 +3274,15 @@ public:
 	//     гашение производственной сертификата, если был указан весь объем по данной записи журнала вырабатываемой продукции;
 	//     для каждого наименования продукции указанного в транспортной партии, система Меркурий формирует ветеринарно-сопроводительный документ (ВСД).
 	//
-	int    SLAPI PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
-	int    SLAPI PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
-	int    SLAPI QueryOutgoingConsignmentResult(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
-	int    SLAPI ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
-	int    SLAPI RegisterProduction(PPID docEntityID, const PPIDArray & rExpenseDocEntityList, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
-	int    SLAPI WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
-	int    SLAPI WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicationBlock & rReply);
-	int    SLAPI ModifyEnterprise(VetisRegisterModificationType modType, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply);
-	int    SLAPI ModifyActivityLocations(VetisRegisterModificationType modType, const VetisBusinessEntity & rBe, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply);
+	int    PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
+	int    PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
+	int    QueryOutgoingConsignmentResult(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
+	int    ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
+	int    RegisterProduction(PPID docEntityID, const PPIDArray & rExpenseDocEntityList, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
+	int    WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply);
+	int    WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicationBlock & rReply);
+	int    ModifyEnterprise(VetisRegisterModificationType modType, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply);
+	int    ModifyActivityLocations(VetisRegisterModificationType modType, const VetisBusinessEntity & rBe, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply);
 	//
 	// Операция RegisterProductionOperation предназначена для оформления в системе Меркурий производственной партии, как завершённой, так и незавершённой.
 	//   На вход системы передаются следующие сведения:
@@ -3300,7 +3300,7 @@ public:
 	//       ветеринарно-сопроводительный документ (ВСД) или происходит увеличение объёма выпущенной продукции в уже оформленном ветеринарном документе
 	//       (для незавершённого производства).
 	//
-	int    SLAPI RegisterProductionOperation(); // registerProductionOperationRequest
+	int    RegisterProductionOperation(); // registerProductionOperationRequest
 	//
 	// Операция AddBussinessEntityUser предназначена для регистрации новых пользователей в системе Меркурий или
 	//   привязки существующих пользователей к хозяйствующему субъекту.
@@ -3313,18 +3313,18 @@ public:
 	//   Результатом выполнения данной операции является:
 	//     регистрация нового пользователя или привязка существующего пользователя к хозяйствующему субъекту.
 	//
-	int    SLAPI AddBusinessEntityUser(); // addBusinessEntityUserRequest
-	int    SLAPI GetRussianEnterpriseList(uint offs, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetBusinessEntityList(uint offs, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetProductItemList(uint offs, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply); // @v10.5.2
-	int    SLAPI GetSubProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply); // @v10.5.2
-	int    SLAPI GetPurposeList(uint offs, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetUnitList(uint offs, uint count, VetisApplicationBlock & rReply);
-	int    SLAPI GetCountryList(VetisApplicationBlock & rReply);
-	int    SLAPI GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock & rReply);
-	int    SLAPI GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBlock & rReply);
-	int    SLAPI ModifyProducerStockListOperation(VetisRegisterModificationType modType, VetisProductItem & rPi, VetisApplicationBlock & rReply);
+	int    AddBusinessEntityUser(); // addBusinessEntityUserRequest
+	int    GetRussianEnterpriseList(uint offs, uint count, VetisApplicationBlock & rReply);
+	int    GetBusinessEntityList(uint offs, uint count, VetisApplicationBlock & rReply);
+	int    GetProductItemList(uint offs, uint count, VetisApplicationBlock & rReply);
+	int    GetProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply); // @v10.5.2
+	int    GetSubProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply); // @v10.5.2
+	int    GetPurposeList(uint offs, uint count, VetisApplicationBlock & rReply);
+	int    GetUnitList(uint offs, uint count, VetisApplicationBlock & rReply);
+	int    GetCountryList(VetisApplicationBlock & rReply);
+	int    GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock & rReply);
+	int    GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBlock & rReply);
+	int    ModifyProducerStockListOperation(VetisRegisterModificationType modType, VetisProductItem & rPi, VetisApplicationBlock & rReply);
 	enum {
 		qtProductItemByGuid = 1,
 		qtProductItemByUuid,
@@ -3337,11 +3337,11 @@ public:
 		qtEnterpriseByGuid,
 		qtEnterpriseByUuid
 	};
-	int    SLAPI GetEntityQuery_Obsolete(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply);
-	int    SLAPI GetEntityQuery2(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply);
-	int    SLAPI ProcessUnresolvedEntityList(const TSVector <VetisEntityCore::UnresolvedEntity> & rList);
-	int    SLAPI SetupOutgoingEntries(PPID locID, const DateRange & rPeriod);
-	int    SLAPI InitOutgoingEntry(PPID docEntityID, OutcomingList & rList);
+	int    GetEntityQuery_Obsolete(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply);
+	int    GetEntityQuery2(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply);
+	int    ProcessUnresolvedEntityList(const TSVector <VetisEntityCore::UnresolvedEntity> & rList);
+	int    SetupOutgoingEntries(PPID locID, const DateRange & rPeriod);
+	int    InitOutgoingEntry(PPID docEntityID, OutcomingList & rList);
 
 	VetisEntityCore PeC;
 private:
@@ -3353,47 +3353,47 @@ private:
 	private:
 		SXml::WDoc D;
 	};
-	int    SLAPI PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk);
-	int    SLAPI SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult);
+	int    PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk);
+	int    SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult);
 	int    ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult, int once);
-	int    SLAPI SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply);
-	int    SLAPI MakeAuthField(SString & rBuf);
-	int    SLAPI ParseReply(const SString & rReply, VetisApplicationBlock & rResult);
-	int    SLAPI ParseError(const xmlNode * pNode, VetisErrorEntry & rResult);
-	int    SLAPI ParseFault(xmlNode * pParentNode, VetisFault & rResult);
-	int    SLAPI ParseDocument(xmlNode * pParentNode, VetisDocument & rResult);
-	int    SLAPI ParseVetDocument(xmlNode * pParentNode, VetisVetDocument * pResult);
-	int    SLAPI ParseCertifiedConsignment(xmlNode * pParentNode, VetisCertifiedConsignment & rResult);
-	int    SLAPI ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLocality & rResult);
-	int    SLAPI ParseCountry(xmlNode * pParentNode, VetisCountry & rResult);
-	int    SLAPI ParseRegion(xmlNode * pParentNode, VetisAddressObjectView & rResult);
-	int    SLAPI ParseAddress(xmlNode * pParentNode, VetisAddress & rResult);
-	int    SLAPI ParseLocation(xmlNode * pParentNode, VetisLocation & rResult);
-	int    SLAPI ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMember & rResult);
-	int    SLAPI ParseEnterprise(xmlNode * pParentNode, VetisEnterprise * pResult);
-	int    SLAPI ParseProducer(xmlNode * pParentNode, VetisProducer & rResult);
-	int    SLAPI ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEntity & rResult);
-	int    SLAPI ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult);
-	int    SLAPI ParseNamedGenericVersioningEntity(xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult);
-	int    SLAPI ParseCertifiedBatch(xmlNode * pParentNode, VetisCertifiedBatch & rResult);
-	int    SLAPI ParseBatch(xmlNode * pParentNode, VetisBatch & rResult);
-	int    SLAPI ParseProduct(xmlNode * pParentNode, VetisProduct & rResult);
-	int    SLAPI ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & rResult);
-	int    SLAPI ParseProductItem(xmlNode * pParentNode, VetisProductItem * pResult);
-	int    SLAPI ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult);
-	int    SLAPI ParsePackage(xmlNode * pParentNode, VetisPackage & rResult);
-	int    SLAPI ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult);
-	int    SLAPI ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rResult);
-	int    SLAPI ParseUnit(xmlNode * pParentNode, VetisUnit & rResult);
-	int    SLAPI ParseTransportInfo(xmlNode * pParentNode, VetisTransportInfo & rResult);
-	void   SLAPI ParseListResult(const xmlNode * pNode, VetisApplicationBlock::ReplyListValues & rResult);
-	void   SLAPI PutListAttributes(SXml::WNode & rN, long count, long offset, long total);
-	void   SLAPI PutListOptionsParam(xmlTextWriter * pWriter, uint offs, uint count);
-	int    SLAPI PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const char * pDtNs, const SUniTime & rUt);
-	int    SLAPI ParseStockEntry(xmlNode * pParentNode, VetisStockEntry * pResult);
-	int    SLAPI Helper_PutOutgoingBillList(PPIDArray & rBillList, const long putBillRowFlags);
-	int    SLAPI SearchLastStockEntry(PPID docEntityID, VetisVetDocument & rDocEntity, PPID & rStockEntryEntityID, S_GUID & rStockEntryGUID, S_GUID & rStockEntryUUID, double & rRest);
-	int    SLAPI PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq);
+	int    SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply);
+	int    MakeAuthField(SString & rBuf);
+	int    ParseReply(const SString & rReply, VetisApplicationBlock & rResult);
+	int    ParseError(const xmlNode * pNode, VetisErrorEntry & rResult);
+	int    ParseFault(xmlNode * pParentNode, VetisFault & rResult);
+	int    ParseDocument(xmlNode * pParentNode, VetisDocument & rResult);
+	int    ParseVetDocument(xmlNode * pParentNode, VetisVetDocument * pResult);
+	int    ParseCertifiedConsignment(xmlNode * pParentNode, VetisCertifiedConsignment & rResult);
+	int    ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLocality & rResult);
+	int    ParseCountry(xmlNode * pParentNode, VetisCountry & rResult);
+	int    ParseRegion(xmlNode * pParentNode, VetisAddressObjectView & rResult);
+	int    ParseAddress(xmlNode * pParentNode, VetisAddress & rResult);
+	int    ParseLocation(xmlNode * pParentNode, VetisLocation & rResult);
+	int    ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMember & rResult);
+	int    ParseEnterprise(xmlNode * pParentNode, VetisEnterprise * pResult);
+	int    ParseProducer(xmlNode * pParentNode, VetisProducer & rResult);
+	int    ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEntity & rResult);
+	int    ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult);
+	int    ParseNamedGenericVersioningEntity(xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult);
+	int    ParseCertifiedBatch(xmlNode * pParentNode, VetisCertifiedBatch & rResult);
+	int    ParseBatch(xmlNode * pParentNode, VetisBatch & rResult);
+	int    ParseProduct(xmlNode * pParentNode, VetisProduct & rResult);
+	int    ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & rResult);
+	int    ParseProductItem(xmlNode * pParentNode, VetisProductItem * pResult);
+	int    ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult);
+	int    ParsePackage(xmlNode * pParentNode, VetisPackage & rResult);
+	int    ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult);
+	int    ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rResult);
+	int    ParseUnit(xmlNode * pParentNode, VetisUnit & rResult);
+	int    ParseTransportInfo(xmlNode * pParentNode, VetisTransportInfo & rResult);
+	void   ParseListResult(const xmlNode * pNode, VetisApplicationBlock::ReplyListValues & rResult);
+	void   PutListAttributes(SXml::WNode & rN, long count, long offset, long total);
+	void   PutListOptionsParam(xmlTextWriter * pWriter, uint offs, uint count);
+	int    PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const char * pDtNs, const SUniTime & rUt);
+	int    ParseStockEntry(xmlNode * pParentNode, VetisStockEntry * pResult);
+	int    Helper_PutOutgoingBillList(PPIDArray & rBillList, const long putBillRowFlags);
+	int    SearchLastStockEntry(PPID docEntityID, VetisVetDocument & rDocEntity, PPID & rStockEntryEntityID, S_GUID & rStockEntryGUID, S_GUID & rStockEntryUUID, double & rRest);
+	int    PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq);
 	//
 	// Descr: Специализированная структура для оптимизации серии вызовов PutBillRow для одного и того же документа.
 	//
@@ -3413,11 +3413,11 @@ private:
 		pbrfManuf       = 0x0002, // @v10.6.3
 		pbrfManufInc    = 0x0004  // @v10.6.9 Если флаг установлен, то формируется запись для исходящей строки документа производства
 	};
-	static int SLAPI MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList);
-	int    SLAPI PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta);
-	double SLAPI CalcVolumeByGoodsQtty(PPID goodsID, double quantity);
-	int    SLAPI LogMessage(const char * pPrefix, const SString & rMsg);
-	int    SLAPI LogFaults(const VetisApplicationBlock & rAb);
+	static int MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList);
+	int    PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta);
+	double CalcVolumeByGoodsQtty(PPID goodsID, double quantity);
+	int    LogMessage(const char * pPrefix, const SString & rMsg);
+	int    LogFaults(const VetisApplicationBlock & rAb);
 
 	long   State;
 	PPID   DlvrLocToTranspTagID; // @v10.8.12 Тег сопоставляющий адрес транспортному стредству
@@ -3429,11 +3429,11 @@ private:
 	PPObjGoods GObj;
 };
 
-SLAPI PPVetisInterface::Param::Param(PPID mainOrgID, PPID locID, long flags) : Flags(flags), MainOrgID(mainOrgID), LocID(locID), Timeout(0)
+PPVetisInterface::Param::Param(PPID mainOrgID, PPID locID, long flags) : Flags(flags), MainOrgID(mainOrgID), LocID(locID), Timeout(0)
 {
 }
 
-void SLAPI PPVetisInterface::Param::Clear()
+void PPVetisInterface::Param::Clear()
 {
 	SetBuffer(0);
 	IssuerUUID.Z();
@@ -3444,7 +3444,7 @@ PPVetisInterface::PutBillRowBlock::PutBillRowBlock() : BillID(0), PersonID(0), D
 {
 }
 
-int SLAPI PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
+int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 {
 	int    ok = 1;
 	SString file_name;
@@ -3515,16 +3515,16 @@ int SLAPI PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMs
 	return ok;
 }
 
-SLAPI PPVetisInterface::PPVetisInterface(PPLogger * pLogger) : State(0), LastLocalTransactionId(0), P_Logger(pLogger), P(0, 0, 0), DlvrLocToTranspTagID(0)
+PPVetisInterface::PPVetisInterface(PPLogger * pLogger) : State(0), LastLocalTransactionId(0), P_Logger(pLogger), P(0, 0, 0), DlvrLocToTranspTagID(0)
 {
 	PPGetFilePath(PPPATH_LOG, "vetis.log", LogFileName);
 }
 
-SLAPI PPVetisInterface::~PPVetisInterface()
+PPVetisInterface::~PPVetisInterface()
 {
 }
 
-int SLAPI PPVetisInterface::Init(const Param & rP)
+int PPVetisInterface::Init(const Param & rP)
 {
 	int    ok = 1;
 	P = rP;
@@ -3544,7 +3544,7 @@ int SLAPI PPVetisInterface::Init(const Param & rP)
 	return ok;
 }
 
-int SLAPI PPVetisInterface::MakeAuthField(SString & rBuf)
+int PPVetisInterface::MakeAuthField(SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -3561,7 +3561,7 @@ int SLAPI PPVetisInterface::MakeAuthField(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply)
+int PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, const SString & rPack, SString & rReply)
 {
 	//static const char * P_VetisSoapUrl = "https://api.vetrf.ru/platform/services/ApplicationManagementService"; // product
 	//static const char * P_VetisSoapUrl = "https://api2.vetrf.ru:8002/platform/services/ApplicationManagementService"; // test
@@ -3614,7 +3614,7 @@ SString & PPVetisInterface::VetisSubmitRequestBlock::GetReplyString(SString & rB
 	return rBuf.CopyFromN(reinterpret_cast<const char *>(p_xb->content), p_xb->use);
 }
 
-int SLAPI PPVetisInterface::ParseError(const xmlNode * pNode, VetisErrorEntry & rResult)
+int PPVetisInterface::ParseError(const xmlNode * pNode, VetisErrorEntry & rResult)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -3628,7 +3628,7 @@ int SLAPI PPVetisInterface::ParseError(const xmlNode * pNode, VetisErrorEntry & 
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseFault(xmlNode * pParentNode, VetisFault & rResult)
+int PPVetisInterface::ParseFault(xmlNode * pParentNode, VetisFault & rResult)
 {
 	int    ok = 1;
 	if(pParentNode) {
@@ -3731,7 +3731,7 @@ static const SIntToSymbTabEntry VetisRegisterModificationType_SymbTab[] = {
 	{ vetisrmtFORK, "FORK" }
 };
 
-int SLAPI PPVetisInterface::ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult)
+int PPVetisInterface::ParseGenericVersioningEntity(xmlNode * pParentNode, VetisGenericVersioningEntity & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3760,7 +3760,7 @@ int SLAPI PPVetisInterface::ParseGenericVersioningEntity(xmlNode * pParentNode, 
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseNamedGenericVersioningEntity(xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult)
+int PPVetisInterface::ParseNamedGenericVersioningEntity(xmlNode * pParentNode, VetisNamedGenericVersioningEntity & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3772,7 +3772,7 @@ int SLAPI PPVetisInterface::ParseNamedGenericVersioningEntity(xmlNode * pParentN
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult)
+int PPVetisInterface::ParsePackingType(xmlNode * pParentNode, VetisPackingType & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3784,7 +3784,7 @@ int SLAPI PPVetisInterface::ParsePackingType(xmlNode * pParentNode, VetisPacking
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & rResult)
+int PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3813,7 +3813,7 @@ int SLAPI PPVetisInterface::ParsePackage(xmlNode * pParentNode, VetisPackage & r
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLocality & rResult)
+int PPVetisInterface::ParseLocality(xmlNode * pParentNode, VetisAddress::VetisLocality & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3828,7 +3828,7 @@ int SLAPI PPVetisInterface::ParseLocality(xmlNode * pParentNode, VetisAddress::V
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseCountry(xmlNode * pParentNode, VetisCountry & rResult)
+int PPVetisInterface::ParseCountry(xmlNode * pParentNode, VetisCountry & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3846,7 +3846,7 @@ int SLAPI PPVetisInterface::ParseCountry(xmlNode * pParentNode, VetisCountry & r
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseRegion(xmlNode * pParentNode, VetisAddressObjectView & rResult)
+int PPVetisInterface::ParseRegion(xmlNode * pParentNode, VetisAddressObjectView & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3869,7 +3869,7 @@ int SLAPI PPVetisInterface::ParseRegion(xmlNode * pParentNode, VetisAddressObjec
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseAddress(xmlNode * pParentNode, VetisAddress & rResult)
+int PPVetisInterface::ParseAddress(xmlNode * pParentNode, VetisAddress & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3894,7 +3894,7 @@ int SLAPI PPVetisInterface::ParseAddress(xmlNode * pParentNode, VetisAddress & r
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseLocation(xmlNode * pParentNode, VetisLocation & rResult)
+int PPVetisInterface::ParseLocation(xmlNode * pParentNode, VetisLocation & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3909,7 +3909,7 @@ int SLAPI PPVetisInterface::ParseLocation(xmlNode * pParentNode, VetisLocation &
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseEnterprise(xmlNode * pParentNode, VetisEnterprise * pResult)
+int PPVetisInterface::ParseEnterprise(xmlNode * pParentNode, VetisEnterprise * pResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3928,7 +3928,7 @@ int SLAPI PPVetisInterface::ParseEnterprise(xmlNode * pParentNode, VetisEnterpri
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseProducer(xmlNode * pParentNode, VetisProducer & rResult)
+int PPVetisInterface::ParseProducer(xmlNode * pParentNode, VetisProducer & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3946,7 +3946,7 @@ int SLAPI PPVetisInterface::ParseProducer(xmlNode * pParentNode, VetisProducer &
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEntity & rResult)
+int PPVetisInterface::ParseBusinessEntity(xmlNode * pParentNode, VetisBusinessEntity & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3986,7 +3986,7 @@ int SLAPI PPVetisInterface::ParseBusinessEntity(xmlNode * pParentNode, VetisBusi
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMember & rResult)
+int PPVetisInterface::ParseBusinessMember(xmlNode * pParentNode, VetisBusinessMember & rResult)
 {
 	int    ok = 1;
 	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
@@ -3998,7 +3998,7 @@ int SLAPI PPVetisInterface::ParseBusinessMember(xmlNode * pParentNode, VetisBusi
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseProduct(xmlNode * pParentNode, VetisProduct & rResult)
+int PPVetisInterface::ParseProduct(xmlNode * pParentNode, VetisProduct & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4012,7 +4012,7 @@ int SLAPI PPVetisInterface::ParseProduct(xmlNode * pParentNode, VetisProduct & r
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & rResult)
+int PPVetisInterface::ParseSubProduct(xmlNode * pParentNode, VetisSubProduct & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4026,7 +4026,7 @@ int SLAPI PPVetisInterface::ParseSubProduct(xmlNode * pParentNode, VetisSubProdu
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseProductItem(xmlNode * pParentNode, VetisProductItem * pResult)
+int PPVetisInterface::ParseProductItem(xmlNode * pParentNode, VetisProductItem * pResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4069,7 +4069,7 @@ int SLAPI PPVetisInterface::ParseProductItem(xmlNode * pParentNode, VetisProduct
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseUnit(xmlNode * pParentNode, VetisUnit & rResult)
+int PPVetisInterface::ParseUnit(xmlNode * pParentNode, VetisUnit & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4085,7 +4085,7 @@ int SLAPI PPVetisInterface::ParseUnit(xmlNode * pParentNode, VetisUnit & rResult
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult)
+int PPVetisInterface::ParseComplexDate(xmlNode * pParentNode, SUniTime & rResult)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -4125,7 +4125,7 @@ int SLAPI PPVetisInterface::ParseComplexDate(xmlNode * pParentNode, SUniTime & r
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rResult)
+int PPVetisInterface::ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate & rResult)
 {
 	int    ok = 1;
 	for(xmlNode * p_a = pParentNode ? pParentNode->children : 0; p_a; p_a = p_a->next) {
@@ -4137,7 +4137,7 @@ int SLAPI PPVetisInterface::ParseGoodsDate(xmlNode * pParentNode, VetisGoodsDate
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
+int PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4248,7 +4248,7 @@ int SLAPI PPVetisInterface::ParseBatch(xmlNode * pParentNode, VetisBatch & rResu
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseTransportInfo(xmlNode * pParentNode, VetisTransportInfo & rResult)
+int PPVetisInterface::ParseTransportInfo(xmlNode * pParentNode, VetisTransportInfo & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4276,7 +4276,7 @@ int SLAPI PPVetisInterface::ParseTransportInfo(xmlNode * pParentNode, VetisTrans
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseCertifiedBatch(xmlNode * pParentNode, VetisCertifiedBatch & rResult)
+int PPVetisInterface::ParseCertifiedBatch(xmlNode * pParentNode, VetisCertifiedBatch & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4291,7 +4291,7 @@ int SLAPI PPVetisInterface::ParseCertifiedBatch(xmlNode * pParentNode, VetisCert
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, VetisCertifiedConsignment & rResult)
+int PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, VetisCertifiedConsignment & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4366,7 +4366,7 @@ int SLAPI PPVetisInterface::ParseCertifiedConsignment(xmlNode * pParentNode, Vet
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseDocument(xmlNode * pParentNode, VetisDocument & rResult)
+int PPVetisInterface::ParseDocument(xmlNode * pParentNode, VetisDocument & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4391,7 +4391,7 @@ int SLAPI PPVetisInterface::ParseDocument(xmlNode * pParentNode, VetisDocument &
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseStockEntry(xmlNode * pParentNode, VetisStockEntry * pResult)
+int PPVetisInterface::ParseStockEntry(xmlNode * pParentNode, VetisStockEntry * pResult)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4406,7 +4406,7 @@ int SLAPI PPVetisInterface::ParseStockEntry(xmlNode * pParentNode, VetisStockEnt
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocument * pResult)
+int PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocument * pResult)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -4518,7 +4518,7 @@ int SLAPI PPVetisInterface::ParseVetDocument(xmlNode * pParentNode, VetisVetDocu
 	return ok;
 }
 
-void SLAPI PPVetisInterface::ParseListResult(const xmlNode * pNode, VetisApplicationBlock::ReplyListValues & rResult)
+void PPVetisInterface::ParseListResult(const xmlNode * pNode, VetisApplicationBlock::ReplyListValues & rResult)
 {
 	SString temp_buf;
 	rResult.Count = SXml::GetAttrib(pNode, "count", temp_buf) ? temp_buf.ToLong() : 0;
@@ -4526,7 +4526,7 @@ void SLAPI PPVetisInterface::ParseListResult(const xmlNode * pNode, VetisApplica
 	rResult.Total = SXml::GetAttrib(pNode, "total", temp_buf) ? temp_buf.ToLong() : 0;
 }
 
-void SLAPI PPVetisInterface::PutListAttributes(SXml::WNode & rN, long count, long offset, long total)
+void PPVetisInterface::PutListAttributes(SXml::WNode & rN, long count, long offset, long total)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	rN.PutAttrib("count", r_temp_buf.Z().Cat(count));
@@ -4534,7 +4534,7 @@ void SLAPI PPVetisInterface::PutListAttributes(SXml::WNode & rN, long count, lon
 	rN.PutAttrib("offset", r_temp_buf.Z().Cat(offset));
 }
 
-int SLAPI PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock & rResult)
+int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock & rResult)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = 0;
@@ -4981,7 +4981,7 @@ static void FASTCALL PutListOptions(SXmlWriter & rDoc, const char * pNs, const V
 static SString & FASTCALL VGuidToStr(const S_GUID & rGuid, SString & rBuf)
 	{ return rGuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, rBuf); }
 
-int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult)
+int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -6690,7 +6690,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 	return ok;
 }
 
-int SLAPI PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb)
+int PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb)
 {
 	int    ok = -1;
 	if(rAb.FaultList.getCount() || rAb.ErrList.getCount()) {
@@ -6731,7 +6731,7 @@ int SLAPI PPVetisInterface::LogFaults(const VetisApplicationBlock & rAb)
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult, int once)
+int PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult, int once)
 {
 	int    ok = -1;
 	uint   try_count = 0;
@@ -6796,7 +6796,7 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetEntityQuery_Obsolete(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetEntityQuery_Obsolete(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -6884,7 +6884,7 @@ int SLAPI PPVetisInterface::GetEntityQuery_Obsolete(int queryType, const char * 
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetEntityQuery2(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetEntityQuery2(int queryType, const char * pQueryParam, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -6994,7 +6994,7 @@ int SLAPI PPVetisInterface::GetEntityQuery2(int queryType, const char * pQueryPa
 	return ok;
 }
 
-void SLAPI PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint offs, uint count)
+void PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint offs, uint count)
 {
 	SString temp_buf;
 	SXml::WNode n_lo(pWriter, SXml::nst("base", "listOptions"));
@@ -7002,7 +7002,7 @@ void SLAPI PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint o
 	n_lo.PutInner(SXml::nst("base", "offset"), temp_buf.Z().Cat(offs));
 }
 
-/*static*/int SLAPI PPVetisInterface::GoodsDateToString(const SUniTime & rUt, SString & rBuf)
+/*static*/int PPVetisInterface::GoodsDateToString(const SUniTime & rUt, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -7029,7 +7029,7 @@ void SLAPI PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint o
 	return ok;
 }
 
-int SLAPI PPVetisInterface::PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const char * pDtNs, const SUniTime & rUt)
+int PPVetisInterface::PutGoodsDate(xmlTextWriter * pWriter, const char * pScopeXmlTag, const char * pDtNs, const SUniTime & rUt)
 {
 	int    ok = -1;
 	const  uint uts = rUt.GetSignature();
@@ -7057,7 +7057,7 @@ int SLAPI PPVetisInterface::PutGoodsDate(xmlTextWriter * pWriter, const char * p
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetUnitList(uint offs, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetUnitList(uint offs, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7091,7 +7091,7 @@ int SLAPI PPVetisInterface::GetUnitList(uint offs, uint count, VetisApplicationB
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
+int PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7144,7 +7144,7 @@ int SLAPI PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7183,7 +7183,7 @@ int SLAPI PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicatio
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7221,7 +7221,7 @@ int SLAPI PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicati
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetPurposeList(uint offs, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetPurposeList(uint offs, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7254,7 +7254,7 @@ int SLAPI PPVetisInterface::GetPurposeList(uint offs, uint count, VetisApplicati
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7294,7 +7294,7 @@ int SLAPI PPVetisInterface::GetProductChangesList(uint offs, uint count, LDATE s
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetSubProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetSubProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7353,7 +7353,7 @@ int SLAPI PPVetisInterface::GetSubProductChangesList(uint offs, uint count, LDAT
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetProductItemList(uint offs, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetProductItemList(uint offs, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7386,7 +7386,7 @@ int SLAPI PPVetisInterface::GetProductItemList(uint offs, uint count, VetisAppli
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetRussianEnterpriseList(uint offs, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetRussianEnterpriseList(uint offs, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7422,7 +7422,7 @@ int SLAPI PPVetisInterface::GetRussianEnterpriseList(uint offs, uint count, Veti
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetBusinessEntityList(uint offs, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetBusinessEntityList(uint offs, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -7457,7 +7457,7 @@ int SLAPI PPVetisInterface::GetBusinessEntityList(uint offs, uint count, VetisAp
 	return ok;
 }
 
-int SLAPI PPVetisInterface::PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk)
+int PPVetisInterface::PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk)
 {
 	int   ok = 1;
 	SString temp_buf;
@@ -7481,7 +7481,7 @@ int SLAPI PPVetisInterface::PrepareApplicationBlockForReq(VetisApplicationBlock 
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetStockEntryByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetStockEntryByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisGetStockEntryByUUIDRequest app_data;
@@ -7502,7 +7502,7 @@ int SLAPI PPVetisInterface::GetStockEntryByUuid(const S_GUID & rUuid, VetisAppli
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisGetVetDocumentByUuidRequest app_data;
@@ -7522,7 +7522,7 @@ int SLAPI PPVetisInterface::GetVetDocumentByUuid(const S_GUID & rUuid, VetisAppl
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetStockEntryChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetStockEntryChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	const  uint max_force_try_count = 10;
@@ -7564,7 +7564,7 @@ int SLAPI PPVetisInterface::GetStockEntryChangesList(const STimeChunk & rPeriod,
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetStockEntryList(uint startOffset, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetStockEntryList(uint startOffset, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	const  uint max_force_try_count = 10;
@@ -7605,7 +7605,7 @@ int SLAPI PPVetisInterface::GetStockEntryList(uint startOffset, uint count, Veti
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetVetDocumentChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetVetDocumentChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	const  uint max_force_try_count = 7;
@@ -7647,7 +7647,7 @@ int SLAPI PPVetisInterface::GetVetDocumentChangesList(const STimeChunk & rPeriod
 	return ok;
 }
 
-int SLAPI PPVetisInterface::GetVetDocumentList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
+int PPVetisInterface::GetVetDocumentList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisGetVetDocumentListRequest app_data;
@@ -7667,7 +7667,7 @@ int SLAPI PPVetisInterface::GetVetDocumentList(const STimeChunk & rPeriod, uint 
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisApplicationBlock & rReply)
+int PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisApplicationBlock doc_reply;
@@ -7692,7 +7692,7 @@ int SLAPI PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, 
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ModifyEnterprise(VetisRegisterModificationType modType, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply)
+int PPVetisInterface::ModifyEnterprise(VetisRegisterModificationType modType, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisModifyEnterpriseRequest app_data(modType);
@@ -7711,7 +7711,7 @@ int SLAPI PPVetisInterface::ModifyEnterprise(VetisRegisterModificationType modTy
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationType modType, const VetisBusinessEntity & rBe, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply)
+int PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationType modType, const VetisBusinessEntity & rBe, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisModifyActivityLocationsRequest app_data(modType);
@@ -7731,7 +7731,7 @@ int SLAPI PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationTyp
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ModifyProducerStockListOperation(VetisRegisterModificationType modType, VetisProductItem & rPi, VetisApplicationBlock & rReply)
+int PPVetisInterface::ModifyProducerStockListOperation(VetisRegisterModificationType modType, VetisProductItem & rPi, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	ModifyProducerStockListOperationRequest app_data(modType);
@@ -7750,7 +7750,7 @@ int SLAPI PPVetisInterface::ModifyProducerStockListOperation(VetisRegisterModifi
 	return ok;
 }
 
-int SLAPI PPVetisInterface::WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicationBlock & rReply)
+int PPVetisInterface::WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisApplicationBlock doc_reply;
@@ -7772,7 +7772,7 @@ int SLAPI PPVetisInterface::WithdrawVetDocument(const S_GUID & rDocUuid, VetisAp
 	return ok;
 }
 
-int SLAPI PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply) // @construction
+int PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply) // @construction
 {
 	int   ok = -1;
 	SString temp_buf;
@@ -7847,7 +7847,7 @@ int SLAPI PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <Vetis
 	return ok;
 }
 
-int SLAPI PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rExpenseDocEntityList, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
+int PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rExpenseDocEntityList, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -7963,7 +7963,7 @@ int SLAPI PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
+int PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int   ok = -1;
 	SString temp_buf;
@@ -8039,7 +8039,7 @@ int SLAPI PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <Vetis
 	return ok;
 }
 
-int SLAPI PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & rList)
+int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & rList)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -8076,7 +8076,7 @@ int SLAPI PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & 
 	return ok;
 }
 
-int SLAPI PPVetisInterface::QueryOutgoingConsignmentResult(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
+int PPVetisInterface::QueryOutgoingConsignmentResult(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	THROW(ReceiveResult(rEntry.AppId, rReply, 1/*once*/));
@@ -8131,7 +8131,7 @@ int SLAPI PPVetisInterface::QueryOutgoingConsignmentResult(OutcomingEntry & rEnt
 	return ok;
 }
 
-int SLAPI PPVetisInterface::SearchLastStockEntry(PPID docEntityID, VetisVetDocument & rDocEntity, PPID & rStockEntryEntityID, S_GUID & rStockEntryGUID, S_GUID & rStockEntryUUID, double & rRest)
+int PPVetisInterface::SearchLastStockEntry(PPID docEntityID, VetisVetDocument & rDocEntity, PPID & rStockEntryEntityID, S_GUID & rStockEntryGUID, S_GUID & rStockEntryUUID, double & rRest)
 {
 	rDocEntity.Z();
 	rStockEntryEntityID = 0;
@@ -8223,7 +8223,7 @@ int SLAPI PPVetisInterface::SearchLastStockEntry(PPID docEntityID, VetisVetDocum
 	return ok;
 }
 
-int SLAPI PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
+int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisVetDocument org_doc_entity;
@@ -8276,7 +8276,7 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry,
 	return ok;
 }
 
-int SLAPI PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq)
+int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -8349,7 +8349,7 @@ int SLAPI PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepa
 	return ok;
 }
 
-int SLAPI PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
+int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
 	VetisVetDocument org_doc_entity;
@@ -8480,7 +8480,7 @@ static void Debug_OutputEntItem(const VetisEnterprise & rItem, SString & rBuf)
 	}
 }
 
-int SLAPI PPVetisInterface::ProcessUnresolvedEntityList(const TSVector <VetisEntityCore::UnresolvedEntity> & rList)
+int PPVetisInterface::ProcessUnresolvedEntityList(const TSVector <VetisEntityCore::UnresolvedEntity> & rList)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -8601,7 +8601,7 @@ public:
 	}
 };
 
-int SLAPI TestVetis()
+int TestVetis()
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -8913,13 +8913,13 @@ int SLAPI TestVetis()
 	return ok;
 }
 
-double SLAPI PPVetisInterface::CalcVolumeByGoodsQtty(PPID goodsID, double quantity)
+double PPVetisInterface::CalcVolumeByGoodsQtty(PPID goodsID, double quantity)
 {
 	double phupu = 0.0;
 	return (GObj.GetPhUPerU(goodsID, 0, &phupu) > 0 && phupu > 0.0) ? (fabs(quantity) * phupu) : 0.0;
 }
 
-int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta)
+int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -9423,7 +9423,7 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 	return ok;
 }
 
-/*static*/int SLAPI PPVetisInterface::MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList)
+/*static*/int PPVetisInterface::MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList)
 {
 	rBillList.clear();
 	int    ok = -1;
@@ -9448,7 +9448,7 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 	return ok;
 }
 
-int SLAPI PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, const long putBillRowFlags)
+int PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, const long putBillRowFlags)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -9501,7 +9501,7 @@ int SLAPI PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, co
 	return ok;
 }
 
-int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod)
+int PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod)
 {
 	int    ok = -1;
 	PPIDArray bill_id_list;
@@ -9538,7 +9538,7 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 	return ok;
 }
 
-int SLAPI VetisEntityCore::SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnterprise & rEntry)
+int VetisEntityCore::SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnterprise & rEntry)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -9910,7 +9910,7 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 													SString temp_buf;
 													{
 														assert(entry.P_Owner);
-														//int SLAPI PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationType modType, const VetisBusinessEntity & rBe, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply)
+														//int PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationType modType, const VetisBusinessEntity & rBe, const VetisEnterprise & rEnt, VetisApplicationBlock & rReply)
 														if(ifc.ModifyActivityLocations(vetisrmtCREATE, *entry.P_Owner, result_ent, reply) > 0) {
 														}
 													}
@@ -9968,7 +9968,7 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 	DIALOG_PROC_BODY_P1(VetEntDialog, rEc, &rData);
 }
 
-long SLAPI VetisEntityCore::Helper_InitMaxGuidKey(const UUIDAssocArray & rGuidList) const
+long VetisEntityCore::Helper_InitMaxGuidKey(const UUIDAssocArray & rGuidList) const
 {
 	long max_guid_key = 0;
 	if(rGuidList.GetMaxKey(&max_guid_key, 0) < 0)
@@ -9976,7 +9976,7 @@ long SLAPI VetisEntityCore::Helper_InitMaxGuidKey(const UUIDAssocArray & rGuidLi
 	return max_guid_key;
 }
 
-long SLAPI VetisEntityCore::Helper_SetGuidToList(const S_GUID & rGuid, long * pMaxGuidKey, UUIDAssocArray & rGuidList) const
+long VetisEntityCore::Helper_SetGuidToList(const S_GUID & rGuid, long * pMaxGuidKey, UUIDAssocArray & rGuidList) const
 {
 	uint   gpos = 0;
 	long   gkey = 0;
@@ -9989,7 +9989,7 @@ long SLAPI VetisEntityCore::Helper_SetGuidToList(const S_GUID & rGuid, long * pM
 	return gkey;
 }
 
-int SLAPI VetisEntityCore::MakeProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList)
+int VetisEntityCore::MakeProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList)
 {
 	rList.Z();
 	int    ok = -1;
@@ -10012,7 +10012,7 @@ int SLAPI VetisEntityCore::MakeProductList(StrAssocArray & rList, UUIDAssocArray
 	return ok;
 }
 
-int SLAPI VetisEntityCore::MakeSubProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList, LAssocArray * pParentProductList)
+int VetisEntityCore::MakeSubProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList, LAssocArray * pParentProductList)
 {
 	rList.Z();
 	CALLPTRMEMB(pParentProductList, clear());
@@ -10051,7 +10051,7 @@ int SLAPI VetisEntityCore::MakeSubProductList(StrAssocArray & rList, UUIDAssocAr
 	return ok;
 }
 
-int SLAPI VetisEntityCore::MakeCountryList(StrAssocArray & rList, UUIDAssocArray & rGuidList)
+int VetisEntityCore::MakeCountryList(StrAssocArray & rList, UUIDAssocArray & rGuidList)
 {
 	rList.Z();
 	int    ok = -1;
@@ -10072,7 +10072,7 @@ int SLAPI VetisEntityCore::MakeCountryList(StrAssocArray & rList, UUIDAssocArray
 	return ok;
 }
 
-int SLAPI VetisEntityCore::MakeRegionList(long countryIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList)
+int VetisEntityCore::MakeRegionList(long countryIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList)
 {
 	rList.Z();
 	int    ok = -1;
@@ -10095,7 +10095,7 @@ int SLAPI VetisEntityCore::MakeRegionList(long countryIdent, StrAssocArray & rLi
 	return ok;
 }
 
-int SLAPI VetisEntityCore::MakeLocalityList(long regionIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList)
+int VetisEntityCore::MakeLocalityList(long regionIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList)
 {
 	rList.Z();
 	int    ok = -1;
@@ -10118,7 +10118,7 @@ int SLAPI VetisEntityCore::MakeLocalityList(long regionIdent, StrAssocArray & rL
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::ViewWarehouse()
+int PPViewVetisDocument::ViewWarehouse()
 {
 	int    ok = -1;
 	VetisEnterprise ve;
@@ -10131,7 +10131,7 @@ int SLAPI PPViewVetisDocument::ViewWarehouse()
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::ViewGoods()
+int PPViewVetisDocument::ViewGoods()
 {
 	int    ok = -1;
 	VetisProductItem vpi;
@@ -10336,7 +10336,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(VetisDocument); SLAPI VetisDocumentFilt::VetisDocumentFilt() : PPBaseFilt(PPFILT_VETISDOCUMENT, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(VetisDocument); VetisDocumentFilt::VetisDocumentFilt() : PPBaseFilt(PPFILT_VETISDOCUMENT, 0, 1)
 {
 	SetFlatChunk(offsetof(VetisDocumentFilt, ReserveStart),
 		offsetof(VetisDocumentFilt, ReserveEnd) - offsetof(VetisDocumentFilt, ReserveStart));
@@ -10357,11 +10357,11 @@ int FASTCALL VetisDocumentFilt::GetStatusList(PPIDArray & rList) const
 		return -1;
 }
 
-SLAPI PPViewVetisDocument::PPViewVetisDocument() : PPView(0, &Filt, PPVIEW_VETISDOCUMENT)
+PPViewVetisDocument::PPViewVetisDocument() : PPView(0, &Filt, PPVIEW_VETISDOCUMENT, 0, 0)
 {
 }
 
-SLAPI PPViewVetisDocument::~PPViewVetisDocument()
+PPViewVetisDocument::~PPViewVetisDocument()
 {
 }
 
@@ -10629,7 +10629,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 	return ok;
 }
 
-PPBaseFilt * SLAPI PPViewVetisDocument::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewVetisDocument::CreateFilt(void * extraPtr) const
 {
 	VetisDocumentFilt * p_filt = new VetisDocumentFilt;
 	if(p_filt) {
@@ -10644,7 +10644,7 @@ PPBaseFilt * SLAPI PPViewVetisDocument::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewVetisDocument::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewVetisDocument::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return PPErrorZ();
@@ -10652,7 +10652,7 @@ int SLAPI PPViewVetisDocument::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(VetisDocumentFiltDialog, p_filt);
 }
 
-int SLAPI PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -10812,7 +10812,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
 	THROW_PP_S(!!app_data.StockEntryGuid && !!app_data.StockEntryUuid, PPERR_VETISHASNTSTOCKREF, temp_buf);
 }*/
 
-/*static*/int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf)
+/*static*/int VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -10943,7 +10943,7 @@ int PPViewVetisDocument::DynFuncVetStockByDoc      = DbqFuncTab::RegisterDynR(BT
 int PPViewVetisDocument::DynFuncVetUUID            = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  //@erik v10.4.11
 int PPViewVetisDocument::DynFuncCheckExpiry        = DbqFuncTab::RegisterDynR(BTS_INT,    dbqf_vetis_vet_checkexpiry_ii, 2, BTS_INT64_, BTS_INT64_);  // @v10.6.3
 
-DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_VETISDOCUMENT;
 	DBQ * dbq = 0;
@@ -11145,7 +11145,7 @@ int FASTCALL PPViewVetisDocument::CheckForFilt(const VetisDocumentViewItem * pIt
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::InitIteration()
+int PPViewVetisDocument::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -11167,7 +11167,7 @@ int SLAPI PPViewVetisDocument::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::NextIteration(VetisDocumentViewItem * pItem)
+int PPViewVetisDocument::NextIteration(VetisDocumentViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery) {
@@ -11193,7 +11193,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+int PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
@@ -11238,7 +11238,7 @@ int SLAPI PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int 
 	return ok;
 }
 
-void SLAPI PPViewVetisDocument::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewVetisDocument::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & VetisDocumentFilt::fAsSelector) {
@@ -11255,7 +11255,7 @@ void SLAPI PPViewVetisDocument::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
+int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 {
 	int    ok = -1;
 	// @v10.5.9 { Если !0 то использовать новый алгоритм отправки запросов
@@ -11441,7 +11441,7 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList)
+int PPViewVetisDocument::Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList)
 {
 	int    ok = -1;
 	assert(pIfcParam);
@@ -11473,7 +11473,7 @@ int SLAPI PPViewVetisDocument::Helper_ProcessIncoming(const S_GUID & rVetDocUuid
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
+int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 {
 	int    ok = -1;
 	int    do_update = 0;
@@ -11616,7 +11616,7 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 	return ok;
 }
 
-static int SLAPI VetisDocumentUpdateSelectorDialog(uint * pAction, DateRange * pPeriod)
+static int VetisDocumentUpdateSelectorDialog(uint * pAction, DateRange * pPeriod)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_SELVDOCUPD);
@@ -11635,7 +11635,7 @@ static int SLAPI VetisDocumentUpdateSelectorDialog(uint * pAction, DateRange * p
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::LoadDocuments()
+int PPViewVetisDocument::LoadDocuments()
 {
 	int    ok = -1;
 	uint   v = 0;
@@ -11823,7 +11823,7 @@ int SLAPI PPViewVetisDocument::LoadDocuments()
 }
 
 struct PPMatchPersonBlock {
-	SLAPI  PPMatchPersonBlock() : PersonKindID(0), PersonID(0), DlvrLocID(0)
+	PPMatchPersonBlock() : PersonKindID(0), PersonID(0), DlvrLocID(0)
 	{
 	}
 	SString SrcInfo;
@@ -11905,7 +11905,7 @@ static int FASTCALL SetupSurveyPeriod(const VetisDocumentTbl::Rec & rRec, DateRa
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int objToMatch)
+int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int objToMatch)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -12316,7 +12316,7 @@ int SLAPI PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, i
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -12479,12 +12479,12 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 	return ok;
 }
 
-SLAPI VetisDocumentTotal::VetisDocumentTotal()
+VetisDocumentTotal::VetisDocumentTotal()
 {
 	THISZERO();
 }
 
-int SLAPI PPViewVetisDocument::CalcTotal(VetisDocumentTotal * pTotal)
+int PPViewVetisDocument::CalcTotal(VetisDocumentTotal * pTotal)
 {
 	int    ok = 1;
 	VetisDocumentViewItem item;
@@ -12504,7 +12504,7 @@ int SLAPI PPViewVetisDocument::CalcTotal(VetisDocumentTotal * pTotal)
 	return ok;
 }
 
-int SLAPI PPViewVetisDocument::ViewTotal()
+int PPViewVetisDocument::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;

@@ -8,18 +8,18 @@
 
 TLP_IMPL(AccTurnCore, AccTurnCore::FrrlData, Frrl);
 
-SLAPI AccTurnCore::AccTurnCore() : AccTurnTbl(), Frrl(0) /*, AccT(*AccObj.P_Tbl)*/
+AccTurnCore::AccTurnCore() : AccTurnTbl(), Frrl(0) /*, AccT(*AccObj.P_Tbl)*/
 {
 }
 
-int SLAPI AccTurnCore::AcctIDToRel(const AcctID * pAcctId, PPID * pAccRelID)
+int AccTurnCore::AcctIDToRel(const AcctID * pAcctId, PPID * pAccRelID)
 {
 	int    r = AccRel.SearchAcctID(pAcctId);
 	*pAccRelID = (r > 0) ? AccRel.data.ID : 0;
 	return r;
 }
 
-int SLAPI AccTurnCore::AcctRelToID(PPID relID, AcctID * pAcctId, PPID * pAccSheetID)
+int AccTurnCore::AcctRelToID(PPID relID, AcctID * pAcctId, PPID * pAccSheetID)
 {
 	int    ok = -1;
 	PPID   acc_sheet_id = 0;
@@ -39,7 +39,7 @@ int SLAPI AccTurnCore::AcctRelToID(PPID relID, AcctID * pAcctId, PPID * pAccShee
 	return ok;
 }
 
-int SLAPI AccTurnCore::UpdateItemInExtGenAccList(PPID objID, long f, PPID accID, ObjRestrictArray * pAccList, PPIDArray * pCurList)
+int AccTurnCore::UpdateItemInExtGenAccList(PPID objID, long f, PPID accID, ObjRestrictArray * pAccList, PPIDArray * pCurList)
 {
 	int    ok = 1;
 	THROW(pAccList->UpdateItemByID(objID, f));
@@ -48,7 +48,7 @@ int SLAPI AccTurnCore::UpdateItemInExtGenAccList(PPID objID, long f, PPID accID,
 	return ok;
 }
 
-int SLAPI AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * pAccList, PPIDArray * pCurList)
+int AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * pAccList, PPIDArray * pCurList)
 {
 	int    ok = 1;
 	ObjRestrictItem * p_item;
@@ -84,7 +84,7 @@ int SLAPI AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * p
 	return ok;
 }
 
-int SLAPI AccTurnCore::GetBaseAcctID(const AcctID & rCurAcctId, AcctID * pBaseAcctId)
+int AccTurnCore::GetBaseAcctID(const AcctID & rCurAcctId, AcctID * pBaseAcctId)
 {
 	PPID   base_acc_id = 0;
 	if(AccObj.SearchBase(rCurAcctId.ac, &base_acc_id, 0) > 0) {
@@ -96,7 +96,7 @@ int SLAPI AccTurnCore::GetBaseAcctID(const AcctID & rCurAcctId, AcctID * pBaseAc
 		return 0;
 }
 
-int SLAPI AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pSheetID)
+int AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pSheetID)
 {
 	int    ok = 1;
 	PPID   sheet_id = 0;
@@ -117,7 +117,7 @@ int SLAPI AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcc
 	return ok;
 }
 
-int SLAPI AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * pCurID, int useCache)
+int AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * pCurID, int useCache)
 {
 	int    ok = 1;
 	pAcct->Z();
@@ -153,7 +153,7 @@ int SLAPI AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * p
 	return ok;
 }
 
-int SLAPI AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pAccSheetID)
+int AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pAccSheetID)
 {
 	int    ok = 1, r, tok[3], hasbranch = 0;
 	PPID   acc_id = 0, sheet_id = 0, ar_id  = 0;
@@ -191,7 +191,7 @@ int SLAPI AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, A
 	return ok;
 }
 
-int SLAPI AccTurnCore::GetAcctRest(LDATE date, PPID accrel, double * pRest, int incoming)
+int AccTurnCore::GetAcctRest(LDATE date, PPID accrel, double * pRest, int incoming)
 {
 	int    ok = 1;
 	double rest = 0.0;
@@ -211,7 +211,7 @@ int SLAPI AccTurnCore::GetAcctRest(LDATE date, PPID accrel, double * pRest, int 
 	return ok;
 }
 
-int SLAPI AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * pCrd, uint flags)
+int AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * pCrd, uint flags)
 {
 	int    ok = 1;
 	double dbt = 0.0, crd = 0.0;
@@ -282,13 +282,13 @@ int SLAPI AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * 
 	return ok;
 }
 
-void SLAPI AccTurnCore::GetAccRelIDs(const AccTurnTbl::Rec * pRec, PPID * pDbtRelID, PPID * pCrdRelID) const
+void AccTurnCore::GetAccRelIDs(const AccTurnTbl::Rec * pRec, PPID * pDbtRelID, PPID * pCrdRelID) const
 {
 	ASSIGN_PTR(pDbtRelID, pRec->Reverse ? pRec->CorrAcc : pRec->Acc);
 	ASSIGN_PTR(pCrdRelID, pRec->Reverse ? pRec->Acc : pRec->CorrAcc);
 }
 
-int SLAPI AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, int useCache)
+int AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, int useCache)
 {
 	int    ok = 1;
 	PPID   acc_id = 0, cur_id = 0;
@@ -359,7 +359,7 @@ int SLAPI AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAtu
 	return ok;
 }
 
-int SLAPI AccTurnCore::AccBelongToOrd(PPID accRelID, int ord, const Acct * pAcct, PPID curID, int useCache)
+int AccTurnCore::AccBelongToOrd(PPID accRelID, int ord, const Acct * pAcct, PPID curID, int useCache)
 {
 	int    ok = 1;
 	if(ord) {
@@ -401,7 +401,7 @@ int SLAPI AccTurnCore::AccBelongToOrd(PPID accRelID, int ord, const Acct * pAcct
 // По указателю pCurID присваивается ид валюты, к которой относилс
 // счет *pAccID до нормализации.
 //
-int SLAPI AccTurnCore::NormalyzeAcc(int aco, PPID * pAccID, PPID * pCurID)
+int AccTurnCore::NormalyzeAcc(int aco, PPID * pAccID, PPID * pCurID)
 {
 	int    ok = 1;
 	if(oneof2(aco, ACO_1, ACO_2)) {
@@ -430,7 +430,7 @@ int SLAPI AccTurnCore::NormalyzeAcc(int aco, PPID * pAccID, PPID * pCurID)
 	return ok;
 }
 
-int SLAPI AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID personRelID, PPIDArray * pAccList)
+int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID personRelID, PPIDArray * pAccList)
 {
 	int    ok = 1;
 	PPID   cur_id = 0;
@@ -506,7 +506,7 @@ int SLAPI AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID 
 	return ok;
 }
 
-int SLAPI AccTurnCore::GetAcctCurID(int aco, PPID accID, PPID * pCurID)
+int AccTurnCore::GetAcctCurID(int aco, PPID accID, PPID * pCurID)
 {
 	int    ok = 1;
 	ASSIGN_PTR(pCurID, 0);
@@ -528,7 +528,7 @@ int SLAPI AccTurnCore::GetAcctCurID(int aco, PPID accID, PPID * pCurID)
 	return ok;
 }
 
-int SLAPI AccTurnCore::RemoveEmptyAcctRels()
+int AccTurnCore::RemoveEmptyAcctRels()
 {
 	int    ok = 1;
 	int    found;
@@ -555,7 +555,7 @@ int SLAPI AccTurnCore::RemoveEmptyAcctRels()
 	return ok;
 }
 
-int SLAPI AccTurnCore::UpdateRelsArRef(PPID arID, long arNo, int use_ta)
+int AccTurnCore::UpdateRelsArRef(PPID arID, long arNo, int use_ta)
 {
 	int    ok = 1;
 	PPID   acc_id = 0;
@@ -596,14 +596,14 @@ int SLAPI AccTurnCore::UpdateRelsArRef(PPID arID, long arNo, int use_ta)
 	return ok;
 }
 
-int SLAPI AccTurnCore::IsFRRLocked()
+int AccTurnCore::IsFRRLocked()
 {
 	return BIN(Frrl && Frrl->Counter > 0);
 }
 //
 // @v6.2.3 Заменено чтение записей с блокировками на SearchByID_ForUpdate
 //
-int SLAPI AccTurnCore::LockFRR(PPID accRelID, LDATE dt)
+int AccTurnCore::LockFRR(PPID accRelID, LDATE dt)
 {
 	int    ok = -1;
 	if(IsFRRLocked()) {
@@ -634,7 +634,7 @@ int SLAPI AccTurnCore::LockFRR(PPID accRelID, LDATE dt)
 //
 //
 //
-int SLAPI AccTurnCore::LockingFRR(int lock, int * pFRRL_Tag, int use_ta)
+int AccTurnCore::LockingFRR(int lock, int * pFRRL_Tag, int use_ta)
 {
 	int    ok = 1, frrl_tag = 0;
 	THROW_INVARG(pFRRL_Tag);
@@ -691,7 +691,7 @@ int SLAPI AccTurnCore::LockingFRR(int lock, int * pFRRL_Tag, int use_ta)
 
 IMPL_CMPFUNC(__Acct, k1, k2) { RET_CMPCASCADE3(static_cast<const Acct *>(k1), static_cast<const Acct *>(k2), ac, sb, ar); }
 
-int SLAPI AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
+int AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
 {
 	struct _ENTRY {
 		int16 ac;
@@ -737,12 +737,12 @@ int SLAPI AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
 	return ok;
 }
 
-inline int SLAPI AccTurnCore::_OprNo(LDATE date, long * pOprNo)
+inline int AccTurnCore::_OprNo(LDATE date, long * pOprNo)
 {
 	return IncDateKey(this, 2, date, pOprNo);
 }
 
-int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, const AccTurnParam & rParam)
+int AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, const AccTurnParam & rParam)
 {
 	int    ok = 1;
 	if(!IsFRRLocked() && rParam.Amt != 0.0) {
@@ -781,7 +781,7 @@ int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, const
 //
 // Заносит проводку в AccTurnCore и модифицирует AcctRel без транзакции
 //
-int SLAPI AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, const AccTurnParam & rParam)
+int AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, const AccTurnParam & rParam)
 {
 	int    ok = 1;
 	long   oprno;
@@ -817,7 +817,7 @@ int SLAPI AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel
 	return ok;
 }
 
-int SLAPI AccTurnCore::EnumByBill(PPID billID, int * pRByBill, PPAccTurn * pAt)
+int AccTurnCore::EnumByBill(PPID billID, int * pRByBill, PPAccTurn * pAt)
 {
 	int    ok = -1;
 	AccTurnTbl::Key0 k0;
@@ -833,7 +833,7 @@ int SLAPI AccTurnCore::EnumByBill(PPID billID, int * pRByBill, PPAccTurn * pAt)
 	return ok;
 }
 
-int SLAPI AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
+int AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
 {
 	int    spMode;
 	AccTurnTbl::Key0 k0;
@@ -866,17 +866,17 @@ int SLAPI AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
 	return 1;
 }
 
-int SLAPI AccTurnCore::GetBill(PPAccTurn * pAt)
+int AccTurnCore::GetBill(PPAccTurn * pAt)
 {
 	return pAt->BillID ? _RecByBill(pAt->BillID, &pAt->RByBill) : PPSetError(PPERR_INVBILLID);
 }
 
-static int SLAPI ValidateAccKind(int k)
+static int ValidateAccKind(int k)
 {
 	return oneof3(k, ACT_ACTIVE, ACT_PASSIVE, ACT_AP) ? 1 : PPSetError(PPERR_ACTNDEF);
 }
 
-int SLAPI AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta)
+int AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta)
 {
 	int    ok = -1;
 	AcctID acctid;
@@ -917,7 +917,7 @@ int SLAPI AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec,
 	return ok;
 }
 
-int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID * pAccRelID, AccTurnParam * p)
+int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID * pAccRelID, AccTurnParam * p)
 {
 	int    ok = 1, r, kind;
 	Acct   acct;
@@ -965,7 +965,7 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId
 	return ok;
 }
 
-int SLAPI AccTurnCore::SetupAccTurnParam(AccTurnParam * p, int side, int kind)
+int AccTurnCore::SetupAccTurnParam(AccTurnParam * p, int side, int kind)
 {
 	double overdraft = p->Low, limit = p->Upp;
 	//
@@ -997,7 +997,7 @@ int SLAPI AccTurnCore::SetupAccTurnParam(AccTurnParam * p, int side, int kind)
 //
 //
 //
-int SLAPI AccTurnCore::_RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID rel, double amt)
+int AccTurnCore::_RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID rel, double amt)
 {
 	int    ok = 1;
 	int    kind;
@@ -1016,7 +1016,7 @@ int SLAPI AccTurnCore::_RollbackTurn(int side, LDATE date, long oprNo, PPID bal,
 	return ok;
 }
 
-int SLAPI AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta)
+int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta)
 {
 	int    ok = 1;
 	const  int do_remove = BIN(newAmt == 0.0);
@@ -1101,7 +1101,7 @@ int SLAPI AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, do
 	return ok;
 }
 
-int SLAPI AccTurnCore::RollbackTurn(PPID billID, short rByBill, int use_ta)
+int AccTurnCore::RollbackTurn(PPID billID, short rByBill, int use_ta)
 {
 	if(rByBill > BASE_RBB_BIAS)
 		return PPSetError(PPERR_UPDBASEACCTURN);
@@ -1109,7 +1109,7 @@ int SLAPI AccTurnCore::RollbackTurn(PPID billID, short rByBill, int use_ta)
 		return _UpdateTurn(billID, rByBill, 0.0, 0.0, use_ta);
 }
 
-int SLAPI AccTurnCore::UpdateAmount(PPID billID, short rByBill, double newAmt, double cRate, int use_ta)
+int AccTurnCore::UpdateAmount(PPID billID, short rByBill, double newAmt, double cRate, int use_ta)
 {
 	if(rByBill > BASE_RBB_BIAS)
 		return PPSetError(PPERR_UPDBASEACCTURN);
@@ -1119,7 +1119,7 @@ int SLAPI AccTurnCore::UpdateAmount(PPID billID, short rByBill, double newAmt, d
 //
 //
 //
-int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
+int AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 {
 	int    ok = 1;
 	const  int zero_crd_acc = BIN((pAturn->Flags & (PPAF_REGISTER|PPAF_OUTBAL)) && !(pAturn->Flags & PPAF_OUTBAL_TRANSFER));
@@ -1168,7 +1168,7 @@ int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 	return ok;
 }
 
-int SLAPI AccTurnCore::CalcRest(int aco, PPID accID, const DateRange * pPeriod, double * pInRest, double * pOutRest)
+int AccTurnCore::CalcRest(int aco, PPID accID, const DateRange * pPeriod, double * pInRest, double * pOutRest)
 {
 	int    ok = 1;
 	DateRange period = *pPeriod;
@@ -1196,7 +1196,7 @@ int SLAPI AccTurnCore::CalcRest(int aco, PPID accID, const DateRange * pPeriod, 
 	return ok;
 }
 
-int SLAPI AccTurnCore::CalcComplexRestOnGenList(ObjRestrictArray * pGenList, PPID curID, const DateRange * pRange, AmtList * pInRest, AmtList * pOutRest)
+int AccTurnCore::CalcComplexRestOnGenList(ObjRestrictArray * pGenList, PPID curID, const DateRange * pRange, AmtList * pInRest, AmtList * pOutRest)
 {
 	ObjRestrictItem * p_item;
 	for(uint i = 0; pGenList->enumItems(&i, (void **)&p_item);)
@@ -1205,7 +1205,7 @@ int SLAPI AccTurnCore::CalcComplexRestOnGenList(ObjRestrictArray * pGenList, PPI
 	return 1;
 }
 
-int SLAPI AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID personRelID, const DateRange * pRange, AmtList * pInRest, AmtList * pOutRest)
+int AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID personRelID, const DateRange * pRange, AmtList * pInRest, AmtList * pOutRest)
 {
 	int    ok = 1;
 	const  int mult = (aco < 0) ? -1 : 1;
@@ -1249,7 +1249,7 @@ int SLAPI AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID pe
 //
 //
 //
-int SLAPI AccTurnCore::ReplaceArticle(PPID dest, PPID src)
+int AccTurnCore::ReplaceArticle(PPID dest, PPID src)
 {
 	int    ok = 1;
 	PPID   dest_rel_id, src_rel_id;
@@ -1304,7 +1304,7 @@ int SLAPI AccTurnCore::ReplaceArticle(PPID dest, PPID src)
 	return ok;
 }
 
-int SLAPI AccTurnCore::SearchAccRef(PPID _id, int removeUnusedRel)
+int AccTurnCore::SearchAccRef(PPID _id, int removeUnusedRel)
 {
 	int    ok = -1;
 	AcctRelTbl::Rec rel_rec;
@@ -1326,7 +1326,7 @@ int SLAPI AccTurnCore::SearchAccRef(PPID _id, int removeUnusedRel)
 	return ok;
 }
 
-int SLAPI AccTurnCore::SearchArticleRef(PPID _id, int removeUnusedRel, PPID * pBillID)
+int AccTurnCore::SearchArticleRef(PPID _id, int removeUnusedRel, PPID * pBillID)
 {
 	int    ok = -1;
 	PPID   bill_id = 0;
@@ -1355,7 +1355,7 @@ int SLAPI AccTurnCore::SearchArticleRef(PPID _id, int removeUnusedRel, PPID * pB
 //
 //
 //
-int SLAPI AccTurnCore::Repair(long flags, int (*MsgProc)(int msgCode, PPID accID, PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr)
+int AccTurnCore::Repair(long flags, int (*MsgProc)(int msgCode, PPID accID, PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr)
 {
 	int    ok = 1, r;
 	{
@@ -1371,7 +1371,7 @@ int SLAPI AccTurnCore::Repair(long flags, int (*MsgProc)(int msgCode, PPID accID
 	return ok;
 }
 
-int SLAPI AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCode, PPID accID,
+int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCode, PPID accID,
 	PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr)
 {
 	int    ok = -1, r;
@@ -1489,7 +1489,7 @@ int SLAPI AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int
 	return ok;
 }
 
-int SLAPI AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate,
+int AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate,
 	int (*MsgProc)(PPID, LDATE, long, double, void * paramPtr), void * paramPtr, int use_ta)
 {
 	int    ok = 1, correct = 0, reply;
@@ -1564,7 +1564,7 @@ int SLAPI AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate,
 	return ok;
 }
 
-int SLAPI AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta)
+int AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta)
 {
 	int    ok = 1;
 	PPAccountPacket acc_pack, add_acc_pack;
@@ -1606,12 +1606,12 @@ int SLAPI AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta
 	return ok;
 }
 
-SLAPI RecoverBalanceParam::RecoverBalanceParam() : BalAccID(0), Flags(0)
+RecoverBalanceParam::RecoverBalanceParam() : BalAccID(0), Flags(0)
 {
 	Period.Z();
 }
 
-int SLAPI AccTurnCore::RecalcBalance(const RecoverBalanceParam * pParam, PPLogger & rLogger)
+int AccTurnCore::RecalcBalance(const RecoverBalanceParam * pParam, PPLogger & rLogger)
 {
 	int    ok = 1;
 	PPID   bal_id = pParam->BalAccID;
@@ -1637,7 +1637,7 @@ int SLAPI AccTurnCore::RecalcBalance(const RecoverBalanceParam * pParam, PPLogge
 	return ok;
 }
 
-int SLAPI AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd,
+int AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd,
 	char * pAccStr, int correct, PPLogger & rLogger, int use_ta)
 {
 	int    err = 0;
@@ -1699,7 +1699,7 @@ int SLAPI AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double cr
 	return (err > 0) ? err : -1;
 }
 
-int SLAPI AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
+int AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
 {
 	int    ok = 1;
 	double dbt = 0.0, crd = 0.0;
@@ -1750,7 +1750,7 @@ int SLAPI AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
 	return ok;
 }
 
-int SLAPI AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, PPLogger & rLogger)
+int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, PPLogger & rLogger)
 {
 	int    ok = 1;
 	int    err, errflag = 0;
@@ -1839,13 +1839,13 @@ int SLAPI AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pP
 //
 // Поддержка функции валютной переоценки
 //
-SLAPI CurRevalParam::CurRevalParam() : Dt(ZERODATE), LocID(LConfig.Location), Flags(0)
+CurRevalParam::CurRevalParam() : Dt(ZERODATE), LocID(LConfig.Location), Flags(0)
 {
 	CorrAcc.Z();
 	NegCorrAcc.Z();
 }
 
-void SLAPI CurRevalParam::Init()
+void CurRevalParam::Init()
 {
 	Dt = ZERODATE;
 	CorrAcc.Z();
@@ -1866,7 +1866,7 @@ CurRevalParam & FASTCALL CurRevalParam::operator = (const CurRevalParam & src)
 	return *this;
 }
 
-int SLAPI AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, const PPIDArray * pCurList, int use_ta)
+int AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, const PPIDArray * pCurList, int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -1919,7 +1919,7 @@ int SLAPI AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * p
 	return ok;
 }
 
-int SLAPI AccTurnCore::RevalCurRests(const CurRevalParam * pParam)
+int AccTurnCore::RevalCurRests(const CurRevalParam * pParam)
 {
 	int    ok = 1;
 	PPIDArray sub_list;

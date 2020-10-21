@@ -401,11 +401,11 @@ public:
 	static int FASTCALL GetPropSymb(int propId, SString & rSymb);
 	static SString & PropListToLine(const StrAssocArray & rPropList, uint tabCount, SString & rBuf);
 
-	SLAPI  DlScope(DLSYMBID id, uint kind, const char * pName, int prototype);
-	SLAPI  DlScope(const DlScope &);
-	SLAPI ~DlScope();
+	DlScope(DLSYMBID id, uint kind, const char * pName, int prototype);
+	DlScope(const DlScope &);
+	~DlScope();
 	DlScope & FASTCALL operator = (const DlScope &);
-	int    SLAPI Copy(const DlScope &, int withoutChilds = 0);
+	int    Copy(const DlScope &, int withoutChilds = 0);
 	int    FASTCALL Add(DlScope * pChild);
 	//
 	// Descr: Удаляет из списка дочерних областей ту, что имеет идентификатор scopeID.
@@ -414,32 +414,32 @@ public:
 	//   0 - не найдено ни одной дочерней области с ИД = scopeID
 	//   >1 - найдено и удалено более одной дочерней области с ИД = scopeID
 	//
-	int    SLAPI Remove(DLSYMBID scopeID);
-	DLSYMBID SLAPI GetId() const;
-	DLSYMBID SLAPI GetBaseId() const;
-	const  SString & SLAPI GetName() const;
-	int    SLAPI CheckDvFlag(long) const;
+	int    Remove(DLSYMBID scopeID);
+	DLSYMBID GetId() const;
+	DLSYMBID GetBaseId() const;
+	const  SString & GetName() const;
+	int    CheckDvFlag(long) const;
 	int    FASTCALL IsKind(const uint) const;
-	uint   SLAPI GetKind() const;
+	uint   GetKind() const;
 	//
 	// Descr: Возвращает номер версии области видимости. Используется для областей вида
 	//   DlScope::kIClass и DlScope::kLibrary.
 	//   Структура значения следующая: LoWord - major, HiWord - minor
 	//
-	uint32 SLAPI GetVersion() const;
-	const  DlScope * SLAPI GetOwner() const;
-	const  DlScopeList & SLAPI GetChildList() const; // GetRecList
-	const  DlScope * SLAPI GetFirstChildByKind(int kind, int recursive) const;
-	int    SLAPI GetChildList(int kind, int recursive, LongArray * pList) const;
+	uint32 GetVersion() const;
+	const  DlScope * GetOwner() const;
+	const  DlScopeList & GetChildList() const; // GetRecList
+	const  DlScope * GetFirstChildByKind(int kind, int recursive) const;
+	int    GetChildList(int kind, int recursive, LongArray * pList) const;
 	int    FASTCALL IsChildOf(const DlScope * pOwner) const;
-	int    SLAPI EnumChilds(uint * pIdx, DlScope ** ppScope) const;
-	int    SLAPI EnumInheritance(uint * pIdx, const DlScope ** ppScope) const;
-	void   SLAPI SetupTitle(uint kind, const char * pName);
-	int    SLAPI IsPrototype() const;
-	void   SLAPI ResetPrototypeFlag();
-	int    SLAPI GetQualif(DLSYMBID id, const char * pDiv, int inverse, SString & rBuf) const;
-	int    SLAPI SetDeclList(const StringSet * pSet);
-	int    SLAPI SetInheritance(const DlScope * pBase, DlContext * pCtx);
+	int    EnumChilds(uint * pIdx, DlScope ** ppScope) const;
+	int    EnumInheritance(uint * pIdx, const DlScope ** ppScope) const;
+	void   SetupTitle(uint kind, const char * pName);
+	int    IsPrototype() const;
+	void   ResetPrototypeFlag();
+	int    GetQualif(DLSYMBID id, const char * pDiv, int inverse, SString & rBuf) const;
+	int    SetDeclList(const StringSet * pSet);
+	int    SetInheritance(const DlScope * pBase, DlContext * pCtx);
 	//
 	// Descr: Инициализирует указатели P_Base этой и всех дочерних областей
 	//   в соответствии со значением поля BaseId. Функция доолжна быть вызвана
@@ -447,31 +447,31 @@ public:
 	//   идентификатор базовой области.
 	//
 	int    FASTCALL InitInheritance(const DlScope * pTopScope); // @recursion
-	DlScope * SLAPI SearchByName(uint kind, const char * pName, DLSYMBID * pParentID);
-	const  DlScope * SLAPI SearchByName_Const(uint kind, const char * pName, DLSYMBID * pParentID) const;
-	DlScope * SLAPI SearchByID(DLSYMBID id, DLSYMBID * pParentID);
-	const  DlScope * SLAPI SearchByID_Const(DLSYMBID id, DLSYMBID * pParentID) const;
-	const  DlScope * SLAPI GetBase() const;
-	DLSYMBID SLAPI EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, const char * pName);
-	int    SLAPI LeaveScope(DLSYMBID scopeId, DLSYMBID * pParentID);
+	DlScope * SearchByName(uint kind, const char * pName, DLSYMBID * pParentID);
+	const  DlScope * SearchByName_Const(uint kind, const char * pName, DLSYMBID * pParentID) const;
+	DlScope * SearchByID(DLSYMBID id, DLSYMBID * pParentID);
+	const  DlScope * SearchByID_Const(DLSYMBID id, DLSYMBID * pParentID) const;
+	const  DlScope * GetBase() const;
+	DLSYMBID EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, const char * pName);
+	int    LeaveScope(DLSYMBID scopeId, DLSYMBID * pParentID);
 	int    FASTCALL SetRecord(const DlScope * pRec);
 	int    FASTCALL SetRecList(const DlScopeList * pList);
 	void   FASTCALL AddFunc(const DlFunc *);
-	int    SLAPI GetFuncListByName(const char * pName, LongArray * pList) const;
-	uint   SLAPI GetFuncCount() const;
-	int    SLAPI GetFuncByPos(uint pos, DlFunc * pFunc) const;
-	int    SLAPI EnumFunctions(uint * pI, DlFunc * pFunc) const;
+	int    GetFuncListByName(const char * pName, LongArray * pList) const;
+	uint   GetFuncCount() const;
+	int    GetFuncByPos(uint pos, DlFunc * pFunc) const;
+	int    EnumFunctions(uint * pI, DlFunc * pFunc) const;
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
 	int    FASTCALL IsEqual(const DlScope & rPat) const;
-	void   SLAPI SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
+	void   SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
 	void * FASTCALL GetFixDataPtr(size_t offs) const;
 	//
 	// Descr: Устанавливает атрибут Attr. Атрибут представлен флагом и, возможно, дополнительным
 	//   значением. Функция является аддитивной и, в общем случае, не коммутативной.
 	//
 	void   FASTCALL SetAttrib(const Attr &);
-	int    SLAPI GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) const;
+	int    GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) const;
 	//
 	// Descr: Добавляет константу, соответствующую идентификатору id в структуру ConstList.
 	// ARG(id      IN): Идентификатор константы. Все допустимые иджентификаторы должны быть
@@ -486,28 +486,28 @@ public:
 	//   <0 - константа id уже находится в списке
 	//    0 - ошибка
 	//
-	int    SLAPI AddConst(COption id, const CtmExprConst & rConst, int replace);
-	int    SLAPI GetConst(COption id, CtmExprConst * pConst) const;
+	int    AddConst(COption id, const CtmExprConst & rConst, int replace);
+	int    GetConst(COption id, CtmExprConst * pConst) const;
 	CtmExprConst FASTCALL GetConst(COption id) const;
-	int    SLAPI AddFldConst(uint fldID, COption id, const CtmExprConst & rConst, int replace);
-	int    SLAPI GetFldConst(uint fldID, COption id, CtmExprConst * pConst) const;
-	CtmExprConst SLAPI GetFldConst(uint fldID, COption id) const;
+	int    AddFldConst(uint fldID, COption id, const CtmExprConst & rConst, int replace);
+	int    GetFldConst(uint fldID, COption id, CtmExprConst * pConst) const;
+	CtmExprConst GetFldConst(uint fldID, COption id) const;
 	//
 	// Функции управления базовыми интерфейсами класса (kIClass)
 	//
-	int    SLAPI AddIfaceBase(const IfaceBase *);
-	uint   SLAPI GetIfaceBaseCount() const;
-	int    SLAPI GetIfaceBase(uint, IfaceBase *) const;
-	int    SLAPI AddDbIndexSegment(const char * pFieldName, long options);
-	long   SLAPI GetDbIndexSegOptions(uint pos) const;
+	int    AddIfaceBase(const IfaceBase *);
+	uint   GetIfaceBaseCount() const;
+	int    GetIfaceBase(uint, IfaceBase *) const;
+	int    AddDbIndexSegment(const char * pFieldName, long options);
+	long   GetDbIndexSegOptions(uint pos) const;
 #ifdef DL600C // {
-	int    SLAPI AddTempFldConst(COption id, const CtmExprConst & rConst);
-	int    SLAPI AcceptTempFldConstList(uint fldID);
-	void   SLAPI InitLocalIdCounter(DLSYMBID initVal)
+	int    AddTempFldConst(COption id, const CtmExprConst & rConst);
+	int    AcceptTempFldConstList(uint fldID);
+	void   InitLocalIdCounter(DLSYMBID initVal)
 	{
 		LastLocalId = initVal;
 	}
-	DLSYMBID SLAPI GetLocalId()
+	DLSYMBID GetLocalId()
 	{
 		return ++LastLocalId;
 	}
@@ -698,9 +698,9 @@ struct CtmFuncDclr {
 
 class DlMacro {
 public:
-	SLAPI  DlMacro();
-	void   SLAPI Add(const char * pSymb, const char * pResult);
-	int    SLAPI Subst(const char * pSymb, SString & rResult) const;
+	DlMacro();
+	void   Add(const char * pSymb, const char * pResult);
+	int    Subst(const char * pSymb, SString & rResult) const;
 private:
 	StringSet S;
 };
@@ -737,40 +737,40 @@ public:
 		char   MangleC; // Символ для идентификации типа параметра в функциях
 		int8   Pad2;    // @alignment
 	};
-	explicit SLAPI DlContext(int toCompile = 0);
-	SLAPI ~DlContext();
+	explicit DlContext(int toCompile = 0);
+	~DlContext();
 	int    FASTCALL Init(const char * pInFileName);
 	enum {
 		ispcExpData = 1,
 		ispcInterface
 	};
 	int    FASTCALL InitSpecial(int); // Run-time
-	const  char * SLAPI GetInputFileName() const;
-	int    SLAPI GetSymb(DLSYMBID id, SString & rBuf, int prefix) const;
-	int    SLAPI SearchSymb(const char * pSymb, int prefix, DLSYMBID * pID) const;
+	const  char * GetInputFileName() const;
+	int    GetSymb(DLSYMBID id, SString & rBuf, int prefix) const;
+	int    SearchSymb(const char * pSymb, int prefix, DLSYMBID * pID) const;
 	//
 	// Descr: Возвращает область видимости, соответствующую идентификатору scopeID.
 	//   Если checkKind != 0, то функция проверяет, чтобы возвращаемая область имела
 	//   указанный вид. Если это не так, то возвращается 0 и устанавливается код ошибки
 	//   PPERR_DL6_INVSCOPEKIND
 	//
-	DlScope * SLAPI GetScope(DLSYMBID scopeID, int checkKind = 0);
-	DlScope * SLAPI GetCurScope();
-	const  DlScope * SLAPI GetScope_Const(DLSYMBID scopeID, int checkKind = 0) const;
-	const  DlScope * SLAPI GetScopeByName_Const(uint kind, const char * pName) const;
+	DlScope * GetScope(DLSYMBID scopeID, int checkKind = 0);
+	DlScope * GetCurScope();
+	const  DlScope * GetScope_Const(DLSYMBID scopeID, int checkKind = 0) const;
+	const  DlScope * GetScopeByName_Const(uint kind, const char * pName) const;
 	enum {
 		crsymfCatCurScope = 0x0001,
 		crsymfErrorOnDup  = 0x0002
 	};
-	int    SLAPI ResolveVar(DLSYMBID scopeID, int exactScope, const char * pSymb, CtmVar * pVar);
-	int    SLAPI ResolveVar(const DlScope * pScope, int exactScope, const char * pSymb, CtmVar * pVar);
+	int    ResolveVar(DLSYMBID scopeID, int exactScope, const char * pSymb, CtmVar * pVar);
+	int    ResolveVar(const DlScope * pScope, int exactScope, const char * pSymb, CtmVar * pVar);
 	//
 	// Descr: Специальный вариант реализации вызова функции в TDDO-файлах.
 	//
-	int    SLAPI ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope, const char * pFuncName, StrAssocArray & rArgList, SString & rResult, STypEx & rT);
-	int    SLAPI GetFunc(const CtmFunc & rF, DlFunc * pFunc);
-	int    SLAPI GetField(const CtmVar & rV, SdbField * pFld);
-	int    SLAPI GetConstData(const CtmExprConst & rC, void * pBuf, size_t bufLen) const;
+	int    ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope, const char * pFuncName, StrAssocArray & rArgList, SString & rResult, STypEx & rT);
+	int    GetFunc(const CtmFunc & rF, DlFunc * pFunc);
+	int    GetField(const CtmVar & rV, SdbField * pFld);
+	int    GetConstData(const CtmExprConst & rC, void * pBuf, size_t bufLen) const;
 	//
 	// Descr: Значения, возвращаемые функцией TypeCast
 	//
@@ -793,26 +793,26 @@ public:
 	//    3 - преобразование возможно, но с потерей точности
 	//    0 - ошибка
 	//
-	int    SLAPI TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void * pSrcData, void * pDestData, int * pLoss = 0);
-	int    SLAPI AddStructType(DLSYMBID symbId);
-	int    SLAPI SearchTypeID(DLSYMBID id, uint * pPos, TypeEntry * pEntry) const;
+	int    TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void * pSrcData, void * pDestData, int * pLoss = 0);
+	int    AddStructType(DLSYMBID symbId);
+	int    SearchTypeID(DLSYMBID id, uint * pPos, TypeEntry * pEntry) const;
 	size_t FASTCALL GetTypeBinSize(DLSYMBID typID) const;
-	DLSYMBID SLAPI SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const;
-	DLSYMBID SLAPI SetDeclType(DLSYMBID typeID);
-	TYPEID SLAPI TypeToSType(DLSYMBID) const;
-	int    SLAPI DemangleType(const char * pTypeStr, STypEx * pTyp, DLSYMBID * pID);
-	long   SLAPI ParseFormat(const char * pStr, TYPEID typ) const; // *
+	DLSYMBID SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const;
+	DLSYMBID SetDeclType(DLSYMBID typeID);
+	TYPEID TypeToSType(DLSYMBID) const;
+	int    DemangleType(const char * pTypeStr, STypEx * pTyp, DLSYMBID * pID);
+	long   ParseFormat(const char * pStr, TYPEID typ) const; // *
 	//
 	// Descr: Устанавливает код ошибки и, возможно, дополнительную строку, связанную с ошибкой.
 	//   Функция константная, так как для compile-time изменяется DlContext::LastError и
 	//   DlContext::AddedMsgString, а для run-time вызывается PPSetError().
 	//
-	int    SLAPI SetError(int errCode, const char * pAddedMsg = 0) const;
+	int    SetError(int errCode, const char * pAddedMsg = 0) const;
 	enum {
 		erfExit = 0x0001, // Завершить работу
 		erfLog  = 0x0002  // Записать сообщение об ошибке в журнал
 	};
-	int    SLAPI Error(int errCode = 0, const char * pAddedInfo = 0, long flags = erfExit);
+	int    Error(int errCode = 0, const char * pAddedInfo = 0, long flags = erfExit);
 	//
 	// Compile-time {
 	//
@@ -823,78 +823,78 @@ public:
 		cfOracle  = 0x0008, // Генерировать SQL-скрипт специфичный для ORACLE для создания таблиц базы данных
 		cfGravity = 0x0010  // @v10.8.2 Генерировать gravity интерфейсы
 	};
-	int    SLAPI Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags);
-	int    SLAPI FindImportFile(const char * pFileName, SString & rPath);
-	int    SLAPI SetInheritance(DLSYMBID scopeID, DLSYMBID baseID);
-	int    SLAPI MangleType(DLSYMBID id, const STypEx &, SString & rBuf) const;
-	int    SLAPI AddType(const char * pName, TYPEID stypId, char mangleC = 0);
-	DLSYMBID SLAPI MakeSizedString(DLSYMBID typeID, size_t s);
-	int    SLAPI AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * pExpr);
-	int    SLAPI ResolveVar(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
-	int    SLAPI ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
-	int    SLAPI ResolveExpr(DLSYMBID scopeID, DLSYMBID callerScopeID, int exactScope, CtmExpr * pExpr, int dontResolveNext = 0);
-	DLSYMBID SLAPI CreateSymb(const char * pSymb, int prefix, long flags);
-	DLSYMBID SLAPI CreateSymbWithId(const char * pSymb, DLSYMBID id, int prefix, long flags);
+	int    Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags);
+	int    FindImportFile(const char * pFileName, SString & rPath);
+	int    SetInheritance(DLSYMBID scopeID, DLSYMBID baseID);
+	int    MangleType(DLSYMBID id, const STypEx &, SString & rBuf) const;
+	int    AddType(const char * pName, TYPEID stypId, char mangleC = 0);
+	DLSYMBID MakeSizedString(DLSYMBID typeID, size_t s);
+	int    AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * pExpr);
+	int    ResolveVar(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
+	int    ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
+	int    ResolveExpr(DLSYMBID scopeID, DLSYMBID callerScopeID, int exactScope, CtmExpr * pExpr, int dontResolveNext = 0);
+	DLSYMBID CreateSymb(const char * pSymb, int prefix, long flags);
+	DLSYMBID CreateSymbWithId(const char * pSymb, DLSYMBID id, int prefix, long flags);
 	//
 	// Descr: Возвращает уникальный внутри этого экземпляра идентификатор.
 	//
-	DLSYMBID SLAPI GetNewSymbID();
-	long     SLAPI GetUniqCntr();
-	DLSYMBID SLAPI SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */, uint arrayDim = 0);
-	DLSYMBID SLAPI EnterScope(uint scopeKind, const char * pName, DLSYMBID scopeId, const SV_Uint32 * pAttrList);
-	int    SLAPI LeaveScope();
-	int    SLAPI PushScope();
-	int    SLAPI PopScope();
-	int    SLAPI CompleteExportDataStruc();
-	void   SLAPI AddMacro(const char * pMacro, const char * pResult);
-	int    SLAPI GetMacro(const char * pMacro, SString & rResult) const;
+	DLSYMBID GetNewSymbID();
+	long     GetUniqCntr();
+	DLSYMBID SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */, uint arrayDim = 0);
+	DLSYMBID EnterScope(uint scopeKind, const char * pName, DLSYMBID scopeId, const SV_Uint32 * pAttrList);
+	int    LeaveScope();
+	int    PushScope();
+	int    PopScope();
+	int    CompleteExportDataStruc();
+	void   AddMacro(const char * pMacro, const char * pResult);
+	int    GetMacro(const char * pMacro, SString & rResult) const;
 	int    FASTCALL GetDotFunc(CtmFunc * pF);
 	int    FASTCALL GetRefFunc(CtmFunc * pF);
-	int    SLAPI AddConst(const char * pTypeSymb, const void * pData, size_t dataSize, CtmExprConst * pResult);
-	int    SLAPI AddConst(const void * pData, size_t dataSize, CtmExprConst * pResult);
-	int    SLAPI AddConst(const char * pData, CtmExprConst * pResult);
-	int    SLAPI AddConst(const SString & rData, CtmExprConst * pResult);
-	int    SLAPI AddConst(uint32 data, CtmExprConst * pResult);
-	int    SLAPI AddConst(int32 data, CtmExprConst * pResult);
-	int    SLAPI AddConst(int8 data, CtmExprConst * pResult);
-	int    SLAPI AddConst(int64 data, CtmExprConst * pResult);
-	int    SLAPI AddConst(int16 data, CtmExprConst * pResult);
-	int    SLAPI AddConst(float data, CtmExprConst * pResult);
-	int    SLAPI AddConst(double data, CtmExprConst * pResult);
-	int    SLAPI AddConst(LDATE data, CtmExprConst * pResult);
-	int    SLAPI AddConst(LTIME data, CtmExprConst * pResult);
-	void   SLAPI AddStrucDeclare(const char * pDecl);
-	int    SLAPI AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgList, int propDirParam = 0);
-	int    SLAPI AddPropDeclare(CtmDclr & rSymb, int propDirParam);
-	int    SLAPI AddEnumItem(const CtmToken & rSymb, int useExplVal, uint val);
-	int    SLAPI AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags);
+	int    AddConst(const char * pTypeSymb, const void * pData, size_t dataSize, CtmExprConst * pResult);
+	int    AddConst(const void * pData, size_t dataSize, CtmExprConst * pResult);
+	int    AddConst(const char * pData, CtmExprConst * pResult);
+	int    AddConst(const SString & rData, CtmExprConst * pResult);
+	int    AddConst(uint32 data, CtmExprConst * pResult);
+	int    AddConst(int32 data, CtmExprConst * pResult);
+	int    AddConst(int8 data, CtmExprConst * pResult);
+	int    AddConst(int64 data, CtmExprConst * pResult);
+	int    AddConst(int16 data, CtmExprConst * pResult);
+	int    AddConst(float data, CtmExprConst * pResult);
+	int    AddConst(double data, CtmExprConst * pResult);
+	int    AddConst(LDATE data, CtmExprConst * pResult);
+	int    AddConst(LTIME data, CtmExprConst * pResult);
+	void   AddStrucDeclare(const char * pDecl);
+	int    AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgList, int propDirParam = 0);
+	int    AddPropDeclare(CtmDclr & rSymb, int propDirParam);
+	int    AddEnumItem(const CtmToken & rSymb, int useExplVal, uint val);
+	int    AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags);
 	//
 	// Descr: Инициализирует имя нового индекса таблицы базы данных.
 	//   Если имя уже определено в параметре pIdxName, то проверяет его уникальность внутри таблицы.
 	//   Если pIdxName == 0 || pIdxName[0] == 0, то присваивает индексу имя Key#, где # - номер [0..]
 	//
-	int    SLAPI InitDbIndexName(const char * pIdxName, SString & rBuf);
-	int    SLAPI AddDbIndexSegmentDeclaration(const char * pFieldName, long options);
-	int    SLAPI ResolveDbIndexSegFlag(long flags, const char * pSymb, long * pResultFlags);
-	int    SLAPI ResolveDbIndexFlag(const char * pSymb);
-	int    SLAPI ResolveDbFileDefinition(const CtmToken & rSymb, const char * pConstStr, int constInt);
-	int    SLAPI Write_Code();
-	int    SLAPI CreateDbDictionary(const char * pDictPath, const char * pDataPath, SqlServerType sqlst);
+	int    InitDbIndexName(const char * pIdxName, SString & rBuf);
+	int    AddDbIndexSegmentDeclaration(const char * pFieldName, long options);
+	int    ResolveDbIndexSegFlag(long flags, const char * pSymb, long * pResultFlags);
+	int    ResolveDbIndexFlag(const char * pSymb);
+	int    ResolveDbFileDefinition(const CtmToken & rSymb, const char * pConstStr, int constInt);
+	int    Write_Code();
+	int    CreateDbDictionary(const char * pDictPath, const char * pDataPath, SqlServerType sqlst);
 	//
 	// Descr: Создает описание диалогового управляющего элемента в текущей области видимости.
 	// Returns:
 	//   ID созданного элемента описания.
 	//   0  - ошибка.
 	//
-	uint   SLAPI AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
-	uint   SLAPI AddUiButton(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rCmdSymb);
-	uint   SLAPI AddUiListbox(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rColumns);
-	uint   SLAPI AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
-	int    SLAPI AddUiClusterItem(const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rDescr);
-	int    SLAPI AddTempFldProp(const CtmToken & rSymb, long val);
-	int    SLAPI AddTempFldProp(const CtmToken & rSymb, double val);
-	int    SLAPI AddTempFldProp(const CtmToken & rSymb, const char * pStr);
-	int    SLAPI AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t sz);
+	uint   AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
+	uint   AddUiButton(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rCmdSymb);
+	uint   AddUiListbox(const CtmToken & rSymb, const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rColumns);
+	uint   AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect);
+	int    AddUiClusterItem(const CtmToken & rText, const UiRelRect & rRect, const CtmToken & rDescr);
+	int    AddTempFldProp(const CtmToken & rSymb, long val);
+	int    AddTempFldProp(const CtmToken & rSymb, double val);
+	int    AddTempFldProp(const CtmToken & rSymb, const char * pStr);
+	int    AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t sz);
 	//
 	// } Compile-time
 	// Run-time {
@@ -905,8 +905,8 @@ public:
 	// COM-инфраструктура
 	//
 	DLSYMBID FASTCALL SearchUuid(const S_GUID_Base & rUuid) const;
-	int    SLAPI GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const;
-	int    SLAPI GetInterface(const S_GUID_Base & rIID, DLSYMBID * pID, const DlScope ** ppScope) const;
+	int    GetUuidByScopeID(DLSYMBID scopeID, S_GUID * pUuid) const;
+	int    GetInterface(const S_GUID_Base & rIID, DLSYMBID * pID, const DlScope ** ppScope) const;
 	//
 	// Descr: Перебирает интефейсы класса pCls.
 	// Returns:
@@ -914,31 +914,31 @@ public:
 	//   <0 - по индексу *pI и более интерфейсов нет
 	//    0 - ошибка извлечения интерфейса (*pI меньше, чем количество интерфейсов)
 	//
-	int    SLAPI EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const;
+	int    EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const;
 	//
 	// Descr: Регистрирует (дерегистрирует) в реестре класс pCls
 	// ARG(pCls  IN): @#{pCls->IsKind(DlScope::kIClass)!=0}
 	//   указатель на область видимости, соответствующей классу
 	// ARG(unreg IN): если !0, то класс pCls дерегистрируется, в противном случае - регистрируется //
 	//
-	int    SLAPI RegisterICls(const DlScope * pCls, int unreg); // @recusion
-	int    SLAPI RegisterTypeLib(const DlScope * pCls, int unreg); // @v5.4.5 AHTOXA
-	int    SLAPI CreateDlIClsInstance(const DlScope *, SCoClass ** ppInstance) const;
-	int    SLAPI CreateDlIClsInstance(const S_GUID & rClsUuid, SCoClass ** ppInstance) const;
-	int    SLAPI CreateDlRtmInstance(DlScope *, DlRtm ** ppInstance);
-	int    SLAPI CreateDlRtmInstance(const char * pName, DlRtm ** ppInstance);
+	int    RegisterICls(const DlScope * pCls, int unreg); // @recusion
+	int    RegisterTypeLib(const DlScope * pCls, int unreg); // @v5.4.5 AHTOXA
+	int    CreateDlIClsInstance(const DlScope *, SCoClass ** ppInstance) const;
+	int    CreateDlIClsInstance(const S_GUID & rClsUuid, SCoClass ** ppInstance) const;
+	int    CreateDlRtmInstance(DlScope *, DlRtm ** ppInstance);
+	int    CreateDlRtmInstance(const char * pName, DlRtm ** ppInstance);
 	//
 	// } Run-time
 	//
-	int    SLAPI UnpackFormula(DlScope *);
-	CtmExpr * SLAPI GetFormula(const DlScope *, uint fldPos);
-	uint   SLAPI AllocStackType(DLSYMBID typeID, TypeEntry * pTe);
+	int    UnpackFormula(DlScope *);
+	CtmExpr * GetFormula(const DlScope *, uint fldPos);
+	uint   AllocStackType(DLSYMBID typeID, TypeEntry * pTe);
 	int    FASTCALL ReleaseStack(uint pos);
 	int    FASTCALL FreeStack(uint sp);
 	void * FASTCALL GetStackPtr(uint sp);
-	int    SLAPI EvaluateExpr(DlRtm * pRtm, const DlScope *, DlRtm * pCallerRtm, const DlScope * pCallerScope, CtmExpr * pExpr, size_t sp); // run-time
-	const  DlScope * SLAPI GetEvaluatedVarScope(const DlScope * pScope, const CtmExpr * pExpr) const; // run-time @obsolete
-	const  DlScope * SLAPI GetEvaluatedVarScope(const DlScope * pScope, DLSYMBID targetScopeID) const; // run-time
+	int    EvaluateExpr(DlRtm * pRtm, const DlScope *, DlRtm * pCallerRtm, const DlScope * pCallerScope, CtmExpr * pExpr, size_t sp); // run-time
+	const  DlScope * GetEvaluatedVarScope(const DlScope * pScope, const CtmExpr * pExpr) const; // run-time @obsolete
+	const  DlScope * GetEvaluatedVarScope(const DlScope * pScope, DLSYMBID targetScopeID) const; // run-time
 	//
 	// Descr: Создает спецификацию таблицы базы данных, пригодную для формирования по ней
 	//   записи в словаре базы данных и создания файла данных.
@@ -946,34 +946,34 @@ public:
 	//   !0 - спецификация таблицы успешно создана
 	//   0 - ошибка
 	//
-	int    SLAPI LoadDbTableSpec(DLSYMBID scopeID, DBTable * pTbl, int format) const;
-	int    SLAPI LoadDbTableSpec(const char * pName, DBTable * pTbl, int format) const;
-	int    SLAPI CreateNewDbTableSpec(const DBTable * pTbl);
-	int    SLAPI DropDbTableSpec(const char * pName);
-	int    SLAPI GetDbTableSpecList(StrAssocArray * pList) const;
-	int    SLAPI Test_ReWr_Code(const DlContext & rPattern);
-	int    SLAPI GetDialogList(StrAssocArray * pList) const;
+	int    LoadDbTableSpec(DLSYMBID scopeID, DBTable * pTbl, int format) const;
+	int    LoadDbTableSpec(const char * pName, DBTable * pTbl, int format) const;
+	int    CreateNewDbTableSpec(const DBTable * pTbl);
+	int    DropDbTableSpec(const char * pName);
+	int    GetDbTableSpecList(StrAssocArray * pList) const;
+	int    Test_ReWr_Code(const DlContext & rPattern);
+	int    GetDialogList(StrAssocArray * pList) const;
 // @v10.8.4 #ifdef DL600C // {
 	UUIDAssocArray TempUuidList; // @transient Временный список GUID'ов используемый при компиляции
 // @v10.8.4 #endif
-	int    SLAPI Test();
+	int    Test();
 private:
-	DlScope * SLAPI Helper_GetScope(DLSYMBID id, const DlScope * pScope, int kind) const;
-	DLSYMBID  SLAPI Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int prefix, long flags);
-	int    SLAPI Helper_GetScopeList(int kind, int recursive, StrAssocArray * pList) const;
-	DlScope * SLAPI GetCurDialogScope();
-	int    SLAPI  GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId);
-	int    SLAPI  Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList);
+	DlScope * Helper_GetScope(DLSYMBID id, const DlScope * pScope, int kind) const;
+	DLSYMBID  Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int prefix, long flags);
+	int    Helper_GetScopeList(int kind, int recursive, StrAssocArray * pList) const;
+	DlScope * GetCurDialogScope();
+	int    GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId);
+	int    Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList);
 	int    SLAPIV AddBOp(int op, uint implID, const char * pRetType, ...);
 	int    SLAPIV AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...);
-	int    SLAPI  AddBCmpOps(uint implID, const char * pType);
-	int    SLAPI  AddBCvt(uint implID, int loss, const char * pRetType, const char * pSrcType);
+	int    AddBCmpOps(uint implID, const char * pType);
+	int    AddBCvt(uint implID, int loss, const char * pRetType, const char * pSrcType);
 	int    FASTCALL BuiltinOp(const DlFunc * pF, SV_Uint32 *);
-	int    SLAPI GetFuncName(int, const CtmExpr * pExpr, SString & rBuf);
-	int    SLAPI SearchVarInChildList(const DlScope * pScope, uint childKind, const char * pSymb, CtmVar * pVar);
-	int    SLAPI ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList);
-	void   SLAPI InitFileNames(const char * pInFileName);
-	int    SLAPI Helper_LoadDbTableSpec(const DlScope *, DBTable * pTbl, int format) const;
+	int    GetFuncName(int, const CtmExpr * pExpr, SString & rBuf);
+	int    SearchVarInChildList(const DlScope * pScope, uint childKind, const char * pSymb, CtmVar * pVar);
+	int    ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList);
+	void   InitFileNames(const char * pInFileName);
+	int    Helper_LoadDbTableSpec(const DlScope *, DBTable * pTbl, int format) const;
 	//
 	// Descr: Форматы вывода наименований классов
 	//
@@ -990,20 +990,20 @@ private:
 	// ARG(cflags IN): Флаги компиляции. Могут влиять на имя класса.
 	// ARG(rBuf  OUT): Буфер, в котором возвращается сформированное наименование класса.
 	//
-	void   SLAPI MakeClassName(const DlScope * pStruc, int clsnf, long cflags, SString & rBuf) const;
+	void   MakeClassName(const DlScope * pStruc, int clsnf, long cflags, SString & rBuf) const;
 	//
 	// Compile-time {
 	//
-	int    SLAPI AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList) const;
+	int    AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList) const;
 		// @<<DlContext::ResolveFunc
-	int    SLAPI IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList);
-	int    SLAPI MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const;
-	void   SLAPI Write_C_FileHeader(Generator_CPP & gen, const char * pFileName);
-	int    SLAPI Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, long cflags);  // @recursion
-	int    SLAPI Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, long cflags);  // @recursion
-	int    SLAPI Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags); // @recursion
-	int    SLAPI Write_WSDL_File(const char * pFileName, const DlScope & rScope);
-	int    SLAPI Write_DialogReverse();
+	int    IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList);
+	int    MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const;
+	void   Write_C_FileHeader(Generator_CPP & gen, const char * pFileName);
+	int    Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, long cflags);  // @recursion
+	int    Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, long cflags);  // @recursion
+	int    Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags); // @recursion
+	int    Write_WSDL_File(const char * pFileName, const DlScope & rScope);
+	int    Write_DialogReverse();
 	//
 	// } Compile-time
 	//
@@ -1020,15 +1020,15 @@ private:
 		ffCPP_GravityIface, // @v10.8.6 Реализация интефейса Gravity в CPP-файле
 		ffCPP_GravityImp,   // @v10.8.6 Реализация Gravity в CPP-файле
 	};
-	int    SLAPI Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format, const char * pForward = 0);
-	int    SLAPI Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags);
-	int    SLAPI Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope);
-	int    SLAPI Write_IDL_File(Generator_CPP & gen, const DlScope & rScope); // @recursion
-	void   SLAPI Write_DebugListing();
-	int    SLAPI Write_Scope(int indent, SFile & rOutFile, const DlScope & rScope); // @recursion
-	int    SLAPI Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf); // @recursion
-	int    SLAPI Format_Func(const DlFunc & rFunc, long options, SString & rBuf);
-	int    SLAPI FormatVar(CtmVar v, SString & rBuf) const;
+	int    Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format, const char * pForward = 0);
+	int    Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags);
+	int    Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope);
+	int    Write_IDL_File(Generator_CPP & gen, const DlScope & rScope); // @recursion
+	void   Write_DebugListing();
+	int    Write_Scope(int indent, SFile & rOutFile, const DlScope & rScope); // @recursion
+	int    Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf); // @recursion
+	int    Format_Func(const DlFunc & rFunc, long options, SString & rBuf);
+	int    FormatVar(CtmVar v, SString & rBuf) const;
 	enum {
 		fctfSourceOutput  = 0x0001, // Форматировать тип для вывода в C++
 		fctfIDL           = 0x0002, // Форматировать тип для вывода в IDL
@@ -1037,14 +1037,14 @@ private:
 			// строки представлены не ссылками, а собственно экземплярами (SString вместо SString&)
 		fctfResolveTypeID = 0x0010  // Функция должна вызвать SearchTypeID для идентификации типа typeID
 	};
-	int    SLAPI Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * pFldName, long flags, SString & rBuf);
-	int    SLAPI IsInterfaceTypeConversionNeeded(const STypEx & rTyp);
-	int    SLAPI Read_Code();
+	int    Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * pFldName, long flags, SString & rBuf);
+	int    IsInterfaceTypeConversionNeeded(const STypEx & rTyp);
+	int    Read_Code();
 	//
 	struct TypeDetail { // Compile-time
-		SLAPI  TypeDetail();
-		SLAPI ~TypeDetail();
-		int    SLAPI IsInterfaceTypeConversionNeeded() const;
+		TypeDetail();
+		~TypeDetail();
+		int    IsInterfaceTypeConversionNeeded() const;
 		SV_Uint32 DimList;
 		SV_Uint32 PtrList; // Elem: LowWord - STypEx::modXXX, HiWord - modifier
 		DLSYMBID TerminalTypeID;
@@ -1100,10 +1100,10 @@ private:
 	TSCollection <DlRtm> RtmList;        // Run-time
 	class UnpFormArray : private SArray {
 	public:
-		SLAPI  UnpFormArray();
-		SLAPI ~UnpFormArray();
-		int    SLAPI Add(DLSYMBID scopeID, uint fldPos, CtmExpr * pExpr);
-		CtmExpr * SLAPI Get(DLSYMBID scopeID, uint fldPos);
+		UnpFormArray();
+		~UnpFormArray();
+		int    Add(DLSYMBID scopeID, uint fldPos, CtmExpr * pExpr);
+		CtmExpr * Get(DLSYMBID scopeID, uint fldPos);
 	private:
 		virtual void FASTCALL freeItem(void *);
 	};
@@ -1182,7 +1182,7 @@ public:
 	int    SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk); // @Muxa
 
 	struct ExportParam {
-		SLAPI  ExportParam();
+		ExportParam();
 		enum {
 			fIsView            = 0x0001, // P_F->Ptr указывает на класс, порожденный от PPView
 			fInheritedTblNames = 0x0002, // При экспорте в качестве наименования таблиц будет
@@ -1208,14 +1208,14 @@ public:
 		SString Path;
 		const void * P_ViewDef; //v10.5.1
 	};
-	int    SLAPI Export(ExportParam & rParam);
-	int    SLAPI ExportXML(ExportParam & rParam, SString & rOutFileName);
-	int    SLAPI PutToXmlBuffer(ExportParam & rParam, SString & rBuf);
-	int    SLAPI Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) const;
-	int    SLAPI Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, json_t * pRoot);
-	int    SLAPI PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags);
-	int    SLAPI PutToJsonBuffer(void * ptr, SString & rBuf, int flags);
-	int    SLAPI PutToJsonBuffer(PPView * pV, SString & rBuf, int flags);
+	int    Export(ExportParam & rParam);
+	int    ExportXML(ExportParam & rParam, SString & rOutFileName);
+	int    PutToXmlBuffer(ExportParam & rParam, SString & rBuf);
+	int    Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) const;
+	int    Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, json_t * pRoot);
+	int    PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags);
+	int    PutToJsonBuffer(void * ptr, SString & rBuf, int flags);
+	int    PutToJsonBuffer(PPView * pV, SString & rBuf, int flags);
 
 	const ExportParam * P_Ep;
 protected:
@@ -1231,8 +1231,8 @@ protected:
 	int    FASTCALL AssignIterData(int one, void * pData, size_t dataSize); // PPALDD compatibility
 		// @>>InitFixData
 	int    FASTCALL AssignDefIterData(void * pData, size_t dataSize); // @>>InitFixData
-	int    SLAPI FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const;
-	void   SLAPI FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const;
+	int    FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const;
+	void   FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const;
 	//
 	// Descr: Стандартный пролог функций InitIteration и NextIteration.
 	// Returns:
@@ -1251,7 +1251,7 @@ protected:
 		// итераторам. Функция GetIterID возвращает индекс+1 [1..] в этом массиве.
 	ExtData * Extra;
 private:
-	int    SLAPI InitScope(const DlScope * pScope, int topLevel); // @recursion @<<DlRtm::DlRtm
+	int    InitScope(const DlScope * pScope, int topLevel); // @recursion @<<DlRtm::DlRtm
 };
 
 extern "C" typedef DlRtm    * (*FN_DL6RTM_FACTORY)(DlContext *, DlScope *);
@@ -1386,8 +1386,8 @@ struct PPReportEnv {
 int  FASTCALL PPAlddPrint(int RptId, PPFilt * pf, const PPReportEnv * pEnv = 0);
 int  FASTCALL PPAlddPrint(int RptId, PView * pview, const PPReportEnv * pEnv = 0);
 
-//int  SLAPI PPAlddPrint(int RptId, PPFilt * pf, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
-//int  SLAPI PPAlddPrint(int RptId, PView * pview, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
+//int  PPAlddPrint(int RptId, PPFilt * pf, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
+//int  PPAlddPrint(int RptId, PView * pview, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf);
 int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, PPView * pView, SCodepageIdent cp, SString & rBuf);
@@ -1406,11 +1406,11 @@ enum SCoClassConstructor { scccFactory };
 //
 class SCoClass {
 public:
-	static HRESULT SLAPI Helper_DllGetClassObject(REFCLSID rClsID, REFIID rIID, void ** ppV);
-	static HRESULT SLAPI Helper_DllCanUnloadNow();
-	static int SLAPI Helper_DllRegisterServer(int unreg);
+	static HRESULT Helper_DllGetClassObject(REFCLSID rClsID, REFIID rIID, void ** ppV);
+	static HRESULT Helper_DllCanUnloadNow();
+	static int Helper_DllRegisterServer(int unreg);
 	static void * FASTCALL GetExtraPtrByInterface(const void * pIfc);
-	static int SLAPI SetExtraPtrByInterface(const void * pIfc, void * extraPtr);
+	static int SetExtraPtrByInterface(const void * pIfc, void * extraPtr);
 	SCoClass(const DlContext * pCtx, const DlScope * pScope, void * pVt);
     virtual ~SCoClass();
 	HRESULT __stdcall QueryInterface(REFIID, void **);
@@ -1421,9 +1421,9 @@ public:
 	uint32  ImpAddRef();
 	uint32  ImpRelease();
 	HRESULT ImpInterfaceSupportsErrorInfo(REFIID rIID) const;
-	int    SLAPI CreateInnerInstance(const char * pClsName, const char * pIfcName, void ** ppIfc);
-	int    SLAPI RaiseAppError();
-	void * SLAPI RaiseAppErrorPtr();
+	int    CreateInnerInstance(const char * pClsName, const char * pIfcName, void ** ppIfc);
+	int    RaiseAppError();
+	void * RaiseAppErrorPtr();
 	int    FASTCALL SetAppError(int assertion);
 
 	long   AppFlags; // Может использоваться реализациями для хранения бинарных флагов
@@ -1437,17 +1437,17 @@ protected:
 		SCoClass * ThisPtr;
 	};
 	SCoClass(SCoClassConstructor, void * pVt);
-	int    SLAPI GetInnerUUID(const char * pScopeName, S_GUID & rIID) const;
-	int    SLAPI SetupError();
-	int    SLAPI FuncNotSupported();
-	HRESULT SLAPI Epilog();
+	int    GetInnerUUID(const char * pScopeName, S_GUID & rIID) const;
+	int    SetupError();
+	int    FuncNotSupported();
+	HRESULT Epilog();
 	const  DlContext * P_Ctx;
 	const  DlScope * P_Scope;
 	void * ExtraPtr;
 	SString RetStrBuf; // Временный буфер, используемый только для возврата строковых значений. // @!Больше ни для каких целей использовать нельзя.
 private:
 	int    FASTCALL InitVTable(void * pVt);
-	int    SLAPI ReleaseVTable();
+	int    ReleaseVTable();
 
 	ACount Ref;
 	long   Flags;

@@ -10,11 +10,11 @@ struct _GoodsInfo { // @flat
 	double Price;
 };
 
-SLAPI DeviceLoadingStat::DeviceLoadingStat() : DvcLoadingStatTbl(), StatID(0), GoodsList(sizeof(_GoodsInfo)), StatCache(sizeof(DvcLoadingStatTbl::Rec))
+DeviceLoadingStat::DeviceLoadingStat() : DvcLoadingStatTbl(), StatID(0), GoodsList(sizeof(_GoodsInfo)), StatCache(sizeof(DvcLoadingStatTbl::Rec))
 {
 }
 
-int SLAPI DeviceLoadingStat::Fetch(PPID statID, DvcLoadingStatTbl::Rec * pRec)
+int DeviceLoadingStat::Fetch(PPID statID, DvcLoadingStatTbl::Rec * pRec)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -34,12 +34,12 @@ int SLAPI DeviceLoadingStat::Fetch(PPID statID, DvcLoadingStatTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::Search(PPID statID, DvcLoadingStatTbl::Rec * pRec)
+int DeviceLoadingStat::Search(PPID statID, DvcLoadingStatTbl::Rec * pRec)
 {
 	return SearchByID(this, 0, statID, pRec);
 }
 
-int SLAPI DeviceLoadingStat::GetPrev(PPID curStatID, PPID * pStatID, DvcLoadingStatTbl::Rec * pRec)
+int DeviceLoadingStat::GetPrev(PPID curStatID, PPID * pStatID, DvcLoadingStatTbl::Rec * pRec)
 {
 	DvcLoadingStatTbl::Rec cur_rec;
 	if(SETIFZ(curStatID, StatID) && Search(curStatID, &cur_rec) > 0) {
@@ -51,7 +51,7 @@ int SLAPI DeviceLoadingStat::GetPrev(PPID curStatID, PPID * pStatID, DvcLoadingS
 		return 0;
 }
 
-int SLAPI DeviceLoadingStat::GetLast(int dvcType, PPID dvcID, const LDATETIME & rDtm, PPID * pStatID, DvcLoadingStatTbl::Rec * pRec)
+int DeviceLoadingStat::GetLast(int dvcType, PPID dvcID, const LDATETIME & rDtm, PPID * pStatID, DvcLoadingStatTbl::Rec * pRec)
 {
 	DvcLoadingStatTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -69,13 +69,13 @@ int SLAPI DeviceLoadingStat::GetLast(int dvcType, PPID dvcID, const LDATETIME & 
 	return PPDbSearchError();
 }
 
-int SLAPI DeviceLoadingStat::GetLastObjInfo(PPID objType, PPID objID, LDATE dt, DlsObjTbl::Rec * pRec)
+int DeviceLoadingStat::GetLastObjInfo(PPID objType, PPID objID, LDATE dt, DlsObjTbl::Rec * pRec)
 {
 	DvcLoadingStatTbl::Rec rec;
 	return (Fetch(StatID, &rec) > 0) ? GetLastObjInfo(rec.DvcType, rec.DvcID, objType, objID, dt, pRec) : 0;
 }
 
-int SLAPI DeviceLoadingStat::GetLastObjInfo(int dvcType, PPID dvcID, PPID objType, PPID objID, LDATE dt, DlsObjTbl::Rec * pRec)
+int DeviceLoadingStat::GetLastObjInfo(int dvcType, PPID dvcID, PPID objType, PPID objID, LDATE dt, DlsObjTbl::Rec * pRec)
 {
 	DlsObjTbl::Key0 k0;
 	MEMSZERO(k0);
@@ -93,7 +93,7 @@ int SLAPI DeviceLoadingStat::GetLastObjInfo(int dvcType, PPID dvcID, PPID objTyp
 	return -1;
 }
 
-int SLAPI DeviceLoadingStat::StartLoading(PPID * pStatID, int deviceType, PPID deviceID, int use_ta)
+int DeviceLoadingStat::StartLoading(PPID * pStatID, int deviceType, PPID deviceID, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -113,7 +113,7 @@ int SLAPI DeviceLoadingStat::StartLoading(PPID * pStatID, int deviceType, PPID d
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::RegisterBillList(PPID statID, const PPIDArray & rBillList)
+int DeviceLoadingStat::RegisterBillList(PPID statID, const PPIDArray & rBillList)
 {
 	int    ok = 1;
 	THROW_INVARG(statID == StatID);
@@ -123,7 +123,7 @@ int SLAPI DeviceLoadingStat::RegisterBillList(PPID statID, const PPIDArray & rBi
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::RegisterGoods(PPID statID, const GoodsInfo * pInfo)
+int DeviceLoadingStat::RegisterGoods(PPID statID, const GoodsInfo * pInfo)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -139,7 +139,7 @@ int SLAPI DeviceLoadingStat::RegisterGoods(PPID statID, const GoodsInfo * pInfo)
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::RegisterSCard(PPID statID, const SCardInfo * pInfo)
+int DeviceLoadingStat::RegisterSCard(PPID statID, const SCardInfo * pInfo)
 {
 	int    ok = 1;
 	THROW_INVARG(statID == StatID);
@@ -149,7 +149,7 @@ int SLAPI DeviceLoadingStat::RegisterSCard(PPID statID, const SCardInfo * pInfo)
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::CutTables(short dvcType, int use_ta)
+int DeviceLoadingStat::CutTables(short dvcType, int use_ta)
 {
 	int    ok = -1, removed_count = 0;
 	DBMaintainParam  db_param;
@@ -168,7 +168,7 @@ int SLAPI DeviceLoadingStat::CutTables(short dvcType, int use_ta)
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
+int DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 {
 	int    ok = 1;
 	DvcLoadingStatTbl::Rec rec;
@@ -228,7 +228,7 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::GetExportedItems(PPID statID, PPID objType, TSVector <DlsObjTbl::Rec> & rList)
+int DeviceLoadingStat::GetExportedItems(PPID statID, PPID objType, TSVector <DlsObjTbl::Rec> & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -251,7 +251,7 @@ int SLAPI DeviceLoadingStat::GetExportedItems(PPID statID, PPID objType, TSVecto
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDlsID, PPIDArray * pObjList)
+int DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDlsID, PPIDArray * pObjList)
 {
     int    ok = 1;
     PPIDArray temp_obj_list;
@@ -290,7 +290,7 @@ int SLAPI DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDls
     return ok;
 }
 
-int SLAPI DeviceLoadingStat::GetBillList(PPID statID, PPIDArray & rList)
+int DeviceLoadingStat::GetBillList(PPID statID, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -309,7 +309,7 @@ int SLAPI DeviceLoadingStat::GetBillList(PPID statID, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & since, PPIDArray * pObjList)
+int DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & since, PPIDArray * pObjList)
 {
 	int    ok = 1;
 	PPIDArray acn_list;
@@ -335,7 +335,7 @@ int SLAPI DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & s
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::DoMaintain(LDATE toDt)
+int DeviceLoadingStat::DoMaintain(LDATE toDt)
 {
 	int    ok = 1;
 	long   total = 0;
@@ -370,7 +370,7 @@ int SLAPI DeviceLoadingStat::DoMaintain(LDATE toDt)
 	return ok;
 }
 
-int SLAPI DeviceLoadingStat::Remove(PPID id, int useTa)
+int DeviceLoadingStat::Remove(PPID id, int useTa)
 {
 	int    ok = 1;
 	{
@@ -386,7 +386,7 @@ int SLAPI DeviceLoadingStat::Remove(PPID id, int useTa)
 //
 // @ModuleDef(PPViewDvcLoadingStat)
 //
-IMPLEMENT_PPFILT_FACTORY(DvcLoadingStat); SLAPI DvcLoadingStatFilt::DvcLoadingStatFilt() : PPBaseFilt(PPFILT_DVCLOADINGSTAT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(DvcLoadingStat); DvcLoadingStatFilt::DvcLoadingStatFilt() : PPBaseFilt(PPFILT_DVCLOADINGSTAT, 0, 0)
 {
 	SetFlatChunk(offsetof(DvcLoadingStatFilt, ReserveStart),
 		offsetof(DvcLoadingStatFilt, Reserve)-offsetof(DvcLoadingStatFilt, ReserveStart)+sizeof(Reserve));
@@ -487,7 +487,7 @@ IMPL_HANDLE_EVENT(DLSFiltDialog)
 //
 //
 //
-int SLAPI PPViewDvcLoadingStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewDvcLoadingStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -495,15 +495,15 @@ int SLAPI PPViewDvcLoadingStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(DLSFiltDialog, p_filt);
 }
 
-SLAPI PPViewDvcLoadingStat::PPViewDvcLoadingStat() : PPView(0, &Filt, PPVIEW_DVCLOADINGSTAT)
+PPViewDvcLoadingStat::PPViewDvcLoadingStat() : PPView(0, &Filt, PPVIEW_DVCLOADINGSTAT, 0, 0)
 {
 }
 
-SLAPI PPViewDvcLoadingStat::~PPViewDvcLoadingStat()
+PPViewDvcLoadingStat::~PPViewDvcLoadingStat()
 {
 }
 
-int SLAPI PPViewDvcLoadingStat::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewDvcLoadingStat::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	StrAssocArray * p_ggrp_list = 0;
@@ -520,7 +520,7 @@ int SLAPI PPViewDvcLoadingStat::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewDvcLoadingStat::InitIteration()
+int PPViewDvcLoadingStat::InitIteration()
 {
 	int    ok = 1;
 	DvcLoadingStatTbl * p_t = &DlsT;
@@ -563,7 +563,7 @@ static int GetDvcName(int dvcType, SString *pSs)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_DLSTAT;
 	long   dvc_obj_type = (Filt.DvcType == dvctCashs) ? PPOBJ_CASHNODE : PPOBJ_SCALE;
@@ -642,7 +642,7 @@ DBQuery * SLAPI PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString 
 	return q;
 }
 
-void SLAPI PPViewDvcLoadingStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewDvcLoadingStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && !Filt.DvcID) {
 		SString  dvc_name;
@@ -655,7 +655,7 @@ void SLAPI PPViewDvcLoadingStat::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -741,26 +741,26 @@ int SLAPI PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, P
 //
 // @ModuleDef(PPViewDLSDetail)
 //
-SLAPI DLSDetailFilt::DLSDetailFilt() : DlsID(0), DvcType(0), Reserve(0), DvcID(0), ObjType(0)
+DLSDetailFilt::DLSDetailFilt() : DlsID(0), DvcType(0), Reserve(0), DvcID(0), ObjType(0)
 {
 }
 
-SLAPI PPViewDLSDetail::PPViewDLSDetail() : PPView(0, 0, 0), P_DlsObjTbl(0)
+PPViewDLSDetail::PPViewDLSDetail() : PPView(0, 0, 0, 0, 0), P_DlsObjTbl(0)
 {
 }
 
-SLAPI PPViewDLSDetail::~PPViewDLSDetail()
+PPViewDLSDetail::~PPViewDLSDetail()
 {
 	delete P_DlsObjTbl;
 }
 
-int SLAPI PPViewDLSDetail::Init(const DLSDetailFilt * pFilt)
+int PPViewDLSDetail::Init(const DLSDetailFilt * pFilt)
 {
 	Filt = *pFilt;
 	return CheckTblPtr(P_DlsObjTbl = new DlsObjTbl);
 }
 
-int SLAPI PPViewDLSDetail::InitIteration()
+int PPViewDLSDetail::InitIteration()
 {
 	int    ok = 1;
 	DlsObjTbl * p_t = P_DlsObjTbl;
@@ -794,7 +794,7 @@ int SLAPI PPViewDLSDetail::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewDLSDetail::NextIteration(DLSDetailViewItem * pItem)
+int PPViewDLSDetail::NextIteration(DLSDetailViewItem * pItem)
 {
 	int    ok = -1;
 	memzero(pItem, sizeof(*pItem));
@@ -806,7 +806,7 @@ int SLAPI PPViewDLSDetail::NextIteration(DLSDetailViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = (Filt.ObjType == PPOBJ_GOODS) ? BROWSER_DLS_GOODS : BROWSER_DLS_SCARDS;
 	DBQuery * q = 0;
@@ -851,7 +851,7 @@ DBQuery * SLAPI PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-void SLAPI PPViewDLSDetail::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewDLSDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && Filt.DvcType == dvctScales) {
 		// @v10.6.4 pBrw->InsColumnWord(1, PPWORD_PLU, 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0);
@@ -859,7 +859,7 @@ void SLAPI PPViewDLSDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -939,7 +939,7 @@ int SLAPI PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 //
 //
 //
-int SLAPI ViewDLSDetail(const DLSDetailFilt & rFilt)
+int ViewDLSDetail(const DLSDetailFilt & rFilt)
 {
 	int    ok = 1;
 	PPViewDLSDetail * p_v = 0;

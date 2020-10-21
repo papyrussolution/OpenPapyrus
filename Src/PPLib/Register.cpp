@@ -6,14 +6,14 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPBankAccount::PPBankAccount()
+PPBankAccount::PPBankAccount()
 {
     THISZERO();
     ObjType = PPOBJ_PERSON;
     RegTypeID = PPREGT_BANKACCOUNT;
 }
 
-SLAPI PPBankAccount::PPBankAccount(const RegisterTbl::Rec & rS)
+PPBankAccount::PPBankAccount(const RegisterTbl::Rec & rS)
 {
 	*this = rS;
 }
@@ -84,18 +84,18 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 //
 // RegisterArray
 //
-SLAPI RegisterArray::RegisterArray() : SVector(sizeof(RegisterTbl::Rec)) // @v9.8.4 SArray-->SVector
+RegisterArray::RegisterArray() : SVector(sizeof(RegisterTbl::Rec)) // @v9.8.4 SArray-->SVector
 {
 }
 
-SLAPI RegisterArray::RegisterArray(const RegisterArray & s) : SVector(s) // @v9.8.4 SArray-->SVector
+RegisterArray::RegisterArray(const RegisterArray & s) : SVector(s) // @v9.8.4 SArray-->SVector
 {
 }
 
 IMPL_CMPFUNC(RegisterTbl_Rec_TDE, i1, i2) 
 	{ RET_CMPCASCADE3(static_cast<const RegisterTbl::Rec *>(i1), static_cast<const RegisterTbl::Rec *>(i2), RegTypeID, Dt, Expiry); }
 
-void SLAPI RegisterArray::Sort()
+void RegisterArray::Sort()
 {
 	sort(PTR_CMPFUNC(RegisterTbl_Rec_TDE));
 }
@@ -135,7 +135,7 @@ RegisterTbl::Rec & FASTCALL RegisterArray::at(uint pos) const
 	return *static_cast<RegisterTbl::Rec *>(SVector::at(pos)); // @v9.8.4 SArray-->SVector
 }
 
-int SLAPI RegisterArray::GetRegister(PPID regTyp, uint * pPos, RegisterTbl::Rec * pRec) const
+int RegisterArray::GetRegister(PPID regTyp, uint * pPos, RegisterTbl::Rec * pRec) const
 {
 	return GetRegister(regTyp, ZERODATE, pPos, pRec);
 }
@@ -146,7 +146,7 @@ struct _RegCandidItem { // @flat
     long   ExpiryDist;
 };
 
-int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const
+int RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const
 {
 	int    ok = srrNothing;
 	int    optimal_pos = -1;
@@ -215,7 +215,7 @@ int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, Regi
 	return ok;
 }
 
-int SLAPI RegisterArray::SelectRegNumber(PPID regTyp, LDATE dt, SString & rBuf) const
+int RegisterArray::SelectRegNumber(PPID regTyp, LDATE dt, SString & rBuf) const
 {
 	uint   pos = 0;
 	int    r = SelectRegister(regTyp, dt, &pos, 0);
@@ -228,7 +228,7 @@ int SLAPI RegisterArray::SelectRegNumber(PPID regTyp, LDATE dt, SString & rBuf) 
 	return r;
 }
 
-int SLAPI RegisterArray::GetRegister(PPID regTyp, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const
+int RegisterArray::GetRegister(PPID regTyp, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const
 {
 	for(uint i = DEREFPTRORZ(pPos); i < getCount(); i++) {
 		const RegisterTbl::Rec & r_reg = at(i);
@@ -241,7 +241,7 @@ int SLAPI RegisterArray::GetRegister(PPID regTyp, LDATE dt, uint * pPos, Registe
 	return -1;
 }
 
-int SLAPI RegisterArray::GetListByType(PPID regTyp, LDATE dt, RegisterArray * pList) const
+int RegisterArray::GetListByType(PPID regTyp, LDATE dt, RegisterArray * pList) const
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, clear());
@@ -260,7 +260,7 @@ int SLAPI RegisterArray::GetListByType(PPID regTyp, LDATE dt, RegisterArray * pL
 	return ok;
 }
 
-int SLAPI RegisterArray::GetBankAccountList(TSVector <PPBankAccount> * pList) const // @v9.8.6 TSArray-->TSVector
+int RegisterArray::GetBankAccountList(TSVector <PPBankAccount> * pList) const // @v9.8.6 TSArray-->TSVector
 {
 	const  LDATE dt = ZERODATE;
 	int    ok = -1;
@@ -282,7 +282,7 @@ int SLAPI RegisterArray::GetBankAccountList(TSVector <PPBankAccount> * pList) co
 	return ok;
 }
 
-int SLAPI RegisterArray::CheckDuplicateBankAccount(const PPBankAccount * pRec, long pos) const
+int RegisterArray::CheckDuplicateBankAccount(const PPBankAccount * pRec, long pos) const
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
@@ -298,7 +298,7 @@ int SLAPI RegisterArray::CheckDuplicateBankAccount(const PPBankAccount * pRec, l
 	return ok;
 }
 
-int SLAPI RegisterArray::SetBankAccount(const PPBankAccount * pRec, uint pos)
+int RegisterArray::SetBankAccount(const PPBankAccount * pRec, uint pos)
 {
 	int    ok = -1;
     RegisterTbl::Rec reg_rec;
@@ -340,7 +340,7 @@ int SLAPI RegisterArray::SetBankAccount(const PPBankAccount * pRec, uint pos)
 	return ok;
 }
 
-int SLAPI RegisterArray::GetListByPeriod(PPID regTypeID, const DateRange & rPeriod, RegisterArray * pList) const
+int RegisterArray::GetListByPeriod(PPID regTypeID, const DateRange & rPeriod, RegisterArray * pList) const
 {
 	int    ok = -1;
 	if(pList)
@@ -357,12 +357,12 @@ int SLAPI RegisterArray::GetListByPeriod(PPID regTypeID, const DateRange & rPeri
 	return ok;
 }
 
-int SLAPI RegisterArray::GetRegNumber(PPID regTyp, SString & rBuf) const
+int RegisterArray::GetRegNumber(PPID regTyp, SString & rBuf) const
 {
 	return GetRegNumber(regTyp, ZERODATE, rBuf);
 }
 
-int SLAPI RegisterArray::GetRegNumber(PPID regTyp, LDATE dt, SString & rBuf) const
+int RegisterArray::GetRegNumber(PPID regTyp, LDATE dt, SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -375,7 +375,7 @@ int SLAPI RegisterArray::GetRegNumber(PPID regTyp, LDATE dt, SString & rBuf) con
 	return ok;
 }
 
-int SLAPI RegisterArray::Merge(const RegisterArray & rS)
+int RegisterArray::Merge(const RegisterArray & rS)
 {
 	int    ok = -1;
 	PPObjRegisterType rt_obj;
@@ -419,7 +419,7 @@ int SLAPI RegisterArray::Merge(const RegisterArray & rS)
 	return ok;
 }
 
-int SLAPI RegisterArray::ProcessObjRefs(PPObjIDArray * ary, int replace)
+int RegisterArray::ProcessObjRefs(PPObjIDArray * ary, int replace)
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
@@ -443,16 +443,16 @@ int SLAPI RegisterArray::ProcessObjRefs(PPObjIDArray * ary, int replace)
 //
 //
 //
-SLAPI RegisterCore::RegisterCore() : RegisterTbl()
+RegisterCore::RegisterCore() : RegisterTbl()
 {
 }
 
-int SLAPI RegisterCore::Search(PPID id, RegisterTbl::Rec * b)
+int RegisterCore::Search(PPID id, RegisterTbl::Rec * b)
 {
 	return SearchByID(this, PPOBJ_REGISTER, id, b);
 }
 
-int SLAPI RegisterCore::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSerial, const char * pNumber, RegisterTbl::Rec * pBuf)
+int RegisterCore::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSerial, const char * pNumber, RegisterTbl::Rec * pBuf)
 {
 	RegisterTbl::Key3 k;
 	MEMSZERO(k);
@@ -465,7 +465,7 @@ int SLAPI RegisterCore::SearchByNumber(PPID * pID, PPID regTypeID, const char * 
 	return ok;
 }
 
-int SLAPI RegisterCore::GetUniqCntr(RegisterTbl::Rec * pRec, int forceDup)
+int RegisterCore::GetUniqCntr(RegisterTbl::Rec * pRec, int forceDup)
 {
 	pRec->UniqCntr = 0;
 	if(forceDup || PPObjRegisterType::IsDupRegType(pRec->RegTypeID))
@@ -484,30 +484,30 @@ int SLAPI RegisterCore::GetUniqCntr(RegisterTbl::Rec * pRec, int forceDup)
 	return 1;
 }
 
-int SLAPI RegisterCore::Add(PPID * pID, RegisterTbl::Rec * pRec, int use_ta)
+int RegisterCore::Add(PPID * pID, RegisterTbl::Rec * pRec, int use_ta)
 {
 	GetUniqCntr(pRec, 0 /* !forceDup */);
 	return AddByID(this, pID, pRec, use_ta);
 }
 
-int SLAPI RegisterCore::Add_ForceDup(PPID * pID, RegisterTbl::Rec * pRec, int use_ta)
+int RegisterCore::Add_ForceDup(PPID * pID, RegisterTbl::Rec * pRec, int use_ta)
 {
 	GetUniqCntr(pRec, 1 /* forceDup */);
 	return AddByID(this, pID, pRec, use_ta);
 }
 
-int SLAPI RegisterCore::Update(PPID id, RegisterTbl::Rec * pRec, int use_ta)
+int RegisterCore::Update(PPID id, RegisterTbl::Rec * pRec, int use_ta)
 {
 	GetUniqCntr(pRec, 0 /* !forceDup */);
 	return UpdateByID(this, PPOBJ_REGISTER, id, pRec, use_ta);
 }
 
-int SLAPI RegisterCore::Remove(PPID id, int use_ta)
+int RegisterCore::Remove(PPID id, int use_ta)
 {
 	return RemoveByID(this, id, use_ta);
 }
 
-int SLAPI RegisterCore::SetByPerson(PPID personID, PPID regTypeID, const RegisterTbl::Rec * pRec, int use_ta)
+int RegisterCore::SetByPerson(PPID personID, PPID regTypeID, const RegisterTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -572,7 +572,7 @@ int SLAPI RegisterCore::SetByPerson(PPID personID, PPID regTypeID, const Registe
 	return ok;
 }
 
-int SLAPI RegisterCore::_Get(PPID objType, PPID id, RegisterArray * pAry)
+int RegisterCore::_Get(PPID objType, PPID id, RegisterArray * pAry)
 {
 	int    idx, _count = 0;
 	PROFILE_START
@@ -651,7 +651,7 @@ int SLAPI RegisterCore::_Get(PPID objType, PPID id, RegisterArray * pAry)
 	return _count ? 1 : -1;
 }
 
-int SLAPI RegisterCore::_Put(PPID objType, PPID objID, RegisterArray * pAry, int use_ta)
+int RegisterCore::_Put(PPID objType, PPID objID, RegisterArray * pAry, int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -735,23 +735,23 @@ int SLAPI RegisterCore::_Put(PPID objType, PPID objID, RegisterArray * pAry, int
 	return ok;
 }
 
-int SLAPI RegisterCore::PutByEvent(PPID eventID, RegisterArray * pAry, int use_ta)
+int RegisterCore::PutByEvent(PPID eventID, RegisterArray * pAry, int use_ta)
 	{ return _Put(PPOBJ_PERSONEVENT, eventID, pAry, use_ta); }
-int SLAPI RegisterCore::PutByPerson(PPID personID, RegisterArray * ary, int use_ta)
+int RegisterCore::PutByPerson(PPID personID, RegisterArray * ary, int use_ta)
 	{ return _Put(PPOBJ_PERSON, personID, ary, use_ta); }
-int SLAPI RegisterCore::PutByLocation(PPID locID, RegisterArray * pList, int use_ta)
+int RegisterCore::PutByLocation(PPID locID, RegisterArray * pList, int use_ta)
 	{ return _Put(PPOBJ_LOCATION, locID, pList, use_ta); }
 
-int SLAPI RegisterCore::GetByEvent(PPID eventID, RegisterArray * pList)
+int RegisterCore::GetByEvent(PPID eventID, RegisterArray * pList)
 	{ return _Get(PPOBJ_PERSONEVENT, eventID, pList); }
-int SLAPI RegisterCore::GetByPerson(PPID personID, RegisterArray * pList)
+int RegisterCore::GetByPerson(PPID personID, RegisterArray * pList)
 	{ return _Get(PPOBJ_PERSON, personID, pList); }
-int SLAPI RegisterCore::GetByLocation(PPID locID, RegisterArray * pList)
+int RegisterCore::GetByLocation(PPID locID, RegisterArray * pList)
 	{ return _Get(PPOBJ_LOCATION, locID, pList); }
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(Register); SLAPI RegisterFilt::RegisterFilt() : PPBaseFilt(PPFILT_REGISTER, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Register); RegisterFilt::RegisterFilt() : PPBaseFilt(PPFILT_REGISTER, 0, 0)
 {
 	SetFlatChunk(offsetof(RegisterFilt, ReserveStart),
 		offsetof(RegisterFilt, SerPattern) - offsetof(RegisterFilt, ReserveStart));
@@ -760,7 +760,7 @@ IMPLEMENT_PPFILT_FACTORY(Register); SLAPI RegisterFilt::RegisterFilt() : PPBaseF
 	Init(1, 0);
 }
 
-int SLAPI RegisterFilt::IsEmpty() const
+int RegisterFilt::IsEmpty() const
 {
 	return !(Oid.Id || ExclPersonID || ExclLocID || RegTypeID || SerPattern.NotEmpty() ||
 		NmbPattern.NotEmpty() || !RegPeriod.IsZero() || !ExpiryPeriod.IsZero());
@@ -792,7 +792,7 @@ int SLAPI RegisterFilt::IsEmpty() const
 	return ok;
 }
 
-int SLAPI RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec)
+int RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pRec)
 {
 	int    ok = -1;
 	RegisterTbl::Key1 k1;
@@ -807,7 +807,7 @@ int SLAPI RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Re
 	return ok;
 }
 
-int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
+int RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList, PPIDArray * pObjList)
 {
 	int    c = 0, sp;
 	DBQ  * dbq = 0;

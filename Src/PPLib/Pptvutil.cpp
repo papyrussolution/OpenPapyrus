@@ -5,7 +5,7 @@
 #pragma hdrstop
 
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
-TView * SLAPI ValidView(TView * pView) { return APPL->validView(pView); }
+TView * ValidView(TView * pView) { return APPL->validView(pView); }
 ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }
 
 ushort FASTCALL ExecViewAndDestroy(TWindow * pView)
@@ -50,7 +50,7 @@ int FASTCALL InsertView(TBaseBrowserWindow * v)
 		return 0;
 }
 
-int SLAPI InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Param * pParam)
+int InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Param * pParam)
 {
 	int    ok = 1;
 	if(pParam) {
@@ -71,12 +71,12 @@ int SLAPI InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Pa
 // В следующих трех функциях проверка не ненулевой APPL сделана из-за того, что
 // функции эти могут вызываться в контексте JobServer'а
 //
-BrowserWindow * SLAPI PPFindLastBrowser() { return APPL ? static_cast<BrowserWindow *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 0)) : 0; }
-STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser() { return APPL ? static_cast<STimeChunkBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 1)) : 0; }
-PPPaintCloth * SLAPI PPFindLastPaintCloth() { return APPL ? (PPPaintCloth*)APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 2) : 0; }
-static STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName) { return APPL ? static_cast<STextBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 3, pFileName)) : 0; }
+BrowserWindow * PPFindLastBrowser() { return APPL ? static_cast<BrowserWindow *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 0)) : 0; }
+STimeChunkBrowser * PPFindLastTimeChunkBrowser() { return APPL ? static_cast<STimeChunkBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 1)) : 0; }
+PPPaintCloth * PPFindLastPaintCloth() { return APPL ? (PPPaintCloth*)APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 2) : 0; }
+static STextBrowser * PPFindLastTextBrowser(const char * pFileName) { return APPL ? static_cast<STextBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 3, pFileName)) : 0; }
 
-void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId)
+void PPViewTextBrowser(const char * pFileName, const char * pTitle, const char * pLexerSymb, int toolbarId)
 {
 	STextBrowser * p_brw = PPFindLastTextBrowser(pFileName);
 	if(p_brw) {
@@ -118,7 +118,7 @@ int FASTCALL PPOpenBrowser(BrowserWindow * pW, int modeless)
 }
 
 void FASTCALL PPCloseBrowser(TBaseBrowserWindow * pW) { CALLPTRMEMB(pW, endModal(cmCancel)); }
-uint SLAPI GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID) { return dlg->getCtrlView(comboBoxCtlID)->GetId(); }
+uint GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID) { return dlg->getCtrlView(comboBoxCtlID)->GetId(); }
 
 int FASTCALL SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pText)
 {
@@ -200,7 +200,7 @@ void FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 	}
 }
 
-static int SLAPI Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
+static int Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
 {
 	int    ok = -1;
 	char   b[64];
@@ -339,7 +339,7 @@ int FASTCALL GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
 		return 0;
 }
 
-int SLAPI PPExecuteContextMenu(TView * pView, uint menuID)
+int PPExecuteContextMenu(TView * pView, uint menuID)
 {
 	int    ok = -1;
 	if(pView && pView->P_Owner) {
@@ -501,7 +501,7 @@ void ViewAsyncEventQueueStat()
 	}
 }
 
-int SLAPI ViewStatus()
+int ViewStatus()
 {
 	class StatusDialog : public TDialog {
 	public:
@@ -646,7 +646,7 @@ int FASTCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes
 	return ok;
 }
 
-int SLAPI InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE * pDate)
+int InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE * pDate)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_DATE);
@@ -675,11 +675,11 @@ int SLAPI InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE *
 //
 //
 //
-SLAPI DateAddDialogParam::DateAddDialogParam() : BaseDate(ZERODATE), Period(PRD_MONTH), PeriodCount(1), ResultDate(ZERODATE)
+DateAddDialogParam::DateAddDialogParam() : BaseDate(ZERODATE), Period(PRD_MONTH), PeriodCount(1), ResultDate(ZERODATE)
 {
 }
 
-int SLAPI DateAddDialogParam::Recalc()
+int DateAddDialogParam::Recalc()
 {
 	if(!checkdate(BaseDate))
 		BaseDate = getcurdate_();
@@ -689,7 +689,7 @@ int SLAPI DateAddDialogParam::Recalc()
 	return (ResultDate != BaseDate) ? 1 : -1;
 }
 
-int SLAPI DateAddDialog(DateAddDialogParam * pData)
+int DateAddDialog(DateAddDialogParam * pData)
 {
 	class __DateAddDialog : public TDialog {
 		DECL_DIALOG_DATA(DateAddDialogParam);
@@ -743,7 +743,7 @@ int SLAPI DateAddDialog(DateAddDialogParam * pData)
 	DIALOG_PROC_BODY(__DateAddDialog, pData);
 }
 
-int SLAPI DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange * pPeriod)
+int DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange * pPeriod)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_DATERNG);
@@ -765,7 +765,7 @@ int SLAPI DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRan
 	return ok;
 }
 
-int SLAPI InputQttyDialog(const char * pTitle, const char * pInputTitle, double * pQtty)
+int InputQttyDialog(const char * pTitle, const char * pInputTitle, double * pQtty)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_QTTY);
@@ -826,7 +826,7 @@ int FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID)
 	return 0;
 }
 
-int SLAPI PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int withoutEncrypt)
+int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int withoutEncrypt)
 {
 	int    ok = -1, valid_data = 0;
 	char   b1[32], b2[32];
@@ -886,7 +886,7 @@ int FASTCALL SetupStrListBox(TDialog * dlg, uint ctl)
 	return SetupStrListBox(dlg->getCtrlView(ctl));
 }
 
-int SLAPI SetupTreeListBox(TDialog * dlg, uint ctl, StrAssocArray * pData, uint fl, uint lbfl)
+int SetupTreeListBox(TDialog * dlg, uint ctl, StrAssocArray * pData, uint fl, uint lbfl)
 {
 	int    ok = -1;
 	SmartListBox * p_box = static_cast<SmartListBox *>(dlg->getCtrlView(ctl));
@@ -1026,7 +1026,7 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 //
 // Lst2LstAryDialog
 //
-SLAPI ListToListAryData::ListToListAryData(uint rezID, SArray * pLList, SArray * pRList) : ListToListUIData(), RezID(rezID), P_LList(pLList), P_RList(pRList)
+ListToListAryData::ListToListAryData(uint rezID, SArray * pLList, SArray * pRList) : ListToListUIData(), RezID(rezID), P_LList(pLList), P_RList(pRList)
 {
 }
 
@@ -1431,7 +1431,7 @@ IMPL_HANDLE_EVENT(WLDialog)
 	}
 }
 
-int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
+int GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;
@@ -1478,7 +1478,7 @@ int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 //
 //
 // @vmiller {
-int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID, uint /*flags*/)
+int SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID, uint /*flags*/)
 {
 	int    ok = 1;
 	int    str_id = 0;
@@ -1528,7 +1528,7 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 }
 // } @vmiller
 
-static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, const StrAssocArray * pAddendumList, long initID)
+static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, const StrAssocArray * pAddendumList, long initID)
 {
 	int    ok = 1;
 	StrAssocArray * p_list = 0;
@@ -1583,7 +1583,7 @@ int FASTCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char 
 }
 
 /* @v9.5.0 // id = <string offset> + 1
-int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, uint flags)
+int SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, uint flags)
 {
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
@@ -1659,12 +1659,12 @@ int FASTCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC
 	return ok;
 }
 
-int SLAPI SetupSubstDateCombo(TDialog * dlg, uint ctlID, long initID)
+int SetupSubstDateCombo(TDialog * dlg, uint ctlID, long initID)
 {
 	return SetupStringCombo(dlg, ctlID, PPTXT_SUBSTDATELIST, initID);
 }
 
-int SLAPI SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
+int SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
 {
 	PPID   id = 0, init_id = 0;
 	SString buf, word_rel, id_buf, txt_buf;
@@ -1687,7 +1687,7 @@ int SLAPI SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
 	return SetupStrAssocCombo(pDlg, ctlID, &ary, init_id, 0);
 }
 
-int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
+int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 {
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
@@ -1737,7 +1737,7 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 	return ok;
 }
 
-int SLAPI SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb)
+int SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb)
 {
 	SString buf, id_buf, txt_buf;
 	StrAssocArray ary;
@@ -1749,7 +1749,7 @@ int SLAPI SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb)
 	return SetupStrAssocCombo(pDlg, ctlID, &ary, (long)sgb.S, 0);
 }
 
-int SLAPI SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc)
+int SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc)
 {
 	SString buf, id_buf, txt_buf;
 	StrAssocArray ary;
@@ -1964,7 +1964,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 //
 //
 //
-/*static*/int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtlID, uint grpID, int titleTextId, int patternId, long flags)
+/*static*/int FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtlID, uint grpID, int titleTextId, int patternId, long flags)
 {
 	int    ok = 1;
 	if(dlg) {
@@ -1988,7 +1988,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 	return ok;
 }
 
-SLAPI FileBrowseCtrlGroup::Rec::Rec()
+FileBrowseCtrlGroup::Rec::Rec()
 {
 	PTR32(FilePath)[0] = 0;
 }
@@ -2197,7 +2197,7 @@ int FileBrowseCtrlGroup::getData(TDialog *, void * pData)
 	return pData ? (*static_cast<Rec *>(pData) = Data, 1) : 0;
 }
 
-int SLAPI PPOpenFile(uint strID, SString & rPath, long flags, HWND owner)
+int PPOpenFile(uint strID, SString & rPath, long flags, HWND owner)
 {
 	int    ok = -1;
 	SString temp_buf, name, pattern;
@@ -2215,7 +2215,7 @@ int SLAPI PPOpenFile(uint strID, SString & rPath, long flags, HWND owner)
 	return ok;
 }
 
-int SLAPI PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND owner)
+int PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND owner)
 {
 	int    ok = -1;
 	OPENFILENAME sofn;
@@ -2246,7 +2246,7 @@ int SLAPI PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, H
 	return ok;
 }
 
-int SLAPI PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
+int PPOpenDir(SString & rPath, const char * pTitle, HWND owner /*=0*/)
 {
 	int    ok = -1;
 	OPENFILENAME sofn;
@@ -2396,7 +2396,7 @@ int ExtOpenFileDialog(SString & rPath, StringSet * pPatterns, SString * pDefWait
 //
 //
 //
-SLAPI ImageBrowseCtrlGroup::Rec::Rec(const SString * pBuf) : Flags(0), Path(pBuf ? pBuf->cptr() : 0)
+ImageBrowseCtrlGroup::Rec::Rec(const SString * pBuf) : Flags(0), Path(pBuf ? pBuf->cptr() : 0)
 {
 }
 
@@ -2505,7 +2505,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-int SLAPI BarcodeInputDialog(int initChar, SString & rBuf)
+int BarcodeInputDialog(int initChar, SString & rBuf)
 {
 	class BarcodeSrchDialog : public TDialog {
 	public:
@@ -2678,7 +2678,7 @@ int FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint
 	return ok;
 }
 
-/* @v9.2.1 int SLAPI ComboBoxSelDialog(PPID objID, PPID * pID, uint flags, long extra)
+/* @v9.2.1 int ComboBoxSelDialog(PPID objID, PPID * pID, uint flags, long extra)
 {
 	int    ok = -1;
 	TDialog * p_dlg = new TDialog(DLG_CBXSEL);
@@ -2700,7 +2700,7 @@ int FASTCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint
 	return ok;
 }*/
 
-int SLAPI ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
+int ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
 {
 	int    ok = -1;
 	long   sel_id = DEREFPTRORZ(pSelectedId);
@@ -2728,7 +2728,7 @@ int SLAPI ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uin
 	return ok;
 }
 
-int  SLAPI AdvComboBoxSelDialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
+int  AdvComboBoxSelDialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
 {
 	int    ok = -1;
 	TDialog * p_dlg = 0;
@@ -2923,7 +2923,7 @@ IMPL_HANDLE_EVENT(UICfgDialog)
 	clearEvent(event);
 }
 
-int SLAPI UISettingsDialog()
+int UISettingsDialog()
 {
 	int    r = 0;
 	UICfgDialog	* p_dlg = new UICfgDialog();
@@ -3060,12 +3060,12 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-SLAPI LocationCtrlGroup::Rec::Rec(const ObjIdListFilt * pLocList, PPID parentID) : ParentID(parentID)
+LocationCtrlGroup::Rec::Rec(const ObjIdListFilt * pLocList, PPID parentID) : ParentID(parentID)
 {
 	RVALUEPTR(LocList, pLocList);
 }
 
-void SLAPI LocationCtrlGroup::Helper_Construct()
+void LocationCtrlGroup::Helper_Construct()
 {
 	// P_Eac = 0;
 	CtlselLoc = 0;
@@ -3137,7 +3137,7 @@ int LocationCtrlGroup::SetCellSelectionByGoods(TDialog * pDlg, PPID goodsID)
 	return ok;
 }
 
-int SLAPI LocationCtrlGroup::EditLocList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pLocList)
+int LocationCtrlGroup::EditLocList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pLocList)
 {
 	int    ok = -1;
 	PPIDArray ary;
@@ -3209,7 +3209,7 @@ void LocationCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	}
 }
 
-void SLAPI LocationCtrlGroup::SetupInfo(TDialog * pDlg, PPID locID)
+void LocationCtrlGroup::SetupInfo(TDialog * pDlg, PPID locID)
 {
 	if(pDlg && CtlInfo) {
         SString info_buf;
@@ -4256,7 +4256,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 #define SCARD_MIN_SYMBS 4
 
-SLAPI SCardCtrlGroup::Rec::Rec() : SCardID(0)
+SCardCtrlGroup::Rec::Rec() : SCardID(0)
 {
 }
 
@@ -4418,7 +4418,7 @@ int FiasSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 //
 //
 //
-SLAPI FiasAddressCtrlGroup::Rec::Rec() : TerminalFiasID(0)
+FiasAddressCtrlGroup::Rec::Rec() : TerminalFiasID(0)
 {
 }
 
@@ -4467,7 +4467,7 @@ void FiasAddressCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-SLAPI PosNodeCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
+PosNodeCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
 {
 	RVALUEPTR(List, pList);
 }
@@ -4521,7 +4521,7 @@ int PosNodeCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-SLAPI QuotKindCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
+QuotKindCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
 {
 	RVALUEPTR(List, pList);
 }
@@ -4534,7 +4534,7 @@ void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isCmd(CmEditList)) {
 		//EditQuotKindList(pDlg, Ctlsel, &Data.List);
-		//static int SLAPI EditQuotKindList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
+		//static int EditQuotKindList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
 		{
 			PPIDArray ary;
 			if(Data.List.IsExists())
@@ -4587,7 +4587,7 @@ int QuotKindCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-SLAPI StaffCalCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
+StaffCalCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
 {
 	RVALUEPTR(List, pList);
 }
@@ -4597,7 +4597,7 @@ StaffCalCtrlGroup::StaffCalCtrlGroup(uint ctlsel, uint cmEditList) : Ctlsel(ctls
 }
 
 /* @v9.5.5 (inlined)
-static int SLAPI EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
+static int EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
 {
 	int    ok = -1;
 	if(pList && pDlg) {
@@ -4630,7 +4630,7 @@ void StaffCalCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isCmd(CmEditList)) {
 		//EditStaffCalList(pDlg, Ctlsel, &Data.List);
-		//static int SLAPI EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
+		//static int EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
 		{
 			PPIDArray ary;
 			if(Data.List.IsExists())
@@ -4683,7 +4683,7 @@ int StaffCalCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-SLAPI PersonOpCtrlGroup::Rec::Rec(const ObjIdListFilt * pPsnOpList, PPID prmrID, PPID scndID) : PrmrID(prmrID), ScndID(scndID)
+PersonOpCtrlGroup::Rec::Rec(const ObjIdListFilt * pPsnOpList, PPID prmrID, PPID scndID) : PrmrID(prmrID), ScndID(scndID)
 {
 	RVALUEPTR(PsnOpList, pPsnOpList);
 }
@@ -4808,7 +4808,7 @@ int PersonOpCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return 1;
 }
 
-SLAPI SpinCtrlGroup::Rec::Rec() : Value(0)
+SpinCtrlGroup::Rec::Rec() : Value(0)
 {
 }
 
@@ -4975,12 +4975,12 @@ static int InputStringDialog(const char * pTitle, const char * pInpTitle, int di
 	return ok;
 }
 
-SLAPI PPInputStringDialogParam::PPInputStringDialogParam(const char * pTitle, const char * pInputTitle) :
+PPInputStringDialogParam::PPInputStringDialogParam(const char * pTitle, const char * pInputTitle) :
 	Flags(0), Title(pTitle), InputTitle(pInputTitle), P_Wse(0)
 {
 }
 
-SLAPI PPInputStringDialogParam::~PPInputStringDialogParam()
+PPInputStringDialogParam::~PPInputStringDialogParam()
 {
 	delete P_Wse;
 }
@@ -5019,7 +5019,7 @@ int FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf
 	return ok;
 }
 
-int SLAPI InputNumberDialog(const char * pTitle, const char * pInpTitle, double & rValue)
+int InputNumberDialog(const char * pTitle, const char * pInpTitle, double & rValue)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_INPUTNUM);
@@ -5094,17 +5094,17 @@ int RemoveAllDialog::getDTS(RemoveAllParam * pData)
 	return ok;
 }
 
-SLAPI ResolveGoodsItem::ResolveGoodsItem(PPID goodsID /*= 0*/)
+ResolveGoodsItem::ResolveGoodsItem(PPID goodsID /*= 0*/)
 {
 	THISZERO();
 	GoodsID = goodsID;
 }
 
-SLAPI ResolveGoodsItemList::ResolveGoodsItemList() : TSArray <ResolveGoodsItem> ()
+ResolveGoodsItemList::ResolveGoodsItemList() : TSArray <ResolveGoodsItem> ()
 {
 }
 
-SLAPI ResolveGoodsItemList::ResolveGoodsItemList(const ResolveGoodsItemList & s) : TSArray <ResolveGoodsItem> (s)
+ResolveGoodsItemList::ResolveGoodsItemList(const ResolveGoodsItemList & s) : TSArray <ResolveGoodsItem> (s)
 {
 }
 
@@ -5379,7 +5379,7 @@ int ResolveGoodsDialog::CreateGoods(long id, PPID goodsGrpID, int editAfterAdd)
 	return ok;
 }
 
-int SLAPI ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags)
+int ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags)
 {
 	int    ok = -1;
 	ResolveGoodsDialog * p_dlg = 0;
@@ -5399,7 +5399,7 @@ int SLAPI ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags)
 	return ok;
 }
 
-int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWarn)
+int ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWarn)
 {
 	class ImageInfoDialog : public TDialog {
 	public:
@@ -5436,7 +5436,7 @@ int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char 
 	return ok;
 }
 
-int SLAPI SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList)
+int SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList)
 {
 	pDlg->setCtrlLong(ctlCombo, rList.GetSingle());
 	if(rList.GetCount() > 1) {
@@ -5449,7 +5449,7 @@ int SLAPI SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFi
 }
 
 /* @v9.1.1 Заменено на SLS.CheckUiFlag(sluifUseLargeDialogs)
-int SLAPI IsLargeDlg()
+int IsLargeDlg()
 {
 	return BIN(DS.GetTLA().Lc.Flags & CCFLG_USELARGEDIALOG);
 }
@@ -5540,7 +5540,7 @@ private:
 	return 1;
 }
 
-int SLAPI PutObjMemos(PPID objTypeID, PPID prop, PPID objID, const SString & rMemos, int useTa)
+int PutObjMemos(PPID objTypeID, PPID prop, PPID objID, const SString & rMemos, int useTa)
 {
 	int    ok = 1;
 	{
@@ -5554,7 +5554,7 @@ int SLAPI PutObjMemos(PPID objTypeID, PPID prop, PPID objID, const SString & rMe
 	return ok;
 }
 
-int SLAPI EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
+int EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 {
 	int    ok = -1;
 	SString memos;
@@ -5983,7 +5983,7 @@ void TimePickerDialog::Implement_Draw()
 	::EndPaint(H(), &ps);
 }
 
-void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
+void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 {
 	struct TimeButtonWndEx {
 		TimeButtonWndEx(TDialog * pDlg, uint editCtlId, WNDPROC fPrevWndProc) : Dlg(pDlg), EditID(editCtlId), PrevWndProc(fPrevWndProc)
@@ -6200,7 +6200,7 @@ int EmailListDlg::setupList()
 	return ok;
 }
 
-static int SLAPI IsEmailAddr(const char * pPath)
+static int IsEmailAddr(const char * pPath)
 {
 	return BIN(pPath && sstrchr(pPath, '@'));
 }
@@ -6280,11 +6280,11 @@ void EmailCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-SLAPI EmailToBlock::EmailToBlock() : MailAccID(0)
+EmailToBlock::EmailToBlock() : MailAccID(0)
 {
 }
 
-int SLAPI EmailToBlock::Edit(long flags)
+int EmailToBlock::Edit(long flags)
 {
 	class EmailToBlockDialog : public TDialog {
 		DECL_DIALOG_DATA(EmailToBlock);
@@ -6554,7 +6554,7 @@ static SString & PreprocessCtrlText(const SString & rSrcText, SString & rResult)
 	return rResult;
 }
 
-int SLAPI ExportDialogs(const char * pFileName)
+int ExportDialogs(const char * pFileName)
 {
 	int    ok = 1;
 	uint   res_id = 0;
@@ -6939,19 +6939,19 @@ int SLAPI ExportDialogs(const char * pFileName)
 //
 static const char * WrSubKey_RecentItems = "Software\\Papyrus\\RecentItems";
 
-SLAPI RecentItemsStorage::RecentItemsStorage(int ident, uint maxItems, CompFunc cf) : Ident(ident), MaxItems(maxItems), Cf(cf)
+RecentItemsStorage::RecentItemsStorage(int ident, uint maxItems, CompFunc cf) : Ident(ident), MaxItems(maxItems), Cf(cf)
 {
 }
 
-SLAPI RecentItemsStorage::RecentItemsStorage(const char * pIdent, uint maxItems, CompFunc cf) : Ident(0), IdentText(pIdent), MaxItems(maxItems), Cf(cf)
+RecentItemsStorage::RecentItemsStorage(const char * pIdent, uint maxItems, CompFunc cf) : Ident(0), IdentText(pIdent), MaxItems(maxItems), Cf(cf)
 {
 }
 
-SLAPI RecentItemsStorage::~RecentItemsStorage()
+RecentItemsStorage::~RecentItemsStorage()
 {
 }
 
-int SLAPI RecentItemsStorage::CheckIn(const char * pText)
+int RecentItemsStorage::CheckIn(const char * pText)
 {
 	int    ok = -1;
 	if(!isempty(pText)) {
@@ -6989,7 +6989,7 @@ int SLAPI RecentItemsStorage::CheckIn(const char * pText)
 	return ok;
 }
 
-int SLAPI RecentItemsStorage::GetList(StringSet & rSs)
+int RecentItemsStorage::GetList(StringSet & rSs)
 {
 	rSs.clear();
 	int    ok = -1;
@@ -7018,7 +7018,7 @@ int SLAPI RecentItemsStorage::GetList(StringSet & rSs)
 	return ok;
 }
 
-SLAPI EditTextFileParam::EditTextFileParam() : PPBaseFilt(PPFILT_EDITTEXTFILEPARAM, 0, 0)
+EditTextFileParam::EditTextFileParam() : PPBaseFilt(PPFILT_EDITTEXTFILEPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(EditTextFileParam, ReserveStart),
 		offsetof(EditTextFileParam, ReserveEnd)-offsetof(EditTextFileParam, ReserveStart)+sizeof(ReserveEnd));
@@ -7026,7 +7026,7 @@ SLAPI EditTextFileParam::EditTextFileParam() : PPBaseFilt(PPFILT_EDITTEXTFILEPAR
 	Init(1, 0);
 }
 
-int SLAPI PPEditTextFile(const EditTextFileParam * pParam)
+int PPEditTextFile(const EditTextFileParam * pParam)
 {
 	class OpenEditFileDialog : public TDialog {
 	public:
@@ -7226,7 +7226,7 @@ int SLAPI PPEditTextFile(const EditTextFileParam * pParam)
 //
 //
 //
-int SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
+int BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
 {
 	class __BigTextDialog : public TDialog {
 	public:

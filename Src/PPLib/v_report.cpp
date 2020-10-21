@@ -8,7 +8,7 @@
 #include <crpe.h>
 
 // Prototype (PPREPORT.CPP)
-int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
+int SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
 
 #if 0 // @v9.8.11 (useless) {
 //
@@ -23,17 +23,17 @@ public:
 		mctBat,
 		mctAll
 	};
-	int SLAPI GetMailAccounts(MailClientType mct, PPID * pActiveID, PPInetAccntArray * pAccounts);
+	int GetMailAccounts(MailClientType mct, PPID * pActiveID, PPInetAccntArray * pAccounts);
 private:
-	int SLAPI GetDefaultMailClient(MailClientType *);
-	int SLAPI GetOutlookAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
-	int SLAPI GetOutlookExpressAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
-	int SLAPI GetBatAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
+	int GetDefaultMailClient(MailClientType *);
+	int GetOutlookAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
+	int GetOutlookExpressAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
+	int GetBatAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts);
 
-	int SLAPI Cat(const PPInetAccntArray * pSrc, PPInetAccntArray * pDest);
+	int Cat(const PPInetAccntArray * pSrc, PPInetAccntArray * pDest);
 };
 
-int SLAPI PPInetAccountManager::GetMailAccounts(MailClientType mct, PPID * pActiveID, PPInetAccntArray * pAccounts)
+int PPInetAccountManager::GetMailAccounts(MailClientType mct, PPID * pActiveID, PPInetAccntArray * pAccounts)
 {
 	int    ok = 1, all = (mct == mctAll) ? 1 : 0;
 	PPInetAccntArray accounts;
@@ -58,7 +58,7 @@ int SLAPI PPInetAccountManager::GetMailAccounts(MailClientType mct, PPID * pActi
 	return ok;
 }
 
-int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
+int PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
 {
 	int    ok = 1;
 	const char * p_param_name        = "Account Name";
@@ -122,7 +122,7 @@ int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccnt
 	return ok;
 }
 
-int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
+int PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPInetAccntArray * pAccounts)
 {
 	int    ok = 1;
 	const char * p_root_key          = "SOFTWARE\\Microsoft\\Internet Account Manager\\Accounts";
@@ -182,7 +182,7 @@ int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPIn
 	return ok;
 }
 
-int SLAPI PPInetAccountManager::GetBatAccounts(PPID * pActiveAcctID, PPInetAccntArray * pAccounts)
+int PPInetAccountManager::GetBatAccounts(PPID * pActiveAcctID, PPInetAccntArray * pAccounts)
 {
 	int    ok = 1;
 	THROW_INVARG(pAccounts);
@@ -191,7 +191,7 @@ int SLAPI PPInetAccountManager::GetBatAccounts(PPID * pActiveAcctID, PPInetAccnt
 	return ok;
 }
 
-int SLAPI PPInetAccountManager::Cat(const PPInetAccntArray * pSrc, PPInetAccntArray * pDest)
+int PPInetAccountManager::Cat(const PPInetAccntArray * pSrc, PPInetAccntArray * pDest)
 {
 	if(pSrc && pDest) {
 		for(uint i = 0; i < pSrc->getCount(); i++) {
@@ -203,7 +203,7 @@ int SLAPI PPInetAccountManager::Cat(const PPInetAccntArray * pSrc, PPInetAccntAr
 	return 1;
 }
 
-int SLAPI PPInetAccountManager::GetDefaultMailClient(MailClientType * pMCT)
+int PPInetAccountManager::GetDefaultMailClient(MailClientType * pMCT)
 {
 	int    ok = 1;
 	const char * p_outlook       = "Microsoft Outlook";
@@ -232,7 +232,7 @@ int SLAPI PPInetAccountManager::GetDefaultMailClient(MailClientType * pMCT)
 //
 // PPViewReport
 //
-IMPLEMENT_PPFILT_FACTORY(Report); SLAPI ReportFilt::ReportFilt() : PPBaseFilt(PPFILT_REPORT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Report); ReportFilt::ReportFilt() : PPBaseFilt(PPFILT_REPORT, 0, 0)
 {
 	SetFlatChunk(offsetof(ReportFilt, ReserveStart), offsetof(ReportFilt, StdName) - offsetof(ReportFilt, ReserveStart));
 	SetBranchSString(offsetof(ReportFilt, StdName));
@@ -240,9 +240,8 @@ IMPLEMENT_PPFILT_FACTORY(Report); SLAPI ReportFilt::ReportFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-SLAPI PPViewReport::PPViewReport() : PPView(0, &Filt, PPVIEW_REPORT), P_StdRptFile(0), P_RptFile(0), P_TempTbl(0), LocalRptCodepage(866)
+PPViewReport::PPViewReport() : PPView(0, &Filt, PPVIEW_REPORT, 0, REPORT_RPTINFO), P_StdRptFile(0), P_RptFile(0), P_TempTbl(0), LocalRptCodepage(866)
 {
-	DefReportId = REPORT_RPTINFO;
 	PPIniFile::GetSectSymb(PPINISECT_SYSTEM, SystemSect);
 	PPIniFile::GetParamSymb(  PPINIPARAM_CODEPAGE,           CodepageParam);
 	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_FORMAT,      FmtParam);
@@ -253,18 +252,18 @@ SLAPI PPViewReport::PPViewReport() : PPView(0, &Filt, PPVIEW_REPORT), P_StdRptFi
 	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_MODIFDATE,   ModifDtParam);
 }
 
-SLAPI PPViewReport::~PPViewReport()
+PPViewReport::~PPViewReport()
 {
 	SaveChanges(1);
 }
 
-PPBaseFilt * SLAPI PPViewReport::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewReport::CreateFilt(void * extraPtr) const
 {
 	ReportFilt * p_filt = new ReportFilt;
 	return p_filt;
 }
 
-int SLAPI PPViewReport::SaveChanges(int remove)
+int PPViewReport::SaveChanges(int remove)
 {
 	SString fname;
 	/*
@@ -296,7 +295,7 @@ int SLAPI PPViewReport::SaveChanges(int remove)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempReport);
 
-/*virtual*/int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewReport::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString fname, temp_fname;
@@ -424,12 +423,12 @@ int ReportFiltDlg::getDTS(ReportFilt * pData)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewReport::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int PPViewReport::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODY_P1ERR(ReportFiltDlg, this, static_cast<ReportFilt *>(pFilt));
 }
 
-int SLAPI PPViewReport::InitIteration()
+int PPViewReport::InitIteration()
 {
 	int    ok  = 1, idx = 0;
 	void * k = 0, * k_ = 0;
@@ -480,7 +479,7 @@ int FASTCALL PPViewReport::NextIteration(ReportViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewReport::SendMail(long id)
+int PPViewReport::SendMail(long id)
 {
 	class ReportMailDialog : public TDialog {
 	public:
@@ -601,7 +600,7 @@ int SLAPI PPViewReport::SendMail(long id)
 	return ok;
 }
 
-int SLAPI PPViewReport::CheckForFilt(const ReportViewItem * pItem)
+int PPViewReport::CheckForFilt(const ReportViewItem * pItem)
 {
 	if(pItem) {
 		uint pos = 0;
@@ -617,13 +616,13 @@ int SLAPI PPViewReport::CheckForFilt(const ReportViewItem * pItem)
 	return 1;
 }
 
-void SLAPI PPViewReport::MakeTempRec(const ReportViewItem * pItem, TempReportTbl::Rec * pTempRec)
+void PPViewReport::MakeTempRec(const ReportViewItem * pItem, TempReportTbl::Rec * pTempRec)
 {
 	if(pItem && pTempRec)
 		*pTempRec = *static_cast<const TempReportTbl::Rec *>(pItem);
 }
 
-int SLAPI PPViewReport::GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath)
+int PPViewReport::GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath)
 {
 	int    ok = 1;
 	rPath.Z();
@@ -645,7 +644,7 @@ int SLAPI PPViewReport::GetAltPath(long type, const char * pPath, const char * p
 	return ok;
 }
 
-int SLAPI PPViewReport::Verify(long id)
+int PPViewReport::Verify(long id)
 {
 	int    ok = -1;
 	DlRtm * p_rtm = 0;
@@ -671,7 +670,7 @@ int SLAPI PPViewReport::Verify(long id)
 	return ok;
 }
 
-int SLAPI PPViewReport::CallCR(long id)
+int PPViewReport::CallCR(long id)
 {
 	int    ok = -1;
 	HKEY   crr_key = 0;
@@ -745,7 +744,7 @@ int SLAPI PPViewReport::CallCR(long id)
 	return ok;
 }
 
-int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
+int PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 {
 	int    ok = 1;
 	int    close_file = 0;
@@ -802,7 +801,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 	return ok;
 }
 
-int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const SString & rSect, SString & rBuf, ReportViewItem * pItem)
+int PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const SString & rSect, SString & rBuf, ReportViewItem * pItem)
 {
 	int    ok = -1;
 	long   id = 0;
@@ -844,7 +843,7 @@ int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const 
 	return ok;
 }
 
-int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
+int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 {
 	int    ok = 1;
 	int    do_close_file = 0;
@@ -883,7 +882,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	return ok;
 }
 
-/*virtual*/DBQuery * SLAPI PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	int    ok = 1;
 	uint brw_id = BROWSER_REPORT;
@@ -1005,7 +1004,7 @@ private:
 	StrAssocArray   StrucList;
 };
 
-int SLAPI PPViewReport::EditItem(long * pID)
+int PPViewReport::EditItem(long * pID)
 {
 	int    ok = -1, valid_data = 0;
 	long   id = DEREFPTRORZ(pID);
@@ -1057,7 +1056,7 @@ int SLAPI PPViewReport::EditItem(long * pID)
 	return ok;
 }
 
-int SLAPI PPViewReport::DelItem(long id)
+int PPViewReport::DelItem(long id)
 {
 	int    ok = -1;
 	if(P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
@@ -1070,7 +1069,7 @@ int SLAPI PPViewReport::DelItem(long id)
 	return ok;
 }
 
-int SLAPI PPViewReport::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewReport::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

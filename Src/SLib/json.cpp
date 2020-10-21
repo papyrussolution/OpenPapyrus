@@ -2263,7 +2263,7 @@ static int Helper_JsonToXmlDOM(json_t * pNode, int superJsonType, SXml::WDoc & r
 	return ok;
 }
 
-int SLAPI JsonToXmlDOM(const char * pJsonText, SString & rXmlText)
+int JsonToXmlDOM(const char * pJsonText, SString & rXmlText)
 {
 	rXmlText = 0;
 	int    ok = 1;
@@ -2289,7 +2289,7 @@ int SLAPI JsonToXmlDOM(const char * pJsonText, SString & rXmlText)
 	return ok;
 }
 
-int SLAPI XmlToJsonDOM(const char * pXmlText, SString & rJsonText)
+int XmlToJsonDOM(const char * pXmlText, SString & rJsonText)
 {
 	int    ok = 1;
 	return ok;

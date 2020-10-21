@@ -7,25 +7,25 @@
 //
 //
 //
-SLAPI PersonEventCore::PairIdent::PairIdent()
+PersonEventCore::PairIdent::PairIdent()
 {
 	THISZERO();
 }
 
-SLAPI PersonEventCore::PersonEventCore() : PersonEventTbl()
+PersonEventCore::PersonEventCore() : PersonEventTbl()
 {
 }
 
-int SLAPI PersonEventCore::Search(PPID id, PersonEventTbl::Rec * pRec)
+int PersonEventCore::Search(PPID id, PersonEventTbl::Rec * pRec)
 	{ return SearchByID(this, PPOBJ_PERSONEVENT, id, pRec); }
-int SLAPI PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta)
+int PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta)
 	{ return (IncDateKey(this, 1, pRec->Dt, &pRec->OprNo) && AddObjRecByID(this, PPOBJ_PERSONEVENT, pID, pRec, use_ta)); }
-int SLAPI PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta)
+int PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta)
 	{ return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
-int SLAPI PersonEventCore::Remove(PPID id, int use_ta)
+int PersonEventCore::Remove(PPID id, int use_ta)
 	{ return RemoveByID(this, id, use_ta); }
 
-int SLAPI PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, PersonEventTbl::Rec * pRec)
+int PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, PersonEventTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PersonEventTbl::Key3 k3;
@@ -57,7 +57,7 @@ int SLAPI PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, Per
 	return BTROKORNFOUND ? ok : PPSetErrorDB();
 }
 
-int SLAPI PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long * pHandle)
+int PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod, long * pHandle)
 {
 	BExtQuery * q = new BExtQuery(this, 3);
 	DBQ * dbq = &(this->PersonID == prmrPersonID);
@@ -76,13 +76,13 @@ int SLAPI PersonEventCore::InitEnum(PPID prmrPersonID, const DateRange * pPeriod
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-SEnumImp * SLAPI PersonEventCore::EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod)
+SEnumImp * PersonEventCore::EnumByPerson(PPID prmrPesonID, const DateRange * pPeriod)
 {
 	long   h = -1;
 	return InitEnum(prmrPesonID, pPeriod, &h) ? new PPTblEnum <PersonEventCore>(this, h) : 0;
 }
 
-int SLAPI PersonEventCore::CalcCountForPeriod(PPID opID, PPID personID, const STimeChunk & rTc, uint * pCount)
+int PersonEventCore::CalcCountForPeriod(PPID opID, PPID personID, const STimeChunk & rTc, uint * pCount)
 {
 	int    ok = -1;
 	uint   count = 0;
@@ -149,14 +149,14 @@ PPPsnEventPacket::OnTurnBlock & PPPsnEventPacket::OnTurnBlock::Z()
 //
 //
 //
-SLAPI PPPsnEventPacket::PPPsnEventPacket()
+PPPsnEventPacket::PPPsnEventPacket()
 {
 	// @v10.6.4 MEMSZERO(Rec);
 	// @v10.6.4 MEMSZERO(Reg);
 	// @v10.8.8 @ctr Otb.Z();
 }
 
-void SLAPI PPPsnEventPacket::Destroy()
+void PPPsnEventPacket::Destroy()
 {
 	MEMSZERO(Rec);
 	MEMSZERO(Reg);
@@ -192,7 +192,7 @@ PPPsnEventPacket & FASTCALL PPPsnEventPacket::operator = (const PPPsnEventPacket
 	return *this;
 }
 
-int SLAPI PPObjPersonEvent::SerializePacket(int dir, PPPsnEventPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjPersonEvent::SerializePacket(int dir, PPPsnEventPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -206,13 +206,13 @@ int SLAPI PPObjPersonEvent::SerializePacket(int dir, PPPsnEventPacket * pPack, S
 //
 TLP_IMPL(PPObjPersonEvent, PersonEventCore, P_Tbl);
 
-SLAPI PPObjPersonEvent::PPObjPersonEvent(void * extraPtr) : PPObject(PPOBJ_PERSONEVENT), ExtraPtr(extraPtr)
+PPObjPersonEvent::PPObjPersonEvent(void * extraPtr) : PPObject(PPOBJ_PERSONEVENT), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	P_ScObj = new PPObjSCard;
 }
 
-SLAPI PPObjPersonEvent::~PPObjPersonEvent()
+PPObjPersonEvent::~PPObjPersonEvent()
 {
 	TLP_CLOSE(P_Tbl);
 	delete P_ScObj;
@@ -239,14 +239,14 @@ SLAPI PPObjPersonEvent::~PPObjPersonEvent()
 	return rBuf;
 }
 
-int SLAPI PPObjPersonEvent::Search(PPID id, void * b)
+int PPObjPersonEvent::Search(PPID id, void * b)
 	{ return P_Tbl->Search(id, (PersonEventTbl::Rec *)b); }
-const char * SLAPI PPObjPersonEvent::GetNamePtr()
+const char * PPObjPersonEvent::GetNamePtr()
 	{ return PPObjPersonEvent::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr(); }
-int SLAPI PPObjPersonEvent::DeleteObj(PPID id)
+int PPObjPersonEvent::DeleteObj(PPID id)
 	{ return PutPacket(&id, 0, 0); }
 
-int SLAPI PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -297,7 +297,7 @@ int SLAPI PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extra
 	return DBRPL_OK;
 }
 
-SString & SLAPI PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, SString & rBuf)
+SString & PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, SString & rBuf)
 {
 	PersonTbl::Rec psn_rec;
 	PPObjPsnOpKind pok_obj;
@@ -356,7 +356,7 @@ int PPObjPersonEvent::SearchPairEvent(PPID evID, int dirArg, PersonEventTbl::Rec
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, PPID opID, PPID prmrPersonID)
+int PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, PPID opID, PPID prmrPersonID)
 {
 	int    ok = 1;
 	pPack->Init(opID);
@@ -374,7 +374,7 @@ int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, PPID opID, PPID
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, const AddPersonEventFilt & rFilt, int interactive)
+int PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, const AddPersonEventFilt & rFilt, int interactive)
 {
 	int    ok = 1;
 	PPID   op_id = 0;
@@ -472,7 +472,7 @@ int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, const AddPerson
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
+int PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
 {
 	int    ok = 1;
 	RegisterArray regary;
@@ -487,7 +487,7 @@ int SLAPI PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const PPPsnEventPacket * pPack, const PoClause_ * pClause)
+int PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const PPPsnEventPacket * pPack, const PoClause_ * pClause)
 {
 	int    ok = -1, r2;
 	if(pClause->DirObj) {
@@ -686,7 +686,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 //
 // ARG(action IN): @#[PPACN_OBJADD, PPACN_OBJUPD, PPACN_OBJRMV]
 //
-int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * pPok, const PoClause_ * pClause, int action, int use_ta)
+int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * pPok, const PoClause_ * pClause, int action, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1031,7 +1031,7 @@ struct FrwdPsnEventItem {
 	PPID   ID;
 };
 
-int SLAPI PPObjPersonEvent::GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, SArray * pList)
+int PPObjPersonEvent::GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, SArray * pList)
 {
 	int    ok = 1;
 	int    idx = isPrmr ? 3 : 1;
@@ -1069,7 +1069,7 @@ int SLAPI PPObjPersonEvent::GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long o
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::GetFrwdList(PPID psnID, LDATE dt, long oprno, SArray * pList)
+int PPObjPersonEvent::GetFrwdList(PPID psnID, LDATE dt, long oprno, SArray * pList)
 {
 	if(psnID)
 		return (GetFrwdList(psnID, 1, dt, oprno, pList) && GetFrwdList(psnID, 0, dt, oprno, pList));
@@ -1077,7 +1077,7 @@ int SLAPI PPObjPersonEvent::GetFrwdList(PPID psnID, LDATE dt, long oprno, SArray
 		return -1;
 }
 
-int SLAPI PPObjPersonEvent::Helper_PutPacket(PPID evID, int action, PPPsnEventPacket * pPack, PPPsnOpKindPacket * pPokPack)
+int PPObjPersonEvent::Helper_PutPacket(PPID evID, int action, PPPsnEventPacket * pPack, PPPsnOpKindPacket * pPokPack)
 {
 	int    ok = 1;
 	const  int redo = BIN(action == PPACN_PERSONEVENTREDO);
@@ -1153,7 +1153,7 @@ int SLAPI PPObjPersonEvent::Helper_PutPacket(PPID evID, int action, PPPsnEventPa
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, PPID personID, PPID scardID, const PPPsnOpKindPacket::PsnConstr * pConstr)
+int PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, PPID personID, PPID scardID, const PPPsnOpKindPacket::PsnConstr * pConstr)
 {
 	int    ok = 1;
 	SString msg_buf, temp_buf;
@@ -1205,7 +1205,7 @@ int SLAPI PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, PP
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, const PPPsnOpKindPacket * pPokPack)
+int PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, const PPPsnOpKindPacket * pPokPack)
 {
 	int    ok = 1;
 	PPPsnOpKindPacket pok_pack;
@@ -1253,7 +1253,7 @@ int SLAPI PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, co
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta)
+int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	uint   i, j;
@@ -1444,7 +1444,7 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 //
 //
 //
-/*static*/int SLAPI PsnEventDialog::GetParam(PPID pokID, Param * pParam)
+/*static*/int PsnEventDialog::GetParam(PPID pokID, Param * pParam)
 {
 	int    ok = 1;
 	PPPsnOpKindPacket pok_pack;
@@ -1879,12 +1879,12 @@ int PsnEventDialog::Print()
 //
 //
 //
-int SLAPI PPObjPersonEvent::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjPersonEvent::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTPSNEV, 0, 0, bufSize, rt, pDlg);
 }
 
-int SLAPI PPObjPersonEvent::Browse(void * extraPtr /*prmrPersonID*/)
+int PPObjPersonEvent::Browse(void * extraPtr /*prmrPersonID*/)
 {
 	PersonEventFilt * p_filt = 0, flt;
 	if(extraPtr) {
@@ -1894,7 +1894,7 @@ int SLAPI PPObjPersonEvent::Browse(void * extraPtr /*prmrPersonID*/)
 	return PPView::Execute(PPVIEW_PERSONEVENT, p_filt, PPView::exefModeless, 0);
 }
 
-int SLAPI PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
+int PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 {
 	const  PPID extra_prmr_id = reinterpret_cast<PPID>(extraPtr);
 	int    ok = cmCancel;
@@ -1932,7 +1932,7 @@ int SLAPI PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 	return ok;
 }
 
-void SLAPI PPObjPersonEvent::Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
+void PPObjPersonEvent::Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
 {
 	PPID   id = 0;
 	if(sgpe == sgpeOp)
@@ -1944,7 +1944,7 @@ void SLAPI PPObjPersonEvent::Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prm
 	ASSIGN_PTR(pID, id);
 }
 
-void SLAPI PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pBuf, size_t bufLen)
+void PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	if(sgpe == sgpeOp) {
@@ -1963,10 +1963,10 @@ void SLAPI PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, cha
 
 IMPL_DESTROY_OBJ_PACK(PPObjPersonEvent, PPPsnEventPacket);
 
-int SLAPI PPObjPersonEvent::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjPersonEvent::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjPersonEvent, PPPsnEventPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjPersonEvent::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjPersonEvent::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -2008,7 +2008,7 @@ int SLAPI PPObjPersonEvent::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjPersonEvent::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -2110,7 +2110,7 @@ void PPALDD_PsnEventItem::Destroy()
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(AddPersonEvent); SLAPI AddPersonEventFilt::AddPersonEventFilt() : PPBaseFilt(PPFILT_ADDPERSONEVENT, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(AddPersonEvent); AddPersonEventFilt::AddPersonEventFilt() : PPBaseFilt(PPFILT_ADDPERSONEVENT, 0, 2)
 {
 	SetFlatChunk(offsetof(AddPersonEventFilt, ReserveStart),
 		offsetof(AddPersonEventFilt, OpCode) - offsetof(AddPersonEventFilt, ReserveStart));
@@ -2128,7 +2128,7 @@ AddPersonEventFilt & FASTCALL AddPersonEventFilt::operator = (const AddPersonEve
 	return *this;
 }
 
-int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
+int AddPersonEventFilt::ReadText(const char * pText, long)
 {
 	int    ok = 1;
 	Init(1, 0);
@@ -2371,7 +2371,7 @@ private:
 	PPObjPsnOpKind PokObj;
 };
 
-int SLAPI AddPersonEventFilt::Edit() { DIALOG_PROC_BODY(AddPersonEventFiltDialog, this); }
+int AddPersonEventFilt::Edit() { DIALOG_PROC_BODY(AddPersonEventFiltDialog, this); }
 //
 //
 //
@@ -2409,16 +2409,16 @@ int SLAPI AddPersonEventFilt::Edit() { DIALOG_PROC_BODY(AddPersonEventFiltDialog
 */
 #endif // } 0
 
-SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::ProcessDeviceInputBlock() : Ad(0), State(0)
+PPObjPersonEvent::ProcessDeviceInputBlock::ProcessDeviceInputBlock() : Ad(0), State(0)
 {
 }
 
-const SString & SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::GetDeviceText() const
+const SString & PPObjPersonEvent::ProcessDeviceInputBlock::GetDeviceText() const
 	{ return DeviceText; }
-const SString & SLAPI PPObjPersonEvent::ProcessDeviceInputBlock::GetInfoText() const
+const SString & PPObjPersonEvent::ProcessDeviceInputBlock::GetInfoText() const
 	{ return InfoText; }
 
-int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBlk, const AddPersonEventFilt & rFilt)
+int PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBlk, const AddPersonEventFilt & rFilt)
 {
 	int    ok = 1;
 
@@ -2462,12 +2462,12 @@ int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBl
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::FinalizeProcessDeviceInput(ProcessDeviceInputBlock & rBlk)
+int PPObjPersonEvent::FinalizeProcessDeviceInput(ProcessDeviceInputBlock & rBlk)
 {
 	return (rBlk.State & rBlk.stInitialized) ? rBlk.Ad.RunCmd("RELEASE", rBlk.Out.Z()) : 0;
 }
 
-int SLAPI PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & rBlk)
+int PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & rBlk)
 {
 	int    ok = 1;
 	rBlk.InfoText = 0;
@@ -2515,7 +2515,7 @@ int SLAPI PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & 
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::ProcessDeviceInput(const AddPersonEventFilt & rFilt)
+int PPObjPersonEvent::ProcessDeviceInput(const AddPersonEventFilt & rFilt)
 {
 	class PersonEventByDeviceInputDialog : public TDialog {
 	public:

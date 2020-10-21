@@ -37,7 +37,7 @@ int FASTCALL IsComDvcSymb(const char * pSymb, int * pCount)
 	return comdvcs;
 }
 
-SString & SLAPI GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf)
+SString & GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf)
 {
 	rBuf.Z();
 	if(option & 0x0001)
@@ -104,7 +104,7 @@ CommPortParams::CommPortParams() : Cbr(cbr9600), ByteSize(8), Parity(0), StopBit
 {
 }
 
-SLAPI SCommPort::SCommPort() : ReadCycleCount(0), ReadCycleDelay(0), CPP()
+SCommPort::SCommPort() : ReadCycleCount(0), ReadCycleDelay(0), CPP()
 {
 	MEMSZERO(CPT);
 	CPT.Get_NumTries = 2000;
@@ -117,12 +117,12 @@ SLAPI SCommPort::SCommPort() : ReadCycleCount(0), ReadCycleDelay(0), CPP()
 #endif
 }
 
-SLAPI SCommPort::~SCommPort()
+SCommPort::~SCommPort()
 {
 	ClosePort();
 }
 
-void SLAPI SCommPort::SetReadCyclingParams(int cycleCount, int cycleDelay)
+void SCommPort::SetReadCyclingParams(int cycleCount, int cycleDelay)
 {
 	ReadCycleCount = cycleCount;
 	ReadCycleDelay = cycleDelay;
@@ -147,7 +147,7 @@ static void __OutLastErr()
 	// } @v10.3.11
 }
 
-int SLAPI SCommPort::ClosePort()
+int SCommPort::ClosePort()
 {
 	int    ok = -1;
 #ifdef __WIN32__
@@ -160,7 +160,7 @@ int SLAPI SCommPort::ClosePort()
 	return ok;
 }
 
-int SLAPI SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
+int SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 {
 	PortNo = portNo;
 
@@ -260,7 +260,7 @@ int FASTCALL SCommPort::GetChr(int * pChr)
 	return ok;
 }
 
-int SLAPI SCommPort::GetChr()
+int SCommPort::GetChr()
 {
 	int    chr = 0;
 	GetChr(&chr);
@@ -304,7 +304,7 @@ int SLAPI SCommPort::GetChr()
 
 #if 0 // {
 
-int SLAPI SCommPort::GetChr()
+int SCommPort::GetChr()
 {
 	int    ok = 0;
 	char   buf[32];

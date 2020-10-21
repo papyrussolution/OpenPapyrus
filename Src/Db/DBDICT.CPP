@@ -36,15 +36,15 @@ void DbTableStat::Clear()
 	IdxList.reset();
 }
 
-SLAPI DbDictionary::DbDictionary() : State(0)
+DbDictionary::DbDictionary() : State(0)
 {
 }
 
-SLAPI DbDictionary::~DbDictionary()
+DbDictionary::~DbDictionary()
 {
 }
 
-int SLAPI DbDictionary::IsValid() const
+int DbDictionary::IsValid() const
 {
 	return BIN(!(State & stError));
 }
@@ -69,19 +69,19 @@ int SLAPI DbDictionary::IsValid() const
 //
 // Implementation of API functions
 //
-void SLAPI DBRemoveTempFiles()
+void DBRemoveTempFiles()
 {
 	CALLPTRMEMB(CurDict, RemoveTempFiles());
 }
 //
 // Implementation of class BDictionary
 //
-/*static*/BDictionary * SLAPI BDictionary::CreateBtrDictInstance(const char * pPath)
+/*static*/BDictionary * BDictionary::CreateBtrDictInstance(const char * pPath)
 {
 	return new BDictionary(1, pPath);
 }
 
-int SLAPI BDictionary::Init(const char * pDataPath, const char * pTempPath)
+int BDictionary::Init(const char * pDataPath, const char * pTempPath)
 {
 	assert(P_Dict);
 	DbName.Z();
@@ -96,12 +96,12 @@ int SLAPI BDictionary::Init(const char * pDataPath, const char * pTempPath)
 	return IsValid();
 }
 
-SLAPI BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : DbProvider(DbDictionary::CreateInstance(pPath, 0), 0)
+BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : DbProvider(DbDictionary::CreateInstance(pPath, 0), 0)
 	{ Init(pDataPath, pTempPath); }
-SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDict_Btrieve(pPath), 0)
+BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDict_Btrieve(pPath), 0)
 	{ Init(0, 0); }
 
-/*virtual*/int SLAPI BDictionary::GetDatabaseState(uint * pStateFlags)
+/*virtual*/int BDictionary::GetDatabaseState(uint * pStateFlags)
 {
 	int    ok = 1;
 	uint   state = 0;
@@ -120,7 +120,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new
 	return ok;
 }
 
-/*virtual*/SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
+/*virtual*/SString & BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
 {
 	SPathStruc ps(rFileName);
 	if(ps.Dir.Empty()) {
@@ -153,7 +153,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new
 	return rFileName;
 }
 
-/*virtual*/ int SLAPI BDictionary::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
+/*virtual*/ int BDictionary::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
 	DBFileSpec * p_h = new DBFileSpec; // разрушается функцией Btrieve::CreateTable
@@ -229,7 +229,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new
 	return ok;
 }
 
-/*virtual*/ int SLAPI BDictionary::IsFileExists_(const char * pFileName)
+/*virtual*/ int BDictionary::IsFileExists_(const char * pFileName)
 {
 	int    yes = 0;
 	if(DBS.GetConfig().Flags & DbSession::fDetectExistByOpen) {
@@ -258,12 +258,12 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new
 	return yes;
 }
 
-/*virtual*/ int SLAPI BDictionary::DropFile(const char * pFileName)
+/*virtual*/ int BDictionary::DropFile(const char * pFileName)
 	{ return (IsFileExists_(pFileName) > 0) ? SFile::Remove(pFileName) : -1; }
-/*virtual*/ int SLAPI BDictionary::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
+/*virtual*/ int BDictionary::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
 	{ return pTbl->Btr_GetStat(reqItems, pStat); }
 
-/*virtual*/ int SLAPI BDictionary::Login(const DbLoginBlock * pBlk, long options)
+/*virtual*/ int BDictionary::Login(const DbLoginBlock * pBlk, long options)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
@@ -276,14 +276,14 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new
 	return ok;
 }
 
-/*virtual*/ int SLAPI BDictionary::Logout()
+/*virtual*/ int BDictionary::Logout()
 {
 	Btrieve::Reset(0);
 	Common_Logout();
 	return 1;
 }
 
-/*virtual*/ int SLAPI BDictionary::ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection)
+/*virtual*/ int BDictionary::ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection)
 {
 	int    ok = 1;
 	DBTable tbl;
@@ -314,37 +314,37 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new
 	return ok;
 }
 
-/*virtual*/ int SLAPI BDictionary::StartTransaction()
+/*virtual*/ int BDictionary::StartTransaction()
 	{ return Btrieve::StartTransaction(1, 0); }
-/*virtual*/ int SLAPI BDictionary::CommitWork()
+/*virtual*/ int BDictionary::CommitWork()
 	{ return Btrieve::CommitWork(); }
-/*virtual*/ int SLAPI BDictionary::RollbackWork()
+/*virtual*/ int BDictionary::RollbackWork()
 	{ return Btrieve::RollbackWork(); }
-/*virtual*/ int SLAPI BDictionary::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
+/*virtual*/ int BDictionary::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 	{ return pTbl->Btr_Open(pFileName, openMode, pPassword); }
-/*virtual*/ int SLAPI BDictionary::Implement_Close(DBTable * pTbl)
+/*virtual*/ int BDictionary::Implement_Close(DBTable * pTbl)
 	{ return pTbl->Btr_Close(); }
-/*virtual*/ int SLAPI BDictionary::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
+/*virtual*/ int BDictionary::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 	{ return pTbl->Btr_Implement_Search(idx, pKey, srchMode, sf); }
-/*virtual*/ int SLAPI BDictionary::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
+/*virtual*/ int BDictionary::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
 	{ return pTbl->Btr_Implement_InsertRec(idx, pKeyBuf, pData); }
-/*virtual*/ int SLAPI BDictionary::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
+/*virtual*/ int BDictionary::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
 	{ return pTbl->Btr_Implement_UpdateRec(pDataBuf, ncc); }
-/*virtual*/ int SLAPI BDictionary::Implement_DeleteRec(DBTable * pTbl)
+/*virtual*/ int BDictionary::Implement_DeleteRec(DBTable * pTbl)
 	{ return pTbl->Btr_Implement_DeleteRec(); }
-/*virtual*/ int SLAPI BDictionary::Implement_BExtInsert(BExtInsert * pBei)
+/*virtual*/ int BDictionary::Implement_BExtInsert(BExtInsert * pBei)
 	{ return pBei->getTable()->Btr_Implement_BExtInsert(pBei); }
-/*virtual*/ int SLAPI BDictionary::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
+/*virtual*/ int BDictionary::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
 	{ return pTbl->Btr_Implement_GetPosition(pPos); }
 
-SLAPI BDictionary::~BDictionary()
+BDictionary::~BDictionary()
 {
 	RemoveTempFiles();
 }
 //
 // Процедура создания временной таблицы
 //
-/*virtual*/ SString & SLAPI BDictionary::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+/*virtual*/ SString & BDictionary::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
 {
 	const char * p_path = (TempPath && !forceInDataPath) ? TempPath : DataPath;
 	return MakeTempFileName(p_path, "TMP", "BTR", pStart, rFileNameBuf);
@@ -352,11 +352,11 @@ SLAPI BDictionary::~BDictionary()
 //
 //
 //
-SLAPI BRecoverParam::BRecoverParam() : P_DestPath(0), P_BakPath(0), Format(0), Flags(0), OrgNumRecs(0), ActNumRecs(0), ErrCode(0), Tm(0)
+BRecoverParam::BRecoverParam() : P_DestPath(0), P_BakPath(0), Format(0), Flags(0), OrgNumRecs(0), ActNumRecs(0), ErrCode(0), Tm(0)
 {
 }
 
-int SLAPI BRecoverParam::callbackProc(int, const void * lp1, const void * lp2, const void * vp)
+int BRecoverParam::callbackProc(int, const void * lp1, const void * lp2, const void * vp)
 {
 	return -1;
 }
@@ -365,7 +365,7 @@ int SLAPI BRecoverParam::callbackProc(int, const void * lp1, const void * lp2, c
 #define BRPF_PROTECT   0x0002
 #define BRPF_SKIPDUP   0x0004
 
-int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
+int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 {
 	int    ok = 1, replace_src = 0;
 	int16  k  = tblID;
@@ -522,12 +522,12 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 //
 //
 //
-SLAPI TablePartsEnum::TablePartsEnum(const char * pPath)
+TablePartsEnum::TablePartsEnum(const char * pPath)
 {
 	Init(pPath);
 }
 
-int SLAPI TablePartsEnum::Init(const char * pPath)
+int TablePartsEnum::Init(const char * pPath)
 {
 	int    ok = -1;
 	if(pPath) {
@@ -553,7 +553,7 @@ int SLAPI TablePartsEnum::Init(const char * pPath)
 	return ok;
 }
 
-int SLAPI TablePartsEnum::Next(SString & rPath, int * pFirst /*=0*/)
+int TablePartsEnum::Next(SString & rPath, int * pFirst /*=0*/)
 {
 	int    ok = -1;
 	if(List.getPointer() < List.getCount()) {
@@ -565,7 +565,7 @@ int SLAPI TablePartsEnum::Next(SString & rPath, int * pFirst /*=0*/)
 	return ok;
 }
 
-int SLAPI TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & rOut)
+int TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & rOut)
 {
 	SString ext;
 	SPathStruc sp(rIn);
@@ -585,7 +585,7 @@ int SLAPI TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & r
 //
 //
 //
-SLAPI DBTablePartitionList::_InnerEntry::_InnerEntry() : Id(0), Flags(0), P(0)
+DBTablePartitionList::_InnerEntry::_InnerEntry() : Id(0), Flags(0), P(0)
 {
 }
 

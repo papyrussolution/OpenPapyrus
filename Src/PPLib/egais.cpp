@@ -105,11 +105,11 @@ PPEgaisProcessor::ConfirmTicket::ConfirmTicket() : BillID(0), Conclusion(-1), Da
 {
 }
 
-SLAPI PPEgaisProcessor::InformAReg::InformAReg() : Qtty(0), ManufDate(ZERODATE), TTNDate(ZERODATE), EGAISDate(ZERODATE)
+PPEgaisProcessor::InformAReg::InformAReg() : Qtty(0), ManufDate(ZERODATE), TTNDate(ZERODATE), EGAISDate(ZERODATE)
 {
 }
 
-int SLAPI PPEgaisProcessor::InformAReg::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPEgaisProcessor::InformAReg::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, Qtty, rBuf));
@@ -122,7 +122,7 @@ int SLAPI PPEgaisProcessor::InformAReg::Serialize(int dir, SBuffer & rBuf, SSeri
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::InformAReg::ToStr(SString & rBuf)
+int PPEgaisProcessor::InformAReg::ToStr(SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -134,7 +134,7 @@ int SLAPI PPEgaisProcessor::InformAReg::ToStr(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::InformAReg::FromStr(const SString & rBuf)
+int PPEgaisProcessor::InformAReg::FromStr(const SString & rBuf)
 {
 	int    ok = 1;
 	uint8  mime_buf[512];
@@ -194,7 +194,7 @@ PPEgaisProcessor::ReplyRestBCode::ReplyRestBCode() : RestTime(ZERODATETIME)
 {
 }
 
-SLAPI PPEgaisProcessor::UtmEntry::UtmEntry() : MainOrgID(0), Flags(0)
+PPEgaisProcessor::UtmEntry::UtmEntry() : MainOrgID(0), Flags(0)
 {
     PTR32(Url)[0] = 0;
     PTR32(FSRARID)[0] = 0;
@@ -372,7 +372,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction /* +1 out, -1 - in */, TSCollection <PPEgaisProcessor::Reply> & rList)
+int PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction /* +1 out, -1 - in */, TSCollection <PPEgaisProcessor::Reply> & rList)
 {
     int    ok = 1;
     xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
@@ -417,7 +417,7 @@ int SLAPI PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction 
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn)
+int PPEgaisProcessor::GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn)
 {
 	int    ok = 1;
 	const  int is_cc = sstreqi_ascii(pSubPath, "cc");
@@ -441,7 +441,7 @@ int SLAPI PPEgaisProcessor::GetTemporaryFileName(const char * pPath, const char 
 	return ok;
 }
 
-int SLAPI TestReadXmlMem_EgaisAck()
+int TestReadXmlMem_EgaisAck()
 {
 	int    ok = 1;
     xmlParserCtxt * p_ctx = 0;
@@ -501,7 +501,7 @@ int SLAPI TestReadXmlMem_EgaisAck()
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck)
+int PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck)
 {
 	rAck.Clear();
 	int    ok = -1;
@@ -558,7 +558,7 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisProcessor::Ack & rAck)
+int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisProcessor::Ack & rAck)
 {
 	const int omit_nonmarked_goods = 1;
 
@@ -821,7 +821,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, const char * pUrlSuffix, PPEgaisProcessor::Ack & rAck)
+int PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, const char * pUrlSuffix, PPEgaisProcessor::Ack & rAck)
 {
 	rAck.Clear();
     int    ok = 1;
@@ -875,13 +875,12 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 				edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3,
 					PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFF,
 					PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
-					PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, 0);
-				// @v9.6.4 (useless) THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
+					PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, 
+					PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE, 0); // @v10.9.1 PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE
 				{
 					Reference * p_ref = PPRef;
 					PPTransaction tra(1);
 					THROW(tra);
-					// @v9.6.4 (useless) THROW(P_Dgq->PutQuery(rAck.Id, rPack.DocType, 0));
 					if(rPack.DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
 						RepealWb * p_req = static_cast<RepealWb *>(rPack.P_Data);
 						if(p_req) {
@@ -933,7 +932,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::QueryClients(PPID locID, int queryby, const char * pQ)
+int PPEgaisProcessor::QueryClients(PPID locID, int queryby, const char * pQ)
 {
 	int    ok = -1;
 	THROW_INVARG(oneof2(queryby, querybyINN, querybyCode) && !isempty(pQ));
@@ -961,7 +960,7 @@ int SLAPI PPEgaisProcessor::QueryClients(PPID locID, int queryby, const char * p
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::QueryRests(PPID locID, const char *)
+int PPEgaisProcessor::QueryRests(PPID locID, const char *)
 {
 	int    ok = -1;
 	Ack    ack;
@@ -973,7 +972,7 @@ int SLAPI PPEgaisProcessor::QueryRests(PPID locID, const char *)
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::QueryRestsShop(PPID locID, const char *)
+int PPEgaisProcessor::QueryRestsShop(PPID locID, const char *)
 {
 	int    ok = -1;
 	Ack    ack;
@@ -983,7 +982,7 @@ int SLAPI PPEgaisProcessor::QueryRestsShop(PPID locID, const char *)
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * pQ)
+int PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * pQ)
 {
 	int    ok = -1;
 	THROW_INVARG(oneof2(queryby, querybyINN, querybyCode) && !isempty(pQ));
@@ -1008,7 +1007,7 @@ int SLAPI PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * 
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::QueryInfA(PPID locID, const char * pInfA)
+int PPEgaisProcessor::QueryInfA(PPID locID, const char * pInfA)
 {
 	int    ok = -1;
 	Ack    ack;
@@ -1021,7 +1020,7 @@ int SLAPI PPEgaisProcessor::QueryInfA(PPID locID, const char * pInfA)
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
+int PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
 {
 	int    ok = -1;
 	Ack    ack;
@@ -1033,7 +1032,7 @@ int SLAPI PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
     return ok;
 }
 
-SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve) : PrcssrAlcReport(),
+PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve) : PrcssrAlcReport(),
 	PPEmbeddedLogger((cflags & cfDirectFileLogging) ? PPEmbeddedLogger::ctrfDirectLogging : 0, pOuterLogger, PPFILNAM_EGAIS_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER),
 	State(0), P_LecT(0), /* @v10.6.5 P_Logger(0),*/P_UtmEntry(0), P_Taw(0)
 {
@@ -1091,7 +1090,7 @@ SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, i
 	ENDCATCH
 }
 
-SLAPI PPEgaisProcessor::~PPEgaisProcessor()
+PPEgaisProcessor::~PPEgaisProcessor()
 {
 	P_UtmEntry = 0;
 	delete P_LecT;
@@ -1101,10 +1100,10 @@ SLAPI PPEgaisProcessor::~PPEgaisProcessor()
 	// @v10.6.5 if(!(State & stOuterLogger)) delete P_Logger;
 }
 
-int  SLAPI PPEgaisProcessor::operator !() const { return BIN(State & stError); }
-void SLAPI PPEgaisProcessor::SetTestSendingMode(int set) { SETFLAG(State, stTestSendingMode, set); }
-void SLAPI PPEgaisProcessor::SetNonRvmTagMode(int set) { SETFLAG(State, stDontRemoveTags, set); }
-int  SLAPI PPEgaisProcessor::CheckLic() const { return (State & stValidLic) ? 1 : PPSetError(PPERR_EGAIS_NOLIC); }
+int  PPEgaisProcessor::operator !() const { return BIN(State & stError); }
+void PPEgaisProcessor::SetTestSendingMode(int set) { SETFLAG(State, stTestSendingMode, set); }
+void PPEgaisProcessor::SetNonRvmTagMode(int set) { SETFLAG(State, stDontRemoveTags, set); }
+int  PPEgaisProcessor::CheckLic() const { return (State & stValidLic) ? 1 : PPSetError(PPERR_EGAIS_NOLIC); }
 
 #if 0 // @v10.6.5 {
 void FASTCALL PPEgaisProcessor::Log(const SString & rMsg)
@@ -1115,7 +1114,7 @@ void FASTCALL PPEgaisProcessor::Log(const SString & rMsg)
 		PPLogMessage(PPFILNAM_EGAIS_LOG, rMsg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 }
 
-void SLAPI PPEgaisProcessor::LogTextWithAddendum(int msgCode, const SString & rAddendum)
+void PPEgaisProcessor::LogTextWithAddendum(int msgCode, const SString & rAddendum)
 {
 	if(msgCode) {
 		SString fmt_buf, msg_buf;
@@ -1123,7 +1122,7 @@ void SLAPI PPEgaisProcessor::LogTextWithAddendum(int msgCode, const SString & rA
 	}
 }
 
-void SLAPI PPEgaisProcessor::LogLastError()
+void PPEgaisProcessor::LogLastError()
 {
 	if(P_Logger)
 		P_Logger->LogLastError();
@@ -1255,7 +1254,7 @@ static const SIntToSymbTabEntry _EgaisWayBillTypes[] = {
 int FASTCALL PPEgaisProcessor::RecognizeWayBillTypeText(const char * pText)
 	{ return SIntToSymbTab_GetId(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), pText); }
 
-int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
+int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
 {
 	// woifDontSendWithoutFSRARID
 	int   ok = 1;
@@ -1507,7 +1506,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, const EgaisPersonCore::Item & rRefcItem, long flags)
+int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, const EgaisPersonCore::Item & rRefcItem, long flags)
 {
 	// woifDontSendWithoutFSRARID
 	int   ok = 1;
@@ -1610,7 +1609,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::GetEgaisPersonByCode(const char * pCode, EgaisPersonCore::Item & rItem)
+int PrcssrAlcReport::GetEgaisPersonByCode(const char * pCode, EgaisPersonCore::Item & rItem)
 {
 	int    ok = -1;
 	rItem.Clear();
@@ -1626,7 +1625,7 @@ int SLAPI PrcssrAlcReport::GetEgaisPersonByCode(const char * pCode, EgaisPersonC
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID goodsID, PPID lotID, long flags, const ObjTagList * pLotTagList)
+int PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID goodsID, PPID lotID, long flags, const ObjTagList * pLotTagList)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
@@ -1733,7 +1732,7 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int docType)
+int PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int docType)
 {
 	assert(oneof2(informKind, 'A', 'B'));
     int    ok = 1;
@@ -1787,7 +1786,7 @@ int SLAPI PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * p
     return ok;
 }
 
-void SLAPI PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod)
+void PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod)
 {
 	P_UtmEntry = pEntry;
 	if(P_UtmEntry) {
@@ -1812,7 +1811,7 @@ void SLAPI PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, co
 	}
 }
 
-int SLAPI PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList) // @v9.8.11 TSArray-->TSVector
+int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList) // @v9.8.11 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -1887,7 +1886,7 @@ int SLAPI PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList) 
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetURL(PPID locID, SString & rBuf)
+int PPEgaisProcessor::GetURL(PPID locID, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -1911,7 +1910,7 @@ int SLAPI PPEgaisProcessor::GetURL(PPID locID, SString & rBuf)
 	return NZOR(ok, PPSetError(PPERR_EGAIS_SRVURLUNDEF));
 }
 
-int SLAPI PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID)
+int PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -1940,7 +1939,7 @@ int SLAPI PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainO
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * pX)
+int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * pX)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -3298,7 +3297,7 @@ SString & FASTCALL PPEgaisProcessor::PreprocessGoodsName(SString & rName) const
 	return rName;
 }
 
-int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPack,
+int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPack,
 	PrcssrAlcReport::GoodsItem * pExt, PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile)
 {
 	int    ok = 1;
@@ -3501,7 +3500,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Read_ActInventoryInformBReg(xmlNode * pFirstNode, PPEgaisProcessor::Packet * pPack)
+int PPEgaisProcessor::Read_ActInventoryInformBReg(xmlNode * pFirstNode, PPEgaisProcessor::Packet * pPack)
 {
 	int   ok = 1;
 	SString temp_buf;
@@ -3554,7 +3553,7 @@ int SLAPI PPEgaisProcessor::Read_ActInventoryInformBReg(xmlNode * pFirstNode, PP
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::AssignManufTypeToPersonPacket(PPPersonPacket & rPack, int roleFlag)
+int PPEgaisProcessor::AssignManufTypeToPersonPacket(PPPersonPacket & rPack, int roleFlag)
 {
 	int    ok = -1;
 	int    manuf_type = -1;
@@ -3618,7 +3617,7 @@ int SLAPI PPEgaisProcessor::AssignManufTypeToPersonPacket(PPPersonPacket & rPack
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int roleFlag, PPPersonPacket * pPack,
+int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int roleFlag, PPPersonPacket * pPack,
 	PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile)
 {
 	int   ok = 1;
@@ -3972,7 +3971,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketType, PPEgaisProcessor::Ticket::Result & rResult)
+int PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketType, PPEgaisProcessor::Ticket::Result & rResult)
 {
 	assert(oneof2(ticketType, 1, 2));
 	int    ok = -1;
@@ -4016,7 +4015,7 @@ int SLAPI PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketTy
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
+int PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -4053,7 +4052,7 @@ int SLAPI PPEgaisProcessor::Read_Ticket(xmlNode * pFirstNode, Packet * pPack)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
+int PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
 {
     int    ok = 1;
     SString temp_buf;
@@ -4084,7 +4083,7 @@ int SLAPI PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, Pr
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
+int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
 {
     int    ok = 1;
     SString temp_buf;
@@ -4176,7 +4175,7 @@ struct WayBillActRecadvItem { // @flat
     double RealQtty;
 };
 
-int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet * pPack)
+int PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet * pPack)
 {
     int    ok = 1;
     int    was_header_accepted = 0;
@@ -4361,7 +4360,7 @@ struct ExtCodeSetEntry {
 	PPLotExtCodeContainer::MarkSet Set;
 };
 
-int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
+int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
 {
 	//
 	// Descr: Причины отказа от приема документа
@@ -4848,7 +4847,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
+int PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
 {
 	int    yes = 0;
 	if(ar1ID == ar2ID)
@@ -4874,7 +4873,7 @@ int SLAPI PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
 	return yes;
 }
 
-int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx)
+int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx)
 {
 	int    ok = -1;
 	PPBillPacket * p_bp = pPack ? static_cast<PPBillPacket *>(pPack->P_Data) : 0;
@@ -5042,7 +5041,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, const uint packIdx, LongArray & rSkipPackIdxList)
+int PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, const uint packIdx, LongArray & rSkipPackIdxList)
 {
 	int    ok = -1;
 	const InformB * p_inf = static_cast<const InformB *>(pPack->P_Data);
@@ -5321,7 +5320,7 @@ struct EgaisRestItem { // @flat
     double Rest;
 };
 
-int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod)
+int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod)
 {
 	int    ok = 1;
 	const  PPID loc_id = pCurrentRestPack ? pCurrentRestPack->Rec.LocID : 0;
@@ -5671,7 +5670,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack)
+int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -5942,7 +5941,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
+int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
 {
     int    ok = 1;
     int    was_header_accepted = 0;
@@ -6101,7 +6100,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Write(Packet & rPack, PPID locID, const char * pFileName)
+int PPEgaisProcessor::Write(Packet & rPack, PPID locID, const char * pFileName)
 {
 	int    ok = -1;
     xmlTextWriter * p_x = xmlNewTextWriterFilename(pFileName, 0);
@@ -6112,7 +6111,7 @@ int SLAPI PPEgaisProcessor::Write(Packet & rPack, PPID locID, const char * pFile
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Write(Packet & rPack, PPID locID, SBuffer & rBuffer)
+int PPEgaisProcessor::Write(Packet & rPack, PPID locID, SBuffer & rBuffer)
 {
 	int    ok = -1;
 	xmlTextWriter * p_x = 0;
@@ -6128,7 +6127,7 @@ int SLAPI PPEgaisProcessor::Write(Packet & rPack, PPID locID, SBuffer & rBuffer)
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::AcceptDoc(PPEgaisProcessor::Reply & rR, const char * pFileName)
+int PPEgaisProcessor::AcceptDoc(PPEgaisProcessor::Reply & rR, const char * pFileName)
 {
     int    ok = 1;
     SString file_name;
@@ -6156,7 +6155,7 @@ int SLAPI PPEgaisProcessor::AcceptDoc(PPEgaisProcessor::Reply & rR, const char *
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::DeleteDoc(PPEgaisProcessor::Reply & rR)
+int PPEgaisProcessor::DeleteDoc(PPEgaisProcessor::Reply & rR)
 {
     int    ok = 1;
     if(!(rR.Status & Reply::stOffline)) {
@@ -6171,7 +6170,7 @@ int SLAPI PPEgaisProcessor::DeleteDoc(PPEgaisProcessor::Reply & rR)
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList, PPEgaisProcessor::Packet ** ppPack)
+int PPEgaisProcessor::Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList, PPEgaisProcessor::Packet ** ppPack)
 {
 	int    ok = 1;
 	PPEgaisProcessor::Packet * p_new_pack = 0;
@@ -6183,7 +6182,7 @@ int SLAPI PPEgaisProcessor::Helper_InitNewPack(const int docType, TSCollection <
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** ppNewPack, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList)
+int PPEgaisProcessor::Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** ppNewPack, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList)
 {
 	int    ok = 1;
 	if(pPackList && ppNewPack && *ppNewPack) {
@@ -6195,7 +6194,7 @@ int SLAPI PPEgaisProcessor::Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** p
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flags, PPID locID, const DateRange * pPeriod,
+int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flags, PPID locID, const DateRange * pPeriod,
 	uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList, PrcssrAlcReport::RefCollection * pRefC)
 {
 	long   file_no = 0;
@@ -6442,7 +6441,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
+int PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
 {
 	rPath.Z();
     int    ok = 1;
@@ -6459,7 +6458,7 @@ int SLAPI PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SString & rTempPath, SString & rFileName)
+int PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SString & rTempPath, SString & rFileName)
 {
 	rFileName.Z();
 	int    ok = 1;
@@ -6476,7 +6475,7 @@ int SLAPI PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SStri
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::DebugReadInput(PPID locID)
+int PPEgaisProcessor::DebugReadInput(PPID locID)
 {
     int    ok = 1;
     xmlParserCtxt * p_ctx = 0;
@@ -6517,7 +6516,7 @@ int SLAPI PPEgaisProcessor::DebugReadInput(PPID locID)
     return ok;
 }
 
-void SLAPI PPEgaisProcessor::LogTicketResult(const Ticket * pTicket, const BillTbl::Rec * pBillRec)
+void PPEgaisProcessor::LogTicketResult(const Ticket * pTicket, const BillTbl::Rec * pBillRec)
 {
 	SString temp_buf;
 	GetDocTypeTag(pTicket->DocType, temp_buf);
@@ -6547,7 +6546,7 @@ void SLAPI PPEgaisProcessor::LogTicketResult(const Ticket * pTicket, const BillT
 	LogTextWithAddendum(PPTXT_EGAIS_TICKETREGARRVD, temp_buf);
 }
 
-int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, const BillTbl::Rec & rRec,
+int PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, const BillTbl::Rec & rRec,
 	const SString & rBillText, const PPEgaisProcessor::Ticket * pT, int conclusion, int use_ta)
 {
 	int    ok = -1;
@@ -6582,7 +6581,7 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 			ok = 1;
 		}
 		else if(conclusion == 0) {
-			int    msg_id = (ticketType == 2) ? PPTXT_EGAIS_BILLFUNPROCESSED_S : PPTXT_EGAIS_BILLFUNPROCESSED_U;
+			const int msg_id = (ticketType == 2) ? PPTXT_EGAIS_BILLFUNPROCESSED_S : PPTXT_EGAIS_BILLFUNPROCESSED_U;
 			//
 			// @v9.8.6 Обнаружилась не понятная ситуация с ЕГАИС - возникают сообщения о попытке отправить
 			// дублированную накладную иногда без видимых оснований. Как попытка обойти проблему
@@ -6618,11 +6617,6 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 			ok = 1;
 		}
 		{
-			//
-			// @v9.6.7
-			//
-			// @v10.6.6 @replacedwith(_PPConst.P_ObjMemo_UtmRejPfx) const char * p_utm_rej_pfx = "UTM Rej";
-			// @v10.6.6 @replacedwith(_PPConst.P_ObjMemo_EgaisRejPfx) const char * p_egais_rej_pfx = "EGAIS Rej";
 			SString memo_msg;
 			SString prefix_buf;
 			StringSet ss_prefix;
@@ -6682,7 +6676,7 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_FinishConfirmProcessingByTicket(const BillTbl::Rec & rRec, const SString & rBillText, const S_GUID & rUuid, int conclusion, int use_ta)
+int PPEgaisProcessor::Helper_FinishConfirmProcessingByTicket(const BillTbl::Rec & rRec, const SString & rBillText, const S_GUID & rUuid, int conclusion, int use_ta)
 {
 	int    ok = -1;
 	const  PPID bill_id = rRec.ID;
@@ -6711,7 +6705,7 @@ int SLAPI PPEgaisProcessor::Helper_FinishConfirmProcessingByTicket(const BillTbl
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticket * pT, int use_ta)
+int PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticket * pT, int use_ta)
 {
 	int    ok = -1;
 	if(pT) {
@@ -6723,7 +6717,8 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2,
 			PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
 			PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3,
-			PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, 0);
+			PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE, 0);
+			// @v10.9.1 PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE
 		if(pT->DocType == PPEDIOP_EGAIS_CONFIRMTICKET) {
 			temp_buf = pT->RegIdent;
 			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, temp_buf, &bill_id_list);
@@ -6758,7 +6753,7 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 			if(!selfreject_ticket) {
 				if(oneof3(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
 					//
-					// @v9.8.6 Для тикетов на документы отгрузки порядок идентификации документа меняем:
+					// Порядок идентификации документа для тикетов на документы отгрузки:
 					// сначала ищем по PPTAG_BILL_EDIACK потом по PPTAG_BILL_EDIIDENT. Это связано с тем,
 					// что в противном случае при отправке документов в пределах одной базы между родственными организациями
 					// драфт-документ прихода может перехватить тикет, предназначенный отправленному документу.
@@ -6797,7 +6792,7 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollection <PPEgaisProcessor::Reply> & rList)
+int PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollection <PPEgaisProcessor::Reply> & rList)
 {
     int    ok = 1;
 	SString temp_buf, code_buf;
@@ -6827,7 +6822,7 @@ int SLAPI PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollec
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::SearchActChargeByActInform(const PPEgaisProcessor::ActInform & rInf, PPID * pBillID)
+int PPEgaisProcessor::SearchActChargeByActInform(const PPEgaisProcessor::ActInform & rInf, PPID * pBillID)
 {
 	int    ok = -1;
 	PPID   bill_id = 0;
@@ -6849,7 +6844,7 @@ int SLAPI PPEgaisProcessor::SearchActChargeByActInform(const PPEgaisProcessor::A
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::DeleteSrcPacket(const Packet * pPack, TSCollection <PPEgaisProcessor::Reply> & rReplyList)
+int PPEgaisProcessor::DeleteSrcPacket(const Packet * pPack, TSCollection <PPEgaisProcessor::Reply> & rReplyList)
 {
 	int    ok = -1;
 	if(pPack && pPack->SrcReplyPos > 0 && pPack->SrcReplyPos <= rReplyList.getCount()) {
@@ -6864,7 +6859,7 @@ int SLAPI PPEgaisProcessor::DeleteSrcPacket(const Packet * pPack, TSCollection <
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProcessor::Reply> & rReplyList, RefCollection & rRefC)
+int PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProcessor::Reply> & rReplyList, RefCollection & rRefC)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
@@ -6898,7 +6893,7 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::CollectRefs()
+int PPEgaisProcessor::CollectRefs()
 {
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = 0;
@@ -6938,7 +6933,7 @@ int SLAPI PPEgaisProcessor::CollectRefs()
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::RemoveOutputMessages(PPID locID, int debugMode)
+int PPEgaisProcessor::RemoveOutputMessages(PPID locID, int debugMode)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = 0;
@@ -6970,7 +6965,7 @@ int SLAPI PPEgaisProcessor::RemoveOutputMessages(PPID locID, int debugMode)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flags)
+int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flags)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -7314,7 +7309,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta)
+int PPEgaisProcessor::GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta)
 {
 	int    ok = 1;
 	PPID   reserved_id = 0;
@@ -7368,7 +7363,7 @@ int SLAPI PPEgaisProcessor::GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta)
+int PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -7488,7 +7483,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList)
+int PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7582,7 +7577,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP,
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBillActs(const PPBillIterchangeFilt & rP)
+int PPEgaisProcessor::SendBillActs(const PPBillIterchangeFilt & rP)
 {
 	int    ok = -1;
 	PPIDArray accepted_bill_list;
@@ -7617,7 +7612,7 @@ int SLAPI PPEgaisProcessor::SendBillActs(const PPBillIterchangeFilt & rP)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
+int PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
 {
 	int    ok = -1;
 	PPIDArray accepted_bill_list;
@@ -7645,7 +7640,7 @@ int SLAPI PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList)
+int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7775,7 +7770,7 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFil
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec)
+int PPEgaisProcessor::CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec)
 {
 	int    ok = 1;
 	const  PPID utm_main_org_id = P_UtmEntry ? P_UtmEntry->MainOrgID : 0;
@@ -7786,7 +7781,7 @@ int SLAPI PPEgaisProcessor::CheckBillForMainOrgID(const BillTbl::Rec & rRec, con
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList)
+int PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7874,7 +7869,7 @@ int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillIterchangeFi
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID, const char * pUrlSuffix)
+int PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID, const char * pUrlSuffix)
 {
 	int    ok = -1;
 	PPEgaisProcessor::Packet pack(ediOp);
@@ -7889,7 +7884,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID,
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
+int PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -7971,7 +7966,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
+int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 {
 	int    ok = -1;
 	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);
@@ -8144,11 +8139,43 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 	return ok;
 }
 
-SLAPI PPEgaisProcessor::QueryParam::QueryParam() : DocType(0), DbActualizeFlags(0), Flags(0), MainOrgID(0), LocID(0)
+PPEgaisProcessor::QueryParam::QueryParam() : DocType(0), DbActualizeFlags(0), Flags(0), MainOrgID(0), LocID(0), P_LotFilt(0)
 {
 }
 
-int SLAPI PPEgaisProcessor::QueryParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+PPEgaisProcessor::QueryParam::~QueryParam()
+{
+	ZDELETE(P_LotFilt);
+}
+
+PPEgaisProcessor::QueryParam::QueryParam(const QueryParam & rS) : DocType(rS.DocType), DbActualizeFlags(rS.DbActualizeFlags), Flags(rS.Flags),
+	MainOrgID(rS.MainOrgID), LocID(rS.LocID), P_LotFilt(0)
+{
+	if(rS.P_LotFilt)
+		P_LotFilt = new LotFilt(*rS.P_LotFilt);
+}
+
+PPEgaisProcessor::QueryParam & PPEgaisProcessor::QueryParam::operator = (const QueryParam & rS)
+{
+	DocType = rS.DocType;
+	DbActualizeFlags = rS.DbActualizeFlags;
+	Flags = rS.Flags;
+	MainOrgID = rS.MainOrgID;
+	LocID = rS.LocID;
+	if(rS.P_LotFilt) {
+		if(P_LotFilt) {
+			*P_LotFilt = *rS.P_LotFilt;
+		}
+		else
+			P_LotFilt = new LotFilt(*rS.P_LotFilt);
+	}
+	else {
+		ZDELETE(P_LotFilt);
+	}
+	return *this;
+}
+
+int PPEgaisProcessor::QueryParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(pSCtx->Serialize(dir, DocType, rBuf));
@@ -8161,7 +8188,7 @@ int SLAPI PPEgaisProcessor::QueryParam::Serialize(int dir, SBuffer & rBuf, SSeri
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
+int PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 {
 	class EgaisQDialog : public TDialog {
 		DECL_DIALOG_DATA(PPEgaisProcessor::QueryParam);
@@ -8315,6 +8342,18 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 				SetupStartUpInfo();
 				DisplayInfo(0);
 			}
+			else if(event.isCmd(cmLotFilt)) { // @v10.9.1
+				LotFilt temp_filt;
+				RVALUEPTR(temp_filt, Data.P_LotFilt);
+				PPViewLot lot_view;
+				if(lot_view.EditBaseFilt(&temp_filt) > 0) {
+					if(Data.P_LotFilt) {
+						*Data.P_LotFilt = temp_filt;
+					}
+					else
+						Data.P_LotFilt = new LotFilt(temp_filt);
+				}
+			}
 			else
 				return;
 			clearEvent(event);
@@ -8341,7 +8380,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs)
+int PPEgaisProcessor::Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -8366,7 +8405,7 @@ int SLAPI PPEgaisProcessor::Helper_ExtractGoodsCodesFromBills(PPID opID, StringS
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
+int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 {
 	int    ok = 1;
 	int    query_sended = 0;
@@ -8374,7 +8413,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	SString mark_buf;
 	SString temp_buf;
 	PPID   preserve_main_org_id = 0;
-	TSVector <UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
+	TSVector <UtmEntry> utm_list;
 	GetMainOrgID(&preserve_main_org_id);
 	if(rParam.MainOrgID)
 		DS.SetMainOrgID(rParam.MainOrgID, 0);
@@ -8414,9 +8453,8 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				RegisterTbl::Rec reg_rec;
 				if(PsnObj.GetRegister(psn_item.ID, PPREGT_TPID, _cd, &reg_rec) > 0) {
 					(temp_buf = reg_rec.Num).Strip().ToUpper();
-					if(!inn_list.search(temp_buf, 0, 0)) {
+					if(!inn_list.search(temp_buf, 0, 0))
 						inn_list.add(temp_buf);
-					}
 				}
 				PPWaitPercent(psn_view.GetCounter(), "Get contragent INN");
 			}
@@ -8424,9 +8462,8 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				const uint innc = inn_list.getCount();
 				uint   inni = 0;
 				for(uint innp = 0; inn_list.get(&innp, temp_buf);) {
-					if(QueryClients(rParam.LocID, querybyINN, temp_buf)) {
+					if(QueryClients(rParam.LocID, querybyINN, temp_buf))
 						query_sended = 1;
-					}
 					inni++;
 					PPWaitPercent(inni, innc, "Query EGAIS contragent");
 				}
@@ -8466,39 +8503,55 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_WRITEOFFSHOP, codes_for_products);
 			}
 			if(!db_was_cleared && rParam.DbActualizeFlags & (rParam._afQueryRefA|rParam._afQueryPerson|rParam._afQueryGoods)) {
-				BExtQuery q(&P_RefC->RaC, 1);
-				EgaisRefATbl::Key1 k1;
-				MEMSZERO(k1);
-				q.selectAll();
-				for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
-					EgaisRefATbl::Rec item;
-					P_RefC->RaC.copyBufTo(&item);
-					if(item.RefACode[0]) {
-						if(rParam.DbActualizeFlags & rParam._afQueryRefA) {
-							if(!(item.Flags & EgaisRefACore::fVerified))
-								refa_codes.add(item.RefACode);
-						}
-						if(rParam.DbActualizeFlags & rParam._afQueryPerson) {
-							int    is_importer = 0;
-							if(sstrlen(item.ImporterRarIdent) >= 8) { // Код контрагента 12 символов, но страхуемся значением 8
-								is_importer = 1;
-								if(P_RefC->PsC.IsVerifiedCode(item.ImporterRarIdent) <= 0) {
-									codes_for_contragents.add(item.ImporterRarIdent);
-									manuf_codes_for_products.add(item.ImporterRarIdent);
-								}
-							}
-							if(sstrlen(item.ManufRarIdent) >= 8) {
-								if(P_RefC->PsC.IsVerifiedCode(item.ManufRarIdent) <= 0) {
-									codes_for_contragents.add(item.ManufRarIdent);
-									if(!is_importer)
-										manuf_codes_for_products.add(item.ManufRarIdent);
-								}
+				// @v10.9.1 {
+				if(rParam.P_LotFilt && rParam.DbActualizeFlags & rParam._afQueryRefA) {
+					Reference * p_ref = PPRef;
+					PPViewLot lot_view;
+					LotFilt l;
+					if(lot_view.Init_(rParam.P_LotFilt)) {
+						LotViewItem lot_view_item;
+						for(lot_view.InitIteration(); lot_view.NextIteration(&lot_view_item) > 0;) {
+							if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_view_item.ID, PPTAG_LOT_FSRARINFA, temp_buf) > 0) {
+								refa_codes.add(temp_buf);
 							}
 						}
-						if(rParam.DbActualizeFlags & rParam._afQueryGoods) {
-							if(sstrlen(item.AlcCode) > 8) {
-								if(P_RefC->PrC.IsVerifiedCode(item.AlcCode) <= 0)
-									codes_for_products.add(item.AlcCode);
+					}
+				}
+				else { // } @v10.9.1 
+					BExtQuery q(&P_RefC->RaC, 1);
+					EgaisRefATbl::Key1 k1;
+					MEMSZERO(k1);
+					q.selectAll();
+					for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+						EgaisRefATbl::Rec item;
+						P_RefC->RaC.copyBufTo(&item);
+						if(item.RefACode[0]) {
+							if(rParam.DbActualizeFlags & rParam._afQueryRefA) {
+								if(!(item.Flags & EgaisRefACore::fVerified))
+									refa_codes.add(item.RefACode);
+							}
+							if(rParam.DbActualizeFlags & rParam._afQueryPerson) {
+								int    is_importer = 0;
+								if(sstrlen(item.ImporterRarIdent) >= 8) { // Код контрагента 12 символов, но страхуемся значением 8
+									is_importer = 1;
+									if(P_RefC->PsC.IsVerifiedCode(item.ImporterRarIdent) <= 0) {
+										codes_for_contragents.add(item.ImporterRarIdent);
+										manuf_codes_for_products.add(item.ImporterRarIdent);
+									}
+								}
+								if(sstrlen(item.ManufRarIdent) >= 8) {
+									if(P_RefC->PsC.IsVerifiedCode(item.ManufRarIdent) <= 0) {
+										codes_for_contragents.add(item.ManufRarIdent);
+										if(!is_importer)
+											manuf_codes_for_products.add(item.ManufRarIdent);
+									}
+								}
+							}
+							if(rParam.DbActualizeFlags & rParam._afQueryGoods) {
+								if(sstrlen(item.AlcCode) > 8) {
+									if(P_RefC->PrC.IsVerifiedCode(item.AlcCode) <= 0)
+										codes_for_products.add(item.AlcCode);
+								}
 							}
 						}
 					}
@@ -8507,7 +8560,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 			refa_codes.sortAndUndup();
 			codes_for_contragents.sortAndUndup();
 			manuf_codes_for_products.sortAndUndup();
-			codes_for_products.sortAndUndup(); // @v9.4.3
+			codes_for_products.sortAndUndup();
 			/*
 			{
 				BExtQuery q(&P_RefC->PsC, 1);
@@ -8728,7 +8781,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::InteractiveQuery()
+int PPEgaisProcessor::InteractiveQuery()
 {
 	int    ok = -1;
 	const  long  preserve_state = State;
@@ -8745,7 +8798,7 @@ int SLAPI PPEgaisProcessor::InteractiveQuery()
 	return ok;
 }
 
-/*static*/int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
+/*static*/int PPEgaisProcessor::EditInformAReg(InformAReg & rData)
 {
     int    ok = -1;
     uint   sel = 0;
@@ -8786,7 +8839,7 @@ int SLAPI PPEgaisProcessor::InteractiveQuery()
     return ok;
 }
 
-/*static*/int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark)
+/*static*/int PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark)
 {
 	class EgaisMarkDialog : public TDialog {
 	public:
@@ -8849,7 +8902,7 @@ int SLAPI PPEgaisProcessor::InteractiveQuery()
     return ok;
 }
 
-int SLAPI TestEGAIS(const PPEgaisProcessor::TestParam * pParam)
+int TestEGAIS(const PPEgaisProcessor::TestParam * pParam)
 {
 	int    ok = 1;
 	TDialog * dlg = 0;
@@ -8900,12 +8953,12 @@ int SLAPI TestEGAIS(const PPEgaisProcessor::TestParam * pParam)
 	return ok;
 }
 
-SLAPI EgaisPersonCore::Item::Item()
+EgaisPersonCore::Item::Item()
 {
 	Clear();
 }
 
-void SLAPI EgaisPersonCore::Item::Clear()
+void EgaisPersonCore::Item::Clear()
 {
 	ID = 0;
 	PTR32(RarIdent)[0] = 0;
@@ -8922,7 +8975,7 @@ void SLAPI EgaisPersonCore::Item::Clear()
 	ActualDate = ZERODATE;
 }
 
-int SLAPI EgaisPersonCore::Item::IsEqual(const EgaisPersonCore::Item & rS, long cmpflags) const
+int EgaisPersonCore::Item::IsEqual(const EgaisPersonCore::Item & rS, long cmpflags) const
 {
     int    yes = 1;
     if(!(cmpflags & cmpfExceptID) && ID != rS.ID)
@@ -8954,11 +9007,11 @@ int SLAPI EgaisPersonCore::Item::IsEqual(const EgaisPersonCore::Item & rS, long 
 	return yes;
 }
 
-SLAPI EgaisPersonCore::EgaisPersonCore() : EgaisPersonTbl()
+EgaisPersonCore::EgaisPersonCore() : EgaisPersonTbl()
 {
 }
 
-int SLAPI EgaisPersonCore::RecToItem(const EgaisPersonTbl::Rec & rRec, EgaisPersonCore::Item & rItem)
+int EgaisPersonCore::RecToItem(const EgaisPersonTbl::Rec & rRec, EgaisPersonCore::Item & rItem)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -8984,7 +9037,7 @@ int SLAPI EgaisPersonCore::RecToItem(const EgaisPersonTbl::Rec & rRec, EgaisPers
 	return ok;
 }
 
-int SLAPI EgaisPersonCore::Search(PPID id, EgaisPersonCore::Item & rItem)
+int EgaisPersonCore::Search(PPID id, EgaisPersonCore::Item & rItem)
 {
 	rItem.Clear();
 	int    ok = -1;
@@ -8997,7 +9050,7 @@ int SLAPI EgaisPersonCore::Search(PPID id, EgaisPersonCore::Item & rItem)
 	return ok;
 }
 
-int SLAPI EgaisPersonCore::IsVerifiedCode(const char * pRarCode)
+int EgaisPersonCore::IsVerifiedCode(const char * pRarCode)
 {
 	int    ok = -1;
 	TSVector <EgaisPersonTbl::Rec> list;
@@ -9012,7 +9065,7 @@ int SLAPI EgaisPersonCore::IsVerifiedCode(const char * pRarCode)
 	return ok;
 }
 
-int SLAPI EgaisPersonCore::SearchByCode(const char * pRarCode, TSVector <EgaisPersonTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisPersonCore::SearchByCode(const char * pRarCode, TSVector <EgaisPersonTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -9042,7 +9095,7 @@ int SLAPI EgaisPersonCore::SearchByCode(const char * pRarCode, TSVector <EgaisPe
 	return ok;
 }
 
-int SLAPI EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConflictFlags, int use_ta)
+int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConflictFlags, int use_ta)
 {
 	int    ok = 1;
 	long   conflict_flags = 0;
@@ -9242,7 +9295,7 @@ int SLAPI EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long *
     return ok;
 }
 
-int SLAPI EgaisPersonCore::Clear(int use_ta)
+int EgaisPersonCore::Clear(int use_ta)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -9272,7 +9325,7 @@ int SLAPI EgaisPersonCore::Clear(int use_ta)
 	return ok;
 }
 
-int SLAPI EgaisPersonCore::Export(long fmt, const char * pFileName)
+int EgaisPersonCore::Export(long fmt, const char * pFileName)
 {
 	int    ok = 1;
 	SFile  f_out(pFileName, SFile::mWrite);
@@ -9306,12 +9359,12 @@ int SLAPI EgaisPersonCore::Export(long fmt, const char * pFileName)
 	return ok;
 }
 
-SLAPI EgaisProductCore::Item::Item()
+EgaisProductCore::Item::Item()
 {
 	Clear();
 }
 
-void SLAPI EgaisProductCore::Item::Clear()
+void EgaisProductCore::Item::Clear()
 {
 	ID = 0;
 	Flags = 0;
@@ -9326,7 +9379,7 @@ void SLAPI EgaisProductCore::Item::Clear()
 	ActualDate = ZERODATE;
 }
 
-int SLAPI EgaisProductCore::Item::IsEqual(const Item & rS, long cmpflags) const
+int EgaisProductCore::Item::IsEqual(const Item & rS, long cmpflags) const
 {
 	int    yes = 1;
 	if(!(cmpflags & cmpfExceptID) && ID != rS.ID)
@@ -9354,11 +9407,11 @@ int SLAPI EgaisProductCore::Item::IsEqual(const Item & rS, long cmpflags) const
 	return yes;
 }
 
-SLAPI EgaisProductCore::EgaisProductCore() : EgaisProductTbl()
+EgaisProductCore::EgaisProductCore() : EgaisProductTbl()
 {
 }
 
-int SLAPI EgaisProductCore::RecToItem(const EgaisProductTbl::Rec & rRec, EgaisProductCore::Item & rItem)
+int EgaisProductCore::RecToItem(const EgaisProductTbl::Rec & rRec, EgaisProductCore::Item & rItem)
 {
 	int    ok = 1;
 	rItem.ID = rRec.ID;
@@ -9381,7 +9434,7 @@ int SLAPI EgaisProductCore::RecToItem(const EgaisProductTbl::Rec & rRec, EgaisPr
 	return ok;
 }
 
-int SLAPI EgaisProductCore::Search(PPID id, EgaisProductCore::Item & rItem)
+int EgaisProductCore::Search(PPID id, EgaisProductCore::Item & rItem)
 {
 	rItem.Clear();
 	int    ok = -1;
@@ -9394,7 +9447,7 @@ int SLAPI EgaisProductCore::Search(PPID id, EgaisProductCore::Item & rItem)
 	return ok;
 }
 
-int SLAPI EgaisProductCore::IsVerifiedCode(const char * pAlcoCode)
+int EgaisProductCore::IsVerifiedCode(const char * pAlcoCode)
 {
 	int    ok = -1;
 	TSVector <EgaisProductTbl::Rec> list;
@@ -9411,7 +9464,7 @@ int SLAPI EgaisProductCore::IsVerifiedCode(const char * pAlcoCode)
 	return ok;
 }
 
-int SLAPI EgaisProductCore::SearchByCode(const char * pAlcoCode, TSVector <EgaisProductTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisProductCore::SearchByCode(const char * pAlcoCode, TSVector <EgaisProductTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -9441,7 +9494,7 @@ int SLAPI EgaisProductCore::SearchByCode(const char * pAlcoCode, TSVector <Egais
 	return ok;
 }
 
-int SLAPI EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long * pConflictFlags, int use_ta)
+int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long * pConflictFlags, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -9615,7 +9668,7 @@ int SLAPI EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem
     return ok;
 }
 
-int SLAPI EgaisProductCore::Clear(int use_ta)
+int EgaisProductCore::Clear(int use_ta)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -9644,7 +9697,7 @@ int SLAPI EgaisProductCore::Clear(int use_ta)
 	return ok;
 }
 
-int SLAPI EgaisProductCore::Export(long fmt, const char * pFileName)
+int EgaisProductCore::Export(long fmt, const char * pFileName)
 {
 	int    ok = 1;
 	SFile  f_out(pFileName, SFile::mWrite);
@@ -9695,16 +9748,16 @@ int SLAPI EgaisProductCore::Export(long fmt, const char * pFileName)
 	return 1;
 }
 
-SLAPI EgaisRefACore::EgaisRefACore() : EgaisRefATbl()
+EgaisRefACore::EgaisRefACore() : EgaisRefATbl()
 {
 }
 
-int SLAPI EgaisRefACore::Search(PPID id, EgaisRefATbl::Rec * pRec)
+int EgaisRefACore::Search(PPID id, EgaisRefATbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_EGAISREFA, id, pRec);
 }
 
-int SLAPI EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -9734,7 +9787,7 @@ int SLAPI EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRef
 	return ok;
 }
 
-int SLAPI EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -9749,7 +9802,7 @@ int SLAPI EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <E
 	return ok;
 }
 
-int SLAPI EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta)
+int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta)
 {
 	int    ok = 1;
 	long   conflict_flags = 0;
@@ -9892,7 +9945,7 @@ int SLAPI EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * 
 	return ok;
 }
 
-int SLAPI EgaisRefACore::Clear(int use_ta)
+int EgaisRefACore::Clear(int use_ta)
 {
 	int    ok = -1;
 	IterCounter cntr;
@@ -9918,7 +9971,7 @@ int SLAPI EgaisRefACore::Clear(int use_ta)
 	return ok;
 }
 
-int SLAPI EgaisRefACore::Export(long fmt, const char * pFileName)
+int EgaisRefACore::Export(long fmt, const char * pFileName)
 {
 	int    ok = 1;
 	SFile  f_out(pFileName, SFile::mWrite);
@@ -9952,7 +10005,7 @@ int SLAPI EgaisRefACore::Export(long fmt, const char * pFileName)
 //
 //
 //
-SLAPI PrcssrAlcReport::RefCollection::RefCollection() : LastPersonP(-1), LastProductP(-1), LastRefAP(-1)
+PrcssrAlcReport::RefCollection::RefCollection() : LastPersonP(-1), LastProductP(-1), LastRefAP(-1)
 {
 }
 
@@ -10030,7 +10083,7 @@ int FASTCALL PrcssrAlcReport::RefCollection::SetRefA(EgaisRefATbl::Rec & rItem)
 	return ok;
 }
 
-int SLAPI PrcssrAlcReport::RefCollection::Store(int use_ta)
+int PrcssrAlcReport::RefCollection::Store(int use_ta)
 {
 	int    ok = 1;
 	long   conflict_flags = 0;

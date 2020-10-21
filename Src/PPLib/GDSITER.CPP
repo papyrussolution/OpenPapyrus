@@ -95,25 +95,25 @@ void FASTCALL GoodsIterator::InitInstance(PPIDArray * pDupDynGrpList)
 	SfClsID = 0;
 }
 
-SLAPI GoodsIterator::GoodsIterator(const GoodsFilt * f, int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
+GoodsIterator::GoodsIterator(const GoodsFilt * f, int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
 {
 	InitInstance(pDupDynGrpList);
 	Init(f, aOrder);
 }
 
-SLAPI GoodsIterator::GoodsIterator(PPID aGrp, int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
+GoodsIterator::GoodsIterator(PPID aGrp, int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
 {
 	InitInstance(pDupDynGrpList);
 	Init(aGrp, aOrder);
 }
 
-SLAPI GoodsIterator::GoodsIterator(int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
+GoodsIterator::GoodsIterator(int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
 {
 	InitInstance(pDupDynGrpList);
 	Init(static_cast<const GoodsFilt *>(0), aOrder);
 }
 
-SLAPI GoodsIterator::~GoodsIterator()
+GoodsIterator::~GoodsIterator()
 {
 	delete P_List;
 	delete P_MtxList;
@@ -122,15 +122,15 @@ SLAPI GoodsIterator::~GoodsIterator()
 	delete P_UhttsPack;
 }
 
-const IterCounter & SLAPI GoodsIterator::GetIterCounter() const { return Counter; }
+const IterCounter & GoodsIterator::GetIterCounter() const { return Counter; }
 
-int SLAPI GoodsIterator::Init(int aOrder)
+int GoodsIterator::Init(int aOrder)
 {
 	Filt.Init(1, 0);
 	return Init(static_cast<const GoodsFilt *>(0), aOrder);
 }
 
-int SLAPI GoodsIterator::FilterList(PPIDArray * pSrcList, PPIDArray * pDestList, long implFlags)
+int GoodsIterator::FilterList(PPIDArray * pSrcList, PPIDArray * pDestList, long implFlags)
 {
 	PROFILE_START
 	if(pSrcList->getCount()) {
@@ -159,7 +159,7 @@ int SLAPI GoodsIterator::FilterList(PPIDArray * pSrcList, PPIDArray * pDestList,
 	return 1;
 }
 
-int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID, PPIDArray * pList, int doIntersect)
+int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID, PPIDArray * pList, int doIntersect)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -304,7 +304,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 	return ok;
 }
 
-int SLAPI GoodsIterator::Init(PPID grpID, int aOrder)
+int GoodsIterator::Init(PPID grpID, int aOrder)
 {
 	GoodsFilt temp_filt;
 	temp_filt.GrpID = grpID;
@@ -351,7 +351,7 @@ IMPL_CMPFUNC(GoodsIdListByName, p1, p2)
 	return cm;
 }
 
-int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
+int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 {
 	int    ok = 1, r;
 	PPObjBill * p_bobj = BillObj;
@@ -703,7 +703,7 @@ int FASTCALL GoodsIterator::CheckActual(const Goods2Tbl::Rec & rRec) const
 	return yes;
 }
 
-int SLAPI GoodsIterator::GetSelectorListInfo(PPID * pClsID, StrAssocArray & rList) const
+int GoodsIterator::GetSelectorListInfo(PPID * pClsID, StrAssocArray & rList) const
 {
 	int    ok = 1;
 	if(P_List && P_UhttsPack && P_UhttsPack->Sd.GetCount()) {
@@ -718,12 +718,12 @@ int SLAPI GoodsIterator::GetSelectorListInfo(PPID * pClsID, StrAssocArray & rLis
 	return ok;
 }
 
-int SLAPI GoodsIterator::GetSelectorListItem(long handler, PPUhttStoreSelDescr::Entry & rEntry) const
+int GoodsIterator::GetSelectorListItem(long handler, PPUhttStoreSelDescr::Entry & rEntry) const
 {
 	return (P_UhttsPack && handler > 0 && handler <= (long)P_UhttsPack->Sd.GetCount()) ? P_UhttsPack->Sd.GetEntry(handler-1, rEntry) : 0;
 }
 
-int SLAPI GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
+int GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 {
 	int    ok = -1;
 	if(P_IterQuery) {
@@ -836,7 +836,7 @@ int SLAPI GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 	return ok;
 }
 
-int SLAPI GoodsIterator::CreateIterQuery()
+int GoodsIterator::CreateIterQuery()
 {
 	int    ok = 1;
 	union {
@@ -895,12 +895,12 @@ IMPL_CMPFUNC(_GroupListItemCode, i1, i2)
 	return strnicmp(p1, p2, GRPCODESIZE);
 }
 
-SLAPI GoodsGroupIterator::GoodsGroupIterator(PPID parentID, long flags/*int addZeroGroup, int sortByCode*/)
+GoodsGroupIterator::GoodsGroupIterator(PPID parentID, long flags/*int addZeroGroup, int sortByCode*/)
 {
 	Init(parentID, flags/*addZeroGroup, sortByCode*/);
 }
 
-int SLAPI GoodsCore::MakeFullName(PPID id, PPID parentID, SString & rBuf)
+int GoodsCore::MakeFullName(PPID id, PPID parentID, SString & rBuf)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec grec;
@@ -936,7 +936,7 @@ int SLAPI GoodsCore::MakeFullName(PPID id, PPID parentID, SString & rBuf)
 	return ok;
 }
 
-int SLAPI GoodsGroupIterator::Init(PPID parentID, long flags)
+int GoodsGroupIterator::Init(PPID parentID, long flags)
 {
 	ParentID = parentID;
 	Flags    = flags;
@@ -999,7 +999,7 @@ int SLAPI GoodsGroupIterator::Init(PPID parentID, long flags)
 	return ok;
 }
 
-int SLAPI GoodsGroupIterator::Get(PPID id, SString & rBuf) const
+int GoodsGroupIterator::Get(PPID id, SString & rBuf) const
 {
 	rBuf.Z();
 	uint   pos = 0;
@@ -1021,7 +1021,7 @@ int SLAPI GoodsGroupIterator::Get(PPID id, SString & rBuf) const
 	*/
 }
 
-int SLAPI GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
+int GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 {
 	if(IterIndex < List.getCount()) {
 		const char * ptr = static_cast<const char *>(List.at(IterIndex));
@@ -1038,7 +1038,7 @@ int SLAPI GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 		return -1;
 }
 
-/*int SLAPI GoodsGroupIterator::Next(PPID * pID, char * pBuf, size_t bufLen)
+/*int GoodsGroupIterator::Next(PPID * pID, char * pBuf, size_t bufLen)
 {
 	SString buf;
 	int    ok = Next(pID, buf);
@@ -1046,7 +1046,7 @@ int SLAPI GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 	return ok;
 }*/
 
-int SLAPI GoodsGroupIterator::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int GoodsGroupIterator::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	long   temp_val = 0;
@@ -1061,11 +1061,11 @@ int SLAPI GoodsGroupIterator::Serialize(int dir, SBuffer & rBuf, SSerializeConte
 //
 //
 //
-SLAPI PPGoodsReplaceNameParam::PPGoodsReplaceNameParam() : BrandID(0), GoodsGrpID(0), ManufID(0), Flags(0)
+PPGoodsReplaceNameParam::PPGoodsReplaceNameParam() : BrandID(0), GoodsGrpID(0), ManufID(0), Flags(0)
 {
 }
 
-int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam, const char * pFragment, SString & rBuf)
+int PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam, const char * pFragment, SString & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1142,7 +1142,7 @@ int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack, const PPGoodsR
 	return ok;
 }
 
-int SLAPI PPObjGoods::Helper_ReplaceName(const PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam, char * pDest, size_t bufLen)
+int PPObjGoods::Helper_ReplaceName(const PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam, char * pDest, size_t bufLen)
 {
 	int    ok = -1;
 	int    found = 0;
@@ -1196,7 +1196,7 @@ int SLAPI PPObjGoods::Helper_ReplaceName(const PPGoodsPacket * pPack, const PPGo
 	return ok;
 }
 
-int SLAPI PPObjGoods::ReplaceName(PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam)
+int PPObjGoods::ReplaceName(PPGoodsPacket * pPack, const PPGoodsReplaceNameParam * pParam)
 {
 	int    ok = -1;
 	if(pParam->Flags & PPGoodsReplaceNameParam::fRestoreLastHistoryName) {

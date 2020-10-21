@@ -7,11 +7,11 @@
 //
 //
 //
-SLAPI PPJobSrvReply::PPJobSrvReply(PPServerSession * pSess) : PPJobSrvProtocol(), P_Sess(pSess)
+PPJobSrvReply::PPJobSrvReply(PPServerSession * pSess) : PPJobSrvProtocol(), P_Sess(pSess)
 {
 }
 
-int SLAPI PPJobSrvReply::StartWriting()
+int PPJobSrvReply::StartWriting()
 {
 	int    ok = 1;
 	SetDataType(htGeneric, 0);
@@ -26,7 +26,7 @@ int SLAPI PPJobSrvReply::StartWriting()
 	return ok;
 }
 
-void SLAPI PPJobSrvReply::SetDataType(int dataType, const char * pDataTypeText)
+void PPJobSrvReply::SetDataType(int dataType, const char * pDataTypeText)
 {
 	DataType = dataType;
 	DataTypeText = pDataTypeText;
@@ -79,7 +79,7 @@ int FASTCALL PPJobSrvReply::SetInformer(const char * pMsg)
 	return ok;
 }
 
-void SLAPI PPJobSrvReply::SetAck()
+void PPJobSrvReply::SetAck()
 {
 	SetString(P_TokAck);
 }
@@ -105,11 +105,11 @@ SString & FASTCALL PPJobSrvProtocol::Header::ToStr(SString & rBuf) const
 	return rBuf;
 }
 
-SLAPI PPJobSrvProtocol::PPJobSrvProtocol() : SBuffer(), State(0), P_TokAck("ACK"), P_TokErr("ERROR")
+PPJobSrvProtocol::PPJobSrvProtocol() : SBuffer(), State(0), P_TokAck("ACK"), P_TokErr("ERROR")
 {
 }
 
-int SLAPI PPJobSrvProtocol::TestSpecToken(const char * pTok)
+int PPJobSrvProtocol::TestSpecToken(const char * pTok)
 {
 	int    yes = 0;
 	size_t spec_sz = sstrlen(pTok);
@@ -126,7 +126,7 @@ int SLAPI PPJobSrvProtocol::TestSpecToken(const char * pTok)
 	return yes;
 }
 
-int SLAPI PPJobSrvProtocol::StartReading(SString * pRepString)
+int PPJobSrvProtocol::StartReading(SString * pRepString)
 {
 	int    ok = 1;
 	ASSIGN_PTR(pRepString, 0);
@@ -171,7 +171,7 @@ SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI PPJobSrvProtocol::CheckRepError()
+int PPJobSrvProtocol::CheckRepError()
 {
 	if(H.Flags & hfRepError) {
 		PPSetError(PPERR_JOBSRVCLI_ERR, ErrText);
@@ -181,12 +181,12 @@ int SLAPI PPJobSrvProtocol::CheckRepError()
 		return 1;
 }
 
-SLAPI PPJobSrvProtocol::StopThreadBlock::StopThreadBlock() : TId(0)
+PPJobSrvProtocol::StopThreadBlock::StopThreadBlock() : TId(0)
 {
 	MAddr.Init();
 }
 
-int SLAPI PPJobSrvProtocol::StopThreadBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPJobSrvProtocol::StopThreadBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->SerializeBlock(dir, sizeof(TId)+sizeof(MAddr), &TId, rBuf, 0));
@@ -196,7 +196,7 @@ int SLAPI PPJobSrvProtocol::StopThreadBlock::Serialize(int dir, SBuffer & rBuf, 
 	return ok;
 }
 
-SLAPI PPJobSrvProtocol::TransmitFileBlock::TransmitFileBlock() : CrtTime(ZERODATETIME), AccsTime(ZERODATETIME), ModTime(ZERODATETIME),
+PPJobSrvProtocol::TransmitFileBlock::TransmitFileBlock() : CrtTime(ZERODATETIME), AccsTime(ZERODATETIME), ModTime(ZERODATETIME),
 	Size(0), Format(SFileFormat::Unkn), Flags(0), Cookie(0), PartSize(0), TransmType(ttGeneric), Reserve(0), ObjType(0), ObjID(0)
 {
 	memzero(Hash, sizeof(Hash));
@@ -204,7 +204,7 @@ SLAPI PPJobSrvProtocol::TransmitFileBlock::TransmitFileBlock() : CrtTime(ZERODAT
 	memzero(Name, sizeof(Name));
 }
 
-int SLAPI PPJobSrvProtocol::Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_t * pActualSize)
+int PPJobSrvProtocol::Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_t * pActualSize)
 {
 	int    ok = 1;
 	const  size_t zs = sizeof(H.Zero);
@@ -238,11 +238,11 @@ int SLAPI PPJobSrvProtocol::Helper_Recv(TcpSocket & rSo, const char * pTerminal,
 //
 //
 //
-SLAPI PPJobSrvCmd::PPJobSrvCmd() : PPJobSrvProtocol()
+PPJobSrvCmd::PPJobSrvCmd() : PPJobSrvProtocol()
 {
 }
 
-int SLAPI PPJobSrvCmd::StartWriting(int cmdId)
+int PPJobSrvCmd::StartWriting(int cmdId)
 {
 	int    ok = 1;
 	MEMSZERO(H);
@@ -257,7 +257,7 @@ int SLAPI PPJobSrvCmd::StartWriting(int cmdId)
 	return ok;
 }
 
-int SLAPI PPJobSrvCmd::StartWriting(const char * pStr)
+int PPJobSrvCmd::StartWriting(const char * pStr)
 {
 	int    ok = 1;
 	Z();
@@ -268,7 +268,7 @@ int SLAPI PPJobSrvCmd::StartWriting(const char * pStr)
 	return ok;
 }
 
-int SLAPI PPJobSrvCmd::FinishWriting()
+int PPJobSrvCmd::FinishWriting()
 {
 	int    ok = 1;
 	if(State & stStructured) {
@@ -282,12 +282,12 @@ int SLAPI PPJobSrvCmd::FinishWriting()
 //
 //
 //
-SLAPI PPJobSrvClient::PPJobSrvClient() : So(120000), SyncTimer(120000), // @v7.8.10 So(600000)-->So(60000) // @v8.7.4 60000-->120000
+PPJobSrvClient::PPJobSrvClient() : So(120000), SyncTimer(120000), // @v7.8.10 So(600000)-->So(60000) // @v8.7.4 60000-->120000
 	State(0), SessId(0), InformerCallbackProc(0), P_InformerCallbackParam(0), InitPort(0)
 {
 }
 
-SLAPI PPJobSrvClient::~PPJobSrvClient()
+PPJobSrvClient::~PPJobSrvClient()
 {
 	Logout();
 	Disconnect();
@@ -306,13 +306,13 @@ int FASTCALL PPJobSrvClient::Sync(int force)
 	return ok;
 }
 
-void SLAPI PPJobSrvClient::SetInformerProc(int (*proc)(const char * pMsg, void * pParam), void * pParam)
+void PPJobSrvClient::SetInformerProc(int (*proc)(const char * pMsg, void * pParam), void * pParam)
 {
 	InformerCallbackProc = proc;
 	P_InformerCallbackParam = pParam;
 }
 
-int SLAPI PPJobSrvClient::Disconnect()
+int PPJobSrvClient::Disconnect()
 {
 	int    ok = 1;
 	if(State & stConnected) {
@@ -325,7 +325,7 @@ int SLAPI PPJobSrvClient::Disconnect()
 	return ok;
 }
 
-int SLAPI PPJobSrvClient::Reconnect(const char * pAddr, int port)
+int PPJobSrvClient::Reconnect(const char * pAddr, int port)
 {
 	int    ok = -1;
 	Disconnect();
@@ -352,7 +352,7 @@ int SLAPI PPJobSrvClient::Reconnect(const char * pAddr, int port)
 	return ok;
 }
 
-int SLAPI PPJobSrvClient::TestBreakConnection()
+int PPJobSrvClient::TestBreakConnection()
 {
 	So.Disconnect();
 	return 1;
@@ -360,7 +360,7 @@ int SLAPI PPJobSrvClient::TestBreakConnection()
 //
 //
 //
-int SLAPI PPJobSrvClient::Connect(const char * pAddr, int port)
+int PPJobSrvClient::Connect(const char * pAddr, int port)
 {
 	int    ok = 1;
 	if(!(State & stConnected)) {
@@ -415,7 +415,7 @@ int SLAPI PPJobSrvClient::Connect(const char * pAddr, int port)
 	return ok;
 }
 
-int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvReply & rReply)
+int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	int    do_log_error = 0;
@@ -476,12 +476,12 @@ int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 	return ok;
 }
 
-int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
 	return Exec(rCmd, 0, rReply);
 }
 
-int SLAPI PPJobSrvClient::Exec(const char * pCmd, const char * pTerminal, PPJobSrvReply & rReply)
+int PPJobSrvClient::Exec(const char * pCmd, const char * pTerminal, PPJobSrvReply & rReply)
 {
 	PPJobSrvCmd cmd;
 	cmd.StartWriting(pCmd);
@@ -489,7 +489,7 @@ int SLAPI PPJobSrvClient::Exec(const char * pCmd, const char * pTerminal, PPJobS
 	return Exec(cmd, pTerminal, rReply);
 }
 
-int SLAPI PPJobSrvClient::Exec(const char * pCmd, PPJobSrvReply & rReply)
+int PPJobSrvClient::Exec(const char * pCmd, PPJobSrvReply & rReply)
 {
 	PPJobSrvCmd cmd;
 	cmd.StartWriting(pCmd);
@@ -497,7 +497,7 @@ int SLAPI PPJobSrvClient::Exec(const char * pCmd, PPJobSrvReply & rReply)
 	return Exec(cmd, 0, rReply);
 }
 
-int SLAPI PPJobSrvClient::GetLastErr(SString & rBuf)
+int PPJobSrvClient::GetLastErr(SString & rBuf)
 {
 	int    ok = 1;
 	PPJobSrvReply reply;
@@ -508,7 +508,7 @@ int SLAPI PPJobSrvClient::GetLastErr(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPJobSrvClient::Login(const char * pDbSymb, const char * pUserName, const char * pPassword)
+int PPJobSrvClient::Login(const char * pDbSymb, const char * pUserName, const char * pPassword)
 {
 	int    ok = 1;
 	SString cmd, reply_str;
@@ -531,7 +531,7 @@ int SLAPI PPJobSrvClient::Login(const char * pDbSymb, const char * pUserName, co
 	return ok;
 }
 
-int SLAPI PPJobSrvClient::Logout()
+int PPJobSrvClient::Logout()
 {
 	int    ok = 1;
 	if(State & stLoggedIn) {

@@ -17,7 +17,7 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 //#include <stdio.h> /* Specification.  */
-#include "obstack.h"
+//#include "obstack.h"
 //#include "vasnprintf.h"
 //#include <errno.h>
 //#include <stdarg.h>

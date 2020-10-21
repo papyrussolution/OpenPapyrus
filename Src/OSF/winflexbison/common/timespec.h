@@ -30,7 +30,7 @@ _GL_INLINE_HEADER_BEGIN
 #endif
 
 #include "arg-nonnull.h"
-#include "verify.h"
+//#include "verify.h"
 
 #ifdef __cplusplus
 extern "C" {

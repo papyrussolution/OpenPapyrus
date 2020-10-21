@@ -21,7 +21,7 @@
 //#include <stdbool.h>
 #include "glthread/lock.h"
 #include "glthread/tls.h"
-#include "minmax.h"
+//#include "minmax.h"
 //#include "xalloc.h"
 
 #define ELEMENT char

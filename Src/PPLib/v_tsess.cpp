@@ -8,7 +8,7 @@
 //
 // @ModuleDef(PPViewTSession)
 //
-IMPLEMENT_PPFILT_FACTORY(TSession); SLAPI TSessionFilt::TSessionFilt() : PPBaseFilt(PPFILT_TSESSION, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(TSession); TSessionFilt::TSessionFilt() : PPBaseFilt(PPFILT_TSESSION, 0, 0)
 {
 	SetFlatChunk(offsetof(TSessionFilt, ReserveStart),
 		offsetof(TSessionFilt, Reserve)-offsetof(TSessionFilt, ReserveStart)+sizeof(Reserve));
@@ -50,12 +50,12 @@ int FASTCALL TSessionFilt::GetStatusList(PPIDArray & rList) const
 //
 //
 //
-SLAPI TSessionViewItem::TSessionViewItem() : WrOffBillID(0)
+TSessionViewItem::TSessionViewItem() : WrOffBillID(0)
 {
 	Z();
 }
 
-TSessionViewItem & SLAPI TSessionViewItem::Z()
+TSessionViewItem & TSessionViewItem::Z()
 {
 	memzero(static_cast<TSessionTbl::Rec *>(this), sizeof(TSessionTbl::Rec));
 	CipItem.Z();
@@ -69,7 +69,7 @@ PPViewTSession::UhttStoreExt::UhttStoreExt() : ID(0)
 {
 }
 
-PPViewTSession::UhttStoreExt & SLAPI PPViewTSession::UhttStoreExt::Z()
+PPViewTSession::UhttStoreExt & PPViewTSession::UhttStoreExt::Z()
 {
 	ID = 0;
 	SfList.Z();
@@ -90,19 +90,18 @@ PPViewTSession::IterBlock & FASTCALL PPViewTSession::IterBlock::Init(int order)
 	return *this;
 }
 //
-SLAPI PPViewTSession::PPViewTSession() : PPView(&TSesObj, &Filt, PPVIEW_TSESSION), P_TempTbl(0), P_LastAnlzFilt(0), P_UhttsPack(0), State(0)
+PPViewTSession::PPViewTSession() : PPView(&TSesObj, &Filt, PPVIEW_TSESSION, implOnAddSetupPos, 0), P_TempTbl(0), P_LastAnlzFilt(0), P_UhttsPack(0), State(0)
 {
-	ImplementFlags |= implOnAddSetupPos;
 }
 
-SLAPI PPViewTSession::~PPViewTSession()
+PPViewTSession::~PPViewTSession()
 {
 	delete P_UhttsPack;
 	delete P_TempTbl;
 	delete P_LastAnlzFilt;
 }
 
-PPBaseFilt * SLAPI PPViewTSession::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewTSession::CreateFilt(void * extraPtr) const
 {
 	PPBaseFilt * p_base_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_TSESSION, &p_base_filt)) {
@@ -113,7 +112,7 @@ PPBaseFilt * SLAPI PPViewTSession::CreateFilt(void * extraPtr) const
 	return p_base_filt;
 }
 
-void * SLAPI PPViewTSession::GetEditExtraParam()
+void * PPViewTSession::GetEditExtraParam()
 {
 	int    kind = 0;
 	if(Filt.Flags & TSessionFilt::fSuperSessOnly)
@@ -226,7 +225,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-void SLAPI PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec)
+void PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec)
 {
 	memzero(pDestRec, sizeof(*pDestRec));
 	pDestRec->ID = pSrcRec->ID;
@@ -262,12 +261,12 @@ void SLAPI PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrd
 	temp_buf.CopyTo(pDestRec->Name, sizeof(pDestRec->Name));
 }
 
-int SLAPI PPViewTSession::IsTempTblNeeded() const
+int PPViewTSession::IsTempTblNeeded() const
 {
 	return BIN(Filt.Order || (Filt.StPeriod.low && Filt.StTime) || (Filt.FnPeriod.upp && Filt.FnTime) || Filt.ArID || PrcList.GetCount() > 1);
 }
 
-int SLAPI PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -424,7 +423,7 @@ int SLAPI PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewTSession::InitIteration(int order)
+int PPViewTSession::InitIteration(int order)
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
@@ -567,7 +566,7 @@ int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, PPViewTSession::UhttStoreExt & rExt)
+int PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, PPViewTSession::UhttStoreExt & rExt)
 {
     int    ok = 1;
     rExt.Z();
@@ -630,7 +629,7 @@ int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, 
     return ok;
 }
 
-DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst status_subst(5); // @global @threadsafe
 	uint   brw_id = 0;
@@ -747,7 +746,7 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-void SLAPI PPViewTSession::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewTSession::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		const PPTSessConfig & r_cfg = TSesObj.GetConfig();
@@ -756,7 +755,7 @@ void SLAPI PPViewTSession::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewTSession::WriteOff(PPID sessID)
+int PPViewTSession::WriteOff(PPID sessID)
 {
 	int    ok = -1, r;
 	if(sessID) {
@@ -777,7 +776,7 @@ int SLAPI PPViewTSession::WriteOff(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewTSession::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTSession::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -796,7 +795,7 @@ int SLAPI PPViewTSession::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewTSession::CalcTotal(TSessionTotal * pTotal)
+int PPViewTSession::CalcTotal(TSessionTotal * pTotal)
 {
 	TSessionViewItem item;
 	TSessionTotal total;
@@ -811,7 +810,7 @@ int SLAPI PPViewTSession::CalcTotal(TSessionTotal * pTotal)
 	return 1;
 }
 
-int SLAPI PPViewTSession::ViewTotal()
+int PPViewTSession::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_TSESSTOTAL);
 	TSessionTotal total;
@@ -833,7 +832,7 @@ int SLAPI PPViewTSession::ViewTotal()
 	return -1;
 }
 
-int SLAPI PPViewTSession::Print(const void * pHdr)
+int PPViewTSession::Print(const void * pHdr)
 {
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
@@ -843,7 +842,7 @@ int SLAPI PPViewTSession::Print(const void * pHdr)
 	return -1;
 }
 
-int SLAPI PPViewTSession::PrintList(const void * pHdr)
+int PPViewTSession::PrintList(const void * pHdr)
 {
 	int    ok = -1;
 	int    use_selection = 0;
@@ -880,7 +879,7 @@ int SLAPI PPViewTSession::PrintList(const void * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewTSession::Recover()
+int PPViewTSession::Recover()
 {
 	int    ok = -1;
 	PPIDArray id_list;
@@ -904,7 +903,7 @@ int SLAPI PPViewTSession::Recover()
 	return ok;
 }
 
-int SLAPI PPViewTSession::Transmit(PPID /*id*/)
+int PPViewTSession::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -923,7 +922,7 @@ int SLAPI PPViewTSession::Transmit(PPID /*id*/)
 	return ok;
 }
 
-int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -1059,7 +1058,7 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	return ok;
 }
 
-int SLAPI PPViewTSession::ExportUhtt()
+int PPViewTSession::ExportUhtt()
 {
 	int    ok = -1;
 	SString msg_buf, fmt_buf, temp_buf, loc_text_buf;
@@ -1229,7 +1228,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 }
 
 // @vmiller
-int SLAPI PPViewTSession::SendAutoSms()
+int PPViewTSession::SendAutoSms()
 {
 	PPAlbatrossConfig albtr_cfg;
 	SString msg;
@@ -1255,7 +1254,7 @@ int SLAPI PPViewTSession::SendAutoSms()
 }
 
 // @vmiller
-int SLAPI PPViewTSession::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, StrAssocArray & rTSessIdArr)
+int PPViewTSession::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, StrAssocArray & rTSessIdArr)
 {
 	size_t i = 0;
  	SString buf, phone;
@@ -1282,12 +1281,12 @@ int SLAPI PPViewTSession::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & 
 }
 
 
-int SLAPI ViewTSession(const TSessionFilt * pFilt) { return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, 0); }
-int SLAPI ViewManufPlan(const TSessionFilt * pFilt) { return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, (void *)TSESK_PLAN); }
+int ViewTSession(const TSessionFilt * pFilt) { return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, 0); }
+int ViewManufPlan(const TSessionFilt * pFilt) { return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, (void *)TSESK_PLAN); }
 //
 // @ModuleDef(PPViewTSessLine)
 //
-SLAPI TSessLineFilt::TSessLineFilt(PPID sessID, PPID goodsID, int showRest)
+TSessLineFilt::TSessLineFilt(PPID sessID, PPID goodsID, int showRest)
 {
 	THISZERO();
 	TSesList.Add(sessID);
@@ -1295,27 +1294,27 @@ SLAPI TSessLineFilt::TSessLineFilt(PPID sessID, PPID goodsID, int showRest)
 	SETFLAG(Flags, fOutRest, showRest);
 }
 
-int SLAPI TSessLineFilt::Init()
+int TSessLineFilt::Init()
 {
 	TSesList.Set(0);
 	return 1;
 }
 
-SLAPI PPViewTSessLine::PPViewTSessLine() : PPView(0, 0, 0), P_TempTbl(0), NewGoodsGrpID(0)
+PPViewTSessLine::PPViewTSessLine() : PPView(0, 0, 0, 0, 0), P_TempTbl(0), NewGoodsGrpID(0)
 {
 }
 
-SLAPI PPViewTSessLine::~PPViewTSessLine()
+PPViewTSessLine::~PPViewTSessLine()
 {
 	delete P_TempTbl;
 }
 
-const TSessLineFilt * SLAPI PPViewTSessLine::GetFilt() const
+const TSessLineFilt * PPViewTSessLine::GetFilt() const
 {
 	return &Filt;
 }
 
-int SLAPI PPViewTSessLine::IsTempTblNeeded()
+int PPViewTSessLine::IsTempTblNeeded()
 {
 	if(Filt.TSesList.GetCount() > 1)
 		return 1;
@@ -1330,7 +1329,7 @@ int SLAPI PPViewTSessLine::IsTempTblNeeded()
 
 // @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TSessLine);
 
-int SLAPI PPViewTSessLine::Init(const TSessLineFilt * pFilt)
+int PPViewTSessLine::Init(const TSessLineFilt * pFilt)
 {
 	int    ok = 1;
 	TSessLineTbl * p_temp_tbl = 0;
@@ -1376,7 +1375,7 @@ int SLAPI PPViewTSessLine::Init(const TSessLineFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewTSessLine::CreateIterQuery()
+int PPViewTSessLine::CreateIterQuery()
 {
 	int    ok  = 1;
 	int    idx = 1;
@@ -1440,7 +1439,7 @@ int SLAPI PPViewTSessLine::CreateIterQuery()
 	return ok;
 }
 
-int SLAPI PPViewTSessLine::InitIteration()
+int PPViewTSessLine::InitIteration()
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1497,7 +1496,7 @@ struct TSessLineTotal {
 	double Discount;
 };
 
-int SLAPI PPViewTSessLine::ViewTotal()
+int PPViewTSessLine::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1523,7 +1522,7 @@ int SLAPI PPViewTSessLine::ViewTotal()
 	return ok;
 }
 
-DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst sign_subst(3); // @global @threadsafe
 
@@ -1633,7 +1632,7 @@ DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-void SLAPI PPViewTSessLine::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewTSessLine::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && Filt.GoodsID && GoodsIdList.getSingle() == 0) {
 		// pBrw->InsColumnWord(1, PPWORD_GOODS, 3, 0, 0, 0);
@@ -1641,7 +1640,7 @@ void SLAPI PPViewTSessLine::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewTSessLine::TranslateBrwHdr(const void * pRow, BrwHdr * pHdr)
+int PPViewTSessLine::TranslateBrwHdr(const void * pRow, BrwHdr * pHdr)
 {
 	if(pRow) {
 		ASSIGN_PTR(pHdr, *static_cast<const BrwHdr *>(pRow));
@@ -1651,12 +1650,12 @@ int SLAPI PPViewTSessLine::TranslateBrwHdr(const void * pRow, BrwHdr * pHdr)
 		return 0;
 }
 
-int SLAPI PPViewTSessLine::Print(const void *)
+int PPViewTSessLine::Print(const void *)
 {
 	return Helper_Print(Filt.GoodsID ? REPORT_TSESSLINEGOODS : REPORT_TSESSLINE, 0);
 }
 
-int SLAPI PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
+int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	ExtGoodsSelDialog * dlg = 0;
@@ -1703,7 +1702,7 @@ int SLAPI PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewTSessLine::AddItemByCode(const char * pInitStr)
+int PPViewTSessLine::AddItemByCode(const char * pInitStr)
 {
 	int    ok = -1;
 	PPID   sess_id = Filt.TSesList.GetSingle();
@@ -1738,7 +1737,7 @@ int SLAPI PPViewTSessLine::AddItemByCode(const char * pInitStr)
 	return ok;
 }
 
-int SLAPI PPViewTSessLine::AddCompletion(PPID sessID)
+int PPViewTSessLine::AddCompletion(PPID sessID)
 {
 	int    ok = -1;
 	long   h_lnenum = -1;
@@ -1782,7 +1781,7 @@ int SLAPI PPViewTSessLine::AddCompletion(PPID sessID)
 	return ok;
 }
 
-int SLAPI PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	BrwHdr hdr;
 	long   oprno = 0;
@@ -1855,7 +1854,7 @@ int SLAPI PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-int SLAPI PPViewTSession::GetSelectorListInfo(StrAssocArray & rList) const
+int PPViewTSession::GetSelectorListInfo(StrAssocArray & rList) const
 {
 	if(P_UhttsPack && P_UhttsPack->Sd.GetCount()) {
 		rList = ExtSfTitleList;
@@ -1867,7 +1866,7 @@ int SLAPI PPViewTSession::GetSelectorListInfo(StrAssocArray & rList) const
 	}
 }
 
-int SLAPI PPViewTSession::GetSelectorListItem(long handler, PPUhttStoreSelDescr::Entry & rEntry) const
+int PPViewTSession::GetSelectorListItem(long handler, PPUhttStoreSelDescr::Entry & rEntry) const
 {
 	int    ok = 0;
 	if(P_UhttsPack && handler > 0 && handler <= (long)P_UhttsPack->Sd.GetCount())
@@ -1875,7 +1874,7 @@ int SLAPI PPViewTSession::GetSelectorListItem(long handler, PPUhttStoreSelDescr:
 	return ok;
 }
 
-int SLAPI ViewTSessLine(const TSessLineFilt * pFilt)
+int ViewTSessLine(const TSessLineFilt * pFilt)
 {
 	int    ok = 1, view_in_use = 0;
 	int    modeless = GetModelessStatus();
@@ -2315,7 +2314,7 @@ int32 DL6ICLS_PPViewTSession::GetTotal(PPYVIEWTOTAL total)
 //
 //
 //
-int SLAPI PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TSessionPacket & rDest)
+int PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long flags, TSessionPacket & rDest)
 {
 	int    ok = 1;
 	rDest.destroy();
@@ -2374,7 +2373,7 @@ int SLAPI PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long fla
 	return ok;
 }
 
-int SLAPI PPObjTSession::ImportUHTT()
+int PPObjTSession::ImportUHTT()
 {
 	int    ok = -1;
 	SString msg_buf, fmt_buf, temp_buf, loc_text_buf;

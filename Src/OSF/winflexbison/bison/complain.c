@@ -20,8 +20,8 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <argmatch.h>
-#include <c-ctype.h>
+//#include <argmatch.h>
+//#include <c-ctype.h>
 #include <progname.h>
 //#include <stdarg.h>
 //#include <sys/stat.h>
@@ -276,8 +276,7 @@ static void severity_print(severity s, FILE * out)
 /*-----------.
 | complain.  |
    `-----------*/
-
-void complain_init_color(void)
+void complain_init_color()
 {
 #if HAVE_LIBTEXTSTYLE
 	if(is_styled(stderr)) {
@@ -310,7 +309,7 @@ void complain_init_color(void)
 #endif
 }
 
-void complain_init(void)
+void complain_init()
 {
 	caret_init();
 	warnings warnings_default = (warnings)(Wconflicts_sr | Wconflicts_rr | Wdeprecated | Wother);
@@ -320,7 +319,7 @@ void complain_init(void)
 	}
 }
 
-void complain_free(void)
+void complain_free()
 {
 	caret_free();
 	styled_ostream_free(errstream);

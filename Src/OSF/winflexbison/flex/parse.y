@@ -69,10 +69,8 @@
 
 int pat, scnum, eps, headcnt, trailcnt, lastchar, i, rulelen;
 int trlcontxt, xcluflg, currccl, cclsorted, varlength, variable_trail_rule;
-
-int *scon_stk;
+int * scon_stk;
 int scon_stk_ptr;
-
 static int madeany = false;  /* whether we've made the '.' character class */
 static int ccldot, cclany;
 int previous_continued_action;	/* whether the previous rule's action was '|' */
@@ -80,27 +78,25 @@ int previous_continued_action;	/* whether the previous rule's action was '|' */
 #define format_warn3(fmt, a1, a2) \
 	do { \
         char fw3_msg[MAXLINE];\
-        snprintf( fw3_msg, MAXLINE,(fmt), (a1), (a2) );\
-        lwarn( fw3_msg );\
+        snprintf(fw3_msg, MAXLINE,(fmt), (a1), (a2));\
+        lwarn(fw3_msg);\
 	}while(0)
 
 /* Expand a POSIX character class expression. */
 #define CCL_EXPR(func) \
 	do { \
-	int c; \
-	for(c = 0; c < csize; ++c) \
-		if(isascii(c) && func(c)) \
-			ccladd(currccl, c); \
+		for(int c = 0; c < csize; ++c) \
+			if(isascii(c) && func(c)) \
+				ccladd(currccl, c); \
 	} while(0)
 
 /* negated class */
 #define CCL_NEG_EXPR(func) \
 	do { \
-	int c; \
-	for(c = 0; c < csize; ++c ) \
-		if(!func(c) ) \
-			ccladd( currccl, c ); \
-	}while(0)
+		for(int c = 0; c < csize; ++c) \
+			if(!func(c) ) \
+				ccladd(currccl, c); \
+	} while(0)
 
 /* While POSIX defines isblank(), it's not ANSI C. */
 #define IS_BLANK(c) ((c) == ' ' || (c) == '\t')
@@ -119,12 +115,9 @@ int previous_continued_action;	/* whether the previous rule's action was '|' */
 goal		:  initlex sect1 sect1end sect2 initforrule
 			{ /* add default rule */
 			int def_rule;
-
 			pat = cclinit();
 			cclnegate( pat );
-
 			def_rule = mkstate( -pat );
-
 			/* Remember the number of the default rule so we
 			 * don't generate "can't match" warnings for it.
 			 */
@@ -132,12 +125,10 @@ goal		:  initlex sect1 sect1end sect2 initforrule
 			finish_rule( def_rule, false, 0, 0, 0);
 			for(i = 1; i <= lastsc; ++i)
 				scset[i] = mkbranch( scset[i], def_rule );
-
 			if(spprdflt)
 				add_action("YY_FATAL_ERROR( \"flex scanner jammed\" )" );
 			else
 				add_action( "ECHO" );
-
 			add_action( ";\n\tYY_BREAK]]\n" );
 			}
 		;
@@ -231,9 +222,7 @@ initforrule	:
 flexrule	:  '^' rule
 			{
 			pat = $2;
-			finish_rule( pat, variable_trail_rule,
-				headcnt, trailcnt , previous_continued_action);
-
+			finish_rule( pat, variable_trail_rule, headcnt, trailcnt , previous_continued_action);
 			if(scon_stk_ptr > 0 ) {
 				for(i = 1; i <= scon_stk_ptr; ++i )
 					scbol[scon_stk[i]] = mkbranch( scbol[scon_stk[i]], pat );
@@ -243,11 +232,11 @@ flexrule	:  '^' rule
 				 * including the default (0) start condition.
 				 */
 				for(i = 1; i <= lastsc; ++i )
-					if(! scxclu[i] )
+					if(!scxclu[i])
 						scbol[i] = mkbranch( scbol[i], pat );
 				}
 
-			if(! bol_needed ) {
+			if(!bol_needed) {
 				bol_needed = true;
 				if(performance_report > 1 )
 					pinpoint_message("'^' operator results in sub-optimal performance" );
@@ -262,12 +251,11 @@ flexrule	:  '^' rule
 				for(i = 1; i <= scon_stk_ptr; ++i )
 					scset[scon_stk[i]] = mkbranch( scset[scon_stk[i]], pat );
 				}
-
-			else {
-				for(i = 1; i <= lastsc; ++i )
-					if(! scxclu[i] )
-						scset[i] = mkbranch( scset[i], pat );
-				}
+				else {
+					for(i = 1; i <= lastsc; ++i )
+						if(!scxclu[i])
+							scset[i] = mkbranch( scset[i], pat );
+					}
 			}
 
 		|  EOF_OP
@@ -866,12 +854,9 @@ string		:  string TOK_CHAR
 
 %%
 
-
-/* build_eof_action - build the "<<EOF>>" action for the active start
- *                    conditions
+/* build_eof_action - build the "<<EOF>>" action for the active start conditions
  */
-
-void build_eof_action(void)
+void build_eof_action()
 {
 	int i;
 	char action_text[MAXLINE];
@@ -884,35 +869,30 @@ void build_eof_action(void)
 				add_action("YY_RULE_SETUP\n");
 			snprintf( action_text, sizeof(action_text), "case YY_STATE_EOF(%s):\n", scname[scon_stk[i]] );
 			add_action( action_text );
-			}
 		}
+	}
 	line_directive_out(NULL, 1);
-        add_action("[[");
-
+	add_action("[[");
 	/* This isn't a normal rule after all - don't count it as
-	 * such, so we don't have any holes in the rule numbering
-	 * (which make generating "rule can never match" warnings
-	 * more difficult.
-	 */
+	* such, so we don't have any holes in the rule numbering
+	* (which make generating "rule can never match" warnings
+	* more difficult.
+	*/
 	--num_rules;
 	++num_eof_rules;
-	}
-
+}
 
 /* format_synerr - write out formatted syntax error */
 
 void format_synerr( const char *msg, const char arg[] )
-	{
+{
 	char errmsg[MAXLINE];
-
-	(void) snprintf( errmsg, sizeof(errmsg), msg, arg );
+	snprintf( errmsg, sizeof(errmsg), msg, arg );
 	synerr( errmsg );
-	}
-
+}
 
 /* synerr - report a syntax error */
-
-void synerr( const char *str )
+void synerr(const char * str)
 {
 	syntaxerror = true;
 	pinpoint_message( str );
@@ -962,7 +942,6 @@ void line_warning( const char *str, int line )
 		line_pinpoint( warning, line );
 	}
 }
-
 
 /* line_pinpoint - write out a message, pinpointing it at the given line */
 

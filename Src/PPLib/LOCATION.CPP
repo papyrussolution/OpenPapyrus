@@ -10,7 +10,7 @@
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(Location); SLAPI LocationFilt::LocationFilt(PPID locType, PPID ownerID, PPID parentID) : PPBaseFilt(PPFILT_LOCATION, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Location); LocationFilt::LocationFilt(PPID locType, PPID ownerID, PPID parentID) : PPBaseFilt(PPFILT_LOCATION, 0, 0)
 {
 	SetFlatChunk(offsetof(LocationFilt, ReserveStart),
 		offsetof(LocationFilt, Reserve)-offsetof(LocationFilt, ReserveStart)+sizeof(Reserve));
@@ -28,13 +28,13 @@ LocationFilt & FASTCALL LocationFilt::operator = (const LocationFilt & rS)
 	return *this;
 }
 
-int SLAPI LocationFilt::GetExField(int fldId, SString & rBuf) const
+int LocationFilt::GetExField(int fldId, SString & rBuf) const
 {
 	rBuf.Z();
 	return (fldId == exfPhone) ? PPGetExtStrData(fldId, ExtString, rBuf) : -1;
 }
 
-int SLAPI LocationFilt::SetExField(int fldId, const char * pBuf)
+int LocationFilt::SetExField(int fldId, const char * pBuf)
 {
 	return (fldId == exfPhone) ? PPPutExtStrData(fldId, ExtString, pBuf) : -1;
 }
@@ -157,21 +157,21 @@ int SLAPI LocationFilt::SetExField(int fldId, const char * pBuf)
 	return ok;
 }
 
-SLAPI LocationCore::LocationCore() : LocationTbl(), P_Eac((CConfig.Flags2 & CCFLG2_INDEXEADDR) ? new EAddrCore : 0)
+LocationCore::LocationCore() : LocationTbl(), P_Eac((CConfig.Flags2 & CCFLG2_INDEXEADDR) ? new EAddrCore : 0)
 {
 }
 
-SLAPI LocationCore::~LocationCore()
+LocationCore::~LocationCore()
 {
 	ZDELETE(P_Eac);
 }
 
-int SLAPI LocationCore::Search(PPID id, LocationTbl::Rec * b)
+int LocationCore::Search(PPID id, LocationTbl::Rec * b)
 {
 	return SearchByID(this, PPOBJ_LOCATION, id, b);
 }
 
-int SLAPI LocationCore::GetListByCode(PPID locTyp, const char * pCode, PPIDArray * pIdList)
+int LocationCore::GetListByCode(PPID locTyp, const char * pCode, PPIDArray * pIdList)
 {
 	int    ok = -1;
 	char   code[32];
@@ -192,7 +192,7 @@ int SLAPI LocationCore::GetListByCode(PPID locTyp, const char * pCode, PPIDArray
 	return ok;
 }
 
-int SLAPI LocationCore::SearchCode(PPID locTyp, const char * pCode, PPID * pID, LocationTbl::Rec * pRec)
+int LocationCore::SearchCode(PPID locTyp, const char * pCode, PPID * pID, LocationTbl::Rec * pRec)
 {
 	int    ok = -1;
 	char   code[32];
@@ -220,7 +220,7 @@ static SString & FormatCode(const char * pPrfx, const char * pSfx, int len, long
 	return rBuf.Z().Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
 }
 
-int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, int len,
+int LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, int len,
 	long low, long upp, int addChkDig, SString & rCode)
 {
 	int    ok = 0;
@@ -272,7 +272,7 @@ int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * p
 	return ok;
 }
 
-int SLAPI LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
+int LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 {
 	rBuf.Z();
 
@@ -336,7 +336,7 @@ int SLAPI LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 	return ok;
 }
 
-int SLAPI LocationCore::InitEnum(PPID locTyp, PPID parentID, int flags, long * pHandle)
+int LocationCore::InitEnum(PPID locTyp, PPID parentID, int flags, long * pHandle)
 {
 	DBQ  * dbq = &(this->Type == locTyp);
 	int    idx = 2;
@@ -364,13 +364,13 @@ int SLAPI LocationCore::InitEnum(PPID locTyp, PPID parentID, int flags, long * p
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-SEnumImp * SLAPI LocationCore::Enum(PPID locTyp, PPID parentID, int options)
+SEnumImp * LocationCore::Enum(PPID locTyp, PPID parentID, int options)
 {
 	long   h = -1;
 	return InitEnum(locTyp, parentID, options, &h) ? new PPTblEnum <LocationCore>(this, h) : 0;
 }
 
-int SLAPI LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
+int LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -395,7 +395,7 @@ int SLAPI LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI LocationCore::SearchMaxLike(const LocationTbl::Rec * pRec, long flags, PPID * pID, LocationTbl::Rec * pLikeRec)
+int LocationCore::SearchMaxLike(const LocationTbl::Rec * pRec, long flags, PPID * pID, LocationTbl::Rec * pLikeRec)
 {
 	int    ok = -1;
 	PPIDArray bycode_list;
@@ -424,7 +424,7 @@ int SLAPI LocationCore::SearchMaxLike(const LocationTbl::Rec * pRec, long flags,
 	return ok;
 }
 
-/*static*/int SLAPI LocationCore::GetTypeDescription(int locType, LocTypeDescr * pDescr)
+/*static*/int LocationCore::GetTypeDescription(int locType, LocTypeDescr * pDescr)
 {
 	int    ok = 1;
 	LocTypeDescr d;
@@ -470,7 +470,7 @@ int SLAPI LocationCore::SearchMaxLike(const LocationTbl::Rec * pRec, long flags,
 	return 1;
 }
 
-int SLAPI LocationCore::SearchPersonRef(PPID locType, PPID personID, PPID * pID)
+int LocationCore::SearchPersonRef(PPID locType, PPID personID, PPID * pID)
 {
 	int    ok = -1;
 	LocationTbl::Key3 k;
@@ -484,7 +484,7 @@ int SLAPI LocationCore::SearchPersonRef(PPID locType, PPID personID, PPID * pID)
 	return ok;
 }
 
-int SLAPI LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID * pID)
+int LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID * pID)
 {
 	int    ok = -1;
 	if(objID) {
@@ -546,13 +546,13 @@ int SLAPI LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID *
 	return 1;
 }
 
-int SLAPI LocationCore::GetAddress_(PPID id, uint f, SString & rBuf)
+int LocationCore::GetAddress_(PPID id, uint f, SString & rBuf)
 {
 	rBuf.Z();
 	return (!id || Search(id) > 0) ? LocationCore::GetAddress(data, f, rBuf) : 0;
 }
 
-int SLAPI LocationCore::IndexPhone(const char * pPhone, const PPObjID * pObjId, int doRemove, int use_ta)
+int LocationCore::IndexPhone(const char * pPhone, const PPObjID * pObjId, int doRemove, int use_ta)
 {
 	int    ok = 1, r = 1;
 	PPID   addr_id = 0;
@@ -579,10 +579,10 @@ int SLAPI LocationCore::IndexPhone(const char * pPhone, const PPObjID * pObjId, 
 	return ok;
 }
 
-int SLAPI LocationCore::SearchPhoneIndex(const char * pPhone, long options, LongArray & rResultList)
+int LocationCore::SearchPhoneIndex(const char * pPhone, long options, LongArray & rResultList)
 	{ return P_Eac ? P_Eac->SearchPhone(pPhone, options, rResultList) : -1; }
 
-int SLAPI LocationCore::SearchPhoneObjList(const char * pPhone, long options, PPObjIDArray & rList)
+int LocationCore::SearchPhoneObjList(const char * pPhone, long options, PPObjIDArray & rList)
 { 
 	rList.clear();
 	int    ok = -1;
@@ -601,14 +601,14 @@ int SLAPI LocationCore::SearchPhoneObjList(const char * pPhone, long options, PP
 	return ok;
 }
 
-int SLAPI LocationCore::GetEAddr(PPID id, EAddrTbl::Rec * pRec)
+int LocationCore::GetEAddr(PPID id, EAddrTbl::Rec * pRec)
 	{ return P_Eac ? P_Eac->Search(id, pRec) : -1; }
-int SLAPI LocationCore::SearchEAddrByLink(PPID objType, PPID objID, PPIDArray & rResultList)
+int LocationCore::SearchEAddrByLink(PPID objType, PPID objID, PPIDArray & rResultList)
 	{ return P_Eac ? P_Eac->SearchLink(objType, objID, rResultList) : -1; }
-int SLAPI LocationCore::SearchEAddrMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult)
+int LocationCore::SearchEAddrMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult)
 	{ return P_Eac ? P_Eac->SearchMaxLikePhone(pPhonePattern, options, rResult) : -1; }
 
-int SLAPI LocationCore::DumpEaList(const char * pFileName)
+int LocationCore::DumpEaList(const char * pFileName)
 {
 	int    ok = -1;
     if(P_Eac) {
@@ -642,7 +642,7 @@ int SLAPI LocationCore::DumpEaList(const char * pFileName)
 	return ok;
 }
 
-int SLAPI LocationCore::GetFullEaList(StrAssocArray & rList)
+int LocationCore::GetFullEaList(StrAssocArray & rList)
 {
 	int    ok = 1;
 	rList.Z();
@@ -718,7 +718,7 @@ SString & FASTCALL PPEAddr::Phone::ToStr(long fmt, SString & rBuf) const
 	return rBuf;
 }
 
-static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkResult)
+static uint Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkResult)
 {
 	// Несколько вариантов простого делителя с количеством знаков, равным разрядности требуемого значения (5)
 	static const uint32 prime_div_variants[] = { 98387, 86017, 87359, 79823, 75337 };
@@ -761,7 +761,7 @@ static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const 
 	return Helper_GeneratePhoneCheckNumber(pOrgPhone, pAddedumCode, 0);
 }
 
-/*static*/int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkedNumber)
+/*static*/int PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkedNumber)
 {
 	uint r = Helper_GeneratePhoneCheckNumber(pOrgPhone, pAddedumCode, checkedNumber);
 	return BIN(r == checkedNumber);
@@ -988,7 +988,7 @@ int PPEAddr::IsEmpty() const
 //
 //
 //
-SLAPI PPEAddrArray::PPEAddrArray() : TSVector <PPEAddr> () // @v9.9.3 TSArray-->TSVector
+PPEAddrArray::PPEAddrArray() : TSVector <PPEAddr> () // @v9.9.3 TSArray-->TSVector
 {
 }
 
@@ -1005,7 +1005,7 @@ int FASTCALL PPEAddrArray::AddPhone(const char * pPhone)
 	return ok;
 }
 
-int SLAPI PPEAddrArray::SearchPhone(const char * pPhone, long options, LongArray * pPosList) const
+int PPEAddrArray::SearchPhone(const char * pPhone, long options, LongArray * pPosList) const
 {
 	int    ok = 0;
 	if(getCount()) {
@@ -1024,16 +1024,16 @@ int SLAPI PPEAddrArray::SearchPhone(const char * pPhone, long options, LongArray
 //
 //
 //
-SLAPI EAddrCore::EAddrCore() : EAddrTbl()
+EAddrCore::EAddrCore() : EAddrTbl()
 {
 }
 
-int SLAPI EAddrCore::Search(PPID id, EAddrTbl::Rec * pRec)
+int EAddrCore::Search(PPID id, EAddrTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_EADDR, id, pRec);
 }
 
-int SLAPI EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, int use_ta)
+int EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, int use_ta)
 {
 	int    ok = 1, r = 0;
 	{
@@ -1077,14 +1077,14 @@ int SLAPI EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObj
 }
 
 /* @construction
-int SLAPI EAddrCore::SearchIpV4(uint32 ip, long options, LongArray & rResult)
+int EAddrCore::SearchIpV4(uint32 ip, long options, LongArray & rResult)
 {
 	PPEAddr addr;
 	THROW(addr.Set(ip));
 }
 */
 
-int SLAPI EAddrCore::Search(const PPEAddr & rAddr, const PPObjID * pObjId, PPID * pID)
+int EAddrCore::Search(const PPEAddr & rAddr, const PPObjID * pObjId, PPID * pID)
 {
 	int    ok = 0;
 	EAddrTbl::Key1 k1;
@@ -1105,7 +1105,7 @@ int SLAPI EAddrCore::Search(const PPEAddr & rAddr, const PPObjID * pObjId, PPID 
 	return ok;
 }
 
-int SLAPI EAddrCore::SearchLink(PPID objType, PPID objID, LongArray & rResult)
+int EAddrCore::SearchLink(PPID objType, PPID objID, LongArray & rResult)
 {
 	rResult.clear();
 
@@ -1122,7 +1122,7 @@ int SLAPI EAddrCore::SearchLink(PPID objType, PPID objID, LongArray & rResult)
     return ok;
 }
 
-int SLAPI EAddrCore::SearchPhone(const char * pPhone, long options, LongArray & rResult)
+int EAddrCore::SearchPhone(const char * pPhone, long options, LongArray & rResult)
 {
 	rResult.clear();
 	int    ok = -1;
@@ -1139,7 +1139,7 @@ int SLAPI EAddrCore::SearchPhone(const char * pPhone, long options, LongArray & 
 	return ok;
 }
 
-int SLAPI EAddrCore::SearchMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult)
+int EAddrCore::SearchMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult)
 {
 	int    ok = -1;
 	EAddrTbl::Key1 k1;

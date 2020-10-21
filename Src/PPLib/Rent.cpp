@@ -5,11 +5,11 @@
 #include <pp.h>
 #pragma hdrstop
 
-int SLAPI RentChrgDialog(RentChrgFilt *); // Prototype
+int RentChrgDialog(RentChrgFilt *); // Prototype
 //
 //
 //
-double SLAPI CalcPercent(LDATE beg, LDATE end, double rest, double percent)
+double CalcPercent(LDATE beg, LDATE end, double rest, double percent)
 {
 	long   num_days = _diffdate(&end, &beg, DF_BTRIEVE, 1);
 	double result = fdiv100r(rest * num_days * percent) / 360.0;
@@ -18,7 +18,7 @@ double SLAPI CalcPercent(LDATE beg, LDATE end, double rest, double percent)
 //
 //
 //
-SLAPI PctChargeArray::PctChargeArray() : SVector(sizeof(PctChargeEntry)) // @v9.8.12 SArray-->SVector
+PctChargeArray::PctChargeArray() : SVector(sizeof(PctChargeEntry)) // @v9.8.12 SArray-->SVector
 {
 }
 
@@ -27,12 +27,12 @@ PctChargeEntry & FASTCALL PctChargeArray::at(uint i) const
 	return *static_cast<PctChargeEntry *>(SVector::at(i));
 }
 
-LDATE SLAPI PctChargeArray::GetFirstDate() const
+LDATE PctChargeArray::GetFirstDate() const
 {
 	return getCount() ? at(0).Dt : ZERODATE;
 }
 
-int SLAPI PctChargeArray::EnumItems(uint * pIdx, PctChargeEntry * pEntry) const
+int PctChargeArray::EnumItems(uint * pIdx, PctChargeEntry * pEntry) const
 {
 	if(*pIdx < getCount()) {
 		ASSIGN_PTR(pEntry, at(*pIdx));
@@ -43,7 +43,7 @@ int SLAPI PctChargeArray::EnumItems(uint * pIdx, PctChargeEntry * pEntry) const
 		return 0;
 }
 
-int SLAPI PctChargeArray::Add(LDATE dt, double amount)
+int PctChargeArray::Add(LDATE dt, double amount)
 {
 	double rest = GetRest(dt);
 	uint   pos = 0;
@@ -59,7 +59,7 @@ int SLAPI PctChargeArray::Add(LDATE dt, double amount)
 	}
 }
 
-double SLAPI PctChargeArray::GetRest(LDATE dt)
+double PctChargeArray::GetRest(LDATE dt)
 {
 	for(int i = static_cast<int>(getCount())-1; i >= 0; i--)
 		if(at(i).Dt <= dt)
@@ -73,7 +73,7 @@ double SLAPI PctChargeArray::GetRest(LDATE dt)
 // За первый день проценты не начисляются. Другими словами, если между since и end
 // остаток не менялся, то проценты начисляются за (end - since) дней.
 //
-int SLAPI PctChargeArray::ChargePercent(LDATE since, LDATE end, double percent, double * pResult) const
+int PctChargeArray::ChargePercent(LDATE since, LDATE end, double percent, double * pResult) const
 {
 	LDATE  beg = since;
 	double rest = 0.0, result = 0.0;
@@ -107,7 +107,7 @@ int SLAPI PctChargeArray::ChargePercent(LDATE since, LDATE end, double percent, 
 //
 //
 #if 0 // {
-static int SLAPI RentPeriodToStr(short prd, short numprds, char * buf, size_t buflen)
+static int RentPeriodToStr(short prd, short numprds, char * buf, size_t buflen)
 {
 	char   temp[64];
 	char   l = 0;
@@ -131,7 +131,7 @@ static int SLAPI RentPeriodToStr(short prd, short numprds, char * buf, size_t bu
 	return 1;
 }
 
-static int SLAPI StrToRentPeriod(const char * pBuf, short * pPeriod, short * pNumPeriods)
+static int StrToRentPeriod(const char * pBuf, short * pPeriod, short * pNumPeriods)
 {
 	char   temp[64], number[32], l = 0;
 	short  prd = 0, numprds = 0;
@@ -165,7 +165,7 @@ static int SLAPI StrToRentPeriod(const char * pBuf, short * pPeriod, short * pNu
 }
 #endif // } 0
 
-int SLAPI PPRentCondition::IsEmpty() const
+int PPRentCondition::IsEmpty() const
 {
 	return (!Period.IsZero() || Cycle || Percent || PartAmount) ? 0 : 1;
 }
@@ -188,7 +188,7 @@ int FASTCALL PPRentCondition::IsEqual(const PPRentCondition & rS) const
 		return 1;
 }
 
-int SLAPI PPRentCondition::GetChargeDate(const PPCycleArray * pList, uint cycleNo, LDATE * pDt) const
+int PPRentCondition::GetChargeDate(const PPCycleArray * pList, uint cycleNo, LDATE * pDt) const
 {
 	DateRange period;
 	if(pList->getPeriod(cycleNo, &period)) {
@@ -199,13 +199,13 @@ int SLAPI PPRentCondition::GetChargeDate(const PPCycleArray * pList, uint cycleN
 		return 0;
 }
 
-int SLAPI PPRentCondition::CalcRent(LDATE /*chargeDt*/, double * pAmount) const
+int PPRentCondition::CalcRent(LDATE /*chargeDt*/, double * pAmount) const
 {
 	ASSIGN_PTR(pAmount, PartAmount);
 	return 1;
 }
 
-double SLAPI PPRentCondition::CalcPercent(LDATE begDt, LDATE chargeDt, const PctChargeArray * pCreditList) const
+double PPRentCondition::CalcPercent(LDATE begDt, LDATE chargeDt, const PctChargeArray * pCreditList) const
 {
 	double result = 0.0;
 	pCreditList->ChargePercent(begDt, chargeDt, Percent, &result);
@@ -214,7 +214,7 @@ double SLAPI PPRentCondition::CalcPercent(LDATE begDt, LDATE chargeDt, const Pct
 //
 //
 //
-int SLAPI PPObjBill::AutoCharge(PPID billID, PPID opID, const PPRentCondition * pRc, const DateRange * pPeriod, PPLogger * pLogger)
+int PPObjBill::AutoCharge(PPID billID, PPID opID, const PPRentCondition * pRc, const DateRange * pPeriod, PPLogger * pLogger)
 {
 	int    ok = 1;
 	uint   i, j;
@@ -282,7 +282,7 @@ int SLAPI PPObjBill::AutoCharge(PPID billID, PPID opID, const PPRentCondition * 
 	return ok;
 }
 
-int SLAPI PPObjBill::AutoCharge(PPID id)
+int PPObjBill::AutoCharge(PPID id)
 {
 	int    ok = -1;
 	PPLogger logger;
@@ -304,7 +304,7 @@ int SLAPI PPObjBill::AutoCharge(PPID id)
 	return ok;
 }
 
-int SLAPI PPObjBill::AutoCharge()
+int PPObjBill::AutoCharge()
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -351,7 +351,7 @@ int SLAPI PPObjBill::AutoCharge()
 //
 //
 //
-int SLAPI RentChrgDialog(RentChrgFilt * pFlt) 
+int RentChrgDialog(RentChrgFilt * pFlt) 
 { 
 	class RentChrgDlg : public TDialog {
 		DECL_DIALOG_DATA(RentChrgFilt);

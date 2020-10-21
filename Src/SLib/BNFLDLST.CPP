@@ -5,7 +5,7 @@
 #include <tv.h>
 #pragma hdrstop
 
-int SLAPI BNField::IsEqual(const BNField & rS, int nameAndTypeOnly) const
+int BNField::IsEqual(const BNField & rS, int nameAndTypeOnly) const
 {
 	if(T != rS.T)
 		return 0;
@@ -41,7 +41,7 @@ int FASTCALL BNField::getValue(const void * pDataBuf, void * pBuf, size_t * pSiz
 		return 0;
 }
 
-int SLAPI BNField::setValue(void * pDataBuf, const void * pBuf) const
+int BNField::setValue(void * pDataBuf, const void * pBuf) const
 {
 	if(pDataBuf && pBuf) {
 		memcpy(PTR8(pDataBuf)+Offs, pBuf, stsize(T));
@@ -51,7 +51,7 @@ int SLAPI BNField::setValue(void * pDataBuf, const void * pBuf) const
 		return 0;
 }
 
-int SLAPI BNField::putValueToString(const void * pDataBuf, char * pBuf) const
+int BNField::putValueToString(const void * pDataBuf, char * pBuf) const
 {
 	if(pDataBuf && pBuf) {
 		const void * p_data = PTR8C(pDataBuf)+Offs;
@@ -64,21 +64,21 @@ int SLAPI BNField::putValueToString(const void * pDataBuf, char * pBuf) const
 //
 //
 //
-SLAPI BNFieldList::BNFieldList() : count(0), fields(0)
+BNFieldList::BNFieldList() : count(0), fields(0)
 {
 }
 
-SLAPI BNFieldList::BNFieldList(const BNFieldList & rS) : count(0), fields(0)
+BNFieldList::BNFieldList(const BNFieldList & rS) : count(0), fields(0)
 {
 	copy(&rS);
 }
 
-SLAPI BNFieldList::~BNFieldList()
+BNFieldList::~BNFieldList()
 {
 	SAlloc::F(fields);
 }
 
-void SLAPI BNFieldList::reset()
+void BNFieldList::reset()
 {
 	if(count) {
 		SAlloc::F(fields);
@@ -87,7 +87,7 @@ void SLAPI BNFieldList::reset()
 	}
 }
 
-int SLAPI BNFieldList::IsEqual(const BNFieldList & rS, int nameAndTypeOnly) const
+int BNFieldList::IsEqual(const BNFieldList & rS, int nameAndTypeOnly) const
 {
 	if(count != rS.count)
 		return 0;
@@ -126,7 +126,7 @@ int FASTCALL BNFieldList::addField(const BNField & rSrc)
 	return addField(rSrc.Name, rSrc.T, UNDEF);
 }
 
-int SLAPI BNFieldList::addField(const char * pName, TYPEID type, int id)
+int BNFieldList::addField(const char * pName, TYPEID type, int id)
 {
 	int    ok = 1;
 	BNField fld;
@@ -162,7 +162,7 @@ int SLAPI BNFieldList::addField(const char * pName, TYPEID type, int id)
 	return ok;
 }
 
-int SLAPI BNFieldList::setFieldId(uint fldNo, int fldId)
+int BNFieldList::setFieldId(uint fldNo, int fldId)
 {
 	if(fldNo < count) {
 		fields[fldNo].Id = fldId;
@@ -172,7 +172,7 @@ int SLAPI BNFieldList::setFieldId(uint fldNo, int fldId)
 		return 0;
 }
 
-const BNField & SLAPI BNFieldList::getField(uint id, int byPosition) const
+const BNField & BNFieldList::getField(uint id, int byPosition) const
 {
 	if(byPosition)
 		return (id < count) ? fields[id] : *reinterpret_cast<BNField *>(0);
@@ -183,7 +183,7 @@ const BNField & SLAPI BNFieldList::getField(uint id, int byPosition) const
 	return *reinterpret_cast<BNField *>(0);
 }
 
-int SLAPI BNFieldList::getFieldPosition(int id, uint * pPos) const
+int BNFieldList::getFieldPosition(int id, uint * pPos) const
 {
 	for(uint i = 0; i < count; i++)
 		if(fields[i].Id == id) {
@@ -193,7 +193,7 @@ int SLAPI BNFieldList::getFieldPosition(int id, uint * pPos) const
 	return 0;
 }
 
-const BNField & SLAPI BNFieldList::getField(const char * pName, uint * pPos) const
+const BNField & BNFieldList::getField(const char * pName, uint * pPos) const
 {
 	for(uint i = 0; i < count; i++)
 		if(stricmp(fields[i].Name, pName) == 0) {
@@ -203,7 +203,7 @@ const BNField & SLAPI BNFieldList::getField(const char * pName, uint * pPos) con
 	return *reinterpret_cast<BNField *>(0);
 }
 
-RECORDSIZE SLAPI BNFieldList::getRecSize() const
+RECORDSIZE BNFieldList::getRecSize() const
 {
 	RECORDSIZE s = 0;
 	for(uint i = 0; i < count; i++) {
@@ -214,7 +214,7 @@ RECORDSIZE SLAPI BNFieldList::getRecSize() const
 	return s;
 }
 
-int SLAPI BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList) const
+int BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList) const
 {
 	int    eq = 1;
 	if(pRec1 == 0 && pRec2 == 0)
@@ -236,7 +236,7 @@ int SLAPI BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, Lo
 	return eq;
 }
 
-/*void SLAPI BNFieldList::RecordToStr(const void * pRec, SString & rBuf) const
+/*void BNFieldList::RecordToStr(const void * pRec, SString & rBuf) const
 {
 	rBuf.Z();
 	char   fld_val_buf[1024];

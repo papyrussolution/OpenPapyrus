@@ -141,22 +141,22 @@
 
 class OfdBuffer : public SBuffer {
 public:
-	SLAPI  OfdBuffer();
-	int    SLAPI StartPacket(int ofddt);
-    int    SLAPI PutTagU8(int tag, uint8 v);
-    int    SLAPI PutTagI16(int tag, int16 v);
-    int    SLAPI PutTagI32(int tag, int32 v);
-    int    SLAPI PutTagVLN(int tag, uint32 v);
-    int    SLAPI PutTagFVLN(int tag, size_t maxLen, double v, int prec);
-    int    SLAPI PutTagString(int tag, size_t maxLen, const char * pV);
-    int    SLAPI PutTagStringFix(int tag, size_t maxLen, const char * pV);
+	OfdBuffer();
+	int    StartPacket(int ofddt);
+    int    PutTagU8(int tag, uint8 v);
+    int    PutTagI16(int tag, int16 v);
+    int    PutTagI32(int tag, int32 v);
+    int    PutTagVLN(int tag, uint32 v);
+    int    PutTagFVLN(int tag, size_t maxLen, double v, int prec);
+    int    PutTagString(int tag, size_t maxLen, const char * pV);
+    int    PutTagStringFix(int tag, size_t maxLen, const char * pV);
 };
 
-SLAPI OfdBuffer::OfdBuffer() : SBuffer()
+OfdBuffer::OfdBuffer() : SBuffer()
 {
 }
 
-int SLAPI OfdBuffer::StartPacket(int ofddt)
+int OfdBuffer::StartPacket(int ofddt)
 {
 	int    ok = 1;
 	int16  _t = ofddt;
@@ -165,7 +165,7 @@ int SLAPI OfdBuffer::StartPacket(int ofddt)
     return ok;
 }
 
-int SLAPI OfdBuffer::PutTagU8(int tag, uint8 v)
+int OfdBuffer::PutTagU8(int tag, uint8 v)
 {
     int    ok = 1;
     int16  _t = tag;
@@ -177,7 +177,7 @@ int SLAPI OfdBuffer::PutTagU8(int tag, uint8 v)
     return ok;
 }
 
-int SLAPI OfdBuffer::PutTagI16(int tag, int16 v)
+int OfdBuffer::PutTagI16(int tag, int16 v)
 {
     int    ok = 1;
     int16  _t = tag;
@@ -189,7 +189,7 @@ int SLAPI OfdBuffer::PutTagI16(int tag, int16 v)
     return ok;
 }
 
-int SLAPI OfdBuffer::PutTagI32(int tag, int32 v)
+int OfdBuffer::PutTagI32(int tag, int32 v)
 {
     int    ok = 1;
     int16  _t = tag;
@@ -201,17 +201,17 @@ int SLAPI OfdBuffer::PutTagI32(int tag, int32 v)
     return ok;
 }
 
-int SLAPI OfdBuffer::PutTagVLN(int tag, uint32 v)
+int OfdBuffer::PutTagVLN(int tag, uint32 v)
 {
 	return 0; // @construction
 }
 
-int SLAPI OfdBuffer::PutTagFVLN(int tag, size_t maxLen, double v, int prec)
+int OfdBuffer::PutTagFVLN(int tag, size_t maxLen, double v, int prec)
 {
 	return 0; // @construction
 }
 
-int SLAPI OfdBuffer::PutTagString(int tag, size_t maxLen, const char * pV)
+int OfdBuffer::PutTagString(int tag, size_t maxLen, const char * pV)
 {
     int    ok = 1;
 	const  size_t _sl = sstrlen(pV);
@@ -226,7 +226,7 @@ int SLAPI OfdBuffer::PutTagString(int tag, size_t maxLen, const char * pV)
     return ok;
 }
 
-int SLAPI OfdBuffer::PutTagStringFix(int tag, size_t maxLen, const char * pV)
+int OfdBuffer::PutTagStringFix(int tag, size_t maxLen, const char * pV)
 {
     int    ok = 1;
     SString temp_buf(pV);

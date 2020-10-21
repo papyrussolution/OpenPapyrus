@@ -298,7 +298,7 @@ int PPObjListWindow::Transmit(PPID)
 //
 // PPListDialog
 //
-SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezID), CtlList(aCtlList), ContextMenuID(0), Options(0)
+PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezID), CtlList(aCtlList), ContextMenuID(0), Options(0)
 {
 	if(flags & fOnDblClkOk)
 		Options |= oOnDblClkOk;
@@ -451,12 +451,12 @@ IMPL_HANDLE_EVENT(PPListDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPListDialog::getSelection(long * pID)
+int PPListDialog::getSelection(long * pID)
 	{ return getCurItem(0, pID); }
-int SLAPI PPListDialog::addStringToList(long itemId, const char * pText)
+int PPListDialog::addStringToList(long itemId, const char * pText)
 	{ return (!P_Box || !P_Box->addItem(itemId, pText)) ? PPSetErrorSLib() : 1; }
 
-void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
+void PPListDialog::updateList(long pos, int byPos /*= 1*/)
 {
 	SmartListBox * p_box = P_Box;
 	if(p_box) {
@@ -474,7 +474,7 @@ void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 	}
 }
 
-int SLAPI PPListDialog::getCurItem(long * pPos, long * pID) const
+int PPListDialog::getCurItem(long * pPos, long * pID) const
 {
 	SmartListBox * p_box = P_Box;
 	if(p_box && p_box->def) {
@@ -488,7 +488,7 @@ int SLAPI PPListDialog::getCurItem(long * pPos, long * pID) const
 		return 0;
 }
 
-int SLAPI PPListDialog::getCurString(SString & rBuf) const
+int PPListDialog::getCurString(SString & rBuf) const
 {
 	SmartListBox * p_box = P_Box;
 	if(p_box && p_box->def) {
@@ -499,7 +499,7 @@ int SLAPI PPListDialog::getCurString(SString & rBuf) const
 		return 0;
 }
 
-int SLAPI PPListDialog::getText(long itemN /* 0.. */, SString & rBuf)
+int PPListDialog::getText(long itemN /* 0.. */, SString & rBuf)
 {
 	SmartListBox * p_box = P_Box;
 	return (p_box && p_box->def) ? p_box->getText(itemN, rBuf) : 0;

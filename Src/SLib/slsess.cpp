@@ -51,7 +51,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 //
 //
 //
-SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0),
+SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0),
 	BinDateFmt_(DEFAULT_BIN_DATE_FORMAT), TxtDateFmt_(DEFAULT_TXT_DATE_FORMAT), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
 	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0), RvlSStA(1024), RvlSStW(1024)
 {
@@ -65,12 +65,12 @@ SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOs
 	NextDialogLuPos.Set(-1, -1);
 }
 
-SLAPI SlThreadLocalArea::~SlThreadLocalArea()
+SlThreadLocalArea::~SlThreadLocalArea()
 {
 	Destroy();
 }
 
-void SLAPI SlThreadLocalArea::Destroy()
+void SlThreadLocalArea::Destroy()
 {
 	ZDELETE(P_Rez);
 	if(FontDc)
@@ -78,7 +78,7 @@ void SLAPI SlThreadLocalArea::Destroy()
 	RemoveTempFiles();
 }
 
-TVRez * SLAPI SlThreadLocalArea::GetRez()
+TVRez * SlThreadLocalArea::GetRez()
 {
 	if(!P_Rez) {
 		SString name;
@@ -89,19 +89,19 @@ TVRez * SLAPI SlThreadLocalArea::GetRez()
 	return P_Rez;
 }
 
-void SLAPI SlThreadLocalArea::SetNextDialogLuPos(int left, int top)
+void SlThreadLocalArea::SetNextDialogLuPos(int left, int top)
 {
 	NextDialogLuPos.Set(left, top);
 }
 
-TPoint SLAPI SlThreadLocalArea::GetNextDialogLuPos()
+TPoint SlThreadLocalArea::GetNextDialogLuPos()
 {
 	TPoint result = NextDialogLuPos;
 	NextDialogLuPos.Set(-1, -1);
 	return result;
 }
 
-HDC SLAPI SlThreadLocalArea::GetFontDC()
+HDC SlThreadLocalArea::GetFontDC()
 {
 	if(!FontDc) {
 		FontDc = ::CreateCompatibleDC(0);
@@ -113,12 +113,12 @@ HDC SLAPI SlThreadLocalArea::GetFontDC()
 	return FontDc;
 }
 
-int SLAPI SlThreadLocalArea::RegisterTempFileName(const char * pFileName)
+int SlThreadLocalArea::RegisterTempFileName(const char * pFileName)
 {
 	return isempty(pFileName) ? -1 : TempFileList.add(pFileName);
 }
 
-void SLAPI SlThreadLocalArea::RemoveTempFiles()
+void SlThreadLocalArea::RemoveTempFiles()
 {
 	SString file_name;
 	StringSet temp_list;
@@ -128,7 +128,7 @@ void SLAPI SlThreadLocalArea::RemoveTempFiles()
 	TempFileList = temp_list;
 }
 
-SLAPI SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0), // @v9.8.1 256-->512
+SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0), // @v9.8.1 256-->512
 	WsaInitCounter(0), HelpCookie(0), UiLanguageId(0)
 {
 	assert((void *)&TlsIdx == (void *)this); // TlsIdx - @firstmember
@@ -165,7 +165,7 @@ SLAPI SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEv
 	InitThread();
 }
 
-SLAPI SlSession::~SlSession()
+SlSession::~SlSession()
 {
 	if(ExtraProcBlk.F_CallHelp && HelpCookie) {
 		ExtraProcBlk.F_CallHelp(0, HH_UNINITIALIZE, HelpCookie);
@@ -180,12 +180,12 @@ SLAPI SlSession::~SlSession()
 #endif
 }
 
-int SLAPI SlSession::CheckStopFlag() const
+int SlSession::CheckStopFlag() const
 {
 	return BIN(StopFlag);
 }
 
-int SLAPI SlSession::Stop()
+int SlSession::Stop()
 {
 	int    ok = -1;
 	if(!StopFlag) {
@@ -200,7 +200,7 @@ int SLAPI SlSession::Stop()
 	return ok;
 }
 
-int SLAPI SlSession::ResetStopState()
+int SlSession::ResetStopState()
 {
 	int    ok = -1;
 	if(StopFlag) {
@@ -410,7 +410,7 @@ static void InitTest()
 #endif // } NDEBUG
 }
 
-void SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
+void SlSession::Init(const char * pAppName, HINSTANCE hInst)
 {
 	/*
 	{
@@ -448,7 +448,7 @@ void SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	InitTest();
 }
 
-void SLAPI SlSession::SetAppName(const char * pAppName)
+void SlSession::SetAppName(const char * pAppName)
 {
 	AppName = pAppName;
 	if(!P_StopEvnt && AppName.NotEmpty()) {
@@ -457,7 +457,7 @@ void SLAPI SlSession::SetAppName(const char * pAppName)
 	}
 }
 
-int SLAPI SlSession::InitWSA()
+int SlSession::InitWSA()
 {
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
@@ -470,7 +470,7 @@ int SLAPI SlSession::InitWSA()
 	return ok;
 }
 
-const void * SLAPI SlSession::InitThread()
+const void * SlSession::InitThread()
 {
 	SlThreadLocalArea * p_tla = new SlThreadLocalArea;
 	TlsSetValue(TlsIdx, p_tla);
@@ -479,7 +479,7 @@ const void * SLAPI SlSession::InitThread()
 	return (const void *)p_tla;
 }
 
-void SLAPI SlSession::ReleaseThread()
+void SlSession::ReleaseThread()
 {
 	SlThreadLocalArea * p_tla = static_cast<SlThreadLocalArea *>(TlsGetValue(TlsIdx));
 	if(p_tla) {
@@ -503,8 +503,8 @@ void SLAPI SlSession::ReleaseThread()
 #endif
 }*/
 
-// (inlined) SlThreadLocalArea & SLAPI SlSession::GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
-// (inlined) const SlThreadLocalArea & SLAPI SlSession::GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
+// (inlined) SlThreadLocalArea & SlSession::GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
+// (inlined) const SlThreadLocalArea & SlSession::GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 
 int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 {
@@ -553,13 +553,13 @@ int FASTCALL SlSession::SetOsError(const char * pAddedMsg)
 	return 0; // @v8.7.8 1-->0
 }
 
-int    SLAPI SlSession::GetOsError() const { return GetConstTLA().LastOsErr; }
+int    SlSession::GetOsError() const { return GetConstTLA().LastOsErr; }
 const  SString & SlSession::GetAddedMsgString() const { return GetConstTLA().AddedMsgString; }
-const  SString & SLAPI SlSession::GetExePath() const { return ExePath; }
-const  SString & SLAPI SlSession::GetAppName() const { return AppName; }
+const  SString & SlSession::GetExePath() const { return ExePath; }
+const  SString & SlSession::GetAppName() const { return AppName; }
 void   FASTCALL SlSession::SetAddedMsgString(const char * pStr) { GetTLA().AddedMsgString = pStr; }
 
-void SLAPI SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
+void SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
 {
 	if(currentThreadOnly) {
 		GetTLA().UiLanguageId = languageId;
@@ -571,7 +571,7 @@ void SLAPI SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
 	}
 }
 
-int  SLAPI SlSession::GetUiLanguageId() const
+int  SlSession::GetUiLanguageId() const
 {
 	int    lid = GetConstTLA().UiLanguageId;
 	return (lid < 0) ? UiLanguageId : lid;
@@ -584,10 +584,10 @@ SString & SlSession::GetStopEventName(SString & rBuf) const
 	return rBuf.Z().Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat(temp_buf);
 }
 
-int    SLAPI SlSession::RegisterTempFileName(const char * pFileName) { return GetTLA().RegisterTempFileName(pFileName); }
-void   SLAPI SlSession::RemoveTempFiles() { GetTLA().RemoveTempFiles(); }
-void   SLAPI SlSession::SetLogPath(const char * pPath) { GetTLA().LogPath = pPath; }
-SString & SLAPI SlSession::GetLogPath(SString & rPath) const { return (rPath = GetConstTLA().LogPath); }
+int    SlSession::RegisterTempFileName(const char * pFileName) { return GetTLA().RegisterTempFileName(pFileName); }
+void   SlSession::RemoveTempFiles() { GetTLA().RemoveTempFiles(); }
+void   SlSession::SetLogPath(const char * pPath) { GetTLA().LogPath = pPath; }
+SString & SlSession::GetLogPath(SString & rPath) const { return (rPath = GetConstTLA().LogPath); }
 //
 //
 //
@@ -693,13 +693,13 @@ void * FASTCALL SlSession::GlobalObjectArray::GetObject(uint idx)
 	return ptr;
 }
 
-uint   SLAPI SlSession::CreateGlobalObject(SClassWrapper & rCls) { return GlobObjList.CreateObject(rCls); }
-int    SLAPI SlSession::DestroyGlobalObject(uint idx) { return GlobObjList.DestroyObject(idx); }
+uint   SlSession::CreateGlobalObject(SClassWrapper & rCls) { return GlobObjList.CreateObject(rCls); }
+int    SlSession::DestroyGlobalObject(uint idx) { return GlobObjList.DestroyObject(idx); }
 void * FASTCALL SlSession::GetGlobalObject(uint idx) { return GlobObjList.GetObject(idx); }
-int64  SLAPI SlSession::GetSequenceValue() { return SeqValue.Incr(); }
-uint64 SLAPI SlSession::GetProfileTime() { return GetTLA().Prf.GetAbsTimeMicroseconds(); }
+int64  SlSession::GetSequenceValue() { return SeqValue.Incr(); }
+uint64 SlSession::GetProfileTime() { return GetTLA().Prf.GetAbsTimeMicroseconds(); }
 
-long SLAPI SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb) // @cs
+long SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb) // @cs
 {
 	long   _i = 0;
 	// (здесь нельзя использовать макрос из-за зацикливания при трассировке блокировок) ENTER_CRITICAL_SECTION
@@ -736,7 +736,7 @@ long SLAPI SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * 
 	return _i;
 }
 
-long  SLAPI SlSession::SetUiFlag(long f, int set)
+long  SlSession::SetUiFlag(long f, int set)
 {
     SlThreadLocalArea & r_tla = GetTLA();
     const long prev_ui_flags = r_tla.UiFlags;
@@ -754,7 +754,7 @@ struct DdoEntry {
 	void * P_Obj;
 };
 
-int SLAPI SlSession::SetupDragndropObj(int ddoType, void * pObj)
+int SlSession::SetupDragndropObj(int ddoType, void * pObj)
 {
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
@@ -777,7 +777,7 @@ int SLAPI SlSession::SetupDragndropObj(int ddoType, void * pObj)
 	return ok;
 }
 
-int SLAPI SlSession::IsThereDragndropObj(void ** ppObj)
+int SlSession::IsThereDragndropObj(void ** ppObj)
 {
 	int    type = 0;
 	ENTER_CRITICAL_SECTION
@@ -792,13 +792,13 @@ int SLAPI SlSession::IsThereDragndropObj(void ** ppObj)
 	return type;
 }
 
-SLAPI SGlobalSecureConfig::SGlobalSecureConfig() : Flags(0)
+SGlobalSecureConfig::SGlobalSecureConfig() : Flags(0)
 {
 }
 
-int SLAPI SGlobalSecureConfig::IsEmpty() const { return BIN(Flags == 0 && CaFile.Empty() && CaPath.Empty()); }
+int SGlobalSecureConfig::IsEmpty() const { return BIN(Flags == 0 && CaFile.Empty() && CaPath.Empty()); }
 
-const SGlobalSecureConfig & SLAPI SlSession::GetGlobalSecureConfig()
+const SGlobalSecureConfig & SlSession::GetGlobalSecureConfig()
 {
 	SlThreadLocalArea & r_tla = GetTLA();
 	SGlobalSecureConfig & r_cfg = r_tla.Gsc;
@@ -818,7 +818,7 @@ const SGlobalSecureConfig & SLAPI SlSession::GetGlobalSecureConfig()
 //
 //
 //
-int SLAPI SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize)
+int SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize)
 {
 	int    ok = 1;
 	long   current_size = 0;
@@ -890,61 +890,61 @@ int SLAPI SlSession::LogMessage(const char * pFileName, const char * pStr, ulong
 	return ok;
 }
 
-int SLAPI SlSession::LoadString_(const char * pSignature, SString & rBuf) const
+int SlSession::LoadString_(const char * pSignature, SString & rBuf) const
 {
 	LoadStringFunc f_ls = ExtraProcBlk.F_LoadString;
 	return f_ls ? f_ls(pSignature, rBuf) : 0;
 }
 
-int SLAPI SlSession::ExpandString(SString & rBuf, int ctransf) const
+int SlSession::ExpandString(SString & rBuf, int ctransf) const
 {
 	ExpandStringFunc f_es = ExtraProcBlk.F_ExpandString;
 	return f_es ? f_es(rBuf, ctransf) : 0;
 }
 
-int SLAPI SlSession::QueryPath(const char * pSignature, SString & rBuf) const
+int SlSession::QueryPath(const char * pSignature, SString & rBuf) const
 {
     QueryPathFunc f_qp = ExtraProcBlk.F_QueryPath;
     return f_qp ? f_qp(pSignature, rBuf) : (rBuf.Z(), 0);
 }
 
-void SLAPI SlSession::GetExtraProcBlock(SlExtraProcBlock * pBlk) const
+void SlSession::GetExtraProcBlock(SlExtraProcBlock * pBlk) const
 {
 	ASSIGN_PTR(pBlk, ExtraProcBlk);
 }
 
-void SLAPI SlSession::SetExtraProcBlock(const SlExtraProcBlock * pBlk)
+void SlSession::SetExtraProcBlock(const SlExtraProcBlock * pBlk)
 {
 	ENTER_CRITICAL_SECTION
 	ExtraProcBlk.Set(pBlk);
 	LEAVE_CRITICAL_SECTION
 }
 
-void SLAPI SlSession::LockPush(int lockType, const char * pSrcFileName, uint srcLineNo)
+void SlSession::LockPush(int lockType, const char * pSrcFileName, uint srcLineNo)
 {
 	SlThreadLocalArea & r_tla = GetTLA();
 	if(&r_tla)
 		r_tla.LckStk.Push(lockType, pSrcFileName, srcLineNo);
 }
 
-void SLAPI SlSession::LockPop()
+void SlSession::LockPop()
 {
 	SlThreadLocalArea & r_tla = GetTLA();
 	if(&r_tla)
 		r_tla.LckStk.Pop();
 }
 
-SString  & SLAPI SlSession::AcquireRvlStr() { return GetTLA().RvlSStA.Get(); }
-SStringU & SLAPI SlSession::AcquireRvlStrU() { return GetTLA().RvlSStW.Get(); }
+SString  & SlSession::AcquireRvlStr() { return GetTLA().RvlSStA.Get(); }
+SStringU & SlSession::AcquireRvlStrU() { return GetTLA().RvlSStW.Get(); }
 
 #if 0 // @v9.1.2 replaced by SetExtraProcBlock() {
-int SLAPI SlSession::SetGlobalSecureConfigFunc(GetGlobalSecureConfigFunc fProc)
+int SlSession::SetGlobalSecureConfigFunc(GetGlobalSecureConfigFunc fProc)
 {
 	F_GetGlobalSecureConfig = fProc;
 	return 1;
 }
 
-int SLAPI SlSession::SetLoadStringFunc(LoadStringFunc fProc)
+int SlSession::SetLoadStringFunc(LoadStringFunc fProc)
 {
 	ENTER_CRITICAL_SECTION
 	F_LoadString = fProc;
@@ -952,7 +952,7 @@ int SLAPI SlSession::SetLoadStringFunc(LoadStringFunc fProc)
 	return 1;
 }
 
-int SLAPI SlSession::SetExpandStringFunc(ExpandStringFunc fProc)
+int SlSession::SetExpandStringFunc(ExpandStringFunc fProc)
 {
 	ENTER_CRITICAL_SECTION
 	F_ExpandString = fProc;
@@ -960,7 +960,7 @@ int SLAPI SlSession::SetExpandStringFunc(ExpandStringFunc fProc)
 	return 1;
 }
 
-int SLAPI SlSession::SetCallHelpFunc(CallHelpFunc fProc)
+int SlSession::SetCallHelpFunc(CallHelpFunc fProc)
 {
 	ENTER_CRITICAL_SECTION
 	F_CallHelp = fProc;
@@ -973,12 +973,12 @@ int SLAPI SlSession::SetCallHelpFunc(CallHelpFunc fProc)
 
 #endif // } 0 @v9.1.2 replaced by SetExtraProcBlock()
 
-int SLAPI SlSession::CallHelp(void * hWnd, uint cmd, uint ctx)
+int SlSession::CallHelp(void * hWnd, uint cmd, uint ctx)
 {
 	return ExtraProcBlk.F_CallHelp ? ExtraProcBlk.F_CallHelp(hWnd, cmd, ctx) : 0;
 }
 
-int SLAPI SlSession::SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf)
+int SlSession::SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf)
 {
 	int    ok = -1;
 	if(pSrcStr && pSrcStr[0] == '@' && !sstrchr(pSrcStr, ' ')) {
@@ -1005,7 +1005,7 @@ int FASTCALL SlSession::SetCodepage(SCodepage cp)
 	return ok;
 }
 
-SCodepage SLAPI SlSession::GetCodepage() const
+SCodepage SlSession::GetCodepage() const
 {
 	const SlThreadLocalArea & r_tla = GetConstTLA();
 	return r_tla.CurrentCp;

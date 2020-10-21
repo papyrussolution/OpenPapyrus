@@ -43,7 +43,7 @@
 	return 0;
 }
 
-void SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
+void BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 {
 	P_Tbl = pTbl;
 	Index_ = idx;
@@ -62,17 +62,17 @@ void SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 		State |= stSqlProvider;
 }
 
-SLAPI BExtQuery::BExtQuery(DBTable * pTbl, int idx, uint aBufSize) : Buf(0)
+BExtQuery::BExtQuery(DBTable * pTbl, int idx, uint aBufSize) : Buf(0)
 {
 	Init(pTbl, idx, aBufSize);
 }
 
-SLAPI BExtQuery::BExtQuery(DBTable * pTbl, int idx) : Buf(0)
+BExtQuery::BExtQuery(DBTable * pTbl, int idx) : Buf(0)
 {
 	Init(pTbl, idx, 32);
 }
 
-SLAPI BExtQuery::~BExtQuery()
+BExtQuery::~BExtQuery()
 {
 	delete P_Stmt;
 	if(P_Restrict) {
@@ -82,7 +82,7 @@ SLAPI BExtQuery::~BExtQuery()
 	SAlloc::F(P_QBuf);
 }
 
-int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const
+int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const
 {
 	int    ok = 1;
 	Generator_SQL sg(sqlstORA, 0);
@@ -189,7 +189,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 	return ok;
 }
 
-int SLAPI BExtQuery::initIteration(int reverse, const void * pInitKey, int initSpMode)
+int BExtQuery::initIteration(int reverse, const void * pInitKey, int initSpMode)
 {
 	int    ok = 1;
 	State &= (stSqlProvider | 0); // Обнуляем все признаки кроме stSqlProvider
@@ -209,7 +209,7 @@ int SLAPI BExtQuery::initIteration(int reverse, const void * pInitKey, int initS
 	return ok;
 }
 
-int SLAPI BExtQuery::fetchFirst(void * pInitKey, int initSpMode)
+int BExtQuery::fetchFirst(void * pInitKey, int initSpMode)
 {
 	const  int sp = (State & stReverse) ? spLast : spFirst;
 	int    ok = BIN(search_first(static_cast<char *>(pInitKey), initSpMode, sp) > 0 || (BTRNFOUND && ActCount));
@@ -218,7 +218,7 @@ int SLAPI BExtQuery::fetchFirst(void * pInitKey, int initSpMode)
 	return ok;
 }
 
-int SLAPI BExtQuery::nextIteration()
+int BExtQuery::nextIteration()
 {
 	int    ok = 0;
 	if(State & stFirstFail)
@@ -246,12 +246,12 @@ int SLAPI BExtQuery::nextIteration()
 	return ok;
 }
 
-void SLAPI BExtQuery::resetEof()
+void BExtQuery::resetEof()
 {
 	State &= ~stEOF;
 }
 
-long SLAPI BExtQuery::countIterations(int reverse, const void * pInitKey, int initSpMode)
+long BExtQuery::countIterations(int reverse, const void * pInitKey, int initSpMode)
 {
 	long   c = 0;
 	initIteration(reverse, pInitKey, initSpMode);
@@ -262,7 +262,7 @@ long SLAPI BExtQuery::countIterations(int reverse, const void * pInitKey, int in
 	return c;
 }
 
-int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
+int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 {
 	EXCEPTVAR(BtrError);
 	ActCount = 0;
@@ -458,18 +458,18 @@ __again:
 	return r;
 }
 
-void SLAPI BExtQuery::setMaxReject(uint maxRej)
+void BExtQuery::setMaxReject(uint maxRej)
 {
 	MaxReject = static_cast<uint16>(maxRej);
 }
 
-BExtQuery & SLAPI BExtQuery::selectAll()
+BExtQuery & BExtQuery::selectAll()
 {
 	Fields.Destroy();
 	return *this;
 }
 
-BExtQuery & SLAPI BExtQuery::select(const DBFieldList & s)
+BExtQuery & BExtQuery::select(const DBFieldList & s)
 {
 	Fields = s;
 	return *this;
@@ -487,7 +487,7 @@ BExtQuery & SLAPIV BExtQuery::select(DBField first_arg, ...)
 	return *this;
 }
 
-int SLAPI BExtQuery::addField(const DBField & rFld)
+int BExtQuery::addField(const DBField & rFld)
 {
 	return Fields.Add(rFld);
 }
@@ -506,7 +506,7 @@ static inline uint FASTCALL sizeofterm(const BExtTerm * term)
 }
 
 /* @v9.8.6 (inlined)
-BExtTerm * SLAPI BExtQuery::get_term(int n)
+BExtTerm * BExtQuery::get_term(int n)
 {
 	int    i;
 	BExtHeader * p_h = (BExtHeader *)P_QBuf;
@@ -555,7 +555,7 @@ int FASTCALL BExtQuery::add_term(int link, int n)
 			if(p_term)
 				p_term->link = link;
 			*/
-			//BExtTerm * SLAPI BExtQuery::get_term(int n)
+			//BExtTerm * BExtQuery::get_term(int n)
 			if(P_QHead->numTerms > 0) {
 				const  uint _n = (P_QHead->numTerms-1);
 				BExtHeader * p_h = reinterpret_cast<BExtHeader *>(P_QBuf);
@@ -595,7 +595,7 @@ int FASTCALL BExtQuery::add_tree(int link, int n)
 	return ok;
 }
 
-char * SLAPI BExtQuery::getRecImage()
+char * BExtQuery::getRecImage()
 {
 	char * p_ret = 0;
 	if(Buf.IsValid()) {
@@ -637,7 +637,7 @@ int FASTCALL BExtQuery::getRecPosition(DBRowId * pPos)
 		return 0;
 }
 
-int SLAPI BExtQuery::fillTblBuf()
+int BExtQuery::fillTblBuf()
 {
 	const char * p = getRecImage();
 	char * b = P_Tbl ? static_cast<char *>(P_Tbl->getDataBuf()) : 0;

@@ -174,53 +174,53 @@ public:
 		SString Code;  // Payment code
 		SString Phone; // Phone number in E164 format, for example, +79876543210.
 	};
-	SLAPI  UdsGameInterface();
-	SLAPI ~UdsGameInterface();
-	int    SLAPI Setup(PPID guaID);
+	UdsGameInterface();
+	~UdsGameInterface();
+	int    Setup(PPID guaID);
 	//
 	// Descr: Возвращает !0 если последний метод обращения к серверу завершился ошибкой.
 	//   По ссылке rErr возвращает состояние последней ошибки.
 	//
-	int    SLAPI IsError(Error & rErr) const
+	int    IsError(Error & rErr) const
 	{
 		rErr = LastErr;
 		return BIN(LastErr.Code);
 	}
-	int    SLAPI GetSettings(Settings & rResult);        // GET https://api.uds.app/partner/v2/settings
-	int    SLAPI GetTransactionList(); // GET  https://api.uds.app/partner/v2/operations
-	int    SLAPI GetTransactionInformation(); // GET  https://api.uds.app/partner/v2/operations
-	int    SLAPI GetTransactionInformation2(); // POST https://api.uds.app/partner/v2/operations/calc
-	int    SLAPI CreateTransaction(const Transaction & rT, Transaction & pReplyT);  // POST https://api.uds.app/partner/v2/operations
-	int    SLAPI RefundTransaction();  // POST https://api.uds.app/partner/v2/operations/<id>/refund
-	int    SLAPI RewardingUsersWithPoints(); // POST https://api.uds.app/partner/v2/operations/reward
-	int    SLAPI GetCustomerList(TSCollection <Customer> & rResult); // GET https://api.uds.app/partner/v2/customers
-	int    SLAPI FindCustomer(const FindCustomerParam & rP, Customer & rC, SString & rCode, Purchase & rPurchase);  // GET https://api.uds.app/partner/v2/customers/find
-	int    SLAPI GetCustomerInformation(int64 id, Customer & rC); // GET https://api.uds.app/partner/v2/customers/<id>
-	int    SLAPI CreatePriceItem();  // POST https://api.uds.app/partner/v2/goods
-	int    SLAPI UpdatePriceItem();  // PUT https://api.uds.app/partner/v2/goods/<id>
-	int    SLAPI DeletePriceItem();  // DELETE -s https://api.uds.app/partner/v2/goods/<id>
-	int    SLAPI GetPriceItemList(); // GET -s https://api.uds.app/partner/v2/goods
-	int    SLAPI GetPriceItemInformation(); // GET -s https://api.uds.app/partner/v2/goods/<id>
+	int    GetSettings(Settings & rResult);        // GET https://api.uds.app/partner/v2/settings
+	int    GetTransactionList(); // GET  https://api.uds.app/partner/v2/operations
+	int    GetTransactionInformation(); // GET  https://api.uds.app/partner/v2/operations
+	int    GetTransactionInformation2(); // POST https://api.uds.app/partner/v2/operations/calc
+	int    CreateTransaction(const Transaction & rT, Transaction & pReplyT);  // POST https://api.uds.app/partner/v2/operations
+	int    RefundTransaction();  // POST https://api.uds.app/partner/v2/operations/<id>/refund
+	int    RewardingUsersWithPoints(); // POST https://api.uds.app/partner/v2/operations/reward
+	int    GetCustomerList(TSCollection <Customer> & rResult); // GET https://api.uds.app/partner/v2/customers
+	int    FindCustomer(const FindCustomerParam & rP, Customer & rC, SString & rCode, Purchase & rPurchase);  // GET https://api.uds.app/partner/v2/customers/find
+	int    GetCustomerInformation(int64 id, Customer & rC); // GET https://api.uds.app/partner/v2/customers/<id>
+	int    CreatePriceItem();  // POST https://api.uds.app/partner/v2/goods
+	int    UpdatePriceItem();  // PUT https://api.uds.app/partner/v2/goods/<id>
+	int    DeletePriceItem();  // DELETE -s https://api.uds.app/partner/v2/goods/<id>
+	int    GetPriceItemList(); // GET -s https://api.uds.app/partner/v2/goods
+	int    GetPriceItemInformation(); // GET -s https://api.uds.app/partner/v2/goods/<id>
 private:
-	void   SLAPI PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
-	int    SLAPI ReadError(const json_t * pJs, Error & rErr) const;
-	int    SLAPI ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const;
-	int    SLAPI ReadCustomer(const json_t * pJs, Customer & rC) const;
-	int    SLAPI ReadParticipant(const json_t * pJs, Participant & rP) const;
-	int    SLAPI ReadPurchase(const json_t * pJs, Purchase & rP) const;
+	void   PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
+	int    ReadError(const json_t * pJs, Error & rErr) const;
+	int    ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const;
+	int    ReadCustomer(const json_t * pJs, Customer & rC) const;
+	int    ReadParticipant(const json_t * pJs, Participant & rP) const;
+	int    ReadPurchase(const json_t * pJs, Purchase & rP) const;
 	InitBlock Ib;
 	Error LastErr;
 };
 
-SLAPI UdsGameInterface::UdsGameInterface()
+UdsGameInterface::UdsGameInterface()
 {
 }
 
-SLAPI UdsGameInterface::~UdsGameInterface()
+UdsGameInterface::~UdsGameInterface()
 {
 }
 
-int SLAPI UdsGameInterface::Setup(PPID guaID)
+int UdsGameInterface::Setup(PPID guaID)
 {
 	int    ok = 1;
 	PPObjGlobalUserAcc gua_obj;
@@ -250,7 +250,7 @@ int SLAPI UdsGameInterface::Setup(PPID guaID)
 	return ok;
 }
 
-void SLAPI UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
+void UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 {
 	SString temp_buf;
 	SFileFormat::GetMime(SFileFormat::Json, temp_buf);
@@ -275,7 +275,7 @@ void SLAPI UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 	}
 }
 
-int SLAPI UdsGameInterface::ReadError(const json_t * pJs, Error & rErr) const
+int UdsGameInterface::ReadError(const json_t * pJs, Error & rErr) const
 {
 	int    ok = -1;
 	const  json_t * p_cur = pJs;
@@ -320,7 +320,7 @@ int SLAPI UdsGameInterface::ReadError(const json_t * pJs, Error & rErr) const
 	return ok;
 }
 
-int SLAPI UdsGameInterface::ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const
+int UdsGameInterface::ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const
 {
 	int    ok = 1;
 	const  json_t * p_cur = pJs;
@@ -355,7 +355,7 @@ int SLAPI UdsGameInterface::ReadMembershipTier(const json_t * pJs, MembershipTie
 	return ok;
 }
 
-int SLAPI UdsGameInterface::GetSettings(Settings & rResult)
+int UdsGameInterface::GetSettings(Settings & rResult)
 {
 	LastErr.Z();
 	int    ok = 1;
@@ -456,7 +456,7 @@ int SLAPI UdsGameInterface::GetSettings(Settings & rResult)
 	return ok;
 }
 
-int SLAPI UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) const
+int UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) const
 {
 	int    ok = 1;
 	const  json_t * p_cur = pJs;
@@ -503,7 +503,7 @@ int SLAPI UdsGameInterface::ReadCustomer(const json_t * pJs, Customer & rC) cons
 	return ok;
 }
 
-int SLAPI UdsGameInterface::ReadParticipant(const json_t * pJs, Participant & rP) const
+int UdsGameInterface::ReadParticipant(const json_t * pJs, Participant & rP) const
 {
 	int    ok = 1;
 	const  json_t * p_cur = pJs;
@@ -544,7 +544,7 @@ int SLAPI UdsGameInterface::ReadParticipant(const json_t * pJs, Participant & rP
 	return ok;
 }
 
-int SLAPI UdsGameInterface::ReadPurchase(const json_t * pJs, Purchase & rP) const
+int UdsGameInterface::ReadPurchase(const json_t * pJs, Purchase & rP) const
 {
 	int    ok = 1;
 	const  json_t * p_cur = pJs;
@@ -588,7 +588,7 @@ int SLAPI UdsGameInterface::ReadPurchase(const json_t * pJs, Purchase & rP) cons
 	return ok;
 }
 
-int SLAPI UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // GET https://api.uds.app/partner/v2/customers/<id>
+int UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // GET https://api.uds.app/partner/v2/customers/<id>
 {
 	LastErr.Z();
 	int    ok = 1;
@@ -625,7 +625,7 @@ int SLAPI UdsGameInterface::GetCustomerInformation(int64 id, Customer & rC) // G
 	return ok;
 }
 
-int SLAPI UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET https://api.uds.app/partner/v2/customers
+int UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) // GET https://api.uds.app/partner/v2/customers
 {
 	LastErr.Z();
 	int    ok = -1;
@@ -680,7 +680,7 @@ int SLAPI UdsGameInterface::GetCustomerList(TSCollection <Customer> & rResult) /
 	return ok;
 }
 
-int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, SString & rCode, Purchase & rPurchase)  // GET https://api.uds.app/partner/v2/customers/find
+int UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, SString & rCode, Purchase & rPurchase)  // GET https://api.uds.app/partner/v2/customers/find
 {
 	LastErr.Z();
 	int    ok = 1;
@@ -751,7 +751,7 @@ int SLAPI UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer 
 	return ok;
 }
 
-int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rReplyT)  // POST https://api.uds.app/partner/v2/operations
+int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rReplyT)  // POST https://api.uds.app/partner/v2/operations
 {
 	/*
 	{
@@ -915,7 +915,7 @@ int SLAPI UdsGameInterface::CreateTransaction(const Transaction & rT, Transactio
 	return ok;
 }
 
-int SLAPI TestUdsInterface()
+int TestUdsInterface()
 {
 	int    ok = -1;
 	SString temp_buf;

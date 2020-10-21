@@ -8,14 +8,14 @@
 #include <pp.h>
 #include <ppds.h>
 
-SLAPI PPDeclStrucProcessor::PPDeclStrucProcessor() : P_NameTab(0), InStream(0), P_FileName(0)
+PPDeclStrucProcessor::PPDeclStrucProcessor() : P_NameTab(0), InStream(0), P_FileName(0)
 #ifndef PPDSC
 	, Ctx(0, 0)
 #endif
 {
 }
 
-SLAPI PPDeclStrucProcessor::~PPDeclStrucProcessor()
+PPDeclStrucProcessor::~PPDeclStrucProcessor()
 {
 	delete P_FileName;
 	delete P_NameTab;
@@ -24,7 +24,7 @@ SLAPI PPDeclStrucProcessor::~PPDeclStrucProcessor()
 
 #ifndef PPDSC //
 
-int SLAPI PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
+int PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 {
 	SString file_msg, msg;
 	PPGetLastErrorMessage(1, msg);
@@ -39,7 +39,7 @@ int SLAPI PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 
 #else // PPDSC
 
-int SLAPI PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
+int PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 {
 	const size_t msg_buf_len = 1024;
 	char * p_msg = new char[msg_buf_len];
@@ -56,21 +56,21 @@ int SLAPI PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 
 #endif
 
-int SLAPI PPDeclStrucProcessor::SavePos(P * p)
+int PPDeclStrucProcessor::SavePos(P * p)
 {
 	p->Pos = ftell(InStream);
 	p->Lin = Line;
 	return 1;
 }
 
-int SLAPI PPDeclStrucProcessor::RestorePos(const P * p)
+int PPDeclStrucProcessor::RestorePos(const P * p)
 {
 	fseek(InStream, p->Pos, SEEK_SET);
 	Line = p->Lin;
 	return 1;
 }
 
-int SLAPI PPDeclStrucProcessor::GetChar(int skipWS)
+int PPDeclStrucProcessor::GetChar(int skipWS)
 {
 	int    retry = 0;
 	SavePos(&ChrP);
@@ -101,12 +101,12 @@ int SLAPI PPDeclStrucProcessor::GetChar(int skipWS)
 	return (c == EOF) ? 0 : c;
 }
 
-int SLAPI PPDeclStrucProcessor::UngetChar()
+int PPDeclStrucProcessor::UngetChar()
 {
 	return RestorePos(&ChrP);
 }
 
-int SLAPI PPDeclStrucProcessor::GetTerm(int * pTerm)
+int PPDeclStrucProcessor::GetTerm(int * pTerm)
 {
 	int    term = ppdsUnknown;
 	int    c = GetChar(1);
@@ -140,7 +140,7 @@ int SLAPI PPDeclStrucProcessor::GetTerm(int * pTerm)
 	return term;
 }
 
-int SLAPI PPDeclStrucProcessor::GetWord()
+int PPDeclStrucProcessor::GetWord()
 {
 	int    c = GetChar(1);
 	WordBuf = 0;
@@ -153,7 +153,7 @@ int SLAPI PPDeclStrucProcessor::GetWord()
 	return c ? 1 : 0;
 }
 
-int SLAPI PPDeclStrucProcessor::GetValue(SString & rBuf)
+int PPDeclStrucProcessor::GetValue(SString & rBuf)
 {
 	rBuf.Z();
 	for(int c = GetChar(1); c != '\n' && c != ';';) {
@@ -182,7 +182,7 @@ int SLAPI PPDeclStrucProcessor::GetValue(SString & rBuf)
 
 #ifndef PPDSC // {
 
-PPDeclStruc * SLAPI PPDeclStrucProcessor::GetData(long typeID, void * extraPtr, const PPDeclStruc * pOuter, int dontAccept)
+PPDeclStruc * PPDeclStrucProcessor::GetData(long typeID, void * extraPtr, const PPDeclStruc * pOuter, int dontAccept)
 {
 	uint   j;
 	PPDeclStruc * p_decl = 0, * p_inner_decl = 0;
@@ -257,7 +257,7 @@ PPDeclStruc * SLAPI PPDeclStrucProcessor::GetData(long typeID, void * extraPtr, 
 	return p_decl;
 }
 
-int SLAPI PPDeclStrucProcessor::InitDataParsing(const char * pFileName)
+int PPDeclStrucProcessor::InitDataParsing(const char * pFileName)
 {
 	Line = 1;
 	SFile::ZClose(&InStream);
@@ -272,14 +272,14 @@ int SLAPI PPDeclStrucProcessor::InitDataParsing(const char * pFileName)
 	return ok;
 }
 
-int SLAPI PPDeclStrucProcessor::ReleaseDataParsing()
+int PPDeclStrucProcessor::ReleaseDataParsing()
 {
 	SFile::ZClose(&InStream);
 	ZDELETE(P_NameTab);
 	return 1;
 }
 
-int SLAPI PPDeclStrucProcessor::NextDecl(PPDeclStruc ** ppDecl, int dontAccept)
+int PPDeclStrucProcessor::NextDecl(PPDeclStruc ** ppDecl, int dontAccept)
 {
 	int    ok = -1, term;
 	SString fmt_buf, msg_buf;
@@ -304,7 +304,7 @@ int SLAPI PPDeclStrucProcessor::NextDecl(PPDeclStruc ** ppDecl, int dontAccept)
 	return ok;
 }
 
-int SLAPI PPDeclStruc::LoadFromResource(long declID)
+int PPDeclStruc::LoadFromResource(long declID)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -333,7 +333,7 @@ int SLAPI PPDeclStruc::LoadFromResource(long declID)
 	return ok;
 }
 
-int SLAPI PPDeclStrucProcessor::LoadNameTabFromResource()
+int PPDeclStrucProcessor::LoadNameTabFromResource()
 {
 	uint   res_id = 0;
 	ulong  res_pos = 0;
@@ -352,7 +352,7 @@ int SLAPI PPDeclStrucProcessor::LoadNameTabFromResource()
 
 #endif // } PPDSC
 
-int SLAPI PPDeclStrucProcessor::AddTypeName(long typeID, const char * pName)
+int PPDeclStrucProcessor::AddTypeName(long typeID, const char * pName)
 {
 	int    ok = 1;
 	if(P_NameTab == 0)
@@ -369,7 +369,7 @@ int SLAPI PPDeclStrucProcessor::AddTypeName(long typeID, const char * pName)
 	return ok;
 }
 
-int SLAPI PPDeclStrucProcessor::GetNewTypeID(long * pTypeID)
+int PPDeclStrucProcessor::GetNewTypeID(long * pTypeID)
 {
 	long   max_id = FIRST_DECLSTRUC_ID-1;
 	NameTabItem * p_item;
@@ -381,7 +381,7 @@ int SLAPI PPDeclStrucProcessor::GetNewTypeID(long * pTypeID)
 	return 1;
 }
 
-int SLAPI PPDeclStrucProcessor::GetTypeByName(const char * pName, long * pTypeID)
+int PPDeclStrucProcessor::GetTypeByName(const char * pName, long * pTypeID)
 {
 	NameTabItem * p_item;
 	PPSetAddedMsgString(pName);
@@ -396,7 +396,7 @@ int SLAPI PPDeclStrucProcessor::GetTypeByName(const char * pName, long * pTypeID
 	return (PPErrCode = PPERR_DS_TYPENAMENFOUND, -1);
 }
 
-int SLAPI PPDeclStrucProcessor::GetNameByType(long typeID, char * pBuf, size_t bufLen)
+int PPDeclStrucProcessor::GetNameByType(long typeID, char * pBuf, size_t bufLen)
 {
 	NameTabItem * p_item;
 	if(P_NameTab)

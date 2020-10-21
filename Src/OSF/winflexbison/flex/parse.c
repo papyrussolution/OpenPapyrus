@@ -266,7 +266,7 @@ typedef int YYSTYPE;
 
 extern YYSTYPE yylval;
 
-int yyparse(void);
+int yyparse();
 
 #endif /* !YY_YY_PARSE_H_INCLUDED  */
 
@@ -1178,16 +1178,11 @@ YYSTYPE yylval;
 /* Number of syntax errors so far.  */
 int yynerrs;
 
-/*----------.
-| yyparse.  |
-   `----------*/
-
-int yyparse(void)
+int yyparse()
 {
 	int yystate;
 	/* Number of tokens to shift before error messages enabled.  */
 	int yyerrstatus;
-
 	/* The stacks and their tools:
 	   'yyss': related to states.
 	   'yyvs': related to semantic values.
@@ -2658,27 +2653,21 @@ yyreturn:
  *                    conditions
  */
 
-void build_eof_action(void)
+void build_eof_action()
 {
 	int i;
 	char action_text[MAXLINE];
-
 	for(i = 1; i <= scon_stk_ptr; ++i) {
 		if(sceof[scon_stk[i]])
 			format_pinpoint_message("multiple <<EOF>> rules for start condition %s", scname[scon_stk[i]]);
-
 		else {
 			sceof[scon_stk[i]] = true;
-
 			if(previous_continued_action /* && previous action was regular */)
 				add_action("YY_RULE_SETUP\n");
-
-			snprintf(action_text, sizeof(action_text), "case YY_STATE_EOF(%s):\n",
-			    scname[scon_stk[i]]);
+			snprintf(action_text, sizeof(action_text), "case YY_STATE_EOF(%s):\n", scname[scon_stk[i]]);
 			add_action(action_text);
 		}
 	}
-
 	line_directive_out(NULL, 1);
 	add_action("[[");
 
@@ -2696,8 +2685,7 @@ void build_eof_action(void)
 void format_synerr(const char * msg, const char arg[])
 {
 	char errmsg[MAXLINE];
-
-	(void)snprintf(errmsg, sizeof(errmsg), msg, arg);
+	snprintf(errmsg, sizeof(errmsg), msg, arg);
 	synerr(errmsg);
 }
 

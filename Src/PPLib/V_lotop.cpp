@@ -4,26 +4,25 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(LotOp); SLAPI LotOpFilt::LotOpFilt() : PPBaseFilt(PPFILT_LOTOP, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(LotOp); LotOpFilt::LotOpFilt() : PPBaseFilt(PPFILT_LOTOP, 0, 0)
 {
 	SetFlatChunk(offsetof(LotOpFilt, ReserveStart),
 		offsetof(LotOpFilt, Reserve)-offsetof(LotOpFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewLotOp::PPViewLotOp() : PPView(0, &Filt, PPVIEW_LOTOP), P_BObj(BillObj), State(0)
+PPViewLotOp::PPViewLotOp() : PPView(0, &Filt, PPVIEW_LOTOP, 0, REPORT_LOTOPS), P_BObj(BillObj), State(0)
 {
 	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
-	DefReportId = REPORT_LOTOPS;
 }
 
-int SLAPI PPViewLotOp::Init_(const PPBaseFilt * pFilt)
+int PPViewLotOp::Init_(const PPBaseFilt * pFilt)
 {
 	State &= ~stCtrlX;
 	return Helper_InitBaseFilt(pFilt);
 }
 
-int SLAPI PPViewLotOp::InitIteration()
+int PPViewLotOp::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
@@ -108,7 +107,7 @@ int FASTCALL PPViewLotOp::NextIteration(LotOpViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewLotOp::GetLotRec(ReceiptTbl::Rec * pRec)
+int PPViewLotOp::GetLotRec(ReceiptTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(Filt.LotID && P_BObj->trfr->Rcpt.Search(Filt.LotID, pRec) > 0)
@@ -134,7 +133,7 @@ static IMPL_DBE_PROC(dbqf_lotopladingbill_i)
 // static
 int PPViewLotOp::DynFuncLadingBill = 0;
 
-DBQuery * SLAPI PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncLadingBill, BTS_INT, dbqf_lotopladingbill_i, 1, BTS_INT);
 
@@ -239,7 +238,7 @@ DBQuery * SLAPI PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	return q;
 }
 
-int SLAPI PPViewLotOp::SearchOp(const BrwHdr * pHdr, TransferTbl::Rec * pRec)
+int PPViewLotOp::SearchOp(const BrwHdr * pHdr, TransferTbl::Rec * pRec)
 {
 	if(pHdr) {
 		TransferTbl::Key1 k;
@@ -251,7 +250,7 @@ int SLAPI PPViewLotOp::SearchOp(const BrwHdr * pHdr, TransferTbl::Rec * pRec)
 		return 0;
 }
 
-int SLAPI PPViewLotOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLotOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -350,7 +349,7 @@ private:
 	}
 };
 
-int SLAPI PPViewLotOp::Recover(const BrwHdr * pHdr)
+int PPViewLotOp::Recover(const BrwHdr * pHdr)
 {
 	int    ok = -1;
 	RcvrTrfrDialog * dlg = 0;
@@ -384,7 +383,7 @@ int SLAPI PPViewLotOp::Recover(const BrwHdr * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewLotOp::MoveOp(const BrwHdr * pHdr)
+int PPViewLotOp::MoveOp(const BrwHdr * pHdr)
 {
 	int    ok = -1;
 	TransferTbl::Rec rec;
@@ -405,7 +404,7 @@ int SLAPI PPViewLotOp::MoveOp(const BrwHdr * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewLotOp::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewLotOp::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	const  BrwHdr * p_hdr = pHdr ? static_cast<const BrwHdr *>(pHdr) : 0;

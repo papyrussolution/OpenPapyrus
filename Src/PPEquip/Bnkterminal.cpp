@@ -144,8 +144,8 @@ int PPBnkTerminal::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
 	return ok;
 }
 
-//PPBnkTerminal * SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath)
-int SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath, PPBnkTerminal ** ppResult)
+//PPBnkTerminal * GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath)
+int GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char * pPath, PPBnkTerminal ** ppResult)
 {
 	int    ok = -1;
 	PPBnkTerminal * p_pos_term = 0;

@@ -7,11 +7,11 @@
 //
 // @ModuleDef(SalaryCore)
 //
-SLAPI SalaryCore::SalaryCore() : SalaryTbl()
+SalaryCore::SalaryCore() : SalaryTbl()
 {
 }
 
-int SLAPI SalaryCore::Validate(const SalaryTbl::Rec * pRec)
+int SalaryCore::Validate(const SalaryTbl::Rec * pRec)
 {
 	int    ok = 1;
 	if(pRec) {
@@ -31,12 +31,12 @@ int SLAPI SalaryCore::Validate(const SalaryTbl::Rec * pRec)
 	return ok;
 }
 
-int SLAPI SalaryCore::Search(PPID id, SalaryTbl::Rec * pRec)
+int SalaryCore::Search(PPID id, SalaryTbl::Rec * pRec)
 {
 	return SearchByID(this, 0, id, pRec);
 }
 
-int SLAPI SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
+int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -110,7 +110,7 @@ int SLAPI SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-/* @v10.6.7 (unused) int SLAPI SalaryCore::Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec)
+/* @v10.6.7 (unused) int SalaryCore::Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec)
 {
 	SalaryTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -120,7 +120,7 @@ int SLAPI SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 	return SearchByKey(this, 1, &k1, pRec);
 }*/
 
-int SLAPI SalaryCore::Calc(PPID postID, PPID salChargeID, int avg, const DateRange & rPeriod, double * pAmount)
+int SalaryCore::Calc(PPID postID, PPID salChargeID, int avg, const DateRange & rPeriod, double * pAmount)
 {
 	int    ok = -1;
 	int    sp = spGe;
@@ -147,7 +147,7 @@ int SLAPI SalaryCore::Calc(PPID postID, PPID salChargeID, int avg, const DateRan
 	return ok;
 }
 
-int SLAPI SalaryCore::GetIntersection(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec)
+int SalaryCore::GetIntersection(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec)
 {
 	int    ok = -1, r, sp = spGe;
 	SalaryTbl::Key1 k1;
@@ -172,7 +172,7 @@ int SLAPI SalaryCore::GetIntersection(PPID postID, PPID salChargeID, const DateR
 	return ok;
 }
 
-int SLAPI SalaryCore::GetObjectList(PPID objType, const DateRange & rPeriod, const UintHashTable * pIdList, PPIDArray * pList)
+int SalaryCore::GetObjectList(PPID objType, const DateRange & rPeriod, const UintHashTable * pIdList, PPIDArray * pList)
 {
 	int    ok = -1;
 	SalaryTbl::Key2 k2;
@@ -196,7 +196,7 @@ int SLAPI SalaryCore::GetObjectList(PPID objType, const DateRange & rPeriod, con
 	return ok;
 }
 
-int SLAPI SalaryCore::GetListByObject(PPID objType, PPID objID, const DateRange & rPeriod,
+int SalaryCore::GetListByObject(PPID objType, PPID objID, const DateRange & rPeriod,
 	const UintHashTable * pIdList, PPIDArray * pList, double * pAmount)
 {
 	int    ok = -1, idx = -1;
@@ -244,7 +244,7 @@ int SLAPI SalaryCore::GetListByObject(PPID objType, PPID objID, const DateRange 
 //
 // @ModuleDef(PPViewSalary)
 //
-IMPLEMENT_PPFILT_FACTORY(Salary); SLAPI SalaryFilt::SalaryFilt() : PPBaseFilt(PPFILT_SALARY, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Salary); SalaryFilt::SalaryFilt() : PPBaseFilt(PPFILT_SALARY, 0, 0)
 {
 	SetFlatChunk(offsetof(SalaryFilt, ReserveStart),
 		offsetof(SalaryFilt, Reserve)-offsetof(SalaryFilt, ReserveStart)+sizeof(Reserve));
@@ -253,17 +253,17 @@ IMPLEMENT_PPFILT_FACTORY(Salary); SLAPI SalaryFilt::SalaryFilt() : PPBaseFilt(PP
 //
 //
 //
-SLAPI PPViewSalary::PPViewSalary() : PPView(0, &Filt, PPVIEW_SALARY), P_TempTbl(0)
+PPViewSalary::PPViewSalary() : PPView(0, &Filt, PPVIEW_SALARY, 0, 0), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewSalary::~PPViewSalary()
+PPViewSalary::~PPViewSalary()
 {
 	if(!(ImplementFlags & implDontDelTempTables))
 		ZDELETE(P_TempTbl);
 }
 
-int SLAPI PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 #define GRP_DIV 1
 	int    ok = -1, valid_data = 0;
@@ -377,14 +377,14 @@ private:
 	PPID   StaffID;
 };
 
-int SLAPI PPViewSalary::EditItemDialog(SalaryTbl::Rec * pRec) { DIALOG_PROC_BODY(SalaryDialog, pRec); }
+int PPViewSalary::EditItemDialog(SalaryTbl::Rec * pRec) { DIALOG_PROC_BODY(SalaryDialog, pRec); }
 
-int SLAPI PPViewSalary::IsTempTblNeeded() const
+int PPViewSalary::IsTempTblNeeded() const
 {
 	return BIN(Filt.StaffID || Filt.OrgID || Filt.DivID || Filt.PersonID || (Filt.Flags & SalaryFilt::fCrosstab));
 }
 
-void SLAPI PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec)
+void PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec)
 {
 	memzero(pTempRec, sizeof(*pTempRec));
 	#define FLD(f) pTempRec->f = pRec->f
@@ -419,7 +419,7 @@ void SLAPI PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, Tem
 	}
 }
 
-int SLAPI PPViewSalary::TempRecToViewItem(const TempSalaryTbl::Rec * pTempRec, SalaryViewItem * pItem)
+int PPViewSalary::TempRecToViewItem(const TempSalaryTbl::Rec * pTempRec, SalaryViewItem * pItem)
 {
 	if(pItem) {
 		memzero(pItem, sizeof(*pItem));
@@ -443,7 +443,7 @@ int SLAPI PPViewSalary::TempRecToViewItem(const TempSalaryTbl::Rec * pTempRec, S
 	return 1;
 }
 
-int SLAPI PPViewSalary::GetSalChargeGroupItems(PPID salChargeGrpID, PPIDArray * pItems) const
+int PPViewSalary::GetSalChargeGroupItems(PPID salChargeGrpID, PPIDArray * pItems) const
 {
 	int    ok = -1;
 	PPSalChargePacket pack;
@@ -458,7 +458,7 @@ int SLAPI PPViewSalary::GetSalChargeGroupItems(PPID salChargeGrpID, PPIDArray * 
 	return ok;
 }
 
-int SLAPI PPViewSalary::GetSalChargeName(PPID salChargeID, SString & rName)
+int PPViewSalary::GetSalChargeName(PPID salChargeID, SString & rName)
 {
 	SString buf;
 	rName.Z();
@@ -475,17 +475,17 @@ int SLAPI PPViewSalary::GetSalChargeName(PPID salChargeID, SString & rName)
 
 class SalaryCrosstab : public Crosstab {
 public:
-	explicit SLAPI  SalaryCrosstab(PPViewSalary * pV) : Crosstab(), P_V(pV)
+	explicit SalaryCrosstab(PPViewSalary * pV) : Crosstab(), P_V(pV)
 	{
 	}
-	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+	virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 	{
 		PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 		SetupBrowserCtColumns(p_brw);
 		return p_brw;
 	}
 protected:
-	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
 		if(pVal && P_V) 
 			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -493,14 +493,14 @@ protected:
 	PPViewSalary * P_V;
 };
 
-void SLAPI PPViewSalary::GetTabTitle(long tabID, SString & rBuf) const
+void PPViewSalary::GetTabTitle(long tabID, SString & rBuf) const
 {
 	GetObjectName(PPOBJ_SALCHARGE, tabID, rBuf.Z());
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempSalary);
 
-int SLAPI PPViewSalary::UpdateTempRec(PPID id)
+int PPViewSalary::UpdateTempRec(PPID id)
 {
 	int    ok = 1;
 	if(P_TempTbl) {
@@ -524,7 +524,7 @@ int SLAPI PPViewSalary::UpdateTempRec(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewSalary::Init_(const PPBaseFilt * pFilt)
+int PPViewSalary::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, use_ta = 1;
 	TempSalaryTbl * p_tbl = 0;
@@ -582,7 +582,7 @@ int SLAPI PPViewSalary::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewSalary::InitIteration(int order)
+int PPViewSalary::InitIteration(int order)
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1, idx = 0;
@@ -715,7 +715,7 @@ int FASTCALL PPViewSalary::NextIteration(SalaryViewItem * pItem)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	DBQuery * q = 0;
@@ -775,7 +775,7 @@ DBQuery * SLAPI PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	return (P_Ct) ? PPView::CrosstabDbQueryStub : q;
 }
 
-int SLAPI PPViewSalary::Print(const void *)
+int PPViewSalary::Print(const void *)
 {
 	int    ok = -1;
 	uint   what = 0;
@@ -786,7 +786,7 @@ int SLAPI PPViewSalary::Print(const void *)
 	return ok;
 }
 
-PPID SLAPI PPViewSalary::GetEditId(PPID id, const PPViewBrowser * pBrw)
+PPID PPViewSalary::GetEditId(PPID id, const PPViewBrowser * pBrw)
 {
 	PPID   ret_id = 0;
 	if(P_Ct) {
@@ -808,7 +808,7 @@ PPID SLAPI PPViewSalary::GetEditId(PPID id, const PPViewBrowser * pBrw)
 	return ret_id;
 }
 
-int SLAPI PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -925,13 +925,13 @@ int SLAPI PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 //
 class SalaryContext : public ExprEvalContext {
 public:
-	explicit SLAPI  SalaryContext(PrcssrSalary * pPrcssr)
+	explicit SalaryContext(PrcssrSalary * pPrcssr)
 		{ P_Prcssr = pPrcssr; }
-	virtual int SLAPI Resolve(const char * pSymb, double * pVal)
+	virtual int Resolve(const char * pSymb, double * pVal)
 		{ return P_Prcssr ? P_Prcssr->Expr_ResolveSymb(pSymb, pVal) : 0; }
-	virtual int SLAPI IsFunc(const char * pSymb, int * pFuncId)
+	virtual int IsFunc(const char * pSymb, int * pFuncId)
 		{ return P_Prcssr ? P_Prcssr->IsFunc(pSymb, pFuncId) : 0; }
-	virtual int SLAPI ResolveFunc(int funcId, FC & rFc)
+	virtual int ResolveFunc(int funcId, FC & rFc)
 	{
 		return P_Prcssr ? P_Prcssr->Expr_ResolveFunc(funcId,
 			rFc.ArgList.getCount(), (double *)rFc.ArgList.dataPtr(), &rFc.RetReal) : 0;
@@ -977,7 +977,7 @@ paym        - сумма оплат за заданный период по до
 sieve[0; 20000:0.15; 40000:0.18](x)
 */
 
-SLAPI PrcssrSalary::FuncDescr::FuncDescr()
+PrcssrSalary::FuncDescr::FuncDescr()
 {
 	THISZERO();
 }
@@ -987,7 +987,7 @@ int FASTCALL PrcssrSalary::FuncDescr::IsEqHdr(const FuncDescr & rS) const
 	return BIN(FuncId == rS.FuncId && AmtID == rS.AmtID && Flags == rS.Flags);
 }
 
-SLAPI PrcssrSalary::PrcssrSalary() : PeriodStack(64)
+PrcssrSalary::PrcssrSalary() : PeriodStack(64)
 {
 	MEMSZERO(P);
 	PPObjAmountType amt_obj;
@@ -1023,19 +1023,19 @@ SLAPI PrcssrSalary::PrcssrSalary() : PeriodStack(64)
 	}
 }
 
-SLAPI PrcssrSalary::~PrcssrSalary()
+PrcssrSalary::~PrcssrSalary()
 {
 	delete P_BillView;
 	delete P_EvView;
 }
 
-int SLAPI PrcssrSalary::InitParam(Param * pParam)
+int PrcssrSalary::InitParam(Param * pParam)
 {
 	memzero(pParam, sizeof(*pParam));
 	return 1;
 }
 
-int SLAPI PrcssrSalary::EditParam(Param * pParam)
+int PrcssrSalary::EditParam(Param * pParam)
 {
 #define GRP_DIV 1
 	int    ok = -1;
@@ -1072,14 +1072,14 @@ int SLAPI PrcssrSalary::EditParam(Param * pParam)
 #undef GRP_DIV
 }
 
-int SLAPI PrcssrSalary::Init(const Param * pParam)
+int PrcssrSalary::Init(const Param * pParam)
 {
 	if(!RVALUEPTR(P, pParam))
 		InitParam(&P);
 	return 1;
 }
 
-int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_ta)
+int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_ta)
 {
 	int    ok = 1;
 	PPObjArticle ar_obj;
@@ -1195,7 +1195,7 @@ int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, in
 	return ok;
 }
 
-int SLAPI PrcssrSalary::Run()
+int PrcssrSalary::Run()
 {
 	int    ok = -1;
 	PPObjArticle ar_obj;
@@ -1256,7 +1256,7 @@ int SLAPI PrcssrSalary::Run()
 	return ok;
 }
 
-int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
+int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 {
 	int    ok = 0;
 	PPID   cur_id = 0; // ИД валюты (зарезервировано на будущее)
@@ -1467,13 +1467,13 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 	return ok;
 }
 
-double SLAPI PrcssrSalary::StorePeriod(const DateRange & rPeriod)
+double PrcssrSalary::StorePeriod(const DateRange & rPeriod)
 {
 	PeriodStack.push(rPeriod);
 	return ((double)(PeriodStack.getPointer()-1) + 0.1);
 }
 
-int SLAPI PrcssrSalary::Helper_GetPeriod(double arg, const DateRange & rInitPeriod, DateRange & rPeriod)
+int PrcssrSalary::Helper_GetPeriod(double arg, const DateRange & rInitPeriod, DateRange & rPeriod)
 {
 	int    ok = 1;
 	double ip;
@@ -1560,12 +1560,12 @@ int SLAPI PrcssrSalary::Helper_GetPeriod(double arg, const DateRange & rInitPeri
 	return ok;
 }
 
-int SLAPI PrcssrSalary::GetArgPeriod(double arg, DateRange & rPeriod)
+int PrcssrSalary::GetArgPeriod(double arg, DateRange & rPeriod)
 {
 	return Helper_GetPeriod(arg, P.NominalPeriod, rPeriod);
 }
 
-int SLAPI PrcssrSalary::Helper_CalcShipment(PPID opID, const DateRange & rPeriod,
+int PrcssrSalary::Helper_CalcShipment(PPID opID, const DateRange & rPeriod,
 	int kind, const PPIDArray & rArList, const FuncDescr & rFc, double * pResult)
 {
 	int    ok = 1;
@@ -1602,7 +1602,7 @@ int SLAPI PrcssrSalary::Helper_CalcShipment(PPID opID, const DateRange & rPeriod
 	return ok;
 }
 
-int SLAPI PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int kind,
+int PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int kind,
 	const PPIDArray & rArList, const PPIDArray * pExtBillList, const FuncDescr & rFc, double * pResult)
 {
 	int    ok = 1;
@@ -1663,7 +1663,7 @@ int SLAPI PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod,
 	return ok;
 }
 
-int SLAPI PrcssrSalary::ParseAmtType(const char * pText, FuncDescr & rDescr)
+int PrcssrSalary::ParseAmtType(const char * pText, FuncDescr & rDescr)
 {
 	int    ok = 1;
 	BillSymbCache * p_cache = GetDbLocalCachePtr <BillSymbCache> (PPOBJ_BILLSYMB);
@@ -1679,7 +1679,7 @@ int SLAPI PrcssrSalary::ParseAmtType(const char * pText, FuncDescr & rDescr)
 	return ok;
 }
 
-int SLAPI PrcssrSalary::ParseFunc(const char * pText)
+int PrcssrSalary::ParseFunc(const char * pText)
 {
 	int    func_id = 0;
 	FuncDescr descr;
@@ -1773,7 +1773,7 @@ int SLAPI PrcssrSalary::ParseFunc(const char * pText)
 	return func_id;
 }
 
-int SLAPI PrcssrSalary::GetFunc(int id, FuncDescr * pDescr) const
+int PrcssrSalary::GetFunc(int id, FuncDescr * pDescr) const
 {
 	uint   pos = 0;
 	if(FuncList.lsearch(&id, &pos, PTR_CMPFUNC(long))) {
@@ -1785,14 +1785,14 @@ int SLAPI PrcssrSalary::GetFunc(int id, FuncDescr * pDescr) const
 		return PPSetError(PPERR_SALARYCHARGEFORM_INVFUNCID);
 }
 
-int SLAPI PrcssrSalary::IsFunc(const char * pSymb, int * pFuncId)
+int PrcssrSalary::IsFunc(const char * pSymb, int * pFuncId)
 {
 	int    func_id = ParseFunc(pSymb);
 	ASSIGN_PTR(pFuncId, func_id);
 	return BIN(func_id);
 }
 
-int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pArgList, double * pResult)
+int PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pArgList, double * pResult)
 {
 	int    ok = 1;
 	double result = 0.0;
@@ -2085,7 +2085,7 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 	return ok;
 }
 
-int SLAPI PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
+int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 {
 	int    ok = -1;
 	SString fmt_buf, msg_buf;
@@ -2190,7 +2190,7 @@ int SLAPI PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int us
 	return ok;
 }
 
-int SLAPI PrcssrSalary::CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, double * pHours)
+int PrcssrSalary::CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, double * pHours)
 {
 	int    ok = 1;
 	long   numdays  = 0;
@@ -2218,7 +2218,7 @@ int SLAPI PrcssrSalary::CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, d
 	return ok;
 }
 
-int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
+int PrcssrSalary::TestCalcPeriod(PPID postID)
 {
 	class TestStaffCalDialog : public TDialog {
 		DECL_DIALOG_DATA(PrcssrSalary::CalcPeriodParam);
@@ -2282,7 +2282,7 @@ int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 	return ok;
 }
 
-int SLAPI DoChargeSalary()
+int DoChargeSalary()
 {
 	int    ok = -1;
 	PrcssrSalary prcssr;
@@ -2354,13 +2354,13 @@ void PPALDD_Salary::Destroy()
 //
 // Implementation of PPALDD_SalaryByPost
 //
-int SLAPI PPViewSalary::InitPostDateList()
+int PPViewSalary::InitPostDateList()
 {
 	Post_Date_List.freeAll();
 	return 1;
 }
 
-int SLAPI PPViewSalary::SetPostDateListItem(PPID postID, LDATE dt)
+int PPViewSalary::SetPostDateListItem(PPID postID, LDATE dt)
 {
 	if(Post_Date_List.SearchPair(postID, dt.v, 0))
 		return -1;

@@ -7,16 +7,16 @@
 //
 //
 //
-SLAPI TGSArray::TGSArray() : SVector(sizeof(Item)) // @v9.8.12 SArray-->SVector
+TGSArray::TGSArray() : SVector(sizeof(Item)) // @v9.8.12 SArray-->SVector
 {
 }
 
-uint SLAPI TGSArray::GetItemsCount() const
+uint TGSArray::GetItemsCount() const
 {
 	return SVector::getCount();
 }
 
-int SLAPI TGSArray::GetGoodsList(PPIDArray * pList) const
+int TGSArray::GetGoodsList(PPIDArray * pList) const
 {
 	if(pList)
 		for(uint i = 0; i < getCount(); i++)
@@ -25,7 +25,7 @@ int SLAPI TGSArray::GetGoodsList(PPIDArray * pList) const
 	return getCount() ? 1 : -1;
 }
 
-int SLAPI TGSArray::SearchGoods(PPID goodsID, int * pSign) const
+int TGSArray::SearchGoods(PPID goodsID, int * pSign) const
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -36,7 +36,7 @@ int SLAPI TGSArray::SearchGoods(PPID goodsID, int * pSign) const
 	return ok;
 }
 
-int SLAPI TGSArray::AddItem(PPID goodsID, int sign)
+int TGSArray::AddItem(PPID goodsID, int sign)
 {
 	Item item;
 	item.GoodsID = goodsID;
@@ -44,21 +44,21 @@ int SLAPI TGSArray::AddItem(PPID goodsID, int sign)
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
-void SLAPI TGSArray::Destroy()
+void TGSArray::Destroy()
 {
 	freeAll();
 }
 //
 // @ModuleDef(PPObjTech)
 //
-SLAPI PPTechPacket::PPTechPacket()
+PPTechPacket::PPTechPacket()
 {
 	// @v10.6.4 MEMSZERO(Rec);
 }
 
 TLP_IMPL(PPObjTech, TechTbl, P_Tbl);
 
-/*static*/int SLAPI PPObjTech::GenerateCode(int kind, SString & rBuf, int use_ta)
+/*static*/int PPObjTech::GenerateCode(int kind, SString & rBuf, int use_ta)
 {
 	int    ok = 1;
 	long   c = 0;
@@ -79,18 +79,18 @@ TLP_IMPL(PPObjTech, TechTbl, P_Tbl);
 	return ok;
 }
 
-SLAPI PPObjTech::PPObjTech(void * extraPtr) : PPObject(PPOBJ_TECH), ExtraPtr(extraPtr)
+PPObjTech::PPObjTech(void * extraPtr) : PPObject(PPOBJ_TECH), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-SLAPI PPObjTech::~PPObjTech()
+PPObjTech::~PPObjTech()
 {
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjTech::SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID)
+int PPObjTech::SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID)
 {
 	int    ok = -1;
 	PPID   tech_id = 0;
@@ -110,7 +110,7 @@ int SLAPI PPObjTech::SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID)
 	return ok;
 }
 
-int SLAPI PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
+int PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 {
 	int    ok = -1;
 	PPID   goods_id = 0;
@@ -136,7 +136,7 @@ int SLAPI PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 	return ok;
 }
 
-int SLAPI PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_ta)
+int PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_ta)
 {
 	int    ok = -1;
 	PPID   tech_id = 0;
@@ -185,10 +185,10 @@ int SLAPI PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, in
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjTech::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
-/*virtual*/const char * SLAPI PPObjTech::GetNamePtr() { return P_Tbl->data.Code; }
+/*virtual*/int PPObjTech::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+/*virtual*/const char * PPObjTech::GetNamePtr() { return P_Tbl->data.Code; }
 
-int SLAPI PPObjTech::SearchByCode(const char * pCode, TechTbl::Rec * pRec)
+int PPObjTech::SearchByCode(const char * pCode, TechTbl::Rec * pRec)
 {
 	TechTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -196,7 +196,7 @@ int SLAPI PPObjTech::SearchByCode(const char * pCode, TechTbl::Rec * pRec)
 	return SearchByKey(P_Tbl, 1, &k1, pRec);
 }
 
-int SLAPI PPObjTech::SearchAnalog(const TechTbl::Rec & rKey, PPID * pID, TechTbl::Rec * pRec)
+int PPObjTech::SearchAnalog(const TechTbl::Rec & rKey, PPID * pID, TechTbl::Rec * pRec)
 {
     int    ok = -1;
     PPID   id = 0;
@@ -223,7 +223,7 @@ int SLAPI PPObjTech::SearchAnalog(const TechTbl::Rec & rKey, PPID * pID, TechTbl
     return ok;
 }
 
-int SLAPI PPObjTech::GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec * pNextRec)
+int PPObjTech::GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec * pNextRec)
 {
 	int    ok = -1;
 	TechTbl::Rec s_rec;
@@ -250,7 +250,7 @@ int SLAPI PPObjTech::GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec 
 	return ok;
 }
 
-int SLAPI PPObjTech::GetToolingCondition(PPID id, SString & rFormula)
+int PPObjTech::GetToolingCondition(PPID id, SString & rFormula)
 {
 	SString ext_str;
 	if(PPRef->GetPropVlrString(Obj, id, TECPRP_EXTSTR, ext_str) > 0)
@@ -259,7 +259,7 @@ int SLAPI PPObjTech::GetToolingCondition(PPID id, SString & rFormula)
 	return -1;
 }
 
-int SLAPI PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
+int PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 {
 	int    ok = -1;
 	TechTbl::Rec tec_rec;
@@ -273,7 +273,7 @@ int SLAPI PPObjTech::GetGoodsStruc(PPID id, PPGoodsStruc * pGs)
 	return ok;
 }
 
-int SLAPI PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
+int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
 {
 	int    ok = 1, r, r2;
 	TechTbl::Rec tec_rec;
@@ -316,11 +316,11 @@ int SLAPI PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, 0, pList, prcID, 0); }
-int SLAPI PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, goodsID); }
-int SLAPI PPObjTech::DeleteObj(PPID id) { return RemoveByID(P_Tbl, id, 0); }
+int PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, 0, pList, prcID, 0); }
+int PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, goodsID); }
+int PPObjTech::DeleteObj(PPID id) { return RemoveByID(P_Tbl, id, 0); }
 
-int SLAPI PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
+int PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 {
 	int    ok = -1;
 	TechTbl::Key5 k5;
@@ -333,7 +333,7 @@ int SLAPI PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, PPID prcID, PPID goodsID)
+/*static*/int PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, PPID prcID, PPID goodsID)
 {
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
@@ -361,7 +361,7 @@ int SLAPI PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
+int PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 {
 	int    ok = -1;
 	THROW_INVARG(pPack);
@@ -373,7 +373,7 @@ int SLAPI PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
+int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPID   log_action_id = 0;
@@ -434,26 +434,26 @@ int SLAPI PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 // обработанного за секунду.
 //
 struct CalcCapacity {
-	SLAPI  CalcCapacity() : Flags(0), Unit(UNIT_SECOND), Val(0.0)
+	CalcCapacity() : Flags(0), Unit(UNIT_SECOND), Val(0.0)
 	{
 	}
 	DECL_INVARIANT_C();
 	// Descr: возвращает нормализованное значение производительности
-	double SLAPI Normalyze() const;
+	double Normalyze() const;
 	//
 	// Descr: конвертирует нормализованное представление, заданное параметром val
 	//   в значение CalcCapacity::Val в соответствии с установленными параметрами
 	//   CalcCapacity::Unit и CalcCapacity::Flags
 	//
-	int    SLAPI SetNorma(double val);
-	SString & SLAPI ToText(SString & rBuf) const
+	int    SetNorma(double val);
+	SString & ToText(SString & rBuf) const
 	{
 		return rBuf.Z().Cat((long)Unit).Semicol().Cat((long)Flags);
 	}
-	int    SLAPI FromText(const char *);
+	int    FromText(const char *);
 
-	int    SLAPI Save() const;
-	int    SLAPI Restore();
+	int    Save() const;
+	int    Restore();
 
 	enum {
 		fReverse  = 0x0001,
@@ -475,7 +475,7 @@ IMPL_INVARIANT_C(CalcCapacity)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-int SLAPI CalcCapacity::FromText(const char * pBuf)
+int CalcCapacity::FromText(const char * pBuf)
 {
 	int    ok = 1;
 	if(pBuf) {
@@ -506,7 +506,7 @@ int SLAPI CalcCapacity::FromText(const char * pBuf)
 	return ok;
 }
 
-double SLAPI CalcCapacity::Normalyze() const
+double CalcCapacity::Normalyze() const
 {
 	double div;
 	if(Unit == UNIT_MINUTE)
@@ -527,7 +527,7 @@ double SLAPI CalcCapacity::Normalyze() const
 	return round(v, 10);
 }
 
-int SLAPI CalcCapacity::SetNorma(double val)
+int CalcCapacity::SetNorma(double val)
 {
 	double div;
 	if(Unit == UNIT_MINUTE)
@@ -550,7 +550,7 @@ int SLAPI CalcCapacity::SetNorma(double val)
 
 static const char * WrParam_CalcCapacity = "CalcCapacity";
 
-int SLAPI CalcCapacity::Save() const
+int CalcCapacity::Save() const
 {
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 0);
 	SString buf;
@@ -558,7 +558,7 @@ int SLAPI CalcCapacity::Save() const
 	return 1;
 }
 
-int SLAPI CalcCapacity::Restore()
+int CalcCapacity::Restore()
 {
 	int    ok = -1;
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
@@ -568,7 +568,7 @@ int SLAPI CalcCapacity::Restore()
 	return ok;
 }
 
-int SLAPI EditCapacity(CalcCapacity * pData)
+int EditCapacity(CalcCapacity * pData)
 {
 	class CalcCapacityDialog : public TDialog {
 		DECL_DIALOG_DATA(CalcCapacity);
@@ -851,7 +851,7 @@ int TechDialog::getDTS(PPTechPacket * pData)
 //
 //
 //
-int SLAPI PPObjTech::EditDialog(PPTechPacket * pData)
+int PPObjTech::EditDialog(PPTechPacket * pData)
 {
 	if(pData) {
 		if(oneof2(pData->Rec.Kind, 0, 2)) {
@@ -973,7 +973,7 @@ int SLAPI PPObjTech::EditDialog(PPTechPacket * pData)
 	return PPSetErrorInvParam();
 }
 
-int SLAPI PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
+int PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1007,7 +1007,7 @@ int SLAPI PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta
 	return ok;
 }
 
-int SLAPI PPObjTech::Edit(PPID * pID, void * extraPtr)
+int PPObjTech::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0;
 	PPTechPacket pack;
@@ -1026,7 +1026,7 @@ int SLAPI PPObjTech::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjTech::ChangeOrderN(PPID techID, int sow, int use_ta)
+int PPObjTech::ChangeOrderN(PPID techID, int sow, int use_ta)
 {
 	int    ok = -1;
 	THROW_INVARG(oneof2(sow, SOW_NORD, SOW_SOUTH));
@@ -1074,7 +1074,7 @@ int SLAPI PPObjTech::ChangeOrderN(PPID techID, int sow, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjTech::AddBySample(PPID * pID, PPID sampleID)
+int PPObjTech::AddBySample(PPID * pID, PPID sampleID)
 {
 	int    ok = -1;
 	if(sampleID > 0) {
@@ -1096,7 +1096,7 @@ int SLAPI PPObjTech::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int SLAPI PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode)
+int PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode)
 {
 	int    ok = 1;
 	if(pList && !pList->Search(techID)) {
@@ -1120,7 +1120,7 @@ int SLAPI PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PP
 	return ok;
 }
 
-int SLAPI PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID)
+int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID)
 {
 	int    ok = 1, idx = 0;
 	PPID   prc_id = 0;
@@ -1190,7 +1190,7 @@ int SLAPI PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, 
 	return ok;
 }
 
-StrAssocArray * SLAPI PPObjTech::MakeStrAssocList(void * extraPtr)
+StrAssocArray * PPObjTech::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocArray * p_list = new StrAssocArray;
 	if(p_list) {
@@ -1202,7 +1202,7 @@ StrAssocArray * SLAPI PPObjTech::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int SLAPI PPObjTech::Browse(void * extraPtr)
+int PPObjTech::Browse(void * extraPtr)
 {
 	if(extraPtr) {
 		const long extra_param = reinterpret_cast<long>(extraPtr);
@@ -1228,7 +1228,7 @@ int SLAPI PPObjTech::Browse(void * extraPtr)
 //
 IMPL_DESTROY_OBJ_PACK(PPObjTech, PPTechPacket);
 
-int SLAPI PPObjTech::SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjTech::SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -1237,10 +1237,10 @@ int SLAPI PPObjTech::SerializePacket(int dir, PPTechPacket * pPack, SBuffer & rB
 	return ok;
 }
 
-int  SLAPI PPObjTech::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int  PPObjTech::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjTech, PPTechPacket>(this, p, id, stream, pCtx); }
 
-int  SLAPI PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int  PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	PPTechPacket * p_pack = p ? static_cast<PPTechPacket *>(p->Data) : 0;
@@ -1280,7 +1280,7 @@ int  SLAPI PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 	return ok;
 }
 
-int  SLAPI PPObjTech::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int  PPObjTech::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -1302,7 +1302,7 @@ int  SLAPI PPObjTech::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 //
 class TechCache : public ObjCache {
 public:
-	SLAPI  TechCache() : ObjCache(PPOBJ_TECH, sizeof(Data))
+	TechCache() : ObjCache(PPOBJ_TECH, sizeof(Data))
 	{
 	}
 private:
@@ -1321,11 +1321,11 @@ private:
 		double Capacity;    // Производительность процессора ProcID при использовании этой технологии
 		double Rounding;
 	};
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int SLAPI TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1354,7 +1354,7 @@ int SLAPI TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	TechTbl::Rec * p_data_rec = static_cast<TechTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -1378,13 +1378,13 @@ void SLAPI TechCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	GetName(pEntry, p_data_rec->Code, sizeof(p_data_rec->Code));
 }
 
-int SLAPI PPObjTech::Fetch(PPID id, TechTbl::Rec * pRec)
+int PPObjTech::Fetch(PPID id, TechTbl::Rec * pRec)
 {
 	TechCache * p_cache = GetDbLocalCachePtr <TechCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
-int SLAPI PPObjTech::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjTech::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
@@ -1408,19 +1408,18 @@ int SLAPI PPObjTech::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 //
 // @ModuleDef(PPViewTech)
 //
-IMPLEMENT_PPFILT_FACTORY(Tech); SLAPI TechFilt::TechFilt() : PPBaseFilt(PPFILT_TECH, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(Tech); TechFilt::TechFilt() : PPBaseFilt(PPFILT_TECH, 0, 0)
 {
 	SetFlatChunk(offsetof(TechFilt, ReserveStart),
 		offsetof(TechFilt, Reserve)-offsetof(TechFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewTech::PPViewTech() : PPView(&TecObj, &Filt, PPVIEW_TECH)
+PPViewTech::PPViewTech() : PPView(&TecObj, &Filt, PPVIEW_TECH, 0, REPORT_TECHVIEW)
 {
-	DefReportId = REPORT_TECHVIEW;
 }
 
-const TechFilt * SLAPI PPViewTech::GetFilt() const
+const TechFilt * PPViewTech::GetFilt() const
 {
 	return &Filt;
 }
@@ -1472,7 +1471,7 @@ public:
 	}
 };
 
-int SLAPI PPViewTech::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewTech::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -1480,7 +1479,7 @@ int SLAPI PPViewTech::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(TechFiltDialog, p_filt);
 }
 
-int SLAPI PPViewTech::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewTech::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt) > 0);
@@ -1490,7 +1489,7 @@ int SLAPI PPViewTech::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewTech::InitIteration()
+int PPViewTech::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
@@ -1547,7 +1546,7 @@ int FASTCALL PPViewTech::NextIteration(TechViewItem * pItem)
 	return -1;
 }
 
-void * SLAPI PPViewTech::GetEditExtraParam()
+void * PPViewTech::GetEditExtraParam()
 {
 	long   v = 0;
 	if(Filt.PrcID)
@@ -1563,7 +1562,7 @@ void * SLAPI PPViewTech::GetEditExtraParam()
 	return (void *)v;
 }
 
-DBQuery * SLAPI PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = (Filt.Kind == 1) ? BROWSER_TECHTOOLING : BROWSER_TECH;
 	TechTbl * p_tect = 0;
@@ -1632,7 +1631,7 @@ DBQuery * SLAPI PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	return q;
 }
 
-int SLAPI PPViewTech::Transmit(PPID /*id*/)
+int PPViewTech::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -1651,7 +1650,7 @@ int SLAPI PPViewTech::Transmit(PPID /*id*/)
 	return ok;
 }
 
-int SLAPI PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -1711,10 +1710,10 @@ int SLAPI PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	return ok;
 }
 
-int SLAPI ViewTech(const TechFilt * pFilt) { return PPView::Execute(PPVIEW_TECH, pFilt, 1, 0); }
+int ViewTech(const TechFilt * pFilt) { return PPView::Execute(PPVIEW_TECH, pFilt, 1, 0); }
 
 #if 0 // {
-int SLAPI ViewTech(const TechFilt * pFilt)
+int ViewTech(const TechFilt * pFilt)
 {
 	int    ok = 1, view_in_use = 0, r = -1;
 	int    modeless = GetModelessStatus();
@@ -1856,10 +1855,10 @@ public:
 	ToolingSelector(PPID prcID, PPID goodsID, PPID prevGoodsID) : List(sizeof(Entry)), PrcID(prcID), GoodsID(goodsID), PrevGoodsID(prevGoodsID)
 	{
 	}
-	int    SLAPI Run(TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
+	int    Run(TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
 private:
-	int    SLAPI LoadList(PPID prcID); // @recursion
-	int    SLAPI IsSuited(const Entry * pEntry);
+	int    LoadList(PPID prcID); // @recursion
+	int    IsSuited(const Entry * pEntry);
 
 	PPObjTech TecObj;
 	PPObjGoods GObj;
@@ -1923,7 +1922,7 @@ IMPL_CMPFUNC(ToolingEntry, i1, i2)
 			return 1;
 }
 
-int SLAPI ToolingSelector::LoadList(PPID prcID)
+int ToolingSelector::LoadList(PPID prcID)
 {
 	int16  prc_kind = 100;
 	Goods2Tbl::Rec goods_rec;
@@ -1981,7 +1980,7 @@ int SLAPI ToolingSelector::LoadList(PPID prcID)
 	return 1;
 }
 
-int SLAPI ToolingSelector::IsSuited(const Entry * pEntry)
+int ToolingSelector::IsSuited(const Entry * pEntry)
 {
 	int    is_suited = 0;
 	if(PrcID == pEntry->PrcID)
@@ -2054,7 +2053,7 @@ int SLAPI ToolingSelector::IsSuited(const Entry * pEntry)
 	return BIN(is_suited);
 }
 
-int SLAPI ToolingSelector::Run(TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
+int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
 {
 	int    ok = -1;
 	uint   i;
@@ -2090,7 +2089,7 @@ int SLAPI ToolingSelector::Run(TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArr
 	return ok;
 }
 
-int SLAPI PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
+int PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
 {
 	ToolingSelector ts(prcID, goodsID, prevGoodsID);
 	return ts.Run(pList);

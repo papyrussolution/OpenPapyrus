@@ -9,7 +9,7 @@
 //
 //
 //
-static int SLAPI CheckExeLocking()
+static int CheckExeLocking()
 {
 	SString name;
 	return fileExists(makeExecPathFileName("pplock", 0, name)) ? 0 : 1;
@@ -17,12 +17,12 @@ static int SLAPI CheckExeLocking()
 
 #if defined(_PPSERVER) // {
 
-int SLAPI run_server();
-int SLAPI run_client();
-int SLAPI run_service();
-int SLAPI install_service(int inst, const char * pLoginName, const char * pLoginPassword);
-int SLAPI start_service(int start);
-int SLAPI RFIDPrcssr();
+int run_server();
+int run_client();
+int run_service();
+int install_service(int inst, const char * pLoginName, const char * pLoginPassword);
+int start_service(int start);
+int RFIDPrcssr();
 
 enum SrvCmd {
 	srvcmdRun = 1,
@@ -242,10 +242,10 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 //
 #else // } !_PPSERVER && !_PPDLL {
 
-int SLAPI SGetAudioVolume(int decibels, double * pVolume); // @debug
-int SLAPI SSetAudioVolume(int decibels, double volume); // @debug
-int SLAPI ReformatIceCat(const char * pFileName);
-// @experimental void SLAPI ExploreIEEE754();
+int SGetAudioVolume(int decibels, double * pVolume); // @debug
+int SSetAudioVolume(int decibels, double volume); // @debug
+int ReformatIceCat(const char * pFileName);
+// @experimental void ExploreIEEE754();
 extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath, long flags); // @debug
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

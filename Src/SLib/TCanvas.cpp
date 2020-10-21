@@ -67,7 +67,7 @@ TCanvas2::Surface::Surface() : HCtx(0), P_Img(0)
 	P_SelectedFont = 0;
 }*/
 
-SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb), 
+TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb), 
 	P_Cr(0), P_CrS(0), Flags(fOuterSurface), P_SelectedFont(0)
 {
 	//Init();
@@ -80,7 +80,7 @@ SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDI
 	assert(P_Cr);
 }
 
-SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb),
+TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb),
 	P_Cr(0), P_CrS(0), Flags(fOuterSurface), P_SelectedFont(0)
 {
 	//Init();
@@ -92,7 +92,7 @@ SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack
 	assert(P_Cr);
 }
 
-SLAPI TCanvas2::~TCanvas2()
+TCanvas2::~TCanvas2()
 {
 	SelectFont(0);
 	cairo_surface_destroy(P_CrS);
@@ -158,7 +158,7 @@ int FASTCALL TCanvas2::SelectObjectAndPush(HGDIOBJ hObj)
 	return ok;
 }
 
-int SLAPI TCanvas2::PopObject()
+int TCanvas2::PopObject()
 {
 	HDC    h_dc = static_cast<HDC>(*this);
 	HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(GdiObjStack.pop());
@@ -228,7 +228,7 @@ void FASTCALL TCanvas2::Rect(const FRect & rRect)
 	ClosePath();
 }
 
-void SLAPI TCanvas2::RoundRect(const FRect & rRect, float radius)
+void TCanvas2::RoundRect(const FRect & rRect, float radius)
 {
 	/*
 	cairo_new_sub_path (cr);
@@ -355,7 +355,7 @@ BOOL FASTCALL PATH_DoArcPart(PPATH pPath, FPoint corners[], double angleStart, d
 #endif // } 0 @sample(ReactOS)
 
 
-void SLAPI TCanvas2::Arc(FPoint center, float radius, float startAngleRad, float endAngleRad)
+void TCanvas2::Arc(FPoint center, float radius, float startAngleRad, float endAngleRad)
 {
 	if(radius >= 0.0f)
 		cairo_arc(P_Cr, center.X, center.Y, radius, startAngleRad, endAngleRad);
@@ -363,12 +363,12 @@ void SLAPI TCanvas2::Arc(FPoint center, float radius, float startAngleRad, float
 		cairo_arc_negative(P_Cr, center.X, center.Y, -radius, startAngleRad, endAngleRad);
 }
 
-void SLAPI TCanvas2::Bezier(FPoint middle1, FPoint middle2, FPoint end)
+void TCanvas2::Bezier(FPoint middle1, FPoint middle2, FPoint end)
 {
 	cairo_curve_to(P_Cr, middle1.X, middle1.Y, middle2.X, middle2.Y, end.X, end.Y);
 }
 
-int SLAPI TCanvas2::Text(const char * pText, int identFont)
+int TCanvas2::Text(const char * pText, int identFont)
 {
 	int    ok = 1;
 	SPaintObj * p_obj = R_Tb.GetObj(identFont);
@@ -387,12 +387,12 @@ int SLAPI TCanvas2::Text(const char * pText, int identFont)
 	return 1;
 }
 
-void SLAPI TCanvas2::ClosePath()
+void TCanvas2::ClosePath()
 {
 	cairo_close_path(P_Cr);
 }
 
-void SLAPI TCanvas2::SubPath()
+void TCanvas2::SubPath()
 {
 	cairo_new_sub_path(P_Cr);
 }
@@ -417,7 +417,7 @@ int FASTCALL TCanvas2::SetCairoColor(SColor c)
 		return 0;
 }
 
-int SLAPI TCanvas2::Helper_SelectPen(SPaintToolBox * pTb, int penId)
+int TCanvas2::Helper_SelectPen(SPaintToolBox * pTb, int penId)
 {
 	int    ok = 1;
 	int    r = 0;
@@ -503,7 +503,7 @@ int FASTCALL TCanvas2::Implement_Stroke(int preserve)
 	return ok;
 }
 
-int SLAPI TCanvas2::Implement_Stroke(SPaintToolBox * pTb, int paintObjIdent, int preserve)
+int TCanvas2::Implement_Stroke(SPaintToolBox * pTb, int paintObjIdent, int preserve)
 {
 	return Helper_SelectPen(pTb, paintObjIdent) ?  Implement_Stroke(preserve) : 0;
 }
@@ -518,7 +518,7 @@ TCanvas2::PatternWrapper::~PatternWrapper()
 		cairo_pattern_destroy(static_cast<cairo_pattern_t *>(P));
 }
 
-int SLAPI TCanvas2::Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrapper & rPw)
+int TCanvas2::Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrapper & rPw)
 {
 	int    ok = 1;
 	int    r = 0;
@@ -608,7 +608,7 @@ int SLAPI TCanvas2::Helper_SelectBrush(SPaintToolBox * pTb, int brushId, Pattern
 	return ok;
 }
 
-int SLAPI TCanvas2::Implement_Fill(SPaintToolBox * pTb, int paintObjIdent, int preserve)
+int TCanvas2::Implement_Fill(SPaintToolBox * pTb, int paintObjIdent, int preserve)
 {
 	int    ok = 1;
 	PatternWrapper pw;
@@ -631,7 +631,7 @@ int SLAPI TCanvas2::Implement_Fill(SPaintToolBox * pTb, int paintObjIdent, int p
 	return ok;
 }
 
-int SLAPI TCanvas2::Fill(SColor c, int preserve)
+int TCanvas2::Fill(SColor c, int preserve)
 {
 	int    ok = 1;
 	SetCairoColor(c);
@@ -650,22 +650,22 @@ int SLAPI TCanvas2::Fill(SColor c, int preserve)
 	return ok;
 }
 
-int SLAPI TCanvas2::Stroke(int paintObjIdent, int preserve)
+int TCanvas2::Stroke(int paintObjIdent, int preserve)
 {
 	return Implement_Stroke(0, paintObjIdent, preserve);
 }
 
-int SLAPI TCanvas2::Fill(int paintObjIdent, int preserve)
+int TCanvas2::Fill(int paintObjIdent, int preserve)
 {
 	return Implement_Fill(0, paintObjIdent, preserve);
 }
 
-void SLAPI TCanvas2::SetColorReplacement(SColor original, SColor replacement)
+void TCanvas2::SetColorReplacement(SColor original, SColor replacement)
 {
 	ClrRpl.Set(original, replacement);
 }
 
-void SLAPI TCanvas2::ResetColorReplacement()
+void TCanvas2::ResetColorReplacement()
 {
 	ClrRpl.Reset();
 }
@@ -677,7 +677,7 @@ int FASTCALL TCanvas2::SetOperator(int opr)
 	return prev;
 }
 
-int SLAPI TCanvas2::GetOperator() const
+int TCanvas2::GetOperator() const
 {
 	return static_cast<int>(cairo_get_operator(P_Cr));
 }
@@ -697,14 +697,14 @@ void FASTCALL TCanvas2::AddTransform(const LMatrix2D & rMtx)
 	cairo_transform(P_Cr, reinterpret_cast<const cairo_matrix_t *>(&rMtx));
 }
 
-void SLAPI TCanvas2::PushTransform()
+void TCanvas2::PushTransform()
 {
 	LMatrix2D mtx;
 	GetTransform(mtx);
 	TmStk.push(mtx);
 }
 
-int SLAPI TCanvas2::PopTransform()
+int TCanvas2::PopTransform()
 {
 	LMatrix2D mtx;
 	int    ok = TmStk.pop(mtx);
@@ -713,7 +713,7 @@ int SLAPI TCanvas2::PopTransform()
 	return ok;
 }
 
-int SLAPI TCanvas2::BeginScope()
+int TCanvas2::BeginScope()
 {
 	if(Flags & fScopeRecording)
 		return 0;
@@ -735,7 +735,7 @@ int FASTCALL TCanvas2::EndScope(SRegion & rR)
 		return 0;
 }
 
-int SLAPI TCanvas2::Implement_StrokeAndFill(SPaintToolBox * pTb, int penIdent, int brushIdent)
+int TCanvas2::Implement_StrokeAndFill(SPaintToolBox * pTb, int penIdent, int brushIdent)
 {
 	int    ok = 1;
 	if(brushIdent)
@@ -746,19 +746,19 @@ int SLAPI TCanvas2::Implement_StrokeAndFill(SPaintToolBox * pTb, int penIdent, i
 	return ok;
 }
 
-void SLAPI TCanvas2::Rect(const TRect & rRect, int penIdent, int brushIdent)
+void TCanvas2::Rect(const TRect & rRect, int penIdent, int brushIdent)
 {
 	Rect(rRect);
 	Implement_StrokeAndFill(0, penIdent, brushIdent);
 }
 
-void SLAPI TCanvas2::Rect(const FRect & rRect, int penIdent, int brushIdent)
+void TCanvas2::Rect(const FRect & rRect, int penIdent, int brushIdent)
 {
 	Rect(rRect);
 	Implement_StrokeAndFill(0, penIdent, brushIdent);
 }
 
-void SLAPI TCanvas2::RoundRect(const FRect & rRect, float radius, int penIdent, int brushIdent)
+void TCanvas2::RoundRect(const FRect & rRect, float radius, int penIdent, int brushIdent)
 {
 	RoundRect(rRect, radius);
 	Implement_StrokeAndFill(0, penIdent, brushIdent);
@@ -889,19 +889,19 @@ BOOL FASTCALL IntRoundRect(PDC  dc, int  Left, int  Top, int  Right, int  Bottom
 }
 #endif // 0
 
-void SLAPI TCanvas2::LineVert(int x, int yFrom, int yTo)
+void TCanvas2::LineVert(int x, int yFrom, int yTo)
 {
 	::MoveToEx(static_cast<HDC>(S.HCtx), x, yFrom, 0);
 	::LineTo(static_cast<HDC>(S.HCtx), x, yTo);
 }
 
-void SLAPI TCanvas2::LineHorz(int xFrom, int xTo, int y)
+void TCanvas2::LineHorz(int xFrom, int xTo, int y)
 {
 	::MoveToEx(static_cast<HDC>(S.HCtx), xFrom, y, 0);
 	::LineTo(static_cast<HDC>(S.HCtx), xTo, y);
 }
 
-TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
+TPoint TCanvas2::GetTextSize(const char * pStr)
 {
 	size_t len;
 	char   zero[16];
@@ -929,12 +929,12 @@ int FASTCALL TCanvas2::SetTextColor(COLORREF c)
 	return (old_color == CLR_INVALID) ? 0 : 1;
 }
 
-void SLAPI TCanvas2::SetBkTranparent()
+void TCanvas2::SetBkTranparent()
 {
 	::SetBkMode(static_cast<HDC>(S.HCtx), TRANSPARENT);
 }
 
-int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
+int TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
 {
 	char   zero[16];
 	const  int len = sstrlen(pText);
@@ -946,7 +946,7 @@ int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint opti
 	return BIN(::DrawText(static_cast<HDC>(S.HCtx), SUcSwitch(pText), len, &rect, options));
 }
 
-int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
+int TCanvas2::TextOut(TPoint p, const char * pText)
 {
 	char   zero[16];
 	const  int len = sstrlen(pText);
@@ -1295,7 +1295,7 @@ int FASTCALL TCanvas2::Draw(const SDrawFigure * pDraw)
 	return Implement_DrawFigure(pDraw, 0);
 }
 
-int SLAPI TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint)
+int TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int large_arc_flag, int sweep_flag, FPoint toPoint)
 {
 	int    ok = 1;
 	radius.X = static_cast<float>(fabs(radius.X));
@@ -1373,7 +1373,7 @@ int SLAPI TCanvas2::Implement_ArcSvg(FPoint radius, float xAxisRotation, int lar
 	return ok;
 }
 
-int SLAPI TCanvas2::PatBlt(const TRect & rR, int brushId, int opr)
+int TCanvas2::PatBlt(const TRect & rR, int brushId, int opr)
 {
 	int    ok = 1;
 	int    preserve_opr = SetOperator(opr);
@@ -1382,7 +1382,7 @@ int SLAPI TCanvas2::PatBlt(const TRect & rR, int brushId, int opr)
 	return ok;
 }
 
-int SLAPI TCanvas2::DrawEdge(TRect & rR, long edge, long flags)
+int TCanvas2::DrawEdge(TRect & rR, long edge, long flags)
 {
 	int    ok = 1;
 	const  int _cxborder = GetSystemMetrics(SM_CXBORDER);
@@ -1498,7 +1498,7 @@ DrawBorder:
 	return ok;
 }
 
-int SLAPI TCanvas2::DrawFrame(const TRect & rR, int clFrame, int brushId)
+int TCanvas2::DrawFrame(const TRect & rR, int clFrame, int brushId)
 {
 	int    ok = 1;
 	int    x = rR.a.x;
@@ -1517,11 +1517,11 @@ int SLAPI TCanvas2::DrawFrame(const TRect & rR, int clFrame, int brushId)
 //
 //
 //
-SLAPI TCanvas::TCanvas(HDC hDc) : ObjStack(sizeof(HGDIOBJ)), H_Dc(hDc), Flags(fOuterDC)
+TCanvas::TCanvas(HDC hDc) : ObjStack(sizeof(HGDIOBJ)), H_Dc(hDc), Flags(fOuterDC)
 {
 }
 
-SLAPI TCanvas::~TCanvas()
+TCanvas::~TCanvas()
 {
 }
 
@@ -1546,7 +1546,7 @@ int FASTCALL TCanvas::SelectObjectAndPush(HGDIOBJ hObj)
 	return ok;
 }
 
-int SLAPI TCanvas::PopObject()
+int TCanvas::PopObject()
 {
 	HGDIOBJ * p_h_obj = static_cast<HGDIOBJ *>(ObjStack.pop());
 	assert(p_h_obj);
@@ -1571,24 +1571,24 @@ int FASTCALL TCanvas::Rectangle(const TRect & rRect)
 	return ::Rectangle(H_Dc, rRect.a.x, rRect.a.y, rRect.b.x, rRect.b.y);
 }
 
-int SLAPI TCanvas::RoundRect(const TRect & rRect, const TPoint & rRoundPt)
+int TCanvas::RoundRect(const TRect & rRect, const TPoint & rRoundPt)
 {
 	return ::RoundRect(H_Dc, rRect.a.x, rRect.a.y, rRect.b.x, rRect.b.y, rRoundPt.x, rRoundPt.y);
 }
 
-int SLAPI TCanvas::FillRect(const TRect & rRect, HBRUSH brush)
+int TCanvas::FillRect(const TRect & rRect, HBRUSH brush)
 {
 	RECT r = rRect;
 	return ::FillRect(H_Dc, &r, brush);
 }
 
-void SLAPI TCanvas::LineVert(int x, int yFrom, int yTo)
+void TCanvas::LineVert(int x, int yFrom, int yTo)
 {
 	::MoveToEx(H_Dc, x, yFrom, 0);
 	::LineTo(H_Dc, x, yTo);
 }
 
-void SLAPI TCanvas::LineHorz(int xFrom, int xTo, int y)
+void TCanvas::LineHorz(int xFrom, int xTo, int y)
 {
 	::MoveToEx(H_Dc, xFrom, y, 0);
 	::LineTo(H_Dc, xTo, y);
@@ -1607,7 +1607,7 @@ TPoint FASTCALL TCanvas::GetTextSize(const char * pStr)
 	return ::GetTextExtentPoint32(H_Dc, SUcSwitch(pStr), len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Z(); // @unicodeproblem
 }
 
-void SLAPI TCanvas::SetBkTranparent()
+void TCanvas::SetBkTranparent()
 {
 	SetBkMode(H_Dc, TRANSPARENT);
 }
@@ -1624,7 +1624,7 @@ int FASTCALL TCanvas::SetTextColor(COLORREF c)
 	return (old_color == CLR_INVALID) ? 0 : 1;
 }
 
-int SLAPI TCanvas::DrawText_(const TRect & rRect, const char * pText, uint options)
+int TCanvas::DrawText_(const TRect & rRect, const char * pText, uint options)
 {
 	int    len;
 	char   zero[16];
@@ -1639,7 +1639,7 @@ int SLAPI TCanvas::DrawText_(const TRect & rRect, const char * pText, uint optio
 	return BIN(::DrawText(H_Dc, SUcSwitch(pText), -1, &rect, options)); // @unicodeproblem
 }
 
-int SLAPI TCanvas::TextOut_(TPoint p, const char * pText)
+int TCanvas::TextOut_(TPoint p, const char * pText)
 {
 	int    len;
 	char   zero[16];

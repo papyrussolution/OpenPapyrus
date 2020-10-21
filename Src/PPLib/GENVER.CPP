@@ -7,17 +7,17 @@
 #pragma hdrstop
 // @v9.6.3 #include <idea.h>
 
-SLAPI PapyrusPrivateBlock::PapyrusPrivateBlock()
+PapyrusPrivateBlock::PapyrusPrivateBlock()
 {
 	Clear();
 }
 
-SLAPI PapyrusPrivateBlock::~PapyrusPrivateBlock()
+PapyrusPrivateBlock::~PapyrusPrivateBlock()
 {
 	Clear();
 }
 
-void SLAPI PapyrusPrivateBlock::Clear()
+void PapyrusPrivateBlock::Clear()
 {
 	MEMSZERO(H);
 	StructVer = 2; // @v9.4.8 1-->2
@@ -35,7 +35,7 @@ void SLAPI PapyrusPrivateBlock::Clear()
 	UhttAcc.Obfuscate();
 }
 
-int SLAPI PapyrusPrivateBlock::RestoreBuffer(const void * pSrcData, size_t srcDataSize)
+int PapyrusPrivateBlock::RestoreBuffer(const void * pSrcData, size_t srcDataSize)
 {
 	int    ok = 1;
 	const  size_t h_size = sizeof(H);
@@ -58,7 +58,7 @@ int SLAPI PapyrusPrivateBlock::RestoreBuffer(const void * pSrcData, size_t srcDa
 	return ok;
 }
 
-int SLAPI PapyrusPrivateBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PapyrusPrivateBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(pSCtx->SerializeBlock(dir, sizeof(H), &H, rBuf, 0));
@@ -80,7 +80,7 @@ int SLAPI PapyrusPrivateBlock::Serialize(int dir, SBuffer & rBuf, SSerializeCont
 	return ok;
 }
 
-int SLAPI PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
+int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -153,7 +153,7 @@ CCP = "xxxxx"
 UHTT = "xxxx:xxxxx"
 MSTR = "xxxx:xxxx"
 */
-int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
+int PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 {
 	int    ok = 1;
 	SBuffer sbuff;
@@ -203,7 +203,7 @@ int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 	return ok;
 }
 
-static int SLAPI CreateVerSrcFile2(const char * pInFileName, const char * pOutFileName)
+static int CreateVerSrcFile2(const char * pInFileName, const char * pOutFileName)
 {
 	int    ok = 1;
 	//SIniFile ini_file(pInFileName);
@@ -217,7 +217,7 @@ static int SLAPI CreateVerSrcFile2(const char * pInFileName, const char * pOutFi
 	return ok;
 }
 
-static int SLAPI CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, const char * pInFileNameOpen)
+static int CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, const char * pInFileNameOpen)
 {
 	int    ok = 1;
 	SString temp_buf;

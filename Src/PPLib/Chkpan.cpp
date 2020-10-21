@@ -7,7 +7,7 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
-int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp)
+int RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp)
 //
 // Команда для вызова звонка на принтере с кухонным звонком
 //
@@ -28,9 +28,9 @@ int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp
 
 //#define GRP_IBG   1
 //#define GRP_SCARD 2
-//PPCustDisp * SLAPI GetCustDisp(PPID cashNodeID); // Prototype (CUSTDISP.CPP)
-//PPBnkTerminal * SLAPI GetBnkTerm(PPID bnkTermID, const char * pPort, const char * pPath); // Prototype (BNKTERM.CPP)
-int SLAPI showInputLineCalc(TDialog *, uint);    // Prototype (VTBUTTON.CPP)
+//PPCustDisp * GetCustDisp(PPID cashNodeID); // Prototype (CUSTDISP.CPP)
+//PPBnkTerminal * GetBnkTerm(PPID bnkTermID, const char * pPort, const char * pPath); // Prototype (BNKTERM.CPP)
+int showInputLineCalc(TDialog *, uint);    // Prototype (VTBUTTON.CPP)
 //
 // Состояния панели ввода кассовых чеков и допустимые действия //
 //
@@ -418,7 +418,7 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 //
 //
-SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty) : Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0)
+CPosProcessor::PgsBlock::PgsBlock(double qtty) : Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0)
 {
 }
 //
@@ -1467,28 +1467,30 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 					else
 						add_paym += non_crd_amt;*/
 					if(add_paym > 0.0) {
-						if(R2(CSt.AdditionalPayment) == 0.0 && !(Flags & fSCardBonus)) { // Для бонусных карт запрос доплаты не выводится //
-							if(scs_rec.Flags & SCRDSF_DISABLEADDPAYM)
-								ok = MessageError(PPERR_UNABLEADDPAYMONCRDCARD, 0, /*eomMsgWindow*/eomPopup|eomBeep);
-							else {
-								SString  buf;
-								buf.Cat(add_paym, SFMT_MONEY);
-								if(!ConfirmMessage(PPCFM_MAXCRD_OVERDRAFT, buf, 1)) {
-									//
-									// @? Значение доплаты все равно устанавливаем
-									//
-									CSt.AdditionalPayment = R2(add_paym);
-									//
-									ok = 0;
+						if(!(Flags & fSCardBonus)) { // Для бонусных карт запрос доплаты не выводится и сумма дебета не корректируется //
+							if(R2(CSt.AdditionalPayment) == 0.0) { 
+								if(scs_rec.Flags & SCRDSF_DISABLEADDPAYM)
+									ok = MessageError(PPERR_UNABLEADDPAYMONCRDCARD, 0, /*eomMsgWindow*/eomPopup|eomBeep);
+								else {
+									SString  buf;
+									buf.Cat(add_paym, SFMT_MONEY);
+									if(!ConfirmMessage(PPCFM_MAXCRD_OVERDRAFT, buf, 1)) {
+										//
+										// @? Значение доплаты все равно устанавливаем
+										//
+										CSt.AdditionalPayment = R2(add_paym);
+										//
+										ok = 0;
+									}
 								}
 							}
-						}
-						if(ok) {
-							CSt.AdditionalPayment = R2(add_paym);
-							if((CSt.RestByCrdCard + cc) < -CSt.MaxCreditByCrdCard) // @v10.9.0 @fix (- cc)-->(+ cc)
-								CSt.RestByCrdCard = -CSt.MaxCreditByCrdCard;
-							else
-								CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
+							if(ok) {
+								CSt.AdditionalPayment = R2(add_paym);
+								if((CSt.RestByCrdCard + cc) < -CSt.MaxCreditByCrdCard) // @v10.9.0 @fix (- cc)-->(+ cc)
+									CSt.RestByCrdCard = -CSt.MaxCreditByCrdCard;
+								else
+									CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
+							}
 						}
 					}
 					else {
@@ -1507,7 +1509,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 	return ok;
 }
 
-SLAPI CPosProcessor::CcTotal::CcTotal() : Amount(0.0), Discount(0.0)
+CPosProcessor::CcTotal::CcTotal() : Amount(0.0), Discount(0.0)
 {
 }
 
@@ -2687,7 +2689,8 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 								}
 							}
 							else if(!ccr || !ccer) {
-								MessageError(-1, 0, eomPopup);
+								temp_buf = (!ccr) ? pack_ta_result.ErrMessage : extpack_ta_result.ErrMessage;
+								MessageError(PPERR_SCSPCTRT_TURNCCTRA, temp_buf, eomPopup);
 							}
 						}
 						ZDELETE(p_scst);
@@ -3013,7 +3016,7 @@ IMPLEMENT_PPFILT_FACTORY(CashNodePane); CashNodePaneFilt::CashNodePaneFilt() : P
 	Init(1, 0);
 }
 
-SLAPI CheckPaneDialog::GrpListItem::GrpListItem() : ID(0), ParentID(0), Flags(0), Level(0)
+CheckPaneDialog::GrpListItem::GrpListItem() : ID(0), ParentID(0), Flags(0), Level(0)
 {
 }
 
@@ -3717,7 +3720,11 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 					rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetUsableBonus(), CSt.GetID());
 				}
 			}
-			assert(rBlk.CcPl.GetTotal() == rBlk.GetTotal());
+			{
+				const double ccpl_total = rBlk.CcPl.GetTotal();
+				const double blk_total = rBlk.GetTotal();
+				assert(feqeps(ccpl_total, blk_total, 1E-5));
+			}
 		}
 	}
 	return ok;
@@ -4082,7 +4089,6 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			else if(!VerifyPrices()) // @v10.7.9
 				MessageError(-1, 0, eomBeep|eomStatusLine);
 			else {
-				// @v9.8.4 Standalone variable (double diff = 0.0) replaced with paym_blk2.DeliveryAmt
 				PosPaymentBlock paym_blk2(0, BonusMaxPart);
 				if(CalculatePaymentList(paym_blk2, 1) > 0) {
 					CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
@@ -4104,7 +4110,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								if(P_BNKTERM) {
 									int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, temp_buf) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, temp_buf);
 									if(r) {
-										// @v10.9.0 (чек должне проводиться после платежа see below) AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
+										// @v10.9.0 (чек должен проводиться после платежа see below) AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
 										if(temp_buf.NotEmpty() && InitCashMachine() && P_CM) {
 											PPSyncCashSession * p_ifc = P_CM->SyncInterface();
 											CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
@@ -4125,10 +4131,9 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							break;
 						case cpmUndef:
 							{
-								//int    r = 1; // @vmiller
 								paym_blk2.ExclSCardID = CSt.GetID();
 								const double ccpl_total = paym_blk2.CcPl.GetTotal();
-								paym_blk2.AltCashReg = AltRegisterID ? 0 : -1; // @v9.6.9 // @v9.8.9 explicit 0
+								paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
 								for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
 									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
@@ -4448,7 +4453,7 @@ int CheckPaneDialog::InputComplexDinner(SaComplex & rComplex) { DIALOG_PROC_BODY
 // SelCheckListDialog
 //
 struct _SelCheck {
-	SLAPI  _SelCheck() : CheckID(0), Flags(0)
+	_SelCheck() : CheckID(0), Flags(0)
 	{
 	}
 	enum {
@@ -9152,7 +9157,7 @@ private:
 		stAutoActivation = 0x0020  // Автоактивация карты //
 	};
 	struct SpcListItem { // @flat
-		SLAPI  SpcListItem()
+		SpcListItem()
 		{
 			THISZERO();
 		}
@@ -9923,7 +9928,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 	}
 }
 
-static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector, SCardSpecialTreatment::IdentifyReplyBlock * pStirb)
+static int Helper_ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector, SCardSpecialTreatment::IdentifyReplyBlock * pStirb)
 {
 	//DIALOG_PROC_BODY_P1(SCardInfoDialog, asSelector, pSCardID);
 	int    ok = -1;
@@ -10385,7 +10390,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 	ViewStoragePlaces(0);
 }
 
-int SLAPI CPosProcessor::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const
+int CPosProcessor::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const
 {
 	int    ok = -1;
 	rBound = 0.0;
@@ -10401,7 +10406,7 @@ int SLAPI CPosProcessor::Helper_GetPriceRestrictions_ByFormula(SString & rFormul
 	return ok;
 }
 
-int SLAPI CPosProcessor::CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, double price, RealRange * pRange)
+int CPosProcessor::CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, double price, RealRange * pRange)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
@@ -11949,7 +11954,7 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 //
 //
 //
-int SLAPI CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long flags)
+int CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long flags)
 {
 	MemLeakTracer mlt;
 	int    ok = 1, is_touch_screen = 0;
@@ -12639,7 +12644,7 @@ IMPLEMENT_PPFILT_FACTORY(InfoKioskPane); InfoKioskPaneFilt::InfoKioskPaneFilt():
 	Init(1, 0);
 }
 
-int SLAPI PPObjGoodsInfo::EditInfoKioskPaneFilt(InfoKioskPaneFilt * pData)
+int PPObjGoodsInfo::EditInfoKioskPaneFilt(InfoKioskPaneFilt * pData)
 {
 	int    ok = -1;
 	InfoKioskPaneFilt filt;
@@ -12664,7 +12669,7 @@ int SLAPI PPObjGoodsInfo::EditInfoKioskPaneFilt(InfoKioskPaneFilt * pData)
 	return ok;
 }
 
-int SLAPI ViewGoodsInfo(const InfoKioskPaneFilt * pFilt)
+int ViewGoodsInfo(const InfoKioskPaneFilt * pFilt)
 {
 	int    ok = -1;
 	PPID   goods_info_id = 0;
@@ -12788,7 +12793,7 @@ int PrcssrCCheckGenerator::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrCCheckGenerator::Run()
+int PrcssrCCheckGenerator::Run()
 {
 	int    ok = 1;
 	ulong  cc_count = 0; // Количество сгенерированных чеков

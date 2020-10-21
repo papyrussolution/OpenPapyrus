@@ -14,8 +14,8 @@
 //
 //
 struct MACAddr { // size=6
-	void   SLAPI Init();
-	int    SLAPI IsEmpty() const;
+	void   Init();
+	int    IsEmpty() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	//
 	// Descr: сравнивает MAC-адреса this и s.
@@ -31,12 +31,12 @@ struct MACAddr { // size=6
 
 class MACAddrArray : public TSVector <MACAddr> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  MACAddrArray();
-	int    SLAPI addUnique(const MACAddr &);
+	MACAddrArray();
+	int    addUnique(const MACAddr &);
 };
 
-int SLAPI GetFirstMACAddr(MACAddr *);
-int SLAPI GetMACAddrList(MACAddrArray *);
+int GetFirstMACAddr(MACAddr *);
+int GetMACAddrList(MACAddrArray *);
 //
 //
 //
@@ -47,29 +47,29 @@ public:
 		fmtHost = 0x0002,
 		fmtPort = 0x0004
 	};
-	static ulong SLAPI IPToULong(const char * pIP);
-	static void  SLAPI ULongToIP(ulong ip, SString & rIP);
-	static int SLAPI GetNameByAddr(const char * pIP, SString & aHost);
-	SLAPI  InetAddr();
-	SLAPI  InetAddr(const InetAddr & rS);
+	static ulong IPToULong(const char * pIP);
+	static void  ULongToIP(ulong ip, SString & rIP);
+	static int GetNameByAddr(const char * pIP, SString & aHost);
+	InetAddr();
+	InetAddr(const InetAddr & rS);
 	InetAddr & FASTCALL operator = (const InetAddr & rS);
 	void   FASTCALL Copy(const InetAddr & rS);
-	SLAPI  operator ulong() const { return V4; }
-	InetAddr & SLAPI Z();
+	operator ulong() const { return V4; }
+	InetAddr & Z();
 	int    FASTCALL IsEqual(const InetAddr & rS) const;
 	int    FASTCALL operator == (const InetAddr & rS) const;
 	int    FASTCALL operator != (const InetAddr & rS) const;
-	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    SLAPI IsEmpty() const;
-	int    SLAPI GetPort() const { return Port; }
-	const SString & SLAPI GetHostName() const { return HostName; }
-	int    SLAPI Set(ulong addr, int port = 0);
-	int    SLAPI Set(const char * pHostName, int port = 0);
-	int    SLAPI Set(const sockaddr_in *);
-	int    SLAPI SetPort_(int port);
-	sockaddr * SLAPI Get(sockaddr_in *) const;
-	SString & SLAPI ToStr(long flags /* InetAddr::fmtXXX */, SString & rBuf) const;
-	int    SLAPI FromStr(const char *);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    IsEmpty() const;
+	int    GetPort() const { return Port; }
+	const SString & GetHostName() const { return HostName; }
+	int    Set(ulong addr, int port = 0);
+	int    Set(const char * pHostName, int port = 0);
+	int    Set(const sockaddr_in *);
+	int    SetPort_(int port);
+	sockaddr * Get(sockaddr_in *) const;
+	SString & ToStr(long flags /* InetAddr::fmtXXX */, SString & rBuf) const;
+	int    FromStr(const char *);
 private:
 	uint32 V4;
 	int    Port;
@@ -190,7 +190,7 @@ private:
 	long   State;
 };
 
-int SLAPI GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr);
+int GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr);
 //
 //
 //
@@ -205,15 +205,15 @@ public:
 		sslmClient = 1
 	};
 
-	explicit SLAPI TcpSocket(int timeout = 0, int maxConn = SOMAXCONN);
-	SLAPI ~TcpSocket();
-	int    SLAPI IsValid() const;
+	explicit TcpSocket(int timeout = 0, int maxConn = SOMAXCONN);
+	~TcpSocket();
+	int    IsValid() const;
 	operator SOCKET () const { return S; }
 	//
 	// Descr:
 	//
-	int    SLAPI CheckErrorStatus(); // @>>::getsockopt(S, SOL_SOCKET, SO_ERROR,...)
-	int    SLAPI GetTimeout() const;
+	int    CheckErrorStatus(); // @>>::getsockopt(S, SOL_SOCKET, SO_ERROR,...)
+	int    GetTimeout() const;
 	int    FASTCALL SetTimeout(int timeout);
 	//
 	// Descr: Копирует сокет this в rDest и сбрасывает значение
@@ -228,13 +228,13 @@ public:
 	//        инвалидное значение S (this->IsValid() == 0).
 	//   0  - ошибка.
 	//
-	int    SLAPI MoveToS(TcpSocket & rDest, int force = 0); // @debug force = 0
-	int    SLAPI CopyS(TcpSocket & rDest);
-	int    SLAPI Connect(const InetAddr &);
-	int    SLAPI Connect(SslMode sslm, const InetAddr &);
-	int    SLAPI Bind(const InetAddr &);
-	int    SLAPI GetSockName(InetAddr * pAddr, int peer);
-	int    SLAPI Disconnect();
+	int    MoveToS(TcpSocket & rDest, int force = 0); // @debug force = 0
+	int    CopyS(TcpSocket & rDest);
+	int    Connect(const InetAddr &);
+	int    Connect(SslMode sslm, const InetAddr &);
+	int    Bind(const InetAddr &);
+	int    GetSockName(InetAddr * pAddr, int peer);
+	int    Disconnect();
 	//
 	// Descr: Определяет состояние сокета (через вызов ::select).
 	// ARG(mode IN): Один из вариантов: TcpSocket::mRead or TcpSocket::mWrite.
@@ -254,40 +254,40 @@ public:
 	// Note: Обратите внимание на то, что смысл кодов возврата не совпадает со
 	//   смыслов кода возврата функции ::select
 	//
-	int    SLAPI Select(int mode /* TcpSocket::mXXX */, int timeout = -1, size_t * pAvailableSize = 0);
+	int    Select(int mode /* TcpSocket::mXXX */, int timeout = -1, size_t * pAvailableSize = 0);
 		// @>>::select
-	int    SLAPI Listen(); // @>>::listen
-	int    SLAPI Accept(TcpSocket *, InetAddr *); // @>>::accept
+	int    Listen(); // @>>::listen
+	int    Accept(TcpSocket *, InetAddr *); // @>>::accept
 	//
 	// Descr: Читает из сокета данные в буфер pBuf размер которого ограничен
 	//   величиной bufLen. По указателю pRcvdSize присваивается количество
 	//   прочитанных байт.
 	//
-	int    SLAPI Recv(void * pBuf, size_t bufLen, size_t * pRcvdSize); // @>>::recv
+	int    Recv(void * pBuf, size_t bufLen, size_t * pRcvdSize); // @>>::recv
 	//
 	// Descr: Читает из сокета блок данных длиной size в буфер pBuf.
 	//   Отличается от функции Recv тем, что читает в цикле до тех пор, пока не
 	//   получит требуемое количество байт, либо ошибку, либо очередное
 	//   считывние не вернет 0 байт.
 	//
-	int    SLAPI RecvBlock(void * pBuf, size_t size, size_t * pRcvdSize);
+	int    RecvBlock(void * pBuf, size_t size, size_t * pRcvdSize);
 	//
 	// Descr: Записывает в сокет данные из буфера pBuf в количестве dataLen байт.
 	//   По указателю pSendedSize возвращается количество действительно переданных
 	//   данных.
 	//
-	int    SLAPI Send(const void * pBuf, size_t dataLen, size_t * pSendedSize); // @>>::send
-	int    SLAPI RecvBuf(SBuffer & rBuf, size_t frameSize, size_t * pRcvdSize);
+	int    Send(const void * pBuf, size_t dataLen, size_t * pSendedSize); // @>>::send
+	int    RecvBuf(SBuffer & rBuf, size_t frameSize, size_t * pRcvdSize);
 	//
 	// Descr: Считывает из сокета данные в буфер rBuf до тех пор, пока не
 	//   встретится терминальная последовательность pTerminator.
 	//   Если pTerminator == 0 || strlen(pTerminator) == 0, то вызывает RecvBuf(rBuf, 0, pRcvdSize)
 	//
-	int    SLAPI RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcvdSize);
-	int    SLAPI SendBuf(SBuffer & rBuf, size_t * pSendedSize);
-	int    SLAPI GetStat(long * pRdCount, long * pWrCount);
+	int    RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcvdSize);
+	int    SendBuf(SBuffer & rBuf, size_t * pSendedSize);
+	int    GetStat(long * pRdCount, long * pWrCount);
 #ifdef SLTEST_RUNNING // SLTEST_RUNNING {
-	int    SLAPI BreakSocket() // Прервать связь без отсоединения //
+	int    BreakSocket() // Прервать связь без отсоединения //
 	{
 		Reset();
 		return 1;
@@ -297,9 +297,9 @@ private:
 	static size_t DefaultReadFrame;  // Размер кванта считывания из сокета по умолчанию //
 	static size_t DefaultWriteFrame; // Размер кванта записи в сокет //
 
-	int    SLAPI Init(SOCKET s);
-	void   SLAPI Reset();
-	int    SLAPI Helper_Connect(SslMode sslm, const InetAddr & rAddr);
+	int    Init(SOCKET s);
+	void   Reset();
+	int    Helper_Connect(SslMode sslm, const InetAddr & rAddr);
 	int    FASTCALL Helper_Recv(void * pBuf, size_t size);
 
 	struct Stat {
@@ -344,10 +344,10 @@ private:
 //
 class TcpServer : private TcpSocket {
 public:
-	explicit SLAPI TcpServer(const InetAddr & rAddr);
-	virtual SLAPI ~TcpServer();
-	int    SLAPI Run();
-	virtual int SLAPI ExecSession(TcpSocket & rSock, InetAddr & rAddr);
+	explicit TcpServer(const InetAddr & rAddr);
+	virtual ~TcpServer();
+	int    Run();
+	virtual int ExecSession(TcpSocket & rSock, InetAddr & rAddr);
 		// @<<TcpServer::Run
 private:
 	InetAddr Addr;
@@ -424,12 +424,12 @@ public:
 
 	static SString & FASTCALL Pop3_SkipReplyStatus(SString & rBuf);
 
-	SLAPI  SMailClient();
-	SLAPI ~SMailClient();
-	int    SLAPI Connect(InetUrl & rUrl, int timeout = -1);
-	int    SLAPI Disconnect();
-	const  Capability & SLAPI GetCapability() const { return C; }
-	int    SLAPI Auth(int alg, const char * pName, const char * pPassword);
+	SMailClient();
+	~SMailClient();
+	int    Connect(InetUrl & rUrl, int timeout = -1);
+	int    Disconnect();
+	const  Capability & GetCapability() const { return C; }
+	int    Auth(int alg, const char * pName, const char * pPassword);
 	//
 	// Descr: Считывает из сокета одну или более строк.
 	//   Первая строка всегда считывается в буфер rBuf. Если pTail != 0, то
@@ -437,20 +437,20 @@ public:
 	//   pTail.
 	// Note: Функция отрезает терминальные символы перевода каретки (\xD\xA) с конца считанных строк.
 	//
-	int    SLAPI ReadLine(SString & rBuf);
-	int    SLAPI CheckReply(const SString & rReplyBuf, int onlyValidCode = 0);
+	int    ReadLine(SString & rBuf);
+	int    CheckReply(const SString & rReplyBuf, int onlyValidCode = 0);
 	//
 	// Descr: Записывает в сокет строку pBuf. Если параметр pReply != 0, то
 	//   сразу после успешной записи считывает первую строку ответа сервера в pReply.
 	// Note: Строка pBuf не должна иметь терминального перевода каретки (\xD\xA). Функция
 	//   WriteLine самостоятельно добавляет терминатор к строке аргумента.
 	//
-	int    SLAPI WriteLine(const char * pBuf, SString * pReply);
-	int    SLAPI WriteBlock(const void * pData, size_t dataSize);
+	int    WriteLine(const char * pBuf, SString * pReply);
+	int    WriteBlock(const void * pData, size_t dataSize);
 
-	int    SLAPI Pop3_GetStat(long * pCount, long * pSize);
-	int    SLAPI Pop3_GetMsgSize(long msgN, long * pSize);
-	int    SLAPI Pop3_DeleteMsg(long msgN);
+	int    Pop3_GetStat(long * pCount, long * pSize);
+	int    Pop3_GetMsgSize(long msgN, long * pSize);
+	int    Pop3_DeleteMsg(long msgN);
 private:
 	long   State;
 	InetUrl Url;
@@ -634,8 +634,8 @@ struct SMailMessage : SStrGroup {
 		static int FASTCALL GetTypeName(int t, SString & rBuf);
 		static int FASTCALL IdentifyType(const char * pTypeName);
 
-		SLAPI  ContentDispositionBlock();
-		void   SLAPI Destroy();
+		ContentDispositionBlock();
+		void   Destroy();
 
 		enum {
 			tUnkn = 0,
@@ -665,8 +665,8 @@ struct SMailMessage : SStrGroup {
 		LDATETIME RdDtm;    // read-date
 	};
 	struct ContentTypeBlock {
-		SLAPI  ContentTypeBlock();
-		void   SLAPI Destroy();
+		ContentTypeBlock();
+		void   Destroy();
 		uint   MimeP;
 		uint   TypeP;
 		uint   NameP;
@@ -675,9 +675,9 @@ struct SMailMessage : SStrGroup {
 		SCodepageIdent Cp;
 	};
 	struct Boundary {
-		SLAPI  Boundary();
-		void   SLAPI Destroy();
-		uint   SLAPI GetAttachmentCount() const;
+		Boundary();
+		void   Destroy();
+		uint   GetAttachmentCount() const;
 		const  Boundary * FASTCALL GetAttachmentByIndex(uint idx /*0..*/) const;
 
 		ContentTypeBlock Ct;
@@ -694,19 +694,19 @@ struct SMailMessage : SStrGroup {
 	private:
 		const SMailMessage::Boundary * FASTCALL Helper_GetAttachmentByIndex(int & rIdx /*0..*/) const;
 	};
-	SLAPI  SMailMessage();
-	SLAPI ~SMailMessage();
-	void   SLAPI Init();
-	int    SLAPI IsPpyData() const;
-	// @v10.0.0 SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
+	SMailMessage();
+	~SMailMessage();
+	void   Init();
+	int    IsPpyData() const;
+	// @v10.0.0 SString & MakeBoundaryCode(SString & rBuf) const;
 	//
 	// Parameters:
 	//     start: 0 - pure boundary, 1 - start boundary, 2 - finish boundary
 	// Returns:
 	//     pBuf - on success, 0 - on error
 	//
-	SString & SLAPI GetBoundary(int start, SString & rBuf) const;
-	int    SLAPI AttachFile(const char * pFilePath);
+	SString & GetBoundary(int start, SString & rBuf) const;
+	int    AttachFile(const char * pFilePath);
 	//
 	// Descr: Вставляет в письмо inline-содержание. Содержание вставляется как внутренняя область
 	//   Boundary pB. Если pB == 0, то как внутренняя область Boundary верхнего уровня.
@@ -714,7 +714,7 @@ struct SMailMessage : SStrGroup {
 	//   0 - ошибка
 	//   !0 - указатель на добавленную Boundary
 	//
-	Boundary * SLAPI AttachContent(Boundary * pB, int format, SCodepageIdent cp, const void * pData, size_t dataSize);
+	Boundary * AttachContent(Boundary * pB, int format, SCodepageIdent cp, const void * pData, size_t dataSize);
 	//
 	// Descr: Вставляет в письмо прикрепленный файл. Файл вставляется как внутренняя область
 	//   Boundary pB. Если pB == 0, то как внутренняя область Boundary верхнего уровня.
@@ -722,35 +722,35 @@ struct SMailMessage : SStrGroup {
 	//   0 - ошибка
 	//   !0 - указатель на добавленную Boundary
 	//
-	Boundary * SLAPI AttachFile(Boundary * pB, int format, const char * pFilePath);
-	int    SLAPI EnumAttach(uint *, SString & rFileName, SString & rFullPath);
-	int    SLAPI SetField(int fldId, const char *);
+	Boundary * AttachFile(Boundary * pB, int format, const char * pFilePath);
+	int    EnumAttach(uint *, SString & rFileName, SString & rFullPath);
+	int    SetField(int fldId, const char *);
 	int    FASTCALL IsField(int fldId) const;
-	SString & SLAPI GetField(int fldId, SString & rBuf) const;
-	int    SLAPI CmpField(int fldId, const char * pStr, size_t len = 0) const;
+	SString & GetField(int fldId, SString & rBuf) const;
+	int    CmpField(int fldId, const char * pStr, size_t len = 0) const;
 	//
 	// Descr: Определяет, является ли адрес pEmail адресом отправителя сообщения.
 	//   Сравнение осуществляется строго по формальному адресу с исключением описательной части.
 	//   Например IsFrom("nemo@gmail.com") даст положительный результат на адрес "Капитан Немо <nemo@gmail.com>"
 	//
-	int    SLAPI IsFrom(const char * pEmail) const;
-	int    SLAPI IsSubj(const char * pSubj, int substr) const;
-	// @v10.0.0 int    SLAPI PutToFile(SFile & rF);
-	int    SLAPI ReadFromFile(SFile & rF);
-	int    SLAPI DebugOutput(SString & rBuf) const;
-	uint   SLAPI GetAttachmentCount() const;
-	int    SLAPI SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const;
+	int    IsFrom(const char * pEmail) const;
+	int    IsSubj(const char * pSubj, int substr) const;
+	// @v10.0.0 int    PutToFile(SFile & rF);
+	int    ReadFromFile(SFile & rF);
+	int    DebugOutput(SString & rBuf) const;
+	uint   GetAttachmentCount() const;
+	int    SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const;
 	const  SMailMessage::Boundary * FASTCALL GetAttachmentByIndex(uint attIdx) const;
-	int    SLAPI GetAttachmentFileName(const SMailMessage::Boundary * pB, SString & rFileName) const;
-	int    SLAPI PreprocessEmailAddrString(const SString & rSrc, SString & rResult, StringSet * pSs) const;
+	int    GetAttachmentFileName(const SMailMessage::Boundary * pB, SString & rFileName) const;
+	int    PreprocessEmailAddrString(const SString & rSrc, SString & rResult, StringSet * pSs) const;
 
 	long   Flags;
 	long   Size;
 
 	struct WriterBlock {
-		SLAPI  WriterBlock(const SMailMessage & rMsg);
-		SLAPI ~WriterBlock();
-		int    SLAPI Read(size_t maxChunkSize, SBuffer & rBuf);
+		WriterBlock(const SMailMessage & rMsg);
+		~WriterBlock();
+		int    Read(size_t maxChunkSize, SBuffer & rBuf);
 
 		enum {
 			phsUndef = 0,
@@ -767,8 +767,8 @@ struct SMailMessage : SStrGroup {
 	};
 private:
 	struct ParserBlock {
-		SLAPI  ParserBlock();
-		void   SLAPI Destroy();
+		ParserBlock();
+		void   Destroy();
 		enum {
 			stHeader = 0,
 			stBody,
@@ -780,15 +780,15 @@ private:
 		Boundary * P_B; // @notowned
 	};
 
-	static int SLAPI IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue);
-	SString & SLAPI PutField(const char * pFld, const char * pVal, SString & rBuf);
-	int    SLAPI ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf);
+	static int IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue);
+	SString & PutField(const char * pFld, const char * pVal, SString & rBuf);
+	int    ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf);
 	Boundary * FASTCALL SearchBoundary(const SString & rIdent);
-	Boundary * SLAPI Helper_SearchBoundary(const SString & rIdent, Boundary * pParent);
+	Boundary * Helper_SearchBoundary(const SString & rIdent, Boundary * pParent);
 	const Boundary * FASTCALL SearchBoundary(const Boundary * pB) const;
 	const Boundary * FASTCALL Helper_SearchBoundary(const Boundary * pB, const Boundary * pParent) const;
-	Boundary * SLAPI Helper_CreateBoundary(SMailMessage::Boundary * pParent, int format);
-	int    SLAPI DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const;
+	Boundary * Helper_CreateBoundary(SMailMessage::Boundary * pParent, int format);
+	int    DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const;
 
 	char   Zero[8];
 
@@ -943,8 +943,8 @@ private:
 //
 class SUniformFileTransmParam : public SStrGroup {
 public:
-	SLAPI  SUniformFileTransmParam();
-	int    SLAPI Run(SDataMoveProgressProc pf, void * extraPtr);
+	SUniformFileTransmParam();
+	int    Run(SDataMoveProgressProc pf, void * extraPtr);
 
 	enum {
 		fRenameExistantFiles = 0x0001,
@@ -967,7 +967,7 @@ public:
 	//   Поля с суффиксом 'P' представляют позицию строки во внутреннме пуле экземпляра.
 	//
 	struct ResultItem {
-		SLAPI  ResultItem();
+		ResultItem();
 		uint   SrcPathP;  // Путь исходного файла
 		uint   DestPathP; // Путь результирующего файла
 		uint   SrcMimeP;  // MIME исходного файла

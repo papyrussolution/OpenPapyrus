@@ -26,11 +26,11 @@ struct __VerInfo {
 	char   OpenSource[8];
 };
 
-SLAPI PPVersionInfo::PPVersionInfo(const char * pOuterFileName) : P_Info_(0), P_Info_Pre9303(0), P_OuterFileName(newStr(pOuterFileName))
+PPVersionInfo::PPVersionInfo(const char * pOuterFileName) : P_Info_(0), P_Info_Pre9303(0), P_OuterFileName(newStr(pOuterFileName))
 {
 }
 
-SLAPI PPVersionInfo::PPVersionInfo(const PPVersionInfo & s) : P_Info_(0), P_Info_Pre9303(0), P_OuterFileName(0)
+PPVersionInfo::PPVersionInfo(const PPVersionInfo & s) : P_Info_(0), P_Info_Pre9303(0), P_OuterFileName(0)
 {
 	if(s.P_OuterFileName)
 		P_OuterFileName = newStr(s.P_OuterFileName);
@@ -38,7 +38,7 @@ SLAPI PPVersionInfo::PPVersionInfo(const PPVersionInfo & s) : P_Info_(0), P_Info
 		ZDELETE(P_OuterFileName);
 }
 
-SLAPI PPVersionInfo::~PPVersionInfo()
+PPVersionInfo::~PPVersionInfo()
 {
 	Clear();
 	delete P_OuterFileName;
@@ -54,7 +54,7 @@ PPVersionInfo & FASTCALL PPVersionInfo::operator = (const PPVersionInfo & s)
 	return *this;
 }
 
-void SLAPI PPVersionInfo::Clear()
+void PPVersionInfo::Clear()
 {
 	if(P_Info_Pre9303) {
 		IdeaRandMem(P_Info_Pre9303, sizeof(__VerInfo));
@@ -67,7 +67,7 @@ static const unsigned char VERDATA[] = {
 	#include <private\verdata.inc>
 };
 
-int SLAPI PPVersionInfo::Decrypt()
+int PPVersionInfo::Decrypt()
 {
 	int    ok = 1;
 	uchar * p_data_pre9303 = 0;
@@ -160,7 +160,7 @@ int SLAPI PPVersionInfo::Decrypt()
 	return ok;
 }
 
-int SLAPI PPVersionInfo::GetProductName(SString & rBuf)
+int PPVersionInfo::GetProductName(SString & rBuf)
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
@@ -179,7 +179,7 @@ int SLAPI PPVersionInfo::GetProductName(SString & rBuf)
 	}
 }
 
-int SLAPI PPVersionInfo::GetTeam(char * pBuf, size_t bufSize)
+int PPVersionInfo::GetTeam(char * pBuf, size_t bufSize)
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
@@ -198,7 +198,7 @@ int SLAPI PPVersionInfo::GetTeam(char * pBuf, size_t bufSize)
 	}
 }
 
-int SLAPI PPVersionInfo::GetSecret(char * pBuf, size_t bufSize)
+int PPVersionInfo::GetSecret(char * pBuf, size_t bufSize)
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
@@ -217,7 +217,7 @@ int SLAPI PPVersionInfo::GetSecret(char * pBuf, size_t bufSize)
 	}
 }
 
-int SLAPI PPVersionInfo::GetDevYears(uint * pStart, uint * pLast)
+int PPVersionInfo::GetDevYears(uint * pStart, uint * pLast)
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
@@ -239,7 +239,7 @@ int SLAPI PPVersionInfo::GetDevYears(uint * pStart, uint * pLast)
 	}
 }
 
-SVerT SLAPI PPVersionInfo::GetVersion(int minVersion /* = 0 */)
+SVerT PPVersionInfo::GetVersion(int minVersion /* = 0 */)
 {
 	uint j, n, r;
 	SVerT v;
@@ -248,7 +248,7 @@ SVerT SLAPI PPVersionInfo::GetVersion(int minVersion /* = 0 */)
 	return v;
 }
 
-int SLAPI PPVersionInfo::GetAssemblyN()
+int PPVersionInfo::GetAssemblyN()
 {
 	int    result = 0;
 	if(Decrypt()) {
@@ -261,7 +261,7 @@ int SLAPI PPVersionInfo::GetAssemblyN()
 	return result;
 }
 
-int SLAPI PPVersionInfo::GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, char * pDemo, int minVersion /* = 0 */)
+int PPVersionInfo::GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, char * pDemo, int minVersion /* = 0 */)
 {
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {
@@ -296,7 +296,7 @@ int SLAPI PPVersionInfo::GetVersion(uint * pMajor, uint * pMinor, uint * pRevisi
 	}
 }
 
-/* @v9.3.3 int SLAPI PPVersionInfo::GetMaxUserNumber(int * pMaxUsers)
+/* @v9.3.3 int PPVersionInfo::GetMaxUserNumber(int * pMaxUsers)
 {
 	if(Decrypt()) {
 		__VerInfo * p_info = (__VerInfo*)P_Info;
@@ -310,7 +310,7 @@ int SLAPI PPVersionInfo::GetVersion(uint * pMajor, uint * pMinor, uint * pRevisi
 	}
 }*/
 
-int SLAPI PPVersionInfo::GetVersionText(char * pBuf, size_t bufSize)
+int PPVersionInfo::GetVersionText(char * pBuf, size_t bufSize)
 {
 	if(Decrypt()) {
 		SString temp_buf;
@@ -335,7 +335,7 @@ int SLAPI PPVersionInfo::GetVersionText(char * pBuf, size_t bufSize)
 	}
 }
 
-int SLAPI PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
+int PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -351,7 +351,7 @@ int SLAPI PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPVersionInfo::GetMsftTranslAcc(SString & rBuf)
+int PPVersionInfo::GetMsftTranslAcc(SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -367,7 +367,7 @@ int SLAPI PPVersionInfo::GetMsftTranslAcc(SString & rBuf)
 	return ok;
 }
 
-long SLAPI PPVersionInfo::GetFlags()
+long PPVersionInfo::GetFlags()
 {
 	long   result = 0;
 	if(Decrypt()) {
@@ -378,7 +378,7 @@ long SLAPI PPVersionInfo::GetFlags()
 	return result;
 }
 
-int SLAPI PPVersionInfo::GetCopyrightText(SString & rBuf)
+int PPVersionInfo::GetCopyrightText(SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;

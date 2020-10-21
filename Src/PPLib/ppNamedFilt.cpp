@@ -7,7 +7,7 @@
 
 static const long Current_PPNamedFilt_Ver = 3; // @v10.6.7 2-->3
 
-SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(Current_PPNamedFilt_Ver), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
+PPNamedFilt::PPNamedFilt() : ID(0), Ver(Current_PPNamedFilt_Ver), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -28,7 +28,7 @@ PPNamedFilt & FASTCALL PPNamedFilt::operator = (const PPNamedFilt & s)
 	return *this;
 }
 
-int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
+int PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 {
 	SSerializeContext sctx;
 	int    ok = 1;
@@ -55,7 +55,7 @@ int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 	return ok;
 }
 
-int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
+int PPNamedFilt::Read(SBuffer & rBuf, long p)
 {
 	int    ok = 1;
 	THROW_SL(rBuf.Read(ID));
@@ -88,7 +88,7 @@ int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
 	return ok;
 }
 
-int SLAPI PPNamedFilt::Write2(xmlTextWriter * pXmlWriter)
+int PPNamedFilt::Write2(xmlTextWriter * pXmlWriter)
 {
 	int ok = 1;
 	SString temp_buf;
@@ -124,7 +124,7 @@ int SLAPI PPNamedFilt::Write2(xmlTextWriter * pXmlWriter)
 	return ok;
 }
 
-int SLAPI PPNamedFilt::XmlWriteGuaList(xmlTextWriter * pXmlWriter)
+int PPNamedFilt::XmlWriteGuaList(xmlTextWriter * pXmlWriter)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -149,7 +149,7 @@ int SLAPI PPNamedFilt::XmlWriteGuaList(xmlTextWriter * pXmlWriter)
 	return ok;
 } 
 
-int SLAPI PPNamedFilt::ReadGuaListFromStr(SString & rGuaListInStr)
+int PPNamedFilt::ReadGuaListFromStr(SString & rGuaListInStr)
 {
 	int     ok = 1;
 	SString temp_buf;
@@ -171,7 +171,7 @@ int SLAPI PPNamedFilt::ReadGuaListFromStr(SString & rGuaListInStr)
 	return ok;
 }
 
-int SLAPI PPNamedFilt::Read2(xmlNode * pParentNode)
+int PPNamedFilt::Read2(xmlNode * pParentNode)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -219,22 +219,22 @@ int SLAPI PPNamedFilt::Read2(xmlNode * pParentNode)
 	return ok;
 }
 
-SLAPI PPNamedFilt::~PPNamedFilt()
+PPNamedFilt::~PPNamedFilt()
 {
 	Param.Z();
 }
 
-SLAPI PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSCollection <PPNamedFilt>(), DbSymb(pDbSymb), Flags(0)
+PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSCollection <PPNamedFilt>(), DbSymb(pDbSymb), Flags(0)
 {
 	SETFLAG(Flags, fReadOnly, readOnly);
 }
 
-const SString & SLAPI PPNamedFiltPool::GetDbSymb() const
+const SString & PPNamedFiltPool::GetDbSymb() const
 {
 	return DbSymb;
 }
 
-int SLAPI PPNamedFiltPool::IsNamedFiltSuited(const PPNamedFilt * pNFilt) const
+int PPNamedFiltPool::IsNamedFiltSuited(const PPNamedFilt * pNFilt) const
 {
 	if(DbSymb.Empty() || DbSymb.CmpNC(pNFilt->DbSymb) == 0)
 		return 1;
@@ -242,7 +242,7 @@ int SLAPI PPNamedFiltPool::IsNamedFiltSuited(const PPNamedFilt * pNFilt) const
 		return PPSetError(PPERR_NFSTRNGFORPOOL);
 }
 
-uint SLAPI PPNamedFiltPool::GetCount() const
+uint PPNamedFiltPool::GetCount() const
 {
 	uint   c = 0;
 	if(DbSymb.NotEmpty()) {
@@ -255,7 +255,7 @@ uint SLAPI PPNamedFiltPool::GetCount() const
 	return c;
 }
 
-int SLAPI PPNamedFiltPool::CheckUniqueNamedFilt(const PPNamedFilt * pNFilt) const
+int PPNamedFiltPool::CheckUniqueNamedFilt(const PPNamedFilt * pNFilt) const
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
@@ -270,7 +270,7 @@ int SLAPI PPNamedFiltPool::CheckUniqueNamedFilt(const PPNamedFilt * pNFilt) cons
 	return ok;
 }
 
-int SLAPI PPNamedFiltPool::Enum(PPID * pID, PPNamedFilt * pNFilt, int ignoreDbSymb) const
+int PPNamedFiltPool::Enum(PPID * pID, PPNamedFilt * pNFilt, int ignoreDbSymb) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		PPNamedFilt * p_nfilt = at(i);
@@ -283,7 +283,7 @@ int SLAPI PPNamedFiltPool::Enum(PPID * pID, PPNamedFilt * pNFilt, int ignoreDbSy
 	return 0;
 }
 
-const PPNamedFilt * SLAPI PPNamedFiltPool::GetByID(PPID namedFiltID, int ignoreDbSymb) const
+const PPNamedFilt * PPNamedFiltPool::GetByID(PPID namedFiltID, int ignoreDbSymb) const
 {
 	const PPNamedFilt * p_filt = 0;
 	for(uint i = 0; !p_filt && i < getCount(); i++) {
@@ -294,7 +294,7 @@ const PPNamedFilt * SLAPI PPNamedFiltPool::GetByID(PPID namedFiltID, int ignoreD
 	return p_filt;
 }
 
-const  PPNamedFilt * SLAPI PPNamedFiltPool::GetBySymb(const char * pSymb, int ignoreDbSymb) const
+const  PPNamedFilt * PPNamedFiltPool::GetBySymb(const char * pSymb, int ignoreDbSymb) const
 {
 	const PPNamedFilt * p_filt = 0;
 	for(uint i = 0; !p_filt && i < getCount(); i++) {
@@ -307,7 +307,7 @@ const  PPNamedFilt * SLAPI PPNamedFiltPool::GetBySymb(const char * pSymb, int ig
 	return p_filt;
 }
 
-int SLAPI PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt * pNFilt)
+int PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt * pNFilt)
 {
 	int    ok = -1;
 	PPID   max_id = 0;
@@ -337,7 +337,7 @@ int SLAPI PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt *
 	return ok;
 }
 
-SLAPI PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
+PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 {
 	SString name;
 	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
@@ -348,12 +348,12 @@ SLAPI PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 	// } @erik
 }
 
-SLAPI PPNamedFiltMngr::~PPNamedFiltMngr()
+PPNamedFiltMngr::~PPNamedFiltMngr()
 {
 	delete P_Rez;
 }
 
-int SLAPI PPNamedFiltMngr::LoadResource(PPID viewID, SString & rSymb, SString & rText, long * pFlags) const
+int PPNamedFiltMngr::LoadResource(PPID viewID, SString & rSymb, SString & rText, long * pFlags) const
 {
 	int    ok = 1;
 	long   flags;
@@ -368,7 +368,7 @@ int SLAPI PPNamedFiltMngr::LoadResource(PPID viewID, SString & rSymb, SString & 
 	return ok;
 }
 
-int SLAPI PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocArray * pTextList) const
+int PPNamedFiltMngr::GetResourceLists(StrAssocArray * pSymbList, StrAssocArray * pTextList) const
 {
 	int    ok = 1;
 	SString text;
@@ -401,7 +401,7 @@ struct NamedFiltStrgHeader { // @persistent @size=64
 	char   Reserve2[48];
 };
 
-int SLAPI PPNamedFiltMngr::LoadPool(const char * pDbSymb, PPNamedFiltPool * pPool, int readOnly)
+int PPNamedFiltMngr::LoadPool(const char * pDbSymb, PPNamedFiltPool * pPool, int readOnly)
 {
 	int    ok = 1;
 	pPool->Flags &= ~PPNamedFiltPool::fReadOnly;
@@ -431,7 +431,7 @@ int SLAPI PPNamedFiltMngr::LoadPool(const char * pDbSymb, PPNamedFiltPool * pPoo
 	return ok;
 }
 
-int SLAPI PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
+int PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 {
 	int    ok = 1;
 	SFile  f;
@@ -461,7 +461,7 @@ int PPNamedFiltMngr::GetXmlPoolDir(SString &rXmlPoolPath)
 		return ok;
 }
 
-int SLAPI PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, int readOnly) //@erik v10.7.4
+int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, int readOnly) //@erik v10.7.4
 {
 	int    ok = 1;
 	pPool->Flags &= ~PPNamedFiltPool::fReadOnly;
@@ -497,7 +497,7 @@ int SLAPI PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPo
 	return ok;
 }
 
-int SLAPI PPNamedFiltMngr::ConvertBinToXml()
+int PPNamedFiltMngr::ConvertBinToXml()
 {
 	int ok = 1;
 	PPNamedFiltPool pool(0, 0);
@@ -507,7 +507,7 @@ int SLAPI PPNamedFiltMngr::ConvertBinToXml()
 	return ok;
 }
 
-int SLAPI PPNamedFiltMngr::SavePool2(const PPNamedFiltPool * pPool) const //@erik v10.7.4
+int PPNamedFiltMngr::SavePool2(const PPNamedFiltPool * pPool) const //@erik v10.7.4
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -587,7 +587,7 @@ int FiltPoolDialog::setupList()
 //
 // Descr: Создает и отображает диалог "Список фильтров"
 //
-int SLAPI ViewFiltPool()
+int ViewFiltPool()
 {
 	int    ok = -1;
 	PPNamedFiltMngr mngr;
@@ -675,7 +675,7 @@ private:
 //
 // Descr: Отображает диалог редактирования именованного фильтра
 //
-int SLAPI EditFiltItem(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pNFiltPool, PPNamedFilt * pData)
+int EditFiltItem(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pNFiltPool, PPNamedFilt * pData)
 {
 	DIALOG_PROC_BODY_P2(FiltItemDialog, pMngr, pNFiltPool, pData);
 }
@@ -1253,7 +1253,7 @@ private:
 //
 // Descr: Отображает диалог редактирования 
 //
-static int SLAPI EditMobTypeClmn(PPNamedFilt::ViewDefinition * pViewDef, const DlScope * pScope, PPNamedFilt::ViewDefinition::Entry * pEntry)
+static int EditMobTypeClmn(PPNamedFilt::ViewDefinition * pViewDef, const DlScope * pScope, PPNamedFilt::ViewDefinition::Entry * pEntry)
 {
 	DIALOG_PROC_BODY_P2(MobileClmnValItemDialog, pViewDef, pScope, pEntry);
 }

@@ -8,7 +8,7 @@
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(ServerStat); SLAPI ServerStatFilt::ServerStatFilt() : PPBaseFilt(PPFILT_SERVERSTAT, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(ServerStat); ServerStatFilt::ServerStatFilt() : PPBaseFilt(PPFILT_SERVERSTAT, 0, 1)
 {
 	SetFlatChunk(offsetof(ServerStatFilt, ReserveStart), offsetof(ServerStatFilt, ServerAddr) - offsetof(ServerStatFilt, ReserveStart));
 	SetBranchSString(offsetof(ServerStatFilt, ServerAddr));
@@ -21,16 +21,15 @@ ServerStatFilt & FASTCALL ServerStatFilt::operator = (const ServerStatFilt & s)
 	return *this;
 }
 
-SLAPI PPViewServerStat::PPViewServerStat() : PPView(0, &Filt, PPVIEW_SERVERSTAT), Data(sizeof(ServerStatViewItem))
-{
-	ImplementFlags |= implBrowseArray;
-}
-
-SLAPI PPViewServerStat::~PPViewServerStat()
+PPViewServerStat::PPViewServerStat() : PPView(0, &Filt, PPVIEW_SERVERSTAT, implBrowseArray, 0), Data(sizeof(ServerStatViewItem))
 {
 }
 
-int SLAPI PPViewServerStat::EditBaseFilt(PPBaseFilt * pFilt)
+PPViewServerStat::~PPViewServerStat()
+{
+}
+
+int PPViewServerStat::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
 	ServerStatFilt filt;
@@ -53,7 +52,7 @@ int SLAPI PPViewServerStat::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewServerStat::Init_(const PPBaseFilt * pFilt)
+int PPViewServerStat::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -68,7 +67,7 @@ int SLAPI PPViewServerStat::Init_(const PPBaseFilt * pFilt)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+int PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
@@ -121,7 +120,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-void SLAPI PPViewServerStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewServerStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewServerStat::GetDataForBrowser, this);
@@ -130,7 +129,7 @@ void SLAPI PPViewServerStat::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-SArray * SLAPI PPViewServerStat::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+SArray * PPViewServerStat::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(Data);
 	uint   brw_id = BROWSER_SERVERSTAT;
@@ -139,7 +138,7 @@ SArray * SLAPI PPViewServerStat::CreateBrowserArray(uint * pBrwId, SString * pSu
 	return p_array;
 }
 
-int SLAPI PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2 && oneof2(ppvCmd, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
@@ -170,7 +169,7 @@ int SLAPI PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI PPViewServerStat::ResetCache()
+int PPViewServerStat::ResetCache()
 {
 	int    ok = -1;
 	if(PPMaster) {
@@ -191,7 +190,7 @@ int SLAPI PPViewServerStat::ResetCache()
 	return ok;
 }
 
-int SLAPI PPViewServerStat::LogLockStack()
+int PPViewServerStat::LogLockStack()
 {
 	int    ok = -1;
 	if(PPMaster) {
@@ -212,7 +211,7 @@ int SLAPI PPViewServerStat::LogLockStack()
 	return ok;
 }
 
-int SLAPI PPViewServerStat::StopThread(long tid)
+int PPViewServerStat::StopThread(long tid)
 {
 	int    ok = 1;
 	if(PPMaster) {
@@ -242,7 +241,7 @@ int SLAPI PPViewServerStat::StopThread(long tid)
 	return ok;
 }
 
-int SLAPI PPViewServerStat::FetchStat()
+int PPViewServerStat::FetchStat()
 {
 	int    ok = 1;
 	PPJobSrvClient cli;

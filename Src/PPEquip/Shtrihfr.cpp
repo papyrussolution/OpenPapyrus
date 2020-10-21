@@ -9,7 +9,7 @@
 //   BillTaxArray
 //
 struct BillTaxEntry { // @flat
-	SLAPI  BillTaxEntry() : VAT(0), SalesTax(0), Amount(0.0)
+	BillTaxEntry() : VAT(0), SalesTax(0), Amount(0.0)
 	{
 	}
 	long   VAT;      // prec 0.01
@@ -19,19 +19,19 @@ struct BillTaxEntry { // @flat
 
 class BillTaxArray : public SVector { // @v9.8.4 SArray-->SVector
 public:
-	SLAPI  BillTaxArray() : SVector(sizeof(BillTaxEntry))
+	BillTaxArray() : SVector(sizeof(BillTaxEntry))
 	{
 	}
-	int    SLAPI Search(long VAT, long salesTax, uint * p = 0);
-	int    SLAPI Insert(const BillTaxEntry * pEntry, uint * p = 0);
-	int    SLAPI Add(BillTaxEntry * pEntry);
+	int    Search(long VAT, long salesTax, uint * p = 0);
+	int    Insert(const BillTaxEntry * pEntry, uint * p = 0);
+	int    Add(BillTaxEntry * pEntry);
 	BillTaxEntry & FASTCALL at(uint p);
 };
 
 IMPL_CMPFUNC(BillTaxEnKey, i1, i2) 
 	{ RET_CMPCASCADE2(static_cast<const BillTaxEntry *>(i1), static_cast<const BillTaxEntry *>(i2), VAT, SalesTax); }
 
-int SLAPI BillTaxArray::Search(long VAT, long salesTax, uint * p)
+int BillTaxArray::Search(long VAT, long salesTax, uint * p)
 {
 	BillTaxEntry bte;
 	bte.VAT      = VAT;
@@ -39,7 +39,7 @@ int SLAPI BillTaxArray::Search(long VAT, long salesTax, uint * p)
 	return bsearch(&bte, p, PTR_CMPFUNC(BillTaxEnKey));
 }
 
-int SLAPI BillTaxArray::Insert(const BillTaxEntry * pEntry, uint * p)
+int BillTaxArray::Insert(const BillTaxEntry * pEntry, uint * p)
 {
 	return ordInsert(pEntry, p, PTR_CMPFUNC(BillTaxEnKey)) ? 1 : PPSetErrorSLib();
 }
@@ -49,7 +49,7 @@ BillTaxEntry & FASTCALL BillTaxArray::at(uint p)
 	return *static_cast<BillTaxEntry *>(SVector::at(p));
 }
 
-int SLAPI BillTaxArray::Add(BillTaxEntry * e)
+int BillTaxArray::Add(BillTaxEntry * e)
 {
 	int    ok = 1;
 	uint   p;
@@ -205,57 +205,57 @@ typedef ComDispInterface  FR_INTRF;
 //
 class SCS_SHTRIHFRF : public PPSyncCashSession {
 public:
-	SLAPI  SCS_SHTRIHFRF(PPID n, char * name, char * port);
-	SLAPI ~SCS_SHTRIHFRF();
-	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
-	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI CloseSession(PPID sessID);
-	virtual int SLAPI PrintXReport(const CSessInfo *);
-	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
-	virtual int SLAPI PrintIncasso(double sum, int isIncome);
-	virtual int SLAPI GetPrintErrCode();
-	virtual int SLAPI OpenBox();
-	virtual int SLAPI CheckForSessionOver();
-	virtual int SLAPI PrintBnkTermReport(const char * pZCheck);
+	SCS_SHTRIHFRF(PPID n, char * name, char * port);
+	~SCS_SHTRIHFRF();
+	virtual int PrintCheck(CCheckPacket *, uint flags);
+	// @v10.0.0 virtual int PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
+	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int GetSummator(double * val);
+	virtual int CloseSession(PPID sessID);
+	virtual int PrintXReport(const CSessInfo *);
+	virtual int PrintZReportCopy(const CSessInfo *);
+	virtual int PrintIncasso(double sum, int isIncome);
+	virtual int GetPrintErrCode();
+	virtual int OpenBox();
+	virtual int CheckForSessionOver();
+	virtual int PrintBnkTermReport(const char * pZCheck);
 private:
-	// @v10.3.9 virtual int SLAPI InitChannel();
-	FR_INTRF  * SLAPI InitDriver();
-	int  SLAPI ConnectFR();
-	int  SLAPI SetupTables();
-	int  SLAPI AnnulateCheck();
-	int  SLAPI CheckForCash(double sum);
-	int  SLAPI CheckForEKLZOrFMOverflow();
-	int  SLAPI PrintReport(int withCleaning);
-	int	 SLAPI PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
-	int  SLAPI GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
-	int  SLAPI InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction);
-	int  SLAPI SetFR(PPID id, int    iVal);
-	int  SLAPI SetFR(PPID id, long   lVal);
-	int  SLAPI SetFR(PPID id, double dVal);
-	int  SLAPI SetFR(PPID id, const char * pStrVal);
-	int  SLAPI GetFR(PPID id, int    * pBuf);
-	int  SLAPI GetFR(PPID id, long   * pBuf);
-	int  SLAPI GetFR(PPID id, double * pBuf);
-	int  SLAPI GetFR(PPID id, char   * pBuf, size_t bufLen);
-	int  SLAPI ExecFR(PPID id);
-	int  SLAPI ExecFRPrintOper(PPID id);
-	int  SLAPI AllowPrintOper(PPID id);
-	void SLAPI SetErrorMessage();
-	void SLAPI WriteLogFile(PPID id);
-	void SLAPI CutLongTail(char * pBuf);
-	void SLAPI CutLongTail(SString & rBuf);
-	void SLAPI SetCheckLine(char pattern, char * pBuf);
-	int  SLAPI LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon);
-	int  SLAPI ReadStringFromTbl(int tblNum, int rowNum, int fldNum, SString & rStr);
-	int  SLAPI ReadValueFromTbl(int tblNum, int rowNum, int fldNum, long * pValue);
-	int  SLAPI WriteStringToTbl(int tblNum, int rowNum, int fldNum, const char * pStr);
-	int  SLAPI WriteValueToTbl(int tblNum, int rowNum, int fldNum, long value);
-	int  SLAPI CheckForRibbonUsing(uint ribbonParam); // ribbonParam == SlipLineParam::RegTo
-	int  SLAPI Cut(int withCleaning);
-	int  SLAPI GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * pOemMethod, int * pOemStd);
+	// @v10.3.9 virtual int InitChannel();
+	FR_INTRF  * InitDriver();
+	int  ConnectFR();
+	int  SetupTables();
+	int  AnnulateCheck();
+	int  CheckForCash(double sum);
+	int  CheckForEKLZOrFMOverflow();
+	int  PrintReport(int withCleaning);
+	int	 PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
+	int  GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName);
+	int  InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction);
+	int  SetFR(PPID id, int    iVal);
+	int  SetFR(PPID id, long   lVal);
+	int  SetFR(PPID id, double dVal);
+	int  SetFR(PPID id, const char * pStrVal);
+	int  GetFR(PPID id, int    * pBuf);
+	int  GetFR(PPID id, long   * pBuf);
+	int  GetFR(PPID id, double * pBuf);
+	int  GetFR(PPID id, char   * pBuf, size_t bufLen);
+	int  ExecFR(PPID id);
+	int  ExecFRPrintOper(PPID id);
+	int  AllowPrintOper(PPID id);
+	void SetErrorMessage();
+	void WriteLogFile(PPID id);
+	void CutLongTail(char * pBuf);
+	void CutLongTail(SString & rBuf);
+	void SetCheckLine(char pattern, char * pBuf);
+	int  LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon);
+	int  ReadStringFromTbl(int tblNum, int rowNum, int fldNum, SString & rStr);
+	int  ReadValueFromTbl(int tblNum, int rowNum, int fldNum, long * pValue);
+	int  WriteStringToTbl(int tblNum, int rowNum, int fldNum, const char * pStr);
+	int  WriteValueToTbl(int tblNum, int rowNum, int fldNum, long value);
+	int  CheckForRibbonUsing(uint ribbonParam); // ribbonParam == SlipLineParam::RegTo
+	int  Cut(int withCleaning);
+	int  GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * pOemMethod, int * pOemStd);
 
 	enum {
 		ResultCode,                             // #00
@@ -431,13 +431,13 @@ uint SCS_SHTRIHFRF::ExtMethodsFlags = 0;    // @global
 
 class CM_SHTRIHFRF : public PPCashMachine {
 public:
-	SLAPI CM_SHTRIHFRF(PPID cashID) : PPCashMachine(cashID)
+	CM_SHTRIHFRF(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPSyncCashSession * SLAPI SyncInterface();
+	PPSyncCashSession * SyncInterface();
 };
 
-PPSyncCashSession * SLAPI CM_SHTRIHFRF::SyncInterface()
+PPSyncCashSession * CM_SHTRIHFRF::SyncInterface()
 {
 	PPSyncCashSession * cs = 0;
 	if(IsValid()) {
@@ -449,7 +449,7 @@ PPSyncCashSession * SLAPI CM_SHTRIHFRF::SyncInterface()
 
 REGISTER_CMT(SHTRIHFRF,1,0);
 
-SLAPI SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
+SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
 	CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
 	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0)
 {
@@ -459,7 +459,7 @@ SLAPI SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCas
 	SETIFZ(P_DrvFRIntrf, InitDriver());
 }
 
-SLAPI SCS_SHTRIHFRF::~SCS_SHTRIHFRF()
+SCS_SHTRIHFRF::~SCS_SHTRIHFRF()
 {
 	if(Flags & sfConnected)
 		ExecFR(Disconnect);
@@ -467,7 +467,7 @@ SLAPI SCS_SHTRIHFRF::~SCS_SHTRIHFRF()
 		ZDELETE(P_DrvFRIntrf);
 }
 
-int SLAPI SCS_SHTRIHFRF::CheckForCash(double sum)
+int SCS_SHTRIHFRF::CheckForCash(double sum)
 {
 	double cash_sum = 0.0;
 	if(GetSummator(&cash_sum))
@@ -475,7 +475,7 @@ int SLAPI SCS_SHTRIHFRF::CheckForCash(double sum)
 	return 0;
 }
 
-int SLAPI SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
+int SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
 {
 	int    ok = 1, is_eklz_present = 0, is_eklz_overflow = 0, is_fm_overflow = 0, free_rec_in_fm = 0;
 	THROW(ExecFR(GetECRStatus));
@@ -489,7 +489,7 @@ int SLAPI SCS_SHTRIHFRF::CheckForEKLZOrFMOverflow()
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::CheckForSessionOver()
+int SCS_SHTRIHFRF::CheckForSessionOver()
 {
 	int    ok = -1, is_24_hours_over = 0;
 	THROW(ConnectFR());
@@ -501,7 +501,7 @@ int SLAPI SCS_SHTRIHFRF::CheckForSessionOver()
 	return ok;
 }
 
-int  SLAPI SCS_SHTRIHFRF::CheckForRibbonUsing(uint ribbonParam)
+int  SCS_SHTRIHFRF::CheckForRibbonUsing(uint ribbonParam)
 {
 	int    ok = 1;
 	if(ribbonParam) {
@@ -518,7 +518,7 @@ int  SLAPI SCS_SHTRIHFRF::CheckForRibbonUsing(uint ribbonParam)
 	return ok;
 }
 
-void SLAPI SCS_SHTRIHFRF::CutLongTail(char * pBuf)
+void SCS_SHTRIHFRF::CutLongTail(char * pBuf)
 {
 	char * p = 0;
 	if(pBuf && static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
@@ -530,7 +530,7 @@ void SLAPI SCS_SHTRIHFRF::CutLongTail(char * pBuf)
 	}
 }
 
-void SLAPI SCS_SHTRIHFRF::CutLongTail(SString & rBuf)
+void SCS_SHTRIHFRF::CutLongTail(SString & rBuf)
 {
 	char  buf[256];
 	rBuf.CopyTo(buf, sizeof(buf));
@@ -538,7 +538,7 @@ void SLAPI SCS_SHTRIHFRF::CutLongTail(SString & rBuf)
 	rBuf = buf;
 }
 
-void SLAPI SCS_SHTRIHFRF::SetCheckLine(char pattern, char * pBuf)
+void SCS_SHTRIHFRF::SetCheckLine(char pattern, char * pBuf)
 {
 	if(pBuf) {
 		memset(pBuf, pattern, CheckStrLen);
@@ -548,7 +548,7 @@ void SLAPI SCS_SHTRIHFRF::SetCheckLine(char pattern, char * pBuf)
 
 // "СУММА БЕЗ СКИДКИ;КАРТА;ВЛАДЕЛЕЦ;СКИДКА;Чек не напечатан;НАЛОГ С ПРОДАЖ;СУММА ПО СТАВКЕ НДС;НСП;ПОЛУЧАТЕЛЬ;КОПИЯ ЧЕКА;ВОЗВРАТ ПРОДАЖИ;ПРОДАЖА;ИТОГ;БЕЗНАЛИЧНАЯ ОПЛАТА"
 
-int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
+int	SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
 	double amt = R2(fabs(MONEYTOLDBL(pPack->Rec.Amount)));
@@ -595,7 +595,7 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flag
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon)
+int SCS_SHTRIHFRF::LineFeed(int lineCount, int useReceiptRibbon, int useJournalRibbon)
 {
 	int    ok = 1, cur_receipt, cur_journal;
 	THROW(GetFR(UseReceiptRibbon, &cur_receipt));
@@ -614,14 +614,14 @@ int SLAPI SCS_SHTRIHFRF::LineFeed(int lineCount, int useReceiptRibbon, int useJo
 	return ok;
 }
 
-static void SLAPI WriteLogFile_PageWidthOver(const char * pFormatName)
+static void WriteLogFile_PageWidthOver(const char * pFormatName)
 {
 	SString msg_fmt, msg;
 	msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName);
 	PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
 }
 
-int SLAPI SCS_SHTRIHFRF::Cut(int withCleaning)
+int SCS_SHTRIHFRF::Cut(int withCleaning)
 {
 	int    ok = 1;
 	if(DeviceType == devtypeShtrih) {
@@ -638,7 +638,7 @@ int SLAPI SCS_SHTRIHFRF::Cut(int withCleaning)
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * pOemMethod, int * pOemStd)
+int SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * pOemMethod, int * pOemStd)
 {
 	int    ok = 1;
 	int    oem_std = -1;
@@ -675,7 +675,7 @@ int SLAPI SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * 
 // Если SYNCPRN_ERROR_WHILE_PRINT, SYNCPRN_CANCEL_WHILE_PRINT -
 //   надо оставить флаг прерывания печати чека CASHF_LASTCHKCANCELLED в NodeRec.Flags
 //
-int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
+int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	const   int use_fn_op = BIN(Flags & sfUseFnMethods); // @v10.7.2
 	int     ok = 1;
@@ -1114,7 +1114,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::OpenBox()
+int SCS_SHTRIHFRF::OpenBox()
 {
 	int     ok = -1, is_drawer_open = 0;
 	ResCode = RESCODE_NO_ERROR;
@@ -1146,7 +1146,7 @@ int SLAPI SCS_SHTRIHFRF::OpenBox()
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName)
+int SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry, long * pFlags, SString &rName)
 {
 	int    ok = 1, wovatax = 0;
 	long   flags = 0;
@@ -1208,7 +1208,7 @@ int SLAPI SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray *
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction)
+int SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int * pPrintTaxAction)
 {
 	int    ok = 1, print_tax_action = 0;
 	uint   pos;
@@ -1292,7 +1292,7 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 }
 
 #if 0 // @v10.0.0 {
-int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
+int SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
 {
 	int     ok = 1, print_tax = 0;
 	uint    pos;
@@ -1397,7 +1397,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 }
 #endif // } 0 @v10.0.0
 
-int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int    ok = -1;
 	SString  temp_buf;
@@ -1478,7 +1478,7 @@ int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * p
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
+int SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1, is_format = 0;
 	SlipDocCommonParam  sdc_param;
@@ -1569,7 +1569,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char *
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintReport(int withCleaning)
+int SCS_SHTRIHFRF::PrintReport(int withCleaning)
 {
 	int    ok = 1, mode = 0;
 	long   cshr_pssw = 0;
@@ -1607,17 +1607,17 @@ int SLAPI SCS_SHTRIHFRF::PrintReport(int withCleaning)
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::CloseSession(PPID sessID)
+int SCS_SHTRIHFRF::CloseSession(PPID sessID)
 {
 	return PrintReport(1);
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintXReport(const CSessInfo *)
+int SCS_SHTRIHFRF::PrintXReport(const CSessInfo *)
 {
 	return PrintReport(0);
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
+int SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 {
 	int  ok = -1;
 	ResCode = RESCODE_NO_ERROR;
@@ -1662,7 +1662,7 @@ int SLAPI SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
+int SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 {
 	int    ok = 1;
 	ResCode = RESCODE_NO_ERROR;
@@ -1695,12 +1695,12 @@ int SLAPI SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::GetPrintErrCode()
+int SCS_SHTRIHFRF::GetPrintErrCode()
 {
 	return ErrCode;
 }
 
-int SLAPI SCS_SHTRIHFRF::GetSummator(double * val)
+int SCS_SHTRIHFRF::GetSummator(double * val)
 {
 	int    ok = 1;
 	double cash_amt = 0.0;
@@ -1716,9 +1716,9 @@ int SLAPI SCS_SHTRIHFRF::GetSummator(double * val)
 	return ok;
 }
 
-// @v10.3.9 int SLAPI SCS_SHTRIHFRF::InitChannel() { return 1; }
+// @v10.3.9 int SCS_SHTRIHFRF::InitChannel() { return 1; }
 
-FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
+FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 {
 	FR_INTRF * p_drv = 0;
 	SCS_SHTRIHFRF::PayTypeRegFlags = 0;
@@ -1867,7 +1867,7 @@ FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 	return p_drv;
 }
 
-int SLAPI SCS_SHTRIHFRF::AnnulateCheck()
+int SCS_SHTRIHFRF::AnnulateCheck()
 {
 	int    ok = -1, mode = 0, adv_mode = 0, cut = 0;
 	int    dont_use_cont_prn = 0;
@@ -1904,7 +1904,7 @@ int SLAPI SCS_SHTRIHFRF::AnnulateCheck()
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::ReadStringFromTbl(int tblNum, int rowNum, int fldNum, SString & rStr)
+int SCS_SHTRIHFRF::ReadStringFromTbl(int tblNum, int rowNum, int fldNum, SString & rStr)
 {
 	int    ok = 1;
 	char   buf[256];
@@ -1922,7 +1922,7 @@ int SLAPI SCS_SHTRIHFRF::ReadStringFromTbl(int tblNum, int rowNum, int fldNum, S
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::ReadValueFromTbl(int tblNum, int rowNum, int fldNum, long * pValue)
+int SCS_SHTRIHFRF::ReadValueFromTbl(int tblNum, int rowNum, int fldNum, long * pValue)
 {
 	int   ok = 1;
 	long  val = 0;
@@ -1947,7 +1947,7 @@ static void WriteLogFileToWriteTblErr(int tblNum, int rowNum, int fldNum, const 
 	}
 }
 
-int SLAPI SCS_SHTRIHFRF::WriteStringToTbl(int tblNum, int rowNum, int fldNum, const char * pStr)
+int SCS_SHTRIHFRF::WriteStringToTbl(int tblNum, int rowNum, int fldNum, const char * pStr)
 {
 	int   ok = 1;
 	THROW(SetFR(TableNumber, tblNum));
@@ -1962,7 +1962,7 @@ int SLAPI SCS_SHTRIHFRF::WriteStringToTbl(int tblNum, int rowNum, int fldNum, co
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::WriteValueToTbl(int tblNum, int rowNum, int fldNum, long value)
+int SCS_SHTRIHFRF::WriteValueToTbl(int tblNum, int rowNum, int fldNum, long value)
 {
 	int     ok = 1;
 	SString str_val;
@@ -1978,7 +1978,7 @@ int SLAPI SCS_SHTRIHFRF::WriteValueToTbl(int tblNum, int rowNum, int fldNum, lon
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::SetupTables()
+int SCS_SHTRIHFRF::SetupTables()
 {
 	int    ok = 1;
 	long   cshr_pssw;
@@ -2077,7 +2077,7 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::ConnectFR()
+int SCS_SHTRIHFRF::ConnectFR()
 {
 	int    ok = -1;
 	if(Flags & sfConnected) {
@@ -2181,16 +2181,16 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, int iVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, iVal) > 0); }
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, long lVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, lVal) > 0); }
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, double dVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, dVal) > 0); }
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, const char * pStrVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, pStrVal) > 0); }
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, int * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, long * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
+int SCS_SHTRIHFRF::SetFR(PPID id, int iVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, iVal) > 0); }
+int SCS_SHTRIHFRF::SetFR(PPID id, long lVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, lVal) > 0); }
+int SCS_SHTRIHFRF::SetFR(PPID id, double dVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, dVal) > 0); }
+int SCS_SHTRIHFRF::SetFR(PPID id, const char * pStrVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, pStrVal) > 0); }
+int SCS_SHTRIHFRF::GetFR(PPID id, int * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+int SCS_SHTRIHFRF::GetFR(PPID id, long * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+int SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+int SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
 
-int SLAPI SCS_SHTRIHFRF::ExecFR(PPID id)
+int SCS_SHTRIHFRF::ExecFR(PPID id)
 {
 	int    ok = 1;
 	THROW(P_DrvFRIntrf);
@@ -2202,7 +2202,7 @@ int SLAPI SCS_SHTRIHFRF::ExecFR(PPID id)
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::ExecFRPrintOper(PPID id)
+int SCS_SHTRIHFRF::ExecFRPrintOper(PPID id)
 {
 	int    ok = 1;
 	THROW(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0);
@@ -2223,7 +2223,7 @@ static int IsModeOffPrint(int mode)
 	return oneof5(mode, FRMODE_OPEN_SESS, FRMODE_CLOSE_SESS, FRMODE_OPEN_CHECK, FRMODE_FULL_REPORT, FRMODE_LONG_EKLZ_REPORT) ? 0 : 1;
 }
 
-void SLAPI SCS_SHTRIHFRF::WriteLogFile(PPID id)
+void SCS_SHTRIHFRF::WriteLogFile(PPID id)
 {
 	if(CConfig.Flags & CCFLG_DEBUG) {
 		int     adv_mode = 0;
@@ -2249,7 +2249,7 @@ void SLAPI SCS_SHTRIHFRF::WriteLogFile(PPID id)
 //  которые могут возникнуть при печати чека.
 // Код возврата: 1 - операция печати разрешена, 0 - запрещена.
 //
-int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
+int SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 {
 	int    ok = 1, mode = 0, adv_mode = PRNMODE_NO_PRINT, slip_mode_status = SLIPMODE_BEFORE_PRINT, last_res_code = ResCode;
 	int    is_chk_rbn = 1, is_jrn_rbn = 1;
@@ -2357,7 +2357,7 @@ int SLAPI SCS_SHTRIHFRF::AllowPrintOper(PPID id)
 	return ok;
 }
 
-void SLAPI SCS_SHTRIHFRF::SetErrorMessage()
+void SCS_SHTRIHFRF::SetErrorMessage()
 {
 	char   err_buf[MAXPATH];
 	memzero(err_buf, sizeof(err_buf));
@@ -2380,7 +2380,7 @@ void SLAPI SCS_SHTRIHFRF::SetErrorMessage()
 }
 
 // @vmiller
-int SLAPI SCS_SHTRIHFRF::PrintBnkTermReport(const char * pZCheck)
+int SCS_SHTRIHFRF::PrintBnkTermReport(const char * pZCheck)
 {
 	int     ok = 1;
 	StringSet str_set('\n', pZCheck);

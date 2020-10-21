@@ -19,7 +19,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "cloexec.h"
+//#include "cloexec.h"
 //#include <errno.h>
 //#include <fcntl.h>
 //#include <unistd.h>
@@ -45,18 +45,14 @@ int set_cloexec_flag(int desc, bool value)
 	}
 	return -1;
 #else /* !F_SETFD */
-	/* Use dup2 to reject invalid file descriptors; the cloexec flag
-	   will be unaffected.  */
+	// Use dup2 to reject invalid file descriptors; the cloexec flag will be unaffected.
 	if(desc < 0) {
 		errno = EBADF;
 		return -1;
 	}
 	if(_dup2(desc, desc) < 0)
-		/* errno is EBADF here.  */
-		return -1;
-
-	/* There is nothing we can do on this kind of platform.  Punt.  */
-	return 0;
+		return -1; /* errno is EBADF here.  */
+	return 0; /* There is nothing we can do on this kind of platform.  Punt.  */
 #endif /* !F_SETFD */
 }
 

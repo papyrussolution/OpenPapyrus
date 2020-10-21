@@ -46,7 +46,7 @@ int FASTCALL SLib2BtrType(int t)
 	}
 }
 
-char * SLAPI GetRusNCaseACS(char * b)
+char * GetRusNCaseACS(char * b)
 {
 	char * p = b;
 	*p++ = '\xAC';
@@ -56,7 +56,7 @@ char * SLAPI GetRusNCaseACS(char * b)
 	return b;
 }
 
-DBFileSpec & SLAPI operator + (DBFileSpec & pf, DBIdxSpec & pi)
+DBFileSpec & operator + (DBFileSpec & pf, DBIdxSpec & pi)
 {
 	DBFileSpec * p_tmp = static_cast<DBFileSpec *>(catmem(&pf, sizeof(DBFileSpec) + pf.NumSeg * sizeof(DBIdxSpec), &pi, sizeof(DBIdxSpec)));
 	p_tmp->NumSeg++;
@@ -68,7 +68,7 @@ DBFileSpec & SLAPI operator + (DBFileSpec & pf, DBIdxSpec & pi)
 //
 // } Utilities
 //
-SString & SLAPI XFile::GetTableName(SString & rBuf) const
+SString & XFile::GetTableName(SString & rBuf) const
 	{ return rBuf.CopyFromN(XfName, MAXTABLENAME).Strip(); }
 
 int FASTCALL DBTable::copyBufLobFrom(const void * pBuf, size_t srcBufSize)
@@ -100,7 +100,7 @@ void FASTCALL DBTable::SetPageSize(uint newPageSize)
 }
 
 void   FASTCALL DBTable::SetTableID(BTBLID _id) { tableID = _id; }
-void   SLAPI DBTable::SetIndicesTblRef() { indexes.setTableRef(offsetof(DBTable, indexes)); }
+void   DBTable::SetIndicesTblRef() { indexes.setTableRef(offsetof(DBTable, indexes)); }
 //
 // Descr: set fileName
 //
@@ -108,11 +108,11 @@ void   FASTCALL DBTable::SetName(const char * pN) { fileName = pN; }
 void   FASTCALL DBTable::SetTableName(const char * pN) { STRNSCPY(tableName, pN); }
 void   FASTCALL DBTable::SetFlag(int f) { flags |= f; }
 void   FASTCALL DBTable::ResetFlag(int f) { flags &= ~f; }
-int    SLAPI DBTable::AddField(const char * pName, TYPEID fldType, int fldId) { return fields.addField(pName, fldType, fldId); }
+int    DBTable::AddField(const char * pName, TYPEID fldType, int fldId) { return fields.addField(pName, fldType, fldId); }
 int    FASTCALL DBTable::AddField(const BNField & rF) { return fields.addField(rF); }
 int    FASTCALL DBTable::AddKey(BNKey & rK) { return indexes.addKey(rK); }
 
-int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
+int DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 {
 	int    ok = 0;
 	uint16 bl = static_cast<uint16>(sstrlen(pPassword));
@@ -144,7 +144,7 @@ int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 	return ok;
 }
 
-int SLAPI DBTable::Btr_Close()
+int DBTable::Btr_Close()
 {
 	if(State & sOpened_) {
 		OpenedFileName = 0;
@@ -323,7 +323,7 @@ int FASTCALL DBTable::Ret(int ret)
 	return (ret == 0);
 }
 
-int SLAPI DBTable::step(int sp)
+int DBTable::step(int sp)
 {
 	static const int cmd[] = {B_STEPFIRST, B_STEPLAST, -1, -1, -1, -1, -1, B_STEPDIRECT, B_STEPPREV};
 	retBufLen = bufLen;
@@ -336,7 +336,7 @@ int SLAPI DBTable::step(int sp)
 	return BIN(err == 0 || err == BE_UBUFLEN);
 }
 
-int SLAPI DBTable::getExtended(void * key, int srchMode, int lock)
+int DBTable::getExtended(void * key, int srchMode, int lock)
 {
 	assert(srchMode == spNext || srchMode == spPrev);
 	int    op = ((srchMode == spNext) ? B_GETNEXTEXT : B_GETPREVEXT) + lock;
@@ -347,7 +347,7 @@ int SLAPI DBTable::getExtended(void * key, int srchMode, int lock)
 	return Ret(err);
 }
 
-int SLAPI DBTable::stepExtended(int srchMode, int lock)
+int DBTable::stepExtended(int srchMode, int lock)
 {
 	assert(srchMode == spNext || srchMode == spPrev);
 	int    op = ((srchMode == spNext) ? B_STEPNEXTEXT : B_STEPPREVEXT) + lock;
@@ -439,7 +439,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 	return result;
 }
 
-int SLAPI DBTable::Btr_Implement_BExtInsert(BExtInsert * pBei)
+int DBTable::Btr_Implement_BExtInsert(BExtInsert * pBei)
 {
 	int    ok = 1;
 	SBaseBuffer sav_buf = getBuffer();
@@ -527,13 +527,13 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 	return result;
 }
 
-int SLAPI DBTable::Btr_Implement_DeleteRec()
+int DBTable::Btr_Implement_DeleteRec()
 {
 	uint16 bl = 0;
 	return Ret(BTRV(B_DELETE, FPB, 0, &bl, 0, WBTRVTAIL_ZZ));
 }
 
-int SLAPI DBTable::unlock(int isAll)
+int DBTable::unlock(int isAll)
 {
 	DBRowId pos;
 	/*auto*/  int index = isAll ? -2 : -1;
@@ -544,19 +544,19 @@ int SLAPI DBTable::unlock(int isAll)
 	return (BtrError == 0);
 }
 
-int SLAPI DBTable::Btr_Encrypt(char * pw, int protectMode)
+int DBTable::Btr_Encrypt(char * pw, int protectMode)
 {
 	uint16 bl = static_cast<uint16>(sstrlen(pw));
 	/*auto*/ int index = protectMode;
 	return Ret(BTRV(B_SETOWNER, FPB, pw, &bl, pw, WBTRVTAIL_Z));
 }
 
-int SLAPI DBTable::Btr_Decrypt()
+int DBTable::Btr_Decrypt()
 {
 	return Ret(BTRV(B_CLEAROWNER, FPB, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-int SLAPI DBTable::getStat(void ** ppInfo, uint16 * pBufSize)
+int DBTable::getStat(void ** ppInfo, uint16 * pBufSize)
 {
 	EXCEPTVAR(BtrError);
 	*pBufSize = 4096;
@@ -576,7 +576,7 @@ int SLAPI DBTable::getStat(void ** ppInfo, uint16 * pBufSize)
 	return (BtrError == 0);
 }
 
-int SLAPI DBTable::Btr_GetStat(long reqItems, DbTableStat * pStat)
+int DBTable::Btr_GetStat(long reqItems, DbTableStat * pStat)
 {
 	EXCEPTVAR(BtrError);
 	int    ok = 1;
@@ -629,7 +629,7 @@ int FASTCALL DBTable::getNumRecs(RECORDNUMBER * pNumRecs)
 	return ok;
 }
 
-int SLAPI DBTable::getNumKeys(int16 * pNumKeys)
+int DBTable::getNumKeys(int16 * pNumKeys)
 {
 	int    ok;
 	DBFileSpec * p_info;
@@ -641,7 +641,7 @@ int SLAPI DBTable::getNumKeys(int16 * pNumKeys)
 	return ok;
 }
 
-DBIdxSpec * SLAPI DBTable::getIndexSpec(int idxNo, int * pNumSeg)
+DBIdxSpec * DBTable::getIndexSpec(int idxNo, int * pNumSeg)
 {
 	DBIdxSpec * p_idx = 0;
 	DBFileSpec * p_info;
@@ -669,7 +669,7 @@ DBIdxSpec * SLAPI DBTable::getIndexSpec(int idxNo, int * pNumSeg)
 	return p_idx;
 }
 
-int SLAPI DBTable::getTabFlags(int16 * pFlags)
+int DBTable::getTabFlags(int16 * pFlags)
 {
 	DBFileSpec * p_info = 0;
 	uint16 buf_size;
@@ -690,19 +690,19 @@ BtrDbKey::BtrDbKey()
 //
 //
 //
-SLAPI ChunkHeader::ChunkHeader(long pos, long func, long aNum) : recPos(pos), subFunc(func), numChunks(aNum)
+ChunkHeader::ChunkHeader(long pos, long func, long aNum) : recPos(pos), subFunc(func), numChunks(aNum)
 {
 }
 
-SLAPI RandChunkItem::RandChunkItem(long ofs, long aLen, void * p) : offset(ofs), len(aLen), ptr((long)p)
+RandChunkItem::RandChunkItem(long ofs, long aLen, void * p) : offset(ofs), len(aLen), ptr((long)p)
 {
 }
 
-SLAPI RectChunk::RectChunk(long ofs, long rs, long pDist, long p, long aDist) : offset(ofs), rowSize(rs), ptrDist(pDist), ptr(p), appDist(aDist)
+RectChunk::RectChunk(long ofs, long rs, long pDist, long p, long aDist) : offset(ofs), rowSize(rs), ptrDist(pDist), ptr(p), appDist(aDist)
 {
 }
 
-ChunkHeader & SLAPI operator + (ChunkHeader & h, RandChunkItem & i)
+ChunkHeader & operator + (ChunkHeader & h, RandChunkItem & i)
 {
 	ChunkHeader * p_tmp = static_cast<ChunkHeader *>(catmem(&h, sizeof(ChunkHeader), &i, sizeof(RandChunkItem)));
 	delete & h;
@@ -710,14 +710,14 @@ ChunkHeader & SLAPI operator + (ChunkHeader & h, RandChunkItem & i)
 	return *p_tmp;
 }
 
-ChunkHeader & SLAPI operator + (ChunkHeader & h, RectChunk & c)
+ChunkHeader & operator + (ChunkHeader & h, RectChunk & c)
 {
 	ChunkHeader * p_tmp = static_cast<ChunkHeader *>(catmem(&h, sizeof(ChunkHeader), &c, sizeof(RectChunk)));
 	delete & h;
 	return *p_tmp;
 }
 
-int SLAPI DBTable::getChunk(const ChunkHeader * pChunk, int lock)
+int DBTable::getChunk(const ChunkHeader * pChunk, int lock)
 {
 	/*auto*/ int index = 0xfffe; // for substitute in WBTRVTAIL_Z
 	size_t chunkInfoSize = sizeof(ChunkHeader);
@@ -737,7 +737,7 @@ int SLAPI DBTable::getChunk(const ChunkHeader * pChunk, int lock)
 	return (BtrError == 0);
 }
 
-int SLAPI DBTable::updateChunk()
+int DBTable::updateChunk()
 {
 	char   key[256];
 	retBufLen = bufLen;
@@ -746,7 +746,7 @@ int SLAPI DBTable::updateChunk()
 //
 // ARG(repPos OUT): @#[0..10000]
 //
-int SLAPI DBTable::findPercentage(void * key, int16 * relPos)
+int DBTable::findPercentage(void * key, int16 * relPos)
 {
 	//RECORDNUMBER pos;
 	DBRowId pos;
@@ -770,7 +770,7 @@ int SLAPI DBTable::findPercentage(void * key, int16 * relPos)
 }
 
 /* relPos = 0..10000 keyIndex = keyNo || -1 (for phisical positioning) */
-int SLAPI DBTable::getByPercentage(int16 relPos, int keyIndex)
+int DBTable::getByPercentage(int16 relPos, int keyIndex)
 {
 	char   keyBuf[255];
 	retBufLen = bufLen;

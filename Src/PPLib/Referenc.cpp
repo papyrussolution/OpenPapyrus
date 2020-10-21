@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-/*static*/int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
+/*static*/int Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -25,7 +25,7 @@
 	return ok;
 }
 
-/*static*/int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
+/*static*/int Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -59,7 +59,7 @@
 	return ok;
 }
 
-/*static*/int SLAPI Reference::Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen)
+/*static*/int Reference::Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	if(cryptMethod == crymRef2) {
@@ -88,7 +88,7 @@
 	return ok;
 }
 
-/*static*/int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText)
+/*static*/int Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText)
 {
 	int    ok = 1;
 	char   pw_buf[128];
@@ -113,12 +113,12 @@
 	return ok;
 }
 
-/*static*/int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
+/*static*/int Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
 	{ return Reference::Helper_Encrypt_(cryptMethod, 0, pText, pBuf, bufLen); }
-/*static*/int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
+/*static*/int Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
 	{ return Reference::Helper_Decrypt_(cryptMethod, 0, pBuf, bufLen, rText); }
 
-/*static*/int SLAPI Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t bufLen)
+/*static*/int Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	if(pSecur) {
@@ -132,7 +132,7 @@
 	return ok;
 }
 
-/*static*/int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
+/*static*/int Reference::VerifySecur(PPSecur2 * pSecur, int set)
 {
 	int    ok = 1;
 	SCRC32 c;
@@ -177,7 +177,7 @@
 	return ok;
 }
 
-/*static*/int SLAPI Reference::GetExField(const PPConfigPrivate * pRec, int fldId, SString & rBuf)
+/*static*/int Reference::GetExField(const PPConfigPrivate * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -188,7 +188,7 @@
 	return ok;
 }
 
-/*static*/int SLAPI Reference::SetExField(PPConfigPrivate * pRec, int fldId, const char * pBuf)
+/*static*/int Reference::SetExField(PPConfigPrivate * pRec, int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(fldId == PCFGEXSTR_DESKTOPNAME) {
@@ -199,16 +199,16 @@
 	return ok;
 }
 
-SLAPI Reference::Reference() : ReferenceTbl(), P_OvT(new ObjVersioningCore)
+Reference::Reference() : ReferenceTbl(), P_OvT(new ObjVersioningCore)
 {
 }
 
-SLAPI Reference::~Reference()
+Reference::~Reference()
 {
 	delete P_OvT;
 }
 
-int SLAPI Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flags, int use_ta)
+int Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flags, int use_ta)
 {
 	assert(pDynObjType != 0); // @v10.6.8
 	int    ok = 1, r;
@@ -232,7 +232,7 @@ int SLAPI Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, lon
 	return ok;
 }
 
-int SLAPI Reference::FreeDynamicObj(PPID dynObjType, int use_ta)
+int Reference::FreeDynamicObj(PPID dynObjType, int use_ta)
 {
 	int    ok = 1, r;
 	PPID   id = 0;
@@ -253,7 +253,7 @@ int SLAPI Reference::FreeDynamicObj(PPID dynObjType, int use_ta)
 	return ok;
 }
 
-int SLAPI Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
+int Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 {
 	int    ok, r2;
 	if(*pID) {
@@ -299,12 +299,12 @@ int SLAPI Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 	return ok;
 }
 
-int SLAPI Reference::GetFreeID(PPID obj, PPID * id)
+int Reference::GetFreeID(PPID obj, PPID * id)
 {
 	return _GetFreeID(obj, id, PP_FIRSTUSRREF);
 }
 
-int SLAPI Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
+int Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 {
 	int    ok = 1, r;
 	{
@@ -326,7 +326,7 @@ int SLAPI Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 	return ok;
 }
 
-int SLAPI Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction /*=1*/, int use_ta)
+int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction /*=1*/, int use_ta)
 {
 	int    ok = 1, r = 1, try_count = 5;
 	ReferenceTbl::Rec prev_rec, new_rec;
@@ -374,7 +374,7 @@ int SLAPI Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction
 	return ok;
 }
 
-int SLAPI Reference::_Search(PPID obj, PPID id, int spMode, void * b)
+int Reference::_Search(PPID obj, PPID id, int spMode, void * b)
 {
 	int    ok = 1;
 	ReferenceTbl::Key0 k;
@@ -389,18 +389,18 @@ int SLAPI Reference::_Search(PPID obj, PPID id, int spMode, void * b)
 	return ok;
 }
 
-int SLAPI Reference::GetItem(PPID obj, PPID id, void * b)
+int Reference::GetItem(PPID obj, PPID id, void * b)
 {
 	return _Search(obj, id, spEq, b);
 }
 
-int SLAPI Reference::EnumItems(PPID obj, PPID * pID, void * b)
+int Reference::EnumItems(PPID obj, PPID * pID, void * b)
 {
 	int    r = _Search(obj, *pID, spGt, b);
 	return (r > 0) ? ((data.ObjType == obj) ? (*pID = data.ObjID, 1) : -1) : r;
 }
 
-int SLAPI Reference::InitEnum(PPID objType, int flags, long * pHandle)
+int Reference::InitEnum(PPID objType, int flags, long * pHandle)
 {
 	BExtQuery * q = new BExtQuery(this, 0);
 	// @todo (требуется доработка BExtQuery) q->setMaxReject(8);
@@ -421,7 +421,7 @@ int SLAPI Reference::InitEnum(PPID objType, int flags, long * pHandle)
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-int SLAPI Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle)
+int Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle)
 {
 	int    ok = 1;
 	assert(oneof2(valN, 1, 2));
@@ -454,29 +454,29 @@ int SLAPI Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * p
 	return ok;
 }
 
-int SLAPI Reference::NextEnum(long enumHandle, void * pRec)
+int Reference::NextEnum(long enumHandle, void * pRec)
 {
 	return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1;
 }
 
-int SLAPI Reference::DestroyIter(long enumHandle)
+int Reference::DestroyIter(long enumHandle)
 {
 	return EnumList.DestroyIterHandler(enumHandle);
 }
 
-SEnumImp * SLAPI Reference::Enum(PPID objType, int options)
+SEnumImp * Reference::Enum(PPID objType, int options)
 {
 	long   h = -1;
 	return InitEnum(objType, options, &h) ? new PPTblEnum <Reference>(this, h) : 0;
 }
 
-SEnumImp * SLAPI Reference::EnumByIdxVal(PPID objType, int valN, long val)
+SEnumImp * Reference::EnumByIdxVal(PPID objType, int valN, long val)
 {
 	long   h = -1;
 	return InitEnumByIdxVal(objType, valN, val, &h) ? new PPTblEnum<Reference>(this, h) : 0;
 }
 
-int SLAPI Reference::LoadItems(PPID objType, SVector & rList) // @v10.6.8 SArray-->SVector
+int Reference::LoadItems(PPID objType, SVector & rList) // @v10.6.8 SArray-->SVector
 {
 	int    ok = -1;
 	ReferenceTbl::Rec rec;
@@ -485,7 +485,7 @@ int SLAPI Reference::LoadItems(PPID objType, SVector & rList) // @v10.6.8 SArray
 	return ok;
 }
 
-int SLAPI Reference::SearchName(PPID obj, PPID * pID, const char * pName, void * pRec)
+int Reference::SearchName(PPID obj, PPID * pID, const char * pName, void * pRec)
 {
 	ReferenceTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -503,7 +503,7 @@ int SLAPI Reference::SearchName(PPID obj, PPID * pID, const char * pName, void *
 	return ok;
 }
 
-int SLAPI Reference::SearchSymb(PPID objType, PPID * pID, const char * pSymb, size_t offs)
+int Reference::SearchSymb(PPID objType, PPID * pID, const char * pSymb, size_t offs)
 {
 	int    ok = -1;
 	ASSIGN_PTR(pID, 0);
@@ -525,7 +525,7 @@ int SLAPI Reference::SearchSymb(PPID objType, PPID * pID, const char * pSymb, si
 	return ok;
 }
 
-int SLAPI Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, size_t offs)
+int Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, size_t offs)
 {
 	int    ok = 1;
 	if(!isempty(pSymb)) {
@@ -539,7 +539,7 @@ int SLAPI Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, 
 	return ok;
 }
 
-int SLAPI Reference::RemoveItem(PPID obj, PPID id, int use_ta)
+int Reference::RemoveItem(PPID obj, PPID id, int use_ta)
 {
 	int    ok = 1, r;
 	{
@@ -556,7 +556,7 @@ int SLAPI Reference::RemoveItem(PPID obj, PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI Reference::RemoveProperty(PPID obj, PPID id, PPID prop, int use_ta)
+int Reference::RemoveProperty(PPID obj, PPID id, PPID prop, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -574,7 +574,7 @@ int SLAPI Reference::RemoveProperty(PPID obj, PPID id, PPID prop, int use_ta)
 	return ok;
 }
 
-int SLAPI Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
+int Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 {
 	int    ok = 1;
 	size_t actual_size = 0;
@@ -589,7 +589,7 @@ int SLAPI Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 	return ok;
 }
 
-int SLAPI Reference::PreparePropBuf(PPID obj, PPID id, PPID prop, const void * b, uint s)
+int Reference::PreparePropBuf(PPID obj, PPID id, PPID prop, const void * b, uint s)
 {
 	int    ok = 1;
 	RECORDSIZE fix_rec_size = Prop.getRecSize();
@@ -608,7 +608,7 @@ int SLAPI Reference::PreparePropBuf(PPID obj, PPID id, PPID prop, const void * b
 	return ok;
 }
 
-int SLAPI Reference::PutProp(PPID obj, PPID id, PPID prop, const void * b, size_t s, int use_ta)
+int Reference::PutProp(PPID obj, PPID id, PPID prop, const void * b, size_t s, int use_ta)
 {
 	int    ok = 1;
 	PropertyTbl::Key0 k;
@@ -648,7 +648,7 @@ int SLAPI Reference::PutProp(PPID obj, PPID id, PPID prop, const void * b, size_
 	return ok;
 }
 
-int SLAPI Reference::_SearchProp(PPID obj, PPID id, PPID prop, int spMode, void * b, size_t s)
+int Reference::_SearchProp(PPID obj, PPID id, PPID prop, int spMode, void * b, size_t s)
 {
 	int    ok = 1;
 	PropertyTbl::Key0 k;
@@ -662,12 +662,12 @@ int SLAPI Reference::_SearchProp(PPID obj, PPID id, PPID prop, int spMode, void 
 	return ok;
 }
 
-int SLAPI Reference::GetProperty(PPID obj, PPID id, PPID prop, void * b, size_t s)
+int Reference::GetProperty(PPID obj, PPID id, PPID prop, void * b, size_t s)
 	{ return _SearchProp(obj, id, prop, spEq, b, s); }
-int SLAPI Reference::GetPropMainConfig(PPID prop, void * b, size_t s)
+int Reference::GetPropMainConfig(PPID prop, void * b, size_t s)
 	{ return _SearchProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, spEq, b, s); }
 
-int SLAPI Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pActualSize)
+int Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pActualSize)
 {
 	int    ok = 1;
 	size_t actual_size = 0;
@@ -684,7 +684,7 @@ int SLAPI Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pA
 	return ok;
 }
 
-int SLAPI Reference::EnumProperties(PPID obj, PPID id, PPID * prop, void * b, uint s)
+int Reference::EnumProperties(PPID obj, PPID id, PPID * prop, void * b, uint s)
 {
 	int    sp = (*prop == 0) ? spGe : spNext;
 	int    r = _SearchProp(obj, id, *prop, sp, b, s);
@@ -703,7 +703,7 @@ struct PropVlrString {
 	//char   Text[];
 };
 
-int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rBuf)
+int Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -740,7 +740,7 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 	return ok;
 }
 
-int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char * b, int use_ta)
+int Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char * b, int use_ta)
 {
 	int    ok = 1;
 	PropVlrString * pm = 0;
@@ -759,7 +759,7 @@ int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char *
 	return ok;
 }
 
-int SLAPI Reference::PutPropSBuffer(PPID obj, PPID id, PPID prop, const SBuffer & rBuf, int use_ta)
+int Reference::PutPropSBuffer(PPID obj, PPID id, PPID prop, const SBuffer & rBuf, int use_ta)
 {
 	int    ok = 1;
 	PropVlrString * pm = 0;
@@ -805,7 +805,7 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI Reference::GetPropSBuffer(PPID obj, PPID id, PPID prop, SBuffer & rBuf)
+int Reference::GetPropSBuffer(PPID obj, PPID id, PPID prop, SBuffer & rBuf)
 {
 	int    ok = 1;
 	PropertyTbl::Key0 k;
@@ -821,7 +821,7 @@ int SLAPI Reference::GetPropSBuffer(PPID obj, PPID id, PPID prop, SBuffer & rBuf
 	return ok;
 }
 
-int SLAPI Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
+int Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
 {
 	int    ok = 1;
 	PropPPIDArray * p_rec = 0;
@@ -849,7 +849,7 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
 	return ok;
 }
 
-int SLAPI Reference::GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pAry)
+int Reference::GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pAry)
 {
 	int    ok = 1;
 	PropertyTbl::Key0 k;
@@ -865,7 +865,7 @@ int SLAPI Reference::GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pA
 	return ok;
 }
 
-int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBase * ary, int use_ta)
+int Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBase * ary, int use_ta)
 {
 	int    ok = 1;
 	PropPPIDArray * p_rec = 0;
@@ -889,7 +889,7 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBas
 	return ok;
 }
 
-int SLAPI Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
+int Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 {
 	Reference2Tbl::Rec rec;
 	int    r = GetProperty(obj, id, cfgID, b, s);
@@ -906,12 +906,12 @@ int SLAPI Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 	return r;
 }
 
-int SLAPI Reference::SetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
+int Reference::SetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 {
 	return PutProp(obj, id, cfgID, b, s);
 }
 
-int SLAPI Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * sp)
+int Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * sp)
 {
 	int    ok = 1;
 	THROW(GetItem(obj, id, &sp->Secur) > 0);
@@ -923,7 +923,7 @@ int SLAPI Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * sp)
 	return ok;
 }
 
-int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isNew, int use_ta)
+int Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isNew, int use_ta)
 {
 	int   ok = 1;
 	const int is_user = (obj == PPOBJ_USR);
@@ -961,7 +961,7 @@ int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isN
 	return ok;
 }
 
-int SLAPI Reference::RemoveSecur(PPID obj, PPID id, int use_ta)
+int Reference::RemoveSecur(PPID obj, PPID id, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -1026,16 +1026,16 @@ struct _PPRights {         // @persistent @store(PropertyTbl)
 	// ... (ObjRights: size = ORTailSize - sizeof(_PPRights)) //
 };
 
-SLAPI PPRights::PPRights() : P_Rt(0), P_OpList(0), P_LocList(0), P_CfgList(0), P_AccList(0), P_PosList(0), P_QkList(0)
+PPRights::PPRights() : P_Rt(0), P_OpList(0), P_LocList(0), P_CfgList(0), P_AccList(0), P_PosList(0), P_QkList(0)
 {
 }
 
-SLAPI PPRights::~PPRights()
+PPRights::~PPRights()
 {
 	Empty();
 }
 
-int SLAPI PPRights::SerializeArrayPtr(int dir, ObjRestrictArray ** ppA, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPRights::SerializeArrayPtr(int dir, ObjRestrictArray ** ppA, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	assert(ppA);
 	int    ok = 1;
@@ -1068,7 +1068,7 @@ int SLAPI PPRights::SerializeArrayPtr(int dir, ObjRestrictArray ** ppA, SBuffer 
 	return ok;
 }
 
-int SLAPI PPRights::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPRights::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->SerializeBlock(dir, Size(), P_Rt, rBuf, 1));
@@ -1082,11 +1082,11 @@ int SLAPI PPRights::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	return ok;
 }
 
-size_t SLAPI PPRights::Size() const { return P_Rt ? (sizeof(_PPRights) + P_Rt->ORTailSize) : 0; }
-int    SLAPI PPRights::IsEmpty() const { return (P_Rt == 0); }
-int    SLAPI PPRights::IsInherited() const { return BIN(P_Rt && P_Rt->OprFlags & PPORF_INHERITED); }
+size_t PPRights::Size() const { return P_Rt ? (sizeof(_PPRights) + P_Rt->ORTailSize) : 0; }
+int    PPRights::IsEmpty() const { return (P_Rt == 0); }
+int    PPRights::IsInherited() const { return BIN(P_Rt && P_Rt->OprFlags & PPORF_INHERITED); }
 
-void SLAPI PPRights::Empty()
+void PPRights::Empty()
 {
 	ZFREE(P_Rt);
 	ZDELETE(P_OpList);
@@ -1097,7 +1097,7 @@ void SLAPI PPRights::Empty()
 	ZDELETE(P_QkList);
 }
 
-int SLAPI PPRights::Merge(const PPRights & rS, long flags)
+int PPRights::Merge(const PPRights & rS, long flags)
 {
 	int    ok = 1;
 	//
@@ -1185,7 +1185,7 @@ struct ObjRights_Pre855 { // @persistent
 	ushort OprFlags;
 };
 
-int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
+int PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -1244,7 +1244,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 	return ok;
 }
 
-int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
+int PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
@@ -1333,12 +1333,12 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 	return ok;
 }
 
-int SLAPI PPRights::Remove(PPID securType, PPID securID)
+int PPRights::Remove(PPID securType, PPID securID)
 {
 	return PPRef->RemoveProperty(securType, securID, PPPRP_RTCOMM, 0);
 }
 
-int SLAPI PPRights::Put(PPID securType, PPID securID)
+int PPRights::Put(PPID securType, PPID securID)
 {
 	int    ok = 1;
 	if(!IsEmpty()) {
@@ -1391,7 +1391,7 @@ int SLAPI PPRights::Put(PPID securType, PPID securID)
 	return ok;
 }
 
-const ObjRights * SLAPI PPRights::GetConstObjRights(PPID objType, ObjRights * pDef) const
+const ObjRights * PPRights::GetConstObjRights(PPID objType, ObjRights * pDef) const
 {
 	const ObjRights * p_result = 0;
 	if(P_Rt) {
@@ -1413,7 +1413,7 @@ const ObjRights * SLAPI PPRights::GetConstObjRights(PPID objType, ObjRights * pD
 	return p_result;
 }
 
-ObjRights * SLAPI PPRights::GetObjRights(PPID objType, int use_default) const
+ObjRights * PPRights::GetObjRights(PPID objType, int use_default) const
 {
 	ObjRights * p_result = 0;
 	if(P_Rt) {
@@ -1434,7 +1434,7 @@ ObjRights * SLAPI PPRights::GetObjRights(PPID objType, int use_default) const
 	return p_result;
 }
 
-int SLAPI PPRights::Resize(uint sz)
+int PPRights::Resize(uint sz)
 {
 	int    ok = 1;
 	if(P_Rt && sz == 0)
@@ -1454,7 +1454,7 @@ int SLAPI PPRights::Resize(uint sz)
 	return ok;
 }
 
-int SLAPI PPRights::SetObjRights(PPID objType, const ObjRights * rt, int replace)
+int PPRights::SetObjRights(PPID objType, const ObjRights * rt, int replace)
 {
 	int    ok = 1;
 	if(P_Rt) {
@@ -1517,7 +1517,7 @@ int SLAPI PPRights::SetObjRights(PPID objType, const ObjRights * rt, int replace
 	return ok;
 }
 
-int SLAPI PPRights::SetAccessRestriction(const PPAccessRestriction * accsr)
+int PPRights::SetAccessRestriction(const PPAccessRestriction * accsr)
 {
 	if(accsr && P_Rt) {
 		P_Rt->WeekDays    = accsr->WeekDays;
@@ -1544,7 +1544,7 @@ int SLAPI PPRights::SetAccessRestriction(const PPAccessRestriction * accsr)
 	return 0;
 }
 
-ulong SLAPI PPRights::CheckSum()
+ulong PPRights::CheckSum()
 {
 	ulong  cs = 0;
 	if(P_Rt) {
@@ -1569,7 +1569,7 @@ ulong SLAPI PPRights::CheckSum()
 	return cs;
 }
 
-PPAccessRestriction & SLAPI PPRights::GetAccessRestriction(PPAccessRestriction & rAcsr) const
+PPAccessRestriction & PPRights::GetAccessRestriction(PPAccessRestriction & rAcsr) const
 {
 	if(P_Rt) {
 		rAcsr.WeekDays    = P_Rt->WeekDays;
@@ -1594,7 +1594,7 @@ PPAccessRestriction & SLAPI PPRights::GetAccessRestriction(PPAccessRestriction &
 	return rAcsr;
 }
 
-int SLAPI PPRights::CheckBillDate(LDATE dt, int forRead) const
+int PPRights::CheckBillDate(LDATE dt, int forRead) const
 {
 	int    ok = 1;
 	if(!IsEmpty()) {
@@ -1616,7 +1616,7 @@ int SLAPI PPRights::CheckBillDate(LDATE dt, int forRead) const
 	return ok;
 }
 
-int SLAPI PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
+int PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
 {
 	int    ok = 1;
 	if(!IsEmpty() && !PPMaster) {
@@ -1643,7 +1643,7 @@ int SLAPI PPRights::AdjustBillPeriod(DateRange & rPeriod, int checkOnly) const
 	return ok;
 }
 
-int SLAPI PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
+int PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
 {
 	int    ok = 1;
 	if(!IsEmpty() && !PPMaster) {
@@ -1673,10 +1673,10 @@ int SLAPI PPRights::AdjustCSessPeriod(DateRange & rPeriod, int checkOnly) const
 	return ok;
 }
 
-int SLAPI PPRights::IsOpRights() const { return BIN(P_OpList && P_OpList->getCount()); }
-int SLAPI PPRights::IsLocRights() const { return BIN(P_LocList && P_LocList->getCount()); }
+int PPRights::IsOpRights() const { return BIN(P_OpList && P_OpList->getCount()); }
+int PPRights::IsLocRights() const { return BIN(P_LocList && P_LocList->getCount()); }
 
-int SLAPI PPRights::MaskOpRightsByOps(const PPIDArray * pOpList, PPIDArray * pResultOpList) const
+int PPRights::MaskOpRightsByOps(const PPIDArray * pOpList, PPIDArray * pResultOpList) const
 {
 	if(IsOpRights()) {
 		ObjRestrictItem * p_item;
@@ -1697,7 +1697,7 @@ int SLAPI PPRights::MaskOpRightsByOps(const PPIDArray * pOpList, PPIDArray * pRe
 	return -1;
 }
 
-int SLAPI PPRights::MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray * pResultOpList) const
+int PPRights::MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray * pResultOpList) const
 {
 	if(IsOpRights()) {
 		ObjRestrictItem * p_item;
@@ -1724,7 +1724,7 @@ int SLAPI PPRights::MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray
 	}
 }
 
-int SLAPI PPRights::ExtentOpRights()
+int PPRights::ExtentOpRights()
 {
 	if(IsOpRights()) {
 		ObjRestrictArray temp_list;
@@ -1744,7 +1744,7 @@ int SLAPI PPRights::ExtentOpRights()
 	return 1;
 }
 
-int SLAPI PPRights::CheckOpID(PPID opID, long rtflags) const
+int PPRights::CheckOpID(PPID opID, long rtflags) const
 {
 	int    ok = 1;
 	if(IsOpRights()) {
@@ -1789,14 +1789,14 @@ int SLAPI PPRights::CheckOpID(PPID opID, long rtflags) const
 	return ok;
 }
 
-int SLAPI PPRights::CheckLocID(PPID locID, long) const
+int PPRights::CheckLocID(PPID locID, long) const
 	{ return (!SVectorBase::GetCount(P_LocList) || P_LocList->SearchItemByID(locID, 0)) ? 1 : PPSetError(PPERR_LOCNOTACCESSIBLE); }
-int SLAPI PPRights::CheckPosNodeID(PPID id, long flags) const
+int PPRights::CheckPosNodeID(PPID id, long flags) const
 	{ return (!SVectorBase::GetCount(P_PosList) || P_PosList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_POSNODENOTACCESSIBLE); }
-int SLAPI PPRights::CheckQuotKindID(PPID id, long flags) const
+int PPRights::CheckQuotKindID(PPID id, long flags) const
 	{ return (!SVectorBase::GetCount(P_QkList) || P_QkList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_QUOTKINDNOTACCESSIBLE); }
 
-int SLAPI PPRights::CheckAccID(PPID accID, long rt) const
+int PPRights::CheckAccID(PPID accID, long rt) const
 {
 	int    ok = 1;
 	if(P_AccList && P_AccList->getCount()) {
@@ -1809,7 +1809,7 @@ int SLAPI PPRights::CheckAccID(PPID accID, long rt) const
 	return ok;
 }
 
-int SLAPI PPRights::CheckDesktopID(long deskID, long rt) const
+int PPRights::CheckDesktopID(long deskID, long rt) const
 {
 	int    ok = 1;
 	PPAccessRestriction accsr;
@@ -1818,12 +1818,12 @@ int SLAPI PPRights::CheckDesktopID(long deskID, long rt) const
 	return ok;
 }
 
-/*static*/ushort SLAPI PPRights::GetDefaultFlags()
+/*static*/ushort PPRights::GetDefaultFlags()
 {
 	return (0xffff & ~PPR_ADM);
 }
 
-/*static*/long SLAPI PPRights::GetDefaultOprFlags()
+/*static*/long PPRights::GetDefaultOprFlags()
 {
 	return 0xffffffff; // @v8.3.3 (0xffff & ~PPORF_INHERITED)-->0xffff // @v8.9.3 0xffff-->0xffffffff
 }
@@ -1869,7 +1869,7 @@ int FASTCALL SetCommConfig(const PPCommConfig * pCfg, int use_ta)
 //
 // PPSecurPacket
 //
-SLAPI PPSecurPacket::PPSecurPacket()
+PPSecurPacket::PPSecurPacket()
 {
 	MEMSZERO(Secur);
 	// @v9.4.9 (constructor) MEMSZERO(Config);
@@ -1893,7 +1893,7 @@ PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & src)
 		//WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
 		//WrParam_LastSelectedPrinter("LastSelectedPrinter")
 
-int SLAPI PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
+int PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 {
 	int    ok = 1;
 	int    use_duplex_printing = 0;
@@ -1922,7 +1922,7 @@ int SLAPI PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 	return ok;
 }
 
-int SLAPI PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
+int PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 {
 	{
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
@@ -1966,16 +1966,16 @@ int SLAPI PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 }
 #endif // } 0
 
-SLAPI UuidRefCore::UuidRefCore() : UuidRefTbl(), P_Hash(0)
+UuidRefCore::UuidRefCore() : UuidRefTbl(), P_Hash(0)
 {
 }
 
-SLAPI UuidRefCore::~UuidRefCore()
+UuidRefCore::~UuidRefCore()
 {
 	delete P_Hash;
 }
 
-int SLAPI UuidRefCore::InitCache()
+int UuidRefCore::InitCache()
 {
 	int    ok = -1;
     if(!P_Hash) {
@@ -1985,7 +1985,7 @@ int SLAPI UuidRefCore::InitCache()
     return ok;
 }
 
-int SLAPI UuidRefCore::Search(long id, S_GUID & rUuid)
+int UuidRefCore::Search(long id, S_GUID & rUuid)
 {
 	UuidRefTbl::Rec rec;
     int    ok = SearchByID(this, PPOBJ_UUIDREF, id, &rec);
@@ -1994,7 +1994,7 @@ int SLAPI UuidRefCore::Search(long id, S_GUID & rUuid)
 	return ok;
 }
 
-int SLAPI UuidRefCore::SearchUuid(const S_GUID & rUuid, int useCache, long * pID)
+int UuidRefCore::SearchUuid(const S_GUID & rUuid, int useCache, long * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -2028,7 +2028,7 @@ int SLAPI UuidRefCore::SearchUuid(const S_GUID & rUuid, int useCache, long * pID
     return ok;
 }
 
-int SLAPI UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, int use_ta)
+int UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, int use_ta)
 {
 	//
 	// Если option & sgoOptimistic то не предпринимаем попыток предварительного поиска записи (считая, что
@@ -2073,7 +2073,7 @@ int SLAPI UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, in
 	return ok;
 }
 
-int SLAPI UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta) // @v9.8.4 TSArray-->TSVector
+int UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	const  uint cc = rChunk.getCount();
@@ -2099,7 +2099,7 @@ int SLAPI UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount,
 	return ok;
 }
 
-int SLAPI UuidRefCore::RemoveUuid(const S_GUID & rUuid, int use_ta)
+int UuidRefCore::RemoveUuid(const S_GUID & rUuid, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -2109,7 +2109,7 @@ int SLAPI UuidRefCore::RemoveUuid(const S_GUID & rUuid, int use_ta)
 	return ok;
 }
 
-int SLAPI UuidRefCore::Remove(long id, int use_ta)
+int UuidRefCore::Remove(long id, int use_ta)
 {
 	return RemoveByID(this, id, use_ta);
 }
@@ -2147,14 +2147,14 @@ int TextRefIdent::operator !() const
 class SelfTextRefCache : public ObjCache {
 public:
 	SelfTextRefCache();
-	int     SLAPI FetchText(const char * pText, PPID * pID);
+	int     FetchText(const char * pText, PPID * pID);
 	void    FASTCALL SetTable(TextRefCore * pT);
 private:
-	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 	{
 		return -1;
 	}
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 	}
 	ReadWriteLock TcRwl;
@@ -2171,7 +2171,7 @@ void FASTCALL SelfTextRefCache::SetTable(TextRefCore * pT)
 	P_T = pT;
 }
 
-int SLAPI SelfTextRefCache::FetchText(const char * pText, PPID * pID)
+int SelfTextRefCache::FetchText(const char * pText, PPID * pID)
 {
 	int    ok = -1;
 	long   _id = 0;
@@ -2214,7 +2214,7 @@ int SLAPI SelfTextRefCache::FetchText(const char * pText, PPID * pID)
 	return ok;
 }
 
-int SLAPI TextRefCore::FetchSelfRefText(const char * pText, PPID * pID)
+int TextRefCore::FetchSelfRefText(const char * pText, PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -2238,11 +2238,11 @@ int SLAPI TextRefCore::FetchSelfRefText(const char * pText, PPID * pID)
 //
 //
 //
-SLAPI TextRefCore::TextRefCore() : TextRefTbl()
+TextRefCore::TextRefCore() : TextRefTbl()
 {
 }
 
-int SLAPI TextRefCore::GetLastObjId(PPID objType, int prop, PPID * pID)
+int TextRefCore::GetLastObjId(PPID objType, int prop, PPID * pID)
 {
     int    ok = 1;
     PPID   id = 0;
@@ -2263,7 +2263,7 @@ int SLAPI TextRefCore::GetLastObjId(PPID objType, int prop, PPID * pID)
     return ok;
 }
 
-int SLAPI TextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
+int TextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 {
 	int    ok = 1;
 	TextRefTbl::Key1 k1;
@@ -2280,13 +2280,13 @@ int SLAPI TextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 	return ok;
 }
 
-int SLAPI TextRefCore::SearchSelfRef(long id, SStringU & rBuf)
+int TextRefCore::SearchSelfRef(long id, SStringU & rBuf)
 {
     TextRefIdent ident(PPOBJ_SELFREFTEXT, id, PPTRPROP_DEFAULT);
     return Search(ident, rBuf);
 }
 
-int SLAPI TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText, TextRefIdent * pResult)
+int TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText, TextRefIdent * pResult)
 {
 	int    ok = -1;
 	const size_t len = sstrlen(pText);
@@ -2312,7 +2312,7 @@ int SLAPI TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText
 	return ok;
 }
 
-int SLAPI TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
+int TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	const size_t len = sstrlen(pPrefix);
@@ -2342,13 +2342,13 @@ int SLAPI TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t
 	return ok;
 }
 
-int SLAPI TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
+int TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	TextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
 	return SearchTextByPrefix(ident, pPrefix, pList);
 }
 
-int SLAPI TextRefCore::SearchSelfRefText(const wchar_t * pText, PPID * pID)
+int TextRefCore::SearchSelfRefText(const wchar_t * pText, PPID * pID)
 {
 	TextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
 	TextRefIdent result;
@@ -2359,7 +2359,7 @@ int SLAPI TextRefCore::SearchSelfRefText(const wchar_t * pText, PPID * pID)
 	return ok;
 }
 
-int SLAPI TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta)
+int TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta)
 {
     int    ok = 1;
     SStringU _t;
@@ -2403,7 +2403,7 @@ int SLAPI TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, i
     return ok;
 }
 
-int SLAPI TextRefCore::GetSelfRefText(const wchar_t * pText, PPID * pID, int use_ta)
+int TextRefCore::GetSelfRefText(const wchar_t * pText, PPID * pID, int use_ta)
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -2427,7 +2427,7 @@ int SLAPI TextRefCore::GetSelfRefText(const wchar_t * pText, PPID * pID, int use
 //
 //
 //
-SLAPI UnxTextRefCore::UnxTextRefCore() : UnxTextRefTbl()
+UnxTextRefCore::UnxTextRefCore() : UnxTextRefTbl()
 {
 }
 
@@ -2442,7 +2442,7 @@ int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
 	return ok;
 }
 
-int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
+int UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 {
 	//
 	// Так как текст в этой таблице по определению не индексируемый, то
@@ -2472,7 +2472,7 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 	return ok;
 }
 
-int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
+int UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 {
 	rTs.Z();
 	int    ok = 1;
@@ -2513,7 +2513,7 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 	return ok;
 }
 
-int SLAPI UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
+int UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
 {
 	rBuf.Z();
 	SStringU temp_buf_u;
@@ -2524,7 +2524,7 @@ int SLAPI UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
 	return ok;
 }
 
-int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, int use_ta)
+int UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, int use_ta)
 {
 	int    ok = -1;
 	const  size_t src_len = sstrlen(pText);
@@ -2538,7 +2538,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, i
 	return ok;
 }
 
-int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta)
+int UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta)
 {
 	//
 	// Так как текст в этой таблице по определению не индексируемый, то
@@ -2604,7 +2604,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
     return ok;
 }
 
-int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta)
+int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, int use_ta)
 {
     int    ok = 1;
     SBuffer sbuf;
@@ -2699,7 +2699,7 @@ int UnxTextRefCore::_Enum::Next(void * pRec)
 	return ok;
 }
 
-int SLAPI UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
+int UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
 {
 	BExtQuery * q = new BExtQuery(this, 0);
 	q->select(this->ObjType, this->ObjID, this->Prop, this->Lang, this->Size, 0);
@@ -2714,7 +2714,7 @@ int SLAPI UnxTextRefCore::InitEnum(PPID objType, int prop, long * pHandle)
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-SEnumImp * SLAPI UnxTextRefCore::Enum(PPID objType, int prop)
+SEnumImp * UnxTextRefCore::Enum(PPID objType, int prop)
 {
 	long   h = -1;
 	return InitEnum(objType, prop, &h) ? new _Enum(this, h) : 0;

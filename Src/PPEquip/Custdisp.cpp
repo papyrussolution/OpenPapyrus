@@ -26,7 +26,7 @@ static int DispArrAdd(StrAssocArray & rArr, int pos, const char* pValue)
 	return ok;
 }
 
-SLAPI PPCustDisp::PPCustDisp(int dispType, int portNo, long flags, int usb /*=0*/) : Port(portNo), DispStrLen(0), State(0), Flags(flags), P_DispBuf(0)
+PPCustDisp::PPCustDisp(int dispType, int portNo, long flags, int usb /*=0*/) : Port(portNo), DispStrLen(0), State(0), Flags(flags), P_DispBuf(0)
 {
 	P_AbstrDvc = new PPAbstractDevice(0);
 	P_AbstrDvc->PCpb.Cls = DVCCLS_DISPLAY;
@@ -38,7 +38,7 @@ SLAPI PPCustDisp::PPCustDisp(int dispType, int portNo, long flags, int usb /*=0*
 	ENDCATCH
 }
 
-SLAPI PPCustDisp::~PPCustDisp()
+PPCustDisp::~PPCustDisp()
 {
 	delete P_DispBuf;
 	ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out.Z());
@@ -46,7 +46,7 @@ SLAPI PPCustDisp::~PPCustDisp()
 	ZDELETE(P_AbstrDvc);
 }
 
-int SLAPI PPCustDisp::GetConfig()
+int PPCustDisp::GetConfig()
 {
 	int    ok = 1;
 	SString buf, param_name, param_val;
@@ -63,7 +63,7 @@ int SLAPI PPCustDisp::GetConfig()
 	return ok;
 }
 
-int SLAPI PPCustDisp::Init(int usb /*=0*/)
+int PPCustDisp::Init(int usb /*=0*/)
 {
 	int    ok = 1;
 	SString usb_dll_catalog;
@@ -86,7 +86,7 @@ int SLAPI PPCustDisp::Init(int usb /*=0*/)
 	return ok;
 }
 
-int SLAPI PPCustDisp::PutString(const char * pStr, int align/*= ALIGN_LEFT*/, int verTab/*= VERTAB_CURPOS*/)
+int PPCustDisp::PutString(const char * pStr, int align/*= ALIGN_LEFT*/, int verTab/*= VERTAB_CURPOS*/)
 {
 	int    ok = 1;
 	if(State & stConnected) {
@@ -106,7 +106,7 @@ int SLAPI PPCustDisp::PutString(const char * pStr, int align/*= ALIGN_LEFT*/, in
 	return ok;
 }
 
-int SLAPI PPCustDisp::SetCurTime()
+int PPCustDisp::SetCurTime()
 {
 	int    ok = -1;
 	if((Flags & fcdShowTime) && (State & stConnected)) {
@@ -126,7 +126,7 @@ int SLAPI PPCustDisp::SetCurTime()
 	return ok;
 }
 
-int SLAPI PPCustDisp::ClearDisplay()
+int PPCustDisp::ClearDisplay()
 {
 	int    ok = 1;
 	if(State & stConnected)
@@ -134,7 +134,7 @@ int SLAPI PPCustDisp::ClearDisplay()
 	return ok;
 }
 
-int SLAPI PPCustDisp::OpenOrCloseCash(int open)
+int PPCustDisp::OpenOrCloseCash(int open)
 {
 	int     ok = 1;
 	SString buf;
@@ -148,17 +148,17 @@ int SLAPI PPCustDisp::OpenOrCloseCash(int open)
 	return ok;
 }
 
-int SLAPI PPCustDisp::OpenedCash()
+int PPCustDisp::OpenedCash()
 {
 	return OpenOrCloseCash(1);
 }
 
-int SLAPI PPCustDisp::ClosedCash()
+int PPCustDisp::ClosedCash()
 {
 	return OpenOrCloseCash(0);
 }
 
-int SLAPI PPCustDisp::SetGoodsName(const char * pName)
+int PPCustDisp::SetGoodsName(const char * pName)
 {
 	int    ok = 1;
 	THROW(PutString(pName, ALIGN_LEFT, upp));
@@ -166,7 +166,7 @@ int SLAPI PPCustDisp::SetGoodsName(const char * pName)
 	return ok;
 }
 
-int SLAPI PPCustDisp::SetPresent()
+int PPCustDisp::SetPresent()
 {
 	int    ok = 1;
 	char   buf[64];
@@ -176,7 +176,7 @@ int SLAPI PPCustDisp::SetPresent()
 	return ok;
 }
 
-int SLAPI PPCustDisp::SetAmt(double price, double qtty)
+int PPCustDisp::SetAmt(double price, double qtty)
 {
 	int    ok = 1;
 	char   buf[64], * p = 0;
@@ -202,7 +202,7 @@ static SString & TwoPartLine(SString & rLeft, const SString & rRight, uint maxLe
 	return rLeft.Cat(rRight);
 }
 
-int SLAPI PPCustDisp::SetDiscount(double percent, double discount)
+int PPCustDisp::SetDiscount(double percent, double discount)
 {
 	int    ok = 1;
 	SString temp_buf, dscnt_buf;
@@ -215,7 +215,7 @@ int SLAPI PPCustDisp::SetDiscount(double percent, double discount)
 	return ok;
 }
 
-int SLAPI PPCustDisp::SetTotal(double sum)
+int PPCustDisp::SetTotal(double sum)
 {
 	int    ok = 1;
 	SString temp_buf, val_buf;
@@ -226,7 +226,7 @@ int SLAPI PPCustDisp::SetTotal(double sum)
 	return ok;
 }
 
-int SLAPI PPCustDisp::SetChange(double cash, double change)
+int PPCustDisp::SetChange(double cash, double change)
 {
 	int    ok = 1;
 	SString temp_buf, val_buf;
@@ -241,7 +241,7 @@ int SLAPI PPCustDisp::SetChange(double cash, double change)
 	return ok;
 }
 
-int SLAPI PPCustDisp::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
+int PPCustDisp::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
 {
 	int    ok = 1;
 	if((ok = P_AbstrDvc->RunCmd__(cmd, rIn, rOut)) != 1) {
@@ -256,7 +256,7 @@ int SLAPI PPCustDisp::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOu
 	return ok;
 }
 
-PPCustDisp * SLAPI GetCustDisp(PPID custDispID, char * pPortName, int usb)
+PPCustDisp * GetCustDisp(PPID custDispID, char * pPortName, int usb)
 {
 	PPCustDisp * p_cust_disp = 0;
 	if(custDispID && pPortName) {

@@ -9,7 +9,7 @@
 
 const size_t BExtInsert::DefBufSize = (28*1024U);
 
-SLAPI BExtInsert::BExtInsert(DBTable * pTbl, size_t aBufSize) : SdRecordBuffer(NZOR(aBufSize, DefBufSize)), State(stValid), P_Tbl(pTbl), ActualCount(0xffffU)
+BExtInsert::BExtInsert(DBTable * pTbl, size_t aBufSize) : SdRecordBuffer(NZOR(aBufSize, DefBufSize)), State(stValid), P_Tbl(pTbl), ActualCount(0xffffU)
 {
 	if(!GetBuf().P_Buf)
 		State &= ~stValid;
@@ -24,7 +24,7 @@ SLAPI BExtInsert::BExtInsert(DBTable * pTbl, size_t aBufSize) : SdRecordBuffer(N
 	}
 }
 
-SLAPI BExtInsert::~BExtInsert()
+BExtInsert::~BExtInsert()
 {
 	flash();
 }
@@ -49,7 +49,7 @@ int FASTCALL BExtInsert::insert(const void * b)
 	return BIN(State & stValid);
 }
 
-int SLAPI BExtInsert::flash()
+int BExtInsert::flash()
 {
 	if(State & stValid && GetCount()) {
 		int    ok = 1;
@@ -66,12 +66,12 @@ int SLAPI BExtInsert::flash()
 	return BIN(State & stValid);
 }
 
-DBTable * SLAPI BExtInsert::getTable()
+DBTable * BExtInsert::getTable()
 {
 	return P_Tbl;
 }
 
-uint SLAPI BExtInsert::getActualCount() const
+uint BExtInsert::getActualCount() const
 {
 	return ActualCount;
 }

@@ -177,7 +177,7 @@ void code_props_translate_code(code_props * self);
  *     instance for which \c code_props_translate_code was invoked is now
  *     invalid.
  */
-void code_scanner_last_string_free(void);
+void code_scanner_last_string_free();
 
 /**
  * \pre
@@ -187,6 +187,6 @@ void code_scanner_last_string_free(void);
  *     \c code_props_translate_code (if any) has been freed.  All \c code_props
  *     instances may now be invalid.
  */
-void code_scanner_free(void);
+void code_scanner_free();
 
 #endif /* !SCAN_CODE_H_ */

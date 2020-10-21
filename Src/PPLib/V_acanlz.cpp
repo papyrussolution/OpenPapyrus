@@ -31,7 +31,7 @@ static SString & FASTCALL GetAccAnlzTitle(int aco, PPID accID, PPID curID, SStri
 	return rStr;
 }
 
-IMPLEMENT_PPFILT_FACTORY(AccAnlz); SLAPI AccAnlzFilt::AccAnlzFilt() : PPBaseFilt(PPFILT_ACCANLZ, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(AccAnlz); AccAnlzFilt::AccAnlzFilt() : PPBaseFilt(PPFILT_ACCANLZ, 0, 1)
 {
 	SetFlatChunk(offsetof(AccAnlzFilt, ReserveStart), offsetof(AccAnlzFilt, ReserveEnd) - offsetof(AccAnlzFilt, ReserveStart));
 	Init(1, 0);
@@ -43,7 +43,7 @@ AccAnlzFilt & FASTCALL AccAnlzFilt::operator = (const AccAnlzFilt & s)
 	return *this;
 }
 
-char * SLAPI AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
+char * AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 {
 	SString buf, name;
 	PPObjAccount acc_obj;
@@ -72,19 +72,19 @@ char * SLAPI AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 //
 //
 //
-SLAPI PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0), EffDlvrLocID(0)
+PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ, 0, 0), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0), EffDlvrLocID(0)
 {
 	P_ATC = P_BObj->atobj->P_Tbl;
 }
 
-SLAPI PPViewAccAnlz::~PPViewAccAnlz()
+PPViewAccAnlz::~PPViewAccAnlz()
 {
 	delete P_TmpAATbl;
 	delete P_TmpATTbl;
 	DBRemoveTempFiles();
 }
 
-/*virtual*/PPBaseFilt * SLAPI PPViewAccAnlz::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * PPViewAccAnlz::CreateFilt(void * extraPtr) const
 {
 	const LDATE oper_date = LConfig.OperDate;
 	const Acct & r_cash_acct = CConfig.CashAcct;
@@ -420,7 +420,7 @@ private:
 	int    RelComboInited;
 };
 
-int SLAPI PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
+int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 {
 	int    ok = -1, valid_data = 0;
 	int    search;
@@ -455,7 +455,7 @@ int SLAPI PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccAnlz::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int PPViewAccAnlz::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1, valid_data = 0;
 	AccAnlzFilt * p_filt = static_cast<AccAnlzFilt *>(pFilt);
@@ -483,13 +483,13 @@ int SLAPI PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 //
 //
 //
-int SLAPI PPViewAccAnlz::GetTotal(AccAnlzTotal * pTotal) const
+int PPViewAccAnlz::GetTotal(AccAnlzTotal * pTotal) const
 {
 	ASSIGN_PTR(pTotal, Total);
 	return 1;
 }
 
-int SLAPI PPViewAccAnlz::ViewGraph(const PPViewBrowser * pBrw)
+int PPViewAccAnlz::ViewGraph(const PPViewBrowser * pBrw)
 {
 	struct I {
 		LDATE  Dt;
@@ -635,7 +635,7 @@ int SLAPI PPViewAccAnlz::ViewGraph(const PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewAccAnlz::FetchBill(PPID billID, BillEntry * pEntry)
+int PPViewAccAnlz::FetchBill(PPID billID, BillEntry * pEntry)
 {
 	int    ok = -1;
 	BillTbl::Rec rec;
@@ -659,7 +659,7 @@ int SLAPI PPViewAccAnlz::FetchBill(PPID billID, BillEntry * pEntry)
 	return ok;
 }
 
-int SLAPI PPViewAccAnlz::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int use_ta)
+int PPViewAccAnlz::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int use_ta)
 {
 	int    ok = -1;
 	int    cr = 0;
@@ -671,7 +671,7 @@ int SLAPI PPViewAccAnlz::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRe
 	return P_ATC->GetAcctRel(accID, arID, pRec, cr, use_ta);
 }
 
-int SLAPI PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc proc, void * extraPtr)
+int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc proc, void * extraPtr)
 {
 	int    ok = 1, r;
 	PROFILE_START
@@ -1052,7 +1052,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 {
 	ExpiryDate = ZERODATE;
 	IterFlags = 0;
@@ -1499,7 +1499,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPViewAccAnlz::InitIteration()
+int PPViewAccAnlz::InitIteration()
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1631,7 +1631,7 @@ int FASTCALL PPViewAccAnlz::NextIteration(AccAnlzViewItem * pItem)
 	return ok;
 }
 
-void SLAPI PPViewAccAnlz::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
+void PPViewAccAnlz::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 {
 	Helper_FormatCycle(Filt.Cycl, CycleList, dt, pBuf, bufLen);
 }
@@ -1651,12 +1651,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-void SLAPI PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
 }
 
-/*virtual*/DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	SString sub_title;
@@ -1814,7 +1814,7 @@ void SLAPI PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	return q;
 }
 
-int SLAPI PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
+int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 {
 	int    ok = 0;
 	BrwHdr hdr;
@@ -1840,7 +1840,7 @@ int SLAPI PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewAccAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
 	if(ppvCmd != PPVCMD_DETAIL)
@@ -1984,7 +1984,7 @@ int SLAPI PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	return ok;
 }
 
-int SLAPI PPViewAccAnlz::Browse(int modeless)
+int PPViewAccAnlz::Browse(int modeless)
 {
 	if(Filt.Flags & AccAnlzFilt::fTotalOnly)
 		return ViewTotal();
@@ -1994,12 +1994,12 @@ int SLAPI PPViewAccAnlz::Browse(int modeless)
 //
 // AccAnlzTotal
 //
-SLAPI AccAnlzTotal::AccAnlzTotal()
+AccAnlzTotal::AccAnlzTotal()
 {
 	Init();
 }
 
-void SLAPI AccAnlzTotal::Init()
+void AccAnlzTotal::Init()
 {
 	Count = DbtCount = CrdCount = 0;
 	InRest.freeAll();
@@ -2012,7 +2012,7 @@ void SLAPI AccAnlzTotal::Init()
 	OutRestCrd.freeAll();
 }
 
-int SLAPI AccAnlzTotal::GetCurList(PPIDArray * pCurList) const
+int AccAnlzTotal::GetCurList(PPIDArray * pCurList) const
 {
 	int    ok = 1;
 	if(pCurList) {
@@ -2028,7 +2028,7 @@ int SLAPI AccAnlzTotal::GetCurList(PPIDArray * pCurList) const
 	return ok;
 }
 
-int SLAPI AccAnlzTotal::GetCut(PPID curID, AccAnlzTotal::Cut * pCut) const
+int AccAnlzTotal::GetCut(PPID curID, AccAnlzTotal::Cut * pCut) const
 {
 	int    ok = 1;
 	AccAnlzTotal::Cut cut;
@@ -2044,7 +2044,7 @@ int SLAPI AccAnlzTotal::GetCut(PPID curID, AccAnlzTotal::Cut * pCut) const
 	return ok;
 }
 
-void SLAPI AccAnlzTotal::AddTrnovr(int dbt, PPID curID, double amt)
+void AccAnlzTotal::AddTrnovr(int dbt, PPID curID, double amt)
 {
 	if(dbt) {
 		DbtTrnovr.Add(0, curID, amt);
@@ -2108,7 +2108,7 @@ private:
 	AccAnlzTotal Total;
 };
 
-int SLAPI PPViewAccAnlz::CalcTotalAccTrnovr(AccAnlzTotal * pTotal)
+int PPViewAccAnlz::CalcTotalAccTrnovr(AccAnlzTotal * pTotal)
 {
 	int    ok = -1;
 	if(pTotal) {
@@ -2132,7 +2132,7 @@ int SLAPI PPViewAccAnlz::CalcTotalAccTrnovr(AccAnlzTotal * pTotal)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccAnlz::ViewTotal()
+/*virtual*/int PPViewAccAnlz::ViewTotal()
 {
 	int    ok = 1;
 	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)
@@ -2147,7 +2147,7 @@ int SLAPI PPViewAccAnlz::CalcTotalAccTrnovr(AccAnlzTotal * pTotal)
 //
 //
 //
-static int SLAPI SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFlags)
+static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFlags)
 {
 	class SelPrnAtDialog : public TDialog {
 	public:
@@ -2190,7 +2190,7 @@ static int SLAPI SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewAccAnlz::Print(const void *)
+/*virtual*/int PPViewAccAnlz::Print(const void *)
 {
 	int    ok = 1, done = 0;
 	int    disable_grpng = 0;
@@ -2270,7 +2270,7 @@ static int SLAPI SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint
 //
 //
 //
-int SLAPI ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak) { return PPView::Execute(PPVIEW_ACCANLZ, pFilt, GetModelessStatus(), reinterpret_cast<void *>(aak)); }
+int ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak) { return PPView::Execute(PPVIEW_ACCANLZ, pFilt, GetModelessStatus(), reinterpret_cast<void *>(aak)); }
 //
 // Implementation of PPALDD_Account
 //

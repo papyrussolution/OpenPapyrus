@@ -79,20 +79,20 @@ int PPCFuncPaperRollUsagePart(const StringSet * pParamList, char * pRes, size_t 
 	return ok;
 }
 
-SLAPI PPCalcFuncEntry::PPCalcFuncEntry() : FuncID(0), RetType(0), ParamCount(0), P_ParamTypeList(0)
+PPCalcFuncEntry::PPCalcFuncEntry() : FuncID(0), RetType(0), ParamCount(0), P_ParamTypeList(0)
 {
 }
 
-SLAPI PPCalcFuncEntry::~PPCalcFuncEntry()
+PPCalcFuncEntry::~PPCalcFuncEntry()
 {
 	delete P_ParamTypeList;
 }
 
-SLAPI PPCalcFuncList::PPCalcFuncList() : TSCollection <PPCalcFuncEntry> ()
+PPCalcFuncList::PPCalcFuncList() : TSCollection <PPCalcFuncEntry> ()
 {
 }
 
-int SLAPI PPCalcFuncList::Load()
+int PPCalcFuncList::Load()
 {
 	int    ok = 1;
 	Release();
@@ -124,7 +124,7 @@ int SLAPI PPCalcFuncList::Load()
 	return ok;
 }
 
-void SLAPI PPCalcFuncList::Release()
+void PPCalcFuncList::Release()
 {
 	freeAll();
 }
@@ -149,7 +149,7 @@ const PPCalcFuncEntry * FASTCALL PPCalcFuncList::SearchFunc(uint16 funcID) const
 	return (PPErrCode = PPERR_UNDEFPPCFUNCID, (PPCalcFuncEntry *)0);
 }
 
-int SLAPI PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * pEndPos, StringSet * pParamList) const
+int PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * pEndPos, StringSet * pParamList) const
 {
 	int    ok = 1;
 	size_t p = 0;
@@ -193,7 +193,7 @@ int SLAPI PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * 
 	return ok;
 }
 
-int SLAPI PPCalcFuncList::CalcFunc(uint16 funcID, const StringSet * pParams, char * pRes, size_t resBufLen) const
+int PPCalcFuncList::CalcFunc(uint16 funcID, const StringSet * pParams, char * pRes, size_t resBufLen) const
 {
 	int    ok = -1;
 	//const PPCalcFuncEntry * p_entry = 0;
@@ -209,7 +209,7 @@ int SLAPI PPCalcFuncList::CalcFunc(uint16 funcID, const StringSet * pParams, cha
 	return ok;
 }
 
-double SLAPI Round(double v, double prec, int dir)
+double Round(double v, double prec, int dir)
 {
 	static const double __tolerance = 1.0e-10;
 	// @todo return round(v, prec, dir);
@@ -235,7 +235,7 @@ double SLAPI Round(double v, double prec, int dir)
 	}
 }
 
-double SLAPI RoundUpPrice(double v)
+double RoundUpPrice(double v)
 {
 	int    dir = 0;
 	long   rd = (LConfig.Flags & (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN));
@@ -248,19 +248,19 @@ double SLAPI RoundUpPrice(double v)
 	return Round(v, LConfig.RoundPrec, dir);
 }
 
-double SLAPI CalcSelling(double cost, double pc)
+double CalcSelling(double cost, double pc)
 {
 	return RoundUpPrice(cost + cost * fdiv100r(pc));
 }
 //
 //
 //
-SLAPI CalcPriceParam::CalcPriceParam()
+CalcPriceParam::CalcPriceParam()
 {
 	THISZERO();
 }
 
-int SLAPI CalcPriceParam::Save() const
+int CalcPriceParam::Save() const
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 0);
@@ -275,7 +275,7 @@ int SLAPI CalcPriceParam::Save() const
 	return 1;
 }
 
-int SLAPI CalcPriceParam::Restore()
+int CalcPriceParam::Restore()
 {
 	// VaPercent, RoundPrec, RoundDir, fRoundVat, fVatAboveAddition
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
@@ -310,7 +310,7 @@ int SLAPI CalcPriceParam::Restore()
 // ARG(prec IN): @{0..6} точность представления результата. 0 - до целых значений,
 //   3 - с точностью 0.001 и т.д.
 //
-ulong SLAPI GetMinVatDivisor(double rate, uint prec)
+ulong GetMinVatDivisor(double rate, uint prec)
 {
 	assert(prec >= 0 && prec <= 6);
 	const double _mult = fpow10i(prec + 2);
@@ -327,7 +327,7 @@ ulong SLAPI GetMinVatDivisor(double rate, uint prec)
 //
 //
 //
-double SLAPI CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum, double * pExcise) const
+double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum, double * pExcise) const
 {
 	GTaxVect gtv;
 	PPGoodsTaxEntry gte;
@@ -496,7 +496,7 @@ private:
 	PPObjGoods GObj;
 };
 
-int SLAPI CalcPrice(CalcPriceParam * pParam)
+int CalcPrice(CalcPriceParam * pParam)
 {
 	return PPDialogProcBody<CalcPriceDialog, CalcPriceParam>(pParam);
 }
@@ -536,7 +536,7 @@ IMPL_HANDLE_EVENT(CalcDiffDialog)
 			setupDiff();
 }
 
-int SLAPI CalcDiff(double amount, double * pDiff)
+int CalcDiff(double amount, double * pDiff)
 {
 	int    ok = -1, valid = 0;
 	double diff = DEREFPTRORZ(pDiff);
@@ -566,7 +566,7 @@ int SLAPI CalcDiff(double amount, double * pDiff)
 //
 // Калькулятор общего назначения //
 //
-int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
+int PPCalculator(void * hParentWnd, const char * pInitData)
 {
 	class CalcDialog : public TDialog {
 	public:
@@ -783,7 +783,7 @@ IMPL_HANDLE_EVENT(CalcTaxPriceDialog)
 	clearEvent(event);
 }
 
-int SLAPI CalcTaxPrice(PPID goodsID, PPID opID, LDATE dt, double price, int /*= 0*/)
+int CalcTaxPrice(PPID goodsID, PPID opID, LDATE dt, double price, int /*= 0*/)
 {
 	int    ok = -1;
 	CalcTaxPriceParam param;
@@ -1123,7 +1123,7 @@ int PosPaymentBlock::EditDialog2()
 							if(scst == scstBonus) {
 								if(State & stEnableBonus) {
 									double sc_rest = GetCrdCardRest(sc_rec.ID);
-									const double max_bonus = (Data.BonusMaxPart < 1.0) ? (TotalConst * Data.BonusMaxPart) : TotalConst;
+									const double max_bonus = R2((Data.BonusMaxPart < 1.0) ? (TotalConst * Data.BonusMaxPart) : TotalConst); // @v10.9.1 R2
 									double b = Data.CcPl.GetBonusAmount(&ScObj);
 									double bonus = MIN(sc_rest, (max_bonus - b));
 									double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, bonus, r_entry.AddedID, CCAMTTYP_CASH, CCAMTTYP_BANK);

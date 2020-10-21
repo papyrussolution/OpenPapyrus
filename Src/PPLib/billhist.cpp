@@ -8,11 +8,11 @@
 //
 //
 //
-SLAPI HistBillCore::HistBillCore() : HistBillTbl()
+HistBillCore::HistBillCore() : HistBillTbl()
 {
 }
 
-int SLAPI HistBillCore::Search(PPID id, HistBillTbl::Rec * pRec)
+int HistBillCore::Search(PPID id, HistBillTbl::Rec * pRec)
 {
 	HistBillTbl::Key0 k;
 	MEMSZERO(k);
@@ -20,7 +20,7 @@ int SLAPI HistBillCore::Search(PPID id, HistBillTbl::Rec * pRec)
 	return SearchByKey(this, 0, &k, pRec);
 }
 
-int SLAPI HistBillCore::SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec)
+int HistBillCore::SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec)
 {
 	int    ok = -1;
 	HistBillTbl::Key1 k;
@@ -38,7 +38,7 @@ int SLAPI HistBillCore::SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec)
 	return ok;
 }
 
-/*static*/int SLAPI HistBillCore::HBRecToBRec(const HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec)
+/*static*/int HistBillCore::HBRecToBRec(const HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec)
 {
 	if(pHBRec && pBRec) {
 		pBRec->ID   = pHBRec->BillID;
@@ -58,7 +58,7 @@ int SLAPI HistBillCore::SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec)
 	return 1;
 }
 
-int SLAPI HistBillCore::GetIdx(PPID billID, PPID * pVer, PPID * pInnerID)
+int HistBillCore::GetIdx(PPID billID, PPID * pVer, PPID * pInnerID)
 {
 	int    r = 0;
 	PPID   ver = 1, id = 1;
@@ -77,7 +77,7 @@ int SLAPI HistBillCore::GetIdx(PPID billID, PPID * pVer, PPID * pInnerID)
 	return 1;
 }
 
-int SLAPI HistBillCore::PutPacket(PPID * pID, PPHistBillPacket * pPack, int close, int use_ta)
+int HistBillCore::PutPacket(PPID * pID, PPHistBillPacket * pPack, int close, int use_ta)
 {
 	int    ok = 1;
 	PPID   id = 0;
@@ -106,7 +106,7 @@ int SLAPI HistBillCore::PutPacket(PPID * pID, PPHistBillPacket * pPack, int clos
 	return ok;
 }
 
-int SLAPI HistBillCore::GetPacket(PPID id, PPHistBillPacket * pPack)
+int HistBillCore::GetPacket(PPID id, PPHistBillPacket * pPack)
 {
 	int    ok = -1;
 	char   str_id[20];
@@ -129,7 +129,7 @@ int SLAPI HistBillCore::GetPacket(PPID id, PPHistBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
+int HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString msg, buf, fname;
@@ -176,7 +176,7 @@ int SLAPI HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 	return ok;
 }
 
-int SLAPI HistBillCore::Remove(PPID id, int useTa)
+int HistBillCore::Remove(PPID id, int useTa)
 {
 	int    ok = 1;
 	{
@@ -192,23 +192,23 @@ int SLAPI HistBillCore::Remove(PPID id, int useTa)
 //
 //
 //
-SLAPI PPHistBillPacket::PPHistBillPacket()
+PPHistBillPacket::PPHistBillPacket()
 {
 	// @v10.6.4 MEMSZERO(Head);
 }
 
-SLAPI PPHistBillPacket::~PPHistBillPacket()
+PPHistBillPacket::~PPHistBillPacket()
 {
 	destroy();
 }
 
-void SLAPI PPHistBillPacket::destroy()
+void PPHistBillPacket::destroy()
 {
 	MEMSZERO(Head);
 	RemoveRows(0);
 }
 
-int SLAPI PPHistBillPacket::Init(const PPBillPacket * pPack)
+int PPHistBillPacket::Init(const PPBillPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack) {
@@ -249,7 +249,7 @@ int SLAPI PPHistBillPacket::Init(const PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPHistBillPacket::ConvertToBillPack(PPBillPacket * pPack)
+int PPHistBillPacket::ConvertToBillPack(PPBillPacket * pPack)
 {
 	int    ok = 1;
 	HistTrfrTbl::Rec * p_h_item;
@@ -293,12 +293,12 @@ PPHistBillPacket & FASTCALL PPHistBillPacket::operator = (const PPHistBillPacket
 	return * this;
 }
 
-int SLAPI PPHistBillPacket::EnumItems(uint * pI, HistTrfrTbl::Rec** ppItem) const
+int PPHistBillPacket::EnumItems(uint * pI, HistTrfrTbl::Rec** ppItem) const
 {
 	return Items.enumItems(pI, (void **)ppItem);
 }
 
-uint SLAPI PPHistBillPacket::GetCount() const
+uint PPHistBillPacket::GetCount() const
 {
 	return Items.getCount();
 }
@@ -308,17 +308,17 @@ HistTrfrTbl::Rec & FASTCALL PPHistBillPacket::Item(uint p)
 	return Items.at(p);
 }
 
-int SLAPI PPHistBillPacket::InsertRow(HistTrfrTbl::Rec * pItem)
+int PPHistBillPacket::InsertRow(HistTrfrTbl::Rec * pItem)
 {
 	return (Items.insert(pItem)) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPHistBillPacket::RemoveRow(uint rowIdx)
+int PPHistBillPacket::RemoveRow(uint rowIdx)
 {
 	return Items.atFree(rowIdx) ? 1 : -1;
 }
 
-int SLAPI PPHistBillPacket::RemoveRows(LongArray * pPositions)
+int PPHistBillPacket::RemoveRows(LongArray * pPositions)
 {
 	if(pPositions) {
 		for(int p = pPositions->getCount() - 1; p >= 0; p--) {

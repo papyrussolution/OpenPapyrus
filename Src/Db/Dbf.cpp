@@ -60,12 +60,12 @@ int DBFF::GetSType(TYPEID * pTyp, long * pFmt) const
 //
 //
 //
-SLAPI DBFCreateFld::DBFCreateFld()
+DBFCreateFld::DBFCreateFld()
 {
 	THISZERO();
 }
 
-void SLAPI DBFCreateFld::Init(const char * pName, int typ, uint sz, uint prec)
+void DBFCreateFld::Init(const char * pName, int typ, uint sz, uint prec)
 {
 	STRNSCPY(Name, pName);
 	Type = typ;
@@ -75,23 +75,23 @@ void SLAPI DBFCreateFld::Init(const char * pName, int typ, uint sz, uint prec)
 //
 // DbfRecord
 //
-SLAPI DbfRecord::DbfRecord(const DbfTable * pTbl) : P_Tbl(pTbl)
+DbfRecord::DbfRecord(const DbfTable * pTbl) : P_Tbl(pTbl)
 {
 	P_Buffer = new char[BufSize = P_Tbl->getRecSize()];
 	empty();
 }
 
-SLAPI DbfRecord::~DbfRecord()
+DbfRecord::~DbfRecord()
 {
 	delete P_Buffer;
 }
 
-SCodepage SLAPI DbfRecord::getCodePage() const
+SCodepage DbfRecord::getCodePage() const
 {
 	return P_Tbl ? P_Tbl->getCodePage() : cpUndef;
 }
 
-int SLAPI DbfRecord::empty()
+int DbfRecord::empty()
 {
 	memzero(P_Buffer, BufSize);
 	P_Buffer[0] = ' ';
@@ -100,7 +100,7 @@ int SLAPI DbfRecord::empty()
 
 #ifndef _WIN32_WCE // {
 
-int SLAPI DbfRecord::put(const SdRecord & rRec)
+int DbfRecord::put(const SdRecord & rRec)
 {
 	int    ok = 1;
 	int    fld_no = 0;
@@ -114,7 +114,7 @@ int SLAPI DbfRecord::put(const SdRecord & rRec)
 	return ok;
 }
 
-int SLAPI DbfRecord::get(SdRecord & rRec) const
+int DbfRecord::get(SdRecord & rRec) const
 {
 	int    ok = 1;
 	int    fld_no = 0;
@@ -131,7 +131,7 @@ int SLAPI DbfRecord::get(SdRecord & rRec) const
 
 #endif // } !_WIN32_WCE
 
-int SLAPI DbfRecord::getFieldName(uint fldN, char * pFldName, size_t bufLen) const
+int DbfRecord::getFieldName(uint fldN, char * pFldName, size_t bufLen) const
 {
 	return P_Tbl ? P_Tbl->getFieldName(fldN, pFldName, bufLen) : 0;
 }
@@ -155,7 +155,7 @@ int FASTCALL DbfRecord::getFieldType(uint fldN, int * pType)
 }
 
 #ifndef _WIN32_WCE // @v5.1.7 AHTOXA
-int SLAPI DbfRecord::put(int fldN, TYPEID typ, const void * pData)
+int DbfRecord::put(int fldN, TYPEID typ, const void * pData)
 {
 	char   temp_buf[256];
 	long   base_long = 0;
@@ -191,7 +191,7 @@ int SLAPI DbfRecord::put(int fldN, TYPEID typ, const void * pData)
 }
 #endif
 
-int SLAPI DbfRecord::put(int fld, const char * data)
+int DbfRecord::put(int fld, const char * data)
 {
 	DBFF   f;
 	if(P_Tbl->getField(fld, &f)) {
@@ -226,7 +226,7 @@ int SLAPI DbfRecord::put(int fld, const char * data)
 		return 0;
 }
 
-int SLAPI DbfRecord::put(int fld, double data)
+int DbfRecord::put(int fld, double data)
 {
 	DBFF f;
 	if(P_Tbl->getField(fld, &f)) {
@@ -253,11 +253,11 @@ int SLAPI DbfRecord::put(int fld, double data)
 		return 0;
 }
 
-int SLAPI DbfRecord::put(int fld, float data) { return put(fld, static_cast<double>(data)); }
-int SLAPI DbfRecord::put(int fld, long data) { return put(fld, static_cast<double>(data)); }
-int SLAPI DbfRecord::put(int fld, int data) { return put(fld, static_cast<double>(data)); }
+int DbfRecord::put(int fld, float data) { return put(fld, static_cast<double>(data)); }
+int DbfRecord::put(int fld, long data) { return put(fld, static_cast<double>(data)); }
+int DbfRecord::put(int fld, int data) { return put(fld, static_cast<double>(data)); }
 
-int SLAPI DbfRecord::put(int fld, const DBFDate * data)
+int DbfRecord::put(int fld, const DBFDate * data)
 {
 	//char   tmp[32];
 	//sprintf(tmp, "%04d%02d%02d", data->year, data->month, data->day);
@@ -266,7 +266,7 @@ int SLAPI DbfRecord::put(int fld, const DBFDate * data)
 	return put(fld, temp_buf.CatLongZ(data->year, 4).CatLongZ(data->month, 2).CatLongZ(data->day, 2));
 }
 
-int SLAPI DbfRecord::put(int fld, LDATE dt)
+int DbfRecord::put(int fld, LDATE dt)
 {
 	DBFDate dbf_dt;
 	dbf_dt.year  = dt.year();
@@ -289,7 +289,7 @@ char * FASTCALL DbfRecord::getFldBuf(int fldN, char * buf) const
 	}
 }
 
-int SLAPI DbfRecord::get(int fldN, char * data, int skipEmpty) const
+int DbfRecord::get(int fldN, char * data, int skipEmpty) const
 {
 	int    ok = BIN(getFldBuf(fldN, data));
 	if(ok && skipEmpty) {
@@ -299,7 +299,7 @@ int SLAPI DbfRecord::get(int fldN, char * data, int skipEmpty) const
 	return ok;
 }
 
-int SLAPI DbfRecord::get(int fldN, SString & rBuf, int skipEmpty) const
+int DbfRecord::get(int fldN, SString & rBuf, int skipEmpty) const
 {
 	char   temp_buf[1024];
 	int    ok = BIN(getFldBuf(fldN, temp_buf));
@@ -311,7 +311,7 @@ int SLAPI DbfRecord::get(int fldN, SString & rBuf, int skipEmpty) const
 	return ok;
 }
 
-int SLAPI DbfRecord::get(int fldN, double & data) const
+int DbfRecord::get(int fldN, double & data) const
 {
 	char   tmp[256];
 	if(getFldBuf(fldN, tmp) == 0) {
@@ -324,7 +324,7 @@ int SLAPI DbfRecord::get(int fldN, double & data) const
 	}
 }
 
-int SLAPI DbfRecord::get(int fldN, float & data) const
+int DbfRecord::get(int fldN, float & data) const
 {
 	char   tmp[256];
 	if(getFldBuf(fldN, tmp) == 0) {
@@ -337,7 +337,7 @@ int SLAPI DbfRecord::get(int fldN, float & data) const
 	}
 }
 
-int SLAPI DbfRecord::get(int fldN, long & data) const
+int DbfRecord::get(int fldN, long & data) const
 {
 	int    ok = 1;
 	char   tmp[256];
@@ -350,7 +350,7 @@ int SLAPI DbfRecord::get(int fldN, long & data) const
 	return ok;
 }
 
-int SLAPI DbfRecord::get(int fldN, int64 & data) const
+int DbfRecord::get(int fldN, int64 & data) const
 {
 	char   tmp[256];
 	if(getFldBuf(fldN, tmp) == 0) {
@@ -361,7 +361,7 @@ int SLAPI DbfRecord::get(int fldN, int64 & data) const
 	return 1;
 }
 
-int SLAPI DbfRecord::get(int fldN, int & data) const
+int DbfRecord::get(int fldN, int & data) const
 {
 	char   tmp[256];
 	if(getFldBuf(fldN, tmp) == 0) {
@@ -374,7 +374,7 @@ int SLAPI DbfRecord::get(int fldN, int & data) const
 	}
 }
 
-int SLAPI DbfRecord::get(int fldN, DBFDate * data) const
+int DbfRecord::get(int fldN, DBFDate * data) const
 {
 	char   tmp[256];
 	if(getFldBuf(fldN, tmp) == 0) {
@@ -390,7 +390,7 @@ int SLAPI DbfRecord::get(int fldN, DBFDate * data) const
 	}
 }
 
-int SLAPI DbfRecord::get(int fldN, LDATE & data) const
+int DbfRecord::get(int fldN, LDATE & data) const
 {
 	DBFDate d;
 	if(get(fldN, &d)) {
@@ -400,7 +400,7 @@ int SLAPI DbfRecord::get(int fldN, LDATE & data) const
 	return 0;
 }
 
-int SLAPI DbfRecord::get(int fldN, LTIME & data) const
+int DbfRecord::get(int fldN, LTIME & data) const
 {
 	char   str[256];
 	if(get(fldN, str)) {
@@ -411,7 +411,7 @@ int SLAPI DbfRecord::get(int fldN, LTIME & data) const
 }
 
 #ifndef _WIN32_WCE // @v5.1.7 AHTOXA
-int SLAPI DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
+int DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
 {
 	int    ok = 1;
 	union {
@@ -455,7 +455,7 @@ int SLAPI DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
 //
 // DbfTable
 //
-int SLAPI DbfTable::initBuffer()
+int DbfTable::initBuffer()
 {
 	BufSize = 1024 * 8;
 	P_Buffer  = static_cast<char *>(SAlloc::M(BufSize));
@@ -464,25 +464,25 @@ int SLAPI DbfTable::initBuffer()
 	return (BufSize != 0);
 }
 
-int SLAPI DbfTable::releaseBuffer()
+int DbfTable::releaseBuffer()
 {
 	ZFREE(P_Buffer);
 	return 1;
 }
 
-SLAPI DbfTable::DbfTable(const char * pName) : P_Buffer(0), Opened(0), Mod(0), Current(0),
+DbfTable::DbfTable(const char * pName) : P_Buffer(0), Opened(0), Mod(0), Current(0),
 	P_Flds(0), NumFlds(0), Stream(0), BFirst(0), BLast(0), P_Name(newStr(pName))
 {
 	open();
 }
 
-SLAPI DbfTable::~DbfTable()
+DbfTable::~DbfTable()
 {
 	close();
 	delete P_Name;
 }
 
-int SLAPI DbfTable::open()
+int DbfTable::open()
 {
 	int    ok = 0;
 	if(Opened)
@@ -504,7 +504,7 @@ int SLAPI DbfTable::open()
 	return ok;
 }
 
-int SLAPI DbfTable::close()
+int DbfTable::close()
 {
 	if(Opened) {
 		flush();
@@ -519,7 +519,7 @@ int SLAPI DbfTable::close()
 	return 1;
 }
 
-int SLAPI DbfTable::flush()
+int DbfTable::flush()
 {
 	if(Mod) {
 		putHeader();
@@ -600,12 +600,12 @@ static uint8 CpToLdId(SCodepage cp)
 	return ldid;
 }
 
-SCodepage SLAPI DbfTable::getCodePage() const { return LdIdToCp(Head.LdID); }
-ulong  SLAPI DbfTable::getNumRecs() const { return Head.NumRecs; }
-size_t SLAPI DbfTable::getRecSize() const { return Head.RecSize; }
-uint   SLAPI DbfTable::getNumFields() const { return NumFlds; }
+SCodepage DbfTable::getCodePage() const { return LdIdToCp(Head.LdID); }
+ulong  DbfTable::getNumRecs() const { return Head.NumRecs; }
+size_t DbfTable::getRecSize() const { return Head.RecSize; }
+uint   DbfTable::getNumFields() const { return NumFlds; }
 
-int SLAPI DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepage cp, int infoByte)
+int DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepage cp, int infoByte)
 {
 	int    ok = 1;
 	int    d = 0, m = 0, y = 0;
@@ -658,7 +658,7 @@ int SLAPI DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepa
 	return ok;
 }
 
-int SLAPI DbfTable::getPosition(ulong * pPos) const
+int DbfTable::getPosition(ulong * pPos) const
 {
 	if(Opened) {
 		ASSIGN_PTR(pPos, Current);
@@ -670,7 +670,7 @@ int SLAPI DbfTable::getPosition(ulong * pPos) const
 	}
 }
 
-int SLAPI DbfTable::getHeader()
+int DbfTable::getHeader()
 {
 	int    ok = 1;
 	long   pos = ftell(Stream);
@@ -691,7 +691,7 @@ int SLAPI DbfTable::getHeader()
 	return ok;
 }
 
-int SLAPI DbfTable::getFields()
+int DbfTable::getFields()
 {
 	int    ok = 1;
 	long   pos = ftell(Stream);
@@ -709,7 +709,7 @@ int SLAPI DbfTable::getFields()
 	return ok;
 }
 
-int SLAPI DbfTable::putHeader()
+int DbfTable::putHeader()
 {
 	int    ok = 1;
 	long   pos = ftell(Stream);
@@ -720,7 +720,7 @@ int SLAPI DbfTable::putHeader()
 	return ok;
 }
 
-int SLAPI DbfTable::putFields()
+int DbfTable::putFields()
 {
 	int    ok = 1;
 	long   pos = ftell(Stream);
@@ -732,7 +732,7 @@ int SLAPI DbfTable::putFields()
 	return ok;
 }
 
-int SLAPI DbfTable::getFieldName(uint fldNumber, char * pFldName, size_t bufLen) const
+int DbfTable::getFieldName(uint fldNumber, char * pFldName, size_t bufLen) const
 {
 	if(fldNumber > 0 && fldNumber <= NumFlds) {
 		char   temp_buf[32];
@@ -782,7 +782,7 @@ int FASTCALL DbfTable::goToRec(ulong recNo)
 	}
 }
 
-int SLAPI DbfTable::top()
+int DbfTable::top()
 {
 	if(!Opened)
 		return 0;
@@ -793,12 +793,12 @@ int SLAPI DbfTable::top()
 	}
 }
 
-int SLAPI DbfTable::bottom()
+int DbfTable::bottom()
 {
 	return goToRec(Head.NumRecs);
 }
 
-int SLAPI DbfTable::next()
+int DbfTable::next()
 {
 	if(!Opened || Current >= Head.NumRecs)
 		return 0;
@@ -809,7 +809,7 @@ int SLAPI DbfTable::next()
 	}
 }
 
-int SLAPI DbfTable::prev()
+int DbfTable::prev()
 {
 	if(!Opened || Current <= 1)
 		return 0;
@@ -820,12 +820,12 @@ int SLAPI DbfTable::prev()
 	}
 }
 
-DbfRecord * SLAPI DbfTable::makeRec() const
+DbfRecord * DbfTable::makeRec() const
 {
 	return new DbfRecord(this);
 }
 
-int SLAPI DbfTable::isDeletedRec()
+int DbfTable::isDeletedRec()
 {
 	long   p = ftell(Stream);
 	int8   s[4];
@@ -854,7 +854,7 @@ int FASTCALL DbfTable::updateRec(const DbfRecord * pRec)
 	return ok;
 }
 
-int SLAPI DbfTable::deleteRec()
+int DbfTable::deleteRec()
 {
 	int    ok = 1;
 	char   c = '*';
@@ -879,12 +879,12 @@ int FASTCALL DbfTable::appendRec(const DbfRecord * pRec)
 	return ok;
 }
 
-ulong SLAPI DbfTable::recPerBuffer() const
+ulong DbfTable::recPerBuffer() const
 {
 	return DbfTable::BufSize / Head.RecSize;
 }
 
-int SLAPI DbfTable::flushBuffer()
+int DbfTable::flushBuffer()
 {
 	int    ok = 1;
 	THROW_S_S(Opened, SLERR_DBF_NOTOPENED, P_Name);
@@ -898,7 +898,7 @@ int SLAPI DbfTable::flushBuffer()
 	return ok;
 }
 
-int SLAPI DbfTable::loadBuffer(long beg, long end)
+int DbfTable::loadBuffer(long beg, long end)
 {
 	int    ok = 1;
 	THROW_S_S(Opened, SLERR_DBF_NOTOPENED, P_Name);
@@ -912,7 +912,7 @@ int SLAPI DbfTable::loadBuffer(long beg, long end)
 	return ok;
 }
 
-int SLAPI DbfTable::loadBuffer(ulong recNo)
+int DbfTable::loadBuffer(ulong recNo)
 {
 	int    ok = 1;
 	THROW_S_S(Opened, SLERR_DBF_NOTOPENED, P_Name);

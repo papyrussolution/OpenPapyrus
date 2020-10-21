@@ -1006,7 +1006,7 @@ int SOraDbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount)
 	return ok;
 }
 
-int SLAPI SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
+int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 {
 	int    ok = -1;
 	if(pTbl->State & DBTable::sHasAutoinc) {
@@ -1427,7 +1427,7 @@ int SOraDbProvider::LobWrite(OD & rLob, TYPEID typ, SLob * pBuf, size_t dataLen)
 //
 //
 //
-/*virtual*/ int SLAPI SOraDbProvider::Login(const DbLoginBlock * pBlk, long options)
+/*virtual*/ int SOraDbProvider::Login(const DbLoginBlock * pBlk, long options)
 {
 	/*
 void ConnectBase::MakeTNSString (std::string& str, const char* host, const char* port, const char* sid, bool serviceInsteadOfSid)
@@ -1510,7 +1510,7 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 	return ok;
 }
 
-/*virtual*/ int SLAPI SOraDbProvider::Logout()
+/*virtual*/ int SOraDbProvider::Logout()
 {
 	int    ok = -1;
 	if(State & stLoggedIn) {
@@ -1520,12 +1520,12 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 	return ok;
 }
 
-SString & SLAPI SOraDbProvider::MakeFileName_(const char * pTblName, SString & rBuf)
+SString & SOraDbProvider::MakeFileName_(const char * pTblName, SString & rBuf)
 {
 	return rBuf.SetIfEmpty(pTblName);
 }
 
-int SLAPI SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat)
+int SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat)
 {
 	int    ok = -1;
 	uint   actual = 0;
@@ -1569,12 +1569,12 @@ int SLAPI SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbT
 	return ok;
 }
 
-int SLAPI SOraDbProvider::IsFileExists_(const char * pFileName)
+int SOraDbProvider::IsFileExists_(const char * pFileName)
 {
 	return BIN(GetFileStat(pFileName, 0, 0) > 0);
 }
 
-SString & SLAPI SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+SString & SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
 {
 	if(pStart == 0) {
 		SString temp_buf;
@@ -1591,7 +1591,7 @@ SString & SLAPI SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, lon
 	return rFileNameBuf;
 }
 
-int SLAPI SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
+int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
 	THROW(SqlGen.Reset().CreateTable(*pTbl, 0));
@@ -1627,7 +1627,7 @@ int SLAPI SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFil
 	return ok;
 }
 
-int SLAPI SOraDbProvider::DropFile(const char * pFileName)
+int SOraDbProvider::DropFile(const char * pFileName)
 {
 	int    ok = 1;
 	if(IsFileExists_(pFileName) > 0) {
@@ -1673,13 +1673,13 @@ int SLAPI SOraDbProvider::DropFile(const char * pFileName)
 	return ok;
 }
 
-int SLAPI SOraDbProvider::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
+int SOraDbProvider::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
 {
 	SString file_name;
 	return GetFileStat(MakeFileName_(pTbl->tableName, file_name), reqItems, pStat);
 }
 
-int SLAPI SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
+int SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
 	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->fileName;
@@ -1687,7 +1687,7 @@ int SLAPI SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName,
 	return 1;
 }
 
-int SLAPI SOraDbProvider::Implement_Close(DBTable * pTbl)
+int SOraDbProvider::Implement_Close(DBTable * pTbl)
 {
 	return 1;
 }
@@ -1719,7 +1719,7 @@ int SOraDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, ui
 	return ok;
 }
 
-int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
+int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 {
 	// BNKeyList BNFieldList BNKey Generator_SQL
 	//
@@ -1947,7 +1947,7 @@ int SLAPI SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey,
 	return ok;
 }
 
-int SLAPI SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
+int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
 {
 	int    ok = 1;
 	int    subst_no = 0;
@@ -2035,7 +2035,7 @@ int SLAPI SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pK
 	return ok;
 }
 
-int SLAPI SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
+int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
 {
 	int    ok = 1;
 	uint   i;
@@ -2064,7 +2064,7 @@ int SLAPI SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pData
 	return ok;
 }
 
-int SLAPI SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
+int SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
 {
 	int    ok = 1;
 	const  uint fld_count = pTbl->fields.getCount();
@@ -2081,7 +2081,7 @@ int SLAPI SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
 	return ok;
 }
 
-int SLAPI SOraDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
+int SOraDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 {
 	int    ok = 1, ta = 0;
 	if(useTa) {
@@ -2111,7 +2111,7 @@ int SLAPI SOraDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & 
 	return ok;
 }
 
-int SLAPI SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
+int SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 {
 	int    ok = -1;
 	//
@@ -2169,7 +2169,7 @@ int SLAPI SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 	return ok;
 }
 
-int SLAPI SOraDbProvider::ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection)
+int SOraDbProvider::ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection)
 {
 	return 0;
 }

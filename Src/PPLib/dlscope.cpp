@@ -17,7 +17,7 @@ static long FASTCALL MakeSdRecFlags(uint kind)
 		return 0;
 }
 
-SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : SdRecord(MakeSdRecFlags(kind)),
+DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : SdRecord(MakeSdRecFlags(kind)),
 	ScFlags(0), Kind(kind), DvFlags(0), BaseId(0), ParentId(0), Version(0), P_Parent(0),
 	P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0), LastLocalId(0)
 {
@@ -31,7 +31,7 @@ SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype
 #endif
 }
 
-SLAPI DlScope::DlScope(const DlScope & s) :
+DlScope::DlScope(const DlScope & s) :
 	SdRecord(), // Это - не copy-constructor так как функция копирования сделает работу, которую должен был выполнить copy-constructor базового класса
 	P_Parent(0), P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0)
 {
@@ -39,7 +39,7 @@ SLAPI DlScope::DlScope(const DlScope & s) :
 	Copy(s, 0);
 }
 
-SLAPI DlScope::~DlScope()
+DlScope::~DlScope()
 {
 	delete P_IfaceBaseList;
 	delete P_DbIdxSegFlags;
@@ -51,7 +51,7 @@ DlScope & FASTCALL DlScope::operator = (const DlScope & s)
 	return *this;
 }
 
-int SLAPI DlScope::Copy(const DlScope & s, int withoutChilds)
+int DlScope::Copy(const DlScope & s, int withoutChilds)
 {
 	SdRecord::Copy(s);
 	Kind     = s.Kind;
@@ -187,7 +187,7 @@ int FASTCALL DlScope::Read(SBuffer & rBuf)
 	return ok;
 }
 
-void SLAPI DlScope::SetFixDataBuf(void * pBuf, size_t size, int clear)
+void DlScope::SetFixDataBuf(void * pBuf, size_t size, int clear)
 {
 	FixDataBuf.P_Buf = static_cast<char *>(pBuf);
 	FixDataBuf.Size = size;
@@ -211,7 +211,7 @@ int FASTCALL DlScope::Add(DlScope * pChild)
 		return 0;
 }
 
-int SLAPI DlScope::Remove(DLSYMBID scopeID)
+int DlScope::Remove(DLSYMBID scopeID)
 {
 	int    ok = 0;
 	uint   c = ChildList.getCount();
@@ -225,17 +225,17 @@ int SLAPI DlScope::Remove(DLSYMBID scopeID)
 	return ok;
 }
 
-DLSYMBID SLAPI DlScope::GetId() const { return static_cast<DLSYMBID>(ID); }
-DLSYMBID SLAPI DlScope::GetBaseId() const { return BaseId; }
-const  SString & SLAPI DlScope::GetName() const { return Name; }
-uint   SLAPI SLAPI DlScope::GetKind() const { return Kind; }
-uint32 SLAPI DlScope::GetVersion() const { return Version; }
-int    SLAPI DlScope::CheckDvFlag(long f) const { return BIN(DvFlags & f); }
+DLSYMBID DlScope::GetId() const { return static_cast<DLSYMBID>(ID); }
+DLSYMBID DlScope::GetBaseId() const { return BaseId; }
+const  SString & DlScope::GetName() const { return Name; }
+uint   DlScope::GetKind() const { return Kind; }
+uint32 DlScope::GetVersion() const { return Version; }
+int    DlScope::CheckDvFlag(long f) const { return BIN(DvFlags & f); }
 int    FASTCALL DlScope::IsKind(const uint kind) const { return BIN(Kind == kind); }
-const DlScope * SLAPI DlScope::GetOwner() const { return P_Parent; }
-const DlScopeList & SLAPI DlScope::GetChildList() const { return ChildList; }
+const DlScope * DlScope::GetOwner() const { return P_Parent; }
+const DlScopeList & DlScope::GetChildList() const { return ChildList; }
 
-const DlScope * SLAPI DlScope::GetFirstChildByKind(int kind, int recursive) const
+const DlScope * DlScope::GetFirstChildByKind(int kind, int recursive) const
 {
 	for(uint i = 0; i < ChildList.getCount(); i++) {
 		const DlScope * p_child = ChildList.at(i);
@@ -250,7 +250,7 @@ const DlScope * SLAPI DlScope::GetFirstChildByKind(int kind, int recursive) cons
 	return 0;
 }
 
-int SLAPI DlScope::GetChildList(int kind, int recursive, LongArray * pList) const
+int DlScope::GetChildList(int kind, int recursive, LongArray * pList) const
 {
 	const DlScopeList & r_list = GetChildList();
 	for(uint i = 0; i < r_list.getCount(); i++) {
@@ -275,7 +275,7 @@ int FASTCALL DlScope::IsChildOf(const DlScope * pOwner) const
 	return 0;
 }
 
-int SLAPI DlScope::EnumChilds(uint * pIdx, DlScope ** ppScope) const
+int DlScope::EnumChilds(uint * pIdx, DlScope ** ppScope) const
 {
 	int    ok = 1;
 	DlScope * p_scope = 0;
@@ -287,7 +287,7 @@ int SLAPI DlScope::EnumChilds(uint * pIdx, DlScope ** ppScope) const
 	return ok;
 }
 
-int SLAPI DlScope::EnumInheritance(uint * pIdx, const DlScope ** ppScope) const
+int DlScope::EnumInheritance(uint * pIdx, const DlScope ** ppScope) const
 {
 	uint   c = 0;
 	const DlScope * p_base = this;
@@ -306,13 +306,13 @@ int SLAPI DlScope::EnumInheritance(uint * pIdx, const DlScope ** ppScope) const
 	return 0;
 }
 
-void SLAPI DlScope::SetupTitle(uint kind, const char * pName)
+void DlScope::SetupTitle(uint kind, const char * pName)
 {
 	Kind = kind;
 	Name = pName;
 }
 
-int SLAPI DlScope::GetQualif(DLSYMBID id, const char * pDiv, int inverse, SString & rBuf) const
+int DlScope::GetQualif(DLSYMBID id, const char * pDiv, int inverse, SString & rBuf) const
 {
 	int    ok = 0;
 	if(ID == id) {
@@ -347,12 +347,12 @@ int SLAPI DlScope::GetQualif(DLSYMBID id, const char * pDiv, int inverse, SStrin
 	return ok;
 }
 
-int SLAPI DlScope::IsPrototype() const
+int DlScope::IsPrototype() const
 {
 	return BIN(ScFlags & sfPrototype);
 }
 
-void SLAPI DlScope::ResetPrototypeFlag()
+void DlScope::ResetPrototypeFlag()
 {
 	ScFlags &= ~sfPrototype;
 }
@@ -397,7 +397,7 @@ int FASTCALL DlScope::SetRecList(const DlScopeList * pList)
 	return ok;
 }
 
-const DlScope * SLAPI DlScope::SearchByName_Const(uint kind, const char * pName, DLSYMBID * pParentID) const
+const DlScope * DlScope::SearchByName_Const(uint kind, const char * pName, DLSYMBID * pParentID) const
 {
 	DLSYMBID parent_id = 0;
 	const DlScope * p_scope = 0;
@@ -421,12 +421,12 @@ const DlScope * SLAPI DlScope::SearchByName_Const(uint kind, const char * pName,
 	return p_scope;
 }
 
-DlScope * SLAPI DlScope::SearchByName(uint kind, const char * pName, DLSYMBID * pParentID)
+DlScope * DlScope::SearchByName(uint kind, const char * pName, DLSYMBID * pParentID)
 {
 	return const_cast<DlScope *>(SearchByName_Const(kind, pName, pParentID)); // @badcast
 }
 
-DlScope * SLAPI DlScope::SearchByID(DLSYMBID id, DLSYMBID * pParentID)
+DlScope * DlScope::SearchByID(DLSYMBID id, DLSYMBID * pParentID)
 {
 	PROFILE_START
 	DLSYMBID parent_id = 0;
@@ -449,7 +449,7 @@ DlScope * SLAPI DlScope::SearchByID(DLSYMBID id, DLSYMBID * pParentID)
 	PROFILE_END
 }
 
-const DlScope * SLAPI DlScope::SearchByID_Const(DLSYMBID id, DLSYMBID * pParentID) const
+const DlScope * DlScope::SearchByID_Const(DLSYMBID id, DLSYMBID * pParentID) const
 {
 	DLSYMBID parent_id = 0;
 	const DlScope * p_scope = 0;
@@ -470,12 +470,12 @@ const DlScope * SLAPI DlScope::SearchByID_Const(DLSYMBID id, DLSYMBID * pParentI
 	return p_scope;
 }
 
-const DlScope * SLAPI DlScope::GetBase() const
+const DlScope * DlScope::GetBase() const
 {
 	return P_Base;
 }
 
-DLSYMBID SLAPI DlScope::EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, const char * pName)
+DLSYMBID DlScope::EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, const char * pName)
 {
 	DLSYMBID scope_id = 0;
 	if(parentId == 0) {
@@ -502,7 +502,7 @@ DLSYMBID SLAPI DlScope::EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint 
 	return scope_id;
 }
 
-int SLAPI DlScope::LeaveScope(DLSYMBID scopeID, DLSYMBID * pParentID)
+int DlScope::LeaveScope(DLSYMBID scopeID, DLSYMBID * pParentID)
 {
 	DlScope * p_scope = SearchByID(scopeID, pParentID);
 	return BIN(p_scope);
@@ -527,7 +527,7 @@ int FASTCALL DlScope::InitInheritance(const DlScope * pTopScope)
 }
 
 #ifdef DL600C // {
-	int SLAPI DlScope::SetInheritance(const DlScope * pBase, DlContext * pCtx)
+	int DlScope::SetInheritance(const DlScope * pBase, DlContext * pCtx)
 	{
 		int    ok = 1;
 		ResetPrototypeFlag();
@@ -561,7 +561,7 @@ void FASTCALL DlScope::AddFunc(const DlFunc * pF)
 	FuncPool.Add(pF);
 }
 
-int SLAPI DlScope::GetFuncListByName(const char * pSymb, LongArray * pList) const
+int DlScope::GetFuncListByName(const char * pSymb, LongArray * pList) const
 {
 	int    ok = -1;
 	for(uint pos = 0; FuncPool.EnumByName(pSymb, &pos, 0) > 0; pos++) {
@@ -571,17 +571,17 @@ int SLAPI DlScope::GetFuncListByName(const char * pSymb, LongArray * pList) cons
 	return ok;
 }
 
-uint SLAPI DlScope::GetFuncCount() const
+uint DlScope::GetFuncCount() const
 {
 	return FuncPool.GetCount();
 }
 
-int SLAPI DlScope::GetFuncByPos(uint pos, DlFunc * pFunc) const
+int DlScope::GetFuncByPos(uint pos, DlFunc * pFunc) const
 {
 	return FuncPool.GetByPos(pos, pFunc);
 }
 
-int SLAPI DlScope::EnumFunctions(uint * pI, DlFunc * pFunc) const
+int DlScope::EnumFunctions(uint * pI, DlFunc * pFunc) const
 {
 	int    ok = -1;
 	uint   i = *pI;
@@ -592,7 +592,7 @@ int SLAPI DlScope::EnumFunctions(uint * pI, DlFunc * pFunc) const
 	return ok;
 }
 
-int SLAPI DlScope::AddIfaceBase(const IfaceBase * pEntry)
+int DlScope::AddIfaceBase(const IfaceBase * pEntry)
 {
 	SETIFZ(P_IfaceBaseList, new TSVector <IfaceBase>());
 #ifdef DL600C
@@ -605,12 +605,12 @@ int SLAPI DlScope::AddIfaceBase(const IfaceBase * pEntry)
 #endif
 }
 
-uint SLAPI DlScope::GetIfaceBaseCount() const
+uint DlScope::GetIfaceBaseCount() const
 {
 	return SVectorBase::GetCount(P_IfaceBaseList);
 }
 
-int SLAPI DlScope::GetIfaceBase(uint pos, IfaceBase * pEntry) const
+int DlScope::GetIfaceBase(uint pos, IfaceBase * pEntry) const
 {
 	int    ok = 1;
 	if(pos < GetIfaceBaseCount()) {
@@ -628,7 +628,7 @@ void FASTCALL DlScope::SetAttrib(const Attr & rAttr)
 		Version = rAttr.Ver;
 }
 
-int SLAPI DlScope::GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) const
+int DlScope::GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) const
 {
 	int    ok = 0;
 	if(ScFlags & attrFlag) {
@@ -644,7 +644,7 @@ int SLAPI DlScope::GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) c
 	return ok;
 }
 
-int SLAPI DlScope::AddConst(COption id, const CtmExprConst & rConst, int replace)
+int DlScope::AddConst(COption id, const CtmExprConst & rConst, int replace)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -671,7 +671,7 @@ CtmExprConst FASTCALL DlScope::GetConst(COption id) const
 	return CList.lsearch(&id, &pos, CMPF_LONG) ?  CList.at(pos).C : c.Init();
 }
 
-int SLAPI DlScope::GetConst(COption id, CtmExprConst * pConst) const
+int DlScope::GetConst(COption id, CtmExprConst * pConst) const
 {
 	int    ok  = 0;
 	uint   pos = 0;
@@ -682,7 +682,7 @@ int SLAPI DlScope::GetConst(COption id, CtmExprConst * pConst) const
 	return ok;
 }
 
-int SLAPI DlScope::AddFldConst(uint fldID, COption id, const CtmExprConst & rConst, int replace)
+int DlScope::AddFldConst(uint fldID, COption id, const CtmExprConst & rConst, int replace)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -706,7 +706,7 @@ int SLAPI DlScope::AddFldConst(uint fldID, COption id, const CtmExprConst & rCon
 	return ok;
 }
 
-CtmExprConst SLAPI DlScope::GetFldConst(uint fldID, COption id) const
+CtmExprConst DlScope::GetFldConst(uint fldID, COption id) const
 {
 	uint   pos = 0;
 	CtmExprConst c;
@@ -716,7 +716,7 @@ CtmExprConst SLAPI DlScope::GetFldConst(uint fldID, COption id) const
 	return CfList.lsearch(&key, &pos, PTR_CMPFUNC(_2long)) ? CfList.at(pos).C : c.Init();
 }
 
-int SLAPI DlScope::GetFldConst(uint fldID, COption id, CtmExprConst * pConst) const
+int DlScope::GetFldConst(uint fldID, COption id, CtmExprConst * pConst) const
 {
 	int    ok  = 0;
 	uint   pos = 0;
@@ -800,7 +800,7 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 }
 
 #ifdef DL600C // {
-	int SLAPI DlScope::AddTempFldConst(COption id, const CtmExprConst & rConst)
+	int DlScope::AddTempFldConst(COption id, const CtmExprConst & rConst)
 	{
 		int    ok = 1;
 		uint   pos = 0;
@@ -821,7 +821,7 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 		return ok;
 	}
 
-	int SLAPI DlScope::AcceptTempFldConstList(uint fldID)
+	int DlScope::AcceptTempFldConstList(uint fldID)
 	{
 		if(fldID == 0) {
 			//
@@ -849,7 +849,7 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 	}
 #endif
 
-int SLAPI DlScope::AddDbIndexSegment(const char * pFieldName, long options)
+int DlScope::AddDbIndexSegment(const char * pFieldName, long options)
 {
 	int    ok = 1;
 	uint   fld_id = 0;
@@ -865,7 +865,7 @@ int SLAPI DlScope::AddDbIndexSegment(const char * pFieldName, long options)
 	return ok;
 }
 
-long SLAPI DlScope::GetDbIndexSegOptions(uint pos) const
+long DlScope::GetDbIndexSegOptions(uint pos) const
 {
 	return (P_DbIdxSegFlags && pos < P_DbIdxSegFlags->getCount()) ? P_DbIdxSegFlags->get(pos) : 0;
 }

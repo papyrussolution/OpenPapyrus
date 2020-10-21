@@ -16,7 +16,7 @@ static int FASTCALL IsValidSpcSeriesExStrID(int id)
 	return oneof5(id, SPCSNEXSTR_GOODSNAME, SPCSNEXSTR_MANUFNAME, SPCSNEXSTR_LABNAME, SPCSNEXSTR_MANUFCOUNTRYNAME, SPCSNEXSTR_DESCRIPTION);
 }
 
-/*static*/int SLAPI SpecSeriesCore::GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId, SString & rBuf)
+/*static*/int SpecSeriesCore::GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -27,7 +27,7 @@ static int FASTCALL IsValidSpcSeriesExStrID(int id)
 	return ok;
 }
 
-/*static*/int SLAPI SpecSeriesCore::SetExField(SpecSeries2Tbl::Rec * pRec, int fldId, const char * pBuf)
+/*static*/int SpecSeriesCore::SetExField(SpecSeries2Tbl::Rec * pRec, int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(IsValidSpcSeriesExStrID(fldId)) {
@@ -39,16 +39,16 @@ static int FASTCALL IsValidSpcSeriesExStrID(int id)
 }
 
 // AHTOXA {
-SLAPI SpecSeriesCore::SpecSeriesCore() : SpecSeries2Tbl()
+SpecSeriesCore::SpecSeriesCore() : SpecSeries2Tbl()
 {
 }
 
-int SLAPI SpecSeriesCore::Search(PPID id, SpecSeries2Tbl::Rec * pRec)
+int SpecSeriesCore::Search(PPID id, SpecSeries2Tbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_SPECSERIES, id, pRec);
 }
 
-int SLAPI SpecSeriesCore::Put(PPID * pID, SpecSeries2Tbl::Rec * pRec, int use_ta)
+int SpecSeriesCore::Put(PPID * pID, SpecSeries2Tbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	SpecSeries2Tbl::Rec prev_rec;
@@ -77,12 +77,12 @@ int SLAPI SpecSeriesCore::Put(PPID * pID, SpecSeries2Tbl::Rec * pRec, int use_ta
 	return ok;
 }
 
-int SLAPI SpecSeriesCore::ClearAll()
+int SpecSeriesCore::ClearAll()
 {
 	return CurDict->RenewFile(*this, 0, 0);
 }
 
-int SLAPI SpecSeriesCore::SearchBySerial(PPID infoKind, const char * pBuf, SpecSeries2Tbl::Rec * pRec)
+int SpecSeriesCore::SearchBySerial(PPID infoKind, const char * pBuf, SpecSeries2Tbl::Rec * pRec)
 {
 	SpecSeries2Tbl::Key1 k1;
 	MEMSZERO(k1);
@@ -91,7 +91,7 @@ int SLAPI SpecSeriesCore::SearchBySerial(PPID infoKind, const char * pBuf, SpecS
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
-int SLAPI SpecSeriesCore::GetListBySerial(PPID kind, const char * pSerial, StrAssocArray * pList)
+int SpecSeriesCore::GetListBySerial(PPID kind, const char * pSerial, StrAssocArray * pList)
 {
 	int    ok = -1;
 	long   c = 0;

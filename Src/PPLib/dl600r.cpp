@@ -40,16 +40,16 @@ struct UnpFormItem {
 	CtmExpr * P_Expr;
 };
 
-SLAPI DlContext::UnpFormArray::UnpFormArray() : SArray(sizeof(UnpFormItem), O_ARRAY|aryEachItem)
+DlContext::UnpFormArray::UnpFormArray() : SArray(sizeof(UnpFormItem), O_ARRAY|aryEachItem)
 {
 }
 
-SLAPI DlContext::UnpFormArray::~UnpFormArray()
+DlContext::UnpFormArray::~UnpFormArray()
 {
 	freeAll();
 }
 
-int SLAPI DlContext::UnpFormArray::Add(DLSYMBID scopeID, uint fldPos, CtmExpr * pExpr)
+int DlContext::UnpFormArray::Add(DLSYMBID scopeID, uint fldPos, CtmExpr * pExpr)
 {
 	int    ok = 1;
 	UnpFormItem item;
@@ -70,7 +70,7 @@ int SLAPI DlContext::UnpFormArray::Add(DLSYMBID scopeID, uint fldPos, CtmExpr * 
 	return ok;
 }
 
-CtmExpr * SLAPI DlContext::UnpFormArray::Get(DLSYMBID scopeID, uint fldPos)
+CtmExpr * DlContext::UnpFormArray::Get(DLSYMBID scopeID, uint fldPos)
 {
 	UnpFormItem item;
 	item.ScopeID = scopeID;
@@ -88,7 +88,7 @@ CtmExpr * SLAPI DlContext::UnpFormArray::Get(DLSYMBID scopeID, uint fldPos)
 	}
 }
 
-CtmExpr * SLAPI DlContext::GetFormula(const DlScope * pScope, uint fldPos)
+CtmExpr * DlContext::GetFormula(const DlScope * pScope, uint fldPos)
 {
 	CtmExpr * p_expr = UnpFormList.Get(pScope->ID, fldPos);
 	if(!p_expr) {
@@ -248,7 +248,7 @@ void * FASTCALL DlContext::GetStackPtr(uint sp)
 	return S.GetPtr(sp);
 }
 
-int SLAPI DlContext::FormatVar(CtmVar v, SString & rBuf) const
+int DlContext::FormatVar(CtmVar v, SString & rBuf) const
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -268,7 +268,7 @@ int SLAPI DlContext::FormatVar(CtmVar v, SString & rBuf) const
 	return ok;
 }
 
-const DlScope * SLAPI DlContext::GetEvaluatedVarScope(const DlScope * pScope, const CtmExpr * pExpr) const // @obsolete
+const DlScope * DlContext::GetEvaluatedVarScope(const DlScope * pScope, const CtmExpr * pExpr) const // @obsolete
 {
 	DLSYMBID target_id = pExpr->U.V.ScopeID;
 	const DlScope * p_target = 0;
@@ -281,7 +281,7 @@ const DlScope * SLAPI DlContext::GetEvaluatedVarScope(const DlScope * pScope, co
 	return p_target;
 }
 
-const DlScope * SLAPI DlContext::GetEvaluatedVarScope(const DlScope * pScope, DLSYMBID targetScopeID) const
+const DlScope * DlContext::GetEvaluatedVarScope(const DlScope * pScope, DLSYMBID targetScopeID) const
 {
 	const DlScope * p_target = 0;
 	if(pScope) {
@@ -482,7 +482,7 @@ void DlRtm::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 //
 //
 //
-int SLAPI DlRtm::InitScope(const DlScope * pScope, int topLevel)
+int DlRtm::InitScope(const DlScope * pScope, int topLevel)
 {
 	int    ok = 1;
 	if(pScope) {
@@ -875,11 +875,11 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 
 int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
-SLAPI DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0), P_ViewDef(0)
+DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0), P_ViewDef(0)
 {
 }
 
-int SLAPI DlRtm::Export(ExportParam & rParam)
+int DlRtm::Export(ExportParam & rParam)
 {
 	P_Ep = &rParam;
 	int    ok = 1;
@@ -1015,7 +1015,7 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 	return ok;
 }
 
-int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const
+int DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const
 {
 	SFormatParam fp;
 	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_EXPLFLOAT); // @v9.5.5 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 5, NMBF_NOTRAILZ)
@@ -1057,7 +1057,7 @@ int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, Str
 	return 1;
 }
 
-void SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const
+void DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const
 {
 	StringSet ss_dtd(',', 0);
 	FillXmlBuf(pScope, pWriter, &ss_dtd, SCodepageIdent(cpANSI));
@@ -1069,7 +1069,7 @@ void SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, co
 		xmlTextWriterWriteDTDElement(pWriter, buf.ucptr(), (const xmlChar *)"(#PCDATA)");
 }
 
-int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
+int DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 {
 	int    ok = 1;
 	int    r;
@@ -1183,7 +1183,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 	return ok;
 }
 
-int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
+int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 {
 	int    ok = 1;
 	int    r;
@@ -1373,7 +1373,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	return ok;
 }
 
-int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) const
+int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj) const
 {
 	int    ok = 1;
 	const  DlScope * p_scope = 0;
@@ -1397,7 +1397,7 @@ int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj
 	return ok;
 }
 
-int SLAPI DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
+int DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
 {
 	int     ok = 1;
 	SString left, suffix;
@@ -1437,7 +1437,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
 	return ok;
 }
 
-int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
+int DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
 {
 	int    ok = 1;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);
@@ -1457,7 +1457,7 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 	return ok;
 }
 
-int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
+int DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 {
 	int    ok = 1;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);
@@ -1475,7 +1475,7 @@ int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 	return ok;
 }
 
-int SLAPI DlRtm::PutToJsonBuffer(PPView * pV, SString & rBuf, int flags)
+int DlRtm::PutToJsonBuffer(PPView * pV, SString & rBuf, int flags)
 {
 	int    ok = 1;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);

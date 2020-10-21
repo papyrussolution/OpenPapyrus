@@ -21,10 +21,10 @@
 #include "bison.h"
 #pragma hdrstop
 #include <dirname.h>
-#include <relocatable.h> /* relocate2 */
+//#include <relocatable.h> /* relocate2 */
 #include <stdio-safer.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+//#include <sys/stat.h>
+//#include <sys/types.h>
 #include <xstrndup.h>
 
 /* Initializing some values below (such SPEC_NAME_PREFIX to 'yy') is
@@ -400,13 +400,13 @@ void unlink_generated_sources(void)
 /* Memory allocated by relocate2, to free.  */
 static char * relocate_buffer = NULL;
 
-extern const char* get_app_path();
+extern const char * get_app_path();
 
 char * get_local_pkgdatadir()
 {
-	const char* program_path = 0;
-	const char* dir = 0;
-	const char* last_divider = 0;
+	const char * program_path = 0;
+	const char * dir = 0;
+	const char * last_divider = 0;
 	char* local_pkgdatadir = NULL;
 	size_t dir_len = 0;
 	size_t local_pkgdatadir_len = 0;

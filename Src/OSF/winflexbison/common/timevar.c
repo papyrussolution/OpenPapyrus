@@ -59,8 +59,7 @@ static struct timevar_stack_def * stack; /* The top of the timing stack.  */
 static struct timevar_stack_def * unused_stack_instances;
 
 /* The time at which the topmost element on the timing stack was
-   pushed.  Time elapsed since then is attributed to the topmost
-   element.  */
+   pushed.  Time elapsed since then is attributed to the topmost element.  */
 static struct timevar_time_def start_time;
 
 /* Fill the current times into TIME.  */
@@ -70,24 +69,17 @@ static void set_to_current_time(struct timevar_time_def * now)
 	now->user = 0;
 	now->sys  = 0;
 	now->wall = 0;
-
-	if(!timevar_enabled)
-		return;
-	/*
-	   struct rusage self;
-	   getrusage (RUSAGE_SELF, &self);
-	   struct rusage chld;
-	   getrusage (RUSAGE_CHILDREN, &chld);
-
-	   now->user =
-	   xtime_make (self.ru_utime.tv_sec + chld.ru_utime.tv_sec,
-	              (self.ru_utime.tv_usec + chld.ru_utime.tv_usec) * 1000);
-
-	   now->sys =
-	   xtime_make (self.ru_stime.tv_sec + chld.ru_stime.tv_sec,
-	              (self.ru_stime.tv_usec + chld.ru_stime.tv_usec) * 1000);
-	 */
-	now->wall = gethrxtime();
+	if(timevar_enabled) {
+		/*
+		   struct rusage self;
+		   getrusage (RUSAGE_SELF, &self);
+		   struct rusage chld;
+		   getrusage (RUSAGE_CHILDREN, &chld);
+		   now->user = xtime_make(self.ru_utime.tv_sec + chld.ru_utime.tv_sec, (self.ru_utime.tv_usec + chld.ru_utime.tv_usec) * 1000);
+		   now->sys = xtime_make(self.ru_stime.tv_sec + chld.ru_stime.tv_sec, (self.ru_stime.tv_usec + chld.ru_stime.tv_usec) * 1000);
+		 */
+		now->wall = gethrxtime();
+	}
 }
 
 /* Return the current time.  */
@@ -112,8 +104,7 @@ void timevar_init()
 {
 	if(!timevar_enabled)
 		return;
-	/* Zero all elapsed times.  */
-	memzero((void*)timevars, sizeof(timevars));
+	memzero((void*)timevars, sizeof(timevars)); /* Zero all elapsed times.  */
 	/* Initialize the names of timing variables.  */
 #define DEFTIMEVAR(identifier__, name__) timevars[identifier__].name = name__;
 #include "timevar.def"
@@ -122,81 +113,81 @@ void timevar_init()
 
 void timevar_push(timevar_id_t timevar)
 {
-	if(!timevar_enabled)
-		return;
-	struct timevar_def * tv = &timevars[timevar];
-	/* Mark this timing variable as used.  */
-	tv->used = 1;
-	/* Can't push a standalone timer.  */
-	if(tv->standalone)
-		abort();
-	/* What time is it?  */
-	struct timevar_time_def const now = get_current_time();
-	/* If the stack isn't empty, attribute the current elapsed time to the old topmost element.  */
-	if(stack)
-		timevar_accumulate(&stack->timevar->elapsed, &start_time, &now);
-	/* Reset the start time; from now on, time is attributed to TIMEVAR.  */
-	start_time = now;
-	/* See if we have a previously-allocated stack instance.  If so,
-	   take it off the list.  If not, malloc a new one.  */
-	struct timevar_stack_def * context = NULL;
-	if(unused_stack_instances != NULL) {
-		context = unused_stack_instances;
-		unused_stack_instances = unused_stack_instances->next;
+	if(timevar_enabled) {
+		struct timevar_def * tv = &timevars[timevar];
+		/* Mark this timing variable as used.  */
+		tv->used = 1;
+		/* Can't push a standalone timer.  */
+		if(tv->standalone)
+			abort();
+		/* What time is it?  */
+		struct timevar_time_def const now = get_current_time();
+		/* If the stack isn't empty, attribute the current elapsed time to the old topmost element.  */
+		if(stack)
+			timevar_accumulate(&stack->timevar->elapsed, &start_time, &now);
+		/* Reset the start time; from now on, time is attributed to TIMEVAR.  */
+		start_time = now;
+		/* See if we have a previously-allocated stack instance.  If so,
+		   take it off the list.  If not, malloc a new one.  */
+		struct timevar_stack_def * context = NULL;
+		if(unused_stack_instances != NULL) {
+			context = unused_stack_instances;
+			unused_stack_instances = unused_stack_instances->next;
+		}
+		else
+			context = (struct timevar_stack_def *)xmalloc(sizeof(struct timevar_stack_def));
+		/* Fill it in and put it on the stack.  */
+		context->timevar = tv;
+		context->next = stack;
+		stack = context;
 	}
-	else
-		context = (struct timevar_stack_def *)xmalloc(sizeof(struct timevar_stack_def));
-	/* Fill it in and put it on the stack.  */
-	context->timevar = tv;
-	context->next = stack;
-	stack = context;
 }
 
 void timevar_pop(timevar_id_t timevar)
 {
-	if(!timevar_enabled)
-		return;
-	if(&timevars[timevar] != stack->timevar)
-		abort();
-	/* What time is it?  */
-	struct timevar_time_def const now = get_current_time();
-	/* Attribute the elapsed time to the element we're popping.  */
-	struct timevar_stack_def * popped = stack;
-	timevar_accumulate(&popped->timevar->elapsed, &start_time, &now);
-	/* Reset the start time; from now on, time is attributed to the element just exposed on the stack.  */
-	start_time = now;
-	/* Take the item off the stack.  */
-	stack = stack->next;
-	/* Don't delete the stack element; instead, add it to the list of
-	   unused elements for later use.  */
-	popped->next = unused_stack_instances;
-	unused_stack_instances = popped;
+	if(timevar_enabled) {
+		if(&timevars[timevar] != stack->timevar)
+			abort();
+		/* What time is it?  */
+		struct timevar_time_def const now = get_current_time();
+		/* Attribute the elapsed time to the element we're popping.  */
+		struct timevar_stack_def * popped = stack;
+		timevar_accumulate(&popped->timevar->elapsed, &start_time, &now);
+		/* Reset the start time; from now on, time is attributed to the element just exposed on the stack.  */
+		start_time = now;
+		/* Take the item off the stack.  */
+		stack = stack->next;
+		/* Don't delete the stack element; instead, add it to the list of
+		   unused elements for later use.  */
+		popped->next = unused_stack_instances;
+		unused_stack_instances = popped;
+	}
 }
 
 void timevar_start(timevar_id_t timevar)
 {
-	if(!timevar_enabled)
-		return;
-	struct timevar_def * tv = &timevars[timevar];
-	/* Mark this timing variable as used.  */
-	tv->used = 1;
-	/* Don't allow the same timing variable to be started more than once.  */
-	if(tv->standalone)
-		abort();
-	tv->standalone = 1;
-	set_to_current_time(&tv->start_time);
+	if(timevar_enabled) {
+		struct timevar_def * tv = &timevars[timevar];
+		/* Mark this timing variable as used.  */
+		tv->used = 1;
+		/* Don't allow the same timing variable to be started more than once.  */
+		if(tv->standalone)
+			abort();
+		tv->standalone = 1;
+		set_to_current_time(&tv->start_time);
+	}
 }
 
 void timevar_stop(timevar_id_t timevar)
 {
-	if(!timevar_enabled)
-		return;
-	struct timevar_def * tv = &timevars[timevar];
-	/* TIMEVAR must have been started via timevar_start.  */
-	if(!tv->standalone)
-		abort();
-	struct timevar_time_def const now = get_current_time();
-	timevar_accumulate(&tv->elapsed, &tv->start_time, &now);
+	if(timevar_enabled) {
+		struct timevar_def * tv = &timevars[timevar];
+		/* TIMEVAR must have been started via timevar_start.  */
+		if(!tv->standalone)
+			abort();
+		struct timevar_time_def const now = get_current_time();
+		timevar_accumulate(&tv->elapsed, &tv->start_time, &now);
+	}
 }
 
 void timevar_get(timevar_id_t timevar, struct timevar_time_def * elapsed)

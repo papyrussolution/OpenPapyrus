@@ -60,7 +60,7 @@ public:
 	}
 };
 
-int SLAPI BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
+int BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 {
 	int    ok = -1;
 	BaseWtmToolDialog * dlg = new BaseWtmToolDialog(DLG_WTMTOOL);

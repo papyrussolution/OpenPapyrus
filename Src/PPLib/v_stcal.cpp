@@ -6,7 +6,7 @@
 //
 // @ModuleDef(PPViewStaffCal)
 //
-IMPLEMENT_PPFILT_FACTORY(StaffCal); SLAPI StaffCalFilt::StaffCalFilt() : PPBaseFilt(PPFILT_STAFFCAL, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(StaffCal); StaffCalFilt::StaffCalFilt() : PPBaseFilt(PPFILT_STAFFCAL, 0, 2)
 {
 	SetFlatChunk(offsetof(StaffCalFilt, ReserveStart),
 		offsetof(StaffCalFilt, LinkObjList)-offsetof(StaffCalFilt, ReserveStart));
@@ -15,12 +15,11 @@ IMPLEMENT_PPFILT_FACTORY(StaffCal); SLAPI StaffCalFilt::StaffCalFilt() : PPBaseF
 	Init(1, 0);
 }
 
-SLAPI PPViewStaffCal::PPViewStaffCal() : PPView(0, &Filt, PPVIEW_STAFFCAL), P_TempTbl(0), Grid(this)
+PPViewStaffCal::PPViewStaffCal() : PPView(0, &Filt, PPVIEW_STAFFCAL, implChangeFilt, 0), P_TempTbl(0), Grid(this)
 {
-	ImplementFlags |= implChangeFilt;
 }
 
-SLAPI PPViewStaffCal::~PPViewStaffCal()
+PPViewStaffCal::~PPViewStaffCal()
 {
 	UpdateTimeBrowser(1);
 	delete P_TempTbl;
@@ -147,7 +146,7 @@ void StaffCalFiltDialog::OnObjectSelection()
 	enableCommand(cmStaffCalFiltObjList, !disbl);
 }
 
-int SLAPI PPViewStaffCal::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewStaffCal::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
@@ -173,7 +172,7 @@ IMPL_CMPFUNC(StaffCalendarKey0, i1, i2)
 	return 0;
 }
 
-int SLAPI PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArray * pNameList, int refresh)
+int PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArray * pNameList, int refresh)
 {
 	int    ok = 1;
 	uint   name_pos = 0;
@@ -286,7 +285,7 @@ int SLAPI PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArr
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::AddItemToTimeGrid(const TempStaffCalTbl::Rec * pRec, int rmv)
+int PPViewStaffCal::AddItemToTimeGrid(const TempStaffCalTbl::Rec * pRec, int rmv)
 {
 	long   row_id = pRec->LinkObjID;
 	if(rmv)
@@ -311,7 +310,7 @@ int SLAPI PPViewStaffCal::AddItemToTimeGrid(const TempStaffCalTbl::Rec * pRec, i
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempStaffCal);
 
-int SLAPI PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
+int PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	PPWait(1);
@@ -412,7 +411,7 @@ int SLAPI PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::InitIteration(int ord)
+int PPViewStaffCal::InitIteration(int ord)
 {
 	int    ok = 0;
 	int    idx = 0;
@@ -466,7 +465,7 @@ int FASTCALL PPViewStaffCal::NextIteration(StaffCalViewItem * pItem)
 		return -1;
 }
 
-DBQuery * SLAPI PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * p_q = 0;
 	uint   brw_id = 0; //BROWSER_STAFFCAL;
@@ -541,7 +540,7 @@ DBQuery * SLAPI PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return p_q;
 }
 
-int SLAPI PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME tmFinish)
+int PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME tmFinish)
 {
 	int    ok = -1;
 	if(Filt.Sgd == sgdNone) {
@@ -593,7 +592,7 @@ int SLAPI PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewStaffCal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -628,7 +627,7 @@ int SLAPI PPViewStaffCal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	PPID   rec_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -667,18 +666,18 @@ int SLAPI PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::Print(const void *)
+int PPViewStaffCal::Print(const void *)
 {
 	return Helper_Print((Filt.Sgd != sgdNone) ? REPORT_STAFFCALDTGRPNG : REPORT_STAFFCAL, Filt.Order);
 }
 //
 //
 //
-SLAPI PPViewStaffCal::StaffCalTimeChunkGrid::StaffCalTimeChunkGrid(PPViewStaffCal * pV) : STimeChunkGrid(), P_View(pV)
+PPViewStaffCal::StaffCalTimeChunkGrid::StaffCalTimeChunkGrid(PPViewStaffCal * pV) : STimeChunkGrid(), P_View(pV)
 {
 }
 
-SLAPI PPViewStaffCal::StaffCalTimeChunkGrid::~StaffCalTimeChunkGrid()
+PPViewStaffCal::StaffCalTimeChunkGrid::~StaffCalTimeChunkGrid()
 {
 }
 
@@ -700,7 +699,7 @@ int PPViewStaffCal::StaffCalTimeChunkGrid::GetText(int item, long id, SString & 
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::GetTimeGridItemText(PPID id, SString & rBuf)
+int PPViewStaffCal::GetTimeGridItemText(PPID id, SString & rBuf)
 {
 	int    ok = -1;
 	if(P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
@@ -740,12 +739,12 @@ int PPViewStaffCal::StaffCalTimeChunkGrid::GetColor(long id, STimeChunkGrid::Col
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::UpdateTimeBrowser(int destroy)
+int PPViewStaffCal::UpdateTimeBrowser(int destroy)
 {
 	return PPView::UpdateTimeBrowser(&Grid, 0, destroy);
 }
 
-int SLAPI PPViewStaffCal::TimeChunkBrowser()
+int PPViewStaffCal::TimeChunkBrowser()
 {
 	PPPersonConfig psn_cfg;
 	UpdateTimeBrowser(1);

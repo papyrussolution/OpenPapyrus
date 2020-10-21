@@ -807,17 +807,17 @@ int SBIIBillRowWithCellsRec::FromBuf(const void * pBuf)
 //
 //
 //
-SLAPI StyloBhtIIOnHostCfg::StyloBhtIIOnHostCfg() : P_OpList(0)
+StyloBhtIIOnHostCfg::StyloBhtIIOnHostCfg() : P_OpList(0)
 {
 	Init();
 }
 
-SLAPI StyloBhtIIOnHostCfg::~StyloBhtIIOnHostCfg()
+StyloBhtIIOnHostCfg::~StyloBhtIIOnHostCfg()
 {
 	ZDELETE(P_OpList);
 }
 
-void SLAPI StyloBhtIIOnHostCfg::Init()
+void StyloBhtIIOnHostCfg::Init()
 {
 	DeviceName.Z();
 	WeightPrefix.Z();
@@ -856,7 +856,7 @@ StyloBhtIIOnHostCfg & FASTCALL StyloBhtIIOnHostCfg::operator = (const StyloBhtII
 	return *this;
 }
 
-int SLAPI StyloBhtIIOnHostCfg::IsValid()
+int StyloBhtIIOnHostCfg::IsValid()
 {
 	int    ok = 1;
 	THROW_PP(DeviceName.Len(), PPERR_NAMENEEDED);
@@ -887,20 +887,20 @@ int SLAPI StyloBhtIIOnHostCfg::IsValid()
 	return ok;
 }
 
-int SLAPI StyloBhtIIOnHostCfg::IsEmpty() const
+int StyloBhtIIOnHostCfg::IsEmpty() const
 {
 	return BIN(!DeviceName.Len() && !WeightPrefix.Len() && !QttyWeightPrefix.Len() &&
 		!BcdPrinterID && !UserName.Len() && !Password.Len() && !ServerAddr && !ServerPort &&
 		!ServerMask && !Flags && ExportBillsPeriod.IsZero() && !P_OpList);
 }
 
-PPID SLAPI StyloBhtIIOnHostCfg::GetOpID(PPID opID) const
+PPID StyloBhtIIOnHostCfg::GetOpID(PPID opID) const
 {
 	uint   pos = 0;
 	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long)) > 0) ? P_OpList->at(pos).ToHostOpID : 0;
 }
 
-int SLAPI StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
+int StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
 {
 	uint   pos = 0;
 	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long))) ? BIN(P_OpList->at(pos).Flags & StyloBhtIIConfig::foprCostAsPrice) : 0;
@@ -908,12 +908,12 @@ int SLAPI StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
 //
 //
 //
-SLAPI PPBhtTerminalPacket::PPBhtTerminalPacket() : P_Filt(0), P_SBIICfg(0)
+PPBhtTerminalPacket::PPBhtTerminalPacket() : P_Filt(0), P_SBIICfg(0)
 {
 	MEMSZERO(Rec);
 }
 
-SLAPI PPBhtTerminalPacket::~PPBhtTerminalPacket()
+PPBhtTerminalPacket::~PPBhtTerminalPacket()
 {
 	ZDELETE(P_Filt);
 	ZDELETE(P_SBIICfg);
@@ -934,7 +934,7 @@ PPBhtTerminalPacket & FASTCALL PPBhtTerminalPacket::operator = (const PPBhtTermi
 	return *this;
 }
 
-SLAPI PPObjBHT::PPObjBHT(void * extraPtr) : PPObjReference(PPOBJ_BHT, extraPtr), P_BObj(BillObj)
+PPObjBHT::PPObjBHT(void * extraPtr) : PPObjReference(PPOBJ_BHT, extraPtr), P_BObj(BillObj)
 {
 }
 
@@ -1446,7 +1446,7 @@ void BhtDialog::editMore()
 	delete dlg;
 }
 
-int SLAPI PPObjBHT::Edit(PPID * pID, void * extraPtr)
+int PPObjBHT::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1, r = cmCancel, valid_data = 0, is_new = 0;
 	BhtDialog * dlg = 0;
@@ -1560,7 +1560,7 @@ struct __StyloBhtConfig2 {
 	// string[ExtStrLen]
 };
 
-int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
+int PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 {
 	int    ok = 1;
 	__StyloBhtConfig2 * p_buf = 0;
@@ -1677,7 +1677,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_ta)
+int PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	__StyloBhtConfig2 * p_buf = 0;
@@ -1748,23 +1748,23 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 
 class BhtRecord {
 public:
-	SLAPI  BhtRecord();
-	SLAPI  BhtRecord(const BhtRecord &);
-	void   SLAPI Reset();
-	void   SLAPI Init(const BhtRecord &);
-	int    SLAPI AddFld(uint);
-	int    SLAPI PutInt(uint fldNo, long);
-	int    SLAPI PutStr(uint fldNo, const char *);
-	int    SLAPI PutDbl(uint fldNo, uint prec, double);
-	int    SLAPI GetInt(uint fldNo, long *);
-	void   SLAPI GetStr(uint fldNo, char *, size_t);
-	void   SLAPI GetDbl(uint fldNo, double *);
-	size_t SLAPI FldOfs(uint fldNo) const;
-	size_t SLAPI GetBufLen() const;
+	BhtRecord();
+	BhtRecord(const BhtRecord &);
+	void   Reset();
+	void   Init(const BhtRecord &);
+	int    AddFld(uint);
+	int    PutInt(uint fldNo, long);
+	int    PutStr(uint fldNo, const char *);
+	int    PutDbl(uint fldNo, uint prec, double);
+	int    GetInt(uint fldNo, long *);
+	void   GetStr(uint fldNo, char *, size_t);
+	void   GetDbl(uint fldNo, double *);
+	size_t FldOfs(uint fldNo) const;
+	size_t GetBufLen() const;
 	const  char * GetBuf() const;
-	void   SLAPI GetHeader(const char * pFileName, uint numRecs, size_t * pDataLen, char * pBuf) const;
-	void   SLAPI SetHeader(const char * pBuf);
-	int    SLAPI SetBuf(size_t dataSize, const char * pBuf);
+	void   GetHeader(const char * pFileName, uint numRecs, size_t * pDataLen, char * pBuf) const;
+	void   SetHeader(const char * pBuf);
+	int    SetBuf(size_t dataSize, const char * pBuf);
 private:
 	uint   NumFlds;
 	uint   Lens[16];
@@ -1773,12 +1773,12 @@ private:
 
 class BhtFile {
 public:
-	SLAPI  BhtFile(const char * pFileName);
-	SLAPI ~BhtFile();
-	int    SLAPI Init(const char * pFileName);
-	int    SLAPI GetNumRecs(uint * pNumRecs);
-	int    SLAPI InitRecord(BhtRecord *) const;
-	int    SLAPI EnumRecords(uint * pRecNo, BhtRecord *);
+	BhtFile(const char * pFileName);
+	~BhtFile();
+	int    Init(const char * pFileName);
+	int    GetNumRecs(uint * pNumRecs);
+	int    InitRecord(BhtRecord *) const;
+	int    EnumRecords(uint * pRecNo, BhtRecord *);
 
 	FILE * Stream;
 	char   Name[32];
@@ -1796,35 +1796,35 @@ enum StyloBhtCmd {
 
 class BhtProtocol : public SCommPort {
 public:
-	SLAPI  BhtProtocol();
-	SLAPI ~BhtProtocol();
-	void   SLAPI SetProtParams(uint timeout, uint maxTries, long flags);
+	BhtProtocol();
+	~BhtProtocol();
+	void   SetProtParams(uint timeout, uint maxTries, long flags);
 	//
 	// Sender
 	//
-	int    SLAPI SetConnection();
-	int    SLAPI ReleaseConnection();
-	int    SLAPI SendPrgmHeadingText(const char * pFileName, uint numRecs);
-	int    SLAPI SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord *);
-	int    SLAPI SendPrgmText(uint recNo, size_t blkLen, const char *);
-	int    SLAPI SendRecord(uint recNo, const BhtRecord *);
+	int    SetConnection();
+	int    ReleaseConnection();
+	int    SendPrgmHeadingText(const char * pFileName, uint numRecs);
+	int    SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord *);
+	int    SendPrgmText(uint recNo, size_t blkLen, const char *);
+	int    SendRecord(uint recNo, const BhtRecord *);
 	//
 	// Receiver
 	//
-	int    SLAPI WaitOnConnection(int releaseLink, long timeout);
-	int    SLAPI ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen);
-	static void SLAPI ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs);
+	int    WaitOnConnection(int releaseLink, long timeout);
+	int    ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen);
+	static void ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs);
 	//
 	// High level
 	//
-	int    SLAPI SendPrgmFile(const char * pFileName);
-	int    SLAPI SendDataFile(const char * pFileName, const BhtRecord *);
-	int    SLAPI ReceiveFile(const char * pFileName, long timeout);
+	int    SendPrgmFile(const char * pFileName);
+	int    SendDataFile(const char * pFileName, const BhtRecord *);
+	int    ReceiveFile(const char * pFileName, long timeout);
 
-	int    SLAPI SendCommand(StyloBhtCmd);
+	int    SendCommand(StyloBhtCmd);
 private:
-	int    SLAPI SendBlock(uint, size_t, const char * pBlk);
-	int    SLAPI GetChr_();
+	int    SendBlock(uint, size_t, const char * pBlk);
+	int    GetChr_();
 
 	uint16 Timeout;
 	uint16 MaxTries;
@@ -1833,31 +1833,31 @@ private:
 
 class CipherProtocol : public SCommPort {
 public:
-	SLAPI  CipherProtocol();
-	SLAPI  ~CipherProtocol();
-	void   SLAPI SetProtParams(uint timeout, uint maxTries, long flags);
+	CipherProtocol();
+	~CipherProtocol();
+	void   SetProtParams(uint timeout, uint maxTries, long flags);
 	//
 	// Sender
 	//
-	int    SLAPI SetConnection();
-	int    SLAPI ReleaseConnection();
-	int    SLAPI SendRecord(uint recNo, const BhtRecord *);
-	int    SLAPI SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord *);
+	int    SetConnection();
+	int    ReleaseConnection();
+	int    SendRecord(uint recNo, const BhtRecord *);
+	int    SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord *);
 	//
 	// Receiver
 	//
-	int    SLAPI WaitOnConnection(int releaseLink, long timeout);
-	int    SLAPI ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen);
-	static void SLAPI ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs);
+	int    WaitOnConnection(int releaseLink, long timeout);
+	int    ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen);
+	static void ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs);
 	//
 	// High level
 	//
-	int    SLAPI SendDataFile(const char * pFileName, const BhtRecord *);
-	int    SLAPI ReceiveFile(const char * pFileName, long timeout);
+	int    SendDataFile(const char * pFileName, const BhtRecord *);
+	int    ReceiveFile(const char * pFileName, long timeout);
 private:
-	int    SLAPI SendBlock(uint, size_t, const char * pBlk);
-	int    SLAPI PutChrEx(int c);
-	int    SLAPI GetChrEx();
+	int    SendBlock(uint, size_t, const char * pBlk);
+	int    PutChrEx(int c);
+	int    GetChrEx();
 
 	uint16 Timeout;
 	uint16 MaxTries;
@@ -1866,7 +1866,7 @@ private:
 //
 //
 //
-static void SLAPI GetIntFromBuf(long * pVal, int fldLen, const char * pBuf)
+static void GetIntFromBuf(long * pVal, int fldLen, const char * pBuf)
 {
 	char val_buf[32];
 	for(int i = 0; i < fldLen; i++)
@@ -1875,7 +1875,7 @@ static void SLAPI GetIntFromBuf(long * pVal, int fldLen, const char * pBuf)
 	*pVal = atol(val_buf);
 }
 
-static void SLAPI GetStrFromBuf(char * pStr, size_t fldLen, const char * pBuf)
+static void GetStrFromBuf(char * pStr, size_t fldLen, const char * pBuf)
 {
 	/* @v8.6.6
 	for(size_t i = 0; i < fldLen; i++)
@@ -1886,7 +1886,7 @@ static void SLAPI GetStrFromBuf(char * pStr, size_t fldLen, const char * pBuf)
 	trimright(pStr);
 }
 
-static int SLAPI PutIntToBuf(long val, size_t fldLen, char * pBuf)
+static int PutIntToBuf(long val, size_t fldLen, char * pBuf)
 {
 	char tmp_buf[32];
 	longfmtz(val, (int)fldLen, tmp_buf, sizeof(tmp_buf));
@@ -1894,7 +1894,7 @@ static int SLAPI PutIntToBuf(long val, size_t fldLen, char * pBuf)
 	return (sstrlen(tmp_buf) > fldLen) ? 0 : 1;
 }
 
-static int SLAPI PutStrToBuf(const char * pStr, size_t fldLen, char * pBuf)
+static int PutStrToBuf(const char * pStr, size_t fldLen, char * pBuf)
 {
 	size_t len = sstrlen(pStr);
 	len = MIN(len, fldLen);
@@ -1905,31 +1905,31 @@ static int SLAPI PutStrToBuf(const char * pStr, size_t fldLen, char * pBuf)
 //
 // BhtRecord
 //
-SLAPI BhtRecord::BhtRecord()
+BhtRecord::BhtRecord()
 {
 	Reset();
 }
 
-SLAPI BhtRecord::BhtRecord(const BhtRecord & s)
+BhtRecord::BhtRecord(const BhtRecord & s)
 {
 	Init(s);
 }
 
-void SLAPI BhtRecord::Init(const BhtRecord & s)
+void BhtRecord::Init(const BhtRecord & s)
 {
 	Reset();
 	for(uint i = 0; i < s.NumFlds; i++)
 		AddFld(s.Lens[i]);
 }
 
-void SLAPI BhtRecord::Reset()
+void BhtRecord::Reset()
 {
 	NumFlds = 0;
 	memzero(Lens, sizeof(Lens));
 	memzero(Buf, sizeof(Buf));
 }
 
-int SLAPI BhtRecord::AddFld(uint len)
+int BhtRecord::AddFld(uint len)
 {
 	if(NumFlds < 16 && len < 100) {
 		Lens[NumFlds++] = len;
@@ -1939,7 +1939,7 @@ int SLAPI BhtRecord::AddFld(uint len)
 		return 0;
 }
 
-size_t SLAPI BhtRecord::FldOfs(uint fldNo) const
+size_t BhtRecord::FldOfs(uint fldNo) const
 {
 	size_t ofs = 0;
 	if(fldNo < NumFlds)
@@ -1948,17 +1948,17 @@ size_t SLAPI BhtRecord::FldOfs(uint fldNo) const
 	return ofs;
 }
 
-int SLAPI BhtRecord::PutInt(uint fldNo, long val)
+int BhtRecord::PutInt(uint fldNo, long val)
 {
 	return (fldNo < NumFlds) ? PutIntToBuf(val, Lens[fldNo], Buf+FldOfs(fldNo)) : 0;
 }
 
-int SLAPI BhtRecord::PutStr(uint fldNo, const char * pStr)
+int BhtRecord::PutStr(uint fldNo, const char * pStr)
 {
 	return (fldNo < NumFlds) ? PutStrToBuf(pStr, Lens[fldNo], Buf+FldOfs(fldNo)) : 0;
 }
 
-int SLAPI BhtRecord::PutDbl(uint fldNo, uint prec, double val)
+int BhtRecord::PutDbl(uint fldNo, uint prec, double val)
 {
 	if(fldNo < NumFlds) {
 		char tmp_buf[32];
@@ -1968,7 +1968,7 @@ int SLAPI BhtRecord::PutDbl(uint fldNo, uint prec, double val)
 	return 0;
 }
 
-int SLAPI BhtRecord::GetInt(uint fldNo, long * pVal)
+int BhtRecord::GetInt(uint fldNo, long * pVal)
 {
 	if(fldNo < NumFlds) {
 		char   tmp_buf[128];
@@ -1981,7 +1981,7 @@ int SLAPI BhtRecord::GetInt(uint fldNo, long * pVal)
 		return 0;
 }
 
-void SLAPI BhtRecord::GetStr(uint fldNo, char * pBuf, size_t bufLen)
+void BhtRecord::GetStr(uint fldNo, char * pBuf, size_t bufLen)
 {
 	if(fldNo < NumFlds) {
 		char tmp_buf[128];
@@ -1991,7 +1991,7 @@ void SLAPI BhtRecord::GetStr(uint fldNo, char * pBuf, size_t bufLen)
 	}
 }
 
-void SLAPI BhtRecord::GetDbl(uint fldNo, double * pVal)
+void BhtRecord::GetDbl(uint fldNo, double * pVal)
 {
 	if(fldNo < NumFlds) {
 		char tmp_buf[128];
@@ -2001,7 +2001,7 @@ void SLAPI BhtRecord::GetDbl(uint fldNo, double * pVal)
 	}
 }
 
-size_t SLAPI BhtRecord::GetBufLen() const
+size_t BhtRecord::GetBufLen() const
 {
 	size_t s = 0;
 	for(uint i = 0; i < NumFlds; i++)
@@ -2014,7 +2014,7 @@ const char * BhtRecord::GetBuf() const
 	return Buf;
 }
 
-void SLAPI BhtRecord::GetHeader(const char * pFileName, uint numRecs, size_t * pDataLen, char * pBuf) const
+void BhtRecord::GetHeader(const char * pFileName, uint numRecs, size_t * pDataLen, char * pBuf) const
 {
 	size_t p = 0;
 	PutStrToBuf(pFileName, FNAMELEN, pBuf+p); p += FNAMELEN;
@@ -2027,7 +2027,7 @@ void SLAPI BhtRecord::GetHeader(const char * pFileName, uint numRecs, size_t * p
 	ASSIGN_PTR(pDataLen, p);
 }
 
-void SLAPI BhtRecord::SetHeader(const char * pBuf)
+void BhtRecord::SetHeader(const char * pBuf)
 {
 	long   v = 0;
 	Reset();
@@ -2039,7 +2039,7 @@ void SLAPI BhtRecord::SetHeader(const char * pBuf)
 	}
 }
 
-int SLAPI BhtRecord::SetBuf(size_t dataSize, const char * pBuf)
+int BhtRecord::SetBuf(size_t dataSize, const char * pBuf)
 {
 	memcpy(Buf, pBuf, dataSize);
 	return 1;
@@ -2047,18 +2047,18 @@ int SLAPI BhtRecord::SetBuf(size_t dataSize, const char * pBuf)
 //
 //
 //
-SLAPI BhtFile::BhtFile(const char * pFileName) : Stream(0), P_RecTmpl(0)
+BhtFile::BhtFile(const char * pFileName) : Stream(0), P_RecTmpl(0)
 {
 	Init(pFileName);
 }
 
-SLAPI BhtFile::~BhtFile()
+BhtFile::~BhtFile()
 {
 	SFile::ZClose(&Stream);
 	delete P_RecTmpl;
 }
 
-int SLAPI BhtFile::Init(const char * pFileName)
+int BhtFile::Init(const char * pFileName)
 {
 	int    ok = -1;
 	SFile::ZClose(&Stream);
@@ -2084,12 +2084,12 @@ int SLAPI BhtFile::Init(const char * pFileName)
 	return ok;
 }
 
-int SLAPI BhtFile::InitRecord(BhtRecord * pRec) const
+int BhtFile::InitRecord(BhtRecord * pRec) const
 {
 	return P_RecTmpl ? (pRec->Init(*P_RecTmpl), 1) : 0;
 }
 
-int SLAPI BhtFile::GetNumRecs(uint * pNumRecs)
+int BhtFile::GetNumRecs(uint * pNumRecs)
 {
 	uint   num_recs = 0;
 	if(Stream) {
@@ -2104,7 +2104,7 @@ int SLAPI BhtFile::GetNumRecs(uint * pNumRecs)
 	return num_recs ? 1 : -1;
 }
 
-int SLAPI BhtFile::EnumRecords(uint * pRecNo, BhtRecord * pRec)
+int BhtFile::EnumRecords(uint * pRecNo, BhtRecord * pRec)
 {
 	if(Stream) {
 		char   line_buf[256];
@@ -2131,22 +2131,22 @@ int SLAPI BhtFile::EnumRecords(uint * pRecNo, BhtRecord * pRec)
 #define STX 0x02 // Start Of Text
 #define ETX 0x03 // End Of Text
 
-SLAPI BhtProtocol::BhtProtocol() : Timeout(3000), MaxTries(10), Flags(0)
+BhtProtocol::BhtProtocol() : Timeout(3000), MaxTries(10), Flags(0)
 {
 }
 
-SLAPI BhtProtocol::~BhtProtocol()
+BhtProtocol::~BhtProtocol()
 {
 }
 
-void SLAPI BhtProtocol::SetProtParams(uint timeout, uint maxTries, long flags)
+void BhtProtocol::SetProtParams(uint timeout, uint maxTries, long flags)
 {
 	Timeout = timeout;
 	MaxTries = maxTries;
 	Flags = flags;
 }
 
-int SLAPI BhtProtocol::SetConnection()
+int BhtProtocol::SetConnection()
 {
 	int    ok = 0, c = 0;
 	for(uint i = 0; !ok && i < MaxTries; i++) {
@@ -2164,7 +2164,7 @@ int SLAPI BhtProtocol::SetConnection()
 	return ok;
 }
 
-int SLAPI BhtProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
+int BhtProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 {
 	int    ok = 0;
 	char   buf[512], bcc = 0;
@@ -2209,7 +2209,7 @@ int SLAPI BhtProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 	return ok;
 }
 
-int SLAPI BhtProtocol::ReleaseConnection()
+int BhtProtocol::ReleaseConnection()
 {
 	int    ok = 0, c;
 	for(int i = 0; !ok && i < MaxTries; i++) {
@@ -2226,7 +2226,7 @@ int SLAPI BhtProtocol::ReleaseConnection()
 	return ok;
 }
 
-int SLAPI BhtProtocol::SendPrgmHeadingText(const char * pFileName, uint numRecs)
+int BhtProtocol::SendPrgmHeadingText(const char * pFileName, uint numRecs)
 {
 	char   buf[64];
 	size_t p = 0;
@@ -2235,7 +2235,7 @@ int SLAPI BhtProtocol::SendPrgmHeadingText(const char * pFileName, uint numRecs)
 	return SendBlock(0, p, buf);
 }
 
-int SLAPI BhtProtocol::SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord * pStruc)
+int BhtProtocol::SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord * pStruc)
 {
 	char   buf[64];
 	size_t p = 0;
@@ -2243,17 +2243,17 @@ int SLAPI BhtProtocol::SendDataHeadingText(const char * pFileName, uint numRecs,
 	return SendBlock(0, p, buf);
 }
 
-int SLAPI BhtProtocol::SendPrgmText(uint recNo, size_t blkLen, const char * pBlk)
+int BhtProtocol::SendPrgmText(uint recNo, size_t blkLen, const char * pBlk)
 {
 	return SendBlock(recNo, blkLen, pBlk);
 }
 
-int SLAPI BhtProtocol::SendRecord(uint recNo, const BhtRecord * pRec)
+int BhtProtocol::SendRecord(uint recNo, const BhtRecord * pRec)
 {
 	return SendBlock(recNo, pRec->GetBufLen(), pRec->GetBuf());
 }
 
-int SLAPI BhtProtocol::WaitOnConnection(int releaseLink, long timeout)
+int BhtProtocol::WaitOnConnection(int releaseLink, long timeout)
 {
 	int    expected_chr = releaseLink ? EOT : ENQ;
 	for(uint i = 0; i < 100; i++)
@@ -2266,7 +2266,7 @@ int SLAPI BhtProtocol::WaitOnConnection(int releaseLink, long timeout)
 	return 0;
 }
 
-int SLAPI BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen)
+int BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	uint   recno = 0;
@@ -2308,7 +2308,7 @@ int SLAPI BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBu
 	return ok;
 }
 
-/*static*/void SLAPI BhtProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
+/*static*/void BhtProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
 {
 	char   fname[64];
 	long   numrecs = 0;
@@ -2318,7 +2318,7 @@ int SLAPI BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBu
 	*pNumRecs = (uint)numrecs;
 }
 
-int SLAPI BhtProtocol::SendPrgmFile(const char * pFileName)
+int BhtProtocol::SendPrgmFile(const char * pFileName)
 {
 	int    ok = 1;
 	const  size_t blk_size  = 128;
@@ -2350,7 +2350,7 @@ int SLAPI BhtProtocol::SendPrgmFile(const char * pFileName)
 	return ok;
 }
 
-int SLAPI BhtProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
+int BhtProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
 {
 	int    ok = 1;
 	char   line_buf[256];
@@ -2394,7 +2394,7 @@ static int FASTCALL _StoreDataBlock(size_t dataLen, const char * pBuf, FILE * ou
 	return 1;
 }
 
-int SLAPI BhtProtocol::ReceiveFile(const char * pFileName, long timeout)
+int BhtProtocol::ReceiveFile(const char * pFileName, long timeout)
 {
 	int    ok = 1;
 	FILE * out = fopen(pFileName, "w");
@@ -2426,22 +2426,22 @@ int SLAPI BhtProtocol::ReceiveFile(const char * pFileName, long timeout)
 //
 #define EOS  0x0d      // End of string
 
-SLAPI CipherProtocol::CipherProtocol() : Timeout(3000), MaxTries(10), Flags(0)
+CipherProtocol::CipherProtocol() : Timeout(3000), MaxTries(10), Flags(0)
 {
 }
 
-SLAPI CipherProtocol::~CipherProtocol()
+CipherProtocol::~CipherProtocol()
 {
 }
 
-void SLAPI CipherProtocol::SetProtParams(uint timeout, uint maxTries, long flags)
+void CipherProtocol::SetProtParams(uint timeout, uint maxTries, long flags)
 {
 	Timeout = timeout;
 	MaxTries = maxTries;
 	Flags = flags;
 }
 
-int SLAPI CipherProtocol::SetConnection()
+int CipherProtocol::SetConnection()
 {
 	int    ok = 0, c = 0;
 	for(uint i = 0; !ok && i < MaxTries; i++) {
@@ -2459,7 +2459,7 @@ int SLAPI CipherProtocol::SetConnection()
 	return ok;
 }
 
-int SLAPI CipherProtocol::ReleaseConnection()
+int CipherProtocol::ReleaseConnection()
 {
 	int    ok = 0, c;
 	for(int i = 0; !ok && i < MaxTries; i++) {
@@ -2476,7 +2476,7 @@ int SLAPI CipherProtocol::ReleaseConnection()
 	return ok;
 }
 
-int SLAPI CipherProtocol::SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord * pStruc)
+int CipherProtocol::SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord * pStruc)
 {
 	char   buf[64];
 	size_t p = 0;
@@ -2484,7 +2484,7 @@ int SLAPI CipherProtocol::SendDataHeadingText(const char * pFileName, uint numRe
 	return SendBlock(0, p, buf);
 }
 
-int SLAPI CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
+int CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
 {
 	int    ok = 1;
 	char   line_buf[256];
@@ -2517,12 +2517,12 @@ int SLAPI CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord *
 	return ok;
 }
 
-int SLAPI CipherProtocol::SendRecord(uint recNo, const BhtRecord * pRec)
+int CipherProtocol::SendRecord(uint recNo, const BhtRecord * pRec)
 {
 	return SendBlock(recNo, pRec->GetBufLen(), pRec->GetBuf());
 }
 
-int SLAPI CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
+int CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 {
 	int ok = 0;
 
@@ -2570,7 +2570,7 @@ int SLAPI CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 	return ok;
 }
 
-/*static*/void SLAPI CipherProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
+/*static*/void CipherProtocol::ParseHeadingText(const char * pBuf, char * pFileName, uint * pNumRecs)
 {
 	char   fname[64];
 	long   numrecs = 0;
@@ -2580,7 +2580,7 @@ int SLAPI CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 	*pNumRecs = (uint)numrecs;
 }
 
-int SLAPI CipherProtocol::WaitOnConnection(int releaseLink, long timeout)
+int CipherProtocol::WaitOnConnection(int releaseLink, long timeout)
 {
 	int expected_chr = releaseLink ? EOT : ENQ;
 	for(uint i = 0; i < 100; i++)
@@ -2595,7 +2595,7 @@ int SLAPI CipherProtocol::WaitOnConnection(int releaseLink, long timeout)
 	return 0;
 }
 
-int SLAPI CipherProtocol::ReceiveFile(const char * pFileName, long timeout)
+int CipherProtocol::ReceiveFile(const char * pFileName, long timeout)
 {
 	int    ok = 1, r = 0;
 	FILE * out = fopen(pFileName, "w");
@@ -2624,7 +2624,7 @@ int SLAPI CipherProtocol::ReceiveFile(const char * pFileName, long timeout)
 	return ok;
 }
 
-int SLAPI CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen)
+int CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, size_t bufLen)
 {
 	int  ok = 1, r = 0;
 	uint recno = 0, sum = 0;
@@ -2678,7 +2678,7 @@ int SLAPI CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * 
 	return ok;
 }
 
-int SLAPI CipherProtocol::PutChrEx(int c)
+int CipherProtocol::PutChrEx(int c)
 {
 	int    ok = 1;
 	THROW(PutChr(c));
@@ -2687,7 +2687,7 @@ int SLAPI CipherProtocol::PutChrEx(int c)
 	return ok;
 }
 
-int SLAPI CipherProtocol::GetChrEx()
+int CipherProtocol::GetChrEx()
 {
 	int c = GetChr();
 	if(c != 0)
@@ -2695,7 +2695,7 @@ int SLAPI CipherProtocol::GetChrEx()
 	return c;
 }
 
-/*static*/int SLAPI PPObjBHT::TransmitProgram()
+/*static*/int PPObjBHT::TransmitProgram()
 {
 	int    ok = 1;
 	PPID   bht_id = 0;
@@ -2744,7 +2744,7 @@ int SLAPI CipherProtocol::GetChrEx()
 //
 //
 //
-int SLAPI PPObjBHT::InitProtocol(PPID id, BhtProtocol * pProt)
+int PPObjBHT::InitProtocol(PPID id, BhtProtocol * pProt)
 {
 	int    ok = 1;
 	int    com_port = -1;
@@ -2785,7 +2785,7 @@ int SLAPI PPObjBHT::InitProtocol(PPID id, BhtProtocol * pProt)
 	return ok;
 }
 
-int SLAPI PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
+int PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
 {
 	int    ok = 1;
 	int    com_port = -1;
@@ -2812,7 +2812,7 @@ int SLAPI PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
 	return ok;
 }
 
-void SLAPI PPObjBHT::InitGoodsBhtRec(BhtRecord * pBhtRec) const
+void PPObjBHT::InitGoodsBhtRec(BhtRecord * pBhtRec) const
 {
 	pBhtRec->Reset();
 	pBhtRec->AddFld(8);  // GoodsID
@@ -2820,14 +2820,14 @@ void SLAPI PPObjBHT::InitGoodsBhtRec(BhtRecord * pBhtRec) const
 	// @v4.0.8 pBhtRec->AddFld(6);  // Price
 }
 
-void SLAPI PPObjBHT::InitSupplBhtRec(BhtRecord * pBhtRec) const
+void PPObjBHT::InitSupplBhtRec(BhtRecord * pBhtRec) const
 {
 	pBhtRec->Reset();
 	pBhtRec->AddFld(8);  // Suppl ID (ar_rec.ID [not ar_rec.Article])
 	pBhtRec->AddFld(30); // Name
 }
 
-static int SLAPI PutBhtRecToFile(const BhtRecord * pBhtRec, FILE * stream)
+static int PutBhtRecToFile(const BhtRecord * pBhtRec, FILE * stream)
 {
 	size_t buf_len = pBhtRec->GetBufLen();
 	const  char * p_buf = pBhtRec->GetBuf();
@@ -2838,7 +2838,7 @@ static int SLAPI PutBhtRecToFile(const BhtRecord * pBhtRec, FILE * stream)
 }
 
 // AHTOXA {
-int SLAPI PPObjBHT::PrepareTechSessData(const char * pPath, PPID bhtTypeID)
+int PPObjBHT::PrepareTechSessData(const char * pPath, PPID bhtTypeID)
 {
 	int    ok = 1;
 	long   n = 0;
@@ -2883,7 +2883,7 @@ int SLAPI PPObjBHT::PrepareTechSessData(const char * pPath, PPID bhtTypeID)
 	return ok;
 }
 
-int SLAPI PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
+int PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 {
 	int    ok = 1;
 	LocationTbl::Rec l_rec;
@@ -2916,7 +2916,7 @@ int SLAPI PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 }
 // } AHTOXA
 
-int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID)
+int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID)
 {
 	int    ok = -1, num_flds = 0;
 	SString fname, path, serial;
@@ -3033,7 +3033,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PP
 
 #if 0 // @v9.4.9 {
 
-int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods /*=1*/)
+int PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods /*=1*/)
 {
 	int    ok = -1, num_flds = 0;
 	SString fname, path, h_path, r_path, serial;
@@ -3179,7 +3179,7 @@ struct BHT_BillOpEntry {
     DateRange DuePeriod;
 };
 
-int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods /*=1*/)
+int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods /*=1*/)
 {
 	int    ok = -1, num_flds = 0;
 	uint   i;
@@ -3339,7 +3339,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 	return ok;
 }
 
-int SLAPI PPObjBHT::PrepareLocCellData(const PPBhtTerminalPacket * pPack)
+int PPObjBHT::PrepareLocCellData(const PPBhtTerminalPacket * pPack)
 {
 	int    ok = -1;
 	SString path;
@@ -3395,7 +3395,7 @@ int SLAPI PPObjBHT::PrepareLocCellData(const PPBhtTerminalPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBhtIIConfig * pCfg)
+int PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBhtIIConfig * pCfg)
 {
 	int    ok = -1, num_flds = 0;
 	SString fname, path, out_path;
@@ -3442,7 +3442,7 @@ int SLAPI PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBh
 	return ok;
 }
 
-int SLAPI PPObjBHT::PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack /*=0*/)
+int PPObjBHT::PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack /*=0*/)
 {
 	int    ok = 1;
 	long   bht_type_id = (pPack) ? pPack->Rec.BhtTypeID : 0;
@@ -3536,7 +3536,7 @@ int SLAPI PPObjBHT::PrepareSupplData(const char * pPath, PPBhtTerminalPacket * p
 	return ok;
 }
 
-int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPath2, PPID bhtTypeID, const PPIDArray * pAddendumGoodsIdList)
+int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPath2, PPID bhtTypeID, const PPIDArray * pAddendumGoodsIdList)
 {
 	int    ok = 1;
 	PPID   loc_id = 0;
@@ -3740,7 +3740,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 	return ok;
 }
 
-int SLAPI PPObjBHT::TransmitSuppl(BhtProtocol * pBP, int updateData)
+int PPObjBHT::TransmitSuppl(BhtProtocol * pBP, int updateData)
 {
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
@@ -3767,7 +3767,7 @@ int SLAPI PPObjBHT::TransmitSuppl(BhtProtocol * pBP, int updateData)
 	return ok;
 }
 
-int SLAPI PPObjBHT::TransmitSuppl(CipherProtocol * pCP, int updateData)
+int PPObjBHT::TransmitSuppl(CipherProtocol * pCP, int updateData)
 {
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
@@ -3794,7 +3794,7 @@ int SLAPI PPObjBHT::TransmitSuppl(CipherProtocol * pCP, int updateData)
 	return ok;
 }
 
-int SLAPI PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
+int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 {
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
@@ -3838,7 +3838,7 @@ int SLAPI PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 	return ok;
 }
 
-int SLAPI PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateData)
+int PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateData)
 {
 	int    ok = 1, r;
 	BhtRecord * p_bht_rec = 0;
@@ -3867,7 +3867,7 @@ int SLAPI PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateDa
 	return ok;
 }
 
-int SLAPI PPObjBHT::AcceptBill(PPObjBHT::BillRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID)
+int PPObjBHT::AcceptBill(PPObjBHT::BillRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID)
 {
 	int    ok = -1;
 	if(pRec) {
@@ -3915,7 +3915,7 @@ int SLAPI PPObjBHT::AcceptBill(PPObjBHT::BillRec * pRec, PPBasketPacket * pGBPac
 	return ok;
 }
 
-int SLAPI PPObjBHT::AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID)
+int PPObjBHT::AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID)
 {
 	int    ok = -1;
 	if(pRec && billID == pRec->BillID) {
@@ -3966,7 +3966,7 @@ static int FASTCALL __RemoveUndupNameSuffix(SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec * pInvRec, PPLogger * pLogger)
+int PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec * pInvRec, PPLogger * pLogger)
 {
 	int    ok = -1;
 	THROW_PP(opID, PPERR_INVOPNOTDEF);
@@ -4033,7 +4033,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AcceptBillsToGBasketPalm(const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptBillsToGBasketPalm(const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	DbfTable bill_tbl(pHName);
@@ -4128,7 +4128,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AcceptInventPalm(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptInventPalm(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4226,7 +4226,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 	return ok;
 }
 
-int SLAPI PPObjBHT::AcceptTechSessPalm(const char * pLName, PPLogger * pLog)
+int PPObjBHT::AcceptTechSessPalm(const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	int    is_first_rec = 1;
@@ -4282,7 +4282,7 @@ int SLAPI PPObjBHT::AcceptTechSessPalm(const char * pLName, PPLogger * pLog)
 	return ok;
 }
 
-int SLAPI PPObjBHT::AcceptBillsPalm(const char * pHName, const char * pLName, PPLogger * pLog)
+int PPObjBHT::AcceptBillsPalm(const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjGoodsGroup gg_obj;
@@ -4365,7 +4365,7 @@ IMPL_CMPFUNC(Sdr_SBIIBillRow, i1, i2)
 		return 0;
 }
 
-static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList) // @v9.8.4 TSArray-->TSVector
+static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	PPImpExpParam ie_param_brow;
@@ -4437,7 +4437,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	const  PPConfig & r_cfg = LConfig;
@@ -4767,7 +4767,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcode, double qtty, double price, PPLogger * pLog)
+/*static*/int PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcode, double qtty, double price, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4857,7 +4857,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4960,7 +4960,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 }
 // } AHTOXA
 
-/*static*/int SLAPI PPObjBHT::AcceptBills(const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptBills(const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjGoodsGroup gg_obj;
@@ -5013,7 +5013,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 	return ok;
 }
 
-int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods2Tbl::Rec * pRec)
+int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods2Tbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPID   goods_id = 0;
@@ -5054,7 +5054,7 @@ int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID,
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLName, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	struct BillRowEntry {
 		long   BillID;
@@ -5228,7 +5228,7 @@ int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID,
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID opID, PPLogger * pLog)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -5345,7 +5345,7 @@ int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID,
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
+/*static*/int PPObjBHT::AcceptExpendBills(const char * pHName, const char * pLName, const PPBhtTerminal * pBhtRec, PPLogger * pLog)
 {
 	int    ok = -1, r = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -5405,7 +5405,7 @@ int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID,
 }
 
 #if 0 // @v9.4.9 {
-static int SLAPI SaveFile(PPID fileID, const char * pDir, int removeSrc, int isWinCe = 0)
+static int SaveFile(PPID fileID, const char * pDir, int removeSrc, int isWinCe = 0)
 {
 	int    ok = -1;
 	if(fileID && pDir) {
@@ -5436,7 +5436,7 @@ static int SLAPI SaveFile(PPID fileID, const char * pDir, int removeSrc, int isW
 	return ok;
 }
 
-static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
+static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
 {
 	int    ok = 0;
 	SString name;
@@ -5465,7 +5465,7 @@ static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFi
 }
 #endif // } 0 @v9.4.9
 
-/*static*/int SLAPI PPObjBHT::ReceiveData()
+/*static*/int PPObjBHT::ReceiveData()
 {
 	class ReceiveData_LocalBlock {
 	public:
@@ -5473,7 +5473,7 @@ static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFi
 			R_Pack(rPack), R_Files(rFiles)
 		{
 		}
-		int SLAPI CheckFile2(PPID fileID, int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
+		int CheckFile2(PPID fileID, int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
 		{
 			int    ok = 0;
 			SString name;
@@ -5500,7 +5500,7 @@ static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFi
 			}
 			return ok;
 		}
-		int SLAPI SaveFile(PPID fileID, int removeSrc, int isWinCe = 0)
+		int SaveFile(PPID fileID, int removeSrc, int isWinCe = 0)
 		{
 			int    ok = -1;
 			if(fileID && R_Pack.ImpExpPath_.NotEmpty()) {
@@ -5728,7 +5728,7 @@ static int SLAPI CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFi
 	return ok;
 }
 
-static int SLAPI MakeDBFFilePath(const char * pDir, uint fnameID, SString & aPath)
+static int MakeDBFFilePath(const char * pDir, uint fnameID, SString & aPath)
 {
 	SString fname;
 	PPGetFileName(fnameID, fname);
@@ -5777,7 +5777,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 	return ok;
 }
 
-/*static*/int SLAPI PPObjBHT::TransmitData()
+/*static*/int PPObjBHT::TransmitData()
 {
 	class BhtSendDlg : public TDialog {
 	public:
@@ -5992,7 +5992,7 @@ void CallbackSndFilePrctFunc(long prct, long total, const char * addedMsg, size_
 	PPWaitPercent(prct, total, buf);
 }
 
-int SLAPI CPT720Send()
+int CPT720Send()
 {
 	int    ok = 1;
 	HRESULT hr;
@@ -6016,7 +6016,7 @@ int SLAPI CPT720Send()
 	return ok;
 }
 
-int SLAPI CPT720Receive()
+int CPT720Receive()
 {
 	int    ok = 1;
 	HRESULT hr;

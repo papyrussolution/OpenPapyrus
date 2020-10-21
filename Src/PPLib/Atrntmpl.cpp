@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RByBill(0), Reserve(0), CurID(0), CRate(0.0), Amount(0.0), Opr(0), Flags(0)
+PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RByBill(0), Reserve(0), CurID(0), CRate(0.0), Amount(0.0), Opr(0), Flags(0)
 {
 	PTR32(BillCode)[0] = 0;
 }
@@ -47,7 +47,7 @@ int FASTCALL PPAccTurn::IsEqual(const PPAccTurn & rS) const
 	return eq;
 }
 
-void SLAPI PPAccTurn::SwapDbtCrd()
+void PPAccTurn::SwapDbtCrd()
 {
 	memswap(&DbtID, &CrdID, sizeof(AcctID));
 	Exchange(&DbtSheet, &CrdSheet);
@@ -70,7 +70,7 @@ PPAccTurnTempl::ATSubstObjects::Item::Item() : AcsID(0)
 	// @v10.7.3 @ctr Aid.Z();
 }
 
-SLAPI PPAccTurnTempl::ATBillParam::ATBillParam() : P_Pack(0), P_LinkPack(0), P_RcknPack(0), AdvItemIdx(0), AccSheetID(0), Flags(0)
+PPAccTurnTempl::ATBillParam::ATBillParam() : P_Pack(0), P_LinkPack(0), P_RcknPack(0), AdvItemIdx(0), AccSheetID(0), Flags(0)
 {
 }
 //
@@ -102,7 +102,7 @@ public:
 	DateRange Period;     // Период действия шаблона
 };
 
-/*static*/int SLAPI PPAccTurnTempl::Convert_6407(PropertyTbl::Rec * pRec)
+/*static*/int PPAccTurnTempl::Convert_6407(PropertyTbl::Rec * pRec)
 {
 	int    ok = 1;
 	PPAccTurnTempl_Before6406 * p_b6406 = reinterpret_cast<PPAccTurnTempl_Before6406 *>(pRec);
@@ -135,7 +135,7 @@ public:
 #define PARENTFLAG 0x00020000L
 #define LMASK      (LINKFLAG|RCKNFLAG|PARENTFLAG)
 
-int SLAPI PPAccTurnTempl::GetObjByVar(PPID var, ATBillParam * pParam, PPID * pObjID) const
+int PPAccTurnTempl::GetObjByVar(PPID var, ATBillParam * pParam, PPID * pObjID) const
 {
 	/*
 	PPSYM_LOCATION
@@ -246,7 +246,7 @@ static int FASTCALL IsAccAssocArticle(PPID arID, PPID * pAccID)
 }
 
 	// <<PPAccTurnTempl::SetupAccounts()
-int SLAPI PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso, int byAcc) const
+int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso, int byAcc) const
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -352,7 +352,7 @@ int SLAPI PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects *
 }
 
 	// <<PPAccTurnTempl::SetupAccounts()
-int SLAPI PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * atso, const AcctID * pDbt, const AcctID * pCrd) const
+int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * atso, const AcctID * pDbt, const AcctID * pCrd) const
 {
 	int      ok    = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -438,7 +438,7 @@ int SLAPI PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjec
 }
 
 	// <<PPAccTurnTempl::SetupAccounts()
-int SLAPI PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects * pAtso) const
+int PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects * pAtso) const
 {
 	int    ok = 1;
 	PPObjAccount & r_acc_obj = BillObj->atobj->P_Tbl->AccObj;
@@ -481,7 +481,7 @@ int SLAPI PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstOb
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * pAT) const
+int PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * pAT) const
 {
 	int    ok = 1;
 	double cur_rate = 1.0;
@@ -642,7 +642,7 @@ int SLAPI PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccT
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLinesBlock * pBlk) const
+int PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLinesBlock * pBlk) const
 {
 	int    ok = 0;
 	if(pPack) {
@@ -700,7 +700,7 @@ int SLAPI PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLines
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::CreateBaseProjectionAccturns(PPBillPacket * pPack)
+int PPAccTurnTempl::CreateBaseProjectionAccturns(PPBillPacket * pPack)
 {
 	int    ok = 1;
 	PPIDArray cur_list;
@@ -751,7 +751,7 @@ int SLAPI PPAccTurnTempl::CreateBaseProjectionAccturns(PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
+int PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 {
 	int    ok = 1;
 	int    r = 0;
@@ -808,7 +808,7 @@ int SLAPI PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::ParseSubstString(const char * str, int * lp, int * _skipzobj)
+int PPAccTurnTempl::ParseSubstString(const char * str, int * lp, int * _skipzobj)
 {
 	int    ok = 1;
 	if(str) {
@@ -881,7 +881,7 @@ int SLAPI PPAccTurnTempl::ParseSubstString(const char * str, int * lp, int * _sk
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::SetupSubst(const char * pPrimStr, const char * pForeignStr)
+int PPAccTurnTempl::SetupSubst(const char * pPrimStr, const char * pForeignStr)
 {
 	int    ok = 1;
 	int    div, lp = 0;
@@ -906,7 +906,7 @@ int SLAPI PPAccTurnTempl::SetupSubst(const char * pPrimStr, const char * pForeig
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::SubstToString(SString & rBuf, int * lp, int skipzobj)
+int PPAccTurnTempl::SubstToString(SString & rBuf, int * lp, int skipzobj)
 {
 	int    ok = 1;
 	int    is_first = 1;
@@ -947,7 +947,7 @@ int SLAPI PPAccTurnTempl::SubstToString(SString & rBuf, int * lp, int skipzobj)
 	return ok;
 }
 
-int SLAPI PPAccTurnTempl::SubstToStrings(SString & rPrimStr, SString & rForeignStr)
+int PPAccTurnTempl::SubstToStrings(SString & rPrimStr, SString & rForeignStr)
 {
 	int    lp = 0;
 	rPrimStr.Z();
@@ -961,7 +961,7 @@ int SLAPI PPAccTurnTempl::SubstToStrings(SString & rPrimStr, SString & rForeignS
 	return 1;
 }
 
-int SLAPI PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf) const
+int PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf) const
 {
 	Acct   acct;
 	PPID   cur_id = 0;
@@ -977,7 +977,7 @@ int SLAPI PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf) const
 	return 1;
 }
 
-int SLAPI PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
+int PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 {
 	int    ok = 1;
 	AcctID acctid;
@@ -1199,7 +1199,7 @@ int ATurnTmplDialog::getDTS(PPAccTurnTempl * pData)
 	return 1;
 }
 
-int SLAPI EditAccTurnTemplate(PPObjAccTurn * pObj, PPAccTurnTempl * pData) { DIALOG_PROC_BODY_P2(ATurnTmplDialog, DLG_ATRNTMPL, pObj, pData); }
+int EditAccTurnTemplate(PPObjAccTurn * pObj, PPAccTurnTempl * pData) { DIALOG_PROC_BODY_P2(ATurnTmplDialog, DLG_ATRNTMPL, pObj, pData); }
 //
 // Список сумм и формул
 //
@@ -1363,7 +1363,7 @@ void SelAmtSymbDialog::updateList()
 	}
 }
 
-int SLAPI SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf)
+int SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf)
 {
 	int    ok = -1;
 	SelAmtSymbDialog * dlg = 0;

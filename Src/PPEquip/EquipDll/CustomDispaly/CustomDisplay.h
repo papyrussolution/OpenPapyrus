@@ -1,6 +1,5 @@
 // CUSTOMDISPLAY.H
 //
-
 #define EXPORT	extern "C" __declspec (dllexport)
 #define THROWERR(expr,val)     {if(!(expr)){SetError(val);goto __scatch;}}
 
@@ -54,8 +53,8 @@ int Release();
 
 class CustomDisplayEquip {
 public:
-	SLAPI CustomDisplayEquip();
-	SLAPI ~CustomDisplayEquip();
+	CustomDisplayEquip();
+	~CustomDisplayEquip();
 	int RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize);
 	int Connect();
 	int Disconnect();

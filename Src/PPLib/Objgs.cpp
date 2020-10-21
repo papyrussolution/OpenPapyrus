@@ -23,21 +23,21 @@ struct _GSItem {           // @persistent @store(ObjAssocTbl)
 //
 //
 //
-SLAPI PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : GoodsID(goodsID), AndFlags(andF), NotFlags(notF), Dt(dt), Options(0)
+PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : GoodsID(goodsID), AndFlags(andF), NotFlags(notF), Dt(dt), Options(0)
 {
 }
 
-SLAPI PPGoodsStruc::PPGoodsStruc() : GoodsID(0), P_Cb(0)
+PPGoodsStruc::PPGoodsStruc() : GoodsID(0), P_Cb(0)
 {
 	// @v10.7.10 @ctr Init();
 }
 
-SLAPI PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : GoodsID(0), P_Cb(0)
+PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : GoodsID(0), P_Cb(0)
 {
 	Copy(rS);
 }
 
-void SLAPI PPGoodsStruc::Init()
+void PPGoodsStruc::Init()
 {
 	GoodsID = 0;
 	P_Cb = 0;
@@ -47,15 +47,15 @@ void SLAPI PPGoodsStruc::Init()
 }
 
 PPGoodsStruc & FASTCALL PPGoodsStruc::operator = (const PPGoodsStruc & rS) { return Copy(rS); }
-int    SLAPI PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.getCount()) ? 0 : 1; }
-int    SLAPI PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
-int    SLAPI PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
-int    SLAPI PPGoodsStruc::CanReduce() const { return BIN(Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1); }
-double SLAPI PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
-int    SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
-SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
+int    PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.getCount()) ? 0 : 1; }
+int    PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
+int    PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
+int    PPGoodsStruc::CanReduce() const { return BIN(Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1); }
+double PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
+int    PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
+SString & PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
 	{ return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1); }
-int    SLAPI PPGoodsStruc::GetKind() const
+int    PPGoodsStruc::GetKind() const
 	{ return PPGoodsStruc::GetStrucKind(Rec.Flags); }
 SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
 	{ return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf); }
@@ -112,7 +112,7 @@ int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
 	return eq;
 }
 
-int SLAPI PPGoodsStruc::SetKind(int kind)
+int PPGoodsStruc::SetKind(int kind)
 {
 	int    ok = 1;
 	switch(kind) {
@@ -167,7 +167,7 @@ int SLAPI PPGoodsStruc::SetKind(int kind)
 		return kUndef;
 }
 
-/*static*/SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf)
+/*static*/SString & PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf)
 {
 	rBuf.Z();
 	if(strucID)
@@ -187,7 +187,7 @@ int SLAPI PPGoodsStruc::SetKind(int kind)
 	return rBuf;
 }
 
-int SLAPI PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
+int PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
 {
 	if(Rec.Flags & GSF_FOLDER) {
 		for(uint i = 0; i < Childs.getCount(); i++) {
@@ -214,7 +214,7 @@ int SLAPI PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
 	return 0;
 }
 
-int SLAPI PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const
+int PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const
 {
 	int    ok = -1;
 	if(Rec.Flags & GSF_FOLDER) {
@@ -268,7 +268,7 @@ int SLAPI PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGood
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const
+int PPGoodsStruc::Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const
 {
 	rList.freeAll();
 	return Helper_Select(pIdent, rList);
@@ -288,7 +288,7 @@ PPGoodsStruc & FASTCALL PPGoodsStruc::Copy(const PPGoodsStruc & rS)
 	return *this;
 }
 
-const PPGoodsStrucItem * SLAPI PPGoodsStruc::GetMainItem(uint * pPos) const
+const PPGoodsStrucItem * PPGoodsStruc::GetMainItem(uint * pPos) const
 {
 	for(uint i = 0; i < Items.getCount(); i++)
 		if(Items.at(i).Flags & GSIF_MAINITEM) {
@@ -298,7 +298,7 @@ const PPGoodsStrucItem * SLAPI PPGoodsStruc::GetMainItem(uint * pPos) const
 	return (PPSetError(PPERR_GSTRUCHASNTMAINC), 0);
 }
 
-int SLAPI PPGoodsStruc::RecalcQttyByMainItemPh(double * pQtty) const
+int PPGoodsStruc::RecalcQttyByMainItemPh(double * pQtty) const
 {
 	int    ok = -1;
 	if(pQtty) {
@@ -315,7 +315,7 @@ int SLAPI PPGoodsStruc::RecalcQttyByMainItemPh(double * pQtty) const
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pRec) const
+int PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pRec) const
 {
 	int    ok = -1;
 	double p = 0.0, t = 0.0;
@@ -372,7 +372,7 @@ int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double
 	return ok;
 }
 
-void SLAPI PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const
+void PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const
 {
 	int    uncertainty = 0;
 	double price = 0.0;
@@ -422,7 +422,7 @@ int FASTCALL PPGoodsStruc::HasGoods(PPID goodsID) const
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::SearchSymb(const char * pSymb, uint * pPos) const
+int PPGoodsStruc::SearchSymb(const char * pSymb, uint * pPos) const
 {
 	int    ok = 0;
 	PPGoodsStrucItem * p_item;
@@ -435,7 +435,7 @@ int SLAPI PPGoodsStruc::SearchSymb(const char * pSymb, uint * pPos) const
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::CopyItemsFrom(const PPGoodsStruc * pS)
+int PPGoodsStruc::CopyItemsFrom(const PPGoodsStruc * pS)
 {
 	int    ok = 1;
 	if(pS) {
@@ -449,7 +449,7 @@ int SLAPI PPGoodsStruc::CopyItemsFrom(const PPGoodsStruc * pS)
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const
+int PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const
 {
 	int    ok = -1;
 	if(Rec.VariedPropObjType && pItem->GoodsID && parentGoodsID) {
@@ -515,7 +515,7 @@ int SLAPI PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * p
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+int PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
 {
 	int    ok = -1;
 	if(pos < Items.getCount()) {
@@ -531,7 +531,7 @@ int SLAPI PPGoodsStruc::GetItemExt(uint pos, PPGoodsStrucItem * pItem, PPID pare
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
+int PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
 {
 	uint   p = DEREFPTRORZ(pPos);
 	int    ok = GetItemExt(p, pItem, parentGoodsID, srcQtty, pQtty);
@@ -542,7 +542,7 @@ int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::Expand()
+int PPGoodsStruc::Expand()
 {
 	int    ok = 1;
 	int    restore_from_backup = 0;
@@ -582,7 +582,7 @@ int SLAPI PPGoodsStruc::Expand()
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::Reduce()
+int PPGoodsStruc::Reduce()
 {
 	int    ok = 1;
 	if(Rec.Flags & GSF_FOLDER && !(Rec.Flags & GSF_CHILD)) {
@@ -604,7 +604,7 @@ int SLAPI PPGoodsStruc::Reduce()
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::GetItemQtty(PPID goodsID, double complQtty, double * pQtty) const
+int PPGoodsStruc::GetItemQtty(PPID goodsID, double complQtty, double * pQtty) const
 {
 	for(uint i = 0; i < Items.getCount(); i++) {
 		const PPGoodsStrucItem & r_item = Items.at(i);
@@ -615,7 +615,7 @@ int SLAPI PPGoodsStruc::GetItemQtty(PPID goodsID, double complQtty, double * pQt
 	return PPSetError(PPERR_GSTRUCHASNTGOODS);
 }
 
-static int SLAPI IsNumber(const char * pStr, size_t * pPos)
+static int IsNumber(const char * pStr, size_t * pPos)
 {
 	int    was_sign = 0;
 	int    was_dot = 0;
@@ -670,12 +670,12 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 //
 //
 //
-SLAPI PPGoodsStrucHeader2::PPGoodsStrucHeader2()
+PPGoodsStrucHeader2::PPGoodsStrucHeader2()
 {
 	THISZERO();
 }
 
-SLAPI PPGoodsStrucItem::PPGoodsStrucItem()
+PPGoodsStrucItem::PPGoodsStrucItem()
 {
 	THISZERO();
 }
@@ -700,7 +700,7 @@ int FASTCALL PPGoodsStrucItem::IsEqual(const PPGoodsStrucItem & rS) const
 int FASTCALL PPGoodsStrucItem::operator == (const PPGoodsStrucItem & rS) const { return IsEqual(rS); }
 int FASTCALL PPGoodsStrucItem::operator != (const PPGoodsStrucItem & rS) const { return !IsEqual(rS); }
 
-int SLAPI PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * pStruc)
+int PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * pStruc)
 {
 	int    ok = 1;
 	double v = 0.0;
@@ -718,7 +718,7 @@ int SLAPI PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * p
 	return ok;
 }
 
-int SLAPI PPGoodsStrucItem::SetEstimationString(const char * pStr)
+int PPGoodsStrucItem::SetEstimationString(const char * pStr)
 {
 	int    ok = 1;
 	Median = 0.0;
@@ -741,7 +741,7 @@ int SLAPI PPGoodsStrucItem::SetEstimationString(const char * pStr)
 	return ok;
 }
 
-SString & SLAPI PPGoodsStrucItem::GetEstimationString(SString & rBuf, long format) const
+SString & PPGoodsStrucItem::GetEstimationString(SString & rBuf, long format) const
 {
 	return PPGoodsStrucItem::MakeEstimationString(Median, Denom, rBuf, format);
 	/*rBuf.Z();
@@ -752,7 +752,7 @@ SString & SLAPI PPGoodsStrucItem::GetEstimationString(SString & rBuf, long forma
 	return rBuf;*/
 }
 
-int SLAPI PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemPrice) const
+int PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemPrice) const
 {
 	int    ok = 1;
 	double price = 0.0;
@@ -802,7 +802,7 @@ int SLAPI PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemP
 	return rBuf;
 }
 
-int SLAPI PPGoodsStrucItem::GetQtty(double complQtty, double * pItemQtty) const
+int PPGoodsStrucItem::GetQtty(double complQtty, double * pItemQtty) const
 {
 	return GetEffectiveQuantity(complQtty, GoodsID, Median, Denom, Flags, pItemQtty);
 	/*
@@ -924,7 +924,7 @@ private:
 	PPObjGoodsStruc & R_GsObj;
 };
 
-int SLAPI PPObjGoodsStruc::Browse(void * extraPtr)
+int PPObjGoodsStruc::Browse(void * extraPtr)
 {
 	class NamedGoodsStrucView : public ObjViewDialog {
 	public:
@@ -963,7 +963,7 @@ int SLAPI PPObjGoodsStruc::Browse(void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos)
+int PPObjGoodsStruc::SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos)
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -992,7 +992,7 @@ int SLAPI PPObjGoodsStruc::SelectorDialog(const TSCollection <PPGoodsStruc> & rL
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::SelectorDialog(PPID * pNamedGsID)
+int PPObjGoodsStruc::SelectorDialog(PPID * pNamedGsID)
 {
 	int    ok = -1;
 	GoodsStrucSelectorDialog * dlg = new GoodsStrucSelectorDialog(*this);
@@ -1013,7 +1013,7 @@ int SLAPI PPObjGoodsStruc::SelectorDialog(PPID * pNamedGsID)
 // GSDialog
 //
 struct GoodsStrucCopyParam {
-	SLAPI  GoodsStrucCopyParam() : GoodsGrpID(0), GoodsID(0), GStrucID(0)
+	GoodsStrucCopyParam() : GoodsGrpID(0), GoodsID(0), GStrucID(0)
 	{
 	}
 	PPID   GoodsGrpID;
@@ -1393,7 +1393,7 @@ int GSDialog::moveItem(long pos, long id, int up)
 	return Data.MoveItem(pos, up, &new_pos);
 }
 
-static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucItem * pItem)
+static int EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucItem * pItem)
 {
 	class GSItemDialog : public TDialog {
 	public:
@@ -1935,19 +1935,19 @@ int GSExtDialog::editItem(long pos, long)
 //
 // PPObjGoodsStruc
 //
-static int SLAPI GSListFilt(void * pRec, void * extraPtr)
+static int GSListFilt(void * pRec, void * extraPtr)
 {
 	const PPGoodsStrucHeader * p_rec = static_cast<const PPGoodsStrucHeader *>(pRec);
 	return BIN(p_rec->Flags & GSF_NAMED);
 }
 
-SLAPI PPObjGoodsStruc::PPObjGoodsStruc(void * extraPtr) : PPObjReference(PPOBJ_GOODSSTRUC, extraPtr)
+PPObjGoodsStruc::PPObjGoodsStruc(void * extraPtr) : PPObjReference(PPOBJ_GOODSSTRUC, extraPtr)
 {
 	FiltProc = GSListFilt;
 	ImplementFlags |= implStrAssocMakeList;
 }
 
-StrAssocArray * SLAPI PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
+StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 {
 	const   PPID goods_id = reinterpret_cast<PPID>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
@@ -1998,7 +1998,7 @@ StrAssocArray * SLAPI PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsI
 	return p_list;
 }
 
-int SLAPI PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
+int PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 {
 	int    ok = -1;
 	BExtQuery q(ref, 0, 128);
@@ -2015,7 +2015,7 @@ int SLAPI PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 
 static IMPL_CMPFUNC(_GSItem, i1, i2) { return cmp_long(static_cast<const _GSItem *>(i1)->Num, static_cast<const _GSItem *>(i2)->Num); }
 
-int SLAPI PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
+int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 {
 	int    ok = 1;
 	//SArray items_list(sizeof(_GSItem));
@@ -2047,7 +2047,7 @@ int SLAPI PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
+int PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
 {
 	int    ok = 1, r = 0;
 	THROW(r = ref->GetItem(Obj, id, &pData->Rec));
@@ -2075,7 +2075,7 @@ int SLAPI PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
+int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 {
 	int    ok = 1;
 	int    r;
@@ -2193,7 +2193,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsStruc::EditExtDialog(PPGoodsStruc * pData)
+/*static*/int PPObjGoodsStruc::EditExtDialog(PPGoodsStruc * pData)
 {
 	int    ok = -1;
 	GSExtDialog * dlg = new GSExtDialog;
@@ -2215,7 +2215,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsStruc::EditDialog(PPGoodsStruc * pData, int toCascade)
+/*static*/int PPObjGoodsStruc::EditDialog(PPGoodsStruc * pData, int toCascade)
 {
 	int    ok = -1;
 	PPObjGoodsStruc gs_obj;
@@ -2247,7 +2247,7 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
+int PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 {
 	int    ok = cmCancel;
 	PPGoodsStruc data;
@@ -2274,7 +2274,7 @@ int SLAPI PPObjGoodsStruc::Edit(PPID * pID, void * extraPtr /*goodsID*/)
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoodsStruc, PPGoodsStruc);
 
-int SLAPI PPObjGoodsStruc::SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjGoodsStruc::SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	int32  c = (int32)pPack->Items.getCount(); // @persistent
@@ -2300,7 +2300,7 @@ int SLAPI PPObjGoodsStruc::SerializePacket(int dir, PPGoodsStruc * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjGoodsStruc::Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	PPGoodsStruc * p_gs = new PPGoodsStruc;
@@ -2321,7 +2321,7 @@ int SLAPI PPObjGoodsStruc::Read(PPObjPack * pPack, PPID id, void * stream, ObjTr
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjGoodsStruc::Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	PPGoodsStruc * p_gs = static_cast<PPGoodsStruc *>(pPack->Data);
@@ -2356,7 +2356,7 @@ int SLAPI PPObjGoodsStruc::Write(PPObjPack * pPack, PPID * pID, void * stream, O
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjGoodsStruc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = -1;
 	if(p && p->Data) {
@@ -2374,7 +2374,7 @@ int SLAPI PPObjGoodsStruc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE)
@@ -2396,7 +2396,7 @@ int SLAPI PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
+int PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
 {
 	int    ok = -1;
 	int    is_hier = 0; // !0 - иерархическая структура
@@ -2426,13 +2426,13 @@ int SLAPI PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
 	return ok;
 }
 
-SLAPI GStrucIterator::GStrucIterator() : Idx(0), LoadRecurItems(0)
+GStrucIterator::GStrucIterator() : Idx(0), LoadRecurItems(0)
 {
 }
 
-const PPGoodsStruc * SLAPI GStrucIterator::GetStruc() const { return &GStruc; }
+const PPGoodsStruc * GStrucIterator::GetStruc() const { return &GStruc; }
 
-int SLAPI GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level)
+int GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, double srcQtty, int level)
 {
 	int    ok = 1;
 	if(pStruc) {
@@ -2480,7 +2480,7 @@ int SLAPI GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGood
 	return ok;
 }
 
-void SLAPI GStrucIterator::Init(const PPGoodsStruc * pStruc, int loadRecurItems)
+void GStrucIterator::Init(const PPGoodsStruc * pStruc, int loadRecurItems)
 {
 	RVALUEPTR(GStruc, pStruc);
 	LoadRecurItems = loadRecurItems;
@@ -2488,7 +2488,7 @@ void SLAPI GStrucIterator::Init(const PPGoodsStruc * pStruc, int loadRecurItems)
 	LoadItems(&GStruc, GStruc.GoodsID, 1, 0);
 }
 
-void SLAPI GStrucIterator::InitIteration()
+void GStrucIterator::InitIteration()
 {
 	Idx = 0;
 }
@@ -2504,7 +2504,7 @@ int FASTCALL GStrucIterator::NextIteration(GStrucRecurItem * pItem)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruc, TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger)
+int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruc, TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger)
 {
 	int    ok = 1;
 	int    recur = 0;
@@ -2625,7 +2625,7 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::CheckStruc(PPID strucID, PPLogger * pLogger)
+int PPObjGoodsStruc::CheckStruc(PPID strucID, PPLogger * pLogger)
 {
 	int    ok = -1;
 	PPGoodsStruc gs;
@@ -2638,7 +2638,7 @@ int SLAPI PPObjGoodsStruc::CheckStruc(PPID strucID, PPLogger * pLogger)
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::CheckStructs()
+int PPObjGoodsStruc::CheckStructs()
 {
 	int    ok = 1;
 	long   p = 0, t = 0;
@@ -2657,7 +2657,7 @@ int SLAPI PPObjGoodsStruc::CheckStructs()
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsStruc::CheckRecursion()
+/*static*/int PPObjGoodsStruc::CheckRecursion()
 {
 	PPObjGoodsStruc gs_obj;
 	return gs_obj.CheckStructs();
@@ -2665,11 +2665,11 @@ int SLAPI PPObjGoodsStruc::CheckStructs()
 //
 //
 //
-SLAPI SaGiftItem::SaGiftItem() : StrucID(0), OrgStrucID(0), QuotKindID(0), Flags(0), Limit(0.0f), AmtRestrict(0.0)
+SaGiftItem::SaGiftItem() : StrucID(0), OrgStrucID(0), QuotKindID(0), Flags(0), Limit(0.0f), AmtRestrict(0.0)
 {
 }
 
-SLAPI SaGiftItem::SaGiftItem(const SaGiftItem & rS)
+SaGiftItem::SaGiftItem(const SaGiftItem & rS)
 {
 	Copy(&rS);
 }
@@ -2710,7 +2710,7 @@ int FASTCALL SaGiftItem::Copy(const SaGiftItem * pS)
 	return ok;
 }
 
-int SLAPI SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const // @v9.8.6 TSArray-->TSVector
+int SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = 1;
 	LongArray main_pos_list;
@@ -2802,7 +2802,7 @@ int SLAPI SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList
 	return ok;
 }
 
-int SLAPI SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const // @v9.8.6 TSArray-->TSVector
+int SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(Flags & fCalcPotential) {
@@ -3049,7 +3049,7 @@ int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAsso
 	return ok;
 }
 
-int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
+int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 {
 	int    ok = -1;
 	uint   i;
@@ -3160,18 +3160,18 @@ int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 //
 class GoodsStrucCache : public ObjCache {
 public:
-	SLAPI  GoodsStrucCache() : ObjCache(PPOBJ_GOODSSTRUC, sizeof(D)), P_GiftList(0)
+	GoodsStrucCache() : ObjCache(PPOBJ_GOODSSTRUC, sizeof(D)), P_GiftList(0)
 	{
 	}
-	SLAPI ~GoodsStrucCache()
+	~GoodsStrucCache()
 	{
 		delete P_GiftList;
 	}
-	int    SLAPI GetSaGiftList(SaGiftArray * pList, int clear);
+	int    GetSaGiftList(SaGiftArray * pList, int clear);
 private:
 	virtual int  FASTCALL Dirty(PPID id);
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct D : public ObjCacheEntry {
 		PPID   VariedPropObjType;
@@ -3184,7 +3184,7 @@ public:
 	SaGiftArray * P_GiftList;
 };
 
-int SLAPI GoodsStrucCache::GetSaGiftList(SaGiftArray * pList, int clear)
+int GoodsStrucCache::GetSaGiftList(SaGiftArray * pList, int clear)
 {
 	int    ok = -1;
 	ENTER_CRITICAL_SECTION
@@ -3218,7 +3218,7 @@ int SLAPI GoodsStrucCache::GetSaGiftList(SaGiftArray * pList, int clear)
 	return ok;
 }
 
-int SLAPI GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	D * p_cache_rec = static_cast<D *>(pEntry);
@@ -3240,7 +3240,7 @@ int SLAPI GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPGoodsStrucHeader * p_data_rec = static_cast<PPGoodsStrucHeader *>(pDataRec);
 	const D * p_cache_rec = static_cast<const D *>(pEntry);
@@ -3277,7 +3277,7 @@ int FASTCALL GoodsStrucCache::Dirty(PPID id)
 
 IMPL_OBJ_FETCH(PPObjGoodsStruc, PPGoodsStrucHeader, GoodsStrucCache);
 
-int SLAPI PPObjGoodsStruc::FetchGiftList(SaGiftArray * pList)
+int PPObjGoodsStruc::FetchGiftList(SaGiftArray * pList)
 {
 	GoodsStrucCache * p_cache = GetDbLocalCachePtr <GoodsStrucCache> (Obj);
 	return p_cache ? p_cache->GetSaGiftList(pList, 0) : LoadGiftList(pList);

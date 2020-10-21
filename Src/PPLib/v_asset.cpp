@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPViewAsset)
 //
-IMPLEMENT_PPFILT_FACTORY(Asset); SLAPI AssetFilt::AssetFilt() : PPBaseFilt(PPFILT_ASSET, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(Asset); AssetFilt::AssetFilt() : PPBaseFilt(PPFILT_ASSET, 0, 1)
 {
 	SetFlatChunk(offsetof(AssetFilt, ReserveStart),
 		offsetof(AssetFilt, Reserve)-offsetof(AssetFilt, ReserveStart)+sizeof(Reserve));
@@ -20,17 +20,17 @@ AssetFilt & FASTCALL AssetFilt::operator = (const AssetFilt & s)
 	return *this;
 }
 
-SLAPI PPViewAsset::PPViewAsset() : PPView(0, &Filt, PPVIEW_ASSET), P_BObj(BillObj), P_TempTbl(0), P_GGIter(0)
+PPViewAsset::PPViewAsset() : PPView(0, &Filt, PPVIEW_ASSET, 0, 0), P_BObj(BillObj), P_TempTbl(0), P_GGIter(0)
 {
 }
 
-SLAPI PPViewAsset::~PPViewAsset()
+PPViewAsset::~PPViewAsset()
 {
 	delete P_TempTbl;
 	delete P_GGIter;
 }
 
-PPBaseFilt * SLAPI PPViewAsset::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewAsset::CreateFilt(void * extraPtr) const
 {
 	AssetFilt * p_filt = new AssetFilt;
 	if(p_filt) {
@@ -41,7 +41,7 @@ PPBaseFilt * SLAPI PPViewAsset::CreateFilt(void * extraPtr) const
 
 #define GRP_GOODSFILT 1
 
-int SLAPI PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	ushort v;
@@ -99,7 +99,7 @@ int SLAPI PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempAsset);
 
-int SLAPI PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
+int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 {
 	int    ok = 1;
 	PPObjAssetWrOffGrp awog_obj;
@@ -263,7 +263,7 @@ int SLAPI PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 	return ok;
 }
 
-int SLAPI PPViewAsset::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewAsset::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -320,7 +320,7 @@ int SLAPI PPViewAsset::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewAsset::InitIterQuery(PPID grpID)
+int PPViewAsset::InitIterQuery(PPID grpID)
 {
 	int    sp_mode = spFirst;
 	union {
@@ -344,7 +344,7 @@ int SLAPI PPViewAsset::InitIterQuery(PPID grpID)
 	return 1;
 }
 
-int SLAPI PPViewAsset::InitIteration(IterOrder ord)
+int PPViewAsset::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx   = 0;
@@ -369,7 +369,7 @@ int SLAPI PPViewAsset::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewAsset::NextOuterIteration()
+int PPViewAsset::NextOuterIteration()
 {
 	PPID   grp_id = 0;
 	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
@@ -412,7 +412,7 @@ int FASTCALL PPViewAsset::NextIteration(AssetViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewAsset::GetItem(PPID lotID, AssetViewItem * pItem)
+int PPViewAsset::GetItem(PPID lotID, AssetViewItem * pItem)
 {
 	if(P_TempTbl) {
 		TempAssetTbl::Key0 k;
@@ -441,13 +441,13 @@ int SLAPI PPViewAsset::GetItem(PPID lotID, AssetViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewAsset::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewAsset::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return ::ViewOpersByLot(lot_id, 0);
 }
 
-int SLAPI PPViewAsset::ViewTotal()
+int PPViewAsset::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -483,7 +483,7 @@ int SLAPI PPViewAsset::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewAsset::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewAsset::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -513,7 +513,7 @@ int SLAPI PPViewAsset::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	return ok;
 }
 
-DBQuery * SLAPI PPViewAsset::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewAsset::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = Filt.OperPeriod.IsZero() ? BROWSER_ASSET : BROWSER_ASSETOPER;
 	DBQuery * q = 0;
@@ -548,12 +548,12 @@ DBQuery * SLAPI PPViewAsset::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	return q;
 }
 
-int SLAPI PPViewAsset::PrintList()
+int PPViewAsset::PrintList()
 {
 	return Helper_Print(Filt.OperPeriod.IsZero() ? REPORT_ASSETVIEW : REPORT_ASSETOPERVIEW, OrdByGrp_GoodsName);
 }
 
-int SLAPI PPViewAsset::Print(const void * pHdr)
+int PPViewAsset::Print(const void * pHdr)
 {
 	int    ok = 1;
 	PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -577,7 +577,7 @@ int SLAPI PPViewAsset::Print(const void * pHdr)
 	return ok;
 }
 
-void SLAPI PPViewAsset::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewAsset::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetTempGoodsGrp(Filt.GoodsGrpID));
 }

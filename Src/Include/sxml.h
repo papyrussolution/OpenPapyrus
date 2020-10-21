@@ -18,10 +18,10 @@ public:
 	//typedef void (XMLCDECL *xmlSchemaValidityErrorFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
 	//typedef void (XMLCDECL *xmlSchemaValidityWarningFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
 
-	SLAPI  SXmlValidationMessageList();
-	int    SLAPI AddMessage(int type, const char * pMsg);
-	uint   SLAPI GetMessageCount() const;
-	int    SLAPI GetMessageByIdx(uint idx, int * pType, SString & rMsg) const;
+	SXmlValidationMessageList();
+	int    AddMessage(int type, const char * pMsg);
+	uint   GetMessageCount() const;
+	int    GetMessageByIdx(uint idx, int * pType, SString & rMsg) const;
 private:
 	struct EntryInner {
 		int   Type;
@@ -86,7 +86,7 @@ public:
         SString Name;
     };
 
-	static int SLAPI Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList);
+	static int Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList);
     static int FASTCALL IsName(const xmlNode * pNode, const char * pName);
     static int FASTCALL IsContent(const xmlNode * pNode, const char * pText);
     static int FASTCALL GetContent(const xmlNode * pNode, SString & rResult);
@@ -101,18 +101,18 @@ public:
     //    <0 - узел pNode имеет имя pName, но содержание пустое (rResult = 0)
     //    0  - узел pNode не имеет имя pName. В этом случае rResult не меняется.
     //
-    static int SLAPI GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult);
-    static int SLAPI GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult);
+    static int GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult);
+    static int GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult);
 };
 //
 // Descr: (ситуативный) Класс, реализующий обертку вокруг xmlTexWriter
 //
 class SXmlWriter {
 public:
-	SLAPI  SXmlWriter();
-	SLAPI ~SXmlWriter();
-	operator xmlTextWriter * SLAPI () const { return P_Writer; }
-	operator xmlBuffer * SLAPI () const { return P_XmlBuf; }
+	SXmlWriter();
+	~SXmlWriter();
+	operator xmlTextWriter * () const { return P_Writer; }
+	operator xmlBuffer * () const { return P_XmlBuf; }
 private:
 	xmlBuffer * P_XmlBuf;
 	xmlTextWriter * P_Writer;

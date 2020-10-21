@@ -3,9 +3,6 @@
 // Copyright (C) 2007, Sebastian Pipping <webmaster@hartwork.org>
 // All rights reserved.
 //
-//#include <ctype.h>
-//#include <string.h>
-//#include <stdlib.h>
 #include <slib.h>
 //
 // Version helper macro 

@@ -8,26 +8,26 @@
 //
 // @ModuleDef(PPViewMrpTab)
 //
-int SLAPI ViewMrpTab(const MrpTabFilt * pFilt);
-int SLAPI ViewMrpLine(const MrpLineFilt * pFilt, PPID mrpTabID);
+int ViewMrpTab(const MrpTabFilt * pFilt);
+int ViewMrpLine(const MrpLineFilt * pFilt, PPID mrpTabID);
 
-IMPLEMENT_PPFILT_FACTORY(MrpTab); SLAPI MrpTabFilt::MrpTabFilt() : PPBaseFilt(PPFILT_MRPTAB, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(MrpTab); MrpTabFilt::MrpTabFilt() : PPBaseFilt(PPFILT_MRPTAB, 0, 0)
 {
 	SetFlatChunk(offsetof(MrpTabFilt, ReserveStart),
 		offsetof(MrpTabFilt, Reserve)-offsetof(MrpTabFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewMrpTab::PPViewMrpTab() : PPView(&MrpObj, &Filt, PPVIEW_MRPTAB), P_TempOrd(0)
+PPViewMrpTab::PPViewMrpTab() : PPView(&MrpObj, &Filt, PPVIEW_MRPTAB, 0, 0), P_TempOrd(0)
 {
 }
 
-SLAPI PPViewMrpTab::~PPViewMrpTab()
+PPViewMrpTab::~PPViewMrpTab()
 {
 	delete P_TempOrd;
 }
 
-int SLAPI PPViewMrpTab::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewMrpTab::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -58,7 +58,7 @@ int SLAPI PPViewMrpTab::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewMrpTab::UpdateTempTable(PPID id)
+int PPViewMrpTab::UpdateTempTable(PPID id)
 {
 	int    ok = 1;
 	if(P_TempOrd) {
@@ -92,7 +92,7 @@ int SLAPI PPViewMrpTab::UpdateTempTable(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	MrpTabTbl * t = MrpObj.P_Tbl;
@@ -112,7 +112,7 @@ int SLAPI PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewMrpTab::InitIteration()
+int PPViewMrpTab::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
@@ -179,14 +179,14 @@ int FASTCALL PPViewMrpTab::NextIteration(MrpTabViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewMrpTab::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewMrpTab::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	if(pHdr)
 		ViewMrpLine(0, *static_cast<const PPID *>(pHdr));
 	return -1;
 }
 
-int SLAPI PPViewMrpTab::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewMrpTab::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	//
@@ -217,7 +217,7 @@ int SLAPI PPViewMrpTab::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 }
 
 /*
-int SLAPI PPViewMrpTab::ChangeFilt(int refreshOnly, BrowserWindow * pW)
+int PPViewMrpTab::ChangeFilt(int refreshOnly, BrowserWindow * pW)
 {
 	int    ok = -1;
 	MrpTabFilt filt = Filt;
@@ -241,7 +241,7 @@ int SLAPI PPViewMrpTab::ChangeFilt(int refreshOnly, BrowserWindow * pW)
 }
 */
 
-DBQuery * SLAPI PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q = 0;
 	MrpTabTbl * t = 0;
@@ -308,30 +308,27 @@ DBQuery * SLAPI PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 //
 //
 //
-int SLAPI ViewMrpTab(const MrpTabFilt * pFilt) { return PPView::Execute(PPVIEW_MRPTAB, pFilt, PPView::exefModeless, 0); }
+int ViewMrpTab(const MrpTabFilt * pFilt) { return PPView::Execute(PPVIEW_MRPTAB, pFilt, PPView::exefModeless, 0); }
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(MrpLine); SLAPI MrpLineFilt::MrpLineFilt() : PPBaseFilt(PPFILT_MRPLINE, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(MrpLine); MrpLineFilt::MrpLineFilt() : PPBaseFilt(PPFILT_MRPLINE, 0, 0)
 {
 	SetFlatChunk(offsetof(MrpLineFilt, ReserveStart),
 		offsetof(MrpLineFilt, Reserve)-offsetof(MrpLineFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
-SLAPI PPViewMrpLine::PPViewMrpLine() : PPView(0, &Filt, PPVIEW_MRPLINE), P_TempOrd(0)
+PPViewMrpLine::PPViewMrpLine() : PPView(0, &Filt, PPVIEW_MRPLINE, 0, REPORT_MRPLINES), P_TempOrd(0)
 {
-	//!P_IterQuery = 0;
-	DefReportId = REPORT_MRPLINES;
 }
 
-SLAPI PPViewMrpLine::~PPViewMrpLine()
+PPViewMrpLine::~PPViewMrpLine()
 {
 	delete P_TempOrd;
-	//!delete P_IterQuery;
 }
 
-PPBaseFilt * SLAPI PPViewMrpLine::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewMrpLine::CreateFilt(void * extraPtr) const
 {
 	MrpLineFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_MRPLINE, reinterpret_cast<PPBaseFilt **>(&p_filt)))
@@ -339,7 +336,7 @@ PPBaseFilt * SLAPI PPViewMrpLine::CreateFilt(void * extraPtr) const
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 
-int SLAPI PPViewMrpLine::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewMrpLine::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -381,7 +378,7 @@ int SLAPI PPViewMrpLine::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewMrpLine::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewMrpLine::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -392,7 +389,7 @@ int SLAPI PPViewMrpLine::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewMrpLine::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
+int PPViewMrpLine::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = -1;
 	TempOrderTbl * p_o = 0;
@@ -429,7 +426,7 @@ int SLAPI PPViewMrpLine::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 	return ok;
 }
 
-int SLAPI PPViewMrpLine::InitIteration()
+int PPViewMrpLine::InitIteration()
 {
 	int    ok = 1, idx = 0;
 	union {
@@ -485,7 +482,7 @@ int FASTCALL PPViewMrpLine::NextIteration(MrpLineViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewMrpLine::ViewTotal()
+int PPViewMrpLine::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_MRPLNTOTAL);
@@ -502,7 +499,7 @@ int SLAPI PPViewMrpLine::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewMrpLine::CalcTotal(MrpLineTotal * pTotal)
+int PPViewMrpLine::CalcTotal(MrpLineTotal * pTotal)
 {
 	MrpLineViewItem item;
 	MrpLineTotal total;
@@ -531,12 +528,12 @@ int SLAPI PPViewMrpLine::CalcTotal(MrpLineTotal * pTotal)
 	return 1;
 }
 
-int SLAPI PPViewMrpLine::GetItem(PPID lineID, MrpLineViewItem * pItem)
+int PPViewMrpLine::GetItem(PPID lineID, MrpLineViewItem * pItem)
 {
 	return MrpObj.P_Tbl->SearchLineByID(lineID, pItem);
 }
 
-int SLAPI PPViewMrpLine::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewMrpLine::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	PPID   line_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -564,7 +561,7 @@ int SLAPI PPViewMrpLine::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewMrpLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewMrpLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -664,7 +661,7 @@ int SLAPI PPViewMrpLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return ok;
 }
 
-DBQuery * SLAPI PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst flag_subst(2);  // @global @threadsafe
 
@@ -795,7 +792,7 @@ DBQuery * SLAPI PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 //
 //
 //
-int SLAPI ViewMrpLine(const MrpLineFilt * pFilt, PPID tabID) { return PPView::Execute(PPVIEW_MRPLINE, pFilt, 1, reinterpret_cast<void *>(tabID)); }
+int ViewMrpLine(const MrpLineFilt * pFilt, PPID tabID) { return PPView::Execute(PPVIEW_MRPLINE, pFilt, 1, reinterpret_cast<void *>(tabID)); }
 //
 // Implementation of PPALDD_MrpTab
 //

@@ -273,7 +273,7 @@ static const TrT TrList[] = {
 %}%=brand
 
 */
-int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SStrScan & rScan, SString & rExtBuf) const
+int PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SStrScan & rScan, SString & rExtBuf) const
 {
 	const char cfront = rScan[0];
 	const char cnext = rScan[1];
@@ -370,7 +370,7 @@ static int FASTCALL GetTrText(int term, SString & rBuf)
 	return 0;
 }
 
-int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, const uint termLast, uint idxFirst, uint idxLast) const
+int PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, const uint termLast, uint idxFirst, uint idxLast) const
 {
 	const uint first_term_idx = termIdx;
 	rBlk.NextPos = 0;
@@ -704,7 +704,7 @@ int SLAPI PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, 
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::Helper_FindReplacerSrcItem(PPTextAnalyzer::FindBlock & rBlk, const uint termFirst, const uint termLast, uint idxFirst, const uint idxLast, uint * pFoundIdx) const
+int PPTextAnalyzer::Helper_FindReplacerSrcItem(PPTextAnalyzer::FindBlock & rBlk, const uint termFirst, const uint termLast, uint idxFirst, const uint idxLast, uint * pFoundIdx) const
 {
 	int    ok = 0;
 	if(rBlk.P_Item) {
@@ -799,7 +799,7 @@ const LongArray * FASTCALL PPTextAnalyzer::TextIndex::GetTextIndex(int textId) c
 	return L.bsearch(&textId, &p, CMPF_LONG) ? &L.at(p)->PosList : 0;
 }
 
-int SLAPI PPTextAnalyzer::IndexText(PPTextAnalyzer::FindBlock & rBlk, uint idxFirst, uint idxLast) const
+int PPTextAnalyzer::IndexText(PPTextAnalyzer::FindBlock & rBlk, uint idxFirst, uint idxLast) const
 {
 	int    ok = 1;
 	THROW_MEM(SETIFZ(rBlk.P_Idx, new TextIndex));
@@ -834,13 +834,13 @@ int SLAPI PPTextAnalyzer::IndexText(PPTextAnalyzer::FindBlock & rBlk, uint idxFi
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::FindReplacerSrcItem(PPTextAnalyzer::FindBlock & rBlk) const
+int PPTextAnalyzer::FindReplacerSrcItem(PPTextAnalyzer::FindBlock & rBlk) const
 {
 	const uint _c = rBlk.P_Item->List.getCount();
 	return _c ? Helper_FindReplacerSrcItem(rBlk, 0, _c-1, rBlk.IdxFirst, rBlk.IdxLast, 0) : 0;
 }
 
-int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPTextAnalyzer::FindBlock & rBlk, SString & rBuf) const
+int PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPTextAnalyzer::FindBlock & rBlk, SString & rBuf) const
 {
 	rBuf.Z();
 
@@ -970,7 +970,7 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::Helper_ReplacerSrcItemToStr(const PPTextAnalyzer::Replacer & rR,
+int PPTextAnalyzer::Helper_ReplacerSrcItemToStr(const PPTextAnalyzer::Replacer & rR,
 	const PPTextAnalyzer::Replacer::SrcItem * pItem,
 	const PPTextAnalyzer::Replacer::Chain & rC, uint start, uint count, SString & rBuf) const
 {
@@ -1029,7 +1029,7 @@ int SLAPI PPTextAnalyzer::Helper_ReplacerSrcItemToStr(const PPTextAnalyzer::Repl
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::ReplacerSrcItemToStr(const PPTextAnalyzer::Replacer & rR, const PPTextAnalyzer::Replacer::SrcItem * pItem, SString & rBuf) const
+int PPTextAnalyzer::ReplacerSrcItemToStr(const PPTextAnalyzer::Replacer & rR, const PPTextAnalyzer::Replacer::SrcItem * pItem, SString & rBuf) const
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -1107,7 +1107,7 @@ int PPTextAnalyzer::Replacer::AddCortegeItem(uint cortegeId, uint srcListIdx)
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::ParseContext(const PPTextAnalyzer::Replacer & rReplacer, SStrScan & rScan, Replacer::Chain * pChain, int recur)
+int PPTextAnalyzer::ParseContext(const PPTextAnalyzer::Replacer & rReplacer, SStrScan & rScan, Replacer::Chain * pChain, int recur)
 {
 	int    ok = 1;
 	int    term = 0;
@@ -1185,7 +1185,7 @@ int SLAPI PPTextAnalyzer::ParseContext(const PPTextAnalyzer::Replacer & rReplace
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyzer::Replacer & rReplacer)
+int PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyzer::Replacer & rReplacer)
 {
 	int    ok = 1;
 	int    single_op = 0;
@@ -1563,7 +1563,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & rRpl)
+int PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & rRpl)
 {
 	int    ok = 1;
 	int    parsing_in_progress = 0;
@@ -1605,7 +1605,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & r
 
 #endif // } 0
 
-SLAPI PPTextAnalyzer::PPTextAnalyzer() : STokenizer(), SignalProc(0), P_SignalProcExtra(0)
+PPTextAnalyzer::PPTextAnalyzer() : STokenizer(), SignalProc(0), P_SignalProcExtra(0)
 {
 	Param p;
 	p.Delim = " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%\xA0";
@@ -1613,17 +1613,17 @@ SLAPI PPTextAnalyzer::PPTextAnalyzer() : STokenizer(), SignalProc(0), P_SignalPr
 	SetParam(&p);
 }
 
-SLAPI PPTextAnalyzer::~PPTextAnalyzer()
+PPTextAnalyzer::~PPTextAnalyzer()
 {
 }
 
-void SLAPI PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pProcExtra)
+void PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pProcExtra)
 {
 	SignalProc = proc;
 	P_SignalProcExtra = pProcExtra;
 }
 
-int SLAPI PPTextAnalyzer::ProcessGoodsNN()
+int PPTextAnalyzer::ProcessGoodsNN()
 {
 	int    ok = 1;
 #if 0 // @v10.2.4 {
@@ -1870,7 +1870,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::ProcessGoods()
+int PPTextAnalyzer::ProcessGoods()
 {
 	int    ok = 1;
 	SString ident;
@@ -1891,7 +1891,7 @@ int SLAPI PPTextAnalyzer::ProcessGoods()
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::ProcessPerson()
+int PPTextAnalyzer::ProcessPerson()
 {
 	int    ok = 1;
 	SString ident;
@@ -1912,7 +1912,7 @@ int SLAPI PPTextAnalyzer::ProcessPerson()
 	return ok;
 }
 
-int SLAPI PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, const char * pResource, const SString & rOrg, SString & rResult, PPTextAnalyzer::FindBlock * pOuterFb, SFile * pDebugFile)
+int PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, const char * pResource, const SString & rOrg, SString & rResult, PPTextAnalyzer::FindBlock * pOuterFb, SFile * pDebugFile)
 {
 	const char * p_resource = pResource;
 
@@ -2015,7 +2015,7 @@ static int TestSignalProc(const char * pResource, int64 orgOffs, const char * pO
 	return 1;
 }
 
-int SLAPI PPTextAnalyzer::Test()
+int PPTextAnalyzer::Test()
 {
 	int    ok = 1;
 	TestSignalProcExtra spe;
@@ -2105,11 +2105,11 @@ int SLAPI PPTextAnalyzer::Test()
 	return ok;
 }
 
-SLAPI PPTextAnalyzerWrapper::PPTextAnalyzerWrapper() : R(), Fb(R), Flags(0)
+PPTextAnalyzerWrapper::PPTextAnalyzerWrapper() : R(), Fb(R), Flags(0)
 {
 }
 
-int SLAPI PPTextAnalyzerWrapper::Init(const char * pRuleFileName, long flags)
+int PPTextAnalyzerWrapper::Init(const char * pRuleFileName, long flags)
 {
 	int    ok = 1;
 	SETFLAGBYSAMPLE(Flags, fEncInner, flags);
@@ -2123,7 +2123,7 @@ int SLAPI PPTextAnalyzerWrapper::Init(const char * pRuleFileName, long flags)
 	return ok;
 }
 
-int SLAPI PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rResult)
+int PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rResult)
 {
 	rResult.Z();
 	int    ok = -1;
@@ -2143,7 +2143,7 @@ int SLAPI PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rRe
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(PrcssrObjText); SLAPI PrcssrObjTextFilt::PrcssrObjTextFilt() :
+IMPLEMENT_PPFILT_FACTORY(PrcssrObjText); PrcssrObjTextFilt::PrcssrObjTextFilt() :
 	PPBaseFilt(PPFILT_PRCSSROBJTEXTPARAM, 0, 0), P_GoodsF(0), P_BrandF(0), P_PsnF(0)
 {
 	SetFlatChunk(offsetof(PrcssrObjTextFilt, ReserveStart),
@@ -2161,7 +2161,7 @@ PrcssrObjTextFilt & FASTCALL PrcssrObjTextFilt::operator = (const PrcssrObjTextF
 	return *this;
 }
 
-int SLAPI PrcssrObjTextFilt::IsEmpty() const
+int PrcssrObjTextFilt::IsEmpty() const
 {
 	return BIN(!ObjType && !ObjTextIdent && !Flags && RuleFileName.Empty() && !P_GoodsF && !P_BrandF && !P_PsnF);
 }
@@ -2170,16 +2170,16 @@ PrcssrObjText::SignalProcBlock::SignalProcBlock() : State(0)
 {
 }
 
-SLAPI PrcssrObjText::PrcssrObjText() : P_Rpl(0)
+PrcssrObjText::PrcssrObjText() : P_Rpl(0)
 {
 }
 
-SLAPI PrcssrObjText::~PrcssrObjText()
+PrcssrObjText::~PrcssrObjText()
 {
 	delete P_Rpl;
 }
 
-/*static*/int SLAPI PrcssrObjText::VerifyRuleFile(const char * pFileName)
+/*static*/int PrcssrObjText::VerifyRuleFile(const char * pFileName)
 {
 	int    ok = 1;
 	THROW_SL(fileExists(pFileName));
@@ -2260,7 +2260,7 @@ private:
 	}
 };
 
-int SLAPI PrcssrObjText::InitParam(PPBaseFilt * pBaseFilt)
+int PrcssrObjText::InitParam(PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(P.IsA(pBaseFilt)) {
@@ -2276,7 +2276,7 @@ int SLAPI PrcssrObjText::InitParam(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PrcssrObjText::EditParam(PPBaseFilt * pBaseFilt)
+int PrcssrObjText::EditParam(PPBaseFilt * pBaseFilt)
 {
 	if(!P.IsA(pBaseFilt))
 		return 0;
@@ -2284,7 +2284,7 @@ int SLAPI PrcssrObjText::EditParam(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(ObjTextFiltDialog, p_filt);
 }
 
-int SLAPI PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
+int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 {
 	SLS.SetCodepage(cp1251);
 
@@ -2355,7 +2355,7 @@ int SLAPI PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PrcssrObjText::Run()
+int PrcssrObjText::Run()
 {
 	int    ok = 1, r;
 	PPTransaction * p_tra = 0;
@@ -2467,7 +2467,7 @@ int SLAPI PrcssrObjText::Run()
 	return ok;
 }
 
-int SLAPI DoProcessObjText(const PrcssrObjTextFilt * pFilt)
+int DoProcessObjText(const PrcssrObjTextFilt * pFilt)
 {
 	int    ok = -1;
 	PrcssrObjText prcssr;
@@ -2491,7 +2491,7 @@ int SLAPI DoProcessObjText(const PrcssrObjTextFilt * pFilt)
 //
 //
 //
-SLAPI PPObjectTokenizer::PPObjectTokenizer() : PPTextAnalyzer()
+PPObjectTokenizer::PPObjectTokenizer() : PPTextAnalyzer()
 {
 	Param tp;
 	GetParam(&tp);
@@ -2499,7 +2499,7 @@ SLAPI PPObjectTokenizer::PPObjectTokenizer() : PPTextAnalyzer()
 	SetParam(&tp);
 }
 
-SLAPI PPObjectTokenizer::~PPObjectTokenizer()
+PPObjectTokenizer::~PPObjectTokenizer()
 {
 }
 
@@ -2531,7 +2531,7 @@ int FASTCALL DecodeTokenizerResourceObj(const SString & rBuf, PPObjID & rOi)
 	return ok;
 }
 
-int SLAPI PPObjectTokenizer::AddObject(PPObjID oi, const char * pName)
+int PPObjectTokenizer::AddObject(PPObjID oi, const char * pName)
 {
 	int    ok = 1;
 	(TextBuf = pName).Strip().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
@@ -2544,7 +2544,7 @@ int SLAPI PPObjectTokenizer::AddObject(PPObjID oi, const char * pName)
 	return ok;
 }
 
-int SLAPI PPObjectTokenizer::ProcessSuprWare(PPID swType, PPID swCls)
+int PPObjectTokenizer::ProcessSuprWare(PPID swType, PPID swCls)
 {
 	int    ok = 1;
 	SuprWareFilt f_sw;
@@ -2560,7 +2560,7 @@ int SLAPI PPObjectTokenizer::ProcessSuprWare(PPID swType, PPID swCls)
 	return ok;
 }
 
-int SLAPI PPObjectTokenizer::ProcessGoods(const GoodsFilt * pFilt)
+int PPObjectTokenizer::ProcessGoods(const GoodsFilt * pFilt)
 {
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
@@ -2571,7 +2571,7 @@ int SLAPI PPObjectTokenizer::ProcessGoods(const GoodsFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, long flags, RAssocArray & rObjIdScoreList)
+int PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, long flags, RAssocArray & rObjIdScoreList)
 {
 #ifdef NDEBUG
 	const int debug_output = 0;
@@ -2641,7 +2641,7 @@ struct _AnalogByComponentEntry {
 	PPIDArray SuprWareList;
 };
 
-int SLAPI PPObjectTokenizer::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf)
+int PPObjectTokenizer::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf)
 {
 	rList.clear();
 	ASSIGN_PTR(pTransitComponentBuf, 0);
@@ -2779,18 +2779,18 @@ public:
 		uint   RunCount;
 	};
 
-	SLAPI  PPKeywordListGenerator();
-	SLAPI ~PPKeywordListGenerator();
-	void   SLAPI Clear();
-	const  SString & SLAPI GetDataFileName() const;
-	int    SLAPI GetWord(uint wordP, SString & rBuf) const;
-	int    SLAPI Run(const char * pContext, SString & rResult, RunStat * pStat);
+	PPKeywordListGenerator();
+	~PPKeywordListGenerator();
+	void   Clear();
+	const  SString & GetDataFileName() const;
+	int    GetWord(uint wordP, SString & rBuf) const;
+	int    Run(const char * pContext, SString & rResult, RunStat * pStat);
 private:
-	int    SLAPI ReadData(const char * pFileName);
-	int    SLAPI SearchGroup(const char * pContext, uint * pPos) const;
-	int    SLAPI CreateGroup(const char * pContext, uint * pPos);
-	int    SLAPI GetRandomWord(SString & rBuf);
-	int    SLAPI GenerateByGroup(uint grpPos, const SString * pGrpText, const SString * pLoc, StringSet & rSs, LongArray & rSsPosList, RunStat * pStat);
+	int    ReadData(const char * pFileName);
+	int    SearchGroup(const char * pContext, uint * pPos) const;
+	int    CreateGroup(const char * pContext, uint * pPos);
+	int    GetRandomWord(SString & rBuf);
+	int    GenerateByGroup(uint grpPos, const SString * pGrpText, const SString * pLoc, StringSet & rSs, LongArray & rSsPosList, RunStat * pStat);
 
 	struct Item_ { // @flat
 		uint   TextP;
@@ -2810,9 +2810,9 @@ private:
 
 	class RandWordBlock : public SStrGroup {
 	public:
-		int    SLAPI ReadData(const char * pFileName);
-		void   SLAPI Clear();
-        uint   SLAPI GetCount() const;
+		int    ReadData(const char * pFileName);
+		void   Clear();
+        uint   GetCount() const;
         int    FASTCALL GetWord(uint idx, SString & rBuf) const;
 
 		LongArray Idx;
@@ -2894,7 +2894,7 @@ int PPKeywordListGenerator::RunStat::AddItem(const SString & rItem)
 	return 1;
 }
 
-SLAPI PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileChangeDetectTimer(60000), DataFileDtm(ZERODATETIME)
+PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileChangeDetectTimer(60000), DataFileDtm(ZERODATETIME)
 {
 	_Divider = 9999;
 	do {
@@ -2910,27 +2910,27 @@ SLAPI PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileCh
 	}
 }
 
-SLAPI PPKeywordListGenerator::~PPKeywordListGenerator()
+PPKeywordListGenerator::~PPKeywordListGenerator()
 {
 }
 
-void SLAPI PPKeywordListGenerator::Clear()
+void PPKeywordListGenerator::Clear()
 {
 	SStrGroup::ClearS();
 	List.freeAll();
 }
 
-const SString & SLAPI PPKeywordListGenerator::GetDataFileName() const
+const SString & PPKeywordListGenerator::GetDataFileName() const
 {
 	return DataFileName;
 }
 
-int SLAPI PPKeywordListGenerator::GetWord(uint wordP, SString & rBuf) const
+int PPKeywordListGenerator::GetWord(uint wordP, SString & rBuf) const
 {
 	return GetS(wordP, rBuf);
 }
 
-int SLAPI PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName)
+int PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName)
 {
 	int    ok = 1;
 	SFile in_f(pFileName, SFile::mRead);
@@ -2950,13 +2950,13 @@ int SLAPI PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName
     return ok;
 }
 
-void SLAPI PPKeywordListGenerator::RandWordBlock::Clear()
+void PPKeywordListGenerator::RandWordBlock::Clear()
 {
 	SStrGroup::ClearS();
 	Idx.freeAll();
 }
 
-uint SLAPI PPKeywordListGenerator::RandWordBlock::GetCount() const
+uint PPKeywordListGenerator::RandWordBlock::GetCount() const
 {
 	return Idx.getCount();
 }
@@ -2971,7 +2971,7 @@ int FASTCALL PPKeywordListGenerator::RandWordBlock::GetWord(uint idx, SString & 
 	return BIN(rBuf.NotEmpty());
 }
 
-int SLAPI PPKeywordListGenerator::GetRandomWord(SString & rBuf)
+int PPKeywordListGenerator::GetRandomWord(SString & rBuf)
 {
 	rBuf.Z();
 	if(!Rwb.GetCount()) {
@@ -2999,7 +2999,7 @@ int SLAPI PPKeywordListGenerator::GetRandomWord(SString & rBuf)
 	return rBuf.NotEmpty();
 }
 
-int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * pGrpText, const SString * pLoc, StringSet & rSs, LongArray & rSsPosList, RunStat * pStat)
+int PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * pGrpText, const SString * pLoc, StringSet & rSs, LongArray & rSsPosList, RunStat * pStat)
 {
 	static const double ztolerance = 1.0E-6;
 	int    ok = 1;
@@ -3081,7 +3081,7 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 	return ok;
 }
 
-int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, RunStat * pStat)
+int PPKeywordListGenerator::Run(const char * pContext, SString & rResult, RunStat * pStat)
 {
 	rResult.Z();
 	if(pStat)
@@ -3279,7 +3279,7 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 	return ok;
 }
 
-int SLAPI PPKeywordListGenerator::SearchGroup(const char * pContext, uint * pPos) const
+int PPKeywordListGenerator::SearchGroup(const char * pContext, uint * pPos) const
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -3310,7 +3310,7 @@ int SLAPI PPKeywordListGenerator::SearchGroup(const char * pContext, uint * pPos
 	return ok;
 }
 
-int SLAPI PPKeywordListGenerator::CreateGroup(const char * pContext, uint * pPos)
+int PPKeywordListGenerator::CreateGroup(const char * pContext, uint * pPos)
 {
 	int    ok = 0;
 	uint   pos = 0;
@@ -3328,7 +3328,7 @@ int SLAPI PPKeywordListGenerator::CreateGroup(const char * pContext, uint * pPos
 	return ok;
 }
 
-int SLAPI PPKeywordListGenerator::ReadData(const char * pFileName)
+int PPKeywordListGenerator::ReadData(const char * pFileName)
 {
 	int    ok = -1;
 	uint   cur_grp_pos = 0;
@@ -3515,7 +3515,7 @@ private:
 	TSCollection <SerItem> Series;
 };
 
-int SLAPI Test_KeywordListGenerator()
+int Test_KeywordListGenerator()
 {
 	PPKeywordListGenerator::RunStat stat;
 	SString temp_buf, word_buf, context_buf;
@@ -3606,12 +3606,12 @@ int SLAPI Test_KeywordListGenerator()
 //
 //
 //
-SLAPI PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : LastStatusCode(0), P_XpCtx(0), ExpirySec(0), AuthTime(ZERODATETIME)
+PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : LastStatusCode(0), P_XpCtx(0), ExpirySec(0), AuthTime(ZERODATETIME)
 {
 	MEMSZERO(S);
 }
 
-SLAPI PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
+PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
 {
 	xmlFreeParserCtxt(P_XpCtx);
 	if(S.ReqCount) {
@@ -3622,7 +3622,7 @@ SLAPI PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
 	}
 }
 
-int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
+int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 {
 	Token.Z();
 	ExpirySec = 0;
@@ -3745,7 +3745,7 @@ int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
 	return ok;
 }
 
-int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult)
+int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult)
 {
 	rResult.Z();
 	int    ok = -1;
@@ -3833,7 +3833,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	return ok;
 }
 
-int SLAPI PPAutoTranslateText(int srcLang, int destLang, const SString & rSrcUtf8, SString & rResultUtf8)
+int PPAutoTranslateText(int srcLang, int destLang, const SString & rSrcUtf8, SString & rResultUtf8)
 {
 	int    ok = 1;
 	PPAutoTranslSvc_Microsoft at;
@@ -3964,7 +3964,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 	return ok;
 }
 
-int SLAPI CollectLldFileStat()
+int CollectLldFileStat()
 {
     int    ok = 1;
 #ifndef NDEBUG // {
@@ -3984,7 +3984,7 @@ int SLAPI CollectLldFileStat()
 //
 //
 //
-int SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk)
+int PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = 0;
@@ -4014,13 +4014,13 @@ int SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpP
 	return ok;
 }
 
-int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
+int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_ctx = 0;
 	SCodepageMapPool cpmp;
 	//return cpmp.ParseXml(pPath, pUt);
-	//int SLAPI SCodepageMapPool::ParseXml(const char * pPath, SUnicodeTable * pUt)
+	//int SCodepageMapPool::ParseXml(const char * pPath, SUnicodeTable * pUt)
 	{
 		SString base_path, path;
 		SString temp_buf;

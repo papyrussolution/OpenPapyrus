@@ -265,48 +265,48 @@ extern const char browser_flags[];
 extern const char base[];
 extern FILE * yyin; // ¬ходной файл
 
-int SLAPI SearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase);
-int SLAPI GetFlagValue(const char * pFlagText, const char * pVariants, int * pResult);
+int SearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase);
+int GetFlagValue(const char * pFlagText, const char * pVariants, int * pResult);
 
 class Rc2Data {
 public:
-	SLAPI  Rc2Data() : pHdr(0), pRc(0), BrwCounter(0), TbCounter(0), P_Record(0), P_CurCtrlMenuDef(0)
+	Rc2Data() : pHdr(0), pRc(0), BrwCounter(0), TbCounter(0), P_Record(0), P_CurCtrlMenuDef(0)
 	{
 	}
-	SLAPI ~Rc2Data()
+	~Rc2Data()
 	{
 		SFile::ZClose(&pHdr);
 		SFile::ZClose(&pRc);
 		delete P_CurCtrlMenuDef;
 	}
-	int    SLAPI Init(const char * pInputFileName, const char * pRcName, const char * pHdrName, const char * pEmbedRcName);
+	int    Init(const char * pInputFileName, const char * pRcName, const char * pHdrName, const char * pEmbedRcName);
 	const  SString & GetInputFileName() const { return InputFileName; }
-	int    SLAPI GenerateRCHeader();
-	void   SLAPI GenerateIncHeader();
-	int    SLAPI GenerateSymbDefinitions();
-	int    SLAPI GenerateBrowserDefine(char * pName, char * comment);
-	int    SLAPI GenerateBrowserDefinition(BrowserDefinition * pB);
-	int    SLAPI GenerateToolbarDefine(char * pName);
-	int    SLAPI GenerateToolbarDefinition(ToolbarDefinition * pT);
-	int    SLAPI GenerateJobDefinitions();
-	int    SLAPI GenerateObjDefinitions();
-	int    SLAPI GenerateCmdDefinitions();
-	int    SLAPI GenerateRecDefinitions();
-	int    SLAPI GenerateReportStubDefinitions();
-	int    SLAPI GenerateViewDefinitions();
-	int    SLAPI GenerateCtrlMenuDefinitions();
-	int    SLAPI GenerateBitmapDefinitions();
-	int    SLAPI GenerateDrawVectorFile(const char * pStorageFileName);
-	int    SLAPI GenerateRFileDefinitions();
-	int    SLAPI AddSymb(int kind, const char * pSymb, long * pID, SString & rErrMsg); // @>>SymbolList.AddSymb
-	int    SLAPI AddJob(const JobDefinition *, SString & rErrMsg);   // @>>AddSymb
-	int    SLAPI AddObj(const ObjDefinition *, SString & rErrMsg);   // @>>AddSymb
-	int    SLAPI AddCmd(const CmdDefinition *, SString & rErrMsg);   // @>>AddSymb
-	int    SLAPI AddView(const ViewDefinition *, SString & rErrMsg);
-	int    SLAPI AddReportStub(const ReportStubDefinition *, SString & rErrMsg);
-	int    SLAPI InitCurCtrlMenu(const char * pName);
-	int    SLAPI AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode); // @v10.8.11 pCmdCode
-	int    SLAPI AcceptCtrlMenu();
+	int    GenerateRCHeader();
+	void   GenerateIncHeader();
+	int    GenerateSymbDefinitions();
+	int    GenerateBrowserDefine(char * pName, char * comment);
+	int    GenerateBrowserDefinition(BrowserDefinition * pB);
+	int    GenerateToolbarDefine(char * pName);
+	int    GenerateToolbarDefinition(ToolbarDefinition * pT);
+	int    GenerateJobDefinitions();
+	int    GenerateObjDefinitions();
+	int    GenerateCmdDefinitions();
+	int    GenerateRecDefinitions();
+	int    GenerateReportStubDefinitions();
+	int    GenerateViewDefinitions();
+	int    GenerateCtrlMenuDefinitions();
+	int    GenerateBitmapDefinitions();
+	int    GenerateDrawVectorFile(const char * pStorageFileName);
+	int    GenerateRFileDefinitions();
+	int    AddSymb(int kind, const char * pSymb, long * pID, SString & rErrMsg); // @>>SymbolList.AddSymb
+	int    AddJob(const JobDefinition *, SString & rErrMsg);   // @>>AddSymb
+	int    AddObj(const ObjDefinition *, SString & rErrMsg);   // @>>AddSymb
+	int    AddCmd(const CmdDefinition *, SString & rErrMsg);   // @>>AddSymb
+	int    AddView(const ViewDefinition *, SString & rErrMsg);
+	int    AddReportStub(const ReportStubDefinition *, SString & rErrMsg);
+	int    InitCurCtrlMenu(const char * pName);
+	int    AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode); // @v10.8.11 pCmdCode
+	int    AcceptCtrlMenu();
 	int    SetFieldDefinition(const char * pName, TYPEID typ, long fmt, const char * pDescr, SString & rErrMsg);
 	int    AddRecord(const char * pName, SString & rErrMsg); // @>>AddSymb
 	int    SetupBitmapGroup(const char * pPath);
@@ -317,10 +317,10 @@ public:
 	long   ResolveRPathSymb(const char * pSymbol, SString & rCppMnem, SString & rErrMsg);
 	int    AddRFileDefinition(const char * pSymbol, const char * pName, const char * pPathMnem, long flags, const char * pDescr, SString & rErrMsg);
 private:
-	int    SLAPI GenerateIncludeDirec(FILE * pF, const char * pFileName, int angleBraces);
-	int    SLAPI GenerateToolbarEntries(FILE * pF, ToolbarDefinition * pT);
-	int    SLAPI LayoutToRect(BrowserLayout * pL, TRect * pR);
-	int    SLAPI GenerateRecordStruct(const SdRecord * pRec);
+	int    GenerateIncludeDirec(FILE * pF, const char * pFileName, int angleBraces);
+	int    GenerateToolbarEntries(FILE * pF, ToolbarDefinition * pT);
+	int    LayoutToRect(BrowserLayout * pL, TRect * pR);
+	int    GenerateRecordStruct(const SdRecord * pRec);
 
 	int    BrwCounter;
 	int    TbCounter;

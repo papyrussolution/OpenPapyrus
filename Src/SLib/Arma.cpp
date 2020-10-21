@@ -7,19 +7,19 @@
 
 static const double ARMA_INVERTMATRIX_INIT_VAL = 1.e6;
 
-SLAPI ARMA::ARMA() : P(0), Q(0), IterCount(0)
+ARMA::ARMA() : P(0), Q(0), IterCount(0)
 {
 }
 
-SLAPI ARMA::~ARMA()
+ARMA::~ARMA()
 {
 }
 
-int SLAPI ARMA::GetModel(LVect * pVect) const { return pVect ? pVect->copy(Model) : 0; }
-int SLAPI ARMA::GetR(LMatrix * pR) const { return pR ? pR->copy(R) : 0; }
-int SLAPI ARMA::GetPhi(LVect * pVect) const { return pVect ? pVect->copy(Phi) : 0; }
+int ARMA::GetModel(LVect * pVect) const { return pVect ? pVect->copy(Model) : 0; }
+int ARMA::GetR(LMatrix * pR) const { return pR ? pR->copy(R) : 0; }
+int ARMA::GetPhi(LVect * pVect) const { return pVect ? pVect->copy(Phi) : 0; }
 
-void SLAPI ARMA::GetPQ(int * pP, int * pQ) const
+void ARMA::GetPQ(int * pP, int * pQ) const
 {
 	ASSIGN_PTR(pP, P);
 	ASSIGN_PTR(pQ, Q);
@@ -27,7 +27,7 @@ void SLAPI ARMA::GetPQ(int * pP, int * pQ) const
 //
 // In pInitTSeries[P] most recent value has bigger index
 //
-void SLAPI ARMA::Init(int p, int q, const double * pInitTSeries)
+void ARMA::Init(int p, int q, const double * pInitTSeries)
 {
 	LMIDX i;
 	P = p;
@@ -43,7 +43,7 @@ void SLAPI ARMA::Init(int p, int q, const double * pInitTSeries)
 		Phi.set(i, pInitTSeries[(size_t)(P-i)]);
 }
 
-void SLAPI ARMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR)
+void ARMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR)
 {
 	P = p;
 	Q = q;
@@ -61,7 +61,7 @@ void SLAPI ARMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, co
 //
 // GainFactor = (R * Phi) / (1 + Phi(Transp) * R * Phi))
 //
-int SLAPI ARMA::ComputeGainFactor(LVect * pGF) const
+int ARMA::ComputeGainFactor(LVect * pGF) const
 {
 	LVect * p_dividend = R * Phi;
 	LVect * p_temp     = Phi * R;
@@ -72,19 +72,19 @@ int SLAPI ARMA::ComputeGainFactor(LVect * pGF) const
 	return 1;
 }
 
-double SLAPI ARMA::ComputePredictError(double val) const
+double ARMA::ComputePredictError(double val) const
 {
 	LVect temp;
 	temp.copy(Phi);
 	return (val - temp.dot(Model));
 }
 
-double SLAPI ARMA::Predict() const
+double ARMA::Predict() const
 {
 	return -ComputePredictError(0);
 }
 
-int SLAPI ARMA::Step(double val)
+int ARMA::Step(double val)
 {
 	IterCount++;
 
@@ -124,22 +124,22 @@ int SLAPI ARMA::Step(double val)
 //
 //
 //
-SLAPI RDI::RDI() : P_Queue(0)
+RDI::RDI() : P_Queue(0)
 {
 }
 
-SLAPI RDI::~RDI()
+RDI::~RDI()
 {
 	delete P_Queue;
 }
 
-void SLAPI RDI::Init(const DblQueue * pInitQueue)
+void RDI::Init(const DblQueue * pInitQueue)
 {
 	ZDELETE(P_Queue);
 	P_Queue = new DblQueue(*pInitQueue);
 }
 
-void SLAPI RDI::Init(const double * pInitQueue, uint interval)
+void RDI::Init(const double * pInitQueue, uint interval)
 {
 	ZDELETE(P_Queue);
 	P_Queue = new DblQueue(interval);
@@ -147,18 +147,18 @@ void SLAPI RDI::Init(const double * pInitQueue, uint interval)
 		P_Queue->push(pInitQueue[i]);
 }
 
-double SLAPI RDI::StepDiff(double nextVal) const { return (nextVal - P_Queue->get(0)); }
-double SLAPI RDI::StepIntg(double diff) const { return (P_Queue->get(0) + diff); }
-int    SLAPI RDI::Step(double newVal) { return P_Queue->push(newVal); }
-int    SLAPI RDI::GetQueue(DblQueue * pQueue) const { return (pQueue && P_Queue) ? pQueue->copy(*P_Queue) : 0; }
+double RDI::StepDiff(double nextVal) const { return (nextVal - P_Queue->get(0)); }
+double RDI::StepIntg(double diff) const { return (P_Queue->get(0) + diff); }
+int    RDI::Step(double newVal) { return P_Queue->push(newVal); }
+int    RDI::GetQueue(DblQueue * pQueue) const { return (pQueue && P_Queue) ? pQueue->copy(*P_Queue) : 0; }
 //
 //
 //
-SLAPI ARIMA::ARIMA() : ARMA()
+ARIMA::ARIMA() : ARMA()
 {
 }
 
-void SLAPI ARIMA::Init(int p, int q, const double * pInitSeries, const DblQueue * pRDIInitQueue)
+void ARIMA::Init(int p, int q, const double * pInitSeries, const DblQueue * pRDIInitQueue)
 {
 	double * p_init_series = new double[p];
 	Rdi.Init(pRDIInitQueue);
@@ -176,13 +176,13 @@ void SLAPI ARIMA::Init(int p, int q, const double * pInitSeries, const DblQueue 
 	delete [] p_init_series;
 }
 
-void SLAPI ARIMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR, const DblQueue * pRDIInitQueue)
+void ARIMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR, const DblQueue * pRDIInitQueue)
 {
 	Rdi.Init(pRDIInitQueue);
 	ARMA::Init(p, q, pModel, pPhi, pR);
 }
 
-int SLAPI ARIMA::Step(double val)
+int ARIMA::Step(double val)
 {
 	if(Rdi.GetSeason() > 0) {
 		ARMA::Step(Rdi.StepDiff(val));
@@ -193,7 +193,7 @@ int SLAPI ARIMA::Step(double val)
 	return 1;
 }
 
-double SLAPI ARIMA::Predict() const
+double ARIMA::Predict() const
 {
 	double p = ARMA::Predict();
 	return (Rdi.GetSeason() > 0) ? Rdi.StepIntg(p) : p;
@@ -207,7 +207,7 @@ struct DataEntry {
 	double Val;
 };
 
-static int SLAPI GetNextDataEntry(FILE * pInF, DataEntry * pEntry)
+static int GetNextDataEntry(FILE * pInF, DataEntry * pEntry)
 {
 	char buf[128];
 	if(fgets(buf, sizeof(buf), pInF)) {
@@ -238,7 +238,7 @@ static void PrintOutRow(FILE * pOutF, LDATE dt, double val, double predictVal)
 	fprintf(pOutF, "%s, %12.2lf, %12.2lf, %12.2lf, %12.4lf\n", dt_buf, val, predictVal, err, pct_err);
 }
 
-int SLAPI InitSeries(int P, int Q, const char * pInFileName, const char * pOutFileName)
+int InitSeries(int P, int Q, const char * pInFileName, const char * pOutFileName)
 {
 	int    i = 0;
   	char   dt_buf[32];
@@ -279,7 +279,7 @@ int SLAPI InitSeries(int P, int Q, const char * pInFileName, const char * pOutFi
 	return 1;
 }
 
-int SLAPI TestARMA(int P, int Q, const char * pInFileName, const char * pOutFileName)
+int TestARMA(int P, int Q, const char * pInFileName, const char * pOutFileName)
 {
 	FILE * f_in = fopen(pInFileName, "r");
 	FILE * f_out = fopen(pOutFileName, "w");
@@ -363,7 +363,7 @@ static void PrintQueue(const SQueue * pQueue)
 	printf("\n");
 }
 
-static int SLAPI TestQueue()
+static int TestQueue()
 {
 	printf("\n");
 	SQueue q(sizeof(double), 10);
@@ -379,7 +379,7 @@ static int SLAPI TestQueue()
 	return 1;
 }
 
-int SLAPI TestTimSerStat(const char * pInFileName, const char * pOutFileName)
+int TestTimSerStat(const char * pInFileName, const char * pOutFileName)
 {
 	FILE * f_in = fopen(pInFileName, "r");
 	FILE * f_out = fopen(pOutFileName, "w");

@@ -25,8 +25,8 @@ static int FASTCALL ZStrToLStr(char * pDest, const char * pSrc, size_t lStrBufSi
 
 class ACS_CRUKM : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_CRUKM(PPID n);
-	virtual SLAPI ~ACS_CRUKM();
+	ACS_CRUKM(PPID n);
+	virtual ~ACS_CRUKM();
 private:
 	struct SessEntry {
 		PPID   CashNo;
@@ -53,21 +53,21 @@ private:
 		//
 		int16  Temporary;
 	};
-	virtual int SLAPI ExportData(int updOnly);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
-	virtual int SLAPI FinishImportSession(PPIDArray *);
-	int    SLAPI SearchAbsentSess(SessEntry *, Cr_SaleTbl *, int numForwards);
-	int    SLAPI ExportSCard(Cr_PosLoadTbl *, Cr_CredoPayTbl *, const PPIDArray * pLogNumList, int updOnly);
-	int    SLAPI ExportOpByCrdCard(SCardCore *, PPID, const char *, Cr_CredoPayTbl *);
-	int    SLAPI ProcessSCardByCheck(const Cr_SaleTbl::Rec *, PPID * pSCardID, int * pIsCreditCard);
-	int    SLAPI AddSessEntry(PPID cashNo, PPID sessNo, PPID sessID = 0, int isTemporary = 0);
+	virtual int ExportData(int updOnly);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
+	virtual int FinishImportSession(PPIDArray *);
+	int    SearchAbsentSess(SessEntry *, Cr_SaleTbl *, int numForwards);
+	int    ExportSCard(Cr_PosLoadTbl *, Cr_CredoPayTbl *, const PPIDArray * pLogNumList, int updOnly);
+	int    ExportOpByCrdCard(SCardCore *, PPID, const char *, Cr_CredoPayTbl *);
+	int    ProcessSCardByCheck(const Cr_SaleTbl::Rec *, PPID * pSCardID, int * pIsCreditCard);
+	int    AddSessEntry(PPID cashNo, PPID sessNo, PPID sessID = 0, int isTemporary = 0);
 	// Called from GetSessionData
-	int    SLAPI UpdateZReportData(Cr_ZReportTbl *);
+	int    UpdateZReportData(Cr_ZReportTbl *);
 	// Called from UpdateZReportData
-	int    SLAPI CreateAbsentSession(PPID cashNo, PPID sessNo, Cr_ZReportTbl *, Cr_SaleTbl *);
-	int    SLAPI SearchSCard(const char * pSrcCardCode, PPID * pSCardID);
-	int    SLAPI ExportSection(const AsyncCashGoodsInfo *, Cr_PosLoadTbl::Rec *, int exportSect);
+	int    CreateAbsentSession(PPID cashNo, PPID sessNo, Cr_ZReportTbl *, Cr_SaleTbl *);
+	int    SearchSCard(const char * pSrcCardCode, PPID * pSCardID);
+	int    ExportSection(const AsyncCashGoodsInfo *, Cr_PosLoadTbl::Rec *, int exportSect);
 
 	SArray * P_TmpSessList;
 	char   * PP_SalesFileName[2];
@@ -79,13 +79,13 @@ private:
 	PPID   StatID;
 };
 
-SLAPI  ACS_CRUKM::ACS_CRUKM(PPID n) : PPAsyncCashSession(n), P_TmpSessList(0), P_DsCrdTbl(0), P_CrCrdTbl(0), StatID(0)
+ACS_CRUKM::ACS_CRUKM(PPID n) : PPAsyncCashSession(n), P_TmpSessList(0), P_DsCrdTbl(0), P_CrCrdTbl(0), StatID(0)
 {
 	PP_SalesFileName[0] = 0;
 	PP_SalesFileName[1] = 0;
 }
 
-SLAPI ACS_CRUKM::~ACS_CRUKM()
+ACS_CRUKM::~ACS_CRUKM()
 {
 	delete P_TmpSessList;
 	delete P_DsCrdTbl;
@@ -96,16 +96,16 @@ SLAPI ACS_CRUKM::~ACS_CRUKM()
 
 class CM_CRUKM : public PPCashMachine {
 public:
-	SLAPI CM_CRUKM(PPID cashID) : PPCashMachine(cashID), P_DsCrdTbl(0), P_CSess(0), P_ScObj(0)
+	CM_CRUKM(PPID cashID) : PPCashMachine(cashID), P_DsCrdTbl(0), P_CSess(0), P_ScObj(0)
 	{
 	}
-	virtual SLAPI ~CM_CRUKM()
+	virtual ~CM_CRUKM()
 	{
 		delete P_DsCrdTbl;
 		delete P_CSess;
 		delete P_ScObj;
 	}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_CRUKM(NodeID); }
+	PPAsyncCashSession * AsyncInterface() { return new ACS_CRUKM(NodeID); }
 private:
 	Cr_CashDCrdTbl * P_DsCrdTbl;
 	CSessionCore * P_CSess;
@@ -115,7 +115,7 @@ private:
 
 REGISTER_CMT(CRUKM,0,1);
 
-int SLAPI ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char * pCardCode, Cr_CredoPayTbl * pScCrdTbl)
+int ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char * pCardCode, Cr_CredoPayTbl * pScCrdTbl)
 {
 	int    ok = 1;
 	//
@@ -158,7 +158,7 @@ int SLAPI ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char 
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, const PPIDArray * pLogNumList, int updOnly)
+int ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, const PPIDArray * pLogNumList, int updOnly)
 {
 	int    ok = 1;
 	PPID   ser_id = 0;
@@ -216,7 +216,7 @@ int SLAPI ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCr
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::ExportSection(const AsyncCashGoodsInfo * pInfo, Cr_PosLoadTbl::Rec * pRec, int exportSect)
+int ACS_CRUKM::ExportSection(const AsyncCashGoodsInfo * pInfo, Cr_PosLoadTbl::Rec * pRec, int exportSect)
 {
 	if(exportSect) {
 		char sect_buf[32];
@@ -226,7 +226,7 @@ int SLAPI ACS_CRUKM::ExportSection(const AsyncCashGoodsInfo * pInfo, Cr_PosLoadT
 	return 1;
 }
 
-int SLAPI ACS_CRUKM::ExportData(int updOnly)
+int ACS_CRUKM::ExportData(int updOnly)
 {
 	int    ok = 1;
 	int    check_dig = 0;
@@ -441,7 +441,7 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::AddSessEntry(PPID cashNo, PPID sessNo, PPID sessID, int temporary)
+int ACS_CRUKM::AddSessEntry(PPID cashNo, PPID sessNo, PPID sessID, int temporary)
 {
 	int    ok = 1, found = 0;
 	uint   i;
@@ -461,7 +461,7 @@ int SLAPI ACS_CRUKM::AddSessEntry(PPID cashNo, PPID sessNo, PPID sessID, int tem
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::SearchAbsentSess(SessEntry * pSessEntry, Cr_SaleTbl * pTbl, int numForwards)
+int ACS_CRUKM::SearchAbsentSess(SessEntry * pSessEntry, Cr_SaleTbl * pTbl, int numForwards)
 {
 	int    ok = 1;
 	PPID   sess_id = 0, sess_no = 0;
@@ -485,7 +485,7 @@ int SLAPI ACS_CRUKM::SearchAbsentSess(SessEntry * pSessEntry, Cr_SaleTbl * pTbl,
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = 1;
 	uint   i, j;
@@ -631,7 +631,7 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::CreateAbsentSession(PPID cashNo, PPID sessNo, Cr_ZReportTbl * pZReportTbl, Cr_SaleTbl * pSalesTbl)
+int ACS_CRUKM::CreateAbsentSession(PPID cashNo, PPID sessNo, Cr_ZReportTbl * pZReportTbl, Cr_SaleTbl * pSalesTbl)
 {
 	int    ok = -1;
 	Cr_ZReportTbl::Key0 k0;
@@ -662,7 +662,7 @@ int SLAPI ACS_CRUKM::CreateAbsentSession(PPID cashNo, PPID sessNo, Cr_ZReportTbl
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::UpdateZReportData(Cr_ZReportTbl * pZReportTbl)
+int ACS_CRUKM::UpdateZReportData(Cr_ZReportTbl * pZReportTbl)
 {
 	for(int i = 0; i < 2; i++)
 		if(PP_SalesFileName[i] != 0) {
@@ -700,7 +700,7 @@ static void FASTCALL WaitMsgByCheck(const LDATETIME * pDT, long cashCode, long c
 	PPWaitMsg(MakeMsgByCheck(pDT, cashCode, chkNumber, msg_buf));
 }
 
-int SLAPI ACS_CRUKM::FinishImportSession(PPIDArray * pSessList)
+int ACS_CRUKM::FinishImportSession(PPIDArray * pSessList)
 {
 	int    ok = 1;
 	ZDELETE(P_DsCrdTbl);
@@ -715,7 +715,7 @@ int SLAPI ACS_CRUKM::FinishImportSession(PPIDArray * pSessList)
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::SearchSCard(const char * pSrcCardCode, PPID * pSCardID)
+int ACS_CRUKM::SearchSCard(const char * pSrcCardCode, PPID * pSCardID)
 {
 	int    ok = -1;
 	char   card_code[32];
@@ -744,7 +744,7 @@ int SLAPI ACS_CRUKM::SearchSCard(const char * pSrcCardCode, PPID * pSCardID)
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::ProcessSCardByCheck(const Cr_SaleTbl::Rec * pInRec, PPID * pSCardID, int * pIsCreditCard)
+int ACS_CRUKM::ProcessSCardByCheck(const Cr_SaleTbl::Rec * pInRec, PPID * pSCardID, int * pIsCreditCard)
 {
 	int    ok = -1;
 	uint   j;
@@ -788,7 +788,7 @@ int SLAPI ACS_CRUKM::ProcessSCardByCheck(const Cr_SaleTbl::Rec * pInRec, PPID * 
 	return ok;
 }
 
-int SLAPI ACS_CRUKM::ImportSession(int sessIdx)
+int ACS_CRUKM::ImportSession(int sessIdx)
 {
 	int    ok = -1, r, i;
 	int    is_tables_created = 0;

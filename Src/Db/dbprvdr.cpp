@@ -307,59 +307,59 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options) const
 //
 //
 //
-SLAPI DbProvider::DbProvider(DbDictionary * pDict, long capability) : P_Dict(pDict), Capability(capability), State(0), DbPathID(0)
+DbProvider::DbProvider(DbDictionary * pDict, long capability) : P_Dict(pDict), Capability(capability), State(0), DbPathID(0)
 {
 }
 
-SLAPI DbProvider::~DbProvider()
+DbProvider::~DbProvider()
 {
 	delete P_Dict;
 }
 
 //virtual default-implementation
-int SLAPI DbProvider::GetDatabaseState(uint * pStateFlags) 
+int DbProvider::GetDatabaseState(uint * pStateFlags) 
 { 
 	ASSIGN_PTR(pStateFlags, 0);
 	return -1; 
 }
 
-int SLAPI DbProvider::IsValid() const
+int DbProvider::IsValid() const
 {
 	return (State & stError) ? 0 : 1;
 }
 
-int SLAPI DbProvider::SetDbName(const char * pName, const char * pSymb)
+int DbProvider::SetDbName(const char * pName, const char * pSymb)
 {
 	DbName = pName;
 	DbSymb = pSymb;
 	return 1;
 }
 
-int SLAPI DbProvider::GetDbName(SString & rBuf) const
+int DbProvider::GetDbName(SString & rBuf) const
 {
 	Lb.GetAttr(DbLoginBlock::attrDbFriendlyName, rBuf);
 	return rBuf.NotEmpty() ? 1 : -1;
 }
 
-int SLAPI DbProvider::GetDbSymb(SString & rBuf) const
+int DbProvider::GetDbSymb(SString & rBuf) const
 {
 	Lb.GetAttr(DbLoginBlock::attrDbSymb, rBuf);
 	return rBuf.NotEmpty() ? 1 : -1;
 }
 
-int SLAPI DbProvider::GetDataPath(SString & rBuf) const
+int DbProvider::GetDataPath(SString & rBuf) const
 {
 	Lb.GetAttr(DbLoginBlock::attrDbPath, rBuf);
 	return rBuf.NotEmptyS();
 }
 
-int SLAPI DbProvider::GetSysPath(SString & rBuf) const
+int DbProvider::GetSysPath(SString & rBuf) const
 {
 	Lb.GetAttr(DbLoginBlock::attrDictPath, rBuf);
 	return rBuf.NotEmptyS();
 }
 
-int SLAPI DbProvider::GetDbUUID(S_GUID * pUuid) const
+int DbProvider::GetDbUUID(S_GUID * pUuid) const
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -369,12 +369,12 @@ int SLAPI DbProvider::GetDbUUID(S_GUID * pUuid) const
 	return ok;
 }
 
-int SLAPI DbProvider::AddTempFileName(const char * pFileName)
+int DbProvider::AddTempFileName(const char * pFileName)
 {
 	return isempty(pFileName) ? -1 : TempFileList.add(pFileName);
 }
 
-int SLAPI DbProvider::DelTempFileName(const char * pFileName)
+int DbProvider::DelTempFileName(const char * pFileName)
 {
 	int    ok = -1;
 	SString file_name;
@@ -394,7 +394,7 @@ int SLAPI DbProvider::DelTempFileName(const char * pFileName)
 
 }
 
-void SLAPI DbProvider::RemoveTempFiles()
+void DbProvider::RemoveTempFiles()
 {
 	SString file_name;
 	StringSet temp_list;
@@ -412,7 +412,7 @@ void SLAPI DbProvider::RemoveTempFiles()
 	TempFileList = temp_list;
 }
 
-int SLAPI DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists)
+int DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists)
 {
 	int    ok = 1;
 	THROW(P_Dict->LoadTableSpec(pTbl, pTblName));
@@ -437,7 +437,7 @@ int SLAPI DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const
 	return ok;
 }
 
-int SLAPI DbProvider::CreateTableAndFileBySpec(DBTable ** ppTblSpec)
+int DbProvider::CreateTableAndFileBySpec(DBTable ** ppTblSpec)
 {
 	int    ok = 1;
 	assert(ppTblSpec);
@@ -462,7 +462,7 @@ int SLAPI DbProvider::CreateTableAndFileBySpec(DBTable ** ppTblSpec)
 	return ok;
 }
 
-int SLAPI DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameBuf, int forceInDataPath)
+int DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameBuf, int forceInDataPath)
 {
 	int    ok = 0;
 	DBTable crtbl;
@@ -479,7 +479,7 @@ int SLAPI DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameB
 	return ok;
 }
 
-int SLAPI DbProvider::RenewFile(DBTable & rTbl, int createMode, const char * pAltCode)
+int DbProvider::RenewFile(DBTable & rTbl, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
 	char   acst[512];
@@ -494,7 +494,7 @@ int SLAPI DbProvider::RenewFile(DBTable & rTbl, int createMode, const char * pAl
 	return ok;
 }
 
-int SLAPI DbProvider::DropTable(const char * pTblName, int inDictOnly)
+int DbProvider::DropTable(const char * pTblName, int inDictOnly)
 {
 	DbTableStat ts;
 	int    ok = P_Dict->DropTableSpec(pTblName, &ts);
@@ -510,14 +510,14 @@ int SLAPI DbProvider::DropTable(const char * pTblName, int inDictOnly)
 #define PASZ  4096U
 #define PAOFS   34U
 
-static char * SLAPI cryptPassword(char * p)
+static char * cryptPassword(char * p)
 {
 	p[2] = 'e'; p[3] = '$'; p[9] = 0;   p[1] = '8'; p[4] = 'g'; 
 	p[7] = '+'; p[0] = '-'; p[6] = '+'; p[5] = 'p'; p[8] = '+'; 
 	return p;
 }
 
-static char * SLAPI protectFileName(char * p, const char * pDataPath)
+static char * protectFileName(char * p, const char * pDataPath)
 {
 	char   n[16];
 	n[2] = '['; n[2] = 'P'; n[0] = 'D'; n[3] = '\x24'; n[3] = 'A'; n[4] = 0; n[1] = 'B';
@@ -534,7 +534,7 @@ static char * SLAPI protectFileName(char * p, const char * pDataPath)
 	return p;
 }
 
-int SLAPI DbProvider::GetProtectData(FILE * f, uint16 * pBuf)
+int DbProvider::GetProtectData(FILE * f, uint16 * pBuf)
 {
 	int    ok = 1;
 	char   cpw[16];
@@ -551,7 +551,7 @@ int SLAPI DbProvider::GetProtectData(FILE * f, uint16 * pBuf)
 	return ok;
 }
 
-int SLAPI DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
+int DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 {
 	int    ok = 1, exists = 1;
 	FILE * f = 0;
@@ -600,7 +600,7 @@ int SLAPI DbProvider::SetupProtectData(const char * pOldPw, const char * pNewPw)
 	return ok;
 }
 
-int SLAPI DbProvider::GetProtectData()
+int DbProvider::GetProtectData()
 {
 	int    ok = 0;
 	uint16 buf[32];
@@ -623,12 +623,12 @@ int SLAPI DbProvider::GetProtectData()
 //
 //
 //
-int SLAPI DbProvider::CreateTableSpec(DBTable * pTbl) { return P_Dict->CreateTableSpec(pTbl); }
-int SLAPI DbProvider::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat) { return P_Dict->GetTableID(pTblName, pID, pStat); }
-int SLAPI DbProvider::GetTableInfo(long tblID, DbTableStat * pStat) { return P_Dict->GetTableInfo(tblID, pStat); }
-int SLAPI DbProvider::GetListOfTables(long options, StrAssocArray * pList) { return P_Dict->GetListOfTables(options, pList); }
+int DbProvider::CreateTableSpec(DBTable * pTbl) { return P_Dict->CreateTableSpec(pTbl); }
+int DbProvider::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat) { return P_Dict->GetTableID(pTblName, pID, pStat); }
+int DbProvider::GetTableInfo(long tblID, DbTableStat * pStat) { return P_Dict->GetTableInfo(tblID, pStat); }
+int DbProvider::GetListOfTables(long options, StrAssocArray * pList) { return P_Dict->GetListOfTables(options, pList); }
 
-int SLAPI DbProvider::GetUniqueTableName(const char * pPrefix, DBTable * pTbl)
+int DbProvider::GetUniqueTableName(const char * pPrefix, DBTable * pTbl)
 {
 	SString tbl_name;
 	long   num = 0;
@@ -640,43 +640,43 @@ int SLAPI DbProvider::GetUniqueTableName(const char * pPrefix, DBTable * pTbl)
 	return 1;
 }
 
-int SLAPI DbProvider::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
+int DbProvider::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 {
 	return 0;
 }
 //
 //
 //
-void SLAPI DbProvider::Common_Login(const DbLoginBlock * pBlk)
+void DbProvider::Common_Login(const DbLoginBlock * pBlk)
 {
 	if(pBlk)
 		Lb.Copy(*pBlk);
 	State |= stLoggedIn;
 }
 
-void SLAPI DbProvider::Common_Logout()
+void DbProvider::Common_Logout()
 {
 	State &= ~stLoggedIn;
 }
 
-int SLAPI DbProvider::Login(const DbLoginBlock * pBlk, long options)
+int DbProvider::Login(const DbLoginBlock * pBlk, long options)
 {
 	Common_Login(pBlk);
 	return 1;
 }
 
-int SLAPI DbProvider::Logout()
+int DbProvider::Logout()
 {
 	Common_Logout();
 	return 1;
 }
 
-int SLAPI DbProvider::PostProcessAfterUndump(DBTable * pTbl)
+int DbProvider::PostProcessAfterUndump(DBTable * pTbl)
 {
 	return -1;
 }
 
-int SLAPI DbProvider::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
+int DbProvider::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
 {
 	ASSIGN_PTR(pPos, *pTbl->getCurRowIdPtr());
 	return 1;
@@ -692,7 +692,7 @@ int DbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount) { return 0
 //
 //
 //
-int SLAPI DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
+int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 {
 	int    ok = 1;
 	DBQuery * q = & selectAll().from(pTbl, 0L).where(rQ);

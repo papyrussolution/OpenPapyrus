@@ -30,13 +30,13 @@
 //
 //
 //
-SLAPI PPObjGoodsClass::PPObjGoodsClass(void * extraPtr) : PPObjReference(PPOBJ_GOODSCLASS, extraPtr)
+PPObjGoodsClass::PPObjGoodsClass(void * extraPtr) : PPObjReference(PPOBJ_GOODSCLASS, extraPtr)
 {
 }
 
 IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 
-/*static*/int SLAPI PPObjGoodsClass::SerializeDim(int dir, PPGdsClsDim * p, SBuffer & rBuf, SSerializeContext * pSCtx)
+/*static*/int PPObjGoodsClass::SerializeDim(int dir, PPGdsClsDim * p, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_ZSTRING, sizeof(p->Name)), p->Name, 0, rBuf));
@@ -46,7 +46,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsClass::PutProp(SString & rBuf, uint fldID, PPGdsClsProp * pProp)
+/*static*/int PPObjGoodsClass::PutProp(SString & rBuf, uint fldID, PPGdsClsProp * pProp)
 {
 	int    ok = 1;
 	char   temp_str[128];
@@ -55,7 +55,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsClass::GetProp(const SString & rBuf, uint fldID, PPGdsClsProp * pProp)
+/*static*/int PPObjGoodsClass::GetProp(const SString & rBuf, uint fldID, PPGdsClsProp * pProp)
 {
 	SString temp_buf;
 	PPGetExtStrData(10*fldID+1, rBuf, temp_buf);
@@ -65,7 +65,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 	return 1;
 }
 
-/*static*/int SLAPI PPObjGoodsClass::PutPropsToLine(SString & rLine, PPGdsClsPacket * pPack)
+/*static*/int PPObjGoodsClass::PutPropsToLine(SString & rLine, PPGdsClsPacket * pPack)
 {
 	int    ok = 1;
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_NAMECONV,   rLine, pPack->NameConv);
@@ -83,7 +83,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 	return ok;
 }
 
-/*static*/int SLAPI PPObjGoodsClass::GetPropsFromLine(const SString & rLine, PPGdsClsPacket * pPack)
+/*static*/int PPObjGoodsClass::GetPropsFromLine(const SString & rLine, PPGdsClsPacket * pPack)
 {
 	int    ok = 1;
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_NAMECONV,   rLine, pPack->NameConv);
@@ -99,7 +99,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::SerializePacket(int dir, PPGdsClsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjGoodsClass::SerializePacket(int dir, PPGdsClsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -120,10 +120,10 @@ int SLAPI PPObjGoodsClass::SerializePacket(int dir, PPGdsClsPacket * pPack, SBuf
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjGoodsClass::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjGoodsClass, PPGdsClsPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjGoodsClass::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjGoodsClass::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -161,7 +161,7 @@ int SLAPI PPObjGoodsClass::Write(PPObjPack * p, PPID * pID, void * stream, ObjTr
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjGoodsClass::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -186,7 +186,7 @@ int SLAPI PPObjGoodsClass::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::GetPacket(PPID id, PPGdsClsPacket * pPack)
+int PPObjGoodsClass::GetPacket(PPID id, PPGdsClsPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
@@ -212,7 +212,7 @@ int SLAPI PPObjGoodsClass::GetPacket(PPID id, PPGdsClsPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use_ta)
+int PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -267,7 +267,7 @@ int SLAPI PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
+int PPObjGoodsClass::PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -282,7 +282,7 @@ int SLAPI PPObjGoodsClass::PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
+int PPObjGoodsClass::GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
 {
 	int    ok = 1;
 	SString line_buf, temp_buf;
@@ -481,7 +481,7 @@ int GoodsClassProp2Dialog::getDTS(PPGdsClsProp * pData)
 //
 //
 // prototype
-int SLAPI EditGcFormulaList(PPGdsClsPacket * pData);
+int EditGcFormulaList(PPGdsClsPacket * pData);
 
 IMPL_HANDLE_EVENT(GoodsClassDialog)
 {
@@ -700,7 +700,7 @@ int GoodsClassDialog::replyDimCmd(PPGdsClsDim * pData)
 //
 //
 //
-int SLAPI PPObjGoodsClass::ReplacePropRefList(PPID prevObjType, PPID newObjType, LAssocArray * pAssc, LAssocArray * pBadRefList)
+int PPObjGoodsClass::ReplacePropRefList(PPID prevObjType, PPID newObjType, LAssocArray * pAssc, LAssocArray * pBadRefList)
 {
 	int    ok = 1;
 	LAssocArray new_assc, bad_ref_list;
@@ -729,7 +729,7 @@ int SLAPI PPObjGoodsClass::ReplacePropRefList(PPID prevObjType, PPID newObjType,
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::UpdatePropObjType(PPID clsID, int gcProp, PPID prevObjType, PPID newObjType, LAssocArray * pBadRefList)
+int PPObjGoodsClass::UpdatePropObjType(PPID clsID, int gcProp, PPID prevObjType, PPID newObjType, LAssocArray * pBadRefList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pBadRefList, clear());
@@ -747,7 +747,7 @@ int SLAPI PPObjGoodsClass::UpdatePropObjType(PPID clsID, int gcProp, PPID prevOb
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
+int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0, is_new = 0;
 	const  PPID org_id = DEREFPTRORZ(pID);
@@ -805,13 +805,13 @@ int SLAPI PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjGoodsClass::Print(PPID id)
+int PPObjGoodsClass::Print(PPID id)
 {
 	PView  pv((void *)0);
 	return PPAlddPrint(REPORT_GOODSCLASSVIEW, &pv, 0);
 }
 
-int SLAPI PPObjGoodsClass::Browse(void * extraPtr)
+int PPObjGoodsClass::Browse(void * extraPtr)
 {
 	class GdsClsView : public ObjViewDialog {
 	public:
@@ -849,10 +849,10 @@ int SLAPI PPObjGoodsClass::Browse(void * extraPtr)
 //
 class GoodsClassCache : public ObjCache {
 public:
-	SLAPI GoodsClassCache() : ObjCache(PPOBJ_GOODSCLASS, sizeof(GoodsClassData)) {}
+	GoodsClassCache() : ObjCache(PPOBJ_GOODSCLASS, sizeof(GoodsClassData)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct GoodsClassData : public ObjCacheEntry {
 		PPID   DefUnitID;
@@ -879,7 +879,7 @@ public:
 	};
 };
 
-int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	GoodsClassData * p_cache_rec = static_cast<GoodsClassData *>(pEntry);
@@ -923,7 +923,7 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPGdsClsPacket * p_data_pack = static_cast<PPGdsClsPacket *>(pDataRec);
 	const GoodsClassData * p_cache_rec = static_cast<const GoodsClassData *>(pEntry);
@@ -965,7 +965,7 @@ void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	ss.get(&p, p_data_pack->LotDimQtty_Formula);
 }
 
-int SLAPI PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)
+int PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)
 {
 	GoodsClassCache * p_cache = GetDbLocalCachePtr <GoodsClassCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : GetPacket(id, pRec);
@@ -973,11 +973,11 @@ int SLAPI PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)
 //
 //
 //
-SLAPI PPGdsClsFormula::PPGdsClsFormula() : Flags(0)
+PPGdsClsFormula::PPGdsClsFormula() : Flags(0)
 {
 }
 
-void SLAPI PPGdsClsFormula::Clear()
+void PPGdsClsFormula::Clear()
 {
 	Flags = 0;
 	Name.Z();
@@ -1016,7 +1016,7 @@ int FASTCALL PPGdsClsFormula::GetFromBuffer(const char * pBuf)
 	return 1;
 }
 
-int SLAPI PPGdsClsPacket::PutFormula(int * pIdx, const PPGdsClsFormula * pForm)
+int PPGdsClsPacket::PutFormula(int * pIdx, const PPGdsClsFormula * pForm)
 {
 	int    ok = 1;
 	int    idx = *pIdx;
@@ -1038,7 +1038,7 @@ int SLAPI PPGdsClsPacket::PutFormula(int * pIdx, const PPGdsClsFormula * pForm)
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
+int PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
 {
 	if(idx > 0 && idx <= FormulaList.getCountI()) {
 		pForm->GetFromBuffer(FormulaList.at(idx-1));
@@ -1050,7 +1050,7 @@ int SLAPI PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
 	}
 }
 
-int SLAPI PPGdsClsPacket::SetDefaultFormula(int idx)
+int PPGdsClsPacket::SetDefaultFormula(int idx)
 {
 	const int cnt = FormulaList.getCountI();
 	if(idx > 0 && idx <= cnt) {
@@ -1070,7 +1070,7 @@ int SLAPI PPGdsClsPacket::SetDefaultFormula(int idx)
 //
 //
 //
-static int SLAPI EditGcFormula(PPGdsClsFormula * pForm)
+static int EditGcFormula(PPGdsClsFormula * pForm)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GDSCLSFORM);
@@ -1185,7 +1185,7 @@ int GdsClsFormListDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI EditGcFormulaList(PPGdsClsPacket * pData)
+int EditGcFormulaList(PPGdsClsPacket * pData)
 {
 	int    ok = -1;
 	PPGdsClsPacket temp_data;
@@ -1343,7 +1343,7 @@ int GcCalcDialog::getDTS(double * pResult)
 	return IsThereResult ? 1 : -1;
 }
 
-int SLAPI PPGoodsCalculator(PPID goodsID, PPID tsesID, int argIdx, double arg, double * pVal)
+int PPGoodsCalculator(PPID goodsID, PPID tsesID, int argIdx, double arg, double * pVal)
 {
 	int    ok = -1;
 	GcCalcDialog * dlg = new GcCalcDialog;

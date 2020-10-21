@@ -11,7 +11,7 @@
 //
 //
 //
-int SLAPI InternetAccountFilter(void * pData, void * extraPtr)
+int InternetAccountFilter(void * pData, void * extraPtr)
 {
 	const  long extra_param = reinterpret_cast<const long>(extraPtr);
 	int    r = 0;
@@ -27,20 +27,20 @@ int SLAPI InternetAccountFilter(void * pData, void * extraPtr)
 	return r;
 }
 
-SLAPI PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReference(PPOBJ_INTERNETACCOUNT, extraPtr)
+PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReference(PPOBJ_INTERNETACCOUNT, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	FiltProc = InternetAccountFilter;
 }
 
-/*virtual*/ListBoxDef * SLAPI PPObjInternetAccount::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * PPObjInternetAccount::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-/*virtual*/int SLAPI PPObjInternetAccount::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int PPObjInternetAccount::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
 	if(ok > 0)
@@ -48,7 +48,7 @@ SLAPI PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReferen
 	return ok;
 }
 
-int SLAPI PPObjInternetAccount::AssignImages(ListBoxDef * pDef)
+int PPObjInternetAccount::AssignImages(ListBoxDef * pDef)
 {
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
@@ -73,7 +73,7 @@ int SLAPI PPObjInternetAccount::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
+int PPObjInternetAccount::Browse(void * extraPtr)
 {
 	class MailAcctsView : public ObjViewDialog {
 	public:
@@ -158,18 +158,18 @@ int MailAccCtrlGroup::getData(TDialog * dlg, void * pData)
 //
 //
 //
-SLAPI PPInternetAccount2::PPInternetAccount2()
+PPInternetAccount2::PPInternetAccount2()
 {
 	memzero(this, offsetof(PPInternetAccount, ExtStr)-0);
 }
 
-void SLAPI PPInternetAccount::Init()
+void PPInternetAccount::Init()
 {
 	ExtStr.Z();
 	memzero(this, offsetof(PPInternetAccount, ExtStr)-0);
 }
 
-int SLAPI PPInternetAccount::Cmp(const PPInternetAccount * pAccount) const
+int PPInternetAccount::Cmp(const PPInternetAccount * pAccount) const
 {
 	int    ok = 1;
 	if(!(Flags & fFtpAccount) && pAccount) {
@@ -215,12 +215,12 @@ int PPInternetAccount::NotEmpty()
 	return ok;
 }
 
-int SLAPI PPInternetAccount::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
-int SLAPI PPInternetAccount::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
+int PPInternetAccount::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
+int PPInternetAccount::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
 
 #define POP3_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 
-int SLAPI PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	/*
 	char   temp_pw[POP3_PW_SIZE], temp_buf[POP3_PW_SIZE*3+8];
@@ -238,7 +238,7 @@ int SLAPI PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = 
 	return SetExtField(fldID, temp_buf);
 }
 
-int SLAPI PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
+int PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
 {
 	SString temp_buf, pw_buf;
 	GetExtField(fldID, temp_buf);
@@ -266,7 +266,7 @@ int SLAPI PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /
 	return 1;
 }
 
-int SLAPI PPInternetAccount::SetMimedPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount::SetMimedPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	int    ok = -1;
 	const  size_t pwd_len = sstrlen(pPassword);
@@ -281,7 +281,7 @@ int SLAPI PPInternetAccount::SetMimedPassword(const char * pPassword, int fldID 
 	return ok;
 }
 
-int SLAPI PPInternetAccount::GetMimedPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount::GetMimedPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	if(pBuf && bufLen) {
 		char   /*buf[POP3_PW_SIZE*3+8],*/ out_buf[512];
@@ -299,14 +299,14 @@ int SLAPI PPInternetAccount::GetMimedPassword(char * pBuf, size_t bufLen, int fl
 	return 1;
 }
 
-int SLAPI PPInternetAccount::GetSendPort() const
+int PPInternetAccount::GetSendPort() const
 {
 	SString temp_buf;
 	GetExtField(MAEXSTR_SENDPORT, temp_buf);
 	return temp_buf.ToLong();
 }
 
-int SLAPI PPInternetAccount::GetRcvPort()
+int PPInternetAccount::GetRcvPort()
 {
 	SString temp_buf;
 	GetExtField(MAEXSTR_RCVPORT, temp_buf);
@@ -477,7 +477,7 @@ public:
 	}
 };
 
-int SLAPI PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
+int PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
 {
 	long   extra_param = reinterpret_cast<long>(extraPtr);
 	int    ok = 1;
@@ -523,7 +523,7 @@ int SLAPI PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjInternetAccount::Put(PPID * pID, const PPInternetAccount * pPack, int use_ta)
+int PPObjInternetAccount::Put(PPID * pID, const PPInternetAccount * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -551,7 +551,7 @@ int SLAPI PPObjInternetAccount::Put(PPID * pID, const PPInternetAccount * pPack,
 	return ok;
 }
 
-int SLAPI PPObjInternetAccount::Get(PPID id, PPInternetAccount * pPack)
+int PPObjInternetAccount::Get(PPID id, PPInternetAccount * pPack)
 {
 	int    ok = 1;
 	PPInternetAccount pack;
@@ -687,7 +687,7 @@ int AddrBookDialog::setupList()
 	return ok;
 }
 
-int SLAPI ViewAddressBook()
+int ViewAddressBook()
 {
 	AddrBookDialog * dlg = new AddrBookDialog(0);
 	if(CheckDialogPtrErr(&dlg))
@@ -696,7 +696,7 @@ int SLAPI ViewAddressBook()
 	return 1;
 }
 
-int SLAPI SelectAddressFromBook(PPID * pSelPersonID, SString & rAddr)
+int SelectAddressFromBook(PPID * pSelPersonID, SString & rAddr)
 {
 	int    ok = -1;
 	AddrBookDialog * dlg = new AddrBookDialog(1);
@@ -713,7 +713,7 @@ int SLAPI SelectAddressFromBook(PPID * pSelPersonID, SString & rAddr)
 //
 // PPMailFile
 //
-SLAPI PPMailFile::PPMailFile(const char * pFileName)
+PPMailFile::PPMailFile(const char * pFileName)
 {
 	SString temp_buf;
 	P_FieldStrBuf = (PPLoadText(PPTXT_MAILFILEDS, temp_buf) > 0) ? newStr(temp_buf) : 0;
@@ -723,14 +723,14 @@ SLAPI PPMailFile::PPMailFile(const char * pFileName)
 	Open(pFileName);
 }
 
-SLAPI PPMailFile::~PPMailFile()
+PPMailFile::~PPMailFile()
 {
 	Close();
 	delete P_LineBuf;
 	delete P_FieldStrBuf;
 }
 
-int SLAPI PPMailFile::Open(const char * pFileName)
+int PPMailFile::Open(const char * pFileName)
 {
 	int    ok = 1;
 	if(pFileName) {
@@ -749,7 +749,7 @@ int SLAPI PPMailFile::Open(const char * pFileName)
 	return ok;
 }
 
-int SLAPI PPMailFile::Close()
+int PPMailFile::Close()
 {
 	if(Stream) {
 		SFile::ZClose(&Stream);
@@ -761,7 +761,7 @@ int SLAPI PPMailFile::Close()
 		return -1;
 }
 
-const char * SLAPI PPMailFile::ReadLine()
+const char * PPMailFile::ReadLine()
 {
 	if(Stream) {
 		char * r;
@@ -780,7 +780,7 @@ const char * SLAPI PPMailFile::ReadLine()
 	return 0;
 }
 
-int SLAPI PPMailFile::IsBoundaryLine(int start) const
+int PPMailFile::IsBoundaryLine(int start) const
 {
 	if(P_LineBuf) {
 		SString boundary;
@@ -791,12 +791,12 @@ int SLAPI PPMailFile::IsBoundaryLine(int start) const
 	return 0;
 }
 
-int SLAPI PPMailFile::GetFieldTitle(uint id, SString & rBuf) const
+int PPMailFile::GetFieldTitle(uint id, SString & rBuf) const
 {
 	return P_FieldStrBuf ? PPGetSubStr(P_FieldStrBuf, id, rBuf) : 0;
 }
 
-int SLAPI PPMailFile::GetField(const char * pLine, uint fldID, SString & rBuf) const
+int PPMailFile::GetField(const char * pLine, uint fldID, SString & rBuf) const
 {
 	rBuf.Z();
 	SString fld_name;
@@ -811,7 +811,7 @@ int SLAPI PPMailFile::GetField(const char * pLine, uint fldID, SString & rBuf) c
 		return 0;
 }
 
-int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
+int PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 {
 	int    ok = 1;
 	SString buf;
@@ -851,7 +851,7 @@ int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 	return ok;
 }
 
-int SLAPI PPMailFile::ReadHeader()
+int PPMailFile::ReadHeader()
 {
 	Msg.Init();
 	while(ReadLine()) {
@@ -861,7 +861,7 @@ int SLAPI PPMailFile::ReadHeader()
 	return 1;
 }
 
-int SLAPI PPMailFile::SkipHeader()
+int PPMailFile::SkipHeader()
 {
 	if(Stream) {
 		rewind(Stream);
@@ -872,7 +872,7 @@ int SLAPI PPMailFile::SkipHeader()
 	return 0;
 }
 
-int SLAPI PPMailFile::ReadDisposition(SMailMessage & rMsg, SMailMessage::ContentDispositionBlock * pD)
+int PPMailFile::ReadDisposition(SMailMessage & rMsg, SMailMessage::ContentDispositionBlock * pD)
 {
 	pD->Type = pD->tUnkn;
 	int    ok = 1;
@@ -924,7 +924,7 @@ int SLAPI PPMailFile::ReadDisposition(SMailMessage & rMsg, SMailMessage::Content
 	return ok;
 }
 
-int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDestPath)
+int PPMailFile::SaveAttachment(const char * pAttachName, const char * pDestPath)
 {
 	int    ok = -1;
 	SString temp_buf, file_name;
@@ -1004,7 +1004,7 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 	return ok;
 }
 
-/* @v9.9.0 int SLAPI PPMailFile::SaveOrder(const char * pDestFileName)
+/* @v9.9.0 int PPMailFile::SaveOrder(const char * pDestFileName)
 {
 	int    ok = -1;
 	FILE * p_out = 0;
@@ -1041,24 +1041,24 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 //
 // PPMail
 //
-SLAPI PPMail::PPMail(const PPInternetAccount * pMailAcc)
+PPMail::PPMail(const PPInternetAccount * pMailAcc)
 {
 	SString temp_buf;
 	Init(pMailAcc);
 	P_FieldStrBuf = (PPLoadText(PPTXT_MAILFILEDS, temp_buf) > 0) ? newStr(temp_buf) : 0;
 }
 
-SLAPI PPMail::~PPMail()
+PPMail::~PPMail()
 {
 	delete P_FieldStrBuf;
 }
 
-void SLAPI PPMail::Init(const PPInternetAccount * pMailAcc)
+void PPMail::Init(const PPInternetAccount * pMailAcc)
 {
 	RVALUEPTR(MailAcc, pMailAcc);
 }
 
-int SLAPI PPMail::Connect()
+int PPMail::Connect()
 {
 	int    ok = 1;
 	InetUrl url;
@@ -1068,10 +1068,10 @@ int SLAPI PPMail::Connect()
 	return ok;
 }
 
-int SLAPI PPMail::Disconnect() { return Sess.Disconnect() ? 1 : PPSetErrorSLib(); }
-int SLAPI PPMail::PutLine(const char * pLine) { return Sess.WriteLine(pLine, 0) ? 1 : PPSetErrorSLib(); }
-int SLAPI PPMail::GetLine(SString & rBuf) { return Sess.ReadLine(rBuf) ? 1 : PPSetErrorSLib(); }
-int SLAPI PPMail::GetFieldTitle(uint id, SString & rBuf) const { return P_FieldStrBuf ? PPGetSubStr(P_FieldStrBuf, id, rBuf) : 0; }
+int PPMail::Disconnect() { return Sess.Disconnect() ? 1 : PPSetErrorSLib(); }
+int PPMail::PutLine(const char * pLine) { return Sess.WriteLine(pLine, 0) ? 1 : PPSetErrorSLib(); }
+int PPMail::GetLine(SString & rBuf) { return Sess.ReadLine(rBuf) ? 1 : PPSetErrorSLib(); }
+int PPMail::GetFieldTitle(uint id, SString & rBuf) const { return P_FieldStrBuf ? PPGetSubStr(P_FieldStrBuf, id, rBuf) : 0; }
 
 static void PreprocessEncodedField(const char * pLine, SString & rResult)
 {
@@ -1106,7 +1106,7 @@ static void PreprocessEncodedField(const char * pLine, SString & rResult)
 	}
 }
 
-int SLAPI PPMail::GetField(const char * pLine, uint fldID, SString & rBuf) const
+int PPMail::GetField(const char * pLine, uint fldID, SString & rBuf) const
 {
 	SString fld_name;
 	if(GetFieldTitle(fldID, fld_name))
@@ -1126,7 +1126,7 @@ int SLAPI PPMail::GetField(const char * pLine, uint fldID, SString & rBuf) const
 		return 0;
 }
 
-int SLAPI PPMail::PutField(uint fldId, const char * pVal, SString & rResult) const
+int PPMail::PutField(uint fldId, const char * pVal, SString & rResult) const
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1154,11 +1154,11 @@ static void FASTCALL mkmailcmd(SString & rBuf, const char * pCmd, int type, cons
 //
 //
 //
-SLAPI PPMailPop3::PPMailPop3(const PPInternetAccount * pMailAcc) : PPMail(pMailAcc)
+PPMailPop3::PPMailPop3(const PPInternetAccount * pMailAcc) : PPMail(pMailAcc)
 {
 }
 
-int SLAPI PPMailPop3::FinalizeServerUrl(InetUrl & rUrl)
+int PPMailPop3::FinalizeServerUrl(InetUrl & rUrl)
 {
 	SString server_addr;
 	MailAcc.GetExtField(MAEXSTR_RCVSERVER, server_addr);
@@ -1171,7 +1171,7 @@ int SLAPI PPMailPop3::FinalizeServerUrl(InetUrl & rUrl)
 	return 1;
 }
 
-int SLAPI PPMailPop3::SendCmd(long cmd, const char * pAddedInfo, long addedInfo, SString & rReplyBuf)
+int PPMailPop3::SendCmd(long cmd, const char * pAddedInfo, long addedInfo, SString & rReplyBuf)
 {
 	int    ok = 1;
 	SString buf;
@@ -1201,7 +1201,7 @@ int SLAPI PPMailPop3::SendCmd(long cmd, const char * pAddedInfo, long addedInfo,
 	return ok;
 }
 
-int SLAPI PPMailPop3::Login()
+int PPMailPop3::Login()
 {
 	int    ok = 1;
 	SString reply_buf, user_name;
@@ -1214,12 +1214,12 @@ int SLAPI PPMailPop3::Login()
 	return ok;
 }
 
-int SLAPI PPMailPop3::GetStat(long * pCount, long * pSize)
+int PPMailPop3::GetStat(long * pCount, long * pSize)
 {
 	return Sess.Pop3_GetStat(pCount, pSize) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pMsg)
+int PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pMsg)
 {
 	int    ok = 1;
 	SString buf, temp_buf;
@@ -1253,7 +1253,7 @@ int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pM
 	return ok;
 }
 
-int SLAPI PPMailPop3::GetMsgInfo(long msgN, SMailMessage * pMsg)
+int PPMailPop3::GetMsgInfo(long msgN, SMailMessage * pMsg)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -1275,7 +1275,7 @@ int SLAPI PPMailPop3::GetMsgInfo(long msgN, SMailMessage * pMsg)
 	return ok;
 }
 
-int SLAPI PPMailPop3::GetMsg(long msgN, SMailMessage * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
+int PPMailPop3::GetMsg(long msgN, SMailMessage * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
 {
 	int    ok = 1;
 	long   msg_size = 0, symb_num = 0;
@@ -1316,12 +1316,12 @@ int SLAPI PPMailPop3::GetMsg(long msgN, SMailMessage * pMsg, const char * pFileN
 	return ok;
 }
 
-int SLAPI PPMailPop3::DeleteMsg(long msgN)
+int PPMailPop3::DeleteMsg(long msgN)
 {
 	return Sess.Pop3_DeleteMsg(msgN) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPMailPop3::SaveAttachment(const char * pMsgFileName, const char * pAttachName, const char * pDestPath)
+int PPMailPop3::SaveAttachment(const char * pMsgFileName, const char * pAttachName, const char * pDestPath)
 {
 	int    ok = -1;
 	PPMailFile mail_file;
@@ -1333,7 +1333,7 @@ int SLAPI PPMailPop3::SaveAttachment(const char * pMsgFileName, const char * pAt
 	return ok;
 }
 
-/* @v9.9.0 int SLAPI PPMailPop3::SaveOrder(const char * pMsgFileName, const char * pDestPath)
+/* @v9.9.0 int PPMailPop3::SaveOrder(const char * pMsgFileName, const char * pDestPath)
 {
 	int    ok = -1;
 	PPMailFile mail_file;
@@ -1348,15 +1348,15 @@ int SLAPI PPMailPop3::SaveAttachment(const char * pMsgFileName, const char * pAt
 //
 //
 #if 0 // @v9.8.11 (obsolete) {
-SLAPI PPMailSmtp::PPMailSmtp(const PPInternetAccount * pMailAcc) : PPMail(pMailAcc)
+PPMailSmtp::PPMailSmtp(const PPInternetAccount * pMailAcc) : PPMail(pMailAcc)
 {
 }
 
-SLAPI PPMailSmtp::~PPMailSmtp()
+PPMailSmtp::~PPMailSmtp()
 {
 }
 
-int SLAPI PPMailSmtp::Auth()
+int PPMailSmtp::Auth()
 {
 	int    ok = 1;
 	char   pwd[64];
@@ -1369,7 +1369,7 @@ int SLAPI PPMailSmtp::Auth()
 	return ok;
 }
 
-int SLAPI PPMailSmtp::FinalizeServerUrl(InetUrl & rUrl)
+int PPMailSmtp::FinalizeServerUrl(InetUrl & rUrl)
 {
 	SString server_addr;
 	MailAcc.GetExtField(MAEXSTR_SENDSERVER, server_addr);
@@ -1383,7 +1383,7 @@ int SLAPI PPMailSmtp::FinalizeServerUrl(InetUrl & rUrl)
 	return 1;
 }
 
-int SLAPI PPMailSmtp::SendCmd(long cmd, const char * pAddStr, SString & rReplyBuf)
+int PPMailSmtp::SendCmd(long cmd, const char * pAddStr, SString & rReplyBuf)
 {
 	int    ok = 1;
 	SString buf;
@@ -1427,7 +1427,7 @@ static void FASTCALL _PUTS(const char * pLine, FILE * out)
 	fputc('\n', out);
 }
 
-int SLAPI PPMailSmtp::MakeMessageID(SString & rBuf)
+int PPMailSmtp::MakeMessageID(SString & rBuf)
 {
 	rBuf.Z().CatChar('<');
 	SString temp_buf;
@@ -1460,7 +1460,7 @@ int SLAPI PPMailSmtp::MakeMessageID(SString & rBuf)
 	return 1;
 }
 
-int SLAPI PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
+int PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 {
 	int    ok = -1, is_attach = 0;
 	SString buf, boundary;
@@ -1599,7 +1599,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 	return ok;
 }
 
-int SLAPI PPMailSmtp::SendMsgFromFile(SMailMessage * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
+int PPMailSmtp::SendMsgFromFile(SMailMessage * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
 {
 	int    ok = -1, is_attach = 0;
 	SString buf, temp_buf;
@@ -1631,7 +1631,7 @@ int SLAPI PPMailSmtp::SendMsgFromFile(SMailMessage * pMsg, const char * pFileNam
 	return ok;
 }
 
-int SLAPI PPMailSmtp::TransmitFile(const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
+int PPMailSmtp::TransmitFile(const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
 {
 	const  size_t KB = 1024;
 	int    ok = 1;
@@ -1673,7 +1673,7 @@ int SLAPI PPMailSmtp::TransmitFile(const char * pFileName, MailCallbackProc pf, 
 	return ok;
 }
 
-/*static*/int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+/*static*/int PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
 {
 	int    ok = 1;
 	PPMailSmtp cli(&rAcc);
@@ -1702,7 +1702,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 	PPWaitPercent(bytesCounter, msg);
 }
 
-int SLAPI SendMailWithAttach(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID)
+int SendMailWithAttach(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID)
 {
 	int    ok = -1;
 	THROW_INVARG(pPath);
@@ -1715,7 +1715,7 @@ int SLAPI SendMailWithAttach(const char * pSubj, const char * pPath, const char 
 	return ok;
 }
 
-int SLAPI SendMail(const char * pSubj, const char * pLetter, const char * pMail, PPID accountID, SStrCollection * pFilesList, PPLogger * pLogger)
+int SendMail(const char * pSubj, const char * pLetter, const char * pMail, PPID accountID, SStrCollection * pFilesList, PPLogger * pLogger)
 {
 	int    ok = 1;
 	StrAssocArray  mail_list;
@@ -1730,7 +1730,7 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, const char * pMail,
 	return ok;
 }
 
-int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMailList, PPInternetAccount * pAccount, SStrCollection * pFilesList, PPLogger * pLogger)
+int SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMailList, PPInternetAccount * pAccount, SStrCollection * pFilesList, PPLogger * pLogger)
 {
 	int    ok = 1, conn = 0;
 	SString ok_msg, buf, from_addr, mail_addr;
@@ -1765,7 +1765,7 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 //
 // PPEmailAcctsImporter
 //
-int SLAPI InitImpExpParam(PPImpExpParam * pParam, const char * pFileName, int forExport)
+int InitImpExpParam(PPImpExpParam * pParam, const char * pFileName, int forExport)
 {
 	int    ok = 1;
 	SStrCollection fields;
@@ -1786,19 +1786,19 @@ int SLAPI InitImpExpParam(PPImpExpParam * pParam, const char * pFileName, int fo
 //
 class PPEmailAcctsImporter {
 public:
-	SLAPI PPEmailAcctsImporter()
+	PPEmailAcctsImporter()
 	{
 	}
-	int SLAPI Init(const PPImpExpParam * pImpExpParam);
-    int SLAPI Import(PPLogger * pLogger, int useTa);
+	int Init(const PPImpExpParam * pImpExpParam);
+    int Import(PPLogger * pLogger, int useTa);
 private:
-	int SLAPI Check(PPInternetAccount * pAccount, PPLogger * pLogger);
-	int SLAPI ResolveAuthType(const char * pAuthType, uint16 * pOutAuthType);
+	int Check(PPInternetAccount * pAccount, PPLogger * pLogger);
+	int ResolveAuthType(const char * pAuthType, uint16 * pOutAuthType);
 	PPImpExpParam ImpExpParam;
 	PPObjInternetAccount MAcctObj;
 };
 
-int SLAPI PPEmailAcctsImporter::Init(const PPImpExpParam * pImpExpParam)
+int PPEmailAcctsImporter::Init(const PPImpExpParam * pImpExpParam)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(ImpExpParam, pImpExpParam))
@@ -1869,7 +1869,7 @@ int PPEmailAcctsImporter::Import(PPLogger * pLogger, int useTa)
 	return ok;
 }
 
-int SLAPI PPEmailAcctsImporter::Check(PPInternetAccount * pAccount, PPLogger * pLogger)
+int PPEmailAcctsImporter::Check(PPInternetAccount * pAccount, PPLogger * pLogger)
 {
 	int    ok = -1;
 	if(pAccount) {
@@ -1924,7 +1924,7 @@ int PPEmailAcctsImporter::ResolveAuthType(const char * pAuthType, uint16 * pOutA
 	return ok;
 }
 
-int SLAPI ImportEmailAccts()
+int ImportEmailAccts()
 {
 	int    ok = -1;
 	SString path;
@@ -1942,7 +1942,7 @@ int SLAPI ImportEmailAccts()
 //
 //
 //
-int SLAPI ExportEmailAccts(const PPIDArray * pMailAcctsList)
+int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 {
 	int    ok = 1;
 	uint   exported = 0;

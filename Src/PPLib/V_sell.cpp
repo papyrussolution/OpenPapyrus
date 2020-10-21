@@ -6,7 +6,7 @@
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(PredictSales); SLAPI PredictSalesFilt::PredictSalesFilt() : PPBaseFilt(PPFILT_PREDICTSALES, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PredictSales); PredictSalesFilt::PredictSalesFilt() : PPBaseFilt(PPFILT_PREDICTSALES, 0, 0)
 {
 	SetFlatChunk(offsetof(PredictSalesFilt, ReserveStart),
 		offsetof(PredictSalesFilt, SubstName) - offsetof(PredictSalesFilt, ReserveStart));
@@ -16,7 +16,7 @@ IMPLEMENT_PPFILT_FACTORY(PredictSales); SLAPI PredictSalesFilt::PredictSalesFilt
 	Init(1, 0);
 }
 
-void SLAPI PredictSalesFilt::SetGoodsList(const PPIDArray * pList, const char * pSubstText)
+void PredictSalesFilt::SetGoodsList(const PPIDArray * pList, const char * pSubstText)
 {
 	GoodsIdList.Set(pList);
 	GoodsID = 0;
@@ -25,17 +25,16 @@ void SLAPI PredictSalesFilt::SetGoodsList(const PPIDArray * pList, const char * 
 //
 // PPViewPredictSales
 //
-SLAPI PPViewPredictSales::PPViewPredictSales() : PPView(0, &Filt, PPVIEW_PREDICTSALES), P_TempTbl(0)
+PPViewPredictSales::PPViewPredictSales() : PPView(0, &Filt, PPVIEW_PREDICTSALES, 0, REPORT_PSALESVIEW), P_TempTbl(0)
 {
-	DefReportId = REPORT_PSALESVIEW;
 }
 
-SLAPI PPViewPredictSales::~PPViewPredictSales()
+PPViewPredictSales::~PPViewPredictSales()
 {
 	delete P_TempTbl;
 }
 
-int SLAPI PPViewPredictSales::InitCycleList(const PPIDArray * pGoodsList)
+int PPViewPredictSales::InitCycleList(const PPIDArray * pGoodsList)
 {
 	int    ok = -1;
 	DateRange period;
@@ -62,7 +61,7 @@ int SLAPI PPViewPredictSales::InitCycleList(const PPIDArray * pGoodsList)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPredictSales);
 
-int SLAPI PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	uint   i;
@@ -122,7 +121,7 @@ int SLAPI PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewPredictSales::InitIteration(int aOrder)
+int PPViewPredictSales::InitIteration(int aOrder)
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -161,7 +160,7 @@ int FASTCALL PPViewPredictSales::NextIteration(PredictSalesViewItem *pItem)
 	return -1;
 }
 
-void SLAPI PPViewPredictSales::FormatCycle(LDATE dt, char * pBuf, size_t bufLen) const
+void PPViewPredictSales::FormatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 {
 	// @todo use PPView::Helper_FormatCycle
 	if(Filt.Cycle)
@@ -170,7 +169,7 @@ void SLAPI PPViewPredictSales::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 		ASSIGN_PTR(pBuf, 0);
 }
 
-int SLAPI PPViewPredictSales::CalcTotal(PredictSalesTotal * pTotal)
+int PPViewPredictSales::CalcTotal(PredictSalesTotal * pTotal)
 {
 	double qttysqsum = 0.0;
 	double amtsqsum  = 0.0;
@@ -196,7 +195,7 @@ int SLAPI PPViewPredictSales::CalcTotal(PredictSalesTotal * pTotal)
 	return 1;
 }
 
-int SLAPI PPViewPredictSales::RecalcGoods(const BrwHdr * pHdr)
+int PPViewPredictSales::RecalcGoods(const BrwHdr * pHdr)
 {
 	int    ok = -1, r;
 	if(pHdr && pHdr->GoodsID) {
@@ -224,12 +223,12 @@ int SLAPI PPViewPredictSales::RecalcGoods(const BrwHdr * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewPredictSales::TestPrediction(const BrwHdr *)
+int PPViewPredictSales::TestPrediction(const BrwHdr *)
 {
 	return -1;
 }
 
-int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
+int PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 {
 	struct PlotDataEntry {
 		LDATE  Dt;
@@ -340,7 +339,7 @@ int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewPredictSales::ViewTotal()
+int PPViewPredictSales::ViewTotal()
 {
 	int    ok = -1;
 	PredictSalesTotal total;
@@ -375,7 +374,7 @@ int SLAPI PPViewPredictSales::ViewTotal()
 #define GRP_GOODS 1
 #define GRP_LOC   2
 
-int SLAPI PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt * pFilt*/)
+int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt * pFilt*/)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -441,7 +440,7 @@ int SLAPI PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSales
 	return ok;
 }
 
-int SLAPI PPViewPredictSales::ConvertHdr(const void * pHdr, BrwHdr * pOut) const
+int PPViewPredictSales::ConvertHdr(const void * pHdr, BrwHdr * pOut) const
 {
 	if(pOut) {
 		pOut->GoodsID = Filt.GoodsID;
@@ -451,7 +450,7 @@ int SLAPI PPViewPredictSales::ConvertHdr(const void * pHdr, BrwHdr * pOut) const
 	return BIN(pHdr);
 }
 
-int SLAPI PPViewPredictSales::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPredictSales::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -506,12 +505,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-void SLAPI PPViewPredictSales::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewPredictSales::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, 0));
 }
 
-DBQuery * SLAPI PPViewPredictSales::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPredictSales::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * p_q = 0;
 	uint   brw_id = BROWSER_PSALESGOODS;
@@ -558,7 +557,7 @@ DBQuery * SLAPI PPViewPredictSales::CreateBrowserQuery(uint * pBrwId, SString * 
 //
 //
 //
-int SLAPI FillPredictSales()
+int FillPredictSales()
 {
 	int    ok = -1;
 	PrcssrPrediction prcssr;
@@ -572,7 +571,7 @@ int SLAPI FillPredictSales()
 	return ok;
 }
 
-int SLAPI TestPredictSales()
+int TestPredictSales()
 {
 	int    ok = -1;
 	PrcssrPrediction prcssr;
@@ -587,7 +586,7 @@ int SLAPI TestPredictSales()
 	return ok;
 }
 
-int SLAPI ViewPredictSales(PredictSalesFilt * pFilt) { return PPView::Execute(PPVIEW_PREDICTSALES, pFilt, PPView::exefModeless, 0); }
+int ViewPredictSales(PredictSalesFilt * pFilt) { return PPView::Execute(PPVIEW_PREDICTSALES, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_PredictSales
 //

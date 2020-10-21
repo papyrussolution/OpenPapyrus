@@ -97,26 +97,20 @@ static const char * DESC(struct _scanopt_t * s, int i)
 }
 
 #ifndef NO_SCANOPT_USAGE
-static int get_cols(void);
-
-static int get_cols(void)
-{
-	char   * env;
-	int cols = 80;          /* default */
-
-#ifdef HAVE_NCURSES_H
-	initscr();
-	endwin();
-	if(COLS > 0)
-		return COLS;
-#endif
-
-	if((env = getenv("COLUMNS")) != NULL)
-		cols = atoi(env);
-
-	return cols;
-}
-
+	static int get_cols()
+	{
+		char   * env;
+		int cols = 80;          /* default */
+	#ifdef HAVE_NCURSES_H
+		initscr();
+		endwin();
+		if(COLS > 0)
+			return COLS;
+	#endif
+		if((env = getenv("COLUMNS")) != NULL)
+			cols = atoi(env);
+		return cols;
+	}
 #endif
 
 /* Macro to check for NULL before assigning a value. */

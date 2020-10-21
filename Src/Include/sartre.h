@@ -336,9 +336,9 @@ private:
 // Descr: Ассоциация, связывающая базовую часть слова с модельными позициями (префиксами, суффиксами и т.д.)
 //
 struct SrWordAssoc { // @flat
-	SLAPI  SrWordAssoc();
+	SrWordAssoc();
 	int    FASTCALL IsEqual(const SrWordAssoc & rS) const;
-	SrWordAssoc & SLAPI Normalize();
+	SrWordAssoc & Normalize();
 	SString & FASTCALL ToStr(SString & rBuf) const;
 
 	enum {
@@ -434,8 +434,8 @@ private:
 //
 class SrNGram {
 public:
-	SLAPI  SrNGram();
-	SrNGram & SLAPI Z();
+	SrNGram();
+	SrNGram & Z();
 
 	NGID   ID;
 	int32  Ver;
@@ -446,8 +446,8 @@ public:
 //
 class SrNGramCollection : public TSCollection <SrNGram> {
 public:
-	SLAPI  SrNGramCollection();
-	void   SLAPI SortByLength();
+	SrNGramCollection();
+	void   SortByLength();
 };
 //
 // Descr: Таблица N-грамм. Содержит идентифицированные списки ссылок на слова, составлющие выражения.
@@ -544,7 +544,7 @@ public:
 	//   ассоциированный с источником, вызывающим доверие.
 	//   Источники определены в перечислении выше с префиксами surrsymbsrc
 	//
-	static int SLAPI MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb);
+	static int MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb);
 	//
 	// Descr: Идентифицирует символ концепции pSymb на предмет принадлежности к семейству суррогатных
 	//   символов. Если символ является суррогатным, то по адресу pData присваивается бинарное значение
@@ -555,7 +555,7 @@ public:
 	//   Внутренний дескриптор источника идентификации surrsymbsrcXXX (see enum above).
 	//   Если в символе pSymb не обнаружены признаки суррогатного, то surrsymbsrcUndef.
 	//
-	static int SLAPI IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize);
+	static int IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize);
 
 	SrConcept();
 	int    FASTCALL IsEqual(const SrConcept & rS) const;
@@ -672,17 +672,17 @@ public:
 //
 class SrGeoNodeTbl : public BDbTable {
 public:
-	SLAPI  SrGeoNodeTbl(BDbDatabase * pDb);
-	SLAPI ~SrGeoNodeTbl();
-	int    SLAPI Add(PPOsm::NodeCluster & rNc, uint64 outerID);
-	int    SLAPI Update(PPOsm::NodeCluster & rNc, uint64 outerID);
-	int    SLAPI Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
-	int    SLAPI Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID);
-	int    SLAPI GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList); // @v9.8.6 TSArray-->TSVector
+	SrGeoNodeTbl(BDbDatabase * pDb);
+	~SrGeoNodeTbl();
+	int    Add(PPOsm::NodeCluster & rNc, uint64 outerID);
+	int    Update(PPOsm::NodeCluster & rNc, uint64 outerID);
+	int    Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
+	int    Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID);
+	int    GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList); // @v9.8.6 TSArray-->TSVector
 private:
 	virtual uint FASTCALL Implement_PartitionFunc(DBT * pKey);
-	int    SLAPI Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update);
-	int    SLAPI Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
+	int    Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update);
+	int    Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
 	//
 	// Буферы для временного использования. Определены как члены класса
 	// дабы избежать частых распределений памяти.
@@ -693,10 +693,10 @@ private:
 
 class SrGeoWayTbl : public BDbTable {
 public:
-	SLAPI  SrGeoWayTbl(BDbDatabase * pDb);
-	SLAPI ~SrGeoWayTbl();
-	int    SLAPI Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer);
-	int    SLAPI Search(uint64 id, PPOsm::Way * pW);
+	SrGeoWayTbl(BDbDatabase * pDb);
+	~SrGeoWayTbl();
+	int    Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer);
+	int    Search(uint64 id, PPOsm::Way * pW);
 private:
 	//
 	// Буферы для временного использования. Определены как члены класса
@@ -770,7 +770,7 @@ public:
 	//   >0 - специальная лексема успешно сформирована
 	//   0  - ошибка (не допустимое значение spcTag)
 	//
-	static int SLAPI MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf);
+	static int MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf);
 	//
 	// Descr: Квази-идентификаторы зарезервированных концепций.
 	// Реальные идентификаторы таких концепций могут быть получены вызовом SrDatabase::GetReservedConcept().
@@ -956,7 +956,7 @@ public:
 	void   DestroyStoreFiasAddrBlock(void * pBlk);
 	int    StoreFiasAddr(void * pStoreFiasAddrBlock, uint passN, const Sdr_FiasRawAddrObj * pEntry);
 
-	//BDbTable::Buffer & SLAPI AcquireRvlBuf() { return RvlBuf.Get(); }
+	//BDbTable::Buffer & AcquireRvlBuf() { return RvlBuf.Get(); }
 //private:
 public:
 	BDbDatabase * P_Db;
@@ -987,8 +987,8 @@ private:
 //
 class SrSyntaxRuleTokenizer : public STokenizer {
 public:
-	SLAPI  SrSyntaxRuleTokenizer();
-	int    SLAPI ProcessString(const char *pResource, const SString & rTextUtf8, uint * pIdxFirst, uint * pIdxCount);
+	SrSyntaxRuleTokenizer();
+	int    ProcessString(const char *pResource, const SString & rTextUtf8, uint * pIdxFirst, uint * pIdxCount);
 };
 //
 // Descr: Набор правил для синтаксического анализа текста
@@ -1014,7 +1014,7 @@ public:
 	};
 
 	struct ExprItem { // @flat
-		explicit SLAPI ExprItem(uint16 kind = 0);
+		explicit ExprItem(uint16 kind = 0);
 
 		uint16 K;
 		uint16 ArgCount; // Количество аргументов (для K == kOp)
@@ -1031,13 +1031,13 @@ public:
 
 	class ExprStack : public TSStack <ExprItem> {
 	public:
-		SLAPI  ExprStack();
+		ExprStack();
 		int    FASTCALL Push(const ExprStack & rS);
 	};
 
 	class Rule {
 	public:
-		SLAPI  Rule();
+		Rule();
 		enum {
 			fNonTerminal = 0x0001 // Правило является не терминальным. То есть, может применяться только в составе иных правил.
 		};
@@ -1046,9 +1046,9 @@ public:
 		ExprStack ES; // Стэк выражения //
 	};
 
-	SLAPI  SrSyntaxRuleSet();
-	SLAPI ~SrSyntaxRuleSet();
-	uint   SLAPI GetRuleCount() const;
+	SrSyntaxRuleSet();
+	~SrSyntaxRuleSet();
+	uint   GetRuleCount() const;
 	//
 	// Descr: Возвращает указатель на правило по индексу pos [0..]
 	//
@@ -1056,7 +1056,7 @@ public:
 	//
 	// Descr: Возвращает имя правила по индексу pos [0..]
 	//
-	int    SLAPI GetRuleName(uint pos, SString & rBuf) const;
+	int    GetRuleName(uint pos, SString & rBuf) const;
 	//
 	// Descr: Ищет правило с именем pNameUtf8. Если находит, то возвращает указатель
 	//   на этого правила.
@@ -1065,19 +1065,19 @@ public:
 	//    0 - правило с именем pNameUtf8 не найдено.
 	//
 	const  Rule * FASTCALL SearchRuleByName(const char * NameUtf8) const;
-	int    SLAPI Parse(const SString & rS);
+	int    Parse(const SString & rS);
 
-	int    SLAPI ExprItemToStr(ExprStack & rS, const ExprItem & rI, SString & rBuf) const;
-	int    SLAPI ExprStackToStr(ExprStack & rS, SString & rBuf) const;
-	int    SLAPI RuleToStr(const Rule * pR, SString & rBuf) const;
-	int    SLAPI ExprItemTextToStr(const ExprItem & rI, SString & rBuf) const;
+	int    ExprItemToStr(ExprStack & rS, const ExprItem & rI, SString & rBuf) const;
+	int    ExprStackToStr(ExprStack & rS, SString & rBuf) const;
+	int    RuleToStr(const Rule * pR, SString & rBuf) const;
+	int    ExprItemTextToStr(const ExprItem & rI, SString & rBuf) const;
 
-	int    SLAPI ResolveSyntaxRules(SrDatabase & rDb);
+	int    ResolveSyntaxRules(SrDatabase & rDb);
 	//
 	// Descr: Структура, идентифицирующая точку распознавания текстовой конструкции.
 	//
 	struct MatchEntry { // @flat
-		SLAPI  MatchEntry(uint textIdxStart, uint textIdxEnd, const SrSyntaxRuleSet::Rule * pRule, uint stkP);
+		MatchEntry(uint textIdxStart, uint textIdxEnd, const SrSyntaxRuleSet::Rule * pRule, uint stkP);
 
 		uint   TextIdxStart;
 		uint   TextIdxEnd;
@@ -1095,20 +1095,20 @@ public:
 		TSVector <MatchEntry> MatchList;
 	};
 
-	int    SLAPI ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const;
-	int    SLAPI __ProcessText2(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const;
-	int    SLAPI MatchListToStr(const TSVector <MatchEntry> & rML, const STokenizer & rT, SString & rBuf) const;
+	int    ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const;
+	int    __ProcessText2(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const;
+	int    MatchListToStr(const TSVector <MatchEntry> & rML, const STokenizer & rT, SString & rBuf) const;
 
 	class ResolveRuleBlock {
 	public:
-		SLAPI  ResolveRuleBlock(SrDatabase & rDb, const STokenizer & rT, const SrSyntaxRuleSet::Rule * pRule);
-		//int    SLAPI MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const;
+		ResolveRuleBlock(SrDatabase & rDb, const STokenizer & rT, const SrSyntaxRuleSet::Rule * pRule);
+		//int    MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const;
 		void   FASTCALL GetTextItemWithAdvance(uint & rTIdx);
 		void   FASTCALL SetupRule(const SrSyntaxRuleSet::Rule * pRule);
-		void   SLAPI PushInnerState();
+		void   PushInnerState();
 		int    FASTCALL PopInnerState(int dontRestoreTextIdx);
-		int    SLAPI PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd, CONCEPTID conceptId);
-		uint   SLAPI GetMatchListPreservedP();
+		int    PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd, CONCEPTID conceptId);
+		uint   GetMatchListPreservedP();
 		void   FASTCALL TrimMatchListOnFailure(uint preservedP);
 		const  TSVector <MatchEntry> & GetMatchList() const { return MatchList; }
 
@@ -1129,12 +1129,12 @@ public:
 		TSVector <MatchEntry> MatchList; // @v9.8.4 TSArray-->TSVector
 	};
 
-	int    SLAPI __ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const;
-	int    SLAPI TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, const SrSyntaxRuleSet::ExprItem * pSti, CONCEPTID targetCID, uint tidx) const;
+	int    __ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const;
+	int    TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, const SrSyntaxRuleSet::ExprItem * pSti, CONCEPTID targetCID, uint tidx) const;
 	void   FASTCALL SkipComment(SStrScan & rScan);
 	void   FASTCALL ScanSkip(SStrScan & rScan);
 	int    FASTCALL IsOperand(SStrScan & rScan, uint * pLen);
-	int    SLAPI ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr);
+	int    ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr);
 
 	enum {
 		stEof = 0x0001

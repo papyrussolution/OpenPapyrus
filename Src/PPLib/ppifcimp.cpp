@@ -9,7 +9,7 @@
 #include <process.h>
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
-static int SLAPI IfcImpCheckDictionary()
+static int IfcImpCheckDictionary()
 {
 	return CurDict ? 1 : PPSetError(PPERR_NOTLOGGEDIN);
 }
@@ -6083,7 +6083,7 @@ struct LotQueryBlock {
 	BtrDbKey Key_; // @v10.6.8
 };
 
-static int SLAPI MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr, ulong lowId, ulong uppId, ObjIdListFilt & rLocList, LDATE dt)
+static int MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr, ulong lowId, ulong uppId, ObjIdListFilt & rLocList, LDATE dt)
 {
 	assert(!lcr || dt);
 	int    ok = 1;
@@ -6211,7 +6211,7 @@ static int SLAPI MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr
 	return ok;
 }
 
-static int SLAPI SelectLcrLots(ReceiptCore & rRcpt, const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList, ObjIdListFilt & rLocList, LDATE dt) // @v9.8.8 SArray-->SVector
+static int SelectLcrLots(ReceiptCore & rRcpt, const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList, ObjIdListFilt & rLocList, LDATE dt) // @v9.8.8 SArray-->SVector
 {
 	int    ok = 1;
 	const uint id_count = rIdList.getCount();

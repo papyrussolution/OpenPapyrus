@@ -262,7 +262,7 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 	}
 }
 
-int SLAPI EditCommConfig()
+int EditCommConfig()
 {
 	int    r, valid_data = 0;
 	PPCommConfig cfg;
@@ -288,7 +288,7 @@ int SLAPI EditCommConfig()
 //
 // Редактирование текущей конфигурации
 //
-int SLAPI EditCurrConfig()
+int EditCurrConfig()
 {
 	int    ok = -1;
 	PPID   main_org_id = 0;

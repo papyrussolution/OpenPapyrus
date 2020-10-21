@@ -8,16 +8,16 @@
 //
 //
 //
-double SLAPI PayableBillListItem::MultExtCoef(double val, int zeroIfDivZero /*= 0*/) const
+double PayableBillListItem::MultExtCoef(double val, int zeroIfDivZero /*= 0*/) const
 {
 	return (Amount != 0.0) ? (val * (ExtAmt / Amount)) : (zeroIfDivZero ? 0.0 : val);
 }
 
-SLAPI PayableBillList::PayableBillList(AmtList * pAmt, AmtList * pPaym) : P_Amt(pAmt), P_Paym(pPaym)
+PayableBillList::PayableBillList(AmtList * pAmt, AmtList * pPaym) : P_Amt(pAmt), P_Paym(pPaym)
 {
 }
 
-int SLAPI PayableBillList::AddPayableItem(const PayableBillListItem * pItem, long tabID, double paym, int useExtCoef)
+int PayableBillList::AddPayableItem(const PayableBillListItem * pItem, long tabID, double paym, int useExtCoef)
 {
 	int    ok = 1;
 	if(P_Amt)
@@ -53,12 +53,12 @@ void FASTCALL PayableBillList::GetIdList(LongArray & rList) const
 //
 // DebtTrnovrTotal
 //
-SLAPI DebtTrnovrTotal::DebtTrnovrTotal()
+DebtTrnovrTotal::DebtTrnovrTotal()
 {
 	Init();
 }
 
-void SLAPI DebtTrnovrTotal::Init()
+void DebtTrnovrTotal::Init()
 {
 	Count = 0;
 	Debit.clear();
@@ -71,7 +71,7 @@ void SLAPI DebtTrnovrTotal::Init()
 	ExpiryDebt.clear(); // @v9.1.8
 }
 
-int SLAPI DebtTrnovrTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int DebtTrnovrTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, Count, rBuf));
@@ -89,7 +89,7 @@ int SLAPI DebtTrnovrTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext 
 //
 // DebtTrnovrFilt
 //
-IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); SLAPI DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseFilt(PPFILT_DEBTTRNOVR, 0, 2) // @v9.1.4 ver 1-->2
+IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseFilt(PPFILT_DEBTTRNOVR, 0, 2) // @v9.1.4 ver 1-->2
 {
 #define _S_ DebtTrnovrFilt
 	SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
@@ -102,13 +102,13 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); SLAPI DebtTrnovrFilt::DebtTrnovrFilt() : P
 	Init(1, 0);
 }
 
-/*virtual*/int SLAPI DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 1) {
 		class DebtTrnovrFilt_v1 : public PPBaseFilt {
 		public:
-			SLAPI  DebtTrnovrFilt_v1() : PPBaseFilt(PPFILT_DEBTTRNOVR, 0, 1)
+			DebtTrnovrFilt_v1() : PPBaseFilt(PPFILT_DEBTTRNOVR, 0, 1)
 			{
 			#define _S_ DebtTrnovrFilt
 				SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
@@ -184,19 +184,18 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); SLAPI DebtTrnovrFilt::DebtTrnovrFilt() : P
 //
 // PPViewDebtTrnovr
 //
-SLAPI PPViewDebtTrnovr::DebtEntry::DebtEntry(PPID ident) : ID(ident), _AvgPaym(0.0)
+PPViewDebtTrnovr::DebtEntry::DebtEntry(PPID ident) : ID(ident), _AvgPaym(0.0)
 {
 }
 
-SLAPI PPViewDebtTrnovr::PPViewDebtTrnovr() : PPView(0, &Filt, PPVIEW_DEBTTRNOVR), UseOmtPaymAmt(BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)),
+PPViewDebtTrnovr::PPViewDebtTrnovr() : PPView(0, &Filt, PPVIEW_DEBTTRNOVR, implUseServer, 0), UseOmtPaymAmt(BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)),
 	P_BObj(BillObj), P_DebtDimAgentList(0), P_TempTbl(0), P_IterBillList(0), IterBillCounter(0), ExpiryDate(ZERODATE), IsDlvrAddrListInited(0)
 {
-	ImplementFlags |= implUseServer;
 }
 
-SLAPI PPViewDebtTrnovr::~PPViewDebtTrnovr()
+PPViewDebtTrnovr::~PPViewDebtTrnovr()
 {
-	delete P_DebtDimAgentList; // @v9.1.4
+	delete P_DebtDimAgentList;
 	delete P_TempTbl;
 	delete P_IterBillList;
 	if(!(BaseState & bsServerInst))
@@ -234,12 +233,12 @@ int FASTCALL PPViewDebtTrnovr::CheckAddress(PPID locID)
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::GetPayableBillList(PPID arID, PPID curID, PayableBillList * pList)
+int PPViewDebtTrnovr::GetPayableBillList(PPID arID, PPID curID, PayableBillList * pList)
 {
 	return GetPayableBillList_(&PayableOpList, arID, curID, pList);
 }
 
-int SLAPI PPViewDebtTrnovr::GetDlvrAddrList()
+int PPViewDebtTrnovr::GetDlvrAddrList()
 {
 	IsDlvrAddrListInited = 0;
 	int    ok = P_BObj->P_Tbl->GetDlvrAddrList(&DlvrAddrList);
@@ -253,7 +252,7 @@ int SLAPI PPViewDebtTrnovr::GetDlvrAddrList()
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::GetDlvrAddr(PPID billID, PPID * pAddrID)
+int PPViewDebtTrnovr::GetDlvrAddr(PPID billID, PPID * pAddrID)
 {
 	PPID   addr_id = 0;
 	if(!IsDlvrAddrListInited) {
@@ -272,7 +271,7 @@ int SLAPI PPViewDebtTrnovr::GetDlvrAddr(PPID billID, PPID * pAddrID)
 	return addr_id ? 1 : -1;
 }
 
-int SLAPI PPViewDebtTrnovr::CheckBillRec(const BillTbl::Rec * pRec, const PPIDArray * pOpList)
+int PPViewDebtTrnovr::CheckBillRec(const BillTbl::Rec * pRec, const PPIDArray * pOpList)
 {
 	int    ok = 1;
 	PROFILE_START
@@ -312,7 +311,7 @@ int SLAPI PPViewDebtTrnovr::CheckBillRec(const BillTbl::Rec * pRec, const PPIDAr
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID curID, PayableBillList * pList)
+int PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID curID, PayableBillList * pList)
 {
 	const LDATE current_date = NZOR(Filt.PaymPeriod.upp, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	int    ok = 1;
@@ -462,7 +461,7 @@ int SLAPI PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID 
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::GetReceivableBillList(PPID arID, PayableBillList * pList)
+int PPViewDebtTrnovr::GetReceivableBillList(PPID arID, PayableBillList * pList)
 {
 	int    ok = 1, m;
 	PPObjOprKind op_obj;
@@ -490,7 +489,7 @@ int SLAPI PPViewDebtTrnovr::GetReceivableBillList(PPID arID, PayableBillList * p
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::SetupRecVals(PPID curID, long tabID, const DebtEntry * pEntry, TempSellTrnovrTbl::Rec * pRec)
+int PPViewDebtTrnovr::SetupRecVals(PPID curID, long tabID, const DebtEntry * pEntry, TempSellTrnovrTbl::Rec * pRec)
 {
 	int    ok = -1, skip = 0;
 	double rdebt = 0.0, rpaym = 0.0, reckon = 0.0, tdebt = 0.0;
@@ -545,17 +544,17 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempSellTrnovr);
 
 class DebtTrnovrCrosstab : public Crosstab {
 public:
-	SLAPI DebtTrnovrCrosstab(PPViewDebtTrnovr * pV) : Crosstab(), P_V(pV)
+	DebtTrnovrCrosstab(PPViewDebtTrnovr * pV) : Crosstab(), P_V(pV)
 	{
 	}
-	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+	virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 	{
 		PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 		SetupBrowserCtColumns(p_brw);
 		return p_brw;
 	}
 protected:
-	virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+	virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
 		if(pVal && typ == MKSTYPE(S_INT, 4) && P_V) 
 			P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -563,7 +562,7 @@ protected:
 	PPViewDebtTrnovr * P_V;
 };
 
-int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1, use_ta = 1;
 	uint   i;
@@ -947,7 +946,7 @@ int PPViewDebtTrnovr::ProcessBlock::AddStepItem(PPID tabID, double paym, double 
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, ProcessBlock & rBlk)
+int PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, ProcessBlock & rBlk)
 {
 	int    ok = 1;
 	rBlk.PayDate = rPayPlanEntry.PayDate;
@@ -1060,7 +1059,7 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt, double * pPart)
+int PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt, double * pPart)
 {
 	//
 	// Проверка документа на соответствие критериям фильтра
@@ -1159,7 +1158,7 @@ int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const Proc
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk)
+int PPViewDebtTrnovr::ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk)
 {
 	//
 	// Проверка документа на соответствие критериям фильтра
@@ -1207,7 +1206,7 @@ int SLAPI PPViewDebtTrnovr::ProcessBill(const BillTbl::Rec & rRec, ProcessBlock 
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & rBlk)
+int PPViewDebtTrnovr::NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & rBlk)
 {
 	int    ok = -1;
 	if(rBlk.P_Q) {
@@ -1228,7 +1227,7 @@ int SLAPI PPViewDebtTrnovr::NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & 
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
+int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 {
 	BExtQuery::ZDelete(&rBlk.P_Q);
 	rBlk.ExtBillList.clear();
@@ -1341,7 +1340,7 @@ int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock &
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewDebtTrnovr::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1376,7 +1375,7 @@ int SLAPI PPViewDebtTrnovr::SerializeState(int dir, SBuffer & rBuf, SSerializeCo
 }
 
 
-int SLAPI PPViewDebtTrnovr::InitIteration(IterOrder order)
+int PPViewDebtTrnovr::InitIteration(IterOrder order)
 {
 	int    ok = 1, idx = 0;
 	// @v10.6.8 char   k[MAXKEYLEN];
@@ -1402,7 +1401,7 @@ int SLAPI PPViewDebtTrnovr::InitIteration(IterOrder order)
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::NextInnerIteration(int initList, DebtTrnovrViewItem * pItem)
+int PPViewDebtTrnovr::NextInnerIteration(int initList, DebtTrnovrViewItem * pItem)
 {
 	int    ok = -1;
 	const  int by_links = BIN(Filt.Flags & DebtTrnovrFilt::fNoForwardPaym);
@@ -1437,7 +1436,7 @@ int SLAPI PPViewDebtTrnovr::NextInnerIteration(int initList, DebtTrnovrViewItem 
 	return ok;
 }
 
-void SLAPI PPViewDebtTrnovr::InitViewItem(const TempSellTrnovrTbl::Rec * pRec, DebtTrnovrViewItem * pItem)
+void PPViewDebtTrnovr::InitViewItem(const TempSellTrnovrTbl::Rec * pRec, DebtTrnovrViewItem * pItem)
 {
 	memzero(pItem, sizeof(*pItem));
 	pItem->ID_       = pRec->ID;
@@ -1490,7 +1489,7 @@ int FASTCALL PPViewDebtTrnovr::NextIteration(DebtTrnovrViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewDebtTrnovr::GetItem(PPID arID, PPID curID, long tabID, DebtTrnovrViewItem * pItem)
+int PPViewDebtTrnovr::GetItem(PPID arID, PPID curID, long tabID, DebtTrnovrViewItem * pItem)
 {
 	if(P_TempTbl) {
 		TempSellTrnovrTbl::Key0 k0;
@@ -1958,7 +1957,7 @@ int DebtTrnovrFiltDialog::editExt()
 //
 //
 //
-int SLAPI PPViewDebtTrnovr::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewDebtTrnovr::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -1966,13 +1965,13 @@ int SLAPI PPViewDebtTrnovr::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(DebtTrnovrFiltDialog, p_filt);
 }
 
-int SLAPI PPViewDebtTrnovr::GetTotal(DebtTrnovrTotal * pTotal)
+int PPViewDebtTrnovr::GetTotal(DebtTrnovrTotal * pTotal)
 {
 	ASSIGN_PTR(pTotal, Total);
 	return 1;
 }
 
-int SLAPI PPViewDebtTrnovr::ViewTotal()
+int PPViewDebtTrnovr::ViewTotal()
 {
 	class ExtDebtTrnovrTotalDialog : public TDialog {
 	public:
@@ -2024,12 +2023,12 @@ int SLAPI PPViewDebtTrnovr::ViewTotal()
 		return 0;
 }
 
-int SLAPI PPViewDebtTrnovr::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDebtTrnovr::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	return Detail(static_cast<const BrwHdr *>(pHdr), 0);
 }
 
-int SLAPI PPViewDebtTrnovr::Detail(const BrwHdr * pHdr, int mode)
+int PPViewDebtTrnovr::Detail(const BrwHdr * pHdr, int mode)
 {
 	int    ok = -1;
 	if(pHdr /*&& pHdr->ArID*/) {
@@ -2134,7 +2133,7 @@ int SLAPI PPViewDebtTrnovr::Detail(const BrwHdr * pHdr, int mode)
 // what == 1 - show person by article_id
 // what == 2 - show person by person_id
 //
-int SLAPI PPViewDebtTrnovr::ViewArticleInfo(const BrwHdr * pHdr, int what)
+int PPViewDebtTrnovr::ViewArticleInfo(const BrwHdr * pHdr, int what)
 {
 	int    ok = -1;
 	if(pHdr && pHdr->ArID) {
@@ -2167,7 +2166,7 @@ int SLAPI PPViewDebtTrnovr::ViewArticleInfo(const BrwHdr * pHdr, int what)
 	return ok;
 }
 
-void SLAPI PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
+void PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
 {
 	rBuf.Z();
 	if(oneof2(Filt.CycleKind, DebtTrnovrFilt::ckExpiry, DebtTrnovrFilt::ckDelay)) {
@@ -2196,7 +2195,7 @@ void SLAPI PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
 //
 //
 //
-int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	BrwHdr hdr;
 	if(pHdr) {
@@ -2257,7 +2256,7 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-void SLAPI PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && P_TempTbl && !P_Ct) {
 		DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pBrw->getDef());
@@ -2300,7 +2299,7 @@ void SLAPI PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-DBQuery * SLAPI PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst stop_subst(2);  // @global @threadsafe
 	uint   brw_id = 0;
@@ -2400,7 +2399,7 @@ DBQuery * SLAPI PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pS
 	return q;
 }
 
-static int SLAPI SelectPrintingDebtTrnovrSheet(int * pWhat, LDATE * pExpiry, ushort *pOrder)
+static int SelectPrintingDebtTrnovrSheet(int * pWhat, LDATE * pExpiry, ushort *pOrder)
 {
 	class SelWhatPrnDialog : public TDialog {
 	public:
@@ -2442,7 +2441,7 @@ static int SLAPI SelectPrintingDebtTrnovrSheet(int * pWhat, LDATE * pExpiry, ush
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::Print(const void *)
+int PPViewDebtTrnovr::Print(const void *)
 {
 	int    what_prn = 0;
 	uint   rpt_id = 0;
@@ -2488,7 +2487,7 @@ int SLAPI PPViewDebtTrnovr::Print(const void *)
 	return 1;
 }
 
-int SLAPI ViewDebtTrnovr(const DebtTrnovrFilt * pFilt, int sellOrSuppl) { return PPView::Execute(PPVIEW_DEBTTRNOVR, pFilt, 1, reinterpret_cast<void *>(sellOrSuppl)); }
+int ViewDebtTrnovr(const DebtTrnovrFilt * pFilt, int sellOrSuppl) { return PPView::Execute(PPVIEW_DEBTTRNOVR, pFilt, 1, reinterpret_cast<void *>(sellOrSuppl)); }
 //
 // Implementation of PPALDD_DebtTrnovr
 //
@@ -2585,7 +2584,7 @@ void PPALDD_DebtTrnovr::Destroy() { DESTROY_PPVIEW_ALDD(DebtTrnovr); }
 //
 //
 //
-/*static*/int SLAPI PPDebtorStatConfig::Read(PPDebtorStatConfig * pCfg)
+/*static*/int PPDebtorStatConfig::Read(PPDebtorStatConfig * pCfg)
 {
 	int    r = -1;
 	if(pCfg) {
@@ -2604,7 +2603,7 @@ void PPALDD_DebtTrnovr::Destroy() { DESTROY_PPVIEW_ALDD(DebtTrnovr); }
 	return r;
 }
 
-/*static*/int SLAPI PPDebtorStatConfig::Edit()
+/*static*/int PPDebtorStatConfig::Edit()
 {
 	const  long prop_cfg_id  = PPPRP_DEBTORSTATCFG;
 	const  long cfg_obj_type = PPCFGOBJ_DEBTORSTAT;
@@ -2700,37 +2699,37 @@ void PPALDD_DebtTrnovr::Destroy() { DESTROY_PPVIEW_ALDD(DebtTrnovr); }
 	return ok;
 }
 
-SLAPI PPDebtorStatConfig::PPDebtorStatConfig()
+PPDebtorStatConfig::PPDebtorStatConfig()
 {
 	THISZERO();
 }
 //
 //
 //
-long SLAPI PPDebtorStat::DebtDimItem::GetPaymPeriod() const
+long PPDebtorStat::DebtDimItem::GetPaymPeriod() const
 {
 	return (FirstPaymDate && LastPaymDate) ? diffdate(LastPaymDate, FirstPaymDate) + 1 : 0;
 }
 
-double SLAPI PPDebtorStat::DebtDimItem::CalcPaymDensity() const
+double PPDebtorStat::DebtDimItem::CalcPaymDensity() const
 {
 	long   paym_period = GetPaymPeriod();
 	return (paym_period > 0) ? (PaymAmount / paym_period) : 0.0;
 }
 
-SLAPI PPDebtorStat::PPDebtorStat(PPID arID) : ArID(arID), RelArID(0), DelayMean(0.0), DelayVar(0.0), DelayGammaAlpha(0.0), DelayGammaBeta(0.0), DelayGammaTest(0.0),
+PPDebtorStat::PPDebtorStat(PPID arID) : ArID(arID), RelArID(0), DelayMean(0.0), DelayVar(0.0), DelayGammaAlpha(0.0), DelayGammaBeta(0.0), DelayGammaTest(0.0),
 	ExpiryMean(0.0), PaymAmount(0.0), PaymDensity(0.0), Limit(0.0), DebtCost(0.0), SigmFactor(0.0), PaymPeriod(0),
 	FirstPaymDate(ZERODATE), LastPaymDate(ZERODATE), LimitTerm(0), Flags(0)
 {
 	memzero(Rating, sizeof(Rating));
 }
 
-int SLAPI PPDebtorStat::IsAggregate() const
+int PPDebtorStat::IsAggregate() const
 {
 	return BIN(ArID == 0 || (Flags & (fAgent|fHolding)));
 }
 
-int SLAPI PPDebtorStat::AddPayment(PPID debtDimID, LDATE dt, double amount)
+int PPDebtorStat::AddPayment(PPID debtDimID, LDATE dt, double amount)
 {
 	SETIFZ(FirstPaymDate, dt);
 	SETMIN(FirstPaymDate, dt);
@@ -2758,7 +2757,7 @@ int SLAPI PPDebtorStat::AddPayment(PPID debtDimID, LDATE dt, double amount)
 	return 1;
 }
 
-int SLAPI PPDebtorStat::Finish()
+int PPDebtorStat::Finish()
 {
 	{
 		StatBase stat(StatBase::fGammaTest);
@@ -2788,12 +2787,12 @@ int SLAPI PPDebtorStat::Finish()
 	return 1;
 }
 
-double SLAPI PPDebtorStat::GetDelayVarRate() const
+double PPDebtorStat::GetDelayVarRate() const
 {
 	return (DelayMean == 0.0) ? 0.0 : (sqrt(DelayVar) / DelayMean);
 }
 
-SLAPI PPDebtorStatArray::PPDebtorStatArray() : TSCollection <PPDebtorStat>(), LogRating(0)
+PPDebtorStatArray::PPDebtorStatArray() : TSCollection <PPDebtorStat>(), LogRating(0)
 {
 }
 
@@ -2814,12 +2813,12 @@ PPDebtorStat * FASTCALL PPDebtorStatArray::Get(PPID arID)
 	return p_ret;
 }
 
-double SLAPI PPDebtorStatArray::GetSigmFactor(double sigmA, long paymPeriod, double paymPeriodMean) const
+double PPDebtorStatArray::GetSigmFactor(double sigmA, long paymPeriod, double paymPeriodMean) const
 {
 	return (sigmA > 0.0) ? sigmoid(sigmA, ((double)paymPeriod) - paymPeriodMean) : 1.0;
 }
 
-int SLAPI PPDebtorStatArray::CalcDelayIndex(const PPDebtorStat * pItem, const Total * pTotal, double expWeight, double * pResult) const
+int PPDebtorStatArray::CalcDelayIndex(const PPDebtorStat * pItem, const Total * pTotal, double expWeight, double * pResult) const
 {
 	int    ok = 0;
 	double v = 0;
@@ -2833,7 +2832,7 @@ int SLAPI PPDebtorStatArray::CalcDelayIndex(const PPDebtorStat * pItem, const To
 	return ok;
 }
 
-static int SLAPI GetDebtorRatingColor(const char * pRating, COLORREF * pColor)
+static int GetDebtorRatingColor(const char * pRating, COLORREF * pColor)
 {
 	int    ok = -1;
 	COLORREF c = 0;
@@ -2858,7 +2857,7 @@ static int SLAPI GetDebtorRatingColor(const char * pRating, COLORREF * pColor)
 	return ok;
 }
 
-double SLAPI PPDebtorStatArray::PreprocessRatingVal(double val) const
+double PPDebtorStatArray::PreprocessRatingVal(double val) const
 {
 	if(LogRating) {
 		if(val == 0.0)
@@ -2872,7 +2871,7 @@ double SLAPI PPDebtorStatArray::PreprocessRatingVal(double val) const
 		return val;
 }
 
-int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <RPoint3> * pOutMatrix)
+int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <RPoint3> * pOutMatrix)
 {
 	int    ok = 1;
 	Total  total;
@@ -3101,11 +3100,11 @@ int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVe
 //
 //
 //
-SLAPI DebtStatCore::DebtStatCore(const char * pFileName) : DebtStatTbl(pFileName)
+DebtStatCore::DebtStatCore(const char * pFileName) : DebtStatTbl(pFileName)
 {
 }
 
-int SLAPI DebtStatCore::GetLastDate(PPID accSheetID, LDATE * pDt)
+int DebtStatCore::GetLastDate(PPID accSheetID, LDATE * pDt)
 {
 	int    ok = -1;
 	LDATE  last_date = ZERODATE;
@@ -3124,7 +3123,7 @@ int SLAPI DebtStatCore::GetLastDate(PPID accSheetID, LDATE * pDt)
 	return ok;
 }
 
-int SLAPI DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
+int DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
 {
 	int    ok = -1;
 	BExtQuery * q = 0;
@@ -3168,7 +3167,7 @@ int SLAPI DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
 	return ok;
 }
 
-int SLAPI DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray & rList, int use_ta)
+int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray & rList, int use_ta)
 {
 	int    ok = 1;
 	const  LDATETIME cur = getcurdatetime_();
@@ -3235,12 +3234,12 @@ int SLAPI DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatA
 //
 //
 //
-SLAPI PrcssrDebtRate::Param::Param()
+PrcssrDebtRate::Param::Param()
 {
 	THISZERO();
 }
 
-int SLAPI PrcssrDebtRate::Param::Read(SBuffer & rBuf, long)
+int PrcssrDebtRate::Param::Read(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	if(rBuf.GetAvailableSize()) {
@@ -3259,7 +3258,7 @@ int SLAPI PrcssrDebtRate::Param::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-int SLAPI PrcssrDebtRate::Param::Write(SBuffer & rBuf, long)
+int PrcssrDebtRate::Param::Write(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	Ver = 0;
@@ -3275,7 +3274,7 @@ int SLAPI PrcssrDebtRate::Param::Write(SBuffer & rBuf, long)
 	return ok;
 }
 
-SLAPI PrcssrDebtRate::PrcssrDebtRate()
+PrcssrDebtRate::PrcssrDebtRate()
 {
 	IsThereDebtRateLic = 0;
 	PPLicData ld;
@@ -3284,11 +3283,11 @@ SLAPI PrcssrDebtRate::PrcssrDebtRate()
 	PPDebtorStatConfig::Read(&Cfg);
 }
 
-SLAPI PrcssrDebtRate::~PrcssrDebtRate()
+PrcssrDebtRate::~PrcssrDebtRate()
 {
 }
 
-int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
+int PrcssrDebtRate::EditParam(Param * pParam)
 {
 	class DebtRateFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(PrcssrDebtRate::Param);
@@ -3370,7 +3369,7 @@ int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
 	DIALOG_PROC_BODY_P1(DebtRateFiltDialog, IsThereDebtRateLic, pParam);
 }
 
-int SLAPI PrcssrDebtRate::InitParam(Param * pParam)
+int PrcssrDebtRate::InitParam(Param * pParam)
 {
 	memzero(pParam, sizeof(*pParam));
 	pParam->AccSheetID = GetSellAccSheet();
@@ -3382,13 +3381,13 @@ int SLAPI PrcssrDebtRate::InitParam(Param * pParam)
 	return 1;
 }
 
-int SLAPI PrcssrDebtRate::Init(const Param * pParam)
+int PrcssrDebtRate::Init(const Param * pParam)
 {
 	RVALUEPTR(P, pParam);
 	return 1;
 }
 
-int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
+int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 {
 	//
 	// Коллекция PPDebtorStatEntrySet будет просто хранить указатели на PPDebtorStat,
@@ -3747,7 +3746,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 	return ok;
 }
 
-int SLAPI PrcssrDebtRate::Run()
+int PrcssrDebtRate::Run()
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -4078,7 +4077,7 @@ int SLAPI PrcssrDebtRate::Run()
 	return ok;
 }
 
-int SLAPI DoDebtRate()
+int DoDebtRate()
 {
 	int    ok = -1;
 	PrcssrDebtRate::Param p;
@@ -4097,7 +4096,7 @@ int SLAPI DoDebtRate()
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(DebtorStat); SLAPI DebtorStatFilt::DebtorStatFilt() : PPBaseFilt(PPFILT_DEBTORSTAT, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(DebtorStat); DebtorStatFilt::DebtorStatFilt() : PPBaseFilt(PPFILT_DEBTORSTAT, 0, 0)
 {
 #define _S_ DebtorStatFilt
 	SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, ArList)-offsetof(_S_, ReserveStart));
@@ -4108,17 +4107,16 @@ IMPLEMENT_PPFILT_FACTORY(DebtorStat); SLAPI DebtorStatFilt::DebtorStatFilt() : P
 //
 //
 //
-SLAPI PPViewDebtorStat::PPViewDebtorStat() : PPView(0, &Filt, PPVIEW_DEBTORSTAT), P_TempTbl(0), LastDate(ZERODATE)
+PPViewDebtorStat::PPViewDebtorStat() : PPView(0, &Filt, PPVIEW_DEBTORSTAT, 0, REPORT_DEBTORSTAT), P_TempTbl(0), LastDate(ZERODATE)
 {
-	DefReportId = REPORT_DEBTORSTAT;
 }
 
-SLAPI PPViewDebtorStat::~PPViewDebtorStat()
+PPViewDebtorStat::~PPViewDebtorStat()
 {
 	delete P_TempTbl;
 }
 
-PPBaseFilt * SLAPI PPViewDebtorStat::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewDebtorStat::CreateFilt(void * extraPtr) const
 {
 	DebtorStatFilt * p_filt = new DebtorStatFilt;
 	p_filt->AccSheetID = GetSellAccSheet();
@@ -4164,12 +4162,12 @@ public:
 	}
 };
 
-int SLAPI PPViewDebtorStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewDebtorStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	return Filt.IsA(pBaseFilt) ? PPDialogProcBody <DebtorStatFiltDialog, DebtorStatFilt> (static_cast<DebtorStatFilt *>(pBaseFilt)) : 0;
 }
 
-void SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec)
+void PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec)
 {
 	SString temp_buf, ar_name;
 	GetArticleName(pItem->ArID, ar_name);
@@ -4196,7 +4194,7 @@ void SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * 
 	temp_buf.CopyTo(pRec->Name, sizeof(pRec->Name));
 }
 
-int SLAPI PPViewDebtorStat::UpdateTempTable()
+int PPViewDebtorStat::UpdateTempTable()
 {
 	int    ok = 1;
 	TempOrderTbl * p_o = P_TempTbl;
@@ -4223,7 +4221,7 @@ int SLAPI PPViewDebtorStat::UpdateTempTable()
 	return ok;
 }
 
-int SLAPI PPViewDebtorStat::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewDebtorStat::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	PPLicData ld;
@@ -4240,7 +4238,7 @@ int SLAPI PPViewDebtorStat::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewDebtorStat::InitIteration(long ord)
+int PPViewDebtorStat::InitIteration(long ord)
 {
 	int    ok = -1;
 	BExtQuery * q = 0;
@@ -4279,7 +4277,7 @@ int SLAPI PPViewDebtorStat::InitIteration(long ord)
 	return ok;
 }
 
-int SLAPI PPViewDebtorStat::MakeViewItem(const DebtStatTbl::Rec * pRec, DebtorStatViewItem * pItem)
+int PPViewDebtorStat::MakeViewItem(const DebtStatTbl::Rec * pRec, DebtorStatViewItem * pItem)
 {
 	if(pItem) {
 		pItem->ArID = pRec->ArID;
@@ -4354,7 +4352,7 @@ static IMPL_CMPFUNC(_2double, i1, i2)
 	RET_CMPCASCADE2(static_cast<const I *>(i1), static_cast<const I *>(i2), x, y);
 }
 
-int SLAPI PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
+int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	uint   i;
@@ -4574,7 +4572,7 @@ int SLAPI PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_DEBTORSTAT;
 	DBQuery * q = 0;
@@ -4668,12 +4666,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-void SLAPI PPViewDebtorStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewDebtorStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, 0));
 }
 
-int SLAPI PPViewDebtorStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewDebtorStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {

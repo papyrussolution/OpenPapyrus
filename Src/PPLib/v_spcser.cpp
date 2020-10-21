@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
-IMPLEMENT_PPFILT_FACTORY(SpecSeries); SLAPI SpecSeriesFilt::SpecSeriesFilt() : PPBaseFilt(PPFILT_SPECSERIES, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(SpecSeries); SpecSeriesFilt::SpecSeriesFilt() : PPBaseFilt(PPFILT_SPECSERIES, 0, 1)
 {
 	SetFlatChunk(offsetof(SpecSeriesFilt, ReserveStart),
 		offsetof(SpecSeriesFilt, ReserveEnd) - offsetof(SpecSeriesFilt, ReserveStart));
@@ -20,7 +20,7 @@ SpecSeriesFilt & FASTCALL SpecSeriesFilt::operator = (const SpecSeriesFilt & s)
 	return *this;
 }
 
-PPViewSpecSeries::PPViewSpecSeries() : PPView(0, &Filt, PPVIEW_SPECSERIES)
+PPViewSpecSeries::PPViewSpecSeries() : PPView(0, &Filt, PPVIEW_SPECSERIES, 0, 0)
 {
 }
 
@@ -74,14 +74,14 @@ int SpecSerFiltDlg::getDTS(SpecSeriesFilt * pData)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODYERR(SpecSerFiltDlg, static_cast<SpecSeriesFilt *>(pBaseFilt));
 }
 
-/*virtual*/int SLAPI PPViewSpecSeries::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int PPViewSpecSeries::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -90,7 +90,7 @@ int SpecSerFiltDlg::getDTS(SpecSeriesFilt * pData)
 	return ok;
 }
 
-int SLAPI PPViewSpecSeries::InitIteration()
+int PPViewSpecSeries::InitIteration()
 {
 	int    ok = 1;
 	SpecSeries2Tbl::Key1 k1, k_;
@@ -156,7 +156,7 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 // static
 int PPViewSpecSeries::DynFuncSpcSnTextFld = 0;
 
-/*virtual*/DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncSpcSnTextFld, BTS_STRING, dbqf_spcsn_textfld_iisi, 4, BTS_INT, BTS_INT, BTS_STRING, BTS_INT);
 
@@ -213,7 +213,7 @@ int PPViewSpecSeries::DynFuncSpcSnTextFld = 0;
 	return q;
 }
 
-/*virtual*/void SLAPI PPViewSpecSeries::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void PPViewSpecSeries::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 }
 
@@ -325,7 +325,7 @@ int SpecSerDlg::getDTS(SpecSeries2Tbl::Rec * pData)
 	return ok;
 }
 
-int SLAPI PPViewSpecSeries::AddItem()
+int PPViewSpecSeries::AddItem()
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -349,7 +349,7 @@ int SLAPI PPViewSpecSeries::AddItem()
 	return ok;
 }
 
-int SLAPI PPViewSpecSeries::EditItem(PPID id)
+int PPViewSpecSeries::EditItem(PPID id)
 {
 	int    ok = -1;
 	SpecSeries2Tbl::Rec rec;
@@ -370,17 +370,17 @@ int SLAPI PPViewSpecSeries::EditItem(PPID id)
 	return ok;
 }
 
-int SLAPI PPViewSpecSeries::DeleteItem(PPID id)
+int PPViewSpecSeries::DeleteItem(PPID id)
 {
 	return Tbl.Put(&id, 0, 1) ? 1 : PPErrorZ();
 }
 
-int SLAPI PPViewSpecSeries::Import()
+int PPViewSpecSeries::Import()
 {
 	return ImportSpecSeries();
 }
 
-/*virtual*/int SLAPI PPViewSpecSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int PPViewSpecSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -414,7 +414,7 @@ int SLAPI PPViewSpecSeries::Import()
 }
 
 // @Muxa {
-int SLAPI PPViewSpecSeries::ImportUhtt()
+int PPViewSpecSeries::ImportUhtt()
 {
 	int    ok = 1;
 	long   accepted_count = 0;
@@ -502,7 +502,7 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 	return ok;
 }
 
-int SLAPI PPViewSpecSeries::ExportUhtt()
+int PPViewSpecSeries::ExportUhtt()
 {
 	int    ok = -1;
 	PPID   id = 0;

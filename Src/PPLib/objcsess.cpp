@@ -39,7 +39,7 @@ static const struct __RtToS {
 	{ CSESSOPRT_REPRNUNFCC,       1, "3" } // @v10.6.11
 };
 
-/*static*/void SLAPI PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
+/*static*/void PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
 {
 	rBuf.Z();
 	for(uint i = 0; i < SIZEOFARRAY(RtToS); i++) {
@@ -48,7 +48,7 @@ static const struct __RtToS {
 	}
 }
 
-/*static*/void SLAPI PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
+/*static*/void PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 {
 	long   rt = 0;
 	long   ort = 0;
@@ -72,20 +72,20 @@ static const struct __RtToS {
 TLP_IMPL(PPObjCSession, CSessionCore, P_Tbl);
 TLP_IMPL(PPObjCSession, CCheckCore, P_Cc); // @v10.4.2
 
-SLAPI PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION), P_EqCfg(0), ExtraPtr(extraPtr)
+PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION), P_EqCfg(0), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	TLP_OPEN(P_Cc); // @v10.4.2
 }
 
-SLAPI PPObjCSession::~PPObjCSession()
+PPObjCSession::~PPObjCSession()
 {
 	TLP_CLOSE(P_Tbl);
 	TLP_CLOSE(P_Cc); // @v10.4.2
 	delete P_EqCfg;
 }
 
-const PPEquipConfig & SLAPI PPObjCSession::GetEqCfg()
+const PPEquipConfig & PPObjCSession::GetEqCfg()
 {
 	if(P_EqCfg == 0) {
 		P_EqCfg = new PPEquipConfig;
@@ -94,8 +94,8 @@ const PPEquipConfig & SLAPI PPObjCSession::GetEqCfg()
 	return *P_EqCfg;
 }
 
-int SLAPI PPObjCSession::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
-const char * SLAPI PPObjCSession::GetNamePtr() { return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
+int PPObjCSession::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+const char * PPObjCSession::GetNamePtr() { return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
 
 /*static*/SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
 {
@@ -104,7 +104,7 @@ const char * SLAPI PPObjCSession::GetNamePtr() { return MakeCodeString(&P_Tbl->d
 	return rBuf;
 }
 
-int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
+int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 {
 	class CSessDialog : public PPListDialog {
 	public:
@@ -231,7 +231,7 @@ int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int SLAPI PPObjCSession::Recalc(PPID sessID, int use_ta)
+int PPObjCSession::Recalc(PPID sessID, int use_ta)
 {
 	MemLeakTracer mlt;
 	int    ok = 1;
@@ -278,7 +278,7 @@ int SLAPI PPObjCSession::Recalc(PPID sessID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjCSession::VerifyAmounts(PPID sessID, const CSessTotal & rTotal, PPLogger & rLogger)
+int PPObjCSession::VerifyAmounts(PPID sessID, const CSessTotal & rTotal, PPLogger & rLogger)
 {
 	int    ok = 1;
 	double delta;
@@ -320,7 +320,7 @@ int SLAPI PPObjCSession::VerifyAmounts(PPID sessID, const CSessTotal & rTotal, P
 	return ok;
 }
 
-int SLAPI PPObjCSession::Recover(const PPIDArray & rSessList)
+int PPObjCSession::Recover(const PPIDArray & rSessList)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -383,7 +383,7 @@ int SLAPI PPObjCSession::Recover(const PPIDArray & rSessList)
 	return ok;
 }
 
-int SLAPI PPObjCSession::ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int use_ta)
+int PPObjCSession::ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int use_ta)
 {
 	int    ok = 1;
 	LAssocArray dfct_subst_list;
@@ -426,7 +426,7 @@ int SLAPI PPObjCSession::ReWriteOff(PPID sessID, int level /* @#[0,5,10] */, int
 	return ok;
 }
 
-int SLAPI PPObjCSession::UndoWritingOff(PPID sessID, int use_ta)
+int PPObjCSession::UndoWritingOff(PPID sessID, int use_ta)
 {
 	int    ok = 1;
 	CGoodsLine cgl;
@@ -450,7 +450,7 @@ int SLAPI PPObjCSession::UndoWritingOff(PPID sessID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
+int PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
 {
 	int    ok = 1;
 	uint   i;
@@ -486,7 +486,7 @@ int SLAPI PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjCSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+/*virtual*/int PPObjCSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    ok = 1;
 	CGoodsLine cgl;
@@ -515,7 +515,7 @@ int SLAPI PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjCSession::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjCSession::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_CASHNODE) {
@@ -529,7 +529,7 @@ int SLAPI PPObjCSession::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	return DBRPL_OK;
 }
 
-int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	class CSessRightsDlg : public TDialog {
 	public:
@@ -616,7 +616,7 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 	return r;
 }
 
-int SLAPI PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransmContext * pCtx)
+int PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	SString fmt_buf;
@@ -708,15 +708,15 @@ struct CChkItemTransm {
 
 class CSessTransmitPacket {
 public:
-	SLAPI  CSessTransmitPacket() : UseCclExt(BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT)), Method_700(1), Valid(1), ChecksCount(0)
+	CSessTransmitPacket() : UseCclExt(BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT)), Method_700(1), Valid(1), ChecksCount(0)
 	{
 	}
-	int    SLAPI IsValid() const { return Valid; }
-	int    SLAPI LoadSession(PPID sessID, ObjTransmContext * pCtx);
-	int    SLAPI ProcessRefs(PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	int    SLAPI PutToStream(FILE * fStream);
-	int    SLAPI GetFromStream(FILE * fStream, ObjTransmContext * pCtx);
-	int    SLAPI Restore(PPID * pID, ObjTransmContext * pCtx);
+	int    IsValid() const { return Valid; }
+	int    LoadSession(PPID sessID, ObjTransmContext * pCtx);
+	int    ProcessRefs(PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	int    PutToStream(FILE * fStream);
+	int    GetFromStream(FILE * fStream, ObjTransmContext * pCtx);
+	int    Restore(PPID * pID, ObjTransmContext * pCtx);
 	CSessionTbl::Rec Rec;
 	uint32  ChecksCount; // @!CSessTransmitPacket::LoadSession
 private:
@@ -734,7 +734,7 @@ private:
 	const  int Method_700;
 };
 
-int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
+int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 {
 	int    ok = -1;
 	uint   i;
@@ -899,7 +899,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 	return ok;
 }
 
-int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	SBuffer temp_buf;
@@ -947,7 +947,7 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 //
 // Извлекает сессию из потока передачи данных
 //
-int SLAPI CSessTransmitPacket::GetFromStream(FILE * stream, ObjTransmContext * pCtx)
+int CSessTransmitPacket::GetFromStream(FILE * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	Bs.Z();
@@ -958,7 +958,7 @@ int SLAPI CSessTransmitPacket::GetFromStream(FILE * stream, ObjTransmContext * p
 //
 // Сохраняет сессию в потоке передачи данных
 //
-int SLAPI CSessTransmitPacket::PutToStream(FILE * stream)
+int CSessTransmitPacket::PutToStream(FILE * stream)
 {
 	int    ok = 1;
 	Bs.SetRdOffs(0);
@@ -969,7 +969,7 @@ int SLAPI CSessTransmitPacket::PutToStream(FILE * stream)
 //
 // Извлекает сессию из базы данных
 //
-int SLAPI CSessTransmitPacket::LoadSession(PPID sessID, ObjTransmContext * pCtx)
+int CSessTransmitPacket::LoadSession(PPID sessID, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	ChecksCount = 0;
@@ -999,7 +999,7 @@ int SLAPI CSessTransmitPacket::LoadSession(PPID sessID, ObjTransmContext * pCtx)
 	return ok;
 }
 
-int SLAPI PPObjCSession::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjCSession::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	CSessTransmitPacket * p_pack = new CSessTransmitPacket;
@@ -1016,7 +1016,7 @@ int SLAPI PPObjCSession::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 	return ok;
 }
 
-int SLAPI PPObjCSession::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+int PPObjCSession::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	CSessTransmitPacket * p_pack = p ? static_cast<CSessTransmitPacket *>(p->Data) : 0;
@@ -1034,7 +1034,7 @@ int SLAPI PPObjCSession::Write(PPObjPack * p, PPID * pID, void * stream, ObjTran
 
 IMPL_DESTROY_OBJ_PACK(PPObjCSession, CSessTransmitPacket);
 
-int SLAPI PPObjCSession::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjCSession::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	return (p && p->Data) ? static_cast<CSessTransmitPacket *>(p->Data)->ProcessRefs(ary, replace, pCtx) : -1;
 }
@@ -1056,7 +1056,7 @@ struct _PPKeybordWKeyCfg { // @persistent @store(PropertyTbl) @size=84
 	// @v7.0.5 char   Reserve[16];    // @reserve
 };
 
-int SLAPI GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
+int GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
 {
 	int    ok = -1;
 	if(pOperRightsAry) {
@@ -1077,7 +1077,7 @@ int SLAPI GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
 	return ok;
 }
 
-int SLAPI EditDueToKeyboardRights()
+int EditDueToKeyboardRights()
 {
 	class KeybWKeyCfgDlg : public TDialog {
 		DECL_DIALOG_DATA(_PPKeybordWKeyCfg);
@@ -1999,17 +1999,17 @@ public:
 		int16  Incomplete;
 		int16  Temporary;
 	};
-	SLAPI  CSessCache();
+	CSessCache();
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-SLAPI CSessCache::CSessCache() : ObjCacheHash(PPOBJ_CSESSION, sizeof(Data), (1024*1024), 8)
+CSessCache::CSessCache() : ObjCacheHash(PPOBJ_CSESSION, sizeof(Data), (1024*1024), 8)
 {
 }
 
-int SLAPI CSessCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int CSessCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 {
 	int    ok = -1;
 	PPObjCSession cs_obj;
@@ -2031,7 +2031,7 @@ int SLAPI CSessCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData
 	return ok;
 }
 
-void SLAPI CSessCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void CSessCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	CSessionTbl::Rec * p_data_rec = static_cast<CSessionTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -2049,7 +2049,7 @@ void SLAPI CSessCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec
 	#undef FLD
 }
 
-int SLAPI PPObjCSession::Fetch(PPID id, CSessionTbl::Rec * pRec)
+int PPObjCSession::Fetch(PPID id, CSessionTbl::Rec * pRec)
 {
 	CSessCache * p_cache = GetDbLocalCachePtr <CSessCache> (PPOBJ_CSESSION);
 	return p_cache ? p_cache->Get(id, pRec, 0) : Search(id, pRec);
@@ -2063,8 +2063,8 @@ IMPL_OBJ_DIRTY(PPObjCSession, CSessCache);
 
 class PPCSessComplexImpExpParam : public PPImpExpParam {
 public:
-	SLAPI  PPCSessComplexImpExpParam(uint recId = 0, long flags = 0);
-	int    SLAPI Clear();
+	PPCSessComplexImpExpParam(uint recId = 0, long flags = 0);
+	int    Clear();
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
@@ -2087,12 +2087,12 @@ public:
 
 IMPLEMENT_IMPEXP_HDL_FACTORY(CSESSCOMPLEX, PPCSessComplexImpExpParam);
 
-SLAPI PPCSessComplexImpExpParam::PPCSessComplexImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPCSessComplexImpExpParam::PPCSessComplexImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
 {
 	Flags = 0;
 }
 
-int SLAPI PPCSessComplexImpExpParam::Clear()
+int PPCSessComplexImpExpParam::Clear()
 {
 	Flags = 0;
 	CSessTag = 0;
@@ -2256,7 +2256,7 @@ int CSessComplexImpExpDialog::getDTS(PPCSessComplexImpExpParam * pData)
 	return ok;
 }
 
-int SLAPI EditCSessComplexImpExpParam(const char * pIniSection)
+int EditCSessComplexImpExpParam(const char * pIniSection)
 {
 	int    ok = -1;
 	CSessComplexImpExpDialog * dlg = 0;
@@ -2308,10 +2308,10 @@ int EditCSessComplexImpExpParams()
 
 class PrcssrCSessComplexExport {
 public:
-	SLAPI  PrcssrCSessComplexExport();
-	SLAPI ~PrcssrCSessComplexExport();
-	int    SLAPI Init(const PPCSessComplexImpExpParam * pParam);
-	int    SLAPI ExportSession(PPID sessID);
+	PrcssrCSessComplexExport();
+	~PrcssrCSessComplexExport();
+	int    Init(const PPCSessComplexImpExpParam * pParam);
+	int    ExportSession(PPID sessID);
 private:
 	PPCSessComplexImpExpParam Param;
 	PPImpExp * P_IeCSess;
@@ -2324,11 +2324,11 @@ private:
 	// @v10.4.2 CCheckCore Cc;
 };
 
-SLAPI PrcssrCSessComplexExport::PrcssrCSessComplexExport() : P_IeCSess(0), P_IeCCheck(0), P_IeCCLine(0),  P_IeCCPaym(0), OneXmlOut(0)
+PrcssrCSessComplexExport::PrcssrCSessComplexExport() : P_IeCSess(0), P_IeCCheck(0), P_IeCCLine(0),  P_IeCCPaym(0), OneXmlOut(0)
 {
 }
 
-SLAPI PrcssrCSessComplexExport::~PrcssrCSessComplexExport()
+PrcssrCSessComplexExport::~PrcssrCSessComplexExport()
 {
 	delete P_IeCSess;
 	delete P_IeCCheck;
@@ -2336,7 +2336,7 @@ SLAPI PrcssrCSessComplexExport::~PrcssrCSessComplexExport()
 	delete P_IeCCPaym;
 }
 
-int SLAPI PrcssrCSessComplexExport::Init(const PPCSessComplexImpExpParam * pParam)
+int PrcssrCSessComplexExport::Init(const PPCSessComplexImpExpParam * pParam)
 {
 	int    ok = 1;
 	if(pParam)
@@ -2375,7 +2375,7 @@ int SLAPI PrcssrCSessComplexExport::Init(const PPCSessComplexImpExpParam * pPara
 	return ok;
 }
 
-int SLAPI PrcssrCSessComplexExport::ExportSession(PPID sessID)
+int PrcssrCSessComplexExport::ExportSession(PPID sessID)
 {
 	int    ok = 1;
 	SString temp_buf;

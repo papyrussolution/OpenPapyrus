@@ -6,17 +6,17 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI SysJournal::SysJournal() : SysJournalTbl(), P_RsrvT((CConfig.Flags & CCFLG_RSRVSJ) ? new SjRsrvTbl : 0)
+SysJournal::SysJournal() : SysJournalTbl(), P_RsrvT((CConfig.Flags & CCFLG_RSRVSJ) ? new SjRsrvTbl : 0)
 {
 	PPLoadText(PPTXT_ERR_SYSJLOGGING, FmtBuf);
 }
 
-SLAPI SysJournal::~SysJournal()
+SysJournal::~SysJournal()
 {
 	ZDELETE(P_RsrvT);
 }
 
-int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_ta)
+int SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_ta)
 {
 	int    ok = -1;
 	const LDATETIME dtm = getcurdatetime_();
@@ -77,7 +77,7 @@ int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int
 	return ok;
 }
 
-int SLAPI SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
+int SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
 {
 	SysJournalTbl::Key0 k;
 	DBQ  * dbq = 0;
@@ -119,7 +119,7 @@ int SLAPI SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME *
 		return PPDbSearchError();
 }
 
-int SLAPI SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, const DateRange * pSrchPeriod, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
+int SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, const DateRange * pSrchPeriod, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
 {
 	SysJournalTbl::Key0 k;
 	DBQ  * dbq = 0;
@@ -146,12 +146,12 @@ int SLAPI SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, co
 		return PPDbSearchError();
 }
 
-int SLAPI SysJournal::GetLastEvent(PPID action, long extraVal, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * pRec)
+int SysJournal::GetLastEvent(PPID action, long extraVal, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * pRec)
 {
 	return GetEvent(action, extraVal, -1, pMoment, maxDays, pRec);
 }
 
-int SLAPI SysJournal::GetLastObjUnifyEvent(PPID objType, PPID objID, PPID * pDestID, SysJournalTbl::Rec * pRec)
+int SysJournal::GetLastObjUnifyEvent(PPID objType, PPID objID, PPID * pDestID, SysJournalTbl::Rec * pRec)
 {
 	int    ok = -1;
 	SysJournalTbl::Key1 k;
@@ -171,7 +171,7 @@ int SLAPI SysJournal::GetLastObjUnifyEvent(PPID objType, PPID objID, PPID * pDes
 	return ok;
 }
 
-int SLAPI SysJournal::GetObjEventList(PPID objType, PPID objID, const PPIDArray * pActList, SArray * pResultList)
+int SysJournal::GetObjEventList(PPID objType, PPID objID, const PPIDArray * pActList, SArray * pResultList)
 {
 	int    ok = -1;
 	SysJournalTbl::Key1 k1;
@@ -192,7 +192,7 @@ int SLAPI SysJournal::GetObjEventList(PPID objType, PPID objID, const PPIDArray 
 	return ok;
 }
 
-int SLAPI SysJournal::GetObjCreationEvent(PPID objType, PPID objID, SysJournalTbl::Rec * pRec)
+int SysJournal::GetObjCreationEvent(PPID objType, PPID objID, SysJournalTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPIDArray action_list;
@@ -210,7 +210,7 @@ int SLAPI SysJournal::GetObjCreationEvent(PPID objType, PPID objID, SysJournalTb
 	return ok;
 }
 
-int SLAPI SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME * pMoment, int * pCreation, SysJournalTbl::Rec * pRec)
+int SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME * pMoment, int * pCreation, SysJournalTbl::Rec * pRec)
 {
 	int    ok = -1, cr = 0;
 	SysJournalTbl::Key1 k;
@@ -255,7 +255,7 @@ int SLAPI SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME *
 	return ok;
 }
 
-int SLAPI SysJournal::GetNextObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, const LDATETIME & rSince, SysJournalTbl::Rec * pRec)
+int SysJournal::GetNextObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, const LDATETIME & rSince, SysJournalTbl::Rec * pRec)
 {
 	int    ok = -1;
 	SysJournalTbl::Key1 k;
@@ -272,7 +272,7 @@ int SLAPI SysJournal::GetNextObjEvent(PPID objType, PPID objID, const PPIDArray 
 	return ok;
 }
 
-int SLAPI SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
+int SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
 {
 	int    ok = -1;
 	SysJournalTbl::Key1 k;
@@ -309,7 +309,7 @@ int SLAPI SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray 
 	return ok;
 }
 
-int SLAPI SysJournal::GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & rSince, PPIDArray & rCfgIdList)
+int SysJournal::GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & rSince, PPIDArray & rCfgIdList)
 {
 	int    ok = -1;
 	SysJournalTbl::Key0 k;
@@ -332,7 +332,7 @@ int SLAPI SysJournal::GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & 
 	return ok;
 }
 
-int SLAPI SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList)
+int SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList)
 {
 	int    ok = -1;
 	SysJournalTbl::Key0 k;
@@ -355,7 +355,7 @@ int SLAPI SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pAc
 	return ok;
 }
 
-int SLAPI SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList)
+int SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList)
 {
 	rObjList.clear();
 	int    ok = -1;
@@ -386,7 +386,7 @@ int SLAPI SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID, const P
 	return ok;
 }
 
-int SLAPI SysJournal::CheckObjForFilt(PPID objType, PPID objID, const SysJournalFilt * pFilt)
+int SysJournal::CheckObjForFilt(PPID objType, PPID objID, const SysJournalFilt * pFilt)
 {
 	int    ok = -1;
 	if(pFilt && !pFilt->IsEmpty()) {
@@ -412,7 +412,7 @@ int SLAPI SysJournal::CheckObjForFilt(PPID objType, PPID objID, const SysJournal
 	return ok;
 }
 
-int SLAPI SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const PPIDArray * pActList)
+int SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const PPIDArray * pActList)
 {
 	int    ok = -1;
 	SysJournalTbl::Key1 k;
@@ -429,7 +429,7 @@ int SLAPI SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const
 	return ok;
 }
 
-int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
+int SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString fmt_buf, msg_buf, added_buf, temp_buf;
@@ -499,7 +499,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 	return ok;
 }
 
-int SLAPI SysJournal::Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
+int SysJournal::Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
 {
 	PPID   id = 0;
 	if(sgsj == sgsjOp)
@@ -512,7 +512,7 @@ int SLAPI SysJournal::Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPI
 	return 1;
 }
 
-void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen)
+void SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	if(sgsj == sgsjOp)
@@ -528,7 +528,7 @@ void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBu
 	temp_buf.CopyTo(pBuf, bufLen);
 }
 
-void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, SString & rBuf)
+void SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	if(sgsj == sgsjOp)
@@ -547,12 +547,12 @@ void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, SString & 
 //
 //
 //
-SLAPI PPGta::PPGta()
+PPGta::PPGta()
 {
 	THISZERO();
 }
 
-SLAPI GtaJournalCore::GtaJournalCore() : GtaJournalTbl()
+GtaJournalCore::GtaJournalCore() : GtaJournalTbl()
 {
 }
 
@@ -564,7 +564,7 @@ static SString & GetGoodsCodeForOp(int op, PPID objType, SString & rBuf)
 	return rBuf;
 }
 
-void SLAPI PPObjBill::InitGtaBlock()
+void PPObjBill::InitGtaBlock()
 {
 	SETIFZ(P_ScObj, new PPObjSCard);
 }
@@ -593,7 +593,7 @@ PPID FASTCALL PPObjBill::GetGtaGoodsID(const PPGta & rGta)
 	return goods_id;
 }
 
-int SLAPI PPObjBill::GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::GuaAssocItem & rAssoc)
+int PPObjBill::GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::GuaAssocItem & rAssoc)
 {
 	int    ok = 1;
 	MEMSZERO(rAssoc);
@@ -639,7 +639,7 @@ int SLAPI PPObjBill::GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::Gua
 	return ok;
 }
 
-int SLAPI PPObjBill::InitGta(PPGta & rGta)
+int PPObjBill::InitGta(PPGta & rGta)
 {
 	int    ok = -1;
 	GtaBlock::GuaAssocItem gua_assoc;
@@ -666,7 +666,7 @@ int SLAPI PPObjBill::InitGta(PPGta & rGta)
 	return ok;
 }
 
-int SLAPI PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
+int PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
 {
 	int    ok = -1;
 	GtaBlock::GuaAssocItem gua_assoc;
@@ -691,7 +691,7 @@ int SLAPI PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
 	return ok;
 }
 
-int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
+int GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -751,21 +751,21 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 //
 // ObjVersioningCore
 //
-SLAPI ObjVersioningCore::ObjVersioningCore() : ObjVerTbl(), State(0)
+ObjVersioningCore::ObjVersioningCore() : ObjVerTbl(), State(0)
 {
 }
 
-int SLAPI ObjVersioningCore::IsInited() const
+int ObjVersioningCore::IsInited() const
 {
 	return BIN(State & stSCtxInited);
 }
 
-SSerializeContext & SLAPI ObjVersioningCore::GetSCtx()
+SSerializeContext & ObjVersioningCore::GetSCtx()
 {
 	return SCtx;
 }
 
-int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
+int ObjVersioningCore::InitSerializeContext(int use_ta)
 {
 	int    ok = 1;
 	if(!(State & stSCtxInited)) {
@@ -814,7 +814,7 @@ int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
 	return ok;
 }
 
-int SLAPI ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
+int ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
 {
 	int    ok = 1;
 	ObjVerTbl::Rec rec;
@@ -850,7 +850,7 @@ int SLAPI ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int us
 	return ok;
 }
 
-int SLAPI ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffer * pPackBuf)
+int ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffer * pPackBuf)
 {
 	int    ok = -1;
 	ObjVerTbl::Key0 k;
@@ -868,7 +868,7 @@ int SLAPI ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffe
 	return ok;
 }
 
-int SLAPI ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pPackBuf)
+int ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pPackBuf)
 {
 	int    ok = -1;
 	int    sp = 0;
@@ -895,7 +895,7 @@ int SLAPI ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * p
 	return ok;
 }
 
-int SLAPI ObjVersioningCore::GetNextVer(PPObjID oid, long * pVer)
+int ObjVersioningCore::GetNextVer(PPObjID oid, long * pVer)
 {
 	int    ok = 1;
 	ObjVerTbl::Rec rec;
@@ -907,11 +907,11 @@ int SLAPI ObjVersioningCore::GetNextVer(PPObjID oid, long * pVer)
 //
 //
 #if 0 // @v9.6.4 (useless) {
-SLAPI DGQCore::DGQCore() : DGQTbl()
+DGQCore::DGQCore() : DGQTbl()
 {
 }
 
-int SLAPI DGQCore::SearchQuery(const S_GUID & rUuid, DGQTbl::Rec * pRec)
+int DGQCore::SearchQuery(const S_GUID & rUuid, DGQTbl::Rec * pRec)
 {
     DGQTbl::Key0 k0;
     MEMSZERO(k0);
@@ -919,7 +919,7 @@ int SLAPI DGQCore::SearchQuery(const S_GUID & rUuid, DGQTbl::Rec * pRec)
 	return SearchByKey(this, 0, &k0, pRec);
 }
 
-int SLAPI DGQCore::PutQuery(const S_GUID & rUuid, int queryType, int use_ta)
+int DGQCore::PutQuery(const S_GUID & rUuid, int queryType, int use_ta)
 {
     int    ok = 1;
 	DGQTbl::Rec rec;
@@ -943,7 +943,7 @@ int SLAPI DGQCore::PutQuery(const S_GUID & rUuid, int queryType, int use_ta)
     return ok;
 }
 
-int SLAPI DGQCore::CommitQuery(const S_GUID & rUuid, int use_ta)
+int DGQCore::CommitQuery(const S_GUID & rUuid, int use_ta)
 {
     int    ok = 1;
     DGQTbl::Rec rec;

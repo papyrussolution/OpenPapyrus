@@ -38,7 +38,7 @@ uint STestDataArray::GetCount() const
 	return L.getCount();
 }
 
-int SLAPI STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName, const char * pZone)
+int STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName, const char * pZone)
 {
 	int    ok = -1;
 	int    my_zone = 0;
@@ -650,14 +650,14 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 
 #define FILE_TIME_TO_QWORD(ft) (Int64ShllMod32(ft.dwHighDateTime, 32) | ft.dwLowDateTime)
 
-static inline int64 SLAPI getprofiletime(HANDLE thrId)
+static inline int64 getprofiletime(HANDLE thrId)
 {
 	FILETIME ct_tm, end_tm, k_tm, user_tm;
 	GetThreadTimes(thrId, &ct_tm, &end_tm, &k_tm, &user_tm);
 	return (FILE_TIME_TO_QWORD(user_tm) + FILE_TIME_TO_QWORD(k_tm));
 }
 
-static inline int64 SLAPI getprofilesystime()
+static inline int64 getprofilesystime()
 {
 	FILETIME tm;
 	// @v9.9.5 SYSTEMTIME stm;

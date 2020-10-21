@@ -9,7 +9,7 @@
 //
 //
 //
-SLAPI PPPerson::PPPerson()
+PPPerson::PPPerson()
 {
 	// @v10.6.4 MEMSZERO(Rec);
 }
@@ -22,14 +22,14 @@ PPPerson & FASTCALL PPPerson::operator = (const PPPerson & s)
 	return *this;
 }
 
-void SLAPI PPPerson::destroy()
+void PPPerson::destroy()
 {
 	MEMSZERO(Rec);
 	Kinds.clear(); // @v10.6.12 freeAll()-->clear()
 	RelList.clear(); // @v10.6.12 freeAll()-->clear()
 }
 
-int SLAPI PPPerson::AddRelation(PPID personID, PPID relTypeID, uint * pPos)
+int PPPerson::AddRelation(PPID personID, PPID relTypeID, uint * pPos)
 {
 	if(RelList.SearchPair(personID, relTypeID, 0) <= 0)
 		return RelList.Add(personID, relTypeID, pPos, 0) ? 1 : PPSetErrorSLib();
@@ -37,7 +37,7 @@ int SLAPI PPPerson::AddRelation(PPID personID, PPID relTypeID, uint * pPos)
 		return PPSetError(PPERR_DUPPERSONREL);
 }
 
-int SLAPI PPPerson::AddRelations(const PPIDArray * pPersonList, PPID relTypeID, uint * pPos)
+int PPPerson::AddRelations(const PPIDArray * pPersonList, PPID relTypeID, uint * pPos)
 {
 	int    ok = 1;
 	if(pPersonList) {
@@ -55,7 +55,7 @@ int SLAPI PPPerson::AddRelations(const PPIDArray * pPersonList, PPID relTypeID, 
 	return ok;
 }
 
-int SLAPI PPPerson::RemoveRelationByPos(uint pos)
+int PPPerson::RemoveRelationByPos(uint pos)
 {
 	int    ok = 1;
 	if(pos < RelList.getCount())
@@ -65,7 +65,7 @@ int SLAPI PPPerson::RemoveRelationByPos(uint pos)
 	return ok;
 }
 
-int SLAPI PPPerson::RemoveRelation(PPID personID, PPID relTypeID)
+int PPPerson::RemoveRelation(PPID personID, PPID relTypeID)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -76,7 +76,7 @@ int SLAPI PPPerson::RemoveRelation(PPID personID, PPID relTypeID)
 	return ok;
 }
 
-int SLAPI PPPerson::RemoveRelations(PPIDArray * pPersonList, PPID relTypeID)
+int PPPerson::RemoveRelations(PPIDArray * pPersonList, PPID relTypeID)
 {
 	int    ok = 1;
 	PPIDArray * p_list = pPersonList;
@@ -95,7 +95,7 @@ int SLAPI PPPerson::RemoveRelations(PPIDArray * pPersonList, PPID relTypeID)
 	return ok;
 }
 
-int SLAPI PPPerson::GetRelList(PPID relTypeID, PPIDArray * pList) const
+int PPPerson::GetRelList(PPID relTypeID, PPIDArray * pList) const
 {
 	int    ok = 1;
 	for(uint i = 0; i < RelList.getCount(); i++)
@@ -104,24 +104,24 @@ int SLAPI PPPerson::GetRelList(PPID relTypeID, PPIDArray * pList) const
 	return ok;
 }
 
-const LAssocArray & SLAPI PPPerson::GetRelList() const
+const LAssocArray & PPPerson::GetRelList() const
 {
 	return RelList;
 }
 //
 // @ModuleDef(PPObjPersonRelType)
 //
-SLAPI PPPersonRelType2::PPPersonRelType2()
+PPPersonRelType2::PPPersonRelType2()
 {
 	THISZERO();
 }
 
-SLAPI PPPersonRelTypePacket::PPPersonRelTypePacket()
+PPPersonRelTypePacket::PPPersonRelTypePacket()
 {
 	// @v10.6.12 Init();
 }
 
-void SLAPI PPPersonRelTypePacket::Init()
+void PPPersonRelTypePacket::Init()
 {
 	MEMSZERO(Rec);
 	InhRegTypeList.clear(); // @v10.6.12 freeAll()-->clear()
@@ -136,13 +136,13 @@ PPPersonRelTypePacket & FASTCALL PPPersonRelTypePacket::operator = (const PPPers
 //
 //
 //
-SLAPI PPObjPersonRelType::PPObjPersonRelType(void * extraPtr) : PPObjReference(PPOBJ_PERSONRELTYPE, extraPtr)
+PPObjPersonRelType::PPObjPersonRelType(void * extraPtr) : PPObjReference(PPOBJ_PERSONRELTYPE, extraPtr)
 {
 }
 
 IMPL_DESTROY_OBJ_PACK(PPObjPersonRelType, PPPersonRelTypePacket);
 
-int SLAPI PPObjPersonRelType::SerializePacket(int dir, PPPersonRelTypePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjPersonRelType::SerializePacket(int dir, PPPersonRelTypePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -151,10 +151,10 @@ int SLAPI PPObjPersonRelType::SerializePacket(int dir, PPPersonRelTypePacket * p
 	return ok;
 }
 
-int SLAPI PPObjPersonRelType::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjPersonRelType::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjPersonRelType, PPPersonRelTypePacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = -1;
 	if(p->Data) {
@@ -195,7 +195,7 @@ int SLAPI PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, Ob
 	return ok;
 }
 
-int  SLAPI PPObjPersonRelType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int  PPObjPersonRelType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(p->Data);
@@ -204,7 +204,7 @@ int  SLAPI PPObjPersonRelType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary,
 	return -1;
 }
 
-int SLAPI PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
+int PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
 {
 	int    ok = -1;
 	SVector list(sizeof(PPPersonRelType)); // @v10.6.8 SArray-->SVector
@@ -221,7 +221,7 @@ int SLAPI PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
+int PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 {
 	int    ok = 1, r;
 	SString name, symb;
@@ -243,17 +243,17 @@ int SLAPI PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 	return ok;
 }
 
-int SLAPI PPObjPersonRelType::SearchSymb(PPID * pID, const char * pSymb)
+int PPObjPersonRelType::SearchSymb(PPID * pID, const char * pSymb)
 {
 	return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPPersonRelType, Symb));
 }
 
 class PersonRelTypeCache : public ObjCache {
 public:
-	SLAPI  PersonRelTypeCache() : ObjCache(PPOBJ_PERSONRELTYPE, sizeof(PersonRelTypeCache::Entry)) {}
+	PersonRelTypeCache() : ObjCache(PPOBJ_PERSONRELTYPE, sizeof(PersonRelTypeCache::Entry)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Entry : public ObjCacheEntry {
 		int16  StatusRestriction; // Ограничение по статусу отношений (PPPersonRelType::ssXXX)
@@ -263,7 +263,7 @@ public:
 	};
 };
 
-int SLAPI PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Entry * p_cache_rec = static_cast<Entry *>(pEntry);
@@ -286,7 +286,7 @@ int SLAPI PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI PersonRelTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void PersonRelTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(pDataRec);
 	const Entry * p_cache_rec = static_cast<const Entry *>(pEntry);
@@ -304,7 +304,7 @@ void SLAPI PersonRelTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * 
 #endif
 }
 
-int SLAPI PPObjPersonRelType::Fetch(PPID id, PPPersonRelTypePacket * pPack)
+int PPObjPersonRelType::Fetch(PPID id, PPPersonRelTypePacket * pPack)
 {
 	PersonRelTypeCache * p_cache = GetDbLocalCachePtr <PersonRelTypeCache> (Obj);
 	return p_cache ? p_cache->Get(id, pPack) : GetPacket(id, pPack);
@@ -315,7 +315,7 @@ int SLAPI PPObjPersonRelType::Fetch(PPID id, PPPersonRelTypePacket * pPack)
 class PersonRelTypeDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPPersonRelTypePacket);
 public:
-	SLAPI  PersonRelTypeDialog() : PPListDialog(DLG_PSNRELTYPE, CTL_PSNRELTYPE_INHRGLIST)
+	PersonRelTypeDialog() : PPListDialog(DLG_PSNRELTYPE, CTL_PSNRELTYPE_INHRGLIST)
 	{
 	}
 	DECL_DIALOG_SETDTS()
@@ -405,7 +405,7 @@ int PersonRelTypeDialog::delItem(long pos, long /*id*/)
 	return -1;
 }
 
-int SLAPI PPObjPersonRelType::Edit(PPID * pID, void * extraPtr)
+int PPObjPersonRelType::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1, valid_data = 0, r = cmCancel;
 	const  int  is_new = (*pID == 0);
@@ -429,11 +429,11 @@ int SLAPI PPObjPersonRelType::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjPersonRelType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRPERSONRELTYPE, 0); }
+int PPObjPersonRelType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRPERSONRELTYPE, 0); }
 //
 //
 //
-int SLAPI PPObjPersonRelType::PutPacket(PPID * pID, PPPersonRelTypePacket * pPack, int use_ta)
+int PPObjPersonRelType::PutPacket(PPID * pID, PPPersonRelTypePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	if(pPack) {
@@ -466,7 +466,7 @@ int SLAPI PPObjPersonRelType::PutPacket(PPID * pID, PPPersonRelTypePacket * pPac
 	return ok;
 }
 
-int SLAPI PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
+int PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 {
 	int    ok = -1;
 	pPack->InhRegTypeList.freeAll();
@@ -482,12 +482,12 @@ int SLAPI PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 //
 // PPELinkArray
 //
-SLAPI PPELink::PPELink() : KindID(0)
+PPELink::PPELink() : KindID(0)
 {
 	PTR32(Addr)[0] = 0;
 }
 
-/*static*/int SLAPI PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry)
+/*static*/int PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry)
 {
 	int    ok = 1;
 	rEntry.KindID = 0;
@@ -514,7 +514,7 @@ SLAPI PPELink::PPELink() : KindID(0)
 	return ok;
 }
 
-SLAPI PPELinkArray::PPELinkArray() : TSArray <PPELink>()
+PPELinkArray::PPELinkArray() : TSArray <PPELink>()
 {
 }
 
@@ -538,7 +538,7 @@ int FASTCALL PPELinkArray::IsEqual(const PPELinkArray & rS) const
 	return eq;
 }
 
-int SLAPI PPELinkArray::SearchByText(const char * pText, uint * pPos) const
+int PPELinkArray::SearchByText(const char * pText, uint * pPos) const
 {
 	int    ok = 0;
 	SString key(pText);
@@ -554,7 +554,7 @@ int SLAPI PPELinkArray::SearchByText(const char * pText, uint * pPos) const
 	return ok;
 }
 
-int SLAPI PPELinkArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPELinkArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	int32  c = (int32)getCount(); // @persistent
@@ -573,7 +573,7 @@ int SLAPI PPELinkArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 	return ok;
 }
 
-int SLAPI PPELinkArray::AddItem(PPID kindID, const char * pAddr)
+int PPELinkArray::AddItem(PPID kindID, const char * pAddr)
 {
 	if(kindID && pAddr && pAddr[0]) {
 		PPELink item;
@@ -586,7 +586,7 @@ int SLAPI PPELinkArray::AddItem(PPID kindID, const char * pAddr)
 		return -1;
 }
 
-int SLAPI PPELinkArray::GetItem(PPID kindID, SString & rBuf) const
+int PPELinkArray::GetItem(PPID kindID, SString & rBuf) const
 {
 	uint   p = 0;
 	if(lsearch(&kindID, &p, CMPF_LONG)) {
@@ -599,7 +599,7 @@ int SLAPI PPELinkArray::GetItem(PPID kindID, SString & rBuf) const
 	}
 }
 
-int SLAPI PPELinkArray::GetListByType(PPID eLinkType, StringSet & rSs) const
+int PPELinkArray::GetListByType(PPID eLinkType, StringSet & rSs) const
 {
 	int    ok = -1;
 	PPObjELinkKind elk_obj;
@@ -616,7 +616,7 @@ int SLAPI PPELinkArray::GetListByType(PPID eLinkType, StringSet & rSs) const
 	return ok;
 }
 
-int SLAPI PPELinkArray::GetPhones(uint maxCount, SString & rBuf, long elinkType /* = ELNKRT_PHONE */) const
+int PPELinkArray::GetPhones(uint maxCount, SString & rBuf, long elinkType /* = ELNKRT_PHONE */) const
 {
 	rBuf.Z();
 	StringSet ss;
@@ -632,7 +632,7 @@ int SLAPI PPELinkArray::GetPhones(uint maxCount, SString & rBuf, long elinkType 
 	return ok;
 }
 
-int SLAPI PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
+int PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
 {
 	rBuf.Z();
 
@@ -672,7 +672,7 @@ int SLAPI PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
 //
 //
 //
-SLAPI CashierInfo::CashierInfo()
+CashierInfo::CashierInfo()
 {
 	THISZERO();
 }
@@ -691,17 +691,17 @@ int FASTCALL CashierInfo::IsEqual(const CashierInfo & rS) const
 //
 // PPPersonPacket
 //
-SLAPI PPPersonPacket::PPPersonPacket() : PPPerson(), P_SCardPack(0)
+PPPersonPacket::PPPersonPacket() : PPPerson(), P_SCardPack(0)
 {
 	destroy();
 }
 
-SLAPI PPPersonPacket::~PPPersonPacket()
+PPPersonPacket::~PPPersonPacket()
 {
 	destroy();
 }
 
-void SLAPI PPPersonPacket::destroy()
+void PPPersonPacket::destroy()
 {
 	PPPerson::destroy();
 	Regs.freeAll();
@@ -737,7 +737,7 @@ PPPersonPacket & FASTCALL PPPersonPacket::operator = (const PPPersonPacket & s)
 	return *this;
 }
 
-int SLAPI PPPersonPacket::GetRAddress(uint f, SString & rBuf)
+int PPPersonPacket::GetRAddress(uint f, SString & rBuf)
 {
 	LocationTbl::Rec rloc = RLoc;
 	if(LocationCore::IsEmptyAddressRec(rloc))
@@ -745,16 +745,16 @@ int SLAPI PPPersonPacket::GetRAddress(uint f, SString & rBuf)
 	return LocationCore::GetAddress(rloc, f, rBuf);
 }
 
-int SLAPI PPPersonPacket::GetAddress(uint f, SString & rBuf)
+int PPPersonPacket::GetAddress(uint f, SString & rBuf)
 	{ return LocationCore::GetAddress(Loc, f, rBuf); }
-int SLAPI PPPersonPacket::GetPhones(uint maxCount, SString & rBuf)
+int PPPersonPacket::GetPhones(uint maxCount, SString & rBuf)
 	{ return ELA.GetPhones(maxCount, rBuf); }
-int SLAPI PPPersonPacket::GetRegister(PPID regTyp, uint * pos) const
+int PPPersonPacket::GetRegister(PPID regTyp, uint * pos) const
 	{ return Regs.GetRegister(regTyp, pos, 0); }
-int SLAPI PPPersonPacket::GetRegNumber(PPID regTyp, SString & rBuf) const
+int PPPersonPacket::GetRegNumber(PPID regTyp, SString & rBuf) const
 	{ return Regs.GetRegNumber(regTyp, rBuf); }
 
-int SLAPI PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
+int PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
 {
 	rBuf.Z();
 
@@ -773,7 +773,7 @@ int SLAPI PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) co
 	return ok;
 }
 
-int SLAPI PPPersonPacket::GetCurrBnkAcct(PPBankAccount * pRec) const
+int PPPersonPacket::GetCurrBnkAcct(PPBankAccount * pRec) const
 {
 	int    ok = -1;
 	for(uint i = 0; ok < 0 && i < Regs.getCount(); i++) {
@@ -800,7 +800,7 @@ void FASTCALL PPPersonPacket::SetExtName(const char * pName)
 	ExtString = pName;
 }
 
-int SLAPI PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkUnique /* = 1 */)
+int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkUnique /* = 1 */)
 {
 	int    ok = -1;
 	char   temp_buf[128];
@@ -835,12 +835,12 @@ int SLAPI PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int 
 	return ok;
 }
 
-uint SLAPI PPPersonPacket::GetDlvrLocCount() const
+uint PPPersonPacket::GetDlvrLocCount() const
 {
 	return DlvrLocList.getCount();
 }
 
-int SLAPI PPPersonPacket::ReplaceDlvrLoc(PPID locID, PPID replacementID)
+int PPPersonPacket::ReplaceDlvrLoc(PPID locID, PPID replacementID)
 {
 	int    ok = -1;
 	if(DlvrLocList.getCount()) {
@@ -868,7 +868,7 @@ int SLAPI PPPersonPacket::ReplaceDlvrLoc(PPID locID, PPID replacementID)
 	return ok;
 }
 
-int SLAPI PPPersonPacket::EnumDlvrLoc(uint * pPos, PPLocationPacket * pItem) const
+int PPPersonPacket::EnumDlvrLoc(uint * pPos, PPLocationPacket * pItem) const
 {
 	if(*pPos < DlvrLocList.getCount()) {
 		ASSIGN_PTR(pItem, *DlvrLocList.at(*pPos));
@@ -887,7 +887,7 @@ int SLAPI PPPersonPacket::EnumDlvrLoc(uint * pPos, PPLocationPacket * pItem) con
 	*/
 }
 
-int SLAPI PPPersonPacket::GetDlvrLocByPos(uint pos, PPLocationPacket * pItem) const
+int PPPersonPacket::GetDlvrLocByPos(uint pos, PPLocationPacket * pItem) const
 {
 	if(pos < DlvrLocList.getCount()) {
 		ASSIGN_PTR(pItem, *DlvrLocList.at(pos));
@@ -897,13 +897,13 @@ int SLAPI PPPersonPacket::GetDlvrLocByPos(uint pos, PPLocationPacket * pItem) co
 		return 0;
 }
 
-int SLAPI PPPersonPacket::AddDlvrLoc(const PPLocationPacket & rItem)
+int PPPersonPacket::AddDlvrLoc(const PPLocationPacket & rItem)
 {
 	PPLocationPacket * p_new_pack = new PPLocationPacket(rItem);
 	return p_new_pack ? (DlvrLocList.insert(p_new_pack) ? 1 : PPSetErrorSLib()) : PPSetErrorNoMem();
 }
 
-int SLAPI PPPersonPacket::PutDlvrLoc(uint pos, const PPLocationPacket * pItem)
+int PPPersonPacket::PutDlvrLoc(uint pos, const PPLocationPacket * pItem)
 {
 	int    ok = 1;
 	THROW_INVARG(pos < DlvrLocList.getCount());
@@ -920,12 +920,12 @@ int SLAPI PPPersonPacket::PutDlvrLoc(uint pos, const PPLocationPacket * pItem)
 	return ok;
 }
 
-void SLAPI PPPersonPacket::ClearDlvrLocList()
+void PPPersonPacket::ClearDlvrLocList()
 {
 	DlvrLocList.freeAll();
 }
 
-int SLAPI PPPersonPacket::SetSCard(const PPSCardPacket * pScPack, int autoCreate)
+int PPPersonPacket::SetSCard(const PPSCardPacket * pScPack, int autoCreate)
 {
 	int    ok = 1;
 	ZDELETE(P_SCardPack);
@@ -941,23 +941,23 @@ int SLAPI PPPersonPacket::SetSCard(const PPSCardPacket * pScPack, int autoCreate
 	return ok;
 }
 
-const PPSCardPacket * SLAPI PPPersonPacket::GetSCard() const
+const PPSCardPacket * PPPersonPacket::GetSCard() const
 {
 	return P_SCardPack;
 }
 //
 // PersonCore
 //
-SLAPI PersonCore::PersonCore() : PersonTbl()
+PersonCore::PersonCore() : PersonTbl()
 {
 }
 
-int SLAPI PersonCore::Search(PPID id, PersonTbl::Rec * pRec)
+int PersonCore::Search(PPID id, PersonTbl::Rec * pRec)
 {
 	return SearchByID(this, PPOBJ_PERSON, id, pRec);
 }
 
-int SLAPI PersonCore::SearchByName(const char * pName, PPID * pID, PersonTbl::Rec * pRec)
+int PersonCore::SearchByName(const char * pName, PPID * pID, PersonTbl::Rec * pRec)
 {
 	PersonTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -967,7 +967,7 @@ int SLAPI PersonCore::SearchByName(const char * pName, PPID * pID, PersonTbl::Re
 	return ok;
 }
 
-int SLAPI PersonCore::UpdateFlags(PPID id, long setF, long resetF, int use_ta)
+int PersonCore::UpdateFlags(PPID id, long setF, long resetF, int use_ta)
 {
 	int    ok = -1;
 	PersonTbl::Rec rec;
@@ -992,7 +992,7 @@ int SLAPI PersonCore::UpdateFlags(PPID id, long setF, long resetF, int use_ta)
 	return ok;
 }
 
-int SLAPI PersonCore::PutKinds(PPID id, PPPerson * pPack)
+int PersonCore::PutKinds(PPID id, PPPerson * pPack)
 {
 	int    ok = 1;
 	uint   i, pos;
@@ -1027,7 +1027,7 @@ int SLAPI PersonCore::PutKinds(PPID id, PPPerson * pPack)
 	return ok;
 }
 
-int SLAPI PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
+int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -1071,7 +1071,7 @@ int SLAPI PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 	return ok;
 }
 
-int SLAPI PersonCore::Get(PPID id, PPPerson * pack)
+int PersonCore::Get(PPID id, PPPerson * pack)
 {
 	int    ok = 1;
 	if((ok = Search(id, &pack->Rec)) > 0) {
@@ -1084,7 +1084,7 @@ int SLAPI PersonCore::Get(PPID id, PPPerson * pack)
 	return ok;
 }
 
-int SLAPI PersonCore::SearchMainOrg(PersonTbl::Rec * pRec)
+int PersonCore::SearchMainOrg(PersonTbl::Rec * pRec)
 {
 	PersonKindTbl::Key0 k;
 	MEMSZERO(k);
@@ -1094,7 +1094,7 @@ int SLAPI PersonCore::SearchMainOrg(PersonTbl::Rec * pRec)
 	return (BTROKORNFOUND) ? (PPErrCode = PPERR_MAINORGNFOUND, -1) : PPSetErrorDB();
 }
 
-int SLAPI PersonCore::_SearchKind(PPID id, PPID kind)
+int PersonCore::_SearchKind(PPID id, PPID kind)
 {
 	PersonKindTbl::Key1 k;
 	k.PersonID = id;
@@ -1102,12 +1102,12 @@ int SLAPI PersonCore::_SearchKind(PPID id, PPID kind)
 	return Kind.search(1, &k, spEq) ? 1 : PPDbSearchError();
 }
 
-int SLAPI PersonCore::IsBelongToKind(PPID id, PPID kind)
+int PersonCore::IsBelongToKind(PPID id, PPID kind)
 {
 	return (_SearchKind(id, kind) > 0) ? 1 : PPSetError(PPERR_PSNDONTBELONGTOKIND);
 }
 
-int SLAPI PersonCore::GetListByKind(PPID kindID, PPIDArray * pList)
+int PersonCore::GetListByKind(PPID kindID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PersonKindTbl::Key0 k0;
@@ -1129,7 +1129,7 @@ int SLAPI PersonCore::GetListByKind(PPID kindID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PersonCore::AddKind(PPID id, PPID kind, int use_ta)
+int PersonCore::AddKind(PPID id, PPID kind, int use_ta)
 {
 	int    ok = 1, r;
 	THROW(r = _SearchKind(id, kind));
@@ -1154,7 +1154,7 @@ int SLAPI PersonCore::AddKind(PPID id, PPID kind, int use_ta)
 	return ok;
 }
 
-int SLAPI PersonCore::RemoveKind(PPID id, PPID kind, int use_ta)
+int PersonCore::RemoveKind(PPID id, PPID kind, int use_ta)
 {
 	int    ok = 1, r;
 	{
@@ -1179,7 +1179,7 @@ int SLAPI PersonCore::RemoveKind(PPID id, PPID kind, int use_ta)
 	return ok;
 }
 
-int SLAPI PersonCore::GetKindList(PPID personID, PPIDArray * pList)
+int PersonCore::GetKindList(PPID personID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PersonKindTbl::Key1 k1;
@@ -1192,7 +1192,7 @@ int SLAPI PersonCore::GetKindList(PPID personID, PPIDArray * pList)
 	return PPDbSearchError() ? ok : 0;
 }
 
-int SLAPI PersonCore::GetVATFreePersonList(PPIDArray * list)
+int PersonCore::GetVATFreePersonList(PPIDArray * list)
 {
 	PPUserFuncProfiler ufp(PPUPRF_VATFREEPERSONLIST);
 	int    ok = 1;
@@ -1212,7 +1212,7 @@ int SLAPI PersonCore::GetVATFreePersonList(PPIDArray * list)
 	return ok;
 }
 
-int SLAPI PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
+int PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1254,7 +1254,7 @@ int SLAPI PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 	return ok;
 }
 
-int SLAPI PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
+int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1280,7 +1280,7 @@ int SLAPI PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	return ok;
 }
 
-/*static*/int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec, const size_t recLen, PPELinkArray * pList)
+/*static*/int PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec, const size_t recLen, PPELinkArray * pList)
 {
 	int    ok = -1;
 	if(pRec && pList) {
@@ -1299,7 +1299,7 @@ int SLAPI PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	return ok;
 }
 
-int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rList)
+int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rList)
 {
 	rList.Z();
 	int    ok = -1;
@@ -1367,7 +1367,7 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 	return ok;
 }
 
-/*static*/void SLAPI PersonCore::SetGender(PersonTbl::Rec & rRec, int gender)
+/*static*/void PersonCore::SetGender(PersonTbl::Rec & rRec, int gender)
 {
 	rRec.Flags &= ~(PSNF_GENDER_MALE|PSNF_GENDER_FEMALE);
 	if(gender == GENDER_MALE)
@@ -1378,7 +1378,7 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 		rRec.Flags |= (PSNF_GENDER_MALE|PSNF_GENDER_FEMALE);	
 }
 
-/*static*/int  SLAPI PersonCore::GetGender(const PersonTbl::Rec & rRec)
+/*static*/int  PersonCore::GetGender(const PersonTbl::Rec & rRec)
 {
 	if(rRec.Flags & PSNF_GENDER_MALE)
 		return (rRec.Flags & PSNF_GENDER_FEMALE) ? GENDER_QUESTIONING : GENDER_MALE;
@@ -1388,7 +1388,7 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 		return GENDER_UNDEF;
 }
 
-/*static*/int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
+/*static*/int PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
@@ -1412,7 +1412,7 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 	return ok;
 }
 
-/*static*/int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
+/*static*/int PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 {
 	int    ok = 1;
 	uint   i;

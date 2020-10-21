@@ -23,20 +23,20 @@ typedef TSCollection <PrnLineStruc> PrnLinesArray;
 
 class SCS_SYNCSYM : public PPSyncCashSession {
 public:
-	SLAPI  SCS_SYNCSYM(PPID n, char * name, char * port);
-	SLAPI ~SCS_SYNCSYM();
-	virtual int SLAPI PrintCheck(CCheckPacket *, uint flags);
-	// @v10.0.0 virtual int SLAPI PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
-	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
-	virtual int SLAPI PrintXReport(const CSessInfo *);
-	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
-	virtual int SLAPI CloseSession(PPID sessID);
-	virtual int SLAPI GetSummator(double * val);
-	virtual int SLAPI PrintBnkTermReport(const char * pZCheck); // @vmiller
+	SCS_SYNCSYM(PPID n, char * name, char * port);
+	~SCS_SYNCSYM();
+	virtual int PrintCheck(CCheckPacket *, uint flags);
+	// @v10.0.0 virtual int PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
+	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
+	virtual int PrintXReport(const CSessInfo *);
+	virtual int PrintZReportCopy(const CSessInfo *);
+	virtual int CloseSession(PPID sessID);
+	virtual int GetSummator(double * val);
+	virtual int PrintBnkTermReport(const char * pZCheck); // @vmiller
 private:
-	// @v10.3.9 virtual int SLAPI InitChannel();
-	int    SLAPI SendToPrinter(PrnLinesArray * pPrnLines);
-	int    SLAPI OpenBox(); // @vmiller
+	// @v10.3.9 virtual int InitChannel();
+	int    SendToPrinter(PrnLinesArray * pPrnLines);
+	int    OpenBox(); // @vmiller
 
 	uint   TextOutput; // @vmiller
 	SString PrinterPort;
@@ -49,13 +49,13 @@ private:
 
 class CM_SYNCSYM : public PPCashMachine {
 public:
-	SLAPI CM_SYNCSYM(PPID cashID) : PPCashMachine(cashID)
+	CM_SYNCSYM(PPID cashID) : PPCashMachine(cashID)
 	{
 	}
-	PPSyncCashSession * SLAPI SyncInterface();
+	PPSyncCashSession * SyncInterface();
 };
 
-PPSyncCashSession * SLAPI CM_SYNCSYM::SyncInterface()
+PPSyncCashSession * CM_SYNCSYM::SyncInterface()
 {
 	PPSyncCashSession * cs = 0;
 	if(IsValid()) {
@@ -67,12 +67,12 @@ PPSyncCashSession * SLAPI CM_SYNCSYM::SyncInterface()
 
 REGISTER_CMT(SYNCSYM,1,0);
 
-SLAPI SCS_SYNCSYM::SCS_SYNCSYM(PPID n, char * pName, char * pPort) : PPSyncCashSession(n, pName, pPort),
+SCS_SYNCSYM::SCS_SYNCSYM(PPID n, char * pName, char * pPort) : PPSyncCashSession(n, pName, pPort),
 	PrinterDC(0), OldPrinterFont(0), PrinterPort(SCn.PrinterPort), TextOutput(0)
 {
 }
 
-SLAPI SCS_SYNCSYM::~SCS_SYNCSYM()
+SCS_SYNCSYM::~SCS_SYNCSYM()
 {
 	if(PrinterDC) {
 		if(OldPrinterFont)
@@ -81,7 +81,7 @@ SLAPI SCS_SYNCSYM::~SCS_SYNCSYM()
 	}
 }
 
-// @v10.3.9 int SLAPI SCS_SYNCSYM::InitChannel() { return 1; }
+// @v10.3.9 int SCS_SYNCSYM::InitChannel() { return 1; }
 
 #define AXIOHM_CMD_SETCHARTBL_BYTE1  0x1B
 #define AXIOHM_CMD_SETCHARTBL_BYTE2  0x52
@@ -91,7 +91,7 @@ SLAPI SCS_SYNCSYM::~SCS_SYNCSYM()
 #define AXIOHM_CMD_PRINTANDFEEDLINE  0x0A
 #define AXIOHM_CMD_FULLCUT           0x19
 
-int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
+int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 {
 	int    ok = -1;
 	int    text_output = 0;
@@ -315,7 +315,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-/*virtual*/int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
+/*virtual*/int SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -371,7 +371,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 }
 
 #if 0 // @v10.0.0 {
-/*virtual*/int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
+/*virtual*/int SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -411,7 +411,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 }
 #endif // } 0 @v10.0.0
 
-/*virtual*/int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
+/*virtual*/int SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -446,7 +446,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-/*virtual*/int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
+/*virtual*/int SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
 {
 	int     ok = 1;
 	SlipDocCommonParam  sdc_param;
@@ -478,7 +478,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-/*virtual*/int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
+/*virtual*/int SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -513,7 +513,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-/*virtual*/int SLAPI SCS_SYNCSYM::CloseSession(PPID sessID)
+/*virtual*/int SCS_SYNCSYM::CloseSession(PPID sessID)
 {
 	int    ok = -1;
 	CSessInfo cs_info;
@@ -526,14 +526,14 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-int SLAPI SCS_SYNCSYM::GetSummator(double * val)
+int SCS_SYNCSYM::GetSummator(double * val)
 {
 	ASSIGN_PTR(val, -1.0);
 	return 1;
 }
 
 // @vmiller
-int SLAPI SCS_SYNCSYM::OpenBox()
+int SCS_SYNCSYM::OpenBox()
 {
 	int    ok = 1, port_no = 0, c = 0, is_err = 0;
 	SCommPort comm_port;
@@ -584,7 +584,7 @@ int SLAPI SCS_SYNCSYM::OpenBox()
 }
 
 // @vmiller
-int SLAPI SCS_SYNCSYM::PrintBnkTermReport(const char * pZCheck)
+int SCS_SYNCSYM::PrintBnkTermReport(const char * pZCheck)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {

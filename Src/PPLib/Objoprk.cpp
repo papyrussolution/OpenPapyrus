@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPInventoryOpEx::PPInventoryOpEx()
+PPInventoryOpEx::PPInventoryOpEx()
 {
 	THISZERO();
 }
@@ -22,12 +22,12 @@ SLAPI PPInventoryOpEx::PPInventoryOpEx()
 	return mode;
 }
 
-int SLAPI PPInventoryOpEx::GetAccelInputMode() const
+int PPInventoryOpEx::GetAccelInputMode() const
 {
 	return Helper_GetAccelInputMode(Flags);
 }
 
-void SLAPI PPInventoryOpEx::SetAccelInputMode(int mode)
+void PPInventoryOpEx::SetAccelInputMode(int mode)
 {
 	if(mode == accsliCode) {
 		SETUPFLAGS(Flags, INVOPF_ACCELADDITEMS, INVOPF_ACCELADDITEMSQTTY); // @v10.6.1
@@ -46,12 +46,12 @@ void SLAPI PPInventoryOpEx::SetAccelInputMode(int mode)
 //
 // PPReckonOpEx
 //
-SLAPI PPReckonOpEx::PPReckonOpEx()
+PPReckonOpEx::PPReckonOpEx()
 {
 	Init();
 }
 
-void SLAPI PPReckonOpEx::Init()
+void PPReckonOpEx::Init()
 {
 	Beg = End = ZERODATE;
 	Flags = 0;
@@ -71,12 +71,12 @@ PPReckonOpEx & FASTCALL PPReckonOpEx::operator = (const PPReckonOpEx & src)
 	return *this;
 }
 
-int SLAPI PPReckonOpEx::IsEmpty() const
+int PPReckonOpEx::IsEmpty() const
 {
 	return BIN(!Beg && !End && !Flags && !OpList.getCount());
 }
 
-int SLAPI PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	struct SRD {
 		LDATE  Beg;
@@ -124,7 +124,7 @@ int SLAPI PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 	return ok;
 }
 
-void SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
+void PPReckonOpEx::PeriodToStr(SString & rBuf) const
 {
 	char   temp[64];
 	char * p = temp;
@@ -157,7 +157,7 @@ void SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
 	rBuf = temp;
 }
 
-int SLAPI PPReckonOpEx::StrToPeriod(const char * pBuf)
+int PPReckonOpEx::StrToPeriod(const char * pBuf)
 {
 	char   temp[64];
 	DateRange period;
@@ -181,7 +181,7 @@ int SLAPI PPReckonOpEx::StrToPeriod(const char * pBuf)
 	return 1;
 }
 
-int SLAPI PPReckonOpEx::GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) const
+int PPReckonOpEx::GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) const
 {
 	if(checkdrange(debtDate, Beg, End)) {
 		rPeriod.low = (Beg == 0 && Flags & ROXF_BEGISBILLDT) ? debtDate : ZERODATE;
@@ -194,7 +194,7 @@ int SLAPI PPReckonOpEx::GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) con
 	}
 }
 
-void SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) const
+void PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) const
 {
 	rPeriod.Set(Beg, End);
 	if(rPeriod.low == 0 && Flags & ROXF_BEGISBILLDT)
@@ -205,12 +205,12 @@ void SLAPI PPReckonOpEx::GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) cons
 //
 // PPBillPoolOpEx
 //
-SLAPI PPBillPoolOpEx::PPBillPoolOpEx()
+PPBillPoolOpEx::PPBillPoolOpEx()
 {
 	Init();
 }
 
-void SLAPI PPBillPoolOpEx::Init()
+void PPBillPoolOpEx::Init()
 {
 	Flags = 0;
 	memzero(Reserve, sizeof(Reserve));
@@ -227,19 +227,19 @@ PPBillPoolOpEx & FASTCALL PPBillPoolOpEx::operator = (const PPBillPoolOpEx & src
 //
 //
 //
-SLAPI PPOprKind2::PPOprKind2()
+PPOprKind2::PPOprKind2()
 {
 	THISZERO();
 }
 //
 // PPOprKindPacket
 //
-SLAPI PPOprKindPacket::PPOprKindPacket() : P_IOE(0), P_DIOE(0), P_GenList(0), P_ReckonData(0), P_PoolData(0), P_DraftData(0)
+PPOprKindPacket::PPOprKindPacket() : P_IOE(0), P_DIOE(0), P_GenList(0), P_ReckonData(0), P_PoolData(0), P_DraftData(0)
 {
 	Init();
 }
 
-SLAPI PPOprKindPacket::~PPOprKindPacket()
+PPOprKindPacket::~PPOprKindPacket()
 {
 	delete P_IOE;
 	delete P_DIOE;
@@ -249,7 +249,7 @@ SLAPI PPOprKindPacket::~PPOprKindPacket()
 	delete P_DraftData;
 }
 
-void SLAPI PPOprKindPacket::Init()
+void PPOprKindPacket::Init()
 {
 	MEMSZERO(Rec);
 	ATTmpls.freeAll();
@@ -293,17 +293,17 @@ PPOprKindPacket & FASTCALL PPOprKindPacket::operator = (const PPOprKindPacket & 
 	return *this;
 }
 
-int SLAPI PPOprKindPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, OPKEXSTR_MEMO, ExtString, rBuf); }
-int SLAPI PPOprKindPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int PPOprKindPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, OPKEXSTR_MEMO, ExtString, rBuf); }
+int PPOprKindPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 //
 //
 //
-SLAPI PPDraftOpEx::PPDraftOpEx()
+PPDraftOpEx::PPDraftOpEx()
 {
 	Init();
 }
 
-void SLAPI PPDraftOpEx::Init()
+void PPDraftOpEx::Init()
 {
 	WrOffOpID = 0;
 	WrOffObjID = 0;
@@ -343,7 +343,7 @@ static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 		return stricmp866(p_i1->Name, p_i2->Name);
 }
 
-/*static*/StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPIDArray * pOpList, uint flags)
+/*static*/StrAssocArray * PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPIDArray * pOpList, uint flags)
 {
 	int    r;
 	PPID   id = 0;
@@ -400,7 +400,7 @@ int FASTCALL SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags
 	return ok;
 }
 
-PPID SLAPI SelectOpKind(PPID linkOpID, const PPIDArray * pOpList, uint opklFlags)
+PPID SelectOpKind(PPID linkOpID, const PPIDArray * pOpList, uint opklFlags)
 {
 	PPID   id = 0;
 	ListWindow * p_lw = 0;
@@ -445,11 +445,11 @@ PPID SLAPIV SelectOprKind(uint opklFlags, PPID linkOpID, ...)
 //
 //
 //
-SLAPI PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND, extraPtr)
+PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND, extraPtr)
 {
 }
 
-/*static*/int SLAPI PPObjOprKind::GetATTemplList(PPID opID, PPAccTurnTemplArray * pList)
+/*static*/int PPObjOprKind::GetATTemplList(PPID opID, PPAccTurnTemplArray * pList)
 {
 	int    ok = -1;
 	PPID   p = 0, last = PP_MAXATURNTEMPLATES;
@@ -465,14 +465,14 @@ SLAPI PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND
 	return ok;
 }
 
-int SLAPI FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx); // Prototype @defined(ppkernel\oputil.cpp)
+int FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx); // Prototype @defined(ppkernel\oputil.cpp)
 
-int SLAPI PPObjOprKind::FetchInventoryData(PPID id, PPInventoryOpEx * pInvOpEx)
+int PPObjOprKind::FetchInventoryData(PPID id, PPInventoryOpEx * pInvOpEx)
 {
 	return ::FetchInvOpEx(id, pInvOpEx);
 }
 
-int SLAPI PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
+int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 {
 	int    ok = 1;
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
@@ -532,7 +532,7 @@ int SLAPI PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
+int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
 {
 	int    ok = 1, r = 0;
 	uint   i;
@@ -610,17 +610,17 @@ int SLAPI PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta
 	return ok;
 }
 
-int SLAPI PPObjOprKind::GetExtStrData(PPID opID, int fldID, SString & rBuf)
+int PPObjOprKind::GetExtStrData(PPID opID, int fldID, SString & rBuf)
 {
 	SString line_buf;
 	rBuf.Z();
 	return (ref->GetPropVlrString(Obj, opID, OPKPRP_EXTSTRDATA, line_buf) > 0) ? PPGetExtStrData_def(fldID, OPKEXSTR_MEMO, line_buf, rBuf) : -1;
 }
 
-int SLAPI PPObjOprKind::GetExAmountList(PPID id, PPIDArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_EXAMTLIST, pList); }
-int SLAPI PPObjOprKind::GetGenericList(PPID id, ObjRestrictArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_GENLIST2, pList); }
+int PPObjOprKind::GetExAmountList(PPID id, PPIDArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_EXAMTLIST, pList); }
+int PPObjOprKind::GetGenericList(PPID id, ObjRestrictArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_GENLIST2, pList); }
 
-int SLAPI PPObjOprKind::GetGenericList(PPID id, PPIDArray * pList)
+int PPObjOprKind::GetGenericList(PPID id, PPIDArray * pList)
 {
 	ObjRestrictArray or_list;
 	int    ok = GetGenericList(id, &or_list);
@@ -633,7 +633,7 @@ int SLAPI PPObjOprKind::GetGenericList(PPID id, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::SetReckonExData(PPID id, const PPReckonOpEx * pData, int use_ta)
+int PPObjOprKind::SetReckonExData(PPID id, const PPReckonOpEx * pData, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray temp;
@@ -653,7 +653,7 @@ int SLAPI PPObjOprKind::SetReckonExData(PPID id, const PPReckonOpEx * pData, int
 	return ok;
 }
 
-int SLAPI PPObjOprKind::GetReckonExData(PPID id, PPReckonOpEx * pData)
+int PPObjOprKind::GetReckonExData(PPID id, PPReckonOpEx * pData)
 {
 	int    ok = -1;
 	PPIDArray temp;
@@ -694,7 +694,7 @@ struct PPDraftOpEx_Strg {
 	long   Reserve4;
 };
 
-int SLAPI PPObjOprKind::SetDraftExData(PPID id, const PPDraftOpEx * pData)
+int PPObjOprKind::SetDraftExData(PPID id, const PPDraftOpEx * pData)
 {
 	PPDraftOpEx_Strg strg, * p_strg = 0;
 	size_t sz = 0;
@@ -710,7 +710,7 @@ int SLAPI PPObjOprKind::SetDraftExData(PPID id, const PPDraftOpEx * pData)
 	return BIN(ref->PutProp(Obj, id, OPKPRP_DRAFT, p_strg, sz));
 }
 
-int SLAPI PPObjOprKind::GetDraftExData(PPID id, PPDraftOpEx * pData)
+int PPObjOprKind::GetDraftExData(PPID id, PPDraftOpEx * pData)
 {
 	int    ok = -1;
 	PPDraftOpEx_Strg strg;
@@ -733,7 +733,7 @@ int SLAPI PPObjOprKind::GetDraftExData(PPID id, PPDraftOpEx * pData)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::SetPoolExData(PPID id, const PPBillPoolOpEx * pData, int use_ta)
+int PPObjOprKind::SetPoolExData(PPID id, const PPBillPoolOpEx * pData, int use_ta)
 {
 	int    ok = 1;
 	PPIDArray temp;
@@ -750,7 +750,7 @@ int SLAPI PPObjOprKind::SetPoolExData(PPID id, const PPBillPoolOpEx * pData, int
 	return ok;
 }
 
-int SLAPI PPObjOprKind::GetPoolExData(PPID id, PPBillPoolOpEx * pData)
+int PPObjOprKind::GetPoolExData(PPID id, PPBillPoolOpEx * pData)
 {
 	int    ok = -1;
 	PPIDArray temp;
@@ -769,7 +769,7 @@ int SLAPI PPObjOprKind::GetPoolExData(PPID id, PPBillPoolOpEx * pData)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray * pList)
+int PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray * pList)
 {
 	int    ok = 1;
 	if(opTypeID && pList) {
@@ -786,9 +786,9 @@ int SLAPI PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPI
 	return ok;
 }
 
-int SLAPI PPObjOprKind::GetPaymentOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_PAYMENT, linkOpID, pList); }
-int SLAPI PPObjOprKind::GetCorrectionOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_CORRECTION, linkOpID, pList); }
-int SLAPI PPObjOprKind::GetQuoteReqSeqOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_DRAFTQUOTREQ, linkOpID, pList); }
+int PPObjOprKind::GetPaymentOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_PAYMENT, linkOpID, pList); }
+int PPObjOprKind::GetCorrectionOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_CORRECTION, linkOpID, pList); }
+int PPObjOprKind::GetQuoteReqSeqOpList(PPID linkOpID, PPIDArray * pList) { return Helper_GetOpListByLink(PPOPT_DRAFTQUOTREQ, linkOpID, pList); }
 
 int FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList)
 {
@@ -803,7 +803,7 @@ int FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::GetPayableOpList(PPID accSheetID, PPIDArray * pList)
+int PPObjOprKind::GetPayableOpList(PPID accSheetID, PPIDArray * pList)
 {
 	int    ok = 1;
 	PPOprKind op_rec;
@@ -819,7 +819,7 @@ int SLAPI PPObjOprKind::GetPayableOpList(PPID accSheetID, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::GetProfitableOpList(PPID accSheetID, PPIDArray * pList)
+int PPObjOprKind::GetProfitableOpList(PPID accSheetID, PPIDArray * pList)
 {
 	int    ok = 1;
 	PPOprKind op_rec;
@@ -833,12 +833,12 @@ int SLAPI PPObjOprKind::GetProfitableOpList(PPID accSheetID, PPIDArray * pList)
 	return ok;
 }
 
-SLAPI PPObjOprKind::ReservedOpCreateBlock::ReservedOpCreateBlock()
+PPObjOprKind::ReservedOpCreateBlock::ReservedOpCreateBlock()
 {
 	THISZERO();
 }
 
-int SLAPI PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta)
+int PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta)
 {
 	int    ok = 1;
 	PPID   op_id = 0;
@@ -872,7 +872,7 @@ int SLAPI PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateB
 	return ok;
 }
 
-int SLAPI PPObjOprKind::GetEdiRecadvOp(PPID * pID, int use_ta)
+int PPObjOprKind::GetEdiRecadvOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_RECADV;
@@ -884,7 +884,7 @@ int SLAPI PPObjOprKind::GetEdiRecadvOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-int SLAPI PPObjOprKind::GetEdiOrdrspOp(PPID * pID, int use_ta)
+int PPObjOprKind::GetEdiOrdrspOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_ORDERRSP;
@@ -896,7 +896,7 @@ int SLAPI PPObjOprKind::GetEdiOrdrspOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-int SLAPI PPObjOprKind::GetEdiShopChargeOnOp(PPID * pID, int use_ta)
+int PPObjOprKind::GetEdiShopChargeOnOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_SHOPCHARGEON;
@@ -908,7 +908,7 @@ int SLAPI PPObjOprKind::GetEdiShopChargeOnOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-int SLAPI PPObjOprKind::GetEdiStockOp(PPID * pID, int use_ta)
+int PPObjOprKind::GetEdiStockOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_STOCK;
@@ -920,7 +920,7 @@ int SLAPI PPObjOprKind::GetEdiStockOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-int SLAPI PPObjOprKind::GetEdiWrOffShopOp(PPID * pID, int use_ta)
+int PPObjOprKind::GetEdiWrOffShopOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_WRITEOFFSHOP;
@@ -932,7 +932,7 @@ int SLAPI PPObjOprKind::GetEdiWrOffShopOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-int SLAPI PPObjOprKind::GetEdiWrOffWithMarksOp(PPID * pID, int use_ta)
+int PPObjOprKind::GetEdiWrOffWithMarksOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_WROFFWITHMARKS;
@@ -944,7 +944,7 @@ int SLAPI PPObjOprKind::GetEdiWrOffWithMarksOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-int SLAPI PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v10.9.0
+int PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v10.9.0
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_CHARGEONWITHMARKS;
@@ -956,7 +956,7 @@ int SLAPI PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v1
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-/*virtual*/int SLAPI PPObjOprKind::MakeReserved(long flags)
+/*virtual*/int PPObjOprKind::MakeReserved(long flags)
 {
     int    ok = -1;
     if(flags & mrfInitializeDb) {
@@ -1106,7 +1106,7 @@ int SLAPI PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v1
     return ok;
 }
 
-/*virtual*/StrAssocArray * SLAPI PPObjOprKind::MakeStrAssocList(void * extraPtr)
+/*virtual*/StrAssocArray * PPObjOprKind::MakeStrAssocList(void * extraPtr)
 {
 	const PPID op_type_id = reinterpret_cast<const PPID>(extraPtr);
 	PPIDArray op_list;
@@ -1115,7 +1115,7 @@ int SLAPI PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v1
 }
 
 // Prototype
-int SLAPI EditInventoryOptionsDialog(PPInventoryOpEx *);
+int EditInventoryOptionsDialog(PPInventoryOpEx *);
 //
 //
 //
@@ -1298,7 +1298,7 @@ int OprKindView::delItem(long, long id)
 //
 //
 //
-int SLAPI PPObjOpCounter::Browse(void * extraPtr)
+int PPObjOpCounter::Browse(void * extraPtr)
 {
 	class OpCounterView : public ObjViewDialog {
 	public:
@@ -1499,7 +1499,7 @@ void OprKindDialog::delTempl()
 		}
 }
 
-static void SLAPI MakeOpTypeListForGeneric(PPIDArray & rList)
+static void MakeOpTypeListForGeneric(PPIDArray & rList)
 {
 	rList.clear();
 	rList.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
@@ -1507,7 +1507,7 @@ static void SLAPI MakeOpTypeListForGeneric(PPIDArray & rList)
 		PPOPT_CHARGE, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
 
-static int SLAPI AddGenOpItems(ObjRestrictArray & rList)
+static int AddGenOpItems(ObjRestrictArray & rList)
 {
 	int    ok = -1;
 	PPIDArray dd_list;
@@ -1547,7 +1547,7 @@ static int SLAPI AddGenOpItems(ObjRestrictArray & rList)
 	return ok;
 }
 
-static int SLAPI EditGenOpItem(ObjRestrictItem * pItem)
+static int EditGenOpItem(ObjRestrictItem * pItem)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GENOPITEM);
@@ -2500,7 +2500,7 @@ IMPL_HANDLE_EVENT(OpCntrDialog)
 	clearEvent(event);
 }
 
-int SLAPI EditCounter(PPOpCounterPacket * pPack, uint resID, PPID * pOpcID)
+int EditCounter(PPOpCounterPacket * pPack, uint resID, PPID * pOpcID)
 {
 	int    ok = -1;
 	OpCntrDialog * dlg = new OpCntrDialog(resID);
@@ -2580,13 +2580,13 @@ void OprKindDialog::editPoolOptions()
 //
 //
 //
-int SLAPI PPObjOprKind::Browse(void * extraPtr)
+int PPObjOprKind::Browse(void * extraPtr)
 	{ return PPView::Execute(PPVIEW_OPRKIND, 0, 1, 0); }
-int SLAPI PPObjOprKind::Edit(PPID * pID, void * extraPtr /*opTypeID*/)
+int PPObjOprKind::Edit(PPID * pID, void * extraPtr /*opTypeID*/)
 	{ return Edit(pID, reinterpret_cast<PPID>(extraPtr), 0); }
 
 // non-virtual
-int SLAPI PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
+int PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
 {
 	int    ok = 1, done = 0, is_new = 0;
 	int    r = cmCancel;
@@ -2612,7 +2612,7 @@ int SLAPI PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
+int PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 {
 	int    ok = -1;
 	uint   dlg_id = DLG_OPRKIND;
@@ -2650,7 +2650,7 @@ int SLAPI PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::AddBySample(PPID * pID, PPID sampleID)
+int PPObjOprKind::AddBySample(PPID * pID, PPID sampleID)
 {
 	int    ok = cmCancel;
 	int    valid_data = 0;
@@ -2685,7 +2685,7 @@ int SLAPI PPObjOprKind::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int SLAPI PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+int PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE) {
 		if(_id && oneof4(_obj, PPOBJ_OPRTYPE, PPOBJ_ACCSHEET, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
@@ -2707,14 +2707,14 @@ int SLAPI PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return DBRPL_OK;
 }
 
-int SLAPI PPObjOprKind::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
+int PPObjOprKind::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
 	return EditSpcRightFlags(DLG_RTOPRK, CTL_RTOPRK_FLAGS, CTL_RTOPRK_SFLAGS, bufSize, rt, pDlg);
 }
 
 IMPL_DESTROY_OBJ_PACK(PPObjOprKind, PPOprKindPacket);
 
-int SLAPI PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	PPReckonOpEx roe;
@@ -2740,10 +2740,10 @@ int SLAPI PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffe
 	return ok;
 }
 
-int SLAPI PPObjOprKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
+int PPObjOprKind::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjOprKind, PPOprKindPacket>(this, p, id, stream, pCtx); }
 
-int SLAPI PPObjOprKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
+int PPObjOprKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -2783,7 +2783,7 @@ int SLAPI PPObjOprKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 	return ok;
 }
 
-int SLAPI PPObjOprKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+int PPObjOprKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
 		uint   i;
@@ -2821,14 +2821,14 @@ public:
 		long   Flags;            // INVOPF_XXX
 		long   OnWrOffStatusID;  // @v10.5.9 Статус, устанавливаемый при списании документа
 	};
-	SLAPI InvOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))
+	InvOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))
 	{
 	}
-	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int SLAPI InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2848,7 +2848,7 @@ int SLAPI InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI InvOpExCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+void InvOpExCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	PPInventoryOpEx * p_data_rec = static_cast<PPInventoryOpEx *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
@@ -2886,21 +2886,21 @@ public:
 		PPID   OpTypeID;
 		PPID   AccSheetID;
 	};
-	SLAPI  OpCache() : ObjCache(PPOBJ_OPRKIND, sizeof(OpCache::OpData)), P_ReckonOpList(0), State(0)
+	OpCache() : ObjCache(PPOBJ_OPRKIND, sizeof(OpCache::OpData)), P_ReckonOpList(0), State(0)
 	{
 	}
-	SLAPI ~OpCache()
+	~OpCache()
 	{
 		delete P_ReckonOpList;
 	}
 	virtual int FASTCALL Dirty(PPID); // @sync_w
-	int    SLAPI GetReckonOpList(PPIDArray *); // @sync_rw
-	int    SLAPI GetInventoryOpEx(PPID, PPInventoryOpEx *); // @>>IoeC.Get()
+	int    GetReckonOpList(PPIDArray *); // @sync_rw
+	int    GetInventoryOpEx(PPID, PPInventoryOpEx *); // @>>IoeC.Get()
 	PPID   FASTCALL GetBySymb(const char * pSymb);
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * entry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * entry, void * pDataRec) const;
-	int    SLAPI FetchReckonOpList();
+	virtual int  FetchEntry(PPID, ObjCacheEntry * entry, long);
+	virtual void EntryToData(const ObjCacheEntry * entry, void * pDataRec) const;
+	int    FetchReckonOpList();
 
 	// @v10.3.0 (never used) int    IsReckonListInited;
 	enum {
@@ -2961,12 +2961,12 @@ PPID FASTCALL OpCache::GetBySymb(const char * pSymb)
 	return op_id;
 }
 
-int SLAPI OpCache::GetInventoryOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)
+int OpCache::GetInventoryOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)
 {
 	return IoeC.Get(opID, pInvOpEx);
 }
 
-int SLAPI OpCache::GetReckonOpList(PPIDArray * pList)
+int OpCache::GetReckonOpList(PPIDArray * pList)
 {
 	int    ok = -1;
 	if(pList) {
@@ -2990,7 +2990,7 @@ int SLAPI OpCache::GetReckonOpList(PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI OpCache::FetchReckonOpList()
+int OpCache::FetchReckonOpList()
 {
 	int    ok = 1;
 	if(!(State & stReckonListInited)) {
@@ -3021,7 +3021,7 @@ int SLAPI OpCache::FetchReckonOpList()
 	return ok;
 }
 
-int SLAPI OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	OpData * p_cache_rec = static_cast<OpData *>(pEntry);
@@ -3051,7 +3051,7 @@ int SLAPI OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	return ok;
 }
 
-void SLAPI OpCache::EntryToData(const ObjCacheEntry * pEntry, void * dataRec) const
+void OpCache::EntryToData(const ObjCacheEntry * pEntry, void * dataRec) const
 {
 	PPOprKind * p_data_rec = static_cast<PPOprKind *>(dataRec);
 	const OpData * p_cache_rec  = static_cast<const OpData *>(pEntry);
@@ -3079,7 +3079,7 @@ void SLAPI OpCache::EntryToData(const ObjCacheEntry * pEntry, void * dataRec) co
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
 }
 
-int SLAPI FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)
+int FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)
 {
 	OpCache * p_cache = GetDbLocalCachePtr <OpCache> (PPOBJ_OPRKIND);
 	return p_cache ? p_cache->GetInventoryOpEx(opID, pInvOpEx) : 0;
@@ -3409,13 +3409,13 @@ int FASTCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet
 	return ok;
 }
 
-PPID SLAPI GetCashOp()
+PPID GetCashOp()
 {
 	const PPCommConfig & r_ccfg = CConfig;
 	return NZOR(r_ccfg.RetailOp, PPOPK_RETAIL);
 }
 
-PPID SLAPI GetCashRetOp()
+PPID GetCashRetOp()
 {
 	const  PPCommConfig & r_ccfg = CConfig;
 	PPID   op_id_ = -1;
@@ -3431,7 +3431,7 @@ PPID SLAPI GetCashRetOp()
 	return op_id_;
 }
 
-PPID SLAPI GetReceiptOp()
+PPID GetReceiptOp()
 {
 	return NZOR(CConfig.ReceiptOp, PPOPK_RECEIPT);
 }

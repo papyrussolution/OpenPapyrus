@@ -39,7 +39,7 @@
 #end{}
 */
 
-/*static*/int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult)
+/*static*/int Tddo::GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult)
 {
 	int    ok = 0;
 	SString path, result;
@@ -82,7 +82,7 @@
 	return (ok || fileExists(rResult)) ? 1 : PPSetErrorSLib();
 }
 
-/*static*/int SLAPI Tddo::LoadFile(const char * pFileName, SString & rBuf)
+/*static*/int Tddo::LoadFile(const char * pFileName, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -98,7 +98,7 @@
 	return ok;
 }
 
-SLAPI Tddo::Tddo()
+Tddo::Tddo()
 {
 	P_Ctx = DS.GetInterfaceContext(PPSession::ctxtExportData);
 	Flags = 0;
@@ -131,11 +131,11 @@ SLAPI Tddo::Tddo()
 	*/
 }
 
-SLAPI Tddo::~Tddo()
+Tddo::~Tddo()
 {
 }
 
-void SLAPI Tddo::SetInputFileName(const char * pFileName)
+void Tddo::SetInputFileName(const char * pFileName)
 {
 	InputFileName = pFileName;
 }
@@ -165,7 +165,7 @@ Tddo::Result & Tddo::Result::Z()
 // A.B(X().E, D, F.G)
 // A.B(X().E, D, F.G) > 5
 
-int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, SStrScan & rScan, Result & rR)
+int Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, SStrScan & rScan, Result & rR)
 {
 	rR.Z();
 	int    ok = 1, r;
@@ -383,7 +383,7 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 	return ok;
 }
 
-int SLAPI Tddo::GetVar(const SString & rInput, SString & rBuf) const
+int Tddo::GetVar(const SString & rInput, SString & rBuf) const
 {
 	uint   i = 1;
 	int    c;
@@ -395,7 +395,7 @@ int SLAPI Tddo::GetVar(const SString & rInput, SString & rBuf) const
 	return 1;
 }
 
-void SLAPI Tddo::Skip()
+void Tddo::Skip()
 {
 	Scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine, &LineNo);
 }
@@ -536,7 +536,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 	return ok;
 }
 
-int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut)
+int Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut)
 {
 	int    ok = 1;
 	LineNo = 1;
@@ -556,7 +556,7 @@ int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::Export
 	return ok;
 }
 
-int SLAPI Tddo::ResolveArgN(const SString & rText, Result & rR)
+int Tddo::ResolveArgN(const SString & rText, Result & rR)
 {
 	rR.Z();
 	int    ok = -1;
@@ -573,7 +573,7 @@ int SLAPI Tddo::ResolveArgN(const SString & rText, Result & rR)
 	return ok;
 }
 
-int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
+int Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
 {
 	rR.Z();
 	int    ok = 1;
@@ -780,7 +780,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 	return ok;
 }
 
-int SLAPI Tddo::IsTextSection(const SString & rLineBuf, const char * pPattern, SString * pRet)
+int Tddo::IsTextSection(const SString & rLineBuf, const char * pPattern, SString * pRet)
 {
 	int    ok = -1;
 	SString sect_name;
@@ -799,7 +799,7 @@ int SLAPI Tddo::IsTextSection(const SString & rLineBuf, const char * pPattern, S
 	return ok;
 }
 
-int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langId, SBuffer & rOut)
+int Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int langId, SBuffer & rOut)
 {
 	int    ok = -1;
 	SString temp_buf, sect_buf, defsect_buf;
@@ -847,7 +847,7 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 	return ok;
 }
 
-int SLAPI Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
+int Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
 {
 	int    ok = 1;
 	uint   prev_scan_stack_pos = 0;
@@ -1124,7 +1124,7 @@ public:
 		kVar
 	};
 	struct ExprItem {
-		SLAPI  ExprItem();
+		ExprItem();
 
 		uint16 K;
 		uint16 ArgCount; // Количество аргументов (для K == kOp)
@@ -1135,12 +1135,12 @@ public:
 	};
 	class ExprStack : public TSStack <ExprItem> {
 	public:
-		SLAPI  ExprStack();
+		ExprStack();
 		int FASTCALL Push(const ExprStack & rS);
 	};
 	class Expression {
 	public:
-		SLAPI  Expression();
+		Expression();
 		uint   NameP;
 		long   Flags;
 		ExprStack ES; // Стэк выражения //
@@ -1164,7 +1164,7 @@ int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv)
 //
 //
 //
-int SLAPI TestTddo()
+int TestTddo()
 {
 	int    ok = 1;
 	SString temp_buf, in_buf;

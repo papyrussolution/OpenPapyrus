@@ -9,12 +9,12 @@
 // PPPath
 //
 struct PathItem { // Variable length struct
-	SLAPI  PathItem(PPID pathID, short flags, const char * str);
-	void * SLAPI operator new(size_t sz, const char * str = 0);
-	void   SLAPI operator delete(void *, const char *);
-	// @v9.4.8 int    SLAPI GetPath(char * buf, size_t bufSize) const;
+	PathItem(PPID pathID, short flags, const char * str);
+	void * operator new(size_t sz, const char * str = 0);
+	void   operator delete(void *, const char *);
+	// @v9.4.8 int    GetPath(char * buf, size_t bufSize) const;
 	SString & FASTCALL GetPath(SString & rBuf) const { return (rBuf = Path()); }
-	const  char * SLAPI Path() const { return (Size > sizeof(PathItem)) ? reinterpret_cast<const char *>(this + 1) : 0; }
+	const  char * Path() const { return (Size > sizeof(PathItem)) ? reinterpret_cast<const char *>(this + 1) : 0; }
 	PPID   ID;
 	int16  Flags;
 	uint16 Size;
@@ -32,7 +32,7 @@ struct PathData {          // @persistent @store(PropertyTbl)
 	// ... PathItem[]
 };
 
-SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID), Flags(flags)
+PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID), Flags(flags)
 {
 	if(!isempty(str)) {
 		const size_t len = sstrlen(str) + 1;
@@ -43,18 +43,18 @@ SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID
 		Size = sizeof(PathItem);
 }
 
-void * SLAPI PathItem::operator new(size_t sz, const char * str)
+void * PathItem::operator new(size_t sz, const char * str)
 {
 	const size_t len = (str && str[0]) ? (sstrlen(str) + 1) : 0;
 	return ::new char[sz + len];
 }
 
-void SLAPI PathItem::operator delete(void * p, const char *)
+void PathItem::operator delete(void * p, const char *)
 {
 	::delete(p);
 }
 
-/*int SLAPI PathItem::GetPath(char * pBuf, size_t bufLen) const
+/*int PathItem::GetPath(char * pBuf, size_t bufLen) const
 {
 	strnzcpy(pBuf, Path(), bufLen);
 	return 1;
@@ -62,22 +62,22 @@ void SLAPI PathItem::operator delete(void * p, const char *)
 //
 //
 //
-SLAPI PPPaths::PPPaths() : P(0)
+PPPaths::PPPaths() : P(0)
 {
 }
 
-SLAPI PPPaths::~PPPaths()
+PPPaths::~PPPaths()
 {
 	ZFREE(P);
 }
 
-PPPaths & SLAPI PPPaths::Z()
+PPPaths & PPPaths::Z()
 {
 	ZFREE(P);
 	return *this;
 }
 
-int SLAPI PPPaths::IsEmpty() const
+int PPPaths::IsEmpty() const
 {
 	return (P == 0);
 }
@@ -90,12 +90,12 @@ PPPaths & FASTCALL PPPaths::operator = (const PPPaths & src)
 	return *this;
 }
 
-size_t SLAPI PPPaths::Size() const
+size_t PPPaths::Size() const
 {
 	return P ? (sizeof(PathData) + P->TailSize) : 0;
 }
 
-int SLAPI PPPaths::Resize(size_t sz)
+int PPPaths::Resize(size_t sz)
 {
 	int    ok = 1;
 	if(sz == 0)
@@ -115,7 +115,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 	return ok;
 }
 
-/* @v9.4.8 int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufLen) const
+/* @v9.4.8 int PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufLen) const
 {
 	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
@@ -132,7 +132,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 	return -1;
 }*/
 
-int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
+int PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 {
 	rBuf.Z();
 	if(P) {
@@ -149,7 +149,7 @@ int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 	return -1;
 }
 
-int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
+int PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 {
 	int    ok = 1;
 	uint8 * cp = 0;
@@ -221,7 +221,7 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	return ok;
 }
 
-/* @v9.4.8 int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, char * pBuf, size_t bufLen)
+/* @v9.4.8 int PPPaths::Get(PPID obj, PPID id, PPID pathID, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	int    ok = Get(obj, id, pathID, temp_buf);
@@ -229,7 +229,7 @@ int SLAPI PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int repl
 	return ok;
 } */
 
-int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
+int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 {
 	int    ok = 1;
 	SPathStruc ps;
@@ -294,7 +294,7 @@ int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPPaths::Get(PPID securType, PPID securID)
+int PPPaths::Get(PPID securType, PPID securID)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
@@ -387,7 +387,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	return ok;
 }
 
-int SLAPI PPPaths::Put(PPID securType, PPID securID)
+int PPPaths::Put(PPID securType, PPID securID)
 {
 	int    ok = 1;
 	if(!IsEmpty()) {
@@ -413,10 +413,10 @@ int SLAPI PPPaths::Put(PPID securType, PPID securID)
 	return ok;
 }
 
-int SLAPI PPPaths::Remove(PPID securType, PPID securID) { return PPRef->RemoveProperty(securType, securID, PPPRP_PATHS, 0); }
+int PPPaths::Remove(PPID securType, PPID securID) { return PPRef->RemoveProperty(securType, securID, PPPRP_PATHS, 0); }
 int FASTCALL PPGetPath(PPID pathID, SString & rBuf) { return DS.GetPath(pathID, rBuf); }
 
-void SLAPI PPPaths::DumpToStr(SString & rBuf) const
+void PPPaths::DumpToStr(SString & rBuf) const
 {
 	rBuf.Z();
 	if(P) {
@@ -487,7 +487,7 @@ SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, l
 	return MakeTempFileName(path.SetLastSlash(), pPrefix, pExt, pStart, rBuf);
 }
 
-int SLAPI PPRemoveFiles(const SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount)
+int PPRemoveFiles(const SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount)
 {
 	int    ok = -1;
 	uint   succ_count = 0;
@@ -509,7 +509,7 @@ int SLAPI PPRemoveFiles(const SFileEntryPool * pFileList, uint * pSuccCount, uin
 	return ok;
 }
 
-int SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount)
+int PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount)
 {
 	SFileEntryPool fep;
 	SString wildcard;
@@ -526,19 +526,19 @@ int SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccC
 #if 0 // @v9.8.11 (replaced with SFileEntryPool) {
 class PPFileNameArray : public TSArray <SDirEntry> {
 public:
-	SLAPI  PPFileNameArray();
-	int    SLAPI Scan(const char * pPath, const char * pWildcard);
-	int    SLAPI Enum(uint * pIdx, SDirEntry * pEntry, SString * pFullPath) const;
-	const  SString & SLAPI GetPath() const;
+	PPFileNameArray();
+	int    Scan(const char * pPath, const char * pWildcard);
+	int    Enum(uint * pIdx, SDirEntry * pEntry, SString * pFullPath) const;
+	const  SString & GetPath() const;
 //private:
 	SString Path; //
 };
 
-SLAPI PPFileNameArray::PPFileNameArray() : TSArray <SDirEntry>()
+PPFileNameArray::PPFileNameArray() : TSArray <SDirEntry>()
 {
 }
 
-int SLAPI PPFileNameArray::Scan(const char * pPath, const char * pWildcard)
+int PPFileNameArray::Scan(const char * pPath, const char * pWildcard)
 {
 	int    ok = 1;
 	freeAll();
@@ -558,12 +558,12 @@ int SLAPI PPFileNameArray::Scan(const char * pPath, const char * pWildcard)
 	return ok;
 }
 
-const SString & SLAPI PPFileNameArray::GetPath() const
+const SString & PPFileNameArray::GetPath() const
 {
 	return Path;
 }
 
-int SLAPI PPFileNameArray::Enum(uint * pIdx, SDirEntry * pEntry, SString * pFullPath) const
+int PPFileNameArray::Enum(uint * pIdx, SDirEntry * pEntry, SString * pFullPath) const
 {
 	SDirEntry * p_item;
 	if(enumItems(pIdx, (void **)&p_item)) {

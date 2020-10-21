@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <process.h>
 
-int SLAPI PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir)
+int PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir)
 {
 	int    ok = 1;
 	SString cmd;
@@ -23,11 +23,11 @@ int SLAPI PKZip(const char * pSrcPath, const char * pDestPath, const char * pZip
 	return ok;
 }
 
-SLAPI ExecVDosParam::ExecVDosParam() : Flags(0)
+ExecVDosParam::ExecVDosParam() : Flags(0)
 {
 }
 
-int SLAPI ExecVDos(const ExecVDosParam & rParam)
+int ExecVDos(const ExecVDosParam & rParam)
 {
 	int   ok = 1;
 	int   r = 0;

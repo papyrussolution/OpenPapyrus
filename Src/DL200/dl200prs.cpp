@@ -449,7 +449,7 @@ public:
 //
 //
 //
-SLAPI DL2_Resolver::DL2_Resolver(long flags) : Flags(flags), ActualDate(ZERODATE), CurAr(-1)
+DL2_Resolver::DL2_Resolver(long flags) : Flags(flags), ActualDate(ZERODATE), CurAr(-1)
 {
 	SString buf;
 	PPLoadText(PPTXT_DL200_NAMEVARS, buf);
@@ -459,7 +459,7 @@ SLAPI DL2_Resolver::DL2_Resolver(long flags) : Flags(flags), ActualDate(ZERODATE
 	NameVars.SortByText();
 }
 
-SLAPI DL2_Resolver::~DL2_Resolver()
+DL2_Resolver::~DL2_Resolver()
 {
 }
 
@@ -472,7 +472,7 @@ int FASTCALL DL2_Resolver::Log(const char * pMsg)
 	return ok;
 }
 
-int SLAPI DL2_Resolver::SetActualDate(LDATE actualDate)
+int DL2_Resolver::SetActualDate(LDATE actualDate)
 {
 	if(checkdate(actualDate, 1)) {
 		ActualDate = actualDate;
@@ -482,29 +482,29 @@ int SLAPI DL2_Resolver::SetActualDate(LDATE actualDate)
 		return PPSetErrorSLib();
 }
 
-LDATE SLAPI DL2_Resolver::GetActualDate() const
+LDATE DL2_Resolver::GetActualDate() const
 {
 	return ActualDate;
 }
 
-int SLAPI DL2_Resolver::SetPeriod(DateRange period)
+int DL2_Resolver::SetPeriod(DateRange period)
 {
 	CurPeriod = period;
 	return 1;
 }
 
-int SLAPI DL2_Resolver::SetCurArticle(long ar)
+int DL2_Resolver::SetCurArticle(long ar)
 {
 	CurAr = ar;
 	return 1;
 }
 
-long SLAPI DL2_Resolver::GetCurArticle() const
+long DL2_Resolver::GetCurArticle() const
 {
 	return CurAr;
 }
 
-int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
+int DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 {
 	int    ok = 1;
 	const  PPCommConfig & r_ccfg = CConfig;
@@ -558,7 +558,7 @@ int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 	return ok;
 }
 
-DL2_CI * SLAPI DL2_Resolver::ResolveScore(const DL2_Score & rSc)
+DL2_CI * DL2_Resolver::ResolveScore(const DL2_Score & rSc)
 {
 	DL2_CI * p_ci = 0;
 	SPD  * p_spd = 0;
@@ -611,10 +611,10 @@ DL2_CI * SLAPI DL2_Resolver::ResolveScore(const DL2_Score & rSc)
 	return p_ci;
 }
 
-/*virtual*/DL2_CI * SLAPI DL2_Resolver::Resolve(int exprNo, const DL2_CI * pCi) { return Helper_Resolve(0, pCi); }
-DL2_CI * SLAPI DL2_Resolver::Resolve(const DL2_CI * pItem) { return Helper_Resolve(0, pItem); }
+/*virtual*/DL2_CI * DL2_Resolver::Resolve(int exprNo, const DL2_CI * pCi) { return Helper_Resolve(0, pCi); }
+DL2_CI * DL2_Resolver::Resolve(const DL2_CI * pItem) { return Helper_Resolve(0, pItem); }
 
-DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pItem)
+DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pItem)
 {
 	DL2_CI * p_result = 0;
 	if(pItem->CiType == DL2CIT_ACC) {
@@ -785,13 +785,13 @@ DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_C
 //
 //
 //
-SLAPI DL200_Context::DL200_Context(DL2_Resolver * pResolver, BillContext * pBillCtx) : ExprEvalContext(),
+DL200_Context::DL200_Context(DL2_Resolver * pResolver, BillContext * pBillCtx) : ExprEvalContext(),
 	P_Resolver(pResolver), P_BillCtx(pBillCtx), LastFuncId(EXRP_EVAL_FIRST_FUNC)
 {
 	ImplementFlags |= fSelfScanArgList;
 }
 
-int SLAPI DL200_Context::IsFunc(const char * pSymb, int * pFuncId)
+int DL200_Context::IsFunc(const char * pSymb, int * pFuncId)
 {
 	int    func_id = 0;
 	DL2_Score sc;
@@ -813,7 +813,7 @@ int SLAPI DL200_Context::IsFunc(const char * pSymb, int * pFuncId)
 	return ok;
 }
 
-int SLAPI DL200_Context::ResolveFunc(int funcId, FC & rFc)
+int DL200_Context::ResolveFunc(int funcId, FC & rFc)
 {
 	int    ok = 1;
 	SString func_name;
@@ -838,7 +838,7 @@ int SLAPI DL200_Context::ResolveFunc(int funcId, FC & rFc)
 	return ok;
 }
 
-int SLAPI DL200_Context::Resolve(const char * pSymb, double * pVal)
+int DL200_Context::Resolve(const char * pSymb, double * pVal)
 {
 	int    ok = 1;
 	double v = 0.0;
@@ -873,7 +873,7 @@ int SLAPI DL200_Context::Resolve(const char * pSymb, double * pVal)
 	return ok;
 }
 
-double SLAPI DL2_Resolver::Resolve(const char * pExpression)
+double DL2_Resolver::Resolve(const char * pExpression)
 {
 	double v = 0.0;
 	DL200_Context ctx(this);
@@ -881,7 +881,7 @@ double SLAPI DL2_Resolver::Resolve(const char * pExpression)
 	return v;
 }
 
-int SLAPI DL2_Resolver::ReverseFormula(const char * pFormula, SString & rResult)
+int DL2_Resolver::ReverseFormula(const char * pFormula, SString & rResult)
 {
 	int    ok = 1;
 	SString inp_buf(pFormula);
@@ -894,19 +894,19 @@ int SLAPI DL2_Resolver::ReverseFormula(const char * pFormula, SString & rResult)
 //
 //
 //
-SLAPI PrcssrDL200::PrcssrDL200() : P_Dict(0), P_HdrTbl(0), P_IterTbl(0)
+PrcssrDL200::PrcssrDL200() : P_Dict(0), P_HdrTbl(0), P_IterTbl(0)
 {
 	InitParam(&P);
 }
 
-SLAPI PrcssrDL200::~PrcssrDL200()
+PrcssrDL200::~PrcssrDL200()
 {
 	delete P_HdrTbl;
 	delete P_IterTbl;
 	delete P_Dict;
 }
 
-DL2_CI * SLAPI PrcssrDL200::Resolve(int exprNo, const DL2_CI * pCi)
+DL2_CI * PrcssrDL200::Resolve(int exprNo, const DL2_CI * pCi)
 {
 	const DL2_Column * p_col = D.GetColumn(exprNo);
 	return Helper_Resolve(p_col, pCi);
@@ -941,7 +941,7 @@ struct _DL200_OutpIter {
 	//????   ColN_Value;         ...
 };
 
-DBTable * SLAPI PrcssrDL200::CreateHeaderDBTable()
+DBTable * PrcssrDL200::CreateHeaderDBTable()
 {
 	uint   i;
 	BNKey  bnkey;
@@ -985,7 +985,7 @@ DBTable * SLAPI PrcssrDL200::CreateHeaderDBTable()
 	return p_tbl;
 }
 
-DBTable * SLAPI PrcssrDL200::CreateIterDBTable()
+DBTable * PrcssrDL200::CreateIterDBTable()
 {
 	/*
 		int32 IterID;
@@ -1045,7 +1045,7 @@ DBTable * SLAPI PrcssrDL200::CreateIterDBTable()
 
 int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
-int	SLAPI PrcssrDL200::FillHeader()
+int	PrcssrDL200::FillHeader()
 {
 	int    ok = 1;
 	P_HdrTbl->clearDataBuf();
@@ -1096,7 +1096,7 @@ int	SLAPI PrcssrDL200::FillHeader()
 	return ok;
 }
 
-int SLAPI PrcssrDL200::InitOutput()
+int PrcssrDL200::InitOutput()
 {
 	int    ok = 1;
 	SString iter_fname;
@@ -1148,7 +1148,7 @@ int SLAPI PrcssrDL200::InitOutput()
 	return ok;
 }
 
-int SLAPI PrcssrDL200::FinishOutput()
+int PrcssrDL200::FinishOutput()
 {
 	ZDELETE(P_HdrTbl);
 	ZDELETE(P_IterTbl);
@@ -1156,7 +1156,7 @@ int SLAPI PrcssrDL200::FinishOutput()
 	return 1;
 }
 
-int SLAPI PrcssrDL200::InitParam(Param * p)
+int PrcssrDL200::InitParam(Param * p)
 {
 	memzero(p, sizeof(Param));
 	return 1;
@@ -1307,7 +1307,7 @@ int DL200_ParamDialog::setupFileCombo()
 	return ok;
 }
 
-int SLAPI PrcssrDL200::EditParam(Param * pData)
+int PrcssrDL200::EditParam(Param * pData)
 {
 	int    ok = -1;
 	DL200_ParamDialog * dlg = 0;
@@ -1325,7 +1325,7 @@ int SLAPI PrcssrDL200::EditParam(Param * pData)
 	return ok;
 }
 
-int SLAPI PrcssrDL200::Init(const Param * pParam)
+int PrcssrDL200::Init(const Param * pParam)
 {
 	int    ok = 1;
 	P = *pParam;
@@ -1338,7 +1338,7 @@ int SLAPI PrcssrDL200::Init(const Param * pParam)
 	return ok;
 }
 
-int SLAPI PrcssrDL200::ProcessRow(const DL2_Row * pRow)
+int PrcssrDL200::ProcessRow(const DL2_Row * pRow)
 {
 	int    ok = 1;
 	uint   i;
@@ -1413,7 +1413,7 @@ int SLAPI PrcssrDL200::ProcessRow(const DL2_Row * pRow)
 	return ok;
 }
 
-int SLAPI PrcssrDL200::ProcessGroup(const DL2_Group * pGrp)
+int PrcssrDL200::ProcessGroup(const DL2_Group * pGrp)
 {
 	int    ok = 1;
 	if(pGrp)
@@ -1434,7 +1434,7 @@ int SLAPI PrcssrDL200::ProcessGroup(const DL2_Group * pGrp)
 	return ok;
 }
 
-int SLAPI PrcssrDL200::Print()
+int PrcssrDL200::Print()
 {
 	int    ok = -1;
 	int    reply = 0;
@@ -1473,7 +1473,7 @@ int SLAPI PrcssrDL200::Print()
 	return ok;
 }
 
-int SLAPI PrcssrDL200::Run()
+int PrcssrDL200::Run()
 {
 	int    ok = 1;
 	PPCycleArray cycle_list;
@@ -1508,7 +1508,7 @@ int SLAPI PrcssrDL200::Run()
 	return ok;
 }
 
-int SLAPI ProcessDL200()
+int ProcessDL200()
 {
 	PrcssrDL200 prcssr;
 	PrcssrDL200::Param param;

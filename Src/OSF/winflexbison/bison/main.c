@@ -20,11 +20,11 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <bitset/stats.h>
-#include <closeout.h>
+//#include <bitset/stats.h>
+//#include <closeout.h>
 #include <progname.h>
-#include <relocatable.h> /* relocate2 */
-#include "scan-skel.h"
+//#include <relocatable.h> /* relocate2 */
+//#include "scan-skel.h"
 #include "tables.h"
 
 int main(int argc, char * argv[])

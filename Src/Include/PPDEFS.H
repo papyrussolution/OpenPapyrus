@@ -1785,15 +1785,15 @@
 #define cmAddress                1124 // Кнопка [Адрес]
 #define cmAddress2               1125 // Кнопка [Адрес]
 #define cmRounding               1126 // Параметры округления //
-#define cmUniteMaxLike           1127 // @v6.4.1 Объединение похожих объектов
-#define cmTags                   1128 // @v6.4.11 Теги объекта
+#define cmUniteMaxLike           1127 // Объединение похожих объектов
+#define cmTags                   1128 // Теги объекта
 #define cmGoodsFilt              1129 // Кнопка [Фильтр] для установки сложного фильтра по товарам в отчетах
-#define cmSelSCard               1130 // @v6.7.7 Выбор дисконтной карты
-#define cmTimeGraph              1131 // @v6.8.5 Временная диаграмма
-#define cmCreateSCard            1132 // @v6.8.7 Создать дисконтную карту
-#define cmCommit                 1133 // @v6.9.7 Подтверждение некоторого действия без закрытия диалога (не путать с cmOK)
-#define cmUniteObj               1134 // @v7.2.4 Объединить объект с другим (interactive)
-#define cmSearchUHTT             1135 // @v7.2.6 Искать в Universe-HTT
+#define cmSelSCard               1130 // Выбор дисконтной карты
+#define cmTimeGraph              1131 // Временная диаграмма
+#define cmCreateSCard            1132 // Создать дисконтную карту
+#define cmCommit                 1133 // Подтверждение некоторого действия без закрытия диалога (не путать с cmOK)
+#define cmUniteObj               1134 // Объединить объект с другим (interactive)
+#define cmSearchUHTT             1135 // Искать в Universe-HTT
 #define cmArList                 1136 // Кнопка [Список статей]
 #define cmSupplCost              1137
 #define cmGoodsMatrix            1138
@@ -1809,23 +1809,23 @@
 #define cmCCheck                 1148
 #define cmSysjFilt2              1149 // Вызов внутреннего фильтра по системным событиям
 #define cmEditFilt               1150
-#define cmSCardSerList           1151 // @v7.9.11
-#define cmAgentList              1152 // @v7.9.11
-#define cmBills                  1153 //
+#define cmSCardSerList           1151
+#define cmAgentList              1152
+#define cmBills                  1153
 #define cmObjSyncTab             1154
 #define cmArrange                1155
-#define cmAgreement              1156 // @v8.2.4
-#define cmSysInfo                1157 // @v8.2.8
-#define cmViewOptions            1158 // @v8.2.9 Перенесено из DLG_GOODSFLT так как используется и в других диалогах
-#define cmForceUnlock            1159 // @v8.5.4
+#define cmAgreement              1156
+#define cmSysInfo                1157
+#define cmViewOptions            1158
+#define cmForceUnlock            1159
 #define cmSelSerial              1160
 #define cmEMailList              1161
 #define cmLinkObj                1162 // STDCTL_LINKOBJBUTTON @linkobject
 #define cmQuotKindList           1163
 #define cmSendSms                1164
 #define cmVerify                 1165
-#define cmFilter                 1166 // @v9.7.10
-#define cmExtParams              1167 // @v9.8.11 команда стала общей (ранее принадлежала только диалогу фильтра товаров)
+#define cmFilter                 1166
+#define cmExtParams              1167 // команда стала общей (ранее принадлежала только диалогу фильтра товаров)
 #define cmLinkedBill             1168 // @v10.2.2 команда стала общей (ранее принадлежала только диалогу DLG_ATWROFF)
 #define cmCopyToClipboard        1169
 #define cmCopyToClipboardAll     1170
@@ -10370,6 +10370,7 @@
 #define DLG_REPLGOODSALC          1292
 	// CTL_REPLGOODS_XXX
 #define DLG_EGAISQ                1293
+	#define cmLotFilt                  101     
 	#define CTL_EGAISQ_WHAT            (1  + IMPEXP_CTL_BIAS)
 	#define CTL_EGAISQ_QADD            (2  + IMPEXP_CTL_BIAS)
 	#define CTL_EGAISQ_INFO            (3  + IMPEXP_CTL_BIAS)
@@ -10985,6 +10986,19 @@
 	#define CTL_SUUDS_INFO            (6 + IMPEXP_CTL_BIAS)
 	#define CTL_SUUDS_GUA             (7 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_SUUDS_GUA          (8 + IMPEXP_CTL_BIAS)
+	#define CTL_SUUDS_LOGO            (9 + IMPEXP_CTL_BIAS)
+#define DLG_EVNTFILT              1392
+	#define CTL_EVNTFILT_PERIOD       (1 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTFILT_TYPE         (2 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_EVNTFILT_TYPE      (3 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTFILT_SUBSCR       (4 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_EVNTFILT_SUBSCR    (5 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTFILT_STATUS       (6 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTFILT_USER         (7 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_EVNTFILT_USER      (8 + IMPEXP_CTL_BIAS)
+#define DLG_SELEVNTSTATUS         1393
+	#define CTL_SELEVNTSTATUS_EV      (1 + IMPEXP_CTL_BIAS)
+	#define CTL_SELEVNTSTATUS_ST      (2 + IMPEXP_CTL_BIAS)
 
 // Win32 Dialog Identifiers
 //

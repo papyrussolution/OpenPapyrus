@@ -6,17 +6,17 @@
 //
 // PPGoodsPacket
 //
-SLAPI PPGoodsPacket::PPGoodsPacket() : P_Filt(0), P_Quots(0), P_Gled(0)
+PPGoodsPacket::PPGoodsPacket() : P_Filt(0), P_Quots(0), P_Gled(0)
 {
 	destroy();
 }
 
-SLAPI PPGoodsPacket::~PPGoodsPacket()
+PPGoodsPacket::~PPGoodsPacket()
 {
 	destroy();
 }
 
-void SLAPI PPGoodsPacket::destroy()
+void PPGoodsPacket::destroy()
 {
 	UpdFlags = 0;
 	ClsDimZeroFlags = 0;
@@ -62,11 +62,11 @@ PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & rS)
 	return *this;
 }
 
-int SLAPI PPGoodsPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPGoodsPacket::PutExtStrData(int fldID, const SString & rBuf) { return PPPutExtStrData(fldID, ExtString, rBuf); }
-GoodsPacketKind SLAPI PPGoodsPacket::GetPacketKind() const { return PPObjGoods::GetRecKind(&Rec); }
+int PPGoodsPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PPGoodsPacket::PutExtStrData(int fldID, const SString & rBuf) { return PPPutExtStrData(fldID, ExtString, rBuf); }
+GoodsPacketKind PPGoodsPacket::GetPacketKind() const { return PPObjGoods::GetRecKind(&Rec); }
 
-int SLAPI PPGoodsPacket::AddCode(const char * code, long codeType, double uPerP)
+int PPGoodsPacket::AddCode(const char * code, long codeType, double uPerP)
 {
 	if(code && code[0]) {
 	   	BarcodeTbl::Rec bcrec;
@@ -90,7 +90,7 @@ int FASTCALL PPGoodsPacket::GetGroupCode(SString & rBuf) const
 	return rBuf.NotEmptyS() ? 1 : -1;
 }
 
-int SLAPI PPGoodsPacket::SetGroupCode(const char * buf)
+int PPGoodsPacket::SetGroupCode(const char * buf)
 {
 	Codes.clear();
 	if(buf && buf[0]) {
@@ -109,7 +109,7 @@ int SLAPI PPGoodsPacket::SetGroupCode(const char * buf)
 		return -1;
 }
 
-int SLAPI PPGoodsPacket::GetArCode(PPID arID, SString & rCode) const
+int PPGoodsPacket::GetArCode(PPID arID, SString & rCode) const
 {
 	int    ok = -1;
 	uint   pos = 0;
@@ -122,12 +122,12 @@ int SLAPI PPGoodsPacket::GetArCode(PPID arID, SString & rCode) const
 	return ok;
 }
 
-int SLAPI PPGoodsPacket::IsExtRecEmpty() const
+int PPGoodsPacket::IsExtRecEmpty() const
 {
 	return (ExtRec.KindID || ExtRec.GradeID || ExtRec.AddObjID || ExtRec.AddObj2ID || ExtRec.X || ExtRec.Y || ExtRec.Z || ExtRec.W) ? 0 : 1;
 }
 
-/*static*/int SLAPI PPGoodsPacket::ValidateAddedMsgSign(const char * pSign, size_t signBufSize)
+/*static*/int PPGoodsPacket::ValidateAddedMsgSign(const char * pSign, size_t signBufSize)
 {
 	int    ok = 1;
 	int    par_open = 0;
@@ -185,7 +185,7 @@ static SString & FASTCALL PreprocessDataStr(SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, const LDATETIME * pManufDtm, StringSet & rSet)
+int PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, const LDATETIME * pManufDtm, StringSet & rSet)
 {
 	// pamsfStrictOrder
 	int    ok = 1;
@@ -260,12 +260,12 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 //
 //
 //
-SLAPI PPGdsClsProp::PPGdsClsProp() : ItemsListID(0)
+PPGdsClsProp::PPGdsClsProp() : ItemsListID(0)
 {
 	PTR32(Name)[0] = 0;
 }
 
-void SLAPI PPGdsClsProp::Init()
+void PPGdsClsProp::Init()
 {
 	memzero(Name, sizeof(Name));
 	ItemsListID = 0;
@@ -280,12 +280,12 @@ PPGdsClsProp & FASTCALL PPGdsClsProp::operator = (const PPGdsClsProp & s)
 //
 //
 //
-SLAPI PPGdsClsDim::PPGdsClsDim() : Scale(0)
+PPGdsClsDim::PPGdsClsDim() : Scale(0)
 {
 	PTR32(Name)[0] = 0;
 }
 
-void SLAPI PPGdsClsDim::Init()
+void PPGdsClsDim::Init()
 {
 	memzero(Name, sizeof(Name));
 	Scale = 0;
@@ -300,7 +300,7 @@ PPGdsClsDim & FASTCALL PPGdsClsDim::operator = (const PPGdsClsDim & s)
 	return *this;
 }
 
-int SLAPI PPGdsClsDim::ToStr(int, char * pBuf, size_t bufLen)
+int PPGdsClsDim::ToStr(int, char * pBuf, size_t bufLen)
 {
 	size_t p = 0;
 	for(uint i = 0; i < ValList.getCount(); i++) {
@@ -317,7 +317,7 @@ int SLAPI PPGdsClsDim::ToStr(int, char * pBuf, size_t bufLen)
 	return 1;
 }
 
-int SLAPI PPGdsClsDim::FromStr(int, const char * pBuf)
+int PPGdsClsDim::FromStr(int, const char * pBuf)
 {
 	ValList.freeAll();
 	char   tmp_buf[32];
@@ -333,7 +333,7 @@ int SLAPI PPGdsClsDim::FromStr(int, const char * pBuf)
 //
 //
 //
-/*static*/int SLAPI PPGdsCls::IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, const GoodsExtTbl::Rec * p2)
+/*static*/int PPGdsCls::IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, const GoodsExtTbl::Rec * p2)
 {
 #define M(f) (mask & (1 << (f-1)))
 	if(M(eKind) && p1->KindID != p2->KindID)
@@ -356,7 +356,7 @@ int SLAPI PPGdsClsDim::FromStr(int, const char * pBuf)
 #undef M
 }
 
-void   SLAPI PPGdsCls::SetDynGenMask(int fld, int val) { DynGenMask |= (1 << (fld-1)); }
+void   PPGdsCls::SetDynGenMask(int fld, int val) { DynGenMask |= (1 << (fld-1)); }
 int    FASTCALL PPGdsCls::GetDynGenMask(int fld) const { return (DynGenMask & (1 << (fld-1))) ? 1 : 0; }
 
 /*static*/long FASTCALL PPGdsCls::UseFlagToE(long useFlag)
@@ -391,7 +391,7 @@ int    FASTCALL PPGdsCls::GetDynGenMask(int fld) const { return (DynGenMask & (1
 //
 //
 //
-SLAPI PPGdsClsPacket::PPGdsClsPacket()
+PPGdsClsPacket::PPGdsClsPacket()
 {
 	Init();
 }
@@ -402,7 +402,7 @@ PPGdsClsPacket & FASTCALL PPGdsClsPacket::operator = (const PPGdsClsPacket & s)
 	return *this;
 }
 
-void SLAPI PPGdsClsPacket::Init()
+void PPGdsClsPacket::Init()
 {
 	MEMSZERO(Rec);
 	NameConv.Z();
@@ -445,7 +445,7 @@ int FASTCALL PPGdsClsPacket::Copy(const PPGdsClsPacket & s)
 	return 1;
 }
 
-int SLAPI PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
+int PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -463,7 +463,7 @@ int SLAPI PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::FormatProp(const PPGdsClsProp * pProp, PPID propVal, SString & rBuf) const
+int PPGdsClsPacket::FormatProp(const PPGdsClsProp * pProp, PPID propVal, SString & rBuf) const
 {
 	rBuf.Z();
 	if(propVal && pProp->ItemsListID)
@@ -472,14 +472,14 @@ int SLAPI PPGdsClsPacket::FormatProp(const PPGdsClsProp * pProp, PPID propVal, S
 	return -1;
 }
 
-void SLAPI PPGdsClsPacket::FormatDim(const PPGdsClsDim * pDim, long dimVal, SString & rBuf) const
+void PPGdsClsPacket::FormatDim(const PPGdsClsDim * pDim, long dimVal, SString & rBuf) const
 {
 	const int scale = (int)pDim->Scale;
 	double v = round(((double)dimVal) / fpow10i(scale), scale);
 	rBuf.Z().Cat(v, MKSFMTD(0, scale, NMBF_NOTRAILZ));
 }
 
-int SLAPI PPGdsClsPacket::GetExtDim(const GoodsExtTbl::Rec * pRec, int dim, double * pVal) const
+int PPGdsClsPacket::GetExtDim(const GoodsExtTbl::Rec * pRec, int dim, double * pVal) const
 {
 	int    ok = -1;
 	const  long * p_s = 0;
@@ -501,7 +501,7 @@ int SLAPI PPGdsClsPacket::GetExtDim(const GoodsExtTbl::Rec * pRec, int dim, doub
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::RealToExtDim(double realVal, int dim, long * pLongVal) const
+int PPGdsClsPacket::RealToExtDim(double realVal, int dim, long * pLongVal) const
 {
 	int    ok = -1;
 	long   p  = 0;
@@ -521,7 +521,7 @@ int SLAPI PPGdsClsPacket::RealToExtDim(double realVal, int dim, long * pLongVal)
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::RealToExtDim(double realVal, int dim, GoodsExtTbl::Rec & rExtRec) const
+int PPGdsClsPacket::RealToExtDim(double realVal, int dim, GoodsExtTbl::Rec & rExtRec) const
 {
 	int    ok = 1;
 	switch(dim) {
@@ -534,7 +534,7 @@ int SLAPI PPGdsClsPacket::RealToExtDim(double realVal, int dim, GoodsExtTbl::Rec
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, long * pID, SString & rBuf) const
+int PPGdsClsPacket::GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, long * pID, SString & rBuf) const
 {
 	int    ok = -1;
 	PPID   id = 0;
@@ -558,7 +558,7 @@ int SLAPI PPGdsClsPacket::GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, lo
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoodsFilt * pFilt) const
+int PPGdsClsPacket::GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoodsFilt * pFilt) const
 {
 	int    ok = -1;
 	double val;
@@ -606,7 +606,7 @@ int SLAPI PPGdsClsPacket::GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoods
 }
 
 // @<<PPGdsClsPacket::GetNameByTemplate
-int SLAPI PPGdsClsPacket::CheckForSgg(long sym, SubstGrpGoods sgg) const
+int PPGdsClsPacket::CheckForSgg(long sym, SubstGrpGoods sgg) const
 {
 	int    r = 1;
 	if(sgg != sggNone && sym != PPSYM_GC_NAME) {
@@ -632,7 +632,7 @@ int SLAPI PPGdsClsPacket::CheckForSgg(long sym, SubstGrpGoods sgg) const
 	return r;
 }
 
-int SLAPI PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * pTemplate, char * pBuf, size_t bufLen, SubstGrpGoods sgg) const
+int PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * pTemplate, char * pBuf, size_t bufLen, SubstGrpGoods sgg) const
 {
 	int    ok = 1;
 	SString buf, temp_buf;
@@ -703,7 +703,7 @@ int SLAPI PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * 
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::CompleteGoodsPacket(PPGoodsPacket * pPack)
+int PPGdsClsPacket::CompleteGoodsPacket(PPGoodsPacket * pPack)
 {
 	int    r = GetNameByTemplate(pPack, NameConv, pPack->Rec.Name, sizeof(pPack->Rec.Name));
 	if(AbbrConv.NotEmptyS())
@@ -750,7 +750,7 @@ int SLAPI PPGdsClsPacket::CompleteGoodsPacket(PPGoodsPacket * pPack)
 	return 1;
 }
 
-int SLAPI PPGdsClsPacket::PropSymbToID(int prop, const char * pSymb, PPID * pID)
+int PPGdsClsPacket::PropSymbToID(int prop, const char * pSymb, PPID * pID)
 {
 	int    ok = -1;
 	PPID   obj_type = 0;
@@ -770,7 +770,7 @@ int SLAPI PPGdsClsPacket::PropSymbToID(int prop, const char * pSymb, PPID * pID)
 	return ok;
 }
 
-int SLAPI PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID, int forceCreate, int use_ta)
+int PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID, int forceCreate, int use_ta)
 {
 	int    ok = -1;
 	PPID   obj_type = 0;

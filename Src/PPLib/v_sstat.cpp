@@ -7,7 +7,7 @@
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(SStat); SLAPI SStatFilt::SStatFilt() : PPBaseFilt(PPFILT_SSTAT, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(SStat); SStatFilt::SStatFilt() : PPBaseFilt(PPFILT_SSTAT, 0, 1)
 {
 	SetFlatChunk(offsetof(SStatFilt, ReserveStart), offsetof(SStatFilt, LocList)-offsetof(SStatFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(SStatFilt, LocList));
@@ -20,7 +20,7 @@ SStatFilt & FASTCALL SStatFilt::operator = (const SStatFilt & s)
 	return *this;
 }
 
-int SLAPI SStatFilt::IsEqualExceptOrder(const SStatFilt * pFilt) const
+int SStatFilt::IsEqualExceptOrder(const SStatFilt * pFilt) const
 {
 	if(pFilt && Period.IsEqual(pFilt->Period) && GoodsGrpID == pFilt->GoodsGrpID &&
 		Flags == pFilt->Flags && Sgg == pFilt->Sgg && Cycl == pFilt->Cycl &&
@@ -33,7 +33,7 @@ int SLAPI SStatFilt::IsEqualExceptOrder(const SStatFilt * pFilt) const
 		return 0;
 }
 
-void SLAPI SStatFilt::SetupCfgOptions(const PPPredictConfig & rCfg)
+void SStatFilt::SetupCfgOptions(const PPPredictConfig & rCfg)
 {
 	_CFlags = rCfg.Flags & (PPPredictConfig::fRoundPckgUp|PPPredictConfig::fRoundPckgDn|
 		PPPredictConfig::fZeroPckgUp|PPPredictConfig::fPrefStockPckg|PPPredictConfig::fPrefLotPckg|
@@ -44,16 +44,16 @@ void SLAPI SStatFilt::SetupCfgOptions(const PPPredictConfig & rCfg)
 	_TrustCriterion = rCfg.TrustCriterion;
 }
 
-int SLAPI SStatFilt::GetPckgUse() const { return PPPredictConfig::_GetPckgUse(_CFlags); }
-int SLAPI SStatFilt::GetPckgRounding() const { return PPPredictConfig::_GetPckgRounding(_CFlags); }
+int SStatFilt::GetPckgUse() const { return PPPredictConfig::_GetPckgUse(_CFlags); }
+int SStatFilt::GetPckgRounding() const { return PPPredictConfig::_GetPckgRounding(_CFlags); }
 
-void SLAPI SStatFilt::SetPckgUse(int t)
+void SStatFilt::SetPckgUse(int t)
 {
 	const long   v = PPPredictConfig::_SetPckgUse(_CFlags, t);
 	(_CFlags &= ~(PPPredictConfig::fPrefStockPckg|PPPredictConfig::fPrefLotPckg)) |= v;
 }
 
-void SLAPI SStatFilt::SetPckgRounding(int t)
+void SStatFilt::SetPckgRounding(int t)
 {
 	const long   v = PPPredictConfig::_SetPckgRounding(_CFlags, t);
 	(_CFlags &= ~(PPPredictConfig::fRoundPckgUp|PPPredictConfig::fRoundPckgDn)) |= v;
@@ -61,13 +61,13 @@ void SLAPI SStatFilt::SetPckgRounding(int t)
 //
 //
 //
-SLAPI PPViewSStat::PPViewSStat() : PPView(0, &Filt, PPVIEW_SSTAT), P_TempTbl(0), P_TempOrd(0), P_VGr(0)
+PPViewSStat::PPViewSStat() : PPView(0, &Filt, PPVIEW_SSTAT, 0, 0), P_TempTbl(0), P_TempOrd(0), P_VGr(0)
 {
-	MEMSZERO(PrCfg);
+	// @v10.9.1 @ctr MEMSZERO(PrCfg);
 	PrcssrPrediction::GetPredictCfg(&PrCfg);
 }
 
-SLAPI PPViewSStat::~PPViewSStat()
+PPViewSStat::~PPViewSStat()
 {
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
@@ -277,14 +277,14 @@ private:
 	PPPredictConfig PrCfg;
 };
 
-int SLAPI PPViewSStat::EditDlvrOrderFilt(SStatFilt * pBaseFilt)
+int PPViewSStat::EditDlvrOrderFilt(SStatFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODY(SStatOrderFiltDialog, pBaseFilt);
 }
 
-PPBaseFilt * SLAPI PPViewSStat::CreateFilt(void * extraPtr) const
+PPBaseFilt * PPViewSStat::CreateFilt(void * extraPtr) const
 {
 	SStatFilt * p_filt = new SStatFilt;
 	p_filt->LocList.Add(LConfig.Location);
@@ -300,7 +300,7 @@ PPBaseFilt * SLAPI PPViewSStat::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-int SLAPI PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1, valid_data = 0;
 	PPID   prev_grp_level = 0;
@@ -377,7 +377,7 @@ int SLAPI PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use_ta)
+int PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use_ta)
 {
 	int    ok = 1;
 	ZDELETE(P_TempOrd);
@@ -450,7 +450,7 @@ int SLAPI PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use
 //
 //
 //
-int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
+int PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1, use_ta = 1;
 	SStatFilt prev_filt = Filt;
@@ -494,17 +494,17 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 		{
 			class SStatCrosstab : public Crosstab {
 			public:
-				explicit SLAPI  SStatCrosstab(PPViewSStat * pV) : Crosstab(), P_V(pV)
+				explicit SStatCrosstab(PPViewSStat * pV) : Crosstab(), P_V(pV)
 				{
 				}
-				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+				virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 				{
 					PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 					SetupBrowserCtColumns(p_brw);
 					return p_brw;
 				}
 			protected:
-				virtual int SLAPI SetupFixFields(int initialCall)
+				virtual int SetupFixFields(int initialCall)
 				{
 					if(!initialCall) {
 						DBTable * p_tbl = GetResultTable();
@@ -547,7 +547,7 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewSStat::InitIteration()
+int PPViewSStat::InitIteration()
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -577,7 +577,7 @@ int SLAPI PPViewSStat::InitIteration()
 	return ok;
 }
 
-void SLAPI PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewItem * pItem)
+void PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewItem * pItem)
 {
 	SStatViewItem item;
 	MEMSZERO(item);
@@ -640,7 +640,7 @@ int FASTCALL PPViewSStat::NextIteration(SStatViewItem * pItem)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsStat);
 
-int SLAPI PPViewSStat::AddStat(PPID goodsID, LDATE dt, int setTotal, const PredictSalesStat * pStat, BExtInsert * pBei)
+int PPViewSStat::AddStat(PPID goodsID, LDATE dt, int setTotal, const PredictSalesStat * pStat, BExtInsert * pBei)
 {
 	int    ok = 1;
 	if(pStat->Count || !(Filt.Flags & SStatFilt::fSkipZeroNhCount)) {
@@ -667,7 +667,7 @@ int SLAPI PPViewSStat::AddStat(PPID goodsID, LDATE dt, int setTotal, const Predi
 	return ok;
 }
 
-int SLAPI PPViewSStat::AddStatByCycles(PPID goodsID, const PPIDArray * pIdList, int setTotal, BExtInsert * pBei, PredictSalesStat * pStat)
+int PPViewSStat::AddStatByCycles(PPID goodsID, const PPIDArray * pIdList, int setTotal, BExtInsert * pBei, PredictSalesStat * pStat)
 {
 	PsiArray  series;
 	PredictSalesStat pss;
@@ -690,7 +690,7 @@ int SLAPI PPViewSStat::AddStatByCycles(PPID goodsID, const PPIDArray * pIdList, 
 	return 1;
 }
 
-double SLAPI __CalcOrderQuantity(
+double __CalcOrderQuantity(
 	const double rest,
 	const double prediction,
 	//
@@ -727,7 +727,7 @@ double SLAPI __CalcOrderQuantity(
     return order;
 }
 
-double SLAPI PPViewSStat::PreprocessOrderQuantity(double order, PPID goodsID, double unitPerPack/*const GoodsRestViewItem & rItem*/)
+double PPViewSStat::PreprocessOrderQuantity(double order, PPID goodsID, double unitPerPack/*const GoodsRestViewItem & rItem*/)
 {
 	if(order > 0.0) {
 		const int use_pckg = Filt.GetPckgUse();
@@ -763,7 +763,7 @@ double SLAPI PPViewSStat::PreprocessOrderQuantity(double order, PPID goodsID, do
 	return order;
 }
 
-int SLAPI PPViewSStat::CreateTempTable(int use_ta)
+int PPViewSStat::CreateTempTable(int use_ta)
 {
 	int    ok = 1;
 	const PPConfig & r_cfg = LConfig;
@@ -965,7 +965,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 	return ok;
 }
 
-DBQuery * SLAPI PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	TempGoodsStatTbl * p_tt = 0;
@@ -1105,7 +1105,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
@@ -1165,7 +1165,7 @@ int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAct
 	return ok;
 }
 
-void SLAPI PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
@@ -1175,7 +1175,7 @@ void SLAPI PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
 //
 //
 //
-int SLAPI PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	PPID   goods_id = pHdr ? (P_Ct ? static_cast<const PPID *>(pHdr)[1] : static_cast<const PPID *>(pHdr)[0]) : 0;
@@ -1203,7 +1203,7 @@ int SLAPI PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -1270,12 +1270,12 @@ int SLAPI PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	return ok;
 }
 
-int SLAPI PPViewSStat::GetRestItem(PPID goodsID, const ObjIdListFilt * pLocList, GoodsRestViewItem * pItem)
+int PPViewSStat::GetRestItem(PPID goodsID, const ObjIdListFilt * pLocList, GoodsRestViewItem * pItem)
 {
 	return P_VGr ? P_VGr->GetItem(goodsID, pLocList, pItem) : 0;
 }
 
-int SLAPI PPViewSStat::GetItem(PPID goodsID, SStatViewItem * pItem)
+int PPViewSStat::GetItem(PPID goodsID, SStatViewItem * pItem)
 {
 	if(goodsID && P_TempTbl) {
 		TempGoodsStatTbl::Key0 k0;
@@ -1289,7 +1289,7 @@ int SLAPI PPViewSStat::GetItem(PPID goodsID, SStatViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewSStat::EditOrder(PPID ctID, PPID goodsID)
+int PPViewSStat::EditOrder(PPID ctID, PPID goodsID)
 {
 	// Crosstab
 	int    ok = -1;
@@ -1322,7 +1322,7 @@ int SLAPI PPViewSStat::EditOrder(PPID ctID, PPID goodsID)
 	return ok;
 }
 
-int SLAPI PPViewSStat::Print(const void *)
+int PPViewSStat::Print(const void *)
 {
 	int    ok = 1;
 	uint   rpt_id = (Filt.Flags & SStatFilt::fSupplOrderForm) ? (P_Ct ? REPORT_SSTATSUPPLORD_CT : REPORT_SSTATSUPPLORD) : REPORT_SSTATGGROUP;
@@ -1335,7 +1335,7 @@ int SLAPI PPViewSStat::Print(const void *)
 	return ok;
 }
 
-int SLAPI PPViewSStat::ConvertLinesToBasket()
+int PPViewSStat::ConvertLinesToBasket()
 {
 	int    ok = -1, r = -1, convert = 0;
 	SelBasketParam param;
@@ -1387,7 +1387,7 @@ int SLAPI PPViewSStat::ConvertLinesToBasket()
 	return ok;
 }
 
-int SLAPI PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * pPack, int useTa)
+int PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * pPack, int useTa)
 {
 	int    ok = -1;
 	const  PPID op_id = PrCfg.PurchaseOpID;
@@ -1453,7 +1453,7 @@ int SLAPI PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPack
 	return ok;
 }
 
-int SLAPI PPViewSStat::AddPurchaseBill()
+int PPViewSStat::AddPurchaseBill()
 {
 	int    ok = -1;
 	PPBillPacket pack;
@@ -1480,7 +1480,7 @@ int SLAPI PPViewSStat::AddPurchaseBill()
 	return ok;
 }
 
-int SLAPI PPViewSStat::ViewCreatedBills()
+int PPViewSStat::ViewCreatedBills()
 {
 	int    ok = -1;
 	if(CreatedBillList.getCount()) {
@@ -1493,7 +1493,7 @@ int SLAPI PPViewSStat::ViewCreatedBills()
 	return ok;
 }
 
-int SLAPI PPViewSStat::CalcTotal(SStatTotal * pTotal)
+int PPViewSStat::CalcTotal(SStatTotal * pTotal)
 {
 	int    ok = 1;
 	if(pTotal) {
@@ -1518,7 +1518,7 @@ int SLAPI PPViewSStat::CalcTotal(SStatTotal * pTotal)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewSStat::ViewTotal()
+/*virtual*/int PPViewSStat::ViewTotal()
 {
 	int    ok = 1;
 	SStatTotal total;

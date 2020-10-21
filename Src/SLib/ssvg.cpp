@@ -1101,7 +1101,7 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 	return ok;
 }
 
-int SLAPI _ParseSvgFile(const char * pFileName, SDraw & rResult)
+int _ParseSvgFile(const char * pFileName, SDraw & rResult)
 {
 	SSvg svg;
 	return svg.ParseFile(pFileName, rResult);

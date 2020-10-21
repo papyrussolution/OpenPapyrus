@@ -31,11 +31,11 @@
      - #to_state
      - #goto_follows
  */
-void lalr(void);
+void lalr();
 /**
  * Set #nLA and allocate all reduction lookahead sets.  Normally invoked by #lalr.
  */
-void initialize_LA(void);
+void initialize_LA();
 /**
  * Build only:
  *   - #goto_map
@@ -43,7 +43,7 @@ void initialize_LA(void);
  *   - #to_state
  * Normally invoked by #lalr.
  */
-void set_goto_map(void);
+void set_goto_map();
 /**
  * Update state numbers recorded in #goto_map, #from_state, and #to_state such
  * that:
@@ -57,7 +57,7 @@ void lalr_update_state_numbers(state_number old_to_new[], state_number nstates_o
 
 /** Release the information related to lookahead tokens.
    Can be performed once the action tables are computed.  */
-void lalr_free(void);
+void lalr_free();
 
 typedef size_t goto_number;
 #define GOTO_NUMBER_MAXIMUM ((goto_number) -1)

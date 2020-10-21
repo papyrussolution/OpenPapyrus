@@ -10,11 +10,11 @@ InventoryTotal::InventoryTotal()
 	THISZERO();
 }
 
-SLAPI InventoryCore::InventoryCore(char * pFileName) : InventoryTbl(pFileName)
+InventoryCore::InventoryCore(char * pFileName) : InventoryTbl(pFileName)
 {
 }
 
-int SLAPI InventoryCore::_Search(PPID id, long * oprno, int sp, void * b)
+int InventoryCore::_Search(PPID id, long * oprno, int sp, void * b)
 {
 	InventoryTbl::Key0 k;
 	k.BillID = id;
@@ -27,12 +27,12 @@ int SLAPI InventoryCore::_Search(PPID id, long * oprno, int sp, void * b)
 	return PPDbSearchError();
 }
 
-int SLAPI InventoryCore::Search(PPID id, long oprno, void * b)
+int InventoryCore::Search(PPID id, long oprno, void * b)
 {
 	return _Search(id, &oprno, spEq, b);
 }
 
-int SLAPI InventoryCore::InitEnum(PPID billID, long * pHandle)
+int InventoryCore::InitEnum(PPID billID, long * pHandle)
 {
 	BExtQuery * q = new BExtQuery(this, 0);
 	q->selectAll().where(this->BillID == billID);
@@ -43,18 +43,18 @@ int SLAPI InventoryCore::InitEnum(PPID billID, long * pHandle)
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-int SLAPI InventoryCore::NextEnum(long enumHandle, void * pRec)
+int InventoryCore::NextEnum(long enumHandle, void * pRec)
 	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
-int SLAPI InventoryCore::DestroyIter(long enumHandle)
+int InventoryCore::DestroyIter(long enumHandle)
 	{ return EnumList.DestroyIterHandler(enumHandle); }
 
-SEnumImp * SLAPI InventoryCore::Enum(PPID billID)
+SEnumImp * InventoryCore::Enum(PPID billID)
 {
 	long   h = -1;
 	return InitEnum(billID, &h) ? new PPTblEnum <InventoryCore>(this, h) : 0;
 }
 
-int SLAPI InventoryCore::SearchByGoods(PPID billID, PPID goodsID, InventoryArray * pList)
+int InventoryCore::SearchByGoods(PPID billID, PPID goodsID, InventoryArray * pList)
 {
 	int    ok = -1;
 	InventoryTbl::Key1 k;
@@ -75,7 +75,7 @@ int SLAPI InventoryCore::SearchByGoods(PPID billID, PPID goodsID, InventoryArray
 	return (ok > 0) ? ok : PPDbSearchError();
 }
 
-int SLAPI InventoryCore::SearchIdentical(PPID billID, PPID goodsID, const char * pSerial, InventoryTbl::Rec * pRec)
+int InventoryCore::SearchIdentical(PPID billID, PPID goodsID, const char * pSerial, InventoryTbl::Rec * pRec)
 {
 	InventoryTbl::Key1 k;
 	MEMSZERO(k);
@@ -85,12 +85,12 @@ int SLAPI InventoryCore::SearchIdentical(PPID billID, PPID goodsID, const char *
 	return SearchByKey(this, 1, &k, pRec);
 }
 
-int SLAPI InventoryCore::Remove(PPID id, int use_ta)
+int InventoryCore::Remove(PPID id, int use_ta)
 {
 	return deleteFrom(this, use_ta, this->BillID == id) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI InventoryCore::CalcDiff(InventoryTbl::Rec * pRec)
+int InventoryCore::CalcDiff(InventoryTbl::Rec * pRec)
 {
 	if(pRec == 0)
 		return -1;
@@ -109,7 +109,7 @@ int SLAPI InventoryCore::CalcDiff(InventoryTbl::Rec * pRec)
 	return 1;
 }
 
-int SLAPI InventoryCore::Set(PPID id, long * pOprNo, InventoryTbl::Rec * pRec, int use_ta)
+int InventoryCore::Set(PPID id, long * pOprNo, InventoryTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -149,7 +149,7 @@ int SLAPI InventoryCore::Set(PPID id, long * pOprNo, InventoryTbl::Rec * pRec, i
 	return ok;
 }
 
-int SLAPI InventoryCore::CheckFlags(const InventoryFilt * pFilt, const InventoryTbl::Rec * pRec)
+int InventoryCore::CheckFlags(const InventoryFilt * pFilt, const InventoryTbl::Rec * pRec)
 {
 	int    ok = 0;
 	long   db_f  = pRec->Flags;
@@ -176,7 +176,7 @@ int SLAPI InventoryCore::CheckFlags(const InventoryFilt * pFilt, const Inventory
 	return ok;
 }
 
-int SLAPI InventoryCore::CalcTotal(const InventoryFilt * pFilt, InventoryTotal * pTotal, PPIDArray * pGoodsList)
+int InventoryCore::CalcTotal(const InventoryFilt * pFilt, InventoryTotal * pTotal, PPIDArray * pGoodsList)
 {
 	int    ok = 1;
 	InventoryTbl::Key0 k;

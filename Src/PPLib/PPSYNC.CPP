@@ -12,11 +12,11 @@
 #define HDR_SZ            (sizeof(PPSyncHeader) + LOCK_PRFX_SIZE)
 #define BLK_SZ            (sizeof(PPSyncItem) + LOCK_PRFX_SIZE)
 
-SLAPI PPSync::PPSync() : Handle(-1), NoSHARE(0)
+PPSync::PPSync() : Handle(-1), NoSHARE(0)
 {
 }
 
-SLAPI PPSync::~PPSync()
+PPSync::~PPSync()
 {
 	if(Handle >= 0)
 		close(Handle);
@@ -27,7 +27,7 @@ int FASTCALL PPSync::CheckOffset(ulong offs) const
 	return (offs && ((offs - HDR_SZ) % BLK_SZ) != 0) ? PPSetError(PPERR_SYNCINVOFFS, DataPath) : 1;
 }
 
-int SLAPI PPSync::Release()
+int PPSync::Release()
 {
 	int    ok = 1;
 	if(Handle >= 0) {
@@ -45,12 +45,12 @@ int SLAPI PPSync::Release()
 	return ok;
 }
 
-SString & SLAPI PPSync::GetFileName(SString & rBuf) const
+SString & PPSync::GetFileName(SString & rBuf) const
 {
 	return (rBuf = DataPath).SetLastSlash().Cat("ppsync").Dot().Cat("bin");
 }
 
-int SLAPI PPSync::Init(const char * pDataPath)
+int PPSync::Init(const char * pDataPath)
 {
 	int    ok = 1;
 	int    empty_file_created = 0;
@@ -75,7 +75,7 @@ int SLAPI PPSync::Init(const char * pDataPath)
 	return ok;
 }
 
-int SLAPI PPSync::CreateEmptyFile()
+int PPSync::CreateEmptyFile()
 {
 	int    ok = 0;
 	long   lockfield = 0;
@@ -96,7 +96,7 @@ int SLAPI PPSync::CreateEmptyFile()
 	return ok;
 }
 
-int SLAPI PPSync::ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked)
+int PPSync::ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked)
 {
 	int    ok = 1;
 	union _Blk {
@@ -120,17 +120,17 @@ int SLAPI PPSync::ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked)
 	return ok;
 }
 
-int SLAPI PPSync::GetHeader(ulong offs, PPSyncHeader * hdr, int * isLocked)
+int PPSync::GetHeader(ulong offs, PPSyncHeader * hdr, int * isLocked)
 {
 	return ImplementGetBlock(offs, hdr, isLocked);
 }
 
-int SLAPI PPSync::GetItem(ulong offs, PPSyncItem * blk, int * isLocked)
+int PPSync::GetItem(ulong offs, PPSyncItem * blk, int * isLocked)
 {
 	return offs ? ImplementGetBlock(offs, blk, isLocked) : PPSetError(PPERR_SYNCINVOFFS, DataPath);
 }
 
-int SLAPI PPSync::GetItemsList(long recType, PPSyncArray * pList)
+int PPSync::GetItemsList(long recType, PPSyncArray * pList)
 {
 	int    ok = -1;
 	ulong  o = 0;
@@ -148,7 +148,7 @@ int SLAPI PPSync::GetItemsList(long recType, PPSyncArray * pList)
 	return ok;
 }
 
-int SLAPI PPSync::GetItem(PPID id, PPSyncItem * pItem)
+int PPSync::GetItem(PPID id, PPSyncItem * pItem)
 {
 	int    ok = -1;
 	ulong  o = 0;
@@ -178,7 +178,7 @@ int FASTCALL PPSync::AdvanceOffset(ulong * pOffs) const
 		return 0;
 }
 
-int SLAPI PPSync::GetInitPosition(ulong * pOffs, long * pNumItems)
+int PPSync::GetInitPosition(ulong * pOffs, long * pNumItems)
 {
 	ulong  o = 0;
 	PPSyncHeader hdr;
@@ -195,7 +195,7 @@ int SLAPI PPSync::GetInitPosition(ulong * pOffs, long * pNumItems)
 	}
 }
 
-int SLAPI PPSync::GetOffsetByID(long id, ulong * pOffs)
+int PPSync::GetOffsetByID(long id, ulong * pOffs)
 {
 	int    ok = -1;
 	ulong  result_offs = 0;
@@ -215,7 +215,7 @@ int SLAPI PPSync::GetOffsetByID(long id, ulong * pOffs)
 	return ok;
 }
 
-int SLAPI PPSync::GetFreeEntry(ulong * offs, long * id)
+int PPSync::GetFreeEntry(ulong * offs, long * id)
 {
 	int    ok = 1;
 	ulong  o = 0, free_offs = 0;
@@ -245,7 +245,7 @@ int SLAPI PPSync::GetFreeEntry(ulong * offs, long * id)
 	return ok;
 }
 
-long SLAPI PPSync::AddRecord(long type, long appID, const char * pName,
+long PPSync::AddRecord(long type, long appID, const char * pName,
 	long objtype, long objid, ulong * pOffs, const MACAddr * pMachineID, ulong terminalSessID)
 {
 	long   rec_id = 0;
@@ -283,7 +283,7 @@ long SLAPI PPSync::AddRecord(long type, long appID, const char * pName,
 	return rec_id;
 }
 
-int SLAPI PPSync::ReleaseItem(ulong offs)
+int PPSync::ReleaseItem(ulong offs)
 {
 	PPSyncItem rr;
 	int    is_locked = 0;
@@ -297,7 +297,7 @@ int SLAPI PPSync::ReleaseItem(ulong offs)
 	return (r < 0) ? PPSetError(PPERR_SYNCWRITE, DataPath) : 1;
 }
 
-int SLAPI PPSync::Lock(ulong offs, int checkOnly)
+int PPSync::Lock(ulong offs, int checkOnly)
 {
 	int    ok = 1;
 	if(CheckOffset(offs)) {
@@ -347,7 +347,7 @@ int FASTCALL PPSync::IsLocked(ulong offs)
 		return 1;
 }
 
-int SLAPI PPSync::LockDB()
+int PPSync::LockDB()
 {
 	PPSetAddedMsgString(DataPath);
 	if(IsDBInUse())
@@ -356,19 +356,19 @@ int SLAPI PPSync::LockDB()
 	return Lock(0, 0) ? 1 : PPSetError(PPERR_SYNCMUTEXBUSY);
 }
 
-int SLAPI PPSync::UnlockDB()
+int PPSync::UnlockDB()
 {
 	//PPLogMessage(PPFILNAM_INFO_LOG, "BASE IS NO BLOCK", LOGMSGF_TIME|LOGMSGF_USER);// @debug turistti @v5.3.4
 	return Unlock(0);
 }
 
-int SLAPI PPSync::IsDBLocked()
+int PPSync::IsDBLocked()
 {
 	//PPLogMessage(PPFILNAM_INFO_LOG, "BASE IS BLOCK", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO);// @debug turistti @v5.3.4
 	return IsLocked(0);
 }
 
-int SLAPI PPSync::LoginUser(long userID, const char * pUserName, long * pSessID, const MACAddr * pMachineID, ulong terminalSessID)
+int PPSync::LoginUser(long userID, const char * pUserName, long * pSessID, const MACAddr * pMachineID, ulong terminalSessID)
 {
 	int    ok = 1;
 	ulong  offs = 0;
@@ -387,7 +387,7 @@ int SLAPI PPSync::LoginUser(long userID, const char * pUserName, long * pSessID,
 	return ok;
 }
 
-int SLAPI PPSync::LogoutUser(long sessID)
+int PPSync::LogoutUser(long sessID)
 {
 	ulong  offs = 0;
 	if(Handle >= 0 && GetOffsetByID(sessID, &offs) > 0) {
@@ -399,7 +399,7 @@ int SLAPI PPSync::LogoutUser(long sessID)
 		return 0;
 }
 
-int SLAPI PPSync::IsDBInUse()
+int PPSync::IsDBInUse()
 {
 	ulong  offs = 0;
 	long   numrecs = 0;
@@ -411,7 +411,7 @@ int SLAPI PPSync::IsDBInUse()
 	return 0;
 }
 
-int SLAPI PPSync::SearchMutexByObj(long objType, long objID, PPSyncItem * pItem, ulong * pOffs)
+int PPSync::SearchMutexByObj(long objType, long objID, PPSyncItem * pItem, ulong * pOffs)
 {
 	ulong  offs = 0;
 	long   numrecs = 0;
@@ -430,7 +430,7 @@ int SLAPI PPSync::SearchMutexByObj(long objType, long objID, PPSyncItem * pItem,
 	return -1;
 }
 
-int SLAPI PPSync::CreateMutex_(long sessID, long objtype, long objid, long * pMutexID, PPSyncItem * pItem)
+int PPSync::CreateMutex_(long sessID, long objtype, long objid, long * pMutexID, PPSyncItem * pItem)
 {
 	int    ok = 1;
 	PPSyncItem item;
@@ -468,7 +468,7 @@ int SLAPI PPSync::CreateMutex_(long sessID, long objtype, long objid, long * pMu
 	return ok;
 }
 
-int SLAPI PPSync::ClearMutex(PPID mutexID)
+int PPSync::ClearMutex(PPID mutexID)
 {
 	int    ok = 0;
 	ulong  offs = 0;
@@ -486,7 +486,7 @@ int SLAPI PPSync::ClearMutex(PPID mutexID)
 	return ok;
 }
 
-int SLAPI PPSync::ReleaseSessionMutex(long sessID)
+int PPSync::ReleaseSessionMutex(long sessID)
 {
 	int    ok   = 1;
 	ulong  offs = 0;
@@ -500,14 +500,14 @@ int SLAPI PPSync::ReleaseSessionMutex(long sessID)
 	return ok;
 }
 
-int SLAPI PPSync::ReleaseMutex(long objtype, long objid)
+int PPSync::ReleaseMutex(long objtype, long objid)
 {
 	ulong  offs;
 	PPSyncItem item;
 	return BIN(SearchMutexByObj(objtype, objid, &item, &offs) > 0 && ReleaseItem(offs));
 }
 
-int SLAPI PPSync::ReleaseMutex(long mutexid)
+int PPSync::ReleaseMutex(long mutexid)
 {
 	ulong  offs = 0;
 	PPSyncItem item;
@@ -519,7 +519,7 @@ int SLAPI PPSync::ReleaseMutex(long mutexid)
 		return 0;
 }
 
-int SLAPI PPSync::IsMyLock(long sessID, long objtype, long objid)
+int PPSync::IsMyLock(long sessID, long objtype, long objid)
 {
 	PPSyncItem item;
 	return BIN(SearchMutexByObj(objtype, objid, &item, 0) > 0 && item.UserID == sessID);

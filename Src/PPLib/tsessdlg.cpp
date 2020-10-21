@@ -6,7 +6,7 @@
 
 static const int _TSesStatusTab[] = { TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED };
 
-SLAPI PrcTechCtrlGroup::Rec::Rec() : PrcID(0), PrcParentID(0), TechID(0), ArID(0), Ar2ID(0), IdleStatus(0)
+PrcTechCtrlGroup::Rec::Rec() : PrcID(0), PrcParentID(0), TechID(0), ArID(0), Ar2ID(0), IdleStatus(0)
 {
 }
 
@@ -1846,7 +1846,7 @@ void TSessLineDialog::setupPricing(int recalcDiscount)
 //
 //
 //
-int SLAPI PPObjTSession::EditDialog(TSessionPacket * pData)
+int PPObjTSession::EditDialog(TSessionPacket * pData)
 {
 	int    ok = -1;
 	uint   dlg_id = 0;
@@ -1902,7 +1902,7 @@ int SLAPI PPObjTSession::EditDialog(TSessionPacket * pData)
 	return ok;
 }
 
-int SLAPI PPObjTSession::EditLineDialog(TSessLineTbl::Rec * pData, int asPlanLine)
+int PPObjTSession::EditLineDialog(TSessLineTbl::Rec * pData, int asPlanLine)
 {
 	uint   dlg_id = asPlanLine ? DLG_TSESSPLANLN : DLG_TSESSLN;
 	DIALOG_PROC_BODY_P1(TSessLineDialog, dlg_id, pData);

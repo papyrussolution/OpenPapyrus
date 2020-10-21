@@ -199,7 +199,7 @@ int FASTCALL findbit(const void * pBuf, size_t count, int val, size_t * pPos)
 
 #pragma warn +par
 
-void SLAPI insbit(void * pBuf, size_t len, size_t pos)
+void insbit(void * pBuf, size_t len, size_t pos)
 {
 	const size_t firstword = BLKIDX(pos);
 	uint32 blk = PTR32(pBuf)[firstword];
@@ -231,7 +231,7 @@ void SLAPI insbit(void * pBuf, size_t len, size_t pos)
 	resetbit32(pBuf, len, pos);
 }
 
-void SLAPI delbit(void * pBuf, size_t len, size_t pos)
+void delbit(void * pBuf, size_t len, size_t pos)
 {
 	size_t i;
 	size_t firstword = BLKIDX(pos);

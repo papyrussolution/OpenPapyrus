@@ -10,13 +10,13 @@
 
 class ACS_ECR930 : public CS_1 {
 public:
-	SLAPI  ACS_ECR930(PPID n) : CS_1(n) {}
-	virtual int SLAPI ExportData(int);
-	virtual int SLAPI GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
-	virtual int SLAPI ImportSession(int);
+	ACS_ECR930(PPID n) : CS_1(n) {}
+	virtual int ExportData(int);
+	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
+	virtual int ImportSession(int);
 private:
-	int    SLAPI ConvertWareList(int);
-	int    SLAPI FlashCheck(CCheckTbl::Rec *, SArray *);
+	int    ConvertWareList(int);
+	int    FlashCheck(CCheckTbl::Rec *, SArray *);
 	enum {
 		warebase = 0,
 		warelist
@@ -25,13 +25,13 @@ private:
 
 class CM_ECR930 : public PPCashMachine {
 public:
-	SLAPI CM_ECR930(PPID cashID) : PPCashMachine(cashID) {}
-	PPAsyncCashSession * SLAPI AsyncInterface() { return new ACS_ECR930(NodeID); }
+	CM_ECR930(PPID cashID) : PPCashMachine(cashID) {}
+	PPAsyncCashSession * AsyncInterface() { return new ACS_ECR930(NodeID); }
 };
 
 REGISTER_CMT(ECR930,0,1);
 
-int SLAPI ACS_ECR930::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
+int ACS_ECR930::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int r = GetFileSet(0, 2);
 	*pSessCount = r ? NumEntries : 0;
@@ -49,7 +49,7 @@ struct RowEntry {
 	double dscnt;
 };
 
-int SLAPI ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
+int ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
 {
 	int    ok = 1, r;
 	int    h, m, s, ts;
@@ -87,7 +87,7 @@ int SLAPI ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
 	return ok;
 }
 
-int SLAPI ACS_ECR930::ConvertWareList(int num)
+int ACS_ECR930::ConvertWareList(int num)
 {
 	int    ok = 1;
 	long   prevChk = -1;
@@ -164,7 +164,7 @@ int SLAPI ACS_ECR930::ConvertWareList(int num)
 	return ok;
 }
 
-int SLAPI ACS_ECR930::ImportSession(int num)
+int ACS_ECR930::ImportSession(int num)
 {
 	int    ok = 1;
 	THROW(CreateTables());
@@ -173,7 +173,7 @@ int SLAPI ACS_ECR930::ImportSession(int num)
 	return ok;
 }
 
-int SLAPI ACS_ECR930::ExportData(int)
+int ACS_ECR930::ExportData(int)
 {
 	int    ok = 1;
 	DbfTable * p_out_tbl = 0;

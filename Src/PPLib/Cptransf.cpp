@@ -12,7 +12,7 @@ CpTrfrExt::CpTrfrExt() : LinkBillID(0), LinkRbb(0), QrSeqAckStatus(0)
 	PTR32(Clb)[0] = 0;
 }
 
-SLAPI CpTransfCore::CpTransfCore() : CpTransfTbl()
+CpTransfCore::CpTransfCore() : CpTransfTbl()
 {
 }
 
@@ -89,7 +89,7 @@ SLAPI CpTransfCore::CpTransfCore() : CpTransfTbl()
     return ok;
 }
 
-int SLAPI CpTransfCore::Search(PPID billID, int rByBill, CpTransfTbl::Rec * pRec)
+int CpTransfCore::Search(PPID billID, int rByBill, CpTransfTbl::Rec * pRec)
 {
 	CpTransfTbl::Key0 k;
 	k.BillID  = billID;
@@ -97,7 +97,7 @@ int SLAPI CpTransfCore::Search(PPID billID, int rByBill, CpTransfTbl::Rec * pRec
 	return SearchByKey(this, 0, &k, pRec);
 }
 
-int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray * pGoodsList)
+int CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray * pGoodsList)
 {
 	int    ok = 1;
 	assert(!pGoodsList || pGoodsList->isSorted());
@@ -167,7 +167,7 @@ int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDA
 	return ok;
 }
 
-int SLAPI CpTransfCore::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTi, CpTrfrExt * pExt)
+int CpTransfCore::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTi, CpTrfrExt * pExt)
 {
 	int    ok = 1;
 	CpTransfTbl::Key0 k;
@@ -203,7 +203,7 @@ int SLAPI CpTransfCore::EnumItems(PPID billID, int * pRByBill, PPTransferItem * 
 	return ok;
 }
 
-int SLAPI CpTransfCore::PutItem(PPTransferItem * pTi, int16 forceRByBill, const CpTrfrExt * pExt, int use_ta)
+int CpTransfCore::PutItem(PPTransferItem * pTi, int16 forceRByBill, const CpTrfrExt * pExt, int use_ta)
 {
 	int    ok = 1;
 	int    is_new = 0;
@@ -260,7 +260,7 @@ int SLAPI CpTransfCore::PutItem(PPTransferItem * pTi, int16 forceRByBill, const 
 	return ok;
 }
 
-int SLAPI CpTransfCore::RemoveItem(PPID billID, int rByBill, int use_ta)
+int CpTransfCore::RemoveItem(PPID billID, int rByBill, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -278,7 +278,7 @@ int SLAPI CpTransfCore::RemoveItem(PPID billID, int rByBill, int use_ta)
 	return ok;
 }
 
-int SLAPI CpTransfCore::SearchGoodsRef(PPID goodsID, CpTransfTbl::Rec * pRec)
+int CpTransfCore::SearchGoodsRef(PPID goodsID, CpTransfTbl::Rec * pRec)
 {
 	CpTransfTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -286,7 +286,7 @@ int SLAPI CpTransfCore::SearchGoodsRef(PPID goodsID, CpTransfTbl::Rec * pRec)
 	return (search(1, &k1, spGe) && k1.GoodsID == goodsID) ? 1 : PPDbSearchError();
 }
 
-int SLAPI CpTransfCore::ReplaceGoods(PPID destGoodsID, PPID srcGoodsID, int use_ta)
+int CpTransfCore::ReplaceGoods(PPID destGoodsID, PPID srcGoodsID, int use_ta)
 {
 	int    ok = 1;
 	CpTransfTbl::Key1 k1;
@@ -311,7 +311,7 @@ int SLAPI CpTransfCore::ReplaceGoods(PPID destGoodsID, PPID srcGoodsID, int use_
 //
 //
 //
-int SLAPI PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillTbl::Rec * pDraftRec, PPBillPacket * pPack, int use_ta)
+int PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const BillTbl::Rec * pDraftRec, PPBillPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPOprKind wroff_op_rec;
@@ -396,7 +396,7 @@ int SLAPI PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const
 	return ok;
 }
 
-static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign, const SString * pSrcSerial, PUGL * pDfctList)
+static int InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int sign, const SString * pSrcSerial, PUGL * pDfctList)
 {
 	int    ok = 1, incomplete = 0;
 	PPObjGoods goods_obj;
@@ -455,7 +455,7 @@ static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int
 	return ok;
 }
 
-int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID sessID, const GoodsReplacementArray * pGra)
+int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID sessID, const GoodsReplacementArray * pGra)
 {
 	//
 	// @>>PPBillPacket::InsertComplete >> PPObjBill::ConvertILTI
@@ -563,11 +563,11 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 	return ok;
 }
 
-SLAPI PPObjBill::WrOffDraftBlock::WrOffDraftBlock(const PPDraftOpEx * pWrOffParam, PUGL * pDfctList) : P_WrOffParam(pWrOffParam), P_DfctList(pDfctList)
+PPObjBill::WrOffDraftBlock::WrOffDraftBlock(const PPDraftOpEx * pWrOffParam, PUGL * pDfctList) : P_WrOffParam(pWrOffParam), P_DfctList(pDfctList)
 {
 }
 
-int SLAPI PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta)
+int PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
 	// Списание драфт-документа в документ модификации.
@@ -617,7 +617,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_t
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
+int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
 	// Списание драфт-документа в расходный документ.
@@ -722,7 +722,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 }
 
 
-int SLAPI PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
+int PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
 	// Списание драфт-документа в бухгалтерский документ.
@@ -749,7 +749,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
+int PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
 	// Списание расходного драфт-документа в приходный драфт-документ.
@@ -875,7 +875,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray * pWrOffBills)
+int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray * pWrOffBills)
 {
 	int    ok = 1;
 	int    incomplete = 0, processed = 0, j, r;
@@ -997,7 +997,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPID
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_WriteOffTurnResultItem(const WrOffDraftBlock & rBlk, uint pos, PPIDArray * pWrOffBills) // @notransaction
+int PPObjBill::Helper_WriteOffTurnResultItem(const WrOffDraftBlock & rBlk, uint pos, PPIDArray * pWrOffBills) // @notransaction
 {
 	int    ok = -1;
 	if(pos < rBlk.ResultList.getCount()) {
@@ -1022,7 +1022,7 @@ int SLAPI PPObjBill::Helper_WriteOffTurnResultItem(const WrOffDraftBlock & rBlk,
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam, PPIDArray * pWrOffBills, PUGL * pDfctList, int use_ta)
+int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam, PPIDArray * pWrOffBills, PUGL * pDfctList, int use_ta)
 {
 	int    ok = -1;
 	int    incomplete = 0, processed = 0, r;
@@ -1308,7 +1308,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 	return ok;
 }
 
-int SLAPI PPObjBill::WriteOffDraft(PPID billID, PPIDArray * pResultList, PUGL * pDfctList, int use_ta)
+int PPObjBill::WriteOffDraft(PPID billID, PPIDArray * pResultList, PUGL * pDfctList, int use_ta)
 {
 	int    ok = -1;
 	BillTbl::Rec bill_rec;
@@ -1323,7 +1323,7 @@ int SLAPI PPObjBill::WriteOffDraft(PPID billID, PPIDArray * pResultList, PUGL * 
 	return ok;
 }
 
-int SLAPI PPObjBill::RollbackWrOffDraft(PPID billID, int use_ta)
+int PPObjBill::RollbackWrOffDraft(PPID billID, int use_ta)
 {
 	int    ok = -1;
 	BillTbl::Rec bill_rec, link_rec;
@@ -1343,7 +1343,7 @@ int SLAPI PPObjBill::RollbackWrOffDraft(PPID billID, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, const PUGI * pItem, const PUGL::SupplSubstItem * pSupplSubstItem, PPID & rComplArID)
+int PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, const PUGI * pItem, const PUGL::SupplSubstItem * pSupplSubstItem, PPID & rComplArID)
 {
 	int    ok = 1;
 	double cost, price;
@@ -1410,7 +1410,7 @@ int SLAPI PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * p
 	return ok;
 }
 
-int SLAPI PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * pPugl, PPLogger * pLogger, int use_ta)
+int PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * pPugl, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	PPOprKind op_rec;

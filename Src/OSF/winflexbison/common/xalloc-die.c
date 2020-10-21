@@ -21,7 +21,7 @@
 //#include "xalloc.h"
 //#include <stdlib.h>
 //#include "error.h"
-#include "exitfail.h"
+//#include "exitfail.h"
 //#include "gettext.h"
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)

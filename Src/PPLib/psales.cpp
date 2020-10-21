@@ -7,17 +7,17 @@
 //
 // PredictSalesStat
 //
-SLAPI PredictSalesStat::PredictSalesStat(PPID coeffQkID, const  PPQuotArray * pCoeffQList) : CoeffQkID(coeffQkID), P_CoeffQList(pCoeffQList), P_List(0)
+PredictSalesStat::PredictSalesStat(PPID coeffQkID, const  PPQuotArray * pCoeffQList) : CoeffQkID(coeffQkID), P_CoeffQList(pCoeffQList), P_List(0)
 {
 	memzero(&LocID, offsetof(PredictSalesStat, Flags) - offsetof(PredictSalesStat, LocID) + sizeof(Flags));
 }
 
-SLAPI PredictSalesStat::~PredictSalesStat()
+PredictSalesStat::~PredictSalesStat()
 {
 	delete P_List;
 }
 
-void SLAPI PredictSalesStat::Init()
+void PredictSalesStat::Init()
 {
 	ZDELETE(P_List);
 	memzero(&LocID, offsetof(PredictSalesStat, Flags) - offsetof(PredictSalesStat, LocID) + sizeof(Flags));
@@ -77,7 +77,7 @@ int FASTCALL PredictSalesStat::Step(const PredictSalesItem * pItem)
 	return ok;
 }
 
-int SLAPI PredictSalesStat::Step(const PsiArray * pList, const DateRange * pPeriod)
+int PredictSalesStat::Step(const PsiArray * pList, const DateRange * pPeriod)
 {
 	PredictSalesItem * p_si;
 	for(uint i = 0; pList->enumItems(&i, (void **)&p_si);)
@@ -87,7 +87,7 @@ int SLAPI PredictSalesStat::Step(const PsiArray * pList, const DateRange * pPeri
 	return 1;
 }
 
-int SLAPI PredictSalesStat::Finish()
+int PredictSalesStat::Finish()
 {
 	if(Flags & PSSF_USELSSLIN) {
 		if(P_List && P_List->getCount() > 1) {
@@ -113,7 +113,7 @@ int SLAPI PredictSalesStat::Finish()
 	return 1;
 }
 
-double SLAPI PredictSalesStat::Predict(int pssValType, LDATE dt, double * pYErr) const
+double PredictSalesStat::Predict(int pssValType, LDATE dt, double * pYErr) const
 {
 	if(Flags & PSSF_USELSSLIN && Count > 1) {
 		int16 day = 0;
@@ -151,19 +151,19 @@ double FASTCALL PredictSalesStat::GetTrnovr(int pssValType) const { return fdivn
 //
 // PredictSalesCore
 //
-SLAPI PredictSalesCore::PredictSalesCore() : PredictSalesTbl(), IsLocTabUpdated(0), IsHldTabUpdated(0), P_HldTab(0), P_SaveHldTab(0)
+PredictSalesCore::PredictSalesCore() : PredictSalesTbl(), IsLocTabUpdated(0), IsHldTabUpdated(0), P_HldTab(0), P_SaveHldTab(0)
 {
 	ReadLocTab();
 	ReadHolidays();
 }
 
-SLAPI PredictSalesCore::~PredictSalesCore()
+PredictSalesCore::~PredictSalesCore()
 {
 	delete P_HldTab;
 	delete P_SaveHldTab;
 }
 
-int SLAPI PredictSalesCore::CheckTableStruct()
+int PredictSalesCore::CheckTableStruct()
 {
 	int    ok = 1;
 	int16  num_keys = 0;
@@ -175,7 +175,7 @@ int SLAPI PredictSalesCore::CheckTableStruct()
 	return ok;
 }
 
-int SLAPI PredictSalesCore::SaveHolidays()
+int PredictSalesCore::SaveHolidays()
 {
 	ZDELETE(P_SaveHldTab);
 	if(P_HldTab)
@@ -183,7 +183,7 @@ int SLAPI PredictSalesCore::SaveHolidays()
 	return 1;
 }
 
-int SLAPI PredictSalesCore::RestoreHolidays()
+int PredictSalesCore::RestoreHolidays()
 {
 	ZDELETE(P_HldTab);
 	if(P_SaveHldTab)
@@ -191,7 +191,7 @@ int SLAPI PredictSalesCore::RestoreHolidays()
 	return 1;
 }
 
-int SLAPI PredictSalesCore::SearchHoliday(int16 locIdx, int16 day, uint * pPos) const
+int PredictSalesCore::SearchHoliday(int16 locIdx, int16 day, uint * pPos) const
 {
 	HldTabEntry entry;
 	entry.LocIdx = locIdx;
@@ -204,7 +204,7 @@ int FASTCALL PredictSalesCore::SearchHoliday(HldTabEntry entry) const
 	return BIN(P_HldTab->bsearch(&entry, 0, CMPF_LONG));
 }
 
-int SLAPI PredictSalesCore::SetHldEntry(const HldTabEntry * pEntry, int rmv)
+int PredictSalesCore::SetHldEntry(const HldTabEntry * pEntry, int rmv)
 {
 	int    ok = -1;
 	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry))); // @v9.9.4 SArray-->SVector
@@ -228,7 +228,7 @@ int SLAPI PredictSalesCore::SetHldEntry(const HldTabEntry * pEntry, int rmv)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::SetHoliday(PPID locID, LDATE dt, int rmv)
+int PredictSalesCore::SetHoliday(PPID locID, LDATE dt, int rmv)
 {
 	HldTabEntry entry;
 	ShrinkHoliday(dt, &entry.Day);
@@ -244,7 +244,7 @@ int SLAPI PredictSalesCore::SetHoliday(PPID locID, LDATE dt, int rmv)
 	}
 }
 
-int SLAPI PredictSalesCore::EnumHolidays(PPID locID, LDATE * pDt)
+int PredictSalesCore::EnumHolidays(PPID locID, LDATE * pDt)
 {
 	if(P_HldTab) {
 		HldTabEntry entry;
@@ -269,7 +269,7 @@ int SLAPI PredictSalesCore::EnumHolidays(PPID locID, LDATE * pDt)
 	return 0;
 }
 
-int SLAPI PredictSalesCore::ShrinkHoliday(LDATE dt, int16 * pDay)
+int PredictSalesCore::ShrinkHoliday(LDATE dt, int16 * pDay)
 {
 	int    ok = 1;
 	int16  day = 0;
@@ -292,7 +292,7 @@ int SLAPI PredictSalesCore::ShrinkHoliday(LDATE dt, int16 * pDay)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::ExpandHoliday(int16 day, LDATE * pDt)
+int PredictSalesCore::ExpandHoliday(int16 day, LDATE * pDt)
 {
 	LDATE  dt = ZERODATE;
 	if(day == -MAXSHORT)
@@ -309,7 +309,7 @@ int SLAPI PredictSalesCore::ExpandHoliday(int16 day, LDATE * pDt)
 	return 1;
 }
 
-int SLAPI PredictSalesCore::SetWeekdayAsHoliday(PPID locID, int dayOfWeek /* 1..7 */, int rmv)
+int PredictSalesCore::SetWeekdayAsHoliday(PPID locID, int dayOfWeek /* 1..7 */, int rmv)
 {
 	HldTabEntry entry;
 	if(locID == 0)
@@ -320,7 +320,7 @@ int SLAPI PredictSalesCore::SetWeekdayAsHoliday(PPID locID, int dayOfWeek /* 1..
 	return SetHldEntry(&entry, rmv);
 }
 
-int SLAPI PredictSalesCore::SetDayOfYearAsHoliday(PPID locID, int day, int month, int rmv)
+int PredictSalesCore::SetDayOfYearAsHoliday(PPID locID, int day, int month, int rmv)
 {
 	HldTabEntry entry;
 	if(locID == 0)
@@ -331,7 +331,7 @@ int SLAPI PredictSalesCore::SetDayOfYearAsHoliday(PPID locID, int day, int month
 	return SetHldEntry(&entry, rmv);
 }
 
-int SLAPI PredictSalesCore::IsHoliday(const ObjIdListFilt * pLocList, LDATE dt)
+int PredictSalesCore::IsHoliday(const ObjIdListFilt * pLocList, LDATE dt)
 {
 	int    r = 0;
 	if(P_HldTab && pLocList) {
@@ -367,7 +367,7 @@ int SLAPI PredictSalesCore::IsHoliday(const ObjIdListFilt * pLocList, LDATE dt)
 	return r;
 }
 
-int SLAPI PredictSalesCore::IsHoliday(PPID locID, LDATE dt) const
+int PredictSalesCore::IsHoliday(PPID locID, LDATE dt) const
 {
 	int    r = 0;
 	assert(locID != 0);
@@ -387,7 +387,7 @@ int SLAPI PredictSalesCore::IsHoliday(PPID locID, LDATE dt) const
 //   из одного элемента, а так же за счет некоторой оптимизации кода на исключении
 //   универсальности.
 //
-int SLAPI PredictSalesCore::IsHolidayByLocIdx(int16 locIdx, LDATE dt) const
+int PredictSalesCore::IsHolidayByLocIdx(int16 locIdx, LDATE dt) const
 {
 	int    r = 0;
 	assert(locIdx != 0);
@@ -436,14 +436,14 @@ int SLAPI PredictSalesCore::IsHolidayByLocIdx(int16 locIdx, LDATE dt) const
 	return r;
 }
 
-int SLAPI PredictSalesCore::ClearHolidays()
+int PredictSalesCore::ClearHolidays()
 {
 	ZDELETE(P_HldTab);
 	IsHldTabUpdated = 1;
 	return 1;
 }
 
-int SLAPI PredictSalesCore::WriteHolidays(int use_ta)
+int PredictSalesCore::WriteHolidays(int use_ta)
 {
 	int    ok = 1;
 	if(P_HldTab) {
@@ -467,7 +467,7 @@ int SLAPI PredictSalesCore::WriteHolidays(int use_ta)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::ReadHolidays()
+int PredictSalesCore::ReadHolidays()
 {
 	int    ok = 1;
 	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry))); // @v9.9.4 SArray-->SVector
@@ -489,7 +489,7 @@ int SLAPI PredictSalesCore::ReadHolidays()
 	return ok;
 }
 
-int SLAPI PredictSalesCore::AddLocEntry(PPID locID, int16 * pLocIdx)
+int PredictSalesCore::AddLocEntry(PPID locID, int16 * pLocIdx)
 {
 	int    result = 0;
 	PROFILE_START
@@ -515,7 +515,7 @@ int SLAPI PredictSalesCore::AddLocEntry(PPID locID, int16 * pLocIdx)
 	return result;
 }
 
-int SLAPI PredictSalesCore::WriteLocTab(int use_ta)
+int PredictSalesCore::WriteLocTab(int use_ta)
 {
 	int    ok = 1;
 	PredictSalesTbl::Key0 k0;
@@ -546,7 +546,7 @@ int SLAPI PredictSalesCore::WriteLocTab(int use_ta)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::ReadLocTab()
+int PredictSalesCore::ReadLocTab()
 {
 	int    ok = 1;
 	LocTab.clear();
@@ -619,7 +619,7 @@ int FASTCALL PredictSalesCore::ExpandDate(int16 sdt, LDATE * pDt)
 	return 1;
 }
 
-int SLAPI PredictSalesCore::Finish(int locTabOnly, int use_ta)
+int PredictSalesCore::Finish(int locTabOnly, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -640,19 +640,19 @@ int SLAPI PredictSalesCore::Finish(int locTabOnly, int use_ta)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::SetValue(PPID locID, PPID goodsID, LDATE dt, double qtty, double amount)
+int PredictSalesCore::SetValue(PPID locID, PPID goodsID, LDATE dt, double qtty, double amount)
 {
 	long   f = (qtty == 0) ? PRSALF_ZERO : 0;
 	return AddItem(PSRECTYPE_DAY, locID, goodsID, dt, qtty, amount, f);
 }
 
-int SLAPI PredictSalesCore::Remove(const PredictSalesTbl::Rec * pRec)
+int PredictSalesCore::Remove(const PredictSalesTbl::Rec * pRec)
 {
 	return deleteFrom(this, 0, this->RType == (long)pRec->RType && this->Loc == (long)pRec->Loc &&
 		this->GoodsID == (long)pRec->GoodsID && this->Dt == (long)pRec->Dt) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI PredictSalesCore::AddItem(long typ, PPID locID, PPID goodsID, LDATE dt, double qtty, double amount, long f)
+int PredictSalesCore::AddItem(long typ, PPID locID, PPID goodsID, LDATE dt, double qtty, double amount, long f)
 {
 	int    ok = 1;
 	int16  loc_idx = 0;
@@ -683,7 +683,7 @@ int SLAPI PredictSalesCore::AddItem(long typ, PPID locID, PPID goodsID, LDATE dt
 	return ok;
 }
 
-void * SLAPI PredictSalesCore::SetKey(PredictSalesTbl::Key0 * pKey, int typ, PPID locID, PPID goodsID, LDATE dt)
+void * PredictSalesCore::SetKey(PredictSalesTbl::Key0 * pKey, int typ, PPID locID, PPID goodsID, LDATE dt)
 {
 	if(pKey) {
 		memzero(pKey, sizeof(*pKey));
@@ -695,13 +695,13 @@ void * SLAPI PredictSalesCore::SetKey(PredictSalesTbl::Key0 * pKey, int typ, PPI
 	return pKey;
 }
 
-int SLAPI PredictSalesCore::SearchItem(int typ, PPID locID, PPID goodsID, LDATE dt, void * pRec)
+int PredictSalesCore::SearchItem(int typ, PPID locID, PPID goodsID, LDATE dt, void * pRec)
 {
 	PredictSalesTbl::Key0 k;
 	return SearchByKey(this, 0, SetKey(&k, typ, locID, goodsID, dt), pRec);
 }
 
-int SLAPI PredictSalesCore::RemovePeriod(PPID locID, PPID goodsID, const DateRange * pPeriod, int use_ta)
+int PredictSalesCore::RemovePeriod(PPID locID, PPID goodsID, const DateRange * pPeriod, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -746,7 +746,7 @@ int SLAPI PredictSalesCore::RemovePeriod(PPID locID, PPID goodsID, const DateRan
 	return ok;
 }
 
-int SLAPI PredictSalesCore::GetFirstDate(PPID locID, PPID goodsID, LDATE * pDt)
+int PredictSalesCore::GetFirstDate(PPID locID, PPID goodsID, LDATE * pDt)
 {
 	int    ok = -1;
 	int16  loc_idx = 0;
@@ -762,7 +762,7 @@ int SLAPI PredictSalesCore::GetFirstDate(PPID locID, PPID goodsID, LDATE * pDt)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::GetPeriod(const ObjIdListFilt * pLocList, PPID goodsID, DateRange * pPeriod)
+int PredictSalesCore::GetPeriod(const ObjIdListFilt * pLocList, PPID goodsID, DateRange * pPeriod)
 {
 	DateRange p;
 	PPIDArray loc_list;
@@ -793,7 +793,7 @@ int SLAPI PredictSalesCore::GetPeriod(const ObjIdListFilt * pLocList, PPID goods
 	return (p.low && p.upp) ? 1 : -1;
 }
 
-int SLAPI PredictSalesCore::GetPeriod(const ObjIdListFilt * pLocList, const PPIDArray * pGoodsList, DateRange * pPeriod)
+int PredictSalesCore::GetPeriod(const ObjIdListFilt * pLocList, const PPIDArray * pGoodsList, DateRange * pPeriod)
 {
 	int    ok = -1;
 	DateRange period;
@@ -811,7 +811,7 @@ int SLAPI PredictSalesCore::GetPeriod(const ObjIdListFilt * pLocList, const PPID
 	return ok;
 }
 
-int SLAPI PredictSalesCore::GetTblUpdateDt(LDATE * pDt)
+int PredictSalesCore::GetTblUpdateDt(LDATE * pDt)
 {
 	int    ok = 1;
 	LDATE  dt = ZERODATE;
@@ -826,7 +826,7 @@ int SLAPI PredictSalesCore::GetTblUpdateDt(LDATE * pDt)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::SetTblUpdateDt(LDATE dt)
+int PredictSalesCore::SetTblUpdateDt(LDATE dt)
 {
 	int    ok = 1;
 	PredictSalesTbl::Key0 k0;
@@ -842,7 +842,7 @@ int SLAPI PredictSalesCore::SetTblUpdateDt(LDATE dt)
 	return ok;
 }
 
-int SLAPI PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr)
+int PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr)
 {
 	int16  loc_idx = 0;
 	int16  low = 0, upp = MAXSHORT;
@@ -884,7 +884,7 @@ int SLAPI PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID, const Dat
 	return 1;
 }
 
-int SLAPI PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr)
+int PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr)
 {
 	if(rLocList.GetCount() == 1) {
 		return Helper_Enumerate(goodsID, rLocList.Get().get(0), pPeriod, maxItems, proc, extraPtr);
@@ -926,7 +926,7 @@ static int FASTCALL EnumProc_GetStat(PredictSalesItem * pItem, void * extraPtr)
 	return 1;
 }
 
-int SLAPI PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, PredictSalesStat * pStat)
+int PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocList, const DateRange * pPeriod, int maxItems, PredictSalesStat * pStat)
 {
 	int    lsslin = BIN(pStat->Flags & PSSF_USELSSLIN);
 	pStat->Init();
@@ -941,15 +941,15 @@ int SLAPI PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocLis
 //
 //
 //
-SLAPI PredictSalesItem::PredictSalesItem() : Dt(ZERODATE), Qtty(0.0), Amount(0.0)
+PredictSalesItem::PredictSalesItem() : Dt(ZERODATE), Qtty(0.0), Amount(0.0)
 {
 }
 
-SLAPI PsiArray::PsiArray() : TSVector <PredictSalesItem>() // @v9.8.4 TSArray-->TSVector
+PsiArray::PsiArray() : TSVector <PredictSalesItem>() // @v9.8.4 TSArray-->TSVector
 {
 }
 
-int SLAPI PsiArray::Add(const PredictSalesItem * pItem)
+int PsiArray::Add(const PredictSalesItem * pItem)
 {
 	uint   pos = 0;
 	if(bsearch(&pItem->Dt, &pos, CMPF_LONG)) {
@@ -962,7 +962,7 @@ int SLAPI PsiArray::Add(const PredictSalesItem * pItem)
 		return ordInsert(pItem, 0, CMPF_LONG) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PsiArray::ShrinkByCycleList(const PPCycleArray * pCycleList, PsiArray * pList) const
+int PsiArray::ShrinkByCycleList(const PPCycleArray * pCycleList, PsiArray * pList) const
 {
 	PredictSalesItem * p_item;
 	pList->freeAll();
@@ -982,7 +982,7 @@ static int FASTCALL EnumProc_GetStatByGrp(PredictSalesItem * pItem, void * extra
 	return extraPtr ? static_cast<PsiArray *>(extraPtr)->Add(pItem) : -1;
 }
 
-int SLAPI PredictSalesCore::GetSeries(const PPIDArray & rGoodsIDList, const ObjIdListFilt & rLocList, const DateRange * pPeriod, PsiArray * pList)
+int PredictSalesCore::GetSeries(const PPIDArray & rGoodsIDList, const ObjIdListFilt & rLocList, const DateRange * pPeriod, PsiArray * pList)
 {
 	if(pList)
 		for(uint i = 0; i < rGoodsIDList.getCount(); i++)
@@ -990,7 +990,7 @@ int SLAPI PredictSalesCore::GetSeries(const PPIDArray & rGoodsIDList, const ObjI
 	return 1;
 }
 
-int SLAPI PredictSalesCore::CalcStat(const PPIDArray & rGoodsIdList, ObjIdListFilt locList, const DateRange * pPeriod, PredictSalesStat * pStat)
+int PredictSalesCore::CalcStat(const PPIDArray & rGoodsIdList, ObjIdListFilt locList, const DateRange * pPeriod, PredictSalesStat * pStat)
 {
 	int    ok = 1;
 	pStat->Init();
@@ -1003,7 +1003,7 @@ int SLAPI PredictSalesCore::CalcStat(const PPIDArray & rGoodsIdList, ObjIdListFi
 	return ok;
 }
 
-int SLAPI PredictSalesCore::SearchStat(PPID goodsID, PPID locID, GoodsStatTbl::Rec * pRec)
+int PredictSalesCore::SearchStat(PPID goodsID, PPID locID, GoodsStatTbl::Rec * pRec)
 {
 	int    ok = -1;
 	GoodsStatTbl::Key0 k0;
@@ -1012,7 +1012,7 @@ int SLAPI PredictSalesCore::SearchStat(PPID goodsID, PPID locID, GoodsStatTbl::R
 	return SearchByKey(&StT, 0, &k0, pRec);
 }
 
-int SLAPI PredictSalesCore::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rLocList, LDATE * pLastDate)
+int PredictSalesCore::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rLocList, LDATE * pLastDate)
 {
 	int    ok = -1;
 	LDATE  last_date = MAXDATE;
@@ -1056,7 +1056,7 @@ int SLAPI PredictSalesCore::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rL
 	return ok;
 }
 
-int SLAPI PredictSalesCore::SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, GoodsStatTbl::Rec * pRec)
+int PredictSalesCore::SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, GoodsStatTbl::Rec * pRec)
 {
 	int    ok = -1;
 	GoodsStatTbl::Rec rec, temp_rec;
@@ -1102,7 +1102,7 @@ int SLAPI PredictSalesCore::SearchStat(PPID goodsID, const ObjIdListFilt & rLocL
 	return ok;
 }
 
-int SLAPI PredictSalesCore::GetStat(PPID goodsID, const ObjIdListFilt & rLocList, PredictSalesStat * pStat)
+int PredictSalesCore::GetStat(PPID goodsID, const ObjIdListFilt & rLocList, PredictSalesStat * pStat)
 {
 	int    ok = 1;
 	GoodsStatTbl::Rec rec;
@@ -1119,7 +1119,7 @@ int SLAPI PredictSalesCore::GetStat(PPID goodsID, const ObjIdListFilt & rLocList
 	return ok;
 }
 
-int SLAPI PredictSalesCore::ClearAll()
+int PredictSalesCore::ClearAll()
 {
 	int    ok = 1;
 	DbProvider * p_dict = CurDict;
@@ -1135,7 +1135,7 @@ int SLAPI PredictSalesCore::ClearAll()
 	return ok;
 }
 
-int SLAPI PredictSalesCore::ClearByPeriod(DateRange period, PPID gGrpID, int use_ta)
+int PredictSalesCore::ClearByPeriod(DateRange period, PPID gGrpID, int use_ta)
 {
 	int    ok = -1;
 	if(!period.IsZero()) {

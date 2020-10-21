@@ -22,18 +22,16 @@
 extern "C" {
 #endif
 
-/* This can be enabled through the configure --enable-relocatable option.  */
-#if ENABLE_RELOCATABLE
+#if ENABLE_RELOCATABLE /* This can be enabled through the configure --enable-relocatable option.  */
 
 /* When building a DLL, we must export some functions.  Note that because
-   this is a private .h file, we don't need to use __declspec(dllimport)
-   in any case.  */
+   this is a private .h file, we don't need to use __declspec(dllimport) in any case.  */
 #if HAVE_VISIBILITY && BUILDING_DLL
-#define RELOCATABLE_DLL_EXPORTED __attribute__((__visibility__("default")))
+	#define RELOCATABLE_DLL_EXPORTED __attribute__((__visibility__("default")))
 #elif defined _MSC_VER && BUILDING_DLL
-#define RELOCATABLE_DLL_EXPORTED __declspec(dllexport)
+	#define RELOCATABLE_DLL_EXPORTED __declspec(dllexport)
 #else
-#define RELOCATABLE_DLL_EXPORTED
+	#define RELOCATABLE_DLL_EXPORTED
 #endif
 
 /* Sets the original and the current installation prefix of the package.
@@ -79,15 +77,11 @@ extern const char * relocate2(const char * pathname, char ** allocatedp);
    file, and the current pathname of this file.
    Returns it, freshly allocated.  Returns NULL upon failure.  */
 extern char * compute_curr_prefix(const char * orig_installprefix, const char * orig_installdir, const char * curr_pathname);
-
 #else
-
-/* By default, we use the hardwired pathnames.  */
-#define relocate(pathname) (pathname)
-#define relocate2(pathname, allocatedp) (*(allocatedp) = NULL, (pathname))
-
+	/* By default, we use the hardwired pathnames.  */
+	#define relocate(pathname) (pathname)
+	#define relocate2(pathname, allocatedp) (*(allocatedp) = NULL, (pathname))
 #endif
-
 #ifdef __cplusplus
 }
 #endif

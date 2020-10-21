@@ -1670,7 +1670,7 @@ char * FASTCALL strupr866(char * str)
 	return src;
 	}
 
-	int SLAPI rus_tbl_cvt(int chr, int srcTbl, int destTbl)
+	int rus_tbl_cvt(int chr, int srcTbl, int destTbl)
 	{
 	#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
 		if(srcTbl == cp866 && destTbl == cp1251) {
@@ -1693,7 +1693,7 @@ char * FASTCALL strupr866(char * str)
 		return chr;
 	}
 
-	char * SLAPI rus_tbl_strcvt(char * str, int srcTbl, int destTbl)
+	char * rus_tbl_strcvt(char * str, int srcTbl, int destTbl)
 	{
 		if(srcTbl == cp866 && destTbl == cp1251)
 			return _s_866_to_1251(str);
@@ -1706,7 +1706,7 @@ char * FASTCALL strupr866(char * str)
 	/*
 		al - source character
 	*/
-	uchar SLAPI __866_to_1251()
+	uchar __866_to_1251()
 	{
 	#ifndef _WIN32_WCE // @v5.0.4 AHTOXA
 	__asm	cmp al, 80h
@@ -1736,7 +1736,7 @@ char * FASTCALL strupr866(char * str)
 	/*
 		al - source character
 	*/
-	uchar SLAPI __1251_to_866()
+	uchar __1251_to_866()
 	{
 	#ifndef _WIN32_WCE // @v5.0.4
 	__asm	cmp al, 0c0h
@@ -2181,7 +2181,7 @@ char * FASTCALL newStr(const char * s)
 		return 0;
 }
 
-/* @v9.9.5 (unused) char * SLAPI wstrcpy(char * pDest, char * pSrc, size_t maxlen)
+/* @v9.9.5 (unused) char * wstrcpy(char * pDest, char * pSrc, size_t maxlen)
 {
 	char * c = (char *)memchr(pSrc, ' ', maxlen);
 	ASSIGN_PTR(c, 0);
@@ -2308,7 +2308,7 @@ char * FASTCALL chomp(char * s)
 	return s;
 }
 
-/* @v10.0.0 const char * SLAPI skipws(const char * pStr, size_t * pPos)
+/* @v10.0.0 const char * skipws(const char * pStr, size_t * pPos)
 {
 	if(pStr) {
 		size_t pos = DEREFPTRORZ(pPos);
@@ -2338,7 +2338,7 @@ char * FASTCALL chomp(char * s)
 #endif
 } */
 
-/* @v9.4.10 (unused) char * SLAPI quotstr(char * pS, int leftQuotChr, int rightQuotChr)
+/* @v9.4.10 (unused) char * quotstr(char * pS, int leftQuotChr, int rightQuotChr)
 {
 	if(pS) {
 		size_t n = strlen(pS);
@@ -2350,7 +2350,7 @@ char * FASTCALL chomp(char * s)
 	return pS;
 }*/
 
-/* @v9.4.10 (unused) char * SLAPI catdiv(char * pStr, int div, int addSpaces)
+/* @v9.4.10 (unused) char * catdiv(char * pStr, int div, int addSpaces)
 {
 	if(addSpaces)
 		*pStr++ = ' ';
@@ -2378,7 +2378,7 @@ char * FASTCALL padright(char * pStr, char pad, size_t n)
 	return pStr;
 }
 
-char * SLAPI alignstr(char * pStr, size_t wd, int adj)
+char * alignstr(char * pStr, size_t wd, int adj)
 {
 	if(pStr) {
 		size_t len = implement_sstrlen(strip(pStr));
@@ -2399,7 +2399,7 @@ char * SLAPI alignstr(char * pStr, size_t wd, int adj)
 }
 
 #if 0 // @v9.5.1 {
-int SLAPI getTextHight(char * str, int width)
+int getTextHight(char * str, int width)
 {
 	char   ch = *str;
 	int    y, i, pi;
@@ -2421,7 +2421,7 @@ static int FASTCALL iswordchar(int ch, const char * /*pWordChars*/)
 	return (ch && (isalnum(ch) || ch == '_' || IsLetter866(ch)));
 }
 
-int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen)
+int searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen)
 {
 	size_t pos = DEREFPTRORZ(pBeg);
 	const  char * s = pStr + pos;
@@ -2456,7 +2456,7 @@ int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg,
 	return 0;
 }
 
-int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
+int hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 {
 	int    digit = -1, base = 0;
 	uint   prcsd_symbs = 0;
@@ -2526,7 +2526,7 @@ int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 
 #pragma warn -par
 
-int SLAPI replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen, uint maxlen)
+int replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen, uint maxlen)
 {
 	if(str && pPos && pLen) {
 		size_t p = *pPos;
@@ -2778,7 +2778,7 @@ private:
 	int    S2;
 };
 
-SLAPI ApproxStrSrchParam::ApproxStrSrchParam() : umin(0.0), weight(0.0), method(0), no_case(0), maxscore(0.0), maxpos(0)
+ApproxStrSrchParam::ApproxStrSrchParam() : umin(0.0), weight(0.0), method(0), no_case(0), maxscore(0.0), maxpos(0)
 {
 }
 
@@ -2905,7 +2905,7 @@ double FASTCALL ApproxStrComparator::Next(const char * b2)
 	return result;
 }
 
-int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore)
+int ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore)
 {
 	ApproxStrSrchParam param;
 	// @v10.6.5 @ctr MEMSZERO(param);
@@ -2917,7 +2917,7 @@ int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, doubl
 	return (s == 1.0) ? 1 : -1;
 }
 
-int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam * param)
+int ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam * param)
 {
 	int    ok = 1;
 	size_t buflen = implement_sstrlen(pBuffer);
@@ -3110,12 +3110,12 @@ SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen)
 //
 //
 //
-SLAPI STextEncodingStat::STextEncodingStat(long options) : P_UcdHandle(0)
+STextEncodingStat::STextEncodingStat(long options) : P_UcdHandle(0)
 {
 	Init(options);
 }
 
-SLAPI STextEncodingStat::~STextEncodingStat()
+STextEncodingStat::~STextEncodingStat()
 {
 	if(P_UcdHandle) {
 		uchardet_delete(static_cast<uchardet_t>(P_UcdHandle));
@@ -3123,7 +3123,7 @@ SLAPI STextEncodingStat::~STextEncodingStat()
 	}
 }
 
-STextEncodingStat & SLAPI STextEncodingStat::Init(long options)
+STextEncodingStat & STextEncodingStat::Init(long options)
 {
 	Flags = fEmpty;
 	if(options & fUseUCharDet)
@@ -3151,7 +3151,7 @@ STextEncodingStat & SLAPI STextEncodingStat::Init(long options)
 	return *this;
 }
 
-int SLAPI STextEncodingStat::Add(const void * pData, size_t size)
+int STextEncodingStat::Add(const void * pData, size_t size)
 {
 	int    ok = 1;
 	if(size && pData) {
@@ -3229,7 +3229,7 @@ int SLAPI STextEncodingStat::Add(const void * pData, size_t size)
 	return ok;
 }
 
-int SLAPI STextEncodingStat::Finish()
+int STextEncodingStat::Finish()
 {
 	if(P_UcdHandle) {
 		uchardet_data_end(static_cast<uchardet_t>(P_UcdHandle));
@@ -3242,7 +3242,7 @@ int SLAPI STextEncodingStat::Finish()
 	return 1;
 }
 
-SCodepageIdent SLAPI STextEncodingStat::GetAutodetectedCp() const
+SCodepageIdent STextEncodingStat::GetAutodetectedCp() const
 {
 	SCodepageIdent cp = cpUndef;
 	const char * p_cp_name = GetCpName();

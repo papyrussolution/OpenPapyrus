@@ -12,11 +12,11 @@ long AverageEventTimePrcssr::Item::GetAverage() const
 	return Count ? diffdatetimesec(LastEv, FirstEv) / Count : 0;
 }
 
-SLAPI AverageEventTimePrcssr::AverageEventTimePrcssr()
+AverageEventTimePrcssr::AverageEventTimePrcssr()
 {
 }
 
-int SLAPI AverageEventTimePrcssr::Add(long id1, long id2, LDATE dt, LTIME tm)
+int AverageEventTimePrcssr::Add(long id1, long id2, LDATE dt, LTIME tm)
 {
 	uint   pos = 0;
 	LAssoc srch_ids(id1, id2);
@@ -40,7 +40,7 @@ int SLAPI AverageEventTimePrcssr::Add(long id1, long id2, LDATE dt, LTIME tm)
 	return 1;
 }
 
-int SLAPI AverageEventTimePrcssr::Enum(uint * pPos, Item ** pItem)
+int AverageEventTimePrcssr::Enum(uint * pPos, Item ** pItem)
 {
 	return List.enumItems(pPos, (void **)pItem);
 }
@@ -63,7 +63,7 @@ PersonEventViewItem & PersonEventViewItem::Z()
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(PersonEvent); SLAPI PersonEventFilt::PersonEventFilt() : PPBaseFilt(PPFILT_PERSONEVENT, 0, 2)
+IMPLEMENT_PPFILT_FACTORY(PersonEvent); PersonEventFilt::PersonEventFilt() : PPBaseFilt(PPFILT_PERSONEVENT, 0, 2)
 {
 	SetFlatChunk(offsetof(PersonEventFilt, ReserveStart),
 		offsetof(PersonEventFilt, PsnOpList) - offsetof(PersonEventFilt, ReserveStart));
@@ -73,17 +73,17 @@ IMPLEMENT_PPFILT_FACTORY(PersonEvent); SLAPI PersonEventFilt::PersonEventFilt() 
 //
 //
 //
-SLAPI PPViewPersonEvent::PPViewPersonEvent() : PPView(&PsnEvObj, &Filt, PPVIEW_PERSONEVENT), P_TempGrpTbl(0), P_TempTbl(0)
+PPViewPersonEvent::PPViewPersonEvent() : PPView(&PsnEvObj, &Filt, PPVIEW_PERSONEVENT, 0, 0), P_TempGrpTbl(0), P_TempTbl(0)
 {
 }
 
-SLAPI PPViewPersonEvent::~PPViewPersonEvent()
+PPViewPersonEvent::~PPViewPersonEvent()
 {
 	delete P_TempGrpTbl;
 	delete P_TempTbl;
 }
 
-int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
+int PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class PersonEventFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(PersonEventFilt);
@@ -153,7 +153,7 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 PP_CREATE_TEMP_FILE_PROC(CreateTempGrpFile, TempPersonEvent);
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile_, PersonEvent);
 
-int SLAPI PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
+int PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, filt_saved = 0;
 	PersonEventFilt save_filt;
@@ -259,7 +259,7 @@ int SLAPI PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::InitIteration()
+int PPViewPersonEvent::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1;
@@ -371,7 +371,7 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 	return -1;
 }
 
-DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	PersonEventTbl * pe = 0;
@@ -483,7 +483,7 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 	return q;
 }
 
-void * SLAPI PPViewPersonEvent::GetEditExtraParam() { return reinterpret_cast<void *>(Filt.PrmrID); }
+void * PPViewPersonEvent::GetEditExtraParam() { return reinterpret_cast<void *>(Filt.PrmrID); }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
@@ -496,7 +496,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+int PPViewPersonEvent::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle && !P_TempGrpTbl) {
@@ -516,7 +516,7 @@ int SLAPI PPViewPersonEvent::CellStyleFunc_(const void * pData, long col, int pa
 	return ok;
 }
 
-void SLAPI PPViewPersonEvent::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewPersonEvent::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(!P_TempGrpTbl && !P_TempTbl)
@@ -542,7 +542,7 @@ void SLAPI PPViewPersonEvent::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewPersonEvent::Transmit(PPID /*id*/)
+int PPViewPersonEvent::Transmit(PPID /*id*/)
 {
 	int    ok = -1;
 	ObjTransmitParam param;
@@ -561,7 +561,7 @@ int SLAPI PPViewPersonEvent::Transmit(PPID /*id*/)
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::ChangeFlags(long action)
+int PPViewPersonEvent::ChangeFlags(long action)
 {
 	int    ok = -1;
 	if(action == 1) {
@@ -588,7 +588,7 @@ int SLAPI PPViewPersonEvent::ChangeFlags(long action)
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+int PPViewPersonEvent::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	int    ok = -1, update = 0;
 	if(pEv) {
@@ -607,7 +607,7 @@ int SLAPI PPViewPersonEvent::HandleNotifyEvent(int kind, const PPNotifyEvent * p
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPersonEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(ppvCmd == PPVCMD_EDITITEM && (Filt.Sgpe || Filt.Sgd)) {
@@ -637,7 +637,7 @@ int SLAPI PPViewPersonEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewPersonEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(Filt.Sgpe != sgpeNone || Filt.Sgd != sgdNone) {
@@ -680,7 +680,7 @@ int SLAPI PPViewPersonEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::ViewTotal()
+int PPViewPersonEvent::ViewTotal()
 {
 	int    ok = 1;
 	TDialog * p_dlg = new TDialog(DLG_PSNEVTTOTAL);
@@ -695,7 +695,7 @@ int SLAPI PPViewPersonEvent::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::Print(const void *)
+int PPViewPersonEvent::Print(const void *)
 {
 	uint   rpt_id = 0;
 	if(Filt.Sgpe != sgpeNone && Filt.Sgd != sgdNone)

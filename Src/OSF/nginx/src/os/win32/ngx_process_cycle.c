@@ -639,7 +639,7 @@ static ngx_thread_value_t __stdcall ngx_cache_loader_thread(void * data)
 	return 0;
 }
 
-int SLAPI RunNginxWorker(); // @prototype
+int RunNginxWorker(); // @prototype
 
 int ngx_single_process_cycle(ngx_cycle_t * cycle)
 {

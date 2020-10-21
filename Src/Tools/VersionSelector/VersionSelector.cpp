@@ -76,7 +76,7 @@ public:
 		Dlg = ::GetParent(List);
 		Label = ::GetDlgItem(Dlg, IDC_STATIC);
 	}
-	virtual int SLAPI CallbackProc(const char* pPath, SDirEntry* pEntry);
+	virtual int CallbackProc(const char* pPath, SDirEntry* pEntry);
 private:
 	HWND List;
 	HWND Dlg;
@@ -99,7 +99,7 @@ static int GetVersBuf(const char * pPath, char * pBuf, size_t bufSize)
 	return ok;
 }
 
-int SLAPI FindVers::CallbackProc(const char* pPath, SDirEntry * pEntry)
+int FindVers::CallbackProc(const char* pPath, SDirEntry * pEntry)
 {
 	MSG    msg;
 	char   buf[MAX_PATH + 30];

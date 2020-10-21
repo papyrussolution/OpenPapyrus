@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(GoodsMov); SLAPI GoodsMovFilt::GoodsMovFilt() : PPBaseFilt(PPFILT_GOODSMOV, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(GoodsMov); GoodsMovFilt::GoodsMovFilt() : PPBaseFilt(PPFILT_GOODSMOV, 0, 1)
 {
 	SetFlatChunk(offsetof(GoodsMovFilt, ReserveStart), offsetof(GoodsMovFilt, LocList) - offsetof(GoodsMovFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(GoodsMovFilt, LocList));
@@ -19,22 +19,22 @@ GoodsMovFilt & FASTCALL GoodsMovFilt::operator = (const GoodsMovFilt & s)
 //
 //
 //
-SLAPI GoodsMovTotal::GoodsMovTotal()
+GoodsMovTotal::GoodsMovTotal()
 {
 	Init();
 }
 
-void SLAPI GoodsMovTotal::Init()
+void GoodsMovTotal::Init()
 {
 	THISZERO();
 }
 
-int SLAPI GoodsMovTotal::IsEmpty() const
+int GoodsMovTotal::IsEmpty() const
 {
 	return !(InRestQtty || InRestPhQtty || InRestCost || InRestPrice || OutRestQtty || OutRestPhQtty || OutRestCost || OutRestPrice);
 }
 
-int SLAPI GoodsMovTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int GoodsMovTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, InRestQtty,    rBuf));
@@ -51,13 +51,12 @@ int SLAPI GoodsMovTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 //
 // @ModuleDecl(PPViewGoodsMov)
 //
-SLAPI PPViewGoodsMov::PPViewGoodsMov() : PPView(0, &Filt, PPVIEW_GOODSMOV), P_BObj(BillObj), P_TempTbl(0), P_GGIter(0), PrintWoPacks(0)
+PPViewGoodsMov::PPViewGoodsMov() : 
+	PPView(0, &Filt, PPVIEW_GOODSMOV, implUseServer, REPORT_GOODSMOV), P_BObj(BillObj), P_TempTbl(0), P_GGIter(0), PrintWoPacks(0)
 {
-	ImplementFlags |= implUseServer;
-	DefReportId = REPORT_GOODSMOV;
 }
 
-SLAPI PPViewGoodsMov::~PPViewGoodsMov()
+PPViewGoodsMov::~PPViewGoodsMov()
 {
 	delete P_GGIter;
 	delete P_TempTbl;
@@ -156,7 +155,7 @@ int GoodsMovFiltDialog::getDTS(GoodsMovFilt * pData)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewGoodsMov::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int PPViewGoodsMov::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
 }
@@ -164,7 +163,7 @@ int GoodsMovFiltDialog::getDTS(GoodsMovFilt * pData)
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsMov);
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile2, TempGoodsMov2);
 
-int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
+int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	int    is_link = 0;
@@ -362,7 +361,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov::InitIterQuery(PPID grpID)
+int PPViewGoodsMov::InitIterQuery(PPID grpID)
 {
 	// @v10.6.8 char   k_[MAXKEYLEN];
 	BtrDbKey k__; // @v10.6.8 
@@ -389,14 +388,14 @@ int SLAPI PPViewGoodsMov::InitIterQuery(PPID grpID)
 	return 1;
 }
 
-int SLAPI PPViewGoodsMov::InitGroupNamesList()
+int PPViewGoodsMov::InitGroupNamesList()
 {
 	IterGrpName = 0;
 	P_GGIter = new GoodsGroupIterator((PPObjGoodsGroup::IsAlt(Filt.GoodsGrpID) > 0) ? 0 : Filt.GoodsGrpID);
 	return P_GGIter ? 1 : PPSetErrorNoMem();
 }
 
-int SLAPI PPViewGoodsMov::InitIteration(IterOrder ord)
+int PPViewGoodsMov::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 
@@ -431,7 +430,7 @@ int SLAPI PPViewGoodsMov::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov::NextOuterIteration()
+int PPViewGoodsMov::NextOuterIteration()
 {
 	PPID   grp_id = 0;
 	if(P_GGIter && P_GGIter->Next(&grp_id, IterGrpName) > 0) {
@@ -442,7 +441,7 @@ int SLAPI PPViewGoodsMov::NextOuterIteration()
 		return -1;
 }
 
-double SLAPI PPViewGoodsMov::GetUnitsPerPack(PPID goodsID)
+double PPViewGoodsMov::GetUnitsPerPack(PPID goodsID)
 {
 	double pack = 0.0;
 	ReceiptCore & rcpt = P_BObj->trfr->Rcpt;
@@ -509,14 +508,14 @@ int FASTCALL PPViewGoodsMov::NextIteration(GoodsMovViewItem * pItem)
 	return -1;
 }
 
-int SLAPI PPViewGoodsMov::GetIterationCount(long * pNumIterations, long * pLastCount)
+int PPViewGoodsMov::GetIterationCount(long * pNumIterations, long * pLastCount)
 {
 	ASSIGN_PTR(pNumIterations, NumIters);
 	ASSIGN_PTR(pLastCount, IterCount);
 	return 1;
 }
 
-int SLAPI PPViewGoodsMov::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsMov::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	PPID   goods_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -534,7 +533,7 @@ int SLAPI PPViewGoodsMov::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov::EditGoods(PPID goodsID)
+int PPViewGoodsMov::EditGoods(PPID goodsID)
 {
 	int    ok = -1;
 	if(goodsID > 0) {
@@ -547,7 +546,7 @@ int SLAPI PPViewGoodsMov::EditGoods(PPID goodsID)
 	return ok;
 }
 
-/*virtual*/int SLAPI PPViewGoodsMov::Print(const void *)
+/*virtual*/int PPViewGoodsMov::Print(const void *)
 {
 	class PrintGoodsMovDialog : public TDialog {
 	public:
@@ -616,12 +615,12 @@ int SLAPI PPViewGoodsMov::EditGoods(PPID goodsID)
 	return ok;
 }
 
-void SLAPI PPViewGoodsMov::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewGoodsMov::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetTempGoodsGrp(Filt.GoodsGrpID));
 }
 
-DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * p_q = 0;
 	SString loc_names, subtitle;
@@ -658,7 +657,7 @@ DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return p_q;
 }
 
-/*virtual*/int SLAPI PPViewGoodsMov::ViewTotal()
+/*virtual*/int PPViewGoodsMov::ViewTotal()
 {
 	int    ok = 1;
 	TDialog * p_dlg = 0;
@@ -677,7 +676,7 @@ DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewGoodsMov::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -699,7 +698,7 @@ int SLAPI PPViewGoodsMov::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int PPViewGoodsMov::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int  ok = 1;
 	THROW(PPView::SerializeState(dir, rBuf, pCtx));

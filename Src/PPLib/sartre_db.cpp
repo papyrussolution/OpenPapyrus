@@ -1164,7 +1164,7 @@ IMPL_CMPCFUNC(PPOsm_Node_ByWay, p1, p2)
     return CMPSIGN(pos1, pos2);
 }
 
-int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList) // @v9.8.6 TSArray-->TSVector
+int SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList) // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	const  uint _c = rWay.NodeRefs.getCount();
@@ -1212,12 +1212,12 @@ int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::No
     return ok;
 }
 
-int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
+int SrGeoNodeTbl::Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
 	{ return Helper_Search(id, 0, pNode, pNrList, pLogicalID); }
-int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID)
+int SrGeoNodeTbl::Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID)
 	{ return Helper_Search(id, pCluster, 0, 0, pLogicalID); }
 
-int SLAPI SrGeoNodeTbl::Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
+int SrGeoNodeTbl::Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
 {
 /*
 LogicalCount=  1; ClusterCount=64512077; ActualCount=64512077; Size=838657001;
@@ -1294,7 +1294,7 @@ LogicalCount=  8; ClusterCount= 2389896; ActualCount=17049582; Size=112131954;
 	return ok;
 }
 
-int SLAPI SrGeoNodeTbl::Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update)
+int SrGeoNodeTbl::Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update)
 {
 	int    ok = 1;
 	uint64 hid = 0;
@@ -1326,20 +1326,20 @@ int SLAPI SrGeoNodeTbl::Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int
 	return ok;
 }
 
-int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID) { return Helper_Set(rNc, outerID, 0); }
-int SLAPI SrGeoNodeTbl::Update(PPOsm::NodeCluster & rNc, uint64 outerID) { return Helper_Set(rNc, outerID, 1); }
+int SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID) { return Helper_Set(rNc, outerID, 0); }
+int SrGeoNodeTbl::Update(PPOsm::NodeCluster & rNc, uint64 outerID) { return Helper_Set(rNc, outerID, 1); }
 //
 //
 //
-SLAPI SrGeoWayTbl::SrGeoWayTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->way", 0, SKILOBYTE(2), 0), pDb)
+SrGeoWayTbl::SrGeoWayTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->way", 0, SKILOBYTE(2), 0), pDb)
 {
 }
 
-SLAPI SrGeoWayTbl::~SrGeoWayTbl()
+SrGeoWayTbl::~SrGeoWayTbl()
 {
 }
 
-int SLAPI SrGeoWayTbl::Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer)
+int SrGeoWayTbl::Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer)
 {
 	int    ok = 1;
 	{
@@ -1370,7 +1370,7 @@ int SLAPI SrGeoWayTbl::Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer)
 	return ok;
 }
 
-int SLAPI SrGeoWayTbl::Search(uint64 id, PPOsm::Way * pW)
+int SrGeoWayTbl::Search(uint64 id, PPOsm::Way * pW)
 {
 	int    ok = -1;
 	DataBuf.Alloc(12*1024);

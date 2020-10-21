@@ -9,6 +9,7 @@
 #include <error.h>
 #include <bitset.h>
 #include <bitsetv.h>
+#include <bitset/stats.h>
 #include <attribute.h>
 #include <verify.h>
 #include <xalloc.h>
@@ -25,6 +26,16 @@
 #include <quotearg.h>
 #include <timevar.h>
 #include <fstrcmp.h>
+#include <relocatable.h>
+#include <argmatch.h>
+#include <c-ctype.h>
+#include <vasnprintf.h>
+#include <xmemdup0.h>
+#include <intprops.h>
+#include <filename.h>
+#include <path-join.h>
+#include <closeout.h>
+#include <unicodeio.h>
 #include "glyphs.h"
 #include "uniqstr.h"
 #include "assoc.h"
@@ -64,3 +75,4 @@
 #include "InadequacyList.h"
 #include "AnnotationList.h"
 #include "parse-simulation.h"
+#include "scan-skel.h"

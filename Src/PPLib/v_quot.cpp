@@ -9,7 +9,7 @@
 //
 #define QUOT_BUF_SIZE    sizeof(static_cast<const TempQuotTbl::Rec *>(0)->Quot1)
 
-IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 5) 
+IMPLEMENT_PPFILT_FACTORY(Quot); QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 5) 
 	// @v6.2.6 ver 0-->1; @v6.4.2 ver 1-->2; @v7.3.5 2-->3 // @v10.1.2 3-->4 // @v10.1.3 4-->5
 {
 	// SetFlatChunk(offsetof(QuotFilt, InitOrder), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, InitOrder)+sizeof(Reserve));
@@ -19,17 +19,17 @@ IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_Q
 	Init(1, 0);
 }
 
-int SLAPI QuotFilt::IsSeries() const
+int QuotFilt::IsSeries() const
 {
 	return BIN(Flags & fSeries && GoodsID && QuotKindID);
 }
 
-int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 4) {
 		struct QuotFilt_v4 : public PPBaseFilt {
-			SLAPI  QuotFilt_v4() : PPBaseFilt(PPFILT_QUOT, 0, 4)
+			QuotFilt_v4() : PPBaseFilt(PPFILT_QUOT, 0, 4)
 			{
 				SetFlatChunk(offsetof(QuotFilt_v4, ReserveStart), offsetof(QuotFilt_v4, Reserve)-offsetof(QuotFilt_v4, ReserveStart)+sizeof(Reserve));
 				SetBranchObjIdListFilt(offsetof(QuotFilt_v4, LocList));
@@ -82,7 +82,7 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	}
 	if(ver == 3) {
 		struct QuotFilt_v3 : public PPBaseFilt {
-			SLAPI  QuotFilt_v3() : PPBaseFilt(PPFILT_QUOT, 0, 3)
+			QuotFilt_v3() : PPBaseFilt(PPFILT_QUOT, 0, 3)
 			{
 				SetFlatChunk(offsetof(QuotFilt_v3, InitOrder), offsetof(QuotFilt_v3, Reserve)-offsetof(QuotFilt_v3, InitOrder)+sizeof(Reserve));
 				SetBranchObjIdListFilt(offsetof(QuotFilt_v3, LocList));
@@ -132,7 +132,7 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	}
 	else if(ver == 2) {
 		struct QuotFilt_v2 : public PPBaseFilt {
-			SLAPI  QuotFilt_v2::QuotFilt_v2() : PPBaseFilt(PPFILT_QUOT, 0, 2)
+			QuotFilt_v2::QuotFilt_v2() : PPBaseFilt(PPFILT_QUOT, 0, 2)
 			{
 				SetFlatChunk(offsetof(QuotFilt_v2, ReserveStart),
 					offsetof(QuotFilt_v2, Reserve)-offsetof(QuotFilt_v2, ReserveStart)+sizeof(Reserve));
@@ -183,7 +183,7 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-SLAPI PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT), P_Qc(0), P_Qc2(0), P_BObj(BillObj), P_TempTbl(0), P_TempSerTbl(0), P_TempOrd(0),
+PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT, 0, 0), P_Qc(0), P_Qc2(0), P_BObj(BillObj), P_TempTbl(0), P_TempSerTbl(0), P_TempOrd(0),
 	P_GoodsSelDlg(0), FirstQuotBrwColumn(0), HasPeriodVal(0), Spc(PPObjQuotKind::Special::ctrInitializeWithCache)
 {
 	if(CConfig.Flags2 & CCFLG2_QUOT2)
@@ -192,7 +192,7 @@ SLAPI PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT), P_Qc(0), P_Qc2(0
 		P_Qc = new QuotationCore;
 }
 
-SLAPI PPViewQuot::~PPViewQuot()
+PPViewQuot::~PPViewQuot()
 {
 	ZDELETE(P_GoodsSelDlg);
 	ZDELETE(P_TempTbl);
@@ -202,7 +202,7 @@ SLAPI PPViewQuot::~PPViewQuot()
 	ZDELETE(P_Qc2);
 }
 
-const StrAssocArray & SLAPI PPViewQuot::GetQuotKindList() const { return QuotKindList; }
+const StrAssocArray & PPViewQuot::GetQuotKindList() const { return QuotKindList; }
 //
 //
 //
@@ -408,14 +408,14 @@ void QuotFiltDialog::SetupCtrls()
 	}
 }
 
-int SLAPI PPViewQuot::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewQuot::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
 	return PPDialogProcBody <QuotFiltDialog, QuotFilt> (static_cast<QuotFilt *>(pFilt));
 }
 
-SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos, SString & rBuf)
+SString & PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos, SString & rBuf)
 {
 	rBuf.Z();
 	if(pos < MAX_QUOTS_PER_TERM_REC) {
@@ -426,7 +426,7 @@ SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint po
 	return rBuf;
 }
 
-void SLAPI PPViewQuot::SetQuotTblBuf(TempQuotTbl::Rec * pRec, uint pos, const SString & rVal)
+void PPViewQuot::SetQuotTblBuf(TempQuotTbl::Rec * pRec, uint pos, const SString & rVal)
 {
 	if(pos < MAX_QUOTS_PER_TERM_REC) {
 		size_t offs = offsetof(TempQuotTbl::Rec, QuotP1);
@@ -435,22 +435,22 @@ void SLAPI PPViewQuot::SetQuotTblBuf(TempQuotTbl::Rec * pRec, uint pos, const SS
 	}
 }
 
-int SLAPI PPViewQuot::CreateCrosstab(int useTa)
+int PPViewQuot::CreateCrosstab(int useTa)
 {
 	PPWait(1);
 	class QuotCrosstab : public Crosstab {
 	public:
-		SLAPI  QuotCrosstab(PPViewQuot * pV) : Crosstab(), P_V(pV)
+		QuotCrosstab(PPViewQuot * pV) : Crosstab(), P_V(pV)
 		{
 		}
-		virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
+		virtual BrowserWindow * CreateBrowser(uint brwId, int dataOwner)
 		{
 			PPViewBrowser * p_brw = new PPViewBrowser(brwId, CreateBrowserQuery(), P_V, dataOwner);
 			SetupBrowserCtColumns(p_brw);
 			return p_brw;
 		}
 	private:
-		virtual void SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
+		virtual void GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 		{
 			if(pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) 
 				P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf);
@@ -507,12 +507,12 @@ int SLAPI PPViewQuot::CreateCrosstab(int useTa)
 	return ok;
 }
 
-const PPQuotItemArray * SLAPI PPViewQuot::GetQList() const { return &QList_; }
+const PPQuotItemArray * PPViewQuot::GetQList() const { return &QList_; }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempQuot);
 PP_CREATE_TEMP_FILE_PROC(CreateTempSerFile, TempQuotSerial);
 
-int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
+int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, use_ta = 1;
 	SString temp_buf, msg_buf;
@@ -703,7 +703,7 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewQuot::MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSrcRec, TempOrderTbl::Rec & rDestRec)
+int PPViewQuot::MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSrcRec, TempOrderTbl::Rec & rDestRec)
 {
 	static const char * p_fmt = "%04.0lf%030.8lf";
 	int    ok = 1;
@@ -731,7 +731,7 @@ int SLAPI PPViewQuot::MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSr
 	return ok;
 }
 
-int SLAPI PPViewQuot::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
+int PPViewQuot::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = 1;
 	TempOrderTbl * p_o = 0;
@@ -768,7 +768,7 @@ int SLAPI PPViewQuot::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 	return ok;
 }
 
-int SLAPI PPViewQuot::InitIteration()
+int PPViewQuot::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 1;
@@ -821,15 +821,15 @@ IMPL_CMPFUNC(VQuotEntry, i1, i2) { RET_CMPCASCADE3((const VQuotEntry *)i1, (cons
 
 class VQuotCache : public TSVector <VQuotEntry> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  VQuotCache() : TSVector <VQuotEntry>()
+	VQuotCache() : TSVector <VQuotEntry>()
 	{
 		MaxQuotPos = 0;
 		ValPool.add("$"); // zero index - is empty string
 	}
-	int    SLAPI Add(const TempQuotTbl::Rec *, uint quotPos);
-	// @v8.1.1 @unused int    SLAPI PrepareForWriting();
-	int    SLAPI GetRec(uint i, TempQuotTbl::Rec * pRec) const;
-	void   SLAPI Clear();
+	int    Add(const TempQuotTbl::Rec *, uint quotPos);
+	// @v8.1.1 @unused int    PrepareForWriting();
+	int    GetRec(uint i, TempQuotTbl::Rec * pRec) const;
+	void   Clear();
 private:
 	uint   MaxQuotPos;
 	PPObjGoods   GObj;
@@ -837,7 +837,7 @@ private:
 	StringSet ValPool;
 };
 
-int SLAPI VQuotCache::Add(const TempQuotTbl::Rec * pRec, uint quotPos)
+int VQuotCache::Add(const TempQuotTbl::Rec * pRec, uint quotPos)
 {
 	int    ok = 1;
 	uint   p = 0;
@@ -860,14 +860,14 @@ int SLAPI VQuotCache::Add(const TempQuotTbl::Rec * pRec, uint quotPos)
 	return ok;
 }
 
-void SLAPI VQuotCache::Clear()
+void VQuotCache::Clear()
 {
 	GoodsNameList.Clear();
 	ValPool.clear();
 	clear();
 }
 
-int SLAPI VQuotCache::GetRec(uint i, TempQuotTbl::Rec * pRec) const
+int VQuotCache::GetRec(uint i, TempQuotTbl::Rec * pRec) const
 {
 	int    ok = 1;
 	MEMSZERO(*pRec);
@@ -907,7 +907,7 @@ IMPL_CMPFUNC(PPQuotItem_GLA, i1, i2)
 	return si;
 }
 
-int SLAPI PPViewQuot::Helper_RemoveTempRecsByGoodsID(PPID goodsID, int use_ta)
+int PPViewQuot::Helper_RemoveTempRecsByGoodsID(PPID goodsID, int use_ta)
 {
 	int    ok = 1;
 	if(P_TempTbl) {
@@ -948,7 +948,7 @@ int FASTCALL PPViewQuot::CheckGoodsKindDiffRestriction(PPID goodsID)
 	return ok;
 }
 
-int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArray * pQList, int use_ta)
+int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArray * pQList, int use_ta)
 {
 	int    ok = 1, is_added = 0;
 	int    done = 0;
@@ -1357,7 +1357,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 	return ok;
 }
 
-int SLAPI PPViewQuot::UpdateTempTable(PPID goodsID, int use_ta)
+int PPViewQuot::UpdateTempTable(PPID goodsID, int use_ta)
 {
 	if(goodsID) {
 		QuotFilt temp_filt = Filt;
@@ -1369,7 +1369,7 @@ int SLAPI PPViewQuot::UpdateTempTable(PPID goodsID, int use_ta)
 		return -1;
 }
 
-void SLAPI PPViewQuot::GetTabTitle(long tabID, SString & rBuf)
+void PPViewQuot::GetTabTitle(long tabID, SString & rBuf)
 {
 	if(tabID) {
 		LocationTbl::Rec loc_rec;
@@ -1400,7 +1400,7 @@ static IMPL_DBE_PROC(dbqf_quotperiod_i)
 
 /*static*/int PPViewQuot::DynFuncPeriod = 0;
 
-DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncPeriod, BTS_STRING, dbqf_quotperiod_i, 1, BTS_INT);
 
@@ -1489,7 +1489,7 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	return q;
 }
 
-int SLAPI PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
+int PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	int    disable_group_selection = 0;
 	PPAccessRestriction accsr;
@@ -1550,7 +1550,7 @@ int SLAPI PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 	return ok;
 }
 
-void SLAPI PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(P_TempSerTbl) {
@@ -1574,7 +1574,7 @@ void SLAPI PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewQuot::GetCtQuotVal(const void * pRow, long col, long aggrNum, double * pVal)
+int PPViewQuot::GetCtQuotVal(const void * pRow, long col, long aggrNum, double * pVal)
 {
 	int    ok = -1;
 	double val = 0.0;
@@ -1583,7 +1583,7 @@ int SLAPI PPViewQuot::GetCtQuotVal(const void * pRow, long col, long aggrNum, do
 	return ok;
 }
 
-void SLAPI PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, long col)
+void PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, long col)
 {
 	BrwHdr hdr;
 	MEMSZERO(hdr);
@@ -1619,7 +1619,7 @@ void SLAPI PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, 
 	ASSIGN_PTR(pHdr, hdr);
 }
 
-int SLAPI PPViewQuot::CheckDelFromMtx(PPID goodsID)
+int PPViewQuot::CheckDelFromMtx(PPID goodsID)
 {
 	int    ok = 1;
 	const  PPID draft_op_id = DS.GetTLA().Cc.DraftRcptOp;
@@ -1662,7 +1662,7 @@ int SLAPI PPViewQuot::CheckDelFromMtx(PPID goodsID)
     return ok;
 }
 
-int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	BrwHdr hdr;
@@ -1841,7 +1841,7 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	return ok;
 }
 
-int SLAPI PPViewQuot::AddItem(PPID * pGoodsID)
+int PPViewQuot::AddItem(PPID * pGoodsID)
 {
 	PPID   __goods_id = DEREFPTRORZ(pGoodsID);
 	if(!__goods_id) {
@@ -1873,7 +1873,7 @@ int SLAPI PPViewQuot::AddItem(PPID * pGoodsID)
 	return ok;
 }
 
-int SLAPI PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
+int PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 {
 	int    ok = -1;
 	PPID   acc_sheet_id = 0;
@@ -1918,7 +1918,7 @@ int SLAPI PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 	return ok;
 }
 
-int SLAPI PPViewQuot::Transmit(const BrwHdr * /*pHdr*/)
+int PPViewQuot::Transmit(const BrwHdr * /*pHdr*/)
 {
 	int    ok = -1, sync_cmp = 1;
 	ObjTransmitParam param;
@@ -1952,7 +1952,7 @@ int SLAPI PPViewQuot::Transmit(const BrwHdr * /*pHdr*/)
 	return ok;
 }
 
-int SLAPI PPViewQuot::Recover()
+int PPViewQuot::Recover()
 {
 	int    ok = -1;
 	IterCounter cntr;
@@ -2031,7 +2031,7 @@ int SLAPI PPViewQuot::Recover()
 	return -1;
 }
 
-int SLAPI PPViewQuot::ViewTotal()
+int PPViewQuot::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_QUOTTOTAL);
@@ -2050,7 +2050,7 @@ int SLAPI PPViewQuot::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewQuot::Print(const void * pHdr)
+int PPViewQuot::Print(const void * pHdr)
 {
 	uint   rpt_id = REPORT_QUOTLIST;
 	if(!Filt.LocList.IsEmpty())
@@ -2064,7 +2064,7 @@ int SLAPI PPViewQuot::Print(const void * pHdr)
 //
 //
 //
-int SLAPI ViewQuot(const QuotFilt * pFilt) { return PPView::Execute(PPVIEW_QUOT, pFilt, 1, 0); }
+int ViewQuot(const QuotFilt * pFilt) { return PPView::Execute(PPVIEW_QUOT, pFilt, 1, 0); }
 //
 // Implementation of PPALDD_UhttQuot
 //

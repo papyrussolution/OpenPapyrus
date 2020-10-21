@@ -66,7 +66,7 @@ private:
 //
 //
 //
-int SLAPI AmountListDialog(AmtList * pData, PPIDArray * pRestrictList, LDATE crateDate, const char * pTitle, uint options)
+int AmountListDialog(AmtList * pData, PPIDArray * pRestrictList, LDATE crateDate, const char * pTitle, uint options)
 {
 	int    r = -1;
 	AmtListDialog * dlg = 0;
@@ -385,7 +385,7 @@ int StaffAmtListDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI EditStaffAmtList(StaffAmtList * pData, const char * pTitle, int enableMod)
+int EditStaffAmtList(StaffAmtList * pData, const char * pTitle, int enableMod)
 {
 	int    ok = -1;
 	StaffAmtListDialog * dlg = new StaffAmtListDialog(pTitle, pData);
@@ -554,7 +554,7 @@ int BillTaxesDialog::getDTS(AmtList * pData)
 	return 1;
 }
 
-int SLAPI EditBillTaxes(AmtList * pAmounts, double amount)
+int EditBillTaxes(AmtList * pAmounts, double amount)
 {
 	int    ok = -1;
 	PPObjAmountType amtt_obj;

@@ -51,15 +51,9 @@ int ExcelDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 	return ok;
 }
 
-ExcelDbFile::ExcelDbFile()
+ExcelDbFile::ExcelDbFile() : P_WkBook(0), P_Sheet(0), P_App(0), P_Sheets(0), ReadOnly(0), CurRec(-1)
 {
-	MEMSZERO(P);
-	P_WkBook = 0;
-	P_Sheet = 0;
-	P_App = 0;
-	P_Sheets = 0;
-	ReadOnly = 0;
-	CurRec = -1;
+	// @v10.9.1 @ctr MEMSZERO(P);
 }
 
 ExcelDbFile::~ExcelDbFile()

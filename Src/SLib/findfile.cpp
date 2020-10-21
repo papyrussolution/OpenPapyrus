@@ -5,17 +5,17 @@
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI SFindFile::SFindFile(const char * pPath /* =0 */, const char * pFileName /* =0 */) :
+SFindFile::SFindFile(const char * pPath /* =0 */, const char * pFileName /* =0 */) :
 	P_Path(pPath), P_FileName(pFileName), P_SubStr(0), Flags(0), DirCount(0), FileCount(0)
 {
 }
 
-int SLAPI SFindFile::CallbackProc(const char * pPath, SDirEntry * pEntry)
+int SFindFile::CallbackProc(const char * pPath, SDirEntry * pEntry)
 {
 	return -1;
 }
 
-static int SLAPI Helper_SFindFile(const SString * pPath, SFindFile * pParam)
+static int Helper_SFindFile(const SString * pPath, SFindFile * pParam)
 {
 	int    ok = 1;
 	SString path, inner_path;
@@ -51,7 +51,7 @@ static int SLAPI Helper_SFindFile(const SString * pPath, SFindFile * pParam)
 	return ok;
 }
 
-int SLAPI SFindFile::Run()
+int SFindFile::Run()
 {
 	return Helper_SFindFile(0, this);
 }
@@ -63,7 +63,7 @@ int SLAPI SFindFile::Run()
 #include <pp.h>
 
 struct Test_SFindFile_ : public SFindFile {
-	virtual int SLAPI CallbackProc(const char * pPath, SDirEntry * pEntry)
+	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry)
 	{
 		SString path = pPath;
 		if(pEntry->FileName[0] == 0)

@@ -111,11 +111,11 @@ static int FASTCALL SScGetLexerIdByName(const char * pName)
 //static const char * FASTCALL SScGetLexerNameById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].P_Symb : 0; }
 static int FASTCALL SScGetLexerModelById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].Id : 0; }
 
-SLAPI SScEditorStyleSet::SScEditorStyleSet()
+SScEditorStyleSet::SScEditorStyleSet()
 {
 }
 
-SLAPI SScEditorStyleSet::~SScEditorStyleSet()
+SScEditorStyleSet::~SScEditorStyleSet()
 {
 }
 
@@ -157,7 +157,7 @@ void FASTCALL SScEditorStyleSet::InnerToOuter(const InnerStyle & rS, Style & rD)
     GetS(rS.KeywordClassP, rD.KeywordClass);
 }
 
-int SLAPI SScEditorStyleSet::GetModel(int lexerId, LangModel * pModel) const
+int SScEditorStyleSet::GetModel(int lexerId, LangModel * pModel) const
 {
 	int    ok = 0;
 	for(uint i = 0; !ok && i < ML.getCount(); i++) {
@@ -172,7 +172,7 @@ int SLAPI SScEditorStyleSet::GetModel(int lexerId, LangModel * pModel) const
 	return ok;
 }
 
-int SLAPI SScEditorStyleSet::GetModelKeywords(int lexerId, TSCollection <LangModelKeywords> * pList) const
+int SScEditorStyleSet::GetModelKeywords(int lexerId, TSCollection <LangModelKeywords> * pList) const
 {
 	int    ok = 0;
 	for(uint i = 0; i < KwL.getCount(); i++) {
@@ -190,7 +190,7 @@ int SLAPI SScEditorStyleSet::GetModelKeywords(int lexerId, TSCollection <LangMod
 	return ok;
 }
 
-int SLAPI SScEditorStyleSet::GetStyles(int group, int lexerId, TSCollection <Style> * pList) const
+int SScEditorStyleSet::GetStyles(int group, int lexerId, TSCollection <Style> * pList) const
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -221,7 +221,7 @@ int SLAPI SScEditorStyleSet::GetStyles(int group, int lexerId, TSCollection <Sty
     return ok;
 }
 
-int SLAPI SScEditorStyleSet::GetStyle(int group, int lexerId, int styleId, Style & rS) const
+int SScEditorStyleSet::GetStyle(int group, int lexerId, int styleId, Style & rS) const
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -243,7 +243,7 @@ int SLAPI SScEditorStyleSet::GetStyle(int group, int lexerId, int styleId, Style
     return ok;
 }
 
-int SLAPI SScEditorStyleSet::ReadStyleAttributes(const xmlNode * pNode, InnerStyle & rS) 
+int SScEditorStyleSet::ReadStyleAttributes(const xmlNode * pNode, InnerStyle & rS) 
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -277,7 +277,7 @@ int SLAPI SScEditorStyleSet::ReadStyleAttributes(const xmlNode * pNode, InnerSty
 	return ok;
 }
 
-int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
+int SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -389,7 +389,7 @@ int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 	return ok;
 }
 
-int SLAPI SScEditorStyleSet::ParseModelXml(const char * pFileName)
+int SScEditorStyleSet::ParseModelXml(const char * pFileName)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -644,7 +644,7 @@ private:
 	}
 };
 
-int SLAPI EditSearchReplaceParam(SSearchReplaceParam * pData) { DIALOG_PROC_BODY(SearchReplaceDialog, pData); }
+int EditSearchReplaceParam(SSearchReplaceParam * pData) { DIALOG_PROC_BODY(SearchReplaceDialog, pData); }
 //
 //
 //
@@ -1355,7 +1355,7 @@ static int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 }
 #endif // } 0
 
-int SLAPI STextBrowser::LoadToolbar(uint tbId)
+int STextBrowser::LoadToolbar(uint tbId)
 {
 	int    r = 0;
 	TVRez & rez = *P_SlRez;

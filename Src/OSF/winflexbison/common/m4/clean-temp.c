@@ -18,7 +18,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "clean-temp.h" /* Specification.  */
+//#include "clean-temp.h" /* Specification.  */
 //#include <errno.h>
 //#include <fcntl.h>
 //#include <limits.h>

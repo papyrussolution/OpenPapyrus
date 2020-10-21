@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPViewFreight)
 //
-IMPLEMENT_PPFILT_FACTORY(Freight); SLAPI FreightFilt::FreightFilt() : PPBaseFilt(PPFILT_FREIGHT, 0, 1), P_TagF(0) // @v10.3.11 ver 0-->1
+IMPLEMENT_PPFILT_FACTORY(Freight); FreightFilt::FreightFilt() : PPBaseFilt(PPFILT_FREIGHT, 0, 1), P_TagF(0) // @v10.3.11 ver 0-->1
 {
 	SetFlatChunk(offsetof(FreightFilt, ReserveStart),
 		offsetof(FreightFilt, Reserve)-offsetof(FreightFilt, ReserveStart)+sizeof(Reserve));
@@ -21,13 +21,13 @@ FreightFilt & FASTCALL FreightFilt::operator = (const FreightFilt & rS)
 	return *this;
 }
 
-int SLAPI FreightFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+int FreightFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {
 		class FreightFilt_v0 : public PPBaseFilt {
 		public:
-			SLAPI  FreightFilt_v0() : PPBaseFilt(PPFILT_FREIGHT, 0, 0)
+			FreightFilt_v0() : PPBaseFilt(PPFILT_FREIGHT, 0, 0)
 			{
 				SetFlatChunk(offsetof(FreightFilt, ReserveStart),
 					offsetof(FreightFilt, Reserve)-offsetof(FreightFilt, ReserveStart)+sizeof(Reserve));
@@ -74,11 +74,11 @@ int SLAPI FreightFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-SLAPI PPViewFreight::PPViewFreight() : PPView(0, &Filt, PPVIEW_FREIGHT), P_BObj(BillObj), P_TmpTbl(0)
+PPViewFreight::PPViewFreight() : PPView(0, &Filt, PPVIEW_FREIGHT, 0, 0), P_BObj(BillObj), P_TmpTbl(0)
 {
 }
 
-SLAPI PPViewFreight::~PPViewFreight()
+PPViewFreight::~PPViewFreight()
 {
 	delete P_TmpTbl;
 }
@@ -244,7 +244,7 @@ int FreightFiltDialog::getDTS(FreightFilt * pData)
 	return ok;
 }
 
-int SLAPI PPViewFreight::EditBaseFilt(PPBaseFilt * pFilt)
+int PPViewFreight::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
 		return 0;
@@ -254,7 +254,7 @@ int SLAPI PPViewFreight::EditBaseFilt(PPBaseFilt * pFilt)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempFreight);
 
-int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
+int PPViewFreight::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -345,7 +345,7 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTbl::Rec * pRec)
+int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTbl::Rec * pRec)
 {
 	int    ok = -1;
 	int    is_freight = 0, is_cargo = 0;
@@ -417,7 +417,7 @@ int SLAPI PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFre
 	return ok;
 }
 
-int SLAPI PPViewFreight::UpdateTempTableRec(PPID billID)
+int PPViewFreight::UpdateTempTableRec(PPID billID)
 {
 	int    ok = 1;
 	PPID   k = billID;
@@ -439,7 +439,7 @@ int SLAPI PPViewFreight::UpdateTempTableRec(PPID billID)
 	return ok;
 }
 
-int SLAPI PPViewFreight::InitIteration(IterOrder order)
+int PPViewFreight::InitIteration(IterOrder order)
 {
 	int    ok = 1, idx = 0;
 	// @v10.6.8 char   k[MAXKEYLEN];
@@ -495,7 +495,7 @@ int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 		return -1;
 }
 
-int SLAPI PPViewFreight::ViewTotal()
+int PPViewFreight::ViewTotal()
 {
 	int    ok = -1;
 	long   count = 0;
@@ -525,7 +525,7 @@ int SLAPI PPViewFreight::ViewTotal()
 	return ok;
 }
 
-DBQuery * SLAPI PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = (Filt.Flags & FreightFilt::fFillLaggageFields) ? BROWSER_FREIGHT_LAGG : BROWSER_FREIGHT;
 	TempFreightTbl * tbl = new TempFreightTbl(P_TmpTbl->GetName());
@@ -583,7 +583,7 @@ DBQuery * SLAPI PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return q;
 }
 
-void SLAPI PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
+void PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && Filt.LocID == 0) {
 		// @v9.0.2 pBrw->InsColumnWord(1, PPWORD_WAREHOUSE, 13, 0, 0, 0);
@@ -591,7 +591,7 @@ void SLAPI PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int SLAPI PPViewFreight::GetBillList(ObjIdListFilt * pList)
+int PPViewFreight::GetBillList(ObjIdListFilt * pList)
 {
 	int    ok = -1;
 	PPWait(1);
@@ -607,18 +607,18 @@ int SLAPI PPViewFreight::GetBillList(ObjIdListFilt * pList)
 	return ok;
 }
 
-int SLAPI PPViewFreight::Print(const void *)
+int PPViewFreight::Print(const void *)
 {
 	return Helper_Print(((Filt.LocID == 0) ? REPORT_FREIGHTLAGGLOC : REPORT_FREIGHTLAGG), Filt.Order);
 }
 
-int SLAPI PPViewFreight::PrintBill(PPID billID/* @v10.0.0, int addCashSummator*/)
+int PPViewFreight::PrintBill(PPID billID/* @v10.0.0, int addCashSummator*/)
 {
 	PPViewBill b_v;
 	return b_v.PrintBill(billID/* @v10.0.0, addCashSummator*/);
 }
 
-int SLAPI PPViewFreight::PrintBillList()
+int PPViewFreight::PrintBillList()
 {
 	int    ok = -1;
 	BillFilt bill_filt;
@@ -634,7 +634,7 @@ int SLAPI PPViewFreight::PrintBillList()
 	return ok;
 }
 
-int SLAPI PPViewFreight::PrintBillInfoList()
+int PPViewFreight::PrintBillInfoList()
 {
 	int    ok = -1;
 	BillFilt bill_filt;
@@ -651,7 +651,7 @@ int SLAPI PPViewFreight::PrintBillInfoList()
 
 }
 
-int SLAPI PPViewFreight::PrintAllBills()
+int PPViewFreight::PrintAllBills()
 {
 	int    ok = -1;
 	BillFilt bill_filt;
@@ -667,7 +667,7 @@ int SLAPI PPViewFreight::PrintAllBills()
 	return ok;
 }
 
-int SLAPI PPViewFreight::Detail(const void * pHdr, PPViewBrowser * pBrw)
+int PPViewFreight::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   bill_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(bill_id && P_BObj->Edit(&bill_id, 0) == cmOK) {
@@ -677,7 +677,7 @@ int SLAPI PPViewFreight::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewFreight::Export()
+int PPViewFreight::Export()
 {
 	int    ok = -1, r = 0;
 	PPIDArray bill_id_list;
@@ -710,7 +710,7 @@ int SLAPI PPViewFreight::Export()
 	return ok;
 }
 
-int SLAPI PPViewFreight::UpdateFeatures()
+int PPViewFreight::UpdateFeatures()
 {
     int    ok = -1;
     PPID   tr_type = PPTRTYP_CAR;
@@ -811,7 +811,7 @@ int SLAPI PPViewFreight::UpdateFeatures()
     return ok;
 }
 
-int SLAPI PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
