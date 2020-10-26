@@ -1269,6 +1269,97 @@ protected:
 	UpdateWindow(p_win->H());
 	return ok;
 }
+
+#include <..\SLib\gumbo\gumbo.h>
+
+static void PrintGumboNode(GumboNode * pN, uint tabN, SFile & rF, SString & rTempBuf)
+{
+	if(pN) {
+		SString tag_buf;
+		if(pN->type == GUMBO_NODE_DOCUMENT) {
+			const GumboDocument & r_doc = pN->v.document;
+			rTempBuf.Z().Tab(tabN).CatEq("doc", r_doc.name);
+			rF.WriteLine(rTempBuf.CR());
+			for(uint i = 0; i < r_doc.children.length; i++) {
+				GumboNode * p_node = static_cast<GumboNode *>(r_doc.children.data[i]);
+				PrintGumboNode(p_node, tabN+1, rF, rTempBuf); // @recursion
+			}
+		}
+		else if(pN->type == GUMBO_NODE_ELEMENT) {
+			GumboElement & r_el = pN->v.element;
+			const char * p_tag = gumbo_normalized_tagname(r_el.tag);
+			tag_buf.Z();
+		    if(!isempty(p_tag)) {
+				tag_buf.Cat(p_tag);
+		    }
+		    else {
+			    if(r_el.original_tag.data && r_el.original_tag.length) {
+				    gumbo_tag_from_original_text(&r_el.original_tag);
+					tag_buf.CatN(r_el.original_tag.data, r_el.original_tag.length);
+			    }
+		    }
+			rTempBuf.Z().Tab(tabN).CatEq("element", tag_buf);
+			rF.WriteLine(rTempBuf.CR());
+			//
+			if(r_el.attributes.length) {
+				rTempBuf.Z().Tab(tabN).Cat("attributes:");
+				rF.WriteLine(rTempBuf.CR());
+				for(uint i = 0; i < r_el.attributes.length; i++) {
+					GumboAttribute * p_attr = static_cast<GumboAttribute *>(r_el.attributes.data[i]);
+					if(p_attr) {
+						rTempBuf.Z().Tab(tabN+1).CatEq(p_attr->name, p_attr->value);
+						rF.WriteLine(rTempBuf.CR());
+					}
+				}
+			}
+			if(r_el.children.length) {
+				rTempBuf.Z().Tab(tabN).Cat("children:");
+				rF.WriteLine(rTempBuf.CR());
+				for(uint i = 0; i < r_el.children.length; i++) {
+					GumboNode * p_node = static_cast<GumboNode *>(r_el.children.data[i]);
+					PrintGumboNode(p_node, tabN+1, rF, rTempBuf); // @recursion
+				}
+			}
+		}
+		else {
+			GumboText & r_t = pN->v.text;
+			rTempBuf.Z().Tab(tabN+1).Cat("text").CatDiv(':', 2).Cat(r_t.text);
+			rF.WriteLine(rTempBuf.CR());
+		}
+	}
+}
+
+static void GumboTest()
+{
+	GumboOutput * p_output = 0;
+	const GumboOptions go = kGumboDefaultOptions;
+	//SString input_buf;
+	SString temp_buf;
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	if(temp_buf.NotEmpty()) {
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("html5_spec.html");
+		SFile f_in(temp_buf, SFile::mRead);
+		if(f_in.IsValid()) {
+			int64 fsz = 0;
+			f_in.CalcSize(&fsz);
+			if(fsz) {
+				STempBuffer in_buf(static_cast<size_t>(fsz) + 64);
+				size_t actual_size = 0;
+				f_in.Read(in_buf, static_cast<size_t>(fsz), &actual_size);
+				if(actual_size) {
+					p_output = gumbo_parse_with_options(&go, in_buf, actual_size);
+					if(p_output && p_output->document) {
+						PPGetPath(PPPATH_TESTROOT, temp_buf);
+						temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html5_spec.out");
+						SFile f_out(temp_buf, SFile::mWrite);
+						PrintGumboNode(p_output->document, 0, f_out, temp_buf);
+					}
+				}
+			}
+		}
+	}
+	gumbo_destroy_output(p_output);
+}
 //
 //
 //
@@ -1305,6 +1396,7 @@ int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	GumboTest();
 	TestGtinStruc();
 	//TestUdsInterface();
 	//TestTsDensityMap();

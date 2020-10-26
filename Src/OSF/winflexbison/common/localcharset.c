@@ -22,12 +22,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "localcharset.h" /* Specification.  */
-//#include <fcntl.h>
-//#include <stddef.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
 
 #if defined __APPLE__ && defined __MACH__ && HAVE_LANGINFO_CODESET
 	#define DARWIN7 /* Darwin 7 or newer, i.e. MacOS X 10.3 or newer */
@@ -69,10 +63,6 @@
 #else
 	#define relocate(pathname) (pathname)
 #endif
-/* Get LIBDIR.  */
-//#ifndef LIBDIR
-	//#include "configmake.h"
-//#endif
 /* Define O_NOFOLLOW to 0 on platforms where it does not exist.  */
 #ifndef O_NOFOLLOW
 	#define O_NOFOLLOW 0

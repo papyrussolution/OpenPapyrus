@@ -26,20 +26,7 @@
 #if (__GNUC__ == 4 && 6 <= __GNUC_MINOR__) || 4 < __GNUC__
 	#pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
 #endif
-//#include "quotearg.h"
-//#include "quote.h"
-//#include "xalloc.h"
 #include "c-strcaseeq.h"
-//#include "localcharset.h"
-//#include <ctype.h>
-//#include <errno.h>
-//#include <limits.h>
-//#include <stdbool.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <wchar.h>
-//#include <wctype.h>
-//#include "gettext.h"
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)
 #define N_(msgid) msgid

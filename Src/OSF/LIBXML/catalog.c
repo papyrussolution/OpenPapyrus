@@ -1978,12 +1978,10 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 			xmlCatalogEntryType type = XML_CATA_NONE;
 			cur = xmlParseSGMLCatalogName(cur, &name);
 			if(!name) {
-				/* error */
-				break;
+				break; /* error */
 			}
 			if(!IS_BLANK_CH(*cur)) {
-				/* error */
-				break;
+				break; /* error */
 			}
 			SKIP_BLANKS;
 			if(sstreq(name, "SYSTEM"))
@@ -2012,8 +2010,7 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 				SAlloc::F(name);
 				cur = xmlParseSGMLCatalogName(cur, &name);
 				if(!name) {
-					/* error */
-					break;
+					break; /* error */
 				}
 				SAlloc::F(name);
 				continue;

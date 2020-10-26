@@ -435,6 +435,7 @@ public:
 		Signature_SysMaintenanceEventResponder(0x35079E8D),
 		Signature_LaunchAppParam(0x4c484150L), // 'LHAP'
 		Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
+		Signature_PPView(0x099A099BUL),
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
@@ -471,6 +472,7 @@ public:
 	const uint32 Signature_SysMaintenanceEventResponder; // Сигнатура респондера событий обслуживания системы
 	const long   Signature_LaunchAppParam;               //
 	const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
+	const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (SIGN_PPVIEW)
 	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
@@ -2356,7 +2358,7 @@ public:
 		TSVector <InnerEntry> L;
 	};
 
-	virtual int PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList);
+	virtual int PreprocessImportFileName(const SString & rFileName, PPImpExpParam::PtTokenList & rResultList);
 	int    GetFilesFromSource(const char * pUrl, StringSet & rList, PPLogger * pLogger);
 	int    DistributeFile(PPLogger * pLogger);
 
@@ -4751,10 +4753,10 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	int16  ExpiryPeriod;   // Срок годности товара (дней).
 	int16  GseFlags;       //
 	double MinShippmQtty;  // Минимальное количество, которое можно отгрузить в одном документе
-	float  NettBruttCoeff; // @v9.8.12 Коэффициент пересчета брутто-массы в нетто (для товарных структур)
+	float  NettBruttCoeff; // Коэффициент пересчета брутто-массы в нетто (для товарных структур)
 	PPDimention RtlDim;    // Габаритные размеры торговой единицы, мм
 	RAssocArray MinStockList; // @anchor Минимальный запас товара по складам
-	TSVector <Pallet> PltList; // Список описаний укладки упаковок на паллете // @v9.8.4 TSArray-->TSVector
+	TSVector <Pallet> PltList; // Список описаний укладки упаковок на паллете
 };
 
 class GoodsCore : public Goods2Tbl {
@@ -4825,7 +4827,6 @@ public:
 	int    GetSingleBarcode(PPID id, SString & rBuf);
 	int    FetchSingleBarcode(PPID id, SString & rBuf);
 	int    SearchGoodsAnalogs(PPID id, PPIDArray & rList, SString * pTransitComponentBuf);
-	// @v9.1.4 int    GetGoodsArticle(PPID id, PPID * pArticle); // @5.2.5 VADIM
 	//
 	// Descr: Извлекает список идентификаторов товаров, имеющих штрихкоды, длина которых
 	//   соответствует одной из указанных в массиве pLens. Если элементом массива
@@ -5501,7 +5502,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_USECDB                 0x00004000L // Использовать конфигурационную базу данных
 #define ECF_RCPTDLVRLOCASWAREHOUSE 0x00008000L // При выборе адеса доставки в диалоге документа прихода товаров,
 	// комбо-бокс будет отражать склады главной организации (для драфт-документов прихода такое поведение - безусловно).
-#define ECF_DETECTCRDBTEXISTBYOPEN 0x00010000L // @v8.2.4 (видимо, временный) флаг, предписывающий системе иднтифицировать
+#define ECF_DETECTCRDBTEXISTBYOPEN 0x00010000L // Флаг, предписывающий системе иднтифицировать
 	// существование Btrieve-файлов созданных для печати посредством функций Btrieve, но не через fileExists()
 	// Устанавливается, если в pp.ini включен параметр DETECTDBTEXISTBYOPEN=100
 #define ECF_USESJLOGINEVENT        0x00020000L //
@@ -5510,8 +5511,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_TRACESYNCLOT           0x00080000L // Отладочный флаг для трассировки синхронизации лотов
 #define ECF_DISABLEASYNCADVQUEUE   0x00100000L // Защитный флаг, препятствующий применению техники асинхронной очереди системных событий
 #define ECF_USEGEOTRACKING         0x00200000L // Если флаг не установлен, то коммуникации с мобильными устройствами по гео-трекингу отключены
-#define ECF_DLLMODULE              0x00400000L // @v9.2.6 Работа в режиме DLL-модуля
-#define ECF_OPENSOURCE             0x00800000L // @v9.4.9 Система собрана в opensource-варианте
+#define ECF_DLLMODULE              0x00400000L // Работа в режиме DLL-модуля
+#define ECF_OPENSOURCE             0x00800000L // Система собрана в opensource-варианте
 //
 //
 //
@@ -7131,7 +7132,7 @@ protected:
 	int    FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply);
 	enum {
 		stLoggedIn  = 0x0001,
-		stDebugMode = 0x0002  // @v8.3.4 Отладочный режим (вывод дополнительных данных в журналы)
+		stDebugMode = 0x0002  // Отладочный режим (вывод дополнительных данных в журналы)
 	};
 	long   State;   //
 	long   Counter; // Счетчик, используемый для получения уникального значения, с помощью которого
@@ -8126,7 +8127,7 @@ private:
 //
 #define DBMSG_WAREHOUSEADDED     9
 #define DBMSG_DUMMY             10 // Пустое сообщение, необходимое для того, чтобы все объекты данных создали необходимые таблицы в БД.
-#define DBMSG_GLOBALACCADDED    11 // @v9.1.3 Посылается при создании новой глобальной учетной записи
+#define DBMSG_GLOBALACCADDED    11 // Посылается при создании новой глобальной учетной записи
 //
 // Object message reply codes
 //
@@ -8158,7 +8159,7 @@ struct PPObjPack {
 		fDispatcher    = 0x0020, // Раздел, в который принимается объект является диспетчером
 		fSyncCmpObj    = 0x0040, // Пакет содержить только информацию о синхронизации
 		fNoObj         = 0x0080, // Запись синхронизации виртуального объекта (например, лота)
-		fRecover       = 0x0100  // @v8.2.3 Восстанавливающая передача объектов
+		fRecover       = 0x0100  // Восстанавливающая передача объектов
 	};
 	void * Data;                 // Данные пакета. Если (Flags & fSyncCmpObj) то данных нет
 	SVerT  SrcVer;               // Версия системы, сформировавшей пакет
@@ -9320,7 +9321,7 @@ struct AmtEntry { // @persistent
 	double Amt;
 };
 
-class AmtList : public TSVector <AmtEntry> { // @persistent // @v9.8.4 TSArray-->TSVector
+class AmtList : public TSVector <AmtEntry> { // @persistent
 public:
 	AmtList();
 	AmtList & FASTCALL operator = (const AmtList &);
@@ -9396,7 +9397,7 @@ public:
 #define PCKGF_SERIALCODE 0x0004 // Серийный номер лота. Пакет привязан к одному лоту и не содержит элементов.
 #define PCKGF_MIRROR     0x0008
 
-class LPackage : private SVector { // @v9.8.11 SArray-->SVector
+class LPackage : private SVector {
 public:
 	LPackage();
 	LPackage & FASTCALL operator = (const LPackage &);
@@ -9409,7 +9410,6 @@ public:
 	int    AddItem(PPID lotID, int idx);
 	int    RemoveByID(PPID lotID);
 	int    RemoveByIdx(int idx);
-
 	int    EnumItems(uint * pI, int * pIdx, PPID * pID) const;
 	int    UpdateItem(uint i, int, PPID);
 	int    FASTCALL ShiftIdx(int idx);
@@ -9465,12 +9465,10 @@ public:
 	int    GetPckg(PPID, LPackage *);
 	int    PutPckg(PPID, const LPackage *, int use_ta);
 	int    SetClosedTag(PPID, int, int use_ta);
-
 	int    GetPckgLinkList(PPID, PPIDArray *);
 	int    GetLotLink(PPID lotID, PPID * pPckgID, PackageTbl::Rec * = 0);
 	int    AddPckgLink(PPID pckgID, PPID lotID);
 	int    RemovePckgLink(PPID pckgID, PPID lotID);
-
 	int    SearchByCode(PPID pckgTypeID, const char * pCode, PPIDArray *);
 	int    CheckCodeUnique(PPID pckgTypeID, PPID pckgID, const char *, long * pCntr);
 	int    AdjustUniqCntr(PackageTbl::Rec *);
@@ -10855,8 +10853,8 @@ private:
 	SString StoreDir;
 };
 
-typedef TSVector <PPTransferItem> PPTrfrArray; // @v9.8.4 TSArray-->TSVector
-typedef TSVector <InventoryTbl::Rec> InventoryArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <PPTransferItem> PPTrfrArray;
+typedef TSVector <InventoryTbl::Rec> InventoryArray;
 //
 // Descr: Варианты распределения дополнительной себестоимости на себестоимость
 //   отдельных строк товарного документа.
@@ -10917,9 +10915,9 @@ public:
 		void   Clear_();
 
 		enum {
-			fEnableStop = 0x0001 // @v9.5.10 Допускается устанавливать контрагента с признаком STOP
+			fEnableStop = 0x0001 // Допускается устанавливать контрагента с признаком STOP
 		};
-		long   Flags; // @v9.5.10 [IN] Флаги вызова функции PPBillPacket::SetupObject
+		long   Flags; // [IN] Флаги вызова функции PPBillPacket::SetupObject
 		enum {
 			stHasCliAgreement   = 0x0001,
 			stHasSupplAgreement = 0x0002
@@ -11288,8 +11286,8 @@ public:
 	int    OutAmtType;
 	PPID   QuotKindID;    // @transient Вид котировки, применяемый в документе. Актуально только во время одной сессии редактирования документа.
 	PPID   AgtQuotKindID; // @transient Вид котировки из соглашения с клиентом. Используется в диалогах товарных строк документов для выбора котировки.
-	PPID   OpTypeID;   // @v9.5.3 OprType-->OpTypeID
-	PPID   AccSheetID; // @v9.5.3 AccSheet-->AccSheetID
+	PPID   OpTypeID;      // 
+	PPID   AccSheetID;    // 
 	long   Counter;
 	//
 	// P_ShLots - теневые строки, отражающие исполнение заказов.
@@ -11299,8 +11297,6 @@ public:
 	// могут ссылаться более одного элемента из Lots.
 	//
 	PPTrfrArray * P_ShLots;
-	// @v9.8.11 (moved to PPBill) TSVector <PPAccTurn> Turns; // @v9.8.4 TSArray-->TSVector
-	// @v9.8.11 (moved to PPBill) PPAdvBillItemList AdvList; // Элементы расширения бух документа
 	PPBillPacket * P_ACPack;   // Агрегированный пакет автокомплектации
 	PPBillPacket * P_Outer;    // @notowned Внешний (агрегирующий) пакет
 	PPBillPacket * P_LinkPack; // @transient Пакет связанного документа
@@ -11318,20 +11314,7 @@ public:
 		PPID   QkID;
 		double Value;
 	};
-	TSVector <QuotSetupInfoItem> * P_QuotSetupInfoList; // @v9.8.4 TSArray-->TSVector
-	/* @v9.8.11 moved to PPBill
-	//
-	// @todo Следующие четыре контейнера необходимо объединить в общий контейнер поскольку
-	//  они представляют однотипные объекты (теги).
-	//
-	// @v9.8.11 ClbNumberList ClbL;        // Список номеров ГТД
-	// @v9.8.11 ClbNumberList SnL;         // Список серийных номеров лотов
-	PPLotTagContainer LTagL;   // Список тегов лотов
-	ObjTagList BTagL;          // Список тегов документа
-	PPLotExtCodeContainer XcL; // @v9.8.11 Контейнер, содержащий спецкоды (в частности, марки ЕГАИС) ассоциированные со строками.
-		// Особенность такой ассоциации заключается в том, что с одной строкой может быть связано от нуля до множества кодов.
-		// Кроме того, коды привязываются не к лотам, а именно к строкам документа.
-	*/
+	TSVector <QuotSetupInfoItem> * P_QuotSetupInfoList;
 	PPLotTagContainer * P_MirrorLTagL; // Список тегов зеркальных лотов (созданных при межскладском перемещении)
 	PPID   PaymBillID;         // @*PPObjBill::ExtractPacket Платежный документ (зачеты).
 	PPID   CSessID;            // Кассовая или технологическая сессия, которую списывает документ
@@ -11360,19 +11343,19 @@ public:
 			// @seealso AGTF_SUBCOSTONSUBPARTSTR
 		pfChargeSCard           = 0x00001000, // С документом связана карта и есть сумма, по которую
 			// необходимо начислить на кредитную карту.
-		pfForeignSync           = 0x00002000, // @v8.0.3 Пакет создан в рамках приема данных из другого раздела
-		pfIgnoreStatusRestr     = 0x00004000, // @v8.6.6 При изменении документа игнорировать ограничения статуса
-		pfForceRByBill          = 0x00008000, // @v8.8.6 Для новых строк документа использовать тот RByBill, который указан (не обнулять)
-		pfNoLoadTrfr            = 0x00010000, // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
-		pfUpdateProhibited      = 0x00020000, // @v9.5.1 Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
+		pfForeignSync           = 0x00002000, // Пакет создан в рамках приема данных из другого раздела
+		pfIgnoreStatusRestr     = 0x00004000, // При изменении документа игнорировать ограничения статуса
+		pfForceRByBill          = 0x00008000, // Для новых строк документа использовать тот RByBill, который указан (не обнулять)
+		// @v10.9.1 (unused) pfNoLoadTrfr            = 0x00010000, // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
+		pfUpdateProhibited      = 0x00020000, // Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
 			// (например, по причене не полной загрузки).
-		pfIgnoreOpRtList        = 0x00040000, // @v9.8.3 При изменении документа игнорировать ограничения списка доступных операций.
+		pfIgnoreOpRtList        = 0x00040000, // При изменении документа игнорировать ограничения списка доступных операций.
 			// Флаг устанавливается при рекурсивном вызове PPObjBill::UpdatePacket
-		pfZombie                = 0x00080000  // @v9.9.12 Документ восстановлен из истории версий (прямое изменение запрещено)
+		pfZombie                = 0x00080000  // Документ восстановлен из истории версий (прямое изменение запрещено)
 	};
 	long   ProcessFlags;       // @transient
 	PPLinkFilesArray LnkFiles;
-	InventoryArray InvList; // @v9.9.12 Список строк инвентаризации (введен исключительно для сериализации строк удаляемой инвентаризации - дальше будет видно)
+	InventoryArray InvList; // Список строк инвентаризации (введен исключительно для сериализации строк удаляемой инвентаризации - дальше будет видно)
 	//
 	// Список персональных регистраций, ассоциированных с документом.
 	// Note: Здесь нельзя использовать высокоуровневый класс PPCheckInPersonArray
@@ -11387,7 +11370,7 @@ public:
 		int    FASTCALL Copy(const CipBlock & rS);
 		void   destroy();
 
-		TSVector <PPCheckInPersonItem> * P_CipList; // @v9.8.6 TSArray-->TSVector
+		TSVector <PPCheckInPersonItem> * P_CipList;
 		PPObjTSession * P_TSesObj;
 	};
 	CipBlock CipB;
@@ -11445,18 +11428,7 @@ struct ILBillPacket : public PPBill {
 	//
 	PPID   LocObj;
 	long   IlbFlags;
-	TSVector <ILTI> Lots; // @v9.8.4 TSArray-->TSVector
-	// @v9.8.11 (moved to PPBill) TSVector <PPAccTurn> Turns; // @v9.8.4 TSArray-->TSVector
-	/* @v9.8.11 (moved to PPBill)
-	// @v9.8.11 ClbNumberList  ClbL;       // Список ГТД, ассоциированных с лотами
-	// @v9.8.11 ClbNumberList  SnL;        // Список серийных номеров лотов
-	PPLotTagContainer LTagL;   // Список тегов лотов
-	ObjTagList     BTagL;      // Список тегов документа
-	PPLotExtCodeContainer XcL; // @v9.8.11 Контейнер, содержащий спецкоды (в частности, марки ЕГАИС) ассоциированные со строками.
-		// Особенность такой ассоциации заключается в том, что с одной строкой может быть связано от нуля до множества кодов.
-		// Кроме того, коды привязываются не к лотам, а именно к строкам документа.
-	*/
-	// @v9.8.11 (moved to PPBill) PPAdvBillItemList AdvList; // Элементы расширения бух документа
+	TSVector <ILTI> Lots;
 	PPIDArray OrderBillList;   // Список документов заказа, которые "закрываются" данным документом
 	InventoryArray InvList;    // Список строк инвентаризации
 };
@@ -11787,7 +11759,7 @@ public:
 
 	HistBillTbl::Rec Head;
 private:
-	TSVector <HistTrfrTbl::Rec> Items; // @v9.8.4 TSArray-->TSVector
+	TSVector <HistTrfrTbl::Rec> Items;
 };
 
 class HistBillCore : public HistBillTbl {
@@ -11832,13 +11804,11 @@ private:
 #define LOTF_COSTWSTAX     0x0002L // Цена поступления задана с налогом с продаж
 #define LOTF_PCKG          0x0004L // Лот пакета
 #define LOTF_PRICEWOTAXES  0x0008L // Цена реализации без всех налогов
-#define LOTF_CLOSEDORDER   0x0010L // Закрытый ордер
-	// if Receipt.Closed == 0 and Receipt.Flags & LOTF_CLOSEDORDER then
-	// Receipt.Rest > 0 is valid
+#define LOTF_CLOSEDORDER   0x0010L // Закрытый ордер // if Receipt.Closed == 0 and Receipt.Flags & LOTF_CLOSEDORDER then Receipt.Rest > 0 is valid
 #define LOTF_ORDRESERVE    0x0020L // Резервирующий заказ
 #define LOTF_COMPLETE      0x0040L // Скоплектованный лот
 #define LOTF_CLOSED        0x0080L // @transient Закрытый лот (применяется в кэше для замены признака ReceiptTbl::Rec::Closed)
-#define LOTF_SURROGATE     0x0100L // @v9.6.7 @constraction Суррогатный лот, созданный без привязки к документу для отображения
+#define LOTF_SURROGATE     0x0100L // Суррогатный лот, созданный без привязки к документу для отображения
 	// текущих остатков и прочих атрибутов товаров. В частности, для автономного кассового узла.
 //
 // Специальные флаги временной таблицы TempLotTbl::SFlags
@@ -11852,7 +11822,7 @@ private:
 #define LOTSF_LINKCOSTDN   0x0040 // Цена поступления ниже, чем цена в документе заказа, на основании которого вводится данный док
 #define LOTSF_RESTRBOUNDS  0x0080 // Цена выходит за границы диапазона, определяемого ограничениями товарных величин
 
-typedef TSVector <ReceiptTbl::Rec> LotArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <ReceiptTbl::Rec> LotArray;
 //
 // Декларация функций сортировки записей лотов (receipt.cpp)
 //
@@ -12038,8 +12008,8 @@ struct GoodsRestVal {
 	double Cost;
 	double Price;
 	PPID   LocID;
-	PPID   LotID;  // @v8.1.1
-	LDATE  Expiry; // @v9.7.11
+	PPID   LotID;
+	LDATE  Expiry;
 	double Deficit;
 	double DraftRcpt;
 	char   Serial[24];
@@ -12088,7 +12058,7 @@ public:
 		_diffLoc      = 0x0010,
 		_diffLotTag   = 0x0020,
 		_diffLotID    = 0x0040,
-		_diffExpiry   = 0x0080  // @v9.7.11
+		_diffExpiry   = 0x0080
 	};
 	uint   CalcMethod;
 	uint   Flags_;
@@ -13517,7 +13487,7 @@ struct PredictSalesItem {
 	double Amount;
 };
 
-class PsiArray : public TSVector <PredictSalesItem> { // @v9.8.4 TSArray-->TSVector
+class PsiArray : public TSVector <PredictSalesItem> {
 public:
 	PsiArray();
 	int    Add(const PredictSalesItem *);
@@ -13578,7 +13548,7 @@ private:
 	};
 	const  PPID  CoeffQkID;            //
 	const  PPQuotArray * P_CoeffQList; // @notowned
-	SVector * P_List; // @v9.9.4 SArray-->SVector
+	SVector * P_List;
 };
 
 typedef int (FASTCALL * EnumPredictSalesProc)(PredictSalesItem *, void * extraPtr);
@@ -14201,7 +14171,7 @@ struct CCheckItem { // @transient
 	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
 
-typedef TSVector <CCheckItem> CCheckItemArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <CCheckItem> CCheckItemArray;
 //
 // Типы сумм кассовых чеков
 //
@@ -14215,10 +14185,10 @@ typedef TSVector <CCheckItem> CCheckItemArray; // @v9.8.4 TSArray-->TSVector
 #define CCAMTTYP_ADDCRDCARD  8 // Сумма, зачтенная по дополнительной корпоративной кредитной карте
 #define CCAMTTYP_COUNT       9 // Количество чеков (используется для итогового суммирования выборки чеков)
 #define CCAMTTYP_BANKDSCNT  11 // Скидка по безналичному чеку (используется для итогового суммирования выборки чеков)
-#define CCAMTTYP_CSCCHARGE  12 // @v8.1.4 Специальная сумма, идентифицирующая начисление на кредитную карту по строкам
+#define CCAMTTYP_CSCCHARGE  12 // Специальная сумма, идентифицирующая начисление на кредитную карту по строкам
 	// чека, содержащим товар для начисления. Такая сумма не включается в список оплат чека, сохраняемый вместе с чеком
-#define CCAMTTYP_NOTE       13 // @v8.7.4 Сумма, полученная от покупателя (без учета сдачи)
-#define CCAMTTYP_DELIVERY   14 // @v8.7.4 Сумма сдачи, возвращенная покупателю
+#define CCAMTTYP_NOTE       13 // Сумма, полученная от покупателя (без учета сдачи)
+#define CCAMTTYP_DELIVERY   14 // Сумма сдачи, возвращенная покупателю
 //
 // Invariants:
 // CCAMTTYP_FISCAL+CCAMTTYP_NONFISCAL=CCAMTTYP_AMOUNT
@@ -14237,14 +14207,14 @@ struct CcAmountEntry {
 	PPID   CheckID;    // Идентификатор чека. Важен, если собираются однотипные суммы по выборке чеков
 	int32  Type;       // CCAMTTYP_XXX
 	int32  AddedID;    // Дополнительный идент. Для PaymType == CCAMTTYP_CRDCARD - ид карты
-	PPID   CurID;      // @v9.0.4 Валюта платежа
-	double CurAmount;  // @v9.0.4 Сумма в валюте CurID. Если CurID == 0, то CurAmount == 0.0
+	PPID   CurID;      // Валюта платежа
+	double CurAmount;  // Сумма в валюте CurID. Если CurID == 0, то CurAmount == 0.0
 	double Amount;     // Величина суммы
 };
 //
 //
 //
-class CcAmountList : public TSVector <CcAmountEntry> { // @v9.8.4 TSArray-->TSVector
+class CcAmountList : public TSVector <CcAmountEntry> {
 public:
 	CcAmountList();
 	CcAmountList & Z();
@@ -14599,7 +14569,7 @@ class CCheckCore : public CCheckTbl {
 public:
 	static SString & FASTCALL MakeCodeString(const CCheckTbl::Rec *, SString &);
 	static int FASTCALL FetchCTableStatus(long tableNo, CTableStatus * pStatus);
-	static int FASTCALL FetchCTableOrderList(TSVector <CTableStatus> & rList); // @v9.8.5 TSArray-->TSVector
+	static int FASTCALL FetchCTableOrderList(TSVector <CTableStatus> & rList);
 	// @v10.3.4 @useless static int RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID);
 	static int Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList);
 	static int FASTCALL IsExtRecEq(const CCheckExtTbl::Rec & r1, const CCheckExtTbl::Rec & r2);
@@ -14614,7 +14584,7 @@ public:
 	int    GetExt(PPID id, CCheckExtTbl::Rec * pExt);
 	int    GetPaymList(PPID id, CcAmountList & rList);
 	int    GetListByExtFilt(const CCheckFilt & rFlt, ObjIdListFilt & rList);
-	int    GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList); // @v9.8.5 TSArray-->TSVector
+	int    GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList);
 	//
 	// Descr: Возвращает список чеков, по крайней мере одна строка которых содержит текст расширения lnextss
 	//   эквивалентный pText.
@@ -15544,7 +15514,7 @@ struct PPJobDescr { // @persistent
 //
 // Descr: Задача, конкретизированная относительно базы данных и расписания.
 //
-class PPJob : public PPExtStrContainer { // @persistent // @v9.2.3 PPExtStrContainer
+class PPJob : public PPExtStrContainer { // @persistent
 public:
 	PPJob();
 	PPJob & FASTCALL operator = (const PPJob &);
@@ -15577,9 +15547,9 @@ public:
 	long   Ver;                // Номер версии хранимой копии задачи
 	PPID   NextJobID;          // Задача запускаемая в случае успешного выполнения текущей задачи
 	char   Symb[20];           // Уникальный (или пустой) символ задачи
-	PPID   EmailAccID;         // @v9.2.3 Учетная запись электронной почты
-	LTIME  ScheduleBeforeTime; // @v9.2.11 Время, после которого задачу выполнять не следует
-	char   Reserve[4];         // @reserve @v9.2.3 [12]-->[8] // @v9.2.11 [8]-->[4]
+	PPID   EmailAccID;         // Учетная запись электронной почты
+	LTIME  ScheduleBeforeTime; // Время, после которого задачу выполнять не следует
+	char   Reserve[4];         // @reserve 
 	SBuffer Param;
 };
 //
@@ -21745,9 +21715,9 @@ private:
         PPObjArticle * P_ArObj;
         PPViewDebtTrnovr * P_DebtView;
         PPViewGoodsRest * P_GrView;
-        TSVector <BrandEntry> * P_BrandList; // @v9.8.7 TSArray-->TSVector
-        TSVector <WhEntry> * P_WhList; // @v9.8.7 TSArray-->TSVector
-        TSVector <GoodsGrpEntry> * P_GgList; // @v9.8.7 TSArray-->TSVector
+        TSVector <BrandEntry> * P_BrandList;
+        TSVector <WhEntry> * P_WhList;
+        TSVector <GoodsGrpEntry> * P_GgList;
         // @v10.8.6 StrAssocArray QkList;
 	};
 	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
@@ -25671,7 +25641,6 @@ public:
 	int    GetAddress(PPID id, SString & rBuf);
 	int    GetExtName(PPID, SString & rBuf);
 	int    FormatRegister(PPID, PPID regTypeID, char * buf, size_t buflen);
-	// @v9.0.4 int    GetBnkAcctData(PPID bnkAcctID, BankAccountTbl::Rec *, BnkAcctData *); // @obsolete
 	int    GetBnkAcctData(PPID bnkAcctID, const PPBankAccount *, BnkAcctData *);
 	int    GetPersonReq(PPID, PersonReq *);
 	int    GetTradeLicList(PPID, RegisterArray *);
@@ -27383,7 +27352,7 @@ public:
 	static int GetAliasSubst(PPID id, LAssocArray *); // @>>Reference::GetPropArray()
 	static int PutAliasSubst(PPID id, const LAssocArray *, int use_ta); // @>>Reference::PutPropArray()
 
-	PPObjArticle(void * extraPtr = 0);
+	explicit PPObjArticle(void * extraPtr = 0);
 	~PPObjArticle();
 	//
 	// В качестве дополнительного параметра методам PPObjArticle
@@ -28694,10 +28663,6 @@ public:
 	//   Правила извлечение то же, что и в функции GetSingleBarcode().
 	//
 	int    FetchSingleBarcode(PPID id, SString & rBuf);
-	//
-	// Descr: возвращает артикул товара, полученный при импорте в Papyrus.
-	//
-	// @v9.1.4 int    GetGoodsArticle(PPID id, PPID * pArticle);
 	//
 	// Descr: поиск товара по артикулу, полученному при импорте в Papyrus.
 	//
@@ -30578,11 +30543,11 @@ private:
 	TSCollection <PPBillPacket> * P_PackList;
 };
 
-class HierArray : public SVector { // @v9.9.3 SArray-->SVector
+class HierArray : public SVector {
 public:
 	struct Item {
-		char   Code[24];       // @v8.8.0 [16]-->[24]
-		char   ParentCode[24]; // @v8.8.0 [16]-->[24]
+		char   Code[24];
+		char   ParentCode[24];
 	};
 	HierArray();
 	const  HierArray::Item & at(uint i) const;
@@ -31100,7 +31065,6 @@ public:
 	virtual int  EditBaseFilt(PPBaseFilt *);
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void GetTabTitle(long tabID, SString & rBuf);
-
 	const  StrAssocArray & GetQuotKindList() const;
 	int    InitIteration();
 	int    FASTCALL NextIteration(QuotViewItem *);
@@ -31119,7 +31083,6 @@ public:
 private:
 	static  int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	static  int DynFuncPeriod;
-
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
@@ -31148,11 +31111,11 @@ private:
 	StrAssocArray QuotKindList;
 	TempQuotTbl * P_TempTbl;
 	TempQuotSerialTbl * P_TempSerTbl;
-	TempOrderTbl * P_TempOrd; // @v8.1.1
+	TempOrderTbl * P_TempOrd;
 	PPIDArray QkList;
 	ExtGoodsSelDialog * P_GoodsSelDlg;
 	PPQuotItemArray QList_;
-	SStrGroup StrPool; // @v9.8.6 Пул строковых полей, на который ссылаются поля в TempQuotTbl
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempQuotTbl
 	//
 	// Это поле инициализируется функцией Browse()
 	// и используется для вычисления вида котировки, соответствующего
@@ -32116,7 +32079,7 @@ public:
 
 	long   Flags;             // @persistent
 	PPID   ImpOpID;           // @persistent
-	long   PredefFormat;      // @persistent @v9.7.8
+	long   PredefFormat;      // @persistent
 	SString Object1SrchCode;  // @persistent
 	SString Object2SrchCode;  // @persistent
 };
@@ -32128,7 +32091,7 @@ public:
 //
 class PPInventoryImpExpParam : public PPImpExpParam {
 public:
-	PPInventoryImpExpParam(uint recId = 0, long flags = 0);
+	explicit PPInventoryImpExpParam(uint recId = 0, long flags = 0);
 };
 //
 // Descr: Вспомогательная стурктура, используемая в специализиованных
@@ -32181,7 +32144,7 @@ public:
 	int    SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec);
 
 	long   Flags;
-	long   DisabledOptions; // @v9.2.10 @transient
+	long   DisabledOptions; // @transient
 	PPID   OpID;
 	PPID   LocID;
 	PPID   PosNodeID;
@@ -33487,15 +33450,14 @@ private:
 		stDemoRestrict     = 0x0002, // Если stDemoRestrictInit и stDemoRestrict, то сеанс имеет ограничения демо-версии
 		stDoObjVer         = 0x0004  // Необходимо сохранять версии измененных и удаленных документов
 	};
-	long   State2; // @v9.8.11 PPObjBill::stXXX
+	long   State2; // PPObjBill::stXXX
 	struct LockSet { // @flat
 		LockSet(PPID id, PPID linkID);
 		PPID   ID;
 		PPID   LinkID;
 	};
-	TSVector <LockSet> locks; // @v9.8.6 TSArray-->TSVector
+	TSVector <LockSet> locks;
 	GtaBlock GtaB;
- 	// @v9.8.11 int    DemoRestrict;
 	SString NameBuf;         // Returned by GetNamePtr
 	PackageCore * P_PckgT;   //
 	CurRateCore * P_Cr;      //
@@ -33505,7 +33467,6 @@ private:
 	PPObjLocation LocObj;    //
 	PPObjGoods GObj;         //
 	PPObjArticle ArObj;      //
-	// @v9.8.11 TLP_MEMB(HistBillCore, HistBill);
 };
 
 class PPObjAccTurn : public PPObject {
@@ -41396,10 +41357,10 @@ private:
 	int    IsGenAr;                 // @*Init_()
 	PPID   EffDlvrLocID;            // @v10.5.0 Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
 	ObjRestrictArray ExtGenAccList; // @*Init_()
-	PPCycleArray  CycleList;        // @*Init_()
-	AccAnlzTotal  Total;
-	PPObjAccount  AccObj;
-	PPObjArticle  ArObj;
+	PPCycleArray CycleList;         // @*Init_()
+	AccAnlzTotal Total;
+	PPObjAccount AccObj;
+	PPObjArticle ArObj;
 	PPObjBill   * P_BObj;
 	AccTurnCore * P_ATC;
 	TempAccAnlzTbl   * P_TmpAATbl;
@@ -47359,6 +47320,7 @@ public:
 	int    Run(const Param & rP);
 	static int Test();
 private:
+	int    PrepareBillPacketForSending(void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
 };
 //
@@ -53290,7 +53252,7 @@ int    FASTCALL SetupObjListCombo(TDialog *, uint, PPID, const PPIDArray * pIncl
 enum {
 	sacfDisableIfZeroSheet   = 0x0001, // Заблокировать комбо-бокс если таблица статей не определена
 	sacfNonEmptyExchageParam = 0x0002, // Показывать только статьи с не пустой конфигурацией обмена в соглашении
-	sacfNonGeneric           = 0x0004  // @v9.5.9 Исключить выбор группирующих статей
+	sacfNonGeneric           = 0x0004  // Исключить выбор группирующих статей
 };
 
 int    FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf /*= 0*/);
@@ -53449,8 +53411,8 @@ int    GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, uint
 int    PPCalculator(void * hParentWnd, const char * pInitData);
 TView * ValidView(TView *);
 int    FASTCALL InsertView(TBaseBrowserWindow * v);
-ushort FASTCALL ExecView(TWindow *); // @v9.0.4 TView-->TWindow
-ushort FASTCALL ExecViewAndDestroy(TWindow * pView); // @v9.0.4 TView-->TWindow
+ushort FASTCALL ExecView(TWindow *);
+ushort FASTCALL ExecViewAndDestroy(TWindow * pView);
 ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade);
 ushort FASTCALL ExecView(TBaseBrowserWindow * v);
 int    FASTCALL GetModelessStatus(int outerModeless = 1);
@@ -53914,8 +53876,8 @@ struct DBMaintainParam {
 		tblXBill        = 0x00000008,
 		tblRsrvSj       = 0x00000010,  // Восстанавливать в системном журнале записи из резервной таблицы
 		tblXBillRecover = 0x00000020,  // Удалять висящие записи строк, идентификатор которых больше последнего идентификатора документа
-		tblTempAltGGrp  = 0x00000040,  // @v8.5.12 Удалять временные альтернативные группы
-		tblMoveObsolete = 0x00000080   // @v9.0.3 Переместить устаревшие файлы данных
+		tblTempAltGGrp  = 0x00000040,  // Удалять временные альтернативные группы
+		tblMoveObsolete = 0x00000080   // Переместить устаревшие файлы данных
 	};
 
 	int16 DLSDays;

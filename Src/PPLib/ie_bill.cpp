@@ -1878,7 +1878,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 {
 	int    ok = -1;
 	SdbField dyn_fld;
-	if(rDynRec.GetFieldByPos(dynFldN, &dyn_fld) && dyn_fld.Formula.NotEmptyS()) {
+	if(rDynRec.GetFieldByPos(dynFldN, &dyn_fld) && dyn_fld.InnerFormula.NotEmptyS()) {
 		char   temp_str_[1024];
 		SString temp_buf;
 		SdbField inner_fld;
@@ -1890,7 +1890,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 		PPObjectTag tag_rec;
 		double rval = 0.0;
 		PPID   tag_id = 0;
-		scan.Set(dyn_fld.Formula, 0);
+		scan.Set(dyn_fld.InnerFormula, 0);
 		if(scan.GetIdent(temp_buf.Z())) {
 			if(temp_buf.IsEqiAscii("lottag")) {
 				scan.Skip();
@@ -3298,12 +3298,10 @@ int PPBillImporter::Import(int useTa)
 									ObjTagList * p_tag_list = TagC.Get(r_row.LineId);
 									if(p_tag_list && p_tag_list->GetCount()) {
 										pack.LTagL.Set(new_item_pos, p_tag_list);
-										// @v9.9.4 {
 										if(temp_buf.NotEmpty())
 											pack.LTagL.AddNumber(PPTAG_LOT_CLB, new_item_pos, temp_buf);
 										if(serial.NotEmpty())
 											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_item_pos, serial);
-										// } @v9.9.4
 									}
 								}
 								if(need_price_restrict) {

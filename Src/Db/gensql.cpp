@@ -8,7 +8,7 @@
 
 Generator_SQL::Generator_SQL(SqlServerType sqlst, long flags) : Sqlst(sqlst), Flags(flags)
 {
-	if(!oneof4(Sqlst, sqlstGeneric, sqlstORA, sqlstMSS, sqlstFB))
+	if(!oneof6(Sqlst, sqlstGeneric, sqlstORA, sqlstMSS, sqlstFB, sqlstMySQL, sqlstSQLite))
 		Sqlst = sqlstGeneric;
 }
 
@@ -20,7 +20,7 @@ Generator_SQL & FASTCALL Generator_SQL::Tok(int tok)
 
 Generator_SQL & Generator_SQL::Reset()
 {
-	Buf = 0;
+	Buf.Z();
 	return *this;
 }
 
@@ -150,6 +150,42 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 	int _t = GETSTYPE(typ);
 	int _s = GETSSIZE(typ);
 	switch(Sqlst) {
+		case sqlstMySQL:
+			switch(_t) {
+				case S_CHAR:     rBuf.Cat("VARCHAR").CatParStr(_s); break;
+				case S_LSTRING:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
+				case S_ZSTRING:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
+				case S_INT:
+				case S_UINT:     rBuf.Cat("INT"); break; 
+				case S_AUTOINC:  rBuf.Cat("INT AUTO_INCREMENT UNIQUE"); break;
+				case S_INT64:
+				case S_UINT64:   rBuf.Cat("BIGINT"); break; 
+				case S_UUID_:    rBuf.Cat("BINARY").CatParStr(16); break; 
+				case S_BFLOAT:
+				case S_FLOAT:    
+					if(_s == 4)
+						rBuf.Cat("FLOAT"); 
+					else
+						rBuf.Cat("DOUBLE"); 
+					break;
+				case S_DATE:     rBuf.Cat("DATE"); break;
+				case S_TIME:     rBuf.Cat("TIME"); break; 
+				case S_DATETIME: rBuf.Cat("DATETIME"); break;
+				case S_DEC:
+				case S_MONEY:
+					_s = GETSSIZED(typ);
+					rBuf.Cat("NUMERIC").CatChar('(').Cat(_s * 2 - 2).Comma().Cat(GETSPRECD(typ)).CatChar(')'); break;
+				case S_BOOL:
+				case S_BIT:   rBuf.Cat("NUMERIC").CatParStr(1); break;
+				case S_NOTE:  rBuf.Cat("VARCHAR").CatParStr(_s); break;
+				case S_WCHAR: rBuf.Cat("NCHAR").CatParStr(_s/2); break;
+				case S_WZSTRING: rBuf.Cat("CHAR").CatParStr(_s/2).Space().Cat("CHARACTER SET utf16"); break;
+				case S_RAW:   rBuf.Cat("BINARY").CatParStr(_s); break;
+				case S_BLOB:  rBuf.Cat("MEDIUMBLOB"); break;
+				case S_CLOB:  rBuf.Cat("MEDIUMTEXT"); break;
+				default:      rBuf.Cat("UNSUPPORTED_TYPE"); break;
+			}
+			break;
 		case sqlstORA:
 			switch(_t) {
 				case S_CHAR:     rBuf.Cat("VARCHAR2").CatParStr(_s); break;
@@ -158,6 +194,9 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_INT:
 				case S_UINT:
 				case S_AUTOINC:  rBuf.Cat("NUMERIC").CatParStr(12); break;
+				case S_INT64: // @v10.9.1
+				case S_UINT64:   rBuf.Cat("NUMERIC").CatParStr(19); break; // @v10.9.1
+				case S_UUID_:    rBuf.Cat("RAW").CatParStr(16); break; // @v10.9.1
 				case S_BFLOAT:
 				case S_FLOAT:    rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
 				case S_DATE:     rBuf.Cat("DATE"); break;
@@ -185,6 +224,8 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_INT:
 				case S_UINT:
 				case S_AUTOINC: rBuf.Cat("NUMERIC").CatParStr(12); break;
+				case S_INT64:
+				case S_UINT64:  rBuf.Cat("NUMERIC").CatParStr(19); break; 
 				case S_FLOAT:   rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
 				case S_DATE:    rBuf.Cat("DATE"); break;
 				case S_TIME:

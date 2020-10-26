@@ -17,10 +17,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "xstrndup.h"
-//#include <string.h>
-//#include "xalloc.h"
-
 /* Return a newly allocated copy of at most N bytes of STRING.
    In other words, return a copy of the initial segment of length N of
    STRING.  */

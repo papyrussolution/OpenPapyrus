@@ -1568,8 +1568,7 @@ int GoodsCore::SearchAnyRef(PPID objType, PPID objID, PPID *pID)
 			q.select(this->ID, 0L).where(*dbq);
 			k0.ID = 0;
 			if(q.fetchFirst(&k0, spGt) > 0) {
-				if(pID)
-					*pID = data.ID;
+				ASSIGN_PTR(pID, data.ID);
 				return 1;
 			}
 		}
@@ -1630,10 +1629,8 @@ int GoodsCore::Helper_ReadArCodes(PPID goodsID, PPID arID, ArGoodsCodeArray * pC
 			q.selectAll();
 		q.where(ACodT.ArID == arID);
 		for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-			if(pCodeList)
-				THROW_SL(pCodeList->insert(&ACodT.data));
-			if(pIdList)
-				THROW_SL(pIdList->add(ACodT.data.GoodsID));
+			THROW_SL(!pCodeList || pCodeList->insert(&ACodT.data));
+			THROW_SL(!pIdList || pIdList->add(ACodT.data.GoodsID));
 			ok = 1;
 		}
 	}
@@ -1683,28 +1680,6 @@ int GoodsCore::GetSingleBarcode(PPID goodsID, SString & rBuf)
 	BarcodeArray codes;
 	return ReadBarcodes(goodsID, codes) ? codes.GetSingle(rBuf) : 0;
 }
-
-/* @v9.1.4 int GoodsCore::GetGoodsArticle(PPID id, PPID * pArticle)
-{
-	int    ok = -1;
-	long   article = 0;
-	if(id) {
-		BarcodeTbl::Key1 k;
-		k.GoodsID = id;
-		if(BCTbl.search(1, &k, spEq))
-			do {
-				SString  barcode;
-				if(BCTbl.data.Code[0] == '$' && BCTbl.data.BarcodeType == -1 && barcode.CopyFrom(BCTbl.data.Code + 1).IsDigit()) {
-					article = barcode.ToLong();
-					ok = 1;
-				}
-			} while(ok < 0 && BCTbl.search(1, &k, spNext) && k.GoodsID == id);
-		if(!BTROKORNFOUND)
-			ok = PPSetErrorDB();
-	}
-	ASSIGN_PTR(pArticle, article);
-	return ok;
-} */
 
 int GoodsCore::SearchBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec)
 {

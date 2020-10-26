@@ -2077,7 +2077,12 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 	int    ok = 1, r = 0, codetohex = 0;
 	int    err_barcode = 0;
 	IterCounter cntr;
-	SString file_name, wait_msg, temp_buf2, err_msg_buf, fmt_buf, msg_buf;
+	SString file_name;
+	SString wait_msg;
+	SString temp_buf2;
+	SString err_msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	SString ini_file_name;
 	SString goods_name;
 	TextFieldAnalyzer::RetBlock txt_blk[2];
@@ -2322,8 +2327,8 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							PPID   tag_id = 0;
 							for(uint j = 0; j < dyn_rec.GetCount(); j++) {
 								dyn_rec.GetFieldByPos(j, &dyn_fld);
-								if(dyn_fld.Formula.NotEmptyS()) {
-									scan.Set(dyn_fld.Formula, 0);
+								if(dyn_fld.InnerFormula.NotEmptyS()) {
+									scan.Set(dyn_fld.InnerFormula, 0);
 									if(scan.GetIdent(temp_buf2.Z())) {
 										if(temp_buf2.IsEqiAscii("tag")) {
 											scan.Skip();
@@ -2335,38 +2340,48 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 													const TYPEID typ = dyn_fld.T.Typ;
 													const int    base_typ = stbase(typ);
 													ObjTagItem tag_item;
-													if(base_typ == BTS_INT) {
-														long ival = 0;
-														sttobase(typ, dyn_rec.GetDataC(j), &ival);
-														if(ival) {
-															tag_item.SetInt(tag_id, ival);
-															r = 1;
-														}
-													}
-													else if(base_typ == BTS_REAL) {
-														double rval = 0.0;
-														sttobase(typ, dyn_rec.GetDataC(j), &rval);
-														if(rval != 0.0) {
-															tag_item.SetReal(tag_id, rval);
-															r = 1;
-														}
-													}
-													else if(base_typ == BTS_STRING) {
-														char strval[1024];
-														sttobase(typ, dyn_rec.GetDataC(j), strval);
-														if(strval[0]) {
-															(temp_buf2 = strval).Strip().Transf(CTRANSF_OUTER_TO_INNER);
-															tag_item.SetStr(tag_id, temp_buf2);
-															r = 1;
-														}
-													}
-													else if(base_typ == BTS_DATE) {
-														LDATE dval = ZERODATE;
-														sttobase(typ, dyn_rec.GetDataC(j), &dval);
-														if(checkdate(dval)) {
-															tag_item.SetDate(tag_id, dval);
-															r = 1;
-														}
+													switch(base_typ) {
+														case BTS_INT:
+															{
+																long ival = 0;
+																sttobase(typ, dyn_rec.GetDataC(j), &ival);
+																if(ival) {
+																	tag_item.SetInt(tag_id, ival);
+																	r = 1;
+																}
+															}
+															break;
+														case BTS_REAL:
+															{
+																double rval = 0.0;
+																sttobase(typ, dyn_rec.GetDataC(j), &rval);
+																if(rval != 0.0) {
+																	tag_item.SetReal(tag_id, rval);
+																	r = 1;
+																}
+															}
+															break;
+														case BTS_STRING:
+															{
+																char strval[1024];
+																sttobase(typ, dyn_rec.GetDataC(j), strval);
+																if(strval[0]) {
+																	(temp_buf2 = strval).Strip().Transf(CTRANSF_OUTER_TO_INNER);
+																	tag_item.SetStr(tag_id, temp_buf2);
+																	r = 1;
+																}
+															}
+															break;
+														case BTS_DATE:
+															{
+																LDATE dval = ZERODATE;
+																sttobase(typ, dyn_rec.GetDataC(j), &dval);
+																if(checkdate(dval)) {
+																	tag_item.SetDate(tag_id, dval);
+																	r = 1;
+																}
+															}
+															break;
 													}
 													if(r)
 														tag_list.PutItem(tag_id, &tag_item);

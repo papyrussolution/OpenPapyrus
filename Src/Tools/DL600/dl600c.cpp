@@ -1370,7 +1370,7 @@ int DlContext::AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * 
 		if(pExpr) {
 			THROW(ResolveExpr(CurScopeID, CurScopeID, 0, pExpr));
 			is_formula = 1;
-			pExpr->Pack(fld.Formula);
+			pExpr->Pack(fld.InnerFormula); // @v10.9.1 Formula-->InnerFormula
 			typeId = pExpr->GetTypeID();
 			pExpr->Destroy();
 		}
@@ -3607,7 +3607,7 @@ int DlContext::Test()
 	return 1;
 }
 
-int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath, SqlServerType sqlst)
+int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath, const LongArray * pSqlServerTypeList/*SqlServerType sqlst*/)
 {
 	int    ok = 1;
 	char   acs[512];
@@ -3615,13 +3615,27 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 	LongArray scope_id_list;
 	Sc.GetChildList(DlScope::kDbTable, 1, &scope_id_list);
 
-	SString sql_file_name;
-	Generator_SQL * p_sqlgen = 0;
-	if(sqlst) {
+	//SString sql_file_name;
+	//Generator_SQL * p_sqlgen = 0;
+	TSCollection <Generator_SQL> sqlgen_list; // @v10.9.1
+	if(SVector::GetCount(pSqlServerTypeList)) {
+		PPIDArray sqlserver_type_list(*pSqlServerTypeList);
+		sqlserver_type_list.sortAndUndup();
+		for(uint ssti = 0; ssti < sqlserver_type_list.getCount(); ssti++) {
+			const long __sqlst = sqlserver_type_list.get(ssti);
+			if(oneof4(__sqlst, sqlstGeneric, sqlstORA, sqlstMySQL, sqlstSQLite)) {
+				Generator_SQL * p___sqlgen = new Generator_SQL(static_cast<SqlServerType>(__sqlst), Generator_SQL::fIndent);
+				if(p___sqlgen) {
+					sqlgen_list.insert(p___sqlgen);
+				}
+			}
+		}
+	}
+	/*if(sqlst) {
 		sql_file_name = InFileName;
 		SPathStruc::ReplaceExt(sql_file_name, "sql", 1);
 		p_sqlgen = new Generator_SQL(sqlst, Generator_SQL::fIndent);
-	}
+	}*/
 	{
 		DbLoginBlock dlb;
 		DbProvider * p_db = BDictionary::CreateBtrDictInstance(pDictPath);
@@ -3655,7 +3669,44 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 				}
 			}
 		}
-		if(p_sqlgen) {
+		if(sqlgen_list.getCount()) {
+			for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
+				Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);
+				if(p_sqlgen) {
+					p_sqlgen->CreateTable(tbl, tbl.GetTableName());
+					p_sqlgen->Eos().Cr();
+					uint j;
+					for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
+						int   do_skip_index = 0;
+						// @v10.9.1 {
+						if(p_sqlgen->GetServerType() == sqlstMySQL && j == 0) {
+							const BNFieldList & r_fl = tbl.GetFields();
+							for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
+								if(GETSTYPE(r_fl[fi].T) == S_AUTOINC)
+									do_skip_index = 1;
+							}
+						}
+						// } @v10.9.1 
+						if(!do_skip_index) {
+							p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j);
+							p_sqlgen->Eos();
+						}
+					}
+					p_sqlgen->Cr();
+					if(p_sqlgen->GetServerType() == sqlstORA) {
+						for(j = 0; j < tbl.GetFields().getCount(); j++) {
+							TYPEID _t = tbl.GetFields()[j].T;
+							if(GETSTYPE(_t) == S_AUTOINC) {
+								p_sqlgen->CreateSequenceOnField(tbl, tbl.GetTableName(), j, 0);
+								p_sqlgen->Eos();
+							}
+						}
+						p_sqlgen->Cr();
+					}
+				}
+			}
+		}
+		/*if(p_sqlgen) {
 			p_sqlgen->CreateTable(tbl, tbl.GetTableName());
 			p_sqlgen->Eos().Cr();
 			uint j;
@@ -3664,7 +3715,7 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 				p_sqlgen->Eos();
 			}
 			p_sqlgen->Cr();
-			if(sqlst == sqlstORA) {
+			if(p_sqlgen->GetServerType() == sqlstORA) {
 				for(j = 0; j < tbl.GetFields().getCount(); j++) {
 					TYPEID _t = tbl.GetFields()[j].T;
 					if(GETSTYPE(_t) == S_AUTOINC) {
@@ -3680,11 +3731,32 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 					f_sql.WriteLine(static_cast<SString &>(*p_sqlgen));
 				}
 			}
-		}
+		}*/
 	}
 	DBS.CloseDictionary();
+	if(sqlgen_list.getCount()) {
+		for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
+			Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);
+			if(p_sqlgen) {
+				SString __sql_file_name(InFileName);
+				SPathStruc ps(InFileName);
+				ps.Ext = "sql";
+				switch(p_sqlgen->GetServerType()) {
+					case sqlstORA: ps.Nam.CatChar('-').Cat("oracle"); break;
+					case sqlstMySQL: ps.Nam.CatChar('-').Cat("mysql"); break;
+					case sqlstSQLite: ps.Nam.CatChar('-').Cat("sqlite"); break;
+					case sqlstMSS: ps.Nam.CatChar('-').Cat("mssql"); break;
+				}
+				ps.Merge(__sql_file_name);
+				SFile f_sql(__sql_file_name, SFile::mWrite);
+				if(f_sql.IsValid()) {
+					f_sql.WriteLine(static_cast<SString &>(*p_sqlgen));
+				}
+			}
+		}
+	}
 	CATCHZOK
-	delete p_sqlgen;
+	//delete p_sqlgen;
 	return ok;
 }
 
@@ -3988,15 +4060,20 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 		//
 		if(!(cflags & cfBinOnly)) {
 			SqlServerType sqlst = sqlstNone;
+			LongArray sqlst_list;
 			if(cflags & cfOracle)
-				sqlst = sqlstORA;
-			else if(cflags & cfSQL)
-				sqlst = sqlstGeneric;
+				sqlst_list.add(sqlstORA);
+			if(cflags & cfSQL)
+				sqlst_list.add(sqlstGeneric);
+			if(cflags & cfMySQL)
+				sqlst_list.add(sqlstMySQL);
+			if(cflags & cfSqLite)
+				sqlst_list.add(sqlstSQLite);
 			scope_id_list.freeAll();
 			Sc.GetChildList(DlScope::kDbTable, 1, &scope_id_list);
 			if(scope_id_list.getCount()) {
-				if(pDictPath && pDictPath[0]) {
-					if(!CreateDbDictionary(pDictPath, pDataPath, sqlst))
+				if(!isempty(pDictPath)) {
+					if(!CreateDbDictionary(pDictPath, pDataPath, &sqlst_list))
 						Error(LastError, 0, 0);
 				}
 				else

@@ -1,5 +1,6 @@
 // SDRECORD.CPP
 // Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -14,7 +15,7 @@ SdbField::SdbField() : ID(0), OuterFormat(0), InnerOffs(0)
 	T.Init();
 }
 
-void SdbField::Init()
+SdbField & SdbField::Z()
 {
 	ID = 0;
 	T.Init();
@@ -22,7 +23,9 @@ void SdbField::Init()
 	InnerOffs = 0;
 	Name.Z();
 	Descr.Z();
-	Formula.Z();
+	OuterFormula.Z();
+	InnerFormula.Z(); // @v10.9.1
+	return *this;
 }
 
 int FASTCALL SdbField::IsEqual(const SdbField & rPat) const
@@ -34,7 +37,8 @@ int FASTCALL SdbField::IsEqual(const SdbField & rPat) const
 	THROW(memcmp(&T, &rPat.T, sizeof(T)) == 0);
 	THROW(Name == rPat.Name);
 	THROW(Descr == rPat.Descr);
-	THROW(Formula == rPat.Formula);
+	THROW(OuterFormula == rPat.OuterFormula);
+	THROW(InnerFormula == rPat.InnerFormula); // @v10.9.1
 	CATCHZOK
 	return ok;
 }
@@ -99,21 +103,28 @@ void SdbField::PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, cons
 // type symb [size]
 // symb type [size]
 //
-#define TOK_TYPE   1
-#define TOK_SYMB   2
-#define TOK_SIZE   3
-#define TOK_SLASH  4
+#define TOK_TYPE    1
+#define TOK_SYMB    2
+#define TOK_SIZE    3
+#define TOK_SLASH   4
+#define TOK_FORMULA 5
 
 struct ReList {
 	ReList()
 	{
-		ReSize[0].Compile("\\[[ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\]"); // [len.prec]
-		ReSize[1].Compile("\\([ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\)"); // (len.prec)
-		ReSize[2].Compile("[0-9]+[ \t]*(,[ \t]*[0-9]+)?");          // len, prec
-		ReSymb.Compile("[a-zA-Z_а-яёА-ЯЁ]+[0-9a-zA-Z_а-яёА-ЯЁ]*");     // @v6.2.x AHTOXA а-яА-Я
+		ReSize[0].Compile("^\\[[ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\]"); // [len.prec]
+		ReSize[1].Compile("^\\([ \t]*[0-9]+(\\.[0-9]*)?[ \t]*\\)"); // (len.prec)
+		ReSize[2].Compile("^[0-9]+[ \t]*(,[ \t]*[0-9]+)?");         // len, prec
+		SString temp_buf("^[a-zA-Z_Р°-СЏС‘Рђ-РЇРЃ]+[0-9a-zA-Z_Р°-СЏС‘Рђ-РЇРЃ]*");
+		ReSymb.Compile(temp_buf.Transf(CTRANSF_UTF8_TO_OUTER));
+		temp_buf = "^\"[a-zA-Z_Р°-СЏС‘Рђ-РЇРЃ]+[0-9a-zA-Z_Р°-СЏС‘Рђ-РЇРЃ ]*\"";
+		ReQuotedSymb.Compile(temp_buf.Transf(CTRANSF_UTF8_TO_OUTER));
+		ReFormula.Compile("^(FORMULA|formula|Formula)[ \t]\\(.*\\)"); 
 	}
 	CRegExp ReSize[3];
 	CRegExp ReSymb;
+	CRegExp ReQuotedSymb;  // @v10.9.1
+	CRegExp ReFormula;     // @v10.9.1   
 };
 
 static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & rBuf)
@@ -129,13 +140,13 @@ static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & r
 		if(t) {
 			{
 				//
-				// Пытаемся разрешить коллизию, возникающую в том случае, если
-				// символ распознается как тип данных. В этом случае считаем, что
-				// первым по порядку идет символ, а за ним тип данных.
+				// РџС‹С‚Р°РµРјСЃСЏ СЂР°Р·СЂРµС€РёС‚СЊ РєРѕР»Р»РёР·РёСЋ, РІРѕР·РЅРёРєР°СЋС‰СѓСЋ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё
+				// СЃРёРјРІРѕР» СЂР°СЃРїРѕР·РЅР°РµС‚СЃСЏ РєР°Рє С‚РёРї РґР°РЅРЅС‹С…. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ
+				// РїРµСЂРІС‹Рј РїРѕ РїРѕСЂСЏРґРєСѓ РёРґРµС‚ СЃРёРјРІРѕР», Р° Р·Р° РЅРёРј С‚РёРї РґР°РЅРЅС‹С….
 				//
 				long   lv;
 				SString temp_symb;
-				SStrScan temp_scan = rScan;
+				SStrScan temp_scan(rScan);
 				temp_scan.IncrLen();
 				if(GetNextToken(temp_scan, rRl, &lv, temp_symb) == TOK_TYPE) { // @recursion
 					if(rRl.ReSymb.Find(&rScan)) {
@@ -144,8 +155,7 @@ static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & r
 						return TOK_SYMB;
 					}
 					//
-					// Если символ не распознается, то "чему быть - того не миновать":
-					// следуем штатным маршрутом.
+					// Р•СЃР»Рё СЃРёРјРІРѕР» РЅРµ СЂР°СЃРїРѕР·РЅР°РµС‚СЃСЏ, С‚Рѕ "С‡РµРјСѓ Р±С‹С‚СЊ - С‚РѕРіРѕ РЅРµ РјРёРЅРѕРІР°С‚СЊ": СЃР»РµРґСѓРµРј С€С‚Р°С‚РЅС‹Рј РјР°СЂС€СЂСѓС‚РѕРј.
 					//
 				}
 			}
@@ -154,22 +164,40 @@ static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & r
 			return TOK_TYPE;
 		}
 		else {
-			//
-			// Так как регулярное выражение может находиться далее по тексту,
-			// то проверяем только то, что находится по смещению rScan.Offs.
-			//
-			SStrScan temp_scan = rScan;
-			if(rRl.ReSymb.Find(&temp_scan) && temp_scan.Offs == rScan.Offs) {
-				rScan = temp_scan;
+			//SStrScan temp_scan(rScan);
+			if(rRl.ReFormula.Find(&rScan)) {
+				rScan.Get(rBuf);
+				rScan.IncrLen();
+				rBuf.Strip();
+				const char * p_formula_token = "formula";
+				assert(rBuf.HasPrefixIAscii(p_formula_token));
+				if(rBuf.HasPrefixIAscii(p_formula_token)) {
+					rBuf.ShiftLeft(strlen(p_formula_token));
+					rBuf.Strip();
+				}
+				assert(rBuf[0] == '(' && rBuf.Last() == ')');
+				rBuf.TrimRightChr(')').ShiftLeftChr('(').Strip();
+				return TOK_FORMULA;
+			}
+			else if(rRl.ReQuotedSymb.Find(&rScan)) {
+				rScan.Get(rBuf);
+				rScan.IncrLen();
+				assert(rBuf.C(0) == '\"');
+				assert(rBuf.Last() == '\"');
+				rBuf.Strip().TrimRightChr('\"').ShiftLeftChr('\"').Strip();
+				return TOK_SYMB;
+			}
+			else if(rRl.ReSymb.Find(&rScan)/* && temp_scan.Offs == rScan.Offs*/) {
+				//rScan = temp_scan;
 				rScan.Get(rBuf);
 				rScan.IncrLen();
 				return TOK_SYMB;
 			}
 			else {
 				for(uint i = 0; i < 3; i++) {
-					temp_scan = rScan;
-					if(rRl.ReSize[i].Find(&temp_scan) && temp_scan.Offs == rScan.Offs) {
-						rScan = temp_scan;
+					//temp_scan = rScan;
+					if(rRl.ReSize[i].Find(&rScan) /*&& temp_scan.Offs == rScan.Offs*/) {
+						//rScan = temp_scan;
 						SString size_buf, len_buf, prc_buf;
 						rScan.Get(size_buf);
 						size_buf.ShiftLeftChr('[');
@@ -193,7 +221,8 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
 	ReList * p_re_list = static_cast<ReList *>(pData);
-	int    tok = 0, prev_tok = 0;
+	int    tok = 0;
+	int    prev_tok = 0;
 	long   tok_val = 0;
 	SString tok_buf;
 	SString msg_buf;
@@ -217,6 +246,11 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			else
 				Name = tok_buf;
 		}
+		// @v10.9.1 {
+		else if(tok == TOK_FORMULA) {
+			OuterFormula = tok_buf;
+		}
+		// } @v10.9.1 
 		else if(tok == TOK_SLASH) {
 			if(prev_tok != TOK_SYMB)
 				ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(prev_offs)).Transf(CTRANSF_OUTER_TO_INNER));
@@ -266,6 +300,11 @@ int SdbField::PutToString(int style, SString & rBuf) const
 	GetBinaryTypeString(T.Typ, 0, type_buf, 0, 0);
 	int    fmt_len = SFMTLEN(OuterFormat);
 	int    fmt_prc = SFMTPRC(OuterFormat);
+	SString name_buf;
+	if(OuterFormula.NotEmpty())
+		(name_buf = "FORMULA").Space().CatParStr(OuterFormula);
+	else
+		name_buf.CatQStr(Name);
 	if(oneof4(style, 1, 2, 3, 4)) {
 		if(fmt_len || fmt_prc) {
 			size_buf.Cat(fmt_len);
@@ -285,13 +324,13 @@ int SdbField::PutToString(int style, SString & rBuf) const
 		}
 	}
 	if(oneof2(style, 1, 2))
-		temp_buf.Cat(type_buf).Space().Cat(Name).Cat(size_buf);
+		temp_buf.Cat(type_buf).Space().Cat(name_buf).Cat(size_buf);
 	else if(oneof2(style, 3, 4))
-		temp_buf.Cat(Name).Space().Cat(type_buf).Cat(size_buf);
+		temp_buf.Cat(name_buf).Space().Cat(type_buf).Cat(size_buf);
 	else if(style == 5)
-		temp_buf.Cat(Name).CatDiv(',', 2).Cat(type_buf).CatDiv(',', 2).Cat(size_buf);
+		temp_buf.Cat(name_buf).CatDiv(',', 2).Cat(type_buf).CatDiv(',', 2).Cat(size_buf);
 	else if(style == 6)
-		temp_buf.Cat(type_buf.Align(6, ADJ_LEFT)).Space().Cat(Name).Cat(size_buf);
+		temp_buf.Cat(type_buf.Align(6, ADJ_LEFT)).Space().Cat(name_buf).Cat(size_buf);
 	rBuf = temp_buf;
 	return 1;
 }
@@ -350,7 +389,7 @@ int SdbField::ConvertToDbfField(DBFCreateFld * pDbfFld) const
 
 void SdRecord::Init()
 {
-	// Функция не изменяет занчение поля Flags
+	// Р¤СѓРЅРєС†РёСЏ РЅРµ РёР·РјРµРЅСЏРµС‚ Р·Р°РЅС‡РµРЅРёРµ РїРѕР»СЏ Flags
 	Ver = SDRECORD_SVER;
 	ID = 0;
 	DescrPos = 0;
@@ -492,7 +531,7 @@ int SdRecord::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 void FASTCALL SdRecord::SetDescription(const char * pDescr)
 {
 	if(!isempty(pDescr))
-		StringPool.add(pDescr, (uint *)&DescrPos);
+		StringPool.add(pDescr, reinterpret_cast<uint *>(&DescrPos));
 	else
 		DescrPos = 0;
 }
@@ -581,7 +620,7 @@ int SdRecord::ScanName(SStrScan & rScan, uint * pPos, uint excludePos) const
 			}
 		}
 	}
-	ASSIGN_PTR(pPos, 0); // @v9.8.7
+	ASSIGN_PTR(pPos, 0);
 	return 0;
 }
 
@@ -607,7 +646,7 @@ int SdRecord::SearchName(const char * pName, uint * pPos, uint excludePos) const
 			}
 		}
 	}
-	ASSIGN_PTR(pPos, 0); // @v9.8.7
+	ASSIGN_PTR(pPos, 0);
 	return 0;
 }
 
@@ -668,7 +707,8 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 	f.ID = 0;
 	f.NamePos = 0;
 	f.DescrPos = 0;
-	f.FormulaPos = 0;
+	f.InnerFormulaPos = 0;
+	f.OuterFormulaPos = 0; // @v10.9.1
 	if(pID && (*pID || (pFld->T.Flags & STypEx::fZeroID))) {
 		uint   pos = 0;
 		if(Items.lsearch(&pID, &pos, CMPF_LONG) && !(Flags & fAllowDupID)) {
@@ -699,9 +739,18 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 			temp_buf = pFld->Descr;
 			if(temp_buf.NotEmptyS())
 				StringPool.add(temp_buf, &f.DescrPos);
-			temp_buf = pFld->Formula;
-			if(temp_buf.NotEmptyS())
-				StringPool.add(temp_buf, &f.FormulaPos);
+			{
+				temp_buf = pFld->InnerFormula;
+				if(temp_buf.NotEmptyS())
+					StringPool.add(temp_buf, &f.InnerFormulaPos);
+			}
+			{
+				// @v10.9.1 {
+				temp_buf = pFld->OuterFormula;
+				if(temp_buf.NotEmptyS())
+					StringPool.add(temp_buf, &f.OuterFormulaPos);
+				// } @v10.9.1 
+			}
 			THROW(Items.insert(&f));
 			SetupOffsets();
 			ASSIGN_PTR(pID, f.ID);
@@ -750,9 +799,18 @@ int SdRecord::UpdateField(uint pos, const SdbField * pFld)
 		temp_buf = pFld->Descr;
 		if(temp_buf.NotEmptyS())
 			StringPool.add(temp_buf, &p_item->DescrPos);
-		temp_buf = pFld->Formula;
-		if(temp_buf.NotEmptyS())
-			StringPool.add(temp_buf, &p_item->FormulaPos);
+		{
+			temp_buf = pFld->InnerFormula;
+			if(temp_buf.NotEmptyS())
+				StringPool.add(temp_buf, &p_item->InnerFormulaPos);
+		}
+		{
+			// @v10.9.1 {
+			temp_buf = pFld->OuterFormula;
+			if(temp_buf.NotEmptyS())
+				StringPool.add(temp_buf, &p_item->OuterFormulaPos);
+			// } @v10.9.1 
+		}
 		p_item->ID  = pFld->ID;
 		p_item->T.Typ = pFld->T.Typ;
 		p_item->T.Flags = pFld->T.Flags;
@@ -771,7 +829,7 @@ int SdRecord::MoveField(uint pos, int up, uint * pNewPos)
 int FASTCALL SdRecord::GetFieldByPos(uint pos, SdbField * pFld) const
 {
 	int    ok = 1;
-	CALLPTRMEMB(pFld, Init());
+	CALLPTRMEMB(pFld, Z());
 	if(pos < Items.getCount()) {
 		if(pFld) {
 			const F * p_item = static_cast<const F *>(Items.at(pos));
@@ -782,7 +840,8 @@ int FASTCALL SdRecord::GetFieldByPos(uint pos, SdbField * pFld) const
 			pFld->InnerOffs = p_item->InnerOffs;
 			StringPool.getnz(p_item->NamePos, pFld->Name);
 			StringPool.getnz(p_item->DescrPos, pFld->Descr);
-			StringPool.getnz(p_item->FormulaPos, pFld->Formula);
+			StringPool.getnz(p_item->InnerFormulaPos, pFld->InnerFormula);
+			StringPool.getnz(p_item->OuterFormulaPos, pFld->OuterFormula); // @v10.9.1
 		}
 	}
 	else
@@ -793,10 +852,10 @@ int FASTCALL SdRecord::GetFieldByPos(uint pos, SdbField * pFld) const
 int FASTCALL SdRecord::GetFieldByPos_Fast(uint pos /*0..*/, SdbField * pFld) const
 {
 	int    ok = 1;
-	CALLPTRMEMB(pFld, Init());
+	CALLPTRMEMB(pFld, Z());
 	if(pos < Items.getCount()) {
 		if(pFld) {
-			const F * p_item = (const F *)Items.at(pos);
+			const F * p_item = static_cast<const F *>(Items.at(pos));
 			pFld->ID  = p_item->ID;
 			pFld->T   = p_item->T;
 			pFld->T.Flags = p_item->T.Flags;
@@ -823,7 +882,7 @@ int SdRecord::EnumFields(uint * pPos, SdbField * pFld) const
 int SdRecord::GetFieldByID(uint id, uint * pPos, SdbField * pFld) const
 {
 	uint   pos = 0;
-	CALLPTRMEMB(pFld, Init());
+	CALLPTRMEMB(pFld, Z());
 	if(Items.lsearch(&id, &pos, CMPF_LONG)) {
 		ASSIGN_PTR(pPos, pos);
 		return GetFieldByPos(pos, pFld);
@@ -839,7 +898,7 @@ int SdRecord::GetFieldByName(const char * pName, SdbField * pFld) const
 {
 	uint   pos = 0;
 	// @v10.8.4 TempBuf = pName;
-	CALLPTRMEMB(pFld, Init());
+	CALLPTRMEMB(pFld, Z());
 	return (SearchName(pName, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0; // @v10.8.4 SearchName(TempBuf-->pName
 }
 
@@ -847,7 +906,7 @@ int SdRecord::GetFieldByName_Fast(const char * pName, SdbField * pFld) const
 {
 	uint   pos = 0;
 	// @v10.8.4 TempBuf = pName;
-	CALLPTRMEMB(pFld, Init());
+	CALLPTRMEMB(pFld, Z());
 	return (SearchName(pName, &pos) > 0) ? GetFieldByPos_Fast(pos, pFld) : 0; // @v10.8.4 SearchName(TempBuf-->pName
 }
 
@@ -905,7 +964,7 @@ SdRecordBuffer::SdRecordBuffer(size_t maxSize) : MaxSize(NZOR(maxSize, 4096)), M
 {
 	SBaseBuffer::Init();
 	if(Alloc(MaxSize)) {
-		PTR16(P_Buf)[0] = 0; // Обнуляем счетчик записей.
+		PTR16(P_Buf)[0] = 0; // РћР±РЅСѓР»СЏРµРј СЃС‡РµС‚С‡РёРє Р·Р°РїРёСЃРµР№.
 		Pos = sizeof(uint16);
 	}
 	else
@@ -941,7 +1000,7 @@ int SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 			Pos += sizeof(uint16);
 			memcpy(P_Buf+Pos, pRecData, recSize);
 			Pos += recSize;
-			(*PTR16(P_Buf))++; // Увеличивает счетчик записей.
+			(*PTR16(P_Buf))++; // РЈРІРµР»РёС‡РёРІР°РµС‚ СЃС‡РµС‚С‡РёРє Р·Р°РїРёСЃРµР№.
 			if(MaxRecSize == 0)
 				MaxRecSize = recSize;
 			else if(recSize != MaxRecSize) {

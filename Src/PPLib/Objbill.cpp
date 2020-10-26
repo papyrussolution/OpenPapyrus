@@ -1335,14 +1335,13 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 	PPTransferItem * p_ti;
 	PPOprKind    op_rec;
 	PPBillPacket pack, sample_pack;
-
 	ASSIGN_PTR(pBillID, 0L);
 	THROW_INVARG(pParam);
 	THROW(CheckRights(PPR_INS));
 	THROW(ExtractPacket(sampleBillID, &sample_pack) > 0);
 	THROW_PP(pParam->OpID > 0, PPERR_INVOPRKIND);
 	op_type = GetOpType(pParam->OpID, &op_rec);
-	THROW_PP(oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT), PPERR_INVOPRKIND);
+	THROW_PP(oneof3(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTEXPEND), PPERR_INVOPRKIND); // @v10.9.1 PPOPT_DRAFTEXPEND
 	THROW(pack.CreateBlank(pParam->OpID, 0, sample_pack.Rec.LocID, 1));
 	pack.Rec.LocID = sample_pack.Rec.LocID;
 	GetOpCommonAccSheet(sample_pack.Rec.OpID, &org_acc_sheet_id, 0);
@@ -1363,16 +1362,10 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 				ti.Quantity_ = down;
 				THROW(pack.InsertRow(&ti, &rows, 0));
 				if(ti.Flags & PPTFR_RECEIPT || IsIntrExpndOp(pack.Rec.OpID)) {
-					/* @v9.8.11 if(sample_pack.ClbL.GetNumber(i-1, &clb) > 0)
-						pack.ClbL.AddNumber(&rows, clb);
-					if(sample_pack.SnL.GetNumber(i-1, &clb) > 0)
-						pack.SnL.AddNumber(&rows, clb); */
-					// @v9.8.11 {
 					if(sample_pack.LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb) > 0)
 						pack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb);
 					if(sample_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb) > 0)
 						pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, clb);
-					// } @v9.8.11
 				}
 				// @v10.8.1 {
 				// Если приходная операция превращается в расходную и количество единиц в строке расхода точно равно

@@ -20,10 +20,7 @@
 #if !HAVE_INLINE
 	#define static_inline
 #endif
-//#include "xalloc.h"
 #undef static_inline
-//#include <stdlib.h>
-//#include <string.h>
 
 /* 1 if calloc is known to be compatible with GNU calloc.  This
    matters if we are not also using the calloc module, which defines
@@ -54,10 +51,12 @@ void * xrealloc(void * p, size_t n)
 		SAlloc::F(p);
 		return NULL;
 	}
-	p = SAlloc::R(p, n);
-	if(!p && n)
-		xalloc_die();
-	return p;
+	else {
+		p = SAlloc::R(p, n);
+		if(!p && n)
+			xalloc_die();
+		return p;
+	}
 }
 
 /* If P is null, allocate a block of at least *PN bytes; otherwise,

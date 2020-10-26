@@ -19,10 +19,6 @@
 #pragma hdrstop
 #undef ENABLE_RELOCATABLE /* avoid defining set_program_name as a macro */
 #include "progname.h" /* Specification.  */
-//#include <errno.h> /* get program_invocation_name declaration */
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 
 // @sobolev const char * program_name = NULL; // String containing name the program is called with. To be initialized by main().
 static const char * P_ProgramName = 0;

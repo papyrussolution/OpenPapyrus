@@ -781,7 +781,7 @@ int PPViewPerson::DeleteItem(PPID id)
 					THROW(tra);
 					for(uint i = 0; i < cnt; i++) {
 						const PPID _id = id_list.get(i);
-						if(!PsnObj.RemoveObjV(_id, 0, 0, 0)) {
+						if(!PsnObj.RemoveObjV(_id, 0, PPObject::no_wait_indicator, 0)) {
 							logger.LogLastError();
 						}
 						PPWaitPercent(i+1, cnt);

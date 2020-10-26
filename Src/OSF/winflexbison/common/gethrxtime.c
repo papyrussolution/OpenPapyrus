@@ -24,7 +24,6 @@
 
 #if !(HAVE_ARITHMETIC_HRTIME_T && HAVE_DECL_GETHRTIME)
 
-//#include <sys/time.h>
 #include "timespec.h"
 
 /* Get the current time, as a count of the number of nanoseconds since

@@ -1324,7 +1324,7 @@ int FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
 		SdbField fld;
 		THROW_PP(num_flds = p_rez->getUINT(), PPERR_RESFAULT);
 		for(i = 0; i < num_flds; i++) {
-			fld.Init();
+			fld.Z();
 			uint   fld_id = p_rez->getUINT();
 			p_rez->getString(fld.Name, 0);
 			uint t_ = p_rez->getUINT();

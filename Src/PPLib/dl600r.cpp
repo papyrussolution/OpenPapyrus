@@ -96,7 +96,7 @@ CtmExpr * DlContext::GetFormula(const DlScope * pScope, uint fldPos)
 		THROW(pScope->GetFieldByPos(fldPos, &fld));
 		THROW(fld.T.Flags & STypEx::fFormula);
 		{
-			SStrScan scan(fld.Formula);
+			SStrScan scan(fld.InnerFormula);
 			THROW_MEM(p_expr = new CtmExpr);
 			THROW(p_expr->Unpack(scan));
 			THROW(UnpFormList.Add(pScope->ID, fldPos, p_expr));

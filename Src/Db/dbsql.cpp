@@ -900,8 +900,7 @@ int SOraDbProvider::Describe(SSqlStmt & rS, SdRecord & rRec)
 		OCIAttrGet(pd, OCI_DTYPE_PARAM, &prec,  0,  OCI_ATTR_PRECISION, Err);
 		OCIAttrGet(pd, OCI_DTYPE_PARAM, &scale, 0,  OCI_ATTR_SCALE, Err);
 		{
-			fld.Init();
-			fld.Name = p_name;
+			fld.Z().Name = p_name;
 			TYPEID t = 0;
 			switch(type) {
 				case SQLT_INT: t = MKSTYPE(S_INT, 4); break;

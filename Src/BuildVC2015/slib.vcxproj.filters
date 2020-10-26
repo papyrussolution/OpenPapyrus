@@ -153,6 +153,33 @@
     <ClCompile Include="..\SLib\ineturl.cpp" />
     <ClCompile Include="..\SLib\slprintf.c" />
     <ClCompile Include="..\Db\dbsql-mysql.cpp" />
+    <ClCompile Include="..\SLib\gumbo\char_ref.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\error.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\parser.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\string_buffer.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\string_piece.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\tag.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\tokenizer.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\utf8.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\vector.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -214,6 +241,24 @@
     </ClInclude>
     <ClInclude Include="..\Include\cxx_detect.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\gumbo.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\gumbo-internal.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_enum.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_gperf.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_sizes.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_strings.h">
+      <Filter>gumbo\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -437,6 +482,12 @@
     </Filter>
     <Filter Include="ASM64">
       <UniqueIdentifier>{7623d283-94b8-455d-8d0d-2d87af64d135}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gumbo">
+      <UniqueIdentifier>{6c323ba5-d885-4649-b5af-378e253f82f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gumbo\Header">
+      <UniqueIdentifier>{e821bda9-8973-414b-af40-3e98c2bebfbf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

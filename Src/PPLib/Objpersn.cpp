@@ -8,56 +8,54 @@
 #include <sartre.h>
 
 #if 0 // {
-
-int __ReplacePersonNames()
-{
-	int    ok = 1;
-	PPID   psn_kind_id = PPPRK_SUPPL;
-	PPObjPerson psn_obj;
-	PPObjArticle ar_obj;
-	long   counter = 0, part = 0;
-	char   buf[128];
-	SStrCollection strings;
-	PPWait(1);
-	FILE * stream = fopen("suppls.txt", "r");
-	if(stream == 0)
-		return 0;
-	while(fgets(buf, sizeof(buf), stream)) {
-		strip(chomp(buf));
-		strings.insert(newStr(buf));
-	}
-	PersonKindTbl::Key0 k0;
-	MEMSZERO(k0);
-	k0.KindID = psn_kind_id;
+	int __ReplacePersonNames()
 	{
-		PPTransaction tra(1);
-		THROW(tra);
-		while(psn_obj.P_Tbl->Kind.search(0, &k0, spGt)) {
-			PPPerson psn_rec;
-			if(psn_obj.P_Tbl->Get(k0.PersonID, &psn_rec) > 0) {
-				PPWaitMsg(psn_rec.Rec.Name);
-				part = counter / strings.getCount();
-				STRNSCPY(buf, strings.at(counter % strings.getCount()));
-				if(part > 0) {
-					for(int i = 0; i < part; i++) {
-						if(i == 0)
-							strcat(buf, " ");
-						strcat(buf, "#");
-					}
-				}
-				STRNSCPY(psn_rec.Rec.Name, buf);
-				THROW(psn_obj.P_Tbl->Update(psn_rec.Rec.ID, &psn_rec, 0));
-				THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON, psn_rec.Rec.ID, (long)psn_rec.Rec.Name) != DBRPL_ERROR);
-				counter++;
-			}
+		int    ok = 1;
+		PPID   psn_kind_id = PPPRK_SUPPL;
+		PPObjPerson psn_obj;
+		PPObjArticle ar_obj;
+		long   counter = 0, part = 0;
+		char   buf[128];
+		SStrCollection strings;
+		PPWait(1);
+		FILE * stream = fopen("suppls.txt", "r");
+		if(stream == 0)
+			return 0;
+		while(fgets(buf, sizeof(buf), stream)) {
+			strip(chomp(buf));
+			strings.insert(newStr(buf));
 		}
-		THROW(tra.Commit());
+		PersonKindTbl::Key0 k0;
+		MEMSZERO(k0);
+		k0.KindID = psn_kind_id;
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			while(psn_obj.P_Tbl->Kind.search(0, &k0, spGt)) {
+				PPPerson psn_rec;
+				if(psn_obj.P_Tbl->Get(k0.PersonID, &psn_rec) > 0) {
+					PPWaitMsg(psn_rec.Rec.Name);
+					part = counter / strings.getCount();
+					STRNSCPY(buf, strings.at(counter % strings.getCount()));
+					if(part > 0) {
+						for(int i = 0; i < part; i++) {
+							if(i == 0)
+								strcat(buf, " ");
+							strcat(buf, "#");
+						}
+					}
+					STRNSCPY(psn_rec.Rec.Name, buf);
+					THROW(psn_obj.P_Tbl->Update(psn_rec.Rec.ID, &psn_rec, 0));
+					THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON, psn_rec.Rec.ID, (long)psn_rec.Rec.Name) != DBRPL_ERROR);
+					counter++;
+				}
+			}
+			THROW(tra.Commit());
+		}
+		PPWait(0);
+		CATCHZOKPPERR
+		return ok;
 	}
-	PPWait(0);
-	CATCHZOKPPERR
-	return ok;
-}
-
 #endif // } 0
 
 SString & FASTCALL GetMainOrgName(SString & rBuf)
@@ -543,7 +541,6 @@ private:
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
-	//int    Edit(TaggedString * pItem);
 	int    Edit(SStringTag * pItem);
 };
 
@@ -662,14 +659,11 @@ int ExtFieldsDialog::setupList()
 
 // @vmiller
 class NewPersMarksDialog : public PPListDialog {
-	DECL_DIALOG_DATA(TSVector <PPPersonConfig::NewClientDetectionItem>); // @v9.8.4 TSArray-->TSVector
+	DECL_DIALOG_DATA(TSVector <PPPersonConfig::NewClientDetectionItem>);
 public:
 	NewPersMarksDialog() : PPListDialog(DLG_NEWCLNT, CTL_LBXSEL_LIST)
 	{
-		// @v9.2.5 SString list_title;
-		// @v9.2.5 list_title = "30,L,Тип транзакции;50,L,Вид транзакции";
 		if(P_Box) {
-			// @v9.2.5 P_Box->SetupColumns(list_title.ToOem());
 			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 		}
 		selectCtrl(CTL_LBXSEL_LIST);
@@ -1051,12 +1045,6 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 		eq = 0;
 	else if(!LocObj.IsPacketEq(rS1.RLoc, rS2.RLoc, 0))
 		eq = 0;
-	/*
-	else if(!LocationCore::IsEqualRec(rS1.Loc, rS2.Loc))
-		eq = 0;
-	else if(!LocationCore::IsEqualRec(rS1.RLoc, rS2.RLoc))
-		eq = 0;
-	*/
 	else if(!rS1.ELA.IsEqual(rS2.ELA))
 		eq = 0;
 	else if(!rS1.CshrInfo.IsEqual(rS2.CshrInfo))
@@ -1067,34 +1055,6 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 		eq = 0;
 	else if(!rS1.Amounts.IsEqual(rS2.Amounts))
 		eq = 0;
-	if(eq) {
-		/* @v9.0.4
-		const uint c1 = rS1.BAA.getCount();
-		const uint c2 = rS2.BAA.getCount();
-		if(c1 != c2)
-			eq = 0;
-		else {
-			for(uint i = 0; eq && i < c1; i++) {
-				const BankAccountTbl::Rec & r_ba1 = rS1.BAA.at(i);
-				const BankAccountTbl::Rec & r_ba2 = rS2.BAA.at(i);
-				if(r_ba1.BankID != r_ba2.BankID)
-					eq = 0;
-				else if(r_ba1.AccType != r_ba2.AccType)
-					eq = 0;
-				else if(r_ba1.OpenDate != r_ba2.OpenDate)
-					eq = 0;
-				else if(r_ba1.Flags != r_ba2.Flags)
-					eq = 0;
-				else if(r_ba1.CorrAcc != r_ba2.CorrAcc)
-					eq = 0;
-				else if(r_ba1.CorrArt != r_ba2.CorrArt)
-					eq = 0;
-				else if(strncmp(r_ba1.Acct, r_ba2.Acct, sizeof(r_ba1.Acct)) != 0)
-					eq = 0;
-			}
-		}
-		*/
-	}
 	if(eq) {
 		const LAssocArray & rl1 = rS1.GetRelList();
 		const LAssocArray & rl2 = rS2.GetRelList();
@@ -2884,8 +2844,36 @@ int PPObjPerson::UpdateAddress(PPID * pLocID, PPLocationPacket * pLocPack)
 
 /*virtual*/int  PPObjPerson::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
+	// @v10.9.1 Значительная переработка с целью удалить сначала статьи, связанные с персоналией id
+	int    ok = -1;
 	SETFLAG(options, not_addtolog, 1);
-	return PPObject::RemoveObjV(id, pObjColl, options, pExtraParam);
+	if(!(options & user_request) || PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
+		options &= ~user_request;
+		{
+			PPTransaction tra(BIN(options & use_transaction));
+			THROW(tra);
+			options &= ~use_transaction;
+			{
+				PPObjArticle ar_obj;
+				PPIDArray psn_id_list;
+				PPIDArray ar_id_list;
+				psn_id_list.add(id);
+				ar_obj.GetByPersonList(0, &psn_id_list, &ar_id_list);
+				if(ar_id_list.getCount()) {
+					for(uint aridx = 0; aridx < ar_id_list.getCount(); aridx++) {
+						const PPID ar_id = ar_id_list.get(aridx);
+						// pExtraParam если !0, то предназначается для PPObjPerson, но не для иных типов объектов
+						THROW(ar_obj.RemoveObjV(ar_id, pObjColl, options, 0/*pExtraParam*/));
+					}
+				}
+			}
+			THROW(PPObject::RemoveObjV(id, pObjColl, options, pExtraParam));
+			THROW(tra.Commit());
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int PPObjPerson::Helper_PutSCard(PPID personID, PPPersonPacket * pPack, PPObjSCard * pScObj)
@@ -6473,7 +6461,6 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 	if(rPeriod.low && psnID && InitProcess() && !(State & stEmpty)) {
 		DateRange _period = rPeriod;
 		SETIFZ(_period.upp, MAXDATE);
-
 		uint   i;
 		LAssocArray ar_op_list;
 		{
@@ -6781,30 +6768,11 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	tag_type = tNone;
 	if(pF->Name == "?GetRegister") {
 		RegisterTbl::Rec reg_rec;
-		_RET_INT = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec) ? reg_rec.ID : 0; // @v9.6.11
-		/* @v9.6.11
-		_RET_INT = 0;
-		PPID   reg_type_id = 0;
-		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
-			PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
-			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, &reg_rec) > 0)
-				_RET_INT = reg_rec.ID;
-		}
-		*/
+		_RET_INT = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec) ? reg_rec.ID : 0;
 	}
 	else if(pF->Name == "?GetRegisterD") {
 		RegisterTbl::Rec reg_rec;
-		_RET_INT = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec) ? reg_rec.ID : 0; // @v9.6.11
-		/* @v9.6.11
-		_RET_INT = 0;
-		PPID   reg_type_id = 0;
-		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
-			PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
-			RegisterTbl::Rec reg_rec;
-			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, _ARG_DATE(2), &reg_rec) > 0)
-				_RET_INT = reg_rec.ID;
-		}
-		*/
+		_RET_INT = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec) ? reg_rec.ID : 0;
 	}
 	if(pF->Name == "?FormatRegister") {
 		_RET_STR.Z();
@@ -6850,7 +6818,6 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 			}
 		}
 	}
-	// @v9.4.1 {
 	else if(pF->Name == "?GetSingleEmail") {
 		_RET_STR.Z();
 		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
@@ -6864,7 +6831,6 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 			}
 		}
 	}
-	// } @v9.4.1
 	// @v10.4.0 {
 	else if(pF->Name == "?GetExtName") { 
 		temp_buf.Z();

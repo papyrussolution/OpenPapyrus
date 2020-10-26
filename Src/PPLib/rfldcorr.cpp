@@ -35,13 +35,14 @@ static int SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ)
 	return SetupStrAssocCombo(dlg, ctlID, &list, static_cast<long>(typ), 0);
 }
 
-static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
+static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField, int direction)
 {
 	class SdFieldCorrDialog : public TDialog {
 		DECL_DIALOG_DATA(SdbField);
 	public:
-		SdFieldCorrDialog(const SdRecord * pInnerRec) : TDialog(DLG_FLDCORR), P_Rec(pInnerRec)
+		SdFieldCorrDialog(const SdRecord * pInnerRec, int direction) : TDialog(DLG_FLDCORR), P_Rec(pInnerRec), Direction(direction)
 		{
+			setStaticText(CTL_FLDCORR_INFO, Direction ? "Import" : "Export");
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -50,13 +51,15 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 			SetupSdRecFieldCombo(this, CTLSEL_FLDCORR_INNERFLD, Data.ID, P_Rec);
 			if(Data.T.Typ)
 				Data.T.Typ = stbase(Data.T.Typ);
-			ushort use_formula = BIN(Data.T.Flags & STypEx::fFormula);
-			setCtrlData(CTL_FLDCORR_USEFORMULA, &use_formula);
-			setCtrlString(CTL_FLDCORR_FORMULA, Data.Formula);
-			disableCtrl(CTLSEL_FLDCORR_INNERFLD, use_formula);
-			disableCtrl(CTL_FLDCORR_FORMULA, !use_formula);
+			ushort use_inner_formula = BIN(Data.InnerFormula.NotEmpty());
+			ushort use_outer_formula = BIN(Data.T.Flags & STypEx::fFormula);
+			setCtrlData(CTL_FLDCORR_USEFORMULA, &use_inner_formula);
+			setCtrlString(CTL_FLDCORR_FORMULA, Data.InnerFormula);
+			//
 			SetupBaseSTypeCombo(this, CTLSEL_FLDCORR_OUTERTYPE, Data.T.Typ);
 			setCtrlString(CTL_FLDCORR_OUTERFLD, (temp_buf = Data.Name).Transf(CTRANSF_OUTER_TO_INNER));
+			setCtrlData(CTL_FLDCORR_USEOUTERF, &use_outer_formula);
+			setCtrlString(CTL_FLDCORR_OUTERFORMULA, Data.OuterFormula);
 			setupOuterLen();
 			return 1;
 		}
@@ -65,16 +68,16 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 			int16  sz = 0;
 			int16  prec = 0;
 			long   temp_long = getCtrlLong(CTLSEL_FLDCORR_INNERFLD);
-			ushort use_formula = getCtrlUInt16(CTL_FLDCORR_USEFORMULA);
+			ushort use_inner_formula = getCtrlUInt16(CTL_FLDCORR_USEFORMULA);
 			SString temp_buf;
-			if(use_formula) {
-				getCtrlString(CTL_FLDCORR_FORMULA, Data.Formula);
-				if(!Data.Formula.NotEmptyS())
-					Data.Formula = "@empty";
+			if(use_inner_formula) {
+				getCtrlString(CTL_FLDCORR_FORMULA, Data.InnerFormula);
+				if(!Data.InnerFormula.NotEmptyS())
+					Data.InnerFormula = "@empty";
 				temp_long = 0;
 			}
 			Data.ID = static_cast<uint>(temp_long);
-			SETFLAG(Data.T.Flags, STypEx::fFormula, use_formula);
+			SETFLAG(Data.T.Flags, STypEx::fFormula, use_inner_formula);
 			getOuterType();
 			Data.T.Typ = Data.T.Typ ? bt2st(Data.T.Typ) : 0;
 			getCtrlString(CTL_FLDCORR_OUTERFLD, temp_buf);
@@ -82,6 +85,12 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 			getCtrlData(CTL_FLDCORR_OUTERSZ, &sz);
 			getCtrlData(CTL_FLDCORR_OUTERPRC, &prec);
 			Data.OuterFormat = MKSFMTD(sz, prec, 0);
+			ushort use_outer_formula = getCtrlUInt16(CTL_FLDCORR_USEOUTERF);
+			if(use_outer_formula) {
+				getCtrlString(CTL_FLDCORR_OUTERFORMULA, Data.OuterFormula);
+			}
+			else
+				Data.OuterFormula.Z();
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
@@ -114,6 +123,10 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 					ushort use_formula = getCtrlUInt16(CTL_FLDCORR_USEFORMULA);
 					disableCtrl(CTLSEL_FLDCORR_INNERFLD, use_formula);
 					disableCtrl(CTL_FLDCORR_FORMULA, !use_formula);
+				}
+				else if(event.isClusterClk(CTL_FLDCORR_USEOUTERF)) {
+					ushort use_formula = getCtrlUInt16(CTL_FLDCORR_USEOUTERF);
+					disableCtrl(CTL_FLDCORR_OUTERFORMULA, !use_formula);
 				}
 				else
 					return;
@@ -149,8 +162,9 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 			return 1;
 		}
 		const SdRecord * P_Rec;
+		const int    Direction;
 	};
-	DIALOG_PROC_BODY_P1(SdFieldCorrDialog, pInnerRec, pOuterField);
+	DIALOG_PROC_BODY_P2(SdFieldCorrDialog, pInnerRec, direction, pOuterField);
 }
 //
 //
@@ -158,7 +172,8 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 class SdFieldCorrListDialog : public PPListDialog {
 	DECL_DIALOG_DATA(SdRecord);
 public:
-	SdFieldCorrListDialog(const SdRecord * pInnerRec) : PPListDialog(DLG_FLDCORRLIST, CTL_FLDCORRLIST_LIST), P_Rec(pInnerRec)
+	SdFieldCorrListDialog(const SdRecord * pInnerRec, int direction) : PPListDialog(DLG_FLDCORRLIST, CTL_FLDCORRLIST_LIST), 
+		P_Rec(pInnerRec), Direction(direction)
 	{
 	}
 	DECL_DIALOG_SETDTS()
@@ -179,6 +194,7 @@ private:
 	virtual int delItem(long pos, long id);
 	virtual int moveItem(long pos, long id, int up);
 	const SdRecord * P_Rec;
+	const int Direction; // Направление преобразования: 1 - import (outer_rec-->inner_rec), 0 - export (inner_rec-->outer_rec)
 };
 
 int SdFieldCorrListDialog::moveItem(long pos, long id, int up)
@@ -198,7 +214,7 @@ int SdFieldCorrListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	SdbField fld;
-	if(EditFieldCorr(P_Rec, &fld) > 0) {
+	if(EditFieldCorr(P_Rec, &fld, Direction) > 0) {
 		SETIFZ(fld.ID, 30000);
 		if(Data.AddField(&fld.ID, &fld)) {
 			ASSIGN_PTR(pPos, Data.GetCount()-1);
@@ -216,7 +232,7 @@ int SdFieldCorrListDialog::editItem(long pos, long id)
 	int    ok = -1;
 	SdbField fld;
 	if(Data.GetFieldByPos(pos, &fld) > 0) {
-		while(ok <= 0 && EditFieldCorr(P_Rec, &fld) > 0) {
+		while(ok <= 0 && EditFieldCorr(P_Rec, &fld, Direction) > 0) {
 			SETFLAG(fld.T.Flags, STypEx::fZeroID, fld.T.Flags & STypEx::fFormula);
 			if(fld.ID == 0 && !(fld.T.Flags & STypEx::fZeroID))
 				fld.ID = 30000;
@@ -238,7 +254,7 @@ int SdFieldCorrListDialog::delItem(long pos, long id)
 int SdFieldCorrListDialog::setupList()
 {
 	int    ok = 1;
-	uint   len, offs = 0;
+	uint   offs = 0;
 	SString sub;
 	StringSet ss(SLBColumnDelim);
 	SdbField fld, inner_fld;
@@ -246,26 +262,31 @@ int SdFieldCorrListDialog::setupList()
 		ss.clear();
 		sub.Z();
 		if(fld.T.Flags & STypEx::fFormula)
-			sub.CatChar('F').CatChar(':').Cat(fld.Formula);
+			sub.CatChar('F').CatChar(':').Cat(fld.InnerFormula);
 		else if(P_Rec->GetFieldByID(fld.ID, 0, &inner_fld) > 0)
 			sub = inner_fld.Name;
 		ss.add(sub);
 		ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER));
 		ss.add(GetBaseTypeString(stbase(fld.T.Typ), BTSF_NATIVE|BTSF_OEM, sub));
-		len = SFMTLEN(fld.OuterFormat);
-		sub.Z().Cat(len);
-		if(SFMTPRC(fld.OuterFormat))
-			sub.Dot().Cat(SFMTPRC(fld.OuterFormat));
-		ss.add(sub);
-		ss.add(sub.Z().Cat(offs));
-		offs += len;
-		if(!addStringToList(i, ss.getBuf()))
-			ok = 0;
+		{
+			const uint len = SFMTLEN(fld.OuterFormat);
+			sub.Z().Cat(len);
+			if(SFMTPRC(fld.OuterFormat))
+				sub.Dot().Cat(SFMTPRC(fld.OuterFormat));
+			ss.add(sub);
+			ss.add(sub.Z().Cat(offs));
+			offs += len;
+			if(!addStringToList(i, ss.getBuf()))
+				ok = 0;
+		}
 	}
 	return ok;
 }
 
-int EditFieldCorrList(const SdRecord * pInnerRec, SdRecord * pCorrRec) { DIALOG_PROC_BODY_P1(SdFieldCorrListDialog, pInnerRec, pCorrRec); }
+static int EditFieldCorrList(SdRecord * pInnerRec, SdRecord * pCorrRec, int direction) 
+{ 
+	DIALOG_PROC_BODY_P2(SdFieldCorrListDialog, pInnerRec, direction, pCorrRec); 
+}
 //
 //
 //
@@ -326,7 +347,7 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmHeaderFields)) {
 				if(P_Param)
-					EditFieldCorrList(&P_Param->HdrInrRec, &P_Param->HdrOtrRec);
+					EditFieldCorrList(&P_Param->HdrInrRec, &P_Param->HdrOtrRec, P_Param->Direction);
 				clearEvent(event);
 			}
 			else if(event.isClusterClk(CTL_TXTDBPARAM_ORIENT)) {
@@ -401,7 +422,7 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmHeaderFields)) {
 				if(P_Param) {
-					EditFieldCorrList(&P_Param->HdrInrRec, &P_Param->HdrOtrRec);
+					EditFieldCorrList(&P_Param->HdrInrRec, &P_Param->HdrOtrRec, P_Param->Direction);
 				}
 				clearEvent(event);
 			}
@@ -1167,10 +1188,10 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		THROW(tsl_par.Retranslate(iefSubRec, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fHaveSubRec)));
 		{
-			for(uint i = 0; HdrOtrRec.EnumFields(&i, &fld);)
+			for(uint i = 0; HdrOtrRec.EnumFields(&i, &fld);) {
 				if(fld.T.Flags & STypEx::fFormula) {
 					THROW(tsl_par.Retranslate(iefHdrFormula, symb_buf));
-					(temp_buf = symb_buf).Space().CatParStr(fld.Formula);
+					(temp_buf = symb_buf).Space().CatParStr(fld.InnerFormula);
 					fld.PutToString(3, fld_buf);
 					THROW(pFile->AppendParam(pSect, temp_buf, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 0));
 				}
@@ -1179,14 +1200,15 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 					fld.PutToString(3, fld_buf);
 					THROW(pFile->AppendParam(pSect, inner_fld.Name, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 1));
 				}
+			}
 		}
 	}
 	{
-		for(uint i = 0; OtrRec.EnumFields(&i, &fld);)
+		for(uint i = 0; OtrRec.EnumFields(&i, &fld);) {
 			if(fld.T.Flags & STypEx::fFormula) {
 				THROW(tsl_par.Retranslate(iefFormula, symb_buf));
 				temp_buf = symb_buf;
-				temp_buf.Space().CatParStr(fld.Formula);
+				temp_buf.Space().CatParStr(fld.InnerFormula);
 				fld.PutToString(3, fld_buf);
 				THROW(pFile->AppendParam(pSect, temp_buf, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 0));
 			}
@@ -1195,6 +1217,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 				fld.PutToString(3, fld_buf);
 				THROW(pFile->AppendParam(pSect, inner_fld.Name, fld_buf.Transf(CTRANSF_OUTER_TO_INNER), 1));
 			}
+		}
 	}
 	// Excel Params {
 	{
@@ -1237,7 +1260,7 @@ int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & r
 	if(p) {
 		p++;
 		while(*p && *(p + 1) != 0) // Пропускаем последний символ ')'
-			outer_fld.Formula.CatChar(*p++);
+			outer_fld.InnerFormula.CatChar(*p++);
 	}
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.3.12
 	(r_temp_buf = rVal).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
@@ -1281,7 +1304,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 	PPSymbTranslator tsl_par(PPSSYM_IMPEXPPAR);
 	Name = pSect;
 	memzero(&ImpExpParamDll, sizeof(ImpExpParamDllStruct));
-	InetAccID = 0; // @v9.3.7.
+	InetAccID = 0;
 	pFile->SetFlag(SIniFile::fWinCoding, 0);
 	pFile->GetEntries(Name, &param_list, 1);
 	for(uint pos = 0; param_list.get(&pos, ini_param);) {
@@ -1423,7 +1446,8 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 							val.Transf(CTRANSF_INNER_TO_OUTER);*/
 						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
 						scan.Set(temp_buf, 0);
-						outer_fld.Init();
+						scan.Skip();
+						outer_fld.Z();
 						outer_fld.ID = fld.ID;
 						THROW_SL(outer_fld.TranslateString(scan));
 						//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
@@ -1441,7 +1465,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 							val.Transf(CTRANSF_INNER_TO_OUTER);*/
 						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
 						scan.Set(temp_buf, 0);
-						outer_fld.Init();
+						outer_fld.Z();
 						outer_fld.ID = fld.ID;
 						THROW_SL(outer_fld.TranslateString(scan));
 						//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
@@ -1518,7 +1542,7 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 				EditXlsDbFileParam(&Data.XlsdfParam);
 		}
 		else if(TVCMD == cmImpExpFldCorr) {
-			EditFieldCorrList(&Data.InrRec, &Data.OtrRec);
+			EditFieldCorrList(&Data.InrRec, &Data.OtrRec, Data.Direction);
 		}
 		else if(TVCMD == cmClusterClk) {
 			if(event.isCtlEvent(CTL_IMPEXP_FORMAT)) {
@@ -2282,7 +2306,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			void * p_outer_fld_buf = hdr ? P.HdrOtrRec.GetData(i-1) : P.OtrRec.GetData(i-1);
 			THROW(p_outer_fld_buf);
 			if(outer_fld.T.Flags & STypEx::fFormula) {
-				THROW(ResolveFormula(outer_fld.Formula, pInnerBuf, bufLen, formula_result));
+				THROW(ResolveFormula(outer_fld.InnerFormula, pInnerBuf, bufLen, formula_result));
 				formula_result.Trim(255);
 				formula_result.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.11
 				stcast(MKSTYPE(S_ZSTRING, formula_result.Len()+1), outer_fld.T.Typ, formula_result.cptr(), p_outer_fld_buf, 0);
@@ -2331,11 +2355,11 @@ int PPImpExp::InitDynRec(SdRecord * pDynRec) const
 		// (внутри этой структуры находятся элементы SString)
 	for(uint i = 0; P.OtrRec.EnumFields(&i, &outer_fld);) {
 		if(outer_fld.T.Flags & STypEx::fFormula) {
-			dyn_fld.Init();
+			dyn_fld.Z();
 			dyn_fld.ID = ++c;
 			dyn_fld.Name.Cat("DYN").CatLongZ(dyn_fld.ID, 5);
 			dyn_fld.T = outer_fld.T;
-			dyn_fld.Formula = outer_fld.Formula;
+			dyn_fld.InnerFormula = outer_fld.InnerFormula;
 			THROW_SL(pDynRec->AddField(0, &dyn_fld));
 			ok = 1;
 		}
@@ -2362,10 +2386,11 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 		void * p_outer_fld_buf = P.OtrRec.GetData(i-1);
 		THROW(p_outer_fld_buf);
 		if(outer_fld.T.Flags & STypEx::fFormula) {
-			/* @v9.3.10 @construction
-			if(outer_fld.Formula.NotEmpty() && ResolveFormula(outer_fld.Formula, pInnerBuf, bufLen, formula_result)) {
-			}
-			*/
+			// @v10.9.1 /* @v9.3.10 @construction
+			/*if(outer_fld.OuterFormula.NotEmpty() && ResolveFormula(outer_fld.OuterFormula, pInnerBuf, bufLen, formula_result)) {
+
+			}*/
+			// @v10.9.1 */
 			if(pDynRec) {
 				THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
 				if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {

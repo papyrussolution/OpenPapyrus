@@ -821,7 +821,9 @@ public:
 		cfBinOnly = 0x0002, // Создавать только бинарные файлы (не генерировать .H, .CPP и прочие файлы для разработки)
 		cfSQL     = 0x0004, // Генерировать SQL-скрипт для создания таблиц базы данных
 		cfOracle  = 0x0008, // Генерировать SQL-скрипт специфичный для ORACLE для создания таблиц базы данных
-		cfGravity = 0x0010  // @v10.8.2 Генерировать gravity интерфейсы
+		cfGravity = 0x0010, // @v10.8.2 Генерировать gravity интерфейсы
+		cfMySQL   = 0x0020, // @v10.9.1 Генерировать SQL-скрипт специфичный для MySQL для создания таблиц базы данных
+		cfSqLite  = 0x0040  // @v10.9.1 Генерировать SQL-скрипт специфичный для SqLite для создания таблиц базы данных
 	};
 	int    Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags);
 	int    FindImportFile(const char * pFileName, SString & rPath);
@@ -879,7 +881,7 @@ public:
 	int    ResolveDbIndexFlag(const char * pSymb);
 	int    ResolveDbFileDefinition(const CtmToken & rSymb, const char * pConstStr, int constInt);
 	int    Write_Code();
-	int    CreateDbDictionary(const char * pDictPath, const char * pDataPath, SqlServerType sqlst);
+	int    CreateDbDictionary(const char * pDictPath, const char * pDataPath, const LongArray * pSqlServerTypeList/*SqlServerType sqlst*/);
 	//
 	// Descr: Создает описание диалогового управляющего элемента в текущей области видимости.
 	// Returns:

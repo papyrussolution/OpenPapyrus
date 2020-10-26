@@ -410,7 +410,7 @@ static int ConvertCodeToArticle(PPID accSheetID, SArray * pTab, long code, PPID 
 		PPID psn_id = 0;
 		uint p = 0;
 		if(pTab->lsearch(&code, &p, CMPF_LONG))
-			psn_id = ((CodeToPersonTabEntry *)pTab->at(p))->PersonID;
+			psn_id = static_cast<CodeToPersonTabEntry *>(pTab->at(p))->PersonID;
 		if(psn_id) {
 			PPObjArticle ar_obj;
 			ArticleTbl::Rec ar_rec;
@@ -436,9 +436,7 @@ int PPObjGoodsGroup::Import(int use_ta)
 		SString temp_buf;
 		PPIniFile ini_file(file_name);
 		ini_file.Get(sect, PPINIPARAM_FILE, file_name);
-
 		//THROW(fileExists(file_name));
-
 		PPGoodsConfig goods_cfg;
 		DbfTable in_tbl(file_name);
 		int    fldn_code = 0;
@@ -1436,13 +1434,11 @@ int PPObjPerson::Import(int specKind, int use_ta)
 	else
 		sect = PPINISECT_IMP_PERSON;
 	FILE * rel_file = 0;
-
 	PPObjArticle arobj;
 	PPObjWorld w_obj;
 	PPObjPersonStatus ps_obj;
 	PPObjRegisterType rt_obj;
 	PPRegisterType rt_rec;
-
 	PPLoadText(PPTXT_IMPPERSON, wait_msg);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, file_name);
 	if(!fileExists(file_name))
@@ -1450,7 +1446,6 @@ int PPObjPerson::Import(int specKind, int use_ta)
 	PPIniFile ini_file(file_name);
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_PSNKEYS_, file_name);
 	rel_file = fopen(file_name, "wb");
-
 	ini_file.Get(sect, PPINIPARAM_FILE, in_file_name);
 	ini_file.Get(sect, PPINIPARAM_PSNKINDS, temp_buf);
 	ini_file.GetInt(sect, PPINIPARAM_CODETOHEX, &codetohex);
@@ -3167,6 +3162,7 @@ int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPack
 		{ "website", ELNKRT_WEBADDR },
 		{ "site", ELNKRT_WEBADDR },
 		{ "http", ELNKRT_WEBADDR },
+		{ "https", ELNKRT_WEBADDR }, // @v10.9.1
 		{ "сайт", ELNKRT_WEBADDR },
 		{ "email", ELNKRT_EMAIL },
 		{ "e-mail", ELNKRT_EMAIL },
@@ -3275,21 +3271,100 @@ int PrcssrPersonImport::Run()
 	PPObjPersonCat pc_obj;
 	PPObjPersonKind pk_obj;
 	PPObjPersonStatus ps_obj;
+	PPObjTag tag_obj;
 	PPImpExp ie(&IeParam, 0);
 	PPWait(1);
 	THROW(ie.OpenFileForReading(0));
 	THROW(ie.GetNumRecs(&numrecs));
 	if(numrecs) {
-		int    r;
 		long   accepted_count = 0;
 		IterCounter cntr;
 		Sdr_Person rec;
+		// @v10.9.1 {
+		SdRecord dyn_rec;
+		SdbField dyn_fld;
+		THROW(ie.InitDynRec(&dyn_rec));
+		// } @v10.9.1 
 		PPTransaction tra(1);
 		THROW(tra);
 		cntr.Init(numrecs);
 		// @v10.7.9 @ctr MEMSZERO(rec);
-		while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
+		while(ie.ReadRecord(&rec, sizeof(rec)) > 0) {
 			IeParam.InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &rec);
+			// @v10.9.1 {
+			ObjTagList tag_list;
+			if(dyn_rec.GetCount()) {
+				SStrScan scan;
+				PPObjectTag tag_rec;
+				PPID   tag_id = 0;
+				for(uint j = 0; j < dyn_rec.GetCount(); j++) {
+					dyn_rec.GetFieldByPos(j, &dyn_fld);
+					if(dyn_fld.InnerFormula.NotEmptyS()) {
+						scan.Set(dyn_fld.InnerFormula, 0);
+						if(scan.GetIdent(temp_buf2.Z())) {
+							if(temp_buf2.IsEqiAscii("tag")) {
+								scan.Skip();
+								if(scan[0] == '.') {
+									scan.Incr(1);
+									(temp_buf2 = scan).Strip();
+									if(tag_obj.SearchBySymb(temp_buf2, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_GOODS) {
+										int   r = 0;
+										const TYPEID typ = dyn_fld.T.Typ;
+										const int    base_typ = stbase(typ);
+										ObjTagItem tag_item;
+										switch(base_typ) {
+											case BTS_INT:
+												{
+													long ival = 0;
+													sttobase(typ, dyn_rec.GetDataC(j), &ival);
+													if(ival) {
+														tag_item.SetInt(tag_id, ival);
+														r = 1;
+													}
+												}
+												break;
+											case BTS_REAL:
+												{
+													double rval = 0.0;
+													sttobase(typ, dyn_rec.GetDataC(j), &rval);
+													if(rval != 0.0) {
+														tag_item.SetReal(tag_id, rval);
+														r = 1;
+													}
+												}
+												break;
+											case BTS_STRING:
+												{
+													char strval[1024];
+													sttobase(typ, dyn_rec.GetDataC(j), strval);
+													if(strval[0]) {
+														(temp_buf2 = strval).Strip().Transf(CTRANSF_OUTER_TO_INNER);
+														tag_item.SetStr(tag_id, temp_buf2);
+														r = 1;
+													}
+												}
+												break;
+											case BTS_DATE:
+												{
+													LDATE dval = ZERODATE;
+													sttobase(typ, dyn_rec.GetDataC(j), &dval);
+													if(checkdate(dval)) {
+														tag_item.SetDate(tag_id, dval);
+														r = 1;
+													}
+												}
+												break;
+										}
+										if(r)
+											tag_list.PutItem(tag_id, &tag_item);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			// } @v10.9.1 
 			int    do_turn = 1; // Импортированный пакет следует сохранить в БД
 			int    is_office = 0;
 			PPID   psn_id = 0, ps_id = 0;
@@ -3485,6 +3560,14 @@ int PrcssrPersonImport::Run()
 						}
 					}
 				}
+				// @v10.9.1 {
+				{
+					if(tag_list.GetCount()) {
+						pack.TagL.Merge(tag_list, ObjTagList::mumUpdate|ObjTagList::mumAdd);
+						do_turn = 1;
+					}
+				}
+				// } @v10.9.1 
 				{
 					if((temp_buf = rec.Phone).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf);
@@ -3541,7 +3624,7 @@ int PrcssrPersonImport::Run()
 			MEMSZERO(rec);
 			PPWaitPercent(cntr.Increment());
 		}
-		THROW(r);
+		//THROW(r);
 		THROW(tra.Commit());
 	}
 	CATCHZOK

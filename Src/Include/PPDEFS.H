@@ -8007,6 +8007,9 @@
 	#define CTL_FLDCORR_OUTERPRC       (7 + WINDOWS_ID_BIAS)
 	#define CTL_FLDCORR_USEFORMULA     (8 + WINDOWS_ID_BIAS)
 	#define CTL_FLDCORR_FORMULA        (9 + WINDOWS_ID_BIAS)
+	#define CTL_FLDCORR_OUTERFORMULA   (10 + WINDOWS_ID_BIAS)
+	#define CTL_FLDCORR_INFO           (11 + WINDOWS_ID_BIAS)
+	#define CTL_FLDCORR_USEOUTERF      (12 + WINDOWS_ID_BIAS)
 #define DLG_FLDCORRLIST           903 // FLDCORRL Список сопоставления полей импорта/экспорта
 	#define CTL_FLDCORRLIST_LIST       (1 + WINDOWS_ID_BIAS)
 #define DLG_TXTDBPARAM            904 // TXTDBPAR Формат текстового файла данных
@@ -10370,7 +10373,7 @@
 #define DLG_REPLGOODSALC          1292
 	// CTL_REPLGOODS_XXX
 #define DLG_EGAISQ                1293
-	#define cmLotFilt                  101     
+	#define cmLotFilt                  101
 	#define CTL_EGAISQ_WHAT            (1  + IMPEXP_CTL_BIAS)
 	#define CTL_EGAISQ_QADD            (2  + IMPEXP_CTL_BIAS)
 	#define CTL_EGAISQ_INFO            (3  + IMPEXP_CTL_BIAS)

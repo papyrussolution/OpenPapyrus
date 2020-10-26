@@ -19,8 +19,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <string.h>
-//#include <ctype.h>
 
 /* states: S_N: normal, S_I: comparing integral part, S_F: comparing
            fractional parts, S_Z: idem but with leading Zeroes only */

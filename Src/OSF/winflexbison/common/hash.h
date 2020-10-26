@@ -24,10 +24,6 @@
 #ifndef HASH_H_
 #define HASH_H_
 
-//#include <stdio.h>
-//#include <stdbool.h>
-//#include "config.h"
-
 typedef size_t (* Hash_hasher)(const void *, size_t);
 typedef bool (* Hash_comparator)(const void *, const void *);
 typedef void (* Hash_data_freer)(void *);

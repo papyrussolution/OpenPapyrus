@@ -3153,7 +3153,7 @@ int DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
 			p_item->PaymPeriod  = rec.PaymPeriod;
 			p_item->PaymDensity = rec.PaymDensity;
 			p_item->ExpiryMean = rec.ExpiryMean;
-			p_item->Limit = rec.Limit;
+			p_item->Limit = rec.CreditLimit;
 			p_item->LimitTerm = rec.LimitTerm;
 			p_item->DebtCost = rec.DebtCost;
 			p_item->SigmFactor = rec.SigmFactor;
@@ -3194,7 +3194,7 @@ int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray &
 				rec.DelayTestChSq = 0.0;
 				rec.PaymPeriod = p_item->PaymPeriod;
 				rec.PaymDensity = p_item->PaymDensity;
-				rec.Limit = p_item->Limit;
+				rec.CreditLimit = p_item->Limit;
 				rec.LimitTerm = (int16)p_item->LimitTerm;
 				rec.DebtCost = p_item->DebtCost;
 				rec.ExpiryMean = p_item->ExpiryMean;
@@ -3216,8 +3216,8 @@ int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray &
 				rec.DelayTestChSq = 0.0;
 				rec.PaymPeriod = p_item->PaymPeriod;
 				rec.PaymDensity = p_item->PaymDensity;
-				rec.Limit = p_item->Limit;
-				rec.LimitTerm = (int16)p_item->LimitTerm;
+				rec.CreditLimit = p_item->Limit;
+				rec.LimitTerm = static_cast<int16>(p_item->LimitTerm);
 				rec.DebtCost = p_item->DebtCost;
 				rec.ExpiryMean = p_item->ExpiryMean;
 				rec.SigmFactor = p_item->SigmFactor;
@@ -4292,7 +4292,7 @@ int PPViewDebtorStat::MakeViewItem(const DebtStatTbl::Rec * pRec, DebtorStatView
 		pItem->PaymPeriod = pRec->PaymPeriod;
 		pItem->PaymDensity = pRec->PaymDensity;
 		pItem->SigmFactor = pRec->SigmFactor;
-		pItem->Limit = pRec->Limit;
+		pItem->Limit = pRec->CreditLimit;
 		pItem->LimitTerm = pRec->LimitTerm;
 		pItem->DebtCost = pRec->DebtCost;
 		pItem->Rating = pRec->Rating;
@@ -4599,7 +4599,7 @@ DBQuery * PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		tbl->PaymDensity,    // #5
 		tbl->PaymPeriod,     // #6
 		tbl->Rating,         // #7
-		tbl->Limit,          // #8
+		tbl->CreditLimit,    // #8
 		tbl->DebtCost,       // #9
 		tbl->ExpiryMean,     // #10
 		tbl->SigmFactor,     // #11

@@ -18,11 +18,8 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "fstrcmp.h" /* Specification.  */
-//#include <stdbool.h>
 #include "glthread/lock.h"
 #include "glthread/tls.h"
-//#include "minmax.h"
-//#include "xalloc.h"
 
 #define ELEMENT char
 #define EQUAL(x, y) ((x) == (y))

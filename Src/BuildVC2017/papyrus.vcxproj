@@ -2175,10 +2175,6 @@
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="tidy.vcxproj">
-      <Project>{d7a267de-4608-46f7-968e-887ec40cee8b}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="ucl.vcxproj">
       <Project>{f4087f62-03d8-4649-84d3-7212f505e38e}</Project>
     </ProjectReference>

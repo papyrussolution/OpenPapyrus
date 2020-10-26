@@ -117,7 +117,7 @@ template <size_t S> class TSLob : public SLob {
 class SdbField { // @transient
 public:
 	SdbField();
-	void   Init();
+	SdbField & Z();
 	int    FASTCALL IsEqual(const SdbField & rPat) const;
 	//
 	// Descr: транслирует строку rScan.P_Buf+Offs в базовый тип и, возможно, формат вывода
@@ -147,10 +147,12 @@ public:
 		long   OuterFormat; // Формат представления поля во внешнем источнике данных
 		uint   EnumVal;     // Значение элемента перечисления //
 	};
-	uint32 InnerOffs;   // Смещение данных от начала буфера // @v9.8.6 size_t-->InnerOffs
+	uint32 InnerOffs;   // Смещение данных от начала буфера
 	SString Name;       // Наименование поля       //
 	SString Descr;      // Текстовое описание поля //
-	SString Formula;    // Если поле представлено не значением, а формулой, то последняя хранится здесь.
+	SString OuterFormula; // Если поле представлено не значением, а формулой, то последняя хранится здесь.
+	SString InnerFormula; // @v10.9.1 При транзите настройки сопоставления полей здесь 
+		// хранится формула, сопоставленная с внутренним представлением данных (со значением ID)
 private:
 	int    Helper_TranslateString(SStrScan & rScan, void * pData);
 };
@@ -167,10 +169,11 @@ public:
 			long   OuterFormat;
 			uint   EnumVal;
 		};
-		uint32 InnerOffs; // @v9.8.6 size_t-->uint32 (чтобы не нарушать @persistent)
+		uint32 InnerOffs;
 		uint   NamePos;
 		uint   DescrPos;
-		uint   FormulaPos;
+		uint   InnerFormulaPos;
+		uint   OuterFormulaPos; // @v10.9.1 @Attention! могут возникнуть побочные эффекты из-за сериализации
 	};
 	enum {
 		fAllowDupID   = 0x0001, // При добавлении полей класс не следит за тем, чтобы их идентификаторы были уникальными внутри записи.
@@ -197,9 +200,9 @@ public:
 	// Descr: Сериализация объекта.
 	// Note: формат хранения в буфере не совместим с функциями Write_/Read_.
 	//
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    FASTCALL Write_(SBuffer & rBuf) const;
-	int    FASTCALL Read_(SBuffer & rBuf);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v10.9.1 
+	int    FASTCALL Write_(SBuffer & rBuf) const; // @v10.9.1 
+	int    FASTCALL Read_(SBuffer & rBuf); // @v10.9.1 
 	//
 	// Descr: Добавляет в конец записи новое поле с типом typ, именем pName и описанием pDescr.
 	// ARG(pID     OUT): @#{vptr0} Указатель, по которому будет присвоен идентификатор нового поля //
@@ -2543,6 +2546,7 @@ public:
 	static const char * FASTCALL GetToken(uint tok);
 	static SString & FASTCALL PrefixName(const char * pName, int prefix, SString & rBuf, int cat = 0);
 	Generator_SQL(SqlServerType sqlst, long flags);
+	SqlServerType GetServerType() const { return Sqlst; }
 	operator SString & () { return Buf; }
 	int    CreateTable(const DBTable & rTbl, const char * pFileName, int indent = 1);
 	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint n);

@@ -319,7 +319,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
@@ -376,7 +376,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>
@@ -428,7 +428,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
@@ -482,7 +482,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
@@ -530,7 +530,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation />
@@ -579,7 +579,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>
@@ -628,7 +628,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>false</BrowseInformation>
@@ -680,7 +680,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>false</BrowseInformation>
@@ -729,7 +729,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation />
@@ -778,7 +778,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>
@@ -827,7 +827,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>false</BrowseInformation>
@@ -879,7 +879,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <BrowseInformation>false</BrowseInformation>
@@ -913,7 +913,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <CompileAsManaged>false</CompileAsManaged>
       <WarningLevel>Level3</WarningLevel>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -929,7 +929,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <CompileAsManaged>false</CompileAsManaged>
       <WarningLevel>Level3</WarningLevel>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -1447,11 +1447,21 @@
     <ClCompile Include="..\SLib\futil.cpp" />
     <ClCompile Include="..\SLib\gamma.cpp" />
     <ClCompile Include="..\SLib\gencpp.cpp" />
+    <ClCompile Include="..\SLib\gumbo\char_ref.c" />
+    <ClCompile Include="..\SLib\gumbo\error.c" />
+    <ClCompile Include="..\SLib\gumbo\parser.c" />
+    <ClCompile Include="..\SLib\gumbo\string_buffer.c" />
+    <ClCompile Include="..\SLib\gumbo\string_piece.c" />
+    <ClCompile Include="..\SLib\gumbo\tag.c" />
+    <ClCompile Include="..\SLib\gumbo\tokenizer.c" />
+    <ClCompile Include="..\SLib\gumbo\utf8.c" />
+    <ClCompile Include="..\SLib\gumbo\vector.c" />
     <ClCompile Include="..\SLib\hashfunc.cpp" />
     <ClCompile Include="..\SLib\hashtab.cpp" />
     <ClCompile Include="..\SLib\Idea.cpp" />
     <ClCompile Include="..\SLib\ineturl.cpp" />
     <ClCompile Include="..\SLib\json.cpp" />
+    <ClCompile Include="..\SLib\layout-flex.cpp" />
     <ClCompile Include="..\SLib\Lbxdef.cpp" />
     <ClCompile Include="..\SLib\Listwin.cpp" />
     <ClCompile Include="..\SLib\lss_lin.cpp" />
@@ -1513,6 +1523,7 @@
     </ClCompile>
     <ClCompile Include="..\SLib\sclipboard.cpp" />
     <ClCompile Include="..\SLib\Scomport.cpp" />
+    <ClCompile Include="..\SLib\scss.cpp" />
     <ClCompile Include="..\SLib\sc_cfg.cpp" />
     <ClCompile Include="..\SLib\sc_cli.cpp" />
     <ClCompile Include="..\SLib\sc_ggrp.cpp" />
@@ -3635,6 +3646,7 @@
     <ClInclude Include="..\Include\fann2.h" />
     <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\layout-2d.h" />
+    <ClInclude Include="..\Include\layout-flex.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\Include\slport.h" />
@@ -3647,6 +3659,12 @@
     <ClInclude Include="..\Include\Uri.h" />
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
+    <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
+    <ClInclude Include="..\SLib\gumbo\gumbo.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_enum.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_gperf.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_sizes.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_strings.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\ASMLIB\cachesize64.asm">

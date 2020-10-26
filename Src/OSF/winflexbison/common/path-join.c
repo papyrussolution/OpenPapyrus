@@ -21,7 +21,6 @@
 #include "path-join.h" /* Specification.  */
 #include <concat-filename.h> /* xconcatenated_filename */
 #include <filename.h> /* IS_ABSOLUTE_PATH */
-//#include <xalloc.h> /* xstrdup */
 
 char * xpath_join(const char * path1, const char * path2)
 {

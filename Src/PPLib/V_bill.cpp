@@ -22,6 +22,7 @@ IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt, P_TagF));
 	SetBranchDisplayExtList(offsetof(BillFilt, Dl));
 	Init(1, 0);
+	Bbt = bbtUndef; // @v10.9.1
 }
 
 int BillFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
@@ -2687,7 +2688,7 @@ static int SelectAddByRcptAction(SelAddBySampleParam * pData)
 		dlg->SetClusterData(CTL_SELBBSMPL_WHAT, pData->Action);
 		//dlg->setCtrlData(CTL_SELBBSMPL_WHAT, &v);
 		//SetupPPObjCombo(dlg, CTLSEL_SELBBSMPL_OP, PPOBJ_OPRKIND, 0, 0, PPOPT_GOODSEXPEND);
-		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, 0L);
+		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTEXPEND, 0L); // @v10.9.1
 		SetupOprKindCombo(dlg, CTLSEL_SELBBSMPL_OP, pData->OpID, 0, &op_type_list, 0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			//dlg->getCtrlData(CTL_SELBBSMPL_WHAT, &v);
@@ -2949,7 +2950,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 						ok = -1;
 					break;
 				case SelAddBySampleParam::acnShipmAll:
-					if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
+					if(oneof3(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_DRAFTEXPEND)) // @v10.9.1 PPOPT_DRAFTEXPEND
 						ok = P_BObj->AddExpendByReceipt(&bill_id, sampleBillID, &param);
 					else
 						ok = -1;

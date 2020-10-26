@@ -17,7 +17,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <obstack.h>
 #ifdef _LIBC
 	#include <shlib-compat.h>
 #endif

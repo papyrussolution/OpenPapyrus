@@ -1551,6 +1551,8 @@ int STextBrowser::InsertWorkbookLink()
 //
 //
 //
+#if 0 // @v10.9.1 {
+
 struct TidyProcessBlock {
 	TidyProcessBlock();
 
@@ -1601,6 +1603,7 @@ int TidyProcessText(TidyProcessBlock & rBlk)
 	tidyRelease(tdoc);
 	return ok;
 }
+#endif // } 0 @v10.9.1
 
 int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 {
@@ -1617,6 +1620,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 		case PPVCMD_SAVEAS: ok = FileSave(0, ofInteractiveSaveAs); break;
 		case PPVCMD_SELCODEPAGE: ok = SetEncoding(cpUndef); break;
 		case PPVCMD_PROCESSTEXT:
+			/* @v10.9.1
 			{
 				uint8 * p_buf = reinterpret_cast<uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0));
 				const size_t len = static_cast<size_t>(CallFunc(SCI_GETLENGTH));
@@ -1633,7 +1637,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 					CallFunc(SCI_APPENDTEXT, (int)blk.Output.Len(), reinterpret_cast<intptr_t>(blk.Output.cptr()));
 					ok = 1;
 				}
-			}
+			}*/
 			break;
 		case PPVCMD_SEARCH: SearchAndReplace(srfUseDialog); break;
 		case PPVCMD_SEARCHNEXT: SearchAndReplace(0); break;

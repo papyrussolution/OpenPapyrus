@@ -26,13 +26,7 @@
 #pragma hdrstop
 #include "hash.h"
 #include "bitrotate.h"
-//#include "xalloc-oversized.h"
-//#include "xalloc.h"
-//#include <stdint.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #if USE_OBSTACK
-	//#include "obstack.h"
 	#ifndef obstack_chunk_alloc
 		#define obstack_chunk_alloc malloc
 	#endif

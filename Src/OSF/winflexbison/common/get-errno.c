@@ -19,8 +19,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "get-errno.h"
-//#include <errno.h>
 
 /* Get and set errno.  A source file that needs to set or get errno,
    but doesn't need to test for specific errno values, can use these

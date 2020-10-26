@@ -19,7 +19,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "concat-filename.h" /* Specification.  */
-//#include "xalloc.h"
 
 /* Concatenate a directory filename, a relative filename and an optional
    suffix.  The directory may end with the directory separator.  The second

@@ -6492,7 +6492,7 @@ static int ConvertAccount9004()
 									new_item.Flags = rec.Flags;
 									new_item.OpenDate = rec.OpenDate;
 									new_item.Frrl_Date = rec.FRRL_Date;
-									new_item.Limit = rec.Limit;
+									new_item.Limit = rec.SaldoLimit;
 									new_item.Overdraft = rec.Overdraft;
 									THROW(ref_t.AddItem(PPOBJ_ACCOUNT2, &new_rec_id, &new_item, 0));
 									if(rec.Type == ACY_AGGR) {

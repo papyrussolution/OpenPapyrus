@@ -62,7 +62,7 @@
     <ProjectGuid>{D507E468-21FC-4209-A5A8-DE1F055866DC}</ProjectGuid>
     <RootNamespace>slib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
@@ -1399,6 +1399,15 @@
     <ClCompile Include="..\SLib\futil.cpp" />
     <ClCompile Include="..\SLib\gamma.cpp" />
     <ClCompile Include="..\SLib\gencpp.cpp" />
+    <ClCompile Include="..\SLib\gumbo\char_ref.c" />
+    <ClCompile Include="..\SLib\gumbo\error.c" />
+    <ClCompile Include="..\SLib\gumbo\parser.c" />
+    <ClCompile Include="..\SLib\gumbo\string_buffer.c" />
+    <ClCompile Include="..\SLib\gumbo\string_piece.c" />
+    <ClCompile Include="..\SLib\gumbo\tag.c" />
+    <ClCompile Include="..\SLib\gumbo\tokenizer.c" />
+    <ClCompile Include="..\SLib\gumbo\utf8.c" />
+    <ClCompile Include="..\SLib\gumbo\vector.c" />
     <ClCompile Include="..\SLib\hashfunc.cpp" />
     <ClCompile Include="..\SLib\hashtab.cpp" />
     <ClCompile Include="..\SLib\Idea.cpp" />
@@ -3597,6 +3606,12 @@
     <ClInclude Include="..\Include\Uri.h" />
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
+    <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
+    <ClInclude Include="..\SLib\gumbo\gumbo.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_enum.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_gperf.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_sizes.h" />
+    <ClInclude Include="..\SLib\gumbo\tag_strings.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\ASMLIB\cachesize64.asm">

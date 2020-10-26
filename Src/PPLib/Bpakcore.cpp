@@ -3300,18 +3300,12 @@ int PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pClb, con
 	int    ok = 1;
 	uint   pos = Lots.getCount();
 	THROW_SL(Lots.insert(pItem));
-	/* @v9.8.11 if(pClb)
-		THROW(ClbL.AddNumber(pos, pClb));
-	if(pSerial)
-		THROW(SnL.AddNumber(pos, pSerial)); */
-	// @v9.8.12 {
 	if(pClb)
 		LTagL.AddNumber(PPTAG_LOT_CLB, pos, pClb);
 	if(pSerial)
 		LTagL.AddNumber(PPTAG_LOT_SN, pos, pSerial);
-	// } @v9.8.12
 	CATCHZOK
-	return ok; // @v9.5.1 @fix 1-->ok
+	return ok;
 }
 
 void FASTCALL PPBillPacket::SetQuantitySign(int minus)

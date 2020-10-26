@@ -19,12 +19,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "mbswidth.h" /* Specification.  */
-//#include <stdlib.h> /* Get MB_CUR_MAX.  */
-//#include <string.h>
-//#include <ctype.h> /* Get isprint().  */
-//#include <wchar.h> /* Get mbstate_t, mbrtowc(), mbsinit(), wcwidth().  */
-//#include <wctype.h> /* Get iswcntrl().  */
-//#include <limits.h> /* Get INT_MAX.  */
 
 extern int wcwidth(wchar_t wc);
 

@@ -20,8 +20,7 @@
 		THROW(p_rez->findResource(id, PP_RCDECLVIEW));
 		p_rez->getString(rRc.Symb, 0);
 		p_rez->getString(rRc.Descr, 0);
-		// @v9.2.8 SLS.ExpandString(rRc.Descr, CTRANSF_UTF8_TO_OUTER); // @v9.1.1
-		PPExpandString(rRc.Descr, CTRANSF_UTF8_TO_OUTER); // @v9.2.8
+		PPExpandString(rRc.Descr, CTRANSF_UTF8_TO_OUTER);
 	}
 	else if(kind == 1) {
 		THROW(p_rez->findResource(id, PP_RCDECLFILT));
@@ -616,14 +615,14 @@ void PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SStr
 		__ITEM(sggDimX),
 		__ITEM(sggDimY),
 		__ITEM(sggDimZ),
-		__ITEM(sggDimW), // @v8.6.1
+		__ITEM(sggDimW),
 		__ITEM(sggClsKind),
 		__ITEM(sggClsGrade),
 		__ITEM(sggClsAddObj),
 		__ITEM(sggClsKind_Grade),
 		__ITEM(sggSuppl),
 		__ITEM(sggBrand),
-		__ITEM(sggType), // @v9.6.0
+		__ITEM(sggType),
 		__ITEM(sggClsKind_Grade_AddObj),
 		__ITEM(sggClsKind_AddObj_Grade),
 		__ITEM(sggSupplAgent),
@@ -931,7 +930,7 @@ int PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 		if(inv_sign_result < 0) {
 			THROW_SL(rBuf.Read(Capability));
 			THROW_SL(rBuf.Read(Ver));
-			if(labs(Ver) < labs(preserve_ver)) { // @v7.7.9 labs (GoodsFilt имеет метку версии с минусом)
+			if(labs(Ver) < labs(preserve_ver)) { // (GoodsFilt имеет метку версии с минусом)
 				rBuf.SetRdOffs(preserve_rd_offs);
 				int r = ReadPreviosVer(rBuf, Ver);
 				THROW(r);
@@ -1135,10 +1134,10 @@ int PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 //
 //
 //
-#define SIGN_PPVIEW 0x099A099BUL
+// @v10.9.1 (replaced with _PPConst.Signature_PPView) #define SIGN_PPVIEW 0x099A099BUL
 
 PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId, long implFlags, long defReportId) : 
-	P_Obj(pObj), Sign(SIGN_PPVIEW), ExecFlags(0), ServerInstId(0),
+	P_Obj(pObj), Sign(_PPConst.Signature_PPView), ExecFlags(0), ServerInstId(0),
 	ViewId(viewId), BaseState(0), ExtToolbarId(0), P_IterQuery(0), P_Ct(0), P_F(pBaseFilt), ImplementFlags(implFlags), 
 	DefReportId(defReportId), P_LastUpdatedObjects(0)
 {
@@ -1180,7 +1179,7 @@ PPView::~PPView()
 	delete P_Ct;
 }
 
-int    PPView::IsConsistent() const { return BIN(Sign == SIGN_PPVIEW); }
+int    PPView::IsConsistent() const { return BIN(Sign == _PPConst.Signature_PPView); }
 const  PPBaseFilt * PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0); }
 
 int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)

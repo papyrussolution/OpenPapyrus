@@ -1347,10 +1347,10 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 			SetupPPObjCombo(this, CTLSEL_GOODS_DEFPRC, PPOBJ_PROCESSOR, Data.Rec.DefPrcID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 			SetupPPObjCombo(this, CTLSEL_GOODS_DEFGSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.StrucID, 0);
 			selgrp_bias = GGRTYP_SEL_FOLDER;
-			setCtrlLong(CTL_GOODSGROUP_LIMIT, Data.Rec.Limit);
+			setCtrlLong(CTL_GOODSGROUP_LIMIT, Data.Rec.GoodsLimit);
 			//
-			AddClusterAssoc(CTL_GOODS_GRPFLAGS, 0, GF_UNCLASSF); // @v9.2.8
-			SetClusterData(CTL_GOODS_GRPFLAGS, Data.Rec.Flags); // @v9.2.8
+			AddClusterAssoc(CTL_GOODS_GRPFLAGS, 0, GF_UNCLASSF);
+			SetClusterData(CTL_GOODS_GRPFLAGS, Data.Rec.Flags);
 		}
 	}
 	else if(gpk == gpkndFolderGroup) {
@@ -1427,7 +1427,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 		getCtrlData(CTLSEL_GOODS_BCODESTRUC, &Data.Rec.DefBCodeStrucID);
 		getCtrlData(CTLSEL_GOODS_DEFPRC, &Data.Rec.DefPrcID);
 		getCtrlData(CTLSEL_GOODS_DEFGSTRUC, &Data.Rec.StrucID);
-		Data.Rec.Limit = getCtrlLong(CTL_GOODSGROUP_LIMIT);
+		Data.Rec.GoodsLimit = getCtrlLong(CTL_GOODSGROUP_LIMIT);
 		GetClusterData(CTL_GOODS_GRPFLAGS, &Data.Rec.Flags);
 	}
 	if(Data.Rec.PhUnitID == 0)
@@ -1455,19 +1455,6 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 	}
 	sel = CTL_GOODS_BARCODE;
 	THROW(getBarcode());
-	/* @v9.1.4 if(Data.Rec.ID) {
-		PPID  article = 0;
-		if(GObj.GetGoodsArticle(Data.Rec.ID, &article) > 0) {
-			SString buf;
-			buf.CatChar('$');
-			BarcodeTbl::Rec  bc_rec;
-			MEMSZERO(bc_rec);
-			bc_rec.GoodsID = Data.Rec.ID;
-			bc_rec.BarcodeType = -1;
-			buf.Cat(article).CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
-			THROW_SL(Data.Codes.insert(&bc_rec));
-		}
-	} */
 	if(gpk == gpkndGoods) {
 		Data.Rec.StrucID = Data.GS.Rec.ID;
 	}

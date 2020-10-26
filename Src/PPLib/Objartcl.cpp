@@ -1103,8 +1103,7 @@ int PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 	return ok;
 }
 
-int PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const char * pRegCode,
-	PPID * pID, ArticleTbl::Rec * pRec)
+int PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const char * pRegCode, PPID * pID, ArticleTbl::Rec * pRec)
 {
 	int    ok = -1;
 	PPIDArray psn_list;

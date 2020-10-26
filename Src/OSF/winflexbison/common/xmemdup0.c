@@ -17,9 +17,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "xmemdup0.h"
-//#include "xalloc.h"
-//#include <string.h>
 
 /* Clone an arbitrary block of bytes P of size S, with error checking,
    and include a terminating NUL byte.  P is of type 'void const *',

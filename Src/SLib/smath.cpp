@@ -107,6 +107,11 @@ int fisnan(double v)
 	return _isnan(v);
 }
 
+int fisnanf(float v)
+{
+	return _isnan(v);
+}
+
 int fisinf(double v)
 {
 	const int fpc = _fpclass(v);
@@ -142,6 +147,7 @@ int SMathResult::SetUnderflow()
 //
 static double _fdiv(double x, double y) { return x / y; }
 double fgetnan()    { return _fdiv(0.0, 0.0); }
+float  fgetnanf()   { return ((float)(INFINITY * 0.0f)); }
 double fgetposinf() { return _fdiv(+1.0, 0.0); }
 double fgetneginf() { return _fdiv(-1.0, 0.0); }
 

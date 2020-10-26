@@ -21,17 +21,9 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "timevar.h" /* Specification.  */
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <sys/resource.h>
-//#include <sys/time.h>
-//#include <sys/times.h>
 #include "gethrxtime.h"
-//#include "gettext.h"
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)
-//#include "xalloc.h"
 
 int timevar_enabled = 0; /* See timevar.h for an explanation of timing variables.  */
 

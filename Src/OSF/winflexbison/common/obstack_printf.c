@@ -16,12 +16,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <stdio.h> /* Specification.  */
-//#include "obstack.h"
-//#include "vasnprintf.h"
-//#include <errno.h>
-//#include <stdarg.h>
-//#include <stdlib.h>
 
 extern int obstack_vprintf(struct obstack * obs, const char * format, va_list args);
 /* Grow an obstack with formatted output.  Return the number of bytes

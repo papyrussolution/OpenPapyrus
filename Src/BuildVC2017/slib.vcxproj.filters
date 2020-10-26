@@ -153,6 +153,35 @@
     <ClCompile Include="..\SLib\ineturl.cpp" />
     <ClCompile Include="..\SLib\slprintf.c" />
     <ClCompile Include="..\Db\dbsql-mysql.cpp" />
+    <ClCompile Include="..\SLib\layout-flex.cpp" />
+    <ClCompile Include="..\SLib\scss.cpp" />
+    <ClCompile Include="..\SLib\gumbo\char_ref.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\error.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\parser.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\string_buffer.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\string_piece.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\tag.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\tokenizer.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\utf8.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\gumbo\vector.c">
+      <Filter>gumbo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -220,6 +249,27 @@
     </ClInclude>
     <ClInclude Include="..\Include\comdisp.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\layout-flex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\gumbo.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_enum.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_gperf.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_sizes.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\tag_strings.h">
+      <Filter>gumbo\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\gumbo\gumbo-internal.h">
+      <Filter>gumbo\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -443,6 +493,12 @@
     </Filter>
     <Filter Include="ASM64">
       <UniqueIdentifier>{7623d283-94b8-455d-8d0d-2d87af64d135}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gumbo">
+      <UniqueIdentifier>{02087afb-fcf9-4722-871b-666bd601ebc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gumbo\Header">
+      <UniqueIdentifier>{1f5f75fd-58a2-4a11-85fc-a6c3a4a98f72}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

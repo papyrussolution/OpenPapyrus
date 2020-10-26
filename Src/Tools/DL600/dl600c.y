@@ -1256,13 +1256,15 @@ int main(int argc, char * argv[])
 		SString msg_buf;
 		msg_buf.Cat("Usage: dl600c [options] input_file_name").CR();
 		msg_buf.Cat("Options:").CR();
-		msg_buf.CatChar('\t').Cat("/ob").CatDiv('-', 1).Cat("output only binary file (no source modules)").CR();
-		msg_buf.CatChar('\t').Cat("/d").CatDiv('-', 1).Cat("debug mode").CR();
-		msg_buf.CatChar('\t').Cat("/sql").CatDiv('-', 1).Cat("generate sql-script for creating database structure").CR();
-		msg_buf.CatChar('\t').Cat("/oracle").CatDiv('-', 1).Cat("generate oracle specific sql-script for creating database structure").CR();
-		msg_buf.CatChar('\t').Cat("/gravity").CatDiv('-', 1).Cat("generate gravity interfaces insted of COM").CR(); // @v10.8.2
-		msg_buf.CatChar('\t').Cat("/dict:path").CatDiv('-', 1).Cat("path to database dictionary (btrieve)").CR();
-		msg_buf.CatChar('\t').Cat("/data:path").CatDiv('-', 1).Cat("path to database directory (btrieve)").CR();
+		msg_buf.Tab().Cat("/ob").CatDiv('-', 1).Cat("output only binary file (no source modules)").CR();
+		msg_buf.Tab().Cat("/d").CatDiv('-', 1).Cat("debug mode").CR();
+		msg_buf.Tab().Cat("/sql").CatDiv('-', 1).Cat("generate sql-script for creating database structure").CR();
+		msg_buf.Tab().Cat("/oracle").CatDiv('-', 1).Cat("generate Oracle specific sql-script for creating database structure").CR();
+		msg_buf.Tab().Cat("/mysql").CatDiv('-', 1).Cat("generate MySQL specific sql-script for creating database structure").CR();
+		msg_buf.Tab().Cat("/sqlite").CatDiv('-', 1).Cat("generate SqLite specific sql-script for creating database structure").CR();
+		msg_buf.Tab().Cat("/gravity").CatDiv('-', 1).Cat("generate gravity interfaces insted of COM").CR(); // @v10.8.2
+		msg_buf.Tab().Cat("/dict:path").CatDiv('-', 1).Cat("path to database dictionary (btrieve)").CR();
+		msg_buf.Tab().Cat("/data:path").CatDiv('-', 1).Cat("path to database directory (btrieve)").CR();
 		printf(msg_buf.cptr());
 		return -1;
 	}
@@ -1277,43 +1279,49 @@ int main(int argc, char * argv[])
 		SString arg, filename, left, right;
 		for(int i = 1; i < argc; i++) {
 			(arg = argv[i]).Strip();
-			if(arg.CmpNC("/ob") == 0)
+			if(arg.IsEqiAscii("/ob"))
 				cflags |= DlContext::cfBinOnly;
-			else if(arg.CmpNC("/d") == 0)
+			else if(arg.IsEqiAscii("/d"))
 				cflags |= DlContext::cfDebug;
-			else if(arg.CmpNC("/sql") == 0)
+			else if(arg.IsEqiAscii("/sql"))
 				cflags |= DlContext::cfSQL;
-			else if(arg.CmpNC("/oracle") == 0 || arg.CmpNC("/ora") == 0)
+			else if(arg.IsEqiAscii("/oracle") || arg.IsEqiAscii("/ora"))
 				cflags |= DlContext::cfOracle;
+			// @v10.9.1 {
+			else if(arg.IsEqiAscii("/mysql"))
+				cflags |= DlContext::cfMySQL;
+			else if(arg.IsEqiAscii("/sqlite"))
+				cflags |= DlContext::cfSqLite;
+			// } @v10.9.2 
 			// @v10.8.2 {
-			else if(arg.CmpNC("/gravity") == 0)
+			else if(arg.IsEqiAscii("/gravity"))
 				cflags |= DlContext::cfGravity;
 			// } @v10.8.2 
-			else if(arg.CmpPrefix("/dict", 1) == 0) {
+			else if(arg.HasPrefixIAscii("/dict")) {
 				if(arg.Divide(':', left, right) > 0) {
 					dict_path = right;
 					if(!pathValid(dict_path, 1)) {
-						(left = 0).Cat("Error: invalid path").CatChar('\'').Cat(dict_path).CatChar('\'').CR();
+						left.Z().Cat("Error: invalid path").CatChar('\'').Cat(dict_path).CatChar('\'').CR();
 						printf(left.cptr());
 						return 1;
 					}
 				}
 				else {
-					(left = 0).Cat("Error: dictionary path must be specified (/dict:path)").CR();
+					left.Z().Cat("Error: dictionary path must be specified (/dict:path)").CR();
 					return 1;
 				}
 			}
-			else if(arg.CmpPrefix("/data", 1) == 0) {
+			else if(arg.HasPrefixIAscii("/data")) {
 				if(arg.Divide(':', left, right) > 0) {
 					data_path = right;
 					if(!pathValid(data_path, 1)) {
-						(left = 0).Cat("Error: invalid path").CatChar('\'').Cat(data_path).CatChar('\'').CR();
+						left.Z().Cat("Error: invalid path").CatChar('\'').Cat(data_path).CatChar('\'').CR();
 						printf(left.cptr());
 						return 1;
 					}
 				}
 				else {
-					(left = 0).Cat("Error: database path must be specified (/data:path)").CR();
+					left.Z().Cat("Error: database path must be specified (/data:path)").CR();
 					return 1;
 				}
 			}

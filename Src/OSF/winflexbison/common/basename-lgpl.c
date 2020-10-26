@@ -18,7 +18,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "dirname.h"
 
 /* Return the address of the last file name component of NAME.  If
    NAME has no relative file name components because it is a file

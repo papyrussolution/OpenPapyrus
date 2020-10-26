@@ -122,7 +122,6 @@ protected:
 	//virtual int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	virtual int Draw(TCanvas2 & rCanv);
 	virtual int HandleCommand(int cmd, void * pExt);
-
 	int    FASTCALL Copy(const WhatmanObjectUiCtrl & rS);
 	int    SetKind(uint kind);
 	int    CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTlo, int adj = 0);
@@ -148,7 +147,7 @@ void WhatmanObjectUiCtrl::Init()
 	Options |= (oMovable | oResizable | oMultSelectable);
 	P_DlCtx = 0;
 	P_Scope = 0;
-	F.Init();
+	F.Z();
 	SetKind(UiItemKind::kUnkn);
 	P_LinkObj = 0;
 	TidFont = 0;

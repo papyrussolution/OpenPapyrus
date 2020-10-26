@@ -1,7 +1,9 @@
 // SnipEx.c
 // Author: Joseph Ryan Ries, 2017-2020
 // The snip.exe that comes bundled with Microsoft Windows is *almost* good enough. So I made one just a little better.
-
+//
+// @sobolev: Правки @20201025 внесены в соответсвии с изменениями в оригинальном github-репозитории автора
+//
 #include <slib.h>
 #ifndef UNICODE
 	#define UNICODE                                                                 // 100% Unicode.
@@ -29,34 +31,50 @@
 #include "GdiPlusInterop.h"         // Stuff to make GDI+ work in pure C
 
 APPSTATE gAppState = APPSTATE_BEFORECAPTURE;    // To track the overall state of the application
-BOOL gMainWindowIsRunning;                                              // Set this to FALSE to exit the app immediately.
-HWND gMainWindowHandle;                                                 // Handle to the main window, i.e. the window with all the buttons on it.
-HWND gCaptureWindowHandle;                                              // Handle to the capture window, i.e. the grey selection window that overlays the entire desktop.
-const INT8 gStartingDelayCountdown = 6;                 // Default seconds to wait after clicking the 'Delay' button.
-INT8 gCurrentDelayCountdown = 6;                                // The value of the countdown timer at this moment.
+BOOL   gMainWindowIsRunning;                                              // Set this to FALSE to exit the app immediately.
+HWND   gMainWindowHandle;                                                 // Handle to the main window, i.e. the window with all the buttons on it.
+HWND   gCaptureWindowHandle;                                              // Handle to the capture window, i.e. the grey selection window that overlays the entire desktop.
+const  INT8 gStartingDelayCountdown = 6;                 // Default seconds to wait after clicking the 'Delay' button.
+INT8   gCurrentDelayCountdown = 6;                                // The value of the countdown timer at this moment.
 UINT16 gDisplayWidth;                                                   // Display width, accounting for multiple monitors.
 UINT16 gDisplayHeight;                                                  // Display height, accounting for multiple monitors.
-INT16 gDisplayLeft;                                                     // Depending on how the monitors are arranged, the left-most coordinate might not be zero.
-INT16 gDisplayTop; // Depending on how the monitors are arranged, the top-most coordinate might not be zero.
-UINT16 gStartingMainWindowWidth  = 668;                 // The beginning width of the tool window - just enough to fit all the buttons.
-UINT16 gStartingMainWindowHeight = 92;                  // The beginning height of the tool window - just enough to fit the buttons.
-HBITMAP gCleanScreenShot;                                               // A clean copy of the screenshot from before we started drawing on it.
-HBITMAP gScratchBitmap;                                                 // For use during drawing.
-RECT gCaptureSelectionRectangle;                                // The rectangle the user draws with the mouse to select a subsection of the screen.
-int gCaptureWidth;                                                              // Width in pixels of the user's captured snip.
-int gCaptureHeight;                                                             // Height in pixels of the user's captured snip.
-BOOL gLeftMouseButtonIsDown;                                    // When the user is drawing with the mouse, the left mouse button is down.
-UINT8 gCurrentSnipState;                                                // An array of bitmap states that we can revert back to, so we can undo changes. ctrl-z.
-HBITMAP gSnipStates[32];                                                // Snip state 0 will always be the unaltered clip right as the user first took it.
+INT16  gDisplayLeft;                                                     // Depending on how the monitors are arranged, the left-most coordinate might not be zero.
+INT16  gDisplayTop; // Depending on how the monitors are arranged, the top-most coordinate might not be zero.
+UINT16 gStartingMainWindowWidth  = 668; // The beginning width of the tool window - just enough to fit all the buttons.
+UINT16 gStartingMainWindowHeight = 92;  // The beginning height of the tool window - just enough to fit the buttons.
+HBITMAP gCleanScreenShot;        // A clean copy of the screenshot from before we started drawing on it.
+HBITMAP gScratchBitmap;          // For use during drawing.
+RECT   gCaptureSelectionRectangle; // The rectangle the user draws with the mouse to select a subsection of the screen.
+int    gCaptureWidth;           // Width in pixels of the user's captured snip.
+int    gCaptureHeight;          // Height in pixels of the user's captured snip.
+BOOL   gLeftMouseButtonIsDown; // When the user is drawing with the mouse, the left mouse button is down.
+UINT8  gCurrentSnipState;    // An array of bitmap states that we can revert back to, so we can undo changes. ctrl-z.
+HBITMAP gSnipStates[32];    // Snip state 0 will always be the unaltered clip right as the user first took it.
 HBITMAP gUACIcon; // The UAC icon that sits next to the "Replace Windows Snipping Tool with SnipEx" menu item.
-DWORD gShouldAddDropShadow;                                             // Does the user want to add a drop-shadow effect to the snip?
-DWORD gRememberLastTool;                                                // Does the user want to remember the previously-used tool?
-DWORD gAutoCopy;                                                                // Does the user want to automatically copy each snip to the clipboard?
-DWORD gLastTool;                                                                // What was the last tool that the user used? (NOT save, copy, new, or delay.)
-HFONT gFont;                                                                    // The font the user selects for the Text tool.
-COLORREF gFontColor;                                                    // The color of the font that the user selects for the Text tool.
-POINT gTextBoxLocation;                                                 // The coordinates where we will spawn text
-wchar_t gTextBuffer[1024];                                              // Buffer for Text tool.
+DWORD  gShouldAddDropShadow; // Does the user want to add a drop-shadow effect to the snip?
+DWORD  gRememberLastTool;    // Does the user want to remember the previously-used tool?
+DWORD  gAutoCopy;            // Does the user want to automatically copy each snip to the clipboard?
+DWORD  gLastTool;            // What was the last tool that the user used? (NOT save, copy, new, or delay.)
+HFONT  gFont;                // The font the user selects for the Text tool.
+COLORREF gFontColor;        // The color of the font that the user selects for the Text tool.
+POINT  gTextBoxLocation;     // The coordinates where we will spawn text
+wchar_t gTextBuffer[1024];  // Buffer for Text tool.
+
+static void AdjustWindowSizeForThickTitleBars() // @20201025
+{
+	// If a custom DPI/scaling level is set, the title bar and borders will get thicker
+	// as scaling level increases and that will eat into the client area of the window.
+	// Result is that buttons will get cropped as the client area of the window gets smaller
+	// as the title bar and borders get thicker. We have to compensate for that.	
+	RECT WindowRect = { 0 };
+	RECT ClientRect = { 0 };
+	GetWindowRect(gMainWindowHandle, &WindowRect);
+	GetClientRect(gMainWindowHandle, &ClientRect);
+	int AdjustedHeight = (WindowRect.bottom - WindowRect.top) - (ClientRect.bottom - ClientRect.top);
+	int AdjustedWidth = (WindowRect.right - WindowRect.left) - (ClientRect.right - ClientRect.left);
+	SetWindowPos(gMainWindowHandle, HWND_TOP, 0, 0, gButtons[_countof(gButtons) - 1]->Rectangle.right + AdjustedWidth + 2,
+		gButtons[_countof(gButtons) - 1]->Rectangle.bottom + AdjustedHeight + 2, SWP_NOMOVE | SWP_NOOWNERZORDER);
+}
 
 // Application entry-point.
 // MSDN says that if WinMain fails before reaching the message loop, we should return zero.
@@ -68,7 +86,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	UNREFERENCED_PARAMETER(WindowShowCode);
 	if((gFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT)) == NULL) {
 		MessageBoxW(NULL, L"Failed to retrieve default GUI font!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
 	gFontColor = RGB(255, 0, 255);
 	// NOTE: This width and height are the bounding box that includes all of the user's monitors.
@@ -81,17 +99,15 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	gDisplayHeight = (UINT16)GetSystemMetrics(SM_CYVIRTUALSCREEN);
 	gDisplayLeft   = (INT16)GetSystemMetrics(SM_XVIRTUALSCREEN);
 	gDisplayTop    = (INT16)GetSystemMetrics(SM_YVIRTUALSCREEN);
-	if(gDisplayWidth == 0 || gDisplayHeight == 0) {
+	if(!gDisplayWidth || !gDisplayHeight) {
 		MessageBoxW(NULL, L"Failed to retrieve display area via GetSystemMetrics!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
 	MyOutputDebugStringW(L"[%s] Line %d: Detected a screen area of %dx%d.\n", __FUNCTIONW__, __LINE__, gDisplayWidth, gDisplayHeight);
 	// If the user had a custom scaling/DPI level set, this app was originally not high-DPI aware, and so what would happen
 	// is that the buttons would get cropped as the non-client area of the window got bigger, and the screen would "zoom in"
 	// whenever the user clicked "New"!
-	if(AdjustForCustomScaling() == FALSE) {
-		return(0);
-	}
+	// @20201025 if(AdjustForCustomScaling() == FALSE) { return 0; }
 	WNDCLASSEXW CaptureWindowClass = { sizeof(WNDCLASSEXW) };
 	CaptureWindowClass.style         = CS_HREDRAW | CS_VREDRAW;
 	CaptureWindowClass.hInstance     = Instance;
@@ -102,7 +118,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	if(RegisterClassEx(&CaptureWindowClass) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: RegisterClassEx failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"Failed to register CaptureWindowClass with error 0x%lx!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
 	// This window will capture the entire display surface, including multiple monitors. It will then display an
 	// exact
@@ -119,14 +135,14 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	if(gCaptureWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (capture window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"Failed to create Capture Window!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
 	// Remove all window style, including title bar. We're trying to make the "capture window" indistinguishable
 	// from the real desktop that lay underneath it.
 	if(SetWindowLongPtrW(gCaptureWindowHandle, GWL_STYLE, 0) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: SetWindowLongPtwW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"SetWindowLongPtrW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
 	// The main window class that appears when the application is first launched.
 	WNDCLASSEXW MainWindowClass = { sizeof(WNDCLASSEXW) };
@@ -141,7 +157,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	if(RegisterClassExW(&MainWindowClass) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: RegisterClassExW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"RegisterClassExW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
 	gMainWindowHandle = CreateWindowExW(0, MainWindowClass.lpszClassName, L"SnipEx",
 		WS_VISIBLE | (WS_OVERLAPPEDWINDOW ^ (WS_MAXIMIZEBOX | WS_THICKFRAME)),
@@ -149,7 +165,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	if(gMainWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (main window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
 		MessageBoxW(NULL, L"CreateWindowEx (main window) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
 	#if _DEBUG
 	wchar_t TitleBarBuffer[64] = { 0 };
@@ -166,7 +182,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		if(ButtonHandle == NULL) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to create %s button with error 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption, GetLastError());
 			MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-			return(0);
+			return 0;
 		}
 		gButtons[Counter]->Handle = ButtonHandle;
 		if(gButtons[Counter]->EnabledIconId > 0) {
@@ -174,7 +190,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			if(gButtons[Counter]->EnabledIcon == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->EnabledIconId, GetLastError());
 				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-				return(0);
+				return 0;
 			}
 		}
 		if(gButtons[Counter]->DisabledIconId > 0) {
@@ -183,7 +199,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			if(gButtons[Counter]->DisabledIcon == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->DisabledIconId, GetLastError());
 				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-				return(0);
+				return 0;
 			}
 		}
 		if(gButtons[Counter]->CursorId > 0) {
@@ -191,7 +207,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			if(gButtons[Counter]->Cursor == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->CursorId, GetLastError());
 				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-				return(0);
+				return 0;
 			}
 		}
 		MyOutputDebugStringW(L"[%s] Line %d: %s button created.\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption);
@@ -200,8 +216,9 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	if((AddAllMenuItems(Instance)) != S_OK) {
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR: Adding drop-down menu items failed!\n", __FUNCTIONW__, __LINE__);
 		MessageBoxW(NULL, L"Failed to create drop-down menu items!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
-		return(0);
+		return 0;
 	}
+	AdjustWindowSizeForThickTitleBars(); // @20201025
 	gMainWindowIsRunning = TRUE;
 	MSG MainWindowMessage      = { 0 };
 	MSG CaptureWindowMessage   = { 0 };
@@ -226,7 +243,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		}
 		Sleep(1); // Could be anywhere from 0.5ms to 15.6ms
 	}
-	return(0);
+	return 0;
 }
 
 // Handles window messages for the main window.
@@ -250,7 +267,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    if(gCurrentSnipState > 0) {
 				    gCurrentSnipState--;
 				    MyOutputDebugStringW(L"[%s] Line %d: Deleting gSnipStates[%d]\n", __FUNCTIONW__, __LINE__, gCurrentSnipState + 1);
-				    memset(HilighterPixelsAlreadyDrawn, 0, sizeof(HilighterPixelsAlreadyDrawn));
+				    memzero(HilighterPixelsAlreadyDrawn, sizeof(HilighterPixelsAlreadyDrawn));
 				    HilighterPixelsAlreadyDrawnCounter = 0;
 				    if(DeleteObject(gSnipStates[gCurrentSnipState + 1]) == 0) {
 					    MyOutputDebugStringW(L"[%s] Line %d: DeleteObject failed!\n", __FUNCTIONW__, __LINE__);
@@ -886,7 +903,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    }
 		    switch(LOWORD(WParam)) {
 			    case BUTTON_NEW:
-					memset(HilighterPixelsAlreadyDrawn, 0, sizeof(HilighterPixelsAlreadyDrawn));
+					memzero(HilighterPixelsAlreadyDrawn, sizeof(HilighterPixelsAlreadyDrawn));
 					HilighterPixelsAlreadyDrawnCounter = 0;
 					if(NewButton_Click() == FALSE) {
 						gMainWindowIsRunning = FALSE;
@@ -894,18 +911,21 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 					}
 					break;
 			    case BUTTON_DELAY:
-			{
-				wchar_t TitleBuffer[64] = { 0 };
-				(void)_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx");
-				SetWindowTextW(gMainWindowHandle, TitleBuffer);
-				gAppState = APPSTATE_DELAYCOOKING;
-				RECT CurrentWindowPos = { 0 };
-				GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
-				SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, gStartingMainWindowWidth, gStartingMainWindowHeight, 0);
-				KillTimer(gMainWindowHandle, DELAY_TIMER);
-				SetTimer(gMainWindowHandle, DELAY_TIMER, 1000, NULL);
-				break;
-			}
+					{
+						wchar_t TitleBuffer[64] = { 0 };
+						_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx");
+						SetWindowTextW(gMainWindowHandle, TitleBuffer);
+						gAppState = APPSTATE_DELAYCOOKING;
+						AdjustWindowSizeForThickTitleBars(); // @20201025
+						/* @20201025
+						RECT CurrentWindowPos = { 0 };
+						GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
+						SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, gStartingMainWindowWidth, gStartingMainWindowHeight, 0);
+						*/
+						KillTimer(gMainWindowHandle, DELAY_TIMER);
+						SetTimer(gMainWindowHandle, DELAY_TIMER, 1000, NULL);
+					}
+					break;
 			    case BUTTON_SAVE:
 					if(gSaveButton.Enabled == TRUE) {
 						if(SaveButton_Click() == FALSE) {
@@ -925,22 +945,18 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    case BUTTON_ARROW:
 			    case BUTTON_REDACT:
 			    case BUTTON_TEXT:
-			{
-				if(gButtons[LOWORD(WParam) - 10001]->Enabled == TRUE) {
-					gLastTool = (DWORD)gButtons[LOWORD(WParam) - 10001]->Id;
-					if(gRememberLastTool) {
-						if(SetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool) != ERROR_SUCCESS) {
-							CRASH(0);
+					if(gButtons[LOWORD(WParam) - 10001]->Enabled == TRUE) {
+						gLastTool = (DWORD)gButtons[LOWORD(WParam) - 10001]->Id;
+						if(gRememberLastTool) {
+							if(SetSnipExRegValue(REG_LASTTOOLNAME, &gLastTool) != ERROR_SUCCESS) {
+								CRASH(0);
+							}
 						}
 					}
-				}
-				break;
-			}
+					break;
 			    default:
-			{
-				MyOutputDebugStringW(L"[%s] Line %d: Unrecognized command.\n", __FUNCTIONW__, __LINE__);
-				CRASH(0);
-			}
+					MyOutputDebugStringW(L"[%s] Line %d: Unrecognized command.\n", __FUNCTIONW__, __LINE__);
+					CRASH(0);
 		    }
 		    break;
 	    }
@@ -952,7 +968,6 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    }
 		    else if(WParam == SYSCMD_REPLACE) {
 			    MyOutputDebugStringW(L"[%s] Line %d: User clicked on 'Replace Snipping Tool'.\n", __FUNCTIONW__, __LINE__);
-
 			    // Need admin and UAC elevation to write to the image file execution options registry key
 			    if(IsAppRunningElevated()) {
 				    MyOutputDebugStringW(L"[%s] Line %d: Already UAC elevated.\n", __FUNCTIONW__, __LINE__);
@@ -1038,7 +1053,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 						    HMENU SystemMenu = GetSystemMenu(gMainWindowHandle, FALSE);
 						    RemoveMenu(SystemMenu, SYSCMD_RESTORE, MF_BYCOMMAND);
 						    AppendMenuW(SystemMenu, MF_STRING, SYSCMD_REPLACE, L"Replace Windows Snipping Tool with SnipEx\n");
-						    if(gUACIcon != NULL) {
+						    if(gUACIcon) {
 							    MENUITEMINFOW MenuItemInfo = { sizeof(MENUITEMINFOW) };
 							    MenuItemInfo.fMask = MIIM_BITMAP;
 							    MenuItemInfo.hbmpItem = gUACIcon;
@@ -1047,10 +1062,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 						    MessageBoxW(gMainWindowHandle, L"The built-in SnippingTool.exe has been restored.", L"Success", MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 					    }
 				    }
-
-				    if(IFEOKey != NULL) {
+				    if(IFEOKey)
 					    RegCloseKey(IFEOKey);
-				    }
 			    }
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Need to UAC elevate first.\n", __FUNCTIONW__, __LINE__);
@@ -1128,7 +1141,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    if(gCurrentSnipState > 0 && (gAppState == APPSTATE_AFTERCAPTURE)) {
 				    gCurrentSnipState--;
 				    MyOutputDebugStringW(L"[%s] Line %d: Deleting gSnipStates[gCurrentSnipState + 1]\n", __FUNCTIONW__, __LINE__);
-				    memset(HilighterPixelsAlreadyDrawn, 0, sizeof(HilighterPixelsAlreadyDrawn));
+				    memzero(HilighterPixelsAlreadyDrawn, sizeof(HilighterPixelsAlreadyDrawn));
 				    HilighterPixelsAlreadyDrawnCounter = 0;
 				    if(DeleteObject(gSnipStates[gCurrentSnipState + 1]) == 0) {
 					    MyOutputDebugStringW(L"[%s] Line %d: DeleteObject failed!\n", __FUNCTIONW__, __LINE__);
@@ -1290,15 +1303,18 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 			    gCaptureSelectionRectangle.right  = 0;
 			    gCaptureSelectionRectangle.top    = 0;
 			    gCaptureSelectionRectangle.bottom = 0;
+				AdjustWindowSizeForThickTitleBars(); // @20201025
+				/* @20201025
 			    RECT CurrentWindowPos = { 0 };
 			    GetWindowRect(gMainWindowHandle, &CurrentWindowPos);
 			    SetWindowPos(gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, gStartingMainWindowWidth, gStartingMainWindowHeight, 0);
+				*/
 			    gNewButton.State = BUTTONSTATE_NORMAL;
 			    gNewButton.SelectedTool = FALSE;
 		    }
 		    break;
 		case WM_PAINT:
-		    if(gCleanScreenShot != NULL) {
+		    if(gCleanScreenShot) {
 			    PAINTSTRUCT PaintStruct = { 0 };
 			    BeginPaint(Window, &PaintStruct);
 			    HDC BackBufferDC = CreateCompatibleDC(PaintStruct.hdc);
@@ -1399,7 +1415,7 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 	return(Result);
 }
 
-void CaptureWindow_OnLeftButtonUp(void)
+void CaptureWindow_OnLeftButtonUp()
 {
 	MyOutputDebugStringW(L"[%s] Line %d: Left mouse button up over capture window. Selection complete.\n", __FUNCTIONW__, __LINE__);
 	if((gCaptureSelectionRectangle.left != gCaptureSelectionRectangle.right) &&
@@ -2038,10 +2054,9 @@ HRESULT AddAllMenuItems(_In_ HINSTANCE Instance)
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR: Attempting to load the UAC icon failed! 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 Exit:
-	if(IFEOKey != NULL) {
+	if(IFEOKey)
 		RegCloseKey(IFEOKey);
-	}
-	return(Result);
+	return Result;
 }
 
 BOOL IsAppRunningElevated(void)
@@ -2098,7 +2113,7 @@ BOOL AdjustForCustomScaling(void)
 	UINT DPIy = 0;
 	HMONITOR h_mon = MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTOPRIMARY);
 	MONITORINFOEXA moninfo;
-	memset(&moninfo, 0, sizeof(moninfo));
+	memzero(&moninfo, sizeof(moninfo));
 	moninfo.cbSize = sizeof(moninfo);
 	if(GetMonitorInfoA(h_mon, &moninfo)) {
 		HDC h_dc = CreateDCA("DISPLAY", moninfo.szDevice, 0, 0);
@@ -2261,9 +2276,9 @@ LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName)
 		}
 	}
 Exit:
-	if(SnipExKey != NULL)
+	if(SnipExKey)
 		RegCloseKey(SnipExKey);
-	if(SoftwareKey != NULL)
+	if(SoftwareKey)
 		RegCloseKey(SoftwareKey);
 	return(Result);
 }
@@ -2300,9 +2315,9 @@ LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
-	if(SnipExKey != NULL)
+	if(SnipExKey)
 		RegCloseKey(SnipExKey);
-	if(SoftwareKey != NULL)
+	if(SoftwareKey)
 		RegCloseKey(SoftwareKey);
 	return(Result);
 }
@@ -2343,9 +2358,9 @@ LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read from the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
-	if(SnipExKey != NULL)
+	if(SnipExKey)
 		RegCloseKey(SnipExKey);
-	if(SoftwareKey != NULL)
+	if(SoftwareKey)
 		RegCloseKey(SoftwareKey);
 	return(Result);
 }

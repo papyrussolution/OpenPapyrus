@@ -61,15 +61,8 @@
 #endif
 	#include <windows.h>
 	#define _Windows
-	// @v9.6.4 #define far
-	// @v9.6.4 #define _FARFUNC
-	// @v9.6.4 #define farcalloc calloc
-	// @v9.6.4 #define farmalloc malloc
-	// @v9.6.4 #define farrealloc realloc
-	// @v9.6.4 #define farfree free
 	// @v10.3.10 #define pow10l(x) pow(10,(x))
 	// @v10.3.10 #define pow10(x)  pow(10,(x))
-	// @v9.6.4 #define delay(n) ::Sleep(n)
 	#define MAXDRIVE 3
 	#define MAXFILE 257
 	#define MAXEXT 5
@@ -84,12 +77,6 @@
 	#include <windows.h>
 	#define _Windows
 	#define asm __asm
-	// @v9.6.4 #define far
-	// @v9.6.4 #define _FARFUNC
-	// @v9.6.4 #define farcalloc calloc
-	// @v9.6.4 #define farmalloc malloc
-	// @v9.6.4 #define farrealloc realloc
-	// @v9.6.4 #define farfree free
 	#define stricmp         _stricmp
 	#define strnicmp        _strnicmp
 	#define stpcpy(s1, s2) (strcpy((s1), (s2)), s1 + strlen((s2)))
@@ -104,7 +91,6 @@
 	#define ultoa           _ultoa
 	#define pow10l(x) pow(10,(x))
 	#define pow10(x) pow(10,(x))
-	// @v9.6.4 #define delay(n) ::Sleep(n)
 	#define MAXDRIVE 3
 	#define MAXFILE 257
 	#define MAXEXT 5
@@ -309,10 +295,6 @@
 #define WIN32_LEAN_AND_MEAN
 //#define _WIN32_WINNT 0x0501
 //#define _WIN32_IE 0x0501 // @v9.0.8
-// @v9.8.9 #include <windows.h>
-// @v9.8.9 (moved above) #include <tchar.h>
-//
-//
 //
 #if !defined(FORCEINLINE)
 	#if defined(_MSC_VER)
@@ -321,13 +303,11 @@
 		#define FORCEINLINE
 	#endif
 #endif
-
 #if defined(__WIN32__) || defined(_WIN32) || defined(_WIN32_WCE)
-	#define SFAR
-	#define SLAPI_unused    //__stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
+	// @v10.9.1 #define SFAR
+	#define SLAPI_unused    // (since @v10.9.1 unused) __stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
 		// снижает скорость работы member-функция из-за того, что this передается на стеке, а не в регистре
 	#define SLAPIV   __cdecl
-	// @v9.6.3 #define SLCLASS
 	#define FASTCALL __fastcall // Следует использовать для часто вызываемых функций с количеством параметров
 		// от 1 до 3. Не совсем понятны побочные эффекты от использования регистров под параметры с точки
 		// зрения оптимизации распределения регистров в вызывающих функциях.
@@ -335,10 +315,9 @@
 	#ifndef PASCAL
 		#define PASCAL           pascal
 	#endif
-	#define SFAR                 far
-	#define SLAPI_unused                pascal SFAR
+	// @v10.9.1 #define SFAR                 far
+	#define SLAPI_unused         pascal SFAR // (since @v10.9.1 unused) 
 	#define SLAPIV               cdecl SFAR
-	// @v9.6.3 #define SLCLASS
 	#define FASTCALL
 #endif
 #ifdef _MSC_VER
@@ -346,28 +325,18 @@
 #else
 	#define THREADLOCAL
 #endif
-/* @v9.1.12
-#ifndef _SIZE_T
-#define _SIZE_T
-	typedef unsigned size_t;
-#endif
-*/
 #ifndef MAXPATH
+	#define MAXPATH 260 // @v10.9.1
+	/* @v10.9.1 
 	#if defined(__WIN32__) || defined(_WIN32)
 		#define MAXPATH 260
 	#else
 		#define MAXPATH  80
-	#endif
+	#endif */
 #endif
-// @v9.0.1 #define SPTRDEF(typ)        typedef typ SFAR * P ## typ
-// @v9.0.1 #define SPTR2DEF(typ)       typedef typ SFAR * SFAR * PP ## typ
-// @v9.0.1 #define SPTRCDEF(typ)       typedef const typ SFAR * PC ## typ
-// @v9.0.1 #define SPTR(type)          P ## typ
-// @v9.0.1 #define SPTRC(typ)          PC ## typ
 #define CALLPTRMEMB(ptr, memb)          if(ptr) ptr->memb;
 #define CALLTYPEPTRMEMB(typ, ptr, memb) if(ptr) ((typ *)ptr)->memb;
 
-// @v9.8.12 #ifdef DECL_INTX
 typedef signed char    int8;
 typedef signed short   int16;
 typedef signed long    int32;
@@ -376,7 +345,6 @@ typedef unsigned short uint16;
 typedef unsigned long  uint32;
 typedef __int64        int64;
 typedef unsigned __int64 uint64;
-// @v9.8.12 #endif
 typedef long double         LDBL;
 typedef unsigned char       uchar;
 typedef unsigned short      ushort;
@@ -387,13 +355,10 @@ typedef char                BCD4[4];
 typedef char                BCD8[8];
 typedef char                BCD10[10];
 typedef char   * BCD_T;
-// @v9.8.9 typedef char   * Pchar;
 typedef uint16              RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
 typedef int                 boolint; // @v10.5.2 Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
-
-// @v9.1.12 enum Boolean { False, True };
 
 class  SBuffer;
 class  SString;
@@ -10315,12 +10280,18 @@ struct SMathResult {
 };
 
 typedef long LMIDX;
-typedef TSVector <unsigned long> UlongArray; // @v9.8.4 TSArray-->TSVector
-
+typedef TSVector <unsigned long> UlongArray;
+// @v10.9.1 {
+#if !defined(INFINITY)
+	#define INFINITY HUGE_VAL
+#endif
+// } @v10.9.1 
 int    IsValidIEEE(double);
 int    fisnan(double);
+int    fisnanf(float);
 int    fisinf(double);
 double fgetnan();    // NAN
+float  fgetnanf();    // NAN
 double fgetposinf(); // +INF
 double fgetneginf(); // -INF
 //

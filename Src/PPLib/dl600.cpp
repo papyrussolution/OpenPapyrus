@@ -2804,7 +2804,7 @@ int DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 		for(i = 0; i < pTbl->GetFields().getCount(); i++) {
 			const BNField & r_fld = pTbl->GetFields()[i];
 			uint   fld_id = 0;
-			fld.Init();
+			fld.Z();
 			fld.T.Typ = r_fld.T;
 			fld.Name = r_fld.Name;
 			p_scope->AddField(&fld_id, &fld);

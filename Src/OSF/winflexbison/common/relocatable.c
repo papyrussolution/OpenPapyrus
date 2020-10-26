@@ -26,12 +26,7 @@
 #endif
 
 #define _GL_USE_STDLIB_ALLOC 1
-//#include "relocatable.h"
 #if ENABLE_RELOCATABLE
-//#include <stddef.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #ifdef NO_XMALLOC
 	#define xmalloc malloc
 #else

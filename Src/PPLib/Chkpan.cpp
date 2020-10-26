@@ -1466,8 +1466,10 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 						add_paym = non_crd_amt;
 					else
 						add_paym += non_crd_amt;*/
-					if(add_paym > 0.0) {
-						if(!(Flags & fSCardBonus)) { // Для бонусных карт запрос доплаты не выводится и сумма дебета не корректируется //
+					if(Flags & fSCardBonus)
+						CSt.UsableBonus = MIN(MAX(cc, 0.0), init_rest);
+					else /*if(!(Flags & fSCardBonus))*/ { // Для бонусных карт запрос доплаты не выводится и сумма дебета не корректируется //
+						if(add_paym > 0.0) {
 							if(R2(CSt.AdditionalPayment) == 0.0) { 
 								if(scs_rec.Flags & SCRDSF_DISABLEADDPAYM)
 									ok = MessageError(PPERR_UNABLEADDPAYMONCRDCARD, 0, /*eomMsgWindow*/eomPopup|eomBeep);
@@ -1492,13 +1494,11 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 									CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
 							}
 						}
+						else {
+							CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
+							CSt.AdditionalPayment = (add_paym < 0.0) ? 0.0 : R2(add_paym);
+						}
 					}
-					else {
-						CSt.RestByCrdCard += cc; // @v10.9.0 @fix (-=)-->(+=)
-						CSt.AdditionalPayment = (add_paym < 0.0) ? 0.0 : R2(add_paym);
-					}
-					if(Flags & fSCardBonus)
-						CSt.UsableBonus = MIN(MAX(cc, 0.0), init_rest);
 					CSt.RestByCrdCard = R2(CSt.RestByCrdCard);
 					CSt.UsableBonus = R2(CSt.UsableBonus);
 				}
@@ -10366,9 +10366,9 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 /*virtual*/void CheckPaneDialog::SetupRowData(int calcRest)
 {
 	const CCheckItem & r_item = P.GetCurC();
-	SString   buf, temp_buf;
-	double    sum = R2(r_item.Quantity * (r_item.Price - r_item.Discount));
-	buf = r_item.GoodsName;
+	SString temp_buf;
+	double sum = R2(r_item.Quantity * (r_item.Price - r_item.Discount));
+	SString buf(r_item.GoodsName);
 	if(P.CurModifList.getCount()) {
 		buf.Space().CatChar('{').CatChar('+');
 		for(uint i = 0; i < P.CurModifList.getCount(); i++) {

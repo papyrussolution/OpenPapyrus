@@ -18,10 +18,8 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "hash.h" /* Specification.  */
-//#include "xalloc.h"
 
-/* Same as hash_initialize, but invokes xalloc_die on memory
-   exhaustion.  */
+/* Same as hash_initialize, but invokes xalloc_die on memory exhaustion.  */
 
 Hash_table * hash_xinitialize(size_t candidate, const Hash_tuning * tuning, Hash_hasher hasher, Hash_comparator comparator, Hash_data_freer data_freer)
 {

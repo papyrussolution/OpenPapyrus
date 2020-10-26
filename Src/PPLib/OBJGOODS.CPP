@@ -2291,8 +2291,6 @@ int PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // @obsol
 int PPObjGoods::GetBarcodeByTemplate(PPID grp, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
 	{ return P_Tbl->GetBarcodeByTemplate(grp, GetConfig(), pTempl, pCurrentList, rBuf); }
 
-/* @v9.1.4 int PPObjGoods::GetGoodsArticle(PPID id, PPID * pArticle) { return tbl->GetGoodsArticle(id, pArticle); } */
-
 int PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
 {
 	int      is_found = 0;

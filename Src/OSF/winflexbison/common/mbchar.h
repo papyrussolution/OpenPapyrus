@@ -205,16 +205,10 @@ typedef struct mbchar mbchar_t;
 	: (mbc1).bytes < (mbc2).bytes                                   \
 	? (memcmp((mbc1).ptr, (mbc2).ptr, (mbc1).bytes) > 0 ? 1 : -1) \
 	: (memcmp((mbc1).ptr, (mbc2).ptr, (mbc2).bytes) >= 0 ? 1 : -1)))
-#define mb_equal(mbc1, mbc2) \
-	((mbc1).wc_valid && (mbc2).wc_valid                                   \
-	? (mbc1).wc == (mbc2).wc                                             \
-	: (mbc1).bytes == (mbc2).bytes                                       \
-	&& memcmp((mbc1).ptr, (mbc2).ptr, (mbc1).bytes) == 0)
-#define mb_caseequal(mbc1, mbc2) \
-	((mbc1).wc_valid && (mbc2).wc_valid                                   \
-	? towlower((mbc1).wc) == towlower((mbc2).wc)                       \
-	: (mbc1).bytes == (mbc2).bytes                                       \
-	&& memcmp((mbc1).ptr, (mbc2).ptr, (mbc1).bytes) == 0)
+#define mb_equal(mbc1, mbc2) ((mbc1).wc_valid && (mbc2).wc_valid ? (mbc1).wc == (mbc2).wc \
+	: (mbc1).bytes == (mbc2).bytes && memcmp((mbc1).ptr, (mbc2).ptr, (mbc1).bytes) == 0)
+#define mb_caseequal(mbc1, mbc2) ((mbc1).wc_valid && (mbc2).wc_valid ? towlower((mbc1).wc) == towlower((mbc2).wc) \
+	: (mbc1).bytes == (mbc2).bytes && memcmp((mbc1).ptr, (mbc2).ptr, (mbc1).bytes) == 0)
 
 /* <ctype.h>, <wctype.h> classification.  */
 #define mb_isascii(mbc) ((mbc).wc_valid && (mbc).wc >= 0 && (mbc).wc <= 127)
@@ -245,7 +239,6 @@ MBCHAR_INLINE int mb_width_aux(wint_t wc)
 }
 
 #define mb_width(mbc) ((mbc).wc_valid ? mb_width_aux((mbc).wc) : MB_UNPRINTABLE_WIDTH)
-
 /* Output.  */
 #define mb_putc(mbc, stream)  fwrite((mbc).ptr, 1, (mbc).bytes, (stream))
 /* Assignment.  */

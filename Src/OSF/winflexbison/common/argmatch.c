@@ -21,14 +21,10 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "argmatch.h" /* Specification.  */
 
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)
 
-//#include "error.h"
-//#include "quotearg.h"
-//#include "getprogname.h"
 #if USE_UNLOCKED_IO
 	#include "unlocked-io.h"
 #endif

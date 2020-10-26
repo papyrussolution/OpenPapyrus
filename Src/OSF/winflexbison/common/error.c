@@ -19,16 +19,11 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "error.h"
 #if !_LIBC && ENABLE_NLS
-	//#include "gettext.h"
 	#define _(msgid) gettext(msgid)
 #endif
 #ifdef _LIBC
 	#include <libintl.h>
-	//#include <stdbool.h>
-	//#include <stdint.h>
-	//#include <wchar.h>
 	#define mbsrtowcs __mbsrtowcs
 #endif
 #if USE_UNLOCKED_IO
