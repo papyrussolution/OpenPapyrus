@@ -11,7 +11,7 @@ static int WriteSArrayToFile(const SArray * pAry, FILE * pStream)
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
 	uint16 i;
-	const  uint16 c = (uint16)SVectorBase::GetCount(pAry);
+	const  uint16 c = static_cast<uint16>(SVectorBase::GetCount(pAry));
 	size_t item_size = pAry ? pAry->getItemSize() : 0;
 	long   beg_pos = ftell(pStream);
 	THROW_V(fwrite(&c, sizeof(c), 1, pStream) == 1, SLERR_WRITEFAULT);

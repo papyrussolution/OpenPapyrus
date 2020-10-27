@@ -1107,9 +1107,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Dl200\dl200.cpp" />
-    <ClCompile Include="..\Dl200\dl200prs.cpp" />
-    <ClCompile Include="..\Dl200\dl200r.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200r.cpp" />
     <ClCompile Include="..\PPEquip\Acs_1.cpp" />
     <ClCompile Include="..\PPEquip\Atol-pre.cpp" />
     <ClCompile Include="..\PPEquip\atoldrv.cpp" />

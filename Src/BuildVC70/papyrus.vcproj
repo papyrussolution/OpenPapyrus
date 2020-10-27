@@ -1018,13 +1018,13 @@
 				RelativePath="..\PPLib\Dgacc.cpp">
 			</File>
 			<File
-				RelativePath="..\Dl200\dl200.cpp">
+				RelativePath="..\Tools\Dl200\dl200.cpp">
 			</File>
 			<File
-				RelativePath="..\Dl200\dl200prs.cpp">
+				RelativePath="..\Tools\Dl200\dl200prs.cpp">
 			</File>
 			<File
-				RelativePath="..\Dl200\dl200r.cpp">
+				RelativePath="..\Tools\Dl200\dl200r.cpp">
 			</File>
 			<File
 				RelativePath="..\PPLib\dl600.cpp">
