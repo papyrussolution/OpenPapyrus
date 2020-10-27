@@ -53,27 +53,12 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE    1
 #endif
-//#ifndef VASNPRINTF
-//#include <config.h>
-//#endif
-//#ifndef IN_LIBINTL
-//#include <alloca.h>
-//#endif
 /* Specification.  */
 #ifndef VASNPRINTF
 	#if WIDE_CHAR_VERSION
 		#include "vasnwprintf.h"
-	#else
-		//#include "vasnprintf.h"
 	#endif
 #endif
-//#include <locale.h>     /* localeconv() */
-//#include <stdio.h>      /* snprintf(), sprintf() */
-//#include <stdlib.h>     /* abort(), SAlloc::M(), SAlloc::R(), SAlloc::F() */
-//#include <string.h>     /* memcpy(), strlen() */
-//#include <errno.h>      /* errno */
-//#include <limits.h>     /* CHAR_BIT */
-//#include <float.h>      /* DBL_MAX_EXP, LDBL_MAX_EXP */
 #if HAVE_NL_LANGINFO
 	#include <langinfo.h>
 #endif
@@ -84,8 +69,6 @@
 		#include "printf-parse.h"
 	#endif
 #endif
-//#include "xsize.h" /* Checked size_t computations.  */
-//#include "verify.h"
 #if (NEED_PRINTF_DOUBLE || NEED_PRINTF_LONG_DOUBLE) && !defined IN_LIBINTL
 	#include <math.h>
 	#include "float+.h"

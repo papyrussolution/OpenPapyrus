@@ -23,10 +23,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "memchr2.h"
-//#include <limits.h>
-//#include <stdint.h>
-//#include <string.h>
 
 /* Return the first address of either C1 or C2 (treated as unsigned
    char) that occurs within N bytes of the memory region S.  If

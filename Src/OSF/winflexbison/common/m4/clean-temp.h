@@ -18,10 +18,6 @@
 #ifndef _CLEAN_TEMP_H
 #define _CLEAN_TEMP_H
 
-//#include <stdbool.h>
-//#include <stdio.h>
-//#include <sys/types.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

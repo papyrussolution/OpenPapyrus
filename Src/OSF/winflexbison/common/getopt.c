@@ -24,7 +24,6 @@
 #ifdef _LIBC
 	#include <libintl.h>
 #else
-	//#include "gettext.h"
 	#undef _ // @sobolev
 	#define _(msgid) gettext(msgid)
 #endif
@@ -148,7 +147,7 @@ static void exchange(char ** argv, struct _getopt_data * d)
 		char * new_str = SAlloc::M(top + 1);
 		if(new_str == NULL)
 			d->__nonoption_flags_len = d->__nonoption_flags_max_len = 0;
-		else{
+		else {
 			memzero(__mempcpy(new_str, __getopt_nonoption_flags, d->__nonoption_flags_max_len), top + 1 - d->__nonoption_flags_max_len);
 			d->__nonoption_flags_max_len = top + 1;
 			__getopt_nonoption_flags = new_str;
@@ -159,10 +158,9 @@ static void exchange(char ** argv, struct _getopt_data * d)
 	while(top > middle && middle > bottom) {
 		if(top - middle > middle - bottom) {
 			/* Bottom segment is the short one.  */
-			int len = middle - bottom;
-			int i;
+			const int len = middle - bottom;
 			/* Swap it with the top part of the top segment.  */
-			for(i = 0; i < len; i++) {
+			for(int i = 0; i < len; i++) {
 				tem = argv[bottom + i];
 				argv[bottom + i] = argv[top - (middle - bottom) + i];
 				argv[top - (middle - bottom) + i] = tem;
@@ -171,12 +169,11 @@ static void exchange(char ** argv, struct _getopt_data * d)
 			/* Exclude the moved bottom segment from further swapping.  */
 			top -= len;
 		}
-		else{
+		else {
 			/* Top segment is the short one.  */
-			int len = top - middle;
-			int i;
+			const int len = top - middle;
 			/* Swap it with the bottom part of the bottom segment.  */
-			for(i = 0; i < len; i++) {
+			for(int i = 0; i < len; i++) {
 				tem = argv[bottom + i];
 				argv[bottom + i] = argv[middle + i];
 				argv[middle + i] = tem;
@@ -186,9 +183,7 @@ static void exchange(char ** argv, struct _getopt_data * d)
 			bottom += len;
 		}
 	}
-
 	/* Update records for the slots the non-options now occupy.  */
-
 	d->__first_nonopt += (d->optind - d->__last_nonopt);
 	d->__last_nonopt = d->optind;
 }
@@ -223,7 +218,7 @@ static const char * _getopt_initialize(int argc, char ** argv, const char * opts
 			if(__getopt_nonoption_flags == NULL
 			    || __getopt_nonoption_flags[0] == '\0')
 				d->__nonoption_flags_max_len = -1;
-			else{
+			else {
 				const char * orig_str = __getopt_nonoption_flags;
 				int len = d->__nonoption_flags_max_len = strlen(orig_str);
 				if(d->__nonoption_flags_max_len < argc)
@@ -462,8 +457,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 					SAlloc::F(buf);
 				}
 #else
-				fprintf(stderr, _("%s: option '%s' is ambiguous\n"),
-				    argv[0], argv[d->optind]);
+				fprintf(stderr, _("%s: option '%s' is ambiguous\n"), argv[0], argv[d->optind]);
 #endif
 			}
 			d->__nextchar += strlen(d->__nextchar);
@@ -480,7 +474,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 				   allow it to be used on enums.  */
 				if(pfound->has_arg)
 					d->optarg = nameend + 1;
-				else{
+				else {
 					if(print_errors) {
 #if defined _LIBC && defined USE_IN_LIBIO
 						char * buf;
@@ -499,7 +493,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 							    argv[0], pfound->name);
 #endif
 						}
-						else{
+						else {
 							/* +option or -option */
 #if defined _LIBC && defined USE_IN_LIBIO
 							n = __asprintf(&buf, _("\
@@ -541,7 +535,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 			else if(pfound->has_arg == 1) {
 				if(d->optind < argc)
 					d->optarg = argv[d->optind++];
-				else{
+				else {
 					if(print_errors) {
 #if defined _LIBC && defined USE_IN_LIBIO
 						char * buf;
@@ -605,7 +599,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 					    argv[0], d->__nextchar);
 #endif
 				}
-				else{
+				else {
 					/* +option or -option */
 #if defined _LIBC && defined USE_IN_LIBIO
 					n = __asprintf(&buf, _("%s: unrecognized option '%c%s'\n"),
@@ -789,7 +783,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 					   allow it to be used on enums.  */
 					if(pfound->has_arg)
 						d->optarg = nameend + 1;
-					else{
+					else {
 						if(print_errors) {
 #if defined _LIBC && defined USE_IN_LIBIO
 							char * buf;
@@ -824,7 +818,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 				else if(pfound->has_arg == 1) {
 					if(d->optind < argc)
 						d->optarg = argv[d->optind++];
-					else{
+					else {
 						if(print_errors) {
 #if defined _LIBC && defined USE_IN_LIBIO
 							char * buf;
@@ -880,7 +874,7 @@ int _getopt_internal_r(int argc, char ** argv, const char * optstring,
 					d->optarg = NULL;
 				d->__nextchar = NULL;
 			}
-			else{
+			else {
 				/* This is an option that requires an argument.  */
 				if(*d->__nextchar != '\0') {
 					d->optarg = d->__nextchar;

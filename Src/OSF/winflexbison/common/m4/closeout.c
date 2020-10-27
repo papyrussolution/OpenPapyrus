@@ -19,17 +19,8 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "closeout.h"
-//#include <errno.h>
-//#include <stdbool.h>
-//#include <stdio.h>
-//#include <unistd.h>
-//#include "gettext.h"
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)
-//#include "close-stream.h"
-//#include "error.h"
-//#include "exitfail.h"
-//#include "quotearg.h"
 
 static const char * file_name;
 

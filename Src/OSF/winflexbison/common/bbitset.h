@@ -22,10 +22,6 @@
 #define _BBITSET_H
 
 #include "libiberty.h"
-//#include <stdbool.h>
-//#include <limits.h>
-//#include <stddef.h>
-
 /* Currently we support five flavours of bitsets:
    BITSET_ARRAY:  Array of bits (fixed size, fast for dense bitsets).
                   Memory for bit array and bitset structure allocated

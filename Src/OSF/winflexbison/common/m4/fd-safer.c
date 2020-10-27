@@ -19,10 +19,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <io.h>
-//#include "unistd-safer.h"
-//#include <errno.h>
-//#include <unistd.h>
 
 /* Return FD, unless FD would be a copy of standard input, output, or
    error; in that case, return a duplicate of FD, closing FD.  On

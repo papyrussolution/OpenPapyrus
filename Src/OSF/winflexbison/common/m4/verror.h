@@ -17,9 +17,6 @@
 #ifndef _VERROR_H
 #define _VERROR_H 1
 
-//#include "error.h"
-//#include <stdarg.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

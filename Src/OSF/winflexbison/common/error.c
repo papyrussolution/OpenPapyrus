@@ -43,8 +43,6 @@ uint error_message_count; /* This variable is incremented each time `error' is c
 /* In the GNU C library, there is a predefined variable for this.  */
 
 #define program_name program_invocation_name
-//#include <errno.h>
-//#include <limits.h>
 #include <libio/libioP.h>
 
 /* In GNU libc we want do not want to use the common name `error' directly.
@@ -65,8 +63,6 @@ __attribute__ ((__format__(__printf__, 5, 6)));;
 
 #else /* not _LIBC */
 
-//#include <fcntl.h>
-//#include <unistd.h>
 #if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
 	/* Get declarations of the Win32 API functions.  */
 	//#define WIN32_LEAN_AND_MEAN

@@ -328,7 +328,7 @@ int uc_width(ucs4_t uc, const char * encoding)
 			if(uc <= 0xe01ef)
 				return 0;
 		}
-		else{
+		else {
 			if(uc >= 0xe0020 ? uc <= 0xe007f : uc == 0xe0001)
 				return 0;
 		}

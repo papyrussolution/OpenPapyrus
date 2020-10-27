@@ -19,8 +19,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <stdlib.h> /* Specification.  */
-//#include "tempname.h"
 
 /* Generate a unique temporary directory from XTEMPLATE.
    The last six characters of XTEMPLATE must be "XXXXXX";

@@ -19,10 +19,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "filenamecat.h" /* Specification.  */
-//#include <stdlib.h>
-//#include <string.h>
-//#include "dirname.h"
 
 #if !HAVE_MEMPCPY && !defined mempcpy
 	#define mempcpy(D, S, N) ((void*)((char *)memcpy(D, S, N) + (N)))

@@ -19,11 +19,8 @@
  */
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <limits.h>
-//#include <sys/stat.h>
 #include "gl_rbtree_oset.h"
 #include "gl_xoset.h"
-//#include "m4.h"
 
 #define INITIAL_BUFFER_SIZE 512 /* Size of initial in-memory buffer size for diversions.  Small diversions would usually fit in.  */
 #define MAXIMUM_TOTAL_SIZE (512 * 1024) /* Maximum value for the total of all in-memory buffer sizes for diversions.  */

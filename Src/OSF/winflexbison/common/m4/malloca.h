@@ -19,10 +19,6 @@
 #ifndef _MALLOCA_H
 #define _MALLOCA_H
 
-//#include <alloca.h>
-//#include <stddef.h>
-//#include <stdlib.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

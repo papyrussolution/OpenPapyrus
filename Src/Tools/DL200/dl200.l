@@ -7,7 +7,7 @@
 %{
 #include <pp.h>
 //#include "dl200.tab.h"
-#include "dl200.tab.cpp.h"
+#include "dl200.tab.hpp"
 #include "dl200_yy.h"
 
 

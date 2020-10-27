@@ -19,8 +19,6 @@
 #ifndef DIRNAME_H_
 #define DIRNAME_H_ 1
 
-//#include <stdbool.h>
-//#include <stddef.h>
 #include "dosname.h"
 
 #ifndef DIRECTORY_SEPARATOR

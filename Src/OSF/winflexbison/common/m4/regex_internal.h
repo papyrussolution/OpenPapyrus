@@ -20,20 +20,6 @@
 #ifndef _REGEX_INTERNAL_H
 #define _REGEX_INTERNAL_H 1
 
-//#include <assert.h>
-//#include <ctype.h>
-//#include <stdbool.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <langinfo.h>
-//#ifndef _LIBC
-	//#include "localcharset.h"
-//#endif
-//#include <locale.h>
-//#include <wchar.h>
-//#include <wctype.h>
-//#include <stdint.h>
 #if defined _LIBC
 	#include <bits/libc-lock.h>
 #else

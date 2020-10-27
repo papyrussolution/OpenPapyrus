@@ -19,13 +19,6 @@
 #ifndef _XSIZE_H
 #define _XSIZE_H
 
-//#include <stddef.h> /* Get size_t.  */
-/* Get SIZE_MAX.  */
-//#include <limits.h>
-//#if HAVE_STDINT_H
-//#include <stdint.h>
-//#endif
-
 /* The size of memory objects is often computed through expressions of
    type size_t. Example: void * p = malloc(header_size + n * element_size).
    These computations can lead to overflow.  When this happens, SAlloc::M()

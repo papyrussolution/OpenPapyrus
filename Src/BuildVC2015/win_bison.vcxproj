@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F49DC041-3A12-4D54-A15E-F38504D1D8B2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>win_bison</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\tools\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\tools\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\include;..\osf\winflexbison\bison;..\osf\winflexbison\common\m4;..\osf\winflexbison\common\m4\lib;..\osf\winflexbison\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutputPath)bison$(TargetExt)</OutputFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)..\osf\winflexbison\UNISTD_ERROR.readme" "$(TargetDir)"
+copy "$(ProjectDir)..\osf\winflexbison\changelog.md" "$(TargetDir)"
+xcopy "$(ProjectDir)..\osf\winflexbison\custom_build_rules\*" "$(TargetDir)\custom_build_rules" /s /i /y
+xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i /y</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\include;..\osf\winflexbison\bison;..\osf\winflexbison\common\m4;..\osf\winflexbison\common\m4\lib;..\osf\winflexbison\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeaderFile />
+      <CompileAsManaged>false</CompileAsManaged>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutputPath)bison$(TargetExt)</OutputFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)..\osf\winflexbison\UNISTD_ERROR.readme" "$(TargetDir)"
+copy "$(ProjectDir)..\osf\winflexbison\changelog.md" "$(TargetDir)"
+xcopy "$(ProjectDir)..\osf\winflexbison\custom_build_rules\*" "$(TargetDir)\custom_build_rules" /s /i /y
+xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i /y</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\winflexbison\bison\AnnotationList.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\assoc.c" />
+    <ClCompile Include="..\OSF\winflexbison\bison\bison-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\winflexbison\bison\closure.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\complain.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\conflicts.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\counterexample.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\derivation.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\derives.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\files.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\fixits.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\getargs.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\glyphs.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\gram.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\graphviz.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\ielr.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\InadequacyList.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\lalr.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\location.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\LR0.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\lssi.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\main.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\muscle-tab.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\named-ref.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\nullable.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\output.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\parse-gram.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\parse-simulation.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\print-graph.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\print-xml.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\print.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\reader.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\reduce.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\relation.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\Sbitset.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\scan-code-c.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\scan-gram-c.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\scan-skel-c.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\state-item.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\state.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\symlist.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\symtab.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\tables.c" />
+    <ClCompile Include="..\osf\winflexbison\bison\uniqstr.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\winflexbison\bison\AnnotationList.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\assoc.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\bison.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\closure.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\complain.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\config.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\conflicts.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\counterexample.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\derivation.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\derives.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\files.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\fixits.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\flex-scanner.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\getargs.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\glyphs.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\gram.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\graphviz.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\ielr.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\InadequacyList.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\lalr.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\location.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\LR0.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\lssi.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\muscle-tab.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\named-ref.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\nullable.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\output.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\parse-gram.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\parse-simulation.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\print-graph.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\print-xml.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\print.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\reader.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\reduce.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\relation.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\Sbitset.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\scan-code.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\scan-gram.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\scan-skel.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\state-item.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\state.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\symlist.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\symtab.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\system.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\tables.h" />
+    <ClInclude Include="..\osf\winflexbison\bison\uniqstr.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="flexbison_common_lib.vcxproj">
+      <Project>{11561197-1120-428c-a43d-7bcdfbcf79b8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -19,8 +19,6 @@
 #ifndef _GL_BITROTATE_H
 #define _GL_BITROTATE_H
 
-//#include <limits.h>
-//#include <stdint.h>
 #include <sys/types.h>
 
 #ifdef UINT64_MAX

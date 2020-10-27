@@ -20,9 +20,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "bitset/table.h"
-//#include <stdlib.h>
-//#include <string.h>
-//#include "obstack.h"
 
 /* This file implements expandable bitsets.  These bitsets can be of
    arbitrary length and are more efficient than arrays of bits for

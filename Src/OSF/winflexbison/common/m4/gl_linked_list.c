@@ -18,7 +18,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "gl_linked_list.h" /* Specification.  */
-//#include <stdlib.h>
 /* -------------------------- gl_list_t Data Type -------------------------- */
 
 /* Generic linked list code.  */

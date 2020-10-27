@@ -1,8 +1,7 @@
 /*
 	DL200.Y
-	Copyright (c) A.Sobolev 2002, 2003, 2009, 2015
+	Copyright (c) A.Sobolev 2002, 2003, 2009, 2015, 2020
 */
-
 %{
 #include <pp.h>
 #include "dl200_yy.h"

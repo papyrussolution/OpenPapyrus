@@ -19,12 +19,7 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "verror.h"
-//#include "xvasprintf.h"
-//#include <errno.h>
-//#include <stdarg.h>
-//#include <stdlib.h>
 #if ENABLE_NLS
-	//#include "gettext.h"
 	#define _(msgid) gettext(msgid)
 #endif
 #ifndef _

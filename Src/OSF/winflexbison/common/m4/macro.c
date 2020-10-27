@@ -24,7 +24,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "m4.h"
 
 static void expand_macro(SymbolTableEntry *);
 static void expand_token(struct obstack *, token_type, token_data *, int);

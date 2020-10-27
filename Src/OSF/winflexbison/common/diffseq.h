@@ -418,7 +418,7 @@ static bool compareseq(OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim, bool 
 				return true;
 			xoff++;
 		}
-	else{
+	else {
 		struct partition part IF_LINT2( = { .xmid = 0, .ymid = 0 });
 		/* Find a point of correspondence in the middle of the vectors.  */
 		diag(xoff, xlim, yoff, ylim, find_minimal, &part, ctxt);

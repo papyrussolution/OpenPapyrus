@@ -19,18 +19,9 @@
  */
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <io.h>
-//#include "m4.h"
-//#include <getopt.h>
-//#include <limits.h>
-//#include <signal.h>
-//#include "c-stack.h"
 #include "ignore-value.h"
 #include "progname.h"
 #include "version-etc.h"
-//#ifdef DEBUG_STKOVF
-	//#include "assert.h"
-//#endif
 
 #define AUTHORS "Rene' Seindal"
 

@@ -135,7 +135,7 @@ int glthread_rwlock_unlock(gl_rwlock_t * lock)
 		}
 		lock->runcount = 0;
 	}
-	else{
+	else {
 		/* Drop a reader lock.  */
 		if(!(lock->runcount > 0)) {
 			mtx_unlock(&lock->lock);
@@ -153,7 +153,7 @@ int glthread_rwlock_unlock(gl_rwlock_t * lock)
 				return EINVAL;
 			}
 		}
-		else{
+		else {
 			/* Wake up all waiting readers.  */
 			if(cnd_broadcast(&lock->waiting_readers) != thrd_success) {
 				mtx_unlock(&lock->lock);
@@ -417,7 +417,7 @@ int glthread_rwlock_unlock_multithreaded(gl_rwlock_t * lock)
 		}
 		lock->runcount = 0;
 	}
-	else{
+	else {
 		/* Drop a reader lock.  */
 		if(!(lock->runcount > 0)) {
 			pthread_mutex_unlock(&lock->lock);
@@ -436,7 +436,7 @@ int glthread_rwlock_unlock_multithreaded(gl_rwlock_t * lock)
 				return err;
 			}
 		}
-		else{
+		else {
 			/* Wake up all waiting readers.  */
 			err = pthread_cond_broadcast(&lock->waiting_readers);
 			if(err != 0) {

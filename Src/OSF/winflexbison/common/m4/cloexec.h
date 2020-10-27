@@ -16,7 +16,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
  */
-//#include <stdbool.h>
 
 /* Set the `FD_CLOEXEC' flag of DESC if VALUE is true,
    or clear the flag if VALUE is false.

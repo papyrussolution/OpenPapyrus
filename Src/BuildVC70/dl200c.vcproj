@@ -155,7 +155,7 @@
 				RelativePath="..\PPLib\Acct.cpp">
 			</File>
 			<File
-				RelativePath="..\Dl200\dl200.cpp">
+				RelativePath="..\Tools\Dl200\dl200.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -174,7 +174,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Dl200\dl200.l">
+				RelativePath="..\Tools\Dl200\dl200.l">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -195,13 +195,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Dl200\dl200.lex.cpp">
+				RelativePath="..\Tools\Dl200\dl200.lex.cpp">
 			</File>
 			<File
-				RelativePath="..\Dl200\dl200.tab.cpp">
+				RelativePath="..\Tools\Dl200\dl200.tab.cpp">
 			</File>
 			<File
-				RelativePath="..\Dl200\Dl200.y">
+				RelativePath="..\Tools\Dl200\Dl200.y">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool

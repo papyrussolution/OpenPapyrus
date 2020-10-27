@@ -30,9 +30,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#ifndef PRINTF_PARSE
-	//#include <config.h>
-//#endif
 #ifndef PRINTF_PARSE
 	#include "printf-parse.h" /* Specification.  */
 #endif
@@ -43,7 +40,6 @@
 	#define DIRECTIVE char_directive
 	#define DIRECTIVES char_directives
 #endif
-//#include <stddef.h> /* Get size_t, NULL.  */
 /* Get intmax_t.  */
 #if defined IN_LIBINTL || defined IN_LIBASPRINTF
 #if HAVE_STDINT_H_WITH_UINTMAX
@@ -52,13 +48,7 @@
 #if HAVE_INTTYPES_H_WITH_UINTMAX
 #  include <inttypes.h>
 #endif
-#else
-	//#include <stdint.h>
 #endif
-//#include <stdlib.h> /* SAlloc::M(), SAlloc::R(), SAlloc::F().  */
-//#include <string.h> /* memcpy().  */
-//#include <errno.h> /* errno.  */
-//#include "xsize.h" /* Checked size_t computations.  */
 #if CHAR_T_ONLY_ASCII
 	#include "c-ctype.h" /* c_isascii().  */
 #endif

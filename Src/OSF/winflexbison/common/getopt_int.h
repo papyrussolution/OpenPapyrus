@@ -19,12 +19,8 @@
 #ifndef _GETOPT_INT_H
 #define _GETOPT_INT_H   1
 
-//#include <getopt.h>
-
-extern int _getopt_internal(int ___argc, char ** ___argv,
-    const char * __shortopts,
-    const struct option * __longopts, int * __longind,
-    int __long_only, int __posixly_correct);
+extern int _getopt_internal(int ___argc, char ** ___argv, const char * __shortopts,
+    const struct option * __longopts, int * __longind, int __long_only, int __posixly_correct);
 
 /* Reentrant versions which can handle parsing multiple argument
    vectors at the same time.  */

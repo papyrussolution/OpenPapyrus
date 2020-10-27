@@ -140,7 +140,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Midl>
-      <TypeLibraryName>d:\papyrus\src\objwin\dl200\Release/dl200c.tlb</TypeLibraryName>
+      <TypeLibraryName>..\objwin\dl200\Release/dl200c.tlb</TypeLibraryName>
       <HeaderFileName />
     </Midl>
     <ResourceCompile>
@@ -149,18 +149,18 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Dl200\dl200.cpp">
+    <ClCompile Include="..\Tools\Dl200\dl200.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\Dl200\dl200.lex.cpp" />
-    <ClCompile Include="..\Dl200\dl200.tab.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200.lex.cpp" />
+    <ClCompile Include="..\Tools\Dl200\dl200.tab.cpp" />
     <ClCompile Include="..\PPLib\Acct.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\Dl200\dl200.l">
+    <CustomBuild Include="..\Tools\Dl200\dl200.l">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Lex %(RootDir)%(Directory)%(Filename)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\flex -o%(RootDir)%(Directory)%(Filename).lex.cpp "%(FullPath)"
 </Command>
@@ -170,7 +170,7 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).lex.cpp;%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="..\Dl200\Dl200.y">
+    <CustomBuild Include="..\Tools\Dl200\Dl200.y">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\bison --debug --verbose --no-lines -d -o%(RootDir)%(Directory)%(Filename).tab.cpp "%(FullPath)"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).tab.cpp;%(Outputs)</Outputs>

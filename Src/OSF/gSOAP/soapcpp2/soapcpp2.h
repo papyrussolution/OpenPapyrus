@@ -36,11 +36,6 @@
 #ifndef __SOAPCPP2_H
 #define __SOAPCPP2_H
 #include <slib.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <ctype.h>
 #include <time.h>
 #include "error2.h"
 

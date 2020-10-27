@@ -23,9 +23,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#ifndef PRINTF_FETCHARGS
-//#include <config.h>
-//#endif
 #ifndef PRINTF_FETCHARGS
 	#include "printf-args.h" /* Specification.  */
 #endif

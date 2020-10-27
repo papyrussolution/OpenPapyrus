@@ -45,7 +45,7 @@ int glthread_in_use(void)
 		if(pthread_create(&thread, NULL, dummy_thread_func, NULL) != 0)
 			/* Thread creation failed.  */
 			result = 0;
-		else{
+		else {
 			/* Thread creation works.  */
 			void * retval;
 			if(pthread_join(thread, &retval) != 0)

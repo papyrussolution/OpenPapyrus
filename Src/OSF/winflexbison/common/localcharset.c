@@ -41,18 +41,7 @@
 	#include <unistd.h>
 	#if HAVE_LANGINFO_CODESET
 		#include <langinfo.h>
-	#else
-		//#if 0 /* see comment below */
-			//#include <locale.h>
-		//#endif
 	#endif
-	#ifdef __CYGWIN__
-		//#define WIN32_LEAN_AND_MEAN
-		//#include <windows.h>
-	#endif
-#elif defined WIN32_NATIVE
-	//#define WIN32_LEAN_AND_MEAN
-	//#include <windows.h>
 #endif
 #if defined OS2
 	#define INCL_DOS

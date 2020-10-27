@@ -260,7 +260,7 @@ public:
 	void SkipWS()
 	{
 		char   c = fgetc(In);
-		while(!feof(((FILE *)In)) && (c == ' ' || c == '\t' || c == '\n'))
+		while(!feof(static_cast<FILE *>(In)) && (c == ' ' || c == '\t' || c == '\n'))
 			c = fgetc(In);
 		ungetc(c, In);
 	}
@@ -273,7 +273,7 @@ public:
 			do {
 				c = fgetc(In);
 				*p++ = c;
-			} while(!feof((FILE *)In) && c != '"');
+			} while(!feof(static_cast<FILE *>(In)) && c != '"');
 			if(*(p-1) == '"')
 				p--;
 		}
@@ -285,10 +285,10 @@ public:
 	char ** GetStrColl(unsigned count)
 	{
 		char   buf[128];
-		char ** coll = (char **)calloc(count, sizeof(char *));
+		char ** coll = static_cast<char **>(calloc(count, sizeof(char *)));
 		for(uint i = 0; i < count; i++) {
 			GetString(buf);
-			coll[i] = strdup(buf);
+			coll[i] = sstrdup(buf);
 		}
 		return coll;
 	}

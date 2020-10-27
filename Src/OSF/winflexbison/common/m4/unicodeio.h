@@ -17,9 +17,6 @@
 
 #ifndef UNICODEIO_H
 #define UNICODEIO_H
-	//#include <stddef.h>
-	//#include <stdio.h>
-
 	/* Converts the Unicode character CODE to its multibyte representation
 	   in the current locale and calls the SUCCESS callback on the resulting
 	   byte sequence.  If an error occurs, invokes the FAILURE callback instead,

@@ -19,19 +19,12 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "tmpdir.h" /* Specification.  */
-//#include <stdbool.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <errno.h>
 #ifndef __set_errno
 	#define __set_errno(Val) errno = (Val)
 #endif
-//#include <stdio.h>
 #ifndef P_tmpdir
 	#define P_tmpdir "/tmp"
 #endif
-//#include <sys/stat.h>
 
 #if _LIBC
 	#define struct_stat64 struct stat64

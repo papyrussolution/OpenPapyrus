@@ -144,15 +144,7 @@
 #ifndef _MBCHAR_H
 #define _MBCHAR_H 1
 
-//#include <stdbool.h>
-//#include <string.h>
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before <wchar.h>.
-   BSD/OS 4.1 has a bug: <stdio.h> and <time.h> must be included before <wchar.h>.  */
-//#include <stdio.h>
 #include <time.h>
-//#include <wchar.h>
-//#include <wctype.h>
-//#include "config.h"
 
 #ifndef _GL_INLINE_HEADER_BEGIN
 	#error "Please include config.h first."

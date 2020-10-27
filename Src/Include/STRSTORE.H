@@ -5,7 +5,6 @@
 #ifndef __STRSTORE_H
 #define __STRSTORE_H
 
-#include <stdio.h>
 #include <slib.h>
 
 #if 0 // @v9.0.2 {

@@ -33,8 +33,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "m4.h"
-//#include <limits.h>
 
 #ifdef DEBUG_SYM
 /* When evaluating hash table performance, this profiling code shows

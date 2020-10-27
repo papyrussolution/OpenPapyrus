@@ -26,17 +26,8 @@
 
 /* Default parameters.  */
 #ifndef PRINTF_FETCHARGS
-#define PRINTF_FETCHARGS printf_fetchargs
+	#define PRINTF_FETCHARGS printf_fetchargs
 #endif
-
-//#include <stddef.h> /* Get size_t.  */
-//#if HAVE_WCHAR_T
-//#include <stddef.h> /* Get wchar_t.  */
-//#endif
-//#if HAVE_WINT_T
-//#include <wchar.h> /* Get wint_t.  */
-//#endif
-//#include <stdarg.h> /* Get va_list.  */
 
 /* Argument types */
 typedef enum {

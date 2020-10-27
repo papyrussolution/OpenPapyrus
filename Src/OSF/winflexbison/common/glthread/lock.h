@@ -77,17 +77,14 @@
 #ifndef _LOCK_H
 #define _LOCK_H
 
-//#include <errno.h>
-//#include <stdlib.h>
-
 #if !defined c11_threads_in_use
-#if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
-#  include <threads.h>
-#  pragma weak thrd_exit
-#  define c11_threads_in_use() (thrd_exit != NULL)
-#else
-#  define c11_threads_in_use() 0
-#endif
+	#if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
+		#include <threads.h>
+		#pragma weak thrd_exit
+		#define c11_threads_in_use() (thrd_exit != NULL)
+	#else
+		#define c11_threads_in_use() 0
+	#endif
 #endif
 
 /* ========================================================================= */

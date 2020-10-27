@@ -38,9 +38,8 @@
         Resolve relative versus absolute import paths for reading imported WSDL/schema (use URL local addresses)
         Do not generate abstract complexTypes, but include defs in derived types
         Handle simpleType derivation from base64
-
  */
-#include <slib.h> // @v9.6.8
+#include <slib.h>
 #include "wsdlH.h"
 #pragma hdrstop
 #include "includes.h"
@@ -48,11 +47,10 @@
 #include "service.h"
 
 #ifndef WSDL2H_IMPORT_PATH
-#define WSDL2H_IMPORT_PATH (NULL)
+	#define WSDL2H_IMPORT_PATH (NULL)
 #endif
-
 #ifndef WSDL_TYPEMAP_FILE
-#define WSDL_TYPEMAP_FILE "typemap.dat"
+	#define WSDL_TYPEMAP_FILE "typemap.dat"
 #endif
 
 static void init();

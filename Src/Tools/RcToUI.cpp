@@ -1,10 +1,6 @@
 // RcToUI.CPP
-// Copyright (c) Starodub A. 2007, 2010, 2015, 2016, 2017
+// Copyright (c) Starodub A. 2007, 2010, 2015, 2016, 2017, 2020
 //
-#include <stdlib.h>
-#include <stdio.h>
-#include <malloc.h>
-#include <string.h>
 #include <slib.h>
 
 struct CtrlInfo;
@@ -31,17 +27,16 @@ SpcSymbEntry SpcSymbTab[] = {
 	{ '\x5d', 0, "rsq"    }
 };
 
-int ReplaceSpecSymb(SString & rBuf)
+static void ReplaceSpecSymb(SString & rBuf)
 {
 	SString subst;
-	for(size_t i = 0; i < (sizeof(SpcSymbTab)/sizeof(SpcSymbEntry)); i++) {
-		(subst = 0).CatChar('&').Cat(SpcSymbTab[i].str).Semicol();
+	for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
+		subst.Z().CatChar('&').Cat(SpcSymbTab[i].str).Semicol();
 		char   pattern[8];
 		pattern[0] = SpcSymbTab[i].chr;
 		pattern[1] = 0;
 		rBuf.ReplaceStr(pattern, subst, 0);
 	}
-	return 1;
 }
 
 struct CtrlType {
@@ -123,13 +118,16 @@ public:
 };
 
 struct CtrlInfo {
-	CtrlInfo() {P_Controls = 0; Init();}
-	int Init();
-	int IsDialog() const {return (ID.Len() && CtrlT.Type == CtrlType::ctrlDialogEx) ? 1 : 0;}
-	int SupportExtraData() const;
-	CtrlInfo & operator=(const CtrlInfo &);
-	int AddControl(const CtrlInfo * pCtrlI);
-	int ProcessControls();
+	CtrlInfo() : P_Controls(0) 
+	{ 
+		Init();
+	}
+	void   Init();
+	int    IsDialog() const {return (ID.Len() && CtrlT.Type == CtrlType::ctrlDialogEx) ? 1 : 0;}
+	int    SupportExtraData() const;
+	CtrlInfo & operator = (const CtrlInfo &);
+	int    AddControl(const CtrlInfo * pCtrlI);
+	int    ProcessControls();
 
 	CtrlType CtrlT;
 	SString ID;
@@ -142,13 +140,12 @@ struct CtrlInfo {
 	RECT    Coord;
 	SString Extras;
 	long    MaxSize;
-
 	CtrlInfoArray * P_Controls;
 };
 
-int CtrlInfo::Init()
+void CtrlInfo::Init()
 {
-	memset(&CtrlT, 0, sizeof(CtrlT));
+	memzero(&CtrlT, sizeof(CtrlT));
 	ID           = 0;
 	Text         = 0;
 	Font         = 0;
@@ -158,13 +155,12 @@ int CtrlInfo::Init()
 	Cmd          = 0;
 	Extras       = 0;
 	MaxSize      = 0;
-	memset(&Coord, 0, sizeof(Coord));
+	memzero(&Coord, sizeof(Coord));
 	Extras = 0;
 	if(P_Controls) {
 		P_Controls->freeAll();
 		ZDELETE(P_Controls);
 	}
-	return 1;
 }
 
 CtrlInfo & CtrlInfo::operator=(const CtrlInfo & rCtrlI)
@@ -181,7 +177,6 @@ CtrlInfo & CtrlInfo::operator=(const CtrlInfo & rCtrlI)
 	Cmd          = rCtrlI.Cmd;
 	ExStyle      = rCtrlI.ExStyle;
 	MaxSize      = rCtrlI.MaxSize;
-
 	if(rCtrlI.P_Controls) {
 		P_Controls = new CtrlInfoArray;
 		for(uint i = 0; i < rCtrlI.P_Controls->getCount(); i++) {
@@ -196,10 +191,8 @@ CtrlInfo & CtrlInfo::operator=(const CtrlInfo & rCtrlI)
 
 int CtrlInfo::SupportExtraData() const
 {
-	return (ID.Len() && (CtrlT.Type == CtrlType::ctrlListBox || CtrlT.Type == CtrlType::ctrlEditText ||
-			CtrlT.Type == CtrlType::ctrlPushButton || CtrlT.Type == CtrlType::ctrlDefPushButton ||
-			CtrlT.Type == CtrlType::ctrlTreeListBox || CtrlT.Type == CtrlType::ctrlCText ||
-			CtrlT.Type == CtrlType::ctrlLText)) ? 1 : 0;
+	return BIN(ID.Len() && oneof7(CtrlT.Type, CtrlType::ctrlListBox, CtrlType::ctrlEditText, CtrlType::ctrlPushButton,
+		CtrlType::ctrlDefPushButton, CtrlType::ctrlTreeListBox, CtrlType::ctrlCText, CtrlType::ctrlLText));
 }
 
 int CtrlInfo::AddControl(const CtrlInfo * pCtrlI)
@@ -224,8 +217,8 @@ int CtrlInfo::AddControl(const CtrlInfo * pCtrlI)
 
 IMPL_CMPFUNC(CtrlInfo, i1, i2)
 {
-	CtrlInfo * p_i1 = (CtrlInfo*)i1;
-	CtrlInfo * p_i2 = (CtrlInfo*)i2;
+	const CtrlInfo * p_i1 = static_cast<const CtrlInfo *>(i1);
+	const CtrlInfo * p_i2 = static_cast<const CtrlInfo *>(i2);
 	if(p_i1->CtrlT.Type < p_i2->CtrlT.Type)
 		return -1;
 	else if(p_i1->CtrlT.Type > p_i2->CtrlT.Type)
@@ -237,32 +230,32 @@ int CtrlInfo::ProcessControls()
 {
 	if(P_Controls) {
 		long   i;
-		SArray del_ctrls(sizeof(long));
-		SArray grpbxs(sizeof(long));
+		LongArray del_ctrls;
+		LongArray grpbxs;
 		CtrlInfo ctrl_i;
 		ctrl_i.CtrlT.Type = CtrlType::ctrlGroupBox;
 		for(uint p = 0; P_Controls->lsearch(&ctrl_i, &p, PTR_CMPFUNC(CtrlInfo)) > 0; p++) {
 			RECT grpb_r = P_Controls->at(p)->Coord;
-			if(grpbxs.lsearch(&p, 0, PTR_CMPFUNC(long)) <= 0)
-				grpbxs.insert(&p);
+			if(!grpbxs.lsearch(p))
+				grpbxs.add(p);
 			for(i = 0; i < (long)P_Controls->getCount(); i++) {
 				RECT ctrl_r = P_Controls->at(i)->Coord;
 				if(i != p && ctrl_r.left >= grpb_r.left && ctrl_r.top >= grpb_r.top &&
 					(ctrl_r.left + ctrl_r.right) <= (grpb_r.left + grpb_r.right) && (ctrl_r.top + ctrl_r.bottom) <= (grpb_r.top + grpb_r.bottom) &&
-					del_ctrls.lsearch(&i, 0, PTR_CMPFUNC(long)) <= 0) {
+					!del_ctrls.lsearch(i)) {
 					ctrl_r.top    -= grpb_r.top;
 					ctrl_r.left   -= grpb_r.left;
 					P_Controls->at(i)->Coord = ctrl_r;
 					P_Controls->at(p)->AddControl(P_Controls->at(i));
-					del_ctrls.insert(&i);
+					del_ctrls.add(i);
 				}
 			}
 		}
-		del_ctrls.sort(PTR_CMPFUNC(long));
-		for(i = 0; i < (long)grpbxs.getCount(); i++)
-			P_Controls->at(*(long*)grpbxs.at(i))->ProcessControls(); // @recursion
-		for(i = (long)del_ctrls.getCount() - 1; i >= 0; i--)
-			P_Controls->atFree(*(long*)del_ctrls.at(i));
+		del_ctrls.sort();
+		for(i = 0; i < grpbxs.getCountI(); i++)
+			P_Controls->at(grpbxs.get(i))->ProcessControls(); // @recursion
+		for(i = del_ctrls.getCountI() - 1; i >= 0; i--)
+			P_Controls->atFree(del_ctrls.get(i));
 	}
 	return 1;
 }
@@ -272,8 +265,9 @@ const long   GridSize      = 5;
 
 class RcProcessor {
 public:
-	RcProcessor() {InRcPos = -1;}
-
+	RcProcessor() : InRcPos(-1)
+	{
+	}
 	int Init(const char * pRcwPath, const char * pRcPath);
 	int Run();
 private:
@@ -316,9 +310,7 @@ int RcProcessor::Run()
 			InRcPos = -1;
 		}
 		else if(DialogInfo.IsDialog()) {
-			if(ctrl_i.CtrlT.Type == CtrlType::ctrlBegin || ctrl_i.CtrlT.Type == CtrlType::ctrlFont ||
-				ctrl_i.CtrlT.Type == CtrlType::ctrlStyle || ctrl_i.CtrlT.Type == CtrlType::ctrlExStyle
-			)
+			if(oneof4(ctrl_i.CtrlT.Type, CtrlType::ctrlBegin, CtrlType::ctrlFont, CtrlType::ctrlStyle, CtrlType::ctrlExStyle))
 				;
 			else if(ctrl_i.CtrlT.Type == CtrlType::ctrlEnd) {
 				THROW(DialogInfo.ProcessControls());
@@ -572,15 +564,10 @@ int RcProcessor::NextControl(CtrlInfo * pCtrlInfo)
 					ctrl_i.Coord.bottom = buf.ToLong();
 				}
 				break;
-			case CtrlType::ctrlCaption:
-				ctrl_i.Text = buf;
-				break;
-			case CtrlType::ctrlFont:
-				break;
-			case CtrlType::ctrlStyle:
-				break;
-			case CtrlType::ctrlEnd:
-				break;
+			case CtrlType::ctrlCaption: ctrl_i.Text = buf; break;
+			case CtrlType::ctrlFont: break;
+			case CtrlType::ctrlStyle: break;
+			case CtrlType::ctrlEnd: break;
 		}
 		ctrl_i.Text.ShiftLeftChr('\n');
 		ctrl_i.Text.ShiftLeftChr('\r');
@@ -697,13 +684,13 @@ int RcProcessor::PutDialog(CtrlInfo * pDlgInfo)
 
 void main(int argc, char ** argv)
 {
-	char str[128];
+	char str[512];
 	RcProcessor rc_prcssr;
 	if(argc == 3 && rc_prcssr.Init(argv[1], argv[2]) <= 0)
 		printf("Usage: RcToUI.exe ppw.rc ppdlg.rc");
 	else if(rc_prcssr.Run() < 0) {
-		sprintf(str, "Processing error", argv[1]);
-		sprintf(str, "Processing error", argv[2]);
+		sprintf(str, "Processing error: %s", argv[1]);
+		sprintf(str, "Processing error: %s", argv[2]);
 		error(str);
 	}
 }

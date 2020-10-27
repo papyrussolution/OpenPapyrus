@@ -126,9 +126,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Util\texc2h.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="openssl-111-crypto.vcxproj">
       <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
     </ProjectReference>
@@ -139,6 +136,9 @@
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Tools\texc2h.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

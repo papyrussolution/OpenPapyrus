@@ -18,9 +18,6 @@
 
    Written by Jim Meyering.  */
 
-//#include <stddef.h>
-//#include <stdio.h>
-
 #ifndef HAVE_DECL___FPENDING
 //"this configure-time declaration test was not run"
 #endif

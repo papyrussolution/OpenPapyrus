@@ -2700,7 +2700,7 @@ public:
 	virtual int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    isnumber() const { return (base() == BTS_INT || base() == BTS_REAL); }
 
-	uint32 S; // Size or other specific data // @v9.8.11 size_t-->uint32
+	uint32 S; // Size or other specific data
 };
 
 inline TYPEID GetSTypeID(char)   { return MKSTYPE(S_INT, 1); }

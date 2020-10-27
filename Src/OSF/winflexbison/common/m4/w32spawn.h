@@ -15,17 +15,6 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* Get declarations of the Win32 API functions.  */
-#define WIN32_LEAN_AND_MEAN
-//#include <windows.h>
-//#include <io.h> /* Get _get_osfhandle() and _open_osfhandle().  */
-//#include <stdbool.h>
-//#include <string.h>
-//#include <unistd.h>
-//#include <errno.h>
-//#include "cloexec.h"
-//#include "xalloc.h"
-
 /* Duplicates a file handle, making the copy uninheritable.
    Returns -1 for a file handle that is equivalent to closed.  */
 static int dup_noinherit(int fd)

@@ -17,7 +17,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <stdlib.h> /* Specification.  */
 #include "gl_avltree_oset.h"
 
 /* An AVL tree is a binary tree where

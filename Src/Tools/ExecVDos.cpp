@@ -9,19 +9,19 @@ int main(int argc, char ** argv)
 	SString temp_buf;
 	if(argc > 1) {
 		for(int i = 1; i < argc; i++) {
-			if(stricmp(argv[i], "-exe") == 0) {
+			if(sstreqi_ascii(argv[i], "-exe")) {
 				i++;
 				if(i < argc) {
 					param.ExePath = argv[i];
 				}
 			}
-			else if(stricmp(argv[i], "-start") == 0) {
+			else if(sstreqi_ascii(argv[i], "-start")) {
 				i++;
 				if(i < argc) {
 					param.StartUpPath = argv[i];
 				}
 			}
-			else if(stricmp(argv[i], "-cmd") == 0) {
+			else if(sstreqi_ascii(argv[i], "-cmd")) {
 				i++;
 				if(i < argc) {
 					temp_buf = argv[i];
@@ -29,7 +29,7 @@ int main(int argc, char ** argv)
 					param.Batch.add(temp_buf);
 				}
 			}
-			else if(stricmp(argv[i], "-exit") == 0) {
+			else if(sstreqi_ascii(argv[i], "-exit")) {
 				param.Flags |= param.fExitAfter;
 			}
 		}

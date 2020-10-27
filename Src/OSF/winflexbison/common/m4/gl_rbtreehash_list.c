@@ -18,10 +18,7 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "gl_rbtreehash_list.h" /* Specification.  */
-//#include <stdint.h> /* for uintptr_t, SIZE_MAX */
-//#include <stdlib.h>
 #include "gl_rbtree_oset.h"
-//#include "xsize.h"
 
 #define WITH_HASHTABLE 1
 

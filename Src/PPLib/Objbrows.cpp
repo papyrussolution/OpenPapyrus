@@ -85,7 +85,7 @@ PPObjListWindow::PPObjListWindow(PPID objType, StrAssocArray * pList, uint aFlag
 	ListWindow(__ListBoxDefFactory(objType, pList, extraPtr), 0, 0)
 {
 	PPObject * p_obj = GetPPObject(objType, extraPtr);
-	Init(p_obj, aFlags|OWL_OUTERLIST, extraPtr); // @v9.0.1 OWL_OUTERLIST
+	Init(p_obj, aFlags|OWL_OUTERLIST, extraPtr);
 }
 
 PPObjListWindow::PPObjListWindow(PPObject * aPPObj, uint aFlags, void * extraPtr) :
@@ -177,7 +177,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 					break;
 				case cmaInsert:
 					id = 0;
-					if(Flags & OLW_CANINSERT && !(Flags & OWL_OUTERLIST)) { // @v9.0.1 !(Flags & OWL_OUTERLIST)
+					if(Flags & OLW_CANINSERT && !(Flags & OWL_OUTERLIST)) {
 						if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
 							preserve_focus_id = id;
 							update = 2;
@@ -187,7 +187,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 					}
 					break;
 				case cmaDelete:
-					if(Flags & OLW_CANDELETE && !(Flags & OWL_OUTERLIST) && getResult(&id) && id) { // @9.0.1 !(Flags & OWL_OUTERLIST)
+					if(Flags & OLW_CANDELETE && !(Flags & OWL_OUTERLIST) && getResult(&id) && id) {
 						preserve_focus_id = id;
 						if(p_obj->RemoveObjV(id, 0, PPObject::rmv_default, ExtraPtr) > 0)
 							update = 2;
@@ -460,7 +460,7 @@ void PPListDialog::updateList(long pos, int byPos /*= 1*/)
 {
 	SmartListBox * p_box = P_Box;
 	if(p_box) {
-		int    sav_pos = p_box->def ? (int)p_box->def->_curItem() : 0;
+		const long sav_pos = p_box->def ? p_box->def->_curItem() : 0;
 		p_box->freeAll();
 		if(setupList()) {
 			p_box->Draw_();
@@ -606,7 +606,7 @@ int ObjRestrictListDialog::editItem(long pos, long id)
 {
 	ObjRestrictArray * p_orlist = P_ORList;
 	if(p_orlist) {
-		const uint p = (uint)pos;
+		const uint p = static_cast<uint>(pos);
 		if(p < p_orlist->getCount()) {
 			ObjRestrictItem item = p_orlist->at(p);
 			if(editItemDialog(&item) > 0) {
@@ -621,7 +621,7 @@ int ObjRestrictListDialog::editItem(long pos, long id)
 int ObjRestrictListDialog::delItem(long pos, long id)
 {
 	ObjRestrictArray * p_orlist = P_ORList;
-	if(p_orlist && (static_cast<uint>(pos)) < p_orlist->getCount()) {
+	if(p_orlist && pos < p_orlist->getCountI()) {
 		p_orlist->atFree(static_cast<uint>(pos));
 		return 1;
 	}

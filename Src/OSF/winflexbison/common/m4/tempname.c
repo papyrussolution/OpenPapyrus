@@ -19,17 +19,9 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#if !_LIBC
-	//#include <config.h>
-	//#include "tempname.h"
-//#endif
-//#include <sys/types.h>
-//#include <assert.h>
-//#include <errno.h>
 #ifndef __set_errno
 	#define __set_errno(Val) errno = (Val)
 #endif
-//#include <stdio.h>
 #ifndef P_tmpdir
 	#define P_tmpdir "/tmp"
 #endif
@@ -44,17 +36,6 @@
 #if !_LIBC && (GT_FILE != __GT_FILE || GT_DIR != __GT_DIR || GT_NOCREATE != __GT_NOCREATE)
 	#error report this to bug-gnulib@gnu.org
 #endif
-//#include <stddef.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <fcntl.h>
-//#include <sys/time.h>
-//#include <stdint.h>
-//#include <unistd.h>
-//#include <io.h>
-//#include <fcntl.h>
-//#include <process.h>
-//#include <sys/stat.h>
 
 #if _LIBC
 	#define struct_stat64 struct stat64
@@ -114,12 +95,10 @@ static int direxists(const char * dir)
    for use with mk[s]temp.  Will fail (-1) if DIR is non-null and
    doesn't exist, none of the searched dirs exists, or there's not
    enough space in TMPL. */
-int __path_search(char * tmpl, size_t tmpl_len, const char * dir, const char * pfx,
-    int try_tmpdir)
+int __path_search(char * tmpl, size_t tmpl_len, const char * dir, const char * pfx, int try_tmpdir)
 {
 	const char * d;
 	size_t dlen, plen;
-
 	if(!pfx || !pfx[0]) {
 		pfx = "file";
 		plen = 4;

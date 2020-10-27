@@ -17,19 +17,16 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <stdlib.h>
 
 #if !_LIBC
-	//#include "tempname.h"
 	#define __gen_tempname gen_tempname
 	#ifndef __GT_FILE
 		#define __GT_FILE GT_FILE
 	#endif
 #endif
-//#include <stdio.h>
 
 #ifndef __GT_FILE
-#define __GT_FILE 0
+	#define __GT_FILE 0
 #endif
 
 /* Generate a unique temporary file name from XTEMPLATE.

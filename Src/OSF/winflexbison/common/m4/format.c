@@ -22,11 +22,8 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "m4.h"
-//#include "xvasprintf.h"
 
-/* Simple varargs substitute.  We assume int and uint are the
-   same size; likewise for long and unsigned long.  */
+/* Simple varargs substitute.  We assume int and uint are the same size; likewise for long and unsigned long.  */
 
 /* Parse STR as an integer, reporting warnings.  */
 static int arg_int(const char * str)

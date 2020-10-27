@@ -20,10 +20,6 @@
  */
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <io.h>
-//#include "m4.h"
-//#include <stdarg.h>
-//#include <sys/stat.h>
 
 FILE * _debug = NULL; /* File for debugging output.  */
 static struct obstack trace; /* Obstack for trace messages.  */

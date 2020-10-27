@@ -24,14 +24,7 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include <io.h>
-//#include "m4.h"
-//#include "execute.h"
-//#include "memchr2.h"
 #include "regex.h"
-//#include "spawn-pipe.h"
-//#include "wait-process.h"
-//#include <process.h>
 
 #define SYSCMD_SHELL "cmd.exe"
 
@@ -802,10 +795,7 @@ static void m4_defn(struct obstack * obs, int argc, token_data ** argv)
 extern int execute(const char * progname, const char * prog_path, char ** prog_argv, bool ignore_sigpipe,
     bool null_stdin, bool null_stdout, bool null_stderr, bool slave_process, bool exit_on_error, int * termsigp);
 
-/* Exit code from last "syscmd" command.  */
-static int sysval;
-
-//#include "vasnprintf.h"
+static int sysval; /* Exit code from last "syscmd" command.  */
 /* cat content */
 char * cat_string = NULL;
 FILE* cat_out = NULL;

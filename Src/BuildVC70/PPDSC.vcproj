@@ -171,7 +171,7 @@
 				RelativePath="..\PPLib\Ppds.cpp">
 			</File>
 			<File
-				RelativePath="..\Util\Ppdsc.cpp">
+				RelativePath="..\Tools\Ppdsc.cpp">
 			</File>
 			<File
 				RelativePath="..\PPLib\Ppdsp.cpp">

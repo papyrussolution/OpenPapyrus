@@ -18,9 +18,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "gl_linkedhash_list.h" /* Specification.  */
-//#include <stdint.h> /* for SIZE_MAX */
-//#include <stdlib.h>
-//#include "xsize.h"
 #ifndef uintptr_t
 	#define uintptr_t unsigned long
 #endif

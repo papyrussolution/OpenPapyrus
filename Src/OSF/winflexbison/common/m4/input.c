@@ -22,8 +22,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "m4.h"
-//#include "memchr2.h"
 
 /* Unread input can be either files, that should be read (eg. included
    files), strings, which should be rescanned (eg. macro expansion text),

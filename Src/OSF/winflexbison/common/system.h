@@ -18,18 +18,12 @@
 #ifndef COMMON_SYSTEM_H
 #define COMMON_SYSTEM_H
 
-//#include <xalloc.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-
 /*------.
 | NLS.  |
    `------*/
 
-//#include <locale.h>
-//#include <gettext.h>
 #ifndef _
-#define _(Msgid)  gettext(Msgid)
+	#define _(Msgid)  gettext(Msgid)
 #endif
 #define N_(Msgid) (Msgid)
 
@@ -73,28 +67,15 @@
 #undef UINT32_MAX
 #endif
 
-//#include <limits.h>
-//#include <stddef.h>
-//#include <string.h>
 #if HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
-//#include <unistd.h>
-//#include <inttypes.h>
 
 #ifndef UINTPTR_MAX
 /* This isn't perfect, but it's good enough for Bison, which needs
    only to hash pointers.  */
 typedef size_t uintptr_t;
 #endif
-
-/*---------.
-| Gnulib.  |
-   `---------*/
-
-//#include <unlocked-io.h>
-//#include <verify.h>
-//#include <stdio.h>
 
 /*-----------------.
 | GCC extensions.  |
@@ -115,12 +96,6 @@ typedef size_t uintptr_t;
 #define PACIFY_CC(Code) Code
 
 #define FUNCTION_PRINT() fprintf(stderr, "%s: ", __func__)
-
-/*-----------.
-| Booleans.  |
-   `-----------*/
-
-//#include <stdbool.h>
 
 /*-------------.
 | Assertions.  |

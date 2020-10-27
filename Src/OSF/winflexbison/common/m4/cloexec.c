@@ -19,10 +19,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "cloexec.h"
-//#include <errno.h>
-//#include <fcntl.h>
-//#include <unistd.h>
 
 /* Set the `FD_CLOEXEC' flag of DESC if VALUE is true,
    or clear the flag if VALUE is false.

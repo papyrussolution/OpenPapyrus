@@ -39,31 +39,16 @@
 	#include <config.h>
 #endif
 #include <slib.h>
-//#include <stdio.h>
 // For Visual Studio 2013 we need this workaround
 #ifdef _MSC_VER
 	#if _MSC_VER < 1900
 		#define snprintf _snprintf
 	#endif
 #endif
-//#include <stdlib.h>
-//#include <stdarg.h>
 #include <setjmp.h>
 #include <process.h>
-//#include <ctype.h>
 //#include <libgen.h> /* for XPG version of basename(3) */
-//#include <string.h>
-//#include <math.h>
-//#ifdef HAVE_ASSERT_H
-	//#include <assert.h>
-//#else
-	//#define assert(Pred)
-//#endif
-//#ifdef HAVE_LIMITS_H
-	//#include <limits.h>
-//#endif
-/* Required: dup() and dup2() in <unistd.h> */
-//#include <unistd.h>
+//#include <unistd.h> /* Required: dup() and dup2() in <unistd.h> */
 #ifdef HAVE_NETINET_IN_H
 	#include <netinet/in.h>
 #endif

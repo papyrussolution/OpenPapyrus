@@ -7,7 +7,7 @@
 //
 // Сопоставление полей импорта/экспорта со структурой SdRecord
 //
-static int SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecord * pRec) // @v9.8.12 static
+static int SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecord * pRec)
 {
 	StrAssocArray list;
 	SdbField fld;
@@ -51,8 +51,8 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField, int
 			SetupSdRecFieldCombo(this, CTLSEL_FLDCORR_INNERFLD, Data.ID, P_Rec);
 			if(Data.T.Typ)
 				Data.T.Typ = stbase(Data.T.Typ);
-			ushort use_inner_formula = BIN(Data.InnerFormula.NotEmpty());
-			ushort use_outer_formula = BIN(Data.T.Flags & STypEx::fFormula);
+			ushort use_inner_formula = BIN(Data.T.Flags & STypEx::fFormula);
+			ushort use_outer_formula = BIN(Data.OuterFormula.NotEmpty());
 			setCtrlData(CTL_FLDCORR_USEFORMULA, &use_inner_formula);
 			setCtrlString(CTL_FLDCORR_FORMULA, Data.InnerFormula);
 			//
@@ -266,7 +266,10 @@ int SdFieldCorrListDialog::setupList()
 		else if(P_Rec->GetFieldByID(fld.ID, 0, &inner_fld) > 0)
 			sub = inner_fld.Name;
 		ss.add(sub);
-		ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER));
+		if(fld.OuterFormula.NotEmpty()) // @v10.9.1
+			ss.add(sub.Z().CatChar('F').CatChar(':').Cat(fld.OuterFormula).Transf(CTRANSF_OUTER_TO_INNER));
+		else
+			ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER));
 		ss.add(GetBaseTypeString(stbase(fld.T.Typ), BTSF_NATIVE|BTSF_OEM, sub));
 		{
 			const uint len = SFMTLEN(fld.OuterFormat);
@@ -737,7 +740,7 @@ int PPImpExpParam::PtTokenList::Get(uint pos, long * pTokenId, long * pExtID, SS
 	return ok;
 }
 
-/*virtual*/int PPImpExpParam::PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList)
+/*virtual*/int PPImpExpParam::PreprocessImportFileName(const SString & rFileName, PPImpExpParam::PtTokenList & rResultList)
 {
 	return -1;
 }

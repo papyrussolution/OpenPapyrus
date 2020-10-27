@@ -171,7 +171,7 @@ int wcwidth(wchar_t wc)
 		   Unicode character.  */
 		return uc_width(wc, encoding);
 	}
-	else{
+	else {
 		/* Otherwise, fall back to the system's wcwidth function.  */
 #if HAVE_WCWIDTH
 		return wcwidth(wc);

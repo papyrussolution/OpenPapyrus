@@ -19,7 +19,6 @@
 #define _XMALLOCA_H
 
 #include "malloca.h"
-//#include "xalloc.h"
 
 #ifdef __cplusplus
 extern "C" {

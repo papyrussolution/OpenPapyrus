@@ -19,21 +19,12 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "unicodeio.h" /* Specification.  */
-//#include <stdio.h>
-//#include <string.h>
-//#include <errno.h>
 #if HAVE_ICONV
 	#include <iconv.h>
 #endif
-//#include <error.h>
-//#include "gettext.h"
 #undef _ // @sobolev
 #define _(msgid) gettext(msgid)
 #define N_(msgid) msgid
-
-//#include "localcharset.h"
-//#include "unistr.h"
 
 /* When we pass a Unicode character to iconv(), we must pass it in a
    suitable encoding. The standardized Unicode encodings are

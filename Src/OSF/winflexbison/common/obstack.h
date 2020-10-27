@@ -130,8 +130,6 @@
 
 #define __PTR_ALIGN(B, P, A) __BPTR_ALIGN(sizeof(PTR_INT_TYPE) < sizeof(void *) ? (B) : (char *)0, P, A)
 
-//#include <string.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

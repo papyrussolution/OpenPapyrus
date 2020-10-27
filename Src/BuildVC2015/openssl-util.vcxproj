@@ -272,9 +272,6 @@
     <ClCompile Include="..\OSF\OpenSSL\apps\x509.c" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="openssl.vcxproj">
-      <Project>{1e4e6bbc-3e70-4f77-9f13-fd9b3242d11e}</Project>
-    </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>

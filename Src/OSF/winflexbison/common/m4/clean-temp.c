@@ -18,34 +18,12 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "clean-temp.h" /* Specification.  */
-//#include <errno.h>
-//#include <fcntl.h>
-//#include <limits.h>
-//#include <stdbool.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <unistd.h>
-//#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
-	//#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
-	//#include <windows.h>
-	//#include <io.h>
-	//#include <direct.h>
-//#endif
-//#include "error.h"
-//#include "fatal-signal.h"
 #include "pathmax.h"
-//#include "tmpdir.h"
-//#include "xalloc.h"
 #include "xmalloca.h"
 #include "gl_xlist.h"
 #include "gl_linkedhash_list.h"
-//#include "gettext.h"
 #if GNULIB_FWRITEERROR
 	#include "fwriteerror.h"
-#endif
-#if GNULIB_CLOSE_STREAM
-	//#include "close-stream.h"
 #endif
 #if GNULIB_FCNTL_SAFER
 	#include "fcntl--.h"

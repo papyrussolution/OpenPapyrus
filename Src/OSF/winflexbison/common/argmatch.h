@@ -22,16 +22,6 @@
 #ifndef ARGMATCH_H_
 #define ARGMATCH_H_ 1
 
-//#include <limits.h>
-//#include <stdbool.h>
-//#include <stddef.h>
-//#include <stdio.h>
-//#include <string.h> /* memcmp */
-//#include "gettext.h"
-//#include "quote.h"
-//#include "verify.h"
-//#include "config.h"
-
 #ifdef  __cplusplus
 extern "C" {
 #endif

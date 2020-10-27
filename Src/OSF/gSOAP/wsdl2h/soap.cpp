@@ -31,19 +31,15 @@
    --------------------------------------------------------------------------------
 
  */
-#include <slib.h> // @v9.6.8
+#include <slib.h>
 #include "wsdlH.h"              // cannot include "schemaH.h"
 #pragma hdrstop
 #include "includes.h"
 
 extern const char * qname_token(const char*, const char*);
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	soap:header
 //
-////////////////////////////////////////////////////////////////////////////////
-
 int soap__header::traverse(wsdl__definitions& definitions)
 {
 	if(vflag)

@@ -18,9 +18,6 @@
 #ifndef _VASNPRINTF_H
 #define _VASNPRINTF_H
 
-//#include <stdarg.h> /* Get va_list.  */
-//#include <stddef.h> /* Get size_t.  */
-
 /* The __attribute__ feature is available in gcc versions 2.5 and later.
    The __-protected variants of the attributes 'format' and 'printf' are
    accepted by gcc versions 2.6.4 (effectively 2.7) and later.

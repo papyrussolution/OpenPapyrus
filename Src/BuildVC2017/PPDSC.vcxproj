@@ -160,7 +160,7 @@
   <ItemGroup>
     <ClCompile Include="..\PPLib\PPDS.CPP" />
     <ClCompile Include="..\PPLib\PPDSP.CPP" />
-    <ClCompile Include="..\Util\Ppdsc.cpp" />
+    <ClCompile Include="..\Tools\PPDSC.CPP" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="openssl-111-crypto.vcxproj">

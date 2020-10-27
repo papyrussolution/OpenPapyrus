@@ -1,5 +1,5 @@
 // TEXC2H.CPP
-// Copyright (c) M.Kazakov, 2010, 2017
+// Copyright (c) M.Kazakov, 2010, 2017, 2020
 //
 #include <slib.h>
 //
@@ -33,10 +33,8 @@ struct Texc2h {
 	TSStack <uint> * P_ContnrsStack;
 };
 
-Texc2h::Texc2h()
+Texc2h::Texc2h() : InclLvl(0), BrkCount(0)
 {
-	InclLvl = 0;
-	BrkCount = 0;
 	P_TagsStack = new TSStack<uint>();
 	P_ContnrsStack = new TSStack<uint>();
 }
@@ -108,7 +106,7 @@ static void LinePrepare(SString *const pLine, int npos)
 	}
 }
 
-int AddProjectResource(Texc2h *const pTexc2h, SString const* ss_buf)
+int AddProjectResource(Texc2h * const pTexc2h, SString const * ss_buf)
 {
 	int		is_exist = 0;
 	int		search_up = 0;
@@ -144,13 +142,12 @@ int AddProjectResource(Texc2h *const pTexc2h, SString const* ss_buf)
 
 static int Translate(Texc2h *const pTexc2h, SString *const pLine)
 {
-	int			ok = 0;
-	int			ch = 0, brk = 0, brc_i = 0, type = 0;
-	uint		t_pos = 0;
-	size_t		pos = 0, npos = 0;
-	STab::Row	row;
-	SString		buf, name, sub, tag;
-	
+	int    ok = 0;
+	int    ch = 0, brk = 0, brc_i = 0, type = 0;
+	uint   t_pos = 0;
+	size_t pos = 0, npos = 0;
+	STab::Row row;
+	SString buf, name, sub, tag;
 	if(pLine->Search("%topic", 0, 0, &pos)) {
 		if(pLine->Search("(", pos, 0, &npos)) {
 			pTexc2h->CurrTopicName.Destroy();

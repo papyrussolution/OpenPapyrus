@@ -16,13 +16,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "xvasprintf.h" /* Specification.  */
-//#include <errno.h>
-//#include <limits.h>
-//#include <string.h>
-//#include <stdio.h>
-//#include "xalloc.h"
-//#include "xsize.h" /* Checked size_t computations.  */
 #ifndef va_copy
 	#define va_copy(a, b) ((a) = (b))
 #endif

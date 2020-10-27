@@ -78,7 +78,7 @@ ptrdiff_t argmatch(const char * arg, const char * const * arglist, const void * 
 			else if(matchind == -1)
 				/* First nonexact match found.  */
 				matchind = i;
-			else{
+			else {
 				/* Second nonexact match found.  */
 				if(vallist == NULL
 				    || memcmp((char const*)vallist + valsize * matchind,
@@ -124,7 +124,7 @@ void argmatch_valid(const char * const * arglist, const void * vallist, size_t v
 			fprintf(stderr, "\n  - %s", quote(arglist[i]));
 			last_val = (char const*)vallist + valsize * i;
 		}
-		else{
+		else {
 			fprintf(stderr, ", %s", quote(arglist[i]));
 		}
 	putc('\n', stderr);

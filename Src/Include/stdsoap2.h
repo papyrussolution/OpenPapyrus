@@ -1,6 +1,5 @@
 /*
         stdsoap2.h 2.8.8
-
         gSOAP runtime engine
 
    gSOAP XML Web services tools
@@ -50,11 +49,10 @@
    A commercial use license is available from Genivia, Inc., contact@genivia.com
    --------------------------------------------------------------------------------
  */
-
 #define GSOAP_VERSION 20808
 #define SOAP_DEBUG // @sobolev
 #define WITH_ZLIB
-#include <slib.h> // @v9.8.8
+#include <slib.h>
 
 #ifdef WITH_SOAPDEFS_H
 	#include "soapdefs.h"          /* include user-defined stuff */

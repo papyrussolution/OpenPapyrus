@@ -27,10 +27,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "bitset/stats.h"
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include "gettext.h"
 #undef _ // @sobolev
 #define _(Msgid)  gettext(Msgid)
 #include "bitset/array.h"

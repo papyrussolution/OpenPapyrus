@@ -21,9 +21,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "bitset/array.h"
-//#include <stddef.h>
-//#include <stdlib.h>
-//#include <string.h>
 
 /* This file implements fixed size bitsets stored as an array
    of words.  Any unused bits in the last word must be zero.  */
@@ -63,7 +60,7 @@ static bitset_bindex abitset_small_list(bitset src, bitset_bindex * list, bitset
 			word >>= 1;
 		}
 	}
-	else{
+	else {
 		for(count = 0; word; bitno++) {
 			if(word & 1) {
 				list[count++] = bitno;
@@ -201,7 +198,7 @@ static bitset_bindex abitset_list(bitset src, bitset_bindex * list, bitset_binde
 				word >>= 1;
 			}
 		}
-		else{
+		else {
 			for(bitno = bitoff; word; bitno++) {
 				if(word & 1) {
 					list[count++] = bitno;

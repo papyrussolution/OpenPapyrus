@@ -3,7 +3,6 @@
 // Part of project Papyrus
 //
 #include <slib.h>
-#include <string.h>
 #include <db.h>
 
 class TRect;

@@ -19,12 +19,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Handling of path search of included files via the builtins "include"
-   and "sinclude".  */
+/* Handling of path search of included files via the builtins "include" and "sinclude".  */
 
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "m4.h"
 
 struct includes {
 	struct includes * next; /* next directory to search */

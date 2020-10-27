@@ -30,7 +30,7 @@
    A commercial use license is available from Genivia, Inc., contact@genivia.com
    --------------------------------------------------------------------------------
  */
-#include <slib.h> // @v9.6.8
+#include <slib.h>
 #include "wsdlH.h"
 #pragma hdrstop
 #include "includes.h"
@@ -40,13 +40,9 @@ static wsp__Policy * search(const char * URI, wsdl__definitions& definitions);
 static wsp__Policy * search(const char * URI, wsp__Policy * policy);
 static wsp__Policy * search(const char * URI, wsp__Content * content);
 static void gen_parts(const sp__Parts& parts, Types& types, const char * name, int indent);
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	wsp:OperatorContentType
 //
-////////////////////////////////////////////////////////////////////////////////
-
 int wsp__Content::traverse(wsdl__definitions& definitions)
 {
 	if(vflag)

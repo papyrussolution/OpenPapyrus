@@ -21,7 +21,6 @@
 /* This module handles frozen files.  */
 #include <flexbison_common.h>
 #pragma hdrstop
-//#include "m4.h"
 
 /*-------------------------------------------------------------------.
 | Destructively reverse a symbol list and return the reversed list.  |

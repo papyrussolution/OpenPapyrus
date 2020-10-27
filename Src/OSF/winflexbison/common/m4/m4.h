@@ -24,36 +24,14 @@
 
 #ifndef __M4_H // {
 #define __M4_H
-//#include <config.h>
 #define PACKAGE_STRING "M4"
 #define RENAME_OPEN_FILE_WORKS 1
 
-//#include <assert.h>
-//#include <ctype.h>
-//#include <errno.h>
-//#include <limits.h>
-//#include <stdbool.h>
-//#include <stdint.h>
-//#include <string.h>
-//#include <sys/stat.h>
-//#include <sys/types.h>
 #include "binary-io.h"
-//#include "clean-temp.h"
-//#include "cloexec.h"
-//#include "close-stream.h"
-//#include "closein.h"
-//#include "dirname.h"
-//#include "error.h"
-//#include "exitfail.h"
-//#include "filenamecat.h"
-//#include "obstack.h"
 #include "stdio--.h"
 #include "stdlib--.h"
 #include "unistd--.h"
 #include "verror.h"
-//#include "xalloc.h"
-//#include "xprintf.h"
-//#include "xvasprintf.h"
 
 /* Canonicalize UNIX recognition macros.  */
 #if defined unix || defined __unix || defined __unix__ || defined _POSIX_VERSION || defined _POSIX2_VERSION || defined __NetBSD__ || \
@@ -76,12 +54,12 @@
 
 /* Various declarations.  */
 
-struct string {
+struct /*string*/M4String {
 	char * string;          /* characters of the string */
 	size_t length;          /* length of the string */
 };
 
-typedef struct string STRING;
+typedef struct M4String STRING;
 
 /* Memory allocation.  */
 #define obstack_chunk_alloc     xmalloc

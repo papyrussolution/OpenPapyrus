@@ -265,10 +265,10 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 		}
 		prev_offs = rScan.Offs;
 		prev_tok = tok;
-		if(T.Typ && OuterFormat && Name.NotEmpty())
+		if(T.Typ && OuterFormat && (Name.NotEmpty() || OuterFormula.NotEmpty()))
 			break;
 	}
-	if(!T.Typ || Name.Empty())
+	if(!T.Typ || (Name.Empty() && OuterFormula.Empty()))
 		ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(org_offs)).Transf(CTRANSF_OUTER_TO_INNER));
 	if(!ok) {
 		rScan.Offs = org_offs;

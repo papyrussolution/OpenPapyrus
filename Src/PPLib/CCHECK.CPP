@@ -47,7 +47,7 @@ int CcAmountEntry::GetTypeText(SString & rBuf) const
 //
 //
 //
-CcAmountList::CcAmountList() : TSVector <CcAmountEntry> () // @v9.8.4 TSArray-->TSVector
+CcAmountList::CcAmountList() : TSVector <CcAmountEntry> ()
 {
 }
 
@@ -1405,18 +1405,6 @@ double CCheckPacket::GetFiscalAmount() const
 	return amt;
 }
 
-/* @v9.0.11 int CCheckPacket::PrepareForWriting(PPID ccheckID, int16 lastRbc)
-{
-	Rec.ID = ccheckID;
-	int16  last_rbc = NZOR(lastRbc, 1);
-	for(uint i = 0; i < Items_.getCount(); i++) {
-		CCheckLineTbl::Rec & r_item = Items_.at(i);
-		r_item.CheckID = ccheckID;
-		r_item.RByCheck = last_rbc++;
-	}
-	return 1;
-}*/
-
 int CCheckPacket::SetDlvrAddr(const LocationTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -1705,14 +1693,6 @@ int CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
 		eq = 0;
 	else if(r1.AddrID != r2.AddrID)
 		eq = 0;
-	/* @v9.0.4
-	else if(r1.AddPaym != r2.AddPaym)
-		eq = 0;
-	else if(r1.AddCrdCardID != r2.AddCrdCardID)
-		eq = 0;
-	else if(r1.AddCrdCardPaym != r2.AddCrdCardPaym)
-		eq = 0;
-	*/
 	else if(r1.LinkCheckID != r2.LinkCheckID)
 		eq = 0;
 	else if(r1.StartOrdDtm != r2.StartOrdDtm)

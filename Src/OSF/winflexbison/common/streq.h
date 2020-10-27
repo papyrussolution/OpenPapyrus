@@ -21,8 +21,6 @@
 #ifndef _GL_STREQ_H
 #define _GL_STREQ_H
 
-//#include <string.h>
-
 /* STREQ allows to optimize string comparison with a small literal string.
      STREQ (s, "EUC-KR", 'E', 'U', 'C', '-', 'K', 'R', 0, 0, 0)
    is semantically equivalent to strcmp(s, "EUC-KR") == 0 just faster.  */

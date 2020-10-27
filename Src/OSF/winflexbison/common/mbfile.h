@@ -35,18 +35,6 @@
 #ifndef _MBFILE_H
 #define _MBFILE_H 1
 
-//#include <assert.h>
-//#include <stdbool.h>
-//#include <stdio.h>
-//#include <string.h>
-
-/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
-   <wchar.h>.
-   BSD/OS 4.1 has a bug: <stdio.h> and <time.h> must be included before
-   <wchar.h>.  */
-//#include <stdio.h>
-//#include <time.h>
-//#include <wchar.h>
 #include "mbchar.h"
 
 #ifndef _GL_INLINE_HEADER_BEGIN
@@ -139,7 +127,7 @@ MBFILE_INLINE void mbfile_multi_getc(struct mbchar * mbc, struct mbfile_multi * 
 				mbc->wc_valid = false;
 				break;
 			}
-			else{
+			else {
 				/* Read one more byte and retry mbrtowc.  */
 				int c = getc(mbf->fp);
 				if(c == EOF) {
@@ -153,7 +141,7 @@ MBFILE_INLINE void mbfile_multi_getc(struct mbchar * mbc, struct mbfile_multi * 
 				mbf->bufcount++;
 			}
 		}
-		else{
+		else {
 			if(bytes == 0) {
 				/* A null wide character was encountered.  */
 				bytes = 1;

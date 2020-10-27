@@ -1053,14 +1053,42 @@ int PPObjBill::PosPrintByBill(PPID billID)
 						STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
 					PPWait(1);
 					if(oneof3(pack.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN) || pack.IsDraft()) {
-						PPTransferItem * ti;
 						if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {
-							for(uint i = 0; pack.EnumTItems(&i, &ti);) {
-								const double qtty = fabs(ti->Quantity_);
-								const double n_pr = ti->NetPrice();
-								THROW(cp.InsertItem(ti->GoodsID, qtty, n_pr, 0.0, param.DivisionN));
-								cc_amount += R2(n_pr * qtty);
-								dscnt += R2(ti->Discount * qtty);
+							// @v10.9.1 {
+							//SString mark_buf;
+							SString temp_buf; 
+							StringSet ss;
+							PPLotExtCodeContainer::MarkSet lotxcode_set;
+							GtinStruc gts;
+							// } @v10.9.1 
+							for(uint i = 0; i < pack.GetTCount(); i++) {
+								const PPTransferItem & r_ti = pack.ConstTI(i);
+								const double org_qtty = fabs(r_ti.Quantity_);
+								double qtty_ = org_qtty;
+								const double n_pr = r_ti.NetPrice();
+								// @v10.9.1 {
+								{
+									pack.XcL.Get(i+1, 0, lotxcode_set);
+									lotxcode_set.GetByBoxID(0, ss);
+									const double _one = 1.0;
+									for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, temp_buf);) {
+										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+										if(pczcr > 0) {
+											THROW(cp.InsertItem(r_ti.GoodsID, _one, n_pr, 0.0, param.DivisionN));
+											const int cp_idx = static_cast<int>(cp.GetCount());
+											cc_amount += R2(n_pr * _one);
+											dscnt += R2(r_ti.Discount * _one);
+											qtty_ -= _one;
+											cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, temp_buf);
+										}
+									}
+									if(qtty_ > 0.0) {
+										THROW(cp.InsertItem(r_ti.GoodsID, qtty_, n_pr, 0.0, param.DivisionN));
+										cc_amount += R2(n_pr * qtty_);
+										dscnt += R2(r_ti.Discount * qtty_);
+									}
+								}
+								// } @v10.9.1 
 							}
 						}
 						else if(prepay_goods_id) {

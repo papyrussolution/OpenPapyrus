@@ -18,9 +18,6 @@
 #include <flexbison_common.h>
 #pragma hdrstop
 #include "gl_array_list.h" /* Specification.  */
-//#include <stdlib.h>
-//#include <string.h> /* Get memcpy.  */
-//#include "xsize.h" /* Checked size_t computations.  */
 
 #ifndef uintptr_t
 	#define uintptr_t unsigned long

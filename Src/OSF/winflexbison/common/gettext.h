@@ -153,12 +153,7 @@ static const char * npgettext_aux(const char * domain, const char * msg_ctxt_id,
    can be arbitrary expressions.  But for string literals these macros are
    less efficient than those above.  */
 
-//#include <string.h>
 #define _LIBGETTEXT_HAVE_VARIABLE_SIZE_ARRAYS (((__GNUC__ >= 3 || __GNUG__ >= 2) && !__STRICT_ANSI__) /* || __STDC_VERSION__ >= 199901L */ )
-#if !_LIBGETTEXT_HAVE_VARIABLE_SIZE_ARRAYS
-	//#include <stdlib.h>
-#endif
-
 #define pgettext_expr(Msgctxt, Msgid) dcpgettext_expr(NULL, Msgctxt, Msgid, LC_MESSAGES)
 #define dpgettext_expr(Domainname, Msgctxt, Msgid) dcpgettext_expr(Domainname, Msgctxt, Msgid, LC_MESSAGES)
 
