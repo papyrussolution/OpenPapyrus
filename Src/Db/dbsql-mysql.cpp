@@ -5,9 +5,10 @@
 #include <tv.h>
 #pragma hdrstop
 #include <db.h>
-#include <mysql/mysql.h>
 
 #if 0 // @construction {
+
+#include <mysql/mysql.h>
 
 SMySqlDbProvider::SMySqlDbProvider() :
 	DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0)
