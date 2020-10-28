@@ -755,6 +755,7 @@ static int RecoverLotsDialog(LotRecoverParam & rParam)
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 10, TLRF_SETALCCODETOGOODS);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 11, TLRF_SETALCCODETOLOTS);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 12, TLRF_SETINHQCERT); // @v10.4.10
+		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 13, TLRF_SETALCOMANUF); // @v10.9.1
 		if(!(LConfig.Flags & CFGFLG_USEPACKAGE)) {
 			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 1, 1);
 			rParam.Flags &= ~(TLRF_REPAIRPACK);
@@ -784,14 +785,17 @@ static int RecoverLotsDialog(LotRecoverParam & rParam)
 
 int PPViewLot::RecoverLots()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
+	int    ta = 0;
 	int    frrl_tag = 0, r;
 	long   err_lot_count = 0;
 	int    modified = 0;
+	EgaisRefACore * p_refa_c = 0; // @v10.9.1
 	LotRecoverParam param;
 	PPLogger logger;
 	UintHashTable goods_list;
 	PPIDArray loc_list;
+	SString temp_buf;
 	SString msg_buf;
 	PPGetFileName(PPFILNAM_LOTERR_LOG, param.LogFileName);
 	THROW(r = RecoverLotsDialog(/*log_file_name, &c_flags*/param));
@@ -802,18 +806,35 @@ int PPViewLot::RecoverLots()
 		logger.Log(msg_buf);
 		{
 			Transfer * p_trfr = P_BObj->trfr;
-			if(param.Flags) {
+			Reference * p_ref = PPRef;
+			SString ref_a;
+			SString lot_str;
+			SString psn_name_buf;
+			TSVector <EgaisRefATbl::Rec> ref_a_list;
+			PrcssrAlcReport::Config alc_cfg;
+			PPIDArray psn_ref_list;
+			PPIDArray lot_id_list;
+			PPID   manuf_tag_id = 0;
+			if(param.Flags & TLRF_SETALCOMANUF) {
+				PrcssrAlcReport::ReadConfig(&alc_cfg);
+				if(alc_cfg.ManufImpTagID)
+					manuf_tag_id = alc_cfg.ManufImpTagID;
+				else if(alc_cfg.LotManufTagList.getCount())
+					manuf_tag_id = alc_cfg.LotManufTagList.get(0);
+				if(manuf_tag_id)
+					p_refa_c = new EgaisRefACore;
+			}
+			{
+				LotViewItem  lv_item;
+				for(InitIteration(); NextIteration(&lv_item) > 0;)
+					lot_id_list.add(lv_item.ID);
+			}
+			// @v10.9.1 if(param.Flags) {
+			if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) { // @v10.9.1 
 				THROW(PPStartTransaction(&ta, 1));
 				THROW(P_BObj->atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));
 				if(param.MinusCompensOpID && /*Filt.LocID*/LocList.getSingle()) {
 					THROW(neg_rest_pack.CreateBlank2(param.MinusCompensOpID, getcurdate_(), /*Filt.LocID*/LocList.getSingle(), 0));
-				}
-			}
-			PPIDArray lot_id_list;
-			{
-				LotViewItem  lv_item;
-				for(InitIteration(); NextIteration(&lv_item) > 0;) {
-					lot_id_list.add(lv_item.ID);
 				}
 			}
 			for(uint ididx = 0; ididx < lot_id_list.getCount(); ididx++) {
@@ -821,6 +842,103 @@ int PPViewLot::RecoverLots()
 				ReceiptTbl::Rec lot_rec;
 				if(p_trfr->Rcpt.Search(_lot_id, &lot_rec) > 0) {
 					PPLotFaultArray ary(_lot_id, logger);
+					// @v10.9.1 {
+					{
+						lot_str.Z().Cat(_lot_id).Space();
+						lot_str.CatChar('[').Cat(lot_rec.Dt).CatDiv('-', 1);
+						GetGoodsName(labs(lot_rec.GoodsID), temp_buf);
+						lot_str.Cat(temp_buf);
+						lot_str.CatChar(']');
+					}
+					if(param.Flags & TLRF_SETALCOMANUF && p_refa_c) {
+						if(p_ref->Ot.GetTagStr(PPOBJ_LOT, _lot_id, PPTAG_LOT_FSRARINFA, ref_a) > 0) {
+							char   manuf_rar_ident[32];
+							char   importer_rar_ident[32];
+							int    ambig_manuf = 0;
+							int    ambig_imptr = 0;
+							PTR32(manuf_rar_ident)[0] = 0;
+							PTR32(importer_rar_ident)[0] = 0;
+							ObjTagItem ex_lot_manuf_tag_item;
+							PPID   ex_lot_manuf_id = 0;
+							if(p_ref->Ot.GetTag(PPOBJ_LOT, _lot_id, manuf_tag_id, &ex_lot_manuf_tag_item) > 0) {
+								ex_lot_manuf_tag_item.GetInt(&ex_lot_manuf_id);
+							}
+							if(p_refa_c->SearchByCode(ref_a, ref_a_list) > 0) {
+								for(uint rlidx = 0; rlidx < ref_a_list.getCount(); rlidx++) {
+									const EgaisRefATbl::Rec & r_ref_a_rec = ref_a_list.at(rlidx);
+									if(r_ref_a_rec.ManufRarIdent[0]) {
+										if(!manuf_rar_ident[0])
+											STRNSCPY(manuf_rar_ident, r_ref_a_rec.ManufRarIdent);
+										else
+											ambig_manuf = 1;
+									}
+									if(r_ref_a_rec.ImporterRarIdent[0]) {
+										if(!importer_rar_ident[0])
+											STRNSCPY(importer_rar_ident, r_ref_a_rec.ImporterRarIdent);
+										else
+											ambig_imptr = 1;
+									}
+								}
+								PPID   manuf_id_to_set = 0;
+								if(importer_rar_ident[0]) {
+									if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, importer_rar_ident, &psn_ref_list) > 0) {
+										assert(psn_ref_list.getCount());
+										if(psn_ref_list.getCount()) {
+											if(!ex_lot_manuf_id || !psn_ref_list.lsearch(ex_lot_manuf_id)) {
+												PPLoadString(PPSTR_ERROR, PPERR_ELOT_DIFEGAISIMPTR, temp_buf);
+												msg_buf.Printf(temp_buf, lot_str.cptr(), importer_rar_ident);
+												logger.Log(msg_buf);
+												// PPERR_ELOT_DIFEGAISIMPTR
+												// Справка А лота '%s' ссылается на импортера '%s', отличного от того, что установлен в лоте
+												manuf_id_to_set = psn_ref_list.get(0);
+											}
+										}
+									}
+									else {
+										PPLoadString(PPSTR_ERROR, PPERR_ELOT_EGAISIMPTRCODENOTFOUNT, temp_buf);
+										msg_buf.Printf(temp_buf, lot_str.cptr(), importer_rar_ident);
+										logger.Log(msg_buf);
+										// PPERR_ELOT_EGAISIMPTRCODENOTFOUNT
+										// Справка А лота '%s' ссылается на импортера с кодом '%s', но соответствующая персоналия не в базе данных не найдена
+									}
+								}
+								else if(manuf_rar_ident[0]) {
+									if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, manuf_rar_ident, &psn_ref_list) > 0) {
+										assert(psn_ref_list.getCount());
+										if(psn_ref_list.getCount()) {
+											if(!ex_lot_manuf_id || !psn_ref_list.lsearch(ex_lot_manuf_id)) {
+												PPLoadString(PPSTR_ERROR, PPERR_ELOT_DIFEGAISMANIF, temp_buf);
+												msg_buf.Printf(temp_buf, lot_str.cptr(), manuf_rar_ident);
+												logger.Log(msg_buf);
+												// PPERR_ELOT_DIFEGAISMANIF
+												// Справка А лота '%s' ссылается на производителя '%s', отличного от того, что установлен в лоте
+												manuf_id_to_set = psn_ref_list.get(0);
+											}
+										}
+									}
+									else {
+										PPLoadString(PPSTR_ERROR, PPERR_ELOT_EGAISMANUFCODENOTFOUNT, temp_buf);
+										msg_buf.Printf(temp_buf, lot_str.cptr(), manuf_rar_ident);
+										logger.Log(msg_buf);
+										// PPERR_ELOT_EGAISMANUFCODENOTFOUNT
+										// Справка А лота '%s' ссылается на производителя с кодом '%s', но соответствующая персоналия не в базе данных не найдена
+									}
+								}
+								if(param.Flags & TLRF_REPAIR) {
+									if(manuf_id_to_set) {
+										ObjTagItem lot_manuf_tag_item;
+										if(!lot_manuf_tag_item.SetInt(manuf_tag_id, manuf_id_to_set)) {
+											logger.LogLastError();
+										}
+										else if(!p_ref->Ot.PutTag(PPOBJ_LOT, _lot_id, &lot_manuf_tag_item, 0)) {
+											logger.LogLastError();
+										}
+									}
+								}
+							}
+						}
+					}
+					// } @v10.9.1 
 					THROW(r = p_trfr->CheckLot(_lot_id, 0, param.Flags, ary));
 					if(r < 0) {
 						err_lot_count++;
@@ -883,6 +1001,7 @@ int PPViewLot::RecoverLots()
 		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
+	delete p_refa_c; // @v10.9.1
 	return ok;
 }
 

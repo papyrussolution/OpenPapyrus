@@ -1607,6 +1607,7 @@ public:
 	friend class BDictionary;
 	friend class DbDict_Btrieve;
 	friend class SOraDbProvider;
+	friend class SMySqlDbProvider;
 	friend struct DBField;
 
 	static void   FASTCALL InitErrFileName(const char * pFileName);
@@ -2753,8 +2754,13 @@ class SMySqlDbProvider : public DbProvider { // @construction
 public:
 	SMySqlDbProvider();
 	~SMySqlDbProvider();
+	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int Logout();
+	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
+	virtual int Exec(SSqlStmt & rS, uint count, int mode);
 private:
 	long   Flags;
+	void * H;
 	Generator_SQL SqlGen;
 };
 //

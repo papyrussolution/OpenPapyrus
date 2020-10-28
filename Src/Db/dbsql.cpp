@@ -1807,7 +1807,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 			SqlGen.Aster();
 		SqlGen.Sp().From(pTbl->fileName, p_alias);
 		if(sf & DBTable::sfDirect) {
-			DBRowId * p_rowid = (DBRowId *)pKey;
+			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
 			THROW(p_rowid && p_rowid->IsLong());
 			p_rowid->ToStr(temp_buf);
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
@@ -1955,7 +1955,6 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 	int    map_ret_key = 0;
 	BNKey  key;
 	uint   ns = 0;
-
 	const  uint fld_count = pTbl->fields.getCount();
 	SString temp_buf, let_buf;
 	SSqlStmt  stmt(this, 0);

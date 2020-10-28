@@ -11211,6 +11211,7 @@
 // Message groups
 //
 #define PPMSG_ERROR                 1
+#define PPSTR_ERROR                 PPMSG_ERROR // @v10.9.1 synonym of PPMSG_ERROR
 #define PPSTR_DBLIB                 4 // @v10.8.2
 #define PPSTR_DBENGINE              6
 #define PPSTR_SLIBERR               7

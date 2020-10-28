@@ -158,16 +158,7 @@
     <ClCompile Include="..\SLib\gumbo\char_ref.c">
       <Filter>gumbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\SLib\gumbo\error.c">
-      <Filter>gumbo</Filter>
-    </ClCompile>
     <ClCompile Include="..\SLib\gumbo\parser.c">
-      <Filter>gumbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\gumbo\string_buffer.c">
-      <Filter>gumbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\gumbo\string_piece.c">
       <Filter>gumbo</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\gumbo\tag.c">
@@ -176,10 +167,7 @@
     <ClCompile Include="..\SLib\gumbo\tokenizer.c">
       <Filter>gumbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\SLib\gumbo\utf8.c">
-      <Filter>gumbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\gumbo\vector.c">
+    <ClCompile Include="..\SLib\gumbo\gumbo-lib.c">
       <Filter>gumbo</Filter>
     </ClCompile>
   </ItemGroup>

@@ -2432,7 +2432,7 @@ private:
 #define SLERR_CURL                             455 // Ошибка библиотеки libcurl
 #define SLERR_LIBXML                           456 // Ошибка библиотеки libxml
 #define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
-#define SLERR_INVIMAGESIZE                     458 // @v9.9.4 Недопустимый размер изображения ([1..30000], [1..30000])
+#define SLERR_INVIMAGESIZE                     458 // Недопустимый размер изображения ([1..30000], [1..30000])
 #define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
@@ -2528,7 +2528,6 @@ private:
 // Таким образом, максимальный размер одного поля данных составляет 0xffff байт.
 // Для очень больших данных может быть использован S_BLOB или S_CLOB (управление этими типами достаточно сложное).
 //
-// @v9.8.6 #define STYPE_SIZE_4 // @v8.9.12 Удалены все ссылки на этот макрос. Теперь безусловно sizeof(TYPEID)==4
 #define INVALID_DATA_SIZE 0
 typedef int32 TYPEID;
 //
@@ -2605,7 +2604,6 @@ typedef int32 TYPEID;
 #define GETSSIZED(typ)        (((typ)&0x00ff0000)>>16)
 #define GETSPRECD(typ)        (((typ)&0xff000000)>>24)
 
-// @v9.8.12 #ifdef COMPLEX_TYPES
 #define T_CHAR             MKSTYPE(S_CHAR,1)
 #define T_INT              MKSTYPE(S_INT,2)
 #define T_UINT             MKSTYPE(S_UBINARY,2)
@@ -2631,7 +2629,6 @@ typedef int32 TYPEID;
 #define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
 #define T_BOOL             MKSTYPE(S_BOOL, 4)
 #define T_GUID             MKSTYPE(S_UUID_, 16)
-// @v9.8.12 #endif
 
 #if !defined(RC_INVOKED) /* { */
 
@@ -2849,8 +2846,8 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define TIMF_BLANK     0x0010  //
 #define TIMF_NOZERO    TIMF_BLANK // Не отображать нулевое значение
 #define TIMF_TIMEZONE  0x0020  // +0300
-#define TIMF_NODIV     0x0040  // @v9.4.3
-#define TIMF_DOTDIV    0x0080  // @v9.8.3 Разделители часов, минут и секунд - точки. Например: 23.20.59
+#define TIMF_NODIV     0x0040  // 
+#define TIMF_DOTDIV    0x0080  // Разделители часов, минут и секунд - точки. Например: 23.20.59
 //
 // String format flags
 //
@@ -4580,8 +4577,7 @@ int    FASTCALL checktime(LTIME tm);
 #define MONF_CASEGEN   0x0004 // Полная форма (родительный падеж)
 #define MONF_OEM       0x0080 // OEM-coding
 
-// @v9.4.8 char * getMonthText(int mon, long fmt, char * pBuf);
-SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf); // @v9.4.8
+SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf);
 //
 // Descr: Флаги функции strtoperiod
 //
@@ -4800,7 +4796,6 @@ enum {
 SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf);
 char * strfmt(const char * str, long fmt, char * buf);
 //char * numbertotext(double nmb, long fmt, char * pBuf);
-// @v9.6.0 int   strtoirng(const char * pBuf, long * pLow, long * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int    FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
 int    FASTCALL strtodoub(const char * pBuf, double *);
@@ -4816,10 +4811,10 @@ enum {
 	strtodatefRelMon   = 0x0020, // Месяц задан в относительной форме
 	strtodatefRelYear  = 0x0040, // Год задан в относительной форме
 	strtodatefThrsMDay = 0x0080, // Дата задана как начало месяца с порогом в виде дня. Если текущий день менее порога, то - начало предыдущего месяца, иначе - текущего.
-	strtodatefAnyDay   = 0x0100, // @v9.5.9
-	strtodatefAnyMon   = 0x0200, // @v9.5.9
-	strtodatefAnyYear  = 0x0400, // @v9.5.9
-	strtodatefInvalid  = 0x0800, // @v9.8.3 Дата, извлеченная из строки, инвалидная
+	strtodatefAnyDay   = 0x0100, // 
+	strtodatefAnyMon   = 0x0200, // 
+	strtodatefAnyYear  = 0x0400, // 
+	strtodatefInvalid  = 0x0800, // Дата, извлеченная из строки, инвалидная
 	strtodatefRelAny   = (strtodatefRel|strtodatefRelDay|strtodatefRelMon|strtodatefRelYear|strtodatefThrsMDay) // Маска
 };
 

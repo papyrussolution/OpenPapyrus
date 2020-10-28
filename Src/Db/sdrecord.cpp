@@ -946,9 +946,9 @@ int SdRecord::ConvertDataFields(int cvt, void * pBuf) const
 			void * p_fld_data = PTR8(pBuf) + fld.InnerOffs;
 			size_t len;
 			if(fld.T.IsZStr(&len)) {
-				temp_buf = (const char *)p_fld_data;
+				temp_buf = static_cast<const char *>(p_fld_data);
 				temp_buf.Transf(cvt);
-				temp_buf.CopyTo((char *)p_fld_data, len);
+				temp_buf.CopyTo(static_cast<char *>(p_fld_data), len);
 				ok = 1;
 			}
 		}

@@ -1443,6 +1443,12 @@ uint8 FASTCALL hextobyte(const char * pBuf)
 	return r;
 }
 
+static int experimental_isasciialpha(int c) 
+{
+    return ((uint)(c | 32) - 97) < 26U;
+	//unsigned((ch&(~(1<<5))) - 'A') <= ('Z' - 'A')
+}
+
 int FASTCALL IsLetterASCII(int ch)
 {
 	return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'));

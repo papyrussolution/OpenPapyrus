@@ -12541,6 +12541,7 @@ public:
 	// PPTAG_LOT_FSRARLOTGOODSCODE переносить этот код.
 #define TLRF_SETINHQCERT       0x1000 // @v10.4.10 Устанавливать на лоты, у которых нет сертификатов, унаследованные от
 	// предыдущих приходов сертификаты.
+#define TLRF_SETALCOMANUF      0x2000 // @v10.9.1 Устанавливать импортера/производителя ЕГАИС по справкам А из внутренней базы данных  
 //
 // Флаги функции Transfer::MoveLotOps
 //
@@ -29932,8 +29933,8 @@ public:
     //     равно индексу наиболее актуальной записи max(ActualDate), увеличенному на 1.
     //     То есть, rList[ret-1] соответствует наиболее актуальному элементу массива.
     //
-    int    SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList); // @v9.8.4 TSArray-->TSVector
-    int    SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList); // @v9.8.4 TSArray-->TSVector
+    int    SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList);
+    int    SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList);
     int    Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConflictFlags, int use_ta);
     //
     // Descr: Удаляет все записи из таблицы
@@ -29964,8 +29965,8 @@ public:
 				// Если флаг не установлен или AlcGoodsClsID == 0, то - по принадлежности группе AlcGoodsGrpID
 			fWhToReg2ByLacks  = 0x0002, // Передавать остатки ЕГАИС со склада на регистр 2 по отрицательным значениям в текущих остатках ЕГАИС
 				// на регистре 2.
-			fEgaisVer2Fmt     = 0x0004, // @v9.6.12 Применять 2-ю версию форматов ЕГАИС
-			fEgaisVer3Fmt     = 0x0008  // @v9.9.5 Применять 3-ю версию форматов ЕГАИС (автоматически отменяет fEgaisVer2Fmt для тех документов, к которым применим 3-й формат).
+			fEgaisVer2Fmt     = 0x0004, // Применять 2-ю версию форматов ЕГАИС
+			fEgaisVer3Fmt     = 0x0008  // Применять 3-ю версию форматов ЕГАИС (автоматически отменяет fEgaisVer2Fmt для тех документов, к которым применим 3-й формат).
 		};
 		//
 		// Descr: Варианты списания остатков с регистра 2 ЕГАИС
@@ -30005,9 +30006,9 @@ public:
 			int16  ProofClsDim;   // PPGdsCls2::e... Размерность класса, определяющая крепость алкоголя в одной торговой единице (в объемных %)
 			uint16 Reserve2;
 			PPID   ImporterPersonKindID; // Вид персоналии, идентифицирующий импортера
-			long   Flags;                // @v9.0.10
-			long   WrOffShopWay;         // @v9.3.10
-			PPID   EgaisInvOpID;         // @v9.3.12 Вид операции инвентаризации - необходим для идентификации видов операций
+			long   Flags;                // 
+			long   WrOffShopWay;         // 
+			PPID   EgaisInvOpID;         // Вид операции инвентаризации - необходим для идентификации видов операций
 				// списания излишков и недостач.
             TimeRange RtlSaleAllwTime;   // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
 			PPID   ManufOpID;            // @v10.6.3 Вид операции производства (PPOPT_GOODSMODIF). Используется для обмена с ВЕТИС
@@ -30016,8 +30017,7 @@ public:
 		ExtBlock  E;                 // @anchor
 		PPIDArray StorageLocList;    // @anchor
 		PPIDArray LotManufTagList;   // Список тегов лотов, хранящих производителя/импортера товара
-		//
-		CCheckFilt * P_CcFilt;       // @v9.4.0 Фильтр по кассовым чекам для списания с регистра 2
+		CCheckFilt * P_CcFilt;       // Фильтр по кассовым чекам для списания с регистра 2
 	};
 
 	struct EgaisMarkBlock {
@@ -30183,7 +30183,7 @@ protected:
 
 		TSCollection <EgaisPersonCore::Item> PersonList;
 		TSCollection <EgaisProductCore::Item> ProductList;
-		TSVector <EgaisRefATbl::Rec> RefAList; // @v9.8.4 TSArray-->TSVector
+		TSVector <EgaisRefATbl::Rec> RefAList;
 		int    LastPersonP;
 		int    LastProductP;
 		int    LastRefAP;

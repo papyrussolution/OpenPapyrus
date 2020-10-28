@@ -55,16 +55,14 @@ static const CharReplacement kCharReplacements[] = {
 
 static int FASTCALL parse_digit(int c, bool allow_hex) 
 {
-	if(c >= '0' && c <= '9') {
-		return c - '0';
-	}
-	if(allow_hex && c >= 'a' && c <= 'f') {
-		return c - 'a' + 10;
-	}
-	if(allow_hex && c >= 'A' && c <= 'F') {
-		return c - 'A' + 10;
-	}
-	return -1;
+	if(c >= '0' && c <= '9')
+		return (c - '0');
+	else if(allow_hex && c >= 'a' && c <= 'f')
+		return (c - 'a' + 10);
+	else if(allow_hex && c >= 'A' && c <= 'F')
+		return (c - 'A' + 10);
+	else
+		return -1;
 }
 
 static void add_no_digit_error(GumboParser * parser, Utf8Iterator* input) 
@@ -111,7 +109,7 @@ static bool consume_numeric_ref(GumboParser * parser, Utf8Iterator* input, int* 
 	utf8iterator_next(input);
 	bool is_hex = false;
 	int c = utf8iterator_current(input);
-	if(c == 'x' || c == 'X') {
+	if(oneof2(c, 'x', 'X')) {
 		is_hex = true;
 		utf8iterator_next(input);
 		c = utf8iterator_current(input);
@@ -23020,7 +23018,8 @@ _out:           {}
 
 bool consume_char_ref(GumboParser * parser,
     struct GumboInternalUtf8Iterator* input, int additional_allowed_char,
-    bool is_in_attribute, OneOrTwoCodepoints* output) {
+    bool is_in_attribute, OneOrTwoCodepoints* output) 
+{
 	utf8iterator_mark(input);
 	utf8iterator_next(input);
 	int c = utf8iterator_current(input);

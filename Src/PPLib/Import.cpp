@@ -3289,7 +3289,7 @@ int PrcssrPersonImport::Run()
 		THROW(tra);
 		cntr.Init(numrecs);
 		// @v10.7.9 @ctr MEMSZERO(rec);
-		while(ie.ReadRecord(&rec, sizeof(rec)) > 0) {
+		while(ie.ReadRecord(&rec, sizeof(rec), &dyn_rec) > 0) {
 			IeParam.InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &rec);
 			// @v10.9.1 {
 			ObjTagList tag_list;
@@ -3307,7 +3307,7 @@ int PrcssrPersonImport::Run()
 								if(scan[0] == '.') {
 									scan.Incr(1);
 									(temp_buf2 = scan).Strip();
-									if(tag_obj.SearchBySymb(temp_buf2, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_GOODS) {
+									if(tag_obj.SearchBySymb(temp_buf2, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_PERSON) {
 										int   r = 0;
 										const TYPEID typ = dyn_fld.T.Typ;
 										const int    base_typ = stbase(typ);

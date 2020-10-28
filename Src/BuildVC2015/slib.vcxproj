@@ -1400,14 +1400,10 @@
     <ClCompile Include="..\SLib\gamma.cpp" />
     <ClCompile Include="..\SLib\gencpp.cpp" />
     <ClCompile Include="..\SLib\gumbo\char_ref.c" />
-    <ClCompile Include="..\SLib\gumbo\error.c" />
+    <ClCompile Include="..\SLib\gumbo\gumbo-lib.c" />
     <ClCompile Include="..\SLib\gumbo\parser.c" />
-    <ClCompile Include="..\SLib\gumbo\string_buffer.c" />
-    <ClCompile Include="..\SLib\gumbo\string_piece.c" />
     <ClCompile Include="..\SLib\gumbo\tag.c" />
     <ClCompile Include="..\SLib\gumbo\tokenizer.c" />
-    <ClCompile Include="..\SLib\gumbo\utf8.c" />
-    <ClCompile Include="..\SLib\gumbo\vector.c" />
     <ClCompile Include="..\SLib\hashfunc.cpp" />
     <ClCompile Include="..\SLib\hashtab.cpp" />
     <ClCompile Include="..\SLib\Idea.cpp" />

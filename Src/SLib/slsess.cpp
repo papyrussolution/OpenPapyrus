@@ -351,7 +351,7 @@ static void InitTest()
 	assert(sizeof(DateRepeating) == 8);
 	assert(sizeof(DateTimeRepeating) == 12);
 	//
-	assert(sizeof(TYPEID) == 4); // @v9.8.6
+	assert(sizeof(TYPEID) == 4);
 	assert(sizeof(STypEx) == 16);
 	assert(sizeof(CommPortParams) == 6);
 	//
@@ -474,9 +474,8 @@ const void * SlSession::InitThread()
 {
 	SlThreadLocalArea * p_tla = new SlThreadLocalArea;
 	TlsSetValue(TlsIdx, p_tla);
-	// @v9.8.0 p_tla->Id = LastThread.Incr();
-	p_tla->Id = GetCurrentThreadId(); // @v9.8.0
-	return (const void *)p_tla;
+	p_tla->Id = GetCurrentThreadId();
+	return static_cast<const void *>(p_tla);
 }
 
 void SlSession::ReleaseThread()
@@ -520,7 +519,7 @@ int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 		r_tla.AddedMsgString = pAddedMsg;
 		r_tla.LastSockErr = sock_err;
 	}
-	return 0; // @v8.7.8 1-->0
+	return 0;
 }
 
 int FASTCALL SlSession::SetError(int errCode)
@@ -535,7 +534,7 @@ int FASTCALL SlSession::SetError(int errCode)
 		r_tla.AddedMsgString = 0;
 		r_tla.LastSockErr = sock_err;
 	}
-	return 0; // @v8.7.8 1-->0
+	return 0;
 }
 
 int FASTCALL SlSession::SetOsError(const char * pAddedMsg)
@@ -550,7 +549,7 @@ int FASTCALL SlSession::SetOsError(const char * pAddedMsg)
 		r_tla.LastOsErr = last_err;
 		r_tla.AddedMsgString = pAddedMsg;
 	}
-	return 0; // @v8.7.8 1-->0
+	return 0;
 }
 
 int    SlSession::GetOsError() const { return GetConstTLA().LastOsErr; }

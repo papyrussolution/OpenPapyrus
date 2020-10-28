@@ -279,7 +279,7 @@ static bool FASTCALL is_alpha(int c)
 	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
-static int FASTCALL ensure_lowercase(int c) { return c >= 'A' && c <= 'Z' ? c + 0x20 : c; }
+static int FASTCALL ensure_lowercase(int c) { return (c >= 'A' && c <= 'Z') ? c + 0x20 : c; }
 
 static GumboTokenType get_char_token_type(bool is_in_cdata, int c) 
 {
@@ -482,7 +482,7 @@ static void FASTCALL emit_doctype(GumboParser * parser, GumboToken* output)
 
 // Debug-only function that explicitly sets the attribute vector data to NULL so
 // it can be asserted on tag creation, verifying that there are no memory leaks.
-static void mark_tag_state_as_empty(GumboTagState* tag_state) 
+static void FASTCALL mark_tag_state_as_empty(GumboTagState * tag_state) 
 {
 #ifndef NDEBUG
 	tag_state->_attributes = kGumboEmptyVector;
@@ -491,7 +491,7 @@ static void mark_tag_state_as_empty(GumboTagState* tag_state)
 
 // Writes out the current tag as a start or end tag token.
 // Always returns RETURN_SUCCESS.
-static StateResult emit_current_tag(GumboParser * parser, GumboToken * output) 
+static StateResult FASTCALL emit_current_tag(GumboParser * parser, GumboToken * output) 
 {
 	GumboTagState * tag_state = &parser->_tokenizer_state->_tag_state;
 	if(tag_state->_is_start_tag) {
@@ -531,7 +531,7 @@ static StateResult emit_current_tag(GumboParser * parser, GumboToken * output)
 // We need to abandon the tag we'd started & free its memory in that case to
 // avoid a memory leak.
 //
-static void abandon_current_tag(GumboParser * parser) 
+static void FASTCALL abandon_current_tag(GumboParser * parser) 
 {
 	GumboTagState * tag_state = &parser->_tokenizer_state->_tag_state;
 	for(uint i = 0; i < tag_state->_attributes.length; ++i) {
@@ -568,7 +568,7 @@ static StateResult emit_char_ref(GumboParser * parser, int additional_allowed_ch
 // Emits a comment token.  Comments use the temporary buffer to accumulate their
 // data, and then it's copied over and released to the 'text' field of the
 // GumboToken union.  Always returns RETURN_SUCCESS.
-static StateResult emit_comment(GumboParser * parser, GumboToken* output) 
+static StateResult FASTCALL emit_comment(GumboParser * parser, GumboToken* output) 
 {
 	output->type = GUMBO_TOKEN_COMMENT;
 	finish_temporary_buffer(parser, &output->v.text);
@@ -612,9 +612,9 @@ static bool maybe_emit_from_temporary_buffer(GumboParser * parser, GumboToken* o
 // _temporary_buffer_emit, and then (if the temporary buffer is non-empty) emits
 // the first character in it.  It returns true if a character was emitted, false
 // otherwise.
-static bool emit_temporary_buffer(GumboParser * parser, GumboToken* output) 
+static bool FASTCALL emit_temporary_buffer(GumboParser * parser, GumboToken * output) 
 {
-	GumboTokenizerState* tokenizer = parser->_tokenizer_state;
+	GumboTokenizerState * tokenizer = parser->_tokenizer_state;
 	assert(tokenizer->_temporary_buffer.data);
 	utf8iterator_reset(&tokenizer->_input);
 	tokenizer->_temporary_buffer_emit = tokenizer->_temporary_buffer.data;
@@ -1558,8 +1558,8 @@ static StateResult handle_script_double_escaped_end_state(GumboParser * parser,
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#before-attribute-name-state
-static StateResult handle_before_attr_name_state(GumboParser * parser,
-    GumboTokenizerState* tokenizer, int c, GumboToken* output) {
+static StateResult handle_before_attr_name_state(GumboParser * parser, GumboTokenizerState* tokenizer, int c, GumboToken * output) 
+{
 	switch(c) {
 		case '\t':
 		case '\n':
@@ -2750,7 +2750,8 @@ static GumboLexerStateFunction dispatch_table[] = {
 	handle_cdata_state
 };
 
-bool gumbo_lex(GumboParser * parser, GumboToken* output) {
+bool gumbo_lex(GumboParser * parser, GumboToken* output) 
+{
 	// Because of the spec requirements that...
 	//
 	// 1. Tokens be handled immediately by the parser upon emission.
@@ -2765,8 +2766,7 @@ bool gumbo_lex(GumboParser * parser, GumboToken* output) {
 	// input if we need to return a different token.  The various emit_* functions
 	// are responsible for changing state (eg. flushing the chardata buffer,
 	// reading the next input character) to avoid an infinite loop.
-	GumboTokenizerState* tokenizer = parser->_tokenizer_state;
-
+	GumboTokenizerState * tokenizer = parser->_tokenizer_state;
 	if(tokenizer->_buffered_emit_char != kGumboNoChar) {
 		tokenizer->_reconsume_current_input = true;
 		emit_char(parser, tokenizer->_buffered_emit_char, output);

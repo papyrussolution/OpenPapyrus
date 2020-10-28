@@ -2096,10 +2096,10 @@ int PPImpExp::GetArgList(SStrScan & rScan, StringSet & rArgList)
 
 int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size_t bufLen, SString & rResult)
 {
+	rResult.Z();
 	int    ok = 1;
 	ExprEvalContext * p_expr_ctx = 0;
-	//int    inner_expr_ctx = 0;
-	double dbl_val = 0;
+	double dbl_val = 0.0;
 	StringSet arg_list;
 	ImpExpExprEvalContext own_expr_ctx(P.InrRec);
 	if(P_ExprContext) {
@@ -2108,20 +2108,13 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 	}
 	else
 		p_expr_ctx = &own_expr_ctx;
-	/*
-	if(P_ExprContext) {
-		p_expr_ctx = P_ExprContext;
-	}
-	else {
-		THROW_MEM(p_expr_ctx = new ImpExpExprEvalContext(P.InrRec));
-		inner_expr_ctx = 1;
-	}
-	*/
-	rResult.Z();
-	if(PPExprParser::CalcExpression(pFormula, &dbl_val, 0, p_expr_ctx) > 0) // Разрешение выражений у которых аргументы - числа
+	if(PPExprParser::CalcExpression(pFormula, &dbl_val, 0, p_expr_ctx) > 0) { // Разрешение выражений у которых аргументы - числа
 		rResult.Cat(dbl_val);
+	}
 	else {
 		SString temp_buf, reg_type_symb;
+		SString temp_fld_name;
+		SdbField temp_fld;
 		PPSymbTranslator st(PPSSYM_IMPEXPFORMULA);
 		(temp_buf = pFormula).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
 		for(SStrScan scan(temp_buf); *scan != 0;) {
@@ -2137,7 +2130,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 					switch(sym) {
 						case iefrmEmpty: break;
 						case iefrmRecNo: rResult.Cat(W_RecNo); break;
-						case iefrmCurDate_German: rResult.Cat(getcurdate_(), DATF_GERMAN|DATF_CENTURY); break; // @v9.8.7
+						case iefrmCurDate_German: rResult.Cat(getcurdate_(), DATF_GERMAN|DATF_CENTURY); break;
 						case iefrmCurDate: rResult.Cat(getcurdate_(), DATF_DMY|DATF_CENTURY); break;
 						case iefrmCurYear: rResult.Cat(getcurdate_().year()); break;
 						case iefrmCurMonth: rResult.Cat(getcurdate_().month()); break;
@@ -2152,6 +2145,27 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 								PPID   reg_type_id = 0;
 								uint   _count = 0;
 								for(uint argp = 0; arg_list.get(&argp, temp_buf);) {
+									// @v10.9.1 {
+									(temp_fld_name = temp_buf).Strip();
+									if(temp_fld_name.C(0) == '\"' && temp_fld_name.Last() == '\"') {
+										temp_fld_name.TrimRight().ShiftLeft();
+									}
+									uint fld_pos = 0;
+									if(P.OtrRec.SearchName(temp_fld_name, &fld_pos) > 0) {
+										const void * p_outer_fld_buf = P.OtrRec.GetData(fld_pos);
+										if(p_outer_fld_buf) {
+											P.OtrRec.GetFieldByPos_Fast(fld_pos, &temp_fld);
+											long fmt = 0;
+											if(GETSTYPE(temp_fld.T.Typ) == S_DATE)
+												fmt = MKSFMT(0, DATF_DMY|DATF_CENTURY);
+											else if(GETSTYPE(temp_fld.T.Typ) == S_FLOAT)
+												fmt = SFMT_MONEY;
+											char  dest_str_buf[512];
+											stcast(temp_fld.T.Typ, MKSTYPE(S_ZSTRING, 256), p_outer_fld_buf, dest_str_buf, fmt);
+											temp_buf = dest_str_buf;
+										}
+									}
+									// } @v10.9.1 
                                     if(sym == iefrmCats && _count)
 										rResult.Space();
                                     rResult.Cat(temp_buf);
@@ -2325,12 +2339,10 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 					THROW(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
 				}
 				if(outer_fld.T.IsZStr(&len)) {
-					if(GETSTYPE(inner_fld.T.Typ) == S_DATE) {
+					if(GETSTYPE(inner_fld.T.Typ) == S_DATE)
 						fmt = (len >= 11) ? MKSFMT(0, DATF_DMY|DATF_CENTURY) : MKSFMT(0, DATF_DMY);
-					}
-					else if(GETSTYPE(inner_fld.T.Typ) == S_FLOAT) {
+					else if(GETSTYPE(inner_fld.T.Typ) == S_FLOAT)
 						fmt = SFMT_MONEY;
-					}
 				}
 				const void * p_data_ = hdr ? P.HdrInrRec.GetDataC(inner_pos) : P.InrRec.GetDataC(inner_pos);
 				stcast(inner_fld.T.Typ, outer_fld.T.Typ, p_data_, p_outer_fld_buf, fmt);
@@ -2388,32 +2400,42 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 	for(uint i = 0; P.OtrRec.EnumFields(&i, &outer_fld);) {
 		void * p_outer_fld_buf = P.OtrRec.GetData(i-1);
 		THROW(p_outer_fld_buf);
-		if(outer_fld.T.Flags & STypEx::fFormula) {
-			// @v10.9.1 /* @v9.3.10 @construction
-			/*if(outer_fld.OuterFormula.NotEmpty() && ResolveFormula(outer_fld.OuterFormula, pInnerBuf, bufLen, formula_result)) {
-
-			}*/
+		// @v10.9.1 /* @v9.3.10 @construction
+		if(outer_fld.OuterFormula.NotEmpty()) {
+			if(outer_fld.ID) {
+				ResolveFormula(outer_fld.OuterFormula, pInnerBuf, bufLen, formula_result);
+				formula_result.Transf(CTRANSF_INNER_TO_OUTER);
+				uint   inner_pos = 0;
+				if(formula_result.cptr() == 0)
+					formula_result.Space().Z();
+				THROW_SL(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
+				stcast(MKSTYPE(S_ZSTRING, MAX(formula_result.Len(), 32)), inner_fld.T.Typ, formula_result.cptr(), P.InrRec.GetData(inner_pos), 0);
+			}
+		}
+		else {
 			// @v10.9.1 */
-			if(pDynRec) {
-				THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
+			if(outer_fld.T.Flags & STypEx::fFormula) {
+				if(pDynRec) {
+					THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
+					if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
+						PTR32(temp_cbuf)[0] = 0;
+						sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
+						stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_cbuf));
+					}
+					stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, pDynRec->GetData(dyn_fld_pos), 0);
+				}
+				dyn_fld_pos++;
+			}
+			else if(outer_fld.ID) {
+				uint   inner_pos = 0;
+				THROW_SL(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
 				if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
 					PTR32(temp_cbuf)[0] = 0;
 					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 					stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_cbuf));
 				}
-				stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, pDynRec->GetData(dyn_fld_pos), 0);
+				stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, P.InrRec.GetData(inner_pos), 0);
 			}
-			dyn_fld_pos++;
-		}
-		else if(outer_fld.ID) {
-			uint   inner_pos = 0;
-			THROW_SL(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
-			if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
-				PTR32(temp_cbuf)[0] = 0;
-				sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
-				stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_cbuf));
-			}
-			stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, P.InrRec.GetData(inner_pos), 0);
 		}
 	}
 	CATCHZOK

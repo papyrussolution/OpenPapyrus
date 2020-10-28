@@ -806,7 +806,7 @@ int TInputLine::TransmitData(int dir, void * pData)
 		}
 		else {
 			if(Data.cptr() == 0)
-				Data.Space() = 0;
+				Data.Space().Z();
 			SETFLAG(InlSt, stValidStr, stfromstr(type, pData, format, Data));
 		}
 	}

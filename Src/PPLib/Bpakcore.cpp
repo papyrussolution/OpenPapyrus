@@ -2792,7 +2792,7 @@ int PPBillPacket::IsGoodsDetail() const
 int PPBillPacket::UngetCounter()
 {
 	int    ok = -1;
-	if(!(CConfig.Flags & CCFLG_DONTUNDOOPCNTRONESC) && Counter) { // @v9.5.2
+	if(!(CConfig.Flags & CCFLG_DONTUNDOOPCNTRONESC) && Counter) {
 		PPOprKind op_rec;
 		if(GetOpData(Rec.OpID, &op_rec) > 0) {
 			PPObjOpCounter opc_obj;

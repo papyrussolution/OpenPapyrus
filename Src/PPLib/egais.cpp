@@ -8149,7 +8149,7 @@ PPEgaisProcessor::QueryParam::~QueryParam()
 }
 
 PPEgaisProcessor::QueryParam::QueryParam(const QueryParam & rS) : DocType(rS.DocType), DbActualizeFlags(rS.DbActualizeFlags), Flags(rS.Flags),
-	MainOrgID(rS.MainOrgID), LocID(rS.LocID), P_LotFilt(0)
+	MainOrgID(rS.MainOrgID), LocID(rS.LocID), P_LotFilt(0), ParamString(rS.ParamString), InfoText(rS.InfoText)
 {
 	if(rS.P_LotFilt)
 		P_LotFilt = new LotFilt(*rS.P_LotFilt);
@@ -8162,6 +8162,8 @@ PPEgaisProcessor::QueryParam & PPEgaisProcessor::QueryParam::operator = (const Q
 	Flags = rS.Flags;
 	MainOrgID = rS.MainOrgID;
 	LocID = rS.LocID;
+	ParamString = rS.ParamString;
+	InfoText = rS.InfoText;
 	if(rS.P_LotFilt) {
 		if(P_LotFilt) {
 			*P_LotFilt = *rS.P_LotFilt;

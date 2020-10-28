@@ -253,6 +253,12 @@ int VCalendar::GetTodo(VCalendar::Todo * pData)
 				case prpEndDtm: GetDtm(val, &todo_rec.EndDtm); break;
 				case prpDueDtm: GetDtm(val, &todo_rec.DueDtm); break;
 				case prpSequence: todo_rec.Sequence = (int16)val.ToLong(); break;
+				case prpPriority: todo_rec.Priority = (int16)val.ToLong(); break;
+				case prpCategory: todo_rec.Category.Cat(val); break;
+				case prpSummary: todo_rec.Summary.Cat(val); break;
+				case prpLocation: pData->Location.Cat(val); break;
+				case prpDescr: todo_rec.Descr.Cat(val); break;
+				case prpContact: todo_rec.Contact.Cat(val); break;
 				case prpStatus:
 					{
 						int status = Status.GetIdxBySub(val, ';');
@@ -265,12 +271,6 @@ int VCalendar::GetTodo(VCalendar::Todo * pData)
 						todo_rec.Classification = (classification >= 0) ? (TodoClass)classification : clPublic;
 					}
 					break;
-				case prpPriority:
-					todo_rec.Priority = (int16)val.ToLong();
-					break;
-				case prpCategory:
-					todo_rec.Category.Cat(val);
-					break;
 				case prpOwner:
 					{
 						SString role_owner;
@@ -278,18 +278,6 @@ int VCalendar::GetTodo(VCalendar::Todo * pData)
 						if(attrs.GetIdxBySub(role_owner, ';') >= 0)
 							todo_rec.Owner.Cat(val);
 					}
-					break;
-				case prpSummary:
-					todo_rec.Summary.Cat(val);
-					break;
-				case prpLocation:
-					pData->Location.Cat(val);
-					break;
-				case prpDescr:
-					todo_rec.Descr.Cat(val);
-					break;
-				case prpContact: // @v9.5.9
-					todo_rec.Contact.Cat(val);
 					break;
 			}
 		}
@@ -335,14 +323,14 @@ int PrjTaskFilt::Init(int fullyDestroy, long extraData)
 
 int PrjTaskFilt::InclInList(int16 * pList, size_t listSize, int16 val)
 {
-	size_t first_zero_idx = MAXLONG; // @v8.9.8 MAXINT-->MAXLONG
+	size_t first_zero_idx = MAXLONG;
 	for(size_t i = 0; i < listSize; i++) {
-		if(pList[i] == 0 && first_zero_idx == MAXLONG) // @v8.9.8 MAXINT-->MAXLONG
+		if(pList[i] == 0 && first_zero_idx == MAXLONG)
 			first_zero_idx = i;
 		if(pList[i] == val)
 			return -1;
 	}
-	if(first_zero_idx != MAXLONG) { // @v8.9.8 MAXINT-->MAXLONG
+	if(first_zero_idx != MAXLONG) {
 		pList[first_zero_idx] = val;
 		return 1;
 	}

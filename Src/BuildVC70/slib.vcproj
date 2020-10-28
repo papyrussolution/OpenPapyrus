@@ -3533,28 +3533,16 @@
 					RelativePath="..\SLib\gumbo\char_ref.c">
 				</File>
 				<File
-					RelativePath="..\SLib\gumbo\error.c">
+					RelativePath="..\SLib\gumbo\gumbo-lib.c">
 				</File>
 				<File
 					RelativePath="..\SLib\gumbo\parser.c">
-				</File>
-				<File
-					RelativePath="..\SLib\gumbo\string_buffer.c">
-				</File>
-				<File
-					RelativePath="..\SLib\gumbo\string_piece.c">
 				</File>
 				<File
 					RelativePath="..\SLib\gumbo\tag.c">
 				</File>
 				<File
 					RelativePath="..\SLib\gumbo\tokenizer.c">
-				</File>
-				<File
-					RelativePath="..\SLib\gumbo\utf8.c">
-				</File>
-				<File
-					RelativePath="..\SLib\gumbo\vector.c">
 				</File>
 			</Filter>
 		</Filter>

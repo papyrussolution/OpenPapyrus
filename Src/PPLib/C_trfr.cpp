@@ -840,8 +840,8 @@ SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::CloseDate:   msg_id = PPERR_ELOT_CLOSEDT;  break;
 			case PPLotFault::OpCost:      msg_id = PPERR_ELOT_OPCOST;   break;
 			case PPLotFault::OpPrice:     msg_id = PPERR_ELOT_OPPRICE;  break;
-			case PPLotFault::RefGoods:    msg_id = PPERR_ELOT_REFGOODS; break; // @v8.3.9
-			case PPLotFault::RefGoodsZero: msg_id = PPERR_ELOT_REFGOODSZERO; break; // @v8.3.9
+			case PPLotFault::RefGoods:    msg_id = PPERR_ELOT_REFGOODS; break;
+			case PPLotFault::RefGoodsZero: msg_id = PPERR_ELOT_REFGOODSZERO; break;
 			case PPLotFault::RefPrevEqID: msg_id = PPERR_ELOT_PREVEQID; break;
 			case PPLotFault::OrdReserveFlag: msg_id = PPERR_ELOT_ORDRESERVEFLAG; break;
 			case PPLotFault::OpFlagsCWoVat:  msg_id = PPERR_ELOT_FLAGSCWOVAT; break;
@@ -849,7 +849,7 @@ SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::WtRest:      msg_id = PPERR_ELOT_WTREST;   break;
 			case PPLotFault::OpWtRest:    msg_id = PPERR_ELOT_OPWTREST; break;
 			case PPLotFault::NoPack:      msg_id = PPERR_ELOT_NOPACK; break;
-			case PPLotFault::PackDifferentGSE: msg_id = PPERR_ELOT_PACKDIFFGSE; break; // @v8.8.1
+			case PPLotFault::PackDifferentGSE: msg_id = PPERR_ELOT_PACKDIFFGSE; break;
 			case PPLotFault::PrevLotGoods: msg_id = PPERR_ELOT_PREVLOTGOODS; break;
 			case PPLotFault::PrevLotLoc:   msg_id = PPERR_ELOT_PREVLOTLOC;   break;
 			case PPLotFault::PrevLotFlagsCWoVat: msg_id = PPERR_ELOT_PREVLOTFLAGSCWOVAT;  break;
@@ -859,15 +859,15 @@ SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::LcrDb:      msg_id = PPERR_ELOT_LCRDB;      break; // Ошибка извлечения записи из таблицы остатков по лотам
 			case PPLotFault::NonUniqSerial: msg_id = PPERR_ELOT_NONUNIQSERIAL; break;
 			case PPLotFault::OrdOpOnSimpleLot: msg_id = PPERR_ELOT_ORDOPONSIMPLELOT; break;
-			case PPLotFault::NegativeRest: msg_id = PPERR_ELOT_NEGATIVEREST; break; // @v8.0.9
-			case PPLotFault::InadqIndepPhFlagOn: msg_id = PPERR_ELOT_INADQINDEPPHFLAGON; break; // @v8.3.9
-			case PPLotFault::InadqIndepPhFlagOff: msg_id = PPERR_ELOT_INADQINDEPPHFLAGON; break; // @v8.3.9
-			case PPLotFault::NonSingleRcptOp: msg_id = PPERR_ELOT_NONSINGLERCPTOP; break; // @v8.5.7
-			case PPLotFault::InadqLotWoTaxFlagOn: msg_id = PPERR_ELOT_INADQLOTWOTAXFLAGON; break; // @v8.9.0
-			case PPLotFault::InadqTrfrWoTaxFlagOn: msg_id = PPERR_ELOT_INADQTRFRWOTAXFLAGON; break; // @v8.9.0
-			case PPLotFault::EgaisCodeAlone:       msg_id = PPERR_ELOT_EGAISCODEALONE; break; // @v9.3.1
-			case PPLotFault::NoEgaisCode:          msg_id = PPERR_ELOT_NOEGAISCODE; break; // @v9.7.8
-			case PPLotFault::NoEgaisCodeAmbig:     msg_id = PPERR_ELOT_NOEGAISCODEAMBIG; break; // @v9.7.8
+			case PPLotFault::NegativeRest: msg_id = PPERR_ELOT_NEGATIVEREST; break;
+			case PPLotFault::InadqIndepPhFlagOn: msg_id = PPERR_ELOT_INADQINDEPPHFLAGON; break;
+			case PPLotFault::InadqIndepPhFlagOff: msg_id = PPERR_ELOT_INADQINDEPPHFLAGON; break;
+			case PPLotFault::NonSingleRcptOp: msg_id = PPERR_ELOT_NONSINGLERCPTOP; break;
+			case PPLotFault::InadqLotWoTaxFlagOn: msg_id = PPERR_ELOT_INADQLOTWOTAXFLAGON; break;
+			case PPLotFault::InadqTrfrWoTaxFlagOn: msg_id = PPERR_ELOT_INADQTRFRWOTAXFLAGON; break;
+			case PPLotFault::EgaisCodeAlone:       msg_id = PPERR_ELOT_EGAISCODEALONE; break;
+			case PPLotFault::NoEgaisCode:          msg_id = PPERR_ELOT_NOEGAISCODE; break;
+			case PPLotFault::NoEgaisCodeAmbig:     msg_id = PPERR_ELOT_NOEGAISCODEAMBIG; break;
 			case PPLotFault::ThereIsQCert:         msg_id = PPERR_ELOT_THEREISQCERT; break; // @v10.4.10
 			default: msg_id = PPERR_ELOT_UNKNOWN; break;
 		}
@@ -965,7 +965,7 @@ int Transfer::ProcessLotFault(PPLotFaultArray & rList, int fault, double act, do
 	return rList.AddFault(fault, &data, act, valid);
 }
 
-class RevalArray : public SVector { // @v9.8.8 SArray-->SVector
+class RevalArray : public SVector {
 public:
 	struct Reval { // @flat
 		LDATE  Dt;
@@ -1075,7 +1075,6 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 						}
 					}
 				}
-				// @v9.7.8 {
 				if(flags & TLRF_SETALCCODETOLOTS) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_LOT, rec.ID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) <= 0) {
 						BarcodeArray bc_list;
@@ -1092,7 +1091,6 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 							rResultList.AddFault(PPLotFault::NoEgaisCodeAmbig, &rec, 0, 0);
 					}
 				}
-				// } @v9.7.8
             }
             else
 				rResultList.AddFault(PPLotFault::RefGoods, &rec, 0, 0);
@@ -1407,11 +1405,8 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 				}
 			}
 		}
-		// @v9.3.1 {
-		// @v9.7.8 {
 		if(flags & TLRF_SETALCCODETOLOTS) {
 		}
-		// } @v9.7.8
 		if(flags & TLRF_SETALCCODETOGOODS) {
 			if(pFaultList->HasFault(PPLotFault::EgaisCodeAlone, &fault, &fault_pos)) {
 				SString egais_code;
@@ -1422,8 +1417,6 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 				}
 			}
 		}
-		// } @v9.3.1
-		// @v9.7.8 {
 		if(flags & TLRF_SETALCCODETOLOTS) {
 			if(pFaultList->HasFault(PPLotFault::NoEgaisCode, &fault, &fault_pos)) {
 				SString ex_egais_code;
@@ -1446,7 +1439,6 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 				}
 			}
 		}
-		// } @v9.7.8
 		if(flags & TLRF_REPAIR) {
 			{
 				GoodsStockExt gse;
