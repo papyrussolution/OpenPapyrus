@@ -21,7 +21,6 @@
 #define ANNOTATION_LIST_H_
 
 typedef int AnnotationIndex;
-
 /**
  * A node in a list of annotations on a particular LR(0) state.  Each
  * annotation records how isocores of that LR(0) state might contribute to an
@@ -29,9 +28,9 @@ typedef int AnnotationIndex;
  * break encapsulation by modifying the fields directly.  Use the provided
  * interface functions.
  */
-typedef struct AnnotationList {
+struct AnnotationList {
 	/** The next node in the list or \c NULL if none.  */
-	struct AnnotationList * next;
+	AnnotationList * next;
 	/** The \c InadequacyList node describing how this inadequacy manifests.  */
 	InadequacyList * inadequacyNode;
 	/**
@@ -67,8 +66,7 @@ typedef struct AnnotationList {
 	 *       reduction in the state that can manifest the inadequacy.
 	 */
 	Sbitset contributions[1];
-} AnnotationList;
-
+};
 /**
  * \pre
  *   - <tt>s != NULL</tt>.
@@ -116,9 +114,7 @@ void AnnotationList__compute_from_inadequacies(state * s, bitsetv follow_kernel_
  *   - A textual representation of all nodes in the list \c self was printed to
  *     stderr.  \c spaces spaces were printed before each line of the text.
  */
-void AnnotationList__debug(AnnotationList const * self, size_t nitems,
-    int spaces);
-
+void AnnotationList__debug(AnnotationList const * self, size_t nitems, int spaces);
 /**
  * \pre
  *   - <tt>self != NULL</tt>.
@@ -130,10 +126,7 @@ void AnnotationList__debug(AnnotationList const * self, size_t nitems,
  *   - <tt>lookahead_filter[i][j]</tt> is set iff some annotation in the list
  *     \c self lists token \c j in kernel item \c i as a contributor.
  */
-void AnnotationList__computeLookaheadFilter(AnnotationList const * self,
-    size_t nitems,
-    bitsetv lookahead_filter);
-
+void AnnotationList__computeLookaheadFilter(AnnotationList const * self, size_t nitems, bitsetv lookahead_filter);
 /**
  * \pre
  *   - <tt>self != NULL</tt>.
@@ -166,8 +159,6 @@ void AnnotationList__computeLookaheadFilter(AnnotationList const * self,
  *     conflict is intended to choose exactly the same action as conflicts.c
  *     would choose... no matter how crazy conflicts.c's choice is.
  */
-ContributionIndex AnnotationList__computeDominantContribution(AnnotationList const * self,
-    size_t nitems, bitset * lookaheads,
-    bool require_split_stable);
+ContributionIndex AnnotationList__computeDominantContribution(AnnotationList const * self, size_t nitems, bitset * lookaheads, bool require_split_stable);
 
 #endif /* !ANNOTATION_LIST_H_ */

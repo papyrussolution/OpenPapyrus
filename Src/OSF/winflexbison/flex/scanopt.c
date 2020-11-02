@@ -228,29 +228,22 @@ int     scanopt_usage(scanopt_t * scanner, FILE * fp, const char * usage)
 	int maxlen[2];
 	int desccol = 0;
 	int print_run = 0;
-
 	maxlen[0] = 0;
 	maxlen[1] = 0;
-
 	s = (struct _scanopt_t *)scanner;
-
 	if(usage) {
 		fprintf(fp, "%s\n", usage);
 	}
 	else {
 		/* Find the basename of argv[0] */
-		const char * p;
-
-		p = s->argv[0] + strlen(s->argv[0]);
+		const char * p = s->argv[0] + strlen(s->argv[0]);
 		while(p != s->argv[0] && *p != '/')
 			--p;
 		if(*p == '/')
 			p++;
-
 		fprintf(fp, _("Usage: %s [OPTIONS]...\n"), p);
 	}
 	fprintf(fp, "\n");
-
 	/* Sort by r_val and string. Yes, this is O(n*n), but n is small. */
 	store = (usg_elem *)malloc((size_t)s->optc * sizeof(usg_elem));
 	for(i = 0; i < s->optc; i++) {
@@ -542,35 +535,27 @@ static int scanopt_err(struct _scanopt_t * s, int is_short, int err)
 static int matchlongopt(char * str, char ** optname, int * optlen, char ** arg, int * arglen)
 {
 	char   * p;
-
 	*optname = *arg = NULL;
 	*optlen = *arglen = 0;
-
 	/* Match regex /--./   */
 	p = str;
 	if(p[0] != '-' || p[1] != '-' || !p[2])
 		return 0;
-
 	p += 2;
 	*optname = p;
-
 	/* find the end of optname */
 	while(*p && *p != '=')
 		++p;
-
 	*optlen = (int)(p - *optname);
-
 	if(!*p)
 		/* an option with no '=...' part. */
 		return 1;
-
 	/* We saw an '=' char. The rest of p is the arg. */
 	p++;
 	*arg = p;
 	while(*p)
 		++p;
 	*arglen = (int)(p - *arg);
-
 	return 1;
 }
 
@@ -729,12 +714,9 @@ int     scanopt(scanopt_t * svoid, char ** arg, int * optindex)
 
 	/* Look ahead in argv[] to see if there is something
 	 * that we can use as an argument (if needed). */
-	has_next = s->index + 1 < s->argc
-	    && strcmp("--", s->argv[s->index + 1]) != 0;
-
+	has_next = s->index + 1 < s->argc && strcmp("--", s->argv[s->index + 1]) != 0;
 	optp = s->options + opt_offset;
 	auxp = s->aux + opt_offset;
-
 	/* case: no args allowed */
 	if(auxp->flags & ARG_NONE) {
 		if(optarg && !is_short) {
@@ -748,12 +730,10 @@ int     scanopt(scanopt_t * svoid, char ** arg, int * optindex)
 			s->subscript++;
 		return optp->r_val;
 	}
-
 	/* case: required */
 	if(auxp->flags & ARG_REQ) {
 		if(!optarg && !has_next)
 			return scanopt_err(s, is_short, SCANOPT_ERR_ARG_NOT_FOUND);
-
 		if(!optarg) {
 			/* Let the next argv element become the argument. */
 			SAFE_ASSIGN(arg, s->argv[s->index + 1]);
@@ -765,23 +745,19 @@ int     scanopt(scanopt_t * svoid, char ** arg, int * optindex)
 		}
 		return optp->r_val;
 	}
-
 	/* case: optional */
 	if(auxp->flags & ARG_OPT) {
 		SAFE_ASSIGN(arg, optarg);
 		INC_INDEX(s, 1);
 		return optp->r_val;
 	}
-
 	/* Should not reach here. */
 	return 0;
 }
 
-int     scanopt_destroy(scanopt_t * svoid)
+int scanopt_destroy(scanopt_t * svoid)
 {
-	struct _scanopt_t * s;
-
-	s = (struct _scanopt_t *)svoid;
+	struct _scanopt_t * s = (struct _scanopt_t *)svoid;
 	if(s != NULL) {
 		free(s->aux);
 		free(s);

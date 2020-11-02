@@ -20,9 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <filename.h>
-//#include <path-join.h>
-//#include "scan-skel.h"
 #include "tables.h"
 
 static struct obstack format_obstack;
@@ -226,7 +223,7 @@ static void prepare_symbol_names(char const * muscle_name)
 | toknum.                                                           |
    `------------------------------------------------------------------*/
 
-static void prepare_symbols(void)
+static void prepare_symbols()
 {
 	MUSCLE_INSERT_INT("tokens_number", ntokens);
 	MUSCLE_INSERT_INT("nterms_number", nnterms);
@@ -275,7 +272,7 @@ static void prepare_symbols(void)
 | rline, dprec, merger, immediate.                             |
    `-------------------------------------------------------------*/
 
-static void prepare_rules(void)
+static void prepare_rules()
 {
 	int * prhs = (int *)xnmalloc(nrules, sizeof *prhs);
 	item_number * rhs = (item_number *)xnmalloc(nritems, sizeof *rhs);
@@ -337,7 +334,7 @@ static void prepare_rules(void)
 | Prepare the muscles related to the states.  |
    `--------------------------------------------*/
 
-static void prepare_states(void)
+static void prepare_states()
 {
 	symbol_number * values = (symbol_number *)xnmalloc(nstates, sizeof *values);
 	for(state_number i = 0; i < nstates; ++i)
@@ -365,7 +362,7 @@ static int symbol_type_name_cmp(const Symbol ** lhs, const Symbol ** rhs)
 | Return a (malloc'ed) table of the symbols sorted by type-name.  |
    `----------------------------------------------------------------*/
 
-static Symbol ** symbols_by_type_name(void)
+static Symbol ** symbols_by_type_name()
 {
 	typedef int (* qcmp_type)(const void *, const void *);
 	Symbol ** res = (Symbol **)xmemdup(symbols, nsyms * sizeof *res);
@@ -456,7 +453,7 @@ static void merger_output(FILE * out)
 {
 	fputs("m4_define([b4_mergers], \n[[", out);
 	int n;
-	merger_list* p;
+	merger_list * p;
 	for(n = 1, p = merge_functions; p != NULL; n += 1, p = p->next) {
 		if(p->type[0] == '\0')
 			fprintf(out, "  case %d: *yy0 = %s (*yy0, *yy1); break;\n",
@@ -472,7 +469,7 @@ static void merger_output(FILE * out)
 | Prepare the muscles for symbol definitions.  |
    `---------------------------------------------*/
 
-static void prepare_symbol_definitions(void)
+static void prepare_symbol_definitions()
 {
 	/* Map "orig NUM" to new numbers.  See data/README.  */
 	for(symbol_number i = ntokens; i < nsyms + nuseless_nonterminals; ++i) {
@@ -550,7 +547,7 @@ static void prepare_symbol_definitions(void)
 	}
 }
 
-static void prepare_actions(void)
+static void prepare_actions()
 {
 	/* Figure out the actions for the specified state.  */
 	muscle_insert_rule_number_table("defact", yydefact, yydefact[0], 1, nstates);
@@ -593,12 +590,9 @@ static void muscles_output(FILE * out)
 	/* Must be last.  */
 	muscles_m4_output(out);
 }
-
-/*---------------------------.
-| Call the skeleton parser.  |
-   `---------------------------*/
-#include <process.h>
-//#include <io.h>
+//
+// Call the skeleton parser
+//
 static const char letters[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
@@ -672,7 +666,7 @@ static FILE* mkstempFILE(char * tmpl, const char * mode)
 
 extern int main_m4(int argc, char * const * argv, FILE* in, FILE* out);
 
-static void output_skeleton(void)
+static void output_skeleton()
 {
 	FILE * m4_in = NULL;
 	FILE * m4_out = NULL;
@@ -800,15 +794,13 @@ static void output_skeleton(void)
 	SAlloc::F(skel);
 }
 
-static void prepare(void)
+static void prepare()
 {
 	/* BISON_USE_PUSH_FOR_PULL is for the test suite and should not be
 	   documented for the user.  */
 	char const * cp = getenv("BISON_USE_PUSH_FOR_PULL");
 	bool use_push_for_pull_flag = cp && *cp && strtol(cp, 0, 10);
-
 	MUSCLE_INSERT_INT("required_version", required_version);
-
 	/* Flags. */
 	MUSCLE_INSERT_BOOL("defines_flag", defines_flag);
 	MUSCLE_INSERT_BOOL("glr_flag", glr_parser);
@@ -837,13 +829,11 @@ static void prepare(void)
 	DEFINE(spec_outfile);
 	DEFINE(spec_verbose_file);
 #undef DEFINE
-
 	/* Find the right skeleton file, and add muscles about the skeletons.  */
 	if(skeleton)
 		MUSCLE_INSERT_C_STRING("skeleton", skeleton);
 	else
 		skeleton = language->skeleton;
-
 	/* About the skeletons.  */
 	{
 		/* b4_skeletonsdir is used inside m4_include in the skeletons, so digraphs
@@ -859,25 +849,19 @@ static void prepare(void)
 | Output the parsing tables and the parser code to ftable.  |
    `----------------------------------------------------------*/
 
-void output(void)
+void output()
 {
 	obstack_init(&format_obstack);
-
 	prepare_symbols();
 	prepare_rules();
 	prepare_states();
 	prepare_actions();
 	prepare_symbol_definitions();
-
 	prepare();
-
-	/* Process the selected skeleton file.  */
+	// Process the selected skeleton file. 
 	output_skeleton();
-
-	/* If late errors were generated, destroy the generated source
-	   files. */
+	// If late errors were generated, destroy the generated source files.
 	if(complaint_status)
 		unlink_generated_sources();
-
 	obstack_free(&format_obstack, NULL);
 }

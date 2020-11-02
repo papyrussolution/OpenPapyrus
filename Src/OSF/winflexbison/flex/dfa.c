@@ -127,32 +127,23 @@ void dump_associated_rules(FILE * file, int ds)
 	int rule_set[MAX_ASSOC_RULES + 1];
 	int * dset = dss[ds];
 	int size = dfasiz[ds];
-
 	for(i = 1; i <= size; ++i) {
 		int rule_num = rule_linenum[assoc_rule[dset[i]]];
-
 		for(j = 1; j <= num_associated_rules; ++j)
 			if(rule_num == rule_set[j])
 				break;
-
 		if(j > num_associated_rules) {  /* new rule */
 			if(num_associated_rules < MAX_ASSOC_RULES)
-				rule_set[++num_associated_rules] =
-				    rule_num;
+				rule_set[++num_associated_rules] = rule_num;
 		}
 	}
-
 	qsort(&rule_set [1], (size_t)num_associated_rules, sizeof(rule_set [1]), intcmp);
-
 	fprintf(file, _(" associated rule line numbers:"));
-
 	for(i = 1; i <= num_associated_rules; ++i) {
 		if(i % 8 == 1)
 			putc('\n', file);
-
 		fprintf(file, "\t%d", rule_set[i]);
 	}
-
 	putc('\n', file);
 }
 
@@ -166,32 +157,23 @@ void dump_associated_rules(FILE * file, int ds)
  * (i.e., all those which are not out-transitions, plus EOF).  The dump
  * is done to the given file.
  */
-
 void dump_transitions(FILE * file, int state[])
 {
 	int i, ec;
 	int out_char_set[CSIZE];
-
 	for(i = 0; i < csize; ++i) {
 		ec = ABS(ecgroup[i]);
 		out_char_set[i] = state[ec];
 	}
-
 	fprintf(file, _(" out-transitions: "));
-
 	list_character_set(file, out_char_set);
-
 	/* now invert the members of the set to get the jam transitions */
 	for(i = 0; i < csize; ++i)
 		out_char_set[i] = !out_char_set[i];
-
 	fprintf(file, _("\n jam-transitions: EOF "));
-
 	list_character_set(file, out_char_set);
-
 	putc('\n', file);
 }
-
 /* epsclosure - construct the epsilon closure of a set of ndfa states
  *
  * synopsis
@@ -218,15 +200,9 @@ int    * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int *
 	int numstates = *ns_addr, nacc, hashval, transsym, nfaccnum;
 	int stkend, nstate;
 	static int did_stk_init = false, * stk;
-
-#define MARK_STATE(state) \
-	do { trans1[state] = trans1[state] - MARKER_DIFFERENCE;} while(0)
-
+#define MARK_STATE(state) do { trans1[state] = trans1[state] - MARKER_DIFFERENCE;} while(0)
 #define IS_MARKED(state) (trans1[state] < 0)
-
-#define UNMARK_STATE(state) \
-	do { trans1[state] = trans1[state] + MARKER_DIFFERENCE;} while(0)
-
+#define UNMARK_STATE(state) do { trans1[state] = trans1[state] + MARKER_DIFFERENCE;} while(0)
 #define CHECK_ACCEPT(state) \
 	do { \
 		nfaccnum = accptnum[state]; \
@@ -270,22 +246,16 @@ int    * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int *
 		stk = (int *)allocate_integer_array(current_max_dfa_size);
 		did_stk_init = true;
 	}
-
 	nacc = stkend = hashval = 0;
-
 	for(nstate = 1; nstate <= numstates; ++nstate) {
 		ns = t[nstate];
-
-		/* The state could be marked if we've already pushed it onto
-		 * the stack.
-		 */
+		// The state could be marked if we've already pushed it onto the stack.
 		if(!IS_MARKED(ns)) {
 			PUT_ON_STACK(ns);
 			CHECK_ACCEPT(ns);
 			hashval += ns;
 		}
 	}
-
 	for(stkpos = 1; stkpos <= stkend; ++stkpos) {
 		ns = stk[stkpos];
 		transsym = transchar[ns];
@@ -307,14 +277,11 @@ int    * epsclosure(int * t, int * ns_addr, int accset[], int * nacc_addr, int *
 		if(IS_MARKED(stk[stkpos]))
 			UNMARK_STATE(stk[stkpos]);
 		else
-			flexfatal(_
-				    ("consistency check failed in epsclosure()"));
+			flexfatal(_("consistency check failed in epsclosure()"));
 	}
-
 	*ns_addr = numstates;
 	*hv_addr = hashval;
 	*nacc_addr = nacc;
-
 	return t;
 }
 
@@ -540,73 +507,43 @@ void ntod()
 
 	if(!fullspd) {
 		if(!snstods(nset, 0, accset, 0, 0, &end_of_buffer_state))
-			flexfatal(_
-				    ("could not create unique end-of-buffer state"));
-
+			flexfatal(_("could not create unique end-of-buffer state"));
 		++numas;
 		++num_start_states;
 		++todo_next;
 	}
-
 	while(todo_head < todo_next) {
 		targptr = 0;
 		totaltrans = 0;
-
 		for(i = 1; i <= numecs; ++i)
 			state[i] = 0;
-
 		ds = ++todo_head;
-
 		dset = dss[ds];
 		dsize = dfasiz[ds];
-
 		if(trace)
 			fprintf(stderr, _("state # %d:\n"), ds);
-
 		sympartition(dset, dsize, symlist, duplist);
-
 		for(sym = 1; sym <= numecs; ++sym) {
 			if(symlist[sym]) {
 				symlist[sym] = 0;
-
 				if(duplist[sym] == NIL) {
 					/* Symbol has unique out-transitions. */
-					numstates =
-					    symfollowset(dset, dsize,
-						sym, nset);
-					nset = epsclosure(nset,
-						&numstates,
-						accset, &nacc,
-						&hashval);
-
-					if(snstods
-						    (nset, numstates, accset, nacc,
-					    hashval, &newds)) {
-						totnst = totnst +
-						    numstates;
+					numstates = symfollowset(dset, dsize, sym, nset);
+					nset = epsclosure(nset, &numstates, accset, &nacc, &hashval);
+					if(snstods(nset, numstates, accset, nacc, hashval, &newds)) {
+						totnst = totnst + numstates;
 						++todo_next;
 						numas += nacc;
-
 						if(variable_trailing_context_rules && nacc > 0)
-							check_trailing_context
-								(nset,
-							    numstates,
-							    accset,
-							    nacc);
+							check_trailing_context(nset, numstates, accset, nacc);
 					}
-
 					state[sym] = newds;
-
 					if(trace)
-						fprintf(stderr,
-						    "\t%d\t%d\n", sym,
-						    newds);
-
+						fprintf(stderr, "\t%d\t%d\n", sym, newds);
 					targfreq[++targptr] = 1;
 					targstate[targptr] = newds;
 					++numuniq;
 				}
-
 				else {
 					/* sym's equivalence class has the same
 					 * transitions as duplist(sym)'s
@@ -792,14 +729,12 @@ int snstods(int sns[], int numstates, int accset[], int nacc, int hashval, int *
 	*newds_addr = newds;
 	return 1;
 }
-
 /* symfollowset - follow the symbol transitions one step
  *
  * synopsis
  *    numstates = symfollowset( int ds[current_max_dfa_size], int dsize,
  *				int transsym, int nset[current_max_dfa_size] );
  */
-
 int symfollowset(int ds[], int dsize, int transsym, int nset[])
 {
 	int ns, tsp, sym, i, j, lenccl, ch, ccllist;

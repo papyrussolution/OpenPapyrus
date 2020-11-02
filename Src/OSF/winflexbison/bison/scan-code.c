@@ -859,16 +859,15 @@ char * yytext;
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define YY_NO_INPUT 1
 #line 24 "/Users/akim/src/gnu/bison/src/scan-code.l"
-#include <c-ctype.h>
-#include <get-errno.h>
-#include <quote.h>
-
-#include "complain.h"
-#include "getargs.h"
-#include "muscle-tab.h"
-#include "reader.h"
-#include "scan-code.h"
-#include "symlist.h"
+//#include <c-ctype.h>
+//#include <get-errno.h>
+//#include <quote.h>
+//#include "complain.h"
+//#include "getargs.h"
+//#include "muscle-tab.h"
+//#include "reader.h"
+//#include "scan-code.h"
+//#include "symlist.h"
 
 #define FLEX_PREFIX(Id) code_ ## Id
 #include "flex-scanner.h"

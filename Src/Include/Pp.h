@@ -10174,6 +10174,8 @@ struct PPFreight {         // @persistent @store(PropertyTbl)
 	double Cost;           // Стоимость фрахта
 	PPID   AgentID;        // ->Person.ID (Транспортные агентства)
 	PPID   ShipID;         // ->Ship.ID
+	PPID   Captain2ID;     // @v10.9.2 2-й командир транспорта
+	uint8  Reserve2[16];   // @v10.9.2
 };
 //
 // Descr: Заголовок авансового отчета
@@ -13032,11 +13034,12 @@ public:
 	int    GetNextObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, const LDATETIME & rSince, SysJournalTbl::Rec * pRec);
 	int    GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList);
 	int    GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList);
+	int    GetObjRemovingEventListByPeriod(PPID objType, PPID userID, const DateRange * pPeriod, TSVector <SysJournalTbl::Rec> & rList);
 	int    GetUpdatedConfigListSince(PPID cfgType, const LDATETIME & rSince, PPIDArray & rCfgIdList);
 	int    IsEventExists(PPID objType, PPID objID, PPID userID, const PPIDArray * pActList);
 	int    CheckObjForFilt(PPID objType, PPID objID, const SysJournalFilt * pFilt);
 	int    DoMaintain(LDATE toDt, int recover, PPLogger * pLogger);
-	int    Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID);
+	void   Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID);
 	void   GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen);
 	void   GetSubstName(SubstGrpSysJournal sgsj, PPID id, SString & rBuf);
 private:
@@ -31993,12 +31996,11 @@ struct ComplItem {
 
 	PPID   GoodsID;
 	long   GoodsFlags;
-	uint   SrcGsPos;       // @v9.3.3 [1..] Позиция строки в исходной структуре (+1), к которой относится данных элемент
-	long   GsiFlags;       // @v9.0.4 Флаги элемента структуры
+	uint   SrcGsPos;       // [1..] Позиция строки в исходной структуре (+1), к которой относится данных элемент
+	long   GsiFlags;       // Флаги элемента структуры
 	double PartQty;
 	double NeedQty;
 	double FreeQty;
-	// @v9.4.0 double Cost;
 };
 
 //typedef TSArray <ComplItem> ComplArray;
@@ -32640,7 +32642,7 @@ public:
 	//   <0 - пользователь отклонил редактирование либо документ не требует параметров фрахта.
 	//   0  - ошибка. Если пользователь не имеет прав на изменение фрахта, то также возвращается 0.
 	//
-	int    EditFreightDialog(PPBillPacket * pPack);
+	int    EditFreightDialog(PPBillPacket & rPack);
 	int    CheckParentStatus(PPID billID);
 	int    EditGenericAccTurn(PPBillPacket *, long flags);
 	int    EditGoodsBill(PPID id, const EditParam * pExtraParam);
@@ -37506,7 +37508,7 @@ public:
 		PPIDArray LocList; // @!Sort()
 	};
 	struct ItemExtension {
-		PPID   LinkBillID; // @v9.6.8
+		PPID   LinkBillID;
 		double LinkQtty;
 		double LinkCost;
 		double LinkPrice;
@@ -42587,7 +42589,7 @@ struct TrfrAnlzViewItem {
 	PPID   GoodsID;        // ->Goods2.ID   ИД товара
 	PPID   SubGoodsClsID;  // ИД класса товара (только для позиций, в которых товар был подстановлен по классификатору)
 	PPID   LotID;          // ->Receipt.ID  ИД лота
-	PPID   LinkBillID;     // @v9.6.8
+	PPID   LinkBillID;     // 
 	PPID   DlvrLocID;      // ->Location.ID ИД адреса доставки
 	long   LocCount;       // Количество адресов доставки, попавших эту строку
 	double Qtty;           // Количество торговых единиц
@@ -42601,10 +42603,10 @@ struct TrfrAnlzViewItem {
 	double SaldoAmt;       // Суммовое сальдо в номинальных ценах (для отдельных опций фильтрации)
 	double PVat;           // Сумма НДС в ценах реализации
 	double Brutto;         //
-	double LinkQtty;       // @v9.6.8
-	double LinkCost;       // @v9.6.8
-	double LinkPrice;      // @v9.6.8
-	double ExtValue[2];    // @v9.3.4 Дополнительные показатели, определяемые специальными опциями фильтра
+	double LinkQtty;       // 
+	double LinkCost;       // 
+	double LinkPrice;      // 
+	double ExtValue[2];    // Дополнительные показатели, определяемые специальными опциями фильтра
 	SString BillCode_;     // @anchor Номер документа
 	SString DtText_;       // Текстовое представление даты (при подстановке возможны вариации)
 	SString GoodsText_;    // Текстовое представление товара (при подстановке возможны вариации)
@@ -47320,7 +47322,7 @@ public:
 	int    Run(const Param & rP);
 	static int Test();
 private:
-	int    PrepareBillPacketForSending(void * pChZnPacket);
+	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
 };
 //

@@ -2593,7 +2593,7 @@ private:
 	int    PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
 	int    Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
-	int    Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
+	int    Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
 	void   Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const;
 	void   Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const;
 	void   SetupLocalPeriod(DateRange & rPeriod) const;
@@ -3991,14 +3991,17 @@ void iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCo
 //
 // Если outerDocType < 0, то это - отмена документа
 //
-int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
+int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
 {
 	int    ok = 1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	int    do_cancel = BIN(outerDocType < 0);
 	outerDocType = labs(outerDocType);
-	PPBillPacket pack;
-	if(P_BObj->ExtractPacket(billID, &pack) > 0) {
+	PPBillPacket pack__;
+	if(!pBp && P_BObj->ExtractPacket(billID, &pack__) > 0) {
+		pBp = &pack__;
+	}
+	if(pBp) {
 		StrAssocArray ti_pos_list;
 		PPTransferItem ti;
 		PPBillPacket::TiItemExt tiext;
@@ -4013,12 +4016,12 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 		Ep.GetExtStrData(Ep.extssClientCode, own_code);
 		if(do_cancel) {
 			if(bill_ack_tag_id)
-				pack.BTagL.GetItemStr(bill_ack_tag_id, cancel_code);
+				pBp->BTagL.GetItemStr(bill_ack_tag_id, cancel_code);
 			if(cancel_code.Empty())
 				do_cancel = 0;
 		}
 		else {
-			for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+			for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 				tiiterpos++;
 				if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
 					int   skip_goods = 0;
@@ -4038,10 +4041,10 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 			PPBillPacket order_pack;
 			cli_face_code.Z();
 			cli_addr_code.Z();
-			const  PPID psn_id = ObjectToPerson(pack.Rec.Object, 0);
+			const  PPID psn_id = ObjectToPerson(pBp->Rec.Object, 0);
 			PPID   special_qk_id = 0;
 			BillTbl::Rec link_bill_rec;
-			if(pack.Rec.LinkBillID && P_BObj->Search(pack.Rec.LinkBillID, &link_bill_rec) > 0) {
+			if(pBp->Rec.LinkBillID && P_BObj->Search(pBp->Rec.LinkBillID, &link_bill_rec) > 0) {
 				;
 			}
 			else
@@ -4049,8 +4052,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 			{
 				PPObjTag tag_obj;
 				PPObjectTag tag_rec;
-				for(uint tagidx = 0; !special_qk_id && tagidx < pack.BTagL.GetCount(); tagidx++) {
-                    const ObjTagItem * p_tag_item = pack.BTagL.GetItemByPos(tagidx);
+				for(uint tagidx = 0; !special_qk_id && tagidx < pBp->BTagL.GetCount(); tagidx++) {
+                    const ObjTagItem * p_tag_item = pBp->BTagL.GetItemByPos(tagidx);
                     if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK) {
 						if(tag_obj.Fetch(p_tag_item->TagID, &tag_rec) > 0 && tag_rec.TagEnumID == PPOBJ_QUOTKIND)
 							special_qk_id = p_tag_item->Val.IntVal;
@@ -4062,8 +4065,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 				cli_face_code.CatChar('W');
 			// }
 			cli_face_code.Cat(psn_id);
-			if(pack.GetDlvrAddrID())
-				cli_addr_code.Cat(pack.GetDlvrAddrID());
+			if(pBp->GetDlvrAddrID())
+				cli_addr_code.Cat(pBp->GetDlvrAddrID());
 			else if(link_bill_rec.ID) {
 				PPFreight link_freight;
 				if(P_BObj->P_Tbl->GetFreight(link_bill_rec.ID, &link_freight) > 0) {
@@ -4072,7 +4075,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 			}
 			iSalesBillPacket * p_new_pack = rList.CreateNewItem();
 			THROW_SL(p_new_pack);
-			p_new_pack->NativeID = pack.Rec.ID;
+			p_new_pack->NativeID = pBp->Rec.ID;
 			{
 				iSalesBillAmountEntry * p_amt_entry = 0;
 				THROW_SL(p_amt_entry = p_new_pack->Amounts.CreateNewItem());
@@ -4087,15 +4090,13 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 			p_new_pack->ExtCode.Z();
 			p_new_pack->ExtDtm.Z();
 			//
-			BillCore::GetCode(p_new_pack->Code = pack.Rec.Code);
+			BillCore::GetCode(p_new_pack->Code = pBp->Rec.Code);
 			p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
-			// @v9.6.2 Debug_TestUtfText(p_new_pack->Code, "makebillentry-1", R_Logger); // @v9.5.11
-			p_new_pack->Dtm.Set(pack.Rec.Dt, ZEROTIME);
-			if(outerDocType == 6 && pack.Rec.LinkBillID) {
+			p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
+			if(outerDocType == 6 && pBp->Rec.LinkBillID) {
 				if(link_bill_rec.ID && GetOpType(link_bill_rec.OpID) == PPOPT_DRAFTRECEIPT) {
 					BillCore::GetCode(p_new_pack->Code = link_bill_rec.Code);
 					p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
-					// @v9.6.2 Debug_TestUtfText(p_new_pack->Code, "makebillentry-2", R_Logger); // @v9.5.11
 					p_new_pack->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
 			}
@@ -4103,35 +4104,31 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 				if(cancel_code.NotEmpty()) {
 					p_new_pack->iSalesId = cancel_code;
 					p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
-					// @v9.6.2 Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7", R_Logger); // @v9.5.11
 					LDATE   prev_date;
 					Helper_Parse_iSalesIdent(cancel_code, temp_buf, &prev_date);
 					if(temp_buf.NotEmptyS() && checkdate(prev_date)) {
 						p_new_pack->Code = temp_buf;
 						p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
-						// @v9.6.2 Debug_TestUtfText(p_new_pack->Code, "makebillentry-3", R_Logger); // @v9.5.11
 						p_new_pack->Dtm.Set(prev_date, ZEROTIME);
 					}
 				}
 				else {
-					Helper_Make_iSalesIdent(pack.Rec, outerDocType, p_new_pack->iSalesId);
+					Helper_Make_iSalesIdent(pBp->Rec, outerDocType, p_new_pack->iSalesId);
 					p_new_pack->iSalesId.Transf(CTRANSF_INNER_TO_UTF8);
-					// @v9.6.2 Debug_TestUtfText(p_new_pack->iSalesId, "makebillentry-7/2", R_Logger); // @v9.5.11
 				}
 			}
 			p_new_pack->IncDtm.Z();
-			pack.Pays.GetLast(&p_new_pack->DueDate, 0, 0);
+			pBp->Pays.GetLast(&p_new_pack->DueDate, 0, 0);
 			p_new_pack->Status = BIN(do_cancel);
-			// @v9.4.9 (p_new_pack->Memo = pack.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8);
-			p_new_pack->Memo.Z(); // @v9.4.9
+			p_new_pack->Memo.Z();
 			if(outerDocType == 6) { // Приход (подтверждение)
 				p_new_pack->SellerCode.Z().Cat(psn_id);
 				p_new_pack->ShipFrom.Z().Cat(psn_id);
 				p_new_pack->PayerCode = own_code;
 				p_new_pack->ShipTo = own_code;
-				p_new_pack->DestLocCode.Cat(pack.Rec.LocID);
-				if(pack.BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
-					(p_new_pack->iSalesId = temp_buf).Transf(CTRANSF_INNER_TO_UTF8); // @v9.5.11 Transf(CTRANSF_INNER_TO_UTF8)
+				p_new_pack->DestLocCode.Cat(pBp->Rec.LocID);
+				if(pBp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
+					(p_new_pack->iSalesId = temp_buf).Transf(CTRANSF_INNER_TO_UTF8);
 				}
 				{
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
@@ -4139,7 +4136,6 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 					p_new_ref->DocType = 13;
 					BillCore::GetCode(p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code));
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
-					// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-4", R_Logger); // @v9.5.11
 					p_new_ref->Dtm.Z();
 				}
 			}
@@ -4148,16 +4144,15 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 				p_new_pack->ShipFrom = cli_addr_code;
 				p_new_pack->PayerCode = own_code;
 				p_new_pack->ShipTo = own_code;
-				p_new_pack->DestLocCode.Cat(pack.Rec.LocID);
+				p_new_pack->DestLocCode.Cat(pBp->Rec.LocID);
 				//
 				const int transmit_linkret_as_unlink = 0; // @v10.8.9 1-->0
-				if(!transmit_linkret_as_unlink && oneof2(pack.OpTypeID, PPOPT_GOODSRETURN, PPOPT_CORRECTION) && link_bill_rec.ID) {
+				if(!transmit_linkret_as_unlink && oneof2(pBp->OpTypeID, PPOPT_GOODSRETURN, PPOPT_CORRECTION) && link_bill_rec.ID) {
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 1;
 					BillCore::GetCode(p_new_ref->Code = link_bill_rec.Code);
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
-					// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-5", R_Logger); // @v9.5.11
 					p_new_ref->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
 				else {
@@ -4170,10 +4165,10 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 				// В некоторых случаях PayerCode - код персоналии, в некоторых - адреса доставки. Тут нужна настройка в конфигурации. Пока просто фиксированное значение.
 				p_new_pack->PayerCode = cli_addr_code /*cli_face_code*/;
 				p_new_pack->ShipTo = cli_addr_code;
-				p_new_pack->SrcLocCode.Cat(pack.Rec.LocID);
+				p_new_pack->SrcLocCode.Cat(pBp->Rec.LocID);
 				//
 				PPIDArray order_id_list;
-				pack.GetOrderList(order_id_list);
+				pBp->GetOrderList(order_id_list);
 				for(uint ordidx = 0; ordidx < order_id_list.getCount(); ordidx++) {
 					const PPID ord_id = order_id_list.get(ordidx);
 					BillTbl::Rec ord_rec;
@@ -4187,15 +4182,14 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 								p_new_ref->DocType = 13;
 								BillCore::GetCode(p_new_ref->Code = ord_rec.Code);
 								p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
-								// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-6", R_Logger); // @v9.5.11
 								p_new_ref->Dtm.Z();
 							}
 						}
 					}
 				}
 			}
-			if(pack.Ext.AgentID) {
-				PPID agent_psn_id = ObjectToPerson(pack.Ext.AgentID, 0);
+			if(pBp->Ext.AgentID) {
+				PPID agent_psn_id = ObjectToPerson(pBp->Ext.AgentID, 0);
 				// @v10.8.11 {
 				if(UnknAgentID && pRegisteredAgentList && !pRegisteredAgentList->lsearch(agent_psn_id))
 					agent_psn_id = UnknAgentID;
@@ -4204,20 +4198,20 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 					p_new_pack->AgentCode.Cat(agent_psn_id);
 				}
 			}
-			if(p_sj && p_sj->GetObjCreationEvent(PPOBJ_BILL, pack.Rec.ID, &sj_rec) > 0)
+			if(p_sj && p_sj->GetObjCreationEvent(PPOBJ_BILL, pBp->Rec.ID, &sj_rec) > 0)
 				p_new_pack->CreationDtm.Set(sj_rec.Dt, sj_rec.Tm);
 			else
 				p_new_pack->CreationDtm.Z();
 			{
 				int    is_creation = 0;
 				LDATETIME moment;
-				if(p_sj && p_sj->GetLastObjModifEvent(PPOBJ_BILL, pack.Rec.ID, &moment, &is_creation, &sj_rec) > 0 && !is_creation)
+				if(p_sj && p_sj->GetLastObjModifEvent(PPOBJ_BILL, pBp->Rec.ID, &moment, &is_creation, &sj_rec) > 0 && !is_creation)
 					p_new_pack->LastUpdDtm = moment;
 				else
 					p_new_pack->LastUpdDtm.Z();
 			}
 			long   tiiterpos = 0;
-			for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+			for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 				tiiterpos++;
 				uint   pos_list_item_pos = 0;
 				if(ti_pos_list.GetText(tiiterpos, temp_buf) > 0) {
@@ -4235,13 +4229,13 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 							if(outerDocType != 6) {
 								if(special_qk_id) {
 									double quot = 0.0;
-									const QuotIdent qi(ti.LocID, special_qk_id, 0, pack.Rec.Object); // @v9.4.12 0-->pack.Rec.Object
+									const QuotIdent qi(ti.LocID, special_qk_id, 0, pBp->Rec.Object);
 									if(GObj.GetQuotExt(ti.GoodsID, qi, &quot, 0) > 0 && quot > 0.0)
 										special_net_price = quot;
 								}
 								if(Ep.PriceQuotID && special_net_price == 0.0) {
 									double quot = 0.0;
-									const QuotIdent qi(ti.LocID, Ep.PriceQuotID, 0, pack.Rec.Object); // @v9.4.12 0-->pack.Rec.Object
+									const QuotIdent qi(ti.LocID, Ep.PriceQuotID, 0, pBp->Rec.Object);
 									if(GObj.GetQuotExt(ti.GoodsID, qi, &quot, 0) > 0 && quot > 0.0)
 										net_price = quot;
 								}
@@ -4257,8 +4251,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 									else if(tiext.MergePosList.getCount()) {
 										for(uint k = 0; k < tiext.MergePosList.getCount(); k++) {
 											const uint pos_local = tiext.MergePosList.get(k);
-											if(pos_local < pack.GetTCount()) {
-												const PPTransferItem & r_ti_local = pack.TI(pos_local);
+											if(pos_local < pBp->GetTCount()) {
+												const PPTransferItem & r_ti_local = pBp->TI(pos_local);
 												if(r_ti_local.OrdLotID && r_ti_local.OrdLotID == r_ord_ti.LotID)
 													my = 1;
 											}
@@ -4320,9 +4314,9 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDA
 								nominal_price = ((ord_part_dis >= 1.0) ? net_price : (net_price / (1.0 - ord_part_dis)));
 							}
 							const double discount = nominal_price - full_price;
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 16);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 16);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 16);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 16);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 16);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 16);
 							{
 								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem();
 								THROW_SL(p_amt_entry);
@@ -4412,13 +4406,46 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 		SETIFZ(b_filt.Period.low, encodedate(1, 1, 2020)); // @v10.8.8 2016-->2020
 		{
 			PPIDArray upd_bill_list;
+			PPIDArray rmvd_bill_list; // @v10.9.2 Список документов, которые были удалены
 			if(!(P.Flags & P.fTestMode)) { // @v10.9.1
 				SString org_isales_code;
-				PPIDArray acn_list;
-				acn_list.add(PPACN_UPDBILL);
 				LDATETIME since;
 				since.Set(b_filt.Period.low, ZEROTIME);
-				p_sj->GetObjListByEventPeriod(PPOBJ_BILL, 0, &acn_list, &b_filt.Period, upd_bill_list);
+				{
+					PPIDArray acn_list;
+					acn_list.add(PPACN_UPDBILL);
+					p_sj->GetObjListByEventPeriod(PPOBJ_BILL, 0, &acn_list, &b_filt.Period, upd_bill_list);
+				}
+				// @v10.9.2 {
+				{
+					//
+					// Отправка информации об отмене документов-зомби (удаленных)
+					//
+					ObjVersioningCore * p_ovc = PPRef->P_OvT;
+					if(p_ovc && p_ovc->InitSerializeContext(1)) {
+						SSerializeContext & r_sctx = p_ovc->GetSCtx();
+						SBuffer ov_buf;
+						TSVector <SysJournalTbl::Rec> sj_list;
+						p_sj->GetObjRemovingEventListByPeriod(PPOBJ_BILL, 0, &b_filt.Period, sj_list);
+						for(uint rblidx = 0; rblidx < sj_list.getCount(); rblidx++) {
+							SysJournalTbl::Rec & r_ev = sj_list.at(rblidx);						
+							long   vv = 0;
+							PPObjID oid;
+							ov_buf.Z();
+							if(p_ovc->Search(r_ev.Extra, &oid, &vv, &ov_buf) > 0 && oid.IsEqual(r_ev.ObjType, r_ev.ObjID)) {
+								if(P_BObj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {
+									pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited);
+									if(pack.BTagL.GetItemStr(bill_ack_tag_id, org_isales_code) > 0 && !test_uuid.FromStr(org_isales_code)) {
+										if(IsOpBelongTo(pack.Rec.OpID, b_filt.OpID) && b_filt.LocList.CheckID(pack.Rec.LocID)) {
+											Helper_MakeBillEntry(0, &pack, -outerDocType, pRegisteredAgentList, rList);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				// } @v10.9.2 
 				upd_bill_list.sortAndUndup();
 				for(uint i = 0; i < upd_bill_list.getCount(); i++) {
 					const PPID upd_bill_id = upd_bill_list.get(i);
@@ -4434,7 +4461,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 							if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
 								Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
 								if(pack.GetTCount() == 0) {
-									Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
+									Helper_MakeBillEntry(upd_bill_id, &pack, -outerDocType, pRegisteredAgentList, rList);
 									force_bill_list.add(upd_bill_id);
 								}
 								else {
@@ -4455,7 +4482,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 									}
 									if(is_my_goods) {
 										if(isales_code != org_isales_code) { 
-											Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
+											Helper_MakeBillEntry(upd_bill_id, &pack, -outerDocType, pRegisteredAgentList, rList);
 										}
 										force_bill_list.add(upd_bill_id);
 									}
@@ -4480,7 +4507,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 					}
 				}
 				if(!dont_send)
-					Helper_MakeBillEntry(view_item.ID, outerDocType, pRegisteredAgentList, rList);
+					Helper_MakeBillEntry(view_item.ID, 0, outerDocType, pRegisteredAgentList, rList);
 			}
 		}
 		{
@@ -4491,7 +4518,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 						// Статус не позволяет отправку
 					}
 					else {
-						Helper_MakeBillEntry(bill_rec.ID, outerDocType, pRegisteredAgentList, rList);
+						Helper_MakeBillEntry(bill_rec.ID, 0, outerDocType, pRegisteredAgentList, rList);
 					}
 				}
 			}

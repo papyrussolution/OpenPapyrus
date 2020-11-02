@@ -207,19 +207,14 @@ static void new_itemsets(state * s)
 static state * get_state(symbol_number sym, size_t core_size, item_index * core)
 {
 	if(trace_flag & trace_automaton) {
-		fprintf(stderr, "Entering get_state, symbol = %d (%s), core:\n",
-		    sym, symbols[sym]->tag);
+		fprintf(stderr, "Entering get_state, symbol = %d (%s), core:\n", sym, symbols[sym]->tag);
 		core_print(core_size, core, stderr);
 		fputc('\n', stderr);
 	}
-
 	state * s = state_hash_lookup(core_size, core);
-	if(!s)
-		s = state_list_append(sym, core_size, core);
-
+	SETIFZ(s, state_list_append(sym, core_size, core));
 	if(trace_flag & trace_automaton)
 		fprintf(stderr, "Exiting get_state => %d\n", s->number);
-
 	return s;
 }
 
@@ -234,7 +229,6 @@ static void append_states(state * s)
 {
 	if(trace_flag & trace_automaton)
 		fprintf(stderr, "append_states: begin: state = %d\n", s->number);
-
 	bitset_iterator iter;
 	symbol_number sym;
 	int i = 0;
@@ -243,7 +237,6 @@ static void append_states(state * s)
 		shiftset[i] = get_state(sym, kernel_size[sym], kernel_base[sym]);
 		++i;
 	}
-
 	if(trace_flag & trace_automaton)
 		fprintf(stderr, "append_states: end: state = %d\n", s->number);
 }
@@ -257,7 +250,6 @@ static void append_states(state * s)
 static void save_reductions(state * s)
 {
 	int count = 0;
-
 	/* Find and count the active items that represent ends of rules. */
 	for(size_t i = 0; i < nitemset; ++i) {
 		item_number item = ritem[itemset[i]];
@@ -271,7 +263,6 @@ static void save_reductions(state * s)
 			}
 		}
 	}
-
 	if(trace_flag & trace_automaton) {
 		fprintf(stderr, "reduction[%d] = {\n", s->number);
 		for(int i = 0; i < count; ++i) {
@@ -280,7 +271,6 @@ static void save_reductions(state * s)
 		}
 		fputs("}\n", stderr);
 	}
-
 	/* Make a reductions structure and copy the data into it.  */
 	state_reductions_set(s, count, redset);
 }
@@ -316,23 +306,19 @@ static void set_states(void)
 | grammar.                                                           |
    `-------------------------------------------------------------------*/
 
-void generate_states(void)
+void generate_states()
 {
 	allocate_storage();
 	closure_new(nritems);
-
 	/* Create the initial state.  The 0 at the lhs is the index of the
 	   item of this initial rule.  */
 	item_index initial_core = 0;
 	state_list_append(0, 1, &initial_core);
-
 	/* States are queued when they are created; process them all.  */
 	for(state_list * list = first_state; list; list = list->next) {
 		state * s = list->state;
 		if(trace_flag & trace_automaton)
-			fprintf(stderr, "Processing state %d (reached by %s)\n",
-			    s->number,
-			    symbols[s->accessing_symbol]->tag);
+			fprintf(stderr, "Processing state %d (reached by %s)\n", s->number, symbols[s->accessing_symbol]->tag);
 		/* Set up itemset for the transitions out of this state.  itemset gets a
 		   vector of all the items that could be accepted next.  */
 		closure(s->items, s->nitems);
@@ -342,15 +328,10 @@ void generate_states(void)
 		new_itemsets(s);
 		/* Find or create the core structures for those states.  */
 		append_states(s);
-
 		/* Create the shifts structures for the shifts to those states,
 		   now that the state numbers transitioning to are known.  */
 		state_transitions_set(s, bitset_count(shift_symbol), shiftset);
 	}
-
-	/* discard various storage */
-	free_storage();
-
-	/* Set up STATES. */
-	set_states();
+	free_storage(); /* discard various storage */
+	set_states(); /* Set up STATES. */
 }

@@ -7235,7 +7235,10 @@ struct BillUserProfileCounter {
 int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 {
 	uint   i;
-	int    ok = 1, ta = 0, r, frrl_tag = 0;
+	int    ok = 1;
+	int    ta = 0;
+	int    r;
+	int    frrl_tag = 0;
 	TBlock tb_;
 	uint   pos;
 	PPID   id = 0;
@@ -7244,19 +7247,15 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	PPAccTurn * pat = 0;
 	BillUserProfileCounter ufp_counter;
 	PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(pPack->Rec.OpID, PPACN_TURNBILL));
-	// @v9.4.3 {
 	PPIDArray correction_exp_chain;
-	const PPTrfrArray preserve_lots(pPack->GetLots()); // @v9.4.3 Сохраняем строки на случай аварии в проведении документа
-	// } @v9.4.3
+	const PPTrfrArray preserve_lots(pPack->GetLots()); // Сохраняем строки на случай аварии в проведении документа
 	pPack->ErrCause = pPack->ErrLine = 0;
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
-		// @v10.2.3 THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS)); // @v9.6.1
+		// @v10.2.3 THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS));
 		THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_INS)); // @v10.2.3
-		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
-		// } @v9.4.3
 	}
 	if(!(State2 & stDemoRestrictInit)) {
 		uint   major, minor, revision;
@@ -7328,7 +7327,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 				if(pti->Init(&pPack->Rec, (zero_rbybill && !pti->IsCorrectionExp()))) {
 					SETFLAGBYSAMPLE(pti->TFlags, PPTransferItem::tfForceNew,   preserve_tflags);
 					SETFLAGBYSAMPLE(pti->TFlags, PPTransferItem::tfForceLotID, preserve_tflags);
-					THROW(trfr->PreprocessCorrectionExp(*pti, correction_exp_chain)); // @v9.4.3
+					THROW(trfr->PreprocessCorrectionExp(*pti, correction_exp_chain));
 					r = trfr->AddItem(pti, tb_.Rbb(), 0);
 					ufp_counter.TiAddCount++;
 				}
@@ -7447,23 +7446,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		//
 		pPack->Rec.ID = 0;
 		pPack->Rec.BillNo = 0;
-		pPack->SetLots(preserve_lots); // @v9.4.3
-		/* @v9.4.3
-		for(i = 0; pPack->EnumTItems(&i, &pti);) {
-			pti->RByBill = 0;
-			pti->BillID  = 0;
-			if(pPack->P_ACPack && pti->Flags & PPTFR_AUTOCOMPL && pti->LotID > 0) {
-				if(pPack->P_ACPack->SearchLot(pti->LotID, &(pos = 0)) > 0) {
-					PPTransferItem & acti = pPack->P_ACPack->TI(pos);
-					acti.LotID = pti->LotID = acti.ACLinkLotID;
-					acti.ACLinkLotID = 0;
-				}
-			}
-			if(!pPack->P_Outer)
-				if(pti->Flags & PPTFR_RECEIPT)
-					pti->LotID = 0;
-		}
-		*/
+		pPack->SetLots(preserve_lots);
 		for(i = 0; pPack->Turns.enumItems(&i, (void **)&pat);)
 			pat->BillID = 0;
 	ENDCATCH
@@ -7959,13 +7942,12 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 	DateIter diter;
 	BillTbl::Rec brec;
 	InventoryCore * p_inv_tbl = 0;
-	// @v9.8.11 PPHistBillPacket hist_pack;
 	THROW(P_Tbl->Search(id, &brec) > 0);
 	{
 		Reference * p_ref = PPRef;
 		const  PPRights & r_rt = ObjRts;
-		ObjVersioningCore * p_ovc = p_ref->P_OvT; // @v9.8.11
-		SBuffer hist_buf; // @v9.8.11
+		ObjVersioningCore * p_ovc = p_ref->P_OvT;
+		SBuffer hist_buf;
 		BillUserProfileCounter ufp_counter;
 		PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(brec.OpID, PPACN_RMVBILL));
 		const int is_shadow = BIN(brec.OpID == 0);
@@ -7979,12 +7961,6 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 			THROW(CheckRightsWithOp(brec.OpID, PPR_DEL)); // @v10.2.3
 			THROW(r_rt.CheckBillDate(brec.Dt));
 			// @v10.1.12 THROW(r_rt.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
-			/* @v9.8.11 if(TLP(HistBill).IsOpened()) {
-				PPBillPacket old_pack;
-				THROW(ExtractPacket(id, &old_pack));
-				hist_pack.Init(&old_pack);
-			} */
-			// @v9.8.11 {
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					SSerializeContext & r_sctx = p_ovc->GetSCtx();
@@ -7993,7 +7969,6 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 					THROW(SerializePacket__(+1, &org_pack, hist_buf, &r_sctx));
 				}
 			}
-			// } @v9.8.11
 		}
 		THROW_PP_S(!brec.StatusID || !CheckStatusFlag(brec.StatusID, BILSTF_DENY_DEL), PPERR_BILLST_DENY_DEL, PPObjBill::MakeCodeString(&brec, 1, bill_code));
 		THROW(CheckParentStatus(id));

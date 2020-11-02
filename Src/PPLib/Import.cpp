@@ -913,7 +913,7 @@ int GoodsImportBillIdent::Get(DbfRecord * pRec)
 	SString suppl_code;
 	SupplID = 0;
 	BillDate = ZERODATE;
-	BillCode = 0;
+	BillCode.Z();
 	if(pRec->get(fldn_supplcode, suppl_code, 1) && AccSheetID) {
 		if(CvtCodeToHex)
 			CodeToHex(suppl_code);
@@ -1104,8 +1104,7 @@ int PPObjGoods::ImportOld(int use_ta)
 					SString obj_code, parent_code, ar_code;
 					double added_code_qtty = 1.0, rest = 0.0;
 					PPGoodsPacket  pack;
-
-					added_code[0] = 0;
+					PTR32(added_code)[0] = 0;
 					DbfRecord rec(&in_tbl);
 					THROW(in_tbl.getRec(&rec));
 					rec.get(fldn_rest, rest);
@@ -1119,8 +1118,8 @@ int PPObjGoods::ImportOld(int use_ta)
 					if(!skip && temp_buf.NotEmptyS()) {
 						STRNSCPY(goods_name, temp_buf);
 						memzero(barcode, sizeof(barcode));
-						added_code[0] = 0;
-						subc[0] = 0;
+						PTR32(added_code)[0] = 0;
+						PTR32(subc)[0] = 0;
 						if(rec.get(fldn_code, temp_buf, 1)) {
 							STRNSCPY(barcode, temp_buf.ToUpper());
 							if(subcode.Key >= 0 && subcode.Val > 1) {
@@ -1141,19 +1140,19 @@ int PPObjGoods::ImportOld(int use_ta)
 						rec.get(fldn_article, ar_code, 1);
 						if(SearchByName(goods_name, &goods_id, 0) > 0) {
 							if(added_code[0] && SearchByBarcode(added_code, &barcode_rec, 0, 0) > 0)
-								added_code[0] = 0;
+								PTR32(added_code)[0] = 0;
 							is_found = 1;
 						}
 						else if(barcode[0] && SearchByBarcode(barcode, &barcode_rec, 0, 0) > 0) {
 							goods_id = barcode_rec.GoodsID;
 							if(added_code[0] && SearchByBarcode(added_code, &barcode_rec, 0, 0) > 0)
-								added_code[0] = 0;
+								PTR32(added_code)[0] = 0;
 							is_found = 1;
 						}
 						else if(subc[0] && SearchByBarcode(subc, &barcode_rec, 0, 0) > 0) {
 							goods_id = barcode_rec.GoodsID;
 							if(added_code[0] && SearchByBarcode(added_code, &barcode_rec, 0, 0) > 0)
-								added_code[0] = 0;
+								PTR32(added_code)[0] = 0;
 							is_found = 1;
 						}
 						if(is_found) {

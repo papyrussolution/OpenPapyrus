@@ -4303,7 +4303,7 @@ int run_server()
 			{
 				int    ival = 0;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &port) <= 0 || port == 0)
-					port = InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer); //DEFAULT_SERVER_PORT;
+					port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer); //DEFAULT_SERVER_PORT;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SOCKETTIMEOUT, &client_timeout) <= 0 || client_timeout <= 0)
 					client_timeout = -1;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_CLOSEDSOCKTIMEOUT, &(ival = 0)) > 0) {
@@ -4726,7 +4726,7 @@ SLTEST_R(PapyrusTcpClient)
 	}
 	srv_addr_line.SetIfEmpty("localhost");
 	if(port <= 0)
-		port = InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer);//DEFAULT_SERVER_PORT;
+		port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
 	if(timeout < 0 || timeout > 100000)
 		timeout = 30000;
 	if(fileExists(str_file_name)) {
@@ -4807,7 +4807,7 @@ SLTEST_R(PapyrusRestoreSess)
 	if(srv_addr_line.Empty())
 		srv_addr_line = "localhost";
 	if(port <= 0)
-		port = InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer);//DEFAULT_SERVER_PORT;
+		port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
 	timeout = 30000;
 	if(addr.Set(srv_addr_line, port)) {
 		TcpSocket so(timeout);

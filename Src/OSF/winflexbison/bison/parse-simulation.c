@@ -20,7 +20,7 @@
 #include "bison.h"
 #pragma hdrstop
 
-typedef struct parse_state {
+struct parse_state {
 	// Path of state-items the parser has traversed.
 	struct si_chunk {
 		// Elements newly added in this chunk.
@@ -39,36 +39,33 @@ typedef struct parse_state {
 		size_t total_size;
 	} derivs;
 
-	struct parse_state * parent;
+	parse_state * parent;
 	int reference_count;
-	// Incremented during productions, decremented during reductions.
-	int depth;
+	int depth; // Incremented during productions, decremented during reductions.
 	// Whether the contents of the chunks should be prepended or
 	// appended to the list the chunks represent.
 	bool prepend;
 	// Causes chunk contents to be freed when the reference count is
 	// one. Used when only the chunk metadata will be needed.
 	bool free_contents_early;
-} parse_state;
+};
 
 static void ps_si_prepend(parse_state * ps, const state_item * si)
 {
-	struct parse_state::si_chunk * sic = (struct parse_state::si_chunk *)&ps->state_items;
+	parse_state::si_chunk * sic = (parse_state::si_chunk *)&ps->state_items;
 	gl_list_add_first(sic->contents, si);
 	sic->head_elt = si;
 	++sic->total_size;
-	if(!sic->tail_elt)
-		sic->tail_elt = si;
+	SETIFZ(sic->tail_elt, si);
 }
 
 static void ps_si_append(parse_state * ps, const state_item * si)
 {
-	struct parse_state::si_chunk * sic = (struct parse_state::si_chunk *)&ps->state_items;
+	parse_state::si_chunk * sic = (parse_state::si_chunk *)&ps->state_items;
 	gl_list_add_last(sic->contents, si);
 	sic->tail_elt = si;
 	++sic->total_size;
-	if(!sic->head_elt)
-		sic->head_elt = si;
+	SETIFZ(sic->head_elt, si);
 }
 
 static void ps_derivs_prepend(parse_state * ps, derivation * d)
@@ -77,8 +74,7 @@ static void ps_derivs_prepend(parse_state * ps, derivation * d)
 	derivation_list_prepend(dc->contents, d);
 	dc->head_elt = d;
 	++dc->total_size;
-	if(!dc->tail_elt)
-		dc->tail_elt = d;
+	SETIFZ(dc->tail_elt, d);
 }
 
 static void ps_derivs_append(parse_state * ps, derivation * d)
@@ -87,18 +83,16 @@ static void ps_derivs_append(parse_state * ps, derivation * d)
 	derivation_list_append(dc->contents, d);
 	dc->tail_elt = d;
 	++dc->total_size;
-	if(!dc->head_elt)
-		dc->head_elt = d;
+	SETIFZ(dc->head_elt, d);
 }
 
-static int allocs = 0;
-static int frees = 0;
+static int allocs = 0; // @global
+static int frees  = 0; // @global
 
 static parse_state * empty_parse_state(void)
 {
 	parse_state * res = (parse_state *)xcalloc(1, sizeof *res);
-	res->state_items.contents
-		= gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, true);
+	res->state_items.contents = gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, true);
 	res->derivs.contents = derivation_list_new();
 	++allocs;
 	return res;
@@ -116,8 +110,7 @@ static parse_state * copy_parse_state(bool prepend, parse_state * parent)
 {
 	parse_state * res = (parse_state *)xmalloc(sizeof *res);
 	*res = *parent;
-	res->state_items.contents
-		= gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, true);
+	res->state_items.contents = gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, true);
 	res->derivs.contents = derivation_list_new();
 	res->parent = parent;
 	res->prepend = prepend;
@@ -128,45 +121,14 @@ static parse_state * copy_parse_state(bool prepend, parse_state * parent)
 	return res;
 }
 
-bool parse_state_derivation_completed(const parse_state * ps)
-{
-	return ps->derivs.total_size == 1;
-}
-
-derivation * parse_state_derivation(const parse_state * ps)
-{
-	return (derivation*)ps->derivs.head_elt;
-}
-
-const state_item * parse_state_head(const parse_state * ps)
-{
-	return ps->state_items.head_elt;
-}
-
-const state_item * parse_state_tail(const parse_state * ps)
-{
-	return ps->state_items.tail_elt;
-}
-
-int parse_state_length(const parse_state * ps)
-{
-	return ps->state_items.total_size;
-}
-
-int parse_state_depth(const parse_state * ps)
-{
-	return ps->depth;
-}
-
-void parse_state_retain(parse_state * ps)
-{
-	++ps->reference_count;
-}
-
-void parse_state_free_contents_early(parse_state * ps)
-{
-	ps->free_contents_early = true;
-}
+bool parse_state_derivation_completed(const parse_state * ps) { return ps->derivs.total_size == 1; }
+derivation * parse_state_derivation(const parse_state * ps) { return (derivation*)ps->derivs.head_elt; }
+const state_item * parse_state_head(const parse_state * ps) { return ps->state_items.head_elt; }
+const state_item * parse_state_tail(const parse_state * ps) { return ps->state_items.tail_elt; }
+int parse_state_length(const parse_state * ps) { return ps->state_items.total_size; }
+int parse_state_depth(const parse_state * ps) { return ps->depth; }
+void parse_state_retain(parse_state * ps) { ++ps->reference_count; }
+void parse_state_free_contents_early(parse_state * ps) { ps->free_contents_early = true; }
 
 void free_parse_state(parse_state * original_ps)
 {
@@ -174,8 +136,7 @@ void free_parse_state(parse_state * original_ps)
 	parse_state * parent_ps = NULL;
 	for(parse_state * ps = original_ps; ps && free_contents; ps = parent_ps) {
 		--ps->reference_count;
-		free_contents = (ps->reference_count == 1 && ps->free_contents_early)
-		    || (ps->reference_count == 0 && !ps->free_contents_early);
+		free_contents = (ps->reference_count == 1 && ps->free_contents_early) || (ps->reference_count == 0 && !ps->free_contents_early);
 		// need to keep the parse state around for visited hash set,
 		// but its contents and parent can be freed
 		if(free_contents) {
@@ -194,14 +155,14 @@ void free_parse_state(parse_state * original_ps)
 
 size_t parse_state_hasher(const parse_state * ps, size_t max)
 {
-	const struct parse_state::si_chunk * sis = (const struct parse_state::si_chunk *)&ps->state_items;
+	const parse_state::si_chunk * sis = (const parse_state::si_chunk *)&ps->state_items;
 	return ((state_item*)sis->head_elt - state_items + (state_item*)sis->tail_elt - state_items + sis->total_size) % max;
 }
 
 bool parse_state_comparator(const parse_state * ps1, const parse_state * ps2)
 {
-	const struct parse_state::si_chunk * sis1 = &ps1->state_items;
-	const struct parse_state::si_chunk * sis2 = &ps2->state_items;
+	const parse_state::si_chunk * sis1 = &ps1->state_items;
+	const parse_state::si_chunk * sis2 = &ps2->state_items;
 	return sis1->head_elt == sis2->head_elt && sis1->tail_elt == sis2->tail_elt && sis1->total_size == sis2->total_size;
 }
 
@@ -212,15 +173,11 @@ void parse_state_completed_steps(const parse_state * ps, int * shifts, int * pro
 	const parse_state * root_ps = ps;
 	while(root_ps->parent)
 		root_ps = root_ps->parent;
-
 	state_item_list sis = root_ps->state_items.contents;
 	int count = 0;
-
 	state_item * last = NULL;
 	state_item * next = NULL;
-	for(gl_list_iterator_t it = gl_list_iterator(sis);
-	    state_item_list_next(&it, &next);
-	    ) {
+	for(gl_list_iterator_t it = gl_list_iterator(sis); state_item_list_next(&it, &next);) {
 		if(last && last->state == next->state)
 			++count;
 		last = next;
@@ -240,8 +197,7 @@ static void list_add_last(gl_list_t list, const void * elt)
 
 // takes an array of n gl_lists and flattens them into two list
 // based off of the index split
-static void list_flatten_and_split(gl_list_t * list, gl_list_t * rets, int split, int n,
-    chunk_append_fn append_fn)
+static void list_flatten_and_split(gl_list_t * list, gl_list_t * rets, int split, int n, chunk_append_fn append_fn)
 {
 	int ret_index = 0;
 	int ret_array = 0;
@@ -267,9 +223,7 @@ static void list_flatten_and_split(gl_list_t * list, gl_list_t * rets, int split
 
 static parse_state_list parse_state_list_new(void)
 {
-	return gl_list_create_empty(GL_LINKED_LIST, NULL, NULL,
-		   (gl_listelement_dispose_fn)free_parse_state,
-		   true);
+	return gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, (gl_listelement_dispose_fn)free_parse_state, true);
 }
 
 static void parse_state_list_append(parse_state_list pl, parse_state * ps)
@@ -281,8 +235,7 @@ static void parse_state_list_append(parse_state_list pl, parse_state * ps)
 // Emulates a reduction on a parse state by popping some amount of
 // derivations and state_items off of the parse_state and returning
 // the result in ret. Returns the derivation of what's popped.
-static derivation_list parser_pop(parse_state * ps, int deriv_index,
-    int si_index, parse_state * ret)
+static derivation_list parser_pop(parse_state * ps, int deriv_index, int si_index, parse_state * ret)
 {
 	// prepend sis, append sis, prepend derivs, append derivs
 	gl_list_t chunks[4];
@@ -357,7 +310,6 @@ static void nullable_closure(parse_state * ps, state_item * si, parse_state_list
 		symbol_number sp = item_number_as_symbol_number(*psi->item);
 		if(ISTOKEN(sp) || !nullable[sp - ntokens])
 			break;
-
 		state_item * nsi = &state_items[sin];
 		current_ps = copy_parse_state(false, current_ps);
 		ps_si_append(current_ps, nsi);
@@ -382,14 +334,11 @@ parse_state_list simulate_transition(parse_state * ps)
 	ps_si_append(next_ps, &state_items[si_next]);
 	ps_derivs_append(next_ps, derivation_new_leaf(sym));
 	parse_state_list_append(result, next_ps);
-
 	nullable_closure(next_ps, &state_items[si_next], result);
 	return result;
 }
-
 /**
- * Determine if the given symbols are equal or their first sets
- * intersect.
+ * Determine if the given symbols are equal or their first sets intersect.
  */
 static bool compatible(symbol_number sym1, symbol_number sym2)
 {
@@ -437,16 +386,12 @@ parse_state_list simulate_production(parse_state * ps, symbol_number compat_sym)
 parse_state_list simulate_reduction(parse_state * ps, int rule_len, bitset symbol_set)
 {
 	parse_state_list result = parse_state_list_new();
-
 	int s_size = ps->state_items.total_size;
 	int d_size = ps->derivs.total_size;
 	if(ps->depth >= 0)
 		d_size--;       // account for dot
 	parse_state * new_root = empty_parse_state();
-	derivation_list popped_derivs =
-	    parser_pop(ps, d_size - rule_len,
-		s_size - rule_len - 1, new_root);
-
+	derivation_list popped_derivs = parser_pop(ps, d_size - rule_len, s_size - rule_len - 1, new_root);
 	// update derivation
 	state_item * si = (state_item*)ps->state_items.tail_elt;
 	const rule * r = item_rule(si->item);
@@ -477,10 +422,9 @@ parse_state_list simulate_reduction(parse_state * ps, int rule_len, bitset symbo
 				// Prepend the result from the reverse production.
 				parse_state * copy = copy_parse_state(true, new_root);
 				ps_si_prepend(copy, psis);
-
 				// Append the left hand side to the end of the parser state
 				copy = copy_parse_state(false, copy);
-				struct parse_state::si_chunk * sis = &copy->state_items;
+				parse_state::si_chunk * sis = &copy->state_items;
 				const state_item * tail = sis->tail_elt;
 				ps_si_append(copy, &state_items[tail->trans]);
 				parse_state_list_append(result, copy);
@@ -496,8 +440,7 @@ parse_state_list parser_prepend(parse_state * ps)
 {
 	parse_state_list res = parse_state_list_new();
 	const state_item * head = ps->state_items.head_elt;
-	symbol_number prepend_sym =
-	    item_number_as_symbol_number(*(head->item - 1));
+	symbol_number prepend_sym = item_number_as_symbol_number(*(head->item - 1));
 	bitset_iterator biter;
 	state_item_number sin;
 	BITSET_FOR_EACH(biter, head->revs, sin, 0)

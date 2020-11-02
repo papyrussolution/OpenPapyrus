@@ -46,5 +46,6 @@
 #include "cloexec.h"
 #include "closein.h"
 #include "clean-temp.h"
+#include "mbswidth.h"
 
 #endif // __FLEXBISON_COMMON_H

@@ -38,8 +38,7 @@ static void nullable_print(FILE * out)
 {
 	fputs("NULLABLE\n", out);
 	for(int i = ntokens; i < nsyms; i++)
-		fprintf(out, "  %s: %s\n", symbols[i]->tag,
-		    nullable[i - ntokens] ? "yes" : "no");
+		fprintf(out, "  %s: %s\n", symbols[i]->tag, nullable[i - ntokens] ? "yes" : "no");
 	fputs("\n\n", out);
 }
 

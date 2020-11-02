@@ -231,16 +231,11 @@ static char * skelname = NULL;
 static int _stdout_closed = 0; /* flag to prevent double-fclose() on stdout. */
 const char * escaped_qstart = "]]M4_YY_NOOP[M4_YY_NOOP[M4_YY_NOOP[[";
 const char * escaped_qend   = "]]M4_YY_NOOP]M4_YY_NOOP]M4_YY_NOOP[[";
-
-/* For debugging. The max number of filters to apply to skeleton. */
-static int preproc_level = 1000;
-
-int flex_main(int argc, char * argv[]);
+static int preproc_level = 1000; /* For debugging. The max number of filters to apply to skeleton. */
 
 int flex_main(int argc, char * argv[])
 {
 	int i;    // , exit_status, child_status;
-
 	/* Set a longjmp target. Yes, I know it's a hack, but it gets worse: The
 	 * return value of setjmp, if non-zero, is the desired exit code PLUS ONE.
 	 * For example, if you want 'main' to return with code '2', then call

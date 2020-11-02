@@ -294,10 +294,10 @@
 
 /* begin standard C headers. */
 /* %if-c-only */
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <errno.h>
+//#include <stdlib.h>
 /* %endif */
 
 /* %if-tables-serialization */
@@ -843,14 +843,14 @@ char * yytext;
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define YY_NO_INPUT 1
 #line 24 "/Users/akim/src/gnu/bison/src/scan-skel.l"
-#include <dirname.h>
-#include <error.h>
-#include <path-join.h>
-#include <quotearg.h>
-#include "complain.h"
-#include "files.h"
-#include "getargs.h"
-#include "scan-skel.h"
+//#include <dirname.h>
+//#include <error.h>
+//#include <path-join.h>
+//#include <quotearg.h>
+//#include "complain.h"
+//#include "files.h"
+//#include "getargs.h"
+//#include "scan-skel.h"
 #define FLEX_PREFIX(Id) skel_ ## Id
 #include "flex-scanner.h"
 

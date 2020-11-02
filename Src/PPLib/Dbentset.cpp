@@ -33,24 +33,172 @@ PPDbEntrySet2::PPDbEntrySet2() : DbLoginBlockArray()
 
 // normal=Normal Database,c:\papyrus\ppy\data\normal
 // ora-test=ORACLE:ora-test,c:\papyrus\ppy\data\ora-test,PPYDEV01@SYSTEM:PROTON
+// @v10.9.2 ora-test=ORACLE:ora-test,c:\papyrus\ppy\data\ora-test,url
+/*
+	url базы данных:
+		host, port, user, password - как обычно в URL
+		дополнительные аргументы - именованными параметрами
+*/
+
+int DbLoginBlock::UrlParse(const char * pUrl)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url(pUrl);
+	int proto = url.GetProtocol();
+	SqlServerType st = sqlstNone;
+	if(url.GetComponent(InetUrl::cPassword, 1, temp_buf) && temp_buf.NotEmptyS()) {
+		char   pw_buf[512];
+		size_t real_size = 0;
+		temp_buf.DecodeMime64(pw_buf, sizeof(pw_buf), &real_size);
+		if(real_size == PWCRYPTBUFSIZE) {
+			IdeaDecrypt(P_DefaultSymb, pw_buf, real_size);
+			SetAttr(attrPassword, pw_buf);
+			memzero(pw_buf, sizeof(pw_buf));
+		}
+	}
+	switch(proto) {
+		case InetUrl::protFile:
+			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
+				SetAttr(attrUserName, temp_buf);
+			url.Composite(InetUrl::stHost|InetUrl::stPath, temp_buf);
+			SetAttr(attrDbPath, temp_buf);
+			SetAttr(attrServerType, 0);
+			break;
+		case InetUrl::prot_p_MYSQL:
+			st = sqlstMySQL;
+			GetSqlServerTypeSymb(st, temp_buf);
+			SetAttr(attrServerType, temp_buf);
+			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
+				SetAttr(attrUserName, temp_buf);
+			if(url.GetQueryParam("db", 0, temp_buf) > 0)
+				SetAttr(attrDbName, temp_buf);
+			url.Composite(InetUrl::stHost|InetUrl::stPort, temp_buf);
+			SetAttr(attrServerUrl, temp_buf);
+			break;
+		case InetUrl::prot_p_ORACLE:
+			st = sqlstMySQL;
+			GetSqlServerTypeSymb(st, temp_buf);
+			SetAttr(attrServerType, temp_buf);
+			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
+				SetAttr(attrUserName, temp_buf);
+			if(url.GetQueryParam("db", 0, temp_buf) > 0)
+				SetAttr(attrDbName, temp_buf);
+			url.Composite(InetUrl::stHost|InetUrl::stPort, temp_buf);
+			SetAttr(attrServerUrl, temp_buf);
+			break;
+		case InetUrl::prot_p_SQLITE:
+			break;
+	}
+	return ok;
+}
+
+int DbLoginBlock::UrlCompose(SString & rUrlBuf) const
+{
+	int    ok = 1;
+	int    server_type = sqlstNone;
+	SString temp_buf;
+	SString pw_crypted_buf;
+	InetUrl url;
+	InetUrl inner_url;
+	rUrlBuf.Z();
+	GetAttr(DbLoginBlock::attrServerType, temp_buf);
+	server_type = GetSqlServerTypeBySymb(temp_buf);
+	GetAttr(attrServerUrl, temp_buf);
+	inner_url.Parse(temp_buf);
+	{
+		int pw_isnt_empty = 0;
+		if(GetAttr(attrPassword, temp_buf) > 0 && temp_buf.NotEmpty())
+			pw_isnt_empty = 1;
+		else if(inner_url.GetComponent(InetUrl::cPassword, 0, temp_buf) && temp_buf.NotEmpty())
+			pw_isnt_empty = 1;
+		if(pw_isnt_empty) {
+			char   pw_buf[512];
+			size_t real_size = 0;
+			IdeaRandMem(pw_buf, sizeof(pw_buf));
+			temp_buf.CopyTo(pw_buf, sizeof(pw_buf));
+			IdeaEncrypt(P_DefaultSymb, pw_buf, PWCRYPTBUFSIZE);
+			temp_buf.EncodeMime64(pw_buf, PWCRYPTBUFSIZE);
+			pw_crypted_buf.EncodeUrl(temp_buf, 1);
+		}
+	}
+	if(server_type == sqlstMySQL) {
+		url.SetProtocol(InetUrl::prot_p_MYSQL);
+		if(inner_url.GetComponent(InetUrl::cHost, 0, temp_buf))
+			url.SetComponent(InetUrl::cHost, temp_buf);
+		if(inner_url.GetComponent(InetUrl::cPort, 0, temp_buf))
+			url.SetComponent(InetUrl::cPort, temp_buf);
+		if(GetAttr(attrUserName, temp_buf) > 0)
+			url.SetComponent(InetUrl::cUserName, temp_buf);
+		else if(inner_url.GetComponent(InetUrl::cUserName, 0, temp_buf))
+			url.SetComponent(InetUrl::cUserName, temp_buf);
+		if(pw_crypted_buf.NotEmpty())
+			url.SetComponent(InetUrl::cPassword, pw_crypted_buf);
+		if(GetAttr(attrDbName, temp_buf) > 0 && temp_buf.NotEmpty())
+			url.SetQueryParam("db", temp_buf);
+		else if(inner_url.GetQueryParam("db", 0, temp_buf) && temp_buf.NotEmpty())
+			url.SetQueryParam("db", temp_buf);
+	}
+	else if(server_type == sqlstORA) {
+		url.SetProtocol(InetUrl::prot_p_ORACLE);
+		if(GetAttr(attrUserName, temp_buf) > 0)
+			url.SetComponent(InetUrl::cUserName, temp_buf);
+		else if(inner_url.GetComponent(InetUrl::cUserName, 0, temp_buf))
+			url.SetComponent(InetUrl::cUserName, temp_buf);
+		if(pw_crypted_buf.NotEmpty())
+			url.SetComponent(InetUrl::cPassword, pw_crypted_buf);
+		if(GetAttr(attrDbName, temp_buf) > 0 && temp_buf.NotEmpty())
+			url.SetQueryParam("db", temp_buf);
+		else if(inner_url.GetQueryParam("db", 0, temp_buf) && temp_buf.NotEmpty())
+			url.SetQueryParam("db", temp_buf);
+	}
+	else if(server_type == sqlstSQLite) {
+		url.SetProtocol(InetUrl::prot_p_SQLITE);
+	}
+	else if(server_type == sqlstNone) {
+		url.SetProtocol(InetUrl::protFile);
+		if(GetAttr(attrDbPath, temp_buf) > 0) {
+			InetUrl inner2_url(temp_buf);
+			if(inner2_url.GetComponent(InetUrl::cHost, 0, temp_buf))
+				url.SetComponent(InetUrl::cHost, temp_buf);
+			if(inner2_url.GetComponent(InetUrl::cPath, 0, temp_buf))
+				url.SetComponent(InetUrl::cPath, temp_buf);
+		}
+		else {
+			if(inner_url.GetComponent(InetUrl::cHost, 0, temp_buf)) 
+				url.SetComponent(InetUrl::cHost, temp_buf);
+			if(inner_url.GetComponent(InetUrl::cPath, 0, temp_buf)) 
+				url.SetComponent(InetUrl::cPath, temp_buf);
+		}
+	}
+	else {
+	}
+	url.Composite(InetUrl::stAll, rUrlBuf);
+	return ok;
+}
 
 int PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) const
 {
 	int    ok = 1;
 	int    server_type = sqlstNone;
 	SString temp_buf;
-
+	//
+	pBlk->GetAttr(DbLoginBlock::attrDbFriendlyName, rBuf);
+	rBuf.Comma();
+	pBlk->UrlCompose(temp_buf);
+	rBuf.Cat(temp_buf);
+#if 0 // {
 	rBuf.Z();
 	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
-	if(temp_buf.IsEqiAscii("ORACLE") || temp_buf.IsEqiAscii("ORA")) {
-		server_type = sqlstORA;
-		rBuf.Cat("ORACLE").CatChar(':');
+	server_type = GetSqlServerTypeBySymb(temp_buf);
+	if(server_type != sqlstNone) {
+		rBuf.Cat(temp_buf).CatChar(':');
 	}
 	pBlk->GetAttr(DbLoginBlock::attrDbFriendlyName, temp_buf);
 	rBuf.Cat(temp_buf).Comma();
 	pBlk->GetAttr(DbLoginBlock::attrDbPath, temp_buf);
 	rBuf.Cat(temp_buf);
-	if(server_type == sqlstORA) {
+	if(oneof3(server_type, sqlstORA, sqlstMSS, sqlstMySQL)) {
 		pBlk->GetAttr(DbLoginBlock::attrDbName, temp_buf);
 		rBuf.Comma().Cat(temp_buf);
 		pBlk->GetAttr(DbLoginBlock::attrUserName, temp_buf);
@@ -71,14 +219,26 @@ int PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rBuf) co
 		if(temp_buf.NotEmptyS())
 			rBuf.Comma().Cat(temp_buf);
 	}
+#endif // } 0
 	return ok;
 }
 
 int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) const
 {
 	int    ok = 1;
-	int    server_type = sqlstNone;
+	SqlServerType server_type = sqlstNone;
 	SString temp_buf, left, right;
+	// @v10.9.2 {
+	{
+		(temp_buf = pLine).Strip();
+		if(temp_buf.Divide(',', left, right) > 0) {
+			pBlk->SetAttr(DbLoginBlock::attrDbFriendlyName, left);
+			temp_buf = right;
+		}
+		pBlk->UrlParse(temp_buf);
+	}
+	// } @v10.9.2 
+#if 0 // @v10.9.2 {
 	SStrScan scan(pLine);
 	scan.Skip();
 	if(scan.Skip().SearchChar(',')) {
@@ -87,19 +247,11 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 		if(temp_buf.Divide(':', left, right) > 0) {
 			left.Strip();
 			right.Strip();
-			if(left.IsEqiAscii("ORACLE") || left.IsEqiAscii("ORA")) {
-				pBlk->SetAttr(DbLoginBlock::attrServerType, "ORACLE");
-				server_type = sqlstORA;
-			}
-			else if(left.IsEqiAscii("DEFAULT") || left.IsEqiAscii("DEF")) {
+			server_type = GetSqlServerTypeBySymb(left);
+			if(oneof2(server_type, sqlstGeneric, sqlstNone))
 				pBlk->SetAttr(DbLoginBlock::attrServerType, "DEFAULT");
-			}
-			else if(left.IsEqiAscii("BTRIEVE") || left.IsEqiAscii("BTR")) {
+			else 
 				pBlk->SetAttr(DbLoginBlock::attrServerType, "BTRIEVE");
-			}
-			else {
-				CALLEXCEPT_PP_S(PPERR_INVPROFILESERVERTYPE, left);
-			}
 			pBlk->SetAttr(DbLoginBlock::attrDbFriendlyName, right);
 		}
 		else
@@ -114,7 +266,7 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 				scan.IncrLen(1);
 			}
 			(left = scan).Strip();
-			if(server_type == sqlstORA) {
+			if(oneof3(server_type, sqlstORA, sqlstMSS, sqlstMySQL)) {
 				THROW_PP_S(scan.Skip().SearchChar('@'), PPERR_INVPROFILESQLDBP, scan);
 				scan.Get(temp_buf);
 				scan.IncrLen(1);
@@ -146,6 +298,7 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 		}
 	}
 	CATCHZOK
+#endif // } 0
 	return ok;
 }
 
@@ -247,14 +400,6 @@ int PPDbEntrySet2::RegisterEntry(PPIniFile * pIniFile, const DbLoginBlock * pBlk
 long PPDbEntrySet2::SetDefaultSelection()
 {
 	DbLoginBlock blk;
-	/* @v9.0.9
-	SelId = 0;
-	if(GetBySymb(P_DefaultSymb, &blk) > 0) {
-		SString temp_buf;
-		blk.GetAttr(DbLoginBlock::attrID, temp_buf);
-		SelId = temp_buf.ToLong();
-	}
-	*/
-	SelId = GetBySymb(P_DefaultSymb, &blk); // @v9.0.9
+	SelId = GetBySymb(P_DefaultSymb, &blk);
 	return SelId;
 }

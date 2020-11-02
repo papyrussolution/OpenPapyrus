@@ -3299,67 +3299,68 @@ struct Sdr_QuotVal {
 	#define PPFLD_GOODS2_UNITSPERPACK                            15
 	#define PPFLD_GOODS2_COST                                    16
 	#define PPFLD_GOODS2_PRICE                                   17
-	#define PPFLD_GOODS2_REST                                    18
-	#define PPFLD_GOODS2_QCNUMBER                                19
-	#define PPFLD_GOODS2_QCBLANK                                 20
-	#define PPFLD_GOODS2_QCDATE                                  21
-	#define PPFLD_GOODS2_QCEXPIRY                                22
-	#define PPFLD_GOODS2_QCMANUF                                 23
-	#define PPFLD_GOODS2_QCORG                                   24
-	#define PPFLD_GOODS2_QCMANUFDATE                             25
-	#define PPFLD_GOODS2_QCETC                                   26
-	#define PPFLD_GOODS2_QCINNERCODE                             27
-	#define PPFLD_GOODS2_SALESTAX                                28
-	#define PPFLD_GOODS2_VAT                                     29
-	#define PPFLD_GOODS2_COUNTRY                                 30
-	#define PPFLD_GOODS2_COUNTRYCODE                             31
-	#define PPFLD_GOODS2_CLB                                     32
-	#define PPFLD_GOODS2_SERIAL                                  33
-	#define PPFLD_GOODS2_EXPIRY                                  34
-	#define PPFLD_GOODS2_EXPIRYPERIOD                            35
-	#define PPFLD_GOODS2_PCKGQTTY                                36
-	#define PPFLD_GOODS2_PCKGBRUTTO                              37
-	#define PPFLD_GOODS2_PCKGLENGTH                              38
-	#define PPFLD_GOODS2_PCKGWIDTH                               39
-	#define PPFLD_GOODS2_PCKGHEIGHT                              40
-	#define PPFLD_GOODS2_MINSTOCK                                41
-	#define PPFLD_GOODS2_MINSHIPPMQTTY                           42
-	#define PPFLD_GOODS2_MULTMINSHIPPM                           43
-	#define PPFLD_GOODS2_MANUFID                                 44
-	#define PPFLD_GOODS2_MANUFNAME                               45
-	#define PPFLD_GOODS2_BRAND                                   46
-	#define PPFLD_GOODS2_EXTA                                    47
-	#define PPFLD_GOODS2_EXTB                                    48
-	#define PPFLD_GOODS2_EXTC                                    49
-	#define PPFLD_GOODS2_EXTD                                    50
-	#define PPFLD_GOODS2_EXTE                                    51
-	#define PPFLD_GOODS2_EXTLONGNAMETO                           52
-	#define PPFLD_GOODS2_ARCODE                                  53
-	#define PPFLD_GOODS2_ALTGRPCODE                              54
-	#define PPFLD_GOODS2_ALTGRPPLU                               55
-	#define PPFLD_GOODS2_HIEROBJCODE                             56
-	#define PPFLD_GOODS2_HIERPARENTCODE                          57
-	#define PPFLD_GOODS2_BILLSUPPLID                             58
-	#define PPFLD_GOODS2_BILLSUPPLCODE                           59
-	#define PPFLD_GOODS2_BILLCODE                                60
-	#define PPFLD_GOODS2_BILLDATE                                61
-	#define PPFLD_GOODS2_CLSCODE                                 62
-	#define PPFLD_GOODS2_DIMX                                    63
-	#define PPFLD_GOODS2_DIMY                                    64
-	#define PPFLD_GOODS2_DIMZ                                    65
-	#define PPFLD_GOODS2_DIMW                                    66
-	#define PPFLD_GOODS2_PROPKINDNAME                            67
-	#define PPFLD_GOODS2_PROPGRADENAME                           68
-	#define PPFLD_GOODS2_PROPADDNAME                             69
-	#define PPFLD_GOODS2_PROPADD2NAME                            70
-	#define PPFLD_GOODS2_WEIGHTPREFIX                            71
-	#define PPFLD_GOODS2_GOODSID                                 72
-	#define PPFLD_GOODS2_EXPIRYFROMCURDT                         73
-	#define PPFLD_GOODS2_FORCEREPLACE                            74
-	#define PPFLD_GOODS2_EGAISCODE                               75
-	#define PPFLD_GOODS2_FLGPASSIVE                              76
-	#define PPFLD_GOODS2_FLGNODISCOUNT                           77
-	#define PPFLD_GOODS2_FLGWANTVETISCERT                        78
+	#define PPFLD_GOODS2_PRICEBYOPENLOT                          18
+	#define PPFLD_GOODS2_REST                                    19
+	#define PPFLD_GOODS2_QCNUMBER                                20
+	#define PPFLD_GOODS2_QCBLANK                                 21
+	#define PPFLD_GOODS2_QCDATE                                  22
+	#define PPFLD_GOODS2_QCEXPIRY                                23
+	#define PPFLD_GOODS2_QCMANUF                                 24
+	#define PPFLD_GOODS2_QCORG                                   25
+	#define PPFLD_GOODS2_QCMANUFDATE                             26
+	#define PPFLD_GOODS2_QCETC                                   27
+	#define PPFLD_GOODS2_QCINNERCODE                             28
+	#define PPFLD_GOODS2_SALESTAX                                29
+	#define PPFLD_GOODS2_VAT                                     30
+	#define PPFLD_GOODS2_COUNTRY                                 31
+	#define PPFLD_GOODS2_COUNTRYCODE                             32
+	#define PPFLD_GOODS2_CLB                                     33
+	#define PPFLD_GOODS2_SERIAL                                  34
+	#define PPFLD_GOODS2_EXPIRY                                  35
+	#define PPFLD_GOODS2_EXPIRYPERIOD                            36
+	#define PPFLD_GOODS2_PCKGQTTY                                37
+	#define PPFLD_GOODS2_PCKGBRUTTO                              38
+	#define PPFLD_GOODS2_PCKGLENGTH                              39
+	#define PPFLD_GOODS2_PCKGWIDTH                               40
+	#define PPFLD_GOODS2_PCKGHEIGHT                              41
+	#define PPFLD_GOODS2_MINSTOCK                                42
+	#define PPFLD_GOODS2_MINSHIPPMQTTY                           43
+	#define PPFLD_GOODS2_MULTMINSHIPPM                           44
+	#define PPFLD_GOODS2_MANUFID                                 45
+	#define PPFLD_GOODS2_MANUFNAME                               46
+	#define PPFLD_GOODS2_BRAND                                   47
+	#define PPFLD_GOODS2_EXTA                                    48
+	#define PPFLD_GOODS2_EXTB                                    49
+	#define PPFLD_GOODS2_EXTC                                    50
+	#define PPFLD_GOODS2_EXTD                                    51
+	#define PPFLD_GOODS2_EXTE                                    52
+	#define PPFLD_GOODS2_EXTLONGNAMETO                           53
+	#define PPFLD_GOODS2_ARCODE                                  54
+	#define PPFLD_GOODS2_ALTGRPCODE                              55
+	#define PPFLD_GOODS2_ALTGRPPLU                               56
+	#define PPFLD_GOODS2_HIEROBJCODE                             57
+	#define PPFLD_GOODS2_HIERPARENTCODE                          58
+	#define PPFLD_GOODS2_BILLSUPPLID                             59
+	#define PPFLD_GOODS2_BILLSUPPLCODE                           60
+	#define PPFLD_GOODS2_BILLCODE                                61
+	#define PPFLD_GOODS2_BILLDATE                                62
+	#define PPFLD_GOODS2_CLSCODE                                 63
+	#define PPFLD_GOODS2_DIMX                                    64
+	#define PPFLD_GOODS2_DIMY                                    65
+	#define PPFLD_GOODS2_DIMZ                                    66
+	#define PPFLD_GOODS2_DIMW                                    67
+	#define PPFLD_GOODS2_PROPKINDNAME                            68
+	#define PPFLD_GOODS2_PROPGRADENAME                           69
+	#define PPFLD_GOODS2_PROPADDNAME                             70
+	#define PPFLD_GOODS2_PROPADD2NAME                            71
+	#define PPFLD_GOODS2_WEIGHTPREFIX                            72
+	#define PPFLD_GOODS2_GOODSID                                 73
+	#define PPFLD_GOODS2_EXPIRYFROMCURDT                         74
+	#define PPFLD_GOODS2_FORCEREPLACE                            75
+	#define PPFLD_GOODS2_EGAISCODE                               76
+	#define PPFLD_GOODS2_FLGPASSIVE                              77
+	#define PPFLD_GOODS2_FLGNODISCOUNT                           78
+	#define PPFLD_GOODS2_FLGWANTVETISCERT                        79
 
 struct Sdr_Goods2 {
 	Sdr_Goods2() { THISZERO(); }
@@ -3380,6 +3381,7 @@ struct Sdr_Goods2 {
 	double UnitsPerPack;
 	double Cost;
 	double Price;
+	double PriceByOpenLot;
 	double Rest;
 	char   QCNumber[32];
 	char   QCBlank[16];
@@ -3860,12 +3862,14 @@ struct Sdr_SBIIBillRowWithCells {
 	#define PPFLD_LOT_ORGLOTDT                                26
 	#define PPFLD_LOT_SERIAL                                  27
 	#define PPFLD_LOT_GOODSNAME                               28
-	#define PPFLD_LOT_UHTTARCODE                              29
-	#define PPFLD_LOT_EGAISREFA                               30
-	#define PPFLD_LOT_EGAISREFB                               31
-	#define PPFLD_LOT_EGAISCODE                               32
-	#define PPFLD_LOT_EGAISMARK                               33
-	#define PPFLD_LOT_VETISCERTGUID                           34
+	#define PPFLD_LOT_GOODSGROUP                              29
+	#define PPFLD_LOT_UNITNAME                                30
+	#define PPFLD_LOT_UHTTARCODE                              31
+	#define PPFLD_LOT_EGAISREFA                               32
+	#define PPFLD_LOT_EGAISREFB                               33
+	#define PPFLD_LOT_EGAISCODE                               34
+	#define PPFLD_LOT_EGAISMARK                               35
+	#define PPFLD_LOT_VETISCERTGUID                           36
 
 struct Sdr_Lot {
 	Sdr_Lot() { THISZERO(); }
@@ -3897,6 +3901,8 @@ struct Sdr_Lot {
 	LDATE  OrgLotDt;
 	char   Serial[32];
 	char   GoodsName[128];
+	char   GoodsGroup[128];
+	char   UnitName[48];
 	char   UhttArCode[32];
 	char   EgaisRefA[64];
 	char   EgaisRefB[64];

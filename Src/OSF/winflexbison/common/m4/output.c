@@ -446,13 +446,12 @@ static void output_character_helper(int character)
 
 void output_text(const char * text, int length)
 {
-	int count;
 	if(!output_diversion || !length)
 		return;
 	if(!output_file && length > output_unused)
 		make_room_for(length);
 	if(output_file) {
-		count = fwrite(text, length, 1, output_file);
+		int count = fwrite(text, length, 1, output_file);
 		if(count != 1)
 			M4ERROR((EXIT_FAILURE, errno, "ERROR: copying inserted file"));
 	}
@@ -482,21 +481,15 @@ void shipout_text(struct obstack * obs, const char * text, int length, int line)
 {
 	static bool start_of_output_line = true;
 	const char * cursor;
-
 	/* If output goes to an obstack, merely add TEXT to it.  */
-
 	if(obs != NULL) {
 		obstack_grow(obs, text, length);
 		return;
 	}
-
 	/* Do nothing if TEXT should be discarded.  */
-
 	if(output_diversion == NULL)
 		return;
-
 	/* Output TEXT to a file, or in-memory diversion buffer.  */
-
 	if(!sync_output)
 		switch(length) {
 			/* In-line short texts.  */
@@ -523,10 +516,8 @@ void shipout_text(struct obstack * obs, const char * text, int length, int line)
 			start_of_output_line = false;
 			output_current_line++;
 #ifdef DEBUG_OUTPUT
-			xfprintf(stderr, "DEBUG: line %d, cur %d, cur out %d\n",
-			    line, current_line, output_current_line);
+			xfprintf(stderr, "DEBUG: line %d, cur %d, cur out %d\n", line, current_line, output_current_line);
 #endif
-
 			/* Output a `#line NUM' synchronization directive if needed.
 			   If output_current_line was previously given a negative
 			   value (invalidated), output `#line NUM "FILE"' instead.  */
@@ -558,8 +549,7 @@ void shipout_text(struct obstack * obs, const char * text, int length, int line)
 				start_of_output_line = false;
 				output_current_line++;
 #ifdef DEBUG_OUTPUT
-				xfprintf(stderr, "DEBUG: line %d, cur %d, cur out %d\n",
-				    line, current_line, output_current_line);
+				xfprintf(stderr, "DEBUG: line %d, cur %d, cur out %d\n", line, current_line, output_current_line);
 #endif
 			}
 			OUTPUT_CHARACTER(*text);
@@ -582,10 +572,8 @@ void shipout_text(struct obstack * obs, const char * text, int length, int line)
 void make_diversion(int divnum)
 {
 	m4_diversion * diversion = NULL;
-
 	if(current_diversion == divnum)
 		return;
-
 	if(output_diversion) {
 		if(!output_diversion->size && !output_diversion->u.file) {
 			assert(!output_diversion->used);
@@ -600,26 +588,21 @@ void make_diversion(int divnum)
 			FILE * file = output_diversion->u.file;
 			output_diversion->u.file = NULL;
 			if(m4_tmpclose(file, output_diversion->divnum) != 0)
-				m4_error(0, errno,
-				    _("cannot close temporary file for diversion"));
+				m4_error(0, errno, _("cannot close temporary file for diversion"));
 		}
 		output_diversion = NULL;
 		output_file = NULL;
 		output_cursor = NULL;
 		output_unused = 0;
 	}
-
 	current_diversion = divnum;
-
 	if(divnum < 0)
 		return;
-
 	if(divnum == 0)
 		diversion = &div0;
 	else {
 		const void * elt;
-		if(gl_oset_search_atleast(diversion_table, threshold_diversion_CB,
-		    &divnum, &elt)) {
+		if(gl_oset_search_atleast(diversion_table, threshold_diversion_CB, &divnum, &elt)) {
 			m4_diversion * temp = (m4_diversion*)elt;
 			if(temp->divnum == divnum)
 				diversion = temp;
@@ -632,8 +615,7 @@ void make_diversion(int divnum)
 			free_list = diversion->u.next;
 		}
 		else {
-			diversion = (m4_diversion*)obstack_alloc(&diversion_storage,
-				sizeof *diversion);
+			diversion = (m4_diversion*)obstack_alloc(&diversion_storage, sizeof *diversion);
 			diversion->size = 0;
 			diversion->used = 0;
 		}
@@ -641,7 +623,6 @@ void make_diversion(int divnum)
 		diversion->divnum = divnum;
 		gl_oset_add(diversion_table, diversion);
 	}
-
 	output_diversion = diversion;
 	if(output_diversion->size) {
 		output_cursor = output_diversion->u.buffer + output_diversion->used;
@@ -649,8 +630,7 @@ void make_diversion(int divnum)
 	}
 	else {
 		if(!output_diversion->u.file && output_diversion->used)
-			output_diversion->u.file = m4_tmpopen(output_diversion->divnum,
-				false);
+			output_diversion->u.file = m4_tmpopen(output_diversion->divnum, false);
 		output_file = output_diversion->u.file;
 	}
 	output_current_line = -1;
@@ -665,20 +645,17 @@ void make_diversion(int divnum)
 void insert_file(FILE * file)
 {
 	static char buffer[COPY_BUFFER_SIZE];
-	size_t length;
-
 	/* Optimize out inserting into a sink.  */
-	if(!output_diversion)
-		return;
-
-	/* Insert output by big chunks.  */
-	while(1) {
-		length = fread(buffer, 1, sizeof buffer, file);
-		if(ferror(file))
-			M4ERROR((EXIT_FAILURE, errno, "error reading inserted file"));
-		if(length == 0)
-			break;
-		output_text(buffer, length);
+	if(output_diversion) {
+		/* Insert output by big chunks.  */
+		while(1) {
+			size_t length = fread(buffer, 1, sizeof buffer, file);
+			if(ferror(file))
+				M4ERROR((EXIT_FAILURE, errno, "error reading inserted file"));
+			if(length == 0)
+				break;
+			output_text(buffer, length);
+		}
 	}
 }
 
@@ -695,10 +672,8 @@ static void insert_diversion_helper(m4_diversion * diversion)
 	if(output_diversion) {
 		if(diversion->size) {
 			if(!output_diversion->u.file) {
-				/* Transferring diversion metadata is faster than
-				   copying contents.  */
-				assert(!output_diversion->used && output_diversion != &div0
-				    && !output_file);
+				/* Transferring diversion metadata is faster than copying contents.  */
+				assert(!output_diversion->used && output_diversion != &div0 && !output_file);
 				output_diversion->u.buffer = diversion->u.buffer;
 				output_diversion->size = diversion->size;
 				output_cursor = diversion->u.buffer + diversion->used;
@@ -716,24 +691,19 @@ static void insert_diversion_helper(m4_diversion * diversion)
 		else if(!output_diversion->u.file) {
 			/* Transferring diversion metadata is faster than copying
 			   contents.  */
-			assert(!output_diversion->used && output_diversion != &div0
-			    && !output_file);
-			output_diversion->u.file = m4_tmprename(diversion->divnum,
-				output_diversion->divnum);
+			assert(!output_diversion->used && output_diversion != &div0 && !output_file);
+			output_diversion->u.file = m4_tmprename(diversion->divnum, output_diversion->divnum);
 			output_diversion->used = 1;
 			output_file = output_diversion->u.file;
 			diversion->u.file = NULL;
 			diversion->size = 1;
 		}
 		else {
-			if(!diversion->u.file)
-				diversion->u.file = m4_tmpopen(diversion->divnum, true);
+			SETIFZ(diversion->u.file, m4_tmpopen(diversion->divnum, true));
 			insert_file(diversion->u.file);
 		}
-
 		output_current_line = -1;
 	}
-
 	/* Return all space used by the diversion.  */
 	if(diversion->size) {
 		if(!output_diversion)
@@ -768,12 +738,10 @@ static void insert_diversion_helper(m4_diversion * diversion)
 void insert_diversion(int divnum)
 {
 	const void * elt;
-	/* Do not care about nonexistent diversions, and undiverting stdout
-	   or self is a no-op.  */
+	// Do not care about nonexistent diversions, and undiverting stdout or self is a no-op. 
 	if(divnum <= 0 || current_diversion == divnum)
 		return;
-	if(gl_oset_search_atleast(diversion_table, threshold_diversion_CB,
-	    &divnum, &elt)) {
+	if(gl_oset_search_atleast(diversion_table, threshold_diversion_CB, &divnum, &elt)) {
 		m4_diversion * diversion = (m4_diversion*)elt;
 		if(diversion->divnum == divnum)
 			insert_diversion_helper(diversion);
@@ -803,12 +771,10 @@ void undivert_all(void)
 
 void freeze_diversions(FILE * file)
 {
-	int saved_number;
-	int last_inserted;
 	gl_oset_iterator_t iter;
 	const void * elt;
-	saved_number = current_diversion;
-	last_inserted = 0;
+	int saved_number = current_diversion;
+	int last_inserted = 0;
 	make_diversion(0);
 	output_file = file; /* kludge in the frozen file */
 	iter = gl_oset_iterator(diversion_table);
@@ -826,10 +792,8 @@ void freeze_diversions(FILE * file)
 					M4ERROR((EXIT_FAILURE, 0, "diversion too large"));
 				xfprintf(file, "D%d,%lu\n", diversion->divnum, (ulong)file_stat.st_size);
 			}
-
 			insert_diversion_helper(diversion);
 			putc('\n', file);
-
 			last_inserted = diversion->divnum;
 		}
 	}

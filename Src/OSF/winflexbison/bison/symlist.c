@@ -114,11 +114,13 @@ symbol_list * symbol_list_append(symbol_list * list, symbol_list * node)
 {
 	if(!list)
 		return node;
-	symbol_list * next = list;
-	while(next->next)
-		next = next->next;
-	next->next = node;
-	return list;
+	else {
+		symbol_list * next = list;
+		while(next->next)
+			next = next->next;
+		next->next = node;
+		return list;
+	}
 }
 
 /*-----------------------------------------------.
@@ -143,9 +145,7 @@ void symbol_list_free(symbol_list * list)
 int symbol_list_length(symbol_list const * l)
 {
 	int res = 0;
-	for(/* Nothing. */;
-	    l && !(l->content_type == symbol_list::SYMLIST_SYMBOL && l->content.sym == NULL);
-	    l = l->next)
+	for(/* Nothing. */; l && !(l->content_type == symbol_list::SYMLIST_SYMBOL && l->content.sym == NULL); l = l->next)
 		++res;
 	return res;
 }

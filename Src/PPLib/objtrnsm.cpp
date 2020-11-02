@@ -14,7 +14,7 @@ SVerT PPSession::GetMinCompatVersion() const
 	// @attention При изменении формата передачи данных необходимо установить здесь минимальную
 	//   версию системы, с которой пакеты паредачи данных могут быть приняты.
 	//
-	static const SVerT __MinCompatVer(10, 7, 2);
+	static const SVerT __MinCompatVer(10, 9, 2);
 		// @v6.4.7  6.2.2-->6.4.7
 		// @v7.0.0  6.4.7-->6.9.10
 		// @v7.0.7  6.9.10-->7.0.7
@@ -37,6 +37,7 @@ SVerT PPSession::GetMinCompatVersion() const
 		// @v10.1.6 9.8.11-->10.1.6
 		// @v10.2.9 10.1.6-->10.2.9
 		// @v10.7.2 10.2.9-->10.7.2
+		// @v10.9.2 10.7.2-->10.9.2
 	return __MinCompatVer;
 }
 //
@@ -3328,7 +3329,7 @@ int SynchronizeObjects(PPID dest)
 					PPOBJ_STAFFRANK,
 					PPOBJ_TAG,
 					PPOBJ_UNIT,
-					PPOBJ_ACCOUNT2,        // @v9.0.4
+					PPOBJ_ACCOUNT2,
 					PPOBJ_FREIGHTPACKAGETYPE, // @v10.7.5
 					PPOBJ_TAXSYSTEMKIND,      // @v10.7.5
 					0);
@@ -3343,7 +3344,6 @@ int SynchronizeObjects(PPID dest)
 				for(uint i = 0; i < ref_obj_list.getCount(); i++)
 					THROW(SyncRefObj(&r_sync, ref_obj_list.get(i), dest));
 			}
-			// @v9.0.4 THROW(SyncTblObj(&r_sync, pact.P_Tbl,      PPOBJ_ACCOUNT,    dest));
 			THROW(SyncTblObj(&r_sync, part.P_Tbl,      PPOBJ_ARTICLE,    dest));
 			THROW(SyncTblObj(&r_sync, world_obj.P_Tbl, PPOBJ_WORLD,      dest));
 			THROW(SyncTblObj(&r_sync, loc_obj.P_Tbl,   PPOBJ_LOCATION,   dest));

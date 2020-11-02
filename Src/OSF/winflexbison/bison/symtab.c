@@ -20,7 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "intprops.h"
 
 #define CODE_UNDEFINED (-1) /** Undefined token code.  */
 #define NUMBER_UNDEFINED (-1) /* Undefined symbol number.  */
@@ -661,7 +660,7 @@ static size_t hash_semantic_type_hasher(void const * m, size_t tablesize)
 | Create the symbol hash table.  |
    `-------------------------------*/
 
-void symbols_new(void)
+void symbols_new()
 {
 	symbol_table = hash_xinitialize(HT_INITIAL_CAPACITY, NULL, hash_symbol_hasher, hash_symbol_comparator, symbol_free);
 	/* Construct the acceptsymbol symbol. */
@@ -777,7 +776,7 @@ bool symbol_is_dummy(Symbol const * sym)
 | Free the symbols.  |
    `-------------------*/
 
-void symbols_free(void)
+void symbols_free()
 {
 	hash_free(symbol_table);
 	hash_free(semantic_type_table);
@@ -809,7 +808,7 @@ static void table_sort(struct hash_table * table, Symbol *** sorted)
 | symbols and consider them nonterminals.                       |
    `--------------------------------------------------------------*/
 
-void symbols_check_defined(void)
+void symbols_check_defined()
 {
 	table_sort(symbol_table, &symbols_sorted);
 	/* semantic_type, like symbol, starts with a 'tag' field and then a
@@ -831,7 +830,7 @@ void symbols_check_defined(void)
 | number.                                                           |
    `------------------------------------------------------------------*/
 
-static void symbols_token_translations_init(void)
+static void symbols_token_translations_init()
 {
 	bool code_256_available_p = true;
 	// Find the highest token code, and whether 256, the POSIX preferred token code for the error token, is used.
@@ -872,7 +871,7 @@ static void symbols_token_translations_init(void)
 }
 
 /* Whether some symbol requires internationalization.  */
-static bool has_translations(void)
+static bool has_translations()
 {
 	for(const void * entry = hash_get_first(symbol_table); entry; entry = hash_get_next(symbol_table, entry)) {
 		const Symbol * sym = (const Symbol *)entry;
@@ -887,7 +886,7 @@ static bool has_translations(void)
 | FDEFINES.  Set up vectors SYMBOL_TABLE, TAGS of symbols.        |
    `----------------------------------------------------------------*/
 
-void symbols_pack(void)
+void symbols_pack()
 {
 	symbols = (Symbol **)xcalloc(nsyms, sizeof *symbols);
 	for(int i = 0; symbols_sorted[i]; ++i)
@@ -929,7 +928,7 @@ void symbols_pack(void)
 | Initialize relation graph nodes. |
    `---------------------------------*/
 
-static void init_prec_nodes(void)
+static void init_prec_nodes()
 {
 	prec_nodes = (symgraph **)xcalloc(nsyms, sizeof *prec_nodes);
 	for(int i = 0; i < nsyms; ++i) {
@@ -1010,7 +1009,7 @@ static void linkedlist_free(symgraphlink * node)
 | Clear and destroy association tracking table. |
    `----------------------------------------------*/
 
-static void assoc_free(void)
+static void assoc_free()
 {
 	for(int i = 0; i < nsyms; ++i) {
 		linkedlist_free(prec_nodes[i]->pred);
@@ -1024,7 +1023,7 @@ static void assoc_free(void)
 | Initialize association tracking table. |
    `---------------------------------------*/
 
-static void init_assoc(void)
+static void init_assoc()
 {
 	used_assoc = (bool *)xcalloc(nsyms, sizeof(*used_assoc));
 	for(graphid i = 0; i < nsyms; ++i)
@@ -1056,7 +1055,7 @@ void register_assoc(graphid i, graphid j)
 | Print a warning for unused precedence relations.  |
    `--------------------------------------------------*/
 
-void print_precedence_warnings(void)
+void print_precedence_warnings()
 {
 	if(!prec_nodes)
 		init_prec_nodes();

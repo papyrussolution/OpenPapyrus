@@ -19,15 +19,14 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <progname.h>
-//#include <vasnprintf.h>
+//#include <progname.h>
 
 struct fixit {
 	Location location;
 	char * fix;
 };
 
-gl_list_t fixits = NULL;
+gl_list_t fixits = NULL; // @global
 
 static fixit * fixit_new(Location const * loc, char const* fix)
 {
@@ -70,12 +69,12 @@ void fixits_register(Location const * loc, char const* fix)
 		fixit_print(f, stderr);
 }
 
-bool fixits_empty(void)
+bool fixits_empty()
 {
 	return !fixits;
 }
 
-void fixits_run(void)
+void fixits_run()
 {
 	if(!fixits)
 		return;
@@ -170,7 +169,7 @@ void fixits_run(void)
 }
 
 /* Free the registered fixits.  */
-void fixits_free(void)
+void fixits_free()
 {
 	if(fixits) {
 		gl_list_free(fixits);

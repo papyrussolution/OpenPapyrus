@@ -29,7 +29,6 @@ namespace NCompress {
 	namespace NLzma2 {
 		CEncoder::CEncoder()
 		{
-			_encoder = 0;
 			_encoder = Lzma2Enc_Create(&g_Alloc, &g_BigAlloc);
 			if(_encoder == 0)
 				throw 1;
@@ -479,22 +478,18 @@ namespace NCompress {
 			*value = _inProcessed;
 			return S_OK;
 		}
-
 		HRESULT CDecoder::CodeSpec(ISequentialInStream * inStream, ISequentialOutStream * outStream, ICompressProgressInfo * progress)
 		{
 			if(!_inBuf || !_propsWereSet)
 				return S_FALSE;
-
 			const uint64 startInProgress = _inProcessed;
 			SizeT wrPos = _state.dicPos;
 			HRESULT readRes = S_OK;
-
 			for(;; ) {
 				if(_inPos == _inLim && readRes == S_OK) {
 					_inPos = _inLim = 0;
 					readRes = inStream->Read(_inBuf, _inBufSize, &_inLim);
 				}
-
 				const SizeT dicPos = _state.dicPos;
 				SizeT size;
 				{
@@ -503,7 +498,6 @@ namespace NCompress {
 						next = wrPos + _outStep;
 					size = next - dicPos;
 				}
-
 				ELzmaFinishMode finishMode = LZMA_FINISH_ANY;
 				if(_outSizeDefined) {
 					const uint64 rem = _outSize - _outProcessed;

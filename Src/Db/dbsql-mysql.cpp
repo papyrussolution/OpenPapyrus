@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <db.h>
 
-#if 0 // @construction {
+#if 1 // @construction {
 
 #include <mysql/mysql.h>
 

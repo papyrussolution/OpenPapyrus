@@ -44,24 +44,14 @@
 #define STRNCMP_LIT(S, Literal) strncmp(S, "" Literal "", sizeof(Literal) - 1)
 #define STRPREFIX_LIT(Literal, S) (STRNCMP_LIT(S, Literal) == 0) /* Whether Literal is a prefix of S.  */
 
-//#include <unistd.h>
-//#include <inttypes.h>
-
 #ifndef UINTPTR_MAX
-	/* This isn't perfect, but it's good enough for Bison, which needs only to hash pointers.  */
-	typedef size_t uintptr_t;
+	typedef size_t uintptr_t; // This isn't perfect, but it's good enough for Bison, which needs only to hash pointers
 #endif
 #define EX_MISMATCH 63 /* Version mismatch. */
 
 /*---------.
 | Gnulib.  |
    `---------*/
-
-//#include <unlocked-io.h>
-//#include <verify.h>
-//#include <xalloc.h>
-//#include <stdio.h>
-//#include <stdint.h>
 
 // Clang and ICC like to pretend they are GCC.
 #if defined __GNUC__ && !defined __clang__ && !defined __ICC
@@ -98,22 +88,13 @@
    Bison's performance anyway.  */
 #define PACIFY_CC(Code) Code
 
-//#include <attribute.h>
-
 /*------.
 | NLS.  |
    `------*/
 
-//#include <locale.h>
 #include <gettext.h>
 #define _(Msgid)  gettext(Msgid)
 #define N_(Msgid) (Msgid)
-
-/*-----------.
-| Booleans.  |
-   `-----------*/
-
-//#include <stdbool.h>
 
 /*-----------.
 | Integers.  |
@@ -144,7 +125,6 @@ static inline int max_int(int a, int b) { return a >= b ? a : b; }
    For now, we use assert but we call it aver throughout Bison in case
    we later wish to try another scheme.
  */
-//#include <assert.h>
 #define aver assert
 
 /*-----------.

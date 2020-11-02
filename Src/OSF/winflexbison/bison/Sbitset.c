@@ -29,11 +29,10 @@ Sbitset Sbitset__new(Sbitset__Index nbits)
 
 Sbitset Sbitset__new_on_obstack(Sbitset__Index nbits, struct obstack * obstackp)
 {
-	Sbitset result;
 	Sbitset ptr;
 	Sbitset end;
 	aver(nbits);
-	result = (Sbitset)obstack_alloc(obstackp, Sbitset__nbytes(nbits));
+	Sbitset result = (Sbitset)obstack_alloc(obstackp, Sbitset__nbytes(nbits));
 	for(ptr = result, end = result + Sbitset__nbytes(nbits); ptr < end; ++ptr)
 		*ptr = 0;
 	return result;
@@ -58,9 +57,7 @@ void Sbitset__fprint(Sbitset self, Sbitset__Index nbits, FILE * file)
 	Sbitset__Index i;
 	Sbitset itr;
 	bool first = true;
-	fprintf(file,
-	    "nbits = %" SBITSET__INDEX__CONVERSION_SPEC ", set = {",
-	    nbits);
+	fprintf(file, "nbits = %" SBITSET__INDEX__CONVERSION_SPEC ", set = {", nbits);
 	SBITSET__FOR_EACH(self, nbits, itr, i)
 	{
 		if(first)

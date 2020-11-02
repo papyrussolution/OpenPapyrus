@@ -79,23 +79,15 @@ struct input_block {
 		struct {
 			char * string; /* remaining string value */
 			char * end; /* terminating NUL of string */
-		}
-
-		u_s; /* INPUT_STRING */
-
+		} u_s; /* INPUT_STRING */
 		struct {
 			FILE * fp;   /* input file handle */
 			bool_bitfield end : 1; /* true if peek has seen EOF */
 			bool_bitfield close : 1; /* true if we should close file on pop */
 			bool_bitfield advance : 1; /* track previous start_of_input_line */
-		}
-
-		u_f; /* INPUT_FILE */
-
+		} u_f; /* INPUT_FILE */
 		builtin_func * func; /* pointer to macro's function */
-	}
-
-	u;
+	} u;
 };
 
 typedef struct input_block input_block;
@@ -151,28 +143,22 @@ static const char * token_type_string(token_type);
 void push_file(FILE * fp, const char * title, bool close_when_done)
 {
 	input_block * i;
-
 	if(next != NULL) {
 		obstack_free(current_input, next);
 		next = NULL;
 	}
-
 	if(debug_level & DEBUG_TRACE_INPUT)
 		DEBUG_MESSAGE1("input read from %s", title);
-
-	i = (input_block*)obstack_alloc(current_input,
-		sizeof(struct input_block));
+	i = (input_block*)obstack_alloc(current_input, sizeof(struct input_block));
 	i->type = INPUT_FILE;
 	i->file = (char *)obstack_copy0(&file_names, title, strlen(title));
 	i->line = 1;
 	input_change = true;
-
 	i->u.u_f.fp = fp;
 	i->u.u_f.end = false;
 	i->u.u_f.close = close_when_done;
 	i->u.u_f.advance = start_of_input_line;
 	output_current_line = -1;
-
 	i->prev = isp;
 	isp = i;
 }
@@ -186,19 +172,15 @@ void push_file(FILE * fp, const char * title, bool close_when_done)
 void push_macro(builtin_func * func)
 {
 	input_block * i;
-
 	if(next != NULL) {
 		obstack_free(current_input, next);
 		next = NULL;
 	}
-
-	i = (input_block*)obstack_alloc(current_input,
-		sizeof(struct input_block));
+	i = (input_block*)obstack_alloc(current_input, sizeof(struct input_block));
 	i->type = INPUT_MACRO;
 	i->file = current_file;
 	i->line = current_line;
 	input_change = true;
-
 	i->u.func = func;
 	i->prev = isp;
 	isp = i;
@@ -335,7 +317,6 @@ bool pop_wrapup(void)
 	next = NULL;
 	obstack_free(current_input, NULL);
 	SAlloc::F(current_input);
-
 	if(wsp == NULL) {
 		/* End of the program.  Free all memory even though we are about
 		   to exit, since it makes leak detection easier.  */
@@ -348,15 +329,12 @@ bool pop_wrapup(void)
 #endif /* ENABLE_CHANGEWORD */
 		return false;
 	}
-
 	current_input = wrapup_stack;
 	wrapup_stack = (struct obstack *)xmalloc(sizeof(struct obstack));
 	obstack_init(wrapup_stack);
-
 	isp = wsp;
 	wsp = NULL;
 	input_change = true;
-
 	return true;
 }
 
@@ -517,20 +495,16 @@ void skip_line(void)
 static bool match_input(const char * s, bool consume)
 {
 	int n;                  /* number of characters matched */
-	int ch;                 /* input character */
 	const char * t;
 	bool result = false;
-
-	ch = peek_input();
+	int ch = peek_input(); /* input character */
 	if(ch != to_uchar(*s))
 		return false;           /* fail */
-
 	if(s[1] == '\0') {
 		if(consume)
 			next_char();
 		return true;            /* short match */
 	}
-
 	next_char();
 	for(n = 1, t = s++; peek_input() == to_uchar(*s++);) {
 		next_char();
@@ -546,7 +520,6 @@ static bool match_input(const char * s, bool consume)
 	/* Failed or shouldn't consume, push back input.  */
 	{
 		struct obstack * h = push_string_init();
-
 		/* `obstack_grow' may be macro evaluating its arg 1 several times. */
 		obstack_grow(h, t, n);
 	}
@@ -564,10 +537,7 @@ static bool match_input(const char * s, bool consume)
 | effectively unchanged.                                              |
    `--------------------------------------------------------------------*/
 
-#define MATCH(ch, s, consume)                                           \
-	(to_uchar((s)[0]) == (ch)                                            \
-	&& (ch) != '\0'                                                      \
-	&& ((s)[1] == '\0' || (match_input((s) + (consume), consume))))
+#define MATCH(ch, s, consume) (to_uchar((s)[0]) == (ch) && (ch) != '\0' && ((s)[1] == '\0' || (match_input((s) + (consume), consume))))
 
 /*--------------------------------------------------------.
 | Initialize input stacks, and quote/comment characters.  |
@@ -577,27 +547,21 @@ void input_init(void)
 {
 	current_file = "";
 	current_line = 0;
-
 	current_input = (struct obstack *)xmalloc(sizeof(struct obstack));
 	obstack_init(current_input);
 	wrapup_stack = (struct obstack *)xmalloc(sizeof(struct obstack));
 	obstack_init(wrapup_stack);
-
 	obstack_init(&file_names);
-
 	/* Allocate an object in the current chunk, so that obstack_free
 	   will always work even if the first token parsed spills to a new
 	   chunk.  */
 	obstack_init(&token_stack);
 	obstack_alloc(&token_stack, 1);
 	token_bottom = obstack_base(&token_stack);
-
 	isp = NULL;
 	wsp = NULL;
 	next = NULL;
-
 	start_of_input_line = false;
-
 	lquote.string = xstrdup(DEF_LQUOTE);
 	lquote.length = strlen(lquote.string);
 	rquote.string = xstrdup(DEF_RQUOTE);
@@ -636,7 +600,6 @@ void set_quotes(const char * lq, const char * rq)
 	}
 	else if(!rq || (*lq && !*rq))
 		rq = DEF_RQUOTE;
-
 	lquote.string = xstrdup(lq);
 	lquote.length = strlen(lquote.string);
 	rquote.string = xstrdup(rq);
@@ -647,7 +610,6 @@ void set_comment(const char * bc, const char * ec)
 {
 	SAlloc::F(bcomm.string);
 	SAlloc::F(ecomm.string);
-
 	/* POSIX requires no arguments to disable comments.  It requires
 	   empty arguments to be used as-is, but this is counter to
 	   traditional behavior, because a non-null begin and null end makes
@@ -659,7 +621,6 @@ void set_comment(const char * bc, const char * ec)
 		bc = ec = "";
 	else if(!ec || (*bc && !*ec))
 		ec = DEF_ECOMM;
-
 	bcomm.string = xstrdup(bc);
 	bcomm.length = strlen(bcomm.string);
 	ecomm.string = xstrdup(ec);
@@ -688,14 +649,12 @@ void set_word_regexp(const char * regexp)
 	   can't rely on struct assigns working, so redo the compilation.
 	   The fastmap can be reused between compilations, and will be freed
 	   by the final regfree.  */
-	if(!word_regexp.fastmap)
-		word_regexp.fastmap = xcharalloc(UCHAR_MAX + 1);
+	SETIFZ(word_regexp.fastmap, xcharalloc(UCHAR_MAX + 1));
 	msg = re_compile_pattern(regexp, strlen(regexp), &word_regexp);
 	assert(!msg);
 	re_set_registers(&word_regexp, &regs, regs.num_regs, regs.start, regs.end);
 	if(re_compile_fastmap(&word_regexp))
 		assert(false);
-
 	default_word_regexp = false;
 }
 
@@ -727,11 +686,8 @@ token_type next_token(token_data * td, int * line)
 #endif
 	const char * file;
 	int dummy;
-
 	obstack_free(&token_stack, token_bottom);
-	if(!line)
-		line = &dummy;
-
+	SETIFZ(line, &dummy);
 	/* Can't consume character until after CHAR_MACRO is handled.  */
 	ch = peek_input();
 	if(ch == CHAR_EOF) {
@@ -745,12 +701,10 @@ token_type next_token(token_data * td, int * line)
 		init_macro_token(td);
 		next_char();
 #ifdef DEBUG_INPUT
-		xfprintf(stderr, "next_token -> MACDEF (%s)\n",
-		    find_builtin_by_addr(TOKEN_DATA_FUNC(td))->name);
+		xfprintf(stderr, "next_token -> MACDEF (%s)\n", find_builtin_by_addr(TOKEN_DATA_FUNC(td))->name);
 #endif
 		return TOKEN_MACDEF;
 	}
-
 	next_char(); /* Consume character we already peeked at.  */
 	file = current_file;
 	*line = current_line;
@@ -775,9 +729,7 @@ token_type next_token(token_data * td, int * line)
 		}
 		type = TOKEN_WORD;
 	}
-
 #ifdef ENABLE_CHANGEWORD
-
 	else if(!default_word_regexp && word_regexp.fastmap[ch]) {
 		obstack_1grow(&token_stack, ch);
 		while(1) {
@@ -785,33 +737,22 @@ token_type next_token(token_data * td, int * line)
 			if(ch == CHAR_EOF)
 				break;
 			obstack_1grow(&token_stack, ch);
-			startpos = re_search(&word_regexp,
-				(char *)obstack_base(&token_stack),
-				obstack_object_size(&token_stack), 0, 0,
-				&regs);
-			if(startpos ||
-			    regs.end [0] != (regoff_t)obstack_object_size(&token_stack)) {
-				*(((char *)obstack_base(&token_stack)
-				+ obstack_object_size(&token_stack)) - 1) = '\0';
+			startpos = re_search(&word_regexp, (char *)obstack_base(&token_stack), obstack_object_size(&token_stack), 0, 0, &regs);
+			if(startpos || regs.end [0] != (regoff_t)obstack_object_size(&token_stack)) {
+				*(((char *)obstack_base(&token_stack) + obstack_object_size(&token_stack)) - 1) = '\0';
 				break;
 			}
 			next_char();
 		}
-
 		obstack_1grow(&token_stack, '\0');
 		orig_text = (char *)obstack_finish(&token_stack);
-
 		if(regs.start[1] != -1)
-			obstack_grow(&token_stack, orig_text + regs.start[1],
-			    regs.end[1] - regs.start[1]);
+			obstack_grow(&token_stack, orig_text + regs.start[1], regs.end[1] - regs.start[1]);
 		else
 			obstack_grow(&token_stack, orig_text, regs.end[0]);
-
 		type = TOKEN_WORD;
 	}
-
 #endif /* ENABLE_CHANGEWORD */
-
 	else if(!MATCH(ch, lquote.string, true)) {
 		switch(ch) {
 			case '(': type = TOKEN_OPEN; break;
@@ -826,14 +767,12 @@ token_type next_token(token_data * td, int * line)
 		quote_level = 1;
 		while(1) {
 			/* Try scanning a buffer first.  */
-			const char * buffer = (isp && isp->type == INPUT_STRING
-			    ? isp->u.u_s.string : NULL);
+			const char * buffer = (isp && isp->type == INPUT_STRING ? isp->u.u_s.string : NULL);
 			if(buffer && *buffer) {
 				size_t len = isp->u.u_s.end - buffer;
 				const char * p = buffer;
 				do {
-					p = (char *)memchr2(p, *lquote.string, *rquote.string,
-						buffer + len - p);
+					p = (char *)memchr2(p, *lquote.string, *rquote.string, buffer + len - p);
 				}
 				while(p && fast && (*p++ == *rquote.string
 				    ? --quote_level : ++quote_level));
@@ -875,19 +814,15 @@ token_type next_token(token_data * td, int * line)
 		}
 		type = TOKEN_STRING;
 	}
-
 	obstack_1grow(&token_stack, '\0');
-
 	TOKEN_DATA_TYPE(td) = TOKEN_TEXT;
 	TOKEN_DATA_TEXT(td) = (char *)obstack_finish(&token_stack);
 #ifdef ENABLE_CHANGEWORD
-	if(orig_text == NULL)
-		orig_text = TOKEN_DATA_TEXT(td);
+	SETIFZ(orig_text, TOKEN_DATA_TEXT(td));
 	TOKEN_DATA_ORIG_TEXT(td) = orig_text;
 #endif
 #ifdef DEBUG_INPUT
-	xfprintf(stderr, "next_token -> %s (%s)\n",
-	    token_type_string(type), TOKEN_DATA_TEXT(td));
+	xfprintf(stderr, "next_token -> %s (%s)\n", token_type_string(type), TOKEN_DATA_TEXT(td));
 #endif
 	return type;
 }
@@ -900,7 +835,6 @@ token_type peek_token(void)
 {
 	token_type result;
 	int ch = peek_input();
-
 	if(ch == CHAR_EOF) {
 		result = TOKEN_EOF;
 	}
@@ -927,7 +861,6 @@ token_type peek_token(void)
 			case ')': result = TOKEN_CLOSE; break;
 			default: result = TOKEN_SIMPLE;
 		}
-
 #ifdef DEBUG_INPUT
 	xfprintf(stderr, "peek_token -> %s\n", token_type_string(result));
 #endif /* DEBUG_INPUT */
@@ -971,7 +904,6 @@ static void M4_GNUC_UNUSED lex_debug(void)
 {
 	token_type t;
 	token_data td;
-
 	while((t = next_token(&td, NULL)) != TOKEN_EOF)
 		print_token("lex", t, &td);
 }

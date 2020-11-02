@@ -3156,8 +3156,25 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 	sdr_lot.QttyPlus = pItem->QttyPlus;
 	sdr_lot.QttyMinus = pItem->QttyMinus;
 	sdr_lot.OrgLotDt = pItem->OrgLotDt;
-	GetGoodsName(pItem->GoodsID, temp_buf);
-	STRNSCPY(sdr_lot.GoodsName, temp_buf); // @v10.5.8
+	// @v10.9.2 GetGoodsName(pItem->GoodsID, temp_buf);
+	// @v10.9.2 STRNSCPY(sdr_lot.GoodsName, temp_buf); // @v10.5.8
+	// @v10.9.2 {
+	{
+		Goods2Tbl::Rec goods_rec;
+		if(GObj.Fetch(pItem->GoodsID, &goods_rec) > 0) {
+			STRNSCPY(sdr_lot.GoodsName, goods_rec.Name);
+			if(GObj.Fetch(goods_rec.ParentID, &goods_rec) > 0) {
+				STRNSCPY(sdr_lot.GoodsGroup, goods_rec.Name);
+			}
+			if(goods_rec.UnitID) {
+				PPUnit unit_rec;
+				if(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0) {
+					STRNSCPY(sdr_lot.UnitName, unit_rec.Name);
+				}
+			}
+		}
+	}
+	// } @v10.9.2 
 	temp_buf = pItem->Serial;
 	p_bobj->ReleaseSerialFromUniqSuffix(temp_buf);
 	temp_buf.CopyTo(sdr_lot.Serial, sizeof(sdr_lot.Serial));

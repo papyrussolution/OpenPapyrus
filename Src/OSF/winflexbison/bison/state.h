@@ -202,8 +202,8 @@ void state_rule_lookaheads_print(state const * s, rule const * r, FILE * out);
 void state_rule_lookaheads_print_xml(state const * s, rule const * r, FILE * out, int level);
 
 /* Create/destroy the states hash table.  */
-void state_hash_new(void);
-void state_hash_free(void);
+void state_hash_new();
+void state_hash_free();
 state * state_hash_lookup(size_t core_size, const item_index * core); /* Find the state associated to the CORE, and return it.  If it does not exist yet, return NULL.  */
 void state_hash_insert(state * s); /* Insert STATE in the state hash table.  */
 
@@ -213,6 +213,6 @@ void state_hash_insert(state * s); /* Insert STATE in the state hash table.  */
    states.  The size of OLD_TO_NEW must be the old value of NSTATES.  */
 void state_remove_unreachable_states(state_number old_to_new[]);
 extern state ** states; /* All the states, indexed by the state number.  */
-void states_free(void); /* Free all the states.  */
+void states_free(); /* Free all the states.  */
 
 #endif /* !STATE_H_ */

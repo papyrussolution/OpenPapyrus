@@ -440,15 +440,11 @@ static cairo_int_status_t composite_traps(void * _dst,
 	cairo_int_status_t status;
 	pixman_image_t * mask;
 	pixman_format_code_t format;
-
 	TRACE_FUNCTION_SIMPLE();
-
 	/* pixman doesn't eliminate self-intersecting trapezoids/edges */
-	status = _cairo_bentley_ottmann_tessellate_traps(traps,
-		CAIRO_FILL_RULE_WINDING);
+	status = _cairo_bentley_ottmann_tessellate_traps(traps, CAIRO_FILL_RULE_WINDING);
 	if(status != CAIRO_INT_STATUS_SUCCESS)
 		return status;
-
 	/* Special case adding trapezoids onto a mask surface; we want to avoid
 	 * creating an intermediate temporary mask unnecessarily.
 	 *
@@ -523,37 +519,26 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 	cairo_image_source_t * src = (cairo_image_source_t *)abstract_src;
 	pixman_image_t * mask;
 	pixman_format_code_t format;
-
 	TRACE_FUNCTION_SIMPLE();
-
 	if(strip->num_points < 3)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(1) { /* pixman doesn't eliminate self-intersecting triangles/edges */
 		cairo_int_status_t status;
 		cairo_traps_t traps;
 		int n;
-
 		_cairo_traps_init(&traps);
 		for(n = 0; n < strip->num_points; n++) {
 			cairo_point_t p[4];
-
 			p[0] = strip->points[0];
 			p[1] = strip->points[1];
 			p[2] = strip->points[2];
 			p[3] = strip->points[0];
-
 			_cairo_traps_tessellate_convex_quad(&traps, p);
 		}
-		status = composite_traps(_dst, op, abstract_src,
-			src_x, src_y,
-			dst_x, dst_y,
-			extents, antialias, &traps);
+		status = composite_traps(_dst, op, abstract_src, src_x, src_y, dst_x, dst_y, extents, antialias, &traps);
 		_cairo_traps_fini(&traps);
-
 		return status;
 	}
-
 	format = antialias == CAIRO_ANTIALIAS_NONE ? PIXMAN_a1 : PIXMAN_a8;
 	if(dst->pixman_format == format &&
 	    (abstract_src == NULL ||

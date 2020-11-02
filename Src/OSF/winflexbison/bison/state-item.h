@@ -52,14 +52,14 @@
 
 typedef int state_item_number;
 
-typedef struct {
+struct state_item {
 	const state * state;
 	item_number * item;
 	state_item_number trans;
 	bitset prods;
 	bitset revs;
 	bitset lookahead;
-} state_item;
+};
 
 typedef gl_list_t state_item_list; // A path of state-items.
 extern bitsetv firsts;
@@ -74,8 +74,8 @@ static inline state_item_number state_item_index_lookup(state_number s, state_it
 	return state_item_map[s] + off;
 }
 
-void state_items_init(void);
-void state_items_free(void);
+void state_items_init();
+void state_items_free();
 void state_item_print(const state_item * si, FILE * out, const char * prefix);
 bool production_allowed(const state_item * si, const state_item * next);
 

@@ -20,11 +20,8 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <dirname.h>
-//#include <relocatable.h> /* relocate2 */
+//#include <dirname.h>
 #include <stdio-safer.h>
-//#include <sys/stat.h>
-//#include <sys/types.h>
 #include <xstrndup.h>
 
 /* Initializing some values below (such SPEC_NAME_PREFIX to 'yy') is
@@ -128,14 +125,12 @@ FILE * xfopen(const char * name, const char * mode)
 
 void xfclose(FILE * ptr)
 {
-	if(ptr == NULL)
-		return;
-
-	if(ferror(ptr))
-		error(EXIT_FAILURE, 0, _("input/output error"));
-
-	if(fclose(ptr) != 0)
-		error(EXIT_FAILURE, get_errno(), _("cannot close file"));
+	if(ptr) {
+		if(ferror(ptr))
+			error(EXIT_FAILURE, 0, _("input/output error"));
+		if(fclose(ptr) != 0)
+			error(EXIT_FAILURE, get_errno(), _("cannot close file"));
+	}
 }
 
 FILE * xfdopen(int fd, char const * mode)
@@ -290,7 +285,7 @@ static void file_name_split(const char * file_name, const char ** base, const ch
    The precise -o name will be used for FTABLE.  For other output
    files, remove the ".c" or ".tab.c" suffix.  */
 
-static void compute_file_name_parts(void)
+static void compute_file_name_parts()
 {
 	if(spec_outfile) {
 		const char * base, * tab, * ext;
@@ -336,7 +331,7 @@ static void compute_file_name_parts(void)
 /* Compute the output file names.  Warn if we detect conflicting
    outputs to the same file.  */
 
-void compute_output_file_names(void)
+void compute_output_file_names()
 {
 	compute_file_name_parts();
 	/* If not yet done. */
@@ -389,7 +384,7 @@ void output_file_name_check(char ** file_name, bool source)
 	}
 }
 
-void unlink_generated_sources(void)
+void unlink_generated_sources()
 {
 	for(int i = 0; i < generated_files_size; i++)
 		if(generated_files[i].is_source)
@@ -427,7 +422,7 @@ char * get_local_pkgdatadir()
 	return local_pkgdatadir;
 }
 
-char const * pkgdatadir(void)
+char const * pkgdatadir()
 {
 	if(relocate_buffer)
 		return relocate_buffer;
@@ -438,12 +433,11 @@ char const * pkgdatadir(void)
 	}
 }
 
-char const * m4path(void)
+char const * m4path()
 {
 	char const * m4 = getenv("M4");
 	if(m4)
 		return m4;
-
 	//winflexbison
 	return "M4";
 
@@ -458,7 +452,7 @@ char const * m4path(void)
 	 */
 }
 
-void output_file_names_free(void)
+void output_file_names_free()
 {
 	SAlloc::F(all_but_ext);
 	SAlloc::F(spec_verbose_file);

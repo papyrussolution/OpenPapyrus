@@ -18,10 +18,6 @@
 #ifndef XALLOC_H_
 #define XALLOC_H_
 
-//#include <stddef.h>
-//#ifdef __cplusplus
-	//extern "C" {
-//#endif
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 8)
 	#define _GL_ATTRIBUTE_NORETURN __attribute__ ((__noreturn__))
 #else

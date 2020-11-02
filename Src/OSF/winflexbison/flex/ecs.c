@@ -38,8 +38,8 @@
 
 void ccl2ecl()
 {
-	int i, ich, newlen, cclp, ccls, cclmec;
-	for(i = 1; i <= lastccl; ++i) {
+	int ich, newlen, cclp, ccls, cclmec;
+	for(int i = 1; i <= lastccl; ++i) {
 		/* We loop through each character class, and for each character
 		 * in the class, add the character's equivalence class to the
 		 * new "character" class we are creating.  Thus when we are all
@@ -68,25 +68,22 @@ void ccl2ecl()
  *
  * Returned is the number of classes.
  */
-
 int     cre8ecs(int fwd[], int bck[], int num)
 {
-	int i, j;
 	int numcl = 0;
 	/* Create equivalence class numbers.  From now on, ABS( bck(x) )
 	 * is the equivalence class number for object x.  If bck(x)
 	 * is positive, then x is the representative of its equivalence
 	 * class.
 	 */
-	for(i = 1; i <= num; ++i)
+	for(int i = 1; i <= num; ++i)
 		if(bck[i] == NIL) {
 			bck[i] = ++numcl;
-			for(j = fwd[i]; j != NIL; j = fwd[j])
+			for(int j = fwd[i]; j != NIL; j = fwd[j])
 				bck[j] = -numcl;
 		}
 	return numcl;
 }
-
 /* mkeccl - update equivalence classes based on character class xtions
  *
  * synopsis
@@ -107,79 +104,57 @@ void    mkeccl(uchar ccls[], int lenccl, int fwd[], int bck[], int llsiz, int NU
 	int cclp, oldec, newec;
 	int cclm, i, j;
 	static uchar cclflags[CSIZE];   /* initialized to all '\0' */
-
 	/* Note that it doesn't matter whether or not the character class is
 	 * negated.  The same results will be obtained in either case.
 	 */
-
 	cclp = 0;
-
 	while(cclp < lenccl) {
 		cclm = ccls[cclp];
-
 		if(NUL_mapping && cclm == 0)
 			cclm = NUL_mapping;
-
 		oldec = bck[cclm];
 		newec = cclm;
-
 		j = cclp + 1;
-
-		for(i = fwd[cclm]; i != NIL && i <= llsiz; i = fwd[i]) {        /* look for the symbol in the character
-			                                                           class */
+		for(i = fwd[cclm]; i != NIL && i <= llsiz; i = fwd[i]) { /* look for the symbol in the character class */
 			for(; j < lenccl; ++j) {
 				int ccl_char;
-
 				if(NUL_mapping && ccls[j] == 0)
 					ccl_char = NUL_mapping;
 				else
 					ccl_char = ccls[j];
-
 				if(ccl_char > i)
 					break;
-
 				if(ccl_char == i && !cclflags[j]) {
 					/* We found an old companion of cclm
 					 * in the ccl.  Link it into the new
 					 * equivalence class and flag it as
 					 * having been processed.
 					 */
-
 					bck[i] = newec;
 					fwd[newec] = i;
 					newec = i;
 					/* Set flag so we don't reprocess. */
 					cclflags[j] = 1;
-
 					/* Get next equivalence class member. */
 					/* continue 2 */
 					goto next_pt;
 				}
 			}
-
 			/* Symbol isn't in character class.  Put it in the old
 			 * equivalence class.
 			 */
-
 			bck[i] = oldec;
-
 			if(oldec != NIL)
 				fwd[oldec] = i;
-
 			oldec = i;
-
 next_pt:                ;
 		}
-
 		if(bck[cclm] != NIL || oldec != bck[cclm]) {
 			bck[cclm] = NIL;
 			fwd[oldec] = NIL;
 		}
-
 		fwd[newec] = NIL;
-
 		/* Find next ccl member to process. */
-
 		for(++cclp; cclp < lenccl && cclflags[cclp]; ++cclp) {
 			/* Reset "doesn't need processing" flag. */
 			cclflags[cclp] = 0;
@@ -194,13 +169,10 @@ void    mkechar(int tch, int fwd[], int bck[])
 	/* If until now the character has been a proper subset of
 	 * an equivalence class, break it away to create a new ec
 	 */
-
 	if(fwd[tch] != NIL)
 		bck[fwd[tch]] = bck[tch];
-
 	if(bck[tch] != NIL)
 		fwd[bck[tch]] = fwd[tch];
-
 	fwd[tch] = NIL;
 	bck[tch] = NIL;
 }

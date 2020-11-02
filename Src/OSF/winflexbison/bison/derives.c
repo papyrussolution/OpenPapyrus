@@ -27,9 +27,9 @@ typedef struct rule_list {
 	rule * value;
 } rule_list;
 
-rule *** derives;
+rule *** derives; // @global
 
-static void print_derives(void)
+static void print_derives()
 {
 	fputs("DERIVES\n", stderr);
 	for(symbol_number i = ntokens; i < nsyms; ++i) {
@@ -44,7 +44,7 @@ static void print_derives(void)
 	fputs("\n\n", stderr);
 }
 
-void derives_compute(void)
+void derives_compute()
 {
 	/* DSET[NTERM - NTOKENS] -- A linked list of the numbers of the rules
 	   whose LHS is NTERM.  */
@@ -85,7 +85,7 @@ void derives_compute(void)
 	SAlloc::F(delts);
 }
 
-void derives_free(void)
+void derives_free()
 {
 	if(derives) {
 		SAlloc::F(derives[0]);

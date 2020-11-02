@@ -19,7 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <c-ctype.h>
 
 struct derivation {
 	symbol_number sym;
@@ -33,7 +32,7 @@ struct derivation {
 
 static derivation d_dot = { -1, NULL, -1, -1 };
 
-derivation * derivation_dot(void)
+derivation * derivation_dot()
 {
 	return &d_dot;
 }

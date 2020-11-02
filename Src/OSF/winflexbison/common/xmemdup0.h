@@ -18,8 +18,6 @@
 #ifndef XMEMDUP_H_
 #define XMEMDUP_H_
 
-//#include <stddef.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

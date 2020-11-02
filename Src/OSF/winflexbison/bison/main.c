@@ -20,11 +20,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <bitset/stats.h>
-//#include <closeout.h>
-#include <progname.h>
-//#include <relocatable.h> /* relocate2 */
-//#include "scan-skel.h"
+//#include <progname.h>
 #include "tables.h"
 
 int main(int argc, char * argv[])
@@ -59,18 +55,14 @@ int main(int argc, char * argv[])
 	timevar_start(tv_total);
 	if(trace_flag & trace_bitsets)
 		bitset_stats_enable();
-
 	/* Read the input.  Copy some parts of it to FGUARD, FACTION, FTABLE
 	   and FATTRS.  In file reader.c.  The other parts are recorded in
 	   the grammar; see gram.h.  */
-
 	timevar_push(tv_reader);
 	reader(grammar_file);
 	timevar_pop(tv_reader);
-
 	if(complaint_status == status_complaint)
 		goto finish;
-
 	/* Find useless nonterminals and productions and reduce the grammar. */
 	timevar_push(tv_reduce);
 	reduce_grammar();
@@ -165,7 +157,6 @@ finish:
 	grammar_free();
 	counterexample_free();
 	output_file_names_free();
-
 	/* The scanner and parser memory cannot be released right after
 	   parsing, as it contains things such as user actions, prologue,
 	   epilogue etc.  */
@@ -177,11 +168,10 @@ finish:
 	timevar_pop(tv_free);
 	if(trace_flag & trace_bitsets)
 		bitset_stats_dump(stderr);
-	/* Stop timing and print the times.  */
+	// Stop timing and print the times. 
 	timevar_stop(tv_total);
 	timevar_print(stderr);
-	/* Fix input file now, even if there are errors: that's less
-	   warnings in the following runs.  */
+	// Fix input file now, even if there are errors: that's less warnings in the following runs.
 	if(!fixits_empty()) {
 		if(update_flag)
 			fixits_run();

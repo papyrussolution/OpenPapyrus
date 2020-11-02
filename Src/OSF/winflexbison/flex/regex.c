@@ -106,13 +106,8 @@ char   * regmatch_cpy(regmatch_t * m, char * dest, const char * src)
  */
 int regmatch_len(regmatch_t * m)
 {
-	if(m == NULL || m->rm_so < 0) {
-		return 0;
-	}
-
-	return m->rm_eo - m->rm_so;
+	return (!m || m->rm_so < 0) ? 0 : (m->rm_eo - m->rm_so);
 }
-
 /** Convert a regmatch_t object to an integer using the strtol() function.
  * @param m A match as returned by regexec().
  * @param src The source string that was passed to regexec().
@@ -120,28 +115,21 @@ int regmatch_len(regmatch_t * m)
  * @param base   Same as the third argument to strtol().
  * @return The converted integer or error (Return value is the same as for strtol()).
  */
-int regmatch_strtol(regmatch_t * m, const char * src, char ** endptr,
-    int base)
+int regmatch_strtol(regmatch_t * m, const char * src, char ** endptr, int base)
 {
 	int n = 0;
-
 #define bufsz 20
 	char buf[bufsz];
 	char   * s;
-
 	if(m == NULL || m->rm_so < 0)
 		return 0;
-
 	if(regmatch_len(m) < bufsz)
 		s = regmatch_cpy(m, buf, src);
 	else
 		s = regmatch_dup(m, src);
-
 	n = (int)strtol(s, endptr, base);
-
 	if(s != buf)
 		free(s);
-
 	return n;
 }
 

@@ -36,10 +36,6 @@ class  BDbDatabase;
 
 #ifndef _WIN32_WCE // {
 //
-// В версии 5.9.2 все зависимости от следующего определения из исходных кодов удалены.
-//
-#define UNI_DBTABLE
-//
 //
 //
 enum SqlServerType {
@@ -52,6 +48,9 @@ enum SqlServerType {
 	sqlstMySQL,       // @v10.9.0 MySQL
 	sqlstSQLite       // @v10.9.0 SQLite 
 };
+
+int    GetSqlServerTypeSymb(SqlServerType t, SString & rBuf);
+SqlServerType GetSqlServerTypeBySymb(const char * pSymb);
 //
 // Descr: класс, представляющий поля типа BLOB или CLOB в таблицах баз данных.
 //   Главная проблема, которую призвана решить этот класс - совместимость между
@@ -334,12 +333,6 @@ public:
 	void * FASTCALL GetData(uint fldPos = 0) const;
 	void   CreateRecFromDbfTable(const DbfTable * pTbl);
 	const F * FASTCALL GetC(uint) const;
-	/* @v9.2.7 Заменено на контстанты CTRANSF_XXX
-	enum {
-		cvtCharToOem = 1,
-		cvtOemToChar,
-		cvtUtf8ToChar
-	}; */
 	//
 	// Descr: Преобразует поля записи в соответсвии с параметром cvt.
 	// ARG(cvt IN): Вид преобразования, применяемого к полям записи CTRANSF_XXX
@@ -384,7 +377,7 @@ private:
 	int32  Ver;              // @persistent (Serialize())
 	int32  Flags;            // @persistent
 	uint32 DescrPos;         // @persistent
-	SVector Items;           // @persistent // @v9.8.4 SArray-->SVector
+	SVector Items;           // @persistent 
 	StringSet StringPool;    // @persistent
 	size_t RecSize;          // @transient
 	// @v10.8.4 mutable SString TempBuf; // @transient @allocreuse
@@ -529,7 +522,7 @@ public:
 		void   Init(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
-		int32  Ver;      // @v7.4.7 Serialize version
+		int32  Ver;      // Serialize version
 		long   Flags;
 		SString RootTag;
 		SString RecTag;
@@ -635,7 +628,6 @@ private:
 	Param  P;
 };
 //
-// @v6.4.4 AHTOXA {
 // @ModuleDecl(ExcelDbFile)
 //
 class ExcelDbFile {
@@ -705,7 +697,6 @@ private:
 	ComExcelApp  * P_App;
 	ComExcelWorksheets * P_Sheets;
 };
-// } @v6.4.4 AHTOXA
 //
 // Definitions
 //
@@ -1412,7 +1403,7 @@ private:
 	uint8  S[32];
 };
 
-typedef TSVector <DBRowId> DBRowIdArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <DBRowId> DBRowIdArray;
 
 struct DBLobItem {
 	uint   FldN;
@@ -1422,7 +1413,7 @@ struct DBLobItem {
 	uint8  Reserve[3];
 };
 
-class DBLobBlock : public SVector { // @v9.8.4 SArray-->SVector
+class DBLobBlock : public SVector {
 public:
 	DBLobBlock();
 	int    SetSize(uint fldIdx, size_t sz);
@@ -2036,7 +2027,8 @@ public:
 		attrTempPath,       // Путь к каталогу временных файлоы
 		attrDbUuid,         // (S_GUID) UUID базы данных (передается как строка в формате S_GUID::fmtIDL)
 		attrUserName,       // Имя пользователя для регистрации в базе данных
-		attrPassword        // Пароль для регистрации в базе данных (хранится в зашифрованном виде)
+		attrPassword,       // Пароль для регистрации в базе данных (хранится в зашифрованном виде)
+		attrServerUrl       // @v10.9.2 URL хоста, на котором запущен сервер 
 	};
 	DbLoginBlock();
 	DbLoginBlock(const DbLoginBlock & rS);
@@ -2046,6 +2038,8 @@ public:
 	int    FASTCALL Copy(const DbLoginBlock & rS);
 	int    SetAttr(int attr, const char * pVal);
 	int    GetAttr(int attr, SString & rVal) const;
+	int    UrlParse(const char * pUrl);
+	int    UrlCompose(SString & rUrl) const;
 private:
 	LAssocArray Items;
 	size_t End;
@@ -2350,7 +2344,7 @@ public:
 		ordByDateDesc = 2
 	};
 	explicit BCopySet(const char * pName);
-	int    Sort(Order);
+	void   Sort(Order);
 	SString Name;
 };
 //

@@ -61,12 +61,65 @@
 //#include <sys/wait.h>
 #include <stdbool.h>
 #include <stdarg.h>
-/* Required: regcomp(), regexec() and regerror() in <regex.h> */
-#include <regex.h>
-/* Required: strcasecmp() in <strings.h> */
-//#include <strings.h>
-#include "flexint.h"
+#include <regex.h> /* Required: regcomp(), regexec() and regerror() in <regex.h> */
+//#include <strings.h> /* Required: strcasecmp() in <strings.h> */
+//#include "flexint.h"
+	// C99 systems have <inttypes.h>. Non-C99 systems may or may not
+	#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+		// C99 says to define __STDC_LIMIT_MACROS before including stdint.h,
+		// if you want the limit (max/min) macros for int types. 
+		#ifndef __STDC_LIMIT_MACROS
+			#define __STDC_LIMIT_MACROS 1
+		#endif
 
+		#include <inttypes.h>
+		typedef int8_t flex_int8_t;
+		typedef uint8_t flex_uint8_t;
+		typedef int16_t flex_int16_t;
+		typedef uint16_t flex_uint16_t;
+		typedef int32_t flex_int32_t;
+		typedef uint32_t flex_uint32_t;
+	#else
+		typedef signed char flex_int8_t;
+		typedef short int flex_int16_t;
+		typedef int flex_int32_t;
+		typedef uchar flex_uint8_t; 
+		typedef unsigned short int flex_uint16_t;
+		typedef unsigned int flex_uint32_t;
+
+		// Limits of integral types
+		#ifndef INT8_MIN
+			#define INT8_MIN               (-128)
+		#endif
+		#ifndef INT16_MIN
+			#define INT16_MIN              (-32767-1)
+		#endif
+		#ifndef INT32_MIN
+			#define INT32_MIN              (-2147483647-1)
+		#endif
+		#ifndef INT8_MAX
+			#define INT8_MAX               (127)
+		#endif
+		#ifndef INT16_MAX
+			#define INT16_MAX              (32767)
+		#endif
+		#ifndef INT32_MAX
+			#define INT32_MAX              (2147483647)
+		#endif
+		#ifndef UINT8_MAX
+			#define UINT8_MAX              (255U)
+		#endif
+		#ifndef UINT16_MAX
+			#define UINT16_MAX             (65535U)
+		#endif
+		#ifndef UINT32_MAX
+			#define UINT32_MAX             (4294967295U)
+		#endif
+		#ifndef SIZE_MAX
+			#define SIZE_MAX               (~(size_t)0)
+		#endif
+	#endif /* ! C99 */
+//
 /* We use gettext. So, when we write strings which should be translated, we mark them with _() */
 #ifdef ENABLE_NLS
 	#ifdef HAVE_LOCALE_H
@@ -83,14 +136,6 @@
 	#define DEFAULT_CSIZE 128
 #endif
 #define MAXLINE 2048 // Maximum line length we'll have to deal with. 
-/* @sobolev
-#ifndef MIN
-	#define MIN(x,y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef MAX
-	#define MAX(x,y) ((x) > (y) ? (x) : (y))
-#endif
-*/
 #ifndef ABS
 	#define ABS(x) ((x) < 0 ? -(x) : (x))
 #endif
@@ -211,7 +256,6 @@
  * to consider making a template from the state.
  */
 #define TEMPLATE_SAME_PERCENTAGE 60
-
 /* The percentage the number of differences between a state's transition
  * table and the most similar proto must be of the state's total number
  * of out-transitions to create a new proto from the state.
@@ -228,25 +272,18 @@
  * protos on the proto queue to enable quick comparisons.
  */
 #define PROT_SAVE_SIZE 2000
-
 #define MSP 50			/* maximum number of saved protos (protos on the proto queue) */
-
 /* Maximum number of out-transitions a state can have that we'll rummage
  * around through the interior of the internal fast table looking for a
  * spot for it.
  */
 #define MAX_XTIONS_FULL_INTERIOR_FIT 4
-
-/* Maximum number of rules which will be reported as being associated
- * with a DFA state.
- */
-#define MAX_ASSOC_RULES 100
+#define MAX_ASSOC_RULES 100 // Maximum number of rules which will be reported as being associated with a DFA state.
 
 /* Number that, if used to subscript an array, has a good chance of producing
  * an error; should be small enough to fit into a short.
  */
 #define BAD_SUBSCRIPT -32767
-
 /* Absolute value of largest number that can be stored in a short, with a
  * bit of slop thrown in for general paranoia.
  */
@@ -369,20 +406,31 @@ extern int trace_hex;
  * action_index - index where the next action should go, with respect
  * 	to "action_array"
  */
-extern int datapos, dataline, linenum;
-extern FILE *skelfile, *backing_up_file;
-extern const char *skel[];
+extern int datapos;
+extern int dataline;
+extern int linenum;
+extern FILE * skelfile;
+extern FILE * backing_up_file;
+extern const char * skel[];
 extern int skel_ind;
-extern char *infilename, *outfilename, *headerfilename;
+extern char * infilename;
+extern char * outfilename;
+extern char * headerfilename;
 extern int did_outfilename;
-extern char *prefix, *yyclass, *extra_type;
-extern int do_stdinit, use_stdout;
+extern char * prefix;
+extern char * yyclass;
+extern char * extra_type;
+extern int do_stdinit;
+extern int use_stdout;
 extern char **input_files;
 extern int num_input_files;
 extern char *program_name;
 extern char *action_array;
 extern int action_size;
-extern int defs1_offset, prolog_offset, action_offset, action_index;
+extern int defs1_offset;
+extern int prolog_offset;
+extern int action_offset;
+extern int action_index;
 
 /* Variables for stack of states having only one out-transition:
  * onestate - state number
@@ -552,11 +600,12 @@ extern int firstfree;
 extern int **dss;
 extern int *dfasiz;
 
-extern union dfaacc_union {
-	int    *dfaacc_set;
-	int     dfaacc_state;
-} * dfaacc;
+union dfaacc_union {
+	int  * dfaacc_set;
+	int    dfaacc_state;
+};
 
+extern union dfaacc_union * dfaacc;
 extern int * accsiz;
 extern int * dhash;
 extern int numas;
@@ -745,7 +794,7 @@ extern uchar myesc(uchar[]); /* Return character corresponding to escape sequenc
 extern void out(const char *);
 extern void out_dec(const char *, int);
 extern void out_dec2(const char *, int, int);
-extern void out_hex(const char *, unsigned int);
+extern void out_hex(const char *, uint);
 extern void out_str(const char *, const char *);
 extern void out_str3(const char *, const char *, const char *, const char *);
 extern void out_str_dec(const char *, const char *, int);
@@ -912,17 +961,19 @@ extern void unlinktemp();
 /*
  * From "regex.c"
  */
-extern regex_t regex_linedir, regex_blank_line;
+extern regex_t regex_linedir;
+extern regex_t regex_blank_line;
+
 bool flex_init_regex();
 void flex_regcomp(regex_t *preg, const char *regex, int cflags);
-char   *regmatch_dup (regmatch_t * m, const char *src);
-char   *regmatch_cpy (regmatch_t * m, char *dest, const char *src);
-int regmatch_len (regmatch_t * m);
-int regmatch_strtol (regmatch_t * m, const char *src, char **endptr, int base);
-bool regmatch_empty (regmatch_t * m);
+char * regmatch_dup(regmatch_t * m, const char *src);
+char * regmatch_cpy(regmatch_t * m, char *dest, const char *src);
+int regmatch_len(regmatch_t * m);
+int regmatch_strtol(regmatch_t * m, const char *src, char **endptr, int base);
+bool regmatch_empty(regmatch_t * m);
 
 /* From "scanflags.h" */
-typedef unsigned int scanflags_t;
+typedef uint scanflags_t;
 extern scanflags_t* _sf_stk;
 extern size_t _sf_top_ix, _sf_max; /**< stack of scanner flags. */
 #define _SF_CASE_INS   ((scanflags_t)0x0001)
@@ -940,7 +991,178 @@ extern void sf_push();
 extern void sf_pop();
 
 //#include "tables.h"
-#include "scanopt.h"
-#include "options.h"
+//#include "scanopt.h"
+	#ifndef NO_SCANOPT_USAGE
+		#ifdef HAVE_NCURSES_H
+			#include <ncurses.h> // Used by scanopt_usage for pretty-printing
+		#endif
+	#endif
+	#ifdef __cplusplus
+	extern  "C" {
+	#endif
+	//
+	// Error codes.
+	//
+	enum scanopt_err_t {
+		SCANOPT_ERR_OPT_UNRECOGNIZED = -1, // Unrecognized option
+		SCANOPT_ERR_OPT_AMBIGUOUS = -2,    // It matched more than one option name
+		SCANOPT_ERR_ARG_NOT_FOUND = -3,    // The required arg was not found
+		SCANOPT_ERR_ARG_NOT_ALLOWED = -4   // Option does not take an argument
+	};
+	//
+	// flags passed to scanopt_init 
+	//
+	enum scanopt_flag_t {
+		SCANOPT_NO_ERR_MSG = 0x01 /* Suppress printing to stderr. */
+	};
 
+	/* Specification for a single option. */
+	struct optspec_t {
+		const char * opt_fmt; /* e.g., "--foo=FILE", "-f FILE", "-n [NUM]" */
+		int r_val;            /* Value to be returned by scanopt_ex(). */
+		const char * desc;    /* Brief description of this option, or NULL. */
+	};
+
+	typedef struct optspec_t optspec_t;
+	typedef void * scanopt_t; // Used internally by scanopt() to maintain state. Never modify these value directly
+
+	/* Initializes scanner and checks option list for errors.
+	 * Parameters:
+	 *   options - Array of options.
+	 *   argc    - Same as passed to main().
+	 *   argv    - Same as passed to main(). First element is skipped.
+	 *   flags   - Control behavior.
+	 * Return:  A malloc'd pointer .
+	 */
+	scanopt_t * scanopt_init(const optspec_t * options, int argc, char ** argv, int flags);
+
+	// Frees memory used by scanner. Always returns 0.
+	int scanopt_destroy(scanopt_t * scanner);
+
+	#ifndef NO_SCANOPT_USAGE
+		/* Prints a usage message based on contents of optlist.
+		 * Parameters:
+		 *   scanner  - The scanner, already initialized with scanopt_init().
+		 *   fp       - The file stream to write to.
+		 *   usage    - Text to be prepended to option list. May be NULL.
+		 * Return:  Always returns 0 (zero).
+		 */
+		int scanopt_usage(scanopt_t * scanner, FILE * fp, const char * usage);
+	#endif
+
+	/* Scans command-line options in argv[].
+	 * Parameters:
+	 *   scanner  - The scanner, already initialized with scanopt_init().
+	 *   optarg   - Return argument, may be NULL. On success, it points to start of an argument.
+	 *   optindex - Return argument, may be NULL.
+	 *              On success or failure, it is the index of this option.
+	 *              If return is zero, then optindex is the NEXT valid option index.
+	 *
+	 * Return:  > 0 on success. Return value is from optspec_t->rval.
+	 *         == 0 if at end of options.
+	 *          < 0 on error (return value is an error code).
+	 *
+	 */
+	int scanopt(scanopt_t * scanner, char ** optarg, int * optindex);
+
+	#ifdef __cplusplus
+	}
+	#endif
+//
+//#include "options.h"
+	extern optspec_t flexopts[]; // @global
+
+	enum flexopt_flag_t {
+		// Use positive integers only, since they are return codes for scanopt.
+		// Order is not important.
+		OPT_7BIT = 1,
+		OPT_8BIT,
+		OPT_ALIGN,
+		OPT_ALWAYS_INTERACTIVE,
+		OPT_ARRAY,
+		OPT_BACKUP,
+		OPT_BATCH,
+		OPT_BISON_BRIDGE,
+		OPT_BISON_BRIDGE_LOCATIONS,
+		OPT_CASE_INSENSITIVE,
+		OPT_COMPRESSION,
+		OPT_CPLUSPLUS,
+		OPT_DEBUG,
+		OPT_DEFAULT,
+		OPT_DONOTHING,
+		OPT_ECS,
+		OPT_FAST,
+		OPT_FULL,
+		OPT_HEADER_FILE,
+		OPT_HELP,
+		OPT_HEX,
+		OPT_INTERACTIVE,
+		OPT_LEX_COMPAT,
+		OPT_POSIX_COMPAT,
+		OPT_MAIN,
+		OPT_META_ECS,
+		OPT_NEVER_INTERACTIVE,
+		OPT_NO_ALIGN,
+		OPT_NO_DEBUG,
+		OPT_NO_DEFAULT,
+		OPT_NO_ECS,
+		OPT_NO_LINE,
+		OPT_NO_MAIN,
+		OPT_NO_META_ECS,
+		OPT_NO_REENTRANT,
+		OPT_NO_REJECT,
+		OPT_NO_STDINIT,
+		OPT_NO_UNPUT,
+		OPT_NO_WARN,
+		OPT_NO_YYGET_EXTRA,
+		OPT_NO_YYGET_IN,
+		OPT_NO_YYGET_LENG,
+		OPT_NO_YYGET_LINENO,
+		OPT_NO_YYGET_LLOC,
+		OPT_NO_YYGET_LVAL,
+		OPT_NO_YYGET_OUT,
+		OPT_NO_YYGET_TEXT,
+		OPT_NO_YYLINENO,
+		OPT_NO_YYMORE,
+		OPT_NO_YYSET_EXTRA,
+		OPT_NO_YYSET_IN,
+		OPT_NO_YYSET_LINENO,
+		OPT_NO_YYSET_LLOC,
+		OPT_NO_YYSET_LVAL,
+		OPT_NO_YYSET_OUT,
+		OPT_NO_YYWRAP,
+		OPT_NO_YY_POP_STATE,
+		OPT_NO_YY_PUSH_STATE,
+		OPT_NO_YY_SCAN_BUFFER,
+		OPT_NO_YY_SCAN_BYTES,
+		OPT_NO_YY_SCAN_STRING,
+		OPT_NO_YY_TOP_STATE,
+		OPT_OUTFILE,
+		OPT_PERF_REPORT,
+		OPT_POINTER,
+		OPT_PREFIX,
+		OPT_PREPROCDEFINE,
+		OPT_PREPROC_LEVEL,
+		OPT_READ,
+		OPT_REENTRANT,
+		OPT_REJECT,
+		OPT_SKEL,
+		OPT_STACK,
+		OPT_STDINIT,
+		OPT_STDOUT,
+		OPT_TABLES_FILE,
+		OPT_TABLES_VERIFY,
+		OPT_TRACE,
+		OPT_NO_UNISTD_H,
+		OPT_VERBOSE,
+		OPT_VERSION,
+		OPT_WARN,
+		OPT_YYCLASS,
+		OPT_YYLINENO,
+		OPT_YYMORE,
+		OPT_YYWRAP,
+		OPT_WIN_COMPAT,
+		OPT_NO_SECT3_ESCAPE,
+	};
+//
 #endif /* not defined FLEXDEF_H */

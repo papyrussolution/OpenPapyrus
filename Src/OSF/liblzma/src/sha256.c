@@ -114,7 +114,7 @@ extern void lzma_sha256_update(const uint8_t * buf, size_t size, lzma_check_stat
 	// (no need to be multiple of 64 bytes), and the code works also
 	// on architectures that don't allow unaligned memory access.
 	while(size > 0) {
-		const size_t copy_start = check->state.sha256.size & 0x3F;
+		const size_t copy_start = static_cast<size_t>(check->state.sha256.size & 0x3F);
 		size_t copy_size = 64 - copy_start;
 		if(copy_size > size)
 			copy_size = size;
@@ -131,7 +131,7 @@ extern void lzma_sha256_finish(lzma_check_state * check)
 {
 	// Add padding as described in RFC 3174 (it describes SHA-1 but
 	// the same padding style is used for SHA-256 too).
-	size_t pos = check->state.sha256.size & 0x3F;
+	size_t pos = static_cast<size_t>(check->state.sha256.size & 0x3F);
 	check->buffer.u8[pos++] = 0x80;
 	while(pos != 64 - 8) {
 		if(pos == 64) {

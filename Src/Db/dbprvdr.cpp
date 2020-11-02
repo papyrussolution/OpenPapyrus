@@ -6,6 +6,39 @@
 #include <tv.h>
 #pragma hdrstop
 #include <db.h>
+#include <snet.h>
+
+/*enum SqlServerType {
+	sqlstNone    = 0, // Не определенное значение
+	sqlstGeneric = 1, // Общий
+	sqlstORA,         // Oracle
+	sqlstMSS,         // Ms SQL Server
+	sqlstFB,          // FireBird
+	sqlstPg,          // PostgreSQL
+	sqlstMySQL,       // @v10.9.0 MySQL
+	sqlstSQLite       // @v10.9.0 SQLite 
+};*/
+
+static const SIntToSymbTabEntry SqlServerTypeSymbList[] = {
+	{ sqlstNone, "" },
+	{ sqlstGeneric, "generic" },
+	{ sqlstORA, "oracle" },
+	{ sqlstMSS, "mssql" },
+	{ sqlstFB, "firebird" },
+	{ sqlstPg, "pg" },
+	{ sqlstMySQL, "mysql" },
+	{ sqlstSQLite, "sqlite" },
+};
+
+int GetSqlServerTypeSymb(SqlServerType t, SString & rBuf)
+{
+	return SIntToSymbTab_GetSymb(SqlServerTypeSymbList, SIZEOFARRAY(SqlServerTypeSymbList), t, rBuf);
+}
+
+SqlServerType GetSqlServerTypeBySymb(const char * pSymb)
+{
+	return static_cast<SqlServerType>(SIntToSymbTab_GetId(SqlServerTypeSymbList, SIZEOFARRAY(SqlServerTypeSymbList), pSymb));
+}
 
 DbLoginBlock::DbLoginBlock() : End(0)
 {

@@ -1365,17 +1365,21 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 	public:
 		EditDbEntryDialog() : TDialog(DLG_CREATEDB)
 		{
+			AddClusterAssocDef(CTL_CREATEDB_SRVTYPE, 0, sqlstNone);
+			AddClusterAssoc(CTL_CREATEDB_SRVTYPE, 1, sqlstORA);
+			AddClusterAssoc(CTL_CREATEDB_SRVTYPE, 2, sqlstMySQL);
+			AddClusterAssoc(CTL_CREATEDB_SRVTYPE, 3, sqlstSQLite);
+			AddClusterAssoc(CTL_CREATEDB_SRVTYPE, 4, sqlstMSS);
 		}
 		void SetupServerType(int serverType)
 		{
-			if(serverType >= 0) {
-				setCtrlUInt16(CTL_CREATEDB_SRVTYPE, (serverType == sqlstORA) ? 1 : 0);
-			}
-			else {
-				serverType = (getCtrlUInt16(CTL_CREATEDB_SRVTYPE) == 1) ? sqlstORA : sqlstNone;
-			}
-			disableCtrls(serverType != sqlstORA, CTL_CREATEDB_DBNAME, CTL_CREATEDB_DBUSER, CTL_CREATEDB_DBUSERPW, 0L);
-			disableCtrls(serverType == sqlstORA, CTL_CREATEDB_DICT, 0L);
+			if(serverType >= 0)
+				SetClusterData(CTL_CREATEDB_SRVTYPE, serverType);
+			else
+				serverType = GetClusterData(CTL_CREATEDB_SRVTYPE);
+			disableCtrls(!oneof3(serverType, sqlstORA, sqlstMySQL, sqlstMSS), 
+				CTL_CREATEDB_DBNAME, CTL_CREATEDB_DBUSER, CTL_CREATEDB_DBUSERPW, CTL_CREATEDB_SRVURL, 0L);
+			disableCtrls(serverType != sqlstNone, CTL_CREATEDB_DICT, 0L);
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -1385,6 +1389,12 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 				SetupServerType(-1);
 				clearEvent(event);
 			}
+			/*else if(event.isCmd(cmInputUpdated)) {
+				if(event.isCtlEvent(CTL_CREATEDB_DBUSER) || event.isCtlEvent(CTL_CREATEDB_DBUSERPW) ||
+					event.isCtlEvent(CTL_CREATEDB_DBNAME) || event.isCtlEvent(CTL_CREATEDB_DATA)) {
+
+				}
+			}*/
 		}
 	};
 	int   ok = -1;
@@ -1393,8 +1403,7 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 	int    server_type = sqlstNone;
 	THROW(CheckDialogPtrErr(&dlg));
 	Dbes.GetAttr(dbid, DbLoginBlock::attrServerType, temp_buf);
-	if(temp_buf.CmpNC("ORACLE") == 0)
-		server_type = sqlstORA;
+	server_type = GetSqlServerTypeBySymb(temp_buf);
 	dlg->SetupServerType(server_type);
 	if(dbid) {
 		Dbes.GetAttr(dbid, DbLoginBlock::attrDbSymb, temp_buf);
@@ -1413,15 +1422,17 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 		Dbes.GetAttr(dbid, DbLoginBlock::attrPassword, temp_buf);
 		dlg->setCtrlString(CTL_CREATEDB_DBUSERPW, temp_buf);
 	}
+	// @v10.9.2 {
+	Dbes.GetAttr(dbid, DbLoginBlock::attrServerUrl, temp_buf);
+	dlg->setCtrlString(CTL_CREATEDB_SRVURL, temp_buf);
+	// } @v10.9.2 
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CREATEDB_DICT, CTL_CREATEDB_DICT, 1, PPTXT_TITLE_SELSYSPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CREATEDB_DATA, CTL_CREATEDB_DATA, 2, PPTXT_TITLE_SELDATPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
 	for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-		//char   admin_name[64], admin_pwd[64];
-		//ushort use_dti = 0;
 		DbLoginBlock dlb;
-		server_type = (dlg->getCtrlUInt16(CTL_CREATEDB_SRVTYPE) == 1) ? sqlstORA : sqlstNone;
-		if(server_type == sqlstORA)
-			dlb.SetAttr(DbLoginBlock::attrServerType, "ORACLE");
+		server_type = dlg->GetClusterData(CTL_CREATEDB_SRVTYPE);
+		GetSqlServerTypeSymb(static_cast<SqlServerType>(server_type), temp_buf);
+		dlb.SetAttr(DbLoginBlock::attrServerType, temp_buf);
 		dlg->getCtrlString(CTL_CREATEDB_ENTRYNAME, temp_buf.Z());
 		if(!temp_buf.NotEmptyS())
 			PPErrorByDialog(dlg, CTL_CREATEDB_ENTRYNAME, PPERR_NAMENEEDED);
@@ -1433,7 +1444,7 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 			dlb.SetAttr(DbLoginBlock::attrDictPath, temp_buf);
 			dlg->getCtrlString(CTL_CREATEDB_DATA, temp_buf.Z());
 			dlb.SetAttr(DbLoginBlock::attrDbPath, temp_buf);
-			if(server_type == sqlstORA) {
+			if(oneof3(server_type, sqlstORA, sqlstMSS, sqlstMySQL)) {
 				dlg->getCtrlString(CTL_CREATEDB_DBNAME, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrDbName, temp_buf);
 				dlg->getCtrlString(CTL_CREATEDB_DBUSER, temp_buf.Z());
@@ -1441,6 +1452,10 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 				dlg->getCtrlString(CTL_CREATEDB_DBUSERPW, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrPassword, temp_buf);
 				temp_buf.Z();
+				// @v10.9.2 {
+				dlg->getCtrlString(CTL_CREATEDB_SRVURL, temp_buf.Z());
+				dlb.SetAttr(DbLoginBlock::attrServerUrl, temp_buf);
+				// } @v10.9.2 
 			}
 			if(Dbes.RegisterEntry(&F, &dlb) && Dbes.Add(0, &dlb, 1)) {
 				ok = valid_data = 1;
@@ -1457,15 +1472,22 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 
 int ChangeDBListDialog::setupList()
 {
-	SString entry_name, name, dict_path, data_path;
+	SString entry_name;
+	SString name;
+	SString dict_path;
+	SString data_path;
 	DbLoginBlock dlb;
+	StringSet ss(SLBColumnDelim);
 	for(long i = 1; i <= (long)Dbes.GetCount(); i++) {
 		if(Dbes.GetByID(i, &dlb)) {
 			dlb.GetAttr(DbLoginBlock::attrDbSymb, entry_name);
 			dlb.GetAttr(DbLoginBlock::attrDbFriendlyName, name);
 			dlb.GetAttr(DbLoginBlock::attrDictPath, dict_path);
 			dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
-			StringSet ss(SLBColumnDelim);
+			if(data_path.Empty()) {
+				dlb.GetAttr(DbLoginBlock::attrServerUrl, data_path);
+			}
+			ss.clear();
 			ss.add(name);
 			ss.add(entry_name);
 			ss.add(data_path);
@@ -2352,7 +2374,7 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 		reply = cmBuBackup;
 	else {
 		while(reply != cmCancel || (reply = DBMaintenanceFunctions(pDbes)) == cmBuBackup ||
-			oneof7(reply, cmBuRestore, cmBuAutoBackup, cmRecover, cmProtect, cmDump, cmCreateDB, cmSetupBackupCfg) || reply == cmDbMonitor) {
+			oneof8(reply, cmBuRestore, cmBuAutoBackup, cmRecover, cmProtect, cmDump, cmCreateDB, cmSetupBackupCfg, cmDbMonitor)) {
 			if(reply == cmBuAutoBackup) {
 			   	_DoAutoBackup(pDbes, ppb, 1, 0);
 				reply = cmCancel;
@@ -2474,7 +2496,8 @@ int CreateBackupCopy(const char * pActiveUser, int skipCfm)
 						}
 					}
 				}
-				if((ppb = PPBackup::CreateInstance(&dbes)) != 0) {
+				ppb = PPBackup::CreateInstance(&dbes);
+				if(ppb != 0) {
 					PPBackupScen scen;
 					int    is_db_locked = 0, use_copy_continouos = 0;
 					for(PPID scen_id = 0; ppb->EnumScen(&scen_id, &scen) > 0;) {

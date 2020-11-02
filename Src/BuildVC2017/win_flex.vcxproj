@@ -123,12 +123,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\winflexbison\flex\flexdef.h" />
-    <ClInclude Include="..\osf\winflexbison\flex\flexint.h" />
     <ClInclude Include="..\osf\winflexbison\flex\gettext.h" />
-    <ClInclude Include="..\osf\winflexbison\flex\options.h" />
     <ClInclude Include="..\osf\winflexbison\flex\parse.h" />
     <ClInclude Include="..\osf\winflexbison\flex\regex.h" />
-    <ClInclude Include="..\osf\winflexbison\flex\scanopt.h" />
     <ClInclude Include="..\osf\winflexbison\flex\tables.h" />
     <ClInclude Include="..\osf\winflexbison\flex\tables_shared.h" />
   </ItemGroup>

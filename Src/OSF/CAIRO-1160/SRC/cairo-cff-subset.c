@@ -734,10 +734,8 @@ static cairo_int_status_t cairo_cff_font_read_header(cairo_cff_font_t * font)
 {
 	if(font->data_length < sizeof(cff_header_t))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	font->header = (cff_header_t*)font->data;
 	font->current_ptr = font->data + font->header->header_size;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -748,7 +746,6 @@ static cairo_int_status_t cairo_cff_font_read_name(cairo_cff_font_t * font)
 	cff_index_element_t * element;
 	uchar * p;
 	int i, len;
-
 	cff_index_init(&index);
 	status = cff_index_read(&index, &font->current_ptr, font->data_end);
 	if(!font->is_opentype) {
@@ -790,7 +787,6 @@ static cairo_int_status_t cairo_cff_font_read_private_dict(cairo_cff_font_t * fo
     uchar * ptr,
     int size)
 {
-	cairo_int_status_t status;
 	uchar buf[10];
 	uchar * end_buf;
 	int offset;
@@ -798,8 +794,7 @@ static cairo_int_status_t cairo_cff_font_read_private_dict(cairo_cff_font_t * fo
 	uchar * operand;
 	uchar * p;
 	int num_subs;
-
-	status = cff_dict_read(private_dict, ptr, size);
+	cairo_int_status_t status = cff_dict_read(private_dict, ptr, size);
 	if(unlikely(status))
 		return status;
 
@@ -1035,12 +1030,10 @@ static cairo_int_status_t cairo_cff_font_read_top_dict(cairo_cff_font_t * font)
 	uchar * p;
 	int size;
 	int offset;
-
 	cff_index_init(&index);
 	status = cff_index_read(&index, &font->current_ptr, font->data_end);
 	if(unlikely(status))
 		goto fail;
-
 	element = (cff_index_element_t *)_cairo_array_index(&index, 0);
 	status = cff_dict_read(font->top_dict, element->data, element->length);
 	if(unlikely(status))
@@ -1177,8 +1170,7 @@ static cairo_int_status_t cairo_cff_font_read_global_subroutines(cairo_cff_font_
 	return CAIRO_STATUS_SUCCESS;
 }
 
-typedef cairo_int_status_t
-(* font_read_t) (cairo_cff_font_t * font);
+typedef cairo_int_status_t (* font_read_t) (cairo_cff_font_t * font);
 
 static const font_read_t font_read_funcs[] = {
 	cairo_cff_font_read_header,
@@ -1190,15 +1182,11 @@ static const font_read_t font_read_funcs[] = {
 
 static cairo_int_status_t cairo_cff_font_read_font(cairo_cff_font_t * font)
 {
-	cairo_int_status_t status;
-	uint i;
-
-	for(i = 0; i < ARRAY_LENGTH(font_read_funcs); i++) {
-		status = font_read_funcs[i] (font);
+	for(uint i = 0; i < ARRAY_LENGTH(font_read_funcs); i++) {
+		cairo_int_status_t status = font_read_funcs[i] (font);
 		if(unlikely(status))
 			return status;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1601,7 +1589,6 @@ static cairo_int_status_t cairo_cff_font_subset_charstrings_and_subroutines(cair
 	uint i;
 	cairo_int_status_t status;
 	ulong glyph, cid;
-
 	font->subset_subroutines = TRUE;
 	for(i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 		if(font->is_cid && !font->is_opentype) {
@@ -1952,15 +1939,12 @@ static cairo_status_t cairo_cff_font_write_fdselect(cairo_cff_font_t * font)
 	uchar data;
 	uint i;
 	cairo_int_status_t status;
-
 	cairo_cff_font_set_topdict_operator_to_cur_pos(font, FDSELECT_OP);
-
 	if(font->is_cid) {
 		data = 0;
 		status = _cairo_array_append(&font->output, &data);
 		if(unlikely(status))
 			return status;
-
 		for(i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 			data = font->fdselect_subset[i];
 			status = _cairo_array_append(&font->output, &data);
@@ -1971,15 +1955,12 @@ static cairo_status_t cairo_cff_font_write_fdselect(cairo_cff_font_t * font)
 	else {
 		uchar byte;
 		uint16_t word;
-
 		status = _cairo_array_grow_by(&font->output, 9);
 		if(unlikely(status))
 			return status;
-
 		byte = 3;
 		status = _cairo_array_append(&font->output, &byte);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
-
 		word = cpu_to_be16(1);
 		status = _cairo_array_append_multiple(&font->output, &word, 2);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
@@ -2125,7 +2106,6 @@ static cairo_status_t cairo_cff_font_write_cid_fontdict(cairo_cff_font_t * font)
 	int offset_base;
 	uint16_t count;
 	uint8_t offset_size = 4;
-
 	cairo_cff_font_set_topdict_operator_to_cur_pos(font, FDARRAY_OP);
 	count = cpu_to_be16(font->num_subset_fontdicts);
 	status = _cairo_array_append_multiple(&font->output, &count, sizeof(uint16_t));
@@ -2236,73 +2216,42 @@ static cairo_status_t cairo_cff_font_write_cid_private_dict_and_local_sub(cairo_
 {
 	uint i;
 	cairo_int_status_t status;
-
 	if(font->is_cid) {
 		for(i = 0; i < font->num_subset_fontdicts; i++) {
-			status = cairo_cff_font_write_private_dict(
-				font,
-				i,
-				font->fd_dict[font->fd_subset_map[i]],
-				font->fd_private_dict[font->fd_subset_map[i]]);
+			status = cairo_cff_font_write_private_dict(font, i, font->fd_dict[font->fd_subset_map[i]], font->fd_private_dict[font->fd_subset_map[i]]);
 			if(unlikely(status))
 				return status;
 		}
-
 		for(i = 0; i < font->num_subset_fontdicts; i++) {
-			status = cairo_cff_font_write_local_sub(
-				font,
-				i,
-				font->fd_private_dict[font->fd_subset_map[i]],
-				&font->fd_local_sub_index[font->fd_subset_map[i]],
-				font->fd_local_subs_used[font->fd_subset_map[i]]);
+			status = cairo_cff_font_write_local_sub(font, i, font->fd_private_dict[font->fd_subset_map[i]],
+				&font->fd_local_sub_index[font->fd_subset_map[i]], font->fd_local_subs_used[font->fd_subset_map[i]]);
 			if(unlikely(status))
 				return status;
 		}
 	}
 	else {
-		status = cairo_cff_font_write_private_dict(font,
-			0,
-			font->fd_dict[0],
-			font->private_dict);
+		status = cairo_cff_font_write_private_dict(font, 0, font->fd_dict[0], font->private_dict);
 		if(unlikely(status))
 			return status;
-
-		status = cairo_cff_font_write_local_sub(font,
-			0,
-			font->private_dict,
-			&font->local_sub_index,
-			font->local_subs_used);
+		status = cairo_cff_font_write_local_sub(font, 0, font->private_dict, &font->local_sub_index, font->local_subs_used);
 		if(unlikely(status))
 			return status;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t cairo_cff_font_write_type1_private_dict_and_local_sub(cairo_cff_font_t * font)
 {
-	cairo_int_status_t status;
-
-	status = cairo_cff_font_write_private_dict(font,
-		0,
-		font->top_dict,
-		font->private_dict);
+	cairo_int_status_t status = cairo_cff_font_write_private_dict(font, 0, font->top_dict, font->private_dict);
 	if(unlikely(status))
 		return status;
-
-	status = cairo_cff_font_write_local_sub(font,
-		0,
-		font->private_dict,
-		&font->local_sub_index,
-		font->local_subs_used);
+	status = cairo_cff_font_write_local_sub(font, 0, font->private_dict, &font->local_sub_index, font->local_subs_used);
 	if(unlikely(status))
 		return status;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-typedef cairo_status_t
-(* font_write_t) (cairo_cff_font_t * font);
+typedef cairo_status_t (* font_write_t) (cairo_cff_font_t * font);
 
 static const font_write_t font_write_cid_funcs[] = {
 	cairo_cff_font_write_header,
@@ -2333,7 +2282,6 @@ static cairo_status_t cairo_cff_font_write_subset(cairo_cff_font_t * font)
 {
 	cairo_int_status_t status;
 	uint i;
-
 	if(font->scaled_font_subset->is_latin) {
 		for(i = 0; i < ARRAY_LENGTH(font_write_type1_funcs); i++) {
 			status = font_write_type1_funcs[i] (font);
@@ -2348,48 +2296,34 @@ static cairo_status_t cairo_cff_font_write_subset(cairo_cff_font_t * font)
 				return status;
 		}
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t cairo_cff_font_generate(cairo_cff_font_t * font,
-    const char ** data,
-    ulong * length)
+static cairo_int_status_t cairo_cff_font_generate(cairo_cff_font_t * font, const char ** data, ulong * length)
 {
-	cairo_int_status_t status;
-
-	status = cairo_cff_font_read_font(font);
+	cairo_int_status_t status = cairo_cff_font_read_font(font);
 	if(unlikely(status))
 		return status;
-
 	/* If the PS name is not found, create a CairoFont-x-y name. */
 	if(font->ps_name == NULL) {
 		font->ps_name = (char *)_cairo_malloc(30);
 		if(unlikely(font->ps_name == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
-		snprintf(font->ps_name, 30, "CairoFont-%u-%u",
-		    font->scaled_font_subset->font_id,
-		    font->scaled_font_subset->subset_id);
+		snprintf(font->ps_name, 30, "CairoFont-%u-%u", font->scaled_font_subset->font_id, font->scaled_font_subset->subset_id);
 	}
-
 	status = cairo_cff_font_subset_font(font);
 	if(unlikely(status))
 		return status;
-
 	status = cairo_cff_font_write_subset(font);
 	if(unlikely(status))
 		return status;
-
 	*data = (const char *)_cairo_array_index(&font->output, 0);
 	*length = _cairo_array_num_elements(&font->output);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * font)
 {
-	ulong size;
 	ulong long_entry_size;
 	ulong short_entry_size;
 	uint i;
@@ -2397,16 +2331,11 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 	int num_hmetrics;
 	uint16_t short_entry;
 	int glyph_index;
-	cairo_int_status_t status;
-
-	size = sizeof(tt_hhea_t);
-	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
-		TT_TAG_hhea, 0,
-		(uchar *)&hhea, &size);
+	ulong size = sizeof(tt_hhea_t);
+	cairo_int_status_t status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, TT_TAG_hhea, 0, (uchar *)&hhea, &size);
 	if(unlikely(status))
 		return status;
 	num_hmetrics = be16_to_cpu(hhea.num_hmetrics);
-
 	for(i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 		glyph_index = font->scaled_font_subset->glyphs[i];
 		long_entry_size = 2 * sizeof(int16_t);
@@ -2544,11 +2473,10 @@ static cairo_int_status_t _cairo_cff_font_load_cff(cairo_cff_font_t * font)
 
 static cairo_int_status_t _cairo_cff_font_create(cairo_scaled_font_subset_t * scaled_font_subset, cairo_cff_font_t ** font_return, const char * subset_name)
 {
-	const cairo_scaled_font_backend_t * backend;
 	cairo_int_status_t status;
 	boolint is_synthetic;
 	cairo_cff_font_t * font;
-	backend = scaled_font_subset->scaled_font->backend;
+	const cairo_scaled_font_backend_t * backend = scaled_font_subset->scaled_font->backend;
 	/* We need to use a fallback font if this font differs from the CFF outlines. */
 	if(backend->is_synthetic) {
 		status = backend->is_synthetic(scaled_font_subset->scaled_font, &is_synthetic);
@@ -2782,10 +2710,6 @@ void _cairo_cff_subset_fini(cairo_cff_subset_t * subset)
 
 boolint _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font)
 {
-	const cairo_scaled_font_backend_t * backend;
-	cairo_int_status_t status;
-	uchar * data;
-	ulong data_length;
 	uchar * current_ptr;
 	uchar * data_end;
 	cff_header_t * header;
@@ -2794,10 +2718,10 @@ boolint _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font)
 	cairo_array_t index;
 	int size;
 	boolint is_cid = FALSE;
-	backend = scaled_font->backend;
-	data = NULL;
-	data_length = 0;
-	status = CAIRO_INT_STATUS_UNSUPPORTED;
+	const cairo_scaled_font_backend_t * backend = scaled_font->backend;
+	uchar * data = NULL;
+	ulong data_length = 0;
+	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	/* Try to load an OpenType/CFF font */
 	if(backend->load_truetype_table && (status = backend->load_truetype_table(scaled_font, TT_TAG_CFF, 0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS) {
 		data = static_cast<uchar *>(_cairo_malloc(data_length));
@@ -2949,9 +2873,7 @@ fail1:
 }
 
 static cairo_int_status_t cairo_cff_font_fallback_generate(cairo_cff_font_t * font,
-    cairo_type2_charstrings_t * type2_subset,
-    const char   ** data,
-    ulong * length)
+    cairo_type2_charstrings_t * type2_subset, const char   ** data, ulong * length)
 {
 	cairo_int_status_t status;
 	cff_header_t header;
@@ -2960,24 +2882,17 @@ static cairo_int_status_t cairo_cff_font_fallback_generate(cairo_cff_font_t * fo
 	uchar * end_buf, * end_buf2;
 	uint i;
 	int sid;
-
 	/* Create header */
 	header.major = 1;
 	header.minor = 0;
 	header.header_size = 4;
 	header.offset_size = 4;
 	font->header = &header;
-
 	/* Create Top Dict */
 	font->is_cid = FALSE;
-
-	snprintf((char *)buf, sizeof(buf), "CairoFont-%u-%u",
-	    font->scaled_font_subset->font_id,
-	    font->scaled_font_subset->subset_id);
+	snprintf((char *)buf, sizeof(buf), "CairoFont-%u-%u", font->scaled_font_subset->font_id, font->scaled_font_subset->subset_id);
 	sid = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
-	status = cff_index_append_copy(&font->strings_subset_index,
-		(uchar *)buf,
-		strlen((char *)buf));
+	status = cff_index_append_copy(&font->strings_subset_index, (uchar *)buf, strlen((char *)buf));
 	if(unlikely(status))
 		return status;
 

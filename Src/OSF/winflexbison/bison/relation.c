@@ -67,13 +67,10 @@ static void traverse(relation_node i)
 		for(relation_node j = 0; R[i][j] != END_NODE; ++j) {
 			if(indexes[R[i][j]] == 0)
 				traverse(R[i][j]);
-
 			if(indexes[i] > indexes[R[i][j]])
 				indexes[i] = indexes[R[i][j]];
-
 			bitset_or(F[i], F[i], F[R[i][j]]);
 		}
-
 	if(indexes[i] == height)
 		for(;;) {
 			relation_node j = vertices[top--];

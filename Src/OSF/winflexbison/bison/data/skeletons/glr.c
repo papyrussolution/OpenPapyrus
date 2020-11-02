@@ -2369,8 +2369,7 @@ yyrecoverSyntaxError (yyGLRStack* yystackp]b4_user_formals[)
 | yyparse.  |
 `----------*/
 
-int
-yyparse (]m4_ifset([b4_parse_param], [b4_formals(b4_parse_param)], [void])[)
+int yyparse(]m4_ifset([b4_parse_param], [b4_formals(b4_parse_param)], [void])[)
 {
   int yyresult;
   yyGLRStack yystack;

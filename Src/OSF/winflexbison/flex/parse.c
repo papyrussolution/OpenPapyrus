@@ -297,72 +297,60 @@ typedef unsigned short int yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
-typedef YYTYPE_INT16 yytype_int16;
+	typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short int yytype_int16;
+	typedef short int yytype_int16;
 #endif
-
 #ifndef YYSIZE_T
-# ifdef __SIZE_TYPE__
-#  define YYSIZE_T __SIZE_TYPE__
-# elif defined size_t
-#  define YYSIZE_T size_t
-# elif !defined YYSIZE_T
-#  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYSIZE_T size_t
-# else
-#  define YYSIZE_T unsigned int
-# endif
+	#ifdef __SIZE_TYPE__
+		#define YYSIZE_T __SIZE_TYPE__
+	#elif defined size_t
+		#define YYSIZE_T size_t
+	#elif !defined YYSIZE_T
+		#include <stddef.h> /* INFRINGES ON USER NAME SPACE */
+		#define YYSIZE_T size_t
+	#else
+		#define YYSIZE_T unsigned int
+	#endif
 #endif
-
 #define YYSIZE_MAXIMUM ((YYSIZE_T)-1)
-
 #ifndef YY_
-# if defined YYENABLE_NLS && YYENABLE_NLS
-#  if ENABLE_NLS
-#   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
-#   define YY_(Msgid) dgettext("bison-runtime", Msgid)
-#  endif
-# endif
-# ifndef YY_
-#  define YY_(Msgid) Msgid
-# endif
+	#if defined YYENABLE_NLS && YYENABLE_NLS
+		#if ENABLE_NLS
+			#include <libintl.h> /* INFRINGES ON USER NAME SPACE */
+			#define YY_(Msgid) dgettext("bison-runtime", Msgid)
+		#endif
+	#endif
+	#ifndef YY_
+		#define YY_(Msgid) Msgid
+	#endif
 #endif
-
 #ifndef YY_ATTRIBUTE
-# if(defined __GNUC__                                               \
-	&& (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__)))  \
-	|| defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
-#  define YY_ATTRIBUTE(Spec) __attribute__(Spec)
-# else
-#  define YY_ATTRIBUTE(Spec) /* empty */
-# endif
+	#if(defined __GNUC__ && (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__))) || defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
+		#define YY_ATTRIBUTE(Spec) __attribute__(Spec)
+	#else
+		#define YY_ATTRIBUTE(Spec) /* empty */
+	#endif
 #endif
-
 #ifndef YY_ATTRIBUTE_PURE
-#define YY_ATTRIBUTE_PURE   YY_ATTRIBUTE((__pure__))
+	#define YY_ATTRIBUTE_PURE   YY_ATTRIBUTE((__pure__))
 #endif
-
 #ifndef YY_ATTRIBUTE_UNUSED
-#define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE((__unused__))
+	#define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE((__unused__))
 #endif
-
-#if !defined _Noreturn \
-	&& (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec(noreturn)
-# else
-#  define _Noreturn YY_ATTRIBUTE((__noreturn__))
-# endif
+#if !defined _Noreturn && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
+	#if defined _MSC_VER && 1200 <= _MSC_VER
+		#define _Noreturn __declspec(noreturn)
+	#else
+		#define _Noreturn YY_ATTRIBUTE((__noreturn__))
+	#endif
 #endif
-
 /* Suppress unused-variable warnings by "using" E.  */
 #if !defined lint || defined __GNUC__
-#define YYUSE(E) ((void)(E))
+	#define YYUSE(E) ((void)(E))
 #else
-#define YYUSE(E) /* empty */
+	#define YYUSE(E) /* empty */
 #endif
-
 #if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 #define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
@@ -426,9 +414,7 @@ typedef short int yytype_int16;
 #  ifndef YYSTACK_ALLOC_MAXIMUM
 #   define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
 #  endif
-#  if(defined __cplusplus && !defined EXIT_SUCCESS \
-	&& !((defined YYMALLOC || defined malloc) \
-	&& (defined YYFREE || defined free)))
+#  if(defined __cplusplus && !defined EXIT_SUCCESS && !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   ifndef EXIT_SUCCESS
 #    define EXIT_SUCCESS 0

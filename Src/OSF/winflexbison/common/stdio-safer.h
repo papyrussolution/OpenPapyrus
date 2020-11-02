@@ -16,18 +16,15 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Written by Paul Eggert.  */
-
-//#include <stdio.h>
-
 #if GNULIB_FOPEN_SAFER
-	FILE *fopen_safer (char const *, char const *);
+	FILE * fopen_safer(char const *, char const *);
 #endif
 #if GNULIB_FREOPEN_SAFER
-	FILE *freopen_safer (char const *, char const *, FILE *);
+	FILE * freopen_safer(char const *, char const *, FILE *);
 #endif
 #if GNULIB_POPEN_SAFER
-	FILE *popen_safer (char const *, char const *);
+	FILE * popen_safer(char const *, char const *);
 #endif
 #if GNULIB_TMPFILE_SAFER
-	FILE *tmpfile_safer (void);
+	FILE * tmpfile_safer(void);
 #endif

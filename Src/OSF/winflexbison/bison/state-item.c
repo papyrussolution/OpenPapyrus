@@ -30,15 +30,8 @@ typedef struct {
 	bitset l;
 } hash_pair;
 
-static size_t hash_pair_hasher(const hash_pair * sl, size_t max)
-{
-	return sl->key % max;
-}
-
-static bool hash_pair_comparator(const hash_pair * l, const hash_pair * r)
-{
-	return l->key == r->key;
-}
+static size_t hash_pair_hasher(const hash_pair * sl, size_t max) { return sl->key % max; }
+static bool hash_pair_comparator(const hash_pair * l, const hash_pair * r) { return l->key == r->key; }
 
 static void hash_pair_free(hash_pair * hp)
 {
@@ -48,11 +41,7 @@ static void hash_pair_free(hash_pair * hp)
 
 static Hash_table * hash_pair_table_create(int size)
 {
-	return hash_xinitialize(size,
-		   NULL,
-		   (Hash_hasher)hash_pair_hasher,
-		   (Hash_comparator)hash_pair_comparator,
-		   (Hash_data_freer)hash_pair_free);
+	return hash_xinitialize(size, NULL, (Hash_hasher)hash_pair_hasher, (Hash_comparator)hash_pair_comparator, (Hash_data_freer)hash_pair_free);
 }
 
 static bitset hash_pair_lookup(Hash_table * tab, int key)
@@ -94,7 +83,7 @@ static inline void state_item_set(state_item_number sidx, const state * s, item_
 /**
  * Initialize state_items set
  */
-static void init_state_items(void)
+static void init_state_items()
 {
 	nstate_items = 0;
 	bitsetv production_items = bitsetv_create(nstates, nritems, BITSET_SPARSE);
@@ -148,15 +137,8 @@ static void init_state_items(void)
 	bitsetv_free(production_items);
 }
 
-static size_t state_sym_hasher(const void * st, size_t max)
-{
-	return ((state*)st)->accessing_symbol % max;
-}
-
-static bool state_sym_comparator(const void * s1, const void * s2)
-{
-	return ((state*)s1)->accessing_symbol == ((state*)s2)->accessing_symbol;
-}
+static size_t state_sym_hasher(const void * st, size_t max) { return ((state*)st)->accessing_symbol % max; }
+static bool state_sym_comparator(const void * s1, const void * s2) { return ((state*)s1)->accessing_symbol == ((state*)s2)->accessing_symbol; }
 
 static state * state_sym_lookup(symbol_number sym, Hash_table * h)
 {
@@ -165,7 +147,7 @@ static state * state_sym_lookup(symbol_number sym, Hash_table * h)
 	return (state *)hash_lookup(h, &probe);
 }
 
-static void init_trans(void)
+static void init_trans()
 {
 	for(state_number i = 0; i < nstates; ++i) {
 		// Generate a hash set that maps from accepting symbols to the states
@@ -198,7 +180,7 @@ static void init_trans(void)
 	}
 }
 
-static void init_prods(void)
+static void init_prods()
 {
 	for(int i = 0; i < nstates; ++i) {
 		state * s = states[i];
@@ -250,7 +232,7 @@ static void init_prods(void)
 /* Since lookaheads are only generated for reductions, we need to
    propagate lookahead sets backwards as the searches require each
    state_item to have a lookahead. */
-static inline void gen_lookaheads(void)
+static inline void gen_lookaheads()
 {
 	for(size_t i = 0; i < nstate_items; ++i) {
 		state_item * si = &state_items[i];
@@ -277,9 +259,9 @@ static inline void gen_lookaheads(void)
 	}
 }
 
-bitsetv firsts = NULL;
+bitsetv firsts = NULL; // @global
 
-static void init_firsts(void)
+static void init_firsts()
 {
 	firsts = bitsetv_create(nnterms, nsyms, BITSET_FIXED);
 	for(rule_number i = 0; i < nrules; ++i) {
@@ -330,16 +312,12 @@ static inline void disable_state_item(state_item * si)
  */
 static void prune_forward(const state_item * si)
 {
-	state_item_list queue =
-	    gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1,
-		(const void**)&si);
-
+	state_item_list queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1, (const void**)&si);
 	while(gl_list_size(queue) > 0) {
 		state_item * dsi = (state_item*)gl_list_get_at(queue, 0);
 		gl_list_remove_at(queue, 0);
 		if(dsi->trans >= 0)
 			gl_list_add_last(queue, &state_items[dsi->trans]);
-
 		if(dsi->prods) {
 			bitset_iterator biter;
 			state_item_number sin;
@@ -362,10 +340,7 @@ static void prune_forward(const state_item * si)
  */
 static void prune_backward(const state_item * si)
 {
-	state_item_list queue =
-	    gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1,
-		(const void**)&si);
-
+	state_item_list queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, NULL, true, 1, (const void**)&si);
 	while(gl_list_size(queue) > 0) {
 		state_item * dsi = (state_item*)gl_list_get_at(queue, 0);
 		gl_list_remove_at(queue, 0);
@@ -389,12 +364,11 @@ static void prune_backward(const state_item * si)
 	}
 	gl_list_free(queue);
 }
-
 /*
    To make searches more efficient, we can prune away paths that are
    caused by disabled transitions.
  */
-static void prune_disabled_paths(void)
+static void prune_disabled_paths()
 {
 	for(int i = nstate_items - 1; i >= 0; --i) {
 		state_item * si = &state_items[i];
@@ -412,11 +386,10 @@ void state_item_print(const state_item * si, FILE * out, const char * prefix)
 	item_print(si->item, NULL, out);
 	putc('\n', out);
 }
-
 /**
  * Report the state_item graph
  */
-static void state_items_report(void)
+static void state_items_report()
 {
 	printf("# state items: %zu\n", nstate_items);
 	for(state_number i = 0; i < nstates; ++i) {
@@ -434,7 +407,6 @@ static void state_items_report(void)
 				fputs("    -> ", stdout);
 				state_item_print(&state_items[si->trans], stdout, "");
 			}
-
 			bitset sets[2] = { si->prods, si->revs };
 			const char * txt[2] = { "    => ", "    <- " };
 			for(int seti = 0; seti < 2; ++seti) {
@@ -463,7 +435,7 @@ static void state_items_report(void)
 	puts("\n");
 }
 
-void state_items_init(void)
+void state_items_init()
 {
 	time_t start = time(NULL);
 	init_state_items();
@@ -478,7 +450,7 @@ void state_items_init(void)
 	}
 }
 
-void state_items_free(void)
+void state_items_free()
 {
 	for(size_t i = 0; i < nstate_items; ++i) {
 		if(!SI_DISABLED(i)) {
@@ -498,8 +470,8 @@ void state_items_free(void)
  */
 bool production_allowed(const state_item * si, const state_item * next)
 {
-	sym_content * s1 = item_rule(si->item)->lhs;
-	sym_content * s2 = item_rule(next->item)->lhs;
+	const sym_content * s1 = item_rule(si->item)->lhs;
+	const sym_content * s2 = item_rule(next->item)->lhs;
 	int prec1 = s1->prec;
 	int prec2 = s2->prec;
 	if(prec1 >= 0 && prec2 >= 0) {

@@ -859,7 +859,7 @@ int MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd) const
 											if(gua_pack.Rec.Name != "")
 												login = gua_pack.Rec.Name;
 										}
-										if(login.NotEmpty() &&password.NotEmpty()){
+										if(login.NotEmpty() && password.NotEmpty()){
 											//char hash[128];
 											char cmd_hash[128];
 											size_t hash_len = 0;

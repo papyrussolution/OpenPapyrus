@@ -1933,12 +1933,12 @@ static void InitTest()
 	assert(sizeof(PPInternetAccount2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT));
 	assert(sizeof(PersonCore::RelationRecord) == sizeof(ObjAssocTbl::Rec));
-	assert(sizeof(PPFreight) == offsetof(PropertyTbl::Rec, VT));
+	// @v10.9.2 (PPFreight is expanded) assert(sizeof(PPFreight) == offsetof(PropertyTbl::Rec, VT));
 	assert(sizeof(PPRFIDDevice) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPSmsAccount) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPGeoTrackingMode) == 8);
-	assert(sizeof(PPCycleFilt) == 4); // @v9.5.8
+	assert(sizeof(PPCycleFilt) == 4);
 	assert(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
@@ -2410,9 +2410,9 @@ int PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 			SFile::ZClose(&f);
 			{
 				const TCHAR * p_ucfn = SUcSwitch(fname);
-				DWORD fattr = GetFileAttributes(p_ucfn); // @unicodeproblem
+				DWORD fattr = GetFileAttributes(p_ucfn);
 				if(fattr != 0xffffffff)
-					::SetFileAttributes(p_ucfn, fattr | FILE_ATTRIBUTE_HIDDEN); // @unicodeproblem
+					::SetFileAttributes(p_ucfn, fattr | FILE_ATTRIBUTE_HIDDEN);
 			}
 		}
 	}

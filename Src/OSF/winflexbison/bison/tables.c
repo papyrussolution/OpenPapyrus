@@ -80,41 +80,42 @@ static base_number * width;
 typedef int action_number;
 #define ACTION_NUMBER_MINIMUM INT_MIN
 
-static action_number * actrow;
+static action_number * actrow; // @global
 
 /* FROMS and TOS are reordered to be compressed.  ORDER[VECTOR] is the
    new vector number of VECTOR.  We skip 'empty' vectors (i.e.,
    TALLY[VECTOR] = 0), and call these 'entries'.  */
-static vector_number * order;
-static int nentries;
-
-base_number * base = NULL;
-/* A distinguished value of BASE, negative infinite.  During the
-   computation equals to BASE_MINIMUM, later mapped to BASE_NINF to
-   keep parser tables small.  */
-base_number base_ninf = 0;
+static vector_number * order; // @global
+static int nentries; // @global
+base_number * base = NULL; // @global
+// 
+// A distinguished value of BASE, negative infinite.  During the
+// computation equals to BASE_MINIMUM, later mapped to BASE_NINF to
+// keep parser tables small
+// 
+base_number base_ninf = 0; // @global
 static bitset pos_set = NULL; // Bitset representing an integer set in the range -nstates..table_size (as an upper bound) 
-static int * conflrow;
-int  * conflict_table;
-int  * conflict_list;
-int    conflict_list_cnt;
-static int conflict_list_free;
+static int * conflrow; // @global
+int  * conflict_table; // @global
+int  * conflict_list; // @global
+int    conflict_list_cnt; // @global
+static int conflict_list_free; // @global
 
 /* TABLE_SIZE is the allocated size of both TABLE and CHECK.  We start
    with more or less the original hard-coded value (which was
    SHRT_MAX).  */
-static int table_size = 32768;
-base_number * table;
-base_number * check;
+static int table_size = 32768; // @global
+base_number * table; // @global
+base_number * check; // @global
 /* The value used in TABLE to denote explicit syntax errors
    (%nonassoc), a negative infinite.  First defaults to ACTION_NUMBER_MINIMUM,
    but in order to keep small tables, renumbered as TABLE_ERROR, which
    is the smallest (non error) value minus 1.  */
-base_number table_ninf = 0;
-static int lowzero;
-int high;
-state_number * yydefgoto;
-rule_number * yydefact;
+base_number table_ninf = 0; // @global
+static int lowzero; // @global
+int high; // @global
+state_number * yydefgoto; // @global
+rule_number * yydefact; // @global
 
 /*-------------------------------------------------------------------.
 | If TABLE, CONFLICT_TABLE, and CHECK are too small to be addressed  |
@@ -151,27 +152,27 @@ static void table_grow(int desired)
 
 static void conflict_row(state * s)
 {
-	if(!nondeterministic_parser)
-		return;
-	const reductions * reds = s->reductions;
-	for(state_number j = 0; j < ntokens; j += 1)
-		if(conflrow[j]) {
-			conflrow[j] = conflict_list_cnt;
-			// Find all reductions for token J, and record all that do not match ACTROW[J]. 
-			for(int i = 0; i < reds->num; i += 1)
-				if(bitset_test(reds->lookaheads[i], j) && (actrow[j] != rule_number_as_item_number(reds->rules[i]->number))) {
-					aver(0 < conflict_list_free);
-					conflict_list[conflict_list_cnt] = reds->rules[i]->number + 1;
-					conflict_list_cnt += 1;
-					conflict_list_free -= 1;
-				}
-
-			/* Leave a 0 at the end.  */
-			aver(0 < conflict_list_free);
-			conflict_list[conflict_list_cnt] = 0;
-			conflict_list_cnt += 1;
-			conflict_list_free -= 1;
+	if(nondeterministic_parser) {
+		const reductions * reds = s->reductions;
+		for(state_number j = 0; j < ntokens; j += 1) {
+			if(conflrow[j]) {
+				conflrow[j] = conflict_list_cnt;
+				// Find all reductions for token J, and record all that do not match ACTROW[J]. 
+				for(int i = 0; i < reds->num; i += 1)
+					if(bitset_test(reds->lookaheads[i], j) && (actrow[j] != rule_number_as_item_number(reds->rules[i]->number))) {
+						aver(0 < conflict_list_free);
+						conflict_list[conflict_list_cnt] = reds->rules[i]->number + 1;
+						conflict_list_cnt += 1;
+						conflict_list_free -= 1;
+					}
+				/* Leave a 0 at the end.  */
+				aver(0 < conflict_list_free);
+				conflict_list[conflict_list_cnt] = 0;
+				conflict_list_cnt += 1;
+				conflict_list_free -= 1;
+			}
 		}
+	}
 }
 
 /*------------------------------------------------------------------.
@@ -309,13 +310,11 @@ static void save_row(state_number s)
 	for(symbol_number i = 0; i < ntokens; i++)
 		if(actrow[i] != 0)
 			count++;
-
 	if(count) {
 		/* Allocate non defaulted actions.  */
 		base_number * sp1 = froms[s] = (base_number *)xnmalloc(count, sizeof *sp1);
 		base_number * sp2 = tos[s] = (base_number *)xnmalloc(count, sizeof *sp2);
 		int * sp3 = conflict_tos[s] = nondeterministic_parser ? (int *)xnmalloc(count, sizeof *sp3) : NULL;
-
 		/* Store non defaulted actions.  */
 		for(symbol_number i = 0; i < ntokens; i++)
 			if(actrow[i] != 0) {
@@ -338,7 +337,7 @@ static void save_row(state_number s)
 | putting into YYTABLE later.                                       |
    `------------------------------------------------------------------*/
 
-static void token_actions(void)
+static void token_actions()
 {
 	int nconflict = nondeterministic_parser ? conflicts_total_count() : 0;
 	yydefact = (rule_number *)xnmalloc(nstates, sizeof *yydefact);
@@ -447,7 +446,7 @@ static state_number default_goto(symbol_number sym, size_t state_count[])
 | putting into YYTABLE later.                                        |
    `-------------------------------------------------------------------*/
 
-static void goto_actions(void)
+static void goto_actions()
 {
 	size_t * state_count = (size_t *)xnmalloc(nstates, sizeof *state_count);
 	yydefgoto = (state_number *)xnmalloc(nnterms, sizeof *yydefgoto);
@@ -466,7 +465,7 @@ static void goto_actions(void)
 | pack the actions and gotos information into yytable.              |
    `------------------------------------------------------------------*/
 
-static void sort_actions(void)
+static void sort_actions()
 {
 	nentries = 0;
 	for(int i = 0; i < nvectors; i++) {
@@ -584,7 +583,7 @@ static base_number table_ninf_remap(base_number tab[], int size, base_number nin
 	return res;
 }
 
-static void pack_table(void)
+static void pack_table()
 {
 	base = (base_number *)xnmalloc(nvectors, sizeof *base);
 	pos_set = bitset_create(table_size + nstates, BITSET_FRUGAL);
@@ -623,16 +622,14 @@ static void pack_table(void)
 | and yycheck.                                                     |
    `-----------------------------------------------------------------*/
 
-void tables_generate(void)
+void tables_generate()
 {
 	/* This is a poor way to make sure the sizes are properly
 	   correlated.  In particular the signedness is not taken into
 	   account.  But it's not useless.  */
 	verify(sizeof nstates <= sizeof nvectors);
 	verify(sizeof nnterms <= sizeof nvectors);
-
 	nvectors = state_number_as_int(nstates) + nnterms;
-
 	froms = (base_number **)xcalloc(nvectors, sizeof *froms);
 	tos = (base_number **)xcalloc(nvectors, sizeof *tos);
 	conflict_tos = (int **)xcalloc(nvectors, sizeof *conflict_tos);
@@ -640,36 +637,29 @@ void tables_generate(void)
 	width = (base_number *)xnmalloc(nvectors, sizeof *width);
 
 	token_actions();
-
 	goto_actions();
 	SAlloc::F(goto_map);
 	SAlloc::F(from_state);
 	SAlloc::F(to_state);
-
 	order = (vector_number *)xcalloc(nvectors, sizeof *order);
 	sort_actions();
 	pack_table();
 	SAlloc::F(order);
-
 	SAlloc::F(tally);
 	SAlloc::F(width);
-
 	for(int i = 0; i < nvectors; i++) {
 		SAlloc::F(froms[i]);
 		SAlloc::F(tos[i]);
 		SAlloc::F(conflict_tos[i]);
 	}
-
 	SAlloc::F(froms);
 	SAlloc::F(tos);
 	SAlloc::F(conflict_tos);
 }
-
-/*-------------------------.
-| Free the parser tables.  |
-   `-------------------------*/
-
-void tables_free(void)
+// 
+// Free the parser tables
+// 
+void tables_free()
 {
 	SAlloc::F(base);
 	SAlloc::F(conflict_table);

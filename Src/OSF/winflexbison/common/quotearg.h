@@ -21,8 +21,6 @@
 #ifndef QUOTEARG_H_
 #define QUOTEARG_H_ 1
 
-//#include <stddef.h>
-
 /* Basic quoting styles.  For each style, an example is given on the
    input strings "simple", "\0 \t\n'\"\033?""?/\\", and "a:b", using
    quotearg_buffer, quotearg_mem, and quotearg_colon_mem with that

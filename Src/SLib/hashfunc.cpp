@@ -2111,7 +2111,7 @@ SCRC32::~SCRC32()
 #define SHA1_STEP(f, a, b, c, d, e, w, t) temp = SHA1_ROTATE(5, (a)) + f((b), (c), (d)) + (e) + (w) + (t); (e) = (d); (d) = (c); (c) = SHA1_ROTATE(30, (b)); (b) = (a); (a) = temp;
 // 
 // This processes one or more 64-byte data blocks, but does not update
-// the bit counters.  There are no alignment requirements.
+// the bit counters. There are no alignment requirements.
 // 
 /*static*/const  uchar * SlHash::Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size)
 {

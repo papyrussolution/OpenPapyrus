@@ -81,47 +81,50 @@ private:
 class InetUrl : public InetAddr {
 public:
 	enum { // @persistent
-		protUnkn     =  0,
-		protHttp     =  1,  // http
-		protHttps    =  2,  // https
-		protFtp      =  3,  // ftp
-		protGopher   =  4,  // gopher
-		protMailto   =  5,  // mailto
-		protNews     =  6,
-		protNntp     =  7,
-		protIrc      =  8,
-		protProspero =  9,
-		protTelnet   = 10,
-		protWais     = 11,
-		protXmpp     = 12,
-		protFile     = 13,
-		protData     = 14,
-		protSvn      = 15,
-		protSocks4   = 16,
-		protSocks5   = 17,
-		protSMTP     = 18, // Протокол отправки почты
-		protSMTPS    = 19, // Протокол отправки почты (SSL)
-		protPOP3     = 20, // Протокол получения почты
-		protPOP3S    = 21, // Протокол получения почты (SSL)
-		protIMAP     = 22, // Internet Message Access Protocol
-		protIMAPS    = 23, // Internet Message Access Protocol (SSL)
-		protFtps     = 24, // ftps
-		protTFtp     = 25,
-		protDict     = 26,
-		protSSH      = 27,
-		protSMB      = 28,
-		protSMBS     = 29,
-		protRTSP     = 30,
-		protRTMP     = 31,
-		protRTMPT    = 32,
-		protRTMPS    = 33,
-		protLDAP     = 34,
-		protLDAPS    = 35,
-		protMailFrom = 36, // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется
+		protUnkn      =  0,
+		protHttp      =  1,  // http
+		protHttps     =  2,  // https
+		protFtp       =  3,  // ftp
+		protGopher    =  4,  // gopher
+		protMailto    =  5,  // mailto
+		protNews      =  6,
+		protNntp      =  7,
+		protIrc       =  8,
+		protProspero  =  9,
+		protTelnet    = 10,
+		protWais      = 11,
+		protXmpp      = 12,
+		protFile      = 13,
+		protData      = 14,
+		protSvn       = 15,
+		protSocks4    = 16,
+		protSocks5    = 17,
+		protSMTP      = 18, // Протокол отправки почты
+		protSMTPS     = 19, // Протокол отправки почты (SSL)
+		protPOP3      = 20, // Протокол получения почты
+		protPOP3S     = 21, // Протокол получения почты (SSL)
+		protIMAP      = 22, // Internet Message Access Protocol
+		protIMAPS     = 23, // Internet Message Access Protocol (SSL)
+		protFtps      = 24, // ftps
+		protTFtp      = 25,
+		protDict      = 26,
+		protSSH       = 27,
+		protSMB       = 28,
+		protSMBS      = 29,
+		protRTSP      = 30,
+		protRTMP      = 31,
+		protRTMPT     = 32,
+		protRTMPS     = 33,
+		protLDAP      = 34,
+		protLDAPS     = 35,
+		protMailFrom  = 36, // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется
 			// для внутреннего представления описания параметров приема данных из почтовых сообщений.
-		protPapyrusServer = 37, // @v10.2.3 private-протокол системы Papyrus
-		protAMQP     = 38, // @v10.5.3
-		protAMQPS    = 39  // @v10.5.3
+		prot_p_PapyrusServer = 37, // @v10.2.3 private-протокол системы Papyrus
+		protAMQP      = 38, // @v10.5.3
+		protAMQPS     = 39, // @v10.5.3
+		prot_p_MYSQL  = 40, // @v10.9.2 private: идентифицирует url доступа к серверу MySQL
+		prot_p_SQLITE = 41, // @v10.9.2 private: идентифицирует url доступа к базе данных SQLite
+		prot_p_ORACLE = 42, // @v10.9.2 private: идентифицирует url доступа к серверу базы данных ORACLE
 	};
 	//
 	// Descr: Компоненты URL
@@ -171,6 +174,7 @@ public:
 	int    GetProtocol() const { return Protocol; }
 	int    SetProtocol(int protocol);
 	int    GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const;
+	int    SetQueryParam(const char * pParam, const char * pValue);
 	//
 	// Descr: Формирует url-строку из компонентов, установленных данном экземпляре.
 	// ARG(flags IN): Набор битовых флагов, соответствующих компонентам, которые должны быть внесены в строку.

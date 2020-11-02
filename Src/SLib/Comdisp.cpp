@@ -394,7 +394,7 @@ void ComDispInterface::ClearParams()
 {
 	if(P_ParamsAry) {
 		for(uint i = 0; i < P_ParamsAry->getCount(); i++)
-			VariantClear((VARIANTARG *)P_ParamsAry->at(i));
+			VariantClear(static_cast<VARIANTARG *>(P_ParamsAry->at(i)));
 		ZDELETE(P_ParamsAry);
 	}
 }
@@ -407,7 +407,7 @@ int ComDispInterface::_SetParam(VARIANTARG * pVarArg)
 		THROW(P_ParamsAry = new SArray(sizeof(VARIANTARG)));
 	VariantInit(&var_arg);
 	THROW(P_ParamsAry->atInsert(0, &var_arg));
-	THROW(SUCCEEDED(HRes = VariantCopy((VARIANTARG *)P_ParamsAry->at(0), pVarArg)));
+	THROW(SUCCEEDED(HRes = VariantCopy(static_cast<VARIANTARG *>(P_ParamsAry->at(0)), pVarArg)));
 	CATCH
 		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 	ENDCATCH
@@ -490,7 +490,7 @@ int ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	VARTYPE    vt;
 	VARIANTARG var_arg;
 	DISPPARAMS params;
-	params.rgvarg = P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : 0;
+	params.rgvarg = P_ParamsAry ? static_cast<VARIANTARG *>(P_ParamsAry->dataPtr()) : 0;
 	params.rgdispidNamedArgs = 0;
 	params.cArgs = SVectorBase::GetCount(P_ParamsAry);
 	params.cNamedArgs = 0;

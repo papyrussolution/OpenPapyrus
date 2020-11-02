@@ -1732,7 +1732,7 @@ int BillDialog::calcDate(uint ctlID)
 int BillDialog::EditFreight()
 {
 	int    ok = -1;
-	if(P_BObj->EditFreightDialog(P_Pack) > 0) {
+	if(P_BObj->EditFreightDialog(*P_Pack) > 0) {
 		if(oneof2(PayDateBase, PPClientAgreement::pdbFreightIssue, PPClientAgreement::pdbFreightArrival) && !P_Pack->Rec.ID) {
 			P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);
 			SetupPaymDateCtrls();
@@ -3141,51 +3141,51 @@ int ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID
 //
 //
 //
-int PPObjBill::EditFreightDialog(PPBillPacket * pPack)
+int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 {
 	class FreightDialog : public TDialog {
+		DECL_DIALOG_DATA(PPFreight);
 	public:
-		FreightDialog() : TDialog(DLG_FREIGHT), P_Pack(0)
+		FreightDialog(PPBillPacket & rPack) : TDialog(DLG_FREIGHT), R_Pack(rPack)
 		{
 		}
-		int setDTS(const PPFreight * pData, PPBillPacket * pPack)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
-			P_Pack = pPack;
-
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_FREIGHT_TRTYP, 0, PPTRTYP_CAR);
 			AddClusterAssoc(CTL_FREIGHT_TRTYP, 1, PPTRTYP_SHIP);
 			SetClusterData(CTL_FREIGHT_TRTYP, Data.TrType);
 			disableCtrl(CTL_FREIGHT_TRTYP, BIN(Data.ShipID));
-			disableCtrl(CTL_FREIGHT_COST, (P_Pack->Rec.ID && !BillObj->CheckRights(PPR_MOD)));
+			disableCtrl(CTL_FREIGHT_COST, (R_Pack.Rec.ID && !BillObj->CheckRights(PPR_MOD)));
 			setCtrlData(CTL_FREIGHT_NAME, Data.Name);
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN));
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID,  OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID,  OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN));
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN2, PPOBJ_PERSON, Data.Captain2ID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN)); // @v10.9.2
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_AGENT,    PPOBJ_PERSON, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ISSLOC,   PPOBJ_WORLD, Data.PortOfLoading,   OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
 				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
 				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
-			if(P_Pack) {
+			{
 				int    dlvr_loc_as_warehouse = 0;
-				if(oneof2(P_Pack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
+				if(oneof2(R_Pack.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
 					PPOprKind op_rec;
-					if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_DLVRLOCASWH)
+					if(GetOpData(R_Pack.Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_DLVRLOCASWH)
 						dlvr_loc_as_warehouse = 1;
 				}
 				if(dlvr_loc_as_warehouse) {
 					SetupPPObjCombo(this, CTLSEL_FREIGHT_DLVRLOC, PPOBJ_LOCATION, Data.DlvrAddrID, 0);
 				}
 				else {
-					PPID   person_id = ObjectToPerson(P_Pack->Rec.Object);
+					PPID   person_id = ObjectToPerson(R_Pack.Rec.Object);
 					if(person_id || Data.DlvrAddrID)
 						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, Data.DlvrAddrID);
 					//
 					// Для внутренней передачи необходимо обеспечить возможность в качестве адреса доставки
 					// выбрать склад-получатель.
 					//
-					else if(IsIntrOp(P_Pack->Rec.OpID) == INTREXPND) {
-						PPID   loc_id = PPObjLocation::ObjToWarehouse(P_Pack->Rec.Object);
+					else if(IsIntrOp(R_Pack.Rec.OpID) == INTREXPND) {
+						PPID   loc_id = PPObjLocation::ObjToWarehouse(R_Pack.Rec.Object);
 						if(loc_id || Data.DlvrAddrID) {
 							ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_FREIGHT_DLVRLOC));
 							if(p_combo) {
@@ -3224,11 +3224,11 @@ int PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			setCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);
 			setCtrlReal(CTL_FREIGHT_COST, Data.Cost);
 			AddClusterAssoc(CTL_FREIGHT_SHIPPED, 0, BILLF_SHIPPED);
-			SetClusterData(CTL_FREIGHT_SHIPPED, P_Pack->Rec.Flags);
+			SetClusterData(CTL_FREIGHT_SHIPPED, R_Pack.Rec.Flags);
 			enableCommand(cmFreightEditDlvrLocList, PersonObj.CheckRights(PPR_MOD));
 			return 1;
 		}
-		int getDTS(PPFreight * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -3237,6 +3237,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			strip(Data.Name);
 			getCtrlData(CTLSEL_FREIGHT_SHIP,     &Data.ShipID);
 			getCtrlData(CTLSEL_FREIGHT_CAPTAIN,  &Data.CaptainID);
+			getCtrlData(CTLSEL_FREIGHT_CAPTAIN2, &Data.Captain2ID); // @v10.9.2
 			getCtrlData(CTLSEL_FREIGHT_AGENT,    &Data.AgentID);
 			getCtrlData(CTLSEL_FREIGHT_ISSLOC,   &Data.PortOfLoading);
 			getCtrlData(CTLSEL_FREIGHT_ARRIVLOC, &Data.PortOfDischarge);
@@ -3245,11 +3246,11 @@ int PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			getCtrlData(sel = CTL_FREIGHT_ARRIVDT, &Data.ArrivalDate);
 			THROW_SL(checkdate(Data.ArrivalDate, 1));
 			getCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);
-			if(!P_Pack->Rec.ID || BillObj->CheckRights(PPR_MOD))
+			if(!R_Pack.Rec.ID || BillObj->CheckRights(PPR_MOD))
 				Data.Cost = getCtrlReal(CTL_FREIGHT_COST);
 			getCtrlData(CTLSEL_FREIGHT_DLVRLOC,  &Data.DlvrAddrID);
-			GetClusterData(CTL_FREIGHT_SHIPPED,  &P_Pack->Rec.Flags);
-			*pData = Data;
+			GetClusterData(CTL_FREIGHT_SHIPPED,  &R_Pack.Rec.Flags);
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return 1;
 		}
@@ -3273,20 +3274,18 @@ int PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 				SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP, PPOBJ_TRANSPORT, 0, OLW_CANINSERT, reinterpret_cast<void *>(Data.TrType));
 			}
 			else if(event.isCmd(cmFreightEditDlvrLocList)) {
-				if(P_Pack) {
-					PPID   loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
-					PPID   person_id = ObjectToPerson(P_Pack->Rec.Object);
-					if(person_id) {
-						if(PersonObj.EditDlvrLocList(person_id) > 0) {
-							PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, loc_id);
-						}
+				PPID   loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
+				PPID   person_id = ObjectToPerson(R_Pack.Rec.Object);
+				if(person_id) {
+					if(PersonObj.EditDlvrLocList(person_id) > 0) {
+						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, loc_id);
 					}
-					else if(loc_id) {
-						PPID   temp_loc_id = loc_id;
-						if(PersonObj.LocObj.Edit(&loc_id, 0) == cmOK) {
-							assert(temp_loc_id == loc_id);
-							PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, loc_id);
-						}
+				}
+				else if(loc_id) {
+					PPID   temp_loc_id = loc_id;
+					if(PersonObj.LocObj.Edit(&loc_id, 0) == cmOK) {
+						assert(temp_loc_id == loc_id);
+						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, loc_id);
 					}
 				}
 			}
@@ -3295,31 +3294,30 @@ int PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			clearEvent(event);
 		}
 		PPObjPerson PersonObj;
-		PPFreight Data;
-		PPBillPacket * P_Pack;
+		PPBillPacket & R_Pack;
 	};
 	int    ok = -1;
 	FreightDialog * dlg = 0;
 	if(!CheckRights(BILLOPRT_MODFREIGHT, 1))
 		ok = 0;
-	else if(CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
+	else if(CheckOpFlags(rPack.Rec.OpID, OPKF_FREIGHT)) {
 		PPFreight freight;
-		RVALUEPTR(freight, pPack->P_Freight);
+		RVALUEPTR(freight, rPack.P_Freight);
 		SETIFZ(freight.TrType, PPTRTYP_CAR);
-		SETIFZ(freight.IssueDate, pPack->Rec.Dt);
-		if(CheckDialogPtrErr(&(dlg = new FreightDialog))) {
-			dlg->setDTS(&freight, pPack);
+		SETIFZ(freight.IssueDate, rPack.Rec.Dt);
+		if(CheckDialogPtrErr(&(dlg = new FreightDialog(rPack)))) {
+			dlg->setDTS(&freight);
 			while(ok <= 0 && ExecView(dlg) == cmOK)
 	 			if(dlg->getDTS(&freight)) {
-					if(!freight.IsEmpty() || (freight.IssueDate && freight.IssueDate != pPack->Rec.Dt)) {
-						pPack->SetFreight(&freight);
+					if(!freight.IsEmpty() || (freight.IssueDate && freight.IssueDate != rPack.Rec.Dt)) {
+						rPack.SetFreight(&freight);
 						ok = 1;
 					}
 					else {
-						pPack->SetFreight(0);
+						rPack.SetFreight(0);
 						ok = 100;
 					}
-					if(!ValidatePacket(pPack, vpfFreightOnly))
+					if(!ValidatePacket(&rPack, vpfFreightOnly))
 						ok = PPErrorZ();
 				}
 		}
@@ -3619,7 +3617,7 @@ int PPObjBill::EditBillFreight(PPID billID)
 			const int    prev_freight_state = BIN(pack.Rec.Flags & BILLF_FREIGHT);
 			const int    prev_shipped_state = BIN(pack.Rec.Flags & BILLF_SHIPPED);
 			const double prev_freight_cost = pack.P_Freight ? pack.P_Freight->Cost : 0.0;
-			int r = EditFreightDialog(&pack);
+			int r = EditFreightDialog(pack);
 			if(r > 0) {
 				const int freight_state = BIN(pack.Rec.Flags & BILLF_FREIGHT);
 				const int shipped_state = BIN(pack.Rec.Flags & BILLF_SHIPPED);

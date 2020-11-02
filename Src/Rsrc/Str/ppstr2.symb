@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493178
+LastSignatureCode=2147493199
 LastAutoCodeList=1,12000;102,10177;103,10072;110,10000;111,11991;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -89,6 +89,7 @@ lbt_aturntempllist=2147491371
 lbt_gbasket=2147491372
 lbt_billvataxlist=2147491373
 lbt_desktopcmdassoc=2147491787
+lbt_dblist=2147493191
 entmanagementsys=2147483727
 pgmcopylic_owner=2147483728
 pgmcopylic_regnum=2147483729
@@ -1199,6 +1200,7 @@ prjphase=2147491251
 prjtask=2147484534
 prjtask_pl=2147484535
 prjtasktemplate=2147491924
+computer=2147493192
 jobtask=2147484536
 jobtask_pl=2147484537
 server=2147484538
@@ -2984,6 +2986,7 @@ bhtsend_what_supplref=2147492986
 bhtsend_what_tsess=2147492987
 bhtsend_what_doc=2147492988
 bhtsend_fupdate=2147492989
+billspecialinfo=2147493197
 bill_ackdt=2147486066
 bill_agent=2147486067
 bill_agtbill=2147486068
@@ -3016,6 +3019,7 @@ bill_billno=2147486094
 bill_bnkpaymmethod=2147486095
 bill_bnkqueueing=2147486096
 bill_captain=2147486097
+bill_captain2=2147493199
 bill_code=2147486098
 bill_freightcost=2147486099
 bill_crate=2147486100
@@ -4640,6 +4644,7 @@ goods_pckgvolume=2147487550
 goods_nettbruttcoeff=2147487551
 goods_aggregations=2147487552
 goods_suppldeals=2147487553
+goodsbarcodelist=2147493198
 updategoodsflags=2147487554
 updategoodsflags_warn=2147487555
 seekinuhtt=2147487556
@@ -9507,6 +9512,22 @@ billtransmdeficitturn_hint=2147493155
 billtransmdeficitturn_locdatelist=2147493156
 divgroupassoc=2147493158
 divgroupassocentry=2147493159
+dbloginentry=2147493179
+dbloginentry_servertype=2147493180
+dbloginentry_dbfriendlyname=2147493181
+dbloginentry_dbsymb=2147493182
+dbloginentry_dbname=2147493183
+dbloginentry_dictpath=2147493184
+dbloginentry_dbpath=2147493185
+dbloginentry_temppath=2147493186
+dbloginentry_dbuuid=2147493187
+dbloginentry_username=2147493188
+dbloginentry_password=2147493189
+dbloginentry_serverauthparam=2147493190
+activeuserlist=2147493193
+activeuserlist_fshowcompnames=2147493194
+activeuserlist_usercount=2147493195
+activeuserlist_uniqmacaddrcount=2147493196
 
 [GrpSymbList]
 .N.=124

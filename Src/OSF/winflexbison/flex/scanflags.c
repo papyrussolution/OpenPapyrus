@@ -34,8 +34,9 @@
 #include "flexdef.h"
 #pragma hdrstop
 
-scanflags_t* _sf_stk = NULL;
-size_t _sf_top_ix = 0, _sf_max = 0;
+scanflags_t * _sf_stk = NULL; // @global
+size_t _sf_top_ix = 0; // @global
+size_t _sf_max = 0; // @global
 
 void sf_push()
 {

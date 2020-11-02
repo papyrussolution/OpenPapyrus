@@ -113,13 +113,10 @@ static const char * get_charset_aliases(void)
 				memcpy(file_name + dir_len + add_slash, base, base_len + 1);
 			}
 		}
-
 		if(file_name == NULL)
 			/* Out of memory.  Treat the file as empty.  */
 			cp = "";
 		else {
-			int fd;
-
 			/* Open the file.  Reject symbolic links on platforms that support
 			   O_NOFOLLOW.  This is a security feature.  Without it, an attacker
 			   could retrieve parts of the contents (namely, the tail of the
@@ -127,8 +124,7 @@ static const char * get_charset_aliases(void)
 			   a symbolic link to that file under the name "charset.alias" in
 			   some writable directory and defining the environment variable
 			   CHARSETALIASDIR to point to that directory.  */
-			fd = open(file_name,
-				O_RDONLY | (HAVE_WORKING_O_NOFOLLOW ? O_NOFOLLOW : 0));
+			int fd = open(file_name, O_RDONLY | (HAVE_WORKING_O_NOFOLLOW ? O_NOFOLLOW : 0));
 			if(fd < 0)
 				/* File not found.  Treat it as empty.  */
 				cp = "";
@@ -145,15 +141,12 @@ static const char * get_charset_aliases(void)
 					/* Parse the file's contents.  */
 					char * res_ptr = NULL;
 					size_t res_size = 0;
-
 					for(;;) {
-						int c;
 						char buf1[50+1];
 						char buf2[50+1];
 						size_t l1, l2;
 						char * old_res_ptr;
-
-						c = getc(fp);
+						int c = getc(fp);
 						if(c == EOF)
 							break;
 						if(c == '\n' || c == ' ' || c == '\t')
@@ -420,7 +413,6 @@ const char * locale_charset(void)
 	static char buf[2 + 10 + 1];
 	ULONG cp[3];
 	ULONG cplen;
-
 	/* Allow user to override the codeset, as set in the operating system,
 	   with standard language environment variables.  */
 	locale = getenv("LC_ALL");
@@ -460,28 +452,18 @@ const char * locale_charset(void)
 			codeset = buf;
 		}
 	}
-
 #endif
-
-	if(codeset == NULL)
-		/* The canonical name cannot be determined.  */
-		codeset = "";
-
+	SETIFZ(codeset, ""); /* The canonical name cannot be determined.  */
 	/* Resolve alias. */
-	for(aliases = get_charset_aliases();
-	    *aliases != '\0';
-	    aliases += strlen(aliases) + 1, aliases += strlen(aliases) + 1)
-		if(strcmp(codeset, aliases) == 0
-		    || (aliases[0] == '*' && aliases[1] == '\0')) {
+	for(aliases = get_charset_aliases(); *aliases != '\0'; aliases += strlen(aliases) + 1, aliases += strlen(aliases) + 1)
+		if(strcmp(codeset, aliases) == 0 || (aliases[0] == '*' && aliases[1] == '\0')) {
 			codeset = aliases + strlen(aliases) + 1;
 			break;
 		}
-
 	/* Don't return an empty string.  GNU libc and GNU libiconv interpret
 	   the empty string as denoting "the locale's character encoding",
 	   thus GNU libiconv would call this function a second time.  */
 	if(codeset[0] == '\0')
 		codeset = "ASCII";
-
 	return codeset;
 }

@@ -280,7 +280,7 @@ static void set_conflicts(state * s, Symbol ** errors)
 | and flag as inconsistent the states that still have conflicts.  |
    `----------------------------------------------------------------*/
 
-void conflicts_solve(void)
+void conflicts_solve()
 {
 	/* List of lookahead tokens on which we explicitly raise a syntax error.  */
 	Symbol ** errors = (Symbol **)xnmalloc(ntokens + 1, sizeof *errors);
@@ -332,7 +332,7 @@ static size_t count_state_sr_conflicts(const state * s)
 | The total number of shift/reduce conflicts.  |
    `---------------------------------------------*/
 
-static size_t count_sr_conflicts(void)
+static size_t count_sr_conflicts()
 {
 	size_t res = 0;
 	/* Conflicts by state.  */
@@ -361,7 +361,7 @@ static size_t count_state_rr_conflicts(const state * s)
 	return res;
 }
 
-static size_t count_rr_conflicts(void)
+static size_t count_rr_conflicts()
 {
 	size_t res = 0;
 	/* Conflicts by state.  */
@@ -465,12 +465,12 @@ void conflicts_output(FILE * out)
 | Total the number of S/R and R/R conflicts.  |
    `--------------------------------------------*/
 
-int conflicts_total_count(void)
+int conflicts_total_count()
 {
 	return count_sr_conflicts() + count_rr_conflicts();
 }
 
-static void report_counterexamples(void)
+static void report_counterexamples()
 {
 	for(state_number sn = 0; sn < nstates; ++sn)
 		if(conflicts[sn])
@@ -481,7 +481,7 @@ static void report_counterexamples(void)
 | Report per-rule %expect/%expect-rr mismatches.  |
    `------------------------------------------------*/
 
-static void report_rule_expectation_mismatches(void)
+static void report_rule_expectation_mismatches()
 {
 	for(rule_number i = 0; i < nrules; i += 1) {
 		rule * r = &rules[i];
@@ -497,19 +497,16 @@ static void report_rule_expectation_mismatches(void)
 		}
 	}
 }
-
 /*---------------------------------.
 | Reporting numbers of conflicts.  |
    `---------------------------------*/
-
-void conflicts_print(void)
+void conflicts_print()
 {
 	report_rule_expectation_mismatches();
 	if(!glr_parser && expected_rr_conflicts != -1) {
 		complain(NULL, Wother, _("%%expect-rr applies only to GLR parsers"));
 		expected_rr_conflicts = -1;
 	}
-
 	// The warning flags used to emit a diagnostic, if we did.
 	warnings unexpected_conflicts_warning = Wnone;
 	/* The following two blocks scream for factoring, but i18n support
@@ -530,7 +527,6 @@ void conflicts_print(void)
 			unexpected_conflicts_warning = Wconflicts_sr;
 		}
 	}
-
 	{
 		int total = count_rr_conflicts();
 		/* If %expect-rr is not used, but %expect is, then expect 0 rr.  */
@@ -547,14 +543,13 @@ void conflicts_print(void)
 			unexpected_conflicts_warning = Wconflicts_rr;
 		}
 	}
-
 	if(warning_is_enabled(Wcounterexamples))
 		report_counterexamples();
 	else if(unexpected_conflicts_warning != Wnone)
 		subcomplain(NULL, unexpected_conflicts_warning, _("rerun with option '-Wcounterexamples' to generate conflict counterexamples"));
 }
 
-void conflicts_free(void)
+void conflicts_free()
 {
 	SAlloc::F(conflicts);
 	bitset_free(shift_set);

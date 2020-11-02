@@ -22,7 +22,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include "graphviz.h"
 #include "tables.h"
 //
 // Return an unambiguous printable representation for NAME, suitable
@@ -85,14 +84,11 @@ static void conclude_red(struct obstack * out, int source, rule_number ruleno,
 	else{
 		char const * ed = enabled ? "" : "d";
 		char const * color = enabled ? ruleno ? "3" : "1" : "5";
-
 		/* First, build the edge's head. The name of reduction nodes is "nRm",
 		   with n the source state and m the rule number. This is because we
 		   don't want all the reductions bearing a same rule number to point to
 		   the same state, since that is not the desired format. */
-		fprintf(fout, "  %d -> \"%dR%d%s\" [",
-		    source, source, ruleno, ed);
-
+		fprintf(fout, "  %d -> \"%dR%d%s\" [", source, source, ruleno, ed);
 		/* (The lookahead tokens have been added to the beginning of the
 		   obstack, in the caller function.) */
 		if(!obstack_empty_p(out)) {
@@ -100,7 +96,6 @@ static void conclude_red(struct obstack * out, int source, rule_number ruleno,
 			fprintf(fout, "label=\"[%s]\", ", label);
 			obstack_free(out, label);
 		}
-
 		/* Then, the edge's tail. */
 		fprintf(fout, "style=solid]\n");
 		/* Build the associated diamond representation of the target rule. */
@@ -146,13 +141,12 @@ void output_red(state const * s, reductions const * reds, FILE * fout)
 				if(bitset_test(reds->lookaheads[j], i)) {
 					if(bitset_test(no_reduce_set, i))
 						firstd = print_token(&dout, firstd, symbols[i]->tag);
-					else{
+					else {
 						if(!defaulted)
 							firste = print_token(&eout, firste, symbols[i]->tag);
 						bitset_set(no_reduce_set, i);
 					}
 				}
-
 		/* Do the actual output. */
 		conclude_red(&dout, source, ruleno, false, firstd, fout);
 		conclude_red(&eout, source, ruleno, true, firste && !defaulted, fout);

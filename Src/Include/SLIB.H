@@ -214,6 +214,11 @@
 #define DIREC_HORZ            SOW_EAST
 #define DIREC_VERT            SOW_NORD
 //
+// Фронтальная ориентация прямоугольника по отношению к зрителю (проще говоря, ориентация листа или экрана)
+//
+#define RECTORIENTATION_PORTRAIT  DIREC_VERT
+#define RECTORIENTATION_LANDSCAPE DIREC_HORZ
+//
 // Методы комбинации объектов
 //
 #define SCOMBINE_NONE         0
@@ -3455,6 +3460,7 @@ public:
 	SString();
 	explicit SString(size_t initSize);
 	explicit SString(const char *);
+	SString(const char * pS, size_t len);
 	SString(const SString &);
 	~SString();
 	void   Destroy();
@@ -4476,7 +4482,8 @@ uint   FASTCALL hexw(wchar_t c);
 //    проверить эти символы функцией ishex(char).
 //
 uint8  FASTCALL hextobyte(const char * pBuf);
-int    FASTCALL IsLetterASCII(int ch);
+int    FASTCALL isasciialpha(char ch); 
+int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL IsLetter1251(int ch);
 int    FASTCALL ToLower1251(int ch);
 int    FASTCALL ToUpper1251(int ch);

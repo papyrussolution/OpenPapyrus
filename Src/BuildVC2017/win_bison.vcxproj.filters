@@ -56,25 +56,13 @@
     <ClInclude Include="..\osf\winflexbison\bison\AnnotationList.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\assoc.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\closure.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\complain.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\config.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\conflicts.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\derives.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\files.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\flex-scanner.h">
@@ -86,49 +74,16 @@
     <ClInclude Include="..\osf\winflexbison\bison\gram.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\graphviz.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\ielr.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\InadequacyList.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\lalr.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\location.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\LR0.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\muscle-tab.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\named-ref.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\nullable.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\output.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\parse-gram.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\print.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\print-xml.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\reader.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\reduce.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\relation.h">
@@ -164,22 +119,7 @@
     <ClInclude Include="..\osf\winflexbison\bison\uniqstr.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\fixits.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\print-graph.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\counterexample.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\derivation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\glyphs.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\lssi.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\parse-simulation.h">

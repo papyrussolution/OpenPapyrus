@@ -4807,7 +4807,6 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		}
 		_RET_STR = temp_buf;
 	}
-	// @v9.4.10 {
 	else if(pF->Name == "?GetSingleEgaisCode") {
 		SString temp_buf;
 		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
@@ -4825,7 +4824,6 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 			temp_buf.Z();
 		_RET_STR = temp_buf;
 	}
-	// } @v9.4.10
 	else if(pF->Name == "?GetImagePath") {
 		_RET_STR.Z();
 		//string GetImagePath[256](int rel, string stub[256]);
@@ -4839,7 +4837,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		else if(stub.NotEmptyS() && fileExists(stub))
 			org_file_path = stub;
 		else
-			org_file_path = 0;
+			org_file_path.Z();
 		if(org_file_path.NotEmpty()) {
             SString dest_file_path;
             SString dest_file_name;

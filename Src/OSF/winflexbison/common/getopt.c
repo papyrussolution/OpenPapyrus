@@ -154,7 +154,6 @@ static void exchange(char ** argv, struct _getopt_data * d)
 		}
 	}
 #endif
-
 	while(top > middle && middle > bottom) {
 		if(top - middle > middle - bottom) {
 			/* Bottom segment is the short one.  */

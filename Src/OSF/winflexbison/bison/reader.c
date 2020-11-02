@@ -21,14 +21,13 @@
 #include "bison.h"
 #pragma hdrstop
 
-static void prepare_percent_define_front_end_variables(void);
-static void check_and_convert_grammar(void);
-static symbol_list * grammar = NULL;
-static bool start_flag = false;
-merger_list * merge_functions;
-
-bool union_seen = false; /* Was %union seen?  */
-bool default_prec = true; /* Should rules have a default precedence?  */
+static void prepare_percent_define_front_end_variables();
+static void check_and_convert_grammar();
+static symbol_list * grammar = NULL; // @global
+static bool start_flag = false; // @global
+merger_list * merge_functions; // @global
+bool union_seen = false;  // @global Was %union seen?
+bool default_prec = true; // @global Should rules have a default precedence? 
 
 /*-----------------------.
 | Set the start symbol.  |
@@ -54,11 +53,9 @@ static int get_merge_function(uniqstr name)
 {
 	if(!glr_parser)
 		return 0;
-
 	merger_list * syms;
 	merger_list head;
 	int n;
-
 	head.next = merge_functions;
 	for(syms = &head, n = 1; syms->next; syms = syms->next, n += 1)
 		if(UNIQSTR_EQ(name, syms->next->name))
@@ -83,37 +80,28 @@ static int get_merge_function(uniqstr name)
 
 static void record_merge_function_type(int merger, uniqstr type, Location declaration_loc)
 {
-	if(merger <= 0)
-		return;
-
-	if(type == NULL)
-		type = uniqstr_new("");
-
-	merger_list * merge_function;
-	int merger_find = 1;
-	for(merge_function = merge_functions;
-	    merge_function != NULL && merger_find != merger;
-	    merge_function = merge_function->next)
-		merger_find += 1;
-	aver(merge_function != NULL && merger_find == merger);
-	if(merge_function->type != NULL && !UNIQSTR_EQ(merge_function->type, type)) {
-		complain(&declaration_loc, complaint,
-		    _("result type clash on merge function %s: "
-		    "<%s> != <%s>"),
-		    quote(merge_function->name), type,
-		    merge_function->type);
-		subcomplain(&merge_function->type_declaration_loc, complaint,
-		    _("previous declaration"));
+	if(merger > 0) {
+		SETIFZ(type, uniqstr_new(""));
+		merger_list * merge_function;
+		int merger_find = 1;
+		for(merge_function = merge_functions; merge_function != NULL && merger_find != merger; merge_function = merge_function->next)
+			merger_find += 1;
+		aver(merge_function != NULL && merger_find == merger);
+		if(merge_function->type != NULL && !UNIQSTR_EQ(merge_function->type, type)) {
+			complain(&declaration_loc, complaint, _("result type clash on merge function %s: <%s> != <%s>"),
+				quote(merge_function->name), type, merge_function->type);
+			subcomplain(&merge_function->type_declaration_loc, complaint, _("previous declaration"));
+		}
+		merge_function->type = uniqstr_new(type);
+		merge_function->type_declaration_loc = declaration_loc;
 	}
-	merge_function->type = uniqstr_new(type);
-	merge_function->type_declaration_loc = declaration_loc;
 }
 
 /*--------------------------------------.
 | Free all merge-function definitions.  |
    `--------------------------------------*/
 
-void free_merger_functions(void)
+void free_merger_functions()
 {
 	merger_list * L0 = merge_functions;
 	while(L0) {
@@ -134,8 +122,7 @@ void free_merger_functions(void)
 | to.                                                                |
    `-------------------------------------------------------------------*/
 
-/* The (currently) last symbol of GRAMMAR. */
-static symbol_list * grammar_end = NULL;
+static symbol_list * grammar_end = NULL; // @global The (currently) last symbol of GRAMMAR.
 
 /* Append SYM to the grammar.  */
 static symbol_list * grammar_symbol_append(Symbol * sym, Location loc)
@@ -167,8 +154,8 @@ static void assign_named_ref(symbol_list * p, named_ref * name)
 /* The rule currently being defined, and the previous rule.
    CURRENT_RULE points to the first LHS of the current rule, while
    PREVIOUS_RULE_END points to the *end* of the previous rule (NULL).  */
-static symbol_list * current_rule = NULL;
-static symbol_list * previous_rule_end = NULL;
+static symbol_list * current_rule = NULL; // @global
+static symbol_list * previous_rule_end = NULL; // @global
 
 /*----------------------------------------------.
 | Create a new rule for LHS in to the GRAMMAR.  |
@@ -310,7 +297,7 @@ void grammar_current_rule_end(Location loc)
 | rule.                                                              |
    `-------------------------------------------------------------------*/
 
-void grammar_midrule_action(void)
+void grammar_midrule_action()
 {
 	/* Since the action was written out with this rule's number, we must
 	   give the new rule this number by inserting the new rule before it.  */
@@ -406,8 +393,7 @@ void grammar_current_rule_dprec_set(int dprec, Location loc)
 	}
 }
 
-/* Attach a merge function NAME with argument type TYPE to current
-   rule. */
+/* Attach a merge function NAME with argument type TYPE to current rule. */
 
 void grammar_current_rule_merge_set(uniqstr name, Location loc)
 {
@@ -475,7 +461,7 @@ void grammar_current_rule_expect_rr(int count, Location loc)
 | Build RULES and RITEM from what was parsed.  |
    `---------------------------------------------*/
 
-static void packgram(void)
+static void packgram()
 {
 	int itemno = 0;
 	ritem = (item_number *)xnmalloc(nritems + 1, sizeof *ritem);
@@ -572,7 +558,7 @@ void reader(const char * gram)
 		check_and_convert_grammar();
 }
 
-static void prepare_percent_define_front_end_variables(void)
+static void prepare_percent_define_front_end_variables()
 {
 	/* Set %define front-end variable defaults.  */
 	muscle_percent_define_default("lr.keep-unreachable-state", "false");
@@ -602,7 +588,7 @@ static void prepare_percent_define_front_end_variables(void)
 
 /* Find the first LHS which is not a dummy.  */
 
-static Symbol * find_start_symbol(void)
+static Symbol * find_start_symbol()
 {
 	symbol_list * res = grammar;
 	/* Skip all the possible dummy rules of the first rule.  */
@@ -618,7 +604,7 @@ static Symbol * find_start_symbol(void)
 | internal form.                                               |
    `-------------------------------------------------------------*/
 
-static void check_and_convert_grammar(void)
+static void check_and_convert_grammar()
 {
 	/* Grammar has been read.  Do some checking.  */
 	if(nrules == 0)
@@ -636,16 +622,13 @@ static void check_and_convert_grammar(void)
 			symbol_make_alias(eoftoken, alias, empty_loc);
 		}
 	}
-
 	/* Report any undefined symbols and consider them nonterminals.  */
 	symbols_check_defined();
-
 	/* Find the start symbol if no %start.  */
 	if(!start_flag) {
 		Symbol * start = find_start_symbol();
 		grammar_start_symbol_set(start, start->location);
 	}
-
 	/* Insert the initial rule, whose line is that of the first rule
 	   (not that of the start symbol):
 

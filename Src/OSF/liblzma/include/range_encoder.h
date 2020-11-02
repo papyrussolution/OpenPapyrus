@@ -151,7 +151,7 @@ static inline bool rc_shift_low(lzma_range_encoder * rc, uint8_t * out, size_t *
 			++*out_pos;
 			rc->cache = 0xFF;
 		} while(--rc->cache_size != 0);
-		rc->cache = (rc->low >> 24) & 0xFF;
+		rc->cache = static_cast<uint8_t>((rc->low >> 24) & 0xFF);
 	}
 	++rc->cache_size;
 	rc->low = (rc->low & 0x00FFFFFF) << RC_SHIFT_BITS;

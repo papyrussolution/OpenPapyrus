@@ -20,7 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include "graphviz.h"
 
 /*----------------------------.
 | Construct the node labels.  |
@@ -34,25 +33,20 @@ static void print_core(struct obstack * oout, state * s)
 	item_index const * sitems = s->items;
 	sym_content * previous_lhs = NULL;
 	size_t snritems = s->nitems;
-
 	/* Output all the items of a state, not just its kernel.  */
 	if(report_flag & report_itemsets) {
 		closure(sitems, snritems);
 		sitems = itemset;
 		snritems = nitemset;
 	}
-
 	obstack_printf(oout, _("State %d"), s->number);
 	obstack_sgrow(oout, "\\n\\l");
 	for(size_t i = 0; i < snritems; ++i) {
 		item_number const * sp1 = ritem + sitems[i];
 		rule const * r = item_rule(sp1);
-
 		obstack_printf(oout, "%3d ", r->number);
-		if(previous_lhs && UNIQSTR_EQ(previous_lhs->symbol->tag,
-		    r->lhs->symbol->tag))
-			obstack_printf(oout, "%*s| ",
-			    (int)strlen(previous_lhs->symbol->tag), "");
+		if(previous_lhs && UNIQSTR_EQ(previous_lhs->symbol->tag, r->lhs->symbol->tag))
+			obstack_printf(oout, "%*s| ", (int)strlen(previous_lhs->symbol->tag), "");
 		else{
 			obstack_backslash(oout, r->lhs->symbol->tag);
 			obstack_printf(oout, ": ");
@@ -75,7 +69,6 @@ static void print_core(struct obstack * oout, state * s)
 			/* Find the reduction we are handling.  */
 			reductions * reds = s->reductions;
 			int redno = state_reduction_find(s, r);
-
 			/* Print them if there are.  */
 			if(reds->lookaheads && redno != -1) {
 				bitset_iterator biter;
@@ -109,7 +102,6 @@ static void print_actions(state const * s, FILE * fgraph)
 		if(!TRANSITION_IS_DISABLED(trans, i)) {
 			const state * s1 = trans->states[i];
 			const symbol_number sym = s1->accessing_symbol;
-
 			/* Shifts are solid, gotos are dashed, and error is dotted.  */
 			char const * style = (TRANSITION_IS_ERROR(trans, i) ? "dotted" : TRANSITION_IS_SHIFT(trans, i) ? "solid" : "dashed");
 			if(TRANSITION_IS_ERROR(trans, i) && STRNEQ(symbols[sym]->tag, "error"))

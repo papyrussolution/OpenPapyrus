@@ -55,13 +55,12 @@ struct Buf top_buf;             /**< contains %top code. String buffer. */
 
 struct Buf * buf_print_strings(struct Buf * buf, FILE* out) 
 {
-	int i;
-	if(!buf || !out)
-		return buf;
-	for(i = 0; i < buf->nelts; i++) {
-		const char * s = ((char**)buf->elts)[i];
-		if(s)
-			fprintf(out, "%s", s);
+	if(buf && out) {
+		for(int i = 0; i < buf->nelts; i++) {
+			const char * s = ((char**)buf->elts)[i];
+			if(s)
+				fprintf(out, "%s", s);
+		}
 	}
 	return buf;
 }

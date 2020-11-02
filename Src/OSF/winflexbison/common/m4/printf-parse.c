@@ -64,23 +64,18 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 	size_t a_allocated;     /* allocated elements of a->arg */
 	size_t max_width_length = 0;
 	size_t max_precision_length = 0;
-
 	d->count = 0;
 	d_allocated = N_DIRECT_ALLOC_DIRECTIVES;
 	d->dir = d->direct_alloc_dir;
-
 	a->count = 0;
 	a_allocated = N_DIRECT_ALLOC_ARGUMENTS;
 	a->arg = a->direct_alloc_arg;
-
 #define REGISTER_ARG(_index_, _type_) \
 	{                                                                     \
 		size_t n = (_index_);                                               \
-		if(n >= a_allocated)                                               \
-		{                                                                 \
+		if(n >= a_allocated) {                                              \
 			size_t memory_size;                                             \
 			argument * memory;                                               \
-                                                                        \
 			a_allocated = xtimes(a_allocated, 2);                          \
 			if(a_allocated <= n)                                           \
 				a_allocated = xsum(n, 1);                                    \
@@ -88,12 +83,9 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 			if(size_overflow_p(memory_size))                              \
 				/* Overflow, would lead to out of memory.  */                 \
 				goto out_of_memory;                                           \
-			memory = (argument*)(a->arg != a->direct_alloc_arg            \
-			    ? SAlloc::R(a->arg, memory_size)          \
-			    : SAlloc::M(memory_size));                 \
+			memory = (argument*)(a->arg != a->direct_alloc_arg ? SAlloc::R(a->arg, memory_size) : SAlloc::M(memory_size)); \
 			if(memory == NULL)                                             \
-				/* Out of memory.  */                                         \
-				goto out_of_memory;                                           \
+				goto out_of_memory; /* Out of memory.  */                  \
 			if(a->arg == a->direct_alloc_arg)                              \
 				memcpy(memory, a->arg, a->count * sizeof(argument));        \
 			a->arg = memory;                                                \
@@ -103,8 +95,7 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 		if(a->arg[n].type == TYPE_NONE)                                    \
 			a->arg[n].type = (_type_);                                        \
 		else if(a->arg[n].type != (_type_))                                \
-			/* Ambiguous type for positional argument.  */                    \
-			goto error;                                                       \
+			goto error; /* Ambiguous type for positional argument.  */     \
 	}
 
 	while(*cp != '\0') {
@@ -127,12 +118,10 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 			/* Test for positional argument.  */
 			if(*cp >= '0' && *cp <= '9') {
 				const CHAR_T * np;
-
 				for(np = cp; *np >= '0' && *np <= '9'; np++)
 					;
 				if(*np == '$') {
 					size_t n = 0;
-
 					for(np = cp; *np >= '0' && *np <= '9'; np++)
 						n = xsum(xtimes(n, 10), *np - '0');
 					if(n == 0)
@@ -240,11 +229,9 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 					dp->precision_end = cp;
 					if(max_precision_length < 2)
 						max_precision_length = 2;
-
 					/* Test for positional argument.  */
 					if(*cp >= '0' && *cp <= '9') {
 						const CHAR_T * np;
-
 						for(np = cp; *np >= '0' && *np <= '9'; np++)
 							;
 						if(*np == '$') {
@@ -273,7 +260,6 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 				}
 				else {
 					size_t precision_length;
-
 					dp->precision_start = cp - 1;
 					for(; *cp >= '0' && *cp <= '9'; cp++)
 						;
@@ -283,14 +269,11 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 						max_precision_length = precision_length;
 				}
 			}
-
 			{
 				arg_type type;
-
 				/* Parse argument type/size specifiers.  */
 				{
 					int flags = 0;
-
 					for(;;) {
 						if(*cp == 'h') {
 							flags |= (1 << (flags & 1));
@@ -539,11 +522,9 @@ int PRINTF_PARSE(const CHAR_T * format, DIRECTIVES * d, arguments * a)
 #endif
 	}
 	d->dir[d->count].dir_start = cp;
-
 	d->max_width_length = max_width_length;
 	d->max_precision_length = max_precision_length;
 	return 0;
-
 error:
 	if(a->arg != a->direct_alloc_arg)
 		SAlloc::F(a->arg);

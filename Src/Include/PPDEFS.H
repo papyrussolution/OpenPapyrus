@@ -5358,6 +5358,8 @@
 	#define CTLCAL_FREIGHT_ISSDT         (19 + WINDOWS_ID_BIAS) // @alena
 	#define CTLCAL_FREIGHT_ARRIVDT       (20 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_FREIGHT_COST             (21 + WINDOWS_ID_BIAS)
+	#define CTL_FREIGHT_CAPTAIN2         (22 + WINDOWS_ID_BIAS) // @v10.9.2
+	#define CTLSEL_FREIGHT_CAPTAIN2      (23 + WINDOWS_ID_BIAS) // @v10.9.2
 #define DLG_SELBBSMPL             492 // Выбор способа создания документа по образцу
 	#define CTL_SELBBSMPL_WHAT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_OP             (2 + WINDOWS_ID_BIAS)
@@ -7429,6 +7431,7 @@
 	#define CTL_CREATEDB_DBUSER          (11 + WINDOWS_ID_BIAS)
 	#define CTL_CREATEDB_DBUSERPW        (12 + WINDOWS_ID_BIAS)
 	#define CTL_CREATEDB_SRVTYPE         (13 + WINDOWS_ID_BIAS)
+	#define CTL_CREATEDB_SRVURL          (14 + WINDOWS_ID_BIAS)
 #define DLG_DBLIST				  820
 	#define CTL_DBLIST_DB					(1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DBLIST_DB					(2 + WINDOWS_ID_BIAS)
@@ -12326,16 +12329,16 @@
 	#define PPFONT_TIMESNEWROMAN        2
 	#define PPFONT_ARIAL                3
 	#define PPFONT_ARIALCYR             4
-#define PPTXT_IMPEXPCASH_FILENAMES        515 // Имена файлов импорта/экспорта в Папирус данных по кассам
-	#define PPIECFN_PPYGGRPS            0 // Файл для импорта/экспорта справочника товарных групп
-	#define PPIECFN_PPYGOODS            1 // Файл для импорта/экспорта справочника товаров
-	#define PPIECFN_PPYBCODS            2 // Файл для импорта/экспорта штрихкодов
-	#define PPIECFN_PPYQKNDS            3 // Файл для импорта/экспорта видов котировок
-	#define PPIECFN_PPYQUOTS            4 // Файл для импорта/экспорта котировок
-	#define PPIECFN_PPYCARDS            5 // Файл для импорта/экспорта пластиковых карт
-	#define PPIECFN_PPYCSESS            6 // Файл для импорта/экспорта кассовых сессий
-	#define PPIECFN_PPYCCHKS            7 // Файл для импорта/экспорта кассовых чеков
-	#define PPIECFN_PPYCCLNS            8 // Файл для импорта/экспорта строк чеков
+// @v10.9.2 #define PPTXT_IMPEXPCASH_FILENAMES        515 // Имена файлов импорта/экспорта в Папирус данных по кассам
+	// @v10.9.2 #define PPIECFN_PPYGGRPS            0 // Файл для импорта/экспорта справочника товарных групп
+	// @v10.9.2 #define PPIECFN_PPYGOODS            1 // Файл для импорта/экспорта справочника товаров
+	// @v10.9.2 #define PPIECFN_PPYBCODS            2 // Файл для импорта/экспорта штрихкодов
+	// @v10.9.2 #define PPIECFN_PPYQKNDS            3 // Файл для импорта/экспорта видов котировок
+	// @v10.9.2 #define PPIECFN_PPYQUOTS            4 // Файл для импорта/экспорта котировок
+	// @v10.9.2 #define PPIECFN_PPYCARDS            5 // Файл для импорта/экспорта пластиковых карт
+	// @v10.9.2 #define PPIECFN_PPYCSESS            6 // Файл для импорта/экспорта кассовых сессий
+	// @v10.9.2 #define PPIECFN_PPYCCHKS            7 // Файл для импорта/экспорта кассовых чеков
+	// @v10.9.2 #define PPIECFN_PPYCCLNS            8 // Файл для импорта/экспорта строк чеков
 #define PPTXT_DL200_NAMEVARS              565 // Описание переменных для извлечения некоторой информации DL200
 	#define PPDL200_NAMEVAR_MAINORGNAME 0
 	#define PPDL200_NAMEVAR_MAINORGADDR 1

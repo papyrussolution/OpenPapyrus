@@ -63,16 +63,15 @@ typedef struct {
  * particular state.  Don't break encapsulation by modifying the fields
  * directly.  Use the provided interface functions.
  */
-typedef struct InadequacyList {
-	struct InadequacyList * next;
+struct InadequacyList {
+	InadequacyList * next;
 	InadequacyListNodeCount id;
 	state * manifestingState;
 	ContributionIndex contributionCount;
 	union {
 		Conflict conflict;
 	} inadequacy;
-} InadequacyList;
-
+};
 /**
  * \pre
  *   - <tt>manifesting_state != NULL</tt>.
@@ -102,13 +101,11 @@ typedef struct InadequacyList {
  *   - \c result assumes responsibility for the memory of \c actions.
  */
 InadequacyList * InadequacyList__new_conflict(state * manifesting_state, Symbol * token, bitset actions, InadequacyListNodeCount * node_count);
-
 /**
  * \post
  *   - All memory associated with all nodes in the list \c self was freed.
  */
 void InadequacyList__delete(InadequacyList * self);
-
 /**
  * \pre
  *   - <tt>self != NULL</tt>.
@@ -129,7 +126,6 @@ ContributionIndex InadequacyList__getShiftContributionIndex(InadequacyList const
  *     inadequacy described by the node \c self.
  */
 Symbol * InadequacyList__getContributionToken(InadequacyList const * self, ContributionIndex i);
-
 /**
  * \pre
  *   - \c self is a single node.

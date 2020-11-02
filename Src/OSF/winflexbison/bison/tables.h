@@ -21,8 +21,6 @@
 #ifndef TABLES_H_
 #define TABLES_H_
 
-//#include "state.h"
-
 /* The parser tables consist of these tables.
 
    YYTRANSLATE = vector mapping yylex's token numbers into bison's token numbers.
@@ -104,7 +102,7 @@ extern state_number * yydefgoto;
 extern rule_number * yydefact;
 extern int high;
 
-void tables_generate(void);
-void tables_free(void);
+void tables_generate();
+void tables_free();
 
 #endif /* !TABLES_H_ */

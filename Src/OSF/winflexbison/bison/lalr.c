@@ -74,7 +74,7 @@ static void goto_print(goto_number i, FILE * out)
 	fprintf(out, "goto[%zu] = (%d, %s, %d)", i, src, symbols[var]->tag, dst);
 }
 
-void set_goto_map(void)
+void set_goto_map()
 {
 	/* Count the number of gotos (ngotos) per nterm (goto_map). */
 	goto_map = (goto_number*)xcalloc(nnterms + 1, sizeof *goto_map);
@@ -153,7 +153,7 @@ static void follows_print(const char* title, FILE * out)
 }
 
 /* Build goto_follows. */
-static void initialize_goto_follows(void)
+static void initialize_goto_follows()
 {
 	goto_number ** reads = (goto_number **)xnmalloc(ngotos, sizeof *reads);
 	goto_number * edge = (goto_number *)xnmalloc(ngotos, sizeof *edge);
@@ -249,7 +249,7 @@ static void add_lookback_edge(state * s, rule const * r, goto_number gotono)
 }
 
 // Compute INCLUDES and LOOKBACK.  Corresponds to step E in Sec. 6 of [DeRemer 1982].
-static void build_relations(void)
+static void build_relations()
 {
 	goto_number * edge = (goto_number *)xnmalloc(ngotos, sizeof(*edge));
 	state_number * path = (state_number *)xnmalloc(ritem_longest_rhs() + 1, sizeof(*path));
@@ -327,7 +327,7 @@ static void build_relations(void)
 }
 
 /* Compute FOLLOWS from INCLUDES, and free INCLUDES.  */
-static void compute_follows(void)
+static void compute_follows()
 {
 	relation_digraph(PP_Includes, ngotos, goto_follows);
 	if(trace_flag & trace_sets)
@@ -337,7 +337,7 @@ static void compute_follows(void)
 	SAlloc::F(PP_Includes);
 }
 
-static void compute_lookaheads(void)
+static void compute_lookaheads()
 {
 	if(trace_flag & trace_automaton)
 		lookback_print(stderr);
@@ -382,7 +382,7 @@ static int state_lookaheads_count(state * s, bool default_reduction_only_for_acc
 | Compute LA, NLA, and the lookaheads members.  |
    `----------------------------------------------*/
 
-void initialize_LA(void)
+void initialize_LA()
 {
 	bool default_reduction_only_for_accept;
 	{
@@ -436,7 +436,7 @@ static void lookaheads_print(FILE * out)
 	fputc('\n', out);
 }
 
-void lalr(void)
+void lalr()
 {
 	if(trace_flag & trace_automaton) {
 		fputc('\n', stderr);
@@ -486,7 +486,7 @@ void lalr_update_state_numbers(state_number old_to_new[], state_number nstates_o
 	ngotos = ngotos_reachable;
 }
 
-void lalr_free(void)
+void lalr_free()
 {
 	for(state_number s = 0; s < nstates; ++s)
 		states[s]->reductions->lookaheads = NULL;

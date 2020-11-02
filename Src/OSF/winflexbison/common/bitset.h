@@ -28,7 +28,6 @@
 	#include "unlocked-io.h"
 #endif
 #include "bitset/base.h"
-//#include "obstack.h"
 
 /* Attributes used to select a bitset implementation.  */
 enum bitset_attr {BITSET_FIXED = 1,    /* Bitset size fixed.  */

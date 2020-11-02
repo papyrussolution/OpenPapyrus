@@ -60,8 +60,7 @@ static struct hash_entry * ccltab[CCL_HASH_SIZE];
 /* declare functions that have forward references */
 
 static int addsym(char[], char *, int, hash_table, int);
-static struct hash_entry * findsym(const char * sym, hash_table table,
-    int table_size);
+static struct hash_entry * findsym(const char * sym, hash_table table, int table_size);
 static int hashfunct(const char *, int);
 
 /* addsym - add symbol and definitions to symbol table
@@ -75,21 +74,16 @@ static int addsym(char sym[], char * str_def, int int_def, hash_table table, int
 	struct hash_entry * sym_entry = table[hash_val];
 	struct hash_entry * new_entry;
 	struct hash_entry * successor;
-
 	while(sym_entry) {
 		if(!strcmp(sym, sym_entry->name)) {     /* entry already exists */
 			return -1;
 		}
-
 		sym_entry = sym_entry->next;
 	}
-
 	/* create new entry */
 	new_entry = (struct hash_entry *)malloc(sizeof(struct hash_entry));
-
 	if(new_entry == NULL)
 		flexfatal(_("symbol table memory allocation failed"));
-
 	if((successor = table[hash_val]) != 0) {
 		new_entry->next = successor;
 		successor->prev = new_entry;

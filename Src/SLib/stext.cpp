@@ -1449,6 +1449,11 @@ static int experimental_isasciialpha(int c)
 	//unsigned((ch&(~(1<<5))) - 'A') <= ('Z' - 'A')
 }
 
+int FASTCALL isasciialpha(char ch)
+{
+	return ((uchar)(ch | 32) - 97) < 26U;
+}
+
 int FASTCALL IsLetterASCII(int ch)
 {
 	return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'));

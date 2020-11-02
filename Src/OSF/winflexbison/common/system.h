@@ -119,7 +119,6 @@ typedef size_t uintptr_t;
    For now, we use assert but we call it aver throughout Bison in case
    we later wish to try another scheme.
  */
-//#include <assert.h>
 #define aver assert
 
 /*-----------.
@@ -128,7 +127,6 @@ typedef size_t uintptr_t;
 
 #define obstack_chunk_alloc xmalloc
 #define obstack_chunk_free  free
-//#include <obstack.h>
 
 #define obstack_sgrow(Obs, Str) obstack_grow(Obs, Str, strlen(Str))
 

@@ -37,10 +37,9 @@
 /* return true if the chr is in the ccl. Takes negation into account. */
 static bool ccl_contains(const int cclp, const int ch)
 {
-	int i;
 	int len = ccllen[cclp];
 	int ind = cclmap[cclp];
-	for(i = 0; i < len; ++i)
+	for(int i = 0; i < len; ++i)
 		if(ccltbl[ind + i] == ch)
 			return !cclng[cclp];
 	return cclng[cclp];
@@ -73,11 +72,10 @@ void ccladd(int cclp, int ch)
 
 /* dump_cclp - same thing as list_character_set, but for cclps.  */
 
-static void    dump_cclp(FILE* file, int cclp)
+static void dump_cclp(FILE* file, int cclp)
 {
-	int i;
 	putc('[', file);
-	for(i = 0; i < csize; ++i) {
+	for(int i = 0; i < csize; ++i) {
 		if(ccl_contains(cclp, i)) {
 			int start_char = i;
 			putc(' ', file);
@@ -173,7 +171,6 @@ int cclinit()
 	ccllen[lastccl] = 0;
 	cclng[lastccl] = 0;     /* ccl's start out life un-negated */
 	ccl_has_nl[lastccl] = false;
-
 	return lastccl;
 }
 
@@ -194,9 +191,8 @@ void    cclnegate(int cclp)
 
 void    list_character_set(FILE * file, int cset[])
 {
-	int i;
 	putc('[', file);
-	for(i = 0; i < csize; ++i) {
+	for(int i = 0; i < csize; ++i) {
 		if(cset[i]) {
 			int start_char = i;
 			putc(' ', file);
@@ -225,17 +221,15 @@ void    list_character_set(FILE * file, int cset[])
  */
 bool range_covers_case(int c1, int c2)
 {
-	int i, o;
-	for(i = c1; i <= c2; i++) {
+	for(int i = c1; i <= c2; i++) {
 		if(has_case(i)) {
-			o = reverse_case(i);
+			int o = reverse_case(i);
 			if(o < c1 || c2 < o)
 				return false;
 		}
 	}
 	return true;
 }
-
 /** Reverse the case of a character, if possible.
  * @return c if case-reversal does not apply.
  */

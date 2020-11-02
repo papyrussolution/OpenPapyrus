@@ -17,9 +17,6 @@
 #ifndef _BINARY_H
 #define _BINARY_H
 
-//#include <fcntl.h> /* For systems that distinguish between text and binary I/O. O_BINARY is guaranteed by the gnulib <fcntl.h>. */
-//#include <stdio.h> /* The MSVC7 <stdio.h> doesn't like to be included after '#define fileno ...', so we include it here first.  */
-
 /* SET_BINARY (fd);
    changes the file descriptor fd to perform binary I/O.  */
 #if O_BINARY

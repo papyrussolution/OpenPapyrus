@@ -35,25 +35,21 @@ char * add_tmp_dir(const char* tmp_file_name)
 	size_t tmp_dir_len = 0;
 	size_t len = 0;
 	char const * tmp_dir = getenv("FLEX_TMP_DIR");
-
 	if(!tmp_dir)
 		return _strdup(tmp_file_name);
-
 	tmp_dir_len = strlen(tmp_dir);
-	len = tmp_dir_len + strlen(tmp_file_name) + 2; // two extra chars: '\' between dir and file name and '\0' at the
-	                                               // end
+	len = tmp_dir_len + strlen(tmp_file_name) + 2; // two extra chars: '\' between dir and file name and '\0' at the end
 	new_tmp_file_name = (char*)malloc(len*sizeof(char));
 	if(tmp_dir[tmp_dir_len-1] == '\\' || tmp_dir[tmp_dir_len-1] == '/')
 		sprintf(new_tmp_file_name, "%s%s", tmp_dir, tmp_file_name);
 	else
 		sprintf(new_tmp_file_name, "%s\\%s", tmp_dir, tmp_file_name);
-
 	return new_tmp_file_name;
 }
 
-int max_temp_file_names = 100;
-int num_temp_file_names = 0;
-char* temp_file_names[100];
+int max_temp_file_names = 100; // @global
+int num_temp_file_names = 0; // @global
+char* temp_file_names[100]; // @global
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
    does not exist at the time of the call to mkstemp.  TMPL is
@@ -64,10 +60,9 @@ FILE* mkstempFILE(char * tmpl, const char * mode)
 	char * XXXXXX;
 	static unsigned long long value;
 	unsigned long long random_time_bits;
-	unsigned int count;
-	FILE* fd = NULL;
+	uint count;
+	FILE * fd = NULL;
 	int r;
-
 	/* A lower bound on the number of temporary files to attempt to
 	   generate.  The maximum total number of temporary file names that
 	   can exist for a given template is 62**6.  It should never be

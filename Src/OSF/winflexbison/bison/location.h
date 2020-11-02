@@ -22,7 +22,7 @@
 #define LOCATION_H_
 
 /* A boundary between two characters.  */
-typedef struct {
+struct boundary {
 	/* The name of the file that contains the boundary.  */
 	uniqstr file;
 	/* If positive, the line (starting at 1) that contains the boundary.
@@ -41,7 +41,7 @@ typedef struct {
 	int column;
 	/* If nonnegative, the byte number (starting at 0) in the current line.  Not displayed (unless --trace=location).  */
 	int byte;
-} boundary;
+};
 
 /* Set the position of \a p. */
 static inline void boundary_set(boundary * p, const char * f, int l, int c, int b)
@@ -70,42 +70,37 @@ static inline bool equal_boundaries(boundary a, boundary b)
 }
 
 /* A location, that is, a region of source code.  */
-typedef struct {
+struct Location {
 	boundary start; /* Boundary just before the location starts.  */
 	boundary end; /* Boundary just after the location ends.  */
-} Location;
+};
 
 #define GRAM_LTYPE Location
 
 #define EMPTY_LOCATION_INIT {{NULL, 0, 0, 0}, {NULL, 0, 0, 0}}
 extern Location const empty_loc;
-
-/* Set *LOC and adjust scanner cursor to account for token TOKEN of
-   size SIZE.  */
+//
+// Set *LOC and adjust scanner cursor to account for token TOKEN of size SIZE.  
+//
 void location_compute(Location * loc, boundary * cur, char const * token, size_t size);
 
 /* Print location to file.
    Return number of actually printed characters.
    Warning: uses quotearg's slot 3. */
 int location_print(Location loc, FILE * out);
-
-/* Prepare the use of location_caret.  */
-void caret_init();
-
+void caret_init(); /* Prepare the use of location_caret.  */
 /* Free any allocated resources and close any open file handles that are
    left-over by the usage of location_caret.  */
 void caret_free();
-
 /* If -fcaret is enabled, quote the line containing LOC onto OUT.
    Highlight the part of LOC with the color STYLE.  */
 void location_caret(Location loc, const char* style, FILE * out);
-
 /* If -fcaret is enabled, display a suggestion of replacement for LOC
    with S.  To call after location_caret.  */
 void location_caret_suggestion(Location loc, const char * s, FILE * out);
-
-/* Return -1, 0, 1, depending whether a is before, equal, or
-   after b.  */
+//
+// Return -1, 0, 1, depending whether a is before, equal, or after b. 
+//
 static inline int location_cmp(Location a, Location b)
 {
 	int res = boundary_cmp(a.start, b.start);
@@ -113,11 +108,10 @@ static inline int location_cmp(Location a, Location b)
 	return res;
 }
 
-/* Whether this is the empty location.  */
-bool location_empty(Location loc);
-
-/* STR must be formatted as 'file:line.column@byte' or 'file:line.column',
-   it will be modified.  */
+bool location_empty(Location loc); /* Whether this is the empty location.  */
+//
+// STR must be formatted as 'file:line.column@byte' or 'file:line.column', it will be modified.  
+//
 void boundary_set_from_string(boundary * bound, char * str);
 
 #endif /* ! defined LOCATION_H_ */

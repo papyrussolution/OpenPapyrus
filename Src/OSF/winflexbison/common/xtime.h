@@ -38,7 +38,6 @@ _GL_INLINE_HEADER_BEGIN
 typedef long long int xtime_t;
 #define XTIME_PRECISION 1000000000
 #else
-//#include <limits.h>
 typedef long int xtime_t;
 #if LONG_MAX >> 31 >> 31 == 0
 #  define XTIME_PRECISION 1

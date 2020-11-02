@@ -955,13 +955,15 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			{
 				GoodsRestParam rp;
 				rp.GoodsID = pPack->Rec.ID;
-				if(Param.LocID) {
-					rp.LocList.add(Param.LocID);
-				}
+				rp.LocList.addnz(Param.LocID);
 				p_bobj->trfr->GetCurRest(rp);
 				sdr_goods.Rest = rp.Total.Rest;
 			}
 			// } @v10.7.5 
+			// @v10.9.2 {
+			double price_by_open_lot = 0.0;
+			::GetCurGoodsPrice(pPack->Rec.ID, Param.LocID, 0/*flags*/, &price_by_open_lot, 0);
+			// } @v10.9.2
 			if(p_bobj->trfr->Rcpt.GetLastLot(pPack->Rec.ID, Param.LocID, MAXDATE, &rcpt_rec) > 0) { // @v10.7.5 0-->Param.LocID
 				QualityCertTbl::Rec qcert_rec;
 				sdr_goods.Price = rcpt_rec.Price;
@@ -994,6 +996,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 				sdr_goods.Price = extr_item.Price;
 				sdr_goods.Cost  = extr_item.Cost;
 			}
+			sdr_goods.PriceByOpenLot = (price_by_open_lot > 0.0) ? price_by_open_lot : sdr_goods.Price; // @v10.9.2
 		}
 		GetObjectName(PPOBJ_BRAND, pPack->Rec.BrandID, temp_buf);
 		temp_buf.CopyTo(sdr_goods.Brand, sizeof(sdr_goods.Brand));
@@ -1150,16 +1153,14 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		// } @v10.3.4 
 		P_IEGoods->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_goods);
 		{
-			// @v9.7.8 {
 			GoodsContext::Param gcp;
             gcp.GoodsID = pPack->Rec.ID;
 			gcp.LocID = Param.LocID;
 			gcp.Qtty = 1.0;
 			GoodsContext ctx(gcp);
 			P_IEGoods->SetExprContext(&ctx);
-			// } @v9.7.8
 			THROW(P_IEGoods->AppendRecord(&sdr_goods, sizeof(sdr_goods)));
-			P_IEGoods->SetExprContext(0); // @v9.7.8
+			P_IEGoods->SetExprContext(0);
 		}
 	}
 	CATCHZOK

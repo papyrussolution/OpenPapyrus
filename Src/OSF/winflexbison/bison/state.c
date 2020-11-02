@@ -88,9 +88,7 @@ static reductions * reductions_new(int num, rule ** reds)
    `---------*/
 
 state_number nstates = 0;
-/* FINAL_STATE is properly set by new_state when it recognizes its
-   accessing symbol: $end.  */
-state * final_state = NULL;
+state * final_state = NULL; // FINAL_STATE is properly set by new_state when it recognizes its accessing symbol: $end
 
 /*------------------------------------------------------------------.
 | Create a new state with ACCESSING_SYMBOL, for those items.  Store |
@@ -124,8 +122,7 @@ state * state_new_isocore(state const * s)
 	state * res = (state *)xmalloc(offsetof(state, items) + items_size);
 	res->number = nstates++;
 	res->accessing_symbol = s->accessing_symbol;
-	res->transitions =
-	    transitions_new(s->transitions->num, s->transitions->states);
+	res->transitions = transitions_new(s->transitions->num, s->transitions->states);
 	res->reductions = reductions_new(s->reductions->num, s->reductions->rules);
 	res->errs = NULL;
 	res->state_list = NULL;

@@ -20,17 +20,8 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <argmatch.h>
-//#include <c-ctype.h>
-#include <progname.h>
-//#include <stdarg.h>
-//#include <sys/stat.h>
-#include <textstyle.h>
-//#include "complain.h"
-//#include "files.h"
-//#include "fixits.h"
-//#include "getargs.h"
-//#include "quote.h"
+//#include <progname.h>
+//#include <textstyle.h>
 
 // The URL of the manual page about diagnostics.  Use the per-node
 // manual, to avoid downloading repeatedly the whole manual over the

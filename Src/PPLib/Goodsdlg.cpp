@@ -565,12 +565,26 @@ static int _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 }
 
 class BarcodeListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(BarcodeArray);
 public:
-	BarcodeListDialog() : PPListDialog(DLG_BARCODELIST, CTL_BARCODELIST_LIST), GoodsID(0), GoodsGrpID(0)
+	BarcodeListDialog(PPID goodsID, PPID goodsGroupID) : PPListDialog(DLG_BARCODELIST, CTL_BARCODELIST_LIST), GoodsID(goodsID), GoodsGrpID(goodsGroupID)
 	{
 	}
-	int    setDTS(const BarcodeArray * pData, PPID goodsID, PPID goodsGrpID);
-	int    getDTS(BarcodeArray * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		if(GoodsID) {
+			SString goods_name;
+			GetGoodsName(GoodsID, goods_name);
+			setStaticText(CTL_BARCODELIST_GOODS, goods_name);
+		}
+		Data.copy(*pData);
+		updateList(0);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		return pData->copy(Data) ? 1 : PPSetErrorSLib();
+	}
 private:
 	virtual int  setupList();
 	virtual int  addItem(long * pPos, long * pID);
@@ -578,29 +592,9 @@ private:
 	virtual int  delItem(long pos, long id);
 	virtual int  moveItem(long pos, long id, int up);
 
-	PPID   GoodsID;
-	PPID   GoodsGrpID;
-	BarcodeArray Data;
+	const PPID GoodsID;
+	const PPID GoodsGrpID;
 };
-
-int BarcodeListDialog::setDTS(const BarcodeArray * pData, PPID goodsID, PPID goodsGrpID)
-{
-	GoodsID    = goodsID;
-	GoodsGrpID = goodsGrpID;
-	if(GoodsID) {
-		SString goods_name;
-		GetGoodsName(GoodsID, goods_name);
-		setStaticText(CTL_BARCODELIST_GOODS, goods_name);
-	}
-	Data.copy(*pData);
-	updateList(0);
-	return 1;
-}
-
-int BarcodeListDialog::getDTS(BarcodeArray * pData)
-{
-	return pData->copy(Data) ? 1 : PPSetErrorSLib();
-}
 
 int BarcodeListDialog::moveItem(long pos, long id, int up)
 {
@@ -1569,8 +1563,8 @@ void GoodsDialog::editBarcodeList()
 		if(r == 0)
 			PPError();
 		PPID   goods_grp_id = getCtrlLong(CTLSEL_GOODS_GROUP);
-		if(CheckDialogPtrErr(&(dlg = new BarcodeListDialog()))) {
-			dlg->setDTS(&Data.Codes, Data.Rec.ID, goods_grp_id);
+		if(CheckDialogPtrErr(&(dlg = new BarcodeListDialog(Data.Rec.ID, goods_grp_id)))) {
+			dlg->setDTS(&Data.Codes);
 			if(ExecView(dlg) == cmOK)
 				dlg->getDTS(&Data.Codes);
 			delete dlg;

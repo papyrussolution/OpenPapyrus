@@ -381,7 +381,7 @@ int PPJobSrvClient::Connect(const char * pAddr, int port)
 			PPIniFile ini_file;
 			if(pAddr == 0 || port <= 0) {
 				if(port <= 0 && (ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &port) <= 0 || port <= 0))
-					port = InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer);//DEFAULT_SERVER_PORT;
+					port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &timeout) <= 0 || timeout <= 0) // @v8.7.4 PPINIPARAM_SERVER_SOCKETTIMEOUT-->PPINIPARAM_CLIENTSOCKETTIMEOUT
 					timeout = -1;
 				if(!pAddr) {

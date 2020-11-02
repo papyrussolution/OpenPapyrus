@@ -505,8 +505,8 @@ void BillFiltDialog::extraFilt()
 			Data.Ft_STax = ext.Ft_STax;
 			Data.Ft_Declined = ext.Ft_Declined;
 			Data.Ft_CheckPrintStatus = ext.Ft_CheckPrintStatus; // @v10.7.0
-			Data.EdiRecadvStatus = ext.EdiRecadvStatus; // @v9.1.6
-			Data.EdiRecadvConfStatus = ext.EdiRecadvConfStatus; // @v9.1.6
+			Data.EdiRecadvStatus = ext.EdiRecadvStatus;
+			Data.EdiRecadvConfStatus = ext.EdiRecadvConfStatus;
 			Data.CreatorID = ext.CreatorID;
 			Data.DuePeriod = ext.DuePeriod;
 // @erik v10.6.13 {
@@ -586,7 +586,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		else if(Data.Flags & BillFilt::fPoolOnly)
 			types.add(PPOPT_POOL);
 		else if(Data.Flags & BillFilt::fDraftOnly)
-			types.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GENERIC, 0L); // @v9.1.4 PPOPT_GENERIC // @v10.5.7 PPOPT_DRAFTQUOTREQ
+			types.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GENERIC, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		else if(Data.Flags & BillFilt::fWmsOnly)
 			types.addzlist(PPOPT_WAREHOUSE, 0L);
 		else {
@@ -644,7 +644,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 				DisableClusterItem(CTL_BILLFLT_FLAGS, 1, 1);
 		}
 		v = 0;
-		DisableClusterItem(CTL_BILLFLT_FLAGS, 3, Data.Bbt != bbtGoodsBills); // @v9.7.12 @fix 4-->3
+		DisableClusterItem(CTL_BILLFLT_FLAGS, 3, Data.Bbt != bbtGoodsBills);
 		SETFLAG(v, 0x01, Data.Flags & BillFilt::fSetupNewBill);
 		SETFLAG(v, 0x02, Data.CreatorID == cur_user_id);
 		SETFLAG(v, 0x04, Data.Flags & BillFilt::fShowWoAgent);
@@ -736,7 +736,7 @@ PPViewBill::PoolInsertionParam::PoolInsertionParam() : Verb(2), AddedBillKind(bb
 }
 
 PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL, 0, 0), P_TempTbl(0), P_TempOrd(0), P_BPOX(0), P_Arp(0),
-	P_BObj(BillObj), State(0), /*CtrlX(0),*/ P_IterState(0), LastSelID(0)
+	P_BObj(BillObj), State(0), P_IterState(0), LastSelID(0)
 {
 }
 
@@ -832,14 +832,17 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		THROW_MEM(P_BPOX = new PPBillPoolOpEx);
 		opk_obj.GetPoolExData(Filt.PoolOpID, P_BPOX);
 	}
-	if(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) {
-		SysJournal * p_sj = DS.GetTLA().P_SysJ;
-		PPIDArray bill_list;
-		Filt.P_SjF->Period.Actualize(ZERODATE);
-		THROW(p_sj->GetObjListByEventPeriod(PPOBJ_BILL, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, bill_list));
-		if(IdList.IsExists())
-			bill_list.intersect(&IdList.Get());
-		IdList.Set(&bill_list);
+	{
+		SysJournalFilt * p_sjf = Filt.P_SjF;
+		if(p_sjf && !p_sjf->IsEmpty()) {
+			SysJournal * p_sj = DS.GetTLA().P_SysJ;
+			PPIDArray bill_list;
+			p_sjf->Period.Actualize(ZERODATE);
+			THROW(p_sj->GetObjListByEventPeriod(PPOBJ_BILL, p_sjf->UserID, &p_sjf->ActionIDList, &p_sjf->Period, bill_list));
+			if(IdList.IsExists())
+				bill_list.intersect(&IdList.Get());
+			IdList.Set(&bill_list);
+		}
 	}
 	if(!(Filt.Flags & BillFilt::fIgnoreRtPeriod))
 		THROW(AdjustPeriodToRights(Filt.Period, 0));
@@ -910,11 +913,9 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 			PPGetSubStr(PPTXT_BILLFLTCAPTIONS, caption, temp_buf);
 		else
 			temp_buf.Z();
-		// @v9.0.6 assert(MemHeapTracer::Check()); // @debug
 		int r = BillFilterDialog(rez_id, p_filt, &d, temp_buf);
 		assert(!d->H() || ::IsWindow(d->H())); // @debug
 		ZDELETE(d);
-		// @v9.0.6 assert(MemHeapTracer::Check()); // @debug
 		if(r == cmOK)
 			ok = 1;
 		else if(r == 0)
@@ -990,7 +991,7 @@ int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSin
 	const PPRights & r_orts = ObjRts;
 	ASSIGN_PTR(pSingleOpID, 0);
 	pList->freeAll();
-	if(pFilt->OpID == 0 || IsGenericOp(pFilt->OpID) > 0) {
+	if(!pFilt->OpID || IsGenericOp(pFilt->OpID) > 0) {
 		PPID   ot = 0;
 		PPIDArray ot_list;
 		if(pFilt->Flags & BillFilt::fOrderOnly)
@@ -2725,8 +2726,8 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 0, SelAddBySampleParam::acnStd);
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 1, SelAddBySampleParam::acnShipmByOrder);
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 2, SelAddBySampleParam::acnDraftExpByOrder);
-			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 3, SelAddBySampleParam::acnDraftExpRestByOrder); // @v9.9.6
-			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 4, SelAddBySampleParam::acnDraftRcpByOrder); // @v9.9.6 (3, 3)-->(4, 3)
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 3, SelAddBySampleParam::acnDraftExpRestByOrder);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 4, SelAddBySampleParam::acnDraftRcpByOrder);
 			SetClusterData(CTL_SELBBSMPL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 0, SelAddBySampleParam::fCopyBillCode);
 			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 1, SelAddBySampleParam::fNonInteractive); // @v10.0.02
@@ -2803,7 +2804,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 		}
 		void   restoreFlags()
 		{
-			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1);
 			SString param;
 			SString temp_buf;
 			PPID   op_id = getCtrlLong(CTLSEL_SELBBSMPL_OP);
@@ -3762,7 +3763,7 @@ int PPViewBill::AddBillToPool()
 	SETIFZ(loc_id, r_cfg.Location);
  	const  PPID  save_loc_id = r_cfg.Location;
 	PPID   ar_id = 0;
-	PPID   ar2_id = 0; // @v9.8.1
+	PPID   ar2_id = 0;
 	BillTbl::Rec bill_rec;
 	if(Filt.PoolBillID && Filt.AssocID) {
 		//
@@ -3778,7 +3779,7 @@ int PPViewBill::AddBillToPool()
 				if(tses_obj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0)
 					loc_id = prc_rec.LocID;
 				ar_id = tses_rec.ArID;
-				ar2_id = tses_rec.Ar2ID; // @v9.8.1
+				ar2_id = tses_rec.Ar2ID;
 			}
 		}
 		else if(P_BObj->Search(Filt.PoolBillID, &bill_rec) > 0)
@@ -3821,7 +3822,7 @@ int PPViewBill::AddBillToPool()
 				PPObjBill::AddBlock ab;
 				ab.OpID = op_id;
 				ab.ObjectID = ar_id;
-				ab.Object2ID = ar2_id; // @v9.8.1
+				ab.Object2ID = ar2_id;
 				ab.Pk = PPBillPacket::ObjAssocToPoolKind(Filt.AssocID);
 				ab.PoolID = Filt.PoolBillID;
 				DS.SetLocation(loc_id);
@@ -4090,7 +4091,7 @@ int PPViewBill::PrintAllBills()
 {
 	int    ok = -1, is_packet = 0;
 	PPID   op_type_id = Filt.OpID ? GetOpType(Filt.OpID) : 0;
-	SVector * p_rpt_ary = 0; // @v9.8.6 SArray-->SVector
+	SVector * p_rpt_ary = 0;
 	if(!oneof3(op_type_id, 0, PPOPT_POOL, PPOPT_GENERIC) && (op_type_id != PPOPT_PAYMENT || CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE))) {
 		int    out_amt_type = 0, r = 1;
 		uint   count = 0;
@@ -5123,7 +5124,6 @@ int PPViewBill::Browse(int modeless)
 {
 	int    ok = 1;
 	const  PPConfig & r_cfg = LConfig;
-	// @v9.8.11 const  long save_state = P_BObj->State;
 	const  PPID save_loc   = r_cfg.Location;
 	PPID   single_loc_id = LocList_.getSingle();
 	Filt.Period.Actualize(ZERODATE);
@@ -5132,10 +5132,8 @@ int PPViewBill::Browse(int modeless)
 		DS.SetLocation(single_loc_id);
 	ok = PPView::Browse(modeless);
 	CATCHZOK
-	if(!modeless) {
+	if(!modeless)
 		DS.SetLocation(save_loc);
-		// @v9.8.11 P_BObj->State = save_state;
-	}
 	return ok;
 }
 
@@ -5370,11 +5368,10 @@ int PPViewBill::UpdateTempTable(PPID id)
 		}
 	}
 	else
-		MEMSZERO(rec); // @v9.0.8
+		MEMSZERO(rec);
 	if(P_TempOrd && oneof2(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject)) {
 		BillTbl::Key0 k0;
 		k0.ID = id;
-		// @v9.0.8 MEMSZERO(rec);
 		if(id) {
 			if(id_found) {
 				TempOrderTbl::Rec ord_rec;
@@ -5901,15 +5898,11 @@ int FASTCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 int FASTCALL BrowseBills(BrowseBillsType bbt)
 {
 	int    ok = -1;
-	/* @v9.8.11 if(bbt == bbtDraftBills && !(CConfig.Flags & CCFLG_USEDRAFTBILL))
-		ok = (PPMessage(mfInfo, PPINF_NOSETUSEDRAFTBILLFLAG), -1);
-	else { */
-		THROW(PPCheckDatabaseChain());
-		{
-			BillFilt::FiltExtraParam p(1, bbt);
-			ok = PPView::Execute(PPVIEW_BILL, 0, GetModelessStatus(), &p);
-		}
-	// @v9.8.1 }
+	THROW(PPCheckDatabaseChain());
+	{
+		BillFilt::FiltExtraParam p(1, bbt);
+		ok = PPView::Execute(PPVIEW_BILL, 0, GetModelessStatus(), &p);
+	}
 	CATCHZOKPPERR
 	return ok;
 }
@@ -6424,7 +6417,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		I.ExcSum = 0.0;
 		I.STRate = 0.0;
 		I.STSum = 0.0;
-		if(merge_line_tax_alg == 2 && p_extra->Item.MergePosList.getCount()) { // @v9.2.3 && tiie.MergePosList.getCount()
+		if(merge_line_tax_alg == 2 && p_extra->Item.MergePosList.getCount()) {
 			double prev_vat_rate = 0.0;
 			assert(p_extra->Item.MergePosList.getCount());
 			for(uint i = 0; i < p_extra->Item.MergePosList.getCount(); i++) {
@@ -6986,6 +6979,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 				H.IssueDate      = freight.IssueDate;
 				H.ArrivalDate    = freight.ArrivalDate;
 				H.CaptainID      = freight.CaptainID;
+				H.Captain2ID     = freight.Captain2ID; // @v10.9.2
 				H.VesselsAgentID = freight.AgentID;
 				H.NmbOrigsBsL    = freight.NmbOrigsBsL;
 			}
@@ -8341,8 +8335,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		{
 			temp_buf.Z();
 			if(pack->P_PaymOrder->PayerStatus) {
-				// @v9.7.0 longfmtz(pack->P_PaymOrder->PayerStatus, 2, H.TxtPayerStatus, sizeof(H.TxtPayerStatus));
-				temp_buf.Z().CatLongZ(pack->P_PaymOrder->PayerStatus, 2); // @v9.7.0
+				temp_buf.Z().CatLongZ(pack->P_PaymOrder->PayerStatus, 2);
 			}
 			STRNSCPY(H.TxtPayerStatus, temp_buf);
 		}
@@ -8821,7 +8814,7 @@ PPALDD_DESTRUCTOR(UhttDraftTransitGoodsRestList) { Destroy(); }
 
 int PPALDD_UhttDraftTransitGoodsRestList::InitData(PPFilt & rFilt, long rsrv)
 {
-	TSVector <UhttGoodsRestVal> * p_list = static_cast<TSVector <UhttGoodsRestVal> *>(rFilt.Ptr); // @v9.8.11 TSArray-->TSVector
+	TSVector <UhttGoodsRestVal> * p_list = static_cast<TSVector <UhttGoodsRestVal> *>(rFilt.Ptr);
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -8829,7 +8822,7 @@ int PPALDD_UhttDraftTransitGoodsRestList::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttDraftTransitGoodsRestList::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	TSVector <UhttGoodsRestVal> * p_list = static_cast<TSVector <UhttGoodsRestVal> *>(Extra[0].Ptr); // @v9.8.11 TSArray-->TSVector
+	TSVector <UhttGoodsRestVal> * p_list = static_cast<TSVector <UhttGoodsRestVal> *>(Extra[0].Ptr);
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -8838,7 +8831,7 @@ int PPALDD_UhttDraftTransitGoodsRestList::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	TSVector <UhttGoodsRestVal> * p_list = static_cast<TSVector <UhttGoodsRestVal> *>(Extra[0].Ptr); // @v9.8.11 TSArray-->TSVector
+	TSVector <UhttGoodsRestVal> * p_list = static_cast<TSVector <UhttGoodsRestVal> *>(Extra[0].Ptr);
 	if(p_list && (p_list->getPointer() < p_list->getCount())) {
 		UhttGoodsRestVal & r_gr_val = p_list->at(p_list->getPointer());
 		I.GoodsID = r_gr_val.GoodsID;

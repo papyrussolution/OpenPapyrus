@@ -45,25 +45,22 @@ void include_init(void)
 
 void include_env_init(void)
 {
-	char * path;
 	char * path_end;
-	char * env_path;
-	if(no_gnu_extensions)
-		return;
-	env_path = getenv("M4PATH");
-	if(env_path == NULL)
-		return;
-	env_path = xstrdup(env_path);
-	path = env_path;
-	do {
-		path_end = strchr(path, ':');
-		if(path_end)
-			*path_end = '\0';
-		add_include_directory(path);
-		path = path_end + 1;
+	if(!no_gnu_extensions) {
+		char * env_path = getenv("M4PATH");
+		if(env_path) {
+			env_path = xstrdup(env_path);
+			char * path = env_path;
+			do {
+				path_end = strchr(path, ':');
+				if(path_end)
+					*path_end = '\0';
+				add_include_directory(path);
+				path = path_end + 1;
+			} while(path_end);
+			SAlloc::F(env_path);
+		}
 	}
-	while(path_end);
-	SAlloc::F(env_path);
 }
 
 void add_include_directory(const char * dir)
@@ -119,36 +116,27 @@ FILE * m4_path_search(const char * file, char ** result)
 	includes * incl;
 	char * name;            /* buffer for constructed name */
 	int e;
-
-	if(result)
-		*result = NULL;
-
+	ASSIGN_PTR(result, NULL);
 	/* Reject empty file.  */
 	if(!*file) {
 		errno = ENOENT;
 		return NULL;
 	}
-
 	/* Look in current working directory first.  */
 	fp = m4_fopen(file);
 	if(fp != NULL) {
-		if(result)
-			*result = xstrdup(file);
+		ASSIGN_PTR(result, xstrdup(file));
 		return fp;
 	}
-
 	/* If file not found, and filename absolute, fail.  */
 	if(IS_ABSOLUTE_FILE_NAME(file) || no_gnu_extensions)
 		return NULL;
 	e = errno;
-
 	for(incl = dir_list; incl != NULL; incl = incl->next) {
 		name = mfile_name_concat(incl->dir, file, NULL);
-
 #ifdef DEBUG_INCL
 		xfprintf(stderr, "m4_path_search (%s) -- trying %s\n", file, name);
 #endif
-
 		fp = m4_fopen(name);
 		if(fp != NULL) {
 			if(debug_level & DEBUG_TRACE_PATH)
@@ -170,7 +158,6 @@ FILE * m4_path_search(const char * file, char ** result)
 static void M4_GNUC_UNUSED include_dump(void)
 {
 	includes * incl;
-
 	xfprintf(stderr, "include_dump:\n");
 	for(incl = dir_list; incl != NULL; incl = incl->next)
 		xfprintf(stderr, "\t%s\n", incl->dir);

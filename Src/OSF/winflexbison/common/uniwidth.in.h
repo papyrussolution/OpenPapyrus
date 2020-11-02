@@ -21,8 +21,6 @@
 #define _UNIWIDTH_H
 
 #include "unitypes.in.h"
-//#include <stddef.h> /* Get size_t.  */
-//#include "localcharset.h" /* Get locale_charset() declaration.  */
 
 #ifdef __cplusplus
 extern "C" {

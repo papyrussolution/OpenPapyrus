@@ -764,6 +764,11 @@ SString::SString(const char * pS) : L(0), Size(0), P_Buf(0)
 	CopyFrom(pS);
 }
 
+SString::SString(const char * pS, size_t len) : L(0), Size(0), P_Buf(0)
+{
+	CopyFromN(pS, len);
+}
+
 SString::SString(const SString & s) : L(0), Size(0), P_Buf(0)
 {
 	CopyFrom(s);

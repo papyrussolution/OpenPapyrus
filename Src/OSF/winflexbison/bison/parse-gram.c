@@ -218,23 +218,6 @@ typedef enum yysymbol_kind_t yysymbol_kind_t;
 /* Unqualified %code blocks.  */
 #line 41 "src/parse-gram.y"
 
-  //#include "system.h"
-  //#include <c-ctype.h>
-  //#include <errno.h>
-  //#include <intprops.h>
-  //#include <quotearg.h>
-  //#include <vasnprintf.h>
-  //#include <xmemdup0.h>
-  //#include "complain.h"
-  //#include "conflicts.h"
-  //#include "files.h"
-  //#include "getargs.h"
-  //#include "gram.h"
-  //#include "named-ref.h"
-  //#include "reader.h"
-  //#include "scan-code.h"
-  //#include "scan-gram.h"
-
 int strverscmp(const char * s1, const char * s2); // @prototype @sobolev
 
 static const char* api_version = "3.7"; /* Pretend to be at least that version, to check features published in that version while developping it.  */
@@ -3118,7 +3101,6 @@ static void add_param(param_type type, char * decl, Location loc)
 		while(c_isspace((uchar)*decl))
 			++decl;
 	}
-
 	if(!name_start)
 		complain(&loc, complaint, _("missing identifier in parameter declaration"));
 	else {
@@ -3202,12 +3184,12 @@ static void handle_pure_parser(Location const * loc, char const * directive)
 	deprecated_directive(loc, directive, "%define api.pure");
 	muscle_percent_define_insert("api.pure", *loc, muscle_keyword, "", MUSCLE_PERCENT_DEFINE_GRAMMAR_FILE);
 }
-
-/* Convert VERSION into an int (MAJOR * 100 + MINOR).  Return -1 on
-   errors.
-
-   Changes of behavior are only on minor version changes, so "3.0.5"
-   is the same as "3.0": 300. */
+// 
+// Convert VERSION into an int (MAJOR * 100 + MINOR).  Return -1 on errors.
+// 
+// Changes of behavior are only on minor version changes, so "3.0.5"
+// is the same as "3.0": 300.
+// 
 static int str_to_version(char const * version)
 {
 	IGNORE_TYPE_LIMITS_BEGIN

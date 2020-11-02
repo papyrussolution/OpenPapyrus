@@ -302,11 +302,12 @@ int BillCore::GetLastPayment(PPID billID, BillTbl::Rec * pRec)
 	k.LinkBillID = billID;
 	k.Dt = MAXDATE;
 	k.BillNo = MAXLONG;
-	while(search(4, &k, spLt) && k.LinkBillID == billID)
+	while(search(4, &k, spLt) && k.LinkBillID == billID) {
 		if(GetOpType(data.OpID) == PPOPT_PAYMENT && data.Amount > 0.0) {
 			copyBufTo(pRec);
 			return 1;
 		}
+	}
 	return PPDbSearchError();
 }
 
@@ -459,7 +460,7 @@ int BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
 	if(flag) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SearchByID(this, PPOBJ_BILL, billID, &rec) > 0); // @v8.1.4 SearchByID_ForUpdate-->SearchByID
+		THROW(SearchByID(this, PPOBJ_BILL, billID, &rec) > 0);
 		if(set && !(rec.Flags & flag)) {
 			rec.Flags |= flag;
 			do_update = 1;

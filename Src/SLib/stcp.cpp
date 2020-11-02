@@ -9,7 +9,6 @@
 #include <snet.h>
 // @v10.2.3 #include <winsock2.h>
 #include <wininet.h>
-// @v9.6.3 #include <idea.h>
 #include <openssl/ssl.h>
 //
 // @v7.3.0 При большом размере буфера чтения не стабильно принимаются значительные по объему данные без терминатора
@@ -2128,7 +2127,6 @@ int SProxiAuthParam::ToStr(long fmt, SString & rBuf) const
 int SProxiAuthParam::FromStr(long fmt, const char * pStr)
 {
 	int    ok = 1;
-
 	SString temp_buf;
 	StringSet ss('\001', pStr);
 	uint   ssp = 0;
@@ -3121,8 +3119,8 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 	int    ok = 1;
 	int    prot = 0;
 	SString temp_buf;
-	rUrl.GetComponent(InetUrl::cUserName, 1, rInfo.User); // @v9.8.12 decode 0-->1
-	rUrl.GetComponent(InetUrl::cPassword, 1, rInfo.Password); // @v9.8.12 decode 0-->1
+	rUrl.GetComponent(InetUrl::cUserName, 1/*urlDecode*/, rInfo.User);
+	rUrl.GetComponent(InetUrl::cPassword, 1/*urlDecode*/, rInfo.Password);
 	if(rInfo.User.NotEmpty()) {
 		THROW(SetAuth(authServer, rInfo.User, rInfo.Password));
 	}

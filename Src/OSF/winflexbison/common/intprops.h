@@ -20,8 +20,6 @@
 #ifndef _GL_INTPROPS_H
 #define _GL_INTPROPS_H
 
-//#include <limits.h>
-
 /* Return a value with the common real type of E and V and the value of V. Do not evaluate E.  */
 #define _GL_INT_CONVERT(e, v) ((1 ? 0 : (e)) + (v))
 /* Act like _GL_INT_CONVERT (E, -V) but work around a bug in IRIX 6.5 cc; see <https://lists.gnu.org/r/bug-gnulib/2011-05/msg00406.html>.  */

@@ -76,12 +76,10 @@ int tbldiff(int[], int, int[]);
  * hand, go to the common state on EVERY transition character, and therefore
  * cost only one difference.
  */
-
 void    bldtbl(int state[], int statenum, int totaltrans, int comstate, int comfreq)
 {
-	int extptr, extrct[2][CSIZE + 1];
+	int extrct[2][CSIZE + 1];
 	int mindiff, minprot, i, d;
-
 	/* If extptr is 0 then the first array of extrct holds the result
 	 * of the "best difference" to date, which is those transitions
 	 * which occur in "state" but not in the proto which, to date,
@@ -91,16 +89,12 @@ void    bldtbl(int state[], int statenum, int totaltrans, int comstate, int comf
 	 * best difference to date can be kept around and also a difference
 	 * just created by checking against a candidate "best" proto.
 	 */
-
-	extptr = 0;
-
+	int extptr = 0;
 	/* If the state has too few out-transitions, don't bother trying to
 	 * compact its tables.
 	 */
-
 	if((totaltrans * 100) < (numecs * PROTO_SIZE_PERCENTAGE))
 		mkentry(state, numecs, statenum, JAMSTATE, totaltrans);
-
 	else {
 		/* "checkcom" is true if we should only check "state" against
 		 * protos which have the same "comstate" value.
@@ -108,7 +102,6 @@ void    bldtbl(int state[], int statenum, int totaltrans, int comstate, int comf
 		int checkcom = comfreq * 100 > totaltrans * CHECK_COM_PERCENTAGE;
 		minprot = firstprot;
 		mindiff = totaltrans;
-
 		if(checkcom) {
 			/* Find first proto which has the same "comstate". */
 			for(i = firstprot; i != NIL; i = protnext[i])
@@ -128,25 +121,18 @@ void    bldtbl(int state[], int statenum, int totaltrans, int comstate, int comf
 			 * it will not be considered a template.
 			 */
 			comstate = 0;
-
 			if(firstprot != NIL) {
 				minprot = firstprot;
-				mindiff = tbldiff(state, minprot,
-					extrct[extptr]);
+				mindiff = tbldiff(state, minprot, extrct[extptr]);
 			}
 		}
-
 		/* We now have the first interesting proto in "minprot".  If
 		 * it matches within the tolerances set for the first proto,
 		 * we don't want to bother scanning the rest of the proto list
 		 * to see if we have any other reasonable matches.
 		 */
-
-		if(mindiff * 100 >
-		    totaltrans * FIRST_MATCH_DIFF_PERCENTAGE) {
-			/* Not a good enough match.  Scan the rest of the
-			 * protos.
-			 */
+		if(mindiff * 100 > totaltrans * FIRST_MATCH_DIFF_PERCENTAGE) {
+			// Not a good enough match.  Scan the rest of the protos.
 			for(i = minprot; i != NIL; i = protnext[i]) {
 				d = tbldiff(state, i, extrct[1 - extptr]);
 				if(d < mindiff) {
@@ -156,42 +142,27 @@ void    bldtbl(int state[], int statenum, int totaltrans, int comstate, int comf
 				}
 			}
 		}
-
 		/* Check if the proto we've decided on as our best bet is close
 		 * enough to the state we want to match to be usable.
 		 */
-
-		if(mindiff * 100 >
-		    totaltrans * ACCEPTABLE_DIFF_PERCENTAGE) {
+		if(mindiff * 100 > totaltrans * ACCEPTABLE_DIFF_PERCENTAGE) {
 			/* No good.  If the state is homogeneous enough,
-			 * we make a template out of it.  Otherwise, we
-			 * make a proto.
+			 * we make a template out of it.  Otherwise, we make a proto.
 			 */
-
-			if(comfreq * 100 >=
-			    totaltrans * TEMPLATE_SAME_PERCENTAGE)
-				mktemplate(state, statenum,
-				    comstate);
-
+			if(comfreq * 100 >= totaltrans * TEMPLATE_SAME_PERCENTAGE)
+				mktemplate(state, statenum, comstate);
 			else {
 				mkprot(state, statenum, comstate);
-				mkentry(state, numecs, statenum,
-				    JAMSTATE, totaltrans);
+				mkentry(state, numecs, statenum, JAMSTATE, totaltrans);
 			}
 		}
-
 		else {          /* use the proto */
-			mkentry(extrct[extptr], numecs, statenum,
-			    prottbl[minprot], mindiff);
-
+			mkentry(extrct[extptr], numecs, statenum, prottbl[minprot], mindiff);
 			/* If this state was sufficiently different from the
 			 * proto we built it from, make it, too, a proto.
 			 */
-
-			if(mindiff * 100 >=
-			    totaltrans * NEW_PROTO_DIFF_PERCENTAGE)
+			if(mindiff * 100 >= totaltrans * NEW_PROTO_DIFF_PERCENTAGE)
 				mkprot(state, statenum, comstate);
-
 			/* Since mkprot added a new proto to the proto queue,
 			 * it's possible that "minprot" is no longer on the
 			 * proto queue (if it happened to have been the last
@@ -201,7 +172,6 @@ void    bldtbl(int state[], int statenum, int totaltrans, int comstate, int comf
 			 * beginning of the queue), so in that case the
 			 * following call will do nothing.
 			 */
-
 			mv2front(minprot);
 		}
 	}
@@ -742,12 +712,10 @@ void    place_state(int * state, int statenum, int transnum)
  * state is pushed onto it, to be processed later by mk1tbl.  If there's
  * no room, we process the sucker right now.
  */
-
 void    stack1(int statenum, int sym, int nextstate, int deflink)
 {
 	if(onesp >= ONE_STACK_SIZE - 1)
 		mk1tbl(statenum, sym, nextstate, deflink);
-
 	else {
 		++onesp;
 		onestate[onesp] = statenum;
@@ -770,15 +738,12 @@ void    stack1(int statenum, int sym, int nextstate, int deflink)
  * between "state" and "pr" is returned as function value.  Note that this
  * number is "numecs" minus the number of "SAME_TRANS" entries in "ext".
  */
-
-int     tbldiff(int state[], int pr, int ext[])
+ int tbldiff(int state[], int pr, int ext[])
 {
-	int i, * sp = state, * ep = ext, * protp;
+	int * sp = state, * ep = ext;
 	int numdiff = 0;
-
-	protp = &protsave[numecs * (pr - 1)];
-
-	for(i = numecs; i > 0; --i) {
+	int * protp = &protsave[numecs * (pr - 1)];
+	for(int i = numecs; i > 0; --i) {
 		if(*++protp == *++sp)
 			*++ep = SAME_TRANS;
 		else {
@@ -786,6 +751,5 @@ int     tbldiff(int state[], int pr, int ext[])
 			++numdiff;
 		}
 	}
-
 	return numdiff;
 }

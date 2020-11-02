@@ -18,8 +18,6 @@
 #ifndef QUOTE_H_
 #define QUOTE_H_ 1
 
-//#include <stddef.h>
-
 /* The quoting options used by quote_n and quote.  Its type is incomplete,
    so it's useful only in expressions like '&quote_quoting_options'.  */
 extern struct quoting_options quote_quoting_options;

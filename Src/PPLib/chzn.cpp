@@ -367,6 +367,7 @@ static const SIntToSymbTabEntry CzDocType_SymbTab[] = {
 	{ 210, "query_kiz_info" },
 	{ 211, "kiz_info" },
 	{ 252, "refusal_receiver" }, // @v10.9.1 
+	{ 415, "move_order" }, // @v10.9.2
 	{ 416, "receive_order" },
 	{ 431, "move_place" }, // @v10.8.7 doctypMovePlace
 	{ 602, "receive_order_notification" },
@@ -582,6 +583,7 @@ public:
 		doctypQueryKizInfo             = 210,
 		doctypKizInfo                  = 211,
 		doctypRefusalReceiver          = 252, // @v10.9.1
+		doctypMoveOrder                = 415, // @v10.9.2
 		doctypReceiveOrder             = 416,
 		doctypMovePlace                = 431, // @v10.8.7 
 		doctypReceiveOrderNotification = 602,
@@ -618,6 +620,7 @@ public:
 			switch(DocType) {
 				case doctypResult: P_Data = new OperationResult(); break;
 				case doctypQueryKizInfo: P_Data = new QueryKizInfo(); break;
+				case doctypMoveOrder: // @v10.9.2
 				case doctypReceiveOrder:
 				case doctypMovePlace: // @v10.8.7 
 				case doctypRefusalReceiver: // @v10.9.1
@@ -630,6 +633,7 @@ public:
 			switch(DocType) {
 				case doctypResult: delete static_cast<OperationResult *>(P_Data); break;
 				case doctypQueryKizInfo: delete static_cast<QueryKizInfo *>(P_Data); break;
+				case doctypMoveOrder: // @v10.9.2
 				case doctypReceiveOrder:
 				case doctypMovePlace: // @v10.8.7 
 				case doctypRefusalReceiver: // @v10.9.1
@@ -987,6 +991,66 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 											mark_buf.Cat(temp_buf);
 											dtl.PutInner("sgtin", mark_buf);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(pPack->DocType == doctypMoveOrder) { // @v10.9.2
+				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+				if(p_bp) {
+					const PPID   rcvr_ar_id = p_bp->Rec.Object;
+					const PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
+					const PPID   rcvr_loc_id = p_bp->GetDlvrAddrID();
+					const PPID   subj_loc_id = p_bp->Rec.LocID;
+					//
+					PPID   subj_psn_id = 0;
+					GetMainOrgID(&subj_psn_id);
+					GetTransactionPartyCode(rcvr_psn_id, rcvr_loc_id, receiver_ident);
+					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+					wd.PutInner("subject_id", subj_ident);
+					wd.PutInner("receiver_id", receiver_ident);
+					temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
+					TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
+					wd.PutInner("operation_date", temp_buf);
+					temp_buf = p_bp->Rec.Code;
+					BillCore::GetCode(temp_buf);
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+					wd.PutInner("doc_num", temp_buf);
+					wd.PutInner("doc_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					wd.PutInner("turnover_type", temp_buf.Z().Cat(2L));
+					wd.PutInner("source", temp_buf.Z().Cat(1L));
+					wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+					{
+						SXml::WNode dtl(rX, "order_details");
+						for(uint i = 0; i < p_bp->GetTCount(); i++) {
+							const PPTransferItem & r_ti = p_bp->ConstTI(i);
+							double cost = r_ti.Cost;
+							double vat_in_cost = 0.0;
+							{
+								GTaxVect vect;
+								vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+								vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+							}
+							p_bp->XcL.Get(i+1, 0, lotxcode_set);
+							{
+								lotxcode_set.GetByBoxID(0, ss);
+								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+									const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
+									if(pczcr > 0) {
+										mark_buf.Z();
+										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+											mark_buf.Cat(temp_buf);
+											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+												mark_buf.Cat(temp_buf);
+												SXml::WNode un(rX, "union");
+												un.PutInner("sgtin", mark_buf);
+												un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
+												un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+											}
 										}
 									}
 								}
@@ -2623,14 +2687,13 @@ int PPChZnPrcssr::InteractiveQuery()
 	return ok;
 }
 
-int PPChZnPrcssr::PrepareBillPacketForSending(void * pChZnPacket)
+int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 {
 	int    suited = 0;
 	ChZnInterface::Packet * p_chzn_packet = static_cast<ChZnInterface::Packet *>(pChZnPacket);
 	PPObjBill * p_bobj = BillObj;
 	PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_chzn_packet->P_Data);
-	BillTbl::Rec bill_rec;
-	if(p_bobj->ExtractPacket(bill_rec.ID, p_bp) > 0) {
+	if(p_bobj->ExtractPacket(billID, p_bp) > 0) {
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
 		for(uint tidx = 0; !suited && tidx < p_bp->GetTCount(); tidx++) {
@@ -2659,39 +2722,71 @@ int PPChZnPrcssr::Run(const Param & rP)
 	SString result_doc_ident;
 	SString edi_ident;
 	PPID   chzn_252_op_id = 0;
-	PPIDArray base_op_list;
-	PPIDArray op_list;
+	LAssocArray op_assoc_list;
 	StringSet pending_list;
 	PrcssrAlcReport::Config alcr_cfg;
 	PrcssrAlcReport::ReadConfig(&alcr_cfg);
-	base_op_list.addnz(alcr_cfg.RcptOpID);
-	base_op_list.addnz(alcr_cfg.IntrExpndOpID);
-	TSCollection <ChZnInterface::Packet> pack_list;
-	ChZnInterface ifc;
-	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
-	p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
-	THROW(ifc.SetupInitBlock(rP.GuaID, 0, *p_ib));
-	THROW(ifc.GetPendingIdentList(*p_ib, pending_list));
-	PPObjOprKind::ExpandOpList(base_op_list, op_list);
+	if(alcr_cfg.RcptOpID) {
+		PPIDArray base_op_list;
+		PPIDArray op_list;
+		base_op_list.addnz(alcr_cfg.RcptOpID);
+		PPObjOprKind::ExpandOpList(base_op_list, op_list);
+		op_list.sortAndUndup();
+		for(uint i = 0; i < op_list.getCount(); i++) {
+			const PPID op_id = op_list.get(i);
+			if(!op_assoc_list.Search(op_id, 0, 0))
+				op_assoc_list.Add(op_id, ChZnInterface::doctypReceiveOrder);
+		}
+	}
+	if(alcr_cfg.IntrExpndOpID) {
+		PPIDArray base_op_list;
+		PPIDArray op_list;
+		base_op_list.addnz(alcr_cfg.IntrExpndOpID);
+		PPObjOprKind::ExpandOpList(base_op_list, op_list);
+		op_list.sortAndUndup();
+		for(uint i = 0; i < op_list.getCount(); i++) {
+			const PPID op_id = op_list.get(i);
+			if(IsIntrExpndOp(op_id) && !op_assoc_list.Search(op_id, 0, 0))
+				op_assoc_list.Add(op_id, ChZnInterface::doctypMovePlace);
+		}
+	}
+	if(alcr_cfg.SupplRetOpID) {
+		PPIDArray base_op_list;
+		PPIDArray op_list;
+		base_op_list.addnz(alcr_cfg.SupplRetOpID);
+		PPObjOprKind::ExpandOpList(base_op_list, op_list);
+		op_list.sortAndUndup();
+		for(uint i = 0; i < op_list.getCount(); i++) {
+			const PPID op_id = op_list.get(i);
+			if(!op_assoc_list.Search(op_id, 0, 0))
+				op_assoc_list.Add(op_id, ChZnInterface::doctypMoveOrder);
+		}
+	}
 	// @v10.9.1 {
 	{
 		PPObjOprKind op_obj;
 		PPOprKind en_op_rec;
 		for(SEnum en = op_obj.Enum(0); en.Next(&en_op_rec) > 0;) {
 			if(sstreqi_ascii(en_op_rec.Symb, "chzn-252") && en_op_rec.OpTypeID == PPOPT_DRAFTEXPEND) {
-				if(!chzn_252_op_id)
+				if(!chzn_252_op_id && !op_assoc_list.Search(chzn_252_op_id, 0, 0))
 					chzn_252_op_id = en_op_rec.ID;
 			}
 		}
-		op_list.add(chzn_252_op_id);
-		op_list.sortAndUndup();
+		if(chzn_252_op_id) {
+			op_assoc_list.Add(chzn_252_op_id, ChZnInterface::doctypRefusalReceiver);
+		}
 	}
-	// } @v10.9.1 
-	if(op_list.getCount()) {
-		//PPLotExtCodeContainer::MarkSet lotxcode_set;
-		//PPLotExtCodeContainer::MarkSet::Entry msentry;
-		for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
-			const PPID op_id = op_list.get(opidx);
+	// } @v10.9.1
+	TSCollection <ChZnInterface::Packet> pack_list;
+	ChZnInterface ifc;
+	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
+	p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
+	THROW(ifc.SetupInitBlock(rP.GuaID, 0, *p_ib));
+	THROW(ifc.GetPendingIdentList(*p_ib, pending_list));
+	if(op_assoc_list.getCount()) {
+		for(uint opidx = 0; opidx < op_assoc_list.getCount(); opidx++) {
+			const PPID op_id = op_assoc_list.at(opidx).Key;
+			const PPID chzn_op_id = op_assoc_list.at(opidx).Val;
 			PPOprKind op_rec;
 			BillTbl::Rec bill_rec;
 			GetOpData(op_id, &op_rec);
@@ -2699,27 +2794,22 @@ int PPChZnPrcssr::Run(const Param & rP)
 				if((!rP.LocID || bill_rec.LocID == rP.LocID) && p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIIDENT, edi_ident) <= 0) { // если тег установлен, то док уже был передан
 						int    suited = 0;
-						if(IsIntrExpndOp(bill_rec.OpID)) {
+						if(chzn_op_id == ChZnInterface::doctypMovePlace) {
+							assert(bill_rec.OpID == op_id);
+							assert(IsIntrExpndOp(bill_rec.OpID));
 							const PPID dest_loc_id = bill_rec.Object ? PPObjLocation::ObjToWarehouse(bill_rec.Object) : 0;
 							if(dest_loc_id && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dest_loc_id, PPTAG_LOC_CHZNCODE, temp_buf) > 0) {
-								THROW_SL(p_pack = new ChZnInterface::Packet(ChZnInterface::doctypMovePlace));
-								if(PrepareBillPacketForSending(p_pack) > 0)
+								THROW_SL(p_pack = new ChZnInterface::Packet(chzn_op_id));
+								if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0)
 									suited = 1;
 							}
 						}
-						else {
+						if(oneof3(chzn_op_id, ChZnInterface::doctypReceiveOrder, ChZnInterface::doctypRefusalReceiver, ChZnInterface::doctypMoveOrder)) {
 							const PPID psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
 							if(psn_id && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_CHZNCODE, temp_buf) > 0) {
-								int   chzn_doc_typ = 0;
-								if(bill_rec.OpID == chzn_252_op_id)
-									chzn_doc_typ = ChZnInterface::doctypRefusalReceiver;
-								else 
-									chzn_doc_typ = ChZnInterface::doctypReceiveOrder;
-								if(chzn_doc_typ) {
-									THROW_SL(p_pack = new ChZnInterface::Packet(chzn_doc_typ));
-									if(PrepareBillPacketForSending(p_pack) > 0)
-										suited = 1;
-								}
+								THROW_SL(p_pack = new ChZnInterface::Packet(chzn_op_id));
+								if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0)
+									suited = 1;
 							}
 						}
 						if(suited) {

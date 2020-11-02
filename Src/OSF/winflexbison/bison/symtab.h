@@ -231,7 +231,7 @@ struct symgraph {
 };
 
 void register_precedence(graphid first, graphid snd); /** Register a new precedence relation as used. */
-void print_precedence_warnings(void); /** Print a warning for each symbol whose precedence and/or associativity is useless. */
+void print_precedence_warnings(); /** Print a warning for each symbol whose precedence and/or associativity is useless. */
 
 /*----------------------.
 | Symbol associativity  |
@@ -276,22 +276,21 @@ void semantic_type_code_props_set(semantic_type * type, code_props_type kind, co
 | Symbol and semantic type tables.  |
    `----------------------------------*/
 
-/** Create the symbol and semantic type tables, and the built-in
-    symbols.  */
-void symbols_new(void);
+/** Create the symbol and semantic type tables, and the built-in symbols.  */
+void symbols_new();
 
 /** Free all the memory allocated for symbols and semantic types.  */
-void symbols_free(void);
+void symbols_free();
 
 /** Check that all the symbols are defined.
 
     Report any undefined symbols and consider them nonterminals.  */
-void symbols_check_defined(void);
+void symbols_check_defined();
 
 /** Sanity checks and #token_translations construction.
 
    Perform various sanity checks, assign symbol numbers, and set up
  #token_translations.  */
-void symbols_pack(void);
+void symbols_pack();
 
 #endif /* !SYMTAB_H_ */

@@ -61,6 +61,7 @@ public:
 		double ExtCost;
 		double PckgCount;
 		double OrderQtty; // Заказанное количество, соответсвтующее данному документу отгрузки
+		long   MarkCount; // @v10.9.2 Количество марок, ассоциированных со строками
 	};
 	BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket *, PPBillPacket * pMainPack, int pckgPos, int asSelector, int editMode);
 	~BillItemBrowser();
@@ -939,6 +940,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 	Goods2Tbl::Rec goods_rec;
 	GoodsStockExt gse;
 	BarcodeArray bc_list;
+	PPLotExtCodeContainer::MarkSet ecs; // @v10.9.2
 	const int check_spoil = BIN(CConfig.Flags & CCFLG_CHECKSPOILAGE && P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES);
 	Total.Init();
 	OrdQttyList.clear();
@@ -1076,6 +1078,12 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			}
 			SETFLAG(item.Flags, BillGoodsBrwItem::fCodeWarn, !has_egais_code);
 		}
+		// @v10.9.2 {
+		{
+			long  ecs_count = (P_Pack->XcL.Get(item.Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
+			Total.MarkCount += ecs_count;
+		}
+		// } @v10.9.2 
 		THROW_SL(p_packed_list->insert(&item));
 		lines_count++;
 	}
@@ -1084,12 +1092,13 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		Total.ShippedQtty = 0.0;
 		Total.OrderRest = 0.0;
 		double q;
-		for(i = 0; p_packed_list->enumItems(&i, reinterpret_cast<void **>(&p_item));)
+		for(i = 0; p_packed_list->enumItems(&i, reinterpret_cast<void **>(&p_item));) {
 			if(CalcShippedQtty(p_item, p_packed_list, &q)) {
 				Total.ShippedQtty += q;
 				p_packed_list->GetOrderRest(p_item->Pos, &(q = 0.0));
 				Total.OrderRest += q;
 			}
+		}
 	}
 	PPGetWord(PPWORD_TOTAL, 0, Total.Text).Space().CatChar('(').Cat(PPGetWord(PPWORD_LINES, 0, lines)).
 		Space().Cat(static_cast<long>(lines_count)).CatChar(')');
@@ -1174,6 +1183,7 @@ int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillG
 // 32 - GUID сертификата VETIS @v10.1.8
 // 33 - ЕГАИС RefB         @v10.8.4
 // 34 - ЕГАИС Код товара   @v10.8.4
+// 35 - Количество марок   @v10.9.2
 //
 int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
@@ -1519,6 +1529,16 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(temp_buf);
 					}
 					break;
+				case 35: // @v10.9.2 Количество марок, ассоциированных со строкой
+					if(is_total) {
+						pBlk->Set(Total.MarkCount);
+					}
+					else {
+						PPLotExtCodeContainer::MarkSet ecs;
+						long  ecs_count = (P_Pack->XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
+						pBlk->Set(ecs_count);
+					}
+					break;
 				default:
 					ok = 0;
 			}
@@ -1631,6 +1651,7 @@ void BillItemBrowser::update(int pos)
 				int    phqtty_col = -1;
 				int    upp_col = -1;
 				int    ordqtty_col = -1;
+				int    mark_count_col = -1; // @v10.9.2
 				int    vetis_uuid_col = -1;
 				int    egais_refb_col = -1; // @v10.8.4
 				int    egais_code_col = -1; // @v10.8.4
@@ -1647,6 +1668,7 @@ void BillItemBrowser::update(int pos)
 						case 32: vetis_uuid_col = static_cast<int>(i); break;
 						case 33: egais_refb_col = static_cast<int>(i); break; // @v10.8.4
 						case 34: egais_code_col = static_cast<int>(i); break; // @v10.8.4
+						case 35: mark_count_col = static_cast<int>(i); break; // @v10.9.2
 					}
 				}
 				if(Total.ExtCost != 0.0) {
@@ -1680,6 +1702,19 @@ void BillItemBrowser::update(int pos)
 						view->removeColumn(ordqtty_col);
 					}*/
 				}
+				// @v10.9.2 {
+				if(Total.MarkCount) {
+					if(mark_count_col < 0) {
+						if(ordqtty_col >= 0)
+							mark_count_col = ordqtty_col+1;
+						else if(upp_col >= 0)
+							mark_count_col = upp_col+1;
+						else if(qtty_col >= 0)
+							mark_count_col = qtty_col+1;
+						view->insertColumn(mark_count_col, "Marks", 35, T_LONG, MKSFMT(0, NMBF_NOZERO), BCO_USERPROC|BCO_CAPRIGHT);
+					}
+				}
+				// } @v10.9.2 
 				if(P_Pack->P_QuotSetupInfoList) {
 					if(setup_quot_info_col < 0) {
 						view->insertColumn(-1, "SetupQuotInfo", 30, MKSTYPE(S_ZSTRING, 16), ALIGN_CENTER, BCO_USERPROC|BCO_CAPLEFT);

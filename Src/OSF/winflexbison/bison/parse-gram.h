@@ -55,8 +55,6 @@ extern int gram_debug;
 /* "%code requires" blocks.  */
 #line 21 "src/parse-gram.y"
 
-  //#include "symlist.h"
-  //#include "symtab.h"
 #line 270 "src/parse-gram.y"
 
 typedef enum {
@@ -67,7 +65,6 @@ typedef enum {
 } param_type;
 #line 731 "src/parse-gram.y"
 
-//#include "muscle-tab.h"
 typedef struct {
 	char const * chars;
 	muscle_kind kind;

@@ -163,12 +163,12 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					for(SEnum en = PsnObj.LocObj.P_Tbl->Enum(LOCTYP_ADDRESS, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
 						int do_insert = 0;
 						if(Filt.AttribType == PPPSNATTR_HANGEDADDR && !(loc_rec.Flags & LOCF_STANDALONE) && !id_list.Has(loc_rec.ID)) {
-							if(PsnObj.LocObj.Fetch(loc_rec.ID, &loc_rec) > 0) // @v9.4.5 Search-->Fetch
+							if(PsnObj.LocObj.Fetch(loc_rec.ID, &loc_rec) > 0)
 								do_insert = 1;
 						}
 						else if(Filt.AttribType == PPPSNATTR_STANDALONEADDR && loc_rec.Flags & LOCF_STANDALONE) {
 							// LocObj.P_Tbl->Enum не заполняет строковый "хвост": придется повторить извлечение записи
-							if(PsnObj.LocObj.Fetch(loc_rec.ID, &loc_rec) > 0) // @v9.4.5 Search-->Fetch
+							if(PsnObj.LocObj.Fetch(loc_rec.ID, &loc_rec) > 0)
 								do_insert = 2;
 						}
 						if(do_insert) {
@@ -181,7 +181,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 								THROW_DB(P_TempPsn->insertRecBuf(&vi));
 							}
 						}
-						PPWaitMsg(ideqvalstr(loc_rec.ID, msg_buf.Z())); // @v9.4.5
+						PPWaitMsg(ideqvalstr(loc_rec.ID, msg_buf.Z()));
 					}
 					PROFILE_END
 				}
@@ -313,14 +313,12 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					for(uint i = 0; i < id_list.getCount(); i++) {
 						const PPID person_id = id_list.get(i);
 						int   skip = 0;
-						// @v9.4.5 {
 						if(Filt.NewCliPeriod.low) {
 							if(ncd_blk.IsNewPerson(person_id, Filt.NewCliPeriod))
 								NewCliList.Add(person_id);
 							else if(Filt.Flags & Filt.fNewClientsOnly)
 								skip = 1;
 						}
-						// } @v9.4.5
 						if(!skip) {
 							THROW(AddTempRec(person_id, p_used_loc_list, 0));
 						}

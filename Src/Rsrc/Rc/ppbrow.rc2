@@ -7763,6 +7763,7 @@ record Goods2 {
 	UnitsPerPack   double format(10.6) "Емкость упаковки лота";
 	Cost           double format(10.2) "@{termcost}";
 	Price          double format(10.2) "@{termprice}";
+	PriceByOpenLot double format(10.2) "Цена по последнему открытому лоту"; // @v10.9.2 Если открытого лота нет, то PriceByOpenLot = Price
 	Rest           double format(10.4) "@{rest}";
 	QCNumber       zstring(32)         "@{qcert}: номер сертификата";
 	QCBlank        zstring(16)         "@{qcert}: код бланка";
@@ -8050,7 +8051,9 @@ record Lot {
 	QttyMinus     double format(10.3) "Расход за операционный период (количество)";
 	OrgLotDt      date                "Дата поступления оригинального лота";
 	Serial        zstring(32)         "@{serial}";
-	GoodsName     zstring(128)        "@{goodsname}"; // @v10.5.8
+	GoodsName     zstring(128)        "@{goodsname}";  // @v10.5.8
+	GoodsGroup    zstring(128)        "@{goodsgroup}"; // @v10.9.2
+	UnitName      zstring(48)         "@{munit}";      // @v10.9.2
 	UhttArCode    zstring(32)         "Приватный UHTT-код товара";
 	EgaisRefA     zstring(64)         "ЕГАИС справка А"; // @v10.5.8
 	EgaisRefB     zstring(64)         "ЕГАИС справка Б"; // @v10.5.8
@@ -8592,7 +8595,7 @@ reportstub GoodsTrnovr		{ dl600data=GoodsTurnovr,		"Товарооборот по организации"
 reportstub CCheckDetailViewLoc { dl600data=CCheckDetail,	"Окно чека"}
 reportstub CCheckDetailView	{ dl600data=CCheckDetail,		"Окно чека"}
 reportstub Complete			{ dl600data=Complete,			"Состав изделия"}
-reportstub BillInfo			{ dl600data=BillInfo,			"Специальная информация о документе"}
+reportstub BillInfo			{ dl600data=BillInfo,			"@{billspecialinfo}"}
 reportstub PUGL				{ dl600data=PUGL,				"ДЕФИЦИТ ТОВАРОВ"}
 reportstub BarcodeLabelList { dl600data=BarcodeLabelList,   "Товарные этикетки со штрихкодами" }
 reportstub GeoTracking      { dl600data=GeoTracking,        "Гео-трекинг" } // @v10.1.5

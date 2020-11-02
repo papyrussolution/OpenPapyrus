@@ -3234,7 +3234,7 @@ PPWORD_AVGSKUCOUNT         "SKU (ср)"
 	18,Профилирование,profile.log;19,Печать на штрих,shtrih.log;20,История версий,verhist.log;21,Отладка,debug.log;\
 	22,CBadReck,cbadreck.log;23,@{csession},ccheck.log"
 455 /!/ "MS Sans Serif;Impact;Times New Roman;Arial;Arial Cyr"
-515 /!/ "ppyggrps;ppygoods;ppybcods;ppyqknds;ppyquots;ppycards;ppycsess;ppycchks;ppycclns"
+// @v10.9.2 515 /!/ "ppyggrps;ppygoods;ppybcods;ppyqknds;ppyquots;ppycards;ppycsess;ppycchks;ppycclns"
 // @v9.4.3 564 "@{objtype}"
 565 /!/ "@mainorg;@mainorgaddr;@mainorginn;@mainorgokpo;@director;@accountant;@dbname;@dbsymb"
 579 "@{selection_file};@{selection_directory}"
@@ -5467,7 +5467,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 [PPSTR_NAMEDTEXT]
 // @v9.2.5 @lbt_dlvrextflds       "6,R,@id;32,L,@appellation;54,L,@value"
-@lbt_auserlist                       "32,L,@user;9,R,Cеанc;3,L,S;17,L,MAC-адрес;30,L,Имя компьютера;20,L,Время входа;20,L,Продолжительность сеанса"  // DLG_AUSERSLST
+@lbt_auserlist                       "32,L,@user;9,R,Cеанc;3,L,S;17,L,MAC-адрес;30,L,@computer;20,L,Время входа;20,L,Продолжительность сеанса"  // DLG_AUSERSLST
 @lbt_chkpan                          "3,R,#;3,C,;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C,Q"   // DLG_CHKPAN
 @lbt_chkpan_ts                       "4,R,#;3,C,;60,L,@ware;12,R,@price;12,R,@qtty;12,R,@amount;10,R,@department;4,C,Q"                             // DLG_CHKPAN_TS
 @lbt_chkpanv                         "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;15,L,@series" // DLG_CHKPANV, DLG_CHKPANV_L
@@ -5549,6 +5549,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_gbasket                         "56,L,@ware;10,R,@qtty;8,R,@price;10,R,@amount"
 @lbt_billvataxlist                   "17,L,@vatrate;22,R,@intermcost;22,R,@intermprice"
 @lbt_desktopcmdassoc                 "40,L,@desktopassoccmd_code;50,L,@cmd"
+@lbt_dblist                          "30,L,@appellation;20,L,@symbol;50,L,@dbloginentry_dbpath;25,L,@dbloginentry_dictpath"
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -6667,6 +6668,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prjtask                             "Задача"
 @prjtask_pl                          "Задачи"
 @prjtasktemplate                     "Шаблон задачи"
+@computer                            "Компьютер"
 @jobtask                             "Серверная задача"
 @jobtask_pl                          "Серверные задачи"
 @server                              "Сервер"
@@ -8565,6 +8567,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bhtsend_what_doc                         "@{documents}"
 @bhtsend_fupdate                          "Обновить исходные данные"
 
+@billspecialinfo                          "Специальная информация о документе"
 @bill_ackdt                               "@{paymentduedate}"
 @bill_agent                               "@{agent}"
 @bill_agtbill                             "Соглашение с контрагентом"
@@ -8597,6 +8600,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bill_bnkpaymmethod                       "Способ платежа"
 @bill_bnkqueueing                         "Очередность платежа"
 @bill_captain                             "Капитан (водитель) транспорта"
+@bill_captain2                            "2-й капитан (водитель) транспорта"
 @bill_code                                "@{code}"
 @bill_freightcost                         "Стоимость фрахта"
 @bill_crate                               "@{currate}"
@@ -10295,6 +10299,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goods_nettbruttcoeff                     "Коэффициент netto/brutto"
 @goods_aggregations                       "Агрегации" // button
 @goods_suppldeals                         "Контрактные цены" // button
+
+@goodsbarcodelist                         "Список штрихкодов товара"
 
 @updategoodsflags                         "Изменение флагов выборки товаров"
 @updategoodsflags_warn                    "@{attention}\nЭта операция устанавливает или снимает указанные флаги со всей выборки товаров.\nПодумайте еще раз, прежде чем нажмете [OK]"
@@ -15561,6 +15567,24 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @divgroupassoc                                "Соответствие 'группа-отдел'"
 @divgroupassocentry                           "Элемент соответствия 'группа-отдел'"
+
+@dbloginentry                                 "Точка входа в базу данных"
+@dbloginentry_servertype                      "Тип сервера базы данных"
+@dbloginentry_dbfriendlyname                  "@{appellation}"
+@dbloginentry_dbsymb                          "@{dbsymb}"
+@dbloginentry_dbname                          "Имя базы данных для сервера"
+@dbloginentry_dictpath                        "Путь к словарю"
+@dbloginentry_dbpath                          "@{path_data}"
+@dbloginentry_temppath                        ""
+@dbloginentry_dbuuid                          ""
+@dbloginentry_username                        "@{username}"
+@dbloginentry_password                        "@{password}"
+@dbloginentry_serverauthparam                 "Параметры входа на сервер" // generic
+
+@activeuserlist                               "Список пользователей находящихся в программе"
+@activeuserlist_fshowcompnames                "Показывать названия компьютеров"
+@activeuserlist_usercount                     "Количество пользователей"
+@activeuserlist_uniqmacaddrcount              "Количество уникальных mac-адресов"
 
 [121]
 1   "Вход"

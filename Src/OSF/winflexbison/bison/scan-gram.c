@@ -1340,19 +1340,18 @@ char *yytext;
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define YY_NO_INPUT 1
 #line 24 "/Users/akim/src/gnu/bison/src/scan-gram.l"
-#include <errno.h>
-
-#include <c-ctype.h>
-#include <mbswidth.h>
-#include <quote.h>
-#include <quotearg.h>
-#include "complain.h"
-#include "files.h"
-#include "getargs.h"
-#include "gram.h"
-#include "reader.h"
-#include "scan-gram.h"
-#include "uniqstr.h"
+//#include <errno.h>
+//#include <c-ctype.h>
+//#include <mbswidth.h>
+//#include <quote.h>
+//#include <quotearg.h>
+//#include "complain.h"
+//#include "files.h"
+//#include "getargs.h"
+//#include "gram.h"
+//#include "reader.h"
+//#include "scan-gram.h"
+//#include "uniqstr.h"
 
 #define FLEX_PREFIX(Id) gram_ ## Id
 #include "flex-scanner.h"

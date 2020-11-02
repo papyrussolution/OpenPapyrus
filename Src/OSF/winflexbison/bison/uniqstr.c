@@ -20,19 +20,15 @@
 
 #include "bison.h"
 #pragma hdrstop
-
-/*-----------------------.
-| A uniqstr hash table.  |
-   `-----------------------*/
-
+// 
+// A uniqstr hash table
+// 
 #define HT_INITIAL_CAPACITY 257 /* Initial capacity of uniqstr hash table.  */
 
-static struct hash_table * uniqstrs_table = NULL;
-
-/*-------------------------------------.
-| Create the uniqstr for S if needed.  |
-   `-------------------------------------*/
-
+static struct hash_table * uniqstrs_table = NULL; // @global
+// 
+// Create the uniqstr for S if needed
+// 
 uniqstr uniqstr_new(char const * str)
 {
 	uniqstr res = (uniqstr)hash_lookup(uniqstrs_table, str);
@@ -62,18 +58,15 @@ uniqstr uniqstr_concat(int nargs, ...)
 		p += arglen;
 	}
 	va_end(args);
-
 	*p = '\0';
 	uniqstr res = (uniqstr)hash_xinsert(uniqstrs_table, str);
 	if(res != str)
 		SAlloc::F(str);
 	return res;
 }
-
-/*------------------------------.
-| Abort if S is not a uniqstr.  |
-   `------------------------------*/
-
+// 
+// Abort if S is not a uniqstr
+// 
 void uniqstr_assert(char const * str)
 {
 	uniqstr s = (uniqstr)hash_lookup(uniqstrs_table, str);
@@ -82,11 +75,9 @@ void uniqstr_assert(char const * str)
 		abort();
 	}
 }
-
-/*--------------------.
-| Print the uniqstr.  |
-   `--------------------*/
-
+// 
+// Print the uniqstr
+// 
 static inline bool uniqstr_print(uniqstr ustr)
 {
 	fprintf(stderr, "%s\n", ustr);
@@ -102,11 +93,9 @@ int uniqstr_cmp(uniqstr l, uniqstr r)
 {
 	return (l == r ? 0 : !l ? -1 : !r ? +1 : strcmp(l, r));
 }
-
-/*-----------------------.
-| A uniqstr hash table.  |
-   `-----------------------*/
-
+// 
+// A uniqstr hash table
+// 
 static bool hash_compare_uniqstr(void const * m1, void const * m2)
 {
 	return sstreq((const char *)m1, (const char *)m2);
@@ -116,39 +105,29 @@ static size_t hash_uniqstr(void const * m, size_t tablesize)
 {
 	return hash_string((const char *)m, tablesize);
 }
-
-/*----------------------------.
-| Create the uniqstrs table.  |
-   `----------------------------*/
-
-void uniqstrs_new(void)
+// 
+// Create the uniqstrs table
+// 
+void uniqstrs_new()
 {
 	uniqstrs_table = hash_xinitialize(HT_INITIAL_CAPACITY, NULL, hash_uniqstr, hash_compare_uniqstr, free);
 }
-
-/*-------------------------------------.
-| Perform a task on all the uniqstrs.  |
-   `-------------------------------------*/
-
+// 
+// Perform a task on all the uniqstrs
+// 
 static void uniqstrs_do(Hash_processor processor, void * processor_data)
 {
 	hash_do_for_each(uniqstrs_table, processor, processor_data);
 }
-
-/*-----------------.
-| Print them all.  |
-   `-----------------*/
-
-void uniqstrs_print(void)
+// 
+// Print them all
+// 
+void uniqstrs_print()
 {
 	uniqstrs_do(uniqstr_print_processor, NULL);
 }
 
-/*--------------------.
-| Free the uniqstrs.  |
-   `--------------------*/
-
-void uniqstrs_free(void)
+void uniqstrs_free()
 {
 	hash_free(uniqstrs_table);
 }

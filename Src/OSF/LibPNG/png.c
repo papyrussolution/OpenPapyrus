@@ -1631,21 +1631,16 @@ int /* PRIVATE */ png_colorspace_set_sRGB(png_const_structrp png_ptr, png_colors
 	/* intent: bugs in GCC force 'int' to be used as the parameter type. */
 	colorspace->rendering_intent = (png_uint_16)intent;
 	colorspace->flags |= PNG_COLORSPACE_HAVE_INTENT;
-
 	/* endpoints */
 	colorspace->end_points_xy = sRGB_xy;
 	colorspace->end_points_XYZ = sRGB_XYZ;
 	colorspace->flags |=
 	    (PNG_COLORSPACE_HAVE_ENDPOINTS|PNG_COLORSPACE_ENDPOINTS_MATCH_sRGB);
-
 	/* gamma */
 	colorspace->gamma = PNG_GAMMA_sRGB_INVERSE;
 	colorspace->flags |= PNG_COLORSPACE_HAVE_GAMMA;
-
 	/* Finally record that we have an sRGB profile */
-	colorspace->flags |=
-	    (PNG_COLORSPACE_MATCHES_sRGB|PNG_COLORSPACE_FROM_sRGB);
-
+	colorspace->flags |= (PNG_COLORSPACE_MATCHES_sRGB|PNG_COLORSPACE_FROM_sRGB);
 	return 1; /* set */
 }
 
@@ -2602,7 +2597,6 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 							*ascii++ = 48;
 							--czero;
 						}
-
 						if(exp_b10 != (-1)) {
 							if(exp_b10 == 0) {
 								*ascii++ = 46;
@@ -2804,8 +2798,7 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_i
 			r *= times;
 			r /= divisor;
 			r = floor(r+.5);
-
-			/* A png_fixed_point is a 32-bit integer. */
+			// A png_fixed_point is a 32-bit integer.
 			if(r <= 2147483647. && r >= -2147483648.) {
 				*res = (png_fixed_point)r;
 				return 1;
@@ -2826,13 +2819,10 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_i
 				negative = !negative, D = -divisor;
 			else
 				D = divisor;
-			/* Following can't overflow because the arguments only
-			 * have 31 bits each, however the result may be 32 bits.
-			 */
+			// Following can't overflow because the arguments only
+			// have 31 bits each, however the result may be 32 bits.
 			s16 = (A >> 16) * (T & 0xffff) + (A & 0xffff) * (T >> 16);
-			/* Can't overflow because the a*times bit is only 30
-			 * bits at most.
-			 */
+			// Can't overflow because the a*times bit is only 30 bits at most.
 			s32 = (A >> 16) * (T >> 16) + (s16 >> 16);
 			s00 = (A & 0xffff) * (T & 0xffff);
 			s16 = (s16 & 0xffff) << 16;
@@ -2882,14 +2872,11 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_i
 /* The following is for when the caller doesn't much care about the
  * result.
  */
-png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, png_int_32 times,
-    png_int_32 divisor)
+png_fixed_point png_muldiv_warn(png_const_structrp png_ptr, png_fixed_point a, png_int_32 times, png_int_32 divisor)
 {
 	png_fixed_point result;
-
 	if(png_muldiv(&result, a, times, divisor) != 0)
 		return result;
-
 	png_warning(png_ptr, "fixed point overflow ignored");
 	return 0;
 }
@@ -3528,9 +3515,7 @@ void /* PRIVATE */ png_destroy_gamma_table(png_structrp png_ptr)
 	}
 #endif /* 16BIT */
 
-#if defined(PNG_READ_BACKGROUND_SUPPORTED) || \
-	defined(PNG_READ_ALPHA_MODE_SUPPORTED) || \
-	defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)
+#if defined(PNG_READ_BACKGROUND_SUPPORTED) || defined(PNG_READ_ALPHA_MODE_SUPPORTED) || defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)
 	png_free(png_ptr, png_ptr->gamma_from_1);
 	png_ptr->gamma_from_1 = NULL;
 	png_free(png_ptr, png_ptr->gamma_to_1);

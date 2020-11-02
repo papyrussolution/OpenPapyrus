@@ -75,9 +75,7 @@ typedef enum eval_error {
 	UNKNOWN_INPUT,
 	EXCESS_INPUT,
 	INVALID_OPERATOR
-}
-
-eval_error;
+} eval_error;
 
 static eval_error logical_or_term(eval_token, int32_t *);
 static eval_error logical_and_term(eval_token, int32_t *);

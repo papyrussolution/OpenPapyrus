@@ -513,8 +513,6 @@ extern int glthread_once_singlethreaded (pthread_once_t *once_control);
 
 #if USE_WINDOWS_THREADS
 
-//#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
-//#include <windows.h>
 #include "windows-mutex.h"
 #include "windows-rwlock.h"
 #include "windows-recmutex.h"

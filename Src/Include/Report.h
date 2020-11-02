@@ -72,8 +72,8 @@ class TVRez;
 #define SPRN_LANDSCAPE         0x00000040 // Альбомная ориентация листа (иначе книжная)
 #define SPRN_SKIPGRPS          0x00004000 // Пропустить группировку при печати
 #define SPRN_TRUEPRINTER       0x00008000 // Служебный флаг (истинный принтер)
-#define SPRN_PREVIEW           0x00010000 // @v6.2.6 Предварительный просмотр
-#define SPRN_DONTRENAMEFILES   0x00020000 // @v6.3.5 Обычно, при печати файлы данных переименовываются дабы
+#define SPRN_PREVIEW           0x00010000 // Предварительный просмотр
+#define SPRN_DONTRENAMEFILES   0x00020000 // Обычно, при печати файлы данных переименовываются дабы
 	// не мешать работе предыдущему (последующему) сеансу печати. Если эта опция передается в
 	// функцию CrystalReportPrint, то файлы переименовываться не будут (иногда это важно).
 #define SPRN_USEDUPLEXPRINTING 0x00040000 // Использовать дуплексную печать
@@ -352,7 +352,6 @@ public:
 		DisableGrouping = 0x0001,
 		FooterOnBottom  = 0x0002,
 		Landscape       = 0x0004,
-		// @v8.6.6 @obsolete NoEjectAfter    = 0x0008,
 		PrintingNoAsk   = 0x0010,
 		NoRepError      = 0x0020, // Не выдавать сообщение об ошибке
 		XmlExport       = 0x0040, // Экспорт в XML

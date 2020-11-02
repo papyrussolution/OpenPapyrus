@@ -239,9 +239,10 @@ int InetAddr::Set(const char * pHostName, int port)
 		case protRTMPS:    port = 443; break;
 		case protLDAP:     port = 389; break;
 		case protLDAPS:    port = 636; break;
-		case protPapyrusServer: port = 28015; break;
 		case protAMQP:     port = 5672; break; // @v10.5.3
 		case protAMQPS:    port = 5671; break; // @v10.5.3
+		case prot_p_PapyrusServer: port = 28015; break;
+		case prot_p_MYSQL: port = 3306; break; // @v10.9.2
 	}
 	return port;
 }
@@ -347,6 +348,9 @@ static const char * SchemeMnem[] = {
 	"",         // #37 private PapyrusServer
 	"amqp",     // #38
 	"amqps",    // #39
+	"mysql",    // #40 private // @v10.9.2
+	"sqlite",   // #41 private // @v10.9.2
+	"oracle",   // #42 private // @v10.9.2
 };
 
 /*static*/const char * FASTCALL InetUrl::GetSchemeMnem(int schemeId)
@@ -386,6 +390,7 @@ int InetUrl::Parse(const char * pUrl)
 	}
 	if(_url.NotEmptyS()) {
 		SString temp_buf;
+		SString left_buf, right_buf;
 		int    _done = 0;
 		{
 			//
@@ -394,37 +399,83 @@ int InetUrl::Parse(const char * pUrl)
 			//   Этот блок требует значительных уточнений, в том числе касательно очень специальных случаев
 			//   вроде \\.\COM1
 			//
-			if(_url[1] == ':' && IsLetterASCII(_url[0])) {
-				// Путь файловой системы
-				Protocol = GetSchemeId("file");
-				TermList.Add(cScheme, "file", 1);
-				TermList.Add(cPath, _url, 1);
-				State &= ~stEmpty;
-				_done = 1;
+			// @v10.9.2 {
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+			SNaturalTokenStat nts;
+			//uint tokn = 0;
+			//tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
+			//if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25) ok = 100000;
+			tr.Run(_url.ucptr(), _url.Len(), nta, &nts);
+			if(nta.Has(SNTOK_IP4)) {
+				Protocol = 0;
+				TermList.Add(cHost, _url);
+				_done = 1;									
 			}
-			else if(oneof2(_url[0], '/', '\\') && oneof2(_url[1], '/', '\\')) {
-				// Путь файловой системы
-				Protocol = GetSchemeId("file");
-				TermList.Add(cScheme, "file", 1);
-				TermList.Add(cPath, _url, 1);
-				State &= ~stEmpty;
-				_done = 1;
+			else if(_url.IsEqiAscii("localhost")) {
+				Protocol = 0;
+				TermList.Add(cHost, _url);
+				_done = 1;					
 			}
-			else if(oneof2(_url[0], '/', '\\')) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
-				// Путь файловой системы
-				Protocol = GetSchemeId("file");
-				TermList.Add(cScheme, "file", 1);
-				TermList.Add(cPath, _url, 1);
-				State &= ~stEmpty;
-				_done = 1;
+			else if(!_url.Search("://", 0, 0, 0) && _url.Divide(':', left_buf, right_buf) > 0) {
+				if(left_buf.Len() == 1 && isasciialpha(left_buf.C(0))) {
+					// Путь файловой системы
+					Protocol = GetSchemeId("file");
+					TermList.Add(cScheme, "file", 1);
+					TermList.Add(cPath, _url, 1);
+					State &= ~stEmpty;
+					_done = 1;
+				}
+				else if(right_buf.IsDigit()) {
+					tr.Run(left_buf.ucptr(), left_buf.Len(), nta, &nts);
+					if(nta.Has(SNTOK_IP4)) {
+						Protocol = 0;
+						TermList.Add(cHost, left_buf);
+						TermList.Add(cPort, right_buf);
+						_done = 1;					
+					}
+					else if(left_buf.IsEqiAscii("localhost")) {
+						Protocol = 0;
+						TermList.Add(cHost, left_buf);
+						TermList.Add(cPort, right_buf);
+						_done = 1;					
+					}
+				}
 			}
-			else if(_url.HasPrefixIAscii("file:") && oneof2(_url[5], '/', '\\') && oneof2(_url[6], '/', '\\') && oneof2(_url[7], '/', '\\')) {
-				// Путь файловой системы, начиная с _url[8]
-				Protocol = GetSchemeId("file");
-				TermList.Add(cScheme, "file", 1);
-				TermList.Add(cPath, _url+8, 1);
-				State &= ~stEmpty;
-				_done = 1;
+			// } @v10.9.2 
+			if(!_done) {
+				if(_url[1] == ':' && IsLetterASCII(_url[0])) {
+					// Путь файловой системы
+					Protocol = GetSchemeId("file");
+					TermList.Add(cScheme, "file", 1);
+					TermList.Add(cPath, _url, 1);
+					State &= ~stEmpty;
+					_done = 1;
+				}
+				else if(oneof2(_url[0], '/', '\\') && oneof2(_url[1], '/', '\\')) {
+					// Путь файловой системы
+					Protocol = GetSchemeId("file");
+					TermList.Add(cScheme, "file", 1);
+					TermList.Add(cPath, _url, 1);
+					State &= ~stEmpty;
+					_done = 1;
+				}
+				else if(oneof2(_url[0], '/', '\\')) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
+					// Путь файловой системы
+					Protocol = GetSchemeId("file");
+					TermList.Add(cScheme, "file", 1);
+					TermList.Add(cPath, _url, 1);
+					State &= ~stEmpty;
+					_done = 1;
+				}
+				else if(_url.HasPrefixIAscii("file:") && oneof2(_url[5], '/', '\\') && oneof2(_url[6], '/', '\\') && oneof2(_url[7], '/', '\\')) {
+					// Путь файловой системы, начиная с _url[8]
+					Protocol = GetSchemeId("file");
+					TermList.Add(cScheme, "file", 1);
+					TermList.Add(cPath, _url+8, 1);
+					State &= ~stEmpty;
+					_done = 1;
+				}
 			}
 		}
 		if(!_done) {
@@ -439,12 +490,11 @@ int InetUrl::Parse(const char * pUrl)
 				}
 				temp_buf.CopyFromN(uri.UserInfo.P_First, uri.UserInfo.Len());
 				if(temp_buf.NotEmpty()) {
-					SString user_name, pw;
-					temp_buf.Divide(':', user_name, pw);
-					if(user_name.NotEmptyS())
-						TermList.Add(cUserName, user_name, 1);
-					if(pw.NotEmptyS())
-						TermList.Add(cPassword, pw, 1);
+					temp_buf.Divide(':', left_buf, right_buf);
+					if(left_buf.NotEmptyS())
+						TermList.Add(cUserName, left_buf, 1);
+					if(right_buf.NotEmptyS())
+						TermList.Add(cPassword, right_buf, 1);
 				}
 				temp_buf.CopyFromN(uri.HostText.P_First, uri.HostText.Len());
 				if(temp_buf.NotEmpty())
@@ -499,7 +549,7 @@ int InetUrl::GetComponent(int c, int urlDecode, SString & rBuf) const
 	rBuf.Z();
 	int    ok = BIN(TermList.GetText(c, rBuf) > 0);
 	if(ok && urlDecode) {
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		rBuf.DecodeUrl(r_temp_buf);
 		rBuf = r_temp_buf;
 	}
@@ -518,10 +568,48 @@ int InetUrl::SetComponent(int c, const char * pBuf)
 	return ok;
 }
 
+int InetUrl::SetQueryParam(const char * pParam, const char * pValue)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString org_query;
+	GetComponent(cQuery, /*urlDecode*/0, org_query);
+	StringSet ss('&', org_query);
+	StringSet ss_new("&");
+	SString left, right;
+	int    is_found = 0;
+	for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+		if(temp_buf.Divide('=', left, right) > 0 && left.Strip().CmpNC(pParam) == 0) {
+			is_found = 1;
+			if(right == pValue)
+				ss_new.add(temp_buf);
+			else {
+				right = pValue;
+				temp_buf.Z().CatEq(left, right);
+				ss_new.add(temp_buf);
+				ok = 1;
+			}
+		}
+		else
+			ss_new.add(temp_buf);
+	}
+	if(!is_found) {
+		left = pParam;
+		right = pValue;
+		temp_buf.Z().CatEq(left, right);
+		ss_new.add(temp_buf);
+		ok = 1;
+	}
+	if(ok > 0)
+		SetComponent(cQuery, ss_new.getBuf());
+	return ok;
+}
+
 int InetUrl::GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const
 {
 	int   ok = -1;
 	SString temp_buf;
+	rBuf.Z();
 	if(GetComponent(cQuery, urlDecode, temp_buf)) {
 		StringSet ss('&', temp_buf);
 		SString left, right;

@@ -14,22 +14,13 @@
     <ClInclude Include="..\osf\winflexbison\flex\flexdef.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\flex\flexint.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\flex\gettext.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\flex\options.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\flex\parse.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\flex\regex.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\flex\scanopt.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\winflexbison\flex\tables.h">

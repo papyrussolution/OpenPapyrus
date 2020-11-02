@@ -61,13 +61,12 @@ static IMPL_CMPFUNC(BCopyData_DtDesc, i1, i2)
 	return r ? -r : 0;
 }
 
-int BCopySet::Sort(BCopySet::Order ord)
+void BCopySet::Sort(BCopySet::Order ord)
 {
 	if(ord == ordByDate)
 		sort(PTR_CMPFUNC(BCopyData_Dt));
 	else if(ord == ordByDateDesc)
 		sort(PTR_CMPFUNC(BCopyData_DtDesc));
-	return 1;
 }
 //
 //
@@ -82,7 +81,7 @@ DBBackup::InfoFile::InfoFile(DbProvider * pDb) : Stream(0)
 		MakeFileName(data_path, BackupInfoFile, FileName, sizeof(FileName));
 	}
 	else
-		FileName[0] = 0;
+		PTR32(FileName)[0] = 0;
 }
 
 DBBackup::InfoFile::~InfoFile()

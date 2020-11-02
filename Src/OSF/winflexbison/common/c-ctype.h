@@ -26,8 +26,6 @@
 #ifndef C_CTYPE_H
 #define C_CTYPE_H
 
-//#include <stdbool.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

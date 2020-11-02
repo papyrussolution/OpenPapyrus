@@ -386,6 +386,28 @@ int SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArr
 	return ok;
 }
 
+int SysJournal::GetObjRemovingEventListByPeriod(PPID objType, PPID userID, const DateRange * pPeriod, TSVector <SysJournalTbl::Rec> & rList)
+{
+	int    ok = -1;
+	const  PPID single_acn = (objType == PPOBJ_BILL) ? PPACN_RMVBILL : PPACN_OBJRMV;
+	SysJournalTbl::Key0 k;
+	k.Dt = pPeriod ? pPeriod->low : ZERODATE;
+	k.Tm = ZEROTIME;
+	DBQ * dbq = 0;
+	BExtQuery q(this, 0);
+	dbq = &(this->ObjType == objType && this->Action ==  single_acn && daterange(this->Dt, pPeriod));
+	dbq = ppcheckfiltid(dbq, this->UserID, userID);
+	q.selectAll().where(*dbq);
+	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+		if(data.Action == single_acn) {
+			THROW_SL(rList.insert(&data));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SysJournal::CheckObjForFilt(PPID objType, PPID objID, const SysJournalFilt * pFilt)
 {
 	int    ok = -1;
@@ -499,17 +521,15 @@ int SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 	return ok;
 }
 
-int SysJournal::Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
+void SysJournal::Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
 {
 	PPID   id = 0;
-	if(sgsj == sgsjOp)
-		id = opID;
-	else if(sgsj == sgsjUser)
-		id = prmrID;
-	else if(sgsj == sgsjObjType)
-		id = scndID;
+	switch(sgsj) {
+		case sgsjOp: id = opID; break;
+		case sgsjUser: id = prmrID; break;
+		case sgsjObjType: id = scndID; break;
+	}
 	ASSIGN_PTR(pID, id);
-	return 1;
 }
 
 void SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen)

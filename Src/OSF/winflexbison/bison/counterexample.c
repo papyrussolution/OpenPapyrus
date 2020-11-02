@@ -19,7 +19,7 @@
 
 #include "bison.h"
 #pragma hdrstop
-#include <textstyle.h>
+//#include <textstyle.h>
 
 #define TIME_LIMIT_ENFORCED true
 /** If set to false, only consider the states on the shortest
@@ -702,13 +702,10 @@ static inline int reduction_cost(const parse_state * ps)
 	return SHIFT_COST * shifts + PRODUCTION_COST * productions;
 }
 
-static search_state_list reduction_step(search_state * ss, const item_number * conflict_item,
-    int parser_state, int rule_len)
+static search_state_list reduction_step(search_state * ss, const item_number * conflict_item, int parser_state, int rule_len)
 {
 	(void)conflict_item; // FIXME: Unused
-	search_state_list result =
-	    gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, 1);
-
+	search_state_list result = gl_list_create_empty(GL_LINKED_LIST, NULL, NULL, NULL, 1);
 	parse_state * ps = ss->states[parser_state];
 	const state_item * si = parse_state_tail(ps);
 	bitset symbol_set = si->lookahead;
@@ -763,14 +760,11 @@ static void search_state_prepend(search_state * ss, symbol_number sym, bitset gu
 		int prod_state = prod1 ? 0 : 1;
 		parse_state_list prev = parser_prepend(ss->states[prod_state]);
 		parse_state * ps = NULL;
-		for(gl_list_iterator_t iter = gl_list_iterator(prev);
-		    parse_state_list_next(&iter, &ps);
-		    ) {
+		for(gl_list_iterator_t iter = gl_list_iterator(prev); parse_state_list_next(&iter, &ps);) {
 			const state_item * psi = parse_state_head(ps);
 			bool guided = bitset_test(guide, psi->state->number);
 			if(!guided && !EXTENDED_SEARCH)
 				continue;
-
 			search_state * copy = copy_search_state(ss);
 			ss_set_parse_state(copy, prod_state, ps);
 			copy->complexity += PRODUCTION_COST;
@@ -1069,7 +1063,7 @@ cex_search_end:;
 
 static time_t cumulative_time;
 
-void counterexample_init(void)
+void counterexample_init()
 {
 	time(&cumulative_time);
 	scp_set = bitset_create(nstates, BITSET_FIXED);
@@ -1077,7 +1071,7 @@ void counterexample_init(void)
 	state_items_init();
 }
 
-void counterexample_free(void)
+void counterexample_free()
 {
 	if(scp_set) {
 		bitset_free(scp_set);
@@ -1085,7 +1079,6 @@ void counterexample_free(void)
 		state_items_free();
 	}
 }
-
 /**
  * Report a counterexample for conflict on symbol next_sym
  * between the given state-items
@@ -1197,8 +1190,7 @@ void counterexample_report_state(const state * s, FILE * out, const char * prefi
 			    reds->lookaheads[j]);
 			if(!bitset_empty_p(lookaheads))
 				for(state_item_number c2 = state_item_map[sn]; c2 < state_item_map[sn + 1]; ++c2)
-					if(!SI_DISABLED(c2)
-					    && item_rule(state_items[c2].item) == r2) {
+					if(!SI_DISABLED(c2) && item_rule(state_items[c2].item) == r2) {
 						counterexample_report_reduce_reduce(c1, c2, lookaheads, out, prefix);
 						break;
 					}

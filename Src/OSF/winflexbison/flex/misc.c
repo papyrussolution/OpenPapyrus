@@ -101,10 +101,8 @@ void action_define(const char * defname, int value)
 		format_pinpoint_message(_("name \"%s\" ridiculously long"), defname);
 		return;
 	}
-
 	snprintf(buf, sizeof(buf), "#define %s %d\n", defname, value);
 	add_action(buf);
-
 	/* track #defines so we can undef them when we're done. */
 	cpy = xstrdup(defname);
 	buf_append(&defs_buf, &cpy, 1);
@@ -117,9 +115,7 @@ void add_action(const char * new_text)
 	while(len + action_index >= action_size - 10 /* slop */) {
 		int new_size = action_size * 2;
 		if(new_size <= 0)
-			/* Increase just a little, to try to avoid overflow
-			 * on 16-bit machines.
-			 */
+			// Increase just a little, to try to avoid overflow on 16-bit machines.
 			action_size += action_size / 8;
 		else
 			action_size = new_size;
@@ -139,13 +135,10 @@ void   * allocate_array(int size, size_t element_size)
 	mem = reallocarray(NULL, (size_t)size, element_size);
 #else
 	size_t num_bytes = (size_t)size * element_size;
-	mem = (size && SIZE_MAX / (size_t)size < element_size) ? NULL :
-	    malloc(num_bytes);
+	mem = (size && SIZE_MAX / (size_t)size < element_size) ? NULL : malloc(num_bytes);
 #endif
 	if(!mem)
-		flexfatal(_
-			    ("memory allocation failed in allocate_array()"));
-
+		flexfatal(_("memory allocation failed in allocate_array()"));
 	return mem;
 }
 
@@ -158,7 +151,6 @@ int all_lower(char * str)
 			return 0;
 		++str;
 	}
-
 	return 1;
 }
 
@@ -284,7 +276,6 @@ void lerr(const char * msg, ...)
 {
 	char errmsg[MAXLINE];
 	va_list args;
-
 	va_start(args, msg);
 	vsnprintf(errmsg, sizeof(errmsg), msg, args);
 	va_end(args);
@@ -311,28 +302,20 @@ void line_directive_out(FILE * output_file, int do_infile)
 	char directive[MAXLINE], filename[MAXLINE];
 	char   * s1, * s2, * s3;
 	static const char line_fmt[] = "#line %d \"%s\"\n";
-
 	if(!gen_line_dirs)
 		return;
-
 	s1 = do_infile ? infilename : "M4_YY_OUTFILE_NAME";
-
 	if(do_infile && !s1)
 		s1 = "<stdin>";
-
 	s2 = filename;
 	s3 = &filename[sizeof(filename) - 2];
-
 	while(s2 < s3 && *s1) {
 		if(*s1 == '\\' || *s1 == '"')
 			/* Escape the '\' or '"' */
 			*s2++ = '\\';
-
 		*s2++ = *s1++;
 	}
-
 	*s2 = '\0';
-
 	if(do_infile)
 		snprintf(directive, sizeof(directive), line_fmt, linenum, filename);
 	else {
@@ -500,45 +483,14 @@ uchar myesc(uchar array[])
  *	 generated scanner, keeping track of the line count.
  */
 
-void out(const char * str)
-{
-	fputs(str, stdout);
-}
-
-void out_dec(const char * fmt, int n)
-{
-	fprintf(stdout, fmt, n);
-}
-
-void out_dec2(const char * fmt, int n1, int n2)
-{
-	fprintf(stdout, fmt, n1, n2);
-}
-
-void out_hex(const char * fmt, unsigned int x)
-{
-	fprintf(stdout, fmt, x);
-}
-
-void out_str(const char * fmt, const char str[])
-{
-	fprintf(stdout, fmt, str);
-}
-
-void out_str3(const char * fmt, const char s1[], const char s2[], const char s3[])
-{
-	fprintf(stdout, fmt, s1, s2, s3);
-}
-
-void out_str_dec(const char * fmt, const char str[], int n)
-{
-	fprintf(stdout, fmt, str, n);
-}
-
-void outc(int c)
-{
-	fputc(c, stdout);
-}
+void out(const char * str) { fputs(str, stdout); }
+void out_dec(const char * fmt, int n) { fprintf(stdout, fmt, n); }
+void out_dec2(const char * fmt, int n1, int n2) { fprintf(stdout, fmt, n1, n2); }
+void out_hex(const char * fmt, uint x) { fprintf(stdout, fmt, x); }
+void out_str(const char * fmt, const char str[]) { fprintf(stdout, fmt, str); }
+void out_str3(const char * fmt, const char s1[], const char s2[], const char s3[]) { fprintf(stdout, fmt, s1, s2, s3); }
+void out_str_dec(const char * fmt, const char str[], int n) { fprintf(stdout, fmt, str, n); }
+void outc(int c) { fputc(c, stdout); }
 
 void outn(const char * str)
 {
@@ -560,27 +512,18 @@ void out_m4_define(const char* def, const char* val)
  *
  * The returned string is in static storage.
  */
-
 char   * readable_form(int c)
 {
 	static char rform[20];
-
 	if((c >= 0 && c < 32) || c >= 127) {
 		switch(c) {
-			case '\b':
-			    return "\\b";
-			case '\f':
-			    return "\\f";
-			case '\n':
-			    return "\\n";
-			case '\r':
-			    return "\\r";
-			case '\t':
-			    return "\\t";
-			case '\a':
-			    return "\\a";
-			case '\v':
-			    return "\\v";
+			case '\b': return "\\b";
+			case '\f': return "\\f";
+			case '\n': return "\\n";
+			case '\r': return "\\r";
+			case '\t': return "\\t";
+			case '\a': return "\\a";
+			case '\v': return "\\v";
 			default:
 			    if(trace_hex)
 				    snprintf(rform, sizeof(rform), "\\x%.2x", (uint)c);
@@ -589,14 +532,11 @@ char   * readable_form(int c)
 			    return rform;
 		}
 	}
-
 	else if(c == ' ')
 		return "' '";
-
 	else {
 		rform[0] = (char)c;
 		rform[1] = '\0';
-
 		return rform;
 	}
 }
@@ -631,7 +571,6 @@ void skelout()
 	char buf_storage[MAXLINE];
 	char   * buf = buf_storage;
 	bool do_copy = true;
-
 	/* "reset" the state by clearing the buffer and pushing a '1' */
 	if(sko_len > 0)
 		sko_peek(&do_copy);
@@ -641,12 +580,9 @@ void skelout()
 	/* Loop pulling lines either from the skelfile, if we're using
 	 * one, or from the skel[] array.
 	 */
-	while(skelfile ?
-	    (fgets(buf, MAXLINE, skelfile) != NULL) :
-	    ((buf = (char*)skel[skel_ind++]) != 0)) {
+	while(skelfile ? (fgets(buf, MAXLINE, skelfile) != NULL) : ((buf = (char*)skel[skel_ind++]) != 0)) {
 		if(skelfile)
 			chomp(buf);
-
 		/* copy from skel array */
 		if(buf[0] == '%') {     /* control line */
 			/* print the control line as a comment. */
@@ -739,7 +675,6 @@ void skelout()
 				flexfatal(_("bad line in skeleton file"));
 			}
 		}
-
 		else if(do_copy)
 			outn(buf);
 	}                       /* end while */
@@ -756,17 +691,12 @@ void transition_struct_out(int element_v, int element_n)
 	/* short circuit any output */
 	if(!gentables)
 		return;
-
 	out_dec2(" {%4d,%4d },", element_v, element_n);
-
 	datapos += TRANS_STRUCT_PRINT_LENGTH;
-
 	if(datapos >= 79 - TRANS_STRUCT_PRINT_LENGTH) {
 		outc('\n');
-
 		if(++dataline % 10 == 0)
 			outc('\n');
-
 		datapos = 0;
 	}
 }

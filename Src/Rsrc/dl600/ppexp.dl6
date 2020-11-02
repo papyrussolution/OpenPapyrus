@@ -1103,6 +1103,7 @@ data Bill {
 	string FreightCode[20];        // Номер фрахта
 	link   Transport TranspID;     // ИД транспорта
 	link   Person  CaptainID;      // Капитан судна (водитель автомобиля)
+	link   Person  Captain2ID;     // @v10.9.2 2-й капитан судна (водитель автомобиля)
 	link   Person  VesselsAgentID; // Транспортный брокер
 	link   City    PortOfLoading;  // Порт погрузки
 	link   City    PortOfDschrg;   // Порт разгрузки
@@ -1125,8 +1126,7 @@ data Bill {
 	double RcPartAmount;           // Частичная сумма начисления (на каждый период) //
 	string RcCycleText[16];        // Текст наименования цикла (RcCycle)
 	string GetMemo[512]();         // Возвращает примечание к документу полной длины
-	double GetAmount(string amountTypeSymb[20]); // Возвращает сумму документа, принадлежащую типу
-		// с символом amountTypeSymb.
+	double GetAmount(string amountTypeSymb[20]); // Возвращает сумму документа, принадлежащую типу с символом amountTypeSymb.
 	//
 	// Возвращает общее количество торговых единиц по всем строка товарного документа с учетом знака.
 	//   Если sign > 0, то возвращает сумму только приходных строк,

@@ -43,9 +43,6 @@
 #ifndef _TLS_H
 #define _TLS_H
 
-//#include <errno.h>
-//#include <stdlib.h>
-
 #if !defined c11_threads_in_use
 #if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
 #  include <threads.h>
@@ -150,21 +147,15 @@ typedef union
 
 #if USE_WINDOWS_THREADS
 
-//#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
-//#include <windows.h>
 #include "windows-tls.h"
 
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
 typedef glwthread_tls_key_t gl_tls_key_t;
-#define glthread_tls_key_init(KEY, DESTRUCTOR) \
-    glwthread_tls_key_create (KEY, DESTRUCTOR)
-#define gl_tls_get(NAME) \
-    TlsGetValue (NAME)
-#define glthread_tls_set(KEY, POINTER) \
-    (!TlsSetValue (*(KEY), POINTER) ? EINVAL : 0)
-#define glthread_tls_key_destroy(KEY) \
-    glwthread_tls_key_delete (*(KEY))
+#define glthread_tls_key_init(KEY, DESTRUCTOR) glwthread_tls_key_create (KEY, DESTRUCTOR)
+#define gl_tls_get(NAME) TlsGetValue (NAME)
+#define glthread_tls_set(KEY, POINTER) (!TlsSetValue (*(KEY), POINTER) ? EINVAL : 0)
+#define glthread_tls_key_destroy(KEY) glwthread_tls_key_delete (*(KEY))
 
 #endif
 

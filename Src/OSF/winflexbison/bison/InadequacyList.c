@@ -19,7 +19,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <intprops.h>
 
 ContributionIndex const ContributionIndex__none = -1;
 ContributionIndex const ContributionIndex__error_action = -2;

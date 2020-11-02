@@ -29,7 +29,7 @@ typedef enum {
 } LrType;
 
 /* The user's requested LR type.  */
-static LrType lr_type_get(void)
+static LrType lr_type_get()
 {
 	char * type = muscle_percent_define_get("lr.type");
 	LrType res;
@@ -56,7 +56,7 @@ static LrType lr_type_get(void)
  *     the same RHS are nullable nonterminals.  In other words, the follows of
  *     a goto on <tt>ritem[i]</tt> include the lookahead set of the item.
  */
-static bitset ielr_compute_ritem_sees_lookahead_set(void)
+static bitset ielr_compute_ritem_sees_lookahead_set()
 {
 	bitset result = bitset_create(nritems, BITSET_FIXED);
 	int i = nritems-1;
@@ -258,7 +258,7 @@ static void ielr_compute_always_follows(goto_number *** edgesp, int const edge_c
  *     <tt>state</tt>'s of state \c i.
  *   - The last element of such an array is \c NULL.
  */
-static state *** ielr_compute_predecessors(void)
+static state *** ielr_compute_predecessors()
 {
 	int * predecessor_counts = (int *)xnmalloc(nstates, sizeof *predecessor_counts);
 	state *** res = (state ***)xnmalloc(nstates, sizeof *res);
@@ -344,17 +344,16 @@ bool ielr_item_has_lookahead(state * s, symbol_number lhs, size_t item, symbol_n
 		if(s->items[item] > 1) {
 			/* If the LHS symbol of this item isn't known (because this is a
 			   top-level invocation), go get it.  */
-			if(!lhs)
-				lhs = item_rule(&ritem[s->items[item]])->lhs->number;
-			/* If this kernel item is next to the beginning of the RHS, then
-			   check all predecessors' goto follows for the LHS.  */
+			SETIFZ(lhs, item_rule(&ritem[s->items[item]])->lhs->number);
+			// If this kernel item is next to the beginning of the RHS, then
+			// check all predecessors' goto follows for the LHS. 
 			if(item_number_is_rule_number(ritem[s->items[item] - 2])) {
 				aver(lhs != acceptsymbol->content->number);
 				for(state ** predecessor = predecessors[s->number]; *predecessor; ++predecessor)
 					bitset_or(item_lookahead_sets[s->number][item], item_lookahead_sets[s->number][item], goto_follows[map_goto((*predecessor)->number, lhs)]);
 			}
-			/* If this kernel item is later in the RHS, then check all
-			   predecessor items' lookahead sets.  */
+			// If this kernel item is later in the RHS, then check all
+			// predecessor items' lookahead sets.
 			else {
 				for(state ** predecessor = predecessors[s->number]; *predecessor; ++predecessor) {
 					size_t predecessor_item;
@@ -404,8 +403,7 @@ static void ielr_compute_annotation_lists(bitsetv follow_kernel_items, bitsetv a
 	{
 		InadequacyListNodeCount inadequacy_list_node_count = 0;
 		for(state_number i = 0; i < nstates; ++i)
-			AnnotationList__compute_from_inadequacies(
-				states[i], follow_kernel_items, always_follows, predecessors,
+			AnnotationList__compute_from_inadequacies(states[i], follow_kernel_items, always_follows, predecessors,
 				item_lookahead_sets, *inadequacy_listsp, *annotation_listsp,
 				annotation_counts, &max_contributions, annotations_obstackp,
 				&inadequacy_list_node_count);
@@ -419,16 +417,12 @@ static void ielr_compute_annotation_lists(bitsetv follow_kernel_items, bitsetv a
 	if(trace_flag & trace_ielr) {
 		for(state_number i = 0; i < nstates; ++i) {
 			fprintf(stderr, "Inadequacy annotations for state %d:\n", i);
-			AnnotationList__debug((*annotation_listsp)[i],
-			    states[i]->nitems, 2);
+			AnnotationList__debug((*annotation_listsp)[i], states[i]->nitems, 2);
 		}
 		fprintf(stderr, "Number of LR(0)/LALR(1) states: %d\n", nstates);
-		fprintf(stderr, "Average number of annotations per state: %f\n",
-		    (float)total_annotations/nstates);
-		fprintf(stderr, "Max number of annotations per state: %d\n",
-		    *max_annotationsp);
-		fprintf(stderr, "Max number of contributions per annotation: %d\n",
-		    max_contributions);
+		fprintf(stderr, "Average number of annotations per state: %f\n", (float)total_annotations/nstates);
+		fprintf(stderr, "Max number of annotations per state: %d\n", *max_annotationsp);
+		fprintf(stderr, "Max number of contributions per annotation: %d\n", max_contributions);
 	}
 	for(state_number i = 0; i < nstates; ++i)
 		if(item_lookahead_sets[i]) {
@@ -469,9 +463,7 @@ typedef struct state_list {
  *   - \c follow_set contains the follow set for the goto on nonterminal \c n
  *     in state \c s based on the lookaheads stored in <tt>s->lookaheads</tt>.
  */
-static void ielr_compute_goto_follow_set(bitsetv follow_kernel_items,
-    bitsetv always_follows, state_list * s,
-    sym_content * n, bitset follow_set)
+static void ielr_compute_goto_follow_set(bitsetv follow_kernel_items, bitsetv always_follows, state_list * s, sym_content * n, bitset follow_set)
 {
 	goto_number n_goto = map_goto(s->lr0Isocore->state->number, n->number);
 	bitset_copy(follow_set, always_follows[n_goto]);
@@ -500,8 +492,7 @@ static void ielr_compute_goto_follow_set(bitsetv follow_kernel_items,
  *       inherit from \c s token \c j into the lookahead set of item \c i.
  */
 static void ielr_compute_lookaheads(bitsetv follow_kernel_items, bitsetv always_follows,
-    state_list * s, state * t, bitsetv lookahead_filter,
-    bitsetv lookaheads)
+    state_list * s, state * t, bitsetv lookahead_filter, bitsetv lookaheads)
 {
 	size_t s_item = 0;
 	bitsetv_zero(lookaheads);
@@ -513,13 +504,10 @@ static void ielr_compute_lookaheads(bitsetv follow_kernel_items, bitsetv always_
 		   a special case to avoid the - 2 below, but the next successor can be
 		   handled fine without special casing it.  */
 		aver(t->items[t_item] != 0);
-		if(t->items[t_item] > 1
-		    && !bitset_empty_p(lookahead_filter[t_item])) {
+		if(t->items[t_item] > 1 && !bitset_empty_p(lookahead_filter[t_item])) {
 			if(item_number_is_rule_number(ritem[t->items[t_item] - 2]))
-				ielr_compute_goto_follow_set(
-					follow_kernel_items, always_follows, s,
-					item_rule(&ritem[t->items[t_item]])->lhs,
-					lookaheads[t_item]);
+				ielr_compute_goto_follow_set(follow_kernel_items, always_follows, s,
+					item_rule(&ritem[t->items[t_item]])->lhs, lookaheads[t_item]);
 			else if(s->lookaheads) {
 				/* We don't have to start the s item search at the beginning
 				   every time because items from both states are sorted by their
@@ -587,33 +575,23 @@ static void ielr_compute_state(bitsetv follow_kernel_items, bitsetv always_follo
 		if(annotation_lists) {
 			AnnotationIndex ai;
 			AnnotationList * a;
-			for(ai = 0, a = annotation_lists[lr0_isocore->state->number];
-			    a;
-			    ++ai, a = a->next)
-				work1[ai] =
-				    AnnotationList__computeDominantContribution(
-					a, lr0_isocore->state->nitems, lookaheads, false);
+			for(ai = 0, a = annotation_lists[lr0_isocore->state->number]; a; ++ai, a = a->next)
+				work1[ai] = AnnotationList__computeDominantContribution(a, lr0_isocore->state->nitems, lookaheads, false);
 		}
-		for(this_isocorep = &t->state_list;
-		    this_isocorep == &t->state_list || *this_isocorep != t->state_list;
-		    this_isocorep = &(*this_isocorep)->nextIsocore) {
+		for(this_isocorep = &t->state_list; this_isocorep == &t->state_list || *this_isocorep != t->state_list; this_isocorep = &(*this_isocorep)->nextIsocore) {
 			if(!(*this_isocorep)->recomputedAsSuccessor)
 				break;
 			if(annotation_lists) {
 				AnnotationIndex ai;
 				AnnotationList * a;
-				for(ai = 0, a = annotation_lists[lr0_isocore->state->number];
-				    a;
-				    ++ai, a = a->next) {
+				for(ai = 0, a = annotation_lists[lr0_isocore->state->number]; a; ++ai, a = a->next) {
 					if(work1[ai] != ContributionIndex__none) {
 						/* This isocore compatibility test depends on the fact
 						   that, if the dominant contributions are the same for the
 						   two isocores, then merging their lookahead sets will not
 						   produce a state with a different dominant contribution.
 						 */
-						ContributionIndex ci =
-						    AnnotationList__computeDominantContribution(
-							a, lr0_isocore->state->nitems,
+						ContributionIndex ci = AnnotationList__computeDominantContribution(a, lr0_isocore->state->nitems,
 							(*this_isocorep)->lookaheads, false);
 						if(ci != ContributionIndex__none && work1[ai] != ci)
 							break;
@@ -625,15 +603,13 @@ static void ielr_compute_state(bitsetv follow_kernel_items, bitsetv always_follo
 			else {
 				size_t i;
 				for(i = 0; i < t->nitems; ++i) {
-					if(!(*this_isocorep)->lookaheads
-					    || !(*this_isocorep)->lookaheads[i]) {
+					if(!(*this_isocorep)->lookaheads || !(*this_isocorep)->lookaheads[i]) {
 						if(!bitset_empty_p(lookaheads[i]))
 							break;
 					}
 					/* bitset_equal_p uses the size of the first argument,
 					   so lookaheads[i] must be the second argument.  */
-					else if(!bitset_equal_p((*this_isocorep)->lookaheads[i],
-					    lookaheads[i]))
+					else if(!bitset_equal_p((*this_isocorep)->lookaheads[i], lookaheads[i]))
 						break;
 				}
 				if(i == t->nitems)
@@ -648,14 +624,11 @@ static void ielr_compute_state(bitsetv follow_kernel_items, bitsetv always_follo
 			has_lookaheads = true;
 			break;
 		}
-
 	/* Merge with an existing isocore.  */
 	if(this_isocorep == &t->state_list || *this_isocorep != t->state_list) {
 		bool new_lookaheads = false;
 		*tp = (*this_isocorep)->state;
-
-		/* Merge lookaheads into the state and record whether any of them are
-		   actually new.  */
+		// Merge lookaheads into the state and record whether any of them are actually new.
 		if(has_lookaheads) {
 			if(!(*this_isocorep)->lookaheads) {
 				(*this_isocorep)->lookaheads = (bitset *)xnmalloc(t->nitems, sizeof(*this_isocorep)->lookaheads);
@@ -665,12 +638,9 @@ static void ielr_compute_state(bitsetv follow_kernel_items, bitsetv always_follo
 			for(size_t i = 0; i < t->nitems; ++i)
 				if(!bitset_empty_p(lookaheads[i])) {
 					if(!(*this_isocorep)->lookaheads[i])
-						(*this_isocorep)->lookaheads[i] =
-						    bitset_create(ntokens, BITSET_FIXED);
-					bitset_andn(lookaheads[i],
-					    lookaheads[i], (*this_isocorep)->lookaheads[i]);
-					bitset_or((*this_isocorep)->lookaheads[i],
-					    lookaheads[i], (*this_isocorep)->lookaheads[i]);
+						(*this_isocorep)->lookaheads[i] = bitset_create(ntokens, BITSET_FIXED);
+					bitset_andn(lookaheads[i], lookaheads[i], (*this_isocorep)->lookaheads[i]);
+					bitset_or((*this_isocorep)->lookaheads[i], lookaheads[i], (*this_isocorep)->lookaheads[i]);
 					if(!bitset_empty_p(lookaheads[i]))
 						new_lookaheads = true;
 				}
@@ -890,7 +860,6 @@ static void ielr_split_states(bitsetv follow_kernel_items, bitsetv always_follow
 			}
 		timevar_pop(tv_ielr_phase4);
 	}
-
 	/* Free state list.  */
 	while(first_state) {
 		state_list * node = first_state;
@@ -905,39 +874,33 @@ static void ielr_split_states(bitsetv follow_kernel_items, bitsetv always_follow
 	}
 }
 
-void ielr(void)
+void ielr()
 {
 	LrType lr_type = lr_type_get();
-
 	/* Phase 0: LALR(1).  */
-	switch(lr_type)
-	{
+	switch(lr_type) {
 		case LR_TYPE__LR0:
 		    timevar_push(tv_lalr);
 		    set_goto_map();
 		    timevar_pop(tv_lalr);
 		    return;
-
 		case LR_TYPE__CANONICAL_LR:
 		    timevar_push(tv_lalr);
 		    set_goto_map();
 		    timevar_pop(tv_lalr);
 		    break;
-
 		case LR_TYPE__LALR:
 		    timevar_push(tv_lalr);
 		    lalr();
 		    bitsetv_free(goto_follows);
 		    timevar_pop(tv_lalr);
 		    return;
-
 		case LR_TYPE__IELR:
 		    timevar_push(tv_lalr);
 		    lalr();
 		    timevar_pop(tv_lalr);
 		    break;
 	}
-
 	{
 		bitsetv follow_kernel_items;
 		bitsetv always_follows;
@@ -945,24 +908,18 @@ void ielr(void)
 		AnnotationList ** annotation_lists = NULL;
 		struct obstack annotations_obstack;
 		AnnotationIndex max_annotations = 0;
-
 		{
 			/* Phase 1: Compute Auxiliary Tables.  */
 			state *** predecessors;
 			timevar_push(tv_ielr_phase1);
-			ielr_compute_auxiliary_tables(
-				&follow_kernel_items, &always_follows,
-				lr_type == LR_TYPE__CANONICAL_LR ? NULL : &predecessors);
+			ielr_compute_auxiliary_tables(&follow_kernel_items, &always_follows, lr_type == LR_TYPE__CANONICAL_LR ? NULL : &predecessors);
 			timevar_pop(tv_ielr_phase1);
-
 			/* Phase 2: Compute Annotations.  */
 			timevar_push(tv_ielr_phase2);
 			if(lr_type != LR_TYPE__CANONICAL_LR) {
 				obstack_init(&annotations_obstack);
 				ielr_compute_annotation_lists(follow_kernel_items, always_follows,
-				    predecessors, &max_annotations,
-				    &inadequacy_lists, &annotation_lists,
-				    &annotations_obstack);
+				    predecessors, &max_annotations, &inadequacy_lists, &annotation_lists, &annotations_obstack);
 				for(state_number i = 0; i < nstates; ++i)
 					SAlloc::F(predecessors[i]);
 				SAlloc::F(predecessors);
@@ -971,13 +928,11 @@ void ielr(void)
 			}
 			timevar_pop(tv_ielr_phase2);
 		}
-
 		/* Phase 3: Split States.  */
 		timevar_push(tv_ielr_phase3);
 		{
 			state_number nstates_lr0 = nstates;
-			ielr_split_states(follow_kernel_items, always_follows,
-			    annotation_lists, max_annotations);
+			ielr_split_states(follow_kernel_items, always_follows, annotation_lists, max_annotations);
 			if(inadequacy_lists)
 				for(state_number i = 0; i < nstates_lr0; ++i)
 					InadequacyList__delete(inadequacy_lists[i]);
@@ -990,7 +945,6 @@ void ielr(void)
 		bitsetv_free(always_follows);
 		timevar_pop(tv_ielr_phase3);
 	}
-
 	/* Phase 4: Compute Reduction Lookaheads.  */
 	timevar_push(tv_ielr_phase4);
 	SAlloc::F(goto_map);

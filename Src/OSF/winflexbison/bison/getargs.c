@@ -20,34 +20,10 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include "getargs.h"
-//#include <argmatch.h>
-#include <c-strcase.h>
-//#include <configmake.h>
-//#include <error.h>
-#include <getopt.h>
-#include <progname.h>
-//#include <quote.h>
-#include <textstyle.h>
-//#include "complain.h"
-//#include "files.h"
-//#include "muscle-tab.h"
-//#include "output.h"
-//#include "uniqstr.h"
-
-bool defines_flag = false;
-bool graph_flag = false;
-bool xml_flag = false;
-bool no_lines_flag = false;
-bool token_table_flag = false;
-Location yacc_loc = EMPTY_LOCATION_INIT;
-bool update_flag = false; /* for -u */
-bool color_debug = false;
-bool nondeterministic_parser = false;
-bool glr_parser = false;
-int feature_flag = feature_caret;
-int report_flag = report_none;
-int trace_flag = trace_none;
+//#include <c-strcase.h>
+//#include <getopt.h>
+//#include <progname.h>
+//#include <textstyle.h>
 
 static struct bison_language const valid_languages[] = {
 	/* lang,  skeleton,       ext,     hdr,     add_tab */
@@ -58,10 +34,23 @@ static struct bison_language const valid_languages[] = {
 	{ "", "", "", "", false }
 };
 
-int skeleton_prio = default_prio;
-const char * skeleton = NULL;
-int language_prio = default_prio;
-struct bison_language const * language = &valid_languages[0];
+bool   defines_flag = false; // @global
+bool   graph_flag = false; // @global
+bool   xml_flag = false; // @global
+bool   no_lines_flag = false; // @global
+bool   token_table_flag = false; // @global
+bool   update_flag = false; /* for -u */ // @global
+bool   color_debug = false; // @global
+bool   nondeterministic_parser = false; // @global
+bool   glr_parser = false; // @global
+int    feature_flag = feature_caret; // @global
+int    report_flag = report_none; // @global
+int    trace_flag = trace_none; // @global
+int    skeleton_prio = default_prio; // @global
+int    language_prio = default_prio; // @global
+const  char * skeleton = NULL; // @global
+struct bison_language const * language = &valid_languages[0]; // @global
+Location yacc_loc = EMPTY_LOCATION_INIT; // @global
 
 typedef int * (xargmatch_fn)(const char * context, const char * arg);
 
@@ -147,16 +136,14 @@ enum color {
 
 ARGMATCH_DEFINE_GROUP(color, enum color)
 
-static const argmatch_color_doc argmatch_color_docs[] =
-{
+static const argmatch_color_doc argmatch_color_docs[] = {
 	{ "always",     N_("colorize the output") },
 	{ "never",      N_("don't colorize the output") },
 	{ "auto",       N_("colorize if the output device is a tty") },
 	{ NULL, NULL },
 };
 
-static const argmatch_color_arg argmatch_color_args[] =
-{
+static const argmatch_color_arg argmatch_color_args[] = {
 	{ "always",   color_always },
 	{ "yes",      color_always },
 	{ "never",    color_never },
@@ -166,8 +153,7 @@ static const argmatch_color_arg argmatch_color_args[] =
 	{ NULL, color_always },
 };
 
-const argmatch_color_group_type argmatch_color_group =
-{
+const argmatch_color_group_type argmatch_color_group = {
 	argmatch_color_args,
 	argmatch_color_docs,
 	/* TRANSLATORS: Use the same translation for WHEN as in the
@@ -182,8 +168,7 @@ const argmatch_color_group_type argmatch_color_group =
 
 ARGMATCH_DEFINE_GROUP(report, enum report)
 
-static const argmatch_report_doc argmatch_report_docs[] =
-{
+static const argmatch_report_doc argmatch_report_docs[] = {
 	{ "states",          N_("describe the states") },
 	{ "itemsets",        N_("complete the core item sets with their closure") },
 	{ "lookaheads",      N_("explicitly associate lookahead tokens to items") },
@@ -194,8 +179,7 @@ static const argmatch_report_doc argmatch_report_docs[] =
 	{ NULL, NULL },
 };
 
-static const argmatch_report_arg argmatch_report_args[] =
-{
+static const argmatch_report_arg argmatch_report_args[] = {
 	{ "none",            report_none },
 	{ "states",          report_states },
 	{ "itemsets",        (argmatch_report_type)(report_states | report_itemsets) },
@@ -207,8 +191,7 @@ static const argmatch_report_arg argmatch_report_args[] =
 	{ NULL, report_none },
 };
 
-const argmatch_report_group_type argmatch_report_group =
-{
+const argmatch_report_group_type argmatch_report_group = {
 	argmatch_report_args,
 	argmatch_report_docs,
 	/* TRANSLATORS: Use the same translation for THINGS as in the
@@ -223,8 +206,7 @@ const argmatch_report_group_type argmatch_report_group =
 
 ARGMATCH_DEFINE_GROUP(trace, enum trace)
 
-static const argmatch_trace_doc argmatch_trace_docs[] =
-{
+static const argmatch_trace_doc argmatch_trace_docs[] = {
 	/* Meant for developers only, don't translate them.  */
 	{ "none",       "no traces" },
 	{ "locations",  "full display of the locations" },
@@ -379,10 +361,8 @@ Diagnostics:\n\
 
 		warning_usage(stdout);
 		putc('\n', stdout);
-
 		argmatch_color_usage(stdout);
 		putc('\n', stdout);
-
 		fputs(_(
 			    "\
 Tuning the Parser:\n\
@@ -437,8 +417,7 @@ Output Files:\n\
 			   form one of the URLs at http://translationproject.org/team/.
 			   Otherwise, replace the entire URL with your translation team's
 			   email address.  */
-			fputs(_("Report translation bugs to "
-			    "<http://translationproject.org/team/>.\n"), stdout);
+			fputs(_("Report translation bugs to <http://translationproject.org/team/>.\n"), stdout);
 #endif
 		fputs(_("For complete documentation, run: info bison.\n"), stdout);
 	}
@@ -452,23 +431,13 @@ Output Files:\n\
 
 static void version(void)
 {
-	/* Some efforts were made to ease the translators' task, please
-	   continue.  */
+	// Some efforts were made to ease the translators' task, please continue.
 	printf(_("bison (GNU Bison) %s"), VERSION);
 	putc('\n', stdout);
 	fputs(_("Written by Robert Corbett and Richard Stallman.\n"), stdout);
 	putc('\n', stdout);
-
-	fprintf(stdout,
-	    _("Copyright (C) %d Free Software Foundation, Inc.\n"),
-	    PACKAGE_COPYRIGHT_YEAR);
-
-	fputs(_(
-		    "\
-This is free software; see the source for copying conditions.  There is NO\n\
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"),
-	    stdout);
+	fprintf(stdout, _("Copyright (C) %d Free Software Foundation, Inc.\n"), PACKAGE_COPYRIGHT_YEAR);
+	fputs(_("This is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"), stdout);
 }
 
 /*-------------------------------------.
@@ -636,84 +605,70 @@ void getargs(int argc, char * argv[])
 	int c;
 	while((c = getopt_long(argc, argv, short_options, long_options, NULL)) != -1) {
 		Location loc = command_line_location();
-		switch(c)
-		{
+		switch(c) {
 			/* ASCII Sorting for short options (i.e., upper case then
 			   lower case), and then long-only options.  */
-
-			case 0:
-			    /* Certain long options cause getopt_long to return 0.  */
+			case 0: /* Certain long options cause getopt_long to return 0.  */
 			    break;
-
 			case 'D': /* -DNAME[=(VALUE|"VALUE"|{VALUE})]. */
 			case 'F': /* -FNAME[=(VALUE|"VALUE"|{VALUE})]. */
-		    {
-			    char * name = optarg;
-			    char * value = strchr(optarg, '=');
-			    muscle_kind kind = muscle_keyword;
-			    if(value) {
-				    char * end = value + strlen(value) - 1;
-				    *value++ = 0;
-				    if(*value == '{' && *end == '}') {
-					    kind = muscle_code;
-					    ++value;
-					    *end = 0;
-				    }
-				    else if(*value == '"' && *end == '"') {
-					    kind = muscle_string;
-					    ++value;
-					    *end = 0;
-				    }
-			    }
-			    muscle_percent_define_insert(name, loc,
-				kind, value ? value : "",
-				c == 'D' ? MUSCLE_PERCENT_DEFINE_D
-				: MUSCLE_PERCENT_DEFINE_F);
-		    }
-		    break;
-
+				{
+					char * name = optarg;
+					char * value = strchr(optarg, '=');
+					muscle_kind kind = muscle_keyword;
+					if(value) {
+						char * end = value + strlen(value) - 1;
+						*value++ = 0;
+						if(*value == '{' && *end == '}') {
+							kind = muscle_code;
+							++value;
+							*end = 0;
+						}
+						else if(*value == '"' && *end == '"') {
+							kind = muscle_string;
+							++value;
+							*end = 0;
+						}
+					}
+					muscle_percent_define_insert(name, loc,
+					kind, value ? value : "",
+					c == 'D' ? MUSCLE_PERCENT_DEFINE_D : MUSCLE_PERCENT_DEFINE_F);
+				}
+				break;
 			case 'L':
 			    language_argmatch(optarg, command_line_prio, loc);
 			    break;
-
 			case 'M': // -MOLDPREFIX=NEWPREFIX
-		    {
-			    char * newprefix = strchr(optarg, '=');
-			    if(newprefix) {
-				    *newprefix = '\0';
-				    add_prefix_map(optarg, newprefix + 1);
-			    }
-			    else {
-				    complain(&loc, complaint, _("invalid argument for %s: %s"),
-					quote("--file-prefix-map"), quotearg_n(1, optarg));
-			    }
-		    }
-		    break;
-
+				{
+					char * newprefix = strchr(optarg, '=');
+					if(newprefix) {
+						*newprefix = '\0';
+						add_prefix_map(optarg, newprefix + 1);
+					}
+					else {
+						complain(&loc, complaint, _("invalid argument for %s: %s"),
+						quote("--file-prefix-map"), quotearg_n(1, optarg));
+					}
+				}
+				break;
 			case 'S':
 			    skeleton_arg(optarg, command_line_prio, loc);
 			    break;
-
 			case 'T':
 			    FLAGS_ARGMATCH(trace, optarg, trace_all);
 			    break;
-
 			case 'V':
 			    version();
 			    exit(EXIT_SUCCESS);
-
 			case 'f':
 			    FLAGS_ARGMATCH(feature, optarg, feature_all);
 			    break;
-
 			case 'W':
 			    warnings_argmatch(optarg);
 			    break;
-
 			case 'b':
 			    spec_file_prefix = optarg;
 			    break;
-
 			case 'd':
 			    /* Here, the -d and --defines options are differentiated.  */
 			    defines_flag = true;
@@ -722,7 +677,6 @@ void getargs(int argc, char * argv[])
 				    spec_header_file = xstrdup(optarg);
 			    }
 			    break;
-
 			case 'g':
 			    graph_flag = true;
 			    if(optarg) {
@@ -730,43 +684,33 @@ void getargs(int argc, char * argv[])
 				    spec_graph_file = xstrdup(optarg);
 			    }
 			    break;
-
 			case 'h':
 			    usage(EXIT_SUCCESS);
-
 			case 'k':
 			    token_table_flag = true;
 			    break;
-
 			case 'l':
 			    no_lines_flag = true;
 			    break;
-
 			case 'o':
 			    spec_outfile = optarg;
 			    break;
-
 			case 'p':
 			    spec_name_prefix = optarg;
 			    break;
-
 			case 'r':
 			    FLAGS_ARGMATCH(report, optarg, report_all);
 			    break;
-
 			case 't':
 			    muscle_percent_define_insert("parse.trace", loc, muscle_keyword, "", MUSCLE_PERCENT_DEFINE_D);
 			    break;
-
 			case 'u':
 			    update_flag = true;
 			    feature_flag |= feature_syntax_only;
 			    break;
-
 			case 'v':
 			    report_flag |= report_states;
 			    break;
-
 			case 'x':
 			    xml_flag = true;
 			    if(optarg) {
@@ -774,47 +718,35 @@ void getargs(int argc, char * argv[])
 				    spec_xml_file = xstrdup(optarg);
 			    }
 			    break;
-
 			case 'y':
 			    warning_argmatch("yacc", 0, 0);
 			    yacc_loc = loc;
 			    break;
-
-			case COLOR_OPTION:
-			    /* Handled in getargs_colors. */
+			case COLOR_OPTION: /* Handled in getargs_colors. */
 			    break;
-
 			case FIXED_OUTPUT_FILES_OPTION:
 			    complain(&loc, Wdeprecated, _("deprecated option: %s, use %s"), quote("--fixed-output-files"), quote_n(1, "-o y.tab.c"));
 			    spec_outfile = "y.tab.c";
 			    break;
-
 			case LOCATIONS_OPTION:
 			    muscle_percent_define_ensure("locations", loc, true);
 			    break;
-
 			case PRINT_LOCALEDIR_OPTION:
 			    printf("%s\n", LOCALEDIR);
 			    exit(EXIT_SUCCESS);
-
 			case PRINT_DATADIR_OPTION:
 			    printf("%s\n", pkgdatadir());
 			    exit(EXIT_SUCCESS);
-
 			case REPORT_FILE_OPTION:
 			    SAlloc::F(spec_verbose_file);
 			    spec_verbose_file = xstrdup(optarg);
 			    break;
-
-			case STYLE_OPTION:
-			    /* Handled in getargs_colors. */
+			case STYLE_OPTION: /* Handled in getargs_colors. */
 			    break;
-
 			default:
 			    usage(EXIT_FAILURE);
 		}
 	}
-
 	if(argc - optind != 1) {
 		if(argc - optind < 1)
 			error(0, 0, _("missing operand"));
@@ -822,7 +754,6 @@ void getargs(int argc, char * argv[])
 			error(0, 0, _("extra operand %s"), quote(argv[optind + 1]));
 		usage(EXIT_FAILURE);
 	}
-
 	grammar_file = uniqstr_new(argv[optind]);
 	MUSCLE_INSERT_C_STRING("file_name", grammar_file);
 }

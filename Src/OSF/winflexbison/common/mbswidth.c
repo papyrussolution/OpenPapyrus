@@ -18,7 +18,6 @@
 
 #include <flexbison_common.h>
 #pragma hdrstop
-#include "mbswidth.h" /* Specification.  */
 
 extern int wcwidth(wchar_t wc);
 

@@ -21,7 +21,6 @@
 #ifndef _TIMEVAR_H
 #define _TIMEVAR_H 1
 
-//#include <stdio.h>
 #include "xtime.h"
 
 # ifdef  __cplusplus
