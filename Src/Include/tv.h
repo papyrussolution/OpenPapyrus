@@ -8,9 +8,7 @@
 #include <tvdefs.h>
 #include <commctrl.h>
 #include <db.h>
-
-// @v9.8.12 #define _TURBOVISION
-// @v9.8.12 #define USE_CAIRO
+#include <layout-flex.h> // @v10.9.3 @construction
 
 class  TView;
 class  TGroup;
@@ -23,15 +21,9 @@ class  TBaseBrowserWindow;
 class  TCanvas;
 class  TCanvas2;
 class  WordSelector;
-class  SrDatabase; // @v9.2.0
+class  SrDatabase;
 struct TDrawItemData;
 class  TWhatman;
-
-// @v9.2.0 typedef int ccIndex;
-// @v9.2.0 typedef bool (*ccTestFunc)(void *, void *);
-// @v9.2.0 typedef void (*ccAppFunc)(void *, void *);
-// @v9.2.0 const int ccNotFound = -1;
-// @v9.2.0 TRect makeCenterRect(int w, int h);
 //
 //
 //
@@ -1981,13 +1973,16 @@ public:
 
 	~TWindowBase();
 	int    Create(void * hParentWnd, long createOptions);
-	int    AddChild(TWindowBase *, long createOptions, long zone);
+	int    AddChild(TWindowBase * pChildWindow, long createOptions, long zone);
+	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout); // @v10.9.3
 protected:
+	static void __stdcall SetupLayoutItemFrame(LayoutFlexItem * pItem, float size[4]); // @v10.9.3
 	TWindowBase(LPCTSTR pWndClsName, int capability);
 	DECL_HANDLE_EVENT;
-	int    SetDefaultCursor();
+	void   SetDefaultCursor();
 
-	SRectLayout Layout;
+	SRectLayout Layout_Obsolete;
+	LayoutFlexItem * P_Lfc; // @v10.9.3 @construction
 	SPaintToolBox Tb;
 	TScrollBlock Sb;
 private:
@@ -2226,7 +2221,7 @@ public:
 	~TWhatmanToolArray();
 	TWhatmanToolArray & Init();
 	int    SetParam(const Param &);
-	int    GetParam(Param &) const;
+	void   GetParam(Param &) const;
 	uint   GetCount() const;
 	int    Set(Item & rItem, uint * pPos);
 	int    Remove(uint pos);

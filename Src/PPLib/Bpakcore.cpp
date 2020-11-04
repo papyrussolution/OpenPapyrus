@@ -524,7 +524,7 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 int PPFreight::IsEmpty() const
 {
 	return BIN(!ShipID && !AgentID && Name[0] == 0 && !PortOfDischarge &&
-		!PortOfLoading && !CaptainID && !DlvrAddrID && !ArrivalDate && Cost == 0.0 && !StorageLocID || !Captain2ID); // @v10.9.2 Captain2ID
+		!PortOfLoading && !CaptainID && !DlvrAddrID && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID); // @v10.9.2 Captain2ID
 }
 
 int FASTCALL PPFreight::IsEqual(const PPFreight & s) const

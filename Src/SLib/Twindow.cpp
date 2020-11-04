@@ -1186,8 +1186,22 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		return -1;
 }
 
+/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(LayoutFlexItem * pItem, float size[4]) // @v10.9.3
+{
+	if(pItem && pItem->managed_ptr) {
+		TView * p_view = static_cast<TView *>(pItem->managed_ptr);
+		TRect b;
+		b.a.x = static_cast<int16>(size[0]);
+		b.a.y = static_cast<int16>(size[1]);
+		b.b.x = static_cast<int16>(size[0]+size[2]);
+		b.b.y = static_cast<int16>(size[0]+size[3]);
+		p_view->changeBounds(b);
+		//p_view->setBounds(b);
+	}
+}
+
 TWindowBase::TWindowBase(LPCTSTR pWndClsName, int capability) : ClsName(SUcSwitch(pWndClsName)), 
-	TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0)
+	TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0), P_Lfc(0)
 {
 }
 
@@ -1202,6 +1216,22 @@ TWindowBase::~TWindowBase()
 			HW = 0;
 		}
 	}
+	// @v10.9.3 {
+	if(P_Lfc) {
+		uint i = SVector::GetCount(P_Lfc->P_Parent);
+		if(i) do {
+			LayoutFlexItem * p_item = P_Lfc->P_Parent->at(--i);
+			if(p_item == P_Lfc) {
+				P_Lfc->P_Parent->atFree(i);
+				P_Lfc = 0;
+				break;
+			}
+		} while(i);
+		if(P_Lfc) {
+			ZDELETE(P_Lfc);
+		}
+	}
+	// } @v10.9.3 
 }
 
 int TWindowBase::Create(void * hParentWnd, long createOptions)
@@ -1273,14 +1303,39 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 	if(pWin) {
 		pWin->Create(HW, createOptions);
 		if(zone)
-			Layout.InsertWindow(zone, pWin, 0, 0);
+			Layout_Obsolete.InsertWindow(zone, pWin, 0, 0);
 		TWindow::Insert_(pWin);
-		Layout.Arrange();
+		Layout_Obsolete.Arrange();
 		::ShowWindow(pWin->H(), SW_SHOWNORMAL);
 		::UpdateWindow(H());
 	}
 	return ok;
 }
+
+// @v10.9.3 {
+int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout) 
+{
+	int    ok = 1;
+	if(pChildWindow) {
+		pChildWindow->Create(HW, createOptions);
+		TWindow::Insert_(pChildWindow);
+		//Layout_Obsolete.Arrange();
+		if(pLayout) {
+			assert(P_Lfc);
+			if(P_Lfc) {
+				pChildWindow->P_Lfc = static_cast<LayoutFlexItem *>(pLayout);
+				pChildWindow->P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
+				flex_item_add(P_Lfc, pChildWindow->P_Lfc);
+				pChildWindow->P_Lfc->managed_ptr = pChildWindow;
+				DoLayoutFlex(P_Lfc->GetRoot());
+			}
+		}
+		::ShowWindow(pChildWindow->H(), SW_SHOWNORMAL);
+		::UpdateWindow(H());
+	}
+	return ok;
+}
+// } @v10.9.3 
 
 IMPL_HANDLE_EVENT(TWindowBase)
 {
@@ -1315,16 +1370,32 @@ IMPL_HANDLE_EVENT(TWindowBase)
 		if(TVINFOPTR) {
 			if(event.isCmd(cmInit)) {
 				//CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
-				Layout.SetContainerBounds(getClientRect());
+				const TRect cr = getClientRect();
+				Layout_Obsolete.SetContainerBounds(cr);
+				// @v10.9.3 {
+				if(P_Lfc && !P_Lfc->P_Parent) {
+					P_Lfc->width = static_cast<float>(cr.width());
+					P_Lfc->height = static_cast<float>(cr.height());
+					DoLayoutFlex(P_Lfc);
+				}
+				// } @v10.9.3 
 			}
 			else if(event.isCmd(cmSetBounds)) {
 				const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOREDRAW);
+				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
 				clearEvent(event);
 			}
 			else if(event.isCmd(cmSize)) {
 				//SizeEvent * p_se = static_cast<SizeEvent *>(TVINFOPTR);
-				Layout.SetContainerBounds(getClientRect());
+				const TRect cr = getClientRect();
+				Layout_Obsolete.SetContainerBounds(cr);
+				// @v10.9.3 {
+				if(P_Lfc && !P_Lfc->P_Parent) {
+					P_Lfc->width = static_cast<float>(cr.width());
+					P_Lfc->height = static_cast<float>(cr.height());
+					DoLayoutFlex(P_Lfc);
+				}
+				// } @v10.9.3 
 				invalidateAll(1);
 				::UpdateWindow(H());
 			}
@@ -1332,10 +1403,9 @@ IMPL_HANDLE_EVENT(TWindowBase)
 	}
 }
 
-int TWindowBase::SetDefaultCursor()
+void TWindowBase::SetDefaultCursor()
 {
 	::SetCursor(::LoadCursor(0, IDC_ARROW));
-	return 1;
 }
 
 void TWindowBase::RegisterMouseTracking(int force)

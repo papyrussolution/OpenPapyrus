@@ -1,9 +1,9 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
 
 #define SECUREXTRAPARAMSIGN 0xABCDEF07
 
@@ -39,6 +39,8 @@ int PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	THROW_SL(pSCtx->Serialize(dir, BaseRateTypeID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, DesktopID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, MenuID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DesktopUuid, rBuf)); // @v10.9.3
+	THROW_SL(pSCtx->Serialize(dir, MenuUuid, rBuf));    // @v10.9.3
 	CATCHZOK
 	return ok;
 }
@@ -84,7 +86,7 @@ PPObjSecur::ExtraParam & PPObjSecur::ExtraParam::operator = (const PPObjSecur::E
 {
     Type = rS.Type;
     ParentID = rS.ParentID;
-	SampleID = rS.SampleID; // @v9.8.4
+	SampleID = rS.SampleID;
     Flags = rS.Flags;
     return *this;
 }
@@ -111,8 +113,8 @@ int PPObjSecur::AssignImages(ListBoxDef * pDef)
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
-			PPSecur rec;
-			MEMSZERO(rec);
+			PPSecur2 rec;
+			// @v10.9.3 @ctr MEMSZERO(rec);
 			for(uint i = 0; i < list.getCount(); i++) {
 				const  PPID id = list.get(i);
 				long   img_id = 0;
@@ -243,12 +245,11 @@ int PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 			const PPCommandItem * p_item = 0;
 			PPCommandGroup desktop_list;
 			PPCommandGroup desktop_list_from_bin;
-			//PPCommandMngr * p_mgr = PPDesktop::LoadDeskList(1, &desk_list); // @erik v10.6.7
 			PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);// @erik v10.6.7
 			if(p_mgr) {
 				CurDict->GetDbSymb(db_symb);
 // @erik v10.6.7 {
-				p_mgr->Load__2(&desktop_list, PPCommandMngr::fRWByXml);
+				p_mgr->Load__2(&desktop_list, db_symb, PPCommandMngr::fRWByXml);
 				p_item = desktop_list.SearchByName(desk_name, db_symb, 0);
 				if(!p_item) {
 					p_mgr->Load__(&desktop_list_from_bin);
@@ -311,7 +312,7 @@ int PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * p
 		}
 		if(ok < 0) {
 			//
-			// Åñëè ïîëüçîâàòåëü íå èìååò ñîáñòâåííîé êîíôèãóðàöèè, òî çàïèñûâàåì ÷àñòíóþ êîíôèãóðàöèþ
+			// Ð•ÑÐ»Ð¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ðµ Ð¸Ð¼ÐµÐµÑ‚ ÑÐ¾Ð±ÑÑ‚Ð²ÐµÐ½Ð½Ð¾Ð¹ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸, Ñ‚Ð¾ Ð·Ð°Ð¿Ð¸ÑÑ‹Ð²Ð°ÐµÐ¼ Ñ‡Ð°ÑÑ‚Ð½ÑƒÑŽ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸ÑŽ
 			//
 			int    r;
 			SString desk_name;
@@ -335,7 +336,7 @@ int PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * p
 int PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
-	if(msg == DBMSG_OBJDELETE)
+	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_CONFIG && Obj == PPOBJ_USRGRP) {
 			ReferenceTbl::Key2 k;
 			k.ObjType = Obj;
@@ -347,8 +348,9 @@ int PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				ok = DBRPL_ERROR;
 		}
 		else if(_obj == PPOBJ_USRGRP && Obj == PPOBJ_USR) {
-			ok = DBRPL_OK; // @todo Îáðàáîòàòü ñîáûòèå
+			ok = DBRPL_OK; // @todo ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ñ‚ÑŒ ÑÐ¾Ð±Ñ‹Ñ‚Ð¸Ðµ
 		}
+	}
 	return ok;
 }
 
@@ -383,7 +385,7 @@ int PPObjSecur::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 					}
 				}
 				else {
-					// Ïîêà èçìåíåíèå äåëàòü íå áóäåì
+					// ÐŸÐ¾ÐºÐ° Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ Ð´ÐµÐ»Ð°Ñ‚ÑŒ Ð½Ðµ Ð±ÑƒÐ´ÐµÐ¼
 				}
 			}
 		}
@@ -700,7 +702,7 @@ int PPObjSecur::ProcessReservedItem(TVRez & rez)
 	}
 	if(r < 0) {
 		PPSecur secur;
-		MEMSZERO(secur);
+		// @v10.9.3 @ctr MEMSZERO(secur);
 		secur.Tag = Obj;
 		secur.ID  = id;
 		STRNSCPY(secur.Name, name);
@@ -810,11 +812,10 @@ int PPALDD_User::InitData(PPFilt & rFilt, long rsrv)
 		if(sec_obj.Fetch(rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			STRNSCPY(H.Name, rec.Name);
-			STRNSCPY(H.Symb, rec.Symb); // @v9.5.2
-			H.PersonID = rec.PersonID; // @v9.5.2
+			STRNSCPY(H.Symb, rec.Symb);
+			H.PersonID = rec.PersonID;
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}
 	return ok;
 }
-

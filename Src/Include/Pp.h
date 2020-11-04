@@ -3058,6 +3058,8 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   BaseRateTypeID; // 84  Базовый тип валютного курса (PPOBJ_CONFIG only)
 	long   DesktopID;      // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
 	long   MenuID;         // 92  Идентификатор меню, используемого пользователем (группой)
+	S_GUID DesktopUuid;    // @v10.9.3 @construction
+	S_GUID MenuUuid;       // @v10.9.3 @construction
 };
 //
 // Descr: Частная конфигурация, привязанная к конкретному пользователю.
@@ -3068,7 +3070,9 @@ struct PPConfigPrivate {   // @persistent @store(PropertyTbl)
 	long   Tag;            // Const=PPOBJ_USR
 	long   ObjID;          // ->Ref(PPOBJ_USR)
 	long   PropID;         // Const=PPPRP_CFGPRIVATE
-	char   Reserve[60];    // @reserve
+	char   Reserve[28];    // @reserve // @v10.9.3 [60]-->[28]
+	S_GUID DesktopUuid;    // @v10.9.3
+	S_GUID MenuUuid;       // @v10.9.3 
 	long   DesktopID;      // Идентификатор рабочего стола, испольуемого пользователем
 	long   Reserve2[2];    // @reserve
 	char   Tail[1024];     //
@@ -3813,6 +3817,7 @@ typedef int (* ObjFilterProc)(void *, void * extraPtr);
 #define PPEXCLRT_DRAFTWROFFROLLBACK  0x0040
 
 struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
+	PPSecur2();
 	long   Tag;            // Const={PPOBJ_USR | PPOBJ_USRGRP}
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -15241,8 +15246,8 @@ struct RegisterFilt : public PPBaseFilt {
     virtual int IsEmpty() const;
 
 	uint8  ReserveStart[20]; // @anchor
-	PPObjID Oid;             // @v9.0.4
-	PPID   ExclLocID;        // @v8.3.6
+	PPObjID Oid;             // 
+	PPID   ExclLocID;        // 
 	PPID   ExclPersonID;
 	PPID   RegTypeID;
 	DateRange RegPeriod;
@@ -15466,7 +15471,7 @@ public:
 	int    Save__(const PPCommandGroup *);
 	int    Load__(PPCommandGroup *);
 	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
-	int    Load__2(PPCommandGroup *, const long rwFlag); // @erik v10.6.1
+	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1
 	int    SaveFromAllTo(const long rwFlag); // @erik v10.7.1
 	int    ConvertDesktopTo(const long rwFlag); //@erik v10.7.4
 	int    DeleteDesktopByGUID(const SString &guid, const long rwFlag);
@@ -15482,7 +15487,7 @@ private:
 		uint32 Locking;
 	};
 	SString XmlDirPath;
-	SFile  F;
+	SFile  F_Obsolete; // @v10.9.3 F-->F_Obsolete
 	int    ReadOnly;
 };
 
@@ -46050,10 +46055,8 @@ private:
 		SString MachineName;
 	};
 	static int ParseUfpLine(StringSet & rSs, SString & rTempBuf, int kind, PPUserProfileCore::UfpLine & rItem);
-
 	int    WriteState(int use_ta);
 	int    ReadState();
-
 	int    SetupSessItem(long * pSessID, const UfpLine & rLine, long funcId = 0);
 	int    OpenInputFile(const char * pFileName, int64 offset, SFile & rF);
 	int    AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec & rRec, const UfpLine & rLine);
@@ -46185,7 +46188,50 @@ private:
 	JobFilt Filt;
 	PPJobMngr Mngr;
 	PPJobPool * P_Pool;
+};
+//
+//
+//
+class UserMenuFilt : public PPBaseFilt {
+public:
+	UserMenuFilt();
+	enum {
+		kMenu = 1,
+		kDesktop = 2
+	};
+	uint8  ReserveStart[64]; // @anchor
+	long   Kind;
+	long   Flags;
+	long   Reserve;          // @anchor
+	SString DbSymb;
+};
 
+struct UserMenuViewItem { // @flat
+	PPID   ID;
+	S_GUID Uuid;
+	long   Kind;
+	char   DbSymb[64];
+	char   Name[128];
+};
+
+class PPViewUserMenu : public PPView {
+public:
+	struct BrwItem : public UserMenuViewItem { // @flat
+	};
+	PPViewUserMenu();
+	~PPViewUserMenu();
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeList(PPViewBrowser * pBrw);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	UserMenuFilt Filt;
+	SArray * P_DsList;
+	PPCommandGroup * P_MenuList;
+	PPCommandGroup * P_DesktopList;
 };
 //
 // @ModuleDecl(PPMail)

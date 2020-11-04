@@ -1990,8 +1990,7 @@ int SCS_SHTRIHFRF::SetupTables()
 		if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 			temp_buf = sec_rec.Name;
 	}
-	// @v9.2.1 PPGetWord(PPWORD_CASHIER, 0, cshr_str);
-	PPLoadString("cashier", cshr_str); // @v9.2.1
+	PPLoadString("cashier", cshr_str);
 	cshr_str.Space().Cat(temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 	// Получаем пароль кассира
 	THROW(ReadValueFromTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_PSSW, &cshr_pssw));

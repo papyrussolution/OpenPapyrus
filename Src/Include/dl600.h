@@ -575,6 +575,8 @@ struct CtmToken {
 		DLSYMBID ID;
 		char * S;
 		S_GUID_Base Uuid;
+		int    I2[2]; // @v10.9.1
+		int    I4[4]; // @v10.9.1
 	} U;
 };
 
@@ -694,6 +696,25 @@ struct CtmFuncDclr {
 	void   Destroy();
 
 	DlFunc * P_Fn;
+};
+//
+//
+//
+struct CtmProperty {
+	void   Init();
+	void   Destroy();
+	int    Copy(const CtmProperty & rS);
+
+	CtmToken Key;
+	CtmToken Value;
+};
+
+struct CtmPropertySheet {
+	void   Init();
+	void   Destroy();
+	int    Add(const CtmProperty & rItem);
+
+	TSCollection <CtmProperty> * P_List;
 };
 
 class DlMacro {

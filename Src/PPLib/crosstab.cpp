@@ -1,11 +1,10 @@
 // CROSSTAB.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 Crosstab::CalcSummaryBlock::CalcSummaryBlock(int dir)
 {
 	THISZERO();
@@ -60,9 +59,9 @@ double Crosstab::Summary::GetValue(uint lineNo, uint ctValPos, uint aggrPos)
 					p_item->List.insert(temp_buf);
 				} while(ctValPos >= p_item->List.getCount());
 			}
-			const uint8 * ptr = (uint8 *)p_item->List.at(ctValPos);
+			const uint8 * ptr = static_cast<const uint8 *>(p_item->List.at(ctValPos));
 			if(ptr)
-				return ((double *)(ptr+ExtSize))[aggrPos];
+				return reinterpret_cast<const double *>(ptr+ExtSize)[aggrPos];
 		}
 	}
 	return 0.0;
@@ -280,16 +279,16 @@ int Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STypArray 
 int Crosstab::CreateTable()
 {
 	/*
-	Структура результирующей кросс-таблицы следующая:
+	РЎС‚СЂСѓРєС‚СѓСЂР° СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµР№ РєСЂРѕСЃСЃ-С‚Р°Р±Р»РёС†С‹ СЃР»РµРґСѓСЋС‰Р°СЏ:
 		autolong CTID;
-		Поля, заданные в списке IdxFldList, копируемые из исходной таблицы;
-		Поля, заданные в списке InhFldList, копируемые из исходной таблицы;
-		Поля, заданные в списке FixFldList
-		Список кросс-таб-полей (по AggrFldList.GetCount() на каждое табулируемое значение)
-			Наименования имеют следующую форму: CTFxxyy, где xx - номер табулированного значения,
-			yy - номер поля в списке AggrFldList;
-		GetTotalColsCount() итоговых поля //
-			Наименования имеют следующую форму: CTFTyy, где yy - номер поля в списке AggrFldList;
+		РџРѕР»СЏ, Р·Р°РґР°РЅРЅС‹Рµ РІ СЃРїРёСЃРєРµ IdxFldList, РєРѕРїРёСЂСѓРµРјС‹Рµ РёР· РёСЃС…РѕРґРЅРѕР№ С‚Р°Р±Р»РёС†С‹;
+		РџРѕР»СЏ, Р·Р°РґР°РЅРЅС‹Рµ РІ СЃРїРёСЃРєРµ InhFldList, РєРѕРїРёСЂСѓРµРјС‹Рµ РёР· РёСЃС…РѕРґРЅРѕР№ С‚Р°Р±Р»РёС†С‹;
+		РџРѕР»СЏ, Р·Р°РґР°РЅРЅС‹Рµ РІ СЃРїРёСЃРєРµ FixFldList
+		РЎРїРёСЃРѕРє РєСЂРѕСЃСЃ-С‚Р°Р±-РїРѕР»РµР№ (РїРѕ AggrFldList.GetCount() РЅР° РєР°Р¶РґРѕРµ С‚Р°Р±СѓР»РёСЂСѓРµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ)
+			РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РёРјРµСЋС‚ СЃР»РµРґСѓСЋС‰СѓСЋ С„РѕСЂРјСѓ: CTFxxyy, РіРґРµ xx - РЅРѕРјРµСЂ С‚Р°Р±СѓР»РёСЂРѕРІР°РЅРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ,
+			yy - РЅРѕРјРµСЂ РїРѕР»СЏ РІ СЃРїРёСЃРєРµ AggrFldList;
+		GetTotalColsCount() РёС‚РѕРіРѕРІС‹С… РїРѕР»СЏ //
+			РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РёРјРµСЋС‚ СЃР»РµРґСѓСЋС‰СѓСЋ С„РѕСЂРјСѓ: CTFTyy, РіРґРµ yy - РЅРѕРјРµСЂ РїРѕР»СЏ РІ СЃРїРёСЃРєРµ AggrFldList;
 		? long CTIX if(SortIdxList.getCount() && GetTotalRowsCount())
 	*/
 	int    ok = 1;
@@ -323,8 +322,8 @@ int Crosstab::CreateTable()
 		}
 	}
 	if(SortIdxList.getCount() && GetTotalRowsCount()) {
-		P_RTbl->AddField("CTIX", MKSTYPE(S_INT, 4)); // Поле, используемое как часть
-			// сортирующего индекса для смещения итоговых строк в них таблицы просмотра
+		P_RTbl->AddField("CTIX", MKSTYPE(S_INT, 4)); // РџРѕР»Рµ, РёСЃРїРѕР»СЊР·СѓРµРјРѕРµ РєР°Рє С‡Р°СЃС‚СЊ
+			// СЃРѕСЂС‚РёСЂСѓСЋС‰РµРіРѕ РёРЅРґРµРєСЃР° РґР»СЏ СЃРјРµС‰РµРЅРёСЏ РёС‚РѕРіРѕРІС‹С… СЃС‚СЂРѕРє РІ РЅРёС… С‚Р°Р±Р»РёС†С‹ РїСЂРѕСЃРјРѕС‚СЂР°
 		Flags |= fHasExtSortField;
 	}
 	{
@@ -815,7 +814,7 @@ int Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDataBuf,
 		uint   aggr_flds_count = AggrFldList.GetCount();
 		long   type_id = AggrFldList.Get(aggrFldN).stype();
 		uint   i;
-		size_t sz = sizeof(double); // Так как на данный момент все аггрегированные поля имеют тип double GETSSIZE(type_id);
+		size_t sz = sizeof(double); // РўР°Рє РєР°Рє РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РІСЃРµ Р°РіРіСЂРµРіРёСЂРѕРІР°РЅРЅС‹Рµ РїРѕР»СЏ РёРјРµСЋС‚ С‚РёРї double GETSSIZE(type_id);
 		size_t offs = sizeof(long);
 		for(i = 0; i < idx_flds_count; i++)
 			offs += GETSSIZE(IdxFldList.Get(i).stype());
@@ -823,7 +822,7 @@ int Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDataBuf,
 			offs += GETSSIZE(InhFldList.Get(i).stype());
 		for(i = 0; i < fix_flds_count; i++)
 			offs += GETSSIZE(FixFldList[i].T);
-		offs += (tabIdx * aggr_flds_count + aggrFldN) * sizeof(double); // Так как на данный момент все агрегированные поля имеют тип double
+		offs += (tabIdx * aggr_flds_count + aggrFldN) * sizeof(double); // РўР°Рє РєР°Рє РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РІСЃРµ Р°РіСЂРµРіРёСЂРѕРІР°РЅРЅС‹Рµ РїРѕР»СЏ РёРјРµСЋС‚ С‚РёРї double
 		if(pBuf)
 			memcpy(pBuf, PTR8C(pDataBuf)+offs, MIN(sz, bufSize));
 		ok = 1;
@@ -841,7 +840,7 @@ int Crosstab::SetAggrFieldVal(uint tabIdx, uint aggrFldN, void * pBuf, const voi
 		uint fix_flds_count  = FixFldList.getCount();
 		uint aggr_flds_count = AggrFldList.GetCount();
 		long   type_id = AggrFldList.Get(aggrFldN).stype();
-		size_t sz = sizeof(double); // Так как на данный момент все аггрегированные поля имеют тип double GETSSIZE(type_id);
+		size_t sz = sizeof(double); // РўР°Рє РєР°Рє РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РІСЃРµ Р°РіРіСЂРµРіРёСЂРѕРІР°РЅРЅС‹Рµ РїРѕР»СЏ РёРјРµСЋС‚ С‚РёРї double GETSSIZE(type_id);
 		size_t offs = sizeof(long);
 		for(uint i = 0; i < idx_flds_count; i++)
 			offs += GETSSIZE(IdxFldList.Get(i).stype());
@@ -849,7 +848,7 @@ int Crosstab::SetAggrFieldVal(uint tabIdx, uint aggrFldN, void * pBuf, const voi
 			offs += GETSSIZE(InhFldList.Get(i).stype());
 		for(i = 0; i < fix_flds_count; i++)
 			offs += GETSSIZE(FixFldList[i].type);
-		offs += (tabIdx * aggr_flds_count + aggrFldN) * sizeof(double); // Так как на данный момент все аггрегированные поля имеют тип double
+		offs += (tabIdx * aggr_flds_count + aggrFldN) * sizeof(double); // РўР°Рє РєР°Рє РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РІСЃРµ Р°РіРіСЂРµРіРёСЂРѕРІР°РЅРЅС‹Рµ РїРѕР»СЏ РёРјРµСЋС‚ С‚РёРї double
 		if(pBuf)
 			memcpy(PTR8(pBuf)+offs, pData, MIN(sz, bufSize));
 		ok = 1;

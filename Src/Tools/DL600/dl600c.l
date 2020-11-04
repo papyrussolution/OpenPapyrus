@@ -124,6 +124,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "treelistbox"     { return TOKEN.Create(T_TREELISTBOX); }
 "columns"         { return TOKEN.Create(T_COLUMNS); }
 "descript"        { return TOKEN.Create(T_DESCRIPT); }
+"layout"          { return TOKEN.Create(T_LAYOUT); } // @v10.9.3
 {IDENT}     {
 	DLSYMBID symb_id = 0;
 	if(DCtx.GetMacro(yytext, MacroSubst))

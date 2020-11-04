@@ -1292,7 +1292,7 @@ int GcCalcDialog::setupFormulaCombo()
 		uint   idx = 0;
 		PPGdsClsFormula form;
 		THROW(p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify));
-		for(int i = 1; i <= (int)GcPack.FormulaList.getCount(); i++)
+		for(int i = 1; i <= GcPack.FormulaList.getCountI(); i++)
 			if(GcPack.GetFormula(i, &form) > 0) {
 				p_lw->listBox()->addItem(i, form.Name);
 				if(form.Flags & PPGdsClsFormula::fDefault)

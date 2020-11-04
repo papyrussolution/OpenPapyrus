@@ -506,6 +506,7 @@
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_editmenus",						cmEditMenus
 			MENUITEM "@cmd_editmenusfromfile",				cmEditMenusFromFile
+			MENUITEM "@cmd_usermenu",                       cmUserMenu
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_editpaintcloths",                cmEditPaintCloths
 		}

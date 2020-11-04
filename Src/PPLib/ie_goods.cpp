@@ -457,9 +457,10 @@ int PPObjGoods::ImportQuot(const char * pCfgName, int use_ta)
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(GOODS2, PPGoodsImpExpParam);
 
-PPGoodsImpExpParam::PPGoodsImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPGoodsImpExpParam::PPGoodsImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags),
+	AccSheetID(0), SupplID(0), DefUnitID(0), PhUnitID(0), DefParentID(0), RcptOpID(0),
+	Flags(0), LocID(0), MatrixAction(0)
 {
-	Clear();
 }
 
 void PPGoodsImpExpParam::Clear()
@@ -473,7 +474,7 @@ void PPGoodsImpExpParam::Clear()
 	Flags         = 0;
 	LocID         = 0;
 	MatrixAction  = 0;
-	SubCode = 0;
+	SubCode.Z();
 }
 
 /*virtual*/int PPGoodsImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
@@ -797,7 +798,6 @@ int SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 			}
 		#endif
 		// } конец
-		// @v9.5.10 {
 		THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_IEGOODS))));
 		SetupStrAssocCombo(dlg, CTLSEL_IEGOODS_CFG, &list, id, 0, 0, 0);
 		SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
@@ -816,19 +816,6 @@ int SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 			else
 				PPError(PPERR_INVGOODSIMPEXPCFG);
 		}
-		// } @v9.5.10
-		/* @v9.5.10
-		while(!valid_data && ListBoxSelDialog(&list, import ? PPTXT_TITLE_GOODSIMPCFG : PPTXT_TITLE_GOODSEXPCFG, &id, 0) > 0) {
-			if(id) {
-				list.Get(id, sect.Z());
-				pParam->ProcessName(1, sect);
-				pParam->ReadIni(&ini_file, sect, 0);
-				valid_data = ok = 1;
-			}
-			else
-				PPError(PPERR_INVGOODSIMPEXPCFG);
-		}
-		*/
 	}
 	CATCHZOK
 	delete dlg;
@@ -1020,7 +1007,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			if(parent_id) {
 				PPGoodsPacket grp_pack;
 				if(P_GObj->GetPacket(parent_id, &grp_pack, PPObjGoods::gpoSkipQuot) > 0) {
-					sdr_goods.GrpID = grp_pack.Rec.ID; // @v7.9.1
+					sdr_goods.GrpID = grp_pack.Rec.ID;
 					STRNSCPY(sdr_goods.GrpName, grp_pack.Rec.Name);
 					grp_pack.GetGroupCode(temp_buf);
 					STRNSCPY(sdr_goods.GrpCode, temp_buf);
@@ -1157,6 +1144,13 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
             gcp.GoodsID = pPack->Rec.ID;
 			gcp.LocID = Param.LocID;
 			gcp.Qtty = 1.0;
+			// @v10.9.3 {
+			{
+				gcp.Price = sdr_goods.Price;
+				gcp.Cost = sdr_goods.Cost;
+				gcp.Flags |= (gcp.fCostSettled|gcp.fPriceSettled);
+			}
+			// } @v10.9.3 
 			GoodsContext ctx(gcp);
 			P_IEGoods->SetExprContext(&ctx);
 			THROW(P_IEGoods->AppendRecord(&sdr_goods, sizeof(sdr_goods)));

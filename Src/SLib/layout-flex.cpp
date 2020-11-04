@@ -38,7 +38,7 @@ FLEX_ATTRIBUTE(managed_ptr, void *, NULL)\
 /* during layout and which can customize the dimensions (width and height) of the item.*/\
 FLEX_ATTRIBUTE(self_sizing, flex_self_sizing, NULL)
 
-LayoutFlexItem::LayoutFlexItem() : P_Parent(0), should_order_children(false), managed_ptr(0), self_sizing(0),
+LayoutFlexItem::LayoutFlexItem() : P_Parent(0), should_order_children(false), managed_ptr(0), CbSelfSizing(0), CbSetup(0),
 	width(fgetnanf()), height(fgetnanf()), left(fgetnanf()), right(fgetnanf()), top(fgetnanf()), bottom(fgetnanf()),
 	padding_left(0.0f), padding_right(0.0f), padding_top(0.0f), padding_bottom(0.0f),
 	margin_left(0.0f), margin_right(0.0f), margin_top(0.0f), margin_bottom(0.0f),
@@ -104,10 +104,7 @@ LayoutFlexItem * flex_item_new()
 	return p_item;
 }
 
-void flex_item_free(LayoutFlexItem * pItem)
-{
-	delete pItem;
-}
+//void flex_item_free(LayoutFlexItem * pItem) { delete pItem; }
 
 static void child_set(LayoutFlexItem * item, LayoutFlexItem * pChild)
 {
@@ -136,7 +133,7 @@ void flex_item_delete(LayoutFlexItem * pItem, uint index)
 	pItem->atFree(index);
 }
 
-uint flex_item_count(LayoutFlexItem * item) { return item->getCount(); }
+//uint flex_item_count(LayoutFlexItem * item) { return item->getCount(); }
 
 LayoutFlexItem * flex_item_child(LayoutFlexItem * item, uint index)                    
 {
@@ -144,18 +141,15 @@ LayoutFlexItem * flex_item_child(LayoutFlexItem * item, uint index)
 	return item->at(index);
 }
 
-LayoutFlexItem * flex_item_parent(LayoutFlexItem * item)                    
-{
-	return item->P_Parent;
-}
+LayoutFlexItem * flex_item_parent(LayoutFlexItem * item) { return item->P_Parent; }
 
-LayoutFlexItem * flex_item_root(LayoutFlexItem * item)                    
+/*LayoutFlexItem * flex_item_root(LayoutFlexItem * item)                    
 {
 	while(item->P_Parent) {
 		item = item->P_Parent;
 	}
 	return item;
-}
+}*/
 
 #define FRAME_GETTER(name, index) float flex_item_get_frame_ ## name(LayoutFlexItem * item) { return item->frame[index]; }
 	FRAME_GETTER(x, 0)
@@ -214,7 +208,7 @@ struct LayoutFlex {
 	float lines_sizes;
 };
 
-static void layout_init(LayoutFlexItem * item, float width, float height, struct LayoutFlex * layout)
+static void layout_init(LayoutFlexItem * item, float width, float height, LayoutFlex * layout)
 {
 	assert(item->padding_left >= 0.0f);
 	assert(item->padding_right >= 0.0f);
@@ -294,15 +288,13 @@ static void layout_init(LayoutFlexItem * item, float width, float height, struct
 	layout->lines_sizes = 0;
 }
 
-static void layout_cleanup(struct LayoutFlex * layout)
+static void layout_cleanup(LayoutFlex * pLayout)
 {
-	if(layout->ordered_indices != NULL) {
-		ZFREE(layout->ordered_indices);
+	if(pLayout) {
+		ZFREE(pLayout->ordered_indices);
+		ZFREE(pLayout->P_Lines);
+		pLayout->lines_count = 0;
 	}
-	if(layout->P_Lines) {
-		ZFREE(layout->P_Lines);
-	}
-	layout->lines_count = 0;
 }
 
 /*#define LAYOUT_RESET() \
@@ -320,9 +312,7 @@ static void layout_cleanup(struct LayoutFlex * layout)
 #define CHILD_POS2(child) _LAYOUT_FRAME(child, pos2)
 #define CHILD_SIZE(child) _LAYOUT_FRAME(child, size)
 #define CHILD_SIZE2(child) _LAYOUT_FRAME(child, size2)
-
-#define CHILD_MARGIN(child, if_vertical, if_horizontal) \
-	(layout->vertical ? child->margin_ ## if_vertical : child->margin_ ## if_horizontal)
+#define CHILD_MARGIN(child, if_vertical, if_horizontal) (layout->vertical ? child->margin_ ## if_vertical : child->margin_ ## if_horizontal)
 
 static void layout_item(LayoutFlexItem * item, float width, float height);
 
@@ -374,109 +364,107 @@ static bool layout_align(flex_align align, float flex_dim, uint children_count, 
 static flex_align child_align(LayoutFlexItem * child, LayoutFlexItem * parent)
 {
 	flex_align align = child->align_self;
-	if(align == FLEX_ALIGN_AUTO) {
+	if(align == FLEX_ALIGN_AUTO)
 		align = parent->align_items;
-	}
 	return align;
 }
 
-static void layout_items(LayoutFlexItem * item, uint child_begin, uint child_end, uint children_count, struct LayoutFlex * layout)
+static void layout_items(LayoutFlexItem * item, uint child_begin, uint child_end, uint children_count, LayoutFlex * layout)
 {
 	assert(children_count <= (child_end - child_begin));
-	if(children_count <= 0) {
-		return;
-	}
-	if(layout->flex_dim > 0 && layout->extra_flex_dim > 0) {
-		// If the container has a positive flexible space, let's add to it
-		// the sizes of all flexible children.
-		layout->flex_dim += layout->extra_flex_dim;
-	}
-	// Determine the main axis initial position and optional spacing.
-	float pos = 0.0f;
-	float spacing = 0.0f;
-	if(layout->flex_grows == 0 && layout->flex_dim > 0) {
-		assert(layout_align(item->justify_content, layout->flex_dim, children_count, &pos, &spacing, false) && "incorrect justify_content");
+	if(children_count > 0) {
+		if(layout->flex_dim > 0 && layout->extra_flex_dim > 0) {
+			// If the container has a positive flexible space, let's add to it
+			// the sizes of all flexible children.
+			layout->flex_dim += layout->extra_flex_dim;
+		}
+		// Determine the main axis initial position and optional spacing.
+		float pos = 0.0f;
+		float spacing = 0.0f;
+		if(layout->flex_grows == 0 && layout->flex_dim > 0) {
+			assert(layout_align(item->justify_content, layout->flex_dim, children_count, &pos, &spacing, false) && "incorrect justify_content");
+			if(layout->reverse)
+				pos = layout->size_dim - pos;
+		}
 		if(layout->reverse)
-			pos = layout->size_dim - pos;
-	}
-	if(layout->reverse)
-		pos -= layout->vertical ? item->padding_bottom : item->padding_right;
-	else 
-		pos += layout->vertical ? item->padding_top : item->padding_left;
-	if(layout->wrap && layout->reverse2) {
-		layout->pos2 -= layout->line_dim;
-	}
-	for(uint i = child_begin; i < child_end; i++) {
-		LayoutFlexItem * child = LAYOUT_CHILD_AT(item, i);
-		if(child->position == FLEX_POSITION_ABSOLUTE) {
-			continue; // Already positioned.
+			pos -= layout->vertical ? item->padding_bottom : item->padding_right;
+		else 
+			pos += layout->vertical ? item->padding_top : item->padding_left;
+		if(layout->wrap && layout->reverse2) {
+			layout->pos2 -= layout->line_dim;
 		}
-		// Grow or shrink the main axis item size if needed.
-		float flex_size = 0.0f;
-		if(layout->flex_dim > 0.0f) {
-			if(child->grow != 0.0f) {
-				CHILD_SIZE(child) = 0; // Ignore previous size when growing.
-				flex_size = (layout->flex_dim / layout->flex_grows) * child->grow;
+		for(uint i = child_begin; i < child_end; i++) {
+			LayoutFlexItem * child = LAYOUT_CHILD_AT(item, i);
+			if(child->position == FLEX_POSITION_ABSOLUTE) {
+				continue; // Already positioned.
 			}
-		}
-		else if(layout->flex_dim < 0.0f) {
-			if(child->shrink != 0) {
-				flex_size = (layout->flex_dim / layout->flex_shrinks) * child->shrink;
+			// Grow or shrink the main axis item size if needed.
+			float flex_size = 0.0f;
+			if(layout->flex_dim > 0.0f) {
+				if(child->grow != 0.0f) {
+					CHILD_SIZE(child) = 0; // Ignore previous size when growing.
+					flex_size = (layout->flex_dim / layout->flex_grows) * child->grow;
+				}
 			}
+			else if(layout->flex_dim < 0.0f) {
+				if(child->shrink != 0) {
+					flex_size = (layout->flex_dim / layout->flex_shrinks) * child->shrink;
+				}
+			}
+			CHILD_SIZE(child) += flex_size;
+			// Set the cross axis position (and stretch the cross axis size if needed).
+			float align_size = CHILD_SIZE2(child);
+			float align_pos = layout->pos2 + 0.0f;
+			switch(child_align(child, item)) {
+				case FLEX_ALIGN_END:
+					align_pos += layout->line_dim - align_size - CHILD_MARGIN(child, right, bottom);
+					break;
+				case FLEX_ALIGN_CENTER:
+					align_pos += (layout->line_dim / 2) - (align_size / 2) + (CHILD_MARGIN(child, left, top) - CHILD_MARGIN(child, right, bottom));
+					break;
+				case FLEX_ALIGN_STRETCH:
+					if(align_size == 0) {
+						CHILD_SIZE2(child) = layout->line_dim - (CHILD_MARGIN(child, left, top) + CHILD_MARGIN(child, right, bottom));
+					}
+				// fall through
+				case FLEX_ALIGN_START:
+					align_pos += CHILD_MARGIN(child, left, top);
+					break;
+				default:
+					assert(false && "incorrect align_self");
+			}
+			CHILD_POS2(child) = align_pos;
+			// Set the main axis position.
+			if(layout->reverse) {
+				pos -= CHILD_MARGIN(child, bottom, right);
+				pos -= CHILD_SIZE(child);
+				CHILD_POS(child) = pos;
+				pos -= spacing;
+				pos -= CHILD_MARGIN(child, top, left);
+			}
+			else {
+				pos += CHILD_MARGIN(child, top, left);
+				CHILD_POS(child) = pos;
+				pos += CHILD_SIZE(child);
+				pos += spacing;
+				pos += CHILD_MARGIN(child, bottom, right);
+			}
+			// Now that the item has a frame, we can layout its children.
+			layout_item(child, child->frame[2], child->frame[3]);
 		}
-		CHILD_SIZE(child) += flex_size;
-		// Set the cross axis position (and stretch the cross axis size if needed).
-		float align_size = CHILD_SIZE2(child);
-		float align_pos = layout->pos2 + 0.0f;
-		switch(child_align(child, item)) {
-			case FLEX_ALIGN_END:
-			    align_pos += layout->line_dim - align_size - CHILD_MARGIN(child, right, bottom);
-			    break;
-			case FLEX_ALIGN_CENTER:
-			    align_pos += (layout->line_dim / 2) - (align_size / 2) + (CHILD_MARGIN(child, left, top) - CHILD_MARGIN(child, right, bottom));
-			    break;
-			case FLEX_ALIGN_STRETCH:
-			    if(align_size == 0) {
-				    CHILD_SIZE2(child) = layout->line_dim - (CHILD_MARGIN(child, left, top) + CHILD_MARGIN(child, right, bottom));
-			    }
-			// fall through
-			case FLEX_ALIGN_START:
-			    align_pos += CHILD_MARGIN(child, left, top);
-			    break;
-			default:
-			    assert(false && "incorrect align_self");
+		if(layout->wrap && !layout->reverse2) {
+			layout->pos2 += layout->line_dim;
 		}
-		CHILD_POS2(child) = align_pos;
-		// Set the main axis position.
-		if(layout->reverse) {
-			pos -= CHILD_MARGIN(child, bottom, right);
-			pos -= CHILD_SIZE(child);
-			CHILD_POS(child) = pos;
-			pos -= spacing;
-			pos -= CHILD_MARGIN(child, top, left);
+		if(layout->need_lines) {
+			layout->P_Lines = (LayoutFlex::Line *)SAlloc::R(layout->P_Lines, sizeof(LayoutFlex::Line) * (layout->lines_count + 1));
+			assert(layout->P_Lines != NULL);
+			LayoutFlex::Line * line = &layout->P_Lines[layout->lines_count];
+			line->child_begin = child_begin;
+			line->child_end = child_end;
+			line->size = layout->line_dim;
+			layout->lines_count++;
+			layout->lines_sizes += line->size;
 		}
-		else {
-			pos += CHILD_MARGIN(child, top, left);
-			CHILD_POS(child) = pos;
-			pos += CHILD_SIZE(child);
-			pos += spacing;
-			pos += CHILD_MARGIN(child, bottom, right);
-		}
-		// Now that the item has a frame, we can layout its children.
-		layout_item(child, child->frame[2], child->frame[3]);
-	}
-	if(layout->wrap && !layout->reverse2) {
-		layout->pos2 += layout->line_dim;
-	}
-	if(layout->need_lines) {
-		layout->P_Lines = (LayoutFlex::Line *)SAlloc::R(layout->P_Lines, sizeof(LayoutFlex::Line) * (layout->lines_count + 1));
-		assert(layout->P_Lines != NULL);
-		LayoutFlex::Line * line = &layout->P_Lines[layout->lines_count];
-		line->child_begin = child_begin;
-		line->child_end = child_end;
-		line->size = layout->line_dim;
-		layout->lines_count++;
-		layout->lines_sizes += line->size;
 	}
 }
 
@@ -505,14 +493,14 @@ static void layout_item(LayoutFlexItem * item, float width, float height)
 				child->frame[2] = child_width;
 				child->frame[3] = child_height;
 				// Now that the item has a frame, we can layout its children.
-				layout_item(child, child->frame[2], child->frame[3]);
+				layout_item(child, child->frame[2], child->frame[3]); // @recursion
 	#undef ABSOLUTE_POS
 	#undef ABSOLUTE_SIZE
 				continue;
 			}
 			// Initialize frame.
-			child->frame[0] = 0;
-			child->frame[1] = 0;
+			child->frame[0] = 0.0f;
+			child->frame[1] = 0.0f;
 			child->frame[2] = child->width;
 			child->frame[3] = child->height;
 			// Main axis size defaults to 0.
@@ -522,9 +510,8 @@ static void layout_item(LayoutFlexItem * item, float width, float height)
 			// Cross axis size defaults to the parent's size (or line size in wrap
 			// mode, which is calculated later on).
 			if(fisnanf(CHILD_SIZE2(child))) {
-				if(layout->wrap) {
+				if(layout->wrap)
 					layout->need_lines = true;
-				}
 				else {
 					CHILD_SIZE2(child) = (layout->vertical ? width : height) - CHILD_MARGIN(child, left, top) - CHILD_MARGIN(child, right, bottom);
 				}
@@ -532,9 +519,9 @@ static void layout_item(LayoutFlexItem * item, float width, float height)
 			// Call the self_sizing callback if provided. Only non-NAN values
 			// are taken into account. If the item's cross-axis align property
 			// is set to stretch, ignore the value returned by the callback.
-			if(child->self_sizing != NULL) {
+			if(child->CbSelfSizing) {
 				float size[2] = { child->frame[2], child->frame[3] };
-				child->self_sizing(child, size);
+				child->CbSelfSizing(child, size);
 				for(uint j = 0; j < 2; j++) {
 					uint size_off = j + 2;
 					if(size_off == layout->frame_size2_i && child_align(child, item) == FLEX_ALIGN_STRETCH) {
@@ -548,7 +535,7 @@ static void layout_item(LayoutFlexItem * item, float width, float height)
 			}
 			// Honor the `basis' property which overrides the main-axis size.
 			if(!fisnanf(child->basis)) {
-				assert(child->basis >= 0);
+				assert(child->basis >= 0.0f);
 				CHILD_SIZE(child) = child->basis;
 			}
 			float child_size = CHILD_SIZE(child);
@@ -566,13 +553,13 @@ static void layout_item(LayoutFlexItem * item, float width, float height)
 					layout->line_dim = child_size2;
 				}
 			}
-			assert(child->grow >= 0);
-			assert(child->shrink >= 0);
+			assert(child->grow >= 0.0f);
+			assert(child->shrink >= 0.0f);
 			layout->flex_grows += child->grow;
 			layout->flex_shrinks += child->shrink;
 			layout->flex_dim -= child_size + (CHILD_MARGIN(child, top, left) + CHILD_MARGIN(child, bottom, right));
 			relative_children_count++;
-			if(child_size > 0 && child->grow > 0) {
+			if(child_size > 0 && child->grow > 0.0f) {
 				layout->extra_flex_dim += child_size;
 			}
 		}
@@ -608,8 +595,7 @@ static void layout_item(LayoutFlexItem * item, float width, float height)
 						continue; // Should not be re-positioned.
 					}
 					if(fisnanf(CHILD_SIZE2(child))) {
-						// If the child's cross axis size hasn't been set it, it
-						// defaults to the line size.
+						// If the child's cross axis size hasn't been set it, it defaults to the line size.
 						CHILD_SIZE2(child) = line->size + (item->align_content == FLEX_ALIGN_STRETCH ? spacing : 0);
 					}
 					CHILD_POS2(child) = pos + (CHILD_POS2(child) - old_pos);
@@ -634,11 +620,36 @@ static void layout_item(LayoutFlexItem * item, float width, float height)
 #undef LAYOUT_CHILD_AT
 //#undef LAYOUT_RESET
 
-void DoLayoutFlex(LayoutFlexItem * item)
+static void FASTCALL SetupItem(LayoutFlexItem * pItem)
 {
-	assert(item->P_Parent == NULL);
-	assert(!fisnan(item->width));
-	assert(!fisnan(item->height));
-	assert(item->self_sizing == NULL);
-	layout_item(item, item->width, item->height);
+	if(pItem) {
+		if(pItem->CbSetup) {
+			pItem->CbSetup(pItem, pItem->frame);
+		}
+		for(uint i = 0; i < pItem->getCount(); i++) {
+			SetupItem(pItem->at(i)); // @recursion
+		}
+	}
+}
+
+int DoLayoutFlex(LayoutFlexItem * pItem)
+{
+	int    ok = -1;
+	if(pItem && pItem->getCount()) {
+		if(!pItem->P_Parent && !fisnan(pItem->width) && !fisnan(pItem->height) && !pItem->CbSelfSizing) {
+			assert(pItem->P_Parent == NULL);
+			assert(!fisnan(pItem->width));
+			assert(!fisnan(pItem->height));
+			assert(pItem->CbSelfSizing == NULL);
+			layout_item(pItem, pItem->width, pItem->height);
+			//SetupItem(pItem);
+			{
+				for(uint i = 0; i < pItem->getCount(); i++) {
+					SetupItem(pItem->at(i));
+				}
+			}
+			ok = 1;
+		}
+	}
+	return ok;
 }

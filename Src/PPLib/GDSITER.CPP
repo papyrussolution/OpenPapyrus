@@ -1,5 +1,6 @@
 // GDSITER.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -466,7 +467,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
 		if(Filt.GetBarcodeLenList(len_list) > 0) {
-			// @v8.1.0 (теперь это делает GetListByBarcodeLen) temp_list.clear();
+			// @v8.1.0 (С‚РµРїРµСЂСЊ СЌС‚Рѕ РґРµР»Р°РµС‚ GetListByBarcodeLen) temp_list.clear();
 			THROW(GObj.P_Tbl->GetListByBarcodeLen(&len_list, temp_list));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
@@ -589,8 +590,8 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	}
 	// @v10.6.8 {
 	if(Filt.Flags & Filt.fWoBrand) { 
-		// Индекс по бренду (#3) в таблице Goods2 не содержит нулевых значение, по-этому здесь не получится 
-		// использовать перебор по индексу.
+		// РРЅРґРµРєСЃ РїРѕ Р±СЂРµРЅРґСѓ (#3) РІ С‚Р°Р±Р»РёС†Рµ Goods2 РЅРµ СЃРѕРґРµСЂР¶РёС‚ РЅСѓР»РµРІС‹С… Р·РЅР°С‡РµРЅРёРµ, РїРѕ-СЌС‚РѕРјСѓ Р·РґРµСЃСЊ РЅРµ РїРѕР»СѓС‡РёС‚СЃСЏ 
+		// РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїРµСЂРµР±РѕСЂ РїРѕ РёРЅРґРµРєСЃСѓ.
 		if(P_List) {
 			uint lidx = P_List->getCount();
 			if(lidx) do {
@@ -661,8 +662,8 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 						spot_cls_list.addUnique(goods_rec.GdsClsID);
 				}
 				temp_list.intersect(&spot_cls_list, 0);
-				// @todo Если temp_list содержит более одного класса, то нужен какой-то механизм выбора
-				// конкретного класса для определения набора селекторов.
+				// @todo Р•СЃР»Рё temp_list СЃРѕРґРµСЂР¶РёС‚ Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ РєР»Р°СЃСЃР°, С‚Рѕ РЅСѓР¶РµРЅ РєР°РєРѕР№-С‚Рѕ РјРµС…Р°РЅРёР·Рј РІС‹Р±РѕСЂР°
+				// РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РєР»Р°СЃСЃР° РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РЅР°Р±РѕСЂР° СЃРµР»РµРєС‚РѕСЂРѕРІ.
 				SfClsID = temp_list.getCount() ? temp_list.get(0) : 0;
 			}
 			THROW(P_UhttsPack->GetSelectorListInfo(SfClsID, ExtSfTitleList));

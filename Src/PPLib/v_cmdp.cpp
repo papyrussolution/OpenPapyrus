@@ -661,7 +661,8 @@ public:
 			setSmartListBoxOption(CTL_MENULIST_LIST, lbtSelNotify);
 			addGroup(ctlgroupImg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
 			addGroup(ctlgroupBkgnd, new ColorCtrlGroup(CTL_MENULIST_BKGND, CTLSEL_MENULIST_BKGND, cmSelBkgnd, CTL_MENULIST_SELBKGND));
-			disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0, CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
+			// @v10.9.3 disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0, CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
+			disableCtrls(!CheckRight(PPR_INS), CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L); // @v10.9.3 
 		}
 		else {
 			RECT   rect, img_rect;
@@ -740,9 +741,10 @@ private:
 	int    EditMenu(long id);
 	int    IsMenuUsed(PPID obj, PPID menuID, int isDesktop);
 	int    LoadCfg(long id);
+	int    CheckRight(int rt) const { return (IsMaster || ObjRts.CheckDesktopID(0, rt)); }
 
 	const  int IsMaster;
-	int    IsDesktop;
+	const  int IsDesktop;
 	long   InitID;
 	long   PrevID;
 	SString DbSymb;
@@ -786,11 +788,14 @@ int EditMenusDlg::LoadCfg(long id)
 		}
 	}
 	{
-		const PPRights & r_rt = ObjRts;
-		disableCtrls(!IsMaster && r_rt.CheckDesktopID(0, PPR_INS) == 0,
-			CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L);
-		showCtrl(CTL_MENULIST_ADDIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
-		showCtrl(CTL_MENULIST_DELIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
+		// @v10.9.3 const PPRights & r_rt = ObjRts;
+		/* @v10.9.3 disableCtrls(!IsMaster && r_rt.CheckDesktopID(0, PPR_INS) == 0,
+			CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L);*/
+		disableCtrls(!CheckRight(PPR_INS), CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L); // @v10.9.3
+		// @v10.9.3 showCtrl(CTL_MENULIST_ADDIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
+		showCtrl(CTL_MENULIST_ADDIMG, CheckRight(PPR_INS)); // @v10.9.3
+		// @v10.9.3 showCtrl(CTL_MENULIST_DELIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
+		showCtrl(CTL_MENULIST_DELIMG, CheckRight(PPR_INS));
 	}
 	return 1;
 }
@@ -813,7 +818,8 @@ int EditMenusDlg::setupList()
 int EditMenusDlg::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
-	if(IsMaster || ObjRts.CheckDesktopID(0, PPR_INS)) {
+	// @v10.9.3 if(IsMaster || ObjRts.CheckDesktopID(0, PPR_INS)) {
+	if(CheckRight(PPR_INS)) { // @v10.9.3
 		long   parent_id = 0;
 		SString name;
 		while(ok < 0 && SelectMenu(&parent_id, &name, IsDesktop ? SELTYPE_DESKTOPTEMPL : SELTYPE_MENUTEMPL, &Data) > 0) {
@@ -873,7 +879,8 @@ int EditMenusDlg::addItem(long * pPos, long * pID)
 int EditMenusDlg::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
+	// @v10.9.3 if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
+	if(CheckRight(PPR_MOD)) { // @v10.9.3
 		uint ipos = 0;
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 		PPCommandItem * p_savitem = (p_item && p_item->Kind == PPCommandItem::kGroup) ? p_item->Dup() : 0;
@@ -897,7 +904,8 @@ int EditMenusDlg::delItem(long pos, long id)
 	int    ok = -1;
 	uint   ipos = 0;
 	SString str_guid;
-	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
+	// @v10.9.3 if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
+	if(CheckRight(PPR_MOD)) { // @v10.9.3
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 		if(p_item) {
 			const int is_confirmed = IsDesktop ? CONFIRM(PPCFM_DELDESKTOP) : CONFIRM(PPCFM_DELMENU);
@@ -914,6 +922,7 @@ int EditMenusDlg::delItem(long pos, long id)
 						PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
 						if(p_mgr->DeleteDesktopByGUID(str_guid, PPCommandMngr::fRWByXml))
 							ok = Data.Remove(ipos);
+						delete p_mgr; // @v10.9.3 @fix
 					}
 					// } @erik 
 				}
@@ -984,12 +993,7 @@ int EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		command_group = *pData;
 	else {
 		THROW(p_mgr = GetCommandMngr(0, isDesktop, 0));
-		//if(isDesktop) {
-			THROW(p_mgr->Load__2(&command_group, PPCommandMngr::fRWByXml)); //@erik v10.7.2
-		//}
-		//else {
-		//	THROW(p_mgr->Load__(&command_group));
-		//}
+		THROW(p_mgr->Load__2(&command_group, 0, PPCommandMngr::fRWByXml)); //@erik v10.7.2
 	}
 	p_dlg->setDTS(&command_group);
 	if(ExecView(p_dlg) == cmOK) {
@@ -997,12 +1001,7 @@ int EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		if(pData)
 			*pData = command_group;
 		else {
-			//if(isDesktop) {
-				THROW(p_mgr->Save__2(&command_group, PPCommandMngr::fRWByXml)); //@erik v10.7.2 Save__ => Save__2
-			//}
-			//else {
-			//	THROW(p_mgr->Save__(&command_group));
-			//}
+			THROW(p_mgr->Save__2(&command_group, PPCommandMngr::fRWByXml)); //@erik v10.7.2 Save__ => Save__2
 		}
 		ok = 1;
 	}
@@ -1022,10 +1021,11 @@ int EditMenusFromFile()
 		{
 			THROW(p_mgr = GetCommandMngr(1, 0, path));
 			//THROW(p_mgr->Load__(&menus)); //@erik v10.7.5
-			THROW(p_mgr->Load__2(&menus, PPCommandMngr::fRWByXml));//@erik v10.7.5
+			THROW(p_mgr->Load__2(&menus, 0, PPCommandMngr::fRWByXml)); //@erik v10.7.5
 			ZDELETE(p_mgr);
 		}
-		if((ok = EditMenus(&menus, 0, 0)) > 0) {
+		ok = EditMenus(&menus, 0, 0);
+		if(ok > 0) {
 			THROW(p_mgr = GetCommandMngr(0, 0, path));
 			/*THROW(p_mgr->Save__(&menus));*/ //@erik v10.7.5
 			THROW(p_mgr->Save__2(&menus, PPCommandMngr::fRWByXml)); //@erik v10.7.5
@@ -1172,8 +1172,7 @@ HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 	if(!fromRc && menuID) {
 		PPCommandMngr * p_mgr = GetCommandMngr(1, 0);
 		PPCommandGroup menus;
-		//if(p_mgr && p_mgr->Load__(&menus)>0) { //@erik v10.7.5
-		if(p_mgr && p_mgr->Load__2(&menus, PPCommandMngr::fRWByXml)>0) {//@erik v10.7.5
+		if(p_mgr && p_mgr->Load__2(&menus, 0, PPCommandMngr::fRWByXml)>0) { //@erik v10.7.5
 			const PPCommandItem * p_item = menus.SearchByID(menuID, 0);
 			m = CreateMenu();
 			//p_menu = (p_item && p_item->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_item->Dup()) : 0; //@erik v10.7.5
@@ -1202,7 +1201,7 @@ HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 		HMENU  h_popup = CreateMenu();
 		SString temp_buf;
 		PPLoadStringS("cmd_window", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
-		AppendMenu(m, MF_POPUP | MF_STRING, (UINT)h_popup, SUcSwitch(temp_buf));
+		::AppendMenu(m, MF_POPUP | MF_STRING, (UINT)h_popup, SUcSwitch(temp_buf));
 		UserInterfaceSettings uiset;
 		uiset.Restore();
 		PPLoadStringS("cmd_menutree", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
@@ -1260,4 +1259,183 @@ int MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu)
 	}
 	CATCHZOK
 	return ok;
+}
+//
+//
+//
+IMPLEMENT_PPFILT_FACTORY(UserMenu); UserMenuFilt::UserMenuFilt() : PPBaseFilt(PPFILT_USERMENU, 0, 0)
+{
+	SetFlatChunk(offsetof(UserMenuFilt, ReserveStart),
+		offsetof(UserMenuFilt, Reserve)-offsetof(UserMenuFilt, ReserveStart)+sizeof(Reserve));
+	SetBranchSString(offsetof(UserMenuFilt, DbSymb));
+	Init(1, 0);
+}
+
+PPViewUserMenu::PPViewUserMenu() : PPView(0, &Filt, PPVIEW_USERMENU, implBrowseArray|implDontEditNullFilter, 0), P_DsList(0),
+	P_MenuList(0), P_DesktopList(0)
+{
+}
+
+PPViewUserMenu::~PPViewUserMenu()
+{
+	delete P_DsList;
+	delete P_MenuList;
+	delete P_DesktopList;
+}
+
+/*virtual*/int PPViewUserMenu::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	BExtQuery::ZDelete(&P_IterQuery);
+	Counter.Init();
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int PPViewUserMenu::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	return -1;
+}
+
+int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
+{
+	int    ok = 1;
+	PPTimeSeries item;
+	SString temp_buf;
+	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount());
+	ZDELETE(P_MenuList);
+	ZDELETE(P_DesktopList);
+	if(P_DsList)
+		P_DsList->clear();
+	else
+		P_DsList = new SArray(sizeof(BrwItem));
+	//
+	if(!Filt.Kind || Filt.Kind == Filt.kMenu) {
+		PPCommandMngr * p_mgr = GetCommandMngr(1, 0);
+		if(p_mgr) {
+			P_MenuList = new PPCommandGroup;
+			if(p_mgr->Load__2(P_MenuList, Filt.DbSymb, PPCommandMngr::fRWByXml) > 0) {
+				const PPCommandItem * p_item = 0;
+				for(uint i = 0; (p_item = P_MenuList->Next(&i)) != 0;) {
+					if(p_item->Kind == PPCommandItem::kGroup) {
+						const PPCommandGroup * p_group = static_cast<const PPCommandGroup *>(p_item);
+						BrwItem entry;
+						MEMSZERO(entry);
+						entry.ID = p_group->ID;
+						entry.Uuid = p_group->DeskGuid;
+						entry.Kind = UserMenuFilt::kMenu;
+						STRNSCPY(entry.Name, p_group->Name);
+						STRNSCPY(entry.DbSymb, p_group->DbSymb);
+						P_DsList->insert(&entry);
+					}
+				}
+			}
+			ZDELETE(p_mgr);
+		}
+	}
+	if(!Filt.Kind || Filt.Kind == Filt.kDesktop) {
+		PPCommandMngr * p_mgr = GetCommandMngr(1, 1);
+		if(p_mgr) {
+			P_DesktopList = new PPCommandGroup;
+			if(p_mgr->Load__2(P_DesktopList, Filt.DbSymb, PPCommandMngr::fRWByXml) > 0) {
+				const PPCommandItem * p_item = 0;
+				for(uint i = 0; (p_item = P_DesktopList->Next(&i)) != 0;) {
+					if(p_item->Kind == PPCommandItem::kGroup) {
+						const PPCommandGroup * p_group = static_cast<const PPCommandGroup *>(p_item);
+						BrwItem entry;
+						MEMSZERO(entry);
+						entry.ID = p_group->ID;
+						entry.Uuid = p_group->DeskGuid;
+						entry.Kind = UserMenuFilt::kDesktop;
+						STRNSCPY(entry.Name, p_group->Name);
+						STRNSCPY(entry.DbSymb, p_group->DbSymb);
+						P_DsList->insert(&entry);
+					}
+				}
+			}
+			ZDELETE(p_mgr);
+		}
+	}
+	if(pBrw) {
+		pBrw->Helper_SetAllColumnsSortable();
+		if(is_sorting_needed) {
+			//P_DsList->sort(PTR_CMPFUNC(PPViewTimeSeriesBrwItem), pBrw);
+		}
+	}
+	//CATCHZOK
+	return ok;
+}
+
+int PPViewUserMenu::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+		int    r = 0;
+		/*
+			"ID",           0, int32,        0, 10, BCO_USERPROC
+			"UUID",         1, int32,        0, 10, BCO_USERPROC
+			"Kind",         2, zstring(20),  0, 10, BCO_USERPROC
+			"DbSymb",       3, zstring(48),  0, 10, BCO_USERPROC
+			"Name",         4, zstring(64),  0, 10, BCO_USERPROC
+		*/
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(p_item->ID); break; // @id
+			case 1: // @uuid
+				p_item->Uuid.ToStr(S_GUID::fmtIDL, pBlk->TempBuf);
+				pBlk->Set(pBlk->TempBuf);
+				break; 
+			case 2: // @kind
+				{
+					const char * p_tsign = 0;
+					if(p_item->Kind == UserMenuFilt::kDesktop)
+						pBlk->TempBuf = "desktop";
+					else if(p_item->Kind == UserMenuFilt::kMenu)
+						pBlk->TempBuf = "menu";
+					else
+						pBlk->TempBuf.Z();
+					pBlk->Set(pBlk->TempBuf);
+				}
+				break; 
+			case 3: // dbSymb
+				pBlk->TempBuf = p_item->DbSymb;
+				pBlk->Set(pBlk->TempBuf);
+				break; 
+			case 4: // name
+				pBlk->TempBuf = p_item->Name;
+				pBlk->Set(pBlk->TempBuf);
+				break; 
+		}
+	}
+	return ok;
+}
+
+/*static*/int FASTCALL PPViewUserMenu::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewUserMenu * p_v = static_cast<PPViewUserMenu *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+void PPViewUserMenu::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewUserMenu::GetDataForBrowser, this);
+		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
+	//pBrw->Advise(PPAdviseBlock::evSysJournalChanged, PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, 0);
+}
+
+SArray * PPViewUserMenu::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	uint   brw_id = BROWSER_USERMENU;
+	SArray * p_array = 0;
+	THROW(MakeList(0));
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, brw_id);
+	return p_array;
 }

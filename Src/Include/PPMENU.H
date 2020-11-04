@@ -534,5 +534,6 @@
 #define cmEventSubscription            640 // @v10.8.9 Подписка на события //
 #define cmSetupGlbSvcUDS               641 // @v10.9.0 Настройка интеграции с UDS Game
 #define cmEventsForCurrentUser         642 // @v10.9.1 События (актуальные для текущего пользователя)
+#define cmUserMenu                     643 // @v10.9.3 Просмотр пользовательских меню и рабочих столов
 
 #endif /* __PPMENU_H */

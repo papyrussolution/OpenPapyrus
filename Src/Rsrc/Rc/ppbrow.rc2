@@ -4707,7 +4707,7 @@ browser SSTAT_CT north(100), 3, 1, "Статистика по продажам товаров {%s}", OWNER|
 	"@ware", 2, notype, 0, 25
 }
 
-browser SSTAT_SORD north(100), 2, 1, "Расчет заказа поставщику {%s}", OWNER|GRID, 0
+browser SSTAT_SORD north(100), 2, 1, "@{ordertosuppliercalculation} {%s}", OWNER|GRID, 0
 {
 	"@ware",                  2, notype, 0, 25
 	"@itemcount",             3, notype, NMBF_NOTRAILZ, 10
@@ -4739,7 +4739,7 @@ browser SSTAT_SORD north(100), 2, 1, "Расчет заказа поставщику {%s}", OWNER|GRID
 	}
 }
 
-browser SSTAT_SORD_CT north(100), 3, 1, "Расчет заказа поставщику {%s}", OWNER|GRID, 0
+browser SSTAT_SORD_CT north(100), 3, 1, "@{ordertosuppliercalculation} {%s}", OWNER|GRID, 0
 {
 	"@ware",                2, notype, 0, 25
 	"@rest",                3, notype, ALIGN_RIGHT|NMBF_NOZERO|NMBF_NOTRAILZ, 10.4
@@ -5771,7 +5771,7 @@ browser BIZSCOREVAL north(100), 3, 1, "Значения бизнес-показателей", OWNER|GRID,
 	"@line",           6, notype, 0, 40
 	toolbar TB_FIRST_TOOLBAR {
 		VIEWBIZSCORE  : kbF2,     PPDV_NOICON,        "@{bizscore}\tF2"
-		CHARGE        : kbF6,     TBBM_CHARGE,        "Расчет\tF6"
+		CHARGE        : kbF6,     TBBM_CHARGE,        "@{calculation}\tF6"
 		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "Удалить значение\tDelete"
 		DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
 		separator
@@ -5935,8 +5935,8 @@ browser BBOARD north(100), 1, 1, "Задачи запущенные на сервере", OWNER|GRID, 0
 
 browser SERVERSTAT north(100), 1, 1, "@{view_serverstat} %s", OWNER|GRID, 0
 {
-	"ИД потока",           0, int32,        0,   6, BCO_USERPROC
-	"Вид потока",          1, zstring(64),  0,  20, BCO_USERPROC
+	"@systhreadid",        0, int32,        0,   6, BCO_USERPROC
+	"@systhreadkind",      1, zstring(64),  0,  20, BCO_USERPROC
 	"Время запуска",       2, zstring(32),  0,  12, BCO_USERPROC
 	"Время работы",        3, time,         TIMF_HMS, 16, BCO_USERPROC
 	"@appellation",        4, zstring(256), 0,  40, BCO_USERPROC
@@ -6306,6 +6306,18 @@ browser EVENT north(100), 1, 1, "Events", OWNER|GRID, 0
 	}
 }
 
+browser USERMENU north(100), 1, 1, "UserMenu", OWNER|GRID, 0
+{
+	"ID",           0, int32,        0, 10, BCO_USERPROC
+	"UUID",         1, zstring(60),  0, 40, BCO_USERPROC
+	"Kind",         2, zstring(20),  0, 10, BCO_USERPROC
+	"DbSymb",       3, zstring(48),  0, 20, BCO_USERPROC
+	"Name",         4, zstring(64),  0, 20, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,   "@{filter}\tCtrl-V"
+	}
+}
+
 browser DBMONITOR north(100), 2, 1, "Монитор базы данных", OWNER|GRID, 0
 {
 	"@filename",             0, zstring(256), 0, 25, BCO_USERPROC
@@ -6338,7 +6350,7 @@ browser USERPROFILE north(100), 1, 0, "@{view_userprofile}", OWNER|GRID, 0
 {
 	"@database",          8, notype, 0,           15
 	"@sessionid",         7, notype, 0,           30
-	"Ид потока",          3, notype, 0,            8
+	"@systhreadid",       3, notype, 0,            8
 	"@function",         10, notype, 0,           30
 	"Версия Papyrus",    11, notype, 0,           10
 	"@user",              9, notype, 0,           30
@@ -6427,7 +6439,7 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 	"UUID",                 24,  notype, 0, 30  //@erik v10.4.11 // @v10.5.11 22-->24
 	"@form",                13,  notype, 0, 10  // @v10.5.11 11-->13
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "Детализация\tEnter"
+		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "@{detail}\tEnter"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,   "Удалить документ (только для исходящих)\tDelete"
 		LOTOPS           : kbF3,       TBBM_LOTSOPER,       "@{view_lotop}\tF3"
 		VIEWLINKREST     : kbF4,       PPDV_LINK01,         "Связанные остатки\tF4" // @v10.1.12
@@ -7006,6 +7018,7 @@ view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
 view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" } // @v10.7.8
 filter EditTextFileParam       { "@{filter_edittextfileparam}" } // @v10.8.1
 view   Event                   { "" } // @v10.8.9
+view   UserMenu                { "" } // @v10.9.3
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

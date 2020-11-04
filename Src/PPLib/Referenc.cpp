@@ -1869,9 +1869,14 @@ int FASTCALL SetCommConfig(const PPCommConfig * pCfg, int use_ta)
 //
 // PPSecurPacket
 //
+PPSecur2::PPSecur2()
+{
+	THISZERO();
+}
+
 PPSecurPacket::PPSecurPacket()
 {
-	MEMSZERO(Secur);
+	// @v10.9.3 @ctr MEMSZERO(Secur);
 	// @v9.4.9 (constructor) MEMSZERO(Config);
 }
 

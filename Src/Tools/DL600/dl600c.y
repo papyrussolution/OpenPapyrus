@@ -30,6 +30,7 @@ Reserved words:
 	table
 	index
 	file
+	layout // @v10.9.3
 */
 
 //abstract [marshal] ViewItem;
@@ -113,6 +114,9 @@ int CallbackCompress(long, long, const char *, int)
 	S_GUID_Base uuid;
 	UiCoord uipos;
 	UiRelRect uirect;
+	/*IntRange*/int irange; // @v10.9.3
+	CtmProperty prop; // @v10.9.3
+	CtmPropertySheet propsheet; // @v10.9.3
 }
 
 %token T_AND
@@ -171,6 +175,7 @@ int CallbackCompress(long, long, const char *, int)
 %token            T_COLUMNS // "columns"
 %token <token>    T_DESCRIPT
 %token <token>    T_HANDLER
+%token <token>    T_LAYOUT // @v10.9.3 "layout" 
 
 %type <sival>    parent_struc
 %type <sival>    expstruc_head
@@ -212,6 +217,10 @@ int CallbackCompress(long, long, const char *, int)
 %type <token>    listbox_column_list_inner
 %type <token>    listbox_column
 %type <token>    h_alignment
+
+%type <prop>      brak_prop_entry // @v10.9.3
+%type <propsheet> brak_prop_list  // @v10.9.3
+%type <propsheet> brak_prop_sheet // @v10.9.3
 
 %nonassoc IFXS
 %nonassoc IFX
@@ -962,6 +971,49 @@ dbfile_definition : T_CONST_STR ';'
 // UI
 //
 /* @construction */
+
+propkey : T_IDENT
+{
+}
+
+propval : T_CONST_INT
+{
+} | T_CONST_INT ',' T_CONST_INT
+{
+} | T_CONST_INT ',' T_CONST_INT
+{
+} | T_CONST_INT ',' T_CONST_INT ',' T_CONST_INT ',' T_CONST_INT
+{
+} | T_CONST_REAL
+{
+} | T_IDENT
+{
+} | T_CONST_STR
+{
+}
+
+brak_prop_entry : propkey ':' propval
+{
+} | propkey
+{
+}
+
+brak_prop_list : brak_prop_entry 
+{
+} | brak_prop_list ';' brak_prop_entry
+{
+}
+
+brak_prop_sheet : '[' brak_prop_list ']'
+{
+}
+
+// 
+layout_decl : T_LAYOUT brak_prop_sheet
+{
+} | T_LAYOUT T_IDENT brak_prop_sheet
+{
+}
 
 uiposition : T_CONST_INT { $$.Set($1.U.I, UiCoord::dfAbs); }
 

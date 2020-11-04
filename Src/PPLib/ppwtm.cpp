@@ -3,9 +3,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
-//
-//
+#include <layout-flex.h>
+
 class BaseWtmToolDialog : public TDialog {
 	DECL_DIALOG_DATA(TWhatmanToolArray::Item);
 public:
@@ -391,7 +390,7 @@ int WhatmanObjectDrawFigure::HandleCommand(int cmd, void * pExt)
 						// @construction {
 						if(p_item->Flags & TWhatmanToolArray::Item::fGrayscale) {
 							if(P_Fig->GetKind() == SDrawFigure::kImage) {
-								SDrawImage * p_img = (SDrawImage *)P_Fig;
+								SDrawImage * p_img = static_cast<SDrawImage *>(P_Fig);
 								p_img->TransformToGrayscale();
 							}
 						}
@@ -1250,8 +1249,8 @@ int WhatmanObjectCafeTable::GetTextLayout(STextLayout & rTlo, int options) const
 	int    ok = 1;
 	SString text, temp_buf;
 	PPLoadString("ftable", text);
-	PPObjCashNode::GetCafeTableName(TableNo, temp_buf); // @v8.4.1
-	text.Space().Cat(temp_buf); // @v8.4.1 TableNo-->temp_buf
+	PPObjCashNode::GetCafeTableName(TableNo, temp_buf);
+	text.Space().Cat(temp_buf);
 	if(Status.Status == CTableStatus::sOrder) {
 		temp_buf.Z().Cat("Order").Space();
 		Status.OrderTime.ToStr(temp_buf, STimeChunk::fmtOmitSec);
@@ -2561,8 +2560,13 @@ int PPWhatmanWindow::FileOpen()
 		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 		{
 			SRectLayout::Item li;
-			Layout.Add(zoneLeft, li.SetLeft(20, 1));
-			Layout.Add(zoneCenter, li.SetCenter());
+			Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
+			Layout_Obsolete.Add(zoneCenter, li.SetCenter());
+			P_Lfc = new LayoutFlexItem(); // @v10.9.3
+			P_Lfc->direction = FLEX_DIRECTION_ROW;
+			P_Lfc->align_content = FLEX_ALIGN_STRETCH;
+			P_Lfc->managed_ptr = this;
+			P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
 		}
 	};
 	int    ok = -1;
@@ -2573,11 +2577,23 @@ int PPWhatmanWindow::FileOpen()
 	p_frame_win->Create(APPL->H_MainWnd, TWindowBase::coPopup);
 	{
 		THROW_MEM(p_tool_win = new PPWhatmanWindow(PPWhatmanWindow::modeToolbox));
-		p_frame_win->AddChild(p_tool_win, TWindowBase::coChild, FrameWindow::zoneLeft);
+		{
+			LayoutFlexItem * p_lo = new LayoutFlexItem;
+			p_lo->grow = 1.0f;
+			//p_lo->align_items = FLEX_ALIGN_STRETCH;
+			//p_lo->align_self = FLEX_ALIGN_AUTO;
+			p_frame_win->AddChildWithLayout(p_tool_win, TWindowBase::coChild, p_lo);
+		}
 	}
 	{
 		THROW_MEM(p_edit_win = new PPWhatmanWindow(PPWhatmanWindow::modeEdit));
-		p_frame_win->AddChild(p_edit_win, TWindowBase::coChild, FrameWindow::zoneCenter);
+		{
+			LayoutFlexItem * p_lo = new LayoutFlexItem;
+			p_lo->grow = 3.0f;
+			//p_lo->align_items = FLEX_ALIGN_STRETCH;
+			//p_lo->align_self = FLEX_ALIGN_AUTO;
+			p_frame_win->AddChildWithLayout(p_edit_win, TWindowBase::coChild, p_lo);
+		}
 		{
 			TWhatman::Param p = p_edit_win->W.GetParam();
 			p.Flags |= (TWhatman::Param::fRule | TWhatman::Param::fGrid);
@@ -2594,9 +2610,9 @@ int PPWhatmanWindow::FileOpen()
 	}
 	if(pWtmFileName)
 		THROW(p_edit_win->W.Load(pWtmFileName));
-	ShowWindow(p_frame_win->H(), SW_SHOWNORMAL);
+	::ShowWindow(p_frame_win->H(), SW_SHOWNORMAL);
 	p_frame_win->invalidateAll(1);
-	UpdateWindow(p_frame_win->H());
+	::UpdateWindow(p_frame_win->H());
 	CATCH
 		ZDELETE(p_frame_win);
 		ok = PPErrorZ();

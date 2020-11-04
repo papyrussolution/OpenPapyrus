@@ -11,18 +11,18 @@ struct LayoutFlexItem;
 LayoutFlexItem * flex_item_new(void);
 // Free memory associated with a flex item and its children.
 // This function can only be called on a root item.
-void flex_item_free(LayoutFlexItem * item);
+//void flex_item_free(LayoutFlexItem * item);
 // Manage items.
 void flex_item_add(LayoutFlexItem * item, LayoutFlexItem * child);
 void flex_item_delete(LayoutFlexItem * item, uint index);
-uint flex_item_count(LayoutFlexItem * item);
+//uint flex_item_count(LayoutFlexItem * item);
 LayoutFlexItem * flex_item_child(LayoutFlexItem * item, uint index);
 LayoutFlexItem * flex_item_parent(LayoutFlexItem * item);
-LayoutFlexItem * flex_item_root(LayoutFlexItem * item);
+//LayoutFlexItem * flex_item_root(LayoutFlexItem * item);
 // Layout the items associated with this item, as well as their children.
 // This function can only be called on a root item whose `width' and `height'
 // properties have been set.
-void DoLayoutFlex(LayoutFlexItem * item);
+int DoLayoutFlex(LayoutFlexItem * pItem);
 
 // Retrieve the layout frame associated with an item. These functions should
 // be called *after* the layout is done.
@@ -47,7 +47,6 @@ box (x, y, (width, height))
 layout abc rowreverse wrap {
 }
 */
-
 enum flex_align {
 	FLEX_ALIGN_AUTO = 0,
 	FLEX_ALIGN_STRETCH,
@@ -78,7 +77,8 @@ enum flex_wrap {
 };
 
 // size[0] == width, size[1] == height
-typedef void (__stdcall * flex_self_sizing)(LayoutFlexItem * item, float size[2]);
+typedef void (__stdcall * FlexSelfSizingProc)(LayoutFlexItem * pItem, float size[2]);
+typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, float size[4]);
 
 struct LayoutFlexItem : public TSCollection <LayoutFlexItem> {
 	LayoutFlexItem();
@@ -100,6 +100,14 @@ struct LayoutFlexItem : public TSCollection <LayoutFlexItem> {
 		r.b.X = frame[0] + frame[2];
 		r.b.Y = frame[1] + frame[3];
 		return r;
+	}
+	LayoutFlexItem * GetRoot()
+	{
+		LayoutFlexItem * p_root = this;
+		while(p_root->P_Parent) {
+			p_root = p_root->P_Parent;
+		}
+		return p_root;
 	}
 	// attributes {
 	float  width; // NAN
@@ -130,7 +138,8 @@ struct LayoutFlexItem : public TSCollection <LayoutFlexItem> {
 	void * managed_ptr; // NULL
 	// An item can provide a self_sizing callback function that will be called 
 	// during layout and which can customize the dimensions (width and height) of the item.
-	flex_self_sizing self_sizing; // NULL
+	FlexSelfSizingProc CbSelfSizing; // NULL
+	FlexSetupProc CbSetup; // NULL
 	// } attributes
 	float  frame[4];
 	LayoutFlexItem * P_Parent;

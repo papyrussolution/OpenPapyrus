@@ -113,8 +113,10 @@ bitset bitset_create(bitset_bindex n_bits, unsigned attr)
 /* Free bitset BSET.  */
 void bitset_free(bitset bset)
 {
-	BITSET_FREE_(bset);
-	SAlloc::F(bset);
+	if(bset) {
+		BITSET_FREE_(bset);
+		SAlloc::F(bset);
+	}
 }
 
 /* Free bitset BSET allocated on obstack.  */

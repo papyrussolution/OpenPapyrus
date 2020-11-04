@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493199
+LastSignatureCode=2147493206
 LastAutoCodeList=1,12000;102,10177;103,10072;110,10000;111,11991;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -171,6 +171,9 @@ ending=2147483789
 extension=2147483790
 function=2147483791
 specialfunction=2147491775
+systhread=2147493201
+systhreadid=2147493202
+systhreadkind=2147493203
 indicator=2147483792
 form=2147483793
 format=2147483794
@@ -212,6 +215,8 @@ size=2147483821
 dimension=2147483822
 volume=2147483823
 netto=2147483824
+calculation=2147493204
+ordertosuppliercalculation=2147493205
 calculator=2147483825
 spccalculator=2147493014
 continue_ask=2147483826
@@ -1755,6 +1760,7 @@ ttl_stocksinotherstores=2147493008
 ttl_clibnkassoc=2147493051
 ttl_searchwareinuhtt=2147493052
 ttl_updatefreight=2147493053
+ttl_goodsclassformcalculation=2147493206
 qkcls_general=2147484947
 qkcls_goodsmatrix=2147484948
 qkcls_goodsmatrixrestr=2147484949
@@ -2534,6 +2540,7 @@ cmd_eventsubscription=2147493007
 cmd_exportdbtbltransfer=2147492991
 cmd_exportdbtblbill=2147492992
 cmd_setupglbsvc_uds=2147493112
+cmd_usermenu=2147493200
 cmdpu_admin=2147485677
 cmdpu_salesanalyze=2147485678
 cmdpu_accounting=2147485679

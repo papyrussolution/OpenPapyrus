@@ -1541,7 +1541,7 @@ int LinkFilesDialog::editItem(long pos, long id)
 int LinkFilesDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && (uint)pos < LinksAry.getCount()) {
+	if(pos >= 0 && pos < LinksAry.getCountI()) {
 		if(LinksAry.at(pos)->Flags & PPLNKFILE_ISNEW)
 			LinksAry.Remove(pos);
 		else

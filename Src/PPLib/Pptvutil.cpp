@@ -6602,8 +6602,7 @@ int ExportDialogs(const char * pFileName)
 			}
 			else
 				TDialog::GetSymbolBody(symb, dlg_symb_body);
-			// @v9.1.5 SendMessage(dlg->H(), WM_GETTEXT, sizeof(text_buf), (long)text_buf);
-			TView::SGetWindowText(dlg->H(), dlg_title_buf); // @v9.1.5
+			TView::SGetWindowText(dlg->H(), dlg_title_buf);
 			{
 				text_line_buf.Z().Cat(symb).Tab().Cat(dlg_title_buf).CR();
 				f_out_text.WriteLine(text_line_buf);
@@ -6655,8 +6654,7 @@ int ExportDialogs(const char * pFileName)
 						const HWND h = child_list.at(i);
 						int   ctl_id = GetDlgCtrlID(h);
 						if(GetWindowInfo(h, &wi)) {
-							// @v9.1.5 SendMessage(h, WM_GETTEXT, sizeof(text_buf), (long)text_buf);
-							TView::SGetWindowText(h, ctl_text); // @v9.1.5
+							TView::SGetWindowText(h, ctl_text);
 							ctl_text.ReplaceStr("\n", 0, 0);
 							TView * p_view = dlg->getCtrlView(ctl_id);
 							if(!p_view && ctl_id > 4096) {
@@ -6672,8 +6670,7 @@ int ExportDialogs(const char * pFileName)
 							if(p_label) {
 								WINDOWINFO label_wi;
 								if(GetWindowInfo(p_label->getHandle(), &label_wi)) {
-									// @v9.1.5 SendMessage(p_label->getHandle(), WM_GETTEXT, sizeof(text_buf), (long)text_buf);
-									TView::SGetWindowText(p_label->getHandle(), label_text); // @v9.1.5
+									TView::SGetWindowText(p_label->getHandle(), label_text);
 									label_text.ReplaceStr("\n", 0, 0);
 									label_rect = label_wi.rcWindow;
 									if(label_text.NotEmpty()) {
@@ -6789,8 +6786,7 @@ int ExportDialogs(const char * pFileName)
 												if(h_item) {
 													WINDOWINFO wi_item;
 													if(GetWindowInfo(h_item, &wi_item)) {
-														// @v9.1.5 SendMessage(h_item, WM_GETTEXT, sizeof(text_buf), (long)text_buf);
-														TView::SGetWindowText(h_item, temp_buf); // @v9.1.5
+														TView::SGetWindowText(h_item, temp_buf);
 														line_buf.Z().Tab(2).CatQStr(temp_buf);
 														_RectToLine(wi_item.rcWindow, line_buf.Space());
 														line_buf.Semicol().CR();

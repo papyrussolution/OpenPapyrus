@@ -1171,11 +1171,11 @@ public:
 	TestFrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 	{
 		SRectLayout::Item li;
-		Layout.Add(zoneTop, li.SetTop(40, 0));
-		Layout.Add(zoneBottom, li.SetBottom(10, 0));
-		Layout.Add(zoneLeft, li.SetLeft(20, 1));
-		Layout.Add(zoneRight, li.SetRight(20, 1));
-		Layout.Add(zoneCenter, li.SetCenter());
+		Layout_Obsolete.Add(zoneTop, li.SetTop(40, 0));
+		Layout_Obsolete.Add(zoneBottom, li.SetBottom(10, 0));
+		Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
+		Layout_Obsolete.Add(zoneRight, li.SetRight(20, 1));
+		Layout_Obsolete.Add(zoneCenter, li.SetCenter());
 	}
 protected:
 	DECL_HANDLE_EVENT

@@ -447,9 +447,9 @@
 	#define HELP_BROWSER_SSTAT_CYCLE                            201
 #define BROWSER_SSTAT_CT                               202 // Статистика по продажам товаров {%s}
 	#define HELP_BROWSER_SSTAT_CT                               202
-#define BROWSER_SSTAT_SORD                             203 // Расчет заказа поставщику {%s}
+#define BROWSER_SSTAT_SORD                             203 // @{ordertosuppliercalculation} {%s}
 	#define HELP_BROWSER_SSTAT_SORD                             203
-#define BROWSER_SSTAT_SORD_CT                          204 // Расчет заказа поставщику {%s}
+#define BROWSER_SSTAT_SORD_CT                          204 // @{ordertosuppliercalculation} {%s}
 	#define HELP_BROWSER_SSTAT_SORD_CT                          204
 #define BROWSER_FREIGHT                                205 // @{freight}
 	#define HELP_BROWSER_FREIGHT                                205
@@ -581,22 +581,24 @@
 	#define HELP_BROWSER_TIMSERSTRATEGIES                       268
 #define BROWSER_EVENT                                  269 // Events
 	#define HELP_BROWSER_EVENT                                  269
-#define BROWSER_DBMONITOR                              270 // Монитор базы данных
-	#define HELP_BROWSER_DBMONITOR                              270
-#define BROWSER_SUPRWARE                               271 // @{view_suprware}
-	#define HELP_BROWSER_SUPRWARE                               271
-#define BROWSER_USERPROFILE                            272 // @{view_userprofile}
-	#define HELP_BROWSER_USERPROFILE                            272
-#define BROWSER_JOB                                    273 // @{jobtask_pl}
-	#define HELP_BROWSER_JOB                                    273
-#define BROWSER_PHNSVCMONITOR                          274 // @{view_phnsvcmonitor}
-	#define HELP_BROWSER_PHNSVCMONITOR                          274
-#define BROWSER_TSSTKENVMONITOR                        275 // TSSTKENVMONITOR
-	#define HELP_BROWSER_TSSTKENVMONITOR                        275
-#define BROWSER_VETISDOCUMENT                          276 // @{view_vetisdocument}
-	#define HELP_BROWSER_VETISDOCUMENT                          276
-#define BROWSER_QUOTEREQANALYZE                        277 // @{view_quotereqanalyze}
-	#define HELP_BROWSER_QUOTEREQANALYZE                        277
+#define BROWSER_USERMENU                               270 // UserMenu
+	#define HELP_BROWSER_USERMENU                               270
+#define BROWSER_DBMONITOR                              271 // Монитор базы данных
+	#define HELP_BROWSER_DBMONITOR                              271
+#define BROWSER_SUPRWARE                               272 // @{view_suprware}
+	#define HELP_BROWSER_SUPRWARE                               272
+#define BROWSER_USERPROFILE                            273 // @{view_userprofile}
+	#define HELP_BROWSER_USERPROFILE                            273
+#define BROWSER_JOB                                    274 // @{jobtask_pl}
+	#define HELP_BROWSER_JOB                                    274
+#define BROWSER_PHNSVCMONITOR                          275 // @{view_phnsvcmonitor}
+	#define HELP_BROWSER_PHNSVCMONITOR                          275
+#define BROWSER_TSSTKENVMONITOR                        276 // TSSTKENVMONITOR
+	#define HELP_BROWSER_TSSTKENVMONITOR                        276
+#define BROWSER_VETISDOCUMENT                          277 // @{view_vetisdocument}
+	#define HELP_BROWSER_VETISDOCUMENT                          277
+#define BROWSER_QUOTEREQANALYZE                        278 // @{view_quotereqanalyze}
+	#define HELP_BROWSER_QUOTEREQANALYZE                        278
 
 //
 // PPVIEW COMMAND definitions
@@ -1856,6 +1858,9 @@
 #define PPVIEW_EVENT                                 1220
 	#define PPFILT_EVENT                                 1221
 	#define PPVIEWITEM_EVENT                                 1222
+#define PPVIEW_USERMENU                              1230
+	#define PPFILT_USERMENU                              1231
+	#define PPVIEWITEM_USERMENU                              1232
 //
 // RECORD definitions
 //

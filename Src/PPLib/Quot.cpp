@@ -1675,5 +1675,3 @@ int PrcssrQuotTester::Run()
 }
 
 #endif // } SLTEST_RUNNING
-
-

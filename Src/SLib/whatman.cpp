@@ -1934,7 +1934,7 @@ int TWhatmanToolArray::SetParam(const Param & rP)
 	return ok;
 }
 
-int TWhatmanToolArray::GetParam(Param & rP) const
+void TWhatmanToolArray::GetParam(Param & rP) const
 {
 	Pool.getnz(SymbP, rP.Symb);
 	Pool.getnz(TextP, rP.Text);
@@ -1942,7 +1942,6 @@ int TWhatmanToolArray::GetParam(Param & rP) const
 	rP.Flags = Flags;
 	rP.PicSize = PicSize;
 	rP.Ap = Ap;
-	return 1;
 }
 
 uint TWhatmanToolArray::GetCount() const

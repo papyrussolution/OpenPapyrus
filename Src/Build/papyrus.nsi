@@ -338,6 +338,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\pphelp.chm"
 	File "${SRC_TARGET}\ppgplot.exe"
 	File "${SRC_TOOLS}\dl600c.exe"
+	File "${SRC_TOOLS}\dl600c-xp.exe" ; @v10.9.3
 	; @v8.9.8 File "${SRC_REDIST}\stdrpt.ini"	
 	File "${SRC_ROOT}\src\rsrc\rpt\stdrpt.ini" ; @v8.9.8
 	File "${SRC_REDIST}\mkmenu.bat"
@@ -416,6 +417,7 @@ Section -PPALDD SEC_PPALDD
 	SetOverwrite on
 	File "${SRC_ROOT}\SRC\RSRC\DL600\ppexp.dl6"
 	File "${SRC_ROOT}\SRC\RSRC\DL600\makedl6.bat"
+	File "${SRC_ROOT}\SRC\RSRC\DL600\makedl6-xp.bat" ; @v10.9.3
 	File "${SRC_TOOLS}\dl200c.exe" ; @v7.5.3 SRC_REDIST-->SRC_TOOLS
 	File "${SRC_REDIST}\pattern.dl2"
 	File "${SRC_ROOT}\SRC\VBA\dl200.xla"

@@ -865,30 +865,23 @@ int PPCommandFolder::Remove(uint pos)
 	PPCommandGroup grp;
 	const PPCommandGroup * p_grp = 0;
 	PPCommandMngr * p_mgr = 0;
+	CurDict->GetDbSymb(db_symb);
 	if(pGrp)
 		p_grp = pGrp;
 	else {
 		THROW(p_mgr = GetCommandMngr(1, isDesktop));
-		//if(isDesktop) {
-			THROW(p_mgr->Load__2(&grp, PPCommandMngr::fRWByXml)); // @erik v10.7.3
-		//}
-		//else {
-		//	THROW(p_mgr->Load__(&grp));
-		//}
+		THROW(p_mgr->Load__2(&grp, db_symb, PPCommandMngr::fRWByXml)); // @erik v10.7.3
 		p_grp = &grp;
 		ZDELETE(p_mgr);
 	}
-	CurDict->GetDbSymb(db_symb);
-	for(uint i = 0; p_item = p_grp->Next(&i);) {
+	for(uint i = 0; (p_item = p_grp->Next(&i)) != 0;) {
 		PPCommandGroup * p_desk = (isDesktop && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
-		//if((!isDesktop && p_item->Kind == PPCommandItem::kFolder) || (p_desk && p_desk->IsDbSymbEq(db_symb))) //@erik v10.7.6
-		if((!isDesktop && p_item->Kind == PPCommandItem::kGroup) || (p_desk && p_desk->IsDbSymbEq(db_symb))) //@erik v10.7.6
+		if((!isDesktop && p_item->Kind == PPCommandItem::kGroup) || (p_desk && p_desk->IsDbSymbEq(db_symb)))
 			pAry->Add(p_item->ID, p_item->Name);
 		ZDELETE(p_desk);
 	}
 	CATCHZOK
 	ZDELETE(p_mgr);
-	//ZDELETE(p_desk);
 	return ok;
 }
 
@@ -1507,7 +1500,7 @@ PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly, int isDesktop
 	// Исходим из предположения, что файл для записи открывается на малое время.
 	//
 	for(uint i = 0; i < 10; i++) {
-		if(F.Open(pFileName, mode)) {
+		if(F_Obsolete.Open(pFileName, mode)) {
 			break;
 		}
 		else
@@ -1527,7 +1520,7 @@ PPCommandMngr::~PPCommandMngr()
 
 int PPCommandMngr::IsValid_() const
 {
-	return F.IsValid() ? 1 : PPSetErrorSLib();
+	return F_Obsolete.IsValid() ? 1 : PPSetErrorSLib();
 }
 
 int PPCommandMngr::Save__(const PPCommandGroup * pCmdGrp)
@@ -1536,18 +1529,18 @@ int PPCommandMngr::Save__(const PPCommandGroup * pCmdGrp)
 	Hdr    hdr;
 	uint32 crc = 0;
 	SBuffer buf;
-	THROW_SL(F.IsValid());
+	THROW_SL(F_Obsolete.IsValid());
 	THROW_PP(!ReadOnly, PPERR_CMDMNGREADONLY);
-	F.Seek(0, SEEK_SET);
+	F_Obsolete.Seek(0, SEEK_SET);
 	MEMSZERO(hdr);
 	hdr.Signature = PPCS_SIGNATURE;
-	THROW_SL(F.Write(&hdr, sizeof(Hdr)));
+	THROW_SL(F_Obsolete.Write(&hdr, sizeof(Hdr)));
 	THROW(pCmdGrp->Write(buf, 0));
-	THROW_SL(F.Write(buf));
-	THROW_SL(F.CalcCRC(sizeof(hdr), &crc));
-	F.Seek(0, SEEK_SET);
+	THROW_SL(F_Obsolete.Write(buf));
+	THROW_SL(F_Obsolete.CalcCRC(sizeof(hdr), &crc));
+	F_Obsolete.Seek(0, SEEK_SET);
 	hdr.Crc = crc;
-	THROW_SL(F.Write(&hdr, sizeof(Hdr)));
+	THROW_SL(F_Obsolete.Write(&hdr, sizeof(Hdr)));
 	CATCHZOK
 	return ok;
 }
@@ -1559,19 +1552,19 @@ int PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 	int64  fsz = 0;
 	uint32 crc = 0;
 	SBuffer buf;
-	THROW_SL(F.IsValid());
-	F.CalcSize(&fsz);
+	THROW_SL(F_Obsolete.IsValid());
+	F_Obsolete.CalcSize(&fsz);
 	if(fsz>0) {
-		THROW_SL(F.CalcCRC(sizeof(hdr), &crc));
-		F.Seek(0, SEEK_SET);
-		THROW_SL(F.Read(&hdr, sizeof(hdr)));
-		THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F.GetName());
-		THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F.GetName());
-		THROW_SL(F.Read(buf));
+		THROW_SL(F_Obsolete.CalcCRC(sizeof(hdr), &crc));
+		F_Obsolete.Seek(0, SEEK_SET);
+		THROW_SL(F_Obsolete.Read(&hdr, sizeof(hdr)));
+		THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F_Obsolete.GetName());
+		THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F_Obsolete.GetName());
+		THROW_SL(F_Obsolete.Read(buf));
 		THROW(pCmdGrp->Read(buf, 0));
 	}
 	CATCHZOK
-		return ok;
+	return ok;
 }
 
 //@erik v10.6.1 {
@@ -1629,7 +1622,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 	return ok;
 }
 
-int PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
+int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const long rwFlag)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_xml_parser = 0;
@@ -1655,10 +1648,10 @@ int PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 				SFile f(lock_path, SFile::mWrite);
 				// @v10.7.6 f.Close();
 				PPCommandGroup cg_from_bin;
-				if(F.IsValid()) {
+				if(F_Obsolete.IsValid()) {
 					int64  fsz = 0;
-					if(F.CalcSize(&fsz)) {
-						if(fsz>0) {
+					if(F_Obsolete.CalcSize(&fsz)) {
+						if(fsz > 0) {
 							THROW(Load__(&cg_from_bin));
 							const uint c = cg_from_bin.List.getCount();
 							PPCommandGroup cg_pool;
@@ -1710,8 +1703,10 @@ int PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 					if(p_root) {
 						if(SXml::IsName(p_root, "CommandGroup")) {
 							THROW(p_temp_command_group->Read2(p_root, rwFlag));
-							if(pCmdGrp->Add(-1, p_temp_command_group)>0) {
-								p_temp_command_group = 0;
+							if(isempty(pDbSymb) || p_temp_command_group->DbSymb.CmpNC(pDbSymb) == 0) { // @v10.9.3
+								if(pCmdGrp->Add(-1, p_temp_command_group) > 0) {
+									p_temp_command_group = 0;
+								}
 							}
 						}
 					}
@@ -1726,9 +1721,8 @@ int PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 	}
 	CATCH
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
-		if(!fileExists(lock_path)) {
+		if(fileExists(lock_path)) // @v10.9.3 @fix !fileExists-->fileExists
 			SFile::Remove(lock_path);
-		}
 		ok = 0;
 	ENDCATCH
 	xmlFreeDoc(p_doc);
@@ -1742,13 +1736,13 @@ int PPCommandMngr::SaveFromAllTo(const long rwFlag)
 	PPCommandGroup cg_from_xml, cg_from_bin, cg_final;
 	const PPCommandItem * p_item = 0;
 	THROW(Load__(&cg_from_bin));
-	THROW(Load__2(&cg_from_xml, PPCommandMngr::fRWByXml));
+	THROW(Load__2(&cg_from_xml, 0, PPCommandMngr::fRWByXml));
 	for(uint i = 0; p_item = cg_from_xml.Next(&i);) {
-		if(cg_final.Add(-1, p_item)>0) {
+		if(cg_final.Add(-1, p_item) > 0) {
 			p_item = 0;
 		}
 	}
-	for(uint i = 0; p_item = cg_from_bin.Next(&i);) {
+	for(uint i = 0; (p_item = cg_from_bin.Next(&i)) != 0;) {
 		if(cg_final.Add(-1, p_item)>0) {
 			p_item = 0;
 		}
@@ -1762,18 +1756,17 @@ int PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 {
 	int    ok = 1;
 	SString temp_buf;
-	if(F.IsValid()>0) {
+	if(F_Obsolete.IsValid() > 0) {
 		int64  fsz = 0;
-		if(F.CalcSize(&fsz)>0)
-		{
-			if(fsz>0) {
+		if(F_Obsolete.CalcSize(&fsz) > 0) {
+			if(fsz > 0) {
 				THROW(SaveFromAllTo(rwFlag));
-				THROW_SL(F.Close());
+				THROW_SL(F_Obsolete.Close());
 				THROW(PPGetPath(PPPATH_BIN, temp_buf));
 				{
-					SString old_name = temp_buf.SetLastSlash().Cat("ppdesk.bin");
+					const SString old_name = temp_buf.SetLastSlash().Cat("ppdesk.bin");
 					temp_buf.SetLastSlash().Cat("ppdesk").Cat(getcurdate_(), DATF_DMY).Cat(".bin");
-					THROW_SL(F.Rename(old_name, temp_buf));
+					THROW_SL(F_Obsolete.Rename(old_name, temp_buf));
 				}
 			}
 		}

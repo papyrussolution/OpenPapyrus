@@ -62,6 +62,12 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
 				SetAttr(attrUserName, temp_buf);
 			url.Composite(InetUrl::stHost|InetUrl::stPath, temp_buf);
+			// @v10.9.3 @fix {
+			{
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				DS.ConvertPathToUnc(temp_buf.Strip().RmvLastSlash());
+			}
+			// } @v10.9.3 
 			SetAttr(attrDbPath, temp_buf);
 			SetAttr(attrServerType, 0);
 			break;
@@ -305,7 +311,11 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 1*/, int dontLoadDefDict /*= 0*/)
 {
 	int    ok = 1;
-	SString entry_symb, entry_buf, def_dict, def_data, temp_buf;
+	SString temp_buf;
+	SString entry_symb;
+	SString entry_buf;
+	SString def_dict;
+	SString def_data;
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
 	THROW_MEM(p_ini_file);
 	if(p_ini_file->IsValid()) {

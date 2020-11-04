@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 // Descr: Удаляет или добавляет (в зависимости от remove) заголовок из файла pFile
 //

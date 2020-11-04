@@ -1,10 +1,11 @@
 // EXTGSEL.CPP
 // Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 //
-// Descr: Таблица подбора партии для вставки в расходный товарный документ
+// Descr: РўР°Р±Р»РёС†Р° РїРѕРґР±РѕСЂР° РїР°СЂС‚РёРё РґР»СЏ РІСЃС‚Р°РІРєРё РІ СЂР°СЃС…РѕРґРЅС‹Р№ С‚РѕРІР°СЂРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
 //
 class PickLotBrowser : public BrowserWindow {
 public:
@@ -610,13 +611,9 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 	else if(event.isCbSelected(CTLSEL_EXTGSEL_GGRP) || event.isCbSelected(CTLSEL_EXTGSEL_BRAND) || event.isCbSelected(CTLSEL_EXTGSEL_MODIFMODE))
 		updateList(0);
 	else if(event.isCmd(cmaInsert)) {
-		// @v9.6.12 if(IsCurrentView(P_List)) {
-			grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
-			if(GObj.Edit(&(c = 0), reinterpret_cast<void *>(grp_id)) == cmOK)
-				selectGoods(grp_id, c);
-		// @v9.6.12 }
-		// @v9.6.12 else
-			// @v9.6.12 return;
+		grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
+		if(GObj.Edit(&(c = 0), reinterpret_cast<void *>(grp_id)) == cmOK)
+			selectGoods(grp_id, c);
 	}
 	else if(event.isCmd(cmSearchUHTT) || event.isKeyDown(kbCtrlF6)) {
 		const PPID goods_id = getSelectedItem();
@@ -682,12 +679,11 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 				SerialData = si;
 				if(IsInState(sfModal)) {
 					endModal(cmOK);
-					return; // После endModal не следует обращаться к this
+					return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 				}
 				clearEvent(event);
 			}
 			else {
-				// @v9.3.6 {
 				PPObjBill::SelectLotParam slp(goods_id, LocID, 0, PPObjBill::SelectLotParam::fNotEmptySerial);
 				slp.Period.Set(ZERODATE, getcurdate_());
 				if(BillObj->SelectLot2(slp) > 0) {
@@ -696,48 +692,10 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 					STRNSCPY(SerialData.Serial, slp.RetLotSerial);
 					if(IsInState(sfModal)) {
 						endModal(cmOK);
-						return; // После endModal не следует обращаться к this
+						return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 					}
 					clearEvent(event);
 				}
-				// } @v9.3.6 
-				/* @v9.3.6 
-				int    r = 0;
-				const  LDATE curdt = LConfig.OperDate;
-				uint   s = 0;
-				ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
-				SString serial;
-				ReceiptTbl::Rec lot_rec;
-				SArray * p_ary = SelLotBrowser::CreateArray();
-				for(DateIter diter(0, curdt); r_rcpt.EnumLots(goods_id, LocID, &diter, &lot_rec) > 0;) {
-					double rest = lot_rec.Rest;
-					BillObj->GetSerialNumberByLot(lot_rec.ID, serial = 0, 1);
-					if(serial.NotEmpty())
-						SelLotBrowser::AddItemToArray(p_ary, &lot_rec, curdt, rest, 1);
-				}
-				if(p_ary->getCount()) {
-					SelLotBrowser::Entry * p_sel = 0;
-					SelLotBrowser * p_brw = new SelLotBrowser(BillObj, p_ary, s, goods_id, 0);
-					if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0) {
-						if(strip(p_sel->Serial)[0] != 0) {
-							MEMSZERO(SerialData);
-							SerialData.LotID = p_sel->LotID;
-							STRNSCPY(SerialData.Serial, p_sel->Serial);
-							r = 1;
-						}
-					}
-					ZDELETE(p_brw);
-					if(r) {
-						if(IsInState(sfModal)) {
-							endModal(cmOK);
-							return; // После endModal не следует обращаться к this
-						}
-						clearEvent(event);
-					}
-				}
-				else
-					ZDELETE(p_ary);
-				*/
 			}
 		}
 	}

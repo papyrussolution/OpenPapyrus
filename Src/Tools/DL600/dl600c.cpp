@@ -129,6 +129,53 @@ void CtmDclr::AddDim(uint dim)
 //
 //
 //
+void CtmProperty::Init()
+{
+	Key.Init();
+	Value.Destroy();
+}
+
+void CtmProperty::Destroy()
+{
+	Key.Destroy();
+	Value.Destroy();
+}
+
+int CtmProperty::Copy(const CtmProperty & rS)
+{
+	Init();
+	Key = rS.Key;
+	Value = rS.Value;
+	return 1;
+}
+
+void CtmPropertySheet::Init()
+{
+	P_List = 0;
+}
+
+void CtmPropertySheet::Destroy()
+{
+	ZDELETE(P_List);
+}
+
+int CtmPropertySheet::Add(const CtmProperty & rItem)
+{
+	int    ok = 0;
+	SETIFZ(P_List, new TSCollection <CtmProperty>());
+	if(P_List) {
+		CtmProperty * p_new_item = new CtmProperty;
+		if(p_new_item) {
+			p_new_item->Copy(rItem);
+			P_List->insert(p_new_item);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+//
+//
+//
 union DL600_TempDecDim {
 	struct I {
 		uint8  dec;        //

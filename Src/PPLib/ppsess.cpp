@@ -2632,8 +2632,6 @@ int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	int    ok = 1, r;
 	PPConfig tmp, global;
 	Reference * p_ref = GetTLA().P_Ref;
-	// @v9.4.8 (constructor) MEMSZERO(tmp);
-	// @v9.4.8 (constructor) MEMSZERO(global);
 	if(objID == 0) {
 		objID = DEFCFG_USERID;
 		r = -1;

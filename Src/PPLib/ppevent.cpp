@@ -1009,7 +1009,6 @@ SArray * PPViewEvent::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_EVENT;
 	SArray * p_array = 0;
-	PPTimeSeries ds_item;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
