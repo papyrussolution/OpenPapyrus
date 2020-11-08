@@ -7099,30 +7099,12 @@ int PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 	THROW_PP(State & stInited, PPERR_VETISIFCNOTINITED);
 	{
 		VetisSubmitRequestBlock srb;
-		/*
-			<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-				xmlns:ws="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" 
-				xmlns:base="http://api.vetrf.ru/schema/cdm/base">
-			  <soapenv:Header/>
-			  <soapenv:Body>
-				<ws:getAllCountryListRequest>
-				  <base:listOptions>
-					<base:count>10</base:count>
-					<base:offset>0</base:offset>
-				  </base:listOptions>
-				</ws:getAllCountryListRequest>
-			  </soapenv:Body>
-			</soapenv:Envelope>
-
-			https://api.vetrf.ru/platform/services/2.0/IkarService
-		*/
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			//n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
-			//n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar/ws-definitions"));
+			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
 			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
+			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7155,11 +7137,9 @@ int PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
 			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
+			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7175,7 +7155,7 @@ int PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : "api.vetrf.ru"; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/ikar/services/IkarService"), "GetRegionListByCountry", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/IkarService"), "GetRegionListByCountry", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7194,11 +7174,9 @@ int PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBloc
 		{
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v2"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
+			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/registry/ws-definitions/v2"));
 			n_env.PutAttrib(SXml::nst("xmlns", "base"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "v21"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
+			n_env.PutAttrib(SXml::nst("xmlns", "ikar"), InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/dictionary/v2"));
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
@@ -7213,7 +7191,7 @@ int PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBloc
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : "api.vetrf.ru"; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/ikar/services/IkarService"), "GetLocalityListByRegion", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/IkarService"), "GetLocalityListByRegion", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}

@@ -691,9 +691,9 @@ void PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 	CalcIconRect(coord, ir);
 	t_i.rect = ir;
 	t_i.hinst    = TProgram::GetInst();
-	t_i.lpszText = const_cast<char *>(pText);//tooltip; // @unicodeproblem
-	::SendMessage(HwndTT, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
-	::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+	t_i.lpszText = const_cast<char *>(pText); //tooltip
+	::SendMessage(HwndTT, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
+	::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 }
 
 int PPDesktop::DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char * pText)

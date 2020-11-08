@@ -35923,8 +35923,7 @@ public:
 	int    SetPlannedTiming(TSessionTbl::Rec * pRec);
 	int    CalcPlannedTiming(PPID techID, double qtty, int useRounding, long * pTiming);
 	int    CalcToolingTiming(const TSessionTbl::Rec * pRec, long * pTiming);
-	// @v8.1.6 int    CalcPlannedQtty(PPID techID, long timing, double * pQtty);
-	int    CalcPlannedQtty(const TSessionTbl::Rec * pPack, long forceTiming, double * pQtty); // @v8.1.6
+	int    CalcPlannedQtty(const TSessionTbl::Rec * pPack, long forceTiming, double * pQtty);
 	int    RoundTiming(PPID techID, long * pTiming);
 	int    SetSCardID(TSessionTbl::Rec * pRec, const SCardTbl::Rec * pSCardRec);
 	int    InitRec(TSessionTbl::Rec *, int kind /* TSESK_XXX */, PPID prcID, PPID superSessID, int status = -1);
@@ -52554,7 +52553,7 @@ private:
 	int    Pack();
 
 	PPID   DesktopID; // -1 - не определенный стол (0 - общий пул для всех рабочих столов)
-	TSVector <Item> L; // @v9.8.5 TSArray-->TSVector
+	TSVector <Item> L;
 	StringSet P;
 };
 
@@ -52653,7 +52652,7 @@ private:
         penDef,
         colorBkg
 	};
-	SPaintToolBox Ptb; // @v9.0.12
+	SPaintToolBox Ptb;
 	HWND   HwndTT;
 	HWND   HBizScoreWnd;
 	PPIDArray Cookies;
@@ -52679,7 +52678,7 @@ struct DeleteTmpFilesParam {
 		fRmvTempCharry   = 0x0010,
 		fRmvTempEmail    = 0x0020,
 		fRmvBHTDataFiles = 0x0040,
-		fRmvTempQrCodes  = 0x0080  // @v9.9.9
+		fRmvTempQrCodes  = 0x0080
 	};
 	long   Flags;
 	int16  InDays;

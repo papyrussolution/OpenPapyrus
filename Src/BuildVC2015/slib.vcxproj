@@ -1409,6 +1409,7 @@
     <ClCompile Include="..\SLib\Idea.cpp" />
     <ClCompile Include="..\SLib\ineturl.cpp" />
     <ClCompile Include="..\SLib\json.cpp" />
+    <ClCompile Include="..\SLib\layout-flex.cpp" />
     <ClCompile Include="..\SLib\Lbxdef.cpp" />
     <ClCompile Include="..\SLib\Listwin.cpp" />
     <ClCompile Include="..\SLib\lss_lin.cpp" />

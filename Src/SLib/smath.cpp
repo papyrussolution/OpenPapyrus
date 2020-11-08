@@ -5,7 +5,6 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <float.h>
 
 #define PI__  3.1415926535897932384626433832795
 #define PI__f 3.14159265358979323846f

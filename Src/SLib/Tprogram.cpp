@@ -323,14 +323,15 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 				for(i = 0; i < count; i++) {
 					tci.mask = TCIF_PARAM;
 					if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == reinterpret_cast<LPARAM>(ptr)) {
-						TCHAR  temp_org_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
-						TCHAR  temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
+						const  uint max_text_len = 40;// SHCTSTAB_MAXTEXTLEN;
+						TCHAR  temp_org_title_buf[max_text_len * 2];
+						TCHAR  temp_title_buf[max_text_len * 2];
 						STRNSCPY(temp_org_title_buf, SUcSwitch(title_buf));
 						STRNSCPY(temp_title_buf, temp_org_title_buf);
-						if(title_len > SHCTSTAB_MAXTEXTLEN) {
-							temp_title_buf[SHCTSTAB_MAXTEXTLEN] = 0;
+						if(title_len > max_text_len) {
+							temp_title_buf[max_text_len] = 0;
 							for(int j = 0; j < 3; j++)
-								temp_title_buf[SHCTSTAB_MAXTEXTLEN - j - 1] = '.';
+								temp_title_buf[max_text_len-j-1] = '.';
 						}
 						tci.mask = LVIF_TEXT;
 						tci.pszText = temp_title_buf;
@@ -404,14 +405,15 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 				HWND   hwnd_tt  = TabCtrl_GetToolTips(hwnd_tab);
 				int    idx = TabCtrl_GetItemCount(hwnd_tab);
 				int    prev_sel = TabCtrl_GetCurSel(hwnd_tab);
-				TCHAR  temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
-				TCHAR  temp_org_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
+				const  uint max_text_len = 40;// SHCTSTAB_MAXTEXTLEN;
+				TCHAR  temp_title_buf[max_text_len * 2];
+				TCHAR  temp_org_title_buf[max_text_len * 2];
 				STRNSCPY(temp_org_title_buf, title_buf);
 				STRNSCPY(temp_title_buf, title_buf);
-				if(title_len > SHCTSTAB_MAXTEXTLEN) {
-					temp_title_buf[SHCTSTAB_MAXTEXTLEN] = 0;
+				if(title_len > max_text_len) {
+					temp_title_buf[max_text_len] = 0;
 					for(int j = 0; j < 3; j++)
-						temp_title_buf[SHCTSTAB_MAXTEXTLEN - j - 1] = '.';
+						temp_title_buf[max_text_len-j-1] = '.';
 				}
 				MEMSZERO(rc_item);
 				tci.mask = TCIF_TEXT|TCIF_PARAM;
@@ -434,9 +436,8 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 					SendMessage(hwnd_tt, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 					SendMessage(hwnd_tt, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
-				if(H_ShortcutsWnd)
-					ShowWindow(H_ShortcutsWnd, SW_SHOW);
-				UpdateWindow(H_MainWnd);
+				::ShowWindow(H_ShortcutsWnd, SW_SHOW);
+				::UpdateWindow(H_MainWnd);
 			}
 		}
 	}

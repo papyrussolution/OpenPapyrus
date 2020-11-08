@@ -2553,10 +2553,12 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	pBlk->GetAttr(DbLoginBlock::attrDbPath, data_path);
 	PPVerHistory verh;
 	PPVerHistory::Info vh_info;
+	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
+	const SqlServerType server_type = GetSqlServerTypeBySymb(temp_buf);
 	//
 	// Проверяем доступность каталога базы данных
 	//
-	THROW_PP_S(::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
+	THROW_PP_S(server_type == sqlstMySQL || ::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path); // @v10.9.3 server_type == sqlstMySQL
 	if(!(flags & PPSession::odfDontInitSync)) {
 		//
 		// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
@@ -2591,10 +2593,14 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	//
 	{
 		DbProvider * p_db = 0;
-		pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
-		if(temp_buf.IsEqiAscii("ORACLE")) {
+		if(server_type == sqlstORA) {
 			// @todo SOraDbProvider должен инициализировать DbPathID
 			THROW_MEM(p_db = new SOraDbProvider(data_path));
+		}
+		else if(server_type == sqlstMySQL) {
+#if (_MSC_VER >= 1900)
+			THROW_MEM(p_db = new SMySqlDbProvider());
+#endif
 		}
 		else {
 			pBlk->GetAttr(DbLoginBlock::attrDictPath, temp_buf);
@@ -4557,7 +4563,7 @@ DlContext * PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileI
 			ZDELETE(*ppCtx);
 	ENDCATCH
 	CALLPTRMEMB(p_csd, Leave());
-	delete p_csd; // @v9.8.12
+	delete p_csd;
 	return *ppCtx;
 }
 

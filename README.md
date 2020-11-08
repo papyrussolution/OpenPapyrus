@@ -45,6 +45,9 @@ www.petroglif.ru
 * Электронные весы Mettler-Toledo
 * Электронные весы Bizerba
 * Электронные весы Штрих-Принт
+* Принтеры этикеток Datamax (языки описания DPL и ELTRON)
+* Принтеры этикеток Zebra (язык описания ZPL)
+* Система лояльности клиентов UDS
 
 features.pdf: подробное (но, увы, не полное) описание возможностей.
 
@@ -114,6 +117,9 @@ Integration with services, equipment and systems:
 * Electronic scales Mettler-Toledo
 * Electronic scales Bizerba
 * Electronic scales Shtrih-Print
+* Datamax label printers (DPL and ELTRON description languages)
+* Zebra label printers (ZPL description language)
+* UDS customer loyalty system
 
 features.pdf: detailed (but, alas, not full) features description.
 

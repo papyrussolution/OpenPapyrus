@@ -2150,6 +2150,7 @@ private:
 
 	Context Ctx;
 };
+
 //
 //
 //
@@ -2608,6 +2609,7 @@ public:
 	int    SetTool(int toolId, int paintObjIdent);
 	int    GetTool(int toolId) const;
 	int    ArrangeObjects(const LongArray * pObjPosList, const TArrangeParam & rParam);
+	int    ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam & rParam);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Store(const char * pFileName);
 	int    Load(const char * pFileName);
@@ -3793,7 +3795,7 @@ public:
 	int    Init(const ToolbarList *);
 	int    Init(uint cmdID, ToolbarList * pList);
 	int    Show();
-	int    Hide();
+	void   Hide();
 	LRESULT OnMainSize(int rightSpace = 0);
 	int    SaveUserSettings(uint typeID);
 	int    RestoreUserSettings(uint typeID, ToolbarList * pTbList);
@@ -3992,7 +3994,7 @@ private:
 
 		HWND   Hwnd;
 	private:
-		HWND   HwndTT;
+		HWND   HwndTT; // Tooltip window
 	};
 	ListWindowItem * GetListWinByCmd(long cmd, uint * pPos);
 	ListWindowItem * GetListWinByHwnd(HWND hWnd, uint * pPos);
@@ -4004,7 +4006,7 @@ private:
 	int    OnCommand(WPARAM wParam, LPARAM lParam);
 
 	HWND   H_CmdList;
-	TSCollection<ListWindowItem> Items;
+	TSCollection <ListWindowItem> Items;
 	ListWindow * P_CurLw;
 	ShortcutsWindow ShortcWnd;
 	TToolbar * P_Toolbar;
@@ -4014,7 +4016,7 @@ private:
 //
 #define DLG_SHORTCUTS       4096
 #define CTL_SHORTCUTS_ITEMS 1014
-#define SHCTSTAB_MAXTEXTLEN 20
+// @v10.9.3 #define SHCTSTAB_MAXTEXTLEN 20
 #define SPEC_TITLEWND_ID    (1200 + 100)
 
 class TProgram : public TGroup {
@@ -4197,8 +4199,8 @@ private:
 	WNDPROC PrevCloseWndProc;
 	HWND   H_FrameWnd;
 	TBitmapHash BmH;
-	SPaintToolBox UiToolBox; // @v9.1.5 Набор инструментов для отрисовки компонентов пользовательского интерфейса.
-	TWhatmanToolArray DvToolList; // @v9.1.9 Векторные изображения, загружаемые из внешнего файла
+	SPaintToolBox UiToolBox;      // Набор инструментов для отрисовки компонентов пользовательского интерфейса.
+	TWhatmanToolArray DvToolList; // Векторные изображения, загружаемые из внешнего файла
 };
 
 #define APPL    (TProgram::application)
@@ -4218,7 +4220,7 @@ struct ToolbarCfg { // size = sizeof(uint16) + Count * sizeof(TBButton)
 	int    GetBuf(void ** ppBuf, size_t bufLen) const;
 
 	uint16 Count;
-	uint16 Reserve; // @v9.3.4 @alignment
+	uint16 Reserve; // @alignment
 	TBButtonCfg * P_Buttons;
 };
 //
@@ -4233,7 +4235,7 @@ public:
 	int    Add(const char * pText, const RECT * pRect, long id);
 	int    Remove(long id);
 private:
-	HWND   HwndTT;
+	HWND   HwndTT; // Tooltip window
 	HWND   Parent;
 };
 

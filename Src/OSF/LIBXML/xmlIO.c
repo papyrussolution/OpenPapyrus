@@ -55,8 +55,8 @@
 		#endif
 	#endif
 #endif
-#include <libxml/nanohttp.h>
-#include <libxml/nanoftp.h>
+// @v10.9.3 #include <libxml/nanohttp.h>
+// @v10.9.3 #include <libxml/nanoftp.h>
 /* #define VERBOSE_FAILURE */
 /* #define DEBUG_EXTERNAL_ENTITIES */
 /* #define DEBUG_INPUT */

@@ -2832,9 +2832,9 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS,  7, UserInterfaceSettings::fDisableBeep);
 		AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg);
 		AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection);
-		AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName); // @v9.9.1
+		AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName);
 		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fExtGoodsSelHideGenerics); // @v10.7.7
-		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService); // @v9.8.11 // @v10.7.7 11-->12
+		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService); // @v10.7.7 11-->12
 		AddClusterAssoc(CTL_UICFG_FLAGS, 13, UserInterfaceSettings::fStringHistoryDisabled); // 10.7.9
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);

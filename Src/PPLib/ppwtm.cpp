@@ -1600,7 +1600,7 @@ int PPWhatmanWindow::AddObject(TWhatmanObject * pObj, const TRect * pBounds)
 int PPWhatmanWindow::ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam)
 {
 	int    ok = 1;
-	W.ArrangeObjects(pObjPosList, rParam);
+	W.ArrangeObjects2(pObjPosList, rParam); // @v10.9.3 ArrangeObjects-->ArrangeObjects2
 	return ok;
 }
 
@@ -2563,8 +2563,8 @@ int PPWhatmanWindow::FileOpen()
 			Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
 			Layout_Obsolete.Add(zoneCenter, li.SetCenter());
 			P_Lfc = new LayoutFlexItem(); // @v10.9.3
-			P_Lfc->direction = FLEX_DIRECTION_ROW;
-			P_Lfc->align_content = FLEX_ALIGN_STRETCH;
+			P_Lfc->Direction = FLEX_DIRECTION_ROW;
+			P_Lfc->AlignContent = FLEX_ALIGN_STRETCH;
 			P_Lfc->managed_ptr = this;
 			P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
 		}

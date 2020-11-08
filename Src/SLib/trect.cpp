@@ -196,6 +196,10 @@ FRect::FRect()
 {
 }
 
+FRect::FRect(float left, float top, float right, float bottom) : a(left, top), b(right, bottom)
+{
+}
+
 FRect::FRect(float width, float height) : a(), b(width, height)
 {
 }
@@ -213,25 +217,11 @@ FRect & FASTCALL FRect::operator = (FPoint p)
 	return *this;
 }
 
-float FRect::Width() const
-{
-	return (b.X - a.X);
-}
-
-float FRect::Height() const
-{
-	return (b.Y - a.Y);
-}
-
-FPoint FRect::GetSize() const
-{
-	return FPoint((b.X - a.X), (b.Y - a.Y));
-}
-
-FPoint FRect::GetCenter() const
-{
-	return FPoint((a.X + b.X) / 2.0f, (a.Y + b.Y) / 2.0f);
-}
+float  FRect::Width() const { return (b.X - a.X); }
+float  FRect::Height() const { return (b.Y - a.Y); }
+FPoint FRect::GetSize() const { return FPoint((b.X - a.X), (b.Y - a.Y)); }
+FPoint FRect::GetCenter() const { return FPoint((a.X + b.X) / 2.0f, (a.Y + b.Y) / 2.0f); }
+int    FRect::Contains(FPoint p) const { return (p.X >= a.X && p.X <= b.X && p.Y >= a.Y && p.Y <= b.Y); }
 
 double FRect::Ratio() const
 {
@@ -270,11 +260,6 @@ FRect & FASTCALL FRect::MoveCenterTo(FPoint center)
 	assert(Width() == w);
 	assert(Height() == h);
 	return *this;
-}
-
-int FRect::Contains(FPoint p) const
-{
-	return (p.X >= a.X && p.X <= b.X && p.Y >= a.Y && p.Y <= b.Y);
 }
 //
 //

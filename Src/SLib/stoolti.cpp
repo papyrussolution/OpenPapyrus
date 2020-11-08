@@ -49,8 +49,8 @@ int STooltip::Add(const char * pText, const RECT * pRect, long id)
 	ti.rect.bottom = pRect->bottom;
 	ti.rect.right  = pRect->right;
 	ti.hinst       = TProgram::GetInst();
-	ti.lpszText    = tooltip; // @unicodeproblem
-	return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti))); // @unicodeproblem
+	ti.lpszText    = tooltip;
+	return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti)));
 }
 
 int STooltip::Remove(long id)

@@ -3,7 +3,6 @@
  * Kept as is for the moment to be able to apply upstream patches for that
  * code, currently used only to speed up XPath node sorting, see xpath.c
  */
-
 /*
  * All code in this header, unless otherwise specified, is hereby licensed under the MIT Public License:
 
@@ -39,12 +38,12 @@
 		#define MK_UINT64(x) x ## ULL
 	#endif
 #endif
-#ifndef MAX
-	#define MAX(x, y) (((x) > (y) ? (x) : (y)))
-#endif
-#ifndef MIN
-	#define MIN(x, y) (((x) < (y) ? (x) : (y)))
-#endif
+//#ifndef MAX
+	//#define MAX(x, y) (((x) > (y) ? (x) : (y)))
+//#endif
+//#ifndef MIN
+	//#define MIN(x, y) (((x) < (y) ? (x) : (y)))
+//#endif
 
 int compute_minrun(uint64_t);
 
@@ -100,7 +99,6 @@ int compute_minrun(uint64_t size) /* {{{ */
 	const uint64_t mask = (MK_UINT64(1) << shift) - 1;
 	return (mask & size) ? (minrun + 1) : minrun;
 }
-
 /* }}} */
 
 #ifndef SORT_NAME
@@ -207,7 +205,6 @@ void BINARY_INSERTION_SORT(SORT_TYPE * dst, const size_t size)
 }
 
 /* timsort implementation, based on timsort.txt */
-
 static void REVERSE_ELEMENTS(SORT_TYPE * dst, int64_t start, int64_t end)
 {
 	while(start < end) {

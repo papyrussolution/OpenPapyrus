@@ -1374,8 +1374,8 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				Layout_Obsolete.SetContainerBounds(cr);
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
-					P_Lfc->width = static_cast<float>(cr.width());
-					P_Lfc->height = static_cast<float>(cr.height());
+					P_Lfc->Size.X = static_cast<float>(cr.width());
+					P_Lfc->Size.Y = static_cast<float>(cr.height());
 					DoLayoutFlex(P_Lfc);
 				}
 				// } @v10.9.3 
@@ -1391,8 +1391,8 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				Layout_Obsolete.SetContainerBounds(cr);
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
-					P_Lfc->width = static_cast<float>(cr.width());
-					P_Lfc->height = static_cast<float>(cr.height());
+					P_Lfc->Size.X = static_cast<float>(cr.width());
+					P_Lfc->Size.Y = static_cast<float>(cr.height());
 					DoLayoutFlex(P_Lfc);
 				}
 				// } @v10.9.3 

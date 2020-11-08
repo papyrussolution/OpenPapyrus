@@ -29,6 +29,10 @@ class  DBQuery;
 class  DbProvider;
 class  BDbEnv; // Окружение для BerkeleyDB
 class  BDbDatabase;
+struct st_mysql_stmt;
+typedef struct st_mysql_stmt MYSQL_STMT;
+struct st_mysql_time;
+typedef struct st_mysql_time MYSQL_TIME;
 
 #define THROW_D(expr,val)      {if(!(expr)){DBS.SetError(val);goto __scatch;}}
 #define THROW_D_S(expr,val,s)  {if(!(expr)){DBS.SetError(val, s);goto __scatch;}}
@@ -1431,6 +1435,7 @@ public:
 class SSqlStmt {
 public:
 	friend class SOraDbProvider;
+	friend class SMySqlDbProvider;
 	//
 	//   @todo
 	//   Конструктор сделать приватным так как создавать экземпляры
@@ -1510,12 +1515,12 @@ private:
 	};
 	class BindArray : public TSVector <SSqlStmt::Bind> {
 	public:
-		BindArray(uint dim = 1);
+		explicit BindArray(uint dim = 1);
 		uint   Dim; // Размерность связываемого массива элементов.
 		DBLobBlock * P_Lob;
 	};
 
-	int    InitBinding();
+	void   InitBinding();
 	int    AllocBindSubst(uint32 itemCount, uint32 itemSize, Bind * pBind);
 	size_t Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, int calcOnly);
 	int    AllocIndSubst(uint32 itemCount, Bind * pBind);
@@ -1525,7 +1530,7 @@ private:
 	void * FASTCALL GetIndPtr(const Bind * pBind, uint rowN) const;
 
 	DbProvider * P_Db;
-	uint32 H;
+	void * H; // @v10.9.3 uint32-->void *
 	long   Flags;
 	BindArray BL;
 	SdRecord Descr;
@@ -2701,7 +2706,7 @@ private:
 	SOraDbProvider::OH FASTCALL OhAlloc(int type);
 	int    FASTCALL OhFree(OH & rO);
 	SOraDbProvider::OD FASTCALL OdAlloc(int type);
-	int    FASTCALL OdFree(OD & rO);
+	void   FASTCALL OdFree(OD & rO);
 	int    OhAttrSet(OH o, uint attr, void * pData, size_t size);
 	int    OdAttrSet(OD o, uint attr, void * pData, size_t size);
 	int    OhAttrGet(OH o, uint attr, void * pData, size_t * pSize);
@@ -2722,7 +2727,7 @@ private:
 	int    FASTCALL DestroyBind(SSqlStmt::Bind * pBind); // V
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	int    ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType, int descrType);
-	int    ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
+	void   ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	static OH FASTCALL StmtHandle(const SSqlStmt & rS);
 	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
@@ -2750,9 +2755,57 @@ public:
 	~SMySqlDbProvider();
 	virtual int Login(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
+	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
+	virtual int IsFileExists_(const char * pFileName);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
+	virtual int DropFile(const char * pFileName);
+	virtual int PostProcessAfterUndump(DBTable * pTbl);
+	virtual int StartTransaction();
+	virtual int CommitWork();
+	virtual int RollbackWork();
+	virtual int GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
+	virtual int Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
+	virtual int Implement_Close(DBTable * pTbl);
+	virtual int Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf);
+	virtual int Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData);
+	virtual int Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc);
+	virtual int Implement_DeleteRec(DBTable * pTbl);
+	virtual int Implement_BExtInsert(BExtInsert * pBei);
+	virtual int Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
+	virtual int Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
+	virtual int ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
+	virtual int RecoverTable(BTBLID tblID, BRecoverParam * pParam);
+	virtual int CreateStmt(SSqlStmt * pS, const char * pText, long flags);
+	virtual int DestroyStmt(SSqlStmt * pS);
+	virtual int Binding(SSqlStmt & rS, int dir);
+	virtual int ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
 	virtual int Exec(SSqlStmt & rS, uint count, int mode);
+	virtual int Describe(SSqlStmt & rS, SdRecord &);
+	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 private:
+	struct OD { 
+		OD() : H(0), T(0)
+		{
+		}
+		int    operator !() const { return (T == 0); }
+		operator MYSQL_TIME * () const { return static_cast<MYSQL_TIME *>(H); }
+		operator OCIRowid * () const { return static_cast<OCIRowid*>(H); }
+		operator OCILobLocator * () const { return static_cast<OCILobLocator*>(H); }
+		void * H;
+		uint32 T;
+	};
+	int    FASTCALL ProcessError(int status);
+	static MYSQL_STMT * FASTCALL StmtHandle(const SSqlStmt & rS);
+	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
+	enum {
+		descrMYSQLTIME = 1
+	};
+	OD     FASTCALL OdAlloc(int descrType);
+	void   FASTCALL OdFree(OD & rO);
+	int    ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType, int descrType);
+	void   ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;

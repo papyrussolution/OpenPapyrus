@@ -272,41 +272,29 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	SecPkgCredentials_Names names;
 	SECURITY_STATUS status;
 	char * user_name;
-
 	/* Decode the base-64 encoded input message */
 	if(sstrlen(chlg64) && *chlg64 != '=') {
 		result = Curl_base64_decode(chlg64, &chlg, &chlglen);
 		if(result)
 			return result;
 	}
-
 	/* Ensure we have a valid challenge message */
 	if(!chlg) {
 		infof(data, "GSSAPI handshake failure (empty security message)\n");
-
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
-
 	/* Get our response size information */
-	status = s_pSecFn->QueryContextAttributes(krb5->context,
-	    SECPKG_ATTR_SIZES,
-	    &sizes);
+	status = s_pSecFn->QueryContextAttributes(krb5->context, SECPKG_ATTR_SIZES, &sizes);
 	if(status != SEC_E_OK) {
 		SAlloc::F(chlg);
-
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 	/* Get the fully qualified username back from the context */
-	status = s_pSecFn->QueryCredentialsAttributes(krb5->credentials,
-	    SECPKG_CRED_ATTR_NAMES,
-	    &names);
+	status = s_pSecFn->QueryCredentialsAttributes(krb5->credentials, SECPKG_CRED_ATTR_NAMES, &names);
 	if(status != SEC_E_OK) {
 		SAlloc::F(chlg);
-
 		return CURLE_RECV_ERROR;
 	}
-
 	/* Setup the "input" security buffer */
 	input_desc.ulVersion = SECBUFFER_VERSION;
 	input_desc.cBuffers = 2;

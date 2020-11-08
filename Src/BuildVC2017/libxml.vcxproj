@@ -917,15 +917,12 @@
     <ClCompile Include="..\Osf\Libxml\xzlib.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\LIBXML\acconfig.h" />
     <ClInclude Include="..\OSF\LIBXML\config.h" />
     <ClInclude Include="..\OSF\LIBXML\elfgcchack.h" />
     <ClInclude Include="..\include\libxml\DOCBparser.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\globals.h" />
     <ClInclude Include="..\include\libxml\list.h" />
-    <ClInclude Include="..\include\libxml\nanoftp.h" />
-    <ClInclude Include="..\include\libxml\nanohttp.h" />
     <ClInclude Include="..\include\libxml\parser.h" />
     <ClInclude Include="..\include\libxml\relaxng.h" />
     <ClInclude Include="..\include\libxml\schemasInternals.h" />
@@ -934,12 +931,10 @@
     <ClInclude Include="..\include\libxml\xinclude.h" />
     <ClInclude Include="..\include\libxml\xmlautomata.h" />
     <ClInclude Include="..\include\libxml\xmlerror.h" />
-    <ClInclude Include="..\include\libxml\xmlexports.h" />
     <ClInclude Include="..\include\libxml\xmlIO.h" />
     <ClInclude Include="..\include\libxml\xmlmemory.h" />
     <ClInclude Include="..\include\libxml\xmlmodule.h" />
     <ClInclude Include="..\include\libxml\xmlreader.h" />
-    <ClInclude Include="..\include\libxml\xmlsave.h" />
     <ClInclude Include="..\include\libxml\xmlschemas.h" />
     <ClInclude Include="..\include\libxml\xmlschemastypes.h" />
     <ClInclude Include="..\include\libxml\xmlstring.h" />

@@ -27,8 +27,7 @@ static int Helper_SFindFile(const SString * pPath, SFindFile * pParam)
 	SDirec dir(inner_path, 1);
 	SDirEntry dir_entry;
 	while(ok && dir.Next(&dir_entry) > 0) {
-		// @v9.1.7 if(dir_entry.FileName[0] != '.' && dir_entry.FileName[1] != 0) {
-		if(!dir_entry.IsSelf() && !dir_entry.IsUpFolder()) { // @v9.1.7
+		if(!dir_entry.IsSelf() && !dir_entry.IsUpFolder()) {
 			(inner_path = path).Cat(dir_entry.FileName);
 			pParam->DirCount++;
 			//

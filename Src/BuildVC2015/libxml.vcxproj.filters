@@ -45,9 +45,6 @@
     <ClCompile Include="..\Osf\Libxml\xzlib.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\LIBXML\acconfig.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\LIBXML\config.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -87,12 +84,6 @@
     <ClInclude Include="..\include\libxml\list.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\nanoftp.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\nanohttp.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\parser.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -120,9 +111,6 @@
     <ClInclude Include="..\include\libxml\xmlerror.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\xmlexports.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\xmlIO.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -136,9 +124,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\xmlregexp.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\xmlsave.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\xmlschemas.h">

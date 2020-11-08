@@ -2426,32 +2426,32 @@ END
 
 DLG_ADDRSTRUC DIALOGEX 46, 0, 322, 236
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Разбор адреса"
+CAPTION "@addrstruc"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Исходная строка адреса",4001,5,5,92,8
+    LTEXT           "@addrstruc_taddress",4001,5,5,92,8
     EDITTEXT        CTL_ADDRSTRUC_SRC,5,15,310,13,ES_AUTOHSCROLL
-    LTEXT           "@country",4002,5,30,172,8
+    LTEXT           "@addrstruc_tcountry",4002,5,30,172,8
     EDITTEXT        CTL_ADDRSTRUC_COUNTRY,5,40,175,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "ZIP",4003,250,30,65,8
+    LTEXT           "@addrstruc_tzip",4003,250,30,65,8
     EDITTEXT        CTL_ADDRSTRUC_ZIP,250,40,65,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@city",4004,5,55,310,8
+    LTEXT           "@addrstruc_tcity",4004,5,55,310,8
     EDITTEXT        CTL_ADDRSTRUC_CITY,5,65,310,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Локальный регион",4005,5,80,305,8
+    LTEXT           "@addrstruc_tlocalarea",4005,5,80,305,8
     EDITTEXT        CTL_ADDRSTRUC_LOCALAREA,5,90,310,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@street",4006,5,105,310,8
+    LTEXT           "@addrstruc_tstreet",4006,5,105,310,8
     EDITTEXT        CTL_ADDRSTRUC_STREET,5,115,310,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Дом",4007,5,130,52,8
+    LTEXT           "@addrstruc_thouse",4007,5,130,52,8
     EDITTEXT        CTL_ADDRSTRUC_HOUSE,5,140,65,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Дом (дополнение)",4008,80,130,68,8
+    LTEXT           "@addrstruc_thouseaddendum",4008,80,130,68,8
     EDITTEXT        CTL_ADDRSTRUC_HOUSEADD,80,140,65,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@apartment",4009,160,130,65,8
+    LTEXT           "@addrstruc_tapart",4009,160,130,65,8
     EDITTEXT        CTL_ADDRSTRUC_APART,160,140,65,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Этаж",4010,250,130,65,8
+    LTEXT           "@addrstruc_tfloor",4010,250,130,65,8
     EDITTEXT        CTL_ADDRSTRUC_FLOOR,250,140,65,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Почтовый ящик",4011,5,160,56,8
+    LTEXT           "@addrstruc_tpostbox",4011,5,160,56,8
     EDITTEXT        CTL_ADDRSTRUC_POSTBOX,5,170,65,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@addendum",4012,5,185,228,8
+    LTEXT           "@addrstruc_taddendum",4012,5,185,228,8
     EDITTEXT        CTL_ADDRSTRUC_ADDENDUM,5,195,310,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Fias ID",4013,80,160,110,8
     EDITTEXT        CTL_ADDRSTRUC_FIASID,80,170,115,13,ES_AUTOHSCROLL | ES_READONLY
@@ -2893,7 +2893,7 @@ END
 
 DLG_ASSET DIALOGEX 31, 16, 491, 192
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Объект основных средств"
+CAPTION "@assetobject"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "@appellation",4001,10,10,170,8
@@ -3035,7 +3035,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Итоги по бухгалтерским проводкам"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Количество проводок",4001,10,10,75,8
+    LTEXT           "@accountingturncount",4001,10,10,75,8
     EDITTEXT        CTL_ATURNTOTAL_COUNT,35,20,50,13,ES_AUTOHSCROLL
     CONTROL         "",CTL_ATURNTOTAL_AMTLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,95,20,105,60
     PUSHBUTTON      "@but_close",STDCTL_CANCELBUTTON,35,65,50,15

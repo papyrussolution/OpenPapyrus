@@ -148,7 +148,7 @@ SOraDbProvider::OH::operator uint32 () const
 {
 	OH h;
 	h.T = OCI_HTYPE_STMT;
-	h.H = (void *)rS.H; // @x64crit
+	h.H = rS.H;
 	return h;
 }
 
@@ -321,7 +321,7 @@ int SSqlStmt::Describe()
 	return P_Db->Describe(*this, Descr);
 }
 
-int SSqlStmt::InitBinding()
+void SSqlStmt::InitBinding()
 {
 	BL.clear();
 	BL.Dim = 1;
@@ -332,7 +332,6 @@ int SSqlStmt::InitBinding()
 	IndSubstPlus = 0;
 	IndSubstMinus = 0;
 	FslSubst = 0;
-	return 1;
 }
 
 uint SSqlStmt::GetBindingCount(int dir) const
@@ -579,11 +578,10 @@ int SOraDbProvider::ProcessBinding_AllocDescr(uint count, SSqlStmt * pStmt, SSql
 	return ok;
 }
 
-int SOraDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
+void SOraDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
 {
 	for(uint i = 0; i < count; i++)
 		OdFree(*static_cast<OD *>(pStmt->GetBindOuterPtr(pBind, i)));
-	return 1;
 }
 //
 // ARG(action IN):
@@ -1229,14 +1227,11 @@ SOraDbProvider::OD FASTCALL SOraDbProvider::OdAlloc(int type)
 	return o;
 }
 
-int FASTCALL SOraDbProvider::OdFree(OD & rO)
+void FASTCALL SOraDbProvider::OdFree(OD & rO)
 {
-	if(!rO || !ProcessError(OCIDescriptorFree(rO.H, rO.T)))
-		return 0;
-	else {
+	if(!!rO && ProcessError(OCIDescriptorFree(rO.H, rO.T))) {
 		rO.H = 0;
 		rO.T = 0;
-		return 1;
 	}
 }
 
@@ -1774,7 +1769,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 	}
 	else {
 		//
-		// Для того, чтобы hint'ы работали, необхоидмо и в hint'е и в
+		// Для того, чтобы hint'ы работали, необходимо и в hint'е и в
 		// префиксах списков полей указывать либо алиас, либо наименование таблицы,
 		// но не смешивать.
 		// Например конструкция //

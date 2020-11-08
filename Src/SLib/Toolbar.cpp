@@ -609,19 +609,19 @@ int TToolbar::Show()
 {
 	int    ok = 0;
 	if(IsValid()) {
-		ShowWindow(H_Wnd, SW_SHOW);
+		::ShowWindow(H_Wnd, SW_SHOW);
 		RECT rc;
-		GetClientRect(H_Wnd, &rc);
-		PostMessage(H_Wnd, WM_SIZE, SIZE_RESTORED, rc.bottom<<16 & rc.right);
+		::GetClientRect(H_Wnd, &rc);
+		PostMessage(H_Wnd, WM_SIZE, SIZE_RESTORED, (rc.bottom<<16) & rc.right);
 		SelectMode();
 		ok = 1;
 	}
 	return ok;
 }
 
-int TToolbar::Hide()
+void TToolbar::Hide()
 {
-	return ShowWindow(H_Wnd, SW_HIDE);
+	::ShowWindow(H_Wnd, SW_HIDE);
 }
 
 #define TBI_CHECKED   (TB_GLOBAL_CHECKED-TB_ICON_USER)

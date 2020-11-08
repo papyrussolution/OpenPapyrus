@@ -316,6 +316,7 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 	SString entry_buf;
 	SString def_dict;
 	SString def_data;
+	SString server_type_symb;
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
 	THROW_MEM(p_ini_file);
 	if(p_ini_file->IsValid()) {
@@ -333,11 +334,13 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 			if(r) {
 				blk.GetAttr(DbLoginBlock::attrDictPath, temp_buf);
 				blk.GetAttr(DbLoginBlock::attrDbPath, temp_buf);
+				blk.GetAttr(DbLoginBlock::attrServerType, server_type_symb);
+				const SqlServerType server_type = GetSqlServerTypeBySymb(server_type_symb);
 				if(temp_buf.Empty()) {
 					if(!dontLoadDefDict)
 						blk.SetAttr(DbLoginBlock::attrDbPath, def_dict);
 				}
-				if(existsPathOnly) {
+				if(existsPathOnly && server_type != sqlstMySQL) { // @v10.9.3 @debug (server_type != sqlstMySQL)
 					//
 					// @construction ps.Split(temp_buf);
 					// @todo Здесь необходимо идентифицировать доступность

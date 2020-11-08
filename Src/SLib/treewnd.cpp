@@ -130,20 +130,21 @@ void TreeWindow::ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 		HWND   hwnd_tab = GetDlgItem(Hwnd, CTL_SHORTCUTS_ITEMS);
 		int    idx = TabCtrl_GetItemCount(hwnd_tab);
 		int    prev_sel = TabCtrl_GetCurSel(hwnd_tab);
-		TCHAR  temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
+		const  uint max_text_len = 40; //SHCTSTAB_MAXTEXTLEN;
+		TCHAR  temp_title_buf[max_text_len * 2];
 		size_t title_len = sstrlen(pTitle);
 		STRNSCPY(temp_title_buf, SUcSwitch(pTitle));
-		if(title_len > SHCTSTAB_MAXTEXTLEN) {
-			temp_title_buf[SHCTSTAB_MAXTEXTLEN] = 0;
+		if(title_len > max_text_len) {
+			temp_title_buf[max_text_len] = 0;
 			for(int j = 0; j < 3; j++)
-				temp_title_buf[SHCTSTAB_MAXTEXTLEN - j - 1] = '.';
+				temp_title_buf[max_text_len-j-1] = '.';
 		}
 		MEMSZERO(rc_item);
 		tci.mask = TCIF_TEXT|TCIF_PARAM;
-		tci.pszText = temp_title_buf; // @unicodeproblem
+		tci.pszText = temp_title_buf;
 		tci.cchTextMax = sizeof(temp_title_buf);
 		tci.lParam = reinterpret_cast<LPARAM>(ptr);
-		TabCtrl_InsertItem(hwnd_tab, idx, &tci); // @unicodeproblem
+		TabCtrl_InsertItem(hwnd_tab, idx, &tci);
 		TabCtrl_SetCurSel(hwnd_tab, idx);
 		TabCtrl_HighlightItem(hwnd_tab, prev_sel, 0);
 		TabCtrl_HighlightItem(hwnd_tab, idx, 1);
@@ -159,9 +160,9 @@ void TreeWindow::ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 			t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 			t_i.rect        = rc_item;
 			t_i.hinst       = TProgram::GetInst();
-			t_i.lpszText    = const_cast<char *>(pTitle); //temp_title_buf; // @unicodeproblem
-			::SendMessage(HwndTT, (UINT)TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
-			::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+			t_i.lpszText    = const_cast<char *>(pTitle); 
+			::SendMessage(HwndTT, (UINT)TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
+			::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i));
 		}
 		if(Hwnd)
 			ShowWindow(Hwnd, SW_SHOW);
@@ -181,12 +182,13 @@ void TreeWindow::ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 			tci.mask = TCIF_PARAM;
 			if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == reinterpret_cast<LPARAM>(ptr)) {
 				size_t title_len = sstrlen(pTitle);
-				TCHAR  temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
+				const  uint max_text_len = 40; //SHCTSTAB_MAXTEXTLEN;
+				TCHAR  temp_title_buf[max_text_len * 2];
 				STRNSCPY(temp_title_buf, SUcSwitch(pTitle));
-				if(title_len > SHCTSTAB_MAXTEXTLEN) {
-					temp_title_buf[SHCTSTAB_MAXTEXTLEN] = 0;
+				if(title_len > max_text_len) {
+					temp_title_buf[max_text_len] = 0;
 					for(int j = 0; j < 3; j++)
-						temp_title_buf[SHCTSTAB_MAXTEXTLEN - j - 1] = '.';
+						temp_title_buf[max_text_len-j-1] = '.';
 				}
 				tci.mask = LVIF_TEXT;
 				tci.pszText = temp_title_buf; // @unicodeproblem
@@ -200,9 +202,9 @@ void TreeWindow::ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = temp_title_buf; // @unicodeproblem
-					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
-					::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
+					t_i.lpszText    = temp_title_buf;
+					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
+					::SendMessage(HwndTT, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
 				}
 				_upd = 1;
 				break;
@@ -497,12 +499,12 @@ TreeWindow::ListWindowItem * TreeWindow::GetListWinByCmd(long cmd, uint * pPos)
 
 TreeWindow::ListWindowItem * TreeWindow::GetListWinByHwnd(HWND hWnd, uint * pPos)
 {
-	uint pos = 0, count = Items.getCount();
+	uint  pos = 0;
 	ListWindowItem * p_lwi = 0;
-	for(uint i = 0; !p_lwi && i < count; i++) {
+	for(uint i = 0; !p_lwi && i < Items.getCount(); i++) {
 		ListWindowItem * p_cur_lwi = Items.at(i);
 		if(p_cur_lwi && p_cur_lwi->P_Lw->H() == hWnd) {
-			p_lwi = Items.at(i);
+			p_lwi = p_cur_lwi;//Items.at(i);
 			pos = i;
 		}
 	}
@@ -545,17 +547,17 @@ void TreeWindow::CloseItem(HWND hWnd)
 void TreeWindow::SelItem(HWND hWnd)
 {
 	ListWindowItem * p_lwi = GetListWinByHwnd(hWnd, 0);
-	ListWindow * p_lw = (p_lwi) ? p_lwi->P_Lw : 0;
+	ListWindow * p_lw = p_lwi ? p_lwi->P_Lw : 0;
 	ShowList(p_lw);
 }
 
 void TreeWindow::ShowList(ListWindow * pLw)
 {
-	HWND prev_hwnd = (P_CurLw) ? P_CurLw->H() : H_CmdList;
-	HWND cur_hwnd  = (pLw)     ? pLw->H()     : H_CmdList;
+	HWND prev_hwnd = P_CurLw ? P_CurLw->H() : H_CmdList;
+	HWND cur_hwnd  = pLw ? pLw->H() : H_CmdList;
 	if(cur_hwnd) {
 		if(prev_hwnd)
-			ShowWindow(prev_hwnd, SW_HIDE);
+			::ShowWindow(prev_hwnd, SW_HIDE);
 		P_CurLw = pLw;
 		RECT rc;
 		GetClientRect(Hwnd, &rc);
@@ -568,8 +570,8 @@ void TreeWindow::ShowList(ListWindow * pLw)
 				ZDELETE(P_Toolbar);
 		}
 		MoveChilds(rc);
-		ShowWindow(cur_hwnd, SW_SHOWNORMAL);
-		UpdateWindow(Hwnd);
+		::ShowWindow(cur_hwnd, SW_SHOWNORMAL);
+		::UpdateWindow(Hwnd);
 	}
 }
 
@@ -632,21 +634,13 @@ void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
-		mii.dwTypeData = menu_name_buf; // @unicodeproblem
+		mii.dwTypeData = menu_name_buf;
 		mii.cch = SIZEOFARRAY(menu_name_buf);
-		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
+		GetMenuItemInfo(hMenu, i, TRUE, &mii);
 		if(menu_name_buf[0] != 0) {
-			/* @v10.3.10
-			char * chr = sstrchr(menu_name, '&');
-			if(chr)
-				memmove(chr, chr+1, sstrlen(chr));
-			SCharToOem(menu_name);
-			*/
-			// @v10.3.10 {
 			temp_buf = SUcSwitch(menu_name_buf);
 			temp_buf.ReplaceStr("&", 0, 1); 
 			temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
-			// } @v10.3.10 
 	  		if(mii.fType != MFT_SEPARATOR) {
 				pList->Add(mii.wID, parentId, temp_buf);
 				if(mii.hSubMenu)
@@ -668,9 +662,9 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 		is.item.mask       = TVIF_TEXT | TVIF_PARAM;
 		is.item.lParam     = reinterpret_cast<LPARAM>(ptr);
 		is.item.cChildren  = 0;
-		is.item.pszText    = title_buf; // @unicodeproblem
+		is.item.pszText    = title_buf;
 		is.item.cchTextMax = SIZEOFARRAY(title_buf);
-		TreeView_InsertItem(H_CmdList, &is); // @unicodeproblem
+		TreeView_InsertItem(H_CmdList, &is);
 	}
 }
 
@@ -690,9 +684,9 @@ void TreeWindow::UpdateItemCmdList(const char * pTitle, void * ptr)
 			if(!is.cChildren && LOWORD(is.lParam) == LOWORD(ptr)) {
 				is.hItem      = h_item;
 				is.mask       = TVIF_TEXT;
-				is.pszText    = title_buf; // @unicodeproblem
+				is.pszText    = title_buf;
 				is.cchTextMax = SIZEOFARRAY(title_buf);
-				TreeView_SetItem(hw_tree, &is); // @unicodeproblem
+				TreeView_SetItem(hw_tree, &is);
 				break;
 			}
 		}

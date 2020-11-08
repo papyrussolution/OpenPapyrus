@@ -243,9 +243,7 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 		/* Call the general version checker (shared with read and write code):
 		 */
 		if(png_user_version_check(&create_struct, user_png_ver) != 0) {
-			png_structrp png_ptr = png_voidcast(png_structrp,
-			    png_malloc_warn(&create_struct, (sizeof *png_ptr)));
-
+			png_structrp png_ptr = png_voidcast(png_structrp, png_malloc_warn(&create_struct, (sizeof *png_ptr)));
 			if(png_ptr) {
 				/* png_ptr->zstream holds a back-pointer to the png_struct, so
 				 * this can only be done now:
@@ -253,7 +251,6 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 				create_struct.zstream.zalloc = png_zalloc;
 				create_struct.zstream.zfree = png_zfree;
 				create_struct.zstream.opaque = png_ptr;
-
 #              ifdef PNG_SETJMP_SUPPORTED
 				/* Eliminate the local error handling: */
 				create_struct.jmp_buf_ptr = NULL;
@@ -286,8 +283,7 @@ PNG_ALLOCATED png_infop PNGAPI png_create_info_struct(png_const_structrp png_ptr
 	 * has always been done in 'example.c'.
 	 */
 	info_ptr = png_voidcast(png_inforp, png_malloc_base(png_ptr, (sizeof *info_ptr)));
-	if(info_ptr != NULL)
-		memzero(info_ptr, (sizeof *info_ptr));
+	memzero(info_ptr, (sizeof *info_ptr));
 	return info_ptr;
 }
 
@@ -334,19 +330,19 @@ PNG_DEPRECATED void PNGAPI png_info_init_3(png_infopp ptr_ptr, size_t png_info_s
 {
 	png_inforp info_ptr = *ptr_ptr;
 	png_debug(1, "in png_info_init_3");
-	if(info_ptr == NULL)
-		return;
-	if((sizeof(png_info)) > png_info_struct_size) {
-		*ptr_ptr = NULL;
-		/* The following line is why this API should not be used: */
-		free(info_ptr);
-		info_ptr = png_voidcast(png_inforp, png_malloc_base(NULL, (sizeof *info_ptr)));
-		if(info_ptr == NULL)
-			return;
-		*ptr_ptr = info_ptr;
+	if(info_ptr) {
+		if((sizeof(png_info)) > png_info_struct_size) {
+			*ptr_ptr = NULL;
+			/* The following line is why this API should not be used: */
+			free(info_ptr);
+			info_ptr = png_voidcast(png_inforp, png_malloc_base(NULL, (sizeof *info_ptr)));
+			if(info_ptr == NULL)
+				return;
+			*ptr_ptr = info_ptr;
+		}
+		/* Set everything to 0 */
+		memzero(info_ptr, (sizeof *info_ptr));
 	}
-	/* Set everything to 0 */
-	memzero(info_ptr, (sizeof *info_ptr));
 }
 
 /* The following API is not called internally */
@@ -414,13 +410,9 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
 		png_free(png_ptr, info_ptr->pcal_units);
 		info_ptr->pcal_purpose = NULL;
 		info_ptr->pcal_units = NULL;
-
 		if(info_ptr->pcal_params != NULL) {
-			int i;
-
-			for(i = 0; i < info_ptr->pcal_nparams; i++)
+			for(int i = 0; i < info_ptr->pcal_nparams; i++)
 				png_free(png_ptr, info_ptr->pcal_params[i]);
-
 			png_free(png_ptr, info_ptr->pcal_params);
 			info_ptr->pcal_params = NULL;
 		}
@@ -806,48 +798,35 @@ void /* PRIVATE */ png_zstream_error(png_structrp png_ptr, int ret)
 			case Z_OK:
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("unexpected zlib return code");
 			    break;
-
 			case Z_STREAM_END:
 			    /* Normal exit */
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("unexpected end of LZ stream");
 			    break;
-
 			case Z_NEED_DICT:
-			    /* This means the deflate stream did not have a dictionary; this
-			 * indicates a bogus PNG.
-			     */
+			    // This means the deflate stream did not have a dictionary; this indicates a bogus PNG.
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("missing LZ dictionary");
 			    break;
-
 			case Z_ERRNO:
 			    /* gz APIs only: should not happen */
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("zlib IO error");
 			    break;
-
 			case Z_STREAM_ERROR:
 			    /* internal libpng error */
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("bad parameters to zlib");
 			    break;
-
 			case Z_DATA_ERROR:
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("damaged LZ stream");
 			    break;
-
 			case Z_MEM_ERROR:
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("insufficient memory");
 			    break;
-
 			case Z_BUF_ERROR:
-			    /* End of input or output; not a problem if the caller is doing
-			 * incremental read or write.
-			     */
+			    // End of input or output; not a problem if the caller is doing incremental read or write.
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("truncated");
 			    break;
-
 			case Z_VERSION_ERROR:
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("unsupported zlib version");
 			    break;
-
 			case PNG_UNEXPECTED_ZLIB_RETURN:
 			    /* Compile errors here mean that zlib now uses the value co-opted in
 			 * pngpriv.h for PNG_UNEXPECTED_ZLIB_RETURN; update the switch above
@@ -2302,25 +2281,17 @@ int /* PRIVATE */ png_check_fp_number(const char * string, size_t size, int * st
 
 			    else
 				    png_fp_set(state, PNG_FP_FRACTION | type);
-
 			    break;
-
 			case PNG_FP_INTEGER + PNG_FP_SAW_DIGIT:
 			    if((state & PNG_FP_SAW_DOT) != 0) /* delayed fraction */
 				    png_fp_set(state, PNG_FP_FRACTION | PNG_FP_SAW_DOT);
-
 			    png_fp_add(state, type | PNG_FP_WAS_VALID);
-
 			    break;
-
 			case PNG_FP_INTEGER + PNG_FP_SAW_E:
 			    if((state & PNG_FP_SAW_DIGIT) == 0)
 				    goto PNG_FP_End;
-
 			    png_fp_set(state, PNG_FP_EXPONENT);
-
 			    break;
-
 			/* case PNG_FP_FRACTION + PNG_FP_SAW_SIGN:
 			      goto PNG_FP_End; ** no sign in fraction */
 
@@ -2330,7 +2301,6 @@ int /* PRIVATE */ png_check_fp_number(const char * string, size_t size, int * st
 			case PNG_FP_FRACTION + PNG_FP_SAW_DIGIT:
 			    png_fp_add(state, type | PNG_FP_WAS_VALID);
 			    break;
-
 			case PNG_FP_FRACTION + PNG_FP_SAW_E:
 			    /* This is correct because the trailing '.' on an
 			 * integer is handled above - so we can only get here
@@ -2338,30 +2308,21 @@ int /* PRIVATE */ png_check_fp_number(const char * string, size_t size, int * st
 			     */
 			    if((state & PNG_FP_SAW_DIGIT) == 0)
 				    goto PNG_FP_End;
-
 			    png_fp_set(state, PNG_FP_EXPONENT);
-
 			    break;
-
 			case PNG_FP_EXPONENT + PNG_FP_SAW_SIGN:
 			    if((state & PNG_FP_SAW_ANY) != 0)
 				    goto PNG_FP_End;  /* not a part of the number */
-
 			    png_fp_add(state, PNG_FP_SAW_SIGN);
 
 			    break;
-
 			/* case PNG_FP_EXPONENT + PNG_FP_SAW_DOT:
 			      goto PNG_FP_End; */
-
 			case PNG_FP_EXPONENT + PNG_FP_SAW_DIGIT:
 			    png_fp_add(state, PNG_FP_SAW_DIGIT | PNG_FP_WAS_VALID);
-
 			    break;
-
 			/* case PNG_FP_EXPONEXT + PNG_FP_SAW_E:
 			      goto PNG_FP_End; */
-
 			default: goto PNG_FP_End; /* I.e. break 2 */
 		}
 
@@ -2375,7 +2336,6 @@ PNG_FP_End:
 	 */
 	*statep = state;
 	*whereami = i;
-
 	return (state & PNG_FP_SAW_DIGIT) != 0;
 }
 
@@ -2384,11 +2344,8 @@ int png_check_fp_string(const char * string, size_t size)
 {
 	int state = 0;
 	size_t char_index = 0;
-
-	if(png_check_fp_number(string, size, &state, &char_index) != 0 &&
-	    (char_index == size || string[char_index] == 0))
+	if(png_check_fp_number(string, size, &state, &char_index) != 0 && (char_index == size || string[char_index] == 0))
 		return state /* must be non-zero - see above */;
-
 	return 0; /* i.e. fail */
 }
 
@@ -2403,7 +2360,6 @@ static double png_pow10(int power)
 {
 	int recip = 0;
 	double d = 1;
-
 	/* Handle negative exponent with a reciprocal at the end because
 	 * 10 is exact whereas .1 is inexact in base 2
 	 */
@@ -2411,7 +2367,6 @@ static double png_pow10(int power)
 		if(power < DBL_MIN_10_EXP) return 0;
 		recip = 1, power = -power;
 	}
-
 	if(power > 0) {
 		/* Decompose power bitwise. */
 		double mult = 10;
@@ -2419,13 +2374,10 @@ static double png_pow10(int power)
 			if(power & 1) d *= mult;
 			mult *= mult;
 			power >>= 1;
-		}
-		while(power > 0);
-
+		} while(power > 0);
 		if(recip != 0) d = 1/d;
 	}
 	/* else power is 0 and d is 1 */
-
 	return d;
 }
 
@@ -2766,7 +2718,6 @@ void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, char * ascii
 png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, const char * text)
 {
 	double r = floor(100000 * fp + .5);
-
 	if(r > 2147483647. || r < -2147483648.)
 		png_fixed_error(png_ptr, text);
 #ifndef PNG_ERROR_TEXT_SUPPORTED
@@ -2889,16 +2840,13 @@ png_fixed_point png_reciprocal(png_fixed_point a)
 {
 #ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
 	double r = floor(1E10/a+.5);
-
 	if(r <= 2147483647. && r >= -2147483648.)
 		return (png_fixed_point)r;
 #else
 	png_fixed_point res;
-
 	if(png_muldiv(&res, 100000, 100000, a) != 0)
 		return res;
 #endif
-
 	return 0; /* error/overflow */
 }
 
@@ -2922,16 +2870,13 @@ static png_fixed_point png_product2(png_fixed_point a, png_fixed_point b)
 	double r = a * 1E-5;
 	r *= b;
 	r = floor(r+.5);
-
 	if(r <= 2147483647. && r >= -2147483648.)
 		return (png_fixed_point)r;
 #else
 	png_fixed_point res;
-
 	if(png_muldiv(&res, a, b, 100000) != 0)
 		return res;
 #endif
-
 	return 0; /* overflow */
 }
 
@@ -2946,7 +2891,6 @@ png_fixed_point png_reciprocal2(png_fixed_point a, png_fixed_point b)
 		double r = 1E15/a;
 		r /= b;
 		r = floor(r+.5);
-
 		if(r <= 2147483647. && r >= -2147483648.)
 			return (png_fixed_point)r;
 	}
@@ -2957,11 +2901,9 @@ png_fixed_point png_reciprocal2(png_fixed_point a, png_fixed_point b)
 	 * 1/100000
 	 */
 	png_fixed_point res = png_product2(a, b);
-
 	if(res != 0)
 		return png_reciprocal(res);
 #endif
-
 	return 0; /* overflow */
 }
 
@@ -2986,9 +2928,7 @@ png_fixed_point png_reciprocal2(png_fixed_point a, png_fixed_point b)
  * 255, so it's the base 2 logarithm of a normalized 8-bit floating point
  * mantissa.  The numbers are 32-bit fractions.
  */
-static const uint32
-    png_8bit_l2[128] =
-{
+static const uint32 png_8bit_l2[128] = {
 	4270715492U, 4222494797U, 4174646467U, 4127164793U, 4080044201U, 4033279239U,
 	3986864580U, 3940795015U, 3895065449U, 3849670902U, 3804606499U, 3759867474U,
 	3715449162U, 3671346997U, 3627556511U, 3584073329U, 3540893168U, 3498011834U,

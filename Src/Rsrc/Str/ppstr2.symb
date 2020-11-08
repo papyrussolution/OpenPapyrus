@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147493206
+LastSignatureCode=2147493232
 LastAutoCodeList=1,12000;102,10177;103,10072;110,10000;111,11991;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10127;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -1155,6 +1155,7 @@ registerdocument_pl=2147484503
 registerdocumentno=2147492819
 accountingturn=2147484504
 accountingturn_pl=2147484505
+accountingturncount=2147493207
 bankpaymentorder=2147484506
 forecast=2147492214
 waresalestable=2147484507
@@ -6463,6 +6464,7 @@ articlefilt_order=2147489128
 articlefilt_ordbyname=2147491260
 articlefilt_ordbyarticle=2147491261
 articlefilt_ordbydefault=2147491262
+assetobject=2147493208
 assetfilt=2147491330
 assetfilt_period=2147489136
 assetfilt_operperiod=2147489135
@@ -9535,6 +9537,30 @@ activeuserlist=2147493193
 activeuserlist_fshowcompnames=2147493194
 activeuserlist_usercount=2147493195
 activeuserlist_uniqmacaddrcount=2147493196
+addrstruc=2147493209
+addrstruc_taddress=2147493210
+addrstruc_tcountry=2147493211
+addrstruc_tzip=2147493212
+addrstruc_tlocalarea=2147493213
+addrstruc_tcity=2147493214
+addrstruc_tstreet=2147493215
+addrstruc_thouse=2147493216
+addrstruc_thouseaddendum=2147493217
+addrstruc_tcorp=2147493218
+addrstruc_tapart=2147493219
+addrstruc_tfloor=2147493220
+addrstruc_tpostbox=2147493221
+addrstruc_taddendum=2147493222
+addrstruc_tcitykind=2147493223
+addrstruc_tlocalareakind=2147493224
+addrstruc_tstreetkind=2147493225
+addrstruc_thousekind=2147493226
+addrstruc_thouseaddendumkind=2147493227
+addrstruc_tapartkind=2147493228
+addrstruc_tfiascityid=2147493229
+addrstruc_tfiasstreetid=2147493230
+addrstruc_tfiashouseid=2147493231
+addrstruc_tfiasterminalid=2147493232
 
 [GrpSymbList]
 .N.=124

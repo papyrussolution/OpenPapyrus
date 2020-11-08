@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ed25519.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_isnegative.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_sub.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p1p1_to_p2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p3_to_cached.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\open.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_isnonzero.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_tobytes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p1p1_to_p3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p3_to_p2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\sc_muladd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_add.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_mul.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_add.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p2_0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_precomp_0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\sc_reduce.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_cmov.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_neg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_double_scalarmult.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p2_dbl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_scalarmult_base.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\sign.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_copy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_pow22523.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_frombytes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p3_0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_sub.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\verify.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_frombytes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_sq2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_madd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p3_dbl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_tobytes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_invert.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\fe_sq.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_msub.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\ge_p3_tobytes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\auth\ref10\keypair.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\libmariadb\secure\win_crypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\Papyrus\Src\OSF\mariadb-connector-c\plugins\plugin.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="D:\Papyrus\Src\OSF\mariadb-connector-c\__build__\win\client_ed25519.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{33D21FAE-01BA-37B7-99DE-24A66B356960}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

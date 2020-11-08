@@ -600,9 +600,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Osf\Libxml\acconfig.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Libxml\config.h">
 			</File>
 			<File
@@ -622,12 +619,6 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\list.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\nanoftp.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\nanohttp.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\parser.h">
@@ -654,12 +645,6 @@
 				RelativePath="..\Osf\Libxml\trionan.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\triop.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Libxml\triostr.h">
-			</File>
-			<File
 				RelativePath="..\include\libxml\valid.h">
 			</File>
 			<File
@@ -672,9 +657,6 @@
 				RelativePath="..\include\libxml\xmlerror.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\xmlexports.h">
-			</File>
-			<File
 				RelativePath="..\include\libxml\xmlIO.h">
 			</File>
 			<File
@@ -685,9 +667,6 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\xmlreader.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\xmlsave.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\xmlschemas.h">

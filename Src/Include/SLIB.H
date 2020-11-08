@@ -11245,6 +11245,7 @@ void FASTCALL SInflateRect(RECT & rRect, int cx, int cy);
 
 struct FRect {
 	FRect();
+	FRect(float left, float top, float right, float bottom);
 	FRect(float width, float height);
 	FRect(const TRect & r);
 	FRect & FASTCALL operator = (FPoint p);
