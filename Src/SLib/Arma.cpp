@@ -1,8 +1,7 @@
 // ARMA.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 static const double ARMA_INVERTMATRIX_INIT_VAL = 1.e6;

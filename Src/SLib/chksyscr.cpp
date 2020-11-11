@@ -7,8 +7,8 @@
 //  This program demonstrates how to use SSPI to authenticate user credentials.
 //  Copyright (C) 2001.  Microsoft Corporation.  All rights reserved.
 // ----------------------------------------------------------------
-#include <slib.h>
-#include <tv.h>
+
+#include <slib-internal.h>
 #pragma hdrstop
 #include <tchar.h>
 #include <sspi.h>

@@ -380,17 +380,16 @@ int PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
 	return 1;
 }
 
-/*virtual*/void PPCommandItem::SetUniqueID(long * pID)
+/*virtual*/void FASTCALL PPCommandItem::SetUniqueID(long * pID)
 {
-	ID = *pID;
-	(*pID)++;
+	ID = (*pID)++;
 }
 //
 //
 //
 PPCommand::PPCommand() : PPCommandItem(kCommand), CmdID(0)
 {
-	P = 0;
+	P.Z();
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -555,23 +554,20 @@ PPCommandFolder & FASTCALL PPCommandFolder::operator = (const PPCommandFolder & 
 static int _GetIdList(const PPCommandItem * pItem, long parentID, void * extraPtr)
 {
 	if(pItem)
-		static_cast<PPIDArray *>(extraPtr)->addUnique(pItem->ID);
+		static_cast<PPIDArray *>(extraPtr)->add(pItem->ID); // @v10.9.3 addUnique-->add
 	return 1;
 }
 
-int PPCommandFolder::GetUniqueID(long * pID) const
+long PPCommandFolder::GetUniqueID() const
 {
-	long   id = 0;
 	PPIDArray id_list;
-	id_list.addUnique(ID);
+	id_list.add(ID); // @v10.9.3 addUnique-->add
 	Enumerate(_GetIdList, 0, &id_list);
-	id_list.sort();
-	id = id_list.getLast() + 1;
-	ASSIGN_PTR(pID, id);
-	return 1;
+	id_list.sortAndUndup(); // @v10.9.3 sort-->sortAndUndup
+	return id_list.getLast() + 1;
 }
 
-/*virtual*/void PPCommandFolder::SetUniqueID(long * pID)
+/*virtual*/void FASTCALL PPCommandFolder::SetUniqueID(long * pID)
 {
 	PPCommandItem::SetUniqueID(pID);
 	for(uint i = 0; i < List.getCount(); i++)
@@ -857,7 +853,128 @@ int PPCommandFolder::Remove(uint pos)
 		return 0;
 }
 
-/*static*/int PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArray * pAry, int isDesktop)
+PPCommandFolder::CommandGroupList::CommandGroupList() : LastSurrID(0)
+{
+}
+
+PPCommandFolder::CommandGroupList & PPCommandFolder::CommandGroupList::Z()
+{
+	L.clear();
+	return *this;
+}
+
+uint PPCommandFolder::CommandGroupList::GetCount() const
+{
+	return L.getCount();
+}
+
+int PPCommandFolder::CommandGroupList::Get(uint idx, Entry & rEntry) const
+{
+	if(idx < L.getCount()) {
+		const InnerEntry & r_entry = L.at(idx);
+		rEntry.NativeID = r_entry.NativeID;
+		rEntry.SurrID = r_entry.SurrID;
+		rEntry.Uuid = r_entry.Uuid;
+		GetS(r_entry.NameP, rEntry.Name);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+long PPCommandFolder::CommandGroupList::GetSurrIdByUuid(const S_GUID & rUuid) const
+{
+	uint   idx = 0;
+	return SearchByUuid(rUuid, &idx) ? L.at(idx).SurrID : 0;
+}
+
+S_GUID PPCommandFolder::CommandGroupList::GetUuidBySurrId(long surrId) const
+{
+	uint   idx = 0;
+	return SearchBySurrID(surrId, &idx) ? L.at(idx).Uuid : S_GUID();
+}
+
+void PPCommandFolder::CommandGroupList::GetStrAssocList(StrAssocArray & rResult) const
+{
+	rResult.Z();
+	SString temp_buf;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const InnerEntry & r_entry = L.at(i);
+		GetS(r_entry.NameP, temp_buf);
+		rResult.Add(r_entry.SurrID, temp_buf);
+	}
+}
+
+int PPCommandFolder::CommandGroupList::SearchByNativeID(long id, LongArray & rIdxList) const
+{
+	int    ok = 0;
+	rIdxList.Z();
+	for(uint i = 0; i < L.getCount(); i++) {
+		const InnerEntry & r_entry = L.at(i);
+		if(r_entry.NativeID == id) {
+			rIdxList.add(static_cast<long>(i));
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPCommandFolder::CommandGroupList::SearchBySurrID(long id, uint * pIdx) const
+{
+	int    ok = 0;
+	if(id) {
+		for(uint i = 0; !ok && i < L.getCount(); i++) {
+			const InnerEntry & r_entry = L.at(i);
+			if(r_entry.SurrID == id) {
+				ASSIGN_PTR(pIdx, i);
+				ok = 1;
+			}
+		}	
+	}
+	return ok;
+}
+
+int PPCommandFolder::CommandGroupList::SearchByUuid(const S_GUID & rUuid, uint * pIdx) const
+{
+	int    ok = 0;
+	if(!!rUuid) {
+		for(uint i = 0; !ok && i < L.getCount(); i++) {
+			const InnerEntry & r_entry = L.at(i);
+			if(r_entry.Uuid == rUuid) {
+				ASSIGN_PTR(pIdx, i);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int PPCommandFolder::CommandGroupList::Add(long nativeId, const S_GUID & rUuid, const char * pName, long * pSurrID)
+{
+	int    ok = 0;
+	uint   idx = 0;
+	if(SearchByUuid(rUuid, &idx)) {
+		const InnerEntry & r_entry = L.at(idx);
+		ok = (nativeId == r_entry.NativeID) ? -1 : -2;
+		ASSIGN_PTR(pSurrID, r_entry.SurrID);
+	}
+	else {
+		InnerEntry new_entry;
+		new_entry.SurrID = ++LastSurrID;
+		new_entry.NativeID = nativeId;
+		new_entry.Uuid = rUuid;
+		AddS(pName, &new_entry.NameP);
+		if(L.insert(&new_entry)) {
+			ASSIGN_PTR(pSurrID, new_entry.SurrID);
+			ok = 1;
+		}
+		else
+			ok = PPSetErrorSLib();
+	}
+	return ok;
+}
+
+/*static*/int PPCommandFolder::GetCommandGroupList(const PPCommandGroup * pGrp, PPCommandGroupCategory kind, CommandGroupList & rResult)
 {
 	int    ok = 1;
 	SString db_symb;
@@ -869,16 +986,25 @@ int PPCommandFolder::Remove(uint pos)
 	if(pGrp)
 		p_grp = pGrp;
 	else {
-		THROW(p_mgr = GetCommandMngr(1, isDesktop));
-		THROW(p_mgr->Load__2(&grp, db_symb, PPCommandMngr::fRWByXml)); // @erik v10.7.3
+		THROW(p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, kind));
+		THROW(p_mgr->Load__2(&grp, db_symb, PPCommandMngr::fRWByXml));
 		p_grp = &grp;
 		ZDELETE(p_mgr);
 	}
 	for(uint i = 0; (p_item = p_grp->Next(&i)) != 0;) {
-		PPCommandGroup * p_desk = (isDesktop && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
-		if((!isDesktop && p_item->Kind == PPCommandItem::kGroup) || (p_desk && p_desk->IsDbSymbEq(db_symb)))
-			pAry->Add(p_item->ID, p_item->Name);
-		ZDELETE(p_desk);
+		if(p_item->Kind == PPCommandItem::kGroup) {
+			const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
+			if(kind == cmdgrpcDesktop) {
+				if(p_cg->IsDbSymbEq(db_symb)) {
+					long surr_id = 0;
+					rResult.Add(p_cg->ID, p_cg->Uuid, p_cg->Name, &surr_id);
+				}
+			}
+			else if(kind == cmdgrpcMenu) {
+				long surr_id = 0;
+				rResult.Add(p_cg->ID, p_cg->Uuid, p_cg->Name, &surr_id);
+			}
+		}
 	}
 	CATCHZOK
 	ZDELETE(p_mgr);
@@ -947,6 +1073,21 @@ const PPCommandItem * PPCommandFolder::SearchByName(const char * pName, const ch
 		}
 	}
 	return p_ret_item;
+}
+
+const PPCommandItem * PPCommandFolder::SearchByUuid(const S_GUID & rUuid, uint * pPos) const
+{
+	const PPCommandItem * p_result = 0;
+	for(uint i = 0; !p_result && i < List.getCount(); i++) {
+		const PPCommandItem * p_item = List.at(i);
+		if(p_item->Kind == PPCommandItem::kGroup) {
+			if(static_cast<const PPCommandGroup *>(p_item)->Uuid == rUuid) {
+				p_result = p_item;
+				ASSIGN_PTR(pPos, i);
+			}
+		}
+	}
+	return p_result;
 }
 
 const PPCommandItem * PPCommandFolder::SearchByID(long id, uint * pPos) const
@@ -1204,19 +1345,19 @@ int FASTCALL PPCommandGroup::IsDbSymbEq(const PPCommandGroup & rGrp) const
 
 void PPCommandGroup::GenerateGuid()
 {
-	DeskGuid.Generate();
+	Uuid.Generate();
 }
 
 const S_GUID & FASTCALL PPCommandGroup::GetGuid() const
 {
-	return DeskGuid;
+	return Uuid;
 }
 
 int FASTCALL PPCommandGroup::Copy(const PPCommandGroup & s)
 {
 	DbSymb = s.DbSymb;
 	Logo_  = s.Logo_;
-	DeskGuid = s.DeskGuid;	
+	Uuid = s.Uuid;	
 	Type = s.Type;
 	return PPCommandFolder::Copy(s);
 }
@@ -1258,10 +1399,9 @@ int PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
 	int    ok = 1;
 	THROW(PPCommandFolder::Read(rBuf, extraParam));
 	THROW_SL(rBuf.Read(DbSymb));
-//@erik v10.6.6 {
-	if(DeskGuid.IsZero()) {
-		DeskGuid.Generate();
-	}
+// @erik v10.6.6 {
+	if(Uuid.IsZero())
+		Uuid.Generate();
 // } @erik
 	if(Flags & fBkgndImage) {
 		PROFILE_START
@@ -1293,7 +1433,7 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 		if(DbSymb.NotEmpty()) {
 			SString path, guid_str;
 			xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
-			THROW(DeskGuid.ToStr(S_GUID::fmtIDL, guid_str));
+			THROW(Uuid.ToStr(S_GUID::fmtIDL, guid_str));
 			THROW(p_xml_writer);
 			SXml::WNode command_group_node(p_xml_writer, "CommandGroup");
 			if(DbSymb.NotEmpty()) {
@@ -1303,7 +1443,7 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 				XMLReplaceSpecSymb(temp_buf.Z().Cat(DbSymb), "&<>\'");
 				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				command_group_node.PutInner("DbSymb", temp_buf);
-				command_group_node.PutInner("DeskGuid", guid_str);
+				command_group_node.PutInner(/*"DeskGuid"*/"Uuid", guid_str); // @v10.9.3 Начиная с этой версии поле в xml-файле называется Uuid вместо DeskGuid
 				SVerT version_ppy = DS.GetVersion();
 				version_ppy.ToStr(temp_buf.Z());
 				command_group_node.PutInner("PpyVersion", temp_buf);
@@ -1333,7 +1473,8 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 
 int PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 {
-	int    ok = 1, state = 0;
+	int    ok = 1;
+	int    state = 0;
 	SString temp_buf;
 	assert(pHandler);
 	THROW(pHandler);
@@ -1341,44 +1482,44 @@ int PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandGroup")) {
 			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next){
-				if(SXml::GetContentByName(p_node, "DbSymb", temp_buf)!=0){
+				if(SXml::GetContentByName(p_node, "DbSymb", temp_buf) > 0) {
 					if(temp_buf.NotEmpty()){
 						DbSymb = temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
 					}						
 				}
-				if(SXml::GetContentByName(p_node, "DeskGuid", temp_buf)!=0) {
-					DeskGuid.FromStr(temp_buf);
+				// @v10.9.3 Начиная с этой версии поле в xml-файле называется Uuid вместо DeskGuid
+				else if(SXml::GetContentByName(p_node, "DeskGuid", temp_buf) > 0 || SXml::GetContentByName(p_node, "Uuid", temp_buf) > 0) {
+					Uuid.FromStr(temp_buf);
 				}
-				if(SXml::GetContentByName(p_node, "Type", temp_buf)!=0) {
-					Type = temp_buf.ToLong();
+				else if(SXml::GetContentByName(p_node, "Type", temp_buf) > 0) {
+					const long  c = temp_buf.ToLong();
+					Type = oneof2(c, cmdgrpcDesktop, cmdgrpcMenu) ? static_cast<PPCommandGroupCategory>(c) : cmdgrpcUndef;
 				}
-				if(SXml::IsName(p_node, "CommandFolder")) {
-					THROW(PPCommandFolder::Read2(p_node, rwFlag));
+				else if(SXml::IsName(p_node, "CommandFolder")) {
+					THROW(PPCommandFolder::Read2(p_node, rwFlag)); // @recursion
 					state = 1; // если данные считаны корректно, то можем работать дальше
 				}
 			}
-			if(DeskGuid.IsZero())
-				DeskGuid.Generate();
+			if(Uuid.IsZero())
+				Uuid.Generate();
 		}	
-	}
-	else {
-		ok = 0;
-	}
-	if(ok>0 && Flags & fBkgndImage && state == 1) {
-		PROFILE_START
-		SString buf, dir;
-		PPGetPath(PPPATH_BIN, dir);
-		PPLoadText(PPTXT_DESKIMGDIR, buf);
-		dir.SetLastSlash().Cat(buf).SetLastSlash();
-		ObjLinkFiles logo;
-		logo.Init(PPOBJ_DESKTOP, dir);
-		logo.Load(ID, 0L);
-		logo.At(0, buf);
-		SetLogo(buf);
-		if(Flags & fBkgndImage)
+		if(Flags & fBkgndImage && state == 1) {
+			PROFILE_START
+			SString buf, dir;
+			PPGetPath(PPPATH_BIN, dir);
+			PPLoadText(PPTXT_DESKIMGDIR, buf);
+			dir.SetLastSlash().Cat(buf).SetLastSlash();
+			ObjLinkFiles logo;
+			logo.Init(PPOBJ_DESKTOP, dir);
+			logo.Load(ID, 0L);
+			logo.At(0, buf);
+			SetLogo(buf);
 			Flags |= fBkgndImageLoaded;
-		PROFILE_END
+			PROFILE_END
+		}
 	}
+	else
+		ok = 0;
 	CATCHZOK
 	return ok;
 }
@@ -1439,11 +1580,18 @@ int PPCommandGroup::StoreLogo()
 	return ok;
 }
 
-PPCommandGroup * FASTCALL PPCommandGroup::GetDesktop(long id)
+//PPCommandGroup * FASTCALL PPCommandGroup::GetDesktop(/*long id*/const S_GUID & rUuid)
+PPCommandGroup * PPCommandGroup::GetGroup(PPCommandGroupCategory kind, const S_GUID & rUuid)
 {
-	uint   pos = 0;
-	const PPCommandItem * p_item = SearchByID(id, &pos);
-	return (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(List.at(pos)) : 0;
+	//const PPCommandItem * p_item = SearchByID(id, &pos);
+	const PPCommandItem * p_item = SearchByUuid(rUuid, 0);
+	if(p_item && p_item->Kind == PPCommandItem::kGroup) {
+		const PPCommandGroup * p_grp = static_cast<const PPCommandGroup *>(p_item);
+		//if(kind == cmdgrpcUndef || p_item->Type == kind)
+		return (kind == cmdgrpcUndef || p_grp->Type == kind) ? const_cast<PPCommandGroup *>(p_grp) : 0; // @badcast
+	}
+	else
+		return 0;
 }
 
 void PPCommandGroup::InitDefaultDesktop(const char * pName)
@@ -1457,18 +1605,24 @@ void PPCommandGroup::InitDefaultDesktop(const char * pName)
 //
 #define PPCS_SIGNATURE 0x54435050L
 
-PPCommandMngr * GetCommandMngr(int readOnly, int isDesktop, const char * pPath /*=0*/)
+PPCommandMngr * GetCommandMngr(uint ctrFlags, /*int isDesktop*/PPCommandGroupCategory kind, const char * pPath /*=0*/)
 {
 	PPCommandMngr * p_mgr = 0;
 	SString path;
-	if(isempty(pPath))
-		PPGetFilePath(PPPATH_BIN, isDesktop ? PPFILNAM_PPDESK_BIN : PPFILNAM_PPCMD_BIN, path);
+	if(isempty(pPath)) {
+		uint   file_id = 0;
+		if(kind == cmdgrpcDesktop)
+			file_id = PPFILNAM_PPDESK_BIN;
+		else if(kind == cmdgrpcMenu)
+			file_id = PPFILNAM_PPCMD_BIN;
+		PPGetFilePath(PPPATH_BIN, file_id/*isDesktop ? PPFILNAM_PPDESK_BIN : PPFILNAM_PPCMD_BIN*/, path);
+	}
 	else
 		path = pPath;
 	if(path.Empty())
 		PPSetError(PPERR_UNDEFCMDFILENAME);
 	else
-		p_mgr = new PPCommandMngr(path, readOnly, isDesktop);
+		p_mgr = new PPCommandMngr(path, /*readOnly*/ctrFlags, /*isDesktop*/kind);
 	if(p_mgr) {
 		if(!p_mgr->IsValid_()) {
 			ZDELETE(p_mgr);
@@ -1485,31 +1639,37 @@ int PPCommandMngr::Backup()
 }
 */
 
-PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly, int isDesktop) : ReadOnly(readOnly)
+PPCommandMngr::PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesktop*/PPCommandGroupCategory kind) : 
+	Status(0), CtrFlags(ctrFlags)//ReadOnly(readOnly)
 {
-	SString temp_buf;
-	long   mode = 0;
-	if(readOnly)
-		mode = (SFile::mRead | SFile::mDenyWrite); // @v9.0.11 SFile::mDenyWrite
-	else
-		mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead); // @v9.0.11 mDenyRead
-	mode |= (SFile::mBinary | SFile::mNoStd);
-	//
-	// Так как файл может быть заблокирован другим пользователем,
-	// предпримем несколько попыток его открытия.
-	// Исходим из предположения, что файл для записи открывается на малое время.
-	//
-	for(uint i = 0; i < 10; i++) {
-		if(F_Obsolete.Open(pFileName, mode)) {
-			break;
-		}
+	assert(oneof2(kind, cmdgrpcMenu, cmdgrpcDesktop));
+	if(!(CtrFlags & ctrfSkipObsolete)) {
+		SString temp_buf;
+		long   mode = 0;
+		if(CtrFlags & ctrfReadOnly)
+			mode = (SFile::mRead | SFile::mDenyWrite); // @v9.0.11 SFile::mDenyWrite
 		else
-			SDelay(100);
+			mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead); // @v9.0.11 mDenyRead
+		mode |= (SFile::mBinary | SFile::mNoStd);
+		//
+		// Так как файл может быть заблокирован другим пользователем,
+		// предпримем несколько попыток его открытия.
+		// Исходим из предположения, что файл для записи открывается на малое время.
+		//
+		for(uint i = 0; i < 10; i++) {
+			if(F_Obsolete.Open(pFileName, mode)) {
+				break;
+			}
+			else
+				SDelay(100);
+		}
+		if(!F_Obsolete.IsValid())
+			Status |= stError;
 	}
-	if(isDesktop) {
+	if(/*isDesktop*/kind == cmdgrpcDesktop) {
 		PPCommandMngr::GetDesksDir(XmlDirPath);
 	}
-	else {
+	else if(kind == cmdgrpcMenu) {
 		PPCommandMngr::GetMenuDir(XmlDirPath);
 	}
 }
@@ -1520,49 +1680,60 @@ PPCommandMngr::~PPCommandMngr()
 
 int PPCommandMngr::IsValid_() const
 {
-	return F_Obsolete.IsValid() ? 1 : PPSetErrorSLib();
+	//return F_Obsolete.IsValid() ? 1 : PPSetErrorSLib();
+	return (Status & stError) ? PPSetErrorSLib() : 1;
 }
 
 int PPCommandMngr::Save__(const PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1;
-	Hdr    hdr;
-	uint32 crc = 0;
-	SBuffer buf;
-	THROW_SL(F_Obsolete.IsValid());
-	THROW_PP(!ReadOnly, PPERR_CMDMNGREADONLY);
-	F_Obsolete.Seek(0, SEEK_SET);
-	MEMSZERO(hdr);
-	hdr.Signature = PPCS_SIGNATURE;
-	THROW_SL(F_Obsolete.Write(&hdr, sizeof(Hdr)));
-	THROW(pCmdGrp->Write(buf, 0));
-	THROW_SL(F_Obsolete.Write(buf));
-	THROW_SL(F_Obsolete.CalcCRC(sizeof(hdr), &crc));
-	F_Obsolete.Seek(0, SEEK_SET);
-	hdr.Crc = crc;
-	THROW_SL(F_Obsolete.Write(&hdr, sizeof(Hdr)));
+	if(!(CtrFlags & ctrfSkipObsolete)) {
+		Hdr    hdr;
+		uint32 crc = 0;
+		SBuffer buf;
+		THROW_SL(F_Obsolete.IsValid());
+		// @v10.9.3 THROW_PP(!ReadOnly, PPERR_CMDMNGREADONLY);
+		THROW_PP(!(CtrFlags & ctrfReadOnly), PPERR_CMDMNGREADONLY); // @v10.9.3
+		F_Obsolete.Seek(0, SEEK_SET);
+		MEMSZERO(hdr);
+		hdr.Signature = PPCS_SIGNATURE;
+		THROW_SL(F_Obsolete.Write(&hdr, sizeof(Hdr)));
+		THROW(pCmdGrp->Write(buf, 0));
+		THROW_SL(F_Obsolete.Write(buf));
+		THROW_SL(F_Obsolete.CalcCRC(sizeof(hdr), &crc));
+		F_Obsolete.Seek(0, SEEK_SET);
+		hdr.Crc = crc;
+		THROW_SL(F_Obsolete.Write(&hdr, sizeof(Hdr)));
+	}
+	else
+		ok = -1;
 	CATCHZOK
 	return ok;
 }
 
 int PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 {
-	int    ok = 1, r = 0;
-	Hdr    hdr;
-	int64  fsz = 0;
-	uint32 crc = 0;
-	SBuffer buf;
-	THROW_SL(F_Obsolete.IsValid());
-	F_Obsolete.CalcSize(&fsz);
-	if(fsz>0) {
-		THROW_SL(F_Obsolete.CalcCRC(sizeof(hdr), &crc));
-		F_Obsolete.Seek(0, SEEK_SET);
-		THROW_SL(F_Obsolete.Read(&hdr, sizeof(hdr)));
-		THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F_Obsolete.GetName());
-		THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F_Obsolete.GetName());
-		THROW_SL(F_Obsolete.Read(buf));
-		THROW(pCmdGrp->Read(buf, 0));
+	int    ok = 1;
+	if(!(CtrFlags & ctrfSkipObsolete)) {
+		int    r = 0;
+		Hdr    hdr;
+		int64  fsz = 0;
+		uint32 crc = 0;
+		SBuffer buf;
+		THROW_SL(F_Obsolete.IsValid());
+		F_Obsolete.CalcSize(&fsz);
+		if(fsz > 0) {
+			THROW_SL(F_Obsolete.CalcCRC(sizeof(hdr), &crc));
+			F_Obsolete.Seek(0, SEEK_SET);
+			THROW_SL(F_Obsolete.Read(&hdr, sizeof(hdr)));
+			THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F_Obsolete.GetName());
+			THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F_Obsolete.GetName());
+			THROW_SL(F_Obsolete.Read(buf));
+			THROW(pCmdGrp->Read(buf, 0));
+		}
 	}
+	else
+		ok = -1;
 	CATCHZOK
 	return ok;
 }
@@ -1578,7 +1749,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 	if(rwFlag == PPCommandMngr::fRWByXml) 
 	{
 		if(pCmdGrp->DbSymb.NotEmpty()) {
-			if(pCmdGrp->DeskGuid.ToStr(S_GUID::fmtIDL, guid_str)) {
+			if(pCmdGrp->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Cat(".xml");
 				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
 				xmlTextWriterSetIndent(p_xml_writer, 1);
@@ -1596,7 +1767,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 				if(p_item->Kind == PPCommandItem::kGroup) {
 					//PPCommandGroup cg = *static_cast<const PPCommandGroup *>(p_item->Dup());
 					const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
-					if(p_cg->DeskGuid.ToStr(S_GUID::fmtIDL, guid_str)) {
+					if(p_cg->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Cat(".xml");
 						p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
 						xmlTextWriterSetIndent(p_xml_writer, 1);
@@ -1635,11 +1806,12 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 		// Конверация происходит, если папка с xml пуста
 		uint count = 0;
 		for(SDirec direc(path, 0); direc.Next(&de)>0;) {
-			count++;
-			if(count > 0)
-				break;
+			if(de.IsFile()) {
+				count++;
+				break; // Выяснили что есть по крайней мере один файл - можем идти дальше
+			}
 		}
-		if(!count) {
+		if(!count && !(CtrFlags & ctrfSkipObsolete)) {
 			PPGetFileName(PPFILNAM_MENUDESKLOCK, temp_buf);
 			lock_path = lock_path.Z().Cat(XmlDirPath).SetLastSlash().Cat(temp_buf);
 			temp_buf.Z();
@@ -1670,13 +1842,13 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 										p_tmp_cg->Flags = p_menu->Flags;
 										p_tmp_cg->Icon = p_menu->Icon;
 										p_tmp_cg->GenerateGuid();
-										p_tmp_cg->Type = PPCommandGroup::tMenu;
+										p_tmp_cg->Type = cmdgrpcMenu;//PPCommandGroup::tMenu;
 										p_tmp_cg->DbSymb = "undefined";
 									}
 								}
 								else {
 									p_tmp_cg = static_cast<PPCommandGroup *>(p_item);
-									p_tmp_cg->Type = PPCommandGroup::tDesk;
+									p_tmp_cg->Type = cmdgrpcDesktop;
 								}
 								if(p_tmp_cg)
 									cg_pool.Add(-1, p_tmp_cg);
@@ -1703,7 +1875,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 					if(p_root) {
 						if(SXml::IsName(p_root, "CommandGroup")) {
 							THROW(p_temp_command_group->Read2(p_root, rwFlag));
-							if(isempty(pDbSymb) || p_temp_command_group->DbSymb.CmpNC(pDbSymb) == 0) { // @v10.9.3
+							if(isempty(pDbSymb) || p_temp_command_group->DbSymb.IsEqNC(pDbSymb) || p_temp_command_group->DbSymb.IsEqiAscii("undefined")) { // @v10.9.3
 								if(pCmdGrp->Add(-1, p_temp_command_group) > 0) {
 									p_temp_command_group = 0;
 								}
@@ -1756,7 +1928,7 @@ int PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 {
 	int    ok = 1;
 	SString temp_buf;
-	if(F_Obsolete.IsValid() > 0) {
+	if(!(CtrFlags & ctrfSkipObsolete) && F_Obsolete.IsValid()) {
 		int64  fsz = 0;
 		if(F_Obsolete.CalcSize(&fsz) > 0) {
 			if(fsz > 0) {
@@ -1775,32 +1947,37 @@ int PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 	return ok;
 }
 
-int PPCommandMngr::DeleteDesktopByGUID(const SString &guid, const long rwFlag)
+int PPCommandMngr::DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID & rUuid)
 {
 	int    ok = -1; // @v10.8.9 @fix ok;-->ok=-1;
-	SString path, temp_buf;
-	SFile file;
-	if(guid) {
-		PPCommandMngr::GetDesksDir(path);
-		temp_buf = path;
-		path.SetLastSlash().Cat(guid).Cat(".xml");
-		temp_buf.SetLastSlash().Cat(guid).Cat("_deleted.txt");
-		ok = file.Rename(path, temp_buf);
+	SFile  file;
+	if(!!rUuid) {
+		SString path;
+		if(kind == cmdgrpcDesktop)
+			PPCommandMngr::GetDesksDir(path);
+		else if(kind == cmdgrpcMenu)
+			PPCommandMngr::GetMenuDir(path);
+		if(path.NotEmpty()) {
+			SString temp_buf(path);
+			path.SetLastSlash().Cat(rUuid, S_GUID::fmtIDL|S_GUID::fmtLower).Dot().Cat("xml");
+			temp_buf.SetLastSlash().Cat(rUuid, S_GUID::fmtIDL|S_GUID::fmtLower).Cat("_deleted").Dot().Cat("txt");
+			ok = file.Rename(path, temp_buf);
+		}
 	}
 	return ok;
 }
 
-int PPCommandMngr::GetDesksDir(SString &rDesksPath)
+int PPCommandMngr::GetDesksDir(SString & rPath)
 {
-	PPGetFilePath(PPPATH_WORKSPACE, "desktop", rDesksPath);  // получаем путь к workspace
-	::createDir(rDesksPath);
+	PPGetFilePath(PPPATH_WORKSPACE, "desktop", rPath);  // получаем путь к workspace
+	::createDir(rPath);
 	return 1;
 }
 
-int PPCommandMngr::GetMenuDir(SString &rDesksPath)
+int PPCommandMngr::GetMenuDir(SString & rPath)
 {
-	PPGetFilePath(PPPATH_WORKSPACE, "menu", rDesksPath);  // получаем путь к workspace
-	::createDir(rDesksPath);
+	PPGetFilePath(PPPATH_WORKSPACE, "menu", rPath);  // получаем путь к workspace
+	::createDir(rPath);
 	return 1;
 }
 
@@ -2163,7 +2340,7 @@ public:
 		}
 		PPID   PrmrPsnID;
 		PPID   ScndPsnID;
-		PPID   SCardID; // @v9.1.3
+		PPID   SCardID;
 		SCardTbl::Rec Sc;
 	};
 	SelectPersonByCodeDialog(const char * pSubTitle, PPPersonKind * pPsnKindRec, PPPersonKind * pPsnScndKindRec, const char * pInputPrompt) :

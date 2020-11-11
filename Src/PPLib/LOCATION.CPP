@@ -988,7 +988,7 @@ int PPEAddr::IsEmpty() const
 //
 //
 //
-PPEAddrArray::PPEAddrArray() : TSVector <PPEAddr> () // @v9.9.3 TSArray-->TSVector
+PPEAddrArray::PPEAddrArray() : TSVector <PPEAddr> ()
 {
 }
 

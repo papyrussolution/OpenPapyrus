@@ -33,8 +33,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-damage-private.h"
-//#include "cairo-region-private.h"
 
 static const cairo_damage_t __cairo_damage__nil = { CAIRO_STATUS_NO_MEMORY };
 

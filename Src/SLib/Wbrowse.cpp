@@ -3,8 +3,7 @@
 // @codepage UTF-8
 // WIN32
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <scintilla.h>
 #include <scilexer.h>
@@ -421,12 +420,9 @@ int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 			item.KeyCode = rez.getUINT();
 			item.Flags = rez.getUINT();
 			item.BitmapIndex = rez.getUINT();
-			// @v9.0.11 rez.getString(item.ToolTipText);
-			// @v9.0.11 {
 			rez.getString(temp_buf, 0);
             SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER);
             STRNSCPY(item.ToolTipText, temp_buf);
-            // } @v9.0.11
 		}
 		else
 			item.KeyCode = static_cast<ushort>(item.Cmd);
@@ -459,6 +455,33 @@ static int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 
 BrowserWindow::CellStyle::CellStyle() : Color(0), Color2(0), RightFigColor(0), Flags(0)
 {
+}
+
+int FASTCALL BrowserWindow::CellStyle::SetFullCellColor(COLORREF c) // returns strictly 1
+{
+	Color = c;
+	return 1; // @necessarily
+}
+
+int FASTCALL BrowserWindow::CellStyle::SetRightFigCircleColor(COLORREF c) // returns strictly 1
+{
+	RightFigColor = c;
+	Flags |= fRightFigCircle;
+	return 1; // @necessarily
+}
+
+int FASTCALL BrowserWindow::CellStyle::SetLeftBottomCornerColor(COLORREF c) // returns strictly 1
+{
+	Color2 = c;
+	Flags |= fLeftBottomCorner;
+	return 1; // @necessarily
+}
+
+int FASTCALL BrowserWindow::CellStyle::SetLeftTopCornerColor(COLORREF c) // returns strictly 1
+{
+	Color = c;
+	Flags |= fCorner;
+	return 1; // @necessarily
 }
 
 int LoadToolbar(TVRez * rez, uint tbType, uint tbID, ToolbarList * pList)
@@ -494,7 +517,6 @@ int BrowserWindow::SaveUserSettings(int ifChangedOnly)
 int BrowserWindow::RestoreUserSettings()
 {
 	int    ok = -1;
-	//char   spec[1024];
 	SString spec_buf;
 	char   param[32];
 	WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_BrwUserSetting, 1);
@@ -549,12 +571,9 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 			const  TRect _bounds = rez.getRect();
 			uint   hight  = rez.getUINT();
 			uint   freeze = rez.getUINT();
-			// @v9.1.1 setTitle(rez.getString(buf, 2), 1);
-			// @v9.1.1 {
 			rez.getString(temp_buf.Z(), 2);
 			SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
 			setOrgTitle(temp_buf);
-			// } @v9.1.1
 			uint   options = rez.getUINT();
 			options = NZOR(uOptions, options);
 			uint   help_ctx = rez.getUINT();
@@ -621,12 +640,9 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 						{
 							BroCrosstab ct;
 							MEMSZERO(ct);
-							// @v9.1.1 ct.P_Text  = newStr(rez.getString(buf, 2));
-							// @v9.1.1 {
 							rez.getString(temp_buf, 2);
 							SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
 							ct.P_Text = newStr(temp_buf);
-							// } @v9.1.1
 							ct.Options = rez.getUINT();
 							ct.Type    = rez.getType(0);
 							ct.Format  = rez.getFormat(0);
@@ -791,8 +807,7 @@ void BrowserWindow::Insert_(TView *p)
 {
 	TGroup::Insert_(p);
 	P_Header = p;
-	// @v9.0.1 P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->getExtent().b.y - 1);
-	P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->ViewSize.y - 1); // @v9.0.1
+	P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->ViewSize.y - 1);
 }
 
 BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOptions /*=0*/) :

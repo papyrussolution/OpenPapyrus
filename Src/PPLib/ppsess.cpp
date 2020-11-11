@@ -156,52 +156,60 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 	int    ok = 1;
 	DWORD  gr_gdiobj  = 0;
 	DWORD  gr_userobj = 0;
-	SString temp_buf;
+	//SString temp_buf;
 	TProgram * p_app = APPL;
 	if(p_app && DBS.GetConstTLA().P_CurDict) {
 		PPThreadLocalArea & r_tla = DS.GetTLA();
 		DbProvider * p_dict = CurDict;
-		SString sbuf, db_name;
-		p_app->ClearStatusBar();
-		if(timer >= 0) {
-			PPLoadTextWin(PPTXT_AUTOEXIT_INFO, sbuf);
-			temp_buf.Printf(sbuf, timer);
-			p_app->AddStatusBarItem(temp_buf, 0, GetColorRef(SClrRed), 0, GetColorRef(SClrBlack));
-		}
-		p_app->AddStatusBarItem(GetMainOrgName(sbuf).Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
-		p_app->AddStatusBarItem((sbuf = r_tla.CurDbDivName).Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
-		GetLocationName(LConfig.Location, sbuf);
-		p_app->AddStatusBarItem(sbuf.Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
-		sbuf.Z().Cat(LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
-		p_app->AddStatusBarItem(sbuf, 0, 0, cmViewStatus);
-		if(p_dict && p_dict->GetDbName(db_name) > 0) {
-			p_app->AddStatusBarItem((sbuf = "DB").CatDiv(':', 2).Cat(db_name.Transf(CTRANSF_INNER_TO_OUTER)), 0, 0, cmViewStatus);
-		}
-		p_app->AddStatusBarItem("www.petroglif.ru", 0, GetColorRef(SClrAliceblue), cmGotoSite, GetColorRef(SClrBlue));
-		//turistti
-		gr_gdiobj  = GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS);
-		gr_userobj = GetGuiResources(GetCurrentProcess(), GR_USEROBJECTS);
-		//end turistti
-#ifndef NDEBUG
 		{
-			MemHeapTracer mht;
-			MemHeapTracer::Stat mht_stat;
-			if(mht.CalcStat(&mht_stat)) {
-				sbuf.Z().Cat(mht_stat.UsedBlockCount).CatDiv('-', 1).
-					Cat(mht_stat.UsedSize).CatDiv('-', 1).
-					Cat(mht_stat.UnusedBlockCount).CatDiv('-', 1).
-					Cat(mht_stat.UnusedSize).CatDiv(';', 2).
-					CatEq("GDI", gr_gdiobj).CatDiv(';', 2).
-					CatEq("USER", gr_userobj).CatDiv(';', 2).
-					Cat("FOCUS").Eq().CatHex((long)::GetFocus()).CatDiv(';', 2).
-					Cat("CAPTURE").Eq().CatHex((long)::GetCapture());
-				p_app->AddStatusBarItem(sbuf);
+			SString & r_sbuf = SLS.AcquireRvlStr();
+			p_app->ClearStatusBar();
+			if(timer >= 0) {
+				PPLoadTextWin(PPTXT_AUTOEXIT_INFO, r_sbuf);
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				r_temp_buf.Printf(r_sbuf, timer);
+				p_app->AddStatusBarItem(r_temp_buf, 0, GetColorRef(SClrRed), 0, GetColorRef(SClrBlack));
 			}
-			else {
-				p_app->AddStatusBarItem("Heap Corrupted");
+			p_app->AddStatusBarItem(GetMainOrgName(r_sbuf).Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
+			p_app->AddStatusBarItem((r_sbuf = r_tla.CurDbDivName).Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
+			GetLocationName(LConfig.Location, r_sbuf);
+			p_app->AddStatusBarItem(r_sbuf.Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
+			r_sbuf.Z().Cat(LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
+			p_app->AddStatusBarItem(r_sbuf, 0, 0, cmViewStatus);
+			{
+				if(p_dict) {
+					SString & r_temp_buf = SLS.AcquireRvlStr();
+					if(p_dict->GetDbName(r_temp_buf) > 0) {
+						p_app->AddStatusBarItem((r_sbuf = "DB").CatDiv(':', 2).Cat(r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER)), 0, 0, cmViewStatus);
+					}
+				}
 			}
-		}
+			p_app->AddStatusBarItem("www.petroglif.ru", 0, GetColorRef(SClrAliceblue), cmGotoSite, GetColorRef(SClrBlue));
+			//turistti
+			gr_gdiobj  = ::GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS);
+			gr_userobj = ::GetGuiResources(GetCurrentProcess(), GR_USEROBJECTS);
+			//end turistti
+#ifndef NDEBUG
+			{
+				MemHeapTracer mht;
+				MemHeapTracer::Stat mht_stat;
+				if(mht.CalcStat(&mht_stat)) {
+					r_sbuf.Z().Cat(mht_stat.UsedBlockCount).CatDiv('-', 1).
+						Cat(mht_stat.UsedSize).CatDiv('-', 1).
+						Cat(mht_stat.UnusedBlockCount).CatDiv('-', 1).
+						Cat(mht_stat.UnusedSize).CatDiv(';', 2).
+						CatEq("GDI", gr_gdiobj).CatDiv(';', 2).
+						CatEq("USER", gr_userobj).CatDiv(';', 2).
+						Cat("FOCUS").Eq().CatHex((long)::GetFocus()).CatDiv(';', 2).
+						Cat("CAPTURE").Eq().CatHex((long)::GetCapture());
+					p_app->AddStatusBarItem(r_sbuf);
+				}
+				else {
+					p_app->AddStatusBarItem("Heap Corrupted");
+				}
+			}
 #endif
+		}
 		if(CConfig.Flags & CCFLG_3TIER) {
 			static SCycleTimer * p_timer = 0;
 			ENTER_CRITICAL_SECTION
@@ -236,8 +244,9 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 								// @v10.0.0 {
 								for(SEnum en = t->EnumByEmployer(employer, 0, 0); en.Next(&todo_rec) > 0;) {
 									if(!(todo_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
-										PPLoadString("newtask", temp_buf);
-										APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_NEWTASK, 0, cmPrjTask_ByStatus);
+										SString & r_temp_buf = SLS.AcquireRvlStr();
+										PPLoadString("newtask", r_temp_buf);
+										APPL->AddStatusBarItem(r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_NEWTASK, 0, cmPrjTask_ByStatus);
 										break;
 									}
 								}
@@ -273,9 +282,9 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 								// @v10.0.0 {
 								for(SEnum en = t->EnumByEmployer(employer, &period, 0); en.Next(&todo_rec) > 0;) {
 									if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
-										//PPGetWord(PPWORD_INCOMPLETETASK, 1, temp_buf);
-										PPLoadString("incompletetasks", temp_buf);
-										APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_TASKREMINDER, 0, cmPrjTask_ByReminder);
+										SString & r_temp_buf = SLS.AcquireRvlStr();
+										PPLoadString("incompletetasks", r_temp_buf);
+										APPL->AddStatusBarItem(r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_TASKREMINDER, 0, cmPrjTask_ByReminder);
 										break;
 									}
 								}
@@ -316,32 +325,31 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 		}
 		// } @v10.5.8
 		if(DS.GetPrivateBasket()) {
-			// @v10.6.3 PPGetWord(PPWORD_PRIVATEBASKET, 1, temp_buf);
-			PPLoadString("privategoodsbasket", temp_buf); // @v10.6.3
-			temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.6.3
-			p_app->AddStatusBarItem(temp_buf, ICON_BASKET_SMALL, 0, cmPrivateBasket);
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			PPLoadString("privategoodsbasket", r_temp_buf);
+			r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			p_app->AddStatusBarItem(r_temp_buf, ICON_BASKET_SMALL, 0, cmPrivateBasket);
 		}
-		// @v9.9.9 {
 		{
 			HWND   h_curr_wnd = ::GetTopWindow(APPL->GetFrameWindow());
 			if(h_curr_wnd) {
-				TView::SGetWindowClassName(h_curr_wnd, temp_buf.Z());
-				if(temp_buf == "STextBrowser") {
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				TView::SGetWindowClassName(h_curr_wnd, r_temp_buf.Z());
+				if(r_temp_buf == "STextBrowser") {
 					STextBrowser * p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(h_curr_wnd));
 					if(p_view && p_view->IsConsistent()) {
 						STextBrowser::StatusBlock sb;
 						if(p_view->GetStatus(&sb)) {
-							temp_buf.Z();
-							sb.Cp.ToStr(SCodepageIdent::fmtXML, temp_buf);
-							temp_buf.Space().Cat("Ln").CatDiv(':', 2).Cat(sb.LineNo).CatChar('/').Cat(sb.LineCount).Space().
+							r_temp_buf.Z();
+							sb.Cp.ToStr(SCodepageIdent::fmtXML, r_temp_buf);
+							r_temp_buf.Space().Cat("Ln").CatDiv(':', 2).Cat(sb.LineNo).CatChar('/').Cat(sb.LineCount).Space().
 								Cat("Col").CatDiv(':', 2).Cat(sb.ColumnNo);
-							p_app->AddStatusBarItem(temp_buf, 0, 0, 0);
+							p_app->AddStatusBarItem(r_temp_buf, 0, 0, 0);
 						}
 					}
 				}
 			}
 		}
-		// } @v9.9.9
 		//
 		// Уведомление о наличие новых версий Papyrus
 		//
@@ -362,9 +370,10 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 				SETIFZ(p_timer2, new SCycleTimer(900000));
 			}
 			if(upd_available) {
-				PPLoadText(PPTXT_UPDATEAVAILABLE, temp_buf);
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-				p_app->AddStatusBarItem(temp_buf, 0, GetColorRef(SClrGreenyellow), cmViewNewVersionList, GetColorRef(SClrRed));
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				PPLoadText(PPTXT_UPDATEAVAILABLE, r_temp_buf);
+				r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				p_app->AddStatusBarItem(r_temp_buf, 0, GetColorRef(SClrGreenyellow), cmViewNewVersionList, GetColorRef(SClrRed));
 			}
 			LEAVE_CRITICAL_SECTION
 		}
@@ -3046,7 +3055,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					// }
 					{
 						PPObjSecur sec_obj(PPOBJ_USR, 0);
-						sec_obj.GetPrivateDesktop(r_lc.UserID, &r_lc.DesktopID);
+						sec_obj.GetPrivateDesktop(r_lc.UserID, /*&r_lc.DesktopID*/r_lc.DesktopUuid);
 					}
 				}
 			}

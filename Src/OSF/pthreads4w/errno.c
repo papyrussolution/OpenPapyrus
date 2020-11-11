@@ -56,7 +56,7 @@ static int reallyBad = ENOMEM;
  * #if defined( _REENTRANT ) || defined( _MT )
  * #define errno *_errno()
  *
- * int *_errno( void );
+ * int *_errno(void);
  * #else
  * extern int errno;
  * #endif

@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <process.h>
+// @v10.9.3 #include <process.h>
 
 LogFileEntry::LogFileEntry() : ID(0)
 {

@@ -866,7 +866,7 @@ int PPObjRegister::EditBankAccountList(PPPersonPacket * pPsnPack)
 	return ok;
 }
 
-int PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList) // @v9.8.6 TSArray-->TSVector
+int PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList)
 {
 	CALLPTRMEMB(pList, clear());
 	int   ok = -1;

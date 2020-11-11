@@ -289,7 +289,7 @@ IMPL_INVARIANT_C(PPCheckInPersonArray)
 }
 
 
-PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim), // @v9.8.6 TSArray-->TSVector
+PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim),
 	Ver(DS.GetVersion()), Kind(0), PrmrID(0), LastAnonymN(0)
 {
 	MemoPool.add("$"); // zero index - is empty string
@@ -619,7 +619,7 @@ int PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArray & r
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
-	TSVector <ObjAssocTbl::Rec> items_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <ObjAssocTbl::Rec> items_list;
 	PPID   assc_type = GetAssocType(kind);
 	rList.Init(kind, prmrID);
 	THROW(assc_type);

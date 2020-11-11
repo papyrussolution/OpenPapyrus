@@ -2,8 +2,7 @@
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <db.h>
 
@@ -241,7 +240,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 	// явного вызова потокобезопасных переменных и методов
 	//
 	if(idx >= 0)
-		index = (int16)idx;
+		index = static_cast<int16>(idx);
 	int    op = -1;
 	char   temp_buf[BTRMAXKEYLEN];
 	char * p_buf = static_cast<char *>(P_DBuf);
@@ -266,7 +265,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 			retBufLen = sizeof(temp_buf);
 		}
 		else if(sf & sfForUpdate) {
-			if(r_dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.3
+			if(r_dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) {
 				if(r_dbcfg.NWaitLockTries > 0)
 					op += BL_SNGL_NWT;
 				else

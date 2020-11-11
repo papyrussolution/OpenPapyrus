@@ -4,8 +4,7 @@
 // Реализация алгоритма Boyer-Moore-Horspool-Raita
 // для поиска подстроки в строке
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 //

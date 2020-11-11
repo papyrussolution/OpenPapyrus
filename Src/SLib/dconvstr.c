@@ -21,8 +21,7 @@
 // IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 const int SRealConversion::DefaultPrecision = 6; // DCONVSTR_DEFAULT_PRECISION

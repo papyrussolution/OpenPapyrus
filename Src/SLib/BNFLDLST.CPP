@@ -1,8 +1,7 @@
 // BNFLDLST.CPP
 // Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 int BNField::IsEqual(const BNField & rS, int nameAndTypeOnly) const

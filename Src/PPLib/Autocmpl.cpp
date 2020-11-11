@@ -69,7 +69,7 @@ int PUGL::SetLotManufTimeParam::FixedTimeFromString(const char * pStr)
 	return ok;
 }
 
-/*static*/int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty) // @v9.8.6 TSArray-->TSVector
+/*static*/int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty)
 {
 	int    ok = -1;
 	if(neededeQtty > 0.0 && rList.getCount()) {
@@ -228,7 +228,7 @@ void FASTCALL PUGL::GetItemsLocList(PPIDArray & rList) const
 			rList.addUnique(p_item->LocID);
 }
 
-int PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const // @v9.8.6 TSArray-->TSVector
+int PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const
 {
 	int    ok = -1;
 	rList.clear();

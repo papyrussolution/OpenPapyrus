@@ -1995,7 +1995,7 @@ int UuidRefCore::Search(long id, S_GUID & rUuid)
 	UuidRefTbl::Rec rec;
     int    ok = SearchByID(this, PPOBJ_UUIDREF, id, &rec);
     //TextToUuid(((ok > 0) ? rec.UUID : 0), rUuid);
-    rUuid = *(S_GUID *)rec.UUID;
+    rUuid = *reinterpret_cast<const S_GUID *>(rec.UUID);
 	return ok;
 }
 

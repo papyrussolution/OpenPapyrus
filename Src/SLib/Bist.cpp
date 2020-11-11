@@ -4,8 +4,7 @@
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 // @todo библиотека DB не должна включаться в slib #include <db.h> // DBRowId
 

@@ -3,8 +3,7 @@
 // @codepage UTF-8
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <db.h>
 //

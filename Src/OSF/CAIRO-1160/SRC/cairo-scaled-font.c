@@ -39,13 +39,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-scaled-font-private.h"
-//#include "cairo-surface-backend-private.h"
-
 /**
  * SECTION:cairo-scaled-font
  * @Title: cairo_scaled_font_t

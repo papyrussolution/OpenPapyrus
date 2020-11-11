@@ -1,5 +1,6 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -358,7 +359,7 @@ int PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if(SearchBySymb(p_pack->Rec.Symb, &same_id) > 0) {
-					; // Не изменяем объект
+					; // РќРµ РёР·РјРµРЅСЏРµРј РѕР±СЉРµРєС‚
 				}
 				if(same_id == 0) {
 					p_pack->Rec.ID = 0;
@@ -371,7 +372,7 @@ int PPObjSalCharge::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 				}
 			}
 			else {
-				; // Не изменяем объект
+				; // РќРµ РёР·РјРµРЅСЏРµРј РѕР±СЉРµРєС‚
 			}
 		}
 		else {
@@ -778,7 +779,7 @@ int PPStaffCalPacket::Get(LDATE dt, double * pHours, uint * pPos) const
 				LTIME tm;
 				tm.v = r_item.TmVal;
 				hours += tm.totalsec() / 3600;
-				if(ok <= 0) // Присваиваем первую найденную позицию
+				if(ok <= 0) // РџСЂРёСЃРІР°РёРІР°РµРј РїРµСЂРІСѓСЋ РЅР°Р№РґРµРЅРЅСѓСЋ РїРѕР·РёС†РёСЋ
 					ASSIGN_PTR(pPos, pos);
 				ok = 1;
 			}
@@ -831,7 +832,7 @@ IMPL_CMPFUNC(STAFFCALREC_WO_TM, i1, i2)
 int PPStaffCalPacket::SearchContinuousEntry(long dtVal, StaffCalendarTbl::Rec * pRec) const
 {
 	//
-	// Предполагаем, что массив Items отсортирован по критерию CMPFUNC(STAFFCALREC)
+	// РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ РјР°СЃСЃРёРІ Items РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ РїРѕ РєСЂРёС‚РµСЂРёСЋ CMPFUNC(STAFFCALREC)
 	//
 	uint   c = Items.getCount();
 	if(c) do {
@@ -882,7 +883,6 @@ int PPStaffCalPacket::AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos)
 	int    f_day_gap = 0;
 	THROW_INVARG(pItem);
 	THROW(SetupEntry(pItem));
-	// @v8.4.11 {
 	if(Rec.LinkCalID) {
 		PPObjStaffCal stc_obj;
 		PPStaffCal link_rec;
@@ -891,7 +891,6 @@ int PPStaffCalPacket::AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos)
 	}
 	else
 		f_day_gap = BIN(Rec.Flags & PPStaffCal::fDayGap);
-	// } @v8.4.11
 	if(f_day_gap) {
 		THROW(CheckContinuousEntry(pItem));
 		THROW_SL(Items.ordInsert(pItem, pPos, PTR_CMPFUNC(STAFFCALREC)));
@@ -1246,7 +1245,6 @@ private:
 		if(TVCOMMAND) {
 			if(event.isClusterClk(CTL_STAFFCALD_KIND))
 				setupDate();
-			// @v9.7.9 {
 			else if(event.isClusterClk(CTL_STAFFCALD_FLAGS)) {
 				const long preserve_flags = Data.Flags;
 				GetClusterData(CTL_STAFFCALD_FLAGS, &Data.Flags);
@@ -1261,7 +1259,6 @@ private:
 					LockUpdByInput = 0;
 				}
 			}
-			// } @v9.7.9 
 			else if(cmInputUpdated) {
 				if(event.isCtlEvent(CTL_STAFFCALD_TMSTART) || event.isCtlEvent(CTL_STAFFCALD_TMEND)) {
 					if(!LockUpdByInput) {
@@ -1282,8 +1279,8 @@ private:
 						getCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
 						Data.TmEnd.settotalsec(Data.TmStart.totalsec() + Data.TmVal);
 						PPStaffCalPacket::SetupEntry(&Data);
-						// На случай, если SetupEntry изменит введенное пользователем значение,
-						// возвращаем его на место
+						// РќР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё SetupEntry РёР·РјРµРЅРёС‚ РІРІРµРґРµРЅРЅРѕРµ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј Р·РЅР°С‡РµРЅРёРµ,
+						// РІРѕР·РІСЂР°С‰Р°РµРј РµРіРѕ РЅР° РјРµСЃС‚Рѕ
 						//setCtrlData(CTL_STAFFCALD_WORKTIME, &tm);
 						setCtrlData(CTL_STAFFCALD_TMEND, &Data.TmEnd);
 						LockUpdByInput = 0;
@@ -1307,7 +1304,7 @@ private:
 	}
 	int    setupDate();
 	int    PrevKind;
-	int    LockUpdByInput; // Блокировка пересчета времени для избежания зацикливания //
+	int    LockUpdByInput; // Р‘Р»РѕРєРёСЂРѕРІРєР° РїРµСЂРµСЃС‡РµС‚Р° РІСЂРµРјРµРЅРё РґР»СЏ РёР·Р±РµР¶Р°РЅРёСЏ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ //
 	const PPStaffCalPacket * P_Pack;
 	StaffCalendarTbl::Rec Data;
 };
@@ -1400,12 +1397,10 @@ int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
 	LTIME  tm;
 	getCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
 	getCtrlData(CTL_STAFFCALD_TMEND,   &Data.TmEnd);
-	// @v9.7.9 {
 	if(Data.TmStart.totalsec() < 0 || Data.TmStart.totalsec() > (24*36000))
 		Data.TmStart = ZEROTIME;
 	if(!Data.TmEnd || Data.TmEnd.totalsec() < 0 || Data.TmEnd.totalsec() > (24*36000))
 		Data.TmEnd = encodetime(24, 0, 0, 0);
-	// } @v9.7.9 
 	getCtrlData(sel = CTL_STAFFCALD_WORKTIME, &tm);
 	Data.TmVal = tm.totalsec();
 	GetClusterData(CTL_STAFFCALD_KIND, &kind);
@@ -1421,7 +1416,7 @@ int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
 	else if(kind == CALDATE::kDayOfWeek)
 		THROW_PP(cdt.SetDayOfWeek(getCtrlLong(sel = CTL_HOLIDAY_DAYOFWEEK)), PPERR_INVDAYOFWEEK);
 	Data.DtVal = cdt;
-	Data.Kind  = 0; // @! На этапе отладки это поле - 0. В дальнейшем может понадобиться убрать этот оператор
+	Data.Kind  = 0; // @! РќР° СЌС‚Р°РїРµ РѕС‚Р»Р°РґРєРё СЌС‚Рѕ РїРѕР»Рµ - 0. Р’ РґР°Р»СЊРЅРµР№С€РµРј РјРѕР¶РµС‚ РїРѕРЅР°РґРѕР±РёС‚СЊСЃСЏ СѓР±СЂР°С‚СЊ СЌС‚РѕС‚ РѕРїРµСЂР°С‚РѕСЂ
 	GetClusterData(CTL_STAFFCALD_FLAGS, &Data.Flags);
 	THROW(PPStaffCalPacket::SetupEntry(&Data));
 	ASSIGN_PTR(pData, Data);
@@ -1435,7 +1430,7 @@ int StaffCalDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	StaffCalendarTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.9.3 @ctr MEMSZERO(rec);
 	rec.CalID = Data.Rec.ID;
 	while(StcObj.EditEntry(&Data, &rec) > 0) {
 		uint   new_pos = 0;
@@ -1456,7 +1451,7 @@ int StaffCalDialog::editItem(long pos, long id)
 	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.GetList().getCount()) {
 		StaffCalendarTbl::Rec rec, sav_rec;
-		MEMSZERO(rec);
+		// @v10.9.3 @ctr MEMSZERO(rec);
 		rec = Data.GetList().at(pos);
 		sav_rec = rec;
 		if(StcObj.EditEntry(&Data, &rec) > 0) {
@@ -1754,7 +1749,7 @@ int PPObjStaffCal::SearchEntry(PPID calID, long dtVal, LTIME tmStart, StaffCalen
 	return ok;
 }
 
-int PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffCalendarTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffCalendarTbl::Rec> & rList)
 {
 	int    ok = -1;
 	rList.clear();
@@ -1872,8 +1867,8 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 		THROW(tra);
 		{
 			//
-			// Для правильной установки значения необходимо выяснить, допускает ли календарь множественные
-			// элементы за день (PPStaffCal::fDayGap)
+			// Р”Р»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ СѓСЃС‚Р°РЅРѕРІРєРё Р·РЅР°С‡РµРЅРёСЏ РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹СЏСЃРЅРёС‚СЊ, РґРѕРїСѓСЃРєР°РµС‚ Р»Рё РєР°Р»РµРЅРґР°СЂСЊ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹Рµ
+			// СЌР»РµРјРµРЅС‚С‹ Р·Р° РґРµРЅСЊ (PPStaffCal::fDayGap)
 			//
 			THROW(Fetch(rEntry.CalID, &sc_rec) > 0);
 			{
@@ -1904,10 +1899,10 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 		}
 		else {
 			int    done = 0;
-			TSVector <StaffCalendarTbl::Rec> dlist; // @v9.8.4 TSArray-->TSVector
+			TSVector <StaffCalendarTbl::Rec> dlist;
 			THROW(r = SearchEntriesByDtVal(rEntry.CalID, rEntry.DtVal, dlist));
 			if(r > 0) {
-				assert(dlist.getCount()); // Параноидальная проверка правильности работы SearchEntriesByDtVal
+				assert(dlist.getCount()); // РџР°СЂР°РЅРѕРёРґР°Р»СЊРЅР°СЏ РїСЂРѕРІРµСЂРєР° РїСЂР°РІРёР»СЊРЅРѕСЃС‚Рё СЂР°Р±РѕС‚С‹ SearchEntriesByDtVal
 				for(uint i = 0; i < dlist.getCount(); i++) {
 					const StaffCalendarTbl::Rec & r_ditem = dlist.at(i);
 					if(r_ditem.DtVal != entry.DtVal || r_ditem.TmStart != entry.TmStart) { // @v8.2.6 @fix
@@ -1919,8 +1914,8 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 						k0.DtVal = entry.DtVal;
 						k0.TmStart = entry.TmStart;
 						//
-						// Не может быть в нормальной ситуации, что мы не нашли запись, которую только что видели
-						// функцией SearchEntriesByDtVal. По этому, любая ошибка поиска считается критической.
+						// РќРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІ РЅРѕСЂРјР°Р»СЊРЅРѕР№ СЃРёС‚СѓР°С†РёРё, С‡С‚Рѕ РјС‹ РЅРµ РЅР°С€Р»Рё Р·Р°РїРёСЃСЊ, РєРѕС‚РѕСЂСѓСЋ С‚РѕР»СЊРєРѕ С‡С‚Рѕ РІРёРґРµР»Рё
+						// С„СѓРЅРєС†РёРµР№ SearchEntriesByDtVal. РџРѕ СЌС‚РѕРјСѓ, Р»СЋР±Р°СЏ РѕС€РёР±РєР° РїРѕРёСЃРєР° СЃС‡РёС‚Р°РµС‚СЃСЏ РєСЂРёС‚РёС‡РµСЃРєРѕР№.
 						//
 						THROW_DB(P_ScT->searchForUpdate(0, &k0, spEq));
 						assert(entry.CalID == rEntry.CalID);
@@ -1930,7 +1925,7 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 				}
 			}
 			else {
-				assert(dlist.getCount() == 0); // Параноидальная проверка правильности работы SearchEntriesByDtVal
+				assert(dlist.getCount() == 0); // РџР°СЂР°РЅРѕРёРґР°Р»СЊРЅР°СЏ РїСЂРѕРІРµСЂРєР° РїСЂР°РІРёР»СЊРЅРѕСЃС‚Рё СЂР°Р±РѕС‚С‹ SearchEntriesByDtVal
 			}
 			if(!done) {
 				assert(entry.CalID == rEntry.CalID);
@@ -1953,8 +1948,8 @@ int PPObjStaffCal::GetChildList(PPID calID, PPIDArray * pList)
 			pList->addUnique(rec.ID);
 		else {
 			//
-			// Если указатель пустой, то просто определяем факт
-			// наличия дочерних календарей (ok > 0) и выходим из цикла.
+			// Р•СЃР»Рё СѓРєР°Р·Р°С‚РµР»СЊ РїСѓСЃС‚РѕР№, С‚Рѕ РїСЂРѕСЃС‚Рѕ РѕРїСЂРµРґРµР»СЏРµРј С„Р°РєС‚
+			// РЅР°Р»РёС‡РёСЏ РґРѕС‡РµСЂРЅРёС… РєР°Р»РµРЅРґР°СЂРµР№ (ok > 0) Рё РІС‹С…РѕРґРёРј РёР· С†РёРєР»Р°.
 			//
 			break;
 		}
@@ -1965,8 +1960,8 @@ int PPObjStaffCal::GetChildList(PPID calID, PPIDArray * pList)
 int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonPostTbl::Rec * pPostRec, ScObjAssoc * pAssc)
 {
 	int    ok = 1;
-	PPID   cal_id = calID;        // Может быть замещен подстановочным календарем
-	PPID   prj_cal_id = prjCalID; // Может быть замещен подстановочным календарем
+	PPID   cal_id = calID;        // РњРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°РјРµС‰РµРЅ РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Рј РєР°Р»РµРЅРґР°СЂРµРј
+	PPID   prj_cal_id = prjCalID; // РњРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°РјРµС‰РµРЅ РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Рј РєР°Р»РµРЅРґР°СЂРµРј
 	PPObjStaffList sl_obj;
 	PPStaffEntry sl_rec;
 	memzero(pAssc, sizeof(*pAssc));
@@ -1983,12 +1978,12 @@ int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonPostTbl
 				if(SearchByObj(cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.CalID = sc_rec.ID;
 					if(sc_rec.SubstCalID)
-						cal_id = sc_rec.SubstCalID; // Наследование переходит на подстановочный календарь
+						cal_id = sc_rec.SubstCalID; // РќР°СЃР»РµРґРѕРІР°РЅРёРµ РїРµСЂРµС…РѕРґРёС‚ РЅР° РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ
 				}
 				if(prj_cal_id && SearchByObj(prj_cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.ProjCalID = sc_rec.ID;
 					if(sc_rec.SubstCalID)
-						prj_cal_id = sc_rec.SubstCalID; // Наследование переходит на подстановочный календарь
+						prj_cal_id = sc_rec.SubstCalID; // РќР°СЃР»РµРґРѕРІР°РЅРёРµ РїРµСЂРµС…РѕРґРёС‚ РЅР° РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ
 				}
 			}
 		}
@@ -2003,8 +1998,8 @@ int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonPostTbl
 int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID, ScObjAssoc * pAssc)
 {
 	int    ok = 1;
-	PPID   cal_id = calID;        // Может быть замещен подстановочным календарем
-	PPID   prj_cal_id = prjCalID; // Может быть замещен подстановочным календарем
+	PPID   cal_id = calID;        // РњРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°РјРµС‰РµРЅ РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Рј РєР°Р»РµРЅРґР°СЂРµРј
+	PPID   prj_cal_id = prjCalID; // РњРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°РјРµС‰РµРЅ РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Рј РєР°Р»РµРЅРґР°СЂРµРј
 	PPObjStaffList sl_obj;
 	memzero(pAssc, sizeof(*pAssc));
 	pAssc->List[ScObjAssoc::scPerson].Oi.Set(PPOBJ_PERSON, personID);
@@ -2017,12 +2012,12 @@ int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID, ScOb
 				if(cal_id && SearchByObj(cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.CalID = sc_rec.ID;
 					if(sc_rec.SubstCalID)
-						cal_id = sc_rec.SubstCalID; // Наследование переходит на подстановочный календарь
+						cal_id = sc_rec.SubstCalID; // РќР°СЃР»РµРґРѕРІР°РЅРёРµ РїРµСЂРµС…РѕРґРёС‚ РЅР° РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ
 				}
 				if(prj_cal_id && SearchByObj(prj_cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.ProjCalID = sc_rec.ID;
 					if(sc_rec.SubstCalID)
-						prj_cal_id = sc_rec.SubstCalID; // Наследование переходит на подстановочный календарь
+						prj_cal_id = sc_rec.SubstCalID; // РќР°СЃР»РµРґРѕРІР°РЅРёРµ РїРµСЂРµС…РѕРґРёС‚ РЅР° РїРѕРґСЃС‚Р°РЅРѕРІРѕС‡РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ
 				}
 			}
 		}
@@ -2134,8 +2129,8 @@ int PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const PPIDA
 	int    ok = 1;
 	long   numdays = 0;
 	double numhours = 0.0;
-	TSVector <StaffCalendarTbl::Rec> cal_list; // @v9.8.4 TSArray-->TSVector
-	TSVector <StaffCalendarTbl::Rec> proj_cal_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <StaffCalendarTbl::Rec> cal_list;
+	TSVector <StaffCalendarTbl::Rec> proj_cal_list;
 	for(uint i = 0; i < rEvList.getCount(); i++) {
 		const PPID ev_id = rEvList.get(i);
 		StaffCalendarTbl::Key2 k2;
@@ -2180,8 +2175,8 @@ int PPObjStaffCal::CalcPeriod(const ScObjAssoc & rAssc, const DateRange & rPerio
 	int    ok = 1;
 	long   numdays = 0;
 	double numhours = 0.0;
-	TSVector <StaffCalendarTbl::Rec> cal_list; // @v9.8.4 TSArray-->TSVector
-	TSVector <StaffCalendarTbl::Rec> proj_cal_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <StaffCalendarTbl::Rec> cal_list;
+	TSVector <StaffCalendarTbl::Rec> proj_cal_list;
 	for(LDATE dt = rPeriod.low; dt <= rPeriod.upp; dt = plusdate(dt, 1)) {
 		int    r = -1, proj_r = -1;
 		uint   i;
@@ -2360,4 +2355,3 @@ int PPALDD_StaffCal::InitData(PPFilt & rFilt, long rsrv)
 	}
 	return ok;
 }
-

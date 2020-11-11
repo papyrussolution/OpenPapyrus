@@ -1,7 +1,6 @@
 // SIMAGE.CPP
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 #ifndef __GENERIC_MAIN_CONDUIT__ // {

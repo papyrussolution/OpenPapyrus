@@ -41,7 +41,6 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for strdup() */
-//#include "cairo-error-private.h"
 
 static const cairo_font_face_t _cairo_font_face_null_pointer = {
 	{ 0 },                          /* hash_entry */

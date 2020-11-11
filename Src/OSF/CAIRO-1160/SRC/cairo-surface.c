@@ -37,18 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-array-private.h"
-//#include "cairo-clip-inline.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-damage-private.h"
-//#include "cairo-device-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-surface-inline.h"
-//#include "cairo-tee-surface-private.h"
 /**
  * SECTION:cairo-surface
  * @Title: cairo_surface_t

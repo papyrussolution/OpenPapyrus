@@ -1,8 +1,7 @@
 // SUC.CPP
-// Copyright (c) A.Sobolev 2017, 2019
+// Copyright (c) A.Sobolev 2017, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 //
@@ -1075,8 +1074,8 @@ int SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName,
 	int    has_b3 = 0;
 	uint8  mbml = 0;
 	uint8  mbml_fallback = 0;
-	TSVector <MapEntry> map_list; // @v9.8.4 TSArray-->TSVector
-	TSVector <MapEntry> fallback_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <MapEntry> map_list;
+	TSVector <MapEntry> fallback_list;
 	MEMSZERO(two_c_start);
 	MEMSZERO(four_c_start);
 	THROW(fileExists(pFileName));
@@ -1537,14 +1536,14 @@ int SCodepageMapPool::CpMap::TranslateToU(const uint8 * pSrc, size_t srcSize, SS
 	return 0;
 }
 
-SCodepageMapPool::CMapTranslIndexTest::CMapTranslIndexTest() : TSVector <CMapTranslEntry>() // @v9.8.4 TSArray-->TSVector
+SCodepageMapPool::CMapTranslIndexTest::CMapTranslIndexTest() : TSVector <CMapTranslEntry>()
 {
 	Reset();
 }
 
 void SCodepageMapPool::CMapTranslIndexTest::Reset()
 {
-	SVector::clear(); // @v9.8.4 SArray-->SVector
+	SVector::clear();
 	MaxSLen = 0;
 	MaxDLen = 0;
 	IdenticalCount = 0;

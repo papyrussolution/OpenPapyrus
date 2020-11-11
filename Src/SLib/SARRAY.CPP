@@ -2,8 +2,7 @@
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 #define _USERPTR___(ptr) (ptr)
@@ -1498,11 +1497,11 @@ int FASTCALL LLAssoc::operator == (const LLAssoc & s) const
 	return BIN(Key == s.Key && Val == s.Val);
 }
 
-LLAssocArray::LLAssocArray() : TSVector <LLAssoc>() // @v9.8.4 TSArray-->TSVector
+LLAssocArray::LLAssocArray() : TSVector <LLAssoc>()
 {
 }
 
-LLAssocArray::LLAssocArray(const LLAssocArray & s) : TSVector <LLAssoc> (s) // @v9.8.4 TSArray-->TSVector
+LLAssocArray::LLAssocArray(const LLAssocArray & s) : TSVector <LLAssoc> (s)
 {
 }
 
@@ -1656,16 +1655,16 @@ int LLAssocArray::SearchPair(int64 key, int64 val, uint * pPos) const
 
 void LLAssocArray::Sort()
 {
-	SVector::sort(CMPF_INT64); // @v9.8.4 SArray-->SVector
+	SVector::sort(CMPF_INT64);
 }
 //
 //
 //
-RAssocArray::RAssocArray() : TSVector <RAssoc>() // @v9.8.4 TSArray-->TSVector
+RAssocArray::RAssocArray() : TSVector <RAssoc>()
 {
 }
 
-RAssocArray::RAssocArray(const RAssocArray & s) : TSVector <RAssoc> (s) // @v9.8.4 TSArray-->TSVector
+RAssocArray::RAssocArray(const RAssocArray & s) : TSVector <RAssoc> (s)
 {
 }
 
@@ -1849,11 +1848,11 @@ void RAssocArray::SortByValRev()
 //
 //
 //
-RPairArray::RPairArray() : TSVector <RPair> () // @v9.8.4 TSArray-->TSVector
+RPairArray::RPairArray() : TSVector <RPair> ()
 {
 }
 
-RPairArray::RPairArray(const RPairArray & rS)  : TSVector <RPair> (rS) // @v9.8.4 TSArray-->TSVector
+RPairArray::RPairArray(const RPairArray & rS)  : TSVector <RPair> (rS)
 {
 }
 
@@ -1885,7 +1884,7 @@ void RPairArray::SortByY()
 //
 //
 //
-UUIDAssocArray::UUIDAssocArray() : TSVector <UUIDAssoc>() // @v9.8.4 TSArray-->TSVector
+UUIDAssocArray::UUIDAssocArray() : TSVector <UUIDAssoc>()
 {
 }
 
@@ -3032,11 +3031,11 @@ StrStrAssocArray & StrStrAssocArray::Z()
 //
 //
 //
-RealArray::RealArray() : TSVector <double> () // @v9.8.4 TSArray-->TSVector
+RealArray::RealArray() : TSVector <double> ()
 {
 }
 
-RealArray::RealArray(const RealArray & s) : TSVector <double> (s) // @v9.8.4 TSArray-->TSVector
+RealArray::RealArray(const RealArray & s) : TSVector <double> (s)
 {
 }
 
@@ -3375,11 +3374,11 @@ int LongArray::Serialize__construction(int dir, long flags, SBuffer & rBuf, SSer
 //
 //
 //
-Int64Array::Int64Array() : TSVector <int64> () // @v9.8.4 TSArray-->TSVector
+Int64Array::Int64Array() : TSVector <int64> ()
 {
 }
 
-Int64Array::Int64Array(const Int64Array & rS) : TSVector <int64> (rS) // @v9.8.4 TSArray-->TSVector
+Int64Array::Int64Array(const Int64Array & rS) : TSVector <int64> (rS)
 {
 }
 
@@ -3457,7 +3456,7 @@ void Int64Array::intersect(const Int64Array * pList, int binary)
 //
 //
 //
-FloatArray::FloatArray() : TSVector <float>() {} // @v9.8.4 TSArray-->TSVector
+FloatArray::FloatArray() : TSVector <float>() {}
 int    FASTCALL FloatArray::operator == (const FloatArray & rS) const { return IsEqual(&rS); }
 int    FASTCALL FloatArray::operator != (const FloatArray & rS) const { return BIN(!IsEqual(&rS)); }
 int    FASTCALL FloatArray::add(float item) { return insert(&item); }

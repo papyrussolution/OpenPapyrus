@@ -35,8 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include <math.h>
 /*
  * This file implements a user-font rendering the descendant of the Hershey
  * font coded by Keith Packard for use in the Twin window system.

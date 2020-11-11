@@ -35,15 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-analysis-surface-private.h"
-//#include "cairo-box-inline.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-recording-surface-inline.h"
-//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-inline.h"
-//#include "cairo-region-private.h"
 
 typedef struct {
 	cairo_surface_t base;

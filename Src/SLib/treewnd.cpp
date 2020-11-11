@@ -3,8 +3,7 @@
 // @codepage UTF-8
 // Древовидный список в левой части основного окна
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <ppdefs.h>
 #include <crpe.h>

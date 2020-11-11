@@ -438,6 +438,7 @@ public:
 		Signature_PPView(0x099A099BUL),
 		EgaisInRowIdentDivider(27277), // @v10.8.3
 		ReserveU16(0), // @v10.8.3
+		CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
 		P_SubjectOrder("$PpyOrderTransmission$"),
 		P_SubjectCharry("$PpyCharryTransmission$"),
@@ -476,6 +477,8 @@ public:
 	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	const uint16 ReserveU16;                 // @alignment @v10.8.3
+	const long   CommonCmdAssocDesktopID;    // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+	//#define COMMON_DESKCMDASSOC 100000L
 	const char * P_SubjectDbDiv;
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
@@ -820,7 +823,7 @@ struct PPCycleFilt { // @size=4
 	int16  NumCycles;
 };
 
-class PPCycleArray : public TSVector <DateRange> { // @v9.8.4 TSArray-->TSVector
+class PPCycleArray : public TSVector <DateRange> {
 public:
 	PPCycleArray();
 	PPCycleArray(LDATE, LDATE, int cycle, int numCycles);
@@ -1494,7 +1497,7 @@ private:
 
 	UserProfileStaticBlock UPSB;
 	TSStack <UserProfileEntry> UserProfileStack;
-	TSVector <UserProfileEntry> UserProfileAccum; // @v9.8.4 TSArray-->TSVector
+	TSVector <UserProfileEntry> UserProfileAccum;
 	SMtLock Lck;
 };
 
@@ -2786,7 +2789,7 @@ private:
 		uint   TitleP;
 		uint8  Reserve[16];
 	};
-	TSVector <InnerItem> L; // @v9.8.4 TSArray-->TSVector
+	TSVector <InnerItem> L;
 };
 //
 // Descr: Базовый класс для определения фильтров
@@ -3056,8 +3059,8 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   SessionID;      // 76  Идентификатор сессии исполнения //
 	PPID   DBDiv;          // 80  ИД раздела базы данных (PPOBJ_CONFIG only)
 	long   BaseRateTypeID; // 84  Базовый тип валютного курса (PPOBJ_CONFIG only)
-	long   DesktopID;      // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
-	long   MenuID;         // 92  Идентификатор меню, используемого пользователем (группой)
+	long   DesktopID_Obsolete;      // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
+	long   MenuID_Obsolete;         // 92  Идентификатор меню, используемого пользователем (группой)
 	S_GUID DesktopUuid;    // @v10.9.3 @construction
 	S_GUID MenuUuid;       // @v10.9.3 @construction
 };
@@ -3073,7 +3076,7 @@ struct PPConfigPrivate {   // @persistent @store(PropertyTbl)
 	char   Reserve[28];    // @reserve // @v10.9.3 [60]-->[28]
 	S_GUID DesktopUuid;    // @v10.9.3
 	S_GUID MenuUuid;       // @v10.9.3 
-	long   DesktopID;      // Идентификатор рабочего стола, испольуемого пользователем
+	long   DesktopID_Obsolete; // Идентификатор рабочего стола, испольуемого пользователем
 	long   Reserve2[2];    // @reserve
 	char   Tail[1024];     //
 };
@@ -3147,7 +3150,7 @@ public:
 	int    GetUuid(const S_GUID & rUuid, long * pID, int options, int use_ta);
 	int    RemoveUuid(const S_GUID & rUuid, int use_ta);
 	int    Remove(long id, int use_ta);
-	int    PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta); // @v9.8.4 TSArray-->TSVector
+	int    PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta);
 private:
 	//static int FASTCALL TextToUuid(const char * pText, S_GUID & rUuid);
 	//static int FASTCALL UuidToText(const S_GUID & rUuid, SString & rText);
@@ -3204,8 +3207,8 @@ public:
 	int    FetchSelfRefText(const char * pText, PPID * pID);
 	int    GetSelfRefText(const wchar_t * pText, PPID * pID, int use_ta);
 	int    SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta);
-	int    SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList); // @v9.8.4 TSArray-->TSVector
-	int    SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList); // @v9.8.4 TSArray-->TSVector
+	int    SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList);
+	int    SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList);
 private:
 	int    GetLastObjId(PPID objType, int prop, PPID * pID);
 };
@@ -3430,7 +3433,7 @@ public:
 //
 // Descr: Список членства персоналий в агрегации "Регистрация персоналий"
 //
-class PPCheckInPersonArray : private TSVector <PPCheckInPersonItem> { // @persistent(DBX) // @v9.8.6 TSArray-->TSVector
+class PPCheckInPersonArray : private TSVector <PPCheckInPersonItem> { // @persistent(DBX)
 public:
 	friend class PPCheckInPersonMngr;
 
@@ -4193,7 +4196,7 @@ struct PPQuot { // @persistent(DBX see Note above)
 	LDATETIME Dtm; //
 };
 
-class PPQuotArray : public TSVector <PPQuot> { // @v9.8.4 TSArray-->TSVector
+class PPQuotArray : public TSVector <PPQuot> {
 public:
 	PPQuotArray(PPID goodsID = 0);
 	PPQuotArray(const PPQuotArray & s);
@@ -4311,7 +4314,7 @@ struct PPQuotItem_ { // @persistent
 	double Val;
 };
 
-class PPQuotItemArray : public TSVector <PPQuotItem_> { // @v9.8.4 TSArray-->TSVector
+class PPQuotItemArray : public TSVector <PPQuotItem_> {
 public:
 	PPQuotItemArray();
 	int    FASTCALL Add(const PPQuotItem_ & rItem);
@@ -4663,7 +4666,7 @@ int   FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt);
 	uint   TailP;
 };*/
 
-class BarcodeArray : public TSVector <BarcodeTbl::Rec> { // @v9.8.4 TSArray-->TSVector
+class BarcodeArray : public TSVector <BarcodeTbl::Rec> {
 public:
 	int    Add(const char * pCode, long codeType, double qtty);
 	int    Arrange();
@@ -4694,7 +4697,7 @@ public:
 #define CARGOUNIT_PCKG   2
 #define CARGOUNIT_PALLET 3
 
-typedef TSVector <ArGoodsCodeTbl::Rec> ArGoodsCodeArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <ArGoodsCodeTbl::Rec> ArGoodsCodeArray;
 //
 // Descr: Параметры товара для заказа, транспортировки и хранения //
 //   Property {PPOBJ_GOODS, Goods2.ID, GDSPRP_STOCKDATA}
@@ -5295,8 +5298,8 @@ private:
 			AcctID Aid;
 			PPID   AcsID;
 		};
-		TSVector <ATSubstObjects::Item> PrimList; // @v9.8.4 TSArray-->TSVector
-		TSVector <ATSubstObjects::Item> ForeignList; // @v9.8.4 TSArray-->TSVector
+		TSVector <ATSubstObjects::Item> PrimList;
+		TSVector <ATSubstObjects::Item> ForeignList;
 	};
 	struct ATBillParam {
 		ATBillParam();
@@ -8535,7 +8538,7 @@ public:
     GeoTrackCore();
     int    Search(PPObjID oid, LDATETIME dtm, PPGeoTrackItem * pItem);
     int    PutItem(const PPGeoTrackItem & rItem, int use_ta);
-    int    PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta); // @v9.8.4 TSArray-->TSVector
+    int    PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta);
 };
 //
 // RegisterCore (Implemented in REGISTER.CPP)
@@ -8583,7 +8586,7 @@ public:
 	int    GetRegister(PPID regTypeID, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const;
 	int    GetListByType(PPID regTypeID, LDATE dt, RegisterArray * pList) const;
 	int    GetListByPeriod(PPID regTypeID, const DateRange & rPeriod, RegisterArray * pList) const;
-	int    GetBankAccountList(TSVector <PPBankAccount> * pList) const; // @v9.8.6 TSArray-->TSVector
+	int    GetBankAccountList(TSVector <PPBankAccount> * pList) const;
 	int    CheckDuplicateBankAccount(const PPBankAccount * pRec, long pos) const;
 	//
 	// Descr: Вносит в массив банковский счет pRec. Если pos >= getCount(),
@@ -9137,7 +9140,7 @@ struct PPClientAgreement { // @persistent
 	PPID   EdiPrvID;       // @v10.0.0 ->Ref(PPOBJ_EDIPROVIDER)
 	// @v10.0.0 uint8  Reserve2[4];    // @reserve
 	char   Code2[24];      // @v10.2.9 Номер соглашения //
-	TSVector <DebtLimit> DebtLimList; // @anchor долговые ограничения по командам агентов // @v9.8.4 TSArray-->TSVector
+	TSVector <DebtLimit> DebtLimList; // @anchor долговые ограничения по командам агентов
 };
 
 class PPSupplAgreement {    // @persistent @store(PropertyTbl)
@@ -9282,7 +9285,7 @@ public:
 		uint8  FbReserve[32]; // @reserve
 	} Fb;                    // @v8.5.0
 	ExchangeParam Ep;        // @anchor @v8.5.0
-	TSVector <OrderParamEntry> OrderParamList; // @v8.5.0 // @v9.8.4 TSArray-->TSVector
+	TSVector <OrderParamEntry> OrderParamList;
 };
 //
 //
@@ -9373,7 +9376,7 @@ struct StaffAmtEntry { // @flat
 //
 // Descr: Список штатных сумм
 //
-class StaffAmtList : public TSVector <StaffAmtEntry> { // @v9.8.6 TSArray-->TSVector
+class StaffAmtList : public TSVector <StaffAmtEntry> {
 public:
 	StaffAmtList();
 	int    FASTCALL IsEqual(const StaffAmtList & rS) const;
@@ -10444,7 +10447,7 @@ public:
 	// связаны с коллекциями товарных строк документа, которые в PPBillPacket и ILBillPacket представлены
 	// по-разному.
 	//
-	TSVector <PPAccTurn> Turns; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPAccTurn> Turns;
 	PPAdvBillItemList AdvList; // Элементы расширения бух документа
 	//
 	// @todo Следующие четыре контейнера необходимо объединить в общий контейнер поскольку
@@ -10572,7 +10575,7 @@ struct BillVatEntry {
 		// иногда возникать разница в пределах нескольких копеек.
 };
 
-class BillVatArray : public TSVector <BillVatEntry> { // @v9.8.4 TSArray-->TSVector
+class BillVatArray : public TSVector <BillVatEntry> {
 public:
 	BillVatArray();
 	int    Add(double rate, double sum, double base, double amtByVat);
@@ -10688,9 +10691,9 @@ private:
 	int    AccsCost;       // Если 0, то доступ к ценам поступления запрещен
 	PPID   FiltGrpID;      // Товарная группа, ограничивающая выборку.
 	LongArray Seen;        // Список позиций документа, которые уже были обработаны
-	TSVector <IndexItem> Index; // @v9.8.4 TSArray-->TSVector
+	TSVector <IndexItem> Index; // 
 	RAssocArray SaldoList; // Список товаров, принадлежащих группе FiltGrpID и ассоциированных с величной сальдо по контаргенту.
-	TSVector <LocTransfTbl::Rec> DispList; // @v9.8.4 TSArray-->TSVector
+	TSVector <LocTransfTbl::Rec> DispList; // 
 };
 //
 //
@@ -10751,7 +10754,7 @@ public:
 	int    Add__(const PUGL *);
 	int    FASTCALL Log(PPLogger * pLogger) const;
 	void   FASTCALL GetItemsLocList(PPIDArray & rList) const;
-	int    GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const; // @v9.8.6 TSArray-->TSVector
+	int    GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const;
 	//
 	// Descr: возвращает !0 если все элементы имеют признак PUGI::fTerminal
 	//
@@ -10772,9 +10775,8 @@ public:
 	double CalcCostPct;
 	TSVector <SupplSubstItem> SupplSubstList; // Список определителей подстановки поставщиков,
 		// применяемый для оприходования дефицита с привязкой к конкретным поставщикам.
-		// @v9.8.6 TSArray-->TSVector
 	SetLotManufTimeParam Slmt; // @v10.5.12 Параметры установки времени производства для лотов дефицита
-	static int BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty); // @v9.8.6 TSArray-->TSVector
+	static int BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty);
 };
 //
 //
@@ -10799,7 +10801,7 @@ struct CompleteItem { // @flat
 	long   Flags;
 };
 
-class CompleteArray : public TSVector <CompleteItem> { // @v9.8.4 TSArray-->TSVector
+class CompleteArray : public TSVector <CompleteItem> {
 public:
 	CompleteArray();
 	CompleteArray(const CompleteArray &);
@@ -12023,7 +12025,7 @@ struct GoodsRestVal {
 	char   LotTagText[128];
 };
 
-class GoodsRestParam : public TSVector <GoodsRestVal> { // @v9.8.4 TSArray-->TSVector
+class GoodsRestParam : public TSVector <GoodsRestVal> {
 public:
 	GoodsRestParam();
 	GoodsRestParam(const GoodsRestParam & rS);
@@ -12653,7 +12655,6 @@ public:
 	int    GetLastOpByGoods(PPID goodsID, LDATE beforeDt, long beforeOprNo, TransferTbl::Rec * pRec);
 	int    EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode /* ASSTOPC_XXX */, PPID * pDestLotID, TransferTbl::Rec * pRec);
 	int    EnumAssetOp(PPID * pLotID, DateIter * pIter, int * pOpCode, TransferTbl::Rec * pRec);
-	// @v9.8.5 int    CalcUnlimOrder(const UnlimOrderParam *, TSVector <UnlimOrderEntry> *); // @v9.8.5 TSArray-->TSVector
 	//
 	// Descr: Возвращает списко идентификаторов товаров, которые когда-либо были на складе locID.
 	//
@@ -12880,7 +12881,7 @@ private:
 			double ExRest;     // Значение остатка в текущем состоянии записи
 			double ValidRest;  // Правильное или новое значение остатка.
 		};
-		TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
+		TSVector <Item> List;
 		LotCurRestTbl * P_Tbl;
 	};
 	class LcrBlock2 : public LcrBlockBase {
@@ -12908,7 +12909,7 @@ private:
 			long   ExRestF;    // Значение остатка в текущем состоянии записи
 			long   ValidRestF; // Правильное или новое значение остатка.
 		};
-		TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
+		TSVector <Item> List; // 
 		LotCurRest2Tbl * P_Tbl;
 	};
 	struct LotOpMovParam {
@@ -13700,7 +13701,7 @@ private:
 	int    SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, GoodsStatTbl::Rec * pRec);
 	int    Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, void * extraPtr);
 
-	TSVector <LocTabEntry> LocTab; // @v9.8.4 TSArray-->TSVector
+	TSVector <LocTabEntry> LocTab;
 	int    IsLocTabUpdated;
 	int    IsHldTabUpdated;
 	//
@@ -13844,7 +13845,7 @@ public:
 
 	SCardOpTbl ScOp;
 private:
-	int    UpdateRest_(PPID scID, const LDATETIME * pOpDtm, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta); // @v9.8.4 TSArray-->TSVector
+	int    UpdateRest_(PPID scID, const LDATETIME * pOpDtm, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta);
 	int    UpdateExpiryDelta(PPID id, long delta, int use_ta);
 };
 //
@@ -14849,7 +14850,7 @@ struct CSessDfctItem { // @flat
 	double AltGoodsQtty; // Количество списанное по альтернативному товару
 };
 
-class CSessDfctList : public TSVector <CSessDfctItem> { // @v9.8.4 TSArray-->TSVector
+class CSessDfctList : public TSVector <CSessDfctItem> {
 public:
 	enum {
 		uniteNone = 0,
@@ -15292,6 +15293,12 @@ struct PPCommandDescr {
 	SString Text;
 };
 
+enum PPCommandGroupCategory {
+	cmdgrpcUndef   = 0,
+	cmdgrpcDesktop = 1,
+	cmdgrpcMenu    = 2
+};
+
 class PPCommandItem {
 public:
 	enum {
@@ -15314,12 +15321,12 @@ public:
 	virtual ~PPCommandItem();
 	virtual int Write(SBuffer &, long) const;
 	virtual int Read(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const;             //@erik v10.6.1
+	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
 	virtual const PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
-	virtual void  SetUniqueID(long * pID);
+	virtual void FASTCALL SetUniqueID(long * pID);
 	int    FASTCALL Copy(const PPCommandItem &);
 	int    Enumerate(CmdItemIterFunc func, long parentID, void * extraPtr) const;
 
@@ -15335,9 +15342,9 @@ public:
 	PPCommand();
 	virtual int Write(SBuffer &, long) const;
 	virtual int Read(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const;             //@erik v10.6.1
+	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
 	long   CmdID;          // Идентификатор дескриптора команды (PPCommandDescr)
@@ -15348,7 +15355,58 @@ public:
 
 class PPCommandFolder : public PPCommandItem {
 public:
-	static int GetMenuList(const PPCommandGroup * pGrp, StrAssocArray * pAry, int isDesktop);
+	//
+	// Descr: Специализированный список командных групп (меню и/или рабочих столов), 
+	//   состоящий и ассоциаций GUID'ов и наименований, скомбинированных с 4-байтовым идентификаторами
+	//   Проблема, которую призван решить этот контейнер, состоит в том, что многие меню и рабочие
+	//   столы имеют дублированные целочисленные идентификаторы наряду с GUID'ами, и до релиза
+	//   @v10.9.3 идентификация осуществлялась исключительно по этим идентификаторам, что порождало серьезные проблемы.
+	//   
+	class CommandGroupList : SStrGroup {
+	public:
+		struct Entry {
+			long   SurrID; // Суррогатный гарантированно уникальный ИД
+			long   NativeID; // ИД, полученный из источника
+			S_GUID Uuid;
+			SString Name;
+		};
+
+		CommandGroupList();
+		uint   GetCount() const;
+		CommandGroupList & Z();
+		int    Add(long nativeId, const S_GUID & rUuid, const char * pName, long * pSurrID);
+		int    Get(uint idx, Entry & rEntry) const;
+		long   GetSurrIdByUuid(const S_GUID & rUuid) const;
+		S_GUID GetUuidBySurrId(long surrId) const;
+		int    SearchByUuid(const S_GUID & rUuid, uint * pIdx) const;
+		//
+		// Descr: Функция ищет все записи, соответствующие native-ключу id.
+		//  Индексы всех найденных записей возвращаются в списке rIdxList.
+		// Returns:
+		//   >0 - найдена 1 или более записей с native-ключом id
+		//   0  - не найдено ни одной записи
+		//
+		int    SearchByNativeID(long id, LongArray & rIdxList) const;
+		int    SearchBySurrID(long id, uint * pIdx) const;
+		//
+		// Descr: Возвращает список элементов, составленных из суррогатных ключей и идентификаторов.
+		// Note: Так как суррогатные ключи имеют значение лишь в области действия текущего экземпляра
+		//   объекта CommandGroupList, то для последующего сопоставления суррогатного ключа с другими
+		//   атрибутами необходимо сохранить этот экземпляр.
+		//
+		void   GetStrAssocList(StrAssocArray & rResult) const;
+	private:
+		struct InnerEntry {
+			long   SurrID; // Суррогатный гарантированно уникальный ИД
+			long   NativeID; // ИД, полученный из источника
+			S_GUID Uuid;
+			uint   NameP;  // Ссылка на имя объекта
+		};
+		PPCommandGroupCategory Kind; // cmdgrpcUndef: everything
+		TSVector <InnerEntry> L;
+		long   LastSurrID;
+	};
+	static int GetCommandGroupList(const PPCommandGroup * pGrp, PPCommandGroupCategory kind, CommandGroupList & rResult);
 
 	enum Direction {
 		nextUp = 0,
@@ -15361,14 +15419,15 @@ public:
 	PPCommandFolder & FASTCALL operator = (const PPCommandFolder & rS);
 	virtual int Write(SBuffer &, long) const;
 	virtual int Read(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const;             //@erik v10.6.1
+	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
 	virtual const PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommandFolder &);
 	uint   GetCount() const;
 	const  PPCommandItem * Get(uint pos) const;
+	const  PPCommandItem * SearchByUuid(const S_GUID & rUuid, uint * pPos) const;
 	const  PPCommandItem * SearchByID(long id, uint * pPos) const;
 	PPCommandItem * SearchByIDRecursive(long id, long * pParentID);
 	const  PPCommandItem * SearchByIDRecursive_Const(long id, long * pParentID) const;
@@ -15385,28 +15444,24 @@ public:
 	int    AddSeparator(int pos);
 	int    Remove(uint pos);
 	int    Update(uint pos, const PPCommandItem * pItem);
-	int    GetUniqueID(long * pID) const;
+	long   GetUniqueID() const;
 	int    GetCommandList(StrAssocArray * pList, int onlyFolders);
-	virtual void SetUniqueID(long * pID);
+	virtual void FASTCALL SetUniqueID(long * pID);
 
 	TSCollection <PPCommandItem> List;
 };
 
 class PPCommandGroup : public PPCommandFolder {
 public:
-	enum {
-		tDesk = 1,
-		tMenu = 2
-	};
-
+	// @v10.9.3 enum { tDesk = 1, tMenu = 2 };
 	PPCommandGroup();
 	PPCommandGroup(const PPCommandGroup &);
 	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
 	virtual int Write(SBuffer &, long) const;
 	virtual int Read(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
-	virtual int Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
-	virtual int IsEqual(const void * pCommand) const;              //@erik v10.6.1
+	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL SetDbSymb(const char * pDbSymb);
 	int    FASTCALL IsDbSymbEq(const char * pDbSymb) const;
@@ -15417,7 +15472,7 @@ public:
 	void   FASTCALL SetType(int cg_type);
 	const  SString & GetLogo() const;
 	int    FASTCALL Copy(const PPCommandGroup &);
-	PPCommandGroup * FASTCALL GetDesktop(long id);
+	PPCommandGroup * GetGroup(PPCommandGroupCategory kind, const S_GUID & rUuid);
 	void   InitDefaultDesktop(const char * pName);
 	int    LoadLogo();
 	int    StoreLogo();
@@ -15425,11 +15480,11 @@ public:
 	SString DbSymb;
 	SString Logo_;
 	//
-	//GUID - это идентификатор рабочего стола в файловой системе. В рабочих столах, которые хранятся в ppdesk.bin их нет.
-	//Генерируются при создании нового рабочего стола и при выгрузке рабочих столов из ppdesk.bin(В функции PPCommandGroup::Read)
+	// GUID - это идентификатор рабочего стола в файловой системе. В рабочих столах, которые хранятся в ppdesk.bin их нет.
+	// Генерируются при создании нового рабочего стола и при выгрузке рабочих столов из ppdesk.bin(В функции PPCommandGroup::Read)
 	//
-	S_GUID DeskGuid; //@erik v10.6.4
-	int Type; //@erik v10.7.6
+	S_GUID Uuid/*DeskGuid*/; // @erik v10.6.4
+	/*int*/PPCommandGroupCategory Type; // cmdgrpcDesktop || cmdgrpcMenu @erik v10.7.6
 };
 //
 // Descr: Интерфейс, реализующий функции команд
@@ -15464,8 +15519,14 @@ public:
 		fRWByXml = 1,
 		fRWByTxt
 	};
-
-	PPCommandMngr(const char * pFileName, int readOnly, int isDesktop);
+	//
+	// Descr: Опции создания экземпляра класса
+	//
+	enum {
+		ctrfReadOnly     = 0x0001, // Только для чтения
+		ctrfSkipObsolete = 0x0002  // Не открывать устаревший бинарный файл хранения объектов
+	};
+	PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesktop*/PPCommandGroupCategory kind);
 	~PPCommandMngr();
 	int    IsValid_() const;
 	int    Save__(const PPCommandGroup *);
@@ -15474,10 +15535,9 @@ public:
 	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1
 	int    SaveFromAllTo(const long rwFlag); // @erik v10.7.1
 	int    ConvertDesktopTo(const long rwFlag); //@erik v10.7.4
-	int    DeleteDesktopByGUID(const SString &guid, const long rwFlag);
-	static int GetDesksDir(SString &rDesksPath); // @erik v10.6.7
-	static int GetMenuDir(SString &rDesksPath); // @erik v10.7.6
-
+	int    DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID & rUuid);
+	static int GetDesksDir(SString & rPath); // @erik v10.6.7
+	static int GetMenuDir(SString & rPath); // @erik v10.7.6
 private:
 	struct Hdr {
 		long   Signature;
@@ -15488,10 +15548,15 @@ private:
 	};
 	SString XmlDirPath;
 	SFile  F_Obsolete; // @v10.9.3 F-->F_Obsolete
-	int    ReadOnly;
+	//int    ReadOnly;
+	const  uint CtrFlags;
+	enum {
+		stError = 0x0001
+	};
+	uint   Status;
 };
 
-PPCommandMngr * GetCommandMngr(int readOnly, int isDesktop, const char * pPath = 0);
+PPCommandMngr * GetCommandMngr(uint ctrFlags, PPCommandGroupCategory kind, const char * pPath = 0);
 //
 // @ModuleDecl(PPJob)
 //
@@ -18858,8 +18923,8 @@ public:
 	virtual int  ProcessReservedItem(TVRez &);
 	int    GetPacket(PPID id, PPSecurPacket * pPack);
 	int    PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta);
-	int    AssignPrivateDesktop(PPID userID, PPID desktopID, const char * pDeskName, int use_ta);
-	int    GetPrivateDesktop(PPID userID, PPID * pDesktopID);
+	int    AssignPrivateDesktop(PPID userID, /*PPID desktopID*/const S_GUID & rDesktopUuid, const char * pDeskName, int use_ta);
+	int    GetPrivateDesktop(PPID userID, /*PPID * pDesktopID*/S_GUID & rDesktopUuid);
 	//
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//   Поля инициализируемые в записи pRec: {Tag, ID, Name, Flags, PersonID, ParentID}
@@ -19210,7 +19275,7 @@ private:
 		char  Scope[128];
 		int   Flags;
 	};
-	TSVector <Rec> Recs; // @v9.8.4 TSArray-->TSVector
+	TSVector <Rec> Recs;
 };
 // }
 //
@@ -21586,7 +21651,7 @@ struct PalmInputParam {
 	PalmBillQueue * P_BillQueue;
 	SQueue * P_ToDoQueue; // Queue of PalmToDoItem
 	SQueue * P_DebtMemoQueue;
-	TSVector <PPGeoTrackItem> * P_GtList; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPGeoTrackItem> * P_GtList;
 };
 //
 // Descr: Класс, опрелеляющий блок данных для отображения на удаленном дисплее.
@@ -22529,7 +22594,7 @@ private:
 		uint   TitleP;
 	};
 	SVerT Ver; // Для сериализации
-	TSVector <InnerEntry> L; // @v9.8.4 TSArray-->TSVector
+	TSVector <InnerEntry> L;
 };
 
 class PPUhttStorePacket {
@@ -23300,7 +23365,7 @@ public:
 	const  PPComplBlock * P_Cb; // @v9.3.3 @transient Предварительный массив товарных строк для вставки в документа.
 		// Необходим для обсчета компонентов по формулам.
 	PPGoodsStrucHeader Rec;
-	TSVector <PPGoodsStrucItem> Items;   // @v9.8.4 TSArray-->TSVector
+	TSVector <PPGoodsStrucItem> Items;  //
 	TSCollection <PPGoodsStruc> Childs; // Используется только если (Flags & GSF_FOLDER)
 private:
 	int    SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const;
@@ -23331,7 +23396,7 @@ private:
 	int    LoadRecurItems;
 	uint   Idx;
 	PPGoodsStruc GStruc;
-	TSVector <GStrucRecurItem> Items; // @v9.8.6 TSArray-->TSVector
+	TSVector <GStrucRecurItem> Items;
 };
 //
 //
@@ -23369,8 +23434,8 @@ public:
 	// Descr: Копирует экземпляр класса pS в this. Если pS == 0, то очищает this.
 	//
 	int    FASTCALL Copy(const SaGiftItem * pS);
-	int    IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const; // @v9.8.6 TSArray-->TSVector
-	int    CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const; // @v9.8.6 TSArray-->TSVector
+	int    IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const;
+	int    CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const;
 
 	PPID   StrucID;        // Ид товарной структуры (подарочной)
 	PPID   OrgStrucID;     // Структура, родительская к StrucID самого верхнего уровня.
@@ -23418,7 +23483,7 @@ public:
 	SaGiftArray & FASTCALL operator = (const SaGiftArray &);
 	int    FASTCALL Copy(const SaGiftArray * pS);
 	int    CreateIndex();
-	int    SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const; // @v9.8.6 TSArray-->TSVector
+	int    SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const;
 private:
 	LAssocArray Index; // Key - StrucID, Val - GoodsID
 };
@@ -24096,7 +24161,7 @@ private:
 		long   Flags;
 		uint   CmdTextP;
 	};
-	TSVector <Item> L; // @v9.8.4 TSArray-->TSVector
+	TSVector <Item> L;
 	StringSet Pool;
 };
 //
@@ -24475,7 +24540,7 @@ private:
 
 	int    Helper_GetHierarchy(PPID id, long flags, FiasHouseObjTbl::Rec * pHseRec, TSArray <FiasAddrObjTbl::Rec> & rList, long * pZip);
 	uint   IsObjInHierarchy(PPID objID, const TSArray <FiasAddrObjTbl::Rec> & rList) const;
-	int    SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList); // @v9.8.4 TSArray-->TSVector
+	int    SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList);
 };
 //
 //
@@ -24556,7 +24621,7 @@ private:
         	int64  TotalMks;
         	uint8  Reserve[64];
         };
-        TSVector <Item> L; // @v9.8.4 TSArray-->TSVector
+        TSVector <Item> L;
 	};
 	enum {
 		stError = 0x0001
@@ -24576,8 +24641,8 @@ private:
 	SFile * P_DebugOutput;
 	SymbHashTable TextCache;
 	UuidArray PreprocessUuidChunk;
-	TSVector <FiasAddrObjTbl::Rec> AddrRecChunk; // @v9.8.4 TSArray-->TSVector
-	TSVector <FiasHouseObjTbl::Rec> HouseRecChunk; // @v9.8.4 TSArray-->TSVector
+	TSVector <FiasAddrObjTbl::Rec> AddrRecChunk;
+	TSVector <FiasHouseObjTbl::Rec> HouseRecChunk;
     FiasObjCore FT;
 	SrDatabase * P_SrDb; // @v9.8.12
 	void * P_SrStoreFiasAddrBlock; // @v9.9.0
@@ -24621,7 +24686,7 @@ public:
 	int    EditList(PPPersonPacket * pPsnPack, PPID psnEventID);
 	int    EditList(PPLocationPacket * pLocPack);
 	int    EditBankAccountList(PPPersonPacket * pPsnPack);
-	int    GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList); // @v9.8.6 TSArray-->TSVector
+	int    GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList);
 	//
 	// Descr: Проверяет массив регистров pRegs на отсутствие дублирования типа regTypeID
 	//   если этот тип имеет признак REGTF_UNIQUE.
@@ -25260,7 +25325,7 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	SString TopFolder;            // @anchor
 	SString AddImageFolder;       // Папка из которой будут автоматически прикрепляться файлы к персоналиям. хранится в реестре
 	StrAssocArray DlvrAddrExtFldList; // Наименования дополнительных полей для адресов доставки // @v10.7.11 TaggedStringArray-->StrAssocArray
-	TSVector <NewClientDetectionItem> NewClientDetectionList; // @v8.1.12 // @v9.8.4 TSArray-->TSVector
+	TSVector <NewClientDetectionItem> NewClientDetectionList;
 };
 
 struct PersonReq { // @flat
@@ -25835,7 +25900,7 @@ public:
 	StaffAmtList Amounts;
 };
 
-class PersonPostArray : public TSVector <PersonPostTbl::Rec> { // @v9.8.4 TSArray-->TSVector
+class PersonPostArray : public TSVector <PersonPostTbl::Rec> {
 public:
 	PersonPostArray();
 	void   Sort();
@@ -26353,7 +26418,7 @@ public:
 	ObjIdListFilt CalList;     // Список календарей
 };
 
-typedef TSVector <StaffCalendarTbl::Rec> PPStaffCalendarArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <StaffCalendarTbl::Rec> PPStaffCalendarArray;
 
 class PPStaffCalPacket {
 public:
@@ -26450,7 +26515,7 @@ public:
 	//   <0 - не найдено ни одной записи, соответствующей критерию
 	//   0  - ошибка
 	//
-	int    SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffCalendarTbl::Rec> & rList); // @v9.8.4 TSArray-->TSVector
+	int    SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffCalendarTbl::Rec> & rList);
 	int    SearchContinuousEntry(PPID calID, long dtVal, StaffCalendarTbl::Rec * pRec);
 	int    FASTCALL CheckContinuousEntry(const StaffCalendarTbl::Rec * pRec);
 	int    SearchDate(PPID calID, LDATE dt, TSVector <StaffCalendarTbl::Rec> & rList);
@@ -28119,14 +28184,14 @@ public:
 
 	int    SaveAssoc;
 private:
-	TSVector <GoodsSubstItem> List; // @v9.8.10 TSArray-->TSVector
+	TSVector <GoodsSubstItem> List;
 	struct InnerAssocItem {
 		InnerAssocItem(PPID substID);
 		uint   SearchAssoc(const GoodsSubstList::AssocItem & rPattern) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		PPID   SubstID;
-		TSVector <AssocItem> List; // @v9.8.4 TSArray-->TSVector
+		TSVector <AssocItem> List;
 	};
 	class AssocCollection : public TSCollection <InnerAssocItem> {
 	public:
@@ -29263,7 +29328,7 @@ private:
 	};
 
 	PPID   SfClsID; // Класс товара, по которому набираются селекторные атрибуты
-	TSVector <InnerExt> ExtList; // @v9.8.4 TSArray-->TSVector
+	TSVector <InnerExt> ExtList;
 	StrAssocArray ExtSfTitleList;
 };
 //
@@ -29711,7 +29776,7 @@ public:
 	PPSuprWarePacket & FASTCALL PPSuprWarePacket::operator = (const PPSuprWarePacket & rSrc);
 
 	PPSuprWare Rec;
-	TSVector <PPSuprWareAssoc> Items; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPSuprWareAssoc> Items;
 };
 
 class PPObjSuprWare : public PPObjGoods {
@@ -29857,7 +29922,7 @@ public:
 	};
 	EgaisPersonCore();
     int    Search(PPID id, EgaisPersonCore::Item &);
-    int    SearchByCode(const char * pRarCode, TSVector <EgaisPersonTbl::Rec> & rList); // @v9.8.4 TSArray-->TSVector
+    int    SearchByCode(const char * pRarCode, TSVector <EgaisPersonTbl::Rec> & rList);
     //int    SearchByInn
     //
     // Descr: Если для контрагента с ФСРАР-кодом pRarCode существует запись и
@@ -29904,7 +29969,7 @@ public:
 	EgaisProductCore();
 	int    RecToItem(const EgaisProductTbl::Rec & rRec, EgaisProductCore::Item & rItem);
     int    Search(PPID id, EgaisProductCore::Item & rItem);
-    int    SearchByCode(const char * pAlcoCode, TSVector <EgaisProductTbl::Rec> & rList); // @v9.8.4 TSArray-->TSVector
+    int    SearchByCode(const char * pAlcoCode, TSVector <EgaisProductTbl::Rec> & rList);
     //
     // Descr: Если для товара с ФСРАР-кодом pAlcoCode существует запись и
     //   эта запись имеет флаг fVerified, то функция возвращает (>0).
@@ -31314,7 +31379,7 @@ struct SBIIOpInfo { // @persistent @size=24 @flat @{stylobhtiiopcfg}
 	long   Flags;
 };
 
-typedef TSVector <SBIIOpInfo> SBIIOpInfoArray; // @v9.8.6 TSArray-->TSVector
+typedef TSVector <SBIIOpInfo> SBIIOpInfoArray;
 
 struct StyloBhtIIOnHostCfg {
 	StyloBhtIIOnHostCfg();
@@ -31593,7 +31658,7 @@ struct BVATAccm { // @flat
 #define BVATF_SUMZEROVAT  0x0002 // Суммировать строки с освобожденными значениями
 #define BVATF_DIFFBYCRATE 0x0004 // Различать элементы по ставке входящего НДС
 
-class BVATAccmArray : public TSVector <BVATAccm> { // @v9.8.4 TSArray-->TSVector
+class BVATAccmArray : public TSVector <BVATAccm> {
 public:
 	BVATAccmArray(uint aFlags = 0);
 	int    CalcBill(PPID);
@@ -32010,7 +32075,7 @@ struct ComplItem {
 
 //typedef TSArray <ComplItem> ComplArray;
 
-class PPComplBlock : public TSVector <ComplItem> { // @v9.8.4 TSArray-->TSVector
+class PPComplBlock : public TSVector <ComplItem> {
 public:
 	int    Add(const PPComplBlock & rS);
 	ComplItem Head;
@@ -32191,8 +32256,8 @@ private:
 	PPObjPersonKind PsnKObj;
 };
 
-typedef TSVector <Sdr_BRow> SdrBillRowArray; // @v9.8.4 TSArray-->TSVector
-typedef TSVector <Sdr_Bill> SdrBillArray;    // @v9.8.4 TSArray-->TSVector
+typedef TSVector <Sdr_BRow> SdrBillRowArray;
+typedef TSVector <Sdr_Bill> SdrBillArray;
 
 class PPBillImporter : public PPBillImpExpBaseProcessBlock {
 public:
@@ -32413,7 +32478,7 @@ struct PayableBillListItem {
 	double PaymAmt;        // @v8.5.8 Сумма оплаты из записи документа. Используется если (CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
 };
 
-class PayableBillList : public TSVector <PayableBillListItem> { // @v9.8.4 TSArray-->TSVector
+class PayableBillList : public TSVector <PayableBillListItem> {
 public:
 	PayableBillList(AmtList * pAmt = 0, AmtList * pPaym = 0);
 	void   FASTCALL GetIdList(LongArray & rList) const;
@@ -33443,7 +33508,7 @@ private:
 			PPID   PersonID;
 			PPID   ArID;
 		};
-		TSVector <GuaAssocItem> GuaAssoc; // @v9.8.6 TSArray-->TSVector
+		TSVector <GuaAssocItem> GuaAssoc;
 	};
 
 	int    GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::GuaAssocItem & rAssoc);
@@ -33599,7 +33664,7 @@ public:
 	int    SearchRestByGoods(PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    SearchRestByLot(PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
-	int    GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVector
+	int    GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList);
 	int    PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta);
 	int    RemoveOp(PPID locID, long rByLoc, int use_ta);
 	int    ValidateOpBlock(const LocTransfOpBlock & rBlk);
@@ -33620,12 +33685,12 @@ public:
 	// Descr: Определяет размещение по ячейкам строки rByBill товарного документа billID.
 	//   Результат возвращается в массиве rDispositionList.
 	//
-	int    GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList); // @v9.8.4 TSArray-->TSVector
+	int    GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList);
 	//
 	// Descr: Определяет размещение по ячейкам строк товарного документа billID.
 	//   Резудьтат возвращается в массиве rDispositionList.
 	//
-	int    GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList); // @v9.8.4 TSArray-->TSVector
+	int    GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList);
 private:
 	int    PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec);
@@ -33668,7 +33733,7 @@ struct LocTransfDisposeItem {
 	double Qtty;           // INOUT
 };
 
-typedef TSVector <LocTransfDisposeItem> LocTransfDisposeArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <LocTransfDisposeItem> LocTransfDisposeArray;
 
 class LocTransfDisposer {
 public:
@@ -34386,7 +34451,7 @@ struct TrnovrRngDis {      // @persistent @flat
 #define SCARDSER_AUTODIS_PREVPRD 1L
 #define SCARDSER_AUTODIS_THISPRD 2L
 
-class PPSCardSerRule : public TSVector <TrnovrRngDis> { // @persistent @store(PropertyTbl) // @v9.8.6 TSArray-->TSVector
+class PPSCardSerRule : public TSVector <TrnovrRngDis> { // @persistent @store(PropertyTbl)
 public:
 	PPSCardSerRule();
 	PPSCardSerRule & FASTCALL operator = (const PPSCardSerRule & s);
@@ -34930,7 +34995,7 @@ public:
 	//
 	int    CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATETIME dtm);
 	int    CheckExpiredBillDebt(PPID scardID);
-	int    FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList); // @v9.8.4 TSArray-->TSVector
+	int    FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList);
 	int    NotifyAboutRecentOps(const LDATETIME & rSince);
 	int    SelectCardFromReservePool(PPID * pPoolID, PPID destSeriesID, PPID * pID, int use_ta);
 	int    IndexPhones(PPLogger * pLogger, int use_ta);
@@ -35290,7 +35355,7 @@ public:
 			uint   RangeP;   // Идент строки расширения, определяющий диапазон посадочных мест
 			uint   DescrP;   // Идент строки расширения, определяющий описание диапазона мест
 		};
-		TSVector <InnerPlaceDescription> Places; // @v9.8.6 TSArray-->TSVector
+		TSVector <InnerPlaceDescription> Places;
 	};
 	ProcessorTbl::Rec Rec;
 	ExtBlock Ext;
@@ -35324,7 +35389,7 @@ private:
     	uint32 Start;
     	uint32 End;
     };
-    TSVector <Seq> SeqList; // @v9.8.4 TSArray-->TSVector
+    TSVector <Seq> SeqList;
 };
 //
 // @done(@v8.2.3) @dbd_exchange Сделать передачу полного пакета PPProcessorPacket
@@ -37010,7 +37075,7 @@ private:
 	LocPeriod * GetLocPeriod(PPID locID);
 
 	int    DiffGoodsBySuppl;
-	TSVector <LocPeriod> LocPeriodList_; // @v9.8.6 TSArray-->TSVector
+	TSVector <LocPeriod> LocPeriodList_;
 	TempDeficitTbl * Tbl;
 	PPObjBill  * BObj;
 	PPObjGoods   GObj;
@@ -37260,7 +37325,7 @@ private:
 	int    SetupSyncCmpRec(const ObjSyncQueueTbl::Rec * pQueueRec, TempSyncCmpTbl::Rec * pRec);
 	int    RestoreFromStream(const char * pInFileName, FILE * stream, TempSyncCmpTbl * pTbl);
 	int    PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const char * pInFileName, FILE * pInStream, int use_ta);
-	int    Helper_PushObjectsToQueue(const PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta); // @v9.8.6 TSArray-->TSVector
+	int    Helper_PushObjectsToQueue(const PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta);
 	//
 	// Descr:
 	// Returns:
@@ -37491,7 +37556,7 @@ public:
         double Rest;
 	};
 
-	class GoodsRestArray : public TSVector <GoodsRestEntry> { // @v9.8.4 TSArray-->TSVector
+	class GoodsRestArray : public TSVector <GoodsRestEntry> {
 	public:
 		GoodsRestArray();
 		void   Init();
@@ -38243,7 +38308,7 @@ private:
         PPID   GoodsID;
         PPID   StorageLocID;
 	};
-	TSVector <ExtraEntry> ExtraList; // @v9.8.4 TSArray-->TSVector
+	TSVector <ExtraEntry> ExtraList;
 	PPID   CommonLocID; // Если для всех документов из фильтра склад одинаков, то его значение присваивается CommonLocID.
 		// В противном случае CommonLocID = 0.
 	LDATE  CommonDate; // Если для всех документов из фильтра дата одинакова, то она присваивается CommonDate.
@@ -39691,7 +39756,7 @@ public:
 		DBRowId  DBPos;
 	};
 private:
-	class Cache : public TSVector <CacheItem>, public SStrGroup { // @v9.8.4 TSArray-->TSVector
+	class Cache : public TSVector <CacheItem>, public SStrGroup {
 	public:
 		Cache();
 		Cache & Clear();
@@ -40241,7 +40306,7 @@ public:
 	PPPriceListImpExpParam(uint recId = 0, long flags = 0);
 };
 
-typedef TSVector <Sdr_PriceList> Sdr_PriceListArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <Sdr_PriceList> Sdr_PriceListArray;
 
 class PPViewPriceList : public PPView {
 public:
@@ -41603,7 +41668,7 @@ private:
 	virtual int    Detail(const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    Print(const void * pHdr);
 	int    ViewGraph(const void * pHdr, PPViewBrowser * pBrw);
-	int    CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList); // @v9.8.4 TSArray-->TSVector
+	int    CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList);
 	int    AddStatItem(PPID opID, int sign, double val, uint si, TSCollection <OpGroupingStatEntry> * pList);
 	double GetStatItem(int stat, PPID opID, int sign, uint si, const TSCollection <OpGroupingStatEntry> * pList);
 	void   RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec);
@@ -44036,17 +44101,17 @@ private:
 #define MRPLF_SUBST         0x0004L // Замещающий элемент таблицы
 #define MRPLF_REPLACED      0x0008L // К элементу таблицы применена операция замещения //
 #define MRPLF_UNLIM         0x0010L // Товар, с которым связана строка, является нелимитируемым
-#define MRPLF_IGNOREREST    0x0020L // @v9.1.7 По строке не следует учитывать доступный остаток (строка комплектуется независимо от остатка)
+#define MRPLF_IGNOREREST    0x0020L // По строке не следует учитывать доступный остаток (строка комплектуется независимо от остатка)
 
 struct MrpReqItem { // @flat
 	MrpReqItem(PPID goodsID, long flags, double req, double price);
 	PPID   GoodsID;
-	long   Flags;   // @v9.1.7 MRPLF_XXX
+	long   Flags;   // MRPLF_XXX
 	double Req;
 	double Price;
 };
 
-class MrpReqArray : public TSVector <MrpReqItem> { // @v9.8.6 TSArray-->TSVector
+class MrpReqArray : public TSVector <MrpReqItem> {
 public:
 	MrpReqArray();
 	int    Add(PPID goodsID, long flags, double req, double price);
@@ -44150,7 +44215,7 @@ struct MrpTabLeaf { // @flat
 	LDATE  Dt;
 };
 
-class MrpTabPacket : public TSVector <MrpTabLeaf> { // @v9.8.4 TSArray-->TSVector
+class MrpTabPacket : public TSVector <MrpTabLeaf> {
 public:
 	MrpTabPacket();
 	MrpTabPacket & FASTCALL operator = (const MrpTabPacket &);
@@ -46227,6 +46292,11 @@ private:
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	int    AddItem(S_GUID * pUuid);
+	int    EditItem(const S_GUID & rUuid);
+	int    DeleteItem(const S_GUID & rUuid);
+	PPCommandGroup * GetEntryByUuid(const S_GUID & rUuid);
 	UserMenuFilt Filt;
 	SArray * P_DsList;
 	PPCommandGroup * P_MenuList;
@@ -46449,7 +46519,7 @@ public:
 		SymbHashTable * P_ProcessedFiles; // @notowned
 	};
 
-	static int EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList); // @v9.8.4 TSArray-->TSVector
+	static int EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList);
 
 	PPPosProtocol();
 	~PPPosProtocol();
@@ -47011,14 +47081,14 @@ public:
         PPID   ShipperPsnID;
         PPID   ConsigneePsnID;
         PPID   SupplPsnID;
-        TSVector <PPEgaisProcessor::InformBItem> Items; // @v9.8.6 TSArray-->TSVector
+        TSVector <PPEgaisProcessor::InformBItem> Items;
 	};
 
 	struct ActInformItem {
 		ActInformItem();
 		long   P;
 		char   AIdent[24];
-		TSVector <PPEgaisProcessor::InformBItem> BItems; // @v9.8.6 TSArray-->TSVector
+		TSVector <PPEgaisProcessor::InformBItem> BItems;
 	};
 
     struct ActInform {
@@ -47151,7 +47221,7 @@ public:
 	void   SetTestSendingMode(int set);
 	void   SetNonRvmTagMode(int set);
 	int    CheckLic() const;
-	int    GetUtmList(PPID locID, TSVector <UtmEntry> & rList); // @v9.8.11 TSArray-->TSVector
+	int    GetUtmList(PPID locID, TSVector <UtmEntry> & rList);
 	void   SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
 	int    GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID);
 	int    GetURL(PPID locID, SString & rBuf);
@@ -48653,7 +48723,7 @@ public:
 			int16  Tok;
 			uint32 Id;
 		};
-		class Chain : public TSVector <Term> { // @v9.8.4 TSArray-->TSVector
+		class Chain : public TSVector <Term> {
 		public:
 			Chain();
 			Chain & FASTCALL operator = (const Chain & rS);
@@ -48735,7 +48805,7 @@ public:
 			uint   TargetIdx; // Если Op == stOpCortege, то TargetIdx равен индексу токена имени кортежа
 			long   Flags;
 			Chain  List;
-			TSVector <SSzChunk> GL; // Список групп // @v9.8.4 TSArray-->TSVector
+			TSVector <SSzChunk> GL; // Список групп
 		};
 		struct TargetItem {
 			Chain  List;
@@ -48754,7 +48824,7 @@ public:
 		TSCollection <CortegeItem> CrtgList;
 		//
 	private:
-		Replacer::SrcItem * MakeSrcItem(Replacer::SrcItem * pOuterSrcItem, int op, uint targetIdx, const Chain & rList, const TSVector <SSzChunk> & rGl) const; // @v9.8.4 TSArray-->TSVector
+		Replacer::SrcItem * MakeSrcItem(Replacer::SrcItem * pOuterSrcItem, int op, uint targetIdx, const Chain & rList, const TSVector <SSzChunk> & rGl) const;
 		int    AddClusterItem(Replacer::SrcItem * pItem);
 		int    BuildSrcIndex();
 
@@ -48806,7 +48876,7 @@ public:
 		};
 		TSCollection <Item> L;
 	};
-	class FindBlock : public TSVector <FindItem> { // @v9.8.6 TSArray-->TSVector
+	class FindBlock : public TSVector <FindItem> {
 	public:
 		FindBlock(const Replacer & rR);
 		~FindBlock();
@@ -49160,7 +49230,7 @@ public:
     	Relation();
 		uint64 ID;
 		Tile   T;
-		TSVector <RelMember> MembList; // @v9.8.6 TSArray-->TSVector
+		TSVector <RelMember> MembList;
     };
     struct Tag { // @flat
     	Tag();
@@ -49390,8 +49460,8 @@ private:
 		uint64 TagNodeCount;
 		uint64 TagWayCount;
 		uint64 TagRelCount;
-		TSVector <PPOsm::NodeClusterStatEntry> NcList; // @v9.8.4 TSArray-->TSVector
-		TSVector <PPOsm::WayStatEntry> WayList; // @v9.8.4 TSArray-->TSVector
+		TSVector <PPOsm::NodeClusterStatEntry> NcList;
+		TSVector <PPOsm::WayStatEntry> WayList;
 	};
 	struct RoadStone { // @persistent
 		RoadStone();
@@ -49443,7 +49513,7 @@ private:
 	SGeo   G;
 	PPOsm  O;
 	CommonAttrSet TempCaSet;
-	TSVector <PPOsm::Tag> CurrentTagList; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPOsm::Tag> CurrentTagList;
 	PPOsm::Node LastNode;
 	PPOsm::Way  LastWay;
 	PPOsm::Relation LastRel;
@@ -49452,7 +49522,7 @@ private:
 	RoadStone * P_RoadStoneStat;
 	LongArray LatAccum;
 	LongArray LonAccum;
-	TSVector <PPOsm::Node> NodeAccum; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPOsm::Node> NodeAccum;
 	TSCollection <PPOsm::Way> WayAccum;
 	LLAssocArray NodeWayAssocAccum;
 	SGeoGridTab::Finder GgtFinder;
@@ -50799,7 +50869,7 @@ public:
 		SString Path;
 	};
 	// Формат строки расширений: Имя:*.ext;*.ext2;*.ext3,Имя:*.ext4;*.ext5;*.ext6, ...
-	ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage = 1, long flags = 0);
+	ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage = 1, long flags = 0);
 	virtual int setData(TDialog *, void *);
 	virtual int getData(TDialog *, void *);
 private:
@@ -52389,7 +52459,7 @@ private:
 		uint16 Flags;
 		uint16 Level; // Номер уровня группы (0..)
 	};
-	class GroupArray : public TSVector <GrpListItem> { // @v9.8.5 TSArray-->TSVector
+	class GroupArray : public TSVector <GrpListItem> {
 	public:
 		GroupArray();
 		GrpListItem * Get(PPID id, uint * pPos) const;
@@ -52450,18 +52520,16 @@ private:
 //
 // PPDesktop and cmd edit
 //
-int   EditCmdItem(const PPCommandGroup * pDesktop, PPCommand * pData, int isDesktopCommand);
+int   EditCmdItem(const PPCommandGroup * pDesktop, PPCommand * pData, /*int isDesktopCommand*/PPCommandGroupCategory kind);
 int   EditName(SString & rName);
-int   EditMenus(PPCommandGroup * pData, long initID, int isDesktop);
+//int   EditMenus(PPCommandGroup * pData, long initID, int isDesktop);
+int   EditCommandGroup(PPCommandGroup * pData, /*long initID*/const S_GUID & rInitUuid, PPCommandGroupCategory kind);
 int   EditMenusFromFile();
-HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound);
+//HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound);
+HMENU PPLoadCommandMenu(const S_GUID & rUuid, int * pNotFound);
+HMENU PPLoadResourceMenu(TVRez * rez, long menuID, int * pNotFound);
 
-#define SELTYPE_DESKTOP      0
-#define SELTYPE_DESKTOPTEMPL 1
-#define SELTYPE_MENU         2
-#define SELTYPE_MENUTEMPL    3
-
-int SelectMenu(long * pID, SString * pName, int isDesktop, const PPCommandGroup * pGrp);
+int   SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pName, PPCommandGroupCategory kind, bool asTemplate, const PPCommandGroup * pGrp);
 
 class PPBizScoreWindow : public TWindow {
 public:
@@ -52530,15 +52598,17 @@ class PPDesktopAssocCmdPool { // @persistent
 public:
 	PPDesktopAssocCmdPool();
 	~PPDesktopAssocCmdPool();
-	void   Init(PPID desktopId);
-	PPID   GetDesktopID() const;
-	void   SetDesktopID(PPID id);
+	void   Init(/*PPID desktopId*/const S_GUID & rUuid);
+	//PPID   GetDesktopID() const;
+	//void   SetDesktopID(PPID id);
+	S_GUID GetDesktopUuid() const;
+	void   SetDesktopUuid(const S_GUID & rUuid);
 	uint   GetCount() const;
 	int    GetItem(uint pos, PPDesktopAssocCmd & rCmd) const;
 	int    GetByCode(const char * pCode, uint * pPos, PPDesktopAssocCmd * pCmd, SString * pResult = 0) const;
 	int    SetItem(uint pos, const PPDesktopAssocCmd * pCmd);
 	int    AddItem(const PPDesktopAssocCmd * pCmd);
-	int    ReadFromProp(PPID desktopId);
+	int    ReadFromProp(/*PPID desktopId*/const S_GUID & rDesktopUuid);
 	int    WriteToProp(int use_ta);
 private:
 	struct Item { // @flat
@@ -52552,7 +52622,10 @@ private:
 	int    MakeItem(const PPDesktopAssocCmd & rOuter, Item & rInner);
 	int    Pack();
 
-	PPID   DesktopID; // -1 - не определенный стол (0 - общий пул для всех рабочих столов)
+	PPID   DesktopID_Obsolete; // -1 - не определенный стол (0 - общий пул для всех рабочих столов)
+	S_GUID DesktopUuid; // @v10.9.3 Начиная с этого релиза DesktopUuid является ведущим идентификатором для 
+		// распознавания рабочих столов и пользовательских меню. 
+		// Перманентный 4-байтовый идентификатор получается из ассоциации UuidRefCore
 	TSVector <Item> L;
 	StringSet P;
 };
@@ -52560,18 +52633,19 @@ private:
 class PPDesktop : public TWindow {
 public:
 	static const char * WndClsName;
-	static int   Open(long desktopID, int createIfZero = 0);
+	//static int   Open(long desktopID, int createIfZero = 0);
+	static int   Open(const S_GUID & rDesktopUuid, int createIfZero = 0);
    	static LRESULT CALLBACK DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static int   RegWindowClass(HINSTANCE hInst);
-	static int   EditAssocCmdList(long desktopID);
-	static int   CreateDefault(long * pID);
+	static int   EditAssocCmdList(/*long desktopID*/const S_GUID & rDesktopUuid);
+	static int   CreateDefault(/*long * pID*/S_GUID & rNewUuid);
 	static PPCommandMngr * LoadDeskList(int readOnly, PPCommandGroup * pDesktopList); // will not used in future @erik
-	static int GetDeskName(long deskId, SString & rDeskName);
+	static int GetDeskName(/*long deskId*/const S_GUID & rDesktopUuid, SString & rDeskName);
 	static int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
 	static COLORREF GetDefaultBgColor();
 	PPDesktop();
 	~PPDesktop();
-	int    Init__(long desktopID);
+	int    Init__(/*long desktopID*/const S_GUID & rDesktopUuid);
 	int    Destroy(int dontAssignToDb);
 	TRect & CalcIconRect(TPoint lrp, TRect & rResult) const;
 	int    GetIconSize() const { return IconSize; }
@@ -52592,7 +52666,7 @@ public:
 protected:
 	DECL_HANDLE_EVENT;
 private:
-	class InputArray : public TSVector <KeyDownCommand> { // @v9.8.6 TSArray-->TSVector
+	class InputArray : public TSVector <KeyDownCommand> {
 	public:
 		void   Clear();
 

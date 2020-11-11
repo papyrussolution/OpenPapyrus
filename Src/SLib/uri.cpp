@@ -4,8 +4,7 @@
 // Copyright(C) 2007, Sebastian Pipping <webmaster@hartwork.org>
 // All rights reserved.
 // 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <uri.h>
 

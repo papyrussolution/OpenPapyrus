@@ -43,11 +43,6 @@
 	#define _WIN32_WINNT 0x0500
 #endif
 #include "cairo-win32-private.h"
-//#include "cairo-array-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-scaled-font-subsets-private.h"
 #ifndef SPI_GETFONTSMOOTHINGTYPE
 	#define SPI_GETFONTSMOOTHINGTYPE 0x200a
 #endif

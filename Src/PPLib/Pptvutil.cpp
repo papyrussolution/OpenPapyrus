@@ -2400,8 +2400,7 @@ ImageBrowseCtrlGroup::Rec::Rec(const SString * pBuf) : Flags(0), Path(pBuf ? pBu
 {
 }
 
-ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/ uint ctlImage,
-	uint cmChgImage, uint cmDeleteImage, int allowChangeImage /*=1*/, long flags /*=0*/) :
+ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(uint ctlImage, uint cmChgImage, uint cmDeleteImage, int allowChangeImage /*=1*/, long flags /*=0*/) :
 	CtlImage(ctlImage), CmChgImage(cmChgImage), CmDelImage(cmDeleteImage), AllowChangeImage(allowChangeImage), Flags(flags)
 {
 	SString buf, name, ext;

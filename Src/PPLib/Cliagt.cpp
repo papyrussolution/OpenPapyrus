@@ -390,7 +390,7 @@ public:
 	{
 		ZDELETE(P_DebtDimList);
 	}
-	int    setDTS(const TSVector <PPClientAgreement::DebtLimit> * pData) // @v9.8.4 TSArray-->TSVector
+	int    setDTS(const TSVector <PPClientAgreement::DebtLimit> * pData)
 	{
 		//long    id = 0;
 		if(pData)
@@ -403,7 +403,7 @@ public:
 				P_DebtDimList->Remove(Data.at(i).DebtDimID);
 		return 1;
 	}
-	int    getDTS(TSVector <PPClientAgreement::DebtLimit> * pData) // @v9.8.4 TSArray-->TSVector
+	int    getDTS(TSVector <PPClientAgreement::DebtLimit> * pData)
 	{
 		int    ok = 1;
 		CALLPTRMEMB(pData, copy(Data));
@@ -417,7 +417,7 @@ private:
 	virtual int setupList();
 	int    Edit(PPClientAgreement::DebtLimit * pItem);
 	StrAssocArray * P_DebtDimList;
-	TSVector <PPClientAgreement::DebtLimit> Data; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPClientAgreement::DebtLimit> Data;
 };
 
 IMPL_HANDLE_EVENT(DebtLimListDialog)

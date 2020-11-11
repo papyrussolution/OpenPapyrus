@@ -1,10 +1,8 @@
-/*
-        MAKEPATH.C
-        Copyright (c) 1987, 1992 by Borland International
-        All Rights Reserved.
- */
-#include <slib.h>
-#include <tv.h>
+// MAKEPATH.C
+// Copyright (c) 1987, 1992 by Borland International
+// All Rights Reserved.
+//
+#include <slib-internal.h>
 #pragma hdrstop
 
 static void __makepath(char * pathP, const char * driveP, const char * dirP, const char * nameP, const char * extP)

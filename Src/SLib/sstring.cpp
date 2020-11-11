@@ -2,8 +2,7 @@
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 //
@@ -5958,7 +5957,7 @@ static const CaseFoldingItem u_case_folding_tbl[] = {
 //
 static const CaseFoldingItem * u_get_sec_table()
 {
-	static TSVector <CaseFoldingItem> tbl; // @v9.8.4 TSArray-->TSVector
+	static TSVector <CaseFoldingItem> tbl;
 	if(tbl.getCount() == 0) {
 		ENTER_CRITICAL_SECTION
 			if(tbl.getCount() == 0) {

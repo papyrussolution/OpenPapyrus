@@ -17,8 +17,7 @@
 // -----------------------
 // Adopted to slib by Anton Sobolev
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 #define MAGIC   0234

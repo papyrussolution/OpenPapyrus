@@ -1,10 +1,9 @@
 // SC_ORDER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2016, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2016, 2019, 2020
 // Part of StyloConduit project
 // Экспорт/Импорт документов
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "StyloConduit.h"
 

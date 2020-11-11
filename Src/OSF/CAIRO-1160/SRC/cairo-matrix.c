@@ -35,8 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include <float.h>
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */
 

@@ -539,13 +539,13 @@ private:
 		int32  I;
 		CtmExprConst C;
 	};
-	TSVector <CItem> CList;      // Список констант, используемый для хранения специфических опций // @v9.8.4 TSArray-->TSVector
-	TSVector <CfItem> CfList;    // Список констант, ассоциированных с полями // @v9.8.4 TSArray-->TSVector
+	TSVector <CItem> CList;      // Список констант, используемый для хранения специфических опций
+	TSVector <CfItem> CfList;    // Список констант, ассоциированных с полями
 	LongArray * P_DbIdxSegFlags; // Список флагов сегментов индекса таблицы базы данных (только для kDbIndex)
 	SBaseBuffer FixDataBuf;      // @transient Буфер записи для фиксированных полей (не формул)
 		// Экземпляр класса DlScope не владеет указателем FixDataBuf.P_Buf, по-этому деструктор не вызывает FixDataBuf.Destroy()
 // @v10.8.4 #ifdef DL600C // {
-	TSVector <CfItem> TempCfList; // @v9.8.4 TSArray-->TSVector
+	TSVector <CfItem> TempCfList;
 	DLSYMBID LastLocalId;
 // @v10.8.4 #endif
 };
@@ -1084,7 +1084,7 @@ private:
 	SymbHashTable Tab;              //
 	StringSet CurDeclList;
 	CtmConstList ConstList;         // @persistent
-	TSVector <TypeEntry> TypeList;  // @persistent // @v9.8.4 TSArray-->TSVector
+	TSVector <TypeEntry> TypeList;  // @persistent
 	UUIDAssocArray UuidList;        // @persistent
 	SStack ScopeStack;              //
 	DlScope Sc;          // @persistent Глобальная область видимости (все остальные области являются членами этой области)
@@ -1113,11 +1113,11 @@ private:
 	int    RestoreUuidList();
 	int    SetupScopeUUID(DLSYMBID scopeID, const char * pName, const S_GUID * pForceUUID);
 
-	TSVector <SyncUuidAssoc> SyncUuidList; // @transient Compile-time // @v9.8.4 TSArray-->TSVector
+	TSVector <SyncUuidAssoc> SyncUuidList; // @transient Compile-time 
 	StringSet SyncUuidNameList;
 	LAssocArray UiSymbAssoc; // Ассоциации символов элементов UI с символами сериий.
 #else
-	TSVector <uint> Pss; // Run-time "Pushed String Stack" Стэк позиций строк, распределенных на стеке StP. // @v9.8.4 TSArray-->TSVector
+	TSVector <uint> Pss; // Run-time "Pushed String Stack" Стэк позиций строк, распределенных на стеке StP.
 		// Нужен для того, чтобы при освобождении стекового пространства освобождать соответствующие строки
 	SStringPool StP;                     // Run-time
 	TSCollection <DlRtm> RtmList;        // Run-time

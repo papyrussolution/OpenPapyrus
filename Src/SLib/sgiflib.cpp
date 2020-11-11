@@ -1,7 +1,6 @@
 // SGIFLIB.CPP
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <gif_lib.h>
 //#include "gif_lib_private.h"

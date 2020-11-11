@@ -67,21 +67,11 @@ static void _cairo_xcb_init_screen_font_options(cairo_xcb_screen_t * screen)
 		default: subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
 	}
 	switch(res.xft_lcdfilter) {
-		case FC_LCD_NONE:
-		    lcd_filter = CAIRO_LCD_FILTER_NONE;
-		    break;
-		case FC_LCD_DEFAULT:
-		    lcd_filter = CAIRO_LCD_FILTER_FIR5;
-		    break;
-		case FC_LCD_LIGHT:
-		    lcd_filter = CAIRO_LCD_FILTER_FIR3;
-		    break;
-		case FC_LCD_LEGACY:
-		    lcd_filter = CAIRO_LCD_FILTER_INTRA_PIXEL;
-		    break;
-		default:
-		    lcd_filter = CAIRO_LCD_FILTER_DEFAULT;
-		    break;
+		case FC_LCD_NONE: lcd_filter = CAIRO_LCD_FILTER_NONE; break;
+		case FC_LCD_DEFAULT: lcd_filter = CAIRO_LCD_FILTER_FIR5; break;
+		case FC_LCD_LIGHT: lcd_filter = CAIRO_LCD_FILTER_FIR3; break;
+		case FC_LCD_LEGACY: lcd_filter = CAIRO_LCD_FILTER_INTRA_PIXEL; break;
+		default: lcd_filter = CAIRO_LCD_FILTER_DEFAULT; break;
 	}
 	if(res.xft_antialias) {
 		if(subpixel_order == CAIRO_SUBPIXEL_ORDER_DEFAULT)
@@ -110,55 +100,36 @@ struct pattern_cache_entry {
 void _cairo_xcb_screen_finish(cairo_xcb_screen_t * screen)
 {
 	int i;
-
 	CAIRO_MUTEX_LOCK(screen->connection->screens_mutex);
 	cairo_list_del(&screen->link);
 	CAIRO_MUTEX_UNLOCK(screen->connection->screens_mutex);
 
 	while(!cairo_list_is_empty(&screen->surfaces)) {
-		cairo_surface_t * surface;
-
-		surface = &cairo_list_first_entry(&screen->surfaces,
-			cairo_xcb_surface_t,
-			link)->base;
-
+		cairo_surface_t * surface = &cairo_list_first_entry(&screen->surfaces, cairo_xcb_surface_t, link)->base;
 		cairo_surface_finish(surface);
 	}
-
 	while(!cairo_list_is_empty(&screen->pictures)) {
-		cairo_surface_t * surface;
-
-		surface = &cairo_list_first_entry(&screen->pictures,
-			cairo_xcb_picture_t,
-			link)->base;
-
+		cairo_surface_t * surface = &cairo_list_first_entry(&screen->pictures, cairo_xcb_picture_t, link)->base;
 		cairo_surface_finish(surface);
 	}
-
 	for(i = 0; i < screen->solid_cache_size; i++)
 		cairo_surface_destroy(screen->solid_cache[i].picture);
-
 	for(i = 0; i < ARRAY_LENGTH(screen->stock_colors); i++)
 		cairo_surface_destroy(screen->stock_colors[i]);
-
 	for(i = 0; i < ARRAY_LENGTH(screen->gc); i++) {
 		if(screen->gc_depths[i] != 0)
 			_cairo_xcb_connection_free_gc(screen->connection, screen->gc[i]);
 	}
-
 	_cairo_cache_fini(&screen->linear_pattern_cache);
 	_cairo_cache_fini(&screen->radial_pattern_cache);
 	_cairo_freelist_fini(&screen->pattern_cache_entry_freelist);
-
 	SAlloc::F(screen);
 }
 
 static boolint _linear_pattern_cache_entry_equal(const void * A, const void * B)
 {
 	const struct pattern_cache_entry * a = A, * b = B;
-
-	return _cairo_linear_pattern_equal(&a->pattern.gradient.linear,
-		   &b->pattern.gradient.linear);
+	return _cairo_linear_pattern_equal(&a->pattern.gradient.linear, &b->pattern.gradient.linear);
 }
 
 static boolint _radial_pattern_cache_entry_equal(const void * A, const void * B)

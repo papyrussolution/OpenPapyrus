@@ -7,8 +7,7 @@
 //   NIFTY-Serve     PAF01022
 //   CompuServe      74050,1022
 // 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //#include <fcntl.h>
 //#include <sys\stat.h>

@@ -38,14 +38,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
-//#include "cairo-boxes-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-line-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-slope-private.h"
-//#include "cairo-traps-private.h"
-//#include "cairo-spans-private.h"
 
 /* private functions */
 

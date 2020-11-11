@@ -3,8 +3,7 @@
 // @codepage UTF-8
 // TimeChunkBrowser
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 //
@@ -508,7 +507,7 @@ STimeChunkBrowser::SRect & STimeChunkBrowser::SRect::Z()
 	return *this;
 }
 
-STimeChunkBrowser::SRectArray::SRectArray() : TSVector <SRect> () // @v9.8.4 TSArray-->TSVector
+STimeChunkBrowser::SRectArray::SRectArray() : TSVector <SRect> ()
 {
 }
 

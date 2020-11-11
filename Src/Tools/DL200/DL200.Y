@@ -546,7 +546,7 @@ int main(int argc, char * argv[])
 	/*
 	if(fileExists(outfilename)) {
 		char r = 0;
-		printf("Warning: File %s too exists. Rewrite it ? (Y/N)\n", outfilename);
+		printf("Warning: File %s too exists. Rewrite it ? (Y/N)\n", outfilename.cptr());
 		do {
 			scanf("%c", &r);
 		} while(toupper(r) != 'Y' && toupper(r) != 'N');
@@ -555,7 +555,7 @@ int main(int argc, char * argv[])
 	}
 	*/
 	if(!G_Storage.Open(outfilename, 0)) {
-		printf("Error: Could not create output file %s\n", outfilename);
+		printf("Error: Could not create output file %s\n", outfilename.cptr());
 		return -1;
 	}
 	yyparse();

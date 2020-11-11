@@ -1,7 +1,6 @@
 // TEST-CAIRO.CPP
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <cairo-1160/cairo.h>
 //#include <cairo/cairo-test-private.h>
@@ -910,25 +909,15 @@ REPEAT:
 				base_new_png_path,
 				base_xfail_png_path,
 			};
-
-			xasprintf(&test_filename, "%s.out%s",
-			    base_path, target->file_extension);
-			xasprintf(&pass_filename, "%s.pass%s",
-			    base_path, target->file_extension);
-			xasprintf(&fail_filename, "%s.fail%s",
-			    base_path, target->file_extension);
-
-			if(cairo_test_file_is_older(pass_filename,
-				    filenames,
-				    ARRAY_LENGTH(filenames))) {
+			xasprintf(&test_filename, "%s.out%s", base_path, target->file_extension);
+			xasprintf(&pass_filename, "%s.pass%s", base_path, target->file_extension);
+			xasprintf(&fail_filename, "%s.fail%s", base_path, target->file_extension);
+			if(cairo_test_file_is_older(pass_filename, filenames, ARRAY_LENGTH(filenames))) {
 				_xunlink(ctx, pass_filename);
 			}
-			if(cairo_test_file_is_older(fail_filename,
-				    filenames,
-				    ARRAY_LENGTH(filenames))) {
+			if(cairo_test_file_is_older(fail_filename, filenames, ARRAY_LENGTH(filenames))) {
 				_xunlink(ctx, fail_filename);
 			}
-
 			if(cairo_test_files_equal(out_png_path, ref_path)) {
 				cairo_test_log(ctx, "Vector surface matches reference.\n");
 				have_output = FALSE;
@@ -1003,22 +992,15 @@ REPEAT:
 				base_new_png_path,
 				base_xfail_png_path,
 			};
-
 			xasprintf(&test_filename, "%s", out_png_path);
 			xasprintf(&pass_filename, "%s.pass.png", base_path);
 			xasprintf(&fail_filename, "%s.fail.png", base_path);
-
-			if(cairo_test_file_is_older(pass_filename,
-				    filenames,
-				    ARRAY_LENGTH(filenames))) {
+			if(cairo_test_file_is_older(pass_filename, filenames, ARRAY_LENGTH(filenames))) {
 				_xunlink(ctx, pass_filename);
 			}
-			if(cairo_test_file_is_older(fail_filename,
-				    filenames,
-				    ARRAY_LENGTH(filenames))) {
+			if(cairo_test_file_is_older(fail_filename, filenames, ARRAY_LENGTH(filenames))) {
 				_xunlink(ctx, fail_filename);
 			}
-
 			if(cairo_test_files_equal(test_filename, pass_filename)) {
 				cairo_test_log(ctx, "PNG file exactly matches last pass.\n");
 				have_result = TRUE;

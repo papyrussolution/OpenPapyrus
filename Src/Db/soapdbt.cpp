@@ -1,8 +1,7 @@
 // SOAPDBT.CPP
 // Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <db.h>
 //

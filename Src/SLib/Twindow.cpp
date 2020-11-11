@@ -3,8 +3,7 @@
 // @codepage UTF-8
 // Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 #define MPST_ERROR         0x0001
@@ -1227,9 +1226,7 @@ TWindowBase::~TWindowBase()
 				break;
 			}
 		} while(i);
-		if(P_Lfc) {
-			ZDELETE(P_Lfc);
-		}
+		ZDELETE(P_Lfc);
 	}
 	// } @v10.9.3 
 }
@@ -1312,6 +1309,22 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 	return ok;
 }
 
+void * TWindowBase::GetLayout()
+{
+	return P_Lfc;
+}
+
+void TWindowBase::SetupLayoutItem(void * pLayout)
+{
+	if(pLayout) {
+		P_Lfc = static_cast<LayoutFlexItem *>(pLayout);
+		P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
+		//flex_item_add(P_Lfc, pChildWindow->P_Lfc);
+		P_Lfc->managed_ptr = this;
+		//DoLayoutFlex(P_Lfc->GetRoot());
+	}
+}
+
 // @v10.9.3 {
 int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout) 
 {
@@ -1323,11 +1336,12 @@ int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptio
 		if(pLayout) {
 			assert(P_Lfc);
 			if(P_Lfc) {
-				pChildWindow->P_Lfc = static_cast<LayoutFlexItem *>(pLayout);
-				pChildWindow->P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
-				flex_item_add(P_Lfc, pChildWindow->P_Lfc);
-				pChildWindow->P_Lfc->managed_ptr = pChildWindow;
-				DoLayoutFlex(P_Lfc->GetRoot());
+				pChildWindow->SetupLayoutItem(pLayout);
+				//pChildWindow->P_Lfc = static_cast<LayoutFlexItem *>(pLayout);
+				//pChildWindow->P_Lfc->CbSetup = TWindowBase::SetupLayoutItemFrame;
+				//flex_item_add(P_Lfc, pChildWindow->P_Lfc);
+				//pChildWindow->P_Lfc->managed_ptr = pChildWindow;
+				P_Lfc->GetRoot()->Evaluate();
 			}
 		}
 		::ShowWindow(pChildWindow->H(), SW_SHOWNORMAL);
@@ -1376,7 +1390,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				if(P_Lfc && !P_Lfc->P_Parent) {
 					P_Lfc->Size.X = static_cast<float>(cr.width());
 					P_Lfc->Size.Y = static_cast<float>(cr.height());
-					DoLayoutFlex(P_Lfc);
+					P_Lfc->Evaluate();
 				}
 				// } @v10.9.3 
 			}
@@ -1393,7 +1407,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				if(P_Lfc && !P_Lfc->P_Parent) {
 					P_Lfc->Size.X = static_cast<float>(cr.width());
 					P_Lfc->Size.Y = static_cast<float>(cr.height());
-					DoLayoutFlex(P_Lfc);
+					P_Lfc->Evaluate();
 				}
 				// } @v10.9.3 
 				invalidateAll(1);

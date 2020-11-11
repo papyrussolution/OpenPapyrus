@@ -37,8 +37,6 @@
 #pragma hdrstop
 #if CAIRO_HAS_DEFLATE_STREAM
 
-//#include "cairo-error-private.h"
-//#include "cairo-output-stream-private.h"
 #include <zlib.h>
 
 #define BUFFER_SIZE 16384

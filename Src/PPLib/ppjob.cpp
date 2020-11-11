@@ -5,7 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <process.h>
+// @v10.9.3 #include <process.h>
 #include <comdef.h>		// COM для WMI
 #include <wbemidl.h>	// WMI для удаленного запуска процессов
 #include <charry.h>

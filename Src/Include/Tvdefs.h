@@ -4,13 +4,6 @@
 //
 #ifndef __TVDEFS_H
 #define __TVDEFS_H
-/* @v9.1.12
-#ifdef RC_INVOKED
-	#ifndef __SLIB_H
-		#include <slib.h>
-	#endif
-#endif
-*/
 //
 //  Control keys
 //

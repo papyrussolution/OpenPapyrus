@@ -213,7 +213,7 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 
 #define obstack_chunkfun(h, newchunkfun) ((h)->chunkfun = (struct _obstack_chunk *(*)(void *, long))(newchunkfun))
 // @sobolev #define obstack_freefun(h, newfreefun)   ((h)->freefun = (void (*)(void *, struct _obstack_chunk *))(newfreefun))
-#define obstack_1grow_fast(h, achar) (*((h)->next_free)++ = (achar))
+#define obstack_1grow_fast(h, achar) (*((h)->next_free)++ = static_cast<char>(achar)) // @sobolev static_cast<char>
 #define obstack_blank_fast(h, n) ((h)->next_free += (n))
 #define obstack_memory_used(h) _obstack_memory_used(h)
 

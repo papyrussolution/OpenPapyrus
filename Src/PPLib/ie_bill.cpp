@@ -4158,7 +4158,7 @@ int PPBillImporter::Run()
 			PPBillIterchangeFilt sbp;
 			sbp.LocID = LocID;
 			sbp.Period = Period;
-			TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
+			TSVector <PPEgaisProcessor::UtmEntry> utm_list;
 			THROW(ep.GetUtmList(LocID, utm_list));
 			PPWait(1);
 			for(uint i = 0; i < utm_list.getCount(); i++) {

@@ -1,8 +1,7 @@
 // STOOLTI.CPP
 // Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 #define STOOLTIP_USE_FIG

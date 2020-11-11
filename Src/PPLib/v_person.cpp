@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <charry.h>
-#include <process.h>
+// @v10.9.3 #include <process.h>
 #include <ppsoapclient.h>
 
 int ViewPersonInfoBySCard(const char * pCode)

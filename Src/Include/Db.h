@@ -2424,7 +2424,7 @@ private:
 	};
 	uint   InitPathP; // Позиция в Pool пути, заданного при инициализации.
 	uint   InitNameP; // Позиция в Pool имени файла без расширения //
-	TSVector <_InnerEntry> List; // @v9.8.4 TSArray-->TSVector
+	TSVector <_InnerEntry> List;
 	StringSet Pool;
 };
 //
@@ -4415,7 +4415,7 @@ private:
 		DB_SEQUENCE * H;
 		uint   NamePos;
 	};
-	TSVector <Seq> SeqList; // @v9.8.4 TSArray-->TSVector
+	TSVector <Seq> SeqList;
 	StringSet StrPool;
 	SSerializeContext * P_SCtx;
 	SFile  ErrF;

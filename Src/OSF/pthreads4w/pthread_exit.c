@@ -31,7 +31,7 @@
 #include <sl_pthreads4w.h>
 #pragma hdrstop
 #if !defined(_UWIN)
-/*#   include <process.h> */
+	/*#include <process.h> */
 #endif
 /*
  * ------------------------------------------------------

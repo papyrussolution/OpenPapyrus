@@ -1,10 +1,9 @@
 // SEXTPRC.CPP
 // Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
-#include <process.h>
+// @v10.9.3 #include <process.h>
 
 int PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir)
 {

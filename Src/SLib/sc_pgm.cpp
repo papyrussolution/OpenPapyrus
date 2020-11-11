@@ -1,10 +1,9 @@
 // SC_PGM.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2019
+// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018, 2019, 2020
 // Part of StyloConduit project
 // // Ёкспорт файлов дл€ обновлени€ программы
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "StyloConduit.h"
 #include <stddef.h>

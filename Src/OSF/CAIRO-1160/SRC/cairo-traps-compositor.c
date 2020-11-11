@@ -40,23 +40,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
-//#include "cairo-boxes-private.h"
-//#include "cairo-clip-inline.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-pattern-inline.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-recording-surface-inline.h"
-//#include "cairo-surface-subsurface-private.h"
-//#include "cairo-surface-snapshot-inline.h"
-//#include "cairo-surface-observer-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-spans-private.h"
-//#include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
 
 typedef cairo_int_status_t (* draw_func_t) (const cairo_traps_compositor_t * compositor, cairo_surface_t * dst, void * closure, cairo_operator_t op, cairo_surface_t * src,

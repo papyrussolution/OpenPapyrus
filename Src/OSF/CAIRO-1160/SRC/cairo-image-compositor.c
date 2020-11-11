@@ -42,11 +42,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-image-surface-private.h"
-//#include "cairo-compositor-private.h"
 #include "cairo-spans-compositor-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
 #include "cairo-pixman-private.h"
 

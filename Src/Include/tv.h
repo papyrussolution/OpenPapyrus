@@ -8,7 +8,7 @@
 #include <tvdefs.h>
 #include <commctrl.h>
 #include <db.h>
-#include <layout-flex.h> // @v10.9.3 @construction
+//#include <layout-flex.h> // @v10.9.3 @construction
 
 class  TView;
 class  TGroup;
@@ -685,7 +685,7 @@ public:
 			// Для радиального градиента:
 			// 0x01 - cx, 0x02 - cy, 0x04 - r, 0x08 - fx, 0x10 - fy, 0x20 - fr (радиус фокуса)
 		float  Coord[8];
-		TSVector <Stop> StopList; // @v9.8.4 TSArray-->TSVector
+		TSVector <Stop> StopList;
 	};
 
 	class Font : public Base, public SFontDescr { // @persistent @store(SSerializeContext)
@@ -813,8 +813,8 @@ private:
 
 	int32  Id;
 	int16  T;   // Тип объекта (SPaintObj::tXXX)
-	uint16 F;
-	void * H; // @v9.1.7 uint32-->(void *)
+	uint16 F;   //
+	void * H;   // 
 };
 //
 //   Идентификаторы инструментов делятся на три категории:
@@ -862,7 +862,7 @@ public:
 	//   SPaintToolBox.
 	//
 	SPaintObj * FASTCALL CreateObj(int ident);
-	int     FASTCALL DeleteObj(int ident); // @v9.1.7
+	int     FASTCALL DeleteObj(int ident);
 	SPaintObj * FASTCALL GetObj(int ident) const;
 	SPaintObj * FASTCALL GetObjBySymb(const char * pSymb, int type) const;
 	//
@@ -937,13 +937,13 @@ private:
 	int    FASTCALL GetType(int ident) const;
 	int32  DynIdentCount;
 	int32  State;
-	int32  DefaultPenId; // @v8.9.0
-	SymbHashTable Hash; // Используется для хранения символьных идентификаторов, ассоциированных с целочисленными.
+	int32  DefaultPenId; // 
+	SymbHashTable Hash;  // Используется для хранения символьных идентификаторов, ассоциированных с целочисленными.
 	struct GlyphEntry {
 		int32  I;
 		SGlyph G;
 	};
-	SVector GlyphList; // @v9.8.4 SArray-->SVector
+	SVector GlyphList;
 };
 
 class STextLayout {
@@ -959,8 +959,8 @@ public:
 		fOneLine       = 0x0010, // Выводить текст в одну строку (не переносить и игнорировать переводы каретки)
 		fPrecBkg       = 0x0020, // Закрашивать фон строго по тексту (в противном случае закрашивается вся область,
 			// отведенная под вывод текста).
-		fVCenter       = 0x0040, // @v9.1.8 Вертикальное центрирование
-		fVBottom       = 0x0080  // @v9.1.8 Вертикальное выравнивание по нижней границе
+		fVCenter       = 0x0040, // Вертикальное центрирование
+		fVBottom       = 0x0080  // Вертикальное выравнивание по нижней границе
 			// @#(fVCenter^fVBottom)
 	};
 	struct Item {
@@ -971,7 +971,7 @@ public:
 			fUnderscore = 0x0001
 		};
 		int16  GlyphIdx; // -1 - не выводить символ
-		uint16 Flags;    // @v9.1.8 Специальные опции отображения символа
+		uint16 Flags;    // Специальные опции отображения символа
 		FPoint P;
 	};
 	struct RenderGroup {
@@ -980,7 +980,7 @@ public:
 		SPaintObj::Font * P_Font;
 		int    PenId;
 		int    BrushId;
-		TSVector <STextLayout::Item> Items; // @v9.8.4 TSArray-->TSVector
+		TSVector <STextLayout::Item> Items;
 	};
 
 	STextLayout();
@@ -1031,10 +1031,10 @@ private:
 	FPoint EndPoint;          // @*STextLayout::Arrange Точка, до которой простирается собственно текст.
 	SStringU Text;
 	LongArray GlyphIdList;                     // @transient
-	TSVector <CStyle> CStyleList;              // @v9.8.4 TSArray-->TSVector
+	TSVector <CStyle> CStyleList;              // 
 	LAssocArray ParaList;                      // Список параграфов: ассоцииации {позиция первого символа; стиль параграфа}
-	TSVector <STextLayout::Item> List;         // @transient // @v9.8.4 TSArray-->TSVector
-	TSVector <STextLayout::StyleGroup> SgList; // @transient // @v9.8.4 TSArray-->TSVector
+	TSVector <STextLayout::Item> List;         // @transient 
+	TSVector <STextLayout::StyleGroup> SgList; // @transient 
 
 	friend class TloRowState;
 };
@@ -1047,6 +1047,7 @@ public:
 		SImageBuffer * P_Img;
 	};
 	struct Capability {
+		Capability();
 		TPoint SizePt; // Размер устройства в точках
 		FPoint SizeMm; // Размер устройства в миллиметрах
 		FPoint PtPerInch; // Количество точек на дюйм
@@ -1133,11 +1134,9 @@ public:
 	operator const SImageBuffer * () const;
 	int    GetCapability(Capability * pCaps) const;
 	SPaintToolBox & GetToolBox() { return R_Tb; }
-	// @v9.1.7 {
 	int    FASTCALL SelectObjectAndPush(HGDIOBJ);
 	int    PopObject();
 	int    FASTCALL PopObjectN(uint c);
-	// } @v9.1.7
 	//
 	// Primitives
 	//
@@ -1297,7 +1296,7 @@ private:
 	SString TempBuf; // @allocreuse
 	SPaintToolBox & R_Tb;
 	TSStack <LMatrix2D> TmStk;
-	SStack GdiObjStack; // @v9.1.7 Для совместимости с TCanvas на уровне функций
+	SStack GdiObjStack; // Для совместимости с TCanvas на уровне функций
 
 	struct ColorReplacement {
 		ColorReplacement();
@@ -1381,14 +1380,13 @@ private:
 		long   ID;
 		void * H;
 	};
-	TSVector <Entry> List; // @v9.8.4 TSArray-->TSVector
+	TSVector <Entry> List;
 };
 
 class TView {
 public:
 	//static void * message(TView * pReceiver, uint what, uint command);
 	//static void * message(TView * pReceiver, uint what, uint command, void * pInfoPtr);
-	// @v9.5.5 static void * message(TView * pReceiver, uint what, uint command, long infoVal);
 	static void * FASTCALL messageCommand(TView * pReceiver, uint command);
 	static void * FASTCALL messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command);
@@ -1447,7 +1445,6 @@ public:
 	virtual void   setState(uint aState, bool enable);
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	DECL_HANDLE_EVENT;
-	// @v9.0.1 TRect  getExtent() const;
 	int    commandEnabled(ushort command) const;
 	void   FASTCALL enableCommands(const TCommandSet & commands, int is_enable);
 	void   FASTCALL enableCommand(ushort command, int is_enable);
@@ -1478,19 +1475,13 @@ public:
 		handleEvent(event.setWinCmd(uMsg, wParam, lParam));
 		return BIN(event.what == TEvent::evNothing);
 	}
-	// @v9.6.2 virtual void   draw();
-	void   Draw_(); // @v9.6.2
-	//
-	// Descr: отрисовывает элемент диалога с видом, отличным от стандартного
-	//
-	// @v9.1.3 virtual int  Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void   Draw_();
 	//
 	// Descr: Показывает или скрывает окно в зависимости от параметра doShow.
 	// Note: Вместо этой функции рекомендуется использовать setState(sfVisible, doShow)
 	// ARG(doShow IN): !0 - показывает окно, 0 - скрывает окно
 	//
 	void   Show(int doShow);
-	// @v9.6.2 (replaced by Draw_()) void   drawView();
 	void   FASTCALL clearEvent(TEvent & event);
 	HWND   getHandle() const;
 	void   select();
@@ -1651,7 +1642,7 @@ struct ToolbarItem {
 	char   ToolTipText[128];
 };
 
-class ToolbarList : private SVector { // @v9.8.4 SArray-->SVector
+class ToolbarList : private SVector {
 public:
 	ToolbarList();
 	ToolbarList & FASTCALL operator = (const ToolbarList &);
@@ -1910,10 +1901,164 @@ private:
 	int    IsEmpty(long itemId) const;
 	int    CalcCoord(Dim dim, int containerLow, int containerUpp, int gravitySide) const;
 
-	TSVector <RItem> List; // @v9.8.4 TSArray-->TSVector
-	TSVector <WItem> WinList; // @v9.8.4 TSArray-->TSVector
+	TSVector <RItem> List;
+	TSVector <WItem> WinList;
 	TRect ContainerBounds;
 };
+//
+//
+//
+enum flex_align {
+	FLEX_ALIGN_AUTO = 0,
+	FLEX_ALIGN_STRETCH,
+	FLEX_ALIGN_CENTER,
+	FLEX_ALIGN_START,
+	FLEX_ALIGN_END,
+	FLEX_ALIGN_SPACE_BETWEEN,
+	FLEX_ALIGN_SPACE_AROUND,
+	FLEX_ALIGN_SPACE_EVENLY
+};
+
+enum flex_position {
+	FLEX_POSITION_RELATIVE = 0,
+	FLEX_POSITION_ABSOLUTE
+};
+
+enum flex_direction {
+	FLEX_DIRECTION_ROW = 0,
+	FLEX_DIRECTION_ROW_REVERSE,
+	FLEX_DIRECTION_COLUMN,
+	FLEX_DIRECTION_COLUMN_REVERSE
+};
+
+enum flex_wrap {
+	FLEX_WRAP_NO_WRAP = 0,
+	FLEX_WRAP_WRAP,
+	FLEX_WRAP_WRAP_REVERSE
+};
+
+class LayoutFlexItem : public TSCollection <LayoutFlexItem> {
+public:
+	// size[0] == width, size[1] == height
+	typedef void (__stdcall * FlexSelfSizingProc)(LayoutFlexItem * pItem, float size[2]);
+	typedef void (__stdcall * FlexSetupProc)(LayoutFlexItem * pItem, float size[4]);
+
+	LayoutFlexItem();
+	~LayoutFlexItem();
+	int    Evaluate();
+	LayoutFlexItem * InsertItem();
+	void   DeleteItem(uint idx);
+	int    GetOrder() const;
+	void   SetOrder(int o);
+	//
+	// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
+	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
+	//   (margin_left, margin_right, padding_left, padding_right).
+	// Returns:
+	//   !0 - номинальная ширина элемента представлена валидным числом (!fisnan(width)). 
+	//      В этом случае по адресу pS присваивается полная ширина элемента.
+	//    0 - номинальная ширина элемента представлена инвалидным значением (fisnan(width)).
+	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
+	//
+	int    GetFullWidth(float * pS) const;
+	//
+	// Descr: Вычисляет полную высоту элемента без рассмотрения его внутренних компонентов.
+	//   Полная высота включает собственно ширину, а так же верхние и нижние поля и набивки
+	//   (margin_top, margin_bottom, padding_top, padding_bottom).
+	// Returns:
+	//   !0 - номинальная высота элемента представлена валидным числом (!fisnan(height)). 
+	//      В этом случае по адресу pS присваивается полная высота элемента.
+	//    0 - номинальная высота элемента представлена инвалидным значением (fisnan(height)).
+	//      В этом случае по адресу pS ничего не присваивается и значение по указателю остается неизменным.
+	//
+	int    GetFullHeight(float * pS) const;
+	//
+	// Descr: Возвращает финальный расчетный прямоугольник элемента.
+	//
+	FRect  GetFrame() const;
+	//
+	// Descr: Возвращает корневой элемент дерева, компонентом которого является this.
+	//
+	LayoutFlexItem * GetRoot();
+	//
+	// attributes {
+	FPoint Size;    // { NAN, NAN }
+	FRect  N;       // Номинальные границы элемента {NAN, NAN, NAN, NAN}
+	FRect  Padding; // { 0.0f, 0.0f, 0.0f, 0.0f }
+	FRect  Margin;  // { 0.0f, 0.0f, 0.0f, 0.0f }
+	flex_align JustifyContent; // FLEX_ALIGN_START
+	flex_align AlignContent; // FLEX_ALIGN_STRETCH
+	flex_align AlignItems; // FLEX_ALIGN_STRETCH
+	flex_align AlignSelf; // FLEX_ALIGN_AUTO
+	flex_position PositionMode; // FLEX_POSITION_RELATIVE
+	flex_direction Direction; // FLEX_DIRECTION_COLUMN
+	flex_wrap WrapMode; // FLEX_WRAP_NO_WRAP
+	enum {
+		fPositionAbsolute         = 0x0001, // else Relative
+		fWrap                     = 0x0002,
+		fWrapReverse              = 0x0004, // ignored if !(Flags & fWrap)
+		fStateShouldOrderChildren = 0x0100
+	};
+	float  grow;   // 0.0f
+	float  shrink; // 1.0
+	float  basis;  // NAN
+	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
+	// An item can provide a self_sizing callback function that will be called 
+	// during layout and which can customize the dimensions (width and height) of the item.
+	FlexSelfSizingProc CbSelfSizing; // NULL
+	FlexSetupProc CbSetup; // NULL
+	// } attributes
+	float  frame[4];
+	LayoutFlexItem * P_Parent;
+	uint   Flags;  // fXXX
+protected:
+	void   UpdateShouldOrderChildren();
+	void   DoLayout(float width, float height);
+	void   DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint childrenCount, /*LayoutFlex*/void * pLayout);
+	flex_align FASTCALL GetChildAlign(const LayoutFlexItem & rChild) const;
+	
+	int    order;  // 0
+};
+
+// Free memory associated with a flex item and its children.
+// This function can only be called on a root item.
+//void flex_item_free(LayoutFlexItem * item);
+// Manage items.
+//void flex_item_add(LayoutFlexItem * item, LayoutFlexItem * child);
+//uint flex_item_count(LayoutFlexItem * item);
+//LayoutFlexItem * flex_item_child(LayoutFlexItem * item, uint index);
+//LayoutFlexItem * flex_item_parent(LayoutFlexItem * item);
+//LayoutFlexItem * flex_item_root(LayoutFlexItem * item);
+//
+// Descr: Layout the items associated with this item, as well as their children.
+//   This function can only be called on a root item whose `width' and `height'
+//   properties have been set.
+//
+//int DoLayoutFlex(LayoutFlexItem * pItem);
+
+// Retrieve the layout frame associated with an item. These functions should
+// be called *after* the layout is done.
+//float flex_item_get_frame_x(LayoutFlexItem * item);
+//float flex_item_get_frame_y(LayoutFlexItem * item);
+//float flex_item_get_frame_width(LayoutFlexItem * item);
+//float flex_item_get_frame_height(LayoutFlexItem * item);
+
+/*
+length-unit: % | mm | m | cm
+length-unit-optional: length-unit | ;
+measured-value: number unit-optional
+range: measured-value..measured-value
+
+box (x, y, x2, y2) // 4 values
+box (width, height) // 2 values
+box (width, undefined) // 2 values
+box (50%, 10) // 2 values
+box (40%..50%, 10..30) // 2 values
+box (x, y, (width, height)) 
+
+layout abc rowreverse wrap {
+}
+*/
 //
 //
 //
@@ -1975,6 +2120,19 @@ public:
 	int    Create(void * hParentWnd, long createOptions);
 	int    AddChild(TWindowBase * pChildWindow, long createOptions, long zone);
 	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout); // @v10.9.3
+	//
+	// Descr: Возвращает абстрактный указатель на объект LAYOUT, ассоциированный с окном this.
+	// Returns:
+	//   !0 - экземляр LAYOUT, ассоциированный с окном
+	//    0 - с окном не ассоциирован объект LAYOUT
+	//
+	void * GetLayout();
+protected:
+	//
+	// Descr: Присваивает экземаляру this элемент LAYOUT, на который указывает
+	//   абстрактный указатель pLayout.
+	//
+	void   SetupLayoutItem(void * pLayout);
 protected:
 	static void __stdcall SetupLayoutItemFrame(LayoutFlexItem * pItem, float size[4]); // @v10.9.3
 	TWindowBase(LPCTSTR pWndClsName, int capability);
@@ -2177,7 +2335,7 @@ struct TArrangeParam { // @persistent
 //   Инструменты идентифицируются символом. Если при создании инструмента символ его не
 //   определен, то класс автоматически присваивает ему уникальный 8-значный символ.
 //
-class TWhatmanToolArray : private SVector { // @v9.8.5 SArray-->SVector
+class TWhatmanToolArray : private SVector {
 public:
 	//
 	// Descr: Пользовательское представление инструмента.
@@ -2187,9 +2345,9 @@ public:
 		enum {
 			fDontEnlarge   = 0x0001, // Не увеличивать фигуру при изменении размеров объекта сверх предустановленного размере
 			fDontKeepRatio = 0x0002, // Не сохранять пропорции фигуры при изменении размера объекта
-			fGrayscale     = 0x0004  // @v9.5.4 (testing option) Преобразовывать фигуру в черно-белый цвет
+			fGrayscale     = 0x0004  // (testing option) Преобразовывать фигуру в черно-белый цвет
 		};
-		uint32  Id;           // @v9.1.9 Целочисленный идентификатор элемента
+		uint32  Id;           // Целочисленный идентификатор элемента
 		SString Symb;         // Уникальный символ элемента.
 		SString Text;         // Текстовое описание инструмента.
 		SString WtmObjSymb;   // Символ класса семейства TWhatmanObject, который создается посредством
@@ -2199,7 +2357,7 @@ public:
 		TPoint FigSize;       // Начальный размер фигуры инструмента.
 		TPoint PicSize;       // Если !isZero() то переопределяет TWhatmanToolArray::Param::PicSize
 		long   Flags;         // @flags
-		SColor ReplacedColor; // @v9.2.7 Цвет, который должен замещаться на какой-либо внешний цвет. Если все компоненты
+		SColor ReplacedColor; // Цвет, который должен замещаться на какой-либо внешний цвет. Если все компоненты
 			// поля равны 0, то замещаемый цвет не определен.
 		const  TWhatmanToolArray * P_Owner; // @notowned
 		uint32 ExtSize;       // Размер данных, используемый элементом в буфере ExtData
@@ -2254,11 +2412,11 @@ private:
 		TPoint PicSize;        // Размер иконки
 		int32  Flags;          // @flags
 		uint32 ExtDataP;       // Позиция дополнительных данных в буфере Pool (в кодировке MIME64)
-		uint32 Id;             // @v9.1.9 Целочисленный идентификатор элемента
-		SColor ReplacedColor;  // @v9.2.7
-		uint8  Reserve[24];    // @reserve @v9.1.9 [32]-->[28] // @v9.2.7 [28]-->[24]
+		uint32 Id;             // Целочисленный идентификатор элемента
+		SColor ReplacedColor;  // 
+		uint8  Reserve[24];    // @reserve
 	};
-	uint32 SrcFileVer;  // @transient @v9.1.9 Версия формата хранения файла, из которого был загружен данный экземпляр объекта
+	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
 	uint32 SymbP;
 	uint32 TextP;
 	uint32 FileP;   // @transient Имя файла, из которого был извлечен данный экземпляр
@@ -2642,7 +2800,7 @@ private:
 		double OneUnitLog10;
 		double OneUnitDots;
 		int    ScrollDelta; // @unit{px} Квант скроллирования //
-		TSVector <RuleNotch> NotchList; // @v9.8.4 TSArray-->TSVector
+		TSVector <RuleNotch> NotchList;
 	};
 
 	int    DrawObject(TCanvas2 & rCanv, TWhatmanObject * pObj);
@@ -2654,7 +2812,7 @@ private:
 	int    SnapY(float p, float * pDest) const;
 	int    CalcScrollRange();
 
-	uint32 SrcFileVer;  // @transient @v9.1.9 Версия формата хранения файла, из которого был загружен данный экземпляр объекта
+	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
 	TRect  Area;        // @transient Видимая область
 	TRect  SelArea;     // @transient Область, выделенная пользователем для выбора нескольких объектов
 	TRect  ScrollRange; // @transient Автоматически рассчитываемый диапазон скроллирования области просмотра //
@@ -2694,8 +2852,6 @@ private:
 };
 
 typedef int (* DialogPreProcFunc)(TDialog *, void * extraPtr);
-
-// @v9.1.1 int IsLargeDlg(); // @v5.8.6 VADIM
 //
 // Descr: Структура описания вида элемента пользовательского интерфейса
 //
@@ -2758,8 +2914,6 @@ public:
 		fMouseResizing = 0x0020,
 		fLarge         = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
 		fExport        = 0x0080, // Экземпляр диалога создан для экспорта
-		// @v9.6.2 fInitModal     = 0x0100  // @v7.7.6 Отладочный флаг, сигнализирующий о том, что при создании диалог был модальным.
-			// Необходим для идентификации проблемы спонтанной невозможности вывода окна диалога из модального режима при нажатии OK или Cancel.
 	};
 
 	static  INT_PTR CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
@@ -2834,7 +2988,6 @@ public:
 	//   Если proc = 0, то используется GetListFromSmartLbx
 	//   Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
 	//
-	// int SetupWordSelector(uint ctlID, WordSelectionProc proc, long wordSelExtra, long id, int minSymbCount); // @v7.x.x AHTOXA
 	int    SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, long flags);
 	int    ResetWordSelector(uint ctlID);
 
@@ -2904,7 +3057,7 @@ private:
 	TView * FASTCALL CtrlIdToView(long id) const;
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
-	SVector * P_FontsAry; // @v9.8.4 SArray-->SVector
+	SVector * P_FontsAry;
 	HWND   ToolTipsWnd;
 	//
 	struct ResizeParamEntry {
@@ -2916,7 +3069,7 @@ private:
 		long   Bottom;
 		long   Flags; // CtrlResizeFlags
 	};
-	TSVector <ResizeParamEntry> ResizeParamAry; // @v9.8.4 TSArray-->TSVector
+	TSVector <ResizeParamEntry> ResizeParamAry;
 	//
 	// Descr: Пересчитывает координаты контрола
 	// ARG(firstCoord IN):           новая 1-ая координата диапазона, в котором должен находиться контрол
@@ -2930,7 +3083,7 @@ private:
 	//   3 - разместить в той же пропорции от краев диапазона, 4 - растянуть на весь диапазон
 	//
 	void   RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord, long ctrlSize, int recalcParam);
-	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, const ResizeParamEntry & rCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim); // @v9.8.4 TSArray-->TSVector
+	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, const ResizeParamEntry & rCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim);
 	int    Helper_ToResizeDlg(const RECT * pNewDlgRect);
 	//
 	// Descr: Вспомогательная функция, испольуемая при формировании диалога из ресурсов
@@ -3006,7 +3159,7 @@ protected:
 	void   Implement_Draw();
 
 	SString Data;
-	uint32 maxLen; // @v9.8.12 size_t-->uint32
+	uint32 maxLen;
 	TYPEID type;
 	long   format;
 	enum {
@@ -3127,7 +3280,6 @@ public:
 	int    getDataAssoc(long *);
 	int    getItemByAssoc(long val, int * pItem) const;
 	int    getKind() const { return static_cast<int>(Kind); }
-	// @v9.1.3 virtual int Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	int16  Kind;  // RADIOBUTTONS || CHECKBOXES
@@ -3155,8 +3307,8 @@ protected:
 class TLabel : public TStaticText {
 public:
 	TLabel(const TRect& bounds, const char *aText, TView *aLink);
-	DECL_HANDLE_EVENT;
 protected:
+	DECL_HANDLE_EVENT;
 	TView * link;
 };
 
@@ -3283,7 +3435,7 @@ private:
 		SColor F;  // Цвет символов
 		SColor B;  // Цвет фона
 	};
-	TSVector <ColorItem> ColorAssoc; // @v9.8.4 TSArray-->TSVector
+	TSVector <ColorItem> ColorAssoc;
 };
 
 class StdListBoxDef : public ListBoxDef {
@@ -3447,7 +3599,7 @@ public:
 		stLButtonDown                = 0x0008,  // Левая кнопка мыши нажата на списке
 		stInited                     = 0x0010,  // Выставляется функцией SmartListBox::onInit.
 		stLBIsLinkedUISrchTextBlock  = 0x0020,  // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
-		stOmitSearchByFirstChar      = 0x0040   // @v9.8.11 Не обрабатывать ввод символа как сигнал к поиску
+		stOmitSearchByFirstChar      = 0x0040   // Не обрабатывать ввод символа как сигнал к поиску
 	};
 
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
@@ -3460,7 +3612,6 @@ public:
 	int    getText(long itemN  /* 0.. */, SString & rBuf);
 	int    getID(long itemN, long * pID);
 	int    isTreeList() const;
-	// @v9.6.2 virtual void   draw();
 	DECL_HANDLE_EVENT;
 	virtual void   selectItem(long item);
 	virtual int    TransmitData(int dir, void * pData);
@@ -3545,9 +3696,9 @@ private:
 
 	struct ColumnDescr {
 		uint   Width;
-		uint   Format; // ALIGN_XXX
+		uint   Format;   // ALIGN_XXX
 		uint   TitlePos; // Позиция строки заголовка в StrPool
-		long   Ident;    // @v9.2.9 Идентификатор столбца. Уникальность не проверяется.
+		long   Ident;    // Идентификатор столбца. Уникальность не проверяется.
 	};
 	long   State;
 	long   Range;
@@ -3601,7 +3752,6 @@ protected:
 	ListBoxDef * P_Def;
 	ListWindowSmartListBox * P_Lb; // box;
 	int    PrepareSearchLetter;
-	//@v9.8.0 int    IsLargeListBox;
 	uint   TbId;
 };
 
@@ -3623,19 +3773,14 @@ public:
 	int    CheckActive() const;
 private:
 	DECL_HANDLE_EVENT;
-	// @v9.7.12 (replaced with DrawListItem2) void   DrawListItem(TDrawItemData * pDrawItem);
 	void   DrawListItem2(TDrawItemData * pDrawItem);
 	int    Helper_PullDown(const char * pText, int recent);
 
 	enum {
 		dummyFirst = 1,
-		// @v9.7.12 brSel,
-		// @v9.7.12 brOdd,
-		// @v9.7.12 brBkgnd,
 		clrFocus,
 		clrOdd,
 		clrBkgnd,
-		// @v9.7.12 font
 	};
 
 	int    IsVisible;
@@ -3649,7 +3794,6 @@ ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID);
 ListWindow * CreateListWindow(StrAssocArray * pAry, uint options);
 ListWindow * CreateListWindow(uint sz, uint options);
 // WordSelector * CreateWordSelector(StrAssocArray * pAry, uint optons, UiWordSel_Helper * pHelper);
-// @v9.8.12 (unused) WordSelector * CreateWordSelector(WordSel_ExtraBlock * pBlk);
 
 class ComboBoxInputLine : public TInputLine {
 public:
@@ -3718,9 +3862,9 @@ private:
 //
 // Descr: Структура, передаваемая с сообщением cmDrawItem
 //
-#define ODT_CHECKBOX (ODT_STATIC+10) // @v5.4.10 AHTOXA
-#define ODT_RADIOBTN (ODT_STATIC+11) // @v5.4.10 AHTOXA
-#define ODT_EDIT     (ODT_STATIC+12) // @v5.4.10 AHTOXA
+#define ODT_CHECKBOX (ODT_STATIC+10)
+#define ODT_RADIOBTN (ODT_STATIC+11)
+#define ODT_EDIT     (ODT_STATIC+12)
 
 struct TDrawItemData {
 	uint   CtlType;
@@ -3760,7 +3904,6 @@ int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/);
 
 BOOL    CALLBACK ListSearchDialogProc(HWND, UINT, WPARAM, LPARAM);
 BOOL    CALLBACK PropertySheetDialogProc(HWND, UINT, WPARAM, LPARAM);
-// @v9.8.12 (unused) BOOL    CALLBACK logListProc(HWND, UINT, WPARAM, LPARAM);
 //
 // Toolbar
 // There's a mine born by Osolotkin, 2000
@@ -3852,7 +3995,7 @@ private:
 //Grid Vert color
 
 struct BrowserColorsSchema {   // size=42
-	uint   SchemaID; // 1, 2 etc. // @v9.2.1 uint16-->uint
+	uint   SchemaID; // 1, 2 etc. 
 	COLORREF Title;
 	COLORREF TitleDelim;
 	COLORREF Background;
@@ -3869,7 +4012,7 @@ struct BrowserColorsSchema {   // size=42
 extern const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA]; // @global
 
 #define UISETTINGS_VERSION_MAJOR 1
-#define UISETTINGS_VERSION_MINOR 9 // @v4.7.12 2->3 // @v5.0.7 3->4 // @v5.4.10 4->5 // @v5.6.15 5->6 // @v5.7.0 6->7 // @v7.9.9 7-->8 // @v8.1.11 8-->9
+#define UISETTINGS_VERSION_MINOR 9
 #define TOOLBAR_OFFS 100000L
 
 class UserInterfaceSettings { // @persistent @store(WinReg[HKCU\Software\Papyrus\UI]) @size=256
@@ -3884,14 +4027,14 @@ public:
 		fUpdateReminder                  = 0x00000020, // Отображать напоминание об имеющихся обновлениях программы
 		fTcbInterlaced                   = 0x00000040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным изменением цвета. В противном случае = отделять строки линиями.
 		fShowLeftTree                    = 0x00000080, // Показывать древовидную навигацию в левой части окна
-		fShowObjectsInLeftWindow         = 0x00000100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
+		// @v10.9.3 fShowObjectsInLeftWindow         = 0x00000100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
 		fDisableBeep                     = 0x00000200, // Запретить звуковые сигналы (ограниченная реализация)
 		fBasketItemFocusPckg             = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
 			// количество упаковок (а не единиц, как по умолчанию).
 		fOldModifSignSelection           = 0x00000800, // Использовать технику выбора знака для строки документа модификации
 			// товара, применявшуюся до v8.4.12 (выбор товара - выбор знака)
-		fPollVoipService                 = 0x00001000, // @v9.8.11 Опрашивать VoIP сервис для обработки событий вызовов и звонков
-		fExtGoodsSelMainName             = 0x00002000, // @v9.9.1 В списке расширенного выбора товара всегда показывать полные наименования товаров
+		fPollVoipService                 = 0x00001000, // Опрашивать VoIP сервис для обработки событий вызовов и звонков
+		fExtGoodsSelMainName             = 0x00002000, // В списке расширенного выбора товара всегда показывать полные наименования товаров
 			// Эта опция потенциально способно ускорить выборку поскольку не будет вынуждать программу лишний раз обращаться к записи товара
 			// когда сокращенное наименование не совпадает с полным (see PPObjGoods::_Selector2()).
 		fEnalbeBillMultiPrint            = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
@@ -3903,9 +4046,8 @@ public:
 	enum {
 		wndVKDefault = 0,
 		wndVKFlat    = 1,
-		// @v9.2.7 wndVKKind2,
-		wndVKVector  = 2, // @v9.1.12
-		wndVKFancy   = 3  // @v9.2.7 Схема, ранее именовавшаяся как wndVKKind2 теперь обозначается wndVKFancy. Ее номер меняется,
+		wndVKVector  = 2, // 
+		wndVKFancy   = 3  // Схема, ранее именовавшаяся как wndVKKind2 теперь обозначается wndVKFancy. Ее номер меняется,
 			// вместо нее теперь будет использоваться схема wndVKVector
 	};
 	UserInterfaceSettings();
@@ -3934,7 +4076,7 @@ public:
 		uint   Cmd;
 		COLORREF Color;
 		COLORREF TextColor;
-		char   str[160]; // @v9.0.6 [128]-->[160] Выравнивание по границе 32-байт
+		char   str[160]; // @alignment(32)
 	};
 
 	TStatusWin();
@@ -4147,7 +4289,6 @@ public:
 	const SDrawFigure * LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const;
 
 	static TProgram * application;   // @global
-
 	TGroup   * P_DeskTop;
 	TWindow  * P_TopView;
 	TToolbar * P_Toolbar;
@@ -4255,13 +4396,11 @@ public:
 		fMaxImgSize        = 0x00008000, // Максимальный размер окна для подробного отображения картинки
 		fShowOnRUCorner    = 0x00010000, // @v10.9.0 Отображать окно в правом верхнем углу
 	};
-
 	//
 	// Descr: Разрушает все окна сообщений, которые имеют родительское окно parent.
 	//   Если parent == 0, то разрушает все окна, которые были открыты.
 	//
 	static void FASTCALL DestroyByParent(HWND parent);
-
 	SMessageWindow();
 	~SMessageWindow();
 	int    Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra);
@@ -4482,8 +4621,6 @@ protected:
 	void   setupView();
 	DBQuery * query;
 };
-
-// @v9.8.12 #ifdef _TURBOVISION // {
 //
 // Messages
 //
@@ -4596,29 +4733,10 @@ public:
 	class CellStyle {
 		friend class BrowserWindow;
 	public:
-		int    FASTCALL SetFullCellColor(COLORREF c)
-		{
-			Color = c;
-			return 1; // @necessarily
-		}
-		int    FASTCALL SetRightFigCircleColor(COLORREF c)
-		{
-			RightFigColor = c;
-			Flags |= fRightFigCircle;
-			return 1; // @necessarily
-		}
-		int    FASTCALL SetLeftBottomCornerColor(COLORREF c)
-		{
-			Color2 = c;
-			Flags |= fLeftBottomCorner;
-			return 1; // @necessarily
-		}
-		int    FASTCALL SetLeftTopCornerColor(COLORREF c)
-		{
-			Color = c;
-			Flags |= fCorner;
-			return 1; // @necessarily
-		}
+		int    FASTCALL SetFullCellColor(COLORREF c); // returns strictly 1
+		int    FASTCALL SetRightFigCircleColor(COLORREF c); // returns strictly 1
+		int    FASTCALL SetLeftBottomCornerColor(COLORREF c); // returns strictly 1
+		int    FASTCALL SetLeftTopCornerColor(COLORREF c); // returns strictly 1
 		enum {
 			fCorner           = 0x0001,
 			fLeftBottomCorner = 0x0002,
@@ -4818,7 +4936,7 @@ public:
 		enum {
 			fSnapToQuant = 0x0001, // При создании или редактировании отрезков время округлять до ближайшего кванта
 			fUseToolTip  = 0x0002, // Отображать подсказки при наведении курсора на прямоугольники
-			fInterlaced  = 0x0004  // @v7.9.3 Отображать горизонтальные полосы с черезстрочным отличием цвета
+			fInterlaced  = 0x0004  // Отображать горизонтальные полосы с черезстрочным отличием цвета
 		};
 		enum {
 			vPrcTime = 0, // Слева - процессоры, сверху - время //
@@ -4974,7 +5092,7 @@ protected:
 		uint   DayN;  // Служебное значение, идентифицирующее номер даты на экране в режиме vHourDay
 		STimeChunkAssoc C;
 	};
-	class SRectArray : public TSVector <SRect> { // @v9.8.4 TSArray-->TSVector
+	class SRectArray : public TSVector <SRect> {
 	public:
 		SRectArray();
 		const SRect * FASTCALL SearchPoint(TPoint p) const;
@@ -5145,7 +5263,6 @@ public:
 	SScEditorStyleSet();
 	~SScEditorStyleSet();
 	void   Destroy();
-
 	int    GetStyle(int group, int lexerId, int styleId, Style & rS) const;
 	int    GetStyles(int group, int lexerId, TSCollection <Style> * pList) const;
 	int    GetModel(int lexerId, LangModel * pModel) const;
@@ -5183,9 +5300,9 @@ private:
 	void   FASTCALL InnerToOuter(const InnerLangModelKeywords & rS, LangModelKeywords & rD) const;
 	int    ReadStyleAttributes(const xmlNode * pNode, InnerStyle & rS);
 
-	TSVector <InnerLangModel> ML; // @v9.8.4 TSArray-->TSVector
-	TSVector <InnerLangModelKeywords> KwL; // @v9.8.4 TSArray-->TSVector
-	TSVector <InnerStyle> L; // @v9.8.4 TSArray-->TSVector
+	TSVector <InnerLangModel> ML;
+	TSVector <InnerLangModelKeywords> KwL;
+	TSVector <InnerStyle> L;
 };
 
 class SScEditorBase {
@@ -5314,7 +5431,6 @@ private:
 	uint   ToolbarId;
 	SString LexerSymb;
 	WNDPROC OrgScintillaWndProc;
-	// @v9.7.11 SrDatabase * P_SrDb; // @v9.2.0 База данных SARTR
 };
 //
 //
@@ -5370,9 +5486,6 @@ private:
 
 extern int (* getUserControl)(TVRez *, TDialog*);
 
-// @v9.5.10 HMENU  LoadMenu(TVRez *, uint menuID);
 int    LoadToolbar(TVRez *, uint tbType, uint tbID, ToolbarList *);
-
-// @v9.8.12 #endif // } _TURBOVISION
 //
 #endif // } __TV_H

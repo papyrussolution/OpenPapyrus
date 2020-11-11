@@ -211,7 +211,7 @@ char const * argmatch_to_argument(void const * value, char const * const * argli
 				/* Genuine argument, display it with its synonyms. */         \
 				for(int j = 0; g->args[j].arg; ++j)                          \
 					if(!memcmp(&g->args[ival].val, &g->args[j].val, size)) { \
-						if(!first && screen_width < col + 2 + strlen(g->args[j].arg)) { \
+						if(!first && screen_width < static_cast<int>(col + 2 + strlen(g->args[j].arg))) { \
 							fprintf(out, ",\n");                               \
 							col = 0;                                            \
 							first = true;                                       \

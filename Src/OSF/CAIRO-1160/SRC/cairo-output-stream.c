@@ -36,12 +36,6 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for snprintf() */
-//#include "cairo-output-stream-private.h"
-//#include "cairo-array-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-compiler-private.h"
-//#include <stdio.h>
-//#include <errno.h>
 
 /* Numbers printed with %f are printed with this number of significant
  * digits after the decimal.

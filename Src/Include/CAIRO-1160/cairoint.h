@@ -605,7 +605,7 @@ cairo_private double _cairo_strtod(const char * nptr, char ** endptr);
 /* cairo-path-fixed.c */
 cairo_private cairo_path_fixed_t * _cairo_path_fixed_create(void);
 cairo_private void FASTCALL _cairo_path_fixed_init(cairo_path_fixed_t * path);
-cairo_private cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, const cairo_path_fixed_t * other);
+cairo_private cairo_status_t FASTCALL _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, const cairo_path_fixed_t * other);
 cairo_private void FASTCALL _cairo_path_fixed_fini(cairo_path_fixed_t * path);
 cairo_private void FASTCALL _cairo_path_fixed_destroy(cairo_path_fixed_t * path);
 cairo_private cairo_status_t FASTCALL _cairo_path_fixed_move_to(cairo_path_fixed_t * path, cairo_fixed_t x, cairo_fixed_t y);
@@ -639,7 +639,7 @@ cairo_private void _cairo_path_fixed_approximate_stroke_extents(const cairo_path
     const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, boolint vector, cairo_rectangle_int_t * extents);
 cairo_private cairo_status_t _cairo_path_fixed_stroke_extents(const cairo_path_fixed_t * path, const cairo_stroke_style_t * style,
     const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_rectangle_int_t * extents);
-cairo_private void _cairo_path_fixed_transform(cairo_path_fixed_t * path, const cairo_matrix_t * matrix);
+cairo_private void FASTCALL _cairo_path_fixed_transform(cairo_path_fixed_t * path, const cairo_matrix_t * matrix);
 cairo_private boolint FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box);
 cairo_private boolint _cairo_path_fixed_is_rectangle(const cairo_path_fixed_t * path, cairo_box_t * box);
 

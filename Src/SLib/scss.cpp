@@ -2,8 +2,7 @@
 // Copyright (c) A.Sobolev 2020
 // CSS-parsing and processing
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 class SCss : SStrGroup {

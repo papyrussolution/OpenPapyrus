@@ -27,13 +27,10 @@ typedef unsigned char u8;
 
 #define STRICT_ALIGNMENT 1
 #ifndef PEDANTIC
-# if defined(__i386)    || defined(__i386__)    || \
-     defined(__x86_64)  || defined(__x86_64__)  || \
-     defined(_M_IX86)   || defined(_M_AMD64)    || defined(_M_X64) || \
-     defined(__aarch64__)                       || \
-     defined(__s390__)  || defined(__s390x__)
-#undef STRICT_ALIGNMENT
-#endif
+	#if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__) ||  defined(_M_IX86) || \
+		defined(_M_AMD64) || defined(_M_X64) || defined(__aarch64__) || defined(__s390__)  || defined(__s390x__)
+		#undef STRICT_ALIGNMENT
+	#endif
 #endif
 
 #if !defined(PEDANTIC) && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
@@ -84,12 +81,14 @@ _asm mov eax, val _asm bswap eax}
 #  endif
 #endif
 #endif
+#undef GETU32 // @sobolev
+#undef PUTU32 // @sobolev
 #if defined(BSWAP4) && !defined(STRICT_ALIGNMENT)
-#define GETU32(p)       BSWAP4(*(const u32 *)(p))
-#define PUTU32(p,v)     *(u32 *)(p) = BSWAP4(v)
+	#define GETU32(p)       BSWAP4(*(const u32 *)(p))
+	#define PUTU32(p,v)     *(u32 *)(p) = BSWAP4(v)
 #else
-#define GETU32(p)       ((u32)(p)[0]<<24|(u32)(p)[1]<<16|(u32)(p)[2]<<8|(u32)(p)[3])
-#define PUTU32(p,v)     ((p)[0]=(u8)((v)>>24),(p)[1]=(u8)((v)>>16),(p)[2]=(u8)((v)>>8),(p)[3]=(u8)(v))
+	#define GETU32(p)       ((u32)(p)[0]<<24|(u32)(p)[1]<<16|(u32)(p)[2]<<8|(u32)(p)[3])
+	#define PUTU32(p,v)     ((p)[0]=(u8)((v)>>24),(p)[1]=(u8)((v)>>16),(p)[2]=(u8)((v)>>8),(p)[3]=(u8)(v))
 #endif
 /*- GCM definitions */ typedef struct {
     u64 hi, lo;

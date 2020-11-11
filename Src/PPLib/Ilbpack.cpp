@@ -443,7 +443,7 @@ public:
 			CATCHZOK
 			return ok;
 		}
-		static int GetPossibilitiesCollection(const TSVector <PossibilityRange> & rPrl, TSCollection <UlongArray> & rEnumList) // @v9.8.11 TSArray-->TSVector
+		static int GetPossibilitiesCollection(const TSVector <PossibilityRange> & rPrl, TSCollection <UlongArray> & rEnumList)
 		{
 			int    ok = 1;
 			rEnumList.freeAll();

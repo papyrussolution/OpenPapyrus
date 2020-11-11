@@ -1,5 +1,5 @@
 // SARTRE.H
-// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018, 2020
 // @codepage UTF-8
 //
 /*
@@ -424,7 +424,7 @@ public:
 	int    Add(SrWordAssoc * pWa, int32 * pID);
 	int    Update(SrWordAssoc & rRec);
 	int    Search(int32 id, SrWordAssoc * pWa);
-	int    Search(LEXID wordID, TSVector <SrWordAssoc> & rList); // @v9.8.4 TSArray-->TSVector
+	int    Search(LEXID wordID, TSVector <SrWordAssoc> & rList);
 	int    SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf);
 private:
 	long   SeqID;
@@ -526,7 +526,7 @@ private:
 		uint32 TailS;  // Размер хвостовой части
 		uint32 TailP;  // Позиция хвостовой части дескриптора свойства в буфере Pool
 	};
-	TSVector <Item> D; // @v9.8.6 TSArray-->TSVector
+	TSVector <Item> D;
 	uint32 PoolP; // Позиция, с которой следует добавлять следующий элемент в Pool
 	SBaseBuffer Pool;
 };
@@ -678,7 +678,7 @@ public:
 	int    Update(PPOsm::NodeCluster & rNc, uint64 outerID);
 	int    Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
 	int    Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID);
-	int    GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList); // @v9.8.6 TSArray-->TSVector
+	int    GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList);
 private:
 	virtual uint FASTCALL Implement_PartitionFunc(DBT * pKey);
 	int    Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update);
@@ -843,7 +843,7 @@ public:
 	//   <0 - функция не нашла грамматических ассоциаций слова.
 	//    0 - ошибка
 	//
-	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector <SrWordAssoc> & rWaList, TSVector <SrWordInfo> & rInfo);  // @v9.8.4 TSArray-->TSVector
+	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector <SrWordAssoc> & rWaList, TSVector <SrWordInfo> & rInfo);
 	int    GetWordInfo(const char * pWordUtf8, long flags, TSVector <SrWordInfo> & rInfo);
 	int    IsWordInForm(const char * pWordUtf8, const SrWordForm & rForm);
 	int    WordInfoToStr(const SrWordInfo & rWi, SString & rBuf);
@@ -1126,7 +1126,7 @@ public:
 			uint   TextIdx;
 		};
 		TSStack <InnerStackItem> InnerStack;
-		TSVector <MatchEntry> MatchList; // @v9.8.4 TSArray-->TSVector
+		TSVector <MatchEntry> MatchList;
 	};
 
 	int    __ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const;

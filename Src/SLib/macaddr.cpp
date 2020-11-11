@@ -1,8 +1,7 @@
 // MACADDR.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019
+// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <snet.h>
 #include <iphlpapi.h>
@@ -105,7 +104,7 @@ int FASTCALL MACAddr::Cmp(const MACAddr & s) const
 	return 0;
 }
 
-MACAddrArray::MACAddrArray() : TSVector <MACAddr> () // @v9.8.4 TSArray-->TSVector
+MACAddrArray::MACAddrArray() : TSVector <MACAddr> ()
 {
 }
 

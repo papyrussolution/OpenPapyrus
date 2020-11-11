@@ -1,8 +1,7 @@
 // SSYSTEM.CPP
 // Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <wininet.h>
 

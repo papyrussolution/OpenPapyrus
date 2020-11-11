@@ -3,10 +3,7 @@
 // @codepage UTF-8
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
-//#include <pp.h>
-//#pragma hdrstop
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 ComDispInterface::ComDispInterface() : P_ParamsAry(0), P_Disp(0), HRes(S_OK)

@@ -24,8 +24,7 @@
 // The generated source is also checked into source control so that most people
 // hacking on the parser do not need to install ragel.
 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "gumbo-internal.h"
 

@@ -795,12 +795,23 @@ int PPApp::processCommand(uint cmd)
 		case cmViewLogs:              ViewLogs();                        break;
 		case cmPrcPane:               ExecPrcPane(0);                    break;
 		case cmRemoveZeroLinkCCLines: RemoveZeroLinkCCLines();           break;
-		case cmEditDesktops:          EditMenus(0, 0, 1);                break;
-		case cmSelDesktop:
-			if(SelectMenu(&DS.GetTLA().Lc.DesktopID, 0, SELTYPE_DESKTOP, 0) > 0)
-				PPDesktop::Open(LConfig.DesktopID);
+		case cmEditDesktops:          
+			{
+				S_GUID zero_uuid;
+				EditCommandGroup(0, zero_uuid, cmdgrpcDesktop);
+			}
 			break;
-		case cmEditMenus:             EditMenus(0, 0, 0);              break;
+		case cmSelDesktop:
+			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid, 0, 0, cmdgrpcDesktop, false, 0)) {
+				PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid, 0/*createIfZero*/);
+			}
+			break;
+		case cmEditMenus:             
+			{
+				S_GUID zero_uuid;
+				EditCommandGroup(0, zero_uuid, cmdgrpcMenu);
+			}
+			break;
 		case cmEditMenusFromFile:     EditMenusFromFile();             break;
 		case cmEditWhatman:           PPWhatmanWindow::Edit(0, 0);     break;
 		case cmBillExpImpParams:      EditBillImpExpParams(1);         break;
@@ -1860,7 +1871,7 @@ void PPApp::login(int processCmdLine)
 			DS.SetOperDate(oper_date);
 			StatusWinChange(1);
 			PPDesktop::RegWindowClass(TProgram::GetInst());
-			PPDesktop::Open(LConfig.DesktopID, 1); // @todo должна вызываться после того, как будут созданы основные окна.
+			PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid, 1/*createIfZero*/); // @todo должна вызываться после того, как будут созданы основные окна.
 			if(!no_login)
 				RemoveMenu(GetMenu(H_MainWnd), cmDBExit, MF_BYCOMMAND);
 			if(processCmdLine) {
@@ -1938,7 +1949,7 @@ void PPApp::login(int processCmdLine)
 		else if(!no_login)
 			TView::messageCommand(this, cmQuit);
 	}
-	PPSession::GetStartUpOption(-1, arg_buf); // @v9.0.2 Очищаем внутренний буфер функции
+	PPSession::GetStartUpOption(-1, arg_buf); // Очищаем внутренний буфер функции
 }
 
 int PPApp::InitDeskTop()
@@ -1950,16 +1961,26 @@ int PPApp::InitMenuBar()
 {
 	const  PPConfig & r_cfg = LConfig;
 	const  int is_master = BIN(PPMaster);
-	const  int from_rc = (r_cfg.MenuID && !is_master) ? 0 : 1;
-	if(r_cfg.Menu || r_cfg.MenuID || is_master) {
+	//const  int from_rc = (r_cfg.MenuID && !is_master) ? 0 : 1;
+	const  int from_rc = (!!r_cfg.MenuUuid && !is_master) ? 0 : 1;
+	//if(r_cfg.Menu || r_cfg.MenuID || is_master) {
+	if(r_cfg.Menu || !!r_cfg.MenuUuid || is_master) {
 		int not_found = 0;
-		HMENU  m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found);
+		HMENU  m = 0;
+		//m = PPLoadMenu(P_SlRez, from_rc ? r_cfg.Menu : r_cfg.MenuID, from_rc, &not_found);
+		if(from_rc) {
+			m = PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found);
+		}
+		else {
+			m = PPLoadCommandMenu(r_cfg.MenuUuid, &not_found);
+		}
 		if(!m || not_found) {
 			if(is_master) {
 				DS.GetTLA().Lc.Menu = 1;
 				if(m)
 					::DestroyMenu(m);
-				m = PPLoadMenu(P_SlRez, r_cfg.Menu, 1, &not_found);
+				//m = PPLoadMenu(P_SlRez, r_cfg.Menu, 1, &not_found);
+				m = PPLoadResourceMenu(P_SlRez, r_cfg.Menu, &not_found);
 				if(!m || not_found) {
 					if(m) {
 						::DestroyMenu(m);

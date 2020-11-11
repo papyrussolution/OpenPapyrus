@@ -1,8 +1,7 @@
 // SCLIPBOARD.CPP
 // Copyright (c) A.Sobolev 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 /*static*/int FASTCALL SClipboard::OpenClipboardRetry(void * hWnd)

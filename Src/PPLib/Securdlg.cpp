@@ -387,10 +387,49 @@ public:
 			SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_DBDIV, PPOBJ_DBDIV, Data.DBDiv, 0);
 			if(Id == DLG_CFGOPTIONS) {
 				StrAssocArray list;
-				PPCommandFolder::GetMenuList(0, &list, 1);
-				SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_DESK, &list, Data.DesktopID, 0);
-				PPCommandFolder::GetMenuList(0, &list.Z(), 0);
-				SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_MENU2, &list, Data.MenuID, 0);
+				long   desktop_surr_id = 0;
+				long   menu_surr_id = 0;
+				PPCommandFolder::CommandGroupList::Entry entry;
+				{
+					PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
+					if(!!Data.DesktopUuid) {
+						uint idx = 0;
+						if(DesktopList.SearchByUuid(Data.DesktopUuid, &idx)) {
+							if(DesktopList.Get(idx, entry))
+								desktop_surr_id = entry.SurrID;
+						}
+						else {
+							LongArray idx_list;
+							if(DesktopList.SearchByNativeID(Data.DesktopID_Obsolete, idx_list)) {
+								assert(idx_list.getCount());
+								if(idx_list.getCount() && DesktopList.Get(idx_list.get(0), entry))
+									desktop_surr_id = entry.SurrID;
+							}
+						}
+					}
+					DesktopList.GetStrAssocList(list);
+					SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_DESK, &list, /*Data.DesktopID*/desktop_surr_id, 0);
+				}
+				{
+					PPCommandFolder::GetCommandGroupList(0, cmdgrpcMenu, MenuList);
+					if(!!Data.MenuUuid) {
+						uint idx = 0;
+						if(MenuList.SearchByUuid(Data.MenuUuid, &idx)) {
+							if(MenuList.Get(idx, entry))
+								menu_surr_id = entry.SurrID;
+						}
+						else {
+							LongArray idx_list;
+							if(MenuList.SearchByNativeID(Data.MenuID_Obsolete, idx_list)) {
+								assert(idx_list.getCount());
+								if(idx_list.getCount() && MenuList.Get(idx_list.get(0), entry))
+									menu_surr_id = entry.SurrID;
+							}
+						}						
+					}
+					MenuList.GetStrAssocList(list);
+					SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_MENU2, &list, /*Data.MenuID*/menu_surr_id, 0);
+				}
 			}
 			AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 0, RLZORD_FIFO);
 			AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 1, RLZORD_LIFO);
@@ -434,9 +473,28 @@ public:
 		getCtrlData(CTLSEL_CFGOPTIONS_LOC,   &Data.Location);
 		getCtrlData(CTLSEL_CFGOPTIONS_DBDIV, &Data.DBDiv);
 		if(Id == DLG_CFGOPTIONS) {
-			getCtrlData(CTLSEL_CFGOPTIONS_DESK,  &Data.DesktopID);
-			getCtrlData(CTLSEL_CFGOPTIONS_MENU2, &Data.MenuID);
-			DS.GetTLA().Lc.DesktopID = Data.DesktopID;
+			PPCommandFolder::CommandGroupList::Entry entry;
+			{
+				long   surr_id = 0;
+				uint   idx = 0;
+				getCtrlData(CTLSEL_CFGOPTIONS_DESK,  /*&Data.DesktopID*/&surr_id);
+				if(DesktopList.SearchBySurrID(surr_id, &idx) && DesktopList.Get(idx, entry)) {
+					Data.DesktopUuid = entry.Uuid;
+					Data.DesktopID_Obsolete = entry.NativeID;
+					DS.GetTLA().Lc.DesktopUuid = entry.Uuid;
+					DS.GetTLA().Lc.DesktopID_Obsolete = entry.NativeID;
+				}
+				//DS.GetTLA().Lc.DesktopID = Data.DesktopID;
+			}
+			{
+				long   surr_id = 0;
+				uint   idx = 0;
+				getCtrlData(CTLSEL_CFGOPTIONS_MENU2, /*&Data.MenuID*/&surr_id);
+				if(MenuList.SearchBySurrID(surr_id, &idx) && MenuList.Get(idx, entry)) {
+					Data.MenuUuid = entry.Uuid;
+					Data.MenuID_Obsolete = entry.NativeID;
+				}
+			}
 		}
 		Data.RealizeOrder = static_cast<short>(GetClusterData(CTL_CFGOPTIONS_RLZORD));
 		GetClusterData(CTL_CFGOPTIONS_FEFO, &Data.Flags);
@@ -476,6 +534,8 @@ private:
 		}
 		delete dlg;
 	}
+	PPCommandFolder::CommandGroupList MenuList;
+	PPCommandFolder::CommandGroupList DesktopList;
 };
 
 int EditCfgOptionsDialog(PPConfig * pCfg, long, EmbedDialog * pDlg)

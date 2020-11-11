@@ -3,8 +3,7 @@
 // @codepage UTF-8
 // Release for WIN32
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 const char * SLBColumnDelim = "/^";

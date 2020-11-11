@@ -3,11 +3,10 @@
 // Part of StyloConduit project
 // Ёкспорт/»мпорт товарных групп
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "StyloConduit.h"
-#include <stddef.h>
+//#include <stddef.h>
 
 IMPL_CMPFUNC(GGROUPID, i1, i2)
 {

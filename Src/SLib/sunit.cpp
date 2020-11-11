@@ -1,8 +1,7 @@
 // SUNIT.CPP
 // Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 struct ClsEntry {

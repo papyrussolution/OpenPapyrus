@@ -3,7 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <layout-flex.h>
+//#include <layout-flex.h>
 
 class BaseWtmToolDialog : public TDialog {
 	DECL_DIALOG_DATA(TWhatmanToolArray::Item);
@@ -2575,23 +2575,30 @@ int PPWhatmanWindow::FileOpen()
 	FrameWindow * p_frame_win = new FrameWindow;
 	p_frame_win->changeBounds(TRect(10, 10, 900, 900));
 	p_frame_win->Create(APPL->H_MainWnd, TWindowBase::coPopup);
+	LayoutFlexItem * p_frame_layout = static_cast<LayoutFlexItem *>(p_frame_win->GetLayout());
 	{
 		THROW_MEM(p_tool_win = new PPWhatmanWindow(PPWhatmanWindow::modeToolbox));
 		{
-			LayoutFlexItem * p_lo = new LayoutFlexItem;
-			p_lo->grow = 1.0f;
-			//p_lo->align_items = FLEX_ALIGN_STRETCH;
-			//p_lo->align_self = FLEX_ALIGN_AUTO;
+			LayoutFlexItem * p_lo = 0;
+			if(p_frame_layout) {
+				p_lo = p_frame_layout->InsertItem();
+				p_lo->grow = 1.0f;
+				//p_lo->align_items = FLEX_ALIGN_STRETCH;
+				//p_lo->align_self = FLEX_ALIGN_AUTO;
+			}
 			p_frame_win->AddChildWithLayout(p_tool_win, TWindowBase::coChild, p_lo);
 		}
 	}
 	{
 		THROW_MEM(p_edit_win = new PPWhatmanWindow(PPWhatmanWindow::modeEdit));
 		{
-			LayoutFlexItem * p_lo = new LayoutFlexItem;
-			p_lo->grow = 3.0f;
-			//p_lo->align_items = FLEX_ALIGN_STRETCH;
-			//p_lo->align_self = FLEX_ALIGN_AUTO;
+			LayoutFlexItem * p_lo = 0;
+			if(p_frame_layout) {
+				p_lo = p_frame_layout->InsertItem();
+				p_lo->grow = 3.0f;
+				//p_lo->align_items = FLEX_ALIGN_STRETCH;
+				//p_lo->align_self = FLEX_ALIGN_AUTO;
+			}
 			p_frame_win->AddChildWithLayout(p_edit_win, TWindowBase::coChild, p_lo);
 		}
 		{

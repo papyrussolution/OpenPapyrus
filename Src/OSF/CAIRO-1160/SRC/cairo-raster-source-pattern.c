@@ -35,9 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include "cairo-pattern-private.h"
-
 /**
  * SECTION:cairo-raster-source
  * @Title: Raster Sources

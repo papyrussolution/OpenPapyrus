@@ -1,13 +1,12 @@
 // SC_GOODS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2016, 2019, 2020
 // Part of StyloConduit project
 // Экспорт/Импорт товаров
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "StyloConduit.h"
-#include <stddef.h>
+//#include <stddef.h>
 
 IMPL_CMPFUNC(GOODSID, i1, i2)
 {
@@ -189,7 +188,7 @@ int SCDBObjGoods::LoadQuotKindList()
 	return ok;
 }
 
-SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSVector <Quot> * pQuotList, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
+SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSVector <Quot> * pQuotList, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec * p_buf = static_cast<PalmRec *>(SAlloc::C(1, buf_len));
@@ -203,7 +202,7 @@ SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSVector <Quot> * pQuot
 	return p_buf;
 }
 
-SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSVector <Quot> * pQuotList, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
+SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSVector <Quot> * pQuotList, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec156) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec156 * p_buf = static_cast<PalmRec156 *>(SAlloc::C(1, buf_len));
@@ -217,7 +216,7 @@ SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSVector <Quot> *
 	return p_buf;
 }
 
-SCDBObjGoods::PalmRec500 * SCDBObjGoods::AllocPalmRec500(const TSVector <Quot> * pQuotList, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
+SCDBObjGoods::PalmRec500 * SCDBObjGoods::AllocPalmRec500(const TSVector <Quot> * pQuotList, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec500) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec500 * p_buf = (PalmRec500 *)SAlloc::C(1, buf_len);
@@ -231,7 +230,7 @@ SCDBObjGoods::PalmRec500 * SCDBObjGoods::AllocPalmRec500(const TSVector <Quot> *
 	return p_buf;
 }
 
-SCDBObjGoods::PalmRec800 * SCDBObjGoods::AllocPalmRec800(const TSVector <Quot> * pQuotList, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
+SCDBObjGoods::PalmRec800 * SCDBObjGoods::AllocPalmRec800(const TSVector <Quot> * pQuotList, size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec800) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec800 * p_buf = (PalmRec800 *)SAlloc::C(1, buf_len);
@@ -243,7 +242,7 @@ SCDBObjGoods::PalmRec800 * SCDBObjGoods::AllocPalmRec800(const TSVector <Quot> *
 	return p_buf;
 }
 
-SCDBObjGoods::PalmRec900 * SCDBObjGoods::AllocPalmRec900(const TSVector <Quot> * pQuotList, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
+SCDBObjGoods::PalmRec900 * SCDBObjGoods::AllocPalmRec900(const TSVector <Quot> * pQuotList, size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec900) + pQuotList->getCount() * sizeof(Quot);
 	PalmRec900 * p_buf = (PalmRec900 *)SAlloc::C(1, buf_len);
@@ -257,7 +256,7 @@ SCDBObjGoods::PalmRec900 * SCDBObjGoods::AllocPalmRec900(const TSVector <Quot> *
 
 #define MAXQUOT 20
 
-int SCDBObjGoods::GetQuotList(DbfRecord * pRec, int * pFldnList, TSVector <Quot> & rList) // @v9.8.4 TSArray-->TSVector
+int SCDBObjGoods::GetQuotList(DbfRecord * pRec, int * pFldnList, TSVector <Quot> & rList)
 {
 	int    ok = 1;
 	rList.freeAll();
@@ -381,7 +380,7 @@ int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				size_t buf_len = 0;
 				long   id = 0, temp_long;
 				double temp_dbl;
-				TSVector <Quot> quot_list; // @v9.8.4 TSArray-->TSVector
+				TSVector <Quot> quot_list;
 				IdxRec idx_rec;
 				MEMSZERO(idx_rec);
 				DbfRecord rec(P_GoodsTbl);

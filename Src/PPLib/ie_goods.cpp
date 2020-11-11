@@ -1186,7 +1186,7 @@ private:
 			int64  Sz;
 			uint   FnP;
 		};
-		TSVector <Entry> List; // @v9.8.4 TSArray-->TSVector
+		TSVector <Entry> List;
 		const SString SetPath;
 	private:
 		SPathStruc Ps;
@@ -1226,7 +1226,7 @@ struct CommonUnit { // @flat
 	double Rate;     // Отношение base / this
 };
 
-int PPLoadCommonUnits(TSVector <CommonUnit> * pList) // @v9.8.4 TSArray-->TSVector
+int PPLoadCommonUnits(TSVector <CommonUnit> * pList)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -1292,7 +1292,7 @@ private:
 	long   ReH_ManyInOne;
 	long   ReH_Frac;
 	long   ReH_PaperFmt;
-	TSVector <CommonUnit> Units; // @v9.8.4 TSArray-->TSVector
+	TSVector <CommonUnit> Units;
 	SString Prefixes;
 	SString TempBuf; // @allocreuse
 };

@@ -38,12 +38,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-slope-private.h"
-//#include "cairo-stroke-dash-private.h"
-//#include "cairo-traps-private.h"
-//#include <float.h>
 
 struct stroker {
 	const cairo_stroke_style_t * style;

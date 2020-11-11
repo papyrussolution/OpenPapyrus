@@ -110,65 +110,43 @@ const int _zbar_num_formats = sizeof(_zbar_formats) / sizeof(uint32);
 
 /* format definitions */
 static const zbar_format_def_t format_defs[] = {
-	{ fourcc('R', 'G', 'B', '4'), ZBAR_FMT_RGB_PACKED,
-	  { { 4, RGB_BITS(8, 8), RGB_BITS(16, 8), RGB_BITS(24, 8) } } },
-	{ fourcc('B', 'G', 'R', '1'), ZBAR_FMT_RGB_PACKED,
-	  { { 1, RGB_BITS(0, 3), RGB_BITS(3, 3), RGB_BITS(6, 2) } } },
+	{ fourcc('R', 'G', 'B', '4'), ZBAR_FMT_RGB_PACKED, { { 4, RGB_BITS(8, 8), RGB_BITS(16, 8), RGB_BITS(24, 8) } } },
+	{ fourcc('B', 'G', 'R', '1'), ZBAR_FMT_RGB_PACKED, { { 1, RGB_BITS(0, 3), RGB_BITS(3, 3), RGB_BITS(6, 2) } } },
 	{ fourcc('4', '2', '2', 'P'), ZBAR_FMT_YUV_PLANAR, { { 1, 0, 0 /*UV*/ } } },
 	{ fourcc('Y', '8', '0', '0'), ZBAR_FMT_GRAY, },
-	{ fourcc('Y', 'U', 'Y', '2'), ZBAR_FMT_YUV_PACKED,
-	  { { 1, 0, 0, /*YUYV*/ } } },
+	{ fourcc('Y', 'U', 'Y', '2'), ZBAR_FMT_YUV_PACKED, { { 1, 0, 0, /*YUYV*/ } } },
 	{ fourcc('J', 'P', 'E', 'G'), ZBAR_FMT_JPEG, },
-	{ fourcc('Y', 'V', 'Y', 'U'), ZBAR_FMT_YUV_PACKED,
-	  { { 1, 0, 1, /*YVYU*/ } } },
+	{ fourcc('Y', 'V', 'Y', 'U'), ZBAR_FMT_YUV_PACKED, { { 1, 0, 1, /*YVYU*/ } } },
 	{ fourcc('Y', '8', 0, 0), ZBAR_FMT_GRAY, },
 	{ fourcc('N', 'V', '2', '1'), ZBAR_FMT_YUV_NV,     { { 1, 1, 1 /*VU*/ } } },
 	{ fourcc('N', 'V', '1', '2'), ZBAR_FMT_YUV_NV,     { { 1, 1, 0 /*UV*/ } } },
-	{ fourcc('B', 'G', 'R', '3'), ZBAR_FMT_RGB_PACKED,
-	  { { 3, RGB_BITS(16, 8), RGB_BITS(8, 8), RGB_BITS(0, 8) } } },
+	{ fourcc('B', 'G', 'R', '3'), ZBAR_FMT_RGB_PACKED, { { 3, RGB_BITS(16, 8), RGB_BITS(8, 8), RGB_BITS(0, 8) } } },
 	{ fourcc('Y', 'V', 'U', '9'), ZBAR_FMT_YUV_PLANAR, { { 2, 2, 1 /*VU*/ } } },
-	{ fourcc('R', 'G', 'B', 'O'), ZBAR_FMT_RGB_PACKED,
-	  { { 2, RGB_BITS(10, 5), RGB_BITS(5, 5), RGB_BITS(0, 5) } } },
-	{ fourcc('R', 'G', 'B', 'Q'), ZBAR_FMT_RGB_PACKED,
-	  { { 2, RGB_BITS(2, 5), RGB_BITS(13, 5), RGB_BITS(8, 5) } } },
+	{ fourcc('R', 'G', 'B', 'O'), ZBAR_FMT_RGB_PACKED, { { 2, RGB_BITS(10, 5), RGB_BITS(5, 5), RGB_BITS(0, 5) } } },
+	{ fourcc('R', 'G', 'B', 'Q'), ZBAR_FMT_RGB_PACKED, { { 2, RGB_BITS(2, 5), RGB_BITS(13, 5), RGB_BITS(8, 5) } } },
 	{ fourcc('G', 'R', 'E', 'Y'), ZBAR_FMT_GRAY, },
-	{ fourcc(3, 0, 0, 0), ZBAR_FMT_RGB_PACKED,
-	  { { 4, RGB_BITS(16, 8), RGB_BITS(8, 8), RGB_BITS(0, 8) } } },
+	{ fourcc(3, 0, 0, 0), ZBAR_FMT_RGB_PACKED, { { 4, RGB_BITS(16, 8), RGB_BITS(8, 8), RGB_BITS(0, 8) } } },
 	{ fourcc('Y', '8', ' ', ' '), ZBAR_FMT_GRAY, },
 	{ fourcc('I', '4', '2', '0'), ZBAR_FMT_YUV_PLANAR, { { 1, 1, 0 /*UV*/ } } },
-	{ fourcc('R', 'G', 'B', '1'), ZBAR_FMT_RGB_PACKED,
-	  { { 1, RGB_BITS(5, 3), RGB_BITS(2, 3), RGB_BITS(0, 2) } } },
+	{ fourcc('R', 'G', 'B', '1'), ZBAR_FMT_RGB_PACKED, { { 1, RGB_BITS(5, 3), RGB_BITS(2, 3), RGB_BITS(0, 2) } } },
 	{ fourcc('Y', 'U', '1', '2'), ZBAR_FMT_YUV_PLANAR, { { 1, 1, 0 /*UV*/ } } },
 	{ fourcc('Y', 'V', '1', '2'), ZBAR_FMT_YUV_PLANAR, { { 1, 1, 1 /*VU*/ } } },
-	{ fourcc('R', 'G', 'B', '3'), ZBAR_FMT_RGB_PACKED,
-	  { { 3, RGB_BITS(0, 8), RGB_BITS(8, 8), RGB_BITS(16, 8) } } },
-	{ fourcc('R', '4', '4', '4'), ZBAR_FMT_RGB_PACKED,
-	  { { 2, RGB_BITS(8, 4), RGB_BITS(4, 4), RGB_BITS(0, 4) } } },
-	{ fourcc('B', 'G', 'R', '4'), ZBAR_FMT_RGB_PACKED,
-	  { { 4, RGB_BITS(16, 8), RGB_BITS(8, 8), RGB_BITS(0, 8) } } },
+	{ fourcc('R', 'G', 'B', '3'), ZBAR_FMT_RGB_PACKED, { { 3, RGB_BITS(0, 8), RGB_BITS(8, 8), RGB_BITS(16, 8) } } },
+	{ fourcc('R', '4', '4', '4'), ZBAR_FMT_RGB_PACKED, { { 2, RGB_BITS(8, 4), RGB_BITS(4, 4), RGB_BITS(0, 4) } } },
+	{ fourcc('B', 'G', 'R', '4'), ZBAR_FMT_RGB_PACKED, { { 4, RGB_BITS(16, 8), RGB_BITS(8, 8), RGB_BITS(0, 8) } } },
 	{ fourcc('Y', 'U', 'V', '9'), ZBAR_FMT_YUV_PLANAR, { { 2, 2, 0 /*UV*/ } } },
 	{ fourcc('M', 'J', 'P', 'G'), ZBAR_FMT_JPEG, },
 	{ fourcc('4', '1', '1', 'P'), ZBAR_FMT_YUV_PLANAR, { { 2, 0, 0 /*UV*/ } } },
-	{ fourcc('R', 'G', 'B', 'P'), ZBAR_FMT_RGB_PACKED,
-	  { { 2, RGB_BITS(11, 5), RGB_BITS(5, 6), RGB_BITS(0, 5) } } },
-	{ fourcc('R', 'G', 'B', 'R'), ZBAR_FMT_RGB_PACKED,
-	  { { 2, RGB_BITS(3, 5), RGB_BITS(13, 6), RGB_BITS(8, 5) } } },
-	{ fourcc('Y', 'U', 'Y', 'V'), ZBAR_FMT_YUV_PACKED,
-	  { { 1, 0, 0, /*YUYV*/ } } },
-	{ fourcc('U', 'Y', 'V', 'Y'), ZBAR_FMT_YUV_PACKED,
-	  { { 1, 0, 2, /*UYVY*/ } } },
+	{ fourcc('R', 'G', 'B', 'P'), ZBAR_FMT_RGB_PACKED, { { 2, RGB_BITS(11, 5), RGB_BITS(5, 6), RGB_BITS(0, 5) } } },
+	{ fourcc('R', 'G', 'B', 'R'), ZBAR_FMT_RGB_PACKED, { { 2, RGB_BITS(3, 5), RGB_BITS(13, 6), RGB_BITS(8, 5) } } },
+	{ fourcc('Y', 'U', 'Y', 'V'), ZBAR_FMT_YUV_PACKED, { { 1, 0, 0, /*YUYV*/ } } },
+	{ fourcc('U', 'Y', 'V', 'Y'), ZBAR_FMT_YUV_PACKED, { { 1, 0, 2, /*UYVY*/ } } },
 };
 
-static const int num_format_defs =
-    sizeof(format_defs) / sizeof(zbar_format_def_t);
+static const int num_format_defs = sizeof(format_defs) / sizeof(zbar_format_def_t);
 
 #ifdef DEBUG_CONVERT
-static int intsort(const void * a,
-    const void * b)
-{
-	return (*(uint32 *)a - *(uint32 *)b);
-}
-
+	static int intsort(const void * a, const void * b) { return (*(uint32 *)a - *(uint32 *)b); }
 #endif
 
 /* verify that format list is in required sort order */
@@ -177,18 +155,14 @@ static inline int verify_format_sort(void)
 	int i;
 	for(i = 0; i < num_format_defs; i++) {
 		int j = i * 2 + 1;
-		if((j < num_format_defs &&
-			    format_defs[i].format < format_defs[j].format) ||
-		    (j + 1 < num_format_defs &&
-			    format_defs[j + 1].format < format_defs[i].format))
+		if((j < num_format_defs && format_defs[i].format < format_defs[j].format) ||
+		    (j + 1 < num_format_defs && format_defs[j + 1].format < format_defs[i].format))
 			break;
 	}
 	if(i == num_format_defs)
 		return 0;
-
 	/* spew correct order for fix */
 	fprintf(stderr, "ERROR: image format list is not sorted!?\n");
-
 #ifdef DEBUG_CONVERT
 	assert(num_format_defs);
 	uint32 sorted[num_format_defs];
@@ -224,8 +198,7 @@ static inline int verify_format_sort(void)
 	return -1;
 }
 
-static inline void uv_round(zbar_image_t * img,
-    const zbar_format_def_t * fmt)
+static inline void uv_round(zbar_image_t * img, const zbar_format_def_t * fmt)
 {
 	img->width >>= fmt->p.yuv.xsub2;
 	img->width <<= fmt->p.yuv.xsub2;
@@ -233,8 +206,7 @@ static inline void uv_round(zbar_image_t * img,
 	img->height <<= fmt->p.yuv.ysub2;
 }
 
-static inline void uv_roundup(zbar_image_t * img,
-    const zbar_format_def_t * fmt)
+static inline void uv_roundup(zbar_image_t * img, const zbar_format_def_t * fmt)
 {
 	uint xmask, ymask;
 	if(fmt->group == ZBAR_FMT_GRAY)

@@ -5,7 +5,7 @@
 #ifndef __COMDISP_H // {
 #define __COMDISP_H
 
-#include <process.h>
+// @v10.9.3 #include <process.h>
 //
 //   Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer, LocalServer) (only WIN32)
 //

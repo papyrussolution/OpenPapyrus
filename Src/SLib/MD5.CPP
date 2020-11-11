@@ -16,8 +16,7 @@
  *
  * @license Public Domain / GPL v2+
  */
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <zlib.h>
 // @v9.6.3 #include <idea.h>

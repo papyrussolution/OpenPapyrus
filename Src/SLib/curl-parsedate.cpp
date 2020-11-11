@@ -77,8 +77,7 @@
 
  */
 //#include "curl_setup.h"
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 // @v9.7.10 const char * const Curl_wkday[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};

@@ -2,8 +2,7 @@
 // Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 int FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
@@ -23,12 +22,8 @@ int FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
 				i--;
 				if(oneof2(p_tmp[i], '\'', ' '))
 					strcpy(p_tmp+i, p_tmp+i+1);
-				else if(p_tmp[i] == ',') // @v9.6.7
+				else if(p_tmp[i] == ',')
 					p_tmp[i] = '.';
-				/* @v9.6.7
-				else if(p_tmp[i] == ',' && (!i || p_tmp[i-1] != ','))
-					strcpy(p_tmp+i, p_tmp+i+1);
-				*/
 			} while(i);
 	}
 	char * n;
@@ -45,18 +40,6 @@ int FASTCALL strtorrng(const char * pBuf, RealRange & rRng)
 {
 	return strtorrng(pBuf, &rRng.low, &rRng.upp);
 }
-
-/* @v9.6.0
-int strtoirng(const char * pBuf, long * pLow, long * pUpp)
-{
-	// @todo Очень слабая реализация //
-	double rlow, rupp;
-	strtorrng(pBuf, &rlow, &rupp);
-	*pLow = (long)rlow;
-	*pUpp = (long)rupp;
-	return 1;
-}
-*/
 //
 //
 //

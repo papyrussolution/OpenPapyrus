@@ -261,7 +261,7 @@ int PPGoodsValRestrPacket::RemoveBillArRestr(PPID arID) { return BillArRestr.Rem
 //
 //
 //
-PPObjGoodsValRestr::GvrArray::GvrArray() : TSVector <PPObjGoodsValRestr::GvrItem> () // @v9.8.4 TSArray-->TSVector
+PPObjGoodsValRestr::GvrArray::GvrArray() : TSVector <PPObjGoodsValRestr::GvrItem> ()
 {
 }
 

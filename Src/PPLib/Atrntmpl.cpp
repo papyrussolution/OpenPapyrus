@@ -446,7 +446,7 @@ int PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects 
 	if(pAcct->ac && r_acc_obj.Fetch(pAcct->ac, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
 		LAssocArray alias_subst;
 		PPID   unresolved_ar_id = 0; // Для сообщения об ошибке
-		const  TSVector <ATSubstObjects::Item> * p_atso_list = 0; // @v9.8.4 TSArray-->TSVector
+		const  TSVector <ATSubstObjects::Item> * p_atso_list = 0;
 		if(side == PPDEBIT) {
 			p_atso_list = (Flags & ATTF_PRIMONCREDIT) ? &pAtso->ForeignList : &pAtso->PrimList;
 		}

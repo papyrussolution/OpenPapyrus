@@ -624,9 +624,9 @@ __PTW32_END_C_DECLS
 		__PTW32_END_C_DECLS
 	#endif
 #else
-	#if !defined(WINCE)
-		#include <process.h>
-	#endif
+	// @v10.9.3 #if !defined(WINCE)
+		// @v10.9.3 #include <process.h>
+	// @v10.9.3 #endif
 #endif
 /*
  * Use intrinsic versions wherever possible. VC will do this

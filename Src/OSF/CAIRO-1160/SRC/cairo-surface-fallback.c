@@ -40,8 +40,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-compositor-private.h"
-//#include "cairo-surface-fallback-private.h"
 
 cairo_int_status_t _cairo_surface_fallback_paint(void * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
@@ -54,16 +52,9 @@ cairo_int_status_t _cairo_surface_fallback_mask(void * surface, cairo_operator_t
 	return _cairo_compositor_mask(&_cairo_fallback_compositor, static_cast<cairo_surface_t *>(surface), op, source, mask, clip);
 }
 
-cairo_int_status_t _cairo_surface_fallback_stroke(void * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_path_fixed_t* path,
-    const cairo_stroke_style_t* style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_antialias_t antialias,
-    const cairo_clip_t * clip)
+cairo_int_status_t _cairo_surface_fallback_stroke(void * surface, cairo_operator_t op, const cairo_pattern_t * source,
+    const cairo_path_fixed_t* path, const cairo_stroke_style_t* style, const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse,
+    double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	return _cairo_compositor_stroke(&_cairo_fallback_compositor, static_cast<cairo_surface_t *>(surface), op, source, path, style, ctm, ctm_inverse, tolerance, antialias, clip);
 }

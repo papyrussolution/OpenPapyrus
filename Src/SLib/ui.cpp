@@ -1,8 +1,7 @@
 // UI.CPP
 // Copyright (c) A.Sobolev 2011, 2016, 2018, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 /*static*/int UiItemKind::GetTextList(StrAssocArray & rList)

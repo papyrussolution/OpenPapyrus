@@ -2,8 +2,7 @@
 // Copyright (c) A.Sobolev, 2019
 // Вспомогательные механизмы для работы с XML (функции с дополнительными зависимостями)
 // 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <snet.h>
 #include <sxml.h>

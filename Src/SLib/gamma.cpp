@@ -1,7 +1,6 @@
 // GAMMA.CPP
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 /*
 	The maximum x such that gamma(x) is not considered an overflow.

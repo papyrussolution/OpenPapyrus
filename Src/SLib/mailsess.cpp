@@ -1,8 +1,7 @@
 // MAILSESS.CPP
 // Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <snet.h>
 

@@ -47,19 +47,7 @@
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
 	#define _WIN32_WINNT 0x0500
 #endif
-//#include "cairo-clip-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-damage-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-pattern-private.h"
 #include "cairo-win32-private.h"
-//#include "cairo-scaled-font-subsets-private.h"
-//#include "cairo-surface-fallback-private.h"
-//#include "cairo-surface-backend-private.h"
 
 #if defined(__MINGW32__) && !defined(ETO_PDY)
 	#define ETO_PDY 0x2000

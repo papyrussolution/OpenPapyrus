@@ -1,8 +1,7 @@
 // BASE64.CPP
 // @threadsafe
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 /*static void FASTCALL makebasis64(char * pBuf)

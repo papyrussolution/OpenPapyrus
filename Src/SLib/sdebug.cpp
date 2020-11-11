@@ -1,8 +1,7 @@
 // SDEBUG.CPP
 // Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <malloc.h>
 #include <crtdbg.h>

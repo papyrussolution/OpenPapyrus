@@ -1,8 +1,7 @@
 // DBSQL-MYSQL.CPP
 // Copyright (c) A.Sobolev 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <snet.h>
 #include <db.h>

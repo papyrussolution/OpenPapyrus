@@ -1,9 +1,8 @@
 // CRYPTO.CPP
-// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019
+// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020
 // @threadsafe
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 static int getkey(int key[], ulong * addendum)

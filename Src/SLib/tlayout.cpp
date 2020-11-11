@@ -1,8 +1,7 @@
 // TLAYOUT.CPP
 // Copyright (c) A.Sobolev 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #define LAY_IMPLEMENTATION
 #include <layout-2d.h>

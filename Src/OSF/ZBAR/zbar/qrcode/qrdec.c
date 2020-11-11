@@ -2666,13 +2666,14 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 
 static void qr_sampling_grid_clear(qr_sampling_grid * _grid)
 {
-	SAlloc::F(_grid->fpmask);
-	SAlloc::F(_grid->cells[0]);
+	if(_grid) {
+		SAlloc::F(_grid->fpmask);
+		SAlloc::F(_grid->cells[0]);
+	}
 }
 
 #if defined(QR_DEBUG)
-static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version,
-    const uchar * _img, int _width, int _height)
+static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version, const uchar * _img, int _width, int _height)
 {
 	int u;
 	int v;

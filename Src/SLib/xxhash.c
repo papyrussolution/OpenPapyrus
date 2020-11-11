@@ -31,8 +31,7 @@
  *  - xxHash homepage: http://www.xxhash.com
  *  - xxHash source repository : https://github.com/Cyan4973/xxHash
  */
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 // 
 // Tuning parameters

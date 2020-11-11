@@ -34,8 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-device-private.h"
-//#include "cairo-error-private.h"
 /**
  * SECTION:cairo-device
  * @Title: cairo_device_t

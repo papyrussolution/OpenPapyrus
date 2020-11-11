@@ -225,7 +225,7 @@ int AmtList::Remove(PPID amtTypeID, PPID curID)
 //
 IMPL_CMPFUNC(PayPlanTblRec, i1, i2) { return CMPSIGN(static_cast<const PayPlanTbl::Rec *>(i1)->PayDate, static_cast<const PayPlanTbl::Rec *>(i2)->PayDate); }
 
-PayPlanArray::PayPlanArray() : TSVector <PayPlanTbl::Rec>() // @v9.8.4 TSArray-->TSVector
+PayPlanArray::PayPlanArray() : TSVector <PayPlanTbl::Rec>()
 {
 }
 
@@ -2021,7 +2021,7 @@ int FASTCALL PPBillPacket::CipBlock::Copy(const PPBillPacket::CipBlock & rS)
 {
 	int    ok = 1;
 	if(rS.P_CipList) {
-		THROW_MEM(SETIFZ(P_CipList, new TSVector <PPCheckInPersonItem>)); // @v9.8.6 TSArray-->TSVector
+		THROW_MEM(SETIFZ(P_CipList, new TSVector <PPCheckInPersonItem>));
 		*P_CipList = *rS.P_CipList;
 	}
 	else
@@ -2042,7 +2042,7 @@ int PPBillPacket::AddTSessCip(PPID tsessID, const char * pPlaceCode, PPID person
 		TSessionTbl::Rec tses_rec;
         THROW_MEM(SETIFZ(CipB.P_TSesObj, new PPObjTSession));
         THROW(CipB.P_TSesObj->Search(tsessID, &tses_rec) > 0);
-		THROW_MEM(SETIFZ(CipB.P_CipList, new TSVector <PPCheckInPersonItem>)); // @v9.8.6 TSArray-->TSVector
+		THROW_MEM(SETIFZ(CipB.P_CipList, new TSVector <PPCheckInPersonItem>));
         {
         	PPCheckInPersonItem cip_item;
         	cip_item.PrmrID = tsessID;
@@ -2494,7 +2494,7 @@ int PPBillPacket::SetupItemQuotInfo(int itemNo, PPID quotKindID, double quotValu
 {
 	int    ok = 1;
 	if(itemNo >= 0 && itemNo < (int)GetTCount() && quotKindID) {
-		if(SETIFZ(P_QuotSetupInfoList, new TSVector <QuotSetupInfoItem>)) { // @v9.8.4 TSArray-->TSVector
+		if(SETIFZ(P_QuotSetupInfoList, new TSVector <QuotSetupInfoItem>)) {
 			uint   p = 0;
 			if(P_QuotSetupInfoList->lsearch(&itemNo, &p, CMPF_LONG)) {
 				QuotSetupInfoItem & r_item = P_QuotSetupInfoList->at(p);
@@ -2721,7 +2721,7 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 		THROW_MEM(P_GoodsGrpRestrict = new LAssocArray(*rS.P_GoodsGrpRestrict));
 	}
 	if(rS.P_QuotSetupInfoList) {
-		THROW_MEM(P_QuotSetupInfoList = new TSVector <QuotSetupInfoItem> (*rS.P_QuotSetupInfoList)); // @v9.8.4 TSArray-->TSVector
+		THROW_MEM(P_QuotSetupInfoList = new TSVector <QuotSetupInfoItem> (*rS.P_QuotSetupInfoList));
 	}
 	CipB = rS.CipB;
 	if(rS.P_MirrorLTagL) {
@@ -4686,11 +4686,11 @@ CompleteItem::CompleteItem()
 	THISZERO();
 }
 
-CompleteArray::CompleteArray() : TSVector <CompleteItem> (), LotID(0), BillID(0) // @v9.8.4 TSArray-->TSVector
+CompleteArray::CompleteArray() : TSVector <CompleteItem> (), LotID(0), BillID(0)
 {
 }
 
-CompleteArray::CompleteArray(const CompleteArray & s) : TSVector <CompleteItem> () // @v9.8.4 TSArray-->TSVector
+CompleteArray::CompleteArray(const CompleteArray & s) : TSVector <CompleteItem> ()
 {
 	LotID  = s.LotID;
 	BillID = s.BillID;
@@ -5458,7 +5458,7 @@ void BillTotalData::Clear()
 	PriceVatList.clear();
 }
 
-BillVatArray::BillVatArray() : TSVector <BillVatEntry>() // @v9.8.4 TSArray-->TSVector
+BillVatArray::BillVatArray() : TSVector <BillVatEntry>()
 {
 }
 

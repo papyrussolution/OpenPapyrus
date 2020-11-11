@@ -121,17 +121,13 @@ static void extend_key_56_to_64(const uchar * key_56, char * key)
  * Turns a 56 bit key into the 64 bit, odd parity key and sets the key.  The
  * key schedule ks is also set.
  */
-static void setup_des_key(const uchar * key_56,
-    DES_key_schedule DESKEYARG(ks))
+static void setup_des_key(const uchar * key_56, DES_key_schedule DESKEYARG(ks))
 {
 	DES_cblock key;
-
 	/* Expand the 56-bit key to 64-bits */
 	extend_key_56_to_64(key_56, (char *)&key);
-
 	/* Set the key parity to odd */
 	DES_set_odd_parity(&key);
-
 	/* Set the key */
 	DES_set_key(&key, ks);
 }
@@ -355,27 +351,18 @@ static bool encrypt_des(const uchar * in, uchar * out,
  * 8 byte plaintext is encrypted with each key and the resulting 24
  * bytes are stored in the results array.
  */
-void Curl_ntlm_core_lm_resp(const uchar * keys,
-    const uchar * plaintext,
-    uchar * results)
+void Curl_ntlm_core_lm_resp(const uchar * keys, const uchar * plaintext, uchar * results)
 {
 #ifdef USE_OPENSSL
 	DES_key_schedule ks;
-
 	setup_des_key(keys, DESKEY(ks));
-	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)results,
-	    DESKEY(ks), DES_ENCRYPT);
-
+	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)results, DESKEY(ks), DES_ENCRYPT);
 	setup_des_key(keys + 7, DESKEY(ks));
-	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 8),
-	    DESKEY(ks), DES_ENCRYPT);
-
+	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 8), DESKEY(ks), DES_ENCRYPT);
 	setup_des_key(keys + 14, DESKEY(ks));
-	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 16),
-	    DESKEY(ks), DES_ENCRYPT);
+	DES_ecb_encrypt((DES_cblock*)plaintext, (DES_cblock*)(results + 16), DESKEY(ks), DES_ENCRYPT);
 #elif defined(USE_GNUTLS_NETTLE)
 	struct des_ctx des;
-
 	setup_des_key(keys, &des);
 	des_encrypt(&des, 8, results, plaintext);
 	setup_des_key(keys + 7, &des);
@@ -384,7 +371,6 @@ void Curl_ntlm_core_lm_resp(const uchar * keys,
 	des_encrypt(&des, 8, results + 16, plaintext);
 #elif defined(USE_GNUTLS)
 	gcry_cipher_hd_t des;
-
 	gcry_cipher_open(&des, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_ECB, 0);
 	setup_des_key(keys, &des);
 	gcry_cipher_encrypt(des, results, 8, plaintext, 8);

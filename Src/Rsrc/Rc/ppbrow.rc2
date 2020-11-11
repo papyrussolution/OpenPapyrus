@@ -6314,7 +6314,10 @@ browser USERMENU north(100), 1, 1, "UserMenu", OWNER|GRID, 0
 	"DbSymb",       3, zstring(48),  0, 20, BCO_USERPROC
 	"Name",         4, zstring(64),  0, 20, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,   "@{filter}\tCtrl-V"
+		ADDITEM      : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
+		EDITITEM     : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
+		DELETEITEM   : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }
 

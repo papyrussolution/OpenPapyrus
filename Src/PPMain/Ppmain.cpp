@@ -1,5 +1,5 @@
 // PPMAIN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -38,21 +38,6 @@ enum SrvCmd {
 
 static int TranslateCmd(int cmd, SString & rCmdBuf)
 {
-	/*struct SrvCmdName {
-		SrvCmd Cmd;
-		const char * P_CmdText;
-	} SrvCmdList[] = {
-		{srvcmdRun,       "service"},
-		{srvcmdClient,    "client"},
-		{srvcmdInstall,   "install"},
-		{srvcmdUninstall, "uninstall"},
-		{srvcmdStart,     "servicestart"},
-		{srvcmdStop,      "servicestop"},
-		{srvcmdDemon,     "demon"},
-		{srvcmdDemon,     "daemon"},
-		{srvcmdRFIDPrcssr, "rfidprcssr"},
-		{srvcmdHelp,      "/?"}
-	};*/
 	static const SIntToSymbTabEntry SrvCmdList[] = {
 		{ srvcmdRun,        "service"      },
 		{ srvcmdClient,     "client"       },
@@ -294,10 +279,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 			PPApp app(hInst, SLS.GetAppName(), SLS.GetAppName());
 			app.run();
 			DS.Unregister();
-			// @v9.1.12 {
 			SLS.Stop();
-			// @v9.2.0 SDelay(100); // Задержка для того, чтобы все служебные потоки успели завершиться (это - грубый подход).
-			// } @v9.1.12
 		}
 		else
 			ret = -1;

@@ -6,7 +6,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <process.h>
+// @v10.9.3 #include <process.h>
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 static int IfcImpCheckDictionary()

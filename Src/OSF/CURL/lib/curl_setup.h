@@ -643,10 +643,10 @@
 #ifdef HAVE_SIGNAL_H
 	#include <signal.h>
 #endif
-#ifdef HAVE_PROCESS_H
-	#include <process.h>
-#endif
-#include <stddef.h>
+// @v10.9.3 #ifdef HAVE_PROCESS_H
+	// @v10.9.3 #include <process.h>
+// @v10.9.3 #endif
+// @v10.9.3 #include <stddef.h>
 #include "warnless.h"
 #include "llist.h"
 #include "wildcard.h"
@@ -655,7 +655,7 @@
 	char *Curl_strtok_r(char *s, const char *delim, char **last);
 	#define strtok_r Curl_strtok_r
 #else
-	#include <string.h>
+	// @v10.9.3 #include <string.h>
 #endif
 //
 //#include "strcase.h"

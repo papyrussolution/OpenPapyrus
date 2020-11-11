@@ -29,7 +29,7 @@ struct MACAddr { // size=6
 	uint8  Addr[6];
 };
 
-class MACAddrArray : public TSVector <MACAddr> { // @v9.8.4 TSArray-->TSVector
+class MACAddrArray : public TSVector <MACAddr> {
 public:
 	MACAddrArray();
 	int    addUnique(const MACAddr &);

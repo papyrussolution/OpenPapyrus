@@ -1,8 +1,7 @@
 // TVIEW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <htmlhelp.h> // @Muxa
 //

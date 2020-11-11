@@ -2,8 +2,7 @@
 // Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 class SfSortStringPool : public SStrGroup {

@@ -1,10 +1,10 @@
 // TCANVAS.CPP
 // Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
-#include <WinUser.h>
+// @v10.9.3 #include <WinUser.h>
 //
 #define CAIRO_WIN32_STATIC_BUILD 1
 #include <cairo-1160\cairo.h>
@@ -58,14 +58,10 @@ TCanvas2::Surface::Surface() : HCtx(0), P_Img(0)
 {
 }
 
-/*void TCanvas2::Init()
+TCanvas2::Capability::Capability()
 {
-	S.HCtx = 0;
-	P_Cr = 0;
-	P_CrS = 0;
-	Flags = 0;
-	P_SelectedFont = 0;
-}*/
+	SizePt.Z();
+}
 
 TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb), 
 	P_Cr(0), P_CrS(0), Flags(fOuterSurface), P_SelectedFont(0)
@@ -108,26 +104,15 @@ TCanvas2::~TCanvas2()
 	}
 }
 
-TCanvas2::operator HDC() const
-{
-	return static_cast<HDC>(S.HCtx);
-}
-
-TCanvas2::operator SDrawContext () const
-{
-	return SDrawContext(P_Cr);
-}
-
-TCanvas2::operator const SImageBuffer * () const
-{
-	return S.P_Img;
-}
+TCanvas2::operator HDC() const { return static_cast<HDC>(S.HCtx); }
+TCanvas2::operator SDrawContext () const { return SDrawContext(P_Cr); }
+TCanvas2::operator const SImageBuffer * () const { return S.P_Img; }
 
 int TCanvas2::GetCapability(Capability * pCaps) const
 {
 	int    ok = 1;
 	Capability c;
-	MEMSZERO(c);
+	// @v10.9.3 @ctr MEMSZERO(c);
 	HDC h_dc = static_cast<HDC>(*this);
 	if(h_dc) {
 		const float  mm_h = static_cast<float>(GetDeviceCaps(h_dc, HORZSIZE));
@@ -576,15 +561,9 @@ int TCanvas2::Helper_SelectBrush(SPaintToolBox * pTb, int brushId, PatternWrappe
 										}
 									}
 									switch(p_grad->Spread) {
-	    								case SPaintObj::Gradient::sRepeat:
-											cairo_pattern_set_extend(p_pattern, CAIRO_EXTEND_REPEAT);
-											break;
-	    								case SPaintObj::Gradient::sReflect:
-											cairo_pattern_set_extend(p_pattern, CAIRO_EXTEND_REFLECT);
-											break;
-	    								default:
-											cairo_pattern_set_extend(p_pattern, CAIRO_EXTEND_PAD);
-											break;
+	    								case SPaintObj::Gradient::sRepeat: cairo_pattern_set_extend(p_pattern, CAIRO_EXTEND_REPEAT); break;
+	    								case SPaintObj::Gradient::sReflect: cairo_pattern_set_extend(p_pattern, CAIRO_EXTEND_REFLECT); break;
+	    								default: cairo_pattern_set_extend(p_pattern, CAIRO_EXTEND_PAD); break;
 									}
 									cairo_pattern_set_filter(p_pattern, CAIRO_FILTER_BILINEAR);
 									cairo_set_source(P_Cr, p_pattern);
@@ -988,7 +967,7 @@ void CCShapeDrawNode::drawEllipse(const cocos2d::CCPoint &leftTop, const cocos2d
     float centerX = leftTop.x < rightBottom.x ? (leftTop.x + x_radius) : (rightBottom.x + x_radius);
     float centerY = leftTop.y < rightBottom.y ? (leftTop.y + y_radius) : (rightBottom.y + y_radius);
 
-    int segs = 500;  //分段越多, 画的越细
+    int segs = 500;  //е€†ж®µи¶Ље¤љ, з”»зљ„и¶Љз»†
     float a = M_PI;
     float dotRadius = thick;
     const float coef = 2.0f * (float)M_PI / segs;
@@ -1666,8 +1645,8 @@ SPaintObj::Base::Base(const Base & rS) : Handle(rS.Handle), Sys(rS.Sys)
 int SPaintObj::Base::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	// @os64problem: преобразование (void *) <-> uint32 не будет работать на 64-битной системе.
-	// @note При решении проблемы не забыть о совместимости форматов для уже сохраненных данных!
+	// @os64problem: РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ (void *) <-> uint32 РЅРµ Р±СѓРґРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ РЅР° 64-Р±РёС‚РЅРѕР№ СЃРёСЃС‚РµРјРµ.
+	// @note РџСЂРё СЂРµС€РµРЅРёРё РїСЂРѕР±Р»РµРјС‹ РЅРµ Р·Р°Р±С‹С‚СЊ Рѕ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё С„РѕСЂРјР°С‚РѕРІ РґР»СЏ СѓР¶Рµ СЃРѕС…СЂР°РЅРµРЅРЅС‹С… РґР°РЅРЅС‹С…!
 	if(dir > 0) {
 		uint32 temp = reinterpret_cast<uint32>(Handle);
 		THROW(pCtx->Serialize(dir, temp, rBuf));
@@ -2086,8 +2065,8 @@ struct InnerFontDescr {
 	{
 		if(P_CrScFont) {
 			//
-			// cairo, видимо в следствии ошибки, не очищает кэш символов шрифта.
-			// Приходится ей помочь в этом.
+			// cairo, РІРёРґРёРјРѕ РІ СЃР»РµРґСЃС‚РІРёРё РѕС€РёР±РєРё, РЅРµ РѕС‡РёС‰Р°РµС‚ РєСЌС€ СЃРёРјРІРѕР»РѕРІ С€СЂРёС„С‚Р°.
+			// РџСЂРёС…РѕРґРёС‚СЃСЏ РµР№ РїРѕРјРѕС‡СЊ РІ СЌС‚РѕРј.
 			//
 			_cairo_scaled_font_reset_cache(P_CrScFont);
 			//
@@ -2451,18 +2430,18 @@ int STextLayout::Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb)
 class TloRowState {
 public:
 	struct StkItem {
-		float X;    // X-координата символа
-		float EndX; // X-координата конца символа
-		float H;    // Высота символа (для первой строки - высота символа, для последующих - высота строки)
+		float X;    // X-РєРѕРѕСЂРґРёРЅР°С‚Р° СЃРёРјРІРѕР»Р°
+		float EndX; // X-РєРѕРѕСЂРґРёРЅР°С‚Р° РєРѕРЅС†Р° СЃРёРјРІРѕР»Р°
+		float H;    // Р’С‹СЃРѕС‚Р° СЃРёРјРІРѕР»Р° (РґР»СЏ РїРµСЂРІРѕР№ СЃС‚СЂРѕРєРё - РІС‹СЃРѕС‚Р° СЃРёРјРІРѕР»Р°, РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РёС… - РІС‹СЃРѕС‚Р° СЃС‚СЂРѕРєРё)
 	};
-	uint   N; // Номер строки
-	uint   S; // Стартовая позиция текущей строки
+	uint   N; // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё
+	uint   S; // РЎС‚Р°СЂС‚РѕРІР°СЏ РїРѕР·РёС†РёСЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё
 	int    Overflow;
 	FRect  Bounds;
 	TSStack <StkItem> Stk;
-	TSVector <STextLayout::Item> & R_List; // @v9.8.4 TSArray-->TSVector
+	TSVector <STextLayout::Item> & R_List;
 
-	TloRowState(TSVector <STextLayout::Item> & rList, const FRect & rBounds) : R_List(rList), N(0), S(0), Overflow(0), Bounds(rBounds) // @v9.8.4 TSArray-->TSVector
+	TloRowState(TSVector <STextLayout::Item> & rList, const FRect & rBounds) : R_List(rList), N(0), S(0), Overflow(0), Bounds(rBounds)
 	{
 	}
 	uint GetCount() const
@@ -2542,7 +2521,7 @@ public:
 	}
 	int Wrap(const SStringU & rText, uint & rCurTxtPos)
 	{
-		// rCurTxtPos - Позиция символа не помещающегося в границы и не внесенного в стек
+		// rCurTxtPos - РџРѕР·РёС†РёСЏ СЃРёРјРІРѕР»Р° РЅРµ РїРѕРјРµС‰Р°СЋС‰РµРіРѕСЃСЏ РІ РіСЂР°РЅРёС†С‹ Рё РЅРµ РІРЅРµСЃРµРЅРЅРѕРіРѕ РІ СЃС‚РµРє
 		int    wrap = 0;
 		uint   txt_pos = rCurTxtPos;
 		if(GetCount()) {
@@ -2589,7 +2568,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 		List.clear();
 		const uint pc = ParaList.getCount();
 		TloRowState row_state(List, Bounds);
-		int    justif = ADJ_LEFT; // Выравнивание по последнему определителю параграфа
+		int    justif = ADJ_LEFT; // Р’С‹СЂР°РІРЅРёРІР°РЅРёРµ РїРѕ РїРѕСЃР»РµРґРЅРµРјСѓ РѕРїСЂРµРґРµР»РёС‚РµР»СЋ РїР°СЂР°РіСЂР°С„Р°
 		FPoint cur = Bounds.a;
 		for(uint i = 0; i < pc; i++) {
 			const LAssoc & r_pitem = ParaList.at(i);
@@ -2626,7 +2605,7 @@ int STextLayout::Arrange(SDrawContext & rCtx, SPaintToolBox & rTb)
 						cur.Y += ht;
 					}
 					else if(Text[text_pos] == L'&' && j < (cc-1) && Text[text_pos+1] != L'&') {
-						row_state.PushGlyph(0, cur, 0); // Специальный символ - следующий будет подчеркнут
+						row_state.PushGlyph(0, cur, 0); // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃРёРјРІРѕР» - СЃР»РµРґСѓСЋС‰РёР№ Р±СѓРґРµС‚ РїРѕРґС‡РµСЂРєРЅСѓС‚
 					}
 					else {
 						const SGlyph * p_glyph = rTb.GetGlyph(GlyphIdList.get(text_pos));
@@ -2758,7 +2737,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 			cairo_rectangle(P_Cr, r_fb.a.X, r_fb.a.Y, r_fb.Width(), r_fb.Height());
 			cairo_clip(P_Cr);
 		}
-		LongArray special_positions; // Индексы в массиве glyph_list, для которых необходимы доп действия (подчеркивание, например)
+		LongArray special_positions; // РРЅРґРµРєСЃС‹ РІ РјР°СЃСЃРёРІРµ glyph_list, РґР»СЏ РєРѕС‚РѕСЂС‹С… РЅРµРѕР±С…РѕРґРёРјС‹ РґРѕРї РґРµР№СЃС‚РІРёСЏ (РїРѕРґС‡РµСЂРєРёРІР°РЅРёРµ, РЅР°РїСЂРёРјРµСЂ)
 		for(uint i = 0; pTlo->EnumGroups(&i, &re);) {
 			const uint rcnt = re.Items.getCount();
 			if(re.P_Font && rcnt) {
@@ -2772,10 +2751,10 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 					glyph.index = (ulong)r_item.GlyphIdx;
 					glyph.P.x = r_item.P.X;
 					//
-					// Не понятно почему, но cairo выводит символы по Y-координате
-					// с перевернутым знаком отступа от Y-координаты предыдущего символа.
+					// РќРµ РїРѕРЅСЏС‚РЅРѕ РїРѕС‡РµРјСѓ, РЅРѕ cairo РІС‹РІРѕРґРёС‚ СЃРёРјРІРѕР»С‹ РїРѕ Y-РєРѕРѕСЂРґРёРЅР°С‚Рµ
+					// СЃ РїРµСЂРµРІРµСЂРЅСѓС‚С‹Рј Р·РЅР°РєРѕРј РѕС‚СЃС‚СѓРїР° РѕС‚ Y-РєРѕРѕСЂРґРёРЅР°С‚С‹ РїСЂРµРґС‹РґСѓС‰РµРіРѕ СЃРёРјРІРѕР»Р°.
 					//
-					/* (В версии cairo 1.14.2 проблемы уже нет) if(r_item.P.Y != prev_y)
+					/* (Р’ РІРµСЂСЃРёРё cairo 1.14.2 РїСЂРѕР±Р»РµРјС‹ СѓР¶Рµ РЅРµС‚) if(r_item.P.Y != prev_y)
 						glyph.y = prev_y - (r_item.P.Y - prev_y);
 					else*/
 						glyph.P.y = r_item.P.Y;
@@ -3858,8 +3837,8 @@ int SPaintToolBox::CopyToolFrom(const SPaintToolBox & rS, int toolIdent)
 	}
 	{
 		//
-		// Кисть (SPaintObj::Brush) может содержать ссылку на pattern. Этот
-		// объект также необходимо перенести.
+		// РљРёСЃС‚СЊ (SPaintObj::Brush) РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ СЃСЃС‹Р»РєСѓ РЅР° pattern. Р­С‚РѕС‚
+		// РѕР±СЉРµРєС‚ С‚Р°РєР¶Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РїРµСЂРµРЅРµСЃС‚Рё.
 		//
 		const SPaintObj::Brush * p_brush = p_src_obj->GetBrush();
 		if(p_brush && p_brush->IdPattern) {
@@ -3890,8 +3869,8 @@ int SPaintToolBox::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 		freeAll();
 		for(uint i = 0; i < c; ++i) {
 			//
-			// Объект создается пустым и сразу заносится в массив.
-			// Важно то, что деструктор ~SPaintObj не разрушит объект, уже находящийся в контейнере.
+			// РћР±СЉРµРєС‚ СЃРѕР·РґР°РµС‚СЃСЏ РїСѓСЃС‚С‹Рј Рё СЃСЂР°Р·Сѓ Р·Р°РЅРѕСЃРёС‚СЃСЏ РІ РјР°СЃСЃРёРІ.
+			// Р’Р°Р¶РЅРѕ С‚Рѕ, С‡С‚Рѕ РґРµСЃС‚СЂСѓРєС‚РѕСЂ ~SPaintObj РЅРµ СЂР°Р·СЂСѓС€РёС‚ РѕР±СЉРµРєС‚, СѓР¶Рµ РЅР°С…РѕРґСЏС‰РёР№СЃСЏ РІ РєРѕРЅС‚РµР№РЅРµСЂРµ.
 			//
 			SPaintObj obj;
 			THROW(insert(&obj));

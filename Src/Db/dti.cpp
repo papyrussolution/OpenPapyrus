@@ -3,8 +3,7 @@
 //
 // DTI
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <db.h>
 #define BTI_WIN_32

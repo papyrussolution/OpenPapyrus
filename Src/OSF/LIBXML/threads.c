@@ -12,9 +12,9 @@
 #ifdef HAVE_PTHREAD_H
 	#include <pthread.h>
 #elif defined HAVE_WIN32_THREADS
-	#ifndef HAVE_COMPILER_TLS
-		#include <process.h>
-	#endif
+	// @v10.9.3 #ifndef HAVE_COMPILER_TLS
+		// @v10.9.3 #include <process.h>
+	// @v10.9.3 #endif
 #endif
 #ifdef HAVE_BEOS_THREADS
 	#include <OS.h>

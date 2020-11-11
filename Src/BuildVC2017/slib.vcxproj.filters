@@ -232,13 +232,7 @@
     <ClInclude Include="..\Include\slport.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\cxx_detect.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\comdisp.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\layout-flex.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\SLib\gumbo\gumbo.h">

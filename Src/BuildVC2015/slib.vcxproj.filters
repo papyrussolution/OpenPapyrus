@@ -228,9 +228,6 @@
     <ClInclude Include="..\Include\xxhash.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\cxx_detect.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\SLib\gumbo\gumbo.h">
       <Filter>gumbo\Header</Filter>
     </ClInclude>

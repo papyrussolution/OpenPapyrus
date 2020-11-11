@@ -1,8 +1,7 @@
 // SOSSL.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <openssl/ssl.h>
 

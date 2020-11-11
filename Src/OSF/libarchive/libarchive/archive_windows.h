@@ -58,7 +58,7 @@
 //#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <process.h>
+// @v10.9.3 #include <process.h>
 #include <direct.h>
 #if defined(__MINGW32__) && defined(HAVE_UNISTD_H)
 	// Prevent build error from a type mismatch of ftruncate(). This unistd.h defines it as ftruncate(int, off_t). 

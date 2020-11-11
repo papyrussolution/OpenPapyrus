@@ -404,7 +404,6 @@ malloc_error:
 static long buffer_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret = 1;
-
 	if(b->next_bio == NULL)
 		return 0;
 	switch(cmd) {
@@ -422,7 +421,6 @@ static int buffer_gets(BIO * b, char * buf, int size)
 	BIO_F_BUFFER_CTX * ctx = (BIO_F_BUFFER_CTX*)b->ptr;
 	size--;                 /* reserve space for a '\0' */
 	BIO_clear_retry_flags(b);
-
 	for(;;) {
 		if(ctx->ibuf_len > 0) {
 			p = &(ctx->ibuf[ctx->ibuf_off]);

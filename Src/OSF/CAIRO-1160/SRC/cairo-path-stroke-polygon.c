@@ -39,13 +39,6 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _DEFAULT_SOURCE /* for hypot() */
-//#include "cairo-box-inline.h"
-//#include "cairo-boxes-private.h"
-//#include "cairo-contour-inline.h"
-//#include "cairo-contour-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-slope-private.h"
 
 #define DEBUG 0
 

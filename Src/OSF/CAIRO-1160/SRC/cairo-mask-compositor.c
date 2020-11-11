@@ -44,15 +44,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-pattern-inline.h"
-//#include "cairo-region-private.h"
-//#include "cairo-surface-observer-private.h"
-//#include "cairo-surface-offset-private.h"
-//#include "cairo-surface-snapshot-private.h"
-//#include "cairo-surface-subsurface-private.h"
 
 typedef cairo_int_status_t
 (* draw_func_t) (const cairo_mask_compositor_t * compositor,

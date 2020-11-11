@@ -34,6 +34,7 @@
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
 	#endif
+	#include <process.h> // @v10.9.3
 #endif
 //
 //#include <port.h>
@@ -301,13 +302,13 @@
 //#define _WIN32_WINNT 0x0501
 //#define _WIN32_IE 0x0501 // @v9.0.8
 //
-#if !defined(FORCEINLINE)
+/* @v10.9.3 (moved to slport.h) #if !defined(FORCEINLINE)
 	#if defined(_MSC_VER)
 		#define FORCEINLINE __forceinline
 	#else
 		#define FORCEINLINE
 	#endif
-#endif
+#endif*/
 #if defined(__WIN32__) || defined(_WIN32) || defined(_WIN32_WCE)
 	// @v10.9.1 #define SFAR
 	#define SLAPI_unused    // (since @v10.9.1 unused) __stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
@@ -2693,7 +2694,7 @@ public:
 	virtual int    base() const;
 	virtual void   tobase(const void * data, void * baseData) const;
 	virtual int    baseto(void * data, const void * baseData) const;
-	virtual void   FASTCALL destroy(void *) const; // @v9.8.5 const
+	virtual void   FASTCALL destroy(void *) const;
 	// DataType::minval and DataType::maxval sets to parameter
 	// min and max values correspondly.
 	// Returns !0 if function is supported, otherwise 0.
@@ -6891,7 +6892,7 @@ DECL_CMPFUNC(STimeChunk);
 
 typedef TSCollection <char> SStrCollection;
 
-class RealArray : public TSVector <double> { // @v9.8.4 TSArray-->TSVector
+class RealArray : public TSVector <double> {
 public:
 	RealArray();
 	RealArray(const RealArray & s);
@@ -6913,7 +6914,7 @@ public:
 //
 //
 //
-class FloatArray : public TSVector <float> { // @v9.8.4 TSArray-->TSVector
+class FloatArray : public TSVector <float> {
 public:
 	FloatArray();
 	int    FASTCALL operator == (const FloatArray & rS) const;
@@ -7008,7 +7009,7 @@ public:
 //
 //
 //
-class Int64Array : public TSVector <int64> { // @v9.8.4 TSArray-->TSVector
+class Int64Array : public TSVector <int64> {
 public:
 	Int64Array();
 	Int64Array(const Int64Array & s);
@@ -7031,7 +7032,7 @@ public:
 //
 //
 //
-typedef TSVector <S_GUID> UuidArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <S_GUID> UuidArray;
 //
 //
 //
@@ -7144,7 +7145,7 @@ struct LLAssoc {
 	int64  Val;
 };
 
-class LLAssocArray : public TSVector <LLAssoc> { // @v9.8.4 TSArray-->TSVector
+class LLAssocArray : public TSVector <LLAssoc> {
 public:
 	LLAssocArray();
 	LLAssocArray(const LLAssocArray &);
@@ -7203,7 +7204,7 @@ struct RAssoc {
 	double Val;
 };
 
-class RAssocArray : public TSVector <RAssoc> { // @v9.8.4 TSArray-->TSVector
+class RAssocArray : public TSVector <RAssoc> {
 public:
 	RAssocArray();
 	RAssocArray(const RAssocArray &);
@@ -7259,7 +7260,7 @@ struct RPair {
 	double Y;
 };
 
-class RPairArray : public TSVector <RPair> { // @v9.8.4 TSArray-->TSVector
+class RPairArray : public TSVector <RPair> {
 public:
 	RPairArray();
 	RPairArray(const RPairArray &);
@@ -7278,7 +7279,7 @@ struct UUIDAssoc {
 	S_GUID Val;
 };
 
-class UUIDAssocArray : public TSVector <UUIDAssoc> { // @v9.8.4 TSArray-->TSVector
+class UUIDAssocArray : public TSVector <UUIDAssoc> {
 public:
 	UUIDAssocArray();
 	int    Add(long key, const S_GUID & rVal, uint * pPos);
@@ -7691,7 +7692,7 @@ private:
 	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
 	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl);
 
-    TSVector <InnerEntry> L; // @v9.8.4 TSArray-->TSVector
+    TSVector <InnerEntry> L;
     long   State;
 	uint   InitPathP; // Опциональная позиция начального каталога. В общем случае
 		// это поле не важно, но иногда функции "хотят" передавать друг другу
@@ -8494,7 +8495,7 @@ public:
 	struct SearchBlockEntry {
 		int    T; // Идент токена
 		uint   P; // Позиция токена в исходном тексте
-		TSVector <STokenizer::ResourceToken> RL; // Список идентификаторов ресурсов, в которых встречается токен T // @v9.8.4 TSArray-->TSVector
+		TSVector <STokenizer::ResourceToken> RL; // Список идентификаторов ресурсов, в которых встречается токен T
 	};
 	int    Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult);
 	int    IndexResources(int force);
@@ -8521,7 +8522,7 @@ private:
 	//
 	struct ResourceIndexItem {
 		int    PP;
-		TSVector <STokenizer::ResourceToken> RL; // @v9.8.4 TSArray-->TSVector
+		TSVector <STokenizer::ResourceToken> RL;
 	};
 
 	Param  P;
@@ -8530,12 +8531,12 @@ private:
 	int64  SO;  // Смещение содержимого S в источнике данных: необходимо для сопоставления токена с источником данных
 	SBuffer S;  // Буфер входящего потока
 	SymbHashTable T;
-	TSVector <Token> L;   // @v9.8.4 TSArray-->TSVector
-	TSVector <CToken> CL; // @v9.8.4 TSArray-->TSVector
+	TSVector <Token> L;
+	TSVector <CToken> CL;
 	TSCollection <ResourceIndexItem> * P_ResourceIndex;
 	//
 	SString  AddTokenBuf;      // @allocreuse Для ускорения AddToken()
-	TSVector <uint16> TokenBuf; // @allocreuse Для ускорения Run() // @v9.8.4 TSArray-->TSVector
+	TSVector <uint16> TokenBuf; // @allocreuse Для ускорения Run()
 	SStringU DelimU; // Для входящего потока в UTF-формате список разделителей должен быть в Unicode-формате
 };
 //
@@ -8952,7 +8953,7 @@ private:
 	// При снятии блокировки обнуляется значение Size что свидетельствует о том, что элемент свободен
 	// для использования другой блокировкой.
 	//
-	TSVector <SFile::LckChunk> LckList; // @v9.8.4 TSArray-->TSVector
+	TSVector <SFile::LckChunk> LckList;
 };
 //
 //
@@ -9480,13 +9481,13 @@ private:
 	int    ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD);
 
 	uint   LastIdx;
-	TSVector <Item32> List32; // @v9.8.4 TSArray-->TSVector
-	TSVector <UPair> Ranges;   // @v9.8.4 TSArray-->TSVector
-	TSVector <UPair> SimpleToUpAndCap; // @v9.8.4 TSArray-->TSVector
-	TSVector <UPair> SimpleToUp; // @v9.8.4 TSArray-->TSVector
-	TSVector <UPair> SimpleToCap; // @v9.8.4 TSArray-->TSVector
-	TSVector <UPair> SimpleToLo; // @v9.8.4 TSArray-->TSVector
-	TSVector <UPair> MirrorPairs; // @v9.8.4 TSArray-->TSVector
+	TSVector <Item32> List32;
+	TSVector <UPair> Ranges;
+	TSVector <UPair> SimpleToUpAndCap;
+	TSVector <UPair> SimpleToUp;
+	TSVector <UPair> SimpleToCap;
+	TSVector <UPair> SimpleToLo;
+	TSVector <UPair> MirrorPairs;
 };
 
 class SCodepageMapPool : public SStrGroup {
@@ -9643,7 +9644,7 @@ private:
 		uint32 NScriptStart;  // Начальная позиция списка натуральных скриптов в кодовой странице
 		uint32 NScriptCount;  // Количество натуральных скриптов в кодовой странице
 	};
-	struct CMapTranslIndexTest : TSVector <CMapTranslEntry> { // @v9.8.4 TSArray-->TSVector
+	struct CMapTranslIndexTest : TSVector <CMapTranslEntry> {
 		CMapTranslIndexTest();
 		void   Reset();
 		//
@@ -9663,10 +9664,10 @@ private:
 	int    SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const;
 	int    Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
 
-	TSVector <CpEntry> CpL;  // @v9.8.4 TSArray-->TSVector
-	TSVector <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4] // @v9.8.4 TSArray-->TSVector
-	TSVector <MapEntry> FbL; // Список fallback-соответствий. Отрезок каждой таблицы отсортирован по U2 // @v9.8.4 TSArray-->TSVector
-	TSVector <uint16> NScrL; // Список натуральных скриптов, присутствующих в кодовых страницах // @v9.8.4 TSArray-->TSVector
+	TSVector <CpEntry> CpL;  // 
+	TSVector <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4]
+	TSVector <MapEntry> FbL; // Список fallback-соответствий. Отрезок каждой таблицы отсортирован по U2
+	TSVector <uint16> NScrL; // Список натуральных скриптов, присутствующих в кодовых страницах
 };
 
 class SUnicodeBlock {
@@ -10362,7 +10363,7 @@ private:
 	};
 	long   Flags;
 	RAssocArray BinList;
-	TSVector <SHistogram::Val> ValList; // @v9.8.4 TSArray-->TSVector
+	TSVector <SHistogram::Val> ValList;
 	double LeftEdge;
 	double Step;
 	double DevWidthSigm;
@@ -12272,7 +12273,7 @@ public:
 		char   PrinterName[64];
 		char   ShareName[128];
 	};
-	static int GetListOfPrinters(TSVector <PrnInfo> * pInfoList); // @v9.8.4 TSArray-->TSVector
+	static int GetListOfPrinters(TSVector <PrnInfo> * pInfoList);
 	explicit SPrinting(HWND);
 	~SPrinting();
 	int    Init(const char * pPort);

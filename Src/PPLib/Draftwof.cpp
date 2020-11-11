@@ -604,7 +604,7 @@ int PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 {
 	int    ok = 1;
 	uint   i;
-	SVector temp_list(sizeof(DwoBillEntry)); // @v9.8.4 TSArray-->TSVector
+	SVector temp_list(sizeof(DwoBillEntry));
 	for(i = 0; i < pList->getCount(); i++) {
 		const PPID bill_id = pList->get(i);
 		BillTbl::Rec bill_rec;

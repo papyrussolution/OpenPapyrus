@@ -35,7 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
 
 typedef struct _lzw_buf {
 	cairo_status_t status;

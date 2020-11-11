@@ -3,11 +3,10 @@
 // Part of StyloConduit project
 // Экспорт/Импорт клиентов
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "StyloConduit.h"
-#include <stddef.h>
+//#include <stddef.h>
 
 IMPL_CMPFUNC(CLIENTID, i1, i2)
 {
@@ -99,7 +98,7 @@ SCDBObjClient::PalmRec700 * SCDBObjClient::AllocPalmRec700(uint addrCount, size_
 	return p_buf;
 }
 
-int SCDBObjClient::GetAddressList(long cliID, TSVector <ClientAddr> * pList) // @v9.8.4 TSArray-->TSVector
+int SCDBObjClient::GetAddressList(long cliID, TSVector <ClientAddr> * pList)
 {
 	const  uint max_addr_count = 100;
 
@@ -145,7 +144,7 @@ int SCDBObjClient::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			uint   i;
 			long   cli_id = 0, temp_id = 0;
 			double temp_dbl = 0;
-			TSVector <ClientAddr> addr_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <ClientAddr> addr_list;
 			IdxRec idx_rec;
 
 			int fldn_id = 0, fldn_name = 0, fldn_code = 0, fldn_inn = 0, fldn_qk = 0, fldn_debt = 0, fldn_flags = 0;
@@ -556,7 +555,7 @@ int SCDBObjSell::Init(const char * pExpPath, const char * pImpPath)
 	return ok;
 }
 
-SCDBObjSell::PalmRec * SCDBObjSell::AllocPalmRec(const TSVector <TempRec> * pPool, size_t * pBufLen) // @v9.8.4 TSArray-->TSVector
+SCDBObjSell::PalmRec * SCDBObjSell::AllocPalmRec(const TSVector <TempRec> * pPool, size_t * pBufLen)
 {
 	PalmRec * p_buf = 0;
 	size_t buf_len = 0;
@@ -578,7 +577,7 @@ SCDBObjSell::PalmRec * SCDBObjSell::AllocPalmRec(const TSVector <TempRec> * pPoo
 	return p_buf;
 }
 
-int SCDBObjSell::GetNextPool(uint * pCurPos, TSVector <TempRec> * pPool) // @v9.8.4 TSArray-->TSVector
+int SCDBObjSell::GetNextPool(uint * pCurPos, TSVector <TempRec> * pPool)
 {
 	pPool->freeAll();
 	uint   i = *pCurPos;
@@ -627,7 +626,7 @@ int SCDBObjSell::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 	else if(TempList.getCount()) {
 		long   last_err = 0;
 		uint   cur_pos = 0;
-		TSVector <TempRec> pool; // @v9.8.4 TSArray-->TSVector
+		TSVector <TempRec> pool;
 		numrecs = TempList.getCount();
 		SyncTable stbl(P_Ctx->PalmCfg.CompressData(), 0, P_Ctx);
 		THROW(stbl.DeleteTable("CliSell.tbl"));

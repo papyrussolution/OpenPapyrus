@@ -3569,9 +3569,6 @@
 				RelativePath="..\Include\fann2.h">
 			</File>
 			<File
-				RelativePath="..\Include\layout-flex.h">
-			</File>
-			<File
 				RelativePath="..\Include\Slconfig.h">
 			</File>
 			<File

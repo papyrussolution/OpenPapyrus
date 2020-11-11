@@ -7571,7 +7571,7 @@ int Convert10703()
 {
 	int    ok = 1;
 	// @v10.7.5 PPWait(1);
-	PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
+	PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0);
 	THROW(p_mgr);
 	THROW(p_mgr->ConvertDesktopTo(PPCommandMngr::fRWByXml));
 	// @v10.7.5 PPWait(0);

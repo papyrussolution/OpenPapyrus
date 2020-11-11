@@ -355,7 +355,7 @@ int SrWordAssocTbl::Search(int32 id, SrWordAssoc * pWa)
 	return ok;
 }
 
-int SrWordAssocTbl::Search(LEXID wordID, TSVector <SrWordAssoc> & rList) // @v9.8.4 TSArray-->TSVector
+int SrWordAssocTbl::Search(LEXID wordID, TSVector <SrWordAssoc> & rList)
 {
 	int    ok = 1;
 	BDbTable::Buffer key_buf, data_buf;
@@ -1164,14 +1164,14 @@ IMPL_CMPCFUNC(PPOsm_Node_ByWay, p1, p2)
     return CMPSIGN(pos1, pos2);
 }
 
-int SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList) // @v9.8.6 TSArray-->TSVector
+int SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList)
 {
 	int    ok = -1;
 	const  uint _c = rWay.NodeRefs.getCount();
 
 	rNodeList.clear();
 	PPOsm::NodeCluster clu;
-	TSVector <PPOsm::Node> clu_node_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPOsm::Node> clu_node_list;
 	UintHashTable processed_pos_list;
 	//
 	// Для замкнутого контура последняя точка равна первой - просто добавим ее в список в самом конце функции
@@ -1234,7 +1234,7 @@ LogicalCount=  8; ClusterCount= 2389896; ActualCount=17049582; Size=112131954;
 	int    ok = -1;
 	uint64 ret_logical_id = 0;
 	PPOsm::NodeCluster nc;
-	TSVector <PPOsm::Node> nc_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPOsm::Node> nc_list;
 	PPOsm::NodeRefs nr_list;
 	DataBuf.Alloc(1024);
 	for(uint i = 0; ok < 0 && i < SIZEOFARRAY(logical_count_priority); /* see end of loop */) {
@@ -1895,7 +1895,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 	base_buf_u = word_buf.ToLower();
 	const  uint len = word_buf.Len();
 	StrAssocArray afx_list;
-	TSVector <SrWordAssoc> wa_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <SrWordAssoc> wa_list;
 	for(uint pfx_len = 0; pfx_len < len; pfx_len++) {
 		int    inv_pfx = 0; // Если !0, то префикс не допустимый
 		LEXID  pfx_id = 0;
@@ -1964,7 +1964,7 @@ int SrDatabase::Transform_(const char * pWordUtf8, const SrWordForm & rDestForm,
 	TSVector <SrWordInfo> info_list;
 	if(GetWordInfo(pWordUtf8, 0, info_list) > 0) {
 		SrWordForm base_wf, wf, test_wf;
-		TSVector <SrWordAssoc> wa_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <SrWordAssoc> wa_list;
 		for(uint j = 0; j < info_list.getCount(); j++) {
 			const SrWordInfo & r_item = info_list.at(j);
 			if(r_item.FormID) {
@@ -2727,10 +2727,10 @@ int SrDatabase::StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLA
 	const  uint _count = rList.getCount();
 	if(_count) {
 		TSCollection <PPOsm::NodeCluster> cluster_list;
-		TSVector <uint64> outer_id_list; // @v9.8.4 TSArray-->TSVector
-		TSVector <PPOsm::Node> test_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <uint64> outer_id_list;
+		TSVector <PPOsm::Node> test_list;
 		PPOsm::NodeCluster ex_cluster;
-		TSVector <PPOsm::Node> ex_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <PPOsm::Node> ex_list;
 		uint   next_node_to_way_assc_pos = 0;
 		size_t offs = 0;
 		{
@@ -2848,7 +2848,7 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 	if(_count) {
 		int64 prev_node_id = 0;
 		PPOsm::NodeCluster nc;
-		TSVector <PPOsm::Node> node_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <PPOsm::Node> node_list;
 		TSVector <PPOsm::Node> node_list_test;
 		PPOsm::NodeRefs ref_list;
 		PPOsm::NodeRefs ref_list_test;

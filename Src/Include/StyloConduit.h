@@ -1,6 +1,6 @@
 // STYLOCONDUIT.H
 // Part of StyloConduit project
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2020
 //
 #ifndef __STYLOCONDUIT_H
 #define __STYLOCONDUIT_H
@@ -11,11 +11,11 @@
 	#endif
 	#define GENERIC_CONDUIT_VERSION 0x00000100
 	#include <crtdbg.h>
-	#ifndef ExportFunc
+	/* (replaced with CXX_EXPORT) #ifndef ExportFunc
 		#define ExportFunc __declspec( dllexport )
-	#endif
+	#endif*/
 #else
-	#define SYNC_API // @v6.2.6
+	#define SYNC_API
 #endif
 
 #include <slib.h>
@@ -82,16 +82,16 @@ extern "C" {
 #else
 extern "C" {
 	typedef  long (*PROGRESSFN) (char *);
-	ExportFunc long OpenConduit(PROGRESSFN, CSyncProperties&);
-	ExportFunc long GetConduitName(char*,WORD);
-	ExportFunc DWORD GetConduitVersion();
-	ExportFunc long ConfigureConduit(CSyncPreference& pref);
-	ExportFunc long GetConduitInfo(ConduitInfoEnum infoType, void *pInArgs, void *pOut, DWORD *dwOutSize);
+	CXX_EXPORT long OpenConduit(PROGRESSFN, CSyncProperties&);
+	CXX_EXPORT long GetConduitName(char*,WORD);
+	CXX_EXPORT DWORD GetConduitVersion();
+	CXX_EXPORT long ConfigureConduit(CSyncPreference& pref);
+	CXX_EXPORT long GetConduitInfo(ConduitInfoEnum infoType, void *pInArgs, void *pOut, DWORD *dwOutSize);
 }
 #endif
 
 #define DB_CREATOR 'SPII'
-#define DB_TYPE 'DATA'
+#define DB_TYPE    'DATA'
 
 #define EXPIMP_EXPORT 0x0001
 #define EXPIMP_IMPORT 0x0002
@@ -211,9 +211,8 @@ struct SCDBTblEntry {
 
 class SCDBObject {
 public:
-	SCDBObject(SpiiExchgContext * pCtx)
+	SCDBObject(SpiiExchgContext * pCtx) : P_Ctx(pCtx)
 	{
-		P_Ctx = pCtx;
 	}
 	virtual ~SCDBObject() {}
 	virtual int Init(const char * pExpPath, const char * pImpPath) { return -1; }
@@ -296,14 +295,14 @@ private:
 		char   Addr[64];
 	};
 	int    LoadAddrList();
-	int    GetAddressList(long cliID, TSVector <ClientAddr> *); // @v9.8.4 TSArray-->TSVector
+	int    GetAddressList(long cliID, TSVector <ClientAddr> *);
 	SCDBObjClient::PalmRec * AllocPalmRec(uint addrCount, size_t * pBufLen);
 	SCDBObjClient::PalmRec700 * AllocPalmRec700(uint addrCount, size_t * pBufLen);
 
 	DbfTable * P_CliTbl;
 	DbfTable * P_AdrTbl;
-	TSVector <AddrItem> AddrList; // @v9.8.4 TSArray-->TSVector
-	TSVector <IdxRec> IdxList;    // @v9.8.4 TSArray-->TSVector
+	TSVector <AddrItem> AddrList;
+	TSVector <IdxRec> IdxList;
 };
 
 class SCDBObjClientDebt : public SCDBObject {
@@ -339,8 +338,8 @@ private:
 	int ReadData();
 
 	DbfTable * P_CliDebtTbl;
-	TSVector <TempRec> TempList; // @v9.8.4 TSArray-->TSVector
-	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
+	TSVector <TempRec> TempList;
+	TSVector <IdxRec> IdxList;
 };
 
 class SCDBObjSell : public SCDBObject {
@@ -376,14 +375,14 @@ private:
 		int16  ItemsCount;
 		//SalesItem Items[1];
 	};
-	SCDBObjSell::PalmRec * AllocPalmRec(const TSVector <TempRec> * pPool, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
-	int    GetNextPool(uint * pCurPos, TSVector <TempRec> * pPool); // @v9.8.4 TSArray-->TSVector
+	SCDBObjSell::PalmRec * AllocPalmRec(const TSVector <TempRec> * pPool, size_t * pBufLen);
+	int    GetNextPool(uint * pCurPos, TSVector <TempRec> * pPool);
 	int    ReadData();
 	int    LogErrRec(const PalmRec *);
 
 	DbfTable * P_Tbl;
-	TSVector <TempRec> TempList; // @v9.8.4 TSArray-->TSVector
-	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
+	TSVector <TempRec> TempList;
+	TSVector <IdxRec> IdxList;
 };
 
 class SCDBObjGoodsGrp : public SCDBObject {
@@ -414,7 +413,7 @@ private:
 	SCDBObjGoodsGrp::PalmRec156 * AllocPalmRec156(size_t * pBufLen);
 
 	DbfTable * P_GGrpTbl;
-	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
+	TSVector <IdxRec> IdxList;
 };
 
 class SCDBObjGoods : public SCDBObject {
@@ -504,17 +503,17 @@ private:
 	};
 	int    SendQuotKindList();
 	int    LoadQuotKindList();
-	int    GetQuotList(DbfRecord * pRec, int pFldnList[], TSVector <Quot> & rList); // @v9.8.4 TSArray-->TSVector
-	SCDBObjGoods::PalmRec * AllocPalmRec(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
-	SCDBObjGoods::PalmRec156 * AllocPalmRec156(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
-	SCDBObjGoods::PalmRec500 * AllocPalmRec500(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
-	SCDBObjGoods::PalmRec800 * AllocPalmRec800(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
-	SCDBObjGoods::PalmRec900 * AllocPalmRec900(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
+	int    GetQuotList(DbfRecord * pRec, int pFldnList[], TSVector <Quot> & rList);
+	SCDBObjGoods::PalmRec * AllocPalmRec(const TSVector <Quot> *, size_t * pBufLen);
+	SCDBObjGoods::PalmRec156 * AllocPalmRec156(const TSVector <Quot> *, size_t * pBufLen);
+	SCDBObjGoods::PalmRec500 * AllocPalmRec500(const TSVector <Quot> *, size_t * pBufLen);
+	SCDBObjGoods::PalmRec800 * AllocPalmRec800(const TSVector <Quot> *, size_t * pBufLen);
+	SCDBObjGoods::PalmRec900 * AllocPalmRec900(const TSVector <Quot> *, size_t * pBufLen);
 
 	DbfTable * P_GoodsTbl;
 	DbfTable * P_QkTbl;
-	TSVector <QuotKind> QkList; // @v9.8.4 TSArray-->TSVector
-	TSVector <IdxRec> IdxList;  // @v9.8.4 TSArray-->TSVector
+	TSVector <QuotKind> QkList;
+	TSVector <IdxRec> IdxList;
 };
 
 
@@ -540,7 +539,7 @@ private:
 	SCDBObjBrand::PalmRec * AllocPalmRec(size_t * pBufLen);
 
 	DbfTable * P_Tbl;
-	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
+	TSVector <IdxRec> IdxList;
 };
 
 class SCDBObjLoc : public SCDBObject {
@@ -562,7 +561,7 @@ private:
 	SCDBObjLoc::PalmRec * AllocPalmRec(size_t * pBufLen);
 
 	DbfTable * P_Tbl;
-	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
+	TSVector <IdxRec> IdxList;
 };
 
 

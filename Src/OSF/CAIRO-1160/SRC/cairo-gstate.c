@@ -36,13 +36,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-gstate-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-traps-private.h"
 
 static cairo_status_t _cairo_gstate_init_copy(cairo_gstate_t * gstate, cairo_gstate_t * other);
 static cairo_status_t _cairo_gstate_ensure_font_face(cairo_gstate_t * gstate);

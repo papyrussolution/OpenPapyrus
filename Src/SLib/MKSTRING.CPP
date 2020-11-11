@@ -1,8 +1,7 @@
 // MKSTRING.CPP
-// Copyright (c) A.Sobolev 1996, 2004, 2007, 2008, 2011, 2016
+// Copyright (c) A.Sobolev 1996, 2004, 2007, 2008, 2011, 2016, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 #ifdef SL_STRSTORE // {

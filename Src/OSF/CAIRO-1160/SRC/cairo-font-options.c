@@ -35,7 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
 /**
  * SECTION:cairo-font-options
  * @Title: cairo_font_options_t

@@ -5824,7 +5824,7 @@ int PrcssrOsm::ProcessWaySizes()
 		SString line_buf;
 		PPOsm::Way way;
 		PPOsm::WayBuffer way_buf;
-		TSVector <PPOsm::Node> way_node_list; // @v9.8.6 TSArray-->TSVector
+		TSVector <PPOsm::Node> way_node_list;
 		BDbCursor curs(*p_db->P_GwT, 0);
 		BDbTable::Buffer key_buf, data_buf;
 		key_buf.Alloc(32);

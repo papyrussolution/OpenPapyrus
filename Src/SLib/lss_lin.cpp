@@ -1,8 +1,7 @@
 // LSS_LIN.CPP
 // Copyright (c) A.Sobolev 2004, 2007, 2010, 2016, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 // Fit the data (x_i, y_i) to the linear relationship

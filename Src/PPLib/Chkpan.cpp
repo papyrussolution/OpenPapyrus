@@ -3020,7 +3020,7 @@ CheckPaneDialog::GrpListItem::GrpListItem() : ID(0), ParentID(0), Flags(0), Leve
 {
 }
 
-CheckPaneDialog::GroupArray::GroupArray() : TSVector <CheckPaneDialog::GrpListItem> (), TopID(0) // @v9.8.5 TSArray-->TSVector
+CheckPaneDialog::GroupArray::GroupArray() : TSVector <CheckPaneDialog::GrpListItem> (), TopID(0)
 {
 }
 
@@ -5631,7 +5631,7 @@ private:
 	{
 		class SelAddrByPhoneDialog : public PPListDialog {
 		public:
-			SelAddrByPhoneDialog(const TSVector <AddrByPhoneItem> * pData) : PPListDialog(DLG_SELADDRBYPH, CTL_SELADDRBYPH_LIST) // @v9.8.6 TSArray-->TSVector
+			SelAddrByPhoneDialog(const TSVector <AddrByPhoneItem> * pData) : PPListDialog(DLG_SELADDRBYPH, CTL_SELADDRBYPH_LIST)
 			{
 				RVALUEPTR(Data, pData);
 				updateList(-1);
@@ -5691,7 +5691,7 @@ private:
 				}
 				return ok;
 			}
-			TSVector <AddrByPhoneItem> Data; // @v9.8.6 TSArray-->TSVector
+			TSVector <AddrByPhoneItem> Data;
 			PPObjSCard ScObj;
 		};
 		{
@@ -10639,7 +10639,7 @@ void CheckPaneDialog::SetInput(const char * pStr)
 	return 1;
 }
 
-int CPosProcessor::AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const // @v9.8.6 TSArray-->TSVector
+int CPosProcessor::AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const
 {
 	int    ok = 1;
 	SaSaleItem sa_item;
@@ -10674,7 +10674,7 @@ int CPosProcessor::ProcessGift()
 			int    is_gift = 0;
 			SaGiftArray::Gift gift;
 			SString buf, goods_name;
-			TSVector <SaSaleItem> sale_list, full_sale_list; // @v9.8.6 TSArray-->TSVector
+			TSVector <SaSaleItem> sale_list, full_sale_list;
 			LAssocArray ex_gift_list;    // Список подарочных товаров, уже находящихся в чеке
 			RAssocArray ex_gift_id_list; // Список подарков, уже находящихся в чеке
 			LAssocArray preserve_gift_assoc = P.GiftAssoc;

@@ -35,10 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-user-font-private.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-analysis-surface-private.h"
-//#include "cairo-error-private.h"
 /**
  * SECTION:cairo-user-fonts
  * @Title:User Fonts

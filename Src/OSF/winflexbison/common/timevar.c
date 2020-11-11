@@ -223,9 +223,9 @@ void timevar_print(FILE * fp)
 		if(!tv->used)
 			continue;
 		/* Percentages.  */
-		const int usr = total->user ? tv->elapsed.user * 100 / total->user : 0;
-		const int sys = total->sys ? tv->elapsed.sys * 100 / total->sys : 0;
-		const int wall = total->wall ? tv->elapsed.wall * 100 / total->wall : 0;
+		const int usr = total->user ? static_cast<int>(tv->elapsed.user * 100 / total->user) : 0;
+		const int sys = total->sys ? static_cast<int>(tv->elapsed.sys * 100 / total->sys) : 0;
+		const int wall = total->wall ? static_cast<int>(tv->elapsed.wall * 100 / total->wall) : 0;
 		/* Ignore insignificant lines.  */
 		if(!usr && !sys && !wall)
 			continue;

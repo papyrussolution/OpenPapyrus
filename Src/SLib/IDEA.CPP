@@ -58,14 +58,11 @@
 
 	Modified for C++ by Anton Sobolev. (Feb 1998-2018)
 */
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
-#if defined(TEST) || defined(TEST2)
-	#include <process.h>
-	//#include <stdio.h>
-#endif
+// @v10.9.3 #if defined(TEST) || defined(TEST2)
+	// @v10.9.3 #include <process.h>
+// @v10.9.3 #endif
 #define low16(x) (x)
 
 static void en_key_idea(uint16 *userkey, uint16 *Z);

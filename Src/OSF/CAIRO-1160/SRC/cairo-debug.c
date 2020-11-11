@@ -34,7 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-image-surface-private.h"
 /**
  * cairo_debug_reset_static_data:
  *
@@ -61,15 +60,11 @@
 void cairo_debug_reset_static_data(void)
 {
 	CAIRO_MUTEX_INITIALIZE();
-
 	_cairo_scaled_font_map_destroy();
-
 	_cairo_toy_font_face_reset_static_data();
-
 #if CAIRO_HAS_FT_FONT
 	_cairo_ft_font_reset_static_data();
 #endif
-
 #if CAIRO_HAS_WIN32_FONT
 	_cairo_win32_font_reset_static_data();
 #endif

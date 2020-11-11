@@ -28,8 +28,7 @@
 // ---------------------------------
 // Adopted to slib by A.Sobolev 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //#include <stdint.h>
 

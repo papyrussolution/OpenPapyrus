@@ -15,8 +15,7 @@
 //
 // Author: jdtang@google.com (Jonathan Tang)
 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "gumbo-internal.h"
 

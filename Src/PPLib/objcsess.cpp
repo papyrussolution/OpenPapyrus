@@ -1610,7 +1610,7 @@ int CTableOrder::Create(const Param * pParam)
 	}
 	if(Edit(&ord) > 0) {
 		CCheckPacket cc_pack;
-		TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(MakeCCheckPacket(&ord, &cc_pack));
@@ -1900,7 +1900,7 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 	SETIFZ(P_Grid, new CTableTimeChunkGrid(posNodeID, this));
 	THROW_MEM(P_Grid);
 	{
-		TSVector <CTableStatus> status_list; // @v9.8.5 TSArray-->TSVector
+		TSVector <CTableStatus> status_list;
 		CCheckCore::FetchCTableOrderList(status_list);
 		LongArray table_list;
 		uint i, j;

@@ -1,8 +1,7 @@
 // SPRINTER.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <report.h>
 
@@ -52,7 +51,7 @@ int SPrinting::Init(const char * pPort)
 	int    ok = 1;
 	SString port(pPort);
 	if(!port.NotEmpty()) {
-		TSVector <SPrinting::PrnInfo> prn_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <SPrinting::PrnInfo> prn_list;
 		SPrinting::GetListOfPrinters(&prn_list);
 		for(uint j = 0; !port.NotEmpty() && j < prn_list.getCount(); j++) {
 			if(prn_list.at(j).Flags & SPrinting::PrnInfo::fDefault)
@@ -136,7 +135,7 @@ int SPrinting::PrintImage(const char * pImgPath)
 	return ok;
 }
 
-/*static*/int SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.4 TSArray-->TSVector
+/*static*/int SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList)
 {
 	int    ok = 0;
 	STempBuffer info_buf(32*1024);

@@ -11,7 +11,7 @@ MrpReqItem::MrpReqItem(PPID goodsID, long flags, double req, double price) : Goo
 {
 }
 
-MrpReqArray::MrpReqArray() : TSVector <MrpReqItem>() // @v9.8.6 TSArray-->TSVector
+MrpReqArray::MrpReqArray() : TSVector <MrpReqItem>()
 {
 }
 

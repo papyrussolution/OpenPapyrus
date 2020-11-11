@@ -31,7 +31,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-time-private.h"
 #if HAVE_CLOCK_GETTIME
 	#if defined(CLOCK_MONOTONIC_RAW)
 		#define CAIRO_CLOCK CLOCK_MONOTONIC_RAW

@@ -34,7 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
 
 void _cairo_stroke_style_init(cairo_stroke_style_t * style)
 {

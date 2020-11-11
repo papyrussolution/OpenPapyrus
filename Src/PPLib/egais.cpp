@@ -1291,7 +1291,7 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 		PPID   __loc_id = 0;
 		SString __full_addr_buf;
 		if(P_RefC && rar_id.NotEmpty()) {
-			TSVector <EgaisPersonTbl::Rec> epr_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <EgaisPersonTbl::Rec> epr_list;
 			const int psc_idx = P_RefC->PsC.SearchByCode(rar_id, epr_list);
 			if(psc_idx > 0) {
                 const EgaisPersonTbl::Rec & r_rec = epr_list.at(psc_idx-1);
@@ -1811,7 +1811,7 @@ void PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, const Da
 	}
 }
 
-int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList) // @v9.8.11 TSArray-->TSVector
+int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -5959,7 +5959,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 	GoodsItem alc_ext;
     BillTbl::Rec bhdr;
     // @v10.6.4 MEMSZERO(bhdr);
-    TSVector <EgaisRestItem> items; // @v9.8.4 TSArray-->TSVector
+    TSVector <EgaisRestItem> items;
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
     for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
         if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
@@ -8932,7 +8932,7 @@ int TestEGAIS(const PPEgaisProcessor::TestParam * pParam)
 		THROW(ep);
 		PPWait(1);
 		{
-			TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
+			TSVector <PPEgaisProcessor::UtmEntry> utm_list;
 			THROW(ep.GetUtmList(param.LocID, utm_list));
 			for(uint i = 0; i < utm_list.getCount(); i++) {
 				ep.SetUtmEntry(param.LocID, &utm_list.at(i), 0);
@@ -9067,7 +9067,7 @@ int EgaisPersonCore::IsVerifiedCode(const char * pRarCode)
 	return ok;
 }
 
-int EgaisPersonCore::SearchByCode(const char * pRarCode, TSVector <EgaisPersonTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisPersonCore::SearchByCode(const char * pRarCode, TSVector <EgaisPersonTbl::Rec> & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -9466,7 +9466,7 @@ int EgaisProductCore::IsVerifiedCode(const char * pAlcoCode)
 	return ok;
 }
 
-int EgaisProductCore::SearchByCode(const char * pAlcoCode, TSVector <EgaisProductTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisProductCore::SearchByCode(const char * pAlcoCode, TSVector <EgaisProductTbl::Rec> & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -9759,7 +9759,7 @@ int EgaisRefACore::Search(PPID id, EgaisRefATbl::Rec * pRec)
 	return SearchByID(this, PPOBJ_EGAISREFA, id, pRec);
 }
 
-int EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -9789,7 +9789,7 @@ int EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::
 	return ok;
 }
 
-int EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
+int EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList)
 {
 	rList.clear();
 	int    ok = -1;

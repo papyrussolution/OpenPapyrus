@@ -43,12 +43,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-paginated-private.h"
 #include "cairo-paginated-surface-private.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-analysis-surface-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
 #include "cairo-surface-subsurface-inline.h"
 
 extern const cairo_surface_backend_t cairo_paginated_surface_backend;

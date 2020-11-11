@@ -1,8 +1,7 @@
 // SGEO.CPP
 // Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 /*static*/uint32 FASTCALL SZIndex2::Combine(uint16 x, uint16 y)

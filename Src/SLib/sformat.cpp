@@ -1,8 +1,7 @@
 // SFORMAT.CPP
 // Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS), FStr(0), FReal(0)

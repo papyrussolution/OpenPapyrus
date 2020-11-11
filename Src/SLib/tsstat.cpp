@@ -1,8 +1,7 @@
 // TSSTAT.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 // 
 // gsl_stats_correlation()

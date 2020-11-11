@@ -3,9 +3,9 @@
 // 
 #include <7z-internal.h>
 #pragma hdrstop
-#ifndef UNDER_CE
-	#include <process.h>
-#endif
+// @v10.9.3 #ifndef UNDER_CE
+	// @v10.9.3 #include <process.h>
+// @v10.9.3 #endif
 
 static WRes GetError()
 {

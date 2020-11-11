@@ -45,21 +45,6 @@
 #include "cairo-pdf-surface-private.h"
 #include "cairo-pdf-operators-private.h"
 #include "cairo-pdf-shading-private.h"
-//#include "cairo-array-private.h"
-//#include "cairo-analysis-surface-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-image-info-private.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-output-stream-private.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-scaled-font-subsets-private.h"
-//#include "cairo-surface-clipper-private.h"
-//#include "cairo-surface-snapshot-inline.h"
-//#include "cairo-surface-subsurface-private.h"
-//#include "cairo-type3-glyph-surface-private.h"
 #include <zlib.h>
 /*
  * Page Structure of the Generated PDF:

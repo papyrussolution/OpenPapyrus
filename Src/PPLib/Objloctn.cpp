@@ -81,7 +81,7 @@ int FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rList)
 				}
 				else {
 					TextRefIdent tri(PPOBJ_SELFREFTEXT, text_ref_id, PPTRPROP_DEFAULT);
-					TSVector <TextRefIdent> text_ref_list; // @v9.8.4 TSArray-->TSVector
+					TSVector <TextRefIdent> text_ref_list;
 					text_ref_list.insert(&tri);
 					ok = P_T->SearchObjByTextRefList(text_ref_list, rList);
 					if(ok > 0) {
@@ -6238,7 +6238,7 @@ int PPFiasReference::MakeAddressText(PPID terminalID, long flags, SString & rBuf
 	return ok;
 }
 
-int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList) // @v9.8.4 TSArray-->TSVector
+int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList)
 {
 	int    ok = -1;
 	const int use_bextq = 1;

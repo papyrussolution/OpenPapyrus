@@ -36,7 +36,6 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-mempool-private.h"
-//#include "cairo-list-inline.h"
 
 /* a simple buddy allocator for memory pools
  * XXX fragmentation? use Doug Lea's malloc?

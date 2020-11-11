@@ -4,8 +4,7 @@ MODULEINF("1992-08-01", "1990-1992 Erik Bachmann (E-mail: ebp@dde.dk" );
 
 Modified by Anton Sobolev: Jan-2001, 2010, 2016
 */
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 /*
 	FIND_STR_IN_FILE

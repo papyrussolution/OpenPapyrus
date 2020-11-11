@@ -40,18 +40,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-compositor-private.h"
-//#include "cairo-clip-inline.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-pattern-inline.h"
-//#include "cairo-region-private.h"
-//#include "cairo-recording-surface-inline.h"
 #include "cairo-spans-compositor-private.h"
-//#include "cairo-surface-subsurface-private.h"
-//#include "cairo-surface-snapshot-private.h"
-//#include "cairo-surface-observer-private.h"
 
 typedef struct {
 	cairo_polygon_t * polygon;

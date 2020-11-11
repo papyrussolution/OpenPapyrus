@@ -29,16 +29,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-array-private.h"
-//#include "cairo-error-private.h"
-////#include "cairo-freed-pool-private.h"
-////#include "cairo-image-surface-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-path-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-recording-surface-inline.h"
-////#include "cairo-surface-snapshot-inline.h"
-//#include <float.h>
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */
 
@@ -1866,13 +1856,11 @@ cairo_filter_t cairo_pattern_get_filter(const cairo_pattern_t * pattern)
  **/
 void cairo_pattern_set_extend(cairo_pattern_t * pattern, cairo_extend_t extend)
 {
-	if(pattern->status)
-		return;
-
-	pattern->extend = extend;
-	_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_EXTEND);
+	if(!pattern->status) {
+		pattern->extend = extend;
+		_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_EXTEND);
+	}
 }
-
 /**
  * cairo_pattern_get_extend:
  * @pattern: a #cairo_pattern_t
@@ -1894,22 +1882,21 @@ slim_hidden_def(cairo_pattern_get_extend);
 
 void _cairo_pattern_pretransform(cairo_pattern_t * pattern, const cairo_matrix_t * ctm)
 {
-	if(pattern->status)
-		return;
-	cairo_matrix_multiply(&pattern->matrix, &pattern->matrix, ctm);
+	if(!pattern->status) {
+		cairo_matrix_multiply(&pattern->matrix, &pattern->matrix, ctm);
+	}
 }
 
 void _cairo_pattern_transform(cairo_pattern_t * pattern, const cairo_matrix_t * ctm_inverse)
 {
-	if(pattern->status)
-		return;
-	cairo_matrix_multiply(&pattern->matrix, ctm_inverse, &pattern->matrix);
+	if(!pattern->status) {
+		cairo_matrix_multiply(&pattern->matrix, ctm_inverse, &pattern->matrix);
+	}
 }
 
 static boolint _linear_pattern_is_degenerate(const cairo_linear_pattern_t * linear)
 {
-	return fabs(linear->pd1.x - linear->pd2.x) < DBL_EPSILON &&
-	       fabs(linear->pd1.y - linear->pd2.y) < DBL_EPSILON;
+	return fabs(linear->pd1.x - linear->pd2.x) < DBL_EPSILON && fabs(linear->pd1.y - linear->pd2.y) < DBL_EPSILON;
 }
 
 static boolint _radial_pattern_is_degenerate(const cairo_radial_pattern_t * radial)
@@ -1929,7 +1916,6 @@ static boolint _radial_pattern_is_degenerate(const cairo_radial_pattern_t * radi
 	 * These checks are consistent with the assumptions used in
 	 * _cairo_radial_pattern_box_to_parameter ().
 	 */
-
 	return fabs(radial->cd1.radius - radial->cd2.radius) < DBL_EPSILON &&
 	       (MIN(radial->cd1.radius, radial->cd2.radius) < DBL_EPSILON ||
 	       MAX(fabs(radial->cd1.center.x - radial->cd2.center.x),
@@ -1937,15 +1923,11 @@ static boolint _radial_pattern_is_degenerate(const cairo_radial_pattern_t * radi
 }
 
 static void _cairo_linear_pattern_box_to_parameter(const cairo_linear_pattern_t * linear,
-    double x0, double y0,
-    double x1, double y1,
-    double range[2])
+    double x0, double y0, double x1, double y1, double range[2])
 {
 	double t0, tdx, tdy;
 	double p1x, p1y, pdx, pdy, invsqnorm;
-
 	assert(!_linear_pattern_is_degenerate(linear));
-
 	/*
 	 * Linear gradients are othrogonal to the line passing through
 	 * their extremes. Because of convexity, the parameter range can
@@ -4031,11 +4013,9 @@ void _cairo_debug_print_pattern(FILE * file, const cairo_pattern_t * pattern)
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE: s = "raster"; break;
 		default: s = "invalid"; ASSERT_NOT_REACHED; break;
 	}
-
 	fprintf(file, "pattern: %s\n", s);
 	if(pattern->type == CAIRO_PATTERN_TYPE_SOLID)
 		return;
-
 	switch(pattern->extend) {
 		case CAIRO_EXTEND_NONE: s = "none"; break;
 		case CAIRO_EXTEND_REPEAT: s = "repeat"; break;

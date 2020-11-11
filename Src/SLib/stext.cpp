@@ -3,8 +3,7 @@
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <uchardet.h>
 

@@ -1,7 +1,6 @@
 // USB.CPP
 // Для работы с usb-устройствами
 //
-
 // С классом USB работать намного проще, чем с HID.
 // Для USB достаточно просто открыть устройство. Дальше можно спокойно читать и писать в него.
 // Для HID необходимо еще сделать дополнительные настройки. Нижеследующие заметки относятся к этой теме.
@@ -23,10 +22,9 @@
 // Заметки списаны с http://www.microterm.ru/d/20158/d/hid_rus.pdf, где на чистом русском языке кратко
 // описано функционирование usb.
 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
-#include <pp.h>
+// @v10.9.3 #include <pp.h>
 
 extern "C" {
 	#include <Cfgmgr32.h>
@@ -858,12 +856,12 @@ int FASTCALL SRawInputData::GetDeviceName(SString & rBuf)
 	size_t alloc_sz = 0;
 	if(InitRawInputProc(0) > 0) {
 		uint   data_size = sizeof(__buffer);
-		HANDLE h_dvc = ((RAWINPUT *)P_Buf)->header.hDevice;
+		HANDLE h_dvc = static_cast<const RAWINPUT *>(P_Buf)->header.hDevice;
 		int    ret = GetRawInputDeviceInfoProc(h_dvc, RIDI_DEVICENAME, NULL, &data_size);
 		THROW(ret >= 0);
 		if(data_size) {
 			if(data_size > sizeof(__buffer)) {
-				THROW_MEM(p_buf = SAlloc::M(data_size));
+				THROW(p_buf = SAlloc::M(data_size));
 				memzero(p_buf, data_size);
 				alloc_sz = data_size;
 			}

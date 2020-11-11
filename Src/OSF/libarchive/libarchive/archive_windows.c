@@ -49,11 +49,11 @@
 #if defined(_WIN32) && !defined(__CYGWIN__)
 //#include "archive_private.h"
 //#include "archive_entry.h"
-#include <stddef.h>
+//#include <stddef.h>
 #ifdef HAVE_SYS_UTIME_H
 	#include <sys/utime.h>
 #endif
-#include <process.h>
+// @v10.9.3 #include <process.h>
 #include <share.h>
 
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)

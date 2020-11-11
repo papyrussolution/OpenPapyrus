@@ -2029,7 +2029,7 @@ int CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
 		return PPDbSearchError();
 }
 
-int CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList) // @v9.8.5 TSArray-->TSVector
+int CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList)
 {
 	int    ok = -1;
 	CCheckTbl::Key2 k;
@@ -3327,7 +3327,7 @@ int CCheckCore::IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSession::Reg
 //
 IMPL_CMPFUNC(CCheckGoodsEntry, i1, i2) { RET_CMPCASCADE4(static_cast<const CCheckGoodsEntry *>(i1), static_cast<const CCheckGoodsEntry *>(i2), Dt, Sign, GoodsID, SerialID); }
 
-CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> (), Sum(0.0) // @v9.8.4 TSArray-->TSVector
+CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> (), Sum(0.0)
 {
 }
 
@@ -4293,7 +4293,7 @@ IMPL_CMPFUNC(CgBillCvtItem_GoodsName, i1, i2)
 		return stricmp866(p1->GoodsName, p2->GoodsName);
 }
 
-class CgBillCvtList : public TSVector <CgBillCvtItem> { // @v9.9.0 TSArray-->TSVector
+class CgBillCvtList : public TSVector <CgBillCvtItem> {
 public:
 	CgBillCvtList() : TSVector <CgBillCvtItem> ()
 	{
@@ -5362,7 +5362,7 @@ class CCheckCache : public ObjCache {
 public:
 	CCheckCache();
 	int    GetCTableStatus(long tableNo, CTableStatus * pStatus);
-	int    GetCTableOrderList(TSVector <CTableStatus> & rList); // @v9.8.5 TSArray-->TSVector
+	int    GetCTableOrderList(TSVector <CTableStatus> & rList);
 private:
 	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 	{
@@ -5373,7 +5373,7 @@ private:
 	}
 	int    RefreshCTableStatusList(int force);
 	LDATETIME CTableStatusTime; // Время последнего извлечения чеков для определения статусов столов
-	TSVector <CTableStatus> CTStList; // @v9.8.5 TSArray-->TSVector
+	TSVector <CTableStatus> CTStList;
 	long   CTableStatusRefreshTimeout;
 	LDATE  FirstActualDate; // Дата первого чека заказа, имеющего дату большую или равную текущей.
 		// Это поле необходимо для сужения области просмотра чеков так как они не индексированы
@@ -5385,7 +5385,7 @@ CCheckCache::CCheckCache() : ObjCache(PPOBJ_CCHECK, sizeof(ObjCacheEntry)), CTab
 {
 }
 
-int CCheckCache::GetCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 TSArray-->TSVector
+int CCheckCache::GetCTableOrderList(TSVector <CTableStatus> & rList)
 {
 	int    ok = -1;
 	RefreshCTableStatusList(0);
@@ -5472,7 +5472,7 @@ int CCheckCache::RefreshCTableStatusList(int force)
 	return p_cache ? p_cache->GetCTableStatus(tableNo, pStatus) : 0;
 }
 
-/*static*/int FASTCALL CCheckCore::FetchCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 TSArray-->TSVector
+/*static*/int FASTCALL CCheckCore::FetchCTableOrderList(TSVector <CTableStatus> & rList)
 {
 	CCheckCache * p_cache = GetDbLocalCachePtr <CCheckCache> (PPOBJ_CCHECK);
 	return p_cache ? p_cache->GetCTableOrderList(rList) : 0;

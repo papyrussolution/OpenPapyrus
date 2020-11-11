@@ -25,7 +25,7 @@ const SSzChunk * FASTCALL PPTextAnalyzer::Replacer::SrcItem::GetTermGroup(uint t
 	return 0;
 }
 
-PPTextAnalyzer::Replacer::Chain::Chain() : TSVector <PPTextAnalyzer::Replacer::Term> () // @v9.8.4 TSArray-->TSVector
+PPTextAnalyzer::Replacer::Chain::Chain() : TSVector <PPTextAnalyzer::Replacer::Term> ()
 {
 }
 
@@ -101,7 +101,7 @@ long PPTextAnalyzer::Replacer::SetState(long st, int set)
 
 PPTextAnalyzer::Replacer::SrcItem * PPTextAnalyzer::Replacer::MakeSrcItem(
 	PPTextAnalyzer::Replacer::SrcItem * pOuterSrcItem,
-	int op, uint targetIdx, const PPTextAnalyzer::Replacer::Chain & rList, const TSVector <SSzChunk> & rGl) const // @v9.8.4 TSArray-->TSVector
+	int op, uint targetIdx, const PPTextAnalyzer::Replacer::Chain & rList, const TSVector <SSzChunk> & rGl) const
 {
 	SETIFZ(pOuterSrcItem, new Replacer::SrcItem);
 	if(pOuterSrcItem) {
@@ -166,7 +166,7 @@ uint PPTextAnalyzer::Replacer::SearchTarget(const Replacer::Chain & rChain) cons
 	return idx;
 }
 
-PPTextAnalyzer::FindBlock::FindBlock(const PPTextAnalyzer::Replacer & rR) : TSVector <PPTextAnalyzer::FindItem> (), // @v9.8.6 TSArray-->TSVector
+PPTextAnalyzer::FindBlock::FindBlock(const PPTextAnalyzer::Replacer & rR) : TSVector <PPTextAnalyzer::FindItem> (),
 	R(rR), P_Item(0), IdxFirst(0), IdxLast(0), NextPos(0), State(0), P_Idx(0), P_Next(0)
 {
 }
@@ -2767,7 +2767,7 @@ public:
 		uint   Count;     // Количество элементов, встретившихся в тексте
 		uint   WordCount; // Количество слов в элементе
 	};
-	struct RunStat : public SStrGroup, public TSVector <PPKeywordListGenerator::RunStatEntry> { // @v9.8.4 TSArray-->TSVector
+	struct RunStat : public SStrGroup, public TSVector <PPKeywordListGenerator::RunStatEntry> {
 		RunStat();
 		int    GetText(uint p, SString & rText) const;
 		int    AddItem(const SString & rItem);
@@ -2796,7 +2796,7 @@ private:
 		uint   TextP;
 		double Prob;
 	};
-	class Group : public TSVector <PPKeywordListGenerator::Item_> { // @v9.8.4 TSArray-->TSVector
+	class Group : public TSVector <PPKeywordListGenerator::Item_> {
 	public:
 		Group() : ContextP(0), ItemsLimit(0), WordsLimit(0)
 		{

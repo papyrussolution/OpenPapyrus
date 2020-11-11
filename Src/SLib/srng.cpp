@@ -3,8 +3,7 @@
 //
 // Random Number Generators
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 SRng::SRng(int alg, uint level, ulong rndMin, ulong rndMax) : Alg(alg), Level(level), RandMin(rndMin), RandMax(rndMax)

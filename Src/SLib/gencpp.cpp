@@ -1,8 +1,7 @@
 // GENCPP.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2016, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2016, 2018, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 Generator_CPP::Generator_CPP(const char * pFileName) : SFile(), Indent(0)

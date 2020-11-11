@@ -2,8 +2,7 @@
 // Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 // TStaticText
@@ -1793,10 +1792,11 @@ void ComboBox::freeAll()
 					::GetClientRect(hWnd, &rc);
 					const  TRect rect_elem_i = rc;
 					const  FRect rect_elem = rc;
-					FRect pic_bounds = rect_elem;
 					APPL->InitUiToolBox();
 					SPaintToolBox & r_tb = APPL->GetUiToolBox();
 					TCanvas2 canv(r_tb, ps.hdc);
+
+					FRect pic_bounds = rect_elem;
 					LMatrix2D mtx;
 					SViewPort vp;
 					if(!p_view->ReplacedColor.IsEmpty()) {
@@ -1822,6 +1822,9 @@ void ComboBox::freeAll()
 					canv.Draw(p_view->P_Fig);
 					canv.PopTransform();
 				}
+				/*else {
+					canv.Rect(rect_elem_i, 0, SPaintToolBox::rbrWindow);
+				}*/
 				::EndPaint(hWnd, &ps);
 			}
 			return 0;

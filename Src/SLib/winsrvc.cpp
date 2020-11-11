@@ -1,8 +1,7 @@
 // WINSRVC.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <winsvc.h>
 //

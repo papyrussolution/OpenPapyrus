@@ -225,7 +225,7 @@ int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 }
 
 int PPSetErrorNoMem() { return PPSetError(PPERR_NOMEM); }
-int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); } // @v9.6.3
+int PPSetErrorInvParam() { return PPSetError(PPERR_INVPARAM); }
 int PPSetErrorSLib() { return PPSetError(PPERR_SLIB); }
 int PPSetErrorDB() { return PPSetError(PPERR_DBENGINE); }
 

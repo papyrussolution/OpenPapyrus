@@ -38,22 +38,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-boxes-private.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-pixman-private.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-scaled-font-private.h"
-//#include "cairo-surface-snapshot-inline.h"
-//#include "cairo-surface-snapshot-private.h"
-////#include "cairo-surface-subsurface-private.h"
 
 /* Limit on the width / height of an image surface in pixels.  This is
  * mainly determined by coordinates of things sent to pixman at the

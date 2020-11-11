@@ -36,7 +36,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-freed-pool-private.h"
 
 #if HAS_FREED_POOL
 

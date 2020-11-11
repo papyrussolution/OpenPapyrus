@@ -42,7 +42,6 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
 
 #define UTF8_COMPUTE(Char, Mask, Len)                                         \
 	if(Char < 128) { \

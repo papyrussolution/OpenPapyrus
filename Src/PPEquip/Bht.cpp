@@ -4365,7 +4365,7 @@ IMPL_CMPFUNC(Sdr_SBIIBillRow, i1, i2)
 		return 0;
 }
 
-static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList) // @v9.8.4 TSArray-->TSVector
+static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 {
 	int    ok = 1;
 	PPImpExpParam ie_param_brow;
@@ -4446,7 +4446,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList) 
 	PPObjBill * p_bobj = BillObj;
 	SString bill_code, buf, goods_name, add_info, temp_buf;
 	S_GUID  uuid;
-	TSVector <Sdr_SBIIBillRow> bill_rows_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <Sdr_SBIIBillRow> bill_rows_list;
 	PPObjGoods goods_obj;
 	PPObjOprKind op_obj;
 	PPImpExpParam ie_param_bill;

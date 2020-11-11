@@ -1,12 +1,9 @@
-
-#include <slib.h>
-#include <tv.h>
+// PUNYCODE.CPP
+//
+#include <slib-internal.h>
 #pragma hdrstop
-//#include <config.h>
-//#include <string.h>
-//#include "punycode.h"
 
-/*** Bootstring parameters for Punycode ***/
+// Bootstring parameters for Punycode
 
 enum {
 	base = 36,
@@ -333,4 +330,3 @@ int SPunycodeDecode(const char * input, size_t input_length, size_t * output_len
 	CATCHZOK
 	return ok;
 }
-

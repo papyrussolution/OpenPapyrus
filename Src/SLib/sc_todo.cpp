@@ -3,8 +3,7 @@
 // Part of StyloConduit project
 // Экспорт/Импорт задач
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "StyloConduit.h"
 

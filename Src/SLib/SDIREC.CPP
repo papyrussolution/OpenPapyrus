@@ -1,8 +1,7 @@
 // SDIREC.CPP
 // Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 IMPL_CMPFUNC(SDirEntry_Time, i1, i2)

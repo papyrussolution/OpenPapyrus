@@ -1,5 +1,5 @@
 // BILVATAX.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Расчет НДС по документам, соответствующим заданному запросу
 //
@@ -23,7 +23,7 @@ BVATAccm::BVATAccm()
 	THISZERO();
 }
 
-BVATAccmArray::BVATAccmArray(uint aFlags) : TSVector <BVATAccm> (), Flags(aFlags) // @v9.8.4 TSArray-->TSVector
+BVATAccmArray::BVATAccmArray(uint aFlags) : TSVector <BVATAccm> (), Flags(aFlags)
 {
 }
 

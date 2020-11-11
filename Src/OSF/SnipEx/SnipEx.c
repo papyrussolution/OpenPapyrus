@@ -30,15 +30,15 @@
 #include "ButtonDefs.h"             // Buttons!
 #include "GdiPlusInterop.h"         // Stuff to make GDI+ work in pure C
 
-APPSTATE gAppState = APPSTATE_BEFORECAPTURE;    // To track the overall state of the application
-BOOL   gMainWindowIsRunning;                                              // Set this to FALSE to exit the app immediately.
-HWND   gMainWindowHandle;                                                 // Handle to the main window, i.e. the window with all the buttons on it.
-HWND   gCaptureWindowHandle;                                              // Handle to the capture window, i.e. the grey selection window that overlays the entire desktop.
-const  INT8 gStartingDelayCountdown = 6;                 // Default seconds to wait after clicking the 'Delay' button.
-INT8   gCurrentDelayCountdown = 6;                                // The value of the countdown timer at this moment.
-UINT16 gDisplayWidth;                                                   // Display width, accounting for multiple monitors.
-UINT16 gDisplayHeight;                                                  // Display height, accounting for multiple monitors.
-INT16  gDisplayLeft;                                                     // Depending on how the monitors are arranged, the left-most coordinate might not be zero.
+APPSTATE gAppState = APPSTATE_BEFORECAPTURE; // To track the overall state of the application
+BOOL   gMainWindowIsRunning;                 // Set this to FALSE to exit the app immediately.
+HWND   gMainWindowHandle;                    // Handle to the main window, i.e. the window with all the buttons on it.
+HWND   gCaptureWindowHandle;                 // Handle to the capture window, i.e. the grey selection window that overlays the entire desktop.
+const  INT8 gStartingDelayCountdown = 6;     // Default seconds to wait after clicking the 'Delay' button.
+INT8   gCurrentDelayCountdown = 6;           // The value of the countdown timer at this moment.
+UINT16 gDisplayWidth;                        // Display width, accounting for multiple monitors.
+UINT16 gDisplayHeight;                       // Display height, accounting for multiple monitors.
+INT16  gDisplayLeft;                         // Depending on how the monitors are arranged, the left-most coordinate might not be zero.
 INT16  gDisplayTop; // Depending on how the monitors are arranged, the top-most coordinate might not be zero.
 UINT16 gStartingMainWindowWidth  = 668; // The beginning width of the tool window - just enough to fit all the buttons.
 UINT16 gStartingMainWindowHeight = 92;  // The beginning height of the tool window - just enough to fit the buttons.
@@ -70,8 +70,8 @@ static void AdjustWindowSizeForThickTitleBars() // @20201025
 	RECT ClientRect = { 0 };
 	GetWindowRect(gMainWindowHandle, &WindowRect);
 	GetClientRect(gMainWindowHandle, &ClientRect);
-	int AdjustedHeight = (WindowRect.bottom - WindowRect.top) - (ClientRect.bottom - ClientRect.top);
-	int AdjustedWidth = (WindowRect.right - WindowRect.left) - (ClientRect.right - ClientRect.left);
+	const int AdjustedHeight = (WindowRect.bottom - WindowRect.top) - (ClientRect.bottom - ClientRect.top);
+	const int AdjustedWidth = (WindowRect.right - WindowRect.left) - (ClientRect.right - ClientRect.left);
 	SetWindowPos(gMainWindowHandle, HWND_TOP, 0, 0, gButtons[_countof(gButtons) - 1]->Rectangle.right + AdjustedWidth + 2,
 		gButtons[_countof(gButtons) - 1]->Rectangle.bottom + AdjustedHeight + 2, SWP_NOMOVE | SWP_NOOWNERZORDER);
 }
@@ -176,41 +176,43 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	#endif
 	// Create all the buttons.
 	for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
-		HWND ButtonHandle = CreateWindowExW(0, L"BUTTON", gButtons[Counter]->Caption, BS_OWNERDRAW | WS_VISIBLE | WS_CHILD, 
-			gButtons[Counter]->Rectangle.left, gButtons[Counter]->Rectangle.top, gButtons[Counter]->Rectangle.right - gButtons[Counter]->Rectangle.left,
-			gButtons[Counter]->Rectangle.bottom, gMainWindowHandle, (HMENU)gButtons[Counter]->Id, (HINSTANCE)GetWindowLongPtr(gMainWindowHandle, GWLP_HINSTANCE), NULL);
+		const uint _idx = Counter;
+		BUTTON * p_button = gButtons[_idx];
+		HWND ButtonHandle = CreateWindowExW(0, L"BUTTON", p_button->Caption, BS_OWNERDRAW | WS_VISIBLE | WS_CHILD, 
+			p_button->Rectangle.left, p_button->Rectangle.top, p_button->Rectangle.right - p_button->Rectangle.left,
+			p_button->Rectangle.bottom, gMainWindowHandle, (HMENU)p_button->Id, (HINSTANCE)GetWindowLongPtr(gMainWindowHandle, GWLP_HINSTANCE), NULL);
 		if(ButtonHandle == NULL) {
-			MyOutputDebugStringW(L"[%s] Line %d: Failed to create %s button with error 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption, GetLastError());
+			MyOutputDebugStringW(L"[%s] Line %d: Failed to create %s button with error 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->Caption, GetLastError());
 			MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 			return 0;
 		}
-		gButtons[Counter]->Handle = ButtonHandle;
-		if(gButtons[Counter]->EnabledIconId > 0) {
-			gButtons[Counter]->EnabledIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(gButtons[Counter]->EnabledIconId), IMAGE_BITMAP, 0, 0, 0);
-			if(gButtons[Counter]->EnabledIcon == NULL) {
-				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->EnabledIconId, GetLastError());
+		p_button->Handle = ButtonHandle;
+		if(p_button->EnabledIconId > 0) {
+			p_button->EnabledIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(p_button->EnabledIconId), IMAGE_BITMAP, 0, 0, 0);
+			if(p_button->EnabledIcon == NULL) {
+				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->EnabledIconId, GetLastError());
 				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 				return 0;
 			}
 		}
-		if(gButtons[Counter]->DisabledIconId > 0) {
-			gButtons[Counter]->DisabledIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(gButtons[Counter]->DisabledIconId),
+		if(p_button->DisabledIconId > 0) {
+			p_button->DisabledIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(p_button->DisabledIconId),
 				IMAGE_BITMAP, 0, 0, 0);
-			if(gButtons[Counter]->DisabledIcon == NULL) {
-				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->DisabledIconId, GetLastError());
+			if(p_button->DisabledIcon == NULL) {
+				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->DisabledIconId, GetLastError());
 				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 				return 0;
 			}
 		}
-		if(gButtons[Counter]->CursorId > 0) {
-			gButtons[Counter]->Cursor = LoadCursor(Instance, MAKEINTRESOURCE(gButtons[Counter]->CursorId));
-			if(gButtons[Counter]->Cursor == NULL) {
-				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->CursorId, GetLastError());
+		if(p_button->CursorId > 0) {
+			p_button->Cursor = LoadCursor(Instance, MAKEINTRESOURCE(p_button->CursorId));
+			if(p_button->Cursor == NULL) {
+				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->CursorId, GetLastError());
 				MessageBoxW(NULL, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 				return 0;
 			}
 		}
-		MyOutputDebugStringW(L"[%s] Line %d: %s button created.\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption);
+		MyOutputDebugStringW(L"[%s] Line %d: %s button created.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
 	}
 	// Add custom menu items to the form's system menu in the top left
 	if((AddAllMenuItems(Instance)) != S_OK) {
@@ -304,7 +306,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
 			    if(WParam == gButtons[Counter]->Hotkey && gButtons[Counter]->Enabled == TRUE) {
 				    MyOutputDebugStringW(L"[%s] Line %d: Hotkey released, executing button '%s'\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption);
-				    SendMessageW(gMainWindowHandle, WM_COMMAND, gButtons[Counter]->Id, 0);
+				    SendMessageW(gMainWindowHandle, WM_COMMAND, static_cast<WPARAM>(gButtons[Counter]->Id), 0);
 			    }
 		    }
 		    break;
@@ -472,8 +474,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 								    PixelAlreadyDrawn = TRUE;
 						    }
 						    if(PixelAlreadyDrawn == FALSE) {
-							    COLORREF CurrentPixelColor = GetPixel(ScratchDC, Mouse.x + XPixel, Mouse.y + YPixel);
-							    UINT16 CurrentPixelBrightness = GetRValue(CurrentPixelColor) + GetGValue(CurrentPixelColor) + GetBValue(CurrentPixelColor);
+							    const COLORREF CurrentPixelColor = GetPixel(ScratchDC, Mouse.x + XPixel, Mouse.y + YPixel);
+							    const UINT16 CurrentPixelBrightness = GetRValue(CurrentPixelColor) + GetGValue(CurrentPixelColor) + GetBValue(CurrentPixelColor);
 							    // x/3, 765 = 255, 382.5 = 128, 0 = 0
 							    InverseBlendFunction.SourceConstantAlpha = (BYTE)(CurrentPixelBrightness / 3);
 							    GdiAlphaBlend(ScratchDC, Mouse.x + XPixel, Mouse.y + YPixel, 1, 1, HilightDC, 0, 0, 1, 1, InverseBlendFunction);
@@ -590,17 +592,17 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    LineTo(CopyDC, p1.x, p1.y);
 				    const float dx = (float)(p1.x - p0.x);
 				    const float dy = (float)(p1.y - p0.y);
-				    float ArrowLength = (float)sqrt((double)dx * (double)dx + (double)dy * (double)dy);
+				    const float ArrowLength = (float)sqrt((double)dx * (double)dx + (double)dy * (double)dy);
 				    // unit vector parallel to the line.
-				    float ux = dx / ArrowLength;
-				    float uy = dy / ArrowLength;
+				    const float ux = dx / ArrowLength;
+				    const float uy = dy / ArrowLength;
 				    // unit vector perpendicular to ux,uy
-				    float vx = -uy;
-				    float vy = ux;
-				    int head_length = 10;
-				    int head_width  = 10;
-				    float half_width = 0.5f * head_width;
-				    POINT ArrowHead = p1;
+				    const float vx = -uy;
+				    const float vy = ux;
+				    const int head_length = 10;
+				    const int head_width  = 10;
+				    const float half_width = 0.5f * head_width;
+				    const POINT ArrowHead = p1;
 				    POINT ArrowCorner1 = { 0 };
 				    ArrowCorner1.x = (LONG)roundf(p1.x - head_length*ux + half_width*vx);
 				    ArrowCorner1.y = (LONG)roundf(p1.y - head_length*uy + half_width*vy);
@@ -693,134 +695,135 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				POINT Mouse = { 0 };
 				Mouse.x = GET_X_LPARAM(LParam);
 				Mouse.y = GET_Y_LPARAM(LParam);
-				HWND Control = ChildWindowFromPoint(Window, Mouse);
+				const HWND Control = ChildWindowFromPoint(Window, Mouse);
 				for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
-					if(Control == gButtons[Counter]->Handle) {
+					BUTTON * p_button = gButtons[Counter];
+					if(Control == p_button->Handle) {
 						if(LOWORD(WParam) == WM_LBUTTONDOWN) {
-							MyOutputDebugStringW(L"[%s] Line %d: Left mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption);
+							MyOutputDebugStringW(L"[%s] Line %d: Left mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
 						}
 						else {
-							MyOutputDebugStringW(L"[%s] Line %d: Right mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption);
+							MyOutputDebugStringW(L"[%s] Line %d: Right mouse button pressed over '%s' button.\n", __FUNCTIONW__, __LINE__, p_button->Caption);
 						}
-						if(gButtons[Counter]->Enabled == TRUE) {
+						if(p_button->Enabled == TRUE) {
 							if(LOWORD(WParam) == WM_LBUTTONDOWN) {
-								gButtons[Counter]->State = BUTTONSTATE_PRESSED;
+								p_button->State = BUTTONSTATE_PRESSED;
 							}
 							else {
-								if(gButtons[Counter]->Id == BUTTON_HILIGHT) {
-									switch(gButtons[Counter]->Color) {
+								if(p_button->Id == BUTTON_HILIGHT) {
+									switch(p_button->Color) {
 										case COLOR_YELLOW:
-										    gButtons[Counter]->Color = COLOR_PINK;
-										    gButtons[Counter]->EnabledIconId = IDB_PINKHILIGHT32x32;
-										    gButtons[Counter]->CursorId = IDC_PINKHILIGHTCURSOR;
+										    p_button->Color = COLOR_PINK;
+										    p_button->EnabledIconId = IDB_PINKHILIGHT32x32;
+										    p_button->CursorId = IDC_PINKHILIGHTCURSOR;
 										    break;
 										case COLOR_PINK:
-										    gButtons[Counter]->Color = COLOR_ORANGE;
-										    gButtons[Counter]->EnabledIconId = IDB_ORANGEHILIGHT32x32;
-										    gButtons[Counter]->CursorId = IDC_ORANGEHILIGHTCURSOR;
+										    p_button->Color = COLOR_ORANGE;
+										    p_button->EnabledIconId = IDB_ORANGEHILIGHT32x32;
+										    p_button->CursorId = IDC_ORANGEHILIGHTCURSOR;
 										    break;
 										case COLOR_ORANGE:
-										    gButtons[Counter]->Color = COLOR_GREEN;
-										    gButtons[Counter]->EnabledIconId = IDB_GREENHILIGHT32x32;
-										    gButtons[Counter]->CursorId = IDC_GREENHILIGHTCURSOR;
+										    p_button->Color = COLOR_GREEN;
+										    p_button->EnabledIconId = IDB_GREENHILIGHT32x32;
+										    p_button->CursorId = IDC_GREENHILIGHTCURSOR;
 										    break;
 										case COLOR_GREEN:
-										    gButtons[Counter]->Color = COLOR_YELLOW;
-										    gButtons[Counter]->EnabledIconId = IDB_YELLOWHILIGHT32x32;
-										    gButtons[Counter]->CursorId = IDC_YELLOWHILIGHTCURSOR;
+										    p_button->Color = COLOR_YELLOW;
+										    p_button->EnabledIconId = IDB_YELLOWHILIGHT32x32;
+										    p_button->CursorId = IDC_YELLOWHILIGHTCURSOR;
 										    break;
 										default:
 										    MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change hilighter color!\n", __FUNCTIONW__, __LINE__);
 									}
-									DeleteObject(gButtons[Counter]->EnabledIcon);
-									DeleteObject(gButtons[Counter]->Cursor);
-									gButtons[Counter]->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(gButtons[Counter]->EnabledIconId),
+									DeleteObject(p_button->EnabledIcon);
+									DeleteObject(p_button->Cursor);
+									p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
 										IMAGE_BITMAP, 0, 0, 0);
-									gButtons[Counter]->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(gButtons[Counter]->CursorId));
+									p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
 								}
-								else if(gButtons[Counter]->Id == BUTTON_BOX) {
-									switch(gButtons[Counter]->Color) {
+								else if(p_button->Id == BUTTON_BOX) {
+									switch(p_button->Color) {
 										case COLOR_RED:
-										    gButtons[Counter]->Color = COLOR_GREEN;
-										    gButtons[Counter]->EnabledIconId = IDB_BOX32x32GREEN;
-										    gButtons[Counter]->CursorId = IDC_GREENCROSSHAIR;
+										    p_button->Color = COLOR_GREEN;
+										    p_button->EnabledIconId = IDB_BOX32x32GREEN;
+										    p_button->CursorId = IDC_GREENCROSSHAIR;
 										    break;
 										case COLOR_GREEN:
-										    gButtons[Counter]->Color = COLOR_BLUE;
-										    gButtons[Counter]->EnabledIconId = IDB_BOX32x32BLUE;
-										    gButtons[Counter]->CursorId = IDC_BLUECROSSHAIR;
+										    p_button->Color = COLOR_BLUE;
+										    p_button->EnabledIconId = IDB_BOX32x32BLUE;
+										    p_button->CursorId = IDC_BLUECROSSHAIR;
 										    break;
 										case COLOR_BLUE:
-										    gButtons[Counter]->Color = COLOR_BLACK;
-										    gButtons[Counter]->EnabledIconId = IDB_BOX32x32BLACK;
-										    gButtons[Counter]->CursorId = IDC_BLACKCROSSHAIR;
+										    p_button->Color = COLOR_BLACK;
+										    p_button->EnabledIconId = IDB_BOX32x32BLACK;
+										    p_button->CursorId = IDC_BLACKCROSSHAIR;
 										    break;
 										case COLOR_BLACK:
-										    gButtons[Counter]->Color = COLOR_WHITE;
-										    gButtons[Counter]->EnabledIconId = IDB_BOX32x32WHITE;
-										    gButtons[Counter]->CursorId = IDC_WHITECROSSHAIR;
+										    p_button->Color = COLOR_WHITE;
+										    p_button->EnabledIconId = IDB_BOX32x32WHITE;
+										    p_button->CursorId = IDC_WHITECROSSHAIR;
 										    break;
 										case COLOR_WHITE:
-										    gButtons[Counter]->Color = COLOR_YELLOW;
-										    gButtons[Counter]->EnabledIconId = IDB_BOX32x32YELLOW;
-										    gButtons[Counter]->CursorId = IDC_YELLOWCROSSHAIR;
+										    p_button->Color = COLOR_YELLOW;
+										    p_button->EnabledIconId = IDB_BOX32x32YELLOW;
+										    p_button->CursorId = IDC_YELLOWCROSSHAIR;
 										    break;
 										case COLOR_YELLOW:
-										    gButtons[Counter]->Color = COLOR_RED;
-										    gButtons[Counter]->EnabledIconId = IDB_BOX32x32RED;
-										    gButtons[Counter]->CursorId = IDC_REDCROSSHAIR;
+										    p_button->Color = COLOR_RED;
+										    p_button->EnabledIconId = IDB_BOX32x32RED;
+										    p_button->CursorId = IDC_REDCROSSHAIR;
 										    break;
 										default:
 										    MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change box color!\n", __FUNCTIONW__, __LINE__);
 									}
-									DeleteObject(gButtons[Counter]->EnabledIcon);
-									DeleteObject(gButtons[Counter]->Cursor);
-									gButtons[Counter]->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(gButtons[Counter]->EnabledIconId),
+									DeleteObject(p_button->EnabledIcon);
+									DeleteObject(p_button->Cursor);
+									p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
 										IMAGE_BITMAP, 0, 0, 0);
-									gButtons[Counter]->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(gButtons[Counter]->CursorId));
+									p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
 								}
-								else if(gButtons[Counter]->Id == BUTTON_ARROW) {
-									switch(gButtons[Counter]->Color) {
+								else if(p_button->Id == BUTTON_ARROW) {
+									switch(p_button->Color) {
 										case COLOR_RED:
-										    gButtons[Counter]->Color = COLOR_GREEN;
-										    gButtons[Counter]->EnabledIconId = IDB_ARROW32x32GREEN;
-										    gButtons[Counter]->CursorId = IDC_GREENCROSSHAIR;
+										    p_button->Color = COLOR_GREEN;
+										    p_button->EnabledIconId = IDB_ARROW32x32GREEN;
+										    p_button->CursorId = IDC_GREENCROSSHAIR;
 										    break;
 										case COLOR_GREEN:
-										    gButtons[Counter]->Color = COLOR_BLUE;
-										    gButtons[Counter]->EnabledIconId = IDB_ARROW32x32BLUE;
-										    gButtons[Counter]->CursorId = IDC_BLUECROSSHAIR;
+										    p_button->Color = COLOR_BLUE;
+										    p_button->EnabledIconId = IDB_ARROW32x32BLUE;
+										    p_button->CursorId = IDC_BLUECROSSHAIR;
 										    break;
 										case COLOR_BLUE:
-										    gButtons[Counter]->Color = COLOR_BLACK;
-										    gButtons[Counter]->EnabledIconId = IDB_ARROW32x32BLACK;
-										    gButtons[Counter]->CursorId = IDC_BLACKCROSSHAIR;
+										    p_button->Color = COLOR_BLACK;
+										    p_button->EnabledIconId = IDB_ARROW32x32BLACK;
+										    p_button->CursorId = IDC_BLACKCROSSHAIR;
 										    break;
 										case COLOR_BLACK:
-										    gButtons[Counter]->Color = COLOR_WHITE;
-										    gButtons[Counter]->EnabledIconId = IDB_ARROW32x32WHITE;
-										    gButtons[Counter]->CursorId = IDC_WHITECROSSHAIR;
+										    p_button->Color = COLOR_WHITE;
+										    p_button->EnabledIconId = IDB_ARROW32x32WHITE;
+										    p_button->CursorId = IDC_WHITECROSSHAIR;
 										    break;
 										case COLOR_WHITE:
-										    gButtons[Counter]->Color = COLOR_YELLOW;
-										    gButtons[Counter]->EnabledIconId = IDB_ARROW32x32YELLOW;
-										    gButtons[Counter]->CursorId = IDC_YELLOWCROSSHAIR;
+										    p_button->Color = COLOR_YELLOW;
+										    p_button->EnabledIconId = IDB_ARROW32x32YELLOW;
+										    p_button->CursorId = IDC_YELLOWCROSSHAIR;
 										    break;
 										case COLOR_YELLOW:
-										    gButtons[Counter]->Color = COLOR_RED;
-										    gButtons[Counter]->EnabledIconId = IDB_ARROW32x32RED;
-										    gButtons[Counter]->CursorId = IDC_REDCROSSHAIR;
+										    p_button->Color = COLOR_RED;
+										    p_button->EnabledIconId = IDB_ARROW32x32RED;
+										    p_button->CursorId = IDC_REDCROSSHAIR;
 										    break;
 										default:
 										    MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color when trying to change arrow color!\n", __FUNCTIONW__, __LINE__);
 									}
-									DeleteObject(gButtons[Counter]->EnabledIcon);
-									DeleteObject(gButtons[Counter]->Cursor);
-									gButtons[Counter]->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(gButtons[Counter]->EnabledIconId),
+									DeleteObject(p_button->EnabledIcon);
+									DeleteObject(p_button->Cursor);
+									p_button->EnabledIcon = (HBITMAP)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->EnabledIconId),
 										IMAGE_BITMAP, 0, 0, 0);
-									gButtons[Counter]->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(gButtons[Counter]->CursorId));
+									p_button->Cursor = LoadCursorW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(p_button->CursorId));
 								}
-								else if(gButtons[Counter]->Id == BUTTON_TEXT) {
+								else if(p_button->Id == BUTTON_TEXT) {
 									CHOOSEFONTW FontChoice = { sizeof(CHOOSEFONTW) };
 									LOGFONTW LogFont = { 0 };
 									GetObject(gFont, sizeof(LOGFONTW), &LogFont);
@@ -844,8 +847,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 							MyOutputDebugStringW(L"[%s] Line %d: ...but it was disabled.\n", __FUNCTIONW__, __LINE__);
 					}
 					else {
-						if(gButtons[Counter]->SelectedTool == FALSE)
-							gButtons[Counter]->State = BUTTONSTATE_NORMAL;
+						if(p_button->SelectedTool == FALSE)
+							p_button->State = BUTTONSTATE_NORMAL;
 					}
 				}
 				// Redraw the toolbar.
@@ -863,7 +866,6 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
 			    if(LOWORD(WParam) == gButtons[Counter]->Id) {
 				    DrawButton((DRAWITEMSTRUCT*)LParam, *gButtons[Counter]);
-
 				    return(TRUE);
 			    }
 		    }
@@ -888,16 +890,17 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    // the main window will stop receiving window messages such as WM_KEYDOWN.
 		    SetFocus(gMainWindowHandle);
 		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
-			    if(gButtons[Counter]->Id == LOWORD(WParam)) {
-				    if(gButtons[Counter]->Enabled == TRUE) {
-					    gButtons[Counter]->SelectedTool = TRUE;
-					    gButtons[Counter]->State = BUTTONSTATE_PRESSED;
+				BUTTON * p_button = gButtons[Counter];
+			    if(p_button->Id == LOWORD(WParam)) {
+				    if(p_button->Enabled == TRUE) {
+					    p_button->SelectedTool = TRUE;
+					    p_button->State = BUTTONSTATE_PRESSED;
 				    }
 			    }
 			    else {
-				    if(gButtons[Counter]->SelectedTool == TRUE) {
-					    gButtons[Counter]->SelectedTool = FALSE;
-					    gButtons[Counter]->State = BUTTONSTATE_NORMAL;
+				    if(p_button->SelectedTool == TRUE) {
+					    p_button->SelectedTool = FALSE;
+					    p_button->State = BUTTONSTATE_NORMAL;
 				    }
 			    }
 		    }
@@ -1019,7 +1022,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    ShellExecuteInfo.hwnd = NULL;
 				    ShellExecuteInfo.nShow = SW_NORMAL;
 				    if(!ShellExecuteExW(&ShellExecuteInfo)) {
-					    DWORD Error = GetLastError();
+					    const DWORD Error = GetLastError();
 					    if(Error != ERROR_CANCELLED) {
 						    MessageBoxW(gMainWindowHandle, L"Error when attempting to re-launch the application with UAC elevation.", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 					    }
@@ -1077,7 +1080,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    ShellExecuteInfo.hwnd   = NULL;
 				    ShellExecuteInfo.nShow  = SW_NORMAL;
 				    if(!ShellExecuteExW(&ShellExecuteInfo)) {
-					    DWORD Error = GetLastError();
+					    const DWORD Error = GetLastError();
 					    if(Error != ERROR_CANCELLED) {
 						    MessageBoxW(gMainWindowHandle, L"Error when attempting to re-launch the application with UAC elevation.", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 					    }
@@ -1188,7 +1191,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    }
 			    }
 			    else {
-				    if(gSnipStates[gCurrentSnipState] != NULL) {
+				    if(gSnipStates[gCurrentSnipState]) {
 					    SelectObject(MemDC, gSnipStates[gCurrentSnipState]);
 				    }
 			    }
@@ -1209,7 +1212,7 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 	HPEN DarkPen = CreatePen(PS_SOLID, 1, RGB(32, 32, 32));
 	HPEN LighterPen = CreatePen(PS_SOLID, 1, RGB(224, 224, 224));
 	SIZE StringSizeInPixels = { 0 };
-	UINT16 ButtonWidth = (UINT16)(Button.Rectangle.right - Button.Rectangle.left);
+	const UINT16 ButtonWidth = (UINT16)(Button.Rectangle.right - Button.Rectangle.left);
 	HFONT ButtonFont = NULL;
 	ButtonFont = CreateFontW(-12, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET,
 		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, L"Segoe UI");
@@ -1217,7 +1220,7 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 	SetDCBrushColor(DrawItemStruct->hDC, GetSysColor(COLOR_BTNFACE));
 	SelectObject(DrawItemStruct->hDC, GetStockObject(DC_BRUSH));
 	GetTextExtentPoint32W(DrawItemStruct->hDC, Button.Caption, (int)wcslen(Button.Caption), &StringSizeInPixels);
-	UINT16 TextX = (UINT16)((ButtonWidth / 2) - (StringSizeInPixels.cx / 2));
+	const UINT16 TextX = (UINT16)((ButtonWidth / 2) - (StringSizeInPixels.cx / 2));
 	UINT16 TextY = 34;
 	if(Button.State == BUTTONSTATE_PRESSED) {
 		TextY += 1;
@@ -1327,7 +1330,7 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 			    BLENDFUNCTION BlendFunction = { AC_SRC_OVER, 0, 128, AC_SRC_ALPHA };
 			    HDC AlphaDC = CreateCompatibleDC(PaintStruct.hdc);
 			    // B G R A
-			    UCHAR BitmapBits[] = { 0xAA, 0xAA, 0xAA, 0xFF };
+			    const UCHAR BitmapBits[] = { 0xAA, 0xAA, 0xAA, 0xFF };
 			    // Create 1 32-bit pixel.
 			    HBITMAP AlphaBitmap = CreateBitmap(1, 1, 1, 32, BitmapBits);
 			    SelectObject(AlphaDC, AlphaBitmap);
@@ -1431,8 +1434,8 @@ void CaptureWindow_OnLeftButtonUp()
 		// The reason behind all this is because depending on how the user dragged the selection rectangle, it
 		// might be inverted,
 		// i.e. the right could actually be the left and the top could be the bottom.
-		int PreviousWindowWidth  = CurrentWindowPos.right - CurrentWindowPos.left;
-		int PreviousWindowHeight = CurrentWindowPos.bottom - CurrentWindowPos.top;
+		const int PreviousWindowWidth  = CurrentWindowPos.right - CurrentWindowPos.left;
+		const int PreviousWindowHeight = CurrentWindowPos.bottom - CurrentWindowPos.top;
 		gCaptureWidth  = (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) >
 		    0 ? (gCaptureSelectionRectangle.right - gCaptureSelectionRectangle.left) +
 		    ((int)gShouldAddDropShadow * 8) : (gCaptureSelectionRectangle.left - gCaptureSelectionRectangle.right) +
@@ -2027,7 +2030,7 @@ HRESULT AddAllMenuItems(_In_ HINSTANCE Instance)
 		RegQueryValueExW(SnipExKey, L"Debugger", NULL, NULL, (LPBYTE)&DebuggerValue, &ValueSize);
 		if(wcslen(DebuggerValue) > 0) {
 			// Does the file specified by the "Debugger" value actually exist?
-			DWORD FileAttributes = GetFileAttributesW(DebuggerValue);
+			const DWORD FileAttributes = GetFileAttributesW(DebuggerValue);
 			if(FileAttributes != INVALID_FILE_ATTRIBUTES && !(FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				AlreadyReplaced = TRUE;
 		}

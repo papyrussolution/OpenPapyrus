@@ -1,8 +1,7 @@
 // WMI.CPP
-// Copyright (c) A.Sobolev 2008, 2010, 2015, 2018
+// Copyright (c) A.Sobolev 2008, 2010, 2015, 2018, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include <comdef.h>
 #include <wbemidl.h>

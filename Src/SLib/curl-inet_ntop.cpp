@@ -21,8 +21,7 @@
 // @sobolev papyrus @v10.0.05
 // Основной функционал модуля перенесен в SLIB из curl
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //#include "curl_setup.h"
 #pragma hdrstop

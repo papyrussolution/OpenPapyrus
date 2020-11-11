@@ -42,8 +42,7 @@
 // prevents parse error position from being messed up by possible mark/resets in
 // temporary buffer manipulation.
 
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 #include "gumbo-internal.h"
 

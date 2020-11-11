@@ -1,8 +1,7 @@
 // LBXDEF.CPP
 // Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 static int FASTCALL substFCMP(const void * i1, const void * i2, void * pExtraData)

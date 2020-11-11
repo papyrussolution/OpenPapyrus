@@ -1,8 +1,7 @@
 // SINIFILE.CPP
 // Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 class SIniSectBuffer : public TSCollection <StringSet> {

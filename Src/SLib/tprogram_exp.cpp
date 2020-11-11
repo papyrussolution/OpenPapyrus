@@ -1,9 +1,7 @@
 // TPROGRAM_EXP.CPP
 // Copyright (c) A.Sobolev 2016, 2018, 2019, 2020
 //
-//
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pFileName/*=0*/)

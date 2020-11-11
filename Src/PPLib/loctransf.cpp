@@ -1,5 +1,5 @@
 // LOCTRANSF.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -14,9 +14,6 @@ Unit : Abstract/Common
 Warehouse >>> Zone >>> Column x Row x Layer
 
 */
-
-
-
 LocTransfOpBlock::LocTransfOpBlock(int op, PPID locID)
 {
 	Init(op, locID);
@@ -144,7 +141,7 @@ int LocTransfCore::SearchRestByLot(PPID lotID, PPID locID, long rByLoc, LocTrans
 	return ok;
 }
 
-int LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVector
+int LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList)
 {
 	LocTransfTbl::Key3 k3;
 	BExtQuery q(this, 3, 128);
@@ -617,7 +614,7 @@ int LocTransfCore::GetGoodsList(PPID locCellID, RAssocArray * pList)
 	return ok;
 }
 
-int LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
+int LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList)
 {
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
@@ -633,7 +630,7 @@ int LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfT
 	return ok;
 }
 
-int LocTransfCore::GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
+int LocTransfCore::GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList)
 {
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
@@ -730,7 +727,7 @@ int LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLogger, 
 		const PPID bill_id = rBillList.get(i);
 		Transfer * p_tr = p_bobj->trfr;
 		BillTbl::Rec bill_rec;
-		TSVector <LocTransfTbl::Rec> disp_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <LocTransfTbl::Rec> disp_list;
 		THROW(LtT.GetDisposition(bill_id, disp_list));
 		if(p_bobj->Search(bill_id, &bill_rec) > 0) {
 			PPTransferItem ti;

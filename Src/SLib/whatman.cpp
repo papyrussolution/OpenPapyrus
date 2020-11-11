@@ -2,8 +2,7 @@
 // Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 //
@@ -719,87 +718,81 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 	uint   row_no = 0;
 	uint   item_in_row = 0;
 	int    row_bound = 0; // Минимальный отступ от предыдущего ряда.
-	LayoutFlexItem * p_lo_root = new LayoutFlexItem;
-	p_lo_root->Direction = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? FLEX_DIRECTION_COLUMN : FLEX_DIRECTION_ROW;
-	p_lo_root->AlignContent = FLEX_ALIGN_START;
-	p_lo_root->WrapMode = FLEX_WRAP_WRAP;
-	p_lo_root->Padding.a.X = 32.0f;
-	p_lo_root->Padding.b.X = 32.0f;
+	LayoutFlexItem lo_root;
+	lo_root.Direction = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? FLEX_DIRECTION_COLUMN : FLEX_DIRECTION_ROW;
+	lo_root.AlignContent = FLEX_ALIGN_START;
+	lo_root.WrapMode = FLEX_WRAP_WRAP;
+	lo_root.Padding.a.X = 32.0f;
+	lo_root.Padding.b.X = 32.0f;
 	for(uint i = 0; i < ObjList.getCount(); i++) {
 		if(!pObjPosList || pObjPosList->lsearch(static_cast<long>(i))) {
 			TWhatmanObject * p_obj = ObjList.at(i);
 			if(p_obj) {
 				const TRect obj_bounds = p_obj->Bounds;
-				const float _item_width = 32.0f;
-				const float _item_height = 32.0f;
+				const float _item_width = 32.0f/*static_cast<float>(obj_bounds.width())*/;
+				const float _item_height = 32.0f/*static_cast<float>(obj_bounds.height())*/;
+				LayoutFlexItem * p_lo_item = lo_root.InsertItem();
+				if(p_lo_item) {
+					LayoutFlexItem * p_lo_text = 0;
+					p_lo_item->Direction = FLEX_DIRECTION_COLUMN;
 
-				LayoutFlexItem * p_lo_item = new LayoutFlexItem;
-				LayoutFlexItem * p_lo_text = 0;
-				//p_lo_item->align_items = FLEX_ALIGN_STRETCH;
-				p_lo_item->Direction = FLEX_DIRECTION_COLUMN;
-				//p_lo_item->align_content = FLEX_ALIGN_STRETCH;
-				//p_lo_item->width  = static_cast<float>(obj_bounds.width());
-				//p_lo_item->height = static_cast<float>(obj_bounds.height());
-				//p_lo_item->grow = 1.0f;
-				//p_lo_item->shrink = 0.0f;
+					TRect bounds;
+					STextLayout tlo;
+					p_lo_item->Margin.a.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
+					p_lo_item->Margin.a.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
+					p_lo_item->Margin.b.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
+					p_lo_item->Margin.b.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
 
-				TRect bounds;
-				STextLayout tlo;
-				p_lo_item->Margin.a.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
-				p_lo_item->Margin.a.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
-				p_lo_item->Margin.b.X = (static_cast<float>(rParam.InnerGap.x) / 2.0f);
-				p_lo_item->Margin.b.Y = (static_cast<float>(rParam.InnerGap.y) / 2.0f);
+					LayoutFlexItem * p_lo_fig = p_lo_item->InsertItem();
+					p_lo_fig->Size.X = _item_width;
+					p_lo_fig->Size.Y = _item_height;
+					p_lo_fig->managed_ptr = p_obj;
+					p_lo_fig->CbSetup = FlexSetupProc_WhatmanFig;
 
-				LayoutFlexItem * p_lo_fig = new LayoutFlexItem;
-				p_lo_fig->Size.X = _item_width;
-				p_lo_fig->Size.Y = _item_height;
-				p_lo_fig->managed_ptr = p_obj;
-				p_lo_fig->CbSetup = FlexSetupProc_WhatmanFig;
-				flex_item_add(p_lo_item, p_lo_fig);
-
-				if(p_obj->GetTextLayout(tlo, TWhatmanObject::gtloQueryForArrangeObject) > 0) {
-					TRect text_bounds;
-					text_bounds.set(tlo.GetBounds());
-					p_lo_text = new LayoutFlexItem;
-					p_lo_text->Size.X = static_cast<float>(text_bounds.width());
-					p_lo_text->Size.Y = static_cast<float>(text_bounds.height());
-					p_lo_text->Margin.a.Y = 2.0f;
-					flex_item_add(p_lo_item, p_lo_text);
-					/*p_lo_item->padding_bottom -= static_cast<float>(text_bounds.height());
-					if(text_bounds.width() > _item_width) {
-						p_lo_item->padding_left -= static_cast<float>(text_bounds.width() - _item_width) / 2.0f;
-						p_lo_item->padding_right -= static_cast<float>(text_bounds.width() - _item_width) / 2.0f;
-						//p_lo_item->width = static_cast<float>(text_bounds.width());
+					if(p_obj->GetTextLayout(tlo, TWhatmanObject::gtloQueryForArrangeObject) > 0) {
+						TRect text_bounds;
+						text_bounds.set(tlo.GetBounds());
+						p_lo_text = p_lo_item->InsertItem();
+						if(p_lo_text) {
+							p_lo_text->Size.X = static_cast<float>(text_bounds.width());
+							p_lo_text->Size.Y = static_cast<float>(text_bounds.height());
+							p_lo_text->Margin.a.Y = 2.0f;
+						}
+						/*p_lo_item->padding_bottom -= static_cast<float>(text_bounds.height());
+						if(text_bounds.width() > _item_width) {
+							p_lo_item->padding_left -= static_cast<float>(text_bounds.width() - _item_width) / 2.0f;
+							p_lo_item->padding_right -= static_cast<float>(text_bounds.width() - _item_width) / 2.0f;
+							//p_lo_item->width = static_cast<float>(text_bounds.width());
+						}*/
+					}
+					{
+						{
+							float fs = 0.0f;
+							float ts = 0.0f;
+							if((!p_lo_fig || p_lo_fig->GetFullHeight(&fs)) && (!p_lo_text || p_lo_text->GetFullHeight(&ts))) {
+								p_lo_item->Size.Y = (fs + ts);
+							}
+						}
+						{
+							float text_width = 0.0f;
+							float fig_width = 0.0f;
+							if((!p_lo_text || p_lo_text->GetFullWidth(&text_width)) && (!p_lo_fig || p_lo_fig->GetFullWidth(&fig_width))) {
+								p_lo_item->Size.X = MAX(fig_width, text_width);
+							}
+						}
+					}
+					/*if(bounds != p_obj->Bounds) {
+						p_obj->SetBounds(bounds);
+						ok = 1;
 					}*/
 				}
-				{
-					{
-						float fs = 0.0f;
-						float ts = 0.0f;
-						if((!p_lo_fig || p_lo_fig->GetFullHeight(&fs)) && (!p_lo_text || p_lo_text->GetFullHeight(&ts))) {
-							p_lo_item->Size.Y = (fs + ts);
-						}
-					}
-					{
-						float text_width = 0.0f;
-						float fig_width = 0.0f;
-						if((!p_lo_text || p_lo_text->GetFullWidth(&text_width)) && (!p_lo_fig || p_lo_fig->GetFullWidth(&fig_width))) {
-							p_lo_item->Size.X = MAX(fig_width, text_width);
-						}
-					}
-				}
-				flex_item_add(p_lo_root, p_lo_item);
-				/*if(bounds != p_obj->Bounds) {
-					p_obj->SetBounds(bounds);
-					ok = 1;
-				}*/
 			}
 		}
 	}
 	{
-		p_lo_root->Size.X = static_cast<float>(Area.width() - rParam.UlGap.x - rParam.LrGap.x);
-		p_lo_root->Size.Y = static_cast<float>(Area.height() - rParam.UlGap.y - rParam.LrGap.y);
-		DoLayoutFlex(p_lo_root);
+		lo_root.Size.X = static_cast<float>(Area.width() - rParam.UlGap.x - rParam.LrGap.x);
+		lo_root.Size.Y = static_cast<float>(Area.height() - rParam.UlGap.y - rParam.LrGap.y);
+		lo_root.Evaluate();
 		/*for(uint i = 0; i < p_lo_root->getCount(); i++) {
 			const LayoutFlexItem * p_lo_item = p_lo_root->at(i);
 			if(p_lo_item && p_lo_item->managed_ptr) {
@@ -810,7 +803,6 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 			}
 		}*/
 	}
-	delete p_lo_root;
 	return ok;
 }
 

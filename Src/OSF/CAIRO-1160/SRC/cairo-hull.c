@@ -35,8 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include "cairo-slope-private.h"
 
 typedef struct cairo_hull {
 	cairo_point_t point;
@@ -45,8 +43,7 @@ typedef struct cairo_hull {
 	int id;
 } cairo_hull_t;
 
-static void _cairo_hull_init(cairo_hull_t * hull, cairo_pen_vertex_t * vertices,
-    int num_vertices)
+static void _cairo_hull_init(cairo_hull_t * hull, cairo_pen_vertex_t * vertices, int num_vertices)
 {
 	cairo_point_t * p, tmp;
 	int i;

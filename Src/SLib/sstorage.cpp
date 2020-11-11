@@ -1,8 +1,7 @@
 // SSTORAGE.CPP
 // Copyright (c) A.Sobolev 2015, 2016, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 class SStorage {

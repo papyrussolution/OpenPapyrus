@@ -1,10 +1,10 @@
 // VTBUTTON.CPP
 // Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
-#include <pp.h>
+// @v10.9.3 #include <pp.h>
+#include <ppdefs.h> // @v10.9.3
 //
 // @v8.3.3 Удалены условия __WIN32__
 //

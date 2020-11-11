@@ -3,8 +3,7 @@
 // @codepage UTF-8
 // Test Suits
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 //
 //

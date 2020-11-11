@@ -1421,7 +1421,7 @@ int PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * pPugl, 
 		PPBillPacket pack;
 		PPID   comp_ar_id = compArID;
 		PPIDArray loc_list;
-		TSVector <PUGL::SupplSubstItem> suppl_subst_list; // @v9.8.6 TSArray-->TSVector
+		TSVector <PUGL::SupplSubstItem> suppl_subst_list;
 		pPugl->GetItemsLocList(loc_list);
 		if(loc_list.getCount() == 0)
 			loc_list.addUnique(0L);

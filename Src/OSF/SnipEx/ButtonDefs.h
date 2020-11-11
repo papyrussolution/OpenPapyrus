@@ -168,4 +168,4 @@ BUTTON gTextButton = {
 	COLOR_NONE
 };
 
-BUTTON* gButtons[] = { &gNewButton, &gDelayButton, &gSaveButton, &gCopyButton, &gHilighterButton, &gRectangleButton, &gArrowButton, &gRedactButton, &gTextButton };
+BUTTON * gButtons[] = { &gNewButton, &gDelayButton, &gSaveButton, &gCopyButton, &gHilighterButton, &gRectangleButton, &gArrowButton, &gRedactButton, &gTextButton };

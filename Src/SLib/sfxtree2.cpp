@@ -1,8 +1,7 @@
 // SFXTREE2.CPP
 // Copyright (c) A.Sobolev 2016, 2018, 2019, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 DECL_CMPFUNC(SfxTreeChr);

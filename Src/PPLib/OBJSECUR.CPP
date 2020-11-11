@@ -37,8 +37,8 @@ int PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	THROW_SL(pSCtx->Serialize(dir, SessionID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, DBDiv, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, BaseRateTypeID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, DesktopID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, MenuID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DesktopID_Obsolete, rBuf)); // @v10.9.3 DesktopID-->DesktopID_Obsolete
+	THROW_SL(pSCtx->Serialize(dir, MenuID_Obsolete, rBuf));    // @v10.9.3 MenuID-->MenuID_Obsolete
 	THROW_SL(pSCtx->Serialize(dir, DesktopUuid, rBuf)); // @v10.9.3
 	THROW_SL(pSCtx->Serialize(dir, MenuUuid, rBuf));    // @v10.9.3
 	CATCHZOK
@@ -224,28 +224,31 @@ StrAssocArray * PPObjSecur::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-int PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
+int PPObjSecur::GetPrivateDesktop(PPID userID, /*PPID * pDesktopID*/S_GUID & rDesktopUuid)
 {
 	int    ok = -1;
-	PPID   dt_id = 0;
+	//PPID   dt_id = 0;
+	S_GUID desktop_uuid;
 	PPConfig cfg_rec;
 	PPConfigPrivate cfgp_rec;
 	if(ref->GetConfig(PPOBJ_USR, userID, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)) > 0) {
-		dt_id = cfg_rec.DesktopID;
+		//dt_id = cfg_rec.DesktopID;
+		desktop_uuid = cfg_rec.DesktopUuid;
 		if(cfg_rec.Tag == PPOBJ_USR && cfg_rec.ObjID == userID) // desktop for user
 			ok = 1;
 	}
 	if(ok < 0 && ref->GetConfig(PPOBJ_USR, userID, PPPRP_CFGPRIVATE, &cfgp_rec, sizeof(cfgp_rec)) > 0) {
 		SString desk_name;
 		Reference::GetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, desk_name);
-		dt_id = 0;
+		//dt_id = 0;
+		desktop_uuid.Z();
 		if(desk_name.Len()) {
 			SString def_desk_name;
 			SString db_symb;
 			const PPCommandItem * p_item = 0;
 			PPCommandGroup desktop_list;
 			PPCommandGroup desktop_list_from_bin;
-			PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);// @erik v10.6.7
+			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0);// @erik v10.6.7
 			if(p_mgr) {
 				CurDict->GetDbSymb(db_symb);
 // @erik v10.6.7 {
@@ -256,17 +259,21 @@ int PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 					p_item = desktop_list_from_bin.SearchByName(desk_name, db_symb, 0);
 				}
 // } @erik
-				if(p_item && p_item->Kind == PPCommandItem::kGroup)
-					dt_id = p_item->ID;
+				if(p_item && p_item->Kind == PPCommandItem::kGroup) {
+					//dt_id = p_item->ID;
+					desktop_uuid = static_cast<const PPCommandGroup *>(p_item)->Uuid;
+				}
 				ZDELETE(p_mgr);
 			}
 		}
-		SETIFZ(dt_id, cfgp_rec.DesktopID);
+		//SETIFZ(dt_id, cfgp_rec.DesktopID);
+		SETIFZ(desktop_uuid, cfgp_rec.DesktopUuid);
 		ok = 2;
 	}
-	else if(dt_id) // desktop for users group
+	else if(/*dt_id*/!!desktop_uuid) // desktop for users group
 		ok = 3;
-	ASSIGN_PTR(pDesktopID, dt_id);
+	//ASSIGN_PTR(pDesktopID, dt_id);
+	rDesktopUuid = desktop_uuid;
 	return ok;
 }
 
@@ -296,7 +303,7 @@ int PPObjSecur::PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta)
 	return ok;
 }
 
-int PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * pDeskName, int use_ta)
+int PPObjSecur::AssignPrivateDesktop(PPID userID, /*PPID desktopID*/const S_GUID & rDesktopUuid, const char * pDeskName, int use_ta)
 {
 	int    ok = -1;
 	PPConfig cfg_rec;
@@ -304,8 +311,10 @@ int PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * p
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(ref->GetConfig(PPOBJ_USR, userID, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)) > 0 && cfg_rec.Tag == PPOBJ_USR && cfg_rec.ObjID == userID) {
-			if(cfg_rec.DesktopID != desktopID) {
-				cfg_rec.DesktopID = desktopID;
+			//if(cfg_rec.DesktopID != desktopID) {
+			if(cfg_rec.DesktopUuid != rDesktopUuid) {
+				//cfg_rec.DesktopID = desktopID;
+				cfg_rec.DesktopUuid = rDesktopUuid;
 				THROW(ref->SetConfig(PPOBJ_USR, userID, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)));
 			}
 			ok = 1;
@@ -320,8 +329,10 @@ int PPObjSecur::AssignPrivateDesktop(PPID userID, PPID desktopID, const char * p
 			MEMSZERO(cfgp_rec);
 			THROW(r = ref->GetConfig(PPOBJ_USR, userID, PPPRP_CFGPRIVATE, &cfgp_rec, sizeof(cfgp_rec)));
 			Reference::GetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, desk_name);
-			if(r < 0 || cfgp_rec.DesktopID != desktopID || desk_name.Len() == 0) {
-				cfgp_rec.DesktopID = desktopID;
+			//if(r < 0 || cfgp_rec.DesktopID != desktopID || desk_name.Len() == 0) {
+			if(r < 0 || cfgp_rec.DesktopUuid != rDesktopUuid || desk_name.Len() == 0) {
+				//cfgp_rec.DesktopID = desktopID;
+				cfgp_rec.DesktopUuid = rDesktopUuid;
 				Reference::SetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, pDeskName);
 				THROW(ref->SetConfig(PPOBJ_USR, userID, PPPRP_CFGPRIVATE, &cfgp_rec, sizeof(cfgp_rec)));
 			}

@@ -36,9 +36,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-boxes-private.h"
-//#include "cairo-contour-private.h"
-//#include "cairo-error-private.h"
 
 #define DEBUG_POLYGON 0
 

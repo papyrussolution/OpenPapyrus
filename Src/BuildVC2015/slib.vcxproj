@@ -3584,7 +3584,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\amqp.h" />
-    <ClInclude Include="..\Include\cxx_detect.h" />
     <ClInclude Include="..\Include\Db.h" />
     <ClInclude Include="..\Include\Dbf.h" />
     <ClInclude Include="..\Include\Dbqbrdef.h" />

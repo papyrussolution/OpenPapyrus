@@ -1,8 +1,7 @@
 // FINDFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2010, 2016, 2017, 2020
 //
-#include <slib.h>
-#include <tv.h>
+#include <slib-internal.h>
 #pragma hdrstop
 
 SFindFile::SFindFile(const char * pPath /* =0 */, const char * pFileName /* =0 */) :
