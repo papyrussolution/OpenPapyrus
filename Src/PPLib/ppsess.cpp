@@ -2969,6 +2969,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert10209()); // @v10.2.9
 						THROW(Convert10507()); // @v10.5.7
 						THROW(Convert10702()); // @v10.7.2
+						THROW(Convert10903()); // @v10.9.3 конвертаци€ ссылок на рабочие столы и меню в группах и пользовател€х
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -3000,7 +3001,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				r = stricmp(pPassword, secret);
 				memzero(secret, sizeof(secret));
 				THROW_PP(r == 0, PPERR_INVUSERORPASSW);
-				// @v9.4.8 is_service_login = 1;
 			}
 			THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.UserID, user_name));
 			if(r < 0) {
@@ -3009,7 +3009,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				THROW_PP(r < 0, PPERR_INVUSERORPASSW);
 				empty_secur_base = 1;
 				r_lc.UserID = 0;
-				pw[0] = 0;
+				PTR32(pw)[0] = 0;
 			}
 			else {
 				usr_rec = *reinterpret_cast<const PPSecur *>(&p_ref->data);
@@ -3017,8 +3017,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				Reference::GetPassword(&usr_rec, pw, sizeof(pw));
 			}
 			THROW(FetchConfig(PPOBJ_USR, r_lc.UserID, &r_lc));
-			// @v9.1.1 r_lc.Flags &= ~CCFLG_USELARGEDIALOG; // @v7.6.2 ¬ведено после непон€тного инцидента с крупными списками выбора
-			SLS.SetUiFlag(sluifUseLargeDialogs, 0); // @v9.1.1
+			SLS.SetUiFlag(sluifUseLargeDialogs, 0);
 			if(!oneof2(logmode, logmService, logmEmptyBaseCreation)) {
 				int    pw_is_wrong = 1;
 				// @v10.1.10 {

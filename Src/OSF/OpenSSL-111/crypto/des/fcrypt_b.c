@@ -21,21 +21,17 @@
 #define HPERM_OP(a, t, n, m) ((t) = ((((a)<<(16-(n)))^(a))&(m)), \
 	(a) = (a)^(t)^(t>>(16-(n)))) \
 
-void fcrypt_body(DES_LONG * out, DES_key_schedule * ks, DES_LONG Eswap0,
-    DES_LONG Eswap1)
+void fcrypt_body(DES_LONG * out, DES_key_schedule * ks, DES_LONG Eswap0, DES_LONG Eswap1)
 {
-	register DES_LONG l, r, t, u;
-	register DES_LONG * s;
-	register int j;
-	register DES_LONG E0, E1;
-
+	DES_LONG l, r, t, u;
+	DES_LONG * s;
+	int j;
+	DES_LONG E0, E1;
 	l = 0;
 	r = 0;
-
 	s = (DES_LONG*)ks;
 	E0 = Eswap0;
 	E1 = Eswap1;
-
 	for(j = 0; j < 25; j++) {
 		D_ENCRYPT(l, r, 0); /* 1 */
 		D_ENCRYPT(r, l, 2); /* 2 */

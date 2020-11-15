@@ -10,19 +10,15 @@
 #pragma hdrstop
 #include "des_locl.h"
 
-void DES_pcbc_encrypt(const unsigned char * input, unsigned char * output,
-    long length, DES_key_schedule * schedule,
-    DES_cblock * ivec, int enc)
+void DES_pcbc_encrypt(const uchar * input, uchar * output, long length, DES_key_schedule * schedule, DES_cblock * ivec, int enc)
 {
-	register DES_LONG sin0, sin1, xor0, xor1, tout0, tout1;
+	DES_LONG sin0, sin1, xor0, xor1, tout0, tout1;
 	DES_LONG tin[2];
-	const unsigned char * in;
-	unsigned char * out, * iv;
-
+	const uchar * in;
+	uchar * out, * iv;
 	in = input;
 	out = output;
 	iv = &(*ivec)[0];
-
 	if(enc) {
 		c2l(iv, xor0);
 		c2l(iv, xor1);

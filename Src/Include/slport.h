@@ -324,6 +324,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_NORETURN           (CXX_GNU >= CXX_MAKE_VER(2, 5, 0))
 		#define CXX_HAS_X_ATTRIBUTE_NOSANITIZE         (0)
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (CXX_GNU >= CXX_MAKE_VER(4, 4, 0))
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (CXX_GNU >= CXX_MAKE_VER(2, 0, 7)) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (CXX_GNU >= CXX_MAKE_VER(2, 0, 7)) // @v10.9.3
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
 		#define CXX_HAS_X_BUILTIN_ASSUME_ALIGNED       (CXX_GNU >= CXX_MAKE_VER(4, 7, 0))
 		#define CXX_HAS_X_BUILTIN_EXPECT               (1)
@@ -397,6 +399,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_NORETURN           (CXX_GNU_COMPAT >= 1)
 		#define CXX_HAS_X_ATTRIBUTE_NOSANITIZE         (0)
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (CXX_GNU_COMPAT >= 1)
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0) // @v10.9.3
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
 		#define CXX_HAS_X_BUILTIN_ASSUME_ALIGNED       (0)
 		#define CXX_HAS_X_BUILTIN_EXPECT               (CXX_GNU_COMPAT >= 1)
@@ -474,6 +478,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_NORETURN           (0)
 		#define CXX_HAS_X_ATTRIBUTE_NOSANITIZE         (0)
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (0)
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0) // @v10.9.3
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
 		#define CXX_HAS_X_BUILTIN_ASSUME_ALIGNED       (0)
 		#define CXX_HAS_X_BUILTIN_EXPECT               (0)
@@ -689,6 +695,16 @@
 		#define CXX_NORETURN __declspec(noreturn)
 	#else
 		#define CXX_NORETURN
+	#endif
+	#if CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT
+		#define CXX_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+	#else
+		#define CXX_WARN_UNUSED_RESULT 
+	#endif
+	#if CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM
+		#define CXX_UNUSED_PARAM __attribute__((__unused__))
+	#else
+		#define CXX_UNUSED_PARAM 
 	#endif
 	//
 	// [Likely / Unlikely]

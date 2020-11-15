@@ -28,40 +28,12 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:14Z kientzle $");
 
-//#ifdef HAVE_SYS_TYPES_H
-	//#include <sys/types.h>
-//#endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
 #if defined(HAVE_WINCRYPT_H) && !defined(__CYGWIN__)
 	#include <wincrypt.h>
 #endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#ifdef HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
-//#ifdef HAVE_BZLIB_H
-//#include <bzlib.h>
-//#endif
 #ifdef HAVE_LZ4_H
 	#include <lz4.h>
 #endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_random_private.h"
-//#include "archive_string.h"
 
 #ifndef O_CLOEXEC
 	#define O_CLOEXEC       0

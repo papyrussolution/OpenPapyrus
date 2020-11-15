@@ -39,13 +39,13 @@
 #pragma hdrstop
 #include "wp_locl.h"
 
-typedef unsigned char u8;
+typedef uchar u8;
 #if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32)
 	typedef unsigned __int64 u64;
 #elif defined(__arch64__)
-	typedef unsigned long u64;
+	typedef ulong u64;
 #else
-	typedef unsigned long long u64;
+	typedef ulong long u64;
 #endif
 
 #define ROUNDS  10
@@ -75,7 +75,7 @@ typedef unsigned char u8;
 #   define OPENSSL_SMALL_FOOTPRINT
 #  endif
 #define GO_FOR_MMX(ctx, inp, num)     do {                    \
-		extern unsigned long OPENSSL_ia32cap_P[];               \
+		extern ulong OPENSSL_ia32cap_P[];               \
 		void whirlpool_block_mmx(void *, const void *, size_t);   \
 		if(!(OPENSSL_ia32cap_P[0] & (1<<23))) break;          \
 		whirlpool_block_mmx(ctx->H.c, inp, num);  return;         \
@@ -87,7 +87,7 @@ typedef unsigned char u8;
 #ifndef PEDANTIC
 # if defined(_MSC_VER)
 #  if defined(_WIN64)            /* applies to both IA-64 and AMD64 */
-#   include <stdlib.h>
+		//#include <stdlib.h>
 #   pragma intrinsic(_rotl64)
 #   define ROTATE(a, n) _rotl64((a), n)
 #  endif

@@ -20,16 +20,16 @@ typedef struct {
 	IDEA_KEY_SCHEDULE ks;
 } EVP_IDEA_KEY;
 
-static int idea_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc);
+static int idea_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc);
 
 /*
  * NB IDEA_ecb_encrypt doesn't take an 'encrypt' argument so we treat it as a
  * special case
  */
 
-static int idea_ecb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int idea_ecb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	BLOCK_CIPHER_ecb_loop()
 	IDEA_ecb_encrypt(in + i, out + i, &EVP_C_DATA(EVP_IDEA_KEY, ctx)->ks);
@@ -44,8 +44,8 @@ BLOCK_CIPHER_defs(idea, IDEA_KEY_SCHEDULE, NID_idea, 8, 16, 8, 64,
     0, idea_init_key, NULL,
     EVP_CIPHER_set_asn1_iv, EVP_CIPHER_get_asn1_iv, NULL)
 
-static int idea_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int idea_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	if(!enc) {
 		if(EVP_CIPHER_CTX_mode(ctx) == EVP_CIPH_OFB_MODE)

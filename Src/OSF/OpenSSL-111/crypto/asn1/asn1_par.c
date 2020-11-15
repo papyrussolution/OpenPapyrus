@@ -17,7 +17,7 @@
 #endif
 
 static int asn1_print_info(BIO * bp, int tag, int xclass, int constructed, int indent);
-static int asn1_parse2(BIO * bp, const unsigned char ** pp, long length, int offset, int depth, int indent, int dump);
+static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int depth, int indent, int dump);
 
 static int asn1_print_info(BIO * bp, int tag, int xclass, int constructed, int indent)
 {
@@ -50,21 +50,21 @@ err:
 	return 0;
 }
 
-int ASN1_parse(BIO * bp, const unsigned char * pp, long len, int indent)
+int ASN1_parse(BIO * bp, const uchar * pp, long len, int indent)
 {
 	return asn1_parse2(bp, &pp, len, 0, 0, indent, 0);
 }
 
-int ASN1_parse_dump(BIO * bp, const unsigned char * pp, long len, int indent,
+int ASN1_parse_dump(BIO * bp, const uchar * pp, long len, int indent,
     int dump)
 {
 	return asn1_parse2(bp, &pp, len, 0, 0, indent, dump);
 }
 
-static int asn1_parse2(BIO * bp, const unsigned char ** pp, long length,
+static int asn1_parse2(BIO * bp, const uchar ** pp, long length,
     int offset, int depth, int indent, int dump)
 {
-	const unsigned char * p, * ep, * tot, * op, * opp;
+	const uchar * p, * ep, * tot, * op, * opp;
 	long len;
 	int tag, xclass, ret = 0;
 	int nl, hl, j, r;
@@ -111,7 +111,7 @@ static int asn1_parse2(BIO * bp, const unsigned char ** pp, long length,
 		if(!asn1_print_info(bp, tag, xclass, j, (indent) ? depth : 0))
 			goto end;
 		if(j & V_ASN1_CONSTRUCTED) {
-			const unsigned char * sp = p;
+			const uchar * sp = p;
 
 			ep = p + len;
 			if(BIO_write(bp, "\n", 1) <= 0)
@@ -322,7 +322,7 @@ static int asn1_parse2(BIO * bp, const unsigned char ** pp, long length,
 			}
 			if(dump_cont) {
 				int i;
-				const unsigned char * tmp = op + hl;
+				const uchar * tmp = op + hl;
 				if(BIO_puts(bp, ":[") <= 0)
 					goto end;
 				for(i = 0; i < len; i++) {

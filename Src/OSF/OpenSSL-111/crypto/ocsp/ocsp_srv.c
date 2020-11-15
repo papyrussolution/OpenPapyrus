@@ -172,7 +172,7 @@ int OCSP_basic_add1_cert(OCSP_BASICRESP * resp, X509 * cert)
 
 int OCSP_basic_sign_ctx(OCSP_BASICRESP * brsp,
     X509 * signer, EVP_MD_CTX * ctx,
-    STACK_OF(X509) * certs, unsigned long flags)
+    STACK_OF(X509) * certs, ulong flags)
 {
 	int i;
 	OCSP_RESPID * rid;
@@ -228,7 +228,7 @@ err:
 
 int OCSP_basic_sign(OCSP_BASICRESP * brsp,
     X509 * signer, EVP_PKEY * key, const EVP_MD * dgst,
-    STACK_OF(X509) * certs, unsigned long flags)
+    STACK_OF(X509) * certs, ulong flags)
 {
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	EVP_PKEY_CTX * pkctx = NULL;
@@ -259,7 +259,7 @@ int OCSP_RESPID_set_by_name(OCSP_RESPID * respid, X509 * cert)
 int OCSP_RESPID_set_by_key(OCSP_RESPID * respid, X509 * cert)
 {
 	ASN1_OCTET_STRING * byKey = NULL;
-	unsigned char md[SHA_DIGEST_LENGTH];
+	uchar md[SHA_DIGEST_LENGTH];
 
 	/* RFC2560 requires SHA1 */
 	if(!X509_pubkey_digest(cert, EVP_sha1(), md, NULL))
@@ -283,7 +283,7 @@ int OCSP_RESPID_set_by_key(OCSP_RESPID * respid, X509 * cert)
 int OCSP_RESPID_match(OCSP_RESPID * respid, X509 * cert)
 {
 	if(respid->type == V_OCSP_RESPID_KEY) {
-		unsigned char md[SHA_DIGEST_LENGTH];
+		uchar md[SHA_DIGEST_LENGTH];
 
 		if(respid->value.byKey == NULL)
 			return 0;

@@ -13,7 +13,7 @@
 #include <openssl/objects.h>
 #include <openssl/x509.h>
 
-int EVP_PKEY_decrypt_old(unsigned char * key, const unsigned char * ek, int ekl,
+int EVP_PKEY_decrypt_old(uchar * key, const uchar * ek, int ekl,
     EVP_PKEY * priv)
 {
 	int ret = -1;

@@ -11,12 +11,11 @@
 #include <openssl/idea.h>
 #include "idea_lcl.h"
 
-static IDEA_INT inverse(unsigned int xin);
-void IDEA_set_encrypt_key(const unsigned char * key, IDEA_KEY_SCHEDULE * ks)
+static IDEA_INT inverse(uint xin);
+void IDEA_set_encrypt_key(const uchar * key, IDEA_KEY_SCHEDULE * ks)
 {
 	int i;
-	register IDEA_INT * kt, * kf, r0, r1, r2;
-
+	IDEA_INT * kt, * kf, r0, r1, r2;
 	kt = &(ks->data[0][0]);
 	n2s(key, kt[0]);
 	n2s(key, kt[1]);
@@ -55,8 +54,7 @@ void IDEA_set_encrypt_key(const unsigned char * key, IDEA_KEY_SCHEDULE * ks)
 void IDEA_set_decrypt_key(IDEA_KEY_SCHEDULE * ek, IDEA_KEY_SCHEDULE * dk)
 {
 	int r;
-	register IDEA_INT * fp, * tp, t;
-
+	IDEA_INT * fp, * tp, t;
 	tp = &(dk->data[0][0]);
 	fp = &(ek->data[8][0]);
 	for(r = 0; r < 9; r++) {
@@ -82,7 +80,7 @@ void IDEA_set_decrypt_key(IDEA_KEY_SCHEDULE * ek, IDEA_KEY_SCHEDULE * dk)
 }
 
 /* taken directly from the 'paper' I'll have a look at it later */
-static IDEA_INT inverse(unsigned int xin)
+static IDEA_INT inverse(uint xin)
 {
 	long n1, n2, q, r, b1, b2, t;
 

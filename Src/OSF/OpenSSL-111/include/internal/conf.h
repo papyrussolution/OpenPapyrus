@@ -16,7 +16,7 @@
 struct ossl_init_settings_st {
 	char * filename;
 	char * appname;
-	unsigned long flags;
+	ulong flags;
 };
 
 int openssl_config_int(const OPENSSL_INIT_SETTINGS *);

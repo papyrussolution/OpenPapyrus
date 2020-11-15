@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include "buildinf.h"
 
-unsigned long OpenSSL_version_num(void)
+ulong OpenSSL_version_num(void)
 {
 	return OPENSSL_VERSION_NUMBER;
 }

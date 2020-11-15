@@ -22,8 +22,6 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include "ma_string.h"
-//#include "ma_context.h"
 #ifdef HAVE_VALGRIND
 	#include <valgrind/valgrind.h>
 #endif
@@ -151,10 +149,6 @@ void my_context_destroy(struct my_context * c)
    case we do not need to restore registers at return (though we still need to
    save them as we cannot know if we will yield or not in advance).
  */
-
-//#include <stdint.h>
-//#include <stdlib.h>
-
 /*
    Layout of saved registers etc.
    Since this is accessed through gcc inline assembler, it is simpler to just
@@ -381,8 +375,6 @@ void my_context_destroy(struct my_context * c)
    case we do not need to restore registers at return (though we still need to
    save them as we cannot know if we will yield or not in advance).
  */
-//#include <stdint.h>
-//#include <stdlib.h>
 /*
    Layout of saved registers etc.
    Since this is accessed through gcc inline assembler, it is simpler to just

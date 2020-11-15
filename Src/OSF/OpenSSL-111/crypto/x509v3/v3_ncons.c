@@ -70,7 +70,7 @@ static int ia5ncasecmp(const char * s1, const char * s2, size_t n)
 {
 	for(; n > 0; n--, s1++, s2++) {
 		if(*s1 != *s2) {
-			unsigned char c1 = (uchar)*s1, c2 = (uchar)*s2;
+			uchar c1 = (uchar)*s1, c2 = (uchar)*s2;
 
 			/* Convert to lower case */
 			if(c1 >= 0x41 /* A */ && c1 <= 0x5A /* Z */)
@@ -179,7 +179,7 @@ static int do_i2r_name_constraints(const X509V3_EXT_METHOD * method, STACK_OF(GE
 static int print_nc_ipadd(BIO * bp, ASN1_OCTET_STRING * ip)
 {
 	int i, len;
-	unsigned char * p;
+	uchar * p;
 	p = ip->data;
 	len = ip->length;
 	BIO_puts(bp, "IP:");
@@ -291,10 +291,10 @@ int NAME_CONSTRAINTS_check(X509 * x, NAME_CONSTRAINTS * nc)
 	return X509_V_OK;
 }
 
-static int cn2dnsid(ASN1_STRING * cn, unsigned char ** dnsid, size_t * idlen)
+static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 {
 	int utf8_length;
-	unsigned char * utf8_value;
+	uchar * utf8_value;
 	int i;
 	int isdnsname = 0;
 
@@ -331,7 +331,7 @@ static int cn2dnsid(ASN1_STRING * cn, unsigned char ** dnsid, size_t * idlen)
 		--utf8_length;
 
 	/* Reject *embedded* NULs */
-	if((size_t)utf8_length != strlen((char*)utf8_value)) {
+	if((size_t)utf8_length != strlen((char *)utf8_value)) {
 		OPENSSL_free(utf8_value);
 		return X509_V_ERR_UNSUPPORTED_NAME_SYNTAX;
 	}
@@ -346,14 +346,9 @@ static int cn2dnsid(ASN1_STRING * cn, unsigned char ** dnsid, size_t * idlen)
 	 * that is not a problem.
 	 */
 	for(i = 0; i < utf8_length; ++i) {
-		unsigned char c = utf8_value[i];
-
-		if((c >= 'a' && c <= 'z')
-		    || (c >= 'A' && c <= 'Z')
-		    || (c >= '0' && c <= '9')
-		    || c == '_')
+		uchar c = utf8_value[i];
+		if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
 			continue;
-
 		/* Dot and hyphen cannot be first or last. */
 		if(i > 0 && i < utf8_length - 1) {
 			if(c == '-')
@@ -404,7 +399,7 @@ int NAME_CONSTRAINTS_check_CN(X509 * x, NAME_CONSTRAINTS * nc)
 	for(i = -1;;) {
 		X509_NAME_ENTRY * ne;
 		ASN1_STRING * cn;
-		unsigned char * idval;
+		uchar * idval;
 		size_t idlen;
 
 		i = X509_NAME_get_index_by_NID(nm, NID_commonName, i);
@@ -525,8 +520,8 @@ static int nc_dn(X509_NAME * nm, X509_NAME * base)
 
 static int nc_dns(ASN1_IA5STRING * dns, ASN1_IA5STRING * base)
 {
-	char * baseptr = (char*)base->data;
-	char * dnsptr = (char*)dns->data;
+	char * baseptr = (char *)base->data;
+	char * dnsptr = (char *)dns->data;
 	/* Empty matches everything */
 	if(!*baseptr)
 		return X509_V_OK;
@@ -548,8 +543,8 @@ static int nc_dns(ASN1_IA5STRING * dns, ASN1_IA5STRING * base)
 
 static int nc_email(ASN1_IA5STRING * eml, ASN1_IA5STRING * base)
 {
-	const char * baseptr = (char*)base->data;
-	const char * emlptr = (char*)eml->data;
+	const char * baseptr = (char *)base->data;
+	const char * emlptr = (char *)eml->data;
 
 	const char * baseat = strchr(baseptr, '@');
 	const char * emlat = strchr(emlptr, '@');
@@ -588,8 +583,8 @@ static int nc_email(ASN1_IA5STRING * eml, ASN1_IA5STRING * base)
 
 static int nc_uri(ASN1_IA5STRING * uri, ASN1_IA5STRING * base)
 {
-	const char * baseptr = (char*)base->data;
-	const char * hostptr = (char*)uri->data;
+	const char * baseptr = (char *)base->data;
+	const char * hostptr = (char *)uri->data;
 	const char * p = strchr(hostptr, ':');
 	int hostlen;
 	/* Check for foo:// and skip past it */
@@ -634,7 +629,7 @@ static int nc_uri(ASN1_IA5STRING * uri, ASN1_IA5STRING * base)
 static int nc_ip(ASN1_OCTET_STRING * ip, ASN1_OCTET_STRING * base)
 {
 	int hostlen, baselen, i;
-	unsigned char * hostptr, * baseptr, * maskptr;
+	uchar * hostptr, * baseptr, * maskptr;
 	hostptr = ip->data;
 	hostlen = ip->length;
 	baseptr = base->data;

@@ -12,11 +12,11 @@
 #include <openssl/rsa.h>
 #include <openssl/objects.h>
 
-int RSA_padding_add_X931(unsigned char * to, int tlen,
-    const unsigned char * from, int flen)
+int RSA_padding_add_X931(uchar * to, int tlen,
+    const uchar * from, int flen)
 {
 	int j;
-	unsigned char * p;
+	uchar * p;
 
 	/*
 	 * Absolute minimum amount of padding is 1 header nibble, 1 padding
@@ -50,11 +50,11 @@ int RSA_padding_add_X931(unsigned char * to, int tlen,
 	return 1;
 }
 
-int RSA_padding_check_X931(unsigned char * to, int tlen,
-    const unsigned char * from, int flen, int num)
+int RSA_padding_check_X931(uchar * to, int tlen,
+    const uchar * from, int flen, int num)
 {
 	int i = 0, j;
-	const unsigned char * p;
+	const uchar * p;
 
 	p = from;
 	if((num != flen) || ((*p != 0x6A) && (*p != 0x6B))) {
@@ -65,7 +65,7 @@ int RSA_padding_check_X931(unsigned char * to, int tlen,
 	if(*p++ == 0x6B) {
 		j = flen - 3;
 		for(i = 0; i < j; i++) {
-			unsigned char c = *p++;
+			uchar c = *p++;
 			if(c == 0xBA)
 				break;
 			if(c != 0xBB) {

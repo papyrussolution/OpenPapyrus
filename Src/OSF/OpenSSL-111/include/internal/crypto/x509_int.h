@@ -32,7 +32,7 @@ struct X509_name_st {
     int modified;               /* true if 'bytes' needs to be built */
     BUF_MEM *bytes;             /* cached encoding: cannot be NULL */
     /* canonical encoding used for rapid Name comparison */
-    unsigned char *canon_enc;
+    uchar *canon_enc;
     int canon_enclen;
 } /* X509_NAME */ ;
 
@@ -103,7 +103,7 @@ struct X509_crl_st {
     ASN1_INTEGER *base_crl_number;
     STACK_OF(GENERAL_NAMES) *issuers;
     /* hash of CRL */
-    unsigned char sha1_hash[SHA_DIGEST_LENGTH];
+    uchar sha1_hash[SHA_DIGEST_LENGTH];
     /* alternative method to handle this CRL */
     const X509_CRL_METHOD *meth;
     void *meth_data;
@@ -178,7 +178,7 @@ struct x509_st {
     STACK_OF(IPAddressFamily) *rfc3779_addr;
     struct ASIdentifiers_st *rfc3779_asid;
 #endif
-    unsigned char sha1_hash[SHA_DIGEST_LENGTH];
+    uchar sha1_hash[SHA_DIGEST_LENGTH];
     X509_CERT_AUX *aux;
     CRYPTO_RWLOCK *lock;
     volatile int ex_cached;
@@ -245,7 +245,7 @@ struct x509_store_ctx_st {      /* X509_STORE_CTX */
     /* score of current CRL */
     int current_crl_score;
     /* Reason mask */
-    unsigned int current_reasons;
+    uint current_reasons;
     /* For CRL path validation: parent context */
     X509_STORE_CTX *parent;
     CRYPTO_EX_DATA ex_data;
@@ -279,7 +279,7 @@ struct x509_object_st {
     } data;
 };
 
-int a2i_ipadd(unsigned char *ipout, const char *ipasc);
+int a2i_ipadd(uchar *ipout, const char *ipasc);
 int x509_set1_time(ASN1_TIME **ptm, const ASN1_TIME *tm);
 
 void x509_init_sig_info(X509 *x);

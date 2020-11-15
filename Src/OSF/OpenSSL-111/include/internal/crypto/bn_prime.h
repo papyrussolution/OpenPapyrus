@@ -10,7 +10,7 @@
  */
 #if 0 // @sobolev (moved to bn_prime.c) {
 
-typedef unsigned short prime_t;
+typedef ushort prime_t;
 
 static const prime_t __OpenSsl_Crypto_Primes/*primes*/[2048] = {
         2,     3,     5,     7,    11,    13,    17,    19,

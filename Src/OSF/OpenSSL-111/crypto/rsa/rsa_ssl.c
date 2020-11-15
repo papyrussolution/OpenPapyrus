@@ -13,11 +13,11 @@
 #include <openssl/rand.h>
 #include "internal/constant_time_locl.h"
 
-int RSA_padding_add_SSLv23(unsigned char * to, int tlen,
-    const unsigned char * from, int flen)
+int RSA_padding_add_SSLv23(uchar * to, int tlen,
+    const uchar * from, int flen)
 {
 	int i, j;
-	unsigned char * p;
+	uchar * p;
 	if(flen > (tlen - 11)) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_SSLV23,
 		    RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
@@ -56,13 +56,13 @@ int RSA_padding_add_SSLv23(unsigned char * to, int tlen,
  * if nul delimiter is not preceded by 8 consecutive 0x03 bytes. It also
  * preserves error code reporting for backward compatibility.
  */
-int RSA_padding_check_SSLv23(unsigned char * to, int tlen,
-    const unsigned char * from, int flen, int num)
+int RSA_padding_check_SSLv23(uchar * to, int tlen,
+    const uchar * from, int flen, int num)
 {
 	int i;
 	/* |em| is the encoded message, zero-padded to exactly |num| bytes */
-	unsigned char * em = NULL;
-	unsigned int good, found_zero_byte, mask, threes_in_row;
+	uchar * em = NULL;
+	uint good, found_zero_byte, mask, threes_in_row;
 	int zero_index = 0, msg_index, mlen = -1, err;
 
 	if(tlen <= 0 || flen <= 0)
@@ -100,7 +100,7 @@ int RSA_padding_check_SSLv23(unsigned char * to, int tlen,
 	found_zero_byte = 0;
 	threes_in_row = 0;
 	for(i = 2; i < num; i++) {
-		unsigned int equals0 = constant_time_is_zero(em[i]);
+		uint equals0 = constant_time_is_zero(em[i]);
 
 		zero_index = constant_time_select_int(~found_zero_byte & equals0,
 			i, zero_index);

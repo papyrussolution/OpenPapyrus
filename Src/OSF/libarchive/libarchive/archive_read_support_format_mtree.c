@@ -38,20 +38,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_mtree.c 2011
 #ifdef HAVE_FCNTL_H
 	#include <fcntl.h>
 #endif
-#include <stddef.h>
-/* #include <stdint.h> */ /* See archive_platform.h */
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_rb.h"
-//#include "archive_read_private.h"
-//#include "archive_string.h"
 #include "archive_pack_dev.h"
 
 #ifndef O_BINARY

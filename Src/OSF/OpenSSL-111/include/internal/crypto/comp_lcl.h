@@ -12,18 +12,18 @@ struct comp_method_st {
     int (*init) (COMP_CTX *ctx);
     void (*finish) (COMP_CTX *ctx);
     int (*compress) (COMP_CTX *ctx,
-                     unsigned char *out, unsigned int olen,
-                     unsigned char *in, unsigned int ilen);
+                     uchar *out, uint olen,
+                     uchar *in, uint ilen);
     int (*expand) (COMP_CTX *ctx,
-                   unsigned char *out, unsigned int olen,
-                   unsigned char *in, unsigned int ilen);
+                   uchar *out, uint olen,
+                   uchar *in, uint ilen);
 };
 
 struct comp_ctx_st {
     struct comp_method_st *meth;
-    unsigned long compress_in;
-    unsigned long compress_out;
-    unsigned long expand_in;
-    unsigned long expand_out;
+    ulong compress_in;
+    ulong compress_out;
+    ulong expand_in;
+    ulong expand_out;
     void* data;
 };

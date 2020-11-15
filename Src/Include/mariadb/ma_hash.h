@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-typedef uchar *(* hash_get_key)(const uchar *, uint*, my_bool);
+typedef uchar *(* hash_get_key)(const uchar *, uint*, bool);
 typedef void (* hash_free_key)(void *);
 
 /* flags for hash_init */
@@ -49,18 +49,18 @@ typedef struct st_hash {
 } HASH;
 
 #define hash_init(A, B, C, D, E, F, G) _hash_init(A, B, C, D, E, F, G CALLER_INFO)
-my_bool _hash_init(HASH * hash, uint default_array_elements, uint key_offset, uint key_length, hash_get_key get_key, void (* free_element)(
+bool _hash_init(HASH * hash, uint default_array_elements, uint key_offset, uint key_length, hash_get_key get_key, void (* free_element)(
 	    void*), uint flags CALLER_INFO_PROTO);
 void hash_free(HASH * tree);
 uchar * hash_element(HASH * hash, uint idx);
 void * hash_search(HASH * info, const uchar * key, uint length);
 void * hash_next(HASH * info, const uchar * key, uint length);
-my_bool hash_insert(HASH * info, const uchar * data);
-my_bool hash_delete(HASH * hash, uchar * record);
-my_bool hash_update(HASH * hash, uchar * record, uchar * old_key, uint old_key_length);
-my_bool hash_check(HASH * hash);                 /* Only in debug library */
+bool hash_insert(HASH * info, const uchar * data);
+bool hash_delete(HASH * hash, uchar * record);
+bool hash_update(HASH * hash, uchar * record, uchar * old_key, uint old_key_length);
+bool hash_check(HASH * hash);                 /* Only in debug library */
 
-#define hash_clear(H) memzero((char*)(H), sizeof(*(H)))
+#define hash_clear(H) memzero((char *)(H), sizeof(*(H)))
 #define hash_inited(H) ((H)->array.buffer != 0)
 
 #ifdef  __cplusplus

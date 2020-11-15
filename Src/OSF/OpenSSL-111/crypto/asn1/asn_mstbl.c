@@ -55,7 +55,7 @@ static int do_tcreate(const char * value, const char * name)
 	char * eptr;
 	int nid, i, rv = 0;
 	long tbl_min = -1, tbl_max = -1;
-	unsigned long tbl_mask = 0, tbl_flags = 0;
+	ulong tbl_mask = 0, tbl_flags = 0;
 	STACK_OF(CONF_VALUE) *lst = NULL;
 	CONF_VALUE * cnf = NULL;
 	nid = OBJ_sn2nid(name);

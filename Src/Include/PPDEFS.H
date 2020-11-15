@@ -905,6 +905,7 @@
 #define PPOBJ_EVENTTOKEN         65L // @v7.2.1 Специальный объект, используемый как уникальная метка для событий.
 	#define PPEVTOK_CVTSCS9809   1L // @v9.8.9 Событие конвертации серий персональных карт v9.8.9
 	#define PPEVTOK_OBJHIST9811  2L // @v9.8.11 Событие переключения техники хранения версий объектов
+	#define PPEVTOK_CVTCMDGROUP  3L // @v10.9.3 Событие переключения форматов идентификации пользовательских меню и рабочих столов
 #define PPOBJ_SMSPRVACCOUNT      66L // @v7.2.9 Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
@@ -11016,6 +11017,8 @@
 	#define CTL_CMDGROUP_FLAGS        (8 + IMPEXP_CTL_BIAS)
 	#define CTL_CMDGROUP_SELBGCOLOR   (9 + IMPEXP_CTL_BIAS)
 	#define CTL_CMDGROUP_ST_INFO      (10 + IMPEXP_CTL_BIAS)
+#define DLG_SELNEWCMDGROUP        1395
+	#define CTL_SELNEWCMDGROUP_SEL    (1 + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

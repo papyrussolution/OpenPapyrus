@@ -32,7 +32,7 @@ StrAssocArray * PPObjGenericDevice::MakeStrAssocList(void * extraPtr)
 	THROW_MEM(p_list);
 	{
 		PPGenericDevice rec;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if(!dvc_cls || rec.DeviceClass == dvc_cls) {
 				if(*strip(rec.Name) == 0)
 					ideqvalstr(rec.ID, rec.Name, sizeof(rec.Name));
@@ -56,21 +56,21 @@ int PPObjGenericDevice::PutPacket(PPID * pID, PPGenericDevicePacket * pPack, int
 		THROW(tra);
 		if(*pID) {
 			PPGenericDevice org_rec;
-			THROW(ref->GetItem(Obj, *pID, &org_rec) > 0);
+			THROW(P_Ref->GetItem(Obj, *pID, &org_rec) > 0);
 			if(pPack) {
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
-				THROW(ref->PutPropVlrString(Obj, *pID, GENDVCPRP_EXTSTRDATA, pPack->ExtString));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, GENDVCPRP_EXTSTRDATA, pPack->ExtString));
 				action = PPACN_OBJUPD;
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 				action = PPACN_OBJRMV;
 			}
 			Dirty(*pID);
 		}
 		else {
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-			THROW(ref->PutPropVlrString(Obj, *pID, GENDVCPRP_EXTSTRDATA, pPack->ExtString));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, GENDVCPRP_EXTSTRDATA, pPack->ExtString));
 			action = PPACN_OBJADD;
 		}
 		if(action)
@@ -87,7 +87,7 @@ int PPObjGenericDevice::GetPacket(PPID id, PPGenericDevicePacket * pPack)
 	if(pPack) {
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {
-			THROW(ref->GetPropVlrString(Obj, id, GENDVCPRP_EXTSTRDATA, pPack->ExtString));
+			THROW(P_Ref->GetPropVlrString(Obj, id, GENDVCPRP_EXTSTRDATA, pPack->ExtString));
 		}
 	}
 	CATCHZOK

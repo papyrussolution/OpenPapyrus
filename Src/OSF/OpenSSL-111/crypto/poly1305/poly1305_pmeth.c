@@ -79,7 +79,7 @@ static int pkey_poly1305_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 static int int_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 {
 	POLY1305_PKEY_CTX * pctx = static_cast<POLY1305_PKEY_CTX *>(EVP_PKEY_CTX_get_data(EVP_MD_CTX_pkey_ctx(ctx)));
-	Poly1305_Update(&pctx->ctx, static_cast<const unsigned char *>(data), count);
+	Poly1305_Update(&pctx->ctx, static_cast<const uchar *>(data), count);
 	return 1;
 }
 
@@ -96,7 +96,7 @@ static int poly1305_signctx_init(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx)
 	return 1;
 }
 
-static int poly1305_signctx(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * siglen, EVP_MD_CTX * mctx)
+static int poly1305_signctx(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, EVP_MD_CTX * mctx)
 {
 	POLY1305_PKEY_CTX * pctx = static_cast<POLY1305_PKEY_CTX *>(ctx->data);
 	*siglen = POLY1305_DIGEST_SIZE;
@@ -108,7 +108,7 @@ static int poly1305_signctx(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * si
 static int pkey_poly1305_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 {
 	POLY1305_PKEY_CTX * pctx = static_cast<POLY1305_PKEY_CTX *>(EVP_PKEY_CTX_get_data(ctx));
-	const unsigned char * key;
+	const uchar * key;
 	size_t len;
 	switch(type) {
 		case EVP_PKEY_CTRL_MD:
@@ -119,7 +119,7 @@ static int pkey_poly1305_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		case EVP_PKEY_CTRL_DIGESTINIT:
 		    if(type == EVP_PKEY_CTRL_SET_MAC_KEY) {
 			    /* user explicitly setting the key */
-			    key = static_cast<const unsigned char *>(p2);
+			    key = static_cast<const uchar *>(p2);
 			    len = p1;
 		    }
 		    else {

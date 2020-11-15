@@ -19,15 +19,15 @@ int PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PPWorldO
 		ReferenceTbl::Key3 k3;
 		k3.ObjType = Obj;
 		k3.Val2 = code;
-		if(ref->search(3, &k3, spEq)) {
-			const PPWorldObjStatus * p_wos = reinterpret_cast<const PPWorldObjStatus *>(&ref->data);
+		if(P_Ref->search(3, &k3, spEq)) {
+			const PPWorldObjStatus * p_wos = reinterpret_cast<const PPWorldObjStatus *>(&P_Ref->data);
 			do {
 				if((!kind || p_wos->Kind == kind) && !(pID && *pID && p_wos->ID == *pID)) {
 					ASSIGN_PTR(pID, p_wos->ID);
-					ref->copyBufTo(pRec);
+					P_Ref->copyBufTo(pRec);
 					ok = 1;
 				}
-			} while(ok < 0 && ref->search(3, &k3, spNext) && p_wos->Tag == Obj && p_wos->Code == code);
+			} while(ok < 0 && P_Ref->search(3, &k3, spNext) && p_wos->Tag == Obj && p_wos->Code == code);
 		}
 	}
 	return ok;
@@ -98,7 +98,7 @@ int PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const char * 
 		THROW(tra);
 		if(SearchByCode(code, kind, &(id = 0), &rec) > 0)
 			ok = 1;
-		else if(ref->SearchSymb(Obj, &(id = 0), pName, offsetof(PPWorldObjStatus, Name)) > 0)
+		else if(P_Ref->SearchSymb(Obj, &(id = 0), pName, offsetof(PPWorldObjStatus, Name)) > 0)
 			ok = 1;
 		else {
 			MEMSZERO(rec);
@@ -107,7 +107,7 @@ int PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const char * 
 			STRNSCPY(rec.Abbr, pAbbr);
 			rec.Kind = kind;
 			rec.Code = code;
-			THROW(ref->AddItem(Obj, &(id = 0), &rec, 0));
+			THROW(P_Ref->AddItem(Obj, &(id = 0), &rec, 0));
 			ok = 1;
 		}
 		THROW(tra.Commit());

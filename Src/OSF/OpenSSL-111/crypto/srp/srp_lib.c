@@ -22,8 +22,8 @@
 
 static BIGNUM * srp_Calc_xy(const BIGNUM * x, const BIGNUM * y, const BIGNUM * N)
 {
-	unsigned char digest[SHA_DIGEST_LENGTH];
-	unsigned char * tmp = NULL;
+	uchar digest[SHA_DIGEST_LENGTH];
+	uchar * tmp = NULL;
 	int numN = BN_num_bytes(N);
 	BIGNUM * res = NULL;
 	if(x != N && BN_ucmp(x, N) >= 0)
@@ -118,9 +118,9 @@ err:
 
 BIGNUM * SRP_Calc_x(const BIGNUM * s, const char * user, const char * pass)
 {
-	unsigned char dig[SHA_DIGEST_LENGTH];
+	uchar dig[SHA_DIGEST_LENGTH];
 	EVP_MD_CTX * ctxt;
-	unsigned char * cs = NULL;
+	uchar * cs = NULL;
 	BIGNUM * res = NULL;
 
 	if((s == NULL) || (user == NULL) || (pass == NULL))

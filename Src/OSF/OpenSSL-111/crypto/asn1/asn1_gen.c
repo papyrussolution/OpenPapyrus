@@ -104,10 +104,10 @@ static ASN1_TYPE * generate_v3(const char * str, X509V3_CTX * cnf, int depth,
 
 	int i, len;
 
-	unsigned char * orig_der = NULL, * new_der = NULL;
-	const unsigned char * cpy_start;
-	unsigned char * p;
-	const unsigned char * cp;
+	uchar * orig_der = NULL, * new_der = NULL;
+	const uchar * cpy_start;
+	uchar * p;
+	const uchar * cp;
 	int cpy_len;
 	long hdr_len = 0;
 	int hdr_constructed = 0, hdr_tag, hdr_class;
@@ -405,7 +405,7 @@ static ASN1_TYPE * asn1_multi(int utype, const char * section, X509V3_CTX * cnf,
 	ASN1_TYPE * ret = NULL;
 	STACK_OF(ASN1_TYPE) *sk = NULL;
 	STACK_OF(CONF_VALUE) *sect = NULL;
-	unsigned char * der = NULL;
+	uchar * der = NULL;
 	int derlen;
 	int i;
 	sk = sk_ASN1_TYPE_new_null();
@@ -414,7 +414,7 @@ static ASN1_TYPE * asn1_multi(int utype, const char * section, X509V3_CTX * cnf,
 	if(section) {
 		if(!cnf)
 			goto bad;
-		sect = X509V3_get_section(cnf, (char*)section);
+		sect = X509V3_get_section(cnf, (char *)section);
 		if(!sect)
 			goto bad;
 		for(i = 0; i < sk_CONF_VALUE_num(sect); i++) {
@@ -499,7 +499,7 @@ static int append_exp(tag_exp_arg * arg, int exp_tag, int exp_class,
 
 static int asn1_str2tag(const char * tagstr, int len)
 {
-	unsigned int i;
+	uint i;
 	static const struct tag_name_st * tntmp, tnst[] = {
 		ASN1_GEN_STR("BOOL", V_ASN1_BOOLEAN),
 		ASN1_GEN_STR("BOOLEAN", V_ASN1_BOOLEAN),
@@ -577,7 +577,7 @@ static ASN1_TYPE * asn1_str2type(const char * str, int format, int utype)
 {
 	ASN1_TYPE * atmp = NULL;
 	CONF_VALUE vtmp;
-	unsigned char * rdata;
+	uchar * rdata;
 	long rdlen;
 	int no_unused = 1;
 
@@ -604,7 +604,7 @@ static ASN1_TYPE * asn1_str2type(const char * str, int format, int utype)
 		    }
 		    vtmp.name = NULL;
 		    vtmp.section = NULL;
-		    vtmp.value = (char*)str;
+		    vtmp.value = (char *)str;
 		    if(!X509V3_get_value_bool(&vtmp, &atmp->value.boolean)) {
 			    ASN1err(ASN1_F_ASN1_STR2TYPE, ASN1_R_ILLEGAL_BOOLEAN);
 			    goto bad_str;
@@ -761,8 +761,8 @@ static int bitstr_cb(const char * elem, int len, void * bitstr)
 
 static int mask_cb(const char * elem, int len, void * arg)
 {
-	unsigned long * pmask = static_cast<unsigned long *>(arg);
-	unsigned long tmpmask;
+	ulong * pmask = static_cast<ulong *>(arg);
+	ulong tmpmask;
 	int tag;
 	if(elem == NULL)
 		return 0;
@@ -780,7 +780,7 @@ static int mask_cb(const char * elem, int len, void * arg)
 	return 1;
 }
 
-int ASN1_str2mask(const char * str, unsigned long * pmask)
+int ASN1_str2mask(const char * str, ulong * pmask)
 {
 	*pmask = 0;
 	return CONF_parse_list(str, '|', 1, mask_cb, pmask);

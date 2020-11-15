@@ -96,10 +96,8 @@ typedef struct st_ma_connection_plugin {
 	const char * unix_socket, unsigned long clientflag);
 	void (* close)(MYSQL * mysql);
 	int (* set_optionsv)(MYSQL * mysql, unsigned int option, ...);
-	int (* set_connection)(MYSQL * mysql, enum enum_server_command command,
-	    const char * arg,
-	    size_t length, my_bool skipp_check, void * opt_arg);
-	my_bool (* reconnect)(MYSQL * mysql);
+	int (* set_connection)(MYSQL * mysql, enum enum_server_command command, const char * arg, size_t length, bool skipp_check, void * opt_arg);
+	bool (* reconnect)(MYSQL * mysql);
 	int (* reset)(MYSQL * mysql);
 } MARIADB_CONNECTION_PLUGIN;
 

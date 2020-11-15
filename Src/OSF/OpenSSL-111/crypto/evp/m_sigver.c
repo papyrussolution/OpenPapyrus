@@ -100,7 +100,7 @@ int EVP_DigestVerifyInit(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx,
 	return do_sigver_init(ctx, pctx, type, e, pkey, 1);
 }
 
-int EVP_DigestSignFinal(EVP_MD_CTX * ctx, unsigned char * sigret,
+int EVP_DigestSignFinal(EVP_MD_CTX * ctx, uchar * sigret,
     size_t * siglen)
 {
 	int sctx = 0, r = 0;
@@ -124,8 +124,8 @@ int EVP_DigestSignFinal(EVP_MD_CTX * ctx, unsigned char * sigret,
 	else
 		sctx = 0;
 	if(sigret) {
-		unsigned char md[EVP_MAX_MD_SIZE];
-		unsigned int mdlen = 0;
+		uchar md[EVP_MAX_MD_SIZE];
+		uint mdlen = 0;
 		if(ctx->flags & EVP_MD_CTX_FLAG_FINALISE) {
 			if(sctx)
 				r = ctx->pctx->pmeth->signctx(ctx->pctx, sigret, siglen, ctx);
@@ -166,8 +166,8 @@ int EVP_DigestSignFinal(EVP_MD_CTX * ctx, unsigned char * sigret,
 	return 1;
 }
 
-int EVP_DigestSign(EVP_MD_CTX * ctx, unsigned char * sigret, size_t * siglen,
-    const unsigned char * tbs, size_t tbslen)
+int EVP_DigestSign(EVP_MD_CTX * ctx, uchar * sigret, size_t * siglen,
+    const uchar * tbs, size_t tbslen)
 {
 	if(ctx->pctx->pmeth->digestsign != NULL)
 		return ctx->pctx->pmeth->digestsign(ctx, sigret, siglen, tbs, tbslen);
@@ -176,12 +176,12 @@ int EVP_DigestSign(EVP_MD_CTX * ctx, unsigned char * sigret, size_t * siglen,
 	return EVP_DigestSignFinal(ctx, sigret, siglen);
 }
 
-int EVP_DigestVerifyFinal(EVP_MD_CTX * ctx, const unsigned char * sig,
+int EVP_DigestVerifyFinal(EVP_MD_CTX * ctx, const uchar * sig,
     size_t siglen)
 {
-	unsigned char md[EVP_MAX_MD_SIZE];
+	uchar md[EVP_MAX_MD_SIZE];
 	int r = 0;
-	unsigned int mdlen = 0;
+	uint mdlen = 0;
 	int vctx = 0;
 
 	if(ctx->pctx->pmeth->verifyctx)
@@ -214,8 +214,8 @@ int EVP_DigestVerifyFinal(EVP_MD_CTX * ctx, const unsigned char * sig,
 	return EVP_PKEY_verify(ctx->pctx, sig, siglen, md, mdlen);
 }
 
-int EVP_DigestVerify(EVP_MD_CTX * ctx, const unsigned char * sigret,
-    size_t siglen, const unsigned char * tbs, size_t tbslen)
+int EVP_DigestVerify(EVP_MD_CTX * ctx, const uchar * sigret,
+    size_t siglen, const uchar * tbs, size_t tbslen)
 {
 	if(ctx->pctx->pmeth->digestverify != NULL)
 		return ctx->pctx->pmeth->digestverify(ctx, sigret, siglen, tbs, tbslen);

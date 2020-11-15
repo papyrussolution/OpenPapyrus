@@ -29,14 +29,14 @@ int sm2_do_verify(const EC_KEY * key, const EVP_MD * digest, const ECDSA_SIG * s
 /*
  * SM2 signature generation.
  */
-int sm2_sign(const unsigned char * dgst, int dgstlen,
-    unsigned char * sig, unsigned int * siglen, EC_KEY * eckey);
+int sm2_sign(const uchar * dgst, int dgstlen,
+    uchar * sig, uint * siglen, EC_KEY * eckey);
 
 /*
  * SM2 signature verification.
  */
-int sm2_verify(const unsigned char * dgst, int dgstlen,
-    const unsigned char * sig, int siglen, EC_KEY * eckey);
+int sm2_verify(const uchar * dgst, int dgstlen,
+    const uchar * sig, int siglen, EC_KEY * eckey);
 
 /*
  * SM2 encryption

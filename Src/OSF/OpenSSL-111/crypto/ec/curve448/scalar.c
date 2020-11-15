@@ -49,7 +49,7 @@ static void sc_subx(curve448_scalar_t out,
     const curve448_scalar_t p, c448_word_t extra)
 {
 	c448_dsword_t chain = 0;
-	unsigned int i;
+	uint i;
 	c448_word_t borrow;
 
 	for(i = 0; i < C448_SCALAR_LIMBS; i++) {
@@ -70,7 +70,7 @@ static void sc_subx(curve448_scalar_t out,
 static void sc_montmul(curve448_scalar_t out, const curve448_scalar_t a,
     const curve448_scalar_t b)
 {
-	unsigned int i, j;
+	uint i, j;
 	c448_word_t accum[C448_SCALAR_LIMBS + 1] = { 0 };
 	c448_word_t hi_carry = 0;
 
@@ -121,7 +121,7 @@ void curve448_scalar_add(curve448_scalar_t out, const curve448_scalar_t a,
     const curve448_scalar_t b)
 {
 	c448_dword_t chain = 0;
-	unsigned int i;
+	uint i;
 
 	for(i = 0; i < C448_SCALAR_LIMBS; i++) {
 		chain = (chain + a->limb[i]) + b->limb[i];
@@ -132,7 +132,7 @@ void curve448_scalar_add(curve448_scalar_t out, const curve448_scalar_t a,
 }
 
 static ossl_inline void scalar_decode_short(curve448_scalar_t s,
-    const unsigned char * ser,
+    const uchar * ser,
     size_t nbytes)
 {
 	size_t i, j, k = 0;
@@ -147,9 +147,9 @@ static ossl_inline void scalar_decode_short(curve448_scalar_t s,
 }
 
 c448_error_t curve448_scalar_decode(curve448_scalar_t s,
-    const unsigned char ser[C448_SCALAR_BYTES])
+    const uchar ser[C448_SCALAR_BYTES])
 {
-	unsigned int i;
+	uint i;
 	c448_dsword_t accum = 0;
 
 	scalar_decode_short(s, ser, C448_SCALAR_BYTES);
@@ -168,7 +168,7 @@ void curve448_scalar_destroy(curve448_scalar_t scalar)
 }
 
 void curve448_scalar_decode_long(curve448_scalar_t s,
-    const unsigned char * ser, size_t ser_len)
+    const uchar * ser, size_t ser_len)
 {
 	size_t i;
 	curve448_scalar_t t1, t2;
@@ -204,10 +204,10 @@ void curve448_scalar_decode_long(curve448_scalar_t s,
 	curve448_scalar_destroy(t2);
 }
 
-void curve448_scalar_encode(unsigned char ser[C448_SCALAR_BYTES],
+void curve448_scalar_encode(uchar ser[C448_SCALAR_BYTES],
     const curve448_scalar_t s)
 {
-	unsigned int i, j, k = 0;
+	uint i, j, k = 0;
 
 	for(i = 0; i < C448_SCALAR_LIMBS; i++) {
 		for(j = 0; j < sizeof(c448_word_t); j++, k++)
@@ -219,7 +219,7 @@ void curve448_scalar_halve(curve448_scalar_t out, const curve448_scalar_t a)
 {
 	c448_word_t mask = 0 - (a->limb[0] & 1);
 	c448_dword_t chain = 0;
-	unsigned int i;
+	uint i;
 	for(i = 0; i < C448_SCALAR_LIMBS; i++) {
 		chain = (chain + a->limb[i]) + (sc_p->limb[i] & mask);
 		out->limb[i] = (c448_word_t)chain;

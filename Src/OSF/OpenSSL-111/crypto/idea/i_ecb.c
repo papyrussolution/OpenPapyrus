@@ -17,10 +17,10 @@ const char * IDEA_options(void)
 	return "idea(int)";
 }
 
-void IDEA_ecb_encrypt(const unsigned char * in, unsigned char * out,
+void IDEA_ecb_encrypt(const uchar * in, uchar * out,
     IDEA_KEY_SCHEDULE * ks)
 {
-	unsigned long l0, l1, d[2];
+	ulong l0, l1, d[2];
 
 	n2l(in, l0);
 	d[0] = l0;

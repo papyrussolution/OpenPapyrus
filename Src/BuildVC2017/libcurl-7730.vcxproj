@@ -1,0 +1,965 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FD47DF9E-FD33-443D-9048-D802D3364469}</ProjectGuid>
+    <SccProjectName />
+    <SccLocalPath />
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;..\osf\OpenSSL-111\include;..\include;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\OSF\CURL-7730\include;..\OSF\CURL-7730\src;..\OSF\CURL-7730\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\CURL-7730\lib\amigaos.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\asyn-ares.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\asyn-thread.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\base64.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\conncache.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\connect.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\content_encoding.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\cookie.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_addrinfo.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_ctype.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_des.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_endian.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_fnmatch.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_gethostname.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_get_line.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_gssapi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_memrchr.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_multibyte.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_ntlm_core.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_ntlm_wb.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_path.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_range.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_rtmp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_sasl.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_sspi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_threads.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\dict.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\doh.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\dotdot.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\dynbuf.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\easy.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\escape.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\file.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\fileinfo.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\formdata.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\ftp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\ftplistparser.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\getenv.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\getinfo.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\gopher.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hash.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hmac.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostasyn.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostcheck.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostip.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostip4.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostip6.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostsyn.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http2.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_chunks.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_digest.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_negotiate.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\http_ntlm.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_proxy.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\idn_win32.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\if2ip.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\imap.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\inet_ntop.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\inet_pton.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\krb5.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\ldap.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\libcurl-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\llist.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\md4.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\md5.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\memdebug.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\mime.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\mprintf.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\mqtt.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\multi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\netrc.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\non-ascii.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\nonblock.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\openldap.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\parsedate.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\pingpong.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\pop3.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\progress.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\rand.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\rename.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\rtsp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\select.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\sendf.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\setopt.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\sha256.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\share.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\slist.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\smb.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\smtp.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\socketpair.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\socks.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\socks_gssapi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\socks_sspi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\speedcheck.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\splay.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\strcase.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strdup.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strerror.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strtok.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strtoofft.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\system_win32.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\telnet.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\tftp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\timeval.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\transfer.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\url.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\urlapi.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\cleartext.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\cram.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\digest.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\digest_sspi.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\krb5_gssapi.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\krb5_sspi.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\ntlm.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\ntlm_sspi.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\oauth2.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\spnego_gssapi.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vauth\spnego_sspi.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\vauth.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\version.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\version_win32.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vssh\libssh.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vssh\libssh2.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vssh\wolfssh.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\bearssl.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\gskit.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\gtls.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\keylog.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vtls\mbedtls.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\mbedtls_threadlock.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\mesalink.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\nss.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\openssl.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\schannel.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\schannel_verify.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\sectransp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\vtls.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\wolfssl.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\warnless.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\wildcard.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\x509asn1.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\CURL-7730\include\curl\curl.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\amigaos.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\arpa_telnet.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\asyn.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\config-win32.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\conncache.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\connect.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\content_encoding.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\cookie.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curlx.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_addrinfo.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_des.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_endian.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_fnmatch.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_gethostname.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_gssapi.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ldap.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_md4.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_multibyte.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm_core.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm_msgs.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm_wb.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_printf.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_rtmp.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_sasl.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_sec.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_setup.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_setup_once.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_sspi.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_threads.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\dict.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\dotdot.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\easyif.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\fileinfo.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\formdata.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\ftp.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\ftplistparser.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\getinfo.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\gopher.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\hash.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\hostcheck.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\hostip.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\http.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\http2.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\http_chunks.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\http_digest.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\http_negotiate.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\http_proxy.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\if2ip.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\imap.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\inet_ntop.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\inet_pton.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\llist.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\memdebug.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\multihandle.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\multiif.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\netrc.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\non-ascii.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\pingpong.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\pop3.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\rename.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\rtsp.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\sendf.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\setup-vms.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\share.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\sigpipe.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\smb.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\smtp.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\socketpair.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\socks.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\splay.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\strerror.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\strtok.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\telnet.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\tftp.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\timeval.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\transfer.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\urldata.h" />
+    <ClInclude Include="..\Osf\CURL-7730\lib\vauth\digest.h" />
+    <ClInclude Include="..\Osf\CURL-7730\lib\vauth\ntlm.h" />
+    <ClInclude Include="..\Osf\CURL-7730\lib\vauth\vauth.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\bearssl.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\gskit.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\gtls.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\keylog.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\mbedtls.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\mbedtls_threadlock.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\mesalink.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\nssg.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\openssl.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\schannel.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\sectransp.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\vtls.h" />
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\wolfssl.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\warnless.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\wildcard.h" />
+    <ClInclude Include="..\osf\CURL-7730\lib\x509asn1.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\CURL-7730\lib\libcurl.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libssh2.vcxproj">
+      <Project>{15bc6de1-d1c2-4f47-a7a5-43d1a73d9b94}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

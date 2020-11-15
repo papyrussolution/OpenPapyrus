@@ -1481,7 +1481,7 @@ static void free_Digest(struct _7z_digests * d)
 static int read_Digests(struct archive_read * a, struct _7z_digests * d, size_t num)
 {
 	const uchar * p;
-	unsigned i;
+	uint i;
 	if(num == 0)
 		return -1;
 	memzero(d, sizeof(*d));
@@ -1524,7 +1524,7 @@ static void free_PackInfo(struct _7z_pack_info * pi)
 static int read_PackInfo(struct archive_read * a, struct _7z_pack_info * pi)
 {
 	const uchar * p;
-	unsigned i;
+	uint i;
 	memzero(pi, sizeof(*pi));
 	/*
 	 * Read PackPos.
@@ -1592,7 +1592,7 @@ static int read_PackInfo(struct archive_read * a, struct _7z_pack_info * pi)
 
 static void free_Folder(struct _7z_folder * f)
 {
-	unsigned i;
+	uint i;
 
 	if(f->coders) {
 		for(i = 0; i< f->numCoders; i++) {
@@ -1611,7 +1611,7 @@ static int read_Folder(struct archive_read * a, struct _7z_folder * f)
 	const uchar * p;
 	uint64_t numInStreamsTotal = 0;
 	uint64_t numOutStreamsTotal = 0;
-	unsigned i;
+	uint i;
 	memzero(f, sizeof(*f));
 	/*
 	 * Read NumCoders.
@@ -1739,7 +1739,7 @@ static int read_Folder(struct archive_read * a, struct _7z_folder * f)
 
 static void free_CodersInfo(struct _7z_coders_info * ci)
 {
-	unsigned i;
+	uint i;
 
 	if(ci->folders) {
 		for(i = 0; i < ci->numFolders; i++)
@@ -1752,7 +1752,7 @@ static int read_CodersInfo(struct archive_read * a, struct _7z_coders_info * ci)
 {
 	const uchar * p;
 	struct _7z_digests digest;
-	unsigned i;
+	uint i;
 	memzero(ci, sizeof(*ci));
 	memzero(&digest, sizeof(digest));
 	if((p = header_bytes(a, 1)) == NULL)
@@ -1850,7 +1850,7 @@ static uint64_t folder_uncompressed_size(struct _7z_folder * f)
 	unsigned pairs = (unsigned)f->numBindPairs;
 
 	while(--n >= 0) {
-		unsigned i;
+		uint i;
 		for(i = 0; i < pairs; i++) {
 			if(f->bindPairs[i].outIndex == (uint64_t)n)
 				break;
@@ -1875,7 +1875,7 @@ static int read_SubStreamsInfo(struct archive_read * a, struct _7z_substream_inf
 	uint64_t * usizes;
 	size_t unpack_streams;
 	int type;
-	unsigned i;
+	uint i;
 	uint32_t numDigests;
 	memzero(ss, sizeof(*ss));
 	for(i = 0; i < numFolders; i++)
@@ -1992,7 +1992,7 @@ static int read_StreamsInfo(struct archive_read * a, struct _7z_stream_info * si
 {
 	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const uchar * p;
-	unsigned i;
+	uint i;
 	memzero(si, sizeof(*si));
 	if((p = header_bytes(a, 1)) == NULL)
 		return -1;
@@ -2069,7 +2069,7 @@ static int read_Header(struct archive_read * a, struct _7z_header_info * h, int 
 	struct _7z_stream_info * si = &(zip->si);
 	struct _7zip_entry * entries;
 	uint32_t folderIndex, indexInFolder;
-	unsigned i;
+	uint i;
 	int eindex, empty_streams, sindex;
 	if(check_header_id) {
 		/*
@@ -2403,7 +2403,7 @@ static int read_Times(struct archive_read * a, struct _7z_header_info * h, int t
 	struct _7zip_entry * entries = zip->entries;
 	uchar * timeBools;
 	int allAreDefined;
-	unsigned i;
+	uint i;
 	timeBools = (uchar *)SAlloc::C((size_t)zip->numFiles, sizeof(*timeBools));
 	if(timeBools == NULL)
 		return -1;
@@ -2949,7 +2949,7 @@ static int setup_decode_folder(struct archive_read * a, struct _7z_folder * fold
 	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const struct _7z_folder::_7z_coder * coder1, * coder2;
 	const char * cname = (header) ? "archive header" : "file content";
-	unsigned i;
+	uint i;
 	int r, found_bcj2 = 0;
 	/*
 	 * Release the memory which the previous folder used for BCJ2.

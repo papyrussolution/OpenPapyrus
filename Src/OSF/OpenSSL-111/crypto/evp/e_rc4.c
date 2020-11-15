@@ -20,8 +20,8 @@ typedef struct {
 
 #define data(ctx) ((EVP_RC4_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 
-static int rc4_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, const unsigned char * iv, int enc);
-static int rc4_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsigned char * in, size_t inl);
+static int rc4_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
+static int rc4_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl);
 
 static const EVP_CIPHER r4_cipher = {
 	NID_rc4,
@@ -61,15 +61,15 @@ const EVP_CIPHER * EVP_rc4_40(void)
 	return &r4_40_cipher;
 }
 
-static int rc4_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int rc4_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	RC4_set_key(&data(ctx)->ks, EVP_CIPHER_CTX_key_length(ctx), key);
 	return 1;
 }
 
-static int rc4_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int rc4_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	RC4(&data(ctx)->ks, inl, in, out);
 	return 1;

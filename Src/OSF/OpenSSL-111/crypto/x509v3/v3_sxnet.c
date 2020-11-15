@@ -111,9 +111,9 @@ int SXNET_add_id_asc(SXNET ** psx, const char * zone, const char * user, int use
 	return SXNET_add_id_INTEGER(psx, izone, user, userlen);
 }
 
-/* Add an id given the zone as an unsigned long */
+/* Add an id given the zone as an ulong */
 
-int SXNET_add_id_ulong(SXNET ** psx, unsigned long lzone, const char * user,
+int SXNET_add_id_ulong(SXNET ** psx, ulong lzone, const char * user,
     int userlen)
 {
 	ASN1_INTEGER * izone;
@@ -167,7 +167,7 @@ int SXNET_add_id_INTEGER(SXNET ** psx, ASN1_INTEGER * zone, const char * user,
 	if(userlen == -1)
 		userlen = strlen(user);
 
-	if(!ASN1_OCTET_STRING_set(id->user, (const unsigned char*)user, userlen))
+	if(!ASN1_OCTET_STRING_set(id->user, (const uchar*)user, userlen))
 		goto err;
 	if(!sk_SXNETID_push(sx->ids, id))
 		goto err;
@@ -196,7 +196,7 @@ ASN1_OCTET_STRING * SXNET_get_id_asc(SXNET * sx, const char * zone)
 	return oct;
 }
 
-ASN1_OCTET_STRING * SXNET_get_id_ulong(SXNET * sx, unsigned long lzone)
+ASN1_OCTET_STRING * SXNET_get_id_ulong(SXNET * sx, ulong lzone)
 {
 	ASN1_INTEGER * izone;
 	ASN1_OCTET_STRING * oct;

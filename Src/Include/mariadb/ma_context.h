@@ -190,7 +190,7 @@ struct mysql_async_context {
 		void * r_ptr;
 		const void * r_const_ptr;
 		int r_int;
-		my_bool r_my_bool;
+		bool r_my_bool;
 	} ret_result;
 
 	/*
@@ -207,7 +207,7 @@ struct mysql_async_context {
 	   Note that this flag is not set when a call is suspended, eg. after
 	   returning from foo_start() and before re-entering foo_cont().
 	 */
-	my_bool active;
+	bool active;
 	/*
 	   This flag is set when an asynchronous operation is in progress, but
 	   suspended. Ie. it is set when foo_start() or foo_cont() returns because
@@ -217,14 +217,14 @@ struct mysql_async_context {
 	   attempts to call some foo_cont() method when no suspended operation foo is
 	   in progress.
 	 */
-	my_bool suspended;
+	bool suspended;
 	/*
 	   If non-NULL, this is a pointer to a callback hook that will be invoked with
 	   the user data argument just before the context is suspended, and just after
 	   it is resumed.
 	 */
 	struct st_ma_pvio * pvio;
-	void (* suspend_resume_hook)(my_bool suspend, void * user_data);
+	void (* suspend_resume_hook)(bool suspend, void * user_data);
 	void * suspend_resume_hook_user_data;
 	/*
 	   This is used to save the execution contexts so that we can suspend an

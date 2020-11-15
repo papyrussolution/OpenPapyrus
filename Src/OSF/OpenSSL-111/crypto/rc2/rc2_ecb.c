@@ -19,10 +19,10 @@
  * Date: 11 Feb 1996 06:45:03 GMT
  */
 
-void RC2_ecb_encrypt(const unsigned char * in, unsigned char * out, RC2_KEY * ks,
+void RC2_ecb_encrypt(const uchar * in, uchar * out, RC2_KEY * ks,
     int encrypt)
 {
-	unsigned long l, d[2];
+	ulong l, d[2];
 
 	c2l(in, l);
 	d[0] = l;

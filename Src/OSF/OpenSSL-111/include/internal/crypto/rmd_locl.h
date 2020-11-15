@@ -5,9 +5,6 @@
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at  https://www.openssl.org/source/license.html
  */
-
-#include <stdlib.h>
-#include <string.h>
 #include <openssl/opensslconf.h>
 #include <openssl/ripemd.h>
 
@@ -32,7 +29,7 @@ void ripemd160_block_data_order(RIPEMD160_CTX *c, const void *p, size_t num);
 #define HASH_TRANSFORM          RIPEMD160_Transform
 #define HASH_FINAL              RIPEMD160_Final
 #define HASH_MAKE_STRING(c,s)   do {    \
-        unsigned long ll;               \
+        ulong ll;               \
         ll=(c)->A; (void)HOST_l2c(ll,(s));      \
         ll=(c)->B; (void)HOST_l2c(ll,(s));      \
         ll=(c)->C; (void)HOST_l2c(ll,(s));      \

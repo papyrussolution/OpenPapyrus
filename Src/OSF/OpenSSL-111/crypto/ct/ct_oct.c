@@ -17,11 +17,11 @@
 //#include <openssl/err.h>
 #include "ct_locl.h"
 
-int o2i_SCT_signature(SCT * sct, const unsigned char ** in, size_t len)
+int o2i_SCT_signature(SCT * sct, const uchar ** in, size_t len)
 {
 	size_t siglen;
 	size_t len_remaining = len;
-	const unsigned char * p;
+	const uchar * p;
 	if(sct->version != SCT_VERSION_V1) {
 		CTerr(CT_F_O2I_SCT_SIGNATURE, CT_R_UNSUPPORTED_VERSION);
 		return -1;
@@ -62,10 +62,10 @@ int o2i_SCT_signature(SCT * sct, const unsigned char ** in, size_t len)
 	return len - len_remaining;
 }
 
-SCT * o2i_SCT(SCT ** psct, const unsigned char ** in, size_t len)
+SCT * o2i_SCT(SCT ** psct, const uchar ** in, size_t len)
 {
 	SCT * sct = NULL;
-	const unsigned char * p;
+	const uchar * p;
 
 	if(len == 0 || len > MAX_SCT_SIZE) {
 		CTerr(CT_F_O2I_SCT, CT_R_SCT_INVALID);
@@ -144,10 +144,10 @@ err:
 	return NULL;
 }
 
-int i2o_SCT_signature(const SCT * sct, unsigned char ** out)
+int i2o_SCT_signature(const SCT * sct, uchar ** out)
 {
 	size_t len;
-	unsigned char * p = NULL, * pstart = NULL;
+	uchar * p = NULL, * pstart = NULL;
 
 	if(!SCT_signature_is_complete(sct)) {
 		CTerr(CT_F_I2O_SCT_SIGNATURE, CT_R_SCT_INVALID_SIGNATURE);
@@ -192,10 +192,10 @@ err:
 	return -1;
 }
 
-int i2o_SCT(const SCT * sct, unsigned char ** out)
+int i2o_SCT(const SCT * sct, uchar ** out)
 {
 	size_t len;
-	unsigned char * p = NULL, * pstart = NULL;
+	uchar * p = NULL, * pstart = NULL;
 
 	if(!SCT_is_complete(sct)) {
 		CTerr(CT_F_I2O_SCT, CT_R_SCT_NOT_SET);
@@ -251,7 +251,7 @@ err:
 	return -1;
 }
 
-STACK_OF(SCT) *o2i_SCT_LIST(STACK_OF(SCT) **a, const unsigned char ** pp,
+STACK_OF(SCT) *o2i_SCT_LIST(STACK_OF(SCT) **a, const uchar ** pp,
     size_t len)
 {
 	STACK_OF(SCT) *sk = NULL;
@@ -316,11 +316,11 @@ err:
 	return NULL;
 }
 
-int i2o_SCT_LIST(const STACK_OF(SCT) * a, unsigned char ** pp)
+int i2o_SCT_LIST(const STACK_OF(SCT) * a, uchar ** pp)
 {
 	int len, sct_len, i, is_pp_new = 0;
 	size_t len2;
-	unsigned char * p = NULL, * p2;
+	uchar * p = NULL, * p2;
 
 	if(pp != NULL) {
 		if(*pp == NULL) {
@@ -372,12 +372,12 @@ err:
 	return -1;
 }
 
-STACK_OF(SCT) *d2i_SCT_LIST(STACK_OF(SCT) **a, const unsigned char ** pp,
+STACK_OF(SCT) *d2i_SCT_LIST(STACK_OF(SCT) **a, const uchar ** pp,
     long len)
 {
 	ASN1_OCTET_STRING * oct = NULL;
 	STACK_OF(SCT) *sk = NULL;
-	const unsigned char * p;
+	const uchar * p;
 
 	p = *pp;
 	if(d2i_ASN1_OCTET_STRING(&oct, &p, len) == NULL)
@@ -391,7 +391,7 @@ STACK_OF(SCT) *d2i_SCT_LIST(STACK_OF(SCT) **a, const unsigned char ** pp,
 	return sk;
 }
 
-int i2d_SCT_LIST(const STACK_OF(SCT) * a, unsigned char ** out)
+int i2d_SCT_LIST(const STACK_OF(SCT) * a, uchar ** out)
 {
 	ASN1_OCTET_STRING oct;
 	int len;

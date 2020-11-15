@@ -15,8 +15,8 @@
 #include "evp_locl.h"
 #include <openssl/rc5.h>
 
-static int r_32_12_16_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc);
+static int r_32_12_16_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc);
 static int rc5_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);
 
 typedef struct {
@@ -60,8 +60,8 @@ static int rc5_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 	}
 }
 
-static int r_32_12_16_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int r_32_12_16_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	if(EVP_CIPHER_CTX_key_length(ctx) > 255) {
 		EVPerr(EVP_F_R_32_12_16_INIT_KEY, EVP_R_BAD_KEY_LENGTH);

@@ -13,8 +13,8 @@
 #pragma hdrstop
 #include <chacha.h>
 
-typedef unsigned int u32;
-typedef unsigned char u8;
+typedef uint u32;
+typedef uchar u8;
 typedef union {
 	u32 u[16];
 	u8 c[64];
@@ -70,9 +70,9 @@ static void chacha20_core(chacha_buf * output, const u32 input[16])
 	}
 }
 
-void ChaCha20_ctr32(unsigned char * out, const unsigned char * inp,
-    size_t len, const unsigned int key[8],
-    const unsigned int counter[4])
+void ChaCha20_ctr32(uchar * out, const uchar * inp,
+    size_t len, const uint key[8],
+    const uint counter[4])
 {
 	u32 input[16];
 	chacha_buf buf;

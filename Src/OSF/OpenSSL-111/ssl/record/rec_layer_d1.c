@@ -87,20 +87,20 @@ void DTLS_RECORD_LAYER_clear(RECORD_LAYER * rl)
 	d->buffered_app_data.q = buffered_app_data;
 }
 
-void DTLS_RECORD_LAYER_set_saved_w_epoch(RECORD_LAYER * rl, unsigned short e)
+void DTLS_RECORD_LAYER_set_saved_w_epoch(RECORD_LAYER * rl, ushort e)
 {
 	if(e == rl->d->w_epoch - 1) {
 		memcpy(rl->d->curr_write_sequence, rl->write_sequence, sizeof(rl->write_sequence));
 		memcpy(rl->write_sequence, rl->d->last_write_sequence, sizeof(rl->write_sequence));
 	}
 	else if(e == rl->d->w_epoch + 1) {
-		memcpy(rl->d->last_write_sequence, rl->write_sequence, sizeof(unsigned char[8]));
+		memcpy(rl->d->last_write_sequence, rl->write_sequence, sizeof(uchar[8]));
 		memcpy(rl->write_sequence, rl->d->curr_write_sequence, sizeof(rl->write_sequence));
 	}
 	rl->d->w_epoch = e;
 }
 
-void DTLS_RECORD_LAYER_set_write_sequence(RECORD_LAYER * rl, unsigned char * seq)
+void DTLS_RECORD_LAYER_set_write_sequence(RECORD_LAYER * rl, uchar * seq)
 {
 	memcpy(rl->write_sequence, seq, SEQ_NUM_SIZE);
 }
@@ -125,7 +125,7 @@ static int dtls1_copy_record(SSL * s, pitem * item)
 	return 1;
 }
 
-int dtls1_buffer_record(SSL * s, record_pqueue * queue, unsigned char * priority)
+int dtls1_buffer_record(SSL * s, record_pqueue * queue, uchar * priority)
 {
 	DTLS1_RECORD_DATA * rdata;
 	pitem * item;
@@ -212,7 +212,7 @@ int dtls1_process_buffered_records(SSL * s)
 	SSL3_BUFFER * rb;
 	SSL3_RECORD * rr;
 	DTLS1_BITMAP * bitmap;
-	unsigned int is_next_epoch;
+	uint is_next_epoch;
 	int replayok = 1;
 
 	item = pqueue_peek(s->rlayer.d->unprocessed_rcds.q);
@@ -322,7 +322,7 @@ int dtls1_process_buffered_records(SSL * s)
  *     Application data protocol
  *             none of our business
  */
-int dtls1_read_bytes(SSL * s, int type, int * recvd_type, unsigned char * buf,
+int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
     size_t len, int peek, size_t * readbytes)
 {
 	int i, j, iret;
@@ -533,8 +533,8 @@ start:
 	 */
 
 	if(SSL3_RECORD_get_type(rr) == SSL3_RT_ALERT) {
-		unsigned int alert_level, alert_descr;
-		unsigned char * alert_bytes = SSL3_RECORD_get_data(rr)
+		uint alert_level, alert_descr;
+		uchar * alert_bytes = SSL3_RECORD_get_data(rr)
 		    + SSL3_RECORD_get_off(rr);
 		PACKET alert;
 
@@ -778,9 +778,9 @@ int dtls1_write_bytes(SSL * s, int type, const void * buf, size_t len, size_t * 
 	return i;
 }
 
-int do_dtls1_write(SSL * s, int type, const unsigned char * buf, size_t len, int create_empty_fragment, size_t * written)
+int do_dtls1_write(SSL * s, int type, const uchar * buf, size_t len, int create_empty_fragment, size_t * written)
 {
-	unsigned char * p, * pseq;
+	uchar * p, * pseq;
 	int i, mac_size, clear = 0;
 	size_t prefix_len = 0;
 	int eivlen;
@@ -879,7 +879,7 @@ int do_dtls1_write(SSL * s, int type, const unsigned char * buf, size_t len, int
 	/* lets setup the record stuff. */
 	SSL3_RECORD_set_data(&wr, p + eivlen); /* make room for IV in case of CBC */
 	SSL3_RECORD_set_length(&wr, len);
-	SSL3_RECORD_set_input(&wr, (unsigned char*)buf);
+	SSL3_RECORD_set_input(&wr, (uchar*)buf);
 
 	/*
 	 * we now 'read' from wr.input, wr.length bytes into wr.data
@@ -991,7 +991,7 @@ int do_dtls1_write(SSL * s, int type, const unsigned char * buf, size_t len, int
 }
 
 DTLS1_BITMAP * dtls1_get_bitmap(SSL * s, SSL3_RECORD * rr,
-    unsigned int * is_next_epoch)
+    uint * is_next_epoch)
 {
 	*is_next_epoch = 0;
 
@@ -1004,7 +1004,7 @@ DTLS1_BITMAP * dtls1_get_bitmap(SSL * s, SSL3_RECORD * rr,
 	 * have already processed all of the unprocessed records from the last
 	 * epoch
 	 */
-	else if(rr->epoch == (unsigned long)(s->rlayer.d->r_epoch + 1) &&
+	else if(rr->epoch == (ulong)(s->rlayer.d->r_epoch + 1) &&
 	    s->rlayer.d->unprocessed_rcds.epoch != s->rlayer.d->r_epoch &&
 	    (rr->type == SSL3_RT_HANDSHAKE || rr->type == SSL3_RT_ALERT)) {
 		*is_next_epoch = 1;
@@ -1016,8 +1016,8 @@ DTLS1_BITMAP * dtls1_get_bitmap(SSL * s, SSL3_RECORD * rr,
 
 void dtls1_reset_seq_numbers(SSL * s, int rw)
 {
-	unsigned char * seq;
-	unsigned int seq_bytes = sizeof(s->rlayer.read_sequence);
+	uchar * seq;
+	uint seq_bytes = sizeof(s->rlayer.read_sequence);
 	if(rw & SSL3_CC_READ) {
 		seq = s->rlayer.read_sequence;
 		s->rlayer.d->r_epoch++;

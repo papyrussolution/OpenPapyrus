@@ -65,23 +65,23 @@ static const char ossl_pers_string[] = "OpenSSL NIST SP 800-90A DRBG";
 static CRYPTO_ONCE rand_drbg_init = CRYPTO_ONCE_STATIC_INIT;
 
 static int rand_drbg_type = RAND_DRBG_TYPE;
-static unsigned int rand_drbg_flags = RAND_DRBG_FLAGS;
+static uint rand_drbg_flags = RAND_DRBG_FLAGS;
 
-static unsigned int master_reseed_interval = MASTER_RESEED_INTERVAL;
-static unsigned int slave_reseed_interval  = SLAVE_RESEED_INTERVAL;
+static uint master_reseed_interval = MASTER_RESEED_INTERVAL;
+static uint slave_reseed_interval  = SLAVE_RESEED_INTERVAL;
 
 static time_t master_reseed_time_interval = MASTER_RESEED_TIME_INTERVAL;
 static time_t slave_reseed_time_interval  = SLAVE_RESEED_TIME_INTERVAL;
 
 /* A logical OR of all used DRBG flag bits (currently there is only one) */
-static const unsigned int rand_drbg_used_flags =
+static const uint rand_drbg_used_flags =
     RAND_DRBG_FLAG_CTR_NO_DF;
 
 static RAND_DRBG * drbg_setup(RAND_DRBG * parent);
 
 static RAND_DRBG * rand_drbg_new(int secure,
     int type,
-    unsigned int flags,
+    uint flags,
     RAND_DRBG * parent);
 
 /*
@@ -91,7 +91,7 @@ static RAND_DRBG * rand_drbg_new(int secure,
  *
  * Returns 1 on success, 0 on failure.
  */
-int RAND_DRBG_set(RAND_DRBG * drbg, int type, unsigned int flags)
+int RAND_DRBG_set(RAND_DRBG * drbg, int type, uint flags)
 {
 	int ret = 1;
 
@@ -141,7 +141,7 @@ int RAND_DRBG_set(RAND_DRBG * drbg, int type, unsigned int flags)
  *
  * Returns 1 on success, 0 on failure.
  */
-int RAND_DRBG_set_defaults(int type, unsigned int flags)
+int RAND_DRBG_set_defaults(int type, uint flags)
 {
 	int ret = 1;
 
@@ -173,7 +173,7 @@ int RAND_DRBG_set_defaults(int type, unsigned int flags)
  *
  * Returns a pointer to the new DRBG instance on success, NULL on failure.
  */
-static RAND_DRBG * rand_drbg_new(int secure, int type, unsigned int flags,
+static RAND_DRBG * rand_drbg_new(int secure, int type, uint flags,
     RAND_DRBG * parent)
 {
 	RAND_DRBG * drbg = static_cast<RAND_DRBG *>(secure ? OPENSSL_secure_zalloc(sizeof(*drbg)) : OPENSSL_zalloc(sizeof(*drbg)));
@@ -232,12 +232,12 @@ err:
 	return NULL;
 }
 
-RAND_DRBG * RAND_DRBG_new(int type, unsigned int flags, RAND_DRBG * parent)
+RAND_DRBG * RAND_DRBG_new(int type, uint flags, RAND_DRBG * parent)
 {
 	return rand_drbg_new(0, type, flags, parent);
 }
 
-RAND_DRBG * RAND_DRBG_secure_new(int type, unsigned int flags, RAND_DRBG * parent)
+RAND_DRBG * RAND_DRBG_secure_new(int type, uint flags, RAND_DRBG * parent)
 {
 	return rand_drbg_new(1, type, flags, parent);
 }
@@ -271,9 +271,9 @@ void RAND_DRBG_free(RAND_DRBG * drbg)
  * Returns 1 on success, 0 on failure.
  */
 int RAND_DRBG_instantiate(RAND_DRBG * drbg,
-    const unsigned char * pers, size_t perslen)
+    const uchar * pers, size_t perslen)
 {
-	unsigned char * nonce = NULL, * entropy = NULL;
+	uchar * nonce = NULL, * entropy = NULL;
 	size_t noncelen = 0, entropylen = 0;
 	size_t min_entropy = drbg->strength;
 	size_t min_entropylen = drbg->min_entropylen;
@@ -390,10 +390,10 @@ int RAND_DRBG_uninstantiate(RAND_DRBG * drbg)
  * Returns 1 on success, 0 on failure.
  */
 int RAND_DRBG_reseed(RAND_DRBG * drbg,
-    const unsigned char * adin, size_t adinlen,
+    const uchar * adin, size_t adinlen,
     int prediction_resistance)
 {
-	unsigned char * entropy = NULL;
+	uchar * entropy = NULL;
 	size_t entropylen = 0;
 
 	if(drbg->state == DRBG_ERROR) {
@@ -467,10 +467,10 @@ end:
  * This function is used internally only.
  */
 int rand_drbg_restart(RAND_DRBG * drbg,
-    const unsigned char * buffer, size_t len, size_t entropy)
+    const uchar * buffer, size_t len, size_t entropy)
 {
 	int reseeded = 0;
-	const unsigned char * adin = NULL;
+	const uchar * adin = NULL;
 	size_t adinlen = 0;
 
 	if(drbg->seed_pool != NULL) {
@@ -521,7 +521,7 @@ int rand_drbg_restart(RAND_DRBG * drbg,
 	if(drbg->state == DRBG_UNINITIALISED) {
 		/* reinstantiate drbg */
 		RAND_DRBG_instantiate(drbg,
-		    (const unsigned char*)ossl_pers_string,
+		    (const uchar*)ossl_pers_string,
 		    sizeof(ossl_pers_string) - 1);
 		/* already reseeded. prevent second reseeding below */
 		reseeded = (drbg->state == DRBG_READY);
@@ -562,9 +562,9 @@ int rand_drbg_restart(RAND_DRBG * drbg,
  * Returns 1 on success, 0 on failure.
  *
  */
-int RAND_DRBG_generate(RAND_DRBG * drbg, unsigned char * out, size_t outlen,
+int RAND_DRBG_generate(RAND_DRBG * drbg, uchar * out, size_t outlen,
     int prediction_resistance,
-    const unsigned char * adin, size_t adinlen)
+    const uchar * adin, size_t adinlen)
 {
 	int fork_id;
 	int reseed_required = 0;
@@ -610,7 +610,7 @@ int RAND_DRBG_generate(RAND_DRBG * drbg, unsigned char * out, size_t outlen,
 			reseed_required = 1;
 	}
 	if(drbg->parent != NULL) {
-		unsigned int reseed_counter = tsan_load(&drbg->reseed_prop_counter);
+		uint reseed_counter = tsan_load(&drbg->reseed_prop_counter);
 		if(reseed_counter > 0
 		    && tsan_load(&drbg->parent->reseed_prop_counter)
 		    != reseed_counter)
@@ -645,9 +645,9 @@ int RAND_DRBG_generate(RAND_DRBG * drbg, unsigned char * out, size_t outlen,
  *
  * Returns 1 on success 0 on failure.
  */
-int RAND_DRBG_bytes(RAND_DRBG * drbg, unsigned char * out, size_t outlen)
+int RAND_DRBG_bytes(RAND_DRBG * drbg, uchar * out, size_t outlen)
 {
-	unsigned char * additional = NULL;
+	uchar * additional = NULL;
 	size_t additional_len;
 	size_t chunk;
 	size_t ret = 0;
@@ -713,7 +713,7 @@ int RAND_DRBG_set_callbacks(RAND_DRBG * drbg,
  *
  * Returns 1 on success, 0 on failure.
  */
-int RAND_DRBG_set_reseed_interval(RAND_DRBG * drbg, unsigned int interval)
+int RAND_DRBG_set_reseed_interval(RAND_DRBG * drbg, uint interval)
 {
 	if(interval > MAX_RESEED_INTERVAL)
 		return 0;
@@ -748,8 +748,8 @@ int RAND_DRBG_set_reseed_time_interval(RAND_DRBG * drbg, time_t interval)
  * Returns 1 on success, 0 on failure.
  */
 
-int RAND_DRBG_set_reseed_defaults(unsigned int _master_reseed_interval,
-    unsigned int _slave_reseed_interval,
+int RAND_DRBG_set_reseed_defaults(uint _master_reseed_interval,
+    uint _slave_reseed_interval,
     time_t _master_reseed_time_interval,
     time_t _slave_reseed_time_interval
     )
@@ -879,7 +879,7 @@ static RAND_DRBG * drbg_setup(RAND_DRBG * parent)
 	 * an automatic recovery is attempted.
 	 */
 	(void)RAND_DRBG_instantiate(drbg,
-	    (const unsigned char*)ossl_pers_string,
+	    (const uchar*)ossl_pers_string,
 	    sizeof(ossl_pers_string) - 1);
 	return drbg;
 
@@ -943,7 +943,7 @@ void drbg_delete_thread_state(void)
 }
 
 /* Implements the default OpenSSL RAND_bytes() method */
-static int drbg_bytes(unsigned char * out, int count)
+static int drbg_bytes(uchar * out, int count)
 {
 	int ret;
 	RAND_DRBG * drbg = RAND_DRBG_get0_public();
@@ -1016,7 +1016,7 @@ static int drbg_add(const void * buf, int num, double randomness)
 		 * dummy random byte, using the buffer content as additional data.
 		 * Note: This won't work with RAND_DRBG_FLAG_CTR_NO_DF.
 		 */
-		unsigned char dummy[1];
+		uchar dummy[1];
 
 		ret = RAND_DRBG_generate(drbg, dummy, sizeof(dummy), 0, buf, buflen);
 		rand_drbg_unlock(drbg);

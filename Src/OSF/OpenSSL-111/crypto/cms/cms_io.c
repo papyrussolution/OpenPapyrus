@@ -15,7 +15,7 @@
 #include <openssl/cms.h>
 #include "cms_lcl.h"
 
-int CMS_stream(unsigned char *** boundary, CMS_ContentInfo * cms)
+int CMS_stream(uchar *** boundary, CMS_ContentInfo * cms)
 {
 	ASN1_OCTET_STRING ** pos;
 	pos = CMS_get0_content(cms);

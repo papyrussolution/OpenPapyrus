@@ -11,7 +11,7 @@
 //#include <openssl/asn1.h>
 //#include <openssl/asn1t.h>
 
-int ASN1_TYPE_set_octetstring(ASN1_TYPE * a, unsigned char * data, int len)
+int ASN1_TYPE_set_octetstring(ASN1_TYPE * a, uchar * data, int len)
 {
 	ASN1_STRING * os;
 	if((os = ASN1_OCTET_STRING_new()) == NULL)
@@ -25,10 +25,10 @@ int ASN1_TYPE_set_octetstring(ASN1_TYPE * a, unsigned char * data, int len)
 }
 
 /* int max_len:  for returned value    */
-int ASN1_TYPE_get_octetstring(const ASN1_TYPE * a, unsigned char * data, int max_len)
+int ASN1_TYPE_get_octetstring(const ASN1_TYPE * a, uchar * data, int max_len)
 {
 	int ret, num;
-	const unsigned char * p;
+	const uchar * p;
 
 	if((a->type != V_ASN1_OCTET_STRING) || (a->value.octet_string == NULL)) {
 		ASN1err(ASN1_F_ASN1_TYPE_GET_OCTETSTRING, ASN1_R_DATA_IS_WRONG);
@@ -56,7 +56,7 @@ ASN1_SEQUENCE(asn1_int_oct) = {
 
 DECLARE_ASN1_ITEM(asn1_int_oct)
 
-int ASN1_TYPE_set_int_octetstring(ASN1_TYPE * a, long num, unsigned char * data, int len)
+int ASN1_TYPE_set_int_octetstring(ASN1_TYPE * a, long num, uchar * data, int len)
 {
 	asn1_int_oct atmp;
 	ASN1_OCTET_STRING oct;
@@ -76,7 +76,7 @@ int ASN1_TYPE_set_int_octetstring(ASN1_TYPE * a, long num, unsigned char * data,
  * we return the actual length...
  */
 /* int max_len:  for returned value    */
-int ASN1_TYPE_get_int_octetstring(const ASN1_TYPE * a, long * num, unsigned char * data, int max_len)
+int ASN1_TYPE_get_int_octetstring(const ASN1_TYPE * a, long * num, uchar * data, int max_len)
 {
 	asn1_int_oct * atmp = NULL;
 	int ret = -1, n;

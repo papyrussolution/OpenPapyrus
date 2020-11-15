@@ -313,7 +313,7 @@ static void bin28_to_felem(felem out, const u8 in[28])
 
 static void felem_to_bin28(u8 out[28], const felem in)
 {
-	unsigned i;
+	uint i;
 	for(i = 0; i < 7; ++i) {
 		out[i] = in[0] >> (8 * i);
 		out[i + 7] = in[1] >> (8 * i);
@@ -696,7 +696,7 @@ static void felem_inv(felem out, const felem in)
 {
 	felem ftmp, ftmp2, ftmp3, ftmp4;
 	widefelem tmp;
-	unsigned i;
+	uint i;
 
 	felem_square(tmp, in);
 	felem_reduce(ftmp, tmp); /* 2 */
@@ -778,7 +778,7 @@ static void felem_inv(felem out, const felem in)
  */
 static void copy_conditional(felem out, const felem in, limb icopy)
 {
-	unsigned i;
+	uint i;
 	/*
 	 * icopy is a (64-bit) 0 or 1, so copy is either all-zero or all-one
 	 */
@@ -1068,7 +1068,7 @@ static void point_add(felem x3, felem y3, felem z3,
  * copies it to out.
  * The pre_comp array argument should be size of |size| argument
  */
-static void select_point(const u64 idx, unsigned int size, const felem pre_comp[][3], felem out[3])
+static void select_point(const u64 idx, uint size, const felem pre_comp[][3], felem out[3])
 {
 	unsigned i, j;
 	limb * outlimbs = &out[0][0];
@@ -1379,7 +1379,7 @@ int ec_GFp_nistp224_points_mul(const EC_GROUP * group, EC_POINT * r,
 {
 	int ret = 0;
 	int j;
-	unsigned i;
+	uint i;
 	int mixed = 0;
 	BIGNUM * x, * y, * z, * tmp_scalar;
 	felem_bytearray g_secret;

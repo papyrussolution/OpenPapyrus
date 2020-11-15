@@ -19,14 +19,11 @@
 
 #ifndef __REGEXP_LIBRARY_H__
 #define __REGEXP_LIBRARY_H__
-
-/* POSIX says that <sys/types.h> must be included (by the caller) before
-   <regex.h>.  */
-
+//
+// POSIX says that <sys/types.h> must be included (by the caller) before <regex.h>.
+//
 #ifdef VMS
-/* VMS doesn't have `size_t' in <sys/types.h>, even though POSIX says it
-   should be there.  */
-#include <stddef.h>
+	#include <stddef.h> // VMS doesn't have `size_t' in <sys/types.h>, even though POSIX says it should be there
 #endif
 
 /* The following bits are used to determine the regexp syntax we

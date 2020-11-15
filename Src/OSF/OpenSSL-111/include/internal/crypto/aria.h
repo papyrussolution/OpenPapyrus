@@ -25,25 +25,25 @@
 #define ARIA_MAX_KEYS      17  /* Number of keys needed in the worst case  */
 
 typedef union {
-    unsigned char c[ARIA_BLOCK_SIZE];
-    unsigned int u[ARIA_BLOCK_SIZE / sizeof(uint)];
+    uchar c[ARIA_BLOCK_SIZE];
+    uint u[ARIA_BLOCK_SIZE / sizeof(uint)];
 } ARIA_u128;
 
-typedef unsigned char ARIA_c128[ARIA_BLOCK_SIZE];
+typedef uchar ARIA_c128[ARIA_BLOCK_SIZE];
 
 struct aria_key_st {
     ARIA_u128 rd_key[ARIA_MAX_KEYS];
-    unsigned int rounds;
+    uint rounds;
 };
 typedef struct aria_key_st ARIA_KEY;
 
 
-int aria_set_encrypt_key(const unsigned char *userKey, const int bits,
+int aria_set_encrypt_key(const uchar *userKey, const int bits,
                          ARIA_KEY *key);
-int aria_set_decrypt_key(const unsigned char *userKey, const int bits,
+int aria_set_decrypt_key(const uchar *userKey, const int bits,
                          ARIA_KEY *key);
 
-void aria_encrypt(const unsigned char *in, unsigned char *out,
+void aria_encrypt(const uchar *in, uchar *out,
                   const ARIA_KEY *key);
 
 #endif

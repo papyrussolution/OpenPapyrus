@@ -317,10 +317,10 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 {
 	int top = a->top, i;
 	int carry;
-	register BN_ULONG * r_d, * a_d = a->d;
+	BN_ULONG * r_d, * a_d = a->d;
 	union {
 		BN_ULONG bn[BN_NIST_192_TOP];
-		unsigned int ui[BN_NIST_192_TOP * sizeof(BN_ULONG) /
+		uint ui[BN_NIST_192_TOP * sizeof(BN_ULONG) /
 		sizeof(uint)];
 	} buf;
 
@@ -355,7 +355,7 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 #if defined(NIST_INT64)
 	{
 		NIST_INT64 acc; /* accumulator */
-		unsigned int * rp = (uint *)r_d;
+		uint * rp = (uint *)r_d;
 		const uint * bp = (const uint *)buf.ui;
 
 		acc = rp[0];
@@ -458,7 +458,7 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 	BN_ULONG * r_d, * a_d = a->d;
 	union {
 		BN_ULONG bn[BN_NIST_224_TOP];
-		unsigned int ui[BN_NIST_224_TOP * sizeof(BN_ULONG) /
+		uint ui[BN_NIST_224_TOP * sizeof(BN_ULONG) /
 		sizeof(uint)];
 	} buf;
 
@@ -514,8 +514,8 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 #if defined(NIST_INT64) && BN_BITS2!=64
 	{
 		NIST_INT64 acc; /* accumulator */
-		unsigned int * rp = (uint *)r_d;
-		const unsigned int * bp = (const uint *)buf.ui;
+		uint * rp = (uint *)r_d;
+		const uint * bp = (const uint *)buf.ui;
 		acc = rp[0];
 		acc -= bp[7 - 7];
 		acc -= bp[11 - 7];
@@ -636,15 +636,14 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		bn_cp_32(to, 7, from, (a1) - 8) \
 	}
 
-int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
-    BN_CTX * ctx)
+int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX * ctx)
 {
 	int i, top = a->top;
 	int carry = 0;
-	register BN_ULONG * a_d = a->d, * r_d;
+	BN_ULONG * a_d = a->d, * r_d;
 	union {
 		BN_ULONG bn[BN_NIST_256_TOP];
-		unsigned int ui[BN_NIST_256_TOP * sizeof(BN_ULONG) /
+		uint ui[BN_NIST_256_TOP * sizeof(BN_ULONG) /
 		sizeof(uint)];
 	} buf;
 
@@ -690,8 +689,8 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 #if defined(NIST_INT64)
 	{
 		NIST_INT64 acc; /* accumulator */
-		unsigned int * rp = (uint *)r_d;
-		const unsigned int * bp = (const uint *)buf.ui;
+		uint * rp = (uint *)r_d;
+		const uint * bp = (const uint *)buf.ui;
 
 		acc = rp[0];
 		acc += bp[8 - 8];
@@ -796,7 +795,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		carry = (int)bn_add_words(t_d, t_d, c_d, BN_NIST_256_TOP);
 		/* left shift */
 		{
-			register BN_ULONG * ap, t, c;
+			BN_ULONG * ap, t, c;
 			ap = t_d;
 			c = 0;
 			for(i = BN_NIST_256_TOP; i != 0; --i) {
@@ -891,10 +890,10 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 {
 	int i, top = a->top;
 	int carry = 0;
-	register BN_ULONG * r_d, * a_d = a->d;
+	BN_ULONG * r_d, * a_d = a->d;
 	union {
 		BN_ULONG bn[BN_NIST_384_TOP];
-		unsigned int ui[BN_NIST_384_TOP * sizeof(BN_ULONG) /
+		uint ui[BN_NIST_384_TOP * sizeof(BN_ULONG) /
 		sizeof(uint)];
 	} buf;
 
@@ -940,8 +939,8 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 #if defined(NIST_INT64)
 	{
 		NIST_INT64 acc; /* accumulator */
-		unsigned int * rp = (uint *)r_d;
-		const unsigned int * bp = (const uint *)buf.ui;
+		uint * rp = (uint *)r_d;
+		const uint * bp = (const uint *)buf.ui;
 
 		acc = rp[0];
 		acc += bp[12 - 12];
@@ -1068,7 +1067,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		nist_set_256(t_d, buf.bn, 0, 0, 0, 0, 0, 23 - 4, 22 - 4, 21 - 4);
 		/* left shift */
 		{
-			register BN_ULONG * ap, t, c;
+			BN_ULONG * ap, t, c;
 			ap = t_d;
 			c = 0;
 			for(i = 3; i != 0; --i) {

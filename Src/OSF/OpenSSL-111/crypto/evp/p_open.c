@@ -17,10 +17,10 @@
 #include <openssl/rsa.h>
 
 int EVP_OpenInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * type,
-    const unsigned char * ek, int ekl, const unsigned char * iv,
+    const uchar * ek, int ekl, const uchar * iv,
     EVP_PKEY * priv)
 {
-	unsigned char * key = NULL;
+	uchar * key = NULL;
 	int i, size = 0, ret = 0;
 	if(type) {
 		EVP_CIPHER_CTX_reset(ctx);
@@ -58,7 +58,7 @@ err:
 	return ret;
 }
 
-int EVP_OpenFinal(EVP_CIPHER_CTX * ctx, unsigned char * out, int * outl)
+int EVP_OpenFinal(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
 	int i;
 

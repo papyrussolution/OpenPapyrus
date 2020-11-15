@@ -54,8 +54,8 @@ err:
 int a2i_ASN1_INTEGER(BIO * bp, ASN1_INTEGER * bs, char * buf, int size)
 {
 	int i, j, k, m, n, again, bufsize;
-	unsigned char * s = NULL, * sp;
-	unsigned char * bufp;
+	uchar * s = NULL, * sp;
+	uchar * bufp;
 	int num = 0, slen = 0, first = 1;
 
 	bs->type = V_ASN1_INTEGER;

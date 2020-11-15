@@ -45,7 +45,7 @@ static X509_CERT_AUX * aux_get(X509 * x)
 	return x->aux;
 }
 
-int X509_alias_set1(X509 * x, const unsigned char * name, int len)
+int X509_alias_set1(X509 * x, const uchar * name, int len)
 {
 	X509_CERT_AUX * aux;
 	if(!name) {
@@ -62,7 +62,7 @@ int X509_alias_set1(X509 * x, const unsigned char * name, int len)
 	return ASN1_STRING_set(aux->alias, name, len);
 }
 
-int X509_keyid_set1(X509 * x, const unsigned char * id, int len)
+int X509_keyid_set1(X509 * x, const uchar * id, int len)
 {
 	X509_CERT_AUX * aux;
 	if(!id) {
@@ -80,7 +80,7 @@ int X509_keyid_set1(X509 * x, const unsigned char * id, int len)
 	return ASN1_STRING_set(aux->keyid, id, len);
 }
 
-unsigned char * X509_alias_get0(X509 * x, int * len)
+uchar * X509_alias_get0(X509 * x, int * len)
 {
 	if(!x->aux || !x->aux->alias)
 		return NULL;
@@ -89,7 +89,7 @@ unsigned char * X509_alias_get0(X509 * x, int * len)
 	return x->aux->alias->data;
 }
 
-unsigned char * X509_keyid_get0(X509 * x, int * len)
+uchar * X509_keyid_get0(X509 * x, int * len)
 {
 	if(!x->aux || !x->aux->keyid)
 		return NULL;

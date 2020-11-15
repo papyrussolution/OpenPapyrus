@@ -421,7 +421,7 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 	}
 	/* Do we perform version checking? */
 	if(!ctx->no_vcheck) {
-		unsigned long vcheck_res = 0;
+		ulong vcheck_res = 0;
 		/*
 		 * Now we try to find a version checking function and decide how to
 		 * cope with failure if/when it fails.

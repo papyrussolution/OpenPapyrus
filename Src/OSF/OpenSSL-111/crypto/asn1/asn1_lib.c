@@ -11,10 +11,10 @@
 //#include <openssl/asn1.h>
 //#include "asn1_locl.h"
 
-static int asn1_get_length(const unsigned char ** pp, int * inf, long * rl, long max);
-static void asn1_put_length(unsigned char ** pp, int length);
+static int asn1_get_length(const uchar ** pp, int * inf, long * rl, long max);
+static void asn1_put_length(uchar ** pp, int length);
 
-static int _asn1_check_infinite_end(const unsigned char ** p, long len)
+static int _asn1_check_infinite_end(const uchar ** p, long len)
 {
 	/*
 	 * If there is 0 or 1 byte left, the length check should pick things up
@@ -28,21 +28,21 @@ static int _asn1_check_infinite_end(const unsigned char ** p, long len)
 	return 0;
 }
 
-int ASN1_check_infinite_end(unsigned char ** p, long len)
+int ASN1_check_infinite_end(uchar ** p, long len)
 {
-	return _asn1_check_infinite_end((const unsigned char**)p, len);
+	return _asn1_check_infinite_end((const uchar**)p, len);
 }
 
-int ASN1_const_check_infinite_end(const unsigned char ** p, long len)
+int ASN1_const_check_infinite_end(const uchar ** p, long len)
 {
 	return _asn1_check_infinite_end(p, len);
 }
 
-int ASN1_get_object(const unsigned char ** pp, long * plength, int * ptag, int * pclass, long omax)
+int ASN1_get_object(const uchar ** pp, long * plength, int * ptag, int * pclass, long omax)
 {
 	int i, ret;
 	long l;
-	const unsigned char * p = *pp;
+	const uchar * p = *pp;
 	int tag, xclass, inf;
 	long max = omax;
 	if(!max)
@@ -105,11 +105,11 @@ err:
  * the number of following octets that contain the length.  These octets
  * are stored most significant digit first.
  */
-static int asn1_get_length(const unsigned char ** pp, int * inf, long * rl,
+static int asn1_get_length(const uchar ** pp, int * inf, long * rl,
     long max)
 {
-	const unsigned char * p = *pp;
-	unsigned long ret = 0;
+	const uchar * p = *pp;
+	ulong ret = 0;
 	int i;
 
 	if(max-- < 1)
@@ -150,10 +150,10 @@ static int asn1_get_length(const unsigned char ** pp, int * inf, long * rl,
 /*
  * class 0 is constructed constructed == 2 for indefinite length constructed
  */
-void ASN1_put_object(unsigned char ** pp, int constructed, int length, int tag,
+void ASN1_put_object(uchar ** pp, int constructed, int length, int tag,
     int xclass)
 {
-	unsigned char * p = *pp;
+	uchar * p = *pp;
 	int i, ttag;
 
 	i = (constructed) ? V_ASN1_CONSTRUCTED : 0;
@@ -180,18 +180,18 @@ void ASN1_put_object(unsigned char ** pp, int constructed, int length, int tag,
 	*pp = p;
 }
 
-int ASN1_put_eoc(unsigned char ** pp)
+int ASN1_put_eoc(uchar ** pp)
 {
-	unsigned char * p = *pp;
+	uchar * p = *pp;
 	*p++ = 0;
 	*p++ = 0;
 	*pp = p;
 	return 2;
 }
 
-static void asn1_put_length(unsigned char ** pp, int length)
+static void asn1_put_length(uchar ** pp, int length)
 {
-	unsigned char * p = *pp;
+	uchar * p = *pp;
 	int i, l;
 	if(length <= 127)
 		*(p++) = (uchar)length;
@@ -269,7 +269,7 @@ ASN1_STRING * ASN1_STRING_dup(const ASN1_STRING * str)
 
 int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 {
-	unsigned char * c;
+	uchar * c;
 	const char * data = static_cast<const char *>(_data);
 	if(len < 0) {
 		if(data == NULL)
@@ -372,11 +372,11 @@ int ASN1_STRING_type(const ASN1_STRING * x)
 	return x->type;
 }
 
-const unsigned char * ASN1_STRING_get0_data(const ASN1_STRING * x)
+const uchar * ASN1_STRING_get0_data(const ASN1_STRING * x)
 {
 	return x->data;
 }
 
 #if OPENSSL_API_COMPAT < 0x10100000L
-	unsigned char * ASN1_STRING_data(ASN1_STRING * x) { return x->data; }
+	uchar * ASN1_STRING_data(ASN1_STRING * x) { return x->data; }
 #endif

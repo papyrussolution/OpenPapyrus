@@ -64,26 +64,26 @@ struct st_mysql_options_extension {
 	char * tls_fp; /* finger print of server certificate */
 	char * tls_fp_list; /* white list of finger prints */
 	char * tls_pw; /* password for encrypted certificates */
-	my_bool multi_command; /* indicates if client wants to send multiple
+	bool multi_command; /* indicates if client wants to send multiple
 	                          commands in one packet */
 	char * url; /* for connection handler we need to save URL for reconnect */
 	unsigned int tls_cipher_strength;
 	char * tls_version;
-	my_bool read_only;
+	bool read_only;
 	char * connection_handler;
-	my_bool (* set_option)(MYSQL * mysql, const char * config_option, const char * config_value);
+	bool (* set_option)(MYSQL * mysql, const char * config_option, const char * config_value);
 	HASH userdata;
 	char * server_public_key;
 	char * proxy_header;
 	size_t proxy_header_len;
-	int (* io_wait)(my_socket handle, my_bool is_read, int timeout);
+	int (* io_wait)(my_socket handle, bool is_read, int timeout);
 };
 
 typedef struct st_connection_handler {
 	struct st_ma_connection_plugin * plugin;
 	void * data;
-	my_bool active;
-	my_bool free_data;
+	bool active;
+	bool free_data;
 } MA_CONNECTION_HANDLER;
 
 struct st_mariadb_net_extension {
@@ -101,7 +101,7 @@ struct st_mariadb_extension {
 	struct st_mariadb_session_state session_state[SESSION_TRACK_TYPES];
 	unsigned long mariadb_client_flag; /* MariaDB specific client flags */
 	unsigned long mariadb_server_capabilities; /* MariaDB specific server capabilities */
-	my_bool auto_local_infile;
+	bool auto_local_infile;
 };
 
 #define OPT_EXT_VAL(a, key) (((a)->options.extension && (a)->options.extension->key) ? (a)->options.extension->key : 0)

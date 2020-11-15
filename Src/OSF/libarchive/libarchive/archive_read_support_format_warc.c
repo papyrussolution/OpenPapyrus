@@ -45,31 +45,9 @@ __FBSDID("$FreeBSD$");
  *  entries like these, at the moment care is taken to skip them.
  *
  **/
-//#ifdef HAVE_SYS_STAT_H
-//#include <sys/stat.h>
-//#endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#ifdef HAVE_CTYPE_H
-	//#include <ctype.h>
-//#endif
 #ifdef HAVE_TIME_H
 	#include <time.h>
 #endif
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
 
 typedef enum {
 	WT_NONE,

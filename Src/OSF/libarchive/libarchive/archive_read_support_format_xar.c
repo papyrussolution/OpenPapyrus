@@ -26,29 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_BZLIB_H
-	//#include <bzlib.h>
-//#endif
-//#if HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_digest_private.h"
-//#include "archive_endian.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-
 #if (!defined(HAVE_LIBXML_XMLREADER_H) && !defined(HAVE_BSDXML_H) && !defined(HAVE_EXPAT_H)) || \
 	!defined(HAVE_ZLIB_H) || !defined(ARCHIVE_HAS_MD5) || !defined(ARCHIVE_HAS_SHA1)
 /*

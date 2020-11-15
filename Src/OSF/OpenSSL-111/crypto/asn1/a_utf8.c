@@ -23,10 +23,10 @@
  * -4 = character encoded incorrectly (not minimal length).
  */
 
-int UTF8_getc(const unsigned char * str, int len, unsigned long * val)
+int UTF8_getc(const uchar * str, int len, ulong * val)
 {
-	const unsigned char * p;
-	unsigned long value;
+	const uchar * p;
+	ulong value;
 	int ret;
 	if(len <= 0)
 		return 0;
@@ -67,7 +67,7 @@ int UTF8_getc(const unsigned char * str, int len, unsigned long * val)
 		    || ((p[2] & 0xc0) != 0x80)
 		    || ((p[3] & 0xc0) != 0x80))
 			return -3;
-		value = ((unsigned long)(*p++ & 0x7)) << 18;
+		value = ((ulong)(*p++ & 0x7)) << 18;
 		value |= (*p++ & 0x3f) << 12;
 		value |= (*p++ & 0x3f) << 6;
 		value |= *p++ & 0x3f;
@@ -83,9 +83,9 @@ int UTF8_getc(const unsigned char * str, int len, unsigned long * val)
 		    || ((p[3] & 0xc0) != 0x80)
 		    || ((p[4] & 0xc0) != 0x80))
 			return -3;
-		value = ((unsigned long)(*p++ & 0x3)) << 24;
-		value |= ((unsigned long)(*p++ & 0x3f)) << 18;
-		value |= ((unsigned long)(*p++ & 0x3f)) << 12;
+		value = ((ulong)(*p++ & 0x3)) << 24;
+		value |= ((ulong)(*p++ & 0x3f)) << 18;
+		value |= ((ulong)(*p++ & 0x3f)) << 12;
 		value |= (*p++ & 0x3f) << 6;
 		value |= *p++ & 0x3f;
 		if(value < 0x200000)
@@ -101,10 +101,10 @@ int UTF8_getc(const unsigned char * str, int len, unsigned long * val)
 		    || ((p[4] & 0xc0) != 0x80)
 		    || ((p[5] & 0xc0) != 0x80))
 			return -3;
-		value = ((unsigned long)(*p++ & 0x1)) << 30;
-		value |= ((unsigned long)(*p++ & 0x3f)) << 24;
-		value |= ((unsigned long)(*p++ & 0x3f)) << 18;
-		value |= ((unsigned long)(*p++ & 0x3f)) << 12;
+		value = ((ulong)(*p++ & 0x1)) << 30;
+		value |= ((ulong)(*p++ & 0x3f)) << 24;
+		value |= ((ulong)(*p++ & 0x3f)) << 18;
+		value |= ((ulong)(*p++ & 0x3f)) << 12;
 		value |= (*p++ & 0x3f) << 6;
 		value |= *p++ & 0x3f;
 		if(value < 0x4000000)
@@ -125,7 +125,7 @@ int UTF8_getc(const unsigned char * str, int len, unsigned long * val)
  * most 6 characters.
  */
 
-int UTF8_putc(unsigned char * str, int len, unsigned long value)
+int UTF8_putc(uchar * str, int len, ulong value)
 {
 	if(!str)
 		len = 6;        /* Maximum we will need */

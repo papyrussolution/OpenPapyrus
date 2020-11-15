@@ -18,8 +18,8 @@
 
 void * PEM_ASN1_read_bio(d2i_of_void * d2i, const char * name, BIO * bp, void ** x, pem_password_cb * cb, void * u)
 {
-	const unsigned char * p = NULL;
-	unsigned char * data = NULL;
+	const uchar * p = NULL;
+	uchar * data = NULL;
 	long len;
 	char * ret = NULL;
 	if(!PEM_bytes_read_bio(&data, &len, NULL, name, bp, cb, u))

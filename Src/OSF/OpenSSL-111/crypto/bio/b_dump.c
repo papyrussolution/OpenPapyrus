@@ -28,7 +28,7 @@ int BIO_dump_indent_cb(int (*cb)(const void * data, size_t len, void * u), void 
 	int ret = 0;
 	char buf[288 + 1];
 	int i, j, rows, n;
-	unsigned char ch;
+	uchar ch;
 	int dump_width;
 	if(indent < 0)
 		indent = 0;
@@ -117,7 +117,7 @@ int BIO_dump_indent(BIO * bp, const char * s, int len, int indent)
 	return BIO_dump_indent_cb(write_bio, bp, s, len, indent);
 }
 
-int BIO_hex_string(BIO * out, int indent, int width, unsigned char * data,
+int BIO_hex_string(BIO * out, int indent, int width, uchar * data,
     int datalen)
 {
 	int i, j = 0;

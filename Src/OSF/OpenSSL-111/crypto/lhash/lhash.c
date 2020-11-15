@@ -39,7 +39,7 @@
 
 static int expand(OPENSSL_LHASH * lh);
 static void contract(OPENSSL_LHASH * lh);
-static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh, const void * data, unsigned long * rhash);
+static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh, const void * data, ulong * rhash);
 
 OPENSSL_LHASH * OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c)
 {
@@ -71,7 +71,7 @@ err:
 
 void OPENSSL_LH_free(OPENSSL_LHASH * lh)
 {
-	unsigned int i;
+	uint i;
 	OPENSSL_LH_NODE * n, * nn;
 
 	if(lh == NULL)
@@ -91,7 +91,7 @@ void OPENSSL_LH_free(OPENSSL_LHASH * lh)
 
 void * OPENSSL_LH_insert(OPENSSL_LHASH * lh, void * data)
 {
-	unsigned long hash;
+	ulong hash;
 	OPENSSL_LH_NODE * nn, ** rn;
 	void * ret;
 	lh->error = 0;
@@ -121,7 +121,7 @@ void * OPENSSL_LH_insert(OPENSSL_LHASH * lh, void * data)
 
 void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 {
-	unsigned long hash;
+	ulong hash;
 	OPENSSL_LH_NODE * nn, ** rn;
 	void * ret;
 
@@ -150,7 +150,7 @@ void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 
 void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 {
-	unsigned long hash;
+	ulong hash;
 	OPENSSL_LH_NODE ** rn;
 	void * ret;
 
@@ -210,8 +210,8 @@ void OPENSSL_LH_doall_arg(OPENSSL_LHASH * lh, OPENSSL_LH_DOALL_FUNCARG func, voi
 static int expand(OPENSSL_LHASH * lh)
 {
 	OPENSSL_LH_NODE ** n, ** n1, ** n2, * np;
-	unsigned int p, pmax, nni, j;
-	unsigned long hash;
+	uint p, pmax, nni, j;
+	ulong hash;
 	nni = lh->num_alloc_nodes;
 	p = lh->p;
 	pmax = lh->pmax;
@@ -289,10 +289,10 @@ static void contract(OPENSSL_LHASH * lh)
 }
 
 static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh,
-    const void * data, unsigned long * rhash)
+    const void * data, ulong * rhash)
 {
 	OPENSSL_LH_NODE ** ret, * n1;
-	unsigned long hash, nn;
+	ulong hash, nn;
 	OPENSSL_LH_COMPFUNC cf;
 
 	hash = (*(lh->hash))(data);
@@ -324,11 +324,11 @@ static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh,
  * collisions on /usr/dict/words and it distributes on %2^n quite well, not
  * as good as MD5, but still good.
  */
-unsigned long OPENSSL_LH_strhash(const char * c)
+ulong OPENSSL_LH_strhash(const char * c)
 {
-	unsigned long ret = 0;
+	ulong ret = 0;
 	long n;
-	unsigned long v;
+	ulong v;
 	int r;
 
 	if((c == NULL) || (*c == '\0'))
@@ -347,11 +347,11 @@ unsigned long OPENSSL_LH_strhash(const char * c)
 	return (ret >> 16) ^ ret;
 }
 
-unsigned long openssl_lh_strcasehash(const char * c)
+ulong openssl_lh_strcasehash(const char * c)
 {
-	unsigned long ret = 0;
+	ulong ret = 0;
 	long n;
-	unsigned long v;
+	ulong v;
 	int r;
 
 	if(c == NULL || *c == '\0')
@@ -368,17 +368,17 @@ unsigned long openssl_lh_strcasehash(const char * c)
 	return (ret >> 16) ^ ret;
 }
 
-unsigned long OPENSSL_LH_num_items(const OPENSSL_LHASH * lh)
+ulong OPENSSL_LH_num_items(const OPENSSL_LHASH * lh)
 {
 	return lh ? lh->num_items : 0;
 }
 
-unsigned long OPENSSL_LH_get_down_load(const OPENSSL_LHASH * lh)
+ulong OPENSSL_LH_get_down_load(const OPENSSL_LHASH * lh)
 {
 	return lh->down_load;
 }
 
-void OPENSSL_LH_set_down_load(OPENSSL_LHASH * lh, unsigned long down_load)
+void OPENSSL_LH_set_down_load(OPENSSL_LHASH * lh, ulong down_load)
 {
 	lh->down_load = down_load;
 }

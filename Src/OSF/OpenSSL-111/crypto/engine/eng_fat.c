@@ -12,7 +12,7 @@
 #include "eng_int.h"
 #include <openssl/conf.h>
 
-int ENGINE_set_default(ENGINE * e, unsigned int flags)
+int ENGINE_set_default(ENGINE * e, uint flags)
 {
 	if((flags & ENGINE_METHOD_CIPHERS) && !ENGINE_set_default_ciphers(e))
 		return 0;
@@ -49,7 +49,7 @@ int ENGINE_set_default(ENGINE * e, unsigned int flags)
 
 static int int_def_cb(const char * alg, int len, void * arg)
 {
-	unsigned int * pflags = static_cast<uint *>(arg);
+	uint * pflags = static_cast<uint *>(arg);
 	if(alg == NULL)
 		return 0;
 	if(strncmp(alg, "ALL", len) == 0)
@@ -81,7 +81,7 @@ static int int_def_cb(const char * alg, int len, void * arg)
 
 int ENGINE_set_default_string(ENGINE * e, const char * def_list)
 {
-	unsigned int flags = 0;
+	uint flags = 0;
 	if(!CONF_parse_list(def_list, ',', 1, int_def_cb, &flags)) {
 		ENGINEerr(ENGINE_F_ENGINE_SET_DEFAULT_STRING, ENGINE_R_INVALID_STRING);
 		ERR_add_error_data(2, "str=", def_list);

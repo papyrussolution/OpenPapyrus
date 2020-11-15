@@ -12,10 +12,10 @@
 #include "rc5_locl.h"
 #include <openssl/opensslv.h>
 
-void RC5_32_ecb_encrypt(const unsigned char * in, unsigned char * out,
+void RC5_32_ecb_encrypt(const uchar * in, uchar * out,
     RC5_32_KEY * ks, int encrypt)
 {
-	unsigned long l, d[2];
+	ulong l, d[2];
 
 	c2l(in, l);
 	d[0] = l;

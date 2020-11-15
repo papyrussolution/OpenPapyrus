@@ -27,13 +27,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-
 int archive_read_append_filter(struct archive * _a, int code)
 {
 	int r1, r2, number_bidders, i;
@@ -41,7 +34,6 @@ int archive_read_append_filter(struct archive * _a, int code)
 	struct archive_read_filter_bidder * bidder;
 	struct archive_read_filter * filter;
 	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
-
 	r2 = (ARCHIVE_OK);
 	switch(code) {
 		case ARCHIVE_FILTER_NONE:

@@ -123,9 +123,9 @@ void * X509_get_ex_data(X509 * r, int idx)
  * reliable source such as local storage.
  */
 
-X509 * d2i_X509_AUX(X509 ** a, const unsigned char ** pp, long length)
+X509 * d2i_X509_AUX(X509 ** a, const uchar ** pp, long length)
 {
-	const unsigned char * q;
+	const uchar * q;
 	X509 * ret;
 	int freeret = 0;
 
@@ -159,10 +159,10 @@ err:
  * error path, but that depends on similar hygiene in lower-level functions.
  * Here we avoid compounding the problem.
  */
-static int i2d_x509_aux_internal(X509 * a, unsigned char ** pp)
+static int i2d_x509_aux_internal(X509 * a, uchar ** pp)
 {
 	int length, tmplen;
-	unsigned char * start = pp != NULL ? *pp : NULL;
+	uchar * start = pp != NULL ? *pp : NULL;
 
 	/*
 	 * This might perturb *pp on error, but fixing that belongs in i2d_X509()
@@ -193,10 +193,10 @@ static int i2d_x509_aux_internal(X509 * a, unsigned char ** pp)
  * the allocation, nor can we allow i2d_X509_CERT_AUX() to increment the
  * allocated buffer.
  */
-int i2d_X509_AUX(X509 * a, unsigned char ** pp)
+int i2d_X509_AUX(X509 * a, uchar ** pp)
 {
 	int length;
-	unsigned char * tmp;
+	uchar * tmp;
 
 	/* Buffer provided by caller */
 	if(pp == NULL || *pp != NULL)
@@ -222,7 +222,7 @@ int i2d_X509_AUX(X509 * a, unsigned char ** pp)
 	return length;
 }
 
-int i2d_re_X509_tbs(X509 * x, unsigned char ** pp)
+int i2d_re_X509_tbs(X509 * x, uchar ** pp)
 {
 	x->cert_info.enc.modified = 1;
 	return i2d_X509_CINF(&x->cert_info, pp);

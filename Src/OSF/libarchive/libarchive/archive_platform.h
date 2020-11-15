@@ -222,7 +222,6 @@
 #include "archive_random_private.h"
 #include "archive_options_private.h"
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	//#include <windows.h>
 	#include <locale.h>
 #endif
 #ifdef HAVE_ZLIB_H

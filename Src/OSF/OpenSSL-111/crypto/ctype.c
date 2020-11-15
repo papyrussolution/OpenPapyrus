@@ -14,7 +14,7 @@
  * are converted to ASCII before being used as an index in to this table.
  * Characters outside of the seven bit ASCII range are detected before indexing.
  */
-static const unsigned short ctype_char_map[128] = {
+static const ushort ctype_char_map[128] = {
 	/* 00 nul */ CTYPE_MASK_cntrl,
 	/* 01 soh */ CTYPE_MASK_cntrl,
 	/* 02 stx */ CTYPE_MASK_cntrl,
@@ -246,7 +246,7 @@ int ossl_fromascii(int c)
 
 #endif
 
-int ossl_ctype_check(int c, unsigned int mask)
+int ossl_ctype_check(int c, uint mask)
 {
 	const int max = sizeof(ctype_char_map) / sizeof(*ctype_char_map);
 	const int a = ossl_toascii(c);

@@ -378,7 +378,7 @@ int OPENSSL_INIT_set_config_filename(OPENSSL_INIT_SETTINGS * settings, const cha
 	return 1;
 }
 
-void OPENSSL_INIT_set_config_file_flags(OPENSSL_INIT_SETTINGS * settings, unsigned long flags)
+void OPENSSL_INIT_set_config_file_flags(OPENSSL_INIT_SETTINGS * settings, ulong flags)
 {
 	settings->flags = flags;
 }

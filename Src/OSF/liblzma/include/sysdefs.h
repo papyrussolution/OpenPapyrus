@@ -107,9 +107,6 @@
 #	error size_t is not 32-bit or 64-bit
 #endif
 
-//#include <stdlib.h>
-//#include <assert.h>
-
 // Pre-C99 systems lack stdbool.h. All the code in LZMA Utils must be written
 // so that it works with fake bool type, for example:
 //

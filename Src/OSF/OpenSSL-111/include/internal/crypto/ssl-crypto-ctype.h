@@ -52,7 +52,7 @@ int ossl_fromascii(int c);
 #define ossl_toascii(c)       (c)
 #define ossl_fromascii(c)     (c)
 #endif
-int ossl_ctype_check(int c, unsigned int mask);
+int ossl_ctype_check(int c, uint mask);
 int ossl_tolower(int c);
 int ossl_toupper(int c);
 

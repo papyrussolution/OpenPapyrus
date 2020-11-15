@@ -62,7 +62,7 @@ static int buffer_new(BIO * bi)
 	}
 
 	bi->init = 1;
-	bi->ptr = (char*)ctx;
+	bi->ptr = (char *)ctx;
 	bi->flags = 0;
 	return 1;
 }

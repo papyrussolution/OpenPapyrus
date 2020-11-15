@@ -79,7 +79,7 @@ static int length_from_afi(const unsigned afi)
 /*
  * Extract the AFI from an IPAddressFamily.
  */
-unsigned int X509v3_addr_get_afi(const IPAddressFamily * f)
+uint X509v3_addr_get_afi(const IPAddressFamily * f)
 {
 	if(f == NULL
 	    || f->addressFamily == NULL
@@ -93,16 +93,16 @@ unsigned int X509v3_addr_get_afi(const IPAddressFamily * f)
  * Expand the bitstring form of an address into a raw byte array.
  * At the moment this is coded for simplicity, not speed.
  */
-static int addr_expand(unsigned char * addr,
+static int addr_expand(uchar * addr,
     const ASN1_BIT_STRING * bs,
-    const int length, const unsigned char fill)
+    const int length, const uchar fill)
 {
 	if(bs->length < 0 || bs->length > length)
 		return 0;
 	if(bs->length > 0) {
 		memcpy(addr, bs->data, bs->length);
 		if((bs->flags & 7) != 0) {
-			unsigned char mask = 0xFF >> (8 - (bs->flags & 7));
+			uchar mask = 0xFF >> (8 - (bs->flags & 7));
 			if(fill == 0)
 				addr[bs->length - 1] &= ~mask;
 			else
@@ -121,13 +121,10 @@ static int addr_expand(unsigned char * addr,
 /*
  * i2r handler for one address bitstring.
  */
-static int i2r_address(BIO * out,
-    const unsigned afi,
-    const unsigned char fill, const ASN1_BIT_STRING * bs)
+static int i2r_address(BIO * out, const unsigned afi, const uchar fill, const ASN1_BIT_STRING * bs)
 {
-	unsigned char addr[ADDR_RAW_BUF_LEN];
+	uchar addr[ADDR_RAW_BUF_LEN];
 	int i, n;
-
 	if(bs->length < 0)
 		return 0;
 	switch(afi) {
@@ -198,7 +195,7 @@ static int i2r_IPAddrBlocks(const X509V3_EXT_METHOD * method, void * ext, BIO * 
 	int i;
 	for(i = 0; i < sk_IPAddressFamily_num(addr); i++) {
 		IPAddressFamily * f = sk_IPAddressFamily_value(addr, i);
-		const unsigned int afi = X509v3_addr_get_afi(f);
+		const uint afi = X509v3_addr_get_afi(f);
 		switch(afi) {
 			case IANA_AFI_IPV4:
 			    BIO_printf(out, "%*sIPv4", indent, "");
@@ -238,7 +235,7 @@ static int i2r_IPAddrBlocks(const X509V3_EXT_METHOD * method, void * ext, BIO * 
 				    break;
 				default:
 				    BIO_printf(out, " (Unknown SAFI %u)",
-					(unsigned)f->addressFamily->data[2]);
+					(uint)f->addressFamily->data[2]);
 				    break;
 			}
 		}
@@ -272,7 +269,7 @@ static int i2r_IPAddrBlocks(const X509V3_EXT_METHOD * method, void * ext, BIO * 
 static int IPAddressOrRange_cmp(const IPAddressOrRange * a,
     const IPAddressOrRange * b, const int length)
 {
-	unsigned char addr_a[ADDR_RAW_BUF_LEN], addr_b[ADDR_RAW_BUF_LEN];
+	uchar addr_a[ADDR_RAW_BUF_LEN], addr_b[ADDR_RAW_BUF_LEN];
 	int prefixlen_a = 0, prefixlen_b = 0;
 	int r;
 
@@ -332,10 +329,10 @@ static int v6IPAddressOrRange_cmp(const IPAddressOrRange * const * a,
  * Calculate whether a range collapses to a prefix.
  * See last paragraph of RFC 3779 2.2.3.7.
  */
-static int range_should_be_prefix(const unsigned char * min,
-    const unsigned char * max, const int length)
+static int range_should_be_prefix(const uchar * min,
+    const uchar * max, const int length)
 {
-	unsigned char mask;
+	uchar mask;
 	int i, j;
 
 	if(memcmp(min, max, length) <= 0)
@@ -382,7 +379,7 @@ static int range_should_be_prefix(const unsigned char * min,
  * Construct a prefix.
  */
 static int make_addressPrefix(IPAddressOrRange ** result,
-    unsigned char * addr, const int prefixlen)
+    uchar * addr, const int prefixlen)
 {
 	int bytelen = (prefixlen + 7) / 8, bitlen = prefixlen % 8;
 	IPAddressOrRange * aor = IPAddressOrRange_new();
@@ -416,8 +413,8 @@ err:
  * the rest of the code considerably.
  */
 static int make_addressRange(IPAddressOrRange ** result,
-    unsigned char * min,
-    unsigned char * max, const int length)
+    uchar * min,
+    uchar * max, const int length)
 {
 	IPAddressOrRange * aor;
 	int i, prefixlen;
@@ -443,7 +440,7 @@ static int make_addressRange(IPAddressOrRange ** result,
 	aor->u.addressRange->min->flags &= ~7;
 	aor->u.addressRange->min->flags |= ASN1_STRING_FLAG_BITS_LEFT;
 	if(i > 0) {
-		unsigned char b = min[i - 1];
+		uchar b = min[i - 1];
 		int j = 1;
 		while((b & (0xFFU >> j)) != 0)
 			++j;
@@ -456,7 +453,7 @@ static int make_addressRange(IPAddressOrRange ** result,
 	aor->u.addressRange->max->flags &= ~7;
 	aor->u.addressRange->max->flags |= ASN1_STRING_FLAG_BITS_LEFT;
 	if(i > 0) {
-		unsigned char b = max[i - 1];
+		uchar b = max[i - 1];
 		int j = 1;
 		while((b & (0xFFU >> j)) != (0xFFU >> j))
 			++j;
@@ -479,7 +476,7 @@ static IPAddressFamily * make_IPAddressFamily(IPAddrBlocks * addr,
     const unsigned * safi)
 {
 	IPAddressFamily * f;
-	unsigned char key[3];
+	uchar key[3];
 	int keylen;
 	int i;
 
@@ -582,7 +579,7 @@ static IPAddressOrRanges * make_prefix_or_range(IPAddrBlocks * addr,
 int X509v3_addr_add_prefix(IPAddrBlocks * addr,
     const unsigned afi,
     const unsigned * safi,
-    unsigned char * a, const int prefixlen)
+    uchar * a, const int prefixlen)
 {
 	IPAddressOrRanges * aors = make_prefix_or_range(addr, afi, safi);
 	IPAddressOrRange * aor;
@@ -600,7 +597,7 @@ int X509v3_addr_add_prefix(IPAddrBlocks * addr,
 int X509v3_addr_add_range(IPAddrBlocks * addr,
     const unsigned afi,
     const unsigned * safi,
-    unsigned char * min, unsigned char * max)
+    uchar * min, uchar * max)
 {
 	IPAddressOrRanges * aors = make_prefix_or_range(addr, afi, safi);
 	IPAddressOrRange * aor;
@@ -619,7 +616,7 @@ int X509v3_addr_add_range(IPAddrBlocks * addr,
  * Extract min and max values from an IPAddressOrRange.
  */
 static int extract_min_max(IPAddressOrRange * aor,
-    unsigned char * min, unsigned char * max, int length)
+    uchar * min, uchar * max, int length)
 {
 	if(aor == NULL || min == NULL || max == NULL)
 		return 0;
@@ -639,8 +636,8 @@ static int extract_min_max(IPAddressOrRange * aor,
  */
 int X509v3_addr_get_range(IPAddressOrRange * aor,
     const unsigned afi,
-    unsigned char * min,
-    unsigned char * max, const int length)
+    uchar * min,
+    uchar * max, const int length)
 {
 	int afi_length = length_from_afi(afi);
 	if(aor == NULL || min == NULL || max == NULL ||
@@ -678,8 +675,8 @@ static int IPAddressFamily_cmp(const IPAddressFamily * const * a_,
  */
 int X509v3_addr_is_canonical(IPAddrBlocks * addr)
 {
-	unsigned char a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
-	unsigned char b_min[ADDR_RAW_BUF_LEN], b_max[ADDR_RAW_BUF_LEN];
+	uchar a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
+	uchar b_min[ADDR_RAW_BUF_LEN], b_max[ADDR_RAW_BUF_LEN];
 	IPAddressOrRanges * aors;
 	int i, j, k;
 
@@ -801,8 +798,8 @@ static int IPAddressOrRanges_canonize(IPAddressOrRanges * aors,
 	for(i = 0; i < sk_IPAddressOrRange_num(aors) - 1; i++) {
 		IPAddressOrRange * a = sk_IPAddressOrRange_value(aors, i);
 		IPAddressOrRange * b = sk_IPAddressOrRange_value(aors, i + 1);
-		unsigned char a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
-		unsigned char b_min[ADDR_RAW_BUF_LEN], b_max[ADDR_RAW_BUF_LEN];
+		uchar a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
+		uchar b_min[ADDR_RAW_BUF_LEN], b_max[ADDR_RAW_BUF_LEN];
 
 		if(!extract_min_max(a, a_min, a_max, length) ||
 		    !extract_min_max(b, b_min, b_max, length))
@@ -846,7 +843,7 @@ static int IPAddressOrRanges_canonize(IPAddressOrRanges * aors,
 	{
 		IPAddressOrRange * a = sk_IPAddressOrRange_value(aors, j);
 		if(a != NULL && a->type == IPAddressOrRange_addressRange) {
-			unsigned char a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
+			uchar a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
 			if(!extract_min_max(a, a_min, a_max, length))
 				return 0;
 			if(memcmp(a_min, a_max, length) > 0)
@@ -898,7 +895,7 @@ static void * v2i_IPAddrBlocks(const struct v3_ext_method * method,
 
 	for(i = 0; i < sk_CONF_VALUE_num(values); i++) {
 		CONF_VALUE * val = sk_CONF_VALUE_value(values, i);
-		unsigned char min[ADDR_RAW_BUF_LEN], max[ADDR_RAW_BUF_LEN];
+		uchar min[ADDR_RAW_BUF_LEN], max[ADDR_RAW_BUF_LEN];
 		unsigned afi, * safi = NULL, safi_;
 		const char * addr_chars = NULL;
 		int prefixlen, i1, i2, delim, length;
@@ -1094,8 +1091,8 @@ int X509v3_addr_inherits(IPAddrBlocks * addr)
 static int addr_contains(IPAddressOrRanges * parent,
     IPAddressOrRanges * child, int length)
 {
-	unsigned char p_min[ADDR_RAW_BUF_LEN], p_max[ADDR_RAW_BUF_LEN];
-	unsigned char c_min[ADDR_RAW_BUF_LEN], c_max[ADDR_RAW_BUF_LEN];
+	uchar p_min[ADDR_RAW_BUF_LEN], p_max[ADDR_RAW_BUF_LEN];
+	uchar c_min[ADDR_RAW_BUF_LEN], c_max[ADDR_RAW_BUF_LEN];
 	int p, c;
 
 	if(child == NULL || parent == child)

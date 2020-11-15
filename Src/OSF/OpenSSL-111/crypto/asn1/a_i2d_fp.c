@@ -30,10 +30,10 @@ int ASN1_i2d_fp(i2d_of_void * i2d, FILE * out, void * x)
 
 #endif
 
-int ASN1_i2d_bio(i2d_of_void * i2d, BIO * out, unsigned char * x)
+int ASN1_i2d_bio(i2d_of_void * i2d, BIO * out, uchar * x)
 {
 	char * b;
-	unsigned char * p;
+	uchar * p;
 	int i, j = 0, n, ret = 1;
 
 	n = i2d(x, NULL);
@@ -86,7 +86,7 @@ int ASN1_item_i2d_fp(const ASN1_ITEM * it, FILE * out, void * x)
 
 int ASN1_item_i2d_bio(const ASN1_ITEM * it, BIO * out, void * x)
 {
-	unsigned char * b = NULL;
+	uchar * b = NULL;
 	int i, j = 0, n, ret = 1;
 
 	n = ASN1_item_i2d(static_cast<ASN1_VALUE *>(x), &b, it);

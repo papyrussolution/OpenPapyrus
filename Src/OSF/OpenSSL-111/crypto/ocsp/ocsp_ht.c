@@ -21,12 +21,12 @@
 
 struct ocsp_req_ctx_st {
 	int state;              /* Current I/O state */
-	unsigned char * iobuf;  /* Line buffer */
+	uchar * iobuf;  /* Line buffer */
 	int iobuflen;           /* Line buffer length */
 	BIO * io;               /* BIO to perform I/O with */
 	BIO * mem;              /* Memory BIO response is built into */
-	unsigned long asn1_len; /* ASN1 length of response */
-	unsigned long max_resp_len; /* Maximum length of response */
+	ulong asn1_len; /* ASN1 length of response */
+	ulong max_resp_len; /* Maximum length of response */
 };
 
 #define OCSP_MAX_RESP_LENGTH    (100 * 1024)
@@ -94,7 +94,7 @@ BIO * OCSP_REQ_CTX_get0_mem_bio(OCSP_REQ_CTX * rctx)
 	return rctx->mem;
 }
 
-void OCSP_set_max_response_length(OCSP_REQ_CTX * rctx, unsigned long len)
+void OCSP_set_max_response_length(OCSP_REQ_CTX * rctx, ulong len)
 {
 	if(len == 0)
 		rctx->max_resp_len = OCSP_MAX_RESP_LENGTH;
@@ -120,7 +120,7 @@ int OCSP_REQ_CTX_nbio_d2i(OCSP_REQ_CTX * rctx,
     ASN1_VALUE ** pval, const ASN1_ITEM * it)
 {
 	int rv, len;
-	const unsigned char * p;
+	const uchar * p;
 
 	rv = OCSP_REQ_CTX_nbio(rctx);
 	if(rv != 1)
@@ -267,7 +267,7 @@ static int parse_http_line1(char * line)
 int OCSP_REQ_CTX_nbio(OCSP_REQ_CTX * rctx)
 {
 	int i, n;
-	const unsigned char * p;
+	const uchar * p;
 next_io:
 	if(!(rctx->state & OHS_NOREAD)) {
 		n = BIO_read(rctx->io, rctx->iobuf, rctx->iobuflen);
@@ -358,7 +358,7 @@ next_line:
 			    }
 			    goto next_io;
 		    }
-		    n = BIO_gets(rctx->mem, (char*)rctx->iobuf, rctx->iobuflen);
+		    n = BIO_gets(rctx->mem, (char *)rctx->iobuf, rctx->iobuflen);
 
 		    if(n <= 0) {
 			    if(BIO_should_retry(rctx->mem))
@@ -375,7 +375,7 @@ next_line:
 
 		    /* First line */
 		    if(rctx->state == OHS_FIRSTLINE) {
-			    if(parse_http_line1((char*)rctx->iobuf)) {
+			    if(parse_http_line1((char *)rctx->iobuf)) {
 				    rctx->state = OHS_HEADERS;
 				    goto next_line;
 			    }

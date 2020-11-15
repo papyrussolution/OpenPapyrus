@@ -90,15 +90,15 @@ int RSA_meth_set0_app_data(RSA_METHOD * meth, void * app_data)
 }
 
 int (*RSA_meth_get_pub_enc(const RSA_METHOD *meth))
-(int flen, const unsigned char * from,
-unsigned char * to, RSA *rsa, int padding)
+(int flen, const uchar * from,
+uchar * to, RSA *rsa, int padding)
 {
 	return meth->rsa_pub_enc;
 }
 
 int RSA_meth_set_pub_enc(RSA_METHOD * meth,
-    int (*pub_enc)(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa,
+    int (*pub_enc)(int flen, const uchar * from,
+    uchar * to, RSA * rsa,
     int padding))
 {
 	meth->rsa_pub_enc = pub_enc;
@@ -106,15 +106,15 @@ int RSA_meth_set_pub_enc(RSA_METHOD * meth,
 }
 
 int (*RSA_meth_get_pub_dec(const RSA_METHOD *meth))
-(int flen, const unsigned char * from,
-unsigned char * to, RSA *rsa, int padding)
+(int flen, const uchar * from,
+uchar * to, RSA *rsa, int padding)
 {
 	return meth->rsa_pub_dec;
 }
 
 int RSA_meth_set_pub_dec(RSA_METHOD * meth,
-    int (*pub_dec)(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa,
+    int (*pub_dec)(int flen, const uchar * from,
+    uchar * to, RSA * rsa,
     int padding))
 {
 	meth->rsa_pub_dec = pub_dec;
@@ -122,15 +122,15 @@ int RSA_meth_set_pub_dec(RSA_METHOD * meth,
 }
 
 int (*RSA_meth_get_priv_enc(const RSA_METHOD *meth))
-(int flen, const unsigned char * from,
-unsigned char * to, RSA *rsa, int padding)
+(int flen, const uchar * from,
+uchar * to, RSA *rsa, int padding)
 {
 	return meth->rsa_priv_enc;
 }
 
 int RSA_meth_set_priv_enc(RSA_METHOD * meth,
-    int (*priv_enc)(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa,
+    int (*priv_enc)(int flen, const uchar * from,
+    uchar * to, RSA * rsa,
     int padding))
 {
 	meth->rsa_priv_enc = priv_enc;
@@ -138,15 +138,15 @@ int RSA_meth_set_priv_enc(RSA_METHOD * meth,
 }
 
 int (*RSA_meth_get_priv_dec(const RSA_METHOD *meth))
-(int flen, const unsigned char * from,
-unsigned char * to, RSA *rsa, int padding)
+(int flen, const uchar * from,
+uchar * to, RSA *rsa, int padding)
 {
 	return meth->rsa_priv_dec;
 }
 
 int RSA_meth_set_priv_dec(RSA_METHOD * meth,
-    int (*priv_dec)(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa,
+    int (*priv_dec)(int flen, const uchar * from,
+    uchar * to, RSA * rsa,
     int padding))
 {
 	meth->rsa_priv_dec = priv_dec;
@@ -214,17 +214,17 @@ int RSA_meth_set_finish(RSA_METHOD * meth, int (*finish)(RSA * rsa))
 
 int (*RSA_meth_get_sign(const RSA_METHOD *meth))
 (int type,
-const unsigned char * m, unsigned int m_length,
-unsigned char * sigret, unsigned int * siglen,
+const uchar * m, uint m_length,
+uchar * sigret, uint * siglen,
 const RSA *rsa)
 {
 	return meth->rsa_sign;
 }
 
 int RSA_meth_set_sign(RSA_METHOD * meth,
-    int (*sign)(int type, const unsigned char * m,
-    unsigned int m_length,
-    unsigned char * sigret, unsigned int * siglen,
+    int (*sign)(int type, const uchar * m,
+    uint m_length,
+    uchar * sigret, uint * siglen,
     const RSA * rsa))
 {
 	meth->rsa_sign = sign;
@@ -232,18 +232,18 @@ int RSA_meth_set_sign(RSA_METHOD * meth,
 }
 
 int (*RSA_meth_get_verify(const RSA_METHOD *meth))
-(int dtype, const unsigned char * m,
-unsigned int m_length, const unsigned char * sigbuf,
-unsigned int siglen, const RSA *rsa)
+(int dtype, const uchar * m,
+uint m_length, const uchar * sigbuf,
+uint siglen, const RSA *rsa)
 {
 	return meth->rsa_verify;
 }
 
 int RSA_meth_set_verify(RSA_METHOD * meth,
-    int (*verify)(int dtype, const unsigned char * m,
-    unsigned int m_length,
-    const unsigned char * sigbuf,
-    unsigned int siglen, const RSA * rsa))
+    int (*verify)(int dtype, const uchar * m,
+    uint m_length,
+    const uchar * sigbuf,
+    uint siglen, const RSA * rsa))
 {
 	meth->rsa_verify = verify;
 	return 1;

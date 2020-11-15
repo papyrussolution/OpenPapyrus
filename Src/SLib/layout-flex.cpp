@@ -10,8 +10,8 @@ LayoutFlexItem::LayoutFlexItem() : P_Parent(0), /*should_order_children(false),*
 	//padding_left(0.0f), padding_right(0.0f), padding_top(0.0f), padding_bottom(0.0f),
 	//margin_left(0.0f), margin_right(0.0f), margin_top(0.0f), margin_bottom(0.0f),
 	JustifyContent(FLEX_ALIGN_START), AlignContent(FLEX_ALIGN_STRETCH), AlignItems(FLEX_ALIGN_STRETCH),
-	AlignSelf(FLEX_ALIGN_AUTO), PositionMode(FLEX_POSITION_RELATIVE), Direction(FLEX_DIRECTION_COLUMN),
-	WrapMode(FLEX_WRAP_NO_WRAP), grow(0.0f), shrink(1.0f), order(0), basis(fgetnanf()),
+	AlignSelf(FLEX_ALIGN_AUTO), /*PositionMode(FLEX_POSITION_RELATIVE),*/ Direction(FLEX_DIRECTION_COLUMN),
+	/*WrapMode(FLEX_WRAP_NO_WRAP),*/grow(0.0f), shrink(1.0f), order(0), basis(fgetnanf()),
 	Flags(0)
 {
 	memzero(frame, sizeof(frame));
@@ -215,9 +215,11 @@ struct LayoutFlex {
 		flex_grows = 0;
 		flex_shrinks = 0;
 		reverse2 = false;
-		wrap = (pItem->WrapMode != FLEX_WRAP_NO_WRAP);
+		//wrap = (pItem->WrapMode != FLEX_WRAP_NO_WRAP);
+		wrap = LOGIC(pItem->Flags & LayoutFlexItem::fWrap);
 		if(wrap) {
-			if(pItem->WrapMode == FLEX_WRAP_WRAP_REVERSE) {
+			//if(pItem->WrapMode == FLEX_WRAP_WRAP_REVERSE) {
+			if(pItem->Flags & LayoutFlexItem::fWrapReverse) {
 				reverse2 = true;
 				pos2 = align_dim;
 			}
@@ -365,7 +367,8 @@ void LayoutFlexItem::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint
 		for(uint i = childBeginIdx; i < childEndIdx; i++) {
 			//LayoutFlexItem * child = LAYOUT_CHILD_AT_(p_layout, this, i);
 			LayoutFlexItem & r_child = p_layout->GetChildByIndex(this, i);
-			if(r_child.PositionMode == FLEX_POSITION_ABSOLUTE) {
+			//if(r_child.PositionMode == FLEX_POSITION_ABSOLUTE) {
+			if(r_child.Flags & fPositionAbsolute) {
 				continue; // Already positioned.
 			}
 			// Grow or shrink the main axis item size if needed.
@@ -452,7 +455,8 @@ void LayoutFlexItem::DoLayout(float _width, float _height)
 			LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, i);
 			// Items with an absolute position have their frames determined
 			// directly and are skipped during layout.
-			if(r_child.PositionMode == FLEX_POSITION_ABSOLUTE) {
+			//if(r_child.PositionMode == FLEX_POSITION_ABSOLUTE) {
+			if(r_child.Flags & fPositionAbsolute) {
 	#define ABSOLUTE_SIZE(val, pos1, pos2, dim) (!fisnanf(val)  ? val : (!fisnanf(pos1) && !fisnanf(pos2) ? (dim - pos2 - pos1) : 0))
 	#define ABSOLUTE_POS(pos1, pos2, size, dim) (!fisnanf(pos1) ? pos1 : (!fisnanf(pos2) ? (dim - size - pos2) : 0))
 				float child_width = ABSOLUTE_SIZE(r_child.Size.X, r_child.N.a.X, r_child.N.b.X, _width);
@@ -563,7 +567,8 @@ void LayoutFlexItem::DoLayout(float _width, float _height)
 				for(uint j = p_line->child_begin; j < p_line->child_end; j++) {
 					//LayoutFlexItem * child = LAYOUT_CHILD_AT_((&layout_s), this, j);
 					LayoutFlexItem & r_child = layout_s.GetChildByIndex(this, j);
-					if(r_child.PositionMode == FLEX_POSITION_ABSOLUTE) {
+					//if(r_child.PositionMode == FLEX_POSITION_ABSOLUTE) {
+					if(r_child.Flags & fPositionAbsolute) {
 						continue; // Should not be re-positioned.
 					}
 					if(fisnanf(CHILD_SIZE2_((&layout_s), r_child))) {

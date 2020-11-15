@@ -19,13 +19,13 @@ typedef struct {
 	SM4_KEY ks;
 } EVP_SM4_KEY;
 
-static int sm4_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, const unsigned char * iv, int enc)
+static int sm4_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	SM4_set_key(key, static_cast<SM4_KEY *>(EVP_CIPHER_CTX_get_cipher_data(ctx)));
 	return 1;
 }
 
-static void sm4_cbc_encrypt(const unsigned char * in, unsigned char * out, size_t len, const SM4_KEY * key, unsigned char * ivec, const int enc)
+static void sm4_cbc_encrypt(const uchar * in, uchar * out, size_t len, const SM4_KEY * key, uchar * ivec, const int enc)
 {
 	if(enc)
 		CRYPTO_cbc128_encrypt(in, out, len, key, ivec, (block128_f)SM4_encrypt);
@@ -33,15 +33,15 @@ static void sm4_cbc_encrypt(const unsigned char * in, unsigned char * out, size_
 		CRYPTO_cbc128_decrypt(in, out, len, key, ivec, (block128_f)SM4_decrypt);
 }
 
-static void sm4_cfb128_encrypt(const unsigned char * in, unsigned char * out,
+static void sm4_cfb128_encrypt(const uchar * in, uchar * out,
     size_t length, const SM4_KEY * key,
-    unsigned char * ivec, int * num, const int enc)
+    uchar * ivec, int * num, const int enc)
 {
 	CRYPTO_cfb128_encrypt(in, out, length, key, ivec, num, enc,
 	    (block128_f)SM4_encrypt);
 }
 
-static void sm4_ecb_encrypt(const unsigned char * in, unsigned char * out,
+static void sm4_ecb_encrypt(const uchar * in, uchar * out,
     const SM4_KEY * key, const int enc)
 {
 	if(enc)
@@ -50,9 +50,9 @@ static void sm4_ecb_encrypt(const unsigned char * in, unsigned char * out,
 		SM4_decrypt(in, out, key);
 }
 
-static void sm4_ofb128_encrypt(const unsigned char * in, unsigned char * out,
+static void sm4_ofb128_encrypt(const uchar * in, uchar * out,
     size_t length, const SM4_KEY * key,
-    unsigned char * ivec, int * num)
+    uchar * ivec, int * num)
 {
 	CRYPTO_ofb128_encrypt(in, out, length, key, ivec, num,
 	    (block128_f)SM4_encrypt);
@@ -62,10 +62,10 @@ IMPLEMENT_BLOCK_CIPHER(sm4, ks, sm4, EVP_SM4_KEY, NID_sm4,
     16, 16, 16, 128, EVP_CIPH_FLAG_DEFAULT_ASN1,
     sm4_init_key, 0, 0, 0, 0)
 
-static int sm4_ctr_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int sm4_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
-	unsigned int num = EVP_CIPHER_CTX_num(ctx);
+	uint num = EVP_CIPHER_CTX_num(ctx);
 	EVP_SM4_KEY * dat = EVP_C_DATA(EVP_SM4_KEY, ctx);
 
 	CRYPTO_ctr128_encrypt(in, out, len, &dat->ks,

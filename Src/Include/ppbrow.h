@@ -1119,17 +1119,19 @@
 #define PPVCMD_IMPORTUHTT                             270
 #define PPVCMD_TRANSACTJ                              271
 #define PPVCMD_OPTENTRYGRAPH                          272
-#define PPVCMD_UPDATEITEMS                            273
-#define PPVCMD_LOTOPS                                 274
-#define PPVCMD_VIEWLINKREST                           275
-#define PPVCMD_MATCHPERSON                            276
-#define PPVCMD_UTILIZEDVDOC                           277
-#define PPVCMD_SETUPOUTGOING                          278
-#define PPVCMD_SENDOUTGOING                           279
-#define PPVCMD_VETISWAREHOUSE                         280
-#define PPVCMD_VETISPRODUCT                           281
-#define PPVCMD_EDITLINKQR                             282
-#define PPVCMD_CREATELINKQR                           283
+#define PPVCMD_DESKTOPADD                             273
+#define PPVCMD_MENUADD                                274
+#define PPVCMD_UPDATEITEMS                            275
+#define PPVCMD_LOTOPS                                 276
+#define PPVCMD_VIEWLINKREST                           277
+#define PPVCMD_MATCHPERSON                            278
+#define PPVCMD_UTILIZEDVDOC                           279
+#define PPVCMD_SETUPOUTGOING                          280
+#define PPVCMD_SENDOUTGOING                           281
+#define PPVCMD_VETISWAREHOUSE                         282
+#define PPVCMD_VETISPRODUCT                           283
+#define PPVCMD_EDITLINKQR                             284
+#define PPVCMD_CREATELINKQR                           285
 //
 // PPCMD definitions
 //
@@ -4921,6 +4923,8 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_UNIFYPRICE02                    32952
 #define PPDV_FILEDOCUMENTEDIT01              32953
 #define PPDV_SIGNAL01                        32954
-#define PPDV_LOGOPAPYRUS                     32955
-#define PPDV_LOGOUDS                         32956
+#define PPDV_DESKTOP                         32955
+#define PPDV_MENU                            32956
+#define PPDV_LOGOPAPYRUS                     32957
+#define PPDV_LOGOUDS                         32958
 

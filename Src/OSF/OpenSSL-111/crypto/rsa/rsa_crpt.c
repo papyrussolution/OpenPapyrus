@@ -23,25 +23,25 @@ int RSA_size(const RSA * r)
 	return BN_num_bytes(r->n);
 }
 
-int RSA_public_encrypt(int flen, const unsigned char * from, unsigned char * to,
+int RSA_public_encrypt(int flen, const uchar * from, uchar * to,
     RSA * rsa, int padding)
 {
 	return rsa->meth->rsa_pub_enc(flen, from, to, rsa, padding);
 }
 
-int RSA_private_encrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+int RSA_private_encrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	return rsa->meth->rsa_priv_enc(flen, from, to, rsa, padding);
 }
 
-int RSA_private_decrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+int RSA_private_decrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	return rsa->meth->rsa_priv_dec(flen, from, to, rsa, padding);
 }
 
-int RSA_public_decrypt(int flen, const unsigned char * from, unsigned char * to,
+int RSA_public_decrypt(int flen, const uchar * from, uchar * to,
     RSA * rsa, int padding)
 {
 	return rsa->meth->rsa_pub_dec(flen, from, to, rsa, padding);

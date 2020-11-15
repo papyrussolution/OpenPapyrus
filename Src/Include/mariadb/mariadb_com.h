@@ -276,14 +276,14 @@ typedef struct st_net {
 	unsigned char reading_or_writing;
 	char save_char;
 	char unused_1;
-	my_bool unused_2;
-	my_bool compress;
-	my_bool unused_3;
+	bool unused_2;
+	bool compress;
+	bool unused_3;
 	void * unused_4;
 	unsigned int last_errno;
 	unsigned char error;
-	my_bool unused_5;
-	my_bool unused_6;
+	bool unused_5;
+	bool unused_6;
 	char last_error[MYSQL_ERRMSG_SIZE];
 	char sqlstate[SQLSTATE_LENGTH+1];
 	struct st_mariadb_net_extension * extension;
@@ -396,7 +396,7 @@ void    ma_net_end(NET * net);
 void    FASTCALL ma_net_clear(NET * net);
 int     ma_net_flush(NET * net);
 int     ma_net_write(NET * net, const unsigned char * packet, size_t len);
-int     ma_net_write_command(NET * net, unsigned char command, const char * packet, size_t len, my_bool disable_flush);
+int     ma_net_write_command(NET * net, unsigned char command, const char * packet, size_t len, bool disable_flush);
 int     ma_net_real_write(NET * net, const char * packet, size_t len);
 extern unsigned long ma_net_read(NET * net);
 
@@ -420,11 +420,11 @@ typedef struct st_udf_args {
 /* This holds information about the result */
 
 typedef struct st_udf_init {
-	my_bool maybe_null;             /* 1 if function can return NULL */
+	bool maybe_null;             /* 1 if function can return NULL */
 	unsigned int decimals;          /* for real functions */
 	unsigned int max_length;        /* For string functions */
 	char    * ptr;                  /* free pointer for function data */
-	my_bool const_item;             /* 0 if result is independent of arguments */
+	bool const_item;             /* 0 if result is independent of arguments */
 } UDF_INIT;
 
 /* Connection types */
@@ -454,7 +454,7 @@ void ma_make_scrambled_password(char * to, const char * password);
 
 void mariadb_load_defaults(const char * conf_file, const char ** groups,
     int * argc, char *** argv);
-my_bool ma_thread_init(void);
+bool ma_thread_init(void);
 void ma_thread_end(void);
 
 #ifdef __cplusplus

@@ -130,7 +130,7 @@ struct bio_st {
 
 #ifndef OPENSSL_NO_SOCK
 	#ifdef OPENSSL_SYS_VMS
-		typedef unsigned int socklen_t;
+		typedef uint socklen_t;
 	#endif
 
 	extern CRYPTO_RWLOCK * bio_lookup_lock;

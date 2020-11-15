@@ -40,7 +40,7 @@ typedef struct obj_name_st {
 #define         OBJ_create_and_add_object(a, b, c) OBJ_create(a, b, c)
 
 int OBJ_NAME_init(void);
-int OBJ_NAME_new_index(unsigned long (* hash_func)(const char *),
+int OBJ_NAME_new_index(ulong (* hash_func)(const char *),
     int (* cmp_func)(const char *, const char *),
     void (* free_func)(const char *, int, const char *));
 const char * OBJ_NAME_get(const char * name, int type);
@@ -144,7 +144,7 @@ int OBJ_create(const char * oid, const char * sn, const char * ln);
 int OBJ_create_objects(BIO * in);
 
 size_t OBJ_length(const ASN1_OBJECT * obj);
-const unsigned char * OBJ_get0_data(const ASN1_OBJECT * obj);
+const uchar * OBJ_get0_data(const ASN1_OBJECT * obj);
 
 int OBJ_find_sigid_algs(int signid, int * pdig_nid, int * ppkey_nid);
 int OBJ_find_sigid_by_algs(int * psignid, int dig_nid, int pkey_nid);

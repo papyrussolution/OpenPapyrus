@@ -120,7 +120,7 @@ struct CMS_EncryptedContentInfo_st {
     ASN1_OCTET_STRING *encryptedContent;
     /* Content encryption algorithm and key */
     const EVP_CIPHER *cipher;
-    unsigned char *key;
+    uchar *key;
     size_t keylen;
     /* Set to 1 if we are debugging decrypt and don't fake keys for MMA */
     int debug;
@@ -206,7 +206,7 @@ struct CMS_KEKRecipientInfo_st {
     X509_ALGOR *keyEncryptionAlgorithm;
     ASN1_OCTET_STRING *encryptedKey;
     /* Extra info: symmetric key to use */
-    unsigned char *key;
+    uchar *key;
     size_t keylen;
 };
 
@@ -222,7 +222,7 @@ struct CMS_PasswordRecipientInfo_st {
     X509_ALGOR *keyEncryptionAlgorithm;
     ASN1_OCTET_STRING *encryptedKey;
     /* Extra info: password to use */
-    unsigned char *pass;
+    uchar *pass;
     size_t passlen;
 };
 
@@ -395,7 +395,7 @@ BIO *cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo *ec);
 BIO *cms_EncryptedData_init_bio(CMS_ContentInfo *cms);
 int cms_EncryptedContent_init(CMS_EncryptedContentInfo *ec,
                               const EVP_CIPHER *cipher,
-                              const unsigned char *key, size_t keylen);
+                              const uchar *key, size_t keylen);
 
 int cms_Receipt_verify(CMS_ContentInfo *cms, CMS_ContentInfo *req_cms);
 int cms_msgSigDigest_add1(CMS_SignerInfo *dest, CMS_SignerInfo *src);
@@ -407,7 +407,7 @@ int cms_env_asn1_ctrl(CMS_RecipientInfo *ri, int cmd);
 int cms_pkey_get_ri_type(EVP_PKEY *pk);
 /* KARI routines */
 int cms_RecipientInfo_kari_init(CMS_RecipientInfo *ri, X509 *recip,
-                                EVP_PKEY *pk, unsigned int flags);
+                                EVP_PKEY *pk, uint flags);
 int cms_RecipientInfo_kari_encrypt(CMS_ContentInfo *cms,
                                    CMS_RecipientInfo *ri);
 

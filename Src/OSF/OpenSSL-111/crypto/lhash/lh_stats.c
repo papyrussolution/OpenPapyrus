@@ -82,9 +82,9 @@ void OPENSSL_LH_node_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 {
 	OPENSSL_LH_NODE * n;
-	unsigned long num;
-	unsigned int i;
-	unsigned long total = 0, n_used = 0;
+	ulong num;
+	uint i;
+	ulong total = 0, n_used = 0;
 
 	for(i = 0; i < lh->num_nodes; i++) {
 		for(n = lh->b[i], num = 0; n != NULL; n = n->next)

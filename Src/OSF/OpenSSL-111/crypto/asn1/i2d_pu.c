@@ -15,7 +15,7 @@
 #include <openssl/dsa.h>
 //#include <openssl/ec.h>
 
-int i2d_PublicKey(EVP_PKEY * a, unsigned char ** pp)
+int i2d_PublicKey(EVP_PKEY * a, uchar ** pp)
 {
 	switch(EVP_PKEY_id(a)) {
 #ifndef OPENSSL_NO_RSA

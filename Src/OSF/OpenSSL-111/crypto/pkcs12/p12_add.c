@@ -79,7 +79,7 @@ STACK_OF(PKCS12_SAFEBAG) *PKCS12_unpack_p7data(PKCS7 *p7)
 
 /* Turn a stack of SAFEBAGS into a PKCS#7 encrypted data ContentInfo */
 
-PKCS7 * PKCS12_pack_p7encdata(int pbe_nid, const char * pass, int passlen, unsigned char * salt, int saltlen, int iter, STACK_OF(PKCS12_SAFEBAG) * bags)
+PKCS7 * PKCS12_pack_p7encdata(int pbe_nid, const char * pass, int passlen, uchar * salt, int saltlen, int iter, STACK_OF(PKCS12_SAFEBAG) * bags)
 {
 	PKCS7 * p7;
 	X509_ALGOR * pbe;

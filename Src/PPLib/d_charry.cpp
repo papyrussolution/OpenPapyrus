@@ -380,7 +380,7 @@ int PPDS_CrrGoods::AcceptOuterData(int use_ta)
 			// @v10.6.8 @ctr MEMSZERO(u_rec);
 			STRNSCPY(u_rec.Name, UnitName);
 			u_rec.Flags |= PPUnit::Trade;
-			THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
+			THROW(u_obj.P_Ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
 			Data.Rec.UnitID = id;
 		}
 		if(PhUnitName[0]) {
@@ -393,7 +393,7 @@ int PPDS_CrrGoods::AcceptOuterData(int use_ta)
 					// @v10.6.8 @ctr MEMSZERO(u_rec);
 					STRNSCPY(u_rec.Name, PhUnitName);
 					u_rec.Flags |= PPUnit::Physical;
-					THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
+					THROW(u_obj.P_Ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
 					Data.Rec.PhUnitID = id;
 				}
 				Data.Rec.PhUPerU = PhUPerU;

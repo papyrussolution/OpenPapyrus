@@ -31,8 +31,8 @@ NON_EMPTY_TRANSLATION_UNIT
 #include <openssl/sha.h>
 
 DSA * DSA_generate_parameters(int bits,
-    unsigned char * seed_in, int seed_len,
-    int * counter_ret, unsigned long * h_ret,
+    uchar * seed_in, int seed_len,
+    int * counter_ret, ulong * h_ret,
     void (*callback)(int, int, void *),
     void * cb_arg)
 {

@@ -26,7 +26,7 @@ struct dh_st {
     /* Place holders if we want to do X9.42 DH */
     BIGNUM *q;
     BIGNUM *j;
-    unsigned char *seed;
+    uchar *seed;
     int seedlen;
     BIGNUM *counter;
     CRYPTO_REF_COUNT references;
@@ -40,7 +40,7 @@ struct dh_method {
     char *name;
     /* Methods here */
     int (*generate_key) (DH *dh);
-    int (*compute_key) (unsigned char *key, const BIGNUM *pub_key, DH *dh);
+    int (*compute_key) (uchar *key, const BIGNUM *pub_key, DH *dh);
 
     /* Can be null */
     int (*bn_mod_exp) (const DH *dh, BIGNUM *r, const BIGNUM *a,

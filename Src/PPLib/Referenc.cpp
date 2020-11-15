@@ -1877,7 +1877,6 @@ PPSecur2::PPSecur2()
 PPSecurPacket::PPSecurPacket()
 {
 	// @v10.9.3 @ctr MEMSZERO(Secur);
-	// @v9.4.9 (constructor) MEMSZERO(Config);
 }
 
 PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & src)

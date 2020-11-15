@@ -23,10 +23,8 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <ma_string.h>
 
-my_bool ma_init_dynamic_string(DYNAMIC_STRING * str, const char * init_str, size_t init_alloc, size_t alloc_increment)
+bool ma_init_dynamic_string(DYNAMIC_STRING * str, const char * init_str, size_t init_alloc, size_t alloc_increment)
 {
 	uint length;
 	SETIFZ(alloc_increment, 128);
@@ -45,7 +43,7 @@ my_bool ma_init_dynamic_string(DYNAMIC_STRING * str, const char * init_str, size
 	return(FALSE);
 }
 
-my_bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str)
+bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str)
 {
 	uint length;
 	if(init_str && (length = (uint)strlen(init_str)+1) > str->max_length) {
@@ -64,7 +62,7 @@ my_bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str)
 	return(FALSE);
 }
 
-my_bool ma_dynstr_realloc(DYNAMIC_STRING * str, size_t additional_size)
+bool ma_dynstr_realloc(DYNAMIC_STRING * str, size_t additional_size)
 {
 	if(!additional_size) return(FALSE);
 	if(str->length + additional_size > str->max_length) {
@@ -76,12 +74,12 @@ my_bool ma_dynstr_realloc(DYNAMIC_STRING * str, size_t additional_size)
 	return(FALSE);
 }
 
-my_bool ma_dynstr_append(DYNAMIC_STRING * str, const char * append)
+bool ma_dynstr_append(DYNAMIC_STRING * str, const char * append)
 {
 	return ma_dynstr_append_mem(str, append, strlen(append));
 }
 
-my_bool ma_dynstr_append_quoted(DYNAMIC_STRING * str, const char * append, size_t len, char quote)
+bool ma_dynstr_append_quoted(DYNAMIC_STRING * str, const char * append, size_t len, char quote)
 {
 	size_t additional = str->alloc_increment;
 	size_t lim = additional;
@@ -106,7 +104,7 @@ my_bool ma_dynstr_append_quoted(DYNAMIC_STRING * str, const char * append, size_
 	return FALSE;
 }
 
-my_bool ma_dynstr_append_mem(DYNAMIC_STRING * str, const char * append, size_t length)
+bool ma_dynstr_append_mem(DYNAMIC_STRING * str, const char * append, size_t length)
 {
 	char * new_ptr;
 	if(str->length+length >= str->max_length) {

@@ -79,7 +79,7 @@ PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0), LastLoading(ZERODATETIME)
 //@erik v10.7.4
 	GetXmlPoolDir(XmlFilePath);
 	Sync.Init(XmlFilePath);
-	XmlFilePath.SetLastSlash().Cat("ppjobpool").Cat(".xml");
+	XmlFilePath.SetLastSlash().Cat("ppjobpool").Dot().Cat("xml");
 // } @erik
 }
 
@@ -116,12 +116,13 @@ void PPJobMngr::CloseFile()
 
 int PPJobMngr::ConvertBinToXml()
 {
-	int ok = 1;
+	int    ok = 1;
 	PPJobPool pool(this, 0, 0);
 	THROW(LoadPool(0, &pool, 1));
 	THROW(Sync.CreateMutex_(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1, 0, 0));
-	THROW(SavePool2(&pool));
-	THROW(Sync.ReleaseMutex(PPCFGOBJ_JOBPOOL, 1));
+	if(!SavePool2(&pool))
+		ok = 0;
+	Sync.ReleaseMutex(PPCFGOBJ_JOBPOOL, 1);
 	CATCHZOK
 	return ok;
 }
@@ -264,32 +265,34 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 	pPool->Flags &= ~PPJobPool::fReadOnly;
 	pPool->freeAll();
 	if(!fileExists(XmlFilePath)) {
+		SString fmt_buf;
+		SString msg_buf;
+		// PPTXT_LOG_TRYTOCONVERTJOBPOOL       "xml-файл пула задач '%s' не найден - попытка найти и сконвертировать пул в старом формате '%s'"
+		PPLoadText(PPTXT_LOG_TRYTOCONVERTJOBPOOL, fmt_buf);
+		msg_buf.Printf(fmt_buf, XmlFilePath.cptr(), FilePath.cptr());
+		PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 		THROW(ConvertBinToXml());
 	}
 	if(!readOnly) {
 		THROW(Sync.CreateMutex_(session_id, PPCFGOBJ_JOBPOOL, 1, 0, 0));
 	}
 	if(readOnly || Sync.IsMyLock(session_id, PPCFGOBJ_JOBPOOL, 1) > 0) {
-		THROW(p_xml_parser = xmlNewParserCtxt());
 		THROW(fileExists(XmlFilePath));
+		THROW(p_xml_parser = xmlNewParserCtxt());
 		THROW_LXML(p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT), p_xml_parser);
 		for(xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
 			if(SXml::IsName(p_root, "JobPool")) {
 				for(xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
 					if(SXml::IsName(p_node, "JobStrgHeader")) {
 						for(xmlNode * p_hdr_node = p_node->children; p_hdr_node; p_hdr_node = p_hdr_node->next) {
-							if(SXml::GetContentByName(p_hdr_node, "Count", temp_buf)) {
+							if(SXml::GetContentByName(p_hdr_node, "Count", temp_buf))
 								hdr.Count = temp_buf.ToULong();
-							}
-							else if(SXml::GetContentByName(p_hdr_node, "Locking", temp_buf)) {
+							else if(SXml::GetContentByName(p_hdr_node, "Locking", temp_buf))
 								hdr.Locking = temp_buf.ToULong();
-							}
-							else if(SXml::GetContentByName(p_hdr_node, "LastID", temp_buf)) {
+							else if(SXml::GetContentByName(p_hdr_node, "LastID", temp_buf))
 								hdr.LastId = temp_buf.ToLong();
-							}
-							else if(SXml::GetContentByName(p_hdr_node, "PpyVersion", temp_buf)) {
+							else if(SXml::GetContentByName(p_hdr_node, "PpyVersion", temp_buf))
 								hdr.Ver = temp_buf.ToLong();
-							}
 						}
 						hdr.Signature = JOBSTRGSIGN;
 						LastId = hdr.LastId;
@@ -411,7 +414,7 @@ int PPJobMngr::SavePool2(const PPJobPool * pPool)
 	hdr.Count = pPool->getCount();
 	hdr.LastId = LastId;
 	hdr.Ver = DS.GetVersion();
-	if(Sync.IsMyLock(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1)>0) {
+	if(Sync.IsMyLock(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1) > 0) {
 		THROW(p_xml_writer = xmlNewTextWriterFilename(XmlFilePath, 0));
 		xmlTextWriterSetIndent(p_xml_writer, 1);
 		xmlTextWriterSetIndentTab(p_xml_writer);
@@ -518,14 +521,13 @@ int FASTCALL PPJobDescr::Read2(xmlNode * pParentNode) //@erik v10.7.1
 	}
 	return ok;
 }
-
 //
 //
 //
 PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0), ScheduleBeforeTime(ZEROTIME), LastRunningTime(ZERODATETIME)
 {
 	MEMSZERO(Dtr);
-	Ver = 1; // @v9.2.3 0-->1
+	Ver = 1;
 	memzero(Symb, sizeof(Symb));
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -542,10 +544,10 @@ PPJob & FASTCALL PPJob::operator = (const PPJob & s)
 	LastRunningTime = s.LastRunningTime;
 	NextJobID       = s.NextJobID;
 	Ver             = s.Ver;
-	EmailAccID      = s.EmailAccID; // @v9.2.3
-	ScheduleBeforeTime = s.ScheduleBeforeTime; // @v9.2.11
+	EmailAccID      = s.EmailAccID;
+	ScheduleBeforeTime = s.ScheduleBeforeTime;
 	STRNSCPY(Symb, s.Symb);
-	ExtString = s.ExtString; // @v9.2.3
+	ExtString = s.ExtString;
 	Param = s.Param;
 	return *this;
 }
@@ -656,44 +658,30 @@ int PPJob::Read2(xmlNode * pParentNode) //@erik v10.7.1
 	assert(pParentNode);
 	{
 		for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
-			if(SXml::GetContentByName(p_node, "ID", temp_buf)) {
+			if(SXml::GetContentByName(p_node, "ID", temp_buf))
 				ID = temp_buf.ToLong();
-			}
-			else if(SXml::GetContentByName(p_node, "Name", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "Name", temp_buf))
 				Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			}
-			else if(SXml::GetContentByName(p_node, "DbSymb", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "DbSymb", temp_buf))
 				DbSymb = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			}
-			else if(SXml::GetContentByName(p_node, "Symb", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "Symb", temp_buf))
 				temp_buf.Transf(CTRANSF_UTF8_TO_INNER).CopyTo(Symb, sizeof(Symb));
-			}
-			else if(SXml::GetContentByName(p_node, "ExtString", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "ExtString", temp_buf))
 				ExtString = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			}
-			else if(SXml::GetContentByName(p_node, "Flags", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "Flags", temp_buf))
 				Flags = temp_buf.ToLong();
-			}
-			else if(SXml::GetContentByName(p_node, "EstimatedTime", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "EstimatedTime", temp_buf))
 				EstimatedTime = temp_buf.ToLong();
-			}
-			else if(SXml::GetContentByName(p_node, "Ver", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "Ver", temp_buf))
 				Ver = temp_buf.ToLong();
-			}
-			else if(SXml::GetContentByName(p_node, "NextJobID", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "NextJobID", temp_buf))
 				NextJobID = temp_buf.ToLong();
-			}
-			else if(SXml::GetContentByName(p_node, "EmailAccID", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "EmailAccID", temp_buf))
 				EmailAccID = temp_buf.ToLong();
-			}
-			else if(SXml::GetContentByName(p_node, "LastRunningTime", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "LastRunningTime", temp_buf))
 				LastRunningTime.Set(temp_buf, DATF_DMY, TIMF_HMS);
-			}
-			else if(SXml::GetContentByName(p_node, "ScheduleBeforeTime", temp_buf)) {
+			else if(SXml::GetContentByName(p_node, "ScheduleBeforeTime", temp_buf))
 				strtotime(temp_buf, TIMF_HMS, &ScheduleBeforeTime);
-				//long temp_ltime = temp_buf.ToLong();
-				//ScheduleBeforeTime.settotalsec(temp_ltime);
-			}
 			else if(SXml::GetContentByName(p_node, "Param", temp_buf)) {
 				STempBuffer bin_buf(temp_buf.Len()*3);
 				size_t actual_len = 0;
@@ -708,10 +696,8 @@ int PPJob::Read2(xmlNode * pParentNode) //@erik v10.7.1
 				s_buf.Write(bin_buf, actual_len);
 				s_buf.Read(&Dtr, sizeof(Dtr));
 			}
-			else {
-				if(SXml::IsName(p_node, "PPJobDescr")) {
-					Descr.Read2(p_node);
-				}
+			else if(SXml::IsName(p_node, "PPJobDescr")) {
+				Descr.Read2(p_node);
 			}
 		}
 	}

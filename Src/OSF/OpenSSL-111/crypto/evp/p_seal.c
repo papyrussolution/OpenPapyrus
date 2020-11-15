@@ -15,10 +15,10 @@
 #include <openssl/x509.h>
 
 int EVP_SealInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * type,
-    unsigned char ** ek, int * ekl, unsigned char * iv,
+    uchar ** ek, int * ekl, uchar * iv,
     EVP_PKEY ** pubk, int npubk)
 {
-	unsigned char key[EVP_MAX_KEY_LENGTH];
+	uchar key[EVP_MAX_KEY_LENGTH];
 	int i;
 	int rv = 0;
 
@@ -54,7 +54,7 @@ err:
 	return rv;
 }
 
-int EVP_SealFinal(EVP_CIPHER_CTX * ctx, unsigned char * out, int * outl)
+int EVP_SealFinal(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
 	int i;
 	i = EVP_EncryptFinal_ex(ctx, out, outl);

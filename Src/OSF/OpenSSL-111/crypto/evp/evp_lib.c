@@ -87,7 +87,7 @@ int EVP_CIPHER_asn1_to_param(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 int EVP_CIPHER_get_asn1_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 {
 	int i = 0;
-	unsigned int l;
+	uint l;
 
 	if(type != NULL) {
 		l = EVP_CIPHER_CTX_iv_length(c);
@@ -104,7 +104,7 @@ int EVP_CIPHER_get_asn1_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 int EVP_CIPHER_set_asn1_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 {
 	int i = 0;
-	unsigned int j;
+	uint j;
 
 	if(type != NULL) {
 		j = EVP_CIPHER_CTX_iv_length(c);
@@ -188,8 +188,8 @@ int EVP_CIPHER_impl_ctx_size(const EVP_CIPHER * e)
 	return e->ctx_size;
 }
 
-int EVP_Cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, unsigned int inl)
+int EVP_Cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, uint inl)
 {
 	return ctx->cipher->do_cipher(ctx, out, in, inl);
 }
@@ -204,7 +204,7 @@ int EVP_CIPHER_CTX_encrypting(const EVP_CIPHER_CTX * ctx)
 	return ctx->encrypt;
 }
 
-unsigned long EVP_CIPHER_flags(const EVP_CIPHER * cipher)
+ulong EVP_CIPHER_flags(const EVP_CIPHER * cipher)
 {
 	return cipher->flags;
 }
@@ -246,22 +246,22 @@ int FASTCALL EVP_CIPHER_CTX_iv_length(const EVP_CIPHER_CTX * ctx)
 	return ctx->cipher->iv_len;
 }
 
-const unsigned char * EVP_CIPHER_CTX_original_iv(const EVP_CIPHER_CTX * ctx)
+const uchar * EVP_CIPHER_CTX_original_iv(const EVP_CIPHER_CTX * ctx)
 {
 	return ctx->oiv;
 }
 
-const unsigned char * EVP_CIPHER_CTX_iv(const EVP_CIPHER_CTX * ctx)
+const uchar * EVP_CIPHER_CTX_iv(const EVP_CIPHER_CTX * ctx)
 {
 	return ctx->iv;
 }
 
-unsigned char * EVP_CIPHER_CTX_iv_noconst(EVP_CIPHER_CTX * ctx)
+uchar * EVP_CIPHER_CTX_iv_noconst(EVP_CIPHER_CTX * ctx)
 {
 	return ctx->iv;
 }
 
-unsigned char * EVP_CIPHER_CTX_buf_noconst(EVP_CIPHER_CTX * ctx)
+uchar * EVP_CIPHER_CTX_buf_noconst(EVP_CIPHER_CTX * ctx)
 {
 	return ctx->buf;
 }
@@ -320,7 +320,7 @@ int EVP_MD_size(const EVP_MD * md)
 	return md->md_size;
 }
 
-unsigned long EVP_MD_flags(const EVP_MD * md)
+ulong EVP_MD_flags(const EVP_MD * md)
 {
 	return md->flags;
 }
@@ -367,7 +367,7 @@ int EVP_MD_meth_set_app_datasize(EVP_MD * md, int datasize)
 	return 1;
 }
 
-int EVP_MD_meth_set_flags(EVP_MD * md, unsigned long flags)
+int EVP_MD_meth_set_flags(EVP_MD * md, ulong flags)
 {
 	md->flags = flags;
 	return 1;
@@ -388,7 +388,7 @@ int EVP_MD_meth_set_update(EVP_MD * md, int (*update)(EVP_MD_CTX * ctx,
 }
 
 int EVP_MD_meth_set_final(EVP_MD * md, int (*final)(EVP_MD_CTX * ctx,
-    unsigned char * md))
+    uchar * md))
 {
 	md->final = final;
 	return 1;
@@ -429,7 +429,7 @@ int EVP_MD_meth_get_app_datasize(const EVP_MD * md)
 	return md->ctx_size;
 }
 
-unsigned long EVP_MD_meth_get_flags(const EVP_MD * md)
+ulong EVP_MD_meth_get_flags(const EVP_MD * md)
 {
 	return md->flags;
 }
@@ -445,7 +445,7 @@ int(*EVP_MD_meth_get_update(const EVP_MD *md))(EVP_MD_CTX *ctx,
 	return md->update;
 }
 int(*EVP_MD_meth_get_final(const EVP_MD *md))(EVP_MD_CTX *ctx,
-    unsigned char * md)
+    uchar * md)
 {
 	return md->final;
 }

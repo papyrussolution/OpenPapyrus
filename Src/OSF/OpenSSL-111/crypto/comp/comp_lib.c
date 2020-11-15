@@ -53,8 +53,8 @@ void COMP_CTX_free(COMP_CTX * ctx)
 	OPENSSL_free(ctx);
 }
 
-int COMP_compress_block(COMP_CTX * ctx, unsigned char * out, int olen,
-    unsigned char * in, int ilen)
+int COMP_compress_block(COMP_CTX * ctx, uchar * out, int olen,
+    uchar * in, int ilen)
 {
 	int ret;
 	if(ctx->meth->compress == NULL) {
@@ -68,8 +68,8 @@ int COMP_compress_block(COMP_CTX * ctx, unsigned char * out, int olen,
 	return ret;
 }
 
-int COMP_expand_block(COMP_CTX * ctx, unsigned char * out, int olen,
-    unsigned char * in, int ilen)
+int COMP_expand_block(COMP_CTX * ctx, uchar * out, int olen,
+    uchar * in, int ilen)
 {
 	int ret;
 

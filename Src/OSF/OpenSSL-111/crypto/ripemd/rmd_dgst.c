@@ -12,15 +12,15 @@
 #include <openssl/opensslv.h>
 
 #ifdef RMD160_ASM
-void ripemd160_block_x86(RIPEMD160_CTX * c, unsigned long * p, size_t num);
-#define ripemd160_block ripemd160_block_x86
+	void ripemd160_block_x86(RIPEMD160_CTX * c, ulong * p, size_t num);
+	#define ripemd160_block ripemd160_block_x86
 #else
-void ripemd160_block(RIPEMD160_CTX * c, unsigned long * p, size_t num);
+	void ripemd160_block(RIPEMD160_CTX * c, ulong * p, size_t num);
 #endif
 
 int RIPEMD160_Init(RIPEMD160_CTX * c)
 {
-	memset(c, 0, sizeof(*c));
+	memzero(c, sizeof(*c));
 	c->A = RIPEMD160_A;
 	c->B = RIPEMD160_B;
 	c->C = RIPEMD160_C;
@@ -35,13 +35,12 @@ int RIPEMD160_Init(RIPEMD160_CTX * c)
 #endif
 void ripemd160_block_data_order(RIPEMD160_CTX * ctx, const void * p, size_t num)
 {
-	const unsigned char * data = static_cast<const uchar *>(p);
-	register unsigned MD32_REG_T A, B, C, D, E;
+	const uchar * data = static_cast<const uchar *>(p);
+	unsigned MD32_REG_T A, B, C, D, E;
 	unsigned MD32_REG_T a, b, c, d, e, l;
 #ifndef MD32_XARRAY
 	/* See comment in crypto/sha/sha_locl.h for details. */
-	unsigned MD32_REG_T XX0, XX1, XX2, XX3, XX4, XX5, XX6, XX7,
-	    XX8, XX9, XX10, XX11, XX12, XX13, XX14, XX15;
+	unsigned MD32_REG_T XX0, XX1, XX2, XX3, XX4, XX5, XX6, XX7, XX8, XX9, XX10, XX11, XX12, XX13, XX14, XX15;
 #define X(i)   XX ## i
 #else
 	RIPEMD160_LONG XX[16];

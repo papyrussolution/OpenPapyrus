@@ -1,5 +1,5 @@
 // PPCOLORS.CPP
-// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -444,7 +444,7 @@ void PPColorPickerDialog::DrawColorRect(COLORREF c, uint ctl)
 	::GetClientRect(hwnd, &rect);
 	rect.left   += 2;
 	rect.right  -= 2;
-	rect.top    += 16; // @v9.1.11 8-->16
+	rect.top    += 16;
 	rect.bottom -= 2;
 	brush = CreateSolidBrush(c);
 	FillRect(hdc, &rect, brush);
@@ -784,19 +784,20 @@ ColorCtrlGroup::~ColorCtrlGroup()
 	ZDeleteWinGdiObject(&H_BrSelList);
 	ZDeleteWinGdiObject(&H_BrFrameList);
 	ZDeleteWinGdiObject(&H_BrBkInput);
-	for(int i = 0; i < 32; i++)
+	for(int i = 0; i < SIZEOFARRAY(OwnerDrawCtrls); i++)
 		MEMSZERO(OwnerDrawCtrls[i]);
 }
 
 int ColorCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	for(int i = 0; i < 32; i++)
+	for(int i = 0; i < SIZEOFARRAY(OwnerDrawCtrls); i++) {
 		if(OwnerDrawCtrls[i].CtrlType == 0 && OwnerDrawCtrls[i].CtrlID == 0) {
 			OwnerDrawCtrls[i].CtrlType = ctListBox;
 			OwnerDrawCtrls[i].CtrlID   = CTL_OWNDRAWLBX_LIST;
 			OwnerDrawCtrls[i].ExtraParam = 22;
 			break;
 		}
+	}
 	Data = *static_cast<const ColorCtrlGroup::Rec *>(pData);
 	{
 		SString userdef;

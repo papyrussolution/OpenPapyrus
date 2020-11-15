@@ -26,33 +26,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#include <stdlib.h>
-//#ifdef HAVE_BZLIB_H
-	//#include <bzlib.h>
-//#endif
-//#if HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_endian.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_rb.h"
-//#include "archive_string.h"
-//#include "archive_digest_private.h"
-//#include "archive_write_private.h"
-
 /*
  * Differences to xar utility.
  * - Subdocument is not supported yet.

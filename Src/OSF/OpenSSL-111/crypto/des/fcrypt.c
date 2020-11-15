@@ -89,14 +89,14 @@ char * DES_crypt(const char * buf, const char * salt)
 
 char * DES_fcrypt(const char * buf, const char * salt, char * ret)
 {
-	unsigned int i, j, x, y;
+	uint i, j, x, y;
 	DES_LONG Eswap0, Eswap1;
 	DES_LONG out[2], ll;
 	DES_cblock key;
 	DES_key_schedule ks;
-	unsigned char bb[9];
-	unsigned char * b = bb;
-	unsigned char c, u;
+	uchar bb[9];
+	uchar * b = bb;
+	uchar c, u;
 
 	x = ret[0] = salt[0];
 	if(x == 0 || x >= sizeof(con_salt))

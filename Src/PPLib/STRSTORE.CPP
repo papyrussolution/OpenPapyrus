@@ -705,7 +705,7 @@ static void PreserveStringForAutotraslation(const SString & rOrgBuf, SString & r
 			size_t p2 = p+2;
 			do {
 				const char c3 = rOrgBuf.C(p2++);
-				if(isdec(c3) || (c3 >= 'A' && c3 <= 'Z') || (c3 >= 'a' && c3 <= 'z') || oneof2(c3, '_', '-')) {
+				if(isasciialnum(c3) || oneof2(c3, '_', '-')) {
 					preserve_buf.CatChar(c3);
 				}
 				else if(c3 == '}') {
@@ -760,7 +760,7 @@ static void PreserveStringForAutotraslation(const SString & rOrgBuf, SString & r
 					}
 					break;
 				}
-				else if(isdec(c3) || (c3 >= 'A' && c3 <= 'Z') || (c3 >= 'a' && c3 <= 'z') || oneof12(c3, '_', '-', '+', '/', '%', '=', ' ', '.', ',', ':', ';', '@')) {
+				else if(isasciialnum(c3) || oneof12(c3, '_', '-', '+', '/', '%', '=', ' ', '.', ',', ':', ';', '@')) {
 					preserve_buf.CatChar(c3);
 				}
 				else {
@@ -1042,7 +1042,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 												}
 												for(uint cidx = c_first_pos; is_subst && cidx <= c_last_pos; cidx++) {
 													const char c2 = temp_buf.C(cidx);
-													if(!isdec(c2) && !(c2 >= 'A' && c2 <= 'Z') && !(c2 >= 'a' && c2 <= 'z') && !oneof2(c2, '_', '-'))
+													if(!isasciialnum(c2) && !oneof2(c2, '_', '-'))
 														is_subst = 0;
 												}
 											}

@@ -4152,25 +4152,25 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							unit_rec.ID = r_blk.ID;
 							native_id = r_blk.ID;
 							if(u_obj.Search(native_id, &u_rec) > 0) {
-								int r = u_obj.ref->UpdateItem(PPOBJ_UNIT, native_id, &unit_rec, 1, 0);
+								int r = u_obj.P_Ref->UpdateItem(PPOBJ_UNIT, native_id, &unit_rec, 1, 0);
 								THROW(r);
 							}
 							else {
-								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec, 0));
+								THROW(u_obj.P_Ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec, 0));
 							}
 						}
 						else {
 							PPID   temp_id = 0;
 							if(u_obj.SearchByName(unit_rec.Name, &native_id, &u_rec) > 0) {
-								int r = u_obj.ref->UpdateItem(PPOBJ_UNIT, native_id, &unit_rec, 1, 0);
+								int r = u_obj.P_Ref->UpdateItem(PPOBJ_UNIT, native_id, &unit_rec, 1, 0);
 								THROW(r);
 							}
 							else {
-								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec, 0));
+								THROW(u_obj.P_Ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec, 0));
 							}
 							if(unit_rec.Abbr[0] && u_obj.SearchBySymb(unit_rec.Abbr, &temp_id, &u_rec) > 0 && temp_id != native_id) {
 								u_rec.Abbr[0] = 0;
-								int r = u_obj.ref->UpdateItem(PPOBJ_UNIT, temp_id, &u_rec, 1, 0);
+								int r = u_obj.P_Ref->UpdateItem(PPOBJ_UNIT, temp_id, &u_rec, 1, 0);
 							}
 						}
 						r_blk.NativeID = native_id;

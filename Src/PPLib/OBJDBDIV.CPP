@@ -399,9 +399,9 @@ int PPObjDBDiv::Get(PPID id, DBDivPack * pPack)
 {
 	int    ok = 1;
 	if(pPack) {
-		THROW(ref->GetItem(Obj, id, &pPack->Rec) > 0);
-		THROW(ref->GetPropArray(Obj, id, DBDPRP_LOCLIST, &pPack->LocList));
-		THROW(ref->GetPropVlrString(Obj, id, DBDPRP_EXTSTRING, pPack->ExtString));
+		THROW(P_Ref->GetItem(Obj, id, &pPack->Rec) > 0);
+		THROW(P_Ref->GetPropArray(Obj, id, DBDPRP_LOCLIST, &pPack->LocList));
+		THROW(P_Ref->GetPropVlrString(Obj, id, DBDPRP_EXTSTRING, pPack->ExtString));
 		pPack->ExtString.Strip();
 	}
 	CATCH
@@ -417,7 +417,7 @@ StrAssocArray * PPObjDBDiv::MakeStrAssocList(void * extraPtr)
 	PPDBDiv rec;
 	StrAssocArray * p_list = new StrAssocArray();
 	THROW_MEM(p_list);
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if((extra_param & mklefShowPassive) || !(rec.Flags & DBDIVF_PASSIVE)) {
 			if(*strip(rec.Name) == 0)
 				ideqvalstr(rec.ID, rec.Name, sizeof(rec.Name));
@@ -438,14 +438,14 @@ int PPObjDBDiv::Put(PPID * pID, DBDivPack * pPack, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+			THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 		}
 		else {
-			THROW(ref->AddItem(Obj, &pPack->Rec.ID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, &pPack->Rec.ID, &pPack->Rec, 0));
 			*pID = pPack->Rec.ID;
 		}
-		THROW(ref->PutPropArray(Obj, *pID, DBDPRP_LOCLIST, &pPack->LocList, 0));
-		THROW(ref->PutPropVlrString(Obj, *pID, DBDPRP_EXTSTRING, pPack->ExtString));
+		THROW(P_Ref->PutPropArray(Obj, *pID, DBDPRP_LOCLIST, &pPack->LocList, 0));
+		THROW(P_Ref->PutPropVlrString(Obj, *pID, DBDPRP_EXTSTRING, pPack->ExtString));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -456,13 +456,13 @@ int PPObjDBDiv::AcceptUuid(PPID dbid, const S_GUID & rUuid, int use_ta)
 {
 	int    ok = -1;
 	PPDBDiv rec;
-	THROW(ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
+	THROW(P_Ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
 	if(rec.Uuid.IsZero() && !rUuid.IsZero()) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
+		THROW(P_Ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
 		rec.Uuid = rUuid;
-		THROW(ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
+		THROW(P_Ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
 		THROW(tra.Commit());
 		ok = 1;
 	}
@@ -478,10 +478,10 @@ int PPObjDBDiv::GetUuid(PPID dbid, S_GUID * pUuid, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
+		THROW(P_Ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
 		if(rec.Uuid.IsZero()) {
 			rec.Uuid.Generate();
-			THROW(ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
+			THROW(P_Ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
 		}
 		THROW(tra.Commit());
 		ASSIGN_PTR(pUuid, rec.Uuid);
@@ -499,11 +499,11 @@ int PPObjDBDiv::GetCounter(PPID dbid, long * pCounter, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
+		THROW(P_Ref->GetItem(PPOBJ_DBDIV, dbid, &rec) > 0);
 		*pCounter = ++rec.OutCounter;
 		if(rec.OutCounter >= 1000000L)
 			rec.OutCounter = 0;
-		THROW(ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
+		THROW(P_Ref->UpdateItem(PPOBJ_DBDIV, dbid, &rec, 1, 0));
 		THROW(tra.Commit());
 	}
 	CATCH
@@ -547,7 +547,7 @@ int PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(deleteFrom(&sync_tbl, 0, (sync_tbl.DBID == id)));
-		THROW(ref->RemoveItem(Obj, id, 0) && RemoveSync(id));
+		THROW(P_Ref->RemoveItem(Obj, id, 0) && RemoveSync(id));
 		THROW(tra.Commit());
 		r = 1;
 	}
@@ -565,13 +565,13 @@ int PPObjDBDiv::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE) {
 		PPDBDiv rec;
 		if(_obj == PPOBJ_OPRKIND) {
-			for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 				if(rec.IntrRcptOpr == _id)
 					return RetRefsExistsErr(Obj, rec.ID);
 			}
 		}
 		else if(_obj == PPOBJ_LOCATION) {
-			for(SEnum en = ref->Enum(Obj, Reference::eoIdName); en.Next(&rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, Reference::eoIdName); en.Next(&rec) > 0;) {
 				DBDivPack pack;
 				if(Get(rec.ID, &pack) > 0 && pack.LocList.lsearch(_id))
 					return RetRefsExistsErr(Obj, rec.ID);

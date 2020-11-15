@@ -101,13 +101,13 @@ int DH_meth_set_generate_key(DH_METHOD * dhm, int (*generate_key)(DH *))
 }
 
 int (*DH_meth_get_compute_key(const DH_METHOD *dhm))
-(unsigned char * key, const BIGNUM *pub_key, DH *dh)
+(uchar * key, const BIGNUM *pub_key, DH *dh)
 {
 	return dhm->compute_key;
 }
 
 int DH_meth_set_compute_key(DH_METHOD * dhm,
-    int (*compute_key)(unsigned char * key, const BIGNUM * pub_key, DH * dh))
+    int (*compute_key)(uchar * key, const BIGNUM * pub_key, DH * dh))
 {
 	dhm->compute_key = compute_key;
 	return 1;

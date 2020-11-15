@@ -16,7 +16,7 @@
  */
 
 /* increment counter (128-bit int) by 1 */
-static void ctr128_inc(unsigned char * counter)
+static void ctr128_inc(uchar * counter)
 {
 	u32 n = 16, c = 1;
 	do {
@@ -28,7 +28,7 @@ static void ctr128_inc(unsigned char * counter)
 }
 
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
-static void ctr128_inc_aligned(unsigned char * counter)
+static void ctr128_inc_aligned(uchar * counter)
 {
 	size_t * data, c, d, n;
 	const union {
@@ -67,13 +67,13 @@ static void ctr128_inc_aligned(unsigned char * counter)
  * implementation takes NO responsibility for checking that the counter
  * doesn't overflow into the rest of the IV when incremented.
  */
-void CRYPTO_ctr128_encrypt(const unsigned char * in, unsigned char * out,
+void CRYPTO_ctr128_encrypt(const uchar * in, uchar * out,
     size_t len, const void * key,
-    unsigned char ivec[16],
-    unsigned char ecount_buf[16], unsigned int * num,
+    uchar ivec[16],
+    uchar ecount_buf[16], uint * num,
     block128_f block)
 {
-	unsigned int n;
+	uint n;
 	size_t l = 0;
 
 	n = *num;
@@ -131,7 +131,7 @@ void CRYPTO_ctr128_encrypt(const unsigned char * in, unsigned char * out,
 }
 
 /* increment upper 96 bits of 128-bit counter by 1 */
-static void ctr96_inc(unsigned char * counter)
+static void ctr96_inc(uchar * counter)
 {
 	u32 n = 12, c = 1;
 
@@ -143,13 +143,13 @@ static void ctr96_inc(unsigned char * counter)
 	} while(n);
 }
 
-void CRYPTO_ctr128_encrypt_ctr32(const unsigned char * in, unsigned char * out,
+void CRYPTO_ctr128_encrypt_ctr32(const uchar * in, uchar * out,
     size_t len, const void * key,
-    unsigned char ivec[16],
-    unsigned char ecount_buf[16],
-    unsigned int * num, ctr128_f func)
+    uchar ivec[16],
+    uchar ecount_buf[16],
+    uint * num, ctr128_f func)
 {
-	unsigned int n, ctr32;
+	uint n, ctr32;
 
 	n = *num;
 

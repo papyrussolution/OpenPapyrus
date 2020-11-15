@@ -15,7 +15,7 @@ struct pqueue_st {
 	int count;
 };
 
-pitem * pitem_new(unsigned char * prio64be, void * data)
+pitem * pitem_new(uchar * prio64be, void * data)
 {
 	pitem * item = static_cast<pitem *>(OPENSSL_malloc(sizeof(*item)));
 	if(item == NULL) {
@@ -96,7 +96,7 @@ pitem * pqueue_pop(pqueue * pq)
 	return item;
 }
 
-pitem * pqueue_find(pqueue * pq, unsigned char * prio64be)
+pitem * pqueue_find(pqueue * pq, uchar * prio64be)
 {
 	pitem * next;
 	pitem * found = NULL;

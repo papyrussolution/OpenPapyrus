@@ -21,7 +21,7 @@
  */
 
 /* The ebcdic-to-ascii table: */
-const unsigned char os_toascii[256] = {
+const uchar os_toascii[256] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -57,7 +57,7 @@ const unsigned char os_toascii[256] = {
 };
 
 /* The ascii-to-ebcdic table: */
-const unsigned char os_toebcdic[256] = {
+const uchar os_toebcdic[256] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -108,7 +108,7 @@ const unsigned char os_toebcdic[256] = {
  */
 
 /* Here's the bijective ebcdic-to-ascii table: */
-const unsigned char os_toascii[256] = {
+const uchar os_toascii[256] = {
 	/*
 	 * 00
 	 */0x00, 0x01, 0x02, 0x03, 0x85, 0x09, 0x86, 0x7f,
@@ -176,7 +176,7 @@ const unsigned char os_toascii[256] = {
 };
 
 /* The ascii-to-ebcdic table: */
-const unsigned char os_toebcdic[256] = {
+const uchar os_toebcdic[256] = {
 	/*
 	 * 00
 	 */0x00, 0x01, 0x02, 0x03, 0x37, 0x2d, 0x2e, 0x2f,
@@ -252,7 +252,7 @@ const unsigned char os_toebcdic[256] = {
  * Bijective EBCDIC (character set IBM-1047) to US-ASCII table: This table is
  * bijective - there are no ambiguous or duplicate characters.
  */
-const unsigned char os_toascii[256] = {
+const uchar os_toascii[256] = {
 	0x00, 0x01, 0x02, 0x03, 0x85, 0x09, 0x86, 0x7f, /* 00-0f: */
 	0x87, 0x8d, 0x8e, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, /* ................ */
 	0x10, 0x11, 0x12, 0x13, 0x8f, 0x0a, 0x08, 0x97, /* 10-1f: */
@@ -291,7 +291,7 @@ const unsigned char os_toascii[256] = {
  * The US-ASCII to EBCDIC (character set IBM-1047) table: This table is
  * bijective (no ambiguous or duplicate characters)
  */
-const unsigned char os_toebcdic[256] = {
+const uchar os_toebcdic[256] = {
 	0x00, 0x01, 0x02, 0x03, 0x37, 0x2d, 0x2e, 0x2f, /* 00-0f: */
 	0x16, 0x05, 0x15, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, /* ................ */
 	0x10, 0x11, 0x12, 0x13, 0x3c, 0x3d, 0x32, 0x26, /* 10-1f: */
@@ -336,8 +336,8 @@ const unsigned char os_toebcdic[256] = {
 
 void * ebcdic2ascii(void * dest, const void * srce, size_t count)
 {
-	unsigned char * udest = dest;
-	const unsigned char * usrce = srce;
+	uchar * udest = dest;
+	const uchar * usrce = srce;
 
 	while(count-- != 0) {
 		*udest++ = os_toascii[*usrce++];
@@ -348,8 +348,8 @@ void * ebcdic2ascii(void * dest, const void * srce, size_t count)
 
 void * ascii2ebcdic(void * dest, const void * srce, size_t count)
 {
-	unsigned char * udest = dest;
-	const unsigned char * usrce = srce;
+	uchar * udest = dest;
+	const uchar * usrce = srce;
 	while(count-- != 0) {
 		*udest++ = os_toebcdic[*usrce++];
 	}

@@ -199,7 +199,7 @@ struct TS_verify_ctx {
      * algorithm from the response is used.
      */
     X509_ALGOR *md_alg;
-    unsigned char *imprint;
+    uchar *imprint;
     unsigned imprint_len;
     /* Must be set only with TS_VFY_DATA. */
     BIO *data;

@@ -14,8 +14,8 @@
 
 int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
 {
-	const unsigned char * c1 = static_cast<const uchar *>(v1);
-	const unsigned char * c2 = static_cast<const uchar *>(v2);
+	const uchar * c1 = static_cast<const uchar *>(v1);
+	const uchar * c2 = static_cast<const uchar *>(v2);
 	int ret = 0;
 	while(n && (ret = *c1 - *c2) == 0)
 		n--, c1++, c2++;
@@ -95,7 +95,7 @@ size_t OPENSSL_strlcat(char * dst, const char * src, size_t size)
 	return l + OPENSSL_strlcpy(dst, src, size);
 }
 
-int OPENSSL_hexchar2int(unsigned char c)
+int OPENSSL_hexchar2int(uchar c)
 {
 #ifdef CHARSET_EBCDIC
 	c = os_toebcdic[c];
@@ -141,12 +141,12 @@ int OPENSSL_hexchar2int(unsigned char c)
 /*
  * Give a string of hex digits convert to a buffer
  */
-unsigned char * OPENSSL_hexstr2buf(const char * str, long * len)
+uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 {
-	unsigned char * hexbuf, * q;
-	unsigned char ch, cl;
+	uchar * hexbuf, * q;
+	uchar ch, cl;
 	int chi, cli;
-	const unsigned char * p;
+	const uchar * p;
 	size_t s;
 
 	s = strlen(str);
@@ -154,7 +154,7 @@ unsigned char * OPENSSL_hexstr2buf(const char * str, long * len)
 		CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-	for(p = (const unsigned char*)str, q = hexbuf; *p;) {
+	for(p = (const uchar*)str, q = hexbuf; *p;) {
 		ch = *p++;
 		if(ch == ':')
 			continue;
@@ -185,11 +185,11 @@ unsigned char * OPENSSL_hexstr2buf(const char * str, long * len)
  * hex representation @@@ (Contents of buffer are always kept in ASCII, also
  * on EBCDIC machines)
  */
-char * OPENSSL_buf2hexstr(const unsigned char * buffer, long len)
+char * OPENSSL_buf2hexstr(const uchar * buffer, long len)
 {
 	static const char hexdig[] = "0123456789ABCDEF";
 	char * tmp, * q;
-	const unsigned char * p;
+	const uchar * p;
 	int i;
 	if(len == 0) {
 		return static_cast<char *>(OPENSSL_zalloc(1));

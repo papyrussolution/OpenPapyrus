@@ -59,8 +59,8 @@ struct sct_st {
 	uint64_t timestamp;
 	uchar * ext;
 	size_t ext_len;
-	unsigned char hash_alg;
-	unsigned char sig_alg;
+	uchar hash_alg;
+	uchar sig_alg;
 	uchar * sig;
 	size_t sig_len;
 	/* Log entry type */
@@ -186,7 +186,7 @@ __owur int SCT_signature_is_complete(const SCT * sct);
  * If |out| points to an allocated string, the signature will be written to it.
  * The length of the signature in TLS format will be returned.
  */
-__owur int i2o_SCT_signature(const SCT * sct, unsigned char ** out);
+__owur int i2o_SCT_signature(const SCT * sct, uchar ** out);
 
 /*
  * Parses an SCT signature in TLS format and populates the |sct| with it.
@@ -197,7 +197,7 @@ __owur int i2o_SCT_signature(const SCT * sct, unsigned char ** out);
  * If an error occurs, the SCT's signature NID may be updated whilst the
  * signature field itself remains unset.
  */
-__owur int o2i_SCT_signature(SCT * sct, const unsigned char ** in, size_t len);
+__owur int o2i_SCT_signature(SCT * sct, const uchar ** in, size_t len);
 /*
  * Handlers for Certificate Transparency X509v3/OCSP extensions
  */

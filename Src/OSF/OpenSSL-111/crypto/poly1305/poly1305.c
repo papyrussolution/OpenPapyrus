@@ -18,7 +18,7 @@ size_t Poly1305_ctx_size(void)
 }
 
 /* pick 32-bit unsigned integer in little endian order */
-static unsigned int U8TOU32(const unsigned char * p)
+static uint U8TOU32(const uchar * p)
 {
 	return (((uint)(p[0] & 0xff)) |
 	       ((uint)(p[1] & 0xff) << 8) |
@@ -62,7 +62,7 @@ static unsigned int U8TOU32(const unsigned char * p)
  *                                              <appro@openssl.org>
  */
 
-typedef unsigned int u32;
+typedef uint u32;
 
 /*
  * poly1305_blocks processes a multiple of POLY1305_BLOCK_SIZE blocks
@@ -83,7 +83,7 @@ typedef unsigned int u32;
  *      level Poly1305_* from this very module, so that quirks are
  *      handled locally.
  */
-static void poly1305_blocks(void * ctx, const unsigned char * inp, size_t len, u32 padbit);
+static void poly1305_blocks(void * ctx, const uchar * inp, size_t len, u32 padbit);
 
 /*
  * Type-agnostic "rip-off" from constant_time_locl.h
@@ -92,7 +92,7 @@ static void poly1305_blocks(void * ctx, const unsigned char * inp, size_t len, u
 
 #if (defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16) && (defined(__SIZEOF_LONG__) && __SIZEOF_LONG__==8)
 
-typedef unsigned long u64;
+typedef ulong u64;
 typedef __uint128_t u128;
 
 typedef struct {
@@ -101,7 +101,7 @@ typedef struct {
 } poly1305_internal;
 
 /* pick 32-bit unsigned integer in little endian order */
-static u64 U8TOU64(const unsigned char * p)
+static u64 U8TOU64(const uchar * p)
 {
 	return (((u64)(p[0] & 0xff)) |
 	       ((u64)(p[1] & 0xff) << 8) |
@@ -114,7 +114,7 @@ static u64 U8TOU64(const unsigned char * p)
 }
 
 /* store a 32-bit unsigned integer in little endian */
-static void U64TO8(unsigned char * p, u64 v)
+static void U64TO8(uchar * p, u64 v)
 {
 	p[0] = (uchar)((v) & 0xff);
 	p[1] = (uchar)((v >> 8) & 0xff);
@@ -126,7 +126,7 @@ static void U64TO8(unsigned char * p, u64 v)
 	p[7] = (uchar)((v >> 56) & 0xff);
 }
 
-static void poly1305_init(void * ctx, const unsigned char key[16])
+static void poly1305_init(void * ctx, const uchar key[16])
 {
 	poly1305_internal * st = (poly1305_internal*)ctx;
 
@@ -140,7 +140,7 @@ static void poly1305_init(void * ctx, const unsigned char key[16])
 	st->r[1] = U8TOU64(&key[8]) & 0x0ffffffc0ffffffc;
 }
 
-static void poly1305_blocks(void * ctx, const unsigned char * inp, size_t len, u32 padbit)
+static void poly1305_blocks(void * ctx, const uchar * inp, size_t len, u32 padbit)
 {
 	poly1305_internal * st = (poly1305_internal*)ctx;
 	u64 r0, r1;
@@ -205,7 +205,7 @@ static void poly1305_blocks(void * ctx, const unsigned char * inp, size_t len, u
 	st->h[2] = h2;
 }
 
-static void poly1305_emit(void * ctx, unsigned char mac[16],
+static void poly1305_emit(void * ctx, uchar mac[16],
     const u32 nonce[4])
 {
 	poly1305_internal * st = (poly1305_internal*)ctx;
@@ -244,9 +244,9 @@ static void poly1305_emit(void * ctx, unsigned char mac[16],
 #  if defined(_WIN32) && !defined(__MINGW32__)
 typedef unsigned __int64 u64;
 #  elif defined(__arch64__)
-typedef unsigned long u64;
+typedef ulong u64;
 #  else
-typedef unsigned long long u64;
+typedef ulong long u64;
 #  endif
 
 typedef struct {
@@ -255,7 +255,7 @@ typedef struct {
 } poly1305_internal;
 
 /* store a 32-bit unsigned integer in little endian */
-static void U32TO8(unsigned char * p, unsigned int v)
+static void U32TO8(uchar * p, uint v)
 {
 	p[0] = (uchar)((v) & 0xff);
 	p[1] = (uchar)((v >> 8) & 0xff);
@@ -263,7 +263,7 @@ static void U32TO8(unsigned char * p, unsigned int v)
 	p[3] = (uchar)((v >> 24) & 0xff);
 }
 
-static void poly1305_init(void * ctx, const unsigned char key[16])
+static void poly1305_init(void * ctx, const uchar key[16])
 {
 	poly1305_internal * st = (poly1305_internal*)ctx;
 
@@ -281,7 +281,7 @@ static void poly1305_init(void * ctx, const unsigned char key[16])
 	st->r[3] = U8TOU32(&key[12]) & 0x0ffffffc;
 }
 
-static void poly1305_blocks(void * ctx, const unsigned char * inp, size_t len, u32 padbit)
+static void poly1305_blocks(void * ctx, const uchar * inp, size_t len, u32 padbit)
 {
 	poly1305_internal * st = (poly1305_internal*)ctx;
 	u32 r0, r1, r2, r3;
@@ -370,7 +370,7 @@ static void poly1305_blocks(void * ctx, const unsigned char * inp, size_t len, u
 	st->h[4] = h4;
 }
 
-static void poly1305_emit(void * ctx, unsigned char mac[16],
+static void poly1305_emit(void * ctx, uchar mac[16],
     const u32 nonce[4])
 {
 	poly1305_internal * st = (poly1305_internal*)ctx;
@@ -418,14 +418,14 @@ static void poly1305_emit(void * ctx, unsigned char mac[16],
 
 #endif
 #else
-int poly1305_init(void * ctx, const unsigned char key[16], void * func);
-void poly1305_blocks(void * ctx, const unsigned char * inp, size_t len,
-    unsigned int padbit);
-void poly1305_emit(void * ctx, unsigned char mac[16],
-    const unsigned int nonce[4]);
+int poly1305_init(void * ctx, const uchar key[16], void * func);
+void poly1305_blocks(void * ctx, const uchar * inp, size_t len,
+    uint padbit);
+void poly1305_emit(void * ctx, uchar mac[16],
+    const uint nonce[4]);
 #endif
 
-void Poly1305_Init(POLY1305 * ctx, const unsigned char key[32])
+void Poly1305_Init(POLY1305 * ctx, const uchar key[32])
 {
 	ctx->nonce[0] = U8TOU32(&key[16]);
 	ctx->nonce[1] = U8TOU32(&key[20]);
@@ -459,7 +459,7 @@ void Poly1305_Init(POLY1305 * ctx, const unsigned char key[32])
 #define poly1305_emit   (*poly1305_emit_p)
 #endif
 
-void Poly1305_Update(POLY1305 * ctx, const unsigned char * inp, size_t len)
+void Poly1305_Update(POLY1305 * ctx, const uchar * inp, size_t len)
 {
 #ifdef POLY1305_ASM
 	/*
@@ -502,7 +502,7 @@ void Poly1305_Update(POLY1305 * ctx, const unsigned char * inp, size_t len)
 	ctx->num = rem;
 }
 
-void Poly1305_Final(POLY1305 * ctx, unsigned char mac[16])
+void Poly1305_Final(POLY1305 * ctx, uchar mac[16])
 {
 #ifdef POLY1305_ASM
 	poly1305_blocks_f poly1305_blocks_p = ctx->func.blocks;

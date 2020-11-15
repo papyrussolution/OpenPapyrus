@@ -18,7 +18,7 @@
  * Mask of various character properties
  */
 
-static const unsigned short char_type[] = {
+static const ushort char_type[] = {
     1026,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,
        2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,
        2,    2,    2,    2,    2,    2,    2,    2,  120,    0,    1,   40,

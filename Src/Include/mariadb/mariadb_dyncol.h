@@ -41,10 +41,10 @@ extern "C" {
 
 #ifndef longlong_defined
 #if defined(HAVE_LONG_LONG) && SIZEOF_LONG != 8
-typedef unsigned long long int ulonglong; /* ulong or unsigned long long */
+typedef uint64 int ulonglong; /* ulong or uint64 */
 typedef long long int longlong;
 #else
-typedef unsigned long ulonglong;        /* ulong or unsigned long long */
+typedef unsigned long ulonglong;        /* ulong or uint64 */
 typedef long longlong;
 #endif
 #define longlong_defined
@@ -105,7 +105,7 @@ struct st_dynamic_column_value {
 	DYNAMIC_COLUMN_TYPE type;
 	union {
 		long long long_value;
-		unsigned long long ulong_value;
+		uint64 ulong_value;
 		double double_value;
 		struct {
 			MYSQL_LEX_STRING value;
@@ -136,12 +136,12 @@ typedef struct st_dynamic_column_value DYNAMIC_COLUMN_VALUE;
 #endif
 
 /* new functions */
-enum enum_dyncol_func_result mariadb_dyncol_create_many_num(DYNAMIC_COLUMN * str, uint column_count, uint * column_numbers, DYNAMIC_COLUMN_VALUE * values, my_bool new_string);
+enum enum_dyncol_func_result mariadb_dyncol_create_many_num(DYNAMIC_COLUMN * str, uint column_count, uint * column_numbers, DYNAMIC_COLUMN_VALUE * values, bool new_string);
 enum enum_dyncol_func_result mariadb_dyncol_create_many_named(DYNAMIC_COLUMN * str,
     uint column_count,
     MYSQL_LEX_STRING * column_keys,
     DYNAMIC_COLUMN_VALUE * values,
-    my_bool new_string);
+    bool new_string);
 
 enum enum_dyncol_func_result mariadb_dyncol_update_many_num(DYNAMIC_COLUMN * str,
     uint add_column_count,
@@ -165,7 +165,7 @@ enum enum_dyncol_func_result mariadb_dyncol_list_named(DYNAMIC_COLUMN * str, uin
  */
 enum enum_dyncol_func_result mariadb_dyncol_get_num(DYNAMIC_COLUMN * org, uint column_nr, DYNAMIC_COLUMN_VALUE * store_it_here);
 enum enum_dyncol_func_result mariadb_dyncol_get_named(DYNAMIC_COLUMN * str, MYSQL_LEX_STRING * name, DYNAMIC_COLUMN_VALUE * store_it_here);
-my_bool mariadb_dyncol_has_names(DYNAMIC_COLUMN * str);
+bool mariadb_dyncol_has_names(DYNAMIC_COLUMN * str);
 enum enum_dyncol_func_result mariadb_dyncol_check(DYNAMIC_COLUMN * str);
 enum enum_dyncol_func_result mariadb_dyncol_json(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json);
 void mariadb_dyncol_free(DYNAMIC_COLUMN * str);

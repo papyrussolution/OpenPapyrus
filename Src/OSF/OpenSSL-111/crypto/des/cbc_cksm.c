@@ -10,16 +10,13 @@
 #pragma hdrstop
 #include "des_locl.h"
 
-DES_LONG DES_cbc_cksum(const unsigned char * in, DES_cblock * output,
-    long length, DES_key_schedule * schedule,
-    const_DES_cblock * ivec)
+DES_LONG DES_cbc_cksum(const uchar * in, DES_cblock * output, long length, DES_key_schedule * schedule, const_DES_cblock * ivec)
 {
-	register DES_LONG tout0, tout1, tin0, tin1;
-	register long l = length;
+	DES_LONG tout0, tout1, tin0, tin1;
+	long l = length;
 	DES_LONG tin[2];
-	unsigned char * out = &(*output)[0];
-	const unsigned char * iv = &(*ivec)[0];
-
+	uchar * out = &(*output)[0];
+	const uchar * iv = &(*ivec)[0];
 	c2l(iv, tout0);
 	c2l(iv, tout1);
 	for(; l > 0; l -= 8) {

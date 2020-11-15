@@ -249,9 +249,9 @@
 		}
 		MENUITEM SEPARATOR
 		POPUP "@cmdpu_industryrefs" {
-			POPUP "@cmdpu_sawmilling" {
+			/* @v10.9.3 POPUP "@cmdpu_sawmilling" {
 				MENUITEM "@cmd_woodbreed",				cmWoodBreed
-			}
+			} */
 			MENUITEM "@cmd_transport",					cmTransport
 			MENUITEM "@cmd_timeseries",                 cmTimeSeries // @v10.2.3
 			MENUITEM "@cmd_tssmodel",                   cmTssModel   // @v10.7.4
@@ -500,12 +500,12 @@
 		}
 		POPUP "@cmdpu_ui" {
 			MENUITEM "@cmd_userinterfacecfg",               cmUserInterfaceCfg
-			MENUITEM SEPARATOR
-			MENUITEM "@cmd_editdesktops",					cmEditDesktops
 			MENUITEM "@cmd_seldesktop",						cmSelDesktop
-			MENUITEM SEPARATOR
-			MENUITEM "@cmd_editmenus",						cmEditMenus
-			MENUITEM "@cmd_editmenusfromfile",				cmEditMenusFromFile
+			// @v10.9.3 MENUITEM SEPARATOR
+			// @v10.9.3 MENUITEM "@cmd_editdesktops",					cmEditDesktops
+			// @v10.9.3 MENUITEM SEPARATOR
+			// @v10.9.3 MENUITEM "@cmd_editmenus",						cmEditMenus
+			// @v10.9.3 MENUITEM "@cmd_editmenusfromfile",				cmEditMenusFromFile
 			MENUITEM "@cmd_usermenu",                       cmUserMenu
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_editpaintcloths",                cmEditPaintCloths
@@ -659,14 +659,14 @@
 /*
 	Меню PlanFlex
 */
-20 MENU {
+/*@v10.9.3 20 MENU {
 	POPUP "@cmdpu_refs" {
 		MENUITEM "@cmd_about"							cmAbout
 		MENUITEM "@cmd_woodbreed",						cmWoodBreed
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_quit",							cmQuit
 	}
-}
+}*/
 /*
 	Меню товароведа
 */

@@ -35,7 +35,7 @@ void * ASN1_d2i_fp(void *(*xnew)(void), d2i_of_void * d2i, FILE * in, void ** x)
 void * ASN1_d2i_bio(void *(*xnew)(void), d2i_of_void * d2i, BIO * in, void ** x)
 {
 	BUF_MEM * b = NULL;
-	const unsigned char * p;
+	const uchar * p;
 	void * ret = NULL;
 	int len = asn1_d2i_read_bio(in, &b);
 	if(len < 0)
@@ -53,12 +53,12 @@ err:
 void * ASN1_item_d2i_bio(const ASN1_ITEM * it, BIO * in, void * x)
 {
 	BUF_MEM * b = NULL;
-	const unsigned char * p;
+	const uchar * p;
 	void * ret = NULL;
 	int len = asn1_d2i_read_bio(in, &b);
 	if(len < 0)
 		goto err;
-	p = (const unsigned char*)b->data;
+	p = (const uchar*)b->data;
 	ret = ASN1_item_d2i(static_cast<ASN1_VALUE **>(x), &p, len, it);
 err:
 	BUF_MEM_free(b);
@@ -88,14 +88,14 @@ void * ASN1_item_d2i_fp(const ASN1_ITEM * it, FILE * in, void * x)
 int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 {
 	BUF_MEM * b;
-	unsigned char * p;
+	uchar * p;
 	int i;
 	size_t want = HEADER_SIZE;
 	uint32_t eos = 0;
 	size_t off = 0;
 	size_t len = 0;
 
-	const unsigned char * q;
+	const uchar * q;
 	long slen;
 	int inf, tag, xclass;
 
@@ -132,7 +132,7 @@ int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 		q = p;
 		inf = ASN1_get_object(&q, &slen, &tag, &xclass, len - off);
 		if(inf & 0x80) {
-			unsigned long e;
+			ulong e;
 
 			e = ERR_GET_REASON(ERR_peek_error());
 			if(e != ASN1_R_TOO_LONG)

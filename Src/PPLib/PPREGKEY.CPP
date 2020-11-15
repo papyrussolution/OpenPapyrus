@@ -55,7 +55,7 @@ int PPCalcRegisterKey(const char * pName, char * pBuf)
 {
 	char   buf[64];
 	IdeaRandMem(buf, sizeof(buf));
-	size_t mi = (size_t)(*(ulong*)(buf+14) % MASK_MATRIX_SIZE); // @v6.1.0 (long *)-->(ulong*)
+	size_t mi = (size_t)(*(ulong *)(buf+14) % MASK_MATRIX_SIZE); // @v6.1.0 (long *)-->(ulong *)
 	return Helper_CalcRegisterKey(mi, pName, pBuf);
 }
 

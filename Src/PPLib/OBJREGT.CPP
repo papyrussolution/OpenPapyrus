@@ -104,10 +104,10 @@ int PPObjRegisterType::PutPacket(PPID * pID, PPRegisterTypePacket * pPack, int u
 					THROW(opc_obj.PutPacket(&pPack->Rec.CounterID, 0, 0));
 					pPack->Rec.CounterID = 0;
 				}
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 			}
 			else {
-				THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 				pPack->Rec.ID = *pID;
 				if(pPack->CntrPack.Head.CodeTemplate[0]) {
 					pPack->CntrPack.Head.ObjType = Obj;
@@ -117,7 +117,7 @@ int PPObjRegisterType::PutPacket(PPID * pID, PPRegisterTypePacket * pPack, int u
 					// Для того, чтобы запись типа регистрационного документа знала идентификатор
 					// счетчика, обновляем ее
 					//
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				}
 			}
 			THROW(PutFormat(*pID, pPack->Format.Strip()));
@@ -126,7 +126,7 @@ int PPObjRegisterType::PutPacket(PPID * pID, PPRegisterTypePacket * pPack, int u
 			PPRegisterType rt_rec;
 			THROW(Search(*pID, &rt_rec) > 0);
 			THROW(opc_obj.PutPacket(&rt_rec.CounterID, 0, 0));
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -268,7 +268,7 @@ int PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PRSNKIND) {
 		int    r;
 		PPRegisterType rec;
-		for(PPID id = 0; ok == DBRPL_OK && (r = ref->EnumItems(Obj, &id, &rec)) > 0;)
+		for(PPID id = 0; ok == DBRPL_OK && (r = P_Ref->EnumItems(Obj, &id, &rec)) > 0;)
 			if(rec.RegOrgKind == _id)
 				ok = RetRefsExistsErr(Obj, id);
 		if(ok == DBRPL_OK && !r)
@@ -278,9 +278,9 @@ int PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 }
 
 int PPObjRegisterType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRREGISTERTYPE, 0); }
-int PPObjRegisterType::GetFormat(PPID id, SString & rBuf) { return ref->GetPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, rBuf); }
-int PPObjRegisterType::PutFormat(PPID id, const char * pBuf) { return ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
-int PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType, Symb)); }
+int PPObjRegisterType::GetFormat(PPID id, SString & rBuf) { return P_Ref->GetPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, rBuf); }
+int PPObjRegisterType::PutFormat(PPID id, const char * pBuf) { return P_Ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
+int PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType, Symb)); }
 
 int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 {
@@ -289,7 +289,7 @@ int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 	char   flags[128];
 	PPID   id = (PPID)rez.getUINT();
 	rez.getString(name, 2);
-	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.5
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rez.getString(flags);
 	THROW(r = Search(id));
 	if(r < 0) {
@@ -303,9 +303,9 @@ int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 				case 'U': rec.Flags |= REGTF_UNIQUE;     break;
 				case 'P': rec.Flags |= REGTF_PRIVATE;    break;
 				case 'L': rec.Flags |= REGTF_LEGAL;      break;
-				case 'A': rec.Flags |= REGTF_LOCATION;   break; // @v8.3.6
-				case 'D': rec.Flags |= REGTF_DUPNUMBER;  break; // @v9.0.4
-				case 'N': rec.Flags |= REGTF_ONLYNUMBER; break; // @v9.0.4
+				case 'A': rec.Flags |= REGTF_LOCATION;   break;
+				case 'D': rec.Flags |= REGTF_DUPNUMBER;  break;
+				case 'N': rec.Flags |= REGTF_ONLYNUMBER; break;
 			}
 		}
 		THROW(EditItem(Obj, 0, &rec, 1));

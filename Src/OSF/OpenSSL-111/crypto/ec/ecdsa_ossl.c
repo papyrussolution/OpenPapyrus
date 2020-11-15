@@ -14,8 +14,8 @@
 #include <bn_int.h>
 #include "ec_lcl.h"
 
-int ossl_ecdsa_sign(int type, const unsigned char * dgst, int dlen,
-    unsigned char * sig, unsigned int * siglen,
+int ossl_ecdsa_sign(int type, const uchar * dgst, int dlen,
+    uchar * sig, uint * siglen,
     const BIGNUM * kinv, const BIGNUM * r, EC_KEY * eckey)
 {
 	ECDSA_SIG * s;
@@ -32,7 +32,7 @@ int ossl_ecdsa_sign(int type, const unsigned char * dgst, int dlen,
 
 static int ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in,
     BIGNUM ** kinvp, BIGNUM ** rp,
-    const unsigned char * dgst, int dlen)
+    const uchar * dgst, int dlen)
 {
 	BN_CTX * ctx = NULL;
 	BIGNUM * k = NULL, * r = NULL, * X = NULL;
@@ -152,7 +152,7 @@ int ossl_ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp,
 	return ecdsa_sign_setup(eckey, ctx_in, kinvp, rp, NULL, 0);
 }
 
-ECDSA_SIG * ossl_ecdsa_sign_sig(const unsigned char * dgst, int dgst_len,
+ECDSA_SIG * ossl_ecdsa_sign_sig(const uchar * dgst, int dgst_len,
     const BIGNUM * in_kinv, const BIGNUM * in_r,
     EC_KEY * eckey)
 {
@@ -292,12 +292,12 @@ err:
  *      0: incorrect signature
  *     -1: error
  */
-int ossl_ecdsa_verify(int type, const unsigned char * dgst, int dgst_len,
-    const unsigned char * sigbuf, int sig_len, EC_KEY * eckey)
+int ossl_ecdsa_verify(int type, const uchar * dgst, int dgst_len,
+    const uchar * sigbuf, int sig_len, EC_KEY * eckey)
 {
 	ECDSA_SIG * s;
-	const unsigned char * p = sigbuf;
-	unsigned char * der = NULL;
+	const uchar * p = sigbuf;
+	uchar * der = NULL;
 	int derlen = -1;
 	int ret = -1;
 
@@ -317,7 +317,7 @@ err:
 	return ret;
 }
 
-int ossl_ecdsa_verify_sig(const unsigned char * dgst, int dgst_len,
+int ossl_ecdsa_verify_sig(const uchar * dgst, int dgst_len,
     const ECDSA_SIG * sig, EC_KEY * eckey)
 {
 	int ret = -1, i;

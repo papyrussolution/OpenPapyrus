@@ -59,19 +59,6 @@
 
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_compress.c 201111 2009-12-28 03:33:05Z kientzle $");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_write_private.h"
-
 #define HSIZE           69001   /* 95% occupancy */
 #define HSHIFT          8       /* 8 - trunc(log2(HSIZE / 65536)) */
 #define CHECK_GAP 10000         /* Ratio check interval. */

@@ -20,10 +20,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <windows.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 /*
    Format Windows error, with optional text.
 

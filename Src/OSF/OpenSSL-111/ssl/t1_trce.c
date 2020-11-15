@@ -38,7 +38,7 @@ static const char * do_ssl_trace_str(int val, const ssl_trace_tbl * tbl,
 }
 
 static int do_ssl_trace_list(BIO * bio, int indent,
-    const unsigned char * msg, size_t msglen,
+    const uchar * msg, size_t msglen,
     size_t vlen, const ssl_trace_tbl * tbl, size_t ntbl)
 {
 	int val;
@@ -598,7 +598,7 @@ static const ssl_trace_tbl ssl_key_update_tbl[] = {
 };
 
 static void ssl_print_hex(BIO * bio, int indent, const char * name,
-    const unsigned char * msg, size_t msglen)
+    const uchar * msg, size_t msglen)
 {
 	size_t i;
 
@@ -610,10 +610,10 @@ static void ssl_print_hex(BIO * bio, int indent, const char * name,
 }
 
 static int ssl_print_hexbuf(BIO * bio, int indent, const char * name, size_t nlen,
-    const unsigned char ** pmsg, size_t * pmsglen)
+    const uchar ** pmsg, size_t * pmsglen)
 {
 	size_t blen;
-	const unsigned char * p = *pmsg;
+	const uchar * p = *pmsg;
 
 	if(*pmsglen < nlen)
 		return 0;
@@ -630,8 +630,8 @@ static int ssl_print_hexbuf(BIO * bio, int indent, const char * name, size_t nle
 }
 
 static int ssl_print_version(BIO * bio, int indent, const char * name,
-    const unsigned char ** pmsg, size_t * pmsglen,
-    unsigned int * version)
+    const uchar ** pmsg, size_t * pmsglen,
+    uint * version)
 {
 	int vers;
 
@@ -649,10 +649,10 @@ static int ssl_print_version(BIO * bio, int indent, const char * name,
 }
 
 static int ssl_print_random(BIO * bio, int indent,
-    const unsigned char ** pmsg, size_t * pmsglen)
+    const uchar ** pmsg, size_t * pmsglen)
 {
-	unsigned int tm;
-	const unsigned char * p = *pmsg;
+	uint tm;
+	const uchar * p = *pmsg;
 
 	if(*pmsglen < 32)
 		return 0;
@@ -669,13 +669,13 @@ static int ssl_print_random(BIO * bio, int indent,
 }
 
 static int ssl_print_signature(BIO * bio, int indent, const SSL * ssl,
-    const unsigned char ** pmsg, size_t * pmsglen)
+    const uchar ** pmsg, size_t * pmsglen)
 {
 	if(*pmsglen < 2)
 		return 0;
 	if(SSL_USE_SIGALGS(ssl)) {
-		const unsigned char * p = *pmsg;
-		unsigned int sigalg = (p[0] << 8) | p[1];
+		const uchar * p = *pmsg;
+		uint sigalg = (p[0] << 8) | p[1];
 
 		BIO_indent(bio, indent, 80);
 		BIO_printf(bio, "Signature Algorithm: %s (0x%04x)\n",
@@ -687,11 +687,11 @@ static int ssl_print_signature(BIO * bio, int indent, const SSL * ssl,
 }
 
 static int ssl_print_extension(BIO * bio, int indent, int server,
-    unsigned char mt, int extype,
-    const unsigned char * ext, size_t extlen)
+    uchar mt, int extype,
+    const uchar * ext, size_t extlen)
 {
 	size_t xlen, share_len;
-	unsigned int sigalg;
+	uint sigalg;
 	uint32_t max_early_data;
 
 	BIO_indent(bio, indent, 80);
@@ -879,11 +879,11 @@ static int ssl_print_extension(BIO * bio, int indent, int server,
 }
 
 static int ssl_print_extensions(BIO * bio, int indent, int server,
-    unsigned char mt, const unsigned char ** msgin,
+    uchar mt, const uchar ** msgin,
     size_t * msginlen)
 {
 	size_t extslen, msglen = *msginlen;
-	const unsigned char * msg = *msgin;
+	const uchar * msg = *msgin;
 
 	BIO_indent(bio, indent, 80);
 	if(msglen == 0) {
@@ -932,10 +932,10 @@ static int ssl_print_extensions(BIO * bio, int indent, int server,
 }
 
 static int ssl_print_client_hello(BIO * bio, const SSL * ssl, int indent,
-    const unsigned char * msg, size_t msglen)
+    const uchar * msg, size_t msglen)
 {
 	size_t len;
-	unsigned int cs;
+	uint cs;
 
 	if(!ssl_print_version(bio, indent, "client_version", &msg, &msglen, NULL))
 		return 0;
@@ -989,7 +989,7 @@ static int ssl_print_client_hello(BIO * bio, const SSL * ssl, int indent,
 }
 
 static int dtls_print_hello_vfyrequest(BIO * bio, int indent,
-    const unsigned char * msg, size_t msglen)
+    const uchar * msg, size_t msglen)
 {
 	if(!ssl_print_version(bio, indent, "server_version", &msg, &msglen, NULL))
 		return 0;
@@ -998,10 +998,10 @@ static int dtls_print_hello_vfyrequest(BIO * bio, int indent,
 	return 1;
 }
 
-static int ssl_print_server_hello(BIO * bio, int indent, const unsigned char * msg, size_t msglen)
+static int ssl_print_server_hello(BIO * bio, int indent, const uchar * msg, size_t msglen)
 {
-	unsigned int cs;
-	unsigned int vers;
+	uint cs;
+	uint vers;
 	if(!ssl_print_version(bio, indent, "server_version", &msg, &msglen, &vers))
 		return 0;
 	if(!ssl_print_random(bio, indent, &msg, &msglen))
@@ -1031,7 +1031,7 @@ static int ssl_print_server_hello(BIO * bio, int indent, const unsigned char * m
 
 static int ssl_get_keyex(const char ** pname, const SSL * ssl)
 {
-	unsigned long alg_k = ssl->s3->tmp.new_cipher->algorithm_mkey;
+	ulong alg_k = ssl->s3->tmp.new_cipher->algorithm_mkey;
 	if(alg_k & SSL_kRSA) {
 		*pname = "rsa";
 		return SSL_kRSA;
@@ -1073,7 +1073,7 @@ static int ssl_get_keyex(const char ** pname, const SSL * ssl)
 }
 
 static int ssl_print_client_keyex(BIO * bio, int indent, const SSL * ssl,
-    const unsigned char * msg, size_t msglen)
+    const uchar * msg, size_t msglen)
 {
 	const char * algname;
 	int id = ssl_get_keyex(&algname, ssl);
@@ -1116,7 +1116,7 @@ static int ssl_print_client_keyex(BIO * bio, int indent, const SSL * ssl,
 }
 
 static int ssl_print_server_keyex(BIO * bio, int indent, const SSL * ssl,
-    const unsigned char * msg, size_t msglen)
+    const uchar * msg, size_t msglen)
 {
 	const char * algname;
 	int id = ssl_get_keyex(&algname, ssl);
@@ -1187,12 +1187,12 @@ static int ssl_print_server_keyex(BIO * bio, int indent, const SSL * ssl,
 }
 
 static int ssl_print_certificate(BIO * bio, int indent,
-    const unsigned char ** pmsg, size_t * pmsglen)
+    const uchar ** pmsg, size_t * pmsglen)
 {
 	size_t msglen = *pmsglen;
 	size_t clen;
 	X509 * x;
-	const unsigned char * p = *pmsg, * q;
+	const uchar * p = *pmsg, * q;
 
 	if(msglen < 3)
 		return 0;
@@ -1222,7 +1222,7 @@ static int ssl_print_certificate(BIO * bio, int indent,
 }
 
 static int ssl_print_certificates(BIO * bio, const SSL * ssl, int server,
-    int indent, const unsigned char * msg,
+    int indent, const uchar * msg,
     size_t msglen)
 {
 	size_t clen;
@@ -1250,10 +1250,10 @@ static int ssl_print_certificates(BIO * bio, const SSL * ssl, int server,
 }
 
 static int ssl_print_cert_request(BIO * bio, int indent, const SSL * ssl,
-    const unsigned char * msg, size_t msglen)
+    const uchar * msg, size_t msglen)
 {
 	size_t xlen;
-	unsigned int sigalg;
+	uint sigalg;
 
 	if(SSL_IS_TLS13(ssl)) {
 		if(!ssl_print_hexbuf(bio, indent, "request_context", 1, &msg, &msglen))
@@ -1310,7 +1310,7 @@ static int ssl_print_cert_request(BIO * bio, int indent, const SSL * ssl,
 	while(xlen > 0) {
 		size_t dlen;
 		X509_NAME * nm;
-		const unsigned char * p;
+		const uchar * p;
 		if(xlen < 2)
 			return 0;
 		dlen = (msg[0] << 8) | msg[1];
@@ -1341,9 +1341,9 @@ static int ssl_print_cert_request(BIO * bio, int indent, const SSL * ssl,
 }
 
 static int ssl_print_ticket(BIO * bio, int indent, const SSL * ssl,
-    const unsigned char * msg, size_t msglen)
+    const uchar * msg, size_t msglen)
 {
-	unsigned int tick_life;
+	uint tick_life;
 
 	if(msglen == 0) {
 		BIO_indent(bio, indent + 2, 80);
@@ -1358,7 +1358,7 @@ static int ssl_print_ticket(BIO * bio, int indent, const SSL * ssl,
 	BIO_indent(bio, indent + 2, 80);
 	BIO_printf(bio, "ticket_lifetime_hint=%u\n", tick_life);
 	if(SSL_IS_TLS13(ssl)) {
-		unsigned int ticket_age_add;
+		uint ticket_age_add;
 
 		if(msglen < 4)
 			return 0;
@@ -1384,11 +1384,11 @@ static int ssl_print_ticket(BIO * bio, int indent, const SSL * ssl,
 }
 
 static int ssl_print_handshake(BIO * bio, const SSL * ssl, int server,
-    const unsigned char * msg, size_t msglen,
+    const uchar * msg, size_t msglen,
     int indent)
 {
 	size_t hlen;
-	unsigned char htype;
+	uchar htype;
 
 	if(msglen < 4)
 		return 0;
@@ -1495,7 +1495,7 @@ static int ssl_print_handshake(BIO * bio, const SSL * ssl, int server,
 void SSL_trace(int write_p, int version, int content_type,
     const void * buf, size_t msglen, SSL * ssl, void * arg)
 {
-	const unsigned char * msg = buf;
+	const uchar * msg = buf;
 	BIO * bio = arg;
 
 	switch(content_type) {

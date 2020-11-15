@@ -53,17 +53,14 @@
  * the variables have the right amount of space allocated.
  */
 #  ifdef THIRTY_TWO_BIT
-static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a,
-    const BN_ULONG b)
+static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, const BN_ULONG b)
 {
-	register BN_ULONG h, l, s;
+	BN_ULONG h, l, s;
 	BN_ULONG tab[8], top2b = a >> 30;
-	register BN_ULONG a1, a2, a4;
-
+	BN_ULONG a1, a2, a4;
 	a1 = a & (0x3FFFFFFF);
 	a2 = a1 << 1;
 	a4 = a2 << 1;
-
 	tab[0] = 0;
 	tab[1] = a1;
 	tab[2] = a2;
@@ -123,18 +120,15 @@ static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a,
 
 #  endif
 #  if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
-static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a,
-    const BN_ULONG b)
+static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, const BN_ULONG b)
 {
-	register BN_ULONG h, l, s;
+	BN_ULONG h, l, s;
 	BN_ULONG tab[16], top3b = a >> 61;
-	register BN_ULONG a1, a2, a4, a8;
-
+	BN_ULONG a1, a2, a4, a8;
 	a1 = a & (0x1FFFFFFFFFFFFFFFULL);
 	a2 = a1 << 1;
 	a4 = a2 << 1;
 	a8 = a4 << 1;
-
 	tab[0] = 0;
 	tab[1] = a1;
 	tab[2] = a2;

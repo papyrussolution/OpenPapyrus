@@ -5,8 +5,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-// @v9.6.3 #include <idea.h>
-//#include <ppsms.h>
 //
 // Kernel Parameters
 #define MAX_BUFFER_SIZE			1048576 // 1MB Размер буфера для приема данных
@@ -953,7 +951,7 @@ int PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 		if(dlg->getDTS(&pack)) {
 			if(*pID)
 				*pID = pack.Rec.ID;
-			if(!ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Name, offsetof(PPSmsAccount, Name)))
+			if(!P_Ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Name, offsetof(PPSmsAccount, Name)))
 				PPError();
 			else {
 				if(PutPacket(pID, &pack, 1))
@@ -977,18 +975,18 @@ int PPObjSmsAccount::PutPacket(PPID * pID, PPSmsAccPacket * pPack, int use_ta)
 		if(*pID) {
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			if(pPack) {
-				THROW(ref->UpdateItem(Obj, *pID, &(pPack->Rec), 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &(pPack->Rec), 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else {
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &(pPack->Rec), 0));
+			THROW(P_Ref->AddItem(Obj, pID, &(pPack->Rec), 0));
 		}
 		if(*pID)
-			THROW(ref->PutPropVlrString(Obj, *pID, SMACCPRP_EXTRA, pPack->ExtStr));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, SMACCPRP_EXTRA, pPack->ExtStr));
 		THROW(tra.Commit());
 	}
 	CATCHZOK

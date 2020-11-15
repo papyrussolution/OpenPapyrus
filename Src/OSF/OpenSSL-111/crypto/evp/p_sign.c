@@ -13,11 +13,11 @@
 #include <openssl/x509.h>
 //#include <evp_int.h>
 
-int EVP_SignFinal(EVP_MD_CTX * ctx, unsigned char * sigret,
-    unsigned int * siglen, EVP_PKEY * pkey)
+int EVP_SignFinal(EVP_MD_CTX * ctx, uchar * sigret,
+    uint * siglen, EVP_PKEY * pkey)
 {
-	unsigned char m[EVP_MAX_MD_SIZE];
-	unsigned int m_len = 0;
+	uchar m[EVP_MAX_MD_SIZE];
+	uint m_len = 0;
 	int i = 0;
 	size_t sltmp;
 	EVP_PKEY_CTX * pkctx = NULL;

@@ -14,7 +14,7 @@
 struct evp_pkey_asn1_method_st {
 	int pkey_id;
 	int pkey_base_id;
-	unsigned long pkey_flags;
+	ulong pkey_flags;
 	char * pem_str;
 	char * info;
 	int (* pub_decode) (EVP_PKEY * pk, X509_PUBKEY * pub);
@@ -29,8 +29,8 @@ struct evp_pkey_asn1_method_st {
 	int (* pkey_size) (const EVP_PKEY * pk);
 	int (* pkey_bits) (const EVP_PKEY * pk);
 	int (* pkey_security_bits) (const EVP_PKEY * pk);
-	int (* param_decode) (EVP_PKEY * pkey, const unsigned char ** pder, int derlen);
-	int (* param_encode) (const EVP_PKEY * pkey, unsigned char ** pder);
+	int (* param_decode) (EVP_PKEY * pkey, const uchar ** pder, int derlen);
+	int (* param_encode) (const EVP_PKEY * pkey, uchar ** pder);
 	int (* param_missing) (const EVP_PKEY * pk);
 	int (* param_copy) (EVP_PKEY * to, const EVP_PKEY * from);
 	int (* param_cmp) (const EVP_PKEY * a, const EVP_PKEY * b);
@@ -39,8 +39,8 @@ struct evp_pkey_asn1_method_st {
 	void (* pkey_free) (EVP_PKEY * pkey);
 	int (* pkey_ctrl) (EVP_PKEY * pkey, int op, long arg1, void * arg2);
 	/* Legacy functions for old PEM */
-	int (* old_priv_decode) (EVP_PKEY * pkey, const unsigned char ** pder, int derlen);
-	int (* old_priv_encode) (const EVP_PKEY * pkey, unsigned char ** pder);
+	int (* old_priv_decode) (EVP_PKEY * pkey, const uchar ** pder, int derlen);
+	int (* old_priv_encode) (const EVP_PKEY * pkey, uchar ** pder);
 	/* Custom ASN1 signature verification */
 	int (* item_verify) (EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn,
 	    X509_ALGOR * a, ASN1_BIT_STRING * sig, EVP_PKEY * pkey);
@@ -51,10 +51,10 @@ struct evp_pkey_asn1_method_st {
 	int (* pkey_public_check) (const EVP_PKEY * pk);
 	int (* pkey_param_check) (const EVP_PKEY * pk);
 	/* Get/set raw private/public key data */
-	int (* set_priv_key) (EVP_PKEY * pk, const unsigned char * priv, size_t len);
-	int (* set_pub_key) (EVP_PKEY * pk, const unsigned char * pub, size_t len);
-	int (* get_priv_key) (const EVP_PKEY * pk, unsigned char * priv, size_t * len);
-	int (* get_pub_key) (const EVP_PKEY * pk, unsigned char * pub, size_t * len);
+	int (* set_priv_key) (EVP_PKEY * pk, const uchar * priv, size_t len);
+	int (* set_pub_key) (EVP_PKEY * pk, const uchar * pub, size_t len);
+	int (* get_priv_key) (const EVP_PKEY * pk, uchar * priv, size_t * len);
+	int (* get_pub_key) (const EVP_PKEY * pk, uchar * pub, size_t * len);
 } /* EVP_PKEY_ASN1_METHOD */;
 
 DEFINE_STACK_OF_CONST(EVP_PKEY_ASN1_METHOD)
@@ -86,18 +86,18 @@ struct asn1_object_st {
 	const char * sn, * ln;
 	int nid;
 	int length;
-	const unsigned char * data; /* data remains const after init */
+	const uchar * data; /* data remains const after init */
 	int flags;              /* Should we free this one */
 };
 
 /* ASN1 print context structure */
 
 struct asn1_pctx_st {
-	unsigned long flags;
-	unsigned long nm_flags;
-	unsigned long cert_flags;
-	unsigned long oid_flags;
-	unsigned long str_flags;
+	ulong flags;
+	ulong nm_flags;
+	ulong cert_flags;
+	ulong oid_flags;
+	ulong str_flags;
 } /* ASN1_PCTX */;
 
 int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb);

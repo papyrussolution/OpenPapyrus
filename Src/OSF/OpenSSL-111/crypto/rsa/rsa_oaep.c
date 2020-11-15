@@ -28,24 +28,24 @@
 #include <openssl/sha.h>
 #include "rsa_locl.h"
 
-int RSA_padding_add_PKCS1_OAEP(unsigned char * to, int tlen,
-    const unsigned char * from, int flen,
-    const unsigned char * param, int plen)
+int RSA_padding_add_PKCS1_OAEP(uchar * to, int tlen,
+    const uchar * from, int flen,
+    const uchar * param, int plen)
 {
 	return RSA_padding_add_PKCS1_OAEP_mgf1(to, tlen, from, flen,
 		   param, plen, NULL, NULL);
 }
 
-int RSA_padding_add_PKCS1_OAEP_mgf1(unsigned char * to, int tlen,
-    const unsigned char * from, int flen,
-    const unsigned char * param, int plen,
+int RSA_padding_add_PKCS1_OAEP_mgf1(uchar * to, int tlen,
+    const uchar * from, int flen,
+    const uchar * param, int plen,
     const EVP_MD * md, const EVP_MD * mgf1md)
 {
 	int rv = 0;
 	int i, emlen = tlen - 1;
-	unsigned char * db, * seed;
-	unsigned char * dbmask = NULL;
-	unsigned char seedmask[EVP_MAX_MD_SIZE];
+	uchar * db, * seed;
+	uchar * dbmask = NULL;
+	uchar seedmask[EVP_MAX_MD_SIZE];
 	int mdlen, dbmask_len = 0;
 	if(md == NULL)
 		md = EVP_sha1();
@@ -102,28 +102,28 @@ err:
 	return rv;
 }
 
-int RSA_padding_check_PKCS1_OAEP(unsigned char * to, int tlen,
-    const unsigned char * from, int flen, int num,
-    const unsigned char * param, int plen)
+int RSA_padding_check_PKCS1_OAEP(uchar * to, int tlen,
+    const uchar * from, int flen, int num,
+    const uchar * param, int plen)
 {
 	return RSA_padding_check_PKCS1_OAEP_mgf1(to, tlen, from, flen, num,
 		   param, plen, NULL, NULL);
 }
 
-int RSA_padding_check_PKCS1_OAEP_mgf1(unsigned char * to, int tlen,
-    const unsigned char * from, int flen,
-    int num, const unsigned char * param,
+int RSA_padding_check_PKCS1_OAEP_mgf1(uchar * to, int tlen,
+    const uchar * from, int flen,
+    int num, const uchar * param,
     int plen, const EVP_MD * md,
     const EVP_MD * mgf1md)
 {
 	int i, dblen = 0, mlen = -1, one_index = 0, msg_index;
-	unsigned int good = 0, found_one_byte, mask;
-	const unsigned char * maskedseed, * maskeddb;
+	uint good = 0, found_one_byte, mask;
+	const uchar * maskedseed, * maskeddb;
 	/*
 	 * |em| is the encoded message, zero-padded to exactly |num| bytes: em =
 	 * Y || maskedSeed || maskedDB
 	 */
-	unsigned char * db = NULL, * em = NULL, seed[EVP_MAX_MD_SIZE],
+	uchar * db = NULL, * em = NULL, seed[EVP_MAX_MD_SIZE],
 	    phash[EVP_MAX_MD_SIZE];
 	int mdlen;
 
@@ -207,8 +207,8 @@ int RSA_padding_check_PKCS1_OAEP_mgf1(unsigned char * to, int tlen,
 		/*
 		 * Padding consists of a number of 0-bytes, followed by a 1.
 		 */
-		unsigned int equals1 = constant_time_eq(db[i], 1);
-		unsigned int equals0 = constant_time_is_zero(db[i]);
+		uint equals1 = constant_time_eq(db[i], 1);
+		uint equals0 = constant_time_is_zero(db[i]);
 		one_index = constant_time_select_int(~found_one_byte & equals1,
 			i, one_index);
 		found_one_byte |= equals1;
@@ -267,13 +267,13 @@ cleanup:
 	return constant_time_select_int(good, mlen, -1);
 }
 
-int PKCS1_MGF1(unsigned char * mask, long len,
-    const unsigned char * seed, long seedlen, const EVP_MD * dgst)
+int PKCS1_MGF1(uchar * mask, long len,
+    const uchar * seed, long seedlen, const EVP_MD * dgst)
 {
 	long i, outlen = 0;
-	unsigned char cnt[4];
+	uchar cnt[4];
 	EVP_MD_CTX * c = EVP_MD_CTX_new();
-	unsigned char md[EVP_MAX_MD_SIZE];
+	uchar md[EVP_MAX_MD_SIZE];
 	int mdlen;
 	int rv = -1;
 

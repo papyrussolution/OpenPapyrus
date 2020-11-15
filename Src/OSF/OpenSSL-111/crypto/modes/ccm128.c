@@ -14,7 +14,7 @@
  * First you setup M and L parameters and pass the key schedule. This is
  * called once per session setup...
  */
-void CRYPTO_ccm128_init(CCM128_CONTEXT * ctx, unsigned int M, unsigned int L, void * key, block128_f block)
+void CRYPTO_ccm128_init(CCM128_CONTEXT * ctx, uint M, uint L, void * key, block128_f block)
 {
 	memzero(ctx->nonce.c, sizeof(ctx->nonce.c));
 	ctx->nonce.c[0] = ((u8)(L - 1) & 7) | (u8)(((M - 2) / 2) & 7) << 3;
@@ -26,9 +26,9 @@ void CRYPTO_ccm128_init(CCM128_CONTEXT * ctx, unsigned int M, unsigned int L, vo
 /* !!! Following interfaces are to be called *once* per packet !!! */
 
 /* Then you setup per-message nonce and pass the length of the message */
-int CRYPTO_ccm128_setiv(CCM128_CONTEXT * ctx, const unsigned char * nonce, size_t nlen, size_t mlen)
+int CRYPTO_ccm128_setiv(CCM128_CONTEXT * ctx, const uchar * nonce, size_t nlen, size_t mlen)
 {
-	unsigned int L = ctx->nonce.c[0] & 7; /* the L parameter */
+	uint L = ctx->nonce.c[0] & 7; /* the L parameter */
 	if(nlen < (14 - L))
 		return -1;      /* nonce is too short */
 
@@ -54,9 +54,9 @@ int CRYPTO_ccm128_setiv(CCM128_CONTEXT * ctx, const unsigned char * nonce, size_
 
 /* Then you pass additional authentication data, this is optional */
 void CRYPTO_ccm128_aad(CCM128_CONTEXT * ctx,
-    const unsigned char * aad, size_t alen)
+    const uchar * aad, size_t alen)
 {
-	unsigned int i;
+	uint i;
 	block128_f block = ctx->block;
 
 	if(alen == 0)
@@ -108,9 +108,9 @@ void CRYPTO_ccm128_aad(CCM128_CONTEXT * ctx,
  * counter part of nonce may not be larger than L*8 bits, L is not larger
  * than 8, therefore 64-bit counter...
  */
-static void ctr64_inc(unsigned char * counter)
+static void ctr64_inc(uchar * counter)
 {
-	unsigned int n = 8;
+	uint n = 8;
 	u8 c;
 
 	counter += 8;
@@ -125,12 +125,12 @@ static void ctr64_inc(unsigned char * counter)
 }
 
 int CRYPTO_ccm128_encrypt(CCM128_CONTEXT * ctx,
-    const unsigned char * inp, unsigned char * out,
+    const uchar * inp, uchar * out,
     size_t len)
 {
 	size_t n;
-	unsigned int i, L;
-	unsigned char flags0 = ctx->nonce.c[0];
+	uint i, L;
+	uchar flags0 = ctx->nonce.c[0];
 	block128_f block = ctx->block;
 	void * key = ctx->key;
 	union {
@@ -209,12 +209,12 @@ int CRYPTO_ccm128_encrypt(CCM128_CONTEXT * ctx,
 }
 
 int CRYPTO_ccm128_decrypt(CCM128_CONTEXT * ctx,
-    const unsigned char * inp, unsigned char * out,
+    const uchar * inp, uchar * out,
     size_t len)
 {
 	size_t n;
-	unsigned int i, L;
-	unsigned char flags0 = ctx->nonce.c[0];
+	uint i, L;
+	uchar flags0 = ctx->nonce.c[0];
 	block128_f block = ctx->block;
 	void * key = ctx->key;
 	union {
@@ -282,7 +282,7 @@ int CRYPTO_ccm128_decrypt(CCM128_CONTEXT * ctx,
 	return 0;
 }
 
-static void ctr64_add(unsigned char * counter, size_t inc)
+static void ctr64_add(uchar * counter, size_t inc)
 {
 	size_t n = 8, val = 0;
 
@@ -297,12 +297,12 @@ static void ctr64_add(unsigned char * counter, size_t inc)
 }
 
 int CRYPTO_ccm128_encrypt_ccm64(CCM128_CONTEXT * ctx,
-    const unsigned char * inp, unsigned char * out,
+    const uchar * inp, uchar * out,
     size_t len, ccm128_f stream)
 {
 	size_t n;
-	unsigned int i, L;
-	unsigned char flags0 = ctx->nonce.c[0];
+	uint i, L;
+	uchar flags0 = ctx->nonce.c[0];
 	block128_f block = ctx->block;
 	void * key = ctx->key;
 	union {
@@ -361,12 +361,12 @@ int CRYPTO_ccm128_encrypt_ccm64(CCM128_CONTEXT * ctx,
 }
 
 int CRYPTO_ccm128_decrypt_ccm64(CCM128_CONTEXT * ctx,
-    const unsigned char * inp, unsigned char * out,
+    const uchar * inp, uchar * out,
     size_t len, ccm128_f stream)
 {
 	size_t n;
-	unsigned int i, L;
-	unsigned char flags0 = ctx->nonce.c[0];
+	uint i, L;
+	uchar flags0 = ctx->nonce.c[0];
 	block128_f block = ctx->block;
 	void * key = ctx->key;
 	union {
@@ -418,9 +418,9 @@ int CRYPTO_ccm128_decrypt_ccm64(CCM128_CONTEXT * ctx,
 	return 0;
 }
 
-size_t CRYPTO_ccm128_tag(CCM128_CONTEXT * ctx, unsigned char * tag, size_t len)
+size_t CRYPTO_ccm128_tag(CCM128_CONTEXT * ctx, uchar * tag, size_t len)
 {
-	unsigned int M = (ctx->nonce.c[0] >> 3) & 7; /* the M parameter */
+	uint M = (ctx->nonce.c[0] >> 3) & 7; /* the M parameter */
 
 	M *= 2;
 	M += 2;

@@ -20,15 +20,8 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <mysql.h>
-//#include <errmsg.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <stdarg.h>
 #include <zlib.h>
 #include <mariadb_rpl.h>
-//#include <malloc.h>
 
 static int rpl_alloc_string(MARIADB_RPL_EVENT * event, MARIADB_STRING * s, unsigned char * buffer, size_t len)
 {

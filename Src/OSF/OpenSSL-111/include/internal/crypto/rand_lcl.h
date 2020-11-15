@@ -98,23 +98,23 @@ typedef enum drbg_status_e {
 
 /* instantiate */
 typedef int (*RAND_DRBG_instantiate_fn)(RAND_DRBG *ctx,
-                                        const unsigned char *ent,
+                                        const uchar *ent,
                                         size_t entlen,
-                                        const unsigned char *nonce,
+                                        const uchar *nonce,
                                         size_t noncelen,
-                                        const unsigned char *pers,
+                                        const uchar *pers,
                                         size_t perslen);
 /* reseed */
 typedef int (*RAND_DRBG_reseed_fn)(RAND_DRBG *ctx,
-                                   const unsigned char *ent,
+                                   const uchar *ent,
                                    size_t entlen,
-                                   const unsigned char *adin,
+                                   const uchar *adin,
                                    size_t adinlen);
 /* generate output */
 typedef int (*RAND_DRBG_generate_fn)(RAND_DRBG *ctx,
-                                     unsigned char *out,
+                                     uchar *out,
                                      size_t outlen,
-                                     const unsigned char *adin,
+                                     const uchar *adin,
                                      size_t adinlen);
 /* uninstantiate */
 typedef int (*RAND_DRBG_uninstantiate_fn)(RAND_DRBG *ctx);
@@ -140,12 +140,12 @@ typedef struct rand_drbg_ctr_st {
     EVP_CIPHER_CTX *ctx_df;
     const EVP_CIPHER *cipher;
     size_t keylen;
-    unsigned char K[32];
-    unsigned char V[16];
+    uchar K[32];
+    uchar V[16];
     /* Temporary block storage used by ctr_df */
-    unsigned char bltmp[16];
+    uchar bltmp[16];
     size_t bltmp_pos;
-    unsigned char KX[48];
+    uchar KX[48];
 } RAND_DRBG_CTR;
 
 
@@ -161,7 +161,7 @@ typedef struct rand_drbg_ctr_st {
  * lifetime is intended to be restricted to a single stack frame.
  */
 struct rand_pool_st {
-    unsigned char *buffer;  /* points to the beginning of the random pool */
+    uchar *buffer;  /* points to the beginning of the random pool */
     size_t len; /* current number of random bytes contained in the pool */
 
     int attached;  /* true pool was attached to existing buffer */
@@ -190,7 +190,7 @@ struct rand_drbg_st {
      * DRBG in the child process.
      */
     int fork_id;
-    unsigned short flags; /* various external flags */
+    ushort flags; /* various external flags */
 
     /*
      * The random_data is used by RAND_add()/drbg_add() to attach random
@@ -231,12 +231,12 @@ struct rand_drbg_st {
     size_t max_perslen, max_adinlen;
 
     /* Counts the number of generate requests since the last reseed. */
-    unsigned int reseed_gen_counter;
+    uint reseed_gen_counter;
     /*
      * Maximum number of generate requests until a reseed is required.
      * This value is ignored if it is zero.
      */
-    unsigned int reseed_interval;
+    uint reseed_interval;
     /* Stores the time when the last reseeding occurred */
     time_t reseed_time;
     /*
@@ -254,8 +254,8 @@ struct rand_drbg_st {
      * is added by RAND_add() or RAND_seed() will have an immediate effect on
      * the output of RAND_bytes() resp. RAND_priv_bytes().
      */
-    TSAN_QUALIFIER unsigned int reseed_prop_counter;
-    unsigned int reseed_next_counter;
+    TSAN_QUALIFIER uint reseed_prop_counter;
+    uint reseed_next_counter;
 
     size_t seedlen;
     DRBG_STATUS state;
@@ -283,7 +283,7 @@ extern RAND_METHOD rand_meth;
 
 /* DRBG helpers */
 int rand_drbg_restart(RAND_DRBG *drbg,
-                      const unsigned char *buffer, size_t len, size_t entropy);
+                      const uchar *buffer, size_t len, size_t entropy);
 size_t rand_drbg_seedlen(RAND_DRBG *drbg);
 /* locking api */
 int rand_drbg_lock(RAND_DRBG *drbg);

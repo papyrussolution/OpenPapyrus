@@ -15,30 +15,30 @@
 #include <openssl/sha.h>
 #include "rsa_locl.h"
 
-static const unsigned char zeroes[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const uchar zeroes[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 #if defined(_MSC_VER) && defined(_ARM_)
 # pragma optimize("g", off)
 #endif
 
-int RSA_verify_PKCS1_PSS(RSA * rsa, const unsigned char * mHash,
-    const EVP_MD * Hash, const unsigned char * EM,
+int RSA_verify_PKCS1_PSS(RSA * rsa, const uchar * mHash,
+    const EVP_MD * Hash, const uchar * EM,
     int sLen)
 {
 	return RSA_verify_PKCS1_PSS_mgf1(rsa, mHash, Hash, NULL, EM, sLen);
 }
 
-int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const unsigned char * mHash,
+int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash,
     const EVP_MD * Hash, const EVP_MD * mgf1Hash,
-    const unsigned char * EM, int sLen)
+    const uchar * EM, int sLen)
 {
 	int i;
 	int ret = 0;
 	int hLen, maskedDBLen, MSBits, emLen;
-	const unsigned char * H;
-	unsigned char * DB = NULL;
+	const uchar * H;
+	uchar * DB = NULL;
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-	unsigned char H_[EVP_MAX_MD_SIZE];
+	uchar H_[EVP_MAX_MD_SIZE];
 
 	if(ctx == NULL)
 		goto err;
@@ -136,22 +136,22 @@ err:
 	return ret;
 }
 
-int RSA_padding_add_PKCS1_PSS(RSA * rsa, unsigned char * EM,
-    const unsigned char * mHash,
+int RSA_padding_add_PKCS1_PSS(RSA * rsa, uchar * EM,
+    const uchar * mHash,
     const EVP_MD * Hash, int sLen)
 {
 	return RSA_padding_add_PKCS1_PSS_mgf1(rsa, EM, mHash, Hash, NULL, sLen);
 }
 
-int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, unsigned char * EM,
-    const unsigned char * mHash,
+int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM,
+    const uchar * mHash,
     const EVP_MD * Hash, const EVP_MD * mgf1Hash,
     int sLen)
 {
 	int i;
 	int ret = 0;
 	int hLen, maskedDBLen, MSBits, emLen;
-	unsigned char * H, * salt = NULL, * p;
+	uchar * H, * salt = NULL, * p;
 	EVP_MD_CTX * ctx = NULL;
 
 	if(mgf1Hash == NULL)

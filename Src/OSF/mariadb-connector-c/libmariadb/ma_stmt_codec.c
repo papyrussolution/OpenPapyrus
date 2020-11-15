@@ -44,15 +44,6 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <ma_string.h>
-//#include <mariadb_ctype.h>
-//#include "mysql.h"
-//#include <math.h> /* ceil() */
-//#include <limits.h>
-//#ifdef WIN32
-	//#include <malloc.h>
-//#endif
 #define MYSQL_SILENT
 
 /* ranges for C-binding */
@@ -78,14 +69,14 @@
 #ifdef ULLONG_MAX
 #define ULONGLONG_MAX  ULLONG_MAX
 #else
-#define ULONGLONG_MAX ((unsigned long long)(~0ULL))
+#define ULONGLONG_MAX ((uint64)(~0ULL))
 #endif
 #endif /* defined (HAVE_LONG_LONG) && !defined(ULONGLONG_MAX)*/
 
 #define YY_PART_YEAR 70
 
 MYSQL_PS_CONVERSION mysql_ps_fetch_functions[MYSQL_TYPE_GEOMETRY + 1];
-my_bool mysql_ps_subsystem_initialized = 0;
+bool mysql_ps_subsystem_initialized = 0;
 
 #define NUMERIC_TRUNCATION(val, min_range, max_range) ((((val) > (max_range)) || ((val) < (min_range)) ? 1 : 0))
 
@@ -98,7 +89,7 @@ void ma_bmove_upp(char * dst, const char * src, size_t len)
 void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const field,
     unsigned char ** row, unsigned int byte_count)
 {
-	my_bool is_unsigned = test(field->flags & UNSIGNED_FLAG);
+	bool is_unsigned = test(field->flags & UNSIGNED_FLAG);
 	r_param->buffer_length = byte_count;
 	switch(byte_count) {
 		case 1:
@@ -131,9 +122,9 @@ void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const 
 
 /* }}} */
 
-static unsigned long long my_strtoull(const char * str, size_t len, const char ** end, int * err)
+static uint64 my_strtoull(const char * str, size_t len, const char ** end, int * err)
 {
-	unsigned long long val = 0;
+	uint64 val = 0;
 	const char * p = str;
 	const char * end_str = p + len;
 
@@ -158,7 +149,7 @@ static unsigned long long my_strtoull(const char * str, size_t len, const char *
 
 static long long my_strtoll(const char * str, size_t len, const char ** end, int * err)
 {
-	unsigned long long uval = 0;
+	uint64 uval = 0;
 	const char * p = str;
 	const char * end_str = p + len;
 	int neg;
@@ -185,7 +176,7 @@ static long long my_strtoll(const char * str, size_t len, const char ** end, int
 		}
 		return uval;
 	}
-	if(uval == (unsigned long long)LONGLONG_MIN)
+	if(uval == (uint64)LONGLONG_MIN)
 		return LONGLONG_MIN;
 	if(uval > LONGLONG_MAX) {
 		*end = p - 1;
@@ -210,11 +201,11 @@ static long long my_atoll(const char * str, const char * end_str, int * error)
 	return ret;
 }
 
-static unsigned long long my_atoull(const char * str, const char * end_str, int * error)
+static uint64 my_atoull(const char * str, const char * end_str, int * error)
 {
 	const char * p = str;
 	const char * end;
-	unsigned long long ret;
+	uint64 ret;
 	while(p < end_str && isspace(*p))
 		p++;
 	ret = my_strtoull(p, end_str - p, &end, error);
@@ -248,7 +239,7 @@ double my_atod(const char * number, const char * end, int * error)
  */
 static unsigned int my_strtoui(const char * str, size_t len, const char ** end, int * err)
 {
-	unsigned long long ull = my_strtoull(str, len, end, err);
+	uint64 ull = my_strtoull(str, len, end, err);
 	if(ull > UINT_MAX)
 		*err = ERANGE;
 	return (unsigned int)ull;
@@ -550,7 +541,7 @@ static void convert_froma_string(MYSQL_BIND * r_param, char * buffer, size_t len
 	}
 }
 
-static void convert_from_long(MYSQL_BIND * r_param, const MYSQL_FIELD * field, longlong val, my_bool is_unsigned)
+static void convert_from_long(MYSQL_BIND * r_param, const MYSQL_FIELD * field, longlong val, bool is_unsigned)
 {
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_TINY:
@@ -604,7 +595,7 @@ static void convert_from_long(MYSQL_BIND * r_param, const MYSQL_FIELD * field, l
 		    char * buffer;
 		    char * endptr;
 		    uint len;
-		    my_bool zf_truncated = 0;
+		    bool zf_truncated = 0;
 		    buffer = (char *)alloca(MAX(field->length, 22));
 		    endptr = ma_ll2str(val, buffer, is_unsigned ? 10 : -10);
 		    len = (uint)(endptr - buffer);

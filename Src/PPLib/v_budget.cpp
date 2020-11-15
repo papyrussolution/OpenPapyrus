@@ -291,12 +291,12 @@ int PPObjBudget::PutRec(PPID * pID, PPBudget * pRec, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID && pRec == 0) {
-			THROW(ref->RemoveItem(PPOBJ_BUDGET, *pID, 0));
+			THROW(P_Ref->RemoveItem(PPOBJ_BUDGET, *pID, 0));
 		}
 		else if(pRec) {
 			pRec->ObjType = PPOBJ_BUDGET;
 			THROW(EditItem(PPOBJ_BUDGET, *pID, pRec, 0));
-			*pID = pRec->ID = ref->data.ObjID;
+			*pID = pRec->ID = P_Ref->data.ObjID;
 		}
 		THROW(tra.Commit());
 	}
@@ -354,7 +354,7 @@ int PPObjBudget::GetChildBudgets(PPID parentID, PPIDArray * pChildList)
 	int    ok = -1;
 	long h = 0;
 	PPBudget budget;
-	for(ref->InitEnum(PPOBJ_BUDGET, 0, &h); ref->NextEnum(h, &budget) > 0;) {
+	for(P_Ref->InitEnum(PPOBJ_BUDGET, 0, &h); P_Ref->NextEnum(h, &budget) > 0;) {
 		if(budget.ParentID == parentID) {
 			ok = 1;
 			CALLPTRMEMB(pChildList, add(budget.ID));
@@ -1041,7 +1041,7 @@ int PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString & rTex
 		int    sel_with_parent = BIN(_extra < 0);
 		PPBudget budget;
 		extra_param = (extra_param > SEL_ALL_BUDGETS) ? labs(extra_param) : extra_param;
-		for(ref->InitEnum(PPOBJ_BUDGET, 0, &h); ref->NextEnum(h, &budget) > 0;)
+		for(P_Ref->InitEnum(PPOBJ_BUDGET, 0, &h); P_Ref->NextEnum(h, &budget) > 0;)
 			if(extra_param == SEL_ALL_BUDGETS || budget.ParentID == extra_param || sel_with_parent && budget.ID == extra_param)
 				p_list->Add(budget.ID, budget.ParentID, budget.Name);
 	}
@@ -1325,7 +1325,7 @@ void PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 			PPBudget budget;
 			BExtInsert bei(P_TempBudgTbl);
 			PPTransaction tra(ppDbDependTransaction, 1);
-			for(ObjBudg.ref->InitEnum(PPOBJ_BUDGET, 0, &h); ObjBudg.ref->NextEnum(h, &budget) > 0;) {
+			for(ObjBudg.P_Ref->InitEnum(PPOBJ_BUDGET, 0, &h); ObjBudg.P_Ref->NextEnum(h, &budget) > 0;) {
 				if(CheckForFilt(&budget) > 0) {
 					TempBudgetTbl::Rec temp_rec;
 					// @v10.6.4 MEMSZERO(temp_rec);

@@ -16,7 +16,7 @@
 #include "cms_lcl.h"
 //#include <asn1_int.h>
 
-static BIO * cms_get_text_bio(BIO * out, unsigned int flags)
+static BIO * cms_get_text_bio(BIO * out, uint flags)
 {
 	BIO * rbio;
 	if(out == NULL)
@@ -30,9 +30,9 @@ static BIO * cms_get_text_bio(BIO * out, unsigned int flags)
 	return rbio;
 }
 
-static int cms_copy_content(BIO * out, BIO * in, unsigned int flags)
+static int cms_copy_content(BIO * out, BIO * in, uint flags)
 {
-	unsigned char buf[4096];
+	uchar buf[4096];
 	int r = 0, i;
 	BIO * tmpout;
 
@@ -100,7 +100,7 @@ static void do_free_upto(BIO * f, BIO * upto)
 		BIO_free_all(f);
 }
 
-int CMS_data(CMS_ContentInfo * cms, BIO * out, unsigned int flags)
+int CMS_data(CMS_ContentInfo * cms, BIO * out, uint flags)
 {
 	BIO * cont;
 	int r;
@@ -116,7 +116,7 @@ int CMS_data(CMS_ContentInfo * cms, BIO * out, unsigned int flags)
 	return r;
 }
 
-CMS_ContentInfo * CMS_data_create(BIO * in, unsigned int flags)
+CMS_ContentInfo * CMS_data_create(BIO * in, uint flags)
 {
 	CMS_ContentInfo * cms;
 	cms = cms_Data_create();
@@ -132,7 +132,7 @@ CMS_ContentInfo * CMS_data_create(BIO * in, unsigned int flags)
 }
 
 int CMS_digest_verify(CMS_ContentInfo * cms, BIO * dcont, BIO * out,
-    unsigned int flags)
+    uint flags)
 {
 	BIO * cont;
 	int r;
@@ -155,7 +155,7 @@ int CMS_digest_verify(CMS_ContentInfo * cms, BIO * dcont, BIO * out,
 }
 
 CMS_ContentInfo * CMS_digest_create(BIO * in, const EVP_MD * md,
-    unsigned int flags)
+    uint flags)
 {
 	CMS_ContentInfo * cms;
 	if(!md)
@@ -175,8 +175,8 @@ CMS_ContentInfo * CMS_digest_create(BIO * in, const EVP_MD * md,
 }
 
 int CMS_EncryptedData_decrypt(CMS_ContentInfo * cms,
-    const unsigned char * key, size_t keylen,
-    BIO * dcont, BIO * out, unsigned int flags)
+    const uchar * key, size_t keylen,
+    BIO * dcont, BIO * out, uint flags)
 {
 	BIO * cont;
 	int r;
@@ -200,8 +200,8 @@ int CMS_EncryptedData_decrypt(CMS_ContentInfo * cms,
 }
 
 CMS_ContentInfo * CMS_EncryptedData_encrypt(BIO * in, const EVP_CIPHER * cipher,
-    const unsigned char * key,
-    size_t keylen, unsigned int flags)
+    const uchar * key,
+    size_t keylen, uint flags)
 {
 	CMS_ContentInfo * cms;
 	if(!cipher) {
@@ -263,7 +263,7 @@ err:
 }
 
 int CMS_verify(CMS_ContentInfo * cms, STACK_OF(X509) * certs,
-    X509_STORE * store, BIO * dcont, BIO * out, unsigned int flags)
+    X509_STORE * store, BIO * dcont, BIO * out, uint flags)
 {
 	CMS_SignerInfo * si;
 	STACK_OF(CMS_SignerInfo) *sinfos;
@@ -424,7 +424,7 @@ err2:
 
 int CMS_verify_receipt(CMS_ContentInfo * rcms, CMS_ContentInfo * ocms,
     STACK_OF(X509) * certs,
-    X509_STORE * store, unsigned int flags)
+    X509_STORE * store, uint flags)
 {
 	int r;
 	flags &= ~(CMS_DETACHED | CMS_TEXT);
@@ -436,7 +436,7 @@ int CMS_verify_receipt(CMS_ContentInfo * rcms, CMS_ContentInfo * ocms,
 
 CMS_ContentInfo * CMS_sign(X509 * signcert, EVP_PKEY * pkey,
     STACK_OF(X509) * certs, BIO * data,
-    unsigned int flags)
+    uint flags)
 {
 	CMS_ContentInfo * cms;
 	int i;
@@ -479,7 +479,7 @@ err:
 
 CMS_ContentInfo * CMS_sign_receipt(CMS_SignerInfo * si,
     X509 * signcert, EVP_PKEY * pkey,
-    STACK_OF(X509) * certs, unsigned int flags)
+    STACK_OF(X509) * certs, uint flags)
 {
 	CMS_SignerInfo * rct_si;
 	CMS_ContentInfo * cms = NULL;
@@ -545,7 +545,7 @@ err:
 }
 
 CMS_ContentInfo * CMS_encrypt(STACK_OF(X509) * certs, BIO * data,
-    const EVP_CIPHER * cipher, unsigned int flags)
+    const EVP_CIPHER * cipher, uint flags)
 {
 	CMS_ContentInfo * cms;
 	int i;
@@ -670,8 +670,8 @@ int CMS_decrypt_set1_pkey(CMS_ContentInfo * cms, EVP_PKEY * pk, X509 * cert)
 }
 
 int CMS_decrypt_set1_key(CMS_ContentInfo * cms,
-    unsigned char * key, size_t keylen,
-    const unsigned char * id, size_t idlen)
+    uchar * key, size_t keylen,
+    const uchar * id, size_t idlen)
 {
 	STACK_OF(CMS_RecipientInfo) *ris;
 	CMS_RecipientInfo * ri;
@@ -705,7 +705,7 @@ int CMS_decrypt_set1_key(CMS_ContentInfo * cms,
 }
 
 int CMS_decrypt_set1_password(CMS_ContentInfo * cms,
-    unsigned char * pass, ossl_ssize_t passlen)
+    uchar * pass, ossl_ssize_t passlen)
 {
 	STACK_OF(CMS_RecipientInfo) *ris;
 	CMS_RecipientInfo * ri;
@@ -727,7 +727,7 @@ int CMS_decrypt_set1_password(CMS_ContentInfo * cms,
 }
 
 int CMS_decrypt(CMS_ContentInfo * cms, EVP_PKEY * pk, X509 * cert,
-    BIO * dcont, BIO * out, unsigned int flags)
+    BIO * dcont, BIO * out, uint flags)
 {
 	int r;
 	BIO * cont;
@@ -757,7 +757,7 @@ int CMS_decrypt(CMS_ContentInfo * cms, EVP_PKEY * pk, X509 * cert,
 	return r;
 }
 
-int CMS_final(CMS_ContentInfo * cms, BIO * data, BIO * dcont, unsigned int flags)
+int CMS_final(CMS_ContentInfo * cms, BIO * data, BIO * dcont, uint flags)
 {
 	BIO * cmsbio;
 	int ret = 0;
@@ -787,7 +787,7 @@ err:
 #ifdef ZLIB
 
 int CMS_uncompress(CMS_ContentInfo * cms, BIO * dcont, BIO * out,
-    unsigned int flags)
+    uint flags)
 {
 	BIO * cont;
 	int r;
@@ -807,7 +807,7 @@ int CMS_uncompress(CMS_ContentInfo * cms, BIO * dcont, BIO * out,
 	return r;
 }
 
-CMS_ContentInfo * CMS_compress(BIO * in, int comp_nid, unsigned int flags)
+CMS_ContentInfo * CMS_compress(BIO * in, int comp_nid, uint flags)
 {
 	CMS_ContentInfo * cms;
 	if(comp_nid <= 0)
@@ -829,13 +829,13 @@ CMS_ContentInfo * CMS_compress(BIO * in, int comp_nid, unsigned int flags)
 #else
 
 int CMS_uncompress(CMS_ContentInfo * cms, BIO * dcont, BIO * out,
-    unsigned int flags)
+    uint flags)
 {
 	CMSerr(CMS_F_CMS_UNCOMPRESS, CMS_R_UNSUPPORTED_COMPRESSION_ALGORITHM);
 	return 0;
 }
 
-CMS_ContentInfo * CMS_compress(BIO * in, int comp_nid, unsigned int flags)
+CMS_ContentInfo * CMS_compress(BIO * in, int comp_nid, uint flags)
 {
 	CMSerr(CMS_F_CMS_COMPRESS, CMS_R_UNSUPPORTED_COMPRESSION_ALGORITHM);
 	return NULL;

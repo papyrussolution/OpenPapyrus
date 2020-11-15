@@ -11,8 +11,8 @@
 //#include <openssl/objects.h>
 #include "evp_locl.h"
 
-size_t SHA3_absorb(uint64_t A[5][5], const unsigned char * inp, size_t len, size_t r);
-void SHA3_squeeze(uint64_t A[5][5], unsigned char * out, size_t len, size_t r);
+size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len, size_t r);
+void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
 
 #define KECCAK1600_WIDTH 1600
 
@@ -21,11 +21,11 @@ typedef struct {
 	size_t block_size;      /* cached ctx->digest->block_size */
 	size_t md_size;         /* output length, variable in XOF */
 	size_t num;             /* used bytes in below buffer */
-	unsigned char buf[KECCAK1600_WIDTH / 8 - 32];
-	unsigned char pad;
+	uchar buf[KECCAK1600_WIDTH / 8 - 32];
+	uchar pad;
 } KECCAK1600_CTX;
 
-static int init(EVP_MD_CTX * evp_ctx, unsigned char pad)
+static int init(EVP_MD_CTX * evp_ctx, uchar pad)
 {
 	KECCAK1600_CTX * ctx = static_cast<KECCAK1600_CTX *>(evp_ctx->md_data);
 	size_t bsz = evp_ctx->digest->block_size;
@@ -53,7 +53,7 @@ static int shake_init(EVP_MD_CTX * evp_ctx)
 static int sha3_update(EVP_MD_CTX * evp_ctx, const void * _inp, size_t len)
 {
 	KECCAK1600_CTX * ctx = static_cast<KECCAK1600_CTX *>(evp_ctx->md_data);
-	const unsigned char * inp = static_cast<const uchar *>(_inp);
+	const uchar * inp = static_cast<const uchar *>(_inp);
 	size_t bsz = ctx->block_size;
 	size_t num, rem;
 	if(len == 0)
@@ -90,7 +90,7 @@ static int sha3_update(EVP_MD_CTX * evp_ctx, const void * _inp, size_t len)
 	return 1;
 }
 
-static int sha3_final(EVP_MD_CTX * evp_ctx, unsigned char * md)
+static int sha3_final(EVP_MD_CTX * evp_ctx, uchar * md)
 {
 	KECCAK1600_CTX * ctx = static_cast<KECCAK1600_CTX *>(evp_ctx->md_data);
 	size_t bsz = ctx->block_size;
@@ -219,7 +219,7 @@ static int s390x_shake_init(EVP_MD_CTX * evp_ctx)
 static int s390x_sha3_update(EVP_MD_CTX * evp_ctx, const void * _inp, size_t len)
 {
 	KECCAK1600_CTX * ctx = evp_ctx->md_data;
-	const unsigned char * inp = _inp;
+	const uchar * inp = _inp;
 	const size_t bsz = ctx->block_size;
 	size_t num, rem;
 
@@ -251,7 +251,7 @@ static int s390x_sha3_update(EVP_MD_CTX * evp_ctx, const void * _inp, size_t len
 	return 1;
 }
 
-static int s390x_sha3_final(EVP_MD_CTX * evp_ctx, unsigned char * md)
+static int s390x_sha3_final(EVP_MD_CTX * evp_ctx, uchar * md)
 {
 	KECCAK1600_CTX * ctx = evp_ctx->md_data;
 
@@ -260,7 +260,7 @@ static int s390x_sha3_final(EVP_MD_CTX * evp_ctx, unsigned char * md)
 	return 1;
 }
 
-static int s390x_shake_final(EVP_MD_CTX * evp_ctx, unsigned char * md)
+static int s390x_shake_final(EVP_MD_CTX * evp_ctx, uchar * md)
 {
 	KECCAK1600_CTX * ctx = evp_ctx->md_data;
 

@@ -23,7 +23,7 @@ static int update(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return sm3_update(static_cast<SM3_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
 
-static int final(EVP_MD_CTX * ctx, unsigned char * md)
+static int final(EVP_MD_CTX * ctx, uchar * md)
 {
 	return sm3_final(md, static_cast<SM3_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }

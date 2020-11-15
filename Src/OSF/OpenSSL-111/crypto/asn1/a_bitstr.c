@@ -11,15 +11,15 @@
 #include <openssl/asn1.h>
 //#include "asn1_locl.h"
 
-int ASN1_BIT_STRING_set(ASN1_BIT_STRING * x, unsigned char * d, int len)
+int ASN1_BIT_STRING_set(ASN1_BIT_STRING * x, uchar * d, int len)
 {
 	return ASN1_STRING_set(x, d, len);
 }
 
-int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, unsigned char ** pp)
+int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, uchar ** pp)
 {
 	int ret, j, bits, len;
-	unsigned char * p, * d;
+	uchar * p, * d;
 	if(a == NULL)
 		return 0;
 	len = a->length;
@@ -74,11 +74,11 @@ int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, unsigned char ** pp)
 }
 
 ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
-    const unsigned char ** pp, long len)
+    const uchar ** pp, long len)
 {
 	ASN1_BIT_STRING * ret = NULL;
-	const unsigned char * p;
-	unsigned char * s;
+	const uchar * p;
+	uchar * s;
 	int i;
 
 	if(len < 1) {
@@ -145,7 +145,7 @@ err:
 int ASN1_BIT_STRING_set_bit(ASN1_BIT_STRING * a, int n, int value)
 {
 	int w, v, iv;
-	unsigned char * c;
+	uchar * c;
 
 	w = n / 8;
 	v = 1 << (7 - (n & 0x07));
@@ -189,7 +189,7 @@ int ASN1_BIT_STRING_get_bit(const ASN1_BIT_STRING * a, int n)
  * which is not specified in 'flags', 1 otherwise.
  * 'len' is the length of 'flags'.
  */
-int ASN1_BIT_STRING_check(const ASN1_BIT_STRING * a, const unsigned char * flags, int flags_len)
+int ASN1_BIT_STRING_check(const ASN1_BIT_STRING * a, const uchar * flags, int flags_len)
 {
 	int i, ok;
 	/* Check if there is one bit set at all. */
@@ -200,7 +200,7 @@ int ASN1_BIT_STRING_check(const ASN1_BIT_STRING * a, const unsigned char * flags
 	 */
 	ok = 1;
 	for(i = 0; i < a->length && ok; ++i) {
-		unsigned char mask = i < flags_len ? ~flags[i] : 0xff;
+		uchar mask = i < flags_len ? ~flags[i] : 0xff;
 		/* We are done if there is an unneeded bit set. */
 		ok = (a->data[i] & mask) == 0;
 	}

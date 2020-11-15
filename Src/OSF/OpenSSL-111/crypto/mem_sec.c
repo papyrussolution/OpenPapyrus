@@ -259,9 +259,9 @@ size_t CRYPTO_secure_actual_size(void * ptr)
 #define CLEARBIT(t, b) (t[(b) >> 3] &= (0xFF & ~(ONE << ((b) & 7))))
 
 #define WITHIN_ARENA(p) \
-	((char*)(p) >= sh.arena && (char*)(p) < &sh.arena[sh.arena_size])
+	((char *)(p) >= sh.arena && (char *)(p) < &sh.arena[sh.arena_size])
 #define WITHIN_FREELIST(p) \
-	((char*)(p) >= (char*)sh.freelist && (char*)(p) < (char*)&sh.freelist[sh.freelist_size])
+	((char *)(p) >= (char *)sh.freelist && (char *)(p) < (char *)&sh.freelist[sh.freelist_size])
 
 typedef struct sh_list_st {
 	struct sh_list_st * next;
@@ -276,8 +276,8 @@ typedef struct sh_st {
 	char ** freelist;
 	ossl_ssize_t freelist_size;
 	size_t minsize;
-	unsigned char * bittable;
-	unsigned char * bitmalloc;
+	uchar * bittable;
+	uchar * bitmalloc;
 	size_t bittable_size; /* size in bits */
 } SH;
 
@@ -297,7 +297,7 @@ static size_t sh_getlist(char * ptr)
 	return list;
 }
 
-static int sh_testbit(char * ptr, int list, unsigned char * table)
+static int sh_testbit(char * ptr, int list, uchar * table)
 {
 	size_t bit;
 
@@ -308,7 +308,7 @@ static int sh_testbit(char * ptr, int list, unsigned char * table)
 	return TESTBIT(table, bit);
 }
 
-static void sh_clearbit(char * ptr, int list, unsigned char * table)
+static void sh_clearbit(char * ptr, int list, uchar * table)
 {
 	size_t bit;
 
@@ -320,7 +320,7 @@ static void sh_clearbit(char * ptr, int list, unsigned char * table)
 	CLEARBIT(table, bit);
 }
 
-static void sh_setbit(char * ptr, int list, unsigned char * table)
+static void sh_setbit(char * ptr, int list, uchar * table)
 {
 	size_t bit;
 
@@ -449,7 +449,7 @@ static int sh_init(size_t size, int minsize)
 	}
 	if(sh.map_result == MAP_FAILED)
 		goto err;
-	sh.arena = (char*)(sh.map_result + pgsize);
+	sh.arena = (char *)(sh.map_result + pgsize);
 	sh_setbit(sh.arena, 0, sh.bittable);
 	sh_add_to_list(&sh.freelist[0], sh.arena);
 

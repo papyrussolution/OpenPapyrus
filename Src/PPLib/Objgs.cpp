@@ -1986,7 +1986,7 @@ StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 		// Выбираем только именованные структуры
 		//
 		PPGoodsStrucHeader gs_rec;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&gs_rec) > 0;)
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&gs_rec) > 0;)
 			if(gs_rec.Flags & GSF_NAMED) {
 				THROW_SL(p_list->Add(gs_rec.ID, gs_rec.Name));
 			}
@@ -2001,13 +2001,13 @@ StrAssocArray * PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsID*/)
 int PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 {
 	int    ok = -1;
-	BExtQuery q(ref, 0, 128);
-	q.select(ref->ObjID, 0L).where(ref->ObjType == Obj && ref->Val1 == strucID);
+	BExtQuery q(P_Ref, 0, 128);
+	q.select(P_Ref->ObjID, 0L).where(P_Ref->ObjType == Obj && P_Ref->Val1 == strucID);
 	ReferenceTbl::Key0 k0;
 	k0.ObjType = Obj;
 	k0.ObjID = 0;
 	for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-		CALLPTRMEMB(pList, add(ref->data.ObjID));
+		CALLPTRMEMB(pList, add(P_Ref->data.ObjID));
 		ok = 1;
 	}
 	return ok;
@@ -2022,8 +2022,8 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 	TSVector <ObjAssocTbl::Rec> raw_items_list;
 	_GSItem * p_raw_item;
 	SString temp_buf, formula;
-	THROW(ref->GetPropVlrString(Obj, id, GSPRP_EXTITEMSTR, temp_buf));
-	THROW(ref->Assc.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &raw_items_list));
+	THROW(P_Ref->GetPropVlrString(Obj, id, GSPRP_EXTITEMSTR, temp_buf));
+	THROW(P_Ref->Assc.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &raw_items_list));
 	raw_items_list.sort(PTR_CMPFUNC(_GSItem));
 	//
 	// !Мы получили вектор записей типа <ObjAssocTbl::Rec> но обрабатываем его так, как будто
@@ -2050,7 +2050,7 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 int PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
 {
 	int    ok = 1, r = 0;
-	THROW(r = ref->GetItem(Obj, id, &pData->Rec));
+	THROW(r = P_Ref->GetItem(Obj, id, &pData->Rec));
 	if(r > 0) {
 		pData->Items.freeAll();
 		pData->Childs.freeAll();
@@ -2089,7 +2089,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 		THROW(tra);
 		if(!pData || (pData->IsEmpty() && !pData->IsNamed() && !(pData->Rec.Flags & GSF_FOLDER))) { // @V10.5.3 && !(pData->Rec.Flags & GSF_FOLDER)
 			if(*pID) {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 				cleared = 1;
 			}
@@ -2099,12 +2099,12 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 			if(*strip(pData->Rec.Name) != 0 && !(pData->Rec.Flags & GSF_CHILD))
 				pData->Rec.Flags |= GSF_NAMED;
 			if(*pID) {
-				THROW(r = ref->UpdateItem(Obj, *pID, &pData->Rec, 1, 0));
+				THROW(r = P_Ref->UpdateItem(Obj, *pID, &pData->Rec, 1, 0));
 				if(r < 0)
 					unchg = 1;
 			}
 			else {
-				THROW(ref->AddItem(Obj, pID, &pData->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, pID, &pData->Rec, 0));
 				pData->Rec.ID = *pID;
 			}
 			if(pData->Rec.Flags & GSF_FOLDER) {
@@ -2149,7 +2149,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				// } @v10.2.1
 			}
 			if(!items_unchg)
-				THROW(ref->Assc.Remove(PPASS_GOODSSTRUC, *pID, 0, 0));
+				THROW(P_Ref->Assc.Remove(PPASS_GOODSSTRUC, *pID, 0, 0));
 		}
 		if(pData && !items_unchg) {
 			_GSItem gsi;
@@ -2168,11 +2168,11 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				gsi.Netto  = pi->Netto;
 				STRNSCPY(gsi.Symb, pi->Symb);
 				gsi.Num    = i;
-				THROW(ref->Assc.SearchFreeNum(gsi.Tag, *pID, &gsi.Num));
-				THROW(ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&gsi, 0));
+				THROW(P_Ref->Assc.SearchFreeNum(gsi.Tag, *pID, &gsi.Num));
+				THROW(P_Ref->Assc.Add(&assc_id, (ObjAssocTbl::Rec *)&gsi, 0));
 				THROW(PPPutExtStrData(i, ext_buf, strip(pi->Formula__)));
 			}
-			THROW(ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, GSPRP_EXTITEMSTR, ext_buf));
 		}
 		if(cleared)
 			*pID = 0;
@@ -2278,7 +2278,7 @@ int PPObjGoodsStruc::SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rB
 {
 	int    ok = 1;
 	int32  c = (int32)pPack->Items.getCount(); // @persistent
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_INT, sizeof(c)), &c, 0, rBuf));
 	for(int i = 0; i < c; i++) {
 		PPGoodsStrucItem item;
@@ -2380,14 +2380,14 @@ int PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE)
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl::Rec assc_rec;
-			SEnum en = ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1);
+			SEnum en = P_Ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1);
 			if(en.Next(&assc_rec) > 0) {
 				ok = RetRefsExistsErr(Obj, assc_rec.PrmrObjID);
 			}
 		}
 	if(msg == DBMSG_OBJREPLACE)
 		if(_obj == PPOBJ_GOODS) {
-			ObjAssocTbl * t = &ref->Assc;
+			ObjAssocTbl * t = &P_Ref->Assc;
 			if(!updateFor(t, 0, (t->AsscType == PPASS_GOODSSTRUC && t->ScndObjID == _id),
 				set(t->ScndObjID, dbconst(reinterpret_cast<long>(extraPtr))))) {
 				ok = PPSetErrorDB();
@@ -3061,7 +3061,7 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	pList->freeAll();
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		rec.Period.Actualize(ZERODATE);
 		if(!(rec.Flags & GSF_FOLDER) && rec.Flags & GSF_PRESENT && rec.Period.CheckDate(getcurdate_())) {
 			double qtty = 0.0;

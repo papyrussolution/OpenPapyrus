@@ -21,8 +21,8 @@ static int tls1_PRF(SSL * s,
     const void * seed3, size_t seed3_len,
     const void * seed4, size_t seed4_len,
     const void * seed5, size_t seed5_len,
-    const unsigned char * sec, size_t slen,
-    unsigned char * out, size_t olen, int fatal)
+    const uchar * sec, size_t slen,
+    uchar * out, size_t olen, int fatal)
 {
 	const EVP_MD * md = ssl_prf_md(s);
 	EVP_PKEY_CTX * pctx = NULL;
@@ -62,7 +62,7 @@ err:
 	return ret;
 }
 
-static int tls1_generate_key_block(SSL * s, unsigned char * km, size_t num)
+static int tls1_generate_key_block(SSL * s, uchar * km, size_t num)
 {
 	int ret;
 
@@ -79,8 +79,8 @@ static int tls1_generate_key_block(SSL * s, unsigned char * km, size_t num)
 
 int tls1_change_cipher_state(SSL * s, int which)
 {
-	unsigned char * p, * mac_secret;
-	unsigned char * ms, * key, * iv;
+	uchar * p, * mac_secret;
+	uchar * ms, * key, * iv;
 	EVP_CIPHER_CTX * dd;
 	const EVP_CIPHER * c;
 #ifndef OPENSSL_NO_COMP
@@ -344,7 +344,7 @@ err:
 
 int tls1_setup_key_block(SSL * s)
 {
-	unsigned char * p;
+	uchar * p;
 	const EVP_CIPHER * c;
 	const EVP_MD * hash;
 	SSL_COMP * comp;
@@ -434,10 +434,10 @@ err:
 }
 
 size_t tls1_final_finish_mac(SSL * s, const char * str, size_t slen,
-    unsigned char * out)
+    uchar * out)
 {
 	size_t hashlen;
-	unsigned char hash[EVP_MAX_MD_SIZE];
+	uchar hash[EVP_MAX_MD_SIZE];
 
 	if(!ssl3_digest_cached_records(s, 0)) {
 		/* SSLfatal() already called */
@@ -459,11 +459,11 @@ size_t tls1_final_finish_mac(SSL * s, const char * str, size_t slen,
 	return TLS1_FINISH_MAC_LENGTH;
 }
 
-int tls1_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p,
+int tls1_generate_master_secret(SSL * s, uchar * out, uchar * p,
     size_t len, size_t * secret_size)
 {
 	if(s->session->flags & SSL_SESS_FLAG_EXTMS) {
-		unsigned char hash[EVP_MAX_MD_SIZE * 2];
+		uchar hash[EVP_MAX_MD_SIZE * 2];
 		size_t hashlen;
 		/*
 		 * Digest cached records keeping record buffer (if present): this wont
@@ -477,7 +477,7 @@ int tls1_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p,
 		}
 #ifdef SSL_DEBUG
 		fprintf(stderr, "Handshake hashes:\n");
-		BIO_dump_fp(stderr, (char*)hash, hashlen);
+		BIO_dump_fp(stderr, (char *)hash, hashlen);
 #endif
 		if(!tls1_PRF(s,
 		    TLS_MD_EXTENDED_MASTER_SECRET_CONST,
@@ -507,13 +507,13 @@ int tls1_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p,
 	}
 #ifdef SSL_DEBUG
 	fprintf(stderr, "Premaster Secret:\n");
-	BIO_dump_fp(stderr, (char*)p, len);
+	BIO_dump_fp(stderr, (char *)p, len);
 	fprintf(stderr, "Client Random:\n");
-	BIO_dump_fp(stderr, (char*)s->s3->client_random, SSL3_RANDOM_SIZE);
+	BIO_dump_fp(stderr, (char *)s->s3->client_random, SSL3_RANDOM_SIZE);
 	fprintf(stderr, "Server Random:\n");
-	BIO_dump_fp(stderr, (char*)s->s3->server_random, SSL3_RANDOM_SIZE);
+	BIO_dump_fp(stderr, (char *)s->s3->server_random, SSL3_RANDOM_SIZE);
 	fprintf(stderr, "Master Secret:\n");
-	BIO_dump_fp(stderr, (char*)s->session->master_key,
+	BIO_dump_fp(stderr, (char *)s->session->master_key,
 	    SSL3_MASTER_SECRET_SIZE);
 #endif
 
@@ -521,12 +521,12 @@ int tls1_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p,
 	return 1;
 }
 
-int tls1_export_keying_material(SSL * s, unsigned char * out, size_t olen,
+int tls1_export_keying_material(SSL * s, uchar * out, size_t olen,
     const char * label, size_t llen,
-    const unsigned char * context,
+    const uchar * context,
     size_t contextlen, int use_context)
 {
-	unsigned char * val = NULL;
+	uchar * val = NULL;
 	size_t vallen = 0, currentvalpos;
 	int rv;
 
@@ -544,7 +544,7 @@ int tls1_export_keying_material(SSL * s, unsigned char * out, size_t olen,
 	if(val == NULL)
 		goto err2;
 	currentvalpos = 0;
-	memcpy(val + currentvalpos, (unsigned char*)label, llen);
+	memcpy(val + currentvalpos, (uchar*)label, llen);
 	currentvalpos += llen;
 	memcpy(val + currentvalpos, s->s3->client_random, SSL3_RANDOM_SIZE);
 	currentvalpos += SSL3_RANDOM_SIZE;

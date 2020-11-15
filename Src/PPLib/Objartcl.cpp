@@ -1133,7 +1133,7 @@ int PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, P
 	else {
 		PPAccSheet acs_rec;
 		PPObjAccSheet acs_obj;
-		for(SEnum en = acs_obj.ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, PPOBJ_PERSON); en.Next(&acs_rec) > 0;) {
+		for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, PPOBJ_PERSON); en.Next(&acs_rec) > 0;) {
 			if(acs_rec.Assoc == PPOBJ_PERSON)
 				THROW(GetByPersonList(acs_rec.ID, pPsnList, pArList)); // @recursion
 		}
@@ -2330,7 +2330,7 @@ int PPObjDebtDim::GetPacket(PPID id, PPDebtDimPacket * pPack)
 		PPIDArray agent_list;
 		PPDebtDimPacket pack;
 		THROW(Search(id, &pack.Rec) > 0);
-		THROW(ref->GetPropArray(PPOBJ_DEBTDIM, id, DBTDIMPRP_AGENTLIST, &agent_list));
+		THROW(P_Ref->GetPropArray(PPOBJ_DEBTDIM, id, DBTDIMPRP_AGENTLIST, &agent_list));
 		pack.AgentList.Set(&agent_list);
 		ASSIGN_PTR(pPack, pack);
 		ok = 1;
@@ -2355,11 +2355,11 @@ int PPObjDebtDim::PutPacket(PPID * pID, PPDebtDimPacket * pPack, int use_ta)
 			else {
 				THROW(AddItem(pID, &pPack->Rec, 0));
 			}
-			THROW(ref->PutPropArray(PPOBJ_DEBTDIM, *pID, DBTDIMPRP_AGENTLIST, &agent_list, 0));
+			THROW(P_Ref->PutPropArray(PPOBJ_DEBTDIM, *pID, DBTDIMPRP_AGENTLIST, &agent_list, 0));
 		}
 		else if(*pID) {
 			THROW(RemoveObjV(*pID, 0, 0, 0));
-			THROW(ref->PutPropArray(PPOBJ_DEBTDIM, *pID, DBTDIMPRP_AGENTLIST, 0, 0));
+			THROW(P_Ref->PutPropArray(PPOBJ_DEBTDIM, *pID, DBTDIMPRP_AGENTLIST, 0, 0));
 		}
 		THROW(tra.Commit());
 		Dirty(*pID);
@@ -2461,7 +2461,7 @@ int  PPObjDebtDim::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 int PPObjDebtDim::SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	if(dir > 0) {
 		PPIDArray agent_list;
 		pPack->AgentList.CopyTo(&agent_list);

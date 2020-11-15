@@ -1,0 +1,529 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{83787321-cd35-4335-9c61-e03dee5e7de3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{53f13efe-5545-4fc0-8e35-1bffa510c69b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vtls">
+      <UniqueIdentifier>{c8048de8-d273-4505-9d16-a4ecfd116ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vtls\Header Files">
+      <UniqueIdentifier>{dabdea5e-9b84-4c19-acf3-64b761ba7213}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vauth">
+      <UniqueIdentifier>{99c37c5d-e83e-4b76-81f2-1a055e853367}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vauth\Header Files">
+      <UniqueIdentifier>{64256c1f-69b8-4f27-a6a9-f4da09b3f5cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vssh">
+      <UniqueIdentifier>{a0db50c2-3b36-4faa-b022-7bb130cecc2e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vssh\libssh.c">
+      <Filter>vssh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vssh\libssh2.c">
+      <Filter>vssh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vssh\wolfssh.c">
+      <Filter>vssh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\amigaos.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\asyn-ares.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\asyn-thread.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\base64.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\conncache.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\connect.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\content_encoding.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\cookie.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_addrinfo.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_ctype.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_des.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_endian.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_fnmatch.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_get_line.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_gethostname.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_gssapi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_memrchr.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_multibyte.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_ntlm_core.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_ntlm_wb.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_path.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\curl_range.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_rtmp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_sasl.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_sspi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\curl_threads.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\dict.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\dotdot.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\easy.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\escape.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\file.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\fileinfo.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\formdata.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\ftp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\ftplistparser.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\getenv.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\getinfo.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\gopher.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hash.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hmac.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostasyn.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostcheck.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostip.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostip4.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostip6.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\hostsyn.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_chunks.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_digest.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_negotiate.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\http_ntlm.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http_proxy.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\http2.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\idn_win32.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\if2ip.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\imap.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\inet_ntop.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\inet_pton.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\krb5.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\ldap.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\libcurl-pch.cpp" />
+    <ClCompile Include="..\osf\CURL-7730\lib\llist.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\md4.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\md5.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\memdebug.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\mprintf.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\mqtt.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\multi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\netrc.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\non-ascii.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\nonblock.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\openldap.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\parsedate.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\pingpong.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\pop3.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\progress.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\rand.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\rtsp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\select.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\sendf.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\sha256.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\share.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\slist.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\smb.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\smtp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\socks.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\socks_gssapi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\socks_sspi.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\speedcheck.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\splay.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\strcase.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strdup.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strerror.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strtok.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\strtoofft.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\system_win32.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\telnet.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\tftp.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\timeval.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\transfer.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\url.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\version.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\warnless.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\wildcard.c" />
+    <ClCompile Include="..\osf\CURL-7730\lib\x509asn1.c" />
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\cleartext.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\cram.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\digest.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\digest_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\krb5_gssapi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\krb5_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\ntlm.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\ntlm_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\oauth2.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\spnego_gssapi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vauth\vauth.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\gskit.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\gtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-7730\lib\vtls\mbedtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\nss.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\openssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\schannel.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-7730\lib\vtls\vtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\mime.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\dynbuf.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\urlapi.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\keylog.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\doh.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\setopt.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\version_win32.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\rename.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\socketpair.c" />
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\bearssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\mbedtls_threadlock.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\mesalink.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\schannel_verify.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\sectransp.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vtls\wolfssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-7730\lib\vauth\spnego_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\CURL-7730\lib\amigaos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\arpa_telnet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\asyn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\config-win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\conncache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\connect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\content_encoding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\cookie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_addrinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_des.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_fnmatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_gethostname.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_gssapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ldap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_md4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_multibyte.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm_msgs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_ntlm_wb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_printf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_rtmp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_sasl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_sec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_setup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_setup_once.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_sspi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curl_threads.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\curlx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\dict.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\dotdot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\easyif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\fileinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\formdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\ftp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\ftplistparser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\getinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\gopher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\hostcheck.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\hostip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\http.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\http2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\http_chunks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\http_digest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\http_negotiate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\http_proxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\if2ip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\imap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\inet_ntop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\inet_pton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\llist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\memdebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\multihandle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\multiif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\netrc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\non-ascii.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\pingpong.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\pop3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\rtsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\sendf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\setup-vms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\share.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\sigpipe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\smb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\smtp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\socks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\splay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\strerror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\strtok.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\telnet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\tftp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\timeval.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\transfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\urldata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\warnless.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\wildcard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\x509asn1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\gskit.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\gtls.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\nssg.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\openssl.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\schannel.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-7730\lib\vtls\vtls.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\CURL-7730\lib\vauth\digest.h">
+      <Filter>vauth\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\CURL-7730\lib\vauth\ntlm.h">
+      <Filter>vauth\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\CURL-7730\lib\vauth\vauth.h">
+      <Filter>vauth\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\keylog.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\rename.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\socketpair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\bearssl.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\mbedtls.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\mbedtls_threadlock.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\mesalink.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\sectransp.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\lib\vtls\wolfssl.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-7730\include\curl\curl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\CURL-7730\lib\libcurl.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

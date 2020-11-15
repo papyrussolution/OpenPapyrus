@@ -73,7 +73,7 @@ static ossl_inline void store32(uint8_t * dst, uint32_t w)
 		memcpy(dst, &w, sizeof(w));
 	}
 	else {
-		uint8_t * p = (uint8_t*)dst;
+		uint8_t * p = (uint8_t *)dst;
 		int i;
 
 		for(i = 0; i < 4; i++)
@@ -92,7 +92,7 @@ static ossl_inline void store64(uint8_t * dst, uint64_t w)
 		memcpy(dst, &w, sizeof(w));
 	}
 	else {
-		uint8_t * p = (uint8_t*)dst;
+		uint8_t * p = (uint8_t *)dst;
 		int i;
 
 		for(i = 0; i < 8; i++)
@@ -113,7 +113,7 @@ static ossl_inline uint64_t load48(const uint8_t * src)
 
 static ossl_inline void store48(uint8_t * dst, uint64_t w)
 {
-	uint8_t * p = (uint8_t*)dst;
+	uint8_t * p = (uint8_t *)dst;
 	p[0] = (uint8_t)w;
 	p[1] = (uint8_t)(w>>8);
 	p[2] = (uint8_t)(w>>16);
@@ -122,12 +122,12 @@ static ossl_inline void store48(uint8_t * dst, uint64_t w)
 	p[5] = (uint8_t)(w>>40);
 }
 
-static ossl_inline uint32_t rotr32(const uint32_t w, const unsigned int c)
+static ossl_inline uint32_t rotr32(const uint32_t w, const uint c)
 {
 	return (w >> c) | (w << (32 - c));
 }
 
-static ossl_inline uint64_t rotr64(const uint64_t w, const unsigned int c)
+static ossl_inline uint64_t rotr64(const uint64_t w, const uint c)
 {
 	return (w >> c) | (w << (64 - c));
 }

@@ -17,7 +17,7 @@
 //#include <openssl/ec.h>
 //#include <evp_int.h>
 
-EVP_PKEY * d2i_PublicKey(int type, EVP_PKEY ** a, const unsigned char ** pp, long length)
+EVP_PKEY * d2i_PublicKey(int type, EVP_PKEY ** a, const uchar ** pp, long length)
 {
 	EVP_PKEY * ret;
 	if((a == NULL) || (*a == NULL)) {

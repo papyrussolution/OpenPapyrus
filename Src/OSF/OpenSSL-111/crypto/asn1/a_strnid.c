@@ -20,14 +20,14 @@ static int sk_table_cmp(const ASN1_STRING_TABLE * const * a, const ASN1_STRING_T
  * software (e.g. Netscape) has problems with them.
  */
 
-static unsigned long global_mask = B_ASN1_UTF8STRING;
+static ulong global_mask = B_ASN1_UTF8STRING;
 
-void ASN1_STRING_set_default_mask(unsigned long mask)
+void ASN1_STRING_set_default_mask(ulong mask)
 {
 	global_mask = mask;
 }
 
-unsigned long ASN1_STRING_get_default_mask(void)
+ulong ASN1_STRING_get_default_mask(void)
 {
 	return global_mask;
 }
@@ -44,7 +44,7 @@ unsigned long ASN1_STRING_get_default_mask(void)
 
 int ASN1_STRING_set_default_mask_asc(const char * p)
 {
-	unsigned long mask;
+	ulong mask;
 	char * end;
 	if(strncmp(p, "MASK:", 5) == 0) {
 		if(!p[5])
@@ -54,9 +54,9 @@ int ASN1_STRING_set_default_mask_asc(const char * p)
 			return 0;
 	}
 	else if(sstreq(p, "nombstr"))
-		mask = ~((unsigned long)(B_ASN1_BMPSTRING | B_ASN1_UTF8STRING));
+		mask = ~((ulong)(B_ASN1_BMPSTRING | B_ASN1_UTF8STRING));
 	else if(sstreq(p, "pkix"))
-		mask = ~((unsigned long)B_ASN1_T61STRING);
+		mask = ~((ulong)B_ASN1_T61STRING);
 	else if(sstreq(p, "utf8only"))
 		mask = B_ASN1_UTF8STRING;
 	else if(sstreq(p, "default"))
@@ -72,11 +72,11 @@ int ASN1_STRING_set_default_mask_asc(const char * p)
  * table. Frequently the types and length of an ASN1_STRING are restricted by
  * a corresponding OID. For example certificates and certificate requests.
  */
-ASN1_STRING * ASN1_STRING_set_by_NID(ASN1_STRING ** out, const unsigned char * in, int inlen, int inform, int nid)
+ASN1_STRING * ASN1_STRING_set_by_NID(ASN1_STRING ** out, const uchar * in, int inlen, int inform, int nid)
 {
 	ASN1_STRING_TABLE * tbl;
 	ASN1_STRING * str = NULL;
-	unsigned long mask;
+	ulong mask;
 	int ret;
 	SETIFZ(out, &str);
 	tbl = ASN1_STRING_TABLE_get(nid);
@@ -169,7 +169,7 @@ static ASN1_STRING_TABLE * stable_get(int nid)
 	return rv;
 }
 
-int ASN1_STRING_TABLE_add(int nid, long minsize, long maxsize, unsigned long mask, unsigned long flags)
+int ASN1_STRING_TABLE_add(int nid, long minsize, long maxsize, ulong mask, ulong flags)
 {
 	ASN1_STRING_TABLE * tmp = stable_get(nid);
 	if(tmp == NULL) {

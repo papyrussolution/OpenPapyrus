@@ -23,17 +23,11 @@
 #define _ma_schannel_h_
 
 #define SECURITY_WIN32
-//#include <ma_global.h>
-//#include <ma_sys.h>
-//#include <ma_common.h>
-//#include <ma_pvio.h>
-//#include <errmsg.h>
 #include <wincrypt.h>
 #include <wintrust.h>
 #include <security.h>
 #include <schnlsp.h>
 #undef SECURITY_WIN32
-//#include <windows.h>
 #include <sspi.h>
 
 #define SC_IO_BUFFER_SIZE 0x4000
@@ -59,11 +53,11 @@ struct st_schannel {
 typedef struct st_schannel SC_CTX;
 
 extern HCERTSTORE ca_CertStore, crl_CertStore;
-extern my_bool ca_Check, crl_Check;
+extern bool ca_Check, crl_Check;
 ;
 SECURITY_STATUS ma_schannel_client_handshake(MARIADB_TLS * ctls);
-SECURITY_STATUS ma_schannel_handshake_loop(MARIADB_PVIO * pvio, my_bool InitialRead, SecBuffer * pExtraData);
-my_bool ma_schannel_verify_certs(MARIADB_TLS * ctls, BOOL verify_server_name);
+SECURITY_STATUS ma_schannel_handshake_loop(MARIADB_PVIO * pvio, bool InitialRead, SecBuffer * pExtraData);
+bool ma_schannel_verify_certs(MARIADB_TLS * ctls, BOOL verify_server_name);
 ssize_t ma_schannel_write_encrypt(MARIADB_PVIO * pvio, uchar * WriteBuffer, size_t WriteBufferSize);
 SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio, CtxtHandle* phContext, DWORD * DecryptLength, uchar * ReadBuffer, DWORD ReadBufferSize);
 

@@ -59,7 +59,7 @@ void * OCSP_REQUEST_get1_ext_d2i(OCSP_REQUEST * x, int nid, int * crit, int * id
 }
 
 int OCSP_REQUEST_add1_ext_i2d(OCSP_REQUEST * x, int nid, void * value, int crit,
-    unsigned long flags)
+    ulong flags)
 {
 	return X509V3_add1_i2d(&x->tbsRequest.requestExtensions, nid, value,
 		   crit, flags);
@@ -111,7 +111,7 @@ void * OCSP_ONEREQ_get1_ext_d2i(OCSP_ONEREQ * x, int nid, int * crit, int * idx)
 }
 
 int OCSP_ONEREQ_add1_ext_i2d(OCSP_ONEREQ * x, int nid, void * value, int crit,
-    unsigned long flags)
+    ulong flags)
 {
 	return X509V3_add1_i2d(&x->singleRequestExtensions, nid, value, crit,
 		   flags);
@@ -167,7 +167,7 @@ void * OCSP_BASICRESP_get1_ext_d2i(OCSP_BASICRESP * x, int nid, int * crit,
 }
 
 int OCSP_BASICRESP_add1_ext_i2d(OCSP_BASICRESP * x, int nid, void * value,
-    int crit, unsigned long flags)
+    int crit, ulong flags)
 {
 	return X509V3_add1_i2d(&x->tbsResponseData.responseExtensions, nid,
 		   value, crit, flags);
@@ -220,7 +220,7 @@ void * OCSP_SINGLERESP_get1_ext_d2i(OCSP_SINGLERESP * x, int nid, int * crit,
 }
 
 int OCSP_SINGLERESP_add1_ext_i2d(OCSP_SINGLERESP * x, int nid, void * value,
-    int crit, unsigned long flags)
+    int crit, ulong flags)
 {
 	return X509V3_add1_i2d(&x->singleExtensions, nid, value, crit, flags);
 }
@@ -241,9 +241,9 @@ int OCSP_SINGLERESP_add_ext(OCSP_SINGLERESP * x, X509_EXTENSION * ex, int loc)
  */
 
 static int ocsp_add1_nonce(STACK_OF(X509_EXTENSION) ** exts,
-    unsigned char * val, int len)
+    uchar * val, int len)
 {
-	unsigned char * tmpval;
+	uchar * tmpval;
 	ASN1_OCTET_STRING os;
 	int ret = 0;
 	if(len <= 0)
@@ -278,14 +278,14 @@ err:
 
 /* Add nonce to an OCSP request */
 
-int OCSP_request_add1_nonce(OCSP_REQUEST * req, unsigned char * val, int len)
+int OCSP_request_add1_nonce(OCSP_REQUEST * req, uchar * val, int len)
 {
 	return ocsp_add1_nonce(&req->tbsRequest.requestExtensions, val, len);
 }
 
 /* Same as above but for a response */
 
-int OCSP_basic_add1_nonce(OCSP_BASICRESP * resp, unsigned char * val, int len)
+int OCSP_basic_add1_nonce(OCSP_BASICRESP * resp, uchar * val, int len)
 {
 	return ocsp_add1_nonce(&resp->tbsResponseData.responseExtensions, val,
 		   len);

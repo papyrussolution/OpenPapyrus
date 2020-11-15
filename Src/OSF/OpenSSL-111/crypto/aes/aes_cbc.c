@@ -11,7 +11,7 @@
 //#include <openssl/aes.h>
 #include <openssl/modes.h>
 
-void AES_cbc_encrypt(const unsigned char * in, unsigned char * out, size_t len, const AES_KEY * key, unsigned char * ivec, const int enc)
+void AES_cbc_encrypt(const uchar * in, uchar * out, size_t len, const AES_KEY * key, uchar * ivec, const int enc)
 {
 	if(enc)
 		CRYPTO_cbc128_encrypt(in, out, len, key, ivec, (block128_f)AES_encrypt);

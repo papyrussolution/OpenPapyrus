@@ -6,15 +6,11 @@
  * in the file LICENSE in the source distribution or at  https://www.openssl.org/source/license.html
  */
 
-#ifdef OPENSSL_SYS_WIN32
-#include <stdlib.h>
-#endif
-
 #undef c2l
-#define c2l(c,l)        (l =((unsigned long)(*((c)++)))    , \
-                         l|=((unsigned long)(*((c)++)))<< 8L, \
-                         l|=((unsigned long)(*((c)++)))<<16L, \
-                         l|=((unsigned long)(*((c)++)))<<24L)
+#define c2l(c,l)        (l =((ulong)(*((c)++)))    , \
+                         l|=((ulong)(*((c)++)))<< 8L, \
+                         l|=((ulong)(*((c)++)))<<16L, \
+                         l|=((ulong)(*((c)++)))<<24L)
 
 /* NOTE - c is not incremented as per c2l */
 #undef c2ln
@@ -22,14 +18,14 @@
                         c+=n; \
                         l1=l2=0; \
                         switch (n) { \
-                        case 8: l2 =((unsigned long)(*(--(c))))<<24L; \
-                        case 7: l2|=((unsigned long)(*(--(c))))<<16L; \
-                        case 6: l2|=((unsigned long)(*(--(c))))<< 8L; \
-                        case 5: l2|=((unsigned long)(*(--(c))));     \
-                        case 4: l1 =((unsigned long)(*(--(c))))<<24L; \
-                        case 3: l1|=((unsigned long)(*(--(c))))<<16L; \
-                        case 2: l1|=((unsigned long)(*(--(c))))<< 8L; \
-                        case 1: l1|=((unsigned long)(*(--(c))));     \
+                        case 8: l2 =((ulong)(*(--(c))))<<24L; \
+                        case 7: l2|=((ulong)(*(--(c))))<<16L; \
+                        case 6: l2|=((ulong)(*(--(c))))<< 8L; \
+                        case 5: l2|=((ulong)(*(--(c))));     \
+                        case 4: l1 =((ulong)(*(--(c))))<<24L; \
+                        case 3: l1|=((ulong)(*(--(c))))<<16L; \
+                        case 2: l1|=((ulong)(*(--(c))))<< 8L; \
+                        case 1: l1|=((ulong)(*(--(c))));     \
                                 } \
                         }
 
@@ -60,21 +56,21 @@
                         c+=n; \
                         l1=l2=0; \
                         switch (n) { \
-                        case 8: l2 =((unsigned long)(*(--(c))))    ; \
+                        case 8: l2 =((ulong)(*(--(c))))    ; \
                         /* fall thru */                              \
-                        case 7: l2|=((unsigned long)(*(--(c))))<< 8; \
+                        case 7: l2|=((ulong)(*(--(c))))<< 8; \
                         /* fall thru */                              \
-                        case 6: l2|=((unsigned long)(*(--(c))))<<16; \
+                        case 6: l2|=((ulong)(*(--(c))))<<16; \
                         /* fall thru */                              \
-                        case 5: l2|=((unsigned long)(*(--(c))))<<24; \
+                        case 5: l2|=((ulong)(*(--(c))))<<24; \
                         /* fall thru */                              \
-                        case 4: l1 =((unsigned long)(*(--(c))))    ; \
+                        case 4: l1 =((ulong)(*(--(c))))    ; \
                         /* fall thru */                              \
-                        case 3: l1|=((unsigned long)(*(--(c))))<< 8; \
+                        case 3: l1|=((ulong)(*(--(c))))<< 8; \
                         /* fall thru */                              \
-                        case 2: l1|=((unsigned long)(*(--(c))))<<16; \
+                        case 2: l1|=((ulong)(*(--(c))))<<16; \
                         /* fall thru */                              \
-                        case 1: l1|=((unsigned long)(*(--(c))))<<24; \
+                        case 1: l1|=((ulong)(*(--(c))))<<24; \
                                 } \
                         }
 
@@ -101,10 +97,10 @@
                         }
 
 #undef n2l
-#define n2l(c,l)        (l =((unsigned long)(*((c)++)))<<24L, \
-                         l|=((unsigned long)(*((c)++)))<<16L, \
-                         l|=((unsigned long)(*((c)++)))<< 8L, \
-                         l|=((unsigned long)(*((c)++))))
+#define n2l(c,l)        (l =((ulong)(*((c)++)))<<24L, \
+                         l|=((ulong)(*((c)++)))<<16L, \
+                         l|=((ulong)(*((c)++)))<< 8L, \
+                         l|=((ulong)(*((c)++))))
 
 #undef l2n
 #define l2n(l,c)        (*((c)++)=(uchar)(((l)>>24L)&0xff), \
@@ -132,13 +128,13 @@
         t=(key[n*2] OP1 R)&0xffffffffL; \
         i=key[n*2+1]; \
         t=ROTL(t,i); \
-        L^= (((((*(CAST_LONG *)((unsigned char *) \
+        L^= (((((*(CAST_LONG *)((uchar *) \
                         CAST_S_table0+((t>>C_2)&C_M)) OP2 \
-                *(CAST_LONG *)((unsigned char *) \
+                *(CAST_LONG *)((uchar *) \
                         CAST_S_table1+((t<<C_3)&C_M)))&0xffffffffL) OP3 \
-                *(CAST_LONG *)((unsigned char *) \
+                *(CAST_LONG *)((uchar *) \
                         CAST_S_table2+((t>>C_0)&C_M)))&0xffffffffL) OP1 \
-                *(CAST_LONG *)((unsigned char *) \
+                *(CAST_LONG *)((uchar *) \
                         CAST_S_table3+((t>>C_1)&C_M)))&0xffffffffL; \
         }
 #elif defined(CAST_PTR2)
@@ -153,14 +149,14 @@
         v=w<<C_3; \
         u&=C_M; \
         v&=C_M; \
-        t= *(CAST_LONG *)((unsigned char *)CAST_S_table0+u); \
+        t= *(CAST_LONG *)((uchar *)CAST_S_table0+u); \
         u=w>>C_0; \
-        t=(t OP2 *(CAST_LONG *)((unsigned char *)CAST_S_table1+v))&0xffffffffL;\
+        t=(t OP2 *(CAST_LONG *)((uchar *)CAST_S_table1+v))&0xffffffffL;\
         v=w>>C_1; \
         u&=C_M; \
         v&=C_M; \
-        t=(t OP3 *(CAST_LONG *)((unsigned char *)CAST_S_table2+u)&0xffffffffL);\
-        t=(t OP1 *(CAST_LONG *)((unsigned char *)CAST_S_table3+v)&0xffffffffL);\
+        t=(t OP3 *(CAST_LONG *)((uchar *)CAST_S_table2+u)&0xffffffffL);\
+        t=(t OP1 *(CAST_LONG *)((uchar *)CAST_S_table3+v)&0xffffffffL);\
         L^=(t&0xffffffff); \
         }
 #else

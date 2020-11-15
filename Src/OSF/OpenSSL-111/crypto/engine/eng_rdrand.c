@@ -18,9 +18,9 @@
 	defined(__x86_64) || defined(__x86_64__) || \
 	defined(_M_AMD64) || defined (_M_X64)) && defined(OPENSSL_CPUID_OBJ)
 
-size_t OPENSSL_ia32_rdrand_bytes(unsigned char * buf, size_t len);
+size_t OPENSSL_ia32_rdrand_bytes(uchar * buf, size_t len);
 
-static int get_random_bytes(unsigned char * buf, int num)
+static int get_random_bytes(uchar * buf, int num)
 {
 	if(num < 0) {
 		return 0;
@@ -76,7 +76,7 @@ static ENGINE * ENGINE_rdrand(void)
 
 void engine_load_rdrand_int(void)
 {
-	extern unsigned int OPENSSL_ia32cap_P[];
+	extern uint OPENSSL_ia32cap_P[];
 
 	if(OPENSSL_ia32cap_P[1] & (1 << (62 - 32))) {
 		ENGINE * toadd = ENGINE_rdrand();

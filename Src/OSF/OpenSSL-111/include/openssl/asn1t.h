@@ -412,9 +412,9 @@ extern "C" {
  */
 
 struct ASN1_TEMPLATE_st {
-	unsigned long flags;    /* Various flags */
+	ulong flags;    /* Various flags */
 	long tag;               /* tag, not used if no tagging */
-	unsigned long offset;   /* Offset of this field in structure */
+	ulong offset;   /* Offset of this field in structure */
 	const char * field_name; /* Field name */
 	ASN1_ITEM_EXP * item;   /* Relevant ASN1_ITEM or ASN1_ADB */
 };
@@ -428,8 +428,8 @@ typedef struct ASN1_ADB_TABLE_st ASN1_ADB_TABLE;
 typedef struct ASN1_ADB_st ASN1_ADB;
 
 struct ASN1_ADB_st {
-	unsigned long flags;    /* Various flags */
-	unsigned long offset;   /* Offset of selector field */
+	ulong flags;    /* Various flags */
+	ulong offset;   /* Offset of selector field */
 	int (* adb_cb)(long * psel); /* Application callback */
 	const ASN1_ADB_TABLE * tbl; /* Table of possible types */
 	long tblcount;          /* Number of entries in tbl */
@@ -595,17 +595,17 @@ struct ASN1_TLC_st {
 };
 
 /* Typedefs for ASN1 function pointers */
-typedef int ASN1_ex_d2i (ASN1_VALUE ** pval, const unsigned char ** in, long len,
+typedef int ASN1_ex_d2i (ASN1_VALUE ** pval, const uchar ** in, long len,
     const ASN1_ITEM * it, int tag, int aclass, char opt,
     ASN1_TLC * ctx);
 
-typedef int ASN1_ex_i2d (ASN1_VALUE ** pval, unsigned char ** out,
+typedef int ASN1_ex_i2d (ASN1_VALUE ** pval, uchar ** out,
     const ASN1_ITEM * it, int tag, int aclass);
 typedef int ASN1_ex_new_func (ASN1_VALUE ** pval, const ASN1_ITEM * it);
 typedef void ASN1_ex_free_func (ASN1_VALUE ** pval, const ASN1_ITEM * it);
 typedef int ASN1_ex_print_func (BIO * out, ASN1_VALUE ** pval, int indent, const char * fname, const ASN1_PCTX * pctx);
-typedef int ASN1_primitive_i2c (ASN1_VALUE ** pval, unsigned char * cont, int * putype, const ASN1_ITEM * it);
-typedef int ASN1_primitive_c2i (ASN1_VALUE ** pval, const unsigned char * cont, int len, int utype, char * free_cont, const ASN1_ITEM * it);
+typedef int ASN1_primitive_i2c (ASN1_VALUE ** pval, uchar * cont, int * putype, const ASN1_ITEM * it);
+typedef int ASN1_primitive_c2i (ASN1_VALUE ** pval, const uchar * cont, int len, int utype, char * free_cont, const ASN1_ITEM * it);
 typedef int ASN1_primitive_print (BIO * out, ASN1_VALUE ** pval, const ASN1_ITEM * it, int indent, const ASN1_PCTX * pctx);
 
 typedef struct ASN1_EXTERN_FUNCS_st {
@@ -620,7 +620,7 @@ typedef struct ASN1_EXTERN_FUNCS_st {
 
 typedef struct ASN1_PRIMITIVE_FUNCS_st {
 	void * app_data;
-	unsigned long flags;
+	ulong flags;
 	ASN1_ex_new_func * prim_new;
 	ASN1_ex_free_func * prim_free;
 	ASN1_ex_free_func * prim_clear;
@@ -667,7 +667,7 @@ typedef struct ASN1_STREAM_ARG_st {
 	/* BIO with filters appended */
 	BIO * ndef_bio;
 	/* Streaming I/O boundary */
-	unsigned char ** boundary;
+	uchar ** boundary;
 } ASN1_STREAM_ARG;
 
 /* Flags in ASN1_AUX */
@@ -757,25 +757,25 @@ typedef struct ASN1_STREAM_ARG_st {
 	IMPLEMENT_ASN1_ALLOC_FUNCTIONS_fname(stname, itname, fname)
 
 #define IMPLEMENT_ASN1_ENCODE_FUNCTIONS_fname(stname, itname, fname) \
-	stname *d2i_ ## fname(stname **a, const unsigned char ** in, long len) \
+	stname *d2i_ ## fname(stname **a, const uchar ** in, long len) \
 	{ \
 		return (stname*)ASN1_item_d2i((ASN1_VALUE**)a, in, len, ASN1_ITEM_rptr(itname)); \
 	} \
-	int i2d_ ## fname(stname *a, unsigned char ** out) \
+	int i2d_ ## fname(stname *a, uchar ** out) \
 	{ \
 		return ASN1_item_i2d((ASN1_VALUE*)a, out, ASN1_ITEM_rptr(itname)); \
 	}
 
 #define IMPLEMENT_ASN1_NDEF_FUNCTION(stname) \
-	int i2d_ ## stname ## _NDEF(stname *a, unsigned char ** out) \
+	int i2d_ ## stname ## _NDEF(stname *a, uchar ** out) \
 	{ \
 		return ASN1_item_ndef_i2d((ASN1_VALUE*)a, out, ASN1_ITEM_rptr(stname)); \
 	}
 
 #define IMPLEMENT_STATIC_ASN1_ENCODE_FUNCTIONS(stname) \
-	static stname *d2i_ ## stname(stname **a, const unsigned char ** in, long len) \
+	static stname *d2i_ ## stname(stname **a, const uchar ** in, long len) \
 		{ return (stname*)ASN1_item_d2i((ASN1_VALUE**)a, in, len, ASN1_ITEM_rptr(stname)); } \
-	static int i2d_ ## stname(stname *a, unsigned char ** out) \
+	static int i2d_ ## stname(stname *a, uchar ** out) \
 		{ return ASN1_item_i2d((ASN1_VALUE*)a, out, ASN1_ITEM_rptr(stname)); }
 
 /*
@@ -783,11 +783,11 @@ typedef struct ASN1_STREAM_ARG_st {
  * constification is done.
  */
 #define IMPLEMENT_ASN1_ENCODE_FUNCTIONS_const_fname(stname, itname, fname) \
-	stname *d2i_ ## fname(stname **a, const unsigned char ** in, long len) \
+	stname *d2i_ ## fname(stname **a, const uchar ** in, long len) \
 	{ \
 		return (stname*)ASN1_item_d2i((ASN1_VALUE**)a, in, len, ASN1_ITEM_rptr(itname)); \
 	} \
-	int i2d_ ## fname(const stname *a, unsigned char ** out) \
+	int i2d_ ## fname(const stname *a, uchar ** out) \
 	{ \
 		return ASN1_item_i2d((ASN1_VALUE*)a, out, ASN1_ITEM_rptr(itname)); \
 	}
@@ -848,11 +848,11 @@ DEFINE_STACK_OF(ASN1_VALUE)
 int ASN1_item_ex_new(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 void ASN1_item_ex_free(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 
-int ASN1_item_ex_d2i(ASN1_VALUE ** pval, const unsigned char ** in, long len,
+int ASN1_item_ex_d2i(ASN1_VALUE ** pval, const uchar ** in, long len,
     const ASN1_ITEM * it, int tag, int aclass, char opt,
     ASN1_TLC * ctx);
 
-int ASN1_item_ex_i2d(ASN1_VALUE ** pval, unsigned char ** out,
+int ASN1_item_ex_i2d(ASN1_VALUE ** pval, uchar ** out,
     const ASN1_ITEM * it, int tag, int aclass);
 
 #ifdef  __cplusplus

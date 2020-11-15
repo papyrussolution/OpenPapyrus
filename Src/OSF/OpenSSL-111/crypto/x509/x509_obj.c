@@ -26,13 +26,13 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 	int n, lold, l, l1, l2, num, j, type;
 	const char * s;
 	char * p;
-	unsigned char * q;
+	uchar * q;
 	BUF_MEM * b = NULL;
 	static const char hex[17] = "0123456789ABCDEF";
 	int gs_doit[4];
 	char tmp_buf[80];
 #ifdef CHARSET_EBCDIC
-	unsigned char ebcdic_buf[1024];
+	uchar ebcdic_buf[1024];
 #endif
 
 	if(buf == NULL) {

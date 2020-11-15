@@ -21,8 +21,8 @@ int X509_print_fp(FILE * fp, X509 * x)
 	return X509_print_ex_fp(fp, x, XN_FLAG_COMPAT, X509_FLAG_COMPAT);
 }
 
-int X509_print_ex_fp(FILE * fp, X509 * x, unsigned long nmflag,
-    unsigned long cflag)
+int X509_print_ex_fp(FILE * fp, X509 * x, ulong nmflag,
+    ulong cflag)
 {
 	BIO * b;
 	int ret;
@@ -44,8 +44,8 @@ int X509_print(BIO * bp, X509 * x)
 	return X509_print_ex(bp, x, XN_FLAG_COMPAT, X509_FLAG_COMPAT);
 }
 
-int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags,
-    unsigned long cflag)
+int X509_print_ex(BIO * bp, X509 * x, ulong nmflags,
+    ulong cflag)
 {
 	long l;
 	int ret = 0, i;
@@ -72,7 +72,7 @@ int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags,
 	if(!(cflag & X509_FLAG_NO_VERSION)) {
 		l = X509_get_version(x);
 		if(l >= 0 && l <= 2) {
-			if(BIO_printf(bp, "%8sVersion: %ld (0x%lx)\n", "", l + 1, (unsigned long)l) <= 0)
+			if(BIO_printf(bp, "%8sVersion: %ld (0x%lx)\n", "", l + 1, (ulong)l) <= 0)
 				goto err;
 		}
 		else {
@@ -94,9 +94,9 @@ int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags,
 			l = -1;
 		}
 		if(l != -1) {
-			unsigned long ul;
+			ulong ul;
 			if(bs->type == V_ASN1_NEG_INTEGER) {
-				ul = 0 - (unsigned long)l;
+				ul = 0 - (ulong)l;
 				neg = "-";
 			}
 			else {
@@ -223,11 +223,11 @@ err:
 
 int X509_ocspid_print(BIO * bp, X509 * x)
 {
-	unsigned char * der = NULL;
-	unsigned char * dertmp;
+	uchar * der = NULL;
+	uchar * dertmp;
 	int derlen;
 	int i;
-	unsigned char SHA1md[SHA_DIGEST_LENGTH];
+	uchar SHA1md[SHA_DIGEST_LENGTH];
 	ASN1_BIT_STRING * keybstr;
 	X509_NAME * subj;
 
@@ -280,7 +280,7 @@ err:
 
 int X509_signature_dump(BIO * bp, const ASN1_STRING * sig, int indent)
 {
-	const unsigned char * s;
+	const uchar * s;
 	int i, n;
 
 	n = sig->length;
@@ -331,7 +331,7 @@ int X509_aux_print(BIO * out, X509 * x, int indent)
 {
 	char oidstr[80], first;
 	STACK_OF(ASN1_OBJECT) *trust, *reject;
-	const unsigned char * alias, * keyid;
+	const uchar * alias, * keyid;
 	int keyidlen;
 	int i;
 	if(X509_trusted(x) == 0)

@@ -109,7 +109,7 @@ void ma_net_end(NET * net)
 
 /* Realloc the packet buffer */
 
-static my_bool net_realloc(NET * net, size_t length)
+static bool net_realloc(NET * net, size_t length)
 {
 	uchar * buff;
 	size_t pkt_length;
@@ -186,7 +186,7 @@ int ma_net_write(NET * net, const uchar * packet, size_t len)
 	return 0;
 }
 
-int ma_net_write_command(NET * net, uchar command, const char * packet, size_t len, my_bool disable_flush)
+int ma_net_write_command(NET * net, uchar command, const char * packet, size_t len, bool disable_flush)
 {
 	uchar buff[NET_HEADER_SIZE+1];
 	size_t buff_size = NET_HEADER_SIZE + 1;
@@ -409,7 +409,7 @@ else {
 	 */
 	size_t packet_length, buffer_length;
 	size_t current = 0, start = 0;
-	my_bool is_multi_packet = 0;
+	bool is_multi_packet = 0;
 	/* check if buffer is empty */
 	if(!net->remain_in_buf) {
 		buffer_length = 0;

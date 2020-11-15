@@ -10,10 +10,6 @@
 	#define WINVER 0x0500
 #endif
 #define STRICT
-//#include <windows.h>
-//#include <errno.h>
-//#include <string.h>
-//#include <stdlib.h>
 
 #ifdef __GNUC__
 #define UNUSED __attribute__((unused))

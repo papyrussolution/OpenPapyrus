@@ -404,8 +404,8 @@ done:
 	return ret;
 }
 
-int sm2_sign(const unsigned char * dgst, int dgstlen,
-    unsigned char * sig, unsigned int * siglen, EC_KEY * eckey)
+int sm2_sign(const uchar * dgst, int dgstlen,
+    uchar * sig, uint * siglen, EC_KEY * eckey)
 {
 	BIGNUM * e = NULL;
 	ECDSA_SIG * s = NULL;
@@ -425,7 +425,7 @@ int sm2_sign(const unsigned char * dgst, int dgstlen,
 		SM2err(SM2_F_SM2_SIGN, ERR_R_INTERNAL_ERROR);
 		goto done;
 	}
-	*siglen = (unsigned int)sigleni;
+	*siglen = (uint)sigleni;
 
 	ret = 1;
 
@@ -435,13 +435,13 @@ done:
 	return ret;
 }
 
-int sm2_verify(const unsigned char * dgst, int dgstlen,
-    const unsigned char * sig, int sig_len, EC_KEY * eckey)
+int sm2_verify(const uchar * dgst, int dgstlen,
+    const uchar * sig, int sig_len, EC_KEY * eckey)
 {
 	ECDSA_SIG * s = NULL;
 	BIGNUM * e = NULL;
-	const unsigned char * p = sig;
-	unsigned char * der = NULL;
+	const uchar * p = sig;
+	uchar * der = NULL;
 	int derlen = -1;
 	int ret = -1;
 

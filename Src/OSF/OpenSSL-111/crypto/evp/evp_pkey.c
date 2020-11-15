@@ -122,7 +122,7 @@ int EVP_PKEY_add1_attr(EVP_PKEY * key, X509_ATTRIBUTE * attr)
 
 int EVP_PKEY_add1_attr_by_OBJ(EVP_PKEY * key,
     const ASN1_OBJECT * obj, int type,
-    const unsigned char * bytes, int len)
+    const uchar * bytes, int len)
 {
 	if(X509at_add1_attr_by_OBJ(&key->attributes, obj, type, bytes, len))
 		return 1;
@@ -131,7 +131,7 @@ int EVP_PKEY_add1_attr_by_OBJ(EVP_PKEY * key,
 
 int EVP_PKEY_add1_attr_by_NID(EVP_PKEY * key,
     int nid, int type,
-    const unsigned char * bytes, int len)
+    const uchar * bytes, int len)
 {
 	if(X509at_add1_attr_by_NID(&key->attributes, nid, type, bytes, len))
 		return 1;
@@ -140,7 +140,7 @@ int EVP_PKEY_add1_attr_by_NID(EVP_PKEY * key,
 
 int EVP_PKEY_add1_attr_by_txt(EVP_PKEY * key,
     const char * attrname, int type,
-    const unsigned char * bytes, int len)
+    const uchar * bytes, int len)
 {
 	if(X509at_add1_attr_by_txt(&key->attributes, attrname, type, bytes, len))
 		return 1;

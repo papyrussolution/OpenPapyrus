@@ -117,8 +117,8 @@ MARIADB_PVIO * ma_pvio_init(MA_PVIO_CINFO * cinfo)
 
 /* }}} */
 
-/* {{{ my_bool ma_pvio_is_alive */
-my_bool ma_pvio_is_alive(MARIADB_PVIO * pvio)
+/* {{{ bool ma_pvio_is_alive */
+bool ma_pvio_is_alive(MARIADB_PVIO * pvio)
 {
 	if(!pvio)
 		return FALSE;
@@ -149,8 +149,8 @@ int ma_pvio_keepalive(MARIADB_PVIO * pvio)
 
 /* }}} */
 
-/* {{{ my_bool ma_pvio_set_timeout */
-my_bool ma_pvio_set_timeout(MARIADB_PVIO * pvio,
+/* {{{ bool ma_pvio_set_timeout */
+bool ma_pvio_set_timeout(MARIADB_PVIO * pvio,
     enum enum_pvio_timeout type,
     int timeout)
 {
@@ -218,7 +218,7 @@ ssize_t ma_pvio_read(MARIADB_PVIO * pvio, uchar * buffer, size_t length)
 			   If switching from non-blocking to blocking API usage, set the socket
 			   back to blocking mode.
 			 */
-			my_bool old_mode;
+			bool old_mode;
 			ma_pvio_blocking(pvio, TRUE, &old_mode);
 		}
 	}
@@ -328,7 +328,7 @@ ssize_t ma_pvio_write(MARIADB_PVIO * pvio, const uchar * buffer, size_t length)
 			   If switching from non-blocking to blocking API usage, set the socket
 			   back to blocking mode.
 			 */
-			my_bool old_mode;
+			bool old_mode;
 			ma_pvio_blocking(pvio, TRUE, &old_mode);
 		}
 	}
@@ -379,8 +379,8 @@ void ma_pvio_close(MARIADB_PVIO * pvio)
 
 /* }}} */
 
-/* {{{ my_bool ma_pvio_get_handle */
-my_bool ma_pvio_get_handle(MARIADB_PVIO * pvio, void * handle)
+/* {{{ bool ma_pvio_get_handle */
+bool ma_pvio_get_handle(MARIADB_PVIO * pvio, void * handle)
 {
 	if(pvio && pvio->methods->get_handle)
 		return pvio->methods->get_handle(pvio, handle);
@@ -390,7 +390,7 @@ my_bool ma_pvio_get_handle(MARIADB_PVIO * pvio, void * handle)
 /* }}} */
 
 /* {{{ ma_pvio_wait_async */
-static my_bool ma_pvio_wait_async(struct mysql_async_context * b, enum enum_pvio_io_event event,
+static bool ma_pvio_wait_async(struct mysql_async_context * b, enum enum_pvio_io_event event,
     int timeout)
 {
 	switch(event)
@@ -421,7 +421,7 @@ static my_bool ma_pvio_wait_async(struct mysql_async_context * b, enum enum_pvio
 /* }}} */
 
 /* {{{ ma_pvio_wait_io_or_timeout */
-int ma_pvio_wait_io_or_timeout(MARIADB_PVIO * pvio, my_bool is_read, int timeout)
+int ma_pvio_wait_io_or_timeout(MARIADB_PVIO * pvio, bool is_read, int timeout)
 {
 	if(pvio) {
 		if(IS_PVIO_ASYNC_ACTIVE(pvio))
@@ -437,8 +437,8 @@ int ma_pvio_wait_io_or_timeout(MARIADB_PVIO * pvio, my_bool is_read, int timeout
 
 /* }}} */
 
-/* {{{ my_bool ma_pvio_connect */
-my_bool ma_pvio_connect(MARIADB_PVIO * pvio,  MA_PVIO_CINFO * cinfo)
+/* {{{ bool ma_pvio_connect */
+bool ma_pvio_connect(MARIADB_PVIO * pvio,  MA_PVIO_CINFO * cinfo)
 {
 	if(pvio && pvio->methods->connect)
 		return pvio->methods->connect(pvio, cinfo);
@@ -447,8 +447,8 @@ my_bool ma_pvio_connect(MARIADB_PVIO * pvio,  MA_PVIO_CINFO * cinfo)
 
 /* }}} */
 
-/* {{{ my_bool ma_pvio_blocking */
-my_bool ma_pvio_blocking(MARIADB_PVIO * pvio, my_bool block, my_bool * previous_mode)
+/* {{{ bool ma_pvio_blocking */
+bool ma_pvio_blocking(MARIADB_PVIO * pvio, bool block, bool * previous_mode)
 {
 	if(pvio && pvio->methods->blocking)
 		return pvio->methods->blocking(pvio, block, previous_mode) != 0;
@@ -457,8 +457,8 @@ my_bool ma_pvio_blocking(MARIADB_PVIO * pvio, my_bool block, my_bool * previous_
 
 /* }}} */
 
-/* {{{ my_bool ma_pvio_is_blocking */
-my_bool ma_pvio_is_blocking(MARIADB_PVIO * pvio)
+/* {{{ bool ma_pvio_is_blocking */
+bool ma_pvio_is_blocking(MARIADB_PVIO * pvio)
 {
 	if(pvio && pvio->methods->is_blocking)
 		return pvio->methods->is_blocking(pvio);
@@ -468,7 +468,7 @@ my_bool ma_pvio_is_blocking(MARIADB_PVIO * pvio)
 /* }}} */
 
 /* {{{ ma_pvio_has_data */
-my_bool ma_pvio_has_data(MARIADB_PVIO * pvio, ssize_t * data_len)
+bool ma_pvio_has_data(MARIADB_PVIO * pvio, ssize_t * data_len)
 {
 	/* check if we still have unread data in cache */
 	if(pvio && pvio->cache)
@@ -482,8 +482,8 @@ my_bool ma_pvio_has_data(MARIADB_PVIO * pvio, ssize_t * data_len)
 /* }}} */
 
 #ifdef HAVE_TLS
-/* {{{ my_bool ma_pvio_start_ssl */
-my_bool ma_pvio_start_ssl(MARIADB_PVIO * pvio)
+/* {{{ bool ma_pvio_start_ssl */
+bool ma_pvio_start_ssl(MARIADB_PVIO * pvio)
 {
 	if(!pvio || !pvio->mysql)
 		return 1;
@@ -519,7 +519,7 @@ my_bool ma_pvio_start_ssl(MARIADB_PVIO * pvio)
 #endif
 
 /* {{{ ma_pvio_register_callback */
-int ma_pvio_register_callback(my_bool register_callback,
+int ma_pvio_register_callback(bool register_callback,
     void (* callback_function)(int mode, MYSQL * mysql, const uchar * buffer, size_t length))
 {
 	LIST * list;

@@ -155,7 +155,7 @@ static int file_get_pem_pass(char * buf, int num, int w, void * data)
  */
 typedef OSSL_STORE_INFO *(* file_try_decode_fn)(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** handler_ctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -190,7 +190,7 @@ typedef struct file_handler_st {
  */
 static OSSL_STORE_INFO * try_decode_PKCS12(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** pctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -316,7 +316,7 @@ static FILE_HANDLER PKCS12_handler = {
  */
 static OSSL_STORE_INFO * try_decode_PKCS8Encrypted(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** pctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -329,7 +329,7 @@ static OSSL_STORE_INFO * try_decode_PKCS8Encrypted(const char * pem_name,
 	const ASN1_OCTET_STRING * doct = NULL;
 	OSSL_STORE_INFO * store_info = NULL;
 	BUF_MEM * mem = NULL;
-	unsigned char * new_data = NULL;
+	uchar * new_data = NULL;
 	int new_data_len;
 
 	if(pem_name != NULL) {
@@ -361,7 +361,7 @@ static OSSL_STORE_INFO * try_decode_PKCS8Encrypted(const char * pem_name,
 	    &new_data, &new_data_len, 0))
 		goto nop8;
 
-	mem->data = (char*)new_data;
+	mem->data = (char *)new_data;
 	mem->max = mem->length = (size_t)new_data_len;
 	X509_SIG_free(p8);
 
@@ -392,7 +392,7 @@ static FILE_HANDLER PKCS8Encrypted_handler = {
 int pem_check_suffix(const char * pem_str, const char * suffix);
 static OSSL_STORE_INFO * try_decode_PrivateKey(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** pctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -428,7 +428,7 @@ static OSSL_STORE_INFO * try_decode_PrivateKey(const char * pem_name,
 
 		for(i = 0; i < EVP_PKEY_asn1_get_count(); i++) {
 			EVP_PKEY * tmp_pkey = NULL;
-			const unsigned char * tmp_blob = blob;
+			const uchar * tmp_blob = blob;
 
 			ameth = EVP_PKEY_asn1_get0(i);
 			if(ameth->pkey_flags & ASN1_PKEY_ALIAS)
@@ -470,7 +470,7 @@ static FILE_HANDLER PrivateKey_handler = {
  */
 static OSSL_STORE_INFO * try_decode_PUBKEY(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** pctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -504,7 +504,7 @@ static FILE_HANDLER PUBKEY_handler = {
  */
 static OSSL_STORE_INFO * try_decode_params(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** pctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -539,7 +539,7 @@ static OSSL_STORE_INFO * try_decode_params(const char * pem_name,
 		EVP_PKEY * tmp_pkey = NULL;
 
 		for(i = 0; i < EVP_PKEY_asn1_get_count(); i++) {
-			const unsigned char * tmp_blob = blob;
+			const uchar * tmp_blob = blob;
 
 			if(tmp_pkey == NULL && (tmp_pkey = EVP_PKEY_new()) == NULL) {
 				OSSL_STOREerr(OSSL_STORE_F_TRY_DECODE_PARAMS, ERR_R_EVP_LIB);
@@ -587,7 +587,7 @@ static FILE_HANDLER params_handler = {
  */
 static OSSL_STORE_INFO * try_decode_X509Certificate(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** pctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -637,7 +637,7 @@ static FILE_HANDLER X509Certificate_handler = {
  */
 static OSSL_STORE_INFO * try_decode_X509CRL(const char * pem_name,
     const char * pem_header,
-    const unsigned char * blob,
+    const uchar * blob,
     size_t len, void ** pctx,
     int * matchcount,
     const UI_METHOD * ui_method,
@@ -696,7 +696,7 @@ struct ossl_store_loader_ctx_st {
 
 	int errcnt;
 #define FILE_FLAG_SECMEM         (1<<0)
-	unsigned int flags;
+	uint flags;
 	union {
 		struct {         /* Used with is_raw and is_pem */
 			BIO * file;
@@ -755,7 +755,7 @@ static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader, const
 	struct stat st;
 	struct {
 		const char * path;
-		unsigned int check_absolute : 1;
+		uint check_absolute : 1;
 	} path_data[2];
 	size_t path_data_n = 0, i;
 	const char * path;
@@ -923,7 +923,7 @@ static int file_find(OSSL_STORE_LOADER_CTX * ctx, OSSL_STORE_SEARCH * search)
 
 	if(OSSL_STORE_SEARCH_get_type(search) == OSSL_STORE_SEARCH_BY_NAME) 
 	{
-		unsigned long hash = 0;
+		ulong hash = 0;
 		if(ctx == NULL)
 			return 1;
 		if(ctx->type != ossl_store_loader_ctx_st::is_dir) {
@@ -960,7 +960,7 @@ OSSL_STORE_LOADER_CTX * ossl_store_file_attach_pem_bio_int(BIO * bp)
 static OSSL_STORE_INFO * file_load_try_decode(OSSL_STORE_LOADER_CTX * ctx,
     const char * pem_name,
     const char * pem_header,
-    unsigned char * data, size_t len,
+    uchar * data, size_t len,
     const UI_METHOD * ui_method,
     void * ui_data, int * matchcount)
 {
@@ -1029,7 +1029,7 @@ err:
 		pem_name = new_pem_name =
 			ossl_store_info_get0_EMBEDDED_pem_name(result);
 		new_mem = ossl_store_info_get0_EMBEDDED_buffer(result);
-		data = (unsigned char*)new_mem->data;
+		data = (uchar*)new_mem->data;
 		len = new_mem->length;
 		OPENSSL_free(result);
 		result = NULL;
@@ -1074,7 +1074,7 @@ static void pem_free_flag(void * pem_data, int secure, size_t num)
 }
 
 static int file_read_pem(BIO * bp, char ** pem_name, char ** pem_header,
-    unsigned char ** data, long * len,
+    uchar ** data, long * len,
     const UI_METHOD * ui_method,
     void * ui_data, int secure)
 {
@@ -1106,14 +1106,14 @@ static int file_read_pem(BIO * bp, char ** pem_name, char ** pem_header,
 	return 1;
 }
 
-static int file_read_asn1(BIO * bp, unsigned char ** data, long * len)
+static int file_read_asn1(BIO * bp, uchar ** data, long * len)
 {
 	BUF_MEM * mem = NULL;
 
 	if(asn1_d2i_read_bio(bp, &mem) < 0)
 		return 0;
 
-	*data = (unsigned char*)mem->data;
+	*data = (uchar*)mem->data;
 	*len = (long)mem->length;
 	OPENSSL_free(mem);
 
@@ -1284,7 +1284,7 @@ again:
 		do {
 			char * pem_name = NULL; /* PEM record name */
 			char * pem_header = NULL; /* PEM record header */
-			unsigned char * data = NULL; /* DER encoded data */
+			uchar * data = NULL; /* DER encoded data */
 			long len = 0;   /* DER encoded data length */
 
 			matchcount = -1;

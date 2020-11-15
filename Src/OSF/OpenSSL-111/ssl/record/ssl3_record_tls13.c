@@ -22,10 +22,10 @@
 int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 {
 	EVP_CIPHER_CTX * ctx;
-	unsigned char iv[EVP_MAX_IV_LENGTH], recheader[SSL3_RT_HEADER_LENGTH];
+	uchar iv[EVP_MAX_IV_LENGTH], recheader[SSL3_RT_HEADER_LENGTH];
 	size_t ivlen, taglen, offset, loop, hdrlen;
-	unsigned char * staticiv;
-	unsigned char * seq;
+	uchar * staticiv;
+	uchar * seq;
 	int lenu, lenf;
 	SSL3_RECORD * rec = &recs[0];
 	uint32_t alg_enc;
@@ -175,11 +175,11 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 	 */
 	if(((alg_enc & SSL_AESCCM) != 0
 	    && EVP_CipherUpdate(ctx, NULL, &lenu, NULL,
-	    (unsigned int)rec->length) <= 0)
+	    (uint)rec->length) <= 0)
 	    || EVP_CipherUpdate(ctx, NULL, &lenu, recheader,
 	    sizeof(recheader)) <= 0
 	    || EVP_CipherUpdate(ctx, rec->data, &lenu, rec->input,
-	    (unsigned int)rec->length) <= 0
+	    (uint)rec->length) <= 0
 	    || EVP_CipherFinal_ex(ctx, rec->data + lenu, &lenf) <= 0
 	    || (size_t)(lenu + lenf) != rec->length) {
 		return -1;

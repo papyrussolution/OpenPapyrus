@@ -17,8 +17,8 @@
 #include <openssl/seed.h>
 //#include <evp_int.h>
 
-static int seed_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc);
+static int seed_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc);
 
 typedef struct {
 	SEED_KEY_SCHEDULE ks;
@@ -28,8 +28,8 @@ IMPLEMENT_BLOCK_CIPHER(seed, ks, SEED, EVP_SEED_KEY, NID_seed,
     16, 16, 16, 128, EVP_CIPH_FLAG_DEFAULT_ASN1,
     seed_init_key, 0, 0, 0, 0)
 
-static int seed_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int seed_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	SEED_set_key(key, &EVP_C_DATA(EVP_SEED_KEY, ctx)->ks);
 	return 1;

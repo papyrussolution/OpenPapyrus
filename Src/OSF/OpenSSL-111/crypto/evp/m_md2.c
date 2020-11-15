@@ -28,7 +28,7 @@ static int update(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return MD2_Update(EVP_MD_CTX_md_data(ctx), data, count);
 }
 
-static int final(EVP_MD_CTX * ctx, unsigned char * md)
+static int final(EVP_MD_CTX * ctx, uchar * md)
 {
 	return MD2_Final(md, EVP_MD_CTX_md_data(ctx));
 }

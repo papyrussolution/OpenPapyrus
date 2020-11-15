@@ -125,19 +125,15 @@ merr:
 
 /* Initialise a ktri based on passed certificate and key */
 
-static int cms_RecipientInfo_ktri_init(CMS_RecipientInfo * ri, X509 * recip,
-    EVP_PKEY * pk, unsigned int flags)
+static int cms_RecipientInfo_ktri_init(CMS_RecipientInfo * ri, X509 * recip, EVP_PKEY * pk, uint flags)
 {
 	CMS_KeyTransRecipientInfo * ktri;
 	int idtype;
-
 	ri->d.ktri = M_ASN1_new_of(CMS_KeyTransRecipientInfo);
 	if(!ri->d.ktri)
 		return 0;
 	ri->type = CMS_RECIPINFO_TRANS;
-
 	ktri = ri->d.ktri;
-
 	if(flags & CMS_USE_KEYID) {
 		ktri->version = 2;
 		idtype = CMS_RECIPINFO_KEYIDENTIFIER;
@@ -178,7 +174,7 @@ static int cms_RecipientInfo_ktri_init(CMS_RecipientInfo * ri, X509 * recip,
  */
 
 CMS_RecipientInfo * CMS_add1_recipient_cert(CMS_ContentInfo * cms,
-    X509 * recip, unsigned int flags)
+    X509 * recip, uint flags)
 {
 	CMS_RecipientInfo * ri = NULL;
 	CMS_EnvelopedData * env;
@@ -294,7 +290,7 @@ static int cms_RecipientInfo_ktri_encrypt(CMS_ContentInfo * cms,
 	CMS_KeyTransRecipientInfo * ktri;
 	CMS_EncryptedContentInfo * ec;
 	EVP_PKEY_CTX * pctx;
-	unsigned char * ek = NULL;
+	uchar * ek = NULL;
 	size_t eklen;
 
 	int ret = 0;
@@ -359,7 +355,7 @@ static int cms_RecipientInfo_ktri_decrypt(CMS_ContentInfo * cms,
 {
 	CMS_KeyTransRecipientInfo * ktri = ri->d.ktri;
 	EVP_PKEY * pkey = ktri->pkey;
-	unsigned char * ek = NULL;
+	uchar * ek = NULL;
 	size_t eklen;
 	int ret = 0;
 	size_t fixlen = 0;
@@ -439,7 +435,7 @@ err:
 /* Key Encrypted Key (KEK) RecipientInfo routines */
 
 int CMS_RecipientInfo_kekri_id_cmp(CMS_RecipientInfo * ri,
-    const unsigned char * id, size_t idlen)
+    const uchar * id, size_t idlen)
 {
 	ASN1_OCTET_STRING tmp_os;
 	CMS_KEKRecipientInfo * kekri;
@@ -475,8 +471,8 @@ static size_t aes_wrap_keylen(int nid)
 }
 
 CMS_RecipientInfo * CMS_add0_recipient_key(CMS_ContentInfo * cms, int nid,
-    unsigned char * key, size_t keylen,
-    unsigned char * id, size_t idlen,
+    uchar * key, size_t keylen,
+    uchar * id, size_t idlen,
     ASN1_GENERALIZEDTIME * date,
     ASN1_OBJECT * otherTypeId,
     ASN1_TYPE * otherType)
@@ -606,7 +602,7 @@ int CMS_RecipientInfo_kekri_get0_id(CMS_RecipientInfo * ri,
 }
 
 int CMS_RecipientInfo_set0_key(CMS_RecipientInfo * ri,
-    unsigned char * key, size_t keylen)
+    uchar * key, size_t keylen)
 {
 	CMS_KEKRecipientInfo * kekri;
 	if(ri->type != CMS_RECIPINFO_KEK) {
@@ -628,7 +624,7 @@ static int cms_RecipientInfo_kekri_encrypt(CMS_ContentInfo * cms,
 	CMS_EncryptedContentInfo * ec;
 	CMS_KEKRecipientInfo * kekri;
 	AES_KEY actx;
-	unsigned char * wkey = NULL;
+	uchar * wkey = NULL;
 	int wkeylen;
 	int r = 0;
 
@@ -682,7 +678,7 @@ static int cms_RecipientInfo_kekri_decrypt(CMS_ContentInfo * cms,
 	CMS_EncryptedContentInfo * ec;
 	CMS_KEKRecipientInfo * kekri;
 	AES_KEY actx;
-	unsigned char * ukey = NULL;
+	uchar * ukey = NULL;
 	int ukeylen;
 	int r = 0, wrap_nid;
 

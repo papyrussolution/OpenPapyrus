@@ -364,6 +364,12 @@ int PPDesktopAssocCmdPool::ReadFromProp(/*PPID desktopId*/const S_GUID & rDeskto
 			ok = 1;
 		}
 	}
+	// @v10.9.3 {
+	else {
+		DesktopID_Obsolete = desktop_id;
+		DesktopUuid = desktop_uuid;
+	}
+	// } @v10.9.3 
 	/* @v10.9.3 (дальше нет смысла поддерживать старую версию) else {
 		struct PPDesktopAsscCmd_Pre781 {
 			long   CmdID;
@@ -612,7 +618,7 @@ int PPDesktop::Init__(/*long desktopID*/const S_GUID & rDesktopUuid)
 			//p_item = desktop_list.SearchByID(desktopID, 0);
 			p_item = desktop_list.SearchByUuid(rDesktopUuid, 0);
 			if(!p_item) {
-				THROW(p_mgr->Load__(&desktop_list_from_bin));
+				THROW(p_mgr->Load_Obsolete(&desktop_list_from_bin));
 				//p_item = desktop_list_from_bin.SearchByID(desktopID, 0);
 				p_item = desktop_list_from_bin.SearchByUuid(rDesktopUuid, 0);
 			}				
@@ -693,10 +699,10 @@ int PPDesktop::Destroy(int dontAssignToDb)
 		const PPConfig & r_cfg = LConfig;
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		SString desk_name;
-		if(/*r_cfg.DesktopID*/!!r_cfg.DesktopUuid)
-			PPDesktop::GetDeskName(/*r_cfg.DesktopID*/r_cfg.DesktopUuid, desk_name);
+		if(!!r_cfg.DesktopUuid)
+			PPDesktop::GetDeskName(r_cfg.DesktopUuid, desk_name);
 		if(desk_name.Len()) {
-			THROW(sec_obj.AssignPrivateDesktop(r_cfg.UserID, /*r_cfg.DesktopID*/r_cfg.DesktopUuid, desk_name, 1));
+			THROW(sec_obj.AssignPrivateDesktop(r_cfg.UserID, r_cfg.DesktopUuid, desk_name, 1));
 			THROW(SaveDesktop(0, 0));
 		}
 	}
@@ -1345,14 +1351,14 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 	PPCommandMngr * p_mgr = 0;
 	THROW_INVARG(pDesktopList);
 	THROW(p_mgr = GetCommandMngr(readOnly ? PPCommandMngr::ctrfReadOnly : 0, cmdgrpcDesktop, 0));
-	THROW_PP(p_mgr->Load__(pDesktopList), PPERR_CANTLOADDESKTOPLIST);
+	THROW_PP(p_mgr->Load_Obsolete(pDesktopList), PPERR_CANTLOADDESKTOPLIST);
 	CATCH
 		ZDELETE(p_mgr);
 	ENDCATCH
 	return p_mgr;
 }
 
-/*static*/int PPDesktop::GetDeskName(/*long deskId*/const S_GUID & rDesktopUuid, SString & rDeskName)
+/*static*/int PPDesktop::GetDeskName(const S_GUID & rDesktopUuid, SString & rDeskName)
 {
 	int    ok = -1;
 	DbProvider * p_dict = CurDict;
@@ -1371,7 +1377,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 		//p_item = desktop_list.SearchByID(deskId, 0);
 		p_item = desktop_list.SearchByUuid(rDesktopUuid, 0);
 		if(!p_item) {
-			THROW(p_mgr->Load__(&desktop_list_from_bin));
+			THROW(p_mgr->Load_Obsolete(&desktop_list_from_bin));
 			//p_item = desktop_list_from_bin.SearchByID(deskId, 0);
 			p_item = desktop_list_from_bin.SearchByUuid(rDesktopUuid, 0);
 		}
@@ -1418,7 +1424,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 //@erik v10.6.7 {
 			p_item = p_desktop_list->SearchByID(P_ActiveDesktop->ID, 0);
 			if(!p_item) {
-				p_mgr->Load__(p_desktop_list);
+				p_mgr->Load_Obsolete(p_desktop_list);
 				p_item = p_desktop_list->SearchByID(P_ActiveDesktop->ID, 0);
 			}
 // } @erik
@@ -1663,7 +1669,6 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				break;
 			case cmSelDesktop:
 				{
-					//long id = P_ActiveDesktop->ID;
 					S_GUID desktop_uuid = P_ActiveDesktop->Uuid;
 					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_INS)) {
 						if(SelectCommandGroup(desktop_uuid, 0, 0, cmdgrpcDesktop, false, 0) && desktop_uuid != P_ActiveDesktop->Uuid)
@@ -1673,10 +1678,9 @@ IMPL_HANDLE_EVENT(PPDesktop)
 				break;
 			case cmEditDesktops: // Редактирование опций рабочего стола
 				{
-					//long   id = P_ActiveDesktop->ID;
 					S_GUID desktop_uuid = P_ActiveDesktop->Uuid;
-					if(EditCommandGroup(0, /*id*/desktop_uuid, cmdgrpcDesktop) > 0)
-						PPDesktop::Open(/*id*/desktop_uuid, 0/*createIfZero*/);
+					if(EditCommandGroup(0, desktop_uuid, cmdgrpcDesktop) > 0)
+						PPDesktop::Open(desktop_uuid, 0/*createIfZero*/);
 				}
 				break;
 			case cmShowBizScoreOnDesktop:
@@ -2253,16 +2257,13 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 	return ::RegisterClassEx(&wc);
 }
 
-///*static*/int PPDesktop::CreateDefault(long * pID)
-/*static*/int PPDesktop::CreateDefault(/*long * pID*/S_GUID & rNewUuid)
+/*static*/int PPDesktop::CreateDefault(S_GUID & rNewUuid)
 {
 	int    ok = -1;
-	//long   desk_id = 0;
 	S_GUID desktop_uuid;
 	SString db_symb;
 	PPCommandGroup desktop_list;
 	CurDict->GetDbSymb(db_symb);
-	//PPCommandMngr * p_mgr = PPDesktop::LoadDeskList(0, &desktop_list);//@erik v10.6.7
 //@erik v10.6.7 {
 	PPCommandMngr * p_mgr = GetCommandMngr(0, cmdgrpcDesktop, 0);
 	p_mgr->Load__2(&desktop_list, db_symb, PPCommandMngr::fRWByXml);
@@ -2273,19 +2274,16 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 		(def_desk_name = "def").CatChar('-').Cat(DS.GetTLA().UserName).CatChar('-').Cat("desktop");
 		const PPCommandItem * p_item = desktop_list.SearchByName(def_desk_name, db_symb, 0);
 		if(p_item && p_item->Kind == PPCommandItem::kGroup) {
-			//desk_id = p_item->ID;
 			desktop_uuid = static_cast<const PPCommandGroup *>(p_item)->Uuid;
 		}
 		else {
-			PPCommandGroup desk;
-			desk.InitDefaultDesktop(def_desk_name);
+			PPCommandGroup desk(cmdgrpcDesktop, 0, def_desk_name);
+			//desk.InitDefaultDesktop(def_desk_name);
 			long   id = desktop_list.GetUniqueID();
 			desk.SetUniqueID(&id);
-			desk.GenerateGuid(); // @erik v10.6.6
+			//desk.GenerateGuid(); // @erik v10.6.6
 			desktop_list.Add(-1, &desk);
-			//THROW(p_mgr->Save__(&desk_list)); // @erik v10.6.6
 			THROW(p_mgr->Save__2(&desktop_list, PPCommandMngr::fRWByXml)); // @erik v10.6.1
-			//desk_id = desk.ID;
 			desktop_uuid = desk.Uuid;
 		}
 		ok = 1;

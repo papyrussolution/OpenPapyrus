@@ -13,32 +13,22 @@
 #include <openssl/pkcs7.h>
 #include "ts_lcl.h"
 
-static int ts_verify_cert(X509_STORE * store, STACK_OF(X509) * untrusted,
-    X509 * signer, STACK_OF(X509) ** chain);
-static int ts_check_signing_certs(PKCS7_SIGNER_INFO * si,
-    STACK_OF(X509) * chain);
+static int ts_verify_cert(X509_STORE * store, STACK_OF(X509) * untrusted, X509 * signer, STACK_OF(X509) ** chain);
+static int ts_check_signing_certs(PKCS7_SIGNER_INFO * si, STACK_OF(X509) * chain);
 static ESS_SIGNING_CERT * ess_get_signing_cert(PKCS7_SIGNER_INFO * si);
 static int ts_find_cert(STACK_OF(ESS_CERT_ID) * cert_ids, X509 * cert);
 static int ts_issuer_serial_cmp(ESS_ISSUER_SERIAL * is, X509 * cert);
-static int int_ts_RESP_verify_token(TS_VERIFY_CTX * ctx,
-    PKCS7 * token, TS_TST_INFO * tst_info);
+static int int_ts_RESP_verify_token(TS_VERIFY_CTX * ctx, PKCS7 * token, TS_TST_INFO * tst_info);
 static int ts_check_status_info(TS_RESP * response);
 static char * ts_get_status_text(STACK_OF(ASN1_UTF8STRING) * text);
-static int ts_check_policy(const ASN1_OBJECT * req_oid,
-    const TS_TST_INFO * tst_info);
-static int ts_compute_imprint(BIO * data, TS_TST_INFO * tst_info,
-    X509_ALGOR ** md_alg,
-    unsigned char ** imprint, unsigned * imprint_len);
-static int ts_check_imprints(X509_ALGOR * algor_a,
-    const unsigned char * imprint_a, unsigned len_a,
-    TS_TST_INFO * tst_info);
+static int ts_check_policy(const ASN1_OBJECT * req_oid, const TS_TST_INFO * tst_info);
+static int ts_compute_imprint(BIO * data, TS_TST_INFO * tst_info, X509_ALGOR ** md_alg, uchar ** imprint, unsigned * imprint_len);
+static int ts_check_imprints(X509_ALGOR * algor_a, const uchar * imprint_a, unsigned len_a, TS_TST_INFO * tst_info);
 static int ts_check_nonces(const ASN1_INTEGER * a, TS_TST_INFO * tst_info);
 static int ts_check_signer_name(GENERAL_NAME * tsa_name, X509 * signer);
-static int ts_find_name(STACK_OF(GENERAL_NAME) * gen_names,
-    GENERAL_NAME * name);
+static int ts_find_name(STACK_OF(GENERAL_NAME) * gen_names, GENERAL_NAME * name);
 static int ts_find_cert_v2(STACK_OF(ESS_CERT_ID_V2) * cert_ids, X509 * cert);
 static ESS_SIGNING_CERT_V2 * ess_get_signing_cert_v2(PKCS7_SIGNER_INFO * si);
-
 /*
  * This must be large enough to hold all values in ts_status_text (with
  * comma separator) or all text fields in ts_failure_info (also with comma).
@@ -85,8 +75,7 @@ static struct {
  *      - Verify the signature value.
  *      - Returns the signer certificate in 'signer', if 'signer' is not NULL.
  */
-int TS_RESP_verify_signature(PKCS7 * token, STACK_OF(X509) * certs,
-    X509_STORE * store, X509 ** signer_out)
+int TS_RESP_verify_signature(PKCS7 * token, STACK_OF(X509) * certs, X509_STORE * store, X509 ** signer_out)
 {
 	STACK_OF(PKCS7_SIGNER_INFO) *sinfos = NULL;
 	PKCS7_SIGNER_INFO * si;
@@ -260,7 +249,7 @@ err:
 static ESS_SIGNING_CERT * ess_get_signing_cert(PKCS7_SIGNER_INFO * si)
 {
 	ASN1_TYPE * attr;
-	const unsigned char * p;
+	const uchar * p;
 	attr = PKCS7_get_signed_attribute(si, NID_id_smime_aa_signingCertificate);
 	if(!attr)
 		return NULL;
@@ -270,7 +259,7 @@ static ESS_SIGNING_CERT * ess_get_signing_cert(PKCS7_SIGNER_INFO * si)
 
 static ESS_SIGNING_CERT_V2 * ess_get_signing_cert_v2(PKCS7_SIGNER_INFO * si)
 {
-	const unsigned char * p;
+	const uchar * p;
 	ASN1_TYPE * attr = PKCS7_get_signed_attribute(si, NID_id_smime_aa_signingCertificateV2);
 	if(!attr)
 		return NULL;
@@ -282,7 +271,7 @@ static ESS_SIGNING_CERT_V2 * ess_get_signing_cert_v2(PKCS7_SIGNER_INFO * si)
 static int ts_find_cert(STACK_OF(ESS_CERT_ID) * cert_ids, X509 * cert)
 {
 	int i;
-	unsigned char cert_sha1[SHA_DIGEST_LENGTH];
+	uchar cert_sha1[SHA_DIGEST_LENGTH];
 	if(!cert_ids || !cert)
 		return -1;
 	X509_digest(cert, EVP_sha1(), cert_sha1, NULL);
@@ -305,8 +294,8 @@ static int ts_find_cert(STACK_OF(ESS_CERT_ID) * cert_ids, X509 * cert)
 static int ts_find_cert_v2(STACK_OF(ESS_CERT_ID_V2) * cert_ids, X509 * cert)
 {
 	int i;
-	unsigned char cert_digest[EVP_MAX_MD_SIZE];
-	unsigned int len;
+	uchar cert_digest[EVP_MAX_MD_SIZE];
+	uint len;
 
 	/* Look for cert in the cert_ids vector. */
 	for(i = 0; i < sk_ESS_CERT_ID_V2_num(cert_ids); ++i) {
@@ -406,7 +395,7 @@ static int int_ts_RESP_verify_token(TS_VERIFY_CTX * ctx,
 	X509 * signer = NULL;
 	GENERAL_NAME * tsa_name = tst_info->tsa;
 	X509_ALGOR * md_alg = NULL;
-	unsigned char * imprint = NULL;
+	uchar * imprint = NULL;
 	unsigned imprint_len = 0;
 	int ret = 0;
 	int flags = ctx->flags;
@@ -556,13 +545,13 @@ static int ts_check_policy(const ASN1_OBJECT * req_oid,
 
 static int ts_compute_imprint(BIO * data, TS_TST_INFO * tst_info,
     X509_ALGOR ** md_alg,
-    unsigned char ** imprint, unsigned * imprint_len)
+    uchar ** imprint, unsigned * imprint_len)
 {
 	TS_MSG_IMPRINT * msg_imprint = tst_info->msg_imprint;
 	X509_ALGOR * md_alg_resp = msg_imprint->hash_algo;
 	const EVP_MD * md;
 	EVP_MD_CTX * md_ctx = NULL;
-	unsigned char buffer[4096];
+	uchar buffer[4096];
 	int length;
 
 	*md_alg = NULL;
@@ -609,7 +598,7 @@ err:
 }
 
 static int ts_check_imprints(X509_ALGOR * algor_a,
-    const unsigned char * imprint_a, unsigned len_a,
+    const uchar * imprint_a, unsigned len_a,
     TS_TST_INFO * tst_info)
 {
 	TS_MSG_IMPRINT * b = tst_info->msg_imprint;
@@ -628,7 +617,7 @@ static int ts_check_imprints(X509_ALGOR * algor_a,
 			goto err;
 	}
 
-	ret = len_a == (unsigned)ASN1_STRING_length(b->hashed_msg) &&
+	ret = len_a == (uint)ASN1_STRING_length(b->hashed_msg) &&
 	    memcmp(imprint_a, ASN1_STRING_get0_data(b->hashed_msg), len_a) == 0;
 err:
 	if(!ret)

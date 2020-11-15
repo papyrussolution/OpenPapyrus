@@ -79,7 +79,7 @@ static int acpt_new(BIO * bi)
 	bi->flags = 0;
 	if((ba = BIO_ACCEPT_new()) == NULL)
 		return 0;
-	bi->ptr = (char*)ba;
+	bi->ptr = (char *)ba;
 	ba->state = ACPT_S_BEFORE;
 	bi->shutdown = 1;
 	return 1;

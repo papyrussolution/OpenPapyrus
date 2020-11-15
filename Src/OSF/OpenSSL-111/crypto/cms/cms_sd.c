@@ -237,9 +237,7 @@ static int cms_sd_asn1_ctrl(CMS_SignerInfo * si, int cmd)
 	return 1;
 }
 
-CMS_SignerInfo * CMS_add1_signer(CMS_ContentInfo * cms,
-    X509 * signer, EVP_PKEY * pk, const EVP_MD * md,
-    unsigned int flags)
+CMS_SignerInfo * CMS_add1_signer(CMS_ContentInfo * cms, X509 * signer, EVP_PKEY * pk, const EVP_MD * md, uint flags)
 {
 	CMS_SignedData * sd;
 	CMS_SignerInfo * si = NULL;
@@ -487,8 +485,7 @@ int CMS_SignerInfo_cert_cmp(CMS_SignerInfo * si, X509 * cert)
 	return cms_SignerIdentifier_cert_cmp(si->sid, cert);
 }
 
-int CMS_set1_signers_certs(CMS_ContentInfo * cms, STACK_OF(X509) * scerts,
-    unsigned int flags)
+int CMS_set1_signers_certs(CMS_ContentInfo * cms, STACK_OF(X509) * scerts, uint flags)
 {
 	CMS_SignedData * sd;
 	CMS_SignerInfo * si;
@@ -580,8 +577,8 @@ static int cms_SignerInfo_content_sign(CMS_ContentInfo * cms,
 	 */
 
 	if(CMS_signed_get_attr_count(si) >= 0) {
-		unsigned char md[EVP_MAX_MD_SIZE];
-		unsigned int mdlen;
+		uchar md[EVP_MAX_MD_SIZE];
+		uint mdlen;
 		if(!EVP_DigestFinal_ex(mctx, md, &mdlen))
 			goto err;
 		if(!CMS_signed_add1_attr_by_NID(si, NID_pkcs9_messageDigest,
@@ -595,10 +592,10 @@ static int cms_SignerInfo_content_sign(CMS_ContentInfo * cms,
 			goto err;
 	}
 	else if(si->pctx) {
-		unsigned char * sig;
+		uchar * sig;
 		size_t siglen;
-		unsigned char md[EVP_MAX_MD_SIZE];
-		unsigned int mdlen;
+		uchar md[EVP_MAX_MD_SIZE];
+		uint mdlen;
 		pctx = si->pctx;
 		if(!EVP_DigestFinal_ex(mctx, md, &mdlen))
 			goto err;
@@ -615,8 +612,8 @@ static int cms_SignerInfo_content_sign(CMS_ContentInfo * cms,
 		ASN1_STRING_set0(si->signature, sig, siglen);
 	}
 	else {
-		unsigned char * sig;
-		unsigned int siglen;
+		uchar * sig;
+		uint siglen;
 		sig = static_cast<uchar *>(OPENSSL_malloc(EVP_PKEY_size(si->pkey)));
 		if(sig == NULL) {
 			CMSerr(CMS_F_CMS_SIGNERINFO_CONTENT_SIGN, ERR_R_MALLOC_FAILURE);
@@ -657,7 +654,7 @@ int CMS_SignerInfo_sign(CMS_SignerInfo * si)
 {
 	EVP_MD_CTX * mctx = si->mctx;
 	EVP_PKEY_CTX * pctx = NULL;
-	unsigned char * abuf = NULL;
+	uchar * abuf = NULL;
 	int alen;
 	size_t siglen;
 	const EVP_MD * md = NULL;
@@ -725,7 +722,7 @@ err:
 int CMS_SignerInfo_verify(CMS_SignerInfo * si)
 {
 	EVP_MD_CTX * mctx = NULL;
-	unsigned char * abuf = NULL;
+	uchar * abuf = NULL;
 	int alen, r = -1;
 	const EVP_MD * md = NULL;
 
@@ -806,8 +803,8 @@ int CMS_SignerInfo_verify_content(CMS_SignerInfo * si, BIO * chain)
 	EVP_MD_CTX * mctx = EVP_MD_CTX_new();
 	EVP_PKEY_CTX * pkctx = NULL;
 	int r = -1;
-	unsigned char mval[EVP_MAX_MD_SIZE];
-	unsigned int mlen;
+	uchar mval[EVP_MAX_MD_SIZE];
+	uint mlen;
 
 	if(mctx == NULL) {
 		CMSerr(CMS_F_CMS_SIGNERINFO_VERIFY_CONTENT, ERR_R_MALLOC_FAILURE);
@@ -869,7 +866,7 @@ err:
 
 int CMS_add_smimecap(CMS_SignerInfo * si, STACK_OF(X509_ALGOR) * algs)
 {
-	unsigned char * smder = NULL;
+	uchar * smder = NULL;
 	int smderlen, r;
 	smderlen = i2d_X509_ALGORS(algs, &smder);
 	if(smderlen <= 0)

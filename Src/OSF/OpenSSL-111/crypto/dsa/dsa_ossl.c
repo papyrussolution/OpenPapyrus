@@ -14,12 +14,12 @@
 #include "dsa_locl.h"
 #include <openssl/asn1.h>
 
-static DSA_SIG * dsa_do_sign(const unsigned char * dgst, int dlen, DSA * dsa);
+static DSA_SIG * dsa_do_sign(const uchar * dgst, int dlen, DSA * dsa);
 static int dsa_sign_setup_no_digest(DSA * dsa, BN_CTX * ctx_in, BIGNUM ** kinvp,
     BIGNUM ** rp);
 static int dsa_sign_setup(DSA * dsa, BN_CTX * ctx_in, BIGNUM ** kinvp,
-    BIGNUM ** rp, const unsigned char * dgst, int dlen);
-static int dsa_do_verify(const unsigned char * dgst, int dgst_len,
+    BIGNUM ** rp, const uchar * dgst, int dlen);
+static int dsa_do_verify(const uchar * dgst, int dgst_len,
     DSA_SIG * sig, DSA * dsa);
 static int dsa_init(DSA * dsa);
 static int dsa_finish(DSA * dsa);
@@ -58,7 +58,7 @@ const DSA_METHOD * DSA_OpenSSL(void)
 	return &openssl_dsa_meth;
 }
 
-static DSA_SIG * dsa_do_sign(const unsigned char * dgst, int dlen, DSA * dsa)
+static DSA_SIG * dsa_do_sign(const uchar * dgst, int dlen, DSA * dsa)
 {
 	BIGNUM * kinv = NULL;
 	BIGNUM * m, * blind, * blindm, * tmp;
@@ -180,7 +180,7 @@ static int dsa_sign_setup_no_digest(DSA * dsa, BN_CTX * ctx_in,
 
 static int dsa_sign_setup(DSA * dsa, BN_CTX * ctx_in,
     BIGNUM ** kinvp, BIGNUM ** rp,
-    const unsigned char * dgst, int dlen)
+    const uchar * dgst, int dlen)
 {
 	BN_CTX * ctx = NULL;
 	BIGNUM * k, * kinv = NULL, * r = *rp;
@@ -298,7 +298,7 @@ err:
 	return ret;
 }
 
-static int dsa_do_verify(const unsigned char * dgst, int dgst_len,
+static int dsa_do_verify(const uchar * dgst, int dgst_len,
     DSA_SIG * sig, DSA * dsa)
 {
 	BN_CTX * ctx;

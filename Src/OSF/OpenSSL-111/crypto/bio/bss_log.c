@@ -322,7 +322,7 @@ static void xsyslog(BIO * bp, int priority, const char * string)
 #  endif                        /* __INITIAL_POINTER_SIZE == 64 */
 
 	char buf[10240];
-	unsigned int len;
+	uint len;
 	struct dsc$descriptor_s buf_dsc;
 	$ DESCRIPTOR (fao_cmd, "!AZ: !AZ");
 	char * priority_tag;

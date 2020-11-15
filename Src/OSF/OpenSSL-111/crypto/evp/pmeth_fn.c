@@ -48,8 +48,8 @@ int EVP_PKEY_sign_init(EVP_PKEY_CTX * ctx)
 }
 
 int EVP_PKEY_sign(EVP_PKEY_CTX * ctx,
-    unsigned char * sig, size_t * siglen,
-    const unsigned char * tbs, size_t tbslen)
+    uchar * sig, size_t * siglen,
+    const uchar * tbs, size_t tbslen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->sign) {
 		EVPerr(EVP_F_EVP_PKEY_SIGN,
@@ -82,8 +82,8 @@ int EVP_PKEY_verify_init(EVP_PKEY_CTX * ctx)
 }
 
 int EVP_PKEY_verify(EVP_PKEY_CTX * ctx,
-    const unsigned char * sig, size_t siglen,
-    const unsigned char * tbs, size_t tbslen)
+    const uchar * sig, size_t siglen,
+    const uchar * tbs, size_t tbslen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->verify) {
 		EVPerr(EVP_F_EVP_PKEY_VERIFY,
@@ -115,8 +115,8 @@ int EVP_PKEY_verify_recover_init(EVP_PKEY_CTX * ctx)
 }
 
 int EVP_PKEY_verify_recover(EVP_PKEY_CTX * ctx,
-    unsigned char * rout, size_t * routlen,
-    const unsigned char * sig, size_t siglen)
+    uchar * rout, size_t * routlen,
+    const uchar * sig, size_t siglen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->verify_recover) {
 		EVPerr(EVP_F_EVP_PKEY_VERIFY_RECOVER,
@@ -149,8 +149,8 @@ int EVP_PKEY_encrypt_init(EVP_PKEY_CTX * ctx)
 }
 
 int EVP_PKEY_encrypt(EVP_PKEY_CTX * ctx,
-    unsigned char * out, size_t * outlen,
-    const unsigned char * in, size_t inlen)
+    uchar * out, size_t * outlen,
+    const uchar * in, size_t inlen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->encrypt) {
 		EVPerr(EVP_F_EVP_PKEY_ENCRYPT,
@@ -183,8 +183,8 @@ int EVP_PKEY_decrypt_init(EVP_PKEY_CTX * ctx)
 }
 
 int EVP_PKEY_decrypt(EVP_PKEY_CTX * ctx,
-    unsigned char * out, size_t * outlen,
-    const unsigned char * in, size_t inlen)
+    uchar * out, size_t * outlen,
+    const uchar * in, size_t inlen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->decrypt) {
 		EVPerr(EVP_F_EVP_PKEY_DECRYPT,
@@ -279,7 +279,7 @@ int EVP_PKEY_derive_set_peer(EVP_PKEY_CTX * ctx, EVP_PKEY * peer)
 	return 1;
 }
 
-int EVP_PKEY_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * pkeylen)
+int EVP_PKEY_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * pkeylen)
 {
 	if(!ctx || !ctx->pmeth || !ctx->pmeth->derive) {
 		EVPerr(EVP_F_EVP_PKEY_DERIVE,

@@ -74,7 +74,7 @@ static int rsa_param_decode(RSA * rsa, const X509_ALGOR * alg)
 
 static int rsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 {
-	unsigned char * penc = NULL;
+	uchar * penc = NULL;
 	int penclen;
 	ASN1_STRING * str;
 	int strtype;
@@ -94,7 +94,7 @@ static int rsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 
 static int rsa_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 {
-	const unsigned char * p;
+	const uchar * p;
 	int pklen;
 	X509_ALGOR * alg;
 	RSA * rsa = NULL;
@@ -125,7 +125,7 @@ static int rsa_pub_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 }
 
 static int old_rsa_priv_decode(EVP_PKEY * pkey,
-    const unsigned char ** pder, int derlen)
+    const uchar ** pder, int derlen)
 {
 	RSA * rsa;
 
@@ -137,14 +137,14 @@ static int old_rsa_priv_decode(EVP_PKEY * pkey,
 	return 1;
 }
 
-static int old_rsa_priv_encode(const EVP_PKEY * pkey, unsigned char ** pder)
+static int old_rsa_priv_encode(const EVP_PKEY * pkey, uchar ** pder)
 {
 	return i2d_RSAPrivateKey(pkey->pkey.rsa, pder);
 }
 
 static int rsa_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 {
-	unsigned char * rk = NULL;
+	uchar * rk = NULL;
 	int rklen;
 	ASN1_STRING * str;
 	int strtype;
@@ -171,7 +171,7 @@ static int rsa_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 
 static int rsa_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 {
-	const unsigned char * p;
+	const uchar * p;
 	RSA * rsa;
 	int pklen;
 	const X509_ALGOR * alg;
@@ -899,7 +899,7 @@ static int rsa_cms_decrypt(CMS_RecipientInfo * ri)
 	X509_ALGOR * cmsalg;
 	int nid;
 	int rv = -1;
-	unsigned char * label = NULL;
+	uchar * label = NULL;
 	int labellen = 0;
 	const EVP_MD * mgf1md = NULL, * md = NULL;
 	RSA_OAEP_PARAMS * oaep;
@@ -973,7 +973,7 @@ static int rsa_cms_encrypt(CMS_RecipientInfo * ri)
 	X509_ALGOR * alg;
 	EVP_PKEY_CTX * pkctx = CMS_RecipientInfo_get0_pkey_ctx(ri);
 	int pad_mode = RSA_PKCS1_PADDING, rv = 0, labellen;
-	unsigned char * label;
+	uchar * label;
 
 	if(CMS_RecipientInfo_ktri_get0_algs(ri, NULL, NULL, &alg) <= 0)
 		return 0;

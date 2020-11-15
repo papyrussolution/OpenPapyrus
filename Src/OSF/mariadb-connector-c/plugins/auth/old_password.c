@@ -18,11 +18,6 @@
  *************************************************************************************/
 #include <ma_global.h>
 #pragma hdrstop
-//#include <mysql.h>
-//#include <mysql/client_plugin.h>
-//#include <string.h>
-//#include <memory.h>
-//#include <errmsg.h>
 
 /* function prototypes */
 static int auth_old_password(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql);
@@ -43,7 +38,7 @@ typedef struct {
 	} cached_server_reply;
 
 	uint packets_read, packets_written; /**< counters for send/received packets */
-	my_bool mysql_change_user;    /**< if it's mysql_change_user() */
+	bool mysql_change_user;    /**< if it's mysql_change_user() */
 	int last_read_packet_len;     /**< the length of the last *read* packet */
 } MCPVIO_EXT;
 
@@ -76,7 +71,6 @@ static int auth_old_password(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql)
 {
 	uchar * pkt;
 	int pkt_len;
-
 	if(((MCPVIO_EXT*)vio)->mysql_change_user) {
 		/*
 		   in mysql_change_user() the client sends the first packet.
@@ -88,16 +82,12 @@ static int auth_old_password(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql)
 		/* read the scramble */
 		if((pkt_len = vio->read_packet(vio, &pkt)) < 0)
 			return CR_ERROR;
-
-		if(pkt_len != SCRAMBLE_LENGTH_323 + 1 &&
-		    pkt_len != SCRAMBLE_LENGTH + 1)
+		if(pkt_len != SCRAMBLE_LENGTH_323 + 1 && pkt_len != SCRAMBLE_LENGTH + 1)
 			return CR_SERVER_HANDSHAKE_ERR;
-
 		/* save it in MYSQL */
 		memmove(mysql->scramble_buff, pkt, pkt_len - 1);
 		mysql->scramble_buff[pkt_len - 1] = 0;
 	}
-
 	if(mysql && mysql->passwd[0]) {
 		char scrambled[SCRAMBLE_LENGTH_323 + 1];
 		ma_scramble_323(scrambled, (char *)pkt, mysql->passwd);
@@ -106,6 +96,5 @@ static int auth_old_password(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql)
 	}
 	else if(vio->write_packet(vio, 0, 0)) /* no password */
 		return CR_ERROR;
-
 	return CR_OK;
 }

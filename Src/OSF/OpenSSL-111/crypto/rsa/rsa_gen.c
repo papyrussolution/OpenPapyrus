@@ -70,7 +70,7 @@ static int rsa_builtin_keygen(RSA * rsa, int bits, int primes, BIGNUM * e_value,
 	STACK_OF(RSA_PRIME_INFO) *prime_infos = NULL;
 	BN_CTX * ctx = NULL;
 	BN_ULONG bitst = 0;
-	unsigned long error = 0;
+	ulong error = 0;
 
 	if(bits < RSA_MIN_MODULUS_BITS) {
 		ok = 0;     /* we set our own err */

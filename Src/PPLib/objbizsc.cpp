@@ -66,23 +66,23 @@ int PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use_ta)
 			if(*pID) {
 				int r;
 				THROW(CheckRights(PPR_MOD));
-				THROW(r = ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(r = P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				if(r < 0)
 					ok = -1;
-				// Событие PPACN_OBJUPD создано функцией ref->UpdateItem : action не инициалазируем
+				// Событие PPACN_OBJUPD создано функцией P_Ref->UpdateItem : action не инициалазируем
 			}
 			else {
 				THROW(CheckRights(PPR_INS));
-				THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-				// Событие PPACN_OBJADD создано функцией ref->AddItem : action не инициалазируем
+				THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
+				// Событие PPACN_OBJADD создано функцией P_Ref->AddItem : action не инициалазируем
 			}
 			{
 				SString strg_buf, prev_strg_buf;
 				PPPutExtStrData(BIZSCEXSTR_DESCR,   strg_buf, pPack->Descr);
 				PPPutExtStrData(BIZSCEXSTR_FORMULA, strg_buf, pPack->Formula);
-				THROW(ref->GetPropVlrString(Obj, *pID, BZSPRP_DESCR, prev_strg_buf));
+				THROW(P_Ref->GetPropVlrString(Obj, *pID, BZSPRP_DESCR, prev_strg_buf));
 				if(strg_buf.Cmp(prev_strg_buf, 0) != 0) {
-					THROW(ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, strg_buf));
+					THROW(P_Ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, strg_buf));
 					if(ok < 0) {
 						//
 						// Заголовочная запись не изменилась, но изменилась формула либо описание.
@@ -98,8 +98,8 @@ int PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use_ta)
 			SETIFZ(P_ValTbl, new BizScoreCore);
 			THROW_MEM(P_ValTbl);
 			THROW_DB(deleteFrom(P_ValTbl, 0, P_ValTbl->ScoreID == *pID));
-			THROW(ref->RemoveItem(Obj, *pID, 0));
-			THROW(ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, 0));
 			action = PPACN_OBJRMV;
 		}
 		DS.LogAction(action, Obj, *pID, 0, 0);
@@ -113,11 +113,11 @@ int PPObjBizScore::GetPacket(PPID id, PPBizScorePacket * pPack)
 {
 	int    ok = 1;
 	PPBizScorePacket pack;
-	int    r = ref->GetItem(Obj, id, &pack.Rec);
+	int    r = P_Ref->GetItem(Obj, id, &pack.Rec);
 	THROW(r);
 	if(r > 0) {
 		SString strg_buf;
-		THROW(ref->GetPropVlrString(Obj, id, BZSPRP_DESCR, strg_buf));
+		THROW(P_Ref->GetPropVlrString(Obj, id, BZSPRP_DESCR, strg_buf));
 		PPGetExtStrData(BIZSCEXSTR_DESCR,   strg_buf, pack.Descr);
 		PPGetExtStrData(BIZSCEXSTR_FORMULA, strg_buf, pack.Formula);
 	}
@@ -1820,7 +1820,7 @@ int PrcssrBizScore::Helper_Calc(LDATE actualDate, PPLogger & rLogger, int use_ta
 		THROW_SL(bzs_list.add(P.BzsID));
 	}
 	else {
-		for(SEnum en = bs_obj.ref->Enum(PPOBJ_BIZSCORE, 0); en.Next(&bs_rec) > 0;) {
+		for(SEnum en = bs_obj.P_Ref->Enum(PPOBJ_BIZSCORE, 0); en.Next(&bs_rec) > 0;) {
 			THROW_SL(bzs_list.add(bs_rec.ID));
 		}
 	}

@@ -67,7 +67,7 @@ void * ma_tls_init(MYSQL * mysql);
      0             success
      1             error
  */
-my_bool ma_tls_connect(MARIADB_TLS * ctls);
+bool ma_tls_connect(MARIADB_TLS * ctls);
 
 /* ma_tls_read
    reads up to length bytes from socket
@@ -102,7 +102,7 @@ ssize_t ma_tls_write(MARIADB_TLS * ctls, const uchar* buffer, size_t length);
      0            success
      1            error
  */
-my_bool ma_tls_close(MARIADB_TLS * ctls);
+bool ma_tls_close(MARIADB_TLS * ctls);
 
 /* ma_tls_verify_server_cert
    validation check of server certificate
@@ -148,14 +148,14 @@ int ma_pvio_tls_get_protocol_version_id(MARIADB_TLS * ctls);
 
 /* Function prototypes */
 MARIADB_TLS * ma_pvio_tls_init(MYSQL * mysql);
-my_bool ma_pvio_tls_connect(MARIADB_TLS * ctls);
+bool ma_pvio_tls_connect(MARIADB_TLS * ctls);
 ssize_t ma_pvio_tls_read(MARIADB_TLS * ctls, const uchar * buffer, size_t length);
 ssize_t ma_pvio_tls_write(MARIADB_TLS * ctls, const uchar * buffer, size_t length);
-my_bool ma_pvio_tls_close(MARIADB_TLS * ctls);
+bool ma_pvio_tls_close(MARIADB_TLS * ctls);
 int ma_pvio_tls_verify_server_cert(MARIADB_TLS * ctls);
 const char * ma_pvio_tls_cipher(MARIADB_TLS * ctls);
-my_bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_list);
-my_bool ma_pvio_start_ssl(MARIADB_PVIO * pvio);
+bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_list);
+bool ma_pvio_start_ssl(MARIADB_PVIO * pvio);
 void ma_pvio_tls_end();
 
 #endif /* _ma_tls_h_ */

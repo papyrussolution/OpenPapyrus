@@ -11,7 +11,7 @@
 #include "dsa_locl.h"
 #include <openssl/bn.h>
 
-DSA_SIG * DSA_do_sign(const unsigned char * dgst, int dlen, DSA * dsa)
+DSA_SIG * DSA_do_sign(const uchar * dgst, int dlen, DSA * dsa)
 {
 	return dsa->meth->dsa_do_sign(dgst, dlen, dsa);
 }

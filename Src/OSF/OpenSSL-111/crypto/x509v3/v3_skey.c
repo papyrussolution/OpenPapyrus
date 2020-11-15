@@ -55,10 +55,10 @@ static ASN1_OCTET_STRING * s2i_skey_id(X509V3_EXT_METHOD * method,
 {
 	ASN1_OCTET_STRING * oct;
 	X509_PUBKEY * pubkey;
-	const unsigned char * pk;
+	const uchar * pk;
 	int pklen;
-	unsigned char pkey_dig[EVP_MAX_MD_SIZE];
-	unsigned int diglen;
+	uchar pkey_dig[EVP_MAX_MD_SIZE];
+	uint diglen;
 
 	if(strcmp(str, "hash"))
 		return s2i_ASN1_OCTET_STRING(method, ctx, str);

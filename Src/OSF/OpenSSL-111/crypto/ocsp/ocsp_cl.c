@@ -94,7 +94,7 @@ int OCSP_request_sign(OCSP_REQUEST * req,
     X509 * signer,
     EVP_PKEY * key,
     const EVP_MD * dgst,
-    STACK_OF(X509) * certs, unsigned long flags)
+    STACK_OF(X509) * certs, ulong flags)
 {
 	int i;
 	X509 * x;

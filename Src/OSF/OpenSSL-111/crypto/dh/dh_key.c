@@ -12,7 +12,7 @@
 #include <bn_int.h>
 
 static int generate_key(DH * dh);
-static int compute_key(unsigned char * key, const BIGNUM * pub_key, DH * dh);
+static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh);
 static int dh_bn_mod_exp(const DH * dh, BIGNUM * r,
     const BIGNUM * a, const BIGNUM * p,
     const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
@@ -24,12 +24,12 @@ int DH_generate_key(DH * dh)
 	return dh->meth->generate_key(dh);
 }
 
-int DH_compute_key(unsigned char * key, const BIGNUM * pub_key, DH * dh)
+int DH_compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 {
 	return dh->meth->compute_key(key, pub_key, dh);
 }
 
-int DH_compute_key_padded(unsigned char * key, const BIGNUM * pub_key, DH * dh)
+int DH_compute_key_padded(uchar * key, const BIGNUM * pub_key, DH * dh)
 {
 	int rv, pad;
 	rv = dh->meth->compute_key(key, pub_key, dh);
@@ -169,7 +169,7 @@ err:
 	return ok;
 }
 
-static int compute_key(unsigned char * key, const BIGNUM * pub_key, DH * dh)
+static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 {
 	BN_CTX * ctx = NULL;
 	BN_MONT_CTX * mont = NULL;

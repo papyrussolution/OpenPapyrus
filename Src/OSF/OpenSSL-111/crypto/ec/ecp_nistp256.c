@@ -842,9 +842,8 @@ static void subtract_u64(u64 * result, u64 * carry, u64 v)
  */
 static void felem_contract(smallfelem out, const felem in)
 {
-	unsigned i;
+	uint i;
 	u64 all_equal_so_far = 0, result = 0, carry;
-
 	felem_shrink(out, in);
 	/* small is minimal except that the value might be > p */
 
@@ -983,7 +982,7 @@ static void felem_inv(felem out, const felem in)
 	/* each e_I will hold |in|^{2^I - 1} */
 	felem e2, e4, e8, e16, e32, e64;
 	longfelem tmp;
-	unsigned i;
+	uint i;
 
 	felem_square(tmp, in);
 	felem_reduce(ftmp, tmp); /* 2^1 */
@@ -1199,7 +1198,7 @@ static void point_double_small(smallfelem x_out, smallfelem y_out, smallfelem z_
 /* copy_conditional copies in to out iff mask is all ones. */
 static void copy_conditional(felem out, const felem in, limb mask)
 {
-	unsigned i;
+	uint i;
 	for(i = 0; i < NLIMBS; ++i) {
 		const limb tmp = mask & (in[i] ^ out[i]);
 		out[i] ^= tmp;
@@ -1209,7 +1208,7 @@ static void copy_conditional(felem out, const felem in, limb mask)
 /* copy_small_conditional copies in to out iff mask is all ones. */
 static void copy_small_conditional(felem out, const smallfelem in, limb mask)
 {
-	unsigned i;
+	uint i;
 	const u64 mask64 = mask;
 	for(i = 0; i < NLIMBS; ++i) {
 		out[i] = ((limb)(in[i] & mask64)) | (out[i] & ~mask);
@@ -1610,7 +1609,7 @@ static const smallfelem gmul[2][16][3] = {
  * select_point selects the |idx|th point from a precomputation table and
  * copies it to out.
  */
-static void select_point(const u64 idx, unsigned int size, const smallfelem pre_comp[16][3], smallfelem out[3])
+static void select_point(const u64 idx, uint size, const smallfelem pre_comp[16][3], smallfelem out[3])
 {
 	unsigned i, j;
 	u64 * outlimbs = &out[0][0];
@@ -2004,7 +2003,7 @@ int ec_GFp_nistp256_points_mul(const EC_GROUP * group, EC_POINT * r,
 	felem_bytearray * secrets = NULL;
 	smallfelem(*pre_comp)[17][3] = NULL;
 	smallfelem * tmp_smallfelems = NULL;
-	unsigned i;
+	uint i;
 	int num_bytes;
 	int have_pre_comp = 0;
 	size_t num_points = num;

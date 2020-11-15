@@ -44,7 +44,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #ifndef USE_BCRYPTGENRANDOM
 	HCRYPTPROV hProvider;
 #endif
-	unsigned char * buffer;
+	uchar * buffer;
 	size_t bytes_needed;
 	size_t entropy_available = 0;
 #ifdef OPENSSL_RAND_SEED_RDTSC

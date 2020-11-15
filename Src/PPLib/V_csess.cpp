@@ -1360,21 +1360,21 @@ int PPObjDraftCreateRule::PutPacket(PPID * pID, PPDfCreateRulePacket * pPack, in
 		if(pID && *pID) {
 			if(pPack) {
 				pPack->Rec.ID = *pID;
-				THROW(ref->UpdateItem(PPOBJ_DFCREATERULE, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(PPOBJ_DFCREATERULE, *pID, &pPack->Rec, 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(PPOBJ_DFCREATERULE, *pID, 0));
+				THROW(P_Ref->RemoveItem(PPOBJ_DFCREATERULE, *pID, 0));
 				del = 1;
 			}
 		}
 		else if(pPack) {
-			THROW(ref->AddItem(PPOBJ_DFCREATERULE, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(PPOBJ_DFCREATERULE, pID, &pPack->Rec, 0));
 		}
 		if(pID && *pID) {
 			SString cash_nn;
 			if(!del)
 				pPack->GetCashNN(&cash_nn);
-			THROW(ref->PutPropVlrString(PPOBJ_DFCREATERULE, *pID, DFCRRULPRP_CASHNN, del ? 0 : cash_nn.cptr()));
+			THROW(P_Ref->PutPropVlrString(PPOBJ_DFCREATERULE, *pID, DFCRRULPRP_CASHNN, del ? 0 : cash_nn.cptr()));
 		}
 		THROW(tra.Commit());
 	}

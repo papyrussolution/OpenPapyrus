@@ -53,10 +53,10 @@ void ec_GFp_nistp_points_make_affine_internal(size_t num, void * point_array, si
 {
 	int i = 0;
 
-#define tmp_felem(I) (&((char*)tmp_felems)[(I)*felem_size])
-#define X(I) (&((char*)point_array)[3*(I)*felem_size])
-#define Y(I) (&((char*)point_array)[(3*(I)+1) * felem_size])
-#define Z(I) (&((char*)point_array)[(3*(I)+2) * felem_size])
+#define tmp_felem(I) (&((char *)tmp_felems)[(I)*felem_size])
+#define X(I) (&((char *)point_array)[3*(I)*felem_size])
+#define Y(I) (&((char *)point_array)[(3*(I)+1) * felem_size])
+#define Z(I) (&((char *)point_array)[(3*(I)+2) * felem_size])
 
 	if(!felem_is_zero(Z(0)))
 		felem_assign(tmp_felem(0), Z(0));
@@ -186,10 +186,10 @@ void ec_GFp_nistp_points_make_affine_internal(size_t num, void * point_array, si
  * b_-1, has to be b_4 b_3 b_2 b_1 b_0 0.
  *
  */
-void ec_GFp_nistp_recode_scalar_bits(unsigned char * sign,
-    unsigned char * digit, unsigned char in)
+void ec_GFp_nistp_recode_scalar_bits(uchar * sign,
+    uchar * digit, uchar in)
 {
-	unsigned char s, d;
+	uchar s, d;
 
 	s = ~((in >> 5) - 1);   /* sets all bits to MSB(in), 'in' seen as
 	                         * 6-bit value */

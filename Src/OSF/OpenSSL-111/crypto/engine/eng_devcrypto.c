@@ -51,11 +51,11 @@ static int clean_devcrypto_session(struct session_op * sess)
 struct cipher_ctx {
 	struct session_op sess;
 	int op;                  /* COP_ENCRYPT or COP_DECRYPT */
-	unsigned long mode;      /* EVP_CIPH_*_MODE */
+	ulong mode;      /* EVP_CIPH_*_MODE */
 
 	/* to handle ctr mode being a stream cipher */
-	unsigned char partial[EVP_MAX_BLOCK_LENGTH];
-	unsigned int blocksize, num;
+	uchar partial[EVP_MAX_BLOCK_LENGTH];
+	uint blocksize, num;
 };
 
 static const struct cipher_data_st {
@@ -137,8 +137,8 @@ static const struct cipher_data_st * get_cipher_data(int nid){
  * with cryptodev.
  */
 
-static int cipher_init(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int cipher_init(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	struct cipher_ctx * cipher_ctx =
 	    (struct cipher_ctx *)EVP_CIPHER_CTX_get_cipher_data(ctx);
@@ -164,16 +164,16 @@ static int cipher_init(EVP_CIPHER_CTX * ctx, const unsigned char * key,
 	return 1;
 }
 
-static int cipher_do_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int cipher_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	struct cipher_ctx * cipher_ctx =
 	    (struct cipher_ctx *)EVP_CIPHER_CTX_get_cipher_data(ctx);
 	struct crypt_op cryp;
-	unsigned char * iv = EVP_CIPHER_CTX_iv_noconst(ctx);
+	uchar * iv = EVP_CIPHER_CTX_iv_noconst(ctx);
 #if !defined(COP_FLAG_WRITE_IV)
-	unsigned char saved_iv[EVP_MAX_IV_LENGTH];
-	const unsigned char * ivptr;
+	uchar saved_iv[EVP_MAX_IV_LENGTH];
+	const uchar * ivptr;
 	size_t nblocks, ivlen;
 #endif
 	memzero(&cryp, sizeof(cryp));
@@ -244,8 +244,8 @@ static int cipher_do_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	return 1;
 }
 
-static int ctr_do_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	struct cipher_ctx * cipher_ctx =
 	    (struct cipher_ctx *)EVP_CIPHER_CTX_get_cipher_data(ctx);
@@ -335,7 +335,7 @@ static void prepare_cipher_methods(void)
 {
 	size_t i;
 	struct session_op sess;
-	unsigned long cipher_mode;
+	ulong cipher_mode;
 	memzero(&sess, sizeof(sess));
 	sess.key = (void*)"01234567890123456789012345678901234567890123456789";
 
@@ -521,7 +521,7 @@ static int digest_init(EVP_MD_CTX * ctx)
 	return 1;
 }
 
-static int digest_op(struct digest_ctx * ctx, const void * src, size_t srclen, void * res, unsigned int flags)
+static int digest_op(struct digest_ctx * ctx, const void * src, size_t srclen, void * res, uint flags)
 {
 	struct crypt_op cryp;
 	memzero(&cryp, sizeof(cryp));
@@ -548,7 +548,7 @@ static int digest_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return 1;
 }
 
-static int digest_final(EVP_MD_CTX * ctx, unsigned char * md)
+static int digest_final(EVP_MD_CTX * ctx, uchar * md)
 {
 	struct digest_ctx * digest_ctx = (struct digest_ctx *)EVP_MD_CTX_md_data(ctx);
 	if(md == NULL || digest_ctx == NULL)

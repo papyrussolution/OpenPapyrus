@@ -42,35 +42,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_zip.c 201102
  * added in Nov 2011.  Zip64 support (including a significant code
  * refactoring) was added in 2014.
  */
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#ifdef HAVE_BZLIB_H
-//#include <bzlib.h>
-//#endif
-//#ifdef HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
-//#include "archive.h"
-//#include "archive_digest_private.h"
-//#include "archive_cryptor_private.h"
-//#include "archive_endian.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_hmac_private.h"
-//#include "archive_private.h"
-//#include "archive_rb.h"
-//#include "archive_read_private.h"
 #include "archive_ppmd8_private.h"
-//#ifndef HAVE_ZLIB_H
-	//#include "archive_crc32.h"
-//#endif
 
 struct zip_entry {
 	struct archive_rb_node node;

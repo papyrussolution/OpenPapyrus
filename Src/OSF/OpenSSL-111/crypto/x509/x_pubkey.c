@@ -179,11 +179,11 @@ EVP_PKEY * X509_PUBKEY_get(X509_PUBKEY * key)
  * decode as X509_PUBKEY
  */
 
-EVP_PKEY * d2i_PUBKEY(EVP_PKEY ** a, const unsigned char ** pp, long length)
+EVP_PKEY * d2i_PUBKEY(EVP_PKEY ** a, const uchar ** pp, long length)
 {
 	X509_PUBKEY * xpk;
 	EVP_PKEY * pktmp;
-	const unsigned char * q;
+	const uchar * q;
 	q = *pp;
 	xpk = d2i_X509_PUBKEY(NULL, &q, length);
 	if(!xpk)
@@ -200,7 +200,7 @@ EVP_PKEY * d2i_PUBKEY(EVP_PKEY ** a, const unsigned char ** pp, long length)
 	return pktmp;
 }
 
-int i2d_PUBKEY(EVP_PKEY * a, unsigned char ** pp)
+int i2d_PUBKEY(EVP_PKEY * a, uchar ** pp)
 {
 	X509_PUBKEY * xpk = NULL;
 	int ret;
@@ -217,11 +217,11 @@ int i2d_PUBKEY(EVP_PKEY * a, unsigned char ** pp)
  * The following are equivalents but which return RSA and DSA keys
  */
 #ifndef OPENSSL_NO_RSA
-RSA * d2i_RSA_PUBKEY(RSA ** a, const unsigned char ** pp, long length)
+RSA * d2i_RSA_PUBKEY(RSA ** a, const uchar ** pp, long length)
 {
 	EVP_PKEY * pkey;
 	RSA * key;
-	const unsigned char * q;
+	const uchar * q;
 	q = *pp;
 	pkey = d2i_PUBKEY(NULL, &q, length);
 	if(!pkey)
@@ -238,7 +238,7 @@ RSA * d2i_RSA_PUBKEY(RSA ** a, const unsigned char ** pp, long length)
 	return key;
 }
 
-int i2d_RSA_PUBKEY(RSA * a, unsigned char ** pp)
+int i2d_RSA_PUBKEY(RSA * a, uchar ** pp)
 {
 	EVP_PKEY * pktmp;
 	int ret;
@@ -258,11 +258,11 @@ int i2d_RSA_PUBKEY(RSA * a, unsigned char ** pp)
 #endif
 
 #ifndef OPENSSL_NO_DSA
-DSA * d2i_DSA_PUBKEY(DSA ** a, const unsigned char ** pp, long length)
+DSA * d2i_DSA_PUBKEY(DSA ** a, const uchar ** pp, long length)
 {
 	EVP_PKEY * pkey;
 	DSA * key;
-	const unsigned char * q;
+	const uchar * q;
 	q = *pp;
 	pkey = d2i_PUBKEY(NULL, &q, length);
 	if(!pkey)
@@ -279,7 +279,7 @@ DSA * d2i_DSA_PUBKEY(DSA ** a, const unsigned char ** pp, long length)
 	return key;
 }
 
-int i2d_DSA_PUBKEY(DSA * a, unsigned char ** pp)
+int i2d_DSA_PUBKEY(DSA * a, uchar ** pp)
 {
 	EVP_PKEY * pktmp;
 	int ret;
@@ -299,11 +299,11 @@ int i2d_DSA_PUBKEY(DSA * a, unsigned char ** pp)
 #endif
 
 #ifndef OPENSSL_NO_EC
-EC_KEY * d2i_EC_PUBKEY(EC_KEY ** a, const unsigned char ** pp, long length)
+EC_KEY * d2i_EC_PUBKEY(EC_KEY ** a, const uchar ** pp, long length)
 {
 	EVP_PKEY * pkey;
 	EC_KEY * key;
-	const unsigned char * q;
+	const uchar * q;
 	q = *pp;
 	pkey = d2i_PUBKEY(NULL, &q, length);
 	if(!pkey)
@@ -320,7 +320,7 @@ EC_KEY * d2i_EC_PUBKEY(EC_KEY ** a, const unsigned char ** pp, long length)
 	return key;
 }
 
-int i2d_EC_PUBKEY(EC_KEY * a, unsigned char ** pp)
+int i2d_EC_PUBKEY(EC_KEY * a, uchar ** pp)
 {
 	EVP_PKEY * pktmp;
 	int ret;
@@ -340,7 +340,7 @@ int i2d_EC_PUBKEY(EC_KEY * a, unsigned char ** pp)
 
 int X509_PUBKEY_set0_param(X509_PUBKEY * pub, ASN1_OBJECT * aobj,
     int ptype, void * pval,
-    unsigned char * penc, int penclen)
+    uchar * penc, int penclen)
 {
 	if(!X509_ALGOR_set0(pub->algor, aobj, ptype, pval))
 		return 0;
@@ -356,7 +356,7 @@ int X509_PUBKEY_set0_param(X509_PUBKEY * pub, ASN1_OBJECT * aobj,
 }
 
 int X509_PUBKEY_get0_param(ASN1_OBJECT ** ppkalg,
-    const unsigned char ** pk, int * ppklen,
+    const uchar ** pk, int * ppklen,
     X509_ALGOR ** pa, X509_PUBKEY * pub)
 {
 	if(ppkalg)

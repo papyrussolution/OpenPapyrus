@@ -60,6 +60,12 @@ COLORREF gFontColor;        // The color of the font that the user selects for t
 POINT  gTextBoxLocation;     // The coordinates where we will spawn text
 wchar_t gTextBuffer[1024];  // Buffer for Text tool.
 
+static void Implement_RegCloseKey(HKEY key)
+{
+	if(key)
+		::RegCloseKey(key);
+}
+
 static void AdjustWindowSizeForThickTitleBars() // @20201025
 {
 	// If a custom DPI/scaling level is set, the title bar and borders will get thicker
@@ -549,34 +555,18 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    SelectObject(CopyDC, CleanCopy);
 				    HPEN Pen = NULL;
 				    HBRUSH Brush = NULL;
+					COLORREF _color = RGB(0, 0, 0);
 				    switch(gArrowButton.Color) {
-					    case COLOR_RED:
-							Pen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
-							Brush = CreateSolidBrush(RGB(255, 0, 0));
-							break;
-					    case COLOR_GREEN:
-							Pen = CreatePen(PS_SOLID, 2, RGB(0, 255, 0));
-							Brush = CreateSolidBrush(RGB(0, 255, 0));
-							break;
-					    case COLOR_BLUE:
-							Pen = CreatePen(PS_SOLID, 2, RGB(0, 0, 255));
-							Brush = CreateSolidBrush(RGB(0, 0, 255));
-							break;
-					    case COLOR_BLACK:
-							Pen = CreatePen(PS_SOLID, 2, RGB(0, 0, 0));
-							Brush = CreateSolidBrush(RGB(0, 0, 0));
-							break;
-					    case COLOR_WHITE:
-							Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
-							Brush = CreateSolidBrush(RGB(255, 255, 255));
-							break;
-					    case COLOR_YELLOW:
-							Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 0));
-							Brush = CreateSolidBrush(RGB(255, 255, 0));
-							break;
-					    default:
-							MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color for arrow tool!\n", __FUNCTIONW__, __LINE__);
+					    case COLOR_RED: _color = RGB(255, 0, 0); break;
+					    case COLOR_GREEN: _color = RGB(0, 255, 0); break;
+					    case COLOR_BLUE: _color = RGB(0, 0, 255); break;
+					    case COLOR_BLACK: _color = RGB(0, 0, 0); break;
+					    case COLOR_WHITE: _color = RGB(255, 255, 255); break;
+					    case COLOR_YELLOW: _color = RGB(255, 255, 0); break;
+					    default: MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color for arrow tool!\n", __FUNCTIONW__, __LINE__);
 				    }
+					Pen = CreatePen(PS_SOLID, 2, _color);
+					Brush = CreateSolidBrush(_color);
 				    SelectObject(CopyDC, Pen);
 				    SelectObject(CopyDC, Brush);
 				    POINT CurrentMousePos = { 0 };
@@ -1005,10 +995,8 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 					    else
 						    MessageBoxW(gMainWindowHandle, L"Error while creating SnippingTool.exe registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 				    }
-				    if(SnippingToolKey)
-					    RegCloseKey(SnippingToolKey);
-				    if(IFEOKey)
-					    RegCloseKey(IFEOKey);
+				    Implement_RegCloseKey(SnippingToolKey);
+				    Implement_RegCloseKey(IFEOKey);
 			    }
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Need to UAC elevate first.\n", __FUNCTIONW__, __LINE__);
@@ -1065,8 +1053,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 						    MessageBoxW(gMainWindowHandle, L"The built-in SnippingTool.exe has been restored.", L"Success", MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 					    }
 				    }
-				    if(IFEOKey)
-					    RegCloseKey(IFEOKey);
+					Implement_RegCloseKey(IFEOKey);
 			    }
 			    else {
 				    MyOutputDebugStringW(L"[%s] Line %d: Need to UAC elevate first.\n", __FUNCTIONW__, __LINE__);
@@ -2057,8 +2044,7 @@ HRESULT AddAllMenuItems(_In_ HINSTANCE Instance)
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR: Attempting to load the UAC icon failed! 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 Exit:
-	if(IFEOKey)
-		RegCloseKey(IFEOKey);
+	Implement_RegCloseKey(IFEOKey);
 	return Result;
 }
 
@@ -2279,10 +2265,8 @@ LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName)
 		}
 	}
 Exit:
-	if(SnipExKey)
-		RegCloseKey(SnipExKey);
-	if(SoftwareKey)
-		RegCloseKey(SoftwareKey);
+	Implement_RegCloseKey(SnipExKey);
+	Implement_RegCloseKey(SoftwareKey);
 	return(Result);
 }
 
@@ -2318,10 +2302,8 @@ LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
-	if(SnipExKey)
-		RegCloseKey(SnipExKey);
-	if(SoftwareKey)
-		RegCloseKey(SoftwareKey);
+	Implement_RegCloseKey(SnipExKey);
+	Implement_RegCloseKey(SoftwareKey);
 	return(Result);
 }
 
@@ -2361,10 +2343,8 @@ LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read from the SnipEx registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 		}
 	}
-	if(SnipExKey)
-		RegCloseKey(SnipExKey);
-	if(SoftwareKey)
-		RegCloseKey(SoftwareKey);
+	Implement_RegCloseKey(SnipExKey);
+	Implement_RegCloseKey(SoftwareKey);
 	return(Result);
 }
 

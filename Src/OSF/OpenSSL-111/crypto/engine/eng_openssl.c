@@ -181,11 +181,11 @@ IMPLEMENT_DYNAMIC_BIND_FN(bind_fn)
 #include <openssl/rc4.h>
 #define TEST_RC4_KEY_SIZE               16
 typedef struct {
-	unsigned char key[TEST_RC4_KEY_SIZE];
+	uchar key[TEST_RC4_KEY_SIZE];
 	RC4_KEY ks;
 } TEST_RC4_KEY;
 #define test(ctx) ((TEST_RC4_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx))
-static int test_rc4_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, const unsigned char * iv, int enc)
+static int test_rc4_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 #ifdef TEST_ENG_OPENSSL_RC4_P_INIT
 	fprintf(stderr, "(TEST_ENG_OPENSSL_RC4) test_init_key() called\n");
@@ -195,7 +195,7 @@ static int test_rc4_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, co
 	return 1;
 }
 
-static int test_rc4_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsigned char * in, size_t inl)
+static int test_rc4_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 #ifdef TEST_ENG_OPENSSL_RC4_P_CIPHER
 	fprintf(stderr, "(TEST_ENG_OPENSSL_RC4) test_cipher() called\n");
@@ -316,7 +316,7 @@ static int test_sha1_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return SHA1_Update(static_cast<SHA_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
 
-static int test_sha1_final(EVP_MD_CTX * ctx, unsigned char * md)
+static int test_sha1_final(EVP_MD_CTX * ctx, uchar * md)
 {
 #ifdef TEST_ENG_OPENSSL_SHA_P_FINAL
 	fprintf(stderr, "(TEST_ENG_OPENSSL_SHA) test_sha1_final() called\n");
@@ -516,10 +516,10 @@ static int ossl_hmac_signctx_init(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx)
 	return 1;
 }
 
-static int ossl_hmac_signctx(EVP_PKEY_CTX * ctx, unsigned char * sig,
+static int ossl_hmac_signctx(EVP_PKEY_CTX * ctx, uchar * sig,
     size_t * siglen, EVP_MD_CTX * mctx)
 {
-	unsigned int hlen;
+	uint hlen;
 	OSSL_HMAC_PKEY_CTX * hctx = EVP_PKEY_CTX_get_data(ctx);
 	int l = EVP_MD_CTX_size(mctx);
 
@@ -576,7 +576,7 @@ static int ossl_hmac_ctrl_str(EVP_PKEY_CTX * ctx,
 		return ossl_hmac_ctrl(ctx, EVP_PKEY_CTRL_SET_MAC_KEY, -1, p);
 	}
 	if(sstreq(type, "hexkey")) {
-		unsigned char * key;
+		uchar * key;
 		int r;
 		long keylen;
 		key = OPENSSL_hexstr2buf(value, &keylen);

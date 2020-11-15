@@ -102,15 +102,11 @@ void EVP_CIPHER_do_all(void (*fn)(const EVP_CIPHER * ciph, const char * from, co
 	OBJ_NAME_do_all(OBJ_NAME_TYPE_CIPHER_METH, do_all_cipher_fn, &dc);
 }
 
-void EVP_CIPHER_do_all_sorted(void (*fn)(const EVP_CIPHER * ciph,
-    const char * from, const char * to,
-    void * x), void * arg)
+void EVP_CIPHER_do_all_sorted(void (*fn)(const EVP_CIPHER * ciph, const char * from, const char * to, void * x), void * arg)
 {
 	struct doall_cipher dc;
-
 	/* Ignore errors */
 	OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL);
-
 	dc.fn = fn;
 	dc.arg = arg;
 	OBJ_NAME_do_all_sorted(OBJ_NAME_TYPE_CIPHER_METH, do_all_cipher_fn, &dc);

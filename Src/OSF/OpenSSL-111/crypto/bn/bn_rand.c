@@ -18,7 +18,7 @@ typedef enum bnrand_flag_e {
 
 static int bnrand(BNRAND_FLAG flag, BIGNUM * rnd, int bits, int top, int bottom)
 {
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	int b, ret = 0, bit, bytes, mask;
 	if(bits == 0) {
 		if(top != BN_RAND_TOP_ANY || bottom != BN_RAND_BOTTOM_ANY)
@@ -49,7 +49,7 @@ static int bnrand(BNRAND_FLAG flag, BIGNUM * rnd, int bits, int top, int bottom)
 		 * generate patterns that are more likely to trigger BN library bugs
 		 */
 		int i;
-		unsigned char c;
+		uchar c;
 
 		for(i = 0; i < bytes; i++) {
 			if(RAND_bytes(&c, 1) <= 0)
@@ -202,7 +202,7 @@ int BN_pseudo_rand_range(BIGNUM * r, const BIGNUM * range)
  * used.
  */
 int BN_generate_dsa_nonce(BIGNUM * out, const BIGNUM * range,
-    const BIGNUM * priv, const unsigned char * message,
+    const BIGNUM * priv, const uchar * message,
     size_t message_len, BN_CTX * ctx)
 {
 	SHA512_CTX sha;
@@ -210,13 +210,13 @@ int BN_generate_dsa_nonce(BIGNUM * out, const BIGNUM * range,
 	 * We use 512 bits of random data per iteration to ensure that we have at
 	 * least |range| bits of randomness.
 	 */
-	unsigned char random_bytes[64];
-	unsigned char digest[SHA512_DIGEST_LENGTH];
+	uchar random_bytes[64];
+	uchar digest[SHA512_DIGEST_LENGTH];
 	unsigned done, todo;
 	/* We generate |range|+8 bytes of random output. */
 	const unsigned num_k_bytes = BN_num_bytes(range) + 8;
-	unsigned char private_bytes[96];
-	unsigned char * k_bytes;
+	uchar private_bytes[96];
+	uchar * k_bytes;
 	int ret = 0;
 
 	k_bytes = static_cast<uchar *>(OPENSSL_malloc(num_k_bytes));

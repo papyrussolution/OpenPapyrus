@@ -175,7 +175,7 @@ OSSL_STORE_SEARCH *OSSL_STORE_SEARCH_by_issuer_serial(X509_NAME *name,
                                                       const ASN1_INTEGER
                                                       *serial);
 OSSL_STORE_SEARCH *OSSL_STORE_SEARCH_by_key_fingerprint(const EVP_MD *digest,
-                                                        const unsigned char
+                                                        const uchar
                                                         *bytes, size_t len);
 OSSL_STORE_SEARCH *OSSL_STORE_SEARCH_by_alias(const char *alias);
 
@@ -187,7 +187,7 @@ int OSSL_STORE_SEARCH_get_type(const OSSL_STORE_SEARCH *criterion);
 X509_NAME *OSSL_STORE_SEARCH_get0_name(OSSL_STORE_SEARCH *criterion);
 const ASN1_INTEGER *OSSL_STORE_SEARCH_get0_serial(const OSSL_STORE_SEARCH
                                                   *criterion);
-const unsigned char *OSSL_STORE_SEARCH_get0_bytes(const OSSL_STORE_SEARCH
+const uchar *OSSL_STORE_SEARCH_get0_bytes(const OSSL_STORE_SEARCH
                                                   *criterion, size_t *length);
 const char *OSSL_STORE_SEARCH_get0_string(const OSSL_STORE_SEARCH *criterion);
 const EVP_MD *OSSL_STORE_SEARCH_get0_digest(const OSSL_STORE_SEARCH *criterion);

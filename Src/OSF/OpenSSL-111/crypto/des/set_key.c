@@ -23,7 +23,7 @@
 /* defaults to false */
 OPENSSL_IMPLEMENT_GLOBAL(int, DES_check_key, 0)
 
-static const unsigned char odd_parity[256] = {
+static const uchar odd_parity[256] = {
 	1, 1, 2, 2, 4, 4, 7, 7, 8, 8, 11, 11, 13, 13, 14, 14,
 	16, 16, 19, 19, 21, 21, 22, 22, 25, 25, 26, 26, 28, 28, 31, 31,
 	32, 32, 35, 35, 37, 37, 38, 38, 41, 41, 42, 42, 44, 44, 47, 47,
@@ -54,7 +54,7 @@ static const unsigned char odd_parity[256] = {
 
 void DES_set_odd_parity(DES_cblock * key)
 {
-	unsigned int i;
+	uint i;
 
 	for(i = 0; i < DES_KEY_SZ; i++)
 		(*key)[i] = odd_parity[(*key)[i]];
@@ -62,7 +62,7 @@ void DES_set_odd_parity(DES_cblock * key)
 
 int DES_check_key_parity(const_DES_cblock * key)
 {
-	unsigned int i;
+	uint i;
 
 	for(i = 0; i < DES_KEY_SZ; i++) {
 		if((*key)[i] != odd_parity[(*key)[i]])
@@ -305,23 +305,19 @@ int DES_set_key_checked(const_DES_cblock * key, DES_key_schedule * schedule)
 
 void DES_set_key_unchecked(const_DES_cblock * key, DES_key_schedule * schedule)
 {
-	static const int shifts2[16] =
-	{ 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0 };
-	register DES_LONG c, d, t, s, t2;
-	register const unsigned char * in;
-	register DES_LONG * k;
-	register int i;
-
+	static const int shifts2[16] = { 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0 };
+	DES_LONG c, d, t, s, t2;
+	const uchar * in;
+	DES_LONG * k;
+	int i;
 #ifdef OPENBSD_DEV_CRYPTO
 	memcpy(schedule->key, key, sizeof(schedule->key));
 	schedule->session = NULL;
 #endif
 	k = &schedule->ks->deslong[0];
 	in = &(*key)[0];
-
 	c2l(in, c);
 	c2l(in, d);
-
 	/*
 	 * do PC1 in 47 simple operations. Thanks to John Fletcher
 	 * for the inspiration.

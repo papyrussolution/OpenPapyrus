@@ -101,7 +101,7 @@ static int b64_read(BIO * b, char * out, int outl)
 {
 	int ret = 0, i, ii, j, k, x, n, num, ret_code = 0;
 	BIO_B64_CTX * ctx;
-	unsigned char * p, * q;
+	uchar * p, * q;
 	BIO * next;
 	if(out == NULL)
 		return 0;
@@ -398,7 +398,7 @@ static int b64_write(BIO * b, const char * in, int inl)
 				n -= n % 3;
 				ctx->buf_len =
 				    EVP_EncodeBlock((uchar *)ctx->buf,
-					(const unsigned char*)in, n);
+					(const uchar*)in, n);
 				OPENSSL_assert(ctx->buf_len <= (int)sizeof(ctx->buf));
 				OPENSSL_assert(ctx->buf_len >= ctx->buf_off);
 				ret += n;

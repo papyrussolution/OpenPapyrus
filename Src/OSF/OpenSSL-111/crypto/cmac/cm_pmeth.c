@@ -67,7 +67,7 @@ static int cmac_signctx_init(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx)
 	return 1;
 }
 
-static int cmac_signctx(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * siglen, EVP_MD_CTX * mctx)
+static int cmac_signctx(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, EVP_MD_CTX * mctx)
 {
 	return CMAC_Final(static_cast<CMAC_CTX *>(ctx->data), sig, siglen);
 }

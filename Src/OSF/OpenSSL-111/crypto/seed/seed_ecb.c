@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include <openssl/seed.h>
 
-void SEED_ecb_encrypt(const unsigned char * in, unsigned char * out,
+void SEED_ecb_encrypt(const uchar * in, uchar * out,
     const SEED_KEY_SCHEDULE * ks, int enc)
 {
 	if(enc)

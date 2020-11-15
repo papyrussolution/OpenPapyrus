@@ -44,7 +44,7 @@ static int names_type_num = OBJ_NAME_TYPE_NUM;
 static CRYPTO_RWLOCK * obj_lock = NULL;
 
 struct name_funcs_st {
-	unsigned long (* hash_func) (const char * name);
+	ulong (* hash_func) (const char * name);
 	int (* cmp_func) (const char * a, const char * b);
 	void (* free_func) (const char *, int, const char *);
 };
@@ -57,7 +57,7 @@ static STACK_OF(NAME_FUNCS) *name_funcs_stack;
  * casting without the need for macro-generated wrapper functions.
  */
 
-static unsigned long obj_name_hash(const OBJ_NAME * a);
+static ulong obj_name_hash(const OBJ_NAME * a);
 static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b);
 
 static CRYPTO_ONCE init = CRYPTO_ONCE_STATIC_INIT;
@@ -75,7 +75,7 @@ int OBJ_NAME_init(void)
 	return RUN_ONCE(&init, o_names_init);
 }
 
-int OBJ_NAME_new_index(unsigned long (*hash_func)(const char *),
+int OBJ_NAME_new_index(ulong (*hash_func)(const char *),
     int (*cmp_func)(const char *, const char *),
     void (*free_func)(const char *, int, const char *))
 {
@@ -148,9 +148,9 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 	return ret;
 }
 
-static unsigned long obj_name_hash(const OBJ_NAME * a)
+static ulong obj_name_hash(const OBJ_NAME * a)
 {
-	unsigned long ret;
+	ulong ret;
 
 	if((name_funcs_stack != NULL)
 	    && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
@@ -372,7 +372,7 @@ static void name_funcs_free(NAME_FUNCS * ptr)
 
 void OBJ_NAME_cleanup(int type)
 {
-	unsigned long down_load;
+	ulong down_load;
 
 	if(names_lh == NULL)
 		return;

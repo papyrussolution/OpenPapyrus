@@ -18,7 +18,7 @@ struct X509_VERIFY_PARAM_st {
     char *name;
     time_t check_time;          /* Time to use */
     uint32_t inh_flags;         /* Inheritance flags */
-    unsigned long flags;        /* Various verify flags */
+    ulong flags;        /* Various verify flags */
     int purpose;                /* purpose to check untrusted certificates */
     int trust;                  /* trust setting to check */
     int depth;                  /* Verify depth */
@@ -26,11 +26,11 @@ struct X509_VERIFY_PARAM_st {
     STACK_OF(ASN1_OBJECT) *policies; /* Permissible policies */
     /* Peer identity details */
     STACK_OF(OPENSSL_STRING) *hosts; /* Set of acceptable names */
-    unsigned int hostflags;     /* Flags to control matching features */
+    uint hostflags;     /* Flags to control matching features */
     char *peername;             /* Matching hostname in peer certificate */
     char *email;                /* If not NULL email address to match */
     size_t emaillen;
-    unsigned char *ip;          /* If not NULL IP address to match */
+    uchar *ip;          /* If not NULL IP address to match */
     size_t iplen;               /* Length of IP address */
 };
 
@@ -81,7 +81,7 @@ struct x509_lookup_method_st {
                                  X509_NAME *name, ASN1_INTEGER *serial,
                                  X509_OBJECT *ret);
     int (*get_by_fingerprint) (X509_LOOKUP *ctx, X509_LOOKUP_TYPE type,
-                               const unsigned char *bytes, int len,
+                               const uchar *bytes, int len,
                                X509_OBJECT *ret);
     int (*get_by_alias) (X509_LOOKUP *ctx, X509_LOOKUP_TYPE type,
                          const char *str, int len, X509_OBJECT *ret);

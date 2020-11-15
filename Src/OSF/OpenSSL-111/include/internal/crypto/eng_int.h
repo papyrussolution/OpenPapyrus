@@ -22,7 +22,7 @@ extern CRYPTO_RWLOCK * global_engine_lock;
  * If we compile with this symbol defined, then both reference counts in the
  * ENGINE structure will be monitored with a line of output on stderr for
  * each change. This prints the engine's pointer address (truncated to
- * unsigned int), "struct" or "funct" to indicate the reference type, the
+ * uint), "struct" or "funct" to indicate the reference type, the
  * before and after reference count, and the file:line-number pair. The
  * "engine_ref_debug" statements must come *after* the change.
  */

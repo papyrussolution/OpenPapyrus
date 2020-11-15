@@ -14,10 +14,10 @@
 	#include <openssl/ebcdic.h>
 #endif
 
-unsigned char * MD5(const unsigned char * d, size_t n, unsigned char * md)
+uchar * MD5(const uchar * d, size_t n, uchar * md)
 {
 	MD5_CTX c;
-	static unsigned char m[MD5_DIGEST_LENGTH];
+	static uchar m[MD5_DIGEST_LENGTH];
 	if(md == NULL)
 		md = m;
 	if(!MD5_Init(&c))
@@ -27,7 +27,7 @@ unsigned char * MD5(const unsigned char * d, size_t n, unsigned char * md)
 #else
 	{
 		char temp[1024];
-		unsigned long chunk;
+		ulong chunk;
 
 		while(n > 0) {
 			chunk = (n > sizeof(temp)) ? sizeof(temp) : n;

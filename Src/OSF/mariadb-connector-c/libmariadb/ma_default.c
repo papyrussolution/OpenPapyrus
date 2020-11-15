@@ -18,16 +18,8 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include "ma_string.h"
-//#include <ctype.h>
-//#include "mariadb_ctype.h"
-//#include <mysql.h>
-//#include <ma_common.h>
-//#include <mariadb/ma_io.h>
 
 #ifdef _WIN32
-//#include <io.h>
 #include "shlwapi.h"
 
 static const char * ini_exts[] = {"ini", "cnf", 0};
@@ -40,7 +32,7 @@ static const char * ini_exts[] = {"cnf", 0};
 char ** configuration_dirs = NULL;
 #define MAX_CONFIG_DIRS 6
 
-my_bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, unsigned int recursion);
+bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, unsigned int recursion);
 
 static int add_cfg_dir(char ** cfg_dirs, const char * directory)
 {
@@ -122,9 +114,9 @@ error:
 	return NULL;
 }
 
-extern my_bool _mariadb_set_conf_option(MYSQL * mysql, const char * config_option, const char * config_value);
+extern bool _mariadb_set_conf_option(MYSQL * mysql, const char * config_option, const char * config_value);
 
-static my_bool is_group(char * ptr, const char ** groups)
+static bool is_group(char * ptr, const char ** groups)
 {
 	while(*groups) {
 		if(sstreq(ptr, *groups))
@@ -134,15 +126,15 @@ static my_bool is_group(char * ptr, const char ** groups)
 	return 0;
 }
 
-static my_bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_file, const char * group, unsigned int recursion)
+static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_file, const char * group, unsigned int recursion)
 {
 	uint line = 0;
-	my_bool read_values = 0, found_group = 0, is_escaped = 0, is_quoted = 0;
+	bool read_values = 0, found_group = 0, is_escaped = 0, is_quoted = 0;
 	char buff[4096], * ptr, * end, * value, * key = 0, * optval;
 	MA_FILE * file = NULL;
-	my_bool rc = 1;
+	bool rc = 1;
 	const char * groups[5] = {"client", "client-server", "client-mariadb", group, NULL};
-	my_bool (* set_option)(MYSQL * mysql, const char * config_option, const char * config_value);
+	bool (* set_option)(MYSQL * mysql, const char * config_option, const char * config_value);
 
 	/* if a plugin registered a hook we will call this hook, otherwise
 	 * default (_mariadb_set_conf_option) will be called */
@@ -275,7 +267,7 @@ err:
 	return rc;
 }
 
-my_bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, unsigned int recursion)
+bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, unsigned int recursion)
 {
 	int i = 0;
 	int exts;

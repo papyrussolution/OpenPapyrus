@@ -10,11 +10,6 @@
 #define HEADER_DES_LOCL_H
 
 #include <openssl/e_os2.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <openssl/des.h>
 
 #ifdef OPENSSL_BUILD_SHLIBCRYPTO
@@ -101,7 +96,7 @@
 #define ROTATE(a,n)     (_rotr(a,n))
 # elif defined(__GNUC__) && __GNUC__>=2 && !defined(__STRICT_ANSI__) && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) && !defined(PEDANTIC)
 #  if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
-#   define ROTATE(a,n)   ({ register unsigned int ret;   \
+		#define ROTATE(a,n)   ({ uint ret;   \
                                 asm ("rorl %1,%0"       \
                                         : "=r"(ret)     \
                                         : "I"(n),"0"(a) \
@@ -199,7 +194,7 @@
 
 #define IP(l,r) \
         { \
-        register DES_LONG tt; \
+        DES_LONG tt; \
         PERM_OP(r,l,tt, 4,0x0f0f0f0fL); \
         PERM_OP(l,r,tt,16,0x0000ffffL); \
         PERM_OP(r,l,tt, 2,0x33333333L); \
@@ -209,7 +204,7 @@
 
 #define FP(l,r) \
         { \
-        register DES_LONG tt; \
+        DES_LONG tt; \
         PERM_OP(l,r,tt, 1,0x55555555L); \
         PERM_OP(r,l,tt, 8,0x00ff00ffL); \
         PERM_OP(l,r,tt, 2,0x33333333L); \

@@ -34,15 +34,15 @@ static COMP_METHOD zlib_method_nozlib = {
 
 static int zlib_stateful_init(COMP_CTX * ctx);
 static void zlib_stateful_finish(COMP_CTX * ctx);
-static int zlib_stateful_compress_block(COMP_CTX * ctx, unsigned char * out,
-    unsigned int olen, unsigned char * in,
-    unsigned int ilen);
-static int zlib_stateful_expand_block(COMP_CTX * ctx, unsigned char * out,
-    unsigned int olen, unsigned char * in,
-    unsigned int ilen);
+static int zlib_stateful_compress_block(COMP_CTX * ctx, uchar * out,
+    uint olen, uchar * in,
+    uint ilen);
+static int zlib_stateful_expand_block(COMP_CTX * ctx, uchar * out,
+    uint olen, uchar * in,
+    uint ilen);
 
 /* memory allocations functions for zlib initialisation */
-static void * zlib_zalloc(void * opaque, unsigned int no, unsigned int size)
+static void * zlib_zalloc(void * opaque, uint no, uint size)
 {
 	void * p;
 	p = OPENSSL_zalloc(no * size);
@@ -69,25 +69,20 @@ static COMP_METHOD zlib_stateful_method = {
  * work.  Therefore, all ZLIB routines are loaded at run time
  * and we do not link to a .LIB file when ZLIB_SHARED is set.
  */
-# if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)
-#include <windows.h>
-#endif                         /* !(OPENSSL_SYS_WINDOWS ||
-                                 * OPENSSL_SYS_WIN32) */
-
+//#if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)
+	//#include <windows.h>
+//#endif /* !(OPENSSL_SYS_WINDOWS || OPENSSL_SYS_WIN32) */
 #ifdef ZLIB_SHARED
 #include "internal/dso.h"
 
 /* Function pointers */
-typedef int (* compress_ft) (Bytef * dest, uLongf * destLen,
-    const Bytef * source, uLong sourceLen);
+typedef int (* compress_ft) (Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen);
 typedef int (* inflateEnd_ft) (z_streamp strm);
 typedef int (* inflate_ft) (z_streamp strm, int flush);
-typedef int (* inflateInit__ft) (z_streamp strm,
-    const char * version, int stream_size);
+typedef int (* inflateInit__ft) (z_streamp strm, const char * version, int stream_size);
 typedef int (* deflateEnd_ft) (z_streamp strm);
 typedef int (* deflate_ft) (z_streamp strm, int flush);
-typedef int (* deflateInit__ft) (z_streamp strm, int level,
-    const char * version, int stream_size);
+typedef int (* deflateInit__ft) (z_streamp strm, int level, const char * version, int stream_size);
 typedef const char *(* zError__ft) (int err);
 static compress_ft p_compress = NULL;
 static inflateEnd_ft p_inflateEnd = NULL;
@@ -156,9 +151,9 @@ static void zlib_stateful_finish(COMP_CTX * ctx)
 	OPENSSL_free(state);
 }
 
-static int zlib_stateful_compress_block(COMP_CTX * ctx, unsigned char * out,
-    unsigned int olen, unsigned char * in,
-    unsigned int ilen)
+static int zlib_stateful_compress_block(COMP_CTX * ctx, uchar * out,
+    uint olen, uchar * in,
+    uint ilen)
 {
 	int err = Z_OK;
 	struct zlib_state * state = static_cast<zlib_state *>(ctx->data);
@@ -175,7 +170,7 @@ static int zlib_stateful_compress_block(COMP_CTX * ctx, unsigned char * out,
 	return olen - state->ostream.avail_out;
 }
 
-static int zlib_stateful_expand_block(COMP_CTX * ctx, unsigned char * out, unsigned int olen, unsigned char * in, unsigned int ilen)
+static int zlib_stateful_expand_block(COMP_CTX * ctx, uchar * out, uint olen, uchar * in, uint ilen)
 {
 	int err = Z_OK;
 	struct zlib_state * state = static_cast<zlib_state *>(ctx->data);
@@ -260,12 +255,12 @@ void comp_zlib_cleanup_int(void)
 /* Zlib based compression/decompression filter BIO */
 
 typedef struct {
-	unsigned char * ibuf;   /* Input buffer */
+	uchar * ibuf;   /* Input buffer */
 	int ibufsize;           /* Buffer size */
 	z_stream zin;           /* Input decompress context */
-	unsigned char * obuf;   /* Output buffer */
+	uchar * obuf;   /* Output buffer */
 	int obufsize;           /* Output buffer size */
-	unsigned char * optr;   /* Position in output buffer */
+	uchar * optr;   /* Position in output buffer */
 	int ocount;             /* Amount of data in output buffer */
 	int odone;              /* deflate EOF */
 	int comp_level;         /* Compression level to use */

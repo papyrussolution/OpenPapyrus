@@ -22,7 +22,7 @@ extern "C" {
 
 typedef struct lhash_node_st OPENSSL_LH_NODE;
 typedef int (*OPENSSL_LH_COMPFUNC) (const void *, const void *);
-typedef unsigned long (*OPENSSL_LH_HASHFUNC) (const void *);
+typedef ulong (*OPENSSL_LH_HASHFUNC) (const void *);
 typedef void (*OPENSSL_LH_DOALL_FUNC) (void *);
 typedef void (*OPENSSL_LH_DOALL_FUNCARG) (void *, void *);
 typedef struct lhash_st OPENSSL_LHASH;
@@ -38,9 +38,9 @@ typedef struct lhash_st OPENSSL_LHASH;
 
 /* First: "hash" functions */
 #define DECLARE_LHASH_HASH_FN(name, o_type) \
-        unsigned long name##_LHASH_HASH(const void *);
+        ulong name##_LHASH_HASH(const void *);
 #define IMPLEMENT_LHASH_HASH_FN(name, o_type) \
-        unsigned long name##_LHASH_HASH(const void *arg) { \
+        ulong name##_LHASH_HASH(const void *arg) { \
                 const o_type *a = arg; \
                 return name##_hash(a); }
 #define LHASH_HASH_FN(name) name##_LHASH_HASH
@@ -76,10 +76,10 @@ void *OPENSSL_LH_delete(OPENSSL_LHASH *lh, const void *data);
 void *OPENSSL_LH_retrieve(OPENSSL_LHASH *lh, const void *data);
 void OPENSSL_LH_doall(OPENSSL_LHASH *lh, OPENSSL_LH_DOALL_FUNC func);
 void OPENSSL_LH_doall_arg(OPENSSL_LHASH *lh, OPENSSL_LH_DOALL_FUNCARG func, void *arg);
-unsigned long OPENSSL_LH_strhash(const char *c);
-unsigned long OPENSSL_LH_num_items(const OPENSSL_LHASH *lh);
-unsigned long OPENSSL_LH_get_down_load(const OPENSSL_LHASH *lh);
-void OPENSSL_LH_set_down_load(OPENSSL_LHASH *lh, unsigned long down_load);
+ulong OPENSSL_LH_strhash(const char *c);
+ulong OPENSSL_LH_num_items(const OPENSSL_LHASH *lh);
+ulong OPENSSL_LH_get_down_load(const OPENSSL_LHASH *lh);
+void OPENSSL_LH_set_down_load(OPENSSL_LHASH *lh, ulong down_load);
 
 #ifndef OPENSSL_NO_STDIO
 void OPENSSL_LH_stats(const OPENSSL_LHASH *lh, FILE *fp);
@@ -118,9 +118,9 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 #define LHASH_OF(type) struct lhash_st_##type
 
 #define DEFINE_LHASH_OF(type) \
-    LHASH_OF(type) { union lh_##type##_dummy { void* d1; unsigned long d2; int d3; } dummy; }; \
+    LHASH_OF(type) { union lh_##type##_dummy { void* d1; ulong d2; int d3; } dummy; }; \
     static ossl_inline LHASH_OF(type) * \
-        lh_##type##_new(unsigned long (*hfn)(const type *), \
+        lh_##type##_new(ulong (*hfn)(const type *), \
                         int (*cfn)(const type *, const type *)) \
     { \
         return (LHASH_OF(type) *) \
@@ -146,7 +146,7 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
     { \
         return OPENSSL_LH_error((OPENSSL_LHASH *)lh); \
     } \
-    static ossl_unused ossl_inline unsigned long lh_##type##_num_items(LHASH_OF(type) *lh) \
+    static ossl_unused ossl_inline ulong lh_##type##_num_items(LHASH_OF(type) *lh) \
     { \
         return OPENSSL_LH_num_items((OPENSSL_LHASH *)lh); \
     } \
@@ -162,11 +162,11 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
     { \
         OPENSSL_LH_stats_bio((const OPENSSL_LHASH *)lh, out); \
     } \
-    static ossl_unused ossl_inline unsigned long lh_##type##_get_down_load(LHASH_OF(type) *lh) \
+    static ossl_unused ossl_inline ulong lh_##type##_get_down_load(LHASH_OF(type) *lh) \
     { \
         return OPENSSL_LH_get_down_load((OPENSSL_LHASH *)lh); \
     } \
-    static ossl_unused ossl_inline void lh_##type##_set_down_load(LHASH_OF(type) *lh, unsigned long dl) \
+    static ossl_unused ossl_inline void lh_##type##_set_down_load(LHASH_OF(type) *lh, ulong dl) \
     { \
         OPENSSL_LH_set_down_load((OPENSSL_LHASH *)lh, dl); \
     } \

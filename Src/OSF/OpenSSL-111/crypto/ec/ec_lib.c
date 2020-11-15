@@ -472,7 +472,7 @@ point_conversion_form_t EC_GROUP_get_point_conversion_form(const EC_GROUP
 	return group->asn1_form;
 }
 
-size_t EC_GROUP_set_seed(EC_GROUP * group, const unsigned char * p, size_t len)
+size_t EC_GROUP_set_seed(EC_GROUP * group, const uchar * p, size_t len)
 {
 	OPENSSL_free(group->seed);
 	group->seed = NULL;
@@ -491,7 +491,7 @@ size_t EC_GROUP_set_seed(EC_GROUP * group, const unsigned char * p, size_t len)
 	return len;
 }
 
-unsigned char * EC_GROUP_get0_seed(const EC_GROUP * group)
+uchar * EC_GROUP_get0_seed(const EC_GROUP * group)
 {
 	return group->seed;
 }

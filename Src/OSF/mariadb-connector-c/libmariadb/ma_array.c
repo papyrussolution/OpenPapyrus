@@ -21,14 +21,11 @@
 #include <ma_global.h>
 #pragma hdrstop
 #undef SAFEMALLOC /* Problems with threads */
-//#include <ma_sys.h>
-//#include "ma_string.h"
-//#include <memory.h>
 /*
    Initiate array and alloc space for init_alloc elements. Array is usable
    even if space allocation failed
  */
-my_bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size,
+bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size,
     uint init_alloc, uint alloc_increment CALLER_INFO_PROTO)
 {
 	if(!alloc_increment) {
@@ -49,7 +46,7 @@ my_bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size,
 	return(FALSE);
 }
 
-my_bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element)
+bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element)
 {
 	void * buffer;
 	if(array->elements == array->max_element) { /* Call only when necessary */
@@ -87,7 +84,7 @@ unsigned char * ma_pop_dynamic(DYNAMIC_ARRAY * array)
 	return 0;
 }
 
-my_bool ma_set_dynamic(DYNAMIC_ARRAY * array, void * element, uint idx)
+bool ma_set_dynamic(DYNAMIC_ARRAY * array, void * element, uint idx)
 {
 	if(idx >= array->elements) {
 		if(idx >= array->max_element) {

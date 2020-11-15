@@ -13,11 +13,11 @@
 #include <openssl/x509.h>
 //#include <evp_int.h>
 
-int EVP_VerifyFinal(EVP_MD_CTX * ctx, const unsigned char * sigbuf,
-    unsigned int siglen, EVP_PKEY * pkey)
+int EVP_VerifyFinal(EVP_MD_CTX * ctx, const uchar * sigbuf,
+    uint siglen, EVP_PKEY * pkey)
 {
-	unsigned char m[EVP_MAX_MD_SIZE];
-	unsigned int m_len = 0;
+	uchar m[EVP_MAX_MD_SIZE];
+	uint m_len = 0;
 	int i = 0;
 	EVP_PKEY_CTX * pkctx = NULL;
 

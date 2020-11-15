@@ -26,18 +26,18 @@ extern "C" {
  * 64-bit processor with LP64 ABI
  */
 #ifdef SIXTY_FOUR_BIT_LONG
-	#define BN_ULONG        unsigned long
+	#define BN_ULONG        ulong
 	#define BN_BYTES        8
 #endif
 /*
  * 64-bit processor other than LP64 ABI
  */
 #ifdef SIXTY_FOUR_BIT
-	#define BN_ULONG        unsigned long long
+	#define BN_ULONG        ulong long
 	#define BN_BYTES        8
 #endif
 #ifdef THIRTY_TWO_BIT
-	#define BN_ULONG        unsigned int
+	#define BN_ULONG        uint
 	#define BN_BYTES        4
 #endif
 #define BN_BITS2       (BN_BYTES * 8)
@@ -193,13 +193,13 @@ BIGNUM *BN_secure_new(void);
 void FASTCALL BN_clear_free(BIGNUM *a);
 BIGNUM *BN_copy(BIGNUM *a, const BIGNUM *b);
 void BN_swap(BIGNUM *a, BIGNUM *b);
-BIGNUM * FASTCALL BN_bin2bn(const unsigned char *s, int len, BIGNUM *ret);
-int FASTCALL BN_bn2bin(const BIGNUM *a, unsigned char *to);
-int BN_bn2binpad(const BIGNUM *a, unsigned char *to, int tolen);
-BIGNUM *BN_lebin2bn(const unsigned char *s, int len, BIGNUM *ret);
-int BN_bn2lebinpad(const BIGNUM *a, unsigned char *to, int tolen);
-BIGNUM *BN_mpi2bn(const unsigned char *s, int len, BIGNUM *ret);
-int BN_bn2mpi(const BIGNUM *a, unsigned char *to);
+BIGNUM * FASTCALL BN_bin2bn(const uchar *s, int len, BIGNUM *ret);
+int FASTCALL BN_bn2bin(const BIGNUM *a, uchar *to);
+int BN_bn2binpad(const BIGNUM *a, uchar *to, int tolen);
+BIGNUM *BN_lebin2bn(const uchar *s, int len, BIGNUM *ret);
+int BN_bn2lebinpad(const BIGNUM *a, uchar *to, int tolen);
+BIGNUM *BN_mpi2bn(const uchar *s, int len, BIGNUM *ret);
+int BN_bn2mpi(const BIGNUM *a, uchar *to);
 int BN_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
 int BN_usub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
 int BN_uadd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
@@ -308,8 +308,8 @@ int BN_BLINDING_is_current_thread(BN_BLINDING *b);
 void BN_BLINDING_set_current_thread(BN_BLINDING *b);
 int BN_BLINDING_lock(BN_BLINDING *b);
 int BN_BLINDING_unlock(BN_BLINDING *b);
-unsigned long BN_BLINDING_get_flags(const BN_BLINDING *);
-void BN_BLINDING_set_flags(BN_BLINDING *, unsigned long);
+ulong BN_BLINDING_get_flags(const BN_BLINDING *);
+void BN_BLINDING_set_flags(BN_BLINDING *, ulong);
 BN_BLINDING *BN_BLINDING_create_param(BN_BLINDING *b, const BIGNUM *e, BIGNUM *m, BN_CTX *ctx,
 	int (*bn_mod_exp) (BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx), BN_MONT_CTX *m_ctx);
 DEPRECATEDIN_0_9_8(void BN_set_params(int mul, int high, int low, int mont))
@@ -354,7 +354,7 @@ int BN_GF2m_mod_solve_quad(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *
 #define BN_GF2m_cmp(a, b) BN_ucmp((a), (b))
 /*-
  * Some functions allow for representation of the irreducible polynomials
- * as an unsigned int[], say p.  The irreducible f(t) is then of the form:
+ * as an uint[], say p.  The irreducible f(t) is then of the form:
  *     t^p[0] + t^p[1] + ... + t^p[k]
  * where m = p[0] > p[1] > ... > p[k] = 0.
  */
@@ -393,7 +393,7 @@ const BIGNUM *BN_get0_nist_prime_384(void);
 const BIGNUM *BN_get0_nist_prime_521(void);
 
 int (*BN_nist_mod_func(const BIGNUM *p)) (BIGNUM *r, const BIGNUM *a, const BIGNUM *field, BN_CTX *ctx);
-int BN_generate_dsa_nonce(BIGNUM *out, const BIGNUM *range, const BIGNUM *priv, const unsigned char *message, size_t message_len, BN_CTX *ctx);
+int BN_generate_dsa_nonce(BIGNUM *out, const BIGNUM *range, const BIGNUM *priv, const uchar *message, size_t message_len, BN_CTX *ctx);
 
 /* Primes from RFC 2409 */
 BIGNUM *BN_get_rfc2409_prime_768(BIGNUM *bn);

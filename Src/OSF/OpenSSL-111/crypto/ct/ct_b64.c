@@ -17,11 +17,11 @@
  * A new string will be malloc'd and assigned to |out|. This will be owned by
  * the caller. Do not provide a pre-allocated string in |out|.
  */
-static int ct_base64_decode(const char * in, unsigned char ** out)
+static int ct_base64_decode(const char * in, uchar ** out)
 {
 	size_t inlen = strlen(in);
 	int outlen, i;
-	unsigned char * outbuf = NULL;
+	uchar * outbuf = NULL;
 	if(inlen == 0) {
 		*out = NULL;
 		return 0;
@@ -55,14 +55,14 @@ err:
 	return -1;
 }
 
-SCT * SCT_new_from_base64(unsigned char version, const char * logid_base64,
+SCT * SCT_new_from_base64(uchar version, const char * logid_base64,
     ct_log_entry_type_t entry_type, uint64_t timestamp,
     const char * extensions_base64,
     const char * signature_base64)
 {
 	SCT * sct = SCT_new();
-	unsigned char * dec = NULL;
-	const unsigned char* p = NULL;
+	uchar * dec = NULL;
+	const uchar* p = NULL;
 	int declen;
 	if(sct == NULL) {
 		CTerr(CT_F_SCT_NEW_FROM_BASE64, ERR_R_MALLOC_FAILURE);
@@ -127,9 +127,9 @@ err:
  */
 int CTLOG_new_from_base64(CTLOG ** ct_log, const char * pkey_base64, const char * name)
 {
-	unsigned char * pkey_der = NULL;
+	uchar * pkey_der = NULL;
 	int pkey_der_len;
-	const unsigned char * p;
+	const uchar * p;
 	EVP_PKEY * pkey = NULL;
 
 	if(ct_log == NULL) {

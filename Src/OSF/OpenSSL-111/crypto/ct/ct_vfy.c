@@ -26,8 +26,8 @@ typedef enum sct_signature_type_t {
  */
 static int sct_ctx_update(EVP_MD_CTX * ctx, const SCT_CTX * sctx, const SCT * sct)
 {
-	unsigned char tmpbuf[12];
-	unsigned char * p, * der;
+	uchar tmpbuf[12];
+	uchar * p, * der;
 	size_t derlen;
 	/*+
 	 * digitally-signed struct {

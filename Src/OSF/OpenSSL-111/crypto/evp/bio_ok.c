@@ -101,7 +101,7 @@ typedef struct ok_struct {
 	EVP_MD_CTX * md;
 	int blockout;           /* output block is ready */
 	int sigio;              /* must process signature */
-	unsigned char buf[IOBS];
+	uchar buf[IOBS];
 } BIO_OK_CTX;
 
 static const BIO_METHOD methods_ok = {
@@ -425,7 +425,7 @@ static void longswap(void * _ptr, size_t len)
 	};
 	if(is_endian.little) {
 		size_t i;
-		unsigned char * p = static_cast<uchar *>(_ptr), c;
+		uchar * p = static_cast<uchar *>(_ptr), c;
 		for(i = 0; i < len; i += 4) {
 			c = p[0], p[0] = p[3], p[3] = c;
 			c = p[1], p[1] = p[2], p[2] = c;
@@ -477,7 +477,7 @@ static int sig_in(BIO * b)
 {
 	BIO_OK_CTX * ctx;
 	EVP_MD_CTX * md;
-	unsigned char tmp[EVP_MAX_MD_SIZE];
+	uchar tmp[EVP_MAX_MD_SIZE];
 	int ret = 0;
 	const EVP_MD * digest;
 	int md_size;
@@ -526,7 +526,7 @@ static int block_out(BIO * b)
 {
 	BIO_OK_CTX * ctx;
 	EVP_MD_CTX * md;
-	unsigned long tl;
+	ulong tl;
 	const EVP_MD * digest;
 	int md_size;
 
@@ -557,8 +557,8 @@ static int block_in(BIO * b)
 {
 	BIO_OK_CTX * ctx;
 	EVP_MD_CTX * md;
-	unsigned long tl = 0;
-	unsigned char tmp[EVP_MAX_MD_SIZE];
+	ulong tl = 0;
+	uchar tmp[EVP_MAX_MD_SIZE];
 	int md_size;
 
 	ctx = static_cast<BIO_OK_CTX *>(BIO_get_data(b));

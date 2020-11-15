@@ -438,7 +438,7 @@ static void gcm_ghash_4bit(u64 Xi[2], const u128 Htable[16],
 	 */
 	u128 Hshr4[16];         /* Htable shifted right by 4 bits */
 	u8 Hshl4[16];           /* Htable shifted left by 4 bits */
-	static const unsigned short rem_8bit[256] = {
+	static const ushort rem_8bit[256] = {
 		0x0000, 0x01C2, 0x0384, 0x0246, 0x0708, 0x06CA, 0x048C, 0x054E,
 		0x0E10, 0x0FD2, 0x0D94, 0x0C56, 0x0918, 0x08DA, 0x0A9C, 0x0B5E,
 		0x1C20, 0x1DE2, 0x1FA4, 0x1E66, 0x1B28, 0x1AEA, 0x18AC, 0x196E,
@@ -643,7 +643,7 @@ static void gcm_gmult_1bit(u64 Xi[2], const u64 H[2])
 	defined(_M_IX86)       || defined(_M_AMD64)    || defined(_M_X64))
 #define GHASH_ASM_X86_OR_64
 #define GCM_FUNCREF_4BIT
-extern unsigned int OPENSSL_ia32cap_P[];
+extern uint OPENSSL_ia32cap_P[];
 
 void gcm_init_clmul(u128 Htable[16], const u64 Xi[2]);
 void gcm_gmult_clmul(u64 Xi[2], const u128 Htable[16]);
@@ -693,7 +693,7 @@ void gcm_ghash_v8(u64 Xi[2], const u128 Htable[16], const u8 * inp,
 #include "sparc_arch.h"
 #define GHASH_ASM_SPARC
 #define GCM_FUNCREF_4BIT
-extern unsigned int OPENSSL_sparcv9cap_P[];
+extern uint OPENSSL_sparcv9cap_P[];
 void gcm_init_vis3(u128 Htable[16], const u64 Xi[2]);
 void gcm_gmult_vis3(u64 Xi[2], const u128 Htable[16]);
 void gcm_ghash_vis3(u64 Xi[2], const u128 Htable[16], const u8 * inp,
@@ -838,14 +838,14 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 #endif
 }
 
-void CRYPTO_gcm128_setiv(GCM128_CONTEXT * ctx, const unsigned char * iv,
+void CRYPTO_gcm128_setiv(GCM128_CONTEXT * ctx, const uchar * iv,
     size_t len)
 {
 	const union {
 		long one;
 		char little;
 	} is_endian = { 1 };
-	unsigned int ctr;
+	uint ctr;
 #ifdef GCM_FUNCREF_4BIT
 	void (*gcm_gmult_p)(u64 Xi[2], const u128 Htable[16]) = ctx->gmult;
 #endif
@@ -933,11 +933,11 @@ void CRYPTO_gcm128_setiv(GCM128_CONTEXT * ctx, const unsigned char * iv,
 		ctx->Yi.d[3] = ctr;
 }
 
-int CRYPTO_gcm128_aad(GCM128_CONTEXT * ctx, const unsigned char * aad,
+int CRYPTO_gcm128_aad(GCM128_CONTEXT * ctx, const uchar * aad,
     size_t len)
 {
 	size_t i;
-	unsigned int n;
+	uint n;
 	u64 alen = ctx->len.u[0];
 #ifdef GCM_FUNCREF_4BIT
 	void (*gcm_gmult_p)(u64 Xi[2], const u128 Htable[16]) = ctx->gmult;
@@ -995,14 +995,14 @@ int CRYPTO_gcm128_aad(GCM128_CONTEXT * ctx, const unsigned char * aad,
 }
 
 int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
-    const unsigned char * in, unsigned char * out,
+    const uchar * in, uchar * out,
     size_t len)
 {
 	const union {
 		long one;
 		char little;
 	} is_endian = { 1 };
-	unsigned int n, ctr, mres;
+	uint n, ctr, mres;
 	size_t i;
 	u64 mlen = ctx->len.u[1];
 	block128_f block = ctx->block;
@@ -1232,14 +1232,14 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 }
 
 int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
-    const unsigned char * in, unsigned char * out,
+    const uchar * in, uchar * out,
     size_t len)
 {
 	const union {
 		long one;
 		char little;
 	} is_endian = { 1 };
-	unsigned int n, ctr, mres;
+	uint n, ctr, mres;
 	size_t i;
 	u64 mlen = ctx->len.u[1];
 	block128_f block = ctx->block;
@@ -1477,7 +1477,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 }
 
 int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
-    const unsigned char * in, unsigned char * out,
+    const uchar * in, uchar * out,
     size_t len, ctr128_f stream)
 {
 #if defined(OPENSSL_SMALL_FOOTPRINT)
@@ -1487,7 +1487,7 @@ int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
 		long one;
 		char little;
 	} is_endian = { 1 };
-	unsigned int n, ctr, mres;
+	uint n, ctr, mres;
 	size_t i;
 	u64 mlen = ctx->len.u[1];
 	void * key = ctx->key;
@@ -1643,7 +1643,7 @@ int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
 }
 
 int CRYPTO_gcm128_decrypt_ctr32(GCM128_CONTEXT * ctx,
-    const unsigned char * in, unsigned char * out,
+    const uchar * in, uchar * out,
     size_t len, ctr128_f stream)
 {
 #if defined(OPENSSL_SMALL_FOOTPRINT)
@@ -1653,7 +1653,7 @@ int CRYPTO_gcm128_decrypt_ctr32(GCM128_CONTEXT * ctx,
 		long one;
 		char little;
 	} is_endian = { 1 };
-	unsigned int n, ctr, mres;
+	uint n, ctr, mres;
 	size_t i;
 	u64 mlen = ctx->len.u[1];
 	void * key = ctx->key;
@@ -1815,7 +1815,7 @@ int CRYPTO_gcm128_decrypt_ctr32(GCM128_CONTEXT * ctx,
 #endif
 }
 
-int CRYPTO_gcm128_finish(GCM128_CONTEXT * ctx, const unsigned char * tag,
+int CRYPTO_gcm128_finish(GCM128_CONTEXT * ctx, const uchar * tag,
     size_t len)
 {
 	const union {
@@ -1834,7 +1834,7 @@ int CRYPTO_gcm128_finish(GCM128_CONTEXT * ctx, const unsigned char * tag,
 
 #if defined(GHASH) && !defined(OPENSSL_SMALL_FOOTPRINT)
 	u128 bitlen;
-	unsigned int mres = ctx->mres;
+	uint mres = ctx->mres;
 	if(mres) {
 		unsigned blocks = (mres + 15) & -16;
 		memzero(ctx->Xn + mres, blocks - mres);
@@ -1888,7 +1888,7 @@ int CRYPTO_gcm128_finish(GCM128_CONTEXT * ctx, const unsigned char * tag,
 		return -1;
 }
 
-void CRYPTO_gcm128_tag(GCM128_CONTEXT * ctx, unsigned char * tag, size_t len)
+void CRYPTO_gcm128_tag(GCM128_CONTEXT * ctx, uchar * tag, size_t len)
 {
 	CRYPTO_gcm128_finish(ctx, NULL, 0);
 	memcpy(tag, ctx->Xi.c, len <= sizeof(ctx->Xi.c) ? len : sizeof(ctx->Xi.c));

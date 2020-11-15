@@ -443,7 +443,7 @@ int InetUrl::Parse(const char * pUrl)
 			}
 			// } @v10.9.2 
 			if(!_done) {
-				if(_url[1] == ':' && IsLetterASCII(_url[0])) {
+				if(_url[1] == ':' && isasciialpha(_url[0])) {
 					// Путь файловой системы
 					Protocol = GetSchemeId("file");
 					TermList.Add(cScheme, "file", 1);

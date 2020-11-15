@@ -4579,7 +4579,7 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 				// Удаление пакета
 				//
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 				do_dirty = 1;
 			}
 			else {
@@ -4597,9 +4597,9 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 					pPack->Rec.Ver_Signature = DS.GetVersion();
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
 					(ext_buffer = pPack->GetBuffer()).Strip();
-					THROW(ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					log_action_id = PPACN_OBJUPD;
 					do_dirty = 1;
 				}
@@ -4611,10 +4611,10 @@ int PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 			//
 			THROW(CheckRights(PPR_INS));
 			pPack->Rec.Ver_Signature = DS.GetVersion();
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			id = *pID;
 			(ext_buffer = pPack->GetBuffer()).Strip();
-			THROW(ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			log_action_id = PPACN_OBJADD;
 		}
 		if(log_action_id) {
@@ -4637,7 +4637,7 @@ int PPObjScale::GetPacket(PPID id, PPScalePacket * pPack)
 		if(Search(id, &pPack->Rec) > 0) {
 			{
 				SString text_buf;
-				THROW(ref->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), text_buf));
+				THROW(P_Ref->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_SCALEEXT), text_buf));
 				text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				pPack->SetBuffer(text_buf.Strip());
 			}
@@ -4686,7 +4686,7 @@ int PPObjScale::Edit(PPID * pID, void * extraPtr)
 			else {
 				SETIFZ(*pID, pack.Rec.ID);
 				/*if(oneof2(scale.ScaleTypeID, PPSCLT_CRCSHSRV, PPSCLT_DIGI))
-					THROW(ref->PutPropVlrString(PPOBJ_SCALE, *pID, SCLPRP_EXPPATHS, paths));*/
+					THROW(P_Ref->PutPropVlrString(PPOBJ_SCALE, *pID, SCLPRP_EXPPATHS, paths));*/
 				Dirty(*pID);
 				valid_data = 1;
 			}
@@ -4702,7 +4702,7 @@ int PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && oneof3(_obj, PPOBJ_GOODSGROUP, PPOBJ_QUOTKIND, PPOBJ_LOCATION)) {
 		SVector list(sizeof(PPScale)); // @v10.6.8 SArray-->SVector
-		int  r = ref->LoadItems(Obj, list);
+		int  r = P_Ref->LoadItems(Obj, list);
 		if(r > 0) {
 			PPScale * p_scale;
 			for(uint i = 0; ok && list.enumItems(&i, (void **)&p_scale);) {
@@ -4723,7 +4723,7 @@ int PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 int PPObjScale::SerializePacket(int dir, PPScalePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW(pPack->PPExtStrContainer::SerializeB(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -4866,7 +4866,7 @@ StrAssocArray * PPObjScale::MakeStrAssocList(void * extraPtr)
 	THROW_MEM(p_list);
 	{
 		PPScale rec;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if((!scale_type || scale_type == rec.ScaleTypeID) && (!group_id || rec.ParentID == group_id)) {
 				if(*strip(rec.Name) == 0)
 					ideqvalstr(rec.ID, rec.Name, sizeof(rec.Name));

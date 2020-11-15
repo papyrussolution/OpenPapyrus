@@ -119,7 +119,7 @@ int X509V3_add_standard_extensions(void)
 void * X509V3_EXT_d2i(X509_EXTENSION * ext)
 {
 	const X509V3_EXT_METHOD * method;
-	const unsigned char * p;
+	const uchar * p;
 	ASN1_STRING * extvalue;
 	int extlen;
 
@@ -207,12 +207,12 @@ void * X509V3_get_d2i(const STACK_OF(X509_EXTENSION) * x, int nid, int * crit,
  */
 
 int X509V3_add1_i2d(STACK_OF(X509_EXTENSION) ** x, int nid, void * value,
-    int crit, unsigned long flags)
+    int crit, ulong flags)
 {
 	int errcode, extidx = -1;
 	X509_EXTENSION * ext = NULL, * extmp;
 	STACK_OF(X509_EXTENSION) *ret = NULL;
-	unsigned long ext_op = flags & X509V3_ADD_OP_MASK;
+	ulong ext_op = flags & X509V3_ADD_OP_MASK;
 
 	/*
 	 * If appending we don't care if it exists, otherwise look for existing

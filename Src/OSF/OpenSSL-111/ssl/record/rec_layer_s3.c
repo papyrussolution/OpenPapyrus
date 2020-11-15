@@ -172,7 +172,7 @@ int ssl3_read_n(SSL * s, size_t n, size_t max, int extend, int clearold,
 	 * clearold == 0 then leave any old packets where they were
 	 */
 	size_t len, left, align = 0;
-	unsigned char * pkt;
+	uchar * pkt;
 	SSL3_BUFFER * rb;
 
 	if(n == 0)
@@ -417,7 +417,7 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 	    !SSL_WRITE_ETM(s) && SSL_USE_EXPLICIT_IV(s) &&
 	    EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_write_ctx)) &
 	    EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK) {
-		unsigned char aad[13];
+		uchar aad[13];
 		EVP_CTRL_TLS1_1_MULTIBLOCK_PARAM mb_param;
 		size_t packlen;
 		int packleni;
@@ -474,8 +474,8 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 
 			memcpy(aad, s->rlayer.write_sequence, 8);
 			aad[8] = type;
-			aad[9] = (unsigned char)(s->version >> 8);
-			aad[10] = (unsigned char)(s->version);
+			aad[9] = (uchar)(s->version >> 8);
+			aad[10] = (uchar)(s->version);
 			aad[11] = 0;
 			aad[12] = 0;
 			mb_param.out = NULL;
@@ -645,7 +645,7 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 	}
 }
 
-int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
+int do_ssl3_write(SSL * s, int type, const uchar * buf,
     size_t * pipelens, size_t numpipes,
     int create_empty_fragment, size_t * written)
 {
@@ -653,7 +653,7 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 	SSL3_RECORD wr[SSL_MAX_PIPELINES];
 	WPACKET * thispkt;
 	SSL3_RECORD * thiswr;
-	unsigned char * recordstart;
+	uchar * recordstart;
 	int i, mac_size, clear = 0;
 	size_t prefix_len = 0;
 	int eivlen = 0;
@@ -825,11 +825,11 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 	/* Clear our SSL3_RECORD structures */
 	memzero(wr, sizeof(wr));
 	for(j = 0; j < numpipes; j++) {
-		unsigned int version = (s->version == TLS1_3_VERSION) ? TLS1_2_VERSION
+		uint version = (s->version == TLS1_3_VERSION) ? TLS1_2_VERSION
 		    : s->version;
-		unsigned char * compressdata = NULL;
+		uchar * compressdata = NULL;
 		size_t maxcomplen;
-		unsigned int rectype;
+		uint rectype;
 
 		thispkt = &pkt[j];
 		thiswr = &wr[j];
@@ -871,7 +871,7 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 		/* lets setup the record stuff. */
 		SSL3_RECORD_set_data(thiswr, compressdata);
 		SSL3_RECORD_set_length(thiswr, pipelens[j]);
-		SSL3_RECORD_set_input(thiswr, (unsigned char*)&buf[totlen]);
+		SSL3_RECORD_set_input(thiswr, (uchar*)&buf[totlen]);
 		totlen += pipelens[j];
 
 		/*
@@ -955,7 +955,7 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 		 */
 
 		if(!SSL_WRITE_ETM(s) && mac_size != 0) {
-			unsigned char * mac;
+			uchar * mac;
 
 			if(!WPACKET_allocate_bytes(thispkt, mac_size, &mac)
 			    || !s->method->ssl3_enc->mac(s, thiswr, mac, 1)) {
@@ -1031,7 +1031,7 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 			goto err;
 		}
 		if(SSL_WRITE_ETM(s) && mac_size != 0) {
-			unsigned char * mac;
+			uchar * mac;
 
 			if(!WPACKET_allocate_bytes(thispkt, mac_size, &mac)
 			    || !s->method->ssl3_enc->mac(s, thiswr, mac, 1)) {
@@ -1049,7 +1049,7 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 			recordstart = WPACKET_get_curr(thispkt) - len - SSL3_RT_HEADER_LENGTH;
 			s->msg_callback(1, 0, SSL3_RT_HEADER, recordstart, SSL3_RT_HEADER_LENGTH, s, s->msg_callback_arg);
 			if(SSL_TREAT_AS_TLS13(s) && s->enc_write_ctx != NULL) {
-				unsigned char ctype = type;
+				uchar ctype = type;
 				s->msg_callback(1, s->version, SSL3_RT_INNER_CONTENT_TYPE, &ctype, 1, s, s->msg_callback_arg);
 			}
 		}
@@ -1104,7 +1104,7 @@ err:
  *
  * Return values are as per SSL_write()
  */
-int ssl3_write_pending(SSL * s, int type, const unsigned char * buf, size_t len,
+int ssl3_write_pending(SSL * s, int type, const uchar * buf, size_t len,
     size_t * written)
 {
 	int i;
@@ -1132,10 +1132,10 @@ int ssl3_write_pending(SSL * s, int type, const unsigned char * buf, size_t len,
 		if(s->wbio != NULL) {
 			s->rwstate = SSL_WRITING;
 			/* TODO(size_t): Convert this call */
-			i = BIO_write(s->wbio, (char*)
+			i = BIO_write(s->wbio, (char *)
 				&(SSL3_BUFFER_get_buf(&wb[currbuf])
 				[SSL3_BUFFER_get_offset(&wb[currbuf])]),
-				(unsigned int)SSL3_BUFFER_get_left(&wb[currbuf]));
+				(uint)SSL3_BUFFER_get_left(&wb[currbuf]));
 			if(i >= 0)
 				tmpwrit = i;
 		}
@@ -1197,7 +1197,7 @@ int ssl3_write_pending(SSL * s, int type, const unsigned char * buf, size_t len,
  *     Application data protocol
  *             none of our business
  */
-int ssl3_read_bytes(SSL * s, int type, int * recvd_type, unsigned char * buf,
+int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
     size_t len, int peek, size_t * readbytes)
 {
 	int i, j, ret;
@@ -1228,9 +1228,9 @@ int ssl3_read_bytes(SSL * s, int type, int * recvd_type, unsigned char * buf,
 
 	if((type == SSL3_RT_HANDSHAKE) && (s->rlayer.handshake_fragment_len > 0)) {
 		/* (partially) satisfy request from storage */
-		unsigned char * src = s->rlayer.handshake_fragment;
-		unsigned char * dst = buf;
-		unsigned int k;
+		uchar * src = s->rlayer.handshake_fragment;
+		uchar * dst = buf;
+		uint k;
 
 		/* peek == 0 */
 		n = 0;
@@ -1467,8 +1467,8 @@ start:
 	 */
 
 	if(SSL3_RECORD_get_type(rr) == SSL3_RT_ALERT) {
-		unsigned int alert_level, alert_descr;
-		unsigned char * alert_bytes = SSL3_RECORD_get_data(rr)
+		uint alert_level, alert_descr;
+		uchar * alert_bytes = SSL3_RECORD_get_data(rr)
 		    + SSL3_RECORD_get_off(rr);
 		PACKET alert;
 
@@ -1606,7 +1606,7 @@ start:
 	 */
 	if(SSL3_RECORD_get_type(rr) == SSL3_RT_HANDSHAKE) {
 		size_t dest_maxlen = sizeof(s->rlayer.handshake_fragment);
-		unsigned char * dest = s->rlayer.handshake_fragment;
+		uchar * dest = s->rlayer.handshake_fragment;
 		size_t * dest_len = &s->rlayer.handshake_fragment_len;
 
 		n = dest_maxlen - *dest_len; /* available space in 'dest' */
@@ -1740,7 +1740,7 @@ start:
 	}
 }
 
-void ssl3_record_sequence_update(unsigned char * seq)
+void ssl3_record_sequence_update(uchar * seq)
 {
 	int i;
 

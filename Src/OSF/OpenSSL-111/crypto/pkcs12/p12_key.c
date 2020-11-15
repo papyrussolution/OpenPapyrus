@@ -18,7 +18,7 @@
 #ifdef OPENSSL_DEBUG_KEYGEN
 #include <openssl/bio.h>
 extern BIO * bio_err;
-void h__dump(unsigned char * p, int len);
+void h__dump(uchar * p, int len);
 #endif
 
 /* PKCS12 compatible key/IV generation */
@@ -26,12 +26,12 @@ void h__dump(unsigned char * p, int len);
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
-int PKCS12_key_gen_asc(const char * pass, int passlen, unsigned char * salt,
+int PKCS12_key_gen_asc(const char * pass, int passlen, uchar * salt,
     int saltlen, int id, int iter, int n,
-    unsigned char * out, const EVP_MD * md_type)
+    uchar * out, const EVP_MD * md_type)
 {
 	int ret;
-	unsigned char * unipass;
+	uchar * unipass;
 	int uniplen;
 
 	if(!pass) {
@@ -50,12 +50,12 @@ int PKCS12_key_gen_asc(const char * pass, int passlen, unsigned char * salt,
 	return ret;
 }
 
-int PKCS12_key_gen_utf8(const char * pass, int passlen, unsigned char * salt,
+int PKCS12_key_gen_utf8(const char * pass, int passlen, uchar * salt,
     int saltlen, int id, int iter, int n,
-    unsigned char * out, const EVP_MD * md_type)
+    uchar * out, const EVP_MD * md_type)
 {
 	int ret;
-	unsigned char * unipass;
+	uchar * unipass;
 	int uniplen;
 
 	if(!pass) {
@@ -74,17 +74,17 @@ int PKCS12_key_gen_utf8(const char * pass, int passlen, unsigned char * salt,
 	return ret;
 }
 
-int PKCS12_key_gen_uni(unsigned char * pass, int passlen, unsigned char * salt,
+int PKCS12_key_gen_uni(uchar * pass, int passlen, uchar * salt,
     int saltlen, int id, int iter, int n,
-    unsigned char * out, const EVP_MD * md_type)
+    uchar * out, const EVP_MD * md_type)
 {
-	unsigned char * B = NULL, * D = NULL, * I = NULL, * p = NULL, * Ai = NULL;
+	uchar * B = NULL, * D = NULL, * I = NULL, * p = NULL, * Ai = NULL;
 	int Slen, Plen, Ilen;
 	int i, j, u, v;
 	int ret = 0;
 	EVP_MD_CTX * ctx = NULL;
 #ifdef  OPENSSL_DEBUG_KEYGEN
-	unsigned char * tmpout = out;
+	uchar * tmpout = out;
 	int tmpn = n;
 #endif
 
@@ -150,7 +150,7 @@ int PKCS12_key_gen_uni(unsigned char * pass, int passlen, unsigned char * salt,
 			B[j] = Ai[j % u];
 		for(j = 0; j < Ilen; j += v) {
 			int k;
-			unsigned char * Ij = I + j;
+			uchar * Ij = I + j;
 			uint16_t c = 1;
 
 			/* Work out Ij = Ij + B + 1 */
@@ -175,7 +175,7 @@ end:
 }
 
 #ifdef OPENSSL_DEBUG_KEYGEN
-void h__dump(unsigned char * p, int len)
+void h__dump(uchar * p, int len)
 {
 	for(; len--; p++)
 		fprintf(stderr, "%02X", *p);

@@ -21,7 +21,7 @@ static const gf MODULUS = {
 /* Serialize to wire format. */
 void gf_serialize(uint8_t serial[SER_BYTES], const gf x, int with_hibit)
 {
-	unsigned int j = 0, fill = 0;
+	uint j = 0, fill = 0;
 	dword_t buffer = 0;
 	int i;
 	gf red;
@@ -66,11 +66,11 @@ mask_t gf_lobit(const gf x)
 mask_t gf_deserialize(gf x, const uint8_t serial[SER_BYTES], int with_hibit,
     uint8_t hi_nmask)
 {
-	unsigned int j = 0, fill = 0;
+	uint j = 0, fill = 0;
 	dword_t buffer = 0;
 	dsword_t scarry = 0;
 	const unsigned nbytes = with_hibit ? X_SER_BYTES : SER_BYTES;
-	unsigned int i;
+	uint i;
 	mask_t succ;
 
 	for(i = 0; i < NLIMBS; i++) {
@@ -102,7 +102,7 @@ void gf_strong_reduce(gf a)
 	dsword_t scarry;
 	word_t scarry_0;
 	dword_t carry = 0;
-	unsigned int i;
+	uint i;
 
 	/* first, clear high */
 	gf_weak_reduce(a);      /* Determined to have negligible perf impact. */
@@ -158,7 +158,7 @@ mask_t gf_eq(const gf a, const gf b)
 {
 	gf c;
 	mask_t ret = 0;
-	unsigned int i;
+	uint i;
 
 	gf_sub(c, a, b);
 	gf_strong_reduce(c);

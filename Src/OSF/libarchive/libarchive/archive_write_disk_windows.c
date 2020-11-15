@@ -37,17 +37,8 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_SYS_UTIME_H
 #include <sys/utime.h>
 #endif
-#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-#endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
-#endif
-#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-#endif
-#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
 #endif
 #include <winioctl.h>
 

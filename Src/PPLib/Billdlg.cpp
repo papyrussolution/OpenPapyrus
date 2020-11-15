@@ -3413,7 +3413,7 @@ int PPObjBill::EditBillStatus(PPID billID)
 			PPObjBillStatus bs_obj;
 			PPBillStatus bs_rec;
 			SVector temp_list(sizeof(PPBillStatus)); // @v10.7.5 SArray-->SVector
-			for(SEnum en = bs_obj.ref->Enum(PPOBJ_BILLSTATUS, 0); en.Next(&bs_rec) > 0;) {
+			for(SEnum en = bs_obj.P_Ref->Enum(PPOBJ_BILLSTATUS, 0); en.Next(&bs_rec) > 0;) {
 				if(!Rec.OpID || !bs_rec.RestrictOpID || IsOpBelongTo(Rec.OpID, bs_rec.RestrictOpID)) {
 					THROW_SL(temp_list.insert(&bs_rec));
 					IsThereStatus = 1;

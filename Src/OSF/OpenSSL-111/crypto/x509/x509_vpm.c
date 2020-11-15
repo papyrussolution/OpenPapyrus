@@ -147,7 +147,7 @@ void X509_VERIFY_PARAM_free(X509_VERIFY_PARAM * param)
 int X509_VERIFY_PARAM_inherit(X509_VERIFY_PARAM * dest,
     const X509_VERIFY_PARAM * src)
 {
-	unsigned long inh_flags;
+	ulong inh_flags;
 	int to_default, to_overwrite;
 	if(!src)
 		return 1;
@@ -221,7 +221,7 @@ int X509_VERIFY_PARAM_inherit(X509_VERIFY_PARAM * dest,
 int X509_VERIFY_PARAM_set1(X509_VERIFY_PARAM * to,
     const X509_VERIFY_PARAM * from)
 {
-	unsigned long save_flags = to->inh_flags;
+	ulong save_flags = to->inh_flags;
 	int ret;
 	to->inh_flags |= X509_VP_FLAG_DEFAULT;
 	ret = X509_VERIFY_PARAM_inherit(to, from);
@@ -261,7 +261,7 @@ int X509_VERIFY_PARAM_set1_name(X509_VERIFY_PARAM * param, const char * name)
 	return 0;
 }
 
-int X509_VERIFY_PARAM_set_flags(X509_VERIFY_PARAM * param, unsigned long flags)
+int X509_VERIFY_PARAM_set_flags(X509_VERIFY_PARAM * param, ulong flags)
 {
 	param->flags |= flags;
 	if(flags & X509_V_FLAG_POLICY_MASK)
@@ -270,13 +270,13 @@ int X509_VERIFY_PARAM_set_flags(X509_VERIFY_PARAM * param, unsigned long flags)
 }
 
 int X509_VERIFY_PARAM_clear_flags(X509_VERIFY_PARAM * param,
-    unsigned long flags)
+    ulong flags)
 {
 	param->flags &= ~flags;
 	return 1;
 }
 
-unsigned long X509_VERIFY_PARAM_get_flags(X509_VERIFY_PARAM * param)
+ulong X509_VERIFY_PARAM_get_flags(X509_VERIFY_PARAM * param)
 {
 	return param->flags;
 }
@@ -382,12 +382,12 @@ int X509_VERIFY_PARAM_add1_host(X509_VERIFY_PARAM * param,
 }
 
 void X509_VERIFY_PARAM_set_hostflags(X509_VERIFY_PARAM * param,
-    unsigned int flags)
+    uint flags)
 {
 	param->hostflags = flags;
 }
 
-unsigned int X509_VERIFY_PARAM_get_hostflags(const X509_VERIFY_PARAM * param)
+uint X509_VERIFY_PARAM_get_hostflags(const X509_VERIFY_PARAM * param)
 {
 	return param->hostflags;
 }
@@ -423,17 +423,17 @@ int X509_VERIFY_PARAM_set1_email(X509_VERIFY_PARAM * param,
 }
 
 int X509_VERIFY_PARAM_set1_ip(X509_VERIFY_PARAM * param,
-    const unsigned char * ip, size_t iplen)
+    const uchar * ip, size_t iplen)
 {
 	if(iplen != 0 && iplen != 4 && iplen != 16)
 		return 0;
 	return int_x509_param_set1((char **)&param->ip, &param->iplen,
-		   (char*)ip, iplen);
+		   (char *)ip, iplen);
 }
 
 int X509_VERIFY_PARAM_set1_ip_asc(X509_VERIFY_PARAM * param, const char * ipasc)
 {
-	unsigned char ipout[16];
+	uchar ipout[16];
 	size_t iplen;
 
 	iplen = (size_t)a2i_ipadd(ipout, ipasc);
@@ -586,7 +586,7 @@ const X509_VERIFY_PARAM * X509_VERIFY_PARAM_lookup(const char * name)
 	int idx;
 	X509_VERIFY_PARAM pm;
 
-	pm.name = (char*)name;
+	pm.name = (char *)name;
 	if(param_table != NULL) {
 		idx = sk_X509_VERIFY_PARAM_find(param_table, &pm);
 		if(idx >= 0)

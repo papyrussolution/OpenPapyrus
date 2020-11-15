@@ -24,7 +24,7 @@ static int ssl_do_config(SSL * s, SSL_CTX * ctx, const char * name, int system)
 	SSL_CONF_CTX * cctx = NULL;
 	size_t i, idx, cmd_count;
 	int rv = 0;
-	unsigned int flags;
+	uint flags;
 	const SSL_METHOD * meth;
 	const SSL_CONF_CMD * cmds;
 

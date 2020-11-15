@@ -761,9 +761,9 @@ int PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 	pack->destroy();
 	if((r = Search(id, &pack->Rec)) > 0) {
 		size_t extra_sz = 0;
-		if(ref->GetPropActualSize(Obj, id, POKPRP_EXTRA, &extra_sz) > 0) {
+		if(P_Ref->GetPropActualSize(Obj, id, POKPRP_EXTRA, &extra_sz) > 0) {
 			p_ex = static_cast<_POKExtra *>(SAlloc::M(extra_sz));
-			THROW(ref->GetProperty(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
+			THROW(P_Ref->GetProperty(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
 			if(extra_sz >= sizeof(_POKExtra)) {
 				pack->PCPrmr.PersonKindID = p_ex->PrmrKindID;
 				pack->PCScnd.PersonKindID = p_ex->ScndKindID;
@@ -799,14 +799,14 @@ int PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 		STempBuffer prop_buf(2048);
 		if(!allowed_tags_processed) {
 			PPIDArray tags_list;
-			THROW(ref->GetPropArray(Obj, id, POKPRP_ALLOWEDTAGS, &tags_list));
+			THROW(P_Ref->GetPropArray(Obj, id, POKPRP_ALLOWEDTAGS, &tags_list));
 			pack->AllowedTags.Set(&tags_list);
 		}
 		if(pack->Rec.ExValGrp == POKEVG_TAG) {
 			pack->AllowedTags.Add(pack->Rec.ExValSrc);
 			pack->Rec.ExValSrc = 0;
 		}
-		for(PPID prop_id = 0; (r = ref->EnumProperties(Obj, id, &prop_id, prop_buf.vptr(), prop_buf.GetSize())) > 0;) {
+		for(PPID prop_id = 0; (r = P_Ref->EnumProperties(Obj, id, &prop_id, prop_buf.vptr(), prop_buf.GetSize())) > 0;) {
 			/* @v7.8.9 if(prop_id == POKPRP_EXTRA) {
 				_POKExtra & ex = *(_POKExtra*)(char *)prop_buf;
 				pack->PCPrmr.PersonKindID = ex.PrmrKindID;
@@ -909,32 +909,27 @@ int PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int use_ta)
 			size_t extra_sz = 0;
 			THROW(CheckRights(*pID ? PPR_MOD : PPR_INS));
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
-			THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPPsnOpKind, Symb)));
+			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPPsnOpKind, Symb)));
 			pPack->Rec.ExValSrc = (pPack->Rec.ExValGrp == POKEVG_TAG) ? 0 : pPack->Rec.ExValSrc;
 			THROW(EditItem(Obj, *pID, &pPack->Rec, 0));
 			*pID = pPack->Rec.ID;
 			p_ex = static_cast<_POKExtra *>(pPack->AllocExtraProp(&extra_sz));
 			THROW(extra_sz == 0 || p_ex);
-			THROW(ref->PutProp(Obj, *pID, POKPRP_EXTRA, p_ex, extra_sz, 0));
-			THROW_DB(deleteFrom(&ref->Prop, 0, (ref->Prop.ObjType == Obj && ref->Prop.ObjID == *pID &&
-				ref->Prop.Prop >= POKPRP_FIRSTCLAUSE && ref->Prop.Prop <= POKPRP_LASTCLAUSE)));
+			THROW(P_Ref->PutProp(Obj, *pID, POKPRP_EXTRA, p_ex, extra_sz, 0));
+			THROW_DB(deleteFrom(&P_Ref->Prop, 0, (P_Ref->Prop.ObjType == Obj && P_Ref->Prop.ObjID == *pID &&
+				P_Ref->Prop.Prop >= POKPRP_FIRSTCLAUSE && P_Ref->Prop.Prop <= POKPRP_LASTCLAUSE)));
 			for(i = 0; i < pPack->ClauseList.GetCount(); i++) {
 				pPack->ClauseList.Get(i, clause);
 				if((prop_id = POKPRP_FIRSTCLAUSE + i) <= POKPRP_LASTCLAUSE) {
 					STempBuffer sbuf(0);
 					THROW(clause.PutToPropBuf(sbuf));
-					THROW(ref->PutProp(Obj, *pID, prop_id, sbuf.vcptr(), sbuf.GetSize(), 0));
+					THROW(P_Ref->PutProp(Obj, *pID, prop_id, sbuf.vcptr(), sbuf.GetSize(), 0));
 				}
 			}
-			/* @v7.8.9 {
-			if(pPack->AllowedTags.IsExists())
-				tags_list = pPack->AllowedTags.Get();
-			THROW(ref->PutPropArray(Obj, *pID, POKPRP_ALLOWEDTAGS, &tags_list, 0));
-			*/
 		}
 		else if(*pID) {
 			THROW(CheckRights(PPR_DEL));
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 		}
 		THROW(tra.Commit());
@@ -1026,7 +1021,7 @@ int PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 int PPObjPsnOpKind::SerializePacket(int dir, PPPsnOpKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pCtx));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCPrmr.PersonKindID, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCPrmr.StatusType, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCPrmr.Reserve1, rBuf));

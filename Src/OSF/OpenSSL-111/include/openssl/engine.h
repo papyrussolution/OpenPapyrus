@@ -248,10 +248,10 @@ extern "C" {
  * has cmd_num set to zero and/or cmd_name set to NULL.
  */
 typedef struct ENGINE_CMD_DEFN_st {
-    unsigned int cmd_num;       /* The command number */
+    uint cmd_num;       /* The command number */
     const char *cmd_name;       /* The command name itself */
     const char *cmd_desc;       /* A short description of the command */
-    unsigned int cmd_flags;     /* The input the command expects */
+    uint cmd_flags;     /* The input the command expects */
 } ENGINE_CMD_DEFN;
 
 /* Generic function pointer */
@@ -325,8 +325,8 @@ void ENGINE_load_builtin_engines(void);
  * Get and set global flags (ENGINE_TABLE_FLAG_***) for the implementation
  * "registry" handling.
  */
-unsigned int ENGINE_get_table_flags(void);
-void ENGINE_set_table_flags(unsigned int flags);
+uint ENGINE_get_table_flags(void);
+void ENGINE_set_table_flags(uint flags);
 
 /*- Manage registration of ENGINEs per "table". For each type, there are 3
  * functions;
@@ -587,7 +587,7 @@ int ENGINE_set_default_pkey_asn1_meths(ENGINE *e);
  * application requires only specific functionality, consider using more
  * selective functions.
  */
-int ENGINE_set_default(ENGINE *e, unsigned int flags);
+int ENGINE_set_default(ENGINE *e, uint flags);
 
 void ENGINE_add_conf_module(void);
 
@@ -599,12 +599,12 @@ void ENGINE_add_conf_module(void);
 /**************************/
 
 /* Binary/behaviour compatibility levels */
-#define OSSL_DYNAMIC_VERSION            (unsigned long)0x00030000
+#define OSSL_DYNAMIC_VERSION            (ulong)0x00030000
 /*
  * Binary versions older than this are too old for us (whether we're a loader
  * or a loadee)
  */
-#define OSSL_DYNAMIC_OLDEST             (unsigned long)0x00030000
+#define OSSL_DYNAMIC_OLDEST             (ulong)0x00030000
 
 /*
  * When compiling an ENGINE entirely as an external shared library, loadable
@@ -647,10 +647,10 @@ typedef struct st_dynamic_fns {
  * implementation can be fully instantiated with
  * IMPLEMENT_DYNAMIC_CHECK_FN().
  */
-typedef unsigned long (*dynamic_v_check_fn) (unsigned long ossl_version);
+typedef ulong (*dynamic_v_check_fn) (ulong ossl_version);
 #define IMPLEMENT_DYNAMIC_CHECK_FN() \
-        OPENSSL_EXPORT unsigned long v_check(unsigned long v); \
-        OPENSSL_EXPORT unsigned long v_check(unsigned long v) { if (v >= OSSL_DYNAMIC_OLDEST) return OSSL_DYNAMIC_VERSION; return 0; }
+        OPENSSL_EXPORT ulong v_check(ulong v); \
+        OPENSSL_EXPORT ulong v_check(ulong v) { if (v >= OSSL_DYNAMIC_OLDEST) return OSSL_DYNAMIC_VERSION; return 0; }
 
 /*
  * This function is passed the ENGINE structure to initialise with its own

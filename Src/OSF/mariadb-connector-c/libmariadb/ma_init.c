@@ -28,12 +28,12 @@
 		#include <locale.h>
 		#include <crtdbg.h>
 	#endif
-	static my_bool my_win_init(void);
+	static bool my_win_init(void);
 #else
 	#define my_win_init()
 #endif
 
-my_bool ma_init_done = 0;
+bool ma_init_done = 0;
 
 /* Init ma_sys functions and ma_sys variabels */
 
@@ -59,7 +59,7 @@ void ma_end(int infoflag __attribute__((unused)))
 } /* ma_end */
 
 #ifdef _WIN32
-static my_bool my_win_init()
+static bool my_win_init()
 {
 	WORD VersionRequested;
 	int err;

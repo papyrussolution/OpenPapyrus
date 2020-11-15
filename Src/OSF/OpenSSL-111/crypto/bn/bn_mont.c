@@ -88,7 +88,7 @@ static int bn_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 	BIGNUM * n;
 	BN_ULONG * ap, * np, * rp, n0, v, carry;
 	int nl, max, i;
-	unsigned int rtop;
+	uint rtop;
 
 	n = &(mont->N);
 	nl = n->top;

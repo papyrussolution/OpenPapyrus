@@ -66,14 +66,14 @@ struct rsa_st {
 
 struct rsa_meth_st {
     char *name;
-    int (*rsa_pub_enc) (int flen, const unsigned char *from,
-                        unsigned char *to, RSA *rsa, int padding);
-    int (*rsa_pub_dec) (int flen, const unsigned char *from,
-                        unsigned char *to, RSA *rsa, int padding);
-    int (*rsa_priv_enc) (int flen, const unsigned char *from,
-                         unsigned char *to, RSA *rsa, int padding);
-    int (*rsa_priv_dec) (int flen, const unsigned char *from,
-                         unsigned char *to, RSA *rsa, int padding);
+    int (*rsa_pub_enc) (int flen, const uchar *from,
+                        uchar *to, RSA *rsa, int padding);
+    int (*rsa_pub_dec) (int flen, const uchar *from,
+                        uchar *to, RSA *rsa, int padding);
+    int (*rsa_priv_enc) (int flen, const uchar *from,
+                         uchar *to, RSA *rsa, int padding);
+    int (*rsa_priv_dec) (int flen, const uchar *from,
+                         uchar *to, RSA *rsa, int padding);
     /* Can be null */
     int (*rsa_mod_exp) (BIGNUM *r0, const BIGNUM *I, RSA *rsa, BN_CTX *ctx);
     /* Can be null */
@@ -94,12 +94,12 @@ struct rsa_meth_st {
      * *NOT* be used RSA_sign(), RSA_verify() should be used instead.
      */
     int (*rsa_sign) (int type,
-                     const unsigned char *m, unsigned int m_length,
-                     unsigned char *sigret, unsigned int *siglen,
+                     const uchar *m, uint m_length,
+                     uchar *sigret, uint *siglen,
                      const RSA *rsa);
-    int (*rsa_verify) (int dtype, const unsigned char *m,
-                       unsigned int m_length, const unsigned char *sigbuf,
-                       unsigned int siglen, const RSA *rsa);
+    int (*rsa_verify) (int dtype, const uchar *m,
+                       uint m_length, const uchar *sigbuf,
+                       uint siglen, const RSA *rsa);
     /*
      * If this callback is NULL, the builtin software RSA key-gen will be
      * used. This is for behavioural compatibility whilst the code gets
@@ -111,9 +111,9 @@ struct rsa_meth_st {
                                    BIGNUM *e, BN_GENCB *cb);
 };
 
-extern int int_rsa_verify(int dtype, const unsigned char *m,
-                          unsigned int m_len, unsigned char *rm,
-                          size_t *prm_len, const unsigned char *sigbuf,
+extern int int_rsa_verify(int dtype, const uchar *m,
+                          uint m_len, uchar *rm,
+                          size_t *prm_len, const uchar *sigbuf,
                           size_t siglen, RSA *rsa);
 /* Macros to test if a pkey or ctx is for a PSS key */
 #define pkey_is_pss(pkey) (pkey->ameth->pkey_id == EVP_PKEY_RSA_PSS)

@@ -118,7 +118,7 @@ int NCONF_dump_bio(const CONF * conf, BIO * out);
 
 /* Module functions */
 
-int CONF_modules_load(const CONF * cnf, const char * appname, unsigned long flags);
+int CONF_modules_load(const CONF * cnf, const char * appname, ulong flags);
 int CONF_modules_load_file(const char * filename, const char * appname, ulong flags);
 void CONF_modules_unload(int all);
 void CONF_modules_finish(void);
@@ -132,8 +132,8 @@ const char * CONF_imodule_get_value(const CONF_IMODULE * md);
 void * CONF_imodule_get_usr_data(const CONF_IMODULE * md);
 void CONF_imodule_set_usr_data(CONF_IMODULE * md, void * usr_data);
 CONF_MODULE * CONF_imodule_get_module(const CONF_IMODULE * md);
-unsigned long CONF_imodule_get_flags(const CONF_IMODULE * md);
-void CONF_imodule_set_flags(CONF_IMODULE * md, unsigned long flags);
+ulong CONF_imodule_get_flags(const CONF_IMODULE * md);
+void CONF_imodule_set_flags(CONF_IMODULE * md, ulong flags);
 void * CONF_module_get_usr_data(CONF_MODULE * pmod);
 void CONF_module_set_usr_data(CONF_MODULE * pmod, void * usr_data);
 char * CONF_get1_default_config_file(void);

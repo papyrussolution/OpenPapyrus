@@ -107,7 +107,7 @@ BIO * BIO_new_mem_buf(const void * buf, int len)
 	return ret;
 }
 
-static int mem_init(BIO * bi, unsigned long flags)
+static int mem_init(BIO * bi, ulong flags)
 {
 	BIO_BUF_MEM * bb = static_cast<BIO_BUF_MEM *>(OPENSSL_zalloc(sizeof(*bb)));
 	if(bb == NULL)
@@ -125,7 +125,7 @@ static int mem_init(BIO * bi, unsigned long flags)
 	bi->shutdown = 1;
 	bi->init = 1;
 	bi->num = -1;
-	bi->ptr = (char*)bb;
+	bi->ptr = (char *)bb;
 	return 1;
 }
 
@@ -276,7 +276,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = (long)bm->length;
 		    if(ptr != NULL) {
 			    pptr = (char **)ptr;
-			    *pptr = (char*)&(bm->data[0]);
+			    *pptr = (char *)&(bm->data[0]);
 		    }
 		    break;
 		case BIO_C_SET_BUF_MEM:
@@ -291,7 +291,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    mem_buf_sync(b);
 			    bm = bbm->buf;
 			    pptr = (char **)ptr;
-			    *pptr = (char*)bm;
+			    *pptr = (char *)bm;
 		    }
 		    break;
 		case BIO_CTRL_GET_CLOSE:

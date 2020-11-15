@@ -81,15 +81,15 @@ int PPObjDraftWrOff::PutPacket(PPID * pID, PPDraftWrOffPacket * pPack, int use_t
 		if(*pID) {
 			if(pPack) {
 				THROW(CheckDupName(*pID, pPack->Rec.Name));
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else {
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
 		if(*pID) {
 			PPIDArray list, * p_list = 0;
@@ -101,7 +101,7 @@ int PPObjDraftWrOff::PutPacket(PPID * pID, PPDraftWrOffPacket * pPack, int use_t
 						list.add(p_entry->Flags));
 				p_list = &list;
 			}
-			THROW(ref->PutPropArray(Obj, *pID, DWOPRP_ORDER, p_list, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, DWOPRP_ORDER, p_list, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -114,7 +114,7 @@ int PPObjDraftWrOff::GetPacket(PPID id, PPDraftWrOffPacket * pPack)
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
 		PPIDArray list;
-		ref->GetPropArray(Obj, id, DWOPRP_ORDER, &list);
+		P_Ref->GetPropArray(Obj, id, DWOPRP_ORDER, &list);
 		PPDraftWrOffEntry entry;
 		for(uint i = 0; i < list.getCount() / 5; i++) {
 			entry.OpID  = list.at(i*5);

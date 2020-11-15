@@ -32,9 +32,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 
-//#include <stddef.h>
-//#include "archive_rb.h"
-
 /* Keep in sync with archive_rb.h */
 #define RB_DIR_LEFT             0
 #define RB_DIR_RIGHT            1

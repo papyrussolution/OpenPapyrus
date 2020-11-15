@@ -493,7 +493,7 @@ OSSL_STORE_SEARCH * OSSL_STORE_SEARCH_by_issuer_serial(X509_NAME * name, const A
 	return search;
 }
 
-OSSL_STORE_SEARCH * OSSL_STORE_SEARCH_by_key_fingerprint(const EVP_MD * digest, const unsigned char * bytes, size_t len)
+OSSL_STORE_SEARCH * OSSL_STORE_SEARCH_by_key_fingerprint(const EVP_MD * digest, const uchar * bytes, size_t len)
 {
 	OSSL_STORE_SEARCH * search = static_cast<OSSL_STORE_SEARCH *>(OPENSSL_zalloc(sizeof(*search)));
 	if(search == NULL) {
@@ -528,7 +528,7 @@ OSSL_STORE_SEARCH * OSSL_STORE_SEARCH_by_alias(const char * alias)
 		return NULL;
 	}
 	search->search_type = OSSL_STORE_SEARCH_BY_ALIAS;
-	search->string = (const unsigned char*)alias;
+	search->string = (const uchar*)alias;
 	search->stringlength = strlen(alias);
 	return search;
 }
@@ -556,7 +556,7 @@ const ASN1_INTEGER * OSSL_STORE_SEARCH_get0_serial(const OSSL_STORE_SEARCH
 	return criterion->serial;
 }
 
-const unsigned char * OSSL_STORE_SEARCH_get0_bytes(const OSSL_STORE_SEARCH
+const uchar * OSSL_STORE_SEARCH_get0_bytes(const OSSL_STORE_SEARCH
     * criterion, size_t * length)
 {
 	*length = criterion->stringlength;

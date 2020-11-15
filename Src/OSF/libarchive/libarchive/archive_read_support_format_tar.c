@@ -28,23 +28,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_tar.c 201161 2009-12-29 05:44:39Z kientzle $");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stddef.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_acl_private.h" /* For ACL parsing routines. */
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-
 #define tar_min(a, b) ((a) < (b) ? (a) : (b))
 
 /*
@@ -2519,7 +2502,7 @@ static char * base64_decode(const char * s, size_t len, size_t * out_len)
 
 	/* If the decode table is not yet initialized, prepare it. */
 	if(decode_table[digits[1]] != 1) {
-		unsigned i;
+		uint i;
 		memset(decode_table, 0xff, sizeof(decode_table));
 		for(i = 0; i < sizeof(digits); i++)
 			decode_table[digits[i]] = i;

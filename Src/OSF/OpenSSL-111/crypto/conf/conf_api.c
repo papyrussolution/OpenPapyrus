@@ -25,7 +25,7 @@ CONF_VALUE * _CONF_get_section(const CONF * conf, const char * section)
 	if((conf == NULL) || (section == NULL))
 		return NULL;
 	vv.name = NULL;
-	vv.section = (char*)section;
+	vv.section = (char *)section;
 	v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 	return v;
 }
@@ -75,8 +75,8 @@ char * _CONF_get_string(const CONF * conf, const char * section,
 		return NULL;
 	if(conf != NULL) {
 		if(section != NULL) {
-			vv.name = (char*)name;
-			vv.section = (char*)section;
+			vv.name = (char *)name;
+			vv.section = (char *)section;
 			v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 			if(v != NULL)
 				return v->value;
@@ -87,7 +87,7 @@ char * _CONF_get_string(const CONF * conf, const char * section,
 			}
 		}
 		vv.section = "default";
-		vv.name = (char*)name;
+		vv.name = (char *)name;
 		v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 		if(v != NULL)
 			return v->value;
@@ -98,7 +98,7 @@ char * _CONF_get_string(const CONF * conf, const char * section,
 		return ossl_safe_getenv(name);
 }
 
-static unsigned long conf_value_hash(const CONF_VALUE * v)
+static ulong conf_value_hash(const CONF_VALUE * v)
 {
 	return (OPENSSL_LH_strhash(v->section) << 2) ^ OPENSSL_LH_strhash(v->name);
 }
@@ -202,7 +202,7 @@ CONF_VALUE * _CONF_new_section(CONF * conf, const char * section)
 
 	memcpy(v->section, section, i);
 	v->name = NULL;
-	v->value = (char*)sk;
+	v->value = (char *)sk;
 
 	vv = lh_CONF_VALUE_insert(conf->data, v);
 	if(vv != NULL || lh_CONF_VALUE_error(conf->data) > 0)

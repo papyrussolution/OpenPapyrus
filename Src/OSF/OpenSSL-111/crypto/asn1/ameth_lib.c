@@ -317,10 +317,10 @@ void EVP_PKEY_asn1_set_private(EVP_PKEY_ASN1_METHOD * ameth,
 
 void EVP_PKEY_asn1_set_param(EVP_PKEY_ASN1_METHOD * ameth,
     int (*param_decode)(EVP_PKEY * pkey,
-    const unsigned char ** pder,
+    const uchar ** pder,
     int derlen),
     int (*param_encode)(const EVP_PKEY * pkey,
-    unsigned char ** pder),
+    uchar ** pder),
     int (*param_missing)(const EVP_PKEY * pk),
     int (*param_copy)(EVP_PKEY * to,
     const EVP_PKEY * from),
@@ -404,7 +404,7 @@ void EVP_PKEY_asn1_set_param_check(EVP_PKEY_ASN1_METHOD * ameth,
 
 void EVP_PKEY_asn1_set_set_priv_key(EVP_PKEY_ASN1_METHOD * ameth,
     int (*set_priv_key)(EVP_PKEY * pk,
-    const unsigned char
+    const uchar
     * priv,
     size_t len))
 {
@@ -413,7 +413,7 @@ void EVP_PKEY_asn1_set_set_priv_key(EVP_PKEY_ASN1_METHOD * ameth,
 
 void EVP_PKEY_asn1_set_set_pub_key(EVP_PKEY_ASN1_METHOD * ameth,
     int (*set_pub_key)(EVP_PKEY * pk,
-    const unsigned char * pub,
+    const uchar * pub,
     size_t len))
 {
 	ameth->set_pub_key = set_pub_key;
@@ -421,7 +421,7 @@ void EVP_PKEY_asn1_set_set_pub_key(EVP_PKEY_ASN1_METHOD * ameth,
 
 void EVP_PKEY_asn1_set_get_priv_key(EVP_PKEY_ASN1_METHOD * ameth,
     int (*get_priv_key)(const EVP_PKEY * pk,
-    unsigned char * priv,
+    uchar * priv,
     size_t * len))
 {
 	ameth->get_priv_key = get_priv_key;
@@ -429,7 +429,7 @@ void EVP_PKEY_asn1_set_get_priv_key(EVP_PKEY_ASN1_METHOD * ameth,
 
 void EVP_PKEY_asn1_set_get_pub_key(EVP_PKEY_ASN1_METHOD * ameth,
     int (*get_pub_key)(const EVP_PKEY * pk,
-    unsigned char * pub,
+    uchar * pub,
     size_t * len))
 {
 	ameth->get_pub_key = get_pub_key;

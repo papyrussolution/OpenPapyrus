@@ -20,7 +20,7 @@ struct bn_blinding_st {
 	BIGNUM * mod;           /* just a reference */
 	CRYPTO_THREAD_ID tid;
 	int counter;
-	unsigned long flags;
+	ulong flags;
 	BN_MONT_CTX * m_ctx;
 	int (* bn_mod_exp) (BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
 	CRYPTO_RWLOCK * lock;
@@ -211,12 +211,12 @@ int BN_BLINDING_unlock(BN_BLINDING * b)
 	return CRYPTO_THREAD_unlock(b->lock);
 }
 
-unsigned long BN_BLINDING_get_flags(const BN_BLINDING * b)
+ulong BN_BLINDING_get_flags(const BN_BLINDING * b)
 {
 	return b->flags;
 }
 
-void BN_BLINDING_set_flags(BN_BLINDING * b, unsigned long flags)
+void BN_BLINDING_set_flags(BN_BLINDING * b, ulong flags)
 {
 	b->flags = flags;
 }

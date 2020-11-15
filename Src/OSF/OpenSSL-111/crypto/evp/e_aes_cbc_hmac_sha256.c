@@ -23,8 +23,8 @@ typedef struct {
 	SHA256_CTX head, tail, md;
 	size_t payload_length;  /* AAD length in decrypt case */
 	union {
-		unsigned int tls_ver;
-		unsigned char tls_aad[16]; /* 13 used */
+		uint tls_ver;
+		uchar tls_aad[16]; /* 13 used */
 	} aux;
 } EVP_AES_HMAC_SHA256;
 
@@ -32,17 +32,17 @@ typedef struct {
 
 #if defined(AES_ASM) && (defined(__x86_64) || defined(__x86_64__)  || defined(_M_AMD64) || defined(_M_X64))
 
-extern unsigned int OPENSSL_ia32cap_P[];
+extern uint OPENSSL_ia32cap_P[];
 #define AESNI_CAPABLE   (1<<(57-32))
 
-int aesni_set_encrypt_key(const unsigned char * userKey, int bits, AES_KEY * key);
-int aesni_set_decrypt_key(const unsigned char * userKey, int bits, AES_KEY * key);
-void aesni_cbc_encrypt(const unsigned char * in, unsigned char * out, size_t length, const AES_KEY * key, unsigned char * ivec, int enc);
-int aesni_cbc_sha256_enc(const void * inp, void * out, size_t blocks, const AES_KEY * key, unsigned char iv[16], SHA256_CTX * ctx, const void * in0);
+int aesni_set_encrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+int aesni_set_decrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+void aesni_cbc_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, uchar * ivec, int enc);
+int aesni_cbc_sha256_enc(const void * inp, void * out, size_t blocks, const AES_KEY * key, uchar iv[16], SHA256_CTX * ctx, const void * in0);
 
 #define data(ctx) ((EVP_AES_HMAC_SHA256*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 
-static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * inkey, const unsigned char * iv, int enc)
+static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX * ctx, const uchar * inkey, const uchar * iv, int enc)
 {
 	EVP_AES_HMAC_SHA256 * key = data(ctx);
 	int ret;
@@ -74,7 +74,7 @@ void sha256_block_data_order(void * c, const void * p, size_t len);
 
 static void sha256_update(SHA256_CTX * c, const void * data, size_t len)
 {
-	const unsigned char * ptr = data;
+	const uchar * ptr = data;
 	size_t res;
 
 	if((res = c->num)) {
@@ -111,18 +111,18 @@ static void sha256_update(SHA256_CTX * c, const void * data, size_t len)
 # if !defined(OPENSSL_NO_MULTIBLOCK)
 
 typedef struct {
-	unsigned int A[8], B[8], C[8], D[8], E[8], F[8], G[8], H[8];
+	uint A[8], B[8], C[8], D[8], E[8], F[8], G[8], H[8];
 } SHA256_MB_CTX;
 typedef struct {
-	const unsigned char * ptr;
+	const uchar * ptr;
 	int blocks;
 } HASH_DESC;
 
 void sha256_multi_block(SHA256_MB_CTX *, const HASH_DESC *, int);
 
 typedef struct {
-	const unsigned char * inp;
-	unsigned char * out;
+	const uchar * inp;
+	uchar * out;
 	int blocks;
 	u64 iv[2];
 } CIPH_DESC;
@@ -130,13 +130,13 @@ typedef struct {
 void aesni_multi_cbc_encrypt(CIPH_DESC *, void *, int);
 
 static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
-    unsigned char * out,
-    const unsigned char * inp,
+    uchar * out,
+    const uchar * inp,
     size_t inp_len, int n4x)
 {                               /* n4x is 1 or 2 */
 	HASH_DESC hash_d[8], edges[8];
 	CIPH_DESC ciph_d[8];
-	unsigned char storage[sizeof(SHA256_MB_CTX) + 32];
+	uchar storage[sizeof(SHA256_MB_CTX) + 32];
 	union {
 		u64 q[16];
 		u32 d[32];
@@ -144,7 +144,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	} blocks[8];
 
 	SHA256_MB_CTX * ctx;
-	unsigned int frag, last, packlen, i, x4 = 4 * n4x, minblocks, processed =
+	uint frag, last, packlen, i, x4 = 4 * n4x, minblocks, processed =
 	    0;
 	size_t ret = 0;
 	u8 * IVs;
@@ -190,9 +190,9 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	seqnum = BSWAP8(blocks[0].q[0]);
 #  endif
 	for(i = 0; i < x4; i++) {
-		unsigned int len = (i == (x4 - 1) ? last : frag);
+		uint len = (i == (x4 - 1) ? last : frag);
 #  if !defined(BSWAP8)
-		unsigned int carry, j;
+		uint carry, j;
 #  endif
 
 		ctx->A[i] = key->md.h[0];
@@ -268,8 +268,8 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	sha256_multi_block(ctx, hash_d, n4x);
 	memzero(blocks, sizeof(blocks));
 	for(i = 0; i < x4; i++) {
-		unsigned int len = (i == (x4 - 1) ? last : frag), off = hash_d[i].blocks * 64;
-		const unsigned char * ptr = hash_d[i].ptr + off;
+		uint len = (i == (x4 - 1) ? last : frag), off = hash_d[i].blocks * 64;
+		const uchar * ptr = hash_d[i].ptr + off;
 		off = (len - processed) - (64 - 13) - off; /* remainder actually */
 		memcpy(blocks[i].c, ptr, off);
 		blocks[i].c[off] = 0x80;
@@ -344,8 +344,8 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	sha256_multi_block(ctx, edges, n4x);
 
 	for(i = 0; i < x4; i++) {
-		unsigned int len = (i == (x4 - 1) ? last : frag), pad, j;
-		unsigned char * out0 = out;
+		uint len = (i == (x4 - 1) ? last : frag), pad, j;
+		uchar * out0 = out;
 
 		memcpy(ciph_d[i].out, ciph_d[i].inp, len - processed);
 		ciph_d[i].inp = ciph_d[i].out;
@@ -395,11 +395,11 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 #endif
 
 static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
-    unsigned char * out,
-    const unsigned char * in, size_t len)
+    uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_AES_HMAC_SHA256 * key = data(ctx);
-	unsigned int l;
+	uint l;
 	size_t plen = key->payload_length, iv = 0, /* explicit IV in TLS 1.1 and
 	                                            * later */
 	    sha_off = 0;
@@ -486,8 +486,8 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 	}
 	else {
 		union {
-			unsigned int u[SHA256_DIGEST_LENGTH / sizeof(uint)];
-			unsigned char c[64 + SHA256_DIGEST_LENGTH];
+			uint u[SHA256_DIGEST_LENGTH / sizeof(uint)];
+			uchar c[64 + SHA256_DIGEST_LENGTH];
 		} mac, * pmac;
 
 		/* arrange cache line alignment */
@@ -499,11 +499,11 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 
 		if(plen != NO_PAYLOAD_LENGTH) { /* "TLS" mode of operation */
 			size_t inp_len, mask, j, i;
-			unsigned int res, maxpad, pad, bitlen;
+			uint res, maxpad, pad, bitlen;
 			int ret = 1;
 			union {
-				unsigned int u[SHA_LBLOCK];
-				unsigned char c[SHA256_CBLOCK];
+				uint u[SHA_LBLOCK];
+				uchar c[SHA256_CBLOCK];
 			} * data = (void*)key->md.data;
 
 			if((key->aux.tls_aad[plen - 4] << 8 | key->aux.tls_aad[plen - 3])
@@ -657,7 +657,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			SHA256_Final(pmac->c, &key->md);
 
 			{
-				unsigned int inp_blocks, pad_blocks;
+				uint inp_blocks, pad_blocks;
 
 				/* but pretend as if we hashed padded payload */
 				inp_blocks =
@@ -680,10 +680,10 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			len -= inp_len;
 # if 1      /* see original reference version in #else */
 			{
-				unsigned char * p =
+				uchar * p =
 				    out + len - 1 - maxpad - SHA256_DIGEST_LENGTH;
 				size_t off = out - p;
-				unsigned int c, cmask;
+				uint c, cmask;
 
 				maxpad += SHA256_DIGEST_LENGTH;
 				for(res = 0, i = 0, j = 0; j < maxpad; j++) {
@@ -729,12 +729,12 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 static int aesni_cbc_hmac_sha256_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void * ptr)
 {
 	EVP_AES_HMAC_SHA256 * key = data(ctx);
-	unsigned int u_arg = (uint)arg;
+	uint u_arg = (uint)arg;
 	switch(type) {
 		case EVP_CTRL_AEAD_SET_MAC_KEY:
 	    {
-		    unsigned int i;
-		    unsigned char hmac_key[64];
+		    uint i;
+		    uchar hmac_key[64];
 		    memzero(hmac_key, sizeof(hmac_key));
 		    if(arg < 0)
 			    return -1;
@@ -763,8 +763,8 @@ static int aesni_cbc_hmac_sha256_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, v
 	    }
 		case EVP_CTRL_AEAD_TLS1_AAD:
 	    {
-		    unsigned char * p = ptr;
-		    unsigned int len;
+		    uchar * p = ptr;
+		    uint len;
 
 		    if(arg != EVP_AEAD_TLS1_AAD_LEN)
 			    return -1;
@@ -802,8 +802,8 @@ static int aesni_cbc_hmac_sha256_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, v
 	    {
 		    EVP_CTRL_TLS1_1_MULTIBLOCK_PARAM * param =
 			(EVP_CTRL_TLS1_1_MULTIBLOCK_PARAM*)ptr;
-		    unsigned int n4x = 1, x4;
-		    unsigned int frag, last, packlen, inp_len;
+		    uint n4x = 1, x4;
+		    uint frag, last, packlen, inp_len;
 
 		    if(arg < 0)
 			    return -1;

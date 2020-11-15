@@ -21,10 +21,7 @@
 #include "ssl_cert_table.h"
 #include "internal/thread_once.h"
 
-static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx,
-    int op, int bits, int nid, void * other,
-    void * ex);
-
+static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx, int op, int bits, int nid, void * other, void * ex);
 static CRYPTO_ONCE ssl_x509_store_ctx_once = CRYPTO_ONCE_STATIC_INIT;
 static volatile int ssl_x509_store_ctx_idx = -1;
 
@@ -558,7 +555,7 @@ int SSL_CTX_add_client_CA(SSL_CTX * ctx, X509 * x)
 
 static int xname_cmp(const X509_NAME * a, const X509_NAME * b)
 {
-	unsigned char * abuf = NULL, * bbuf = NULL;
+	uchar * abuf = NULL, * bbuf = NULL;
 	int alen, blen, ret;
 
 	/* X509_NAME_cmp() itself casts away constness in this way, so
@@ -585,7 +582,7 @@ static int xname_sk_cmp(const X509_NAME * const * a, const X509_NAME * const * b
 	return xname_cmp(*a, *b);
 }
 
-static unsigned long xname_hash(const X509_NAME * a)
+static ulong xname_hash(const X509_NAME * a)
 {
 	return X509_NAME_hash((X509_NAME*)a);
 }

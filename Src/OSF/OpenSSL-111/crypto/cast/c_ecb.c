@@ -12,7 +12,7 @@
 #include "cast_lcl.h"
 #include <openssl/opensslv.h>
 
-void CAST_ecb_encrypt(const unsigned char * in, unsigned char * out, const CAST_KEY * ks, int enc)
+void CAST_ecb_encrypt(const uchar * in, uchar * out, const CAST_KEY * ks, int enc)
 {
 	CAST_LONG l, d[2];
 	n2l(in, l);

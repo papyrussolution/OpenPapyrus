@@ -168,7 +168,7 @@ static const TLS_GROUP_INFO nid_list[] = {
 	{EVP_PKEY_X448, 224, TLS_CURVE_CUSTOM}, /* X448 (30) */
 };
 
-static const unsigned char ecformats_default[] = {
+static const uchar ecformats_default[] = {
 	TLSEXT_ECPOINTFORMAT_uncompressed,
 	TLSEXT_ECPOINTFORMAT_ansiX962_compressed_prime,
 	TLSEXT_ECPOINTFORMAT_ansiX962_compressed_char2
@@ -247,7 +247,7 @@ void tls1_get_supported_groups(SSL * s, const uint16_t ** pgroups,
 int tls_curve_allowed(SSL * s, uint16_t curve, int op)
 {
 	const TLS_GROUP_INFO * cinfo = tls1_group_id_lookup(curve);
-	unsigned char ctmp[2];
+	uchar ctmp[2];
 
 	if(cinfo == NULL)
 		return 0;
@@ -292,7 +292,7 @@ uint16_t tls1_shared_group(SSL * s, int nmatch)
 			 * For Suite B ciphersuite determines curve: we already know
 			 * these are acceptable due to previous checks.
 			 */
-			unsigned long cid = s->s3->tmp.new_cipher->id;
+			ulong cid = s->s3->tmp.new_cipher->id;
 
 			if(cid == TLS1_CK_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256)
 				return TLSEXT_curve_P_256;
@@ -342,7 +342,7 @@ int tls1_set_groups(uint16_t ** pext, size_t * pextlen,
 	 * Bitmap of groups included to detect duplicates: only works while group
 	 * ids < 32
 	 */
-	unsigned long dup_list = 0;
+	ulong dup_list = 0;
 
 	if(ngroups == 0) {
 		SSLerr(SSL_F_TLS1_SET_GROUPS, SSL_R_BAD_LENGTH);
@@ -353,7 +353,7 @@ int tls1_set_groups(uint16_t ** pext, size_t * pextlen,
 		return 0;
 	}
 	for(i = 0; i < ngroups; i++) {
-		unsigned long idmask;
+		ulong idmask;
 		uint16_t id;
 		/* TODO(TLS1.3): Convert for DH groups */
 		id = tls1_nid2group_id(groups[i]);
@@ -434,7 +434,7 @@ static int tls1_check_pkey_comp(SSL * s, EVP_PKEY * pkey)
 {
 	const EC_KEY * ec;
 	const EC_GROUP * grp;
-	unsigned char comp_id;
+	uchar comp_id;
 	size_t i;
 
 	/* If not an EC key nothing to check */
@@ -489,7 +489,7 @@ int tls1_check_group_id(SSL * s, uint16_t group_id, int check_own_groups)
 
 	/* Check for Suite B compliance */
 	if(tls1_suiteb(s) && s->s3->tmp.new_cipher != NULL) {
-		unsigned long cid = s->s3->tmp.new_cipher->id;
+		ulong cid = s->s3->tmp.new_cipher->id;
 
 		if(cid == TLS1_CK_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256) {
 			if(group_id != TLSEXT_curve_P_256)
@@ -533,7 +533,7 @@ int tls1_check_group_id(SSL * s, uint16_t group_id, int check_own_groups)
 	return tls1_in_list(group_id, groups, groups_len);
 }
 
-void tls1_get_formatlist(SSL * s, const unsigned char ** pformats,
+void tls1_get_formatlist(SSL * s, const uchar ** pformats,
     size_t * num_formats)
 {
 	/*
@@ -611,7 +611,7 @@ static int tls1_check_cert_param(SSL * s, X509 * x, int check_ee_md)
  *
  * Returns 0 when the cipher can't be used or 1 when it can.
  */
-int tls1_check_ec_tmp_key(SSL * s, unsigned long cid)
+int tls1_check_ec_tmp_key(SSL * s, ulong cid)
 {
 	/* If not Suite B just need a shared group */
 	if(!tls1_suiteb(s))
@@ -1331,17 +1331,17 @@ SSL_TICKET_STATUS tls_get_ticket_from_client(SSL * s, CLIENTHELLO_MSG * hello,
  *   psess: (output) on return, if a ticket was decrypted, then this is set to
  *       point to the resulting session.
  */
-SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const unsigned char * etick,
-    size_t eticklen, const unsigned char * sess_id,
+SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
+    size_t eticklen, const uchar * sess_id,
     size_t sesslen, SSL_SESSION ** psess)
 {
 	SSL_SESSION * sess = NULL;
-	unsigned char * sdec;
-	const unsigned char * p;
+	uchar * sdec;
+	const uchar * p;
 	int slen, renew_ticket = 0, declen;
 	SSL_TICKET_STATUS ret = SSL_TICKET_FATAL_ERR_OTHER;
 	size_t mlen;
-	unsigned char tick_hmac[EVP_MAX_MD_SIZE];
+	uchar tick_hmac[EVP_MAX_MD_SIZE];
 	HMAC_CTX * hctx = NULL;
 	EVP_CIPHER_CTX * ctx = NULL;
 	SSL_CTX * tctx = s->session_ctx;
@@ -1383,7 +1383,7 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const unsigned char * etick,
 		goto end;
 	}
 	if(tctx->ext.ticket_key_cb) {
-		unsigned char * nctick = (unsigned char*)etick;
+		uchar * nctick = (uchar*)etick;
 		int rv = tctx->ext.ticket_key_cb(s, nctick,
 			nctick + TLSEXT_KEYNAME_LENGTH,
 			ctx, hctx, 0);
@@ -1571,7 +1571,7 @@ end:
 /* Check to see if a signature algorithm is allowed */
 static int tls12_sigalg_allowed(SSL * s, int op, const SIGALG_LOOKUP * lu)
 {
-	unsigned char sigalgstr[2];
+	uchar sigalgstr[2];
 	int secbits;
 
 	/* See if sigalgs is recognised and if hash is enabled */
@@ -1736,7 +1736,7 @@ static int tls1_set_shared_sigalgs(SSL * s)
 	size_t nmatch;
 	const SIGALG_LOOKUP ** salgs = NULL;
 	CERT * c = s->cert;
-	unsigned int is_suiteb = tls1_suiteb(s);
+	uint is_suiteb = tls1_suiteb(s);
 
 	OPENSSL_free(s->shared_sigalgs);
 	s->shared_sigalgs = NULL;
@@ -1782,7 +1782,7 @@ static int tls1_set_shared_sigalgs(SSL * s)
 
 int tls1_save_u16(PACKET * pkt, uint16_t ** pdest, size_t * pdestlen)
 {
-	unsigned int stmp;
+	uint stmp;
 	size_t size, i;
 	uint16_t * buf;
 
@@ -1859,7 +1859,7 @@ int tls1_process_sigalgs(SSL * s)
 
 int SSL_get_sigalgs(SSL * s, int idx,
     int * psign, int * phash, int * psignhash,
-    unsigned char * rsig, unsigned char * rhash)
+    uchar * rsig, uchar * rhash)
 {
 	uint16_t * psig = s->s3->tmp.peer_sigalgs;
 	size_t numsigalgs = s->s3->tmp.peer_sigalgslen;
@@ -1872,9 +1872,9 @@ int SSL_get_sigalgs(SSL * s, int idx,
 			return 0;
 		psig += idx;
 		if(rhash != NULL)
-			*rhash = (unsigned char)((*psig >> 8) & 0xff);
+			*rhash = (uchar)((*psig >> 8) & 0xff);
 		if(rsig != NULL)
-			*rsig = (unsigned char)(*psig & 0xff);
+			*rsig = (uchar)(*psig & 0xff);
 		lu = tls1_lookup_sigalg(*psig);
 		if(psign != NULL)
 			*psign = lu != NULL ? lu->sig : NID_undef;
@@ -1888,7 +1888,7 @@ int SSL_get_sigalgs(SSL * s, int idx,
 
 int SSL_get_shared_sigalgs(SSL * s, int idx,
     int * psign, int * phash, int * psignhash,
-    unsigned char * rsig, unsigned char * rhash)
+    uchar * rsig, uchar * rhash)
 {
 	const SIGALG_LOOKUP * shsigalgs;
 	if(s->shared_sigalgs == NULL
@@ -1904,9 +1904,9 @@ int SSL_get_shared_sigalgs(SSL * s, int idx,
 	if(psignhash != NULL)
 		*psignhash = shsigalgs->sigandhash;
 	if(rsig != NULL)
-		*rsig = (unsigned char)(shsigalgs->sigalg & 0xff);
+		*rsig = (uchar)(shsigalgs->sigalg & 0xff);
 	if(rhash != NULL)
-		*rhash = (unsigned char)((shsigalgs->sigalg >> 8) & 0xff);
+		*rhash = (uchar)((shsigalgs->sigalg >> 8) & 0xff);
 	return (int)s->shared_sigalgslen;
 }
 
@@ -2164,7 +2164,7 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 	CERT_PKEY * cpk = NULL;
 	CERT * c = s->cert;
 	uint32_t * pvalid;
-	unsigned int suiteb_flags = tls1_suiteb(s);
+	uint suiteb_flags = tls1_suiteb(s);
 	/* idx == -1 means checking server chains */
 	if(idx != -1) {
 		/* idx == -2 means checking client certificate chains */

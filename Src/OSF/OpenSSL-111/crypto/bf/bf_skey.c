@@ -12,11 +12,11 @@
 #include "bf_locl.h"
 #include "bf_pi.h"
 
-void BF_set_key(BF_KEY * key, int len, const unsigned char * data)
+void BF_set_key(BF_KEY * key, int len, const uchar * data)
 {
 	int i;
 	BF_LONG * p, ri, in[2];
-	const unsigned char * d, * end;
+	const uchar * d, * end;
 	memcpy(key, &bf_init, sizeof(BF_KEY));
 	p = key->P;
 	if(len > ((BF_ROUNDS + 2) * 4))

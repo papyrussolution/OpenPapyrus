@@ -17,7 +17,7 @@ int HMAC_Init_ex(HMAC_CTX * ctx, const void * key, int len,
 {
 	int rv = 0;
 	int i, j, reset = 0;
-	unsigned char pad[HMAC_MAX_MD_CBLOCK_SIZE];
+	uchar pad[HMAC_MAX_MD_CBLOCK_SIZE];
 	/* If we are changing MD then we must have a key */
 	if(md != NULL && md != ctx->md && (key == NULL || len < 0))
 		return 0;
@@ -90,17 +90,17 @@ int HMAC_Init(HMAC_CTX * ctx, const void * key, int len, const EVP_MD * md)
 
 #endif
 
-int HMAC_Update(HMAC_CTX * ctx, const unsigned char * data, size_t len)
+int HMAC_Update(HMAC_CTX * ctx, const uchar * data, size_t len)
 {
 	if(!ctx->md)
 		return 0;
 	return EVP_DigestUpdate(ctx->md_ctx, data, len);
 }
 
-int HMAC_Final(HMAC_CTX * ctx, unsigned char * md, unsigned int * len)
+int HMAC_Final(HMAC_CTX * ctx, uchar * md, uint * len)
 {
-	unsigned int i;
-	unsigned char buf[EVP_MAX_MD_SIZE];
+	uint i;
+	uchar buf[EVP_MAX_MD_SIZE];
 
 	if(!ctx->md)
 		goto err;
@@ -203,13 +203,13 @@ err:
 	return 0;
 }
 
-unsigned char * HMAC(const EVP_MD * evp_md, const void * key, int key_len,
-    const unsigned char * d, size_t n, unsigned char * md,
-    unsigned int * md_len)
+uchar * HMAC(const EVP_MD * evp_md, const void * key, int key_len,
+    const uchar * d, size_t n, uchar * md,
+    uint * md_len)
 {
 	HMAC_CTX * c = NULL;
-	static unsigned char m[EVP_MAX_MD_SIZE];
-	static const unsigned char dummy_key[1] = {'\0'};
+	static uchar m[EVP_MAX_MD_SIZE];
+	static const uchar dummy_key[1] = {'\0'};
 
 	if(md == NULL)
 		md = m;
@@ -234,7 +234,7 @@ err:
 	return NULL;
 }
 
-void HMAC_CTX_set_flags(HMAC_CTX * ctx, unsigned long flags)
+void HMAC_CTX_set_flags(HMAC_CTX * ctx, ulong flags)
 {
 	EVP_MD_CTX_set_flags(ctx->i_ctx, flags);
 	EVP_MD_CTX_set_flags(ctx->o_ctx, flags);

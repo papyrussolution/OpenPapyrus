@@ -302,10 +302,10 @@ int PPObjOpCounter::GetPacket(PPID opCntrID, PPOpCounterPacket * pPack)
 	if(pPack) {
 		LAssocArray cntrs_ary;
 		PPOpCounter opc_rec;
-		THROW(r = ref->GetItem(PPOBJ_OPCOUNTER, opCntrID, &opc_rec));
+		THROW(r = P_Ref->GetItem(PPOBJ_OPCOUNTER, opCntrID, &opc_rec));
 		if(r > 0) {
 			if(opc_rec.Flags & OPCNTF_DIFFBYLOC)
-				THROW(ref->GetPropArray(PPOBJ_OPRKIND, opCntrID, OPKPRP_DIFFCNTRS, &cntrs_ary));
+				THROW(P_Ref->GetPropArray(PPOBJ_OPRKIND, opCntrID, OPKPRP_DIFFCNTRS, &cntrs_ary));
 			THROW(pPack->Init(&opc_rec, &cntrs_ary));
 			ok = 1;
 		}
@@ -326,26 +326,26 @@ int PPObjOpCounter::PutPacket(PPID * pOpCntrID, const PPOpCounterPacket * pPack,
 		THROW(tra);
 		if(pPack) {
 			PPOpCounter opc_rec;
-			if(ref->GetItem(PPOBJ_OPCOUNTER, *pOpCntrID, &opc_rec) > 0) {
+			if(P_Ref->GetItem(PPOBJ_OPCOUNTER, *pOpCntrID, &opc_rec) > 0) {
 				int    log_action = (pPack->Flags & PPOpCounterPacket::fDontLogUpdAction) ? 0 : 1;
 				long   prev_cntr = opc_rec.Counter;
 				opc_rec = pPack->Head;
 				if(pPack->Flags & PPOpCounterPacket::fDontUpdCounter)
 					opc_rec.Counter = prev_cntr;
-	   			THROW(ref->UpdateItem(PPOBJ_OPCOUNTER, *pOpCntrID, &opc_rec, log_action, 0));
+	   			THROW(P_Ref->UpdateItem(PPOBJ_OPCOUNTER, *pOpCntrID, &opc_rec, log_action, 0));
 			}
 			else {
 				opc_rec = pPack->Head;
-				THROW(ref->AddItem(PPOBJ_OPCOUNTER, pOpCntrID, &opc_rec, 0));
+				THROW(P_Ref->AddItem(PPOBJ_OPCOUNTER, pOpCntrID, &opc_rec, 0));
 			}
 			if(opc_rec.Flags & OPCNTF_DIFFBYLOC) {
-				THROW(ref->PutPropArray(PPOBJ_OPRKIND, *pOpCntrID, OPKPRP_DIFFCNTRS, pPack->P_Items, 0));
+				THROW(P_Ref->PutPropArray(PPOBJ_OPRKIND, *pOpCntrID, OPKPRP_DIFFCNTRS, pPack->P_Items, 0));
 			}
 			ok = 1;
 		}
 		else if(*pOpCntrID) {
-			THROW(ref->RemoveItem(Obj, *pOpCntrID, use_ta) && RemoveSync(*pOpCntrID));
-			THROW(ref->PutPropArray(PPOBJ_OPRKIND, *pOpCntrID, OPKPRP_DIFFCNTRS, 0, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pOpCntrID, use_ta) && RemoveSync(*pOpCntrID));
+			THROW(P_Ref->PutPropArray(PPOBJ_OPRKIND, *pOpCntrID, OPKPRP_DIFFCNTRS, 0, 0));
 		}
 		THROW(tra.Commit());
 	}

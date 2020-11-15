@@ -123,7 +123,7 @@ enum enum_dyncol_format {
 
 #define DYNCOL_NUM_CHAR 6
 
-my_bool mariadb_dyncol_has_names(DYNAMIC_COLUMN * str)
+bool mariadb_dyncol_has_names(DYNAMIC_COLUMN * str)
 {
 	if(str->length < 1)
 		return FALSE;
@@ -147,7 +147,7 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
     uint add_column_count,
     void * column_keys,
     DYNAMIC_COLUMN_VALUE * values,
-    my_bool string_keys);
+    bool string_keys);
 static int plan_sort_num(const void * a, const void * b);
 static int plan_sort_named(const void * a, const void * b);
 
@@ -175,7 +175,7 @@ struct st_dyn_header {
 
 typedef struct st_dyn_header DYN_HEADER;
 
-static inline my_bool read_fixed_header(DYN_HEADER * hdr,
+static inline bool read_fixed_header(DYN_HEADER * hdr,
     DYNAMIC_COLUMN * str);
 static void set_fixed_header(DYNAMIC_COLUMN * str,
     uint offset_size,
@@ -253,7 +253,7 @@ static int column_sort_named(const void * a, const void * b)
    Check limit function (numeric format)
  */
 
-static my_bool check_limit_num(const void * val)
+static bool check_limit_num(const void * val)
 {
 	return **((uint**)val) > UINT_MAX16;
 }
@@ -262,7 +262,7 @@ static my_bool check_limit_num(const void * val)
    Check limit function (names format)
  */
 
-static my_bool check_limit_named(const void * val)
+static bool check_limit_named(const void * val)
 {
 	return (*((LEX_STRING**)val))->length > MAX_NAME_LENGTH;
 }
@@ -306,7 +306,7 @@ static void set_fixed_header_named(DYNAMIC_COLUMN * str, DYN_HEADER * hdr)
    @param offset          Offset to be written
  */
 
-static my_bool type_and_offset_store_num(uchar * place, size_t offset_size,
+static bool type_and_offset_store_num(uchar * place, size_t offset_size,
     DYNAMIC_COLUMN_TYPE type,
     size_t offset)
 {
@@ -345,7 +345,7 @@ static my_bool type_and_offset_store_num(uchar * place, size_t offset_size,
 	return FALSE;
 }
 
-static my_bool type_and_offset_store_named(uchar * place, size_t offset_size,
+static bool type_and_offset_store_named(uchar * place, size_t offset_size,
     DYNAMIC_COLUMN_TYPE type,
     size_t offset)
 {
@@ -397,7 +397,7 @@ static my_bool type_and_offset_store_named(uchar * place, size_t offset_size,
    @param offset          offset of the data
  */
 
-static my_bool put_header_entry_num(DYN_HEADER * hdr,
+static bool put_header_entry_num(DYN_HEADER * hdr,
     void * column_key,
     DYNAMIC_COLUMN_VALUE * value,
     size_t offset)
@@ -425,7 +425,7 @@ static my_bool put_header_entry_num(DYN_HEADER * hdr,
    @param offset          offset of the data
  */
 
-static my_bool put_header_entry_named(DYN_HEADER * hdr,
+static bool put_header_entry_named(DYN_HEADER * hdr,
     void * column_key,
     DYNAMIC_COLUMN_VALUE * value,
     size_t offset)
@@ -490,7 +490,7 @@ static size_t dynamic_column_offset_bytes_named(size_t data_length)
    @param offset_size     Size of offset field in bytes
  */
 
-static my_bool type_and_offset_read_num(DYNAMIC_COLUMN_TYPE * type,
+static bool type_and_offset_read_num(DYNAMIC_COLUMN_TYPE * type,
     size_t * offset,
     uchar * place, size_t offset_size)
 {
@@ -525,7 +525,7 @@ static my_bool type_and_offset_read_num(DYNAMIC_COLUMN_TYPE * type,
 	return (*offset >= lim);
 }
 
-static my_bool type_and_offset_read_named(DYNAMIC_COLUMN_TYPE * type,
+static bool type_and_offset_read_named(DYNAMIC_COLUMN_TYPE * type,
     size_t * offset,
     uchar * place, size_t offset_size)
 {
@@ -580,16 +580,16 @@ struct st_service_funcs {
 	size_t (* name_size)(void *, uint);
 	int (*column_sort)
 	(const void * a, const void * b);
-	my_bool (* check_limit)(const void * val);
+	bool (* check_limit)(const void * val);
 	void (*set_fixed_hdr)
 	(DYNAMIC_COLUMN *str, DYN_HEADER *hdr);
-	my_bool (* put_header_entry)(DYN_HEADER * hdr,
+	bool (* put_header_entry)(DYN_HEADER * hdr,
 	    void * column_key,
 	    DYNAMIC_COLUMN_VALUE * value,
 	    size_t offset);
 	int (* plan_sort)(const void * a, const void * b);
 	size_t (* dynamic_column_offset_bytes)(size_t data_length);
-	my_bool (* type_and_offset_read)(DYNAMIC_COLUMN_TYPE * type,
+	bool (* type_and_offset_read)(DYNAMIC_COLUMN_TYPE * type,
 	    size_t * offset,
 	    uchar * place, size_t offset_size);
 };
@@ -664,7 +664,7 @@ static enum enum_dyncol_func_result init_read_hdr(DYN_HEADER * hdr, DYNAMIC_COLU
    @retval TRUE  error
  */
 
-static my_bool dynamic_column_init_named(DYNAMIC_COLUMN * str, size_t size)
+static bool dynamic_column_init_named(DYNAMIC_COLUMN * str, size_t size)
 {
 	DBUG_ASSERT(size != 0);
 
@@ -1531,7 +1531,7 @@ static enum enum_dyncol_func_result dynamic_new_column_store(DYNAMIC_COLUMN * st
     uint column_count,
     void * column_keys,
     DYNAMIC_COLUMN_VALUE * values,
-    my_bool new_str){
+    bool new_str){
 	struct st_service_funcs * fmt = fmt_data + hdr->format;
 	void ** columns_order;
 	uchar * element;
@@ -1678,7 +1678,7 @@ static enum enum_dyncol_func_result calc_var_sizes(DYN_HEADER * hdr,
  */
 
 static enum enum_dyncol_func_result dynamic_column_create_many_internal_fmt(DYNAMIC_COLUMN * str, uint column_count,
-    void * column_keys, DYNAMIC_COLUMN_VALUE * values, my_bool new_str, my_bool string_keys)
+    void * column_keys, DYNAMIC_COLUMN_VALUE * values, bool new_str, bool string_keys)
 {
 	DYN_HEADER header;
 	enum enum_dyncol_func_result rc;
@@ -1728,7 +1728,7 @@ enum enum_dyncol_func_result mariadb_dyncol_create_many_num(DYNAMIC_COLUMN * str
     uint column_count,
     uint * column_numbers,
     DYNAMIC_COLUMN_VALUE * values,
-    my_bool new_string){
+    bool new_string){
 	return(dynamic_column_create_many_internal_fmt(str, column_count,
 	       column_numbers, values,
 	       new_string, FALSE));
@@ -1750,7 +1750,7 @@ enum enum_dyncol_func_result mariadb_dyncol_create_many_named(DYNAMIC_COLUMN * s
     uint column_count,
     LEX_STRING * column_keys,
     DYNAMIC_COLUMN_VALUE * values,
-    my_bool new_string){
+    bool new_string){
 	return(dynamic_column_create_many_internal_fmt(str, column_count,
 	       column_keys, values,
 	       new_string, TRUE));
@@ -1872,7 +1872,7 @@ static uchar * find_entry_num(DYN_HEADER * hdr, uint key)
    @return 1 error in data
  */
 
-static my_bool read_name(DYN_HEADER * hdr, uchar * entry, LEX_STRING * name)
+static bool read_name(DYN_HEADER * hdr, uchar * entry, LEX_STRING * name)
 {
 	size_t nmoffset = uint2korr(entry);
 	uchar * next_entry = entry + hdr->entry_size;
@@ -1956,7 +1956,7 @@ static char * backwritenum(char * chr, uint numkey)
    @return 1 error in data
  */
 
-static my_bool find_column(DYN_HEADER * hdr, uint numkey, LEX_STRING * strkey)
+static bool find_column(DYN_HEADER * hdr, uint numkey, LEX_STRING * strkey)
 {
 	LEX_STRING nmkey;
 	char nmkeybuff[DYNCOL_NUM_CHAR]; /* to fit max 2 bytes number */
@@ -2017,7 +2017,7 @@ static my_bool find_column(DYN_HEADER * hdr, uint numkey, LEX_STRING * strkey)
     already have handled this case.
  */
 
-static inline my_bool read_fixed_header(DYN_HEADER * hdr,
+static inline bool read_fixed_header(DYN_HEADER * hdr,
     DYNAMIC_COLUMN * str)
 {
 	DBUG_ASSERT(str != NULL && str->length != 0);
@@ -2362,13 +2362,13 @@ enum enum_dyncol_func_result mariadb_dyncol_list_named(DYNAMIC_COLUMN * str, uin
    @retval FALSE pointer set to the next row
  */
 
-static my_bool find_place(DYN_HEADER * hdr, void * key, my_bool string_keys)
+static bool find_place(DYN_HEADER * hdr, void * key, bool string_keys)
 {
 	uint mid, start, end, val;
 	int UNINIT_VAR(flag);
 	LEX_STRING str;
 	char buff[DYNCOL_NUM_CHAR];
-	my_bool need_conversion = ((string_keys ? dyncol_fmt_str : dyncol_fmt_num) !=
+	bool need_conversion = ((string_keys ? dyncol_fmt_str : dyncol_fmt_num) !=
 	    hdr->format);
 	/* new format can't be numeric if the old one is names */
 	DBUG_ASSERT(string_keys ||
@@ -2490,7 +2490,7 @@ static int plan_sort_named(const void * a, const void * b)
 static enum enum_dyncol_func_result dynamic_column_update_copy(DYNAMIC_COLUMN * str, PLAN * plan,
     uint add_column_count,
     DYN_HEADER * hdr, DYN_HEADER * new_hdr,
-    my_bool convert){
+    bool convert){
 	DYNAMIC_COLUMN tmp;
 	struct st_service_funcs * fmt = fmt_data + hdr->format,
 	    * new_fmt = fmt_data + new_hdr->format;
@@ -3032,7 +3032,7 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
     uint add_column_count,
     void * column_keys,
     DYNAMIC_COLUMN_VALUE * values,
-    my_bool string_keys){
+    bool string_keys){
 	PLAN * plan, * alloc_plan = NULL, in_place_plan[IN_PLACE_PLAN];
 	uchar * element;
 	DYN_HEADER header, new_header;
@@ -3044,7 +3044,7 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
 	long long header_delta_sign, data_delta_sign;
 	int copy = FALSE;
 	enum enum_dyncol_func_result rc;
-	my_bool convert;
+	bool convert;
 	if(add_column_count == 0)
 		return ER_DYNCOL_OK;
 	memzero(&header, sizeof(header));
@@ -3494,9 +3494,9 @@ enum enum_dyncol_func_result mariadb_dyncol_val_str(DYNAMIC_STRING * str, DYNAMI
 		    char * alloc = NULL;
 		    char * from = val->x.string.value.str;
 		    ulong bufflen;
-		    my_bool conv = ((val->x.string.charset == cs) ||
+		    bool conv = ((val->x.string.charset == cs) ||
 			!strcmp(val->x.string.charset->name, cs->name));
-		    my_bool rc;
+		    bool rc;
 		    len = val->x.string.value.length;
 		    bufflen = (ulong)(len * (conv ? cs->char_maxlen : 1));
 		    if(ma_dynstr_realloc(str, bufflen))

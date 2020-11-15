@@ -70,7 +70,7 @@ int WHIRLPOOL_Update(WHIRLPOOL_CTX * c, const void * _inp, size_t bytes)
 	 * to care about excessive calls to WHIRLPOOL_BitUpdate...
 	 */
 	size_t chunk = ((size_t)1) << (sizeof(size_t) * 8 - 4);
-	const unsigned char * inp = static_cast<const uchar *>(_inp);
+	const uchar * inp = static_cast<const uchar *>(_inp);
 	while(bytes >= chunk) {
 		WHIRLPOOL_BitUpdate(c, inp, chunk * 8);
 		bytes -= chunk;
@@ -85,8 +85,8 @@ int WHIRLPOOL_Update(WHIRLPOOL_CTX * c, const void * _inp, size_t bytes)
 void WHIRLPOOL_BitUpdate(WHIRLPOOL_CTX * c, const void * _inp, size_t bits)
 {
 	size_t n;
-	unsigned int bitoff = c->bitoff, bitrem = bitoff % 8, inpgap = (8 - (uint)bits % 8) & 7;
-	const unsigned char * inp = static_cast<const uchar *>(_inp);
+	uint bitoff = c->bitoff, bitrem = bitoff % 8, inpgap = (8 - (uint)bits % 8) & 7;
+	const uchar * inp = static_cast<const uchar *>(_inp);
 	/*
 	 * This 256-bit increment procedure relies on the size_t being natural
 	 * size of CPU register, so that we don't have to mask the value in order
@@ -109,7 +109,7 @@ reconsider:
 				bits %= WHIRLPOOL_BBLOCK;
 			}
 			else {
-				unsigned int byteoff = bitoff / 8;
+				uint byteoff = bitoff / 8;
 
 				bitrem = WHIRLPOOL_BBLOCK - bitoff; /* re-use bitrem */
 				if(bits >= bitrem) {
@@ -145,8 +145,8 @@ reconsider:
 		        c->bitoff/8
 		 */
 		while(bits) {
-			unsigned int byteoff = bitoff / 8;
-			unsigned char b;
+			uint byteoff = bitoff / 8;
+			uchar b;
 
 #ifndef OPENSSL_SMALL_FOOTPRINT
 			if(bitrem == inpgap) {
@@ -205,11 +205,11 @@ reconsider:
 	}
 }
 
-int WHIRLPOOL_Final(unsigned char * md, WHIRLPOOL_CTX * c)
+int WHIRLPOOL_Final(uchar * md, WHIRLPOOL_CTX * c)
 {
-	unsigned int bitoff = c->bitoff, byteoff = bitoff / 8;
+	uint bitoff = c->bitoff, byteoff = bitoff / 8;
 	size_t i, j, v;
-	unsigned char * p;
+	uchar * p;
 
 	bitoff %= 8;
 	if(bitoff)
@@ -243,10 +243,10 @@ int WHIRLPOOL_Final(unsigned char * md, WHIRLPOOL_CTX * c)
 	return 0;
 }
 
-unsigned char * WHIRLPOOL(const void * inp, size_t bytes, unsigned char * md)
+uchar * WHIRLPOOL(const void * inp, size_t bytes, uchar * md)
 {
 	WHIRLPOOL_CTX ctx;
-	static unsigned char m[WHIRLPOOL_DIGEST_LENGTH];
+	static uchar m[WHIRLPOOL_DIGEST_LENGTH];
 	if(md == NULL)
 		md = m;
 	WHIRLPOOL_Init(&ctx);

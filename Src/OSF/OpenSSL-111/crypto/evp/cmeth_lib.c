@@ -42,7 +42,7 @@ int EVP_CIPHER_meth_set_iv_length(EVP_CIPHER * cipher, int iv_len)
 	return 1;
 }
 
-int EVP_CIPHER_meth_set_flags(EVP_CIPHER * cipher, unsigned long flags)
+int EVP_CIPHER_meth_set_flags(EVP_CIPHER * cipher, ulong flags)
 {
 	cipher->flags = flags;
 	return 1;
@@ -56,8 +56,8 @@ int EVP_CIPHER_meth_set_impl_ctx_size(EVP_CIPHER * cipher, int ctx_size)
 
 int EVP_CIPHER_meth_set_init(EVP_CIPHER * cipher,
     int (*init)(EVP_CIPHER_CTX * ctx,
-    const unsigned char * key,
-    const unsigned char * iv,
+    const uchar * key,
+    const uchar * iv,
     int enc))
 {
 	cipher->init = init;
@@ -66,8 +66,8 @@ int EVP_CIPHER_meth_set_init(EVP_CIPHER * cipher,
 
 int EVP_CIPHER_meth_set_do_cipher(EVP_CIPHER * cipher,
     int (*do_cipher)(EVP_CIPHER_CTX * ctx,
-    unsigned char * out,
-    const unsigned char * in,
+    uchar * out,
+    const uchar * in,
     size_t inl))
 {
 	cipher->do_cipher = do_cipher;
@@ -106,15 +106,15 @@ int EVP_CIPHER_meth_set_ctrl(EVP_CIPHER * cipher,
 }
 
 int(*EVP_CIPHER_meth_get_init(const EVP_CIPHER *cipher))(EVP_CIPHER_CTX *ctx,
-    const unsigned char * key,
-    const unsigned char * iv,
+    const uchar * key,
+    const uchar * iv,
     int enc)
 {
 	return cipher->init;
 }
 int(*EVP_CIPHER_meth_get_do_cipher(const EVP_CIPHER *cipher))(EVP_CIPHER_CTX *ctx,
-    unsigned char * out,
-    const unsigned char * in,
+    uchar * out,
+    const uchar * in,
     size_t inl)
 {
 	return cipher->do_cipher;

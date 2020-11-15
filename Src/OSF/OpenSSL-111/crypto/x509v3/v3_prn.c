@@ -15,8 +15,8 @@
 
 /* Extension printing routines */
 
-static int unknown_ext_print(BIO * out, const unsigned char * ext, int extlen,
-    unsigned long flag, int indent, int supported);
+static int unknown_ext_print(BIO * out, const uchar * ext, int extlen,
+    ulong flag, int indent, int supported);
 
 /* Print out a name+value stack */
 
@@ -65,13 +65,13 @@ void X509V3_EXT_val_prn(BIO * out, STACK_OF(CONF_VALUE) * val, int indent,
 
 /* Main routine: print out a general extension */
 
-int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, unsigned long flag,
+int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag,
     int indent)
 {
 	void * ext_str = NULL;
 	char * value = NULL;
 	ASN1_OCTET_STRING * extoct;
-	const unsigned char * p;
+	const uchar * p;
 	int extlen;
 	const X509V3_EXT_METHOD * method;
 	STACK_OF(CONF_VALUE) *nval = NULL;
@@ -137,7 +137,7 @@ err:
 	return ok;
 }
 
-int X509V3_extensions_print(BIO * bp, const char * title, const STACK_OF(X509_EXTENSION) * exts, unsigned long flag, int indent)
+int X509V3_extensions_print(BIO * bp, const char * title, const STACK_OF(X509_EXTENSION) * exts, ulong flag, int indent)
 {
 	int i, j;
 	if(sk_X509_EXTENSION_num(exts) <= 0)
@@ -168,8 +168,8 @@ int X509V3_extensions_print(BIO * bp, const char * title, const STACK_OF(X509_EX
 	return 1;
 }
 
-static int unknown_ext_print(BIO * out, const unsigned char * ext, int extlen,
-    unsigned long flag, int indent, int supported)
+static int unknown_ext_print(BIO * out, const uchar * ext, int extlen,
+    ulong flag, int indent, int supported)
 {
 	switch(flag & X509V3_EXT_UNKNOWN_MASK) {
 		case X509V3_EXT_DEFAULT:

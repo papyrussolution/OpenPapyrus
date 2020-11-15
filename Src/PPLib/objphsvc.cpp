@@ -443,19 +443,19 @@ int PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack, int u
 		THROW(tra);
 		if(*pID) {
 			if(pPack) {
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				tail = pPack->Tail;
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else {
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			tail = pPack->Tail;
 		}
-		THROW(ref->PutPropVlrString(Obj, *pID, PHNSVCPRP_TAIL, tail));
+		THROW(P_Ref->PutPropVlrString(Obj, *pID, PHNSVCPRP_TAIL, tail));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -467,7 +467,7 @@ int PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
 	int    ok = 1, r;
 	THROW(r = Search(id, &pPack->Rec));
 	if(r > 0) {
-		THROW(ref->GetPropVlrString(Obj, id, PHNSVCPRP_TAIL, pPack->Tail));
+		THROW(P_Ref->GetPropVlrString(Obj, id, PHNSVCPRP_TAIL, pPack->Tail));
 		{
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1); // @v9.2.0 readonly 0-->1
 			reg_key.GetString(_PPConst.WrParam_PhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);

@@ -262,29 +262,21 @@ static int bio_write(BIO * bio, const char * buf, int num_)
 		BIOerr(BIO_F_BIO_WRITE, BIO_R_BROKEN_PIPE);
 		return -1;
 	}
-
 	assert(b->len <= b->size);
-
 	if(b->len == b->size) {
 		BIO_set_retry_write(bio); /* buffer is full */
 		return -1;
 	}
-
 	/* we can write */
 	if(num > b->size - b->len)
 		num = b->size - b->len;
-
 	/* now write "num" bytes */
-
 	rest = num;
-
 	assert(rest > 0);
 	do {                    /* one or two iterations */
 		size_t write_offset;
 		size_t chunk;
-
 		assert(b->len + rest <= b->size);
-
 		write_offset = b->offset + b->len;
 		if(write_offset >= b->size)
 			write_offset -= b->size;
@@ -693,7 +685,6 @@ int BIO_ctrl_reset_read_request(BIO * bio)
 int BIO_nread0(BIO * bio, char ** buf)
 {
 	long ret;
-
 	if(!bio->init) {
 		BIOerr(BIO_F_BIO_NREAD0, BIO_R_UNINITIALIZED);
 		return -2;
@@ -709,12 +700,10 @@ int BIO_nread0(BIO * bio, char ** buf)
 int BIO_nread(BIO * bio, char ** buf, int num)
 {
 	int ret;
-
 	if(!bio->init) {
 		BIOerr(BIO_F_BIO_NREAD, BIO_R_UNINITIALIZED);
 		return -2;
 	}
-
 	ret = (int)BIO_ctrl(bio, BIO_C_NREAD, num, buf);
 	if(ret > 0)
 		bio->num_read += ret;
@@ -724,12 +713,10 @@ int BIO_nread(BIO * bio, char ** buf, int num)
 int BIO_nwrite0(BIO * bio, char ** buf)
 {
 	long ret;
-
 	if(!bio->init) {
 		BIOerr(BIO_F_BIO_NWRITE0, BIO_R_UNINITIALIZED);
 		return -2;
 	}
-
 	ret = BIO_ctrl(bio, BIO_C_NWRITE0, 0, buf);
 	if(ret > INT_MAX)
 		return INT_MAX;
@@ -740,12 +727,10 @@ int BIO_nwrite0(BIO * bio, char ** buf)
 int BIO_nwrite(BIO * bio, char ** buf, int num)
 {
 	int ret;
-
 	if(!bio->init) {
 		BIOerr(BIO_F_BIO_NWRITE, BIO_R_UNINITIALIZED);
 		return -2;
 	}
-
 	ret = BIO_ctrl(bio, BIO_C_NWRITE, num, buf);
 	if(ret > 0)
 		bio->num_write += ret;

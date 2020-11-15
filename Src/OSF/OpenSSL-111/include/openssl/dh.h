@@ -86,13 +86,13 @@ DECLARE_ASN1_ITEM(DHparams)
  */
 #define DH_CHECK_P_NOT_STRONG_PRIME     DH_CHECK_P_NOT_SAFE_PRIME
 
-#define d2i_DHparams_fp(fp,x)  (DH *)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHparams, (fp), (unsigned char **)(x))
-#define i2d_DHparams_fp(fp,x)  ASN1_i2d_fp(i2d_DHparams,(fp), (unsigned char *)(x))
+#define d2i_DHparams_fp(fp,x)  (DH *)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHparams, (fp), (uchar **)(x))
+#define i2d_DHparams_fp(fp,x)  ASN1_i2d_fp(i2d_DHparams,(fp), (uchar *)(x))
 #define d2i_DHparams_bio(bp,x) ASN1_d2i_bio_of(DH, DH_new, d2i_DHparams, bp, x)
 #define i2d_DHparams_bio(bp,x) ASN1_i2d_bio_of_const(DH,i2d_DHparams,bp,x)
 
-#define d2i_DHxparams_fp(fp,x) (DH *)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHxparams, (fp), (unsigned char **)(x))
-#define i2d_DHxparams_fp(fp,x) ASN1_i2d_fp(i2d_DHxparams,(fp), (unsigned char *)(x))
+#define d2i_DHxparams_fp(fp,x) (DH *)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHxparams, (fp), (uchar **)(x))
+#define i2d_DHxparams_fp(fp,x) ASN1_i2d_fp(i2d_DHxparams,(fp), (uchar *)(x))
 #define d2i_DHxparams_bio(bp,x) ASN1_d2i_bio_of(DH, DH_new, d2i_DHxparams, bp, x)
 #define i2d_DHxparams_bio(bp,x) ASN1_i2d_bio_of_const(DH, i2d_DHxparams, bp, x)
 
@@ -129,12 +129,12 @@ int DH_check_params(const DH *dh, int *ret);
 int DH_check(const DH *dh, int *codes);
 int DH_check_pub_key(const DH *dh, const BIGNUM *pub_key, int *codes);
 int DH_generate_key(DH *dh);
-int DH_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh);
-int DH_compute_key_padded(unsigned char *key, const BIGNUM *pub_key, DH *dh);
-DH *d2i_DHparams(DH **a, const unsigned char **pp, long length);
-int i2d_DHparams(const DH *a, unsigned char **pp);
-DH *d2i_DHxparams(DH **a, const unsigned char **pp, long length);
-int i2d_DHxparams(const DH *a, unsigned char **pp);
+int DH_compute_key(uchar *key, const BIGNUM *pub_key, DH *dh);
+int DH_compute_key_padded(uchar *key, const BIGNUM *pub_key, DH *dh);
+DH *d2i_DHparams(DH **a, const uchar **pp, long length);
+int i2d_DHparams(const DH *a, uchar **pp);
+DH *d2i_DHxparams(DH **a, const uchar **pp, long length);
+int i2d_DHxparams(const DH *a, uchar **pp);
 #ifndef OPENSSL_NO_STDIO
 int DHparams_print_fp(FILE *fp, const DH *x);
 #endif
@@ -151,10 +151,10 @@ int DH_get_nid(const DH *dh);
 
 #ifndef OPENSSL_NO_CMS
 /* RFC2631 KDF */
-int DH_KDF_X9_42(unsigned char *out, size_t outlen,
-                 const unsigned char *Z, size_t Zlen,
+int DH_KDF_X9_42(uchar *out, size_t outlen,
+                 const uchar *Z, size_t Zlen,
                  ASN1_OBJECT *key_oid,
-                 const unsigned char *ukm, size_t ukmlen, const EVP_MD *md);
+                 const uchar *ukm, size_t ukmlen, const EVP_MD *md);
 #endif
 
 void DH_get0_pqg(const DH *dh,
@@ -187,9 +187,9 @@ int DH_meth_set0_app_data(DH_METHOD *dhm, void *app_data);
 int (*DH_meth_get_generate_key(const DH_METHOD *dhm)) (DH *);
 int DH_meth_set_generate_key(DH_METHOD *dhm, int (*generate_key) (DH *));
 int (*DH_meth_get_compute_key(const DH_METHOD *dhm))
-        (unsigned char *key, const BIGNUM *pub_key, DH *dh);
+        (uchar *key, const BIGNUM *pub_key, DH *dh);
 int DH_meth_set_compute_key(DH_METHOD *dhm,
-        int (*compute_key) (unsigned char *key, const BIGNUM *pub_key, DH *dh));
+        int (*compute_key) (uchar *key, const BIGNUM *pub_key, DH *dh));
 int (*DH_meth_get_bn_mod_exp(const DH_METHOD *dhm))
     (const DH *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *,
      BN_CTX *, BN_MONT_CTX *);

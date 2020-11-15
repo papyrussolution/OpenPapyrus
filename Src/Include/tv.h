@@ -1919,10 +1919,10 @@ enum flex_align {
 	FLEX_ALIGN_SPACE_EVENLY
 };
 
-enum flex_position {
+/*enum flex_position {
 	FLEX_POSITION_RELATIVE = 0,
 	FLEX_POSITION_ABSOLUTE
-};
+};*/
 
 enum flex_direction {
 	FLEX_DIRECTION_ROW = 0,
@@ -1931,11 +1931,11 @@ enum flex_direction {
 	FLEX_DIRECTION_COLUMN_REVERSE
 };
 
-enum flex_wrap {
+/*enum flex_wrap {
 	FLEX_WRAP_NO_WRAP = 0,
 	FLEX_WRAP_WRAP,
 	FLEX_WRAP_WRAP_REVERSE
-};
+};*/
 
 class LayoutFlexItem : public TSCollection <LayoutFlexItem> {
 public:
@@ -1990,13 +1990,15 @@ public:
 	flex_align AlignContent; // FLEX_ALIGN_STRETCH
 	flex_align AlignItems; // FLEX_ALIGN_STRETCH
 	flex_align AlignSelf; // FLEX_ALIGN_AUTO
-	flex_position PositionMode; // FLEX_POSITION_RELATIVE
+	//flex_position PositionMode; // FLEX_POSITION_RELATIVE
 	flex_direction Direction; // FLEX_DIRECTION_COLUMN
-	flex_wrap WrapMode; // FLEX_WRAP_NO_WRAP
+	//flex_wrap WrapMode; // FLEX_WRAP_NO_WRAP
 	enum {
 		fPositionAbsolute         = 0x0001, // else Relative
 		fWrap                     = 0x0002,
 		fWrapReverse              = 0x0004, // ignored if !(Flags & fWrap)
+		fDirectionVertical        = 0x0008, // else horizontal
+		fDirectionReverse         = 0x0010, // if horizontal then right-to-left, if vertical then bottom-to-top
 		fStateShouldOrderChildren = 0x0100
 	};
 	float  grow;   // 0.0f

@@ -49,36 +49,36 @@ struct evp_pkey_method_st {
     int (*keygen_init) (EVP_PKEY_CTX *ctx);
     int (*keygen) (EVP_PKEY_CTX *ctx, EVP_PKEY *pkey);
     int (*sign_init) (EVP_PKEY_CTX *ctx);
-    int (*sign) (EVP_PKEY_CTX *ctx, unsigned char *sig, size_t *siglen,
-                 const unsigned char *tbs, size_t tbslen);
+    int (*sign) (EVP_PKEY_CTX *ctx, uchar *sig, size_t *siglen,
+                 const uchar *tbs, size_t tbslen);
     int (*verify_init) (EVP_PKEY_CTX *ctx);
     int (*verify) (EVP_PKEY_CTX *ctx,
-                   const unsigned char *sig, size_t siglen,
-                   const unsigned char *tbs, size_t tbslen);
+                   const uchar *sig, size_t siglen,
+                   const uchar *tbs, size_t tbslen);
     int (*verify_recover_init) (EVP_PKEY_CTX *ctx);
     int (*verify_recover) (EVP_PKEY_CTX *ctx,
-                           unsigned char *rout, size_t *routlen,
-                           const unsigned char *sig, size_t siglen);
+                           uchar *rout, size_t *routlen,
+                           const uchar *sig, size_t siglen);
     int (*signctx_init) (EVP_PKEY_CTX *ctx, EVP_MD_CTX *mctx);
-    int (*signctx) (EVP_PKEY_CTX *ctx, unsigned char *sig, size_t *siglen,
+    int (*signctx) (EVP_PKEY_CTX *ctx, uchar *sig, size_t *siglen,
                     EVP_MD_CTX *mctx);
     int (*verifyctx_init) (EVP_PKEY_CTX *ctx, EVP_MD_CTX *mctx);
-    int (*verifyctx) (EVP_PKEY_CTX *ctx, const unsigned char *sig, int siglen,
+    int (*verifyctx) (EVP_PKEY_CTX *ctx, const uchar *sig, int siglen,
                       EVP_MD_CTX *mctx);
     int (*encrypt_init) (EVP_PKEY_CTX *ctx);
-    int (*encrypt) (EVP_PKEY_CTX *ctx, unsigned char *out, size_t *outlen,
-                    const unsigned char *in, size_t inlen);
+    int (*encrypt) (EVP_PKEY_CTX *ctx, uchar *out, size_t *outlen,
+                    const uchar *in, size_t inlen);
     int (*decrypt_init) (EVP_PKEY_CTX *ctx);
-    int (*decrypt) (EVP_PKEY_CTX *ctx, unsigned char *out, size_t *outlen,
-                    const unsigned char *in, size_t inlen);
+    int (*decrypt) (EVP_PKEY_CTX *ctx, uchar *out, size_t *outlen,
+                    const uchar *in, size_t inlen);
     int (*derive_init) (EVP_PKEY_CTX *ctx);
-    int (*derive) (EVP_PKEY_CTX *ctx, unsigned char *key, size_t *keylen);
+    int (*derive) (EVP_PKEY_CTX *ctx, uchar *key, size_t *keylen);
     int (*ctrl) (EVP_PKEY_CTX *ctx, int type, int p1, void *p2);
     int (*ctrl_str) (EVP_PKEY_CTX *ctx, const char *type, const char *value);
-    int (*digestsign) (EVP_MD_CTX *ctx, unsigned char *sig, size_t *siglen,
-                       const unsigned char *tbs, size_t tbslen);
-    int (*digestverify) (EVP_MD_CTX *ctx, const unsigned char *sig,
-                         size_t siglen, const unsigned char *tbs,
+    int (*digestsign) (EVP_MD_CTX *ctx, uchar *sig, size_t *siglen,
+                       const uchar *tbs, size_t tbslen);
+    int (*digestverify) (EVP_MD_CTX *ctx, const uchar *sig,
+                         size_t siglen, const uchar *tbs,
                          size_t tbslen);
     int (*check) (EVP_PKEY *pkey);
     int (*public_check) (EVP_PKEY *pkey);
@@ -114,10 +114,10 @@ struct evp_md_st {
     int type;
     int pkey_type;
     int md_size;
-    unsigned long flags;
+    ulong flags;
     int (*init) (EVP_MD_CTX *ctx);
     int (*update) (EVP_MD_CTX *ctx, const void *data, size_t count);
-    int (*final) (EVP_MD_CTX *ctx, unsigned char *md);
+    int (*final) (EVP_MD_CTX *ctx, uchar *md);
     int (*copy) (EVP_MD_CTX *to, const EVP_MD_CTX *from);
     int (*cleanup) (EVP_MD_CTX *ctx);
     int block_size;
@@ -133,13 +133,13 @@ struct evp_cipher_st {
     int key_len;
     int iv_len;
     /* Various flags */
-    unsigned long flags;
+    ulong flags;
     /* init key */
-    int (*init) (EVP_CIPHER_CTX *ctx, const unsigned char *key,
-                 const unsigned char *iv, int enc);
+    int (*init) (EVP_CIPHER_CTX *ctx, const uchar *key,
+                 const uchar *iv, int enc);
     /* encrypt/decrypt data */
-    int (*do_cipher) (EVP_CIPHER_CTX *ctx, unsigned char *out,
-                      const unsigned char *in, size_t inl);
+    int (*do_cipher) (EVP_CIPHER_CTX *ctx, uchar *out,
+                      const uchar *in, size_t inl);
     /* cleanup ctx */
     int (*cleanup) (EVP_CIPHER_CTX *);
     /* how big ctx->cipher_data needs to be */
@@ -169,7 +169,7 @@ struct evp_cipher_st {
         for (i=0; i <= inl; i+=bl)
 
 #define BLOCK_CIPHER_func_ecb(cname, cprefix, kstruct, ksched) \
-static int cname##_ecb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const unsigned char *in, size_t inl) \
+static int cname##_ecb_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, size_t inl) \
 {\
         BLOCK_CIPHER_ecb_loop() \
             cprefix##_ecb_encrypt(in + i, out + i, &EVP_C_DATA(kstruct,ctx)->ksched, EVP_CIPHER_CTX_encrypting(ctx)); \
@@ -179,7 +179,7 @@ static int cname##_ecb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const uns
 #define EVP_MAXCHUNK ((size_t)1<<(sizeof(long)*8-2))
 
 #define BLOCK_CIPHER_func_ofb(cname, cprefix, cbits, kstruct, ksched) \
-    static int cname##_ofb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const unsigned char *in, size_t inl) \
+    static int cname##_ofb_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, size_t inl) \
 {\
         while(inl>=EVP_MAXCHUNK) {\
             int num = EVP_CIPHER_CTX_num(ctx);\
@@ -198,7 +198,7 @@ static int cname##_ecb_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const uns
 }
 
 #define BLOCK_CIPHER_func_cbc(cname, cprefix, kstruct, ksched) \
-static int cname##_cbc_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const unsigned char *in, size_t inl) \
+static int cname##_cbc_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, size_t inl) \
 {\
         while(inl>=EVP_MAXCHUNK) \
             {\
@@ -213,7 +213,7 @@ static int cname##_cbc_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const uns
 }
 
 #define BLOCK_CIPHER_func_cfb(cname, cprefix, cbits, kstruct, ksched)  \
-static int cname##_cfb##cbits##_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out, const unsigned char *in, size_t inl) \
+static int cname##_cfb##cbits##_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, size_t inl) \
 {\
     size_t chunk = EVP_MAXCHUNK;\
     if (cbits == 1)  chunk >>= 3;\
@@ -380,8 +380,8 @@ const EVP_CIPHER *EVP_##cname##_ecb(void) { return &cname##_ecb; }
 #define MAX_KEYLEN  ED448_KEYLEN
 
 typedef struct {
-    unsigned char pubkey[MAX_KEYLEN];
-    unsigned char *privkey;
+    uchar pubkey[MAX_KEYLEN];
+    uchar *privkey;
 } ECX_KEY;
 
 #endif
@@ -431,7 +431,7 @@ void evp_app_cleanup_int(void);
 #define TLS1_1_VERSION   0x0302
 #endif
 
-void evp_encode_ctx_set_flags(EVP_ENCODE_CTX *ctx, unsigned int flags);
+void evp_encode_ctx_set_flags(EVP_ENCODE_CTX *ctx, uint flags);
 
 /* EVP_ENCODE_CTX flags */
 /* Don't generate new lines when encoding */

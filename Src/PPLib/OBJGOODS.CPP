@@ -4397,7 +4397,7 @@ int PPObjGoodsInfo::GetPacket(PPID id, PPGoodsInfo * pPack)
 {
 	int    ok = 1;
 	PPGoodsInfo pack;
-	THROW((ok = ref->GetItem(PPOBJ_GOODSINFO, id, &pack)));
+	THROW((ok = P_Ref->GetItem(PPOBJ_GOODSINFO, id, &pack)));
 	ASSIGN_PTR(pPack, pack);
 	CATCHZOK
 	return ok;
@@ -4418,19 +4418,19 @@ int PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
 			if(pPack) {
 				THROW(CheckRights(PPR_MOD));
 				pPack->ObjID = *pID;
-				THROW(ref->UpdateItem(PPOBJ_GOODSINFO, *pID, pPack, 1, 0));
+				THROW(P_Ref->UpdateItem(PPOBJ_GOODSINFO, *pID, pPack, 1, 0));
 				action = PPACN_OBJUPD;
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(PPOBJ_GOODSINFO, *pID, 0));
+				THROW(P_Ref->RemoveItem(PPOBJ_GOODSINFO, *pID, 0));
 				action = PPACN_OBJRMV;
 			}
 			id = *pID;
 		}
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
-			THROW(ref->AddItem(PPOBJ_GOODSINFO, &id, pPack, 0));
+			THROW(P_Ref->AddItem(PPOBJ_GOODSINFO, &id, pPack, 0));
 			action = PPACN_OBJADD;
 			ASSIGN_PTR(pID, id);
 		}
@@ -4730,7 +4730,7 @@ int UhttIndexStores(const SString & rOutPath)
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(STORES_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {
-		for(SEnum en = uhs_obj.ref->Enum(PPOBJ_UHTTSTORE, 0); en.Next(&uhs_rec) > 0;) {
+		for(SEnum en = uhs_obj.P_Ref->Enum(PPOBJ_UHTTSTORE, 0); en.Next(&uhs_rec) > 0;) {
 			id_list.add(uhs_rec.ID);
 		}
 		id_list.sort();

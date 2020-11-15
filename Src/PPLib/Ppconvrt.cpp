@@ -6,7 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <private\_ppo.h>
-// @v9.6.3 #include <idea.h>
 //
 //
 //
@@ -5934,9 +5933,9 @@ int PPObjWorkbook_Pre813::RemovePacket(PPID id, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(CheckRights(PPR_DEL));
-		THROW(ref->RemoveItem(Obj, id, 0));
-		THROW(ref->RemoveProperty(Obj, id, 0, 0));
-		THROW(ref->Ot.PutList(Obj, id, 0, 0));
+		THROW(P_Ref->RemoveItem(Obj, id, 0));
+		THROW(P_Ref->RemoveProperty(Obj, id, 0, 0));
+		THROW(P_Ref->Ot.PutList(Obj, id, 0, 0));
 		THROW(RemoveSync(id));
 		{
 			ObjLinkFiles _lf(PPOBJ_WORKBOOK_PRE813);
@@ -5954,7 +5953,7 @@ int PPObjWorkbook_Pre813::GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack)
 	if(ok > 0) {
 		pPack->TagL.Destroy();
 		pPack->F.Clear();
-		THROW(ref->Ot.GetList(Obj, id, &pPack->TagL));
+		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
 		ok = 1;
 	}
 	CATCHZOK
@@ -6940,9 +6939,8 @@ int Convert9811()
 			PPIDArray acn_list;
 			acn_list.add(PPACN_EVENTTOKEN);
 			THROW(p_sj = new SysJournal);
-			if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, &acn_list, &moment) > 0) {
+			if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, &acn_list, &moment) > 0)
 				ok = -1; // Событие уже установлено
-			}
 			else {
 				THROW(p_sj->LogEvent(PPACN_EVENTTOKEN, PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, 0, 1/*use_ta*/));
 			}
@@ -7580,3 +7578,180 @@ int Convert10703()
 	return ok;
 }
 // } @erik
+
+int Convert10903()
+{
+	int    ok = 1;
+	PPCommandMngr * p_mgr_desktop = 0;
+	PPCommandMngr * p_mgr_menu = 0;
+	SysJournal * p_sj = 0;
+	Reference * p_ref = 0;
+	int   is_p_ref_allocated = 0;
+	PPWait(1);
+	if(CurDict) {
+		{
+			LDATETIME moment;
+			PPIDArray acn_list;
+			acn_list.add(PPACN_EVENTTOKEN);
+			THROW(p_sj = new SysJournal);
+			if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_CVTCMDGROUP, &acn_list, &moment) > 0) {
+				ok = -1; // Событие уже установлено
+			}
+			else {
+				PPCommandGroup cg_desktop;
+				PPCommandGroup cg_menu;
+				THROW(p_mgr_desktop = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0));
+				THROW(p_mgr_menu = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcMenu, 0));
+				if(PPRef)
+					p_ref = PPRef;
+				else {
+					p_ref = new Reference;
+					is_p_ref_allocated = 1;
+				}		
+				if(p_ref) {
+					SString db_symb;
+					CurDict->GetDbSymb(db_symb);
+					{
+						p_mgr_desktop->Load__2(&cg_desktop, db_symb, PPCommandMngr::fRWByXml);
+						p_mgr_menu->Load__2(&cg_menu, db_symb, PPCommandMngr::fRWByXml);
+					}
+					PPTransaction tra(1);
+					THROW(tra);
+					{
+						PPSecur2 sec_rec;
+						PPObjIDArray oid_list;
+						StrAssocArray obj_name_list; // Для вывода в журнал: сопоставление наименований объектов с инексом (1..) в списке oid_list
+						const PPID obj_type_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
+						for(uint objtypeidx = 0; objtypeidx < SIZEOFARRAY(obj_type_list); objtypeidx++) {
+							for(SEnum en = p_ref->Enum(obj_type_list[objtypeidx], 0); en.Next(&sec_rec) > 0;) {
+								oid_list.Add(sec_rec.Tag, sec_rec.ID);
+								obj_name_list.Add(oid_list.getCount(), sec_rec.Name);
+							}
+						}
+						{
+							SString fmt_buf;
+							SString msg_buf;
+							SString oid_buf;
+							SString temp_buf;
+							for(uint oididx = 0; oididx < oid_list.getCount(); oididx++) {
+								const PPObjID oid = oid_list.at(oididx);
+								PPConfig cfg_rec;
+								oid_buf.Z().Cat(oid.Obj).Semicol().Cat(oid.Id);
+								if(obj_name_list.GetText(oididx+1, temp_buf)) {
+									oid_buf.Space().CatChar('\'').Cat(temp_buf).CatChar('\'');
+								}
+								if(oid.Obj == PPOBJ_USR) {
+									SString desk_name;
+									PPConfigPrivate cfgp_rec;
+									MEMSZERO(cfgp_rec);
+									if(p_ref->GetConfig(oid.Obj, oid.Id, PPPRP_CFGPRIVATE, &cfgp_rec, sizeof(cfgp_rec)) > 0) {
+										Reference::GetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, desk_name);
+										if(cfgp_rec.DesktopID_Obsolete && !cfgp_rec.DesktopUuid) {
+											const PPCommandItem * p_cg_item = cg_desktop.SearchByID(cfgp_rec.DesktopID_Obsolete, 0);
+											if(p_cg_item && p_cg_item->Kind == PPCommandItem::kGroup) {
+												const PPCommandGroup * p_cg_local = static_cast<const PPCommandGroup *>(p_cg_item);
+												if(oneof2(p_cg_local->Type, cmdgrpcDesktop, cmdgrpcUndef) && !!p_cg_local->Uuid) {
+													cfgp_rec.DesktopUuid = p_cg_local->Uuid;
+													Reference::SetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, p_cg_local->Name);
+													THROW(p_ref->SetConfig(oid.Obj, oid.Id, PPPRP_CFGPRIVATE, &cfgp_rec, sizeof(cfgp_rec)));
+												}
+											}
+											uint msg_id = 0;
+											if(!cfgp_rec.DesktopUuid) {
+												// PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND Для объекта {%s} не удалось найти подстановку для старого идентификатора рабочего стола (%s)
+												msg_id = PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND;
+												temp_buf.Z().Cat(cfgp_rec.DesktopID_Obsolete);
+											}
+											else {
+												// PPTXT_LOG_CMDGRPREFCVG_DTSETTLED Для объекта {%s} установлен новый идентификатор рабочего стола (%s)
+												msg_id = PPTXT_LOG_CMDGRPREFCVG_DTSETTLED;
+												temp_buf.Z().Cat(cfgp_rec.DesktopID_Obsolete).Cat("-->").Cat(cfgp_rec.DesktopUuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+											}
+											if(msg_id) {
+												PPLoadText(msg_id, fmt_buf);
+												msg_buf.Printf(fmt_buf.cptr(), oid_buf.cptr(), temp_buf.cptr());
+												PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME);
+											}
+										}
+									}
+								}
+								if(p_ref->GetConfig(oid.Obj, oid.Id, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)) > 0) {
+									//PPTXT_LOG_CMDGRPREFCVG_DTSETTLED          "Для объекта {oid} установлен новый идентификатор рабочего стола (%s)"
+									//PPTXT_LOG_CMDGRPREFCVG_MENUSETTLED        "Для объекта {oid} установлен новый идентификатор меню (%s)"
+									//PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND     "Для объекта {oid} не удалось найти подстановку для старого идентификатора рабочего стола (%s)"
+									//PPTXT_LOG_CMDGRPREFCVG_MENUNOSUBSTFOUND   "Для объекта {oid} не удалось найти подстановку для старого идентификатора меню (%s)"
+									int local_do_update = 0;
+									if(cfg_rec.DesktopID_Obsolete && !cfg_rec.DesktopUuid) {
+										const PPCommandItem * p_cg_item = cg_desktop.SearchByID(cfg_rec.DesktopID_Obsolete, 0);
+										if(p_cg_item && p_cg_item->Kind == PPCommandItem::kGroup) {
+											const PPCommandGroup * p_cg_local = static_cast<const PPCommandGroup *>(p_cg_item);
+											if(oneof2(p_cg_local->Type, cmdgrpcDesktop, cmdgrpcUndef) && !!p_cg_local->Uuid) {
+												cfg_rec.DesktopUuid = p_cg_local->Uuid;
+												local_do_update = 1;
+											}
+										}
+										uint msg_id = 0;
+										if(!cfg_rec.DesktopUuid) {
+											// PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND Для объекта {%s} не удалось найти подстановку для старого идентификатора рабочего стола (%s)
+											msg_id = PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND;
+											temp_buf.Z().Cat(cfg_rec.DesktopID_Obsolete);
+										}
+										else {
+											// PPTXT_LOG_CMDGRPREFCVG_DTSETTLED Для объекта {%s} установлен новый идентификатор рабочего стола (%s)
+											msg_id = PPTXT_LOG_CMDGRPREFCVG_DTSETTLED;
+											temp_buf.Z().Cat(cfg_rec.DesktopID_Obsolete).Cat("-->").Cat(cfg_rec.DesktopUuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+										}
+										if(msg_id) {
+											PPLoadText(msg_id, fmt_buf);
+											msg_buf.Printf(fmt_buf.cptr(), oid_buf.cptr(), temp_buf.cptr());
+											PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME);
+										}
+									}
+									if(cfg_rec.MenuID_Obsolete && !cfg_rec.MenuUuid) {
+										const PPCommandItem * p_cg_item = cg_menu.SearchByID(cfg_rec.MenuID_Obsolete, 0);
+										if(p_cg_item && p_cg_item->Kind == PPCommandItem::kGroup) {
+											const PPCommandGroup * p_cg_local = static_cast<const PPCommandGroup *>(p_cg_item);
+											if(oneof2(p_cg_local->Type, cmdgrpcMenu, cmdgrpcUndef) && !!p_cg_local->Uuid) {
+												cfg_rec.MenuUuid = p_cg_local->Uuid;
+												local_do_update = 1;
+											}
+										}
+										uint msg_id = 0;
+										if(!cfg_rec.MenuUuid) {
+											// PPTXT_LOG_CMDGRPREFCVG_MENUNOSUBSTFOUND Для объекта {%s} не удалось найти подстановку для старого идентификатора меню (%s)
+											msg_id = PPTXT_LOG_CMDGRPREFCVG_MENUNOSUBSTFOUND;
+											temp_buf.Z().Cat(cfg_rec.MenuID_Obsolete);
+										}
+										else {
+											// PPTXT_LOG_CMDGRPREFCVG_MENUSETTLED Для объекта {%s} установлен новый идентификатор меню (%s)
+											msg_id = PPTXT_LOG_CMDGRPREFCVG_MENUSETTLED;
+											temp_buf.Z().Cat(cfg_rec.MenuID_Obsolete).Cat("-->").Cat(cfg_rec.MenuUuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+										}
+										if(msg_id) {
+											PPLoadText(msg_id, fmt_buf);
+											msg_buf.Printf(fmt_buf.cptr(), oid_buf.cptr(), temp_buf.cptr());
+											PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME);
+										}
+									}
+									if(local_do_update) {
+										THROW(p_ref->SetConfig(oid.Obj, oid.Id, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)));
+									}
+								}
+							}
+						}
+					}
+					THROW(p_sj->LogEvent(PPACN_EVENTTOKEN, PPOBJ_EVENTTOKEN, PPEVTOK_CVTCMDGROUP, 0, 0/*use_ta*/));
+					THROW(tra.Commit());
+				}
+			}
+		}
+	}
+	PPWait(0);
+	CATCHZOKPPERR
+	ZDELETE(p_sj);
+	if(is_p_ref_allocated)
+		ZDELETE(p_ref);
+	delete p_mgr_desktop;
+	delete p_mgr_menu;
+	return ok;
+}

@@ -33,25 +33,15 @@ static ESS_SIGNING_CERT * ess_SIGNING_CERT_new_init(X509 * signcert,
 static ESS_CERT_ID * ess_CERT_ID_new_init(X509 * cert, int issuer_needed);
 static int ts_TST_INFO_content_new(PKCS7 * p7);
 static int ess_add_signing_cert(PKCS7_SIGNER_INFO * si, ESS_SIGNING_CERT * sc);
-
-static ESS_SIGNING_CERT_V2 * ess_signing_cert_v2_new_init(const EVP_MD * hash_alg,
-    X509 * signcert,
-    STACK_OF(X509)
-    * certs);
-static ESS_CERT_ID_V2 * ess_cert_id_v2_new_init(const EVP_MD * hash_alg,
-    X509 * cert, int issuer_needed);
-static int ess_add_signing_cert_v2(PKCS7_SIGNER_INFO * si,
-    ESS_SIGNING_CERT_V2 * sc);
-
-static ASN1_GENERALIZEDTIME
-* TS_RESP_set_genTime_with_precision(ASN1_GENERALIZEDTIME *, long, long,
-    unsigned);
+static ESS_SIGNING_CERT_V2 * ess_signing_cert_v2_new_init(const EVP_MD * hash_alg, X509 * signcert, STACK_OF(X509) * certs);
+static ESS_CERT_ID_V2 * ess_cert_id_v2_new_init(const EVP_MD * hash_alg, X509 * cert, int issuer_needed);
+static int ess_add_signing_cert_v2(PKCS7_SIGNER_INFO * si, ESS_SIGNING_CERT_V2 * sc);
+static ASN1_GENERALIZEDTIME * TS_RESP_set_genTime_with_precision(ASN1_GENERALIZEDTIME *, long, long, unsigned);
 
 /* Default callback for response generation. */
 static ASN1_INTEGER * def_serial_cb(struct TS_resp_ctx * ctx, void * data)
 {
 	ASN1_INTEGER * serial = ASN1_INTEGER_new();
-
 	if(serial == NULL)
 		goto err;
 	if(!ASN1_INTEGER_set(serial, 1))
@@ -60,15 +50,13 @@ static ASN1_INTEGER * def_serial_cb(struct TS_resp_ctx * ctx, void * data)
 
 err:
 	TSerr(TS_F_DEF_SERIAL_CB, ERR_R_MALLOC_FAILURE);
-	TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION,
-	    "Error during serial number generation.");
+	TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION, "Error during serial number generation.");
 	return NULL;
 }
 
 #if defined(OPENSSL_SYS_UNIX)
 
-static int def_time_cb(struct TS_resp_ctx * ctx, void * data,
-    long * sec, long * usec)
+static int def_time_cb(struct TS_resp_ctx * ctx, void * data, long * sec, long * usec)
 {
 	struct timeval tv;
 	if(gettimeofday(&tv, NULL) != 0) {
@@ -355,8 +343,7 @@ TS_TST_INFO * TS_RESP_CTX_get_tst_info(TS_RESP_CTX * ctx)
 	return ctx->tst_info;
 }
 
-int TS_RESP_CTX_set_clock_precision_digits(TS_RESP_CTX * ctx,
-    unsigned precision)
+int TS_RESP_CTX_set_clock_precision_digits(TS_RESP_CTX * ctx, unsigned precision)
 {
 	if(precision > TS_MAX_CLOCK_PRECISION_DIGITS)
 		return 0;
@@ -756,7 +743,7 @@ static ESS_CERT_ID * ess_CERT_ID_new_init(X509 * cert, int issuer_needed)
 {
 	ESS_CERT_ID * cid = NULL;
 	GENERAL_NAME * name = NULL;
-	unsigned char cert_sha1[SHA_DIGEST_LENGTH];
+	uchar cert_sha1[SHA_DIGEST_LENGTH];
 
 	/* Call for side-effect of computing hash and caching extensions */
 	X509_check_purpose(cert, -1, 0);
@@ -823,7 +810,7 @@ err:
 static int ess_add_signing_cert(PKCS7_SIGNER_INFO * si, ESS_SIGNING_CERT * sc)
 {
 	ASN1_STRING * seq = NULL;
-	unsigned char * p, * pp = NULL;
+	uchar * p, * pp = NULL;
 	int len;
 
 	len = i2d_ESS_SIGNING_CERT(sc, NULL);
@@ -887,8 +874,8 @@ static ESS_CERT_ID_V2 * ess_cert_id_v2_new_init(const EVP_MD * hash_alg, X509 * 
 {
 	ESS_CERT_ID_V2 * cid = NULL;
 	GENERAL_NAME * name = NULL;
-	unsigned char hash[EVP_MAX_MD_SIZE];
-	unsigned int hash_len = sizeof(hash);
+	uchar hash[EVP_MAX_MD_SIZE];
+	uint hash_len = sizeof(hash);
 	X509_ALGOR * alg = NULL;
 	memzero(hash, sizeof(hash));
 	if((cid = ESS_CERT_ID_V2_new()) == NULL)
@@ -945,7 +932,7 @@ static int ess_add_signing_cert_v2(PKCS7_SIGNER_INFO * si,
     ESS_SIGNING_CERT_V2 * sc)
 {
 	ASN1_STRING * seq = NULL;
-	unsigned char * p, * pp = NULL;
+	uchar * p, * pp = NULL;
 	int len = i2d_ESS_SIGNING_CERT_V2(sc, NULL);
 
 	if((pp = static_cast<uchar *>(OPENSSL_malloc(len))) == NULL) {
@@ -971,21 +958,17 @@ err:
 	return 0;
 }
 
-static ASN1_GENERALIZEDTIME * TS_RESP_set_genTime_with_precision(ASN1_GENERALIZEDTIME * asn1_time, long sec, long usec,
-    unsigned precision)
+static ASN1_GENERALIZEDTIME * TS_RESP_set_genTime_with_precision(ASN1_GENERALIZEDTIME * asn1_time, long sec, long usec, unsigned precision)
 {
 	time_t time_sec = (time_t)sec;
 	struct tm * tm = NULL, tm_result;
 	char genTime_str[17 + TS_MAX_CLOCK_PRECISION_DIGITS];
 	char * p = genTime_str;
 	char * p_end = genTime_str + sizeof(genTime_str);
-
 	if(precision > TS_MAX_CLOCK_PRECISION_DIGITS)
 		goto err;
-
 	if((tm = OPENSSL_gmtime(&time_sec, &tm_result)) == NULL)
 		goto err;
-
 	/*
 	 * Put "genTime_str" in GeneralizedTime format.  We work around the
 	 * restrictions imposed by rfc3280 (i.e. "GeneralizedTime values MUST

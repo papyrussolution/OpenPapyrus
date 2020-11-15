@@ -24,11 +24,11 @@ IMPLEMENT_ASN1_FUNCTIONS(PBEPARAM)
 /* Set an algorithm identifier for a PKCS#5 PBE algorithm */
 
 int PKCS5_pbe_set0_algor(X509_ALGOR * algor, int alg, int iter,
-    const unsigned char * salt, int saltlen)
+    const uchar * salt, int saltlen)
 {
 	PBEPARAM * pbe = NULL;
 	ASN1_STRING * pbe_str = NULL;
-	unsigned char * sstr = NULL;
+	uchar * sstr = NULL;
 
 	pbe = PBEPARAM_new();
 	if(pbe == NULL) {
@@ -78,7 +78,7 @@ err:
 /* Return an algorithm identifier for a PKCS#5 PBE algorithm */
 
 X509_ALGOR * PKCS5_pbe_set(int alg, int iter,
-    const unsigned char * salt, int saltlen)
+    const uchar * salt, int saltlen)
 {
 	X509_ALGOR * ret;
 	ret = X509_ALGOR_new();

@@ -68,7 +68,7 @@ PPObjAmountType::PPObjAmountType(void * extraPtr) : PPObjReference(PPOBJ_AMOUNTT
 
 int PPObjAmountType::SearchSymb(PPID * pID, const char * pSymb)
 {
-	return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPAmountType, Symb));
+	return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPAmountType, Symb));
 }
 
 int PPObjAmountType::CheckDupTax(PPID id, PPID tax, long taxRate)
@@ -87,7 +87,7 @@ int PPObjAmountType::GetFormulaList(StrAssocArray * pList)
 	PPAmountType rec;
 	SString formula;
 	CALLPTRMEMB(pList, Z());
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if(rec.Flags & PPAmountType::fFormula) {
 			GetFormula(rec.ID, formula);
 			if(formula.NotEmptyS()) {
@@ -389,7 +389,7 @@ int PPObjAmountType::Edit(PPID * pID, void * extraPtr)
 
 int PPObjAmountType::GetFormula(PPID id, SString & rBuf)
 {
-	return ref->GetPropVlrString(Obj, id, AMTTPRP_FORMULA, rBuf);
+	return P_Ref->GetPropVlrString(Obj, id, AMTTPRP_FORMULA, rBuf);
 }
 
 int PPObjAmountType::GetPacket(PPID id, PPAmountTypePacket * pPack)
@@ -423,17 +423,17 @@ int PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int use_t
 				}
 				else {
 					THROW(CheckRights(PPR_MOD));
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
 					if(pPack->Rec.Flags & PPAmountType::fFormula) {
-						THROW(ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, pPack->Formula));
+						THROW(P_Ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, pPack->Formula));
 					}
 					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 				}
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, *pID, 0));
-				THROW(ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, 0));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
@@ -442,9 +442,9 @@ int PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int use_t
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			if(pPack->Rec.Flags & PPAmountType::fFormula)
-				THROW(ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, pPack->Formula));
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, AMTTPRP_FORMULA, pPack->Formula));
 			pPack->Rec.ID = *pID;
 		}
 		THROW(tra.Commit());
@@ -496,7 +496,7 @@ int PPObjAmountType::SerializePacket(int dir, PPAmountTypePacket * pPack, SBuffe
 {
 	int    ok = 1;
 	SString line_buf;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->Formula, rBuf));
 	CATCHZOK
 	return ok;

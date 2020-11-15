@@ -48,7 +48,7 @@ static int hmac_pkey_public_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 	return ASN1_OCTET_STRING_cmp(static_cast<const ASN1_OCTET_STRING *>(EVP_PKEY_get0(a)), static_cast<const ASN1_OCTET_STRING *>(EVP_PKEY_get0(b)));
 }
 
-static int hmac_set_priv_key(EVP_PKEY * pkey, const unsigned char * priv, size_t len)
+static int hmac_set_priv_key(EVP_PKEY * pkey, const uchar * priv, size_t len)
 {
 	ASN1_OCTET_STRING * os;
 	if(pkey->pkey.ptr != NULL)
@@ -64,7 +64,7 @@ static int hmac_set_priv_key(EVP_PKEY * pkey, const unsigned char * priv, size_t
 	return 1;
 }
 
-static int hmac_get_priv_key(const EVP_PKEY * pkey, unsigned char * priv,
+static int hmac_get_priv_key(const EVP_PKEY * pkey, uchar * priv,
     size_t * len)
 {
 	ASN1_OCTET_STRING * os = (ASN1_OCTET_STRING*)pkey->pkey.ptr;

@@ -20,9 +20,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include "errmsg.h"
-//#include <stdarg.h>
 
 const char * SQLSTATE_UNKNOWN = "HY000";
 

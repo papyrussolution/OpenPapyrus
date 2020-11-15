@@ -10,11 +10,11 @@
 #pragma hdrstop
 //#include <openssl/crypto.h>
 #include "modes_lcl.h"
-#include <string.h>
+//#include <string.h>
 
 int CRYPTO_xts128_encrypt(const XTS128_CONTEXT * ctx,
-    const unsigned char iv[16],
-    const unsigned char * inp, unsigned char * out,
+    const uchar iv[16],
+    const uchar * inp, uchar * out,
     size_t len, int enc)
 {
 	const union {
@@ -29,7 +29,7 @@ int CRYPTO_xts128_encrypt(const XTS128_CONTEXT * ctx,
 		u8 c[16];
 	} tweak, scratch;
 
-	unsigned int i;
+	uint i;
 
 	if(len < 16)
 		return -1;
@@ -67,7 +67,7 @@ int CRYPTO_xts128_encrypt(const XTS128_CONTEXT * ctx,
 			return 0;
 
 		if(is_endian.little) {
-			unsigned int carry, res;
+			uint carry, res;
 
 			res = 0x87 & (((int)tweak.d[3]) >> 31);
 			carry = (uint)(tweak.u[0] >> 63);
@@ -108,7 +108,7 @@ int CRYPTO_xts128_encrypt(const XTS128_CONTEXT * ctx,
 		} tweak1;
 
 		if(is_endian.little) {
-			unsigned int carry, res;
+			uint carry, res;
 
 			res = 0x87 & (((int)tweak.d[3]) >> 31);
 			carry = (uint)(tweak.u[0] >> 63);

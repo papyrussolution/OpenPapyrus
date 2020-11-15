@@ -53,7 +53,7 @@ ContributionIndex InadequacyList__getShiftContributionIndex(InadequacyList const
 {
 	if(!bitset_test(self->inadequacy.conflict.actions, self->manifestingState->reductions->num))
 		return ContributionIndex__none;
-	return self->contributionCount - 1;
+	return (self->contributionCount - 1);
 }
 
 Symbol * InadequacyList__getContributionToken(InadequacyList const * self, ContributionIndex i)

@@ -57,12 +57,12 @@ extern "C" {
 /*
  * Object lifetime functions.
  */
-RAND_DRBG *RAND_DRBG_new(int type, unsigned int flags, RAND_DRBG *parent);
-RAND_DRBG *RAND_DRBG_secure_new(int type, unsigned int flags, RAND_DRBG *parent);
-int RAND_DRBG_set(RAND_DRBG *drbg, int type, unsigned int flags);
-int RAND_DRBG_set_defaults(int type, unsigned int flags);
+RAND_DRBG *RAND_DRBG_new(int type, uint flags, RAND_DRBG *parent);
+RAND_DRBG *RAND_DRBG_secure_new(int type, uint flags, RAND_DRBG *parent);
+int RAND_DRBG_set(RAND_DRBG *drbg, int type, uint flags);
+int RAND_DRBG_set_defaults(int type, uint flags);
 int RAND_DRBG_instantiate(RAND_DRBG *drbg,
-                          const unsigned char *pers, size_t perslen);
+                          const uchar *pers, size_t perslen);
 int RAND_DRBG_uninstantiate(RAND_DRBG *drbg);
 void RAND_DRBG_free(RAND_DRBG *drbg);
 
@@ -70,19 +70,19 @@ void RAND_DRBG_free(RAND_DRBG *drbg);
  * Object "use" functions.
  */
 int RAND_DRBG_reseed(RAND_DRBG *drbg,
-                     const unsigned char *adin, size_t adinlen,
+                     const uchar *adin, size_t adinlen,
                      int prediction_resistance);
-int RAND_DRBG_generate(RAND_DRBG *drbg, unsigned char *out, size_t outlen,
+int RAND_DRBG_generate(RAND_DRBG *drbg, uchar *out, size_t outlen,
                        int prediction_resistance,
-                       const unsigned char *adin, size_t adinlen);
-int RAND_DRBG_bytes(RAND_DRBG *drbg, unsigned char *out, size_t outlen);
+                       const uchar *adin, size_t adinlen);
+int RAND_DRBG_bytes(RAND_DRBG *drbg, uchar *out, size_t outlen);
 
-int RAND_DRBG_set_reseed_interval(RAND_DRBG *drbg, unsigned int interval);
+int RAND_DRBG_set_reseed_interval(RAND_DRBG *drbg, uint interval);
 int RAND_DRBG_set_reseed_time_interval(RAND_DRBG *drbg, time_t interval);
 
 int RAND_DRBG_set_reseed_defaults(
-                                  unsigned int master_reseed_interval,
-                                  unsigned int slave_reseed_interval,
+                                  uint master_reseed_interval,
+                                  uint slave_reseed_interval,
                                   time_t master_reseed_time_interval,
                                   time_t slave_reseed_time_interval
                                   );
@@ -103,17 +103,17 @@ void *RAND_DRBG_get_ex_data(const RAND_DRBG *drbg, int idx);
  * Callback function typedefs
  */
 typedef size_t (*RAND_DRBG_get_entropy_fn)(RAND_DRBG *drbg,
-                                           unsigned char **pout,
+                                           uchar **pout,
                                            int entropy, size_t min_len,
                                            size_t max_len,
                                            int prediction_resistance);
 typedef void (*RAND_DRBG_cleanup_entropy_fn)(RAND_DRBG *ctx,
-                                             unsigned char *out, size_t outlen);
-typedef size_t (*RAND_DRBG_get_nonce_fn)(RAND_DRBG *drbg, unsigned char **pout,
+                                             uchar *out, size_t outlen);
+typedef size_t (*RAND_DRBG_get_nonce_fn)(RAND_DRBG *drbg, uchar **pout,
                                          int entropy, size_t min_len,
                                          size_t max_len);
 typedef void (*RAND_DRBG_cleanup_nonce_fn)(RAND_DRBG *drbg,
-                                           unsigned char *out, size_t outlen);
+                                           uchar *out, size_t outlen);
 
 int RAND_DRBG_set_callbacks(RAND_DRBG *drbg,
                             RAND_DRBG_get_entropy_fn get_entropy,

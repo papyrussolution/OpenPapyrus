@@ -65,8 +65,8 @@ STACK_OF(X509) *TS_VERIFY_CTS_set_certs(TS_VERIFY_CTX *ctx,
 	return ctx->certs;
 }
 
-unsigned char * TS_VERIFY_CTX_set_imprint(TS_VERIFY_CTX * ctx,
-    unsigned char * hexstr, long len)
+uchar * TS_VERIFY_CTX_set_imprint(TS_VERIFY_CTX * ctx,
+    uchar * hexstr, long len)
 {
 	ctx->imprint = hexstr;
 	ctx->imprint_len = len;

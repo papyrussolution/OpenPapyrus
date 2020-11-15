@@ -221,9 +221,9 @@ __owur int SSL_get_servername_type(const SSL *s);
  * flag controls whether a context is included.) It returns 1 on success and
  * 0 or -1 otherwise.
  */
-__owur int SSL_export_keying_material(SSL *s, unsigned char *out, size_t olen,
+__owur int SSL_export_keying_material(SSL *s, uchar *out, size_t olen,
                                       const char *label, size_t llen,
-                                      const unsigned char *context,
+                                      const uchar *context,
                                       size_t contextlen, int use_context);
 
 /*
@@ -233,10 +233,10 @@ __owur int SSL_export_keying_material(SSL *s, unsigned char *out, size_t olen,
  * |olen| bytes to |out| given a label and optional context. It
  * returns 1 on success and 0 otherwise.
  */
-__owur int SSL_export_keying_material_early(SSL *s, unsigned char *out,
+__owur int SSL_export_keying_material_early(SSL *s, uchar *out,
                                             size_t olen, const char *label,
                                             size_t llen,
-                                            const unsigned char *context,
+                                            const uchar *context,
                                             size_t contextlen);
 
 int SSL_get_peer_signature_type_nid(const SSL *s, int *pnid);
@@ -244,11 +244,11 @@ int SSL_get_signature_type_nid(const SSL *s, int *pnid);
 
 int SSL_get_sigalgs(SSL *s, int idx,
                     int *psign, int *phash, int *psignandhash,
-                    unsigned char *rsig, unsigned char *rhash);
+                    uchar *rsig, uchar *rhash);
 
 int SSL_get_shared_sigalgs(SSL *s, int idx,
                            int *psign, int *phash, int *psignandhash,
-                           unsigned char *rsig, unsigned char *rhash);
+                           uchar *rsig, uchar *rhash);
 
 __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain);
 
@@ -1226,7 +1226,7 @@ __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain)
 
 /* TLS Session Ticket extension struct */
 struct tls_session_ticket_ext_st {
-    unsigned short length;
+    ushort length;
     void *data;
 };
 

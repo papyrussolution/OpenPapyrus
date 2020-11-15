@@ -50,15 +50,8 @@
 #endif
 //#include <errno.h>
 #define	set_errno(val)	((errno)=val)
-//#include <io.h>
-//#include <stdlib.h>   //brings in NULL
-//#if defined(HAVE_STDINT_H)
-	//#include <stdint.h>
-//#endif
-//#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-// @v10.9.3 #include <process.h>
 #include <direct.h>
 #if defined(__MINGW32__) && defined(HAVE_UNISTD_H)
 	// Prevent build error from a type mismatch of ftruncate(). This unistd.h defines it as ftruncate(int, off_t). 

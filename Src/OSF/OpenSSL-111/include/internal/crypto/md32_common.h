@@ -31,9 +31,9 @@
  *                      HASH_LONG       Nl,Nh;
  *                      either {
  *                      HASH_LONG       data[HASH_LBLOCK];
- *                      unsigned char   data[HASH_CBLOCK];
+ *                      uchar   data[HASH_CBLOCK];
  *                      };
- *                      unsigned int    num;
+ *                      uint    num;
  *                      ...
  *                      } HASH_CTX;
  *      data[] vector is expected to be zeroed upon first call to
@@ -97,10 +97,10 @@
 
 #if defined(DATA_ORDER_IS_BIG_ENDIAN)
 
-#define HOST_c2l(c, l)  (l = (((unsigned long)(*((c)++)))<<24),          \
-	l |= (((unsigned long)(*((c)++)))<<16),          \
-	l |= (((unsigned long)(*((c)++)))<< 8),          \
-	l |= (((unsigned long)(*((c)++)))    )           )
+#define HOST_c2l(c, l)  (l = (((ulong)(*((c)++)))<<24),          \
+	l |= (((ulong)(*((c)++)))<<16),          \
+	l |= (((ulong)(*((c)++)))<< 8),          \
+	l |= (((ulong)(*((c)++)))    )           )
 #define HOST_l2c(l, c)  (*((c)++) = (uchar)(((l)>>24)&0xff),      \
 	*((c)++) = (uchar)(((l)>>16)&0xff),      \
 	*((c)++) = (uchar)(((l)>> 8)&0xff),      \
@@ -109,10 +109,10 @@
 
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
 
-#define HOST_c2l(c, l)  (l = (((unsigned long)(*((c)++)))    ),          \
-	l |= (((unsigned long)(*((c)++)))<< 8),          \
-	l |= (((unsigned long)(*((c)++)))<<16),          \
-	l |= (((unsigned long)(*((c)++)))<<24)           )
+#define HOST_c2l(c, l)  (l = (((ulong)(*((c)++)))    ),          \
+	l |= (((ulong)(*((c)++)))<< 8),          \
+	l |= (((ulong)(*((c)++)))<<16),          \
+	l |= (((ulong)(*((c)++)))<<24)           )
 #define HOST_l2c(l, c)  (*((c)++) = (uchar)(((l)    )&0xff),      \
 	*((c)++) = (uchar)(((l)>> 8)&0xff),      \
 	*((c)++) = (uchar)(((l)>>16)&0xff),      \
@@ -127,8 +127,8 @@
 
 int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 {
-	const unsigned char * data = static_cast<const uchar *>(data_);
-	unsigned char * p;
+	const uchar * data = static_cast<const uchar *>(data_);
+	uchar * p;
 	HASH_LONG l;
 	size_t n;
 	if(len == 0)
@@ -179,14 +179,14 @@ int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 	return 1;
 }
 
-void HASH_TRANSFORM(HASH_CTX * c, const unsigned char * data)
+void HASH_TRANSFORM(HASH_CTX * c, const uchar * data)
 {
 	HASH_BLOCK_DATA_ORDER(c, data, 1);
 }
 
-int HASH_FINAL(unsigned char * md, HASH_CTX * c)
+int HASH_FINAL(uchar * md, HASH_CTX * c)
 {
-	unsigned char * p = (uchar *)c->data;
+	uchar * p = (uchar *)c->data;
 	size_t n = c->num;
 
 	p[n] = 0x80;            /* there is always room for one */

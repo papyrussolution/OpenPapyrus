@@ -96,7 +96,7 @@ int pthread_key_delete(pthread_key_t key)
 			__ptw32_mcs_lock_release(&keyLock);
 		}
 #if defined( _DEBUG )
-		memzero((char*)key, sizeof(*key));
+		memzero((char *)key, sizeof(*key));
 #endif
 		SAlloc::F(key);
 	}

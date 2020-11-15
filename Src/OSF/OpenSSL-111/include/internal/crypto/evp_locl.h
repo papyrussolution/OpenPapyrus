@@ -12,7 +12,7 @@ struct evp_md_ctx_st {
     const EVP_MD *digest;
     ENGINE *engine;             /* functional reference if 'digest' is
                                  * ENGINE-provided */
-    unsigned long flags;
+    ulong flags;
     void *md_data;
     /* Public key context for sign/verify */
     EVP_PKEY_CTX *pctx;
@@ -26,18 +26,18 @@ struct evp_cipher_ctx_st {
                                  * ENGINE-provided */
     int encrypt;                /* encrypt or decrypt */
     int buf_len;                /* number we have left */
-    unsigned char oiv[EVP_MAX_IV_LENGTH]; /* original iv */
-    unsigned char iv[EVP_MAX_IV_LENGTH]; /* working iv */
-    unsigned char buf[EVP_MAX_BLOCK_LENGTH]; /* saved partial block */
+    uchar oiv[EVP_MAX_IV_LENGTH]; /* original iv */
+    uchar iv[EVP_MAX_IV_LENGTH]; /* working iv */
+    uchar buf[EVP_MAX_BLOCK_LENGTH]; /* saved partial block */
     int num;                    /* used by cfb/ofb/ctr mode */
     /* FIXME: Should this even exist? It appears unused */
     void *app_data;             /* application stuff */
     int key_len;                /* May change for variable length cipher */
-    unsigned long flags;        /* Various flags */
+    ulong flags;        /* Various flags */
     void *cipher_data;          /* per EVP data */
     int final_used;
     int block_mask;
-    unsigned char final[EVP_MAX_BLOCK_LENGTH]; /* possible final block */
+    uchar final[EVP_MAX_BLOCK_LENGTH]; /* possible final block */
 } /* EVP_CIPHER_CTX */ ;
 
 int PKCS5_v2_PBKDF2_keyivgen(EVP_CIPHER_CTX *ctx, const char *pass,
@@ -55,10 +55,10 @@ struct evp_Encode_Ctx_st {
      */
     int length;
     /* data to encode */
-    unsigned char enc_data[80];
+    uchar enc_data[80];
     /* number read on current line */
     int line_num;
-    unsigned int flags;
+    uint flags;
 };
 
 typedef struct evp_pbe_st EVP_PBE_CTL;

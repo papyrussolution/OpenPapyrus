@@ -19,8 +19,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <ma_string.h>
 
 void ma_init_alloc_root(MA_MEM_ROOT * mem_root, size_t block_size, size_t pre_alloc_size)
 {

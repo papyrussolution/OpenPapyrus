@@ -11,20 +11,20 @@
 
 #ifndef __ASSEMBLER__
 
-void s390x_kimd(const unsigned char *in, size_t len, unsigned int fc,
+void s390x_kimd(const uchar *in, size_t len, uint fc,
                 void *param);
-void s390x_klmd(const unsigned char *in, size_t inlen, unsigned char *out,
-                size_t outlen, unsigned int fc, void *param);
-void s390x_km(const unsigned char *in, size_t len, unsigned char *out,
-              unsigned int fc, void *param);
-void s390x_kmac(const unsigned char *in, size_t len, unsigned int fc,
+void s390x_klmd(const uchar *in, size_t inlen, uchar *out,
+                size_t outlen, uint fc, void *param);
+void s390x_km(const uchar *in, size_t len, uchar *out,
+              uint fc, void *param);
+void s390x_kmac(const uchar *in, size_t len, uint fc,
                 void *param);
-void s390x_kmo(const unsigned char *in, size_t len, unsigned char *out,
-               unsigned int fc, void *param);
-void s390x_kmf(const unsigned char *in, size_t len, unsigned char *out,
-               unsigned int fc, void *param);
-void s390x_kma(const unsigned char *aad, size_t alen, const unsigned char *in,
-               size_t len, unsigned char *out, unsigned int fc, void *param);
+void s390x_kmo(const uchar *in, size_t len, uchar *out,
+               uint fc, void *param);
+void s390x_kmf(const uchar *in, size_t len, uchar *out,
+               uint fc, void *param);
+void s390x_kma(const uchar *aad, size_t alen, const uchar *in,
+               size_t len, uchar *out, uint fc, void *param);
 
 /*
  * The field elements of OPENSSL_s390xcap_P are the 64-bit words returned by
@@ -33,17 +33,17 @@ void s390x_kma(const unsigned char *aad, size_t alen, const unsigned char *in,
  * is not supported, the corresponding field elements are zero.
  */
 struct OPENSSL_s390xcap_st {
-    unsigned long long stfle[4];
-    unsigned long long kimd[2];
-    unsigned long long klmd[2];
-    unsigned long long km[2];
-    unsigned long long kmc[2];
-    unsigned long long kmac[2];
-    unsigned long long kmctr[2];
-    unsigned long long kmo[2];
-    unsigned long long kmf[2];
-    unsigned long long prno[2];
-    unsigned long long kma[2];
+    ulong long stfle[4];
+    ulong long kimd[2];
+    ulong long klmd[2];
+    ulong long km[2];
+    ulong long kmc[2];
+    ulong long kmac[2];
+    ulong long kmctr[2];
+    ulong long kmo[2];
+    ulong long kmf[2];
+    ulong long prno[2];
+    ulong long kma[2];
 };
 
 extern struct OPENSSL_s390xcap_st OPENSSL_s390xcap_P;

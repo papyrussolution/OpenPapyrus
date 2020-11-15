@@ -111,10 +111,10 @@ static int hmac_signctx_init(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx)
 	return 1;
 }
 
-static int hmac_signctx(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * siglen,
+static int hmac_signctx(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen,
     EVP_MD_CTX * mctx)
 {
-	unsigned int hlen;
+	uint hlen;
 	HMAC_PKEY_CTX * hctx = static_cast<HMAC_PKEY_CTX *>(ctx->data);
 	int l = EVP_MD_CTX_size(mctx);
 

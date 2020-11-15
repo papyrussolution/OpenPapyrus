@@ -18,7 +18,7 @@
 #include "x509_lcl.h"
 
 struct lookup_dir_hashes_st {
-	unsigned long hash;
+	ulong hash;
 	int suffix;
 };
 
@@ -206,7 +206,7 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type,
 	} data;
 	int ok = 0;
 	int i, j, k;
-	unsigned long h;
+	ulong h;
 	BUF_MEM * b = NULL;
 	X509_OBJECT stmp, * tmp;
 	const char * postfix = "";

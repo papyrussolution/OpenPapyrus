@@ -19,7 +19,6 @@ const char * RC4_options(void)
 	else
 		return "rc4(int)";
 }
-
 /*-
  * RC4 as implemented from a posting from
  * Newsgroups: sci.crypt
@@ -27,14 +26,12 @@ const char * RC4_options(void)
  * Message-ID: <sternCvKL4B.Hyy@netcom.com>
  * Date: Wed, 14 Sep 1994 06:35:31 GMT
  */
-
-void RC4_set_key(RC4_KEY * key, int len, const unsigned char * data)
+void RC4_set_key(RC4_KEY * key, int len, const uchar * data)
 {
-	register RC4_INT tmp;
-	register int id1, id2;
-	register RC4_INT * d;
-	unsigned int i;
-
+	RC4_INT tmp;
+	int id1, id2;
+	RC4_INT * d;
+	uint i;
 	d = &(key->data[0]);
 	key->x = 0;
 	key->y = 0;

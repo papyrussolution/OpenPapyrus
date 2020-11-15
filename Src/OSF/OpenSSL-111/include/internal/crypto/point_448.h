@@ -92,7 +92,7 @@ extern const niels_t * curve448_wnaf_base;
  * modulo that modulus.
  */
 c448_error_t curve448_scalar_decode(curve448_scalar_t out,
-    const unsigned char ser[C448_SCALAR_BYTES]);
+    const uchar ser[C448_SCALAR_BYTES]);
 
 /*
  * Read a scalar from wire format or from bytes.  Reduces mod scalar prime.
@@ -102,7 +102,7 @@ c448_error_t curve448_scalar_decode(curve448_scalar_t out,
  * out (out): Deserialized form.
  */
 void curve448_scalar_decode_long(curve448_scalar_t out,
-    const unsigned char * ser, size_t ser_len);
+    const uchar * ser, size_t ser_len);
 
 /*
  * Serialize a scalar to wire format.
@@ -110,7 +110,7 @@ void curve448_scalar_decode_long(curve448_scalar_t out,
  * ser (out): Serialized form of a scalar.
  * s (in): Deserialized scalar.
  */
-void curve448_scalar_encode(unsigned char ser[C448_SCALAR_BYTES],
+void curve448_scalar_encode(uchar ser[C448_SCALAR_BYTES],
     const curve448_scalar_t s);
 
 /*

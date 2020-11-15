@@ -45,52 +45,52 @@ void ASN1_PCTX_free(ASN1_PCTX * p)
 	OPENSSL_free(p);
 }
 
-unsigned long ASN1_PCTX_get_flags(const ASN1_PCTX * p)
+ulong ASN1_PCTX_get_flags(const ASN1_PCTX * p)
 {
 	return p->flags;
 }
 
-void ASN1_PCTX_set_flags(ASN1_PCTX * p, unsigned long flags)
+void ASN1_PCTX_set_flags(ASN1_PCTX * p, ulong flags)
 {
 	p->flags = flags;
 }
 
-unsigned long ASN1_PCTX_get_nm_flags(const ASN1_PCTX * p)
+ulong ASN1_PCTX_get_nm_flags(const ASN1_PCTX * p)
 {
 	return p->nm_flags;
 }
 
-void ASN1_PCTX_set_nm_flags(ASN1_PCTX * p, unsigned long flags)
+void ASN1_PCTX_set_nm_flags(ASN1_PCTX * p, ulong flags)
 {
 	p->nm_flags = flags;
 }
 
-unsigned long ASN1_PCTX_get_cert_flags(const ASN1_PCTX * p)
+ulong ASN1_PCTX_get_cert_flags(const ASN1_PCTX * p)
 {
 	return p->cert_flags;
 }
 
-void ASN1_PCTX_set_cert_flags(ASN1_PCTX * p, unsigned long flags)
+void ASN1_PCTX_set_cert_flags(ASN1_PCTX * p, ulong flags)
 {
 	p->cert_flags = flags;
 }
 
-unsigned long ASN1_PCTX_get_oid_flags(const ASN1_PCTX * p)
+ulong ASN1_PCTX_get_oid_flags(const ASN1_PCTX * p)
 {
 	return p->oid_flags;
 }
 
-void ASN1_PCTX_set_oid_flags(ASN1_PCTX * p, unsigned long flags)
+void ASN1_PCTX_set_oid_flags(ASN1_PCTX * p, ulong flags)
 {
 	p->oid_flags = flags;
 }
 
-unsigned long ASN1_PCTX_get_str_flags(const ASN1_PCTX * p)
+ulong ASN1_PCTX_get_str_flags(const ASN1_PCTX * p)
 {
 	return p->str_flags;
 }
 
-void ASN1_PCTX_set_str_flags(ASN1_PCTX * p, unsigned long flags)
+void ASN1_PCTX_set_str_flags(ASN1_PCTX * p, ulong flags)
 {
 	p->str_flags = flags;
 }

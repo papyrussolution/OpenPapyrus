@@ -79,7 +79,7 @@ end:
 	return ret;
 }
 
-int SSL_use_certificate_ASN1(SSL * ssl, const unsigned char * d, int len)
+int SSL_use_certificate_ASN1(SSL * ssl, const uchar * d, int len)
 {
 	X509 * x;
 	int ret;
@@ -212,10 +212,10 @@ end:
 	return ret;
 }
 
-int SSL_use_RSAPrivateKey_ASN1(SSL * ssl, const unsigned char * d, long len)
+int SSL_use_RSAPrivateKey_ASN1(SSL * ssl, const uchar * d, long len)
 {
 	int ret;
-	const unsigned char * p;
+	const uchar * p;
 	RSA * rsa;
 
 	p = d;
@@ -284,11 +284,11 @@ end:
 	return ret;
 }
 
-int SSL_use_PrivateKey_ASN1(int type, SSL * ssl, const unsigned char * d,
+int SSL_use_PrivateKey_ASN1(int type, SSL * ssl, const uchar * d,
     long len)
 {
 	int ret;
-	const unsigned char * p;
+	const uchar * p;
 	EVP_PKEY * pkey;
 
 	p = d;
@@ -420,7 +420,7 @@ end:
 	return ret;
 }
 
-int SSL_CTX_use_certificate_ASN1(SSL_CTX * ctx, int len, const unsigned char * d)
+int SSL_CTX_use_certificate_ASN1(SSL_CTX * ctx, int len, const uchar * d)
 {
 	X509 * x;
 	int ret;
@@ -504,11 +504,11 @@ end:
 	return ret;
 }
 
-int SSL_CTX_use_RSAPrivateKey_ASN1(SSL_CTX * ctx, const unsigned char * d,
+int SSL_CTX_use_RSAPrivateKey_ASN1(SSL_CTX * ctx, const uchar * d,
     long len)
 {
 	int ret;
-	const unsigned char * p;
+	const uchar * p;
 	RSA * rsa;
 
 	p = d;
@@ -575,10 +575,10 @@ end:
 }
 
 int SSL_CTX_use_PrivateKey_ASN1(int type, SSL_CTX * ctx,
-    const unsigned char * d, long len)
+    const uchar * d, long len)
 {
 	int ret;
-	const unsigned char * p;
+	const uchar * p;
 	EVP_PKEY * pkey;
 
 	p = d;
@@ -650,7 +650,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 		 */
 		X509 * ca;
 		int r;
-		unsigned long err;
+		ulong err;
 
 		if(ctx)
 			r = SSL_CTX_clear_chain_certs(ctx);
@@ -705,10 +705,10 @@ int SSL_use_certificate_chain_file(SSL * ssl, const char * file)
 	return use_certificate_chain_file(NULL, ssl, file);
 }
 
-static int serverinfo_find_extension(const unsigned char * serverinfo,
+static int serverinfo_find_extension(const uchar * serverinfo,
     size_t serverinfo_length,
-    unsigned int extension_type,
-    const unsigned char ** extension_data,
+    uint extension_type,
+    const uchar ** extension_data,
     size_t * extension_length)
 {
 	PACKET pkt, data;
@@ -722,8 +722,8 @@ static int serverinfo_find_extension(const unsigned char * serverinfo,
 		return -1;
 
 	for(;;) {
-		unsigned int type = 0;
-		unsigned long context = 0;
+		uint type = 0;
+		ulong context = 0;
 
 		/* end of serverinfo */
 		if(PACKET_remaining(&pkt) == 0)
@@ -743,9 +743,9 @@ static int serverinfo_find_extension(const unsigned char * serverinfo,
 	/* Unreachable */
 }
 
-static int serverinfoex_srv_parse_cb(SSL * s, unsigned int ext_type,
-    unsigned int context,
-    const unsigned char * in,
+static int serverinfoex_srv_parse_cb(SSL * s, uint ext_type,
+    uint context,
+    const uchar * in,
     size_t inlen, X509 * x, size_t chainidx,
     int * al, void * arg)
 {
@@ -757,21 +757,21 @@ static int serverinfoex_srv_parse_cb(SSL * s, unsigned int ext_type,
 	return 1;
 }
 
-static int serverinfo_srv_parse_cb(SSL * s, unsigned int ext_type,
-    const unsigned char * in,
+static int serverinfo_srv_parse_cb(SSL * s, uint ext_type,
+    const uchar * in,
     size_t inlen, int * al, void * arg)
 {
 	return serverinfoex_srv_parse_cb(s, ext_type, 0, in, inlen, NULL, 0, al,
 		   arg);
 }
 
-static int serverinfoex_srv_add_cb(SSL * s, unsigned int ext_type,
-    unsigned int context,
-    const unsigned char ** out,
+static int serverinfoex_srv_add_cb(SSL * s, uint ext_type,
+    uint context,
+    const uchar ** out,
     size_t * outlen, X509 * x, size_t chainidx,
     int * al, void * arg)
 {
-	const unsigned char * serverinfo = NULL;
+	const uchar * serverinfo = NULL;
 	size_t serverinfo_length = 0;
 
 	/* We only support extensions for the first Certificate */
@@ -796,8 +796,8 @@ static int serverinfoex_srv_add_cb(SSL * s, unsigned int ext_type,
 	                         * extension */
 }
 
-static int serverinfo_srv_add_cb(SSL * s, unsigned int ext_type,
-    const unsigned char ** out, size_t * outlen,
+static int serverinfo_srv_add_cb(SSL * s, uint ext_type,
+    const uchar ** out, size_t * outlen,
     int * al, void * arg)
 {
 	return serverinfoex_srv_add_cb(s, ext_type, 0, out, outlen, NULL, 0, al,
@@ -809,8 +809,8 @@ static int serverinfo_srv_add_cb(SSL * s, unsigned int ext_type,
  * parses correctly.  With a non-NULL context, it registers callbacks for
  * the included extensions.
  */
-static int serverinfo_process_buffer(unsigned int version,
-    const unsigned char * serverinfo,
+static int serverinfo_process_buffer(uint version,
+    const uchar * serverinfo,
     size_t serverinfo_length, SSL_CTX * ctx)
 {
 	PACKET pkt;
@@ -825,8 +825,8 @@ static int serverinfo_process_buffer(unsigned int version,
 		return 0;
 
 	while(PACKET_remaining(&pkt)) {
-		unsigned long context = 0;
-		unsigned int ext_type = 0;
+		ulong context = 0;
+		uint ext_type = 0;
 		PACKET data;
 
 		if((version == SSL_SERVERINFOV2 && !PACKET_get_net_4(&pkt, &context))
@@ -869,11 +869,11 @@ static int serverinfo_process_buffer(unsigned int version,
 	return 1;
 }
 
-int SSL_CTX_use_serverinfo_ex(SSL_CTX * ctx, unsigned int version,
-    const unsigned char * serverinfo,
+int SSL_CTX_use_serverinfo_ex(SSL_CTX * ctx, uint version,
+    const uchar * serverinfo,
     size_t serverinfo_length)
 {
-	unsigned char * new_serverinfo;
+	uchar * new_serverinfo;
 
 	if(ctx == NULL || serverinfo == NULL || serverinfo_length == 0) {
 		SSLerr(SSL_F_SSL_CTX_USE_SERVERINFO_EX, ERR_R_PASSED_NULL_PARAMETER);
@@ -909,7 +909,7 @@ int SSL_CTX_use_serverinfo_ex(SSL_CTX * ctx, unsigned int version,
 	return 1;
 }
 
-int SSL_CTX_use_serverinfo(SSL_CTX * ctx, const unsigned char * serverinfo,
+int SSL_CTX_use_serverinfo(SSL_CTX * ctx, const uchar * serverinfo,
     size_t serverinfo_length)
 {
 	return SSL_CTX_use_serverinfo_ex(ctx, SSL_SERVERINFOV1, serverinfo,
@@ -918,10 +918,10 @@ int SSL_CTX_use_serverinfo(SSL_CTX * ctx, const unsigned char * serverinfo,
 
 int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 {
-	unsigned char * serverinfo = NULL;
-	unsigned char * tmp;
+	uchar * serverinfo = NULL;
+	uchar * tmp;
 	size_t serverinfo_length = 0;
-	unsigned char * extension = 0;
+	uchar * extension = 0;
 	long extension_length = 0;
 	char * name = NULL;
 	char * header = NULL;
@@ -947,7 +947,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 	}
 
 	for(num_extensions = 0;; num_extensions++) {
-		unsigned int version;
+		uint version;
 
 		if(PEM_read_bio(bin, &name, &header, &extension, &extension_length)
 		    == 0) {
@@ -1017,7 +1017,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 		}
 		serverinfo = tmp;
 		if(contextoff > 0) {
-			unsigned char * sinfo = serverinfo + serverinfo_length;
+			uchar * sinfo = serverinfo + serverinfo_length;
 
 			/* We know this only uses the last 2 bytes */
 			sinfo[0] = 0;

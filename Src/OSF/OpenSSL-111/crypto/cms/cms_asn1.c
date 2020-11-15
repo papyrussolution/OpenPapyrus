@@ -370,7 +370,7 @@ ASN1_SEQUENCE(CMS_SharedInfo) = {
 	ASN1_EXP_OPT(CMS_SharedInfo, suppPubInfo, ASN1_OCTET_STRING, 2),
 } static_ASN1_SEQUENCE_END(CMS_SharedInfo)
 
-int CMS_SharedInfo_encode(unsigned char ** pder, X509_ALGOR * kekalg,
+int CMS_SharedInfo_encode(uchar ** pder, X509_ALGOR * kekalg,
     ASN1_OCTET_STRING * ukm, int keylen)
 {
 	union {
@@ -381,7 +381,7 @@ int CMS_SharedInfo_encode(unsigned char ** pder, X509_ALGOR * kekalg,
 	};
 
 	ASN1_OCTET_STRING oklen;
-	unsigned char kl[4];
+	uchar kl[4];
 	CMS_SharedInfo ecsi;
 
 	keylen <<= 3;

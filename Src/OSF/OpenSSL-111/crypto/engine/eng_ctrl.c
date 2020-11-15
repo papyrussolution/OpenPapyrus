@@ -41,7 +41,7 @@ static int int_ctrl_cmd_by_name(const ENGINE_CMD_DEFN * defn, const char * s)
 	return idx;
 }
 
-static int int_ctrl_cmd_by_num(const ENGINE_CMD_DEFN * defn, unsigned int num)
+static int int_ctrl_cmd_by_num(const ENGINE_CMD_DEFN * defn, uint num)
 {
 	int idx = 0;
 	/*
@@ -62,7 +62,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
     void (*f)(void))
 {
 	int idx;
-	char * s = (char*)p;
+	char * s = (char *)p;
 	const ENGINE_CMD_DEFN * cdp;
 
 	/* Take care of the easy one first (eg. it requires no searches) */

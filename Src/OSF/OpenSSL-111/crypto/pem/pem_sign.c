@@ -18,17 +18,17 @@ int PEM_SignInit(EVP_MD_CTX * ctx, EVP_MD * type)
 	return EVP_DigestInit_ex(ctx, type, NULL);
 }
 
-int PEM_SignUpdate(EVP_MD_CTX * ctx, unsigned char * data, unsigned int count)
+int PEM_SignUpdate(EVP_MD_CTX * ctx, uchar * data, uint count)
 {
 	return EVP_DigestUpdate(ctx, data, count);
 }
 
-int PEM_SignFinal(EVP_MD_CTX * ctx, unsigned char * sigret,
-    unsigned int * siglen, EVP_PKEY * pkey)
+int PEM_SignFinal(EVP_MD_CTX * ctx, uchar * sigret,
+    uint * siglen, EVP_PKEY * pkey)
 {
-	unsigned char * m;
+	uchar * m;
 	int i, ret = 0;
-	unsigned int m_len;
+	uint m_len;
 
 	m = static_cast<uchar *>(OPENSSL_malloc(EVP_PKEY_size(pkey)));
 	if(m == NULL) {

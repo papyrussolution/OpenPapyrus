@@ -12,14 +12,14 @@
 #include "rsa_locl.h"
 #include "internal/constant_time_locl.h"
 
-static int rsa_ossl_public_encrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding);
-static int rsa_ossl_private_encrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding);
-static int rsa_ossl_public_decrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding);
-static int rsa_ossl_private_decrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding);
+static int rsa_ossl_public_encrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding);
+static int rsa_ossl_private_encrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding);
+static int rsa_ossl_public_decrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding);
+static int rsa_ossl_private_decrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding);
 static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * i, RSA * rsa,
     BN_CTX * ctx);
 static int rsa_ossl_init(RSA * rsa);
@@ -65,12 +65,12 @@ const RSA_METHOD * RSA_null_method(void)
 	return NULL;
 }
 
-static int rsa_ossl_public_encrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_public_encrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret;
 	int i, num = 0, r = -1;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 
 	if(BN_num_bits(rsa->n) > OPENSSL_RSA_MAX_MODULUS_BITS) {
@@ -230,12 +230,12 @@ static int rsa_blinding_invert(BN_BLINDING * b, BIGNUM * f, BIGNUM * unblind,
 }
 
 /* signing */
-static int rsa_ossl_private_encrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_private_encrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret, * res;
 	int i, num = 0, r = -1;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 	int local_blinding = 0;
 	/*
@@ -366,12 +366,12 @@ err:
 	return r;
 }
 
-static int rsa_ossl_private_decrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_private_decrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret;
 	int j, num = 0, r = -1;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 	int local_blinding = 0;
 	/*
@@ -502,12 +502,12 @@ err:
 }
 
 /* signature verification */
-static int rsa_ossl_public_decrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_public_decrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret;
 	int i, num = 0, r = -1;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 
 	if(BN_num_bits(rsa->n) > OPENSSL_RSA_MAX_MODULUS_BITS) {

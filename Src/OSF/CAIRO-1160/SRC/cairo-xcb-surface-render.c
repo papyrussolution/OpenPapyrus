@@ -3824,14 +3824,13 @@ static cairo_status_t _can_composite_glyphs(cairo_xcb_surface_t * dst,
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_glyph_t * glyphs_end, * valid_glyphs;
 	const int max_glyph_size = dst->connection->maximum_request_length - 64;
-
 	/* We must initialize the cache with values that cannot match the
 	 * "hash" to guarantee that when compared for the first time they
 	 * will result in a mismatch. The hash function is simply modulus,
 	 * so we cannot use 0 in glyph_cache[0], but we can use it in all
 	 * other array cells.
 	 */
-	memset(glyph_cache, 0, sizeof(glyph_cache));
+	memzero(glyph_cache, sizeof(glyph_cache));
 	glyph_cache[0] = 1;
 
 	/* Scan for oversized glyphs or glyphs outside the representable
@@ -4494,19 +4493,15 @@ static cairo_int_status_t _composite_glyphs(void * closure,
 
 	uint request_size = 0;
 	int i;
-
 	if(dst->deferred_clear) {
 		status = _cairo_xcb_surface_clear(dst);
 		if(unlikely(status))
 			return status;
 	}
-
 	src = _cairo_xcb_picture_for_pattern(dst, pattern, extents);
 	if(unlikely(src->base.status))
 		return src->base.status;
-
-	memset(glyph_cache, 0, sizeof(glyph_cache));
-
+	memzero(glyph_cache, sizeof(glyph_cache));
 	for(i = 0; i < info->num_glyphs; i++) {
 		cairo_scaled_glyph_t * glyph;
 		ulong glyph_index = info->glyphs[i].index;

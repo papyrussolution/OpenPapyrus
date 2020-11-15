@@ -96,12 +96,12 @@ static const BIO_METHOD methods_dgramp_sctp = {
 
 typedef struct bio_dgram_data_st {
 	BIO_ADDR peer;
-	unsigned int connected;
-	unsigned int _errno;
-	unsigned int mtu;
+	uint connected;
+	uint _errno;
+	uint mtu;
 	struct timeval next_timeout;
 	struct timeval socket_timeout;
-	unsigned int peekmode;
+	uint peekmode;
 } bio_dgram_data;
 
 #ifndef OPENSSL_NO_SCTP
@@ -113,9 +113,9 @@ typedef struct bio_dgram_sctp_save_message_st {
 
 typedef struct bio_dgram_sctp_data_st {
 	BIO_ADDR peer;
-	unsigned int connected;
-	unsigned int _errno;
-	unsigned int mtu;
+	uint connected;
+	uint _errno;
+	uint mtu;
 	struct bio_dgram_sctp_sndinfo sndinfo;
 	struct bio_dgram_sctp_rcvinfo rcvinfo;
 	struct bio_dgram_sctp_prinfo prinfo;
@@ -788,7 +788,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	BIO * bio;
 	int ret, optval = 20000;
 	int auth_data = 0, auth_forward = 0;
-	unsigned char * p;
+	uchar * p;
 	struct sctp_authchunk auth;
 	struct sctp_authchunks * authchunks;
 	socklen_t sockopt_len;
@@ -1126,7 +1126,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 		/* Test if peer uses SCTP-AUTH before continuing */
 		if(!data->peer_auth_tested) {
 			int ii, auth_data = 0, auth_forward = 0;
-			unsigned char * p;
+			uchar * p;
 			struct sctp_authchunks * authchunks;
 			optlen = (socklen_t)(sizeof(sctp_assoc_t) + 256 * sizeof(uint8_t));
 			authchunks = OPENSSL_malloc(optlen);
@@ -1211,7 +1211,7 @@ static int dgram_sctp_write(BIO * b, const char * in, int inl)
 		}
 	}
 
-	iov[0].iov_base = (char*)in;
+	iov[0].iov_base = (char *)in;
 	iov[0].iov_len = inl;
 	msg.msg_name = NULL;
 	msg.msg_namelen = 0;
@@ -1561,7 +1561,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 		return -1;
 	/* peek for notification */
 	memzero(&snp, sizeof(snp));
-	iov.iov_base = (char*)&snp;
+	iov.iov_base = (char *)&snp;
 	iov.iov_len = sizeof(union sctp_notification);
 	msg.msg_name = NULL;
 	msg.msg_namelen = 0;
@@ -1583,7 +1583,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 	/* if we find a notification, process it and try again if necessary */
 	while(msg.msg_flags & MSG_NOTIFICATION) {
 		memzero(&snp, sizeof(snp));
-		iov.iov_base = (char*)&snp;
+		iov.iov_base = (char *)&snp;
 		iov.iov_len = sizeof(union sctp_notification);
 		msg.msg_name = NULL;
 		msg.msg_namelen = 0;
@@ -1631,7 +1631,7 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 			data->handle_notifications(b, data->notification_context, (void*)&snp);
 		/* found notification, peek again */
 		memzero(&snp, sizeof(snp));
-		iov.iov_base = (char*)&snp;
+		iov.iov_base = (char *)&snp;
 		iov.iov_len = sizeof(union sctp_notification);
 		msg.msg_name = NULL;
 		msg.msg_namelen = 0;
@@ -1677,7 +1677,7 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 	/* Check if there are any messages waiting to be read */
 	do {
 		memzero(&snp, sizeof(snp));
-		iov.iov_base = (char*)&snp;
+		iov.iov_base = (char *)&snp;
 		iov.iov_len = sizeof(union sctp_notification);
 		msg.msg_name = NULL;
 		msg.msg_namelen = 0;
@@ -1699,7 +1699,7 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 				dgram_sctp_handle_auth_free_key_event(b, &snp);
 #  endif
 			memzero(&snp, sizeof(snp));
-			iov.iov_base = (char*)&snp;
+			iov.iov_base = (char *)&snp;
 			iov.iov_len = sizeof(union sctp_notification);
 			msg.msg_name = NULL;
 			msg.msg_namelen = 0;

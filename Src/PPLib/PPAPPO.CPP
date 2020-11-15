@@ -432,7 +432,7 @@ int PPApp::processCommand(uint cmd)
 		case cmCurrency:             ShowObjects(PPOBJ_CURRENCY, 0);          break;
 		case cmCurRateType:          ShowObjects(PPOBJ_CURRATETYPE, 0);       break;
 		case cmGoodsClass:           ShowObjects(PPOBJ_GOODSCLASS, 0);        break;
-		case cmWoodBreed:            ShowObjects(PPOBJ_WOODBREED, 0);         break;
+		// @v10.9.3 case cmWoodBreed:            ShowObjects(PPOBJ_WOODBREED, 0);         break;
 		case cmPckgType:             ShowObjects(PPOBJ_PCKGTYPE, 0);          break;
 		case cmGoodsBasket:          ShowObjects(PPOBJ_GOODSBASKET, 0);	      break;
 		case cmBht:                  ShowObjects(PPOBJ_BHT, 0);               break;
@@ -795,24 +795,14 @@ int PPApp::processCommand(uint cmd)
 		case cmViewLogs:              ViewLogs();                        break;
 		case cmPrcPane:               ExecPrcPane(0);                    break;
 		case cmRemoveZeroLinkCCLines: RemoveZeroLinkCCLines();           break;
-		case cmEditDesktops:          
-			{
-				S_GUID zero_uuid;
-				EditCommandGroup(0, zero_uuid, cmdgrpcDesktop);
-			}
-			break;
+		case cmEditDesktops:          EditCommandGroup(0, ZEROGUID, cmdgrpcDesktop); break;
 		case cmSelDesktop:
 			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid, 0, 0, cmdgrpcDesktop, false, 0)) {
 				PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid, 0/*createIfZero*/);
 			}
 			break;
-		case cmEditMenus:             
-			{
-				S_GUID zero_uuid;
-				EditCommandGroup(0, zero_uuid, cmdgrpcMenu);
-			}
-			break;
-		case cmEditMenusFromFile:     EditMenusFromFile();             break;
+		case cmEditMenus: EditCommandGroup(0, ZEROGUID, cmdgrpcMenu); break;
+		// @v10.9.3 (obsolete) case cmEditMenusFromFile:     EditMenusFromFile();             break;
 		case cmEditWhatman:           PPWhatmanWindow::Edit(0, 0);     break;
 		case cmBillExpImpParams:      EditBillImpExpParams(1);         break;
 		case cmBRowExpImpParams:      EditBillImpExpParams(0);         break;

@@ -721,7 +721,8 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 	LayoutFlexItem lo_root;
 	lo_root.Direction = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? FLEX_DIRECTION_COLUMN : FLEX_DIRECTION_ROW;
 	lo_root.AlignContent = FLEX_ALIGN_START;
-	lo_root.WrapMode = FLEX_WRAP_WRAP;
+	//lo_root.WrapMode = FLEX_WRAP_WRAP;
+	lo_root.Flags |= LayoutFlexItem::fWrap;
 	lo_root.Padding.a.X = 32.0f;
 	lo_root.Padding.b.X = 32.0f;
 	for(uint i = 0; i < ObjList.getCount(); i++) {

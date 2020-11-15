@@ -9,6 +9,6 @@
 #ifndef INTERNAL_LHASH_H
 #define INTERNAL_LHASH_H
 
-unsigned long openssl_lh_strcasehash(const char *);
+ulong openssl_lh_strcasehash(const char *);
 
 #endif

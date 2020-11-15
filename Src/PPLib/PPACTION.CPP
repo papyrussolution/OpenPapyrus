@@ -642,7 +642,7 @@ int PPObjBill::GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::GuaAssocI
 						if(gua_cfg.PersonKindID) {
 							PPObjAccSheet acs_obj;
 							PPAccSheet acs_rec;
-							for(SEnum en = acs_obj.ref->Enum(PPOBJ_ACCSHEET, 0); !acs_id && en.Next(&acs_rec) > 0;) {
+							for(SEnum en = acs_obj.P_Ref->Enum(PPOBJ_ACCSHEET, 0); !acs_id && en.Next(&acs_rec) > 0;) {
 								if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == gua_cfg.PersonKindID)
 									acs_id = acs_rec.ID;
 							}

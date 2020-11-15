@@ -50,7 +50,7 @@ static int check_key_level(X509_STORE_CTX * ctx, X509 * cert);
 static int check_sig_level(X509_STORE_CTX * ctx, X509 * cert);
 
 static int get_crl_score(X509_STORE_CTX * ctx, X509 ** pissuer,
-    unsigned int * preasons, X509_CRL * crl, X509 * x);
+    uint * preasons, X509_CRL * crl, X509 * x);
 static int get_crl_delta(X509_STORE_CTX * ctx,
     X509_CRL ** pcrl, X509_CRL ** pdcrl, X509 * x);
 static void get_delta_sk(X509_STORE_CTX * ctx, X509_CRL ** dcrl,
@@ -59,7 +59,7 @@ static void get_delta_sk(X509_STORE_CTX * ctx, X509_CRL ** dcrl,
 static void crl_akid_check(X509_STORE_CTX * ctx, X509_CRL * crl, X509 ** pissuer,
     int * pcrl_score);
 static int crl_crldp_check(X509 * x, X509_CRL * crl, int crl_score,
-    unsigned int * preasons);
+    uint * preasons);
 static int check_crl_path(X509_STORE_CTX * ctx, X509 * x);
 static int check_crl_chain(X509_STORE_CTX * ctx,
     STACK_OF(X509) * cert_path,
@@ -849,7 +849,7 @@ static int check_cert(X509_STORE_CTX * ctx)
 		return 1;
 
 	while(ctx->current_reasons != CRLDP_ALL_REASONS) {
-		unsigned int last_reasons = ctx->current_reasons;
+		uint last_reasons = ctx->current_reasons;
 
 		/* Try to retrieve relevant CRL */
 		if(ctx->get_crl)
@@ -963,11 +963,11 @@ static int check_crl_time(X509_STORE_CTX * ctx, X509_CRL * crl, int notify)
 }
 
 static int get_crl_sk(X509_STORE_CTX * ctx, X509_CRL ** pcrl, X509_CRL ** pdcrl,
-    X509 ** pissuer, int * pscore, unsigned int * preasons,
+    X509 ** pissuer, int * pscore, uint * preasons,
     STACK_OF(X509_CRL) * crls)
 {
 	int i, crl_score, best_score = *pscore;
-	unsigned int reasons, best_reasons = 0;
+	uint reasons, best_reasons = 0;
 	X509 * x = ctx->current_cert;
 	X509_CRL * crl, * best_crl = NULL;
 	X509 * crl_issuer = NULL, * best_crl_issuer = NULL;
@@ -1119,10 +1119,10 @@ static void get_delta_sk(X509_STORE_CTX * ctx, X509_CRL ** dcrl, int * pscore,
  */
 
 static int get_crl_score(X509_STORE_CTX * ctx, X509 ** pissuer,
-    unsigned int * preasons, X509_CRL * crl, X509 * x)
+    uint * preasons, X509_CRL * crl, X509 * x)
 {
 	int crl_score = 0;
-	unsigned int tmp_reasons = *preasons, crl_reasons;
+	uint tmp_reasons = *preasons, crl_reasons;
 
 	/* First see if we can reject CRL straight away */
 
@@ -1377,7 +1377,7 @@ static int crldp_check_crlissuer(DIST_POINT * dp, X509_CRL * crl, int crl_score)
 /* Check CRLDP and IDP */
 
 static int crl_crldp_check(X509 * x, X509_CRL * crl, int crl_score,
-    unsigned int * preasons)
+    uint * preasons)
 {
 	int i;
 	if(crl->idp_flags & IDP_ONLYATTR)
@@ -1417,7 +1417,7 @@ static int get_crl_delta(X509_STORE_CTX * ctx,
 	int ok;
 	X509 * issuer = NULL;
 	int crl_score = 0;
-	unsigned int reasons;
+	uint reasons;
 	X509_CRL * crl = NULL, * dcrl = NULL;
 	STACK_OF(X509_CRL) *skcrl;
 	X509_NAME * nm = X509_get_issuer_name(x);
@@ -1892,7 +1892,7 @@ int X509_get_pubkey_parameters(EVP_PKEY * pkey, STACK_OF(X509) * chain)
 /* Make a delta CRL as the diff between two full CRLs */
 
 X509_CRL * X509_CRL_diff(X509_CRL * base, X509_CRL * newer,
-    EVP_PKEY * skey, const EVP_MD * md, unsigned int flags)
+    EVP_PKEY * skey, const EVP_MD * md, uint flags)
 {
 	X509_CRL * crl = NULL;
 	int i;
@@ -2346,8 +2346,8 @@ void X509_STORE_CTX_cleanup(X509_STORE_CTX * ctx)
 }
 
 void X509_STORE_CTX_set_depth(X509_STORE_CTX * ctx, int depth) { X509_VERIFY_PARAM_set_depth(ctx->param, depth); }
-void X509_STORE_CTX_set_flags(X509_STORE_CTX * ctx, unsigned long flags) { X509_VERIFY_PARAM_set_flags(ctx->param, flags); }
-void X509_STORE_CTX_set_time(X509_STORE_CTX * ctx, unsigned long flags, time_t t) { X509_VERIFY_PARAM_set_time(ctx->param, t); }
+void X509_STORE_CTX_set_flags(X509_STORE_CTX * ctx, ulong flags) { X509_VERIFY_PARAM_set_flags(ctx->param, flags); }
+void X509_STORE_CTX_set_time(X509_STORE_CTX * ctx, ulong flags, time_t t) { X509_VERIFY_PARAM_set_time(ctx->param, t); }
 X509 * X509_STORE_CTX_get0_cert(X509_STORE_CTX * ctx) { return ctx->cert; }
 STACK_OF(X509) *X509_STORE_CTX_get0_untrusted(X509_STORE_CTX *ctx) { return ctx->untrusted; }
 void X509_STORE_CTX_set0_untrusted(X509_STORE_CTX * ctx, STACK_OF(X509) * sk) { ctx->untrusted = sk; }
@@ -2468,11 +2468,11 @@ void X509_STORE_CTX_set0_dane(X509_STORE_CTX * ctx, SSL_DANE * dane)
 	ctx->dane = dane;
 }
 
-static unsigned char * dane_i2d(X509 * cert,
+static uchar * dane_i2d(X509 * cert,
     uint8_t selector,
-    unsigned int * i2dlen)
+    uint * i2dlen)
 {
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	int len;
 
 	/*
@@ -2508,11 +2508,11 @@ static int dane_match(X509_STORE_CTX * ctx, X509 * cert, int depth)
 	unsigned selector = DANETLS_NONE;
 	unsigned ordinal = DANETLS_NONE;
 	unsigned mtype = DANETLS_NONE;
-	unsigned char * i2dbuf = NULL;
-	unsigned int i2dlen = 0;
-	unsigned char mdbuf[EVP_MAX_MD_SIZE];
-	unsigned char * cmpbuf = NULL;
-	unsigned int cmplen = 0;
+	uchar * i2dbuf = NULL;
+	uint i2dlen = 0;
+	uchar mdbuf[EVP_MAX_MD_SIZE];
+	uchar * cmpbuf = NULL;
+	uint cmplen = 0;
 	int i;
 	int recnum;
 	int matched = 0;
@@ -2810,7 +2810,7 @@ static int build_chain(X509_STORE_CTX * ctx)
 	X509 * cert = sk_X509_value(ctx->chain, num - 1);
 	int ss = cert_self_signed(cert);
 	STACK_OF(X509) *sktmp = NULL;
-	unsigned int search;
+	uint search;
 	int may_trusted = 0;
 	int may_alternate = 0;
 	int trust = X509_TRUST_UNTRUSTED;

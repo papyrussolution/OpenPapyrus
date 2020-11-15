@@ -63,8 +63,8 @@ static ossl_inline mask_t bool_to_mask(c448_bool_t m)
 {
     /* On most arches this will be optimized to a simple cast. */
     mask_t ret = 0;
-    unsigned int i;
-    unsigned int limit = sizeof(c448_bool_t) / sizeof(mask_t);
+    uint i;
+    uint limit = sizeof(c448_bool_t) / sizeof(mask_t);
 
     if (limit < 1)
         limit = 1;

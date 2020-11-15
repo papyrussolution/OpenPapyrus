@@ -225,7 +225,7 @@ long dtls1_ctrl(SSL * s, int cmd, long larg, void * parg)
 
 void dtls1_start_timer(SSL * s)
 {
-	unsigned int sec, usec;
+	uint sec, usec;
 
 #ifndef OPENSSL_NO_SCTP
 	/* Disable timer for SCTP */
@@ -418,12 +418,12 @@ static void get_current_time(struct timeval * t)
 int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 {
 	int next, n, ret = 0;
-	unsigned char cookie[DTLS1_COOKIE_LENGTH];
-	unsigned char seq[SEQ_NUM_SIZE];
-	const unsigned char * data;
-	unsigned char * buf, * wbuf;
+	uchar cookie[DTLS1_COOKIE_LENGTH];
+	uchar seq[SEQ_NUM_SIZE];
+	const uchar * data;
+	uchar * buf, * wbuf;
 	size_t fragoff, fraglen, msglen, reclen, align = 0;
-	unsigned int rectype, versmajor, msgseq, msgtype, clientvers, cookielen;
+	uint rectype, versmajor, msgseq, msgtype, clientvers, cookielen;
 	BIO * rbio, * wbio;
 	BIO_ADDR * tmpclient = NULL;
 	PACKET pkt, msgpkt, msgpayload, session, cookiepkt;
@@ -609,7 +609,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 		/*
 		 * Verify client version is supported
 		 */
-		if(DTLS_VERSION_LT(clientvers, (unsigned int)s->method->version) &&
+		if(DTLS_VERSION_LT(clientvers, (uint)s->method->version) &&
 		    s->method->version != DTLS_ANY_VERSION) {
 			SSLerr(SSL_F_DTLSV1_LISTEN, SSL_R_WRONG_VERSION_NUMBER);
 			goto end;
@@ -643,7 +643,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 				return -1;
 			}
 			if(s->ctx->app_verify_cookie_cb(s, PACKET_data(&cookiepkt),
-			    (unsigned int)PACKET_remaining(&cookiepkt)) == 0) {
+			    (uint)PACKET_remaining(&cookiepkt)) == 0) {
 				/*
 				 * We treat invalid cookies in the same was as no cookie as
 				 * per RFC6347
@@ -658,7 +658,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 
 		if(next == LISTEN_SEND_VERIFY_REQUEST) {
 			WPACKET wpkt;
-			unsigned int version;
+			uint version;
 			size_t wreclen;
 
 			/*

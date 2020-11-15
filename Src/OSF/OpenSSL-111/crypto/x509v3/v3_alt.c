@@ -64,7 +64,7 @@ STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method,
     GENERAL_NAME *gen,
     STACK_OF(CONF_VALUE) *ret)
 {
-	unsigned char * p;
+	uchar * p;
 	char oline[256], htmp[5];
 	int i;
 
@@ -136,7 +136,7 @@ STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method,
 
 int GENERAL_NAME_print(BIO * out, GENERAL_NAME * gen)
 {
-	unsigned char * p;
+	uchar * p;
 	int i;
 	switch(gen->type) {
 		case GEN_OTHERNAME:

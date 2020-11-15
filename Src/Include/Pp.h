@@ -3061,8 +3061,8 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   BaseRateTypeID; // 84  Базовый тип валютного курса (PPOBJ_CONFIG only)
 	long   DesktopID_Obsolete;      // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
 	long   MenuID_Obsolete;         // 92  Идентификатор меню, используемого пользователем (группой)
-	S_GUID DesktopUuid;    // @v10.9.3 @construction
-	S_GUID MenuUuid;       // @v10.9.3 @construction
+	S_GUID DesktopUuid;    // @v10.9.3
+	S_GUID MenuUuid;       // @v10.9.3
 };
 //
 // Descr: Частная конфигурация, привязанная к конкретному пользователю.
@@ -15437,7 +15437,6 @@ public:
 	const PPCommandItem * SearchNextByCoord(POINT coord, const PPDesktop & rD, Direction next, uint * pPos);
 	const PPCommandItem * SearchFirst(uint * pPos);
 	int    GetIntersectIDs(TPoint coord, const PPDesktop & rD, PPIDArray * pAry);
-	//int    GetIntersectIDs(RECT rect, const PPDesktop & rD, PPIDArray * pAry);
 	int    GetIntersectIDs(const TRect & rR, const PPDesktop & rD, PPIDArray * pAry);
 	int    GetIconRect(long id, const PPDesktop & rD, TRect * pRect) const;
 	int    Add(int pos, const PPCommandItem * pItem);
@@ -15455,6 +15454,14 @@ class PPCommandGroup : public PPCommandFolder {
 public:
 	// @v10.9.3 enum { tDesk = 1, tMenu = 2 };
 	PPCommandGroup();
+	//
+	// Descr: Конструктор создает новый экземпляр объекта с заданными атрибутами.
+	//   При этом генерируется новый UUID, то есть этот конструктор нужен именно для
+	//   создания нового объекта.
+	//   Если cmdgrpc == cmdgrpcDesktop && isempty(pDbSymb) то новый экземпляр 
+	//   получает символ текущей базы данных (если таковая имеется).
+	//
+	PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbSymb, const char * pName);
 	PPCommandGroup(const PPCommandGroup &);
 	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
 	virtual int Write(SBuffer &, long) const;
@@ -15463,17 +15470,16 @@ public:
 	virtual int Read2(void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual int IsEqual(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
-	int    FASTCALL SetDbSymb(const char * pDbSymb);
+	void   FASTCALL SetDbSymb(const char * pDbSymb);
 	int    FASTCALL IsDbSymbEq(const char * pDbSymb) const;
 	int    FASTCALL IsDbSymbEq(const PPCommandGroup & rGrp) const;
 	int    SetLogo(const char * pPath);
 	void   GenerateGuid(); // @erik v10.6.6
 	const  S_GUID & FASTCALL GetGuid() const;  // @erik v10.7.3
-	void   FASTCALL SetType(int cg_type);
 	const  SString & GetLogo() const;
 	int    FASTCALL Copy(const PPCommandGroup &);
 	PPCommandGroup * GetGroup(PPCommandGroupCategory kind, const S_GUID & rUuid);
-	void   InitDefaultDesktop(const char * pName);
+	//void   InitDefaultDesktop(const char * pName);
 	int    LoadLogo();
 	int    StoreLogo();
 
@@ -15483,8 +15489,8 @@ public:
 	// GUID - это идентификатор рабочего стола в файловой системе. В рабочих столах, которые хранятся в ppdesk.bin их нет.
 	// Генерируются при создании нового рабочего стола и при выгрузке рабочих столов из ppdesk.bin(В функции PPCommandGroup::Read)
 	//
-	S_GUID Uuid/*DeskGuid*/; // @erik v10.6.4
-	/*int*/PPCommandGroupCategory Type; // cmdgrpcDesktop || cmdgrpcMenu @erik v10.7.6
+	S_GUID Uuid; // @erik v10.6.4
+	PPCommandGroupCategory Type; // cmdgrpcDesktop || cmdgrpcMenu @erik v10.7.6
 };
 //
 // Descr: Интерфейс, реализующий функции команд
@@ -15529,13 +15535,19 @@ public:
 	PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesktop*/PPCommandGroupCategory kind);
 	~PPCommandMngr();
 	int    IsValid_() const;
-	int    Save__(const PPCommandGroup *);
-	int    Load__(PPCommandGroup *);
+	int    Save_Obsolete(const PPCommandGroup *);
+	int    Load_Obsolete(PPCommandGroup *);
 	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
 	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1
 	int    SaveFromAllTo(const long rwFlag); // @erik v10.7.1
 	int    ConvertDesktopTo(const long rwFlag); //@erik v10.7.4
 	int    DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID & rUuid);
+	//
+	// Descr: Находит максимальное значение идентификатора среди всех элементов, 
+	//   доступных для загрузки.
+	// Note: Функция очень медленная - вынуждена загружать все, что есть для перебора.
+	//
+	int    GetMaxEntryID(long * pMaxId);
 	static int GetDesksDir(SString & rPath); // @erik v10.6.7
 	static int GetMenuDir(SString & rPath); // @erik v10.7.6
 private:
@@ -15716,11 +15728,12 @@ public:
 	int    EditJobParam(PPID jobID, SBuffer * pParam);
 	long   AcquireNewId();
 	void   FASTCALL UpdateLastId(long id);
+	const  SString & GetFileName() const { return XmlFilePath; }
 private:
 	int    Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode);
 	int    CreatePool();
 	void   CloseFile();
-	int    GetXmlPoolDir(SString &rXmlPoolPath); //@erik v10.7.4
+	int    GetXmlPoolDir(SString & rXmlPoolPath); //@erik v10.7.4
 	// Выполняется если ни одна задача еще не была сохранена в xml формате
 	int    ConvertBinToXml();
 
@@ -16059,9 +16072,8 @@ protected:
 	int    LoadReservedItems(uint rezID);
 	int    Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream, ObjTransmContext * pCtx);
 public:
-	//long   extra;
 	void * ExtraPtr;
-	Reference * ref; // Equal to extern PPRef
+	Reference * P_Ref; // Equal to extern PPRef // @v10.9.3 ref-->P_Ref
 };
 //
 // @ModuleDecl(PPObjDynamicObjs)
@@ -46271,9 +46283,13 @@ public:
 };
 
 struct UserMenuViewItem { // @flat
+	enum {
+		fReservedMenu = 0x0001
+	};
 	PPID   ID;
 	S_GUID Uuid;
 	long   Kind;
+	long   Flags;
 	char   DbSymb[64];
 	char   Name[128];
 };
@@ -46293,7 +46309,17 @@ private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	int    AddItem(S_GUID * pUuid);
+	//
+	// Descr: Интерактивное создание нового элемента.
+	// ARG(kind        IN): Категория нового элемента. Если kind == cmdgrpcUndef то 
+	//   пользователю предлагается выбрать что создавать: меню или рабочий стол.
+	// ARG(rSampleUuid IN): Если !IsZero(), то новый элемент создается по образцу элемента с этим идентификатором.
+	//   Если по заданному идентификатору образец не найден, то - ошибка.
+	// ARG(sampleId    IN): В случае, если необходимо создать новое меню по образцу зарезервированного
+	//   меню (хранящегося в ресурсах и не имеющего UUID'а), то этот идентификатор будет рассматриваться как ссылка на образец.
+	// ARG(pUuid      OUT): UUID созданного элемента.
+	//
+	int    AddItem(PPCommandGroupCategory kind, const S_GUID & rSampleUuid, long sampleId, S_GUID * pUuid);
 	int    EditItem(const S_GUID & rUuid);
 	int    DeleteItem(const S_GUID & rUuid);
 	PPCommandGroup * GetEntryByUuid(const S_GUID & rUuid);
@@ -52524,7 +52550,7 @@ int   EditCmdItem(const PPCommandGroup * pDesktop, PPCommand * pData, /*int isDe
 int   EditName(SString & rName);
 //int   EditMenus(PPCommandGroup * pData, long initID, int isDesktop);
 int   EditCommandGroup(PPCommandGroup * pData, /*long initID*/const S_GUID & rInitUuid, PPCommandGroupCategory kind);
-int   EditMenusFromFile();
+// @v10.9.3 int   EditMenusFromFile();
 //HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound);
 HMENU PPLoadCommandMenu(const S_GUID & rUuid, int * pNotFound);
 HMENU PPLoadResourceMenu(TVRez * rez, long menuID, int * pNotFound);
@@ -54320,6 +54346,7 @@ int Convert10209(); // @10.2.9
 int Convert10507(); // @v10.5.7 Scale
 int Convert10702(); // @v10.7.2 projects and todo
 int Convert10703(); // @erik @v10.7.2 desktops
+int Convert10903(); // @v10.9.3
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

@@ -15,7 +15,7 @@
 void ERR_print_errors_cb(int (*cb)(const char * str, size_t len, void * u),
     void * u)
 {
-	unsigned long l;
+	ulong l;
 	char buf[256];
 	char buf2[4096];
 	const char * file, * data;
@@ -26,7 +26,7 @@ void ERR_print_errors_cb(int (*cb)(const char * str, size_t len, void * u),
 	 */
 	union {
 		CRYPTO_THREAD_ID tid;
-		unsigned long ltid;
+		ulong ltid;
 	} tid;
 
 	tid.ltid = 0;

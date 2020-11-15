@@ -213,7 +213,7 @@ static int parse_bag(PKCS12_SAFEBAG * bag, const char * pass, int passlen,
 		    }
 		    if(fname) {
 			    int len, r;
-			    unsigned char * data;
+			    uchar * data;
 			    len = ASN1_STRING_to_UTF8(&data, fname);
 			    if(len >= 0) {
 				    r = X509_alias_set1(x509, data, len);

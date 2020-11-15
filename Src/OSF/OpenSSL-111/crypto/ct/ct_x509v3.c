@@ -48,7 +48,7 @@ static int set_sct_list_source(STACK_OF(SCT) * s, sct_source_t source)
 }
 
 static STACK_OF(SCT) *x509_ext_d2i_SCT_LIST(STACK_OF(SCT) **a,
-    const unsigned char ** pp,
+    const uchar ** pp,
     long len)
 {
 	STACK_OF(SCT) *s = d2i_SCT_LIST(a, pp, len);
@@ -62,7 +62,7 @@ static STACK_OF(SCT) *x509_ext_d2i_SCT_LIST(STACK_OF(SCT) **a,
 }
 
 static STACK_OF(SCT) *ocsp_ext_d2i_SCT_LIST(STACK_OF(SCT) **a,
-    const unsigned char ** pp,
+    const uchar ** pp,
     long len)
 {
 	STACK_OF(SCT) *s = d2i_SCT_LIST(a, pp, len);

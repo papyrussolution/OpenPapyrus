@@ -16,10 +16,10 @@
 #ifndef NO_ASN1_OLD
 
 int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data,
-    unsigned char * md, unsigned int * len)
+    uchar * md, uint * len)
 {
 	int inl;
-	unsigned char * str, * p;
+	uchar * str, * p;
 
 	inl = i2d(data, NULL);
 	if(inl <= 0) {
@@ -43,10 +43,10 @@ int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data,
 
 #endif
 
-int ASN1_item_digest(const ASN1_ITEM * it, const EVP_MD * type, void * asn, unsigned char * md, unsigned int * len)
+int ASN1_item_digest(const ASN1_ITEM * it, const EVP_MD * type, void * asn, uchar * md, uint * len)
 {
 	int i;
-	unsigned char * str = NULL;
+	uchar * str = NULL;
 	i = ASN1_item_i2d(static_cast<ASN1_VALUE *>(asn), &str, it);
 	if(!str)
 		return 0;

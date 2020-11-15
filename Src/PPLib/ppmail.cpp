@@ -4,9 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <sys/stat.h>
-//#include <fcntl.h>
-// @v9.6.3 #include <idea.h>
 #include <charry.h>
 //
 //
@@ -532,18 +529,18 @@ int PPObjInternetAccount::Put(PPID * pID, const PPInternetAccount * pPack, int u
 		if(*pID) {
 			if(pPack) {
 				THROW(CheckDupName(*pID, pPack->Name));
-				THROW(ref->UpdateItem(Obj, *pID, pPack, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, pPack, 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else {
 			*pID = pPack->ID;
-			THROW(ref->AddItem(Obj, pID, pPack, 0));
+			THROW(P_Ref->AddItem(Obj, pID, pPack, 0));
 		}
 		if(*pID) {
-			THROW(ref->PutPropVlrString(Obj, *pID, MACPRP_EXTRA, pPack->ExtStr));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, MACPRP_EXTRA, pPack->ExtStr));
 		}
 		THROW(tra.Commit());
 	}

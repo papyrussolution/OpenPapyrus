@@ -56,7 +56,103 @@
 
 	char const * assoc_to_string(assoc a);
 //
-#include "location.h"
+//#include "location.h"
+	//
+	// A boundary between two characters.
+	//
+	struct boundary {
+		uniqstr file; /* The name of the file that contains the boundary.  */
+		/* If positive, the line (starting at 1) that contains the boundary.
+		   If this is INT_MAX, the line number has overflowed.
+
+		   Meaningless and not displayed if nonpositive.
+		 */
+		int line;
+		/* If positive, the column (starting at 1) just after the boundary.
+		   This is neither a byte count, nor a character count; it is a
+		   (visual) column count.  If this is INT_MAX, the column number has
+		   overflowed.
+
+		   Meaningless and not displayed if nonpositive.  */
+		int column;
+		/* If nonnegative, the byte number (starting at 0) in the current line.  Not displayed (unless --trace=location).  */
+		int byte;
+	};
+	//
+	// Set the position of \a p. 
+	//
+	static inline void boundary_set(boundary * p, const char * f, int l, int c, int b)
+	{
+		p->file = f;
+		p->line = l;
+		p->column = c;
+		p->byte = b;
+	}
+	//
+	// Return -1, 0, 1, depending whether a is before, equal, or after b. 
+	//
+	static inline int boundary_cmp(boundary a, boundary b)
+	{
+		/* Locations with no file first.  */
+		int res = a.file && b.file ? strcmp(a.file, b.file) : a.file ? 1 : b.file ? -1 : 0;
+		SETIFZ(res, a.line - b.line);
+		SETIFZ(res, a.column - b.column);
+		return res;
+	}
+	//
+	// Return nonzero if A and B are equal boundaries. 
+	//
+	static inline bool equal_boundaries(boundary a, boundary b)
+	{
+		return (a.column == b.column && a.line == b.line && UNIQSTR_EQ(a.file, b.file));
+	}
+	//
+	// A location, that is, a region of source code.
+	//
+	struct Location {
+		boundary start; /* Boundary just before the location starts.  */
+		boundary end; /* Boundary just after the location ends.  */
+	};
+
+	#define GRAM_LTYPE Location
+
+	#define EMPTY_LOCATION_INIT {{NULL, 0, 0, 0}, {NULL, 0, 0, 0}}
+	extern Location const empty_loc;
+	//
+	// Set *LOC and adjust scanner cursor to account for token TOKEN of size SIZE.  
+	//
+	void location_compute(Location * loc, boundary * cur, char const * token, size_t size);
+
+	/* Print location to file.
+	   Return number of actually printed characters.
+	   Warning: uses quotearg's slot 3. */
+	int location_print(Location loc, FILE * out);
+	void caret_init(); /* Prepare the use of location_caret.  */
+	/* Free any allocated resources and close any open file handles that are
+	   left-over by the usage of location_caret.  */
+	void caret_free();
+	/* If -fcaret is enabled, quote the line containing LOC onto OUT.
+	   Highlight the part of LOC with the color STYLE.  */
+	void location_caret(Location loc, const char* style, FILE * out);
+	/* If -fcaret is enabled, display a suggestion of replacement for LOC
+	   with S.  To call after location_caret.  */
+	void location_caret_suggestion(Location loc, const char * s, FILE * out);
+	//
+	// Return -1, 0, 1, depending whether a is before, equal, or after b. 
+	//
+	static inline int location_cmp(Location a, Location b)
+	{
+		int res = boundary_cmp(a.start, b.start);
+		SETIFZ(res, boundary_cmp(a.end, b.end));
+		return res;
+	}
+
+	bool location_empty(Location loc); /* Whether this is the empty location.  */
+	//
+	// STR must be formatted as 'file:line.column@byte' or 'file:line.column', it will be modified.  
+	//
+	void boundary_set_from_string(boundary * bound, char * str);
+//
 //#include "named-ref.h"
 	//
 	// Named reference object. Keeps information about a symbolic name of a symbol in a rule.

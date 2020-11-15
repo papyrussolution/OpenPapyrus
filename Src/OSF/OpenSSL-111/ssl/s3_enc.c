@@ -13,13 +13,13 @@
 #include <openssl/md5.h>
 //#include "internal/cryptlib.h"
 
-static int ssl3_generate_key_block(SSL * s, unsigned char * km, int num)
+static int ssl3_generate_key_block(SSL * s, uchar * km, int num)
 {
 	EVP_MD_CTX * m5;
 	EVP_MD_CTX * s1;
-	unsigned char buf[16], smd[SHA_DIGEST_LENGTH];
-	unsigned char c = 'A';
-	unsigned int i, j, k;
+	uchar buf[16], smd[SHA_DIGEST_LENGTH];
+	uchar c = 'A';
+	uint i, j, k;
 	int ret = 0;
 
 #ifdef CHARSET_EBCDIC
@@ -89,8 +89,8 @@ err:
 
 int ssl3_change_cipher_state(SSL * s, int which)
 {
-	unsigned char * p, * mac_secret;
-	unsigned char * ms, * key, * iv;
+	uchar * p, * mac_secret;
+	uchar * ms, * key, * iv;
 	EVP_CIPHER_CTX * dd;
 	const EVP_CIPHER * c;
 #ifndef OPENSSL_NO_COMP
@@ -250,7 +250,7 @@ err:
 
 int ssl3_setup_key_block(SSL * s)
 {
-	unsigned char * p;
+	uchar * p;
 	const EVP_CIPHER * c;
 	const EVP_MD * hash;
 	int num;
@@ -345,7 +345,7 @@ void ssl3_free_digest_list(SSL * s)
 	s->s3->handshake_dgst = NULL;
 }
 
-int ssl3_finish_mac(SSL * s, const unsigned char * buf, size_t len)
+int ssl3_finish_mac(SSL * s, const uchar * buf, size_t len)
 {
 	int ret;
 
@@ -412,7 +412,7 @@ int ssl3_digest_cached_records(SSL * s, int keep)
 }
 
 size_t ssl3_final_finish_mac(SSL * s, const char * sender, size_t len,
-    unsigned char * p)
+    uchar * p)
 {
 	int ret;
 	EVP_MD_CTX * ctx = NULL;
@@ -465,24 +465,24 @@ err:
 	return ret;
 }
 
-int ssl3_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p,
+int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p,
     size_t len, size_t * secret_size)
 {
-	static const unsigned char * salt[3] = {
+	static const uchar * salt[3] = {
 #ifndef CHARSET_EBCDIC
-		(const unsigned char*)"A",
-		(const unsigned char*)"BB",
-		(const unsigned char*)"CCC",
+		(const uchar*)"A",
+		(const uchar*)"BB",
+		(const uchar*)"CCC",
 #else
-		(const unsigned char*)"\x41",
-		(const unsigned char*)"\x42\x42",
-		(const unsigned char*)"\x43\x43\x43",
+		(const uchar*)"\x41",
+		(const uchar*)"\x42\x42",
+		(const uchar*)"\x43\x43\x43",
 #endif
 	};
-	unsigned char buf[EVP_MAX_MD_SIZE];
+	uchar buf[EVP_MAX_MD_SIZE];
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	int i, ret = 1;
-	unsigned int n;
+	uint n;
 	size_t ret_secret_size = 0;
 
 	if(ctx == NULL) {

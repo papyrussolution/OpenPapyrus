@@ -28,13 +28,13 @@ typedef enum {
 	MY_GCVT_ARG_DOUBLE
 } my_gcvt_arg_type;
 
-size_t ma_fcvt(double x, int precision, char * to, my_bool * error);
-size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to, my_bool * error);
+size_t ma_fcvt(double x, int precision, char * to, bool * error);
+size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to, bool * error);
 char * ma_ll2str(long long val, char * dst, int radix);
 
 #define MAX_ENV_SIZE 1024
 
-static inline my_bool ma_check_env_str(const char * env)
+static inline bool ma_check_env_str(const char * env)
 {
 	unsigned int i;
 	if(!env)

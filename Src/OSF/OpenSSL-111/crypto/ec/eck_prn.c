@@ -61,7 +61,7 @@ int ECParameters_print_fp(FILE * fp, const EC_KEY * x)
 
 #endif
 
-static int print_bin(BIO * fp, const char * str, const unsigned char * num,
+static int print_bin(BIO * fp, const char * str, const uchar * num,
     size_t len, int off);
 
 int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off)
@@ -71,7 +71,7 @@ int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off)
 	const EC_POINT * point = NULL;
 	BIGNUM * p = NULL, * a = NULL, * b = NULL, * gen = NULL;
 	const BIGNUM * order = NULL, * cofactor = NULL;
-	const unsigned char * seed;
+	const uchar * seed;
 	size_t seed_len = 0;
 
 	static const char * gen_compressed = "Generator (compressed):";
@@ -220,7 +220,7 @@ err:
 	return ret;
 }
 
-static int print_bin(BIO * fp, const char * name, const unsigned char * buf, size_t len, int off)
+static int print_bin(BIO * fp, const char * name, const uchar * buf, size_t len, int off)
 {
 	size_t i;
 	char str[128 + 1 + 4];

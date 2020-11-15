@@ -37,13 +37,13 @@ IMPLEMENT_ASN1_FUNCTIONS(PBKDF2PARAM)
  */
 
 X509_ALGOR *PKCS5_pbe2_set_iv(const EVP_CIPHER *cipher, int iter,
-    unsigned char * salt, int saltlen,
-    unsigned char * aiv, int prf_nid)
+    uchar * salt, int saltlen,
+    uchar * aiv, int prf_nid)
 {
 	X509_ALGOR * scheme = NULL, * ret = NULL;
 	int alg_nid, keylen;
 	EVP_CIPHER_CTX * ctx = NULL;
-	unsigned char iv[EVP_MAX_IV_LENGTH];
+	uchar iv[EVP_MAX_IV_LENGTH];
 	PBE2PARAM * pbe2 = NULL;
 
 	alg_nid = EVP_CIPHER_type(cipher);
@@ -140,12 +140,12 @@ err:
 }
 
 X509_ALGOR * PKCS5_pbe2_set(const EVP_CIPHER * cipher, int iter,
-    unsigned char * salt, int saltlen)
+    uchar * salt, int saltlen)
 {
 	return PKCS5_pbe2_set_iv(cipher, iter, salt, saltlen, NULL, -1);
 }
 
-X509_ALGOR * PKCS5_pbkdf2_set(int iter, unsigned char * salt, int saltlen,
+X509_ALGOR * PKCS5_pbkdf2_set(int iter, uchar * salt, int saltlen,
     int prf_nid, int keylen)
 {
 	X509_ALGOR * keyfunc = NULL;

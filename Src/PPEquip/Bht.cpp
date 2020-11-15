@@ -1576,7 +1576,7 @@ int PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 			if(!flt.IsEmpty())
 				THROW_MEM(pPack->P_Filt = new GoodsFilt(flt));
 		}
-		if(ref->GetPropActualSize(Obj, id, BHTPRP_SBIICFG, &cfg_indb_size) > 0) {
+		if(P_Ref->GetPropActualSize(Obj, id, BHTPRP_SBIICFG, &cfg_indb_size) > 0) {
 			const uint __sz = sizeof(__StyloBhtIIConfig);
 			const uint __sz__ = sizeof(__StyloBhtIIConfig__);
 			if(((cfg_indb_size - __sz__ - sizeof(uint32)) % sizeof(SBIIOpInfo)) == 0) {
@@ -1592,7 +1592,7 @@ int PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 			if(oneof2(_pre764, 1, 2)) {
 				THROW_MEM(p_buf_pre764 = (__StyloBhtIIConfig *)SAlloc::M(cfg_indb_size));
 				memzero(p_buf_pre764, cfg_indb_size);
-				THROW(ref->GetProperty(Obj, id, BHTPRP_SBIICFG, p_buf_pre764, cfg_indb_size) > 0);
+				THROW(P_Ref->GetProperty(Obj, id, BHTPRP_SBIICFG, p_buf_pre764, cfg_indb_size) > 0);
 				{
 					uint8 * ptr = 0;
 					uint   op_items_count = 0;
@@ -1634,7 +1634,7 @@ int PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 			uint   cfg_rec_size = 4096;
 			THROW_MEM(p_buf = (__StyloBhtConfig2 *)SAlloc::M(cfg_rec_size));
 			memzero(p_buf, cfg_rec_size);
-			if(ref->GetProperty(Obj, id, BHTPRP_SBIICFG2, p_buf, cfg_rec_size) > 0) {
+			if(P_Ref->GetProperty(Obj, id, BHTPRP_SBIICFG2, p_buf, cfg_rec_size) > 0) {
 				THROW_MEM(pPack->P_SBIICfg = new StyloBhtIIOnHostCfg);
 				p_cfg = pPack->P_SBIICfg;
 				p_cfg->Flags = p_buf->Flags;
@@ -1666,7 +1666,7 @@ int PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 			}
 		}
 		if(oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
-			ref->GetPropVlrString(PPOBJ_BHT, id, BHTPRP_PATH, pPack->ImpExpPath_);
+			P_Ref->GetPropVlrString(PPOBJ_BHT, id, BHTPRP_PATH, pPack->ImpExpPath_);
 		}
 	}
 	else
@@ -1684,18 +1684,18 @@ int PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_ta)
 	PPTransaction tra(use_ta);
 	THROW(tra);
 	if(*pID) {
-		THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+		THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 	}
 	else {
 		*pID = pPack->Rec.ID;
-		THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+		THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 	}
 	if(pPack->P_Filt) {
 		THROW(pPack->P_Filt->WriteToProp(Obj, *pID, BHTPRP_GOODSFILT2, BHTPRP_GOODSFILT_));
 	}
 	else {
-		THROW(ref->PutProp(Obj, *pID, BHTPRP_GOODSFILT2, 0));
-		THROW(ref->PutProp(Obj, *pID, BHTPRP_GOODSFILT_, 0));
+		THROW(P_Ref->PutProp(Obj, *pID, BHTPRP_GOODSFILT2, 0));
+		THROW(P_Ref->PutProp(Obj, *pID, BHTPRP_GOODSFILT_, 0));
 	}
 	if(pPack->P_SBIICfg && pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII) {
 		StyloBhtIIOnHostCfg * p_cfg = pPack->P_SBIICfg;
@@ -1708,10 +1708,8 @@ int PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_ta)
 		const  uint    op_items_count = p_cfg->P_OpList ? p_cfg->P_OpList->getCount() : 0;
 		const  size_t  buf_size = sizeof(*p_buf) + op_items_count * sizeof(SBIIOpInfo) + ext_str.Len();
 		char * p = 0;
-
-		THROW_MEM(p_buf = (__StyloBhtConfig2 *)SAlloc::M(buf_size));
+		THROW_MEM(p_buf = static_cast<__StyloBhtConfig2 *>(SAlloc::M(buf_size)));
 		memzero(p_buf, buf_size);
-
 		p_buf->ObjType = PPOBJ_BHT;
 		p_buf->ObjID   = *pID;
 		p_buf->PropID  = BHTPRP_SBIICFG2;
@@ -1732,13 +1730,13 @@ int PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_ta)
 		if(ext_str.Len()) {
 			memcpy(PTR8(p_buf+1) + op_items_count * sizeof(SBIIOpInfo), ext_str.cptr(), ext_str.Len());
 		}
-		THROW(ref->PutProp(Obj, *pID, BHTPRP_SBIICFG2, p_buf, buf_size));
+		THROW(P_Ref->PutProp(Obj, *pID, BHTPRP_SBIICFG2, p_buf, buf_size));
 	}
 	else {
-		THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG2, 0));
+		THROW(P_Ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG2, 0));
 	}
-	THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
-	THROW(ref->PutPropVlrString(PPOBJ_BHT, *pID, BHTPRP_PATH,
+	THROW(P_Ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
+	THROW(P_Ref->PutPropVlrString(PPOBJ_BHT, *pID, BHTPRP_PATH,
 		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : static_cast<const char *>(0)));
 	THROW(tra.Commit());
 	CATCHZOK

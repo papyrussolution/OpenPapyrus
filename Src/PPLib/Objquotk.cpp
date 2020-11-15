@@ -259,7 +259,7 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 	const  int  intrexpnd = IsIntrExpndOp(opID);
 	const  PPID matrix_qk_id = goods_obj.GetConfig().MtxQkID;
 	SVector list(sizeof(PPQuotKind)); // @v10.6.8 SArray-->SVector
-	ref->LoadItems(Obj, list);
+	P_Ref->LoadItems(Obj, list);
 	for(uint qkidx = 0; qkidx < list.getCount(); qkidx++) {
 		const PPQuotKind * p_item = static_cast<const PPQuotKind *>(list.at(qkidx));
 		const PPID id = p_item->ID;
@@ -367,7 +367,7 @@ int PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, 
 		PPIDArray tm_list;
 		const PPID sell_acc_sheet = GetSellAccSheet();
 		PPQuotKind  qkr;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&qkr) > 0;) {
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&qkr) > 0;) {
 			int    suited = 0;
 			int    is_tm = 0;
 			if(qkr.ID == PPQUOTK_BASE && flags & RTLPF_PRICEBYQUOT)
@@ -516,7 +516,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 				if(!IsPacketEq(*pPack, org_pack, 0)) {
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckRights(PPR_MOD));
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				}
 			}
 			else {
@@ -524,7 +524,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 				{
 					PPObjGoods goods_obj;
 					THROW(goods_obj.P_Tbl->RemoveAllQuotForQuotKind(*pID, 0));
-					THROW(ref->RemoveItem(Obj, *pID, 0));
+					THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 					THROW(RemoveSync(*pID));
 				}
 			}
@@ -533,7 +533,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 			THROW(CheckRights(PPR_INS));
 			THROW(CheckDupName(*pID, pPack->Rec.Name)); // @v8.3.6
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -578,7 +578,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			THROW(goods_obj.P_Tbl->RemoveAllQuotForQuotKind(id, 0));
-			THROW(ref->RemoveItem(Obj, id, 0));
+			THROW(P_Ref->RemoveItem(Obj, id, 0));
 			THROW(RemoveSync(id));
 			THROW(tra.Commit());
 		}
@@ -595,7 +595,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 
 int PPObjQuotKind::SearchSymb(PPID * pID, const char * pSymb)
 {
-	return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPQuotKind, Symb));
+	return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPQuotKind, Symb));
 }
 
 StrAssocArray * PPObjQuotKind::MakeStrAssocList(void * extraPtr)
@@ -702,15 +702,14 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 	}
 	else {
 		int    intrexpnd = pFilt->OpID ? IsIntrExpndOp(pFilt->OpID) : 0;
-		THROW(ref->LoadItems(Obj, rec_list));
+		THROW(P_Ref->LoadItems(Obj, rec_list));
 		if(pFilt->Flags & QuotKindFilt::fAddBase || intrexpnd) {
 			const PPID base_id = PPQUOTK_BASE;
 			if(!rec_list.lsearch(&base_id, 0, CMPF_LONG, offsetof(PPQuotKind, ID))) {
 				MEMSZERO(qk_rec);
 				qk_rec.ID = PPQUOTK_BASE;
-				// @v9.6.5 PPGetWord(PPWORD_BASEQUOT, 0, qk_rec.Name, sizeof(qk_rec.Name));
-				PPLoadString("basequote", temp_buf); // @v9.6.5
-				STRNSCPY(qk_rec.Name, temp_buf); // @v9.6.5
+				PPLoadString("basequote", temp_buf);
+				STRNSCPY(qk_rec.Name, temp_buf);
 				THROW_SL(rec_list.insert(&qk_rec));
 			}
 		}
@@ -819,7 +818,7 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 class QuotKindDialog : public TDialog {
 	DECL_DIALOG_DATA(PPQuotKindPacket);
 public:
-	explicit QuotKindDialog(PPObjReference * pRef) : TDialog(DLG_QUOTKIND), P_Ref(pRef)
+	explicit QuotKindDialog(PPObjReference * pObjRef) : TDialog(DLG_QUOTKIND), P_ObjRef(pObjRef)
 	{
 	}
 	DECL_DIALOG_SETDTS()
@@ -854,9 +853,9 @@ public:
 		uint   sel = 0;
 		getCtrlData(sel = CTL_QUOTKIND_NAME, Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
-		THROW(P_Ref->CheckDupName(Data.Rec.ID, Data.Rec.Name));
+		THROW(P_ObjRef->CheckDupName(Data.Rec.ID, Data.Rec.Name));
 		getCtrlData(sel = CTL_QUOTKIND_SYMB,  Data.Rec.Symb);
-		THROW(P_Ref->ref->CheckUniqueSymb(P_Ref->Obj, Data.Rec.ID, Data.Rec.Symb, offsetof(PPQuotKind, Symb)))
+		THROW(P_ObjRef->P_Ref->CheckUniqueSymb(P_ObjRef->Obj, Data.Rec.ID, Data.Rec.Symb, offsetof(PPQuotKind, Symb)))
 		getCtrlData(CTL_QUOTKIND_ID,    &Data.Rec.ID);
 		getCtrlData(CTLSEL_QUOTKIND_OP, &Data.Rec.OpID);
 		getCtrlData(CTLSEL_QUOTKIND_ACCSHEET, &Data.Rec.AccSheetID);
@@ -877,7 +876,7 @@ private:
 	int    GetTimePeriod(TDialog * pDlg);
 	int    EditRestr();
 
-	PPObjReference * P_Ref;
+	PPObjReference * P_ObjRef;
 };
 
 void QuotKindDialog::SetTimePeriod(TDialog * pDlg)
@@ -1043,8 +1042,8 @@ int PPObjQuotKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_OPRKIND) {
 		int    r;
-		for(PPID id = 0; ok == DBRPL_OK && (r = ref->EnumItems(Obj, &id)) > 0;)
-			if(reinterpret_cast<const PPQuotKind *>(&ref->data)->OpID == _id)
+		for(PPID id = 0; ok == DBRPL_OK && (r = P_Ref->EnumItems(Obj, &id)) > 0;)
+			if(reinterpret_cast<const PPQuotKind *>(&P_Ref->data)->OpID == _id)
 				ok = RetRefsExistsErr(Obj, id);
 		if(ok == DBRPL_OK && r == 0)
 			ok = DBRPL_ERROR;
@@ -1070,7 +1069,7 @@ int PPObjQuotKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 int PPObjQuotKind::SerializePacket(int dir, PPQuotKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
 }
@@ -1087,8 +1086,8 @@ int PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if((p_pack->Rec.ID && p_pack->Rec.ID < PP_FIRSTUSRREF) ||
-					ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPQuotKind, Name)) > 0 ||
-					ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPQuotKind, Symb)) > 0) {
+					P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPQuotKind, Name)) > 0 ||
+					P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPQuotKind, Symb)) > 0) {
 					PPQuotKind same_rec;
 					if(Search(same_id, &same_rec) > 0 && (same_rec.OpID == p_pack->Rec.OpID || p_pack->Rec.ID == PPQUOTK_BASE)) {
 						if(!(p->Flags & PPObjPack::fDispatcher)) {

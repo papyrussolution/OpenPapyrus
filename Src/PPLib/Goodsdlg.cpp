@@ -2187,7 +2187,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			if(flags & GF_DYNAMIC) {
 				PPScale item;
 				PPObjScale obj_scale;
-				for(SEnum en = obj_scale.ref->Enum(PPOBJ_SCALE, 0); en.Next(&item) > 0;) {
+				for(SEnum en = obj_scale.P_Ref->Enum(PPOBJ_SCALE, 0); en.Next(&item) > 0;) {
 					if(Data.Rec.ID == item.AltGoodsGrp) {
 						SetClusterData(CTL_GOODS_DYNAMIC, flags & ~GF_DYNAMIC);
 						break;
@@ -2788,18 +2788,23 @@ private:
 	int    Exchange()
 	{
 		int    ok = 1;
-		PPID   src_id, dest_id;
-		GoodsCtrlGroup::Rec rec;
-		THROW(getGroupData(ctlgroupGoods1, &rec));
-		src_id = rec.GoodsID;
-		THROW(getGroupData(ctlgroupGoods2, &rec));
-		dest_id = rec.GoodsID;
-		MEMSZERO(rec);
-		rec.GoodsID = dest_id;
-		setGroupData(ctlgroupGoods1, &rec);
-		MEMSZERO(rec);
-		rec.GoodsID = src_id;
-		setGroupData(ctlgroupGoods2, &rec);
+		PPID   src_id = 0;
+		PPID   dest_id = 0;
+		{
+			GoodsCtrlGroup::Rec rec;
+			THROW(getGroupData(ctlgroupGoods1, &rec));
+			src_id = rec.GoodsID;
+			THROW(getGroupData(ctlgroupGoods2, &rec));
+			dest_id = rec.GoodsID;
+		}
+		{
+			GoodsCtrlGroup::Rec rec(0, dest_id);
+			setGroupData(ctlgroupGoods1, &rec);
+		}
+		{
+			GoodsCtrlGroup::Rec rec(0, src_id);
+			setGroupData(ctlgroupGoods2, &rec);
+		}
 		CATCHZOKPPERR
 		return ok;
 	}

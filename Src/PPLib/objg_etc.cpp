@@ -82,7 +82,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_GDSTYP_SYMB, rec.Symb);
 		if(!CheckName(rec.ID, strip(rec.Name), 1))
 			PPErrorByDialog(dlg, CTL_GDSTYP_NAME);
-		else if(!ref->CheckUniqueSymb(Obj, rec.ID, strip(rec.Symb), offsetof(ReferenceTbl::Rec, Symb))) {
+		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, strip(rec.Symb), offsetof(ReferenceTbl::Rec, Symb))) {
 			PPErrorByDialog(dlg, CTL_GDSTYP_SYMB);
 		}
 		else {
@@ -545,7 +545,7 @@ int PPObjGoodsValRestr::Edit(PPID * pID, void * extraPtr)
 		dlg->getDTS(&pack);
 		if(!CheckName(*pID, strip(pack.Rec.Name), 0))
 			dlg->selectCtrl(CTL_GVR_NAME);
-		else if(*strip(pack.Rec.Symb) && !ref->CheckUniqueSymb(Obj, pack.Rec.ID, pack.Rec.Symb, offsetof(PPGoodsValRestr, Symb)))
+		else if(*strip(pack.Rec.Symb) && !P_Ref->CheckUniqueSymb(Obj, pack.Rec.ID, pack.Rec.Symb, offsetof(PPGoodsValRestr, Symb)))
 			PPErrorByDialog(dlg, CTL_GVR_SYMB);
 		else {
 			valid_data = 1;
@@ -580,14 +580,14 @@ int PPObjGoodsValRestr::PutPacket(PPID * pID, const PPGoodsValRestrPacket * pPac
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 					THROW(CheckRights(PPR_MOD));
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				}
 				else
 					ok = -1;
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 				acn = PPACN_OBJRMV;
 			}
 		}
@@ -596,7 +596,7 @@ int PPObjGoodsValRestr::PutPacket(PPID * pID, const PPGoodsValRestrPacket * pPac
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
 		if(ok > 0) {
 			{
@@ -607,11 +607,11 @@ int PPObjGoodsValRestr::PutPacket(PPID * pID, const PPGoodsValRestrPacket * pPac
 					PPPutExtStrData(2, text, pPack->UppBoundFormula);
 					p = text;
 				}
-				THROW(ref->PutPropVlrString(Obj, *pID, GVRPROP_TEXT, p));
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, GVRPROP_TEXT, p));
 			}
 			{
 				const SVector * p_array = (pPack && pPack->GetBillArRestrictList().getCount()) ? &pPack->GetBillArRestrictList() : 0;
-				THROW(ref->PutPropArray(Obj, *pID, GVRPROP_BAR, p_array, 0));
+				THROW(P_Ref->PutPropArray(Obj, *pID, GVRPROP_BAR, p_array, 0));
 			}
 		}
 		if(acn)
@@ -650,7 +650,7 @@ int PPObjGoodsValRestr::IsPacketEq(const PPGoodsValRestrPacket & rS1, const PPGo
 int PPObjGoodsValRestr::SerializePacket(int dir, PPGoodsValRestrPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->LowBoundFormula, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, pPack->UppBoundFormula, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->BillArRestr, rBuf));
@@ -749,7 +749,7 @@ int PPObjGoodsValRestr::Helper_ReadBarList(PPID id, PPGoodsValRestrPacket & rPac
 {
 	int    ok = -1;
 	ObjRestrictArray array;
-	if(ref->GetPropArray(Obj, id, GVRPROP_BAR, &array) > 0) {
+	if(P_Ref->GetPropArray(Obj, id, GVRPROP_BAR, &array) > 0) {
 		if(array.getCount()) {
 			for(uint i = 0; i < array.getCount(); i++) {
 				const ObjRestrictItem & r_item = array.at(i);
@@ -781,7 +781,7 @@ int PPObjGoodsValRestr::GetPacket(PPID id, PPGoodsValRestrPacket * pPack)
 		ok = Search(id, &pack.Rec);
 		if(ok > 0) {
 			SString text;
-			if(ref->GetPropVlrString(Obj, id, GVRPROP_TEXT, text) > 0) {
+			if(P_Ref->GetPropVlrString(Obj, id, GVRPROP_TEXT, text) > 0) {
 				PPGetExtStrData(1, text, pack.LowBoundFormula);
 				PPGetExtStrData(2, text, pack.UppBoundFormula);
 			}
@@ -918,7 +918,7 @@ void GoodsValRestrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 #define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
 	CPY_FLD(ScpShipmOpID);
 	CPY_FLD(ScpRetOpID);
-	CPY_FLD(ScpShipmLimitOpID); // @v9.2.3
+	CPY_FLD(ScpShipmLimitOpID);
 	CPY_FLD(ScpDurationDays);
 	CPY_FLD(ScpUpDev);
 	CPY_FLD(ScpDnDev);
@@ -975,7 +975,7 @@ int PPObjPallet::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_PALLET_SYMB, pack.Symb);
 		if(!CheckName(*pID, strip(pack.Name), 0))
 			dlg->selectCtrl(CTL_PALLET_NAME);
-		else if(*strip(pack.Symb) && !ref->CheckUniqueSymb(Obj, pack.ID, pack.Symb, offsetof(PPPallet, Symb)))
+		else if(*strip(pack.Symb) && !P_Ref->CheckUniqueSymb(Obj, pack.ID, pack.Symb, offsetof(PPPallet, Symb)))
 			PPErrorByDialog(dlg, CTL_PALLET_SYMB);
 		else {
 			dlg->getCtrlData(CTL_PALLET_ID, &pack.ID);
@@ -996,4 +996,3 @@ int PPObjPallet::Edit(PPID * pID, void * extraPtr)
 	delete dlg;
 	return ok;
 }
-

@@ -43,13 +43,13 @@ static void uint64_clear(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 	**(uint64_t**)pval = 0;
 }
 
-static int uint64_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
+static int uint64_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype,
     const ASN1_ITEM * it)
 {
 	uint64_t utmp;
 	int neg = 0;
 	/* this exists to bypass broken gcc optimization */
-	char * cp = (char*)*pval;
+	char * cp = (char *)*pval;
 
 	/* use memcpy, because we may not be uint64_t aligned */
 	memcpy(&utmp, cp, sizeof(utmp));
@@ -67,7 +67,7 @@ static int uint64_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
 	return i2c_uint64_int(cont, utmp, neg);
 }
 
-static int uint64_c2i(ASN1_VALUE ** pval, const unsigned char * cont, int len,
+static int uint64_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
     int utype, char * free_cont, const ASN1_ITEM * it)
 {
 	uint64_t utmp = 0;
@@ -77,7 +77,7 @@ static int uint64_c2i(ASN1_VALUE ** pval, const unsigned char * cont, int len,
 	if(*pval == NULL && !uint64_new(pval, it))
 		return 0;
 
-	cp = (char*)*pval;
+	cp = (char *)*pval;
 
 	/*
 	 * Strictly speaking, zero length is malformed.  However, long_c2i
@@ -138,13 +138,13 @@ static void uint32_clear(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 	**(uint32_t**)pval = 0;
 }
 
-static int uint32_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
+static int uint32_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype,
     const ASN1_ITEM * it)
 {
 	uint32_t utmp;
 	int neg = 0;
 	/* this exists to bypass broken gcc optimization */
-	char * cp = (char*)*pval;
+	char * cp = (char *)*pval;
 
 	/* use memcpy, because we may not be uint32_t aligned */
 	memcpy(&utmp, cp, sizeof(utmp));
@@ -169,7 +169,7 @@ static int uint32_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
 
 #define ABS_INT32_MIN ((uint32_t)INT32_MAX + 1)
 
-static int uint32_c2i(ASN1_VALUE ** pval, const unsigned char * cont, int len,
+static int uint32_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
     int utype, char * free_cont, const ASN1_ITEM * it)
 {
 	uint64_t utmp = 0;
@@ -180,7 +180,7 @@ static int uint32_c2i(ASN1_VALUE ** pval, const unsigned char * cont, int len,
 	if(*pval == NULL && !uint64_new(pval, it))
 		return 0;
 
-	cp = (char*)*pval;
+	cp = (char *)*pval;
 
 	/*
 	 * Strictly speaking, zero length is malformed.  However, long_c2i

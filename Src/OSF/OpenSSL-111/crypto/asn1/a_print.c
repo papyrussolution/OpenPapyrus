@@ -11,7 +11,7 @@
 //#include <ctype.h>
 //#include <openssl/asn1.h>
 
-int ASN1_PRINTABLE_type(const unsigned char * s, int len)
+int ASN1_PRINTABLE_type(const uchar * s, int len)
 {
 	int c;
 	int ia5 = 0;
@@ -38,7 +38,7 @@ int ASN1_PRINTABLE_type(const unsigned char * s, int len)
 int ASN1_UNIVERSALSTRING_to_string(ASN1_UNIVERSALSTRING * s)
 {
 	int i;
-	unsigned char * p;
+	uchar * p;
 
 	if(s->type != V_ASN1_UNIVERSALSTRING)
 		return 0;

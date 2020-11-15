@@ -34,7 +34,7 @@
  */
 #define MAX_CONF_VALUE_LENGTH       65536
 
-static int is_keytype(const CONF * conf, char c, unsigned short type);
+static int is_keytype(const CONF * conf, char c, ushort type);
 static char * eat_ws(CONF * conf, char * p);
 static void trim_ws(CONF * conf, char * start);
 static char * eat_alpha_numeric(CONF * conf, char * p);
@@ -669,23 +669,19 @@ err:
  * Returns next BIO to process and in case of a directory
  * also an opened directory context and the include path.
  */
-static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx,
-    char ** dirpath)
+static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx, char ** dirpath)
 {
 	struct stat st = { 0 };
 	BIO * next;
-
 	if(stat(include, &st) < 0) {
 		SYSerr(SYS_F_STAT, errno);
 		ERR_add_error_data(1, include);
 		/* missing include file is not fatal error */
 		return NULL;
 	}
-
 	if(S_ISDIR(st.st_mode)) {
 		if(*dirctx != NULL) {
-			CONFerr(CONF_F_PROCESS_INCLUDE,
-			    CONF_R_RECURSIVE_DIRECTORY_INCLUDE);
+			CONFerr(CONF_F_PROCESS_INCLUDE, CONF_R_RECURSIVE_DIRECTORY_INCLUDE);
 			ERR_add_error_data(1, include);
 			return NULL;
 		}
@@ -694,11 +690,9 @@ static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx,
 			*dirpath = include;
 		return next;
 	}
-
 	next = BIO_new_file(include, "r");
 	return next;
 }
-
 /*
  * Get next file from the directory path.
  * Returns BIO of the next file to read and updates dirctx.
@@ -706,20 +700,12 @@ static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx,
 static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 {
 	const char * filename;
-
 	while((filename = OPENSSL_DIR_read(dirctx, path)) != NULL) {
-		size_t namelen;
-
-		namelen = strlen(filename);
-
-		if((namelen > 5 && strcasecmp(filename + namelen - 5, ".conf") == 0)
-		    || (namelen > 4 && strcasecmp(filename + namelen - 4, ".cnf") == 0)) {
-			size_t newlen;
-			char * newpath;
+		size_t namelen = strlen(filename);
+		if((namelen > 5 && strcasecmp(filename + namelen - 5, ".conf") == 0) || (namelen > 4 && strcasecmp(filename + namelen - 4, ".cnf") == 0)) {
 			BIO * bio;
-
-			newlen = strlen(path) + namelen + 2;
-			newpath = static_cast<char *>(OPENSSL_zalloc(newlen));
+			size_t newlen = strlen(path) + namelen + 2;
+			char * newpath = static_cast<char *>(OPENSSL_zalloc(newlen));
 			if(newpath == NULL) {
 				CONFerr(CONF_F_GET_NEXT_FILE, ERR_R_MALLOC_FAILURE);
 				break;
@@ -731,9 +717,7 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 			 */
 			{
 				size_t pathlen = strlen(path);
-
-				if(path[pathlen - 1] == ']' || path[pathlen - 1] == '>'
-				    || path[pathlen - 1] == ':') {
+				if(path[pathlen - 1] == ']' || path[pathlen - 1] == '>' || path[pathlen - 1] == ':') {
 					/* Clear VMS directory syntax, just copy as is */
 					OPENSSL_strlcpy(newpath, path, newlen);
 				}
@@ -744,7 +728,6 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 				OPENSSL_strlcat(newpath, "/", newlen);
 			}
 			OPENSSL_strlcat(newpath, filename, newlen);
-
 			bio = BIO_new_file(newpath, "r");
 			OPENSSL_free(newpath);
 			/* Errors when opening files are non-fatal. */
@@ -759,10 +742,10 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 
 #endif
 
-static int is_keytype(const CONF * conf, char c, unsigned short type)
+static int is_keytype(const CONF * conf, char c, ushort type)
 {
-	const unsigned short * keytypes = (const unsigned short*)conf->meth_data;
-	unsigned char key = (uchar)c;
+	const ushort * keytypes = (const ushort*)conf->meth_data;
+	uchar key = (uchar)c;
 
 #ifdef CHARSET_EBCDIC
 # if CHAR_BIT > 8

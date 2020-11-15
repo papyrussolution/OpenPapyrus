@@ -893,12 +893,12 @@ int PPObjTag::Helper_CreateEnumObject(PPObjTagPacket & rPack)
 		*/
 		ReferenceTbl::Rec hdr_rec;
 		const long hdr_flags = (rPack.Rec.Flags & OTF_HIERENUM) ? PPCommObjEntry::fHierarchical : 0;
-		if(!rPack.Rec.TagEnumID || ref->GetItem(PPOBJ_DYNAMICOBJS, rPack.Rec.TagEnumID, &hdr_rec) < 0) {
-			THROW(ref->AllocDynamicObj(&rPack.Rec.TagEnumID, 0, hdr_flags, 0));
+		if(!rPack.Rec.TagEnumID || P_Ref->GetItem(PPOBJ_DYNAMICOBJS, rPack.Rec.TagEnumID, &hdr_rec) < 0) {
+			THROW(P_Ref->AllocDynamicObj(&rPack.Rec.TagEnumID, 0, hdr_flags, 0));
 		}
 		else if((hdr_rec.Val1 & PPCommObjEntry::fHierarchical) != (hdr_flags & PPCommObjEntry::fHierarchical)) {
 			SETFLAGBYSAMPLE(hdr_rec.Val1, PPCommObjEntry::fHierarchical, hdr_flags);
-			THROW(ref->UpdateItem(PPOBJ_DYNAMICOBJS, rPack.Rec.TagEnumID, &hdr_rec, 1, 0));
+			THROW(P_Ref->UpdateItem(PPOBJ_DYNAMICOBJS, rPack.Rec.TagEnumID, &hdr_rec, 1, 0));
 		}
 	}
 	else
@@ -917,15 +917,15 @@ int PPObjTag::PutPacket(PPID * pID, PPObjTagPacket * pPack, int use_ta)
 			PPObjTagPacket rmvp;
 			if(GetPacket(*pID, &rmvp) > 0) {
 				if(rmvp.Rec.TagDataType == OTTYP_ENUM && rmvp.Rec.TagEnumID) {
-					THROW(ref->FreeDynamicObj(rmvp.Rec.TagEnumID, 0));
+					THROW(P_Ref->FreeDynamicObj(rmvp.Rec.TagEnumID, 0));
 				}
-				THROW(ref->RemoveItem(PPOBJ_TAG, *pID, 0));
+				THROW(P_Ref->RemoveItem(PPOBJ_TAG, *pID, 0));
 			}
 		}
 		else {
 			THROW(Helper_CreateEnumObject(*pPack));
 			THROW(EditItem(PPOBJ_TAG, *pID, &pPack->Rec, 0));
-			*pID = pPack->Rec.ID = ref->data.ObjID;
+			*pID = pPack->Rec.ID = P_Ref->data.ObjID;
 		}
 		THROW(tra.Commit());
 	}
@@ -1163,7 +1163,7 @@ SArray * PPObjTag::CreateList(long current, long parent)
 	} item;
 	PPObjectTag tag;
 	long   lplus = 0x202b20L, lminus = 0x202d20L;
-	BExtQuery q(ref, 1);
+	BExtQuery q(P_Ref, 1);
 	SArray * p_ary = new SArray(sizeof(item));
 	THROW_MEM(p_ary);
 	parent = (Search(current, &tag) > 0) ? tag.TagGroupID : labs(parent);
@@ -1171,14 +1171,14 @@ SArray * PPObjTag::CreateList(long current, long parent)
 		parent = 0;
 	MEMSZERO(k);
 	k.ObjType = PPOBJ_TAG;
-	q.selectAll().where(ref->ObjType == PPOBJ_TAG && ref->Val2 == parent);
+	q.selectAll().where(P_Ref->ObjType == PPOBJ_TAG && P_Ref->Val2 == parent);
 	if(parent) {
 		item.id = 0;
 		STRNSCPY(item.text, reinterpret_cast<const char *>(&lminus));
 		THROW_SL(p_ary->insert(&item));
 	}
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
-		const PPObjectTag * p_rec = reinterpret_cast<const PPObjectTag *>(&ref->data);
+		const PPObjectTag * p_rec = reinterpret_cast<const PPObjectTag *>(&P_Ref->data);
 		if(!grpOnly || p_rec->TagDataType == 0) {
 			item.id = p_rec->ID;
 			if(!p_rec->TagDataType)
@@ -1229,7 +1229,7 @@ int PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTabl
 			for(i = 0; i < pFilt->TagsRestrict.getCount(); i++) {
 				StrAssocArray::Item item = pFilt->TagsRestrict.Get(i);
 				UintHashTable local_list;
-				if(ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+				if(P_Ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 					exclude_list.Add(local_list);
 				}
 			}
@@ -1241,7 +1241,7 @@ int PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTabl
 				TagFilt::GetRestriction(item.Txt, restrict);
 				UintHashTable local_list;
 				if(restrict.CmpNC(P_EmptyTagValRestrict) == 0) {
-					if(ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+					if(P_Ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 						for(ulong v = 0; local_list.Enum(&v);) {
 							ObjTagItem tag_item;
 							if(FetchTag((PPID)v, item.Id, &tag_item) > 0 && !tag_item.IsZeroVal())
@@ -1250,7 +1250,7 @@ int PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHashTabl
 					}
 				}
 				else {
-					if(ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
+					if(P_Ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 						if(restrict.CmpNC(P_ExistTagValRestrict) == 0) {
 							if(intersect_list_inited)
 								intersect_list.Intersect(local_list);
@@ -1291,7 +1291,7 @@ StrAssocArray * PPObjTag::MakeStrAssocList(void * extraPtr)
 	PPObjectTag rec;
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if(CheckForFilt(&ot_filt, rec)) {
 			PPID   parent_id = rec.TagGroupID;
 			if(ot_filt.Flags & ObjTagFilt::fObjTypeRoots && parent_id == 0) {
@@ -1314,7 +1314,7 @@ StrAssocArray * PPObjTag::MakeStrAssocList(void * extraPtr)
 int PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
 {
 	int    ok  = -1;
-	SEnum en = ref->Enum(Obj, 0);
+	SEnum en = P_Ref->Enum(Obj, 0);
 	PPObjectTag rec;
 	while(en.Next(&rec)) {
 		if((rec.Flags & mask) == mask) {
@@ -1342,7 +1342,7 @@ int PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & r
 				case OTTYP_ENUM:
 					{
 						PPID   _id = 0;
-						if(ref->SearchName(tag_rec.TagEnumID, &_id, rNormCrit, 0) > 0) {
+						if(P_Ref->SearchName(tag_rec.TagEnumID, &_id, rNormCrit, 0) > 0) {
 							rNormCrit.Z().Cat(_id);
 						}
 						else {
@@ -1564,7 +1564,7 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							ObjTagTbl::Key2 k2;
 							k2.TagID = tag_id;
 							k2.IntVal = _id;
-							if(ref->Ot.search(2, &k2, spEq)) {
+							if(P_Ref->Ot.search(2, &k2, spEq)) {
 								ok = RetRefsExistsErr(Obj, tag_id);
 							}
 						}
@@ -1621,13 +1621,13 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							ObjTagTbl::Key2 k2;
 							k2.TagID = tag_id;
 							k2.IntVal = _id;
-							while(ref->Ot.search(2, &k2, spEq)) {
-								if(!ref->Ot.rereadForUpdate(2, &k2)) {
+							while(P_Ref->Ot.search(2, &k2, spEq)) {
+								if(!P_Ref->Ot.rereadForUpdate(2, &k2)) {
 									ok = PPSetErrorDB();
 								}
 								else {
-									ref->Ot.data.IntVal = reinterpret_cast<long>(extraPtr);
-									if(!ref->Ot.updateRec()) {
+									P_Ref->Ot.data.IntVal = reinterpret_cast<long>(extraPtr);
+									if(!P_Ref->Ot.updateRec()) {
 										ok = PPSetErrorDB();
 									}
 								}

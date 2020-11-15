@@ -6,13 +6,11 @@
  * in the file LICENSE in the source distribution or at  https://www.openssl.org/source/license.html
  */
 
-#include <stdlib.h>
-
 #undef c2l
-#define c2l(c,l)        (l =((unsigned long)(*((c)++)))    , \
-                         l|=((unsigned long)(*((c)++)))<< 8L, \
-                         l|=((unsigned long)(*((c)++)))<<16L, \
-                         l|=((unsigned long)(*((c)++)))<<24L)
+#define c2l(c,l)        (l =((ulong)(*((c)++)))    , \
+                         l|=((ulong)(*((c)++)))<< 8L, \
+                         l|=((ulong)(*((c)++)))<<16L, \
+                         l|=((ulong)(*((c)++)))<<24L)
 
 /* NOTE - c is not incremented as per c2l */
 #undef c2ln
@@ -20,21 +18,21 @@
                         c+=n; \
                         l1=l2=0; \
                         switch (n) { \
-                        case 8: l2 =((unsigned long)(*(--(c))))<<24L; \
+                        case 8: l2 =((ulong)(*(--(c))))<<24L; \
                         /* fall thru */                               \
-                        case 7: l2|=((unsigned long)(*(--(c))))<<16L; \
+                        case 7: l2|=((ulong)(*(--(c))))<<16L; \
                         /* fall thru */                               \
-                        case 6: l2|=((unsigned long)(*(--(c))))<< 8L; \
+                        case 6: l2|=((ulong)(*(--(c))))<< 8L; \
                         /* fall thru */                               \
-                        case 5: l2|=((unsigned long)(*(--(c))));      \
+                        case 5: l2|=((ulong)(*(--(c))));      \
                         /* fall thru */                               \
-                        case 4: l1 =((unsigned long)(*(--(c))))<<24L; \
+                        case 4: l1 =((ulong)(*(--(c))))<<24L; \
                         /* fall thru */                               \
-                        case 3: l1|=((unsigned long)(*(--(c))))<<16L; \
+                        case 3: l1|=((ulong)(*(--(c))))<<16L; \
                         /* fall thru */                               \
-                        case 2: l1|=((unsigned long)(*(--(c))))<< 8L; \
+                        case 2: l1|=((ulong)(*(--(c))))<< 8L; \
                         /* fall thru */                               \
-                        case 1: l1|=((unsigned long)(*(--(c))));      \
+                        case 1: l1|=((ulong)(*(--(c))));      \
                                 } \
                         }
 
@@ -72,21 +70,21 @@
                         c+=n; \
                         l1=l2=0; \
                         switch (n) { \
-                        case 8: l2 =((unsigned long)(*(--(c))))    ; \
+                        case 8: l2 =((ulong)(*(--(c))))    ; \
                         /* fall thru */                              \
-                        case 7: l2|=((unsigned long)(*(--(c))))<< 8; \
+                        case 7: l2|=((ulong)(*(--(c))))<< 8; \
                         /* fall thru */                              \
-                        case 6: l2|=((unsigned long)(*(--(c))))<<16; \
+                        case 6: l2|=((ulong)(*(--(c))))<<16; \
                         /* fall thru */                              \
-                        case 5: l2|=((unsigned long)(*(--(c))))<<24; \
+                        case 5: l2|=((ulong)(*(--(c))))<<24; \
                         /* fall thru */                              \
-                        case 4: l1 =((unsigned long)(*(--(c))))    ; \
+                        case 4: l1 =((ulong)(*(--(c))))    ; \
                         /* fall thru */                              \
-                        case 3: l1|=((unsigned long)(*(--(c))))<< 8; \
+                        case 3: l1|=((ulong)(*(--(c))))<< 8; \
                         /* fall thru */                              \
-                        case 2: l1|=((unsigned long)(*(--(c))))<<16; \
+                        case 2: l1|=((ulong)(*(--(c))))<<16; \
                         /* fall thru */                              \
-                        case 1: l1|=((unsigned long)(*(--(c))))<<24; \
+                        case 1: l1|=((ulong)(*(--(c))))<<24; \
                                 } \
                         }
 
@@ -113,10 +111,10 @@
                         }
 
 #undef n2l
-#define n2l(c,l)        (l =((unsigned long)(*((c)++)))<<24L, \
-                         l|=((unsigned long)(*((c)++)))<<16L, \
-                         l|=((unsigned long)(*((c)++)))<< 8L, \
-                         l|=((unsigned long)(*((c)++))))
+#define n2l(c,l)        (l =((ulong)(*((c)++)))<<24L, \
+                         l|=((ulong)(*((c)++)))<<16L, \
+                         l|=((ulong)(*((c)++)))<< 8L, \
+                         l|=((ulong)(*((c)++))))
 
 #undef l2n
 #define l2n(l,c)        (*((c)++)=(uchar)(((l)>>24L)&0xff), \
@@ -132,14 +130,14 @@
 #define ROTATE_r32(a,n)     _rotr(a,n)
 #elif defined(__GNUC__) && __GNUC__>=2 && !defined(__STRICT_ANSI__) && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) && !defined(PEDANTIC)
 # if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
-#define ROTATE_l32(a,n)       ({ register unsigned int ret;   \
+#define ROTATE_l32(a,n)       ({ uint ret;   \
                                         asm ("roll %%cl,%0"     \
                                                 : "=r"(ret)     \
                                                 : "c"(n),"0"((uint)(a)) \
                                                 : "cc");        \
                                         ret;                    \
                                 })
-#define ROTATE_r32(a,n)       ({ register unsigned int ret;   \
+#define ROTATE_r32(a,n)       ({ uint ret;   \
                                         asm ("rorl %%cl,%0"     \
                                                 : "=r"(ret)     \
                                                 : "c"(n),"0"((uint)(a)) \

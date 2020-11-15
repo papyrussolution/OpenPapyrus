@@ -39,10 +39,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <memory.h>
-//#include "ma_string.h"
-//#include "strings_def.h"
-//#include <my_base.h> /* for EOVERFLOW on Windows */
 /**
    Appears to suffice to not call SAlloc::M() in most cases.
    @todo
@@ -88,7 +84,7 @@ static void dtoa_free(char *, char *, size_t);
    @return            number of written characters (excluding terminating '\0')
  */
 
-size_t ma_fcvt(double x, int precision, char * to, my_bool * error)
+size_t ma_fcvt(double x, int precision, char * to, bool * error)
 {
 	int decpt, sign, len, i;
 	char * res, * src, * end, * dst = to;
@@ -208,12 +204,12 @@ size_t ma_fcvt(double x, int precision, char * to, my_bool * error)
  */
 
 size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to,
-    my_bool * error)
+    bool * error)
 {
 	int decpt, sign, len, exp_len;
 	char * res, * src, * end, * dst = to, * dend = dst + width;
 	char buf[DTOA_BUFF_SIZE];
-	my_bool have_space, force_e_format;
+	bool have_space, force_e_format;
 	DBUG_ASSERT(width > 0 && to != NULL);
 
 	/* We want to remove '-' from equations early */
@@ -872,7 +868,7 @@ static Bigint * pow5mult(Bigint * b, int k, Stack_alloc * alloc)
 	Bigint * b1, * p5, * p51 = NULL;
 	int i;
 	static int p05[3] = { 5, 25, 125 };
-	my_bool overflow = FALSE;
+	bool overflow = FALSE;
 
 	if((i = k & 3))
 		b = multadd(b, p05[i-1], 0, alloc);

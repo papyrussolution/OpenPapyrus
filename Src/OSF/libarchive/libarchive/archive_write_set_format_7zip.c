@@ -27,31 +27,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include <stdlib.h>
-//#ifdef HAVE_BZLIB_H
-	//#include <bzlib.h>
-//#endif
-//#if HAVE_LZMA_H
-	//#include <lzma.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#include "archive.h"
-//#ifndef HAVE_ZLIB_H
-//#include "archive_crc32.h"
-//#endif
-//#include "archive_endian.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-//#include "archive_private.h"
-//#include "archive_rb.h"
-//#include "archive_string.h"
-//#include "archive_write_private.h"
 /*
  * Codec ID
  */

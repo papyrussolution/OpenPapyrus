@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include "bn_lcl.h"
 
-int BN_bn2mpi(const BIGNUM * a, unsigned char * d)
+int BN_bn2mpi(const BIGNUM * a, uchar * d)
 {
 	int bits;
 	int num = 0;
@@ -38,7 +38,7 @@ int BN_bn2mpi(const BIGNUM * a, unsigned char * d)
 	return (num + 4 + ext);
 }
 
-BIGNUM * BN_mpi2bn(const unsigned char * d, int n, BIGNUM * ain)
+BIGNUM * BN_mpi2bn(const uchar * d, int n, BIGNUM * ain)
 {
 	long len;
 	int neg = 0;

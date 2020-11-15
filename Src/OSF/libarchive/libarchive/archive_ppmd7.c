@@ -176,7 +176,7 @@ static void GlueFreeBlocks(CPpmd7 * p)
   #endif
 
 	CPpmd7_Node_Ref n = head;
-	unsigned i;
+	uint i;
 
 	p->GlueCount = 255;
 
@@ -234,7 +234,7 @@ static void GlueFreeBlocks(CPpmd7 * p)
 
 static void * AllocUnitsRare(CPpmd7 * p, unsigned indx)
 {
-	unsigned i;
+	uint i;
 	void * retVal;
 	if(p->GlueCount == 0) {
 		GlueFreeBlocks(p);
@@ -688,7 +688,7 @@ static void Ppmd7_Update2(CPpmd7 * p)
 
 static Bool Ppmd_RangeDec_Init(CPpmd7z_RangeDec * p)
 {
-	unsigned i;
+	uint i;
 	p->Low = p->Bottom = 0;
 	p->Range = 0xFFFFFFFF;
 	for(i = 0; i < 4; i++)
@@ -802,7 +802,7 @@ static int Ppmd7_DecodeSymbol(CPpmd7 * p, IPpmd7_RangeDec * rc)
 	size_t charMask[256 / sizeof(size_t)];
 	if(p->MinContext->NumStats != 1) {
 		CPpmd_State * s = Ppmd7_GetStats(p, p->MinContext);
-		unsigned i;
+		uint i;
 		UInt32 count, hiCnt;
 		if((count = rc->GetThreshold(rc, p->MinContext->SummFreq)) < (hiCnt = s->Freq)) {
 			Byte symbol;
@@ -960,7 +960,7 @@ static void RangeEnc_EncodeBit_1(CPpmd7z_RangeEnc * p, UInt32 size0)
 
 static void Ppmd7z_RangeEnc_FlushData(CPpmd7z_RangeEnc * p)
 {
-	unsigned i;
+	uint i;
 	for(i = 0; i < 5; i++)
 		RangeEnc_ShiftLow(p);
 }
@@ -973,7 +973,7 @@ static void Ppmd7_EncodeSymbol(CPpmd7 * p, CPpmd7z_RangeEnc * rc, int symbol)
 	if(p->MinContext->NumStats != 1) {
 		CPpmd_State * s = Ppmd7_GetStats(p, p->MinContext);
 		UInt32 sum;
-		unsigned i;
+		uint i;
 		if(s->Symbol == symbol) {
 			RangeEnc_Encode(rc, 0, s->Freq, p->MinContext->SummFreq);
 			p->FoundState = s;

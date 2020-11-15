@@ -60,14 +60,12 @@
 #   pragma message disable DOLLARID
 #  endif
 #endif
-
 #ifdef WIN_CONSOLE_BUG
-#include <windows.h>
-#  ifndef OPENSSL_SYS_WINCE
-#   include <wincon.h>
-#  endif
+//#include <windows.h>
+	#ifndef OPENSSL_SYS_WINCE
+		#include <wincon.h>
+	#endif
 #endif
-
 /*
  * There are 6 types of terminal interface supported, TERMIO, TERMIOS, VMS,
  * MSDOS, WIN32 Console and SGTTY.
@@ -166,7 +164,7 @@ static long tty_orig[3], tty_new[3]; /* XXX Is there any guarantee that this
                                       * will always suffice for the actual
                                       * structures? */
 static long status;
-static unsigned short channel = 0;
+static ushort channel = 0;
 # elif defined(_WIN32) && !defined(_WIN32_WCE)
 static DWORD tty_orig, tty_new;
 #else
@@ -344,7 +342,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 		goto error;
 	if(ferror(tty_in))
 		goto error;
-	if((p = (char*)strchr(result, '\n')) != NULL) {
+	if((p = (char *)strchr(result, '\n')) != NULL) {
 		if(strip_nl)
 			*p = '\0';
 	}

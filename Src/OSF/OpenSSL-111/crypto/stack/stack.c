@@ -343,7 +343,7 @@ void OPENSSL_sk_pop_free(OPENSSL_STACK * st, OPENSSL_sk_freefunc func)
 	if(st) {
 		for(int i = 0; i < st->num; i++)
 			if(st->data[i] != NULL)
-				func((char*)st->data[i]);
+				func((char *)st->data[i]);
 		OPENSSL_sk_free(st);
 	}
 }

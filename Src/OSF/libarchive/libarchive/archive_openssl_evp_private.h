@@ -29,8 +29,6 @@
 #include <openssl/opensslv.h>
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-	//#include <stdlib.h> /* malloc, free */
-	//#include <string.h> /* memset */
 	static inline EVP_MD_CTX *EVP_MD_CTX_new(void)
 	{
 		EVP_MD_CTX *ctx = (EVP_MD_CTX *)SAlloc::C(1, sizeof(EVP_MD_CTX));

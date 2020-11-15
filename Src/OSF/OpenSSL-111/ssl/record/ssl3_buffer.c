@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include "record_locl.h"
 
-void SSL3_BUFFER_set_data(SSL3_BUFFER * b, const unsigned char * d, size_t n)
+void SSL3_BUFFER_set_data(SSL3_BUFFER * b, const uchar * d, size_t n)
 {
 	if(d != NULL)
 		memcpy(b->buf, d, n);
@@ -36,7 +36,7 @@ void SSL3_BUFFER_release(SSL3_BUFFER * b)
 
 int ssl3_setup_read_buffer(SSL * s)
 {
-	unsigned char * p;
+	uchar * p;
 	size_t len, align = 0, headerlen;
 	SSL3_BUFFER * b;
 
@@ -80,7 +80,7 @@ int ssl3_setup_read_buffer(SSL * s)
 
 int ssl3_setup_write_buffer(SSL * s, size_t numwpipes, size_t len)
 {
-	unsigned char * p;
+	uchar * p;
 	size_t align = 0, headerlen;
 	SSL3_BUFFER * wb;
 	size_t currpipe;

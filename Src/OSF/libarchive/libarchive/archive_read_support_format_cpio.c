@@ -28,23 +28,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_cpio.c 201163 2009-12-29 05:50:34Z kientzle $");
 
-#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-#endif
-/* #include <stdint.h> */ /* See archive_platform.h */
-#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-//#include <string.h>
-#endif
-
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_private.h"
-//#include "archive_read_private.h"
-
 #define bin_magic_offset 0
 #define bin_magic_size 2
 #define bin_dev_offset 2

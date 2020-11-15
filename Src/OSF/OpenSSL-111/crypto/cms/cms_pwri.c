@@ -19,7 +19,7 @@
 //#include <asn1_int.h>
 
 int CMS_RecipientInfo_set0_password(CMS_RecipientInfo * ri,
-    unsigned char * pass, ossl_ssize_t passlen)
+    uchar * pass, ossl_ssize_t passlen)
 {
 	CMS_PasswordRecipientInfo * pwri;
 	if(ri->type != CMS_RECIPINFO_PASS) {
@@ -30,7 +30,7 @@ int CMS_RecipientInfo_set0_password(CMS_RecipientInfo * ri,
 	pwri = ri->d.pwri;
 	pwri->pass = pass;
 	if(pass && passlen < 0)
-		passlen = strlen((char*)pass);
+		passlen = strlen((char *)pass);
 	pwri->passlen = passlen;
 	return 1;
 }
@@ -38,7 +38,7 @@ int CMS_RecipientInfo_set0_password(CMS_RecipientInfo * ri,
 CMS_RecipientInfo * CMS_add0_recipient_password(CMS_ContentInfo * cms,
     int iter, int wrap_nid,
     int pbe_nid,
-    unsigned char * pass,
+    uchar * pass,
     ossl_ssize_t passlen,
     const EVP_CIPHER * kekciph)
 {
@@ -47,7 +47,7 @@ CMS_RecipientInfo * CMS_add0_recipient_password(CMS_ContentInfo * cms,
 	CMS_PasswordRecipientInfo * pwri;
 	EVP_CIPHER_CTX * ctx = NULL;
 	X509_ALGOR * encalg = NULL;
-	unsigned char iv[EVP_MAX_IV_LENGTH];
+	uchar iv[EVP_MAX_IV_LENGTH];
 	int ivlen;
 
 	env = cms_get0_enveloped(cms);
@@ -172,12 +172,12 @@ err:
  * some point this should go into EVP.
  */
 
-static int kek_unwrap_key(unsigned char * out, size_t * outlen,
-    const unsigned char * in, size_t inlen,
+static int kek_unwrap_key(uchar * out, size_t * outlen,
+    const uchar * in, size_t inlen,
     EVP_CIPHER_CTX * ctx)
 {
 	size_t blocklen = EVP_CIPHER_CTX_block_size(ctx);
-	unsigned char * tmp;
+	uchar * tmp;
 	int outl, rv = 0;
 	if(inlen < 2 * blocklen) {
 		/* too small */
@@ -226,7 +226,7 @@ err:
 	return rv;
 }
 
-static int kek_wrap_key(unsigned char * out, size_t * outlen, const unsigned char * in, size_t inlen, EVP_CIPHER_CTX * ctx)
+static int kek_wrap_key(uchar * out, size_t * outlen, const uchar * in, size_t inlen, EVP_CIPHER_CTX * ctx)
 {
 	size_t blocklen = EVP_CIPHER_CTX_block_size(ctx);
 	size_t olen;
@@ -271,7 +271,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri, 
 	X509_ALGOR * algtmp, * kekalg = NULL;
 	EVP_CIPHER_CTX * kekctx = NULL;
 	const EVP_CIPHER * kekcipher;
-	unsigned char * key = NULL;
+	uchar * key = NULL;
 	size_t keylen;
 	CMS_EncryptedContentInfo * ec = cms->d.envelopedData->encryptedContentInfo;
 	CMS_PasswordRecipientInfo * pwri = ri->d.pwri;
@@ -318,7 +318,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri, 
 	/* Finish password based key derivation to setup key in "ctx" */
 
 	if(EVP_PBE_CipherInit(algtmp->algorithm,
-	    (char*)pwri->pass, pwri->passlen,
+	    (char *)pwri->pass, pwri->passlen,
 	    algtmp->parameter, kekctx, en_de) < 0) {
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_PWRI_CRYPT, ERR_R_EVP_LIB);
 		goto err;

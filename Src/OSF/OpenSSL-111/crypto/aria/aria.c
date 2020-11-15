@@ -38,10 +38,10 @@
 
 #define PUT_U32_BE(DEST, IDX, VAL)                              \
 	do {                                                        \
-		((uint8_t*)(DEST))[IDX * 4    ] = GET_U8_BE(VAL, 0);   \
-		((uint8_t*)(DEST))[IDX * 4 + 1] = GET_U8_BE(VAL, 1);   \
-		((uint8_t*)(DEST))[IDX * 4 + 2] = GET_U8_BE(VAL, 2);   \
-		((uint8_t*)(DEST))[IDX * 4 + 3] = GET_U8_BE(VAL, 3);   \
+		((uint8_t *)(DEST))[IDX * 4    ] = GET_U8_BE(VAL, 0);   \
+		((uint8_t *)(DEST))[IDX * 4 + 1] = GET_U8_BE(VAL, 1);   \
+		((uint8_t *)(DEST))[IDX * 4 + 2] = GET_U8_BE(VAL, 2);   \
+		((uint8_t *)(DEST))[IDX * 4 + 3] = GET_U8_BE(VAL, 3);   \
 	} while(0)
 
 #define MAKE_U32(V0, V1, V2, V3) (      \
@@ -461,36 +461,28 @@ static const uint32_t X2[256] = {
 		(Y) = (TMP2) ^ rotr32((TMP) ^ (TMP2), 16);  \
 	} while(0)
 
-void aria_encrypt(const unsigned char * in, unsigned char * out,
-    const ARIA_KEY * key)
+void aria_encrypt(const uchar * in, uchar * out, const ARIA_KEY * key)
 {
-	register uint32_t reg0, reg1, reg2, reg3;
+	uint32_t reg0, reg1, reg2, reg3;
 	int Nr;
 	const ARIA_u128 * rk;
-
 	if(in == NULL || out == NULL || key == NULL) {
 		return;
 	}
-
 	rk = key->rd_key;
 	Nr = key->rounds;
-
 	if(Nr != 12 && Nr != 14 && Nr != 16) {
 		return;
 	}
-
 	reg0 = GET_U32_BE(in, 0);
 	reg1 = GET_U32_BE(in, 1);
 	reg2 = GET_U32_BE(in, 2);
 	reg3 = GET_U32_BE(in, 3);
-
 	ARIA_ADD_ROUND_KEY(rk, reg0, reg1, reg2, reg3);
 	rk++;
-
 	ARIA_SUBST_DIFF_ODD(reg0, reg1, reg2, reg3);
 	ARIA_ADD_ROUND_KEY(rk, reg0, reg1, reg2, reg3);
 	rk++;
-
 	while(Nr -= 2) {
 		ARIA_SUBST_DIFF_EVEN(reg0, reg1, reg2, reg3);
 		ARIA_ADD_ROUND_KEY(rk, reg0, reg1, reg2, reg3);
@@ -501,11 +493,7 @@ void aria_encrypt(const unsigned char * in, unsigned char * out,
 		rk++;
 	}
 
-	reg0 = rk->u[0] ^ MAKE_U32(
-		(uint8_t)(X1[GET_U8_BE(reg0, 0)]     ),
-		(uint8_t)(X2[GET_U8_BE(reg0, 1)] >> 8),
-		(uint8_t)(S1[GET_U8_BE(reg0, 2)]     ),
-		(uint8_t)(S2[GET_U8_BE(reg0, 3)]     ));
+	reg0 = rk->u[0] ^ MAKE_U32((uint8_t)(X1[GET_U8_BE(reg0, 0)]), (uint8_t)(X2[GET_U8_BE(reg0, 1)] >> 8), (uint8_t)(S1[GET_U8_BE(reg0, 2)]), (uint8_t)(S2[GET_U8_BE(reg0, 3)]));
 	reg1 = rk->u[1] ^ MAKE_U32(
 		(uint8_t)(X1[GET_U8_BE(reg1, 0)]     ),
 		(uint8_t)(X2[GET_U8_BE(reg1, 1)] >> 8),
@@ -528,9 +516,9 @@ void aria_encrypt(const unsigned char * in, unsigned char * out,
 	PUT_U32_BE(out, 3, reg3);
 }
 
-int aria_set_encrypt_key(const unsigned char * userKey, const int bits, ARIA_KEY * key)
+int aria_set_encrypt_key(const uchar * userKey, const int bits, ARIA_KEY * key)
 {
-	register uint32_t reg0, reg1, reg2, reg3;
+	uint32_t reg0, reg1, reg2, reg3;
 	uint32_t w0[4], w1[4], w2[4], w3[4];
 	const uint32_t * ck;
 	ARIA_u128 * rk;
@@ -657,12 +645,12 @@ int aria_set_encrypt_key(const unsigned char * userKey, const int bits, ARIA_KEY
 	return 0;
 }
 
-int aria_set_decrypt_key(const unsigned char * userKey, const int bits, ARIA_KEY * key)
+int aria_set_decrypt_key(const uchar * userKey, const int bits, ARIA_KEY * key)
 {
 	ARIA_u128 * rk_head;
 	ARIA_u128 * rk_tail;
-	register uint32_t w1, w2;
-	register uint32_t reg0, reg1, reg2, reg3;
+	uint32_t w1, w2;
+	uint32_t reg0, reg1, reg2, reg3;
 	uint32_t s0, s1, s2, s3;
 	const int r = aria_set_encrypt_key(userKey, bits, key);
 	if(r != 0) {
@@ -734,7 +722,7 @@ int aria_set_decrypt_key(const unsigned char * userKey, const int bits, ARIA_KEY
 
 #else
 
-static const unsigned char sb1[256] = {
+static const uchar sb1[256] = {
 	0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
 	0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
 	0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0,
@@ -769,7 +757,7 @@ static const unsigned char sb1[256] = {
 	0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
 };
 
-static const unsigned char sb2[256] = {
+static const uchar sb2[256] = {
 	0xe2, 0x4e, 0x54, 0xfc, 0x94, 0xc2, 0x4a, 0xcc,
 	0x62, 0x0d, 0x6a, 0x46, 0x3c, 0x4d, 0x8b, 0xd1,
 	0x5e, 0xfa, 0x64, 0xcb, 0xb4, 0x97, 0xbe, 0x2b,
@@ -804,7 +792,7 @@ static const unsigned char sb2[256] = {
 	0x89, 0xde, 0x71, 0x1a, 0xaf, 0xba, 0xb5, 0x81
 };
 
-static const unsigned char sb3[256] = {
+static const uchar sb3[256] = {
 	0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38,
 	0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
 	0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87,
@@ -839,7 +827,7 @@ static const unsigned char sb3[256] = {
 	0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 };
 
-static const unsigned char sb4[256] = {
+static const uchar sb4[256] = {
 	0x30, 0x68, 0x99, 0x1b, 0x87, 0xb9, 0x21, 0x78,
 	0x50, 0x39, 0xdb, 0xe1, 0x72, 0x09, 0x62, 0x3c,
 	0x3e, 0x7e, 0x5e, 0x8e, 0xf1, 0xa0, 0xcc, 0xa3,
@@ -905,11 +893,11 @@ static void xor128(ARIA_c128 o, const ARIA_c128 x, const ARIA_u128 * y)
  * Generalised circular rotate right and exclusive or function.
  * It is safe for the output to overlap either input.
  */
-static ossl_inline void rotnr(unsigned int n, ARIA_u128 * o,
+static ossl_inline void rotnr(uint n, ARIA_u128 * o,
     const ARIA_u128 * xor, const ARIA_u128 * z)
 {
-	const unsigned int bytes = n / 8, bits = n % 8;
-	unsigned int i;
+	const uint bytes = n / 8, bits = n % 8;
+	uint i;
 	ARIA_u128 t;
 
 	for(i = 0; i < ARIA_BLOCK_SIZE; i++)
@@ -971,7 +959,7 @@ static void rot19l(ARIA_u128 * o, const ARIA_u128 * xor, const ARIA_u128 * z)
  */
 static void sl1(ARIA_u128 * o, const ARIA_u128 * x, const ARIA_u128 * y)
 {
-	unsigned int i;
+	uint i;
 	for(i = 0; i < ARIA_BLOCK_SIZE; i += 4) {
 		o->c[i    ] = sb1[x->c[i    ] ^ y->c[i    ]];
 		o->c[i + 1] = sb2[x->c[i + 1] ^ y->c[i + 1]];
@@ -986,7 +974,7 @@ static void sl1(ARIA_u128 * o, const ARIA_u128 * x, const ARIA_u128 * y)
  */
 static void sl2(ARIA_c128 o, const ARIA_u128 * x, const ARIA_u128 * y)
 {
-	unsigned int i;
+	uint i;
 	for(i = 0; i < ARIA_BLOCK_SIZE; i += 4) {
 		o[i    ] = sb3[x->c[i    ] ^ y->c[i    ]];
 		o[i + 1] = sb4[x->c[i + 1] ^ y->c[i + 1]];
@@ -1064,10 +1052,10 @@ static ossl_inline void FE(ARIA_u128 * o, const ARIA_u128 * d, const ARIA_u128 *
  * Encrypt or decrypt a single block
  * in and out can overlap
  */
-static void do_encrypt(unsigned char * o, const unsigned char * pin, unsigned int rounds, const ARIA_u128 * keys)
+static void do_encrypt(uchar * o, const uchar * pin, uint rounds, const ARIA_u128 * keys)
 {
 	ARIA_u128 p;
-	unsigned int i;
+	uint i;
 	memcpy(&p, pin, sizeof(p));
 	for(i = 0; i < rounds - 2; i += 2) {
 		FO(&p, &p, &keys[i]);
@@ -1082,7 +1070,7 @@ static void do_encrypt(unsigned char * o, const unsigned char * pin, unsigned in
  * Encrypt a single block
  * in and out can overlap
  */
-void aria_encrypt(const unsigned char * in, unsigned char * out, const ARIA_KEY * key)
+void aria_encrypt(const uchar * in, uchar * out, const ARIA_KEY * key)
 {
 	assert(in != NULL && out != NULL && key != NULL);
 	do_encrypt(out, in, key->rounds, key->rd_key);
@@ -1092,7 +1080,7 @@ void aria_encrypt(const unsigned char * in, unsigned char * out, const ARIA_KEY 
  * We short circuit execution of the last two
  * or four rotations based on the key size.
  */
-int aria_set_encrypt_key(const unsigned char * userKey, const int bits,
+int aria_set_encrypt_key(const uchar * userKey, const int bits,
     ARIA_KEY * key)
 {
 	const ARIA_u128 * ck1, * ck2, * ck3;
@@ -1165,11 +1153,11 @@ int aria_set_encrypt_key(const unsigned char * userKey, const int bits,
 /*
  * Expand the cipher key into the decryption key schedule.
  */
-int aria_set_decrypt_key(const unsigned char * userKey, const int bits, ARIA_KEY * key)
+int aria_set_decrypt_key(const uchar * userKey, const int bits, ARIA_KEY * key)
 {
 	ARIA_KEY ek;
 	const int r = aria_set_encrypt_key(userKey, bits, &ek);
-	unsigned int i, rounds = ek.rounds;
+	uint i, rounds = ek.rounds;
 	if(r == 0) {
 		key->rounds = rounds;
 		memcpy(&key->rd_key[0], &ek.rd_key[rounds], sizeof(key->rd_key[0]));

@@ -44,7 +44,7 @@ int openssl_config_int(const OPENSSL_INIT_SETTINGS * settings)
 	int ret = 0;
 	const char * filename;
 	const char * appname;
-	unsigned long flags;
+	ulong flags;
 
 	if(openssl_configured)
 		return 1;

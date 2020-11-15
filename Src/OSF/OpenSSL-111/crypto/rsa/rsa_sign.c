@@ -27,8 +27,8 @@
  * containing the result and |*out_len| to its length. The caller must free
  * |*out| with |OPENSSL_free|. Otherwise, it returns zero.
  */
-static int encode_pkcs1(unsigned char ** out, int * out_len, int type,
-    const unsigned char * m, unsigned int m_len)
+static int encode_pkcs1(uchar ** out, int * out_len, int type,
+    const uchar * m, uint m_len)
 {
 	X509_SIG sig;
 	X509_ALGOR algor;
@@ -65,12 +65,12 @@ static int encode_pkcs1(unsigned char ** out, int * out_len, int type,
 	return 1;
 }
 
-int RSA_sign(int type, const unsigned char * m, unsigned int m_len,
-    unsigned char * sigret, unsigned int * siglen, RSA * rsa)
+int RSA_sign(int type, const uchar * m, uint m_len,
+    uchar * sigret, uint * siglen, RSA * rsa)
 {
 	int encrypt_len, encoded_len = 0, ret = 0;
-	unsigned char * tmps = NULL;
-	const unsigned char * encoded = NULL;
+	uchar * tmps = NULL;
+	const uchar * encoded = NULL;
 
 	if(rsa->meth->rsa_sign) {
 		return rsa->meth->rsa_sign(type, m, m_len, sigret, siglen, rsa);
@@ -121,12 +121,12 @@ err:
  * algorithm to use. It returns one on successful verification and zero
  * otherwise.
  */
-int int_rsa_verify(int type, const unsigned char * m, unsigned int m_len,
-    unsigned char * rm, size_t * prm_len,
-    const unsigned char * sigbuf, size_t siglen, RSA * rsa)
+int int_rsa_verify(int type, const uchar * m, uint m_len,
+    uchar * rm, size_t * prm_len,
+    const uchar * sigbuf, size_t siglen, RSA * rsa)
 {
 	int decrypt_len, ret = 0, encoded_len = 0;
-	unsigned char * decrypt_buf = NULL, * encoded = NULL;
+	uchar * decrypt_buf = NULL, * encoded = NULL;
 
 	if(siglen != (size_t)RSA_size(rsa)) {
 		RSAerr(RSA_F_INT_RSA_VERIFY, RSA_R_WRONG_SIGNATURE_LENGTH);
@@ -240,8 +240,8 @@ err:
 	return ret;
 }
 
-int RSA_verify(int type, const unsigned char * m, unsigned int m_len,
-    const unsigned char * sigbuf, unsigned int siglen, RSA * rsa)
+int RSA_verify(int type, const uchar * m, uint m_len,
+    const uchar * sigbuf, uint siglen, RSA * rsa)
 {
 	if(rsa->meth->rsa_verify) {
 		return rsa->meth->rsa_verify(type, m, m_len, sigbuf, siglen, rsa);

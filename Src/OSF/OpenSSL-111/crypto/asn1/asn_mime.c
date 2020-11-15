@@ -868,7 +868,7 @@ static MIME_HEADER * mime_hdr_find(STACK_OF(MIME_HEADER) * hdrs, const char * na
 	MIME_HEADER htmp;
 	int idx;
 
-	htmp.name = (char*)name;
+	htmp.name = (char *)name;
 	htmp.value = NULL;
 	htmp.params = NULL;
 
@@ -881,7 +881,7 @@ static MIME_PARAM * mime_param_find(MIME_HEADER * hdr, const char * name)
 	MIME_PARAM param;
 	int idx;
 
-	param.param_name = (char*)name;
+	param.param_name = (char *)name;
 	param.param_value = NULL;
 	idx = sk_MIME_PARAM_find(hdr->params, &param);
 	return sk_MIME_PARAM_value(hdr->params, idx);

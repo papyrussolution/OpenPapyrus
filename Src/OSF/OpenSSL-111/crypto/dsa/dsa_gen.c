@@ -23,8 +23,8 @@
 #include "dsa_locl.h"
 
 int DSA_generate_parameters_ex(DSA * ret, int bits,
-    const unsigned char * seed_in, int seed_len,
-    int * counter_ret, unsigned long * h_ret,
+    const uchar * seed_in, int seed_len,
+    int * counter_ret, ulong * h_ret,
     BN_GENCB * cb)
 {
 	if(ret->meth->dsa_paramgen)
@@ -41,14 +41,14 @@ int DSA_generate_parameters_ex(DSA * ret, int bits,
 }
 
 int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
-    const EVP_MD * evpmd, const unsigned char * seed_in,
-    size_t seed_len, unsigned char * seed_out,
-    int * counter_ret, unsigned long * h_ret, BN_GENCB * cb)
+    const EVP_MD * evpmd, const uchar * seed_in,
+    size_t seed_len, uchar * seed_out,
+    int * counter_ret, ulong * h_ret, BN_GENCB * cb)
 {
 	int ok = 0;
-	unsigned char seed[SHA256_DIGEST_LENGTH];
-	unsigned char md[SHA256_DIGEST_LENGTH];
-	unsigned char buf[SHA256_DIGEST_LENGTH], buf2[SHA256_DIGEST_LENGTH];
+	uchar seed[SHA256_DIGEST_LENGTH];
+	uchar md[SHA256_DIGEST_LENGTH];
+	uchar buf[SHA256_DIGEST_LENGTH], buf2[SHA256_DIGEST_LENGTH];
 	BIGNUM * r0, * W, * X, * c, * test;
 	BIGNUM * g = NULL, * q = NULL, * p = NULL;
 	BN_MONT_CTX * mont = NULL;
@@ -56,7 +56,7 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 	int counter = 0;
 	int r = 0;
 	BN_CTX * ctx = NULL;
-	unsigned int h = 2;
+	uint h = 2;
 
 	if(qsize != SHA_DIGEST_LENGTH && qsize != SHA224_DIGEST_LENGTH &&
 	    qsize != SHA256_DIGEST_LENGTH)
@@ -305,14 +305,14 @@ err:
  */
 
 int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
-    const EVP_MD * evpmd, const unsigned char * seed_in,
-    size_t seed_len, int idx, unsigned char * seed_out,
-    int * counter_ret, unsigned long * h_ret,
+    const EVP_MD * evpmd, const uchar * seed_in,
+    size_t seed_len, int idx, uchar * seed_out,
+    int * counter_ret, ulong * h_ret,
     BN_GENCB * cb)
 {
 	int ok = -1;
-	unsigned char * seed = NULL, * seed_tmp = NULL;
-	unsigned char md[EVP_MAX_MD_SIZE];
+	uchar * seed = NULL, * seed_tmp = NULL;
+	uchar md[EVP_MAX_MD_SIZE];
 	int mdsize;
 	BIGNUM * r0, * W, * X, * c, * test;
 	BIGNUM * g = NULL, * q = NULL, * p = NULL;
@@ -322,7 +322,7 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 	int r = 0;
 	BN_CTX * ctx = NULL;
 	EVP_MD_CTX * mctx = EVP_MD_CTX_new();
-	unsigned int h = 2;
+	uint h = 2;
 
 	if(mctx == NULL)
 		goto err;
@@ -397,7 +397,7 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 		goto err;
 	for(;;) {
 		for(;;) {       /* find q */
-			unsigned char * pmd;
+			uchar * pmd;
 			/* step 1 */
 			if(!BN_GENCB_call(cb, 0, m++))
 				goto err;
@@ -548,7 +548,7 @@ g_only:
 		goto err;
 
 	for(;;) {
-		static const unsigned char ggen[4] = { 0x67, 0x67, 0x65, 0x6e };
+		static const uchar ggen[4] = { 0x67, 0x67, 0x65, 0x6e };
 		if(idx >= 0) {
 			md[0] = idx & 0xff;
 			md[1] = (h >> 8) & 0xff;

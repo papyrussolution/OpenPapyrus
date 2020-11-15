@@ -35,13 +35,7 @@
 	#define _WIN32_WINNT 0x0601
 #endif
 #include "schannel_certs.h"
-//#include <malloc.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <winsock2.h>
-//#include <ws2tcpip.h>
 #include <winhttp.h>
-//#include <assert.h>
 #include "win32_errmsg.h"
 /*
    Return GetLastError(), or, if this unexpectedly gives success,

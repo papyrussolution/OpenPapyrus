@@ -224,8 +224,8 @@ void curve448_precomputed_scalarmul(curve448_point_t out,
     const curve448_precomputed_s * table,
     const curve448_scalar_t scalar)
 {
-	unsigned int i, j, k;
-	const unsigned int n = COMBS_N, t = COMBS_T, s = COMBS_S;
+	uint i, j, k;
+	const uint n = COMBS_N, t = COMBS_T, s = COMBS_S;
 	niels_t ni;
 	curve448_scalar_t scalar1x;
 
@@ -241,7 +241,7 @@ void curve448_precomputed_scalarmul(curve448_point_t out,
 			mask_t invert;
 
 			for(k = 0; k < t; k++) {
-				unsigned int bit = (i - 1) + s * (k + j * t);
+				uint bit = (i - 1) + s * (k + j * t);
 
 				if(bit < C448_SCALAR_BITS)
 					tab |=
@@ -470,7 +470,7 @@ void x448_derive_public_key(uint8_t out[X_PUBLIC_BYTES],
 	uint8_t scalar2[X_PRIVATE_BYTES];
 	curve448_scalar_t the_scalar;
 	curve448_point_t p;
-	unsigned int i;
+	uint i;
 
 	memcpy(scalar2, scalar, sizeof(scalar2));
 	scalar2[0] &= -(uint8_t)COFACTOR;
@@ -538,15 +538,15 @@ static uint32_t numtrailingzeros(uint32_t i)
 static int recode_wnaf(struct smvt_control * control,
     /* [nbits/(table_bits + 1) + 3] */
     const curve448_scalar_t scalar,
-    unsigned int table_bits)
+    uint table_bits)
 {
-	unsigned int table_size = C448_SCALAR_BITS / (table_bits + 1) + 3;
+	uint table_size = C448_SCALAR_BITS / (table_bits + 1) + 3;
 	int position = table_size - 1; /* at the end */
 	uint64_t current = scalar->limb[0] & 0xFFFF;
 	uint32_t mask = (1 << (table_bits + 1)) - 1;
-	unsigned int w;
-	const unsigned int B_OVER_16 = sizeof(scalar->limb[0]) / 2;
-	unsigned int n, i;
+	uint w;
+	const uint B_OVER_16 = sizeof(scalar->limb[0]) / 2;
+	uint n, i;
 
 	/* place the end marker */
 	control[position].power = -1;
@@ -593,7 +593,7 @@ static int recode_wnaf(struct smvt_control * control,
 
 static void prepare_wnaf_table(pniels_t * output,
     const curve448_point_t working,
-    unsigned int tbits)
+    uint tbits)
 {
 	curve448_point_t tmp;
 	int i;

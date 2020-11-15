@@ -109,7 +109,7 @@ static int md_write(BIO * b, const char * in, int inl)
 
 	if(BIO_get_init(b)) {
 		if(ret > 0) {
-			if(!EVP_DigestUpdate(ctx, (const unsigned char*)in,
+			if(!EVP_DigestUpdate(ctx, (const uchar*)in,
 			    (uint)ret)) {
 				BIO_clear_retry_flags(b);
 				return 0;
@@ -202,7 +202,7 @@ static long md_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 
 static int md_gets(BIO * bp, char * buf, int size)
 {
-	unsigned int ret;
+	uint ret;
 	EVP_MD_CTX * ctx = static_cast<EVP_MD_CTX *>(BIO_get_data(bp));
 	if(size < ctx->digest->md_size)
 		return 0;

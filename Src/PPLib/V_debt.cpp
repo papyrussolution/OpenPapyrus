@@ -3787,7 +3787,7 @@ int PrcssrDebtRate::Run()
 			{
 				PPObjDebtDim dd_obj;
 				PPDebtDim dd_rec;
-				for(SEnum en = dd_obj.ref->Enum(PPOBJ_DEBTDIM, Reference::eoIdName); en.Next(&dd_rec) > 0;)
+				for(SEnum en = dd_obj.P_Ref->Enum(PPOBJ_DEBTDIM, Reference::eoIdName); en.Next(&dd_rec) > 0;)
 					debt_dim_list.add(dd_rec.ID);
 			}
 			// @v9.8.12 {

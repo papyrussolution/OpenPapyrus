@@ -75,7 +75,7 @@ static int dl_load(DSO * dso)
 			ERR_add_error_data(4, "filename(", filename, "): ", errbuf);
 		goto err;
 	}
-	if(!sk_push(dso->meth_data, (char*)ptr)) {
+	if(!sk_push(dso->meth_data, (char *)ptr)) {
 		DSOerr(DSO_F_DL_LOAD, DSO_R_STACK_ERROR);
 		goto err;
 	}
@@ -109,7 +109,7 @@ static int dl_unload(DSO * dso)
 		/*
 		 * Should push the value back onto the stack in case of a retry.
 		 */
-		sk_push(dso->meth_data, (char*)ptr);
+		sk_push(dso->meth_data, (char *)ptr);
 		return 0;
 	}
 	shl_unload(ptr);

@@ -135,7 +135,7 @@ int SSL_CTX_SRP_CTX_init(struct ssl_ctx_st * ctx)
 /* server side */
 int SSL_srp_server_param_with_username(SSL * s, int * ad)
 {
-	unsigned char b[SSL_MAX_MASTER_KEY_LENGTH];
+	uchar b[SSL_MAX_MASTER_KEY_LENGTH];
 	int al;
 
 	*ad = SSL_AD_UNKNOWN_PSK_IDENTITY;
@@ -249,7 +249,7 @@ int srp_generate_server_master_secret(SSL * s)
 {
 	BIGNUM * K = NULL, * u = NULL;
 	int ret = -1, tmp_len = 0;
-	unsigned char * tmp = NULL;
+	uchar * tmp = NULL;
 
 	if(!SRP_Verify_A_mod_N(s->srp_ctx.A, s->srp_ctx.N))
 		goto err;
@@ -280,7 +280,7 @@ int srp_generate_client_master_secret(SSL * s)
 	BIGNUM * x = NULL, * u = NULL, * K = NULL;
 	int ret = -1, tmp_len = 0;
 	char * passwd = NULL;
-	unsigned char * tmp = NULL;
+	uchar * tmp = NULL;
 
 	/*
 	 * Checks if b % n == 0
@@ -367,7 +367,7 @@ int srp_verify_server_param(SSL * s)
 
 int SRP_Calc_A_param(SSL * s)
 {
-	unsigned char rnd[SSL_MAX_MASTER_KEY_LENGTH];
+	uchar rnd[SSL_MAX_MASTER_KEY_LENGTH];
 
 	if(RAND_priv_bytes(rnd, sizeof(rnd)) <= 0)
 		return 0;

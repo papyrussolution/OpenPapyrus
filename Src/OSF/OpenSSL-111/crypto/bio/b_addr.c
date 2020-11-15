@@ -78,7 +78,7 @@ int BIO_ADDR_make(BIO_ADDR * ap, const struct sockaddr * sa)
 	return 0;
 }
 
-int BIO_ADDR_rawmake(BIO_ADDR * ap, int family, const void * where, size_t wherelen, unsigned short port)
+int BIO_ADDR_rawmake(BIO_ADDR * ap, int family, const void * where, size_t wherelen, ushort port)
 {
 #ifdef AF_UNIX
 	if(family == AF_UNIX) {
@@ -153,7 +153,7 @@ int BIO_ADDR_rawaddress(const BIO_ADDR * ap, void * p, size_t * l)
 	return 1;
 }
 
-unsigned short BIO_ADDR_rawport(const BIO_ADDR * ap)
+ushort BIO_ADDR_rawport(const BIO_ADDR * ap)
 {
 	if(ap->sa.sa_family == AF_INET)
 		return ap->s_in.sin_port;
@@ -547,7 +547,7 @@ memerr:
  * the return value is 1 on success, or 0 on failure, which
  * only happens if a memory allocation error occurred.
  */
-static int addrinfo_wrap(int family, int socktype, const void * where, size_t wherelen, unsigned short port, BIO_ADDRINFO ** bai)
+static int addrinfo_wrap(int family, int socktype, const void * where, size_t wherelen, ushort port, BIO_ADDRINFO ** bai)
 {
 	if((*bai = static_cast<BIO_ADDRINFO *>(OPENSSL_zalloc(sizeof(**bai)))) == NULL) {
 		BIOerr(BIO_F_ADDRINFO_WRAP, ERR_R_MALLOC_FAILURE);
@@ -721,11 +721,11 @@ retry:
 #ifdef OPENSSL_SYS_WINDOWS
 		static uint32_t he_fallback_address;
 		static const char * he_fallback_addresses[] =
-		{ (char*)&he_fallback_address, NULL };
+		{ (char *)&he_fallback_address, NULL };
 #else
 		static in_addr_t he_fallback_address;
 		static const char * he_fallback_addresses[] =
-		{ (char*)&he_fallback_address, NULL };
+		{ (char *)&he_fallback_address, NULL };
 #endif
 		static const struct hostent he_fallback =
 		{ NULL, NULL, AF_INET, sizeof(he_fallback_address),
@@ -830,7 +830,7 @@ retry:
 
 			if(endp != service && *endp == '\0'
 			    && portnum > 0 && portnum < 65536) {
-				se_fallback.s_port = htons((unsigned short)portnum);
+				se_fallback.s_port = htons((ushort)portnum);
 				se_fallback.s_proto = proto;
 				se = &se_fallback;
 			}

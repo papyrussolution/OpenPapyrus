@@ -273,7 +273,7 @@ STACK_OF(X509_OBJECT) *X509_STORE_get0_objects(X509_STORE *v);
 
 STACK_OF(X509) *X509_STORE_CTX_get1_certs(X509_STORE_CTX *st, X509_NAME *nm);
 STACK_OF(X509_CRL) *X509_STORE_CTX_get1_crls(X509_STORE_CTX *st, X509_NAME *nm);
-int X509_STORE_set_flags(X509_STORE * ctx, unsigned long flags);
+int X509_STORE_set_flags(X509_STORE * ctx, ulong flags);
 int X509_STORE_set_purpose(X509_STORE * ctx, int purpose);
 int X509_STORE_set_trust(X509_STORE * ctx, int trust);
 int X509_STORE_set1_param(X509_STORE * ctx, X509_VERIFY_PARAM * pm);
@@ -387,7 +387,7 @@ typedef int (* X509_LOOKUP_get_by_issuer_serial_fn)(X509_LOOKUP * ctx,
     X509_OBJECT * ret);
 typedef int (* X509_LOOKUP_get_by_fingerprint_fn)(X509_LOOKUP * ctx,
     X509_LOOKUP_TYPE type,
-    const unsigned char* bytes,
+    const uchar* bytes,
     int len,
     X509_OBJECT * ret);
 typedef int (* X509_LOOKUP_get_by_alias_fn)(X509_LOOKUP * ctx,
@@ -452,7 +452,7 @@ void X509_LOOKUP_free(X509_LOOKUP * ctx);
 int X509_LOOKUP_init(X509_LOOKUP * ctx);
 int X509_LOOKUP_by_subject(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, X509_NAME * name, X509_OBJECT * ret);
 int X509_LOOKUP_by_issuer_serial(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type,X509_NAME * name, ASN1_INTEGER * serial, X509_OBJECT * ret);
-int X509_LOOKUP_by_fingerprint(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, const unsigned char * bytes, int len, X509_OBJECT * ret);
+int X509_LOOKUP_by_fingerprint(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, const uchar * bytes, int len, X509_OBJECT * ret);
 int X509_LOOKUP_by_alias(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, const char * str, int len, X509_OBJECT * ret);
 int X509_LOOKUP_set_method_data(X509_LOOKUP * ctx, void * data);
 void * X509_LOOKUP_get_method_data(const X509_LOOKUP * ctx);
@@ -485,8 +485,8 @@ int X509_STORE_CTX_set_purpose(X509_STORE_CTX * ctx, int purpose);
 int X509_STORE_CTX_set_trust(X509_STORE_CTX * ctx, int trust);
 int X509_STORE_CTX_purpose_inherit(X509_STORE_CTX * ctx, int def_purpose,
     int purpose, int trust);
-void X509_STORE_CTX_set_flags(X509_STORE_CTX * ctx, unsigned long flags);
-void X509_STORE_CTX_set_time(X509_STORE_CTX * ctx, unsigned long flags,
+void X509_STORE_CTX_set_flags(X509_STORE_CTX * ctx, ulong flags);
+void X509_STORE_CTX_set_time(X509_STORE_CTX * ctx, ulong flags,
     time_t t);
 
 X509_POLICY_TREE * X509_STORE_CTX_get0_policy_tree(X509_STORE_CTX * ctx);
@@ -514,10 +514,10 @@ int X509_VERIFY_PARAM_set1(X509_VERIFY_PARAM * to,
     const X509_VERIFY_PARAM * from);
 int X509_VERIFY_PARAM_set1_name(X509_VERIFY_PARAM * param, const char * name);
 int X509_VERIFY_PARAM_set_flags(X509_VERIFY_PARAM * param,
-    unsigned long flags);
+    ulong flags);
 int X509_VERIFY_PARAM_clear_flags(X509_VERIFY_PARAM * param,
-    unsigned long flags);
-unsigned long X509_VERIFY_PARAM_get_flags(X509_VERIFY_PARAM * param);
+    ulong flags);
+ulong X509_VERIFY_PARAM_get_flags(X509_VERIFY_PARAM * param);
 int X509_VERIFY_PARAM_set_purpose(X509_VERIFY_PARAM * param, int purpose);
 int X509_VERIFY_PARAM_set_trust(X509_VERIFY_PARAM * param, int trust);
 void X509_VERIFY_PARAM_set_depth(X509_VERIFY_PARAM * param, int depth);
@@ -538,14 +538,14 @@ int X509_VERIFY_PARAM_set1_host(X509_VERIFY_PARAM * param,
 int X509_VERIFY_PARAM_add1_host(X509_VERIFY_PARAM * param,
     const char * name, size_t namelen);
 void X509_VERIFY_PARAM_set_hostflags(X509_VERIFY_PARAM * param,
-    unsigned int flags);
-unsigned int X509_VERIFY_PARAM_get_hostflags(const X509_VERIFY_PARAM * param);
+    uint flags);
+uint X509_VERIFY_PARAM_get_hostflags(const X509_VERIFY_PARAM * param);
 char * X509_VERIFY_PARAM_get0_peername(X509_VERIFY_PARAM *);
 void X509_VERIFY_PARAM_move_peername(X509_VERIFY_PARAM *, X509_VERIFY_PARAM *);
 int X509_VERIFY_PARAM_set1_email(X509_VERIFY_PARAM * param,
     const char * email, size_t emaillen);
 int X509_VERIFY_PARAM_set1_ip(X509_VERIFY_PARAM * param,
-    const unsigned char * ip, size_t iplen);
+    const uchar * ip, size_t iplen);
 int X509_VERIFY_PARAM_set1_ip_asc(X509_VERIFY_PARAM * param,
     const char * ipasc);
 
@@ -574,7 +574,7 @@ void X509_VERIFY_PARAM_table_cleanup(void);
 
 int X509_policy_check(X509_POLICY_TREE **ptree, int * pexplicit_policy,
     STACK_OF(X509) *certs,
-    STACK_OF(ASN1_OBJECT) *policy_oids, unsigned int flags);
+    STACK_OF(ASN1_OBJECT) *policy_oids, uint flags);
 
 void X509_policy_tree_free(X509_POLICY_TREE * tree);
 

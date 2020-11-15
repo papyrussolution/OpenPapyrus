@@ -13,7 +13,7 @@
 
 /* Add a local keyid to a safebag */
 
-int PKCS12_add_localkeyid(PKCS12_SAFEBAG * bag, unsigned char * name,
+int PKCS12_add_localkeyid(PKCS12_SAFEBAG * bag, uchar * name,
     int namelen)
 {
 	if(X509at_add1_attr_by_NID(&bag->attrib, NID_localKeyID,
@@ -27,7 +27,7 @@ int PKCS12_add_localkeyid(PKCS12_SAFEBAG * bag, unsigned char * name,
 
 int PKCS8_add_keyusage(PKCS8_PRIV_KEY_INFO * p8, int usage)
 {
-	unsigned char us_val = (uchar)usage;
+	uchar us_val = (uchar)usage;
 	return PKCS8_pkey_add1_attr_by_NID(p8, NID_key_usage,
 		   V_ASN1_BIT_STRING, &us_val, 1);
 }
@@ -55,7 +55,7 @@ int PKCS12_add_friendlyname_utf8(PKCS12_SAFEBAG * bag, const char * name,
 }
 
 int PKCS12_add_friendlyname_uni(PKCS12_SAFEBAG * bag,
-    const unsigned char * name, int namelen)
+    const uchar * name, int namelen)
 {
 	if(X509at_add1_attr_by_NID(&bag->attrib, NID_friendlyName,
 	    MBSTRING_BMP, name, namelen))

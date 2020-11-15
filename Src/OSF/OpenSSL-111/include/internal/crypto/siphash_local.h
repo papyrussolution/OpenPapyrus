@@ -14,9 +14,9 @@ struct siphash_st {
     uint64_t v1;
     uint64_t v2;
     uint64_t v3;
-    unsigned int len;
+    uint len;
     int hash_size;
     int crounds;
     int drounds;
-    unsigned char leavings[SIPHASH_BLOCK_SIZE];
+    uchar leavings[SIPHASH_BLOCK_SIZE];
 };

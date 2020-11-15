@@ -21,7 +21,7 @@ NON_EMPTY_TRANSLATION_UNIT
 
 # if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_VMS) || defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_VXWORKS) || \
 	defined(OPENSSL_SYS_VOS) || defined(OPENSSL_SYS_UEFI)
-int RAND_query_egd_bytes(const char * path, unsigned char * buf, int bytes)
+int RAND_query_egd_bytes(const char * path, uchar * buf, int bytes)
 {
 	return -1;
 }
@@ -55,15 +55,15 @@ struct sockaddr_un {
 };
 
 #  endif                         /* NO_SYS_UN_H */
-#include <string.h>
-#include <errno.h>
+//#include <string.h>
+//#include <errno.h>
 
-int RAND_query_egd_bytes(const char * path, unsigned char * buf, int bytes)
+int RAND_query_egd_bytes(const char * path, uchar * buf, int bytes)
 {
 	FILE * fp = NULL;
 	struct sockaddr_un addr;
 	int mybuffer, ret = -1, i, numbytes, fd;
-	unsigned char tempbuf[255];
+	uchar tempbuf[255];
 	if(bytes > (int)sizeof(tempbuf))
 		return -1;
 	/* Make socket. */

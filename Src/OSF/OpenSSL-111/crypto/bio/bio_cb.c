@@ -39,30 +39,30 @@ long BIO_debug_callback(BIO * bio, int cmd, const char * argp,
 		case BIO_CB_READ:
 		    if(bio->method->type & BIO_TYPE_DESCRIPTOR)
 			    BIO_snprintf(p, left, "read(%d,%lu) - %s fd=%d\n",
-				bio->num, (unsigned long)argi,
+				bio->num, (ulong)argi,
 				bio->method->name, bio->num);
 		    else
 			    BIO_snprintf(p, left, "read(%d,%lu) - %s\n",
-				bio->num, (unsigned long)argi, bio->method->name);
+				bio->num, (ulong)argi, bio->method->name);
 		    break;
 		case BIO_CB_WRITE:
 		    if(bio->method->type & BIO_TYPE_DESCRIPTOR)
 			    BIO_snprintf(p, left, "write(%d,%lu) - %s fd=%d\n",
-				bio->num, (unsigned long)argi,
+				bio->num, (ulong)argi,
 				bio->method->name, bio->num);
 		    else
 			    BIO_snprintf(p, left, "write(%d,%lu) - %s\n",
-				bio->num, (unsigned long)argi, bio->method->name);
+				bio->num, (ulong)argi, bio->method->name);
 		    break;
 		case BIO_CB_PUTS:
 		    BIO_snprintf(p, left, "puts() - %s\n", bio->method->name);
 		    break;
 		case BIO_CB_GETS:
-		    BIO_snprintf(p, left, "gets(%lu) - %s\n", (unsigned long)argi,
+		    BIO_snprintf(p, left, "gets(%lu) - %s\n", (ulong)argi,
 			bio->method->name);
 		    break;
 		case BIO_CB_CTRL:
-		    BIO_snprintf(p, left, "ctrl(%lu) - %s\n", (unsigned long)argi,
+		    BIO_snprintf(p, left, "ctrl(%lu) - %s\n", (ulong)argi,
 			bio->method->name);
 		    break;
 		case BIO_CB_RETURN | BIO_CB_READ:

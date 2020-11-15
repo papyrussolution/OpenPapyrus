@@ -12,17 +12,17 @@
 //#include <openssl/err.h>
 #include "ocsp_lcl.h"
 
-static int ocsp_find_signer(X509 ** psigner, OCSP_BASICRESP * bs, STACK_OF(X509) * certs, unsigned long flags);
+static int ocsp_find_signer(X509 ** psigner, OCSP_BASICRESP * bs, STACK_OF(X509) * certs, ulong flags);
 static X509 * ocsp_find_signer_sk(STACK_OF(X509) * certs, OCSP_RESPID * id);
 static int ocsp_check_issuer(OCSP_BASICRESP * bs, STACK_OF(X509) * chain);
 static int ocsp_check_ids(STACK_OF(OCSP_SINGLERESP) * sresp, OCSP_CERTID ** ret);
 static int ocsp_match_issuerid(X509 * cert, OCSP_CERTID * cid, STACK_OF(OCSP_SINGLERESP) * sresp);
 static int ocsp_check_delegated(X509 * x);
-static int ocsp_req_find_signer(X509 ** psigner, OCSP_REQUEST * req, X509_NAME * nm, STACK_OF(X509) * certs, unsigned long flags);
+static int ocsp_req_find_signer(X509 ** psigner, OCSP_REQUEST * req, X509_NAME * nm, STACK_OF(X509) * certs, ulong flags);
 
 /* Verify a basic response message */
 
-int OCSP_basic_verify(OCSP_BASICRESP * bs, STACK_OF(X509) * certs, X509_STORE * st, unsigned long flags)
+int OCSP_basic_verify(OCSP_BASICRESP * bs, STACK_OF(X509) * certs, X509_STORE * st, ulong flags)
 {
 	X509 * signer, * x;
 	STACK_OF(X509) *chain = NULL;
@@ -145,7 +145,7 @@ int OCSP_resp_get0_signer(OCSP_BASICRESP * bs, X509 ** signer,
 }
 
 static int ocsp_find_signer(X509 ** psigner, OCSP_BASICRESP * bs,
-    STACK_OF(X509) * certs, unsigned long flags)
+    STACK_OF(X509) * certs, ulong flags)
 {
 	X509 * signer;
 	OCSP_RESPID * rid = &bs->tbsResponseData.responderId;
@@ -167,7 +167,7 @@ static int ocsp_find_signer(X509 ** psigner, OCSP_BASICRESP * bs,
 static X509 * ocsp_find_signer_sk(STACK_OF(X509) * certs, OCSP_RESPID * id)
 {
 	int i;
-	unsigned char tmphash[SHA_DIGEST_LENGTH], * keyhash;
+	uchar tmphash[SHA_DIGEST_LENGTH], * keyhash;
 	X509 * x;
 
 	/* Easy if lookup by name */
@@ -278,7 +278,7 @@ static int ocsp_match_issuerid(X509 * cert, OCSP_CERTID * cid,
 		const EVP_MD * dgst;
 		X509_NAME * iname;
 		int mdlen;
-		unsigned char md[EVP_MAX_MD_SIZE];
+		uchar md[EVP_MAX_MD_SIZE];
 		if((dgst = EVP_get_digestbyobj(cid->hashAlgorithm.algorithm))
 		    == NULL) {
 			OCSPerr(OCSP_F_OCSP_MATCH_ISSUERID,
@@ -333,7 +333,7 @@ static int ocsp_check_delegated(X509 * x)
  */
 
 int OCSP_request_verify(OCSP_REQUEST * req, STACK_OF(X509) * certs,
-    X509_STORE * store, unsigned long flags)
+    X509_STORE * store, ulong flags)
 {
 	X509 * signer;
 	X509_NAME * nm;
@@ -410,7 +410,7 @@ end:
 
 static int ocsp_req_find_signer(X509 ** psigner, OCSP_REQUEST * req,
     X509_NAME * nm, STACK_OF(X509) * certs,
-    unsigned long flags)
+    ulong flags)
 {
 	X509 * signer;
 	if(!(flags & OCSP_NOINTERN)) {

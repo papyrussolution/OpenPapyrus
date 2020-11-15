@@ -15,17 +15,13 @@
  * The extra state information to record how much of the 64bit block we have
  * used is contained in *num;
  */
-
-void IDEA_cfb64_encrypt(const unsigned char * in, unsigned char * out,
-    long length, IDEA_KEY_SCHEDULE * schedule,
-    unsigned char * ivec, int * num, int encrypt)
+ void IDEA_cfb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCHEDULE * schedule, uchar * ivec, int * num, int encrypt)
 {
-	register unsigned long v0, v1, t;
-	register int n = *num;
-	register long l = length;
-	unsigned long ti[2];
-	unsigned char * iv, c, cc;
-
+	ulong v0, v1, t;
+	int n = *num;
+	long l = length;
+	ulong ti[2];
+	uchar * iv, c, cc;
 	iv = (uchar *)ivec;
 	if(encrypt) {
 		while(l--) {
@@ -34,7 +30,7 @@ void IDEA_cfb64_encrypt(const unsigned char * in, unsigned char * out,
 				ti[0] = v0;
 				n2l(iv, v1);
 				ti[1] = v1;
-				IDEA_encrypt((unsigned long*)ti, schedule);
+				IDEA_encrypt((ulong *)ti, schedule);
 				iv = (uchar *)ivec;
 				t = ti[0];
 				l2n(t, iv);
@@ -55,7 +51,7 @@ void IDEA_cfb64_encrypt(const unsigned char * in, unsigned char * out,
 				ti[0] = v0;
 				n2l(iv, v1);
 				ti[1] = v1;
-				IDEA_encrypt((unsigned long*)ti, schedule);
+				IDEA_encrypt((ulong *)ti, schedule);
 				iv = (uchar *)ivec;
 				t = ti[0];
 				l2n(t, iv);

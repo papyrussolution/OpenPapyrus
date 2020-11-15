@@ -134,9 +134,9 @@ static
 #endif
 void sha512_block_data_order(SHA512_CTX * ctx, const void * in, size_t num);
 
-int SHA512_Final(unsigned char * md, SHA512_CTX * c)
+int SHA512_Final(uchar * md, SHA512_CTX * c)
 {
-	unsigned char * p = (uchar *)c->u.p;
+	uchar * p = (uchar *)c->u.p;
 	size_t n = c->num;
 	p[n] = 0x80;            /* There always is a room for one */
 	n++;
@@ -251,7 +251,7 @@ int SHA512_Final(unsigned char * md, SHA512_CTX * c)
 	return 1;
 }
 
-int SHA384_Final(unsigned char * md, SHA512_CTX * c)
+int SHA384_Final(uchar * md, SHA512_CTX * c)
 {
 	return SHA512_Final(md, c);
 }
@@ -259,8 +259,8 @@ int SHA384_Final(unsigned char * md, SHA512_CTX * c)
 int SHA512_Update(SHA512_CTX * c, const void * _data, size_t len)
 {
 	SHA_LONG64 l;
-	unsigned char * p = c->u.p;
-	const unsigned char * data = (const unsigned char*)_data;
+	uchar * p = c->u.p;
+	const uchar * data = (const uchar*)_data;
 
 	if(len == 0)
 		return 1;
@@ -310,7 +310,7 @@ int SHA384_Update(SHA512_CTX * c, const void * data, size_t len)
 	return SHA512_Update(c, data, len);
 }
 
-void SHA512_Transform(SHA512_CTX * c, const unsigned char * data)
+void SHA512_Transform(SHA512_CTX * c, const uchar * data)
 {
 #ifndef SHA512_BLOCK_CAN_MANAGE_UNALIGNED_DATA
 	if((size_t)data % sizeof(c->u.d[0]) != 0)
@@ -319,10 +319,10 @@ void SHA512_Transform(SHA512_CTX * c, const unsigned char * data)
 	sha512_block_data_order(c, data, 1);
 }
 
-unsigned char * SHA384(const unsigned char * d, size_t n, unsigned char * md)
+uchar * SHA384(const uchar * d, size_t n, uchar * md)
 {
 	SHA512_CTX c;
-	static unsigned char m[SHA384_DIGEST_LENGTH];
+	static uchar m[SHA384_DIGEST_LENGTH];
 
 	if(md == NULL)
 		md = m;
@@ -333,10 +333,10 @@ unsigned char * SHA384(const unsigned char * d, size_t n, unsigned char * md)
 	return md;
 }
 
-unsigned char * SHA512(const unsigned char * d, size_t n, unsigned char * md)
+uchar * SHA512(const uchar * d, size_t n, uchar * md)
 {
 	SHA512_CTX c;
-	static unsigned char m[SHA512_DIGEST_LENGTH];
+	static uchar m[SHA512_DIGEST_LENGTH];
 
 	if(md == NULL)
 		md = m;
@@ -408,8 +408,8 @@ static const SHA_LONG64 K512[80] = {
 #    endif
 #   elif (defined(__i386) || defined(__i386__)) && !defined(B_ENDIAN)
 #    if defined(I386_ONLY)
-#     define PULL64(x) ({ const unsigned int * p = (const uint *)(&(x)); \
-			  unsigned int hi = p[0], lo = p[1];          \
+#     define PULL64(x) ({ const uint * p = (const uint *)(&(x)); \
+			  uint hi = p[0], lo = p[1];          \
 			  asm ("xchgb %%ah,%%al;xchgb %%dh,%%dl;" \
 			  "roll $16,%%eax; roll $16,%%edx; " \
 			  "xchgb %%ah,%%al;xchgb %%dh,%%dl;" \
@@ -417,8 +417,8 @@ static const SHA_LONG64 K512[80] = {
 			  : "0" (lo), "1" (hi) : "cc");      \
 			  ((SHA_LONG64)hi)<<32|lo;        })
 #    else
-#     define PULL64(x) ({ const unsigned int * p = (const uint *)(&(x)); \
-			  unsigned int hi = p[0], lo = p[1];         \
+#     define PULL64(x) ({ const uint * p = (const uint *)(&(x)); \
+			  uint hi = p[0], lo = p[1];         \
 			  asm ("bswapl %0; bswapl %1;"    \
 			  : "=r" (lo), "=r" (hi)             \
 			  : "0" (lo), "1" (hi));             \
@@ -477,7 +477,7 @@ static SHA_LONG64 __fastcall __pull64be(const void * x)
 #  endif
 #endif
 #ifndef PULL64
-#define B(x, j)    (((SHA_LONG64)(*(((const unsigned char*)(&x))+j)))<<((7-j)*8))
+#define B(x, j)    (((SHA_LONG64)(*(((const uchar*)(&x))+j)))<<((7-j)*8))
 #define PULL64(x) (B(x, 0)|B(x, 1)|B(x, 2)|B(x, 3)|B(x, 4)|B(x, 5)|B(x, 6)|B(x, 7))
 #endif
 #ifndef ROTR

@@ -38,9 +38,9 @@
 #include <openssl/seed.h>
 
 #ifdef SEED_LONG               /* need 32-bit type */
-typedef unsigned long seed_word;
+typedef ulong seed_word;
 #else
-typedef unsigned int seed_word;
+typedef uint seed_word;
 #endif
 
 

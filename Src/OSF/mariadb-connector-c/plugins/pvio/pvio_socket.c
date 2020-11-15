@@ -24,15 +24,6 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <errmsg.h>
-//#include <mysql.h>
-//#include <mysql/client_plugin.h>
-//#include <ma_context.h>
-//#include <mariadb_async.h>
-//#include <ma_common.h>
-//#include <string.h>
-//#include <time.h>
 #ifndef _WIN32
 	#ifdef HAVE_SYS_UN_H
 		#include <sys/un.h>
@@ -83,22 +74,22 @@
 	#endif
 #endif
 /* Function prototypes */
-my_bool pvio_socket_set_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type, int timeout);
+bool pvio_socket_set_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type, int timeout);
 int pvio_socket_get_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type);
 ssize_t pvio_socket_read(MARIADB_PVIO * pvio, uchar * buffer, size_t length);
 ssize_t pvio_socket_async_read(MARIADB_PVIO * pvio, uchar * buffer, size_t length);
 ssize_t pvio_socket_async_write(MARIADB_PVIO * pvio, const uchar * buffer, size_t length);
 ssize_t pvio_socket_write(MARIADB_PVIO * pvio, const uchar * buffer, size_t length);
-int pvio_socket_wait_io_or_timeout(MARIADB_PVIO * pvio, my_bool is_read, int timeout);
-int pvio_socket_blocking(MARIADB_PVIO * pvio, my_bool value, my_bool * old_value);
-my_bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo);
-my_bool pvio_socket_close(MARIADB_PVIO * pvio);
+int pvio_socket_wait_io_or_timeout(MARIADB_PVIO * pvio, bool is_read, int timeout);
+int pvio_socket_blocking(MARIADB_PVIO * pvio, bool value, bool * old_value);
+bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo);
+bool pvio_socket_close(MARIADB_PVIO * pvio);
 int pvio_socket_fast_send(MARIADB_PVIO * pvio);
 int pvio_socket_keepalive(MARIADB_PVIO * pvio);
-my_bool pvio_socket_get_handle(MARIADB_PVIO * pvio, void * handle);
-my_bool pvio_socket_is_blocking(MARIADB_PVIO * pvio);
-my_bool pvio_socket_is_alive(MARIADB_PVIO * pvio);
-my_bool pvio_socket_has_data(MARIADB_PVIO * pvio, ssize_t * data_len);
+bool pvio_socket_get_handle(MARIADB_PVIO * pvio, void * handle);
+bool pvio_socket_is_blocking(MARIADB_PVIO * pvio);
+bool pvio_socket_is_alive(MARIADB_PVIO * pvio);
+bool pvio_socket_has_data(MARIADB_PVIO * pvio, ssize_t * data_len);
 int pvio_socket_shutdown(MARIADB_PVIO * pvio);
 
 static int pvio_socket_init(char * unused1,
@@ -155,7 +146,7 @@ struct st_pvio_socket {
 	MYSQL * mysql;
 };
 
-static my_bool pvio_socket_initialized = FALSE;
+static bool pvio_socket_initialized = FALSE;
 
 static int pvio_socket_init(char * errmsg __attribute__((unused)), size_t errmsg_length __attribute__((unused)), 
 	int unused __attribute__((unused)), va_list va __attribute__((unused)))
@@ -171,7 +162,7 @@ static int pvio_socket_end(void)
 	return 0;
 }
 
-my_bool pvio_socket_change_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type, int timeout)
+bool pvio_socket_change_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type, int timeout)
 {
 	struct timeval tm;
 	int rc = 0;
@@ -223,7 +214,7 @@ my_bool pvio_socket_change_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout t
      0              Success
      1              Error
  */
-my_bool pvio_socket_set_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type, int timeout)
+bool pvio_socket_set_timeout(MARIADB_PVIO * pvio, enum enum_pvio_timeout type, int timeout)
 {
 	struct st_pvio_socket * csock = NULL;
 	if(!pvio)
@@ -474,7 +465,7 @@ ssize_t pvio_socket_write(MARIADB_PVIO * pvio, const uchar * buffer, size_t leng
 
 /* }}} */
 
-int pvio_socket_wait_io_or_timeout(MARIADB_PVIO * pvio, my_bool is_read, int timeout)
+int pvio_socket_wait_io_or_timeout(MARIADB_PVIO * pvio, bool is_read, int timeout)
 {
 	int rc;
 	struct st_pvio_socket * csock = NULL;
@@ -537,9 +528,9 @@ int pvio_socket_wait_io_or_timeout(MARIADB_PVIO * pvio, my_bool is_read, int tim
 	return rc;
 }
 
-int pvio_socket_blocking(MARIADB_PVIO * pvio, my_bool block, my_bool * previous_mode)
+int pvio_socket_blocking(MARIADB_PVIO * pvio, bool block, bool * previous_mode)
 {
-	my_bool is_blocking;
+	bool is_blocking;
 	struct st_pvio_socket * csock;
 	int new_fcntl_mode;
 	if(!pvio || !pvio->data)
@@ -676,7 +667,7 @@ static int pvio_socket_connect_sync_or_async(MARIADB_PVIO * pvio, const struct s
 	return pvio_socket_internal_connect(pvio, name, namelen);
 }
 
-my_bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
+bool pvio_socket_connect(MARIADB_PVIO * pvio, MA_PVIO_CINFO * cinfo)
 {
 	struct st_pvio_socket * csock = NULL;
 	MYSQL * mysql;
@@ -871,8 +862,8 @@ error:
 	return 1;
 }
 
-/* {{{ my_bool pvio_socket_close() */
-my_bool pvio_socket_close(MARIADB_PVIO * pvio)
+/* {{{ bool pvio_socket_close() */
+bool pvio_socket_close(MARIADB_PVIO * pvio)
 {
 	struct st_pvio_socket * csock = NULL;
 	int r = 0;
@@ -893,7 +884,7 @@ my_bool pvio_socket_close(MARIADB_PVIO * pvio)
 /* }}} */
 
 /* {{{ my_socket pvio_socket_get_handle */
-my_bool pvio_socket_get_handle(MARIADB_PVIO * pvio, void * handle)
+bool pvio_socket_get_handle(MARIADB_PVIO * pvio, void * handle)
 {
 	if(pvio && pvio->data && handle) {
 		*(my_socket*)handle = ((struct st_pvio_socket *)pvio->data)->socket;
@@ -904,11 +895,11 @@ my_bool pvio_socket_get_handle(MARIADB_PVIO * pvio, void * handle)
 
 /* }}} */
 
-/* {{{ my_bool pvio_socket_is_blocking(MARIADB_PVIO *pvio) */
-my_bool pvio_socket_is_blocking(MARIADB_PVIO * pvio)
+/* {{{ bool pvio_socket_is_blocking(MARIADB_PVIO *pvio) */
+bool pvio_socket_is_blocking(MARIADB_PVIO * pvio)
 {
 	struct st_pvio_socket * csock = NULL;
-	my_bool r;
+	bool r;
 	if(!pvio || !pvio->data)
 		return 0;
 	csock = (struct st_pvio_socket *)pvio->data;
@@ -918,8 +909,8 @@ my_bool pvio_socket_is_blocking(MARIADB_PVIO * pvio)
 
 /* }}} */
 
-/* {{{ my_bool pvio_socket_is_alive(MARIADB_PVIO *pvio) */
-my_bool pvio_socket_is_alive(MARIADB_PVIO * pvio)
+/* {{{ bool pvio_socket_is_alive(MARIADB_PVIO *pvio) */
+bool pvio_socket_is_alive(MARIADB_PVIO * pvio)
 {
 	struct st_pvio_socket * csock = NULL;
  #ifndef _WIN32
@@ -961,12 +952,12 @@ my_bool pvio_socket_is_alive(MARIADB_PVIO * pvio)
 /* }}} */
 
 /* {{{ my_boool pvio_socket_has_data */
-my_bool pvio_socket_has_data(MARIADB_PVIO * pvio, ssize_t * data_len)
+bool pvio_socket_has_data(MARIADB_PVIO * pvio, ssize_t * data_len)
 {
 	struct st_pvio_socket * csock = NULL;
 	char tmp_buf;
 	ssize_t len;
-	my_bool mode;
+	bool mode;
 	if(!pvio || !pvio->data)
 		return 0;
 	csock = (struct st_pvio_socket *)pvio->data;

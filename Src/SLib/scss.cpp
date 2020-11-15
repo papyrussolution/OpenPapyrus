@@ -333,7 +333,7 @@ int SCssParser::GetToken(SStrScan & rS)
 			if(p == 1 && c == '-' && c2 == '-')
 				c2 = rS[++p];
 			c = c2;
-		} while(c == '_' || isasciialpha(c) || isdec(c));
+		} while(c == '_' || isasciialnum(c));
 		if(c == '(') {
 			rS.Len = p+1;
 			tok = tokFunction;
@@ -370,7 +370,7 @@ int SCssParser::GetToken(SStrScan & rS)
 				if(p == 1 && c == '-' && c2 == '-')
 					c2 = rS[++p];
 				c = c2;
-			} while(c == '_' || isasciialpha(c) || isdec(c));
+			} while(c == '_' || isasciialnum(c));
 			rS.Len = p;
 			tok = tokAtKeyword;
 		}
@@ -383,7 +383,7 @@ int SCssParser::GetToken(SStrScan & rS)
 				if(p == 1 && c == '-' && c2 == '-')
 					c2 = rS[++p];
 				c = c2;
-			} while(c == '_' || isasciialpha(c) || isdec(c));
+			} while(c == '_' || isasciialnum(c));
 			rS.Len = p;
 			tok = tokClassSelector;
 		}
@@ -391,7 +391,7 @@ int SCssParser::GetToken(SStrScan & rS)
 	else if(c == '#') {
 		do {
 			c = rS[++p];
-		} while(oneof2(c, '-', '_') || isasciialpha(c) || isdec(c));
+		} while(oneof2(c, '-', '_') || isasciialnum(c));
 		if(p > 1) {
 			rS.Len = p;
 			tok = tokHash;
@@ -438,7 +438,7 @@ int SCssParser::GetSelectorTerm(SStrScan & rScan, SString & rBuf)
 				do {
 					rBuf.CatChar(c);
 					c = rScan[++p];
-				} while(oneof4(c, '-', '#', '.', ':') || isasciialpha(c) || isdec(c));
+				} while(oneof4(c, '-', '#', '.', ':') || isasciialnum(c));
 			}
 			if(c == '[') {
 				do {

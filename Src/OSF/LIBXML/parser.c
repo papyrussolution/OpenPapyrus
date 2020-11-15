@@ -1073,12 +1073,12 @@ int xmlCheckLanguageID(const xmlChar * lang)
 		 * it's deprecated but we should not fail
 		 */
 		cur += 2;
-		while(IsLetterASCII(cur[0]))
+		while(isasciialpha(cur[0]))
 			cur++;
 		return (cur[0] == 0);
 	}
 	nxt = cur;
-	while(IsLetterASCII(nxt[0]))
+	while(isasciialpha(nxt[0]))
 		nxt++;
 	if(nxt - cur >= 4) {
 		/*
@@ -1098,7 +1098,7 @@ int xmlCheckLanguageID(const xmlChar * lang)
 	/* now we can have extlang or script or region or variant */
 	if((nxt[0] >= '0') && (nxt[0] <= '9'))
 		goto region_m49;
-	while(IsLetterASCII(nxt[0]))
+	while(isasciialpha(nxt[0]))
 		nxt++;
 	if(nxt - cur == 4)
 		goto script;
@@ -1118,7 +1118,7 @@ int xmlCheckLanguageID(const xmlChar * lang)
 	/* now we can have script or region or variant */
 	if((nxt[0] >= '0') && (nxt[0] <= '9'))
 		goto region_m49;
-	while(IsLetterASCII(nxt[0]))
+	while(isasciialpha(nxt[0]))
 		nxt++;
 	if(nxt - cur == 2)
 		goto region;
@@ -1137,7 +1137,7 @@ script:
 	/* now we can have region or variant */
 	if((nxt[0] >= '0') && (nxt[0] <= '9'))
 		goto region_m49;
-	while(IsLetterASCII(nxt[0]))
+	while(isasciialpha(nxt[0]))
 		nxt++;
 	if((nxt - cur >= 5) && (nxt - cur <= 8))
 		goto variant;
@@ -1152,7 +1152,7 @@ region:
 	nxt++;
 	cur = nxt;
 	/* now we can just have a variant */
-	while(IsLetterASCII(nxt[0]))
+	while(isasciialpha(nxt[0]))
 		nxt++;
 	if((nxt - cur < 5) || (nxt - cur > 8))
 		return 0;
@@ -2608,7 +2608,7 @@ static int FASTCALL xmlIsNameStartChar(const xmlParserCtxt * ctxt, int c)
 		//
 		// Use the new checks of production [4] [4a] amd [5] of the Update 5 of XML-1.0
 		//
-		if((c != ' ') && (c != '>') && (c != '/') && /* accelerators */ (IsLetterASCII(c) || oneof2(c, '_', ':') ||
+		if((c != ' ') && (c != '>') && (c != '/') && /* accelerators */ (isasciialpha(c) || oneof2(c, '_', ':') ||
 			((c >= 0xC0) && (c <= 0xD6)) || ((c >= 0xD8) && (c <= 0xF6)) || ((c >= 0xF8) && (c <= 0x2FF)) ||
 			((c >= 0x370) && (c <= 0x37D)) || ((c >= 0x37F) && (c <= 0x1FFF)) || ((c >= 0x200C) && (c <= 0x200D)) ||
 			((c >= 0x2070) && (c <= 0x218F)) || ((c >= 0x2C00) && (c <= 0x2FEF)) || ((c >= 0x3001) && (c <= 0xD7FF)) ||
@@ -2629,7 +2629,7 @@ static int FASTCALL xmlIsNameChar(const xmlParserCtxt * ctxt, int c)
 		 * Use the new checks of production [4] [4a] amd [5] of the
 		 * Update 5 of XML-1.0
 		 */
-		if((c != ' ') && (c != '>') && (c != '/') && /* accelerators */ (IsLetterASCII(c) || isdec(c) || /* !start */
+		if((c != ' ') && (c != '>') && (c != '/') && /* accelerators */ (isasciialpha(c) || isdec(c) || /* !start */
 			    (c == '_') || (c == ':') ||
 			    (c == '-') || (c == '.') || (c == 0xB7) || /* !start */
 			    ((c >= 0xC0) && (c <= 0xD6)) ||
@@ -2678,7 +2678,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
 		 * Update 5 of XML-1.0
 		 */
 		if((c == ' ') || (c == '>') || (c == '/') || /* accelerators */
-		    (!(IsLetterASCII(c) || (c == '_') || (c == ':') ||
+		    (!(isasciialpha(c) || (c == '_') || (c == ':') ||
 				    ((c >= 0xC0) && (c <= 0xD6)) ||
 				    ((c >= 0xD8) && (c <= 0xF6)) ||
 				    ((c >= 0xF8) && (c <= 0x2FF)) ||
@@ -2697,7 +2697,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
 		NEXTL(l);
 		c = CUR_CHAR(l);
 		while((c != ' ') && (c != '>') && (c != '/') && /* accelerators */
-		    (IsLetterASCII(c) || isdec(c) || /* !start */ oneof4(c, '_', ':', '-', '.') || (c == 0xB7) || /* !start */
+		    (isasciialnum(c) || /* !start */ oneof4(c, '_', ':', '-', '.') || (c == 0xB7) || /* !start */
 			    ((c >= 0xC0) && (c <= 0xD6)) ||
 			    ((c >= 0xD8) && (c <= 0xF6)) ||
 			    ((c >= 0xF8) && (c <= 0x2FF)) ||
@@ -8833,7 +8833,8 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
 	int len = 0;
 	int size = 10;
 	xmlChar cur = CUR;
-	if(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z'))) {
+	// @v10.9.3 if(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z'))) {
+	if(isasciialpha(cur)) { // @v10.9.3 
 		buf = static_cast<xmlChar *>(SAlloc::M(size * sizeof(xmlChar)));
 		if(!buf) {
 			xmlErrMemory(ctxt, 0);

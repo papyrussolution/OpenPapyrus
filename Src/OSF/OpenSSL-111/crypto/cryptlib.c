@@ -14,7 +14,7 @@
 
 #if defined(__i386)   || defined(__i386__)   || defined(_M_IX86) || defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
 
-extern unsigned int OPENSSL_ia32cap_P[4];
+extern uint OPENSSL_ia32cap_P[4];
 
 # if defined(OPENSSL_CPUID_OBJ) && !defined(OPENSSL_NO_ASM) && !defined(I386_ONLY)
 	/*
@@ -59,7 +59,7 @@ extern unsigned int OPENSSL_ia32cap_P[4];
 	static uint64_t ossl_strtouint64(const variant_char * str)
 	{
 		uint64_t ret = 0;
-		unsigned int digit, base = 10;
+		uint digit, base = 10;
 		if(*str == '0') {
 			base = 8, str++;
 			if(ossl_tolower(*str) == 'x')
@@ -86,7 +86,7 @@ extern unsigned int OPENSSL_ia32cap_P[4];
 	void OPENSSL_cpuid_setup(void)
 	{
 		static int trigger = 0;
-		IA32CAP OPENSSL_ia32_cpuid(unsigned int *);
+		IA32CAP OPENSSL_ia32_cpuid(uint *);
 		IA32CAP vec;
 		const variant_char * env;
 		if(trigger)
@@ -144,7 +144,7 @@ extern unsigned int OPENSSL_ia32cap_P[4];
 		OPENSSL_ia32cap_P[1] = (uint)(vec >> 32);
 	}
 #else
-	unsigned int OPENSSL_ia32cap_P[4];
+	uint OPENSSL_ia32cap_P[4];
 #endif
 #endif
 #if !defined(OPENSSL_CPUID_SETUP) && !defined(OPENSSL_CPUID_OBJ)
@@ -251,7 +251,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 		int len;
 		DWORD out;
 		va_start(ap, fmta);
-		len = _vsnprintf((char*)buf, sizeof(buf), fmta, ap);
+		len = _vsnprintf((char *)buf, sizeof(buf), fmta, ap);
 		WriteFile(h, buf, len < 0 ? sizeof(buf) : (DWORD)len, &out, NULL);
 		va_end(ap);
 		return;
@@ -396,9 +396,9 @@ void OPENSSL_die(const char * message, const char * file, int line)
 # undef CRYPTO_memcmp
 int CRYPTO_memcmp(const void * in_a, const void * in_b, size_t len)
 {
-	const volatile unsigned char * a = static_cast<const volatile unsigned char *>(in_a);
-	const volatile unsigned char * b = static_cast<const volatile unsigned char *>(in_b);
-	unsigned char x = 0;
+	const volatile uchar * a = static_cast<const volatile uchar *>(in_a);
+	const volatile uchar * b = static_cast<const volatile uchar *>(in_b);
+	uchar x = 0;
 	for(size_t i = 0; i < len; i++)
 		x |= a[i] ^ b[i];
 	return x;
@@ -407,7 +407,7 @@ int CRYPTO_memcmp(const void * in_a, const void * in_b, size_t len)
  * For systems that don't provide an instruction counter register or equivalent.
  */
 uint32_t OPENSSL_rdtsc(void) { return 0; }
-size_t OPENSSL_instrument_bus(unsigned int * out, size_t cnt) { return 0; }
-size_t OPENSSL_instrument_bus2(unsigned int * out, size_t cnt, size_t max) { return 0; }
+size_t OPENSSL_instrument_bus(uint * out, size_t cnt) { return 0; }
+size_t OPENSSL_instrument_bus2(uint * out, size_t cnt, size_t max) { return 0; }
 
 #endif

@@ -26,18 +26,6 @@
 #pragma hdrstop
 
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include "archive.h"
-//#include "archive_string.h"
-//#include "archive_write_private.h"
 
 struct write_lrzip {
 	struct archive_write_program_data * pdata;

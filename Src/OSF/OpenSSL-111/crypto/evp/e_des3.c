@@ -24,7 +24,7 @@ typedef struct {
 
 	union {
 		void (*cbc)(const void *, void *, size_t,
-		const DES_key_schedule *, unsigned char *);
+		const DES_key_schedule *, uchar *);
 	} stream;
 } DES_EDE_KEY;
 #define ks1 ks.ks[0]
@@ -36,22 +36,22 @@ typedef struct {
  * assembler support was in general requested... */
 #include "sparc_arch.h"
 
-extern unsigned int OPENSSL_sparcv9cap_P[];
+extern uint OPENSSL_sparcv9cap_P[];
 
 #define SPARC_DES_CAPABLE       (OPENSSL_sparcv9cap_P[1] & CFR_DES)
 
 void des_t4_key_expand(const void * key, DES_key_schedule * ks);
 void des_t4_ede3_cbc_encrypt(const void * inp, void * out, size_t len,
-    const DES_key_schedule ks[3], unsigned char iv[8]);
+    const DES_key_schedule ks[3], uchar iv[8]);
 void des_t4_ede3_cbc_decrypt(const void * inp, void * out, size_t len,
-    const DES_key_schedule ks[3], unsigned char iv[8]);
+    const DES_key_schedule ks[3], uchar iv[8]);
 #endif
 
-static int des_ede_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc);
+static int des_ede_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc);
 
-static int des_ede3_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc);
+static int des_ede3_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc);
 
 static int des3_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);
 
@@ -61,28 +61,18 @@ static int des3_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);
  * Because of various casts and different args can't use
  * IMPLEMENT_BLOCK_CIPHER
  */
-
-static int des_ede_ecb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+ static int des_ede_ecb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	BLOCK_CIPHER_ecb_loop()
-	DES_ecb3_encrypt((const_DES_cblock*)(in + i),
-	    (DES_cblock*)(out + i),
-	    &data(ctx)->ks1, &data(ctx)->ks2,
-	    &data(ctx)->ks3, EVP_CIPHER_CTX_encrypting(ctx));
+	DES_ecb3_encrypt((const_DES_cblock*)(in + i), (DES_cblock*)(out + i), &data(ctx)->ks1, &data(ctx)->ks2, &data(ctx)->ks3, EVP_CIPHER_CTX_encrypting(ctx));
 	return 1;
 }
 
-static int des_ede_ofb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede_ofb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	while(inl >= EVP_MAXCHUNK) {
 		int num = EVP_CIPHER_CTX_num(ctx);
-		DES_ede3_ofb64_encrypt(in, out, (long)EVP_MAXCHUNK,
-		    &data(ctx)->ks1, &data(ctx)->ks2,
-		    &data(ctx)->ks3,
-		    (DES_cblock*)EVP_CIPHER_CTX_iv_noconst(ctx),
-		    &num);
+		DES_ede3_ofb64_encrypt(in, out, (long)EVP_MAXCHUNK, &data(ctx)->ks1, &data(ctx)->ks2, &data(ctx)->ks3, (DES_cblock*)EVP_CIPHER_CTX_iv_noconst(ctx), &num);
 		EVP_CIPHER_CTX_set_num(ctx, num);
 		inl -= EVP_MAXCHUNK;
 		in += EVP_MAXCHUNK;
@@ -90,18 +80,14 @@ static int des_ede_ofb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	}
 	if(inl) {
 		int num = EVP_CIPHER_CTX_num(ctx);
-		DES_ede3_ofb64_encrypt(in, out, (long)inl,
-		    &data(ctx)->ks1, &data(ctx)->ks2,
-		    &data(ctx)->ks3,
-		    (DES_cblock*)EVP_CIPHER_CTX_iv_noconst(ctx),
-		    &num);
+		DES_ede3_ofb64_encrypt(in, out, (long)inl, &data(ctx)->ks1, &data(ctx)->ks2, &data(ctx)->ks3, (DES_cblock*)EVP_CIPHER_CTX_iv_noconst(ctx), &num);
 		EVP_CIPHER_CTX_set_num(ctx, num);
 	}
 	return 1;
 }
 
-static int des_ede_cbc_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	DES_EDE_KEY * dat = data(ctx);
 
@@ -128,8 +114,8 @@ static int des_ede_cbc_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	return 1;
 }
 
-static int des_ede_cfb64_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede_cfb64_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	while(inl >= EVP_MAXCHUNK) {
 		int num = EVP_CIPHER_CTX_num(ctx);
@@ -159,11 +145,11 @@ static int des_ede_cfb64_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
  * Although we have a CFB-r implementation for 3-DES, it doesn't pack the
  * right way, so wrap it here
  */
-static int des_ede3_cfb1_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede3_cfb1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	size_t n;
-	unsigned char c[1], d[1];
+	uchar c[1], d[1];
 
 	if(!EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS))
 		inl *= 8;
@@ -181,8 +167,8 @@ static int des_ede3_cfb1_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	return 1;
 }
 
-static int des_ede3_cfb8_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede3_cfb8_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	while(inl >= EVP_MAXCHUNK) {
 		DES_ede3_cfb_encrypt(in, out, 8, (long)EVP_MAXCHUNK,
@@ -222,8 +208,8 @@ BLOCK_CIPHER_def_cfb(des_ede3, DES_EDE_KEY, NID_des_ede3, 24, 8, 8,
     EVP_CIPH_RAND_KEY | EVP_CIPH_FLAG_DEFAULT_ASN1,
     des_ede3_init_key, NULL, NULL, NULL, des3_ctrl)
 
-static int des_ede_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int des_ede_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	DES_cblock * deskey = (DES_cblock*)key;
 	DES_EDE_KEY * dat = data(ctx);
@@ -249,8 +235,8 @@ static int des_ede_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
 	return 1;
 }
 
-static int des_ede3_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int des_ede3_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	DES_cblock * deskey = (DES_cblock*)key;
 	DES_EDE_KEY * dat = data(ctx);
@@ -307,13 +293,13 @@ const EVP_CIPHER * EVP_des_ede3(void)
 
 #include <openssl/sha.h>
 
-static const unsigned char wrap_iv[8] =
+static const uchar wrap_iv[8] =
 { 0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05 };
 
-static int des_ede3_unwrap(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede3_unwrap(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
-	unsigned char icv[8], iv[8], sha1tmp[SHA_DIGEST_LENGTH];
+	uchar icv[8], iv[8], sha1tmp[SHA_DIGEST_LENGTH];
 	int rv = -1;
 	if(inl < 24)
 		return -1;
@@ -356,10 +342,10 @@ static int des_ede3_unwrap(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	return rv;
 }
 
-static int des_ede3_wrap(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede3_wrap(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
-	unsigned char sha1tmp[SHA_DIGEST_LENGTH];
+	uchar sha1tmp[SHA_DIGEST_LENGTH];
 	if(out == NULL)
 		return inl + 16;
 	/* Copy input to output buffer + 8 so we have space for IV */
@@ -380,8 +366,8 @@ static int des_ede3_wrap(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	return inl + 16;
 }
 
-static int des_ede3_wrap_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_ede3_wrap_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	/*
 	 * Sanity check input length: we typically only wrap keys so EVP_MAXCHUNK

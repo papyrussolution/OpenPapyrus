@@ -74,7 +74,7 @@ int ec_GF2m_simple_set_compressed_coordinates(const EC_GROUP * group,
 		if(!BN_GF2m_add(tmp, x, tmp))
 			goto err;
 		if(!BN_GF2m_mod_solve_quad_arr(z, tmp, group->poly, ctx)) {
-			unsigned long err = ERR_peek_last_error();
+			ulong err = ERR_peek_last_error();
 
 			if(ERR_GET_LIB(err) == ERR_LIB_BN && ERR_GET_REASON(err) == BN_R_NO_SOLUTION) {
 				ERR_clear_error();
@@ -111,7 +111,7 @@ err:
  */
 size_t ec_GF2m_simple_point2oct(const EC_GROUP * group, const EC_POINT * point,
     point_conversion_form_t form,
-    unsigned char * buf, size_t len, BN_CTX * ctx)
+    uchar * buf, size_t len, BN_CTX * ctx)
 {
 	size_t ret;
 	BN_CTX * new_ctx = NULL;
@@ -227,7 +227,7 @@ err:
  * Converts an octet string representation to an EC_POINT. Note that the
  * simple implementation only uses affine coordinates.
  */
-int ec_GF2m_simple_oct2point(const EC_GROUP * group, EC_POINT * point, const unsigned char * buf, size_t len, BN_CTX * ctx)
+int ec_GF2m_simple_oct2point(const EC_GROUP * group, EC_POINT * point, const uchar * buf, size_t len, BN_CTX * ctx)
 {
 	point_conversion_form_t form;
 	int y_bit, m;

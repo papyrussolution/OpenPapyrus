@@ -20,7 +20,7 @@
 #define HASH_FINAL              sm3_final
 #define HASH_MAKE_STRING(c, s)              \
       do {                                  \
-        unsigned long ll;                   \
+        ulong ll;                   \
         ll=(c)->A; (void)HOST_l2c(ll, (s)); \
         ll=(c)->B; (void)HOST_l2c(ll, (s)); \
         ll=(c)->C; (void)HOST_l2c(ll, (s)); \
@@ -32,7 +32,7 @@
       } while (0)
 #define HASH_BLOCK_DATA_ORDER   sm3_block_data_order
 
-void sm3_transform(SM3_CTX *c, const unsigned char *data);
+void sm3_transform(SM3_CTX *c, const uchar *data);
 
 #include <md32_common.h>
 

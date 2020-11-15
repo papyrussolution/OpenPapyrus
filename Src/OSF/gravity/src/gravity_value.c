@@ -675,7 +675,7 @@ static void gravity_function_bytecode_serialize(gravity_function_t * f, GravityJ
 	// bytecode
 	uint32 ninst = f->U.Nf.ninsts;
 	uint32 length = ninst * 2 * sizeof(uint32);
-	uint8_t * hexchar = (uint8_t*)mem_alloc(NULL, sizeof(uint8_t) * length);
+	uint8_t * hexchar = (uint8_t *)mem_alloc(NULL, sizeof(uint8_t) * length);
 	for(uint32 k = 0, i = 0; i < ninst; ++i) {
 		uint32 value = f->U.Nf.bytecode[i];
 		for(int32 j = 2*sizeof(value)-1; j>=0; --j) {
@@ -690,7 +690,7 @@ static void gravity_function_bytecode_serialize(gravity_function_t * f, GravityJ
 		return;
 	ninst = f->U.Nf.ninsts;
 	length = ninst * 2 * sizeof(uint32);
-	hexchar = (uint8_t*)mem_alloc(NULL, sizeof(uint8_t) * length);
+	hexchar = (uint8_t *)mem_alloc(NULL, sizeof(uint8_t) * length);
 	for(uint32 k = 0, i = 0; i < ninst; ++i) {
 		uint32 value = f->U.Nf.lineno[i];
 		for(int32 j = 2*sizeof(value)-1; j>=0; --j) {

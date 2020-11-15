@@ -170,7 +170,7 @@ void bn_mul_recursive(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b, int n2, int dna,
 {
 	int n = n2 / 2, c1, c2;
 	int tna = n + dna, tnb = n + dnb;
-	unsigned int neg, zero;
+	uint neg, zero;
 	BN_ULONG ln, lo, * p;
 
 #ifdef BN_MUL_COMBA

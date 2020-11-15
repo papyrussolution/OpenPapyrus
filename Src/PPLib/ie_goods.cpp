@@ -2310,7 +2310,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 						double rest = 0.0;
 						Sdr_Goods2 sdr_rec;
 						Goods2Tbl::Rec par_rec;
-						BarcodeTbl::Rec bc_entry;
 						PPGoodsPacket pack;
 						ObjTagList tag_list;
 						// @v10.7.9 @ctr MEMSZERO(sdr_rec);
@@ -2471,7 +2470,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									}
 								}
 								if(sdr_rec.AddedCode[0]) {
-									MEMSZERO(bc_entry);
+									BarcodeTbl::Rec bc_entry;
 									STRNSCPY(bc_entry.Code, strupr(sdr_rec.AddedCode));
 									bc_entry.Qtty = (sdr_rec.AddedCodeQtty > 0.0) ? sdr_rec.AddedCodeQtty : 1.0;
 									added_code_list.insert(&bc_entry);
@@ -2522,7 +2521,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										goods_name = temp_buf2;
 									}
 									else {
-										MEMSZERO(bc_entry);
+										BarcodeTbl::Rec bc_entry;
 										STRNSCPY(bc_entry.Code, barcode);
 										bc_entry.Qtty = 1.0;
 										added_code_list.insert(&bc_entry);

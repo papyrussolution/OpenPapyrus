@@ -232,7 +232,7 @@ int BLAKE2s_Update(BLAKE2S_CTX * c, const void * data, size_t datalen)
  * Calculate the final hash and save it in md.
  * Always returns 1.
  */
-int BLAKE2s_Final(unsigned char * md, BLAKE2S_CTX * c)
+int BLAKE2s_Final(uchar * md, BLAKE2S_CTX * c)
 {
 	int i;
 	blake2s_set_lastblock(c);

@@ -10,10 +10,6 @@
 #define HEADER_ERR_H
 
 #include <openssl/e_os2.h>
-#ifndef OPENSSL_NO_STDIO
-	#include <stdio.h>
-	#include <stdlib.h>
-#endif
 #include <openssl/ossl_typ.h>
 #include <openssl/bio.h>
 #include <openssl/lhash.h>
@@ -36,7 +32,7 @@ extern "C" {
 #define ERR_NUM_ERRORS  16
 typedef struct err_state_st {
     int err_flags[ERR_NUM_ERRORS];
-    unsigned long err_buffer[ERR_NUM_ERRORS];
+    ulong err_buffer[ERR_NUM_ERRORS];
     char *err_data[ERR_NUM_ERRORS];
     int err_data_flags[ERR_NUM_ERRORS];
     const char *err_file[ERR_NUM_ERRORS];
@@ -202,7 +198,7 @@ typedef struct err_state_st {
  */
 
 typedef struct ERR_string_data_st {
-    unsigned long error;
+    ulong error;
     const char *string;
 } ERR_STRING_DATA;
 
@@ -210,21 +206,21 @@ DEFINE_LHASH_OF(ERR_STRING_DATA);
 
 void ERR_put_error(int lib, int func, int reason, const char *file, int line);
 void ERR_set_error_data(char *data, int flags);
-unsigned long ERR_get_error(void);
-unsigned long ERR_get_error_line(const char **file, int *line);
-unsigned long ERR_get_error_line_data(const char **file, int *line, const char **data, int *flags);
-unsigned long ERR_peek_error(void);
-unsigned long ERR_peek_error_line(const char **file, int *line);
-unsigned long ERR_peek_error_line_data(const char **file, int *line, const char **data, int *flags);
-unsigned long ERR_peek_last_error(void);
-unsigned long ERR_peek_last_error_line(const char **file, int *line);
-unsigned long ERR_peek_last_error_line_data(const char **file, int *line, const char **data, int *flags);
+ulong ERR_get_error(void);
+ulong ERR_get_error_line(const char **file, int *line);
+ulong ERR_get_error_line_data(const char **file, int *line, const char **data, int *flags);
+ulong ERR_peek_error(void);
+ulong ERR_peek_error_line(const char **file, int *line);
+ulong ERR_peek_error_line_data(const char **file, int *line, const char **data, int *flags);
+ulong ERR_peek_last_error(void);
+ulong ERR_peek_last_error_line(const char **file, int *line);
+ulong ERR_peek_last_error_line_data(const char **file, int *line, const char **data, int *flags);
 void ERR_clear_error(void);
-char *ERR_error_string(unsigned long e, char *buf);
-void ERR_error_string_n(unsigned long e, char *buf, size_t len);
-const char *ERR_lib_error_string(unsigned long e);
-const char *ERR_func_error_string(unsigned long e);
-const char *ERR_reason_error_string(unsigned long e);
+char *ERR_error_string(ulong e, char *buf);
+void ERR_error_string_n(ulong e, char *buf, size_t len);
+const char *ERR_lib_error_string(ulong e);
+const char *ERR_func_error_string(ulong e);
+const char *ERR_reason_error_string(ulong e);
 void ERR_print_errors_cb(int (*cb) (const char *str, size_t len, void *u), void *u);
 #ifndef OPENSSL_NO_STDIO
 	void ERR_print_errors_fp(FILE *fp);
@@ -241,7 +237,7 @@ int ERR_load_ERR_strings(void);
 	#define ERR_free_strings() while(0) continue
 #endif
 DEPRECATEDIN_1_1_0(void ERR_remove_thread_state(void *))
-DEPRECATEDIN_1_0_0(void ERR_remove_state(unsigned long pid))
+DEPRECATEDIN_1_0_0(void ERR_remove_state(ulong pid))
 ERR_STATE *ERR_get_state(void);
 int ERR_get_next_error_library(void);
 int ERR_set_mark(void);

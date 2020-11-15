@@ -18,9 +18,9 @@
 static int atou64(const char * nptr, uint64_t * result);
 
 typedef struct {
-	unsigned char * pass;
+	uchar * pass;
 	size_t pass_len;
-	unsigned char * salt;
+	uchar * salt;
 	size_t salt_len;
 	uint64_t N, r, p;
 	uint64_t maxmem_bytes;
@@ -32,13 +32,13 @@ static int atou64(const char * nptr, uint64_t * result)
 	uint64_t value = 0;
 
 	while(*nptr) {
-		unsigned int digit;
+		uint digit;
 		uint64_t new_value;
 
 		if((*nptr < '0') || (*nptr > '9')) {
 			return 0;
 		}
-		digit = (unsigned int)(*nptr - '0');
+		digit = (uint)(*nptr - '0');
 		new_value = (value * 10) + digit;
 		if((new_value < digit) || ((new_value - digit) / 10 != value)) {
 			/* Overflow */
@@ -81,7 +81,7 @@ static void pkey_scrypt_cleanup(EVP_PKEY_CTX * ctx)
 	OPENSSL_free(kctx);
 }
 
-static int pkey_scrypt_set_membuf(unsigned char ** buffer, size_t * buflen, const unsigned char * new_buffer, const int new_buflen)
+static int pkey_scrypt_set_membuf(uchar ** buffer, size_t * buflen, const uchar * new_buffer, const int new_buflen)
 {
 	if(new_buffer == NULL)
 		return 1;
@@ -90,10 +90,10 @@ static int pkey_scrypt_set_membuf(unsigned char ** buffer, size_t * buflen, cons
 	if(*buffer != NULL)
 		OPENSSL_clear_free(*buffer, *buflen);
 	if(new_buflen > 0) {
-		*buffer = static_cast<unsigned char *>(OPENSSL_memdup(new_buffer, new_buflen));
+		*buffer = static_cast<uchar *>(OPENSSL_memdup(new_buffer, new_buflen));
 	}
 	else {
-		*buffer = static_cast<unsigned char *>(OPENSSL_malloc(1));
+		*buffer = static_cast<uchar *>(OPENSSL_malloc(1));
 	}
 	if(*buffer == NULL) {
 		KDFerr(KDF_F_PKEY_SCRYPT_SET_MEMBUF, ERR_R_MALLOC_FAILURE);
@@ -114,9 +114,9 @@ static int pkey_scrypt_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	uint64_t u64_value;
 	switch(type) {
 		case EVP_PKEY_CTRL_PASS:
-		    return pkey_scrypt_set_membuf(&kctx->pass, &kctx->pass_len, static_cast<const unsigned char *>(p2), p1);
+		    return pkey_scrypt_set_membuf(&kctx->pass, &kctx->pass_len, static_cast<const uchar *>(p2), p1);
 		case EVP_PKEY_CTRL_SCRYPT_SALT:
-		    return pkey_scrypt_set_membuf(&kctx->salt, &kctx->salt_len, static_cast<const unsigned char *>(p2), p1);
+		    return pkey_scrypt_set_membuf(&kctx->salt, &kctx->salt_len, static_cast<const uchar *>(p2), p1);
 		case EVP_PKEY_CTRL_SCRYPT_N:
 		    u64_value = *((uint64_t*)p2);
 		    if((u64_value <= 1) || !is_power_of_two(u64_value))
@@ -193,7 +193,7 @@ static int pkey_scrypt_ctrl_str(EVP_PKEY_CTX * ctx, const char * type,
 	return -2;
 }
 
-static int pkey_scrypt_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * keylen)
+static int pkey_scrypt_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
 	SCRYPT_PKEY_CTX * kctx = static_cast<SCRYPT_PKEY_CTX *>(ctx->data);
 	if(kctx->pass == NULL) {
@@ -206,7 +206,7 @@ static int pkey_scrypt_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * 
 		return 0;
 	}
 
-	return EVP_PBE_scrypt((char*)kctx->pass, kctx->pass_len, kctx->salt,
+	return EVP_PBE_scrypt((char *)kctx->pass, kctx->pass_len, kctx->salt,
 		   kctx->salt_len, kctx->N, kctx->r, kctx->p,
 		   kctx->maxmem_bytes, key, *keylen);
 }

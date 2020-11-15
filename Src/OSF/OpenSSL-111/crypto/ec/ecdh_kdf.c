@@ -16,16 +16,16 @@
 /* Way more than we will ever need */
 #define ECDH_KDF_MAX    (1 << 30)
 
-int ecdh_KDF_X9_63(unsigned char * out, size_t outlen,
-    const unsigned char * Z, size_t Zlen,
-    const unsigned char * sinfo, size_t sinfolen,
+int ecdh_KDF_X9_63(uchar * out, size_t outlen,
+    const uchar * Z, size_t Zlen,
+    const uchar * sinfo, size_t sinfolen,
     const EVP_MD * md)
 {
 	EVP_MD_CTX * mctx = NULL;
 	int rv = 0;
-	unsigned int i;
+	uint i;
 	size_t mdlen;
-	unsigned char ctr[4];
+	uchar ctr[4];
 	if(sinfolen > ECDH_KDF_MAX || outlen > ECDH_KDF_MAX
 	    || Zlen > ECDH_KDF_MAX)
 		return 0;
@@ -34,7 +34,7 @@ int ecdh_KDF_X9_63(unsigned char * out, size_t outlen,
 		return 0;
 	mdlen = EVP_MD_size(md);
 	for(i = 1;; i++) {
-		unsigned char mtmp[EVP_MAX_MD_SIZE];
+		uchar mtmp[EVP_MAX_MD_SIZE];
 		if(!EVP_DigestInit_ex(mctx, md, NULL))
 			goto err;
 		ctr[3] = i & 0xFF;
@@ -73,9 +73,9 @@ err:
  * The old name for ecdh_KDF_X9_63
  * Retained for ABI compatibility
  */
-int ECDH_KDF_X9_62(unsigned char * out, size_t outlen,
-    const unsigned char * Z, size_t Zlen,
-    const unsigned char * sinfo, size_t sinfolen,
+int ECDH_KDF_X9_62(uchar * out, size_t outlen,
+    const uchar * Z, size_t Zlen,
+    const uchar * sinfo, size_t sinfolen,
     const EVP_MD * md)
 {
 	return ecdh_KDF_X9_63(out, outlen, Z, Zlen, sinfo, sinfolen, md);

@@ -361,7 +361,7 @@ ACCCHK_ASSERT(sizeof(char) == 1)
     ACCCHK_ASSERT(sizeof(ptrdiff_t) >= sizeof(int))
     ACCCHK_ASSERT(sizeof(ptrdiff_t) >= sizeof(size_t))
 #if !defined(ACC_BROKEN_SIZEOF)
-    ACCCHK_ASSERT(sizeof(ptrdiff_t) == sizeof((char*)0 - (char*)0))
+    ACCCHK_ASSERT(sizeof(ptrdiff_t) == sizeof((char *)0 - (char *)0))
 # if (ACC_HAVE_MM_HUGE_PTR)
     ACCCHK_ASSERT(4 == sizeof((char __huge*)0 - (char __huge*)0))
 # endif
@@ -369,12 +369,12 @@ ACCCHK_ASSERT(sizeof(char) == 1)
 #if (SIZEOF_PTRDIFF_T > 0)
     ACCCHK_ASSERT(sizeof(ptrdiff_t) == SIZEOF_PTRDIFF_T)
 #endif
-    ACCCHK_ASSERT(sizeof(void*) >= sizeof(char*))
+    ACCCHK_ASSERT(sizeof(void*) >= sizeof(char *))
 #if (SIZEOF_VOID_P > 0)
     ACCCHK_ASSERT(sizeof(void*) == SIZEOF_VOID_P)
 #endif
 #if (SIZEOF_CHAR_P > 0)
-    ACCCHK_ASSERT(sizeof(char*) == SIZEOF_CHAR_P)
+    ACCCHK_ASSERT(sizeof(char *) == SIZEOF_CHAR_P)
 #endif
 #if (ACC_HAVE_MM_HUGE_PTR)
     ACCCHK_ASSERT(4 == sizeof(void __huge*))

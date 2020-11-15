@@ -27,13 +27,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#include "archive_read_private.h"
-
-static void add_passphrase_to_tail(struct archive_read * a,
-    struct archive_read_passphrase * p)
+static void add_passphrase_to_tail(struct archive_read * a, struct archive_read_passphrase * p)
 {
 	*a->passphrases.last = p;
 	a->passphrases.last = &p->next;

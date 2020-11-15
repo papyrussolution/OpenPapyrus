@@ -264,8 +264,8 @@ int PPObjSalCharge::GetPacket(PPID id, PPSalChargePacket * pPack)
 		pPack->Init();
 		THROW(r = Search(id, &pPack->Rec));
 		if(r > 0) {
-			THROW(ref->GetPropVlrString(Obj, id, SCPRP_FORMULA, pPack->Formula));
-			THROW(ref->GetPropArray(Obj, id, SCPPRP_GRPLIST, &pPack->GrpList));
+			THROW(P_Ref->GetPropVlrString(Obj, id, SCPRP_FORMULA, pPack->Formula));
+			THROW(P_Ref->GetPropArray(Obj, id, SCPPRP_GRPLIST, &pPack->GrpList));
 		}
 		ok = 1;
 	}
@@ -282,25 +282,25 @@ int PPObjSalCharge::PutPacket(PPID * pID, PPSalChargePacket * pPack, int useTa)
 		if(*pID) {
 			if(pPack) {
 				THROW(CheckDupName(*pID, pPack->Rec.Name));
-				THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPSalCharge, Symb)));
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
-				THROW(ref->PutPropVlrString(Obj, *pID, SCPRP_FORMULA, pPack->Formula));
-				THROW(ref->PutPropArray(Obj, *pID, SCPPRP_GRPLIST, &pPack->GrpList, 0));
+				THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPSalCharge, Symb)));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, SCPRP_FORMULA, pPack->Formula));
+				THROW(P_Ref->PutPropArray(Obj, *pID, SCPPRP_GRPLIST, &pPack->GrpList, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
-				THROW(ref->PutPropVlrString(Obj, *pID, SCPRP_FORMULA, 0));
-				THROW(ref->PutPropArray(Obj, *pID, SCPPRP_GRPLIST, 0, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, SCPRP_FORMULA, 0));
+				THROW(P_Ref->PutPropArray(Obj, *pID, SCPPRP_GRPLIST, 0, 0));
 			}
 			Dirty(*pID);
 		}
 		else {
 			*pID = pPack->Rec.ID;
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
-			THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPSalCharge, Symb)));
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-			THROW(ref->PutPropVlrString(Obj, *pID, SCPRP_FORMULA, pPack->Formula));
-			THROW(ref->PutPropArray(Obj, *pID, SCPPRP_GRPLIST, &pPack->GrpList, 0));
+			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPSalCharge, Symb)));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, SCPRP_FORMULA, pPack->Formula));
+			THROW(P_Ref->PutPropArray(Obj, *pID, SCPPRP_GRPLIST, &pPack->GrpList, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -326,7 +326,7 @@ int  PPObjSalCharge::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		else if(_obj == PPOBJ_SALCHARGE) {
 			PPIDArray grp_list;
 			for(PPID id = 0; ok == DBRPL_OK && EnumItems(&id, &rec) > 0;) {
-				ref->GetPropArray(Obj, id, SCPPRP_GRPLIST, &grp_list);
+				P_Ref->GetPropArray(Obj, id, SCPPRP_GRPLIST, &grp_list);
 				if(grp_list.lsearch(_id))
 					ok = RetRefsExistsErr(Obj, id);
 			}
@@ -340,7 +340,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjSalCharge, PPSalChargePacket);
 int PPObjSalCharge::SerializePacket(int dir, PPSalChargePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->Formula, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->GrpList, rBuf));
 	CATCHZOK
@@ -569,7 +569,7 @@ int32 DL6ICLS_PPObjSalCharge::SearchByName(SString & text, int32 kind, int32 ext
 		if(kind == 0)
 			ok = p_obj->SearchByName(text, &id, 0);
 		else if(kind == 1)
-			ok = p_obj->ref->SearchSymb(p_obj->Obj, &id, text, offsetof(PPSalCharge, Symb));
+			ok = p_obj->P_Ref->SearchSymb(p_obj->Obj, &id, text, offsetof(PPSalCharge, Symb));
 		else
 			ok = PPSetErrorInvParam();
 		if(ok > 0)
@@ -954,7 +954,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjStaffCal, PPStaffCalPacket);
 int PPObjStaffCal::SerializePacket(int dir, PPStaffCalPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(P_ScT->SerializeArrayOfRecords(dir, &pPack->Items, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -1035,11 +1035,11 @@ StrAssocArray * PPObjStaffCal::MakeStrAssocList(void * extraPtr)
 		SString name_buf;
 		SEnum en;
 		if(filt.LinkObjType && filt.LinkObjList.GetSingle())
-			en = ref->EnumByIdxVal(Obj, 2, filt.LinkObjList.GetSingle());
+			en = P_Ref->EnumByIdxVal(Obj, 2, filt.LinkObjList.GetSingle());
 		else if(filt.CalList.GetSingle())
-			en = ref->EnumByIdxVal(Obj, 1, filt.CalList.GetSingle());
+			en = P_Ref->EnumByIdxVal(Obj, 1, filt.CalList.GetSingle());
 		else
-			en = ref->Enum(Obj, 0);
+			en = P_Ref->Enum(Obj, 0);
 		while(en.Next(&rec) > 0)
 			if(CheckForFilt(&filt, &rec)) {
 				if(rec.Name[0] == 0)
@@ -1535,23 +1535,23 @@ int PPObjStaffCal::PutPacket(PPID * pID, PPStaffCalPacket * pPack, int useTa)
 		PPTransaction tra(useTa);
 		THROW(tra);
 		if(pPack) {
-			THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPStaffCal, Name)));
-			THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPStaffCal, Symb)));
+			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPStaffCal, Name)));
+			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPStaffCal, Symb)));
 		}
 		if(*pID) {
 			if(pPack) {
 				int    r;
-				THROW(r = ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(r = P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, r < 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 				THROW(PutItems(*pID, 0, 1));
 			}
 		}
 		else {
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, 0));
 		}
 		THROW(tra.Commit());
@@ -1587,7 +1587,7 @@ int PPObjStaffCal::SearchByObj(PPID parentID, PPObjID linkObj, PPStaffCal * pRec
 {
 	int    ok = -1;
 	PPStaffCal rec;
-	for(SEnum  en = ref->EnumByIdxVal(Obj, 2, linkObj.Id); ok < 0 && en.Next(&rec) > 0;)
+	for(SEnum  en = P_Ref->EnumByIdxVal(Obj, 2, linkObj.Id); ok < 0 && en.Next(&rec) > 0;)
 		if(rec.LinkObjType == linkObj.Obj && (!parentID || rec.LinkCalID == parentID)) {
 			ASSIGN_PTR(pRec, rec);
 			ok = 1;
@@ -1614,7 +1614,7 @@ int PPObjStaffCal::CreateChild(PPID * pID, PPID parentID, PPObjID linkObj, int u
 			new_entry.LinkObjType = linkObj.Obj;
 			new_entry.LinkObjID = linkObj.Id;
 			new_entry.LinkCalID = parentID;
-			THROW(ref->AddItem(Obj, pID, &new_entry, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &new_entry, 0));
 			ok = 1;
 		}
 		THROW(tra.Commit());
@@ -1942,7 +1942,7 @@ int PPObjStaffCal::GetChildList(PPID calID, PPIDArray * pList)
 {
 	int    ok = -1;
 	PPStaffCal rec;
-	for(SEnum en = ref->EnumByIdxVal(Obj, 1, calID); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->EnumByIdxVal(Obj, 1, calID); en.Next(&rec) > 0;) {
 		ok = 1;
 		if(pList)
 			pList->addUnique(rec.ID);

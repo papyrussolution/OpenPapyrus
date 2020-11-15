@@ -58,7 +58,7 @@ static int eckey_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 	EC_KEY * ec_key = pkey->pkey.ec;
 	void * pval = NULL;
 	int ptype;
-	unsigned char * penc = NULL, * p;
+	uchar * penc = NULL, * p;
 	int penclen;
 
 	if(!eckey_param2type(&ptype, &pval, ec_key)) {
@@ -93,7 +93,7 @@ static EC_KEY * eckey_type2param(int ptype, const void * pval)
 	EC_GROUP * group = NULL;
 	if(ptype == V_ASN1_SEQUENCE) {
 		const ASN1_STRING * pstr = static_cast<const ASN1_STRING *>(pval);
-		const unsigned char * pm = pstr->data;
+		const uchar * pm = pstr->data;
 		int pmlen = pstr->length;
 		if((eckey = d2i_ECParameters(NULL, &pm, pmlen)) == NULL) {
 			ECerr(EC_F_ECKEY_TYPE2PARAM, EC_R_DECODE_ERROR);
@@ -132,7 +132,7 @@ ecerr:
 
 static int eckey_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 {
-	const unsigned char * p = NULL;
+	const uchar * p = NULL;
 	const void * pval;
 	int ptype, pklen;
 	EC_KEY * eckey = NULL;
@@ -181,7 +181,7 @@ static int eckey_pub_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 
 static int eckey_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 {
-	const unsigned char * p = NULL;
+	const uchar * p = NULL;
 	const void * pval;
 	int ptype, pklen;
 	EC_KEY * eckey = NULL;
@@ -215,10 +215,10 @@ ecerr:
 static int eckey_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 {
 	EC_KEY ec_key = *(pkey->pkey.ec);
-	unsigned char * ep, * p;
+	uchar * ep, * p;
 	int eplen, ptype;
 	void * pval;
-	unsigned int old_flags;
+	uint old_flags;
 
 	if(!eckey_param2type(&ptype, &pval, &ec_key)) {
 		ECerr(EC_F_ECKEY_PRIV_ENCODE, EC_R_DECODE_ERROR);
@@ -339,7 +339,7 @@ typedef enum {
 static int do_EC_KEY_print(BIO * bp, const EC_KEY * x, int off, ec_print_t ktype)
 {
 	const char * ecstr;
-	unsigned char * priv = NULL, * pub = NULL;
+	uchar * priv = NULL, * pub = NULL;
 	size_t privlen = 0, publen = 0;
 	int ret = 0;
 	const EC_GROUP * group;
@@ -400,7 +400,7 @@ err:
 }
 
 static int eckey_param_decode(EVP_PKEY * pkey,
-    const unsigned char ** pder, int derlen)
+    const uchar ** pder, int derlen)
 {
 	EC_KEY * eckey;
 
@@ -412,7 +412,7 @@ static int eckey_param_decode(EVP_PKEY * pkey,
 	return 1;
 }
 
-static int eckey_param_encode(const EVP_PKEY * pkey, unsigned char ** pder)
+static int eckey_param_encode(const EVP_PKEY * pkey, uchar ** pder)
 {
 	return i2d_ECParameters(pkey->pkey.ec, pder);
 }
@@ -436,7 +436,7 @@ static int eckey_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent,
 }
 
 static int old_ec_priv_decode(EVP_PKEY * pkey,
-    const unsigned char ** pder, int derlen)
+    const uchar ** pder, int derlen)
 {
 	EC_KEY * ec;
 
@@ -448,7 +448,7 @@ static int old_ec_priv_decode(EVP_PKEY * pkey,
 	return 1;
 }
 
-static int old_ec_priv_encode(const EVP_PKEY * pkey, unsigned char ** pder)
+static int old_ec_priv_encode(const EVP_PKEY * pkey, uchar ** pder)
 {
 	return i2d_ECPrivateKey(pkey->pkey.ec, pder);
 }
@@ -630,7 +630,7 @@ static int ecdh_cms_set_peerkey(EVP_PKEY_CTX * pctx,
 	int rv = 0;
 	EVP_PKEY * pkpeer = NULL;
 	EC_KEY * ecpeer = NULL;
-	const unsigned char * p;
+	const uchar * p;
 	int plen;
 	X509_ALGOR_get0(&aoid, &atype, &aval, alg);
 	if(OBJ_obj2nid(aoid) != NID_X9_62_id_ecPublicKey)
@@ -713,8 +713,8 @@ static int ecdh_cms_set_shared_info(EVP_PKEY_CTX * pctx, CMS_RecipientInfo * ri)
 
 	X509_ALGOR * alg, * kekalg = NULL;
 	ASN1_OCTET_STRING * ukm;
-	const unsigned char * p;
-	unsigned char * der = NULL;
+	const uchar * p;
+	uchar * der = NULL;
 	int plen, keylen;
 	const EVP_CIPHER * kekcipher;
 	EVP_CIPHER_CTX * kekctx;
@@ -805,7 +805,7 @@ static int ecdh_cms_encrypt(CMS_RecipientInfo * ri)
 	ASN1_BIT_STRING * pubkey;
 	ASN1_STRING * wrap_str;
 	ASN1_OCTET_STRING * ukm;
-	unsigned char * penc = NULL;
+	uchar * penc = NULL;
 	int penclen;
 	int rv = 0;
 	int ecdh_nid, kdf_type, kdf_nid, wrap_nid;
@@ -823,7 +823,7 @@ static int ecdh_cms_encrypt(CMS_RecipientInfo * ri)
 	if(aoid == OBJ_nid2obj(NID_undef)) {
 		EC_KEY * eckey = pkey->pkey.ec;
 		/* Set the key */
-		unsigned char * p;
+		uchar * p;
 
 		penclen = i2o_ECPublicKey(eckey, NULL);
 		if(penclen <= 0)

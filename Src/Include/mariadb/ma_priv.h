@@ -24,9 +24,9 @@
 
 void FASTCALL free_rows(MYSQL_DATA * cur);
 int ma_multi_command(MYSQL * mysql, enum enum_multi_status status);
-MYSQL_FIELD * unpack_fields(const MYSQL * mysql, MYSQL_DATA * data, MA_MEM_ROOT * alloc, uint fields, my_bool default_value);
+MYSQL_FIELD * unpack_fields(const MYSQL * mysql, MYSQL_DATA * data, MA_MEM_ROOT * alloc, uint fields, bool default_value);
 
-static inline my_bool ma_has_extended_type_info(const MYSQL * mysql)
+static inline bool ma_has_extended_type_info(const MYSQL * mysql)
 {
 	return ((mysql->extension->mariadb_server_capabilities) & (MARIADB_CLIENT_EXTENDED_METADATA >> 32)) != 0;
 }

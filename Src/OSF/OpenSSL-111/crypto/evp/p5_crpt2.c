@@ -17,7 +17,7 @@
 /* #define OPENSSL_DEBUG_PKCS5V2 */
 
 #ifdef OPENSSL_DEBUG_PKCS5V2
-static void h__dump(const unsigned char * p, int len);
+static void h__dump(const uchar * p, int len);
 #endif
 
 /*
@@ -27,13 +27,13 @@ static void h__dump(const unsigned char * p, int len);
  */
 
 int PKCS5_PBKDF2_HMAC(const char * pass, int passlen,
-    const unsigned char * salt, int saltlen, int iter,
-    const EVP_MD * digest, int keylen, unsigned char * out)
+    const uchar * salt, int saltlen, int iter,
+    const EVP_MD * digest, int keylen, uchar * out)
 {
 	const char * empty = "";
-	unsigned char digtmp[EVP_MAX_MD_SIZE], * p, itmp[4];
+	uchar digtmp[EVP_MAX_MD_SIZE], * p, itmp[4];
 	int cplen, j, k, tkeylen, mdlen;
-	unsigned long i = 1;
+	ulong i = 1;
 	HMAC_CTX * hctx_tpl = NULL, * hctx = NULL;
 
 	mdlen = EVP_MD_size(digest);
@@ -121,8 +121,8 @@ int PKCS5_PBKDF2_HMAC(const char * pass, int passlen,
 }
 
 int PKCS5_PBKDF2_HMAC_SHA1(const char * pass, int passlen,
-    const unsigned char * salt, int saltlen, int iter,
-    int keylen, unsigned char * out)
+    const uchar * salt, int saltlen, int iter,
+    int keylen, uchar * out)
 {
 	return PKCS5_PBKDF2_HMAC(pass, passlen, salt, saltlen, iter, EVP_sha1(),
 		   keylen, out);
@@ -181,10 +181,10 @@ int PKCS5_v2_PBKDF2_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass,
     int passlen, ASN1_TYPE * param,
     const EVP_CIPHER * c, const EVP_MD * md, int en_de)
 {
-	unsigned char * salt, key[EVP_MAX_KEY_LENGTH];
+	uchar * salt, key[EVP_MAX_KEY_LENGTH];
 	int saltlen, iter;
 	int rv = 0;
-	unsigned int keylen = 0;
+	uint keylen = 0;
 	int prf_nid, hmac_md_nid;
 	PBKDF2PARAM * kdf = NULL;
 	const EVP_MD * prfmd;
@@ -246,7 +246,7 @@ err:
 }
 
 #ifdef OPENSSL_DEBUG_PKCS5V2
-static void h__dump(const unsigned char * p, int len)
+static void h__dump(const uchar * p, int len)
 {
 	for(; len--; p++)
 		fprintf(stderr, "%02X ", *p);

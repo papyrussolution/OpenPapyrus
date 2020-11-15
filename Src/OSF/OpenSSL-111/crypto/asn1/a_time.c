@@ -110,7 +110,7 @@ int asn1_time_to_tm(struct tm * tm, const ASN1_TIME * d)
 		return 0;
 	}
 	l = d->length;
-	a = (char*)d->data;
+	a = (char *)d->data;
 	o = 0;
 	memzero(&tmp, sizeof(tmp));
 	/*
@@ -294,7 +294,7 @@ ASN1_TIME * asn1_time_from_tm(ASN1_TIME * s, struct tm * ts, int type)
 		goto err;
 
 	tmps->type = type;
-	p = (char*)tmps->data;
+	p = (char *)tmps->data;
 
 	if(type == V_ASN1_GENERALIZEDTIME)
 		tmps->length = BIO_snprintf(p, len, "%04d%02d%02d%02d%02d%02dZ",
@@ -478,7 +478,7 @@ int ASN1_TIME_print(BIO * bp, const ASN1_TIME * tm)
 	}
 
 	l = tm->length;
-	v = (char*)tm->data;
+	v = (char *)tm->data;
 	if(v[l - 1] == upper_z)
 		gmt = 1;
 

@@ -52,7 +52,7 @@ void * encrypt(void * pBuf, size_t len)
 {
 	len = ((len + 3) >> 2);
 	for(size_t i = 0; i < len; i++)
-		((ulong*)pBuf)[i] = mix(((ulong*)pBuf)[i]);
+		((ulong *)pBuf)[i] = mix(((ulong *)pBuf)[i]);
 	return pBuf;
 }
 

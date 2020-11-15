@@ -254,6 +254,15 @@ static void InitTest()
 		p_x = &rx;
 		assert((p_x == &rx) == 1);
 		assert((p_x != &rx) == 0);
+		// @v10.9.3 {
+		assert(BIN(17) == 1);
+		assert(BIN(0) == 0);
+		assert(BIN(0.0) == 0);
+		assert(!0 == 1);
+		assert(!17 == 0);
+		assert(LOGIC(!0.000001) == false);
+		assert(LOGIC(!0.00000) == true);
+		// } @v10.9.3 
 	}
 	{
 		// @paranoic (Защита от классической шутки)
@@ -406,6 +415,17 @@ static void InitTest()
 		}
 	}
 	// } @v10.7.9 
+	// @v10.9.3 {
+	assert(ismemzero(&ZEROGUID, sizeof(ZEROGUID))); 
+	assert(isasciialpha('A') != 0);
+	assert(isasciialpha('z') != 0);
+	assert(isasciialpha('U') != 0);
+	assert(isasciialpha('d') != 0);
+	assert(isasciialpha('Z'+1) == 0);
+	assert(isasciialpha('A'-1) == 0);
+	assert(isasciialpha('z'+1) == 0);
+	assert(isasciialpha('a'-1) == 0);
+	// } @v10.9.3 
 #endif // } NDEBUG
 }
 

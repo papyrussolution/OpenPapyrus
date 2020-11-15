@@ -14,8 +14,8 @@
 
 void * ASN1_dup(i2d_of_void * i2d, d2i_of_void * d2i, void * x)
 {
-	unsigned char * b, * p;
-	const unsigned char * p2;
+	uchar * b, * p;
+	const uchar * p2;
 	int i;
 	char * ret;
 
@@ -47,8 +47,8 @@ void * ASN1_dup(i2d_of_void * i2d, d2i_of_void * d2i, void * x)
 
 void * ASN1_item_dup(const ASN1_ITEM * it, void * x)
 {
-	unsigned char * b = NULL;
-	const unsigned char * p;
+	uchar * b = NULL;
+	const uchar * p;
 	long i;
 	void * ret;
 

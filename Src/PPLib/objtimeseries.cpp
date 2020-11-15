@@ -248,7 +248,7 @@ PPObjTssModel::PPObjTssModel(void * extraPtr) : PPObjReference(PPOBJ_TSSMODEL, e
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
-				if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPTssModel, Name)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPTssModel, Name)) > 0) {
 					PPTssModel same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
@@ -690,7 +690,7 @@ int PPObjTssModel::AddBySample(PPID * pID, PPID sampleID)
 int PPObjTssModel::SerializePacket(int dir, PPTssModelPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW(pPack->SerializeTail(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -713,9 +713,9 @@ int PPObjTssModel::PutPacket(PPID * pID, PPTssModelPacket * pPack, int use_ta)
 		if(pPack == 0) {
 			if(*pID) {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, _id, 0));
-				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
-				//THROW(ref->Ot.PutList(Obj, _id, 0, 0));
+				THROW(P_Ref->RemoveItem(Obj, _id, 0));
+				THROW(P_Ref->RemoveProperty(Obj, _id, 0, 0));
+				//THROW(P_Ref->Ot.PutList(Obj, _id, 0, 0));
 				//THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
 			}
@@ -728,23 +728,23 @@ int PPObjTssModel::PutPacket(PPID * pID, PPTssModelPacket * pPack, int use_ta)
 				if(pPack->IsEqual(org_pack))
 					ok = -1;
 				else {
-					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0));
+					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0));
 					{
 						THROW(pPack->SerializeTail(+1, sbuf, &sctx));
-						THROW(ref->PutPropSBuffer(Obj, _id, TSSMODELPRP_EXTENSION, sbuf, 0));
+						THROW(P_Ref->PutPropSBuffer(Obj, _id, TSSMODELPRP_EXTENSION, sbuf, 0));
 					}
-					//THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+					//THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}
 			}
 			else {
-				THROW(ref->AddItem(Obj, &_id, &pPack->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, &_id, &pPack->Rec, 0));
 				pPack->Rec.ID = _id;
 				{
 					THROW(pPack->SerializeTail(+1, sbuf, &sctx));
-					THROW(ref->PutPropSBuffer(Obj, _id, TSSMODELPRP_EXTENSION, sbuf, 0));
+					THROW(P_Ref->PutPropSBuffer(Obj, _id, TSSMODELPRP_EXTENSION, sbuf, 0));
 				}
-				//THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+				//THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
 				ASSIGN_PTR(pID, _id);
 			}
@@ -768,7 +768,7 @@ int PPObjTssModel::GetPacket(PPID id, PPTssModelPacket * pPack)
 	if(ok > 0) {
 		SBuffer sbuf;
 		SSerializeContext sctx;
-		THROW(ref->GetPropSBuffer(Obj, id, TSSMODELPRP_EXTENSION, sbuf));
+		THROW(P_Ref->GetPropSBuffer(Obj, id, TSSMODELPRP_EXTENSION, sbuf));
 		THROW(pPack->SerializeTail(-1, sbuf, &sctx));
 	}
 	CATCHZOK
@@ -1259,7 +1259,7 @@ int PPObjTimeSeries::EditDialog(PPTimeSeriesPacket * pEntry)
 			THROW(Obj.CheckName(_id, temp_buf, 1));
 			STRNSCPY(Data.Rec.Name, temp_buf);
 			getCtrlString(sel = CTL_TIMSER_SYMB, temp_buf);
-			THROW(Obj.ref->CheckUniqueSymb(Obj.Obj, _id, temp_buf, offsetof(ReferenceTbl::Rec, Symb)));
+			THROW(Obj.P_Ref->CheckUniqueSymb(Obj.Obj, _id, temp_buf, offsetof(ReferenceTbl::Rec, Symb)));
 			STRNSCPY(Data.Rec.Symb, temp_buf);
 			GetClusterData(CTL_TIMSER_TYPE,  &Data.Rec.Type); // @v10.5.6
 			GetClusterData(CTL_TIMSER_FLAGS, &Data.Rec.Flags);
@@ -1430,10 +1430,10 @@ int PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int use_t
 			if(*pID) {
 				TextRefIdent tri(Obj, _id, PPTRPROP_TIMESERIES);
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, _id, 0));
-				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
-				//THROW(ref->Ot.PutList(Obj, _id, 0, 0));
-				THROW(ref->UtrC.SetTimeSeries(tri, 0, 0));
+				THROW(P_Ref->RemoveItem(Obj, _id, 0));
+				THROW(P_Ref->RemoveProperty(Obj, _id, 0, 0));
+				//THROW(P_Ref->Ot.PutList(Obj, _id, 0, 0));
+				THROW(P_Ref->UtrC.SetTimeSeries(tri, 0, 0));
 				//THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
 			}
@@ -1455,17 +1455,17 @@ int PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int use_t
 				if(pPack->IsEqual(org_pack))
 					ok = -1;
 				else {
-					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0)); // @v10.7.4 @fix pPack-->&pPack->Rec
-					THROW(ref->PutProp(Obj, _id, TIMSERPRP_EXTENSION, p_ext, sizeof(*p_ext), 0)); // @v10.5.5
-					//THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0)); // @v10.7.4 @fix pPack-->&pPack->Rec
+					THROW(P_Ref->PutProp(Obj, _id, TIMSERPRP_EXTENSION, p_ext, sizeof(*p_ext), 0)); // @v10.5.5
+					//THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}
 			}
 			else {
-				THROW(ref->AddItem(Obj, &_id, &pPack->Rec, 0)); // @v10.7.4 @fix pPack-->&pPack->Rec
+				THROW(P_Ref->AddItem(Obj, &_id, &pPack->Rec, 0)); // @v10.7.4 @fix pPack-->&pPack->Rec
 				pPack->Rec.ID = _id;
-				THROW(ref->PutProp(Obj, _id, TIMSERPRP_EXTENSION, p_ext, sizeof(*p_ext), 0)); // @v10.5.5
-				//THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+				THROW(P_Ref->PutProp(Obj, _id, TIMSERPRP_EXTENSION, p_ext, sizeof(*p_ext), 0)); // @v10.5.5
+				//THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
 				ASSIGN_PTR(pID, _id);
 			}
@@ -1489,7 +1489,7 @@ int PPObjTimeSeries::GetPacket(PPID id, PPTimeSeriesPacket * pPack)
 	if(ok > 0) {
 		// @v10.5.5 {
 		TimeSeriesExtention ext_blk;
-		if(ref->GetProperty(Obj, id, TIMSERPRP_EXTENSION, &ext_blk, sizeof(ext_blk)) > 0) {
+		if(P_Ref->GetProperty(Obj, id, TIMSERPRP_EXTENSION, &ext_blk, sizeof(ext_blk)) > 0) {
 			if(ext_blk.MarginManual > 0.0 && ext_blk.MarginManual <= 2.0) {
 				pPack->E.MarginManual = ext_blk.MarginManual;
 			}
@@ -1505,7 +1505,7 @@ int PPObjTimeSeries::GetPacket(PPID id, PPTimeSeriesPacket * pPack)
 int PPObjTimeSeries::SerializePacket(int dir, PPTimeSeriesPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->SerializeBlock(dir, sizeof(pPack->E), &pPack->E, rBuf, 0));
 	CATCHZOK
 	return ok;
@@ -1516,7 +1516,7 @@ int PPObjTimeSeries::SerializePacket(int dir, PPTimeSeriesPacket * pPack, SBuffe
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_TSSMODEL) {
 		PPTimeSeries rec;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if(rec.TssModelID == _id) {
 				ok = RetRefsExistsErr(Obj, rec.ID);
 				break;
@@ -1553,14 +1553,14 @@ int PPObjTimeSeries::SerializePacket(int dir, PPTimeSeriesPacket * pPack, SBuffe
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				PPTimeSeries same_rec;
-				if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPTimeSeries, Name)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPTimeSeries, Name)) > 0) {
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
 					}
 					else
 						same_id = 0;
 				}
-				else if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPTimeSeries, Symb)) > 0) {
+				else if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPTimeSeries, Symb)) > 0) {
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
 					}
@@ -1614,7 +1614,7 @@ int PPObjTimeSeries::SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta)
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			THROW(Search(id, &ts_rec) > 0);
-			THROW(ref->UtrC.SetTimeSeries(tri, pTs, 0));
+			THROW(P_Ref->UtrC.SetTimeSeries(tri, pTs, 0));
 			stored_ts_count = pTs ? static_cast<long>(pTs->GetCount()) : 0L;
 			DS.LogAction(PPACN_TSSERIESUPD, Obj, id, stored_ts_count, 0); // @v10.3.3
 			THROW(tra.Commit());
@@ -1629,7 +1629,7 @@ int PPObjTimeSeries::SetTimeSeries(PPID id, STimeSeries * pTs, int use_ta)
 int PPObjTimeSeries::GetTimeSeries(PPID id, STimeSeries & rTs)
 {
 	TextRefIdent tri(Obj, id, PPTRPROP_TIMESERIES);
-	return ref->UtrC.Search(tri, rTs);
+	return P_Ref->UtrC.Search(tri, rTs);
 }
 //
 //
@@ -4920,7 +4920,7 @@ int PPObjTimeSeries::PutStrategies(PPID id, StrategySetType sst, StrategyContain
 			SSerializeContext sctx;
 			THROW(pL->Serialize(+1, buffer, &sctx));
 		}
-		THROW(ref->PutPropSBuffer(Obj, id, prop, buffer, 0));
+		THROW(P_Ref->PutPropSBuffer(Obj, id, prop, buffer, 0));
 		DS.LogAction(PPACN_TSSTRATEGYUPD, Obj, id, static_cast<long>(_c), 0); // @v10.3.3
 		THROW(tra.Commit());
 	}
@@ -4942,7 +4942,7 @@ int PPObjTimeSeries::GetStrategies(PPID id, StrategySetType sst, StrategyContain
 		default: assert(0); break;
 	}
 	rL.clear();
-	THROW(ref->GetPropSBuffer(Obj, id, prop, buffer));
+	THROW(P_Ref->GetPropSBuffer(Obj, id, prop, buffer));
 	{
 		size_t sd_size = buffer.GetAvailableSize();
 		if(sd_size) {

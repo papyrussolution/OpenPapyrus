@@ -39,10 +39,10 @@ struct DSA_SIG_st {
 
 struct dsa_method {
     char *name;
-    DSA_SIG *(*dsa_do_sign) (const unsigned char *dgst, int dlen, DSA *dsa);
+    DSA_SIG *(*dsa_do_sign) (const uchar *dgst, int dlen, DSA *dsa);
     int (*dsa_sign_setup) (DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp,
                            BIGNUM **rp);
-    int (*dsa_do_verify) (const unsigned char *dgst, int dgst_len,
+    int (*dsa_do_verify) (const uchar *dgst, int dgst_len,
                           DSA_SIG *sig, DSA *dsa);
     int (*dsa_mod_exp) (DSA *dsa, BIGNUM *rr, const BIGNUM *a1,
                         const BIGNUM *p1, const BIGNUM *a2, const BIGNUM *p2,
@@ -56,21 +56,21 @@ struct dsa_method {
     void *app_data;
     /* If this is non-NULL, it is used to generate DSA parameters */
     int (*dsa_paramgen) (DSA *dsa, int bits,
-                         const unsigned char *seed, int seed_len,
-                         int *counter_ret, unsigned long *h_ret,
+                         const uchar *seed, int seed_len,
+                         int *counter_ret, ulong *h_ret,
                          BN_GENCB *cb);
     /* If this is non-NULL, it is used to generate DSA keys */
     int (*dsa_keygen) (DSA *dsa);
 };
 
 int dsa_builtin_paramgen(DSA *ret, size_t bits, size_t qbits,
-                         const EVP_MD *evpmd, const unsigned char *seed_in,
-                         size_t seed_len, unsigned char *seed_out,
-                         int *counter_ret, unsigned long *h_ret,
+                         const EVP_MD *evpmd, const uchar *seed_in,
+                         size_t seed_len, uchar *seed_out,
+                         int *counter_ret, ulong *h_ret,
                          BN_GENCB *cb);
 
 int dsa_builtin_paramgen2(DSA *ret, size_t L, size_t N,
-                          const EVP_MD *evpmd, const unsigned char *seed_in,
-                          size_t seed_len, int idx, unsigned char *seed_out,
-                          int *counter_ret, unsigned long *h_ret,
+                          const EVP_MD *evpmd, const uchar *seed_in,
+                          size_t seed_len, int idx, uchar *seed_out,
+                          int *counter_ret, ulong *h_ret,
                           BN_GENCB *cb);

@@ -52,9 +52,9 @@ typedef struct generated_file {
 	    are detected, generated source files are removed.  */
 	bool is_source;
 } generated_file;
+
 static generated_file * generated_files = NULL;
 static int generated_files_size = 0;
-
 uniqstr grammar_file = NULL;
 
 /* If --output=dir/foo.c was specified,
@@ -77,11 +77,8 @@ char * all_but_ext;
 static char * all_but_tab_ext;
 char * dir_prefix;
 char * mapped_dir_prefix;
-
-/* C source file extension (the parser source).  */
-static char * src_extension = NULL;
-/* Header file extension (if option '`-d'' is specified).  */
-static char * header_extension = NULL;
+static char * src_extension = NULL; /* C source file extension (the parser source).  */
+static char * header_extension = NULL; /* Header file extension (if option '`-d'' is specified).  */
 
 struct prefix_map {
 	char * oldprefix;
@@ -178,22 +175,18 @@ char * map_file_name(char const * filename)
 
 static void prefix_map_free(struct prefix_map * p)
 {
-	SAlloc::F(p->oldprefix);
-	SAlloc::F(p->newprefix);
-	SAlloc::F(p);
+	if(p) {
+		SAlloc::F(p->oldprefix);
+		SAlloc::F(p->newprefix);
+		SAlloc::F(p);
+	}
 }
 
 /*  Adds a new file prefix mapping. If a file path starts with oldprefix, it
     will be replaced with newprefix */
 void add_prefix_map(char const * oldprefix, char const * newprefix)
 {
-	if(!prefix_maps)
-		prefix_maps = gl_list_create_empty(GL_ARRAY_LIST,
-		        /* equals */ NULL,
-		        /* hashcode */ NULL,
-			(gl_listelement_dispose_fn)prefix_map_free,
-			true);
-
+	SETIFZ(prefix_maps, gl_list_create_empty(GL_ARRAY_LIST, /* equals */ NULL, /* hashcode */ NULL, (gl_listelement_dispose_fn)prefix_map_free, true));
 	struct prefix_map * p = (struct prefix_map *)xmalloc(sizeof(*p));
 	p->oldprefix = xstrdup(oldprefix);
 	p->newprefix = xstrdup(newprefix);
@@ -268,9 +261,7 @@ static void file_name_split(const char * file_name, const char ** base, const ch
 	/* Look for the extension, i.e., look for the last dot. */
 	*ext = (const char*)_mbsrchr((const uchar *)*base, '.');
 	*tab = NULL;
-
-	/* If there is an extension, check if there is a '.tab' part right
-	   before.  */
+	// If there is an extension, check if there is a '.tab' part right before. 
 	if(*ext) {
 		size_t baselen = *ext - *base;
 		size_t dottablen = sizeof(TAB_EXT) - 1;
@@ -388,12 +379,10 @@ void unlink_generated_sources()
 {
 	for(int i = 0; i < generated_files_size; i++)
 		if(generated_files[i].is_source)
-			/* Ignore errors.  The file might not even exist.  */
-			_unlink(generated_files[i].name);
+			_unlink(generated_files[i].name); /* Ignore errors.  The file might not even exist.  */
 }
 
-/* Memory allocated by relocate2, to free.  */
-static char * relocate_buffer = NULL;
+static char * relocate_buffer = NULL; // @global Memory allocated by relocate2, to free. 
 
 extern const char * get_app_path();
 
@@ -467,7 +456,6 @@ void output_file_names_free()
 		SAlloc::F(generated_files[i].name);
 	SAlloc::F(generated_files);
 	SAlloc::F(relocate_buffer);
-
 	if(prefix_maps)
 		gl_list_free(prefix_maps);
 }

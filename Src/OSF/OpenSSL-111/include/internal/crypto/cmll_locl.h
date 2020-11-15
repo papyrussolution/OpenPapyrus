@@ -24,8 +24,8 @@
 #ifndef HEADER_CAMELLIA_LOCL_H
 #define HEADER_CAMELLIA_LOCL_H
 
-typedef unsigned int u32;
-typedef unsigned char u8;
+typedef uint u32;
+typedef uchar u8;
 
 int Camellia_Ekeygen(int keyBitLength, const u8 *rawKey,
                      KEY_TABLE_TYPE keyTable);

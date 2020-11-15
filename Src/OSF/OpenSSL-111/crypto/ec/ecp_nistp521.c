@@ -698,7 +698,7 @@ static void felem_inv(felem out, const felem in)
 {
 	felem ftmp, ftmp2, ftmp3, ftmp4;
 	largefelem tmp;
-	unsigned i;
+	uint i;
 
 	felem_square(tmp, in);
 	felem_reduce(ftmp, tmp); /* 2^1 */
@@ -1130,7 +1130,7 @@ static void point_double(felem x_out, felem y_out, felem z_out,
 /* copy_conditional copies in to out iff mask is all ones. */
 static void copy_conditional(felem out, const felem in, limb mask)
 {
-	unsigned i;
+	uint i;
 	for(i = 0; i < NLIMBS; ++i) {
 		const limb tmp = mask & (in[i] ^ out[i]);
 		out[i] ^= tmp;
@@ -1471,7 +1471,7 @@ static const felem gmul[16][3] = {
  * copies it to out.
  */
 /* pre_comp below is of the size provided in |size| */
-static void select_point(const limb idx, unsigned int size,
+static void select_point(const limb idx, uint size,
     const felem pre_comp[][3], felem out[3])
 {
 	unsigned i, j;
@@ -1849,7 +1849,7 @@ int ec_GFp_nistp521_points_mul(const EC_GROUP * group, EC_POINT * r,
 	felem_bytearray * secrets = NULL;
 	felem(*pre_comp)[17][3] = NULL;
 	felem * tmp_felems = NULL;
-	unsigned i;
+	uint i;
 	int num_bytes;
 	int have_pre_comp = 0;
 	size_t num_points = num;

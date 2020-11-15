@@ -11,9 +11,9 @@
 //#include <openssl/aes.h>
 //#include "aes_locl.h"
 
-#define N_WORDS (AES_BLOCK_SIZE / sizeof(unsigned long))
+#define N_WORDS (AES_BLOCK_SIZE / sizeof(ulong))
 typedef struct {
-	unsigned long data[N_WORDS];
+	ulong data[N_WORDS];
 } aes_block_t;
 
 /* XXX: probably some better way to do this */
@@ -24,7 +24,7 @@ typedef struct {
 #endif
 #if UNALIGNED_MEMOPS_ARE_FAST
 	#define load_block(d, s)        (d) = *(const aes_block_t*)(s)
-	#define store_block(d, s)       *(aes_block_t*)(d) = (s)
+	#define store_block(d, s)       *(aes_block_t *)(d) = (s)
 #else
 	#define load_block(d, s)        memcpy((d).data, (s), AES_BLOCK_SIZE)
 	#define store_block(d, s)       memcpy((d), (s).data, AES_BLOCK_SIZE)
@@ -32,7 +32,7 @@ typedef struct {
 
 /* N.B. The IV for this mode is _twice_ the block size */
 
-void AES_ige_encrypt(const unsigned char * in, unsigned char * out, size_t length, const AES_KEY * key, unsigned char * ivec, const int enc)
+void AES_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, uchar * ivec, const int enc)
 {
 	size_t n;
 	size_t len = length;
@@ -44,15 +44,14 @@ void AES_ige_encrypt(const unsigned char * in, unsigned char * out, size_t lengt
 	len = length / AES_BLOCK_SIZE;
 	if(AES_ENCRYPT == enc) {
 		if(in != out && (UNALIGNED_MEMOPS_ARE_FAST || ((size_t)in | (size_t)out | (size_t)ivec) % sizeof(long) == 0)) {
-			aes_block_t * ivp = (aes_block_t*)ivec;
-			aes_block_t * iv2p = (aes_block_t*)(ivec + AES_BLOCK_SIZE);
+			aes_block_t * ivp = (aes_block_t *)ivec;
+			aes_block_t * iv2p = (aes_block_t *)(ivec + AES_BLOCK_SIZE);
 			while(len) {
-				aes_block_t * inp = (aes_block_t*)in;
-				aes_block_t * outp = (aes_block_t*)out;
+				aes_block_t * inp = (aes_block_t *)in;
+				aes_block_t * outp = (aes_block_t *)out;
 				for(n = 0; n < N_WORDS; ++n)
 					outp->data[n] = inp->data[n] ^ ivp->data[n];
-				AES_encrypt((uchar *)outp->data,
-				    (uchar *)outp->data, key);
+				AES_encrypt((uchar *)outp->data, (uchar *)outp->data, key);
 				for(n = 0; n < N_WORDS; ++n)
 					outp->data[n] ^= iv2p->data[n];
 				ivp = outp;
@@ -89,22 +88,16 @@ void AES_ige_encrypt(const unsigned char * in, unsigned char * out, size_t lengt
 		}
 	}
 	else {
-		if(in != out &&
-		    (UNALIGNED_MEMOPS_ARE_FAST
-		    || ((size_t)in | (size_t)out | (size_t)ivec) % sizeof(long) ==
-		    0)) {
-			aes_block_t * ivp = (aes_block_t*)ivec;
-			aes_block_t * iv2p = (aes_block_t*)(ivec + AES_BLOCK_SIZE);
-
+		if(in != out && (UNALIGNED_MEMOPS_ARE_FAST || ((size_t)in | (size_t)out | (size_t)ivec) % sizeof(long) == 0)) {
+			aes_block_t * ivp = (aes_block_t *)ivec;
+			aes_block_t * iv2p = (aes_block_t *)(ivec + AES_BLOCK_SIZE);
 			while(len) {
 				aes_block_t tmp;
-				aes_block_t * inp = (aes_block_t*)in;
-				aes_block_t * outp = (aes_block_t*)out;
-
+				aes_block_t * inp = (aes_block_t *)in;
+				aes_block_t * outp = (aes_block_t *)out;
 				for(n = 0; n < N_WORDS; ++n)
 					tmp.data[n] = inp->data[n] ^ iv2p->data[n];
-				AES_decrypt((uchar *)tmp.data,
-				    (uchar *)outp->data, key);
+				AES_decrypt((uchar *)tmp.data, (uchar *)outp->data, key);
 				for(n = 0; n < N_WORDS; ++n)
 					outp->data[n] ^= ivp->data[n];
 				ivp = inp;
@@ -120,10 +113,8 @@ void AES_ige_encrypt(const unsigned char * in, unsigned char * out, size_t lengt
 			aes_block_t tmp, tmp2;
 			aes_block_t iv;
 			aes_block_t iv2;
-
 			load_block(iv, ivec);
 			load_block(iv2, ivec + AES_BLOCK_SIZE);
-
 			while(len) {
 				load_block(tmp, in);
 				tmp2 = tmp;
@@ -153,20 +144,17 @@ void AES_ige_encrypt(const unsigned char * in, unsigned char * out, size_t lengt
 
 /* N.B. The IV for this mode is _four times_ the block size */
 
-void AES_bi_ige_encrypt(const unsigned char * in, unsigned char * out,
-    size_t length, const AES_KEY * key,
-    const AES_KEY * key2, const unsigned char * ivec,
-    const int enc)
+void AES_bi_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key,
+    const AES_KEY * key2, const uchar * ivec, const int enc)
 {
 	size_t n;
 	size_t len = length;
-	unsigned char tmp[AES_BLOCK_SIZE];
-	unsigned char tmp2[AES_BLOCK_SIZE];
-	unsigned char tmp3[AES_BLOCK_SIZE];
-	unsigned char prev[AES_BLOCK_SIZE];
-	const unsigned char * iv;
-	const unsigned char * iv2;
-
+	uchar tmp[AES_BLOCK_SIZE];
+	uchar tmp2[AES_BLOCK_SIZE];
+	uchar tmp3[AES_BLOCK_SIZE];
+	uchar prev[AES_BLOCK_SIZE];
+	const uchar * iv;
+	const uchar * iv2;
 	OPENSSL_assert(in && out && key && ivec);
 	OPENSSL_assert((AES_ENCRYPT == enc) || (AES_DECRYPT == enc));
 	OPENSSL_assert((length % AES_BLOCK_SIZE) == 0);

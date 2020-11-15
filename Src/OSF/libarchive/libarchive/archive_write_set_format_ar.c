@@ -29,21 +29,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ar.c 201108 2009-12-28 03:28:21Z kientzle $");
 
-#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-#endif
-#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-//#include <string.h>
-#endif
-
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_write_private.h"
-
 struct ar_w {
 	uint64_t entry_bytes_remaining;
 	uint64_t entry_padding;
@@ -232,7 +217,7 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 				return (ARCHIVE_WARN);
 			}
 
-			se = (char*)SAlloc::M(strlen(filename) + 3);
+			se = (char *)SAlloc::M(strlen(filename) + 3);
 			if(se == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate filename buffer");
 				return ARCHIVE_FATAL;
@@ -354,7 +339,7 @@ static ssize_t archive_write_ar_data(struct archive_write * a, const void * buff
 			return (ARCHIVE_WARN);
 		}
 
-		ar->strtab = (char*)SAlloc::M(s + 1);
+		ar->strtab = (char *)SAlloc::M(s + 1);
 		if(ar->strtab == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate strtab buffer");
 			return ARCHIVE_FATAL;

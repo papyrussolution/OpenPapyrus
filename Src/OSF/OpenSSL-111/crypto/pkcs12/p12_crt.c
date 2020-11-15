@@ -34,8 +34,8 @@ PKCS12 * PKCS12_create(const char * pass, const char * name, EVP_PKEY * pkey, X5
 	STACK_OF(PKCS12_SAFEBAG) *bags = NULL;
 	PKCS12_SAFEBAG * bag = NULL;
 	int i;
-	unsigned char keyid[EVP_MAX_MD_SIZE];
-	unsigned int keyidlen = 0;
+	uchar keyid[EVP_MAX_MD_SIZE];
+	uint keyidlen = 0;
 
 	/* Set defaults */
 	if(!nid_cert)
@@ -132,7 +132,7 @@ PKCS12_SAFEBAG * PKCS12_add_cert(STACK_OF(PKCS12_SAFEBAG) ** pbags, X509 * cert)
 	PKCS12_SAFEBAG * bag = NULL;
 	char * name;
 	int namelen = -1;
-	unsigned char * keyid;
+	uchar * keyid;
 	int keyidlen = -1;
 
 	/* Add user certificate */
@@ -143,7 +143,7 @@ PKCS12_SAFEBAG * PKCS12_add_cert(STACK_OF(PKCS12_SAFEBAG) ** pbags, X509 * cert)
 	 * Use friendlyName and localKeyID in certificate. (if present)
 	 */
 
-	name = (char*)X509_alias_get0(cert, &namelen);
+	name = (char *)X509_alias_get0(cert, &namelen);
 
 	if(name && !PKCS12_add_friendlyname(bag, name, namelen))
 		goto err;

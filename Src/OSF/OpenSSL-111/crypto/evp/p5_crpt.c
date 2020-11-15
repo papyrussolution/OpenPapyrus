@@ -22,12 +22,12 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX * cctx, const char * pass, int passlen,
     const EVP_MD * md, int en_de)
 {
 	EVP_MD_CTX * ctx;
-	unsigned char md_tmp[EVP_MAX_MD_SIZE];
-	unsigned char key[EVP_MAX_KEY_LENGTH], iv[EVP_MAX_IV_LENGTH];
+	uchar md_tmp[EVP_MAX_MD_SIZE];
+	uchar key[EVP_MAX_KEY_LENGTH], iv[EVP_MAX_IV_LENGTH];
 	int i;
 	PBEPARAM * pbe;
 	int saltlen, iter;
-	unsigned char * salt;
+	uchar * salt;
 	int mdsize;
 	int rv = 0;
 	/* Extract useful info from parameter */

@@ -22,12 +22,7 @@
 #define _global_h
 
 #include <slib.h>
-//#include <stdint.h> // @sobolev
-//#include <stdio.h> // @sobolev
 #ifdef _WIN32
-//#include <winsock2.h>
-//#include <windows.h>
-//#include <stdlib.h>
 #define strcasecmp _stricmp
 #define sleep(x) Sleep(1000*(x))
 #ifdef _MSC_VER
@@ -130,22 +125,6 @@
 #if SIZEOF_LONG_LONG > 4 && !defined(_LONG_LONG)
 	#define _LONG_LONG 1		/* For AIX string library */
 #endif
-//#ifndef stdin
-	//#include <stdio.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STDDEF_H
-//#include <stddef.h>
-//#endif
-//#include <math.h>
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#ifdef HAVE_FLOAT_H
-//#include <float.h>
-//#endif
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
@@ -228,15 +207,11 @@
 	#define max(a, b)	((a) > (b) ? (a) : (b))
 	#define min(a, b)	((a) < (b) ? (a) : (b))
 #endif
-#if defined(__EMX__) || !defined(HAVE_UINT)
-	typedef unsigned int uint;
-	typedef unsigned short ushort;
-#endif
 #define sgn(a)		(((a) < 0) ? -1 : ((a) > 0) ? 1 : 0)
 #define swap(t,a,b)	do { t dummy; dummy = a; a = b; b = dummy; } while(0)
 #define test(a)		((a) ? 1 : 0)
-#define set_if_bigger(a,b)  do{ if ((a) < (b)) (a)=(b); }while(0)
-#define set_if_smaller(a,b) do{ if ((a) > (b)) (a)=(b); }while(0)
+#define set_if_bigger(a,b)  do { if ((a) < (b)) (a)=(b); } while(0)
+#define set_if_smaller(a,b) do { if ((a) > (b)) (a)=(b); } while(0)
 #define test_all_bits(a,b) (((a) & (b)) == (b))
 #define set_bits(type, bit_count) (sizeof(type)*8 <= (bit_count) ? ~(type) 0 : ((((type) 1) << (bit_count)) - (type) 1))
 #define array_elements(A) ((uint) (sizeof(A)/sizeof(A[0])))
@@ -285,7 +260,7 @@ typedef int	File;		/* File descriptor */
 #ifndef my_socket_defined
 	#define my_socket_defined
 	#if defined(_WIN64)
-		#define my_socket unsigned long long
+		#define my_socket uint64
 	#elif defined(_WIN32)
 		#define my_socket unsigned int
 	#else
@@ -468,7 +443,7 @@ typedef SOCKET_SIZE_TYPE size_socket;
 	#ifdef ULLONG_MAX
 		#define ULONGLONG_MAX  ULLONG_MAX
 	#else
-		#define ULONGLONG_MAX ((unsigned long long)(~0ULL))
+		#define ULONGLONG_MAX ((uint64)(~0ULL))
 	#endif
 #endif /* defined (HAVE_LONG_LONG) && !defined(ULONGLONG_MAX)*/
 /* From limits.h instead */
@@ -514,55 +489,16 @@ typedef long my_ptrdiff_t;
 #else
 	typedef char	*gptr;		/* Generic pointer */
 #endif
-#ifndef HAVE_INT_8_16_32
-	typedef signed char	int8;	/* Signed integer >= 8	bits */
-	typedef signed short	int16;	/* Signed integer >= 16 bits */
-#endif
-#ifndef HAVE_UCHAR
-	typedef unsigned char	uchar;	/* Short for unsigned char */
-#endif
-typedef unsigned char	uint8;	/* Short for unsigned integer >= 8  bits */
-typedef unsigned short	uint16; /* Short for unsigned integer >= 16 bits */
-#ifndef SLIBINCLUDED // {
-	#if SIZEOF_INT == 4
-		#ifndef HAVE_INT_8_16_32
-			typedef int		int32;
-		#endif
-		typedef unsigned int	uint32; /* Short for unsigned integer >= 32 bits */
-	#elif SIZEOF_LONG == 4
-		#ifndef HAVE_INT_8_16_32
-			typedef long		int32;
-		#endif
-		typedef unsigned long	uint32; /* Short for unsigned integer >= 32 bits */
-	#else
-		#error "Neither int or long is of 4 bytes width"
-	#endif
-#endif // } SLIBINCLUDED 
-#if !defined(HAVE_ULONG) && !defined(HAVE_LINUXTHREADS) && !defined(__USE_MISC)
-	typedef unsigned long	ulong;	/* Short for unsigned long */
-#endif
 #ifndef longlong_defined
 	#if defined(HAVE_LONG_LONG) && SIZEOF_LONG != 8
-		typedef unsigned long long int ulonglong; /* ulong or unsigned long long */
+		typedef unsigned long long ulonglong; /* ulong or uint64 */
 		typedef long long int longlong;
 	#else
-		typedef unsigned long	ulonglong;	/* ulong or unsigned long long */
-		typedef long		longlong;
+		typedef unsigned long ulonglong;	/* ulong or uint64 */
+		typedef long longlong;
 	#endif
 	#define longlong_defined
 #endif
-#ifndef HAVE_INT64
-	typedef longlong int64;
-#endif
-#ifndef HAVE_UINT64
-	typedef ulonglong uint64;
-#endif
-//#ifndef MIN
-//#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-//#endif
-//#ifndef MAX
-//#define MAX(a,b) (((a) > (b)) ? (a) : (b))
-//#endif
 #define CMP_NUM(a,b)    (((a) < (b)) ? -1 : ((a) == (b)) ? 0 : 1)
 #ifdef USE_RAID
 	/*
@@ -604,13 +540,13 @@ typedef unsigned short	uint16; /* Short for unsigned integer >= 16 bits */
 	#define SOCKET_ENFILE	ENFILE
 	#define SOCKET_EMFILE	EMFILE
 #endif
-typedef uint8		int7;	/* Most effective integer 0 <= x <= 127 */
-typedef short		int15;	/* Most effective integer 0 <= x <= 32767 */
-typedef char		*my_string; /* String of characters */
-typedef unsigned long	size_s; /* Size of strings (In string-funcs) */
+typedef uint8 int7;	/* Most effective integer 0 <= x <= 127 */
+typedef short int15;	/* Most effective integer 0 <= x <= 32767 */
+typedef char * my_string; /* String of characters */
+typedef unsigned long size_s; /* Size of strings (In string-funcs) */
 typedef int  myf;	/* Type of MyFlags in my_funcs */
-typedef char my_bool; /* Small bool */
-typedef unsigned long long my_ulonglong;
+typedef char my_bool_Removed; /* Small bool */
+typedef uint64 my_ulonglong;
 #if !defined(bool) && !defined(bool_defined) && (!defined(HAVE_BOOL) || !defined(__cplusplus))
 	// @sobolev typedef char bool;	/* Ordinary boolean values 0 1 */
 #endif
@@ -976,7 +912,7 @@ do { doubleget_union _tmp; \
 #elif SIZEOF_CHARP == SIZEOF_LONG
 	typedef unsigned long intptr;
 #elif SIZEOF_CHARP == SIZEOF_LONG_LONG
-	typedef unsigned long long intptr;
+	typedef uint64 intptr;
 #else
 	#error sizeof(void *) is not sizeof(int, long or long long)
 #endif

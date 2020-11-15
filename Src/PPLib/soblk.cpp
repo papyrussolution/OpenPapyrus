@@ -2882,7 +2882,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = pk_obj.ref->Enum(ObjType, 0); en.Next(&pk_rec) > 0;) {
+					for(SEnum en = pk_obj.P_Ref->Enum(ObjType, 0); en.Next(&pk_rec) > 0;) {
 						THROW_SL(ResultList.Add(pk_rec.ID, 0, pk_rec.Name));
 					}
 				}
@@ -2905,7 +2905,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						if(temp_buf.Divide(',', o_buf, txt_buf) > 0) {
 							const long _ep = o_buf.ToLong();
 							if(_ep == 2) {
-								if(prsct_obj.ref->SearchSymb(PPOBJ_PRSNCATEGORY, &(temp_id = 0), txt_buf, offsetof(PPPersonCat, Symb)) > 0) {
+								if(prsct_obj.P_Ref->SearchSymb(PPOBJ_PRSNCATEGORY, &(temp_id = 0), txt_buf, offsetof(PPPersonCat, Symb)) > 0) {
 									if(prsct_obj.Fetch(temp_id, &prsct_rec) > 0)
 										THROW_SL(ResultList.Add(prsct_rec.ID, 0, prsct_rec.Name));
 								}
@@ -2919,7 +2919,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = prsct_obj.ref->Enum(ObjType, 0); en.Next(&prsct_rec) > 0;) {
+					for(SEnum en = prsct_obj.P_Ref->Enum(ObjType, 0); en.Next(&prsct_rec) > 0;) {
 						THROW_SL(ResultList.Add(prsct_rec.ID, 0, prsct_rec.Name));
 					}
 				}
@@ -2938,7 +2938,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = prsnst_obj.ref->Enum(ObjType, 0); en.Next(&prsnst_rec) > 0;) {
+					for(SEnum en = prsnst_obj.P_Ref->Enum(ObjType, 0); en.Next(&prsnst_rec) > 0;) {
 						THROW_SL(ResultList.Add(prsnst_rec.ID, 0, prsnst_rec.Name));
 					}
 				}
@@ -2977,13 +2977,13 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					if(P_GaF && P_GaF->OwnerList.getCount()) {
 						for(uint i = 0; i < P_GaF->OwnerList.getCount(); i++) {
 							const PPID owner_id = P_GaF->OwnerList.get(i);
-							for(SEnum en = gua_obj.ref->EnumByIdxVal(ObjType, 2, owner_id); en.Next(&gua_rec) > 0;) {
+							for(SEnum en = gua_obj.P_Ref->EnumByIdxVal(ObjType, 2, owner_id); en.Next(&gua_rec) > 0;) {
 								THROW_SL(ResultList.Add(gua_rec.ID, 0, gua_rec.Name));
 							}
 						}
 					}
 					else {
-						for(SEnum en = gua_obj.ref->Enum(ObjType, 0); en.Next(&gua_rec) > 0;) {
+						for(SEnum en = gua_obj.P_Ref->Enum(ObjType, 0); en.Next(&gua_rec) > 0;) {
 							THROW_SL(ResultList.Add(gua_rec.ID, 0, gua_rec.Name));
 						}
 					}
@@ -3000,7 +3000,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				gua_rec.PersonID = P_SetBlk->U.GA.PersonID;
 				THROW(gua_obj.CheckName(gua_rec.ID, gua_rec.Name, 1));
 				Reference::Encrypt(Reference::crymRef2, P_SetBlk->U.GA.Password, gua_rec.Password, sizeof(gua_rec.Password));
-				THROW(gua_obj.ref->AddItem(ObjType, &new_id, &gua_rec, 1));
+				THROW(gua_obj.P_Ref->AddItem(ObjType, &new_id, &gua_rec, 1));
 			}
 			break;
 		case PPOBJ_STYLOPALM:
@@ -3033,7 +3033,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = sp_obj.ref->Enum(ObjType, 0); en.Next(&sp_rec) > 0;) {
+					for(SEnum en = sp_obj.P_Ref->Enum(ObjType, 0); en.Next(&sp_rec) > 0;) {
 						THROW_SL(ResultList.Add(sp_rec.ID, 0, sp_rec.Name));
 					}
 				}
@@ -3295,7 +3295,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = cur_obj.ref->Enum(ObjType, 0); en.Next(&cur_rec) > 0;) {
+					for(SEnum en = cur_obj.P_Ref->Enum(ObjType, 0); en.Next(&cur_rec) > 0;) {
 						THROW_SL(ResultList.Add(cur_rec.ID, 0, cur_rec.Name));
 					}
 				}
@@ -3331,7 +3331,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = crt_obj.ref->Enum(ObjType, 0); en.Next(&crt_rec) > 0;) {
+					for(SEnum en = crt_obj.P_Ref->Enum(ObjType, 0); en.Next(&crt_rec) > 0;) {
 						THROW_SL(ResultList.Add(crt_rec.ID, 0, crt_rec.Name));
 					}
 				}
@@ -3414,7 +3414,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = unit_obj.ref->Enum(ObjType, 0); en.Next(&unit_rec) > 0;) {
+					for(SEnum en = unit_obj.P_Ref->Enum(ObjType, 0); en.Next(&unit_rec) > 0;) {
 						if(unit_rec.Flags & ExtFiltFlags)
 							THROW_SL(ResultList.Add(unit_rec.ID, 0, unit_rec.Name));
 					}
@@ -3589,7 +3589,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = uhs_obj.ref->Enum(ObjType, 0); en.Next(&uht_rec) > 0;) {
+					for(SEnum en = uhs_obj.P_Ref->Enum(ObjType, 0); en.Next(&uht_rec) > 0;) {
 						if(P_UhttStorF->OwnerID == 0 || P_UhttStorF->OwnerID == uht_rec.PersonID)
 							THROW_SL(ResultList.Add(uht_rec.ID, 0, uht_rec.Name));
 					}
@@ -3626,7 +3626,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = oprkind_obj.ref->Enum(ObjType, 0); en.Next(&oprkind_rec) > 0;) {
+					for(SEnum en = oprkind_obj.P_Ref->Enum(ObjType, 0); en.Next(&oprkind_rec) > 0;) {
 						THROW_SL(ResultList.Add(oprkind_rec.ID, 0, oprkind_rec.Name));
 					}
 				}
@@ -3824,7 +3824,7 @@ int Backend_SelectObjectBlock::ResolveCrit_QuotKind(int subcriterion, const SStr
 		case scCode:
 			{
 				PPObjQuotKind qk_obj;
-				qk_obj.ref->SearchSymb(PPOBJ_QUOTKIND, &id, rArg, offsetof(PPQuotKind, Symb));
+				qk_obj.P_Ref->SearchSymb(PPOBJ_QUOTKIND, &id, rArg, offsetof(PPQuotKind, Symb));
 			}
 			break;
 		default:
@@ -3847,7 +3847,7 @@ int Backend_SelectObjectBlock::ResolveCrit_OprKind(int subcriterion, const SStri
 		case scCode:
 			{
 				PPObjOprKind qk_obj;
-				qk_obj.ref->SearchSymb(PPOBJ_OPRKIND, &id, rArg, offsetof(PPOprKind, Symb));
+				qk_obj.P_Ref->SearchSymb(PPOBJ_OPRKIND, &id, rArg, offsetof(PPOprKind, Symb));
 			}
 			break;
 		default:
@@ -5823,7 +5823,7 @@ STYLOPALM
 										P_SetBlk->U.SC.ID = sc_rec.ID;
 									}
 									else {
-										for(SEnum en = gua_obj.ref->Enum(PPOBJ_GLOBALUSERACC, 0); en.Next(&gua_rec) > 0;) {
+										for(SEnum en = gua_obj.P_Ref->Enum(PPOBJ_GLOBALUSERACC, 0); en.Next(&gua_rec) > 0;) {
 											if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, gua_rec.ID, PPTAG_GUA_SCARDPREFIX, &tag) > 0) {
 												prefix = tag.Val.PStr;
 												if(!prefix.Empty()) {

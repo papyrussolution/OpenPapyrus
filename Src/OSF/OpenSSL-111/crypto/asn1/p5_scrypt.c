@@ -27,7 +27,7 @@ ASN1_SEQUENCE(SCRYPT_PARAMS) = {
 
 IMPLEMENT_ASN1_FUNCTIONS(SCRYPT_PARAMS)
 
-static X509_ALGOR *pkcs5_scrypt_set(const unsigned char * salt, size_t saltlen,
+static X509_ALGOR *pkcs5_scrypt_set(const uchar * salt, size_t saltlen,
     size_t keylen, uint64_t N, uint64_t r,
     uint64_t p);
 
@@ -36,15 +36,15 @@ static X509_ALGOR *pkcs5_scrypt_set(const unsigned char * salt, size_t saltlen,
  */
 
 X509_ALGOR * PKCS5_pbe2_set_scrypt(const EVP_CIPHER * cipher,
-    const unsigned char * salt, int saltlen,
-    unsigned char * aiv, uint64_t N, uint64_t r,
+    const uchar * salt, int saltlen,
+    uchar * aiv, uint64_t N, uint64_t r,
     uint64_t p)
 {
 	X509_ALGOR * scheme = NULL, * ret = NULL;
 	int alg_nid;
 	size_t keylen = 0;
 	EVP_CIPHER_CTX * ctx = NULL;
-	unsigned char iv[EVP_MAX_IV_LENGTH];
+	uchar iv[EVP_MAX_IV_LENGTH];
 	PBE2PARAM * pbe2 = NULL;
 
 	if(!cipher) {
@@ -144,7 +144,7 @@ err:
 	return NULL;
 }
 
-static X509_ALGOR * pkcs5_scrypt_set(const unsigned char * salt, size_t saltlen,
+static X509_ALGOR * pkcs5_scrypt_set(const uchar * salt, size_t saltlen,
     size_t keylen, uint64_t N, uint64_t r,
     uint64_t p)
 {
@@ -212,7 +212,7 @@ int PKCS5_v2_scrypt_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass,
     int passlen, ASN1_TYPE * param,
     const EVP_CIPHER * c, const EVP_MD * md, int en_de)
 {
-	unsigned char * salt, key[EVP_MAX_KEY_LENGTH];
+	uchar * salt, key[EVP_MAX_KEY_LENGTH];
 	uint64_t p, r, N;
 	size_t saltlen;
 	size_t keylen = 0;

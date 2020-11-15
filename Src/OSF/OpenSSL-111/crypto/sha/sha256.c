@@ -43,10 +43,10 @@ int SHA256_Init(SHA256_CTX * c)
 	return 1;
 }
 
-unsigned char * SHA224(const unsigned char * d, size_t n, unsigned char * md)
+uchar * SHA224(const uchar * d, size_t n, uchar * md)
 {
 	SHA256_CTX c;
-	static unsigned char m[SHA224_DIGEST_LENGTH];
+	static uchar m[SHA224_DIGEST_LENGTH];
 
 	if(md == NULL)
 		md = m;
@@ -57,10 +57,10 @@ unsigned char * SHA224(const unsigned char * d, size_t n, unsigned char * md)
 	return md;
 }
 
-unsigned char * SHA256(const unsigned char * d, size_t n, unsigned char * md)
+uchar * SHA256(const uchar * d, size_t n, uchar * md)
 {
 	SHA256_CTX c;
-	static unsigned char m[SHA256_DIGEST_LENGTH];
+	static uchar m[SHA256_DIGEST_LENGTH];
 
 	if(md == NULL)
 		md = m;
@@ -76,7 +76,7 @@ int SHA224_Update(SHA256_CTX * c, const void * data, size_t len)
 	return SHA256_Update(c, data, len);
 }
 
-int SHA224_Final(unsigned char * md, SHA256_CTX * c)
+int SHA224_Final(uchar * md, SHA256_CTX * c)
 {
 	return SHA256_Final(md, c);
 }
@@ -96,8 +96,8 @@ int SHA224_Final(unsigned char * md, SHA256_CTX * c)
  * compiler decide if it's appropriate to unroll small loops.
  */
 #define HASH_MAKE_STRING(c, s)   do {    \
-		unsigned long ll;               \
-		unsigned int nn;               \
+		ulong ll;               \
+		uint nn;               \
 		switch((c)->md_len)            \
 		{   case SHA224_DIGEST_LENGTH:  \
 			for(nn = 0; nn<SHA224_DIGEST_LENGTH/4; nn++)       \
@@ -168,7 +168,7 @@ static void sha256_block_data_order(SHA256_CTX * ctx, const void * in,
 	unsigned MD32_REG_T a, b, c, d, e, f, g, h, s0, s1, T1, T2;
 	SHA_LONG X[16], l;
 	int i;
-	const unsigned char * data = in;
+	const uchar * data = in;
 
 	while(num--) {
 		a = ctx->h[0];
@@ -244,7 +244,7 @@ static void sha256_block_data_order(SHA256_CTX * ctx, const void * in,
 	unsigned MD32_REG_T a, b, c, d, e, f, g, h, s0, s1, T1;
 	SHA_LONG X[16];
 	int i;
-	const unsigned char * data = static_cast<const uchar *>(in);
+	const uchar * data = static_cast<const uchar *>(in);
 	const union {
 		long one;
 		char little;

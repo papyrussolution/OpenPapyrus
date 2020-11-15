@@ -74,10 +74,10 @@ static void scryptBlockMix(uint32_t * B_, uint32_t * B, uint64_t r)
 	OPENSSL_cleanse(X, sizeof(X));
 }
 
-static void scryptROMix(unsigned char * B, uint64_t r, uint64_t N,
+static void scryptROMix(uchar * B, uint64_t r, uint64_t N,
     uint32_t * X, uint32_t * T, uint32_t * V)
 {
-	unsigned char * pB;
+	uchar * pB;
 	uint32_t * pV;
 	uint64_t i, k;
 
@@ -149,12 +149,12 @@ static void scryptROMix(unsigned char * B, uint64_t r, uint64_t N,
 #endif
 
 int EVP_PBE_scrypt(const char * pass, size_t passlen,
-    const unsigned char * salt, size_t saltlen,
+    const uchar * salt, size_t saltlen,
     uint64_t N, uint64_t r, uint64_t p, uint64_t maxmem,
-    unsigned char * key, size_t keylen)
+    uchar * key, size_t keylen)
 {
 	int rv = 0;
-	unsigned char * B;
+	uchar * B;
 	uint32_t * X, * V, * T;
 	uint64_t i, Blen, Vlen;
 
@@ -229,7 +229,7 @@ int EVP_PBE_scrypt(const char * pass, size_t passlen,
 	/* If no key return to indicate parameters are OK */
 	if(key == NULL)
 		return 1;
-	B = static_cast<unsigned char *>(OPENSSL_malloc((size_t)(Blen + Vlen)));
+	B = static_cast<uchar *>(OPENSSL_malloc((size_t)(Blen + Vlen)));
 	if(B == NULL) {
 		EVPerr(EVP_F_EVP_PBE_SCRYPT, ERR_R_MALLOC_FAILURE);
 		return 0;

@@ -28,10 +28,7 @@
 #include <openssl/hmac.h>
 #include <openssl/opensslv.h>
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
-//#include <stdlib.h> /* malloc, free */
-//#include <string.h> /* memset */
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x20700000L)
 static inline HMAC_CTX *HMAC_CTX_new(void)
 {
 	HMAC_CTX *ctx = (HMAC_CTX *)SAlloc::C(1, sizeof(HMAC_CTX));

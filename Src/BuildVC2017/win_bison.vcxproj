@@ -185,7 +185,6 @@ xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i 
     <ClInclude Include="..\osf\winflexbison\bison\glyphs.h" />
     <ClInclude Include="..\osf\winflexbison\bison\gram.h" />
     <ClInclude Include="..\osf\winflexbison\bison\InadequacyList.h" />
-    <ClInclude Include="..\osf\winflexbison\bison\location.h" />
     <ClInclude Include="..\osf\winflexbison\bison\muscle-tab.h" />
     <ClInclude Include="..\osf\winflexbison\bison\parse-gram.h" />
     <ClInclude Include="..\osf\winflexbison\bison\parse-simulation.h" />

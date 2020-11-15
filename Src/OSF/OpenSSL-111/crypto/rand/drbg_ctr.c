@@ -16,8 +16,8 @@
 static void inc_128(RAND_DRBG_CTR * ctr)
 {
 	int i;
-	unsigned char c;
-	unsigned char * p = &ctr->V[15];
+	uchar c;
+	uchar * p = &ctr->V[15];
 	for(i = 0; i < 16; i++, p--) {
 		c = *p;
 		c++;
@@ -29,7 +29,7 @@ static void inc_128(RAND_DRBG_CTR * ctr)
 	}
 }
 
-static void ctr_XOR(RAND_DRBG_CTR * ctr, const unsigned char * in, size_t inlen)
+static void ctr_XOR(RAND_DRBG_CTR * ctr, const uchar * in, size_t inlen)
 {
 	size_t i, n;
 
@@ -58,8 +58,8 @@ static void ctr_XOR(RAND_DRBG_CTR * ctr, const unsigned char * in, size_t inlen)
 /*
  * Process a complete block using BCC algorithm of SP 800-90A 10.3.3
  */
-__owur static int ctr_BCC_block(RAND_DRBG_CTR * ctr, unsigned char * out,
-    const unsigned char * in)
+__owur static int ctr_BCC_block(RAND_DRBG_CTR * ctr, uchar * out,
+    const uchar * in)
 {
 	int i, outlen = AES_BLOCK_SIZE;
 
@@ -75,7 +75,7 @@ __owur static int ctr_BCC_block(RAND_DRBG_CTR * ctr, unsigned char * out,
 /*
  * Handle several BCC operations for as much data as we need for K and X
  */
-__owur static int ctr_BCC_blocks(RAND_DRBG_CTR * ctr, const unsigned char * in)
+__owur static int ctr_BCC_blocks(RAND_DRBG_CTR * ctr, const uchar * in)
 {
 	if(!ctr_BCC_block(ctr, ctr->KX, in)
 	    || !ctr_BCC_block(ctr, ctr->KX + 16, in))
@@ -110,7 +110,7 @@ __owur static int ctr_BCC_init(RAND_DRBG_CTR * ctr)
  * Process several blocks into BCC algorithm, some possibly partial
  */
 __owur static int ctr_BCC_update(RAND_DRBG_CTR * ctr,
-    const unsigned char * in, size_t inlen)
+    const uchar * in, size_t inlen)
 {
 	if(in == NULL || inlen == 0)
 		return 1;
@@ -155,13 +155,13 @@ __owur static int ctr_BCC_final(RAND_DRBG_CTR * ctr)
 }
 
 __owur static int ctr_df(RAND_DRBG_CTR * ctr,
-    const unsigned char * in1, size_t in1len,
-    const unsigned char * in2, size_t in2len,
-    const unsigned char * in3, size_t in3len)
+    const uchar * in1, size_t in1len,
+    const uchar * in2, size_t in2len,
+    const uchar * in3, size_t in3len)
 {
-	static unsigned char c80 = 0x80;
+	static uchar c80 = 0x80;
 	size_t inlen;
-	unsigned char * p = ctr->bltmp;
+	uchar * p = ctr->bltmp;
 	int outlen = AES_BLOCK_SIZE;
 
 	if(!ctr_BCC_init(ctr))
@@ -218,9 +218,9 @@ __owur static int ctr_df(RAND_DRBG_CTR * ctr,
  * so we handle both cases in this function instead.
  */
 __owur static int ctr_update(RAND_DRBG * drbg,
-    const unsigned char * in1, size_t in1len,
-    const unsigned char * in2, size_t in2len,
-    const unsigned char * nonce, size_t noncelen)
+    const uchar * in1, size_t in1len,
+    const uchar * in2, size_t in2len,
+    const uchar * nonce, size_t noncelen)
 {
 	RAND_DRBG_CTR * ctr = &drbg->data.ctr;
 	int outlen = AES_BLOCK_SIZE;
@@ -269,8 +269,8 @@ __owur static int ctr_update(RAND_DRBG * drbg,
 	return 1;
 }
 
-__owur static int drbg_ctr_instantiate(RAND_DRBG * drbg, const unsigned char * entropy, size_t entropylen, const unsigned char * nonce, size_t noncelen,
-    const unsigned char * pers, size_t perslen)
+__owur static int drbg_ctr_instantiate(RAND_DRBG * drbg, const uchar * entropy, size_t entropylen, const uchar * nonce, size_t noncelen,
+    const uchar * pers, size_t perslen)
 {
 	RAND_DRBG_CTR * ctr = &drbg->data.ctr;
 	if(entropy == NULL)
@@ -284,7 +284,7 @@ __owur static int drbg_ctr_instantiate(RAND_DRBG * drbg, const unsigned char * e
 	return 1;
 }
 
-__owur static int drbg_ctr_reseed(RAND_DRBG * drbg, const unsigned char * entropy, size_t entropylen, const unsigned char * adin, size_t adinlen)
+__owur static int drbg_ctr_reseed(RAND_DRBG * drbg, const uchar * entropy, size_t entropylen, const uchar * adin, size_t adinlen)
 {
 	if(entropy == NULL)
 		return 0;
@@ -294,8 +294,8 @@ __owur static int drbg_ctr_reseed(RAND_DRBG * drbg, const unsigned char * entrop
 }
 
 __owur static int drbg_ctr_generate(RAND_DRBG * drbg,
-    unsigned char * out, size_t outlen,
-    const unsigned char * adin, size_t adinlen)
+    uchar * out, size_t outlen,
+    const uchar * adin, size_t adinlen)
 {
 	RAND_DRBG_CTR * ctr = &drbg->data.ctr;
 
@@ -389,7 +389,7 @@ int drbg_ctr_init(RAND_DRBG * drbg)
 
 	if((drbg->flags & RAND_DRBG_FLAG_CTR_NO_DF) == 0) {
 		/* df initialisation */
-		static const unsigned char df_key[32] = {
+		static const uchar df_key[32] = {
 			0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 			0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 			0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,

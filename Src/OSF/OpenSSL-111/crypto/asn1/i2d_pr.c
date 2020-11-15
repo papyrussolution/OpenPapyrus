@@ -13,7 +13,7 @@
 //#include <asn1_int.h>
 //#include <evp_int.h>
 
-int i2d_PrivateKey(EVP_PKEY * a, unsigned char ** pp)
+int i2d_PrivateKey(EVP_PKEY * a, uchar ** pp)
 {
 	if(a->ameth && a->ameth->old_priv_encode) {
 		return a->ameth->old_priv_encode(a, pp);

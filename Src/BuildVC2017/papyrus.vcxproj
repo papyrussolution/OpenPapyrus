@@ -2129,9 +2129,8 @@
     <ProjectReference Include="gravity.vcxproj">
       <Project>{ec12be0a-025e-4168-9d2d-419a18cb2ef5}</Project>
     </ProjectReference>
-    <ProjectReference Include="libcurl.vcxproj">
-      <Project>{da6f56b4-06a4-441d-ad70-ac5a7d51fadb}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    <ProjectReference Include="libcurl-7730.vcxproj">
+      <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
     </ProjectReference>
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>

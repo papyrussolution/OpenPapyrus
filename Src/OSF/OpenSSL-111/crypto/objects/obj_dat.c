@@ -19,9 +19,9 @@
 /* obj_dat.h is generated from objects.h by obj_dat.pl */
 #include "obj_dat.h"
 
-DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, unsigned int, sn);
-DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, unsigned int, ln);
-DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, unsigned int, obj);
+DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, sn);
+DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, ln);
+DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, obj);
 
 #define ADDED_DATA      0
 #define ADDED_SNAME     1
@@ -36,26 +36,26 @@ struct added_obj_st {
 static int new_nid = NUM_NID;
 static LHASH_OF(ADDED_OBJ) *added = NULL;
 
-static int sn_cmp(const ASN1_OBJECT * const * a, const unsigned int * b)
+static int sn_cmp(const ASN1_OBJECT * const * a, const uint * b)
 {
 	return strcmp((*a)->sn, nid_objs[*b].sn);
 }
 
 IMPLEMENT_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, sn);
 
-static int ln_cmp(const ASN1_OBJECT * const * a, const unsigned int * b)
+static int ln_cmp(const ASN1_OBJECT * const * a, const uint * b)
 {
 	return strcmp((*a)->ln, nid_objs[*b].ln);
 }
 
-IMPLEMENT_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, unsigned int, ln);
+IMPLEMENT_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, ln);
 
-static unsigned long added_obj_hash(const ADDED_OBJ * ca)
+static ulong added_obj_hash(const ADDED_OBJ * ca)
 {
 	const ASN1_OBJECT * a;
 	int i;
-	unsigned long ret = 0;
-	unsigned char * p;
+	ulong ret = 0;
+	uchar * p;
 
 	a = ca->obj;
 	switch(ca->type) {
@@ -79,7 +79,7 @@ static unsigned long added_obj_hash(const ADDED_OBJ * ca)
 		    return 0;
 	}
 	ret &= 0x3fffffffL;
-	ret |= ((unsigned long)ca->type) << 30L;
+	ret |= ((ulong)ca->type) << 30L;
 	return ret;
 }
 
@@ -297,7 +297,7 @@ const char * OBJ_nid2ln(int n)
 	}
 }
 
-static int obj_cmp(const ASN1_OBJECT * const * ap, const unsigned int * bp)
+static int obj_cmp(const ASN1_OBJECT * const * ap, const uint * bp)
 {
 	int j;
 	const ASN1_OBJECT * a = *ap;
@@ -311,11 +311,11 @@ static int obj_cmp(const ASN1_OBJECT * const * ap, const unsigned int * bp)
 	return memcmp(a->data, b->data, a->length);
 }
 
-IMPLEMENT_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, unsigned int, obj);
+IMPLEMENT_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, obj);
 
 int OBJ_obj2nid(const ASN1_OBJECT * a)
 {
-	const unsigned int * op;
+	const uint * op;
 	ADDED_OBJ ad, * adp;
 
 	if(a == NULL)
@@ -350,9 +350,9 @@ ASN1_OBJECT * OBJ_txt2obj(const char * s, int no_name)
 {
 	int nid = NID_undef;
 	ASN1_OBJECT * op;
-	unsigned char * buf;
-	unsigned char * p;
-	const unsigned char * cp;
+	uchar * buf;
+	uchar * p;
+	const uchar * cp;
 	int i, j;
 
 	if(!no_name) {
@@ -396,8 +396,8 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 {
 	int i, n = 0, len, nid, first, use_bn;
 	BIGNUM * bl;
-	unsigned long l;
-	const unsigned char * p;
+	ulong l;
+	const uchar * p;
 	char tbuf[DECIMAL_SIZE(i) + DECIMAL_SIZE(l) + 2];
 
 	/* Ensure that, at every state, |buf| is NUL-terminated. */
@@ -430,7 +430,7 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 		l = 0;
 		use_bn = 0;
 		for(;;) {
-			unsigned char c = *p++;
+			uchar c = *p++;
 			len--;
 			if((len == 0) && (c & 0x80))
 				goto err;
@@ -548,7 +548,7 @@ int OBJ_ln2nid(const char * s)
 	ASN1_OBJECT o;
 	const ASN1_OBJECT * oo = &o;
 	ADDED_OBJ ad, * adp;
-	const unsigned int * op;
+	const uint * op;
 
 	o.ln = s;
 	if(added != NULL) {
@@ -569,7 +569,7 @@ int OBJ_sn2nid(const char * s)
 	ASN1_OBJECT o;
 	const ASN1_OBJECT * oo = &o;
 	ADDED_OBJ ad, * adp;
-	const unsigned int * op;
+	const uint * op;
 
 	o.sn = s;
 	if(added != NULL) {
@@ -716,8 +716,8 @@ int OBJ_create(const char * oid, const char * sn, const char * ln)
 	}
 
 	tmpoid->nid = OBJ_new_nid(1);
-	tmpoid->sn = (char*)sn;
-	tmpoid->ln = (char*)ln;
+	tmpoid->sn = (char *)sn;
+	tmpoid->ln = (char *)ln;
 
 	ok = OBJ_add_object(tmpoid);
 
@@ -736,7 +736,7 @@ size_t OBJ_length(const ASN1_OBJECT * obj)
 	return obj->length;
 }
 
-const unsigned char * OBJ_get0_data(const ASN1_OBJECT * obj)
+const uchar * OBJ_get0_data(const ASN1_OBJECT * obj)
 {
 	if(obj == NULL)
 		return NULL;

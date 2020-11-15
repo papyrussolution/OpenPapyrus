@@ -25,8 +25,8 @@ BIO * cms_EncryptedContent_init_bio(CMS_EncryptedContentInfo * ec)
 	EVP_CIPHER_CTX * ctx;
 	const EVP_CIPHER * ciph;
 	X509_ALGOR * calg = ec->contentEncryptionAlgorithm;
-	unsigned char iv[EVP_MAX_IV_LENGTH], * piv = NULL;
-	unsigned char * tkey = NULL;
+	uchar iv[EVP_MAX_IV_LENGTH], * piv = NULL;
+	uchar * tkey = NULL;
 	size_t tkeylen = 0;
 	int ok = 0;
 	int keep_key = 0;
@@ -159,7 +159,7 @@ err:
 
 int cms_EncryptedContent_init(CMS_EncryptedContentInfo * ec,
     const EVP_CIPHER * cipher,
-    const unsigned char * key, size_t keylen)
+    const uchar * key, size_t keylen)
 {
 	ec->cipher = cipher;
 	if(key) {
@@ -176,7 +176,7 @@ int cms_EncryptedContent_init(CMS_EncryptedContentInfo * ec,
 }
 
 int CMS_EncryptedData_set1_key(CMS_ContentInfo * cms, const EVP_CIPHER * ciph,
-    const unsigned char * key, size_t keylen)
+    const uchar * key, size_t keylen)
 {
 	CMS_EncryptedContentInfo * ec;
 	if(!key || !keylen) {

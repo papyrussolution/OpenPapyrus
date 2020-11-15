@@ -32,7 +32,7 @@ typedef struct async_pool_st async_pool;
 struct async_ctx_st {
 	async_fibre dispatcher;
 	ASYNC_JOB * currjob;
-	unsigned int blocked;
+	uint blocked;
 };
 
 struct async_job_st {

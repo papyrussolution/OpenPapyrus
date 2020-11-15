@@ -300,7 +300,7 @@ void TXT_DB_free(TXT_DB * db)
 			}
 			else {
 				for(n = 0; n < db->num_fields; n++) {
-					if(((p[n] < (char*)p) || (p[n] > max)))
+					if(((p[n] < (char *)p) || (p[n] > max)))
 						OPENSSL_free(p[n]);
 				}
 			}

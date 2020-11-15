@@ -136,7 +136,7 @@ enum mariadb_row_event_type {
 typedef struct st_mariadb_gtid {
   unsigned int domain_id;
   unsigned int server_id;
-  unsigned long long sequence_nr;
+  uint64 sequence_nr;
 } MARIADB_GTID;
 
 /* Generic replication handle */
@@ -156,7 +156,7 @@ typedef struct st_mariadb_rpl {
 
 /* Event header */
 struct st_mariadb_rpl_rotate_event {
-  unsigned long long position;
+  uint64 position;
   MARIADB_STRING filename;
 };
 
@@ -202,7 +202,7 @@ struct st_mariadb_rpl_annotate_rows_event {
 };
 
 struct st_mariadb_rpl_table_map_event {
-  unsigned long long table_id;
+  uint64 table_id;
   MARIADB_STRING database;
   MARIADB_STRING table;
   unsigned int column_count;
@@ -212,8 +212,8 @@ struct st_mariadb_rpl_table_map_event {
 };
 
 struct st_mariadb_rpl_rand_event {
-  unsigned long long first_seed;
-  unsigned long long second_seed;
+  uint64 first_seed;
+  uint64 second_seed;
 };
 
 struct st_mariadb_rpl_encryption_event {
@@ -224,7 +224,7 @@ struct st_mariadb_rpl_encryption_event {
 
 struct st_mariadb_rpl_intvar_event {
   char type;
-  unsigned long long value;
+  uint64 value;
 };
 
 struct st_mariadb_rpl_uservar_event {

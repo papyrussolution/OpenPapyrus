@@ -32,7 +32,7 @@ int PPObjBarcodePrinter::GetPacket(PPID id, PPBarcodePrinter * pPack)
 	int    ok = Search(id, &rec);
 	if(ok > 0) {
 		if(rec.Flags & PPBarcodePrinter::fPortEx)
-			ref->GetPropVlrString(Obj, id, BCPPRP_PORTEX, rec.PortEx);
+			P_Ref->GetPropVlrString(Obj, id, BCPPRP_PORTEX, rec.PortEx);
 		else
 			rec.PortEx = rec.Port;
 		ASSIGN_PTR(pPack, rec);
@@ -49,20 +49,20 @@ int PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pPack, i
 		if(*pID) {
 			if(pPack) {
 				THROW(CheckDupName(*pID, pPack->Name));
-				THROW(ref->UpdateItem(Obj, *pID, pPack, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, pPack, 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 		}
 		else {
 			*pID = pPack->ID;
-			THROW(ref->AddItem(Obj, pID, pPack, 0));
+			THROW(P_Ref->AddItem(Obj, pID, pPack, 0));
 		}
 		if(*pID) {
 			const char * p = (pPack && pPack->Flags & PPBarcodePrinter::fPortEx) ? pPack->PortEx.cptr() : 0; // @v10.8.0 pPack->PortEx-->pPack->PortEx.cptr()
-			THROW(ref->PutPropVlrString(Obj, *pID, BCPPRP_PORTEX, p));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, BCPPRP_PORTEX, p));
 		}
 		THROW(tra.Commit());
 	}

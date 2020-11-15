@@ -69,7 +69,7 @@
 #endif
 
 #ifndef __ASSEMBLER__
-extern unsigned int OPENSSL_armcap_P;
+extern uint OPENSSL_armcap_P;
 #endif
 
 #define ARMV7_NEON      (1<<0)

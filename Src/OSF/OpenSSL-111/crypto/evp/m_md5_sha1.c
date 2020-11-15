@@ -38,7 +38,7 @@ static int update(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return SHA1_Update(&mctx->sha1, data, count);
 }
 
-static int final(EVP_MD_CTX * ctx, unsigned char * md)
+static int final(EVP_MD_CTX * ctx, uchar * md)
 {
 	struct md5_sha1_ctx * mctx = static_cast<md5_sha1_ctx *>(EVP_MD_CTX_md_data(ctx));
 	if(!MD5_Final(md, &mctx->md5))
@@ -48,9 +48,9 @@ static int final(EVP_MD_CTX * ctx, unsigned char * md)
 
 static int ctrl(EVP_MD_CTX * ctx, int cmd, int mslen, void * ms)
 {
-	unsigned char padtmp[48];
-	unsigned char md5tmp[MD5_DIGEST_LENGTH];
-	unsigned char sha1tmp[SHA_DIGEST_LENGTH];
+	uchar padtmp[48];
+	uchar md5tmp[MD5_DIGEST_LENGTH];
+	uchar sha1tmp[SHA_DIGEST_LENGTH];
 	struct md5_sha1_ctx * mctx;
 	if(cmd != EVP_CTRL_SSL3_MASTER_SECRET)
 		return -2;

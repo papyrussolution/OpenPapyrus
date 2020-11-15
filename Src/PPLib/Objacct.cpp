@@ -121,7 +121,7 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 			THROW(Search(*pID, &prev_rec) > 0);
 			pPack->Rec.ID = *pID;
 			acc_type = pPack->Rec.Type;
-			THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 0 /*logAction*/, 0));
+			THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0 /*logAction*/, 0));
 			if(pPack->Rec.CurID == 0) {
 				THROW(GetCurList(pPack->Rec.A.Ac, pPack->Rec.A.Sb, &cur_acc_list, &cur_list));
 				for(i = 0; i < pPack->CurList.getCount(); i++) {
@@ -136,7 +136,7 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 						cur_acc_rec.Kind  = pPack->Rec.Kind;
 						cur_acc_rec.Limit = cur_acc_rec.Overdraft = 0;
 						//THROW_DB(updateRecBuf(&cur_acc_rec));
-						THROW(ref->UpdateItem(Obj, acc_id, &cur_acc_rec, 0 /*logAction*/, 0));
+						THROW(P_Ref->UpdateItem(Obj, acc_id, &cur_acc_rec, 0 /*logAction*/, 0));
 						cur_list.atFree(pos);
 						cur_acc_list.atFree(pos);
 					}
@@ -146,7 +146,7 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 				}
 				for(i = 0; i < cur_acc_list.getCount(); i++) {
 					const PPID acc_id = cur_acc_list.get(i);
-					THROW_DB(deleteFrom(ref, 0, (ref->ObjType == Obj && ref->ObjID == acc_id)));
+					THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == acc_id)));
 				}
 			}
 			DS.LogAction(PPACN_OBJUPD, PPOBJ_ACCOUNT2, *pID, 0, 0);
@@ -158,17 +158,17 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 				THROW_PP(HasAnySubacct(acc_rec.A.Ac) <= 0, PPERR_ACCHASBRANCH);
 				THROW(Search(*pID, &acc_rec) > 0);
 			}
-			THROW_DB(deleteFrom(ref, 0, (ref->ObjType == Obj && ref->ObjID == *pID)));
+			THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == *pID)));
 			if(acc_rec.CurID == 0) {
 				THROW(GetCurList(acc_rec.A.Ac, acc_rec.A.Sb, &cur_acc_list, 0));
 				for(i = 0; i < cur_acc_list.getCount(); i++) {
 					const PPID acc_id = cur_acc_list.get(i);
-					THROW_DB(deleteFrom(ref, 0, (ref->ObjType == Obj && ref->ObjID == acc_id)));
+					THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == acc_id)));
 				}
 			}
 		}
 		if(acc_type == ACY_AGGR)
-			THROW(ref->PutPropArray(PPOBJ_ACCOUNT2, *pID, ACCPRP_GENACCLIST, pPack ? &pPack->GenList : 0, 0));
+			THROW(P_Ref->PutPropArray(PPOBJ_ACCOUNT2, *pID, ACCPRP_GENACCLIST, pPack ? &pPack->GenList : 0, 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -186,7 +186,7 @@ int PPObjAccount::GetPacket(PPID id, PPAccountPacket * pPack)
 		if(pPack->Rec.CurID == 0 && pPack->Rec.Flags & ACF_CURRENCY)
 			THROW(GetCurList(pPack->Rec.A.Ac, pPack->Rec.A.Sb, 0, &pPack->CurList));
 		if(pPack->Rec.Type == ACY_AGGR)
-			THROW(ref->GetPropArray(PPOBJ_ACCOUNT2, id, ACCPRP_GENACCLIST, &pPack->GenList));
+			THROW(P_Ref->GetPropArray(PPOBJ_ACCOUNT2, id, ACCPRP_GENACCLIST, &pPack->GenList));
 	}
 	else
 		ok = -1;
@@ -216,9 +216,9 @@ int PPObjAccount::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * p
 	int    ok = 1;
 	Reference2Tbl::Key2 k2;
 	MakeAcctKey(ac, sb, k2);
-	if(ref->search(2, &k2, spEq)) do {
+	if(P_Ref->search(2, &k2, spEq)) do {
 		PPAccount rec;
-		ref->copyBufTo(&rec);
+		P_Ref->copyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac && rec.A.Sb == (int16)sb) {
 			if(rec.CurID) {
 				THROW_SL(!pCurList || pCurList->addUnique(rec.CurID));
@@ -227,7 +227,7 @@ int PPObjAccount::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * p
 		}
 		else
 			break;
-	} while(ref->search(2, &k2, spNext));
+	} while(P_Ref->search(2, &k2, spNext));
 	THROW_DB(BTROKORNFOUND);
 	CATCHZOK
 	return ok;
@@ -268,9 +268,9 @@ int PPObjAccount::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList)
 	int    ok = -1;
 	Reference2Tbl::Key2 k2;
 	MakeAcctKey(ac, (sb >= 0) ? sb : 0, k2);
-	if(ref->search(2, &k2, spGe)) do {
+	if(P_Ref->search(2, &k2, spGe)) do {
 		PPAccount rec;
-		ref->copyBufTo(&rec);
+		P_Ref->copyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac && (sb < 0 || rec.A.Sb == (int16)sb)) {
 			if((curID < 0 || rec.CurID == curID)) {
 				THROW_SL(pList->addUnique(rec.ID));
@@ -279,7 +279,7 @@ int PPObjAccount::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList)
 		}
 		else
 			break;
-	} while(ref->search(2, &k2, spNext));
+	} while(P_Ref->search(2, &k2, spNext));
 	THROW_DB(BTROKORNFOUND);
 	CATCHZOK
 	return ok;
@@ -290,9 +290,9 @@ int PPObjAccount::HasAnySubacct(int ac)
 	int    ok = -1;
 	Reference2Tbl::Key2 k2;
 	MakeAcctKey(ac, 0, k2);
-	if(ref->search(2, &k2, spGe)) do {
+	if(P_Ref->search(2, &k2, spGe)) do {
 		PPAccount rec;
-		ref->copyBufTo(&rec);
+		P_Ref->copyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac) {
 			if(rec.A.Sb != 0) {
 				ok = 1;
@@ -300,7 +300,7 @@ int PPObjAccount::HasAnySubacct(int ac)
 		}
 		else
 			break;
-	} while(ok < 0 && ref->search(2, &k2, spNext));
+	} while(ok < 0 && P_Ref->search(2, &k2, spNext));
 	THROW_DB(BTROKORNFOUND);
 	CATCHZOK
 	return ok;
@@ -311,9 +311,9 @@ int PPObjAccount::SearchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 	int    ok = -1;
 	Reference2Tbl::Key2 k2;
 	MakeAcctKey(ac, sb, k2);
-	if(ref->search(2, &k2, spEq)) do {
+	if(P_Ref->search(2, &k2, spEq)) do {
 		PPAccount rec;
-		ref->copyBufTo(&rec);
+		P_Ref->copyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac && rec.A.Sb == (int16)sb) {
 			if(rec.CurID == curID) {
 				ASSIGN_PTR(pRec, rec);
@@ -322,7 +322,7 @@ int PPObjAccount::SearchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 		}
 		else
 			break;
-	} while(ok < 0 && ref->search(2, &k2, spNext));
+	} while(ok < 0 && P_Ref->search(2, &k2, spNext));
 	THROW_DB(BTROKORNFOUND);
 	if(ok < 0) {
 		SString msg;
@@ -372,9 +372,9 @@ int PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 		ReferenceTbl::Key0 k;
 		k.ObjType = Obj;
 		k.ObjID   = accID;
-		if(ref->searchForUpdate(0, &k, spEq)) {
+		if(P_Ref->searchForUpdate(0, &k, spEq)) {
 			PPAccount rec;
-			ref->copyBufTo(&rec);
+			P_Ref->copyBufTo(&rec);
 			if(doUnlock) {
 				rec.Flags &= ACF_FRRL;
 				rec.Frrl_Date = ZERODATE;
@@ -384,13 +384,13 @@ int PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 				if(rec.Frrl_Date == 0 || dt < rec.Frrl_Date)
 					rec.Frrl_Date = dt;
 			}
-			r = ref->updateRecBuf(&rec); // @sfu
+			r = P_Ref->updateRecBuf(&rec); // @sfu
 			if(!r) {
 				THROW_DB(BtrError == BE_CONFLICT && try_count > 0);
 				//
 				// Если встречаем ошибку "Конфликт блокировок на уровне записи", то повторяем попытку чтения-изменения try_count раз.
 				//
-				ref->unlock(0);
+				P_Ref->unlock(0);
 				SDelay(10);
 				--try_count;
 			}
@@ -471,12 +471,12 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 	{
 		ReferenceTbl::Key2 k2;
 		MEMSZERO(k2);
-		BExtQuery q(ref, 2);
-		q.selectAll().where(ref->ObjType == Obj);
+		BExtQuery q(P_Ref, 2);
+		q.selectAll().where(P_Ref->ObjType == Obj);
 		k2.ObjType = Obj;
 		k2.Val1 = -MAXLONG;
 		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-			ref->copyBufTo(&rec);
+			P_Ref->copyBufTo(&rec);
 			int    _suite = 0;
 			if(!rec.CurID && (PPMaster || ObjRts.CheckAccID(rec.ID, PPR_READ))) {
 				switch(acy_sel_type) {
@@ -1124,7 +1124,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjAccount, PPAccountPacket);
 int PPObjAccount::SerializePacket(int dir, PPAccountPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->CurList, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->GenList, rBuf));
 	CATCHZOK

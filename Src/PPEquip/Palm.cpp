@@ -284,7 +284,7 @@ StrAssocArray * PPObjStyloPalm::MakeStrAssocList(void * extraPtr)
 	{
 		const long extra_param = reinterpret_cast<long>(extraPtr);
 		PPStyloPalm rec;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if((rec.Flags & extra_param) == extra_param) {
 				if(*strip(rec.Name) == 0)
 					ideqvalstr(rec.ID, rec.Name, sizeof(rec.Name));
@@ -316,7 +316,7 @@ int PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			case PPOBJ_STYLOPALM:
 				{
 					PPIDArray loc_list;
-					for(SEnum en = ref->Enum(Obj, 0); ok == DBRPL_OK && en.Next(&rec) > 0;) {
+					for(SEnum en = P_Ref->Enum(Obj, 0); ok == DBRPL_OK && en.Next(&rec) > 0;) {
 						switch(_obj) {
 							case PPOBJ_GOODS:
 							case PPOBJ_GOODSGROUP:
@@ -326,7 +326,7 @@ int PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							case PPOBJ_LOCATION:
 								{
 									loc_list.clear();
-									ref->GetPropArray(Obj, rec.ID, PLMPRP_LOCLIST, &loc_list);
+									P_Ref->GetPropArray(Obj, rec.ID, PLMPRP_LOCLIST, &loc_list);
 									for(uint i = 0; i < loc_list.getCount(); i++)
 										if(loc_list.get(i) == _id) {
 											ok = RetRefsExistsErr(Obj, rec.ID);
@@ -358,14 +358,14 @@ int PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	}
 	else if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_ARTICLE) {
-			for(SEnum en = ref->Enum(Obj, 0); ok == DBRPL_OK && en.Next(&rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, 0); ok == DBRPL_OK && en.Next(&rec) > 0;) {
 				if(rec.AgentID == _id) {
 					Reference2Tbl::Key0 k0;
 					k0.ObjType = Obj;
 					k0.ObjID = rec.ID;
-					if(SearchByKey_ForUpdate(ref, 0, &k0, &rec) > 0) {
+					if(SearchByKey_ForUpdate(P_Ref, 0, &k0, &rec) > 0) {
 						rec.AgentID = reinterpret_cast<long>(extraPtr);
-						if(!ref->updateRecBuf(&rec))
+						if(!P_Ref->updateRecBuf(&rec))
 							ok = DBRPL_ERROR;
 					}
 				}
@@ -751,14 +751,14 @@ int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 					THROW(CheckRights(PPR_MOD));
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				}
 				else
 					ok = -1;
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else {
@@ -766,13 +766,13 @@ int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
 		if(ok > 0) {
-			THROW(ref->PutPropVlrString(Obj, *pID, PLMPRP_PATH, pPack ? pPack->P_Path : 0));
-			THROW(ref->PutPropVlrString(Obj, *pID, PLMPRP_FTPPATH, pPack ? pPack->P_FTPPath : 0));
-			THROW(ref->PutPropArray(Obj, *pID, PLMPRP_LOCLIST, pPack ? &pPack->LocList.Get() : 0, 0));
-			THROW(ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList.Get() : 0, 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_PATH, pPack ? pPack->P_Path : 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, PLMPRP_FTPPATH, pPack ? pPack->P_FTPPath : 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, PLMPRP_LOCLIST, pPack ? &pPack->LocList.Get() : 0, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList.Get() : 0, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -783,7 +783,7 @@ int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 int PPObjStyloPalm::GetLocList(PPID id, ObjIdListFilt & rLocList)
 {
 	PPIDArray list;
-	int    ok = ref->GetPropArray(Obj, id, PLMPRP_LOCLIST, &list);
+	int    ok = P_Ref->GetPropArray(Obj, id, PLMPRP_LOCLIST, &list);
 	rLocList.Set((ok > 0) ? &list : 0);
 	return ok;
 }
@@ -791,7 +791,7 @@ int PPObjStyloPalm::GetLocList(PPID id, ObjIdListFilt & rLocList)
 int PPObjStyloPalm::GetQuotKindList(PPID id, ObjIdListFilt & rQuotKindList)
 {
 	PPIDArray list;
-	int    ok = ref->GetPropArray(Obj, id, PLMPRP_QUOTKINDLIST, &list);
+	int    ok = P_Ref->GetPropArray(Obj, id, PLMPRP_QUOTKINDLIST, &list);
 	rQuotKindList.Set((ok > 0) ? &list : 0);
 	return ok;
 }
@@ -805,11 +805,11 @@ int PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, PPIDArr
 	pPack->LocList.Set(0);
 	if(Search(id, &pPack->Rec) > 0) {
 		SString path;
-		THROW(ref->GetPropVlrString(Obj, id, PLMPRP_PATH, path));
+		THROW(P_Ref->GetPropVlrString(Obj, id, PLMPRP_PATH, path));
 		THROW(GetLocList(id, pPack->LocList));
 		THROW(GetQuotKindList(id, pPack->QkList));
 		THROW_MEM(pPack->P_Path = newStr(path));
-		THROW(ref->GetPropVlrString(Obj, id, PLMPRP_FTPPATH, path));
+		THROW(P_Ref->GetPropVlrString(Obj, id, PLMPRP_FTPPATH, path));
 		THROW_MEM(pPack->P_FTPPath = newStr(path));
 		if(pPack->Rec.GroupID) {
 			PPStyloPalmPacket group_pack;
@@ -2191,7 +2191,7 @@ int PPObjStyloPalm::Helper_GetChildList(PPID id, PPIDArray & rPalmList, PPIDArra
 		}
 		else {
 			PPStyloPalm child_rec;
-			for(SEnum en = ref->Enum(Obj, 0); en.Next(&child_rec) > 0;)
+			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&child_rec) > 0;)
 				if(child_rec.GroupID == id)
 					Helper_GetChildList(child_rec.ID, rPalmList, pStack); // @recursion
 		}

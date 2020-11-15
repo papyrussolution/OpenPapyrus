@@ -480,7 +480,7 @@ int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 		THROW(Search(id, &pack->Rec) > 0);
 		THROW(opc_obj.GetPacket(pack->Rec.OpCounterID, &pack->OpCntrPack));
 		THROW(GetExAmountList(id, &pack->Amounts));
-		THROW(ref->GetPropVlrString(Obj, id, OPKPRP_EXTSTRDATA, pack->ExtString));
+		THROW(P_Ref->GetPropVlrString(Obj, id, OPKPRP_EXTSTRDATA, pack->ExtString));
 		pack->ATTmpls.freeAll();
 		ZDELETE(pack->P_GenList);
 		ZDELETE(pack->P_ReckonData);
@@ -488,7 +488,7 @@ int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 		if(pack->Rec.OpTypeID == PPOPT_INVENTORY) {
 			PPInventoryOpEx ioe;
 			ZDELETE(pack->P_IOE);
-			if(ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &ioe, sizeof(ioe)) > 0) {
+			if(P_Ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &ioe, sizeof(ioe)) > 0) {
 				THROW_MEM(pack->P_IOE = new PPInventoryOpEx);
 				*pack->P_IOE = ioe;
 			}
@@ -520,7 +520,7 @@ int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 			PPDebtInventOpEx dioe;
 			MEMSZERO(dioe);
 			ZDELETE(pack->P_DIOE);
-			if(ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_DEBTINVENT, &dioe, sizeof(dioe)) > 0) {
+			if(P_Ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_DEBTINVENT, &dioe, sizeof(dioe)) > 0) {
 				THROW_MEM(pack->P_DIOE = new PPDebtInventOpEx);
 				*pack->P_DIOE = dioe;
 			}
@@ -570,24 +570,24 @@ int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
 		if(*pID) {
 			PPOprKind org_rec;
 			PPID   prop = 0;
-			THROW(ref->GetItem(Obj, *pID, &org_rec) > 0);
-			THROW_DB(deleteFrom(&ref->Prop, 0, (ref->Prop.ObjType == Obj && ref->Prop.ObjID == *pID && ref->Prop.Prop <= (long)PP_MAXATURNTEMPLATES)));
-			THROW(ref->UpdateItem(Obj, *pID, &pack->Rec, 1, 0));
+			THROW(P_Ref->GetItem(Obj, *pID, &org_rec) > 0);
+			THROW_DB(deleteFrom(&P_Ref->Prop, 0, (P_Ref->Prop.ObjType == Obj && P_Ref->Prop.ObjID == *pID && P_Ref->Prop.Prop <= (long)PP_MAXATURNTEMPLATES)));
+			THROW(P_Ref->UpdateItem(Obj, *pID, &pack->Rec, 1, 0));
 			if(org_rec.OpCounterID != pack->Rec.OpCounterID)
-				if(ref->GetItem(PPOBJ_OPCOUNTER, org_rec.OpCounterID, &opc_rec) > 0)
+				if(P_Ref->GetItem(PPOBJ_OPCOUNTER, org_rec.OpCounterID, &opc_rec) > 0)
 					if(opc_rec.OwnerObjID)
 						THROW(opc_obj.PutPacket(&org_rec.OpCounterID, 0, 0));
 			Dirty(*pID);
 		}
 		else {
 			*pID = pack->Rec.ID;
-			THROW(ref->AddItem(PPOBJ_OPRKIND, pID, &pack->Rec, 0));
+			THROW(P_Ref->AddItem(PPOBJ_OPRKIND, pID, &pack->Rec, 0));
 		}
 		for(i = 0; i < pack->ATTmpls.getCount(); i++) {
-			THROW(ref->PutProp(Obj, *pID, static_cast<PPID>(i+1), &pack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
+			THROW(P_Ref->PutProp(Obj, *pID, static_cast<PPID>(i+1), &pack->ATTmpls.at(i), sizeof(PPAccTurnTempl), 0));
 		}
 		if(pack->Rec.OpTypeID == PPOPT_GENERIC) {
-			THROW(ref->PutPropArray(PPOBJ_OPRKIND, *pID, OPKPRP_GENLIST2, pack->P_GenList, 0));
+			THROW(P_Ref->PutPropArray(PPOBJ_OPRKIND, *pID, OPKPRP_GENLIST2, pack->P_GenList, 0));
 		}
 		else if(pack->Rec.OpTypeID == PPOPT_POOL) {
 			THROW(SetPoolExData(*pID, pack->P_PoolData, 0));
@@ -598,12 +598,12 @@ int PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta)
 		if(pack->Rec.Flags & OPKF_RECKON) {
 			THROW(SetReckonExData(*pID, pack->P_ReckonData, 0));
 		}
-		THROW(ref->PutPropVlrString(Obj, *pID, OPKPRP_EXTSTRDATA, pack->ExtString));
-		THROW(ref->PutPropArray(Obj, *pID, OPKPRP_EXAMTLIST, &pack->Amounts, 0));
+		THROW(P_Ref->PutPropVlrString(Obj, *pID, OPKPRP_EXTSTRDATA, pack->ExtString));
+		THROW(P_Ref->PutPropArray(Obj, *pID, OPKPRP_EXAMTLIST, &pack->Amounts, 0));
 		if(pack->Rec.OpTypeID == PPOPT_INVENTORY)
-			THROW(ref->PutProp(Obj, *pID, OPKPRP_INVENTORY, pack->P_IOE));
+			THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_INVENTORY, pack->P_IOE));
 		if(pack->Rec.SubType == OPSUBT_DEBTINVENT)
-			THROW(ref->PutProp(Obj, *pID, OPKPRP_DEBTINVENT, pack->P_DIOE));
+			THROW(P_Ref->PutProp(Obj, *pID, OPKPRP_DEBTINVENT, pack->P_DIOE));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -614,11 +614,11 @@ int PPObjOprKind::GetExtStrData(PPID opID, int fldID, SString & rBuf)
 {
 	SString line_buf;
 	rBuf.Z();
-	return (ref->GetPropVlrString(Obj, opID, OPKPRP_EXTSTRDATA, line_buf) > 0) ? PPGetExtStrData_def(fldID, OPKEXSTR_MEMO, line_buf, rBuf) : -1;
+	return (P_Ref->GetPropVlrString(Obj, opID, OPKPRP_EXTSTRDATA, line_buf) > 0) ? PPGetExtStrData_def(fldID, OPKEXSTR_MEMO, line_buf, rBuf) : -1;
 }
 
-int PPObjOprKind::GetExAmountList(PPID id, PPIDArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_EXAMTLIST, pList); }
-int PPObjOprKind::GetGenericList(PPID id, ObjRestrictArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_GENLIST2, pList); }
+int PPObjOprKind::GetExAmountList(PPID id, PPIDArray * pList) { return P_Ref->GetPropArray(Obj, id, OPKPRP_EXAMTLIST, pList); }
+int PPObjOprKind::GetGenericList(PPID id, ObjRestrictArray * pList) { return P_Ref->GetPropArray(Obj, id, OPKPRP_GENLIST2, pList); }
 
 int PPObjOprKind::GetGenericList(PPID id, PPIDArray * pList)
 {
@@ -648,7 +648,7 @@ int PPObjOprKind::SetReckonExData(PPID id, const PPReckonOpEx * pData, int use_t
 		for(i = 0; i < pData->OpList.getCount(); i++)
 			THROW_SL(temp.add(pData->OpList.get(i)));
 	}
-	THROW(ref->PutPropArray(Obj, id, OPKPRP_PAYMOPLIST, (pData ? &temp : static_cast<const PPIDArray *>(0)), use_ta));
+	THROW(P_Ref->PutPropArray(Obj, id, OPKPRP_PAYMOPLIST, (pData ? &temp : static_cast<const PPIDArray *>(0)), use_ta));
 	CATCHZOK
 	return ok;
 }
@@ -657,7 +657,7 @@ int PPObjOprKind::GetReckonExData(PPID id, PPReckonOpEx * pData)
 {
 	int    ok = -1;
 	PPIDArray temp;
-	if(ref->GetPropArray(Obj, id, OPKPRP_PAYMOPLIST, &temp) > 0) {
+	if(P_Ref->GetPropArray(Obj, id, OPKPRP_PAYMOPLIST, &temp) > 0) {
 		if(temp.getCount() < ROX_HDR_DW_COUNT) {
 			CALLPTRMEMB(pData, Init());
 		}
@@ -707,14 +707,14 @@ int PPObjOprKind::SetDraftExData(PPID id, const PPDraftOpEx * pData)
 		strg.WrOffComplOpID = pData->WrOffComplOpID;
 		strg.Flags      = pData->Flags;
 	}
-	return BIN(ref->PutProp(Obj, id, OPKPRP_DRAFT, p_strg, sz));
+	return BIN(P_Ref->PutProp(Obj, id, OPKPRP_DRAFT, p_strg, sz));
 }
 
 int PPObjOprKind::GetDraftExData(PPID id, PPDraftOpEx * pData)
 {
 	int    ok = -1;
 	PPDraftOpEx_Strg strg;
-	if(ref->GetProperty(Obj, id, OPKPRP_DRAFT, &strg, sizeof(strg)) > 0) {
+	if(P_Ref->GetProperty(Obj, id, OPKPRP_DRAFT, &strg, sizeof(strg)) > 0) {
 		if(pData) {
 			pData->WrOffOpID  = strg.WrOffOpID;
 			pData->WrOffObjID = strg.WrOffObjID;
@@ -745,7 +745,7 @@ int PPObjOprKind::SetPoolExData(PPID id, const PPBillPoolOpEx * pData, int use_t
 		for(i = 0; i < pData->OpList.getCount(); i++)
 			THROW(temp.add(pData->OpList.get(i)));
 	}
-	THROW(ref->PutPropArray(Obj, id, OPKPRP_BILLPOOL, (pData ? &temp : static_cast<const PPIDArray *>(0)), use_ta));
+	THROW(P_Ref->PutPropArray(Obj, id, OPKPRP_BILLPOOL, (pData ? &temp : static_cast<const PPIDArray *>(0)), use_ta));
 	CATCHZOK
 	return ok;
 }
@@ -755,7 +755,7 @@ int PPObjOprKind::GetPoolExData(PPID id, PPBillPoolOpEx * pData)
 	int    ok = -1;
 	PPIDArray temp;
 	CALLPTRMEMB(pData, Init());
-	if(ref->GetPropArray(Obj, id, OPKPRP_BILLPOOL, &temp) > 0 && temp.getCount() >= BPOX_HDR_DW_COUNT) {
+	if(P_Ref->GetPropArray(Obj, id, OPKPRP_BILLPOOL, &temp) > 0 && temp.getCount() >= BPOX_HDR_DW_COUNT) {
 		if(pData) {
 			pData->Flags = temp.at(0);
 			memzero(pData->Reserve, sizeof(pData->Reserve));
@@ -775,7 +775,7 @@ int PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray
 	if(opTypeID && pList) {
 		PROFILE_START
 		PPOprKind op_rec;
-		for(SEnum en = ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
 			if(op_rec.OpTypeID == opTypeID && (!linkOpID || op_rec.LinkOpID == linkOpID)) {
 				if(!pList->add(op_rec.ID))
 					ok = PPSetErrorSLib();
@@ -808,7 +808,7 @@ int PPObjOprKind::GetPayableOpList(PPID accSheetID, PPIDArray * pList)
 	int    ok = 1;
 	PPOprKind op_rec;
 	if(pList) {
-		for(SEnum en = ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
    		    if((accSheetID == -1 || op_rec.AccSheetID == accSheetID) && op_rec.Flags & OPKF_NEEDPAYMENT) {
 				if(op_rec.OpTypeID != PPOPT_GOODSORDER || !(CConfig.Flags & CCFLG_IGNOREORDERSDEBT))
 					if(!pList->add(op_rec.ID))
@@ -824,7 +824,7 @@ int PPObjOprKind::GetProfitableOpList(PPID accSheetID, PPIDArray * pList)
 	int    ok = 1;
 	PPOprKind op_rec;
 	if(pList) {
-		for(SEnum en = ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
    		    if(op_rec.AccSheetID == accSheetID && op_rec.Flags & OPKF_PROFITABLE)
 				if(!pList->add(op_rec.ID))
 					ok = PPSetErrorSLib();
@@ -972,7 +972,7 @@ int PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v10.9.0
 		long    _count = 0;
 		PPOprKind op_rec;
 		{
-			for(SEnum en = ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
 				_count++;
 			}
 		}
@@ -2690,14 +2690,14 @@ int PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE) {
 		if(_id && oneof4(_obj, PPOBJ_OPRTYPE, PPOBJ_ACCSHEET, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
 			PPOprKind op_rec;
-			for(SEnum en = ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
 				if(_obj == PPOBJ_ACCSHEET && op_rec.AccSheetID == _id)
 					return RetRefsExistsErr(Obj, op_rec.ID);
 				else if(_obj == PPOBJ_OPRTYPE && op_rec.OpTypeID == _id)
 					return RetRefsExistsErr(Obj, op_rec.ID);
 				else if(oneof2(_obj, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
 					PPAccTurnTempl att;
-					for(PPID prop = 0; ref->EnumProperties(Obj, op_rec.ID, &prop, &att, sizeof(att)) > 0 && prop <= PP_MAXATURNTEMPLATES;)
+					for(PPID prop = 0; P_Ref->EnumProperties(Obj, op_rec.ID, &prop, &att, sizeof(att)) > 0 && prop <= PP_MAXATURNTEMPLATES;)
 						if((_obj == PPOBJ_ACCOUNT2 && (att.DbtID.ac == _id || att.CrdID.ac == _id)) || (_obj == PPOBJ_ARTICLE && (att.DbtID.ar == _id || att.CrdID.ar == _id)))
 							return RetRefsExistsErr(Obj, op_rec.ID);
 				}
@@ -2718,7 +2718,7 @@ int PPObjOprKind::SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rB
 {
 	int    ok = 1;
 	PPReckonOpEx roe;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
 	if(dir > 0) {

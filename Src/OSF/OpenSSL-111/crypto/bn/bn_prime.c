@@ -18,7 +18,7 @@
 
 // @sobolev (moved from bn_prime.h) {
 // @todo replace with smath FirstPrimeNumbers
-typedef unsigned short prime_t;
+typedef ushort prime_t;
 #if 0 // {
 static const prime_t __OpenSsl_Crypto_Primes/*primes*/[2048] = {
         2,     3,     5,     7,    11,    13,    17,    19,

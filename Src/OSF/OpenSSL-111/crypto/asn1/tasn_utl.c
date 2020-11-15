@@ -18,7 +18,7 @@
 /* Utility functions for manipulating fields and offsets */
 
 /* Add 'offset' to 'addr' */
-#define offset2ptr(addr, offset) (void*)(((char*)addr) + offset)
+#define offset2ptr(addr, offset) (void*)(((char *)addr) + offset)
 
 /*
  * Given an ASN1_ITEM CHOICE type return the selector value
@@ -130,7 +130,7 @@ void asn1_enc_free(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 	}
 }
 
-int asn1_enc_save(ASN1_VALUE ** pval, const unsigned char * in, int inlen,
+int asn1_enc_save(ASN1_VALUE ** pval, const uchar * in, int inlen,
     const ASN1_ITEM * it)
 {
 	ASN1_ENCODING * enc;
@@ -150,7 +150,7 @@ int asn1_enc_save(ASN1_VALUE ** pval, const unsigned char * in, int inlen,
 	return 1;
 }
 
-int asn1_enc_restore(int * len, unsigned char ** out, ASN1_VALUE ** pval,
+int asn1_enc_restore(int * len, uchar ** out, ASN1_VALUE ** pval,
     const ASN1_ITEM * it)
 {
 	ASN1_ENCODING * enc;

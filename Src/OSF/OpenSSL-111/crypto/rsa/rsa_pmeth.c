@@ -39,9 +39,9 @@ typedef struct {
 	/* Minimum salt length or -1 if no PSS parameter restriction */
 	int min_saltlen;
 	/* Temp buffer */
-	unsigned char * tbuf;
+	uchar * tbuf;
 	/* OAEP label */
-	unsigned char * oaep_label;
+	uchar * oaep_label;
 	size_t oaep_labellen;
 } RSA_PKEY_CTX;
 
@@ -118,8 +118,8 @@ static void pkey_rsa_cleanup(EVP_PKEY_CTX * ctx)
 	}
 }
 
-static int pkey_rsa_sign(EVP_PKEY_CTX * ctx, unsigned char * sig,
-    size_t * siglen, const unsigned char * tbs,
+static int pkey_rsa_sign(EVP_PKEY_CTX * ctx, uchar * sig,
+    size_t * siglen, const uchar * tbs,
     size_t tbslen)
 {
 	int ret;
@@ -133,7 +133,7 @@ static int pkey_rsa_sign(EVP_PKEY_CTX * ctx, unsigned char * sig,
 		}
 
 		if(EVP_MD_type(rctx->md) == NID_mdc2) {
-			unsigned int sltmp;
+			uint sltmp;
 			if(rctx->pad_mode != RSA_PKCS1_PADDING)
 				return -1;
 			ret = RSA_sign_ASN1_OCTET_STRING(0,
@@ -158,7 +158,7 @@ static int pkey_rsa_sign(EVP_PKEY_CTX * ctx, unsigned char * sig,
 				sig, rsa, RSA_X931_PADDING);
 		}
 		else if(rctx->pad_mode == RSA_PKCS1_PADDING) {
-			unsigned int sltmp;
+			uint sltmp;
 			ret = RSA_sign(EVP_MD_type(rctx->md),
 				tbs, tbslen, sig, &sltmp, rsa);
 			if(ret <= 0)
@@ -191,8 +191,8 @@ static int pkey_rsa_sign(EVP_PKEY_CTX * ctx, unsigned char * sig,
 }
 
 static int pkey_rsa_verifyrecover(EVP_PKEY_CTX * ctx,
-    unsigned char * rout, size_t * routlen,
-    const unsigned char * sig, size_t siglen)
+    uchar * rout, size_t * routlen,
+    const uchar * sig, size_t siglen)
 {
 	int ret;
 	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
@@ -244,8 +244,8 @@ static int pkey_rsa_verifyrecover(EVP_PKEY_CTX * ctx,
 }
 
 static int pkey_rsa_verify(EVP_PKEY_CTX * ctx,
-    const unsigned char * sig, size_t siglen,
-    const unsigned char * tbs, size_t tbslen)
+    const uchar * sig, size_t siglen,
+    const uchar * tbs, size_t tbslen)
 {
 	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
 	RSA * rsa = ctx->pkey->pkey.rsa;
@@ -298,8 +298,8 @@ static int pkey_rsa_verify(EVP_PKEY_CTX * ctx,
 }
 
 static int pkey_rsa_encrypt(EVP_PKEY_CTX * ctx,
-    unsigned char * out, size_t * outlen,
-    const unsigned char * in, size_t inlen)
+    uchar * out, size_t * outlen,
+    const uchar * in, size_t inlen)
 {
 	int ret;
 	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
@@ -328,8 +328,8 @@ static int pkey_rsa_encrypt(EVP_PKEY_CTX * ctx,
 }
 
 static int pkey_rsa_decrypt(EVP_PKEY_CTX * ctx,
-    unsigned char * out, size_t * outlen,
-    const unsigned char * in, size_t inlen)
+    uchar * out, size_t * outlen,
+    const uchar * in, size_t inlen)
 {
 	int ret;
 	RSA_PKEY_CTX * rctx = static_cast<RSA_PKEY_CTX *>(ctx->data);
@@ -569,7 +569,7 @@ bad_pad:
 			    RSAerr(RSA_F_PKEY_RSA_CTRL, RSA_R_INVALID_PADDING_MODE);
 			    return -2;
 		    }
-		    *(unsigned char**)p2 = rctx->oaep_label;
+		    *(uchar**)p2 = rctx->oaep_label;
 		    return rctx->oaep_labellen;
 
 		case EVP_PKEY_CTRL_DIGESTINIT:
@@ -700,7 +700,7 @@ static int pkey_rsa_ctrl_str(EVP_PKEY_CTX * ctx,
 			   EVP_PKEY_CTRL_RSA_OAEP_MD, value);
 
 	if(sstreq(type, "rsa_oaep_label")) {
-		unsigned char * lab;
+		uchar * lab;
 		long lablen;
 		int ret;
 

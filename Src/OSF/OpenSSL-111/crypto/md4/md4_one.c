@@ -14,10 +14,10 @@
 	#include <openssl/ebcdic.h>
 #endif
 
-unsigned char * MD4(const unsigned char * d, size_t n, unsigned char * md)
+uchar * MD4(const uchar * d, size_t n, uchar * md)
 {
 	MD4_CTX c;
-	static unsigned char m[MD4_DIGEST_LENGTH];
+	static uchar m[MD4_DIGEST_LENGTH];
 
 	if(md == NULL)
 		md = m;
@@ -28,7 +28,7 @@ unsigned char * MD4(const unsigned char * d, size_t n, unsigned char * md)
 #else
 	{
 		char temp[1024];
-		unsigned long chunk;
+		ulong chunk;
 
 		while(n > 0) {
 			chunk = (n > sizeof(temp)) ? sizeof(temp) : n;

@@ -115,7 +115,7 @@ static int process_pci_value(CONF_VALUE * val,
 		}
 	}
 	else if(strcmp(val->name, "policy") == 0) {
-		unsigned char * tmp_data = NULL;
+		uchar * tmp_data = NULL;
 		long val_len;
 		if(!*policy) {
 			*policy = ASN1_OCTET_STRING_new();
@@ -127,7 +127,7 @@ static int process_pci_value(CONF_VALUE * val,
 			free_policy = 1;
 		}
 		if(strncmp(val->value, "hex:", 4) == 0) {
-			unsigned char * tmp_data2 =
+			uchar * tmp_data2 =
 			    OPENSSL_hexstr2buf(val->value + 4, &val_len);
 
 			if(!tmp_data2) {
@@ -159,7 +159,7 @@ static int process_pci_value(CONF_VALUE * val,
 			OPENSSL_free(tmp_data2);
 		}
 		else if(strncmp(val->value, "file:", 5) == 0) {
-			unsigned char buf[2048];
+			uchar buf[2048];
 			int n;
 			BIO * b = BIO_new_file(val->value + 5, "r");
 			if(!b) {

@@ -277,7 +277,7 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 	else {
 		PPGoodsBasket gb;
 		PPGoodsBasketItem gbi;
-		THROW(ref->GetItem(Obj, id, &gb) > 0);
+		THROW(P_Ref->GetItem(Obj, id, &gb) > 0);
 		pData->destroy();
 		pData->Head.Tag     = gb.Tag;
 		pData->Head.ID      = gb.ID;
@@ -291,7 +291,7 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 		int    new_load_method = 1; // Проверено: этот метод быстрее
 		if(new_load_method) {
 			PROFILE_START
-			for(SEnum en = ref->Assc.Enum(PPASS_GOODSBASKET, gb.ID, 0); en.Next(&gbi) > 0;) {
+			for(SEnum en = P_Ref->Assc.Enum(PPASS_GOODSBASKET, gb.ID, 0); en.Next(&gbi) > 0;) {
 				ILTI   item;
 				item.GoodsID     = gbi.ItemGoodsID;
 				item.Flags       = gbi.Flags;
@@ -308,7 +308,7 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 		else {
 			PROFILE_START
 			PPID   scnd_id = -MAXLONG;
-			while(ref->Assc.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi)) > 0) {
+			while(P_Ref->Assc.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi)) > 0) {
 				ILTI   item;
 				item.GoodsID     = gbi.ItemGoodsID;
 				item.Flags       = gbi.Flags;
@@ -384,12 +384,12 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 					head.User = pData->Head.User;
 					head.SupplID = pData->Head.SupplID;
 					if(*pID == 0){
-						THROW(ref->AddItem(Obj, pID, &head, 0));
+						THROW(P_Ref->AddItem(Obj, pID, &head, 0));
 						pData->Head.ID = *pID;
 						ok = 1;
 					}
 					else {
-						THROW(r = ref->UpdateItem(Obj, *pID, &head, 0, 0));
+						THROW(r = P_Ref->UpdateItem(Obj, *pID, &head, 0, 0));
 						action = PPACN_OBJUPD;
 						if(r > 0)
 							ok = 1;
@@ -398,12 +398,12 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 			}
 		}
 		else {
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			ok = 1;
 		}
 		if(!skip_items) {
 			if(items.getCount() == 0) {
-				THROW(ref->Assc.Remove(PPASS_GOODSBASKET, *pID, 0, 0));
+				THROW(P_Ref->Assc.Remove(PPASS_GOODSBASKET, *pID, 0, 0));
 				ok = 1;
 			}
 			else {
@@ -411,7 +411,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 				PPGoodsBasketItem gbi;
 				SVector prev_items(sizeof(ObjAssocTbl::Rec)); // @v10.7.3 SArray-->SVector
 				LongArray found_pos_list;
-				for(SEnum en = ref->Assc.Enum(PPASS_GOODSBASKET, *pID, 0); en.Next(&gbi) > 0;) {
+				for(SEnum en = P_Ref->Assc.Enum(PPASS_GOODSBASKET, *pID, 0); en.Next(&gbi) > 0;) {
 					THROW_SL(prev_items.insert(&gbi));
 					SETMAX(last_num, gbi.Num);
 				}
@@ -429,19 +429,19 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 							gbi.Price = p_list_item->Price;
 							gbi.UnitPerPack = p_list_item->UnitPerPack;
 							gbi.Expiry = p_list_item->Expiry;
-							THROW(ref->Assc.Update(gbi.Id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi), 0));
+							THROW(P_Ref->Assc.Update(gbi.Id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi), 0));
 							ok = 1;
 						}
 					}
 					else {
 						if(gbi.Num == last_num)
 							last_num--;
-						THROW(ref->Assc.Remove(gbi.Id, 0));
+						THROW(P_Ref->Assc.Remove(gbi.Id, 0));
 						ok = 1;
 					}
 				}
 				{
-					BExtInsert bei(&ref->Assc);
+					BExtInsert bei(&P_Ref->Assc);
 					for(i = 0; i < items.getCount(); i++) {
 						if(!found_pos_list.lsearch((long)i)) {
 							PPGoodsBasketItem * p_list_item = static_cast<PPGoodsBasketItem *>(items.at(i));
@@ -469,7 +469,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsBasket, PPBasketPacket);
 int PPObjGoodsBasket::SerializePacket(int dir, PPBasketPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Head, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Head, rBuf, pSCtx));
 	THROW(pPack->SerializeLots(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -567,10 +567,10 @@ int PPObjGoodsBasket::ClearDefForBaskets(int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		for(PPID id = 0; ref->EnumItems(Obj, &id, &gb_rec) > 0;) {
+		for(PPID id = 0; P_Ref->EnumItems(Obj, &id, &gb_rec) > 0;) {
 			if(gb_rec.Flags & GBASKF_DEFAULT) {
 				gb_rec.Flags &= ~GBASKF_DEFAULT;
-				THROW(ref->UpdateItem(Obj, id, &gb_rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, id, &gb_rec, 1, 0));
 			}
 			ok = 1;
 		}
@@ -599,15 +599,15 @@ int PPObjGoodsBasket::SearchDefaultBasket(PPID * pID, PPGoodsBasket * pRec)
 {
 	int    ok = -1;
 	long   eh = -1;
-	if(ref->InitEnum(Obj, 0, &eh) > 0) {
+	if(P_Ref->InitEnum(Obj, 0, &eh) > 0) {
 		PPGoodsBasket rec;
-		while(ok < 0 && ref->NextEnum(eh, &rec) > 0)
+		while(ok < 0 && P_Ref->NextEnum(eh, &rec) > 0)
 			if(rec.Flags & GBASKF_DEFAULT) {
 				ASSIGN_PTR(pID, rec.ID);
 				ASSIGN_PTR(pRec, rec);
 				ok = 1;
 			}
-		ref->DestroyIter(eh);
+		P_Ref->DestroyIter(eh);
 	}
 	return ok;
 }

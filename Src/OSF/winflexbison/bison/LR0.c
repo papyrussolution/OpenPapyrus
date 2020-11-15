@@ -29,8 +29,8 @@ typedef struct state_list {
 	state * state;
 } state_list;
 
-static state_list * first_state = NULL;
-static state_list * last_state = NULL;
+static state_list * first_state = NULL; // @global
+static state_list * last_state = NULL;  // @global
 
 /* Print CORE for debugging. */
 static void core_print(size_t core_size, item_index * core, FILE * out)
@@ -63,25 +63,23 @@ static state * state_list_append(symbol_number sym, size_t core_size, item_index
 	return res;
 }
 
-/* Symbols that can be "shifted" (including nonterminals) from the
-   current state.  */
-bitset shift_symbol;
+/* Symbols that can be "shifted" (including nonterminals) from the current state.  */
+bitset shift_symbol; // @global
 
-static rule ** redset;
+static rule ** redset; // @global
 /* For the current state, the list of pointers to states that can be
    reached via a shift/goto.  Could be indexed by the reaching symbol,
    but labels of incoming transitions can be recovered by the state
    itself.  */
-static state ** shiftset;
+static state ** shiftset; // @global
 
 /* KERNEL_BASE[symbol-number] -> list of item indices (offsets inside
    RITEM) of length KERNEL_SIZE[symbol-number]. */
-static item_index ** kernel_base;
-static int * kernel_size;
+static item_index ** kernel_base; // @global
+static int * kernel_size; // @global
 
-/* A single dimension array that serves as storage for
-   KERNEL_BASE.  */
-static item_index * kernel_items;
+/* A single dimension array that serves as storage for KERNEL_BASE.  */
+static item_index * kernel_items; // @global
 
 static void allocate_itemsets(void)
 {

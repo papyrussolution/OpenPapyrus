@@ -11,7 +11,7 @@
 #include "record_locl.h"
 
 /* mod 128 saturating subtract of two 64-bit values in big-endian order */
-static int satsub64be(const unsigned char * v1, const unsigned char * v2)
+static int satsub64be(const uchar * v1, const uchar * v2)
 {
 	int64_t ret;
 	uint64_t l1, l2;
@@ -35,8 +35,8 @@ static int satsub64be(const unsigned char * v1, const unsigned char * v2)
 int dtls1_record_replay_check(SSL * s, DTLS1_BITMAP * bitmap)
 {
 	int cmp;
-	unsigned int shift;
-	const unsigned char * seq = s->rlayer.read_sequence;
+	uint shift;
+	const uchar * seq = s->rlayer.read_sequence;
 
 	cmp = satsub64be(seq, bitmap->max_seq_num);
 	if(cmp > 0) {
@@ -56,8 +56,8 @@ int dtls1_record_replay_check(SSL * s, DTLS1_BITMAP * bitmap)
 void dtls1_record_bitmap_update(SSL * s, DTLS1_BITMAP * bitmap)
 {
 	int cmp;
-	unsigned int shift;
-	const unsigned char * seq = RECORD_LAYER_get_read_sequence(&s->rlayer);
+	uint shift;
+	const uchar * seq = RECORD_LAYER_get_read_sequence(&s->rlayer);
 
 	cmp = satsub64be(seq, bitmap->max_seq_num);
 	if(cmp > 0) {

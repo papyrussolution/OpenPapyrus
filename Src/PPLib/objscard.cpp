@@ -846,7 +846,7 @@ StrAssocArray * PPObjSCardSeries::MakeStrAssocList(void * extraPtr)
 	PPSCardSeries rec;
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if(CheckForFilt(&scs_filt, rec)) {
 			PPID   parent_id = rec.ParentID;
 			THROW_SL(p_list->Add(rec.ID, parent_id, rec.Name));
@@ -1158,7 +1158,7 @@ int PPObjSCardSeries::Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray 
 			}
 			else {
 				PPSCardSeries child_rec;
-				for(SEnum en = ref->Enum(Obj, 0); en.Next(&child_rec) > 0;)
+				for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&child_rec) > 0;)
 					if(child_rec.ParentID == id)
 						THROW(Helper_GetChildList(child_rec.ID, rList, pStack)); // @recursion
 			}
@@ -1182,7 +1182,7 @@ int PPObjSCardSeries::GetSeriesWithSpecialTreatment(LAssocArray & rList)
 	int    ok = -1;
 	rList.clear();
 	PPSCardSeries rec;
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if(oneof2(rec.SpecialTreatment, SCRDSSPCTRT_AZ, SCRDSSPCTRT_UDS)) {
 			rList.Add(rec.ID, rec.SpecialTreatment);
 			ok = 1;
@@ -1332,10 +1332,10 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
 			THROW(P_SCSerObj->CheckDupName(Data.Rec.ID, Data.Rec.Name));
 			getCtrlData(sel = CTL_SCARDSER_SYMB, Data.Rec.Symb);
-			THROW(P_SCSerObj->ref->CheckUniqueSymb(PPOBJ_SCARDSERIES, Data.Rec.ID, Data.Rec.Symb, offsetof(PPSCardSeries, Symb)));
-			getCtrlData(CTLSEL_SCARDSER_PARENT, &Data.Rec.ParentID); // @v9.8.9
+			THROW(P_SCSerObj->P_Ref->CheckUniqueSymb(PPOBJ_SCARDSERIES, Data.Rec.ID, Data.Rec.Symb, offsetof(PPSCardSeries, Symb)));
+			getCtrlData(CTLSEL_SCARDSER_PARENT, &Data.Rec.ParentID);
 			getCtrlData(CTL_SCARDSER_ID,   &Data.Rec.ID);
-			getCtrlData(CTL_SCARDSER_CODETEMPL, Data.Eb.CodeTempl); // @v9.8.9 Data.Rec.CodeTempl-->Data.Eb.CodeTempl
+			getCtrlData(CTL_SCARDSER_CODETEMPL, Data.Eb.CodeTempl);
 			getCtrlData(sel = CTL_SCARDSER_DATE,   &Data.Rec.Issue);
 			THROW_SL(checkdate(Data.Rec.Issue, 1));
 			getCtrlData(sel = CTL_SCARDSER_EXPIRY, &Data.Rec.Expiry);
@@ -1558,7 +1558,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjSCardSeries, PPSCardSerPacket);
 int PPObjSCardSeries::SerializePacket(int dir, PPSCardSerPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW(pPack->Rule.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->CcAmtDisRule.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->BonusRule.Serialize(dir, rBuf, pSCtx));

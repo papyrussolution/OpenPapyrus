@@ -27,11 +27,11 @@ int X509_issuer_and_serial_cmp(const X509 * a, const X509 * b)
 }
 
 #ifndef OPENSSL_NO_MD5
-unsigned long X509_issuer_and_serial_hash(X509 * a)
+ulong X509_issuer_and_serial_hash(X509 * a)
 {
-	unsigned long ret = 0;
+	ulong ret = 0;
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-	unsigned char md[16];
+	uchar md[16];
 	char * f;
 
 	if(ctx == NULL)
@@ -44,12 +44,12 @@ unsigned long X509_issuer_and_serial_hash(X509 * a)
 	OPENSSL_free(f);
 	if(!EVP_DigestUpdate
 		    (ctx, (uchar *)a->cert_info.serialNumber.data,
-	    (unsigned long)a->cert_info.serialNumber.length))
+	    (ulong)a->cert_info.serialNumber.length))
 		goto err;
 	if(!EVP_DigestFinal_ex(ctx, &(md[0]), NULL))
 		goto err;
-	ret = (((unsigned long)md[0]) | ((unsigned long)md[1] << 8L) |
-	    ((unsigned long)md[2] << 16L) | ((unsigned long)md[3] << 24L)
+	ret = (((ulong)md[0]) | ((ulong)md[1] << 8L) |
+	    ((ulong)md[2] << 16L) | ((ulong)md[3] << 24L)
 	    ) & 0xffffffffL;
 err:
 	EVP_MD_CTX_free(ctx);
@@ -83,13 +83,13 @@ X509_NAME * X509_get_issuer_name(const X509 * a)
 	return a->cert_info.issuer;
 }
 
-unsigned long X509_issuer_name_hash(X509 * x)
+ulong X509_issuer_name_hash(X509 * x)
 {
 	return X509_NAME_hash(x->cert_info.issuer);
 }
 
 #ifndef OPENSSL_NO_MD5
-unsigned long X509_issuer_name_hash_old(X509 * x)
+ulong X509_issuer_name_hash_old(X509 * x)
 {
 	return X509_NAME_hash_old(x->cert_info.issuer);
 }
@@ -111,13 +111,13 @@ const ASN1_INTEGER * X509_get0_serialNumber(const X509 * a)
 	return &a->cert_info.serialNumber;
 }
 
-unsigned long X509_subject_name_hash(X509 * x)
+ulong X509_subject_name_hash(X509 * x)
 {
 	return X509_NAME_hash(x->cert_info.subject);
 }
 
 #ifndef OPENSSL_NO_MD5
-unsigned long X509_subject_name_hash_old(X509 * x)
+ulong X509_subject_name_hash_old(X509 * x)
 {
 	return X509_NAME_hash_old(x->cert_info.subject);
 }
@@ -180,10 +180,10 @@ int X509_NAME_cmp(const X509_NAME * a, const X509_NAME * b)
 	return memcmp(a->canon_enc, b->canon_enc, a->canon_enclen);
 }
 
-unsigned long X509_NAME_hash(X509_NAME * x)
+ulong X509_NAME_hash(X509_NAME * x)
 {
-	unsigned long ret = 0;
-	unsigned char md[SHA_DIGEST_LENGTH];
+	ulong ret = 0;
+	uchar md[SHA_DIGEST_LENGTH];
 
 	/* Make sure X509_NAME structure contains valid cached encoding */
 	i2d_X509_NAME(x, NULL);
@@ -191,8 +191,8 @@ unsigned long X509_NAME_hash(X509_NAME * x)
 	    NULL))
 		return 0;
 
-	ret = (((unsigned long)md[0]) | ((unsigned long)md[1] << 8L) |
-	    ((unsigned long)md[2] << 16L) | ((unsigned long)md[3] << 24L)
+	ret = (((ulong)md[0]) | ((ulong)md[1] << 8L) |
+	    ((ulong)md[2] << 16L) | ((ulong)md[3] << 24L)
 	    ) & 0xffffffffL;
 	return ret;
 }
@@ -203,11 +203,11 @@ unsigned long X509_NAME_hash(X509_NAME * x)
  * this is reasonably efficient.
  */
 
-unsigned long X509_NAME_hash_old(X509_NAME * x)
+ulong X509_NAME_hash_old(X509_NAME * x)
 {
 	EVP_MD_CTX * md_ctx = EVP_MD_CTX_new();
-	unsigned long ret = 0;
-	unsigned char md[16];
+	ulong ret = 0;
+	uchar md[16];
 
 	if(md_ctx == NULL)
 		return ret;
@@ -218,8 +218,8 @@ unsigned long X509_NAME_hash_old(X509_NAME * x)
 	if(EVP_DigestInit_ex(md_ctx, EVP_md5(), NULL)
 	    && EVP_DigestUpdate(md_ctx, x->bytes->data, x->bytes->length)
 	    && EVP_DigestFinal_ex(md_ctx, md, NULL))
-		ret = (((unsigned long)md[0]) | ((unsigned long)md[1] << 8L) |
-		    ((unsigned long)md[2] << 16L) | ((unsigned long)md[3] << 24L)
+		ret = (((ulong)md[0]) | ((ulong)md[1] << 8L) |
+		    ((ulong)md[2] << 16L) | ((ulong)md[3] << 24L)
 		    ) & 0xffffffffL;
 	EVP_MD_CTX_free(md_ctx);
 
@@ -313,7 +313,7 @@ int X509_check_private_key(const X509 * x, const EVP_PKEY * k)
 
 #ifndef OPENSSL_NO_EC
 
-static int check_suite_b(EVP_PKEY * pkey, int sign_nid, unsigned long * pflags)
+static int check_suite_b(EVP_PKEY * pkey, int sign_nid, ulong * pflags)
 {
 	const EC_GROUP * grp = NULL;
 	int curve_nid;
@@ -347,11 +347,11 @@ static int check_suite_b(EVP_PKEY * pkey, int sign_nid, unsigned long * pflags)
 }
 
 int X509_chain_check_suiteb(int * perror_depth, X509 * x, STACK_OF(X509) * chain,
-    unsigned long flags)
+    ulong flags)
 {
 	int rv, i, sign_nid;
 	EVP_PKEY * pk;
-	unsigned long tflags = flags;
+	ulong tflags = flags;
 
 	if(!(flags & X509_V_FLAG_SUITEB_128_LOS))
 		return X509_V_OK;
@@ -422,7 +422,7 @@ end:
 	return rv;
 }
 
-int X509_CRL_check_suiteb(X509_CRL * crl, EVP_PKEY * pk, unsigned long flags)
+int X509_CRL_check_suiteb(X509_CRL * crl, EVP_PKEY * pk, ulong flags)
 {
 	int sign_nid;
 	if(!(flags & X509_V_FLAG_SUITEB_128_LOS))
@@ -433,12 +433,12 @@ int X509_CRL_check_suiteb(X509_CRL * crl, EVP_PKEY * pk, unsigned long flags)
 
 #else
 int X509_chain_check_suiteb(int * perror_depth, X509 * x, STACK_OF(X509) * chain,
-    unsigned long flags)
+    ulong flags)
 {
 	return 0;
 }
 
-int X509_CRL_check_suiteb(X509_CRL * crl, EVP_PKEY * pk, unsigned long flags)
+int X509_CRL_check_suiteb(X509_CRL * crl, EVP_PKEY * pk, ulong flags)
 {
 	return 0;
 }

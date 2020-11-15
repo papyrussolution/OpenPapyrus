@@ -18,12 +18,12 @@
 typedef struct {
 	union {
 		double align; /* this ensures even sizeof(EVP_CHACHA_KEY)%8==0 */
-		unsigned int d[CHACHA_KEY_SIZE / 4];
+		uint d[CHACHA_KEY_SIZE / 4];
 	} key;
 
-	unsigned int counter[CHACHA_CTR_SIZE / 4];
-	unsigned char buf[CHACHA_BLK_SIZE];
-	unsigned int partial_len;
+	uint counter[CHACHA_CTR_SIZE / 4];
+	uchar buf[CHACHA_BLK_SIZE];
+	uint partial_len;
 } EVP_CHACHA_KEY;
 
 #define data(ctx)   ((EVP_CHACHA_KEY*)(ctx)->cipher_data)
@@ -31,11 +31,11 @@ typedef struct {
 #define CHACHA20_POLY1305_MAX_IVLEN     12
 
 static int chacha_init_key(EVP_CIPHER_CTX * ctx,
-    const unsigned char user_key[CHACHA_KEY_SIZE],
-    const unsigned char iv[CHACHA_CTR_SIZE], int enc)
+    const uchar user_key[CHACHA_KEY_SIZE],
+    const uchar iv[CHACHA_CTR_SIZE], int enc)
 {
 	EVP_CHACHA_KEY * key = data(ctx);
-	unsigned int i;
+	uint i;
 
 	if(user_key)
 		for(i = 0; i < CHACHA_KEY_SIZE; i += 4) {
@@ -52,11 +52,11 @@ static int chacha_init_key(EVP_CIPHER_CTX * ctx,
 	return 1;
 }
 
-static int chacha_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * inp, size_t len)
+static int chacha_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * inp, size_t len)
 {
 	EVP_CHACHA_KEY * key = data(ctx);
-	unsigned int n, rem, ctr32;
+	uint n, rem, ctr32;
 
 	if((n = key->partial_len)) {
 		while(len && n < CHACHA_BLK_SIZE) {
@@ -148,9 +148,9 @@ const EVP_CIPHER * EVP_chacha20(void)
 
 typedef struct {
 	EVP_CHACHA_KEY key;
-	unsigned int nonce[12/4];
-	unsigned char tag[POLY1305_BLOCK_SIZE];
-	unsigned char tls_aad[POLY1305_BLOCK_SIZE];
+	uint nonce[12/4];
+	uchar tag[POLY1305_BLOCK_SIZE];
+	uchar tls_aad[POLY1305_BLOCK_SIZE];
 	struct { uint64_t aad, text; } len;
 
 	int aad, mac_inited, tag_len, nonce_len;
@@ -162,8 +162,8 @@ typedef struct {
 #define POLY1305_ctx(actx)    ((POLY1305*)(actx + 1))
 
 static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
-    const unsigned char * inkey,
-    const unsigned char * iv, int enc)
+    const uchar * inkey,
+    const uchar * iv, int enc)
 {
 	EVP_CHACHA_AEAD_CTX * actx = aead_data(ctx);
 
@@ -177,7 +177,7 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 	actx->tls_payload_length = NO_TLS_PAYLOAD_LENGTH;
 
 	if(iv != NULL) {
-		unsigned char temp[CHACHA_CTR_SIZE] = { 0 };
+		uchar temp[CHACHA_CTR_SIZE] = { 0 };
 
 		/* pad on the left */
 		if(actx->nonce_len <= CHACHA_CTR_SIZE)
@@ -204,17 +204,17 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 #    define XOR128_HELPERS
 void * xor128_encrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
 void * xor128_decrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
-static const unsigned char zero[4 * CHACHA_BLK_SIZE] = { 0 };
+static const uchar zero[4 * CHACHA_BLK_SIZE] = { 0 };
 #   else
-static const unsigned char zero[2 * CHACHA_BLK_SIZE] = { 0 };
+static const uchar zero[2 * CHACHA_BLK_SIZE] = { 0 };
 #   endif
 
-static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_CHACHA_AEAD_CTX * actx = aead_data(ctx);
 	size_t tail, tohash_len, buf_len, plen = actx->tls_payload_length;
-	unsigned char * buf, * tohash, * ctr, storage[sizeof(zero) + 32];
+	uchar * buf, * tohash, * ctr, storage[sizeof(zero) + 32];
 
 	if(len != plen + POLY1305_BLOCK_SIZE)
 		return -1;
@@ -268,7 +268,7 @@ static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, unsigned char * ou
 		}
 		else {
 			for(i = 0; i < plen; i++) {
-				unsigned char c = in[i];
+				uchar c = in[i];
 				out[i] = ctr[i] ^ c;
 				ctr[i] = c;
 			}
@@ -361,11 +361,11 @@ static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, unsigned char * ou
 }
 
 #  else
-static const unsigned char zero[CHACHA_BLK_SIZE] = { 0 };
+static const uchar zero[CHACHA_BLK_SIZE] = { 0 };
 #  endif
 
-static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_CHACHA_AEAD_CTX * actx = aead_data(ctx);
 	size_t rem, plen = actx->tls_payload_length;
@@ -434,7 +434,7 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 			long one;
 			char little;
 		} is_endian = { 1 };
-		unsigned char temp[POLY1305_BLOCK_SIZE];
+		uchar temp[POLY1305_BLOCK_SIZE];
 
 		if(actx->aad) {                 /* wrap up aad */
 			if((rem = (size_t)actx->len.aad % POLY1305_BLOCK_SIZE))
@@ -575,8 +575,8 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 		    if(arg != EVP_AEAD_TLS1_AAD_LEN)
 			    return 0;
 		    {
-			    unsigned int len;
-			    unsigned char * aad = static_cast<uchar *>(ptr);
+			    uint len;
+			    uchar * aad = static_cast<uchar *>(ptr);
 			    memcpy(actx->tls_aad, ptr, EVP_AEAD_TLS1_AAD_LEN);
 			    len = aad[EVP_AEAD_TLS1_AAD_LEN - 2] << 8 | aad[EVP_AEAD_TLS1_AAD_LEN - 1];
 			    aad = actx->tls_aad;

@@ -16,9 +16,9 @@
 //#include <asn1_int.h>
 //#include <asn1_locl.h>
 
-int i2d_ASN1_OBJECT(const ASN1_OBJECT * a, unsigned char ** pp)
+int i2d_ASN1_OBJECT(const ASN1_OBJECT * a, uchar ** pp)
 {
-	unsigned char * p, * allocated = NULL;
+	uchar * p, * allocated = NULL;
 	int objsize;
 	if((a == NULL) || (a->data == NULL))
 		return 0;
@@ -47,13 +47,13 @@ int i2d_ASN1_OBJECT(const ASN1_OBJECT * a, unsigned char ** pp)
 	return objsize;
 }
 
-int a2d_ASN1_OBJECT(unsigned char * out, int olen, const char * buf, int num)
+int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 {
 	int i, first, len = 0, c, use_bn;
 	char ftmp[24], * tmp = ftmp;
 	int tmpsize = sizeof(ftmp);
 	const char * p;
-	unsigned long l;
+	ulong l;
 	BIGNUM * bl = NULL;
 
 	if(num == 0)
@@ -207,10 +207,10 @@ int FASTCALL i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 	return i;
 }
 
-ASN1_OBJECT * d2i_ASN1_OBJECT(ASN1_OBJECT ** a, const unsigned char ** pp,
+ASN1_OBJECT * d2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
     long length)
 {
-	const unsigned char * p;
+	const uchar * p;
 	long len;
 	int tag, xclass;
 	int inf, i;
@@ -235,12 +235,12 @@ err:
 	return NULL;
 }
 
-ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const unsigned char ** pp,
+ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
     long len)
 {
 	ASN1_OBJECT * ret = NULL, tobj;
-	const unsigned char * p;
-	unsigned char * data;
+	const uchar * p;
+	uchar * data;
 	int i, length;
 
 	/*
@@ -365,7 +365,7 @@ void ASN1_OBJECT_free(ASN1_OBJECT * a)
 		OPENSSL_free(a);
 }
 
-ASN1_OBJECT * ASN1_OBJECT_create(int nid, unsigned char * data, int len,
+ASN1_OBJECT * ASN1_OBJECT_create(int nid, uchar * data, int len,
     const char * sn, const char * ln)
 {
 	ASN1_OBJECT o;

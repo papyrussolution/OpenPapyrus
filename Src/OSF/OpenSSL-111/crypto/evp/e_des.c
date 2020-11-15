@@ -23,7 +23,7 @@ typedef struct {
 
 	union {
 		void (*cbc)(const void *, void *, size_t,
-		const DES_key_schedule *, unsigned char *);
+		const DES_key_schedule *, uchar *);
 	} stream;
 } EVP_DES_KEY;
 
@@ -32,19 +32,19 @@ typedef struct {
  * assembler support was in general requested... */
 #include "sparc_arch.h"
 
-extern unsigned int OPENSSL_sparcv9cap_P[];
+extern uint OPENSSL_sparcv9cap_P[];
 
 #define SPARC_DES_CAPABLE       (OPENSSL_sparcv9cap_P[1] & CFR_DES)
 
 void des_t4_key_expand(const void * key, DES_key_schedule * ks);
 void des_t4_cbc_encrypt(const void * inp, void * out, size_t len,
-    const DES_key_schedule * ks, unsigned char iv[8]);
+    const DES_key_schedule * ks, uchar iv[8]);
 void des_t4_cbc_decrypt(const void * inp, void * out, size_t len,
-    const DES_key_schedule * ks, unsigned char iv[8]);
+    const DES_key_schedule * ks, uchar iv[8]);
 #endif
 
-static int des_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc);
+static int des_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc);
 static int des_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);
 
 /*
@@ -52,7 +52,7 @@ static int des_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);
  * IMPLEMENT_BLOCK_CIPHER
  */
 
-static int des_ecb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsigned char * in, size_t inl)
+static int des_ecb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	BLOCK_CIPHER_ecb_loop()
 	DES_ecb_encrypt((DES_cblock*)(in + i), (DES_cblock*)(out + i), static_cast<DES_key_schedule *>(EVP_CIPHER_CTX_get_cipher_data(ctx)),
@@ -60,7 +60,7 @@ static int des_ecb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsig
 	return 1;
 }
 
-static int des_ofb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsigned char * in, size_t inl)
+static int des_ofb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	while(inl >= EVP_MAXCHUNK) {
 		int num = EVP_CIPHER_CTX_num(ctx);
@@ -80,7 +80,7 @@ static int des_ofb_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsig
 	return 1;
 }
 
-static int des_cbc_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsigned char * in, size_t inl)
+static int des_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	EVP_DES_KEY * dat = (EVP_DES_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx);
 
@@ -102,8 +102,8 @@ static int des_cbc_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsig
 	return 1;
 }
 
-static int des_cfb64_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_cfb64_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	while(inl >= EVP_MAXCHUNK) {
 		int num = EVP_CIPHER_CTX_num(ctx);
@@ -127,11 +127,11 @@ static int des_cfb64_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
  * Although we have a CFB-r implementation for DES, it doesn't pack the right
  * way, so wrap it here
  */
-static int des_cfb1_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int des_cfb1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	size_t n, chunk = EVP_MAXCHUNK / 8;
-	unsigned char c[1], d[1];
+	uchar c[1], d[1];
 
 	if(inl < chunk)
 		chunk = inl;
@@ -153,7 +153,7 @@ static int des_cfb1_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	return 1;
 }
 
-static int des_cfb8_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsigned char * in, size_t inl)
+static int des_cfb8_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	while(inl >= EVP_MAXCHUNK) {
 		DES_cfb_encrypt(in, out, 8, (long)EVP_MAXCHUNK, static_cast<DES_key_schedule *>(EVP_CIPHER_CTX_get_cipher_data(ctx)),
@@ -172,7 +172,7 @@ BLOCK_CIPHER_defs(des, EVP_DES_KEY, NID_des, 8, 8, 8, 64, EVP_CIPH_RAND_KEY, des
 BLOCK_CIPHER_def_cfb(des, EVP_DES_KEY, NID_des, 8, 8, 1, EVP_CIPH_RAND_KEY, des_init_key, NULL, EVP_CIPHER_set_asn1_iv, EVP_CIPHER_get_asn1_iv, des_ctrl)
 BLOCK_CIPHER_def_cfb(des, EVP_DES_KEY, NID_des, 8, 8, 8, EVP_CIPH_RAND_KEY, des_init_key, NULL, EVP_CIPHER_set_asn1_iv, EVP_CIPHER_get_asn1_iv, des_ctrl)
 
-static int des_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, const unsigned char * iv, int enc)
+static int des_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	DES_cblock * deskey = (DES_cblock*)key;
 	EVP_DES_KEY * dat = (EVP_DES_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx);

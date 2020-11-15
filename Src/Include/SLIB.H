@@ -1789,6 +1789,7 @@ extern const LTIME MAXDAYTIME; // 23:59:59.99
 extern const LTIME MAXDAYTIMESEC; // 23:59:59.00
 extern const LDATETIME ZERODATETIME;
 extern const LDATETIME MAXDATETIME;
+extern const S_GUID    ZEROGUID; // @v10.9.3
 //
 // Descr: Отрезок времени. Используется для планирования, расчетов занятости и т.д.
 //   Обеспечивает базовые примитивы для работы с временными отрезками.
@@ -4484,7 +4485,8 @@ uint   FASTCALL hexw(wchar_t c);
 //
 uint8  FASTCALL hextobyte(const char * pBuf);
 int    FASTCALL isasciialpha(char ch); 
-int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
+int    FASTCALL isasciialnum(char ch); 
+// @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL IsLetter1251(int ch);
 int    FASTCALL ToLower1251(int ch);
 int    FASTCALL ToUpper1251(int ch);

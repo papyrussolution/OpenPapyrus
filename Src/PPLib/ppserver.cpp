@@ -1114,10 +1114,12 @@ int PPJobServer::LoadStat()
 int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate)
 {
 	int    ok = -1, r;
+	SString fmt_buf, msg_buf;
 	LDATETIME curdtm = getcurdatetime_();
 	pPlan->freeAll();
 	//if((r = Mngr.LoadPool(0, pPool, 1))>0) { //@erik v10.7.4
-	if((r = Mngr.LoadPool2(0, pPool, 1)) > 0) { //@erik v10.7.4
+	r = Mngr.LoadPool2(0, pPool, 1);
+	if(r > 0) { //@erik v10.7.4
 		PPJob job;
 		for(PPID id = 0; pPool->Enum(&id, &job) > 0;) {
 			if(!(job.Flags & PPJob::fDisable)) { // @v8.2.5 |PPJob::fUnSheduled
@@ -1153,7 +1155,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 		}
 		pPlan->Sort();
 		{
-			SString fmt_buf, msg_buf, dt_buf;
+			SString dt_buf;
 			PPLoadText(PPTXT_JOBPLANARRANGED, fmt_buf);
 			dt_buf.Cat(curdtm.d);
 			msg_buf.Printf(fmt_buf, dt_buf.cptr(), pPlan->getCount());
@@ -1161,7 +1163,9 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 		}
 	}
 	else {
-		PPLogMessage(PPFILNAM_SERVER_LOG, PPSTR_TEXT, PPTXT_JOBPOOLLOADFAULT, LOGMSGF_TIME);
+		PPLoadText(PPTXT_JOBPOOLLOADFAULT, fmt_buf);
+		msg_buf.Printf(fmt_buf, Mngr.GetFileName().cptr());
+		PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
 		if(r == 0)
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
 	}

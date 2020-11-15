@@ -77,9 +77,6 @@
     <ClInclude Include="..\osf\winflexbison\bison\InadequacyList.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\winflexbison\bison\location.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\winflexbison\bison\muscle-tab.h">
       <Filter>Header</Filter>
     </ClInclude>

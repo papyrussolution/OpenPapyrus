@@ -14,13 +14,13 @@
 #include <openssl/x509.h>
 
 int RSA_sign_ASN1_OCTET_STRING(int type,
-    const unsigned char * m, unsigned int m_len,
-    unsigned char * sigret, unsigned int * siglen,
+    const uchar * m, uint m_len,
+    uchar * sigret, uint * siglen,
     RSA * rsa)
 {
 	ASN1_OCTET_STRING sig;
 	int i, j, ret = 1;
-	unsigned char * p, * s;
+	uchar * p, * s;
 
 	sig.type = V_ASN1_OCTET_STRING;
 	sig.length = m_len;
@@ -51,13 +51,13 @@ int RSA_sign_ASN1_OCTET_STRING(int type,
 }
 
 int RSA_verify_ASN1_OCTET_STRING(int dtype,
-    const unsigned char * m,
-    unsigned int m_len, unsigned char * sigbuf,
-    unsigned int siglen, RSA * rsa)
+    const uchar * m,
+    uint m_len, uchar * sigbuf,
+    uint siglen, RSA * rsa)
 {
 	int i, ret = 0;
-	unsigned char * s;
-	const unsigned char * p;
+	uchar * s;
+	const uchar * p;
 	ASN1_OCTET_STRING * sig = NULL;
 
 	if(siglen != (uint)RSA_size(rsa)) {

@@ -9,7 +9,7 @@
  */
 
 /* Serialized OID's */
-static const unsigned char so[7762] = {
+static const uchar so[7762] = {
     0x2A,0x86,0x48,0x86,0xF7,0x0D,                 /* [    0] OBJ_rsadsi */
     0x2A,0x86,0x48,0x86,0xF7,0x0D,0x01,            /* [    6] OBJ_pkcs */
     0x2A,0x86,0x48,0x86,0xF7,0x0D,0x02,0x02,       /* [   13] OBJ_md2 */
@@ -2277,7 +2277,7 @@ static const ASN1_OBJECT nid_objs[NUM_NID] = {
 };
 
 #define NUM_SN 1186
-static const unsigned int sn_objs[NUM_SN] = {
+static const uint sn_objs[NUM_SN] = {
      364,    /* "AD_DVCS" */
      419,    /* "AES-128-CBC" */
      916,    /* "AES-128-CBC-HMAC-SHA1" */
@@ -3467,7 +3467,7 @@ static const unsigned int sn_objs[NUM_SN] = {
 };
 
 #define NUM_LN 1186
-static const unsigned int ln_objs[NUM_LN] = {
+static const uint ln_objs[NUM_LN] = {
      363,    /* "AD Time Stamping" */
      405,    /* "ANSI X9.62" */
      368,    /* "Acceptable OCSP Responses" */
@@ -4657,7 +4657,7 @@ static const unsigned int ln_objs[NUM_LN] = {
 };
 
 #define NUM_OBJ 1071
-static const unsigned int obj_objs[NUM_OBJ] = {
+static const uint obj_objs[NUM_OBJ] = {
        0,    /* OBJ_undef                        0 */
      181,    /* OBJ_iso                          1 */
      393,    /* OBJ_joint_iso_ccitt              OBJ_joint_iso_itu_t */

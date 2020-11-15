@@ -89,17 +89,8 @@ __FBSDID("$FreeBSD");
 #ifdef HAVE_PATHS_H
 	#include <paths.h>
 #endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-
-//#include "archive.h"
-//#include "archive_entry.h"
-//#include "archive_private.h"
-//#include "archive_read_disk_private.h"
-
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
 static int setup_mac_metadata(struct archive_read_disk *, struct archive_entry *, int * fd);

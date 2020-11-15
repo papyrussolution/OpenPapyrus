@@ -49,25 +49,10 @@ void item_print(item_number * item, rule const * previous_rule, FILE * out)
 		fprintf(out, " %%empty");
 }
 
-bool rule_useful_in_grammar_p(rule const * r)
-{
-	return r->number < nrules;
-}
-
-bool rule_useless_in_grammar_p(rule const * r)
-{
-	return !rule_useful_in_grammar_p(r);
-}
-
-bool rule_useless_in_parser_p(rule const * r)
-{
-	return !r->useful && rule_useful_in_grammar_p(r);
-}
-
-bool rule_useless_chain_p(rule const * r)
-{
-	return rule_rhs_length(r) == 1 && !r->action;
-}
+bool rule_useful_in_grammar_p(rule const * r) { return r->number < nrules; }
+bool rule_useless_in_grammar_p(rule const * r) { return !rule_useful_in_grammar_p(r); }
+bool rule_useless_in_parser_p(rule const * r) { return !r->useful && rule_useful_in_grammar_p(r); }
+bool rule_useless_chain_p(rule const * r) { return rule_rhs_length(r) == 1 && !r->action; }
 
 void rule_lhs_print(rule const * r, sym_content const * previous_lhs, FILE * out)
 {
@@ -134,13 +119,12 @@ void ritem_print(FILE * out)
 
 size_t ritem_longest_rhs(void)
 {
-	size_t max = 0;
+	size_t max_length = 0;
 	for(rule_number r = 0; r < nrules; ++r) {
 		const size_t length = rule_rhs_length(&rules[r]);
-		if(length > max)
-			max = length;
+		SETMAX(max_length, length);
 	}
-	return max;
+	return max_length;
 }
 
 void grammar_rules_partial_print(FILE * out, const char * title, rule_filter filter)

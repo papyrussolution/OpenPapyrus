@@ -38,12 +38,12 @@
  * Convert a base64 string into raw byte array representation.
  * Returns the length of the decoded data, or -1 on error.
  */
-static int t_fromb64(unsigned char * a, size_t alen, const char * src)
+static int t_fromb64(uchar * a, size_t alen, const char * src)
 {
 	EVP_ENCODE_CTX * ctx;
 	int outl = 0, outl2 = 0;
 	size_t size, padsize;
-	const unsigned char * pad = (const unsigned char*)"00";
+	const uchar * pad = (const uchar*)"00";
 
 	while(*src == ' ' || *src == '\t' || *src == '\n')
 		++src;
@@ -85,7 +85,7 @@ static int t_fromb64(unsigned char * a, size_t alen, const char * src)
 		outl = -1;
 		goto err;
 	}
-	if(EVP_DecodeUpdate(ctx, a, &outl2, (const unsigned char*)src, size) < 0) {
+	if(EVP_DecodeUpdate(ctx, a, &outl2, (const uchar*)src, size) < 0) {
 		outl = -1;
 		goto err;
 	}
@@ -127,11 +127,11 @@ err:
  * Convert a raw byte string into a null-terminated base64 ASCII string.
  * Returns 1 on success or 0 on error.
  */
-static int t_tob64(char * dst, const unsigned char * src, int size)
+static int t_tob64(char * dst, const uchar * src, int size)
 {
 	EVP_ENCODE_CTX * ctx = EVP_ENCODE_CTX_new();
 	int outl = 0, outl2 = 0;
-	unsigned char pad[2] = {0, 0};
+	uchar pad[2] = {0, 0};
 	size_t leadz = 0;
 
 	if(ctx == NULL)
@@ -218,7 +218,7 @@ static int SRP_user_pwd_set_ids(SRP_user_pwd * vinfo, const char * id,
 static int SRP_user_pwd_set_sv(SRP_user_pwd * vinfo, const char * s,
     const char * v)
 {
-	unsigned char tmp[MAX_LEN];
+	uchar tmp[MAX_LEN];
 	int len;
 
 	vinfo->v = NULL;
@@ -301,7 +301,7 @@ void SRP_VBASE_free(SRP_VBASE * vb)
 
 static SRP_gN_cache * SRP_gN_new_init(const char * ch)
 {
-	unsigned char tmp[MAX_LEN];
+	uchar tmp[MAX_LEN];
 	int len;
 	SRP_gN_cache * newgN = static_cast<SRP_gN_cache *>(OPENSSL_malloc(sizeof(*newgN)));
 	if(newgN == NULL)
@@ -522,8 +522,8 @@ SRP_user_pwd * SRP_VBASE_get_by_user(SRP_VBASE * vb, char * username)
 SRP_user_pwd * SRP_VBASE_get1_by_user(SRP_VBASE * vb, char * username)
 {
 	SRP_user_pwd * user;
-	unsigned char digv[SHA_DIGEST_LENGTH];
-	unsigned char digs[SHA_DIGEST_LENGTH];
+	uchar digv[SHA_DIGEST_LENGTH];
+	uchar digs[SHA_DIGEST_LENGTH];
 	EVP_MD_CTX * ctxt = NULL;
 
 	if(vb == NULL)
@@ -578,8 +578,8 @@ char * SRP_create_verifier(const char * user, const char * pass, char ** salt,
 	char * result = NULL, * vf = NULL;
 	const BIGNUM * N_bn = NULL, * g_bn = NULL;
 	BIGNUM * N_bn_alloc = NULL, * g_bn_alloc = NULL, * s = NULL, * v = NULL;
-	unsigned char tmp[MAX_LEN];
-	unsigned char tmp2[MAX_LEN];
+	uchar tmp[MAX_LEN];
+	uchar tmp2[MAX_LEN];
 	char * defgNid = NULL;
 	int vfsize = 0;
 
@@ -678,7 +678,7 @@ int SRP_create_verifier_BN(const char * user, const char * pass, BIGNUM ** salt,
 	int result = 0;
 	BIGNUM * x = NULL;
 	BN_CTX * bn_ctx = BN_CTX_new();
-	unsigned char tmp2[MAX_LEN];
+	uchar tmp2[MAX_LEN];
 	BIGNUM * salttmp = NULL;
 
 	if((user == NULL) ||

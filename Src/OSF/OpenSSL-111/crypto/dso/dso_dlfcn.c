@@ -124,7 +124,7 @@ static int dlfcn_load(DSO * dso)
 	 * on a successful call.
 	 */
 	set_sys_error(saveerrno);
-	if(!sk_void_push(dso->meth_data, (char*)ptr)) {
+	if(!sk_void_push(dso->meth_data, (char *)ptr)) {
 		DSOerr(DSO_F_DLFCN_LOAD, DSO_R_STACK_ERROR);
 		goto err;
 	}
@@ -342,7 +342,7 @@ typedef struct Dl_info {
 static int dladdr(void * ptr, Dl_info * dl)
 {
 	uintptr_t addr = (uintptr_t)ptr;
-	unsigned int found = 0;
+	uint found = 0;
 	struct ld_info * ldinfos, * next_ldi, * this_ldi;
 
 	if((ldinfos = OPENSSL_malloc(DLFCN_LDINFO_SIZE)) == NULL) {

@@ -21,7 +21,7 @@ static int GetLotLineState(const std::string &line)
 	if(line.length()) {
 		// Most of the time the first non-blank character in line determines that line's type
 		// Now finds the first non-blank character
-		unsigned i; // Declares counter here to make it persistent after the for loop
+		uint i; // Declares counter here to make it persistent after the for loop
 		for(i = 0; i < line.length(); ++i) {
 			if(!(IsASCII(line[i]) && isspace(line[i])))
 				break;

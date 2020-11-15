@@ -99,7 +99,7 @@ int X509_LOOKUP_by_issuer_serial(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type,
 }
 
 int X509_LOOKUP_by_fingerprint(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type,
-    const unsigned char * bytes, int len,
+    const uchar * bytes, int len,
     X509_OBJECT * ret)
 {
 	if((ctx->method == NULL) || (ctx->method->get_by_fingerprint == NULL))
@@ -741,7 +741,7 @@ int X509_STORE_CTX_get1_issuer(X509 ** issuer, X509_STORE_CTX * ctx, X509 * x)
 	return ret;
 }
 
-int X509_STORE_set_flags(X509_STORE * ctx, unsigned long flags)
+int X509_STORE_set_flags(X509_STORE * ctx, ulong flags)
 {
 	return X509_VERIFY_PARAM_set_flags(ctx->param, flags);
 }

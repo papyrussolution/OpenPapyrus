@@ -474,7 +474,9 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 											SLS.LogMessage(0, msg_buf, 0);
 										}
 										else {
-											(msg_buf = "Remove continuous").CatDiv(':', 2).Cat("error removing continuous mode for file").Space().Cat(_tbl.GetFileName());
+											const long db_err = BtrError;
+											(msg_buf = "Remove continuous").CatDiv(':', 2).Cat("error removing continuous mode for file").
+											Space().CatChar('(').CatEq("dberr", db_err).CatChar(')').Space().Cat(_tbl.GetFileName());
 											SLS.LogMessage(0, msg_buf, 0);
 										}
 									}

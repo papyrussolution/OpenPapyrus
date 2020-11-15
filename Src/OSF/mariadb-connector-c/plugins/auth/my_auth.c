@@ -1,11 +1,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <errmsg.h>
-//#include <string.h>
-//#include <ma_common.h>
-//#include <mysql/client_plugin.h>
 
 typedef struct st_mysql_client_plugin_AUTHENTICATION auth_plugin_t;
 static int client_mpvio_write_packet(struct st_plugin_vio*, const uchar*, size_t);
@@ -30,7 +25,7 @@ typedef struct {
 	} cached_server_reply;
 
 	uint packets_read, packets_written; /**< counters for send/received packets */
-	my_bool mysql_change_user;    /**< if it's mysql_change_user() */
+	bool mysql_change_user;    /**< if it's mysql_change_user() */
 	int last_read_packet_len;     /**< the length of the last *read* packet */
 } MCPVIO_EXT;
 /*

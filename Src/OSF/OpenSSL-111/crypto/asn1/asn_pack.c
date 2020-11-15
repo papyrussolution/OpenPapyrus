@@ -49,7 +49,7 @@ err:
 
 void * ASN1_item_unpack(const ASN1_STRING * oct, const ASN1_ITEM * it)
 {
-	const unsigned char * p;
+	const uchar * p;
 	void * ret;
 
 	p = oct->data;

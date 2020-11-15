@@ -23,7 +23,7 @@ int ASN1_verify(i2d_of_void * i2d, X509_ALGOR * a, ASN1_BIT_STRING * signature,
 {
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	const EVP_MD * type;
-	unsigned char * p, * buf_in = NULL;
+	uchar * p, * buf_in = NULL;
 	int ret = -1, i, inl;
 
 	if(ctx == NULL) {
@@ -84,7 +84,7 @@ int ASN1_item_verify(const ASN1_ITEM * it, X509_ALGOR * a,
     ASN1_BIT_STRING * signature, void * asn, EVP_PKEY * pkey)
 {
 	EVP_MD_CTX * ctx = NULL;
-	unsigned char * buf_in = NULL;
+	uchar * buf_in = NULL;
 	int ret = -1, inl = 0;
 	int mdnid, pknid;
 	size_t inll = 0;

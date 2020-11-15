@@ -60,7 +60,7 @@ void ma_schannel_set_win_error(MARIADB_PVIO * pvio, DWORD ErrorNo)
 
 /* }}} */
 
-/* {{{ SECURITY_STATUS ma_schannel_handshake_loop(MARIADB_PVIO *pvio, my_bool InitialRead, SecBuffer *pExtraData) */
+/* {{{ SECURITY_STATUS ma_schannel_handshake_loop(MARIADB_PVIO *pvio, bool InitialRead, SecBuffer *pExtraData) */
 /*
    perform handshake loop
 
@@ -73,7 +73,7 @@ void ma_schannel_set_win_error(MARIADB_PVIO * pvio, DWORD ErrorNo)
 
  */
 
-SECURITY_STATUS ma_schannel_handshake_loop(MARIADB_PVIO * pvio, my_bool InitialRead, SecBuffer * pExtraData)
+SECURITY_STATUS ma_schannel_handshake_loop(MARIADB_PVIO * pvio, bool InitialRead, SecBuffer * pExtraData)
 {
 	SecBufferDesc OutBuffer, InBuffer;
 	SecBuffer InBuffers[2], OutBuffers;
@@ -449,7 +449,7 @@ SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio,
 
 /* }}} */
 #include "win32_errmsg.h"
-my_bool ma_schannel_verify_certs(MARIADB_TLS * ctls, BOOL verify_server_name)
+bool ma_schannel_verify_certs(MARIADB_TLS * ctls, BOOL verify_server_name)
 {
 	SECURITY_STATUS status;
 

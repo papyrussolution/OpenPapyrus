@@ -15,21 +15,21 @@
                         c+=n; \
                         l1=l2=0; \
                         switch (n) { \
-                        case 8: l2 =((unsigned long)(*(--(c))))    ; \
+                        case 8: l2 =((ulong)(*(--(c))))    ; \
                         /* fall thru */                              \
-                        case 7: l2|=((unsigned long)(*(--(c))))<< 8; \
+                        case 7: l2|=((ulong)(*(--(c))))<< 8; \
                         /* fall thru */                              \
-                        case 6: l2|=((unsigned long)(*(--(c))))<<16; \
+                        case 6: l2|=((ulong)(*(--(c))))<<16; \
                         /* fall thru */                              \
-                        case 5: l2|=((unsigned long)(*(--(c))))<<24; \
+                        case 5: l2|=((ulong)(*(--(c))))<<24; \
                         /* fall thru */                              \
-                        case 4: l1 =((unsigned long)(*(--(c))))    ; \
+                        case 4: l1 =((ulong)(*(--(c))))    ; \
                         /* fall thru */                              \
-                        case 3: l1|=((unsigned long)(*(--(c))))<< 8; \
+                        case 3: l1|=((ulong)(*(--(c))))<< 8; \
                         /* fall thru */                              \
-                        case 2: l1|=((unsigned long)(*(--(c))))<<16; \
+                        case 2: l1|=((ulong)(*(--(c))))<<16; \
                         /* fall thru */                              \
-                        case 1: l1|=((unsigned long)(*(--(c))))<<24; \
+                        case 1: l1|=((ulong)(*(--(c))))<<24; \
                                 } \
                         }
 
@@ -56,10 +56,10 @@
                         }
 
 # undef n2l
-#define n2l(c,l)        (l =((unsigned long)(*((c)++)))<<24L, \
-                         l|=((unsigned long)(*((c)++)))<<16L, \
-                         l|=((unsigned long)(*((c)++)))<< 8L, \
-                         l|=((unsigned long)(*((c)++))))
+#define n2l(c,l)        (l =((ulong)(*((c)++)))<<24L, \
+                         l|=((ulong)(*((c)++)))<<16L, \
+                         l|=((ulong)(*((c)++)))<< 8L, \
+                         l|=((ulong)(*((c)++))))
 
 # undef l2n
 #define l2n(l,c)        (*((c)++)=(uchar)(((l)>>24L)&0xff), \

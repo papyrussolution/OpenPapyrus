@@ -139,7 +139,7 @@ static ossl_inline
 int bn_num_bits_consttime(const BIGNUM * a)
 {
 	int j, ret;
-	unsigned int mask, past_i;
+	uint mask, past_i;
 	int i = a->top - 1;
 	bn_check_top(a);
 
@@ -405,10 +405,10 @@ int FASTCALL BN_set_word(BIGNUM * a, BN_ULONG w)
 	return 1;
 }
 
-BIGNUM * FASTCALL BN_bin2bn(const unsigned char * s, int len, BIGNUM * ret)
+BIGNUM * FASTCALL BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 {
-	unsigned int i, m;
-	unsigned int n;
+	uint i, m;
+	uint n;
 	BN_ULONG l;
 	BIGNUM * bn = NULL;
 	if(ret == NULL)
@@ -452,7 +452,7 @@ BIGNUM * FASTCALL BN_bin2bn(const unsigned char * s, int len, BIGNUM * ret)
 typedef enum {big, little} endianess_t;
 
 /* ignore negative */
-static int bn2binpad(const BIGNUM * a, unsigned char * to, int tolen, endianess_t endianess)
+static int bn2binpad(const BIGNUM * a, uchar * to, int tolen, endianess_t endianess)
 {
 	int n;
 	size_t i, lasti, j, atop, mask;
@@ -484,7 +484,7 @@ static int bn2binpad(const BIGNUM * a, unsigned char * to, int tolen, endianess_
 	if(endianess == big)
 		to += tolen; /* start from the end of the buffer */
 	for(i = 0, j = 0; j < (size_t)tolen; j++) {
-		unsigned char val;
+		uchar val;
 		l = a->d[i / BN_BYTES];
 		mask = 0 - ((j - atop) >> (8 * sizeof(i) - 1));
 		val = (uchar)(l >> (8 * (i % BN_BYTES)) & mask);
@@ -497,22 +497,22 @@ static int bn2binpad(const BIGNUM * a, unsigned char * to, int tolen, endianess_
 	return tolen;
 }
 
-int BN_bn2binpad(const BIGNUM * a, unsigned char * to, int tolen)
+int BN_bn2binpad(const BIGNUM * a, uchar * to, int tolen)
 {
 	if(tolen < 0)
 		return -1;
 	return bn2binpad(a, to, tolen, big);
 }
 
-int FASTCALL BN_bn2bin(const BIGNUM * a, unsigned char * to)
+int FASTCALL BN_bn2bin(const BIGNUM * a, uchar * to)
 {
 	return bn2binpad(a, to, -1, big);
 }
 
-BIGNUM * BN_lebin2bn(const unsigned char * s, int len, BIGNUM * ret)
+BIGNUM * BN_lebin2bn(const uchar * s, int len, BIGNUM * ret)
 {
-	unsigned int i, m;
-	unsigned int n;
+	uint i, m;
+	uint n;
 	BN_ULONG l;
 	BIGNUM * bn = NULL;
 	if(ret == NULL)
@@ -555,7 +555,7 @@ BIGNUM * BN_lebin2bn(const unsigned char * s, int len, BIGNUM * ret)
 	return ret;
 }
 
-int BN_bn2lebinpad(const BIGNUM * a, unsigned char * to, int tolen)
+int BN_bn2lebinpad(const BIGNUM * a, uchar * to, int tolen)
 {
 	if(tolen < 0)
 		return -1;

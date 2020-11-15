@@ -29,12 +29,12 @@ typedef struct enc_struct {
 	int finished;
 	int ok;                 /* bad decrypt */
 	EVP_CIPHER_CTX * cipher;
-	unsigned char * read_start, * read_end;
+	uchar * read_start, * read_end;
 	/*
 	 * buf is larger than ENC_BLOCK_SIZE because EVP_DecryptUpdate can return
 	 * up to a block more data than is presented to it
 	 */
-	unsigned char buf[BUF_OFFSET + ENC_BLOCK_SIZE];
+	uchar buf[BUF_OFFSET + ENC_BLOCK_SIZE];
 } BIO_ENC_CTX;
 
 static const BIO_METHOD methods_enc = {
@@ -266,7 +266,7 @@ static int enc_write(BIO * b, const char * in, int inl)
 		n = (inl > ENC_BLOCK_SIZE) ? ENC_BLOCK_SIZE : inl;
 		if(!EVP_CipherUpdate(ctx->cipher,
 		    ctx->buf, &ctx->buf_len,
-		    (const unsigned char*)in, n)) {
+		    (const uchar*)in, n)) {
 			BIO_clear_retry_flags(b);
 			ctx->ok = 0;
 			return 0;
@@ -401,7 +401,7 @@ static long enc_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 	return ret;
 }
 
-int BIO_set_cipher(BIO * b, const EVP_CIPHER * c, const unsigned char * k, const unsigned char * i, int e)
+int BIO_set_cipher(BIO * b, const EVP_CIPHER * c, const uchar * k, const uchar * i, int e)
 {
 	long (* callback) (struct bio_st *, int, const char *, int, long, long);
 	BIO_ENC_CTX * ctx = static_cast<BIO_ENC_CTX *>(BIO_get_data(b));

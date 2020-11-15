@@ -158,7 +158,7 @@ int FASTCALL EVP_DigestUpdate(EVP_MD_CTX * ctx, const void * data, size_t count)
 }
 
 /* The caller can assume that this removes any secret data from the context */
-int FASTCALL EVP_DigestFinal(EVP_MD_CTX * ctx, unsigned char * md, unsigned int * size)
+int FASTCALL EVP_DigestFinal(EVP_MD_CTX * ctx, uchar * md, uint * size)
 {
 	int ret = EVP_DigestFinal_ex(ctx, md, size);
 	EVP_MD_CTX_reset(ctx);
@@ -166,7 +166,7 @@ int FASTCALL EVP_DigestFinal(EVP_MD_CTX * ctx, unsigned char * md, unsigned int 
 }
 
 /* The caller can assume that this removes any secret data from the context */
-int FASTCALL EVP_DigestFinal_ex(EVP_MD_CTX * ctx, unsigned char * md, unsigned int * size)
+int FASTCALL EVP_DigestFinal_ex(EVP_MD_CTX * ctx, uchar * md, uint * size)
 {
 	int ret;
 	OPENSSL_assert(ctx->digest->md_size <= EVP_MAX_MD_SIZE);
@@ -181,7 +181,7 @@ int FASTCALL EVP_DigestFinal_ex(EVP_MD_CTX * ctx, unsigned char * md, unsigned i
 	return ret;
 }
 
-int EVP_DigestFinalXOF(EVP_MD_CTX * ctx, unsigned char * md, size_t size)
+int EVP_DigestFinalXOF(EVP_MD_CTX * ctx, uchar * md, size_t size)
 {
 	int ret = 0;
 	if(ctx->digest->flags & EVP_MD_FLAG_XOF && size <= INT_MAX && ctx->digest->md_ctrl(ctx, EVP_MD_CTRL_XOF_LEN, (int)size, NULL)) {
@@ -207,7 +207,7 @@ int EVP_MD_CTX_copy(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 
 int EVP_MD_CTX_copy_ex(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 {
-	unsigned char * tmp_buf;
+	uchar * tmp_buf;
 	if((in == NULL) || (in->digest == NULL)) {
 		EVPerr(EVP_F_EVP_MD_CTX_COPY_EX, EVP_R_INPUT_NOT_INITIALIZED);
 		return 0;
@@ -269,7 +269,7 @@ int EVP_MD_CTX_copy_ex(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 }
 
 int EVP_Digest(const void * data, size_t count,
-    unsigned char * md, unsigned int * size, const EVP_MD * type,
+    uchar * md, uint * size, const EVP_MD * type,
     ENGINE * impl)
 {
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();

@@ -304,9 +304,9 @@ int PPObjBizScTempl::GetPacket(PPID id, PPBizScTemplPacket * pPack)
 	int    ok = -1;
 	pPack->Init();
 	if(id && Search(id, &pPack->Rec) > 0) {
-		ref->GetPropArray(Obj, pPack->Rec.ID, PPPRP_BIZSCTEMPLROWS, &pPack->Rows);
-		ref->GetPropArray(Obj, pPack->Rec.ID, PPPRP_BIZSCTEMPLCOLS, &pPack->Cols);
-		ok = BIN(ref->GetPropArray(Obj, pPack->Rec.ID, PPPRP_BIZSCTEMPLCELLS, &pPack->Cells));
+		P_Ref->GetPropArray(Obj, pPack->Rec.ID, PPPRP_BIZSCTEMPLROWS, &pPack->Rows);
+		P_Ref->GetPropArray(Obj, pPack->Rec.ID, PPPRP_BIZSCTEMPLCOLS, &pPack->Cols);
+		ok = BIN(P_Ref->GetPropArray(Obj, pPack->Rec.ID, PPPRP_BIZSCTEMPLCELLS, &pPack->Cells));
 	}
 	return ok;
 }
@@ -318,18 +318,18 @@ int PPObjBizScTempl::PutPacket(PPID * pID, PPBizScTemplPacket * pPack, int use_t
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID && pPack == 0) {
-			THROW(ref->PutPropArray(Obj, *pID, PPPRP_BIZSCTEMPLCOLS, 0, 0));
-			THROW(ref->PutPropArray(Obj, *pID, PPPRP_BIZSCTEMPLROWS, 0, 0));
-			THROW(ref->PutPropArray(Obj, *pID, PPPRP_BIZSCTEMPLCELLS, 0, 0));
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, PPPRP_BIZSCTEMPLCOLS, 0, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, PPPRP_BIZSCTEMPLROWS, 0, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, PPPRP_BIZSCTEMPLCELLS, 0, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 		}
 		else {
 			pPack->Rec.Tag = PPOBJ_BIZSCTEMPL;
 			THROW(EditItem(Obj, *pID, &pPack->Rec, 0));
-			THROW(ref->PutPropArray(Obj, ref->data.ObjID, PPPRP_BIZSCTEMPLCOLS,  &pPack->Cols,  0));
-			THROW(ref->PutPropArray(Obj, ref->data.ObjID, PPPRP_BIZSCTEMPLROWS,  &pPack->Rows,  0));
-			THROW(ref->PutPropArray(Obj, ref->data.ObjID, PPPRP_BIZSCTEMPLCELLS, &pPack->Cells, 0));
-			pPack->Rec.ID = ref->data.ObjID;
+			THROW(P_Ref->PutPropArray(Obj, P_Ref->data.ObjID, PPPRP_BIZSCTEMPLCOLS,  &pPack->Cols,  0));
+			THROW(P_Ref->PutPropArray(Obj, P_Ref->data.ObjID, PPPRP_BIZSCTEMPLROWS,  &pPack->Rows,  0));
+			THROW(P_Ref->PutPropArray(Obj, P_Ref->data.ObjID, PPPRP_BIZSCTEMPLCELLS, &pPack->Cells, 0));
+			pPack->Rec.ID = P_Ref->data.ObjID;
 			ASSIGN_PTR(pID, pPack->Rec.ID);
 		}
 		THROW(tra.Commit());

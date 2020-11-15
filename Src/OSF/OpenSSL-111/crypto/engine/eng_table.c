@@ -37,21 +37,21 @@ typedef struct st_engine_pile_doall {
 } ENGINE_PILE_DOALL;
 
 /* Global flags (ENGINE_TABLE_FLAG_***). */
-static unsigned int table_flags = 0;
+static uint table_flags = 0;
 
 /* API function manipulating 'table_flags' */
-unsigned int ENGINE_get_table_flags(void)
+uint ENGINE_get_table_flags(void)
 {
 	return table_flags;
 }
 
-void ENGINE_set_table_flags(unsigned int flags)
+void ENGINE_set_table_flags(uint flags)
 {
 	table_flags = flags;
 }
 
 /* Internal functions for the "piles" hash table */
-static unsigned long engine_pile_hash(const ENGINE_PILE * c)
+static ulong engine_pile_hash(const ENGINE_PILE * c)
 {
 	return c->nid;
 }

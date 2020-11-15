@@ -214,21 +214,11 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 				    case 'u':
 					flags |= DP_F_UNSIGNED;
 					switch(cflags) {
-						case DP_C_SHORT:
-						    value = (ushort)va_arg(args, unsigned int);
-						    break;
-						case DP_C_LONG:
-						    value = va_arg(args, unsigned long int);
-						    break;
-						case DP_C_LLONG:
-						    value = va_arg(args, uint64_t);
-						    break;
-						case DP_C_SIZE:
-						    value = va_arg(args, size_t);
-						    break;
-						default:
-						    value = va_arg(args, unsigned int);
-						    break;
+						case DP_C_SHORT: value = (ushort)va_arg(args, uint); break;
+						case DP_C_LONG: value = va_arg(args, ulong); break;
+						case DP_C_LLONG: value = va_arg(args, uint64_t); break;
+						case DP_C_SIZE: value = va_arg(args, size_t); break;
+						default: value = va_arg(args, uint); break;
 					}
 					if(!fmtint(sbuffer, buffer, &currlen, maxlen, value, ch == 'o' ? 8 : (ch == 'u' ? 10 : 16), min, max, flags))
 						return 0;
@@ -414,8 +404,8 @@ static int fmtint(char ** sbuffer,
 		caps = 1;
 	do {
 		convert[place++] = (caps ? "0123456789ABCDEF" : "0123456789abcdef")
-		    [uvalue % (unsigned)base];
-		uvalue = (uvalue / (unsigned)base);
+		    [uvalue % (uint)base];
+		uvalue = (uvalue / (uint)base);
 	} while(uvalue && (place < (int)sizeof(convert)));
 	if(place == sizeof(convert))
 		place--;
@@ -518,9 +508,9 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 	int padlen = 0;
 	int zpadlen = 0;
 	long exp = 0;
-	unsigned long intpart;
-	unsigned long fracpart;
-	unsigned long max10;
+	ulong intpart;
+	ulong fracpart;
+	ulong max10;
 	int realstyle;
 	if(max < 0)
 		max = 6;
@@ -599,7 +589,7 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 		/* Number too big */
 		return 0;
 	}
-	intpart = (unsigned long)ufvalue;
+	intpart = (ulong)ufvalue;
 	/*
 	 * sorry, we only support 9 digits past the decimal because of our
 	 * conversion method

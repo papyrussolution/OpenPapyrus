@@ -1379,7 +1379,7 @@ int archive_match_owner_excluded(struct archive * _a, struct archive_entry * ent
 
 static int add_owner_id(struct archive_match * a, struct id_array * ids, int64_t id)
 {
-	unsigned i;
+	uint i;
 	if(ids->count + 1 >= ids->size) {
 		void * p;
 		if(ids->size == 0)

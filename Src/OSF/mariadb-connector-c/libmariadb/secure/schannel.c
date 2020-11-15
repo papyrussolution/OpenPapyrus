@@ -21,9 +21,8 @@
 #pragma hdrstop
 #include "ma_schannel.h"
 #include "schannel_certs.h"
-//#include <string.h>
 
-extern my_bool ma_tls_initialized;
+extern bool ma_tls_initialized;
 char tls_library_version[] = "Schannel";
 
 #define PROT_SSL3 1
@@ -275,12 +274,12 @@ static size_t set_cipher(char * cipher_str, DWORD protocol, ALG_ID * arr, size_t
 	return pos;
 }
 
-my_bool ma_tls_connect(MARIADB_TLS * ctls)
+bool ma_tls_connect(MARIADB_TLS * ctls)
 {
 	MYSQL * mysql;
 	SCHANNEL_CRED Cred = {0};
 	MARIADB_PVIO * pvio;
-	my_bool rc = 1;
+	bool rc = 1;
 	SC_CTX * sctx;
 	SECURITY_STATUS sRet;
 	ALG_ID AlgId[MAX_ALG_ID];
@@ -387,8 +386,8 @@ ssize_t ma_tls_write(MARIADB_TLS * ctls, const uchar* buffer, size_t length)
 	return length;
 }
 
-/* {{{ my_bool ma_tls_close(MARIADB_PVIO *pvio) */
-my_bool ma_tls_close(MARIADB_TLS * ctls)
+/* {{{ bool ma_tls_close(MARIADB_PVIO *pvio) */
+bool ma_tls_close(MARIADB_TLS * ctls)
 {
 	SC_CTX * sctx = (SC_CTX*)ctls->ssl;
 	if(sctx) {

@@ -27,7 +27,7 @@
 #undef SPARC_T4_MONT
 #if defined(OPENSSL_BN_ASM_MONT) && (defined(__sparc__) || defined(__sparc))
 #include "sparc_arch.h"
-extern unsigned int OPENSSL_sparcv9cap_P[];
+extern uint OPENSSL_sparcv9cap_P[];
 #define SPARC_T4_MONT
 #endif
 
@@ -39,20 +39,16 @@ int BN_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, BN_CTX * ctx)
 {
 	int i, bits, ret = 0;
 	BIGNUM * v, * rr;
-
-	if(BN_get_flags(p, BN_FLG_CONSTTIME) != 0
-	    || BN_get_flags(a, BN_FLG_CONSTTIME) != 0) {
+	if(BN_get_flags(p, BN_FLG_CONSTTIME) != 0 || BN_get_flags(a, BN_FLG_CONSTTIME) != 0) {
 		/* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
 		BNerr(BN_F_BN_EXP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
-
 	BN_CTX_start(ctx);
 	rr = ((r == a) || (r == p)) ? BN_CTX_get(ctx) : r;
 	v = BN_CTX_get(ctx);
 	if(rr == NULL || v == NULL)
 		goto err;
-
 	if(BN_copy(v, a) == NULL)
 		goto err;
 	bits = BN_num_bits(p);
@@ -499,7 +495,7 @@ static BN_ULONG bn_get_bits(const BIGNUM * a, int bitpos)
  */
 
 static int MOD_EXP_CTIME_COPY_TO_PREBUF(const BIGNUM * b, int top,
-    unsigned char * buf, int idx,
+    uchar * buf, int idx,
     int window)
 {
 	int i, j;
@@ -517,7 +513,7 @@ static int MOD_EXP_CTIME_COPY_TO_PREBUF(const BIGNUM * b, int top,
 }
 
 static int MOD_EXP_CTIME_COPY_FROM_PREBUF(BIGNUM * b, int top,
-    unsigned char * buf, int idx,
+    uchar * buf, int idx,
     int window)
 {
 	int i, j;
@@ -602,12 +598,12 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 	BN_MONT_CTX * mont = NULL;
 
 	int numPowers;
-	unsigned char * powerbufFree = NULL;
+	uchar * powerbufFree = NULL;
 	int powerbufLen = 0;
-	unsigned char * powerbuf = NULL;
+	uchar * powerbuf = NULL;
 	BIGNUM tmp, am;
 #if defined(SPARC_T4_MONT)
-	unsigned int t4 = 0;
+	uint t4 = 0;
 #endif
 
 	bn_check_top(a);

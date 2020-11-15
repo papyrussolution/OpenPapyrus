@@ -53,7 +53,7 @@ ASN1_ITEM_TEMPLATE(GENERAL_NAMES) =
 {
 	return (GENERAL_NAME*)ASN1_dup((i2d_of_void*)i2d_GENERAL_NAME,
 		   (d2i_of_void*)d2i_GENERAL_NAME,
-		   (char*)a);
+		   (char *)a);
 }
 
 /* Returns 0 if they are equal, != 0 otherwise. */

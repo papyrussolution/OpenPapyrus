@@ -28,8 +28,8 @@ EVP_PKEY * NETSCAPE_SPKI_get_pubkey(NETSCAPE_SPKI * x)
 
 NETSCAPE_SPKI * NETSCAPE_SPKI_b64_decode(const char * str, int len)
 {
-	unsigned char * spki_der;
-	const unsigned char * p;
+	uchar * spki_der;
+	const uchar * p;
 	int spki_len;
 	NETSCAPE_SPKI * spki;
 	if(len <= 0)
@@ -38,7 +38,7 @@ NETSCAPE_SPKI * NETSCAPE_SPKI_b64_decode(const char * str, int len)
 		X509err(X509_F_NETSCAPE_SPKI_B64_DECODE, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-	spki_len = EVP_DecodeBlock(spki_der, (const unsigned char*)str, len);
+	spki_len = EVP_DecodeBlock(spki_der, (const uchar*)str, len);
 	if(spki_len < 0) {
 		X509err(X509_F_NETSCAPE_SPKI_B64_DECODE, X509_R_BASE64_DECODE_ERROR);
 		OPENSSL_free(spki_der);
@@ -54,7 +54,7 @@ NETSCAPE_SPKI * NETSCAPE_SPKI_b64_decode(const char * str, int len)
 
 char * NETSCAPE_SPKI_b64_encode(NETSCAPE_SPKI * spki)
 {
-	unsigned char * der_spki, * p;
+	uchar * der_spki, * p;
 	char * b64_str;
 	int der_len;
 	der_len = i2d_NETSCAPE_SPKI(spki, NULL);

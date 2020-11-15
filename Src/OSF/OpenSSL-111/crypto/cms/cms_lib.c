@@ -111,7 +111,7 @@ int CMS_dataFinal(CMS_ContentInfo * cms, BIO * cmsbio)
 	/* If embedded content find memory BIO and set content */
 	if(*pos && ((*pos)->flags & ASN1_STRING_FLAG_CONT)) {
 		BIO * mbio;
-		unsigned char * cont;
+		uchar * cont;
 		long contlen;
 		mbio = BIO_find_type(cmsbio, BIO_TYPE_MEM);
 		if(!mbio) {

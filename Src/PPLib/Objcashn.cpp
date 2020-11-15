@@ -468,7 +468,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	{
 		PPIDArray parent_list;
 		PPCashNode cn_rec;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 			if((!f.LocID || cn_rec.LocID == f.LocID) && (!f.ParentID || cn_rec.ParentID == f.ParentID) &&
 				(!f.OnlyGroups || (f.OnlyGroups == 1 && cn_rec.CashType == PPCMT_CASHNGROUP) || (f.OnlyGroups == -1 && cn_rec.CashType != PPCMT_CASHNGROUP)) &&
 				(!(f.Flags & SelFilt::fSkipPassive) || !(cn_rec.ExtFlags & CASHFX_PASSIVE)) &&
@@ -602,7 +602,7 @@ PPObjCashNode::PPObjCashNode(void * extraPtr) : PPObjReference(PPOBJ_CASHNODE, e
 
 int PPObjCashNode::DeleteObj(PPID id)
 {
-	const PPCashNode * p_cn_rec = reinterpret_cast<const PPCashNode *>(&ref->data);
+	const PPCashNode * p_cn_rec = reinterpret_cast<const PPCashNode *>(&P_Ref->data);
 	if(!(p_cn_rec->Flags & CASHF_DAYCLOSED) && p_cn_rec->CurDate)
 		return PPSetError(PPERR_DAYNOTCLOSED);
 	else
@@ -618,7 +618,7 @@ int  PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if((p_rec->ID && p_rec->ID < PP_FIRSTUSRREF) ||
-					ref->SearchSymb(Obj, &same_id, p_rec->Symb, offsetof(PPCashNode, Symb)) > 0) {
+					P_Ref->SearchSymb(Obj, &same_id, p_rec->Symb, offsetof(PPCashNode, Symb)) > 0) {
 					PPCashNode same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
@@ -630,7 +630,7 @@ int  PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 					if(p_rec->ID >= PP_FIRSTUSRREF)
 						p_rec->ID = 0;
 					THROW(EditItem(Obj, *pID, p_rec, 1));
-					ASSIGN_PTR(pID, ref->data.ObjID);
+					ASSIGN_PTR(pID, P_Ref->data.ObjID);
 				}
 				else {
 					; // Не изменяем существующий в разделе объект
@@ -666,7 +666,7 @@ int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 {
 	int    r;
 	PPCashNode cn_rec;
-	if((r = ref->GetItem(PPOBJ_CASHNODE, id, &cn_rec)) > 0) {
+	if((r = P_Ref->GetItem(PPOBJ_CASHNODE, id, &cn_rec)) > 0) {
 		pGCN->ID          = cn_rec.ID;
 		pGCN->CashType    = cn_rec.CashType;
 		pGCN->CurRestBillID = cn_rec.CurRestBillID;
@@ -686,11 +686,11 @@ int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 		//
 		ZDELETE(pGCN->P_DivGrpList);
 		SArray temp_list(sizeof(PPGenCashNode::DivGrpAssc));
-		if(ref->GetPropArray(Obj, id, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())
+		if(P_Ref->GetPropArray(Obj, id, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())
 			pGCN->P_DivGrpList = new SArray(temp_list);
 		if(pCN)
 			memcpy(pCN, &cn_rec, sizeof(PPCashNode));
-		ref->Ot.GetList(Obj, id, &pGCN->TagL); // @v9.6.5
+		P_Ref->Ot.GetList(Obj, id, &pGCN->TagL);
 		r = 1;
 	}
 	return r;
@@ -710,15 +710,13 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		pSCN->CurSessID  = cn_rec.CurSessID;
 		pSCN->Speciality = cn_rec.Speciality;
 		memcpy(pSCN->Port,  cn_rec.Port,  sizeof(pSCN->Port));
-		if(ref->GetPropActualSize(Obj, id, CNPRP_EXTDEVICES, &ed_size) > 0) {
+		if(P_Ref->GetPropActualSize(Obj, id, CNPRP_EXTDEVICES, &ed_size) > 0) {
 			THROW_MEM(p_ed = static_cast<__PPExtDevices *>(SAlloc::M(ed_size)));
 			memzero(p_ed, ed_size);
-			if(ref->GetProperty(Obj, id, CNPRP_EXTDEVICES, p_ed, ed_size) > 0) {
+			if(P_Ref->GetProperty(Obj, id, CNPRP_EXTDEVICES, p_ed, ed_size) > 0) {
 				pSCN->TouchScreenID = p_ed->TouchScreenID;
 				pSCN->ExtCashNodeID = p_ed->ExtCashNodeID;
-				// @v9.6.9 pSCN->PapyrusNodeID = p_ed->PapyrusNodeID;
-				// @v9.7.10 pSCN->PapyrusNodeID_unused = 0; // @v9.6.9
-				pSCN->AlternateRegID = p_ed->AlternateRegID; // @v9.7.10
+				pSCN->AlternateRegID = p_ed->AlternateRegID;
 				pSCN->ScaleID       = p_ed->ScaleID;
 				pSCN->CustDispType  = p_ed->CustDispType;
 				STRNSCPY(pSCN->CustDispPort, p_ed->CustDispPort);
@@ -769,7 +767,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		{
 			__PosNodeExt pnext;
 			MEMSZERO(pnext);
-			if(ref->GetProperty(Obj, id, CNPRP_EXTRA, &pnext, sizeof(pnext)) > 0) {
+			if(P_Ref->GetProperty(Obj, id, CNPRP_EXTRA, &pnext, sizeof(pnext)) > 0) {
 				pSCN->Scf.DaysPeriod = pnext.ScfDaysPeriod;
 				pSCN->Scf.DlvrItemsShowTag = pnext.ScfDlvrItemsShowTag;
 				pSCN->Scf.Flags = pnext.ScfFlags; // @v9.7.5
@@ -782,10 +780,10 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			}
 		}
 		pSCN->CTblList.clear();
-		ref->GetPropArray(Obj, id, CNPRP_CTBLLIST, &pSCN->CTblList);
+		P_Ref->GetPropArray(Obj, id, CNPRP_CTBLLIST, &pSCN->CTblList);
 		pSCN->LocalTouchScrID = 0;
 		{
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
+			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 1/*readonly*/);
 			SString param_buf;
 			(param_buf = "LocalTouchScreen").CatChar(':').Cat(id);
 			if(reg_key.GetString(param_buf, temp_buf)) {
@@ -815,32 +813,30 @@ int PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 	pACN->ExpPaths.Z();
 	pACN->LogNumList.Z();
 	ZDELETE(pACN->P_DivGrpList);
-	pACN->ApnCorrList.freeAll(); // @v9.6.5
+	pACN->ApnCorrList.freeAll();
 	if((r = Get(id, pACN, &cn_rec)) > 0) {
 		SString temp_buf;
 		if(!(cn_rec.Flags & CASHF_EXTFRM349)) {
-			THROW(r = ref->GetPropVlrString(PPOBJ_CASHNODE, id, CNPRP_IMPFILES, temp_buf));
+			THROW(r = P_Ref->GetPropVlrString(PPOBJ_CASHNODE, id, CNPRP_IMPFILES, temp_buf));
 			if(r > 0 && temp_buf.NotEmptyS())
 				pACN->ImpFiles = temp_buf;
-			THROW(r = ref->GetPropVlrString(PPOBJ_CASHNODE, id, CNPRP_EXPPATHS, temp_buf));
+			THROW(r = P_Ref->GetPropVlrString(PPOBJ_CASHNODE, id, CNPRP_EXPPATHS, temp_buf));
 			if(r > 0 && temp_buf.NotEmptyS())
 				pACN->ExpPaths = temp_buf;
 		}
-		else if(ref->GetPropVlrString(Obj, id, CNPRP_EXTSTR, temp_buf) > 0) {
+		else if(P_Ref->GetPropVlrString(Obj, id, CNPRP_EXTSTR, temp_buf) > 0) {
 			PPGetExtStrData(ACN_EXTSTR_FLD_IMPFILES, temp_buf, pACN->ImpFiles);
 			PPGetExtStrData(ACN_EXTSTR_FLD_EXPPATHS, temp_buf, pACN->ExpPaths);
 			PPGetExtStrData(ACN_EXTSTR_FLD_LOGNUMS,  temp_buf, pACN->LogNumList);
 			PPGetExtStrData(ACN_EXTSTR_FLD_ADDEDMSGSIGN, temp_buf, pACN->AddedMsgSign);
 		}
-		// @v9.6.5 {
 		{
 			SBuffer sbuf;
-			if(ref->GetPropSBuffer(Obj, id, CNPRP_APNCORRLIST, sbuf) > 0) {
+			if(P_Ref->GetPropSBuffer(Obj, id, CNPRP_APNCORRLIST, sbuf) > 0) {
 				SSerializeContext sctx;
 				THROW(TSCollection_Serialize(pACN->ApnCorrList, -1, sbuf, &sctx));
 			}
 		}
-		// } @v9.6.5
 	}
 	else
 		ok = r;
@@ -852,7 +848,7 @@ int PPObjCashNode::GetListByLoc(PPID locID, PPIDArray & rList)
 {
 	int    ok = -1;
 	PPCashNode cn_rec;
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 		if(cn_rec.LocID == locID) {
 			rList.addUnique(cn_rec.ID);
 			ok = 1;
@@ -865,7 +861,7 @@ int PPObjCashNode::GetListByGroup(PPID grpID, PPIDArray & rList)
 {
 	int    ok = -1;
 	PPCashNode cn_rec;
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 		if(cn_rec.ParentID == grpID) {
 			rList.addUnique(cn_rec.ID);
 			ok = 1;
@@ -901,7 +897,7 @@ int PPObjCashNode::ResolveList(const PPIDArray * pSrcList, PPIDArray & rDestList
 		if(_c) {
 			LAssocArray full_list;
 			PPCashNode cn_rec;
-			for(SEnum en = ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&cn_rec) > 0;) {
 				full_list.Add(cn_rec.ParentID, cn_rec.ID, 0);
 			}
 			for(uint i = 0; i < _c; i++) {
@@ -925,7 +921,7 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 		if(Fetch(id, &cn_rec) > 0) {
 			// @v10.6.12 {
 			ObjTagList tag_list;
-			ref->Ot.GetList(PPOBJ_CASHNODE, id, &tag_list);
+			P_Ref->Ot.GetList(PPOBJ_CASHNODE, id, &tag_list);
 			for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
 				const ObjTagItem * p_tag_item = tag_list.GetItemByPos(tagidx);
 				if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_TAXSYSTEMKIND) {
@@ -995,7 +991,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			THROW(ref->GetItem(PPOBJ_CASHNODE, *pID, &rec) > 0);
+			THROW(P_Ref->GetItem(PPOBJ_CASHNODE, *pID, &rec) > 0);
 		}
 		else {
 			MEMSZERO(rec);
@@ -1033,8 +1029,8 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		}
 		THROW(EditItem(PPOBJ_CASHNODE, *pID, &rec, 0));
 		*pID = rec.ID;
-		THROW(ref->PutPropArray(Obj, *pID, CNPRP_DIVGRPASSC, pCN->P_DivGrpList, 0));
-		THROW(ref->Ot.PutList(Obj, *pID, &pCN->TagL, 0)); // @v9.6.5
+		THROW(P_Ref->PutPropArray(Obj, *pID, CNPRP_DIVGRPASSC, pCN->P_DivGrpList, 0));
+		THROW(P_Ref->Ot.PutList(Obj, *pID, &pCN->TagL, 0)); // @v9.6.5
 		if(!oneof2(pCN->CashType, PPCMT_CASHNGROUP, PPCMT_DISTRIB)) {
 			if(f & CASHF_SYNC) {
 				p_scn = static_cast<PPSyncCashNode *>(pCN);
@@ -1066,10 +1062,10 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 					p_scn->ExtString.CopyTo(p_ed->ExtStrBuf, 0); // Размер буфера p_ed точно отмерен для того, чтобы вместить p_scn->ExtString: см. выше
 					if(p_ed->TouchScreenID || p_ed->ExtCashNodeID || p_ed->CustDispType || p_ed->BnkTermType ||
 						/*p_ed->PapyrusNodeID*/p_ed->AlternateRegID || p_ed->ScaleID || p_ed->PhnSvcID || p_ed->ExtStrBuf[0] || p_ed->EgaisMode) {
-						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, p_ed, ed_size, 0));
+						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, p_ed, ed_size, 0));
 					}
 					else {
-						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, 0, ed_size, 0));
+						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, 0, ed_size, 0));
 					}
 				}
 				{
@@ -1080,13 +1076,13 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 						pnext.ScfDlvrItemsShowTag = p_scn->Scf.DlvrItemsShowTag;
 						pnext.ScfFlags = p_scn->Scf.Flags; // @v9.7.5
 						pnext.BonusMaxPart = p_scn->BonusMaxPart;
-						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTRA, &pnext, sizeof(pnext)));
+						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTRA, &pnext, sizeof(pnext)));
 					}
 					else {
-						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTRA, 0, sizeof(pnext)));
+						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTRA, 0, sizeof(pnext)));
 					}
 				}
-				THROW(ref->PutPropArray(Obj, *pID, CNPRP_CTBLLIST, &p_scn->CTblList, 0));
+				THROW(P_Ref->PutPropArray(Obj, *pID, CNPRP_CTBLLIST, &p_scn->CTblList, 0));
 				{
 					WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPRegKeys::PrefSettings, 0);
 					SString param_buf;
@@ -1108,17 +1104,15 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 				PPPutExtStrData(ACN_EXTSTR_FLD_EXPPATHS, temp_buf, p_acn->ExpPaths);
 				PPPutExtStrData(ACN_EXTSTR_FLD_LOGNUMS,  temp_buf, p_acn->LogNumList);
 				PPPutExtStrData(ACN_EXTSTR_FLD_ADDEDMSGSIGN, temp_buf, p_acn->AddedMsgSign);
-				THROW(ref->PutPropVlrString(Obj, *pID, CNPRP_EXTSTR, temp_buf));
-				// @v9.6.5 {
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, CNPRP_EXTSTR, temp_buf));
 				{
 					SBuffer sbuf;
 					if(p_acn->ApnCorrList.getCount()) {
 						SSerializeContext sctx;
 						THROW(TSCollection_Serialize(p_acn->ApnCorrList, +1, sbuf, &sctx));
 					}
-                    THROW(ref->PutPropSBuffer(Obj, *pID, CNPRP_APNCORRLIST, sbuf, 0));
+                    THROW(P_Ref->PutPropSBuffer(Obj, *pID, CNPRP_APNCORRLIST, sbuf, 0));
 				}
-				// } @v9.6.5
 			}
 		}
 		THROW(tra.Commit());
@@ -2266,7 +2260,7 @@ int PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 	int    ok = 1;
 	THROW_PP(*strip(pRec->Name) != 0, PPERR_NAMENEEDED);
 	THROW(CheckDupName(pRec->ID, pRec->Name));
-	THROW(ref->CheckUniqueSymb(Obj, pRec->ID, pRec->Symb, offsetof(PPCashNode, Symb)));
+	THROW(P_Ref->CheckUniqueSymb(Obj, pRec->ID, pRec->Symb, offsetof(PPCashNode, Symb)));
 	THROW_PP(pRec->CashType, PPERR_CMTNEEDED);
 	if(pRec->LocID == 0) {
 		if(pRec->CashType == PPCMT_CASHNGROUP) {
@@ -3036,8 +3030,8 @@ int PPObjTouchScreen::GetPacket(PPID id, PPTouchScreenPacket * pPack)
 {
 	int    ok = 1;
 	PPTouchScreenPacket  ts_pack;
-	THROW(ref->GetItem(Obj, id, &ts_pack.Rec) > 0);
-	THROW(ref->GetPropArray(Obj, id, DBDPRP_LOCLIST, &ts_pack.GrpIDList));
+	THROW(P_Ref->GetItem(Obj, id, &ts_pack.Rec) > 0);
+	THROW(P_Ref->GetPropArray(Obj, id, DBDPRP_LOCLIST, &ts_pack.GrpIDList));
 	CATCH
 		MEMSZERO(ts_pack.Rec);
 		ts_pack.GrpIDList.freeAll();
@@ -3057,16 +3051,16 @@ int PPObjTouchScreen::PutPacket(PPID * pID, PPTouchScreenPacket * pPack, int use
 		if(pPack) {
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			if(*pID) {
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 			}
 			else {
-				THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			}
 		}
 		else if(*pID) {
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 		}
-		THROW(ref->PutPropArray(Obj, *pID, TSCPRP_GRPLIST, p_grp_list, 0));
+		THROW(P_Ref->PutPropArray(Obj, *pID, TSCPRP_GRPLIST, p_grp_list, 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -3202,16 +3196,16 @@ int PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int use_t
 		if(*pID) {
 			if(pPack) {
 				THROW(CheckDupName(*pID, pPack->Name));
-				THROW(ref->UpdateItem(Obj, *pID, pPack, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, pPack, 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else {
 			*pID = pPack->ID;
 			THROW(CheckDupName(*pID, pPack->Name));
-			THROW(ref->AddItem(Obj, pID, pPack, 0));
+			THROW(P_Ref->AddItem(Obj, pID, pPack, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -3387,7 +3381,7 @@ int PPObjLocPrinter::GetPrinterByLocation(PPID locID, SString & rPrnPort, PPLocP
 	int    ok = -1;
 	PPLocPrinter lp_rec;
 	rPrnPort.Z();
-	for(SEnum en = ref->Enum(Obj, 0); ok < 0 && en.Next(&lp_rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); ok < 0 && en.Next(&lp_rec) > 0;) {
 		if(lp_rec.LocID == locID) {
 			rPrnPort = lp_rec.Port;
 			ASSIGN_PTR(pRec, lp_rec);
@@ -3402,7 +3396,7 @@ int PPObjLocPrinter::GetLocPrnAssoc(LAssocArray & rList)
 	int    ok = -1;
 	rList.clear();
 	PPLocPrinter lp_rec;
-	for(SEnum en = ref->Enum(Obj, 0); en.Next(&lp_rec) > 0;) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&lp_rec) > 0;) {
 		rList.AddUnique(lp_rec.LocID, lp_rec.ID, 0);
 		ok = 1;
 	}

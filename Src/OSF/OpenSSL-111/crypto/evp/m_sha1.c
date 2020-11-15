@@ -25,15 +25,15 @@ static int update(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return SHA1_Update(static_cast<SHA_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
 
-static int final(EVP_MD_CTX * ctx, unsigned char * md)
+static int final(EVP_MD_CTX * ctx, uchar * md)
 {
 	return SHA1_Final(md, static_cast<SHA_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }
 
 static int ctrl(EVP_MD_CTX * ctx, int cmd, int mslen, void * ms)
 {
-	unsigned char padtmp[40];
-	unsigned char sha1tmp[SHA_DIGEST_LENGTH];
+	uchar padtmp[40];
+	uchar sha1tmp[SHA_DIGEST_LENGTH];
 	SHA_CTX * sha1;
 	if(cmd != EVP_CTRL_SSL3_MASTER_SECRET)
 		return -2;
@@ -100,7 +100,7 @@ static int update224(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return SHA224_Update(static_cast<SHA256_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
 
-static int final224(EVP_MD_CTX * ctx, unsigned char * md)
+static int final224(EVP_MD_CTX * ctx, uchar * md)
 {
 	return SHA224_Final(md, static_cast<SHA256_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }
@@ -115,7 +115,7 @@ static int update256(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return SHA256_Update(static_cast<SHA256_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
 
-static int final256(EVP_MD_CTX * ctx, unsigned char * md)
+static int final256(EVP_MD_CTX * ctx, uchar * md)
 {
 	return SHA256_Final(md, static_cast<SHA256_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }
@@ -178,7 +178,7 @@ static int update384(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return SHA384_Update(static_cast<SHA512_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
 
-static int final384(EVP_MD_CTX * ctx, unsigned char * md)
+static int final384(EVP_MD_CTX * ctx, uchar * md)
 {
 	return SHA384_Final(md, static_cast<SHA512_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }
@@ -194,7 +194,7 @@ static int update512(EVP_MD_CTX * ctx, const void * data, size_t count)
 	return SHA512_Update(static_cast<SHA512_CTX *>(EVP_MD_CTX_md_data(ctx)), data, count);
 }
 
-static int final512(EVP_MD_CTX * ctx, unsigned char * md)
+static int final512(EVP_MD_CTX * ctx, uchar * md)
 {
 	return SHA512_Final(md, static_cast<SHA512_CTX *>(EVP_MD_CTX_md_data(ctx)));
 }

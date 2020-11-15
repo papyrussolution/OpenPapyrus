@@ -150,7 +150,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 	int i, k;
 	size_t bytes_needed;
 	struct timespec ts;
-	unsigned char v;
+	uchar v;
 #  ifdef OPENSSL_SYS_VOS_HPPA
 	long duration;
 	extern void s$sleep(long * _duration, short int * _code);
@@ -579,7 +579,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #   if defined(OPENSSL_RAND_SEED_GETRANDOM)
 	{
 		size_t bytes_needed;
-		unsigned char * buffer;
+		uchar * buffer;
 		ssize_t bytes;
 		/* Maximum allowed number of consecutive unsuccessful attempts */
 		int attempts = 3;
@@ -612,7 +612,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #   if defined(OPENSSL_RAND_SEED_DEVRANDOM)
 	if(wait_random_seeded()) {
 		size_t bytes_needed;
-		unsigned char * buffer;
+		uchar * buffer;
 		size_t i;
 
 		bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
@@ -666,7 +666,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 	{
 		static const char * paths[] = { DEVRANDOM_EGD, NULL };
 		size_t bytes_needed;
-		unsigned char * buffer;
+		uchar * buffer;
 		int i;
 
 		bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);

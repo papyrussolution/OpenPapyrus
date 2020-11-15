@@ -107,7 +107,7 @@ int SipHash_set_hash_size(SIPHASH * ctx, size_t hash_size)
 }
 
 /* hash_size = crounds = drounds = 0 means SipHash24 with 16-byte output */
-int SipHash_Init(SIPHASH * ctx, const unsigned char * k, int crounds, int drounds)
+int SipHash_Init(SIPHASH * ctx, const uchar * k, int crounds, int drounds)
 {
 	uint64_t k0 = U8TO64_LE(k);
 	uint64_t k1 = U8TO64_LE(k + 8);
@@ -137,7 +137,7 @@ int SipHash_Init(SIPHASH * ctx, const unsigned char * k, int crounds, int dround
 	return 1;
 }
 
-void SipHash_Update(SIPHASH * ctx, const unsigned char * in, size_t inlen)
+void SipHash_Update(SIPHASH * ctx, const uchar * in, size_t inlen)
 {
 	uint64_t m;
 	const uint8_t * end;
@@ -195,7 +195,7 @@ void SipHash_Update(SIPHASH * ctx, const unsigned char * in, size_t inlen)
 	ctx->v3 = v3;
 }
 
-int SipHash_Final(SIPHASH * ctx, unsigned char * out, size_t outlen)
+int SipHash_Final(SIPHASH * ctx, uchar * out, size_t outlen)
 {
 	/* finalize hash */
 	int i;

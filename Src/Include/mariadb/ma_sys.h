@@ -161,8 +161,8 @@ extern char NEAR errbuff[NRERRBUFFS][ERRMSGSIZE];
 /* tbr
    extern uint get_charset_number(const char *cs_name);
    extern const char *get_charset_name(uint cs_number);
-   extern my_bool set_default_charset(uint cs, myf flags);
-   extern my_bool set_default_charset_by_name(const char *cs_name, myf flags);
+   extern bool set_default_charset(uint cs, myf flags);
+   extern bool set_default_charset_by_name(const char *cs_name, myf flags);
    extern void free_charsets(void);
    extern char *list_charsets(myf want_flags);
    extern char *get_charsets_dir(char *buf);
@@ -179,7 +179,7 @@ char * FASTCALL ma_strmake(char * dst, const char * src, size_t length);
 extern ulong _my_cache_w_requests, _my_cache_write, _my_cache_r_requests, _my_cache_read;
 extern ulong _my_blocks_used, _my_blocks_changed;
 extern ulong ma_file_opened, ma_stream_opened, ma_tmp_file_created;
-extern my_bool key_cache_inited;
+extern bool key_cache_inited;
 
 /* Point to current ma_message() */
 extern void (* my_sigtstp_cleanup)(void),
@@ -192,11 +192,11 @@ NEAR ma_umask_dir,
 NEAR my_recived_signals,                /* Signals we have got */
 NEAR my_safe_to_handle_signal,            /* Set when allowed to SIGTSTP */
 NEAR ma_dont_interrupt;                 /* call remember_intr when set */
-extern my_bool NEAR mysys_uses_curses, ma_use_symdir;
+extern bool NEAR mysys_uses_curses, ma_use_symdir;
 extern size_t lCurMemory, lMaxMemory;    /* from safemalloc */
 
 extern ulong ma_default_record_cache_size;
-extern my_bool NEAR ma_disable_locking, NEAR ma_disable_async_io,
+extern bool NEAR ma_disable_locking, NEAR ma_disable_async_io,
 NEAR ma_disable_flush_key_blocks, NEAR ma_disable_symlinks;
 extern char wild_many, wild_one, wild_prefix;
 extern const char * charsets_dir;
@@ -451,7 +451,7 @@ extern qsort2_cmp get_ptr_compare(uint);
 extern int init_io_cache(IO_CACHE * info, File file, uint cachesize,
     enum cache_type type, my_off_t seek_offset,
     pbool use_async_io, myf cache_myflags);
-extern my_bool reinit_io_cache(IO_CACHE * info, enum cache_type type,
+extern bool reinit_io_cache(IO_CACHE * info, enum cache_type type,
     my_off_t seek_offset, pbool use_async_io,
     pbool clear_cache);
 extern int _my_b_read(IO_CACHE * info, unsigned char * Buffer, uint Count);
@@ -468,22 +468,22 @@ extern void my_b_seek(IO_CACHE * info, my_off_t pos);
 extern uint my_b_gets(IO_CACHE * info, char * to, uint max_length);
 extern uint my_b_printf(IO_CACHE * info, const char* fmt, ...);
 extern uint my_b_vprintf(IO_CACHE * info, const char* fmt, va_list ap);
-extern my_bool open_cached_file(IO_CACHE * cache, const char * dir,
+extern bool open_cached_file(IO_CACHE * cache, const char * dir,
     const char * prefix, uint cache_size,
     myf cache_myflags);
-extern my_bool real_open_cached_file(IO_CACHE * cache);
+extern bool real_open_cached_file(IO_CACHE * cache);
 extern void close_cached_file(IO_CACHE * cache);
 File create_temp_file(char * to, const char * dir, const char * pfx,
     int mode, myf MyFlags);
 #define ma_init_dynamic_array(A, B, C, D) init_dynamic_array(A, B, C, D CALLER_INFO)
 #endif
-extern my_bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size,
+extern bool ma_init_dynamic_array(DYNAMIC_ARRAY * array, uint element_size,
     uint init_alloc, uint alloc_increment CALLER_INFO_PROTO);
 #define ma_init_dynamic_array_ci(A, B, C, D) ma_init_dynamic_array(A, B, C, D ORIG_CALLER_INFO)
-extern my_bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element);
+extern bool ma_insert_dynamic(DYNAMIC_ARRAY * array, void * element);
 extern unsigned char * ma_alloc_dynamic(DYNAMIC_ARRAY * array);
 extern unsigned char * ma_pop_dynamic(DYNAMIC_ARRAY*);
-extern my_bool ma_set_dynamic(DYNAMIC_ARRAY * array, void * element, uint array_index);
+extern bool ma_set_dynamic(DYNAMIC_ARRAY * array, void * element, uint array_index);
 extern void ma_get_dynamic(DYNAMIC_ARRAY * array, void * element, uint array_index);
 extern void ma_delete_dynamic(DYNAMIC_ARRAY * array);
 extern void ma_delete_dynamic_element(DYNAMIC_ARRAY * array, uint array_index);
@@ -495,16 +495,16 @@ extern void ma_freeze_size(DYNAMIC_ARRAY * array);
 extern int ma_find_type(my_string x, TYPELIB * typelib, uint full_name);
 extern void ma_make_type(my_string to, uint nr, TYPELIB * typelib);
 extern const char * ma_get_type(TYPELIB * typelib, uint nr);
-extern my_bool ma_init_dynamic_string(DYNAMIC_STRING * str, const char * init_str, size_t init_alloc, size_t alloc_increment);
-extern my_bool ma_dynstr_append(DYNAMIC_STRING * str, const char * append);
-extern my_bool ma_dynstr_append_quoted(DYNAMIC_STRING * str, const char * append, size_t len, char quote);
-my_bool ma_dynstr_append_mem(DYNAMIC_STRING * str, const char * append, size_t length);
-extern my_bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str);
-extern my_bool ma_dynstr_realloc(DYNAMIC_STRING * str, size_t additional_size);
+extern bool ma_init_dynamic_string(DYNAMIC_STRING * str, const char * init_str, size_t init_alloc, size_t alloc_increment);
+extern bool ma_dynstr_append(DYNAMIC_STRING * str, const char * append);
+extern bool ma_dynstr_append_quoted(DYNAMIC_STRING * str, const char * append, size_t len, char quote);
+bool ma_dynstr_append_mem(DYNAMIC_STRING * str, const char * append, size_t length);
+extern bool ma_dynstr_set(DYNAMIC_STRING * str, const char * init_str);
+extern bool ma_dynstr_realloc(DYNAMIC_STRING * str, size_t additional_size);
 extern void ma_dynstr_free(DYNAMIC_STRING * str);
 void set_all_changeable_vars(CHANGEABLE_VAR * vars);
-my_bool set_changeable_var(my_string str, CHANGEABLE_VAR * vars);
-my_bool set_changeable_varval(const char * var, ulong val, CHANGEABLE_VAR * vars);
+bool set_changeable_var(my_string str, CHANGEABLE_VAR * vars);
+bool set_changeable_varval(const char * var, ulong val, CHANGEABLE_VAR * vars);
 #define ma_alloc_root_inited(A) ((A)->min_malloc != 0)
 void   ma_init_alloc_root(MA_MEM_ROOT * mem_root, size_t block_size, size_t pre_alloc_size);
 void * FASTCALL ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size);
@@ -513,8 +513,8 @@ char * FASTCALL ma_strdup_root(MA_MEM_ROOT * root, const char * str);
 char * ma_memdup_root(MA_MEM_ROOT * root, const char * str, size_t len);
 void ma_free_defaults(char ** argv);
 void ma_print_defaults(const char * conf_file, const char ** groups);
-my_bool _mariadb_compress(unsigned char *, size_t *, size_t *);
-my_bool _mariadb_uncompress(unsigned char *, size_t *, size_t *);
+bool _mariadb_compress(unsigned char *, size_t *, size_t *);
+bool _mariadb_uncompress(unsigned char *, size_t *, size_t *);
 unsigned char * _mariadb_compress_alloc(const unsigned char * packet, size_t * len, size_t * complen);
 ulong checksum(const unsigned char * mem, uint count);
 

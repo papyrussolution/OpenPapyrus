@@ -113,17 +113,17 @@ CAPI_KEY * capi_find_key(CAPI_CTX * ctx, const char * id);
 
 static EVP_PKEY * capi_load_privkey(ENGINE * eng, const char * key_id,
     UI_METHOD * ui_method, void * callback_data);
-static int capi_rsa_sign(int dtype, const unsigned char * m,
-    unsigned int m_len, unsigned char * sigret,
-    unsigned int * siglen, const RSA * rsa);
-static int capi_rsa_priv_enc(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding);
-static int capi_rsa_priv_dec(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding);
+static int capi_rsa_sign(int dtype, const uchar * m,
+    uint m_len, uchar * sigret,
+    uint * siglen, const RSA * rsa);
+static int capi_rsa_priv_enc(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding);
+static int capi_rsa_priv_dec(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding);
 static int capi_rsa_free(RSA * rsa);
 
 #ifndef OPENSSL_NO_DSA
-static DSA_SIG * capi_dsa_do_sign(const unsigned char * digest, int dlen,
+static DSA_SIG * capi_dsa_do_sign(const uchar * digest, int dlen,
     DSA * dsa);
 static int capi_dsa_free(DSA * dsa);
 #endif
@@ -586,7 +586,7 @@ void engine_load_capi_int(void)
 
 #endif
 
-static int lend_tobn(BIGNUM * bn, unsigned char * bin, int binlen)
+static int lend_tobn(BIGNUM * bn, uchar * bin, int binlen)
 {
 	int i;
 	/*
@@ -595,7 +595,7 @@ static int lend_tobn(BIGNUM * bn, unsigned char * bin, int binlen)
 	 * it.
 	 */
 	for(i = 0; i < binlen / 2; i++) {
-		unsigned char c;
+		uchar c;
 		c = bin[i];
 		bin[i] = bin[binlen - i - 1];
 		bin[binlen - i - 1] = c;
@@ -610,7 +610,7 @@ static int lend_tobn(BIGNUM * bn, unsigned char * bin, int binlen)
 
 static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 {
-	unsigned char * pubkey = NULL;
+	uchar * pubkey = NULL;
 	DWORD len;
 	BLOBHEADER * bh;
 	RSA * rkey = NULL;
@@ -640,7 +640,7 @@ static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 		RSAPUBKEY * rp;
 		DWORD rsa_modlen;
 		BIGNUM * e = NULL, * n = NULL;
-		unsigned char * rsa_modulus;
+		uchar * rsa_modulus;
 		rp = (RSAPUBKEY*)(bh + 1);
 		if(rp->magic != 0x31415352) {
 			char magstr[10];
@@ -685,7 +685,7 @@ static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 	else if(bh->aiKeyAlg == CALG_DSS_SIGN) {
 		DSSPUBKEY * dp;
 		DWORD dsa_plen;
-		unsigned char * btmp;
+		uchar * btmp;
 		BIGNUM * p, * q, * g, * pub_key;
 		dp = (DSSPUBKEY*)(bh + 1);
 		if(dp->magic != 0x31535344) {
@@ -776,20 +776,20 @@ static EVP_PKEY * capi_load_privkey(ENGINE * eng, const char * key_id, UI_METHOD
 }
 /* CryptoAPI RSA operations */
 
-int capi_rsa_priv_enc(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+int capi_rsa_priv_enc(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	CAPIerr(CAPI_F_CAPI_RSA_PRIV_ENC, CAPI_R_FUNCTION_NOT_SUPPORTED);
 	return -1;
 }
 
-int capi_rsa_sign(int dtype, const unsigned char * m, unsigned int m_len,
-    unsigned char * sigret, unsigned int * siglen, const RSA * rsa)
+int capi_rsa_sign(int dtype, const uchar * m, uint m_len,
+    uchar * sigret, uint * siglen, const RSA * rsa)
 {
 	ALG_ID alg;
 	HCRYPTHASH hash;
 	DWORD slen;
-	unsigned int i;
+	uint i;
 	int ret = -1;
 	CAPI_KEY * capi_key;
 	CAPI_CTX * ctx = static_cast<CAPI_CTX *>(ENGINE_get_ex_data(RSA_get0_engine(rsa), capi_idx));
@@ -859,7 +859,7 @@ int capi_rsa_sign(int dtype, const unsigned char * m, unsigned int m_len,
 		ret = 1;
 		/* Inplace byte reversal of signature */
 		for(i = 0; i < slen / 2; i++) {
-			unsigned char c;
+			uchar c;
 			c = sigret[i];
 			sigret[i] = sigret[slen - i - 1];
 			sigret[slen - i - 1] = c;
@@ -875,11 +875,11 @@ err:
 	return ret;
 }
 
-int capi_rsa_priv_dec(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+int capi_rsa_priv_dec(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	int i;
-	unsigned char * tmpbuf;
+	uchar * tmpbuf;
 	CAPI_KEY * capi_key;
 	CAPI_CTX * ctx;
 	DWORD flags = 0;
@@ -950,13 +950,13 @@ static int capi_rsa_free(RSA * rsa)
 #ifndef OPENSSL_NO_DSA
 /* CryptoAPI DSA operations */
 
-static DSA_SIG * capi_dsa_do_sign(const unsigned char * digest, int dlen, DSA * dsa)
+static DSA_SIG * capi_dsa_do_sign(const uchar * digest, int dlen, DSA * dsa)
 {
 	HCRYPTHASH hash;
 	DWORD slen;
 	DSA_SIG * ret = NULL;
 	CAPI_KEY * capi_key;
-	unsigned char csigbuf[40];
+	uchar csigbuf[40];
 	CAPI_CTX * ctx = static_cast<CAPI_CTX *>(ENGINE_get_ex_data(DSA_get0_engine(dsa), capi_idx));
 	CAPI_trace(ctx, "Called CAPI_dsa_do_sign()\n");
 	capi_key = static_cast<CAPI_KEY *>(DSA_get_ex_data(dsa, dsa_capi_idx));
@@ -1119,7 +1119,7 @@ static int capi_get_provname(CAPI_CTX * ctx, LPSTR * pname, DWORD * ptype,
 			return 0;
 	}
 	else {
-		*pname = (char*)name;
+		*pname = (char *)name;
 	}
 	CAPI_trace(ctx, "capi_get_provname, returned name=%s, type=%d\n", *pname,
 	    *ptype);
@@ -1296,8 +1296,8 @@ static char * capi_cert_get_fname(CAPI_CTX * ctx, PCCERT_CONTEXT cert)
 static void capi_dump_cert(CAPI_CTX * ctx, BIO * out, PCCERT_CONTEXT cert)
 {
 	X509 * x;
-	const unsigned char * p;
-	unsigned long flags = ctx->dump_flags;
+	const uchar * p;
+	ulong flags = ctx->dump_flags;
 	if(flags & CAPI_DMP_FNAME) {
 		char * fname;
 		fname = capi_cert_get_fname(ctx, cert);
@@ -1622,7 +1622,7 @@ static int capi_load_ssl_client_cert(ENGINE * e, SSL * ssl,
 	STACK_OF(X509) *certs = NULL;
 	X509 * x;
 	char * storename;
-	const unsigned char * p;
+	const uchar * p;
 	int i, client_cert_idx;
 	HCERTSTORE hstore;
 	PCCERT_CONTEXT cert = NULL, excert = NULL;

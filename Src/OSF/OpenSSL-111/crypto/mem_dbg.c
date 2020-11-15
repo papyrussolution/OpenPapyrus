@@ -33,7 +33,7 @@ static int mh_mode = CRYPTO_MEM_CHECK_OFF;
 #endif
 
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG
-static unsigned long order = 0; /* number of memory requests */
+static ulong order = 0; /* number of memory requests */
 
 /*-
  * For application-defined information (static C-string `info')
@@ -63,7 +63,7 @@ struct mem_st {
 	const char * file;
 	int line;
 	CRYPTO_THREAD_ID threadid;
-	unsigned long order;
+	ulong order;
 	time_t time;
 	APP_INFO * app_info;
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
@@ -79,7 +79,7 @@ struct mem_st {
 static LHASH_OF(MEM) *mh = NULL;
 
 /* num_disable > 0 iff mh_mode == CRYPTO_MEM_CHECK_ON (w/o ..._ENABLE) */
-static unsigned int num_disable = 0;
+static uint num_disable = 0;
 
 /*
  * Valid iff num_disable > 0.  long_memdbg_lock is locked exactly in this
@@ -224,7 +224,7 @@ static int mem_cmp(const MEM * a, const MEM * b)
 #endif
 }
 
-static unsigned long mem_hash(const MEM * a)
+static ulong mem_hash(const MEM * a)
 {
 	size_t ret;
 
@@ -308,7 +308,7 @@ int CRYPTO_mem_debug_pop(void)
 	return ret;
 }
 
-static unsigned long break_order_num = 0;
+static ulong break_order_num = 0;
 
 void CRYPTO_mem_debug_malloc(void * addr, size_t num, int before_p,
     const char * file, int line)
@@ -465,7 +465,7 @@ static void print_leak(const MEM * m, MEM_LEAK * l)
 	 */
 	union {
 		CRYPTO_THREAD_ID tid;
-		unsigned long ltid;
+		ulong ltid;
 	} tid;
 
 	CRYPTO_THREAD_ID ti;

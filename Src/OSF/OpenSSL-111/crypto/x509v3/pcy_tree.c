@@ -86,7 +86,7 @@ static void tree_print(char * str, X509_POLICY_TREE * tree,
  * X509_PCY_TREE_EXPLICIT: explicit policy required
  */
 static int tree_init(X509_POLICY_TREE ** ptree, STACK_OF(X509) * certs,
-    unsigned int flags)
+    uint flags)
 {
 	X509_POLICY_TREE * tree;
 	X509_POLICY_LEVEL * level;
@@ -634,7 +634,7 @@ void X509_policy_tree_free(X509_POLICY_TREE * tree)
  */
 int X509_policy_check(X509_POLICY_TREE ** ptree, int * pexplicit_policy,
     STACK_OF(X509) * certs,
-    STACK_OF(ASN1_OBJECT) * policy_oids, unsigned int flags)
+    STACK_OF(ASN1_OBJECT) * policy_oids, uint flags)
 {
 	int init_ret;
 	int ret;

@@ -17,7 +17,7 @@
 /* Maximum indent */
 #define ASN1_PRINT_MAX_INDENT 128
 
-int ASN1_buf_print(BIO * bp, const unsigned char * buf, size_t buflen, int indent)
+int ASN1_buf_print(BIO * bp, const uchar * buf, size_t buflen, int indent)
 {
 	size_t i;
 
@@ -42,11 +42,11 @@ int ASN1_buf_print(BIO * bp, const unsigned char * buf, size_t buflen, int inden
 }
 
 int ASN1_bn_print(BIO * bp, const char * number, const BIGNUM * num,
-    unsigned char * ign, int indent)
+    uchar * ign, int indent)
 {
 	int n, rv = 0;
 	const char * neg;
-	unsigned char * buf = NULL, * tmp = NULL;
+	uchar * buf = NULL, * tmp = NULL;
 	int buflen;
 
 	if(num == NULL)
@@ -62,8 +62,8 @@ int ASN1_bn_print(BIO * bp, const char * number, const BIGNUM * num,
 
 	if(BN_num_bytes(num) <= BN_BYTES) {
 		if(BIO_printf(bp, "%s %s%lu (%s0x%lx)\n", number, neg,
-		    (unsigned long)bn_get_words(num)[0], neg,
-		    (unsigned long)bn_get_words(num)[0]) <= 0)
+		    (ulong)bn_get_words(num)[0], neg,
+		    (ulong)bn_get_words(num)[0]) <= 0)
 			return 0;
 		return 1;
 	}

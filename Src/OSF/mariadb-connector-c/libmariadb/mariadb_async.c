@@ -40,7 +40,7 @@
    that the socket is non-blocking at the start of every operation.
  */
 #define WIN_SET_NONBLOCKING(mysql) do { \
-		my_bool old_mode; \
+		bool old_mode; \
 		if((mysql)->net.pvio) ma_pvio_blocking((mysql)->net.pvio, FALSE, &old_mode); \
 } while(0);
 #else
@@ -49,7 +49,7 @@
 
 extern void mysql_close_slow_part(MYSQL * mysql);
 
-void my_context_install_suspend_resume_hook(struct mysql_async_context * b, void (*hook)(my_bool, void *), void * user_data)
+void my_context_install_suspend_resume_hook(struct mysql_async_context * b, void (*hook)(bool, void *), void * user_data)
 {
 	b->suspend_resume_hook = hook;
 	b->suspend_resume_hook_user_data = user_data;
@@ -118,7 +118,7 @@ int my_connect_async(MARIADB_PVIO * pvio, const struct sockaddr * name, uint nam
 #endif
 
 #ifdef HAVE_TLS_FIXME
-static my_bool my_ssl_async_check_result(int res, struct mysql_async_context * b, MARIADB_SSL * cssl)
+static bool my_ssl_async_check_result(int res, struct mysql_async_context * b, MARIADB_SSL * cssl)
 {
 	int ssl_err;
 	b->events_to_wait_for = 0;
@@ -637,10 +637,10 @@ struct mysql_change_user_params {
 
 static void mysql_change_user_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_change_user, (parms->mysql, parms->user, parms->passwd, parms->db), parms->mysql, my_bool,r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_change_user, (parms->mysql, parms->user, parms->passwd, parms->db), parms->mysql, bool,r_my_bool)
 }
 
-int STDCALL mysql_change_user_start(my_bool * ret, MYSQL * mysql, const char * user, const char * passwd, const char * db)
+int STDCALL mysql_change_user_start(bool * ret, MYSQL * mysql, const char * user, const char * passwd, const char * db)
 {
 	MK_ASYNC_START_BODY(mysql_change_user, mysql,
 	{
@@ -652,7 +652,7 @@ int STDCALL mysql_change_user_start(my_bool * ret, MYSQL * mysql, const char * u
 	}, TRUE, r_my_bool, /* Nothing */)
 }
 
-int STDCALL mysql_change_user_cont(my_bool * ret, MYSQL * mysql, int ready_status)
+int STDCALL mysql_change_user_cont(bool * ret, MYSQL * mysql, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(mysql, TRUE, r_my_bool)
 }
@@ -994,10 +994,10 @@ struct mysql_read_query_result_params {
 
 static void mysql_read_query_result_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_read_query_result, (parms->mysql), parms->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_read_query_result, (parms->mysql), parms->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_read_query_result_start(my_bool * ret, MYSQL * mysql)
+int STDCALL mysql_read_query_result_start(bool * ret, MYSQL * mysql)
 {
 	MK_ASYNC_START_BODY(mysql_read_query_result, mysql,
 	{
@@ -1006,7 +1006,7 @@ int STDCALL mysql_read_query_result_start(my_bool * ret, MYSQL * mysql)
 	}, TRUE, r_my_bool, /* Nothing */)
 }
 
-int STDCALL mysql_read_query_result_cont(my_bool * ret, MYSQL * mysql, int ready_status)
+int STDCALL mysql_read_query_result_cont(bool * ret, MYSQL * mysql, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(mysql, TRUE, r_my_bool)
 }
@@ -1150,10 +1150,10 @@ struct mysql_stmt_close_params {
 
 static void mysql_stmt_close_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_stmt_close, (parms->stmt), parms->stmt->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_stmt_close, (parms->stmt), parms->stmt->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_stmt_close_start(my_bool * ret, MYSQL_STMT * stmt)
+int STDCALL mysql_stmt_close_start(bool * ret, MYSQL_STMT * stmt)
 {
 	MK_ASYNC_START_BODY(mysql_stmt_close, stmt->mysql,
 	{
@@ -1170,7 +1170,7 @@ int STDCALL mysql_stmt_close_start(my_bool * ret, MYSQL_STMT * stmt)
 		)
 }
 
-int STDCALL mysql_stmt_close_cont(my_bool * ret, MYSQL_STMT * stmt, int ready_status)
+int STDCALL mysql_stmt_close_cont(bool * ret, MYSQL_STMT * stmt, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(stmt->mysql, TRUE, r_my_bool)
 }
@@ -1182,10 +1182,10 @@ struct mysql_stmt_reset_params {
 
 static void mysql_stmt_reset_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_stmt_reset, (parms->stmt), parms->stmt->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_stmt_reset, (parms->stmt), parms->stmt->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_stmt_reset_start(my_bool * ret, MYSQL_STMT * stmt)
+int STDCALL mysql_stmt_reset_start(bool * ret, MYSQL_STMT * stmt)
 {
 	MK_ASYNC_START_BODY(mysql_stmt_reset, stmt->mysql,
 	{
@@ -1200,7 +1200,7 @@ int STDCALL mysql_stmt_reset_start(my_bool * ret, MYSQL_STMT * stmt)
 		)
 }
 
-int STDCALL mysql_stmt_reset_cont(my_bool * ret, MYSQL_STMT * stmt, int ready_status)
+int STDCALL mysql_stmt_reset_cont(bool * ret, MYSQL_STMT * stmt, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(stmt->mysql, TRUE, r_my_bool)
 }
@@ -1212,10 +1212,10 @@ struct mysql_stmt_free_result_params {
 
 static void mysql_stmt_free_result_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_stmt_free_result, (parms->stmt), parms->stmt->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_stmt_free_result, (parms->stmt), parms->stmt->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_stmt_free_result_start(my_bool * ret, MYSQL_STMT * stmt)
+int STDCALL mysql_stmt_free_result_start(bool * ret, MYSQL_STMT * stmt)
 {
 	MK_ASYNC_START_BODY(mysql_stmt_free_result, stmt->mysql,
 	{
@@ -1230,7 +1230,7 @@ int STDCALL mysql_stmt_free_result_start(my_bool * ret, MYSQL_STMT * stmt)
 		)
 }
 
-int STDCALL mysql_stmt_free_result_cont(my_bool * ret, MYSQL_STMT * stmt, int ready_status)
+int STDCALL mysql_stmt_free_result_cont(bool * ret, MYSQL_STMT * stmt, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(stmt->mysql, TRUE, r_my_bool)
 }
@@ -1245,10 +1245,10 @@ struct mysql_stmt_send_long_data_params {
 
 static void mysql_stmt_send_long_data_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_stmt_send_long_data, (parms->stmt, parms->param_number, parms->data, parms->length), parms->stmt->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_stmt_send_long_data, (parms->stmt, parms->param_number, parms->data, parms->length), parms->stmt->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_stmt_send_long_data_start(my_bool * ret, MYSQL_STMT * stmt, unsigned int param_number, const char * data, unsigned long length)
+int STDCALL mysql_stmt_send_long_data_start(bool * ret, MYSQL_STMT * stmt, unsigned int param_number, const char * data, unsigned long length)
 {
 	MK_ASYNC_START_BODY(mysql_stmt_send_long_data, stmt->mysql,
 	{
@@ -1266,7 +1266,7 @@ int STDCALL mysql_stmt_send_long_data_start(my_bool * ret, MYSQL_STMT * stmt, un
 		)
 }
 
-int STDCALL mysql_stmt_send_long_data_cont(my_bool * ret, MYSQL_STMT * stmt, int ready_status)
+int STDCALL mysql_stmt_send_long_data_cont(bool * ret, MYSQL_STMT * stmt, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(stmt->mysql, TRUE, r_my_bool)
 }
@@ -1278,10 +1278,10 @@ struct mysql_commit_params {
 
 static void mysql_commit_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_commit, (parms->mysql), parms->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_commit, (parms->mysql), parms->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_commit_start(my_bool * ret, MYSQL * mysql)
+int STDCALL mysql_commit_start(bool * ret, MYSQL * mysql)
 {
 	MK_ASYNC_START_BODY(mysql_commit, mysql,
 	{
@@ -1290,7 +1290,7 @@ int STDCALL mysql_commit_start(my_bool * ret, MYSQL * mysql)
 	}, TRUE, r_my_bool, /* Nothing */)
 }
 
-int STDCALL mysql_commit_cont(my_bool * ret, MYSQL * mysql, int ready_status)
+int STDCALL mysql_commit_cont(bool * ret, MYSQL * mysql, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(mysql, TRUE, r_my_bool)
 }
@@ -1302,10 +1302,10 @@ struct mysql_rollback_params {
 
 static void mysql_rollback_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_rollback, (parms->mysql), parms->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_rollback, (parms->mysql), parms->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_rollback_start(my_bool * ret, MYSQL * mysql)
+int STDCALL mysql_rollback_start(bool * ret, MYSQL * mysql)
 {
 	MK_ASYNC_START_BODY(mysql_rollback, mysql,
 	{
@@ -1314,7 +1314,7 @@ int STDCALL mysql_rollback_start(my_bool * ret, MYSQL * mysql)
 	}, TRUE, r_my_bool, /* Nothing */)
 }
 
-int STDCALL mysql_rollback_cont(my_bool * ret, MYSQL * mysql, int ready_status)
+int STDCALL mysql_rollback_cont(bool * ret, MYSQL * mysql, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(mysql, TRUE, r_my_bool)
 }
@@ -1322,15 +1322,15 @@ int STDCALL mysql_rollback_cont(my_bool * ret, MYSQL * mysql, int ready_status)
 /* Structure used to pass parameters from mysql_autocommit_start(). */
 struct mysql_autocommit_params {
 	MYSQL * mysql;
-	my_bool auto_mode;
+	bool auto_mode;
 };
 
 static void mysql_autocommit_start_internal(void * d)
 {
-	MK_ASYNC_INTERNAL_BODY(mysql_autocommit, (parms->mysql, parms->auto_mode), parms->mysql, my_bool, r_my_bool)
+	MK_ASYNC_INTERNAL_BODY(mysql_autocommit, (parms->mysql, parms->auto_mode), parms->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_autocommit_start(my_bool * ret, MYSQL * mysql, my_bool auto_mode)
+int STDCALL mysql_autocommit_start(bool * ret, MYSQL * mysql, bool auto_mode)
 {
 	MK_ASYNC_START_BODY(mysql_autocommit, mysql,
 	{
@@ -1340,7 +1340,7 @@ int STDCALL mysql_autocommit_start(my_bool * ret, MYSQL * mysql, my_bool auto_mo
 	}, TRUE, r_my_bool, /* Nothing */)
 }
 
-int STDCALL mysql_autocommit_cont(my_bool * ret, MYSQL * mysql, int ready_status)
+int STDCALL mysql_autocommit_cont(bool * ret, MYSQL * mysql, int ready_status)
 {
 	MK_ASYNC_CONT_BODY(mysql, TRUE, r_my_bool)
 }

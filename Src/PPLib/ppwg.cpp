@@ -274,17 +274,17 @@ int PPObjDutySched::PutPacket(PPID * pID, PPDutySchedPacket * pPack, int use_ta)
 		if(pPack) {
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			if(*pID) {
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 			}
 			else {
 				*pID = pPack->Rec.ID;
-				THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 			}
-			THROW(ref->PutPropArray(Obj, *pID, DSHPRP_LIST, &pPack->List, 0));
-			THROW(ref->PutPropArray(Obj, *pID, DSHPRP_POINTLIST, &pPack->CpList, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, DSHPRP_LIST, &pPack->List, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, DSHPRP_POINTLIST, &pPack->CpList, 0));
 		}
 		else if(*pID) {
-			THROW(ref->RemoveItem(Obj, *pID, 0));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -296,8 +296,8 @@ int PPObjDutySched::GetPacket(PPID id, PPDutySchedPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
-		THROW(ref->GetPropArray(Obj, id, DSHPRP_LIST, &pPack->List));
-		THROW(ref->GetPropArray(Obj, id, DSHPRP_POINTLIST, &pPack->CpList));
+		THROW(P_Ref->GetPropArray(Obj, id, DSHPRP_LIST, &pPack->List));
+		THROW(P_Ref->GetPropArray(Obj, id, DSHPRP_POINTLIST, &pPack->CpList));
 		pPack->Normalyze();
 		ok = 1;
 	}

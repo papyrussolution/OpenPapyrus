@@ -23,7 +23,7 @@ static int wsa_init_done = 0;
 #endif
 
 # if OPENSSL_API_COMPAT < 0x10100000L
-int BIO_get_host_ip(const char * str, unsigned char * ip)
+int BIO_get_host_ip(const char * str, uchar * ip)
 {
 	BIO_ADDRINFO * res = NULL;
 	int ret = 0;
@@ -52,7 +52,7 @@ int BIO_get_host_ip(const char * str, unsigned char * ip)
 	return ret;
 }
 
-int BIO_get_port(const char * str, unsigned short * port_ptr)
+int BIO_get_port(const char * str, ushort * port_ptr)
 {
 	BIO_ADDRINFO * res = NULL;
 	int ret = 0;
@@ -160,13 +160,13 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 	int i;
 
 #  ifdef __DJGPP__
-	i = ioctlsocket(fd, type, (char*)arg);
+	i = ioctlsocket(fd, type, (char *)arg);
 #  else
 #   if defined(OPENSSL_SYS_VMS)
 	/*-
 	 * 2011-02-18 SMS.
 	 * VMS ioctl() can't tolerate a 64-bit "void *arg", but we
-	 * observe that all the consumers pass in an "unsigned long *",
+	 * observe that all the consumers pass in an "ulong *",
 	 * so we arrange a local copy with a short pointer, and use
 	 * that, instead.
 	 */
@@ -174,11 +174,11 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 #     define ARG arg_32p
 #     pragma pointer_size save
 #     pragma pointer_size 32
-	unsigned long arg_32;
-	unsigned long * arg_32p;
+	ulong arg_32;
+	ulong * arg_32p;
 #     pragma pointer_size restore
 	arg_32p = &arg_32;
-	arg_32 = *((unsigned long*)arg);
+	arg_32 = *((ulong *)arg);
 #    else                       /* __INITIAL_POINTER_SIZE == 64 */
 #     define ARG arg
 #    endif                      /* __INITIAL_POINTER_SIZE == 64 [else] */

@@ -52,7 +52,7 @@ void * X509_CRL_get_ext_d2i(const X509_CRL * x, int nid, int * crit, int * idx)
 }
 
 int X509_CRL_add1_ext_i2d(X509_CRL * x, int nid, void * value, int crit,
-    unsigned long flags)
+    ulong flags)
 {
 	return X509V3_add1_i2d(&x->crl.extensions, nid, value, crit, flags);
 }
@@ -104,7 +104,7 @@ void * X509_get_ext_d2i(const X509 * x, int nid, int * crit, int * idx)
 }
 
 int X509_add1_ext_i2d(X509 * x, int nid, void * value, int crit,
-    unsigned long flags)
+    ulong flags)
 {
 	return X509V3_add1_i2d(&x->cert_info.extensions, nid, value, crit,
 		   flags);
@@ -152,7 +152,7 @@ void * X509_REVOKED_get_ext_d2i(const X509_REVOKED * x, int nid, int * crit, int
 }
 
 int X509_REVOKED_add1_ext_i2d(X509_REVOKED * x, int nid, void * value, int crit,
-    unsigned long flags)
+    ulong flags)
 {
 	return X509V3_add1_i2d(&x->extensions, nid, value, crit, flags);
 }

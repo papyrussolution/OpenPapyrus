@@ -357,7 +357,7 @@ int i2d_ECPrivateKey_bio(BIO * bp, EC_KEY * eckey)
 #endif
 
 int X509_pubkey_digest(const X509 * data, const EVP_MD * type,
-    unsigned char * md, unsigned int * len)
+    uchar * md, uint * len)
 {
 	ASN1_BIT_STRING * key;
 	key = X509_get0_pubkey_bitstr(data);
@@ -366,8 +366,8 @@ int X509_pubkey_digest(const X509 * data, const EVP_MD * type,
 	return EVP_Digest(key->data, key->length, md, len, type, NULL);
 }
 
-int X509_digest(const X509 * data, const EVP_MD * type, unsigned char * md,
-    unsigned int * len)
+int X509_digest(const X509 * data, const EVP_MD * type, uchar * md,
+    uint * len)
 {
 	if(type == EVP_sha1() && (data->ex_flags & EXFLAG_SET) != 0) {
 		/* Asking for SHA1 and we already computed it. */
@@ -377,11 +377,11 @@ int X509_digest(const X509 * data, const EVP_MD * type, unsigned char * md,
 		return 1;
 	}
 	return (ASN1_item_digest
-		       (ASN1_ITEM_rptr(X509), type, (char*)data, md, len));
+		       (ASN1_ITEM_rptr(X509), type, (char *)data, md, len));
 }
 
 int X509_CRL_digest(const X509_CRL * data, const EVP_MD * type,
-    unsigned char * md, unsigned int * len)
+    uchar * md, uint * len)
 {
 	if(type == EVP_sha1() && (data->flags & EXFLAG_SET) != 0) {
 		/* Asking for SHA1; always computed in CRL d2i. */
@@ -391,29 +391,29 @@ int X509_CRL_digest(const X509_CRL * data, const EVP_MD * type,
 		return 1;
 	}
 	return (ASN1_item_digest
-		       (ASN1_ITEM_rptr(X509_CRL), type, (char*)data, md, len));
+		       (ASN1_ITEM_rptr(X509_CRL), type, (char *)data, md, len));
 }
 
 int X509_REQ_digest(const X509_REQ * data, const EVP_MD * type,
-    unsigned char * md, unsigned int * len)
+    uchar * md, uint * len)
 {
 	return (ASN1_item_digest
-		       (ASN1_ITEM_rptr(X509_REQ), type, (char*)data, md, len));
+		       (ASN1_ITEM_rptr(X509_REQ), type, (char *)data, md, len));
 }
 
 int X509_NAME_digest(const X509_NAME * data, const EVP_MD * type,
-    unsigned char * md, unsigned int * len)
+    uchar * md, uint * len)
 {
 	return (ASN1_item_digest
-		       (ASN1_ITEM_rptr(X509_NAME), type, (char*)data, md, len));
+		       (ASN1_ITEM_rptr(X509_NAME), type, (char *)data, md, len));
 }
 
 int PKCS7_ISSUER_AND_SERIAL_digest(PKCS7_ISSUER_AND_SERIAL * data,
-    const EVP_MD * type, unsigned char * md,
-    unsigned int * len)
+    const EVP_MD * type, uchar * md,
+    uint * len)
 {
 	return (ASN1_item_digest(ASN1_ITEM_rptr(PKCS7_ISSUER_AND_SERIAL), type,
-	       (char*)data, md, len));
+	       (char *)data, md, len));
 }
 
 #ifndef OPENSSL_NO_STDIO

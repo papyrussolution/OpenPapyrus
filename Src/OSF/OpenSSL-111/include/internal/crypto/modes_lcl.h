@@ -14,16 +14,16 @@ typedef unsigned __int64 u64;
 #define U64(C) C##UI64
 #elif defined(__arch64__)
 typedef long i64;
-typedef unsigned long u64;
+typedef ulong u64;
 #define U64(C) C##UL
 #else
 typedef long long i64;
-typedef unsigned long long u64;
+typedef ulong long u64;
 #define U64(C) C##ULL
 #endif
 
-typedef unsigned int u32;
-typedef unsigned char u8;
+typedef uint u32;
+typedef uchar u8;
 
 #define STRICT_ALIGNMENT 1
 #ifndef PEDANTIC
@@ -69,7 +69,7 @@ typedef unsigned char u8;
 #  endif
 # elif defined(_MSC_VER)
 #  if _MSC_VER>=1300
-#   include <stdlib.h>
+	//#include <stdlib.h>
 #   pragma intrinsic(_byteswap_uint64,_byteswap_ulong)
 #   define BSWAP8(x)    _byteswap_uint64((u64)(x))
 #   define BSWAP4(x)    _byteswap_ulong((u32)(x))
@@ -123,11 +123,11 @@ struct gcm128_context {
     void (*ghash) (u64 Xi[2], const u128 Htable[16], const u8 *inp,
                    size_t len);
 #endif
-    unsigned int mres, ares;
+    uint mres, ares;
     block128_f block;
     void *key;
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
-    unsigned char Xn[48];
+    uchar Xn[48];
 #endif
 };
 
@@ -150,7 +150,7 @@ struct ccm128_context {
 
 typedef union {
     u64 a[2];
-    unsigned char c[16];
+    uchar c[16];
 } OCB_BLOCK;
 #define ocb_block16_xor(in1,in2,out) \
     ( (out)->a[0]=(in1)->a[0]^(in2)->a[0], \

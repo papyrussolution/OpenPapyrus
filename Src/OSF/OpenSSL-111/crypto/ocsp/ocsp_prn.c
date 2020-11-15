@@ -84,7 +84,7 @@ const char * OCSP_crl_reason_str(long s)
 	return table2string(s, reason_tbl);
 }
 
-int OCSP_REQUEST_print(BIO * bp, OCSP_REQUEST * o, unsigned long flags)
+int OCSP_REQUEST_print(BIO * bp, OCSP_REQUEST * o, ulong flags)
 {
 	int i;
 	long l;
@@ -129,7 +129,7 @@ err:
 	return 0;
 }
 
-int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, unsigned long flags)
+int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 {
 	int i, ret = 0;
 	long l;

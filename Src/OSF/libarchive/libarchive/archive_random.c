@@ -31,12 +31,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_FCNTL
 	#include <fcntl.h>
 #endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
@@ -58,31 +52,26 @@ static void arc4random_buf(void *, size_t);
 #endif
 
 #ifndef O_CLOEXEC
-#define O_CLOEXEC	0
+#define O_CLOEXEC       0
 #endif
 
 /*
  * Random number generator function.
  * This simply calls arc4random_buf function if the platform provides it.
  */
-
-int
-archive_random(void *buf, size_t nbytes)
+int archive_random(void * buf, size_t nbytes)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	HCRYPTPROV hProv;
-	BOOL success;
-
-	success = CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL,
-	    CRYPT_VERIFYCONTEXT);
-	if (!success && GetLastError() == (DWORD)NTE_BAD_KEYSET) {
+	BOOL success = CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+	if(!success && GetLastError() == (DWORD)NTE_BAD_KEYSET) {
 		success = CryptAcquireContext(&hProv, NULL, NULL,
-		    PROV_RSA_FULL, CRYPT_NEWKEYSET);
+			PROV_RSA_FULL, CRYPT_NEWKEYSET);
 	}
-	if (success) {
-		success = CryptGenRandom(hProv, (DWORD)nbytes, (BYTE *)buf);
+	if(success) {
+		success = CryptGenRandom(hProv, (DWORD)nbytes, (BYTE*)buf);
 		CryptReleaseContext(hProv, 0);
-		if (success)
+		if(success)
 			return ARCHIVE_OK;
 	}
 	/* TODO: Does this case really happen? */
@@ -127,9 +116,9 @@ archive_random(void *buf, size_t nbytes)
 
 #ifdef __GNUC__
 #define inline __inline
-#else				/* !__GNUC__ */
+#else                           /* !__GNUC__ */
 #define inline
-#endif				/* !__GNUC__ */
+#endif                          /* !__GNUC__ */
 
 struct arc4_stream {
 	uint8_t i;
@@ -137,15 +126,15 @@ struct arc4_stream {
 	uint8_t s[256];
 };
 
-#define	RANDOMDEV	"/dev/urandom"
-#define	KEYSIZE		128
+#define RANDOMDEV       "/dev/urandom"
+#define KEYSIZE         128
 #ifdef HAVE_PTHREAD_H
-static pthread_mutex_t	arc4random_mtx = PTHREAD_MUTEX_INITIALIZER;
-#define	_ARC4_LOCK()	pthread_mutex_lock(&arc4random_mtx);
-#define	_ARC4_UNLOCK()  pthread_mutex_unlock(&arc4random_mtx);
+static pthread_mutex_t arc4random_mtx = PTHREAD_MUTEX_INITIALIZER;
+#define _ARC4_LOCK()    pthread_mutex_lock(&arc4random_mtx);
+#define _ARC4_UNLOCK()  pthread_mutex_unlock(&arc4random_mtx);
 #else
-#define	_ARC4_LOCK()
-#define	_ARC4_UNLOCK()
+#define _ARC4_LOCK()
+#define _ARC4_UNLOCK()
 #endif
 
 static int rs_initialized;
@@ -156,25 +145,22 @@ static int arc4_count;
 static inline uint8_t arc4_getbyte(void);
 static void arc4_stir(void);
 
-static inline void
-arc4_init(void)
+static inline void arc4_init(void)
 {
-	int     n;
-
-	for (n = 0; n < 256; n++)
+	int n;
+	for(n = 0; n < 256; n++)
 		rs.s[n] = n;
 	rs.i = 0;
 	rs.j = 0;
 }
 
-static inline void
-arc4_addrandom(u_char *dat, int datlen)
+static inline void arc4_addrandom(u_char * dat, int datlen)
 {
-	int     n;
+	int n;
 	uint8_t si;
 
 	rs.i--;
-	for (n = 0; n < 256; n++) {
+	for(n = 0; n < 256; n++) {
 		rs.i = (rs.i + 1);
 		si = rs.s[rs.i];
 		rs.j = (rs.j + si + dat[n % datlen]);
@@ -184,34 +170,33 @@ arc4_addrandom(u_char *dat, int datlen)
 	rs.j = rs.i;
 }
 
-static void
-arc4_stir(void)
+static void arc4_stir(void)
 {
 	int done, fd, i;
 	struct {
-		struct timeval	tv;
-		pid_t		pid;
-		u_char	 	rnd[KEYSIZE];
+		struct timeval tv;
+		pid_t pid;
+		u_char rnd[KEYSIZE];
 	} rdat;
 
-	if (!rs_initialized) {
+	if(!rs_initialized) {
 		arc4_init();
 		rs_initialized = 1;
 	}
 	done = 0;
 	fd = open(RANDOMDEV, O_RDONLY | O_CLOEXEC, 0);
-	if (fd >= 0) {
-		if (read(fd, &rdat, KEYSIZE) == KEYSIZE)
+	if(fd >= 0) {
+		if(read(fd, &rdat, KEYSIZE) == KEYSIZE)
 			done = 1;
 		(void)close(fd);
 	}
-	if (!done) {
+	if(!done) {
 		(void)gettimeofday(&rdat.tv, NULL);
 		rdat.pid = getpid();
 		/* We'll just take whatever was on the stack too... */
 	}
 
-	arc4_addrandom((u_char *)&rdat, KEYSIZE);
+	arc4_addrandom((u_char*)&rdat, KEYSIZE);
 
 	/*
 	 * Discard early keystream, as per recommendations in:
@@ -220,24 +205,22 @@ arc4_stir(void)
 	 * published on wikileaks on March 2017.
 	 */
 
-	for (i = 0; i < 3072; i++)
+	for(i = 0; i < 3072; i++)
 		(void)arc4_getbyte();
 	arc4_count = 1600000;
 }
 
-static void
-arc4_stir_if_needed(void)
+static void arc4_stir_if_needed(void)
 {
 	pid_t pid = getpid();
 
-	if (arc4_count <= 0 || !rs_initialized || arc4_stir_pid != pid) {
+	if(arc4_count <= 0 || !rs_initialized || arc4_stir_pid != pid) {
 		arc4_stir_pid = pid;
 		arc4_stir();
 	}
 }
 
-static inline uint8_t
-arc4_getbyte(void)
+static inline uint8_t arc4_getbyte(void)
 {
 	uint8_t si, sj;
 
@@ -250,14 +233,13 @@ arc4_getbyte(void)
 	return (rs.s[(si + sj) & 0xff]);
 }
 
-static void
-arc4random_buf(void *_buf, size_t n)
+static void arc4random_buf(void * _buf, size_t n)
 {
-	u_char *buf = (u_char *)_buf;
+	u_char * buf = (u_char*)_buf;
 	_ARC4_LOCK();
 	arc4_stir_if_needed();
-	while (n--) {
-		if (--arc4_count <= 0)
+	while(n--) {
+		if(--arc4_count <= 0)
 			arc4_stir();
 		buf[n] = arc4_getbyte();
 	}

@@ -111,7 +111,7 @@ int PPObjEventSubscription::SerializePacket_WithoutRec(int dir, PPEventSubscript
 int PPObjEventSubscription::SerializePacket(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW(SerializePacket_WithoutRec(dir, pPack, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -136,8 +136,8 @@ int PPObjEventSubscription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pP
 		if(pPack == 0) {
 			if(*pID) {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, _id, 0));
-				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
+				THROW(P_Ref->RemoveItem(Obj, _id, 0));
+				THROW(P_Ref->RemoveProperty(Obj, _id, 0, 0));
 				//THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
 			}
@@ -149,16 +149,16 @@ int PPObjEventSubscription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pP
 					ok = -1;
 				else {
 					THROW(SerializePacket_WithoutRec(+1, pPack, sbuf, &sctx));
-					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0));
-					THROW(ref->PutPropSBuffer(Obj, _id, EVNTSUBSCRPRP_EXTENSION, sbuf, 0));
+					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0));
+					THROW(P_Ref->PutPropSBuffer(Obj, _id, EVNTSUBSCRPRP_EXTENSION, sbuf, 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}
 			}
 			else {
 				THROW(SerializePacket_WithoutRec(+1, pPack, sbuf, &sctx));
-				THROW(ref->AddItem(Obj, &_id, &pPack->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, &_id, &pPack->Rec, 0));
 				pPack->Rec.ID = _id;
-				THROW(ref->PutPropSBuffer(Obj, _id, EVNTSUBSCRPRP_EXTENSION, sbuf, 0));
+				THROW(P_Ref->PutPropSBuffer(Obj, _id, EVNTSUBSCRPRP_EXTENSION, sbuf, 0));
 				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
 				ASSIGN_PTR(pID, _id);
 			}
@@ -182,7 +182,7 @@ int PPObjEventSubscription::GetPacket(PPID id, PPEventSubscriptionPacket * pPack
 	if(ok > 0) {
 		SBuffer sbuf;
 		SSerializeContext sctx;
-		THROW(ref->GetPropSBuffer(Obj, id, EVNTSUBSCRPRP_EXTENSION, sbuf));
+		THROW(P_Ref->GetPropSBuffer(Obj, id, EVNTSUBSCRPRP_EXTENSION, sbuf));
 		THROW(SerializePacket_WithoutRec(-1, pPack, sbuf, &sctx));
 	}
 	CATCHZOK

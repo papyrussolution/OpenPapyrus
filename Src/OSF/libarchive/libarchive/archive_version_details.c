@@ -28,30 +28,12 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:14Z kientzle $");
 
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#ifdef HAVE_LZMA_H
-//#include <lzma.h>
-//#endif
-//#ifdef HAVE_BZLIB_H
-//#include <bzlib.h>
-//#endif
 #ifdef HAVE_LZ4_H
 	#include <lz4.h>
 #endif
 #ifdef HAVE_ZSTD_H
 	#include <zstd.h>
 #endif
-//#include "archive.h"
-//#include "archive_private.h"
-//#include "archive_string.h"
 
 const char * archive_version_details(void)
 {

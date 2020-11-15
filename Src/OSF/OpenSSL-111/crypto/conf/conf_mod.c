@@ -42,7 +42,7 @@ struct conf_imodule_st {
 	CONF_MODULE * pmod;
 	char * name;
 	char * value;
-	unsigned long flags;
+	ulong flags;
 	void * usr_data;
 };
 
@@ -51,7 +51,7 @@ static STACK_OF(CONF_IMODULE) *initialized_modules = NULL;
 
 static void module_free(CONF_MODULE * md);
 static void module_finish(CONF_IMODULE * imod);
-static int module_run(const CONF * cnf, const char * name, const char * value, unsigned long flags);
+static int module_run(const CONF * cnf, const char * name, const char * value, ulong flags);
 static CONF_MODULE * module_add(DSO * dso, const char * name, conf_init_func * ifunc, conf_finish_func * ffunc);
 static CONF_MODULE * module_find(const char * name);
 static int module_init(CONF_MODULE * pmod, const char * name, const char * value, const CONF * cnf);
@@ -59,7 +59,7 @@ static CONF_MODULE * module_load_dso(const CONF * cnf, const char * name, const 
 
 /* Main function: load modules from a CONF structure */
 
-int CONF_modules_load(const CONF * cnf, const char * appname, unsigned long flags)
+int CONF_modules_load(const CONF * cnf, const char * appname, ulong flags)
 {
 	STACK_OF(CONF_VALUE) *values;
 	CONF_VALUE * vl;
@@ -101,7 +101,7 @@ int CONF_modules_load_file(const char * filename, const char * appname, ulong fl
 			goto err;
 	}
 	else
-		file = (char*)filename;
+		file = (char *)filename;
 	if(NCONF_load(conf, file, NULL) <= 0) {
 		if((flags & CONF_MFLAGS_IGNORE_MISSING_FILE) && (ERR_GET_REASON(ERR_peek_last_error()) == CONF_R_NO_SUCH_FILE)) {
 			ERR_clear_error();
@@ -119,7 +119,7 @@ err:
 	return ret;
 }
 
-static int module_run(const CONF * cnf, const char * name, const char * value, unsigned long flags)
+static int module_run(const CONF * cnf, const char * name, const char * value, ulong flags)
 {
 	int ret;
 	CONF_MODULE * md = module_find(name);
@@ -407,12 +407,12 @@ CONF_MODULE * CONF_imodule_get_module(const CONF_IMODULE * md)
 	return md->pmod;
 }
 
-unsigned long CONF_imodule_get_flags(const CONF_IMODULE * md)
+ulong CONF_imodule_get_flags(const CONF_IMODULE * md)
 {
 	return md->flags;
 }
 
-void CONF_imodule_set_flags(CONF_IMODULE * md, unsigned long flags)
+void CONF_imodule_set_flags(CONF_IMODULE * md, ulong flags)
 {
 	md->flags = flags;
 }

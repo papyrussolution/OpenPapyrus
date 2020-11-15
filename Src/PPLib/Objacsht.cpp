@@ -146,7 +146,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 		long    _count = 0;
 		PPAccSheet acs_rec;
 		{
-			for(SEnum en = ref->Enum(Obj, 0); en.Next(&acs_rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&acs_rec) > 0;) {
 				_count++;
 			}
 		}
@@ -165,7 +165,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 			}
 			{
 				PPPersonKind pk_rec;
-				for(SEnum en = ref->Enum(PPOBJ_PRSNKIND, 0); en.Next(&pk_rec) > 0;) {
+				for(SEnum en = P_Ref->Enum(PPOBJ_PRSNKIND, 0); en.Next(&pk_rec) > 0;) {
 					if(oneof6(pk_rec.ID, PPPRK_MAIN, PPPRK_EMPL, PPPRK_CLIENT, PPPRK_SUPPL, PPPRK_BANK, PPPRK_AGENT)) {
 						acs_rec.Init();
 						STRNSCPY(acs_rec.Name, pk_rec.Name);
@@ -312,7 +312,7 @@ int PPObjAccSheet::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_PRSNKIND) {
 		int    r;
 		for(PPID acs_id = 0; (r = EnumItems(&acs_id)) > 0;)
-			if(ref->data.Val1 == PPOBJ_PERSON && ref->data.Val2 == _id) {
+			if(P_Ref->data.Val1 == PPOBJ_PERSON && P_Ref->data.Val2 == _id) {
 				ok = RetRefsExistsErr(Obj, acs_id);
 				break;
 			}
@@ -330,7 +330,7 @@ int PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 			PPAccSheet * p_rec = static_cast<PPAccSheet *>(p->Data);
 			if(*pID == 0) {
 				PPID   same_id = 0;
-				if(ref->SearchSymb(Obj, &same_id, p_rec->Name, offsetof(PPAccSheet, Name)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_rec->Name, offsetof(PPAccSheet, Name)) > 0) {
 					PPAccSheet same_rec;
 					if(Search(same_id, &same_rec) > 0 && same_rec.Assoc == p_rec->Assoc) {
 						if(same_rec.ObjGroup == p_rec->ObjGroup) {
@@ -349,7 +349,7 @@ int PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 				if(same_id == 0) {
 					p_rec->ID = 0;
 					if(EditItem(Obj, *pID, p_rec, 1)) {
-						ASSIGN_PTR(pID, ref->data.ObjID);
+						ASSIGN_PTR(pID, P_Ref->data.ObjID);
 					}
 					else {
 						pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ID, p_rec->Name);

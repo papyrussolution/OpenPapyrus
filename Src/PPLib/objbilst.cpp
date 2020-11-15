@@ -87,7 +87,7 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_BILLSTATUS_SYMB, rec.Symb);
 		if(!CheckName(*pID, strip(rec.Name), 0))
 			dlg->selectCtrl(CTL_BILLSTATUS_NAME);
-		else if(*strip(rec.Symb) && !ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(PPBillStatus, Symb)))
+		else if(*strip(rec.Symb) && !P_Ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(PPBillStatus, Symb)))
 			PPErrorByDialog(dlg, CTL_BILLSTATUS_SYMB);
 		else {
 			valid_data = 1;
@@ -169,7 +169,7 @@ int PPObjBillStatus::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		switch(_obj) {
 			case PPOBJ_OPCOUNTER:
 				{
-					for(SEnum en = ref->Enum(Obj, 0); ok && en.Next(&rec) > 0;) {
+					for(SEnum en = P_Ref->Enum(Obj, 0); ok && en.Next(&rec) > 0;) {
 						if(rec.CounterID == _id)
 							ok = RetRefsExistsErr(Obj, rec.ID);
 					}
@@ -177,7 +177,7 @@ int PPObjBillStatus::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				break;
 			case PPOBJ_OPRKIND:
 				{
-					for(SEnum en = ref->Enum(Obj, 0); ok && en.Next(&rec) > 0;) {
+					for(SEnum en = P_Ref->Enum(Obj, 0); ok && en.Next(&rec) > 0;) {
 						if(rec.RestrictOpID == _id)
 							ok = RetRefsExistsErr(Obj, rec.ID);
 					}
@@ -210,7 +210,7 @@ int PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 			PPBillStatus * p_rec = static_cast<PPBillStatus *>(p->Data);
 			if(*pID == 0) {
 				PPID   same_id = 0;
-				if(ref->SearchSymb(Obj, &same_id, p_rec->Symb, offsetof(PPBillStatus, Symb)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_rec->Symb, offsetof(PPBillStatus, Symb)) > 0) {
 					PPBillStatus same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
@@ -221,7 +221,7 @@ int PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				if(same_id == 0) {
 					p_rec->ID = 0;
 					THROW(EditItem(Obj, *pID, p_rec, 1));
-					ASSIGN_PTR(pID, ref->data.ObjID);
+					ASSIGN_PTR(pID, P_Ref->data.ObjID);
 				}
 			}
 			else {

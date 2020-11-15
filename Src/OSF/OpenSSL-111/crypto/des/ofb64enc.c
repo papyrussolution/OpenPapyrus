@@ -14,19 +14,16 @@
  * The extra state information to record how much of the 64bit block we have
  * used is contained in *num;
  */
-void DES_ofb64_encrypt(register const unsigned char * in,
-    register unsigned char * out, long length,
-    DES_key_schedule * schedule, DES_cblock * ivec, int * num)
+void DES_ofb64_encrypt(const uchar * in, uchar * out, long length, DES_key_schedule * schedule, DES_cblock * ivec, int * num)
 {
-	register DES_LONG v0, v1, t;
-	register int n = *num;
-	register long l = length;
+	DES_LONG v0, v1, t;
+	int n = *num;
+	long l = length;
 	DES_cblock d;
-	register unsigned char * dp;
+	uchar * dp;
 	DES_LONG ti[2];
-	unsigned char * iv;
+	uchar * iv;
 	int save = 0;
-
 	iv = &(*ivec)[0];
 	c2l(iv, v0);
 	c2l(iv, v1);

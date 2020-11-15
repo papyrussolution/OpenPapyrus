@@ -31,8 +31,8 @@ void rc4_md5_enc(RC4_KEY * key, const void * in0, void * out,
 #define data(ctx) ((EVP_RC4_HMAC_MD5*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 
 static int rc4_hmac_md5_init_key(EVP_CIPHER_CTX * ctx,
-    const unsigned char * inkey,
-    const unsigned char * iv, int enc)
+    const uchar * inkey,
+    const uchar * iv, int enc)
 {
 	EVP_RC4_HMAC_MD5 * key = data(ctx);
 
@@ -58,16 +58,16 @@ static int rc4_hmac_md5_init_key(EVP_CIPHER_CTX * ctx,
 #define md5_off 0
 #endif
 
-static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_RC4_HMAC_MD5 * key = data(ctx);
 # if defined(STITCHED_CALL)
 	size_t rc4_off = 32 - 1 - (key->ks.x & (32 - 1)), /* 32 is $MOD from
 	                                                   * rc4_md5-x86_64.pl */
 	    md5_off = MD5_CBLOCK - key->md.num, blocks;
-	unsigned int l;
-	extern unsigned int OPENSSL_ia32cap_P[];
+	uint l;
+	extern uint OPENSSL_ia32cap_P[];
 #endif
 	size_t plen = key->payload_length;
 
@@ -121,7 +121,7 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 		}
 	}
 	else {
-		unsigned char mac[MD5_DIGEST_LENGTH];
+		uchar mac[MD5_DIGEST_LENGTH];
 # if defined(STITCHED_CALL)
 		/* digest has to "fall behind" */
 		if(md5_off > rc4_off)
@@ -180,8 +180,8 @@ static int rc4_hmac_md5_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void * ptr
 	switch(type) {
 		case EVP_CTRL_AEAD_SET_MAC_KEY:
 	    {
-		    unsigned int i;
-		    unsigned char hmac_key[64];
+		    uint i;
+		    uchar hmac_key[64];
 		    memzero(hmac_key, sizeof(hmac_key));
 		    if(arg > (int)sizeof(hmac_key)) {
 			    MD5_Init(&key->head);
@@ -207,8 +207,8 @@ static int rc4_hmac_md5_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void * ptr
 	    }
 		case EVP_CTRL_AEAD_TLS1_AAD:
 	    {
-		    unsigned char * p = static_cast<uchar *>(ptr);
-		    unsigned int len;
+		    uchar * p = static_cast<uchar *>(ptr);
+		    uint len;
 		    if(arg != EVP_AEAD_TLS1_AAD_LEN)
 			    return -1;
 		    len = p[arg - 2] << 8 | p[arg - 1];

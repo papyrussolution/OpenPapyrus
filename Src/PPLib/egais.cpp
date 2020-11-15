@@ -5429,7 +5429,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 							PPObjCashNode cn_obj;
 							PPCashNode cn_rec;
 							skip = 1;
-							for(SEnum en = cn_obj.ref->Enum(PPOBJ_CASHNODE, 0); en.Next(&cn_rec) > 0;) {
+							for(SEnum en = cn_obj.P_Ref->Enum(PPOBJ_CASHNODE, 0); en.Next(&cn_rec) > 0;) {
 								if(cn_rec.LocID == loc_id) {
 									cc_filt.NodeList.Add(cn_rec.ID);
 									skip = 0;

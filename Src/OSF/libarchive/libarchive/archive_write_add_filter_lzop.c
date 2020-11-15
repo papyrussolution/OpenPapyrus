@@ -26,28 +26,12 @@
 #pragma hdrstop
 
 __FBSDID("$FreeBSD$");
-//#undef HAVE_LZO_LZOCONF_H
-//#undef HAVE_LZO_LZO1X_H
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#include <time.h>
 #ifdef HAVE_LZO_LZOCONF_H
 	#include <lzo/lzoconf.h>
 #endif
 #ifdef HAVE_LZO_LZO1X_H
 	#include <lzo/lzo1x.h>
 #endif
-//#include "archive.h"
-//#include "archive_string.h"
-//#include "archive_endian.h"
-//#include "archive_write_private.h"
 
 enum lzo_method {
 	METHOD_LZO1X_1 = 1,

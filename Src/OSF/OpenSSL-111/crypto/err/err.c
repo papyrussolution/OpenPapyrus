@@ -136,10 +136,8 @@ static ERR_STRING_DATA ERR_str_reasons[] = {
 static CRYPTO_ONCE err_init = CRYPTO_ONCE_STATIC_INIT;
 static int set_err_thread_local;
 static CRYPTO_THREAD_LOCAL err_thread_local;
-
 static CRYPTO_ONCE err_string_init = CRYPTO_ONCE_STATIC_INIT;
 static CRYPTO_RWLOCK * err_string_lock;
-
 static ERR_STRING_DATA * int_err_get_item(const ERR_STRING_DATA *);
 
 /*
@@ -149,35 +147,28 @@ static ERR_STRING_DATA * int_err_get_item(const ERR_STRING_DATA *);
 static LHASH_OF(ERR_STRING_DATA) *int_error_hash = NULL;
 static int int_err_library_number = ERR_LIB_USER;
 
-static unsigned long get_error_values(int inc, int top, const char ** file,
-    int * line, const char ** data,
-    int * flags);
+static ulong get_error_values(int inc, int top, const char ** file, int * line, const char ** data, int * flags);
 
-static unsigned long err_string_data_hash(const ERR_STRING_DATA * a)
+static ulong err_string_data_hash(const ERR_STRING_DATA * a)
 {
-	unsigned long ret, l;
-
-	l = a->error;
-	ret = l ^ ERR_GET_LIB(l) ^ ERR_GET_FUNC(l);
+	ulong l = a->error;
+	ulong ret = l ^ ERR_GET_LIB(l) ^ ERR_GET_FUNC(l);
 	return (ret ^ ret % 19 * 13);
 }
 
-static int err_string_data_cmp(const ERR_STRING_DATA * a,
-    const ERR_STRING_DATA * b)
+static int err_string_data_cmp(const ERR_STRING_DATA * a, const ERR_STRING_DATA * b)
 {
 	if(a->error == b->error)
 		return 0;
-	return a->error > b->error ? 1 : -1;
+	return (a->error > b->error) ? 1 : -1;
 }
 
 static ERR_STRING_DATA * int_err_get_item(const ERR_STRING_DATA * d)
 {
 	ERR_STRING_DATA * p = NULL;
-
 	CRYPTO_THREAD_read_lock(err_string_lock);
 	p = lh_ERR_STRING_DATA_retrieve(int_error_hash, d);
 	CRYPTO_THREAD_unlock(err_string_lock);
-
 	return p;
 }
 
@@ -206,16 +197,13 @@ static void build_SYS_str_reasons(void)
 	static int init = 1;
 	int i;
 	int saveerrno = get_last_sys_error();
-
 	CRYPTO_THREAD_write_lock(err_string_lock);
 	if(!init) {
 		CRYPTO_THREAD_unlock(err_string_lock);
 		return;
 	}
-
 	for(i = 1; i <= NUM_SYS_STR_REASONS; i++) {
 		ERR_STRING_DATA * str = &SYS_str_reasons[i - 1];
-
 		str->error = ERR_PACK(ERR_LIB_SYS, 0, i);
 		/*
 		 * If we have used up all the space in strerror_pool,
@@ -224,11 +212,9 @@ static void build_SYS_str_reasons(void)
 		if(str->string == NULL && cnt < sizeof(strerror_pool)) {
 			if(openssl_strerror_r(i, cur, sizeof(strerror_pool) - cnt)) {
 				size_t l = strlen(cur);
-
 				str->string = cur;
 				cnt += l;
 				cur += l;
-
 				/*
 				 * VMS has an unusual quirk of adding spaces at the end of
 				 * some (most? all?) messages. Lets trim them off.
@@ -241,17 +227,13 @@ static void build_SYS_str_reasons(void)
 				cnt++;
 			}
 		}
-		if(str->string == NULL)
-			str->string = "unknown";
+		SETIFZ(str->string, "unknown");
 	}
-
 	/*
 	 * Now we still have SYS_str_reasons[NUM_SYS_STR_REASONS] = {0, NULL}, as
 	 * required by ERR_load_strings.
 	 */
-
 	init = 0;
-
 	CRYPTO_THREAD_unlock(err_string_lock);
 	/* openssl_strerror_r could change errno, but we want to preserve it */
 	set_sys_error(saveerrno);
@@ -280,14 +262,12 @@ static void build_SYS_str_reasons(void)
 
 static void ERR_STATE_free(ERR_STATE * s)
 {
-	int i;
-
-	if(s == NULL)
-		return;
-	for(i = 0; i < ERR_NUM_ERRORS; i++) {
-		err_clear_data(s, i);
+	if(s) {
+		for(int i = 0; i < ERR_NUM_ERRORS; i++) {
+			err_clear_data(s, i);
+		}
+		OPENSSL_free(s);
 	}
-	OPENSSL_free(s);
 }
 
 DEFINE_RUN_ONCE_STATIC(do_err_strings_init)
@@ -297,8 +277,7 @@ DEFINE_RUN_ONCE_STATIC(do_err_strings_init)
 	err_string_lock = CRYPTO_THREAD_lock_new();
 	if(err_string_lock == NULL)
 		return 0;
-	int_error_hash = lh_ERR_STRING_DATA_new(err_string_data_hash,
-		err_string_data_cmp);
+	int_error_hash = lh_ERR_STRING_DATA_new(err_string_data_hash, err_string_data_cmp);
 	if(int_error_hash == NULL) {
 		CRYPTO_THREAD_lock_free(err_string_lock);
 		err_string_lock = NULL;
@@ -322,7 +301,7 @@ void err_cleanup(void)
  */
 static void err_patch(int lib, ERR_STRING_DATA * str)
 {
-	unsigned long plib = ERR_PACK(lib, 0, 0);
+	ulong plib = ERR_PACK(lib, 0, 0);
 
 	for(; str->error != 0; str++)
 		str->error |= plib;
@@ -445,55 +424,20 @@ void ERR_clear_error(void)
 	es->top = es->bottom = 0;
 }
 
-unsigned long ERR_get_error(void)
-{
-	return get_error_values(1, 0, NULL, NULL, NULL, NULL);
-}
+ulong ERR_get_error(void) { return get_error_values(1, 0, NULL, NULL, NULL, NULL); }
+ulong ERR_get_error_line(const char ** file, int * line) { return get_error_values(1, 0, file, line, NULL, NULL); }
+ulong ERR_get_error_line_data(const char ** file, int * line, const char ** data, int * flags) { return get_error_values(1, 0, file, line, data, flags); }
+ulong ERR_peek_error(void) { return get_error_values(0, 0, NULL, NULL, NULL, NULL); }
+ulong ERR_peek_error_line(const char ** file, int * line) { return get_error_values(0, 0, file, line, NULL, NULL); }
+ulong ERR_peek_error_line_data(const char ** file, int * line, const char ** data, int * flags) { return get_error_values(0, 0, file, line, data, flags); }
+ulong ERR_peek_last_error(void) { return get_error_values(0, 1, NULL, NULL, NULL, NULL); }
+ulong ERR_peek_last_error_line(const char ** file, int * line) { return get_error_values(0, 1, file, line, NULL, NULL); }
+ulong ERR_peek_last_error_line_data(const char ** file, int * line, const char ** data, int * flags) { return get_error_values(0, 1, file, line, data, flags); }
 
-unsigned long ERR_get_error_line(const char ** file, int * line)
-{
-	return get_error_values(1, 0, file, line, NULL, NULL);
-}
-
-unsigned long ERR_get_error_line_data(const char ** file, int * line, const char ** data, int * flags)
-{
-	return get_error_values(1, 0, file, line, data, flags);
-}
-
-unsigned long ERR_peek_error(void)
-{
-	return get_error_values(0, 0, NULL, NULL, NULL, NULL);
-}
-
-unsigned long ERR_peek_error_line(const char ** file, int * line)
-{
-	return get_error_values(0, 0, file, line, NULL, NULL);
-}
-
-unsigned long ERR_peek_error_line_data(const char ** file, int * line, const char ** data, int * flags)
-{
-	return get_error_values(0, 0, file, line, data, flags);
-}
-
-unsigned long ERR_peek_last_error(void)
-{
-	return get_error_values(0, 1, NULL, NULL, NULL, NULL);
-}
-
-unsigned long ERR_peek_last_error_line(const char ** file, int * line)
-{
-	return get_error_values(0, 1, file, line, NULL, NULL);
-}
-
-unsigned long ERR_peek_last_error_line_data(const char ** file, int * line, const char ** data, int * flags)
-{
-	return get_error_values(0, 1, file, line, data, flags);
-}
-
-static unsigned long get_error_values(int inc, int top, const char ** file, int * line, const char ** data, int * flags)
+static ulong get_error_values(int inc, int top, const char ** file, int * line, const char ** data, int * flags)
 {
 	int i = 0;
-	unsigned long ret;
+	ulong ret;
 	ERR_STATE * es = ERR_get_state();
 	if(es == NULL)
 		return 0;
@@ -565,11 +509,11 @@ static unsigned long get_error_values(int inc, int top, const char ** file, int 
 	return ret;
 }
 
-void ERR_error_string_n(unsigned long e, char * buf, size_t len)
+void ERR_error_string_n(ulong e, char * buf, size_t len)
 {
 	char lsbuf[64], fsbuf[64], rsbuf[64];
 	const char * ls, * fs, * rs;
-	unsigned long l, f, r;
+	ulong l, f, r;
 	if(len == 0)
 		return;
 	l = ERR_GET_LIB(e);
@@ -600,7 +544,7 @@ void ERR_error_string_n(unsigned long e, char * buf, size_t len)
  * ERR_error_string_n should be used instead for ret != NULL as
  * ERR_error_string cannot know how large the buffer is
  */
-char * ERR_error_string(unsigned long e, char * ret)
+char * ERR_error_string(ulong e, char * ret)
 {
 	static char buf[256];
 	SETIFZ(ret, buf);
@@ -608,10 +552,10 @@ char * ERR_error_string(unsigned long e, char * ret)
 	return ret;
 }
 
-const char * ERR_lib_error_string(unsigned long e)
+const char * ERR_lib_error_string(ulong e)
 {
 	ERR_STRING_DATA d, * p;
-	unsigned long l;
+	ulong l;
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init)) {
 		return NULL;
 	}
@@ -621,10 +565,10 @@ const char * ERR_lib_error_string(unsigned long e)
 	return ((p == NULL) ? NULL : p->string);
 }
 
-const char * ERR_func_error_string(unsigned long e)
+const char * ERR_func_error_string(ulong e)
 {
 	ERR_STRING_DATA d, * p;
-	unsigned long l, f;
+	ulong l, f;
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init)) {
 		return NULL;
 	}
@@ -635,10 +579,10 @@ const char * ERR_func_error_string(unsigned long e)
 	return ((p == NULL) ? NULL : p->string);
 }
 
-const char * ERR_reason_error_string(unsigned long e)
+const char * ERR_reason_error_string(ulong e)
 {
 	ERR_STRING_DATA d, * p = NULL;
-	unsigned long l, r;
+	ulong l, r;
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init)) {
 		return NULL;
 	}
@@ -669,7 +613,7 @@ void ERR_remove_thread_state(void * dummy)
 #endif
 
 #if OPENSSL_API_COMPAT < 0x10000000L
-void ERR_remove_state(unsigned long pid)
+void ERR_remove_state(ulong pid)
 {
 }
 #endif

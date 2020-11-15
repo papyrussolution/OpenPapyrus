@@ -71,14 +71,14 @@ end:
 }
 
 int EVP_BytesToKey(const EVP_CIPHER * type, const EVP_MD * md,
-    const unsigned char * salt, const unsigned char * data,
-    int datal, int count, unsigned char * key,
-    unsigned char * iv)
+    const uchar * salt, const uchar * data,
+    int datal, int count, uchar * key,
+    uchar * iv)
 {
 	EVP_MD_CTX * c;
-	unsigned char md_buf[EVP_MAX_MD_SIZE];
+	uchar md_buf[EVP_MAX_MD_SIZE];
 	int niv, nkey, addmd = 0;
-	unsigned int mds = 0, i;
+	uint mds = 0, i;
 	int rv = 0;
 	nkey = EVP_CIPHER_key_length(type);
 	niv = EVP_CIPHER_iv_length(type);

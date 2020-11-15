@@ -523,7 +523,7 @@ uint64 ConvertOctStringToUInt64(const char * s, const char ** end) throw()
 	ASSIGN_PTR(end, s);
 	uint64 res = 0;
 	for(;; s++) {
-		unsigned c = (uchar)*s;
+		uint c = (uchar)*s;
 		if(c < '0' || c > '7') {
 			ASSIGN_PTR(end, s);
 			return res;

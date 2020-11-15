@@ -22,10 +22,10 @@ int PKCS12_PBE_keyivgen(EVP_CIPHER_CTX * ctx, const char * pass, int passlen,
 {
 	PBEPARAM * pbe;
 	int saltlen, iter, ret;
-	unsigned char * salt;
-	unsigned char key[EVP_MAX_KEY_LENGTH], iv[EVP_MAX_IV_LENGTH];
-	int (* pkcs12_key_gen)(const char * pass, int passlen, unsigned char * salt, int slen,
-	    int id, int iter, int n, unsigned char * out, const EVP_MD * md_type);
+	uchar * salt;
+	uchar key[EVP_MAX_KEY_LENGTH], iv[EVP_MAX_IV_LENGTH];
+	int (* pkcs12_key_gen)(const char * pass, int passlen, uchar * salt, int slen,
+	    int id, int iter, int n, uchar * out, const EVP_MD * md_type);
 	pkcs12_key_gen = PKCS12_key_gen_utf8;
 	if(cipher == NULL)
 		return 0;

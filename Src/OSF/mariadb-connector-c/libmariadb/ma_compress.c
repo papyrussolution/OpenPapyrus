@@ -21,8 +21,6 @@
 #include <ma_global.h>
 #pragma hdrstop
 #ifdef HAVE_COMPRESS
-//#include <ma_sys.h>
-//#include <ma_string.h>
 #include <zlib.h>
 /*
 ** This replaces the packet with a compressed packet
@@ -30,7 +28,7 @@
 ** *complen is 0 if the packet wasn't compressed
 */
 
-my_bool _mariadb_compress(unsigned char * packet, size_t * len, size_t * complen)
+bool _mariadb_compress(unsigned char * packet, size_t * len, size_t * complen)
 {
 	if(*len < MIN_COMPRESS_LENGTH)
 		*complen = 0;
@@ -50,7 +48,7 @@ unsigned char * _mariadb_compress_alloc(const unsigned char * packet, size_t * l
 	*complen =  *len * 120 / 100 + 12;
 	if(!(compbuf = (unsigned char *)SAlloc::M(*complen)))
 		return 0;                       /* Not enough memory */
-	if(compress((Bytef*)compbuf, (ulong*)complen, (Bytef*)packet, (uLong)*len) != Z_OK) {
+	if(compress((Bytef*)compbuf, (ulong *)complen, (Bytef*)packet, (uLong)*len) != Z_OK) {
 		SAlloc::F(compbuf);
 		return 0;
 	}
@@ -63,7 +61,7 @@ unsigned char * _mariadb_compress_alloc(const unsigned char * packet, size_t * l
 	return compbuf;
 }
 
-my_bool _mariadb_uncompress(unsigned char * packet, size_t * len, size_t * complen)
+bool _mariadb_uncompress(unsigned char * packet, size_t * len, size_t * complen)
 {
 	if(*complen) {                          /* If compressed */
 		unsigned char * compbuf = (unsigned char *)SAlloc::M(*complen);

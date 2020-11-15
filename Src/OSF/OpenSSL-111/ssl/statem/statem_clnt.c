@@ -1109,14 +1109,14 @@ WORK_STATE ossl_statem_client_post_process_message(SSL * s, WORK_STATE wst)
 
 int tls_construct_client_hello(SSL * s, WPACKET * pkt)
 {
-	unsigned char * p;
+	uchar * p;
 	size_t sess_id_len;
 	int i, protverr;
 #ifndef OPENSSL_NO_COMP
 	SSL_COMP * comp;
 #endif
 	SSL_SESSION * sess = s->session;
-	unsigned char * session_id;
+	uchar * session_id;
 
 	/* Work out what SSL/TLS/DTLS version to use */
 	protverr = ssl_set_client_hello_version(s);
@@ -1332,7 +1332,7 @@ MSG_PROCESS_RETURN dtls_process_hello_verify(SSL * s, PACKET * pkt)
 	return MSG_PROCESS_FINISHED_READING;
 }
 
-static int set_client_ciphersuite(SSL * s, const unsigned char * cipherchars)
+static int set_client_ciphersuite(SSL * s, const uchar * cipherchars)
 {
 	STACK_OF(SSL_CIPHER) *sk;
 	const SSL_CIPHER * c;
@@ -1412,11 +1412,11 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 {
 	PACKET session_id, extpkt;
 	size_t session_id_len;
-	const unsigned char * cipherchars;
+	const uchar * cipherchars;
 	int hrr = 0;
-	unsigned int compression;
-	unsigned int sversion;
-	unsigned int context;
+	uint compression;
+	uint sversion;
+	uint context;
 	RAW_EXTENSION * extensions = NULL;
 #ifndef OPENSSL_NO_COMP
 	SSL_COMP * comp;
@@ -1715,7 +1715,7 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 
 #ifndef OPENSSL_NO_SCTP
 	if(SSL_IS_DTLS(s) && s->hit) {
-		unsigned char sctpauthkey[64];
+		uchar sctpauthkey[64];
 		char labelbuffer[sizeof(DTLS1_SCTP_AUTH_LABEL)];
 		size_t labellen;
 
@@ -1818,7 +1818,7 @@ static MSG_PROCESS_RETURN tls_process_as_hello_retry_request(SSL * s,
 	 * need to create the synthetic message hash, we defer that step until now
 	 * for HRR messages.
 	 */
-	if(!ssl3_finish_mac(s, (unsigned char*)s->init_buf->data,
+	if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
 	    s->init_num + SSL3_HM_HEADER_LENGTH)) {
 		/* SSLfatal() already called */
 		goto err;
@@ -1834,13 +1834,13 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 {
 	int i;
 	MSG_PROCESS_RETURN ret = MSG_PROCESS_ERROR;
-	unsigned long cert_list_len, cert_len;
+	ulong cert_list_len, cert_len;
 	X509 * x = NULL;
-	const unsigned char * certstart, * certbytes;
+	const uchar * certstart, * certbytes;
 	STACK_OF(X509) *sk = NULL;
 	EVP_PKEY * pkey = NULL;
 	size_t chainidx, certidx;
-	unsigned int context = 0;
+	uint context = 0;
 	const SSL_CERT_LOOKUP * clu;
 	if((sk = sk_X509_new_null()) == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, ERR_R_MALLOC_FAILURE);
@@ -1865,7 +1865,7 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 		}
 
 		certstart = certbytes;
-		x = d2i_X509(NULL, (const unsigned char**)&certbytes, cert_len);
+		x = d2i_X509(NULL, (const uchar**)&certbytes, cert_len);
 		if(!x) {
 			SSLfatal(s, SSL_AD_BAD_CERTIFICATE,
 			    SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, ERR_R_ASN1_LIB);
@@ -2186,7 +2186,7 @@ static int tls_process_ske_ecdhe(SSL * s, PACKET * pkt, EVP_PKEY ** pkey)
 {
 #ifndef OPENSSL_NO_EC
 	PACKET encoded_pt;
-	unsigned int curve_type, curve_id;
+	uint curve_type, curve_id;
 
 	/*
 	 * Extract elliptic curve parameters and the server's ephemeral ECDH
@@ -2304,7 +2304,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 		PACKET params;
 		int maxsig;
 		const EVP_MD * md = NULL;
-		unsigned char * tbs;
+		uchar * tbs;
 		size_t tbslen;
 		int rv;
 
@@ -2321,7 +2321,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 		}
 
 		if(SSL_USE_SIGALGS(s)) {
-			unsigned int sigalg;
+			uint sigalg;
 
 			if(!PACKET_get_net_2(pkt, &sigalg)) {
 				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_KEY_EXCHANGE,
@@ -2576,9 +2576,9 @@ MSG_PROCESS_RETURN tls_process_certificate_request(SSL * s, PACKET * pkt)
 
 MSG_PROCESS_RETURN tls_process_new_session_ticket(SSL * s, PACKET * pkt)
 {
-	unsigned int ticklen;
-	unsigned long ticket_lifetime_hint, age_add = 0;
-	unsigned int sess_len;
+	uint ticklen;
+	ulong ticket_lifetime_hint, age_add = 0;
+	uint sess_len;
 	RAW_EXTENSION * exts = NULL;
 	PACKET nonce;
 
@@ -2718,7 +2718,7 @@ MSG_PROCESS_RETURN tls_process_new_session_ticket(SSL * s, PACKET * pkt)
 		const EVP_MD * md = ssl_handshake_md(s);
 		int hashleni = EVP_MD_size(md);
 		size_t hashlen;
-		static const unsigned char nonce_label[] = "resumption";
+		static const uchar nonce_label[] = "resumption";
 
 		/* Ensure cast to size_t is safe */
 		if(!ossl_assert(hashleni >= 0)) {
@@ -2759,7 +2759,7 @@ err:
 int tls_process_cert_status_body(SSL * s, PACKET * pkt)
 {
 	size_t resplen;
-	unsigned int type;
+	uint type;
 
 	if(!PACKET_get_1(pkt, &type)
 	    || type != TLSEXT_STATUSTYPE_ocsp) {
@@ -2888,8 +2888,8 @@ static int tls_construct_cke_psk_preamble(SSL * s, WPACKET * pkt)
 	 */
 	char identity[PSK_MAX_IDENTITY_LEN + 1];
 	size_t identitylen = 0;
-	unsigned char psk[PSK_MAX_PSK_LEN];
-	unsigned char * tmppsk = NULL;
+	uchar psk[PSK_MAX_PSK_LEN];
+	uchar * tmppsk = NULL;
 	char * tmpidentity = NULL;
 	size_t psklen = 0;
 
@@ -2959,11 +2959,11 @@ err:
 static int tls_construct_cke_rsa(SSL * s, WPACKET * pkt)
 {
 #ifndef OPENSSL_NO_RSA
-	unsigned char * encdata = NULL;
+	uchar * encdata = NULL;
 	EVP_PKEY * pkey = NULL;
 	EVP_PKEY_CTX * pctx = NULL;
 	size_t enclen;
-	unsigned char * pms = NULL;
+	uchar * pms = NULL;
 	size_t pmslen = 0;
 
 	if(s->session->peer == NULL) {
@@ -3056,7 +3056,7 @@ static int tls_construct_cke_dhe(SSL * s, WPACKET * pkt)
 	DH * dh_clnt = NULL;
 	const BIGNUM * pub_key;
 	EVP_PKEY * ckey = NULL, * skey = NULL;
-	unsigned char * keybytes = NULL;
+	uchar * keybytes = NULL;
 
 	skey = s->s3->peer_tmp;
 	if(skey == NULL) {
@@ -3105,7 +3105,7 @@ err:
 static int tls_construct_cke_ecdhe(SSL * s, WPACKET * pkt)
 {
 #ifndef OPENSSL_NO_EC
-	unsigned char * encodedPoint = NULL;
+	uchar * encodedPoint = NULL;
 	size_t encoded_pt_len = 0;
 	EVP_PKEY * ckey = NULL, * skey = NULL;
 	int ret = 0;
@@ -3163,11 +3163,11 @@ static int tls_construct_cke_gost(SSL * s, WPACKET * pkt)
 	EVP_PKEY_CTX * pkey_ctx = NULL;
 	X509 * peer_cert;
 	size_t msglen;
-	unsigned int md_len;
-	unsigned char shared_ukm[32], tmp[256];
+	uint md_len;
+	uchar shared_ukm[32], tmp[256];
 	EVP_MD_CTX * ukm_hash = NULL;
 	int dgst_nid = NID_id_GostR3411_94;
-	unsigned char * pms = NULL;
+	uchar * pms = NULL;
 	size_t pmslen = 0;
 
 	if((s->s3->tmp.new_cipher->algorithm_auth & SSL_aGOST12) != 0)
@@ -3277,7 +3277,7 @@ err:
 static int tls_construct_cke_srp(SSL * s, WPACKET * pkt)
 {
 #ifndef OPENSSL_NO_SRP
-	unsigned char * abytes = NULL;
+	uchar * abytes = NULL;
 
 	if(s->srp_ctx.A == NULL
 	    || !WPACKET_sub_allocate_bytes_u16(pkt, BN_num_bytes(s->srp_ctx.A),
@@ -3306,7 +3306,7 @@ static int tls_construct_cke_srp(SSL * s, WPACKET * pkt)
 
 int tls_construct_client_key_exchange(SSL * s, WPACKET * pkt)
 {
-	unsigned long alg_k;
+	ulong alg_k;
 
 	alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
 
@@ -3357,7 +3357,7 @@ err:
 
 int tls_client_key_exchange_post_work(SSL * s)
 {
-	unsigned char * pms = NULL;
+	uchar * pms = NULL;
 	size_t pmslen = 0;
 
 	pms = s->s3->tmp.pms;
@@ -3391,7 +3391,7 @@ int tls_client_key_exchange_post_work(SSL * s)
 
 #ifndef OPENSSL_NO_SCTP
 	if(SSL_IS_DTLS(s)) {
-		unsigned char sctpauthkey[64];
+		uchar sctpauthkey[64];
 		char labelbuffer[sizeof(DTLS1_SCTP_AUTH_LABEL)];
 		size_t labellen;
 
@@ -3629,7 +3629,7 @@ int ssl3_check_cert_and_algorithm(SSL * s)
 int tls_construct_next_proto(SSL * s, WPACKET * pkt)
 {
 	size_t len, padding_len;
-	unsigned char * padding = NULL;
+	uchar * padding = NULL;
 	len = s->ext.npn_len;
 	padding_len = 32 - ((len + 2) % 32);
 	if(!WPACKET_sub_memcpy_u8(pkt, s->ext.npn, len) || !WPACKET_sub_allocate_bytes_u8(pkt, padding_len, &padding)) {

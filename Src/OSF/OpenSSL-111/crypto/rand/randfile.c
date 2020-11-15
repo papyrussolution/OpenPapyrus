@@ -77,7 +77,7 @@ int RAND_load_file(const char * file, long bytes)
 	 * (unless it's the only one).
 	 */
 #define RAND_LOAD_BUF_SIZE (RAND_BUF_SIZE + RAND_DRBG_STRENGTH)
-	unsigned char buf[RAND_LOAD_BUF_SIZE];
+	uchar buf[RAND_LOAD_BUF_SIZE];
 
 #ifndef OPENSSL_NO_POSIX_IO
 	struct stat sb;
@@ -167,7 +167,7 @@ int RAND_load_file(const char * file, long bytes)
 
 int RAND_write_file(const char * file)
 {
-	unsigned char buf[RAND_BUF_SIZE];
+	uchar buf[RAND_BUF_SIZE];
 	int ret = -1;
 	FILE * out = NULL;
 #ifndef OPENSSL_NO_POSIX_IO

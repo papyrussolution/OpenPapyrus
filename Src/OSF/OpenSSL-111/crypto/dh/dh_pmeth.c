@@ -39,7 +39,7 @@ typedef struct {
 	/* Message digest to use for key derivation */
 	const EVP_MD * kdf_md;
 	/* User key material */
-	unsigned char * kdf_ukm;
+	uchar * kdf_ukm;
 	size_t kdf_ukmlen;
 	/* KDF output length */
 	size_t kdf_outlen;
@@ -198,7 +198,7 @@ static int pkey_dh_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    return 1;
 
 		case EVP_PKEY_CTRL_GET_DH_KDF_UKM:
-		    *(unsigned char**)p2 = dctx->kdf_ukm;
+		    *(uchar**)p2 = dctx->kdf_ukm;
 		    return dctx->kdf_ukmlen;
 
 		case EVP_PKEY_CTRL_DH_KDF_OID:
@@ -270,16 +270,16 @@ static int pkey_dh_ctrl_str(EVP_PKEY_CTX * ctx,
 
 extern int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
     const EVP_MD * evpmd,
-    const unsigned char * seed_in, size_t seed_len,
-    unsigned char * seed_out, int * counter_ret,
-    unsigned long * h_ret, BN_GENCB * cb);
+    const uchar * seed_in, size_t seed_len,
+    uchar * seed_out, int * counter_ret,
+    ulong * h_ret, BN_GENCB * cb);
 
 extern int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
     const EVP_MD * evpmd,
-    const unsigned char * seed_in,
+    const uchar * seed_in,
     size_t seed_len, int idx,
-    unsigned char * seed_out, int * counter_ret,
-    unsigned long * h_ret, BN_GENCB * cb);
+    uchar * seed_out, int * counter_ret,
+    ulong * h_ret, BN_GENCB * cb);
 
 static DSA * dsa_dh_generate(DH_PKEY_CTX * dctx, BN_GENCB * pcb)
 {
@@ -414,7 +414,7 @@ static int pkey_dh_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 	return DH_generate_key(pkey->pkey.dh);
 }
 
-static int pkey_dh_derive(EVP_PKEY_CTX * ctx, unsigned char * key,
+static int pkey_dh_derive(EVP_PKEY_CTX * ctx, uchar * key,
     size_t * keylen)
 {
 	int ret;
@@ -443,7 +443,7 @@ static int pkey_dh_derive(EVP_PKEY_CTX * ctx, unsigned char * key,
 	}
 #ifndef OPENSSL_NO_CMS
 	else if(dctx->kdf_type == EVP_PKEY_DH_KDF_X9_42) {
-		unsigned char * Z = NULL;
+		uchar * Z = NULL;
 		size_t Zlen = 0;
 		if(!dctx->kdf_outlen || !dctx->kdf_oid)
 			return 0;

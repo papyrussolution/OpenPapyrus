@@ -13,11 +13,11 @@
 #include <openssl/rsa.h>
 #include <openssl/rand.h>
 
-int RSA_padding_add_PKCS1_type_1(unsigned char * to, int tlen,
-    const unsigned char * from, int flen)
+int RSA_padding_add_PKCS1_type_1(uchar * to, int tlen,
+    const uchar * from, int flen)
 {
 	int j;
-	unsigned char * p;
+	uchar * p;
 	if(flen > (tlen - RSA_PKCS1_PADDING_SIZE)) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_TYPE_1, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
 		return 0;
@@ -36,12 +36,12 @@ int RSA_padding_add_PKCS1_type_1(unsigned char * to, int tlen,
 	return 1;
 }
 
-int RSA_padding_check_PKCS1_type_1(unsigned char * to, int tlen,
-    const unsigned char * from, int flen,
+int RSA_padding_check_PKCS1_type_1(uchar * to, int tlen,
+    const uchar * from, int flen,
     int num)
 {
 	int i, j;
-	const unsigned char * p;
+	const uchar * p;
 
 	p = from;
 
@@ -110,11 +110,11 @@ int RSA_padding_check_PKCS1_type_1(unsigned char * to, int tlen,
 	return j;
 }
 
-int RSA_padding_add_PKCS1_type_2(unsigned char * to, int tlen,
-    const unsigned char * from, int flen)
+int RSA_padding_add_PKCS1_type_2(uchar * to, int tlen,
+    const uchar * from, int flen)
 {
 	int i, j;
-	unsigned char * p;
+	uchar * p;
 
 	if(flen > (tlen - 11)) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_TYPE_2,
@@ -147,14 +147,14 @@ int RSA_padding_add_PKCS1_type_2(unsigned char * to, int tlen,
 	return 1;
 }
 
-int RSA_padding_check_PKCS1_type_2(unsigned char * to, int tlen,
-    const unsigned char * from, int flen,
+int RSA_padding_check_PKCS1_type_2(uchar * to, int tlen,
+    const uchar * from, int flen,
     int num)
 {
 	int i;
 	/* |em| is the encoded message, zero-padded to exactly |num| bytes */
-	unsigned char * em = NULL;
-	unsigned int good, found_zero_byte, mask;
+	uchar * em = NULL;
+	uint good, found_zero_byte, mask;
 	int zero_index = 0, msg_index, mlen = -1;
 
 	if(tlen <= 0 || flen <= 0)
@@ -195,7 +195,7 @@ int RSA_padding_check_PKCS1_type_2(unsigned char * to, int tlen,
 	/* scan over padding data */
 	found_zero_byte = 0;
 	for(i = 2; i < num; i++) {
-		unsigned int equals0 = constant_time_is_zero(em[i]);
+		uint equals0 = constant_time_is_zero(em[i]);
 
 		zero_index = constant_time_select_int(~found_zero_byte & equals0,
 			i, zero_index);

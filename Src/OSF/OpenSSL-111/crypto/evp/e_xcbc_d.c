@@ -14,8 +14,8 @@
 //#include <evp_int.h>
 #include <openssl/des.h>
 
-static int desx_cbc_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, const unsigned char * iv, int enc);
-static int desx_cbc_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out, const unsigned char * in, size_t inl);
+static int desx_cbc_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
+static int desx_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl);
 
 typedef struct {
 	DES_key_schedule ks;    /* key schedule */
@@ -44,8 +44,8 @@ const EVP_CIPHER * EVP_desx_cbc(void)
 	return &d_xcbc_cipher;
 }
 
-static int desx_cbc_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int desx_cbc_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	DES_cblock * deskey = (DES_cblock*)key;
 
@@ -56,8 +56,8 @@ static int desx_cbc_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
 	return 1;
 }
 
-static int desx_cbc_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t inl)
+static int desx_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t inl)
 {
 	while(inl >= EVP_MAXCHUNK) {
 		DES_xcbc_encrypt(in, out, (long)EVP_MAXCHUNK, &data(ctx)->ks,

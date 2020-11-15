@@ -44,12 +44,9 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <mariadb_ctype.h>
-//#include <ma_string.h>
 #ifndef _WIN32
 	#include <strings.h>
 #endif
-//#include <string.h>
 #ifdef HAVE_ICONV
 	#ifdef _WIN32
 		#include "../win-iconv/iconv.h"
@@ -951,7 +948,7 @@ size_t mysql_cset_escape_quotes(const MARIADB_CHARSET_INFO * cset, char * newstr
 	const char   * newstr_s = newstr;
 	const char   * newstr_e = newstr + 2 * escapestr_len;
 	const char   * end = escapestr + escapestr_len;
-	my_bool escape_overflow = FALSE;
+	bool escape_overflow = FALSE;
 
 	for(; escapestr < end; escapestr++) {
 		unsigned int len = 0;
@@ -1003,7 +1000,7 @@ size_t mysql_cset_escape_slashes(const MARIADB_CHARSET_INFO * cset, char * newst
 	const char   * newstr_s = newstr;
 	const char   * newstr_e = newstr + 2 * escapestr_len;
 	const char   * end = escapestr + escapestr_len;
-	my_bool escape_overflow = FALSE;
+	bool escape_overflow = FALSE;
 
 	for(; escapestr < end; escapestr++) {
 		char esc = '\0';
@@ -1367,7 +1364,7 @@ int madb_get_windows_cp(const char * charset)
    Another purpose it to avoid BOMs in result string, adding BE if necessary
    e.g.UTF16 does not work form iconv, while UTF-16 does.
  */
-static void map_charset_name(const char * cs_name, my_bool target_cs, char * buffer, size_t buff_len)
+static void map_charset_name(const char * cs_name, bool target_cs, char * buffer, size_t buff_len)
 {
 	char digits[3], endianness[3] = "BE";
 	if(sscanf(cs_name, "UTF%2[0-9]%2[LBE]", digits, endianness)) {

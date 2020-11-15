@@ -420,13 +420,13 @@ int BIO_indent(BIO * b, int indent, int max)
 long BIO_int_ctrl(BIO * b, int cmd, long larg, int iarg)
 {
 	int i = iarg;
-	return BIO_ctrl(b, cmd, larg, (char*)&i);
+	return BIO_ctrl(b, cmd, larg, (char *)&i);
 }
 
 void * BIO_ptr_ctrl(BIO * b, int cmd, long larg)
 {
 	void * p = NULL;
-	if(BIO_ctrl(b, cmd, larg, (char*)&p) <= 0)
+	if(BIO_ctrl(b, cmd, larg, (char *)&p) <= 0)
 		return NULL;
 	else
 		return p;
@@ -627,7 +627,7 @@ BIO * BIO_dup_chain(BIO * in)
 		/* This will let SSL_s_sock() work with stdin/stdout */
 		new_bio->num = bio->num;
 
-		if(!BIO_dup_state(bio, (char*)new_bio)) {
+		if(!BIO_dup_state(bio, (char *)new_bio)) {
 			BIO_free(new_bio);
 			goto err;
 		}

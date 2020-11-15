@@ -24,7 +24,7 @@ typedef struct x509err2alert_st {
 } X509ERR2ALERT;
 
 /* Fixed value used in the ServerHello random field to identify an HRR */
-const unsigned char hrrrandom[] = {
+const uchar hrrrandom[] = {
 	0xcf, 0x21, 0xad, 0x74, 0xe5, 0x9a, 0x61, 0x11, 0xbe, 0x1d, 0x8c, 0x02,
 	0x1e, 0x65, 0xb8, 0x91, 0xc2, 0xa2, 0x11, 0x16, 0x7a, 0xbb, 0x8c, 0x5e,
 	0x07, 0x9e, 0x09, 0xe2, 0xc8, 0xa8, 0x33, 0x9c
@@ -53,7 +53,7 @@ int ssl3_do_write(SSL * s, int type)
 		    && s->statem.hand_state != TLS_ST_CW_KEY_UPDATE
 		    && s->statem.hand_state != TLS_ST_SW_KEY_UPDATE))
 			if(!ssl3_finish_mac(s,
-			    (unsigned char*)&s->init_buf->data[s->init_off],
+			    (uchar*)&s->init_buf->data[s->init_off],
 			    written))
 				return -1;
 	if(written == s->init_num) {
@@ -153,7 +153,7 @@ int tls_setup_handshake(SSL * s)
 #define TLS13_TBS_START_SIZE            64
 #define TLS13_TBS_PREAMBLE_SIZE         (TLS13_TBS_START_SIZE + 33 + 1)
 
-static int get_cert_verify_tbs_data(SSL * s, unsigned char * tls13tbs,
+static int get_cert_verify_tbs_data(SSL * s, uchar * tls13tbs,
     void ** hdata, size_t * hdatalen)
 {
 #ifdef CHARSET_EBCDIC
@@ -175,9 +175,9 @@ static int get_cert_verify_tbs_data(SSL * s, unsigned char * tls13tbs,
 		memset(tls13tbs, 32, TLS13_TBS_START_SIZE);
 		/* This copies the 33 bytes of context plus the 0 separator byte */
 		if(s->statem.hand_state == TLS_ST_CR_CERT_VRFY || s->statem.hand_state == TLS_ST_SW_CERT_VRFY)
-			strcpy((char*)tls13tbs + TLS13_TBS_START_SIZE, servercontext);
+			strcpy((char *)tls13tbs + TLS13_TBS_START_SIZE, servercontext);
 		else
-			strcpy((char*)tls13tbs + TLS13_TBS_START_SIZE, clientcontext);
+			strcpy((char *)tls13tbs + TLS13_TBS_START_SIZE, clientcontext);
 
 		/*
 		 * If we're currently reading then we need to use the saved handshake
@@ -223,8 +223,8 @@ int tls_construct_cert_verify(SSL * s, WPACKET * pkt)
 	EVP_PKEY_CTX * pctx = NULL;
 	size_t hdatalen = 0, siglen = 0;
 	void * hdata;
-	unsigned char * sig = NULL;
-	unsigned char tls13tbs[TLS13_TBS_PREAMBLE_SIZE + EVP_MAX_MD_SIZE];
+	uchar * sig = NULL;
+	uchar tls13tbs[TLS13_TBS_PREAMBLE_SIZE + EVP_MAX_MD_SIZE];
 	const SIGALG_LOOKUP * lu = s->s3->tmp.sigalg;
 
 	if(lu == NULL || s->s3->tmp.cert == NULL) {
@@ -333,18 +333,18 @@ err:
 MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 {
 	EVP_PKEY * pkey = NULL;
-	const unsigned char * data;
+	const uchar * data;
 #ifndef OPENSSL_NO_GOST
-	unsigned char * gost_data = NULL;
+	uchar * gost_data = NULL;
 #endif
 	MSG_PROCESS_RETURN ret = MSG_PROCESS_ERROR;
 	int j;
-	unsigned int len;
+	uint len;
 	X509 * peer;
 	const EVP_MD * md = NULL;
 	size_t hdatalen = 0;
 	void * hdata;
-	unsigned char tls13tbs[TLS13_TBS_PREAMBLE_SIZE + EVP_MAX_MD_SIZE];
+	uchar tls13tbs[TLS13_TBS_PREAMBLE_SIZE + EVP_MAX_MD_SIZE];
 	EVP_MD_CTX * mctx = EVP_MD_CTX_new();
 	EVP_PKEY_CTX * pctx = NULL;
 
@@ -369,7 +369,7 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 	}
 
 	if(SSL_USE_SIGALGS(s)) {
-		unsigned int sigalg;
+		uint sigalg;
 
 		if(!PACKET_get_net_2(pkt, &sigalg)) {
 			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CERT_VERIFY,
@@ -615,7 +615,7 @@ int tls_construct_key_update(SSL * s, WPACKET * pkt)
 
 MSG_PROCESS_RETURN tls_process_key_update(SSL * s, PACKET * pkt)
 {
-	unsigned int updatetype;
+	uint updatetype;
 
 	/*
 	 * A KeyUpdate message signals a key change so the end of the message must
@@ -876,7 +876,7 @@ int tls_construct_change_cipher_spec(SSL * s, WPACKET * pkt)
 static int ssl_add_cert_to_wpacket(SSL * s, WPACKET * pkt, X509 * x, int chain)
 {
 	int len;
-	unsigned char * outbytes;
+	uchar * outbytes;
 
 	len = i2d_X509(x, NULL);
 	if(len < 0) {
@@ -999,7 +999,7 @@ static int ssl_add_cert_chain(SSL * s, WPACKET * pkt, CERT_PKEY * cpk)
 	return 1;
 }
 
-unsigned long ssl3_output_cert_chain(SSL * s, WPACKET * pkt, CERT_PKEY * cpk)
+ulong ssl3_output_cert_chain(SSL * s, WPACKET * pkt, CERT_PKEY * cpk)
 {
 	if(!WPACKET_start_sub_packet_u24(pkt)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_OUTPUT_CERT_CHAIN,
@@ -1136,10 +1136,10 @@ int tls_get_message_header(SSL * s, int * mt)
 {
 	/* s->init_num < SSL3_HM_HEADER_LENGTH */
 	int skip_message, i, recvd_type;
-	unsigned char * p;
+	uchar * p;
 	size_t l, readbytes;
 
-	p = (unsigned char*)s->init_buf->data;
+	p = (uchar*)s->init_buf->data;
 
 	do {
 		while(s->init_num < SSL3_HM_HEADER_LENGTH) {
@@ -1248,12 +1248,12 @@ int tls_get_message_header(SSL * s, int * mt)
 int tls_get_message_body(SSL * s, size_t * len)
 {
 	size_t n, readbytes;
-	unsigned char * p;
+	uchar * p;
 	int i;
 
 	if(s->s3->tmp.message_type == SSL3_MT_CHANGE_CIPHER_SPEC) {
 		/* We've already read everything in */
-		*len = (unsigned long)s->init_num;
+		*len = (ulong)s->init_num;
 		return 1;
 	}
 
@@ -1283,7 +1283,7 @@ int tls_get_message_body(SSL * s, size_t * len)
 
 	/* Feed this message into MAC computation. */
 	if(RECORD_LAYER_is_sslv2_record(&s->rlayer)) {
-		if(!ssl3_finish_mac(s, (unsigned char*)s->init_buf->data,
+		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
 		    s->init_num)) {
 			/* SSLfatal() already called */
 			*len = 0;
@@ -1309,7 +1309,7 @@ int tls_get_message_body(SSL * s, size_t * len)
 			    || memcmp(hrrrandom,
 			    s->init_buf->data + SERVER_HELLO_RANDOM_OFFSET,
 			    SSL3_RANDOM_SIZE) != 0) {
-				if(!ssl3_finish_mac(s, (unsigned char*)s->init_buf->data,
+				if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
 				    s->init_num + SSL3_HM_HEADER_LENGTH)) {
 					/* SSLfatal() already called */
 					*len = 0;
@@ -1775,8 +1775,8 @@ int ssl_choose_server_version(SSL * s, CLIENTHELLO_MSG * hello, DOWNGRADE * dgrd
 		return SSL_R_UNSUPPORTED_PROTOCOL;
 
 	if(suppversions->present && !SSL_IS_DTLS(s)) {
-		unsigned int candidate_vers = 0;
-		unsigned int best_vers = 0;
+		uint candidate_vers = 0;
+		uint best_vers = 0;
 		const SSL_METHOD * best_method = NULL;
 		PACKET versionslist;
 
@@ -2168,10 +2168,10 @@ int check_in_list(SSL * s, uint16_t group_id, const uint16_t * groups,
 #endif
 
 /* Replace ClientHello1 in the transcript hash with a synthetic message */
-int create_synthetic_message_hash(SSL * s, const unsigned char * hashval, size_t hashlen, const unsigned char * hrr, size_t hrrlen)
+int create_synthetic_message_hash(SSL * s, const uchar * hashval, size_t hashlen, const uchar * hrr, size_t hrrlen)
 {
-	unsigned char hashvaltmp[EVP_MAX_MD_SIZE];
-	unsigned char msghdr[SSL3_HM_HEADER_LENGTH];
+	uchar hashvaltmp[EVP_MAX_MD_SIZE];
+	uchar msghdr[SSL3_HM_HEADER_LENGTH];
 	memzero(msghdr, sizeof(msghdr));
 	if(hashval == NULL) {
 		hashval = hashvaltmp;
@@ -2193,7 +2193,7 @@ int create_synthetic_message_hash(SSL * s, const unsigned char * hashval, size_t
 
 	/* Inject the synthetic message_hash message */
 	msghdr[0] = SSL3_MT_MESSAGE_HASH;
-	msghdr[SSL3_HM_HEADER_LENGTH - 1] = (unsigned char)hashlen;
+	msghdr[SSL3_HM_HEADER_LENGTH - 1] = (uchar)hashlen;
 	if(!ssl3_finish_mac(s, msghdr, SSL3_HM_HEADER_LENGTH)
 	    || !ssl3_finish_mac(s, hashval, hashlen)) {
 		/* SSLfatal() already called */
@@ -2207,7 +2207,7 @@ int create_synthetic_message_hash(SSL * s, const unsigned char * hashval, size_t
 	 */
 	if(hrr != NULL
 	    && (!ssl3_finish_mac(s, hrr, hrrlen)
-	    || !ssl3_finish_mac(s, (unsigned char*)s->init_buf->data,
+	    || !ssl3_finish_mac(s, (uchar*)s->init_buf->data,
 	    s->s3->tmp.message_size
 	    + SSL3_HM_HEADER_LENGTH))) {
 		/* SSLfatal() already called */
@@ -2241,8 +2241,8 @@ int parse_ca_names(SSL * s, PACKET * pkt)
 	}
 
 	while(PACKET_remaining(&cadns)) {
-		const unsigned char * namestart, * namebytes;
-		unsigned int name_len;
+		const uchar * namestart, * namebytes;
+		uint name_len;
 
 		if(!PACKET_get_net_2(&cadns, &name_len)
 		    || !PACKET_get_bytes(&cadns, &namebytes, name_len)) {
@@ -2311,7 +2311,7 @@ int construct_ca_names(SSL * s, const STACK_OF(X509_NAME) * ca_sk, WPACKET * pkt
 		int i;
 
 		for(i = 0; i < sk_X509_NAME_num(ca_sk); i++) {
-			unsigned char * namebytes;
+			uchar * namebytes;
 			X509_NAME * name = sk_X509_NAME_value(ca_sk, i);
 			int namelen;
 
@@ -2335,10 +2335,10 @@ int construct_ca_names(SSL * s, const STACK_OF(X509_NAME) * ca_sk, WPACKET * pkt
 }
 
 /* Create a buffer containing data to be signed for server key exchange */
-size_t construct_key_exchange_tbs(SSL * s, unsigned char ** ptbs, const void * param, size_t paramlen)
+size_t construct_key_exchange_tbs(SSL * s, uchar ** ptbs, const void * param, size_t paramlen)
 {
 	size_t tbslen = 2 * SSL3_RANDOM_SIZE + paramlen;
-	unsigned char * tbs = static_cast<uchar *>(OPENSSL_malloc(tbslen));
+	uchar * tbs = static_cast<uchar *>(OPENSSL_malloc(tbslen));
 	if(tbs == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_CONSTRUCT_KEY_EXCHANGE_TBS,
 		    ERR_R_MALLOC_FAILURE);

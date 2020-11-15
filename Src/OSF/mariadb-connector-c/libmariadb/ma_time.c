@@ -22,8 +22,6 @@
  *****************************************************************************/
 #include <ma_global.h>
 #pragma hdrstop
-//#include <mysql.h>
-//#include <stdio.h>
 
 size_t mariadb_time_to_string(const MYSQL_TIME * tm, char * time_str, size_t len, unsigned int digits)
 {

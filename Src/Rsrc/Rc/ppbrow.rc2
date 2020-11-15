@@ -6314,10 +6314,13 @@ browser USERMENU north(100), 1, 1, "UserMenu", OWNER|GRID, 0
 	"DbSymb",       3, zstring(48),  0, 20, BCO_USERPROC
 	"Name",         4, zstring(64),  0, 20, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		ADDITEM      : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
-		EDITITEM     : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
-		DELETEITEM   : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
-		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		ADDITEM      : kbIns,    PPDV_ADDFILE02,         "@{add}\tInsert"
+		DESKTOPADD   : kbF2,     PPDV_DESKTOP,           "@{desktopnew}\tF2"
+		MENUADD      : kbF3,     PPDV_MENU,              "@{menunew}\tF3"
+		ADDBYSAMPLE  : kbAltF2,  PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+		EDITITEM     : kbEnter,  PPDV_EDITFILE02,        "@{edit}\tEnter"
+		DELETEITEM   : kbDel,    PPDV_DELETEFILE02,      "@{delete}\tDelete"
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,          "@{filter}\tCtrl-V"
 	}
 }
 
@@ -6673,7 +6676,7 @@ cmd UserInterfaceCfg      { "@{cmd_userinterfacecfg}"                      none 
 cmd EditDesktops          { "@{cmd_editdesktops}"                          none                  none cmEditDesktops }
 cmd SelDesktop            { "@{cmd_seldesktop}"                            none                  none cmSelDesktop }
 cmd EditMenus             { "@{cmd_editmenus}"                             none                  none cmEditMenus }
-cmd EditMenusFromFile     { "@{cmd_editmenusfromfile}"                     none                  none cmEditMenusFromFile }
+cmd EditMenusFromFile     { "@{cmd_editmenusfromfile}"                     none                  none cmEditMenusFromFile } // @v10.9.3 @obsolete (won't be executed)
 cmd Groups_n_Users        { "@{cmd_groups_n_users}"                        ICON_USERSANDGROUPS   none cmGroups_n_Users }
 cmd FastGrp_n_Users       { "@{cmd_fastgrp_n_users}"                       ICON_CFGBYUSERSANDGROUPS none cmFastGrp_n_Users }
 cmd UpdatePassword        { "@{cmd_updatepassword}"                        none                  none cmUpdatePassword }
@@ -8941,6 +8944,8 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_UNIFYPRICE02
 	PPDV_FILEDOCUMENTEDIT01
 	PPDV_SIGNAL01
+	PPDV_DESKTOP
+	PPDV_MENU
 }
 //
 // Следующие изображения используются без замещения цвета

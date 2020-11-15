@@ -21,7 +21,7 @@
  * PKCS#3 DH or X9.42 DH.
  */
 
-static DH * d2i_dhp(const EVP_PKEY * pkey, const unsigned char ** pp,
+static DH * d2i_dhp(const EVP_PKEY * pkey, const uchar ** pp,
     long length)
 {
 	if(pkey->ameth == &dhx_asn1_meth)
@@ -29,7 +29,7 @@ static DH * d2i_dhp(const EVP_PKEY * pkey, const unsigned char ** pp,
 	return d2i_DHparams(NULL, pp, length);
 }
 
-static int i2d_dhp(const EVP_PKEY * pkey, const DH * a, unsigned char ** pp)
+static int i2d_dhp(const EVP_PKEY * pkey, const DH * a, uchar ** pp)
 {
 	if(pkey->ameth == &dhx_asn1_meth)
 		return i2d_DHxparams(a, pp);
@@ -43,7 +43,7 @@ static void int_dh_free(EVP_PKEY * pkey)
 
 static int dh_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 {
-	const unsigned char * p, * pm;
+	const uchar * p, * pm;
 	int pklen, pmlen;
 	int ptype;
 	const void * pval;
@@ -88,7 +88,7 @@ static int dh_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 {
 	DH * dh;
 	int ptype;
-	unsigned char * penc = NULL;
+	uchar * penc = NULL;
 	int penclen;
 	ASN1_STRING * str;
 	ASN1_INTEGER * pub_key = NULL;
@@ -139,7 +139,7 @@ err:
 
 static int dh_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 {
-	const unsigned char * p, * pm;
+	const uchar * p, * pm;
 	int pklen, pmlen;
 	int ptype;
 	const void * pval;
@@ -193,7 +193,7 @@ static int dh_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 {
 	ASN1_STRING * params = NULL;
 	ASN1_INTEGER * prkey = NULL;
-	unsigned char * dp = NULL;
+	uchar * dp = NULL;
 	int dplen;
 
 	params = ASN1_STRING_new();
@@ -237,7 +237,7 @@ err:
 }
 
 static int dh_param_decode(EVP_PKEY * pkey,
-    const unsigned char ** pder, int derlen)
+    const uchar ** pder, int derlen)
 {
 	DH * dh;
 
@@ -249,7 +249,7 @@ static int dh_param_decode(EVP_PKEY * pkey,
 	return 1;
 }
 
-static int dh_param_encode(const EVP_PKEY * pkey, unsigned char ** pder)
+static int dh_param_encode(const EVP_PKEY * pkey, uchar ** pder)
 {
 	return i2d_dhp(pkey, pkey->pkey.dh, pder);
 }
@@ -608,7 +608,7 @@ static int dh_cms_set_peerkey(EVP_PKEY_CTX * pctx,
 	int rv = 0;
 	EVP_PKEY * pkpeer = NULL, * pk = NULL;
 	DH * dhpeer = NULL;
-	const unsigned char * p;
+	const uchar * p;
 	int plen;
 
 	X509_ALGOR_get0(&aoid, &atype, &aval, alg);
@@ -662,8 +662,8 @@ static int dh_cms_set_shared_info(EVP_PKEY_CTX * pctx, CMS_RecipientInfo * ri)
 
 	X509_ALGOR * alg, * kekalg = NULL;
 	ASN1_OCTET_STRING * ukm;
-	const unsigned char * p;
-	unsigned char * dukm = NULL;
+	const uchar * p;
+	uchar * dukm = NULL;
 	size_t dukmlen = 0;
 	int keylen, plen;
 	const EVP_CIPHER * kekcipher;
@@ -771,7 +771,7 @@ static int dh_cms_encrypt(CMS_RecipientInfo * ri)
 	ASN1_BIT_STRING * pubkey;
 	ASN1_STRING * wrap_str;
 	ASN1_OCTET_STRING * ukm;
-	unsigned char * penc = NULL, * dukm = NULL;
+	uchar * penc = NULL, * dukm = NULL;
 	int penclen;
 	size_t dukmlen = 0;
 	int rv = 0;

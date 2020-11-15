@@ -90,7 +90,7 @@ static void fe64_copy(fe64 h, const fe64 f)
 	h[3] = f[3];
 }
 
-static void fe64_cswap(fe64 f, fe64 g, unsigned int b)
+static void fe64_cswap(fe64 f, fe64 g, uint b)
 {
 	int i;
 	uint64_t mask = 0 - (uint64_t)b;
@@ -217,7 +217,7 @@ static void x25519_scalar_mulx(uint8_t out[32], const uint8_t scalar[32],
 	fe64_1(z3);
 
 	for(pos = 254; pos >= 0; --pos) {
-		unsigned int b = 1 & (e[pos / 8] >> (pos & 7));
+		uint b = 1 & (e[pos / 8] >> (pos & 7));
 
 		swap ^= b;
 		fe64_cswap(x2, x3, swap);
@@ -577,7 +577,7 @@ static void fe51_copy(fe51 h, const fe51 f)
 	h[4] = f[4];
 }
 
-static void fe51_cswap(fe51 f, fe51 g, unsigned int b)
+static void fe51_cswap(fe51 f, fe51 g, uint b)
 {
 	int i;
 	uint64_t mask = 0 - (uint64_t)b;
@@ -711,7 +711,7 @@ static void x25519_scalar_mult(uint8_t out[32], const uint8_t scalar[32],
 	fe51_1(z3);
 
 	for(pos = 254; pos >= 0; --pos) {
-		unsigned int b = 1 & (e[pos / 8] >> (pos & 7));
+		uint b = 1 & (e[pos / 8] >> (pos & 7));
 
 		swap ^= b;
 		fe51_cswap(x2, x3, swap);
@@ -977,7 +977,7 @@ static void fe_1(fe h)
  */
 static void fe_add(fe h, const fe f, const fe g)
 {
-	unsigned i;
+	uint i;
 
 	for(i = 0; i < 10; i++) {
 		h[i] = f[i] + g[i];
@@ -998,7 +998,7 @@ static void fe_add(fe h, const fe f, const fe g)
  */
 static void fe_sub(fe h, const fe f, const fe g)
 {
-	unsigned i;
+	uint i;
 
 	for(i = 0; i < 10; i++) {
 		h[i] = f[i] - g[i];
@@ -1504,7 +1504,7 @@ static void fe_invert(fe out, const fe z)
  */
 static void fe_neg(fe h, const fe f)
 {
-	unsigned i;
+	uint i;
 
 	for(i = 0; i < 10; i++) {
 		h[i] = -f[i];
@@ -4286,7 +4286,7 @@ static void ge_scalarmult_base(ge_p3 * h, const uint8_t * a)
  *
  * Preconditions: b in {0,1}.
  */
-static void fe_cswap(fe f, fe g, unsigned int b)
+static void fe_cswap(fe f, fe g, uint b)
 {
 	size_t i;
 

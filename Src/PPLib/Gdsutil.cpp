@@ -535,7 +535,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				SString temp_buf;
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					assert(temp_buf.Len() == 14);
-					if(temp_buf.C(0) == '0')
+					if(oneof2(temp_buf.C(0), '0', '1')) // @v10.9.3 '1'
 						temp_buf.ShiftLeft(1);
 					else {
 						temp_buf.ShiftLeft(1);

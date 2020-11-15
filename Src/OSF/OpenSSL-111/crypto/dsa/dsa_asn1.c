@@ -107,7 +107,7 @@ DSA *DSAparams_dup(DSA *dsa)
 	return static_cast<DSA *>(ASN1_item_dup(ASN1_ITEM_rptr(DSAparams), dsa));
 }
 
-int DSA_sign(int type, const unsigned char * dgst, int dlen, unsigned char * sig, unsigned int * siglen, DSA * dsa)
+int DSA_sign(int type, const uchar * dgst, int dlen, uchar * sig, uint * siglen, DSA * dsa)
 {
 	DSA_SIG * s = DSA_do_sign(dgst, dlen, dsa);
 	if(s == NULL) {
@@ -126,12 +126,12 @@ int DSA_sign(int type, const unsigned char * dgst, int dlen, unsigned char * sig
  *      0: incorrect signature
  *     -1: error
  */
-int DSA_verify(int type, const unsigned char * dgst, int dgst_len,
-    const unsigned char * sigbuf, int siglen, DSA * dsa)
+int DSA_verify(int type, const uchar * dgst, int dgst_len,
+    const uchar * sigbuf, int siglen, DSA * dsa)
 {
 	DSA_SIG * s;
-	const unsigned char * p = sigbuf;
-	unsigned char * der = NULL;
+	const uchar * p = sigbuf;
+	uchar * der = NULL;
 	int derlen = -1;
 	int ret = -1;
 

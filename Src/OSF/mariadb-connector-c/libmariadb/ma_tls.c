@@ -48,7 +48,7 @@
 #endif
 
 /* Errors should be handled via pvio callback function */
-my_bool ma_tls_initialized = FALSE;
+bool ma_tls_initialized = FALSE;
 unsigned int mariadb_deinitialize_ssl = 1;
 
 const char * tls_protocol_version[] =
@@ -74,9 +74,9 @@ MARIADB_TLS * ma_pvio_tls_init(MYSQL * mysql)
 	return ctls;
 }
 
-my_bool ma_pvio_tls_connect(MARIADB_TLS * ctls)
+bool ma_pvio_tls_connect(MARIADB_TLS * ctls)
 {
-	my_bool rc;
+	bool rc;
 
 	if((rc = ma_tls_connect(ctls)))
 		ma_tls_close(ctls);
@@ -93,7 +93,7 @@ ssize_t ma_pvio_tls_write(MARIADB_TLS * ctls, const uchar* buffer, size_t length
 	return ma_tls_write(ctls, buffer, length);
 }
 
-my_bool ma_pvio_tls_close(MARIADB_TLS * ctls)
+bool ma_pvio_tls_close(MARIADB_TLS * ctls)
 {
 	return ma_tls_close(ctls);
 }
@@ -139,7 +139,7 @@ static signed char ma_hex2int(char c)
 	return -1;
 }
 
-static my_bool ma_pvio_tls_compare_fp(const char * cert_fp,
+static bool ma_pvio_tls_compare_fp(const char * cert_fp,
     unsigned int cert_fp_len,
     const char * fp, unsigned int fp_len)
 {
@@ -172,11 +172,11 @@ static my_bool ma_pvio_tls_compare_fp(const char * cert_fp,
 	return 0;
 }
 
-my_bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_list)
+bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_list)
 {
 	unsigned int cert_fp_len = 64;
 	char * cert_fp = NULL;
-	my_bool rc = 1;
+	bool rc = 1;
 	MYSQL * mysql = ctls->pvio->mysql;
 
 	cert_fp = (char *)SAlloc::M(cert_fp_len);

@@ -70,14 +70,14 @@ ASN1_SEQUENCE(DHxparams) = {
 } static_ASN1_SEQUENCE_END_name(int_dhx942_dh, DHxparams)
 
 int_dhx942_dh *d2i_int_dhx(int_dhx942_dh **a,
-    const unsigned char ** pp, long length);
-int i2d_int_dhx(const int_dhx942_dh * a, unsigned char ** pp);
+    const uchar ** pp, long length);
+int i2d_int_dhx(const int_dhx942_dh * a, uchar ** pp);
 
 IMPLEMENT_ASN1_ENCODE_FUNCTIONS_const_fname(int_dhx942_dh, DHxparams, int_dhx)
 
 /* Application public function: read in X9.42 DH parameters into DH structure */
 
-DH *d2i_DHxparams(DH **a, const unsigned char ** pp, long length)
+DH *d2i_DHxparams(DH **a, const uchar ** pp, long length)
 {
 	int_dhx942_dh * dhx = NULL;
 	DH * dh = NULL;
@@ -114,7 +114,7 @@ DH *d2i_DHxparams(DH **a, const unsigned char ** pp, long length)
 	return dh;
 }
 
-int i2d_DHxparams(const DH * dh, unsigned char ** pp)
+int i2d_DHxparams(const DH * dh, uchar ** pp)
 {
 	int_dhx942_dh dhx;
 	int_dhvparams dhv;

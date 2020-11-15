@@ -12,12 +12,10 @@
 
 int BN_lshift1(BIGNUM * r, const BIGNUM * a)
 {
-	register BN_ULONG * ap, * rp, t, c;
+	BN_ULONG * ap, * rp, t, c;
 	int i;
-
 	bn_check_top(r);
 	bn_check_top(a);
-
 	if(r != a) {
 		r->neg = a->neg;
 		if(bn_wexpand(r, a->top + 1) == NULL)
@@ -107,7 +105,7 @@ int BN_lshift(BIGNUM * r, const BIGNUM * a, int n)
 int bn_lshift_fixed_top(BIGNUM * r, const BIGNUM * a, int n)
 {
 	int i, nw;
-	unsigned int lb, rb;
+	uint lb, rb;
 	BN_ULONG * t, * f;
 	BN_ULONG l, m, rmask = 0;
 
@@ -213,7 +211,7 @@ int BN_rshift(BIGNUM * r, const BIGNUM * a, int n)
 int bn_rshift_fixed_top(BIGNUM * r, const BIGNUM * a, int n)
 {
 	int i, top, nw;
-	unsigned int lb, rb;
+	uint lb, rb;
 	BN_ULONG * t, * f;
 	BN_ULONG l, m, mask;
 

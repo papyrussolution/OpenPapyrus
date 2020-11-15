@@ -399,8 +399,7 @@ private:
 		{
 			StrAssocArray list;
 			if(!RVALUEPTR(Data, pData)) {
-				//Data.Init(-1);
-				Data.Init(S_GUID());
+				Data.Init(ZEROGUID);
 			}
 			PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
 			DesktopList.GetStrAssocList(list);
@@ -666,8 +665,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		}
 		DECL_DIALOG_GETDTS()
 		{
-			S_GUID zero_uuid;
-			LoadCfg(zero_uuid);
+			LoadCfg(ZEROGUID);
 			Data.Flags = static_cast<int16>(GetClusterData(CTL_MENULIST_GRPFLAGS));
 			ASSIGN_PTR(pData, Data);
 			return 1;
@@ -994,6 +992,18 @@ int EditCommandGroupSingle(PPCommandGroup * pData)
 			RVALUEPTR(Data, pData);
 			SString temp_buf;
 			CmdGrpC = Data.Type;
+			{
+				if(CmdGrpC == cmdgrpcDesktop)
+					PPLoadString("desktop", temp_buf);
+				else if(CmdGrpC == cmdgrpcMenu)
+					PPLoadString("menu", temp_buf);
+				if(temp_buf.NotEmpty())
+					setTitle(temp_buf);
+			}
+			if(Data.DbSymb.NotEmpty()) {
+				temp_buf.Z().Cat("DB").CatDiv(':', 2).Cat(Data.DbSymb);
+				setStaticText(CTL_CMDGROUP_ST_INFO, temp_buf);
+			}
 			setCtrlString(CTL_CMDGROUP_NAME, Data.Name);
 			setCtrlLong(CTL_CMDGROUP_ID, Data.ID);
 			setCtrlString(CTL_CMDGROUP_UUID, temp_buf.Z().Cat(Data.Uuid, S_GUID::fmtIDL));
@@ -1074,61 +1084,71 @@ int EditCommandGroupSingle(PPCommandGroup * pData)
 		{
 			int    ok = -1;
 			long   parent_id = 0;
-			long   parent_id2 = 0;
-			long   v = 1;
-			const  PPCommandItem * p_selitem = 0;
-			TDialog * p_dlg = new TDialog(DLG_ADDCMD);
-			StrAssocArray cmd_list;
-			THROW(Data.GetCommandList(&cmd_list, 1));
-			THROW(CheckDialogPtr(&p_dlg));
-			p_dlg->AddClusterAssocDef(CTL_ADDCMD_WHAT,  0, 1);
-			p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  1, 2);
-			p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  2, 3);
-			p_dlg->SetClusterData(CTL_ADDCMD_WHAT, v);
-			P_Box->getCurID(&parent_id);
-			if(!(p_selitem = Data.SearchByIDRecursive_Const(parent_id, &parent_id2)) || p_selitem->Kind != PPCommandItem::kFolder)
-				parent_id = parent_id2;
-			SetupStrAssocCombo(p_dlg, CTLSEL_ADDCMD_PARENT, &cmd_list, parent_id, 0, 0);
-			if(ExecView(p_dlg) == cmOK) {
-				PPCommandItem * p_item = 0;
-				PPCommandItem new_sep;
-				PPCommand new_cmd;
-				PPCommandFolder new_cmdfolder;
-				p_dlg->GetClusterData(CTL_ADDCMD_WHAT, &v);
-				p_dlg->getCtrlData(CTLSEL_ADDCMD_PARENT, &parent_id);
-				if(v == 1) {
-					if(EditCmdItem(&Data, &new_cmd, CmdGrpC) > 0)
-						p_item = static_cast<PPCommandItem *>(&new_cmd);
+			PPCommandItem * p_new_item = 0;
+			PPCommandItem new_sep;
+			PPCommand new_cmd;
+			PPCommandFolder new_cmdfolder;
+			TDialog * p_dlg = 0;
+			if(Data.Type == cmdgrpcDesktop) {
+				if(EditCmdItem(&Data, &new_cmd, CmdGrpC) > 0)
+					p_new_item = static_cast<PPCommandItem *>(&new_cmd);
+			}
+			else if(Data.Type == cmdgrpcMenu) {
+				StrAssocArray cmd_list;
+				long   v = 1;
+				THROW(Data.GetCommandList(&cmd_list, 1));
+				p_dlg = new TDialog(DLG_ADDCMD);
+				THROW(CheckDialogPtr(&p_dlg));
+				p_dlg->AddClusterAssocDef(CTL_ADDCMD_WHAT,  0, 1);
+				p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  1, 2);
+				p_dlg->AddClusterAssoc(CTL_ADDCMD_WHAT,  2, 3);
+				p_dlg->SetClusterData(CTL_ADDCMD_WHAT, v);
+				P_Box->getCurID(&parent_id);
+				{
+					long   parent_id2 = 0;
+					const  PPCommandItem * p_selitem = Data.SearchByIDRecursive_Const(parent_id, &parent_id2);
+					if(!p_selitem || p_selitem->Kind != PPCommandItem::kFolder)
+						parent_id = parent_id2;
 				}
-				else if(v == 2) {
-					if(EditName(new_cmdfolder.Name) > 0)
-						p_item = static_cast<PPCommandItem *>(&new_cmdfolder);
-				}
-				else {
-					new_sep.Name.Z().CatCharN('-', 40);
-					new_sep.Kind = PPCommandItem::kSeparator;
-					p_item = &new_sep;
-				}
-				if(p_item) {
-					uint p = 0;
-					p_item->ID = Data.GetUniqueID();
-					if(parent_id) {
-						PPCommandItem * p_fi = Data.SearchByIDRecursive(parent_id, 0);
-						PPCommandFolder * p_folder = (p_fi && p_fi->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_fi) : 0;
-						if(p_folder)
-							THROW(p_folder->Add(-1, p_item));
+				SetupStrAssocCombo(p_dlg, CTLSEL_ADDCMD_PARENT, &cmd_list, parent_id, 0, 0);
+				if(ExecView(p_dlg) == cmOK) {
+					p_dlg->GetClusterData(CTL_ADDCMD_WHAT, &v);
+					p_dlg->getCtrlData(CTLSEL_ADDCMD_PARENT, &parent_id);
+					if(v == 1) {
+						if(EditCmdItem(&Data, &new_cmd, CmdGrpC) > 0)
+							p_new_item = static_cast<PPCommandItem *>(&new_cmd);
+					}
+					else if(v == 2) {
+						if(EditName(new_cmdfolder.Name) > 0)
+							p_new_item = static_cast<PPCommandItem *>(&new_cmdfolder);
 					}
 					else {
-						THROW(Data.Add(-1, p_item));
+						new_sep.Name.Z().CatCharN('-', 40);
+						new_sep.Kind = PPCommandItem::kSeparator;
+						p_new_item = &new_sep;
 					}
-					{
-						THROW(Data.GetCommandList(&cmd_list, 0));
-						cmd_list.Search(p_item->ID, &(p = 0));
-						ASSIGN_PTR(pPos, p);
-					}
-					ASSIGN_PTR(pID,  p_item->ID);
-					ok = 1;
 				}
+			}
+			if(p_new_item) {
+				uint p = 0;
+				p_new_item->ID = Data.GetUniqueID();
+				if(parent_id) {
+					PPCommandItem * p_fi = Data.SearchByIDRecursive(parent_id, 0);
+					PPCommandFolder * p_folder = (p_fi && p_fi->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_fi) : 0;
+					if(p_folder)
+						THROW(p_folder->Add(-1, p_new_item));
+				}
+				else {
+					THROW(Data.Add(-1, p_new_item));
+				}
+				{
+					StrAssocArray new_cmd_list;
+					THROW(Data.GetCommandList(&new_cmd_list, 0));
+					new_cmd_list.Search(p_new_item->ID, &(p = 0));
+					ASSIGN_PTR(pPos, p);
+				}
+				ASSIGN_PTR(pID,  p_new_item->ID);
+				ok = 1;
 			}
 			CATCHZOKPPERR
 			delete p_dlg;
@@ -1234,7 +1254,7 @@ int EditCommandGroupSingle(PPCommandGroup * pData)
 	DIALOG_PROC_BODY(CommandGroupSingleDialog, pData);
 }
 
-int EditMenusFromFile()
+/* @v10.9.3 int EditMenusFromFile()
 {
 	int    ok = -1;
 	PPCommandMngr * p_mgr = 0;
@@ -1258,7 +1278,7 @@ int EditMenusFromFile()
 	CATCHZOKPPERR
 	delete p_mgr;
 	return ok;
-}
+}*/
 //
 //
 //
@@ -1629,7 +1649,7 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 		P_DsList = new SArray(sizeof(BrwItem));
 	//
 	if(!Filt.Kind || Filt.Kind == Filt.kMenu) {
-		PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, /*0*/cmdgrpcMenu);
+		PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly|PPCommandMngr::ctrfSkipObsolete, /*0*/cmdgrpcMenu);
 		if(p_mgr) {
 			P_MenuList = new PPCommandGroup;
 			if(p_mgr->Load__2(P_MenuList, Filt.DbSymb, PPCommandMngr::fRWByXml) > 0) {
@@ -1650,9 +1670,54 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 			}
 			ZDELETE(p_mgr);
 		}
+		{
+			TVRez * p_rez = P_SlRez;
+			if(p_rez) {
+				uint   locm_id = 0;
+				SString left_buf, right_buf;
+				PPLoadText(PPTXT_DEFAULTMENUS, temp_buf);
+				StringSet ss_defmenu(';', temp_buf);
+				/*
+				{
+					for(uint i = 0; ss.get(&i, temp_buf) > 0;) {
+						temp_buf.Divide(',', left, right);
+						list.Add(left.ToLong() + DEFAULT_MENUS_OFFS, right);
+					}
+					if(list.GetText(_id, buf) <= 0)
+						list.Add(_id, buf.Z().Cat(_id - DEFAULT_MENUS_OFFS));
+				}
+				*/
+				fseek(p_rez->getStream(), 0, SEEK_SET);
+				for(ulong pos = 0; p_rez->enumResources(0x04, &locm_id, &pos) > 0;) {
+					long _id = static_cast<long>(locm_id) + DEFAULT_MENUS_OFFS;
+					{
+						PPCommandFolder new_menu_folder;
+						MenuResToMenu(locm_id, &new_menu_folder);
+
+						BrwItem entry;
+						MEMSZERO(entry);
+						entry.ID = _id;
+						entry.Uuid.Z();
+						entry.Kind = UserMenuFilt::kMenu;
+						entry.Flags |= entry.fReservedMenu;
+						for(uint i = 0; ss_defmenu.get(&i, temp_buf) > 0;) {
+							temp_buf.Divide(',', left_buf, right_buf);
+							if(left_buf.ToLong() == static_cast<long>(locm_id)) {
+								STRNSCPY(entry.Name, right_buf);
+								break;
+							}
+						}
+						if(isempty(entry.Name))
+							STRNSCPY(entry.Name, new_menu_folder.Name);
+						STRNSCPY(entry.DbSymb, "undefined");
+						P_DsList->insert(&entry);
+					}
+				}
+			}
+		}
 	}
 	if(!Filt.Kind || Filt.Kind == Filt.kDesktop) {
-		PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, /*1*/cmdgrpcDesktop);
+		PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly|PPCommandMngr::ctrfSkipObsolete, /*1*/cmdgrpcDesktop);
 		if(p_mgr) {
 			P_DesktopList = new PPCommandGroup;
 			if(p_mgr->Load__2(P_DesktopList, Filt.DbSymb, PPCommandMngr::fRWByXml) > 0) {
@@ -1713,6 +1778,9 @@ int PPViewUserMenu::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->TempBuf = "menu";
 					else
 						pBlk->TempBuf.Z();
+					if(p_item->Flags & p_item->fReservedMenu) {
+						pBlk->TempBuf.Space().Cat("reserved");
+					}
 					pBlk->Set(pBlk->TempBuf);
 				}
 				break; 
@@ -1757,9 +1825,78 @@ SArray * PPViewUserMenu::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 	return p_array;
 }
 
-int PPViewUserMenu::AddItem(S_GUID * pUuid)
+int PPViewUserMenu::AddItem(PPCommandGroupCategory kind, const S_GUID & rSampleUuid, long sampleId, S_GUID * pUuid)
 {
-	return -1;
+	int    ok = -1;
+	S_GUID result_uuid;
+	PPCommandGroup * p_new_entry = 0;
+	if(!!rSampleUuid) {
+		const PPCommandGroup * p_sample_entry = GetEntryByUuid(rSampleUuid);
+		THROW(p_sample_entry);
+		kind = p_sample_entry->Type;
+		p_new_entry = new PPCommandGroup(*p_sample_entry);
+		p_new_entry->Uuid.Z().Generate();
+		p_new_entry->Name.Z();
+		p_new_entry->ID = 0;
+	}
+	else if(sampleId > DEFAULT_MENUS_OFFS) {
+		PPCommandFolder reserved_menu_folder;
+		THROW(MenuResToMenu(sampleId - DEFAULT_MENUS_OFFS, &reserved_menu_folder) > 0);
+		p_new_entry = new PPCommandGroup(cmdgrpcMenu, 0, 0);
+		p_new_entry->PPCommandFolder::Copy(reserved_menu_folder);
+		p_new_entry->Kind = PPCommandItem::kGroup; // PPCommandFolder::Copy has changed Kind so we have to revert it
+		p_new_entry->DbSymb = "undefined";
+		p_new_entry->Flags = reserved_menu_folder.Flags;
+		p_new_entry->Icon = reserved_menu_folder.Icon;
+		{
+			assert(p_new_entry->Type == cmdgrpcMenu);
+			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, p_new_entry->Type, 0); 
+			long   max_id = 0;
+			if(p_mgr && p_mgr->GetMaxEntryID(&max_id) > 0) {
+				long   uniq_id = max_id+1;
+				p_new_entry->ID = uniq_id;
+				p_new_entry->SetUniqueID(&uniq_id);
+			}
+			delete p_mgr;
+		}
+	}
+	else {
+		if(!oneof2(kind, cmdgrpcDesktop, cmdgrpcMenu)) {
+			uint   val = 0;
+			if(SelectorDialog(DLG_SELNEWCMDGROUP, CTL_SELNEWCMDGROUP_SEL, &val) > 0) {
+				if(val == 0)
+					kind = cmdgrpcMenu;
+				else if(val == 1)
+					kind = cmdgrpcDesktop;
+			}
+		}
+		if(kind == cmdgrpcDesktop)
+			p_new_entry = new PPCommandGroup(cmdgrpcDesktop, 0, 0);
+		else if(kind == cmdgrpcMenu)
+			p_new_entry = new PPCommandGroup(cmdgrpcMenu, 0, 0);
+	}
+	if(p_new_entry) {
+		ok = EditCommandGroupSingle(p_new_entry);
+		if(ok > 0) {
+			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, p_new_entry->Type, 0); 
+			if(p_mgr) {
+				if(p_new_entry->ID == 0) {
+					long  max_id = 0;
+					if(p_mgr->GetMaxEntryID(&max_id) > 0)
+						p_new_entry->ID = max_id+1;
+				}
+				if(!p_mgr->Save__2(p_new_entry, PPCommandMngr::fRWByXml))
+					ok = PPErrorZ();
+				else {
+					result_uuid = p_new_entry->Uuid;
+				}
+				ZDELETE(p_mgr);
+			}
+		}		
+	}
+	CATCHZOK
+	ASSIGN_PTR(pUuid, result_uuid);
+	return ok;
 }
 
 PPCommandGroup * PPViewUserMenu::GetEntryByUuid(const S_GUID & rUuid)
@@ -1790,7 +1927,7 @@ int PPViewUserMenu::EditItem(const S_GUID & rUuid)
 			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, p_data->Type, 0); 
 			if(p_mgr) {
 				if(!p_mgr->Save__2(p_data, PPCommandMngr::fRWByXml))
-					ok= PPErrorZ();
+					ok = PPErrorZ();
 				ZDELETE(p_mgr);
 			}
 		}
@@ -1801,14 +1938,16 @@ int PPViewUserMenu::EditItem(const S_GUID & rUuid)
 int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 {
 	int    ok = -1;
-	PPCommandGroup * p_data = GetEntryByUuid(rUuid);
-	if(p_data && CONFIRM(PPCFM_DELETE)) {
-		PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, p_data->Type, 0);				
-		if(p_mgr) {
-			if(p_mgr->DeleteGroupByUuid(p_data->Type, rUuid))
-				ok = 1;
-			else
-				ok = PPErrorZ();
+	if(!!rUuid) {
+		PPCommandGroup * p_data = GetEntryByUuid(rUuid);
+		if(p_data && CONFIRM(PPCFM_DELETE)) {
+			PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, p_data->Type, 0);				
+			if(p_mgr) {
+				if(p_mgr->DeleteGroupByUuid(p_data->Type, rUuid))
+					ok = 1;
+				else
+					ok = PPErrorZ();
+			}
 		}
 	}
 	return ok;
@@ -1820,28 +1959,47 @@ int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 	if(ok == -2) {
 		const BrwItem * p_item = static_cast<const BrwItem *>(pHdr);
 		ok = -1;
+		S_GUID new_uuid;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
-				{
-					S_GUID new_uuid;
-					ok = AddItem(&new_uuid);
+				ok = AddItem(cmdgrpcUndef, ZEROGUID, 0, &new_uuid);
+				break;
+			case PPVCMD_DESKTOPADD:
+				ok = AddItem(cmdgrpcDesktop, ZEROGUID, 0, &new_uuid);
+				break;
+			case PPVCMD_MENUADD:
+				ok = AddItem(cmdgrpcMenu, ZEROGUID, 0, &new_uuid);
+				break;
+			case PPVCMD_ADDBYSAMPLE:
+				if(p_item && (!!p_item->Uuid || p_item->ID > DEFAULT_MENUS_OFFS)) {
+					ok = AddItem(cmdgrpcUndef, p_item->Uuid, p_item->ID, &new_uuid);
 				}
 				break;
 			case PPVCMD_EDITITEM:
-				if(p_item) {
+				if(p_item)
 					ok = EditItem(p_item->Uuid);
-				}
 				break;
 			case PPVCMD_DELETEITEM:
-				if(p_item) {
+				if(p_item)
 					ok = DeleteItem(p_item->Uuid);
-				}
 				break;
 		}
 		if(ok > 0) {
 			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 			if(p_def) {
-				if(ppvCmd == PPVCMD_EDITITEM) {
+				if(!!new_uuid) {
+					if(MakeList(pBrw)) {
+						long id_to_locate = 0;
+						for(uint i = 0; i < P_DsList->getCount(); i++) {
+							const BrwItem * p_iter_item = static_cast<const BrwItem *>(P_DsList->at(i));
+							if(p_iter_item->Uuid == new_uuid)
+								id_to_locate = p_iter_item->ID;
+						}
+						p_def->setArray(new SArray(*P_DsList), 0, 1);
+						pBrw->search2(&id_to_locate, CMPF_LONG, srchFirst, 0);
+					}
+				}
+				else if(ppvCmd == PPVCMD_EDITITEM) {
 					assert(p_item);
 					const long preserve_id = p_item->ID;
 					if(MakeList(pBrw)) {

@@ -60,7 +60,7 @@
  * 64-bit processor with LP64 ABI
  */
 #ifdef SIXTY_FOUR_BIT_LONG
-#define BN_ULLONG       unsigned long long
+#define BN_ULLONG       ulong long
 #define BN_BITS4        32
 #define BN_MASK2        (0xffffffffffffffffL)
 #define BN_MASK2l       (0xffffffffL)
@@ -94,7 +94,7 @@
 #   if defined(_WIN32) && !defined(__GNUC__)
 #    define BN_ULLONG     unsigned __int64
 #   else
-#    define BN_ULLONG     unsigned long long
+#    define BN_ULLONG     ulong long
 #   endif
 #  endif
 #define BN_BITS4        16
@@ -153,7 +153,7 @@
 	do { \
 		const BIGNUM * _bnum1 = (a); \
 		if(_bnum1->top < _bnum1->dmax) { \
-			unsigned char _tmp_char; \
+			uchar _tmp_char; \
 			/* We cast away const without the compiler knowing, any \
 			 * *genuinely* constant variables that aren't mutable \
 			 * wouldn't be constructed with top!=dmax. */\
@@ -243,7 +243,7 @@ struct bn_recp_ctx_st {
 
 /* Used for slow "generation" functions. */
 struct bn_gencb_st {
-	unsigned int ver;       /* To handle binary (in)compatibility */
+	uint ver;       /* To handle binary (in)compatibility */
 	void * arg;             /* callback-specific data */
 	union {
 		/* if (ver==1) - handles old style callbacks */
@@ -374,7 +374,7 @@ struct bn_gencb_st {
 #    define BN_UMULT_HIGH(a, b)   (BN_ULONG) asm ("umulh %a0,%a1,%v0", (a), (b))
 #   elif defined(__GNUC__) && __GNUC__>=2
 #    define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("umulh     %1,%2,%0"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
@@ -383,7 +383,7 @@ struct bn_gencb_st {
 #  elif defined(_ARCH_PPC64) && defined(SIXTY_FOUR_BIT_LONG)
 #   if defined(__GNUC__) && __GNUC__>=2
 #    define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("mulhdu    %0,%1,%2"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
@@ -393,7 +393,7 @@ struct bn_gencb_st {
 	(defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
 #   if defined(__GNUC__) && __GNUC__>=2
 #    define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret, discard;  \
+		BN_ULONG ret, discard;  \
 		asm ("mulq      %3"             \
 		: "=a" (discard), "=d" (ret)  \
 		: "a" (a), "g" (b)           \
@@ -417,7 +417,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 #  elif defined(__mips) && (defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
 #   if defined(__GNUC__) && __GNUC__>=2
 #    define BN_UMULT_HIGH(a, b) ({       \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("dmultu    %1,%2"          \
 		: "=h" (ret)                \
 		: "r" (a), "r" (b) : "l");   \
@@ -430,7 +430,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 #  elif defined(__aarch64__) && defined(SIXTY_FOUR_BIT_LONG)
 #   if defined(__GNUC__) && __GNUC__>=2
 #    define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("umulh     %0,%1,%2"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \

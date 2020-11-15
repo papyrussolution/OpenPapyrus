@@ -131,7 +131,7 @@ PKCS12_SAFEBAG * PKCS12_SAFEBAG_create0_pkcs8(X509_SIG * p8)
 PKCS12_SAFEBAG * PKCS12_SAFEBAG_create_pkcs8_encrypt(int pbe_nid,
     const char * pass,
     int passlen,
-    unsigned char * salt,
+    uchar * salt,
     int saltlen, int iter,
     PKCS8_PRIV_KEY_INFO * p8inf)
 {

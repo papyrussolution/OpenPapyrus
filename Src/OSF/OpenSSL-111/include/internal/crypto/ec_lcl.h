@@ -89,9 +89,9 @@ struct ec_method_st {
 	    BN_CTX *);
 	/* used by EC_POINT_point2oct, EC_POINT_oct2point: */
 	size_t (* point2oct) (const EC_GROUP *, const EC_POINT *,
-	    point_conversion_form_t form, unsigned char * buf,
+	    point_conversion_form_t form, uchar * buf,
 	    size_t len, BN_CTX *);
-	int (* oct2point) (const EC_GROUP *, EC_POINT *, const unsigned char * buf,
+	int (* oct2point) (const EC_GROUP *, EC_POINT *, const uchar * buf,
 	    size_t len, BN_CTX *);
 	/* used by EC_POINT_add, EC_POINT_dbl, ECP_POINT_invert: */
 	int (* add) (const EC_GROUP *, EC_POINT * r, const EC_POINT * a,
@@ -163,8 +163,8 @@ struct ec_method_st {
 	    BN_CTX *);
 	int (* field_set_to_one) (const EC_GROUP *, BIGNUM * r, BN_CTX *);
 	/* private key operations */
-	size_t (* priv2oct)(const EC_KEY * eckey, unsigned char * buf, size_t len);
-	int (* oct2priv)(EC_KEY * eckey, const unsigned char * buf, size_t len);
+	size_t (* priv2oct)(const EC_KEY * eckey, uchar * buf, size_t len);
+	int (* oct2priv)(EC_KEY * eckey, const uchar * buf, size_t len);
 	int (* set_private)(EC_KEY * eckey, const BIGNUM * priv_key);
 	int (* keygen)(EC_KEY * eckey);
 	int (* keycheck)(const EC_KEY * eckey);
@@ -172,7 +172,7 @@ struct ec_method_st {
 	int (* keycopy)(EC_KEY * dst, const EC_KEY * src);
 	void (* keyfinish)(EC_KEY * eckey);
 	/* custom ECDH operation */
-	int (* ecdh_compute_key)(unsigned char ** pout, size_t * poutlen,
+	int (* ecdh_compute_key)(uchar ** pout, size_t * poutlen,
 	    const EC_POINT * pub_key, const EC_KEY * ecdh);
 	/* Inverse modulo order */
 	int (* field_inverse_mod_ord)(const EC_GROUP *, BIGNUM * r,
@@ -205,7 +205,7 @@ struct ec_group_st {
 	int curve_name;         /* optional NID for named curve */
 	int asn1_flag;          /* flag to control the asn1 encoding */
 	point_conversion_form_t asn1_form;
-	unsigned char * seed;   /* optional seed for parameters (appears in
+	uchar * seed;   /* optional seed for parameters (appears in
 	                         * ASN1) */
 	size_t seed_len;
 	/*
@@ -276,7 +276,7 @@ struct ec_key_st {
 	EC_GROUP * group;
 	EC_POINT * pub_key;
 	BIGNUM * priv_key;
-	unsigned int enc_flag;
+	uint enc_flag;
 	point_conversion_form_t conv_form;
 	CRYPTO_REF_COUNT references;
 	int flags;
@@ -371,9 +371,9 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP *, EC_POINT *,
     BN_CTX *);
 size_t ec_GFp_simple_point2oct(const EC_GROUP *, const EC_POINT *,
     point_conversion_form_t form,
-    unsigned char * buf, size_t len, BN_CTX *);
+    uchar * buf, size_t len, BN_CTX *);
 int ec_GFp_simple_oct2point(const EC_GROUP *, EC_POINT *,
-    const unsigned char * buf, size_t len, BN_CTX *);
+    const uchar * buf, size_t len, BN_CTX *);
 int ec_GFp_simple_add(const EC_GROUP *, EC_POINT * r, const EC_POINT * a,
     const EC_POINT * b, BN_CTX *);
 int ec_GFp_simple_dbl(const EC_GROUP *, EC_POINT * r, const EC_POINT * a,
@@ -460,9 +460,9 @@ int ec_GF2m_simple_set_compressed_coordinates(const EC_GROUP *, EC_POINT *,
     BN_CTX *);
 size_t ec_GF2m_simple_point2oct(const EC_GROUP *, const EC_POINT *,
     point_conversion_form_t form,
-    unsigned char * buf, size_t len, BN_CTX *);
+    uchar * buf, size_t len, BN_CTX *);
 int ec_GF2m_simple_oct2point(const EC_GROUP *, EC_POINT *,
-    const unsigned char * buf, size_t len, BN_CTX *);
+    const uchar * buf, size_t len, BN_CTX *);
 int ec_GF2m_simple_add(const EC_GROUP *, EC_POINT * r, const EC_POINT * a,
     const EC_POINT * b, BN_CTX *);
 int ec_GF2m_simple_dbl(const EC_GROUP *, EC_POINT * r, const EC_POINT * a,
@@ -569,8 +569,8 @@ void ec_GFp_nistp_points_make_affine_internal(size_t num, void * point_array,
     const
     void
     * in));
-void ec_GFp_nistp_recode_scalar_bits(unsigned char * sign,
-    unsigned char * digit, unsigned char in);
+void ec_GFp_nistp_recode_scalar_bits(uchar * sign,
+    uchar * digit, uchar in);
 #endif
 int ec_group_simple_order_bits(const EC_GROUP * group);
 
@@ -583,8 +583,8 @@ const EC_METHOD * EC_GFp_nistz256_method(void);
 #endif
 
 size_t ec_key_simple_priv2oct(const EC_KEY * eckey,
-    unsigned char * buf, size_t len);
-int ec_key_simple_oct2priv(EC_KEY * eckey, const unsigned char * buf, size_t len);
+    uchar * buf, size_t len);
+int ec_key_simple_oct2priv(EC_KEY * eckey, const uchar * buf, size_t len);
 int ec_key_simple_generate_key(EC_KEY * eckey);
 int ec_key_simple_generate_public_key(EC_KEY * eckey);
 int ec_key_simple_check_key(const EC_KEY * eckey);
@@ -603,29 +603,29 @@ struct ec_key_method_st {
 	int (* set_private)(EC_KEY * key, const BIGNUM * priv_key);
 	int (* set_public)(EC_KEY * key, const EC_POINT * pub_key);
 	int (* keygen)(EC_KEY * key);
-	int (* compute_key)(unsigned char ** pout, size_t * poutlen,
+	int (* compute_key)(uchar ** pout, size_t * poutlen,
 	    const EC_POINT * pub_key, const EC_KEY * ecdh);
-	int (* sign)(int type, const unsigned char * dgst, int dlen, unsigned char
-	    * sig, unsigned int * siglen, const BIGNUM * kinv,
+	int (* sign)(int type, const uchar * dgst, int dlen, uchar
+	    * sig, uint * siglen, const BIGNUM * kinv,
 	    const BIGNUM * r, EC_KEY * eckey);
 	int (* sign_setup)(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp,
 	    BIGNUM ** rp);
-	ECDSA_SIG *(* sign_sig)(const unsigned char * dgst, int dgst_len,
+	ECDSA_SIG *(* sign_sig)(const uchar * dgst, int dgst_len,
 	    const BIGNUM * in_kinv, const BIGNUM * in_r,
 	    EC_KEY * eckey);
 
-	int (* verify)(int type, const unsigned char * dgst, int dgst_len,
-	    const unsigned char * sigbuf, int sig_len, EC_KEY * eckey);
-	int (* verify_sig)(const unsigned char * dgst, int dgst_len,
+	int (* verify)(int type, const uchar * dgst, int dgst_len,
+	    const uchar * sigbuf, int sig_len, EC_KEY * eckey);
+	int (* verify_sig)(const uchar * dgst, int dgst_len,
 	    const ECDSA_SIG * sig, EC_KEY * eckey);
 };
 
 #define EC_KEY_METHOD_DYNAMIC   1
 
 int ossl_ec_key_gen(EC_KEY * eckey);
-int ossl_ecdh_compute_key(unsigned char ** pout, size_t * poutlen,
+int ossl_ecdh_compute_key(uchar ** pout, size_t * poutlen,
     const EC_POINT * pub_key, const EC_KEY * ecdh);
-int ecdh_simple_compute_key(unsigned char ** pout, size_t * poutlen,
+int ecdh_simple_compute_key(uchar ** pout, size_t * poutlen,
     const EC_POINT * pub_key, const EC_KEY * ecdh);
 
 struct ECDSA_SIG_st {
@@ -635,15 +635,15 @@ struct ECDSA_SIG_st {
 
 int ossl_ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp,
     BIGNUM ** rp);
-int ossl_ecdsa_sign(int type, const unsigned char * dgst, int dlen,
-    unsigned char * sig, unsigned int * siglen,
+int ossl_ecdsa_sign(int type, const uchar * dgst, int dlen,
+    uchar * sig, uint * siglen,
     const BIGNUM * kinv, const BIGNUM * r, EC_KEY * eckey);
-ECDSA_SIG * ossl_ecdsa_sign_sig(const unsigned char * dgst, int dgst_len,
+ECDSA_SIG * ossl_ecdsa_sign_sig(const uchar * dgst, int dgst_len,
     const BIGNUM * in_kinv, const BIGNUM * in_r,
     EC_KEY * eckey);
-int ossl_ecdsa_verify(int type, const unsigned char * dgst, int dgst_len,
-    const unsigned char * sigbuf, int sig_len, EC_KEY * eckey);
-int ossl_ecdsa_verify_sig(const unsigned char * dgst, int dgst_len,
+int ossl_ecdsa_verify(int type, const uchar * dgst, int dgst_len,
+    const uchar * sigbuf, int sig_len, EC_KEY * eckey);
+int ossl_ecdsa_verify_sig(const uchar * dgst, int dgst_len,
     const ECDSA_SIG * sig, EC_KEY * eckey);
 
 int ED25519_sign(uint8_t * out_sig, const uint8_t * message, size_t message_len,

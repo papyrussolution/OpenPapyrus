@@ -12,10 +12,10 @@
 
 /* Cheap and nasty Unicode stuff */
 
-unsigned char * OPENSSL_asc2uni(const char * asc, int asclen, unsigned char ** uni, int * unilen)
+uchar * OPENSSL_asc2uni(const char * asc, int asclen, uchar ** uni, int * unilen)
 {
 	int ulen, i;
-	unsigned char * unitmp;
+	uchar * unitmp;
 	if(asclen == -1)
 		asclen = strlen(asc);
 	ulen = asclen * 2 + 2;
@@ -37,7 +37,7 @@ unsigned char * OPENSSL_asc2uni(const char * asc, int asclen, unsigned char ** u
 	return unitmp;
 }
 
-char * OPENSSL_uni2asc(const unsigned char * uni, int unilen)
+char * OPENSSL_uni2asc(const uchar * uni, int unilen)
 {
 	int asclen, i;
 	char * asctmp;
@@ -63,23 +63,23 @@ char * OPENSSL_uni2asc(const unsigned char * uni, int unilen)
  * OPENSSL_{utf82uni|uni2utf8} perform conversion between UTF-8 and
  * PKCS#12 BMPString format, which is specified as big-endian UTF-16.
  * One should keep in mind that even though BMPString is passed as
- * unsigned char *, it's not the kind of string you can exercise e.g.
+ * uchar *, it's not the kind of string you can exercise e.g.
  * strlen on. Caller also has to keep in mind that its length is
  * expressed not in number of UTF-16 characters, but in number of
  * bytes the string occupies, and treat it, the length, accordingly.
  */
-unsigned char * OPENSSL_utf82uni(const char * asc, int asclen,
-    unsigned char ** uni, int * unilen)
+uchar * OPENSSL_utf82uni(const char * asc, int asclen,
+    uchar ** uni, int * unilen)
 {
 	int ulen, i, j;
-	unsigned char * unitmp, * ret;
-	unsigned long utf32chr = 0;
+	uchar * unitmp, * ret;
+	ulong utf32chr = 0;
 
 	if(asclen == -1)
 		asclen = strlen(asc);
 
 	for(ulen = 0, i = 0; i < asclen; i += j) {
-		j = UTF8_getc((const unsigned char*)asc+i, asclen-i, &utf32chr);
+		j = UTF8_getc((const uchar*)asc+i, asclen-i, &utf32chr);
 
 		/*
 		 * Following condition is somewhat opportunistic is sense that
@@ -117,9 +117,9 @@ unsigned char * OPENSSL_utf82uni(const char * asc, int asclen,
 	}
 	/* re-run the loop writing down UTF-16 characters in big-endian order */
 	for(unitmp = ret, i = 0; i < asclen; i += j) {
-		j = UTF8_getc((const unsigned char*)asc+i, asclen-i, &utf32chr);
+		j = UTF8_getc((const uchar*)asc+i, asclen-i, &utf32chr);
 		if(utf32chr >= 0x10000) { /* pair if UTF-16 characters */
-			unsigned int hi, lo;
+			uint hi, lo;
 
 			utf32chr -= 0x10000;
 			hi = 0xD800 + (utf32chr>>10);
@@ -144,9 +144,9 @@ unsigned char * OPENSSL_utf82uni(const char * asc, int asclen,
 	return ret;
 }
 
-static int bmp_to_utf8(char * str, const unsigned char * utf16, int len)
+static int bmp_to_utf8(char * str, const uchar * utf16, int len)
 {
-	unsigned long utf32chr;
+	ulong utf32chr;
 
 	if(len == 0) return 0;
 
@@ -156,7 +156,7 @@ static int bmp_to_utf8(char * str, const unsigned char * utf16, int len)
 	utf32chr = (utf16[0]<<8) | utf16[1];
 
 	if(utf32chr >= 0xD800 && utf32chr < 0xE000) { /* two chars */
-		unsigned int lo;
+		uint lo;
 
 		if(len < 4) return -1;
 
@@ -171,7 +171,7 @@ static int bmp_to_utf8(char * str, const unsigned char * utf16, int len)
 	return UTF8_putc((uchar *)str, len > 4 ? 4 : len, utf32chr);
 }
 
-char * OPENSSL_uni2utf8(const unsigned char * uni, int unilen)
+char * OPENSSL_uni2utf8(const uchar * uni, int unilen)
 {
 	int asclen, i, j;
 	char * asctmp;

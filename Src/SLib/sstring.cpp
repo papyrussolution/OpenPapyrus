@@ -6771,7 +6771,7 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 					const int is_dec_c = isdec(c);
 					if(is_dec_c)
 						has_dec = 1;
-					if(h & SNTOKSEQ_LAT && !IsLetterASCII(c))
+					if(h & SNTOKSEQ_LAT && !isasciialpha(c))
 						h &= ~SNTOKSEQ_LAT;
 					else {
 						if(h & SNTOKSEQ_LATLWR && !(c >= 'a' && c <= 'z'))

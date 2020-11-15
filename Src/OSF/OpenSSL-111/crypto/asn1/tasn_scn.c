@@ -45,7 +45,7 @@ const ASN1_TEMPLATE * ASN1_SCTX_get_template(ASN1_SCTX * p)
 	return p->tt;
 }
 
-unsigned long ASN1_SCTX_get_flags(ASN1_SCTX * p)
+ulong ASN1_SCTX_get_flags(ASN1_SCTX * p)
 {
 	return p->flags;
 }

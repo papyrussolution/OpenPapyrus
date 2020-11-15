@@ -11,10 +11,10 @@
 #include <openssl/ripemd.h>
 //#include <openssl/crypto.h>
 
-unsigned char * RIPEMD160(const unsigned char * d, size_t n, unsigned char * md)
+uchar * RIPEMD160(const uchar * d, size_t n, uchar * md)
 {
 	RIPEMD160_CTX c;
-	static unsigned char m[RIPEMD160_DIGEST_LENGTH];
+	static uchar m[RIPEMD160_DIGEST_LENGTH];
 
 	if(md == NULL)
 		md = m;

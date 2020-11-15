@@ -18,7 +18,7 @@
 
 static int dsa_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 {
-	const unsigned char * p, * pm;
+	const uchar * p, * pm;
 	int pklen, pmlen;
 	int ptype;
 	const void * pval;
@@ -73,7 +73,7 @@ err:
 static int dsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 {
 	int ptype;
-	unsigned char * penc = NULL;
+	uchar * penc = NULL;
 	int penclen;
 	ASN1_STRING * str = NULL;
 	ASN1_INTEGER * pubint = NULL;
@@ -122,7 +122,7 @@ err:
 
 static int dsa_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 {
-	const unsigned char * p, * pm;
+	const uchar * p, * pm;
 	int pklen, pmlen;
 	int ptype;
 	const void * pval;
@@ -185,7 +185,7 @@ static int dsa_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 {
 	ASN1_STRING * params = NULL;
 	ASN1_INTEGER * prkey = NULL;
-	unsigned char * dp = NULL;
+	uchar * dp = NULL;
 	int dplen;
 
 	if(!pkey->pkey.dsa || !pkey->pkey.dsa->priv_key) {
@@ -346,7 +346,7 @@ err:
 }
 
 static int dsa_param_decode(EVP_PKEY * pkey,
-    const unsigned char ** pder, int derlen)
+    const uchar ** pder, int derlen)
 {
 	DSA * dsa;
 
@@ -358,7 +358,7 @@ static int dsa_param_decode(EVP_PKEY * pkey,
 	return 1;
 }
 
-static int dsa_param_encode(const EVP_PKEY * pkey, unsigned char ** pder)
+static int dsa_param_encode(const EVP_PKEY * pkey, uchar ** pder)
 {
 	return i2d_DSAparams(pkey->pkey.dsa, pder);
 }
@@ -382,7 +382,7 @@ static int dsa_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent,
 }
 
 static int old_dsa_priv_decode(EVP_PKEY * pkey,
-    const unsigned char ** pder, int derlen)
+    const uchar ** pder, int derlen)
 {
 	DSA * dsa;
 
@@ -394,7 +394,7 @@ static int old_dsa_priv_decode(EVP_PKEY * pkey,
 	return 1;
 }
 
-static int old_dsa_priv_encode(const EVP_PKEY * pkey, unsigned char ** pder)
+static int old_dsa_priv_encode(const EVP_PKEY * pkey, uchar ** pder)
 {
 	return i2d_DSAPrivateKey(pkey->pkey.dsa, pder);
 }
@@ -403,7 +403,7 @@ static int dsa_sig_print(BIO * bp, const X509_ALGOR * sigalg,
     const ASN1_STRING * sig, int indent, ASN1_PCTX * pctx)
 {
 	DSA_SIG * dsa_sig;
-	const unsigned char * p;
+	const uchar * p;
 
 	if(!sig) {
 		if(BIO_puts(bp, "\n") <= 0)

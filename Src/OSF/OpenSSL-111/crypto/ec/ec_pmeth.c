@@ -31,7 +31,7 @@ typedef struct {
 	/* Message digest to use for key derivation */
 	const EVP_MD * kdf_md;
 	/* User key material */
-	unsigned char * kdf_ukm;
+	uchar * kdf_ukm;
 	size_t kdf_ukmlen;
 	/* KDF output length */
 	size_t kdf_outlen;
@@ -94,11 +94,11 @@ static void pkey_ec_cleanup(EVP_PKEY_CTX * ctx)
 	}
 }
 
-static int pkey_ec_sign(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * siglen,
-    const unsigned char * tbs, size_t tbslen)
+static int pkey_ec_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen,
+    const uchar * tbs, size_t tbslen)
 {
 	int ret, type;
-	unsigned int sltmp;
+	uint sltmp;
 	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
 	EC_KEY * ec = ctx->pkey->pkey.ec;
 	const int sig_sz = ECDSA_size(ec);
@@ -128,8 +128,8 @@ static int pkey_ec_sign(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * siglen
 }
 
 static int pkey_ec_verify(EVP_PKEY_CTX * ctx,
-    const unsigned char * sig, size_t siglen,
-    const unsigned char * tbs, size_t tbslen)
+    const uchar * sig, size_t siglen,
+    const uchar * tbs, size_t tbslen)
 {
 	int ret, type;
 	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
@@ -143,7 +143,7 @@ static int pkey_ec_verify(EVP_PKEY_CTX * ctx,
 }
 
 #ifndef OPENSSL_NO_EC
-static int pkey_ec_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * keylen)
+static int pkey_ec_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
 	int ret;
 	size_t outlen;
@@ -180,10 +180,10 @@ static int pkey_ec_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * keyl
 }
 
 static int pkey_ec_kdf_derive(EVP_PKEY_CTX * ctx,
-    unsigned char * key, size_t * keylen)
+    uchar * key, size_t * keylen)
 {
 	EC_PKEY_CTX * dctx = static_cast<EC_PKEY_CTX *>(ctx->data);
-	unsigned char * ktmp = NULL;
+	uchar * ktmp = NULL;
 	size_t ktmplen;
 	int rv = 0;
 	if(dctx->kdf_type == EVP_PKEY_ECDH_KDF_NONE)
@@ -311,7 +311,7 @@ static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    return 1;
 
 		case EVP_PKEY_CTRL_GET_EC_KDF_UKM:
-		    *(unsigned char**)p2 = dctx->kdf_ukm;
+		    *(uchar**)p2 = dctx->kdf_ukm;
 		    return dctx->kdf_ukmlen;
 
 		case EVP_PKEY_CTRL_MD:

@@ -261,7 +261,7 @@ TS_TST_INFO *PKCS7_to_TS_TST_INFO(PKCS7 *token)
 	PKCS7 * enveloped;
 	ASN1_TYPE * tst_info_wrapper;
 	ASN1_OCTET_STRING * tst_info_der;
-	const unsigned char * p;
+	const uchar * p;
 
 	if(!PKCS7_type_is_signed(token)) {
 		TSerr(TS_F_PKCS7_TO_TS_TST_INFO, TS_R_BAD_PKCS7_TYPE);

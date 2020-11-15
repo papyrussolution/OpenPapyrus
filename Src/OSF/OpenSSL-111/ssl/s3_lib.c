@@ -22,8 +22,8 @@
 #define SSL3_NUM_SCSVS          OSSL_NELEM(ssl3_scsvs)
 
 /* TLSv1.3 downgrade protection sentinel values */
-const unsigned char tls11downgrade[] = { 0x44, 0x4f, 0x57, 0x4e, 0x47, 0x52, 0x44, 0x00 };
-const unsigned char tls12downgrade[] = { 0x44, 0x4f, 0x57, 0x4e, 0x47, 0x52, 0x44, 0x01 };
+const uchar tls11downgrade[] = { 0x44, 0x4f, 0x57, 0x4e, 0x47, 0x52, 0x44, 0x00 };
+const uchar tls12downgrade[] = { 0x44, 0x4f, 0x57, 0x4e, 0x47, 0x52, 0x44, 0x01 };
 
 /* The list of available TLSv1.3 ciphers */
 static SSL_CIPHER tls13_ciphers[] = {
@@ -3212,9 +3212,9 @@ void ssl_sort_cipher_list(void)
 	qsort(ssl3_scsvs, SSL3_NUM_SCSVS, sizeof(ssl3_scsvs[0]), cipher_compare);
 }
 
-static int ssl_undefined_function_1(SSL * ssl, unsigned char * r, size_t s,
+static int ssl_undefined_function_1(SSL * ssl, uchar * r, size_t s,
     const char * t, size_t u,
-    const unsigned char * v, size_t w, int x)
+    const uchar * v, size_t w, int x)
 {
 	(void)r;
 	(void)s;
@@ -3257,7 +3257,7 @@ int ssl3_num_ciphers(void)
 	return SSL3_NUM_CIPHERS;
 }
 
-const SSL_CIPHER * ssl3_get_cipher(unsigned int u)
+const SSL_CIPHER * ssl3_get_cipher(uint u)
 {
 	if(u < SSL3_NUM_CIPHERS)
 		return &(ssl3_ciphers[SSL3_NUM_CIPHERS - 1 - u]);
@@ -3371,7 +3371,7 @@ static char * srp_password_from_info_cb(SSL * s, void * arg)
 
 #endif
 
-static int ssl3_set_req_cert_type(CERT * c, const unsigned char * p, size_t len);
+static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len);
 
 long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 {
@@ -3470,12 +3470,12 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    ret = 1;
 			    if(parg == NULL)
 				    break;
-			    len = strlen((char*)parg);
+			    len = strlen((char *)parg);
 			    if(len == 0 || len > TLSEXT_MAXLEN_host_name) {
 				    SSLerr(SSL_F_SSL3_CTRL, SSL_R_SSL3_EXT_INVALID_SERVERNAME);
 				    return 0;
 			    }
-			    if((s->ext.hostname = OPENSSL_strdup((char*)parg)) == NULL) {
+			    if((s->ext.hostname = OPENSSL_strdup((char *)parg)) == NULL) {
 				    SSLerr(SSL_F_SSL3_CTRL, ERR_R_INTERNAL_ERROR);
 				    return 0;
 			    }
@@ -3519,7 +3519,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    break;
 
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP:
-		    *(unsigned char**)parg = s->ext.ocsp.resp;
+		    *(uchar**)parg = s->ext.ocsp.resp;
 		    if(s->ext.ocsp.resp_len == 0 || s->ext.ocsp.resp_len > LONG_MAX)
 			    return -1;
 		    return (long)s->ext.ocsp.resp_len;
@@ -3621,7 +3621,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		case SSL_CTRL_SET_CLIENT_SIGALGS_LIST: return tls1_set_sigalgs_list(s->cert, static_cast<const char *>(parg), 1);
 		case SSL_CTRL_GET_CLIENT_CERT_TYPES:
 	    {
-		    const unsigned char ** pctype = static_cast<const uchar **>(parg);
+		    const uchar ** pctype = static_cast<const uchar **>(parg);
 		    if(s->server || !s->s3->tmp.cert_req)
 			    return 0;
 		    if(pctype)
@@ -3676,7 +3676,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 #ifndef OPENSSL_NO_EC
 		case SSL_CTRL_GET_EC_POINT_FORMATS:
 	    {
-		    const unsigned char ** pformat = static_cast<const uchar **>(parg);
+		    const uchar ** pformat = static_cast<const uchar **>(parg);
 		    if(s->ext.peer_ecpointformats == NULL)
 			    return 0;
 		    *pformat = s->ext.peer_ecpointformats;
@@ -3703,7 +3703,7 @@ long ssl3_callback_ctrl(SSL * s, int cmd, void (*fp)(void))
 #endif
 		case SSL_CTRL_SET_TLSEXT_DEBUG_CB:
 		    s->ext.debug_cb = (void (*)(SSL *, int, int,
-			const unsigned char *, int, void *))fp;
+			const uchar *, int, void *))fp;
 		    break;
 
 		case SSL_CTRL_SET_NOT_RESUMABLE_SESS_CB:
@@ -3782,7 +3782,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEYS:
 		case SSL_CTRL_GET_TLSEXT_TICKET_KEYS:
 	    {
-		    unsigned char * keys = static_cast<uchar *>(parg);
+		    uchar * keys = static_cast<uchar *>(parg);
 		    long tick_keylen = (sizeof(ctx->ext.tick_key_name) +
 			sizeof(ctx->ext.secure->tick_hmac_key) +
 			sizeof(ctx->ext.secure->tick_aes_key));
@@ -3847,7 +3847,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, SSL_R_INVALID_SRP_USERNAME);
 			    return 0;
 		    }
-		    if((ctx->srp_ctx.login = OPENSSL_strdup((char*)parg)) == NULL) {
+		    if((ctx->srp_ctx.login = OPENSSL_strdup((char *)parg)) == NULL) {
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, ERR_R_INTERNAL_ERROR);
 			    return 0;
 		    }
@@ -3857,7 +3857,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			srp_password_from_info_cb;
 		    if(ctx->srp_ctx.info != NULL)
 			    OPENSSL_free(ctx->srp_ctx.info);
-		    if((ctx->srp_ctx.info = BUF_strdup((char*)parg)) == NULL) {
+		    if((ctx->srp_ctx.info = BUF_strdup((char *)parg)) == NULL) {
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, ERR_R_INTERNAL_ERROR);
 			    return 0;
 		    }
@@ -3958,8 +3958,8 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (*fp)(void))
 		    break;
 
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB:
-		    ctx->ext.ticket_key_cb = (int (*)(SSL *, unsigned char *,
-			unsigned char *,
+		    ctx->ext.ticket_key_cb = (int (*)(SSL *, uchar *,
+			uchar *,
 			EVP_CIPHER_CTX *,
 			HMAC_CTX *, int))fp;
 		    break;
@@ -4039,7 +4039,7 @@ const SSL_CIPHER * ssl3_get_cipher_by_std_name(const char * stdname)
  * This function needs to check if the ciphers required are actually
  * available
  */
-const SSL_CIPHER * ssl3_get_cipher_by_char(const unsigned char * p)
+const SSL_CIPHER * ssl3_get_cipher_by_char(const uchar * p)
 {
 	return ssl3_get_cipher_by_id(SSL3_CK_CIPHERSUITE_FLAG
 		   | ((uint32_t)p[0] << 8L)
@@ -4074,7 +4074,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt,
 	const SSL_CIPHER * c, * ret = NULL;
 	STACK_OF(SSL_CIPHER) *prio, *allow;
 	int i, ii, ok, prefer_sha256 = 0;
-	unsigned long alg_k = 0, alg_a = 0, mask_k = 0, mask_a = 0;
+	ulong alg_k = 0, alg_a = 0, mask_k = 0, mask_a = 0;
 	const EVP_MD * mdsha256 = EVP_sha256();
 #ifndef OPENSSL_NO_CHACHA
 	STACK_OF(SSL_CIPHER) *prio_chacha = NULL;
@@ -4323,7 +4323,7 @@ int ssl3_get_req_cert_type(SSL * s, WPACKET * pkt)
 	return 1;
 }
 
-static int ssl3_set_req_cert_type(CERT * c, const unsigned char * p, size_t len)
+static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len)
 {
 	OPENSSL_free(c->ctype);
 	c->ctype = NULL;
@@ -4503,7 +4503,7 @@ long ssl_get_algorithm2(SSL * s)
  * Fill a ClientRandom or ServerRandom field of length len. Returns <= 0 on
  * failure, 1 on success.
  */
-int ssl_fill_hello_random(SSL * s, int server, unsigned char * result, size_t len,
+int ssl_fill_hello_random(SSL * s, int server, uchar * result, size_t len,
     DOWNGRADE dgrd)
 {
 	int send_time = 0, ret;
@@ -4515,8 +4515,8 @@ int ssl_fill_hello_random(SSL * s, int server, unsigned char * result, size_t le
 	else
 		send_time = (s->mode & SSL_MODE_SEND_CLIENTHELLO_TIME) != 0;
 	if(send_time) {
-		unsigned long Time = (unsigned long)time(NULL);
-		unsigned char * p = result;
+		ulong Time = (ulong)time(NULL);
+		uchar * p = result;
 
 		l2n(Time, p);
 		ret = RAND_bytes(p, len - 4);
@@ -4540,15 +4540,15 @@ int ssl_fill_hello_random(SSL * s, int server, unsigned char * result, size_t le
 	return ret;
 }
 
-int ssl_generate_master_secret(SSL * s, unsigned char * pms, size_t pmslen,
+int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen,
     int free_pms)
 {
-	unsigned long alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
+	ulong alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
 	int ret = 0;
 
 	if(alg_k & SSL_PSK) {
 #ifndef OPENSSL_NO_PSK
-		unsigned char * pskpms, * t;
+		uchar * pskpms, * t;
 		size_t psklen = s->s3->tmp.psklen;
 		size_t pskpmslen;
 		/* create PSK premaster_secret */
@@ -4716,7 +4716,7 @@ err:
 int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey, int gensecret)
 {
 	int rv = 0;
-	unsigned char * pms = NULL;
+	uchar * pms = NULL;
 	size_t pmslen = 0;
 	EVP_PKEY_CTX * pctx;
 	if(privkey == NULL || pubkey == NULL) {
@@ -4752,7 +4752,7 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey, int gensecret)
 			if(!s->hit)
 				rv = tls13_generate_secret(s, ssl_handshake_md(s), NULL, NULL,
 					0,
-					(unsigned char*)&s->early_secret);
+					(uchar*)&s->early_secret);
 			else
 				rv = 1;
 

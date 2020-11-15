@@ -11,9 +11,9 @@
 #include <openssl/seed.h>
 #include <openssl/modes.h>
 
-void SEED_cbc_encrypt(const unsigned char * in, unsigned char * out,
+void SEED_cbc_encrypt(const uchar * in, uchar * out,
     size_t len, const SEED_KEY_SCHEDULE * ks,
-    unsigned char ivec[SEED_BLOCK_SIZE], int enc)
+    uchar ivec[SEED_BLOCK_SIZE], int enc)
 {
 	if(enc)
 		CRYPTO_cbc128_encrypt(in, out, len, ks, ivec,

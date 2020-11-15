@@ -15,18 +15,16 @@
 #define ASYNC_WIN
 #define ASYNC_ARCH
 
-#include <windows.h>
-#include "internal/cryptlib.h"
+//#include <windows.h>
+//#include "internal/cryptlib.h"
 
 typedef struct async_fibre_st {
     LPVOID fibre;
     int converted;
 } async_fibre;
 
-#define async_fibre_swapcontext(o,n,r) \
-        (SwitchToFiber((n)->fibre), 1)
-#define async_fibre_makecontext(c) \
-        ((c)->fibre = CreateFiber(0, async_start_func_win, 0))
+#define async_fibre_swapcontext(o,n,r) (SwitchToFiber((n)->fibre), 1)
+#define async_fibre_makecontext(c) ((c)->fibre = CreateFiber(0, async_start_func_win, 0))
 #define async_fibre_free(f)             (DeleteFiber((f)->fibre))
 
 int async_fibre_init_dispatcher(async_fibre *fibre);

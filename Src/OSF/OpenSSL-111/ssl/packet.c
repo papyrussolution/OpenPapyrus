@@ -13,7 +13,7 @@
 
 #define DEFAULT_BUF_SIZE    256
 
-int WPACKET_allocate_bytes(WPACKET * pkt, size_t len, unsigned char ** allocbytes)
+int WPACKET_allocate_bytes(WPACKET * pkt, size_t len, uchar ** allocbytes)
 {
 	if(!WPACKET_reserve_bytes(pkt, len, allocbytes))
 		return 0;
@@ -23,7 +23,7 @@ int WPACKET_allocate_bytes(WPACKET * pkt, size_t len, unsigned char ** allocbyte
 }
 
 int WPACKET_sub_allocate_bytes__(WPACKET * pkt, size_t len,
-    unsigned char ** allocbytes, size_t lenbytes)
+    uchar ** allocbytes, size_t lenbytes)
 {
 	if(!WPACKET_start_sub_packet_len__(pkt, lenbytes)
 	    || !WPACKET_allocate_bytes(pkt, len, allocbytes)
@@ -34,9 +34,9 @@ int WPACKET_sub_allocate_bytes__(WPACKET * pkt, size_t len,
 }
 
 #define GETBUF(p)   (((p)->staticbuf != NULL) \
-	? (p)->staticbuf : (unsigned char*)(p)->buf->data)
+	? (p)->staticbuf : (uchar*)(p)->buf->data)
 
-int WPACKET_reserve_bytes(WPACKET * pkt, size_t len, unsigned char ** allocbytes)
+int WPACKET_reserve_bytes(WPACKET * pkt, size_t len, uchar ** allocbytes)
 {
 	/* Internal API, so should not fail */
 	if(!ossl_assert(pkt->subs != NULL && len != 0))
@@ -69,7 +69,7 @@ int WPACKET_reserve_bytes(WPACKET * pkt, size_t len, unsigned char ** allocbytes
 }
 
 int WPACKET_sub_reserve_bytes__(WPACKET * pkt, size_t len,
-    unsigned char ** allocbytes, size_t lenbytes)
+    uchar ** allocbytes, size_t lenbytes)
 {
 	if(!WPACKET_reserve_bytes(pkt, lenbytes + len, allocbytes))
 		return 0;
@@ -89,7 +89,7 @@ static size_t maxmaxsize(size_t lenbytes)
 
 static int wpacket_intern_init_len(WPACKET * pkt, size_t lenbytes)
 {
-	unsigned char * lenchars;
+	uchar * lenchars;
 	pkt->curr = 0;
 	pkt->written = 0;
 	if((pkt->subs = static_cast<WPACKET_SUB *>(OPENSSL_zalloc(sizeof(*pkt->subs)))) == NULL) {
@@ -110,7 +110,7 @@ static int wpacket_intern_init_len(WPACKET * pkt, size_t lenbytes)
 	return 1;
 }
 
-int WPACKET_init_static_len(WPACKET * pkt, unsigned char * buf, size_t len,
+int WPACKET_init_static_len(WPACKET * pkt, uchar * buf, size_t len,
     size_t lenbytes)
 {
 	size_t max = maxmaxsize(lenbytes);
@@ -144,7 +144,7 @@ int WPACKET_init(WPACKET * pkt, BUF_MEM * buf)
 	return WPACKET_init_len(pkt, buf, 0);
 }
 
-int WPACKET_set_flags(WPACKET * pkt, unsigned int flags)
+int WPACKET_set_flags(WPACKET * pkt, uint flags)
 {
 	/* Internal API, so should not fail */
 	if(!ossl_assert(pkt->subs != NULL))
@@ -156,10 +156,10 @@ int WPACKET_set_flags(WPACKET * pkt, unsigned int flags)
 }
 
 /* Store the |value| of length |len| at location |data| */
-static int put_value(unsigned char * data, size_t value, size_t len)
+static int put_value(uchar * data, size_t value, size_t len)
 {
 	for(data += len - 1; len > 0; len--) {
-		*data = (unsigned char)(value & 0xff);
+		*data = (uchar)(value & 0xff);
 		data--;
 		value >>= 8;
 	}
@@ -266,7 +266,7 @@ int WPACKET_finish(WPACKET * pkt)
 int WPACKET_start_sub_packet_len__(WPACKET * pkt, size_t lenbytes)
 {
 	WPACKET_SUB * sub;
-	unsigned char * lenchars;
+	uchar * lenchars;
 	/* Internal API, so should not fail */
 	if(!ossl_assert(pkt->subs != NULL))
 		return 0;
@@ -294,12 +294,12 @@ int WPACKET_start_sub_packet(WPACKET * pkt)
 	return WPACKET_start_sub_packet_len__(pkt, 0);
 }
 
-int WPACKET_put_bytes__(WPACKET * pkt, unsigned int val, size_t size)
+int WPACKET_put_bytes__(WPACKET * pkt, uint val, size_t size)
 {
-	unsigned char * data;
+	uchar * data;
 
 	/* Internal API, so should not fail */
-	if(!ossl_assert(size <= sizeof(unsigned int))
+	if(!ossl_assert(size <= sizeof(uint))
 	    || !WPACKET_allocate_bytes(pkt, size, &data)
 	    || !put_value(data, val, size))
 		return 0;
@@ -334,42 +334,30 @@ int WPACKET_set_max_size(WPACKET * pkt, size_t maxsize)
 
 int WPACKET_memset(WPACKET * pkt, int ch, size_t len)
 {
-	unsigned char * dest;
-
+	uchar * dest;
 	if(len == 0)
 		return 1;
-
 	if(!WPACKET_allocate_bytes(pkt, len, &dest))
 		return 0;
-
 	memset(dest, ch, len);
-
 	return 1;
 }
 
 int WPACKET_memcpy(WPACKET * pkt, const void * src, size_t len)
 {
-	unsigned char * dest;
-
+	uchar * dest;
 	if(len == 0)
 		return 1;
-
 	if(!WPACKET_allocate_bytes(pkt, len, &dest))
 		return 0;
-
 	memcpy(dest, src, len);
-
 	return 1;
 }
 
-int WPACKET_sub_memcpy__(WPACKET * pkt, const void * src, size_t len,
-    size_t lenbytes)
+int WPACKET_sub_memcpy__(WPACKET * pkt, const void * src, size_t len, size_t lenbytes)
 {
-	if(!WPACKET_start_sub_packet_len__(pkt, lenbytes)
-	    || !WPACKET_memcpy(pkt, src, len)
-	    || !WPACKET_close(pkt))
+	if(!WPACKET_start_sub_packet_len__(pkt, lenbytes) || !WPACKET_memcpy(pkt, src, len) || !WPACKET_close(pkt))
 		return 0;
-
 	return 1;
 }
 
@@ -395,7 +383,7 @@ int WPACKET_get_length(WPACKET * pkt, size_t * len)
 	return 1;
 }
 
-unsigned char * WPACKET_get_curr(WPACKET * pkt)
+uchar * WPACKET_get_curr(WPACKET * pkt)
 {
 	return GETBUF(pkt) + pkt->curr;
 }

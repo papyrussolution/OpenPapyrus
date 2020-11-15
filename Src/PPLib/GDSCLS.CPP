@@ -103,7 +103,7 @@ int PPObjGoodsClass::SerializePacket(int dir, PPGdsClsPacket * pPack, SBuffer & 
 {
 	int    ok = 1;
 	SString line_buf;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	if(dir > 0) {
 		THROW(PutPropsToLine(line_buf, pPack));
 		THROW_SL(rBuf.Write(line_buf));
@@ -131,7 +131,7 @@ int PPObjGoodsClass::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
-				if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPGdsCls, Name)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPGdsCls, Name)) > 0) {
 					PPGdsCls same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
@@ -191,7 +191,7 @@ int PPObjGoodsClass::GetPacket(PPID id, PPGdsClsPacket * pPack)
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
 		SString line_buf, form_buf;
-		if(ref->GetPropVlrString(Obj, id, GDCPRP_PROPS, line_buf) > 0) {
+		if(P_Ref->GetPropVlrString(Obj, id, GDCPRP_PROPS, line_buf) > 0) {
 			GetPropsFromLine(line_buf, pPack);
 		}
 		GetDim(id, GDCPRP_DIMX, &pPack->DimX);
@@ -200,7 +200,7 @@ int PPObjGoodsClass::GetPacket(PPID id, PPGdsClsPacket * pPack)
 		GetDim(id, GDCPRP_DIMW, &pPack->DimW);
 		{
 			pPack->FormulaList.freeAll();
-			if(ref->GetPropVlrString(Obj, id, GDCPRP_FORMLIST, line_buf) > 0) {
+			if(P_Ref->GetPropVlrString(Obj, id, GDCPRP_FORMLIST, line_buf) > 0) {
 				PPStringSetSCD form_list;
 				form_list.setBuf(line_buf, line_buf.Len()+1);
 				for(uint pos = 0; form_list.get(&pos, form_buf);)
@@ -220,23 +220,23 @@ int PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use_ta)
 		THROW(tra);
 		if(*pID) {
 			if(pPack) {
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 			THROW(Dirty(*pID));
 		}
 		else {
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
 		{
 			const PPID id = *pID;
 			SString line_buf, form_buf;
 			if(pPack) {
 				THROW(PutPropsToLine(line_buf, pPack));
-				THROW(ref->PutPropVlrString(Obj, id, GDCPRP_PROPS, line_buf));
+				THROW(P_Ref->PutPropVlrString(Obj, id, GDCPRP_PROPS, line_buf));
 				THROW(PutDim(id, GDCPRP_DIMX, &pPack->DimX));
 				THROW(PutDim(id, GDCPRP_DIMY, &pPack->DimY));
 				THROW(PutDim(id, GDCPRP_DIMZ, &pPack->DimZ));
@@ -249,16 +249,16 @@ int PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use_ta)
 						form.PutToBuffer(form_buf);
 						form_list.add(form_buf);
 					}
-					THROW(ref->PutPropVlrString(Obj, id, GDCPRP_FORMLIST, form_list.getBuf()));
+					THROW(P_Ref->PutPropVlrString(Obj, id, GDCPRP_FORMLIST, form_list.getBuf()));
 				}
 			}
 			else {
-				THROW(ref->PutPropVlrString(Obj, id, GDCPRP_PROPS, 0));
+				THROW(P_Ref->PutPropVlrString(Obj, id, GDCPRP_PROPS, 0));
 				THROW(PutDim(id, GDCPRP_DIMX, 0));
 				THROW(PutDim(id, GDCPRP_DIMY, 0));
 				THROW(PutDim(id, GDCPRP_DIMZ, 0));
 				THROW(PutDim(id, GDCPRP_DIMW, 0));
-				THROW(ref->PutPropVlrString(Obj, id, GDCPRP_FORMLIST, 0));
+				THROW(P_Ref->PutPropVlrString(Obj, id, GDCPRP_FORMLIST, 0));
 			}
 		}
 		THROW(tra.Commit());
@@ -278,7 +278,7 @@ int PPObjGoodsClass::PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
 		pDim->ToStr(0, temp_str, sizeof(temp_str));
 		PPPutExtStrData(GDSCLS_EXTSTR_FLD_DIM_VALS, line_buf, temp_str);
 	}
-	ok = ref->PutPropVlrString(Obj, gdsClsID, propID, line_buf);
+	ok = P_Ref->PutPropVlrString(Obj, gdsClsID, propID, line_buf);
 	return ok;
 }
 
@@ -286,7 +286,7 @@ int PPObjGoodsClass::GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
 {
 	int    ok = 1;
 	SString line_buf, temp_buf;
-	if(ref->GetPropVlrString(PPOBJ_GOODSCLASS, gdsClsID, propID, line_buf) > 0) {
+	if(P_Ref->GetPropVlrString(PPOBJ_GOODSCLASS, gdsClsID, propID, line_buf) > 0) {
 		PPGetExtStrData(GDSCLS_EXTSTR_FLD_DIM_NAME,  line_buf, temp_buf);
 		temp_buf.CopyTo(pDim->Name, sizeof(pDim->Name));
 		PPGetExtStrData(GDSCLS_EXTSTR_FLD_DIM_SCALE, line_buf, temp_buf);
@@ -710,7 +710,7 @@ int PPObjGoodsClass::ReplacePropRefList(PPID prevObjType, PPID newObjType, LAsso
 		PPID   new_val_id = 0;
 		if(pAssc->at(i).Val) {
 			if(GetObjectName(prevObjType, pAssc->at(i).Val, name_buf) > 0) {
-				int r = ref->SearchName(newObjType, &new_val_id, name_buf, 0);
+				int r = P_Ref->SearchName(newObjType, &new_val_id, name_buf, 0);
 				THROW(r);
 				if(r < 0)
 					new_val_id = 0;
@@ -773,7 +773,7 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 		if(dlg->getDTS(&pack)) {
 			if(!CheckName(*pID, strip(pack.Rec.Name), 0))
 				dlg->selectCtrl(CTL_PALLET_NAME);
-			else if(*strip(pack.Rec.Symb) && !ref->CheckUniqueSymb(Obj, pack.Rec.ID, pack.Rec.Symb, offsetof(PPGdsCls, Symb)))
+			else if(*strip(pack.Rec.Symb) && !P_Ref->CheckUniqueSymb(Obj, pack.Rec.ID, pack.Rec.Symb, offsetof(PPGdsCls, Symb)))
 				PPErrorByDialog(dlg, CTL_PALLET_SYMB);
 			else {
 				valid_data = 1;

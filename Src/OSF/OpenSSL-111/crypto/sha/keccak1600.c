@@ -8,9 +8,9 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-size_t SHA3_absorb(uint64_t A[5][5], const unsigned char * inp, size_t len,
+size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len,
     size_t r);
-void SHA3_squeeze(uint64_t A[5][5], unsigned char * out, size_t len, size_t r);
+void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
 
 #if !defined(KECCAK1600_ASM) || !defined(SELFTEST)
 
@@ -69,7 +69,7 @@ static uint64_t ROL64(uint64_t val, int offset)
 	}
 }
 
-static const unsigned char rhotates[5][5] = {
+static const uchar rhotates[5][5] = {
 	{  0,  1, 62, 28, 27 },
 	{ 36, 44,  6, 55, 20 },
 	{  3, 10, 43, 25, 39 },
@@ -1057,7 +1057,7 @@ static uint64_t BitDeinterleave(uint64_t Ai)
  * padding and intermediate sub-block buffering, byte- or bitwise, is
  * caller's responsibility.
  */
-size_t SHA3_absorb(uint64_t A[5][5], const unsigned char * inp, size_t len,
+size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len,
     size_t r)
 {
 	uint64_t * A_flat = (uint64_t*)A;
@@ -1086,7 +1086,7 @@ size_t SHA3_absorb(uint64_t A[5][5], const unsigned char * inp, size_t len,
  * SHA3_squeeze is called once at the end to generate |out| hash value
  * of |len| bytes.
  */
-void SHA3_squeeze(uint64_t A[5][5], unsigned char * out, size_t len, size_t r)
+void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r)
 {
 	uint64_t * A_flat = (uint64_t*)A;
 	size_t i, w = r / 8;
@@ -1099,20 +1099,20 @@ void SHA3_squeeze(uint64_t A[5][5], unsigned char * out, size_t len, size_t r)
 
 			if(len < 8) {
 				for(i = 0; i < len; i++) {
-					*out++ = (unsigned char)Ai;
+					*out++ = (uchar)Ai;
 					Ai >>= 8;
 				}
 				return;
 			}
 
-			out[0] = (unsigned char)(Ai);
-			out[1] = (unsigned char)(Ai >> 8);
-			out[2] = (unsigned char)(Ai >> 16);
-			out[3] = (unsigned char)(Ai >> 24);
-			out[4] = (unsigned char)(Ai >> 32);
-			out[5] = (unsigned char)(Ai >> 40);
-			out[6] = (unsigned char)(Ai >> 48);
-			out[7] = (unsigned char)(Ai >> 56);
+			out[0] = (uchar)(Ai);
+			out[1] = (uchar)(Ai >> 8);
+			out[2] = (uchar)(Ai >> 16);
+			out[3] = (uchar)(Ai >> 24);
+			out[4] = (uchar)(Ai >> 32);
+			out[5] = (uchar)(Ai >> 40);
+			out[6] = (uchar)(Ai >> 48);
+			out[7] = (uchar)(Ai >> 56);
 			out += 8;
 			len -= 8;
 		}
@@ -1135,7 +1135,7 @@ void SHA3_squeeze(uint64_t A[5][5], unsigned char * out, size_t len, size_t r)
  * SHAKE_256    SHA3_sponge(inp, len, out, d, (1600-512)/8);
  */
 
-void SHA3_sponge(const unsigned char * inp, size_t len, unsigned char * out, size_t d, size_t r)
+void SHA3_sponge(const uchar * inp, size_t len, uchar * out, size_t d, size_t r)
 {
 	uint64_t A[5][5];
 	memzero(A, sizeof(A));
@@ -1143,17 +1143,17 @@ void SHA3_sponge(const unsigned char * inp, size_t len, unsigned char * out, siz
 	SHA3_squeeze(A, out, d, r);
 }
 
-# include <stdio.h>
+//#include <stdio.h>
 
 int main()
 {
 	/*
 	 * This is 5-bit SHAKE128 test from http://csrc.nist.gov/groups/ST/toolkit/examples.html#aHashing
 	 */
-	unsigned char test[168] = { '\xf3', '\x3' };
-	unsigned char out[512];
+	uchar test[168] = { '\xf3', '\x3' };
+	uchar out[512];
 	size_t i;
-	static const unsigned char result[512] = {
+	static const uchar result[512] = {
 		0x2E, 0x0A, 0xBF, 0xBA, 0x83, 0xE6, 0x72, 0x0B,
 		0xFB, 0xC2, 0x25, 0xFF, 0x6B, 0x7A, 0xB9, 0xFF,
 		0xCE, 0x58, 0xBA, 0x02, 0x7E, 0xE3, 0xD8, 0x98,

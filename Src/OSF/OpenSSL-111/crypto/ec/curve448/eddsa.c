@@ -77,7 +77,7 @@ c448_error_t c448_ed448_derive_public_key(uint8_t pubkey[EDDSA_448_PUBLIC_BYTES]
 	/* only this much used for keygen */
 	uint8_t secret_scalar_ser[EDDSA_448_PRIVATE_BYTES];
 	curve448_scalar_t secret_scalar;
-	unsigned int c;
+	uint c;
 	curve448_point_t p;
 
 	if(!oneshot_hash(secret_scalar_ser, sizeof(secret_scalar_ser), privkey,
@@ -124,7 +124,7 @@ c448_error_t c448_ed448_sign(uint8_t signature[EDDSA_448_SIGNATURE_BYTES],
 	c448_error_t ret = C448_FAILURE;
 	curve448_scalar_t nonce_scalar;
 	uint8_t nonce_point[EDDSA_448_PUBLIC_BYTES] = { 0 };
-	unsigned int c;
+	uint c;
 	curve448_scalar_t challenge_scalar;
 
 	if(hashctx == NULL)

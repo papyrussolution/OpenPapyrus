@@ -16,7 +16,7 @@
  */
 #define LIMIT_BEFORE_EXPANSION 0x5ffffffc
 
-BUF_MEM * BUF_MEM_new_ex(unsigned long flags)
+BUF_MEM * BUF_MEM_new_ex(ulong flags)
 {
 	BUF_MEM * ret = BUF_MEM_new();
 	if(ret != NULL)
@@ -137,7 +137,7 @@ size_t BUF_MEM_grow_clean(BUF_MEM * str, size_t len)
 	return len;
 }
 
-void BUF_reverse(unsigned char * out, const unsigned char * in, size_t size)
+void BUF_reverse(uchar * out, const uchar * in, size_t size)
 {
 	if(in) {
 		out += size - 1;
@@ -145,7 +145,7 @@ void BUF_reverse(unsigned char * out, const unsigned char * in, size_t size)
 			*out-- = *in++;
 	}
 	else {
-		unsigned char * q;
+		uchar * q;
 		char c;
 		q = out + size - 1;
 		for(size_t i = 0; i < size / 2; i++) {

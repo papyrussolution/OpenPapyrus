@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -589,7 +589,7 @@ int PPObjGoodsTax::SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGo
 	PPID   id = 0;
 	PPGoodsTax rec;
 	ASSIGN_PTR(pID, 0);
-	while(ok < 0 && ref->EnumItems(Obj, &id, &rec) > 0) {
+	while(ok < 0 && P_Ref->EnumItems(Obj, &id, &rec) > 0) {
 		if(PPObjGoodsTax::IsIdentical(pPattern, &rec)) {
 			ASSIGN_PTR(pRec, rec);
 			ASSIGN_PTR(pID, id);
@@ -631,7 +631,7 @@ int PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, double sta
 	else {
 		rec = pattern;
 		GetDefaultName(&rec, rec.Name, sizeof(rec.Name));
-		if(ref->AddItem(PPOBJ_GOODSTAX, &id, &rec, use_ta)) {
+		if(P_Ref->AddItem(PPOBJ_GOODSTAX, &id, &rec, use_ta)) {
 			ASSIGN_PTR(pID, id);
 		}
 		else
@@ -755,14 +755,14 @@ int PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use_ta)
 					THROW(CheckRights(PPR_MOD));
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
-					THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack->vecptr(), 0));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
+					THROW(P_Ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack->vecptr(), 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 				}
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
@@ -773,8 +773,8 @@ int PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use_ta)
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-			THROW(ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack->vecptr(), 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, GTGPRP_ENTRIES, pPack->vecptr(), 0));
 			pPack->Rec.ID = *pID;
 		}
 		THROW(tra.Commit());
@@ -788,7 +788,7 @@ int PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 	int    ok = -1;
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		if(Search(id, &pPack->Rec) > 0) {
-			ref->GetPropArray(Obj, id, GTGPRP_ENTRIES, pPack->vecptr());
+			P_Ref->GetPropArray(Obj, id, GTGPRP_ENTRIES, pPack->vecptr());
 			uint i;
 			int  is_zero_excise = 1;
 			if(pPack->Rec.Excise != 0)
@@ -820,7 +820,7 @@ int PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuffer & 
 {
 	int    ok = 1;
 	int32  c = static_cast<int32>(pPack->GetCount()); // @persistent
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 	for(int i = 0; i < c; i++) {
 		PPGoodsTaxEntry item;
@@ -851,10 +851,10 @@ int PPObjGoodsTax::SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsT
 {
 	int    ok = -1;
 	PPID   same_id = 0;
-	if(ref->SearchSymb(Obj, &same_id, pSample->Symb, offsetof(PPGoodsTax, Symb)) > 0) {
+	if(P_Ref->SearchSymb(Obj, &same_id, pSample->Symb, offsetof(PPGoodsTax, Symb)) > 0) {
 		ok = 1;
 	}
-	else if(ref->SearchSymb(Obj, &same_id, pSample->Name, offsetof(PPGoodsTax, Name)) > 0) {
+	else if(P_Ref->SearchSymb(Obj, &same_id, pSample->Name, offsetof(PPGoodsTax, Name)) > 0) {
 		ok = 1;
 	}
 	if(ok > 0) {

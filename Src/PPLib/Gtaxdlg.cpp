@@ -324,7 +324,7 @@ int PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
 		if(dlg->getDTS(&pack))
-			if(CheckDupName(*pID, pack.Rec.Name) && ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Symb, offsetof(PPGoodsTax, Symb))) {
+			if(CheckDupName(*pID, pack.Rec.Name) && P_Ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Symb, offsetof(PPGoodsTax, Symb))) {
 				if(PutPacket(pID, &pack, 1)) {
 					Dirty(*pID);
 					valid_data = 1;

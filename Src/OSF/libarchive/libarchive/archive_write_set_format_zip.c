@@ -31,33 +31,9 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_zip.c 201168 2009-12-29 06:15:32Z kientzle $");
 
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
 #ifdef HAVE_LANGINFO_H
 	#include <langinfo.h>
 #endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_ZLIB_H
-//#include <zlib.h>
-//#endif
-//#include "archive.h"
-//#include "archive_cryptor_private.h"
-//#include "archive_endian.h"
-//#include "archive_entry.h"
-//#include "archive_entry_locale.h"
-//#include "archive_hmac_private.h"
-//#include "archive_private.h"
-//#include "archive_random_private.h"
-//#include "archive_write_private.h"
-//#ifndef HAVE_ZLIB_H
-//#include "archive_crc32.h"
-//#endif
 #define ZIP_ENTRY_FLAG_ENCRYPTED        (1<<0)
 #define ZIP_ENTRY_FLAG_LENGTH_AT_END    (1<<3)
 #define ZIP_ENTRY_FLAG_UTF8_NAME        (1 << 11)

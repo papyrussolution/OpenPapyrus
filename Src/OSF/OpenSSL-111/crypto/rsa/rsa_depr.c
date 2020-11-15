@@ -22,7 +22,7 @@ NON_EMPTY_TRANSLATION_UNIT
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
 
-RSA * RSA_generate_key(int bits, unsigned long e_value,
+RSA * RSA_generate_key(int bits, ulong e_value,
     void (*callback)(int, int, void *), void * cb_arg)
 {
 	int i;
@@ -34,10 +34,10 @@ RSA * RSA_generate_key(int bits, unsigned long e_value,
 		goto err;
 
 	/*
-	 * The problem is when building with 8, 16, or 32 BN_ULONG, unsigned long
+	 * The problem is when building with 8, 16, or 32 BN_ULONG, ulong
 	 * can be larger
 	 */
-	for(i = 0; i < (int)sizeof(unsigned long) * 8; i++) {
+	for(i = 0; i < (int)sizeof(ulong) * 8; i++) {
 		if(e_value & (1UL << i))
 			if(BN_set_bit(e, i) == 0)
 				goto err;

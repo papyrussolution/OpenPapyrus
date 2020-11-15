@@ -1,5 +1,5 @@
 // CSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -400,7 +400,7 @@ int CSessionCore::GetActiveSessList(PPID locID, ObjIdListFilt * pActiveSessList)
 		prd.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		plusdate(&prd.low, -ASYNCSESS_BYLASTDAYS, 0);
 		PPIDArray async_sess_list;
-		for(SEnum en = cn_obj.ref->Enum(PPOBJ_CASHNODE, 0); en.Next(&cn_rec) > 0;) {
+		for(SEnum en = cn_obj.P_Ref->Enum(PPOBJ_CASHNODE, 0); en.Next(&cn_rec) > 0;) {
 			if(!locID || cn_rec.LocID == locID)
 				if(PPCashMachine::IsSyncCMT(cn_rec.CashType))
 					pActiveSessList->Add(cn_rec.CurSessID);

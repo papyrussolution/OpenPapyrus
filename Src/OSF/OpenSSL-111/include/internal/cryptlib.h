@@ -178,7 +178,7 @@ struct bio_st {
 
 #ifndef OPENSSL_NO_SOCK
 	#ifdef OPENSSL_SYS_VMS
-		typedef unsigned int socklen_t;
+		typedef uint socklen_t;
 	#endif
 
 	extern CRYPTO_RWLOCK * bio_lookup_lock;
@@ -275,7 +275,7 @@ DEFINE_LHASH_OF(MEM);
 #define HEX_SIZE(type)          (sizeof(type)*2)
 
 void OPENSSL_cpuid_setup(void);
-extern unsigned int OPENSSL_ia32cap_P[];
+extern uint OPENSSL_ia32cap_P[];
 void OPENSSL_showfatal(const char * fmta, ...);
 void crypto_cleanup_all_ex_data_int(void);
 int openssl_init_fork_handlers(void);
@@ -290,7 +290,7 @@ int openssl_strerror_r(int errnum, char * buf, size_t buflen);
 #endif
 
 uint32_t OPENSSL_rdtsc(void);
-size_t OPENSSL_instrument_bus(unsigned int *, size_t);
-size_t OPENSSL_instrument_bus2(unsigned int *, size_t, size_t);
+size_t OPENSSL_instrument_bus(uint *, size_t);
+size_t OPENSSL_instrument_bus2(uint *, size_t, size_t);
 
 #endif

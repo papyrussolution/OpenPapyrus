@@ -32,12 +32,7 @@
 #include <ma_global.h>
 #pragma hdrstop
 #define FORCE_INIT_OF_VARS 1 /* Silence warnings about variable 'unused' being used. */
-//#include <ma_sys.h>
-//#include <ma_common.h>
-//#include <ma_string.h>
 #include <ma_pthread.h>
-//#include "errmsg.h"
-//#include <mysql/client_plugin.h>
 #ifndef WIN32
 	#include <dlfcn.h>
 #endif
@@ -50,7 +45,7 @@ struct st_client_plugin_int {
 	struct st_mysql_client_plugin * plugin;
 };
 
-static my_bool initialized = 0;
+static bool initialized = 0;
 static MA_MEM_ROOT mem_root;
 
 static uint valid_plugins[][2] = {

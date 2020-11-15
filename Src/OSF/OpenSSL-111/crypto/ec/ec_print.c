@@ -18,7 +18,7 @@ BIGNUM * EC_POINT_point2bn(const EC_GROUP * group,
     BIGNUM * ret, BN_CTX * ctx)
 {
 	size_t buf_len = 0;
-	unsigned char * buf;
+	uchar * buf;
 
 	buf_len = EC_POINT_point2buf(group, point, form, &buf, ctx);
 
@@ -36,7 +36,7 @@ EC_POINT * EC_POINT_bn2point(const EC_GROUP * group,
     const BIGNUM * bn, EC_POINT * point, BN_CTX * ctx)
 {
 	size_t buf_len = 0;
-	unsigned char * buf;
+	uchar * buf;
 	EC_POINT * ret;
 
 	if((buf_len = BN_num_bytes(bn)) == 0)
@@ -80,7 +80,7 @@ char * EC_POINT_point2hex(const EC_GROUP * group,
 {
 	char * ret, * p;
 	size_t buf_len = 0, i;
-	unsigned char * buf = NULL, * pbuf;
+	uchar * buf = NULL, * pbuf;
 
 	buf_len = EC_POINT_point2buf(group, point, form, &buf, ctx);
 

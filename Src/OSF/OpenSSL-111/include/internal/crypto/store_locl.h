@@ -84,7 +84,7 @@ struct ossl_store_search_st {
      * Used by OSSL_STORE_SEARCH_BY_KEY_FINGERPRINT and
      * OSSL_STORE_SEARCH_BY_ALIAS
      */
-    const unsigned char *string;
+    const uchar *string;
     size_t stringlength;
 };
 

@@ -9,7 +9,7 @@
 #ifndef HEADER_PPC_ARCH_H
 #define HEADER_PPC_ARCH_H
 
-extern unsigned int OPENSSL_ppccap_P;
+extern uint OPENSSL_ppccap_P;
 
 /*
  * Flags' usage can appear ambiguous, because they are set rather

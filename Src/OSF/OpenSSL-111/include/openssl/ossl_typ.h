@@ -159,7 +159,7 @@ typedef struct ossl_store_search_st OSSL_STORE_SEARCH;
  * conversion functions, not just the sizes.
  */
 typedef long ossl_intmax_t;
-typedef unsigned long ossl_uintmax_t;
+typedef ulong ossl_uintmax_t;
 #endif
 
 #ifdef  __cplusplus

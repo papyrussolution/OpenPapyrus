@@ -24,7 +24,7 @@
 	*((c)++) = (uchar)(((l)>>16L)&0xff), \
 	*((c)++) = (uchar)(((l)>>24L)&0xff))
 
-static void mdc2_body(MDC2_CTX * c, const unsigned char * in, size_t len);
+static void mdc2_body(MDC2_CTX * c, const uchar * in, size_t len);
 int MDC2_Init(MDC2_CTX * c)
 {
 	c->num = 0;
@@ -34,7 +34,7 @@ int MDC2_Init(MDC2_CTX * c)
 	return 1;
 }
 
-int MDC2_Update(MDC2_CTX * c, const unsigned char * in, size_t len)
+int MDC2_Update(MDC2_CTX * c, const uchar * in, size_t len)
 {
 	size_t i, j;
 
@@ -67,15 +67,14 @@ int MDC2_Update(MDC2_CTX * c, const unsigned char * in, size_t len)
 	return 1;
 }
 
-static void mdc2_body(MDC2_CTX * c, const unsigned char * in, size_t len)
+static void mdc2_body(MDC2_CTX * c, const uchar * in, size_t len)
 {
-	register DES_LONG tin0, tin1;
-	register DES_LONG ttin0, ttin1;
+	DES_LONG tin0, tin1;
+	DES_LONG ttin0, ttin1;
 	DES_LONG d[2], dd[2];
 	DES_key_schedule k;
-	unsigned char * p;
+	uchar * p;
 	size_t i;
-
 	for(i = 0; i < len; i += 8) {
 		c2l(in, tin0);
 		d[0] = dd[0] = tin0;
@@ -106,7 +105,7 @@ static void mdc2_body(MDC2_CTX * c, const unsigned char * in, size_t len)
 	}
 }
 
-int MDC2_Final(unsigned char * md, MDC2_CTX * c)
+int MDC2_Final(uchar * md, MDC2_CTX * c)
 {
 	uint i = c->num;
 	int j = c->pad_type;
@@ -116,7 +115,7 @@ int MDC2_Final(unsigned char * md, MDC2_CTX * c)
 		memzero(&(c->data[i]), MDC2_BLOCK - i);
 		mdc2_body(c, c->data, MDC2_BLOCK);
 	}
-	memcpy(md, (char*)c->h, MDC2_BLOCK);
-	memcpy(&(md[MDC2_BLOCK]), (char*)c->hh, MDC2_BLOCK);
+	memcpy(md, (char *)c->h, MDC2_BLOCK);
+	memcpy(&(md[MDC2_BLOCK]), (char *)c->hh, MDC2_BLOCK);
 	return 1;
 }

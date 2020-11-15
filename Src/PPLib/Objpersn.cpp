@@ -142,7 +142,7 @@ int GetUserByPerson(PPID psnID, PPID * pUserID)
 	if(psnID) {
 		PPSecur secur;
 		PPObjSecur sc_obj(PPOBJ_USR, 0);
-		for(SEnum en = sc_obj.ref->Enum(PPOBJ_USR, 0); ok < 0 && en.Next(&secur) > 0;) {
+		for(SEnum en = sc_obj.P_Ref->Enum(PPOBJ_USR, 0); ok < 0 && en.Next(&secur) > 0;) {
 			if(secur.PersonID == psnID) {
 				user_id = secur.ID;
 				ok = 1;
@@ -6216,7 +6216,7 @@ int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_PSNKIND_SYMB, psnk.Symb);
 		if(!CheckName(*pID, strip(psnk.Name), 0))
 			dlg->selectCtrl(CTL_PSNKIND_NAME);
-		else if(*strip(psnk.Symb) && !ref->CheckUniqueSymb(Obj, psnk.ID, psnk.Symb, offsetof(PPPersonKind, Symb)))
+		else if(*strip(psnk.Symb) && !P_Ref->CheckUniqueSymb(Obj, psnk.ID, psnk.Symb, offsetof(PPPersonKind, Symb)))
 			PPErrorByDialog(dlg, CTL_PSNKIND_SYMB);
 		else {
 			dlg->getCtrlData(CTL_PSNKIND_CODEREGT,  &psnk.CodeRegTypeID);
@@ -6276,7 +6276,7 @@ int PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 			p_rec->ID = *pID;
 			int    r = EditItem(Obj, *pID, p_rec, 1);
 			if(r > 0)
-   			    ok = ((*pID = ref->data.ObjID), 102);
+   			    ok = ((*pID = P_Ref->data.ObjID), 102);
 			else if(r < 0)
 				ok = 1;
 			else {
@@ -6288,7 +6288,7 @@ int PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 		else {
 			p_rec->ID = *pID = 0;
 			if(EditItem(Obj, *pID, p_rec, 1))
-			    ok = ((*pID = ref->data.ObjID), 101);
+			    ok = ((*pID = P_Ref->data.ObjID), 101);
 			else {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ID, p_rec->Name);
 				ok = -1;

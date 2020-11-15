@@ -44,10 +44,10 @@ OCSP_CERTID * OCSP_cert_id_new(const EVP_MD * dgst,
     const ASN1_INTEGER * serialNumber)
 {
 	int nid;
-	unsigned int i;
+	uint i;
 	X509_ALGOR * alg;
 	OCSP_CERTID * cid = NULL;
-	unsigned char md[EVP_MAX_MD_SIZE];
+	uchar md[EVP_MAX_MD_SIZE];
 
 	if((cid = OCSP_CERTID_new()) == NULL)
 		goto err;

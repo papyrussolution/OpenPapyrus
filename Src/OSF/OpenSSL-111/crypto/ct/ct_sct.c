@@ -74,7 +74,7 @@ int SCT_set_log_entry_type(SCT * sct, ct_log_entry_type_t entry_type)
 	return 0;
 }
 
-int SCT_set0_log_id(SCT * sct, unsigned char * log_id, size_t log_id_len)
+int SCT_set0_log_id(SCT * sct, uchar * log_id, size_t log_id_len)
 {
 	if(sct->version == SCT_VERSION_V1 && log_id_len != CT_V1_HASHLEN) {
 		CTerr(CT_F_SCT_SET0_LOG_ID, CT_R_INVALID_LOG_ID_LENGTH);
@@ -88,7 +88,7 @@ int SCT_set0_log_id(SCT * sct, unsigned char * log_id, size_t log_id_len)
 	return 1;
 }
 
-int SCT_set1_log_id(SCT * sct, const unsigned char * log_id, size_t log_id_len)
+int SCT_set1_log_id(SCT * sct, const uchar * log_id, size_t log_id_len)
 {
 	if(sct->version == SCT_VERSION_V1 && log_id_len != CT_V1_HASHLEN) {
 		CTerr(CT_F_SCT_SET1_LOG_ID, CT_R_INVALID_LOG_ID_LENGTH);
@@ -136,7 +136,7 @@ int SCT_set_signature_nid(SCT * sct, int nid)
 	}
 }
 
-void SCT_set0_extensions(SCT * sct, unsigned char * ext, size_t ext_len)
+void SCT_set0_extensions(SCT * sct, uchar * ext, size_t ext_len)
 {
 	OPENSSL_free(sct->ext);
 	sct->ext = ext;
@@ -144,7 +144,7 @@ void SCT_set0_extensions(SCT * sct, unsigned char * ext, size_t ext_len)
 	sct->validation_status = SCT_VALIDATION_STATUS_NOT_SET;
 }
 
-int SCT_set1_extensions(SCT * sct, const unsigned char * ext, size_t ext_len)
+int SCT_set1_extensions(SCT * sct, const uchar * ext, size_t ext_len)
 {
 	OPENSSL_free(sct->ext);
 	sct->ext = NULL;
@@ -162,7 +162,7 @@ int SCT_set1_extensions(SCT * sct, const unsigned char * ext, size_t ext_len)
 	return 1;
 }
 
-void SCT_set0_signature(SCT * sct, unsigned char * sig, size_t sig_len)
+void SCT_set0_signature(SCT * sct, uchar * sig, size_t sig_len)
 {
 	OPENSSL_free(sct->sig);
 	sct->sig = sig;
@@ -170,7 +170,7 @@ void SCT_set0_signature(SCT * sct, unsigned char * sig, size_t sig_len)
 	sct->validation_status = SCT_VALIDATION_STATUS_NOT_SET;
 }
 
-int SCT_set1_signature(SCT * sct, const unsigned char * sig, size_t sig_len)
+int SCT_set1_signature(SCT * sct, const uchar * sig, size_t sig_len)
 {
 	OPENSSL_free(sct->sig);
 	sct->sig = NULL;
@@ -198,7 +198,7 @@ ct_log_entry_type_t SCT_get_log_entry_type(const SCT * sct)
 	return sct->entry_type;
 }
 
-size_t SCT_get0_log_id(const SCT * sct, unsigned char ** log_id)
+size_t SCT_get0_log_id(const SCT * sct, uchar ** log_id)
 {
 	*log_id = sct->log_id;
 	return sct->log_id_len;
@@ -226,13 +226,13 @@ int SCT_get_signature_nid(const SCT * sct)
 	return NID_undef;
 }
 
-size_t SCT_get0_extensions(const SCT * sct, unsigned char ** ext)
+size_t SCT_get0_extensions(const SCT * sct, uchar ** ext)
 {
 	*ext = sct->ext;
 	return sct->ext_len;
 }
 
-size_t SCT_get0_signature(const SCT * sct, unsigned char ** sig)
+size_t SCT_get0_signature(const SCT * sct, uchar ** sig)
 {
 	*sig = sct->sig;
 	return sct->sig_len;

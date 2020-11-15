@@ -145,7 +145,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjPersonRelType, PPPersonRelTypePacket);
 int PPObjPersonRelType::SerializePacket(int dir, PPPersonRelTypePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->InhRegTypeList, rBuf));
 	CATCHZOK
 	return ok;
@@ -168,7 +168,7 @@ int PPObjPersonRelType::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 						ok = 1;
 					}
 				}
-				else if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPPersonRelType, Symb)) > 0) {
+				else if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPPersonRelType, Symb)) > 0) {
 					*pID = same_id;
 					ok = 1;
 				}
@@ -208,7 +208,7 @@ int PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
 {
 	int    ok = -1;
 	SVector list(sizeof(PPPersonRelType)); // @v10.6.8 SArray-->SVector
-	THROW(ref->LoadItems(Obj, list));
+	THROW(P_Ref->LoadItems(Obj, list));
 	for(uint i = 0; i < list.getCount(); i++) {
 		const PPPersonRelType * p_item = static_cast<const PPPersonRelType *>(list.at(i));
 		if(p_item && p_item->Flags & PPPersonRelType::fGrouping) {
@@ -245,7 +245,7 @@ int PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 
 int PPObjPersonRelType::SearchSymb(PPID * pID, const char * pSymb)
 {
-	return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPPersonRelType, Symb));
+	return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPPersonRelType, Symb));
 }
 
 class PersonRelTypeCache : public ObjCache {
@@ -439,25 +439,25 @@ int PPObjPersonRelType::PutPacket(PPID * pID, PPPersonRelTypePacket * pPack, int
 	if(pPack) {
 		strip(pPack->Rec.Name);
 		strip(pPack->Rec.Symb);
-		THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPPersonRelType, Name)));
-		THROW(ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPPersonRelType, Symb)));
+		THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPPersonRelType, Name)));
+		THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPPersonRelType, Symb)));
 	}
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
 			if(pPack) {
-				THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 			}
 			else {
-				THROW(ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
 		}
 		else if(pPack) {
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
-		THROW(ref->PutPropArray(Obj, *pID, PRTPRP_INHREGLIST, (pPack ? &pPack->InhRegTypeList : 0), 0));
+		THROW(P_Ref->PutPropArray(Obj, *pID, PRTPRP_INHREGLIST, (pPack ? &pPack->InhRegTypeList : 0), 0));
 		THROW(tra.Commit());
 	}
 	if(*pID)
@@ -473,7 +473,7 @@ int PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {
-			THROW(ref->GetPropArray(Obj, id, PRTPRP_INHREGLIST, &pPack->InhRegTypeList));
+			THROW(P_Ref->GetPropArray(Obj, id, PRTPRP_INHREGLIST, &pPack->InhRegTypeList));
 		}
 	}
 	CATCHZOK

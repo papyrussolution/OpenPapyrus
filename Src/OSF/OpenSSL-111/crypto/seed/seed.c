@@ -316,7 +316,7 @@ static const seed_word SS[4][256] = {
 #else
 
 /* on x86_64 >5x size reduction at 40% performance penalty */
-static const unsigned char SEED_Sbox[2][256] = {
+static const uchar SEED_Sbox[2][256] = {
 	{
 		0xA9, 0x85, 0xD6, 0xD3, 0x54, 0x1D, 0xAC, 0x25,
 		0x5D, 0x43, 0x18, 0x1E, 0x51, 0xFC, 0xCA, 0x63,
@@ -387,9 +387,9 @@ static const unsigned char SEED_Sbox[2][256] = {
 	}
 };
 
-static unsigned int G_FUNC(unsigned int v)
+static uint G_FUNC(uint v)
 {
-	unsigned int s0, s1, s2, s3, ret;
+	uint s0, s1, s2, s3, ret;
 
 	s0 = SEED_Sbox[0][(uchar)(v) & 0xff];
 	s1 = SEED_Sbox[1][(uchar)((v)>> 8) & 0xff];
@@ -431,7 +431,7 @@ static const seed_word KC[] = {
 };
 #endif
 
-void SEED_set_key(const unsigned char rawkey[SEED_KEY_LENGTH],
+void SEED_set_key(const uchar rawkey[SEED_KEY_LENGTH],
     SEED_KEY_SCHEDULE * ks)
 {
 	seed_word x1, x2, x3, x4;
@@ -490,8 +490,8 @@ void SEED_set_key(const unsigned char rawkey[SEED_KEY_LENGTH],
 #endif
 }
 
-void SEED_encrypt(const unsigned char s[SEED_BLOCK_SIZE],
-    unsigned char d[SEED_BLOCK_SIZE],
+void SEED_encrypt(const uchar s[SEED_BLOCK_SIZE],
+    uchar d[SEED_BLOCK_SIZE],
     const SEED_KEY_SCHEDULE * ks)
 {
 	seed_word x1, x2, x3, x4;
@@ -535,8 +535,8 @@ void SEED_encrypt(const unsigned char s[SEED_BLOCK_SIZE],
 	word2char(x2, d + 12);
 }
 
-void SEED_decrypt(const unsigned char s[SEED_BLOCK_SIZE],
-    unsigned char d[SEED_BLOCK_SIZE],
+void SEED_decrypt(const uchar s[SEED_BLOCK_SIZE],
+    uchar d[SEED_BLOCK_SIZE],
     const SEED_KEY_SCHEDULE * ks)
 {
 	seed_word x1, x2, x3, x4;

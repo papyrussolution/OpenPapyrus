@@ -244,27 +244,27 @@ int SimpleObjView(PPObject * pObj, void * extraPtr)
 //
 // @ModuleDef(PPObjReference)
 //
-PPObjReference::PPObjReference(PPID aObj, void * extraPtr) : PPObject(aObj), ExtraPtr(extraPtr), ref(PPRef)
+PPObjReference::PPObjReference(PPID aObj, void * extraPtr) : PPObject(aObj), ExtraPtr(extraPtr), P_Ref(PPRef)
 {
 	ImplementFlags |= implStrAssocMakeList;
 	if(IS_DYN_OBJTYPE(aObj)) {
 		ReferenceTbl::Rec rec;
-		if(ref->GetItem(PPOBJ_DYNAMICOBJS, aObj, &rec) > 0 && rec.Val1 & PPCommObjEntry::fHierarchical)
+		if(P_Ref->GetItem(PPOBJ_DYNAMICOBJS, aObj, &rec) > 0 && rec.Val1 & PPCommObjEntry::fHierarchical)
 			ImplementFlags |= implTreeSelector;
 	}
 }
 
-int    PPObjReference::Search(PPID id, void * b) { return ref->GetItem(Obj, id, b); }
-const  char * PPObjReference::GetNamePtr() { return ref->data.ObjName; }
-int    PPObjReference::SearchByName(const char * pName, PPID * pID, void * pRec) { return ref->SearchName(Obj, pID, pName, pRec); }
+int    PPObjReference::Search(PPID id, void * b) { return P_Ref->GetItem(Obj, id, b); }
+const  char * PPObjReference::GetNamePtr() { return P_Ref->data.ObjName; }
+int    PPObjReference::SearchByName(const char * pName, PPID * pID, void * pRec) { return P_Ref->SearchName(Obj, pID, pName, pRec); }
 
 int PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 {
 	PPID   id = 0;
-	int    r = ref->SearchSymb(Obj, &id, pSymb, offsetof(ReferenceTbl::Rec, Symb));
+	int    r = P_Ref->SearchSymb(Obj, &id, pSymb, offsetof(ReferenceTbl::Rec, Symb));
 	if(r > 0) {
 		if(pRec)
-			r = ref->GetItem(Obj, id, pRec);
+			r = P_Ref->GetItem(Obj, id, pRec);
 	}
 	else {
 		if(Obj == PPOBJ_ACCSHEET) {
@@ -276,7 +276,7 @@ int PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 				id = GetSupplAccSheet();
 			else if(r_temp_buf.IsEqiAscii("$agent"))
 				id = GetAgentAccSheet();
-			if(id && ref->GetItem(Obj, id, pRec) > 0)
+			if(id && P_Ref->GetItem(Obj, id, pRec) > 0)
 				r = 1;
 			else {
 				id = 0;
@@ -292,7 +292,7 @@ int PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 				id = PPPRK_SUPPL;
 			else if(r_temp_buf.IsEqiAscii("$agent"))
 				id = PPPRK_AGENT;
-			if(id && ref->GetItem(Obj, id, pRec) > 0)
+			if(id && P_Ref->GetItem(Obj, id, pRec) > 0)
 				r = 1;
 			else {
 				id = 0;
@@ -308,9 +308,9 @@ int PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 	return r;
 }
 
-int PPObjReference::EnumItems(PPID * pID, void * b) { return ref->EnumItems(Obj, pID, b); }
-SEnumImp * FASTCALL PPObjReference::Enum(int options) { return ref->Enum(Obj, options); }
-SEnumImp * PPObjReference::EnumByIdxVal(int valN, long val) { return ref->EnumByIdxVal(Obj, valN, val); }
+int PPObjReference::EnumItems(PPID * pID, void * b) { return P_Ref->EnumItems(Obj, pID, b); }
+SEnumImp * FASTCALL PPObjReference::Enum(int options) { return P_Ref->Enum(Obj, options); }
+SEnumImp * PPObjReference::EnumByIdxVal(int valN, long val) { return P_Ref->EnumByIdxVal(Obj, valN, val); }
 
 int PPObjReference::CheckDupName(PPID objID, const char * pName)
 {
@@ -320,7 +320,7 @@ int PPObjReference::CheckDupName(PPID objID, const char * pName)
 
 int PPObjReference::CheckDupSymb(PPID objID, const char * pSymb)
 {
-	return ref->CheckUniqueSymb(Obj, objID, pSymb, offsetof(ReferenceTbl::Rec, Symb));
+	return P_Ref->CheckUniqueSymb(Obj, objID, pSymb, offsetof(ReferenceTbl::Rec, Symb));
 }
 
 PPID PPObjReference::GetSingle()
@@ -338,14 +338,14 @@ PPID PPObjReference::GetSingle()
 int PPObjReference::AddItem(PPID * pID, void * pBuf, int use_ta)
 {
 	int    ok = -1;
-	if((ok = ref->AddItem(Obj, &static_cast<ReferenceTbl::Rec *>(pBuf)->ObjID, pBuf, 0)) > 0)
+	if((ok = P_Ref->AddItem(Obj, &static_cast<ReferenceTbl::Rec *>(pBuf)->ObjID, pBuf, 0)) > 0)
 		ASSIGN_PTR(pID, static_cast<ReferenceTbl::Rec *>(pBuf)->ObjID);
 	return ok;
 }
 
 int PPObjReference::UpdateItem(PPID id, const void * pRec, int use_ta)
 {
-	return ref->UpdateItem(Obj, id, pRec, 1, use_ta);
+	return P_Ref->UpdateItem(Obj, id, pRec, 1, use_ta);
 }
 
 int PPObjReference::Browse(void * extraPtr)
@@ -360,13 +360,13 @@ int PPObjReference::EditItem(PPID obj, PPID id, void * pRec, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(id) {
-			int r = ref->UpdateItem(obj, id, pRec, 1, 0);
+			int r = P_Ref->UpdateItem(obj, id, pRec, 1, 0);
 			THROW(r);
 			if(r < 0)
 				ok = -1;
 		}
 		else {
-			THROW(ref->AddItem(obj, &static_cast<ReferenceTbl::Rec *>(pRec)->ObjID, pRec, 0));
+			THROW(P_Ref->AddItem(obj, &static_cast<ReferenceTbl::Rec *>(pRec)->ObjID, pRec, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -423,7 +423,7 @@ PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const 
 			p_dlg->GetClusterData(CTL_COMMOBJ_FLAGS, &flags);
 			if(p_obj && !p_obj->CheckName(_id, name, 1))
 				PPErrorByDialog(p_dlg, CTL_COMMOBJ_NAME);
-			else if(p_obj && !p_obj->ref->CheckUniqueSymb(pEntry->ObjType, _id, symb, offsetof(ReferenceTbl::Rec, Symb))) {
+			else if(p_obj && !p_obj->P_Ref->CheckUniqueSymb(pEntry->ObjType, _id, symb, offsetof(ReferenceTbl::Rec, Symb))) {
 				PPErrorByDialog(p_dlg, CTL_COMMOBJ_SYMB);
 			}
 			else if(pEntry->ObjType == PPOBJ_DYNAMICOBJS && GetObjectTypeBySymb(symb, 0)) {
@@ -473,7 +473,7 @@ int PPObjReference::Edit(PPID * pID, void * extraPtr)
 	THROW(EditPrereq(pID, 0, &is_new));
 	// @v10.6.8 @ctr MEMSZERO(rec);
 	if(!is_new) {
-		THROW(ref->GetItem(Obj, *pID, &rec) > 0); // @v9.8.12 (!=0)-->(>0)
+		THROW(P_Ref->GetItem(Obj, *pID, &rec) > 0);
 	}
 	{
 		PPCommObjEntry param(Obj, rec.ObjID, rec.ObjName, rec.Symb);
@@ -509,7 +509,7 @@ int PPObjReference::Edit(PPID * pID, void * extraPtr)
 		r = 0;
 	else if(!(options & PPObject::user_request) || PPMessage(mfConf|mfYesNo, PPCFM_DELETE) == cmYes) {
 		PPWait(1);
-		r = BIN(ref->RemoveItem(Obj, id, BIN(options & PPObject::use_transaction)) && RemoveSync(id));
+		r = BIN(P_Ref->RemoveItem(Obj, id, BIN(options & PPObject::use_transaction)) && RemoveSync(id));
 		PPWait(0);
 	}
 	if(r == 0 && (options & PPObject::user_request))
@@ -524,7 +524,7 @@ StrAssocArray * PPObjReference::MakeStrAssocList(void * extraPtr)
 	{
 		const int is_hier = BIN(IS_DYN_OBJTYPE(Obj) && ImplementFlags & implTreeSelector);
 		ReferenceTbl::Rec rec;
-		for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 			if(!FiltProc || FiltProc(&rec, extraPtr)) {
 				if(*strip(rec.ObjName) == 0)
 					ideqvalstr(rec.ObjID, rec.ObjName, sizeof(rec.ObjName));
@@ -560,7 +560,7 @@ int PPObjReference::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 int PPObjReference::IsRecEq(const ReferenceTbl::Rec & rR1, const ReferenceTbl::Rec & rR2)
 {
-	return ref->GetFields().IsEqualRecords(&rR1, &rR2);
+	return P_Ref->GetFields().IsEqualRecords(&rR1, &rR2);
 }
 
 int PPObjReference::Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream, ObjTransmContext * pCtx)
@@ -568,12 +568,12 @@ int PPObjReference::Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream
 	int    ok = 1;
 	SBuffer buffer;
 	if(dir > 0) {
-		THROW_SL(ref->SerializeRecord(dir, pPack, buffer, &pCtx->SCtx));
+		THROW_SL(P_Ref->SerializeRecord(dir, pPack, buffer, &pCtx->SCtx));
 		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 	}
 	else if(dir < 0) {
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
-		THROW_SL(ref->SerializeRecord(dir, pPack, buffer, &pCtx->SCtx));
+		THROW_SL(P_Ref->SerializeRecord(dir, pPack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -635,7 +635,7 @@ int PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 			int    r = EditItem(Obj, *pID, p_rec, 1);
 			if(r > 0) {
 				ok = *pID ? 102 : 101;
-				*pID = ref->data.ObjID;
+				*pID = P_Ref->data.ObjID;
 			}
 			else if(r < 0) // Ничего не изменилось
 				ok = 1;
@@ -786,14 +786,14 @@ int PPObjUnit::SearchMaxLike(const PPUnit * pRec, PPID * pID)
 		MEMSZERO(k1);
 		k1.ObjType = Obj;
 		STRNSCPY(k1.ObjName, pRec->Name);
-		if(SearchByKey(ref, 1, &k1, 0) > 0) {
-			const PPUnit & rec = *reinterpret_cast<const PPUnit *>(&ref->data);
+		if(SearchByKey(P_Ref, 1, &k1, 0) > 0) {
+			const PPUnit & rec = *reinterpret_cast<const PPUnit *>(&P_Ref->data);
 			do {
 				if(pRec->ID != rec.ID) {
-					ASSIGN_PTR(pID, ref->data.ObjID);
+					ASSIGN_PTR(pID, P_Ref->data.ObjID);
 					ok = 1;
 				}
-			} while(ok < 0 && ref->search(1, &k1, spNext) && k1.ObjType == Obj && sstrlen(pRec->Name) == sstrlen(k1.ObjName) && stricmp866(pRec->Name, k1.ObjName) == 0);
+			} while(ok < 0 && P_Ref->search(1, &k1, spNext) && k1.ObjType == Obj && sstrlen(pRec->Name) == sstrlen(k1.ObjName) && stricmp866(pRec->Name, k1.ObjName) == 0);
 		}
 	}
 	return ok;
@@ -887,7 +887,7 @@ int PPObjUnit::AddSimple(PPID * pID, const char * pName, long flags, int use_ta)
 				unit_rec.Flags = flags;
 			else
 				unit_rec.Flags |= PPUnit::Trade;
-			THROW(ref->AddItem(PPOBJ_UNIT, &(id = 0), &unit_rec, use_ta));
+			THROW(P_Ref->AddItem(PPOBJ_UNIT, &(id = 0), &unit_rec, use_ta));
 			ok = 2;
 		}
 	}
@@ -906,7 +906,7 @@ int PPObjUnit::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 			p_rec->ID = *pID;
 			int    r = EditItem(Obj, *pID, p_rec, 1);
 			if(r > 0)
-   			    ok = ((*pID = ref->data.ObjID), 102);
+   			    ok = ((*pID = P_Ref->data.ObjID), 102);
 			else if(r < 0)
 				ok = 1;
 			else {
@@ -918,7 +918,7 @@ int PPObjUnit::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 		else {
 			p_rec->ID = *pID = 0;
 			if(EditItem(Obj, *pID, p_rec, 1))
-			    ok = ((*pID = ref->data.ObjID), 101);
+			    ok = ((*pID = P_Ref->data.ObjID), 101);
 			else {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ID, p_rec->Name);
 				ok = -1;
@@ -1181,10 +1181,10 @@ int PPObjPersonStatus::Edit(PPID * pID, void * extraPtr)
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_PSNST_NAME, rec.Name);
 		dlg->getCtrlData(CTL_PSNST_SYMB, rec.Symb);
-		if(!ref->CheckUniqueSymb(Obj, *pID, rec.Name, offsetof(PPPersonStatus, Name))) {
+		if(!P_Ref->CheckUniqueSymb(Obj, *pID, rec.Name, offsetof(PPPersonStatus, Name))) {
 			PPErrorByDialog(dlg, CTL_PSNST_NAME);
 		}
-		else if(!ref->CheckUniqueSymb(Obj, *pID, rec.Symb, offsetof(PPPersonStatus, Symb))) {
+		else if(!P_Ref->CheckUniqueSymb(Obj, *pID, rec.Symb, offsetof(PPPersonStatus, Symb))) {
 			PPErrorByDialog(dlg, CTL_PSNST_SYMB);
 		}
 		else {
@@ -1277,7 +1277,7 @@ int PPObjPersonCat::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 			p_rec->ID = *pID;
 			int    r = EditItem(Obj, *pID, p_rec, 1);
 			if(r > 0)
-   			    ok = ((*pID = ref->data.ObjID), 102);
+   			    ok = ((*pID = P_Ref->data.ObjID), 102);
 			else if(r < 0)
 				ok = 1;
 			else {
@@ -1289,7 +1289,7 @@ int PPObjPersonCat::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 		else {
 			p_rec->ID = *pID = 0;
 			if(EditItem(Obj, *pID, p_rec, 1))
-			    ok = ((*pID = ref->data.ObjID), 101);
+			    ok = ((*pID = P_Ref->data.ObjID), 101);
 			else {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ID, p_rec->Name);
 				ok = -1;
@@ -1384,7 +1384,7 @@ int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 		dlg->getCtrlData(CTL_ELNKK_SYMB, rec.Symb); // @v9.9.11
 		if(!CheckName(rec.ID, rec.Name, 1))
 			PPErrorByDialog(dlg, CTL_ELNKK_NAME);
-		else if(!ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(ReferenceTbl::Rec, Symb))) {
+		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(ReferenceTbl::Rec, Symb))) {
 			PPErrorByDialog(dlg, CTL_ELNKK_SYMB);
 		}
 		else {
@@ -1416,7 +1416,7 @@ int PPObjELinkKind::AddSimple(PPID * pID, const char * pName, int use_ta)
 				MEMSZERO(elk_rec);
 				STRNSCPY(elk_rec.Name, pName);
 				elk_rec.Type = ELNKRT_UNKNOWN;
-				THROW(ref->AddItem(Obj, pID, &elk_rec, 0));
+				THROW(P_Ref->AddItem(Obj, pID, &elk_rec, 0));
 			}
 		}
 		else {
@@ -1426,7 +1426,7 @@ int PPObjELinkKind::AddSimple(PPID * pID, const char * pName, int use_ta)
 				MEMSZERO(elk_rec);
 				STRNSCPY(elk_rec.Name, pName);
 				elk_rec.Type = ELNKRT_UNKNOWN;
-				THROW(ref->AddItem(Obj, pID, &elk_rec, 0));
+				THROW(P_Ref->AddItem(Obj, pID, &elk_rec, 0));
 			}
 		}
 		THROW(tra.Commit());
@@ -1442,9 +1442,9 @@ int PPObjELinkKind::ProcessReservedItem(TVRez & rez)
 	SString name;
 	SString type;
 	uint   pref;
-	PPID   id = (PPID)rez.getUINT();
+	PPID   id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
-	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.4
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rez.getString(type, 2);
 	pref = rez.getUINT();
 	THROW(r = Search(id));
@@ -1585,12 +1585,12 @@ int PPObjFormula::Put(PPID * pID, const char * pName, const char * pExpr, int us
    		PPTransaction tra(use_ta);
    		THROW(tra);
 		if(*pID) {
-			THROW(ref->UpdateItem(Obj, *pID, &rec, 1, 0));
+			THROW(P_Ref->UpdateItem(Obj, *pID, &rec, 1, 0));
 		}
 		else {
-			THROW(ref->AddItem(Obj, pID, &rec, 0));
+			THROW(P_Ref->AddItem(Obj, pID, &rec, 0));
 		}
-		THROW(ref->PutPropVlrString(Obj, *pID, 1, pExpr));
+		THROW(P_Ref->PutPropVlrString(Obj, *pID, 1, pExpr));
 		THROW(tra.Commit());
    	}
 	CATCHZOK
@@ -1607,7 +1607,7 @@ int PPObjFormula::Get(PPID id, SString & rName, SString & rFormula)
 	else {
 		THROW(Search(id, &rec) > 0);
 	}
-	THROW(ref->GetPropVlrString(Obj, id, 1, rFormula));
+	THROW(P_Ref->GetPropVlrString(Obj, id, 1, rFormula));
 	rName = strip(rec.ObjName);
 	CATCHZOK
 	return ok;
@@ -1711,7 +1711,7 @@ int PPObjCurrency::Select(int asSymb, PPIDArray * pIncludeList, const PPIDArray 
 
 int PPObjCurrency::SearchSymb(PPID * pID, const char * pSymb)
 {
-	return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPCurrency, Symb));
+	return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPCurrency, Symb));
 }
 
 int PPObjCurrency::SearchCode(PPID * pID, long code)
@@ -1722,9 +1722,9 @@ int PPObjCurrency::SearchCode(PPID * pID, long code)
 		Reference2Tbl::Key2 k2;
 		k2.ObjType = Obj;
 		k2.Val1 = code;
-		if(ref->search(2, &k2, spEq)) {
-			id = ref->data.ObjID;
-            if(ref->search(2, &k2, spNext) && ref->data.ObjType == Obj && ref->data.Val1 == code) {
+		if(P_Ref->search(2, &k2, spEq)) {
+			id = P_Ref->data.ObjID;
+            if(P_Ref->search(2, &k2, spNext) && P_Ref->data.ObjType == Obj && P_Ref->data.Val1 == code) {
 				ok = 2;
             }
             else
@@ -1842,7 +1842,7 @@ int PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)
 	ReferenceTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
-		THROW(ref->GetItem(Obj, *pID, &rec));
+		THROW(P_Ref->GetItem(Obj, *pID, &rec));
 	}
 	// @v10.6.8 @ctr else { MEMSZERO(rec); }
 	{
@@ -1855,7 +1855,7 @@ int PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)
 			STRNSCPY(rec.ObjName, param.Name);
 			rec.Val1 = param.Flags;
 			if(is_new) {
-				THROW(ref->AllocDynamicObj(pID, rec.ObjName, rec.Val1, 1));
+				THROW(P_Ref->AllocDynamicObj(pID, rec.ObjName, rec.Val1, 1));
 			}
 			else {
 				THROW(EditItem(Obj, *pID, &rec, 1));
@@ -1898,7 +1898,7 @@ int PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 			p_rec->ObjID = *pID;
 		if(!done) {
 			if(*pID == 0) {
-				THROW(ref->AllocDynamicObj(pID, p_rec->ObjName, p_rec->Val1, 1));
+				THROW(P_Ref->AllocDynamicObj(pID, p_rec->ObjName, p_rec->Val1, 1));
 			}
 			else {
 				THROW(EditItem(Obj, *pID, p_rec, 1));
@@ -2083,7 +2083,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGlobalUserAcc, PPGlobalUserAccPacket);
 int PPObjGlobalUserAcc::SerializePacket(int dir, PPGlobalUserAccPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -2106,9 +2106,9 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 		if(pPack == 0) {
 			if(*pID) {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, _id, 0));
-				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
-				THROW(ref->Ot.PutList(Obj, _id, 0, 0));
+				THROW(P_Ref->RemoveItem(Obj, _id, 0));
+				THROW(P_Ref->RemoveProperty(Obj, _id, 0, 0));
+				THROW(P_Ref->Ot.PutList(Obj, _id, 0, 0));
 				THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
 			}
@@ -2134,20 +2134,18 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 				if(pPack->IsEqual(org_pack))
 					ok = -1;
 				else {
-					// @v9.1.3 {
 					if(strcmp(pPack->Rec.Name, org_pack.Rec.Name) != 0)
 						THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, _id, pPack->Rec.Name, 0));
-					// } @v9.1.3
-					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 0/*logAction*/, 0)); // @v10.6.6 @fix logAction 1-->0
-					THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 0/*logAction*/, 0)); // @v10.6.6 @fix logAction 1-->0
+					THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}
 			}
 			else {
-				THROW(ref->AddItem(Obj, &_id, &pPack->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, &_id, &pPack->Rec, 0));
 				pPack->Rec.ID = _id;
-				THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
-				THROW(SendObjMessage(DBMSG_GLOBALACCADDED, PPOBJ_ARTICLE, Obj, _id) == DBRPL_OK); // @v9.1.3
+				THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+				THROW(SendObjMessage(DBMSG_GLOBALACCADDED, PPOBJ_ARTICLE, Obj, _id) == DBRPL_OK);
 				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
 				ASSIGN_PTR(pID, _id);
 			}
@@ -2170,7 +2168,7 @@ int PPObjGlobalUserAcc::GetPacket(PPID id, PPGlobalUserAccPacket * pPack)
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
 		pPack->TagL.Destroy();
-		THROW(ref->Ot.GetList(Obj, id, &pPack->TagL));
+		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
 		ok = 1;
 	}
 	CATCHZOK
@@ -2188,7 +2186,7 @@ int PPObjGlobalUserAcc::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
-				if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPGlobalUserAcc, Name)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPGlobalUserAcc, Name)) > 0) {
 					PPGlobalUserAcc same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
@@ -2478,7 +2476,7 @@ int PPObjGlobalUserAcc::SearchByLocalID(const S_GUID & rDbUuid, PPID localUserID
 	int    ok = -1;
 	PPID   id = 0;
 	PPGlobalUserAcc rec;
-	for(SEnum en = ref->EnumByIdxVal(Obj, 1, localUserID); ok < 0 && en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->EnumByIdxVal(Obj, 1, localUserID); ok < 0 && en.Next(&rec) > 0;) {
 		if(rec.LocalUserID == localUserID && rec.LocalDbUuid == rDbUuid) {
 			id = rec.ID;
 			ok = 1;
@@ -2495,7 +2493,7 @@ int PPObjGlobalUserAcc::SearchByAssociatedPersonID(PPID personID, PPIDArray & rL
 	rList.clear();
 	if(personID > 0) {
 		PPGlobalUserAcc rec;
-		for(SEnum en = ref->EnumByIdxVal(Obj, 2, personID); en.Next(&rec) > 0;) {
+		for(SEnum en = P_Ref->EnumByIdxVal(Obj, 2, personID); en.Next(&rec) > 0;) {
 			if(rec.PersonID == personID) {
 				rList.add(rec.ID);
 				ok = 1;
@@ -2608,7 +2606,7 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 		}
 		else if(_obj == PPOBJ_PERSON) {
 			PPGlobalUserAcc rec;
-			for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 				if(rec.PersonID == _id) {
 					return RetRefsExistsErr(Obj, 0);
 				}
@@ -3313,9 +3311,9 @@ int PPObjUhttStore::PutPacket(PPID * pID, PPUhttStorePacket * pPack, int use_ta)
 		if(pPack == 0) {
 			if(*pID) {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, _id, 0));
-				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
-				THROW(ref->Ot.PutList(Obj, _id, 0, 0));
+				THROW(P_Ref->RemoveItem(Obj, _id, 0));
+				THROW(P_Ref->RemoveProperty(Obj, _id, 0, 0));
+				THROW(P_Ref->Ot.PutList(Obj, _id, 0, 0));
 				THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
 			}
@@ -3331,17 +3329,17 @@ int PPObjUhttStore::PutPacket(PPID * pID, PPUhttStorePacket * pPack, int use_ta)
 				if(pPack->IsEqual(org_pack))
 					ok = -1;
 				else {
-					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 0, 0));
-					THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
-					THROW(ref->PutPropSBuffer(Obj, _id, UHTTSPRP_SELECTORS, sd_buf, 0));
+					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 0, 0));
+					THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+					THROW(P_Ref->PutPropSBuffer(Obj, _id, UHTTSPRP_SELECTORS, sd_buf, 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}
 			}
 			else {
-				THROW(ref->AddItem(Obj, &_id, &pPack->Rec, 0));
+				THROW(P_Ref->AddItem(Obj, &_id, &pPack->Rec, 0));
 				pPack->Rec.ID = _id;
-				THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
-				THROW(ref->PutPropSBuffer(Obj, _id, UHTTSPRP_SELECTORS, sd_buf, 0));
+				THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+				THROW(P_Ref->PutPropSBuffer(Obj, _id, UHTTSPRP_SELECTORS, sd_buf, 0));
 				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
 				ASSIGN_PTR(pID, _id);
 			}
@@ -3366,8 +3364,8 @@ int PPObjUhttStore::GetPacket(PPID id, PPUhttStorePacket * pPack)
 		SBuffer sd_buf;
 		pPack->TagL.Destroy();
 		pPack->Sd.Destroy();
-		THROW(ref->Ot.GetList(Obj, id, &pPack->TagL));
-		THROW(ref->GetPropSBuffer(Obj, id, UHTTSPRP_SELECTORS, sd_buf));
+		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
+		THROW(P_Ref->GetPropSBuffer(Obj, id, UHTTSPRP_SELECTORS, sd_buf));
 		{
 			size_t sd_size = sd_buf.GetAvailableSize();
 			if(sd_size) {
@@ -3387,7 +3385,7 @@ int PPObjUhttStore::GetPacket(PPID id, PPUhttStorePacket * pPack)
 int PPObjUhttStore::SerializePacket(int dir, PPUhttStorePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -3404,7 +3402,7 @@ int PPObjUhttStore::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 		if(stream == 0) {
 			if(*pID == 0) {
 				PPID   same_id = 0;
-				if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPUhttStore, Name)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPUhttStore, Name)) > 0) {
 					PPUhttStore same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						ASSIGN_PTR(pID, same_id);
@@ -3455,13 +3453,13 @@ int PPObjUhttStore::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE) {
 		PPUhttStore us_rec;
 		if(_obj == PPOBJ_PERSON) {
-			SEnum en = ref->EnumByIdxVal(Obj, 1, _id);
+			SEnum en = P_Ref->EnumByIdxVal(Obj, 1, _id);
 			if(en.Next(&us_rec) > 0) {
 				ok = RetRefsExistsErr(Obj, us_rec.ID);
 			}
 		}
 		else if(_obj == PPOBJ_LOCATION) {
-			SEnum en = ref->EnumByIdxVal(Obj, 2, _id);
+			SEnum en = P_Ref->EnumByIdxVal(Obj, 2, _id);
 			if(en.Next(&us_rec) > 0) {
 				ok = RetRefsExistsErr(Obj, us_rec.ID);
 			}
@@ -3471,7 +3469,7 @@ int PPObjUhttStore::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		if(_obj == PPOBJ_PERSON) {
 			PPUhttStore us_rec;
 			PPIDArray id_list;
-			for(SEnum en = ref->EnumByIdxVal(Obj, 1, _id); en.Next(&us_rec) > 0;) {
+			for(SEnum en = P_Ref->EnumByIdxVal(Obj, 1, _id); en.Next(&us_rec) > 0;) {
 				id_list.addUnique(us_rec.ID);
 			}
 			for(uint i = 0; i < id_list.getCount(); i++) {
@@ -3825,7 +3823,7 @@ int PPObjEdiProvider::GetPacket(PPID id, PPEdiProviderPacket * pPack)
 	PPEdiProviderPacket pack;
 	int    r = Search(id, &pack.Rec);
 	if(r > 0) {
-		ref->GetPropVlrString(Obj, id, EDIPRVPRP_EXTSTRING, pack.ExtString);
+		P_Ref->GetPropVlrString(Obj, id, EDIPRVPRP_EXTSTRING, pack.ExtString);
 		ASSIGN_PTR(pPack, pack);
 		ok = 1;
 	}
@@ -3849,15 +3847,15 @@ int PPObjEdiProvider::PutPacket(PPID * pID, PPEdiProviderPacket * pPack, int use
 				}
 				else {
 					THROW(CheckRights(PPR_MOD));
-					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
-					THROW(ref->PutPropVlrString(Obj, *pID, EDIPRVPRP_EXTSTRING, pPack->ExtString));
+					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0, 0));
+					THROW(P_Ref->PutPropVlrString(Obj, *pID, EDIPRVPRP_EXTSTRING, pPack->ExtString));
 					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 				}
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
-				THROW(ref->RemoveItem(Obj, *pID, 0));
-				THROW(ref->PutPropVlrString(Obj, *pID, EDIPRVPRP_EXTSTRING, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->PutPropVlrString(Obj, *pID, EDIPRVPRP_EXTSTRING, 0));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
@@ -3866,8 +3864,8 @@ int PPObjEdiProvider::PutPacket(PPID * pID, PPEdiProviderPacket * pPack, int use
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
 			*pID = pPack->Rec.ID;
-			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-			THROW(ref->PutPropVlrString(Obj, *pID, EDIPRVPRP_EXTSTRING, pPack->ExtString));
+			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			THROW(P_Ref->PutPropVlrString(Obj, *pID, EDIPRVPRP_EXTSTRING, pPack->ExtString));
 			pPack->Rec.ID = *pID;
 		}
 		THROW(tra.Commit());
@@ -4059,7 +4057,7 @@ int PPObjEdiProvider::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 int PPObjEdiProvider::SerializePacket(int dir, PPEdiProviderPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
 	CATCHZOK
 	return ok;

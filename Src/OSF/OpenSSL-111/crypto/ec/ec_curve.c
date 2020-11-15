@@ -18,13 +18,13 @@
 typedef struct {
 	int field_type,         /* either NID_X9_62_prime_field or NID_X9_62_characteristic_two_field */
 	    seed_len, param_len;
-	unsigned int cofactor;  /* promoted to BN_ULONG */
+	uint cofactor;  /* promoted to BN_ULONG */
 } EC_CURVE_DATA;
 
 /* the nist prime curves */
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 24 * 6];
+	uchar data[20 + 24 * 6];
 } _EC_NIST_PRIME_192 = {
 	{
 		NID_X9_62_prime_field, 20, 24, 1
@@ -56,7 +56,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 28 * 6];
+	uchar data[20 + 28 * 6];
 } _EC_NIST_PRIME_224 = {
 	{
 		NID_X9_62_prime_field, 20, 28, 1
@@ -94,7 +94,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 48 * 6];
+	uchar data[20 + 48 * 6];
 } _EC_NIST_PRIME_384 = {
 	{
 		NID_X9_62_prime_field, 20, 48, 1
@@ -138,7 +138,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 66 * 6];
+	uchar data[20 + 66 * 6];
 } _EC_NIST_PRIME_521 = {
 	{
 		NID_X9_62_prime_field, 20, 66, 1
@@ -195,7 +195,7 @@ static const struct {
 /* the x9.62 prime curves (minus the nist prime curves) */
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 24 * 6];
+	uchar data[20 + 24 * 6];
 } _EC_X9_62_PRIME_192V2 = {
 	{
 		NID_X9_62_prime_field, 20, 24, 1
@@ -227,7 +227,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 24 * 6];
+	uchar data[20 + 24 * 6];
 } _EC_X9_62_PRIME_192V3 = {
 	{
 		NID_X9_62_prime_field, 20, 24, 1
@@ -259,7 +259,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 30 * 6];
+	uchar data[20 + 30 * 6];
 } _EC_X9_62_PRIME_239V1 = {
 	{
 		NID_X9_62_prime_field, 20, 30, 1
@@ -297,7 +297,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 30 * 6];
+	uchar data[20 + 30 * 6];
 } _EC_X9_62_PRIME_239V2 = {
 	{
 		NID_X9_62_prime_field, 20, 30, 1
@@ -335,7 +335,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 30 * 6];
+	uchar data[20 + 30 * 6];
 } _EC_X9_62_PRIME_239V3 = {
 	{
 		NID_X9_62_prime_field, 20, 30, 1
@@ -373,7 +373,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 32 * 6];
+	uchar data[20 + 32 * 6];
 } _EC_X9_62_PRIME_256V1 = {
 	{
 		NID_X9_62_prime_field, 20, 32, 1
@@ -412,7 +412,7 @@ static const struct {
 /* the secg prime curves (minus the nist and x9.62 prime curves) */
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 14 * 6];
+	uchar data[20 + 14 * 6];
 } _EC_SECG_PRIME_112R1 = {
 	{
 		NID_X9_62_prime_field, 20, 14, 1
@@ -444,7 +444,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 14 * 6];
+	uchar data[20 + 14 * 6];
 } _EC_SECG_PRIME_112R2 = {
 	{
 		NID_X9_62_prime_field, 20, 14, 4
@@ -476,7 +476,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 16 * 6];
+	uchar data[20 + 16 * 6];
 } _EC_SECG_PRIME_128R1 = {
 	{
 		NID_X9_62_prime_field, 20, 16, 1
@@ -508,7 +508,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 16 * 6];
+	uchar data[20 + 16 * 6];
 } _EC_SECG_PRIME_128R2 = {
 	{
 		NID_X9_62_prime_field, 20, 16, 4
@@ -540,7 +540,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 21 * 6];
+	uchar data[0 + 21 * 6];
 } _EC_SECG_PRIME_160K1 = {
 	{
 		NID_X9_62_prime_field, 0, 21, 1
@@ -570,7 +570,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 21 * 6];
+	uchar data[20 + 21 * 6];
 } _EC_SECG_PRIME_160R1 = {
 	{
 		NID_X9_62_prime_field, 20, 21, 1
@@ -602,7 +602,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 21 * 6];
+	uchar data[20 + 21 * 6];
 } _EC_SECG_PRIME_160R2 = {
 	{
 		NID_X9_62_prime_field, 20, 21, 1
@@ -634,7 +634,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 24 * 6];
+	uchar data[0 + 24 * 6];
 } _EC_SECG_PRIME_192K1 = {
 	{
 		NID_X9_62_prime_field, 0, 24, 1
@@ -664,7 +664,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 29 * 6];
+	uchar data[0 + 29 * 6];
 } _EC_SECG_PRIME_224K1 = {
 	{
 		NID_X9_62_prime_field, 0, 29, 1
@@ -700,7 +700,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 32 * 6];
+	uchar data[0 + 32 * 6];
 } _EC_SECG_PRIME_256K1 = {
 	{
 		NID_X9_62_prime_field, 0, 32, 1
@@ -737,7 +737,7 @@ static const struct {
 /* some wap/wtls curves */
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 15 * 6];
+	uchar data[0 + 15 * 6];
 } _EC_WTLS_8 = {
 	{
 		NID_X9_62_prime_field, 0, 15, 1
@@ -767,7 +767,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 21 * 6];
+	uchar data[0 + 21 * 6];
 } _EC_WTLS_9 = {
 	{
 		NID_X9_62_prime_field, 0, 21, 1
@@ -797,7 +797,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 28 * 6];
+	uchar data[0 + 28 * 6];
 } _EC_WTLS_12 = {
 	{
 		NID_X9_62_prime_field, 0, 28, 1
@@ -836,7 +836,7 @@ static const struct {
 /* characteristic two curves */
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 15 * 6];
+	uchar data[20 + 15 * 6];
 } _EC_SECG_CHAR2_113R1 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 15, 2
@@ -868,7 +868,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 15 * 6];
+	uchar data[20 + 15 * 6];
 } _EC_SECG_CHAR2_113R2 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 15, 2
@@ -900,7 +900,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 17 * 6];
+	uchar data[20 + 17 * 6];
 } _EC_SECG_CHAR2_131R1 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 17, 2
@@ -932,7 +932,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 17 * 6];
+	uchar data[20 + 17 * 6];
 } _EC_SECG_CHAR2_131R2 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 17, 2
@@ -964,7 +964,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 21 * 6];
+	uchar data[0 + 21 * 6];
 } _EC_NIST_CHAR2_163K = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 21, 2
@@ -994,7 +994,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 21 * 6];
+	uchar data[0 + 21 * 6];
 } _EC_SECG_CHAR2_163R1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 21, 2
@@ -1023,7 +1023,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 21 * 6];
+	uchar data[0 + 21 * 6];
 } _EC_NIST_CHAR2_163B = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 21, 2
@@ -1052,7 +1052,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 25 * 6];
+	uchar data[20 + 25 * 6];
 } _EC_SECG_CHAR2_193R1 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 25, 2
@@ -1090,7 +1090,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 25 * 6];
+	uchar data[20 + 25 * 6];
 } _EC_SECG_CHAR2_193R2 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 25, 2
@@ -1128,7 +1128,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 30 * 6];
+	uchar data[0 + 30 * 6];
 } _EC_NIST_CHAR2_233K = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 30, 4
@@ -1163,7 +1163,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 30 * 6];
+	uchar data[20 + 30 * 6];
 } _EC_NIST_CHAR2_233B = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 30, 2
@@ -1201,7 +1201,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 30 * 6];
+	uchar data[0 + 30 * 6];
 } _EC_SECG_CHAR2_239K1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 30, 4
@@ -1236,7 +1236,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 36 * 6];
+	uchar data[0 + 36 * 6];
 } _EC_NIST_CHAR2_283K = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 36, 4
@@ -1271,7 +1271,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 36 * 6];
+	uchar data[20 + 36 * 6];
 } _EC_NIST_CHAR2_283B = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 36, 2
@@ -1309,7 +1309,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 52 * 6];
+	uchar data[0 + 52 * 6];
 } _EC_NIST_CHAR2_409K = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 52, 4
@@ -1357,7 +1357,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 52 * 6];
+	uchar data[20 + 52 * 6];
 } _EC_NIST_CHAR2_409B = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 52, 2
@@ -1407,7 +1407,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 72 * 6];
+	uchar data[0 + 72 * 6];
 } _EC_NIST_CHAR2_571K = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 72, 4
@@ -1461,7 +1461,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 72 * 6];
+	uchar data[20 + 72 * 6];
 } _EC_NIST_CHAR2_571B = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 72, 2
@@ -1517,7 +1517,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 21 * 6];
+	uchar data[20 + 21 * 6];
 } _EC_X9_62_CHAR2_163V1 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 21, 2
@@ -1549,7 +1549,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 21 * 6];
+	uchar data[20 + 21 * 6];
 } _EC_X9_62_CHAR2_163V2 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 21, 2
@@ -1581,7 +1581,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 21 * 6];
+	uchar data[20 + 21 * 6];
 } _EC_X9_62_CHAR2_163V3 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 21, 2
@@ -1613,7 +1613,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 23 * 6];
+	uchar data[0 + 23 * 6];
 } _EC_X9_62_CHAR2_176V1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 23, 0xFF6E
@@ -1643,7 +1643,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 24 * 6];
+	uchar data[20 + 24 * 6];
 } _EC_X9_62_CHAR2_191V1 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 24, 2
@@ -1675,7 +1675,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 24 * 6];
+	uchar data[20 + 24 * 6];
 } _EC_X9_62_CHAR2_191V2 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 24, 4
@@ -1707,7 +1707,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 24 * 6];
+	uchar data[20 + 24 * 6];
 } _EC_X9_62_CHAR2_191V3 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 24, 6
@@ -1739,7 +1739,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 27 * 6];
+	uchar data[0 + 27 * 6];
 } _EC_X9_62_CHAR2_208W1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 27, 0xFE48
@@ -1775,7 +1775,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 30 * 6];
+	uchar data[20 + 30 * 6];
 } _EC_X9_62_CHAR2_239V1 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 30, 4
@@ -1813,7 +1813,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 30 * 6];
+	uchar data[20 + 30 * 6];
 } _EC_X9_62_CHAR2_239V2 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 30, 6
@@ -1851,7 +1851,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 30 * 6];
+	uchar data[20 + 30 * 6];
 } _EC_X9_62_CHAR2_239V3 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 30, 0xA
@@ -1889,7 +1889,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 35 * 6];
+	uchar data[0 + 35 * 6];
 } _EC_X9_62_CHAR2_272W1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 35, 0xFF06
@@ -1925,7 +1925,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 39 * 6];
+	uchar data[0 + 39 * 6];
 } _EC_X9_62_CHAR2_304W1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 39, 0xFE2E
@@ -1967,7 +1967,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[20 + 45 * 6];
+	uchar data[20 + 45 * 6];
 } _EC_X9_62_CHAR2_359V1 = {
 	{
 		NID_X9_62_characteristic_two_field, 20, 45, 0x4C
@@ -2011,7 +2011,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 47 * 6];
+	uchar data[0 + 47 * 6];
 } _EC_X9_62_CHAR2_368W1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 47, 0xFF70
@@ -2053,7 +2053,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 54 * 6];
+	uchar data[0 + 54 * 6];
 } _EC_X9_62_CHAR2_431R1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 54, 0x2760
@@ -2101,7 +2101,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 15 * 6];
+	uchar data[0 + 15 * 6];
 } _EC_WTLS_1 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 15, 2
@@ -2137,7 +2137,7 @@ static const struct {
  */
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 20 * 6];
+	uchar data[0 + 20 * 6];
 } _EC_IPSEC_155_ID3 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 20, 3
@@ -2172,7 +2172,7 @@ static const struct {
  */
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 24 * 6];
+	uchar data[0 + 24 * 6];
 } _EC_IPSEC_185_ID4 = {
 	{
 		NID_X9_62_characteristic_two_field, 0, 24, 2
@@ -2212,7 +2212,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 20 * 6];
+	uchar data[0 + 20 * 6];
 } _EC_brainpoolP160r1 = {
 	{
 		NID_X9_62_prime_field, 0, 20, 1
@@ -2242,7 +2242,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 20 * 6];
+	uchar data[0 + 20 * 6];
 } _EC_brainpoolP160t1 = {
 	{
 		NID_X9_62_prime_field, 0, 20, 1
@@ -2272,7 +2272,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 24 * 6];
+	uchar data[0 + 24 * 6];
 } _EC_brainpoolP192r1 = {
 	{
 		NID_X9_62_prime_field, 0, 24, 1
@@ -2302,7 +2302,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 24 * 6];
+	uchar data[0 + 24 * 6];
 } _EC_brainpoolP192t1 = {
 	{
 		NID_X9_62_prime_field, 0, 24, 1
@@ -2332,7 +2332,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 28 * 6];
+	uchar data[0 + 28 * 6];
 } _EC_brainpoolP224r1 = {
 	{
 		NID_X9_62_prime_field, 0, 28, 1
@@ -2368,7 +2368,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 28 * 6];
+	uchar data[0 + 28 * 6];
 } _EC_brainpoolP224t1 = {
 	{
 		NID_X9_62_prime_field, 0, 28, 1
@@ -2404,7 +2404,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 32 * 6];
+	uchar data[0 + 32 * 6];
 } _EC_brainpoolP256r1 = {
 	{
 		NID_X9_62_prime_field, 0, 32, 1
@@ -2440,7 +2440,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 32 * 6];
+	uchar data[0 + 32 * 6];
 } _EC_brainpoolP256t1 = {
 	{
 		NID_X9_62_prime_field, 0, 32, 1
@@ -2476,7 +2476,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 40 * 6];
+	uchar data[0 + 40 * 6];
 } _EC_brainpoolP320r1 = {
 	{
 		NID_X9_62_prime_field, 0, 40, 1
@@ -2518,7 +2518,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 40 * 6];
+	uchar data[0 + 40 * 6];
 } _EC_brainpoolP320t1 = {
 	{
 		NID_X9_62_prime_field, 0, 40, 1
@@ -2560,7 +2560,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 48 * 6];
+	uchar data[0 + 48 * 6];
 } _EC_brainpoolP384r1 = {
 	{
 		NID_X9_62_prime_field, 0, 48, 1
@@ -2602,7 +2602,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 48 * 6];
+	uchar data[0 + 48 * 6];
 } _EC_brainpoolP384t1 = {
 	{
 		NID_X9_62_prime_field, 0, 48, 1
@@ -2644,7 +2644,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 64 * 6];
+	uchar data[0 + 64 * 6];
 } _EC_brainpoolP512r1 = {
 	{
 		NID_X9_62_prime_field, 0, 64, 1
@@ -2698,7 +2698,7 @@ static const struct {
 
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 64 * 6];
+	uchar data[0 + 64 * 6];
 } _EC_brainpoolP512t1 = {
 	{
 		NID_X9_62_prime_field, 0, 64, 1
@@ -2753,7 +2753,7 @@ static const struct {
 #ifndef OPENSSL_NO_SM2
 static const struct {
 	EC_CURVE_DATA h;
-	unsigned char data[0 + 32 * 6];
+	uchar data[0 + 32 * 6];
 } _EC_sm2p256v1 = {
 	{
 		NID_X9_62_prime_field, 0, 32, 1
@@ -2932,7 +2932,7 @@ static EC_GROUP * ec_group_new_from_data(const ec_list_element curve)
 	int seed_len, param_len;
 	const EC_METHOD * meth;
 	const EC_CURVE_DATA * data;
-	const unsigned char * params;
+	const uchar * params;
 
 	/* If no curve data curve method must handle everything */
 	if(curve.data == NULL)
@@ -2946,7 +2946,7 @@ static EC_GROUP * ec_group_new_from_data(const ec_list_element curve)
 	data = curve.data;
 	seed_len = data->seed_len;
 	param_len = data->param_len;
-	params = (const unsigned char*)(data + 1); /* skip header */
+	params = (const uchar*)(data + 1); /* skip header */
 	params += seed_len;     /* skip seed */
 
 	if((p = BN_bin2bn(params + 0 * param_len, param_len, NULL)) == NULL
@@ -3115,8 +3115,8 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 {
 	int ret = -1, nid, len, field_type, param_len;
 	size_t i, seed_len;
-	const unsigned char * seed, * params_seed, * params;
-	unsigned char * param_bytes = NULL;
+	const uchar * seed, * params_seed, * params;
+	uchar * param_bytes = NULL;
 	const EC_CURVE_DATA * data;
 	const EC_POINT * generator = NULL;
 	const EC_METHOD * meth;
@@ -3185,7 +3185,7 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 
 		data = curve.data;
 		/* Get the raw order byte data */
-		params_seed = (const unsigned char*)(data + 1); /* skip header */
+		params_seed = (const uchar*)(data + 1); /* skip header */
 		params = params_seed + data->seed_len;
 
 		/* Look for unique fields in the fixed curve data */

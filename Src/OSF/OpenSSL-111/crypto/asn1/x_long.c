@@ -24,9 +24,9 @@ NON_EMPTY_TRANSLATION_UNIT
 static int long_new(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 static void long_free(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 
-static int long_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
+static int long_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype,
     const ASN1_ITEM * it);
-static int long_c2i(ASN1_VALUE ** pval, const unsigned char * cont, int len,
+static int long_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
     int utype, char * free_cont, const ASN1_ITEM * it);
 static int long_print(BIO * out, ASN1_VALUE ** pval, const ASN1_ITEM * it,
     int indent, const ASN1_PCTX * pctx);
@@ -66,10 +66,10 @@ static void long_free(ASN1_VALUE ** pval, const ASN1_ITEM * it)
  * sizeof(BN_ULONG). BN_ULONG is a configurable type that can be as wide
  * as long, but also double or half...
  */
-static int num_bits_ulong(unsigned long value)
+static int num_bits_ulong(ulong value)
 {
 	size_t i;
-	unsigned long ret = 0;
+	ulong ret = 0;
 
 	/*
 	 * It is argued that *on average* constant counter loop performs
@@ -85,11 +85,11 @@ static int num_bits_ulong(unsigned long value)
 	return (int)ret;
 }
 
-static int long_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
+static int long_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype,
     const ASN1_ITEM * it)
 {
 	long ltmp;
-	unsigned long utmp, sign;
+	ulong utmp, sign;
 	int clen, pad, i;
 
 	memcpy(&ltmp, pval, COPY_SIZE(*pval, ltmp));
@@ -102,7 +102,7 @@ static int long_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
 	 */
 	if(ltmp < 0) {
 		sign = 0xff;
-		utmp = 0 - (unsigned long)ltmp - 1;
+		utmp = 0 - (ulong)ltmp - 1;
 	}
 	else {
 		sign = 0;
@@ -129,12 +129,12 @@ static int long_i2c(ASN1_VALUE ** pval, unsigned char * cont, int * putype,
 	return clen + pad;
 }
 
-static int long_c2i(ASN1_VALUE ** pval, const unsigned char * cont, int len,
+static int long_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
     int utype, char * free_cont, const ASN1_ITEM * it)
 {
 	int i;
 	long ltmp;
-	unsigned long utmp = 0, sign = 0x100;
+	ulong utmp = 0, sign = 0x100;
 
 	if(len > 1) {
 		/*

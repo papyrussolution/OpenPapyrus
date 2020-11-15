@@ -20,7 +20,7 @@ DEFINE_STACK_OF(X509_POLICY_DATA)
  */
 
 struct X509_POLICY_DATA_st {
-    unsigned int flags;
+    uint flags;
     /* Policy OID and qualifiers for this data */
     ASN1_OBJECT *valid_policy;
     STACK_OF(POLICYQUALINFO) *qualifier_set;
@@ -106,7 +106,7 @@ struct X509_POLICY_LEVEL_st {
     /*
      * STACK_OF(X509_POLICY_DATA) *extra_data;
      */
-    unsigned int flags;
+    uint flags;
 };
 
 struct X509_POLICY_TREE_st {
@@ -121,7 +121,7 @@ struct X509_POLICY_TREE_st {
     /* This is the authority constrained policy set */
     STACK_OF(X509_POLICY_NODE) *auth_policies;
     STACK_OF(X509_POLICY_NODE) *user_policies;
-    unsigned int flags;
+    uint flags;
 };
 
 /* Set if anyPolicy present in user policies */

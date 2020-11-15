@@ -219,7 +219,7 @@ static int pkey_set_type(EVP_PKEY * pkey, ENGINE * e, int type, const char * str
 }
 
 EVP_PKEY * EVP_PKEY_new_raw_private_key(int type, ENGINE * e,
-    const unsigned char * priv,
+    const uchar * priv,
     size_t len)
 {
 	EVP_PKEY * ret = EVP_PKEY_new();
@@ -249,7 +249,7 @@ err:
 }
 
 EVP_PKEY * EVP_PKEY_new_raw_public_key(int type, ENGINE * e,
-    const unsigned char * pub,
+    const uchar * pub,
     size_t len)
 {
 	EVP_PKEY * ret = EVP_PKEY_new();
@@ -278,7 +278,7 @@ err:
 	return NULL;
 }
 
-int EVP_PKEY_get_raw_private_key(const EVP_PKEY * pkey, unsigned char * priv,
+int EVP_PKEY_get_raw_private_key(const EVP_PKEY * pkey, uchar * priv,
     size_t * len)
 {
 	if(pkey->ameth->get_priv_key == NULL) {
@@ -295,7 +295,7 @@ int EVP_PKEY_get_raw_private_key(const EVP_PKEY * pkey, unsigned char * priv,
 	return 1;
 }
 
-int EVP_PKEY_get_raw_public_key(const EVP_PKEY * pkey, unsigned char * pub,
+int EVP_PKEY_get_raw_public_key(const EVP_PKEY * pkey, uchar * pub,
     size_t * len)
 {
 	if(pkey->ameth->get_pub_key == NULL) {
@@ -312,7 +312,7 @@ int EVP_PKEY_get_raw_public_key(const EVP_PKEY * pkey, unsigned char * pub,
 	return 1;
 }
 
-EVP_PKEY * EVP_PKEY_new_CMAC_key(ENGINE * e, const unsigned char * priv,
+EVP_PKEY * EVP_PKEY_new_CMAC_key(ENGINE * e, const uchar * priv,
     size_t len, const EVP_CIPHER * cipher)
 {
 #ifndef OPENSSL_NO_CMAC
@@ -412,7 +412,7 @@ void * FASTCALL EVP_PKEY_get0(const EVP_PKEY * pkey)
 	return pkey->pkey.ptr;
 }
 
-const unsigned char * EVP_PKEY_get0_hmac(const EVP_PKEY * pkey, size_t * len)
+const uchar * EVP_PKEY_get0_hmac(const EVP_PKEY * pkey, size_t * len)
 {
 	if(pkey->type != EVP_PKEY_HMAC) {
 		EVPerr(EVP_F_EVP_PKEY_GET0_HMAC, EVP_R_EXPECTING_AN_HMAC_KEY);
@@ -426,7 +426,7 @@ const unsigned char * EVP_PKEY_get0_hmac(const EVP_PKEY * pkey, size_t * len)
 }
 
 #ifndef OPENSSL_NO_POLY1305
-	const unsigned char * EVP_PKEY_get0_poly1305(const EVP_PKEY * pkey, size_t * len)
+	const uchar * EVP_PKEY_get0_poly1305(const EVP_PKEY * pkey, size_t * len)
 	{
 		if(pkey->type != EVP_PKEY_POLY1305) {
 			EVPerr(EVP_F_EVP_PKEY_GET0_POLY1305, EVP_R_EXPECTING_A_POLY1305_KEY);
@@ -440,7 +440,7 @@ const unsigned char * EVP_PKEY_get0_hmac(const EVP_PKEY * pkey, size_t * len)
 	}
 #endif
 #ifndef OPENSSL_NO_SIPHASH
-	const unsigned char * EVP_PKEY_get0_siphash(const EVP_PKEY * pkey, size_t * len)
+	const uchar * EVP_PKEY_get0_siphash(const EVP_PKEY * pkey, size_t * len)
 	{
 		if(pkey->type != EVP_PKEY_SIPHASH) {
 			EVPerr(EVP_F_EVP_PKEY_GET0_SIPHASH, EVP_R_EXPECTING_A_SIPHASH_KEY);
@@ -673,7 +673,7 @@ int EVP_PKEY_get_default_digest_nid(EVP_PKEY * pkey, int * pnid)
 }
 
 int EVP_PKEY_set1_tls_encodedpoint(EVP_PKEY * pkey,
-    const unsigned char * pt, size_t ptlen)
+    const uchar * pt, size_t ptlen)
 {
 	if(ptlen > INT_MAX)
 		return 0;
@@ -683,7 +683,7 @@ int EVP_PKEY_set1_tls_encodedpoint(EVP_PKEY * pkey,
 	return 1;
 }
 
-size_t EVP_PKEY_get1_tls_encodedpoint(EVP_PKEY * pkey, unsigned char ** ppt)
+size_t EVP_PKEY_get1_tls_encodedpoint(EVP_PKEY * pkey, uchar ** ppt)
 {
 	int rv;
 	rv = evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_GET1_TLS_ENCPT, 0, ppt);

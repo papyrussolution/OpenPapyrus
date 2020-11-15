@@ -173,13 +173,13 @@ void STDCALL mysql_set_local_infile_handler(MYSQL * conn,
 /* }}} */
 
 /* {{{ mysql_handle_local_infile */
-my_bool mysql_handle_local_infile(MYSQL * conn, const char * filename, my_bool can_local_infile)
+bool mysql_handle_local_infile(MYSQL * conn, const char * filename, bool can_local_infile)
 {
 	unsigned int buflen = 4096;
 	int bufread;
 	unsigned char * buf = NULL;
 	void * info = NULL;
-	my_bool result = 1;
+	bool result = 1;
 
 	/* check if all callback functions exist */
 	if(!conn->options.local_infile_init || !conn->options.local_infile_end ||

@@ -17,11 +17,11 @@
 //#include <asn1_int.h>
 //#include <evp_int.h>
 
-EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const unsigned char ** pp,
+EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp,
     long length)
 {
 	EVP_PKEY * ret;
-	const unsigned char * p = *pp;
+	const uchar * p = *pp;
 
 	if((a == NULL) || (*a == NULL)) {
 		if((ret = EVP_PKEY_new()) == NULL) {
@@ -77,11 +77,11 @@ err:
  * type
  */
 
-EVP_PKEY * d2i_AutoPrivateKey(EVP_PKEY ** a, const unsigned char ** pp,
+EVP_PKEY * d2i_AutoPrivateKey(EVP_PKEY ** a, const uchar ** pp,
     long length)
 {
 	STACK_OF(ASN1_TYPE) *inkey;
-	const unsigned char * p;
+	const uchar * p;
 	int keytype;
 	p = *pp;
 	/*

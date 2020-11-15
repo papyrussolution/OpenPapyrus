@@ -32,7 +32,7 @@ typedef struct {
 	int key_set;            /* Set if key initialised */
 	int iv_set;             /* Set if an iv is set */
 	GCM128_CONTEXT gcm;
-	unsigned char * iv;     /* Temporary IV store */
+	uchar * iv;     /* Temporary IV store */
 	int ivlen;              /* IV length */
 	int taglen;
 	int iv_gen;             /* It is OK to generate IVs */
@@ -57,7 +57,7 @@ typedef struct {
 } EVP_ARIA_CCM_CTX;
 
 /* The subkey for ARIA is generated. */
-static int aria_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, const unsigned char * iv, int enc)
+static int aria_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	int ret;
 	int mode = EVP_CIPHER_CTX_mode(ctx);
@@ -72,8 +72,8 @@ static int aria_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key, const 
 	return 1;
 }
 
-static void aria_cbc_encrypt(const unsigned char * in, unsigned char * out, size_t len, const ARIA_KEY * key,
-    unsigned char * ivec, const int enc)
+static void aria_cbc_encrypt(const uchar * in, uchar * out, size_t len, const ARIA_KEY * key,
+    uchar * ivec, const int enc)
 {
 	if(enc)
 		CRYPTO_cbc128_encrypt(in, out, len, key, ivec, (block128_f)aria_encrypt);
@@ -81,33 +81,33 @@ static void aria_cbc_encrypt(const unsigned char * in, unsigned char * out, size
 		CRYPTO_cbc128_decrypt(in, out, len, key, ivec, (block128_f)aria_encrypt);
 }
 
-static void aria_cfb128_encrypt(const unsigned char * in, unsigned char * out,
-    size_t length, const ARIA_KEY * key, unsigned char * ivec, int * num, const int enc)
+static void aria_cfb128_encrypt(const uchar * in, uchar * out,
+    size_t length, const ARIA_KEY * key, uchar * ivec, int * num, const int enc)
 {
 	CRYPTO_cfb128_encrypt(in, out, length, key, ivec, num, enc, (block128_f)aria_encrypt);
 }
 
-static void aria_cfb1_encrypt(const unsigned char * in, unsigned char * out,
-    size_t length, const ARIA_KEY * key, unsigned char * ivec, int * num, const int enc)
+static void aria_cfb1_encrypt(const uchar * in, uchar * out,
+    size_t length, const ARIA_KEY * key, uchar * ivec, int * num, const int enc)
 {
 	CRYPTO_cfb128_1_encrypt(in, out, length, key, ivec, num, enc, (block128_f)aria_encrypt);
 }
 
-static void aria_cfb8_encrypt(const unsigned char * in, unsigned char * out,
+static void aria_cfb8_encrypt(const uchar * in, uchar * out,
     size_t length, const ARIA_KEY * key,
-    unsigned char * ivec, int * num, const int enc)
+    uchar * ivec, int * num, const int enc)
 {
 	CRYPTO_cfb128_8_encrypt(in, out, length, key, ivec, num, enc, (block128_f)aria_encrypt);
 }
 
-static void aria_ecb_encrypt(const unsigned char * in, unsigned char * out,
+static void aria_ecb_encrypt(const uchar * in, uchar * out,
     const ARIA_KEY * key, const int enc)
 {
 	aria_encrypt(in, out, key);
 }
 
-static void aria_ofb128_encrypt(const unsigned char * in, unsigned char * out,
-    size_t length, const ARIA_KEY * key, unsigned char * ivec, int * num)
+static void aria_ofb128_encrypt(const uchar * in, uchar * out,
+    size_t length, const ARIA_KEY * key, uchar * ivec, int * num)
 {
 	CRYPTO_ofb128_encrypt(in, out, length, key, ivec, num, (block128_f)aria_encrypt);
 }
@@ -152,10 +152,10 @@ IMPLEMENT_ARIA_CFBR(256, 8)
 	const EVP_CIPHER * EVP_aria_ ## keylen ## _ ## mode(void) \
 	{ return &aria_ ## keylen ## _ ## mode; }
 
-static int aria_ctr_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int aria_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
-	unsigned int num = EVP_CIPHER_CTX_num(ctx);
+	uint num = EVP_CIPHER_CTX_num(ctx);
 	EVP_ARIA_KEY * dat = EVP_C_DATA(EVP_ARIA_KEY, ctx);
 
 	CRYPTO_ctr128_encrypt(in, out, len, &dat->ks,
@@ -173,10 +173,10 @@ BLOCK_CIPHER_generic(NID_aria, 256, 1, 16, ctr, ctr, CTR, 0)
 /* Authenticated cipher modes (GCM/CCM) */
 
 /* increment counter (64-bit int) by 1 */
-static void ctr64_inc(unsigned char * counter)
+static void ctr64_inc(uchar * counter)
 {
 	int n = 8;
-	unsigned char c;
+	uchar c;
 
 	do {
 		--n;
@@ -188,8 +188,8 @@ static void ctr64_inc(unsigned char * counter)
 	} while(n);
 }
 
-static int aria_gcm_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int aria_gcm_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	int ret;
 	EVP_ARIA_GCM_CTX * gctx = EVP_C_DATA(EVP_ARIA_GCM_CTX, ctx);
@@ -329,7 +329,7 @@ static int aria_gcm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 		    memcpy(EVP_CIPHER_CTX_buf_noconst(c), ptr, arg);
 		    gctx->tls_aad_len = arg;
 		    {
-			    unsigned int len =
+			    uint len =
 				EVP_CIPHER_CTX_buf_noconst(c)[arg - 2] << 8
 				    | EVP_CIPHER_CTX_buf_noconst(c)[arg - 1];
 			    /* Correct length for explicit IV */
@@ -374,8 +374,8 @@ static int aria_gcm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 	}
 }
 
-static int aria_gcm_tls_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int aria_gcm_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_ARIA_GCM_CTX * gctx = EVP_C_DATA(EVP_ARIA_GCM_CTX, ctx);
 	int rv = -1;
@@ -431,8 +431,8 @@ err:
 	return rv;
 }
 
-static int aria_gcm_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int aria_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_ARIA_GCM_CTX * gctx = EVP_C_DATA(EVP_ARIA_GCM_CTX, ctx);
 
@@ -487,8 +487,8 @@ static int aria_gcm_cleanup(EVP_CIPHER_CTX * ctx)
 	return 1;
 }
 
-static int aria_ccm_init_key(EVP_CIPHER_CTX * ctx, const unsigned char * key,
-    const unsigned char * iv, int enc)
+static int aria_ccm_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
+    const uchar * iv, int enc)
 {
 	int ret;
 	EVP_ARIA_CCM_CTX * cctx = EVP_C_DATA(EVP_ARIA_CCM_CTX, ctx);
@@ -615,8 +615,8 @@ static int aria_ccm_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 	}
 }
 
-static int aria_ccm_tls_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int aria_ccm_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_ARIA_CCM_CTX * cctx = EVP_C_DATA(EVP_ARIA_CCM_CTX, ctx);
 	CCM128_CONTEXT * ccm = &cctx->ccm;
@@ -652,7 +652,7 @@ static int aria_ccm_tls_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	else {
 		if(cctx->str ? !CRYPTO_ccm128_decrypt_ccm64(ccm, in, out, len, cctx->str)
 		    : !CRYPTO_ccm128_decrypt(ccm, in, out, len)) {
-			unsigned char tag[16];
+			uchar tag[16];
 			if(CRYPTO_ccm128_tag(ccm, tag, cctx->M)) {
 				if(!CRYPTO_memcmp(tag, in + len, cctx->M))
 					return len;
@@ -663,8 +663,8 @@ static int aria_ccm_tls_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	}
 }
 
-static int aria_ccm_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int aria_ccm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_ARIA_CCM_CTX * cctx = EVP_C_DATA(EVP_ARIA_CCM_CTX, ctx);
 	CCM128_CONTEXT * ccm = &cctx->ccm;
@@ -714,7 +714,7 @@ static int aria_ccm_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 	else {
 		int rv = -1;
 		if(cctx->str ? !CRYPTO_ccm128_decrypt_ccm64(ccm, in, out, len, cctx->str) : !CRYPTO_ccm128_decrypt(ccm, in, out, len)) {
-			unsigned char tag[16];
+			uchar tag[16];
 			if(CRYPTO_ccm128_tag(ccm, tag, cctx->M)) {
 				if(!CRYPTO_memcmp(tag, EVP_CIPHER_CTX_buf_noconst(ctx), cctx->M))
 					rv = len;

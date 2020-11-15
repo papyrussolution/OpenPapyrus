@@ -17,7 +17,7 @@
  *      0: incorrect signature
  *     -1: error
  */
-int ECDSA_do_verify(const unsigned char * dgst, int dgst_len,
+int ECDSA_do_verify(const uchar * dgst, int dgst_len,
     const ECDSA_SIG * sig, EC_KEY * eckey)
 {
 	if(eckey->meth->verify_sig != NULL)
@@ -32,8 +32,8 @@ int ECDSA_do_verify(const unsigned char * dgst, int dgst_len,
  *      0: incorrect signature
  *     -1: error
  */
-int ECDSA_verify(int type, const unsigned char * dgst, int dgst_len,
-    const unsigned char * sigbuf, int sig_len, EC_KEY * eckey)
+int ECDSA_verify(int type, const uchar * dgst, int dgst_len,
+    const uchar * sigbuf, int sig_len, EC_KEY * eckey)
 {
 	if(eckey->meth->verify != NULL)
 		return eckey->meth->verify(type, dgst, dgst_len, sigbuf, sig_len,

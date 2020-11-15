@@ -10,12 +10,6 @@
 #ifndef HEADER_CRYPTO_H
 	#define HEADER_CRYPTO_H
 
-//#include <stdlib.h>
-//#include <time.h>
-//#include <openssl/e_os2.h>
-//#ifndef OPENSSL_NO_STDIO
-	//#include <stdio.h>
-//#endif
 #include <openssl/safestack.h>
 #include <openssl/opensslv.h>
 #include <openssl/ossl_typ.h>
@@ -122,13 +116,13 @@ int CRYPTO_mem_ctrl(int mode);
 size_t OPENSSL_strlcpy(char *dst, const char *src, size_t siz);
 size_t OPENSSL_strlcat(char *dst, const char *src, size_t siz);
 size_t OPENSSL_strnlen(const char *str, size_t maxlen);
-char *OPENSSL_buf2hexstr(const unsigned char *buffer, long len);
-unsigned char *OPENSSL_hexstr2buf(const char *str, long *len);
-int OPENSSL_hexchar2int(unsigned char c);
+char *OPENSSL_buf2hexstr(const uchar *buffer, long len);
+uchar *OPENSSL_hexstr2buf(const char *str, long *len);
+int OPENSSL_hexchar2int(uchar c);
 
 #define OPENSSL_MALLOC_MAX_NELEMS(type)  (((1U<<(sizeof(int)*8-1))-1)/sizeof(type))
 
-unsigned long OpenSSL_version_num(void);
+ulong OpenSSL_version_num(void);
 const char *OpenSSL_version(int type);
 #define OPENSSL_VERSION          0
 #define OPENSSL_CFLAGS           1
@@ -336,7 +330,7 @@ void OPENSSL_thread_stop(void);
 OPENSSL_INIT_SETTINGS *OPENSSL_INIT_new(void);
 #ifndef OPENSSL_NO_STDIO
 	int OPENSSL_INIT_set_config_filename(OPENSSL_INIT_SETTINGS *settings, const char *config_filename);
-	void OPENSSL_INIT_set_config_file_flags(OPENSSL_INIT_SETTINGS *settings, unsigned long flags);
+	void OPENSSL_INIT_set_config_file_flags(OPENSSL_INIT_SETTINGS *settings, ulong flags);
 	int OPENSSL_INIT_set_config_appname(OPENSSL_INIT_SETTINGS *settings, const char *config_appname);
 #endif
 void OPENSSL_INIT_free(OPENSSL_INIT_SETTINGS *settings);
@@ -362,9 +356,9 @@ typedef pthread_t CRYPTO_THREAD_ID;
 #endif
 
 # if !defined(CRYPTO_ONCE_STATIC_INIT)
-typedef unsigned int CRYPTO_ONCE;
-typedef unsigned int CRYPTO_THREAD_LOCAL;
-typedef unsigned int CRYPTO_THREAD_ID;
+typedef uint CRYPTO_ONCE;
+typedef uint CRYPTO_THREAD_LOCAL;
+typedef uint CRYPTO_THREAD_ID;
 #  define CRYPTO_ONCE_STATIC_INIT 0
 #endif
 

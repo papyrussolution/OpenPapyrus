@@ -29,7 +29,7 @@ static POLICYINFO * policy_section(X509V3_CTX * ctx,
 static POLICYQUALINFO * notice_section(X509V3_CTX * ctx,
     STACK_OF(CONF_VALUE) * unot, int ia5org);
 static int nref_nos(STACK_OF(ASN1_INTEGER) * nnums, STACK_OF(CONF_VALUE) * nos);
-static int displaytext_str2tag(const char * tagstr, unsigned int * tag_len);
+static int displaytext_str2tag(const char * tagstr, uint * tag_len);
 static int displaytext_get_tag_len(const char * tagstr);
 
 const X509V3_EXT_METHOD v3_cpols = {
@@ -255,7 +255,7 @@ static int displaytext_get_tag_len(const char * tagstr)
 	return (colon == NULL) ? -1 : colon - tagstr;
 }
 
-static int displaytext_str2tag(const char * tagstr, unsigned int * tag_len)
+static int displaytext_str2tag(const char * tagstr, uint * tag_len)
 {
 	int len;
 	*tag_len = 0;
@@ -283,7 +283,7 @@ static POLICYQUALINFO * notice_section(X509V3_CTX * ctx,
     STACK_OF(CONF_VALUE) * unot, int ia5org)
 {
 	int i, ret, len, tag;
-	unsigned int tag_len;
+	uint tag_len;
 	CONF_VALUE * cnf;
 	USERNOTICE * not;
 	POLICYQUALINFO * qual;

@@ -243,7 +243,7 @@ int PPObjStaffList::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 int PPObjStaffList::SerializePacket(int dir, PPStaffPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW_SL(P_Ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->Amounts, rBuf));
 	CATCHZOK
 	return ok;
@@ -263,8 +263,8 @@ int PPObjStaffList::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 				//
 				// Для объекта PPObjStaffList зарезервированное пространство [1..PP_FIRSTUSRREF-1] не применимо
 				//
-				if(ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPStaffEntry, Name)) > 0 ||
-					ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPStaffEntry, Symb)) > 0) {
+				if(P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPStaffEntry, Name)) > 0 ||
+					P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPStaffEntry, Symb)) > 0) {
 					PPStaffEntry same_rec;
 					if(Search(same_id, &same_rec) > 0) {
 						if(!PutPacket(&same_id, p_pack, 1)) {
@@ -328,7 +328,7 @@ int PPObjStaffList::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_PERSON) {
 			PPStaffEntry rec;
-			for(SEnum en = ref->EnumByIdxVal(Obj, 1, _id); ok && en.Next(&rec) > 0;) {
+			for(SEnum en = P_Ref->EnumByIdxVal(Obj, 1, _id); ok && en.Next(&rec) > 0;) {
 				ok = RetRefsExistsErr(Obj, rec.ID);
 			}
 			if(ok) {
@@ -341,7 +341,7 @@ int PPObjStaffList::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		}
 		else if(_obj == PPOBJ_LOCATION) {
 			PPStaffEntry rec;
-			for(SEnum en = ref->EnumByIdxVal(Obj, 2, _id); ok && en.Next(&rec) > 0;) {
+			for(SEnum en = P_Ref->EnumByIdxVal(Obj, 2, _id); ok && en.Next(&rec) > 0;) {
 				ok = RetRefsExistsErr(Obj, rec.ID);
 			}
 		}
@@ -417,7 +417,7 @@ int PPObjStaffList::GetPostPacket(PPID postID, PPPsnPostPacket * pPack)
 	int    ok = -1;
 	PPPsnPostPacket pack;
 	if(SearchByID(P_PostTbl, PPOBJ_PERSONPOST, postID, &pack.Rec) > 0) {
-		ok = ref->GetPropArray(PPOBJ_PERSONPOST, postID, PSNPPPRP_AMTLIST, &pack.Amounts) ? 1 : 0;
+		ok = P_Ref->GetPropArray(PPOBJ_PERSONPOST, postID, PSNPPPRP_AMTLIST, &pack.Amounts) ? 1 : 0;
 		ASSIGN_PTR(pPack, pack);
 	}
 	return ok;
@@ -473,11 +473,11 @@ int PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_t
 				}
 				{
 					StaffAmtList org_list;
-					THROW(ref->GetPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &org_list));
+					THROW(P_Ref->GetPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &org_list));
 					if(!org_list.IsEqual(pPack->Amounts)) {
 						was_updated = 1;
 						// @v10.3.0 (never used) was_list_updated = 1;
-						THROW(ref->PutPropArray(PPOBJ_PERSONPOST, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
+						THROW(P_Ref->PutPropArray(PPOBJ_PERSONPOST, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 					}
 				}
 				if(was_updated)
@@ -500,7 +500,7 @@ int PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_t
 					THROW_PP(sal_list.getCount() == 0, PPERR_RMVPPOSTHASSALARY);
 				}
 				THROW(RemoveByID(P_PostTbl, *pID, 0));
-				THROW(ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, 0, 0));
+				THROW(P_Ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, 0, 0));
 				//
 				// Уменьшаем (с проверкой корректности) количество занятых вакансий
 				//
@@ -527,7 +527,7 @@ int PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_t
 			msg_buf.Z().Cat(psn_rec.Name).CatDiv('-', 1).Cat(sl_rec.Name);
 			THROW_PP_S(r < 0, PPERR_DUPPERSONPOST, msg_buf);
 			THROW(AddObjRecByID(P_PostTbl, PPOBJ_PERSONPOST, pID, &pPack->Rec, 0));
-			THROW(ref->PutPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &pPack->Amounts, 0));
+			THROW(P_Ref->PutPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &pPack->Amounts, 0));
 			//
 			// Увеличиваем (с проверкой корректности) количество занятых вакансий
 			//
@@ -648,11 +648,11 @@ int PPObjStaffList::GetList(const Filt & rFilt, PPIDArray * pList, StrAssocArray
 	{
 		SEnum en;
 		if(rFilt.DivID)
-			en = ref->EnumByIdxVal(Obj, 2, rFilt.DivID);
+			en = P_Ref->EnumByIdxVal(Obj, 2, rFilt.DivID);
 		else if(rFilt.OrgID)
-			en = ref->EnumByIdxVal(Obj, 1, rFilt.OrgID);
+			en = P_Ref->EnumByIdxVal(Obj, 1, rFilt.OrgID);
 		else
-			en = ref->Enum(Obj, 0);
+			en = P_Ref->Enum(Obj, 0);
 		PPStaffEntry rec;
 		while(en.Next(&rec) > 0) {
 			if((!rFilt.OrgID || rec.OrgID == rFilt.OrgID) && (!rFilt.DivID || rec.DivisionID == rFilt.DivID)) {
@@ -777,7 +777,7 @@ int PPObjStaffList::GetPacket(PPID id, PPStaffPacket * pPack)
 {
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
-		ok = ref->GetPropArray(Obj, id, SLPPRP_AMTLIST, &pPack->Amounts) ? 1 : 0;
+		ok = P_Ref->GetPropArray(Obj, id, SLPPRP_AMTLIST, &pPack->Amounts) ? 1 : 0;
 	}
 	return ok;
 }
@@ -803,15 +803,15 @@ int PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_ta)
 					}
 				}
 				THROW(UpdateItem(*pID, &pPack->Rec, 0));
-				THROW(ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
+				THROW(P_Ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 				DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));
 				THROW(r = GetPostList(*pID, 0));
 				THROW_PP(r < 0, PPERR_RMVFILLEDSTAFF);
-				THROW(ref->RemoveItem(Obj, *pID, 0));
-				THROW(ref->RemoveProperty(Obj, *pID, 0, 0));
+				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+				THROW(P_Ref->RemoveProperty(Obj, *pID, 0, 0));
 				THROW(RemoveSync(*pID));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
@@ -826,7 +826,7 @@ int PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_ta)
 				}
 			}
 			THROW(AddItem(pID, &pPack->Rec, 0));
-			THROW(ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
+			THROW(P_Ref->PutPropArray(Obj, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 			DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
 		}
 		THROW(tra.Commit());
@@ -1096,7 +1096,7 @@ int PPObjStaffList::GetFixedStaffList(PPID orgID, PPID fixID, PPIDArray * pList)
 	CALLPTRMEMB(pList, clear());
 	int    ok = 1;
 	PPStaffEntry rec;
-	for(SEnum en = ref->EnumByIdxVal(Obj, 1, orgID); en.Next(&rec) > 0;) {
+	for(SEnum en = P_Ref->EnumByIdxVal(Obj, 1, orgID); en.Next(&rec) > 0;) {
 		if(rec.FixedStaff == fixID) {
 			if(pList)
 				THROW_SL(pList->add(rec.ID));

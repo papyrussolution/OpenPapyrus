@@ -344,7 +344,7 @@ PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_NFPOOL, FilePath);
 	//@erik v10.7.5
 	GetXmlPoolDir(XmlFilePath);
-	XmlFilePath.SetLastSlash().Cat("namedfiltpool").Cat(".xml");
+	XmlFilePath.SetLastSlash().Cat("namedfiltpool").Dot().Cat("xml");
 	// } @erik
 }
 

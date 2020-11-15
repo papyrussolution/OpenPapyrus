@@ -65,10 +65,10 @@ static void pkey_dsa_cleanup(EVP_PKEY_CTX * ctx)
 	OPENSSL_free(dctx);
 }
 
-static int pkey_dsa_sign(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * siglen, const unsigned char * tbs, size_t tbslen)
+static int pkey_dsa_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, const uchar * tbs, size_t tbslen)
 {
 	int ret;
-	unsigned int sltmp;
+	uint sltmp;
 	DSA_PKEY_CTX * dctx = static_cast<DSA_PKEY_CTX *>(ctx->data);
 	DSA * dsa = ctx->pkey->pkey.dsa;
 	if(dctx->md != NULL && tbslen != (size_t)EVP_MD_size(dctx->md))
@@ -80,7 +80,7 @@ static int pkey_dsa_sign(EVP_PKEY_CTX * ctx, unsigned char * sig, size_t * sigle
 	return 1;
 }
 
-static int pkey_dsa_verify(EVP_PKEY_CTX * ctx, const unsigned char * sig, size_t siglen, const unsigned char * tbs, size_t tbslen)
+static int pkey_dsa_verify(EVP_PKEY_CTX * ctx, const uchar * sig, size_t siglen, const uchar * tbs, size_t tbslen)
 {
 	int ret;
 	DSA_PKEY_CTX * dctx = static_cast<DSA_PKEY_CTX *>(ctx->data);

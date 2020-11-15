@@ -55,8 +55,8 @@ BIO * cms_DigestedData_init_bio(CMS_ContentInfo * cms)
 int cms_DigestedData_do_final(CMS_ContentInfo * cms, BIO * chain, int verify)
 {
 	EVP_MD_CTX * mctx = EVP_MD_CTX_new();
-	unsigned char md[EVP_MAX_MD_SIZE];
-	unsigned int mdlen;
+	uchar md[EVP_MAX_MD_SIZE];
+	uint mdlen;
 	int r = 0;
 	CMS_DigestedData * dd;
 

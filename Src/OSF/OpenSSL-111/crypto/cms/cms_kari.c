@@ -185,15 +185,15 @@ EVP_CIPHER_CTX * CMS_RecipientInfo_kari_get0_ctx(CMS_RecipientInfo * ri)
  * or the encrypted CEK.
  */
 
-static int cms_kek_cipher(unsigned char ** pout, size_t * poutlen,
-    const unsigned char * in, size_t inlen,
+static int cms_kek_cipher(uchar ** pout, size_t * poutlen,
+    const uchar * in, size_t inlen,
     CMS_KeyAgreeRecipientInfo * kari, int enc)
 {
 	/* Key encryption key */
-	unsigned char kek[EVP_MAX_KEY_LENGTH];
+	uchar kek[EVP_MAX_KEY_LENGTH];
 	size_t keklen;
 	int rv = 0;
-	unsigned char * out = NULL;
+	uchar * out = NULL;
 	int outlen;
 	keklen = EVP_CIPHER_CTX_key_length(kari->ctx);
 	if(keklen > EVP_MAX_KEY_LENGTH)
@@ -232,7 +232,7 @@ int CMS_RecipientInfo_kari_decrypt(CMS_ContentInfo * cms,
     CMS_RecipientEncryptedKey * rek)
 {
 	int rv = 0;
-	unsigned char * enckey = NULL, * cek = NULL;
+	uchar * enckey = NULL, * cek = NULL;
 	size_t enckeylen;
 	size_t ceklen;
 	CMS_EncryptedContentInfo * ec;
@@ -287,7 +287,7 @@ err:
 /* Initialise a kari based on passed certificate and key */
 
 int cms_RecipientInfo_kari_init(CMS_RecipientInfo * ri, X509 * recip,
-    EVP_PKEY * pk, unsigned int flags)
+    EVP_PKEY * pk, uint flags)
 {
 	CMS_KeyAgreeRecipientInfo * kari;
 	CMS_RecipientEncryptedKey * rek = NULL;
@@ -401,7 +401,7 @@ int cms_RecipientInfo_kari_encrypt(CMS_ContentInfo * cms,
 		return 0;
 	/* For each rek, derive KEK, encrypt CEK */
 	for(i = 0; i < sk_CMS_RecipientEncryptedKey_num(reks); i++) {
-		unsigned char * enckey;
+		uchar * enckey;
 		size_t enckeylen;
 		rek = sk_CMS_RecipientEncryptedKey_value(reks, i);
 		if(EVP_PKEY_derive_set_peer(kari->pctx, rek->pkey) <= 0)

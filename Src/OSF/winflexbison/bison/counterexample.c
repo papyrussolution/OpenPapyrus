@@ -33,14 +33,17 @@
 #define UNSHIFT_COST 1
 #define EXTENDED_COST 10000
 
-/** The time limit before printing an assurance message to the user to
- *  indicate that the search is still running. */
-#define ASSURANCE_LIMIT 2.0f
-
-/* The time limit before giving up looking for unifying counterexample. */
-#define TIME_LIMIT 5.0f
-
+#define ASSURANCE_LIMIT 2.0f /** The time limit before printing an assurance message to the user to indicate that the search is still running. */
+#define TIME_LIMIT 5.0f /* The time limit before giving up looking for unifying counterexample. */
 #define CUMULATIVE_TIME_LIMIT 120.0f
+
+typedef gl_list_t ssb_list;
+
+static ssb_list ssb_queue;     // @global Priority queue for search states with minimal complexity
+static Hash_table * visited;   // @global
+static bitset scp_set = NULL;  // @global The set of parser states on the shortest lookahead-sensitive path.
+static bitset rpp_set = NULL;  // @global The set of parser states used for the conflict reduction rule.
+static time_t cumulative_time; // @global
 
 // This is the fastest way to get the tail node from the gl_list API.
 static gl_list_node_t list_get_end(gl_list_t list)
@@ -124,15 +127,12 @@ static void counterexample_print(const counterexample * cex, FILE * out, const c
 	if(out != stderr)
 		putc('\n', out);
 }
-
 /*
  *
  * NON UNIFYING COUNTER EXAMPLES
  *
  */
-
-// Search node for BFS on state items
-struct si_bfs_node;
+struct si_bfs_node; // Search node for BFS on state items
 
 typedef struct si_bfs_node {
 	state_item_number si;
@@ -161,12 +161,12 @@ static bool si_bfs_contains(const si_bfs_node * n, state_item_number sin)
 
 static void si_bfs_free(si_bfs_node * n)
 {
-	if(n == NULL)
-		return;
-	--n->reference_count;
-	if(n->reference_count == 0) {
-		si_bfs_free(n->parent);
-		SAlloc::F(n);
+	if(n) {
+		--n->reference_count;
+		if(n->reference_count == 0) {
+			si_bfs_free(n->parent);
+			SAlloc::F(n);
+		}
 	}
 }
 
@@ -183,11 +183,7 @@ typedef gl_list_t si_bfs_node_list;
 static inline derivation_list expand_to_conflict(state_item_number start, symbol_number conflict_sym)
 {
 	si_bfs_node * init = si_bfs_new(start, NULL);
-
-	si_bfs_node_list queue
-		= gl_list_create(GL_LINKED_LIST, NULL, NULL,
-		(gl_listelement_dispose_fn)si_bfs_free,
-		true, 1, (const void**)&init);
+	si_bfs_node_list queue = gl_list_create(GL_LINKED_LIST, NULL, NULL, (gl_listelement_dispose_fn)si_bfs_free, true, 1, (const void**)&init);
 	si_bfs_node * node = NULL;
 	// breadth-first search for a path of productions to the conflict symbol
 	while(gl_list_size(queue) > 0) {
@@ -447,9 +443,7 @@ search_end:
 	if(trace_flag & trace_cex) {
 		fputs("SHIFT ITEM PATH:\n", stderr);
 		state_item * sip = NULL;
-		for(gl_list_iterator_t it = gl_list_iterator(result);
-		    state_item_list_next(&it, &sip);
-		    )
+		for(gl_list_iterator_t it = gl_list_iterator(result); state_item_list_next(&it, &sip);)
 			state_item_print(sip, stderr, "");
 	}
 	return result;
@@ -459,21 +453,14 @@ search_end:
  * Construct a nonunifying counterexample from the shortest
  * lookahead-sensitive path.
  */
-static counterexample * example_from_path(bool shift_reduce,
-    state_item_number itm2,
-    state_item_list shortest_path, symbol_number next_sym)
+static counterexample * example_from_path(bool shift_reduce, state_item_number itm2, state_item_list shortest_path, symbol_number next_sym)
 {
-	derivation * deriv1 =
-	    complete_diverging_example(next_sym, shortest_path, NULL);
-	state_item_list path_2
-		= shift_reduce
-	    ? nonunifying_shift_path(shortest_path, &state_items [itm2])
-	    : shortest_path_from_start(itm2, next_sym);
+	derivation * deriv1 = complete_diverging_example(next_sym, shortest_path, NULL);
+	state_item_list path_2 = shift_reduce ? nonunifying_shift_path(shortest_path, &state_items [itm2]) : shortest_path_from_start(itm2, next_sym);
 	derivation * deriv2 = complete_diverging_example(next_sym, path_2, NULL);
 	gl_list_free(path_2);
 	return new_counterexample(deriv1, deriv2, shift_reduce, false, true);
 }
-
 /*
  *
  * UNIFYING COUNTER EXAMPLES
@@ -528,10 +515,10 @@ static void search_state_free_children(search_state * ss)
 
 static void search_state_free(search_state * ss)
 {
-	if(ss == NULL)
-		return;
-	search_state_free_children(ss);
-	SAlloc::F(ss);
+	if(ss) {
+		search_state_free_children(ss);
+		SAlloc::F(ss);
+	}
 }
 
 /* For debugging traces.  */
@@ -556,7 +543,6 @@ static inline bool search_state_list_next(gl_list_iterator_t * it, search_state 
 		gl_list_iterator_free(it);
 	return res;
 }
-
 /*
  * When a search state is copied, this is used to
  * directly set one of the parse states
@@ -567,15 +553,12 @@ static inline void ss_set_parse_state(search_state * ss, int idx, parse_state * 
 	ss->states[idx] = ps;
 	parse_state_retain(ps);
 }
-
 /*
  * Construct a nonunifying example from a search state
  * which has its parse states unified at the beginning
  * but not the end of the example.
  */
-static counterexample * complete_diverging_examples(search_state * ss,
-    symbol_number next_sym,
-    bool shift_reduce)
+static counterexample * complete_diverging_examples(search_state * ss, symbol_number next_sym, bool shift_reduce)
 {
 	derivation * new_derivs[2];
 	for(int i = 0; i < 2; ++i) {
@@ -585,10 +568,8 @@ static counterexample * complete_diverging_examples(search_state * ss,
 		new_derivs[i] = complete_diverging_example(next_sym, sitems, derivs);
 		gl_list_free(sitems);
 	}
-	return new_counterexample(new_derivs[0], new_derivs[1],
-		   shift_reduce, false, true);
+	return new_counterexample(new_derivs[0], new_derivs[1], shift_reduce, false, true);
 }
-
 /*
  * Search states are stored in bundles with those that
  * share the same complexity. This is so the priority
@@ -601,8 +582,10 @@ typedef struct {
 
 static void ssb_free(search_state_bundle * ssb)
 {
-	gl_list_free(ssb->states);
-	SAlloc::F(ssb);
+	if(ssb) {
+		gl_list_free(ssb->states);
+		SAlloc::F(ssb);
+	}
 }
 
 static size_t ssb_hasher(search_state_bundle * ssb)
@@ -612,35 +595,23 @@ static size_t ssb_hasher(search_state_bundle * ssb)
 
 static int ssb_comp(const search_state_bundle * s1, const search_state_bundle * s2)
 {
-	return s1->complexity - s2->complexity;
+	return (s1->complexity - s2->complexity);
 }
 
 static bool ssb_equals(const search_state_bundle * s1, const search_state_bundle * s2)
 {
-	return s1->complexity == s2->complexity;
+	return (s1->complexity == s2->complexity);
 }
-
-typedef gl_list_t ssb_list;
 
 static size_t visited_hasher(const search_state * ss, size_t maximum)
 {
-	return (parse_state_hasher(ss->states[0], maximum)
-	       + parse_state_hasher(ss->states[1], maximum)) % maximum;
+	return (parse_state_hasher(ss->states[0], maximum) + parse_state_hasher(ss->states[1], maximum)) % maximum;
 }
 
 static bool visited_comparator(const search_state * ss1, const search_state * ss2)
 {
-	return parse_state_comparator(ss1->states[0], ss2->states[0])
-	       && parse_state_comparator(ss1->states[1], ss2->states[1]);
+	return parse_state_comparator(ss1->states[0], ss2->states[0]) && parse_state_comparator(ss1->states[1], ss2->states[1]);
 }
-
-/* Priority queue for search states with minimal complexity. */
-static ssb_list ssb_queue;
-static Hash_table * visited;
-/* The set of parser states on the shortest lookahead-sensitive path. */
-static bitset scp_set = NULL;
-/* The set of parser states used for the conflict reduction rule. */
-static bitset rpp_set = NULL;
 
 static void ssb_append(search_state * ss)
 {
@@ -678,14 +649,10 @@ static void production_step(search_state * ss, int parser_state)
 {
 	const state_item * other_si = parse_state_tail(ss->states[1 - parser_state]);
 	symbol_number other_sym = item_number_as_symbol_number(*other_si->item);
-	parse_state_list prods =
-	    simulate_production(ss->states[parser_state], other_sym);
+	parse_state_list prods = simulate_production(ss->states[parser_state], other_sym);
 	int complexity = ss->complexity + PRODUCTION_COST;
-
 	parse_state * ps = NULL;
-	for(gl_list_iterator_t it = gl_list_iterator(prods);
-	    parse_state_list_next(&it, &ps);
-	    ) {
+	for(gl_list_iterator_t it = gl_list_iterator(prods); parse_state_list_next(&it, &ps);) {
 		search_state * copy = copy_search_state(ss);
 		ss_set_parse_state(copy, parser_state, ps);
 		copy->complexity = complexity;
@@ -714,21 +681,16 @@ static search_state_list reduction_step(search_state * ss, const item_number * c
 	// if the other state can transition on a symbol,
 	// the reduction needs to have that symbol in its lookahead
 	if(item_number_is_symbol_number(*other_si->item)) {
-		symbol_number other_sym =
-		    item_number_as_symbol_number(*other_si->item);
+		symbol_number other_sym = item_number_as_symbol_number(*other_si->item);
 		if(!intersect_symbol(other_sym, symbol_set))
 			return result;
 		symbol_set = bitset_create(nsyms, BITSET_FIXED);
 		bitset_set(symbol_set, other_sym);
 	}
-
 	// FIXME: search_state *new_root = copy_search_state (ss);
-	parse_state_list reduced =
-	    simulate_reduction(ps, rule_len, symbol_set);
+	parse_state_list reduced = simulate_reduction(ps, rule_len, symbol_set);
 	parse_state * reduced_ps = NULL;
-	for(gl_list_iterator_t it = gl_list_iterator(reduced);
-	    parse_state_list_next(&it, &reduced_ps);
-	    ) {
+	for(gl_list_iterator_t it = gl_list_iterator(reduced); parse_state_list_next(&it, &reduced_ps);) {
 		search_state * copy = copy_search_state(ss);
 		ss_set_parse_state(copy, parser_state, reduced_ps);
 		int r_cost = reduction_cost(reduced_ps);
@@ -740,7 +702,6 @@ static search_state_list reduction_step(search_state * ss, const item_number * c
 		bitset_free(symbol_set);
 	return result;
 }
-
 /**
  * Attempt to prepend the given symbol to this search state, respecting
  * the given subsequent next symbol on each path. If a reverse transition
@@ -788,27 +749,20 @@ static void search_state_prepend(search_state * ss, symbol_number sym, bitset gu
 	// states for each pair where the parser states correspond to the same
 	// parsed input.
 	parse_state * ps1 = NULL;
-	for(gl_list_iterator_t iter1 = gl_list_iterator(prev1);
-	    parse_state_list_next(&iter1, &ps1);
-	    ) {
+	for(gl_list_iterator_t iter1 = gl_list_iterator(prev1); parse_state_list_next(&iter1, &ps1);) {
 		const state_item * psi1 = parse_state_head(ps1);
 		bool guided1 = bitset_test(guide, psi1->state->number);
 		if(!guided1 && !EXTENDED_SEARCH)
 			continue;
-
 		parse_state * ps2 = NULL;
-		for(gl_list_iterator_t iter2 = gl_list_iterator(prev2);
-		    parse_state_list_next(&iter2, &ps2);
-		    ) {
+		for(gl_list_iterator_t iter2 = gl_list_iterator(prev2); parse_state_list_next(&iter2, &ps2);) {
 			const state_item * psi2 = parse_state_head(ps2);
-
 			bool guided2 = bitset_test(guide, psi2->state->number);
 			if(!guided2 && !EXTENDED_SEARCH)
 				continue;
 			// Only consider prepend state items that share the same state.
 			if(psi1->state != psi2->state)
 				continue;
-
 			int complexity = ss->complexity;
 			if(prod1)
 				complexity += PRODUCTION_COST * 2;
@@ -836,16 +790,13 @@ static bool have_common_prefix(const item_number * itm1, const item_number * itm
 			return false;
 	return item_number_is_rule_number(itm2[i]);
 }
-
 /*
  * The start and end locations of an item in ritem.
  */
 static const item_number * item_rule_start(const item_number * item)
 {
 	const item_number * res = NULL;
-	for(res = item;
-	    ritem < res && item_number_is_symbol_number(*(res - 1));
-	    --res)
+	for(res = item; ritem < res && item_number_is_symbol_number(*(res - 1)); --res)
 		continue;
 	return res;
 }
@@ -857,14 +808,12 @@ static const item_number * item_rule_end(const item_number * item)
 		continue;
 	return res;
 }
-
 /*
  * Perform the appropriate possible parser actions
  * on a search state and add the results to the
  * search state priority queue.
  */
-static inline void generate_next_states(search_state * ss, state_item * conflict1,
-    state_item * conflict2)
+static inline void generate_next_states(search_state * ss, state_item * conflict1, state_item * conflict2)
 {
 	// Compute the successor configurations.
 	parse_state * ps1 = ss->states[0];
@@ -881,12 +830,8 @@ static inline void generate_next_states(search_state * ss, state_item * conflict
 			parse_state_list trans2 = simulate_transition(ps2);
 			parse_state * tps1 = NULL;
 			parse_state * tps2 = NULL;
-			for(gl_list_iterator_t it1 = gl_list_iterator(trans1);
-			    parse_state_list_next(&it1, &tps1);
-			    )
-				for(gl_list_iterator_t it2 = gl_list_iterator(trans2);
-				    parse_state_list_next(&it2, &tps2);
-				    )
+			for(gl_list_iterator_t it1 = gl_list_iterator(trans1); parse_state_list_next(&it1, &tps1);)
+				for(gl_list_iterator_t it2 = gl_list_iterator(trans2); parse_state_list_next(&it2, &tps2);)
 					ssb_append(new_search_state(tps1, tps2, complexity));
 			gl_list_free(trans1);
 			gl_list_free(trans2);
@@ -915,15 +860,10 @@ static inline void generate_next_states(search_state * ss, state_item * conflict
 			search_state_list reduced1 = reduction_step(ss, conflict1->item, 0, len1);
 			gl_list_add_last(reduced1, ss);
 			search_state * red1 = NULL;
-			for(gl_list_iterator_t iter = gl_list_iterator(reduced1);
-			    search_state_list_next(&iter, &red1);
-			    ) {
-				search_state_list reduced2 =
-				    reduction_step(red1, conflict2->item, 1, len2);
+			for(gl_list_iterator_t iter = gl_list_iterator(reduced1); search_state_list_next(&iter, &red1);) {
+				search_state_list reduced2 = reduction_step(red1, conflict2->item, 1, len2);
 				search_state * red2 = NULL;
-				for(gl_list_iterator_t iter2 = gl_list_iterator(reduced2);
-				    search_state_list_next(&iter2, &red2);
-				    )
+				for(gl_list_iterator_t iter2 = gl_list_iterator(reduced2); search_state_list_next(&iter2, &red2);)
 					ssb_append(red2);
 				// Avoid duplicates.
 				if(red1 != ss)
@@ -935,18 +875,14 @@ static inline void generate_next_states(search_state * ss, state_item * conflict
 		else if(ready1) {
 			search_state_list reduced1 = reduction_step(ss, conflict1->item, 0, len1);
 			search_state * red1 = NULL;
-			for(gl_list_iterator_t iter = gl_list_iterator(reduced1);
-			    search_state_list_next(&iter, &red1);
-			    )
+			for(gl_list_iterator_t iter = gl_list_iterator(reduced1); search_state_list_next(&iter, &red1);)
 				ssb_append(red1);
 			gl_list_free(reduced1);
 		}
 		else if(ready2) {
 			search_state_list reduced2 = reduction_step(ss, conflict2->item, 1, len2);
 			search_state * red2 = NULL;
-			for(gl_list_iterator_t iter2 = gl_list_iterator(reduced2);
-			    search_state_list_next(&iter2, &red2);
-			    )
+			for(gl_list_iterator_t iter2 = gl_list_iterator(reduced2); search_state_list_next(&iter2, &red2);)
 				ssb_append(red2);
 			gl_list_free(reduced2);
 		}
@@ -954,13 +890,8 @@ static inline void generate_next_states(search_state * ss, state_item * conflict
 		 * to reduce. This means symbols are missing from the beginning of the
 		 * rule, so we must prepend */
 		else {
-			const symbol_number sym
-				= si1reduce && !ready1
-			    ? *(rhe1 - size1)
-			    : *(rhe2 - size2);
-			search_state_prepend(ss, sym,
-			    parse_state_depth(ss->states[0]) >= 0
-			    ? rpp_set : scp_set);
+			const symbol_number sym = si1reduce && !ready1 ? *(rhe1 - size1) : *(rhe2 - size2);
+			search_state_prepend(ss, sym, parse_state_depth(ss->states[0]) >= 0 ? rpp_set : scp_set);
 		}
 	}
 }
@@ -971,23 +902,14 @@ static inline void generate_next_states(search_state * ss, state_item * conflict
  * we are at and gives the appropriate counterexample
  * type based off of time constraints.
  */
-static counterexample * unifying_example(state_item_number itm1,
-    state_item_number itm2,
-    bool shift_reduce,
-    state_item_list reduce_path, symbol_number next_sym)
+static counterexample * unifying_example(state_item_number itm1, state_item_number itm2, bool shift_reduce, state_item_list reduce_path, symbol_number next_sym)
 {
 	state_item * conflict1 = &state_items[itm1];
 	state_item * conflict2 = &state_items[itm2];
 	search_state * initial = initial_search_state(conflict1, conflict2);
-	ssb_queue = gl_list_create_empty(GL_RBTREEHASH_LIST,
-		(gl_listelement_equals_fn)ssb_equals,
-		(gl_listelement_hashcode_fn)ssb_hasher,
-		(gl_listelement_dispose_fn)ssb_free,
-		false);
-	visited =
-	    hash_initialize(32, NULL, (Hash_hasher)visited_hasher,
-		(Hash_comparator)visited_comparator,
-		(Hash_data_freer)search_state_free);
+	ssb_queue = gl_list_create_empty(GL_RBTREEHASH_LIST, (gl_listelement_equals_fn)ssb_equals,
+		(gl_listelement_hashcode_fn)ssb_hasher, (gl_listelement_dispose_fn)ssb_free, false);
+	visited = hash_initialize(32, NULL, (Hash_hasher)visited_hasher, (Hash_comparator)visited_comparator, (Hash_data_freer)search_state_free);
 	ssb_append(initial);
 	time_t start = time(NULL);
 	bool assurance_printed = false;
@@ -996,9 +918,7 @@ static counterexample * unifying_example(state_item_number itm1,
 	while(gl_list_size(ssb_queue) > 0) {
 		const search_state_bundle * ssb = (const search_state_bundle *)gl_list_get_at(ssb_queue, 0);
 		search_state * ss = NULL;
-		for(gl_list_iterator_t it = gl_list_iterator(ssb->states);
-		    search_state_list_next(&it, &ss);
-		    ) {
+		for(gl_list_iterator_t it = gl_list_iterator(ssb->states); search_state_list_next(&it, &ss);) {
 			if(trace_flag & trace_cex)
 				search_state_print(ss);
 			// Stage 1/2 completing the rules containing the conflicts
@@ -1060,8 +980,6 @@ cex_search_end:;
 		search_state_free(stage3result);
 	return cex;
 }
-
-static time_t cumulative_time;
 
 void counterexample_init()
 {
@@ -1161,8 +1079,7 @@ static void counterexample_report_reduce_reduce(state_item_number itm1, state_it
 static state_item_number find_state_item_number(const rule * r, state_number sn)
 {
 	for(state_item_number i = state_item_map[sn]; i < state_item_map[sn + 1]; ++i)
-		if(!SI_DISABLED(i)
-		    && item_number_as_rule_number(*state_items[i].item) == r->number)
+		if(!SI_DISABLED(i) && item_number_as_rule_number(*state_items[i].item) == r->number)
 			return i;
 	abort();
 }
@@ -1185,9 +1102,7 @@ void counterexample_report_state(const state * s, FILE * out, const char * prefi
 		for(int j = i+1; j < reds->num; ++j) {
 			const rule * r2 = reds->rules[j];
 			// Conflicts: common lookaheads.
-			bitset_intersection(lookaheads,
-			    reds->lookaheads[i],
-			    reds->lookaheads[j]);
+			bitset_intersection(lookaheads, reds->lookaheads[i], reds->lookaheads[j]);
 			if(!bitset_empty_p(lookaheads))
 				for(state_item_number c2 = state_item_map[sn]; c2 < state_item_map[sn + 1]; ++c2)
 					if(!SI_DISABLED(c2) && item_rule(state_items[c2].item) == r2) {
