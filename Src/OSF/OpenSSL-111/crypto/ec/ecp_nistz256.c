@@ -892,7 +892,7 @@ err:
  * you'd need to compile even asm/ecp_nistz256-avx.pl module.
  */
 #if defined(ECP_NISTZ256_AVX2)
-# if !(defined(__x86_64) || defined(__x86_64__) || \
+#if !(defined(__x86_64) || defined(__x86_64__) || \
 	defined(_M_AMD64) || defined(_M_X64)) || \
 	!(defined(__GNUC__) || defined(_MSC_VER)) /* this is for ALIGN32 */
 #undef ECP_NISTZ256_AVX2

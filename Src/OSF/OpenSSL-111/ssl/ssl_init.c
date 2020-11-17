@@ -35,7 +35,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_ssl_base)
 	EVP_add_cipher(EVP_rc4());
 # ifndef OPENSSL_NO_MD5
 	EVP_add_cipher(EVP_rc4_hmac_md5());
-# endif
+#endif
 #endif
 #ifndef OPENSSL_NO_RC2
 	EVP_add_cipher(EVP_rc2_cbc());
@@ -85,7 +85,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_ssl_base)
 #ifndef OPENSSL_NO_COMP
 # ifdef OPENSSL_INIT_DEBUG
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_ssl_base: SSL_COMP_get_compression_methods()\n");
-# endif
+#endif
 	/*
 	 * This will initialise the built-in compression algorithms. The value
 	 * returned is a STACK_OF(SSL_COMP), but that can be discarded safely
@@ -119,7 +119,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_ssl_strings)
 # ifdef OPENSSL_INIT_DEBUG
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_load_ssl_strings: "
 	    "ERR_load_SSL_strings()\n");
-# endif
+#endif
 	ERR_load_SSL_strings();
 	ssl_strings_inited = 1;
 #endif
@@ -144,7 +144,7 @@ static void ssl_library_stop(void)
 #ifndef OPENSSL_NO_COMP
 # ifdef OPENSSL_INIT_DEBUG
 		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: ssl_comp_free_compression_methods_int()\n");
-# endif
+#endif
 		ssl_comp_free_compression_methods_int();
 #endif
 	}

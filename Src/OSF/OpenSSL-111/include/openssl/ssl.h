@@ -169,12 +169,12 @@ extern "C" {
  */
 #define SSL_DEFAULT_CIPHER_LIST "ALL:!COMPLEMENTOFDEFAULT:!eNULL"
 /* This is the default set of TLSv1.3 ciphersuites */
-# if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
-#  define TLS_DEFAULT_CIPHERSUITES "TLS_AES_256_GCM_SHA384:" \
+#if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
+#define TLS_DEFAULT_CIPHERSUITES "TLS_AES_256_GCM_SHA384:" \
 	"TLS_CHACHA20_POLY1305_SHA256:" \
 	"TLS_AES_128_GCM_SHA256"
 # else
-#  define TLS_DEFAULT_CIPHERSUITES "TLS_AES_256_GCM_SHA384:" \
+#define TLS_DEFAULT_CIPHERSUITES "TLS_AES_256_GCM_SHA384:" \
 	"TLS_AES_128_GCM_SHA256"
 #endif
 /*
@@ -307,7 +307,7 @@ typedef int (* SSL_verify_cb)(int preverify_ok, X509_STORE_CTX * x509_ctx);
 #ifndef OPENSSL_NO_DTLS1_METHOD
 /* Use Cisco's "speshul" version of DTLS_BAD_VER
  * (only with deprecated DTLSv1_client_method())  */
-#  define SSL_OP_CISCO_ANYCONNECT                        0x00008000U
+#define SSL_OP_CISCO_ANYCONNECT                        0x00008000U
 #endif
 
 /* As server, disallow session resumption on renegotiation */
@@ -708,7 +708,7 @@ typedef int (* SSL_CTX_npn_advertised_cb_func)(SSL * ssl,
 void SSL_CTX_set_next_protos_advertised_cb(SSL_CTX * s,
     SSL_CTX_npn_advertised_cb_func cb,
     void * arg);
-#  define SSL_CTX_set_npn_advertised_cb SSL_CTX_set_next_protos_advertised_cb
+#define SSL_CTX_set_npn_advertised_cb SSL_CTX_set_next_protos_advertised_cb
 
 typedef int (* SSL_CTX_npn_select_cb_func)(SSL * s,
     uchar ** out,
@@ -718,9 +718,9 @@ typedef int (* SSL_CTX_npn_select_cb_func)(SSL * s,
     void * arg);
 void SSL_CTX_set_next_proto_select_cb(SSL_CTX * s, SSL_CTX_npn_select_cb_func cb,
     void * arg);
-#  define SSL_CTX_set_npn_select_cb SSL_CTX_set_next_proto_select_cb
+#define SSL_CTX_set_npn_select_cb SSL_CTX_set_next_proto_select_cb
 void SSL_get0_next_proto_negotiated(const SSL * s, const uchar ** data, unsigned * len);
-#  define SSL_get0_npn_negotiated SSL_get0_next_proto_negotiated
+#define SSL_get0_npn_negotiated SSL_get0_next_proto_negotiated
 #endif
 
 __owur int SSL_select_next_proto(uchar ** out, uchar * outlen,
@@ -753,8 +753,8 @@ void SSL_get0_alpn_selected(const SSL * ssl, const uchar ** data,
  * the maximum length of the buffer given to callbacks containing the
  * resulting identity/psk
  */
-#  define PSK_MAX_IDENTITY_LEN 128
-#  define PSK_MAX_PSK_LEN 256
+#define PSK_MAX_IDENTITY_LEN 128
+#define PSK_MAX_PSK_LEN 256
 typedef uint (* SSL_psk_client_cb_func)(SSL * ssl,
     const char * hint,
     char * identity,
@@ -1037,9 +1037,9 @@ size_t SSL_get_peer_finished(const SSL * s, void * buf, size_t count);
 #define SSL_VERIFY_CLIENT_ONCE          0x04
 #define SSL_VERIFY_POST_HANDSHAKE       0x08
 
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define OpenSSL_add_ssl_algorithms()   SSL_library_init()
-#  define SSLeay_add_ssl_algorithms()    SSL_library_init()
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define OpenSSL_add_ssl_algorithms()   SSL_library_init()
+#define SSLeay_add_ssl_algorithms()    SSL_library_init()
 #endif
 
 /* More backward compatibility */
@@ -1190,9 +1190,9 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
 #define SSL_CTRL_SET_TLS_EXT_SRP_STRENGTH               80
 #define SSL_CTRL_SET_TLS_EXT_SRP_PASSWORD               81
 #ifndef OPENSSL_NO_HEARTBEATS
-#  define SSL_CTRL_DTLS_EXT_SEND_HEARTBEAT               85
-#  define SSL_CTRL_GET_DTLS_EXT_HEARTBEAT_PENDING        86
-#  define SSL_CTRL_SET_DTLS_EXT_HEARTBEAT_NO_REQUESTS    87
+#define SSL_CTRL_DTLS_EXT_SEND_HEARTBEAT               85
+#define SSL_CTRL_GET_DTLS_EXT_HEARTBEAT_PENDING        86
+#define SSL_CTRL_SET_DTLS_EXT_HEARTBEAT_NO_REQUESTS    87
 #endif
 #define DTLS_CTRL_GET_TIMEOUT           73
 #define DTLS_CTRL_HANDLE_TIMEOUT        74
@@ -1244,7 +1244,7 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
 #define SSL_CERT_SET_NEXT                       2
 #define SSL_CERT_SET_SERVER                     3
 #define DTLSv1_get_timeout(ssl, arg) \
-	SSL_ctrl(ssl, DTLS_CTRL_GET_TIMEOUT, 0, (void*)(arg))
+	SSL_ctrl(ssl, DTLS_CTRL_GET_TIMEOUT, 0, (void *)(arg))
 #define DTLSv1_handle_timeout(ssl) \
 	SSL_ctrl(ssl, DTLS_CTRL_HANDLE_TIMEOUT, 0, NULL)
 #define SSL_num_renegotiations(ssl) \
@@ -1381,20 +1381,20 @@ DECLARE_PEM_rw(SSL_SESSION, SSL_SESSION)
 #define SSL_set1_curves_list          SSL_set1_groups_list
 #define SSL_get_shared_curve          SSL_get_shared_group
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 /* Provide some compatibility macros for removed functionality. */
-#  define SSL_CTX_need_tmp_RSA(ctx)                0
-#  define SSL_CTX_set_tmp_rsa(ctx, rsa)             1
-#  define SSL_need_tmp_RSA(ssl)                    0
-#  define SSL_set_tmp_rsa(ssl, rsa)                 1
-#  define SSL_CTX_set_ecdh_auto(dummy, onoff)      ((onoff) != 0)
-#  define SSL_set_ecdh_auto(dummy, onoff)          ((onoff) != 0)
+#define SSL_CTX_need_tmp_RSA(ctx)                0
+#define SSL_CTX_set_tmp_rsa(ctx, rsa)             1
+#define SSL_need_tmp_RSA(ssl)                    0
+#define SSL_set_tmp_rsa(ssl, rsa)                 1
+#define SSL_CTX_set_ecdh_auto(dummy, onoff)      ((onoff) != 0)
+#define SSL_set_ecdh_auto(dummy, onoff)          ((onoff) != 0)
 /*
  * We "pretend" to call the callback to avoid warnings about unused static
  * functions.
  */
-#  define SSL_CTX_set_tmp_rsa_callback(ctx, cb)    while(0) (cb)(NULL, 0, 0)
-#  define SSL_set_tmp_rsa_callback(ssl, cb)        while(0) (cb)(NULL, 0, 0)
+#define SSL_CTX_set_tmp_rsa_callback(ctx, cb)    while(0) (cb)(NULL, 0, 0)
+#define SSL_set_tmp_rsa_callback(ssl, cb)        while(0) (cb)(NULL, 0, 0)
 #endif
 __owur const BIO_METHOD *BIO_f_ssl(void);
 __owur BIO * BIO_new_ssl(SSL_CTX * ctx, int client);
@@ -1508,8 +1508,8 @@ __owur int SSL_add_file_cert_subjects_to_stack(STACK_OF(X509_NAME) *stackCAs,
 int SSL_add_dir_cert_subjects_to_stack(STACK_OF(X509_NAME) *stackCAs,
     const char * dir);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define SSL_load_error_strings() \
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define SSL_load_error_strings() \
 	OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS \
 	    | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
 #endif
@@ -1823,8 +1823,8 @@ void SSL_set_accept_state(SSL * s);
 
 __owur long SSL_get_default_timeout(const SSL * s);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define SSL_library_init() OPENSSL_init_ssl(0, NULL)
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define SSL_library_init() OPENSSL_init_ssl(0, NULL)
 #endif
 
 __owur char * SSL_CIPHER_description(const SSL_CIPHER *, char * buf, int size);

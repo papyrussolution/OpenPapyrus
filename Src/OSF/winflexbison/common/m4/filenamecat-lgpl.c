@@ -21,7 +21,7 @@
 #pragma hdrstop
 
 #if !HAVE_MEMPCPY && !defined mempcpy
-	#define mempcpy(D, S, N) ((void*)((char *)memcpy(D, S, N) + (N)))
+	#define mempcpy(D, S, N) ((void *)((char *)memcpy(D, S, N) + (N)))
 #endif
 
 /* Return the longest suffix of F that is a relative file name.

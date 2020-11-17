@@ -60,10 +60,10 @@
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
 #include "socks.h"
@@ -72,7 +72,7 @@
 #include "strtoofft.h"
 #include "strcase.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strerror.h"
 #include "select.h"
 #include "multiif.h"
@@ -507,8 +507,8 @@ static CURLcode imap_perform_login(struct connectdata * conn)
 	result = imap_sendf(conn, "LOGIN %s %s", user ? user : "",
 		passwd ? passwd : "");
 
-	free(user);
-	free(passwd);
+	SAlloc::F(user);
+	SAlloc::F(passwd);
 
 	if(!result)
 		state(conn, IMAP_LOGIN);
@@ -615,14 +615,14 @@ static CURLcode imap_perform_list(struct connectdata * conn)
 	else {
 		/* Make sure the mailbox is in the correct atom format if necessary */
 		char * mailbox = imap->mailbox ? imap_atom(imap->mailbox, true)
-		    : strdup("");
+		    : sstrdup("");
 		if(!mailbox)
 			return CURLE_OUT_OF_MEMORY;
 
 		/* Send the LIST command */
 		result = imap_sendf(conn, "LIST \"%s\" *", mailbox);
 
-		free(mailbox);
+		SAlloc::F(mailbox);
 	}
 
 	if(!result)
@@ -663,7 +663,7 @@ static CURLcode imap_perform_select(struct connectdata * conn)
 	/* Send the SELECT command */
 	result = imap_sendf(conn, "SELECT %s", mailbox);
 
-	free(mailbox);
+	SAlloc::F(mailbox);
 
 	if(!result)
 		state(conn, IMAP_SELECT);
@@ -767,7 +767,7 @@ static CURLcode imap_perform_append(struct connectdata * conn)
 		return CURLE_OUT_OF_MEMORY;
 	/* Send the APPEND command */
 	result = imap_sendf(conn, "APPEND %s (\\Seen) {%" CURL_FORMAT_CURL_OFF_T "}", mailbox, data->state.infilesize);
-	free(mailbox);
+	SAlloc::F(mailbox);
 	if(!result)
 		state(conn, IMAP_APPEND);
 	return result;
@@ -1046,7 +1046,7 @@ static CURLcode imap_state_select_resp(struct connectdata * conn, int imapcode,
 		char tmp[20];
 		if(sscanf(line + 2, "OK [UIDVALIDITY %19[0123456789]]", tmp) == 1) {
 			Curl_safefree(imapc->mailbox_uidvalidity);
-			imapc->mailbox_uidvalidity = strdup(tmp);
+			imapc->mailbox_uidvalidity = sstrdup(tmp);
 		}
 	}
 	else if(imapcode == IMAP_RESP_OK) {
@@ -1058,7 +1058,7 @@ static CURLcode imap_state_select_resp(struct connectdata * conn, int imapcode,
 		}
 		else {
 			/* Note the currently opened mailbox on this connection */
-			imapc->mailbox = strdup(imap->mailbox);
+			imapc->mailbox = sstrdup(imap->mailbox);
 
 			if(imap->custom)
 				result = imap_perform_list(conn);
@@ -1363,7 +1363,7 @@ static CURLcode imap_init(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-	struct IMAP * imap = (struct IMAP *)(data->req.protop = calloc(sizeof(struct IMAP), 1));
+	struct IMAP * imap = (struct IMAP *)(data->req.protop = SAlloc::C(sizeof(struct IMAP), 1));
 	if(!imap)
 		result = CURLE_OUT_OF_MEMORY;
 	return result;
@@ -1783,12 +1783,12 @@ static char * imap_atom(const char * str, bool escape_only)
 
 	/* Does the input contain any "atom-special" characters? */
 	if(!backsp_count && !quote_count && !others_exists)
-		return strdup(str);
+		return sstrdup(str);
 
 	/* Calculate the new string length */
 	newlen = strlen(str) + backsp_count + quote_count + (escape_only ? 0 : 2);
 	/* Allocate the new string */
-	newstr = (char *)malloc((newlen + 1) * sizeof(char));
+	newstr = (char *)SAlloc::M((newlen + 1) * sizeof(char));
 	if(!newstr)
 		return NULL;
 	/* Surround the string in quotes if necessary */
@@ -1949,7 +1949,7 @@ static CURLcode imap_parse_url_path(struct connectdata * conn)
 		result = Curl_urldecode(data, begin, ptr - begin, &value, &valuelen,
 			REJECT_CTRL);
 		if(result) {
-			free(name);
+			SAlloc::F(name);
 			return result;
 		}
 
@@ -1991,12 +1991,12 @@ static CURLcode imap_parse_url_path(struct connectdata * conn)
 			value = NULL;
 		}
 		else {
-			free(name);
-			free(value);
+			SAlloc::F(name);
+			SAlloc::F(value);
 			return CURLE_URL_MALFORMAT;
 		}
-		free(name);
-		free(value);
+		SAlloc::F(name);
+		SAlloc::F(value);
 	}
 
 	/* Does the URL contain a query parameter? Only valid when we have a mailbox
@@ -2034,7 +2034,7 @@ static CURLcode imap_parse_custom_request(struct connectdata * conn)
 				params++;
 
 			if(*params) {
-				imap->custom_params = strdup(params);
+				imap->custom_params = sstrdup(params);
 				imap->custom[params - imap->custom] = '\0';
 
 				if(!imap->custom_params)

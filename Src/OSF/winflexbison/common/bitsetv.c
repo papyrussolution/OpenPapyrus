@@ -36,7 +36,7 @@ bitset * bitsetv_alloc(bitset_bindex n_vecs, bitset_bindex n_bits, enum bitset_t
 	bitset * bsetv = (bitset*)xcalloc(1, vector_bytes + bytes * n_vecs);
 	bitset_bindex i = 0;
 	for(i = 0; i < n_vecs; i++) {
-		bsetv[i] = (bitset)(void*)((char *)bsetv + vector_bytes + i * bytes);
+		bsetv[i] = (bitset)(void *)((char *)bsetv + vector_bytes + i * bytes);
 		bitset_init(bsetv[i], n_bits, type);
 	}
 	/* Null terminate table.  */

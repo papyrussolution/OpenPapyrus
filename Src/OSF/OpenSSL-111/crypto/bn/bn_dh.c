@@ -15,7 +15,7 @@
 #include <bn_dh.h>
 /* DH parameters from RFC5114 */
 
-# if BN_BITS2 == 64
+#if BN_BITS2 == 64
 static const BN_ULONG dh1024_160_p[] = {
 	0xDF1FB2BC2E4A4371ULL, 0xE68CFDA76D4DA708ULL, 0x45BF37DF365C1A65ULL,
 	0xA151AF5F0DC8B4BDULL, 0xFAA31A4FF55BCCC0ULL, 0x4EFFD6FAE5644738ULL,
@@ -476,7 +476,7 @@ static const BN_ULONG ffdhe8192_p[] = {
 };
 
 #else
-#  error "unsupported BN_BITS2"
+#error "unsupported BN_BITS2"
 #endif
 
 /* Macro to make a BIGNUM from static data */

@@ -23,10 +23,10 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "multiif.h"
-#include "progress.h"
-#include "timeval.h"
+//#include "progress.h"
+//#include "timeval.h"
 #include "curl_printf.h"
 
 /* check rate limits within this many recent milliseconds, at minimum. */

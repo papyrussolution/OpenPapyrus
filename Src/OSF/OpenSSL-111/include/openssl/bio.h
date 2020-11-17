@@ -355,7 +355,7 @@ struct bio_dgram_sctp_prinfo {
 #define BIO_get_peer_name(b)          ((const char*)BIO_ptr_ctrl(b, BIO_C_GET_ACCEPT, 2))
 #define BIO_get_peer_port(b)          ((const char*)BIO_ptr_ctrl(b, BIO_C_GET_ACCEPT, 3))
 /* #define BIO_set_nbio(b,n)    BIO_ctrl(b,BIO_C_SET_NBIO,(n),NULL) */
-#define BIO_set_nbio_accept(b, n)      BIO_ctrl(b, BIO_C_SET_ACCEPT, 2, (n) ? (void*)"a" : NULL)
+#define BIO_set_nbio_accept(b, n)      BIO_ctrl(b, BIO_C_SET_ACCEPT, 2, (n) ? (void *)"a" : NULL)
 #define BIO_set_accept_bios(b, bio)    BIO_ctrl(b, BIO_C_SET_ACCEPT, 3, (char *)(bio))
 #define BIO_set_accept_ip_family(b, f) BIO_int_ctrl(b, BIO_C_SET_ACCEPT, 4, f)
 #define BIO_get_accept_ip_family(b)   BIO_ctrl(b, BIO_C_GET_ACCEPT, 4, NULL)
@@ -606,7 +606,7 @@ int BIO_sock_error(int sock);
 int BIO_socket_ioctl(int fd, long type, void * arg);
 int BIO_socket_nbio(int fd, int mode);
 int BIO_sock_init(void);
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 #define BIO_sock_cleanup() while(0) continue
 #endif
 int BIO_set_tcp_ndelay(int sock, int turn_on);
@@ -660,21 +660,21 @@ void BIO_copy_next_retry(BIO * b);
  */
 
 #define ossl_bio__attr__(x)
-# if defined(__GNUC__) && defined(__STDC_VERSION__) \
+#if defined(__GNUC__) && defined(__STDC_VERSION__) \
 	&& !defined(__APPLE__)
 /*
  * Because we support the 'z' modifier, which made its appearance in C99,
  * we can't use __attribute__ with pre C99 dialects.
  */
-#  if __STDC_VERSION__ >= 199901L
+#if __STDC_VERSION__ >= 199901L
 #   undef ossl_bio__attr__
 #   define ossl_bio__attr__ __attribute__
 #   if __GNUC__*10 + __GNUC_MINOR__ >= 44
-#    define ossl_bio__printf__ __gnu_printf__
+#define ossl_bio__printf__ __gnu_printf__
 #   else
-#    define ossl_bio__printf__ __printf__
+#define ossl_bio__printf__ __printf__
 #   endif
-#  endif
+#endif
 #endif
 int BIO_printf(BIO * bio, const char * format, ...)
 ossl_bio__attr__((__format__(ossl_bio__printf__, 2, 3)));

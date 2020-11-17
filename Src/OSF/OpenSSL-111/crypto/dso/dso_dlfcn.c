@@ -22,17 +22,17 @@
 #ifdef DSO_DLFCN
 
 #ifdef HAVE_DLFCN_H
-#  ifdef __osf__
+#ifdef __osf__
 #   define __EXTENSIONS__
-#  endif
+#endif
 #include <dlfcn.h>
 #define HAVE_DLINFO 1
-#  if defined(__SCO_VERSION__) || defined(_SCO_ELF) || \
+#if defined(__SCO_VERSION__) || defined(_SCO_ELF) || \
 	(defined(__osf__) && !defined(RTLD_NEXT))     || \
 	(defined(__OpenBSD__) && !defined(RTLD_SELF)) || \
 	defined(__ANDROID__)
 #   undef HAVE_DLINFO
-#  endif
+#endif
 #endif
 
 /* Part of the hack in "dlfcn_load" ... */
@@ -74,23 +74,23 @@ DSO_METHOD * DSO_METHOD_openssl(void)
  * relatively easily to deal with cases as we find them. Initially this is to
  * cope with OpenBSD.
  */
-# if defined(__OpenBSD__) || defined(__NetBSD__)
-#  ifdef DL_LAZY
+#if defined(__OpenBSD__) || defined(__NetBSD__)
+#ifdef DL_LAZY
 #   define DLOPEN_FLAG DL_LAZY
-#  else
+#else
 #   ifdef RTLD_NOW
-#    define DLOPEN_FLAG RTLD_NOW
+#define DLOPEN_FLAG RTLD_NOW
 #   else
-#    define DLOPEN_FLAG 0
+#define DLOPEN_FLAG 0
 #   endif
-#  endif
+#endif
 #else
 #define DLOPEN_FLAG RTLD_NOW  /* Hope this works everywhere else */
 #endif
 
 /*
  * For this DSO_METHOD, our meth_data STACK will contain; (i) the handle
- * (void*) returned from dlopen().
+ * (void *) returned from dlopen().
  */
 
 static int dlfcn_load(DSO * dso)
@@ -296,7 +296,7 @@ static char * dlfcn_name_converter(DSO * dso, const char * filename)
      below is safe to use on IRIX.
  */
 #include <rld_interface.h>
-#  ifndef _RLD_INTERFACE_DLFCN_H_DLADDR
+#ifndef _RLD_INTERFACE_DLFCN_H_DLADDR
 #   define _RLD_INTERFACE_DLFCN_H_DLADDR
 typedef struct Dl_info {
 	const char * dli_fname;
@@ -307,9 +307,9 @@ typedef struct Dl_info {
 	int dli_reserved1;
 	long dli_reserved[4];
 } Dl_info;
-#  else
+#else
 typedef struct Dl_info Dl_info;
-#  endif
+#endif
 #define _RLD_DLADDR             14
 
 static int dladdr(void * address, Dl_info * dl)
@@ -351,14 +351,14 @@ static int dladdr(void * ptr, Dl_info * dl)
 		return 0;
 	}
 
-	if((loadquery(L_GETINFO, (void*)ldinfos, DLFCN_LDINFO_SIZE)) < 0) {
+	if((loadquery(L_GETINFO, (void *)ldinfos, DLFCN_LDINFO_SIZE)) < 0) {
 		/*-
 		 * Error handling is done through errno and dlerror() reading errno:
 		 *  ENOMEM (ldinfos buffer is too small),
 		 *  EINVAL (invalid flags),
 		 *  EFAULT (invalid ldinfos ptr)
 		 */
-		OPENSSL_free((void*)ldinfos);
+		OPENSSL_free((void *)ldinfos);
 		dl->dli_fname = NULL;
 		return 0;
 	}
@@ -403,7 +403,7 @@ static int dladdr(void * ptr, Dl_info * dl)
 			    this_ldi->ldinfo_next);
 		}
 	} while(this_ldi->ldinfo_next && !found);
-	OPENSSL_free((void*)ldinfos);
+	OPENSSL_free((void *)ldinfos);
 	return (found && dl->dli_fname != NULL);
 }
 
@@ -428,18 +428,18 @@ static int dlfcn_pathbyaddr(void * addr, char * path, int sz)
 	if(dladdr(addr, &dli)) {
 		len = (int)strlen(dli.dli_fname);
 		if(sz <= 0) {
-#  ifdef _AIX
-			OPENSSL_free((void*)dli.dli_fname);
-#  endif
+#ifdef _AIX
+			OPENSSL_free((void *)dli.dli_fname);
+#endif
 			return len + 1;
 		}
 		if(len >= sz)
 			len = sz - 1;
 		memcpy(path, dli.dli_fname, len);
 		path[len++] = 0;
-#  ifdef _AIX
-		OPENSSL_free((void*)dli.dli_fname);
-#  endif
+#ifdef _AIX
+		OPENSSL_free((void *)dli.dli_fname);
+#endif
 		return len;
 	}
 

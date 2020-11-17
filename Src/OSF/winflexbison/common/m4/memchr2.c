@@ -48,7 +48,7 @@ void * memchr2(void const * s, int c1_in, int c2_in, size_t n)
 	   Do this until CHAR_PTR is aligned on a longword boundary.  */
 	for(char_ptr = (const uchar*)s; n > 0 && (size_t)char_ptr % sizeof(longword) != 0; --n, ++char_ptr)
 		if(*char_ptr == c1 || *char_ptr == c2)
-			return (void*)char_ptr;
+			return (void *)char_ptr;
 	longword_ptr = (const longword*)char_ptr;
 	/* All these elucidatory comments refer to 4-byte longwords,
 	   but the theory applies equally well to any size longwords.  */
@@ -132,7 +132,7 @@ void * memchr2(void const * s, int c1_in, int c2_in, size_t n)
 
 	for(; n > 0; --n, ++char_ptr) {
 		if(*char_ptr == c1 || *char_ptr == c2)
-			return (void*)char_ptr;
+			return (void *)char_ptr;
 	}
 
 	return NULL;

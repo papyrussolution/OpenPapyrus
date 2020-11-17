@@ -22,7 +22,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "timeval.h"
+//#include "timeval.h"
 
 #if defined(WIN32) && !defined(MSDOS)
 

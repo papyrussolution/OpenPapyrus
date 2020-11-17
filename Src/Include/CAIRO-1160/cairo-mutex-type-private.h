@@ -56,15 +56,15 @@
 #ifdef CAIRO_MUTEX_IMPL_INIT
 // If %CAIRO_MUTEX_IMPL_INIT is defined, we may need to initialize all static mutex'es. 
 # ifndef CAIRO_MUTEX_IMPL_INITIALIZE
-#  define CAIRO_MUTEX_IMPL_INITIALIZE() do { if(!_cairo_mutex_initialized) _cairo_mutex_initialize(); } while(0)
+#define CAIRO_MUTEX_IMPL_INITIALIZE() do { if(!_cairo_mutex_initialized) _cairo_mutex_initialize(); } while(0)
 /* and make sure we implement the above */
-#  define _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER 1
-# endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
+#define _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER 1
+#endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
 #else /* no CAIRO_MUTEX_IMPL_INIT */
 /* Otherwise we probably don't need to initialize static mutex'es, */
 # ifndef CAIRO_MUTEX_IMPL_INITIALIZE
-#  define CAIRO_MUTEX_IMPL_INITIALIZE() CAIRO_MUTEX_IMPL_NOOP
-# endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
+#define CAIRO_MUTEX_IMPL_INITIALIZE() CAIRO_MUTEX_IMPL_NOOP
+#endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
 /* and dynamic ones can be initialized using the static initializer. */
 # define CAIRO_MUTEX_IMPL_INIT(mutex) do { cairo_mutex_t _tmp_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER; memcpy(&(mutex), &_tmp_mutex, sizeof(_tmp_mutex)); } while(0)
 
@@ -73,15 +73,15 @@
 #ifdef CAIRO_MUTEX_IMPL_FINI
 // If %CAIRO_MUTEX_IMPL_FINI is defined, we may need to finalize all static mutex'es.
 # ifndef CAIRO_MUTEX_IMPL_FINALIZE
-#  define CAIRO_MUTEX_IMPL_FINALIZE() do { if(_cairo_mutex_initialized) _cairo_mutex_finalize(); } while(0)
+#define CAIRO_MUTEX_IMPL_FINALIZE() do { if(_cairo_mutex_initialized) _cairo_mutex_finalize(); } while(0)
 /* and make sure we implement the above */
-#  define _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER 1
-# endif /* CAIRO_MUTEX_IMPL_FINALIZE */
+#define _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER 1
+#endif /* CAIRO_MUTEX_IMPL_FINALIZE */
 #else /* no CAIRO_MUTEX_IMPL_FINI */
 /* Otherwise we probably don't need to finalize static mutex'es, */
 # ifndef CAIRO_MUTEX_IMPL_FINALIZE
-#  define CAIRO_MUTEX_IMPL_FINALIZE() CAIRO_MUTEX_IMPL_NOOP
-# endif /* CAIRO_MUTEX_IMPL_FINALIZE */
+#define CAIRO_MUTEX_IMPL_FINALIZE() CAIRO_MUTEX_IMPL_NOOP
+#endif /* CAIRO_MUTEX_IMPL_FINALIZE */
 # define CAIRO_MUTEX_IMPL_FINI(mutex)   CAIRO_MUTEX_IMPL_NOOP1(mutex) /* neither do the dynamic ones. */
 #endif /* CAIRO_MUTEX_IMPL_FINI */
 

@@ -831,7 +831,7 @@ void bn_sqr_comba4(BN_ULONG * r, const BN_ULONG * a)
 }
 
 #ifdef OPENSSL_NO_ASM
-#  ifdef OPENSSL_BN_ASM_MONT
+#ifdef OPENSSL_BN_ASM_MONT
 #   include <alloca.h>
 /*
  * This is essentially reference implementation, which may or may not
@@ -936,7 +936,7 @@ enter:
 	return 1;
 }
 
-#  else
+#else
 /*
  * Return value of 0 indicates that multiplication/convolution was not
  * performed to signal the caller to fall down to alternative/original
@@ -948,7 +948,7 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
 	return 0;
 }
 
-#  endif                        /* OPENSSL_BN_ASM_MONT */
+#endif                        /* OPENSSL_BN_ASM_MONT */
 #endif
 
 #else                           /* !BN_MUL_COMBA */
@@ -989,7 +989,7 @@ void bn_mul_comba8(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b)
 }
 
 #ifdef OPENSSL_NO_ASM
-#  ifdef OPENSSL_BN_ASM_MONT
+#ifdef OPENSSL_BN_ASM_MONT
 #   include <alloca.h>
 int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
     const BN_ULONG * np, const BN_ULONG * n0p, int num)
@@ -1032,14 +1032,14 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
 	return 1;
 }
 
-#  else
+#else
 int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
     const BN_ULONG * np, const BN_ULONG * n0, int num)
 {
 	return 0;
 }
 
-#  endif                        /* OPENSSL_BN_ASM_MONT */
+#endif                        /* OPENSSL_BN_ASM_MONT */
 #endif
 
 #endif                          /* !BN_MUL_COMBA */

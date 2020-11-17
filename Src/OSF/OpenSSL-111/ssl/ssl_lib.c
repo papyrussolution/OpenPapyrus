@@ -1930,7 +1930,7 @@ int ssl_write_internal(SSL * s, const void * buf, size_t num, size_t * written)
 		int ret;
 		struct ssl_async_args args;
 		args.s = s;
-		args.buf = (void*)buf;
+		args.buf = (void *)buf;
 		args.num = num;
 		args.type = ssl_async_args::WRITEFUNC;
 		args.f.func_write = s->method->ssl_write;
@@ -3006,8 +3006,8 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 #endif
 #ifndef OPENSSL_NO_ENGINE
 # ifdef OPENSSL_SSL_CLIENT_ENGINE_AUTO
-#  define eng_strx(x)     #x
-#  define eng_str(x)      eng_strx(x)
+#define eng_strx(x)     #x
+#define eng_str(x)      eng_strx(x)
 	/* Use specific client engine automatically... ignore errors */
 	{
 		ENGINE * eng;
@@ -3020,7 +3020,7 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 		if(!eng || !SSL_CTX_set_client_cert_engine(ret, eng))
 			ERR_clear_error();
 	}
-# endif
+#endif
 #endif
 	/*
 	 * Default is to connect to non-RI servers. When RI is more widely
@@ -4714,7 +4714,7 @@ err:
 # else
 	/* Behave as if no OCSP response exists */
 	return 0;
-# endif
+#endif
 }
 
 /*

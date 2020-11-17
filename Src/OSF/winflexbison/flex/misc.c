@@ -62,14 +62,14 @@ static void sko_push(bool dc)
 {
 	if(!sko_stack) {
 		sko_sz = 1;
-		sko_stack = (sko_state *)malloc(sizeof(struct sko_state) * (size_t)sko_sz);
+		sko_stack = (sko_state *)SAlloc::M(sizeof(struct sko_state) * (size_t)sko_sz);
 		if(!sko_stack)
 			flexfatal(_("allocation of sko_stack failed"));
 		sko_len = 0;
 	}
 	if(sko_len >= sko_sz) {
 		sko_sz *= 2;
-		sko_stack = (sko_state *)realloc(sko_stack, sizeof(struct sko_state) * (size_t)sko_sz);
+		sko_stack = (sko_state *)SAlloc::R(sko_stack, sizeof(struct sko_state) * (size_t)sko_sz);
 	}
 	/* initialize to zero and push */
 	sko_stack[sko_len].dc = dc;
@@ -135,15 +135,15 @@ void   * allocate_array(int size, size_t element_size)
 	mem = reallocarray(NULL, (size_t)size, element_size);
 #else
 	size_t num_bytes = (size_t)size * element_size;
-	mem = (size && SIZE_MAX / (size_t)size < element_size) ? NULL : malloc(num_bytes);
+	mem = (size && SIZE_MAX / (size_t)size < element_size) ? NULL : SAlloc::M(num_bytes);
 #endif
 	if(!mem)
 		flexfatal(_("memory allocation failed in allocate_array()"));
 	return mem;
 }
-
-/* all_lower - true if a string is all lower-case */
-
+//
+// all_lower - true if a string is all lower-case 
+//
 int all_lower(char * str)
 {
 	while(*str) {
@@ -153,9 +153,9 @@ int all_lower(char * str)
 	}
 	return 1;
 }
-
-/* all_upper - true if a string is all upper-case */
-
+//
+// all_upper - true if a string is all upper-case
+//
 int all_upper(char * str)
 {
 	while(*str) {
@@ -163,22 +163,19 @@ int all_upper(char * str)
 			return 0;
 		++str;
 	}
-
 	return 1;
 }
-
-/* intcmp - compares two integers for use by qsort. */
-
+// 
+// intcmp - compares two integers for use by qsort.
+// 
 int intcmp(const void * a, const void * b)
 {
 	return *(const int*)a - *(const int*)b;
 }
-
-/* check_char - checks a character to make sure it's within the range
- *		we're expecting.  If not, generates fatal error message
- *		and exits.
- */
-
+// 
+// check_char - checks a character to make sure it's within the range
+//   we're expecting.  If not, generates fatal error message and exits.
+// 
 void check_char(int c)
 {
 	if(c >= CSIZE)
@@ -186,28 +183,25 @@ void check_char(int c)
 	if(c >= csize)
 		lerr(_("scanner requires -8 flag to use the character %s"), readable_form(c));
 }
-
-/* clower - replace upper-case letter to lower-case */
-
+// 
+// clower - replace upper-case letter to lower-case
+// 
 uchar clower(int c)
 {
 	return (uchar)((isascii(c) && isupper(c)) ? tolower(c) : c);
 }
-
 /*
    char *xstrdup(const char *s)
    {
         char *s2;
-
         if((s2 = strdup(s)) == NULL)
                 flexfatal (_("memory allocation failure in xstrdup()"));
-
         return s2;
    }
  */
-
-/* cclcmp - compares two characters for use by qsort with '\0' sorting last. */
-
+// 
+// cclcmp - compares two characters for use by qsort with '\0' sorting last. 
+// 
 int cclcmp(const void * a, const void * b)
 {
 	if(!*(const uchar*)a)
@@ -217,9 +211,9 @@ int cclcmp(const void * a, const void * b)
 	else
 		return *(const uchar*)a - *(const uchar*)b;
 }
-
-/* dataend - finish up a block of data declarations */
-
+// 
+// dataend - finish up a block of data declarations 
+// 
 void dataend()
 {
 	/* short circuit any output */
@@ -233,9 +227,9 @@ void dataend()
 	dataline = 0;
 	datapos = 0;
 }
-
-/* dataflush - flush generated data statements */
-
+// 
+// dataflush - flush generated data statements 
+// 
 void dataflush()
 {
 	/* short circuit any output */
@@ -260,13 +254,12 @@ void flexerror(const char * msg)
 	fprintf(stderr, "%s: %s\n", program_name, msg);
 	flexend(1);
 }
-
-/* flexfatal - report a fatal error message and terminate */
-
+// 
+// flexfatal - report a fatal error message and terminate
+// 
 void flexfatal(const char * msg)
 {
-	fprintf(stderr, _("%s: fatal internal error, %s\n"),
-	    program_name, msg);
+	fprintf(stderr, _("%s: fatal internal error, %s\n"), program_name, msg);
 	FLEX_EXIT(1);
 }
 
@@ -289,14 +282,13 @@ void lerr_fatal(const char * msg, ...)
 	char errmsg[MAXLINE];
 	va_list args;
 	va_start(args, msg);
-
 	vsnprintf(errmsg, sizeof(errmsg), msg, args);
 	va_end(args);
 	flexfatal(errmsg);
 }
-
-/* line_directive_out - spit out a "#line" statement */
-
+// 
+// line_directive_out - spit out a "#line" statement
+// 
 void line_directive_out(FILE * output_file, int do_infile)
 {
 	char directive[MAXLINE], filename[MAXLINE];
@@ -331,11 +323,10 @@ void line_directive_out(FILE * output_file, int do_infile)
 	else
 		add_action(directive);
 }
-
-/* mark_defs1 - mark the current position in the action array as
- *               representing where the user's section 1 definitions end
- *		 and the prolog begins
- */
+// 
+// mark_defs1 - mark the current position in the action array as
+//   representing where the user's section 1 definitions end and the prolog begins
+// 
 void mark_defs1()
 {
 	defs1_offset = 0;
@@ -361,24 +352,19 @@ void mark_prolog()
 void mk2data(int value)
 {
 	/* short circuit any output */
-	if(!gentables)
-		return;
-
-	if(datapos >= NUMDATAITEMS) {
-		outc(',');
-		dataflush();
+	if(gentables) {
+		if(datapos >= NUMDATAITEMS) {
+			outc(',');
+			dataflush();
+		}
+		if(datapos == 0)
+			/* Indent. */
+			out("    ");
+		else
+			outc(',');
+		++datapos;
+		out_dec("%5d", value);
 	}
-
-	if(datapos == 0)
-		/* Indent. */
-		out("    ");
-
-	else
-		outc(',');
-
-	++datapos;
-
-	out_dec("%5d", value);
 }
 
 /* mkdata - generate a data statement
@@ -389,23 +375,19 @@ void mk2data(int value)
 void mkdata(int value)
 {
 	/* short circuit any output */
-	if(!gentables)
-		return;
-
-	if(datapos >= NUMDATAITEMS) {
-		outc(',');
-		dataflush();
+	if(gentables) {
+		if(datapos >= NUMDATAITEMS) {
+			outc(',');
+			dataflush();
+		}
+		if(datapos == 0)
+			/* Indent. */
+			out("    ");
+		else
+			outc(',');
+		++datapos;
+		out_dec("%5d", value);
 	}
-
-	if(datapos == 0)
-		/* Indent. */
-		out("    ");
-	else
-		outc(',');
-
-	++datapos;
-
-	out_dec("%5d", value);
 }
 
 /* myctoi - return the integer represented by a string of digits */
@@ -423,20 +405,13 @@ uchar myesc(uchar array[])
 {
 	uchar c, esc_char;
 	switch(array[1]) {
-		case 'b':
-		    return '\b';
-		case 'f':
-		    return '\f';
-		case 'n':
-		    return '\n';
-		case 'r':
-		    return '\r';
-		case 't':
-		    return '\t';
-		case 'a':
-		    return '\a';
-		case 'v':
-		    return '\v';
+		case 'b': return '\b';
+		case 'f': return '\f';
+		case 'n': return '\n';
+		case 'r': return '\r';
+		case 't': return '\t';
+		case 'a': return '\a';
+		case 'v': return '\v';
 		case '0':
 		case '1':
 		case '2':
@@ -456,7 +431,6 @@ uchar myesc(uchar array[])
 		    array[sptr] = c;
 		    return esc_char;
 	    }
-
 		case 'x':
 	    {                   /* \x<hex> */
 		    int sptr = 2;
@@ -473,7 +447,6 @@ uchar myesc(uchar array[])
 		    array[sptr] = c;
 		    return esc_char;
 	    }
-
 		default:
 		    return array[1];
 	}
@@ -545,18 +518,15 @@ char   * readable_form(int c)
 
 void   * reallocate_array(void * array, int size, size_t element_size)
 {
-	void * new_array;
 #if HAVE_REALLOCARRAY
 	/* reallocarray has built-in overflow detection */
-	new_array = reallocarray(array, (size_t)size, element_size);
+	void * new_array = reallocarray(array, (size_t)size, element_size);
 #else
 	size_t num_bytes = (size_t)size * element_size;
-	new_array = (size && SIZE_MAX / (size_t)size < element_size) ? NULL :
-	    realloc(array, num_bytes);
+	void * new_array = (size && SIZE_MAX / (size_t)size < element_size) ? NULL : SAlloc::R(array, num_bytes);
 #endif
 	if(!new_array)
 		flexfatal(_("attempt to increase array size failed"));
-
 	return new_array;
 }
 
@@ -576,7 +546,6 @@ void skelout()
 		sko_peek(&do_copy);
 	sko_len = 0;
 	sko_push(do_copy = true);
-
 	/* Loop pulling lines either from the skelfile, if we're using
 	 * one, or from the skel[] array.
 	 */
@@ -708,7 +677,7 @@ void transition_struct_out(int element_v, int element_n)
  */
 void   * yy_flex_xmalloc(int size)
 {
-	void * result = malloc((size_t)size);
+	void * result = SAlloc::M((size_t)size);
 	if(!result)
 		flexfatal(_("memory allocation failed in yy_flex_xmalloc()"));
 	return result;

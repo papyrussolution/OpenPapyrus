@@ -32,38 +32,38 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/filter_fork.c 182958 2008-09-12 05:33:00Z kientzle $");
 
 #if defined(HAVE_SYS_TYPES_H)
-#  include <sys/types.h>
+#include <sys/types.h>
 #endif
 #ifdef HAVE_ERRNO_H
-#  include <errno.h>
+#include <errno.h>
 #endif
 #ifdef HAVE_STRING_H
-#  include <string.h>
+#include <string.h>
 #endif
 #if defined(HAVE_POLL) && (defined(HAVE_POLL_H) || defined(HAVE_SYS_POLL_H))
-#  if defined(HAVE_POLL_H)
-#    include <poll.h>
-#  elif defined(HAVE_SYS_POLL_H)
-#    include <sys/poll.h>
-#  endif
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#elif defined(HAVE_SYS_POLL_H)
+#include <sys/poll.h>
+#endif
 #elif defined(HAVE_SELECT)
-#  if defined(HAVE_SYS_SELECT_H)
-#    include <sys/select.h>
-#  elif defined(HAVE_UNISTD_H)
-#    include <unistd.h>
-#  endif
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#elif defined(HAVE_UNISTD_H)
+#include <unistd.h>
+#endif
 #endif
 #ifdef HAVE_FCNTL_H
-#  include <fcntl.h>
+#include <fcntl.h>
 #endif
 #ifdef HAVE_SPAWN_H
-#  include <spawn.h>
+#include <spawn.h>
 #endif
 #ifdef HAVE_STDLIB_H
-#  include <stdlib.h>
+#include <stdlib.h>
 #endif
 #ifdef HAVE_UNISTD_H
-#  include <unistd.h>
+#include <unistd.h>
 #endif
 
 //#include "archive.h"

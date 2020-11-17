@@ -122,13 +122,13 @@ file. */
 /* By default, we use the standard "extern" declarations. */
 
 #ifndef PCREPOSIX_EXP_DECL
-#  ifdef __cplusplus
-#    define PCREPOSIX_EXP_DECL  extern "C"
-#    define PCREPOSIX_EXP_DEFN  extern "C"
-#  else
-#    define PCREPOSIX_EXP_DECL  extern
-#    define PCREPOSIX_EXP_DEFN  extern
-#  endif
+#ifdef __cplusplus
+#define PCREPOSIX_EXP_DECL  extern "C"
+#define PCREPOSIX_EXP_DEFN  extern "C"
+#else
+#define PCREPOSIX_EXP_DECL  extern
+#define PCREPOSIX_EXP_DEFN  extern
+#endif
 #endif
 
 /* The functions */

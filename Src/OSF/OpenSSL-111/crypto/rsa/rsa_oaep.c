@@ -70,7 +70,7 @@ int RSA_padding_add_PKCS1_OAEP_mgf1(uchar * to, int tlen,
 	seed = to + 1;
 	db = to + mdlen + 1;
 
-	if(!EVP_Digest((void*)param, plen, db, NULL, md, NULL))
+	if(!EVP_Digest((void *)param, plen, db, NULL, md, NULL))
 		goto err;
 	memset(db + mdlen, 0, emlen - flen - 2 * mdlen - 1);
 	db[emlen - flen - mdlen - 1] = 0x01;
@@ -197,7 +197,7 @@ int RSA_padding_check_PKCS1_OAEP_mgf1(uchar * to, int tlen,
 	for(i = 0; i < dblen; i++)
 		db[i] ^= maskeddb[i];
 
-	if(!EVP_Digest((void*)param, plen, phash, NULL, md, NULL))
+	if(!EVP_Digest((void *)param, plen, phash, NULL, md, NULL))
 		goto cleanup;
 
 	good &= constant_time_is_zero(CRYPTO_memcmp(db, phash, mdlen));

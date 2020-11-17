@@ -52,7 +52,7 @@ char * Curl_dedotdotify(const char * input)
 	size_t inlen = strlen(input);
 	char * clone;
 	size_t clen = inlen; /* the length of the cloned input */
-	char * out = (char *)malloc(inlen + 1);
+	char * out = (char *)SAlloc::M(inlen + 1);
 	char * outptr;
 	char * orgclone;
 	char * queryp;
@@ -62,9 +62,9 @@ char * Curl_dedotdotify(const char * input)
 	*out = 0; /* null-terminates, for inputs like "./" */
 
 	/* get a cloned copy of the input */
-	clone = strdup(input);
+	clone = sstrdup(input);
 	if(!clone) {
-		free(out);
+		SAlloc::F(out);
 		return NULL;
 	}
 	orgclone = clone;
@@ -72,7 +72,7 @@ char * Curl_dedotdotify(const char * input)
 
 	if(!*clone) {
 		/* zero length string, return that */
-		free(out);
+		SAlloc::F(out);
 		return clone;
 	}
 
@@ -172,6 +172,6 @@ char * Curl_dedotdotify(const char * input)
 		memcpy(outptr, &input[oindex], qlen + 1); /* include the end zero byte */
 	}
 
-	free(orgclone);
+	SAlloc::F(orgclone);
 	return out;
 }

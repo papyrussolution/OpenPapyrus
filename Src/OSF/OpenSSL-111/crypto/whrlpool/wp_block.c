@@ -66,14 +66,14 @@ typedef uchar u8;
 #undef SMALL_REGISTER_BANK
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86)
 #define SMALL_REGISTER_BANK
-# if defined(WHIRLPOOL_ASM)
-#  ifndef OPENSSL_SMALL_FOOTPRINT
+#if defined(WHIRLPOOL_ASM)
+#ifndef OPENSSL_SMALL_FOOTPRINT
 /*
  * it appears that for elder non-MMX
  * CPUs this is actually faster!
  */
 #   define OPENSSL_SMALL_FOOTPRINT
-#  endif
+#endif
 #define GO_FOR_MMX(ctx, inp, num)     do {                    \
 		extern ulong OPENSSL_ia32cap_P[];               \
 		void whirlpool_block_mmx(void *, const void *, size_t);   \
@@ -85,16 +85,16 @@ typedef uchar u8;
 
 #undef ROTATE
 #ifndef PEDANTIC
-# if defined(_MSC_VER)
-#  if defined(_WIN64)            /* applies to both IA-64 and AMD64 */
+#if defined(_MSC_VER)
+#if defined(_WIN64)            /* applies to both IA-64 and AMD64 */
 		//#include <stdlib.h>
 #   pragma intrinsic(_rotl64)
 #   define ROTATE(a, n) _rotl64((a), n)
-#  endif
+#endif
 # elif defined(__GNUC__) && __GNUC__>=2
-#  if defined(__x86_64) || defined(__x86_64__)
+#if defined(__x86_64) || defined(__x86_64__)
 #   if defined(L_ENDIAN)
-#    define ROTATE(a, n)       ({ u64 ret; asm ("rolq %1,%0"   \
+#define ROTATE(a, n)       ({ u64 ret; asm ("rolq %1,%0"   \
 				  : "=r" (ret) : "J" (n), "0" (a) : "cc"); ret; })
 #   elif defined(B_ENDIAN)
 /*
@@ -104,30 +104,30 @@ typedef uchar u8;
  * won't do same for x86_64? Naturally no. And this line is waiting
  * ready for that brave soul:-)
  */
-#    define ROTATE(a, n)       ({ u64 ret; asm ("rorq %1,%0"   \
+#define ROTATE(a, n)       ({ u64 ret; asm ("rorq %1,%0"   \
 				  : "=r" (ret) : "J" (n), "0" (a) : "cc"); ret; })
 #   endif
-#  elif defined(__ia64) || defined(__ia64__)
+#elif defined(__ia64) || defined(__ia64__)
 #   if defined(L_ENDIAN)
-#    define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
+#define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
 				  : "=r" (ret) : "r" (a), "M" (64-(n))); ret; })
 #   elif defined(B_ENDIAN)
-#    define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
+#define ROTATE(a, n)       ({ u64 ret; asm ("shrp %0=%1,%1,%2"     \
 				  : "=r" (ret) : "r" (a), "M" (n)); ret; })
 #   endif
-#  endif
+#endif
 #endif
 #endif
 
 #if defined(OPENSSL_SMALL_FOOTPRINT)
-# if !defined(ROTATE)
-#  if defined(L_ENDIAN)         /* little-endians have to rotate left */
+#if !defined(ROTATE)
+#if defined(L_ENDIAN)         /* little-endians have to rotate left */
 #   define ROTATE(i, n)       ((i)<<(n) ^ (i)>>(64-n))
-#  elif defined(B_ENDIAN)       /* big-endians have to rotate right */
+#elif defined(B_ENDIAN)       /* big-endians have to rotate right */
 #   define ROTATE(i, n)       ((i)>>(n) ^ (i)<<(64-n))
-#  endif
 #endif
-# if defined(ROTATE) && !defined(STRICT_ALIGNMENT)
+#endif
+#if defined(ROTATE) && !defined(STRICT_ALIGNMENT)
 #define STRICT_ALIGNMENT      /* ensure smallest table size */
 #endif
 #endif
@@ -156,7 +156,7 @@ typedef uchar u8;
  * Hand-coded assembler would be another alternative:-)
  */
 #ifdef STRICT_ALIGNMENT
-# if defined(ROTATE)
+#if defined(ROTATE)
 #define N   1
 #define LL(c0, c1, c2, c3, c4, c5, c6, c7) c0, c1, c2, c3, c4, c5, c6, c7
 #define C0(K, i)     (Cx.q[K.c[(i)*8+0]])

@@ -701,7 +701,7 @@ float FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits);
  * performance work).
  */
 
-#    define DEBUG
+#define DEBUG
 
 #endif
 

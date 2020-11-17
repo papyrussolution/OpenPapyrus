@@ -1316,11 +1316,11 @@ static int setup_current_filesystem(struct archive_read_disk * a)
  *   GETVFSBYNAME_ARG_TYPE vfc;
  *  #endif
  */
-#  if defined(HAVE_STRUCT_XVFSCONF)
+#if defined(HAVE_STRUCT_XVFSCONF)
 	struct xvfsconf vfc;
-#  else
+#else
 	struct vfsconf vfc;
-#  endif
+#endif
 #endif
 	int r, xr = 0;
 #if !defined(HAVE_STRUCT_STATFS_F_NAMEMAX)
@@ -1401,7 +1401,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 #if defined(HAVE_STRUCT_STATFS_F_NAMEMAX)
 	t->current_filesystem->name_max = sfs.f_namemax;
 #else
-# if defined(_PC_NAME_MAX)
+#if defined(_PC_NAME_MAX)
 	/* Mac OS X does not have f_namemax in struct statfs. */
 	if(tree_current_is_symblic_link_target(t)) {
 		if(tree_enter_working_dir(t) != 0) {
@@ -1414,7 +1414,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		nm = fpathconf(tree_current_dir_fd(t), _PC_NAME_MAX);
 # else
 	nm = -1;
-# endif
+#endif
 	if(nm == -1)
 		t->current_filesystem->name_max = NAME_MAX;
 	else
@@ -1735,7 +1735,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 
 #if defined(USE_READDIR_R)
 	/* Set maximum filename length. */
-#  if defined(_PC_NAME_MAX)
+#if defined(_PC_NAME_MAX)
 	if(tree_current_is_symblic_link_target(t)) {
 		if(tree_enter_working_dir(t) != 0) {
 			archive_set_error(&a->archive, errno, "fchdir failed");
@@ -1746,22 +1746,22 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	else
 		nm = fpathconf(tree_current_dir_fd(t), _PC_NAME_MAX);
 	if(nm == -1)
-#  endif /* _PC_NAME_MAX */
+#endif /* _PC_NAME_MAX */
 	/*
 	 * Some systems (HP-UX or others?) incorrectly defined
 	 * NAME_MAX macro to be a smaller value.
 	 */
-#  if defined(NAME_MAX) && NAME_MAX >= 255
+#if defined(NAME_MAX) && NAME_MAX >= 255
 	t->current_filesystem->name_max = NAME_MAX;
-#  else
+#else
 	/* No way to get a trusted value of maximum filename
 	 * length. */
 	t->current_filesystem->name_max = PATH_MAX;
-#  endif /* NAME_MAX */
-#  if defined(_PC_NAME_MAX)
+#endif /* NAME_MAX */
+#if defined(_PC_NAME_MAX)
 	else
 		t->current_filesystem->name_max = nm;
-#  endif /* _PC_NAME_MAX */
+#endif /* _PC_NAME_MAX */
 #endif /* USE_READDIR_R */
 	return ARCHIVE_OK;
 }

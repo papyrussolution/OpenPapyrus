@@ -36,7 +36,7 @@
 
 #include "urldata.h"
 #include "non-ascii.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "curl_base64.h"
 #include "curl_ntlm_core.h"
 #include "curl_gethostname.h"
@@ -193,8 +193,8 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy * data,
 				return CURLE_BAD_CONTENT_ENCODING;
 			}
 
-			free(ntlm->target_info); /* replace any previous data */
-			ntlm->target_info = malloc(target_info_len);
+			SAlloc::F(ntlm->target_info); /* replace any previous data */
+			ntlm->target_info = SAlloc::M(target_info_len);
 			if(!ntlm->target_info)
 				return CURLE_OUT_OF_MEMORY;
 
@@ -307,7 +307,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	    (memcmp(type2, NTLMSSP_SIGNATURE, 8) != 0) ||
 	    (memcmp(type2 + 8, type2_marker, sizeof(type2_marker)) != 0)) {
 		/* This was not a good enough type-2 message */
-		free(type2);
+		SAlloc::F(type2);
 		infof(data, "NTLM handshake failure (bad type-2 message)\n");
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
@@ -318,7 +318,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	if(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
 		result = ntlm_decode_type2_target(data, type2, type2_len, ntlm);
 		if(result) {
-			free(type2);
+			SAlloc::F(type2);
 			infof(data, "NTLM handshake failure (bad type-2 message)\n");
 			return result;
 		}
@@ -333,7 +333,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 		fprintf(stderr, "**** Header %s\n ", header);
 	});
 
-	free(type2);
+	SAlloc::F(type2);
 
 	return result;
 }
@@ -792,7 +792,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
 	});
 
-	free(ntlmv2resp);/* Free the dynamic buffer allocated for NTLMv2 */
+	SAlloc::F(ntlmv2resp);/* Free the dynamic buffer allocated for NTLMv2 */
 
 #endif
 

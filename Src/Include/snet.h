@@ -876,6 +876,7 @@ public:
     int    HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFields, SFile * pReplyStream);
 	int    HttpPost(const InetUrl & rUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
 	int    HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, const char * pBody, SFile * pReplyStream);
+	int    HttpPut(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, const char * pBody, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);
 	int    HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);

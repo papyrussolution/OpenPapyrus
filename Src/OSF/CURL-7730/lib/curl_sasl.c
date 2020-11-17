@@ -43,7 +43,7 @@
 #include "curl_sasl.h"
 #include "warnless.h"
 #include "strtok.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "non-ascii.h" /* included for Curl_convert_... prototypes */
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
@@ -118,8 +118,7 @@ void Curl_sasl_cleanup(struct connectdata * conn, unsigned int authused)
 unsigned int Curl_sasl_decode_mech(const char * ptr, size_t maxlen, size_t * len)
 {
 	for(uint i = 0; mechtable[i].name; i++) {
-		if(maxlen >= mechtable[i].len &&
-		    !memcmp(ptr, mechtable[i].name, mechtable[i].len)) {
+		if(maxlen >= mechtable[i].len && !memcmp(ptr, mechtable[i].name, mechtable[i].len)) {
 			if(len)
 				*len = mechtable[i].len;
 			if(maxlen == mechtable[i].len)
@@ -384,7 +383,7 @@ CURLcode Curl_sasl_start(struct SASL * sasl, struct connectdata * conn,
 	if(!result && mech) {
 		if(resp && sasl->params->maxirlen &&
 		    strlen(mech) + len > sasl->params->maxirlen) {
-			free(resp);
+			SAlloc::F(resp);
 			resp = NULL;
 		}
 
@@ -395,7 +394,7 @@ CURLcode Curl_sasl_start(struct SASL * sasl, struct connectdata * conn,
 		}
 	}
 
-	free(resp);
+	SAlloc::F(resp);
 
 	return result;
 }
@@ -478,7 +477,7 @@ CURLcode Curl_sasl_continue(struct SASL * sasl, struct connectdata * conn,
 		    if(!result)
 			    result = Curl_auth_create_cram_md5_message(data, chlg, conn->user,
 				    conn->passwd, &resp, &len);
-		    free(chlg);
+		    SAlloc::F(chlg);
 		    break;
 		case SASL_DIGESTMD5:
 		    sasl->params->getmessage(data->state.buffer, &serverdata);
@@ -489,7 +488,7 @@ CURLcode Curl_sasl_continue(struct SASL * sasl, struct connectdata * conn,
 		    newstate = SASL_DIGESTMD5_RESP;
 		    break;
 		case SASL_DIGESTMD5_RESP:
-		    resp = strdup("");
+		    resp = sstrdup("");
 		    if(!resp)
 			    result = CURLE_OUT_OF_MEMORY;
 		    break;
@@ -583,7 +582,7 @@ CURLcode Curl_sasl_continue(struct SASL * sasl, struct connectdata * conn,
 		    else if(code == sasl->params->contcode) {
 			    /* Acknowledge the continuation by sending a 0x01 response base64
 			       encoded */
-			    resp = strdup("AQ==");
+			    resp = sstrdup("AQ==");
 			    if(!resp)
 				    result = CURLE_OUT_OF_MEMORY;
 			    break;
@@ -624,7 +623,7 @@ CURLcode Curl_sasl_continue(struct SASL * sasl, struct connectdata * conn,
 		    break;
 	}
 
-	free(resp);
+	SAlloc::F(resp);
 
 	state(sasl, conn, newstate);
 

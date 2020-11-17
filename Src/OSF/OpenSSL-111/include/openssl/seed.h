@@ -46,9 +46,9 @@ extern "C" {
 
 /* look whether we need 'long' to get 32 bits */
 #ifdef AES_LONG
-#  ifndef SEED_LONG
+#ifndef SEED_LONG
 #   define SEED_LONG 1
-#  endif
+#endif
 #endif
 
 #include <sys/types.h>

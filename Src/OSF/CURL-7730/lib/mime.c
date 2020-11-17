@@ -27,7 +27,7 @@
 #include "non-ascii.h"
 #include "warnless.h"
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 
 #if (!defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_MIME)) || \
 	!defined(CURL_DISABLE_SMTP) || !defined(CURL_DISABLE_IMAP)
@@ -279,7 +279,7 @@ static char * escape_string(const char * src)
 		if(src[i] == '"' || src[i] == '\\')
 			bytecount++;
 	bytecount += i;
-	dst = static_cast<char *>(malloc(bytecount + 1));
+	dst = static_cast<char *>(SAlloc::M(bytecount + 1));
 	if(!dst)
 		return NULL;
 	for(i = 0; *src; src++) {
@@ -317,13 +317,13 @@ static char * strippath(const char * fullfile)
 {
 	char * filename;
 	char * base;
-	filename = strdup(fullfile); /* duplicate since basename() may ruin the
+	filename = sstrdup(fullfile); /* duplicate since basename() may ruin the
 	                                buffer it works on */
 	if(!filename)
 		return NULL;
-	base = strdup(basename(filename));
+	base = sstrdup(basename(filename));
 
-	free(filename); /* free temporary buffer */
+	SAlloc::F(filename); /* free temporary buffer */
 
 	return base; /* returns an allocated string or NULL ! */
 }
@@ -1191,9 +1191,9 @@ void curl_mime_free(curl_mime * mime)
 			part = mime->firstpart;
 			mime->firstpart = part->nextpart;
 			Curl_mime_cleanpart(part);
-			free(part);
+			SAlloc::F(part);
 		}
-		free(mime);
+		SAlloc::F(mime);
 	}
 }
 
@@ -1276,7 +1276,7 @@ CURLcode Curl_mime_duppart(curl_mimepart * dst, const curl_mimepart * src)
 /* Create a mime handle. */
 curl_mime * curl_mime_init(struct Curl_easy * easy)
 {
-	curl_mime * mime = (curl_mime*)malloc(sizeof(*mime));
+	curl_mime * mime = (curl_mime*)SAlloc::M(sizeof(*mime));
 	if(mime) {
 		mime->easy = easy;
 		mime->parent = NULL;
@@ -1286,7 +1286,7 @@ curl_mime * curl_mime_init(struct Curl_easy * easy)
 		if(Curl_rand_hex(easy, (uchar *)&mime->boundary[24],
 		    MIME_RAND_BOUNDARY_CHARS + 1)) {
 			/* failed to get random separator, bail out */
-			free(mime);
+			SAlloc::F(mime);
 			return NULL;
 		}
 		mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
@@ -1311,7 +1311,7 @@ curl_mimepart * curl_mime_addpart(curl_mime * mime)
 	if(!mime)
 		return NULL;
 
-	part = (curl_mimepart*)malloc(sizeof(*part));
+	part = (curl_mimepart*)SAlloc::M(sizeof(*part));
 
 	if(part) {
 		Curl_mime_initpart(part, mime->easy);
@@ -1338,7 +1338,7 @@ CURLcode curl_mime_name(curl_mimepart * part, const char * name)
 	part->name = NULL;
 
 	if(name) {
-		part->name = strdup(name);
+		part->name = sstrdup(name);
 		if(!part->name)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -1356,7 +1356,7 @@ CURLcode curl_mime_filename(curl_mimepart * part, const char * filename)
 	part->filename = NULL;
 
 	if(filename) {
-		part->filename = strdup(filename);
+		part->filename = sstrdup(filename);
 		if(!part->filename)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -1373,7 +1373,7 @@ CURLcode curl_mime_data(curl_mimepart * part, const char * data, size_t datasize
 	if(data) {
 		if(datasize == CURL_ZERO_TERMINATED)
 			datasize = strlen(data);
-		part->data = static_cast<char *>(malloc(datasize + 1));
+		part->data = static_cast<char *>(SAlloc::M(datasize + 1));
 		if(!part->data)
 			return CURLE_OUT_OF_MEMORY;
 		part->datasize = datasize;
@@ -1406,7 +1406,7 @@ CURLcode curl_mime_filedata(curl_mimepart * part, const char * filename)
 		if(stat(filename, &sbuf) || access(filename, R_OK))
 			result = CURLE_READ_ERROR;
 
-		part->data = strdup(filename);
+		part->data = sstrdup(filename);
 		if(!part->data)
 			result = CURLE_OUT_OF_MEMORY;
 
@@ -1432,7 +1432,7 @@ CURLcode curl_mime_filedata(curl_mimepart * part, const char * filename)
 
 			if(res)
 				result = res;
-			free(base);
+			SAlloc::F(base);
 		}
 	}
 	return result;
@@ -1448,7 +1448,7 @@ CURLcode curl_mime_type(curl_mimepart * part, const char * mimetype)
 	part->mimetype = NULL;
 
 	if(mimetype) {
-		part->mimetype = strdup(mimetype);
+		part->mimetype = sstrdup(mimetype);
 		if(!part->mimetype)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -1674,7 +1674,7 @@ CURLcode Curl_mime_add_header(struct curl_slist ** slp, const char * fmt, ...)
 		if(hdr)
 			*slp = hdr;
 		else
-			free(s);
+			SAlloc::F(s);
 	}
 
 	return hdr ? CURLE_OK : CURLE_OUT_OF_MEMORY;

@@ -21,17 +21,17 @@
 #ifndef OPENSSL_NO_HW_PADLOCK
 
 /* Attempt to have a single source for both 0.9.7 and 0.9.8 :-) */
-#  if (OPENSSL_VERSION_NUMBER >= 0x00908000L)
+#if (OPENSSL_VERSION_NUMBER >= 0x00908000L)
 #   ifndef OPENSSL_NO_DYNAMIC_ENGINE
-#    define DYNAMIC_ENGINE
+#define DYNAMIC_ENGINE
 #   endif
-#  elif (OPENSSL_VERSION_NUMBER >= 0x00907000L)
+#elif (OPENSSL_VERSION_NUMBER >= 0x00907000L)
 #   ifdef ENGINE_DYNAMIC_SUPPORT
-#    define DYNAMIC_ENGINE
+#define DYNAMIC_ENGINE
 #   endif
-#  else
+#else
 #   error "Only OpenSSL >= 0.9.7 is supported"
-#  endif
+#endif
 
 /*
  * VIA PadLock AES is available *ONLY* on some x86 CPUs. Not only that it
@@ -39,12 +39,12 @@
  */
 
 #undef COMPILE_HW_PADLOCK
-#  if defined(PADLOCK_ASM)
+#if defined(PADLOCK_ASM)
 #   define COMPILE_HW_PADLOCK
 #   ifdef OPENSSL_NO_DYNAMIC_ENGINE
 static ENGINE * ENGINE_padlock(void);
 #   endif
-#  endif
+#endif
 
 #ifdef OPENSSL_NO_DYNAMIC_ENGINE
 void engine_load_padlock_int(void)
@@ -61,7 +61,7 @@ void engine_load_padlock_int(void)
 }
 #endif
 
-#  ifdef COMPILE_HW_PADLOCK
+#ifdef COMPILE_HW_PADLOCK
 
 /* Function for ENGINE detection and control */
 static int padlock_available(void);
@@ -236,27 +236,27 @@ static int padlock_available(void)
 /* ===== AES encryption/decryption ===== */
 
 #   if defined(NID_aes_128_cfb128) && !defined (NID_aes_128_cfb)
-#    define NID_aes_128_cfb NID_aes_128_cfb128
+#define NID_aes_128_cfb NID_aes_128_cfb128
 #   endif
 
 #   if defined(NID_aes_128_ofb128) && !defined (NID_aes_128_ofb)
-#    define NID_aes_128_ofb NID_aes_128_ofb128
+#define NID_aes_128_ofb NID_aes_128_ofb128
 #   endif
 
 #   if defined(NID_aes_192_cfb128) && !defined (NID_aes_192_cfb)
-#    define NID_aes_192_cfb NID_aes_192_cfb128
+#define NID_aes_192_cfb NID_aes_192_cfb128
 #   endif
 
 #   if defined(NID_aes_192_ofb128) && !defined (NID_aes_192_ofb)
-#    define NID_aes_192_ofb NID_aes_192_ofb128
+#define NID_aes_192_ofb NID_aes_192_ofb128
 #   endif
 
 #   if defined(NID_aes_256_cfb128) && !defined (NID_aes_256_cfb)
-#    define NID_aes_256_cfb NID_aes_256_cfb128
+#define NID_aes_256_cfb NID_aes_256_cfb128
 #   endif
 
 #   if defined(NID_aes_256_ofb128) && !defined (NID_aes_256_ofb)
-#    define NID_aes_256_ofb NID_aes_256_ofb128
+#define NID_aes_256_ofb NID_aes_256_ofb128
 #   endif
 
 /* List of supported ciphers. */
@@ -715,7 +715,7 @@ static RAND_METHOD padlock_rand = {
 	padlock_rand_status,    /* rand status */
 };
 
-#  endif                        /* COMPILE_HW_PADLOCK */
+#endif                        /* COMPILE_HW_PADLOCK */
 #endif                         /* !OPENSSL_NO_HW_PADLOCK */
 #endif                          /* !OPENSSL_NO_HW */
 

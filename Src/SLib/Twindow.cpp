@@ -1299,10 +1299,9 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 	int    ok = 1;
 	if(pWin) {
 		pWin->Create(HW, createOptions);
-		if(zone)
-			Layout_Obsolete.InsertWindow(zone, pWin, 0, 0);
+		// @v10.9.3 if(zone) Layout_Obsolete.InsertWindow(zone, pWin, 0, 0);
 		TWindow::Insert_(pWin);
-		Layout_Obsolete.Arrange();
+		// @v10.9.3 Layout_Obsolete.Arrange();
 		::ShowWindow(pWin->H(), SW_SHOWNORMAL);
 		::UpdateWindow(H());
 	}
@@ -1385,7 +1384,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			if(event.isCmd(cmInit)) {
 				//CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
 				const TRect cr = getClientRect();
-				Layout_Obsolete.SetContainerBounds(cr);
+				// @v10.9.3 Layout_Obsolete.SetContainerBounds(cr);
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
 					P_Lfc->Size.X = static_cast<float>(cr.width());
@@ -1402,7 +1401,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			else if(event.isCmd(cmSize)) {
 				//SizeEvent * p_se = static_cast<SizeEvent *>(TVINFOPTR);
 				const TRect cr = getClientRect();
-				Layout_Obsolete.SetContainerBounds(cr);
+				// @v10.9.3 Layout_Obsolete.SetContainerBounds(cr);
 				// @v10.9.3 {
 				if(P_Lfc && !P_Lfc->P_Parent) {
 					P_Lfc->Size.X = static_cast<float>(cr.width());

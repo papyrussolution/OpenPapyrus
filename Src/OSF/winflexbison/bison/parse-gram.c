@@ -100,7 +100,7 @@
 #    define YY_NULLPTR 0
 #   endif
 #  else
-#   define YY_NULLPTR ((void*)0)
+#   define YY_NULLPTR ((void *)0)
 #  endif
 # endif
 

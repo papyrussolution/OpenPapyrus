@@ -96,7 +96,6 @@ static void rebalance(gl_oset_t set, gl_oset_node_t node, int height_diff, gl_os
 		if(balance_diff == previous_balance) {
 			/* node->balance is outside the range [-1,1].  Must rotate.  */
 			gl_oset_node_t * nodep;
-
 			if(node->parent == NULL)
 				/* node == set->root */
 				nodep = &set->root;
@@ -106,10 +105,8 @@ static void rebalance(gl_oset_t set, gl_oset_node_t node, int height_diff, gl_os
 				nodep = &node->parent->right;
 			else
 				abort();
-
 			nodeleft = node->left;
 			noderight = node->right;
-
 			if(balance_diff < 0) {
 				/* node->balance = -2.  The subtree is heavier on the left side.
 				   Rotate from left to right:

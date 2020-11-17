@@ -48,7 +48,7 @@ zbar_decoder_t * zbar_decoder_create()
 # ifdef FIXME_ADDON_SYNC
 	dcode->ean.ean2_config = 1 << ZBAR_CFG_ENABLE;
 	dcode->ean.ean5_config = 1 << ZBAR_CFG_ENABLE;
-# endif
+#endif
 #endif
 #ifdef ENABLE_I25
 	dcode->i25.config = 1 << ZBAR_CFG_ENABLE;

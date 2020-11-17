@@ -31,7 +31,6 @@
 #define MAX_HASH_LEN 8
 
 /* #define DEBUG_GROW */
-
 /*
  * A single entry in the hash table
  */

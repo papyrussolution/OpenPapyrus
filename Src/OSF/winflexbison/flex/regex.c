@@ -53,12 +53,12 @@ void flex_regcomp(regex_t * preg, const char * regex, int cflags)
 		const size_t errbuf_sz = 200;
 		char * errbuf;
 		int n;
-		errbuf = (char*)malloc(errbuf_sz * sizeof(char));
+		errbuf = (char*)SAlloc::M(errbuf_sz * sizeof(char));
 		if(!errbuf)
 			flexfatal(_("Unable to allocate buffer to report regcomp"));
 		n = snprintf(errbuf, errbuf_sz, "regcomp for \"%s\" failed: ", regex);
 		regerror(err, preg, errbuf+n, errbuf_sz-(size_t)n);
-		flexfatal(errbuf);  /* never returns - no need to free(errbuf) */
+		flexfatal(errbuf);  /* never returns - no need to SAlloc::F(errbuf) */
 	}
 }
 
@@ -74,7 +74,7 @@ char   * regmatch_dup(regmatch_t * m, const char * src)
 	if(m == NULL || m->rm_so < 0 || m->rm_eo < m->rm_so)
 		return NULL;
 	len = (size_t)(m->rm_eo - m->rm_so);
-	str = (char *)malloc((len + 1) * sizeof(char));
+	str = (char *)SAlloc::M((len + 1) * sizeof(char));
 	if(!str)
 		flexfatal(_("Unable to allocate a copy of the match"));
 	strncpy(str, src + m->rm_so, len);
@@ -129,7 +129,7 @@ int regmatch_strtol(regmatch_t * m, const char * src, char ** endptr, int base)
 		s = regmatch_dup(m, src);
 	n = (int)strtol(s, endptr, base);
 	if(s != buf)
-		free(s);
+		SAlloc::F(s);
 	return n;
 }
 

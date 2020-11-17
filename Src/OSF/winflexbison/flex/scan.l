@@ -256,7 +256,7 @@ M4QEND      "]""]"
 	[[:digit:]]+	linenum = myctoi( yytext );
 
 	\"[^"\n]*\"	{
-			free(infilename);
+			SAlloc::F(infilename);
 			infilename = xstrdup(yytext + 1);
 			infilename[strlen( infilename ) - 1] = '\0';
 			}

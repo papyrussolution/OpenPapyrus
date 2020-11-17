@@ -45,11 +45,11 @@
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "if2ip.h"
-#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "hostip.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ftp.h"
@@ -60,13 +60,13 @@
 #include "strtoofft.h"
 #include "strcase.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strerror.h"
 #include "inet_ntop.h"
 #include "inet_pton.h"
 #include "select.h"
 #include "parsedate.h" /* for the week day and month names */
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "multiif.h"
 #include "url.h"
 #include "strcase.h"
@@ -231,10 +231,10 @@ static void freedirs(struct ftp_conn * ftpc)
 	if(ftpc->dirs) {
 		int i;
 		for(i = 0; i < ftpc->dirdepth; i++) {
-			free(ftpc->dirs[i]);
+			SAlloc::F(ftpc->dirs[i]);
 			ftpc->dirs[i] = NULL;
 		}
-		free(ftpc->dirs);
+		SAlloc::F(ftpc->dirs);
 		ftpc->dirs = NULL;
 		ftpc->dirdepth = 0;
 	}
@@ -932,7 +932,7 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 		char * ip_end = NULL;
 		char * port_start = NULL;
 		char * port_sep = NULL;
-		addr = (char *)calloc(addrlen + 1, 1);
+		addr = (char *)SAlloc::C(addrlen + 1, 1);
 		if(!addr)
 			return CURLE_OUT_OF_MEMORY;
 #ifdef ENABLE_IPV6
@@ -1014,7 +1014,7 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 		sslen = sizeof(ss);
 		if(getsockname(conn->sock[FIRSTSOCKET], sa, &sslen)) {
 			failf(data, "getsockname() failed: %s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-			free(addr);
+			SAlloc::F(addr);
 			return CURLE_FTP_PORT_FAILED;
 		}
 		switch(sa->sa_family) {
@@ -1045,10 +1045,10 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 		res = NULL; /* failure! */
 	if(res == NULL) {
 		failf(data, "failed to resolve the address provided to PORT: %s", host);
-		free(addr);
+		SAlloc::F(addr);
 		return CURLE_FTP_PORT_FAILED;
 	}
-	free(addr);
+	SAlloc::F(addr);
 	host = NULL;
 	//
 	// step 2, create a socket for the requested address 
@@ -1394,7 +1394,7 @@ static CURLcode ftp_state_list(struct connectdata * conn)
 			lstArg[n] = '\0';
 		}
 		else
-			free(rawPath);
+			SAlloc::F(rawPath);
 	}
 
 	cmd = aprintf("%s%s%s",
@@ -1403,13 +1403,13 @@ static CURLcode ftp_state_list(struct connectdata * conn)
 		(data->set.ftp_list_only ? "NLST" : "LIST"),
 		lstArg ? " " : "",
 		lstArg ? lstArg : "");
-	free(lstArg);
+	SAlloc::F(lstArg);
 
 	if(!cmd)
 		return CURLE_OUT_OF_MEMORY;
 
 	result = Curl_pp_sendf(&conn->proto.ftpc.pp, "%s", cmd);
-	free(cmd);
+	SAlloc::F(cmd);
 
 	if(!result)
 		state(conn, FTP_LIST);
@@ -1777,7 +1777,7 @@ static CURLcode ftp_state_pasv_resp(struct connectdata * conn,
 				}
 				if(ptr) {
 					ftpc->newport = (ushort)(num & 0xffff);
-					ftpc->newhost = strdup(control_address(conn));
+					ftpc->newhost = sstrdup(control_address(conn));
 					if(!ftpc->newhost)
 						return CURLE_OUT_OF_MEMORY;
 				}
@@ -1826,7 +1826,7 @@ static CURLcode ftp_state_pasv_resp(struct connectdata * conn,
 			infof(data, "Skip %u.%u.%u.%u for data connection, re-use %s instead\n",
 			    ip[0], ip[1], ip[2], ip[3],
 			    conn->host.name);
-			ftpc->newhost = strdup(control_address(conn));
+			ftpc->newhost = sstrdup(control_address(conn));
 		}
 		else
 			ftpc->newhost = aprintf("%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
@@ -1910,7 +1910,7 @@ static CURLcode ftp_state_pasv_resp(struct connectdata * conn,
 
 	Curl_safefree(conn->secondaryhostname);
 	conn->secondary_port = ftpc->newport;
-	conn->secondaryhostname = strdup(ftpc->newhost);
+	conn->secondaryhostname = sstrdup(ftpc->newhost);
 	if(!conn->secondaryhostname)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -2700,7 +2700,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 				    char * dir;
 				    bool entry_extracted = FALSE;
 
-				    dir = (char *)malloc(nread + 1);
+				    dir = (char *)SAlloc::M(nread + 1);
 				    if(!dir)
 					    return CURLE_OUT_OF_MEMORY;
 
@@ -2758,7 +2758,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 					    if(!ftpc->server_os && dir[0] != '/') {
 						    result = Curl_pp_sendf(&ftpc->pp, "%s", "SYST");
 						    if(result) {
-							    free(dir);
+							    SAlloc::F(dir);
 							    return result;
 						    }
 						    Curl_safefree(ftpc->entrypath);
@@ -2778,7 +2778,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 				    }
 				    else {
 					    /* couldn't get the path */
-					    free(dir);
+					    SAlloc::F(dir);
 					    infof(data, "Failed to figure out path\n");
 				    }
 			    }
@@ -2792,7 +2792,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 				    char * os;
 				    char * store;
 
-				    os = (char *)malloc(nread + 1);
+				    os = (char *)SAlloc::M(nread + 1);
 				    if(!os)
 					    return CURLE_OUT_OF_MEMORY;
 
@@ -2811,7 +2811,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 					    /* Force OS400 name format 1. */
 					    result = Curl_pp_sendf(&ftpc->pp, "%s", "SITE NAMEFMT 1");
 					    if(result) {
-						    free(os);
+						    SAlloc::F(os);
 						    return result;
 					    }
 					    /* remember target server OS */
@@ -3114,14 +3114,14 @@ static CURLcode ftp_done(struct connectdata * conn, CURLcode status,
 		 * the error path) */
 		ftpc->ctl_valid = FALSE; /* mark control connection as bad */
 		connclose(conn, "FTP: out of memory!"); /* mark for connection closure */
-		free(ftpc->prevpath);
+		SAlloc::F(ftpc->prevpath);
 		ftpc->prevpath = NULL; /* no path remembering */
 	}
 	else { /* remember working directory for connection reuse */
 		if((data->set.ftp_filemethod == FTPFILE_NOCWD) && (rawPath[0] == '/'))
-			free(rawPath); /* full path => no CWDs happened => keep ftpc->prevpath */
+			SAlloc::F(rawPath); /* full path => no CWDs happened => keep ftpc->prevpath */
 		else {
-			free(ftpc->prevpath);
+			SAlloc::F(ftpc->prevpath);
 
 			if(!ftpc->cwdfail) {
 				if(data->set.ftp_filemethod == FTPFILE_NOCWD)
@@ -3133,7 +3133,7 @@ static CURLcode ftp_done(struct connectdata * conn, CURLcode status,
 				ftpc->prevpath = rawPath;
 			}
 			else {
-				free(rawPath);
+				SAlloc::F(rawPath);
 				ftpc->prevpath = NULL; /* no path */
 			}
 		}
@@ -3608,7 +3608,7 @@ static void wc_data_dtor(void * ptr)
 	struct ftp_wc * ftpwc = (struct ftp_wc *)ptr;
 	if(ftpwc && ftpwc->parser)
 		Curl_ftp_parselist_data_free(&ftpwc->parser);
-	free(ftpwc);
+	SAlloc::F(ftpwc);
 }
 
 static CURLcode init_wc_data(struct connectdata * conn)
@@ -3628,14 +3628,14 @@ static CURLcode init_wc_data(struct connectdata * conn)
 			result = ftp_parse_url_path(conn);
 			return result;
 		}
-		wildcard->pattern = strdup(last_slash);
+		wildcard->pattern = sstrdup(last_slash);
 		if(!wildcard->pattern)
 			return CURLE_OUT_OF_MEMORY;
 		last_slash[0] = '\0'; /* cut file from path */
 	}
 	else { /* there is only 'wildcard pattern' or nothing */
 		if(path[0]) {
-			wildcard->pattern = strdup(path);
+			wildcard->pattern = sstrdup(path);
 			if(!wildcard->pattern)
 				return CURLE_OUT_OF_MEMORY;
 			path[0] = '\0';
@@ -3651,7 +3651,7 @@ static CURLcode init_wc_data(struct connectdata * conn)
 	   resources for wildcard transfer */
 
 	/* allocate ftp protocol specific wildcard data */
-	ftpwc = (struct ftp_wc *)calloc(1, sizeof(struct ftp_wc));
+	ftpwc = (struct ftp_wc *)SAlloc::C(1, sizeof(struct ftp_wc));
 	if(!ftpwc) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
@@ -3677,7 +3677,7 @@ static CURLcode init_wc_data(struct connectdata * conn)
 		goto fail;
 	}
 
-	wildcard->path = strdup(ftp->path);
+	wildcard->path = sstrdup(ftp->path);
 	if(!wildcard->path) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
@@ -3698,7 +3698,7 @@ static CURLcode init_wc_data(struct connectdata * conn)
 fail:
 	if(ftpwc) {
 		Curl_ftp_parselist_data_free(&ftpwc->parser);
-		free(ftpwc);
+		SAlloc::F(ftpwc);
 	}
 	Curl_safefree(wildcard->pattern);
 	wildcard->dtor = ZERO_NULL;
@@ -3755,7 +3755,7 @@ static CURLcode wc_statemach(struct connectdata * conn)
 			    return CURLE_OUT_OF_MEMORY;
 
 		    /* switch default ftp->path and tmp_path */
-		    free(ftp->pathalloc);
+		    SAlloc::F(ftp->pathalloc);
 		    ftp->pathalloc = ftp->path = tmp_path;
 
 		    infof(conn->data, "Wildcard - START of \"%s\"\n", finfo->filename);
@@ -3992,15 +3992,15 @@ CURLcode ftp_parse_url_path(struct connectdata * conn)
 			    if(dirlen == 0)
 				    dirlen++;
 
-			    ftpc->dirs = (char **)calloc(1, sizeof(ftpc->dirs[0]));
+			    ftpc->dirs = (char **)SAlloc::C(1, sizeof(ftpc->dirs[0]));
 			    if(!ftpc->dirs) {
-				    free(rawPath);
+				    SAlloc::F(rawPath);
 				    return CURLE_OUT_OF_MEMORY;
 			    }
 
-			    ftpc->dirs[0] = (char *)calloc(1, dirlen + 1);
+			    ftpc->dirs[0] = (char *)SAlloc::C(1, dirlen + 1);
 			    if(!ftpc->dirs[0]) {
-				    free(rawPath);
+				    SAlloc::F(rawPath);
 				    return CURLE_OUT_OF_MEMORY;
 			    }
 
@@ -4024,9 +4024,9 @@ CURLcode ftp_parse_url_path(struct connectdata * conn)
 				    ++dirAlloc;
 
 		    if(dirAlloc > 0) {
-			    ftpc->dirs = (char **)calloc(dirAlloc, sizeof(ftpc->dirs[0]));
+			    ftpc->dirs = (char **)SAlloc::C(dirAlloc, sizeof(ftpc->dirs[0]));
 			    if(!ftpc->dirs) {
-				    free(rawPath);
+				    SAlloc::F(rawPath);
 				    return CURLE_OUT_OF_MEMORY;
 			    }
 
@@ -4042,9 +4042,9 @@ CURLcode ftp_parse_url_path(struct connectdata * conn)
 				       CWD requires a parameter and a non-existent parameter a) doesn't
 				       work on many servers and b) has no effect on the others. */
 				    if(compLen > 0) {
-					    char * comp = (char *)calloc(1, compLen + 1);
+					    char * comp = (char *)SAlloc::C(1, compLen + 1);
 					    if(!comp) {
-						    free(rawPath);
+						    SAlloc::F(rawPath);
 						    return CURLE_OUT_OF_MEMORY;
 					    }
 					    strncpy(comp, curPos, compLen);
@@ -4060,7 +4060,7 @@ CURLcode ftp_parse_url_path(struct connectdata * conn)
 	} /* switch */
 
 	if(fileName && *fileName)
-		ftpc->file = strdup(fileName);
+		ftpc->file = sstrdup(fileName);
 	else
 		ftpc->file = NULL; /* instead of point to a zero byte,
 	                                we make it a NULL pointer */
@@ -4068,7 +4068,7 @@ CURLcode ftp_parse_url_path(struct connectdata * conn)
 	if(data->set.upload && !ftpc->file && (ftp->transfer == FTPTRANSFER_BODY)) {
 		/* We need a file name when uploading. Return error! */
 		failf(data, "Uploading to a URL without a file name!");
-		free(rawPath);
+		SAlloc::F(rawPath);
 		return CURLE_URL_MALFORMAT;
 	}
 
@@ -4092,7 +4092,7 @@ CURLcode ftp_parse_url_path(struct connectdata * conn)
 		}
 	}
 
-	free(rawPath);
+	SAlloc::F(rawPath);
 	return CURLE_OK;
 }
 
@@ -4195,7 +4195,7 @@ static CURLcode ftp_setup_connection(struct connectdata * conn)
 	struct Curl_easy * data = conn->data;
 	char * type;
 	struct FTP * ftp;
-	conn->data->req.protop = ftp = (struct FTP *)calloc(sizeof(struct FTP), 1);
+	conn->data->req.protop = ftp = (struct FTP *)SAlloc::C(sizeof(struct FTP), 1);
 	if(NULL == ftp)
 		return CURLE_OUT_OF_MEMORY;
 	ftp->path = &data->state.up.path[1]; /* don't include the initial slash */

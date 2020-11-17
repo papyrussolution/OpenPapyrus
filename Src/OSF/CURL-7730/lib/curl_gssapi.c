@@ -25,7 +25,7 @@
 #ifdef HAVE_GSSAPI
 
 #include "curl_gssapi.h"
-#include "sendf.h"
+//#include "sendf.h"
 
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"

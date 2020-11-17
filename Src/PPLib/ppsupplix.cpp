@@ -403,7 +403,7 @@ private:
 		THROW(LoadSdRecord(recTyp, &rParam.InrRec));
 		rParam.Direction  = 0; // export
 		rParam.DataFormat = PPImpExpParam::dfSoap;
-		rParam.TdfParam.Flags |= TextDbFile::fOemText/*|TextDbFile::fVerticalRec*/;
+		rParam.TdfParam.Flags |= TextDbFile::fCpOem/*|TextDbFile::fVerticalRec*/;
 		rParam.TdfParam.FldDiv = ";";
 		rParam.FileName = FileName;
 		rParam.OtrRec = rParam.InrRec;

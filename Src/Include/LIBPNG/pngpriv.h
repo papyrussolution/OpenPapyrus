@@ -249,13 +249,13 @@
  * static library of libpng then link the DLL against that.
  */
 #ifndef PNG_BUILD_DLL
-#  ifdef DLL_EXPORT
+#ifdef DLL_EXPORT
 /* This is set by libtool when files are compiled for a DLL; libtool
  * always compiles twice, even on systems where it isn't necessary.  Set
  * PNG_BUILD_DLL in case it is necessary:
  */
 #     define PNG_BUILD_DLL
-#  else
+#else
 #     ifdef _WINDLL
 /* This is set by the Microsoft Visual Studio IDE in projects that
  * build a DLL.  It can't easily be removed from those projects (it
@@ -274,7 +274,7 @@
 /* Add additional compiler cases here. */
 #        endif
 #     endif
-#  endif
+#endif
 #endif /* Setting PNG_BUILD_DLL if required */
 
 /* See pngconf.h for more details: the builder of the library may set this on
@@ -456,18 +456,18 @@
  * as it seems it doesn't agree with <fp.h>, yet we should really use
  * <fp.h> if possible.
  */
-#    if !defined(__MATH_H__) && !defined(__MATH_H) && !defined(__cmath__)
+#if !defined(__MATH_H__) && !defined(__MATH_H) && !defined(__cmath__)
 #      include <fp.h>
-#    endif
-#  else
-#    include <math.h>
-#  endif
-#  if defined(_AMIGA) && defined(__SASC) && defined(_M68881)
+#endif
+#else
+#include <math.h>
+#endif
+#if defined(_AMIGA) && defined(__SASC) && defined(_M68881)
 /* Amiga SAS/C: We must include builtin FPU functions when compiling using
  * MATH=68881
  */
-#    include <m68881.h>
-#  endif
+#include <m68881.h>
+#endif
 #endif
 
 // This provides the non-ANSI (far) memory allocation routines. 
@@ -522,14 +522,14 @@
  */
 #define png_alignof(type) (sizeof(type))
 #else
-#  if PNG_ALIGN_TYPE == PNG_ALIGN_OFFSET
+#if PNG_ALIGN_TYPE == PNG_ALIGN_OFFSET
 #     define png_alignof(type) offsetof(struct {char c; type t; }, t)
-#  else
+#else
 #     if PNG_ALIGN_TYPE == PNG_ALIGN_ALWAYS
 #        define png_alignof(type) (1)
 #     endif
 /* Else leave png_alignof undefined to prevent use thereof */
-#  endif
+#endif
 #endif
 // This implicitly assumes alignment is always to a power of 2. 
 #ifdef png_alignof
@@ -824,7 +824,7 @@
  * must match that used in the build, or we must be using pnglibconf.h.prebuilt:
  */
 #if PNG_ZLIB_VERNUM != 0 && PNG_ZLIB_VERNUM != ZLIB_VERNUM
-#  error ZLIB_VERNUM != PNG_ZLIB_VERNUM	\
+#error ZLIB_VERNUM != PNG_ZLIB_VERNUM	\
 	"-I (include path) error: see the notes in pngpriv.h"
 /* This means that when pnglibconf.h was built the copy of zlib.h that it
  * used is not the same as the one being used here.  Because the build of
@@ -948,9 +948,9 @@ PNG_INTERNAL_FUNCTION(void PNGCBAPI, png_push_fill_buffer, (png_structp png_ptr,
 PNG_INTERNAL_FUNCTION(void PNGCBAPI, png_default_write_data, (png_structp png_ptr, png_bytep data, size_t length), PNG_EMPTY);
 
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
-#  ifdef PNG_STDIO_SUPPORTED
+#ifdef PNG_STDIO_SUPPORTED
 PNG_INTERNAL_FUNCTION(void PNGCBAPI, png_default_flush, (png_structp png_ptr), PNG_EMPTY);
-#  endif
+#endif
 #endif
 
 /* Reset the CRC variable */
@@ -1294,18 +1294,18 @@ PNG_INTERNAL_FUNCTION(void, png_push_have_row, (png_structrp png_ptr, png_bytep 
 PNG_INTERNAL_FUNCTION(void, png_push_read_end, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_process_some_data, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_read_push_finish_row, (png_structrp png_ptr), PNG_EMPTY);
-#  ifdef PNG_READ_tEXt_SUPPORTED
+#ifdef PNG_READ_tEXt_SUPPORTED
 PNG_INTERNAL_FUNCTION(void, png_push_handle_tEXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_push_read_tEXt, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-#  endif
-#  ifdef PNG_READ_zTXt_SUPPORTED
+#endif
+#ifdef PNG_READ_zTXt_SUPPORTED
 PNG_INTERNAL_FUNCTION(void, png_push_handle_zTXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_push_read_zTXt, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-#  endif
-#  ifdef PNG_READ_iTXt_SUPPORTED
+#endif
+#ifdef PNG_READ_iTXt_SUPPORTED
 PNG_INTERNAL_FUNCTION(void, png_push_handle_iTXt, (png_structrp png_ptr, png_inforp info_ptr, uint32 length), PNG_EMPTY);
 PNG_INTERNAL_FUNCTION(void, png_push_read_iTXt, (png_structrp png_ptr, png_inforp info_ptr), PNG_EMPTY);
-#  endif
+#endif
 
 #endif /* PROGRESSIVE_READ */
 

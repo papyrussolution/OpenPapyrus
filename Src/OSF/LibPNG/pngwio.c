@@ -72,7 +72,7 @@ void /* PRIVATE */ png_flush(png_structrp png_ptr)
 		(*(png_ptr->output_flush_fn))(png_ptr);
 }
 
-#  ifdef PNG_STDIO_SUPPORTED
+#ifdef PNG_STDIO_SUPPORTED
 void PNGCBAPI png_default_flush(png_structp png_ptr)
 {
 	png_FILE_p io_ptr;
@@ -82,7 +82,7 @@ void PNGCBAPI png_default_flush(png_structp png_ptr)
 	}
 }
 
-#  endif
+#endif
 #endif
 
 /* This function allows the application to supply new output functions for
@@ -133,7 +133,7 @@ void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr,
 #endif
 
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
-#  ifdef PNG_STDIO_SUPPORTED
+#ifdef PNG_STDIO_SUPPORTED
 
 	if(output_flush_fn != NULL)
 		png_ptr->output_flush_fn = output_flush_fn;
@@ -141,9 +141,9 @@ void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr,
 	else
 		png_ptr->output_flush_fn = png_default_flush;
 
-#  else
+#else
 	png_ptr->output_flush_fn = output_flush_fn;
-#  endif
+#endif
 #else
 	PNG_UNUSED(output_flush_fn)
 #endif /* WRITE_FLUSH */

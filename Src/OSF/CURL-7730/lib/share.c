@@ -34,12 +34,12 @@
 
 struct Curl_share * curl_share_init(void)                    
 {
-	struct Curl_share * share = (struct Curl_share *)calloc(1, sizeof(struct Curl_share));
+	struct Curl_share * share = (struct Curl_share *)SAlloc::C(1, sizeof(struct Curl_share));
 	if(share) {
 		share->specifier |= (1<<CURL_LOCK_DATA_SHARE);
 
 		if(Curl_mk_dnscache(&share->hostcache)) {
-			free(share);
+			SAlloc::F(share);
 			return NULL;
 		}
 	}
@@ -89,7 +89,7 @@ CURLSHcode curl_share_setopt(struct Curl_share * share, CURLSHoption option, ...
 #ifdef USE_SSL
 				if(!share->sslsession) {
 					share->max_ssl_sessions = 8;
-					share->sslsession = (struct Curl_ssl_session *)calloc(share->max_ssl_sessions, sizeof(struct Curl_ssl_session));
+					share->sslsession = (struct Curl_ssl_session *)SAlloc::C(share->max_ssl_sessions, sizeof(struct Curl_ssl_session));
 					share->sessionage = 0;
 					if(!share->sslsession)
 						res = CURLSHE_NOMEM;
@@ -206,7 +206,7 @@ CURLSHcode curl_share_cleanup(struct Curl_share * share)
 		size_t i;
 		for(i = 0; i < share->max_ssl_sessions; i++)
 			Curl_ssl_kill_session(&(share->sslsession[i]));
-		free(share->sslsession);
+		SAlloc::F(share->sslsession);
 	}
 #endif
 
@@ -214,7 +214,7 @@ CURLSHcode curl_share_cleanup(struct Curl_share * share)
 
 	if(share->unlockfunc)
 		share->unlockfunc(NULL, CURL_LOCK_DATA_SHARE, share->clientdata);
-	free(share);
+	SAlloc::F(share);
 
 	return CURLSHE_OK;
 }

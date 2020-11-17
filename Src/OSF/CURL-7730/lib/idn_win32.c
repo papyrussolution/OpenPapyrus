@@ -35,7 +35,7 @@
 #include "memdebug.h"
 
 #ifdef WANT_IDN_PROTOTYPES
-#  if defined(_SAL_VERSION)
+#if defined(_SAL_VERSION)
 WINNORMALIZEAPI int WINAPI IdnToAscii(_In_ DWORD dwFlags,
     _In_reads_(cchUnicodeChar)     LPCWSTR lpUnicodeCharStr,
     _In_ int cchUnicodeChar,
@@ -46,7 +46,7 @@ WINNORMALIZEAPI int WINAPI IdnToUnicode(_In_ DWORD dwFlags,
     _In_ int cchASCIIChar,
     _Out_writes_opt_(cchUnicodeChar) LPWSTR lpUnicodeCharStr,
     _In_ int cchUnicodeChar);
-#  else
+#else
 WINBASEAPI int WINAPI IdnToAscii(DWORD dwFlags,
     const WCHAR * lpUnicodeCharStr,
     int cchUnicodeChar,
@@ -57,7 +57,7 @@ WINBASEAPI int WINAPI IdnToUnicode(DWORD dwFlags,
     int cchASCIIChar,
     WCHAR * lpUnicodeCharStr,
     int cchUnicodeChar);
-#  endif
+#endif
 #endif
 
 #define IDN_MAX_LENGTH 255
@@ -73,7 +73,7 @@ bool curl_win32_idn_to_ascii(const char * in, char ** out)
 	if(in_w) {
 		wchar_t punycode[IDN_MAX_LENGTH];
 		int chars = IdnToAscii(0, in_w, -1, punycode, IDN_MAX_LENGTH);
-		free(in_w);
+		SAlloc::F(in_w);
 		if(chars) {
 			*out = curlx_convert_wchar_to_UTF8(punycode);
 			if(*out)
@@ -94,7 +94,7 @@ bool curl_win32_ascii_to_idn(const char * in, char ** out)
 		wchar_t unicode[IDN_MAX_LENGTH];
 		int chars = IdnToUnicode(0, in_w, curlx_uztosi(in_len),
 			unicode, IDN_MAX_LENGTH);
-		free(in_w);
+		SAlloc::F(in_w);
 		if(chars) {
 			*out = curlx_convert_wchar_to_UTF8(unicode);
 			if(*out)

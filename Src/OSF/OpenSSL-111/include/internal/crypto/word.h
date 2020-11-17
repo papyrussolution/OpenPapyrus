@@ -16,7 +16,7 @@
 #include <arch_intrinsics.h>
 #include <curve448utils.h>
 
-# if (ARCH_WORD_BITS == 64)
+#if (ARCH_WORD_BITS == 64)
 typedef uint64_t word_t, mask_t;
 typedef __uint128_t dword_t;
 typedef int32_t hsword_t;
@@ -29,19 +29,19 @@ typedef int16_t hsword_t;
 typedef int32_t sword_t;
 typedef int64_t dsword_t;
 #else
-#  error "For now, we only support 32- and 64-bit architectures."
+#error "For now, we only support 32- and 64-bit architectures."
 #endif
 
 /*
  * Scalar limbs are keyed off of the API word size instead of the arch word
  * size.
  */
-# if C448_WORD_BITS == 64
+#if C448_WORD_BITS == 64
 #define SC_LIMB(x) (x)
 # elif C448_WORD_BITS == 32
 #define SC_LIMB(x) ((uint32_t)(x)),((x) >> 32)
 #else
-#  error "For now we only support 32- and 64-bit architectures."
+#error "For now we only support 32- and 64-bit architectures."
 #endif
 
 /*

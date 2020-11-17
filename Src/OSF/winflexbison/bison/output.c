@@ -736,7 +736,7 @@ static void output_skeleton()
 		}
 
 		/* The ugly cast is because gnulib gets the const-ness wrong.  */
-		// pid = create_pipe_bidi ("m4", m4, (char **)(void*)argv, false, true,
+		// pid = create_pipe_bidi ("m4", m4, (char **)(void *)argv, false, true,
 		//                         true, filter_fd);
 	}
 /*

@@ -106,18 +106,15 @@ static const void * _GL_ATTRIBUTE_PURE gl_array_node_value(gl_list_t list, gl_li
 {
 	uintptr_t index = NODE_TO_INDEX(node);
 	if(!(index < list->count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	return list->elements[index];
 }
 
-static int gl_array_node_nx_set_value(gl_list_t list, gl_list_node_t node,
-    const void * elt)
+static int gl_array_node_nx_set_value(gl_list_t list, gl_list_node_t node, const void * elt)
 {
 	uintptr_t index = NODE_TO_INDEX(node);
 	if(!(index < list->count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	list->elements[index] = elt;
 	return 0;
 }
@@ -126,21 +123,16 @@ static gl_list_node_t _GL_ATTRIBUTE_PURE gl_array_next_node(gl_list_t list, gl_l
 {
 	uintptr_t index = NODE_TO_INDEX(node);
 	if(!(index < list->count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	index++;
-	if(index < list->count)
-		return INDEX_TO_NODE(index);
-	else
-		return NULL;
+	return (index < list->count) ? INDEX_TO_NODE(index) : NULL;
 }
 
 static gl_list_node_t _GL_ATTRIBUTE_PURE gl_array_previous_node(gl_list_t list, gl_list_node_t node)
 {
 	uintptr_t index = NODE_TO_INDEX(node);
 	if(!(index < list->count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	if(index > 0)
 		return INDEX_TO_NODE(index - 1);
 	else
@@ -150,39 +142,29 @@ static gl_list_node_t _GL_ATTRIBUTE_PURE gl_array_previous_node(gl_list_t list, 
 static const void * _GL_ATTRIBUTE_PURE gl_array_get_at(gl_list_t list, size_t position)
 {
 	size_t count = list->count;
-
 	if(!(position < count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	return list->elements[position];
 }
 
 static gl_list_node_t gl_array_nx_set_at(gl_list_t list, size_t position, const void * elt)
 {
 	size_t count = list->count;
-
 	if(!(position < count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	list->elements[position] = elt;
 	return INDEX_TO_NODE(position);
 }
 
-static size_t gl_array_indexof_from_to(gl_list_t list, size_t start_index, size_t end_index,
-    const void * elt)
+static size_t gl_array_indexof_from_to(gl_list_t list, size_t start_index, size_t end_index, const void * elt)
 {
 	size_t count = list->count;
-
 	if(!(start_index <= end_index && end_index <= count))
-		/* Invalid arguments.  */
-		abort();
-
+		abort(); // Invalid arguments
 	if(start_index < end_index) {
 		gl_listelement_equals_fn equals = list->base.equals_fn;
 		if(equals != NULL) {
-			size_t i;
-
-			for(i = start_index;;) {
+			for(size_t i = start_index;;) {
 				if(equals(elt, list->elements[i]))
 					return i;
 				i++;
@@ -191,9 +173,7 @@ static size_t gl_array_indexof_from_to(gl_list_t list, size_t start_index, size_
 			}
 		}
 		else {
-			size_t i;
-
-			for(i = start_index;;) {
+			for(size_t i = start_index;;) {
 				if(elt == list->elements[i])
 					return i;
 				i++;
@@ -205,8 +185,7 @@ static size_t gl_array_indexof_from_to(gl_list_t list, size_t start_index, size_
 	return (size_t)(-1);
 }
 
-static gl_list_node_t gl_array_search_from_to(gl_list_t list, size_t start_index, size_t end_index,
-    const void * elt)
+static gl_list_node_t gl_array_search_from_to(gl_list_t list, size_t start_index, size_t end_index, const void * elt)
 {
 	size_t index = gl_array_indexof_from_to(list, start_index, end_index, elt);
 	return INDEX_TO_NODE(index);
@@ -271,10 +250,8 @@ static gl_list_node_t gl_array_nx_add_before(gl_list_t list, gl_list_node_t node
 	size_t position;
 	const void ** elements;
 	size_t i;
-
 	if(!(index < count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	position = index;
 	if(count == list->allocated)
 		if(grow(list) < 0)
@@ -294,10 +271,8 @@ static gl_list_node_t gl_array_nx_add_after(gl_list_t list, gl_list_node_t node,
 	size_t position;
 	const void ** elements;
 	size_t i;
-
 	if(!(index < count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	position = index + 1;
 	if(count == list->allocated)
 		if(grow(list) < 0)
@@ -315,10 +290,8 @@ static gl_list_node_t gl_array_nx_add_at(gl_list_t list, size_t position, const 
 	size_t count = list->count;
 	const void ** elements;
 	size_t i;
-
 	if(!(position <= count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	if(count == list->allocated)
 		if(grow(list) < 0)
 			return NULL;
@@ -337,10 +310,8 @@ static bool gl_array_remove_node(gl_list_t list, gl_list_node_t node)
 	size_t position;
 	const void ** elements;
 	size_t i;
-
 	if(!(index < count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	position = index;
 	elements = list->elements;
 	if(list->base.dispose_fn != NULL)
@@ -356,10 +327,8 @@ static bool gl_array_remove_at(gl_list_t list, size_t position)
 	size_t count = list->count;
 	const void ** elements;
 	size_t i;
-
 	if(!(position < count))
-		/* Invalid argument.  */
-		abort();
+		abort(); // Invalid argument
 	elements = list->elements;
 	if(list->base.dispose_fn != NULL)
 		list->base.dispose_fn(elements[position]);
@@ -383,14 +352,12 @@ static void gl_array_list_free(gl_list_t list)
 	if(list->elements != NULL) {
 		if(list->base.dispose_fn != NULL) {
 			size_t count = list->count;
-
 			if(count > 0) {
 				gl_listelement_dispose_fn dispose = list->base.dispose_fn;
 				const void ** elements = list->elements;
-
-				do
+				do {
 					dispose(*elements++);
-				while(--count > 0);
+				} while(--count > 0);
 			}
 		}
 		SAlloc::F(list->elements);
@@ -403,7 +370,6 @@ static void gl_array_list_free(gl_list_t list)
 static gl_list_iterator_t gl_array_iterator(gl_list_t list)
 {
 	gl_list_iterator_t result;
-
 	result.vtable = list->base.vtable;
 	result.list = list;
 	result.count = list->count;
@@ -413,17 +379,14 @@ static gl_list_iterator_t gl_array_iterator(gl_list_t list)
 	result.i = 0;
 	result.j = 0;
 #endif
-
 	return result;
 }
 
 static gl_list_iterator_t gl_array_iterator_from_to(gl_list_t list, size_t start_index, size_t end_index)
 {
 	gl_list_iterator_t result;
-
 	if(!(start_index <= end_index && end_index <= list->count))
-		/* Invalid arguments.  */
-		abort();
+		abort(); // Invalid arguments
 	result.vtable = list->base.vtable;
 	result.list = list;
 	result.count = list->count;
@@ -433,18 +396,15 @@ static gl_list_iterator_t gl_array_iterator_from_to(gl_list_t list, size_t start
 	result.i = 0;
 	result.j = 0;
 #endif
-
 	return result;
 }
 
-static bool gl_array_iterator_next(gl_list_iterator_t * iterator,
-    const void ** eltp, gl_list_node_t * nodep)
+static bool gl_array_iterator_next(gl_list_iterator_t * iterator, const void ** eltp, gl_list_node_t * nodep)
 {
 	gl_list_t list = iterator->list;
 	if(iterator->count != list->count) {
 		if(iterator->count != list->count + 1)
-			/* Concurrent modifications were done on the list.  */
-			abort();
+			abort(); /* Concurrent modifications were done on the list.  */
 		/* The last returned element was removed.  */
 		iterator->count--;
 		iterator->p = (const void**)iterator->p - 1;
@@ -468,14 +428,10 @@ static void gl_array_iterator_free(gl_list_iterator_t * iterator _GL_UNUSED)
 
 /* ---------------------- Sorted gl_list_t Data Type ---------------------- */
 
-static size_t gl_array_sortedlist_indexof_from_to(gl_list_t list,
-    gl_listelement_compar_fn compar,
-    size_t low, size_t high,
-    const void * elt)
+static size_t gl_array_sortedlist_indexof_from_to(gl_list_t list, gl_listelement_compar_fn compar, size_t low, size_t high, const void * elt)
 {
 	if(!(low <= high && high <= list->count))
-		/* Invalid arguments.  */
-		abort();
+		abort(); // Invalid arguments
 	if(low < high) {
 		/* At each loop iteration, low < high; for indices < low the values
 		   are smaller than ELT; for indices >= high the values are greater
@@ -500,12 +456,10 @@ static size_t gl_array_sortedlist_indexof_from_to(gl_list_t list,
 				while(low < high) {
 					size_t mid2 = low + (high - low) / 2; /* low <= mid2 < high */
 					int cmp2 = compar(list->elements[mid2], elt);
-
 					if(cmp2 < 0)
 						low = mid2 + 1;
 					else if(cmp2 > 0)
-						/* The list was not sorted.  */
-						abort();
+						abort(); /* The list was not sorted.  */
 					else { /* cmp2 == 0 */
 						if(mid2 == low)
 							break;
@@ -514,51 +468,40 @@ static size_t gl_array_sortedlist_indexof_from_to(gl_list_t list,
 				}
 				return low;
 			}
-		}
-		while(low < high);
+		} while(low < high);
 		/* Here low == high.  */
 	}
 	return (size_t)(-1);
 }
 
-static size_t gl_array_sortedlist_indexof(gl_list_t list, gl_listelement_compar_fn compar,
-    const void * elt)
+static size_t gl_array_sortedlist_indexof(gl_list_t list, gl_listelement_compar_fn compar, const void * elt)
 {
-	return gl_array_sortedlist_indexof_from_to(list, compar, 0, list->count,
-		   elt);
+	return gl_array_sortedlist_indexof_from_to(list, compar, 0, list->count, elt);
 }
 
-static gl_list_node_t gl_array_sortedlist_search_from_to(gl_list_t list,
-    gl_listelement_compar_fn compar,
-    size_t low, size_t high,
-    const void * elt)
+static gl_list_node_t gl_array_sortedlist_search_from_to(gl_list_t list, gl_listelement_compar_fn compar,
+    size_t low, size_t high, const void * elt)
 {
-	size_t index =
-	    gl_array_sortedlist_indexof_from_to(list, compar, low, high, elt);
+	size_t index = gl_array_sortedlist_indexof_from_to(list, compar, low, high, elt);
 	return INDEX_TO_NODE(index);
 }
 
-static gl_list_node_t gl_array_sortedlist_search(gl_list_t list, gl_listelement_compar_fn compar,
-    const void * elt)
+static gl_list_node_t gl_array_sortedlist_search(gl_list_t list, gl_listelement_compar_fn compar, const void * elt)
 {
-	size_t index =
-	    gl_array_sortedlist_indexof_from_to(list, compar, 0, list->count, elt);
+	size_t index = gl_array_sortedlist_indexof_from_to(list, compar, 0, list->count, elt);
 	return INDEX_TO_NODE(index);
 }
 
-static gl_list_node_t gl_array_sortedlist_nx_add(gl_list_t list, gl_listelement_compar_fn compar,
-    const void * elt)
+static gl_list_node_t gl_array_sortedlist_nx_add(gl_list_t list, gl_listelement_compar_fn compar, const void * elt)
 {
 	size_t count = list->count;
 	size_t low = 0;
 	size_t high = count;
-
 	/* At each loop iteration, low <= high; for indices < low the values are
 	   smaller than ELT; for indices >= high the values are greater than ELT.  */
 	while(low < high) {
 		size_t mid = low + (high - low) / 2; /* low <= mid < high */
 		int cmp = compar(list->elements[mid], elt);
-
 		if(cmp < 0)
 			low = mid + 1;
 		else if(cmp > 0)
@@ -571,14 +514,10 @@ static gl_list_node_t gl_array_sortedlist_nx_add(gl_list_t list, gl_listelement_
 	return gl_array_nx_add_at(list, low, elt);
 }
 
-static bool gl_array_sortedlist_remove(gl_list_t list, gl_listelement_compar_fn compar,
-    const void * elt)
+static bool gl_array_sortedlist_remove(gl_list_t list, gl_listelement_compar_fn compar, const void * elt)
 {
 	size_t index = gl_array_sortedlist_indexof(list, compar, elt);
-	if(index == (size_t)(-1))
-		return false;
-	else
-		return gl_array_remove_at(list, index);
+	return (index == (size_t)(-1)) ? false : gl_array_remove_at(list, index);
 }
 
 const struct gl_list_implementation gl_array_list_implementation =

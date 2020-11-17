@@ -85,7 +85,7 @@ end:
 
 #else
 
-# if defined(BN_DIV3W)
+#if defined(BN_DIV3W)
 BN_ULONG bn_div_3_words(const BN_ULONG * m, BN_ULONG d1, BN_ULONG d0);
 # elif 0
 /*
@@ -93,13 +93,13 @@ BN_ULONG bn_div_3_words(const BN_ULONG * m, BN_ULONG d1, BN_ULONG d0);
  * where it can and should be made constant-time. But if you want to test it,
  * just replace 0 with 1.
  */
-#  if BN_BITS2 == 64 && defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
+#if BN_BITS2 == 64 && defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
 #   undef BN_ULLONG
 #   define BN_ULLONG __uint128_t
 #   define BN_LLONG
-#  endif
+#endif
 
-#  ifdef BN_LLONG
+#ifdef BN_LLONG
 #   define BN_DIV3W
 /*
  * Interface is somewhat quirky, |m| is pointer to most significant limb,
@@ -134,7 +134,7 @@ static BN_ULONG bn_div_3_words(const BN_ULONG * m, BN_ULONG d1, BN_ULONG d0)
 	return (Q | mask) & BN_MASK2;
 }
 
-#  endif
+#endif
 #endif
 
 static int bn_left_align(BIGNUM * num)
@@ -157,9 +157,9 @@ static int bn_left_align(BIGNUM * num)
 	return lshift;
 }
 
-# if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) \
+#if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) \
 	&& !defined(PEDANTIC) && !defined(BN_DIV3W)
-#  if defined(__GNUC__) && __GNUC__>=2
+#if defined(__GNUC__) && __GNUC__>=2
 #   if defined(__i386) || defined (__i386__)
 /*-
  * There were two reasons for implementing this template:
@@ -169,8 +169,8 @@ static int bn_left_align(BIGNUM * num)
  * - divl doesn't only calculate quotient, but also leaves
  *   remainder in %edx which we can definitely use here:-)
  */
-#    undef bn_div_words
-#    define bn_div_words(n0, n1, d0)                \
+#undef bn_div_words
+#define bn_div_words(n0, n1, d0)                \
 	({  asm volatile (                      \
 		    "divl   %4"                     \
 		    : "=a" (q), "=d" (rem)            \
@@ -178,13 +178,13 @@ static int bn_left_align(BIGNUM * num)
 		    : "cc");                        \
 	    q;                                  \
 	})
-#    define REMAINDER_IS_ALREADY_CALCULATED
+#define REMAINDER_IS_ALREADY_CALCULATED
 #   elif defined(__x86_64) && defined(SIXTY_FOUR_BIT_LONG)
 /*
  * Same story here, but it's 128-bit by 64-bit division. Wow!
  */
-#    undef bn_div_words
-#    define bn_div_words(n0, n1, d0)                \
+#undef bn_div_words
+#define bn_div_words(n0, n1, d0)                \
 	({  asm volatile (                      \
 		    "divq   %4"                     \
 		    : "=a" (q), "=d" (rem)            \
@@ -192,9 +192,9 @@ static int bn_left_align(BIGNUM * num)
 		    : "cc");                        \
 	    q;                                  \
 	})
-#    define REMAINDER_IS_ALREADY_CALCULATED
+#define REMAINDER_IS_ALREADY_CALCULATED
 #   endif                       /* __<cpu> */
-#  endif                        /* __GNUC__ */
+#endif                        /* __GNUC__ */
 #endif                         /* OPENSSL_NO_ASM */
 
 /*-
@@ -334,7 +334,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 		 * the first part of the loop uses the top two words of snum and sdiv
 		 * to calculate a BN_ULONG q such that | wnum - sdiv * q | < sdiv
 		 */
-# if defined(BN_DIV3W)
+#if defined(BN_DIV3W)
 		q = bn_div_3_words(wnumtop, d1, d0);
 #else
 		BN_ULONG n0, n1, rem = 0;
@@ -345,7 +345,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 			q = BN_MASK2;
 		else {          /* n0 < d0 */
 			BN_ULONG n2 = (wnumtop == wnum) ? 0 : wnumtop[-2];
-#  ifdef BN_LLONG
+#ifdef BN_LLONG
 			BN_ULLONG t2;
 
 #   if defined(BN_LLONG) && defined(BN_DIV2W) && !defined(bn_div_words)
@@ -372,7 +372,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 					break; /* don't let rem overflow */
 				t2 -= d1;
 			}
-#  else                         /* !BN_LLONG */
+#else                         /* !BN_LLONG */
 			BN_ULONG t2l, t2h;
 
 			q = bn_div_words(n0, n1, d0);
@@ -407,7 +407,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 					t2h--;
 				t2l -= d1;
 			}
-#  endif                        /* !BN_LLONG */
+#endif                        /* !BN_LLONG */
 		}
 #endif                         /* !BN_DIV3W */
 

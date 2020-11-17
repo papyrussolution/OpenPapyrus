@@ -13,7 +13,7 @@
 #include <openssl/opensslconf.h>
 
 #ifndef OPENSSL_NO_ENGINE
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
@@ -312,9 +312,9 @@ ENGINE *ENGINE_by_id(const char *id);
 #define ENGINE_load_openssl() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_OPENSSL, NULL)
 #define ENGINE_load_dynamic() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_DYNAMIC, NULL)
 #ifndef OPENSSL_NO_STATIC_ENGINE
-#  define ENGINE_load_padlock() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_PADLOCK, NULL)
-#  define ENGINE_load_capi() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_CAPI, NULL)
-#  define ENGINE_load_afalg() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_AFALG, NULL)
+#define ENGINE_load_padlock() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_PADLOCK, NULL)
+#define ENGINE_load_capi() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_CAPI, NULL)
+#define ENGINE_load_afalg() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_AFALG, NULL)
 #endif
 #define ENGINE_load_cryptodev() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_CRYPTODEV, NULL)
 #define ENGINE_load_rdrand() OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_RDRAND, NULL)
@@ -695,13 +695,13 @@ typedef int (*dynamic_bind_engine) (ENGINE *e, const char *id, const dynamic_fns
  */
 void *ENGINE_get_static_state(void);
 
-# if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__DragonFly__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__DragonFly__)
 DEPRECATEDIN_1_1_0(void ENGINE_setup_bsd_cryptodev(void))
 #endif
 
 
-#  ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-#  endif
+#endif
 #endif
 #endif

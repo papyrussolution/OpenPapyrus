@@ -5,9 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 SCardCore::OpBlock::OpBlock()
 {
 	Init(0);
@@ -60,7 +58,8 @@ int SCardCore::Search(PPID id, SCardTbl::Rec * pRec)
 
 int SCardCore::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRec)
 {
-	int    ok = -1, idx = 1;
+	int    ok = -1;
+	int    idx = 1;
 	union {
 		SCardTbl::Key1 k1;
 		SCardTbl::Key2 k2;
@@ -102,7 +101,7 @@ int SCardCore::GetListByCode(const char * pCode, PPIDArray * pList)
 		CALLPTRMEMB(pList, add(data.ID));
 		c++;
 	} while(search(1, &k1, spNext) && stricmp866(data.Code, pCode) == 0);
-	ok = BTROKORNFOUND ? (c ? (int)c : -1) : PPSetErrorDB();
+	ok = BTROKORNFOUND ? (c ? static_cast<int>(c) : -1) : PPSetErrorDB();
 	return ok;
 }
 
@@ -193,14 +192,14 @@ int SCardCore::UpdateDiscount(PPID id, double discount, int use_ta)
 	return ok;
 }
 
-int SCardCore::UpdateRest_(PPID id, const LDATETIME * pOpDtm, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
+int SCardCore::UpdateRest_(PPID id, const LDATETIME * pOpDtm, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
 	int    ok = 1;
 	if(id) {
 		SCardTbl::Rec rec;
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(SearchByID(this, PPOBJ_SCARD, id, &rec) > 0 && rec.Rest != rest) { // @v8.6.4 SearchByID_ForUpdate-->SearchByID
+		if(SearchByID(this, PPOBJ_SCARD, id, &rec) > 0 && rec.Rest != rest) {
 			const double prev_rest = rec.Rest;
 			const double new_rest = rest;
 			rec.Rest = rest;
@@ -254,8 +253,6 @@ int SCardCore::Update(PPID id, SCardCore::Rec * pRec, int useTa)
 		SCardTbl::Rec org_rec;
 		PPTransaction tra(useTa);
 		THROW(tra);
-		// @v8.1.8 THROW(UpdateByID(this, PPOBJ_SCARD, id, pRec, 0));
-		// @v8.1.8 {
 		{
 			const long _act_f = SCRDF_NEEDACTIVATION|SCRDF_CLOSED;
 			THROW(SearchByID_ForUpdate(this, PPOBJ_SCARD, id, &org_rec) > 0);
@@ -265,7 +262,6 @@ int SCardCore::Update(PPID id, SCardCore::Rec * pRec, int useTa)
 			if(activated)
 				DS.LogAction(PPACN_SCARDACTIVATED, PPOBJ_SCARD, id, 0, 0);
 		}
-		// } @v8.1.8
 		DS.LogAction(PPACN_OBJUPD, PPOBJ_SCARD, id, 0, 0);
 		THROW(tra.Commit());
 	}
@@ -283,7 +279,6 @@ int SCardCore::AddTurnover(PPID id, double add, int use_ta)
 		if(SearchByID_ForUpdate(this, PPOBJ_SCARD, id, &rec) > 0) {
 			rec.Turnover += add;
 			THROW_DB(updateRecBuf(&rec)); // @sfu
-			// @v8.1.4 DS.LogAction(PPACN_SCARDTRNOVRUPD, PPOBJ_SCARD, id, 0, 0);
 		}
 		THROW(tra.Commit());
 	}
@@ -460,13 +455,13 @@ int SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString 
 }
 
 struct SCardCodeTemplate {
-	SCardCodeTemplate()
+	SCardCodeTemplate() : RLen(0), AddCheckDig(0), CheckDigOffs(0)
 	{
-		Reset();
+		R = 0;
 	}
 	void   Reset()
 	{
-		Prefix = 0;
+		Prefix.Z();
 		RLen = 0;
 		R = 0;
 		AddCheckDig = 0;

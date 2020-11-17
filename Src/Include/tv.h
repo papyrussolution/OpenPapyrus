@@ -2141,7 +2141,7 @@ protected:
 	DECL_HANDLE_EVENT;
 	void   SetDefaultCursor();
 
-	SRectLayout Layout_Obsolete;
+	//SRectLayout Layout_Obsolete;
 	LayoutFlexItem * P_Lfc; // @v10.9.3 @construction
 	SPaintToolBox Tb;
 	TScrollBlock Sb;

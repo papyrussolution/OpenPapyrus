@@ -417,7 +417,7 @@ int EVP_PKEY_CTX_str2ctrl(EVP_PKEY_CTX * ctx, int cmd, const char * str)
 	len = strlen(str);
 	if(len > INT_MAX)
 		return -1;
-	return ctx->pmeth->ctrl(ctx, cmd, len, (void*)str);
+	return ctx->pmeth->ctrl(ctx, cmd, len, (void *)str);
 }
 
 int EVP_PKEY_CTX_hex2ctrl(EVP_PKEY_CTX * ctx, int cmd, const char * hex)
@@ -444,7 +444,7 @@ int EVP_PKEY_CTX_md(EVP_PKEY_CTX * ctx, int optype, int cmd, const char * md)
 		EVPerr(EVP_F_EVP_PKEY_CTX_MD, EVP_R_INVALID_DIGEST);
 		return 0;
 	}
-	return EVP_PKEY_CTX_ctrl(ctx, -1, optype, cmd, 0, (void*)m);
+	return EVP_PKEY_CTX_ctrl(ctx, -1, optype, cmd, 0, (void *)m);
 }
 
 int EVP_PKEY_CTX_get_operation(EVP_PKEY_CTX * ctx)

@@ -312,9 +312,24 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 0, TextDbFile::fFldNameRec);
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 1, TextDbFile::fFixedFields);
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 2, TextDbFile::fFldEqVal);
-			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 3, TextDbFile::fOemText);
-			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 4, TextDbFile::fQuotText);
+			// @v10.9.3 AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 3, TextDbFile::fCpOem);
+			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 3, TextDbFile::fQuotText); // @v10.9.3 4-->3
 			SetClusterData(CTL_TXTDBPARAM_FLAGS, Data.Flags);
+			// @v10.9.3 {
+			{
+				long   cp = cp1251; // Надо бы cpANSI но это равно 0, что не хорошо для идентификации
+				if(Data.Flags & TextDbFile::fCpUtf8)
+					cp = cpUTF8;
+				else if(Data.Flags & TextDbFile::fCpOem)
+					cp = cpOEM;
+				else
+					cp = cpANSI;
+				AddClusterAssocDef(CTL_TXTDBPARAM_ENCODING, 0, cp1251);
+				AddClusterAssoc(CTL_TXTDBPARAM_ENCODING, 1, cpOEM);
+				AddClusterAssoc(CTL_TXTDBPARAM_ENCODING, 2, cpUTF8);
+				SetClusterData(CTL_TXTDBPARAM_ENCODING, cp);
+			}
+			// } @v10.9.3 
 			setCtrlData(CTL_TXTDBPARAM_HDRCOUNT, &Data.HdrLinesCount);
 			setCtrlString(CTL_TXTDBPARAM_FOOTER, (temp_buf = Data.FooterLine)/*.Transf(CTRANSF_OUTER_TO_INNER)*/);
 			onOrientSelection();
@@ -326,6 +341,16 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			ushort orient = getCtrlUInt16(CTL_TXTDBPARAM_ORIENT);
 			SETFLAG(Data.Flags, TextDbFile::fVerticalRec, orient);
 			GetClusterData(CTL_TXTDBPARAM_FLAGS, &Data.Flags);
+			// @v10.9.3 {
+			{
+				long   cp = GetClusterData(CTL_TXTDBPARAM_ENCODING);
+				Data.Flags &= ~(TextDbFile::fCpUtf8|TextDbFile::fCpOem);
+				if(cp == cpUTF8)
+					Data.Flags |= TextDbFile::fCpUtf8;
+				else if(cp == cpOEM)
+					Data.Flags |= TextDbFile::fCpOem;
+			}
+			// } @v10.9.3 
 			Data.VertRecTerm.Z();
 			Data.FldDiv.Z();
 			SString temp_buf;
@@ -1001,7 +1026,7 @@ enum {
 	iedllManufINNID,   // manufinnid   ИД тега лота с инфой об ИНН поставщика/импортера
 	iefBaseFlags,      // Флаг, предписывающий удалять исходные файлы после удачного импорта
 	iefFtpAccSymb,     // Символ FTP-аккаунта
-	iefFtpAccID        // Идентификатор FTP-аккаунта
+	iefFtpAccID,       // Идентификатор FTP-аккаунта
 };
 
 /*virtual*/int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
@@ -1150,8 +1175,22 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		}
 	}
 	{
-		THROW(tsl_par.Retranslate(iefOemText, symb_buf));
-		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(TdfParam.Flags & TextDbFile::fOemText)));
+		// @v10.9.3 {
+		if(DataFormat == dfText) {
+			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
+			if(TdfParam.Flags & TextDbFile::fCpUtf8) {
+				THROW(pFile->AppendParam(pSect, symb_buf, "utf8", 1));
+			}
+			else if(TdfParam.Flags & TextDbFile::fCpOem) {
+				THROW(pFile->AppendParam(pSect, symb_buf, "oem", 1));
+			}
+			else {
+				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
+			}
+		}
+		// } @v10.9.3 
+		// @v10.9.3 THROW(tsl_par.Retranslate(iefOemText, symb_buf));
+		// @v10.9.3 THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(TdfParam.Flags & TextDbFile::fCpOem)));
 		THROW(tsl_par.Retranslate(iefFldNameRec, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(TdfParam.Flags & TextDbFile::fFldNameRec)));
 	}
@@ -1186,8 +1225,21 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = XdfParam.HdrTag).Transf(CTRANSF_OUTER_TO_INNER), 0));
 		THROW(tsl_par.Retranslate(iefUseDTD, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fUseDTD)));
-		THROW(tsl_par.Retranslate(iefUtf8Codepage, symb_buf));
-		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fUtf8Codepage)));
+		if(DataFormat == dfXml) {
+			// @v10.9.3 {
+			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
+			if(XdfParam.Flags & XmlDbFile::Param::fUtf8Codepage) {
+				THROW(pFile->AppendParam(pSect, symb_buf, "utf8", 1));
+			}
+			else {
+				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
+			}
+			// } @v10.9.3 
+			/* @v10.9.3 
+			THROW(tsl_par.Retranslate(iefUtf8Codepage, symb_buf));
+			THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fUtf8Codepage)));
+			*/
+		}
 		THROW(tsl_par.Retranslate(iefSubRec, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fHaveSubRec)));
 		{
@@ -1305,6 +1357,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 	SStrScan scan;
 	SdbField outer_fld, fld;
 	PPSymbTranslator tsl_par(PPSSYM_IMPEXPPAR);
+	long   cp = -1; // @v10.9.3
 	Name = pSect;
 	memzero(&ImpExpParamDll, sizeof(ImpExpParamDllStruct));
 	InetAccID = 0;
@@ -1351,13 +1404,23 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 						TdfParam.Flags |= TextDbFile::fVerticalRec;
 					break;
 				case iefCodepage:
-					if(val.IsEqiAscii("windows-1251") || val == "1251") {
-						SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 0);
+					if(val.IsEqiAscii("windows-1251") || val == "1251" || val.IsEqiAscii("ansi")) {
+						cp = cp1251;
+						//SETFLAG(TdfParam.Flags, TextDbFile::fCpUtf8, 0);
+						//SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 0);
 					}
-					else
-						SETFLAG(TdfParam.Flags, TextDbFile::fOemText, 1);
+					else if(val.IsEqiAscii("utf8") || val.IsEqiAscii("utf-8")) {
+						cp = cpUTF8;
+						//SETFLAG(TdfParam.Flags, TextDbFile::fCpUtf8, 1);
+						//SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 0);
+					}
+					else {
+						cp = cp866;
+						//SETFLAG(TdfParam.Flags, TextDbFile::fCpUtf8, 0);
+						//SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 1);
+					}
 					break;
-				case iefOemText: SETFLAG(TdfParam.Flags, TextDbFile::fOemText, val.ToLong()); break;
+				case iefOemText: SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, val.ToLong()); break;
 				case iefFldNameRec: SETFLAG(TdfParam.Flags, TextDbFile::fFldNameRec, val.ToLong()); break;
 				case iefQuotStr: SETFLAG(TdfParam.Flags, TextDbFile::fQuotText, val.ToLong()); break;
 				case iefHdrLinesCount: TdfParam.HdrLinesCount = val.ToLong(); break;
@@ -1489,6 +1552,23 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 			}
 		}
 	}
+	// @v10.9.3 parameter CODEPAGE takes precedence over iefUtf8Codepage and iefOemText {
+	if(oneof2(cp, cp1251, cpANSI)) {
+		SETFLAG(TdfParam.Flags, TextDbFile::fCpUtf8, 0);
+		SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 0);
+		SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, 0);
+	}
+	else if(oneof2(cp, cp866, cpOEM)) {
+		SETFLAG(TdfParam.Flags, TextDbFile::fCpUtf8, 0);
+		SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 1);
+		SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, 0);
+	}
+	else if(cp == cpUTF8) {
+		SETFLAG(TdfParam.Flags, TextDbFile::fCpUtf8, 1);
+		SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 0);
+		SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, 1);
+	}
+	// }
 	if(fld_div.NotEmptyS()) {
 		if(TdfParam.Flags & TextDbFile::fVerticalRec)
 			TdfParam.VertRecTerm = fld_div;
@@ -1533,9 +1613,30 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 			if(Data.DataFormat == PPImpExpParam::dfText) {
 				getCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
 				Data.TdfParam.DefFileName = Data.FileName;
+				// @v10.9.3 {
+				{
+					long   _f = GetClusterData(CTL_IMPEXP_FLAGS);
+					if(_f & 0x0001) {
+						SETFLAG(Data.TdfParam.Flags, TextDbFile::fCpOem, 1);
+						SETFLAG(Data.TdfParam.Flags, TextDbFile::fCpUtf8, 0);
+					}
+					else {
+						SETFLAG(Data.TdfParam.Flags, TextDbFile::fCpOem, 0);
+					}
+				}
+				// } @v10.9.3
 				if(EditTextDbFileParam(/*&Data.TdfParam*/&Data) > 0) {
 					Data.FileName = Data.TdfParam.DefFileName;
 					setCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
+					// @v10.9.3 {
+					{
+						long  _f = GetClusterData(CTL_IMPEXP_FLAGS);
+						const long _org_f = _f;
+						SETFLAG(_f, 0x0001, (Data.TdfParam.Flags & TextDbFile::fCpOem));
+						if(_org_f != _f)
+							SetClusterData(CTL_IMPEXP_FLAGS,  _f);
+					}
+					// } @v10.9.3 
 				}
 			}
 			else if(Data.DataFormat == PPImpExpParam::dfXml) {
@@ -1586,7 +1687,7 @@ int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 	SetClusterData(CTL_IMPEXP_DIR, Data.Direction);
 	{
 		long   _f = 0;
-		SETFLAG(_f, 0x0001, Data.TdfParam.Flags & TextDbFile::fOemText);
+		SETFLAG(_f, 0x0001, Data.TdfParam.Flags & TextDbFile::fCpOem);
 		SETFLAG(_f, 0x0002, Data.BaseFlags & PPImpExpParam::bfDeleteSrcFiles);
 		AddClusterAssoc(CTL_IMPEXP_FLAGS, 0, 0x0001);
 		AddClusterAssoc(CTL_IMPEXP_FLAGS, 1, 0x0002);
@@ -1615,7 +1716,7 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 	{
 		long   _f = 0;
 		GetClusterData(CTL_IMPEXP_FLAGS,  &_f);
-		SETFLAG(Data.TdfParam.Flags, TextDbFile::fOemText, _f & 0x0001);
+		SETFLAG(Data.TdfParam.Flags, TextDbFile::fCpOem, _f & 0x0001);
 		SETFLAG(Data.BaseFlags, PPImpExpParam::bfDeleteSrcFiles, _f & 0x0002);
 	}
 	getCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
@@ -1826,7 +1927,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 	}
 	else if(P.DataFormat == PPImpExpParam::dfText) {
 		// @v10.3.12 {
-		if(!(P.TdfParam.Flags & TextDbFile::fOemText)) {
+		if(!(P.TdfParam.Flags & TextDbFile::fCpOem)) {
 			P.TdfParam.FldDiv.Transf(CTRANSF_INNER_TO_OUTER);
 			P.TdfParam.FooterLine.Transf(CTRANSF_INNER_TO_OUTER);
 			P.TdfParam.VertRecTerm.Transf(CTRANSF_INNER_TO_OUTER);
@@ -2293,7 +2394,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 	/*if(inner_expr_ctx)
 		delete p_expr_ctx;*/
 	if(P_ExprContext) {
-		p_expr_ctx->SetInnerContext(&own_expr_ctx); // @v9.8.12 @fix &own_expr_ctx-->0
+		p_expr_ctx->SetInnerContext(&own_expr_ctx);
 	}
 	return ok;
 }
@@ -2302,6 +2403,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 {
 	int    ok = 1;
 	SString formula_result;
+	SString temp_buf;
 	SdbField outer_fld, inner_fld;
 	if(hdr) {
 		if(P.HdrOtrRec.GetDataC() == 0)
@@ -2347,10 +2449,19 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 				const void * p_data_ = hdr ? P.HdrInrRec.GetDataC(inner_pos) : P.InrRec.GetDataC(inner_pos);
 				stcast(inner_fld.T.Typ, outer_fld.T.Typ, p_data_, p_outer_fld_buf, fmt);
 			}
-			if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
-				char   temp_buf[512];
-				sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf);
-				stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SCharToOem(temp_buf));
+			if(stbase(outer_fld.T.Typ) == BTS_STRING) {
+				if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
+					char   temp_cbuf[512];
+					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
+					temp_buf = temp_cbuf;
+					if(P.TdfParam.Flags & TextDbFile::fCpOem) {
+						//SCharToOem(temp_cbuf)
+						temp_buf.ToOem();
+					}
+					else
+						temp_buf.ToUtf8();
+					stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf);
+				}
 			}
 		}
 		else
@@ -2393,6 +2504,7 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 	char   temp_cbuf[1024];
 	SdbField outer_fld;
 	SString formula_result;
+	SString temp_buf;
 	SdbField inner_fld; // Определение выносим за пределы цикла во избежании лишних распределений памяти
 		// (внутри этой структуры находятся элементы SString)
 	if(P.OtrRec.GetDataC() == 0)
@@ -2417,10 +2529,21 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 			if(outer_fld.T.Flags & STypEx::fFormula) {
 				if(pDynRec) {
 					THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
-					if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
-						PTR32(temp_cbuf)[0] = 0;
-						sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
-						stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_cbuf));
+					if(stbase(outer_fld.T.Typ) == BTS_STRING) {
+						if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
+							PTR32(temp_cbuf)[0] = 0;
+							sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
+							temp_buf = temp_cbuf;
+							if(P.TdfParam.Flags & TextDbFile::fCpOem) {
+								//SOemToChar(temp_cbuf);
+								temp_buf.ToChar();
+							}
+							else {
+								assert(P.TdfParam.Flags & TextDbFile::fCpUtf8);
+								temp_buf.Utf8ToChar();
+							}
+							stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_buf);
+						}
 					}
 					stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, pDynRec->GetData(dyn_fld_pos), 0);
 				}
@@ -2429,10 +2552,21 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 			else if(outer_fld.ID) {
 				uint   inner_pos = 0;
 				THROW_SL(P.InrRec.GetFieldByID(outer_fld.ID, &inner_pos, &inner_fld));
-				if(P.TdfParam.Flags & TextDbFile::fOemText && stbase(outer_fld.T.Typ) == BTS_STRING) {
-					PTR32(temp_cbuf)[0] = 0;
-					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
-					stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, SOemToChar(temp_cbuf));
+				if(stbase(outer_fld.T.Typ) == BTS_STRING) {
+					if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
+						PTR32(temp_cbuf)[0] = 0;
+						sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
+						temp_buf = temp_cbuf;
+						if(P.TdfParam.Flags & TextDbFile::fCpOem) {
+							//SOemToChar(temp_cbuf);
+							temp_buf.ToChar();
+						}
+						else {
+							assert(P.TdfParam.Flags & TextDbFile::fCpUtf8);
+							temp_buf.Utf8ToChar();
+						}
+						stfromstr(outer_fld.T.Typ, p_outer_fld_buf, 0, /*temp_cbuf*/temp_buf);
+					}
 				}
 				stcast(outer_fld.T.Typ, inner_fld.T.Typ, p_outer_fld_buf, P.InrRec.GetData(inner_pos), 0);
 			}

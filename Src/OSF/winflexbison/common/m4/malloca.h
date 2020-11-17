@@ -47,7 +47,7 @@ extern "C" {
    memory allocated on the stack, that must be freed using freea() before
    the function returns.  Upon failure, it returns NULL.  */
 #if HAVE_ALLOCA
-	#define malloca(N) ((N) < 4032 - sa_increment ? (void*)((char *)alloca((N) + sa_increment) + sa_increment) : mmalloca(N))
+	#define malloca(N) ((N) < 4032 - sa_increment ? (void *)((char *)alloca((N) + sa_increment) + sa_increment) : mmalloca(N))
 #else
 	#define malloca(N) mmalloca(N)
 #endif

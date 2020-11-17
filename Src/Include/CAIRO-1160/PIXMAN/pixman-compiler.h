@@ -68,10 +68,10 @@
 #   define noinline __attribute__((noinline))
 #else
 #   ifndef force_inline
-#      define force_inline inline
+#define force_inline inline
 #   endif
 #   ifndef noinline
-#      define noinline
+#define noinline
 #   endif
 #endif
 
@@ -154,7 +154,7 @@
 
 #include <pthread.h>
 
-#  define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                        \
+#define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                        \
 	static pthread_once_t tls_ ## name ## _once_control = PTHREAD_ONCE_INIT; \
 	static pthread_key_t tls_ ## name ## _key;                          \
                                                                         \
@@ -193,7 +193,7 @@
 
 #else
 
-#    error \
+#error \
 	"Unknown thread local support for this system. Pixman will not work with multiple threads. Define PIXMAN_NO_TLS to acknowledge and accept this limitation and compile pixman without thread-safety support."
 
 #endif

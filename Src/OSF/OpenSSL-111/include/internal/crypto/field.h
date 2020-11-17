@@ -21,7 +21,7 @@
 #define X_SER_BYTES 56
 #define SER_BYTES 56
 
-# if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) || defined(__clang__)
 #define INLINE_UNUSED __inline__ __attribute__((__unused__, __always_inline__))
 #define RESTRICT __restrict__
 #define ALIGNED __attribute__((__aligned__(16)))

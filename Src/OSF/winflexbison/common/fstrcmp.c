@@ -42,8 +42,8 @@
    already allocated memory, store the allocated memory per thread.  Free
    it only when the thread exits.  */
 
-static gl_tls_key_t buffer_key; /* TLS key for a 'ptrdiff_t *' */
-static gl_tls_key_t bufmax_key; /* TLS key for a 'uintptr_t' */
+static gl_tls_key_t buffer_key; // @global TLS key for a 'ptrdiff_t *'
+static gl_tls_key_t bufmax_key; // @global TLS key for a 'uintptr_t'
 
 static void keys_init(void)
 {
@@ -68,11 +68,9 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 	size_t yvec_length = strlen(string2);
 	size_t length_sum = xvec_length + yvec_length;
 	ptrdiff_t i;
-
 	ptrdiff_t fdiag_len;
 	ptrdiff_t * buffer;
 	uintptr_t bufmax;
-
 	/* short-circuit obvious comparisons */
 	if(xvec_length == 0 || yvec_length == 0) /* Prob: 1% */
 		return length_sum == 0;
@@ -97,11 +95,8 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 		 */
 		ptrdiff_t length_min = MIN(xvec_length, yvec_length);
 		volatile double upper_bound = 2.0 * length_min / length_sum;
-
 		if(upper_bound < lower_bound) /* Prob: 74% */
-			/* Return an arbitrary value < LOWER_BOUND.  */
-			return 0.0;
-
+			return 0.0; /* Return an arbitrary value < LOWER_BOUND.  */
 #if CHAR_BIT <= 8
 		/* When X and Y are both small, avoid the overhead of setting up an
 		   array of size 256.  */
@@ -134,19 +129,15 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 			/* Subtract the occurrence counts in Y.  */
 			for(i = yvec_length - 1; i >= 0; i--)
 				occ_diff[(uchar)string2[i]]--;
-			/* Sum up the absolute values.  */
-			sum = 0;
+			sum = 0; /* Sum up the absolute values.  */
 			for(i = 0; i <= UCHAR_MAX; i++) {
 				ptrdiff_t d = occ_diff[i];
 				sum += (d >= 0 ? d : -d);
 			}
-
 			dsum = sum;
 			upper_bound = 1.0 - dsum / length_sum;
-
 			if(upper_bound < lower_bound) /* Prob: 66% */
-				/* Return an arbitrary value < LOWER_BOUND.  */
-				return 0.0;
+				return 0.0; /* Return an arbitrary value < LOWER_BOUND.  */
 		}
 #endif
 	}
@@ -177,7 +168,7 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 		SAlloc::F(buffer);
 		buffer = (ptrdiff_t *)xnmalloc(bufmax, 2 * sizeof *buffer);
 		gl_tls_set(buffer_key, buffer);
-		gl_tls_set(bufmax_key, (void*)(uintptr_t)bufmax);
+		gl_tls_set(bufmax_key, (void *)(uintptr_t)bufmax);
 	}
 	ctxt.fdiag = buffer + yvec_length + 1;
 	ctxt.bdiag = ctxt.fdiag + fdiag_len;
@@ -192,11 +183,7 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 	     edit_count > floor((xvec_length + yvec_length) * (1 - lower_bound)).
 	   We need to add an epsilon inside the floor(...) argument, to neutralize
 	   rounding errors.  */
-	ctxt.edit_count_limit =
-	    (lower_bound < 1.0
-	    ? (ptrdiff_t)(length_sum * (1.0 - lower_bound + 0.000001))
-	    : 0);
-
+	ctxt.edit_count_limit = (lower_bound < 1.0 ? (ptrdiff_t)(length_sum * (1.0 - lower_bound + 0.000001)) : 0);
 	/* Now do the main comparison algorithm */
 	ctxt.edit_count = -ctxt.edit_count_limit;
 	if(compareseq(0, xvec_length, 0, yvec_length, 0, &ctxt)) /* Prob: 98% */
@@ -213,6 +200,5 @@ double fstrcmp_bounded(const char * string1, const char * string2, double lower_
 	      = 1/2 * (xvec_length + yvec_length - (number of edits)).
 	   This is admittedly biased towards finding that the strings are
 	   similar, however it does produce meaningful results.  */
-	return ((double)(xvec_length + yvec_length - ctxt.edit_count)
-	       / (xvec_length + yvec_length));
+	return ((double)(xvec_length + yvec_length - ctxt.edit_count) / (xvec_length + yvec_length));
 }

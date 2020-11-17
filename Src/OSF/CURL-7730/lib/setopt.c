@@ -31,13 +31,13 @@
 #endif
 #include "urldata.h"
 #include "url.h"
-#include "progress.h"
+//#include "progress.h"
 #include "content_encoding.h"
 #include "strcase.h"
 #include "share.h"
 #include "vtls/vtls.h"
 #include "warnless.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "http2.h"
 #include "setopt.h"
 #include "multiif.h"
@@ -54,11 +54,11 @@ CURLcode Curl_setstropt(char ** charp, const char * s)
 
 	Curl_safefree(*charp);
 	if(s) {
-		char * str = strdup(s);
+		char * str = sstrdup(s);
 		if(str) {
 			size_t len = strlen(str);
 			if(len > CURL_MAX_INPUT_LENGTH) {
-				free(str);
+				SAlloc::F(str);
 				return CURLE_BAD_FUNCTION_ARGUMENT;
 			}
 		}
@@ -78,7 +78,7 @@ CURLcode Curl_setblobopt(struct curl_blob ** blobp, const struct curl_blob * blo
 		struct curl_blob * nblob;
 		if(blob->len > CURL_MAX_INPUT_LENGTH)
 			return CURLE_BAD_FUNCTION_ARGUMENT;
-		nblob = (struct curl_blob *)malloc(sizeof(struct curl_blob) + ((blob->flags & CURL_BLOB_COPY) ? blob->len : 0));
+		nblob = (struct curl_blob *)SAlloc::M(sizeof(struct curl_blob) + ((blob->flags & CURL_BLOB_COPY) ? blob->len : 0));
 		if(!nblob)
 			return CURLE_OUT_OF_MEMORY;
 		*nblob = *blob;
@@ -113,7 +113,7 @@ static CURLcode setstropt_userpwd(char * option, char ** userp, char ** passwdp)
 		if(userp) {
 			if(!user && option && option[0] == ':') {
 				/* Allocate an empty string instead of returning NULL as user name */
-				user = strdup("");
+				user = sstrdup("");
 				if(!user)
 					result = CURLE_OUT_OF_MEMORY;
 			}
@@ -437,7 +437,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 				       to mark that postfields is used rather than read function or
 				       form data.
 				     */
-				    p = static_cast<char *>(malloc((size_t)(data->set.postfieldsize ? data->set.postfieldsize : 1)));
+				    p = static_cast<char *>(SAlloc::M((size_t)(data->set.postfieldsize ? data->set.postfieldsize : 1)));
 				    if(!p)
 					    result = CURLE_OUT_OF_MEMORY;
 				    else {
@@ -523,7 +523,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 				    result = CURLE_OUT_OF_MEMORY;
 			    else {
 				    result = Curl_setstropt(&data->set.str[STRING_ENCODING], argptr);
-				    free(argptr);
+				    SAlloc::F(argptr);
 			    }
 		    }
 		    else
@@ -779,10 +779,10 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 			    /* general protection against mistakes and abuse */
 			    if(strlen(argptr) > CURL_MAX_INPUT_LENGTH)
 				    return CURLE_BAD_FUNCTION_ARGUMENT;
-			    argptr = strdup(argptr);
+			    argptr = sstrdup(argptr);
 			    if(!argptr || !data->cookies) {
 				    result = CURLE_OUT_OF_MEMORY;
-				    free(argptr);
+				    SAlloc::F(argptr);
 			    }
 			    else {
 				    Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
@@ -798,7 +798,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 						NULL, TRUE);
 
 				    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
-				    free(argptr);
+				    SAlloc::F(argptr);
 			    }
 		    }
 

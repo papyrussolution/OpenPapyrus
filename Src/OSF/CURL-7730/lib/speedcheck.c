@@ -24,7 +24,7 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "multiif.h"
 #include "speedcheck.h"
 

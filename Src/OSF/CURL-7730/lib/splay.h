@@ -22,7 +22,7 @@
 *
 ***************************************************************************/
 //#include "curl_setup.h"
-#include "timeval.h"
+//#include "timeval.h"
 
 struct Curl_tree {
 	struct Curl_tree * smaller; /* smaller node */

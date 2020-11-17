@@ -182,67 +182,67 @@
  * Watcom builds but these need special treatment because they are not
  * compatible with GCC or Visual C because of different calling conventions.
  */
-#  if PNG_API_RULE == 2
+#if PNG_API_RULE == 2
 /* If this line results in an error, either because __watcall is not
  * understood or because of a redefine just below you cannot use *this*
  * build of the library with the compiler you are using.  *This* build was
  * build using Watcom and applications must also be built using Watcom!
  */
-#    define PNGCAPI __watcall
-#  endif
+#define PNGCAPI __watcall
+#endif
 
-#  if defined(__GNUC__) || (defined(_MSC_VER) && (_MSC_VER >= 800))
-#    define PNGCAPI __cdecl
-#    if PNG_API_RULE == 1
+#if defined(__GNUC__) || (defined(_MSC_VER) && (_MSC_VER >= 800))
+#define PNGCAPI __cdecl
+#if PNG_API_RULE == 1
 /* If this line results in an error __stdcall is not understood and
  * PNG_API_RULE should not have been set to '1'.
  */
-#      define PNGAPI __stdcall
-#    endif
-#  else
+#define PNGAPI __stdcall
+#endif
+#else
 /* An older compiler, or one not detected (erroneously) above,
  * if necessary override on the command line to get the correct
  * variants for the compiler.
  */
 #    ifndef PNGCAPI
-#      define PNGCAPI _cdecl
-#    endif
-#    if PNG_API_RULE == 1 && !defined(PNGAPI)
-#      define PNGAPI _stdcall
-#    endif
-#  endif /* compiler/api */
+#define PNGCAPI _cdecl
+#endif
+#if PNG_API_RULE == 1 && !defined(PNGAPI)
+#define PNGAPI _stdcall
+#endif
+#endif /* compiler/api */
 
 /* NOTE: PNGCBAPI always defaults to PNGCAPI. */
 
-#  if defined(PNGAPI) && !defined(PNG_USER_PRIVATEBUILD)
+#if defined(PNGAPI) && !defined(PNG_USER_PRIVATEBUILD)
 #     error "PNG_USER_PRIVATEBUILD must be defined if PNGAPI is changed"
-#  endif
+#endif
 
-#  if (defined(_MSC_VER) && _MSC_VER < 800) || \
+#if (defined(_MSC_VER) && _MSC_VER < 800) || \
 	(defined(__BORLANDC__) && __BORLANDC__ < 0x500)
 /* older Borland and MSC
  * compilers used '__export' and required this to be after
  * the type.
  */
 #    ifndef PNG_EXPORT_TYPE
-#      define PNG_EXPORT_TYPE(type) type PNG_IMPEXP
-#    endif
-#    define PNG_DLL_EXPORT __export
-#  else /* newer compiler */
-#    define PNG_DLL_EXPORT __declspec(dllexport)
+#define PNG_EXPORT_TYPE(type) type PNG_IMPEXP
+#endif
+#define PNG_DLL_EXPORT __export
+#else /* newer compiler */
+#define PNG_DLL_EXPORT __declspec(dllexport)
 #    ifndef PNG_DLL_IMPORT
-#      define PNG_DLL_IMPORT __declspec(dllimport)
-#    endif
-#  endif /* compiler */
+#define PNG_DLL_IMPORT __declspec(dllimport)
+#endif
+#endif /* compiler */
 
 #else /* !Windows */
-#  if (defined(__IBMC__) || defined(__IBMCPP__)) && defined(__OS2__)
-#    define PNGAPI _System
-#  else /* !Windows/x86 && !OS/2 */
+#if (defined(__IBMC__) || defined(__IBMCPP__)) && defined(__OS2__)
+#define PNGAPI _System
+#else /* !Windows/x86 && !OS/2 */
 /* Use the defaults, or define PNG*API on the command line (but
  * this will have to be done for every compile!)
  */
-#  endif /* other system, !OS/2 */
+#endif /* other system, !OS/2 */
 #endif /* !Windows/x86 */
 
 /* Now do all the defaulting . */
@@ -261,14 +261,14 @@
  * using the library) it is set here.
  */
 #ifndef PNG_IMPEXP
-#  if defined(PNG_USE_DLL) && defined(PNG_DLL_IMPORT)
+#if defined(PNG_USE_DLL) && defined(PNG_DLL_IMPORT)
 /* This forces use of a DLL, disallowing static linking */
-#    define PNG_IMPEXP PNG_DLL_IMPORT
-#  endif
+#define PNG_IMPEXP PNG_DLL_IMPORT
+#endif
 
-#  ifndef PNG_IMPEXP
-#    define PNG_IMPEXP
-#  endif
+#ifndef PNG_IMPEXP
+#define PNG_IMPEXP
+#endif
 #endif
 
 /* In 1.5.2 the definition of PNG_FUNCTION has been changed to always treat
@@ -323,39 +323,39 @@
  * version 1.2.41.  Disabling these removes the warnings but may also produce
  * less efficient code.
  */
-#  if defined(__clang__) && defined(__has_attribute)
+#if defined(__clang__) && defined(__has_attribute)
 /* Clang defines both __clang__ and __GNUC__. Check __clang__ first. */
-#    if !defined(PNG_USE_RESULT) && __has_attribute(__warn_unused_result__)
-#      define PNG_USE_RESULT __attribute__((__warn_unused_result__))
-#    endif
-#    if !defined(PNG_NORETURN) && __has_attribute(__noreturn__)
-#      define PNG_NORETURN __attribute__((__noreturn__))
-#    endif
-#    if !defined(PNG_ALLOCATED) && __has_attribute(__malloc__)
-#      define PNG_ALLOCATED __attribute__((__malloc__))
-#    endif
-#    if !defined(PNG_DEPRECATED) && __has_attribute(__deprecated__)
-#      define PNG_DEPRECATED __attribute__((__deprecated__))
-#    endif
-#    if !defined(PNG_PRIVATE)
+#if !defined(PNG_USE_RESULT) && __has_attribute(__warn_unused_result__)
+#define PNG_USE_RESULT __attribute__((__warn_unused_result__))
+#endif
+#if !defined(PNG_NORETURN) && __has_attribute(__noreturn__)
+#define PNG_NORETURN __attribute__((__noreturn__))
+#endif
+#if !defined(PNG_ALLOCATED) && __has_attribute(__malloc__)
+#define PNG_ALLOCATED __attribute__((__malloc__))
+#endif
+#if !defined(PNG_DEPRECATED) && __has_attribute(__deprecated__)
+#define PNG_DEPRECATED __attribute__((__deprecated__))
+#endif
+#if !defined(PNG_PRIVATE)
 #      ifdef __has_extension
 #        if __has_extension(attribute_unavailable_with_message)
 #          define PNG_PRIVATE __attribute__((__unavailable__("This function is not exported by libpng.")))
 #        endif
 #      endif
-#    endif
+#endif
 #    ifndef PNG_RESTRICT
-#      define PNG_RESTRICT __restrict
-#    endif
+#define PNG_RESTRICT __restrict
+#endif
 
-#  elif defined(__GNUC__)
+#elif defined(__GNUC__)
 #    ifndef PNG_USE_RESULT
-#      define PNG_USE_RESULT __attribute__((__warn_unused_result__))
-#    endif
+#define PNG_USE_RESULT __attribute__((__warn_unused_result__))
+#endif
 #    ifndef PNG_NORETURN
-#      define PNG_NORETURN   __attribute__((__noreturn__))
-#    endif
-#    if __GNUC__ >= 3
+#define PNG_NORETURN   __attribute__((__noreturn__))
+#endif
+#if __GNUC__ >= 3
 #      ifndef PNG_ALLOCATED
 #        define PNG_ALLOCATED  __attribute__((__malloc__))
 #      endif
@@ -374,37 +374,37 @@
 #          define PNG_RESTRICT __restrict
 #        endif
 #      endif /* __GNUC__.__GNUC_MINOR__ > 3.0 */
-#    endif /* __GNUC__ >= 3 */
+#endif /* __GNUC__ >= 3 */
 
-#  elif defined(_MSC_VER)  && (_MSC_VER >= 1300)
+#elif defined(_MSC_VER)  && (_MSC_VER >= 1300)
 #    ifndef PNG_USE_RESULT
-#      define PNG_USE_RESULT /* not supported */
-#    endif
+#define PNG_USE_RESULT /* not supported */
+#endif
 #    ifndef PNG_NORETURN
-#      define PNG_NORETURN   __declspec(noreturn)
-#    endif
+#define PNG_NORETURN   __declspec(noreturn)
+#endif
 #    ifndef PNG_ALLOCATED
 #      if (_MSC_VER >= 1400)
 #        define PNG_ALLOCATED __declspec(restrict)
 #      endif
-#    endif
+#endif
 #    ifndef PNG_DEPRECATED
-#      define PNG_DEPRECATED __declspec(deprecated)
-#    endif
+#define PNG_DEPRECATED __declspec(deprecated)
+#endif
 #    ifndef PNG_PRIVATE
-#      define PNG_PRIVATE __declspec(deprecated)
-#    endif
+#define PNG_PRIVATE __declspec(deprecated)
+#endif
 #    ifndef PNG_RESTRICT
 #      if (_MSC_VER >= 1400)
 #        define PNG_RESTRICT __restrict
 #      endif
-#    endif
+#endif
 
-#  elif defined(__WATCOMC__)
+#elif defined(__WATCOMC__)
 #    ifndef PNG_RESTRICT
-#      define PNG_RESTRICT __restrict
-#    endif
-#  endif
+#define PNG_RESTRICT __restrict
+#endif
+#endif
 #endif /* PNG_PEDANTIC_WARNINGS */
 #ifndef PNG_DEPRECATED
 	#define PNG_DEPRECATED  /* Use of this function is deprecated */

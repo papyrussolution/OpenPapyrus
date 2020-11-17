@@ -2316,15 +2316,15 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	#endif
 	#if defined(MACOS) || defined(TARGET_OS_MAC)
 	#define OS_CODE  7
-	#  ifndef Z_SOLO
-	#    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
+	#ifndef Z_SOLO
+	#if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
 	#      include <unix.h> /* for fdopen */
-	#    else
+	#else
 	#      ifndef fdopen
 	#        define fdopen(fd, mode) NULL /* No fdopen() */
 	#      endif
-	#    endif
-	#  endif
+	#endif
+	#endif
 	#endif
 	#ifdef __acorn
 		#define OS_CODE 13

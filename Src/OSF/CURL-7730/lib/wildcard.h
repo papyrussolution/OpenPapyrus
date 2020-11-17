@@ -24,7 +24,7 @@
 
 //#include "curl_setup.h"
 #ifndef CURL_DISABLE_FTP
-#include "llist.h"
+//#include "llist.h"
 
 /* list of wildcard process states */
 typedef enum {

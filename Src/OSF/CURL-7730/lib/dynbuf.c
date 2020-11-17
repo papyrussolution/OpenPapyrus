@@ -89,7 +89,7 @@ static CURLcode dyn_nappend(struct dynbuf * s, const uchar * mem, size_t len)
 	if(a != s->allc) {
 		/* this logic is not using Curl_saferealloc() to make the tool not have to
 		   include that as well when it uses this code */
-		void * p = realloc(s->bufr, a);
+		void * p = SAlloc::R(s->bufr, a);
 		if(!p) {
 			Curl_safefree(s->bufr);
 			s->leng = s->allc = 0;
@@ -182,7 +182,7 @@ CURLcode Curl_dyn_vaddf(struct dynbuf * s, const char * fmt, va_list ap)
 	char * str = vaprintf(fmt, ap); /* this allocs a new string to append */
 	if(str) {
 		CURLcode result = dyn_nappend(s, (uchar *)str, strlen(str));
-		free(str);
+		SAlloc::F(str);
 		return result;
 	}
 	/* If we failed, we cleanup the whole buffer and return error */

@@ -1771,7 +1771,7 @@ int InitImpExpParam(PPImpExpParam * pParam, const char * pFileName, int forExpor
 	THROW(LoadSdRecord(PPREC_EMAILACCOUNT, &pParam->InrRec));
 	pParam->Direction  = forExport ? 0 : 1;
 	pParam->DataFormat = PPImpExpParam::dfText;
-	pParam->TdfParam.Flags |= TextDbFile::fOemText/*|TextDbFile::fVerticalRec*/;
+	pParam->TdfParam.Flags |= TextDbFile::fCpOem/*|TextDbFile::fVerticalRec*/;
 	pParam->TdfParam.FldDiv.CopyFrom(";");
 	pParam->FileName.CopyFrom(pFileName);
 	pParam->OtrRec = pParam->InrRec;

@@ -66,16 +66,16 @@ static uint64_t get_timer_bits(void);
  * macro that might be undefined.
  */
 # undef OSSL_POSIX_TIMER_OKAY
-# if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
-#  if defined(__GLIBC__)
+#if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
+#if defined(__GLIBC__)
 #   if defined(__GLIBC_PREREQ)
-#    if __GLIBC_PREREQ(2, 17)
+#if __GLIBC_PREREQ(2, 17)
 #     define OSSL_POSIX_TIMER_OKAY
-#    endif
+#endif
 #   endif
-#  else
+#else
 #   define OSSL_POSIX_TIMER_OKAY
-#  endif
+#endif
 #endif
 #endif /* defined(OPENSSL_SYS_UNIX) || defined(__DJGPP__) */
 #if defined(OPENSSL_RAND_SEED_NONE)
@@ -117,18 +117,18 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 	|| defined(OPENSSL_SYS_VMS) || defined(OPENSSL_SYS_VXWORKS) \
 	|| defined(OPENSSL_SYS_UEFI))
 
-# if defined(OPENSSL_SYS_VOS)
+#if defined(OPENSSL_SYS_VOS)
 
-#  ifndef OPENSSL_RAND_SEED_OS
+#ifndef OPENSSL_RAND_SEED_OS
 #   error "Unsupported seeding method configured; must be os"
-#  endif
+#endif
 
-#  if defined(OPENSSL_SYS_VOS_HPPA) && defined(OPENSSL_SYS_VOS_IA32)
+#if defined(OPENSSL_SYS_VOS_HPPA) && defined(OPENSSL_SYS_VOS_IA32)
 #   error "Unsupported HP-PA and IA32 at the same time."
-#  endif
-#  if !defined(OPENSSL_SYS_VOS_HPPA) && !defined(OPENSSL_SYS_VOS_IA32)
+#endif
+#if !defined(OPENSSL_SYS_VOS_HPPA) && !defined(OPENSSL_SYS_VOS_IA32)
 #   error "Must have one of HP-PA or IA32"
-#  endif
+#endif
 
 /*
  * The following algorithm repeatedly samples the real-time clock (RTC) to
@@ -151,13 +151,13 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 	size_t bytes_needed;
 	struct timespec ts;
 	uchar v;
-#  ifdef OPENSSL_SYS_VOS_HPPA
+#ifdef OPENSSL_SYS_VOS_HPPA
 	long duration;
 	extern void s$sleep(long * _duration, short int * _code);
-#  else
+#else
 	long long duration;
 	extern void s$sleep2(long long * _duration, short int * _code);
-#  endif
+#endif
 
 	bytes_needed = rand_pool_bytes_needed(pool, 4 /*entropy_factor*/);
 
@@ -169,15 +169,15 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 		for(k = 0; k < 99; k++)
 			ts.tv_nsec = random();
 
-#  ifdef OPENSSL_SYS_VOS_HPPA
+#ifdef OPENSSL_SYS_VOS_HPPA
 		/* sleep for 1/1024 of a second (976 us).  */
 		duration = 1;
 		s$sleep(&duration, &code);
-#  else
+#else
 		/* sleep for 1/65536 of a second (15 us).  */
 		duration = 1;
 		s$sleep2(&duration, &code);
-#  endif
+#endif
 
 		/* Get wall clock time, take 8 bits. */
 		clock_gettime(CLOCK_REALTIME, &ts);
@@ -197,28 +197,28 @@ void rand_pool_keep_random_devices_open(int keep)
 
 #else
 
-#  if defined(OPENSSL_RAND_SEED_EGD) && \
+#if defined(OPENSSL_RAND_SEED_EGD) && \
 	(defined(OPENSSL_NO_EGD) || !defined(DEVRANDOM_EGD))
 #   error "Seeding uses EGD but EGD is turned off or no device given"
-#  endif
+#endif
 
-#  if defined(OPENSSL_RAND_SEED_DEVRANDOM) && !defined(DEVRANDOM)
+#if defined(OPENSSL_RAND_SEED_DEVRANDOM) && !defined(DEVRANDOM)
 #   error "Seeding uses urandom but DEVRANDOM is not configured"
-#  endif
+#endif
 
-#  if defined(OPENSSL_RAND_SEED_OS)
+#if defined(OPENSSL_RAND_SEED_OS)
 #   if !defined(DEVRANDOM)
-#    error "OS seeding requires DEVRANDOM to be configured"
+#error "OS seeding requires DEVRANDOM to be configured"
 #   endif
 #   define OPENSSL_RAND_SEED_GETRANDOM
 #   define OPENSSL_RAND_SEED_DEVRANDOM
-#  endif
+#endif
 
-#  if defined(OPENSSL_RAND_SEED_LIBRANDOM)
+#if defined(OPENSSL_RAND_SEED_LIBRANDOM)
 #   error "librandom not (yet) supported"
-#  endif
+#endif
 
-#  if (defined(__FreeBSD__) || defined(__NetBSD__)) && defined(KERN_ARND)
+#if (defined(__FreeBSD__) || defined(__NetBSD__)) && defined(KERN_ARND)
 /*
  * sysctl_random(): Use sysctl() to read a random number from the kernel
  * Returns the number of bytes returned in buf on success, -1 on failure.
@@ -272,18 +272,18 @@ static ssize_t sysctl_random(char * buf, size_t buflen)
 	return done;
 }
 
-#  endif
+#endif
 
-#  if defined(OPENSSL_RAND_SEED_GETRANDOM)
+#if defined(OPENSSL_RAND_SEED_GETRANDOM)
 
 #   if defined(__linux) && !defined(__NR_getrandom)
-#    if defined(__arm__) && defined(__NR_SYSCALL_BASE)
+#if defined(__arm__) && defined(__NR_SYSCALL_BASE)
 #     define __NR_getrandom    (__NR_SYSCALL_BASE+384)
 #    elif defined(__i386__)
 #     define __NR_getrandom    355
 #    elif defined(__x86_64__) && !defined(__ILP32__)
 #     define __NR_getrandom    318
-#    endif
+#endif
 #   endif
 
 /*
@@ -312,12 +312,12 @@ static ssize_t syscall_random(void * buf, size_t buflen)
 	 * - Linux since 3.17 with glibc 2.25
 	 * - FreeBSD since 12.0 (1200061)
 	 */
-#  if defined(__GNUC__) && __GNUC__>=2 && defined(__ELF__) && !defined(__hpux)
+#if defined(__GNUC__) && __GNUC__>=2 && defined(__ELF__) && !defined(__hpux)
 	extern int getentropy(void * buffer, size_t length) __attribute__((weak));
 
 	if(getentropy != NULL)
 		return getentropy(buf, buflen) == 0 ? (ssize_t)buflen : -1;
-#  else
+#else
 	union {
 		void * p;
 		int (* f)(void * buffer, size_t length);
@@ -332,22 +332,22 @@ static ssize_t syscall_random(void * buf, size_t buflen)
 	ERR_pop_to_mark();
 	if(p_getentropy.p != NULL)
 		return p_getentropy.f(buf, buflen) == 0 ? (ssize_t)buflen : -1;
-#  endif
+#endif
 
 	/* Linux supports this since version 3.17 */
-#  if defined(__linux) && defined(__NR_getrandom)
+#if defined(__linux) && defined(__NR_getrandom)
 	return syscall(__NR_getrandom, buf, buflen, 0);
-#  elif (defined(__FreeBSD__) || defined(__NetBSD__)) && defined(KERN_ARND)
+#elif (defined(__FreeBSD__) || defined(__NetBSD__)) && defined(KERN_ARND)
 	return sysctl_random(buf, buflen);
-#  else
+#else
 	errno = ENOSYS;
 	return -1;
-#  endif
+#endif
 }
 
-#  endif    /* defined(OPENSSL_RAND_SEED_GETRANDOM) */
+#endif    /* defined(OPENSSL_RAND_SEED_GETRANDOM) */
 
-#  if defined(OPENSSL_RAND_SEED_DEVRANDOM)
+#if defined(OPENSSL_RAND_SEED_DEVRANDOM)
 static const char * random_device_paths[] = { DEVRANDOM };
 static struct random_device {
 	int fd;
@@ -432,7 +432,7 @@ static int wait_random_seeded(void)
 			 * If this call fails, it isn't a big problem.
 			 */
 			shm_addr = shmat(shm_id, NULL, SHM_RDONLY);
-			if(shm_addr != (void*)-1)
+			if(shm_addr != (void *)-1)
 				OPENSSL_atexit(&cleanup_shm);
 		}
 	}
@@ -535,7 +535,7 @@ void rand_pool_keep_random_devices_open(int keep)
 	keep_random_devices_open = keep;
 }
 
-#  else     /* !defined(OPENSSL_RAND_SEED_DEVRANDOM) */
+#else     /* !defined(OPENSSL_RAND_SEED_DEVRANDOM) */
 
 int rand_pool_init(void)
 {
@@ -550,7 +550,7 @@ void rand_pool_keep_random_devices_open(int keep)
 {
 }
 
-#  endif    /* defined(OPENSSL_RAND_SEED_DEVRANDOM) */
+#endif    /* defined(OPENSSL_RAND_SEED_DEVRANDOM) */
 
 /*
  * Try the various seeding methods in turn, exit when successful.
@@ -571,9 +571,9 @@ void rand_pool_keep_random_devices_open(int keep)
  */
 size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 {
-#  if defined(OPENSSL_RAND_SEED_NONE)
+#if defined(OPENSSL_RAND_SEED_NONE)
 	return rand_pool_entropy_available(pool);
-#  else
+#else
 	size_t entropy_available;
 
 #   if defined(OPENSSL_RAND_SEED_GETRANDOM)
@@ -690,7 +690,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #   endif
 
 	return rand_pool_entropy_available(pool);
-#  endif
+#endif
 }
 
 #endif
@@ -747,7 +747,7 @@ int rand_pool_add_additional_data(RAND_POOL * pool)
  */
 static uint64_t get_time_stamp(void)
 {
-# if defined(OSSL_POSIX_TIMER_OKAY)
+#if defined(OSSL_POSIX_TIMER_OKAY)
 	{
 		struct timespec ts;
 
@@ -755,7 +755,7 @@ static uint64_t get_time_stamp(void)
 			return TWO32TO64(ts.tv_sec, ts.tv_nsec);
 	}
 #endif
-# if defined(__unix__) \
+#if defined(__unix__) \
 	|| (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
 	{
 		struct timeval tv;
@@ -781,7 +781,7 @@ static uint64_t get_timer_bits(void)
 	if(res != 0)
 		return res;
 
-# if defined(__sun) || defined(__hpux)
+#if defined(__sun) || defined(__hpux)
 	return gethrtime();
 # elif defined(_AIX)
 	{
@@ -794,19 +794,19 @@ static uint64_t get_timer_bits(void)
 	{
 		struct timespec ts;
 
-#  ifdef CLOCK_BOOTTIME
+#ifdef CLOCK_BOOTTIME
 #   define CLOCK_TYPE CLOCK_BOOTTIME
-#  elif defined(_POSIX_MONOTONIC_CLOCK)
+#elif defined(_POSIX_MONOTONIC_CLOCK)
 #   define CLOCK_TYPE CLOCK_MONOTONIC
-#  else
+#else
 #   define CLOCK_TYPE CLOCK_REALTIME
-#  endif
+#endif
 
 		if(clock_gettime(CLOCK_TYPE, &ts) == 0)
 			return TWO32TO64(ts.tv_sec, ts.tv_nsec);
 	}
 #endif
-# if defined(__unix__) \
+#if defined(__unix__) \
 	|| (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
 	{
 		struct timeval tv;

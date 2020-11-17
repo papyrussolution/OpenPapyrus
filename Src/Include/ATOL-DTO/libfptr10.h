@@ -3,25 +3,25 @@
 
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64) || \
 	defined(__WIN32__) || defined(__TOS_WIN__) || defined(__WINDOWS__) || defined(_WINDOWS) || defined(_WIN32_WINCE)
-#  if defined(DTOX_LIBRARY)
-#    define DTOX_SHARED_EXPORT __declspec(dllexport)
-#  else
-#    define DTOX_SHARED_EXPORT __declspec(dllimport)
-#  endif
-#  define DTOX_SHARED_CCA __cdecl
-#elif defined(__linux) || defined(__linux__) || defined(linux) || defined(ANDROID)
-#  if __GNUC__ >= 4
-#    define DTOX_SHARED_EXPORT __attribute__((visibility("default")))
-#  else
-#    define DTOX_SHARED_EXPORT
-#  endif
-#  define DTOX_SHARED_CCA
-#elif defined(__APPLE__)
-#  define DTOX_SHARED_EXPORT __attribute__((visibility("default")))
-#  define DTOX_SHARED_CCA
+#if defined(DTOX_LIBRARY)
+#define DTOX_SHARED_EXPORT __declspec(dllexport)
 #else
-#  define DTOX_SHARED_EXPORT
-#  define DTOX_SHARED_CCA __attribute__ ((cdecl))
+#define DTOX_SHARED_EXPORT __declspec(dllimport)
+#endif
+#define DTOX_SHARED_CCA __cdecl
+#elif defined(__linux) || defined(__linux__) || defined(linux) || defined(ANDROID)
+#if __GNUC__ >= 4
+#define DTOX_SHARED_EXPORT __attribute__((visibility("default")))
+#else
+#define DTOX_SHARED_EXPORT
+#endif
+#define DTOX_SHARED_CCA
+#elif defined(__APPLE__)
+#define DTOX_SHARED_EXPORT __attribute__((visibility("default")))
+#define DTOX_SHARED_CCA
+#else
+#define DTOX_SHARED_EXPORT
+#define DTOX_SHARED_CCA __attribute__ ((cdecl))
 #endif
 
 #ifndef uchar

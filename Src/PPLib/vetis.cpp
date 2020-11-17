@@ -4983,6 +4983,79 @@ static SString & FASTCALL VGuidToStr(const S_GUID & rGuid, SString & rBuf)
 
 int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplicationBlock & rResult)
 {
+	/*
+<SOAP-ENV:Envelope 
+	xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2" 
+	xmlns:bs="http://api.vetrf.ru/schema/cdm/base" 
+	xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" 
+	xmlns:apldef="http://api.vetrf.ru/schema/cdm/application/ws-definitions" 
+	xmlns:apl="http://api.vetrf.ru/schema/cdm/application" 
+	xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" 
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header/>
+  <SOAP-ENV:Body>
+    <apldef:submitApplicationRequest>
+      <apldef:apiKey>apikey</apldef:apiKey>
+      <apl:application>
+        <apl:serviceId>mercury-g2b.service:2.0</apl:serviceId>
+        <apl:issuerId>issuerId</apl:issuerId>
+        <apl:issueDate>2017-09-18T19:58:14</apl:issueDate>
+        <apl:data>
+          <merc:modifyEnterpriseRequest>
+            <merc:localTransactionId>a10003</merc:localTransactionId>
+            <merc:initiator>
+              <vd:login>user_login</vd:login>
+            </merc:initiator>
+            <merc:modificationOperation>
+              <vd:type>CREATE</vd:type>
+              <vd:resultingList>
+                <dt:enterprise>
+                  <dt:name>Детский сад №4</dt:name>
+                  <dt:type>1</dt:type>
+                  <dt:address>
+                    <dt:country>
+                      <bs:guid>74a3cbb1-56fa-94f3-ab3f-e8db4940d96b</bs:guid>
+                    </dt:country>
+                    <dt:region>
+                      <bs:guid>b8837188-39ee-4ff9-bc91-fcc9ed451bb3</bs:guid>
+                    </dt:region>
+                    <dt:locality>
+                      <bs:guid>0d7d5d87-f0a6-428f-b655-d3be106c64a2</bs:guid>
+                    </dt:locality>
+                    <dt:addressView>600021, обл.Владимирская, г.Муром, ул.Октябрьской Революции,д.2Б</dt:addressView>
+                  </dt:address>
+                  <dt:activityList>
+                    <dt:activity>
+                      <dt:name>Приготовление полуфабрикатов</dt:name>
+                    </dt:activity>
+                    <dt:activity>
+                      <dt:name>Реализация пищевых продуктов</dt:name>
+                    </dt:activity>
+                    <dt:activity>
+                      <dt:name>Реализация непищевых продуктов</dt:name>
+                    </dt:activity>
+                  </dt:activityList>
+                  <dt:owner>
+                    <bs:guid>fcd89443-218a-11e2-a69b-b499babae7ea</bs:guid>
+                  </dt:owner>
+                  <dt:officialRegistration>
+                    <dt:ID>123456</dt:ID>
+                    <dt:businessEntity>
+                      <dt:inn>5702001741</dt:inn>
+                    </dt:businessEntity>
+                    <dt:kpp>570201001</dt:kpp>
+                  </dt:officialRegistration>
+                </dt:enterprise>
+              </vd:resultingList>
+              <vd:reason>Причина добавления предприятия в реестр вот такая вот.</vd:reason>
+            </merc:modificationOperation>
+          </merc:modifyEnterpriseRequest>
+        </apl:data>
+      </apl:application>
+    </apldef:submitApplicationRequest>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+	*/
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
@@ -4994,89 +5067,94 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyEnterprise) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-			n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ws"),     InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application/ws-definitions"));
-			n_env.PutAttrib(SXml::nst("xmlns", "app"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/applications"));
-			n_env.PutAttrib(SXml::nst("xmlns", "base"),   InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
-			n_env.PutAttrib(SXml::nst("xmlns", "com"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ent"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
-			n_env.PutAttrib(SXml::nst("xmlns", "ikar"),   InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "ws"),     InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application/ws-definitions"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "app"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "merc"),   InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/mercury/applications"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "base"),   InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/base"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "com"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/argus/common"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "ent"),    InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/cerberus/enterprise"));
+			//n_env.PutAttrib(SXml::nst("xmlns", "ikar"),   InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/ikar"));
+			n_env.PutAttrib_Ns("dt",     "api.vetrf.ru", "schema/cdm/dictionary/v2");
+			n_env.PutAttrib_Ns("bs",     "api.vetrf.ru", "schema/cdm/base");
+			n_env.PutAttrib_Ns("merc",   "api.vetrf.ru", "schema/cdm/mercury/g2b/applications/v2");
+			n_env.PutAttrib_Ns("apldef", "api.vetrf.ru", "schema/cdm/application/ws-definitions");
+			n_env.PutAttrib_Ns("apl",    "api.vetrf.ru", "schema/cdm/application");
+			n_env.PutAttrib_Ns("vd",     "api.vetrf.ru", "schema/cdm/mercury/vet-document/v2");
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
 				{
-					SXml::WNode n_f(srb, SXml::nst("ws", "submitApplicationRequest"));
-					n_f.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application/ws-definitions"));
+					SXml::WNode n_f(srb, SXml::nst("apldef", "submitApplicationRequest"));
 					P.GetExtStrData(extssApiKey, temp_buf);
-					n_f.PutInner(SXml::nst("ws", "apiKey"), temp_buf);
+					n_f.PutInner(SXml::nst("apldef", "apiKey"), temp_buf);
 					{
-						SXml::WNode n_app(srb, SXml::nst("app", "application"));
+						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						//n_app.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application"));
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
-						n_app.PutInner(SXml::nst("app", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
-						SXml::WNode n_data(srb, SXml::nst("app", "data"));
+						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisModifyEnterpriseRequest * p_req = static_cast<const VetisModifyEnterpriseRequest *>(rAppBlk.P_AppParam);
 							const VetisEnterprise & r_ent = p_req->En;
 							SXml::WNode n_req(srb, SXml::nst("merc", "modifyEnterpriseRequest"));
 							n_req.PutInner(SXml::nst("merc", "localTransactionId"), temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
-							PutInitiator(srb, "merc", "com", rAppBlk.User);
+							PutInitiator(srb, "merc", "vd", rAppBlk.User);
 							{
 								SXml::WNode n_n2(srb, SXml::nst("merc", "modificationOperation"));
 								SIntToSymbTab_GetSymb(VetisRegisterModificationType_SymbTab, SIZEOFARRAY(VetisRegisterModificationType_SymbTab), p_req->ModType, temp_buf);
-								n_n2.PutInner(SXml::nst("ent", "type"), temp_buf);
+								n_n2.PutInner(SXml::nst("vd", "type"), temp_buf);
 								{
-									SXml::WNode n_n3(srb, SXml::nst("ent", "resultingList"));
+									SXml::WNode n_n3(srb, SXml::nst("vd", "resultingList"));
 									PutListAttributes(n_n3, 1, 0, 1);
 									{
-										SXml::WNode n_n4(srb, SXml::nst("ent", "enterprise"));
+										SXml::WNode n_n4(srb, SXml::nst("dt", "enterprise"));
 										temp_buf.Z();
-										n_n4.PutInner(SXml::nst("ent", "name"), (temp_buf = r_ent.Name).Transf(CTRANSF_INNER_TO_UTF8));
-										n_n4.PutInner(SXml::nst("ent", "type"), temp_buf.Z().Cat(1L));
+										n_n4.PutInner(SXml::nst("dt", "name"), (temp_buf = r_ent.Name).Transf(CTRANSF_INNER_TO_UTF8));
+										n_n4.PutInner(SXml::nst("dt", "type"), temp_buf.Z().Cat(1L));
 										{
-											SXml::WNode n_adr(srb, SXml::nst("ent", "address"));
+											SXml::WNode n_adr(srb, SXml::nst("dt", "address"));
 											{
-												SXml::WNode n_c(srb, SXml::nst("ikar", "country"));
+												SXml::WNode n_c(srb, SXml::nst("dt", "country"));
 												if(!r_ent.Address.Country.Guid.IsZero())
 													r_ent.Address.Country.Guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 												else
 													temp_buf = P_VetisGuid_Country_Ru; // Россия
-												n_c.PutInner(SXml::nst("base", "guid"), temp_buf);
+												n_c.PutInner(SXml::nst("bs", "guid"), temp_buf);
 											}
 											{
-												SXml::WNode n_c(srb, SXml::nst("ikar", "region"));
+												SXml::WNode n_c(srb, SXml::nst("dt", "region"));
 												if(!r_ent.Address.Region.Guid.IsZero())
 													r_ent.Address.Region.Guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 												else
 													temp_buf = P_VetisGuid_Region_Ru_10; // Карелия
-												n_c.PutInner(SXml::nst("base", "guid"), temp_buf);
+												n_c.PutInner(SXml::nst("bs", "guid"), temp_buf);
 											}
 											{
-												SXml::WNode n_c(srb, SXml::nst("ikar", "locality"));
+												SXml::WNode n_c(srb, SXml::nst("dt", "locality"));
 												if(!r_ent.Address.Locality.Guid.IsZero())
 													r_ent.Address.Locality.Guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 												else
 													temp_buf = "ccc34487-8fd4-4e71-b032-f4e6c82fb354"; // Петрозаводск
-												n_c.PutInner(SXml::nst("base", "guid"), temp_buf);
+												n_c.PutInner(SXml::nst("bs", "guid"), temp_buf);
 											}
-											n_adr.PutInner(SXml::nst("ikar", "addressView"), (temp_buf = r_ent.Address.AddressView).Transf(CTRANSF_INNER_TO_UTF8));
+											n_adr.PutInner(SXml::nst("dt", "addressView"), (temp_buf = r_ent.Address.AddressView).Transf(CTRANSF_INNER_TO_UTF8));
 										}
 										{
-											SXml::WNode n_actl(srb, SXml::nst("ent", "activityList"));
+											SXml::WNode n_actl(srb, SXml::nst("dt", "activityList"));
 											PutListAttributes(n_actl, 1, 0, 1);
 											{
-												SXml::WNode n_act(srb, SXml::nst("ent", "activity"));
-												n_act.PutInner(SXml::nst("ent", "name"), temp_buf = "Реализация пищевых продуктов"); //<dt:name>Реализация пищевых продуктов</dt:name>
+												SXml::WNode n_act(srb, SXml::nst("dt", "activity"));
+												n_act.PutInner(SXml::nst("dt", "name"), temp_buf = "Реализация пищевых продуктов"); //<dt:name>Реализация пищевых продуктов</dt:name>
 											}
 										}
 										if(r_ent.P_Owner && !r_ent.P_Owner->Guid.IsZero()) {
-											SXml::WNode n_owner(srb, SXml::nst("ent", "owner"));
+											SXml::WNode n_owner(srb, SXml::nst("dt", "owner"));
 											r_ent.P_Owner->Guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
-											n_owner.PutInner(SXml::nst("base", "guid"), temp_buf);
+											n_owner.PutInner(SXml::nst("bs", "guid"), temp_buf);
 										}
 										/*if(r_ent.OfficialRegistration.getCount()) {
 											const VetisEnterpriseOfficialRegistration * p_ofr = r_ent.OfficialRegistration.at(0);
@@ -5091,7 +5169,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										}*/
 									}
 								}
-								n_n2.PutInner(SXml::nst("ent", "reason"), "I don't know. There is probably some reason."); //<vd:reason>Причина добавления предприятия в реестр вот такая вот.</vd:reason>
+								n_n2.PutInner(SXml::nst("vd", "reason"), "I don't know. There is probably some reason."); //<vd:reason>Причина добавления предприятия в реестр вот такая вот.</vd:reason>
 							}
 						}
 					}
@@ -5099,52 +5177,90 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 			}
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyActivityLocations) {
+			/*
+			<SOAP-ENV:Envelope 
+				xmlns:bs="http://api.vetrf.ru/schema/cdm/base" 
+				xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2" 
+				xmlns:apldef="http://api.vetrf.ru/schema/cdm/application/ws-definitions" 
+				xmlns:apl="http://api.vetrf.ru/schema/cdm/application" 
+				xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" 
+				xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+			  <SOAP-ENV:Header/>
+			  <SOAP-ENV:Body>
+				<apldef:submitApplicationRequest>
+				  <apldef:apiKey>apikey</apldef:apiKey>
+				  <apl:application>
+					<apl:serviceId>mercury-g2b.service:2.0</apl:serviceId>
+					<apl:issuerId>issuerId</apl:issuerId>
+					<apl:issueDate>2017-09-22T15:53:04</apl:issueDate>
+					<apl:data>
+					  <merc:modifyActivityLocationsRequest>
+						<merc:localTransactionId>a1797722714</merc:localTransactionId>
+						<merc:initiator>
+						  <vd:login>user_login</vd:login>
+						</merc:initiator>
+						<merc:modificationOperation>
+						  <vd:type>CREATE</vd:type>
+						  <vd:businessEntity>
+							<bs:guid>fcd89443-218a-11e2-a69b-b499babae7ea</bs:guid>
+						  </vd:businessEntity>
+						  <vd:activityLocation>
+							<vd:globalID>7574894948562</vd:globalID>
+							<vd:globalID>5412345123453</vd:globalID>
+							<vd:enterprise>
+							  <bs:guid>351d096d-0c5d-46a8-b5b1-67c3e26bff78</bs:guid>
+							</vd:enterprise>
+						  </vd:activityLocation>
+						</merc:modificationOperation>
+					  </merc:modifyActivityLocationsRequest>
+					</apl:data>
+				  </apl:application>
+				</apldef:submitApplicationRequest>
+			  </SOAP-ENV:Body>
+			</SOAP-ENV:Envelope>
+			*/
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst("xmlns", "soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
-			//n_env.PutAttrib(SXml::nst("xmlns", "xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-			//n_env.PutAttrib(SXml::nst("xmlns", "xsi"),     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-			n_env.PutAttrib_Ns("ws",   "api.vetrf.ru", "schema/cdm/application/ws-definitions");
-			n_env.PutAttrib_Ns("app",  "api.vetrf.ru", "schema/cdm/application");
-			n_env.PutAttrib_Ns("merc", "api.vetrf.ru", "schema/cdm/mercury/applications");
-			n_env.PutAttrib_Ns("bs",   "api.vetrf.ru", "schema/cdm/base");
-			n_env.PutAttrib_Ns("com",  "api.vetrf.ru", "schema/cdm/argus/common");
-			n_env.PutAttrib_Ns("ent",  "api.vetrf.ru", "schema/cdm/cerberus/enterprise");
-			n_env.PutAttrib_Ns("ikar", "api.vetrf.ru", "schema/cdm/ikar");
+			n_env.PutAttrib_Ns("bs", "api.vetrf.ru", "schema/cdm/base");
+			n_env.PutAttrib_Ns("merc", "api.vetrf.ru", "schema/cdm/mercury/g2b/applications/v2");
+			n_env.PutAttrib_Ns("apldef", "api.vetrf.ru", "schema/cdm/application/ws-definitions");
+			n_env.PutAttrib_Ns("apl", "api.vetrf.ru", "schema/cdm/application");
+			n_env.PutAttrib_Ns("vd", "api.vetrf.ru", "schema/cdm/mercury/vet-document/v2");
 			PutHeader(srb);
 			{
 				SXml::WNode n_bdy(srb, SXml::nst("soapenv", "Body"));
 				{
-					SXml::WNode n_f(srb, SXml::nst("ws", "submitApplicationRequest"));
+					SXml::WNode n_f(srb, SXml::nst("apldef", "submitApplicationRequest"));
 					P.GetExtStrData(extssApiKey, temp_buf);
-					n_f.PutInner(SXml::nst("ws", "apiKey"), temp_buf);
+					n_f.PutInner(SXml::nst("apldef", "apiKey"), temp_buf);
 					{
-						SXml::WNode n_app(srb, SXml::nst("app", "application"));
+						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						//n_app.PutAttrib("xmlns", InetUrl::MkHttp("api.vetrf.ru", "schema/cdm/application"));
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
-						n_app.PutInner(SXml::nst("app", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
-						SXml::WNode n_data(srb, SXml::nst("app", "data"));
+						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisModifyActivityLocationsRequest * p_req = static_cast<const VetisModifyActivityLocationsRequest *>(rAppBlk.P_AppParam);
 							const VetisEnterprise & r_ent = p_req->En;
 							const VetisBusinessEntity & r_be = p_req->Be;
 							SXml::WNode n_req(srb, SXml::nst("merc", "modifyActivityLocationsRequest"));
 							n_req.PutInner(SXml::nst("merc", "localTransactionId"), temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
-							PutInitiator(srb, "merc", "com", rAppBlk.User);
+							PutInitiator(srb, "merc", "vd", rAppBlk.User);
 							{
 								SXml::WNode n_n2(srb, SXml::nst("merc", "modificationOperation"));
 								SIntToSymbTab_GetSymb(VetisRegisterModificationType_SymbTab, SIZEOFARRAY(VetisRegisterModificationType_SymbTab), p_req->ModType, temp_buf);
-								n_n2.PutInner(SXml::nst("ent", "type"), temp_buf);
+								n_n2.PutInner(SXml::nst("vd", "type"), temp_buf);
 								{
-									SXml::WNode n_be(srb, SXml::nst("ent", "businessEntity"));
+									SXml::WNode n_be(srb, SXml::nst("vd", "businessEntity"));
 									PutNonZeroGuid(n_be, "bs", r_be.Guid);
 								}
 								{
-									SXml::WNode n_el(srb, SXml::nst("ent", "enterpriseList"));
-									PutListAttributes(n_el, 1, 0, 1);
+									SXml::WNode n_el(srb, SXml::nst("vd", "activityLocation"));
+									//PutListAttributes(n_el, 1, 0, 1);
 									{
-										SXml::WNode n_en(srb, SXml::nst("ent", "enterprise"));
+										SXml::WNode n_en(srb, SXml::nst("vd", "enterprise"));
 										PutNonZeroGuid(n_en, "bs", r_ent.Guid);
 									}
 								}
@@ -7678,7 +7794,7 @@ int PPVetisInterface::ModifyEnterprise(VetisRegisterModificationType modType, co
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(1, &app_data); // @problem-vetis-ver1
+		VetisApplicationBlock blk(2, &app_data); // @problem-vetis-ver1 // @v10.9.3 ver 1-->2
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));
@@ -7698,7 +7814,7 @@ int PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationType modT
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(1, &app_data); // @problem-vetis-ver1
+		VetisApplicationBlock blk(2, &app_data); // @problem-vetis-ver1 // @v10.9.3 ver 1-->2
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, rReply, 0/*once*/));

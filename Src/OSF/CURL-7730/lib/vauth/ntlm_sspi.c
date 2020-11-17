@@ -32,7 +32,7 @@
 #include "curl_ntlm_core.h"
 #include "warnless.h"
 #include "curl_multibyte.h"
-#include "sendf.h"
+//#include "sendf.h"
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
@@ -114,7 +114,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 	s_pSecFn->FreeContextBuffer(SecurityPackage);
 
 	/* Allocate our output buffer */
-	ntlm->output_token = malloc(ntlm->token_max);
+	ntlm->output_token = SAlloc::M(ntlm->token_max);
 	if(!ntlm->output_token)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -134,7 +134,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 		ntlm->p_identity = NULL;
 
 	/* Allocate our credentials handle */
-	ntlm->credentials = calloc(1, sizeof(CredHandle));
+	ntlm->credentials = SAlloc::C(1, sizeof(CredHandle));
 	if(!ntlm->credentials)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -148,7 +148,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 		return CURLE_LOGIN_DENIED;
 
 	/* Allocate our new context handle */
-	ntlm->context = calloc(1, sizeof(CtxtHandle));
+	ntlm->context = SAlloc::C(1, sizeof(CtxtHandle));
 	if(!ntlm->context)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -353,14 +353,14 @@ void Curl_auth_cleanup_ntlm(struct ntlmdata * ntlm)
 	/* Free our security context */
 	if(ntlm->context) {
 		s_pSecFn->DeleteSecurityContext(ntlm->context);
-		free(ntlm->context);
+		SAlloc::F(ntlm->context);
 		ntlm->context = NULL;
 	}
 
 	/* Free our credentials handle */
 	if(ntlm->credentials) {
 		s_pSecFn->FreeCredentialsHandle(ntlm->credentials);
-		free(ntlm->credentials);
+		SAlloc::F(ntlm->credentials);
 		ntlm->credentials = NULL;
 	}
 

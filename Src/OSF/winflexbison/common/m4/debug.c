@@ -307,13 +307,10 @@ void trace_pre(const char * name, int id, int argc, token_data ** argv)
 		for(i = 1; i < argc; i++) {
 			if(i != 1)
 				trace_format(", ");
-
-			switch(TOKEN_DATA_TYPE(argv[i]))
-			{
+			switch(TOKEN_DATA_TYPE(argv[i])) {
 				case TOKEN_TEXT:
 				    trace_format("%l%S%r", TOKEN_DATA_TEXT(argv[i]));
 				    break;
-
 				case TOKEN_FUNC:
 				    bp = find_builtin_by_addr(TOKEN_DATA_FUNC(argv[i]));
 				    if(bp == NULL) {
@@ -331,7 +328,6 @@ void trace_pre(const char * name, int id, int argc, token_data ** argv)
 		}
 		trace_format(")");
 	}
-
 	if(debug_level & DEBUG_TRACE_CALL) {
 		trace_format(" -> ???");
 		trace_flush();

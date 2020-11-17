@@ -200,7 +200,7 @@ static void MD4_Init(MD4_CTX * ctx)
 static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 {
 	if(ctx->data == NULL) {
-		ctx->data = malloc(size);
+		ctx->data = SAlloc::M(size);
 		if(ctx->data != NULL) {
 			memcpy(ctx->data, data, size);
 			ctx->size = size;

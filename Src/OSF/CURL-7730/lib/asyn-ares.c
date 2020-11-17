@@ -45,35 +45,32 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
-#ifdef HAVE_PROCESS_H
-#include <process.h>
-#endif
-
+//#ifdef HAVE_PROCESS_H
+	//#include <process.h>
+//#endif
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
-#undef in_addr_t
-#define in_addr_t ulong
+	#undef in_addr_t
+	#define in_addr_t ulong
 #endif
-
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "hash.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "hash.h"
 #include "share.h"
 #include "strerror.h"
 #include "url.h"
 #include "multiif.h"
 #include "inet_pton.h"
-#include "connect.h"
+//#include "connect.h"
 #include "select.h"
-#include "progress.h"
+//#include "progress.h"
 
-#  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
+#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
 	defined(WIN32)
-#    define CARES_STATICLIB
-#  endif
-#  include <ares.h>
-#  include <ares_version.h> /* really old c-ares didn't include this by
+#define CARES_STATICLIB
+#endif
+#include <ares.h>
+#include <ares_version.h> /* really old c-ares didn't include this by
                                itself */
 
 #if ARES_VERSION >= 0x010500
@@ -227,7 +224,7 @@ void Curl_resolver_kill(struct connectdata * conn)
  */
 static void destroy_async_data(struct Curl_async * async)
 {
-	free(async->hostname);
+	SAlloc::F(async->hostname);
 
 	if(async->os_specific) {
 		struct ResolverResults * res = (struct ResolverResults *)async->os_specific;
@@ -236,7 +233,7 @@ static void destroy_async_data(struct Curl_async * async)
 				Curl_freeaddrinfo(res->temp_ai);
 				res->temp_ai = NULL;
 			}
-			free(res);
+			SAlloc::F(res);
 		}
 		async->os_specific = NULL;
 	}
@@ -645,18 +642,18 @@ struct Curl_addrinfo * Curl_resolver_getaddrinfo(struct connectdata * conn,
 	}
 #endif /* ENABLE_IPV6 */
 
-	bufp = strdup(hostname);
+	bufp = sstrdup(hostname);
 	if(bufp) {
 		struct ResolverResults * res = NULL;
-		free(conn->async.hostname);
+		SAlloc::F(conn->async.hostname);
 		conn->async.hostname = bufp;
 		conn->async.port = port;
 		conn->async.done = FALSE; /* not done */
 		conn->async.status = 0; /* clear */
 		conn->async.dns = NULL; /* clear */
-		res = calloc(sizeof(struct ResolverResults), 1);
+		res = SAlloc::C(sizeof(struct ResolverResults), 1);
 		if(!res) {
-			free(conn->async.hostname);
+			SAlloc::F(conn->async.hostname);
 			conn->async.hostname = NULL;
 			return NULL;
 		}

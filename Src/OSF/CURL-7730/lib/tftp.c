@@ -43,13 +43,13 @@
 #endif
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "tftp.h"
-#include "progress.h"
-#include "connect.h"
+//#include "progress.h"
+//#include "connect.h"
 #include "strerror.h"
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "multiif.h"
 #include "url.h"
 #include "strcase.h"
@@ -485,7 +485,7 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 
 		    if(strlen(filename) > (state->blksize - strlen(mode) - 4)) {
 			    failf(data, "TFTP file name too long\n");
-			    free(filename);
+			    SAlloc::F(filename);
 			    return CURLE_TFTP_ILLEGAL; /* too long file name field */
 		    }
 
@@ -533,7 +533,7 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 
 			    if(result != CURLE_OK) {
 				    failf(data, "TFTP buffer too small for options");
-				    free(filename);
+				    SAlloc::F(filename);
 				    return CURLE_TFTP_ILLEGAL;
 			    }
 		    }
@@ -548,7 +548,7 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 			    char buffer[STRERROR_LEN];
 			    failf(data, "%s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
 		    }
-		    free(filename);
+		    SAlloc::F(filename);
 		    break;
 
 		case TFTP_EVENT_OACK:
@@ -946,7 +946,7 @@ static CURLcode tftp_disconnect(struct connectdata * conn, bool dead_connection)
 	if(state) {
 		Curl_safefree(state->rpacket.data);
 		Curl_safefree(state->spacket.data);
-		free(state);
+		SAlloc::F(state);
 	}
 
 	return CURLE_OK;
@@ -963,7 +963,7 @@ static CURLcode tftp_connect(struct connectdata * conn, bool * done)
 {
 	int need_blksize;
 	int blksize = TFTP_BLKSIZE_DEFAULT;
-	struct tftp_state_data * state = (conn->proto.tftpc = (struct tftp_state_data *)calloc(1, sizeof(struct tftp_state_data)));
+	struct tftp_state_data * state = (conn->proto.tftpc = (struct tftp_state_data *)SAlloc::C(1, sizeof(struct tftp_state_data)));
 	if(!state)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -980,14 +980,14 @@ static CURLcode tftp_connect(struct connectdata * conn, bool * done)
 		need_blksize = TFTP_BLKSIZE_DEFAULT;
 
 	if(!state->rpacket.data) {
-		state->rpacket.data = (uchar *)calloc(1, need_blksize + 2 + 2);
+		state->rpacket.data = (uchar *)SAlloc::C(1, need_blksize + 2 + 2);
 
 		if(!state->rpacket.data)
 			return CURLE_OUT_OF_MEMORY;
 	}
 
 	if(!state->spacket.data) {
-		state->spacket.data = (uchar *)calloc(1, need_blksize + 2 + 2);
+		state->spacket.data = (uchar *)SAlloc::C(1, need_blksize + 2 + 2);
 
 		if(!state->spacket.data)
 			return CURLE_OUT_OF_MEMORY;

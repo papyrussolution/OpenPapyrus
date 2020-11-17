@@ -464,8 +464,8 @@ __owur int CTLOG_STORE_load_file(CTLOG_STORE * store, const char * file);
  */
 __owur int CTLOG_STORE_load_default_file(CTLOG_STORE * store);
 
-#  ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-#  endif
+#endif
 #endif
 #endif

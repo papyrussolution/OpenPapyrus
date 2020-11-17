@@ -93,6 +93,7 @@ struct json_t {
 	int    FASTCALL InsertDouble(const char * pTextLabel, double val, long fmt);
 	int    FASTCALL InsertInt(const char * pTextLabel, int val);
 	int    FASTCALL InsertInt64(const char * pTextLabel, int64 val);
+	int    FASTCALL InsertBool(const char * pTextLabel, bool val);
 	int    FASTCALL InsertNull(const char * pTextLabel);
 
 	int    Type; // the type of node

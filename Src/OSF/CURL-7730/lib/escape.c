@@ -89,7 +89,7 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 
 	length = (inlength ? (size_t)inlength : strlen(string));
 	if(!length)
-		return strdup("");
+		return sstrdup("");
 
 	while(length--) {
 		uchar in = *string; /* we need to treat the characters unsigned */
@@ -153,7 +153,7 @@ CURLcode Curl_urldecode(struct Curl_easy * data,
 	DEBUGASSERT(ctrl >= REJECT_NADA); /* crash on TRUE/FALSE */
 
 	alloc = (length ? length : strlen(string)) + 1;
-	ns = (char *)malloc(alloc);
+	ns = (char *)SAlloc::M(alloc);
 
 	if(!ns)
 		return CURLE_OUT_OF_MEMORY;
@@ -177,7 +177,7 @@ CURLcode Curl_urldecode(struct Curl_easy * data,
 				result = Curl_convert_from_network(data, (char *)&in, 1);
 				if(result) {
 					/* Curl_convert_from_network calls failf if unsuccessful */
-					free(ns);
+					SAlloc::F(ns);
 					return result;
 				}
 			}
@@ -188,7 +188,7 @@ CURLcode Curl_urldecode(struct Curl_easy * data,
 
 		if(((ctrl == REJECT_CTRL) && (in < 0x20)) ||
 		    ((ctrl == REJECT_ZERO) && (in == 0))) {
-			free(ns);
+			SAlloc::F(ns);
 			return CURLE_URL_MALFORMAT;
 		}
 
@@ -241,5 +241,5 @@ char * curl_easy_unescape(struct Curl_easy * data, const char * string,
    the library's memory system */
 void curl_free(void * p)
 {
-	free(p);
+	SAlloc::F(p);
 }

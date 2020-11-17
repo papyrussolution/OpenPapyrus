@@ -26,7 +26,7 @@
 //#include <curl/curl.h>
 #include "non-ascii.h"
 #include "formdata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "urldata.h"
 #include "multiif.h"
 
@@ -58,14 +58,14 @@ CURLcode Curl_convert_clone(struct Curl_easy * data,
 	char * convbuf;
 	CURLcode result;
 
-	convbuf = malloc(insize);
+	convbuf = SAlloc::M(insize);
 	if(!convbuf)
 		return CURLE_OUT_OF_MEMORY;
 
 	memcpy(convbuf, indata, insize);
 	result = Curl_convert_to_network(data, convbuf, insize);
 	if(result) {
-		free(convbuf);
+		SAlloc::F(convbuf);
 		return result;
 	}
 

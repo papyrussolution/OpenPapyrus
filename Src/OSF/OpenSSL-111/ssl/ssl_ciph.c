@@ -1234,7 +1234,7 @@ static int check_suiteb_cipher_list(const SSL_METHOD * meth, CERT * c,
 # else
 	SSLerr(SSL_F_CHECK_SUITEB_CIPHER_LIST, SSL_R_ECDH_REQUIRED_FOR_SUITEB_MODE);
 	return 0;
-# endif
+#endif
 }
 
 #endif

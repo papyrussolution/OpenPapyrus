@@ -71,18 +71,18 @@ struct Curl_URL {
 
 static void free_urlhandle(struct Curl_URL * u)
 {
-	free(u->scheme);
-	free(u->user);
-	free(u->password);
-	free(u->options);
-	free(u->host);
-	free(u->zoneid);
-	free(u->port);
-	free(u->path);
-	free(u->query);
-	free(u->fragment);
-	free(u->scratch);
-	free(u->temppath);
+	SAlloc::F(u->scheme);
+	SAlloc::F(u->user);
+	SAlloc::F(u->password);
+	SAlloc::F(u->options);
+	SAlloc::F(u->host);
+	SAlloc::F(u->zoneid);
+	SAlloc::F(u->port);
+	SAlloc::F(u->path);
+	SAlloc::F(u->query);
+	SAlloc::F(u->fragment);
+	SAlloc::F(u->scratch);
+	SAlloc::F(u->temppath);
 }
 
 /* move the full contents of one handle onto another and
@@ -92,7 +92,7 @@ static void mv_urlhandle(struct Curl_URL * from,
 {
 	free_urlhandle(to);
 	*to = *from;
-	free(from);
+	SAlloc::F(from);
 }
 
 /*
@@ -281,7 +281,7 @@ static char * concat_url(const char * base, const char * relurl)
 
 	/* we must make our own copy of the URL to play with, as it may
 	   point to read-only data */
-	char * url_clone = strdup(base);
+	char * url_clone = sstrdup(base);
 
 	if(!url_clone)
 		return NULL; /* skip out of this NOW */
@@ -389,9 +389,9 @@ static char * concat_url(const char * base, const char * relurl)
 	 */
 	newlen = strlen_url(useurl, !host_changed);
 	urllen = strlen(url_clone);
-	newest = static_cast<char *>(malloc(urllen + 1 + /* possible slash */ newlen + 1 /* zero byte */));
+	newest = static_cast<char *>(SAlloc::M(urllen + 1 + /* possible slash */ newlen + 1 /* zero byte */));
 	if(!newest) {
-		free(url_clone); /* don't leak this */
+		SAlloc::F(url_clone); /* don't leak this */
 		return NULL;
 	}
 	/* copy over the root url part */
@@ -403,7 +403,7 @@ static char * concat_url(const char * base, const char * relurl)
 		newest[urllen++] = '/';
 	/* then append the new piece on the right side */
 	strcpy_url(&newest[urllen], useurl, !host_changed);
-	free(url_clone);
+	SAlloc::F(url_clone);
 	return newest;
 }
 
@@ -477,9 +477,9 @@ static CURLUcode parse_hostname_login(struct Curl_URL * u,
 	return CURLUE_OK;
 out:
 
-	free(userp);
-	free(passwdp);
-	free(optionsp);
+	SAlloc::F(userp);
+	SAlloc::F(passwdp);
+	SAlloc::F(optionsp);
 
 	return result;
 }
@@ -553,7 +553,7 @@ UNITTEST CURLUcode Curl_parse_port(struct Curl_URL * u, char * hostname)
 		/* generate a new port number string to get rid of leading zeroes etc */
 		msnprintf(portbuf, sizeof(portbuf), "%ld", port);
 		u->portnum = port;
-		u->port = strdup(portbuf);
+		u->port = sstrdup(portbuf);
 		if(!u->port)
 			return CURLUE_OUT_OF_MEMORY;
 	}
@@ -618,7 +618,7 @@ static CURLUcode hostname_check(struct Curl_URL * u, char * hostname)
 				if(!i || (']' != *h))
 					return CURLUE_MALFORMED_INPUT;
 				zoneid[i] = 0;
-				u->zoneid = strdup(zoneid);
+				u->zoneid = sstrdup(zoneid);
 				if(!u->zoneid)
 					return CURLUE_OUT_OF_MEMORY;
 				hostname[len] = ']'; /* insert end bracket */
@@ -672,7 +672,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 	if(urllen > CURL_MAX_INPUT_LENGTH)
 		/* excessive input length */
 		return CURLUE_MALFORMED_INPUT;
-	path = u->scratch = static_cast<char *>(malloc(urllen * 2 + 2));
+	path = u->scratch = static_cast<char *>(SAlloc::M(urllen * 2 + 2));
 	if(!path)
 		return CURLUE_OUT_OF_MEMORY;
 
@@ -690,7 +690,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 		strcpy(path, &url[5]);
 
 		hostname = NULL; /* no host for file: URLs */
-		u->scheme = strdup("file");
+		u->scheme = sstrdup("file");
 		if(!u->scheme)
 			return CURLUE_OUT_OF_MEMORY;
 
@@ -810,7 +810,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 		path[len] = 0;
 
 		if(schemep) {
-			u->scheme = strdup(schemep);
+			u->scheme = sstrdup(schemep);
 			if(!u->scheme)
 				return CURLUE_OUT_OF_MEMORY;
 		}
@@ -821,7 +821,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 
 	if((flags & CURLU_URLENCODE) && path[0]) {
 		/* worst case output length is 3x the original! */
-		char * newp = static_cast<char *>(malloc(strlen(path) * 3));
+		char * newp = static_cast<char *>(SAlloc::M(strlen(path) * 3));
 		if(!newp)
 			return CURLUE_OUT_OF_MEMORY;
 		path_alloced = TRUE;
@@ -833,7 +833,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 	if(fragment) {
 		*fragment++ = 0;
 		if(fragment[0]) {
-			u->fragment = strdup(fragment);
+			u->fragment = sstrdup(fragment);
 			if(!u->fragment)
 				return CURLUE_OUT_OF_MEMORY;
 		}
@@ -843,7 +843,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 	if(query) {
 		*query++ = 0;
 		/* done even if the query part is a blank string */
-		u->query = strdup(query);
+		u->query = sstrdup(query);
 		if(!u->query)
 			return CURLUE_OUT_OF_MEMORY;
 	}
@@ -866,10 +866,10 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 				path_alloced = TRUE;
 			}
 			else
-				free(newp);
+				SAlloc::F(newp);
 		}
 
-		u->path = path_alloced ? path : strdup(path);
+		u->path = path_alloced ? path : sstrdup(path);
 		if(!u->path)
 			return CURLUE_OUT_OF_MEMORY;
 		u->temppath = NULL; /* used now */
@@ -899,7 +899,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 				return result;
 		}
 
-		u->host = strdup(hostname);
+		u->host = sstrdup(hostname);
 		if(!u->host)
 			return CURLUE_OUT_OF_MEMORY;
 
@@ -919,7 +919,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 				schemep = "pop3";
 			else
 				schemep = "http";
-			u->scheme = strdup(schemep);
+			u->scheme = sstrdup(schemep);
 			if(!u->scheme)
 				return CURLUE_OUT_OF_MEMORY;
 		}
@@ -944,27 +944,27 @@ static CURLUcode parseurl(const char * url, CURLU * u, unsigned int flags)
  */
 CURLU * curl_url(void)
 {
-	return static_cast<CURLU *>(calloc(sizeof(struct Curl_URL), 1));
+	return static_cast<CURLU *>(SAlloc::C(sizeof(struct Curl_URL), 1));
 }
 
 void curl_url_cleanup(CURLU * u)
 {
 	if(u) {
 		free_urlhandle(u);
-		free(u);
+		SAlloc::F(u);
 	}
 }
 
 #define DUP(dest, src, name)         \
 	if(src->name) {                    \
-		dest->name = strdup(src->name);  \
+		dest->name = sstrdup(src->name);  \
 		if(!dest->name)                  \
 			goto fail;                     \
 	}
 
 CURLU * curl_url_dup(CURLU * in)
 {
-	struct Curl_URL * u = static_cast<struct Curl_URL *>(calloc(sizeof(struct Curl_URL), 1));
+	struct Curl_URL * u = static_cast<struct Curl_URL *>(SAlloc::C(sizeof(struct Curl_URL), 1));
 	if(u) {
 		DUP(u, in, scheme);
 		DUP(u, in, user);
@@ -1048,7 +1048,7 @@ CURLUcode curl_url_get(CURLU * u, CURLUPart what, char ** part, unsigned int fla
 		case CURLUPART_PATH:
 		    ptr = u->path;
 		    if(!ptr) {
-			    ptr = u->path = strdup("/");
+			    ptr = u->path = sstrdup("/");
 			    if(!u->path)
 				    return CURLUE_OUT_OF_MEMORY;
 		    }
@@ -1106,7 +1106,7 @@ CURLUcode curl_url_get(CURLU * u, CURLUPart what, char ** part, unsigned int fla
 				    /* make it '[ host %25 zoneid ]' */
 				    size_t hostlen = strlen(u->host);
 				    size_t alen = hostlen + 3 + strlen(u->zoneid) + 1;
-				    allochost = static_cast<char *>(malloc(alen));
+				    allochost = static_cast<char *>(SAlloc::M(alen));
 				    if(!allochost)
 					    return CURLUE_OUT_OF_MEMORY;
 				    memcpy(allochost, u->host, hostlen - 1);
@@ -1118,7 +1118,7 @@ CURLUcode curl_url_get(CURLU * u, CURLUPart what, char ** part, unsigned int fla
 				    allochost ? allochost : u->host, port ? ":" : "", port ? port : "", (u->path && (u->path[0] != '/')) ? "/" : "",
 				    u->path ? u->path : "/", (u->query && u->query[0]) ? "?" : "", (u->query && u->query[0]) ? u->query : "",
 				    u->fragment ? "#" : "", u->fragment ? u->fragment : "");
-			    free(allochost);
+			    SAlloc::F(allochost);
 		    }
 		    if(!url)
 			    return CURLUE_OUT_OF_MEMORY;
@@ -1130,7 +1130,7 @@ CURLUcode curl_url_get(CURLU * u, CURLUPart what, char ** part, unsigned int fla
 		    break;
 	}
 	if(ptr) {
-		*part = strdup(ptr);
+		*part = sstrdup(ptr);
 		if(!*part)
 			return CURLUE_OUT_OF_MEMORY;
 		if(plusdecode) {
@@ -1148,7 +1148,7 @@ CURLUcode curl_url_get(CURLU * u, CURLUPart what, char ** part, unsigned int fla
 			   API behavior */
 			CURLcode res = Curl_urldecode(NULL, *part, 0, &decoded, &dlen,
 				REJECT_CTRL);
-			free(*part);
+			SAlloc::F(*part);
 			if(res) {
 				*part = NULL;
 				return CURLUE_URLDECODE;
@@ -1313,18 +1313,18 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 
 		    /* apply the relative part to create a new URL */
 		    redired_url = concat_url(oldurl, part);
-		    free(oldurl);
+		    SAlloc::F(oldurl);
 		    if(!redired_url)
 			    return CURLUE_OUT_OF_MEMORY;
 
 		    /* now parse the new URL */
 		    handle2 = curl_url();
 		    if(!handle2) {
-			    free(redired_url);
+			    SAlloc::F(redired_url);
 			    return CURLUE_OUT_OF_MEMORY;
 		    }
 		    result = parseurl(redired_url, handle2, flags);
-		    free(redired_url);
+		    SAlloc::F(redired_url);
 		    if(!result)
 			    mv_urlhandle(handle2, u);
 		    else
@@ -1347,7 +1347,7 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			const uchar * i;
 			char * o;
 			bool free_part = FALSE;
-			char * enc = static_cast<char *>(malloc(nalloc * 3 + 1)); /* for worst case! */
+			char * enc = static_cast<char *>(SAlloc::M(nalloc * 3 + 1)); /* for worst case! */
 			if(!enc)
 				return CURLUE_OUT_OF_MEMORY;
 			if(plusencode) {
@@ -1356,9 +1356,9 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 				for(o = enc; *i; ++o, ++i)
 					*o = (*i == ' ') ? '+' : *i;
 				*o = 0; /* null-terminate */
-				part = strdup(enc);
+				part = sstrdup(enc);
 				if(!part) {
-					free(enc);
+					SAlloc::F(enc);
 					return CURLUE_OUT_OF_MEMORY;
 				}
 				free_part = TRUE;
@@ -1382,11 +1382,11 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			*o = 0; /* null-terminate */
 			newp = enc;
 			if(free_part)
-				free((char *)part);
+				SAlloc::F((char *)part);
 		}
 		else {
 			char * p;
-			newp = strdup(part);
+			newp = sstrdup(part);
 			if(!newp)
 				return CURLUE_OUT_OF_MEMORY;
 			p = (char *)newp;
@@ -1410,17 +1410,17 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			bool addamperand = querylen && (u->query[querylen -1] != '&');
 			if(querylen) {
 				size_t newplen = strlen(newp);
-				char * p = static_cast<char *>(malloc(querylen + addamperand + newplen + 1));
+				char * p = static_cast<char *>(SAlloc::M(querylen + addamperand + newplen + 1));
 				if(!p) {
-					free((char *)newp);
+					SAlloc::F((char *)newp);
 					return CURLUE_OUT_OF_MEMORY;
 				}
 				strcpy(p, u->query); /* original query */
 				if(addamperand)
 					p[querylen] = '&'; /* ampersand */
 				strcpy(&p[querylen + addamperand], newp); /* new suffix */
-				free((char *)newp);
-				free(*storep);
+				SAlloc::F((char *)newp);
+				SAlloc::F(*storep);
 				*storep = p;
 				return CURLUE_OK;
 			}
@@ -1432,13 +1432,13 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			}
 			else {
 				if(hostname_check(u, (char *)newp)) {
-					free((char *)newp);
+					SAlloc::F((char *)newp);
 					return CURLUE_MALFORMED_INPUT;
 				}
 			}
 		}
 
-		free(*storep);
+		SAlloc::F(*storep);
 		*storep = (char *)newp;
 	}
 	/* set after the string, to make it not assigned if the allocation above

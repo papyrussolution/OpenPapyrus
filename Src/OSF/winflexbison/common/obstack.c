@@ -275,7 +275,7 @@ int _obstack_allocated_p(struct obstack * h, void * obj)
 	/* We use >= rather than > since the object cannot be exactly at
 	   the beginning of the chunk but might be an empty object exactly
 	   at the end of an adjacent chunk.  */
-	while(lp != 0 && ((void*)lp >= obj || (void*)(lp)->limit < obj)) {
+	while(lp != 0 && ((void *)lp >= obj || (void *)(lp)->limit < obj)) {
 		plp = lp->prev;
 		lp = plp;
 	}
@@ -294,7 +294,7 @@ void __obstack_free(struct obstack * h, void * obj)
 	/* We use >= because there cannot be an object at the beginning of a chunk.
 	   But there can be an empty object at that address
 	   at the end of another chunk.  */
-	while(lp != 0 && ((void*)lp >= obj || (void*)(lp)->limit < obj)) {
+	while(lp != 0 && ((void *)lp >= obj || (void *)(lp)->limit < obj)) {
 		plp = lp->prev;
 		CALL_FREEFUN(h, lp);
 		lp = plp;

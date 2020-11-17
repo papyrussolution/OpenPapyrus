@@ -45,11 +45,11 @@
 #endif
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "telnet.h"
-#include "connect.h"
-#include "progress.h"
+//#include "connect.h"
+//#include "progress.h"
 #include "system_win32.h"
 #include "arpa_telnet.h"
 #include "select.h"
@@ -191,7 +191,7 @@ const struct Curl_handler Curl_handler_telnet = {
 
 static CURLcode init_telnet(struct connectdata * conn)
 {
-	struct TELNET * tn = (struct TELNET *)calloc(1, sizeof(struct TELNET));
+	struct TELNET * tn = (struct TELNET *)SAlloc::C(1, sizeof(struct TELNET));
 	if(!tn)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -1179,7 +1179,7 @@ static CURLcode send_telnet_data(struct connectdata * conn,
 		outbuf = (uchar *)buffer;
 	else {
 		ssize_t j;
-		outbuf = (uchar *)malloc(nread + escapes + 1);
+		outbuf = (uchar *)SAlloc::M(nread + escapes + 1);
 		if(!outbuf)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -1216,7 +1216,7 @@ static CURLcode send_telnet_data(struct connectdata * conn,
 
 	/* Free malloc copy if escaped */
 	if(outbuf != (uchar *)buffer)
-		free(outbuf);
+		SAlloc::F(outbuf);
 
 	return result;
 }

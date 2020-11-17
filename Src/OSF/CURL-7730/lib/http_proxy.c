@@ -26,13 +26,13 @@
 
 #if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 //#include <curl/curl.h>
-#include "sendf.h"
+//#include "sendf.h"
 #include "http.h"
 #include "url.h"
 #include "select.h"
-#include "progress.h"
+//#include "progress.h"
 #include "non-ascii.h"
-#include "connect.h"
+//#include "connect.h"
 #include "curlx.h"
 #include "vtls/vtls.h"
 
@@ -150,7 +150,7 @@ static CURLcode connect_init(struct connectdata * conn, bool reinit)
 	struct http_connect_state * s;
 	if(!reinit) {
 		DEBUGASSERT(!conn->connect_state);
-		s = (struct http_connect_state *)calloc(1, sizeof(struct http_connect_state));
+		s = (struct http_connect_state *)SAlloc::C(1, sizeof(struct http_connect_state));
 		if(!s)
 			return CURLE_OUT_OF_MEMORY;
 		infof(conn->data, "allocate connect buffer!\n");
@@ -211,8 +211,8 @@ static CURLcode CONNECT(struct connectdata * conn,
 
 			/* This only happens if we've looped here due to authentication
 			   reasons, and we don't really use the newly cloned URL here
-			   then. Just free() it. */
-			free(data->req.newurl);
+			   then. Just SAlloc::F() it. */
+			SAlloc::F(data->req.newurl);
 			data->req.newurl = NULL;
 
 			host_port = aprintf("%s:%d", hostname, remote_port);
@@ -225,7 +225,7 @@ static CURLcode CONNECT(struct connectdata * conn,
 			/* Setup the proxy-authorization header, if any */
 			result = Curl_http_output_auth(conn, "CONNECT", host_port, TRUE);
 
-			free(host_port);
+			SAlloc::F(host_port);
 
 			if(!result) {
 				char * host = NULL;
@@ -250,7 +250,7 @@ static CURLcode CONNECT(struct connectdata * conn,
 				if(!Curl_checkProxyheaders(conn, "Host")) {
 					host = aprintf("Host: %s\r\n", hostheader);
 					if(!host) {
-						free(hostheader);
+						SAlloc::F(hostheader);
 						Curl_dyn_free(&req);
 						return CURLE_OUT_OF_MEMORY;
 					}
@@ -278,8 +278,8 @@ static CURLcode CONNECT(struct connectdata * conn,
 					proxyconn);
 
 				if(host)
-					free(host);
-				free(hostheader);
+					SAlloc::F(host);
+				SAlloc::F(hostheader);
 
 				if(!result)
 					result = Curl_add_custom_headers(conn, TRUE, &req);
@@ -494,7 +494,7 @@ static CURLcode CONNECT(struct connectdata * conn,
 
 					result = Curl_http_input_auth(conn, proxy, auth);
 
-					free(auth);
+					SAlloc::F(auth);
 
 					if(result)
 						return result;
@@ -585,7 +585,7 @@ static CURLcode CONNECT(struct connectdata * conn,
 			connect_done(conn);
 		}
 		else {
-			free(data->req.newurl);
+			SAlloc::F(data->req.newurl);
 			data->req.newurl = NULL;
 			/* failure, close this connection to avoid re-use */
 			streamclose(conn, "proxy CONNECT failure");
@@ -630,7 +630,7 @@ void Curl_connect_free(struct Curl_easy * data)
 	struct connectdata * conn = data->conn;
 	struct http_connect_state * s = conn->connect_state;
 	if(s) {
-		free(s);
+		SAlloc::F(s);
 		conn->connect_state = NULL;
 	}
 }

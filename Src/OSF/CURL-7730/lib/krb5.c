@@ -44,7 +44,7 @@
 #include "curl_base64.h"
 #include "ftp.h"
 #include "curl_gssapi.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "curl_krb5.h"
 #include "warnless.h"
 #include "non-ascii.h"
@@ -185,7 +185,7 @@ static int krb5_encode(void * app_data, const void * from, int length, int level
 
 	/* malloc a new buffer, in case gss_release_buffer doesn't work as
 	   expected */
-	*to = malloc(enc.length);
+	*to = SAlloc::M(enc.length);
 	if(!*to)
 		return -1;
 	memcpy(*to, enc.value, enc.length);
@@ -253,7 +253,7 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 		input_buffer.length = strlen(stringp);
 		maj = gss_import_name(&min, &input_buffer, GSS_C_NT_HOSTBASED_SERVICE,
 			&gssname);
-		free(stringp);
+		SAlloc::F(stringp);
 		if(maj != GSS_S_COMPLETE) {
 			gss_release_name(&min, &gssname);
 			if(service == srv_host) {
@@ -287,7 +287,7 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 				NULL);
 
 			if(gssresp) {
-				free(_gssresp.value);
+				SAlloc::F(_gssresp.value);
 				gssresp = NULL;
 			}
 
@@ -315,8 +315,8 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 				else
 					result = CURLE_OUT_OF_MEMORY;
 
-				free(p);
-				free(cmd);
+				SAlloc::F(p);
+				SAlloc::F(cmd);
 
 				if(result) {
 					ret = -2;
@@ -356,7 +356,7 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 		gss_release_buffer(&min, &output_buffer);
 
 		if(gssresp)
-			free(_gssresp.value);
+			SAlloc::F(_gssresp.value);
 
 		if(ret == AUTH_OK || service == srv_host)
 			return ret;
@@ -611,7 +611,7 @@ static void do_sec_send(struct connectdata * conn, curl_socket_t fd,
 		error = Curl_base64_encode(conn->data, buffer, curlx_sitouz(bytes),
 			&cmd_buffer, &cmd_size);
 		if(error) {
-			free(buffer);
+			SAlloc::F(buffer);
 			return; /* error */
 		}
 		if(cmd_size > 0) {
@@ -626,7 +626,7 @@ static void do_sec_send(struct connectdata * conn, curl_socket_t fd,
 			socket_write(conn, fd, "\r\n", 2);
 			infof(conn->data, "Send: %s%s\n", prot_level == PROT_PRIVATE ? enc : mic,
 			    cmd_buffer);
-			free(cmd_buffer);
+			SAlloc::F(cmd_buffer);
 		}
 	}
 	else {
@@ -634,7 +634,7 @@ static void do_sec_send(struct connectdata * conn, curl_socket_t fd,
 		socket_write(conn, fd, &htonl_bytes, sizeof(htonl_bytes));
 		socket_write(conn, fd, buffer, curlx_sitouz(bytes));
 	}
-	free(buffer);
+	SAlloc::F(buffer);
 }
 
 static ssize_t sec_write(struct connectdata * conn, curl_socket_t fd,
@@ -689,7 +689,7 @@ int Curl_sec_read_msg(struct connectdata * conn, char * buffer,
 		return -1;
 
 	if(decoded_sz > (size_t)INT_MAX) {
-		free(buf);
+		SAlloc::F(buf);
 		return -1;
 	}
 	decoded_len = curlx_uztosi(decoded_sz);
@@ -697,7 +697,7 @@ int Curl_sec_read_msg(struct connectdata * conn, char * buffer,
 	decoded_len = conn->mech->decode(conn->app_data, buf, decoded_len,
 		level, conn);
 	if(decoded_len <= 0) {
-		free(buf);
+		SAlloc::F(buf);
 		return -1;
 	}
 
@@ -718,7 +718,7 @@ int Curl_sec_read_msg(struct connectdata * conn, char * buffer,
 	if(buf[decoded_len - 1] == '\n')
 		buf[decoded_len - 1] = '\0';
 	strcpy(buffer, buf);
-	free(buf);
+	SAlloc::F(buf);
 	return ret_code;
 }
 
@@ -797,7 +797,7 @@ static CURLcode choose_mech(struct connectdata * conn)
 	void * tmp_allocation;
 	const struct Curl_sec_client_mech * mech = &Curl_krb5_client_mech;
 
-	tmp_allocation = realloc(conn->app_data, mech->size);
+	tmp_allocation = SAlloc::R(conn->app_data, mech->size);
 	if(tmp_allocation == NULL) {
 		failf(data, "Failed realloc of size %zu", mech->size);
 		mech = NULL;
@@ -873,10 +873,10 @@ void Curl_sec_end(struct connectdata * conn)
 {
 	if(conn->mech != NULL && conn->mech->end)
 		conn->mech->end(conn->app_data);
-	free(conn->app_data);
+	SAlloc::F(conn->app_data);
 	conn->app_data = NULL;
 	if(conn->in_buffer.data) {
-		free(conn->in_buffer.data);
+		SAlloc::F(conn->in_buffer.data);
 		conn->in_buffer.data = NULL;
 		conn->in_buffer.size = 0;
 		conn->in_buffer.index = 0;

@@ -57,11 +57,11 @@
 
 // Define _W64 macros to mark types changing their size, like intptr_t.
 #ifndef _W64
-#  if !defined(__midl) && (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300
+#if !defined(__midl) && (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300
 #     define _W64 __w64
-#  else
+#else
 #     define _W64
-#  endif
+#endif
 #endif
 
 
@@ -187,11 +187,11 @@ typedef uint64_t  uintmax_t;
 #define SIG_ATOMIC_MAX  INT_MAX
 
 #ifndef SIZE_MAX // [
-#  ifdef _WIN64 // [
+#ifdef _WIN64 // [
 #     define SIZE_MAX  _UI64_MAX
-#  else // _WIN64 ][
+#else // _WIN64 ][
 #     define SIZE_MAX  _UI32_MAX
-#  endif // _WIN64 ]
+#endif // _WIN64 ]
 #endif // SIZE_MAX ]
 
 // WCHAR_MIN and WCHAR_MAX are also defined in <wchar.h>

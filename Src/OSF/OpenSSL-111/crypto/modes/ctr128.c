@@ -87,7 +87,7 @@ void CRYPTO_ctr128_encrypt(const uchar * in, uchar * out,
 				n = (n + 1) % 16;
 			}
 
-# if defined(STRICT_ALIGNMENT)
+#if defined(STRICT_ALIGNMENT)
 			if(((size_t)in | (size_t)out | (size_t)ecount_buf)
 			    % sizeof(size_t) != 0)
 				break;

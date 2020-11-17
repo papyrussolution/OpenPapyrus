@@ -30,8 +30,8 @@
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
-#include "connect.h"
+//#include "sendf.h"
+//#include "connect.h"
 #include "vtls/vtls.h"
 #include "vssh/ssh.h"
 #include "easyif.h"
@@ -158,7 +158,7 @@ static CURLcode pre_receive_plain(struct connectdata * conn, int num)
 			if(!psnd->buffer) {
 				/* Use buffer double default size for intermediate buffer */
 				psnd->allocated_size = 2 * conn->data->set.buffer_size;
-				psnd->buffer = (char *)malloc(psnd->allocated_size);
+				psnd->buffer = (char *)SAlloc::M(psnd->allocated_size);
 				if(!psnd->buffer)
 					return CURLE_OUT_OF_MEMORY;
 				psnd->recv_size = 0;
@@ -207,7 +207,7 @@ static ssize_t get_pre_recved(struct connectdata * conn, int num, char * buf,
 
 	/* Free intermediate buffer if it has no unprocessed data */
 	if(psnd->recv_processed == psnd->recv_size) {
-		free(psnd->buffer);
+		SAlloc::F(psnd->buffer);
 		psnd->buffer = NULL;
 		psnd->allocated_size = 0;
 		psnd->recv_size = 0;
@@ -754,7 +754,7 @@ int Curl_debug(struct Curl_easy * data, curl_infotype type,
 		}
 	}
 #ifdef CURL_DOES_CONVERSIONS
-	free(buf);
+	SAlloc::F(buf);
 #endif
 	return rc;
 }

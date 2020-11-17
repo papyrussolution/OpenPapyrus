@@ -159,14 +159,14 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_crypto_nodelete)
 	fprintf(stderr, "OPENSSL_INIT: ossl_init_load_crypto_nodelete()\n");
 #endif
 #if !defined(OPENSSL_USE_NODELETE) && !defined(OPENSSL_NO_PINSHARED)
-# if defined(DSO_WIN32) && !defined(_WIN32_WCE)
+#if defined(DSO_WIN32) && !defined(_WIN32_WCE)
 	{
 		HMODULE handle = NULL;
 		/* We don't use the DSO route for WIN32 because there is a better way */
 		BOOL ret = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN, (LPCWSTR)&base_inited, &handle);
-#  ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 		fprintf(stderr, "OPENSSL_INIT: obtained DSO reference? %s\n", (ret == TRUE ? "No!" : "Yes."));
-#  endif
+#endif
 		return (ret == TRUE) ? 1 : 0;
 	}
 # elif !defined(DSO_NONE)
@@ -180,14 +180,14 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_crypto_nodelete)
 		if(!err_shelve_state(&err))
 			return 0;
 		dso = DSO_dsobyaddr(&base_inited, DSO_FLAG_NO_UNLOAD_ON_FREE);
-#  ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 		fprintf(stderr, "OPENSSL_INIT: obtained DSO reference? %s\n", (dso == NULL ? "No!" : "Yes."));
 		/*
 		 * In case of No!, it is uncertain our exit()-handlers can still be
 		 * called. After dlclose() the whole library might have been unloaded
 		 * already.
 		 */
-#  endif
+#endif
 		DSO_free(dso);
 		err_unshelve_state(err);
 	}
@@ -343,7 +343,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_dynamic)
 	return 1;
 }
 #ifndef OPENSSL_NO_STATIC_ENGINE
-#  if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
+#if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
 static CRYPTO_ONCE engine_padlock = CRYPTO_ONCE_STATIC_INIT;
 DEFINE_RUN_ONCE_STATIC(ossl_init_engine_padlock)
 {
@@ -353,8 +353,8 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_padlock)
 	engine_load_padlock_int();
 	return 1;
 }
-#  endif
-#  if defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_NO_CAPIENG)
+#endif
+#if defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_NO_CAPIENG)
 static CRYPTO_ONCE engine_capi = CRYPTO_ONCE_STATIC_INIT;
 DEFINE_RUN_ONCE_STATIC(ossl_init_engine_capi)
 {
@@ -364,8 +364,8 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_capi)
 	engine_load_capi_int();
 	return 1;
 }
-#  endif
-#  if !defined(OPENSSL_NO_AFALGENG)
+#endif
+#if !defined(OPENSSL_NO_AFALGENG)
 static CRYPTO_ONCE engine_afalg = CRYPTO_ONCE_STATIC_INIT;
 DEFINE_RUN_ONCE_STATIC(ossl_init_engine_afalg)
 {
@@ -375,7 +375,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_afalg)
 	engine_load_afalg_int();
 	return 1;
 }
-#  endif
+#endif
 #endif
 #endif
 #ifndef OPENSSL_NO_COMP
@@ -621,7 +621,7 @@ int FASTCALL OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS * se
 #ifndef OPENSSL_NO_ENGINE
 	if((opts & OPENSSL_INIT_ENGINE_OPENSSL) && !RUN_ONCE(&engine_openssl, ossl_init_engine_openssl))
 		return 0;
-# if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_DEVCRYPTOENG)
+#if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_DEVCRYPTOENG)
 	if((opts & OPENSSL_INIT_ENGINE_CRYPTODEV) && !RUN_ONCE(&engine_devcrypto, ossl_init_engine_devcrypto))
 		return 0;
 #endif
@@ -632,18 +632,18 @@ int FASTCALL OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS * se
 	if((opts & OPENSSL_INIT_ENGINE_DYNAMIC) && !RUN_ONCE(&engine_dynamic, ossl_init_engine_dynamic))
 		return 0;
 #ifndef OPENSSL_NO_STATIC_ENGINE
-#  if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
+#if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
 	if((opts & OPENSSL_INIT_ENGINE_PADLOCK) && !RUN_ONCE(&engine_padlock, ossl_init_engine_padlock))
 		return 0;
-#  endif
-#  if defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_NO_CAPIENG)
+#endif
+#if defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_NO_CAPIENG)
 	if((opts & OPENSSL_INIT_ENGINE_CAPI) && !RUN_ONCE(&engine_capi, ossl_init_engine_capi))
 		return 0;
-#  endif
-#  if !defined(OPENSSL_NO_AFALGENG)
+#endif
+#if !defined(OPENSSL_NO_AFALGENG)
 	if((opts & OPENSSL_INIT_ENGINE_AFALG) && !RUN_ONCE(&engine_afalg, ossl_init_engine_afalg))
 		return 0;
-#  endif
+#endif
 #endif
 	if(opts & (OPENSSL_INIT_ENGINE_ALL_BUILTIN|OPENSSL_INIT_ENGINE_OPENSSL|OPENSSL_INIT_ENGINE_AFALG)) {
 		ENGINE_register_all_complete();
@@ -667,7 +667,7 @@ int OPENSSL_atexit(void (*handler)(void))
 		} handlersym;
 
 		handlersym.func = handler;
-# if defined(DSO_WIN32) && !defined(_WIN32_WCE)
+#if defined(DSO_WIN32) && !defined(_WIN32_WCE)
 		{
 			HMODULE handle = NULL;
 			/*
@@ -688,10 +688,10 @@ int OPENSSL_atexit(void (*handler)(void))
 			DSO * dso = NULL;
 			ERR_set_mark();
 			dso = DSO_dsobyaddr(handlersym.sym, DSO_FLAG_NO_UNLOAD_ON_FREE);
-#  ifdef OPENSSL_INIT_DEBUG
+#ifdef OPENSSL_INIT_DEBUG
 			fprintf(stderr, "OPENSSL_INIT: OPENSSL_atexit: obtained DSO reference? %s\n", (dso == NULL ? "No!" : "Yes."));
 			/* See same code above in ossl_init_base() for an explanation. */
-#  endif
+#endif
 			DSO_free(dso);
 			ERR_pop_to_mark();
 		}

@@ -24,13 +24,13 @@
 #pragma hdrstop
 
 #ifdef __AMIGA__
-#  include "amigaos.h"
-#  if defined(HAVE_PROTO_BSDSOCKET_H) && !defined(USE_AMISSL)
-#    include <amitcp/socketbasetags.h>
-#  endif
-#  ifdef __libnix__
-#    include <stabs.h>
-#  endif
+#include "amigaos.h"
+#if defined(HAVE_PROTO_BSDSOCKET_H) && !defined(USE_AMISSL)
+#include <amitcp/socketbasetags.h>
+#endif
+#ifdef __libnix__
+#include <stabs.h>
+#endif
 #endif
 
 /* The last #include files should be: */

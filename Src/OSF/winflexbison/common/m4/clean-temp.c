@@ -496,9 +496,7 @@ int cleanup_temp_dir(struct temp_dir * dir)
 			SAlloc::F(tmpdir);
 			return err;
 		}
-
-	/* The user passed an invalid DIR argument.  */
-	abort();
+	abort(); /* The user passed an invalid DIR argument.  */
 	return err;
 }
 
@@ -531,10 +529,8 @@ static bool supports_delete_on_close()
 /* Register a file descriptor to be closed.  */
 static void register_fd(int fd)
 {
-	if(descriptors == NULL)
-		descriptors = gl_list_create_empty(GL_LINKEDHASH_LIST, NULL, NULL, NULL,
-			false);
-	gl_list_add_first(descriptors, (void*)(uintptr_t)fd);
+	SETIFZ(descriptors, gl_list_create_empty(GL_LINKEDHASH_LIST, NULL, NULL, NULL, false));
+	gl_list_add_first(descriptors, (void *)(uintptr_t)fd);
 }
 
 /* Unregister a file descriptor to be closed.  */
@@ -543,12 +539,10 @@ static void unregister_fd(int fd)
 	gl_list_t fds = descriptors;
 	gl_list_node_t node;
 	if(fds == NULL)
-		/* descriptors should already contain fd.  */
-		abort();
-	node = gl_list_search(fds, (void*)(uintptr_t)fd);
+		abort(); /* descriptors should already contain fd.  */
+	node = gl_list_search(fds, (void *)(uintptr_t)fd);
 	if(node == NULL)
-		/* descriptors should already contain fd.  */
-		abort();
+		abort(); /* descriptors should already contain fd.  */
 	gl_list_remove_node(fds, node);
 }
 

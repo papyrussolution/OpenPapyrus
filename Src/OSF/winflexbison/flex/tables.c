@@ -106,9 +106,9 @@ int yytbl_data_init(struct yytbl_data * td, enum yytbl_id id)
  */
 int yytbl_data_destroy(struct yytbl_data * td)
 {
-	free(td->td_data);
+	SAlloc::F(td->td_data);
 	td->td_data = 0;
-	free(td);
+	SAlloc::F(td);
 	return 0;
 }
 
@@ -406,7 +406,7 @@ void yytbl_data_compress(struct yytbl_data * tbl)
 		return;
 	}
 	total_len = yytbl_calc_total_len(tbl);
-	newtbl.td_data = calloc((size_t)total_len, newsz);
+	newtbl.td_data = SAlloc::C((size_t)total_len, newsz);
 	newtbl.td_flags = (flex_uint16_t)(TFLAGS_CLRDATA(newtbl.td_flags) | BYTES2TFLAG(newsz));
 	for(i = 0; i < total_len; i++) {
 		flex_int32_t g;
@@ -415,7 +415,7 @@ void yytbl_data_compress(struct yytbl_data * tbl)
 	}
 
 	/* Now copy over the old table */
-	free(tbl->td_data);
+	SAlloc::F(tbl->td_data);
 	*tbl = newtbl;
 }
 

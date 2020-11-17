@@ -54,10 +54,10 @@
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ssh.h"
@@ -67,11 +67,11 @@
 #include "strdup.h"
 #include "strcase.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strerror.h"
 #include "inet_ntop.h"
 #include "parsedate.h" /* for the week day and month names */
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "strtoofft.h"
 #include "multiif.h"
 #include "select.h"
@@ -188,7 +188,7 @@ static void kbd_callback(const char * name, int name_len, const char * instructi
 	(void)instruction_len;
 #endif  /* CURL_LIBSSH2_DEBUG */
 	if(num_prompts == 1) {
-		responses[0].text = strdup(conn->passwd);
+		responses[0].text = sstrdup(conn->passwd);
 		responses[0].length = curlx_uztoui(strlen(conn->passwd));
 	}
 	(void)prompts;
@@ -238,20 +238,20 @@ static CURLcode libssh2_session_error_to_CURLE(int err)
 static LIBSSH2_ALLOC_FUNC(my_libssh2_malloc)
 {
 	(void)abstract; /* arg not used */
-	return malloc(count);
+	return SAlloc::M(count);
 }
 
 static LIBSSH2_REALLOC_FUNC(my_libssh2_realloc)
 {
 	(void)abstract; /* arg not used */
-	return realloc(ptr, count);
+	return SAlloc::R(ptr, count);
 }
 
 static LIBSSH2_FREE_FUNC(my_libssh2_free)
 {
 	(void)abstract; /* arg not used */
 	if(ptr) /* ssh2 agent sometimes call free with null ptr */
-		free(ptr);
+		SAlloc::F(ptr);
 }
 /*
  * SSH State machine related code
@@ -542,7 +542,7 @@ static CURLcode ssh_check_fingerprint(struct connectdata * conn)
 	char md5buffer[33];
 	const char * fingerprint = libssh2_hostkey_hash(sshc->ssh_session, LIBSSH2_HOSTKEY_HASH_MD5);
 	if(fingerprint) {
-		/* The fingerprint points to static storage (!), don't free() it. */
+		/* The fingerprint points to static storage (!), don't SAlloc::F() it. */
 		for(int i = 0; i < 16; i++)
 			msnprintf(&md5buffer[i*2], 3, "%02x", (uchar)fingerprint[i]);
 		infof(data, "SSH MD5 fingerprint: %s\n", md5buffer);
@@ -808,7 +808,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    sshc->rsa_pub = sshc->rsa = NULL;
 
 				    if(data->set.str[STRING_SSH_PRIVATE_KEY])
-					    sshc->rsa = strdup(data->set.str[STRING_SSH_PRIVATE_KEY]);
+					    sshc->rsa = sstrdup(data->set.str[STRING_SSH_PRIVATE_KEY]);
 				    else {
 					    /* To ponder about: should really the lib be messing about with the
 					       HOME environment variable etc? */
@@ -829,19 +829,19 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 								    Curl_safefree(sshc->rsa);
 							    }
 						    }
-						    free(home);
+						    SAlloc::F(home);
 					    }
 					    if(!out_of_memory && !sshc->rsa) {
 						    /* Nothing found; try the current dir. */
-						    sshc->rsa = strdup("id_rsa");
+						    sshc->rsa = sstrdup("id_rsa");
 						    if(sshc->rsa && access(sshc->rsa, R_OK) != 0) {
 							    Curl_safefree(sshc->rsa);
-							    sshc->rsa = strdup("id_dsa");
+							    sshc->rsa = sstrdup("id_dsa");
 							    if(sshc->rsa && access(sshc->rsa, R_OK) != 0) {
 								    Curl_safefree(sshc->rsa);
 								    /* Out of guesses. Set to the empty string to avoid
 								     * surprising info messages. */
-								    sshc->rsa = strdup("");
+								    sshc->rsa = sstrdup("");
 							    }
 						    }
 					    }
@@ -855,7 +855,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    if(data->set.str[STRING_SSH_PUBLIC_KEY]
 				        /* treat empty string the same way as NULL */
 					&& data->set.str[STRING_SSH_PUBLIC_KEY][0]) {
-					    sshc->rsa_pub = strdup(data->set.str[STRING_SSH_PUBLIC_KEY]);
+					    sshc->rsa_pub = sstrdup(data->set.str[STRING_SSH_PUBLIC_KEY]);
 					    if(!sshc->rsa_pub)
 						    out_of_memory = TRUE;
 				    }
@@ -1136,7 +1136,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    if(rc > 0) {
 				    /* It seems that this string is not always NULL terminated */
 				    tempHome[rc] = '\0';
-				    sshc->homedir = strdup(tempHome);
+				    sshc->homedir = sstrdup(tempHome);
 				    if(!sshc->homedir) {
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->actualcode = CURLE_OUT_OF_MEMORY;
@@ -1240,7 +1240,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				       current directory can be read very similar to how it is read when
 				       using ordinary FTP. */
 				    result = Curl_client_write(conn, CLIENTWRITE_HEADER, tmp, strlen(tmp));
-				    free(tmp);
+				    SAlloc::F(tmp);
 				    if(result) {
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1681,7 +1681,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 
 				    result = Curl_client_write(conn, CLIENTWRITE_HEADER, tmp, strlen(tmp));
-				    free(tmp);
+				    SAlloc::F(tmp);
 				    if(result) {
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1986,13 +1986,13 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    sshc->actualcode = result ? result : CURLE_SSH;
 				    break;
 			    }
-			    sshc->readdir_filename = (char *)malloc(PATH_MAX + 1);
+			    sshc->readdir_filename = (char *)SAlloc::M(PATH_MAX + 1);
 			    if(!sshc->readdir_filename) {
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 				    break;
 			    }
-			    sshc->readdir_longentry = (char *)malloc(PATH_MAX + 1);
+			    sshc->readdir_longentry = (char *)SAlloc::M(PATH_MAX + 1);
 			    if(!sshc->readdir_longentry) {
 				    Curl_safefree(sshc->readdir_filename);
 				    state(conn, SSH_SFTP_CLOSE);
@@ -2871,7 +2871,7 @@ static CURLcode ssh_block_statemach(struct connectdata * conn,
 static CURLcode ssh_setup_connection(struct connectdata * conn)
 {
 	struct SSHPROTO * ssh;
-	conn->data->req.protop = ssh = (struct SSHPROTO *)calloc(1, sizeof(struct SSHPROTO));
+	conn->data->req.protop = ssh = (struct SSHPROTO *)SAlloc::C(1, sizeof(struct SSHPROTO));
 	if(!ssh)
 		return CURLE_OUT_OF_MEMORY;
 

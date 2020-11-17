@@ -48,7 +48,7 @@ void BF_encrypt(BF_LONG * data, const BF_KEY * key)
 	BF_ENC(l, r, s, p[14]);
 	BF_ENC(r, l, s, p[15]);
 	BF_ENC(l, r, s, p[16]);
-# if BF_ROUNDS == 20
+#if BF_ROUNDS == 20
 	BF_ENC(r, l, s, p[17]);
 	BF_ENC(l, r, s, p[18]);
 	BF_ENC(r, l, s, p[19]);
@@ -69,12 +69,12 @@ void BF_decrypt(BF_LONG * data, const BF_KEY * key)
 	l = data[0];
 	r = data[1];
 	l ^= p[BF_ROUNDS + 1];
-#  if BF_ROUNDS == 20
+#if BF_ROUNDS == 20
 	BF_ENC(r, l, s, p[20]);
 	BF_ENC(l, r, s, p[19]);
 	BF_ENC(r, l, s, p[18]);
 	BF_ENC(l, r, s, p[17]);
-#  endif
+#endif
 	BF_ENC(r, l, s, p[16]);
 	BF_ENC(l, r, s, p[15]);
 	BF_ENC(r, l, s, p[14]);

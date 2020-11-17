@@ -106,7 +106,7 @@ static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
 	/* Note: If sstrdup fails, that's okay; we just won't cache. */
 	b->hash = h;
 #if HAVE_GRP_H
-#  if HAVE_GETGRNAM_R
+#if HAVE_GETGRNAM_R
 	{
 		char _buffer[128];
 		size_t bufsize = 128;
@@ -133,7 +133,7 @@ static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
 			gid = result->gr_gid;
 		SAlloc::F(allocated);
 	}
-#  else /* HAVE_GETGRNAM_R */
+#else /* HAVE_GETGRNAM_R */
 	{
 		struct group * result;
 
@@ -141,7 +141,7 @@ static int64_t lookup_gid(void * private_data, const char * gname, int64_t gid)
 		if(result != NULL)
 			gid = result->gr_gid;
 	}
-#  endif /* HAVE_GETGRNAM_R */
+#endif /* HAVE_GETGRNAM_R */
 #elif defined(_WIN32) && !defined(__CYGWIN__)
 	/* TODO: do a gname->gid lookup for Windows. */
 #else
@@ -175,7 +175,7 @@ static int64_t lookup_uid(void * private_data, const char * uname, int64_t uid)
 	/* Note: If sstrdup fails, that's okay; we just won't cache. */
 	b->hash = h;
 #if HAVE_PWD_H
-#  if HAVE_GETPWNAM_R
+#if HAVE_GETPWNAM_R
 	{
 		char _buffer[128];
 		size_t bufsize = 128;
@@ -202,7 +202,7 @@ static int64_t lookup_uid(void * private_data, const char * uname, int64_t uid)
 			uid = result->pw_uid;
 		SAlloc::F(allocated);
 	}
-#  else /* HAVE_GETPWNAM_R */
+#else /* HAVE_GETPWNAM_R */
 	{
 		struct passwd * result;
 

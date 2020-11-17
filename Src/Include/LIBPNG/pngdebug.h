@@ -35,22 +35,22 @@
 #define PNGDEBUG_H
 /* These settings control the formatting of messages in png.c and pngerror.c */
 /* Moved to pngdebug.h at 1.5.0 */
-#  ifndef PNG_LITERAL_SHARP
-#    define PNG_LITERAL_SHARP 0x23
-#  endif
-#  ifndef PNG_LITERAL_LEFT_SQUARE_BRACKET
-#    define PNG_LITERAL_LEFT_SQUARE_BRACKET 0x5b
-#  endif
-#  ifndef PNG_LITERAL_RIGHT_SQUARE_BRACKET
-#    define PNG_LITERAL_RIGHT_SQUARE_BRACKET 0x5d
-#  endif
-#  ifndef PNG_STRING_NEWLINE
-#    define PNG_STRING_NEWLINE "\n"
-#  endif
+#ifndef PNG_LITERAL_SHARP
+#define PNG_LITERAL_SHARP 0x23
+#endif
+#ifndef PNG_LITERAL_LEFT_SQUARE_BRACKET
+#define PNG_LITERAL_LEFT_SQUARE_BRACKET 0x5b
+#endif
+#ifndef PNG_LITERAL_RIGHT_SQUARE_BRACKET
+#define PNG_LITERAL_RIGHT_SQUARE_BRACKET 0x5d
+#endif
+#ifndef PNG_STRING_NEWLINE
+#define PNG_STRING_NEWLINE "\n"
+#endif
 
 #ifdef PNG_DEBUG
-#  if (PNG_DEBUG > 0)
-#    if !defined(PNG_DEBUG_FILE) && defined(_MSC_VER)
+#if (PNG_DEBUG > 0)
+#if !defined(PNG_DEBUG_FILE) && defined(_MSC_VER)
 #      include <crtdbg.h>
 #      if (PNG_DEBUG > 1)
 #        ifndef _DEBUG
@@ -67,7 +67,7 @@
              _RPT2(_CRT_WARN,m PNG_STRING_NEWLINE,p1,p2)
 #        endif
 #      endif
-#    else /* PNG_DEBUG_FILE || !_MSC_VER */
+#else /* PNG_DEBUG_FILE || !_MSC_VER */
 #      ifndef PNG_STDIO_SUPPORTED
 #        include <stdio.h> /* not included yet */
 #      endif
@@ -138,8 +138,8 @@
 #        endif /* __STDC __ */
 #      endif /* (PNG_DEBUG > 1) */
 
-#    endif /* _MSC_VER */
-#  endif /* (PNG_DEBUG > 0) */
+#endif /* _MSC_VER */
+#endif /* (PNG_DEBUG > 0) */
 #endif /* PNG_DEBUG */
 #ifndef png_debug
 #define png_debug(l, m) ((void)0)

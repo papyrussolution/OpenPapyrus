@@ -501,7 +501,7 @@ static SRP_user_pwd * find_user(SRP_VBASE * vb, char * username)
 	return NULL;
 }
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 /*
  * DEPRECATED: use SRP_VBASE_get1_by_user instead.
  * This method ignores the configured seed and fails for an unknown user.

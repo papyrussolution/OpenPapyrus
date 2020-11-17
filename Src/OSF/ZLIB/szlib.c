@@ -506,14 +506,14 @@ static void make_crc_table()
 		fprintf(out, "local const z_crc_t FAR ");
 		fprintf(out, "crc_table[TBLS][256] =\n{\n  {\n");
 		write_table(out, crc_table[0]);
-#  ifdef BYFOUR
+#ifdef BYFOUR
 		fprintf(out, "#ifdef BYFOUR\n");
 		for(k = 1; k < 8; k++) {
 			fprintf(out, "  },\n  {\n");
 			write_table(out, crc_table[k]);
 		}
 		fprintf(out, "#endif\n");
-#  endif /* BYFOUR */
+#endif /* BYFOUR */
 		fprintf(out, "  }\n};\n");
 		fclose(out);
 	}
@@ -1237,28 +1237,28 @@ uLong ZEXPORT zlibCompileFlags()
 	flags += 1L << 21;
 #endif
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
-#  ifdef NO_vsnprintf
+#ifdef NO_vsnprintf
 	flags += 1L << 25;
-#    ifdef HAS_vsprintf_void
+#ifdef HAS_vsprintf_void
 	flags += 1L << 26;
-#    endif
-#  else
-#    ifdef HAS_vsnprintf_void
+#endif
+#else
+#ifdef HAS_vsnprintf_void
 	flags += 1L << 26;
-#    endif
-#  endif
+#endif
+#endif
 #else
 	flags += 1L << 24;
-#  ifdef NO_snprintf
+#ifdef NO_snprintf
 	flags += 1L << 25;
-#    ifdef HAS_sprintf_void
+#ifdef HAS_sprintf_void
 	flags += 1L << 26;
-#    endif
-#  else
-#    ifdef HAS_snprintf_void
+#endif
+#else
+#ifdef HAS_snprintf_void
 	flags += 1L << 26;
-#    endif
-#  endif
+#endif
+#endif
 #endif
 	return flags;
 }
@@ -2232,21 +2232,21 @@ int ZEXPORTVA gzprintf(gzFile file, const char * format, int a1, int a2, int a3,
 	next = (char *)(strm->next_in + strm->avail_in);
 	next[state->size - 1] = 0;
 #ifdef NO_snprintf
-#  ifdef HAS_sprintf_void
+#ifdef HAS_sprintf_void
 	sprintf(next, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
 	for(len = 0; len < size; len++)
 		if(next[len] == 0)
 			break;
-#  else
-	len = sprintf(next, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
-#  endif
 #else
-#  ifdef HAS_snprintf_void
+	len = sprintf(next, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
+#endif
+#else
+#ifdef HAS_snprintf_void
 	snprintf(next, state->size, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
 	len = strlen(next);
-#  else
+#else
 	len = snprintf(next, state->size, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
-#  endif
+#endif
 #endif
 	/* check that printf() results fit in buffer */
 	if(len == 0 || len >= state->size || next[state->size - 1] != 0)

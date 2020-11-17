@@ -43,12 +43,12 @@
 #endif
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "formdata.h" /* for the boundary function */
 #include "url.h" /* for the ssl config check function */
 #include "inet_pton.h"
 #include "openssl.h"
-#include "connect.h"
+//#include "connect.h"
 #include "slist.h"
 #include "select.h"
 #include "vtls.h"
@@ -1471,7 +1471,7 @@ static bool subj_alt_hostcheck(struct Curl_easy * data,
 	/* Curl_cert_hostcheck uses host encoding, but we get ASCII from
 	   OpenSSl.
 	 */
-	char * match_pattern2 = strdup(match_pattern);
+	char * match_pattern2 = sstrdup(match_pattern);
 
 	if(match_pattern2) {
 		if(Curl_convert_from_network(data, match_pattern2,
@@ -1483,7 +1483,7 @@ static bool subj_alt_hostcheck(struct Curl_easy * data,
 				    dispname, match_pattern2);
 			}
 		}
-		free(match_pattern2);
+		SAlloc::F(match_pattern2);
 	}
 	else {
 		failf(data,
@@ -2079,16 +2079,16 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type,
 /* ====================================================== */
 
 #ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
-#  define use_sni(x)  sni = (x)
+#define use_sni(x)  sni = (x)
 #else
-#  define use_sni(x)  Curl_nop_stmt
+#define use_sni(x)  Curl_nop_stmt
 #endif
 
 /* Check for OpenSSL 1.0.2 which has ALPN support. */
 #undef HAS_ALPN
 #if OPENSSL_VERSION_NUMBER >= 0x10002000L \
 	&& !defined(OPENSSL_NO_TLSEXT)
-#  define HAS_ALPN 1
+#define HAS_ALPN 1
 #endif
 
 /* Check for OpenSSL 1.0.1 which has NPN support. */
@@ -2096,7 +2096,7 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type,
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L \
 	&& !defined(OPENSSL_NO_TLSEXT) \
 	&& !defined(OPENSSL_NO_NEXTPROTONEG)
-#  define HAS_NPN 1
+#define HAS_NPN 1
 #endif
 
 #ifdef HAS_NPN
@@ -2583,13 +2583,13 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 #else
 		    ctx_options |= SSL_OP_NO_SSLv3;
 		    ctx_options |= SSL_OP_NO_TLSv1;
-#  if OPENSSL_VERSION_NUMBER >= 0x1000100FL
+#if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    ctx_options |= SSL_OP_NO_TLSv1_1;
 		    ctx_options |= SSL_OP_NO_TLSv1_2;
-#    ifdef TLS1_3_VERSION
+#ifdef TLS1_3_VERSION
 		    ctx_options |= SSL_OP_NO_TLSv1_3;
-#    endif
-#  endif
+#endif
+#endif
 #endif
 		    break;
 
@@ -2601,13 +2601,13 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 #else
 		    ctx_options |= SSL_OP_NO_SSLv2;
 		    ctx_options |= SSL_OP_NO_TLSv1;
-#  if OPENSSL_VERSION_NUMBER >= 0x1000100FL
+#if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    ctx_options |= SSL_OP_NO_TLSv1_1;
 		    ctx_options |= SSL_OP_NO_TLSv1_2;
-#    ifdef TLS1_3_VERSION
+#ifdef TLS1_3_VERSION
 		    ctx_options |= SSL_OP_NO_TLSv1_3;
-#    endif
-#  endif
+#endif
+#endif
 #endif
 		    break;
 
@@ -2839,7 +2839,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 				 */
 				if(CertGetEnhancedKeyUsage(pContext, 0, NULL, &req_size)) {
 					if(req_size && req_size > enhkey_usage_size) {
-						void * tmp = realloc(enhkey_usage, req_size);
+						void * tmp = SAlloc::R(enhkey_usage, req_size);
 
 						if(!tmp) {
 							failf(data, "SSL: Out of memory allocating for OID list");
@@ -2898,7 +2898,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 				X509_free(x509);
 			}
 
-			free(enhkey_usage);
+			SAlloc::F(enhkey_usage);
 			CertFreeCertificateContext(pContext);
 			CertCloseStore(hStore, 0);
 
@@ -3641,7 +3641,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data, X509* cert,
 		if(len1 < 1)
 			break; /* failed */
 
-		buff1 = temp = (uchar *)malloc(len1);
+		buff1 = temp = (uchar *)SAlloc::M(len1);
 		if(!buff1)
 			break; /* failed */
 
@@ -3663,7 +3663,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data, X509* cert,
 	} while(0);
 
 	if(buff1)
-		free(buff1);
+		SAlloc::F(buff1);
 
 	return result;
 }

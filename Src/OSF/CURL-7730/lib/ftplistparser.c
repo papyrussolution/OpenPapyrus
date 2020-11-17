@@ -41,7 +41,7 @@
 //#include <curl/curl.h>
 #include "urldata.h"
 #include "fileinfo.h"
-#include "llist.h"
+//#include "llist.h"
 #include "strtoofft.h"
 #include "ftp.h"
 #include "ftplistparser.h"
@@ -181,7 +181,7 @@ struct ftp_parselist_data {
 
 struct ftp_parselist_data * Curl_ftp_parselist_data_alloc(void)
 {
-	return (struct ftp_parselist_data *)(calloc(1, sizeof(struct ftp_parselist_data)));
+	return (struct ftp_parselist_data *)(SAlloc::C(1, sizeof(struct ftp_parselist_data)));
 }
 
 void Curl_ftp_parselist_data_free(struct ftp_parselist_data ** parserp)
@@ -189,7 +189,7 @@ void Curl_ftp_parselist_data_free(struct ftp_parselist_data ** parserp)
 	struct ftp_parselist_data * parser = *parserp;
 	if(parser)
 		Curl_fileinfo_cleanup(parser->file_data);
-	free(parser);
+	SAlloc::F(parser);
 	*parserp = NULL;
 }
 
@@ -354,7 +354,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 				parser->error = CURLE_OUT_OF_MEMORY;
 				goto fail;
 			}
-			parser->file_data->info.b_data = (char *)malloc(FTP_BUFFER_ALLOCSIZE);
+			parser->file_data->info.b_data = (char *)SAlloc::M(FTP_BUFFER_ALLOCSIZE);
 			if(!parser->file_data->info.b_data) {
 				parser->error = CURLE_OUT_OF_MEMORY;
 				goto fail;
@@ -370,7 +370,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 
 		if(finfo->b_used >= finfo->b_size - 1) {
 			/* if it is important, extend buffer space for file data */
-			char * tmp = (char *)realloc(finfo->b_data, finfo->b_size + FTP_BUFFER_ALLOCSIZE);
+			char * tmp = (char *)SAlloc::R(finfo->b_data, finfo->b_size + FTP_BUFFER_ALLOCSIZE);
 			if(tmp) {
 				finfo->b_size += FTP_BUFFER_ALLOCSIZE;
 				finfo->b_data = tmp;

@@ -337,9 +337,9 @@ void PNGAPI png_benign_error(png_const_structrp png_ptr, const char * error_mess
 		png_error(png_ptr, error_message);
 	}
 
-#  ifndef PNG_ERROR_TEXT_SUPPORTED
+#ifndef PNG_ERROR_TEXT_SUPPORTED
 	PNG_UNUSED(error_message)
-#  endif
+#endif
 }
 
 void /* PRIVATE */ png_app_warning(png_const_structrp png_ptr, const char * error_message)
@@ -349,9 +349,9 @@ void /* PRIVATE */ png_app_warning(png_const_structrp png_ptr, const char * erro
 	else
 		png_error(png_ptr, error_message);
 
-#  ifndef PNG_ERROR_TEXT_SUPPORTED
+#ifndef PNG_ERROR_TEXT_SUPPORTED
 	PNG_UNUSED(error_message)
-#  endif
+#endif
 }
 
 void /* PRIVATE */ png_app_error(png_const_structrp png_ptr, const char * error_message)
@@ -361,9 +361,9 @@ void /* PRIVATE */ png_app_error(png_const_structrp png_ptr, const char * error_
 	else
 		png_error(png_ptr, error_message);
 
-#  ifndef PNG_ERROR_TEXT_SUPPORTED
+#ifndef PNG_ERROR_TEXT_SUPPORTED
 	PNG_UNUSED(error_message)
-#  endif
+#endif
 }
 
 #endif /* BENIGN_ERRORS */
@@ -472,7 +472,7 @@ void /* PRIVATE */ png_chunk_report(png_const_structrp png_ptr, const char * mes
 		else
 			png_chunk_benign_error(png_ptr, message);
 	}
-# endif
+#endif
 #if defined(PNG_READ_SUPPORTED) && defined(PNG_WRITE_SUPPORTED)
 	else if((png_ptr->mode & PNG_IS_READ_STRUCT) == 0)
 #endif
@@ -662,7 +662,7 @@ PNG_NORETURN void PNGAPI png_longjmp(png_const_structrp png_ptr, int val)
 static void /* PRIVATE */ png_default_warning(png_const_structrp png_ptr, const char * warning_message)
 {
 #ifdef PNG_CONSOLE_IO_SUPPORTED
-#  ifdef PNG_ERROR_NUMBERS_SUPPORTED
+#ifdef PNG_ERROR_NUMBERS_SUPPORTED
 	if(*warning_message == PNG_LITERAL_SHARP) {
 		int offset;
 		char warning_number[16];
@@ -682,7 +682,7 @@ static void /* PRIVATE */ png_default_warning(png_const_structrp png_ptr, const 
 		}
 	}
 	else
-#  endif
+#endif
 	{
 		fprintf(stderr, "libpng warning: %s", warning_message);
 		fprintf(stderr, PNG_STRING_NEWLINE);

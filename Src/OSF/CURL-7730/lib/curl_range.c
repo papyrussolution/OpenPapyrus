@@ -24,7 +24,7 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 #include "curl_range.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "strtoofft.h"
 
 /* Only include this function if one or more of FTP, FILE are enabled. */

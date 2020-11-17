@@ -426,7 +426,7 @@ void check_options()
 						endOfDir = path+length;
 
 					{
-						char * m4_path = calloc(endOfDir-path + 1 + m4_length + 1, 1);
+						char * m4_path = SAlloc::C(endOfDir-path + 1 + m4_length + 1, 1);
 
 						memcpy(m4_path, path, endOfDir-path);
 						m4_path[endOfDir-path] = '/';
@@ -483,7 +483,7 @@ void check_options()
 		buf_m4_define(&m4defs_buf, "M4_YY_TABLES_EXTERNAL", NULL);
 		if(!tablesfilename) {
 			nbytes = strlen(prefix) + strlen(tablesfile_template) + 2;
-			tablesfilename = pname = (char *)calloc(nbytes, 1);
+			tablesfilename = pname = (char *)SAlloc::C(nbytes, 1);
 			snprintf(pname, nbytes, tablesfile_template, prefix);
 		}
 		if((tablesout = fopen(tablesfilename, "wb")) == NULL)
@@ -492,7 +492,7 @@ void check_options()
 		tablesfilename = 0;
 		yytbl_writer_init(&tableswr, tablesout);
 		nbytes = strlen(prefix) + strlen("tables") + 2;
-		tablesname = (char *)calloc(nbytes, 1);
+		tablesname = (char *)SAlloc::C(nbytes, 1);
 		snprintf(tablesname, nbytes, "%stables", prefix);
 		yytbl_hdr_init(&hdr, flex_version, tablesname);
 		if(yytbl_hdr_fwrite(&tableswr, &hdr) <= 0)
@@ -525,7 +525,7 @@ void check_options()
 		for(i = 1; i <= lastsc; i++) {
 			const char * fmt = "#define %s %d\n";
 			size_t strsz = strlen(fmt) + strlen(scname[i]) + (size_t)(1 + ceil(log10(i))) + 2;
-			char * str = (char *)malloc(strsz);
+			char * str = (char *)SAlloc::M(strsz);
 			if(!str)
 				flexfatal(_("allocation of macro definition failed"));
 			snprintf(str, strsz, fmt,      scname[i], i - 1);

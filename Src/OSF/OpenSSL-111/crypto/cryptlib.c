@@ -16,7 +16,7 @@
 
 extern uint OPENSSL_ia32cap_P[4];
 
-# if defined(OPENSSL_CPUID_OBJ) && !defined(OPENSSL_NO_ASM) && !defined(I386_ONLY)
+#if defined(OPENSSL_CPUID_OBJ) && !defined(OPENSSL_NO_ASM) && !defined(I386_ONLY)
 	/*
 	 * Purpose of these minimalistic and character-type-agnostic subroutines
 	 * is to break dependency on MSVCRT (on Windows) and locale. This makes
@@ -193,11 +193,11 @@ void OPENSSL_cpuid_setup(void)
 				if(mod != NULL)
 					f = GetProcAddress(static_cast<HMODULE>(mod), "_OPENSSL_isservice");
 				if(f == NULL)
-					_OPENSSL_isservice.p = (void*)-1;
+					_OPENSSL_isservice.p = (void *)-1;
 				else
 					_OPENSSL_isservice.f = f;
 			}
-			if(_OPENSSL_isservice.p != (void*)-1)
+			if(_OPENSSL_isservice.p != (void *)-1)
 				return (*_OPENSSL_isservice.f)();
 			h = GetProcessWindowStation();
 			if(h == NULL)
@@ -305,8 +305,8 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	_vsntprintf(buf, OSSL_NELEM(buf) - 1, fmt, ap);
 	buf[OSSL_NELEM(buf) - 1] = _T('\0');
 	va_end(ap);
-# if defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0333
-#  ifdef OPENSSL_SYS_WIN_CORE
+#if defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0333
+#ifdef OPENSSL_SYS_WIN_CORE
 	/* ONECORE is always NONGUI and NT >= 0x0601 */
 	/*
 	 * TODO: (For non GUI and no std error cases)
@@ -321,7 +321,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	 */
 	OutputDebugString(buf);
 #   endif
-#  else
+#else
 	/* this -------------v--- guards NT-specific calls */
 	if(check_winnt() && OPENSSL_isservice() > 0) {
 		HANDLE hEventLog = RegisterEventSource(NULL, _T("OpenSSL"));
@@ -344,7 +344,7 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	else {
 		MessageBox(NULL, buf, _T("OpenSSL: FATAL"), MB_OK | MB_ICONERROR);
 	}
-#  endif
+#endif
 #else
 	MessageBox(NULL, buf, _T("OpenSSL: FATAL"), MB_OK | MB_ICONERROR);
 #endif
@@ -377,7 +377,7 @@ void OPENSSL_die(const char * message, const char * file, int line)
 	/*
 	 * Win32 abort() customarily shows a dialog, but we just did that...
 	 */
-# if !defined(_WIN32_WCE)
+#if !defined(_WIN32_WCE)
 	raise(SIGABRT);
 #endif
 	_exit(3);

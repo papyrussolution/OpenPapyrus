@@ -90,7 +90,7 @@ void OPENSSL_LH_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 void OPENSSL_LH_node_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 #define _LHASH OPENSSL_LHASH
 #define LHASH_NODE OPENSSL_LH_NODE
 #define lh_error OPENSSL_LH_error
@@ -103,11 +103,11 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 #define lh_doall_arg OPENSSL_LH_doall_arg
 #define lh_strhash OPENSSL_LH_strhash
 #define lh_num_items OPENSSL_LH_num_items
-#  ifndef OPENSSL_NO_STDIO
+#ifndef OPENSSL_NO_STDIO
 #   define lh_stats OPENSSL_LH_stats
 #   define lh_node_stats OPENSSL_LH_node_stats
 #   define lh_node_usage_stats OPENSSL_LH_node_usage_stats
-#  endif
+#endif
 #define lh_stats_bio OPENSSL_LH_stats_bio
 #define lh_node_stats_bio OPENSSL_LH_node_stats_bio
 #define lh_node_usage_stats_bio OPENSSL_LH_node_usage_stats_bio
@@ -199,14 +199,14 @@ DEFINE_LHASH_OF(OPENSSL_STRING);
  * push and pop this warning:
  *   warning C4090: 'function': different 'const' qualifiers
  */
-#  pragma warning (push)
-#  pragma warning (disable: 4090)
+#pragma warning (push)
+#pragma warning (disable: 4090)
 #endif
 
 DEFINE_LHASH_OF(OPENSSL_CSTRING);
 
 #ifdef _MSC_VER
-#  pragma warning (pop)
+#pragma warning (pop)
 #endif
 
 /*
@@ -218,20 +218,20 @@ DEFINE_LHASH_OF(OPENSSL_CSTRING);
  * the Crypto library (openssl#6912).
  */
 #ifdef __SUNPRO_C
-#  pragma weak OPENSSL_LH_new
-#  pragma weak OPENSSL_LH_free
-#  pragma weak OPENSSL_LH_insert
-#  pragma weak OPENSSL_LH_delete
-#  pragma weak OPENSSL_LH_retrieve
-#  pragma weak OPENSSL_LH_error
-#  pragma weak OPENSSL_LH_num_items
-#  pragma weak OPENSSL_LH_node_stats_bio
-#  pragma weak OPENSSL_LH_node_usage_stats_bio
-#  pragma weak OPENSSL_LH_stats_bio
-#  pragma weak OPENSSL_LH_get_down_load
-#  pragma weak OPENSSL_LH_set_down_load
-#  pragma weak OPENSSL_LH_doall
-#  pragma weak OPENSSL_LH_doall_arg
+#pragma weak OPENSSL_LH_new
+#pragma weak OPENSSL_LH_free
+#pragma weak OPENSSL_LH_insert
+#pragma weak OPENSSL_LH_delete
+#pragma weak OPENSSL_LH_retrieve
+#pragma weak OPENSSL_LH_error
+#pragma weak OPENSSL_LH_num_items
+#pragma weak OPENSSL_LH_node_stats_bio
+#pragma weak OPENSSL_LH_node_usage_stats_bio
+#pragma weak OPENSSL_LH_stats_bio
+#pragma weak OPENSSL_LH_get_down_load
+#pragma weak OPENSSL_LH_set_down_load
+#pragma weak OPENSSL_LH_doall
+#pragma weak OPENSSL_LH_doall_arg
 #endif /* __SUNPRO_C */
 
 #ifdef  __cplusplus

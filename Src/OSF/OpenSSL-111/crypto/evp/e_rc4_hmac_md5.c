@@ -47,13 +47,13 @@ static int rc4_hmac_md5_init_key(EVP_CIPHER_CTX * ctx,
 	return 1;
 }
 
-# if     defined(RC4_ASM) && defined(MD5_ASM) &&     (     \
+#if     defined(RC4_ASM) && defined(MD5_ASM) &&     (     \
 	defined(__x86_64)       || defined(__x86_64__)  || \
 	defined(_M_AMD64)       || defined(_M_X64)      )
 #define STITCHED_CALL
 #endif
 
-# if !defined(STITCHED_CALL)
+#if !defined(STITCHED_CALL)
 #define rc4_off 0
 #define md5_off 0
 #endif
@@ -62,7 +62,7 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
     const uchar * in, size_t len)
 {
 	EVP_RC4_HMAC_MD5 * key = data(ctx);
-# if defined(STITCHED_CALL)
+#if defined(STITCHED_CALL)
 	size_t rc4_off = 32 - 1 - (key->ks.x & (32 - 1)), /* 32 is $MOD from
 	                                                   * rc4_md5-x86_64.pl */
 	    md5_off = MD5_CBLOCK - key->md.num, blocks;
@@ -77,7 +77,7 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	if(EVP_CIPHER_CTX_encrypting(ctx)) {
 		if(plen == NO_PAYLOAD_LENGTH)
 			plen = len;
-# if defined(STITCHED_CALL)
+#if defined(STITCHED_CALL)
 		/* cipher has to "fall behind" */
 		if(rc4_off > md5_off)
 			md5_off += MD5_CBLOCK;
@@ -122,7 +122,7 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	}
 	else {
 		uchar mac[MD5_DIGEST_LENGTH];
-# if defined(STITCHED_CALL)
+#if defined(STITCHED_CALL)
 		/* digest has to "fall behind" */
 		if(md5_off > rc4_off)
 			rc4_off += 2 * MD5_CBLOCK;

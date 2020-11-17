@@ -30,15 +30,15 @@
 extern "C" {
 #endif
 
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define SSLeay                  OpenSSL_version_num
-#  define SSLeay_version          OpenSSL_version
-#  define SSLEAY_VERSION_NUMBER   OPENSSL_VERSION_NUMBER
-#  define SSLEAY_VERSION          OPENSSL_VERSION
-#  define SSLEAY_CFLAGS           OPENSSL_CFLAGS
-#  define SSLEAY_BUILT_ON         OPENSSL_BUILT_ON
-#  define SSLEAY_PLATFORM         OPENSSL_PLATFORM
-#  define SSLEAY_DIR              OPENSSL_DIR
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define SSLeay                  OpenSSL_version_num
+#define SSLeay_version          OpenSSL_version
+#define SSLEAY_VERSION_NUMBER   OPENSSL_VERSION_NUMBER
+#define SSLEAY_VERSION          OPENSSL_VERSION
+#define SSLEAY_CFLAGS           OPENSSL_CFLAGS
+#define SSLEAY_BUILT_ON         OPENSSL_BUILT_ON
+#define SSLEAY_PLATFORM         OPENSSL_PLATFORM
+#define SSLEAY_DIR              OPENSSL_DIR
 
 /*
  * Old type for allocating dynamic locks. No longer used. Use the new thread
@@ -153,7 +153,7 @@ void CRYPTO_free_ex_data(int class_index, void *obj, CRYPTO_EX_DATA *ad);
 int CRYPTO_set_ex_data(CRYPTO_EX_DATA *ad, int idx, void *val);
 void *CRYPTO_get_ex_data(const CRYPTO_EX_DATA *ad, int idx);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 /*
  * This function cleans up all "ex_data" state. It mustn't be called under
  * potential race-conditions.
@@ -170,48 +170,48 @@ void *CRYPTO_get_ex_data(const CRYPTO_EX_DATA *ad, int idx);
  * On the other hand, the locking callbacks are no longer used.  Consequently,
  * the callback management functions can be safely replaced with no-op macros.
  */
-#  define CRYPTO_num_locks()            (1)
-#  define CRYPTO_set_locking_callback(func)
-#  define CRYPTO_get_locking_callback()         (NULL)
-#  define CRYPTO_set_add_lock_callback(func)
-#  define CRYPTO_get_add_lock_callback()        (NULL)
+#define CRYPTO_num_locks()            (1)
+#define CRYPTO_set_locking_callback(func)
+#define CRYPTO_get_locking_callback()         (NULL)
+#define CRYPTO_set_add_lock_callback(func)
+#define CRYPTO_get_add_lock_callback()        (NULL)
 
 /*
  * These defines where used in combination with the old locking callbacks,
  * they are not called anymore, but old code that's not called might still
  * use them.
  */
-#  define CRYPTO_LOCK             1
-#  define CRYPTO_UNLOCK           2
-#  define CRYPTO_READ             4
-#  define CRYPTO_WRITE            8
+#define CRYPTO_LOCK             1
+#define CRYPTO_UNLOCK           2
+#define CRYPTO_READ             4
+#define CRYPTO_WRITE            8
 
 /* This structure is no longer used */
 typedef struct crypto_threadid_st {
     int dummy;
 } CRYPTO_THREADID;
 /* Only use CRYPTO_THREADID_set_[numeric|pointer]() within callbacks */
-#  define CRYPTO_THREADID_set_numeric(id, val)
-#  define CRYPTO_THREADID_set_pointer(id, ptr)
-#  define CRYPTO_THREADID_set_callback(threadid_func)   (0)
-#  define CRYPTO_THREADID_get_callback()                (NULL)
-#  define CRYPTO_THREADID_current(id)
-#  define CRYPTO_THREADID_cmp(a, b)                     (-1)
-#  define CRYPTO_THREADID_cpy(dest, src)
-#  define CRYPTO_THREADID_hash(id)                      (0UL)
+#define CRYPTO_THREADID_set_numeric(id, val)
+#define CRYPTO_THREADID_set_pointer(id, ptr)
+#define CRYPTO_THREADID_set_callback(threadid_func)   (0)
+#define CRYPTO_THREADID_get_callback()                (NULL)
+#define CRYPTO_THREADID_current(id)
+#define CRYPTO_THREADID_cmp(a, b)                     (-1)
+#define CRYPTO_THREADID_cpy(dest, src)
+#define CRYPTO_THREADID_hash(id)                      (0UL)
 
-#  if OPENSSL_API_COMPAT < 0x10000000L
+#if OPENSSL_API_COMPAT < 0x10000000L
 #   define CRYPTO_set_id_callback(func)
 #   define CRYPTO_get_id_callback()                     (NULL)
 #   define CRYPTO_thread_id()                           (0UL)
-#  endif /* OPENSSL_API_COMPAT < 0x10000000L */
+#endif /* OPENSSL_API_COMPAT < 0x10000000L */
 
-#  define CRYPTO_set_dynlock_create_callback(dyn_create_function)
-#  define CRYPTO_set_dynlock_lock_callback(dyn_lock_function)
-#  define CRYPTO_set_dynlock_destroy_callback(dyn_destroy_function)
-#  define CRYPTO_get_dynlock_create_callback()          (NULL)
-#  define CRYPTO_get_dynlock_lock_callback()            (NULL)
-#  define CRYPTO_get_dynlock_destroy_callback()         (NULL)
+#define CRYPTO_set_dynlock_create_callback(dyn_create_function)
+#define CRYPTO_set_dynlock_lock_callback(dyn_lock_function)
+#define CRYPTO_set_dynlock_destroy_callback(dyn_destroy_function)
+#define CRYPTO_get_dynlock_create_callback()          (NULL)
+#define CRYPTO_get_dynlock_lock_callback()            (NULL)
+#define CRYPTO_get_dynlock_destroy_callback()         (NULL)
 #endif /* OPENSSL_API_COMPAT < 0x10100000L */
 
 int CRYPTO_set_mem_functions(void *(*m) (size_t, const char *, int), void *(*r) (void *, size_t, const char *, int), void (*f) (void *, const char *, int));
@@ -335,31 +335,31 @@ OPENSSL_INIT_SETTINGS *OPENSSL_INIT_new(void);
 #endif
 void OPENSSL_INIT_free(OPENSSL_INIT_SETTINGS *settings);
 
-# if defined(OPENSSL_THREADS) && !defined(CRYPTO_TDEBUG)
-#  if defined(_WIN32)
+#if defined(OPENSSL_THREADS) && !defined(CRYPTO_TDEBUG)
+#if defined(_WIN32)
 #   if defined(BASETYPES) || defined(_WINDEF_H)
 /* application has to include <windows.h> in order to use this */
 typedef DWORD CRYPTO_THREAD_LOCAL;
 typedef DWORD CRYPTO_THREAD_ID;
 
 typedef LONG CRYPTO_ONCE;
-#    define CRYPTO_ONCE_STATIC_INIT 0
+#define CRYPTO_ONCE_STATIC_INIT 0
 #   endif
-#  else
+#else
 #   include <pthread.h>
 typedef pthread_once_t CRYPTO_ONCE;
 typedef pthread_key_t CRYPTO_THREAD_LOCAL;
 typedef pthread_t CRYPTO_THREAD_ID;
 
 #   define CRYPTO_ONCE_STATIC_INIT PTHREAD_ONCE_INIT
-#  endif
+#endif
 #endif
 
-# if !defined(CRYPTO_ONCE_STATIC_INIT)
+#if !defined(CRYPTO_ONCE_STATIC_INIT)
 typedef uint CRYPTO_ONCE;
 typedef uint CRYPTO_THREAD_LOCAL;
 typedef uint CRYPTO_THREAD_ID;
-#  define CRYPTO_ONCE_STATIC_INIT 0
+#define CRYPTO_ONCE_STATIC_INIT 0
 #endif
 
 int CRYPTO_THREAD_run_once(CRYPTO_ONCE *once, void (*init)(void));

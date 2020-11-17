@@ -90,12 +90,12 @@
                                 } \
                         }
 
-# if defined(_MSC_VER)
+#if defined(_MSC_VER)
 #define ROTATE(a,n)     (_lrotr(a,n))
 # elif defined(__ICC)
 #define ROTATE(a,n)     (_rotr(a,n))
 # elif defined(__GNUC__) && __GNUC__>=2 && !defined(__STRICT_ANSI__) && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) && !defined(PEDANTIC)
-#  if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
+#if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
 		#define ROTATE(a,n)   ({ uint ret;   \
                                 asm ("rorl %1,%0"       \
                                         : "=r"(ret)     \
@@ -103,7 +103,7 @@
                                         : "cc");        \
                            ret;                         \
                         })
-#  endif
+#endif
 #endif
 #ifndef ROTATE
 #define ROTATE(a,n)     (((a)>>(n))+((a)<<(32-(n))))

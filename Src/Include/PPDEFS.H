@@ -8024,6 +8024,7 @@
 	#define CTL_TXTDBPARAM_HDRCOUNT    (5 + WINDOWS_ID_BIAS)
 	#define CTLBRW_TXTDBPARAM_FNAME    (6 + WINDOWS_ID_BIAS)
 	#define CTL_TXTDBPARAM_FOOTER      (7 + WINDOWS_ID_BIAS)
+	#define CTL_TXTDBPARAM_ENCODING    (8 + WINDOWS_ID_BIAS) // @v10.9.3
 #define DLG_IMPEXP                905 // IMPEXP Базовый диалог параметров экспорта/импорта
 	#define IMPEXP_CTL_BIAS            (50 + WINDOWS_ID_BIAS)
 //  Если какие-либо диалоги наследуют поведение этого диалога, то

@@ -14,8 +14,8 @@
 #include <ec_int.h>
 
 #if defined(__SUNPRO_C)
-# if __SUNPRO_C >= 0x520
-#  pragma error_messages (off,E_ARRAY_OF_INCOMPLETE_NONAME,E_ARRAY_OF_INCOMPLETE)
+#if __SUNPRO_C >= 0x520
+#pragma error_messages (off,E_ARRAY_OF_INCOMPLETE_NONAME,E_ARRAY_OF_INCOMPLETE)
 #endif
 #endif
 

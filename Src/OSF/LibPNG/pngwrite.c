@@ -119,22 +119,22 @@ void PNGAPI png_write_info_before_PLTE(png_structrp png_ptr, png_const_inforp in
 		 * flag here too.
 		 */
 #ifdef PNG_GAMMA_SUPPORTED
-#  ifdef PNG_WRITE_gAMA_SUPPORTED
+#ifdef PNG_WRITE_gAMA_SUPPORTED
 		if((info_ptr->colorspace.flags & PNG_COLORSPACE_INVALID) == 0 &&
 		    (info_ptr->colorspace.flags & PNG_COLORSPACE_FROM_gAMA) != 0 &&
 		    (info_ptr->valid & PNG_INFO_gAMA) != 0)
 			png_write_gAMA_fixed(png_ptr, info_ptr->colorspace.gamma);
-#  endif
+#endif
 #endif
 
 #ifdef PNG_COLORSPACE_SUPPORTED
 		/* Write only one of sRGB or an ICC profile.  If a profile was supplied
 		 * and it matches one of the known sRGB ones issue a warning.
 		 */
-#  ifdef PNG_WRITE_iCCP_SUPPORTED
+#ifdef PNG_WRITE_iCCP_SUPPORTED
 		if((info_ptr->colorspace.flags & PNG_COLORSPACE_INVALID) == 0 &&
 		    (info_ptr->valid & PNG_INFO_iCCP) != 0) {
-#    ifdef PNG_WRITE_sRGB_SUPPORTED
+#ifdef PNG_WRITE_sRGB_SUPPORTED
 			if((info_ptr->valid & PNG_INFO_sRGB) != 0)
 				png_app_warning(png_ptr,
 				    "profile matches sRGB but writing iCCP instead");
@@ -146,13 +146,13 @@ void PNGAPI png_write_info_before_PLTE(png_structrp png_ptr, png_const_inforp in
 #     ifdef PNG_WRITE_sRGB_SUPPORTED
 		else
 #     endif
-#  endif
+#endif
 
-#  ifdef PNG_WRITE_sRGB_SUPPORTED
+#ifdef PNG_WRITE_sRGB_SUPPORTED
 		if((info_ptr->colorspace.flags & PNG_COLORSPACE_INVALID) == 0 &&
 		    (info_ptr->valid & PNG_INFO_sRGB) != 0)
 			png_write_sRGB(png_ptr, info_ptr->colorspace.rendering_intent);
-#  endif /* WRITE_sRGB */
+#endif /* WRITE_sRGB */
 #endif /* COLORSPACE */
 
 #ifdef PNG_WRITE_sBIT_SUPPORTED
@@ -161,12 +161,12 @@ void PNGAPI png_write_info_before_PLTE(png_structrp png_ptr, png_const_inforp in
 #endif
 
 #ifdef PNG_COLORSPACE_SUPPORTED
-#  ifdef PNG_WRITE_cHRM_SUPPORTED
+#ifdef PNG_WRITE_cHRM_SUPPORTED
 		if((info_ptr->colorspace.flags & PNG_COLORSPACE_INVALID) == 0 &&
 		    (info_ptr->colorspace.flags & PNG_COLORSPACE_FROM_cHRM) != 0 &&
 		    (info_ptr->valid & PNG_INFO_cHRM) != 0)
 			png_write_cHRM_fixed(png_ptr, &info_ptr->colorspace.end_points_xy);
-#  endif
+#endif
 #endif
 
 #ifdef PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED
@@ -425,9 +425,9 @@ void PNGAPI png_write_end(png_structrp png_ptr, png_inforp info_ptr)
 	 * png-mng-implement at lists.sf.net .
 	 */
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
-#  ifdef PNG_WRITE_FLUSH_AFTER_IEND_SUPPORTED
+#ifdef PNG_WRITE_FLUSH_AFTER_IEND_SUPPORTED
 	png_flush(png_ptr);
-#  endif
+#endif
 #endif
 }
 

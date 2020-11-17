@@ -25,14 +25,14 @@
 #ifndef CURL_DISABLE_DOH
 
 #include "urldata.h"
-#include "curl_addrinfo.h"
+//#include "curl_addrinfo.h"
 #include "doh.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "multiif.h"
 #include "url.h"
 #include "share.h"
 #include "curl_base64.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strdup.h"
 #include "dynbuf.h"
 /* The last 3 #include files should be in this order */
@@ -242,7 +242,7 @@ static CURLcode dohprobe(struct Curl_easy * data,
 		if(result)
 			goto error;
 		nurl = aprintf("%s?dns=%s", url, b64);
-		free(b64);
+		SAlloc::F(b64);
 		if(!nurl) {
 			result = CURLE_OUT_OF_MEMORY;
 			goto error;
@@ -363,11 +363,11 @@ static CURLcode dohprobe(struct Curl_easy * data,
 	}
 	else
 		goto error;
-	free(nurl);
+	SAlloc::F(nurl);
 	return CURLE_OK;
 
 error:
-	free(nurl);
+	SAlloc::F(nurl);
 	Curl_close(&doh);
 	return result;
 }
@@ -803,7 +803,7 @@ static struct Curl_addrinfo * doh2ai(const struct dohentry * de, const char * ho
 			ss_size = sizeof(struct sockaddr_in);
 			addrtype = AF_INET;
 		}
-		ai = static_cast<Curl_addrinfo *>(calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen));
+		ai = static_cast<Curl_addrinfo *>(SAlloc::C(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen));
 		if(!ai) {
 			result = CURLE_OUT_OF_MEMORY;
 			break;

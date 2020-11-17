@@ -197,11 +197,11 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 	return 1;
 }
 
-#  if !defined(OPENSSL_SMALL_FOOTPRINT)
+#if !defined(OPENSSL_SMALL_FOOTPRINT)
 
 #   if defined(POLY1305_ASM) && (defined(__x86_64) || defined(__x86_64__) || \
 	defined(_M_AMD64) || defined(_M_X64))
-#    define XOR128_HELPERS
+#define XOR128_HELPERS
 void * xor128_encrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
 void * xor128_decrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
 static const uchar zero[4 * CHACHA_BLK_SIZE] = { 0 };
@@ -360,9 +360,9 @@ static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	return len;
 }
 
-#  else
+#else
 static const uchar zero[CHACHA_BLK_SIZE] = { 0 };
-#  endif
+#endif
 
 static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
     const uchar * in, size_t len)
@@ -371,10 +371,10 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	size_t rem, plen = actx->tls_payload_length;
 
 	if(!actx->mac_inited) {
-#  if !defined(OPENSSL_SMALL_FOOTPRINT)
+#if !defined(OPENSSL_SMALL_FOOTPRINT)
 		if(plen != NO_TLS_PAYLOAD_LENGTH && out != NULL)
 			return chacha20_poly1305_tls_cipher(ctx, out, in, len);
-#  endif
+#endif
 		actx->key.counter[0] = 0;
 		ChaCha20_ctr32(actx->key.buf, zero, CHACHA_BLK_SIZE,
 		    actx->key.key.d, actx->key.counter);

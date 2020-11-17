@@ -52,13 +52,13 @@ struct smb_conn {
 #ifdef BUILDING_CURL_SMB_C
 
 #if defined(_MSC_VER) || defined(__ILEC400__)
-#  define PACK
-#  pragma pack(push)
-#  pragma pack(1)
+#define PACK
+#pragma pack(push)
+#pragma pack(1)
 #elif defined(__GNUC__)
-#  define PACK __attribute__((packed))
+#define PACK __attribute__((packed))
 #else
-#  define PACK
+#define PACK
 #endif
 
 #define SMB_COM_CLOSE                 0x04
@@ -237,7 +237,7 @@ struct smb_tree_disconnect {
 } PACK;
 
 #if defined(_MSC_VER) || defined(__ILEC400__)
-#  pragma pack(pop)
+#pragma pack(pop)
 #endif
 
 #endif /* BUILDING_CURL_SMB_C */

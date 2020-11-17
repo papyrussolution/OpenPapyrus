@@ -212,10 +212,8 @@ void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size);
 		return (WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) ? ret : -1;
 	}
 #endif /* WIN32 */
-
 #ifdef __OS400__
-	/* Force parameter type. */
-	#define send(s, b, l, f)    send((s), (uchar *)(b), (l), (f))
+	#define send(s, b, l, f)    send((s), (uchar *)(b), (l), (f)) /* Force parameter type. */
 #endif
 //
 //#include "crypto.h"

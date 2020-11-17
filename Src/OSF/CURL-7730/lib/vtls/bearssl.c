@@ -27,10 +27,10 @@
 
 #include "bearssl.h"
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "select.h"
 #include "multiif.h"
 #include "curl_printf.h"
@@ -140,7 +140,7 @@ static CURLcode load_cafile(const char * path, br_x509_trust_anchor ** anchors,
 					    goto fail;
 				    }
 				    new_anchors_len = ca.anchors_len + 1;
-				    new_anchors = realloc(ca.anchors,
+				    new_anchors = SAlloc::R(ca.anchors,
 					    new_anchors_len * sizeof(ca.anchors[0]));
 				    if(!new_anchors) {
 					    ca.err = CURLE_OUT_OF_MEMORY;
@@ -186,7 +186,7 @@ static CURLcode load_cafile(const char * path, br_x509_trust_anchor ** anchors,
 				    }
 
 				    /* fill in trust anchor DN and public key data */
-				    ta->dn.data = malloc(ta_size);
+				    ta->dn.data = SAlloc::M(ta_size);
 				    if(!ta->dn.data) {
 					    ca.err = CURLE_OUT_OF_MEMORY;
 					    goto fail;
@@ -223,8 +223,8 @@ fail:
 	}
 	else {
 		for(i = 0; i < ca.anchors_len; ++i)
-			free(ca.anchors[i].dn.data);
-		free(ca.anchors);
+			SAlloc::F(ca.anchors[i].dn.data);
+		SAlloc::F(ca.anchors);
 	}
 
 	return ca.err;
@@ -556,7 +556,7 @@ static CURLcode bearssl_connect_step3(struct connectdata * conn, int sockindex)
 		void * oldsession;
 		br_ssl_session_parameters * session;
 
-		session = malloc(sizeof(*session));
+		session = SAlloc::M(sizeof(*session));
 		if(!session)
 			return CURLE_OUT_OF_MEMORY;
 		br_ssl_engine_get_session_parameters(&backend->ctx.eng, session);
@@ -567,7 +567,7 @@ static CURLcode bearssl_connect_step3(struct connectdata * conn, int sockindex)
 		ret = Curl_ssl_addsessionid(conn, session, 0, sockindex);
 		Curl_ssl_sessionid_unlock(conn);
 		if(ret) {
-			free(session);
+			SAlloc::F(session);
 			return CURLE_OUT_OF_MEMORY;
 		}
 	}
@@ -803,13 +803,13 @@ static void Curl_bearssl_close(struct connectdata * conn, int sockindex)
 		(void)bearssl_run_until(conn, sockindex, BR_SSL_CLOSED);
 	}
 	for(i = 0; i < backend->anchors_len; ++i)
-		free(backend->anchors[i].dn.data);
-	free(backend->anchors);
+		SAlloc::F(backend->anchors[i].dn.data);
+	SAlloc::F(backend->anchors);
 }
 
 static void Curl_bearssl_session_free(void * ptr)
 {
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 static CURLcode Curl_bearssl_md5sum(uchar * input,

@@ -86,9 +86,9 @@ typedef void* tdata_t;          /* image data ref */
  */
 
 #if defined(_WINDOWS) || defined(__WIN32__) || defined(_Windows)
-#  if !defined(__CYGWIN) && !defined(AVOID_WIN32_FILEIO) && !defined(USE_WIN32_FILEIO)
-#    define AVOID_WIN32_FILEIO
-#  endif
+#if !defined(__CYGWIN) && !defined(AVOID_WIN32_FILEIO) && !defined(USE_WIN32_FILEIO)
+#define AVOID_WIN32_FILEIO
+#endif
 #endif
 #if defined(USE_WIN32_FILEIO)
 	#define VC_EXTRALEAN
@@ -247,7 +247,7 @@ typedef struct {
 	#define LOGLUV_PUBLIC 1
 #endif
 #if !defined(__GNUC__) && !defined(__attribute__)
-#  define __attribute__(x) /*nothing*/
+#define __attribute__(x) /*nothing*/
 #endif
 
 #if defined(c_plusplus) || defined(__cplusplus)
@@ -420,7 +420,7 @@ extern void TIFFRGBAImageEnd(TIFFRGBAImage*);
 extern TIFF* TIFFOpen(const char*, const char*);
 # ifdef __WIN32__
 extern TIFF* TIFFOpenW(const wchar_t*, const char*);
-# endif /* __WIN32__ */
+#endif /* __WIN32__ */
 extern TIFF * TIFFFdOpen(int, const char*, const char*);
 extern TIFF * TIFFClientOpen(const char*, const char*, thandle_t, TIFFReadWriteProc, TIFFReadWriteProc, TIFFSeekProc, TIFFCloseProc, TIFFSizeProc, TIFFMapFileProc, TIFFUnmapFileProc);
 extern const char * TIFFFileName(TIFF*);

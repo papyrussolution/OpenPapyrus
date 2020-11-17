@@ -149,8 +149,8 @@ static void MD5_Final(uchar * digest, MD5_CTX * ctx)
 
    Declaring the functions as static like this seems to be a bit more
    reliable than defining COMMON_DIGEST_FOR_OPENSSL on older cats. */
-#  include <CommonCrypto/CommonDigest.h>
-#  define MD5_CTX CC_MD5_CTX
+#include <CommonCrypto/CommonDigest.h>
+#define MD5_CTX CC_MD5_CTX
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
@@ -569,12 +569,12 @@ void Curl_md5it(uchar * outbuffer, const uchar * input, const size_t len)
 struct MD5_context * Curl_MD5_init(const struct MD5_params * md5params)
 {
 	/* Create MD5 context */
-	struct MD5_context * ctxt = (struct MD5_context *)malloc(sizeof(*ctxt));
+	struct MD5_context * ctxt = (struct MD5_context *)SAlloc::M(sizeof(*ctxt));
 	if(!ctxt)
 		return ctxt;
-	ctxt->md5_hashctx = malloc(md5params->md5_ctxtsize);
+	ctxt->md5_hashctx = SAlloc::M(md5params->md5_ctxtsize);
 	if(!ctxt->md5_hashctx) {
-		free(ctxt);
+		SAlloc::F(ctxt);
 		return NULL;
 	}
 	ctxt->md5_hash = md5params;
@@ -595,8 +595,8 @@ CURLcode Curl_MD5_final(struct MD5_context * context, uchar * result)
 {
 	(*context->md5_hash->md5_final_func)(result, context->md5_hashctx);
 
-	free(context->md5_hashctx);
-	free(context);
+	SAlloc::F(context->md5_hashctx);
+	SAlloc::F(context);
 
 	return CURLE_OK;
 }

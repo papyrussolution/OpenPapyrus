@@ -60,18 +60,18 @@
 #endif
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "if2ip.h"
 #include "strerror.h"
-#include "connect.h"
+//#include "connect.h"
 #include "select.h"
 #include "url.h" /* for Curl_safefree() */
 #include "multiif.h"
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
 #include "inet_pton.h"
 #include "vtls/vtls.h" /* for Curl_ssl_check_cxn() */
-#include "progress.h"
+//#include "progress.h"
 #include "warnless.h"
 #include "conncache.h"
 #include "multihandle.h"
@@ -1187,7 +1187,7 @@ static CURLcode singleipconnect(struct connectdata * conn,
 	if(!isconnected && (conn->transport != connectdata::TRNSPRT_UDP)) {
 		if(conn->bits.tcp_fastopen) {
 #if defined(CONNECT_DATA_IDEMPOTENT) /* Darwin */
-#  if defined(HAVE_BUILTIN_AVAILABLE)
+#if defined(HAVE_BUILTIN_AVAILABLE)
 			/* while connectx function is available since macOS 10.11 / iOS 9,
 			   it did not have the interface declared correctly until
 			   Xcode 9 / macOS SDK 10.13 */
@@ -1206,9 +1206,9 @@ static CURLcode singleipconnect(struct connectdata * conn,
 			else {
 				rc = connect(sockfd, &addr.sa_addr, addr.addrlen);
 			}
-#  else
+#else
 			rc = connect(sockfd, &addr.sa_addr, addr.addrlen);
-#  endif /* HAVE_BUILTIN_AVAILABLE */
+#endif /* HAVE_BUILTIN_AVAILABLE */
 #elif defined(TCP_FASTOPEN_CONNECT) /* Linux >= 4.11 */
 			if(setsockopt(sockfd, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
 			    (void*)&optval, sizeof(optval)) < 0)

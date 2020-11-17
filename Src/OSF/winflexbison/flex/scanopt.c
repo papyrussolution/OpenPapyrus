@@ -131,7 +131,7 @@ scanopt_t * scanopt_init(const optspec_t * options, int argc, char ** argv, int 
 {
 	int i;
 	struct _scanopt_t * s;
-	s = (struct _scanopt_t *)malloc(sizeof(struct _scanopt_t));
+	s = (struct _scanopt_t *)SAlloc::M(sizeof(struct _scanopt_t));
 	s->options = options;
 	s->optc = 0;
 	s->argc = argc;
@@ -148,7 +148,7 @@ scanopt_t * scanopt_init(const optspec_t * options, int argc, char ** argv, int 
 		s->optc++;
 
 	/* Build auxiliary data */
-	s->aux = (_aux *)malloc((size_t)s->optc * sizeof(struct _aux));
+	s->aux = (_aux *)SAlloc::M((size_t)s->optc * sizeof(struct _aux));
 
 	for(i = 0; i < s->optc; i++) {
 		const uchar * p, * pname;
@@ -245,7 +245,7 @@ int     scanopt_usage(scanopt_t * scanner, FILE * fp, const char * usage)
 	}
 	fprintf(fp, "\n");
 	/* Sort by r_val and string. Yes, this is O(n*n), but n is small. */
-	store = (usg_elem *)malloc((size_t)s->optc * sizeof(usg_elem));
+	store = (usg_elem *)SAlloc::M((size_t)s->optc * sizeof(usg_elem));
 	for(i = 0; i < s->optc; i++) {
 		/* grab the next preallocate node. */
 		ue = store + store_idx++;
@@ -473,7 +473,7 @@ int     scanopt_usage(scanopt_t * scanner, FILE * fp, const char * usage)
 			}
 		}
 	}                       /* end while */
-	free(store);
+	SAlloc::F(store);
 	return 0;
 }
 
@@ -759,8 +759,8 @@ int scanopt_destroy(scanopt_t * svoid)
 {
 	struct _scanopt_t * s = (struct _scanopt_t *)svoid;
 	if(s != NULL) {
-		free(s->aux);
-		free(s);
+		SAlloc::F(s->aux);
+		SAlloc::F(s);
 	}
 	return 0;
 }

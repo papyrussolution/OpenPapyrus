@@ -51,7 +51,7 @@
  * this should be on.  Again this in only really a problem on machines using
  * "long long's", are 32bit, and are not using my assembler code.
  */
-# if defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_WINDOWS) || \
+#if defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_WINDOWS) || \
 	defined(OPENSSL_SYS_WIN32) || defined(linux)
 #define BN_DIV2W
 #endif
@@ -90,13 +90,13 @@
 #endif
 
 #ifdef THIRTY_TWO_BIT
-#  ifdef BN_LLONG
+#ifdef BN_LLONG
 #   if defined(_WIN32) && !defined(__GNUC__)
-#    define BN_ULLONG     unsigned __int64
+#define BN_ULLONG     unsigned __int64
 #   else
-#    define BN_ULLONG     ulong long
+#define BN_ULLONG     ulong long
 #   endif
-#  endif
+#endif
 #define BN_BITS4        16
 #define BN_MASK2        (0xffffffffL)
 #define BN_MASK2l       (0xffff)
@@ -148,7 +148,7 @@
  * all operations manipulating the bit in question in non-BN_DEBUG build.
  */
 #define BN_FLG_FIXED_TOP 0x10000
-#  ifdef BN_DEBUG_RAND
+#ifdef BN_DEBUG_RAND
 #   define bn_pollute(a) \
 	do { \
 		const BIGNUM * _bnum1 = (a); \
@@ -163,9 +163,9 @@
 			memset(_not_const + _bnum1->top, _tmp_char, sizeof(*_not_const) * (_bnum1->dmax - _bnum1->top)); \
 		} \
 	} while(0)
-#  else
+#else
 #   define bn_pollute(a)
-#  endif
+#endif
 #define bn_check_top(a) \
 	do { \
 		const BIGNUM * _bnum2 = (a); \
@@ -300,7 +300,7 @@ struct bn_gencb_st {
  * log_2(32)=5 and log_2(64)=6 respectively. A window size of 7 should only be
  * used on processors that have a 128 byte or greater cache line size.
  */
-# if MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 64
+#if MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 64
 
 #define BN_window_bits_for_ctime_exponent_size(b) \
 	((b) > 937 ? 6 : \
@@ -335,17 +335,17 @@ struct bn_gencb_st {
  * with the same size as a pointer, which size_t is not certain to be. The
  * only fix here is VMS-specific.
  */
-# if defined(OPENSSL_SYS_VMS)
-#  if __INITIAL_POINTER_SIZE == 64
+#if defined(OPENSSL_SYS_VMS)
+#if __INITIAL_POINTER_SIZE == 64
 #   define PTR_SIZE_INT long long
-#  else                         /* __INITIAL_POINTER_SIZE == 64 */
+#else                         /* __INITIAL_POINTER_SIZE == 64 */
 #   define PTR_SIZE_INT int
-#  endif                        /* __INITIAL_POINTER_SIZE == 64 [else] */
+#endif                        /* __INITIAL_POINTER_SIZE == 64 [else] */
 # elif !defined(PTR_SIZE_INT)   /* defined(OPENSSL_SYS_VMS) */
 #define PTR_SIZE_INT size_t
 #endif                         /* defined(OPENSSL_SYS_VMS) [else] */
 
-# if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) && !defined(PEDANTIC)
+#if !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM) && !defined(PEDANTIC)
 /*
  * BN_UMULT_HIGH section.
  * If the compiler doesn't support 2*N integer type, then you have to
@@ -362,81 +362,81 @@ struct bn_gencb_st {
  * what BN_UMULT_HIGH macro is about:-) Note that more recent compilers do
  * support 2*64 integer type, which is also used here.
  */
-#  if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16 && \
+#if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16 && \
 	(defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
 #   define BN_UMULT_HIGH(a, b)          (((__uint128_t)(a)*(b))>>64)
 #   define BN_UMULT_LOHI(low, high, a, b) ({       \
 		__uint128_t ret = (__uint128_t)(a)*(b);   \
 		(high) = ret>>64; (low) = ret;      })
-#  elif defined(__alpha) && (defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
+#elif defined(__alpha) && (defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
 #   if defined(__DECC)
-#    include <c_asm.h>
-#    define BN_UMULT_HIGH(a, b)   (BN_ULONG) asm ("umulh %a0,%a1,%v0", (a), (b))
+#include <c_asm.h>
+#define BN_UMULT_HIGH(a, b)   (BN_ULONG) asm ("umulh %a0,%a1,%v0", (a), (b))
 #   elif defined(__GNUC__) && __GNUC__>=2
-#    define BN_UMULT_HIGH(a, b)   ({     \
+#define BN_UMULT_HIGH(a, b)   ({     \
 		BN_ULONG ret;          \
 		asm ("umulh     %1,%2,%0"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
 		ret;                      })
 #   endif                       /* compiler */
-#  elif defined(_ARCH_PPC64) && defined(SIXTY_FOUR_BIT_LONG)
+#elif defined(_ARCH_PPC64) && defined(SIXTY_FOUR_BIT_LONG)
 #   if defined(__GNUC__) && __GNUC__>=2
-#    define BN_UMULT_HIGH(a, b)   ({     \
+#define BN_UMULT_HIGH(a, b)   ({     \
 		BN_ULONG ret;          \
 		asm ("mulhdu    %0,%1,%2"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
 		ret;                      })
 #   endif                       /* compiler */
-#  elif (defined(__x86_64) || defined(__x86_64__)) && \
+#elif (defined(__x86_64) || defined(__x86_64__)) && \
 	(defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
 #   if defined(__GNUC__) && __GNUC__>=2
-#    define BN_UMULT_HIGH(a, b)   ({     \
+#define BN_UMULT_HIGH(a, b)   ({     \
 		BN_ULONG ret, discard;  \
 		asm ("mulq      %3"             \
 		: "=a" (discard), "=d" (ret)  \
 		: "a" (a), "g" (b)           \
 		: "cc");                   \
 		ret;                      })
-#    define BN_UMULT_LOHI(low, high, a, b) \
+#define BN_UMULT_LOHI(low, high, a, b) \
 	asm ("mulq      %3"             \
 	: "=a" (low), "=d" (high)  \
 	: "a" (a), "g" (b)         \
 	: "cc");
 #   endif
-#  elif (defined(_M_AMD64) || defined(_M_X64)) && defined(SIXTY_FOUR_BIT)
+#elif (defined(_M_AMD64) || defined(_M_X64)) && defined(SIXTY_FOUR_BIT)
 #   if defined(_MSC_VER) && _MSC_VER>=1400
 unsigned __int64 __umulh(unsigned __int64 a, unsigned __int64 b);
 unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
     unsigned __int64 * h);
 #    pragma intrinsic(__umulh,_umul128)
-#    define BN_UMULT_HIGH(a, b)           __umulh((a), (b))
-#    define BN_UMULT_LOHI(low, high, a, b)  ((low) = _umul128((a), (b), &(high)))
+#define BN_UMULT_HIGH(a, b)           __umulh((a), (b))
+#define BN_UMULT_LOHI(low, high, a, b)  ((low) = _umul128((a), (b), &(high)))
 #   endif
-#  elif defined(__mips) && (defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
+#elif defined(__mips) && (defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
 #   if defined(__GNUC__) && __GNUC__>=2
-#    define BN_UMULT_HIGH(a, b) ({       \
+#define BN_UMULT_HIGH(a, b) ({       \
 		BN_ULONG ret;          \
 		asm ("dmultu    %1,%2"          \
 		: "=h" (ret)                \
 		: "r" (a), "r" (b) : "l");   \
 		ret;                    })
-#    define BN_UMULT_LOHI(low, high, a, b) \
+#define BN_UMULT_LOHI(low, high, a, b) \
 	asm ("dmultu    %2,%3"          \
 	: "=l" (low), "=h" (high)     \
 	: "r" (a), "r" (b));
 #   endif
-#  elif defined(__aarch64__) && defined(SIXTY_FOUR_BIT_LONG)
+#elif defined(__aarch64__) && defined(SIXTY_FOUR_BIT_LONG)
 #   if defined(__GNUC__) && __GNUC__>=2
-#    define BN_UMULT_HIGH(a, b)   ({     \
+#define BN_UMULT_HIGH(a, b)   ({     \
 		BN_ULONG ret;          \
 		asm ("umulh     %0,%1,%2"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
 		ret;                      })
 #   endif
-#  endif                        /* cpu */
+#endif                        /* cpu */
 #endif                         /* OPENSSL_NO_ASM */
 
 #ifdef BN_DEBUG_RAND

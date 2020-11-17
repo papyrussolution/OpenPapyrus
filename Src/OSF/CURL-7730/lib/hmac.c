@@ -48,7 +48,7 @@ struct HMAC_context * Curl_HMAC_init(const struct HMAC_params * hashparams, cons
 	uchar b;
 	/* Create HMAC context. */
 	size_t i = sizeof(struct HMAC_context) + 2 * hashparams->hmac_ctxtsize + hashparams->hmac_resultlen;
-	struct HMAC_context * ctxt = (struct HMAC_context *)malloc(i);
+	struct HMAC_context * ctxt = (struct HMAC_context *)SAlloc::M(i);
 	if(!ctxt)
 		return ctxt;
 
@@ -111,7 +111,7 @@ int Curl_HMAC_final(struct HMAC_context * ctxt, uchar * result)
 	(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt2,
 	    result, hashparams->hmac_resultlen);
 	(*hashparams->hmac_hfinal)(result, ctxt->hmac_hashctxt2);
-	free((char *)ctxt);
+	SAlloc::F((char *)ctxt);
 	return 0;
 }
 

@@ -934,7 +934,17 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 									THROW(fabs(value) >= 0.00001); // @todo @err
 									THROW(P_ScObj->P_Tbl->GetRest(sc_rec.ID, ZERODATE, &rest));
 									rest += sc_rec.MaxCredit;
-									THROW_PP_S(value > 0.0 || (rest+value) >= 0.0, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
+									if(value < 0.0) {
+										// @v10.9.3 {
+										if((rest + value) <= -0.01) {
+											SString msg_buf;
+											msg_buf.Z().Cat(sc_rec.Code).Space().
+												CatEq("amount", value, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Space().CatEq("rest", rest, MKSFMTD(0, 8, NMBF_NOTRAILZ));
+											CALLEXCEPT_PP_S(PPERR_SCARDRESTNOTENOUGH, msg_buf);
+										}
+										// } @v10.9.3 
+										// @v10.9.3 THROW_PP_S((rest+value) >= 0.0, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
+									}
 									{
 										SCardCore::OpBlock ob;
 										ob.SCardID = sc_rec.ID;
@@ -986,7 +996,7 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 							SString note_buf, freq_buf, dur_buf;
 							PPGetFilePath(PPPATH_DD, pClause->CmdText, freq_buf);
 							if(fileExists(freq_buf)) {
-								if(::PlaySound(SUcSwitch(freq_buf), 0, SND_FILENAME|SND_ASYNC)) // @unicodeproblem
+								if(::PlaySound(SUcSwitch(freq_buf), 0, SND_FILENAME|SND_ASYNC))
 									default_beep = 0;
 							}
 							else {
@@ -995,11 +1005,11 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 									uint   freq = 0;
 									uint   dur = 0;
 									if(note_buf.Divide(',', freq_buf, dur_buf) > 0) {
-										freq = (uint)freq_buf.ToLong();
-										dur = (uint)dur_buf.ToLong();
+										freq = static_cast<uint>(freq_buf.ToLong());
+										dur = static_cast<uint>(dur_buf.ToLong());
 									}
 									else
-										freq = (uint)freq_buf.ToLong();
+										freq = static_cast<uint>(freq_buf.ToLong());
 									Beep(NZOR(freq, def_freq), NZOR(dur, def_dur));
 									default_beep = 0;
 								}
@@ -1025,13 +1035,7 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 	return ok;
 }
 
-struct FrwdPsnEventItem {
-	LDATE  Dt;
-	long   OprNo;
-	PPID   ID;
-};
-
-int PPObjPersonEvent::GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, SArray * pList)
+int PPObjPersonEvent::GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, TSVector <FrwdPsnEventItem> * pList)
 {
 	int    ok = 1;
 	int    idx = isPrmr ? 3 : 1;
@@ -1069,7 +1073,7 @@ int PPObjPersonEvent::GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, 
 	return ok;
 }
 
-int PPObjPersonEvent::GetFrwdList(PPID psnID, LDATE dt, long oprno, SArray * pList)
+int PPObjPersonEvent::GetFrwdList(PPID psnID, LDATE dt, long oprno, TSVector <FrwdPsnEventItem> * pList)
 {
 	if(psnID)
 		return (GetFrwdList(psnID, 1, dt, oprno, pList) && GetFrwdList(psnID, 0, dt, oprno, pList));
@@ -1268,7 +1272,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 	PersonEventTbl::Rec rec;
 	PPPsnOpKindPacket pok_pack;
 	PPObjPsnOpKind    pok_obj;
-	SArray frwd_list(sizeof(FrwdPsnEventItem));
+	TSVector <FrwdPsnEventItem> frwd_list;
 	if(pPack) {
 		THROW(pok_obj.GetPacket(pPack->Rec.OpID, &pok_pack) > 0);
 		THROW(CheckRestrictions(pPack, &pok_pack));
@@ -1372,9 +1376,9 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 				THROW(GetFrwdList(prmr_id, op_dt, op_no, &frwd_list));
 				THROW(GetFrwdList(scnd_id, op_dt, op_no, &frwd_list));
 				for(i = 0; i < frwd_list.getCount(); i++) {
-					const FrwdPsnEventItem * p_item = (FrwdPsnEventItem *)frwd_list.at(i);
+					const FrwdPsnEventItem & r_item = frwd_list.at(i);
 					PPPsnEventPacket temp_pack;
-					if(GetPacket(p_item->ID, &temp_pack) > 0) {
+					if(GetPacket(r_item.ID, &temp_pack) > 0) {
 						PoClause_ clause;
 						THROW(pok_obj.GetPacket(temp_pack.Rec.OpID, &pok_pack) > 0);
 						for(j = 0; j < pok_pack.ClauseList.GetCount(); j++) {

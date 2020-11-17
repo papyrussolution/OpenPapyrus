@@ -25,7 +25,7 @@
 #if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "http_negotiate.h"
 #include "vauth/vauth.h"
 
@@ -179,7 +179,7 @@ CURLcode Curl_output_negotiate(struct connectdata * conn, bool proxy)
 			data->state.aptr.userpwd = userp;
 		}
 
-		free(base64);
+		SAlloc::F(base64);
 
 		if(userp == NULL) {
 			return CURLE_OUT_OF_MEMORY;

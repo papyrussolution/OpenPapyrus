@@ -206,19 +206,19 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    b->shutdown = (int)num & BIO_CLOSE;
 		    b->ptr = ptr;
 		    b->init = 1;
-# if BIO_FLAGS_UPLINK!=0
-#  if defined(__MINGW32__) && defined(__MSVCRT__) && !defined(_IOB_ENTRIES)
+#if BIO_FLAGS_UPLINK!=0
+#if defined(__MINGW32__) && defined(__MSVCRT__) && !defined(_IOB_ENTRIES)
 #   define _IOB_ENTRIES 20
-#  endif
+#endif
 		    /* Safety net to catch purely internal BIO_set_fp calls */
-#  if defined(_MSC_VER) && _MSC_VER>=1900
+#if defined(_MSC_VER) && _MSC_VER>=1900
 		    if(ptr == stdin || ptr == stdout || ptr == stderr)
 			    BIO_clear_flags(b, BIO_FLAGS_UPLINK);
-#  elif defined(_IOB_ENTRIES)
+#elif defined(_IOB_ENTRIES)
 		    if((size_t)ptr >= (size_t)stdin &&
 			(size_t)ptr < (size_t)(stdin + _IOB_ENTRIES))
 			    BIO_clear_flags(b, BIO_FLAGS_UPLINK);
-#  endif
+#endif
 #endif
 #ifdef UP_fsetmod
 		    if(b->flags & BIO_FLAGS_UPLINK)
@@ -226,7 +226,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    else
 #endif
 		    {
-# if defined(OPENSSL_SYS_WINDOWS)
+#if defined(OPENSSL_SYS_WINDOWS)
 			    int fd = _fileno((FILE*)ptr);
 			    if(num & BIO_FP_TEXT)
 				    _setmode(fd, _O_TEXT);
@@ -273,7 +273,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    ret = 0;
 			    break;
 		    }
-# if defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_WINDOWS)
+#if defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_WINDOWS)
 		    if(!(num & BIO_FP_TEXT))
 			    OPENSSL_strlcat(p, "b", sizeof(p));
 		    else

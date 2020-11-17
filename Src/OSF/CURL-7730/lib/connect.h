@@ -22,9 +22,9 @@
 *
 ***************************************************************************/
 //#include "curl_setup.h"
-#include "nonblock.h" /* for curlx_nonblock(), formerly Curl_nonblock() */
-#include "sockaddr.h"
-#include "timeval.h"
+//#include "nonblock.h" /* for curlx_nonblock(), formerly Curl_nonblock() */
+//#include "sockaddr.h"
+//#include "timeval.h"
 
 CURLcode Curl_is_connected(struct connectdata * conn, int sockindex, bool * connected);
 CURLcode Curl_connecthost(struct connectdata * conn, const struct Curl_dns_entry * host);

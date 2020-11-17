@@ -72,7 +72,7 @@ static lbitset_elt * lbitset_free_list;  /* Free list of bitset elements.  */
 
 extern void debug_lbitset(bitset);
 
-#define LBITSET_CURRENT1(X) ((lbitset_elt*)(void*)((char *)(X)-offsetof(lbitset_elt, words)))
+#define LBITSET_CURRENT1(X) ((lbitset_elt*)(void *)((char *)(X)-offsetof(lbitset_elt, words)))
 #define LBITSET_CURRENT(X) LBITSET_CURRENT1((X)->b.cdata)
 #define LBITSET_HEAD(X) ((X)->l.head)
 #define LBITSET_TAIL(X) ((X)->l.tail)

@@ -38,12 +38,12 @@
 #include <ldap.h>
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "sendf.h"
+//#include "sendf.h"
 #include "vtls/vtls.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "curl_ldap.h"
 #include "curl_base64.h"
-#include "connect.h"
+//#include "connect.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 #include "curl_memory.h"
@@ -190,7 +190,7 @@ static CURLcode ldap_setup_connection(struct connectdata * conn)
 	proto = ldap_pvt_url_scheme2proto(lud->lud_scheme);
 	ldap_free_urldesc(lud);
 
-	li = calloc(1, sizeof(struct ldapconninfo));
+	li = SAlloc::C(1, sizeof(struct ldapconninfo));
 	if(!li)
 		return CURLE_OUT_OF_MEMORY;
 	li->proto = proto;
@@ -366,7 +366,7 @@ static CURLcode ldap_disconnect(struct connectdata * conn, bool dead_connection)
 			li->ld = NULL;
 		}
 		conn->proto.ldapc = NULL;
-		free(li);
+		SAlloc::F(li);
 	}
 	return CURLE_OK;
 }
@@ -406,7 +406,7 @@ static CURLcode ldap_do(struct connectdata * conn, bool * done)
 		failf(data, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
 		return CURLE_LDAP_SEARCH_FAILED;
 	}
-	lr = calloc(1, sizeof(struct ldapreqinfo));
+	lr = SAlloc::C(1, sizeof(struct ldapreqinfo));
 	if(!lr)
 		return CURLE_OUT_OF_MEMORY;
 	lr->msgid = msgid;
@@ -432,7 +432,7 @@ static CURLcode ldap_done(struct connectdata * conn, CURLcode res,
 			lr->msgid = 0;
 		}
 		conn->data->req.protop = NULL;
-		free(lr);
+		SAlloc::F(lr);
 	}
 
 	return CURLE_OK;
@@ -632,7 +632,7 @@ static ssize_t ldap_recv(struct connectdata * conn, int sockindex, char * buf,
 							*err = writeerr;
 							return -1;
 						}
-						free(val_b64);
+						SAlloc::F(val_b64);
 						data->req.bytecount += val_b64_sz;
 					}
 				}

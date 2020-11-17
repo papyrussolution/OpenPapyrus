@@ -23,27 +23,24 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#if !defined(CURL_DISABLE_SMB) && defined(USE_CURL_NTLM_CORE) &&  \
-	(CURL_SIZEOF_CURL_OFF_T > 4)
+#if !defined(CURL_DISABLE_SMB) && defined(USE_CURL_NTLM_CORE) && (CURL_SIZEOF_CURL_OFF_T > 4)
 
 #define BUILDING_CURL_SMB_C
-
 #ifdef HAVE_PROCESS_H
-#include <process.h>
-#ifdef CURL_WINDOWS_APP
-#define getpid GetCurrentProcessId
-#elif !defined(MSDOS)
-#define getpid _getpid
+	//#include <process.h>
+	#ifdef CURL_WINDOWS_APP
+		#define getpid GetCurrentProcessId
+	#elif !defined(MSDOS)
+		#define getpid _getpid
+	#endif
 #endif
-#endif
-
 #include "smb.h"
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "multiif.h"
-#include "connect.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "connect.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "vtls/vtls.h"
 #include "curl_ntlm_core.h"
 #include "escape.h"
@@ -153,9 +150,9 @@ static curl_off_t smb_swap64(curl_off_t x)
 }
 
 #else
-#  define smb_swap16(x) (x)
-#  define smb_swap32(x) (x)
-#  define smb_swap64(x) (x)
+#define smb_swap16(x) (x)
+#define smb_swap32(x) (x)
+#define smb_swap64(x) (x)
 #endif
 
 /* SMB request state */
@@ -233,7 +230,7 @@ static CURLcode smb_setup_connection(struct connectdata * conn)
 {
 	struct smb_request * req;
 	/* Initialize the request state */
-	conn->data->req.protop = req = (struct smb_request *)calloc(1, sizeof(struct smb_request));
+	conn->data->req.protop = req = (struct smb_request *)SAlloc::C(1, sizeof(struct smb_request));
 	if(!req)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -254,7 +251,7 @@ static CURLcode smb_connect(struct connectdata * conn, bool * done)
 
 	/* Initialize the connection state */
 	smbc->state = SMB_CONNECTING;
-	smbc->recv_buf = (char *)malloc(MAX_MESSAGE_SIZE);
+	smbc->recv_buf = (char *)SAlloc::M(MAX_MESSAGE_SIZE);
 	if(!smbc->recv_buf)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -268,14 +265,14 @@ static CURLcode smb_connect(struct connectdata * conn, bool * done)
 
 	if(slash) {
 		smbc->user = slash + 1;
-		smbc->domain = strdup(conn->user);
+		smbc->domain = sstrdup(conn->user);
 		if(!smbc->domain)
 			return CURLE_OUT_OF_MEMORY;
 		smbc->domain[slash - conn->user] = 0;
 	}
 	else {
 		smbc->user = conn->user;
-		smbc->domain = strdup(conn->host.name);
+		smbc->domain = sstrdup(conn->host.name);
 		if(!smbc->domain)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -952,8 +949,8 @@ static CURLcode smb_parse_url_path(struct connectdata * conn)
 		return result;
 
 	/* Parse the path for the share */
-	smbc->share = strdup((*path == '/' || *path == '\\') ? path + 1 : path);
-	free(path);
+	smbc->share = sstrdup((*path == '/' || *path == '\\') ? path + 1 : path);
+	SAlloc::F(path);
 	if(!smbc->share)
 		return CURLE_OUT_OF_MEMORY;
 

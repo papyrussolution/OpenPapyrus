@@ -21,7 +21,7 @@ typedef uint DES_LONG;
 
 #ifdef OPENSSL_BUILD_SHLIBCRYPTO
 #undef OPENSSL_EXTERN
-#  define OPENSSL_EXTERN OPENSSL_EXPORT
+#define OPENSSL_EXTERN OPENSSL_EXPORT
 #endif
 
 typedef uchar DES_cblock[8];

@@ -39,13 +39,13 @@ typedef PSecurityFunctionTable (APIENTRY *INITSECURITYINTERFACE_FN)(VOID);
 
 /* See definition of SECURITY_ENTRYPOINT in sspi.h */
 #ifdef UNICODE
-#  ifdef _WIN32_WCE
-#    define SECURITYENTRYPOINT L"InitSecurityInterfaceW"
-#  else
-#    define SECURITYENTRYPOINT "InitSecurityInterfaceW"
-#  endif
+#ifdef _WIN32_WCE
+#define SECURITYENTRYPOINT L"InitSecurityInterfaceW"
 #else
-#  define SECURITYENTRYPOINT "InitSecurityInterfaceA"
+#define SECURITYENTRYPOINT "InitSecurityInterfaceW"
+#endif
+#else
+#define SECURITYENTRYPOINT "InitSecurityInterfaceA"
 #endif
 
 /* Handle of security.dll or secur32.dll, depending on Windows version */
@@ -174,7 +174,7 @@ CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp, SEC
 	dup_user.tchar_ptr = NULL;
 
 	/* Setup the identity's domain and length */
-	dup_domain.tchar_ptr = malloc(sizeof(TCHAR) * (domlen + 1));
+	dup_domain.tchar_ptr = SAlloc::M(sizeof(TCHAR) * (domlen + 1));
 	if(!dup_domain.tchar_ptr) {
 		curlx_unicodefree(useranddomain.tchar_ptr);
 		return CURLE_OUT_OF_MEMORY;

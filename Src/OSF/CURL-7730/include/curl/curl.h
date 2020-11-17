@@ -98,11 +98,11 @@ typedef void CURLSH;
 #ifdef CURL_STATICLIB
 	#define CURL_EXTERN
 #elif defined(CURL_WIN32) || defined(__SYMBIAN32__) || (__has_declspec_attribute(dllexport) && __has_declspec_attribute(dllimport))
-#  if defined(BUILDING_LIBCURL)
-#    define CURL_EXTERN  __declspec(dllexport)
-#  else
-#    define CURL_EXTERN  __declspec(dllimport)
-#  endif
+#if defined(BUILDING_LIBCURL)
+#define CURL_EXTERN  __declspec(dllexport)
+#else
+#define CURL_EXTERN  __declspec(dllimport)
+#endif
 #elif defined(BUILDING_LIBCURL) && defined(CURL_HIDDEN_SYMBOLS)
 	#define CURL_EXTERN CURL_EXTERN_SYMBOL
 #else
@@ -2322,7 +2322,7 @@ CURL_EXTERN void curl_formfree(struct curl_httppost * form);
  *
  * DESCRIPTION
  *
- * Returns a malloc()'ed string that MUST be curl_free()ed after usage is
+ * Returns a SAlloc::M()'ed string that MUST be curl_free()ed after usage is
  * complete. DEPRECATED - see lib/README.curlx
  */
 CURL_EXTERN char * curl_getenv(const char * variable);

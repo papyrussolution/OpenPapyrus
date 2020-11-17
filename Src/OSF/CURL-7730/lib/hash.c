@@ -23,8 +23,8 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "hash.h"
-#include "llist.h"
+//#include "hash.h"
+//#include "llist.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
@@ -41,7 +41,7 @@ static void hash_element_dtor(void * user, void * element)
 
 	e->key_len = 0;
 
-	free(e);
+	SAlloc::F(e);
 }
 
 /* Initializes a hash structure.
@@ -65,7 +65,7 @@ int Curl_hash_init(struct Curl_hash * h,
 	h->dtor = dtor;
 	h->size = 0;
 	h->slots = slots;
-	h->table = (struct Curl_llist *)malloc(slots * sizeof(struct Curl_llist));
+	h->table = (struct Curl_llist *)SAlloc::M(slots * sizeof(struct Curl_llist));
 	if(h->table) {
 		int i;
 		for(i = 0; i < slots; ++i)
@@ -78,7 +78,7 @@ int Curl_hash_init(struct Curl_hash * h,
 
 static struct Curl_hash_element * mk_hash_element(const void * key, size_t key_len, const void * p)                                    {
 	/* allocate the struct plus memory after it to store the key */
-	struct Curl_hash_element * he = (struct Curl_hash_element *)malloc(sizeof(struct Curl_hash_element) +
+	struct Curl_hash_element * he = (struct Curl_hash_element *)SAlloc::M(sizeof(struct Curl_hash_element) +
 		key_len);
 	if(he) {
 		/* copy the key */

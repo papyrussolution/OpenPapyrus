@@ -250,7 +250,7 @@ void aesni_ccm64_decrypt_blocks(const uchar * in,
     const uchar ivec[16],
     uchar cmac[16]);
 
-# if defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
+#if defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
 size_t aesni_gcm_encrypt(const uchar * in,
     uchar * out,
     size_t len,
@@ -2582,13 +2582,13 @@ static int s390x_aes_ocb_ctrl(EVP_CIPHER_CTX *, int type, int arg, void * ptr);
 
 #if defined(OPENSSL_CPUID_OBJ) && (defined(__arm__) || defined(__arm) || defined(__aarch64__))
 #include "arm_arch.h"
-# if __ARM_MAX_ARCH__>=7
-#  if defined(BSAES_ASM)
+#if __ARM_MAX_ARCH__>=7
+#if defined(BSAES_ASM)
 #   define BSAES_CAPABLE (OPENSSL_armcap_P & ARMV7_NEON)
-#  endif
-#  if defined(VPAES_ASM)
+#endif
+#if defined(VPAES_ASM)
 #   define VPAES_CAPABLE (OPENSSL_armcap_P & ARMV7_NEON)
-#  endif
+#endif
 #define HWAES_CAPABLE (OPENSSL_armcap_P & ARMV8_AES)
 #define HWAES_set_encrypt_key aes_v8_set_encrypt_key
 #define HWAES_set_decrypt_key aes_v8_set_decrypt_key
@@ -4074,26 +4074,26 @@ static int aes_ocb_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr)
 }
 
 #ifdef HWAES_CAPABLE
-#  ifdef HWAES_ocb_encrypt
+#ifdef HWAES_ocb_encrypt
 void HWAES_ocb_encrypt(const uchar * in, uchar * out,
     size_t blocks, const void * key,
     size_t start_block_num,
     uchar offset_i[16],
     const uchar L_[][16],
     uchar checksum[16]);
-#  else
-#    define HWAES_ocb_encrypt ((ocb128_f)NULL)
-#  endif
-#  ifdef HWAES_ocb_decrypt
+#else
+#define HWAES_ocb_encrypt ((ocb128_f)NULL)
+#endif
+#ifdef HWAES_ocb_decrypt
 void HWAES_ocb_decrypt(const uchar * in, uchar * out,
     size_t blocks, const void * key,
     size_t start_block_num,
     uchar offset_i[16],
     const uchar L_[][16],
     uchar checksum[16]);
-#  else
-#    define HWAES_ocb_decrypt ((ocb128_f)NULL)
-#  endif
+#else
+#define HWAES_ocb_decrypt ((ocb128_f)NULL)
+#endif
 #endif
 
 static int aes_ocb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,

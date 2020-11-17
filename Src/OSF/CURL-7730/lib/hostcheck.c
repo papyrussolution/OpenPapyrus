@@ -130,15 +130,15 @@ int Curl_cert_hostcheck(const char * match_pattern, const char * hostname)
 	    !hostname || !*hostname) /* sanity check */
 		;
 	else {
-		char * matchp = strdup(match_pattern);
+		char * matchp = sstrdup(match_pattern);
 		if(matchp) {
-			char * hostp = strdup(hostname);
+			char * hostp = sstrdup(hostname);
 			if(hostp) {
 				if(hostmatch(hostp, matchp) == CURL_HOST_MATCH)
 					res = 1;
-				free(hostp);
+				SAlloc::F(hostp);
 			}
-			free(matchp);
+			SAlloc::F(matchp);
 		}
 	}
 

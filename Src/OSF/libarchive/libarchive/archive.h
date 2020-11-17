@@ -75,7 +75,7 @@
 /* The la_ssize_t should match the type used in 'struct stat' */
 #if !defined(__LA_SSIZE_T_DEFINED)
 	/* Older code relied on the __LA_SSIZE_T macro; after 4.0 we'll switch to the typedef exclusively. */
-	# if ARCHIVE_VERSION_NUMBER < 4000000
+	#if ARCHIVE_VERSION_NUMBER < 4000000
 		#define __LA_SSIZE_T la_ssize_t
 	#endif
 	#define __LA_SSIZE_T_DEFINED

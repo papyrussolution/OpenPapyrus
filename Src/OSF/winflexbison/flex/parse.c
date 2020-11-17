@@ -423,13 +423,13 @@ typedef unsigned short int yytype_uint16;
 #  ifndef YYMALLOC
 #   define YYMALLOC malloc
 #   if !defined malloc && !defined EXIT_SUCCESS
-void * malloc(YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
+void * SAlloc::M(YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 #  ifndef YYFREE
 #   define YYFREE free
 #   if !defined free && !defined EXIT_SUCCESS
-void free(void *);  /* INFRINGES ON USER NAME SPACE */
+void SAlloc::F(void *);  /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 # endif

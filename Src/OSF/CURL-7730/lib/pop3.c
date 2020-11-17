@@ -62,10 +62,10 @@
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
 #include "socks.h"
@@ -73,7 +73,7 @@
 #include "strtoofft.h"
 #include "strcase.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strerror.h"
 #include "select.h"
 #include "multiif.h"
@@ -632,7 +632,7 @@ static CURLcode pop3_state_servergreet_resp(struct connectdata * conn,
 						break;
 
 					/* Allocate some memory for the timestamp */
-					pop3c->apoptimestamp = (char *)calloc(1, timestamplen + 1);
+					pop3c->apoptimestamp = (char *)SAlloc::C(1, timestamplen + 1);
 
 					if(!pop3c->apoptimestamp)
 						break;
@@ -1047,7 +1047,7 @@ static CURLcode pop3_init(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-	struct POP3 * pop3 = (struct POP3 *)(data->req.protop = calloc(sizeof(struct POP3), 1));
+	struct POP3 * pop3 = (struct POP3 *)(data->req.protop = SAlloc::C(sizeof(struct POP3), 1));
 	if(!pop3)
 		result = CURLE_OUT_OF_MEMORY;
 	return result;

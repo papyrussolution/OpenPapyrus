@@ -142,12 +142,12 @@ extern "C" {
   * allocated region to its front, but makes data payload aligned, which
   * improves performance:-)
   */
-#  define SSL3_ALIGN_PAYLOAD                     8
+#define SSL3_ALIGN_PAYLOAD                     8
 # else
-#  if (SSL3_ALIGN_PAYLOAD&(SSL3_ALIGN_PAYLOAD-1))!=0
+#if (SSL3_ALIGN_PAYLOAD&(SSL3_ALIGN_PAYLOAD-1))!=0
 #   error "insane SSL3_ALIGN_PAYLOAD"
 #   undef SSL3_ALIGN_PAYLOAD
-#  endif
+#endif
 #endif
 
 /*
@@ -190,9 +190,9 @@ extern "C" {
 /* If compression isn't used don't include the compression overhead */
 
 #ifdef OPENSSL_NO_COMP
-#  define SSL3_RT_MAX_COMPRESSED_LENGTH           SSL3_RT_MAX_PLAIN_LENGTH
+#define SSL3_RT_MAX_COMPRESSED_LENGTH           SSL3_RT_MAX_PLAIN_LENGTH
 # else
-#  define SSL3_RT_MAX_COMPRESSED_LENGTH   \
+#define SSL3_RT_MAX_COMPRESSED_LENGTH   \
             (SSL3_RT_MAX_PLAIN_LENGTH+SSL3_RT_MAX_COMPRESSED_OVERHEAD)
 #endif
 #define SSL3_RT_MAX_ENCRYPTED_LENGTH    \
@@ -266,10 +266,10 @@ extern "C" {
  */
 #define SSL3_CT_NUMBER                  10
 
-# if defined(TLS_CT_NUMBER)
-#  if TLS_CT_NUMBER != SSL3_CT_NUMBER
-#    error "SSL/TLS CT_NUMBER values do not match"
-#  endif
+#if defined(TLS_CT_NUMBER)
+#if TLS_CT_NUMBER != SSL3_CT_NUMBER
+#error "SSL/TLS CT_NUMBER values do not match"
+#endif
 #endif
 
 /* No longer used as of OpenSSL 1.1.1 */
@@ -309,7 +309,7 @@ extern "C" {
 #define SSL3_MT_SUPPLEMENTAL_DATA               23
 #define SSL3_MT_KEY_UPDATE                      24
 #ifndef OPENSSL_NO_NEXTPROTONEG
-#  define SSL3_MT_NEXT_PROTO                     67
+#define SSL3_MT_NEXT_PROTO                     67
 #endif
 #define SSL3_MT_MESSAGE_HASH                    254
 #define DTLS1_MT_HELLO_VERIFY_REQUEST           3

@@ -116,19 +116,12 @@ void produce_frozen_state(const char * name)
 				    break;
 			}
 		}
-
 		/* Reverse the bucket once more, putting it back as it was.  */
-
 		symtab[h] = reverse_symbol_list(symtab[h]);
 	}
-
-	/* Let diversions be issued from output.c module, its cleaner to have this
-	   piece of code there.  */
-
+	// Let diversions be issued from output.c module, its cleaner to have this piece of code there. 
 	freeze_diversions(file);
-
 	/* All done.  */
-
 	fputs("# End of frozen state file\n", file);
 	if(close_stream(file) != 0)
 		M4ERROR((EXIT_FAILURE, errno, "unable to create frozen state"));

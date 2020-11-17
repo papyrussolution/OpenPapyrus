@@ -15,7 +15,7 @@
 #define RSAZ_EXP_H
 
 # undef RSAZ_ENABLED
-# if defined(OPENSSL_BN_ASM_MONT) && \
+#if defined(OPENSSL_BN_ASM_MONT) && \
         (defined(__x86_64) || defined(__x86_64__) || \
          defined(_M_AMD64) || defined(_M_X64))
 #define RSAZ_ENABLED

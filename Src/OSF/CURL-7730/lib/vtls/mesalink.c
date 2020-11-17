@@ -39,11 +39,11 @@
 #include <mesalink/version.h>
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "vtls.h"
 #include "parsedate.h"
-#include "connect.h" /* for the connect timeout */
+//#include "connect.h" /* for the connect timeout */
 #include "select.h"
 #include "strcase.h"
 #include "x509asn1.h"

@@ -417,7 +417,7 @@ static int sh_init(size_t size, int minsize)
 	/* Allocate space for heap, and two extra pages as guards */
 #if defined(_SC_PAGE_SIZE) || defined (_SC_PAGESIZE)
 	{
-# if defined(_SC_PAGE_SIZE)
+#if defined(_SC_PAGE_SIZE)
 		long tmppgsize = sysconf(_SC_PAGE_SIZE);
 #else
 		long tmppgsize = sysconf(_SC_PAGESIZE);

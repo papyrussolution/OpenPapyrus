@@ -1211,7 +1211,7 @@ static int file_name_check(OSSL_STORE_LOADER_CTX * ctx, const char * name)
 		for(p++; *p != '\0'; p++)
 			if(!ossl_isdigit(*p))
 				break;
-# endif
+#endif
 
 	/*
 	 * If we've reached the end of the string at this point, we've successfully

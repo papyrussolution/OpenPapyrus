@@ -34,7 +34,7 @@
 #include "curl_gssapi.h"
 #include "warnless.h"
 #include "curl_multibyte.h"
-#include "sendf.h"
+//#include "sendf.h"
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
@@ -117,12 +117,12 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 			Curl_gss_log_error(data, "gss_import_name() failed: ",
 			    major_status, minor_status);
 
-			free(spn);
+			SAlloc::F(spn);
 
 			return CURLE_AUTH_ERROR;
 		}
 
-		free(spn);
+		SAlloc::F(spn);
 	}
 
 	if(chlg64 && *chlg64) {

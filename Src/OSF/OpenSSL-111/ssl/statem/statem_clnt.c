@@ -3737,9 +3737,9 @@ int ssl_cipher_list_to_bytes(SSL * s, STACK_OF(SSL_CIPHER) * sk, WPACKET * pkt)
 	}
 
 #ifdef OPENSSL_MAX_TLS1_2_CIPHER_LENGTH
-# if OPENSSL_MAX_TLS1_2_CIPHER_LENGTH < 6
-#  error Max cipher length too short
-# endif
+#if OPENSSL_MAX_TLS1_2_CIPHER_LENGTH < 6
+#error Max cipher length too short
+#endif
 	/*
 	 * Some servers hang if client hello > 256 bytes as hack workaround
 	 * chop number of supported ciphers to keep it well below this if we

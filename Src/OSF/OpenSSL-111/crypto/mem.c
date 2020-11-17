@@ -150,14 +150,14 @@ static int shouldfail(void)
 		len = strlen(buff);
 		if(write(md_tracefd, buff, len) != len)
 			perror("shouldfail write failed");
-#  ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
+#ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
 		if(shoulditfail) {
 			void * addrs[30];
 			int num = backtrace(addrs, OSSL_NELEM(addrs));
 
 			backtrace_symbols_fd(addrs, num, md_tracefd);
 		}
-#  endif
+#endif
 	}
 #endif
 	if(md_count) {

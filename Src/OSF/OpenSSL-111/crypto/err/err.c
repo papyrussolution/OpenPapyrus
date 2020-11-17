@@ -691,7 +691,7 @@ int err_shelve_state(void ** state)
  */
 void err_unshelve_state(void* state)
 {
-	if(state != (void*)-1)
+	if(state != (void *)-1)
 		CRYPTO_THREAD_set_local(&err_thread_local, (ERR_STATE*)state);
 }
 

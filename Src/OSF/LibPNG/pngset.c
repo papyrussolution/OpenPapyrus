@@ -94,7 +94,7 @@ void PNGFAPI png_set_cHRM_XYZ_fixed(png_const_structrp png_ptr, png_inforp info_
 	png_colorspace_sync_info(png_ptr, info_ptr);
 }
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 void PNGAPI png_set_cHRM(png_const_structrp png_ptr, png_inforp info_ptr,
     double white_x, double white_y, double red_x, double red_y,
     double green_x, double green_y, double blue_x, double blue_y)
@@ -126,7 +126,7 @@ void PNGAPI png_set_cHRM_XYZ(png_const_structrp png_ptr, png_inforp info_ptr, do
 	    png_fixed(png_ptr, blue_Z, "cHRM Blue Z"));
 }
 
-#  endif /* FLOATING_POINT */
+#endif /* FLOATING_POINT */
 
 #endif /* cHRM */
 
@@ -143,14 +143,14 @@ void PNGFAPI png_set_gAMA_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
 	png_colorspace_sync_info(png_ptr, info_ptr);
 }
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 void PNGAPI png_set_gAMA(png_const_structrp png_ptr, png_inforp info_ptr, double file_gamma)
 {
 	png_set_gAMA_fixed(png_ptr, info_ptr, png_fixed(png_ptr, file_gamma,
 		    "png_set_gAMA"));
 }
 
-#  endif
+#endif
 #endif
 
 #ifdef PNG_hIST_SUPPORTED
@@ -394,7 +394,7 @@ void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
 	info_ptr->free_me |= PNG_FREE_SCAL;
 }
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 void PNGAPI png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
     double width, double height)
 {
@@ -421,9 +421,9 @@ void PNGAPI png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int un
 	}
 }
 
-#  endif
+#endif
 
-#  ifdef PNG_FIXED_POINT_SUPPORTED
+#ifdef PNG_FIXED_POINT_SUPPORTED
 void PNGAPI png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
     png_fixed_point width, png_fixed_point height)
 {
@@ -448,7 +448,7 @@ void PNGAPI png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, 
 	}
 }
 
-#  endif
+#endif
 #endif
 
 #ifdef PNG_pHYs_SUPPORTED
@@ -712,7 +712,7 @@ int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr
 		}
 
 		else
-#  ifdef PNG_iTXt_SUPPORTED
+#ifdef PNG_iTXt_SUPPORTED
 		{
 			/* Set iTXt data */
 
@@ -728,22 +728,22 @@ int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr
 			else
 				lang_key_len = 0;
 		}
-#  else /* iTXt */
+#else /* iTXt */
 		{
 			png_chunk_report(png_ptr, "iTXt chunk not supported",
 			    PNG_CHUNK_WRITE_ERROR);
 			continue;
 		}
-#  endif
+#endif
 
 		if(text_ptr[i].text == NULL || text_ptr[i].text[0] == '\0') {
 			text_length = 0;
-#  ifdef PNG_iTXt_SUPPORTED
+#ifdef PNG_iTXt_SUPPORTED
 			if(text_ptr[i].compression > 0)
 				textp->compression = PNG_ITXT_COMPRESSION_NONE;
 
 			else
-#  endif
+#endif
 			textp->compression = PNG_TEXT_COMPRESSION_NONE;
 		}
 
@@ -791,14 +791,14 @@ int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr
 
 		*(textp->text + text_length) = '\0';
 
-#  ifdef PNG_iTXt_SUPPORTED
+#ifdef PNG_iTXt_SUPPORTED
 		if(textp->compression > 0) {
 			textp->text_length = 0;
 			textp->itxt_length = text_length;
 		}
 
 		else
-#  endif
+#endif
 		{
 			textp->text_length = text_length;
 			textp->itxt_length = 0;
@@ -1048,22 +1048,22 @@ void PNGAPI png_set_unknown_chunks(png_const_structrp png_ptr,
 	 * code) but may be meaningless if the read or write handling of unknown
 	 * chunks is not compiled in.
 	 */
-#  if !defined(PNG_READ_UNKNOWN_CHUNKS_SUPPORTED) && \
+#if !defined(PNG_READ_UNKNOWN_CHUNKS_SUPPORTED) && \
 	defined(PNG_READ_SUPPORTED)
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0) {
 		png_app_error(png_ptr, "no unknown chunk support on read");
 
 		return;
 	}
-#  endif
-#  if !defined(PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED) && \
+#endif
+#if !defined(PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED) && \
 	defined(PNG_WRITE_SUPPORTED)
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) == 0) {
 		png_app_error(png_ptr, "no unknown chunk support on write");
 
 		return;
 	}
-#  endif
+#endif
 
 	/* Prior to 1.6.0 this code used png_malloc_warn; however, this meant that
 	 * unknown critical chunks could be lost with just a warning resulting in
@@ -1371,14 +1371,14 @@ void PNGAPI png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 	if(size == 0 || size > PNG_UINT_31_MAX)
 		png_error(png_ptr, "invalid compression buffer size");
 
-#  ifdef PNG_SEQUENTIAL_READ_SUPPORTED
+#ifdef PNG_SEQUENTIAL_READ_SUPPORTED
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0) {
 		png_ptr->IDAT_read_size = (uint32)size; /* checked above */
 		return;
 	}
-#  endif
+#endif
 
-#  ifdef PNG_WRITE_SUPPORTED
+#ifdef PNG_WRITE_SUPPORTED
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) == 0) {
 		if(png_ptr->zowner != 0) {
 			png_warning(png_ptr,
@@ -1413,7 +1413,7 @@ void PNGAPI png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 			png_ptr->zbuffer_size = (uInt)size;
 		}
 	}
-#  endif
+#endif
 }
 
 void PNGAPI png_set_invalid(png_const_structrp png_ptr, png_inforp info_ptr, int mask)

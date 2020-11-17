@@ -404,49 +404,42 @@ void ntod()
 				use_NUL_table = true;
 			}
 		}
-
 		if(use_NUL_table)
 			nultrans = (int *)allocate_integer_array(current_max_dfas);
-
 		/* From now on, nultrans != nil indicates that we're
 		 * saving null transitions for later, separate encoding.
 		 */
 	}
-
 	if(fullspd) {
 		for(i = 0; i <= numecs; ++i)
 			state[i] = 0;
-
 		place_state(state, 0, 0);
 		dfaacc[0].dfaacc_state = 0;
 	}
-
 	else if(fulltbl) {
 		if(nultrans)
 			/* We won't be including NUL's transitions in the
 			 * table, so build it for entries from 0 .. numecs - 1.
 			 */
 			num_full_table_rows = numecs;
-
 		else
 			/* Take into account the fact that we'll be including
 			 * the NUL entries in the transition table.  Build it
 			 * from 0 .. numecs.
 			 */
 			num_full_table_rows = numecs + 1;
-
 		/* Begin generating yy_nxt[][]
 		 * This spans the entire LONG function.
 		 * This table is tricky because we don't know how big it will be.
-		 * So we'll have to realloc() on the way...
+		 * So we'll have to SAlloc::R() on the way...
 		 * we'll wait until we can calculate yynxt_tbl->td_hilen.
 		 */
-		yynxt_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+		yynxt_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 
 		yytbl_data_init(yynxt_tbl, YYTD_ID_NXT);
 		yynxt_tbl->td_hilen = 1;
 		yynxt_tbl->td_lolen = (flex_uint32_t)num_full_table_rows;
-		yynxt_tbl->td_data = yynxt_data = (flex_int32_t *)calloc(yynxt_tbl->td_lolen * yynxt_tbl->td_hilen, sizeof(flex_int32_t));
+		yynxt_tbl->td_data = yynxt_data = (flex_int32_t *)SAlloc::C(yynxt_tbl->td_lolen * yynxt_tbl->td_hilen, sizeof(flex_int32_t));
 		yynxt_curr = 0;
 
 		buf_prints(&yydmap_buf, "\t{YYTD_ID_NXT, (void**)&yy_nxt, sizeof(%s)},\n", long_align ? "flex_int32_t" : "flex_int16_t");
@@ -574,7 +567,7 @@ void ntod()
 		if(fulltbl) {
 			/* Each time we hit here, it's another td_hilen, so we realloc. */
 			yynxt_tbl->td_hilen++;
-			yynxt_tbl->td_data = yynxt_data = (flex_int32_t *)realloc(yynxt_data, yynxt_tbl->td_hilen * yynxt_tbl->td_lolen * sizeof(flex_int32_t));
+			yynxt_tbl->td_data = yynxt_data = (flex_int32_t *)SAlloc::R(yynxt_data, yynxt_tbl->td_hilen * yynxt_tbl->td_lolen * sizeof(flex_int32_t));
 			if(gentables)
 				outn("    {");
 			/* Supply array's 0-element. */
@@ -638,8 +631,8 @@ void ntod()
 		}
 		mkdeftbl();
 	}
-	free(accset);
-	free(nset);
+	SAlloc::F(accset);
+	SAlloc::F(nset);
 }
 
 /* snstods - converts a set of ndfa states into a dfa state

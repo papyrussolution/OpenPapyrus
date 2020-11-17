@@ -56,10 +56,10 @@
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
 #include "http.h"               /* for HTTP proxy tunnel stuff */
 #include "ssh.h"
@@ -69,11 +69,11 @@
 #include "strdup.h"
 #include "strcase.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strerror.h"
 #include "inet_ntop.h"
 #include "parsedate.h"          /* for the week day and month names */
-#include "sockaddr.h"           /* required for Curl_sockaddr_storage */
+//#include "sockaddr.h"           /* required for Curl_sockaddr_storage */
 #include "strtoofft.h"
 #include "multiif.h"
 #include "select.h"
@@ -511,10 +511,10 @@ static int myssh_is_known(struct connectdata * conn)
 
 cleanup:
 	if(found_base64) {
-		free(found_base64);
+		SAlloc::F(found_base64);
 	}
 	if(known_base64) {
-		free(known_base64);
+		SAlloc::F(known_base64);
 	}
 	if(hash)
 		ssh_clean_pubkey_hash(&hash);
@@ -1121,7 +1121,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 
 				    result = Curl_client_write(conn, CLIENTWRITE_HEADER, tmp, strlen(tmp));
-				    free(tmp);
+				    SAlloc::F(tmp);
 				    if(result) {
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1391,7 +1391,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 					    }
 					    result = Curl_client_write(conn, CLIENTWRITE_BODY,
 						    tmpLine, sshc->readdir_len + 1);
-					    free(tmpLine);
+					    SAlloc::F(tmpLine);
 
 					    if(result) {
 						    state(conn, SSH_STOP);
@@ -1411,7 +1411,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    else {
 					    sshc->readdir_currLen = strlen(sshc->readdir_longentry);
 					    sshc->readdir_totalLen = 80 + sshc->readdir_currLen;
-					    sshc->readdir_line = calloc(sshc->readdir_totalLen, 1);
+					    sshc->readdir_line = SAlloc::C(sshc->readdir_totalLen, 1);
 					    if(!sshc->readdir_line) {
 						    state(conn, SSH_SFTP_CLOSE);
 						    sshc->actualcode = CURLE_OUT_OF_MEMORY;
@@ -1423,7 +1423,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 					    if((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
 						((sshc->readdir_attrs->permissions & S_IFMT) ==
 						S_IFLNK)) {
-						    sshc->readdir_linkPath = malloc(PATH_MAX + 1);
+						    sshc->readdir_linkPath = SAlloc::M(PATH_MAX + 1);
 						    if(sshc->readdir_linkPath == NULL) {
 							    state(conn, SSH_SFTP_CLOSE);
 							    sshc->actualcode = CURLE_OUT_OF_MEMORY;
@@ -2080,7 +2080,7 @@ static CURLcode myssh_setup_connection(struct connectdata * conn)
 {
 	struct SSHPROTO * ssh;
 
-	conn->data->req.protop = ssh = calloc(1, sizeof(struct SSHPROTO));
+	conn->data->req.protop = ssh = SAlloc::C(1, sizeof(struct SSHPROTO));
 	if(!ssh)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -2584,7 +2584,7 @@ static void sftp_quote(struct connectdata * conn)
 		   current directory can be read very similar to how it is read when
 		   using ordinary FTP. */
 		result = Curl_client_write(conn, CLIENTWRITE_HEADER, tmp, strlen(tmp));
-		free(tmp);
+		SAlloc::F(tmp);
 		if(result) {
 			state(conn, SSH_SFTP_CLOSE);
 			sshc->nextstate = SSH_NO_STATE;

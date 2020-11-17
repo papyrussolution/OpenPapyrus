@@ -76,7 +76,7 @@ extern "C" {
 
 #define IMPLEMENT_PEM_write_fp_const(name, type, str, asn1) \
 	int PEM_write_ ## name(FILE *fp, const type *x) \
-		{ return PEM_ASN1_write((i2d_of_void*)i2d_ ## asn1, str, fp, (void*)x, NULL, NULL, 0, NULL, NULL); }
+		{ return PEM_ASN1_write((i2d_of_void*)i2d_ ## asn1, str, fp, (void *)x, NULL, NULL, 0, NULL, NULL); }
 
 #define IMPLEMENT_PEM_write_cb_fp(name, type, str, asn1) \
 	int PEM_write_ ## name(FILE *fp, type *x, const EVP_CIPHER *enc, uchar * kstr, int klen, pem_password_cb *cb, void * u) \
@@ -97,7 +97,7 @@ extern "C" {
 		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, x, NULL, NULL, 0, NULL, NULL); }
 
 #define IMPLEMENT_PEM_write_bio_const(name, type, str, asn1) \
-	int PEM_write_bio_ ## name(BIO *bp, const type *x) { return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void*)x, NULL, NULL, 0, NULL, NULL); }
+	int PEM_write_bio_ ## name(BIO *bp, const type *x) { return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void *)x, NULL, NULL, 0, NULL, NULL); }
 
 #define IMPLEMENT_PEM_write_cb_bio(name, type, str, asn1) \
 	int PEM_write_bio_ ## name(BIO *bp, type *x, const EVP_CIPHER *enc, uchar * kstr, int klen, pem_password_cb *cb, void * u) \
@@ -105,7 +105,7 @@ extern "C" {
 
 #define IMPLEMENT_PEM_write_cb_bio_const(name, type, str, asn1) \
 	int PEM_write_bio_ ## name(BIO *bp, type *x, const EVP_CIPHER *enc, uchar * kstr, int klen, pem_password_cb *cb, void * u) \
-		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void*)x, enc, kstr, klen, cb, u); }
+		{ return PEM_ASN1_write_bio((i2d_of_void*)i2d_ ## asn1, str, bp, (void *)x, enc, kstr, klen, cb, u); }
 
 #define IMPLEMENT_PEM_write(name, type, str, asn1) \
 	IMPLEMENT_PEM_write_bio(name, type, str, asn1) \
@@ -283,11 +283,11 @@ EVP_PKEY * b2i_PrivateKey_bio(BIO * in);
 EVP_PKEY * b2i_PublicKey_bio(BIO * in);
 int i2b_PrivateKey_bio(BIO * out, EVP_PKEY * pk);
 int i2b_PublicKey_bio(BIO * out, EVP_PKEY * pk);
-#  ifndef OPENSSL_NO_RC4
+#ifndef OPENSSL_NO_RC4
 EVP_PKEY * b2i_PVK_bio(BIO * in, pem_password_cb * cb, void * u);
 int i2b_PVK_bio(BIO * out, EVP_PKEY * pk, int enclevel,
     pem_password_cb * cb, void * u);
-#  endif
+#endif
 #endif
 
 #ifdef  __cplusplus

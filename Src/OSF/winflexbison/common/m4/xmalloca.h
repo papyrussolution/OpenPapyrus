@@ -28,7 +28,7 @@ extern "C" {
    of memory allocated on the stack, that must be freed using freea() before
    the function returns.  Upon failure, it exits with an error message.  */
 #if HAVE_ALLOCA
-	#define xmalloca(N) ((N) < 4032 - sa_increment ? (void*)((char*)alloca((N) + sa_increment) + sa_increment) : xmmalloca(N))
+	#define xmalloca(N) ((N) < 4032 - sa_increment ? (void *)((char*)alloca((N) + sa_increment) + sa_increment) : xmmalloca(N))
 	extern void * xmmalloca(size_t n);
 #else
 	#define xmalloca(N) xmalloc(N)

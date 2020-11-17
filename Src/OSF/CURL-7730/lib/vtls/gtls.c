@@ -45,12 +45,12 @@
 #endif
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "gtls.h"
 #include "vtls.h"
 #include "parsedate.h"
-#include "connect.h" /* for the connect timeout */
+//#include "connect.h" /* for the connect timeout */
 #include "select.h"
 #include "strcase.h"
 #include "warnless.h"
@@ -181,10 +181,10 @@ static gnutls_datum_t load_file(const char * file)
 	if(fseek(f, 0, SEEK_END) != 0
 	    || (filelen = ftell(f)) < 0
 	    || fseek(f, 0, SEEK_SET) != 0
-	    || !(ptr = malloc((size_t)filelen)))
+	    || !(ptr = SAlloc::M((size_t)filelen)))
 		goto out;
 	if(fread(ptr, 1, (size_t)filelen, f) < (size_t)filelen) {
-		free(ptr);
+		SAlloc::F(ptr);
 		goto out;
 	}
 
@@ -197,7 +197,7 @@ out:
 
 static void unload_file(gnutls_datum_t data)
 {
-	free(data.data);
+	SAlloc::F(data.data);
 }
 
 /* this function does a SSL/TLS (re-)handshake */
@@ -586,14 +586,14 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 	if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP) {
 		size_t len = strlen(prioritylist);
 
-		char * prioritysrp = malloc(len + sizeof(GNUTLS_SRP) + 1);
+		char * prioritysrp = SAlloc::M(len + sizeof(GNUTLS_SRP) + 1);
 		if(!prioritysrp)
 			return CURLE_OUT_OF_MEMORY;
 		strcpy(prioritysrp, prioritylist);
 		strcpy(prioritysrp + len, ":" GNUTLS_SRP);
 
 		rc = gnutls_priority_set_direct(session, prioritysrp, &err);
-		free(prioritysrp);
+		SAlloc::F(prioritysrp);
 
 		if((rc == GNUTLS_E_INVALID_REQUEST) && err) {
 			infof(data, "This GnuTLS does not support SRP\n");
@@ -765,7 +765,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 		if(ret != GNUTLS_E_SHORT_MEMORY_BUFFER || len1 == 0)
 			break; /* failed */
 
-		buff1 = malloc(len1);
+		buff1 = SAlloc::M(len1);
 		if(NULL == buff1)
 			break; /* failed */
 
@@ -1255,7 +1255,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 
 		/* get the session ID data size */
 		gnutls_session_get_data(session, NULL, &connect_idsize);
-		connect_sessionid = malloc(connect_idsize); /* get a buffer for it */
+		connect_sessionid = SAlloc::M(connect_idsize); /* get a buffer for it */
 
 		if(connect_sessionid) {
 			bool incache;
@@ -1278,7 +1278,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 				sockindex);
 			Curl_ssl_sessionid_unlock(conn);
 			if(result) {
-				free(connect_sessionid);
+				SAlloc::F(connect_sessionid);
 				result = CURLE_OUT_OF_MEMORY;
 			}
 		}
@@ -1539,7 +1539,7 @@ static ssize_t gtls_recv(struct connectdata * conn, /* connection data */
 
 static void Curl_gtls_session_free(void * ptr)
 {
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 static size_t Curl_gtls_version(char * buffer, size_t size)

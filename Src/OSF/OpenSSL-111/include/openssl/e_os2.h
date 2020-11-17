@@ -29,7 +29,7 @@ extern "C" {
  * Note that MSDOS actually denotes 32-bit environments running on top of
  * MS-DOS, such as DJGPP one.
  */
-# if defined(OPENSSL_SYS_MSDOS)
+#if defined(OPENSSL_SYS_MSDOS)
 #undef OPENSSL_SYS_UNIX
 #endif
 
@@ -41,43 +41,43 @@ extern "C" {
  * UEFI lives here because it might be built with a Microsoft toolchain and
  * we need to avoid the false positive match on Windows.
  */
-# if defined(OPENSSL_SYS_UEFI)
+#if defined(OPENSSL_SYS_UEFI)
 #undef OPENSSL_SYS_UNIX
 # elif defined(OPENSSL_SYS_UWIN)
 #undef OPENSSL_SYS_UNIX
-#  define OPENSSL_SYS_WIN32_UWIN
+#define OPENSSL_SYS_WIN32_UWIN
 # else
-#  if defined(__CYGWIN__) || defined(OPENSSL_SYS_CYGWIN)
+#if defined(__CYGWIN__) || defined(OPENSSL_SYS_CYGWIN)
 #   define OPENSSL_SYS_WIN32_CYGWIN
-#  else
+#else
 #   if defined(_WIN32) || defined(OPENSSL_SYS_WIN32)
-#    undef OPENSSL_SYS_UNIX
-#    if !defined(OPENSSL_SYS_WIN32)
+#undef OPENSSL_SYS_UNIX
+#if !defined(OPENSSL_SYS_WIN32)
 #     define OPENSSL_SYS_WIN32
-#    endif
+#endif
 #   endif
 #   if defined(_WIN64) || defined(OPENSSL_SYS_WIN64)
-#    undef OPENSSL_SYS_UNIX
-#    if !defined(OPENSSL_SYS_WIN64)
+#undef OPENSSL_SYS_UNIX
+#if !defined(OPENSSL_SYS_WIN64)
 #     define OPENSSL_SYS_WIN64
-#    endif
+#endif
 #   endif
 #   if defined(OPENSSL_SYS_WINNT)
-#    undef OPENSSL_SYS_UNIX
+#undef OPENSSL_SYS_UNIX
 #   endif
 #   if defined(OPENSSL_SYS_WINCE)
-#    undef OPENSSL_SYS_UNIX
+#undef OPENSSL_SYS_UNIX
 #   endif
-#  endif
+#endif
 #endif
 
 /* Anything that tries to look like Microsoft is "Windows" */
-# if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_WIN64) || defined(OPENSSL_SYS_WINNT) || defined(OPENSSL_SYS_WINCE)
+#if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_WIN64) || defined(OPENSSL_SYS_WINNT) || defined(OPENSSL_SYS_WINCE)
 #undef OPENSSL_SYS_UNIX
-#  define OPENSSL_SYS_WINDOWS
-#  ifndef OPENSSL_SYS_MSDOS
+#define OPENSSL_SYS_WINDOWS
+#ifndef OPENSSL_SYS_MSDOS
 #   define OPENSSL_SYS_MSDOS
-#  endif
+#endif
 #endif
 
 /*
@@ -86,49 +86,49 @@ extern "C" {
  * requires some macro to be used.
  */
 #ifdef OPENSSL_SYS_WINDOWS
-#  ifndef OPENSSL_OPT_WINDLL
+#ifndef OPENSSL_OPT_WINDLL
 #   if defined(_WINDLL)         /* This is used when building OpenSSL to
                                  * indicate that DLL linkage should be used */
-#    define OPENSSL_OPT_WINDLL
+#define OPENSSL_OPT_WINDLL
 #   endif
-#  endif
+#endif
 #endif
 
 /* ------------------------------- OpenVMS -------------------------------- */
-# if defined(__VMS) || defined(VMS) || defined(OPENSSL_SYS_VMS)
-#  if !defined(OPENSSL_SYS_VMS)
+#if defined(__VMS) || defined(VMS) || defined(OPENSSL_SYS_VMS)
+#if !defined(OPENSSL_SYS_VMS)
 #   undef OPENSSL_SYS_UNIX
-#  endif
-#  define OPENSSL_SYS_VMS
-#  if defined(__DECC)
+#endif
+#define OPENSSL_SYS_VMS
+#if defined(__DECC)
 #   define OPENSSL_SYS_VMS_DECC
-#  elif defined(__DECCXX)
+#elif defined(__DECCXX)
 #   define OPENSSL_SYS_VMS_DECC
 #   define OPENSSL_SYS_VMS_DECCXX
-#  else
+#else
 #   define OPENSSL_SYS_VMS_NODECC
-#  endif
+#endif
 #endif
 
 /* -------------------------------- Unix ---------------------------------- */
 #ifdef OPENSSL_SYS_UNIX
-#  if defined(linux) || defined(__linux__) && !defined(OPENSSL_SYS_LINUX)
+#if defined(linux) || defined(__linux__) && !defined(OPENSSL_SYS_LINUX)
 #   define OPENSSL_SYS_LINUX
-#  endif
-#  if defined(_AIX) && !defined(OPENSSL_SYS_AIX)
+#endif
+#if defined(_AIX) && !defined(OPENSSL_SYS_AIX)
 #   define OPENSSL_SYS_AIX
-#  endif
+#endif
 #endif
 
 /* -------------------------------- VOS ----------------------------------- */
-# if defined(__VOS__) && !defined(OPENSSL_SYS_VOS)
-#  define OPENSSL_SYS_VOS
-#  ifdef __HPPA__
+#if defined(__VOS__) && !defined(OPENSSL_SYS_VOS)
+#define OPENSSL_SYS_VOS
+#ifdef __HPPA__
 #   define OPENSSL_SYS_VOS_HPPA
-#  endif
-#  ifdef __IA32__
+#endif
+#ifdef __IA32__
 #   define OPENSSL_SYS_VOS_IA32
-#  endif
+#endif
 #endif
 
 /**
@@ -137,11 +137,11 @@ extern "C" {
 
 /* Specials for I/O an exit */
 #ifdef OPENSSL_SYS_MSDOS
-#  define OPENSSL_UNISTD_IO <io.h>
-#  define OPENSSL_DECLARE_EXIT extern void exit(int);
+#define OPENSSL_UNISTD_IO <io.h>
+#define OPENSSL_DECLARE_EXIT extern void exit(int);
 # else
-#  define OPENSSL_UNISTD_IO OPENSSL_UNISTD
-#  define OPENSSL_DECLARE_EXIT  /* declared in unistd.h */
+#define OPENSSL_UNISTD_IO OPENSSL_UNISTD
+#define OPENSSL_DECLARE_EXIT  /* declared in unistd.h */
 #endif
 
 /*-
@@ -163,12 +163,12 @@ extern "C" {
  * have some generally sensible values.
  */
 
-# if defined(OPENSSL_SYS_WINDOWS) && defined(OPENSSL_OPT_WINDLL)
-#  define OPENSSL_EXPORT extern __declspec(dllexport)
-#  define OPENSSL_EXTERN extern __declspec(dllimport)
+#if defined(OPENSSL_SYS_WINDOWS) && defined(OPENSSL_OPT_WINDLL)
+#define OPENSSL_EXPORT extern __declspec(dllexport)
+#define OPENSSL_EXTERN extern __declspec(dllimport)
 # else
-#  define OPENSSL_EXPORT extern
-#  define OPENSSL_EXTERN extern
+#define OPENSSL_EXPORT extern
+#define OPENSSL_EXTERN extern
 #endif
 
 /*-
@@ -183,51 +183,51 @@ extern "C" {
  *      #define foobar OPENSSL_GLOBAL_REF(foobar)
  */
 #ifdef OPENSSL_EXPORT_VAR_AS_FUNCTION
-#  define OPENSSL_IMPLEMENT_GLOBAL(type,name,value)                      \
+#define OPENSSL_IMPLEMENT_GLOBAL(type,name,value)                      \
         type *_shadow_##name(void)                                      \
         { static type _hide_##name=value; return &_hide_##name; }
-#  define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
-#  define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
+#define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
+#define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
 # else
-#  define OPENSSL_IMPLEMENT_GLOBAL(type,name,value) type _shadow_##name=value;
-#  define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
-#  define OPENSSL_GLOBAL_REF(name) _shadow_##name
+#define OPENSSL_IMPLEMENT_GLOBAL(type,name,value) type _shadow_##name=value;
+#define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
+#define OPENSSL_GLOBAL_REF(name) _shadow_##name
 #endif
 
 #ifdef _WIN32
-#  ifdef _WIN64
+#ifdef _WIN64
 #   define ossl_ssize_t __int64
 #   define OSSL_SSIZE_MAX _I64_MAX
-#  else
+#else
 #   define ossl_ssize_t int
 #   define OSSL_SSIZE_MAX INT_MAX
-#  endif
+#endif
 #endif
 
-# if defined(OPENSSL_SYS_UEFI) && !defined(ossl_ssize_t)
-#  define ossl_ssize_t INTN
-#  define OSSL_SSIZE_MAX MAX_INTN
+#if defined(OPENSSL_SYS_UEFI) && !defined(ossl_ssize_t)
+#define ossl_ssize_t INTN
+#define OSSL_SSIZE_MAX MAX_INTN
 #endif
 
 #ifndef ossl_ssize_t
-#  define ossl_ssize_t ssize_t
-#  if defined(SSIZE_MAX)
+#define ossl_ssize_t ssize_t
+#if defined(SSIZE_MAX)
 #   define OSSL_SSIZE_MAX SSIZE_MAX
-#  elif defined(_POSIX_SSIZE_MAX)
+#elif defined(_POSIX_SSIZE_MAX)
 #   define OSSL_SSIZE_MAX _POSIX_SSIZE_MAX
-#  else
+#else
 #   define OSSL_SSIZE_MAX ((ssize_t)(SIZE_MAX>>1))
-#  endif
+#endif
 #endif
 
 #ifdef DEBUG_UNUSED
-#  define __owur __attribute__((__warn_unused_result__))
+#define __owur __attribute__((__warn_unused_result__))
 # else
-#  define __owur
+#define __owur
 #endif
 
 /* Standard integer types */
-# if defined(OPENSSL_SYS_UEFI)
+#if defined(OPENSSL_SYS_UEFI)
 typedef INT8 int8_t;
 typedef UINT8 uint8_t;
 typedef INT16 int16_t;
@@ -256,39 +256,39 @@ typedef UINT64 uint64_t;
 #endif
 
 /* ossl_inline: portable inline definition usable in public headers */
-# if !defined(inline) && !defined(__cplusplus)
-#  if defined(__STDC_VERSION__) && __STDC_VERSION__>=199901L
+#if !defined(inline) && !defined(__cplusplus)
+#if defined(__STDC_VERSION__) && __STDC_VERSION__>=199901L
    /* just use inline */
 #   define ossl_inline inline
-#  elif defined(__GNUC__) && __GNUC__>=2
+#elif defined(__GNUC__) && __GNUC__>=2
 #   define ossl_inline __inline__
-#  elif defined(_MSC_VER)
+#elif defined(_MSC_VER)
   /*
    * Visual Studio: inline is available in C++ only, however
    * __inline is available for C, see
    * http://msdn.microsoft.com/en-us/library/z8y1yy88.aspx
    */
 #   define ossl_inline __inline
-#  else
+#else
 #   define ossl_inline
-#  endif
+#endif
 # else
-#  define ossl_inline inline
+#define ossl_inline inline
 #endif
 
-# if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#  define ossl_noreturn _Noreturn
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#define ossl_noreturn _Noreturn
 # elif defined(__GNUC__) && __GNUC__ >= 2
-#  define ossl_noreturn __attribute__((noreturn))
+#define ossl_noreturn __attribute__((noreturn))
 # else
-#  define ossl_noreturn
+#define ossl_noreturn
 #endif
 
 /* ossl_unused: portable unused attribute for use in public headers */
-# if defined(__GNUC__)
-#  define ossl_unused __attribute__((unused))
+#if defined(__GNUC__)
+#define ossl_unused __attribute__((unused))
 # else
-#  define ossl_unused
+#define ossl_unused
 #endif
 
 #ifdef  __cplusplus

@@ -170,20 +170,20 @@ int BIO_sock_should_retry(int i)
 int BIO_sock_non_fatal_error(int err)
 {
 	switch(err) {
-# if defined(OPENSSL_SYS_WINDOWS)
-#  if defined(WSAEWOULDBLOCK)
+#if defined(OPENSSL_SYS_WINDOWS)
+#if defined(WSAEWOULDBLOCK)
 		case WSAEWOULDBLOCK:
-#  endif
+#endif
 #endif
 
 #ifdef EWOULDBLOCK
-#  ifdef WSAEWOULDBLOCK
+#ifdef WSAEWOULDBLOCK
 #   if WSAEWOULDBLOCK != EWOULDBLOCK
 		case EWOULDBLOCK:
 #   endif
-#  else
+#else
 		case EWOULDBLOCK:
-#  endif
+#endif
 #endif
 
 #if defined(ENOTCONN)

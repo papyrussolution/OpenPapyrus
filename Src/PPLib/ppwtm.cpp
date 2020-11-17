@@ -2560,8 +2560,8 @@ int PPWhatmanWindow::FileOpen()
 		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 		{
 			SRectLayout::Item li;
-			Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
-			Layout_Obsolete.Add(zoneCenter, li.SetCenter());
+			// @v10.9.3 Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
+			// @v10.9.3 Layout_Obsolete.Add(zoneCenter, li.SetCenter());
 			P_Lfc = new LayoutFlexItem(); // @v10.9.3
 			P_Lfc->Direction = FLEX_DIRECTION_ROW;
 			P_Lfc->AlignContent = FLEX_ALIGN_STRETCH;

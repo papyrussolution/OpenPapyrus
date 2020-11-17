@@ -1170,12 +1170,12 @@ public:
 	};
 	TestFrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 	{
-		SRectLayout::Item li;
-		Layout_Obsolete.Add(zoneTop, li.SetTop(40, 0));
-		Layout_Obsolete.Add(zoneBottom, li.SetBottom(10, 0));
-		Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
-		Layout_Obsolete.Add(zoneRight, li.SetRight(20, 1));
-		Layout_Obsolete.Add(zoneCenter, li.SetCenter());
+		// @v10.9.3 SRectLayout::Item li;
+		// @v10.9.3 Layout_Obsolete.Add(zoneTop, li.SetTop(40, 0));
+		// @v10.9.3 Layout_Obsolete.Add(zoneBottom, li.SetBottom(10, 0));
+		// @v10.9.3 Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
+		// @v10.9.3 Layout_Obsolete.Add(zoneRight, li.SetRight(20, 1));
+		// @v10.9.3 Layout_Obsolete.Add(zoneCenter, li.SetCenter());
 	}
 protected:
 	DECL_HANDLE_EVENT
@@ -1396,9 +1396,10 @@ int DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	//TestFrameWindow::Run();
+	TestUdsInterface();
 	GumboTest();
 	TestGtinStruc();
-	//TestUdsInterface();
 	//TestTsDensityMap();
 	//TestAddressRecognition();
 	//TestSArchive();
@@ -1419,7 +1420,6 @@ int DoConstructionTest()
 #endif
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
 	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
-	//TestFrameWindow::Run();
 	//TestSuffixTree();
 	//TestFann();
 	{

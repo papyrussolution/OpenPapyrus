@@ -642,7 +642,7 @@ extern uchar * ccltbl;
  * dfaeql - number of times a newly created dfa was equal to an old one
  * numeps - number of epsilon NFA states created
  * eps2 - number of epsilon states which have 2 out-transitions
- * num_reallocs - number of times it was necessary to realloc() a group
+ * num_reallocs - number of times it was necessary to SAlloc::R() a group
  *	  of arrays
  * tmpuses - number of DFA states that chain to templates
  * totnst - total number of NFA states used to make DFA states

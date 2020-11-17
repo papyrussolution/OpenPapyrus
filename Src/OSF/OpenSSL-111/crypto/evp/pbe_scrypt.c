@@ -135,14 +135,14 @@ static void scryptROMix(uchar * B, uint64_t r, uint64_t N,
  */
 
 #ifdef SCRYPT_MAX_MEM
-# if SCRYPT_MAX_MEM == 0
-#  undef SCRYPT_MAX_MEM
+#if SCRYPT_MAX_MEM == 0
+#undef SCRYPT_MAX_MEM
 /*
  * Although we could theoretically allocate SIZE_MAX memory that would leave
  * no memory available for anything else so set limit as half that.
  */
-#  define SCRYPT_MAX_MEM (SIZE_MAX/2)
-# endif
+#define SCRYPT_MAX_MEM (SIZE_MAX/2)
+#endif
 #else
 /* Default memory limit: 32 MB */
 # define SCRYPT_MAX_MEM  (1024 * 1024 * 32)

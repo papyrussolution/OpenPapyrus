@@ -34,7 +34,7 @@
 #include "curl_md5.h"
 #include "warnless.h"
 #include "strtok.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "curl_printf.h"
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -82,7 +82,7 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data,
 		return CURLE_OUT_OF_MEMORY;
 	plainlen = zlen + clen + plen + 2;
 
-	plainauth = (char *)malloc(plainlen);
+	plainauth = (char *)SAlloc::M(plainlen);
 	if(!plainauth)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -96,7 +96,7 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data,
 
 	/* Base64 encode the reply */
 	result = Curl_base64_encode(data, plainauth, plainlen, outptr, outlen);
-	free(plainauth);
+	SAlloc::F(plainauth);
 
 	return result;
 }
@@ -125,7 +125,7 @@ CURLcode Curl_auth_create_login_message(struct Curl_easy * data,
 
 	if(!vlen) {
 		/* Calculate an empty reply */
-		*outptr = strdup("=");
+		*outptr = sstrdup("=");
 		if(*outptr) {
 			*outlen = (size_t)1;
 			return CURLE_OK;

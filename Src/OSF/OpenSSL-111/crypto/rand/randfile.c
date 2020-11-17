@@ -39,7 +39,7 @@
  * would look like ((m) & MASK == TYPE), but since MASK availability
  * is as questionable, we settle for this poor-man fallback...
  */
-# if !defined(S_ISREG)
+#if !defined(S_ISREG)
 #   define S_ISREG(m) ((m) & S_IFREG)
 #endif
 

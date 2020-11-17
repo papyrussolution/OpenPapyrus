@@ -153,21 +153,21 @@ CURLcode Curl_output_digest(struct connectdata * conn,
 		}
 	}
 	if(!tmp)
-		path = (uchar *)strdup((char *)uripath);
+		path = (uchar *)sstrdup((char *)uripath);
 
 	if(!path)
 		return CURLE_OUT_OF_MEMORY;
 
 	result = Curl_auth_create_digest_http_message(data, userp, passwdp, request,
 		path, digest, &response, &len);
-	free(path);
+	SAlloc::F(path);
 	if(result)
 		return result;
 
 	*allocuserpwd = aprintf("%sAuthorization: Digest %s\r\n",
 		proxy ? "Proxy-" : "",
 		response);
-	free(response);
+	SAlloc::F(response);
 	if(!*allocuserpwd)
 		return CURLE_OUT_OF_MEMORY;
 

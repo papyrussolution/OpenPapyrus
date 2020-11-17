@@ -62,10 +62,10 @@
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
 #include "mime.h"
@@ -74,7 +74,7 @@
 #include "strtoofft.h"
 #include "strcase.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strerror.h"
 #include "select.h"
 #include "multiif.h"
@@ -515,7 +515,7 @@ static CURLcode smtp_perform_command(struct connectdata * conn)
 				utf8 ? " SMTPUTF8" : "");
 
 			Curl_free_idnconverted_hostname(&host);
-			free(address);
+			SAlloc::F(address);
 		}
 		else {
 			/* Establish whether we should report that we support SMTPUTF8 for EXPN
@@ -589,11 +589,11 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 			   about that and reply with a 501 error */
 			from = aprintf("<%s>", address);
 
-		free(address);
+		SAlloc::F(address);
 	}
 	else
 		/* Null reverse-path, RFC-5321, sect. 3.6.3 */
-		from = strdup("<>");
+		from = sstrdup("<>");
 
 	if(!from)
 		return CURLE_OUT_OF_MEMORY;
@@ -609,7 +609,7 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 			result = smtp_parse_address(conn, data->set.str[STRING_MAIL_AUTH],
 				&address, &host);
 			if(result) {
-				free(from);
+				SAlloc::F(from);
 				return result;
 			}
 
@@ -630,14 +630,14 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 				   worry about it */
 				auth = aprintf("<%s>", address);
 
-			free(address);
+			SAlloc::F(address);
 		}
 		else
 			/* Empty AUTH, RFC-2554, sect. 5 */
-			auth = strdup("<>");
+			auth = sstrdup("<>");
 
 		if(!auth) {
-			free(from);
+			SAlloc::F(from);
 
 			return CURLE_OUT_OF_MEMORY;
 		}
@@ -663,8 +663,8 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 			result = Curl_mime_rewind(&data->set.mimepost);
 
 		if(result) {
-			free(from);
-			free(auth);
+			SAlloc::F(from);
+			SAlloc::F(auth);
 
 			return result;
 		}
@@ -681,8 +681,8 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 		size = aprintf("%" CURL_FORMAT_CURL_OFF_T, data->state.infilesize);
 
 		if(!size) {
-			free(from);
-			free(auth);
+			SAlloc::F(from);
+			SAlloc::F(auth);
 
 			return CURLE_OUT_OF_MEMORY;
 		}
@@ -716,9 +716,9 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 		utf8 ? " SMTPUTF8"             /* Internationalised mailbox */
 		: "");                         /* included in our envelope  */
 
-	free(from);
-	free(auth);
-	free(size);
+	SAlloc::F(from);
+	SAlloc::F(auth);
+	SAlloc::F(size);
 
 	if(!result)
 		state(conn, SMTP_MAIL);
@@ -758,7 +758,7 @@ static CURLcode smtp_perform_rcpt_to(struct connectdata * conn)
 		result = Curl_pp_sendf(&conn->proto.smtpc.pp, "RCPT TO:<%s>", address);
 
 	Curl_free_idnconverted_hostname(&host);
-	free(address);
+	SAlloc::F(address);
 
 	if(!result)
 		state(conn, SMTP_RCPT);
@@ -1271,7 +1271,7 @@ static CURLcode smtp_init(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-	struct SMTP * smtp = (struct SMTP *)(data->req.protop = calloc(sizeof(struct SMTP), 1));
+	struct SMTP * smtp = (struct SMTP *)(data->req.protop = SAlloc::C(sizeof(struct SMTP), 1));
 	if(!smtp)
 		result = CURLE_OUT_OF_MEMORY;
 
@@ -1379,11 +1379,11 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status,
 		   returned CURLE_AGAIN, we duplicate the EOB now rather than when the
 		   bytes written doesn't equal len. */
 		if(smtp->trailing_crlf || !conn->data->state.infilesize) {
-			eob = strdup(&SMTP_EOB[2]);
+			eob = sstrdup(&SMTP_EOB[2]);
 			len = SMTP_EOB_LEN - 2;
 		}
 		else {
-			eob = strdup(SMTP_EOB);
+			eob = sstrdup(SMTP_EOB);
 			len = SMTP_EOB_LEN;
 		}
 
@@ -1393,7 +1393,7 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status,
 		/* Send the end of block data */
 		result = Curl_write(conn, conn->writesockfd, eob, len, &bytes_written);
 		if(result) {
-			free(eob);
+			SAlloc::F(eob);
 			return result;
 		}
 
@@ -1408,7 +1408,7 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status,
 			/* Successfully sent so adjust the response timeout relative to now */
 			pp->response = Curl_now();
 
-			free(eob);
+			SAlloc::F(eob);
 		}
 
 		state(conn, SMTP_POSTDATA);
@@ -1749,7 +1749,7 @@ static CURLcode smtp_parse_address(struct connectdata * conn, const char * fqma,
 
 	/* Duplicate the fully qualified email address so we can manipulate it,
 	   ensuring it doesn't contain the delimiters if specified */
-	char * dup = strdup(fqma[0] == '<' ? fqma + 1  : fqma);
+	char * dup = sstrdup(fqma[0] == '<' ? fqma + 1  : fqma);
 	if(!dup)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -1800,7 +1800,7 @@ CURLcode Curl_smtp_escape_eob(struct connectdata * conn, const ssize_t nread)
 	if(!scratch || data->set.crlf) {
 		oldscratch = scratch;
 
-		scratch = newscratch = (char *)malloc(2 * data->set.upload_buffer_size);
+		scratch = newscratch = (char *)SAlloc::M(2 * data->set.upload_buffer_size);
 		if(!newscratch) {
 			failf(data, "Failed to alloc scratch buffer!");
 
@@ -1869,13 +1869,13 @@ CURLcode Curl_smtp_escape_eob(struct connectdata * conn, const ssize_t nread)
 		data->state.scratch = scratch;
 
 		/* Free the old scratch buffer */
-		free(oldscratch);
+		SAlloc::F(oldscratch);
 
 		/* Set the new amount too */
 		data->req.upload_present = si;
 	}
 	else
-		free(newscratch);
+		SAlloc::F(newscratch);
 
 	return CURLE_OK;
 }

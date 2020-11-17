@@ -33,11 +33,11 @@ bool c_isascii(int c)
 bool c_isalnum(int c)
 {
 #if C_CTYPE_CONSECUTIVE_DIGITS && C_CTYPE_CONSECUTIVE_UPPERCASE && C_CTYPE_CONSECUTIVE_LOWERCASE
-#if C_CTYPE_ASCII
-	return ((c >= '0' && c <= '9') || ((c & ~0x20) >= 'A' && (c & ~0x20) <= 'Z'));
-#else
-	return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'));
-#endif
+	#if C_CTYPE_ASCII
+		return ((c >= '0' && c <= '9') || ((c & ~0x20) >= 'A' && (c & ~0x20) <= 'Z'));
+	#else
+		return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'));
+	#endif
 #else
 	switch(c) {
 		case '0': case '1': case '2': case '3': case '4': case '5':
@@ -244,8 +244,7 @@ bool c_ispunct(int c)
 
 bool c_isspace(int c)
 {
-	return (c == ' ' || c == '\t'
-	       || c == '\n' || c == '\v' || c == '\f' || c == '\r');
+	return oneof6(c, ' ', '\t', '\n', '\v', '\f', '\r');
 }
 
 bool c_isupper(int c)
@@ -268,15 +267,11 @@ bool c_isupper(int c)
 
 bool c_isxdigit(int c)
 {
-#if C_CTYPE_CONSECUTIVE_DIGITS \
-	&& C_CTYPE_CONSECUTIVE_UPPERCASE && C_CTYPE_CONSECUTIVE_LOWERCASE
+#if C_CTYPE_CONSECUTIVE_DIGITS && C_CTYPE_CONSECUTIVE_UPPERCASE && C_CTYPE_CONSECUTIVE_LOWERCASE
 #if C_CTYPE_ASCII
-	return ((c >= '0' && c <= '9')
-	       || ((c & ~0x20) >= 'A' && (c & ~0x20) <= 'F'));
+	return ((c >= '0' && c <= '9') || ((c & ~0x20) >= 'A' && (c & ~0x20) <= 'F'));
 #else
-	return ((c >= '0' && c <= '9')
-	       || (c >= 'A' && c <= 'F')
-	       || (c >= 'a' && c <= 'f'));
+	return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'));
 #endif
 #else
 	switch(c) {

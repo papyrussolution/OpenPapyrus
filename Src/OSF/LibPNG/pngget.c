@@ -380,7 +380,7 @@ uint32 PNGAPI png_get_bKGD(png_const_structrp png_ptr, png_inforp info_ptr, png_
  * same time to correct the rgb grayscale coefficient defaults obtained from the
  * cHRM chunk in 1.5.4
  */
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 uint32 PNGAPI png_get_cHRM(png_const_structrp png_ptr, png_const_inforp info_ptr,
     double * white_x, double * white_y, double * red_x, double * red_y,
     double * green_x, double * green_y, double * blue_x, double * blue_y)
@@ -442,9 +442,9 @@ uint32 PNGAPI png_get_cHRM_XYZ(png_const_structrp png_ptr, png_const_inforp info
 	return 0;
 }
 
-#  endif
+#endif
 
-#  ifdef PNG_FIXED_POINT_SUPPORTED
+#ifdef PNG_FIXED_POINT_SUPPORTED
 uint32 PNGAPI png_get_cHRM_XYZ_fixed(png_const_structrp png_ptr, png_const_inforp info_ptr,
     png_fixed_point * int_red_X, png_fixed_point * int_red_Y,
     png_fixed_point * int_red_Z, png_fixed_point * int_green_X,
@@ -505,11 +505,11 @@ uint32 PNGAPI png_get_cHRM_fixed(png_const_structrp png_ptr, png_const_inforp in
 	return 0;
 }
 
-#  endif
+#endif
 #endif
 
 #ifdef PNG_gAMA_SUPPORTED
-#  ifdef PNG_FIXED_POINT_SUPPORTED
+#ifdef PNG_FIXED_POINT_SUPPORTED
 uint32 PNGAPI png_get_gAMA_fixed(png_const_structrp png_ptr, png_const_inforp info_ptr, png_fixed_point * file_gamma)
 {
 	png_debug1(1, "in %s retrieval function", "gAMA");
@@ -520,9 +520,9 @@ uint32 PNGAPI png_get_gAMA_fixed(png_const_structrp png_ptr, png_const_inforp in
 	return 0;
 }
 
-#  endif
+#endif
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 uint32 PNGAPI png_get_gAMA(png_const_structrp png_ptr, png_const_inforp info_ptr, double * file_gamma)
 {
 	png_debug1(1, "in %s retrieval function", "gAMA(float)");
@@ -533,7 +533,7 @@ uint32 PNGAPI png_get_gAMA(png_const_structrp png_ptr, png_const_inforp info_ptr
 	return 0;
 }
 
-#  endif
+#endif
 #endif
 
 #ifdef PNG_sRGB_SUPPORTED
@@ -662,8 +662,8 @@ uint32 PNGAPI png_get_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_sCAL_SUPPORTED
-#  ifdef PNG_FIXED_POINT_SUPPORTED
-#    if defined(PNG_FLOATING_ARITHMETIC_SUPPORTED) || defined(PNG_FLOATING_POINT_SUPPORTED)
+#ifdef PNG_FIXED_POINT_SUPPORTED
+#if defined(PNG_FLOATING_ARITHMETIC_SUPPORTED) || defined(PNG_FLOATING_POINT_SUPPORTED)
 uint32 PNGAPI png_get_sCAL_fixed(png_const_structrp png_ptr, png_const_inforp info_ptr, int * unit, png_fixed_point * width, png_fixed_point * height)
 {
 	if(png_ptr && info_ptr && (info_ptr->valid & PNG_INFO_sCAL) != 0) {
@@ -678,9 +678,9 @@ uint32 PNGAPI png_get_sCAL_fixed(png_const_structrp png_ptr, png_const_inforp in
 	return 0;
 }
 
-#    endif /* FLOATING_ARITHMETIC */
-#  endif /* FIXED_POINT */
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#endif /* FLOATING_ARITHMETIC */
+#endif /* FIXED_POINT */
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 uint32 PNGAPI png_get_sCAL(png_const_structrp png_ptr, png_const_inforp info_ptr, int * unit, double * width, double * height)
 {
 	if(png_ptr && info_ptr && (info_ptr->valid & PNG_INFO_sCAL) != 0) {
@@ -692,7 +692,7 @@ uint32 PNGAPI png_get_sCAL(png_const_structrp png_ptr, png_const_inforp info_ptr
 	return 0;
 }
 
-#  endif /* FLOATING POINT */
+#endif /* FLOATING POINT */
 uint32 PNGAPI png_get_sCAL_s(png_const_structrp png_ptr, png_const_inforp info_ptr, int * unit, png_charpp width, png_charpp height)
 {
 	if(png_ptr && info_ptr && (info_ptr->valid & PNG_INFO_sCAL) != 0) {
@@ -907,13 +907,13 @@ uint32 PNGAPI png_get_io_chunk_type(png_const_structrp png_ptr)
 #endif /* IO_STATE */
 
 #ifdef PNG_CHECK_FOR_INVALID_INDEX_SUPPORTED
-#  ifdef PNG_GET_PALETTE_MAX_SUPPORTED
+#ifdef PNG_GET_PALETTE_MAX_SUPPORTED
 int PNGAPI png_get_palette_max(png_const_structp png_ptr, png_const_infop info_ptr)
 {
 	return (png_ptr && info_ptr) ? png_ptr->num_palette_max : -1;
 }
 
-#  endif
+#endif
 #endif
 
 #endif /* READ || WRITE */

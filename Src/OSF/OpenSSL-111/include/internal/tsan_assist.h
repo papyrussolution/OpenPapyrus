@@ -81,23 +81,23 @@
  * default to "iso"...
  */
 #define TSAN_QUALIFIER volatile
-# if defined(_M_ARM) || defined(_M_ARM64)
-#  define _InterlockedExchangeAdd _InterlockedExchangeAdd_nf
-#  pragma intrinsic(_InterlockedExchangeAdd_nf)
-#  pragma intrinsic(__iso_volatile_load32, __iso_volatile_store32)
-#  ifdef _WIN64
+#if defined(_M_ARM) || defined(_M_ARM64)
+#define _InterlockedExchangeAdd _InterlockedExchangeAdd_nf
+#pragma intrinsic(_InterlockedExchangeAdd_nf)
+#pragma intrinsic(__iso_volatile_load32, __iso_volatile_store32)
+#ifdef _WIN64
 #   define _InterlockedExchangeAdd64 _InterlockedExchangeAdd64_nf
 #   pragma intrinsic(_InterlockedExchangeAdd64_nf)
 #   pragma intrinsic(__iso_volatile_load64, __iso_volatile_store64)
 #   define tsan_load(ptr) (sizeof(*(ptr)) == 8 ? __iso_volatile_load64(ptr) : __iso_volatile_load32(ptr))
 #   define tsan_store(ptr, val) (sizeof(*(ptr)) == 8 ? __iso_volatile_store64((ptr), (val)) : __iso_volatile_store32((ptr), (val)))
-#  else
+#else
 #   define tsan_load(ptr) __iso_volatile_load32(ptr)
 #   define tsan_store(ptr, val) __iso_volatile_store32((ptr), (val))
-#  endif
+#endif
 # else
-#  define tsan_load(ptr) (*(ptr))
-#  define tsan_store(ptr, val) (*(ptr) = (val))
+#define tsan_load(ptr) (*(ptr))
+#define tsan_store(ptr, val) (*(ptr) = (val))
 #endif
 #pragma intrinsic(_InterlockedExchangeAdd)
 #ifdef _WIN64

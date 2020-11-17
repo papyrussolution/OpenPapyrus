@@ -84,31 +84,29 @@
 #ifndef CURLX_NO_MEMORY_CALLBACKS
 
 #ifndef CURL_DID_MEMORY_FUNC_TYPEDEFS /* only if not already done */
-/*
- * The following memory function replacement typedef's are COPIED from
- * curl/curl.h and MUST match the originals. We copy them to avoid having to
- * include curl/curl.h here. We avoid that include since it includes stdio.h
- * and other headers that may get messed up with defines done here.
- */
-typedef void *(*curl_malloc_callback)(size_t size);
-typedef void (*curl_free_callback)(void *ptr);
-typedef void *(*curl_realloc_callback)(void *ptr, size_t size);
-typedef char *(*curl_strdup_callback)(const char *str);
-typedef void *(*curl_calloc_callback)(size_t nmemb, size_t size);
-#define CURL_DID_MEMORY_FUNC_TYPEDEFS
+	/*
+	 * The following memory function replacement typedef's are COPIED from
+	 * curl/curl.h and MUST match the originals. We copy them to avoid having to
+	 * include curl/curl.h here. We avoid that include since it includes stdio.h
+	 * and other headers that may get messed up with defines done here.
+	 */
+	typedef void *(*curl_malloc_callback)(size_t size);
+	typedef void (*curl_free_callback)(void *ptr);
+	typedef void *(*curl_realloc_callback)(void *ptr, size_t size);
+	typedef char *(*curl_strdup_callback)(const char *str);
+	typedef void *(*curl_calloc_callback)(size_t nmemb, size_t size);
+	#define CURL_DID_MEMORY_FUNC_TYPEDEFS
 #endif
-
 extern curl_malloc_callback Curl_cmalloc;
 extern curl_free_callback Curl_cfree;
 extern curl_realloc_callback Curl_crealloc;
 extern curl_strdup_callback Curl_cstrdup;
 extern curl_calloc_callback Curl_ccalloc;
 #if defined(WIN32) && defined(UNICODE)
-extern curl_wcsdup_callback Curl_cwcsdup;
+	extern curl_wcsdup_callback Curl_cwcsdup;
 #endif
 
 #ifndef CURLDEBUG
-
 /*
  * libcurl's 'memory tracking' system defines strdup, malloc, calloc,
  * realloc and free, along with others, in memdebug.h in a different
@@ -117,32 +115,29 @@ extern curl_wcsdup_callback Curl_cwcsdup;
  * not define here the five memory functions given that definitions
  * from memdebug.h are the ones that shall be used.
  */
-
-#undef strdup
-#define strdup(ptr) Curl_cstrdup(ptr)
-#undef malloc
-#define malloc(size) Curl_cmalloc(size)
-#undef calloc
-#define calloc(nbelem,size) Curl_ccalloc(nbelem, size)
-#undef realloc
-#define realloc(ptr,size) Curl_crealloc(ptr, size)
-#undef free
-#define free(ptr) Curl_cfree(ptr)
-
+ //#undef strdup
+//#define strdup_Removed(ptr) Curl_cstrdup(ptr)
+//#undef malloc_Removed
+//#define malloc_Removed(size) Curl_cmalloc(size)
+//#undef calloc_Removed
+//#define calloc_Removed(nbelem,size) Curl_ccalloc(nbelem, size)
+//#undef realloc_Removed
+//#define realloc_Removed(ptr,size) Curl_crealloc(ptr, size)
+//#undef free_Removed
+//#define free_Removed(ptr) Curl_cfree(ptr)
 #ifdef WIN32
-#  ifdef UNICODE
-#    undef wcsdup
-#    define wcsdup(ptr) Curl_cwcsdup(ptr)
-#    undef _wcsdup
-#    define _wcsdup(ptr) Curl_cwcsdup(ptr)
-#    undef _tcsdup
-#    define _tcsdup(ptr) Curl_cwcsdup(ptr)
-#  else
-#    undef _tcsdup
-#    define _tcsdup(ptr) Curl_cstrdup(ptr)
-#  endif
+	#ifdef UNICODE
+		#undef wcsdup
+		#define wcsdup(ptr) Curl_cwcsdup(ptr)
+		#undef _wcsdup
+		#define _wcsdup(ptr) Curl_cwcsdup(ptr)
+		#undef _tcsdup
+		#define _tcsdup(ptr) Curl_cwcsdup(ptr)
+	#else
+		#undef _tcsdup
+		#define _tcsdup(ptr) Curl_cstrdup(ptr)
+	#endif
 #endif
-
 #endif /* CURLDEBUG */
 
 #else /* CURLX_NO_MEMORY_CALLBACKS */

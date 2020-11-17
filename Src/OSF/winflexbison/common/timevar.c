@@ -96,7 +96,7 @@ void timevar_init()
 {
 	if(!timevar_enabled)
 		return;
-	memzero((void*)timevars, sizeof(timevars)); /* Zero all elapsed times.  */
+	memzero((void *)timevars, sizeof(timevars)); /* Zero all elapsed times.  */
 	/* Initialize the names of timing variables.  */
 #define DEFTIMEVAR(identifier__, name__) timevars[identifier__].name = name__;
 #include "timevar.def"

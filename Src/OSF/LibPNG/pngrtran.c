@@ -135,7 +135,7 @@ void PNGFAPI png_set_background_fixed(png_structrp png_ptr,
 	SETFLAG(png_ptr->transformations, PNG_BACKGROUND_EXPAND, need_expand); // @sobolev
 }
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 void PNGAPI png_set_background(png_structrp png_ptr,
     png_const_color_16p background_color, int background_gamma_code,
     int need_expand, double background_gamma)
@@ -144,7 +144,7 @@ void PNGAPI png_set_background(png_structrp png_ptr,
 	    need_expand, png_fixed(png_ptr, background_gamma, "png_set_background"));
 }
 
-#  endif /* FLOATING_POINT */
+#endif /* FLOATING_POINT */
 #endif /* READ_BACKGROUND */
 
 /* Scale 16-bit depth files to 8-bit depth.  If both of these are set then the
@@ -698,14 +698,14 @@ void PNGFAPI png_set_gamma_fixed(png_structrp png_ptr, png_fixed_point scrn_gamm
 	png_ptr->screen_gamma = scrn_gamma;
 }
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 void PNGAPI png_set_gamma(png_structrp png_ptr, double scrn_gamma, double file_gamma)
 {
 	png_set_gamma_fixed(png_ptr, convert_gamma_value(png_ptr, scrn_gamma),
 	    convert_gamma_value(png_ptr, file_gamma));
 }
 
-#  endif /* FLOATING_POINT */
+#endif /* FLOATING_POINT */
 #endif /* READ_GAMMA */
 
 #ifdef PNG_READ_EXPAND_SUPPORTED
@@ -1346,10 +1346,10 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 	 */
 
 #ifdef PNG_READ_GAMMA_SUPPORTED
-#  ifdef PNG_READ_BACKGROUND_SUPPORTED
+#ifdef PNG_READ_BACKGROUND_SUPPORTED
 	/* Includes ALPHA_MODE */
 	png_ptr->background_1 = png_ptr->background;
-#  endif
+#endif
 
 	/* This needs to change - in the palette image case a whole set of tables are
 	 * built when it would be quicker to just calculate the correct value for
@@ -1371,10 +1371,10 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 	    ((png_ptr->transformations & PNG_COMPOSE) != 0 &&
 		    (png_gamma_significant(png_ptr->colorspace.gamma) != 0 ||
 			    png_gamma_significant(png_ptr->screen_gamma) != 0
-#  ifdef PNG_READ_BACKGROUND_SUPPORTED
+#ifdef PNG_READ_BACKGROUND_SUPPORTED
 			    || (png_ptr->background_gamma_type == PNG_BACKGROUND_GAMMA_UNIQUE &&
 				    png_gamma_significant(png_ptr->background_gamma) != 0)
-#  endif
+#endif
 		    )) || ((png_ptr->transformations & PNG_ENCODE_ALPHA) != 0 &&
 		    png_gamma_significant(png_ptr->screen_gamma) != 0)) {
 		png_build_gamma_table(png_ptr, png_ptr->bit_depth);
@@ -1723,7 +1723,7 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 #endif
 
 	if(info_ptr->bit_depth == 16) {
-#  ifdef PNG_READ_16BIT_SUPPORTED
+#ifdef PNG_READ_16BIT_SUPPORTED
 #     ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
 		if((png_ptr->transformations & PNG_SCALE_16_TO_8) != 0)
 			info_ptr->bit_depth = 8;
@@ -1734,7 +1734,7 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 			info_ptr->bit_depth = 8;
 #     endif
 
-#  else
+#else
 		/* No 16-bit support: force chopping 16-bit input down to 8, in this case
 		 * the app program can chose if both APIs are available by setting the
 		 * correct scaling to use.
@@ -1755,7 +1755,7 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 
 		CONFIGURATION ERROR : you must enable at least one 16 to 8 method
 #        endif
-#    endif
+#endif
 #endif /* !READ_16BIT */
 	}
 #ifdef PNG_READ_GRAY_TO_RGB_SUPPORTED

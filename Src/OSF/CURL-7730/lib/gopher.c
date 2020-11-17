@@ -25,10 +25,10 @@
 #ifndef CURL_DISABLE_GOPHER
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
-#include "connect.h"
-#include "progress.h"
+//#include "transfer.h"
+//#include "sendf.h"
+//#include "connect.h"
+//#include "progress.h"
 #include "gopher.h"
 #include "select.h"
 #include "strdup.h"
@@ -97,7 +97,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 	if(query)
 		gopherpath = aprintf("%s?%s", path, query);
 	else
-		gopherpath = strdup(path);
+		gopherpath = sstrdup(path);
 
 	if(!gopherpath)
 		return CURLE_OUT_OF_MEMORY;
@@ -106,7 +106,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 	if(strlen(gopherpath) <= 2) {
 		sel = (char *)"";
 		len = strlen(sel);
-		free(gopherpath);
+		SAlloc::F(gopherpath);
 	}
 	else {
 		char * newp;
@@ -117,7 +117,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 
 		/* ... and finally unescape */
 		result = Curl_urldecode(data, newp, 0, &sel, &len, REJECT_ZERO);
-		free(gopherpath);
+		SAlloc::F(gopherpath);
 		if(result)
 			return result;
 		sel_org = sel;
@@ -167,7 +167,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 		}
 	}
 
-	free(sel_org);
+	SAlloc::F(sel_org);
 
 	if(!result)
 		result = Curl_write(conn, sockfd, "\r\n", 2, &amount);

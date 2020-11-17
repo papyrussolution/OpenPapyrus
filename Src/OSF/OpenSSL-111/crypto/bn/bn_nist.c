@@ -279,12 +279,12 @@ static void nist_cp_bn(BN_ULONG * dst, const BN_ULONG * src, int top)
 	: (to[(n)/2] = ((m)&1) ? (from[(m)/2]>>32) : (from[(m)/2]&BN_MASK2l)))
 #define bn_32_set_0(to, n)              (((n)&1) ? (to[(n)/2] &= BN_MASK2l) : (to[(n)/2] = 0));
 #define bn_cp_32(to, n, from, m)           ((m)>=0) ? bn_cp_32_naked(to, n, from, m) : bn_32_set_0(to, n)
-# if defined(L_ENDIAN)
-#  if defined(__arch64__)
+#if defined(L_ENDIAN)
+#if defined(__arch64__)
 #   define NIST_INT64 long
-#  else
+#else
 #   define NIST_INT64 long long
-#  endif
+#endif
 #endif
 #else
 #define bn_cp_64(to, n, from, m) \
@@ -299,7 +299,7 @@ static void nist_cp_bn(BN_ULONG * dst, const BN_ULONG * src, int top)
 	}
 #define bn_cp_32(to, n, from, m)        (to)[n] = (m>=0) ? ((from)[m]) : 0;
 #define bn_32_set_0(to, n)              (to)[n] = (BN_ULONG)0;
-# if defined(_WIN32) && !defined(__GNUC__)
+#if defined(_WIN32) && !defined(__GNUC__)
 #define NIST_INT64 __int64
 # elif defined(BN_LLONG)
 #define NIST_INT64 long long
@@ -561,7 +561,7 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		rp[6] = static_cast<uint>(acc);
 
 		carry = (int)(acc >> 32);
-# if BN_BITS2==64
+#if BN_BITS2==64
 		rp[7] = carry;
 #endif
 	}
@@ -578,7 +578,7 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		nist_set_224(t_d, buf.bn, 0, 0, 0, 0, 13, 12, 11);
 		carry -= (int)bn_sub_words(r_d, r_d, t_d, BN_NIST_224_TOP);
 
-# if BN_BITS2==64
+#if BN_BITS2==64
 		carry = (int)(r_d[BN_NIST_224_TOP - 1] >> 32);
 #endif
 	}

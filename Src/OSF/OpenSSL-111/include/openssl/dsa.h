@@ -20,23 +20,23 @@ extern "C" {
 #include <openssl/crypto.h>
 #include <openssl/ossl_typ.h>
 #include <openssl/bn.h>
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 #include <openssl/dh.h>
 #endif
 #include <openssl/dsaerr.h>
 
 #ifndef OPENSSL_DSA_MAX_MODULUS_BITS
-#  define OPENSSL_DSA_MAX_MODULUS_BITS   10000
+#define OPENSSL_DSA_MAX_MODULUS_BITS   10000
 #endif
 
 #define OPENSSL_DSA_FIPS_MIN_MODULUS_BITS 1024
 
 #define DSA_FLAG_CACHE_MONT_P   0x01
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 /*
  * Does nothing. Previously this switched off constant time behaviour.
  */
-#  define DSA_FLAG_NO_EXP_CONSTTIME       0x00
+#define DSA_FLAG_NO_EXP_CONSTTIME       0x00
 #endif
 
 /*
@@ -230,8 +230,8 @@ int (*DSA_meth_get_keygen(const DSA_METHOD *dsam)) (DSA *);
 int DSA_meth_set_keygen(DSA_METHOD *dsam, int (*keygen) (DSA *));
 
 
-#  ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-#  endif
+#endif
 #endif
 #endif

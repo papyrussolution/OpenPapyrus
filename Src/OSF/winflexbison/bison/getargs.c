@@ -20,10 +20,6 @@
 
 #include "bison.h"
 #pragma hdrstop
-//#include <c-strcase.h>
-//#include <getopt.h>
-//#include <progname.h>
-//#include <textstyle.h>
 
 static struct bison_language const valid_languages[] = {
 	/* lang,  skeleton,       ext,     hdr,     add_tab */

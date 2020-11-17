@@ -179,14 +179,14 @@
 #define RETSIGTYPE void /* Define to the return type of signal handlers (int or void). */
 /* Define if ssize_t is not an available 'typedefed' type. */
 #ifndef _SSIZE_T_DEFINED
-#  if (defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__) || defined(__MINGW32__)
-#  elif defined(_WIN64)
-#    define _SSIZE_T_DEFINED
-#    define ssize_t __int64
-#  else
-#    define _SSIZE_T_DEFINED
-#    define ssize_t int
-#  endif
+#if (defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__) || defined(__MINGW32__)
+#elif defined(_WIN64)
+#define _SSIZE_T_DEFINED
+#define ssize_t __int64
+#else
+#define _SSIZE_T_DEFINED
+#define ssize_t int
+#endif
 #endif
 
 /* ---------------------------------------------------------------- */
@@ -215,28 +215,28 @@
 /* #define USE_LWIPSOCK 1 */
 
 #ifdef USE_LWIPSOCK
-#  undef USE_WINSOCK
-#  undef HAVE_WINSOCK_H
-#  undef HAVE_WINSOCK2_H
-#  undef HAVE_WS2TCPIP_H
-#  undef HAVE_ERRNO_H
-#  undef HAVE_GETHOSTNAME
-#  undef HAVE_GETNAMEINFO
-#  undef LWIP_POSIX_SOCKETS_IO_NAMES
-#  undef RECV_TYPE_ARG1
-#  undef RECV_TYPE_ARG3
-#  undef SEND_TYPE_ARG1
-#  undef SEND_TYPE_ARG3
-#  define HAVE_FREEADDRINFO
-#  define HAVE_GETADDRINFO
-#  define HAVE_GETHOSTBYNAME
-#  define HAVE_GETHOSTBYNAME_R
-#  define HAVE_GETHOSTBYNAME_R_6
-#  define LWIP_POSIX_SOCKETS_IO_NAMES 0
-#  define RECV_TYPE_ARG1 int
-#  define RECV_TYPE_ARG3 size_t
-#  define SEND_TYPE_ARG1 int
-#  define SEND_TYPE_ARG3 size_t
+#undef USE_WINSOCK
+#undef HAVE_WINSOCK_H
+#undef HAVE_WINSOCK2_H
+#undef HAVE_WS2TCPIP_H
+#undef HAVE_ERRNO_H
+#undef HAVE_GETHOSTNAME
+#undef HAVE_GETNAMEINFO
+#undef LWIP_POSIX_SOCKETS_IO_NAMES
+#undef RECV_TYPE_ARG1
+#undef RECV_TYPE_ARG3
+#undef SEND_TYPE_ARG1
+#undef SEND_TYPE_ARG3
+#define HAVE_FREEADDRINFO
+#define HAVE_GETADDRINFO
+#define HAVE_GETHOSTBYNAME
+#define HAVE_GETHOSTBYNAME_R
+#define HAVE_GETHOSTBYNAME_R_6
+#define LWIP_POSIX_SOCKETS_IO_NAMES 0
+#define RECV_TYPE_ARG1 int
+#define RECV_TYPE_ARG3 size_t
+#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG3 size_t
 #endif
 /* ---------------------------------------------------------------- */
 /*                        Watt-32 tcp/ip SPECIFIC                   */
@@ -294,11 +294,11 @@
 /* VS2005 and later default size for time_t is 64-bit, unless
    _USE_32BIT_TIME_T has been defined to get a 32-bit time_t. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#  ifndef _USE_32BIT_TIME_T
-#    define SIZEOF_TIME_T 8
-#  else
-#    define SIZEOF_TIME_T 4
-#  endif
+#ifndef _USE_32BIT_TIME_T
+#define SIZEOF_TIME_T 8
+#else
+#define SIZEOF_TIME_T 4
+#endif
 #endif
 
 /* Define some minimum and default build targets for Visual Studio */
@@ -309,99 +309,99 @@
    valid build target for VS2008. Popular belief is that binaries built with
    VS2008 using Windows SDK versions v6.X and Windows 2000 as a build target
    are functional. */
-#  define VS2008_MIN_TARGET 0x0500
+#define VS2008_MIN_TARGET 0x0500
 
 /* The minimum build target for VS2012 is Vista unless Update 1 is installed
    and the v110_xp toolset is chosen. */
-#  if defined(_USING_V110_SDK71_)
-#    define VS2012_MIN_TARGET 0x0501
-#  else
-#    define VS2012_MIN_TARGET 0x0600
-#  endif
+#if defined(_USING_V110_SDK71_)
+#define VS2012_MIN_TARGET 0x0501
+#else
+#define VS2012_MIN_TARGET 0x0600
+#endif
 
 /* VS2008 default build target is Windows Vista. We override default target
    to be Windows XP. */
-#  define VS2008_DEF_TARGET 0x0501
+#define VS2008_DEF_TARGET 0x0501
 
 /* VS2012 default build target is Windows Vista unless Update 1 is installed
    and the v110_xp toolset is chosen. */
-#  if defined(_USING_V110_SDK71_)
-#    define VS2012_DEF_TARGET 0x0501
-#  else
-#    define VS2012_DEF_TARGET 0x0600
-#  endif
+#if defined(_USING_V110_SDK71_)
+#define VS2012_DEF_TARGET 0x0501
+#else
+#define VS2012_DEF_TARGET 0x0600
+#endif
 #endif
 
 /* VS2008 default target settings and minimum build target check. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1500) && (_MSC_VER <= 1600)
-#  ifndef _WIN32_WINNT
-#    define _WIN32_WINNT VS2008_DEF_TARGET
-#  endif
-#  ifndef WINVER
-#    define WINVER VS2008_DEF_TARGET
-#  endif
-#  if (_WIN32_WINNT < VS2008_MIN_TARGET) || (WINVER < VS2008_MIN_TARGET)
-#    error VS2008 does not support Windows build targets prior to Windows 2000
-#  endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT VS2008_DEF_TARGET
+#endif
+#ifndef WINVER
+#define WINVER VS2008_DEF_TARGET
+#endif
+#if (_WIN32_WINNT < VS2008_MIN_TARGET) || (WINVER < VS2008_MIN_TARGET)
+#error VS2008 does not support Windows build targets prior to Windows 2000
+#endif
 #endif
 
 /* VS2012 default target settings and minimum build target check. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1700)
-#  ifndef _WIN32_WINNT
-#    define _WIN32_WINNT VS2012_DEF_TARGET
-#  endif
-#  ifndef WINVER
-#    define WINVER VS2012_DEF_TARGET
-#  endif
-#  if (_WIN32_WINNT < VS2012_MIN_TARGET) || (WINVER < VS2012_MIN_TARGET)
-#    if defined(_USING_V110_SDK71_)
-#      error VS2012 does not support Windows build targets prior to Windows XP
-#    else
-#      error VS2012 does not support Windows build targets prior to Windows \
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT VS2012_DEF_TARGET
+#endif
+#ifndef WINVER
+#define WINVER VS2012_DEF_TARGET
+#endif
+#if (_WIN32_WINNT < VS2012_MIN_TARGET) || (WINVER < VS2012_MIN_TARGET)
+#if defined(_USING_V110_SDK71_)
+#error VS2012 does not support Windows build targets prior to Windows XP
+#else
+#error VS2012 does not support Windows build targets prior to Windows \
 	Vista
-#    endif
-#  endif
+#endif
+#endif
 #endif
 
 /* When no build target is specified Pelles C 5.00 and later default build
    target is Windows Vista. We override default target to be Windows 2000. */
 #if defined(__POCC__) && (__POCC__ >= 500)
-#  ifndef _WIN32_WINNT
-#    define _WIN32_WINNT 0x0500
-#  endif
-#  ifndef WINVER
-#    define WINVER 0x0500
-#  endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0500
+#endif
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
 #endif
 
 /* Availability of freeaddrinfo, getaddrinfo, getnameinfo and if_nametoindex
    functions is quite convoluted, compiler dependent and even build target
    dependent. */
 #if defined(HAVE_WS2TCPIP_H)
-#  if defined(__POCC__)
-#    define HAVE_FREEADDRINFO           1
-#    define HAVE_GETADDRINFO            1
-#    define HAVE_GETADDRINFO_THREADSAFE 1
-#    define HAVE_GETNAMEINFO            1
-#  elif defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501)
-#    define HAVE_FREEADDRINFO           1
-#    define HAVE_GETADDRINFO            1
-#    define HAVE_GETADDRINFO_THREADSAFE 1
-#    define HAVE_GETNAMEINFO            1
-#  elif defined(_MSC_VER) && (_MSC_VER >= 1200)
-#    define HAVE_FREEADDRINFO           1
-#    define HAVE_GETADDRINFO            1
-#    define HAVE_GETADDRINFO_THREADSAFE 1
-#    define HAVE_GETNAMEINFO            1
-#  endif
+#if defined(__POCC__)
+#define HAVE_FREEADDRINFO           1
+#define HAVE_GETADDRINFO            1
+#define HAVE_GETADDRINFO_THREADSAFE 1
+#define HAVE_GETNAMEINFO            1
+#elif defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501)
+#define HAVE_FREEADDRINFO           1
+#define HAVE_GETADDRINFO            1
+#define HAVE_GETADDRINFO_THREADSAFE 1
+#define HAVE_GETNAMEINFO            1
+#elif defined(_MSC_VER) && (_MSC_VER >= 1200)
+#define HAVE_FREEADDRINFO           1
+#define HAVE_GETADDRINFO            1
+#define HAVE_GETADDRINFO_THREADSAFE 1
+#define HAVE_GETNAMEINFO            1
+#endif
 #endif
 #if defined(__POCC__)
-#  ifndef _MSC_VER
-#    error Microsoft extensions /Ze compiler option is required
-#  endif
-#  ifndef __POCC__OLDNAMES
-#    error Compatibility names /Go compiler option is required
-#  endif
+#ifndef _MSC_VER
+#error Microsoft extensions /Ze compiler option is required
+#endif
+#ifndef __POCC__OLDNAMES
+#error Compatibility names /Go compiler option is required
+#endif
 #endif
 /* ---------------------------------------------------------------- */
 /*                          STRUCT RELATED                          */

@@ -43,13 +43,13 @@
 	#include <inet.h>
 #endif
 #if defined(USE_THREADS_POSIX)
-#  ifdef HAVE_PTHREAD_H
-#    include <pthread.h>
-#  endif
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
 #elif defined(USE_THREADS_WIN32)
-//#  ifdef HAVE_PROCESS_H
-//#    include <process.h>
-//#  endif
+//#ifdef HAVE_PROCESS_H
+	//#include <process.h>
+//#endif
 #endif
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
@@ -61,16 +61,16 @@
 	#define RESOLVER_ENOMEM  ENOMEM
 #endif
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "hash.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "hash.h"
 #include "share.h"
 #include "strerror.h"
 #include "url.h"
 #include "multiif.h"
 #include "inet_ntop.h"
 #include "curl_threads.h"
-#include "connect.h"
+//#include "connect.h"
 #include "socketpair.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
@@ -109,7 +109,7 @@ void Curl_resolver_global_cleanup(void)
 CURLcode Curl_resolver_init(struct Curl_easy * easy, void ** resolver)
 {
 	(void)easy;
-	*resolver = calloc(1, sizeof(struct resdata));
+	*resolver = SAlloc::C(1, sizeof(struct resdata));
 	if(!*resolver)
 		return CURLE_OUT_OF_MEMORY;
 	return CURLE_OK;
@@ -123,7 +123,7 @@ CURLcode Curl_resolver_init(struct Curl_easy * easy, void ** resolver)
  */
 void Curl_resolver_cleanup(void * resolver)
 {
-	free(resolver);
+	SAlloc::F(resolver);
 }
 
 /*
@@ -189,10 +189,10 @@ void destroy_thread_sync_data(struct thread_sync_data * tsd)
 {
 	if(tsd->mtx) {
 		Curl_mutex_destroy(tsd->mtx);
-		free(tsd->mtx);
+		SAlloc::F(tsd->mtx);
 	}
 
-	free(tsd->hostname);
+	SAlloc::F(tsd->hostname);
 
 	if(tsd->res)
 		Curl_freeaddrinfo(tsd->res);
@@ -226,7 +226,7 @@ static int init_thread_sync_data(struct thread_data * td, const char * hostname,
 	(void)hints;
 #endif
 
-	tsd->mtx = static_cast<CRITICAL_SECTION *>(malloc(sizeof(curl_mutex_t)));
+	tsd->mtx = static_cast<CRITICAL_SECTION *>(SAlloc::M(sizeof(curl_mutex_t)));
 	if(tsd->mtx == NULL)
 		goto err_exit;
 
@@ -245,7 +245,7 @@ static int init_thread_sync_data(struct thread_data * td, const char * hostname,
 	/* Copying hostname string because original can be destroyed by parent
 	 * thread during gethostbyname execution.
 	 */
-	tsd->hostname = strdup(hostname);
+	tsd->hostname = sstrdup(hostname);
 	if(!tsd->hostname)
 		goto err_exit;
 
@@ -307,7 +307,7 @@ static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
 		/* too late, gotta clean up the mess */
 		Curl_mutex_release(tsd->mtx);
 		destroy_thread_sync_data(tsd);
-		free(td);
+		SAlloc::F(td);
 	}
 	else {
 #ifdef USE_SOCKETPAIR
@@ -350,7 +350,7 @@ static unsigned int CURL_STDCALL gethostbyname_thread(void * arg)
 		/* too late, gotta clean up the mess */
 		Curl_mutex_release(tsd->mtx);
 		destroy_thread_sync_data(tsd);
-		free(td);
+		SAlloc::F(td);
 	}
 	else {
 		tsd->done = 1;
@@ -393,7 +393,7 @@ static void destroy_async_data(struct Curl_async * async)
 
 			destroy_thread_sync_data(&td->tsd);
 
-			free(async->os_specific);
+			SAlloc::F(async->os_specific);
 		}
 #ifdef USE_SOCKETPAIR
 		/*
@@ -407,7 +407,7 @@ static void destroy_async_data(struct Curl_async * async)
 	}
 	async->os_specific = NULL;
 
-	free(async->hostname);
+	SAlloc::F(async->hostname);
 	async->hostname = NULL;
 }
 
@@ -421,7 +421,7 @@ static bool init_resolve_thread(struct connectdata * conn,
     const char * hostname, int port,
     const struct addrinfo * hints)
 {
-	struct thread_data * td = (struct thread_data *)calloc(1, sizeof(struct thread_data));
+	struct thread_data * td = (struct thread_data *)SAlloc::C(1, sizeof(struct thread_data));
 	int err = ENOMEM;
 
 	conn->async.os_specific = (void*)td;
@@ -436,12 +436,12 @@ static bool init_resolve_thread(struct connectdata * conn,
 
 	if(!init_thread_sync_data(td, hostname, port, hints)) {
 		conn->async.os_specific = NULL;
-		free(td);
+		SAlloc::F(td);
 		goto errno_exit;
 	}
 
-	free(conn->async.hostname);
-	conn->async.hostname = strdup(hostname);
+	SAlloc::F(conn->async.hostname);
+	conn->async.hostname = sstrdup(hostname);
 	if(!conn->async.hostname)
 		goto err_exit;
 

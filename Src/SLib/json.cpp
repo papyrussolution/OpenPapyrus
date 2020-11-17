@@ -319,6 +319,11 @@ int FASTCALL json_t::InsertInt64(const char * pTextLabel, int64 val)
 	return Insert(pTextLabel, json_new_number(temp_buf));
 }
 
+int FASTCALL json_t::InsertBool(const char * pTextLabel, bool val)
+{
+	return Insert(pTextLabel, new json_t(val ? json_t::tTRUE : json_t::tFALSE));
+}
+
 int FASTCALL json_tree_to_string(const json_t * pRoot, SString & rBuf)
 {
 	int    ok = 1;

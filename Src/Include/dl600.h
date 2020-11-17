@@ -188,8 +188,8 @@ private:
 		uint16 Flags;
 	};
 	int    SearchNamePos(uint namePos, uint * pPos) const;
-	SVector Items;   // @v9.8.6 SArray-->SVector
-	SVector ArgList; // @v9.8.6 SArray-->SVector
+	SVector Items;
+	SVector ArgList;
 	StringSet NamePool;
 };
 //
@@ -255,12 +255,11 @@ public:
 			// определения хранятся в дочерней области с Kind=kTypedefPool и именем "typedef"
 		kDbTable,     //   '$' Таблица базы данных
 		kDbIndex,     // X     Индекс таблицы базы данных
-
 		kUiDialog,
 		kUiZone,
 		kUiCtrl,
-		kUiLayout,    // @v8.9.0
-		kHandler      // @v8.9.0
+		kUiLayout,    // 
+		kHandler      // 
 	};
 	//
 	// Descr: Флаги деклараций. храняться в DvFlags
@@ -328,6 +327,16 @@ public:
 		layoutRalative,
 		layoutAbsolute
 	};
+	/* Layout parameters
+		size: rect 
+		nominal_bounds: rect
+		padding: rect
+		margin: rect
+		justify_content: alignment
+		grow_factor: float
+		shrink_factor: float
+		basis: float
+	*/
 	//
 	// Descr: Идентификаторы констант, используемых для описания опций областей
 	//
@@ -503,14 +512,8 @@ public:
 #ifdef DL600C // {
 	int    AddTempFldConst(COption id, const CtmExprConst & rConst);
 	int    AcceptTempFldConstList(uint fldID);
-	void   InitLocalIdCounter(DLSYMBID initVal)
-	{
-		LastLocalId = initVal;
-	}
-	DLSYMBID GetLocalId()
-	{
-		return ++LastLocalId;
-	}
+	void   InitLocalIdCounter(DLSYMBID initVal) { LastLocalId = initVal; }
+	DLSYMBID GetLocalId() { return ++LastLocalId; }
 #endif
 private:
 	uint   Kind;

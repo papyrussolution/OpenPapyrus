@@ -44,15 +44,15 @@ void IDEA_ofb64_encrypt(const uchar *in, uchar *out,
                         int *num);
 void IDEA_encrypt(ulong *in, IDEA_KEY_SCHEDULE *ks);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define idea_options          IDEA_options
-#  define idea_ecb_encrypt      IDEA_ecb_encrypt
-#  define idea_set_encrypt_key  IDEA_set_encrypt_key
-#  define idea_set_decrypt_key  IDEA_set_decrypt_key
-#  define idea_cbc_encrypt      IDEA_cbc_encrypt
-#  define idea_cfb64_encrypt    IDEA_cfb64_encrypt
-#  define idea_ofb64_encrypt    IDEA_ofb64_encrypt
-#  define idea_encrypt          IDEA_encrypt
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define idea_options          IDEA_options
+#define idea_ecb_encrypt      IDEA_ecb_encrypt
+#define idea_set_encrypt_key  IDEA_set_encrypt_key
+#define idea_set_decrypt_key  IDEA_set_decrypt_key
+#define idea_cbc_encrypt      IDEA_cbc_encrypt
+#define idea_cfb64_encrypt    IDEA_cfb64_encrypt
+#define idea_ofb64_encrypt    IDEA_ofb64_encrypt
+#define idea_encrypt          IDEA_encrypt
 #endif
 
 #ifdef  __cplusplus

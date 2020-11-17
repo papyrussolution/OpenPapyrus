@@ -25,16 +25,16 @@
 #ifndef CURL_DISABLE_RTSP
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "multiif.h"
 #include "http.h"
 #include "url.h"
-#include "progress.h"
+//#include "progress.h"
 #include "rtsp.h"
 #include "strcase.h"
 #include "select.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strdup.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
@@ -111,7 +111,7 @@ const struct Curl_handler Curl_handler_rtsp = {
 static CURLcode rtsp_setup_connection(struct connectdata * conn)
 {
 	struct RTSP * rtsp;
-	conn->data->req.protop = rtsp = (struct RTSP *)calloc(1, sizeof(struct RTSP));
+	conn->data->req.protop = rtsp = (struct RTSP *)SAlloc::C(1, sizeof(struct RTSP));
 	if(!rtsp)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -654,7 +654,7 @@ static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,
 		    *readmore ? "(READMORE)" : ""));
 
 		/* Store the incomplete RTP packet for a "rewind" */
-		scratch = (char *)malloc(rtp_dataleft);
+		scratch = (char *)SAlloc::M(rtp_dataleft);
 		if(!scratch) {
 			Curl_safefree(rtspc->rtp_buf);
 			rtspc->rtp_buf = NULL;
@@ -786,7 +786,7 @@ CURLcode Curl_rtsp_parseheader(struct connectdata * conn,
 				end++;
 
 			/* Copy the id substring into a new buffer */
-			data->set.str[STRING_RTSP_SESSION_ID] = (char *)malloc(end - start + 1);
+			data->set.str[STRING_RTSP_SESSION_ID] = (char *)SAlloc::M(end - start + 1);
 			if(data->set.str[STRING_RTSP_SESSION_ID] == NULL)
 				return CURLE_OUT_OF_MEMORY;
 			memcpy(data->set.str[STRING_RTSP_SESSION_ID], start, end - start);

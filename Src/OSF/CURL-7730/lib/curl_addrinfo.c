@@ -45,13 +45,13 @@
 #endif
 
 #if defined(NETWARE) && defined(__NOVELL_LIBC__)
-#  undef  in_addr_t
-#  define in_addr_t ulong
+#undef  in_addr_t
+#define in_addr_t ulong
 #endif
 
 #include <stddef.h>
 
-#include "curl_addrinfo.h"
+//#include "curl_addrinfo.h"
 #include "inet_pton.h"
 #include "warnless.h"
 /* The last 3 #include files should be in this order */
@@ -83,7 +83,7 @@ void Curl_freeaddrinfo(struct Curl_addrinfo * cahead)
 
 	for(ca = cahead; ca; ca = canext) {
 		canext = ca->ai_next;
-		free(ca);
+		SAlloc::F(ca);
 	}
 }
 
@@ -144,7 +144,7 @@ int Curl_getaddrinfo_ex(const char * nodename,
 		if((size_t)ai->ai_addrlen < ss_size)
 			continue;
 
-		ca = (struct Curl_addrinfo *)malloc(sizeof(struct Curl_addrinfo) + ss_size + namelen);
+		ca = (struct Curl_addrinfo *)SAlloc::M(sizeof(struct Curl_addrinfo) + ss_size + namelen);
 		if(!ca) {
 			error = EAI_MEMORY;
 			break;
@@ -274,7 +274,7 @@ struct Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)          
 #endif
 		ss_size = sizeof(struct sockaddr_in);
 		/* allocate memory to told the struct, the address and the name */
-		ai = (struct Curl_addrinfo *)calloc(1, sizeof(struct Curl_addrinfo) + ss_size + namelen);
+		ai = (struct Curl_addrinfo *)SAlloc::C(1, sizeof(struct Curl_addrinfo) + ss_size + namelen);
 		if(!ai) {
 			result = CURLE_OUT_OF_MEMORY;
 			break;
@@ -359,13 +359,13 @@ struct Curl_addrinfo * Curl_ip2addr(int af, const void * inaddr, const char * ho
 	char  * hoststr;
 	size_t addrsize;
 	DEBUGASSERT(inaddr && hostname);
-	buf = (struct namebuff *)malloc(sizeof(struct namebuff));
+	buf = (struct namebuff *)SAlloc::M(sizeof(struct namebuff));
 	if(!buf)
 		return NULL;
 
-	hoststr = strdup(hostname);
+	hoststr = sstrdup(hostname);
 	if(!hoststr) {
-		free(buf);
+		SAlloc::F(buf);
 		return NULL;
 	}
 
@@ -383,8 +383,8 @@ struct Curl_addrinfo * Curl_ip2addr(int af, const void * inaddr, const char * ho
 		    break;
 #endif
 		default:
-		    free(hoststr);
-		    free(buf);
+		    SAlloc::F(hoststr);
+		    SAlloc::F(buf);
 		    return NULL;
 	}
 
@@ -405,8 +405,8 @@ struct Curl_addrinfo * Curl_ip2addr(int af, const void * inaddr, const char * ho
 
 	ai = Curl_he2ai(h, port);
 
-	free(hoststr);
-	free(buf);
+	SAlloc::F(hoststr);
+	SAlloc::F(buf);
 
 	return ai;
 }
@@ -443,7 +443,7 @@ struct Curl_addrinfo * Curl_unix2addr(const char * path, bool * longpath, bool a
 	struct sockaddr_un * sa_un;
 	size_t path_len;
 	*longpath = FALSE;
-	ai = (struct Curl_addrinfo *)calloc(1, sizeof(struct Curl_addrinfo) + sizeof(struct sockaddr_un));
+	ai = (struct Curl_addrinfo *)SAlloc::C(1, sizeof(struct Curl_addrinfo) + sizeof(struct sockaddr_un));
 	if(!ai)
 		return NULL;
 	ai->ai_addr = (struct sockaddr *)((char *)ai + sizeof(struct Curl_addrinfo));
@@ -453,7 +453,7 @@ struct Curl_addrinfo * Curl_unix2addr(const char * path, bool * longpath, bool a
 	/* sun_path must be able to store the NUL-terminated path */
 	path_len = strlen(path) + 1;
 	if(path_len > sizeof(sa_un->sun_path)) {
-		free(ai);
+		SAlloc::F(ai);
 		*longpath = TRUE;
 		return NULL;
 	}

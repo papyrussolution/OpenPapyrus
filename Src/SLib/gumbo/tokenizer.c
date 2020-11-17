@@ -422,7 +422,7 @@ static void finish_token(GumboParser * parser, GumboToken* token)
 static void finish_doctype_public_id(GumboParser * parser) 
 {
 	GumboTokenDocType* doc_type_state = &parser->_tokenizer_state->_doc_type_state;
-	SAlloc::F((void*)doc_type_state->public_identifier);
+	SAlloc::F((void *)doc_type_state->public_identifier);
 	finish_temporary_buffer(parser, &doc_type_state->public_identifier);
 	doc_type_state->has_public_identifier = true;
 }
@@ -432,7 +432,7 @@ static void finish_doctype_public_id(GumboParser * parser)
 static void finish_doctype_system_id(GumboParser * parser) 
 {
 	GumboTokenDocType* doc_type_state = &parser->_tokenizer_state->_doc_type_state;
-	SAlloc::F((void*)doc_type_state->system_identifier);
+	SAlloc::F((void *)doc_type_state->system_identifier);
 	finish_temporary_buffer(parser, &doc_type_state->system_identifier);
 	doc_type_state->has_system_identifier = true;
 }
@@ -782,7 +782,7 @@ static void finish_attribute_value(GumboParser * parser)
 	}
 	else {
 		GumboAttribute * attr = static_cast<GumboAttribute *>(tag_state->_attributes.data[tag_state->_attributes.length - 1]);
-		SAlloc::F((void*)attr->value);
+		SAlloc::F((void *)attr->value);
 		copy_over_tag_buffer(parser, &attr->value);
 		copy_over_original_tag_text(parser, &attr->original_value, &attr->value_start, &attr->value_end);
 		reinitialize_tag_buffer(parser);
@@ -2220,12 +2220,12 @@ static StateResult handle_doctype_name_state(GumboParser * parser,
 		case '\f':
 		case ' ':
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_AFTER_DOCTYPE_NAME);
-		    SAlloc::F((void*)tokenizer->_doc_type_state.name);
+		    SAlloc::F((void *)tokenizer->_doc_type_state.name);
 		    finish_temporary_buffer(parser, &tokenizer->_doc_type_state.name);
 		    return NEXT_CHAR;
 		case '>':
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_DATA);
-		    SAlloc::F((void*)tokenizer->_doc_type_state.name);
+		    SAlloc::F((void *)tokenizer->_doc_type_state.name);
 		    finish_temporary_buffer(parser, &tokenizer->_doc_type_state.name);
 		    emit_doctype(parser, output);
 		    return RETURN_SUCCESS;
@@ -2237,7 +2237,7 @@ static StateResult handle_doctype_name_state(GumboParser * parser,
 		    tokenizer_add_parse_error(parser, GUMBO_ERR_DOCTYPE_EOF);
 		    gumbo_tokenizer_set_state(parser, GUMBO_LEX_DATA);
 		    tokenizer->_doc_type_state.force_quirks = true;
-		    SAlloc::F((void*)tokenizer->_doc_type_state.name);
+		    SAlloc::F((void *)tokenizer->_doc_type_state.name);
 		    finish_temporary_buffer(parser, &tokenizer->_doc_type_state.name);
 		    emit_doctype(parser, output);
 		    return RETURN_ERROR;
@@ -2807,9 +2807,9 @@ void FASTCALL gumbo_token_destroy(GumboToken* token)
 	if(token) {
 		switch(token->type) {
 			case GUMBO_TOKEN_DOCTYPE:
-				SAlloc::F((void*)token->v.doc_type.name);
-				SAlloc::F((void*)token->v.doc_type.public_identifier);
-				SAlloc::F((void*)token->v.doc_type.system_identifier);
+				SAlloc::F((void *)token->v.doc_type.name);
+				SAlloc::F((void *)token->v.doc_type.public_identifier);
+				SAlloc::F((void *)token->v.doc_type.system_identifier);
 				return;
 			case GUMBO_TOKEN_START_TAG:
 				for(uint i = 0; i < token->v.start_tag.attributes.length; ++i) {
@@ -2817,10 +2817,10 @@ void FASTCALL gumbo_token_destroy(GumboToken* token)
 					// May have been nulled out if this token was merged with another.
 					gumbo_destroy_attribute(attr);
 				}
-				SAlloc::F((void*)token->v.start_tag.attributes.data);
+				SAlloc::F((void *)token->v.start_tag.attributes.data);
 				return;
 			case GUMBO_TOKEN_COMMENT:
-				SAlloc::F((void*)token->v.text);
+				SAlloc::F((void *)token->v.text);
 				return;
 			default:
 				return;

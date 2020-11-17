@@ -29,7 +29,7 @@
 #include "strcase.h"
 #include "hostcheck.h"
 #include "vtls/vtls.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "curl_base64.h"
 #include "x509asn1.h"
@@ -186,7 +186,7 @@ static const char * bool2str(const char * beg, const char * end)
 {
 	if(end - beg != 1)
 		return NULL;
-	return strdup(*beg ? "TRUE" : "FALSE");
+	return sstrdup(*beg ? "TRUE" : "FALSE");
 }
 /*
  * Convert an ASN.1 octet string to a printable string.
@@ -198,7 +198,7 @@ static const char * octet2str(const char * beg, const char * end)
 	char * buf = NULL;
 
 	if(n <= (SIZE_T_MAX - 1) / 3) {
-		buf = malloc(3 * n + 1);
+		buf = SAlloc::M(3 * n + 1);
 		if(buf)
 			for(n = 0; beg < end; n += 3)
 				msnprintf(buf + n, 4, "%02x:", *(const uchar *)beg++);
@@ -271,7 +271,7 @@ static ssize_t utf8asn1str(char ** to, int type, const char * from, const char *
 		return -1; /* Length inconsistent with character size. */
 	if(inlength / size > (SIZE_T_MAX - 1) / 4)
 		return -1; /* Too big. */
-	buf = malloc(4 * (inlength / size) + 1);
+	buf = SAlloc::M(4 * (inlength / size) + 1);
 	if(!buf)
 		return -1; /* Not enough memory. */
 
@@ -303,7 +303,7 @@ static ssize_t utf8asn1str(char ** to, int type, const char * from, const char *
 				if(wc >= 0x00000800) {
 					if(wc >= 0x00010000) {
 						if(wc >= 0x00200000) {
-							free(buf);
+							SAlloc::F(buf);
 							return -1; /* Invalid char. size for target encoding. */
 						}
 						buf[outlength + 3] = (char)(0x80 | (wc & 0x3F));
@@ -419,7 +419,7 @@ static const char * OID2str(const char * beg, const char * end, bool symbolic)
 	if(beg < end) {
 		size_t buflen = encodeOID(NULL, 0, beg, end);
 		if(buflen) {
-			buf = malloc(buflen + 1); /* one extra for the zero byte */
+			buf = SAlloc::M(buflen + 1); /* one extra for the zero byte */
 			if(buf) {
 				encodeOID(buf, buflen, beg, end);
 				buf[buflen] = '\0';
@@ -427,8 +427,8 @@ static const char * OID2str(const char * beg, const char * end, bool symbolic)
 				if(symbolic) {
 					const struct Curl_OID * op = searchOID(buf);
 					if(op) {
-						free(buf);
-						buf = strdup(op->textoid);
+						SAlloc::F(buf);
+						buf = sstrdup(op->textoid);
 					}
 				}
 			}
@@ -562,7 +562,7 @@ static const char * ASN1tostr(struct Curl_asn1Element * elem, int type)
 		case CURL_ASN1_OCTET_STRING:
 		    return octet2str(elem->beg, elem->end);
 		case CURL_ASN1_NULL:
-		    return strdup("");
+		    return sstrdup("");
 		case CURL_ASN1_OBJECT_IDENTIFIER:
 		    return OID2str(elem->beg, elem->end, TRUE);
 		case CURL_ASN1_UTC_TIME:
@@ -634,7 +634,7 @@ static ssize_t encodeDN(char * buf, size_t buflen, struct Curl_asn1Element * dn)
 					buf[l] = *p3;
 				l++;
 			}
-			free((char *)str);
+			SAlloc::F((char *)str);
 
 			/* Generate equal sign. */
 			if(l < buflen)
@@ -650,7 +650,7 @@ static ssize_t encodeDN(char * buf, size_t buflen, struct Curl_asn1Element * dn)
 					buf[l] = *p3;
 				l++;
 			}
-			free((char *)str);
+			SAlloc::F((char *)str);
 		}
 	}
 
@@ -667,7 +667,7 @@ static const char * DNtostr(struct Curl_asn1Element * dn)
 	ssize_t buflen = encodeDN(NULL, 0, dn);
 
 	if(buflen >= 0) {
-		buf = malloc(buflen + 1);
+		buf = SAlloc::M(buflen + 1);
 		if(buf) {
 			encodeDN(buf, buflen + 1, dn);
 			buf[buflen] = '\0';
@@ -844,7 +844,7 @@ static void do_pubkey_field(struct Curl_easy * data, int certnum,
 			Curl_ssl_push_certinfo(data, certnum, label, output);
 		if(!certnum)
 			infof(data, "   %s: %s\n", label, output);
-		free((char *)output);
+		SAlloc::F((char *)output);
 	}
 }
 
@@ -879,7 +879,7 @@ static void do_pubkey(struct Curl_easy * data, int certnum, const char * algo, s
 			q = curl_maprintf("%lu", len);
 			if(q) {
 				Curl_ssl_push_certinfo(data, certnum, "RSA Public Key", q);
-				free((char *)q);
+				SAlloc::F((char *)q);
 			}
 		}
 		/* Generate coefficients. */
@@ -949,7 +949,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Subject", ccp);
 	if(!certnum)
 		infof(data, "%2d Subject: %s\n", certnum, ccp);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Issuer. */
 	ccp = DNtostr(&cert.issuer);
@@ -959,7 +959,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Issuer", ccp);
 	if(!certnum)
 		infof(data, "   Issuer: %s\n", ccp);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Version (always fits in less than 32 bits). */
 	version = 0;
@@ -970,7 +970,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		if(!ccp)
 			return CURLE_OUT_OF_MEMORY;
 		Curl_ssl_push_certinfo(data, certnum, "Version", ccp);
-		free((char *)ccp);
+		SAlloc::F((char *)ccp);
 	}
 	if(!certnum)
 		infof(data, "   Version: %lu (0x%lx)\n", version + 1, version);
@@ -983,7 +983,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Serial Number", ccp);
 	if(!certnum)
 		infof(data, "   Serial Number: %s\n", ccp);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Signature algorithm .*/
 	ccp = dumpAlgo(&param, cert.signatureAlgorithm.beg,
@@ -994,7 +994,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Signature Algorithm", ccp);
 	if(!certnum)
 		infof(data, "   Signature Algorithm: %s\n", ccp);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Start Date. */
 	ccp = ASN1tostr(&cert.notBefore, 0);
@@ -1004,7 +1004,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Start Date", ccp);
 	if(!certnum)
 		infof(data, "   Start Date: %s\n", ccp);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Expire Date. */
 	ccp = ASN1tostr(&cert.notAfter, 0);
@@ -1014,7 +1014,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Expire Date", ccp);
 	if(!certnum)
 		infof(data, "   Expire Date: %s\n", ccp);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Public Key Algorithm. */
 	ccp = dumpAlgo(&param, cert.subjectPublicKeyAlgorithm.beg,
@@ -1026,7 +1026,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 	if(!certnum)
 		infof(data, "   Public Key Algorithm: %s\n", ccp);
 	do_pubkey(data, certnum, ccp, &param, &cert.subjectPublicKey);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Signature. */
 	ccp = ASN1tostr(&cert.signature, 0);
@@ -1036,7 +1036,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		Curl_ssl_push_certinfo(data, certnum, "Signature", ccp);
 	if(!certnum)
 		infof(data, "   Signature: %s\n", ccp);
-	free((char *)ccp);
+	SAlloc::F((char *)ccp);
 
 	/* Generate PEM certificate. */
 	result = Curl_base64_encode(data, cert.certificate.beg,
@@ -1053,9 +1053,9 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 	   -----END CERTIFICATE-----\n
 	 */
 	i = 28 + cl1 + (cl1 + 64 - 1) / 64 + 26;
-	cp2 = malloc(i + 1);
+	cp2 = SAlloc::M(i + 1);
 	if(!cp2) {
-		free(cp1);
+		SAlloc::F(cp1);
 		return CURLE_OUT_OF_MEMORY;
 	}
 	/* Build the certificate string. */
@@ -1064,12 +1064,12 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 		i += copySubstring(cp2 + i, cp1 + j);
 	i += copySubstring(cp2 + i, "-----END CERTIFICATE-----");
 	cp2[i] = '\0';
-	free(cp1);
+	SAlloc::F(cp1);
 	if(data->set.ssl.certinfo)
 		Curl_ssl_push_certinfo(data, certnum, "Cert", cp2);
 	if(!certnum)
 		infof(data, "%s\n", cp2);
-	free(cp2);
+	SAlloc::F(cp2);
 	return CURLE_OK;
 }
 
@@ -1097,7 +1097,7 @@ static const char * checkOID(const char * beg, const char * end,
 		return NULL;
 
 	matched = !strcmp(p, oid);
-	free((char *)p);
+	SAlloc::F((char *)p);
 	return matched ? ccp : NULL;
 }
 
@@ -1178,7 +1178,7 @@ CURLcode Curl_verifyhost(struct connectdata * conn,
 						    matched = Curl_cert_hostcheck(dnsname, hostname);
 					    else
 						    matched = 0;
-					    free(dnsname);
+					    SAlloc::F(dnsname);
 					    break;
 
 					case 7: /* IP address. */
@@ -1229,19 +1229,19 @@ CURLcode Curl_verifyhost(struct connectdata * conn,
 	else {
 		len = utf8asn1str(&dnsname, elem.tag, elem.beg, elem.end);
 		if(len < 0) {
-			free(dnsname);
+			SAlloc::F(dnsname);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		if(strlen(dnsname) != (size_t)len) /* Nul byte in string ? */
 			failf(data, "SSL: illegal cert name field");
 		else if(Curl_cert_hostcheck((const char*)dnsname, hostname)) {
 			infof(data, "\t common name: %s (matched)\n", dnsname);
-			free(dnsname);
+			SAlloc::F(dnsname);
 			return CURLE_OK;
 		}
 		else
 			failf(data, "SSL: certificate subject name '%s' does not match target host name '%s'", dnsname, dispname);
-		free(dnsname);
+		SAlloc::F(dnsname);
 	}
 	return CURLE_PEER_FAILED_VERIFICATION;
 }

@@ -145,13 +145,13 @@ typedef HMODULE (APIENTRY *LOADLIBRARYEX_FN)(LPCTSTR, HANDLE, DWORD);
 
 /* See function definitions in winbase.h */
 #ifdef UNICODE
-#  ifdef _WIN32_WCE
-#    define LOADLIBARYEX  L"LoadLibraryExW"
-#  else
-#    define LOADLIBARYEX  "LoadLibraryExW"
-#  endif
+#ifdef _WIN32_WCE
+#define LOADLIBARYEX  L"LoadLibraryExW"
 #else
-#  define LOADLIBARYEX    "LoadLibraryExA"
+#define LOADLIBARYEX  "LoadLibraryExW"
+#endif
+#else
+#define LOADLIBARYEX    "LoadLibraryExA"
 #endif
 
 /*
@@ -209,7 +209,7 @@ HMODULE Curl_load_library(LPCTSTR filename)
 			/* Allocate space for the full DLL path (Room for the null terminator
 			   is included in systemdirlen) */
 			size_t filenamelen = _tcslen(filename);
-			TCHAR * path = (TCHAR *)malloc(sizeof(TCHAR) * (systemdirlen + 1 + filenamelen));
+			TCHAR * path = (TCHAR *)SAlloc::M(sizeof(TCHAR) * (systemdirlen + 1 + filenamelen));
 			if(path && GetSystemDirectory(path, systemdirlen)) {
 				/* Calculate the full DLL path */
 				_tcscpy(path + _tcslen(path), TEXT("\\"));
@@ -221,7 +221,7 @@ HMODULE Curl_load_library(LPCTSTR filename)
 				    pLoadLibraryEx(path, NULL, LOAD_WITH_ALTERED_SEARCH_PATH) :
 				    LoadLibrary(path);
 			}
-			free(path);
+			SAlloc::F(path);
 		}
 	}
 	return hModule;

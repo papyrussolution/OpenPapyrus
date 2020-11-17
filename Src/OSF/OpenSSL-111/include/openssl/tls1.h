@@ -20,7 +20,7 @@ extern "C" {
 
 /* Default security level if not overridden at config time */
 #ifndef OPENSSL_TLS_SECURITY_LEVEL
-#  define OPENSSL_TLS_SECURITY_LEVEL 1
+#define OPENSSL_TLS_SECURITY_LEVEL 1
 #endif
 
 #define TLS1_VERSION                    0x0301
@@ -149,7 +149,7 @@ extern "C" {
 
 #ifndef OPENSSL_NO_NEXTPROTONEG
 /* This is not an IANA defined extension number */
-#  define TLSEXT_TYPE_next_proto_neg              13172
+#define TLSEXT_TYPE_next_proto_neg              13172
 #endif
 
 /* NameType value from RFC3546 */
@@ -326,15 +326,15 @@ __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain)
                 (void (*)(void))cb)
 
 #ifndef OPENSSL_NO_HEARTBEATS
-#  define SSL_DTLSEXT_HB_ENABLED                   0x01
-#  define SSL_DTLSEXT_HB_DONT_SEND_REQUESTS        0x02
-#  define SSL_DTLSEXT_HB_DONT_RECV_REQUESTS        0x04
-#  define SSL_get_dtlsext_heartbeat_pending(ssl) \
+#define SSL_DTLSEXT_HB_ENABLED                   0x01
+#define SSL_DTLSEXT_HB_DONT_SEND_REQUESTS        0x02
+#define SSL_DTLSEXT_HB_DONT_RECV_REQUESTS        0x04
+#define SSL_get_dtlsext_heartbeat_pending(ssl) \
         SSL_ctrl(ssl,SSL_CTRL_GET_DTLS_EXT_HEARTBEAT_PENDING,0,NULL)
-#  define SSL_set_dtlsext_heartbeat_no_requests(ssl, arg) \
+#define SSL_set_dtlsext_heartbeat_no_requests(ssl, arg) \
         SSL_ctrl(ssl,SSL_CTRL_SET_DTLS_EXT_HEARTBEAT_NO_REQUESTS,arg,NULL)
 
-#  if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 #   define SSL_CTRL_TLS_EXT_SEND_HEARTBEAT \
         SSL_CTRL_DTLS_EXT_SEND_HEARTBEAT
 #   define SSL_CTRL_GET_TLS_EXT_HEARTBEAT_PENDING \
@@ -351,7 +351,7 @@ __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain)
         SSL_get_dtlsext_heartbeat_pending(ssl)
 #   define SSL_set_tlsext_heartbeat_no_requests(ssl, arg) \
         SSL_set_dtlsext_heartbeat_no_requests(ssl,arg)
-#  endif
+#endif
 #endif
 
 /* PSK ciphersuites from 4279 */
@@ -1143,10 +1143,10 @@ __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain)
  */
 #define TLS_CT_NUMBER                   10
 
-# if defined(SSL3_CT_NUMBER)
-#  if TLS_CT_NUMBER != SSL3_CT_NUMBER
-#    error "SSL/TLS CT_NUMBER values do not match"
-#  endif
+#if defined(SSL3_CT_NUMBER)
+#if TLS_CT_NUMBER != SSL3_CT_NUMBER
+#error "SSL/TLS CT_NUMBER values do not match"
+#endif
 #endif
 
 #define TLS1_FINISH_MAC_LENGTH          12
@@ -1174,54 +1174,54 @@ __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain)
 /*
  * client finished
  */
-#  define TLS_MD_CLIENT_FINISH_CONST    "\x63\x6c\x69\x65\x6e\x74\x20\x66\x69\x6e\x69\x73\x68\x65\x64"
+#define TLS_MD_CLIENT_FINISH_CONST    "\x63\x6c\x69\x65\x6e\x74\x20\x66\x69\x6e\x69\x73\x68\x65\x64"
 
 #undef TLS_MD_SERVER_FINISH_CONST
 /*
  * server finished
  */
-#  define TLS_MD_SERVER_FINISH_CONST    "\x73\x65\x72\x76\x65\x72\x20\x66\x69\x6e\x69\x73\x68\x65\x64"
+#define TLS_MD_SERVER_FINISH_CONST    "\x73\x65\x72\x76\x65\x72\x20\x66\x69\x6e\x69\x73\x68\x65\x64"
 
 #undef TLS_MD_SERVER_WRITE_KEY_CONST
 /*
  * server write key
  */
-#  define TLS_MD_SERVER_WRITE_KEY_CONST "\x73\x65\x72\x76\x65\x72\x20\x77\x72\x69\x74\x65\x20\x6b\x65\x79"
+#define TLS_MD_SERVER_WRITE_KEY_CONST "\x73\x65\x72\x76\x65\x72\x20\x77\x72\x69\x74\x65\x20\x6b\x65\x79"
 
 #undef TLS_MD_KEY_EXPANSION_CONST
 /*
  * key expansion
  */
-#  define TLS_MD_KEY_EXPANSION_CONST    "\x6b\x65\x79\x20\x65\x78\x70\x61\x6e\x73\x69\x6f\x6e"
+#define TLS_MD_KEY_EXPANSION_CONST    "\x6b\x65\x79\x20\x65\x78\x70\x61\x6e\x73\x69\x6f\x6e"
 
 #undef TLS_MD_CLIENT_WRITE_KEY_CONST
 /*
  * client write key
  */
-#  define TLS_MD_CLIENT_WRITE_KEY_CONST "\x63\x6c\x69\x65\x6e\x74\x20\x77\x72\x69\x74\x65\x20\x6b\x65\x79"
+#define TLS_MD_CLIENT_WRITE_KEY_CONST "\x63\x6c\x69\x65\x6e\x74\x20\x77\x72\x69\x74\x65\x20\x6b\x65\x79"
 
 #undef TLS_MD_SERVER_WRITE_KEY_CONST
 /*
  * server write key
  */
-#  define TLS_MD_SERVER_WRITE_KEY_CONST "\x73\x65\x72\x76\x65\x72\x20\x77\x72\x69\x74\x65\x20\x6b\x65\x79"
+#define TLS_MD_SERVER_WRITE_KEY_CONST "\x73\x65\x72\x76\x65\x72\x20\x77\x72\x69\x74\x65\x20\x6b\x65\x79"
 
 #undef TLS_MD_IV_BLOCK_CONST
 /*
  * IV block
  */
-#  define TLS_MD_IV_BLOCK_CONST         "\x49\x56\x20\x62\x6c\x6f\x63\x6b"
+#define TLS_MD_IV_BLOCK_CONST         "\x49\x56\x20\x62\x6c\x6f\x63\x6b"
 
 #undef TLS_MD_MASTER_SECRET_CONST
 /*
  * master secret
  */
-#  define TLS_MD_MASTER_SECRET_CONST    "\x6d\x61\x73\x74\x65\x72\x20\x73\x65\x63\x72\x65\x74"
+#define TLS_MD_MASTER_SECRET_CONST    "\x6d\x61\x73\x74\x65\x72\x20\x73\x65\x63\x72\x65\x74"
 #undef TLS_MD_EXTENDED_MASTER_SECRET_CONST
 /*
  * extended master secret
  */
-#  define TLS_MD_EXTENDED_MASTER_SECRET_CONST    "\x65\x78\x74\x65\x6e\x64\x65\x64\x20\x6d\x61\x73\x74\x65\x72\x20\x73\x65\x63\x72\x65\x74"
+#define TLS_MD_EXTENDED_MASTER_SECRET_CONST    "\x65\x78\x74\x65\x6e\x64\x65\x64\x20\x6d\x61\x73\x74\x65\x72\x20\x73\x65\x63\x72\x65\x74"
 #endif
 
 /* TLS Session Ticket extension struct */

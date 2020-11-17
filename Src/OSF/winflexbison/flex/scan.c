@@ -191,7 +191,7 @@ struct yy_buffer_state {
 	int yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
-	 * and can realloc() it to grow it, and should free() it to
+	 * and can SAlloc::R() it to grow it, and should SAlloc::F() it to
 	 * delete it.
 	 */
 	int yy_is_our_buffer;
@@ -2476,7 +2476,7 @@ do_action:              /* This label is used only to access EOF actions. */
 				    YY_RULE_SETUP
 #line 260 "scan.l"
 				    {
-					    free(infilename);
+					    SAlloc::F(infilename);
 					    infilename = xstrdup(yytext + 1);
 					    infilename[strlen(infilename) - 1] = '\0';
 				    }
@@ -4269,7 +4269,7 @@ static int yy_get_next_buffer(void)
 
 				b->yy_ch_buf = (char*)
 				    /* Include room in for 2 EOB chars. */
-				    yyrealloc( (void*)b->yy_ch_buf,
+				    yyrealloc( (void *)b->yy_ch_buf,
 					(yy_size_t)(b->yy_buf_size + 2)  );
 			}
 			else
@@ -4316,7 +4316,7 @@ static int yy_get_next_buffer(void)
 		/* Extend the array by 50%, plus the number we really need. */
 		int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
 		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char*)yyrealloc(
-			(void*)YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t)new_size);
+			(void *)YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t)new_size);
 		if(!YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
 			YY_FATAL_ERROR("out of dynamic memory in yy_get_next_buffer()");
 		/* "- 2" to take care of EOB's */
@@ -4597,9 +4597,9 @@ void yy_delete_buffer(YY_BUFFER_STATE b)
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE)0;
 
 	if(b->yy_is_our_buffer)
-		yyfree( (void*)b->yy_ch_buf);
+		yyfree( (void *)b->yy_ch_buf);
 
-	yyfree( (void*)b);
+	yyfree( (void *)b);
 }
 
 /* Initializes or reinitializes a buffer.
@@ -4831,7 +4831,7 @@ static void yy_push_state(int _new_state)
 
 		else
 			(yy_start_stack) = (int*)yyrealloc(
-				(void*)(yy_start_stack), new_size);
+				(void *)(yy_start_stack), new_size);
 
 		if(!(yy_start_stack) )
 			YY_FATAL_ERROR("out of memory expanding start-condition stack");
@@ -5040,7 +5040,7 @@ static int yy_flex_strlen(const char * s)
 
 void * yyalloc(yy_size_t size)
 {
-	return malloc(size);
+	return SAlloc::M(size);
 }
 
 void * yyrealloc(void * ptr, yy_size_t size)
@@ -5052,12 +5052,12 @@ void * yyrealloc(void * ptr, yy_size_t size)
 	 * any pointer type to void*, and deal with argument conversions
 	 * as though doing an assignment.
 	 */
-	return realloc(ptr, size);
+	return SAlloc::R(ptr, size);
 }
 
 void yyfree(void * ptr)
 {
-	free( (char*)ptr);                      /* see yyrealloc() for(char *) cast */
+	SAlloc::F( (char*)ptr);                      /* see yyrealloc() for(char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"

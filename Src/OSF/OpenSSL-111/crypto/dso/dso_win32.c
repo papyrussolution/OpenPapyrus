@@ -14,7 +14,7 @@
 #if defined(DSO_WIN32)
 
 #ifdef _WIN32_WCE
-#  if _WIN32_WCE < 300
+#if _WIN32_WCE < 300
 static FARPROC GetProcAddressA(HMODULE hModule, LPCSTR lpProcName)
 {
 	WCHAR lpProcNameW[64];
@@ -28,7 +28,7 @@ static FARPROC GetProcAddressA(HMODULE hModule, LPCSTR lpProcName)
 	return GetProcAddressW(hModule, lpProcNameW);
 }
 
-#  endif
+#endif
 #undef GetProcAddress
 #define GetProcAddress GetProcAddressA
 
@@ -37,18 +37,18 @@ static HINSTANCE LoadLibraryA(LPCSTR lpLibFileName)
 	WCHAR * fnamw;
 	size_t len_0 = strlen(lpLibFileName) + 1, i;
 
-#  ifdef _MSC_VER
+#ifdef _MSC_VER
 	fnamw = (WCHAR*)_alloca(len_0 * sizeof(WCHAR));
-#  else
+#else
 	fnamw = (WCHAR*)alloca(len_0 * sizeof(WCHAR));
-#  endif
+#endif
 	if(fnamw == NULL) {
 		SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 		return NULL;
 	}
-#  if defined(_WIN32_WCE) && _WIN32_WCE>=101
+#if defined(_WIN32_WCE) && _WIN32_WCE>=101
 	if(!MultiByteToWideChar(CP_ACP, 0, lpLibFileName, len_0, fnamw, len_0))
-#  endif
+#endif
 	for(i = 0; i < len_0; i++)
 		fnamw[i] = (WCHAR)lpLibFileName[i];
 
@@ -498,9 +498,9 @@ static const char * openssl_strnchr(const char * string, int c, size_t len)
 #ifdef _WIN32_WCE
 #define DLLNAME "TOOLHELP.DLL"
 #else
-#  ifdef MODULEENTRY32
+#ifdef MODULEENTRY32
 #   undef MODULEENTRY32         /* unmask the ASCII version! */
-#  endif
+#endif
 #define DLLNAME "KERNEL32.DLL"
 #endif
 
@@ -577,10 +577,10 @@ static int win32_pathbyaddr(void * addr, char * path, int sz)
 			(*close_snap)(hModuleSnap);
 			FreeLibrary(dll);
 #ifdef _WIN32_WCE
-#  if _WIN32_WCE >= 101
+#if _WIN32_WCE >= 101
 			return WideCharToMultiByte(CP_ACP, 0, me32.szExePath, -1,
 				   path, sz, NULL, NULL);
-#  else
+#else
 			{
 				int i, len = (int)wcslen(me32.szExePath);
 				if(sz <= 0)
@@ -592,7 +592,7 @@ static int win32_pathbyaddr(void * addr, char * path, int sz)
 				path[len++] = '\0';
 				return len;
 			}
-#  endif
+#endif
 #else
 			{
 				int len = (int)strlen(me32.szExePath);

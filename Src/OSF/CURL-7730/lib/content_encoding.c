@@ -25,20 +25,16 @@
 #include "urldata.h"
 //#include <curl/curl.h>
 //#include <stddef.h>
-
 #ifdef HAVE_ZLIB_H
-#include <zlib.h>
+	#include <zlib.h>
 #endif
-
 #ifdef HAVE_BROTLI
-#include <brotli/decode.h>
+	#include <brotli/decode.h>
 #endif
-
 #ifdef HAVE_ZSTD
-#include <zstd.h>
+	#include <zstd.h>
 #endif
-
-#include "sendf.h"
+//#include "sendf.h"
 #include "http.h"
 #include "content_encoding.h"
 #include "strdup.h"
@@ -89,14 +85,14 @@ struct zlib_params {
 static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
 {
 	(void)opaque;
-	/* not a typo, keep it calloc() */
-	return (voidpf)calloc(items, size);
+	/* not a typo, keep it SAlloc::C() */
+	return (voidpf)SAlloc::C(items, size);
 }
 
 static void zfree_cb(voidpf opaque, voidpf ptr)
 {
 	(void)opaque;
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 static CURLcode process_zlib_error(struct connectdata * conn, z_stream * z)
@@ -113,7 +109,7 @@ static CURLcode exit_zlib(struct connectdata * conn, z_stream * z, zlibInitState
 {
 	if(*zlib_init == ZLIB_GZIP_HEADER) {
 		//Curl_safefree(z->next_in);
-		free(const_cast<Bytef *>(z->next_in)); // @badcast
+		SAlloc::F(const_cast<Bytef *>(z->next_in)); // @badcast
 		z->next_in = 0;
 	}
 	if(*zlib_init != ZLIB_UNINIT) {
@@ -160,7 +156,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct contenc_writer 
 		return exit_zlib(conn, z, &zp->zlib_init, CURLE_WRITE_ERROR);
 	/* Dynamically allocate a buffer for decompression because it's uncommonly
 	   large to hold on the stack */
-	decomp = static_cast<char *>(malloc(DSIZ));
+	decomp = static_cast<char *>(SAlloc::M(DSIZ));
 	if(decomp == NULL)
 		return exit_zlib(conn, z, &zp->zlib_init, CURLE_OUT_OF_MEMORY);
 
@@ -226,7 +222,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct contenc_writer 
 			    break;
 		}
 	}
-	free(decomp);
+	SAlloc::F(decomp);
 
 	/* We're about to leave this call so the `nread' data bytes won't be seen
 	   again. If we are in a state that would wrongly allow restart in raw mode
@@ -442,7 +438,7 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 				 * immediately afterwards, it should seldom be a problem.
 				 */
 				z->avail_in = (uInt)nbytes;
-				z->next_in = static_cast<Bytef *>(malloc(z->avail_in));
+				z->next_in = static_cast<Bytef *>(SAlloc::M(z->avail_in));
 				if(z->next_in == NULL) {
 					return exit_zlib(conn, z, &zp->zlib_init, CURLE_OUT_OF_MEMORY);
 				}
@@ -472,7 +468,7 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 		    switch(check_gzip_header(z->next_in, z->avail_in, &hlen)) {
 			    case GZIP_OK:
 				/* This is the zlib stream data */
-				free(const_cast<Bytef *>(z->next_in)); // @badcast
+				SAlloc::F(const_cast<Bytef *>(z->next_in)); // @badcast
 				/* Don't point into the malloced block since we just freed it */
 				z->next_in = (Bytef*)buf + hlen + nbytes - z->avail_in;
 				z->avail_in = (uInt)(z->avail_in - hlen);
@@ -599,7 +595,7 @@ static CURLcode brotli_unencode_write(struct connectdata * conn, struct contenc_
 	if(!bp->br)
 		return CURLE_WRITE_ERROR; /* Stream already ended. */
 
-	decomp = malloc(DSIZ);
+	decomp = SAlloc::M(DSIZ);
 	if(!decomp)
 		return CURLE_OUT_OF_MEMORY;
 	while((nbytes || r == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) && result == CURLE_OK) {
@@ -625,7 +621,7 @@ static CURLcode brotli_unencode_write(struct connectdata * conn, struct contenc_
 			    break;
 		}
 	}
-	free(decomp);
+	SAlloc::F(decomp);
 	return result;
 }
 
@@ -676,7 +672,7 @@ static CURLcode zstd_unencode_write(struct connectdata * conn, struct contenc_wr
 	size_t errorCode;
 
 	if(!zp->decomp) {
-		zp->decomp = malloc(DSIZ);
+		zp->decomp = SAlloc::M(DSIZ);
 		if(!zp->decomp)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -711,7 +707,7 @@ static void zstd_close_writer(struct connectdata * conn, struct contenc_writer *
 	struct zstd_params * zp = (struct zstd_params *)&writer->params;
 	(void)conn;
 	if(zp->decomp) {
-		free(zp->decomp);
+		SAlloc::F(zp->decomp);
 		zp->decomp = NULL;
 	}
 	if(zp->zds) {
@@ -786,8 +782,8 @@ char * Curl_all_content_encodings(void)
 			len += strlen(ce->name) + 2;
 	}
 	if(!len)
-		return strdup(CONTENT_ENCODING_DEFAULT);
-	ace = (char *)malloc(len);
+		return sstrdup(CONTENT_ENCODING_DEFAULT);
+	ace = (char *)SAlloc::M(len);
 	if(ace) {
 		char * p = ace;
 		for(cep = encodings; *cep; cep++) {
@@ -856,7 +852,7 @@ static CURLcode error_unencode_write(struct connectdata * conn,
 	if(!all)
 		return CURLE_OUT_OF_MEMORY;
 	failf(conn->data, "Unrecognized content encoding type. libcurl understands %s content encodings.", all);
-	free(all);
+	SAlloc::F(all);
 	return CURLE_BAD_CONTENT_ENCODING;
 }
 
@@ -880,13 +876,13 @@ static struct contenc_writer * new_unencoding_writer(struct connectdata * conn,
     const struct content_encoding * handler,
     struct contenc_writer * downstream){
 	size_t sz = offsetof(struct contenc_writer, params) + handler->paramsize;
-	struct contenc_writer * writer = (struct contenc_writer *)calloc(1, sz);
+	struct contenc_writer * writer = (struct contenc_writer *)SAlloc::C(1, sz);
 
 	if(writer) {
 		writer->handler = handler;
 		writer->downstream = downstream;
 		if(handler->init_writer(conn, writer)) {
-			free(writer);
+			SAlloc::F(writer);
 			writer = NULL;
 		}
 	}
@@ -914,7 +910,7 @@ void Curl_unencode_cleanup(struct connectdata * conn)
 	while(writer) {
 		k->writer_stack = writer->downstream;
 		writer->handler->close_writer(conn, writer);
-		free(writer);
+		SAlloc::F(writer);
 		writer = k->writer_stack;
 	}
 }
@@ -1014,7 +1010,7 @@ void Curl_unencode_cleanup(struct connectdata * conn)
 
 char * Curl_all_content_encodings(void)
 {
-	return strdup(CONTENT_ENCODING_DEFAULT); /* Satisfy caller. */
+	return sstrdup(CONTENT_ENCODING_DEFAULT); /* Satisfy caller. */
 }
 
 #endif /* CURL_DISABLE_HTTP */

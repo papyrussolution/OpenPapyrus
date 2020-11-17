@@ -27,13 +27,13 @@
 #include <lib$routines.h>
 #include <starlet.h>
 /* Some compiler options may mask the declaration of "_malloc32". */
-# if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
-#  if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
+#if __INITIAL_POINTER_SIZE == 64
 #   pragma pointer_size save
 #   pragma pointer_size 32
 void * _malloc32(__size_t);
 #   pragma pointer_size restore
-#  endif                        /* __INITIAL_POINTER_SIZE == 64 */
+#endif                        /* __INITIAL_POINTER_SIZE == 64 */
 #endif                         /* __INITIAL_POINTER_SIZE && defined
                                  * _ANSI_C_SOURCE */
 #elif defined(__DJGPP__) && defined(OPENSSL_NO_SOCK)
@@ -47,7 +47,7 @@ void * _malloc32(__size_t);
 
 #ifndef NO_SYSLOG
 
-# if defined(OPENSSL_SYS_WIN32)
+#if defined(OPENSSL_SYS_WIN32)
 #define LOG_EMERG       0
 #define LOG_ALERT       1
 #define LOG_CRIT        2
@@ -234,7 +234,7 @@ static int slg_puts(BIO * bp, const char * str)
 	return ret;
 }
 
-# if defined(OPENSSL_SYS_WIN32)
+#if defined(OPENSSL_SYS_WIN32)
 
 static void xopenlog(BIO * bp, char * name, int level)
 {
@@ -305,21 +305,21 @@ static void xsyslog(BIO * bp, int priority, const char * string)
 	struct dsc$descriptor_s opc_dsc;
 
 /* Arrange 32-bit pointer to opcdef buffer and malloc(), if needed. */
-#  if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 #   pragma pointer_size save
 #   pragma pointer_size 32
 #   define OPCDEF_TYPE __char_ptr32
 #   define OPCDEF_MALLOC _malloc32
-#  else                         /* __INITIAL_POINTER_SIZE == 64 */
+#else                         /* __INITIAL_POINTER_SIZE == 64 */
 #   define OPCDEF_TYPE char *
 #   define OPCDEF_MALLOC OPENSSL_malloc
-#  endif                        /* __INITIAL_POINTER_SIZE == 64 [else] */
+#endif                        /* __INITIAL_POINTER_SIZE == 64 [else] */
 
 	struct opcdef * opcdef_p;
 
-#  if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 #   pragma pointer_size restore
-#  endif                        /* __INITIAL_POINTER_SIZE == 64 */
+#endif                        /* __INITIAL_POINTER_SIZE == 64 */
 
 	char buf[10240];
 	uint len;
@@ -386,11 +386,11 @@ static void xcloselog(BIO * bp)
 
 static void xopenlog(BIO * bp, char * name, int level)
 {
-#  ifdef WATT32                 /* djgpp/DOS */
+#ifdef WATT32                 /* djgpp/DOS */
 	openlog(name, LOG_PID | LOG_CONS | LOG_NDELAY, level);
-#  else
+#else
 	openlog(name, LOG_PID | LOG_CONS, level);
-#  endif
+#endif
 }
 
 static void xsyslog(BIO * bp, int priority, const char * string)

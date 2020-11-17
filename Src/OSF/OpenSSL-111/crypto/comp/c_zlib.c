@@ -196,13 +196,13 @@ COMP_METHOD * COMP_zlib(void)
 #ifdef ZLIB_SHARED
 	/* LIBZ may be externally defined, and we should respect that value */
 #ifndef LIBZ
-#  if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)
+#if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)
 #   define LIBZ "ZLIB1"
-#  elif defined(OPENSSL_SYS_VMS)
+#elif defined(OPENSSL_SYS_VMS)
 #   define LIBZ "LIBZ"
-#  else
+#else
 #   define LIBZ "z"
-#  endif
+#endif
 #endif
 
 	if(!zlib_loaded) {

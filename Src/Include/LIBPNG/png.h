@@ -386,12 +386,12 @@
 #define PNG_LIBPNG_BUILD_TYPE \
        (PNG_LIBPNG_BUILD_BASE_TYPE | PNG_LIBPNG_BUILD_PRIVATE)
 #else
-#  ifdef PNG_LIBPNG_SPECIALBUILD
-#    define PNG_LIBPNG_BUILD_TYPE \
+#ifdef PNG_LIBPNG_SPECIALBUILD
+#define PNG_LIBPNG_BUILD_TYPE \
          (PNG_LIBPNG_BUILD_BASE_TYPE | PNG_LIBPNG_BUILD_SPECIAL)
-#  else
-#    define PNG_LIBPNG_BUILD_TYPE (PNG_LIBPNG_BUILD_BASE_TYPE)
-#  endif
+#else
+#define PNG_LIBPNG_BUILD_TYPE (PNG_LIBPNG_BUILD_BASE_TYPE)
+#endif
 #endif
 
 #ifndef PNG_VERSION_INFO_ONLY
@@ -2292,11 +2292,11 @@ PNG_FIXED_EXPORT(212, png_fixed_point, png_get_y_offset_inches_fixed,
     (png_const_structrp png_ptr, png_const_inforp info_ptr))
 #endif
 
-#  ifdef PNG_pHYs_SUPPORTED
+#ifdef PNG_pHYs_SUPPORTED
 PNG_EXPORT(198, uint32, png_get_pHYs_dpi, (png_const_structrp png_ptr,
     png_const_inforp info_ptr, uint32 *res_x, uint32 *res_y,
     int *unit_type));
-#  endif /* pHYs */
+#endif /* pHYs */
 #endif  /* INCH_CONVERSIONS */
 
 /* Added in libpng-1.4.0 */
@@ -2454,27 +2454,27 @@ PNG_EXPORT(204, uint32, png_get_uint_31, (png_const_structrp png_ptr, png_const_
    /* If PNG_PREFIX is defined the same thing as below happens in pnglibconf.h,
     * but defining a macro name prefixed with PNG_PREFIX.
     */
-#  ifndef PNG_PREFIX
+#ifndef PNG_PREFIX
 #     define png_get_uint_32(buf) PNG_get_uint_32(buf)
 #     define png_get_uint_16(buf) PNG_get_uint_16(buf)
 #     define png_get_int_32(buf)  PNG_get_int_32(buf)
-#  endif
+#endif
 #else
-#  ifdef PNG_PREFIX
+#ifdef PNG_PREFIX
       /* No macros; revert to the (redefined) function */
 #     define PNG_get_uint_32 (png_get_uint_32)
 #     define PNG_get_uint_16 (png_get_uint_16)
 #     define PNG_get_int_32  (png_get_int_32)
-#  endif
+#endif
 #endif
 
 #ifdef PNG_CHECK_FOR_INVALID_INDEX_SUPPORTED
 PNG_EXPORT(242, void, png_set_check_for_invalid_index,
     (png_structrp png_ptr, int allowed));
-#  ifdef PNG_GET_PALETTE_MAX_SUPPORTED
+#ifdef PNG_GET_PALETTE_MAX_SUPPORTED
 PNG_EXPORT(243, int, png_get_palette_max, (png_const_structp png_ptr,
     png_const_infop info_ptr));
-#  endif
+#endif
 #endif /* CHECK_FOR_INVALID_INDEX */
 
 /*******************************************************************************

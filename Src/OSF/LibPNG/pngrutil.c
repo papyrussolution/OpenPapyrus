@@ -327,7 +327,7 @@ static int png_inflate_claim(png_structrp png_ptr, uint32 owner)
 		int ret; /* zlib return code */
 #if PNG_ZLIB_VERNUM >= 0x1240
 
-# if defined(PNG_SET_OPTION_SUPPORTED) && defined(PNG_MAXIMUM_INFLATE_WINDOW)
+#if defined(PNG_SET_OPTION_SUPPORTED) && defined(PNG_MAXIMUM_INFLATE_WINDOW)
 		int window_bits;
 
 		if(((png_ptr->options >> PNG_MAXIMUM_INFLATE_WINDOW) & 3) ==
@@ -342,7 +342,7 @@ static int png_inflate_claim(png_structrp png_ptr, uint32 owner)
 		}
 # else
 #   define window_bits 0
-# endif
+#endif
 #endif
 
 		/* Set this for safety, just in case the previous owner left pointers to
@@ -561,7 +561,7 @@ static int png_decompress_chunk(png_structrp png_ptr,
 # elif PNG_USER_CHUNK_MALLOC_MAX > 0
 	if(PNG_USER_CHUNK_MALLOC_MAX < limit)
 		limit = PNG_USER_CHUNK_MALLOC_MAX;
-# endif
+#endif
 
 	if(limit >= prefix_size + (terminate != 0)) {
 		int ret;
@@ -2354,14 +2354,14 @@ static int png_cache_unknown_chunk(png_structrp png_ptr, uint32 length)
 		png_free(png_ptr, png_ptr->unknown_chunk.data);
 		png_ptr->unknown_chunk.data = NULL;
 	}
-#  ifdef PNG_SET_USER_LIMITS_SUPPORTED
+#ifdef PNG_SET_USER_LIMITS_SUPPORTED
 	if(png_ptr->user_chunk_malloc_max > 0 && png_ptr->user_chunk_malloc_max < limit)
 		limit = png_ptr->user_chunk_malloc_max;
 
-#  elif PNG_USER_CHUNK_MALLOC_MAX > 0
+#elif PNG_USER_CHUNK_MALLOC_MAX > 0
 	if(PNG_USER_CHUNK_MALLOC_MAX < limit)
 		limit = PNG_USER_CHUNK_MALLOC_MAX;
-#  endif
+#endif
 
 	if(length <= limit) {
 		PNG_CSTRING_FROM_CHUNK(png_ptr->unknown_chunk.name, png_ptr->chunk_name);
@@ -2414,17 +2414,17 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 	 * This is just an optimization to avoid multiple calls to the lookup
 	 * function.
 	 */
-#  ifndef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
+#ifndef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 #     ifdef PNG_SET_UNKNOWN_CHUNKS_SUPPORTED
 	keep = png_chunk_unknown_handling(png_ptr, png_ptr->chunk_name);
 #     endif
-#  endif
+#endif
 
 	/* One of the following methods will read the chunk or skip it (at least one
 	 * of these is always defined because this is the only way to switch on
 	 * PNG_READ_UNKNOWN_CHUNKS_SUPPORTED)
 	 */
-#  ifdef PNG_READ_USER_CHUNKS_SUPPORTED
+#ifdef PNG_READ_USER_CHUNKS_SUPPORTED
 	/* The user callback takes precedence over the chunk keep value, but the
 	 * keep value is still required to validate a save of a critical chunk.
 	 */
@@ -2485,9 +2485,9 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 
 	else
 	/* Use the SAVE_UNKNOWN_CHUNKS code or skip the chunk */
-#  endif /* READ_USER_CHUNKS */
+#endif /* READ_USER_CHUNKS */
 
-#  ifdef PNG_SAVE_UNKNOWN_CHUNKS_SUPPORTED
+#ifdef PNG_SAVE_UNKNOWN_CHUNKS_SUPPORTED
 	{
 		/* keep is currently just the per-chunk setting, if there was no
 		 * setting change it to the global default now (not that this may
@@ -2507,7 +2507,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 		else
 			png_crc_finish(png_ptr, length);
 	}
-#  else
+#else
 #     ifndef PNG_READ_USER_CHUNKS_SUPPORTED
 #        error no method to support READ_UNKNOWN_CHUNKS
 #     endif
@@ -2524,9 +2524,9 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 
 		png_crc_finish(png_ptr, length);
 	}
-#  endif
+#endif
 
-#  ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
+#ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
 	/* Now store the chunk in the chunk list if appropriate, and if the limits
 	 * permit it.
 	 */
@@ -2549,21 +2549,21 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 			    --(png_ptr->user_chunk_cache_max);
 			/* FALL THROUGH */
 			case 0: /* no limit */
-#  endif /* USER_LIMITS */
+#endif /* USER_LIMITS */
 		/* Here when the limit isn't reached or when limits are compiled
 		 * out; store the chunk.
 		 */
 		png_set_unknown_chunks(png_ptr, info_ptr,
 		    &png_ptr->unknown_chunk, 1);
 		handled = 1;
-#  ifdef PNG_USER_LIMITS_SUPPORTED
+#ifdef PNG_USER_LIMITS_SUPPORTED
 		break;
 	}
-#  endif
+#endif
 	}
-#  else /* no store support: the chunk must be handled by the user callback */
+#else /* no store support: the chunk must be handled by the user callback */
 	PNG_UNUSED(info_ptr)
-#  endif
+#endif
 
 	/* Regardless of the error handling below the cached data (if any) can be
 	 * freed now.  Notice that the data is not freed if there is a png_error, but
@@ -3665,7 +3665,7 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 
 #ifdef PNG_READ_EXPAND_16_SUPPORTED
 	if((png_ptr->transformations & PNG_EXPAND_16) != 0) {
-#  ifdef PNG_READ_EXPAND_SUPPORTED
+#ifdef PNG_READ_EXPAND_SUPPORTED
 		/* In fact it is an error if it isn't supported, but checking is
 		 * the safe way.
 		 */
@@ -3674,7 +3674,7 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 				max_pixel_depth *= 2;
 		}
 		else
-#  endif
+#endif
 		png_ptr->transformations &= ~PNG_EXPAND_16;
 	}
 #endif

@@ -23,13 +23,13 @@
 #include "../vms_rms.h"
 
 /* Some compiler options may mask the declaration of "_malloc32". */
-# if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
-#  if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
+#if __INITIAL_POINTER_SIZE == 64
 #   pragma pointer_size save
 #   pragma pointer_size 32
 void * _malloc32(__size_t);
 #   pragma pointer_size restore
-#  endif                        /* __INITIAL_POINTER_SIZE == 64 */
+#endif                        /* __INITIAL_POINTER_SIZE == 64 */
 #endif                         /* __INITIAL_POINTER_SIZE && defined
                                  * _ANSI_C_SOURCE */
 
@@ -89,18 +89,18 @@ static int vms_load(DSO * dso)
 	char * filename = DSO_convert_filename(dso, NULL);
 
 /* Ensure 32-bit pointer for "p", and appropriate malloc() function. */
-# if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 #define DSO_MALLOC _malloc32
-#  pragma pointer_size save
-#  pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 #else                          /* __INITIAL_POINTER_SIZE == 64 */
 #define DSO_MALLOC OPENSSL_malloc
 #endif                         /* __INITIAL_POINTER_SIZE == 64 [else] */
 
 	DSO_VMS_INTERNAL * p = NULL;
 
-# if __INITIAL_POINTER_SIZE == 64
-#  pragma pointer_size restore
+#if __INITIAL_POINTER_SIZE == 64
+#pragma pointer_size restore
 #endif                         /* __INITIAL_POINTER_SIZE == 64 */
 
 	const char * sp1, * sp2; /* Search result */
@@ -274,12 +274,12 @@ void vms_bind_sym(DSO * dso, const char * symname, void ** sym)
 	struct dsc$descriptor_s symname_dsc;
 
 /* Arrange 32-bit pointer to (copied) string storage, if needed. */
-# if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 #define SYMNAME symname_32p
-#  pragma pointer_size save
-#  pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 	char * symname_32p;
-#  pragma pointer_size restore
+#pragma pointer_size restore
 	char symname_32[NAMX_MAXRSS + 1];
 #else                          /* __INITIAL_POINTER_SIZE == 64 */
 #define SYMNAME ((char *)symname)
@@ -291,7 +291,7 @@ void vms_bind_sym(DSO * dso, const char * symname, void ** sym)
 		DSOerr(DSO_F_VMS_BIND_SYM, ERR_R_PASSED_NULL_PARAMETER);
 		return;
 	}
-# if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 	/* Copy the symbol name to storage with a 32-bit pointer. */
 	symname_32p = symname_32;
 	strcpy(symname_32p, symname);
@@ -372,14 +372,14 @@ static char * vms_merger(DSO * dso, const char * filespec1,
 	char * merged;
 
 /* Arrange 32-bit pointer to (copied) string storage, if needed. */
-# if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 #define FILESPEC1 filespec1_32p;
 #define FILESPEC2 filespec2_32p;
-#  pragma pointer_size save
-#  pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 	char * filespec1_32p;
 	char * filespec2_32p;
-#  pragma pointer_size restore
+#pragma pointer_size restore
 	char filespec1_32[NAMX_MAXRSS + 1];
 	char filespec2_32[NAMX_MAXRSS + 1];
 #else                          /* __INITIAL_POINTER_SIZE == 64 */
@@ -394,7 +394,7 @@ static char * vms_merger(DSO * dso, const char * filespec1,
 	filespec1len = strlen(filespec1);
 	filespec2len = strlen(filespec2);
 
-# if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 	/* Copy the file names to storage with a 32-bit pointer. */
 	filespec1_32p = filespec1_32;
 	filespec2_32p = filespec2_32;

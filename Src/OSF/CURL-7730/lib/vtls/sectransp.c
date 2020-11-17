@@ -113,9 +113,9 @@
 #endif /* CURL_BUILD_MAC */
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "inet_pton.h"
-#include "connect.h"
+//#include "connect.h"
 #include "select.h"
 #include "vtls.h"
 #include "sectransp.h"
@@ -894,11 +894,11 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 	mib[1] = KERN_OSRELEASE;
 	if(sysctl(mib, 2, NULL, &os_version_len, NULL, 0) == -1)
 		return;
-	os_version = malloc(os_version_len*sizeof(char));
+	os_version = SAlloc::M(os_version_len*sizeof(char));
 	if(!os_version)
 		return;
 	if(sysctl(mib, 2, os_version, &os_version_len, NULL, 0) == -1) {
-		free(os_version);
+		SAlloc::F(os_version);
 		return;
 	}
 
@@ -907,7 +907,7 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 	os_version_minor = strtok_r(NULL, ".", &tok_buf);
 	*major = atoi(os_version_major);
 	*minor = atoi(os_version_minor);
-	free(os_version);
+	SAlloc::F(os_version);
 }
 
 #endif /* CURL_BUILD_MAC */
@@ -961,7 +961,7 @@ static CURLcode CopyCertSubject(struct Curl_easy * data,
 	   use that, else convert it. */
 	direct = CFStringGetCStringPtr(c, kCFStringEncodingUTF8);
 	if(direct) {
-		*certp = strdup(direct);
+		*certp = sstrdup(direct);
 		if(!*certp) {
 			failf(data, "SSL: out of memory");
 			result = CURLE_OUT_OF_MEMORY;
@@ -969,7 +969,7 @@ static CURLcode CopyCertSubject(struct Curl_easy * data,
 	}
 	else {
 		size_t cbuf_size = ((size_t)CFStringGetLength(c) * 4) + 1;
-		cbuf = calloc(cbuf_size, 1);
+		cbuf = SAlloc::C(cbuf_size, 1);
 		if(cbuf) {
 			if(!CFStringGetCString(c, cbuf, cbuf_size,
 			    kCFStringEncodingUTF8)) {
@@ -986,7 +986,7 @@ static CURLcode CopyCertSubject(struct Curl_easy * data,
 		}
 	}
 	if(result)
-		free(cbuf);
+		SAlloc::F(cbuf);
 	CFRelease(c);
 	return result;
 }
@@ -1672,7 +1672,7 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 				CURLcode result = CopyCertSubject(data, cert, &certp);
 				if(!result) {
 					infof(data, "Client certificate: %s\n", certp);
-					free(certp);
+					SAlloc::F(certp);
 				}
 
 				CFRelease(cert);
@@ -1824,12 +1824,12 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 		    err);
 		return CURLE_SSL_CIPHER;
 	}
-	all_ciphers = malloc(all_ciphers_count*sizeof(SSLCipherSuite));
+	all_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
 	if(!all_ciphers) {
 		failf(data, "SSL: Failed to allocate memory for all ciphers");
 		return CURLE_OUT_OF_MEMORY;
 	}
-	allowed_ciphers = malloc(all_ciphers_count*sizeof(SSLCipherSuite));
+	allowed_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
 	if(!allowed_ciphers) {
 		Curl_safefree(all_ciphers);
 		failf(data, "SSL: Failed to allocate memory for allowed ciphers");
@@ -2035,7 +2035,7 @@ static long pem_to_der(const char * in, uchar ** out, size_t * outlen)
 	sep_end += 5;
 
 	len = cert_end - cert_start;
-	b64 = malloc(len + 1);
+	b64 = SAlloc::M(len + 1);
 	if(!b64)
 		return -1;
 
@@ -2047,9 +2047,9 @@ static long pem_to_der(const char * in, uchar ** out, size_t * outlen)
 	b64[j] = '\0';
 
 	err = Curl_base64_decode((const char*)b64, out, outlen);
-	free(b64);
+	SAlloc::F(b64);
 	if(err) {
-		free(*out);
+		SAlloc::F(*out);
 		return -1;
 	}
 
@@ -2066,7 +2066,7 @@ static int read_cert(const char * file, uchar ** out, size_t * outlen)
 	if(fd < 0)
 		return -1;
 
-	data = malloc(cap);
+	data = SAlloc::M(cap);
 	if(!data) {
 		close(fd);
 		return -1;
@@ -2076,7 +2076,7 @@ static int read_cert(const char * file, uchar ** out, size_t * outlen)
 		n = read(fd, buf, sizeof(buf));
 		if(n < 0) {
 			close(fd);
-			free(data);
+			SAlloc::F(data);
 			return -1;
 		}
 		else if(n == 0) {
@@ -2135,7 +2135,7 @@ static int append_cert_to_array(struct Curl_easy * data,
 		default:
 		    return result;
 	}
-	free(certp);
+	SAlloc::F(certp);
 
 	CFArrayAppendValue(array, cacert);
 	CFRelease(cacert);
@@ -2168,7 +2168,7 @@ static CURLcode verify_cert(const char * cafile, struct Curl_easy * data,
 	CFMutableArrayRef array = CFArrayCreateMutable(kCFAllocatorDefault, 0,
 		&kCFTypeArrayCallBacks);
 	if(array == NULL) {
-		free(certbuf);
+		SAlloc::F(certbuf);
 		failf(data, "SSL: out of memory creating CA certificate array");
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -2182,7 +2182,7 @@ static CURLcode verify_cert(const char * cafile, struct Curl_easy * data,
 		 */
 		res = pem_to_der((const char*)certbuf + offset, &der, &derlen);
 		if(res < 0) {
-			free(certbuf);
+			SAlloc::F(certbuf);
 			CFRelease(array);
 			failf(data, "SSL: invalid CA certificate #%d (offset %d) in bundle",
 			    n, offset);
@@ -2193,7 +2193,7 @@ static CURLcode verify_cert(const char * cafile, struct Curl_easy * data,
 		if(res == 0 && offset == 0) {
 			/* This is not a PEM file, probably a certificate in DER format. */
 			rc = append_cert_to_array(data, certbuf, buflen, array);
-			free(certbuf);
+			SAlloc::F(certbuf);
 			if(rc != CURLE_OK) {
 				CFRelease(array);
 				return rc;
@@ -2202,14 +2202,14 @@ static CURLcode verify_cert(const char * cafile, struct Curl_easy * data,
 		}
 		else if(res == 0) {
 			/* No more certificates in the bundle. */
-			free(certbuf);
+			SAlloc::F(certbuf);
 			break;
 		}
 
 		rc = append_cert_to_array(data, der, derlen, array);
-		free(der);
+		SAlloc::F(der);
 		if(rc != CURLE_OK) {
-			free(certbuf);
+			SAlloc::F(certbuf);
 			CFRelease(array);
 			return rc;
 		}
@@ -2352,7 +2352,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 		}
 
 		realpubkeylen = pubkeylen + spkiHeaderLength;
-		realpubkey = malloc(realpubkeylen);
+		realpubkey = SAlloc::M(realpubkeylen);
 		if(!realpubkey)
 			break;
 
@@ -2733,7 +2733,7 @@ static void show_verbose_server_cert(struct connectdata * conn,
 			result = CopyCertSubject(data, server_cert, &certp);
 			if(!result) {
 				infof(data, "Server certificate: %s\n", certp);
-				free(certp);
+				SAlloc::F(certp);
 			}
 		}
 		CFRelease(trust);
@@ -2759,7 +2759,7 @@ static void show_verbose_server_cert(struct connectdata * conn,
 				result = CopyCertSubject(data, server_cert, &certp);
 				if(!result) {
 					infof(data, "Server certificate: %s\n", certp);
-					free(certp);
+					SAlloc::F(certp);
 				}
 			}
 			CFRelease(trust);
@@ -2779,7 +2779,7 @@ static void show_verbose_server_cert(struct connectdata * conn,
 				result = CopyCertSubject(data, server_cert, &certp);
 				if(!result) {
 					infof(data, "Server certificate: %s\n", certp);
-					free(certp);
+					SAlloc::F(certp);
 				}
 			}
 			CFRelease(server_certs);
@@ -2799,7 +2799,7 @@ static void show_verbose_server_cert(struct connectdata * conn,
 			result = CopyCertSubject(data, server_cert, &certp);
 			if(!result) {
 				infof(data, "Server certificate: %s\n", certp);
-				free(certp);
+				SAlloc::F(certp);
 			}
 		}
 		CFRelease(server_certs);

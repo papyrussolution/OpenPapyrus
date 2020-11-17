@@ -254,10 +254,10 @@ int tls_curve_allowed(SSL * s, uint16_t curve, int op)
 # ifdef OPENSSL_NO_EC2M
 	if(cinfo->flags & TLS_CURVE_CHAR2)
 		return 0;
-# endif
+#endif
 	ctmp[0] = curve >> 8;
 	ctmp[1] = curve & 0xff;
-	return ssl_security(s, op, cinfo->secbits, cinfo->nid, (void*)ctmp);
+	return ssl_security(s, op, cinfo->secbits, cinfo->nid, (void *)ctmp);
 }
 
 /* Return 1 if "id" is in "list" */
@@ -1118,7 +1118,7 @@ int tls12_check_peer_sigalg(SSL * s, uint16_t sig, EVP_PKEY * pkey)
 		sigalgstr[1] = sig & 0xff;
 		if(!ssl_security(s, SSL_SECOP_SIGALG_CHECK,
 		    EVP_MD_size(md) * 4, EVP_MD_type(md),
-		    (void*)sigalgstr)) {
+		    (void *)sigalgstr)) {
 			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS12_CHECK_PEER_SIGALG,
 			    SSL_R_WRONG_SIGNATURE_TYPE);
 			return 0;
@@ -1213,7 +1213,7 @@ int ssl_cipher_disabled(SSL * s, const SSL_CIPHER * c, int op, int ecdhe)
 	    || DTLS_VERSION_LT(c->max_dtls, s->s3->tmp.min_ver)))
 		return 1;
 
-	return !ssl_security(s, op, c->strength_bits, 0, (void*)c);
+	return !ssl_security(s, op, c->strength_bits, 0, (void *)c);
 }
 
 int tls_use_ticket(SSL * s)
@@ -1637,7 +1637,7 @@ static int tls12_sigalg_allowed(SSL * s, int op, const SIGALG_LOOKUP * lu)
 	/* Finally see if security callback allows it */
 	sigalgstr[0] = (lu->sigalg >> 8) & 0xff;
 	sigalgstr[1] = lu->sigalg & 0xff;
-	return ssl_security(s, op, secbits, lu->hash, (void*)sigalgstr);
+	return ssl_security(s, op, secbits, lu->hash, (void *)sigalgstr);
 }
 
 /*

@@ -93,8 +93,7 @@ bitset bitset_alloc(bitset_bindex n_bits, enum bitset_type type)
 }
 
 /* Create a bitset of N_BITS of type TYPE.  */
-bitset bitset_obstack_alloc(struct obstack * bobstack,
-    bitset_bindex n_bits, enum bitset_type type)
+bitset bitset_obstack_alloc(struct obstack * bobstack, bitset_bindex n_bits, enum bitset_type type)
 {
 	size_t bytes = bitset_bytes(type, n_bits);
 	bitset bset = (bitset)obstack_alloc(bobstack, bytes);

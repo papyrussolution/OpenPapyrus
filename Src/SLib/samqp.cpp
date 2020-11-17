@@ -734,7 +734,7 @@ int amqp_basic_publish(amqp_connection_state_t state, amqp_channel_t channel, am
 		f.channel = channel;
 		f.payload.properties.class_id = AMQP_BASIC_CLASS;
 		f.payload.properties.body_size = body.len;
-		f.payload.properties.decoded = (void*)properties;
+		f.payload.properties.decoded = (void *)properties;
 		if(body.len > 0)
 			flagz = AMQP_SF_MORE;
 		else
@@ -6889,7 +6889,7 @@ int amqp_ssl_socket_set_key_buffer(amqp_socket_t * base, const char * cert, cons
 	if(1 != status) {
 		return AMQP_STATUS_SSL_ERROR;
 	}
-	buf = BIO_new_mem_buf((void*)key, (int)n);
+	buf = BIO_new_mem_buf((void *)key, (int)n);
 	if(!buf) {
 		goto error;
 	}

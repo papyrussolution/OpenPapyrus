@@ -59,8 +59,8 @@ extern __inline void __attribute__((__gnu_inline__, __always_inline__, __artific
 #endif
 
 #ifdef USE_X86_MMX
-# if (defined(__SUNPRO_C) || defined(_MSC_VER) || defined(_WIN64))
-#  include <xmmintrin.h>
+#if (defined(__SUNPRO_C) || defined(_MSC_VER) || defined(_WIN64))
+#include <xmmintrin.h>
 # else
 /* We have to compile with -msse to use xmmintrin.h, but that causes SSE
  * instructions to be generated that we don't want. Just duplicate the
@@ -97,7 +97,7 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
                                                                         \
 		ret;                                                            \
 	})
-# endif
+#endif
 #endif
 
 #ifndef _MSC_VER
@@ -143,18 +143,18 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
 #elif defined(__GNUC__)
 # define USE_M64_CASTS
 #elif defined(__SUNPRO_C)
-# if (__SUNPRO_C >= 0x5120) && !defined(__NOVECTORSIZE__)
+#if (__SUNPRO_C >= 0x5120) && !defined(__NOVECTORSIZE__)
 /* Solaris Studio 12.3 (Sun C 5.12) introduces __attribute__(__vector_size__)
  * support, and defaults to using it to define __m64, unless __NOVECTORSIZE__
  * is defined.   If it is used, then the mm_cvt* intrinsics must be used.
  */
-#  define USE_CVT_INTRINSICS
+#define USE_CVT_INTRINSICS
 # else
 /* For Studio 12.2 or older, or when __attribute__(__vector_size__) is
  * disabled, __m64 is defined as a struct containing "ulong long l_".
  */
-#  define M64_MEMBER l_
-# endif
+#define M64_MEMBER l_
+#endif
 #endif
 
 #if defined(USE_M64_CASTS) || defined(USE_CVT_INTRINSICS) || defined(USE_M64_DOUBLE)
@@ -223,13 +223,13 @@ static const mmx_data_t c =
 };
 
 #ifdef USE_CVT_INTRINSICS
-#    define MC(x) to_m64(c.mmx_ ## x)
+#define MC(x) to_m64(c.mmx_ ## x)
 #elif defined(USE_M64_CASTS)
-#    define MC(x) ((__m64)c.mmx_ ## x)
+#define MC(x) ((__m64)c.mmx_ ## x)
 #elif defined(USE_M64_DOUBLE)
-#    define MC(x) (*(__m64*)&c.mmx_ ## x)
+#define MC(x) (*(__m64*)&c.mmx_ ## x)
 #else
-#    define MC(x) c.mmx_ ## x
+#define MC(x) c.mmx_ ## x
 #endif
 
 static force_inline __m64 to_m64(uint64_t x)

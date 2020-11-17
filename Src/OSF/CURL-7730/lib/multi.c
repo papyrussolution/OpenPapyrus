@@ -24,16 +24,16 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "url.h"
-#include "connect.h"
-#include "progress.h"
+//#include "connect.h"
+//#include "progress.h"
 #include "easyif.h"
 #include "share.h"
 #include "psl.h"
 #include "multiif.h"
-#include "sendf.h"
-#include "timeval.h"
+//#include "sendf.h"
+//#include "timeval.h"
 #include "http.h"
 #include "select.h"
 #include "warnless.h"
@@ -42,7 +42,7 @@
 #include "multihandle.h"
 #include "sigpipe.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 #include "http_proxy.h"
 #include "http2.h"
 #include "socketpair.h"
@@ -247,20 +247,20 @@ static struct Curl_sh_entry * sh_addentry(struct Curl_hash * sh,
 	}
 
 	/* not present, add it */
-	check = (struct Curl_sh_entry *)calloc(1, sizeof(struct Curl_sh_entry));
+	check = (struct Curl_sh_entry *)SAlloc::C(1, sizeof(struct Curl_sh_entry));
 	if(!check)
 		return NULL; /* major failure */
 
 	if(Curl_hash_init(&check->transfers, TRHASH_SIZE, trhash,
 	    trhash_compare, trhash_dtor)) {
-		free(check);
+		SAlloc::F(check);
 		return NULL;
 	}
 
 	/* make/add new hash entry */
 	if(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
 		Curl_hash_destroy(&check->transfers);
-		free(check);
+		SAlloc::F(check);
 		return NULL; /* major failure */
 	}
 
@@ -285,7 +285,7 @@ static void sh_freeentry(void * freethis)
 {
 	struct Curl_sh_entry * p = (struct Curl_sh_entry *)freethis;
 
-	free(p);
+	SAlloc::F(p);
 }
 
 static size_t fd_key_compare(void * k1, size_t k1_len, void * k2, size_t k2_len)
@@ -344,7 +344,7 @@ static CURLMcode multi_addmsg(struct Curl_multi * multi,
 struct Curl_multi * Curl_multi_handle(int hashsize, /* socket hash */
     int chashsize)
 {                                 /* connection hash */
-	struct Curl_multi * multi = (struct Curl_multi *)calloc(1, sizeof(struct Curl_multi));
+	struct Curl_multi * multi = (struct Curl_multi *)SAlloc::C(1, sizeof(struct Curl_multi));
 	if(!multi)
 		return NULL;
 	multi->type = CURL_MULTI_HANDLE;
@@ -397,7 +397,7 @@ error:
 	Curl_llist_destroy(&multi->msglist, NULL);
 	Curl_llist_destroy(&multi->pending, NULL);
 
-	free(multi);
+	SAlloc::F(multi);
 	return NULL;
 }
 
@@ -1120,7 +1120,7 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 		   big, so at 2^29 sockets this value might wrap. When a process gets
 		   the capability to actually handle over 500 million sockets this
 		   calculation needs a integer overflow check. */
-		ufds = malloc(nfds * sizeof(struct pollfd));
+		ufds = SAlloc::M(nfds * sizeof(struct pollfd));
 		if(!ufds)
 			return CURLM_OUT_OF_MEMORY;
 		ufds_malloc = TRUE;
@@ -1349,7 +1349,7 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 
 #ifndef USE_WINSOCK
 	if(ufds_malloc)
-		free(ufds);
+		SAlloc::F(ufds);
 #endif
 	if(ret)
 		*ret = retcode;
@@ -1654,7 +1654,7 @@ static CURLcode protocol_connect(struct connectdata * conn,
 CURLcode Curl_preconnect(struct Curl_easy * data)
 {
 	if(!data->state.buffer) {
-		data->state.buffer = (char *)malloc(data->set.buffer_size + 1);
+		data->state.buffer = (char *)SAlloc::M(data->set.buffer_size + 1);
 		if(!data->state.buffer)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -2090,7 +2090,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 						    /* Have error handler disconnect conn if we can't retry */
 						    stream_error = TRUE;
 					    }
-					    free(newurl);
+					    SAlloc::F(newurl);
 				    }
 				    else {
 					    /* failure detected */
@@ -2278,7 +2278,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 					    data->state.errorbuf = FALSE;
 					    if(!newurl)
 						    /* typically for HTTP_1_1_REQUIRED error on first flight */
-						    newurl = strdup(data->change.url);
+						    newurl = sstrdup(data->change.url);
 					    /* if we are to retry, set the result to OK and consider the request
 					       as done */
 					    retry = TRUE;
@@ -2317,7 +2317,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 					    if(!retry) {
 						    /* if the URL is a follow-location and not just a retried request
 						       then figure out the URL here */
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    newurl = data->req.newurl;
 						    data->req.newurl = NULL;
 						    follow = FOLLOW_REDIR;
@@ -2331,7 +2331,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 						    multistate(data, CURLM_STATE_CONNECT);
 						    rc = CURLM_CALL_MULTI_PERFORM;
 					    }
-					    free(newurl);
+					    SAlloc::F(newurl);
 				    }
 				    else {
 					    /* after the transfer is done, go DONE */
@@ -2339,11 +2339,11 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 					    /* but first check to see if we got a location info even though we're
 					       not following redirects */
 					    if(data->req.location) {
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    newurl = data->req.location;
 						    data->req.location = NULL;
 						    result = Curl_follow(data, newurl, FOLLOW_FAKE);
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    if(result) {
 							    stream_error = TRUE;
 							    result = multi_done(data, result, TRUE);
@@ -2606,7 +2606,7 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
 		sclose(multi->wakeup_pair[1]);
 #endif
 #endif
-		free(multi);
+		SAlloc::F(multi);
 
 		return CURLM_OK;
 	}

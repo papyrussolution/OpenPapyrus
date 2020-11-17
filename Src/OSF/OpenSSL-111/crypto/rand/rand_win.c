@@ -25,10 +25,10 @@
 
 #ifdef USE_BCRYPTGENRANDOM
 #include <bcrypt.h>
-#  pragma comment(lib, "bcrypt.lib")
-#  ifndef STATUS_SUCCESS
+#pragma comment(lib, "bcrypt.lib")
+#ifndef STATUS_SUCCESS
 #   define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
-#  endif
+#endif
 #else
 #include <wincrypt.h>
 /*
@@ -151,7 +151,7 @@ int rand_pool_add_additional_data(RAND_POOL * pool)
 	return rand_pool_add(pool, (uchar *)&data, sizeof(data), 0);
 }
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 int RAND_event(UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
 	RAND_poll();

@@ -692,7 +692,7 @@ retry:
 			    ret = 1; /* Success */
 			    break;
 			default:
-# if defined(AI_ADDRCONFIG) && defined(AI_NUMERICHOST)
+#if defined(AI_ADDRCONFIG) && defined(AI_NUMERICHOST)
 			    if(hints.ai_flags & AI_ADDRCONFIG) {
 				    hints.ai_flags &= ~AI_ADDRCONFIG;
 				    hints.ai_flags |= AI_NUMERICHOST;
@@ -783,7 +783,7 @@ retry:
 				 * anyway [above getaddrinfo/gai_strerror is]. We just let
 				 * system administrator figure this out...
 				 */
-# if defined(OPENSSL_SYS_VXWORKS)
+#if defined(OPENSSL_SYS_VXWORKS)
 				/* h_errno doesn't exist on VxWorks */
 				SYSerr(SYS_F_GETHOSTBYNAME, 1000);
 #else

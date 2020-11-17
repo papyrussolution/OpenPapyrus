@@ -27,14 +27,14 @@
 #pragma hdrstop
 #ifdef USE_NSS
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "formdata.h" /* for the boundary function */
 #include "url.h" /* for the ssl config check function */
-#include "connect.h"
+//#include "connect.h"
 #include "strcase.h"
 #include "select.h"
 #include "vtls.h"
-#include "llist.h"
+//#include "llist.h"
 #include "multiif.h"
 #include "curl_printf.h"
 #include "nssg.h"
@@ -250,17 +250,17 @@ static void nss_print_error_message(struct Curl_easy * data, PRUint32 err)
 static char * nss_sslver_to_name(PRUint16 nssver)
 {
 	switch(nssver) {
-		case SSL_LIBRARY_VERSION_2: return strdup("SSLv2");
-		case SSL_LIBRARY_VERSION_3_0: return strdup("SSLv3");
-		case SSL_LIBRARY_VERSION_TLS_1_0: return strdup("TLSv1.0");
+		case SSL_LIBRARY_VERSION_2: return sstrdup("SSLv2");
+		case SSL_LIBRARY_VERSION_3_0: return sstrdup("SSLv3");
+		case SSL_LIBRARY_VERSION_TLS_1_0: return sstrdup("TLSv1.0");
 #ifdef SSL_LIBRARY_VERSION_TLS_1_1
-		case SSL_LIBRARY_VERSION_TLS_1_1: return strdup("TLSv1.1");
+		case SSL_LIBRARY_VERSION_TLS_1_1: return sstrdup("TLSv1.1");
 #endif
 #ifdef SSL_LIBRARY_VERSION_TLS_1_2
-		case SSL_LIBRARY_VERSION_TLS_1_2: return strdup("TLSv1.2");
+		case SSL_LIBRARY_VERSION_TLS_1_2: return sstrdup("TLSv1.2");
 #endif
 #ifdef SSL_LIBRARY_VERSION_TLS_1_3
-		case SSL_LIBRARY_VERSION_TLS_1_3: return strdup("TLSv1.3");
+		case SSL_LIBRARY_VERSION_TLS_1_3: return sstrdup("TLSv1.3");
 #endif
 		default: return curl_maprintf("0x%04x", nssver);
 	}
@@ -374,7 +374,7 @@ static int is_file(const char * filename)
 /* Check if the given string is filename or nickname of a certificate.  If the
  * given string is recognized as filename, return NULL.  If the given string is
  * recognized as nickname, return a duplicated string.  The returned string
- * should be later deallocated using free().  If the OOM failure occurs, we
+ * should be later deallocated using SAlloc::F().  If the OOM failure occurs, we
  * return NULL, too.
  */
 static char * dup_nickname(struct Curl_easy * data, const char * str)
@@ -383,14 +383,14 @@ static char * dup_nickname(struct Curl_easy * data, const char * str)
 
 	if(!is_file(str))
 		/* no such file exists, use the string as nickname */
-		return strdup(str);
+		return sstrdup(str);
 
 	/* search the first slash; we require at least one slash in a file name */
 	n = strchr(str, '/');
 	if(!n) {
 		infof(data, "warning: certificate file name \"%s\" handled as nickname; "
 		    "please use \"./%s\" to force file name\n", str, str);
-		return strdup(str);
+		return sstrdup(str);
 	}
 
 	/* we'll use the PEM reader to read the certificate from file */
@@ -413,7 +413,7 @@ static PK11SlotInfo* nss_find_slot_by_name(const char * slot_name)
 /* wrap 'ptr' as list node and tail-insert into 'list' */
 static CURLcode insert_wrapped_ptr(struct Curl_llist * list, void * ptr)
 {
-	struct ptr_list_wrap * wrap = malloc(sizeof(*wrap));
+	struct ptr_list_wrap * wrap = SAlloc::M(sizeof(*wrap));
 	if(!wrap)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -446,7 +446,7 @@ static CURLcode nss_create_object(struct ssl_connect_data * connssl,
 		return CURLE_OUT_OF_MEMORY;
 
 	slot = nss_find_slot_by_name(slot_name);
-	free(slot_name);
+	SAlloc::F(slot_name);
 	if(!slot)
 		return result;
 
@@ -496,7 +496,7 @@ static void nss_destroy_object(void * user, void * ptr)
 	PK11GenericObject * obj = (PK11GenericObject*)wrap->ptr;
 	(void)user;
 	PK11_DestroyGenericObject(obj);
-	free(wrap);
+	SAlloc::F(wrap);
 }
 
 /* same as nss_destroy_object() but for CRL items */
@@ -506,7 +506,7 @@ static void nss_destroy_crl_item(void * user, void * ptr)
 	SECItem * crl_der = (SECItem*)wrap->ptr;
 	(void)user;
 	SECITEM_FreeItem(crl_der, PR_TRUE);
-	free(wrap);
+	SAlloc::F(wrap);
 }
 
 static CURLcode nss_load_cert(struct ssl_connect_data * ssl,
@@ -539,7 +539,7 @@ static CURLcode nss_load_cert(struct ssl_connect_data * ssl,
 			if(cert)
 				CERT_DestroyCertificate(cert);
 
-			free(nickname);
+			SAlloc::F(nickname);
 		}
 	}
 
@@ -1266,7 +1266,7 @@ static CURLcode nss_load_module(SECMODModule ** pmod, const char * library,
 		return CURLE_OUT_OF_MEMORY;
 
 	module = SECMOD_LoadUserModule(config_string, NULL, PR_FALSE);
-	free(config_string);
+	SAlloc::F(config_string);
 
 	if(module && module->loaded) {
 		/* loaded successfully */
@@ -1311,7 +1311,7 @@ static CURLcode nss_init_core(struct Curl_easy * data, const char * cert_dir)
 			return CURLE_OUT_OF_MEMORY;
 		infof(data, "Initializing NSS with certpath: %s\n", certpath);
 		nss_context = NSS_InitContext(certpath, "", "", "", &initparams, NSS_INIT_READONLY | NSS_INIT_PK11RELOAD);
-		free(certpath);
+		SAlloc::F(certpath);
 		if(nss_context != NULL)
 			return CURLE_OK;
 		err = PR_GetError();
@@ -1497,7 +1497,7 @@ static void nss_close(struct ssl_connect_data * connssl)
 	const bool client_cert = (backend->client_nickname != NULL)
 	    || (backend->obj_clicert != NULL);
 
-	free(backend->client_nickname);
+	SAlloc::F(backend->client_nickname);
 	backend->client_nickname = NULL;
 
 	/* destroy all NSS objects in order to avoid failure of NSS shutdown */
@@ -1653,7 +1653,7 @@ static CURLcode nss_load_ca_certificates(struct connectdata * conn,
 					 * be in the same directory */
 					infof(data, "failed to load '%s' from CURLOPT_CAPATH\n", fullpath);
 
-				free(fullpath);
+				SAlloc::F(fullpath);
 			}
 
 			PR_CloseDir(dir);
@@ -1875,8 +1875,8 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 		if(sslver_req_str && sslver_supp_str)
 			infof(data, "Falling back from %s to max supported SSL version (%s)\n",
 			    sslver_req_str, sslver_supp_str);
-		free(sslver_req_str);
-		free(sslver_supp_str);
+		SAlloc::F(sslver_req_str);
+		SAlloc::F(sslver_supp_str);
 		sslver.max = sslver_supported.max;
 	}
 	if(SSL_VersionRangeSet(model, &sslver) != SECSuccess)
@@ -2136,7 +2136,7 @@ static CURLcode nss_do_connect(struct connectdata * conn, int sockindex)
 		if(nickname) {
 			/* we support only nicknames in case of issuercert for now */
 			ret = check_issuer_cert(backend->handle, nickname);
-			free(nickname);
+			SAlloc::F(nickname);
 		}
 
 		if(SECFailure == ret) {

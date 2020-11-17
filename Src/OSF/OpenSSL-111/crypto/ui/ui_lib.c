@@ -480,7 +480,7 @@ int UI_process(UI * ui)
 
 	if(ui->flags & UI_FLAG_PRINT_ERRORS)
 		ERR_print_errors_cb((int (*)(const char *, size_t, void *))
-		    print_error, (void*)ui);
+		    print_error, (void *)ui);
 
 	for(i = 0; i < sk_UI_STRING_num(ui->strings); i++) {
 		if(ui->meth->ui_write_string != NULL

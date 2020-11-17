@@ -10,7 +10,7 @@
 #define HEADER_ASYNC_H
 
 #if defined(_WIN32)
-# if defined(BASETYPES) || defined(_WINDEF_H)
+#if defined(BASETYPES) || defined(_WINDEF_H)
 /* application has to include <windows.h> to use this */
 #define OSSL_ASYNC_FD       HANDLE
 #define OSSL_BAD_ASYNC_FD   INVALID_HANDLE_VALUE

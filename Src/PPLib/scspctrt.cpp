@@ -611,210 +611,87 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 //
 //
 //
-class UdsGameInterface {
-public:
-	struct InitBlock {
-		InitBlock() : GuaID(0)
-		{
-		}
-		InitBlock & Z()
-		{
-			GuaID = 0;
-			GuaPack.Z();
-			CliIdent.Z();
-			CliAccsKey.Z();
-			EndPoint.Z();
-			return *this;
-		}
-		PPID   GuaID;
-		PPGlobalUserAccPacket GuaPack;
-		SString CliIdent;
-		SString CliAccsKey;
-		SString EndPoint; // URL для запросов
-	};
-	struct Error {
-		Error() : Code(0)
-		{
-		}
-		Error & Z()
-		{
-			Code = 0;
-			ErrCode.Z();
-			Message.Z();
-			return *this;
-		}
-		int    Code; // -1 error but numeric code is undefined
-		SString ErrCode; // text code
-		SString Message; // text message
-	};
-	struct MembershipTier {
-		struct Conditions {
-			Conditions() : TotalCashSpent(0.0), EffInvitedCount(0.0)
-			{
-			}
-			double TotalCashSpent;
-			double EffInvitedCount;
-		};
-		MembershipTier() : Rate(0.0)
-		{
-		}
-		S_GUID Uid;
-		SString Name;
-		double Rate;
-		Conditions C;
-	};
-	struct Settings {
-		enum {
-			fPurchaseByPhone = 0x0001,
-			fWriteInvoice    = 0x0002,
-			fBurnPointsOnPurchase  = 0x0004,
-			fBurnPointsOnPricelist = 0x0008
-		};
-		Settings() : ID(0), Flags(0), MaxScoresDiscount(0.0), CashierAward(0.0), ReferralReward(0.0), ReceiptLimit(0.0), DeferPointsForDays(0.0)
-		{
-		}
-		int64  ID;
-		uint   Flags;
-		double MaxScoresDiscount;
-		double CashierAward;
-		double ReferralReward;
-		double ReceiptLimit;
-		double DeferPointsForDays;
-		SString Name;
-		SString PromoCode;
-		SString Currency;
-		SString BaseDiscountPolicy;
-		SString Slug;
-		MembershipTier BaseMt;
-		TSCollection <MembershipTier> MtList;
-	};
-	struct Participant {
-		Participant() : ID(0), InviterID(0), PointCount(0.0), DiscountRate(0.0), CashbackRate(0.0), DOB(ZERODATE),
-			DtmCreated(ZERODATETIME), DtmLastTransaction(ZERODATETIME)
-		{
-		}
-		int64 ID;
-		int64 InviterID;
-		double PointCount;
-		double DiscountRate;
-		double CashbackRate;
-		LDATE DOB;
-		LDATETIME DtmCreated;
-		LDATETIME DtmLastTransaction;
-		MembershipTier Mt;
-	};
-	struct Customer {
-		Customer() : Gender(GENDER_UNDEF), DOB(ZERODATE)
-		{
-		}
-		int    Gender; // GENDER_XXX
-		LDATE  DOB;
-		S_GUID Uid;
-		SString Avatar;
-		SString DisplayName;
-		SString Phone;
-		Participant P;
-	};
-	struct Purchase {
-		double MaxPoints;
-		double Total;
-		double SkipLoyaltyTotal;
-		double DiscountAmount;
-		double DiscountPercent;
-		double Points;
-		double PointsPercent;
-		double NetDiscount;
-		double NetDiscountPercent;
-		double Cash;
-		double CashBack;
-	};
-	struct Ref {
-		Ref() : ID(0)
-		{
-		}
-		int64  ID;
-		SString Name;
-	};
+UdsGameInterface::InitBlock::InitBlock() : GuaID(0)
+{
+}
 
-	enum {
-		tactUndef = 0,
-		tactPurchase = 1,
-	};
-	enum {
-		tstUndef = 0,
-		tstNormal,   // NORMAL
-		tstCanceled, // CANCELED
-		tstReversal  // REVERSAL
-	};
-	struct Transaction {
-		Transaction() : ID(0), Dtm(ZERODATETIME), Action(tactUndef), State(tstUndef), Points(0.0), Cash(0.0), Total(0.0), SkipLoyaltyTotal(0.0)
-		{
-		}
-		int64  ID;
-		LDATETIME Dtm;
-		int    Action; // tactXXX
-		int    State;  // tstXXX
-		SString Code;       // При создании транзакции: код, сканируемый с телефона 
-		SString BillNumber; // При создании транзакции: номер чека или документа
-		Customer Cust;
-		Ref    Cashier;
-		Ref    Branch;
-		double Points;
-		double Cash;
-		double Total;
-		double SkipLoyaltyTotal; // При создании транзакции: A part of the bill amount for which cashback is not credited and to which the discount does not apply (in currency units).
-	};
-	struct FindCustomerParam {
-		FindCustomerParam() : Total(0.0), SkipLoyaltyTotal(0.0), Flags(0)
-		{
-		}
-		enum {
-			fExchangeCode = 0x0001 // Exchange existing payment promo code (if present in query) to a new long-term one. Old promo code will be deactivated.
-		};
-		S_GUID Uid;    // Customer UID
-		double Total;  // Total bill amount (in currency units).
-		double SkipLoyaltyTotal; // A part of the bill amount for which cashback is not credited and to which the discount does not apply (in currency units).
-		long   Flags;
-		SString Code;  // Payment code
-		SString Phone; // Phone number in E164 format, for example, +79876543210.
-	};
-	UdsGameInterface();
-	~UdsGameInterface();
-	int    Setup(PPID guaID);
-	//
-	// Descr: Возвращает !0 если последний метод обращения к серверу завершился ошибкой.
-	//   По ссылке rErr возвращает состояние последней ошибки.
-	//
-	int    IsError(Error & rErr) const
-	{
-		rErr = LastErr;
-		return BIN(LastErr.Code);
-	}
-	int    GetSettings(Settings & rResult);        // GET https://api.uds.app/partner/v2/settings
-	int    GetTransactionList(); // GET  https://api.uds.app/partner/v2/operations
-	int    GetTransactionInformation(); // GET  https://api.uds.app/partner/v2/operations
-	int    GetTransactionInformation2(); // POST https://api.uds.app/partner/v2/operations/calc
-	int    CreateTransaction(const Transaction & rT, Transaction & pReplyT);  // POST https://api.uds.app/partner/v2/operations
-	int    RefundTransaction();  // POST https://api.uds.app/partner/v2/operations/<id>/refund
-	int    RewardingUsersWithPoints(); // POST https://api.uds.app/partner/v2/operations/reward
-	int    GetCustomerList(TSCollection <Customer> & rResult); // GET https://api.uds.app/partner/v2/customers
-	int    FindCustomer(const FindCustomerParam & rP, Customer & rC, SString & rCode, Purchase & rPurchase);  // GET https://api.uds.app/partner/v2/customers/find
-	int    GetCustomerInformation(int64 id, Customer & rC); // GET https://api.uds.app/partner/v2/customers/<id>
-	int    CreatePriceItem();  // POST https://api.uds.app/partner/v2/goods
-	int    UpdatePriceItem();  // PUT https://api.uds.app/partner/v2/goods/<id>
-	int    DeletePriceItem();  // DELETE -s https://api.uds.app/partner/v2/goods/<id>
-	int    GetPriceItemList(); // GET -s https://api.uds.app/partner/v2/goods
-	int    GetPriceItemInformation(); // GET -s https://api.uds.app/partner/v2/goods/<id>
-private:
-	void   PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
-	int    ReadError(const json_t * pJs, Error & rErr) const;
-	int    ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const;
-	int    ReadCustomer(const json_t * pJs, Customer & rC) const;
-	int    ReadParticipant(const json_t * pJs, Participant & rP) const;
-	int    ReadPurchase(const json_t * pJs, Purchase & rP) const;
-	InitBlock Ib;
-	Error LastErr;
-};
+UdsGameInterface::InitBlock & UdsGameInterface::InitBlock::Z()
+{
+	GuaID = 0;
+	GuaPack.Z();
+	CliIdent.Z();
+	CliAccsKey.Z();
+	EndPoint.Z();
+	return *this;
+}
+
+UdsGameInterface::Error::Error() : Code(0)
+{
+}
+
+UdsGameInterface::Error & UdsGameInterface::Error::Z()
+{
+	Code = 0;
+	ErrCode.Z();
+	Message.Z();
+	return *this;
+}
+
+UdsGameInterface::MembershipTier::Conditions::Conditions() : TotalCashSpent(0.0), EffInvitedCount(0.0)
+{
+}
+
+UdsGameInterface::MembershipTier::MembershipTier() : Rate(0.0)
+{
+}
+
+UdsGameInterface::Settings::Settings() : ID(0), Flags(0), MaxScoresDiscount(0.0), CashierAward(0.0), ReferralReward(0.0), ReceiptLimit(0.0), DeferPointsForDays(0.0)
+{
+}
+
+UdsGameInterface::Participant::Participant() : ID(0), InviterID(0), PointCount(0.0), DiscountRate(0.0), CashbackRate(0.0), DOB(ZERODATE),
+	DtmCreated(ZERODATETIME), DtmLastTransaction(ZERODATETIME)
+{
+}
+
+UdsGameInterface::Customer::Customer() : Gender(GENDER_UNDEF), DOB(ZERODATE)
+{
+}
+
+UdsGameInterface::Ref::Ref() : ID(0)
+{
+}
+
+UdsGameInterface::Transaction::Transaction() : ID(0), Dtm(ZERODATETIME), Action(tactUndef), State(tstUndef), Points(0.0), Cash(0.0), Total(0.0), SkipLoyaltyTotal(0.0)
+{
+}
+
+UdsGameInterface::FindCustomerParam::FindCustomerParam() : Total(0.0), SkipLoyaltyTotal(0.0), Flags(0)
+{
+}
+
+UdsGameInterface::GoodsItem::GoodsItem() : Type(typUndef), Flags(0), OuterId(0), ParentId(0), DtmCreated(ZERODATETIME), Price(0.0)
+{
+}
+
+UdsGameInterface::GoodsItem & UdsGameInterface::GoodsItem::Z()
+{
+	Type = 0;
+	Flags = 0;
+	OuterId = 0;
+	ParentId = 0;
+	DtmCreated = ZERODATETIME;
+	Price = 0.0;
+	Ident.Z();
+	Name.Z();
+	Sku.Z();
+	Description.Z();
+	return *this;
+}
+
+UdsGameInterface::GoodsItemFilt::GoodsItemFilt() : ParentId(0), Count(0), Offset(0)
+{
+}
 
 UdsGameInterface::UdsGameInterface()
 {
@@ -822,6 +699,12 @@ UdsGameInterface::UdsGameInterface()
 
 UdsGameInterface::~UdsGameInterface()
 {
+}
+
+int UdsGameInterface::IsError(Error & rErr) const
+{
+	rErr = LastErr;
+	return BIN(LastErr.Code);
 }
 
 int UdsGameInterface::Setup(PPID guaID)
@@ -1304,13 +1187,18 @@ int UdsGameInterface::FindCustomer(const FindCustomerParam & rP, Customer & rC, 
 	{
 		uint   arg_count = 0;
 		(url_buf = Ib.EndPoint).SetLastDSlash().Cat("customers").SetLastDSlash().Cat("find");
-		if(rP.Code.NotEmpty())
+		if(rP.Code.NotEmpty()) {
 			url_buf.CatChar(arg_count ? '&' : '?').CatEq("code", rP.Code);
-		if(rP.Phone.NotEmpty())
+			arg_count++;
+		}
+		if(rP.Phone.NotEmpty()) {
 			url_buf.CatChar(arg_count ? '&' : '?').CatEq("phone", rP.Phone);
+			arg_count++;
+		}
 		if(!rP.Uid.IsZero()) {
 			rP.Uid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 			url_buf.CatChar(arg_count ? '&' : '?').CatEq("uid", temp_buf);
+			arg_count++;
 		}
 		InetUrl url(url_buf);
 		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
@@ -1482,18 +1370,14 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 										rReplyT.State = tstReversal;
 								}
 							}
-							else if(p_cur->Text.IsEqiAscii("points")) {
+							else if(p_cur->Text.IsEqiAscii("points"))
 								rReplyT.Points = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
-							}
-							else if(p_cur->Text.IsEqiAscii("cash")) {
+							else if(p_cur->Text.IsEqiAscii("cash"))
 								rReplyT.Cash = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
-							}
-							else if(p_cur->Text.IsEqiAscii("total")) {
+							else if(p_cur->Text.IsEqiAscii("total"))
 								rReplyT.Total = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToReal() : 0.0;
-							}
-							else if(p_cur->Text.IsEqiAscii("customer")) {
+							else if(p_cur->Text.IsEqiAscii("customer"))
 								ReadCustomer(p_cur->P_Child, rReplyT.Cust);
-							}
 							else if(p_cur->Text.IsEqiAscii("cashier")) {
 							}
 							else if(p_cur->Text.IsEqiAscii("branch")) {
@@ -1509,6 +1393,402 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 	CATCHZOK
 	delete p_js_doc;
 	delete p_json_req;
+	return ok;
+}
+
+int UdsGameInterface::ReadPriceItem(const json_t * pJs, GoodsItem & rI) const
+{
+	int    ok = 1;
+	const  json_t * p_cur = pJs;
+	if(p_cur->Type == json_t::tOBJECT) {
+		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			/*{
+				"name": "string",
+				"nodeId": 0,
+				"externalId": "string",
+				"data": 
+				{
+					"type": "CATEGORY"
+				},
+				"hidden": true
+			}*/
+			if(p_cur->Text.IsEqiAscii("name")) {
+				if(json_t::IsString(p_cur->P_Child))
+					rI.Name = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("nodeId")) {
+				rI.ParentId = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
+			}
+			else if(p_cur->Text.IsEqiAscii("id")) {
+				rI.OuterId = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
+			}
+			else if(p_cur->Text.IsEqiAscii("externalId")) {
+				if(json_t::IsString(p_cur->P_Child))
+					rI.Ident = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("dateCreated")) {
+				if(json_t::IsString(p_cur->P_Child)) {
+					strtodatetime(p_cur->P_Child->Text, &rI.DtmCreated, DATF_ISO8601, 0);
+				}				
+			}
+			else if(p_cur->Text.IsEqiAscii("blocked")) {
+				if(json_t::IsTrue(p_cur->P_Child))
+					rI.Flags |= rI.fBlocked;
+				else if(json_t::IsFalse(p_cur->P_Child))
+					rI.Flags &= ~rI.fBlocked;
+			}
+			else if(p_cur->Text.IsEqiAscii("hidden")) {
+				if(json_t::IsTrue(p_cur->P_Child))
+					rI.Flags |= rI.fHidden;
+				else if(json_t::IsFalse(p_cur->P_Child))
+					rI.Flags &= ~rI.fHidden;
+			}
+			else if(p_cur->Text.IsEqiAscii("data")) {
+				if(p_cur->P_Child->Type == json_t::tOBJECT) {
+					for(const json_t * p_inner = p_cur->P_Child->P_Child; p_inner; p_inner = p_inner->P_Next) {
+						if(p_inner->Text.IsEqiAscii("type")) {
+							if(json_t::IsString(p_inner->P_Child)) {
+								if(p_inner->P_Child->Text.IsEqiAscii("CATEGORY"))
+									rI.Type = rI.typCategory;
+								else if(p_inner->P_Child->Text.IsEqiAscii("ITEM"))
+									rI.Type = rI.typItem;
+								else if(p_inner->P_Child->Text.IsEqiAscii("VARYING_ITEM"))
+									rI.Type = rI.typVaryingItem;
+							}
+						}
+						else if(p_inner->Text.IsEqiAscii("price")) {
+							rI.Price = json_t::IsNumber(p_inner->P_Child) ? p_inner->P_Child->Text.ToReal() : 0.0;
+						}
+						else if(p_inner->Text.IsEqiAscii("sku")) {
+							if(json_t::IsString(p_inner->P_Child))
+								rI.Sku = p_inner->P_Child->Text;
+						}
+						else if(p_inner->Text.IsEqiAscii("description")) {
+							if(json_t::IsString(p_inner->P_Child))
+								rI.Description = p_inner->P_Child->Text;
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int UdsGameInterface::CreatePriceItem(const GoodsItem & rItem, GoodsItem & rRetItem)  // POST https://api.uds.app/partner/v2/goods
+{
+	LastErr.Z();
+	int    ok = 1;
+	SString temp_buf;
+	SString log_buf;
+	SString url_buf;
+	SString json_buf;
+	json_t * p_js_doc = 0;
+	json_t * p_json_req = 0;
+	ScURL c;
+	S_GUID tra_guid;
+	StrStrAssocArray hdr_flds;
+	SBuffer ack_buf;
+	SFile wr_stream(ack_buf, SFile::mWrite);
+	{
+		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		PrepareHtmlFields(hdr_flds);
+	}
+	{
+		/*
+			{
+				"name": "string",
+				"nodeId": 0,
+				"externalId": "string",
+				"data": 
+				{
+					"type": "CATEGORY"
+				},
+				"hidden": true
+			}
+		*/
+		p_json_req = new json_t(json_t::tOBJECT);
+		p_json_req->InsertString("name", rItem.Name);
+		p_json_req->InsertInt64("nodeId", rItem.ParentId);
+		p_json_req->InsertString("externalId", rItem.Ident);
+		{
+			json_t * p_json_data = new json_t(json_t::tOBJECT);
+			const char * p_type = 0;
+			if(rItem.Type == rItem.typCategory)
+				p_type = "CATEGORY";
+			else if(rItem.Type == rItem.typItem)
+				p_type = "ITEM";
+			else if(rItem.Type == rItem.typVaryingItem)
+				p_type = "VARYING_ITEM";
+			if(p_type)
+				p_json_data->InsertString("type", p_type);
+			if(rItem.Sku.NotEmpty())
+				p_json_data->InsertString("sku", rItem.Sku);
+			if(rItem.Description.NotEmpty())
+				p_json_data->InsertString("description", rItem.Description);
+			if(oneof2(rItem.Type, rItem.typItem, rItem.typVaryingItem))
+				p_json_data->InsertDouble("price", rItem.Price, MKSFMTD(0, 2, 0));
+			p_json_req->Insert("data", p_json_data);
+		}
+		p_json_req->InsertBool("hidden", LOGIC(rItem.Flags & rItem.fHidden));
+		THROW_SL(json_tree_to_string(p_json_req, json_buf));
+	}
+	{
+		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods"));
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
+		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
+		f_out_log.WriteLine(log_buf.CR());
+		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
+				f_out_log.WriteLine(log_buf.CR().CR());
+				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
+					json_t * p_cur = p_js_doc;
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
+						GoodsItem ret_item;
+						if(ReadPriceItem(p_cur, ret_item)) {
+							rRetItem = ret_item;
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_doc;
+	delete p_json_req;
+	return ok;
+}
+
+int UdsGameInterface::UpdatePriceItem(const GoodsItem & rItem, GoodsItem & rRetItem)  // PUT https://api.uds.app/partner/v2/goods/<id>
+{
+	LastErr.Z();
+	int    ok = 1;
+	SString temp_buf;
+	SString log_buf;
+	SString url_buf;
+	SString json_buf;
+	json_t * p_js_doc = 0;
+	json_t * p_json_req = 0;
+	ScURL c;
+	S_GUID tra_guid;
+	StrStrAssocArray hdr_flds;
+	SBuffer ack_buf;
+	SFile wr_stream(ack_buf, SFile::mWrite);
+	{
+		SFileFormat::GetMime(SFileFormat::Json, temp_buf);
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		PrepareHtmlFields(hdr_flds);
+	}
+	{
+		/*
+			{
+				"name": "string",
+				"nodeId": 0,
+				"externalId": "string",
+				"data": 
+				{
+					"type": "CATEGORY"
+				},
+				"hidden": true
+			}
+		*/
+		p_json_req = new json_t(json_t::tOBJECT);
+		p_json_req->InsertString("name", rItem.Name);
+		p_json_req->InsertInt64("nodeId", rItem.ParentId);
+		p_json_req->InsertString("externalId", rItem.Ident);
+		{
+			json_t * p_json_data = new json_t(json_t::tOBJECT);
+			const char * p_type = 0;
+			if(rItem.Type == rItem.typCategory)
+				p_type = "CATEGORY";
+			else if(rItem.Type == rItem.typItem)
+				p_type = "ITEM";
+			else if(rItem.Type == rItem.typVaryingItem)
+				p_type = "VARYING_ITEM";
+			if(p_type)
+				p_json_data->InsertString("type", p_type);
+			if(rItem.Sku.NotEmpty())
+				p_json_data->InsertString("sku", rItem.Sku);
+			if(rItem.Description.NotEmpty())
+				p_json_data->InsertString("description", rItem.Description);
+			if(oneof2(rItem.Type, rItem.typItem, rItem.typVaryingItem))
+				p_json_data->InsertDouble("price", rItem.Price, MKSFMTD(0, 2, 0));
+			p_json_req->Insert("data", p_json_data);
+		}
+		p_json_req->InsertBool("hidden", LOGIC(rItem.Flags & rItem.fHidden));
+		THROW_SL(json_tree_to_string(p_json_req, json_buf));
+	}
+	{
+		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods").SetLastDSlash().Cat(rItem.OuterId));
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
+		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
+		f_out_log.WriteLine(log_buf.CR());
+		THROW_SL(c.HttpPut(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
+				f_out_log.WriteLine(log_buf.CR().CR());
+				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
+					json_t * p_cur = p_js_doc;
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
+						GoodsItem ret_item;
+						if(ReadPriceItem(p_cur, ret_item)) {
+							rRetItem = ret_item;
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_doc;
+	delete p_json_req;
+	return ok;
+}
+
+int UdsGameInterface::DeletePriceItem(int64 outerId)  // DELETE -s https://api.uds.app/partner/v2/goods/<id>
+{
+	int    ok = -1;
+	return ok;
+}
+
+int UdsGameInterface::GetPriceItemList(const GoodsItemFilt & rFilt, TSCollection <GoodsItem> & rResult, uint * pFetchedCount, uint * pTotalCount) // GET -s https://api.uds.app/partner/v2/goods
+{
+	LastErr.Z();
+	int    ok = -1;
+	uint   fetched_count = 0; // Количество элементов, которые были извлечены данным запросом
+	uint   total_count = 0; // Количество элементов, которые доступны для извлечения
+	SString temp_buf;
+	SString log_buf;
+	SString url_buf;
+	SString json_buf;
+	json_t * p_js_doc = 0;
+	ScURL c;
+	StrStrAssocArray hdr_flds;
+	SBuffer ack_buf;
+	SFile wr_stream(ack_buf, SFile::mWrite);
+	PrepareHtmlFields(hdr_flds);
+	{
+		/*
+			{
+				max	integer <= 50 Default: 10 Limit number of results in response.
+				offset	integer <= 10000 Default: 0 Rows count to skip.
+				nodeId	integer Filter items by category ID
+			}
+		*/
+		uint   arg_count = 0;
+		(url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods");
+		url_buf.CatChar(arg_count ? '&' : '?').CatEq("max", NZOR(rFilt.Count, 50U)); arg_count++;
+		url_buf.CatChar(arg_count ? '&' : '?').CatEq("offset", rFilt.Offset); arg_count++;
+		if(rFilt.ParentId) {
+			url_buf.CatChar(arg_count ? '&' : '?').CatEq("nodeId", rFilt.ParentId); arg_count++;
+		}
+		InetUrl url(url_buf);
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
+		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
+		f_out_log.WriteLine(log_buf.CR());
+		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
+				f_out_log.WriteLine(log_buf.CR().CR());
+				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
+					json_t * p_cur = p_js_doc;
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
+						for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Text.IsEqiAscii("rows")) {
+								ok = 1;
+								if(p_cur->P_Child && p_cur->P_Child->Type == json_t::tARRAY) {
+									for(json_t * p_item = p_cur->P_Child->P_Child; p_item; p_item = p_item->P_Next) {
+										GoodsItem * p_new_item = rResult.CreateNewItem();
+										if(p_new_item) {
+											ReadPriceItem(p_item, *p_new_item);
+											fetched_count++;
+										}
+									}
+								}
+							}
+							else if(p_cur->Text.IsEqiAscii("total")) {
+								total_count = json_t::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToULong() : 0;
+							}
+						}
+						if(!fetched_count)
+							ok = -1;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pFetchedCount, fetched_count);
+	ASSIGN_PTR(pTotalCount, total_count);
+	delete p_js_doc;
+	return ok;
+}
+
+int UdsGameInterface::GetPriceItemInformation(int64 outerId, GoodsItem & rItem) // GET -s https://api.uds.app/partner/v2/goods/<id>
+{
+	LastErr.Z();
+	int    ok = -1;
+	SString temp_buf;
+	SString log_buf;
+	SString url_buf;
+	SString json_buf;
+	json_t * p_js_doc = 0;
+	ScURL c;
+	StrStrAssocArray hdr_flds;
+	SBuffer ack_buf;
+	SFile wr_stream(ack_buf, SFile::mWrite);
+	PrepareHtmlFields(hdr_flds);
+	{
+		(url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods").SetLastDSlash().Cat(outerId);
+		InetUrl url(url_buf);
+		SFile f_out_log(PPGetFilePathS(PPPATH_LOG, PPFILNAM_UDSTALK_LOG, temp_buf), SFile::mAppend);
+		log_buf.Z().Cat("req").CatDiv(':', 2).Cat(url_buf).Space().Cat(json_buf);
+		f_out_log.WriteLine(log_buf.CR());
+		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				json_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				log_buf.Z().Cat("rep").CatDiv(':', 2).Cat(json_buf);
+				f_out_log.WriteLine(log_buf.CR().CR());
+				if(json_parse_document(&p_js_doc, json_buf) == JSON_OK) {
+					json_t * p_cur = p_js_doc;
+					if(ReadError(p_cur, LastErr) > 0) {
+						ok = 0;
+					}
+					else if(json_t::IsObject(p_cur)) {
+						if(ReadPriceItem(p_cur, rItem)) {
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_doc;
 	return ok;
 }
 
@@ -1534,18 +1814,35 @@ public:
 	PPID   found_sc_id = 0;
 	SString temp_buf;
 	SString code_buf(rB.InCode);
+	SString phone_buf;
 	code_buf.Strip();
 	STokenRecognizer tr;
 	SNaturalTokenStat nts;
 	SNaturalTokenArray nta;
 	tr.Run(code_buf.ucptr(), code_buf.Len(), nta.Z(), &nts); 
+	int   maybe_uds = 0; // 1 - code, 2 - phone
 	if(code_buf.Len() == 6 && nta.Has(SNTOK_DIGITCODE)) {
+		maybe_uds = 1;
+	}
+	else if(code_buf.Len() >= 10) {
+		PPEAddr::Phone::NormalizeStr(code_buf, PPEAddr::Phone::nsfPlus, phone_buf);
+		if(phone_buf.Len() == 12)
+			maybe_uds = 2;
+		else if(phone_buf.Len() == 10) {
+			phone_buf.Insert(0, "+7");
+			maybe_uds = 2;
+		}
+	}
+	if(maybe_uds) {
 		Reference * p_ref = PPRef;
 		PPObjSCard sc_obj;
 		PPObjPerson psn_obj;
 		SCardTbl::Rec sc_rec;
 		UdsGameInterface::FindCustomerParam fcp;
-		fcp.Code = code_buf;
+		if(maybe_uds == 1)
+			fcp.Code = code_buf;
+		else
+			fcp.Phone = phone_buf;
 		SString cust_code;
 		UdsGameInterface::Customer cust;
 		UdsGameInterface::Purchase cust_purch;
@@ -1811,42 +2108,83 @@ int TestUdsInterface()
 		UdsGameInterface::Settings s;
 		TSCollection <UdsGameInterface::Customer> cust_list;
 		ifc.GetSettings(s);
-		PPInputStringDialogParam isdp("Input client code");
-		SString cli_code;
-		if(InputStringDialog(&isdp, cli_code) > 0) {
-			int fcr = 0;
-			SString cust_code;
-			UdsGameInterface::Customer cust;
-			UdsGameInterface::Purchase cust_purch;
+		if(0) {
+			//
+			TSCollection <UdsGameInterface::GoodsItem> goods_item_list;
 			{
-				// 1099540994296
-				// +79142706592 
-				// 4f678ec3-3888-4650-af52-efa30db5699a
-				UdsGameInterface::FindCustomerParam fcp;
-				fcp.Code = cli_code;
-				//fcp.Phone = "+79142706592";
-				//fcp.Uid.FromStr("4f678ec3-3888-4650-af52-efa30db5699a");
-				fcr = ifc.FindCustomer(fcp, cust, cust_code, cust_purch);
+				UdsGameInterface::GoodsItemFilt filt;
+				filt.Count = 50;
+				uint   local_total_count = 0;
+				uint   fetched_count = 0;
+				while(ifc.GetPriceItemList(filt, goods_item_list, &fetched_count, &local_total_count) > 0) {
+					filt.Offset += fetched_count;
+				}
 			}
-			if(fcr > 0) {
-				UdsGameInterface::Transaction t;
-				UdsGameInterface::Transaction reply_t;
-				t.Code = cli_code;
-				t.Cust.Uid = cust.Uid;
-				t.BillNumber = "CC-TEST-401";
-				t.Cashier.ID = 102;
-				t.Cashier.Name = "Nicole 2";
-				t.Total = 400.0;
-				t.Cash = 400.0;
-				t.Points = 0.0;
-				t.SkipLoyaltyTotal = 0.01;
-				ifc.CreateTransaction(t, reply_t);
+			UdsGameInterface::GoodsItem result_category_item;
+			UdsGameInterface::GoodsItem new_category_item;
+			UdsGameInterface::GoodsItem new_goods_item;
+			UdsGameInterface::GoodsItem result_goods_item;
+			//
+			ifc.GetPriceItemInformation(1236815, result_goods_item); // GET -s https://api.uds.app/partner/v2/goods/<id>
+			//
+			new_category_item.OuterId = 1236594;
+			new_category_item.Name = "Тестовая товарная группа Petroglif 2";
+			new_category_item.Ident = "A41BB458-77D9-45AD-92C0-2A6D8980ED0F";
+			new_category_item.Type = UdsGameInterface::GoodsItem::typCategory;
+			//if(ifc.CreatePriceItem(new_category_item, result_category_item)) {
+			if(ifc.UpdatePriceItem(new_category_item, result_category_item)) {
+				new_goods_item.Name = "Тестовый товар Petroglif";
+				new_goods_item.Ident = "5BDABC0D-79CC-43CB-8763-440B3239FBF8";
+				new_goods_item.Type = UdsGameInterface::GoodsItem::typItem;
+				new_goods_item.ParentId = result_category_item.OuterId;
+				new_goods_item.Price = 113.70;
+				new_goods_item.OuterId = 1236815;
+				result_goods_item.Z();
+				if(ifc.UpdatePriceItem(new_goods_item, result_goods_item)) {
+					//
+				}
 			}
 		}
-		ifc.GetCustomerList(cust_list);
-		{
-			UdsGameInterface::Customer cust;
-			ifc.GetCustomerInformation(1099541301566, cust);
+		if(0) {
+			PPInputStringDialogParam isdp("Input client code");
+			SString cli_code;
+			if(InputStringDialog(&isdp, cli_code) > 0) {
+				int fcr = 0;
+				SString cust_code;
+				UdsGameInterface::Customer cust;
+				UdsGameInterface::Purchase cust_purch;
+				{
+					// 1099540994296
+					// +79142706592 
+					// 4f678ec3-3888-4650-af52-efa30db5699a
+					UdsGameInterface::FindCustomerParam fcp;
+					fcp.Code = cli_code;
+					//fcp.Phone = "+79142706592";
+					//fcp.Uid.FromStr("4f678ec3-3888-4650-af52-efa30db5699a");
+					fcr = ifc.FindCustomer(fcp, cust, cust_code, cust_purch);
+				}
+				if(fcr > 0) {
+					UdsGameInterface::Transaction t;
+					UdsGameInterface::Transaction reply_t;
+					t.Code = cli_code;
+					t.Cust.Uid = cust.Uid;
+					t.BillNumber = "CC-TEST-401";
+					t.Cashier.ID = 102;
+					t.Cashier.Name = "Nicole 2";
+					t.Total = 400.0;
+					t.Cash = 400.0;
+					t.Points = 0.0;
+					t.SkipLoyaltyTotal = 0.01;
+					ifc.CreateTransaction(t, reply_t);
+				}
+			}
+		}
+		if(0) {
+			ifc.GetCustomerList(cust_list);
+			{
+				UdsGameInterface::Customer cust;
+				ifc.GetCustomerInformation(1099541301566, cust);
+			}
 		}
 		ok = 1;
 	}

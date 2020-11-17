@@ -81,7 +81,7 @@ static int addsym(char sym[], char * str_def, int int_def, hash_table table, int
 		sym_entry = sym_entry->next;
 	}
 	/* create new entry */
-	new_entry = (struct hash_entry *)malloc(sizeof(struct hash_entry));
+	new_entry = (struct hash_entry *)SAlloc::M(sizeof(struct hash_entry));
 	if(new_entry == NULL)
 		flexfatal(_("symbol table memory allocation failed"));
 	if((successor = table[hash_val]) != 0) {

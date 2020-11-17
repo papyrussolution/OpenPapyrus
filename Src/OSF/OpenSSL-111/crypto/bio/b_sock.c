@@ -18,11 +18,11 @@
 #else
 #define MAX_LISTEN  32
 #endif
-# if defined(OPENSSL_SYS_WINDOWS)
+#if defined(OPENSSL_SYS_WINDOWS)
 static int wsa_init_done = 0;
 #endif
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 int BIO_get_host_ip(const char * str, uchar * ip)
 {
 	BIO_ADDRINFO * res = NULL;
@@ -102,7 +102,7 @@ int BIO_sock_error(int sock)
 		return j;
 }
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 struct hostent * BIO_gethostbyname(const char * name){
 	/*
 	 * Caching gethostbyname() results forever is wrong, so we have to let
@@ -159,9 +159,9 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 {
 	int i;
 
-#  ifdef __DJGPP__
+#ifdef __DJGPP__
 	i = ioctlsocket(fd, type, (char *)arg);
-#  else
+#else
 #   if defined(OPENSSL_SYS_VMS)
 	/*-
 	 * 2011-02-18 SMS.
@@ -170,7 +170,7 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 	 * so we arrange a local copy with a short pointer, and use
 	 * that, instead.
 	 */
-#    if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 #     define ARG arg_32p
 #     pragma pointer_size save
 #     pragma pointer_size 32
@@ -179,21 +179,21 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 #     pragma pointer_size restore
 	arg_32p = &arg_32;
 	arg_32 = *((ulong *)arg);
-#    else                       /* __INITIAL_POINTER_SIZE == 64 */
+#else                       /* __INITIAL_POINTER_SIZE == 64 */
 #     define ARG arg
-#    endif                      /* __INITIAL_POINTER_SIZE == 64 [else] */
+#endif                      /* __INITIAL_POINTER_SIZE == 64 [else] */
 #   else                        /* defined(OPENSSL_SYS_VMS) */
-#    define ARG arg
+#define ARG arg
 #   endif                       /* defined(OPENSSL_SYS_VMS) [else] */
 
 	i = ioctlsocket(fd, type, static_cast<u_long *>(ARG));
-#  endif                        /* __DJGPP__ */
+#endif                        /* __DJGPP__ */
 	if(i < 0)
 		SYSerr(SYS_F_IOCTLSOCKET, get_last_socket_error());
 	return i;
 }
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 int BIO_get_accept_socket(char * host, int bind_mode)
 {
 	int s = INVALID_SOCKET;
@@ -276,15 +276,15 @@ end:
 int BIO_set_tcp_ndelay(int s, int on)
 {
 	int ret = 0;
-# if defined(TCP_NODELAY) && (defined(IPPROTO_TCP) || defined(SOL_TCP))
+#if defined(TCP_NODELAY) && (defined(IPPROTO_TCP) || defined(SOL_TCP))
 	int opt;
-#  ifdef SOL_TCP
+#ifdef SOL_TCP
 	opt = SOL_TCP;
-#  else
+#else
 #   ifdef IPPROTO_TCP
 	opt = IPPROTO_TCP;
 #   endif
-#  endif
+#endif
 	ret = setsockopt(s, opt, TCP_NODELAY, reinterpret_cast<const char *>(&on), sizeof(on));
 #endif
 	return (ret == 0);
@@ -309,17 +309,17 @@ int BIO_socket_nbio(int s, int mode)
 		ret = -1;
 	}
 	else {
-#  if defined(O_NONBLOCK)
+#if defined(O_NONBLOCK)
 		l &= ~O_NONBLOCK;
-#  else
+#else
 		l &= ~FNDELAY; /* BSD4.x */
-#  endif
+#endif
 		if(mode) {
-#  if defined(O_NONBLOCK)
+#if defined(O_NONBLOCK)
 			l |= O_NONBLOCK;
-#  else
+#else
 			l |= FNDELAY; /* BSD4.x */
-#  endif
+#endif
 		}
 		ret = fcntl(s, F_SETFL, l);
 

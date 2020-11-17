@@ -49,16 +49,16 @@
  */
 
 #ifdef HAVE_LONGLONG
-#  define LONG_LONG_TYPE long long
-#  define HAVE_LONG_LONG_TYPE
+#define LONG_LONG_TYPE long long
+#define HAVE_LONG_LONG_TYPE
 #else
-#  if defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
-#    define LONG_LONG_TYPE __int64
-#    define HAVE_LONG_LONG_TYPE
-#  else
-#    undef LONG_LONG_TYPE
-#    undef HAVE_LONG_LONG_TYPE
-#  endif
+#if defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
+#define LONG_LONG_TYPE __int64
+#define HAVE_LONG_LONG_TYPE
+#else
+#undef LONG_LONG_TYPE
+#undef HAVE_LONG_LONG_TYPE
+#endif
 #endif
 
 /*
@@ -71,7 +71,7 @@
 	(defined(_WIN32_WCE)) || \
 	(defined(__MINGW32__)) || \
 	(defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64))
-#  define MP_HAVE_INT_EXTENSIONS
+#define MP_HAVE_INT_EXTENSIONS
 #endif
 
 /*
@@ -79,11 +79,11 @@
  */
 
 #ifdef HAVE_LONG_LONG_TYPE
-#  define mp_intmax_t LONG_LONG_TYPE
-#  define mp_uintmax_t unsigned LONG_LONG_TYPE
+#define mp_intmax_t LONG_LONG_TYPE
+#define mp_uintmax_t unsigned LONG_LONG_TYPE
 #else
-#  define mp_intmax_t long
-#  define mp_uintmax_t ulong
+#define mp_intmax_t long
+#define mp_uintmax_t ulong
 #endif
 
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
@@ -1083,7 +1083,7 @@ char * curl_mvaprintf(const char * format, va_list ap_save)
 	}
 	if(Curl_dyn_len(info.b))
 		return Curl_dyn_ptr(info.b);
-	return strdup("");
+	return sstrdup("");
 }
 
 char * curl_maprintf(const char * format, ...)

@@ -127,9 +127,9 @@ static char *vms_getenv(const char *envvar)
   result = vms_translate_path(vms_path);
 
   /* note that if you backport this to use VAX C RTL, that the VAX C RTL */
-  /* may do a malloc(2048) for each call to getenv(), so you will need   */
-  /* to add a free(vms_path) */
-  /* Do not do a free() for DEC C RTL builds, which should be used for */
+  /* may do a SAlloc::M(2048) for each call to getenv(), so you will need   */
+  /* to add a SAlloc::F(vms_path) */
+  /* Do not do a SAlloc::F() for DEC C RTL builds, which should be used for */
   /* VMS 5.5-2 and later, even if using GCC */
 
   return result;
@@ -206,16 +206,16 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #define CRYPTO_malloc CRYPTO_MALLOC
 #define CONF_modules_load_file CONF_MODULES_LOAD_FILE
 #ifdef __VAX
-#  ifdef VMS_OLD_SSL
+#ifdef VMS_OLD_SSL
   /* Ancient OpenSSL on VAX/VMS missing this constant */
-#    define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
-#    undef CONF_modules_load_file
+#define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
+#undef CONF_modules_load_file
      static int CONF_modules_load_file(const char *filename,
                                        const char *appname,
                                        ulong flags) {
              return 1;
      }
-#  endif
+#endif
 #endif
 #define DES_ecb_encrypt DES_ECB_ENCRYPT
 #define DES_set_key DES_SET_KEY

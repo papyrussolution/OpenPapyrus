@@ -91,11 +91,11 @@ static struct yytbl_data * mkeoltbl()
 {
 	int i;
 	flex_int8_t * tdata = 0;
-	struct yytbl_data * tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	struct yytbl_data * tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(tbl, YYTD_ID_RULE_CAN_MATCH_EOL);
 	tbl->td_flags = YYTD_DATA8;
 	tbl->td_lolen = (flex_uint32_t)(num_rules + 1);
-	tbl->td_data = tdata = (flex_int8_t *)calloc(tbl->td_lolen, sizeof(flex_int8_t));
+	tbl->td_data = tdata = (flex_int8_t *)SAlloc::C(tbl->td_lolen, sizeof(flex_int8_t));
 	for(i = 1; i <= num_rules; i++)
 		tdata[i] = rule_has_nl[i] ? 1 : 0;
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_RULE_CAN_MATCH_EOL, (void **)&yy_rule_can_match_eol, sizeof(%s)},\n", "flex_int32_t");
@@ -176,12 +176,12 @@ static struct yytbl_data * mkctbl()
 	flex_int32_t * tdata = 0, curr = 0;
 	int end_of_buffer_action = num_rules + 1;
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_TRANSITION, (void**)&yy_transition, sizeof(%s)},\n", ((tblend + numecs + 1) >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t");
-	tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(tbl, YYTD_ID_TRANSITION);
 	tbl->td_flags = YYTD_DATA32 | YYTD_STRUCT;
 	tbl->td_hilen = 0;
 	tbl->td_lolen = (flex_uint32_t)(tblend + numecs + 1);   /* number of structs */
-	tbl->td_data = tdata = (flex_int32_t *)calloc(tbl->td_lolen * 2, sizeof(flex_int32_t));
+	tbl->td_data = tdata = (flex_int32_t *)SAlloc::C(tbl->td_lolen * 2, sizeof(flex_int32_t));
 	/* We want the transition to be represented as the offset to the
 	 * next state, not the actual state number, which is what it currently
 	 * is.  The offset is base[nxt[i]] - (base of current state)].  That's
@@ -257,12 +257,12 @@ static struct yytbl_data * mkssltbl()
 	struct yytbl_data * tbl = 0;
 	flex_int32_t * tdata = 0;
 	flex_int32_t i;
-	tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(tbl, YYTD_ID_START_STATE_LIST);
 	tbl->td_flags = YYTD_DATA32 | YYTD_PTRANS;
 	tbl->td_hilen = 0;
 	tbl->td_lolen = (flex_uint32_t)(lastsc * 2 + 1);
-	tbl->td_data = tdata = (flex_int32_t *)calloc(tbl->td_lolen, sizeof(flex_int32_t));
+	tbl->td_data = tdata = (flex_int32_t *)SAlloc::C(tbl->td_lolen, sizeof(flex_int32_t));
 	for(i = 0; i <= lastsc * 2; ++i)
 		tdata[i] = base[i];
 	buf_prints(&yydmap_buf, "\t{ YYTD_ID_START_STATE_LIST, (void **)&yy_start_state_list, sizeof(%s) },\n", "struct yy_trans_info*");
@@ -374,12 +374,12 @@ static struct yytbl_data * mkecstbl()
 	int i;
 	struct yytbl_data * tbl = 0;
 	flex_int32_t * tdata = 0;
-	tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(tbl, YYTD_ID_EC);
 	tbl->td_flags |= YYTD_DATA32;
 	tbl->td_hilen = 0;
 	tbl->td_lolen = (flex_uint32_t)csize;
-	tbl->td_data = tdata = (flex_int32_t *)calloc(tbl->td_lolen, sizeof(flex_int32_t));
+	tbl->td_data = tdata = (flex_int32_t *)SAlloc::C(tbl->td_lolen, sizeof(flex_int32_t));
 	for(i = 1; i < csize; ++i) {
 		ecgroup[i] = ABS(ecgroup[i]);
 		tdata[i] = ecgroup[i];
@@ -542,12 +542,12 @@ struct yytbl_data * mkftbl()
 	int i;
 	int end_of_buffer_action = num_rules + 1;
 	flex_int32_t * tdata = 0;
-	struct yytbl_data * tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	struct yytbl_data * tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(tbl, YYTD_ID_ACCEPT);
 	tbl->td_flags |= YYTD_DATA32;
 	tbl->td_hilen = 0;      /* it's a one-dimensional array */
 	tbl->td_lolen = (flex_uint32_t)(lastdfa + 1);
-	tbl->td_data = tdata = (flex_int32_t *)calloc(tbl->td_lolen, sizeof(flex_int32_t));
+	tbl->td_data = tdata = (flex_int32_t *)SAlloc::C(tbl->td_lolen, sizeof(flex_int32_t));
 	dfaacc[end_of_buffer_state].dfaacc_state = end_of_buffer_action;
 	for(i = 1; i <= lastdfa; ++i) {
 		int anum = dfaacc[i].dfaacc_state;
@@ -854,10 +854,10 @@ void gentabs()
 		dfaacc[end_of_buffer_state].dfaacc_set = EOB_accepting_list;
 		out_str_dec(long_align ? get_int32_decl() : get_int16_decl(), "yy_acclist", MAX(numas, 1) + 1);
 		buf_prints(&yydmap_buf, "\t{YYTD_ID_ACCLIST, (void**)&yy_acclist, sizeof(%s)},\n", long_align ? "flex_int32_t" : "flex_int16_t");
-		yyacclist_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+		yyacclist_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 		yytbl_data_init(yyacclist_tbl, YYTD_ID_ACCLIST);
 		yyacclist_tbl->td_lolen  = (flex_uint32_t)(MAX(numas, 1) + 1);
-		yyacclist_tbl->td_data = yyacclist_data = (flex_int32_t *)calloc(yyacclist_tbl->td_lolen, sizeof(flex_int32_t));
+		yyacclist_tbl->td_data = yyacclist_data = (flex_int32_t *)SAlloc::C(yyacclist_tbl->td_lolen, sizeof(flex_int32_t));
 		yyacclist_curr = 1;
 		j = 1;          /* index into "yy_acclist" array */
 		for(i = 1; i <= lastdfa; ++i) {
@@ -930,10 +930,10 @@ void gentabs()
 		++k;
 	out_str_dec(long_align ? get_int32_decl() : get_int16_decl(), "yy_accept", k);
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_ACCEPT, (void**)&yy_accept, sizeof(%s)},\n", long_align ? "flex_int32_t" : "flex_int16_t");
-	yyacc_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	yyacc_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(yyacc_tbl, YYTD_ID_ACCEPT);
 	yyacc_tbl->td_lolen = (flex_uint32_t)k;
-	yyacc_tbl->td_data = yyacc_data = (flex_int32_t *)calloc(yyacc_tbl->td_lolen, sizeof(flex_int32_t));
+	yyacc_tbl->td_data = yyacc_data = (flex_int32_t *)SAlloc::C(yyacc_tbl->td_lolen, sizeof(flex_int32_t));
 	yyacc_curr = 1;
 	for(i = 1; i <= lastdfa; ++i) {
 		mkdata(acc_array[i]);
@@ -978,10 +978,10 @@ void gentabs()
 		 * templates with).
 		 */
 		flex_int32_t * yymecs_data = 0;
-		yymeta_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+		yymeta_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 		yytbl_data_init(yymeta_tbl, YYTD_ID_META);
 		yymeta_tbl->td_lolen = (flex_uint32_t)(numecs + 1);
-		yymeta_tbl->td_data = yymecs_data = (flex_int32_t *)calloc(yymeta_tbl->td_lolen, sizeof(flex_int32_t));
+		yymeta_tbl->td_data = yymecs_data = (flex_int32_t *)SAlloc::C(yymeta_tbl->td_lolen, sizeof(flex_int32_t));
 		if(trace)
 			fputs(_("\n\nMeta-Equivalence Classes:\n"), stderr);
 		out_str_dec(get_yy_char_decl(), "yy_meta", numecs + 1);
@@ -1007,10 +1007,10 @@ void gentabs()
 	out_str_dec((tblend >= INT16_MAX || long_align) ? get_int32_decl() : get_int16_decl(), "yy_base", total_states + 1);
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_BASE, (void**)&yy_base, sizeof(%s)},\n",
 	    (tblend >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t");
-	yybase_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	yybase_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(yybase_tbl, YYTD_ID_BASE);
 	yybase_tbl->td_lolen = (flex_uint32_t)(total_states + 1);
-	yybase_tbl->td_data = yybase_data = (flex_int32_t *)calloc(yybase_tbl->td_lolen, sizeof(flex_int32_t));
+	yybase_tbl->td_data = yybase_data = (flex_int32_t *)SAlloc::C(yybase_tbl->td_lolen, sizeof(flex_int32_t));
 	yybase_curr = 1;
 	for(i = 1; i <= lastdfa; ++i) {
 		int d = def[i];
@@ -1054,10 +1054,10 @@ void gentabs()
 	out_str_dec((total_states >= INT16_MAX || long_align) ? get_int32_decl() : get_int16_decl(), "yy_def", total_states + 1);
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_DEF, (void**)&yy_def, sizeof(%s)},\n", (total_states >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t");
 
-	yydef_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	yydef_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(yydef_tbl, YYTD_ID_DEF);
 	yydef_tbl->td_lolen = (flex_uint32_t)(total_states + 1);
-	yydef_tbl->td_data = yydef_data = (flex_int32_t *)calloc(yydef_tbl->td_lolen, sizeof(flex_int32_t));
+	yydef_tbl->td_data = yydef_data = (flex_int32_t *)SAlloc::C(yydef_tbl->td_lolen, sizeof(flex_int32_t));
 	for(i = 1; i <= total_states; ++i) {
 		mkdata(def[i]);
 		yydef_data[i] = def[i];
@@ -1077,10 +1077,10 @@ void gentabs()
 	out_str_dec((total_states >= INT16_MAX || long_align) ? get_int32_decl() : get_int16_decl(), "yy_nxt", tblend + 1);
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_NXT, (void**)&yy_nxt, sizeof(%s)},\n", (total_states >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t");
 
-	yynxt_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	yynxt_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(yynxt_tbl, YYTD_ID_NXT);
 	yynxt_tbl->td_lolen = (flex_uint32_t)(tblend + 1);
-	yynxt_tbl->td_data = yynxt_data = (flex_int32_t *)calloc(yynxt_tbl->td_lolen, sizeof(flex_int32_t));
+	yynxt_tbl->td_data = yynxt_data = (flex_int32_t *)SAlloc::C(yynxt_tbl->td_lolen, sizeof(flex_int32_t));
 	for(i = 1; i <= tblend; ++i) {
 		/* Note, the order of the following test is important.
 		 * If chk[i] is 0, then nxt[i] is undefined.
@@ -1106,10 +1106,10 @@ void gentabs()
 	out_str_dec((total_states >= INT16_MAX || long_align) ? get_int32_decl() : get_int16_decl(), "yy_chk", tblend + 1);
 	buf_prints(&yydmap_buf, "\t{YYTD_ID_CHK, (void**)&yy_chk, sizeof(%s)},\n", (total_states >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t");
 
-	yychk_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+	yychk_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 	yytbl_data_init(yychk_tbl, YYTD_ID_CHK);
 	yychk_tbl->td_lolen = (flex_uint32_t)(tblend + 1);
-	yychk_tbl->td_data = yychk_data = (flex_int32_t *)calloc(yychk_tbl->td_lolen, sizeof(flex_int32_t));
+	yychk_tbl->td_data = yychk_data = (flex_int32_t *)SAlloc::C(yychk_tbl->td_lolen, sizeof(flex_int32_t));
 	for(i = 1; i <= tblend; ++i) {
 		if(chk[i] == 0)
 			++nummt;
@@ -1126,7 +1126,7 @@ void gentabs()
 	}
 	/* End generating yy_chk */
 
-	free(acc_array);
+	SAlloc::F(acc_array);
 }
 
 /* Write out a formatted string (with a secondary string argument) at the
@@ -1306,12 +1306,12 @@ void make_tables()
 		out_str_dec(get_state_decl(), "yy_NUL_trans", lastdfa + 1);
 		buf_prints(&yydmap_buf, "\t{YYTD_ID_NUL_TRANS, (void**)&yy_NUL_trans, sizeof(%s)},\n",
 		    (fullspd) ? "struct yy_trans_info*" : "flex_int32_t");
-		yynultrans_tbl = (struct yytbl_data *)calloc(1, sizeof(struct yytbl_data));
+		yynultrans_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 		yytbl_data_init(yynultrans_tbl, YYTD_ID_NUL_TRANS);
 		if(fullspd)
 			yynultrans_tbl->td_flags |= YYTD_PTRANS;
 		yynultrans_tbl->td_lolen = (flex_uint32_t)(lastdfa + 1);
-		yynultrans_tbl->td_data = yynultrans_data = (flex_int32_t *)calloc(yynultrans_tbl->td_lolen, sizeof(flex_int32_t));
+		yynultrans_tbl->td_data = yynultrans_data = (flex_int32_t *)SAlloc::C(yynultrans_tbl->td_lolen, sizeof(flex_int32_t));
 		for(i = 1; i <= lastdfa; ++i) {
 			if(fullspd) {
 				out_dec("    &yy_transition[%d],\n", base[i]);

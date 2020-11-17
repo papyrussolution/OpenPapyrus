@@ -27,9 +27,9 @@
 #ifndef CURL_DISABLE_MQTT
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
-#include "progress.h"
+//#include "transfer.h"
+//#include "sendf.h"
+//#include "progress.h"
 #include "mqtt.h"
 #include "select.h"
 #include "strdup.h"
@@ -97,7 +97,7 @@ static CURLcode mqtt_setup_conn(struct connectdata * conn)
 	struct MQTT * mq;
 	struct Curl_easy * data = conn->data;
 	DEBUGASSERT(data->req.protop == NULL);
-	mq = (struct MQTT *)calloc(1, sizeof(struct MQTT));
+	mq = (struct MQTT *)SAlloc::C(1, sizeof(struct MQTT));
 	if(!mq)
 		return CURLE_OUT_OF_MEMORY;
 	data->req.protop = mq;
@@ -257,7 +257,7 @@ static CURLcode mqtt_subscribe(struct connectdata * conn)
 	n = mqtt_encode_len((char *)encodedsize, packetlen);
 	packetlen += n + 1; /* add one for the control packet type byte */
 
-	packet = (uchar *)malloc(packetlen);
+	packet = (uchar *)SAlloc::M(packetlen);
 	if(!packet) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
@@ -275,8 +275,8 @@ static CURLcode mqtt_subscribe(struct connectdata * conn)
 	result = mqtt_send(conn, (char *)packet, packetlen);
 
 fail:
-	free(topic);
-	free(packet);
+	SAlloc::F(topic);
+	SAlloc::F(packet);
 	return result;
 }
 
@@ -335,7 +335,7 @@ static CURLcode mqtt_publish(struct connectdata * conn)
 	encodelen = mqtt_encode_len(encodedbytes, remaininglength);
 
 	/* add the control byte and the encoded remaining length */
-	pkt = (uchar *)malloc(remaininglength + 1 + encodelen);
+	pkt = (uchar *)SAlloc::M(remaininglength + 1 + encodelen);
 	if(!pkt) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
@@ -354,8 +354,8 @@ static CURLcode mqtt_publish(struct connectdata * conn)
 	result = mqtt_send(conn, (char *)pkt, i);
 
 fail:
-	free(pkt);
-	free(topic);
+	SAlloc::F(pkt);
+	SAlloc::F(topic);
 	return result;
 }
 
@@ -539,7 +539,7 @@ static CURLcode mqtt_doing(struct connectdata * conn, bool * done)
 		/* send the remainder of an outgoing packet */
 		char * ptr = mq->sendleftovers;
 		result = mqtt_send(conn, mq->sendleftovers, mq->nsend);
-		free(ptr);
+		SAlloc::F(ptr);
 		if(result)
 			return result;
 	}

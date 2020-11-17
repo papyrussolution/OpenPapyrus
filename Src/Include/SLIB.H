@@ -3970,7 +3970,7 @@ private:
 
 	size_t L;     // @firstmember Длина строки вместе с завершающим нулем
 	size_t Size;  // Размер распределенного буфера
-	char * P_Buf; // Буфер, в котором хранится строка. @# if(P_Buf) then P_Buf[Len] == 0
+	char * P_Buf; // Буфер, в котором хранится строка. @#if(P_Buf) then P_Buf[Len] == 0
 };
 
 int cdecl slprintf(SString & rBuf, const char * pFormat, ...);

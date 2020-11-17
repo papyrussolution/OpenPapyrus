@@ -115,7 +115,7 @@ struct FTP {
 struct ftp_conn {
 	struct pingpong pp;
 	char * entrypath; /* the PWD reply when we logged on */
-	char ** dirs; /* realloc()ed array for path components */
+	char ** dirs; /* SAlloc::R()ed array for path components */
 	int dirdepth; /* number of entries used in the 'dirs' array */
 	char * file; /* url-decoded file name (or path) */
 	bool dont_check; /* Set to TRUE to prevent the final (post-transfer)

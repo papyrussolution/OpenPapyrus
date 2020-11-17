@@ -971,7 +971,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-# endif
+#endif
 	{
 		1,
 		TLS1_TXT_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
@@ -1037,7 +1037,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-# endif
+#endif
 	{
 		1,
 		TLS1_TXT_ECDHE_RSA_WITH_AES_128_CBC_SHA,
@@ -1103,7 +1103,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-# endif
+#endif
 	{
 		1,
 		TLS1_TXT_ECDH_anon_WITH_AES_128_CBC_SHA,
@@ -1329,7 +1329,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-# endif
+#endif
 	{
 		1,
 		TLS1_TXT_PSK_WITH_AES_128_CBC_SHA,
@@ -1379,7 +1379,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-# endif
+#endif
 	{
 		1,
 		TLS1_TXT_DHE_PSK_WITH_AES_128_CBC_SHA,
@@ -1429,7 +1429,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-# endif
+#endif
 	{
 		1,
 		TLS1_TXT_RSA_PSK_WITH_AES_128_CBC_SHA,
@@ -1750,7 +1750,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 		0,
 	},
-#  ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
 		1,
 		TLS1_TXT_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA,
@@ -1767,7 +1767,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-#  endif
+#endif
 	{
 		1,
 		TLS1_TXT_ECDHE_PSK_WITH_AES_128_CBC_SHA,
@@ -1930,7 +1930,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		112,
 		168,
 	},
-# endif
+#endif
 	{
 		1,
 		TLS1_TXT_SRP_SHA_WITH_AES_128_CBC_SHA,
@@ -4091,16 +4091,16 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt,
 
 #ifdef CIPHER_DEBUG
 	fprintf(stderr, "Server has %d from %p:\n", sk_SSL_CIPHER_num(srvr),
-	    (void*)srvr);
+	    (void *)srvr);
 	for(i = 0; i < sk_SSL_CIPHER_num(srvr); ++i) {
 		c = sk_SSL_CIPHER_value(srvr, i);
-		fprintf(stderr, "%p:%s\n", (void*)c, c->name);
+		fprintf(stderr, "%p:%s\n", (void *)c, c->name);
 	}
 	fprintf(stderr, "Client sent %d from %p:\n", sk_SSL_CIPHER_num(clnt),
-	    (void*)clnt);
+	    (void *)clnt);
 	for(i = 0; i < sk_SSL_CIPHER_num(clnt); ++i) {
 		c = sk_SSL_CIPHER_value(clnt, i);
-		fprintf(stderr, "%p:%s\n", (void*)c, c->name);
+		fprintf(stderr, "%p:%s\n", (void *)c, c->name);
 	}
 #endif
 
@@ -4151,7 +4151,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt,
 				}
 			}
 		}
-# endif
+#endif
 	}
 	else {
 		prio = clnt;
@@ -4221,7 +4221,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt,
 			ok = (alg_k & mask_k) && (alg_a & mask_a);
 #ifdef CIPHER_DEBUG
 			fprintf(stderr, "%d:[%08lX:%08lX:%08lX:%08lX]%p:%s\n", ok, alg_k,
-			    alg_a, mask_k, mask_a, (void*)c, c->name);
+			    alg_a, mask_k, mask_a, (void *)c, c->name);
 #endif
 
 #ifndef OPENSSL_NO_EC
@@ -4240,7 +4240,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt,
 		if(ii >= 0) {
 			/* Check security callback permits this cipher */
 			if(!ssl_security(s, SSL_SECOP_CIPHER_SHARED,
-			    c->strength_bits, 0, (void*)c))
+			    c->strength_bits, 0, (void *)c))
 				continue;
 #if !defined(OPENSSL_NO_EC)
 			if((alg_k & SSL_kECDHE) && (alg_a & SSL_aECDSA)
@@ -4295,11 +4295,11 @@ int ssl3_get_req_cert_type(SSL * s, WPACKET * pkt)
 # ifndef OPENSSL_NO_RSA
 		if(!WPACKET_put_bytes_u8(pkt, SSL3_CT_RSA_EPHEMERAL_DH))
 			return 0;
-# endif
+#endif
 # ifndef OPENSSL_NO_DSA
 		if(!WPACKET_put_bytes_u8(pkt, SSL3_CT_DSS_EPHEMERAL_DH))
 			return 0;
-# endif
+#endif
 #endif                          /* !OPENSSL_NO_DH */
 	}
 #ifndef OPENSSL_NO_RSA

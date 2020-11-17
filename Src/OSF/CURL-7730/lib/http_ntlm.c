@@ -34,7 +34,7 @@
 #define DEBUG_ME 0
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "strcase.h"
 #include "http_ntlm.h"
 #include "curl_ntlm_core.h"
@@ -195,11 +195,11 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			    return result;
 
 		    if(base64) {
-			    free(*allocuserpwd);
+			    SAlloc::F(*allocuserpwd);
 			    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 				    proxy ? "Proxy-" : "",
 				    base64);
-			    free(base64);
+			    SAlloc::F(base64);
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
 
@@ -215,11 +215,11 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			    return result;
 
 		    if(base64) {
-			    free(*allocuserpwd);
+			    SAlloc::F(*allocuserpwd);
 			    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 				    proxy ? "Proxy-" : "",
 				    base64);
-			    free(base64);
+			    SAlloc::F(base64);
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
 

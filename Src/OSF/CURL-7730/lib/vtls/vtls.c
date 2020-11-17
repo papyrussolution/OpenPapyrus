@@ -49,13 +49,13 @@
 #include "urldata.h"
 #include "vtls.h" /* generic SSL protos etc */
 #include "slist.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "strcase.h"
 #include "url.h"
-#include "progress.h"
+//#include "progress.h"
 #include "share.h"
 #include "multiif.h"
-#include "timeval.h"
+//#include "timeval.h"
 #include "curl_md5.h"
 #include "warnless.h"
 #include "curl_base64.h"
@@ -72,7 +72,7 @@
 
 #define CLONE_STRING(var)                    \
 	if(source->var) {                          \
-		dest->var = strdup(source->var);         \
+		dest->var = sstrdup(source->var);         \
 		if(!dest->var)                           \
 			return FALSE;                          \
 	}                                          \
@@ -90,7 +90,7 @@ static CURLcode blobdup(struct curl_blob ** dest,
 	DEBUGASSERT(!*dest);
 	if(src) {
 		/* only if there's data to dupe! */
-		struct curl_blob * d = (struct curl_blob *)malloc(sizeof(struct curl_blob) + src->len);
+		struct curl_blob * d = (struct curl_blob *)SAlloc::M(sizeof(struct curl_blob) + src->len);
 		if(!d)
 			return CURLE_OUT_OF_MEMORY;
 		d->len = src->len;
@@ -488,14 +488,14 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
 #endif
 	DEBUGASSERT(SSL_SET_OPTION(primary.sessionid));
 
-	clone_host = strdup(hostname);
+	clone_host = sstrdup(hostname);
 	if(!clone_host)
 		return CURLE_OUT_OF_MEMORY; /* bail out */
 
 	if(conn->bits.conn_to_host) {
-		clone_conn_to_host = strdup(conn->conn_to_host.name);
+		clone_conn_to_host = sstrdup(conn->conn_to_host.name);
 		if(!clone_conn_to_host) {
-			free(clone_host);
+			SAlloc::F(clone_host);
 			return CURLE_OUT_OF_MEMORY; /* bail out */
 		}
 	}
@@ -537,8 +537,8 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
 	store->idsize = idsize;
 	store->age = *general_age; /* set current age */
 	/* free it if there's one already present */
-	free(store->name);
-	free(store->conn_to_host);
+	SAlloc::F(store->name);
+	SAlloc::F(store->conn_to_host);
 	store->name = clone_host;         /* clone host name */
 	store->conn_to_host = clone_conn_to_host; /* clone connect to host name */
 	store->conn_to_port = conn_to_port; /* connect to port number */
@@ -549,8 +549,8 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
 	if(!Curl_clone_primary_ssl_config(ssl_config, &store->ssl_config)) {
 		Curl_free_primary_ssl_config(&store->ssl_config);
 		store->sessionid = NULL; /* let caller free sessionid */
-		free(clone_host);
-		free(clone_conn_to_host);
+		SAlloc::F(clone_host);
+		SAlloc::F(clone_conn_to_host);
 		return CURLE_OUT_OF_MEMORY;
 	}
 
@@ -656,7 +656,7 @@ CURLcode Curl_ssl_initsessions(struct Curl_easy * data, size_t amount)
 	if(data->state.session)
 		/* this is just a precaution to prevent multiple inits */
 		return CURLE_OK;
-	session = (struct Curl_ssl_session *)calloc(amount, sizeof(struct Curl_ssl_session));
+	session = (struct Curl_ssl_session *)SAlloc::C(amount, sizeof(struct Curl_ssl_session));
 	if(!session)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -709,7 +709,7 @@ void Curl_ssl_free_certinfo(struct Curl_easy * data)
 			ci->certinfo[i] = NULL;
 		}
 
-		free(ci->certinfo); /* free the actual array too */
+		SAlloc::F(ci->certinfo); /* free the actual array too */
 		ci->certinfo = NULL;
 		ci->num_of_certs = 0;
 	}
@@ -724,7 +724,7 @@ CURLcode Curl_ssl_init_certinfo(struct Curl_easy * data, int num)
 	Curl_ssl_free_certinfo(data);
 
 	/* Allocate the required certificate information structures */
-	table = (struct curl_slist **)calloc((size_t)num, sizeof(struct curl_slist *));
+	table = (struct curl_slist **)SAlloc::C((size_t)num, sizeof(struct curl_slist *));
 	if(!table)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -750,7 +750,7 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy * data,
 	size_t labellen = strlen(label);
 	size_t outlen = labellen + 1 + valuelen + 1; /* label:value\0 */
 
-	output = (char *)malloc(outlen);
+	output = (char *)SAlloc::M(outlen);
 	if(!output)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -765,7 +765,7 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy * data,
 
 	nl = Curl_slist_append_nodup(ci->certinfo[certnum], output);
 	if(!nl) {
-		free(output);
+		SAlloc::F(output);
 		curl_slist_free_all(ci->certinfo[certnum]);
 		result = CURLE_OUT_OF_MEMORY;
 	}
@@ -829,7 +829,7 @@ static CURLcode pubkey_pem_to_der(const char * pem,
 
 	pem_len = end_pos - pem;
 
-	stripped_pem = (char *)malloc(pem_len - pem_count + 1);
+	stripped_pem = (char *)SAlloc::M(pem_len - pem_count + 1);
 	if(!stripped_pem)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -884,7 +884,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		}
 
 		/* compute sha256sum of public key */
-		sha256sumdigest = (uchar *)malloc(CURL_SHA256_DIGEST_LENGTH);
+		sha256sumdigest = (uchar *)SAlloc::M(CURL_SHA256_DIGEST_LENGTH);
 		if(!sha256sumdigest)
 			return CURLE_OUT_OF_MEMORY;
 		encode = Curl_ssl->sha256sum(pubkey, pubkeylen,
@@ -905,7 +905,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 
 		/* it starts with sha256//, copy so we can modify it */
 		pinkeylen = strlen(pinnedpubkey) + 1;
-		pinkeycopy = (char *)malloc(pinkeylen);
+		pinkeycopy = (char *)SAlloc::M(pinkeylen);
 		if(!pinkeycopy) {
 			Curl_safefree(encoded);
 			return CURLE_OUT_OF_MEMORY;
@@ -973,7 +973,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		 * Allocate buffer for the pinned key
 		 * With 1 additional byte for null terminator in case of PEM key
 		 */
-		buf = (uchar *)malloc(size + 1);
+		buf = (uchar *)SAlloc::M(size + 1);
 		if(!buf)
 			break;
 

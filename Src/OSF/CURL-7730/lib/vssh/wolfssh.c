@@ -30,12 +30,12 @@
 #include <wolfssh/ssh.h>
 #include <wolfssh/wolfsftp.h>
 #include "urldata.h"
-#include "connect.h"
-#include "sendf.h"
-#include "progress.h"
+//#include "connect.h"
+//#include "sendf.h"
+//#include "progress.h"
 #include "curl_path.h"
 #include "strtoofft.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "speedcheck.h"
 #include "select.h"
 #include "multiif.h"
@@ -323,7 +323,7 @@ static CURLcode wssh_setup_connection(struct connectdata * conn)
 {
 	struct SSHPROTO * ssh;
 
-	conn->data->req.protop = ssh = calloc(1, sizeof(struct SSHPROTO));
+	conn->data->req.protop = ssh = SAlloc::C(1, sizeof(struct SSHPROTO));
 	if(!ssh)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -501,7 +501,7 @@ static CURLcode wssh_statemach_act(struct connectdata * conn, bool * block)
 				    return CURLE_OK;
 			    }
 			    else if(name && (rc == WS_SUCCESS)) {
-				    sshc->homedir = malloc(name->fSz + 1);
+				    sshc->homedir = SAlloc::M(name->fSz + 1);
 				    if(!sshc->homedir) {
 					    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 				    }
@@ -857,7 +857,7 @@ static CURLcode wssh_statemach_act(struct connectdata * conn, bool * block)
 					    }
 					    result = Curl_client_write(conn, CLIENTWRITE_BODY,
 						    line, strlen(line));
-					    free(line);
+					    SAlloc::F(line);
 					    if(result) {
 						    sshc->actualcode = result;
 						    break;

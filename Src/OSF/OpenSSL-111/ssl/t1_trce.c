@@ -99,7 +99,7 @@ static const ssl_trace_tbl ssl_handshake_tbl[] = {
 	{SSL3_MT_KEY_UPDATE, "KeyUpdate"},
 # ifndef OPENSSL_NO_NEXTPROTONEG
 	{SSL3_MT_NEXT_PROTO, "NextProto"},
-# endif
+#endif
 	{SSL3_MT_MESSAGE_HASH, "MessageHash"}
 };
 
@@ -488,7 +488,7 @@ static const ssl_trace_tbl ssl_exts_tbl[] = {
 	{TLSEXT_TYPE_renegotiate, "renegotiate"},
 # ifndef OPENSSL_NO_NEXTPROTONEG
 	{TLSEXT_TYPE_next_proto_neg, "next_proto_neg"},
-# endif
+#endif
 };
 
 static const ssl_trace_tbl ssl_groups_tbl[] = {
@@ -1175,7 +1175,7 @@ static int ssl_print_server_keyex(BIO * bio, int indent, const SSL * ssl,
 			    return 0;
 		    }
 		    break;
-# endif
+#endif
 
 		case SSL_kPSK:
 		case SSL_kRSAPSK:

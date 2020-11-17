@@ -4818,7 +4818,7 @@ int main(int argc, char ** argv)
 	ret = xmlBase64Decode(input, &inlen, output, &outlen);
 	output[outlen] = 0;
 	printf("ret: %d, inlen: %ld , outlen: %ld, output: '%s'\n", ret, inlen,
-	    outlen, output) indent : Standard input : 179 : Error : Unmatched # endif
+	    outlen, output) indent : Standard input : 179 : Error : Unmatched #endif
 	;
 
 	/*

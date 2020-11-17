@@ -25,7 +25,7 @@
 	|   ((w) & 1))
 
 /* Platform-specific macros to accelerate squaring. */
-# if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
+#if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
 #define SQR1(w) \
 	SQR_nibble((w) >> 60) << 56 | SQR_nibble((w) >> 56) << 48 | \
 		SQR_nibble((w) >> 52) << 40 | SQR_nibble((w) >> 48) << 32 | \
@@ -46,13 +46,13 @@
 		SQR_nibble((w) >>  4) <<  8 | SQR_nibble((w)      )
 #endif
 
-# if !defined(OPENSSL_BN_ASM_GF2m)
+#if !defined(OPENSSL_BN_ASM_GF2m)
 /*
  * Product of two polynomials a, b each with degree < BN_BITS2 - 1, result is
  * a polynomial r with degree < 2 * BN_BITS - 1 The caller MUST ensure that
  * the variables have the right amount of space allocated.
  */
-#  ifdef THIRTY_TWO_BIT
+#ifdef THIRTY_TWO_BIT
 static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, const BN_ULONG b)
 {
 	BN_ULONG h, l, s;
@@ -118,8 +118,8 @@ static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, cons
 	*r0 = l;
 }
 
-#  endif
-#  if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
+#endif
+#if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
 static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, const BN_ULONG b)
 {
 	BN_ULONG h, l, s;
@@ -213,7 +213,7 @@ static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, cons
 	*r0 = l;
 }
 
-#  endif
+#endif
 
 /*
  * Product of two polynomials a, b each with degree < 2 * BN_BITS2 - 1,
@@ -566,7 +566,7 @@ static int BN_GF2m_mod_inv_vartime(BIGNUM * r, const BIGNUM * a,
 
 	if(!BN_copy(v, p))
 		goto err;
-# if 0
+#if 0
 	if(!BN_one(b))
 		goto err;
 

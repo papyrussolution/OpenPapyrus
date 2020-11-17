@@ -48,13 +48,13 @@
 #include "strtoofft.h"
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "progress.h"
-#include "sendf.h"
+//#include "progress.h"
+//#include "sendf.h"
 #include "escape.h"
 #include "file.h"
 #include "speedcheck.h"
 #include "getinfo.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "url.h"
 #include "parsedate.h" /* for the week day and month names */
 #include "warnless.h"
@@ -69,9 +69,9 @@
 #endif
 
 #ifdef OPEN_NEEDS_ARG3
-#  define open_readonly(p, f) open((p), (f), (0))
+#define open_readonly(p, f) open((p), (f), (0))
 #else
-#  define open_readonly(p, f) open((p), (f))
+#define open_readonly(p, f) open((p), (f))
 #endif
 
 /*
@@ -115,7 +115,7 @@ const struct Curl_handler Curl_handler_file = {
 static CURLcode file_setup_connection(struct connectdata * conn)
 {
 	/* allocate the FILE specific struct */
-	conn->data->req.protop = calloc(1, sizeof(struct FILEPROTO));
+	conn->data->req.protop = SAlloc::C(1, sizeof(struct FILEPROTO));
 	if(!conn->data->req.protop)
 		return CURLE_OUT_OF_MEMORY;
 

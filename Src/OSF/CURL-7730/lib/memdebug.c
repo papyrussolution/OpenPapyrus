@@ -74,7 +74,7 @@ void curl_dbg_memdebug(const char * logname)
 	}
 }
 
-/* This function sets the number of malloc() calls that should return
+/* This function sets the number of SAlloc::M() calls that should return
    successfully! */
 void curl_dbg_memlimit(long limit)
 {
@@ -124,7 +124,7 @@ void * curl_dbg_malloc(size_t wantedsize, int line, const char * source)
 		mem->size = wantedsize;
 	}
 	if(source)
-		curl_dbg_log("MEM %s:%d malloc(%zu) = %p\n", source, line, wantedsize, mem ? (void*)mem->mem : (void*)0);
+		curl_dbg_log("MEM %s:%d SAlloc::M(%zu) = %p\n", source, line, wantedsize, mem ? (void*)mem->mem : (void*)0);
 	return (mem ? mem->mem : NULL);
 }
 
@@ -143,7 +143,7 @@ void * curl_dbg_calloc(size_t wanted_elements, size_t wanted_size, int line, con
 	if(mem)
 		mem->size = user_size;
 	if(source)
-		curl_dbg_log("MEM %s:%d calloc(%zu,%zu) = %p\n", source, line, wanted_elements, wanted_size, mem ? (void*)mem->mem : (void*)0);
+		curl_dbg_log("MEM %s:%d SAlloc::C(%zu,%zu) = %p\n", source, line, wanted_elements, wanted_size, mem ? (void*)mem->mem : (void*)0);
 	return (mem ? mem->mem : NULL);
 }
 
@@ -159,7 +159,7 @@ char * curl_dbg_strdup(const char * str, int line, const char * source)
 	if(mem)
 		memcpy(mem, str, len);
 	if(source)
-		curl_dbg_log("MEM %s:%d strdup(%p) (%zu) = %p\n", source, line, (const void*)str, len, (const void*)mem);
+		curl_dbg_log("MEM %s:%d sstrdup(%p) (%zu) = %p\n", source, line, (const void*)str, len, (const void*)mem);
 	return mem;
 }
 
@@ -183,8 +183,8 @@ wchar_t * curl_dbg_wcsdup(const wchar_t * str, int line, const char * source)
 
 #endif
 
-/* We provide a realloc() that accepts a NULL as pointer, which then
-   performs a malloc(). In order to work with ares. */
+/* We provide a SAlloc::R() that accepts a NULL as pointer, which then
+   performs a SAlloc::M(). In order to work with ares. */
 void * curl_dbg_realloc(void * ptr, size_t wantedsize, int line, const char * source)
 {
 	struct memdebug * mem = NULL;
@@ -193,18 +193,18 @@ void * curl_dbg_realloc(void * ptr, size_t wantedsize, int line, const char * so
 	if(countcheck("realloc", line, source))
 		return NULL;
 #ifdef __INTEL_COMPILER
-#  pragma warning(push)
-#  pragma warning(disable:1684)
+#pragma warning(push)
+#pragma warning(disable:1684)
 	/* 1684: conversion from pointer to same-sized integral type */
 #endif
 	if(ptr)
 		mem = (void*)((char *)ptr - offsetof(struct memdebug, mem));
 #ifdef __INTEL_COMPILER
-#  pragma warning(pop)
+#pragma warning(pop)
 #endif
 	mem = (Curl_crealloc)(mem, size);
 	if(source)
-		curl_dbg_log("MEM %s:%d realloc(%p, %zu) = %p\n", source, line, (void*)ptr, wantedsize, mem ? (void*)mem->mem : (void*)0);
+		curl_dbg_log("MEM %s:%d SAlloc::R(%p, %zu) = %p\n", source, line, (void*)ptr, wantedsize, mem ? (void*)mem->mem : (void*)0);
 	if(mem) {
 		mem->size = wantedsize;
 		return mem->mem;
@@ -218,15 +218,15 @@ void curl_dbg_free(void * ptr, int line, const char * source)
 		struct memdebug * mem;
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(push)
-#  pragma warning(disable:1684)
+#pragma warning(push)
+#pragma warning(disable:1684)
 		/* 1684: conversion from pointer to same-sized integral type */
 #endif
 
 		mem = (void*)((char *)ptr - offsetof(struct memdebug, mem));
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(pop)
+#pragma warning(pop)
 #endif
 
 		/* free for real */
@@ -234,7 +234,7 @@ void curl_dbg_free(void * ptr, int line, const char * source)
 	}
 
 	if(source && ptr)
-		curl_dbg_log("MEM %s:%d free(%p)\n", source, line, (void*)ptr);
+		curl_dbg_log("MEM %s:%d SAlloc::F(%p)\n", source, line, (void*)ptr);
 }
 
 curl_socket_t curl_dbg_socket(int domain, int type, int protocol,

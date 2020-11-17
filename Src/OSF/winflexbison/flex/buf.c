@@ -69,12 +69,12 @@ struct Buf * buf_print_strings(struct Buf * buf, FILE* out)
 struct Buf * buf_prints(struct Buf * buf, const char * fmt, const char * s)
 {
 	size_t tsz = strlen(fmt) + strlen(s) + 1;
-	char   * t = (char *)malloc(tsz);
+	char   * t = (char *)SAlloc::M(tsz);
 	if(!t)
 		flexfatal(_("Allocation of buffer to print string failed"));
 	snprintf(t, tsz, fmt, s);
 	buf = buf_strappend(buf, t);
-	free(t);
+	SAlloc::F(t);
 	return buf;
 }
 
@@ -95,7 +95,7 @@ struct Buf * buf_linedir(struct Buf * buf, const char* filename, int lineno)
 	    2 * strlen(filename)            +       /* filename with possibly all backslashes escaped */
 	    (size_t)(1 + ceil(log10(abs(lineno)))) +          /* line number */
 	    1;                                      /* NUL */
-	t = (char *)malloc(tsz);
+	t = (char *)SAlloc::M(tsz);
 	if(!t)
 		flexfatal(_("Allocation of buffer for line directive failed"));
 	for(dst = t + snprintf(t, tsz, "#line %d \"", lineno), src = filename; *src; *dst++ = *src++)
@@ -105,7 +105,7 @@ struct Buf * buf_linedir(struct Buf * buf, const char* filename, int lineno)
 	*dst++ = '\n';
 	*dst   = '\0';
 	buf = buf_strappend(buf, t);
-	free(t);
+	SAlloc::F(t);
 	return buf;
 }
 
@@ -157,7 +157,7 @@ struct Buf * buf_m4_define(struct Buf * buf, const char* def, const char* val)
 	size_t strsz;
 	val = val ? val : "";
 	strsz = strlen(fmt) + strlen(def) + strlen(val) + 2;
-	str = (char *)malloc(strsz);
+	str = (char *)SAlloc::M(strsz);
 	if(!str)
 		flexfatal(_("Allocation of buffer for m4 def failed"));
 	snprintf(str, strsz, fmt, def, val);
@@ -173,7 +173,7 @@ struct Buf * buf_m4_undefine(struct Buf * buf, const char* def)
 {
 	const char * fmt = "m4_undefine( [[%s]])m4_dnl\n";
 	size_t strsz = strlen(fmt) + strlen(def) + 2;
-	char * str = (char *)malloc(strsz);
+	char * str = (char *)SAlloc::M(strsz);
 	if(!str)
 		flexfatal(_("Allocation of buffer for m4 undef failed"));
 	snprintf(str, strsz, fmt, def);
@@ -194,7 +194,7 @@ void buf_init(struct Buf * buf, size_t elem_size)
 void buf_destroy(struct Buf * buf)
 {
 	if(buf) {
-		free(buf->elts);
+		SAlloc::F(buf->elts);
 		buf->elts = NULL;
 	}
 }

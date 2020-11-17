@@ -941,7 +941,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 		bn_mul_mont(tmp.d, am.d, am.d, np, n0, top);
 		bn_scatter5(tmp.d, top, powerbuf, 2);
 
-# if 0
+#if 0
 		for(i = 3; i < 32; i++) {
 			/* Calculate a^i = a^(i-1) * a */
 			bn_mul_mont_gather5(tmp.d, am.d, powerbuf, np, n0, top, i - 1);

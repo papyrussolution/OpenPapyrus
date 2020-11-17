@@ -91,7 +91,7 @@ OPENSSL_STACK * OPENSSL_sk_deep_copy(const OPENSSL_STACK * sk, OPENSSL_sk_copyfu
 		if((ret->data[i] = copy_func(sk->data[i])) == NULL) {
 			while(--i >= 0)
 				if(ret->data[i] != NULL)
-					free_func((void*)ret->data[i]);
+					free_func((void *)ret->data[i]);
 			OPENSSL_sk_free(ret);
 			return NULL;
 		}
@@ -181,7 +181,7 @@ static int sk_reserve(OPENSSL_STACK * st, int n, int exact)
 	else if(num_alloc == st->num_alloc) {
 		return 1;
 	}
-	tmpdata = static_cast<const void **>(OPENSSL_realloc((void*)st->data, sizeof(void *) * num_alloc));
+	tmpdata = static_cast<const void **>(OPENSSL_realloc((void *)st->data, sizeof(void *) * num_alloc));
 	if(tmpdata == NULL)
 		return 0;
 	st->data = tmpdata;
@@ -244,7 +244,7 @@ static ossl_inline void * internal_delete(OPENSSL_STACK * st, int loc)
 		    sizeof(st->data[0]) * (st->num - loc - 1));
 	st->num--;
 
-	return (void*)ret;
+	return (void *)ret;
 }
 
 void * OPENSSL_sk_delete_ptr(OPENSSL_STACK * st, const void * p)
@@ -365,7 +365,7 @@ void * FASTCALL OPENSSL_sk_value(const OPENSSL_STACK * st, int i)
 {
 	if(st == NULL || i < 0 || i >= st->num)
 		return NULL;
-	return (void*)st->data[i];
+	return (void *)st->data[i];
 }
 
 void * OPENSSL_sk_set(OPENSSL_STACK * st, int i, const void * data)
@@ -374,7 +374,7 @@ void * OPENSSL_sk_set(OPENSSL_STACK * st, int i, const void * data)
 		return NULL;
 	st->data[i] = data;
 	st->sorted = 0;
-	return (void*)st->data[i];
+	return (void *)st->data[i];
 }
 
 void OPENSSL_sk_sort(OPENSSL_STACK * st)

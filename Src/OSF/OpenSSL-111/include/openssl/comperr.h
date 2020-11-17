@@ -18,9 +18,9 @@
 
 #ifndef OPENSSL_NO_COMP
 
-#  ifdef  __cplusplus
+#ifdef  __cplusplus
 extern "C"
-#  endif
+#endif
 int ERR_load_COMP_strings(void);
 
 /*

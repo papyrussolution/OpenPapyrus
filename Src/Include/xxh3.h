@@ -115,14 +115,14 @@
 	typedef __vector unsigned char U8x16;
 	typedef __vector unsigned U32x4;
 #ifndef XXH_VSX_BE
-#  ifdef __BIG_ENDIAN__
-#    define XXH_VSX_BE 1
-#  elif defined(__VEC_ELEMENT_REG_ORDER__) && __VEC_ELEMENT_REG_ORDER__ == __ORDER_BIG_ENDIAN__
+#ifdef __BIG_ENDIAN__
+#define XXH_VSX_BE 1
+#elif defined(__VEC_ELEMENT_REG_ORDER__) && __VEC_ELEMENT_REG_ORDER__ == __ORDER_BIG_ENDIAN__
 #    warning "-maltivec=be is not recommended. Please use native endianness."
-#    define XXH_VSX_BE 1
-#  else
-#    define XXH_VSX_BE 0
-#  endif
+#define XXH_VSX_BE 1
+#else
+#define XXH_VSX_BE 0
+#endif
 #endif
 // We need some helpers for big endian mode.
 #if XXH_VSX_BE
@@ -771,7 +771,7 @@ XXH_FORCE_INLINE void XXH3_accumulate(uint64* XXH_RESTRICT acc, const void* XXH_
 	 * The unroll statement seems detrimental for WASM (@aras-p) and ARM though.
 	 */
 #if defined(__clang__) && !defined(__OPTIMIZE_SIZE__) && !defined(__ARM_ARCH) && !defined(__EMSCRIPTEN__)
-#  pragma clang loop unroll(enable)
+#pragma clang loop unroll(enable)
 #endif
 	for(n = 0; n < nbStripes; n++) {
 		XXH3_accumulate_512(acc, (const char *)data   + n*STRIPE_LEN, PTRCHRC(secret) + n*XXH_SECRET_CONSUME_RATE, accWidth);

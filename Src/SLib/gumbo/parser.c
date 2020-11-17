@@ -50,9 +50,9 @@ GumboAttribute * FASTCALL gumbo_get_attribute(const GumboVector * attributes, co
 void FASTCALL gumbo_destroy_attribute(GumboAttribute * attribute) 
 {
 	if(attribute) {
-		SAlloc::F((void*)attribute->name);
-		SAlloc::F((void*)attribute->value);
-		SAlloc::F((void*)attribute);
+		SAlloc::F((void *)attribute->name);
+		SAlloc::F((void *)attribute->value);
+		SAlloc::F((void *)attribute);
 	}
 }
 
@@ -673,7 +673,7 @@ static GumboError * FASTCALL parser_add_parse_error(GumboParser * parser, const 
 		for(uint i = 0; i < state->_open_elements.length; ++i) {
 			const GumboNode * node = static_cast<const GumboNode *>(state->_open_elements.data[i]);
 			assert(oneof2(node->type, GUMBO_NODE_ELEMENT, GUMBO_NODE_TEMPLATE));
-			gumbo_vector_add((void*)node->v.element.tag, &extra_data->tag_stack);
+			gumbo_vector_add((void *)node->v.element.tag, &extra_data->tag_stack);
 		}
 	}
 	return error;
@@ -728,7 +728,7 @@ static bool FASTCALL node_qualified_tag_is(const GumboNode* node, GumboNamespace
 static bool FASTCALL node_html_tag_is(const GumboNode* node, GumboTag tag) 
 	{ return node_qualified_tag_is(node, GUMBO_NAMESPACE_HTML, tag); }
 static void FASTCALL push_template_insertion_mode(GumboParser * parser, GumboInsertionMode mode) 
-	{ gumbo_vector_add((void*)mode, &parser->_parser_state->_template_insertion_modes); }
+	{ gumbo_vector_add((void *)mode, &parser->_parser_state->_template_insertion_modes); }
 static void FASTCALL pop_template_insertion_mode(GumboParser * parser) 
 	{ gumbo_vector_pop(parser, &parser->_parser_state->_template_insertion_modes); }
 
@@ -834,7 +834,7 @@ static void FASTCALL append_node(GumboNode * parent, GumboNode * node)
 	}
 	node->parent = parent;
 	node->index_within_parent = children->length;
-	gumbo_vector_add((void*)node, children);
+	gumbo_vector_add((void *)node, children);
 	assert(node->index_within_parent < children->length);
 }
 //
@@ -864,7 +864,7 @@ static void FASTCALL insert_node(GumboNode * node, InsertionLocation location)
 		assert((uint)index < children->length);
 		node->parent = parent;
 		node->index_within_parent = index;
-		gumbo_vector_insert_at((void*)node, index, children);
+		gumbo_vector_insert_at((void *)node, index, children);
 		assert(node->index_within_parent < children->length);
 		for(uint i = index + 1; i < children->length; ++i) {
 			GumboNode * sibling = static_cast<GumboNode *>(children->data[i]);
@@ -1038,7 +1038,7 @@ static void insert_element(GumboParser * parser, GumboNode* node, bool is_recons
 	}
 	InsertionLocation location = get_appropriate_insertion_location(parser, NULL);
 	insert_node(node, location);
-	gumbo_vector_add((void*)node, &state->_open_elements);
+	gumbo_vector_add((void *)node, &state->_open_elements);
 }
 
 // Convenience method that combines create_element_from_token and
@@ -1176,7 +1176,7 @@ static void add_formatting_element(GumboParser * parser, const GumboNode* node)
 		gumbo_debug("Noah's ark clause: removing element at %d.\n", earliest_identical_element);
 		gumbo_vector_remove_at(earliest_identical_element, elements);
 	}
-	gumbo_vector_add((void*)node, elements);
+	gumbo_vector_add((void *)node, elements);
 }
 
 static bool FASTCALL is_open_element(const GumboParser * parser, const GumboNode * node) 
@@ -1260,7 +1260,7 @@ static void reconstruct_active_formatting_elements(GumboParser * parser)
 		// Step 9.
 		InsertionLocation location = get_appropriate_insertion_location(parser, NULL);
 		insert_node(clone, location);
-		gumbo_vector_add((void*)clone, &parser->_parser_state->_open_elements);
+		gumbo_vector_add((void *)clone, &parser->_parser_state->_open_elements);
 		// Step 10.
 		elements->data[i] = clone;
 		gumbo_debug("Reconstructed %s element at %d.\n", gumbo_normalized_tagname(clone->v.element.tag), i);
@@ -1704,7 +1704,7 @@ static void adjust_foreign_attributes(GumboParser * parser, GumboToken* token)
 		const NamespacedAttributeReplacement* entry = &kForeignAttributeReplacements[i];
 		GumboAttribute* attr = gumbo_get_attribute(attributes, entry->from);
 		if(attr) {
-			SAlloc::F((void*)attr->name);
+			SAlloc::F((void *)attr->name);
 			attr->attr_namespace = entry->attr_namespace;
 			attr->name = sstrdup(entry->local_name);
 		}
@@ -1721,7 +1721,7 @@ static void adjust_svg_attributes(GumboParser * parser, GumboToken* token)
 		const ReplacementEntry * entry = &kSvgAttributeReplacements[i];
 		GumboAttribute * attr = gumbo_get_attribute(attributes, entry->from.data);
 		if(attr) {
-			SAlloc::F((void*)attr->name);
+			SAlloc::F((void *)attr->name);
 			attr->name = sstrdup(entry->to.data);
 		}
 	}
@@ -1735,7 +1735,7 @@ static void adjust_mathml_attributes(GumboParser * parser, GumboToken* token)
 	assert(token->type == GUMBO_TOKEN_START_TAG);
 	GumboAttribute * attr = gumbo_get_attribute(&token->v.start_tag.attributes, "definitionurl");
 	if(attr) {
-		SAlloc::F((void*)attr->name);
+		SAlloc::F((void *)attr->name);
 		attr->name = sstrdup("definitionURL");
 	}
 }
@@ -2386,10 +2386,10 @@ static void FASTCALL destroy_node(GumboNode * node)
 				for(uint i = 0; i < doc->children.length; ++i) {
 					destroy_node(static_cast<GumboNode *>(doc->children.data[i])); // @recursion
 				}
-				SAlloc::F((void*)doc->children.data);
-				SAlloc::F((void*)doc->name);
-				SAlloc::F((void*)doc->public_identifier);
-				SAlloc::F((void*)doc->system_identifier);
+				SAlloc::F((void *)doc->children.data);
+				SAlloc::F((void *)doc->name);
+				SAlloc::F((void *)doc->public_identifier);
+				SAlloc::F((void *)doc->system_identifier);
 			} 
 			break;
 		case GUMBO_NODE_TEMPLATE:
@@ -2407,7 +2407,7 @@ static void FASTCALL destroy_node(GumboNode * node)
 		case GUMBO_NODE_CDATA:
 		case GUMBO_NODE_COMMENT:
 		case GUMBO_NODE_WHITESPACE:
-		    SAlloc::F((void*)node->v.text.text);
+		    SAlloc::F((void *)node->v.text.text);
 		    break;
 	}
 	SAlloc::F(node);

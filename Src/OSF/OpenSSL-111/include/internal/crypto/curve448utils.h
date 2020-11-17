@@ -22,17 +22,17 @@
  * with arch_arm32.
  */
 #ifndef C448_WORD_BITS
-#  if (defined(__SIZEOF_INT128__) && (__SIZEOF_INT128__ == 16)) \
+#if (defined(__SIZEOF_INT128__) && (__SIZEOF_INT128__ == 16)) \
       && !defined(__sparc__) \
       && (!defined(__SIZEOF_LONG__) || (__SIZEOF_LONG__ == 8))
 
 #   define C448_WORD_BITS 64      /* The number of bits in a word */
-#  else
+#else
 #   define C448_WORD_BITS 32      /* The number of bits in a word */
-#  endif
+#endif
 #endif
 
-# if C448_WORD_BITS == 64
+#if C448_WORD_BITS == 64
 /* Word size for internal computations */
 typedef uint64_t c448_word_t;
 /* Signed word size for internal computations */
@@ -55,7 +55,7 @@ typedef uint64_t c448_dword_t;
 /* Signed double-word size for internal computations */
 typedef int64_t c448_dsword_t;
 #else
-#  error "Only supporting C448_WORD_BITS = 32 or 64 for now"
+#error "Only supporting C448_WORD_BITS = 32 or 64 for now"
 #endif
 
 /* C448_TRUE = -1 so that C448_TRUE & x = x */

@@ -39,7 +39,7 @@ char * add_tmp_dir(const char* tmp_file_name)
 		return _strdup(tmp_file_name);
 	tmp_dir_len = strlen(tmp_dir);
 	len = tmp_dir_len + strlen(tmp_file_name) + 2; // two extra chars: '\' between dir and file name and '\0' at the end
-	new_tmp_file_name = (char*)malloc(len*sizeof(char));
+	new_tmp_file_name = (char*)SAlloc::M(len*sizeof(char));
 	if(tmp_dir[tmp_dir_len-1] == '\\' || tmp_dir[tmp_dir_len-1] == '/')
 		sprintf(new_tmp_file_name, "%s%s", tmp_dir, tmp_file_name);
 	else
@@ -154,7 +154,7 @@ struct filter * filter_create_ext(struct filter * chain, const char * cmd, ...) 
 	va_list ap;
 
 	/* allocate and initialize new filter */
-	f = malloc(sizeof(struct filter));
+	f = SAlloc::M(sizeof(struct filter));
 	if(!f)
 		flexerror(_("malloc failed (f) in filter_create_ext"));
 	memzero(f, sizeof(*f));
@@ -172,7 +172,7 @@ struct filter * filter_create_ext(struct filter * chain, const char * cmd, ...) 
 
 	/* allocate argv, and populate it with the argument list. */
 	max_args = 8;
-	f->argv = malloc(sizeof(char *) * (size_t)(max_args + 1));
+	f->argv = SAlloc::M(sizeof(char *) * (size_t)(max_args + 1));
 	if(!f->argv)
 		flexerror(_("malloc failed (f->argv) in filter_create_ext"));
 	f->argv[f->argc++] = cmd;
@@ -181,7 +181,7 @@ struct filter * filter_create_ext(struct filter * chain, const char * cmd, ...) 
 	while((s = va_arg(ap, const char *)) != NULL) {
 		if(f->argc >= max_args) {
 			max_args += 8;
-			f->argv = realloc(f->argv, sizeof(char*) * (size_t)(max_args + 1));
+			f->argv = SAlloc::R(f->argv, sizeof(char*) * (size_t)(max_args + 1));
 		}
 		f->argv[f->argc++] = s;
 	}
@@ -203,7 +203,7 @@ struct filter * filter_create_ext(struct filter * chain, const char * cmd, ...) 
 struct filter * filter_create_int(struct filter * chain, int (*filter_func)(struct filter *), void * extra)
 {
 	/* allocate and initialize new filter */
-	struct filter * f = (struct filter *)malloc(sizeof(struct filter));
+	struct filter * f = (struct filter *)SAlloc::M(sizeof(struct filter));
 	if(!f)
 		flexerror(_("malloc failed in filter_create_int"));
 	memzero(f, sizeof(*f));
@@ -428,7 +428,7 @@ int filter_tee_header(struct filter * chain)
 	fputs("m4_define([[M4_YY_NOOP]])[[]]m4_dnl\n", to_c);
 	fprintf(to_c, "m4_define( [[M4_YY_OUTFILE_NAME]],[[%s]])m4_dnl\n", outfilename ? outfilename : "<stdout>");
 
-	buf = (char *)malloc((size_t)readsz);
+	buf = (char *)SAlloc::M((size_t)readsz);
 	if(!buf)
 		flexerror(_("malloc failed in filter_tee_header"));
 	//while (fgets(buf, readsz, stdin)) {
@@ -507,7 +507,7 @@ int filter_fix_linedirs(struct filter * chain)
 	bool last_was_blank = false;
 	if(!chain)
 		return 0;
-	buf = (char *)malloc(readsz);
+	buf = (char *)SAlloc::M(readsz);
 	if(!buf)
 		flexerror(_("malloc failed in filter_fix_linedirs"));
 	while(fgets(buf, (int)readsz, chain->in_file /*stdin*/)) {
@@ -545,7 +545,7 @@ int filter_fix_linedirs(struct filter * chain)
 				in_gen = false;
 			}
 
-			free(fname);
+			SAlloc::F(fname);
 			last_was_blank = false;
 		}
 

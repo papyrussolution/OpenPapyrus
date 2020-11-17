@@ -50,35 +50,35 @@
    don't change existing definitions of PCRE_EXP_DECL and PCRECPP_EXP_DECL. */
 
 #if defined(_WIN32) && !defined(PCRE_STATIC)
-#  ifndef PCRE_EXP_DECL
-#    define PCRE_EXP_DECL  extern __declspec(dllimport)
-#  endif
-#  ifdef __cplusplus
+#ifndef PCRE_EXP_DECL
+#define PCRE_EXP_DECL  extern __declspec(dllimport)
+#endif
+#ifdef __cplusplus
 #    ifndef PCRECPP_EXP_DECL
-#      define PCRECPP_EXP_DECL  extern __declspec(dllimport)
-#    endif
+#define PCRECPP_EXP_DECL  extern __declspec(dllimport)
+#endif
 #    ifndef PCRECPP_EXP_DEFN
-#      define PCRECPP_EXP_DEFN  __declspec(dllimport)
-#    endif
-#  endif
+#define PCRECPP_EXP_DEFN  __declspec(dllimport)
+#endif
+#endif
 #endif
 
 /* By default, we use the standard "extern" declarations. */
 
 #ifndef PCRE_EXP_DECL
-#  ifdef __cplusplus
-#    define PCRE_EXP_DECL  extern "C"
-#  else
-#    define PCRE_EXP_DECL  extern
-#  endif
+#ifdef __cplusplus
+#define PCRE_EXP_DECL  extern "C"
+#else
+#define PCRE_EXP_DECL  extern
+#endif
 #endif
 #ifdef __cplusplus
-#  ifndef PCRECPP_EXP_DECL
-#    define PCRECPP_EXP_DECL  extern
-#  endif
-#  ifndef PCRECPP_EXP_DEFN
-#    define PCRECPP_EXP_DEFN
-#  endif
+#ifndef PCRECPP_EXP_DECL
+#define PCRECPP_EXP_DECL  extern
+#endif
+#ifndef PCRECPP_EXP_DEFN
+#define PCRECPP_EXP_DEFN
+#endif
 #endif
 
 // Have to include stdlib.h in order to ensure that size_t is defined; it is needed here for malloc. 

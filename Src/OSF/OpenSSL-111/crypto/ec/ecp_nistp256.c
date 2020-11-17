@@ -39,13 +39,13 @@ NON_EMPTY_TRANSLATION_UNIT
 #include <openssl/err.h>
 #include "ec_lcl.h"
 
-# if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
+#if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
 /* even with gcc, the typedef won't work for 32-bit platforms */
 typedef __uint128_t uint128_t;  /* nonstandard; implemented by gcc on 64-bit
                                  * platforms */
 typedef __int128_t int128_t;
 #else
-#  error "Your compiler doesn't appear to support 128-bit integer types"
+#error "Your compiler doesn't appear to support 128-bit integer types"
 #endif
 
 typedef uint8_t u8;

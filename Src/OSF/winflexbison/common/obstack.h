@@ -193,7 +193,7 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
    Note that this might not be the final address of the object
    because a new chunk might be needed to hold the final size.  */
 
-#define obstack_base(h) ((void*)(h)->object_base)
+#define obstack_base(h) ((void *)(h)->object_base)
 
 #define obstack_chunk_size(h) ((h)->chunk_size) /* Size for allocating ordinary chunks.  */
 #define obstack_next_free(h)    ((h)->next_free) /* Pointer to next byte not yet allocated in current chunk.  */
@@ -349,7 +349,7 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 #define obstack_finish(OBSTACK)                                        \
 	__extension__                                                           \
 		({ struct obstack * __o1 = (OBSTACK);                                    \
-		   void * __value = (void*)__o1->object_base;                          \
+		   void * __value = (void *)__o1->object_base;                          \
 		   if(__o1->next_free == __value)                                      \
 			   __o1->maybe_empty_object = 1;                                      \
 		   __o1->next_free                                                      \
@@ -365,7 +365,7 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
 	__extension__                                                           \
 		({ struct obstack * __o = (OBSTACK);                                     \
 		   void * __obj = (OBJ);                                                 \
-		   if(__obj > (void*)__o->chunk && __obj < (void*)__o->chunk_limit)  \
+		   if(__obj > (void *)__o->chunk && __obj < (void *)__o->chunk_limit)  \
 			   __o->next_free = __o->object_base = (char *)__obj;                 \
 		   else (__obstack_free)(__o, __obj); })
 

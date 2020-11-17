@@ -176,7 +176,7 @@ static int pkey_dsa_ctrl_str(EVP_PKEY_CTX * ctx,
 		}
 		return EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN,
 			   EVP_PKEY_CTRL_DSA_PARAMGEN_MD, 0,
-			   (void*)md);
+			   (void *)md);
 	}
 	return -2;
 }

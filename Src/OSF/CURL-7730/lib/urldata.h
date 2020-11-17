@@ -85,11 +85,11 @@
 #ifdef HAVE_NETINET_IN6_H
 	#include <netinet/in6.h>
 #endif
-#include "timeval.h"
+//#include "timeval.h"
 //#include <curl/curl.h>
 #include "http_chunks.h" /* for the structs and enum stuff */
-#include "hostip.h"
-#include "hash.h"
+//#include "hostip.h"
+//#include "hash.h"
 #include "splay.h"
 #include "dynbuf.h"
 
@@ -124,15 +124,15 @@ typedef ssize_t (Curl_recv)(struct connectdata * conn, /* connection data */
 
 #ifdef HAVE_GSSAPI
 # ifdef HAVE_GSSGNU
-#  include <gss.h>
+#include <gss.h>
 # elif defined HAVE_GSSAPI_GSSAPI_H
-#  include <gssapi/gssapi.h>
+#include <gssapi/gssapi.h>
 # else
-#  include <gssapi.h>
-# endif
+#include <gssapi.h>
+#endif
 # ifdef HAVE_GSSAPI_GSSAPI_GENERIC_H
-#  include <gssapi/gssapi_generic.h>
-# endif
+#include <gssapi/gssapi_generic.h>
+#endif
 #endif
 #ifdef HAVE_LIBSSH2_H
 	#include <libssh2.h>
@@ -1297,7 +1297,7 @@ struct UrlState {
 	                      if set, this should be the host name that we will
 	                      sent authorization to, no else. Used to make Location:
 	                      following not keep sending user+password... This is
-	                      strdup() data.
+	                      sstrdup() data.
 	                    */
 	int first_remote_port; /* remote port of the first (not followed) request */
 	struct Curl_ssl_session * session; /* array of 'max_ssl_sessions' size */
@@ -1411,7 +1411,7 @@ struct UrlState {
 	BIT(disableexpect); /* TRUE if Expect: is disabled due to a previous
 	                       417 response */
 	BIT(use_range);
-	BIT(rangestringalloc); /* the range string is malloc()'ed */
+	BIT(rangestringalloc); /* the range string is SAlloc::M()'ed */
 	BIT(done); /* set to FALSE when Curl_init_do() is called and set to TRUE
 	                when multi_done() is called, to prevent multi_done() to get
 	                invoked twice when the multi interface is used. */
@@ -1434,8 +1434,8 @@ struct DynamicStatic {
 	                                   curl_easy_setopt(COOKIEFILE) calls */
 	struct curl_slist * resolve; /* set to point to the set.resolve list when
 	                                this should be dealt with in pretransfer */
-	BIT(url_alloc); /* URL string is malloc()'ed */
-	BIT(referer_alloc); /* referer string is malloc()ed */
+	BIT(url_alloc); /* URL string is SAlloc::M()'ed */
+	BIT(referer_alloc); /* referer string is SAlloc::M()ed */
 	BIT(wildcard_resolve); /* Set to true if any resolve change is a
 	                            wildcard */
 };

@@ -128,7 +128,7 @@ CURLcode Curl_auth_create_cram_md5_message(struct Curl_easy * data,
 	/* Base64 encode the response */
 	result = Curl_base64_encode(data, response, 0, outptr, outlen);
 
-	free(response);
+	SAlloc::F(response);
 
 	return result;
 }

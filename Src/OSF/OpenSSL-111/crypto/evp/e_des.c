@@ -27,7 +27,7 @@ typedef struct {
 	} stream;
 } EVP_DES_KEY;
 
-# if defined(AES_ASM) && (defined(__sparc) || defined(__sparc__))
+#if defined(AES_ASM) && (defined(__sparc) || defined(__sparc__))
 /* ----------^^^ this is not a typo, just a way to detect that
  * assembler support was in general requested... */
 #include "sparc_arch.h"
@@ -177,7 +177,7 @@ static int des_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * i
 	DES_cblock * deskey = (DES_cblock*)key;
 	EVP_DES_KEY * dat = (EVP_DES_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx);
 	dat->stream.cbc = NULL;
-# if defined(SPARC_DES_CAPABLE)
+#if defined(SPARC_DES_CAPABLE)
 	if(SPARC_DES_CAPABLE) {
 		int mode = EVP_CIPHER_CTX_mode(ctx);
 

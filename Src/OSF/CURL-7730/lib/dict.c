@@ -49,10 +49,10 @@
 #endif
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "escape.h"
-#include "progress.h"
+//#include "progress.h"
 #include "dict.h"
 #include "curl_printf.h"
 #include "strcase.h"
@@ -101,7 +101,7 @@ static char * unescape_word(struct Curl_easy * data, const char * inputbuff)
 	if(!newp || result)
 		return NULL;
 
-	dictp = (char *)malloc(len*2 + 1); /* add one for terminating zero */
+	dictp = (char *)SAlloc::M(len*2 + 1); /* add one for terminating zero */
 	if(dictp) {
 		char * ptr;
 		char ch;
@@ -119,7 +119,7 @@ static char * unescape_word(struct Curl_easy * data, const char * inputbuff)
 		}
 		dictp[olen] = 0;
 	}
-	free(newp);
+	SAlloc::F(newp);
 	return dictp;
 }
 
@@ -163,7 +163,7 @@ static CURLcode sendf(curl_socket_t sockfd, struct connectdata * conn, const cha
 			break;
 	}
 
-	free(s); /* free the output string */
+	SAlloc::F(s); /* free the output string */
 
 	return result;
 }
@@ -235,7 +235,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 			strategy,
 			eword);
 
-		free(eword);
+		SAlloc::F(eword);
 
 		if(result) {
 			failf(data, "Failed sending DICT request");
@@ -280,7 +280,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 			database,
 			eword);
 
-		free(eword);
+		SAlloc::F(eword);
 
 		if(result) {
 			failf(data, "Failed sending DICT request");

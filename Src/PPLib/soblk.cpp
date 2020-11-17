@@ -2042,7 +2042,9 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 	int    use_filt = 0;
 	PPGta  gta_blk;
 	PPID   temp_id = 0;
-	SString temp_buf, o_buf, txt_buf;
+	SString temp_buf;
+	SString o_buf;
+	SString txt_buf;
 	ResultList.Z();
 	ResultText.Z();
 	const PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
@@ -3512,7 +3514,16 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						THROW_PP_S(oneof2(scs_rec.GetType(), scstCredit, scstBonus), PPERR_SCARDMUSTBECRDBNS, sc_rec.Code);
 						THROW(P_ScObj->P_Tbl->GetRest(sc_rec.ID, ZERODATE, &rest));
 						rest += sc_rec.MaxCredit;
-						THROW_PP_S((Operator == oSCardDeposit) || amount <= rest, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
+						if(Operator != oSCardDeposit) {
+							// @v10.9.3 {
+							if((rest - amount) <= -0.01) {
+								temp_buf.Z().Cat(sc_rec.Code).Space().
+									CatEq("amount", amount, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Space().CatEq("rest", rest, MKSFMTD(0, 8, NMBF_NOTRAILZ));
+								CALLEXCEPT_PP_S(PPERR_SCARDRESTNOTENOUGH, temp_buf);
+							}
+							// } @v10.9.3 
+							// @v10.9.3 THROW_PP_S(((rest - amount) > -0.01), PPERR_SCARDRESTNOTENOUGH, sc_rec.Code); // @v10.9.3 (amount<=rest)-->((rest-amount)>-0.01)
+						}
 						{
 							TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 							SCardCore::OpBlock ob;

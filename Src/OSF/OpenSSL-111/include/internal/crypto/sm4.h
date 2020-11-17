@@ -14,7 +14,7 @@
 #include <openssl/e_os2.h>
 
 #ifdef OPENSSL_NO_SM4
-#  error SM4 is disabled.
+#error SM4 is disabled.
 #endif
 
 #define SM4_ENCRYPT     1

@@ -48,9 +48,9 @@ CURLcode Curl_getworkingpath(struct connectdata * conn,
 
 	/* Check for /~/, indicating relative to the user's home directory */
 	if(conn->handler->protocol & CURLPROTO_SCP) {
-		real_path = (char *)malloc(working_path_len + 1);
+		real_path = (char *)SAlloc::M(working_path_len + 1);
 		if(real_path == NULL) {
-			free(working_path);
+			SAlloc::F(working_path);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		if((working_path_len > 3) && (!memcmp(working_path, "/~/", 3)))
@@ -62,9 +62,9 @@ CURLcode Curl_getworkingpath(struct connectdata * conn,
 	else if(conn->handler->protocol & CURLPROTO_SFTP) {
 		if((working_path_len > 1) && (working_path[1] == '~')) {
 			size_t homelen = strlen(homedir);
-			real_path = (char *)malloc(homelen + working_path_len + 1);
+			real_path = (char *)SAlloc::M(homelen + working_path_len + 1);
 			if(real_path == NULL) {
-				free(working_path);
+				SAlloc::F(working_path);
 				return CURLE_OUT_OF_MEMORY;
 			}
 			/* It is referenced to the home directory, so strip the
@@ -77,16 +77,16 @@ CURLcode Curl_getworkingpath(struct connectdata * conn,
 			}
 		}
 		else {
-			real_path = (char *)malloc(working_path_len + 1);
+			real_path = (char *)SAlloc::M(working_path_len + 1);
 			if(real_path == NULL) {
-				free(working_path);
+				SAlloc::F(working_path);
 				return CURLE_OUT_OF_MEMORY;
 			}
 			memcpy(real_path, working_path, 1 + working_path_len);
 		}
 	}
 
-	free(working_path);
+	SAlloc::F(working_path);
 
 	/* store the pointer for the caller to receive */
 	*path = real_path;
@@ -129,7 +129,7 @@ CURLcode Curl_get_pathname(const char ** cpp, char ** path, char * homedir)
 	cp += strspn(cp, WHITESPACE);
 	/* Allocate enough space for home directory and filename + separator */
 	fullPathLength = strlen(cp) + strlen(homedir) + 2;
-	*path = (char *)malloc(fullPathLength);
+	*path = (char *)SAlloc::M(fullPathLength);
 	if(*path == NULL)
 		return CURLE_OUT_OF_MEMORY;
 

@@ -174,12 +174,12 @@ void bn_mul_recursive(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b, int n2, int dna,
 	BN_ULONG ln, lo, * p;
 
 #ifdef BN_MUL_COMBA
-#  if 0
+#if 0
 	if(n2 == 4) {
 		bn_mul_comba4(r, a, b);
 		return;
 	}
-#  endif
+#endif
 	/*
 	 * Only call bn_mul_comba 8 if n2 == 8 and the two arrays are complete
 	 * [steve]
@@ -356,7 +356,7 @@ void bn_mul_part_recursive(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b, int n,
 	 * The zero case isn't yet implemented here. The speedup would probably
 	 * be negligible.
 	 */
-# if 0
+#if 0
 	if(n == 4) {
 		bn_mul_comba4(&(t[n2]), t, &(t[n]));
 		bn_mul_comba4(r, a, b);
@@ -539,7 +539,7 @@ int bn_mul_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ct
 #endif
 #ifdef BN_MUL_COMBA
 	if(i == 0) {
-# if 0
+#if 0
 		if(al == 4) {
 			if(bn_wexpand(rr, 8) == NULL)
 				goto err;

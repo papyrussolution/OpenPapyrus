@@ -42,7 +42,7 @@ void sf_push()
 {
 	if(_sf_top_ix + 1 >= _sf_max) {
 		_sf_max += 32;
-		_sf_stk = (scanflags_t *)realloc(_sf_stk, sizeof(scanflags_t) * _sf_max);
+		_sf_stk = (scanflags_t *)SAlloc::R(_sf_stk, sizeof(scanflags_t) * _sf_max);
 	}
 	// copy the top element
 	_sf_stk[_sf_top_ix + 1] = _sf_stk[_sf_top_ix];
@@ -60,7 +60,7 @@ void sf_init()
 {
 	assert(_sf_stk == NULL);
 	_sf_max = 32;
-	_sf_stk = (scanflags_t *)malloc(sizeof(scanflags_t) * _sf_max);
+	_sf_stk = (scanflags_t *)SAlloc::M(sizeof(scanflags_t) * _sf_max);
 	if(!_sf_stk)
 		lerr_fatal(_("Unable to allocate %zu of stack"), sizeof(scanflags_t));
 	_sf_stk[_sf_top_ix] = 0;

@@ -45,11 +45,11 @@
 #define CFR_XMONTMUL    0x00002000/* Supports XMONTMUL opcodes */
 #define CFR_XMONTSQR    0x00004000/* Supports XMONTSQR opcodes */
 
-# if defined(OPENSSL_PIC) && !defined(__PIC__)
+#if defined(OPENSSL_PIC) && !defined(__PIC__)
 #define __PIC__
 #endif
 
-# if defined(__SUNPRO_C) && defined(__sparcv9) && !defined(__arch64__)
+#if defined(__SUNPRO_C) && defined(__sparcv9) && !defined(__arch64__)
 #define __arch64__
 #endif
 
@@ -64,7 +64,7 @@
         call    .Lpic_thunk;                            \
          or     reg, %lo(_GLOBAL_OFFSET_TABLE_+4), reg;
 
-# if 1
+#if 1
 #define SPARC_SETUP_GOT_REG(reg)       SPARC_PIC_THUNK_CALL(reg)
 #else
 #define SPARC_SETUP_GOT_REG(reg)       \
@@ -74,7 +74,7 @@
         add     %o7, reg, reg
 #endif
 
-# if defined(__arch64__)
+#if defined(__arch64__)
 
 #define SPARC_LOAD_ADDRESS(SYM, reg)   \
         setx    SYM, %o7, reg;

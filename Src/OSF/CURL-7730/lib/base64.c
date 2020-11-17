@@ -147,7 +147,7 @@ CURLcode Curl_base64_decode(const char * src,
 	rawlen = (numQuantums * 3) - padding;
 
 	/* Allocate our buffer including room for a zero terminator */
-	newstr = (uchar *)malloc(rawlen + 1);
+	newstr = (uchar *)SAlloc::M(rawlen + 1);
 	if(!newstr)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -157,7 +157,7 @@ CURLcode Curl_base64_decode(const char * src,
 	for(i = 0; i < numQuantums; i++) {
 		size_t result = decodeQuantum(pos, src);
 		if(!result) {
-			free(newstr);
+			SAlloc::F(newstr);
 
 			return CURLE_BAD_CONTENT_ENCODING;
 		}
@@ -203,7 +203,7 @@ static CURLcode base64_encode(const char * table64,
 		return CURLE_OUT_OF_MEMORY;
 #endif
 
-	base64data = output = (char *)malloc(insize * 4 / 3 + 4);
+	base64data = output = (char *)SAlloc::M(insize * 4 / 3 + 4);
 	if(!output)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -214,7 +214,7 @@ static CURLcode base64_encode(const char * table64,
 	 */
 	result = Curl_convert_clone(data, indata, insize, &convbuf);
 	if(result) {
-		free(output);
+		SAlloc::F(output);
 		return result;
 	}
 
@@ -271,7 +271,7 @@ static CURLcode base64_encode(const char * table64,
 	/* Return the pointer to the new data (allocated memory) */
 	*outptr = base64data;
 
-	free(convbuf);
+	SAlloc::F(convbuf);
 
 	/* Return the length of the new data */
 	*outlen = strlen(base64data);

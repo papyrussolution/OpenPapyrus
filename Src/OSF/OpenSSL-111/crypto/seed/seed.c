@@ -46,7 +46,7 @@
 	#undef SS
 #endif
 
-# if !defined(OPENSSL_SMALL_FOOTPRINT)
+#if !defined(OPENSSL_SMALL_FOOTPRINT)
 
 #define G_FUNC(v)       \
 	SS[0][(uchar)(v) & 0xff] ^ \
@@ -424,7 +424,7 @@ static uint G_FUNC(uint v)
 #define KC14    0xde6e678d
 #define KC15    0xbcdccf1b
 
-# if defined(OPENSSL_SMALL_FOOTPRINT)
+#if defined(OPENSSL_SMALL_FOOTPRINT)
 static const seed_word KC[] = {
 	KC0, KC1, KC2, KC3, KC4, KC5, KC6, KC7,
 	KC8, KC9, KC10, KC11, KC12, KC13, KC14, KC15
@@ -448,7 +448,7 @@ void SEED_set_key(const uchar rawkey[SEED_KEY_LENGTH],
 	KEYSCHEDULE_UPDATE1(t0, t1, x1, x2, x3, x4, KC1);
 	KEYUPDATE_TEMP(t0, t1, &ks->data[2]);
 
-# if !defined(OPENSSL_SMALL_FOOTPRINT)
+#if !defined(OPENSSL_SMALL_FOOTPRINT)
 	KEYSCHEDULE_UPDATE0(t0, t1, x1, x2, x3, x4, KC2);
 	KEYUPDATE_TEMP(t0, t1, &ks->data[4]);
 	KEYSCHEDULE_UPDATE1(t0, t1, x1, x2, x3, x4, KC3);
@@ -502,7 +502,7 @@ void SEED_encrypt(const uchar s[SEED_BLOCK_SIZE],
 	char2word(s + 8, x3);
 	char2word(s + 12, x4);
 
-# if !defined(OPENSSL_SMALL_FOOTPRINT)
+#if !defined(OPENSSL_SMALL_FOOTPRINT)
 	E_SEED(t0, t1, x1, x2, x3, x4, 0);
 	E_SEED(t0, t1, x3, x4, x1, x2, 2);
 	E_SEED(t0, t1, x1, x2, x3, x4, 4);
@@ -547,7 +547,7 @@ void SEED_decrypt(const uchar s[SEED_BLOCK_SIZE],
 	char2word(s + 8, x3);
 	char2word(s + 12, x4);
 
-# if !defined(OPENSSL_SMALL_FOOTPRINT)
+#if !defined(OPENSSL_SMALL_FOOTPRINT)
 	E_SEED(t0, t1, x1, x2, x3, x4, 30);
 	E_SEED(t0, t1, x3, x4, x1, x2, 28);
 	E_SEED(t0, t1, x1, x2, x3, x4, 26);

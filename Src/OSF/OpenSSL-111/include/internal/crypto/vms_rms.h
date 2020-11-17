@@ -21,7 +21,7 @@
 #define NAMX_NOP naml$b_nop
 #define SET_NAMX_NO_SHORT_UPCASE( nam) nam.naml$v_no_short_upcase = 1
 
-# if __INITIAL_POINTER_SIZE == 64
+#if __INITIAL_POINTER_SIZE == 64
 #define NAMX_DNA_FNA_SET(fab) fab.fab$l_dna = (__char_ptr32) -1; \
    fab.fab$l_fna = (__char_ptr32) -1;
 #else                          /* __INITIAL_POINTER_SIZE == 64 */

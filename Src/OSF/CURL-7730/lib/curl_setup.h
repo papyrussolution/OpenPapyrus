@@ -137,44 +137,43 @@
 /*
  * Disable other protocols when http is the only one desired.
  */
-
 #ifdef HTTP_ONLY
-#  ifndef CURL_DISABLE_TFTP
-#    define CURL_DISABLE_TFTP
-#  endif
-#  ifndef CURL_DISABLE_FTP
-#    define CURL_DISABLE_FTP
-#  endif
-#  ifndef CURL_DISABLE_LDAP
-#    define CURL_DISABLE_LDAP
-#  endif
-#  ifndef CURL_DISABLE_TELNET
-#    define CURL_DISABLE_TELNET
-#  endif
-#  ifndef CURL_DISABLE_DICT
-#    define CURL_DISABLE_DICT
-#  endif
-#  ifndef CURL_DISABLE_FILE
-#    define CURL_DISABLE_FILE
-#  endif
-#  ifndef CURL_DISABLE_RTSP
-#    define CURL_DISABLE_RTSP
-#  endif
-#  ifndef CURL_DISABLE_POP3
-#    define CURL_DISABLE_POP3
-#  endif
-#  ifndef CURL_DISABLE_IMAP
-#    define CURL_DISABLE_IMAP
-#  endif
-#  ifndef CURL_DISABLE_SMTP
-#    define CURL_DISABLE_SMTP
-#  endif
-#  ifndef CURL_DISABLE_GOPHER
-#    define CURL_DISABLE_GOPHER
-#  endif
-#  ifndef CURL_DISABLE_SMB
-#    define CURL_DISABLE_SMB
-#  endif
+#ifndef CURL_DISABLE_TFTP
+#define CURL_DISABLE_TFTP
+#endif
+#ifndef CURL_DISABLE_FTP
+#define CURL_DISABLE_FTP
+#endif
+#ifndef CURL_DISABLE_LDAP
+#define CURL_DISABLE_LDAP
+#endif
+#ifndef CURL_DISABLE_TELNET
+#define CURL_DISABLE_TELNET
+#endif
+#ifndef CURL_DISABLE_DICT
+#define CURL_DISABLE_DICT
+#endif
+#ifndef CURL_DISABLE_FILE
+#define CURL_DISABLE_FILE
+#endif
+#ifndef CURL_DISABLE_RTSP
+#define CURL_DISABLE_RTSP
+#endif
+#ifndef CURL_DISABLE_POP3
+#define CURL_DISABLE_POP3
+#endif
+#ifndef CURL_DISABLE_IMAP
+#define CURL_DISABLE_IMAP
+#endif
+#ifndef CURL_DISABLE_SMTP
+#define CURL_DISABLE_SMTP
+#endif
+#ifndef CURL_DISABLE_GOPHER
+#define CURL_DISABLE_GOPHER
+#endif
+#ifndef CURL_DISABLE_SMB
+#define CURL_DISABLE_SMB
+#endif
 #endif
 /*
  * When http is disabled rtsp is not supported.
@@ -186,7 +185,6 @@
 /* No system header file shall be included in this file before this */
 /* point. The only allowed ones are those included from curl/system.h */
 /* ================================================================ */
-
 /*
  * OS/400 setup file includes some system headers.
  */
@@ -239,14 +237,14 @@
 	#include <ioLib.h>      /* for basic I/O interface functions */
 #endif
 #ifdef __AMIGA__
-#  include <exec/types.h>
-#  include <exec/execbase.h>
-#  include <proto/exec.h>
-#  include <proto/dos.h>
-#  ifdef HAVE_PROTO_BSDSOCKET_H
-#    include <proto/bsdsocket.h> /* ensure bsdsocket.library use */
-#    define select(a, b, c, d, e) WaitSelect(a, b, c, d, e, 0)
-#  endif
+	#include <exec/types.h>
+	#include <exec/execbase.h>
+	#include <proto/exec.h>
+	#include <proto/dos.h>
+	#ifdef HAVE_PROTO_BSDSOCKET_H
+		#include <proto/bsdsocket.h> /* ensure bsdsocket.library use */
+		#define select(a, b, c, d, e) WaitSelect(a, b, c, d, e, 0)
+	#endif
 #endif
 //#include <stdio.h>
 //#ifdef HAVE_ASSERT_H
@@ -273,240 +271,207 @@
   #pragma suppress 106             /* unnamed, unused parameter */
   #include <clib.h>
 #endif
-
 /*
  * Large file (>2Gb) support using WIN32 functions.
  */
-
 #ifdef USE_WIN32_LARGE_FILES
-#  include <io.h>
-#  include <sys/types.h>
-#  include <sys/stat.h>
-#  undef  lseek
-#  define lseek(fdes, offset, whence)  _lseeki64(fdes, offset, whence)
-#  undef  fstat
-#  define fstat(fdes, stp)            _fstati64(fdes, stp)
-#  undef  stat
-#  define stat(fname, stp)            curlx_win32_stat(fname, stp)
-#  define struct_stat                struct _stati64
-#  define LSEEK_ERROR                (__int64)-1
-#  define fopen(fname, mode)          curlx_win32_fopen(fname, mode)
-#  define access(fname, mode)         curlx_win32_access(fname, mode)
-int curlx_win32_stat(const char * path, struct_stat * buffer);
-FILE * curlx_win32_fopen(const char * filename, const char * mode);
-int curlx_win32_access(const char * path, int mode);
+	#include <io.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#undef  lseek
+	#define lseek(fdes, offset, whence)  _lseeki64(fdes, offset, whence)
+	#undef  fstat
+	#define fstat(fdes, stp)            _fstati64(fdes, stp)
+	#undef  stat
+	#define stat(fname, stp)            curlx_win32_stat(fname, stp)
+	#define struct_stat                struct _stati64
+	#define LSEEK_ERROR                (__int64)-1
+	#define fopen(fname, mode)          curlx_win32_fopen(fname, mode)
+	#define access(fname, mode)         curlx_win32_access(fname, mode)
+	int curlx_win32_stat(const char * path, struct_stat * buffer);
+	FILE * curlx_win32_fopen(const char * filename, const char * mode);
+	int curlx_win32_access(const char * path, int mode);
 #endif
-
 /*
  * Small file (<2Gb) support using WIN32 functions.
  */
-
 #ifdef USE_WIN32_SMALL_FILES
-#  include <io.h>
-#  include <sys/types.h>
-#  include <sys/stat.h>
-#  ifndef _WIN32_WCE
-#    undef  lseek
-#    define lseek(fdes, offset, whence)  _lseek(fdes, (long)offset, whence)
-#    define fstat(fdes, stp)            _fstat(fdes, stp)
-#    define stat(fname, stp)            curlx_win32_stat(fname, stp)
-#    define struct_stat                struct _stat
-#    define fopen(fname, mode)          curlx_win32_fopen(fname, mode)
-#    define access(fname, mode)         curlx_win32_access(fname, mode)
-int curlx_win32_stat(const char * path, struct_stat * buffer);
-FILE * curlx_win32_fopen(const char * filename, const char * mode);
-int curlx_win32_access(const char * path, int mode);
-#  endif
-#  define LSEEK_ERROR                (long)-1
+	#include <io.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#ifndef _WIN32_WCE
+		#undef  lseek
+		#define lseek(fdes, offset, whence)  _lseek(fdes, (long)offset, whence)
+		#define fstat(fdes, stp)            _fstat(fdes, stp)
+		#define stat(fname, stp)            curlx_win32_stat(fname, stp)
+		#define struct_stat                struct _stat
+		#define fopen(fname, mode)          curlx_win32_fopen(fname, mode)
+		#define access(fname, mode)         curlx_win32_access(fname, mode)
+		int curlx_win32_stat(const char * path, struct_stat * buffer);
+		FILE * curlx_win32_fopen(const char * filename, const char * mode);
+		int curlx_win32_access(const char * path, int mode);
+	#endif
+	#define LSEEK_ERROR                (long)-1
 #endif
-
 #ifndef struct_stat
-#  define struct_stat struct stat
+	#define struct_stat struct stat
 #endif
-
 #ifndef LSEEK_ERROR
-#  define LSEEK_ERROR (off_t)-1
+	#define LSEEK_ERROR (off_t)-1
 #endif
-
 #ifndef SIZEOF_TIME_T
-/* assume default size of time_t to be 32 bit */
-#define SIZEOF_TIME_T 4
+	#define SIZEOF_TIME_T 4 /* assume default size of time_t to be 32 bit */
 #endif
-
 /*
  * Default sizeof(off_t) in case it hasn't been defined in config file.
  */
-
 #ifndef SIZEOF_OFF_T
-#  if defined(__VMS) && !defined(__VAX)
-#    if defined(_LARGEFILE)
-#      define SIZEOF_OFF_T 8
-#    endif
-#  elif defined(__OS400__) && defined(__ILEC400__)
-#    if defined(_LARGE_FILES)
-#      define SIZEOF_OFF_T 8
-#    endif
-#  elif defined(__MVS__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
-#      define SIZEOF_OFF_T 8
-#    endif
-#  elif defined(__370__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
-#      define SIZEOF_OFF_T 8
-#    endif
-#  endif
-#  ifndef SIZEOF_OFF_T
-#    define SIZEOF_OFF_T 4
-#  endif
+	#if defined(__VMS) && !defined(__VAX)
+		#if defined(_LARGEFILE)
+			#define SIZEOF_OFF_T 8
+		#endif
+	#elif defined(__OS400__) && defined(__ILEC400__)
+		#if defined(_LARGE_FILES)
+			#define SIZEOF_OFF_T 8
+		#endif
+	#elif defined(__MVS__) && defined(__IBMC__)
+		#if defined(_LP64) || defined(_LARGE_FILES)
+		#define SIZEOF_OFF_T 8
+		#endif
+	#elif defined(__370__) && defined(__IBMC__)
+		#if defined(_LP64) || defined(_LARGE_FILES)
+			#define SIZEOF_OFF_T 8
+		#endif
+	#endif
+	#ifndef SIZEOF_OFF_T
+		#define SIZEOF_OFF_T 4
+	#endif
 #endif
-
 #if (SIZEOF_CURL_OFF_T == 4)
-#  define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFF)
+	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFF)
 #else
-/* assume CURL_SIZEOF_CURL_OFF_T == 8 */
-#  define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFFFFFFFFFF)
+	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFFFFFFFFFF) /* assume CURL_SIZEOF_CURL_OFF_T == 8 */
 #endif
 #define CURL_OFF_T_MIN (-CURL_OFF_T_MAX - CURL_OFF_T_C(1))
-
 #if (SIZEOF_TIME_T == 4)
-#  ifdef HAVE_TIME_T_UNSIGNED
-#  define TIME_T_MAX UINT_MAX
-#  define TIME_T_MIN 0
-#  else
-#  define TIME_T_MAX INT_MAX
-#  define TIME_T_MIN INT_MIN
-#  endif
+	#ifdef HAVE_TIME_T_UNSIGNED
+		#define TIME_T_MAX UINT_MAX
+		#define TIME_T_MIN 0
+	#else
+		#define TIME_T_MAX INT_MAX
+		#define TIME_T_MIN INT_MIN
+	#endif
 #else
-#  ifdef HAVE_TIME_T_UNSIGNED
-#  define TIME_T_MAX 0xFFFFFFFFFFFFFFFF
-#  define TIME_T_MIN 0
-#  else
-#  define TIME_T_MAX 0x7FFFFFFFFFFFFFFF
-#  define TIME_T_MIN (-TIME_T_MAX - 1)
-#  endif
+	#ifdef HAVE_TIME_T_UNSIGNED
+		#define TIME_T_MAX 0xFFFFFFFFFFFFFFFF
+		#define TIME_T_MIN 0
+	#else
+		#define TIME_T_MAX 0x7FFFFFFFFFFFFFFF
+		#define TIME_T_MIN (-TIME_T_MAX - 1)
+	#endif
 #endif
-
 #ifndef SIZE_T_MAX
-/* some limits.h headers have this defined, some don't */
-#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
-#define SIZE_T_MAX 18446744073709551615U
-#else
-#define SIZE_T_MAX 4294967295U
+	/* some limits.h headers have this defined, some don't */
+	#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
+		#define SIZE_T_MAX 18446744073709551615U
+	#else
+		#define SIZE_T_MAX 4294967295U
+	#endif
 #endif
-#endif
-
 /*
  * Arg 2 type for gethostname in case it hasn't been defined in config file.
  */
-
 #ifndef GETHOSTNAME_TYPE_ARG2
-#  ifdef USE_WINSOCK
-#    define GETHOSTNAME_TYPE_ARG2 int
-#  else
-#    define GETHOSTNAME_TYPE_ARG2 size_t
-#  endif
+	#ifdef USE_WINSOCK
+		#define GETHOSTNAME_TYPE_ARG2 int
+	#else
+		#define GETHOSTNAME_TYPE_ARG2 size_t
+	#endif
 #endif
-
 /* Below we define some functions. They should
 
    4. set the SIGALRM signal timeout
    5. set dir/file naming defines
  */
-
 #ifdef WIN32
 	#define DIR_CHAR      "\\"
 #else /* WIN32 */
-#  ifdef MSDOS  /* Watt-32 */
-#    include <sys/ioctl.h>
-#    define select(n, r, w, x, t) select_s(n, r, w, x, t)
-#    define ioctl(x, y, z) ioctlsocket(x, y, (char *)(z))
-#    include <tcp.h>
-#    ifdef word
-#      undef word
-#    endif
-#    ifdef byte
-#      undef byte
-#    endif
-#  endif /* MSDOS */
-#  ifdef __minix
+#ifdef MSDOS  /* Watt-32 */
+	#include <sys/ioctl.h>
+	#define select(n, r, w, x, t) select_s(n, r, w, x, t)
+	#define ioctl(x, y, z) ioctlsocket(x, y, (char *)(z))
+	#include <tcp.h>
+	#ifdef word
+		#undef word
+	#endif
+	#ifdef byte
+		#undef byte
+	#endif
+#endif /* MSDOS */
+#ifdef __minix
 /* Minix 3 versions up to at least 3.1.3 are missing these prototypes */
 extern char * strtok_r(char * s, const char * delim, char ** last);
 extern struct tm * gmtime_r(const time_t * const timep, struct tm * tmp);
-#  endif
-
-#  define DIR_CHAR      "/"
-
-#  ifndef fileno /* sunos 4 have this as a macro! */
-int fileno(FILE * stream);
-#  endif
-
+#endif
+#define DIR_CHAR      "/"
+#ifndef fileno /* sunos 4 have this as a macro! */
+	int fileno(FILE * stream);
+#endif
 #endif /* WIN32 */
-
 /*
  * msvc 6.0 requires PSDK in order to have INET6_ADDRSTRLEN
  * defined in ws2tcpip.h as well as to provide IPv6 support.
  * Does not apply if lwIP is used.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__) && !defined(USE_LWIPSOCK)
-#  if !defined(HAVE_WS2TCPIP_H) || \
-	((_MSC_VER < 1300) && !defined(INET6_ADDRSTRLEN))
-#    undef HAVE_GETADDRINFO_THREADSAFE
-#    undef HAVE_FREEADDRINFO
-#    undef HAVE_GETADDRINFO
-#    undef HAVE_GETNAMEINFO
-#    undef ENABLE_IPV6
-#  endif
+	#if !defined(HAVE_WS2TCPIP_H) || ((_MSC_VER < 1300) && !defined(INET6_ADDRSTRLEN))
+		#undef HAVE_GETADDRINFO_THREADSAFE
+		#undef HAVE_FREEADDRINFO
+		#undef HAVE_GETADDRINFO
+		#undef HAVE_GETNAMEINFO
+		#undef ENABLE_IPV6
+	#endif
 #endif
-
 /* ---------------------------------------------------------------- */
 /*             resolver specialty compile-time defines              */
 /*         CURLRES_* defines to use in the host*.c sources          */
 /* ---------------------------------------------------------------- */
-
 /*
  * lcc-win32 doesn't have _beginthreadex(), lacks threads support.
  */
-
 #if defined(__LCC__) && defined(WIN32)
-#  undef USE_THREADS_POSIX
-#  undef USE_THREADS_WIN32
+	#undef USE_THREADS_POSIX
+	#undef USE_THREADS_WIN32
 #endif
-
 /*
  * MSVC threads support requires a multi-threaded runtime library.
  * _beginthreadex() is not available in single-threaded ones.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__) && !defined(_MT)
-#  undef USE_THREADS_POSIX
-#  undef USE_THREADS_WIN32
+	#undef USE_THREADS_POSIX
+	#undef USE_THREADS_WIN32
 #endif
-
 /*
  * Mutually exclusive CURLRES_* definitions.
  */
-
 #if defined(ENABLE_IPV6) && defined(HAVE_GETADDRINFO)
-#  define CURLRES_IPV6
+	#define CURLRES_IPV6
 #else
-#  define CURLRES_IPV4
+	#define CURLRES_IPV4
 #endif
-
 #ifdef USE_ARES
-#  define CURLRES_ASYNCH
-#  define CURLRES_ARES
-/* now undef the stock libc functions just to avoid them being used */
-#  undef HAVE_GETADDRINFO
-#  undef HAVE_FREEADDRINFO
-#  undef HAVE_GETHOSTBYNAME
+	#define CURLRES_ASYNCH
+	#define CURLRES_ARES
+	/* now undef the stock libc functions just to avoid them being used */
+	#undef HAVE_GETADDRINFO
+	#undef HAVE_FREEADDRINFO
+	#undef HAVE_GETHOSTBYNAME
 #elif defined(USE_THREADS_POSIX) || defined(USE_THREADS_WIN32)
-#  define CURLRES_ASYNCH
-#  define CURLRES_THREADED
+	#define CURLRES_ASYNCH
+	#define CURLRES_THREADED
 #else
-#  define CURLRES_SYNCH
+	#define CURLRES_SYNCH
 #endif
-
 /* ---------------------------------------------------------------- */
 
 /*
@@ -514,30 +479,25 @@ int fileno(FILE * stream);
  * does not define IPPROTO_ESP in winsock2.h. But both
  * are available if PSDK is properly installed.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__)
-#  if !defined(HAVE_WINSOCK2_H) || ((_MSC_VER < 1300) && !defined(IPPROTO_ESP))
-#    undef HAVE_STRUCT_SOCKADDR_STORAGE
-#  endif
+	#if !defined(HAVE_WINSOCK2_H) || ((_MSC_VER < 1300) && !defined(IPPROTO_ESP))
+		#undef HAVE_STRUCT_SOCKADDR_STORAGE
+	#endif
 #endif
-
 /*
  * Intentionally fail to build when using msvc 6.0 without PSDK installed.
  * The brave of heart can circumvent this, defining ALLOW_MSVC6_WITHOUT_PSDK
  * in lib/config-win32.h although absolutely discouraged and unsupported.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__)
-#  if !defined(HAVE_WINDOWS_H) || ((_MSC_VER < 1300) && !defined(_FILETIME_))
-#    if !defined(ALLOW_MSVC6_WITHOUT_PSDK)
-#      error MSVC 6.0 requires "February 2003 Platform SDK" a.k.a. \
-	"Windows Server 2003 PSDK"
-#    else
-#      define CURL_DISABLE_LDAP 1
-#    endif
-#  endif
+#if !defined(HAVE_WINDOWS_H) || ((_MSC_VER < 1300) && !defined(_FILETIME_))
+#if !defined(ALLOW_MSVC6_WITHOUT_PSDK)
+#error MSVC 6.0 requires "February 2003 Platform SDK" a.k.a. "Windows Server 2003 PSDK"
+#else
+#define CURL_DISABLE_LDAP 1
 #endif
-
+#endif
+#endif
 #ifdef NETWARE
 int netware_init(void);
 #ifndef __NOVELL_LIBC__
@@ -545,18 +505,13 @@ int netware_init(void);
 #include <sys/timeval.h>
 #endif
 #endif
-
 #if defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H) && !defined(USE_WIN32_IDN)
-/* The lib and header are present */
-#define USE_LIBIDN2
+	#define USE_LIBIDN2 /* The lib and header are present */
 #endif
-
 #if defined(USE_LIBIDN2) && defined(USE_WIN32_IDN)
-#error "Both libidn2 and WinIDN are enabled, choose one."
+	#error "Both libidn2 and WinIDN are enabled, choose one."
 #endif
-
 #define LIBIDN_REQUIRED_VERSION "0.4.1"
-
 #if defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_NSS) || \
 	defined(USE_MBEDTLS) || \
 	defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
@@ -621,83 +576,70 @@ int netware_init(void);
  * Ensure that Winsock and lwIP TCP/IP stacks are not mixed.
  */
 #if defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
-#  if defined(SOCKET) || \
-	defined(USE_WINSOCK) || \
-	defined(HAVE_WINSOCK_H) || \
-	defined(HAVE_WINSOCK2_H) || \
-	defined(HAVE_WS2TCPIP_H)
-#    error "WinSock and lwIP TCP/IP stack definitions shall not coexist!"
-#  endif
+	#if defined(SOCKET) || defined(USE_WINSOCK) || defined(HAVE_WINSOCK_H) || defined(HAVE_WINSOCK2_H) || defined(HAVE_WS2TCPIP_H)
+		#error "WinSock and lwIP TCP/IP stack definitions shall not coexist!"
+	#endif
 #endif
-
 /*
  * Portable symbolic names for Winsock shutdown() mode flags.
  */
-
 #ifdef USE_WINSOCK
-#  define SHUT_RD   0x00
-#  define SHUT_WR   0x01
-#  define SHUT_RDWR 0x02
+	#define SHUT_RD   0x00
+	#define SHUT_WR   0x01
+	#define SHUT_RDWR 0x02
 #endif
-
 /* Define S_ISREG if not defined by system headers, f.e. MSVC */
 #if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+	#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #endif
-
 /* Define S_ISDIR if not defined by system headers, f.e. MSVC */
 #if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
-#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+	#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
-
 /* In Windows the default file mode is text but an application can override it.
    Therefore we specify it explicitly. https://github.com/curl/curl/pull/258
  */
 #if defined(WIN32) || defined(MSDOS)
-#define FOPEN_READTEXT "rt"
-#define FOPEN_WRITETEXT "wt"
-#define FOPEN_APPENDTEXT "at"
+	#define FOPEN_READTEXT "rt"
+	#define FOPEN_WRITETEXT "wt"
+	#define FOPEN_APPENDTEXT "at"
 #elif defined(__CYGWIN__)
-/* Cygwin has specific behavior we need to address when WIN32 is not defined.
-   https://cygwin.com/cygwin-ug-net/using-textbinary.html
-   For write we want our output to have line endings of LF and be compatible with
-   other Cygwin utilities. For read we want to handle input that may have line
-   endings either CRLF or LF so 't' is appropriate.
- */
-#define FOPEN_READTEXT "rt"
-#define FOPEN_WRITETEXT "w"
-#define FOPEN_APPENDTEXT "a"
+	/* Cygwin has specific behavior we need to address when WIN32 is not defined.
+	   https://cygwin.com/cygwin-ug-net/using-textbinary.html
+	   For write we want our output to have line endings of LF and be compatible with
+	   other Cygwin utilities. For read we want to handle input that may have line
+	   endings either CRLF or LF so 't' is appropriate.
+	 */
+	#define FOPEN_READTEXT "rt"
+	#define FOPEN_WRITETEXT "w"
+	#define FOPEN_APPENDTEXT "a"
 #else
-#define FOPEN_READTEXT "r"
-#define FOPEN_WRITETEXT "w"
-#define FOPEN_APPENDTEXT "a"
+	#define FOPEN_READTEXT "r"
+	#define FOPEN_WRITETEXT "w"
+	#define FOPEN_APPENDTEXT "a"
 #endif
-
 /* WinSock destroys recv() buffer when send() failed.
  * Enabled automatically for Windows and for Cygwin as Cygwin sockets are
  * wrappers for WinSock sockets. https://github.com/curl/curl/issues/657
  * Define DONT_USE_RECV_BEFORE_SEND_WORKAROUND to force disable workaround.
  */
 #if !defined(DONT_USE_RECV_BEFORE_SEND_WORKAROUND)
-#  if defined(WIN32) || defined(__CYGWIN__)
-#    define USE_RECV_BEFORE_SEND_WORKAROUND
-#  endif
+	#if defined(WIN32) || defined(__CYGWIN__)
+		#define USE_RECV_BEFORE_SEND_WORKAROUND
+	#endif
 #else  /* DONT_USE_RECV_BEFORE_SEND_WORKAROUND */
-#  ifdef USE_RECV_BEFORE_SEND_WORKAROUND
-#    undef USE_RECV_BEFORE_SEND_WORKAROUND
-#  endif
+	#ifdef USE_RECV_BEFORE_SEND_WORKAROUND
+		#undef USE_RECV_BEFORE_SEND_WORKAROUND
+	#endif
 #endif /* DONT_USE_RECV_BEFORE_SEND_WORKAROUND */
-
 /* Detect Windows App environment which has a restricted access
  * to the Win32 APIs. */
-# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
-	defined(WINAPI_FAMILY)
-#  include <winapifamily.h>
-#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
-	!WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define CURL_WINDOWS_APP
-#  endif
-# endif
+#if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || defined(WINAPI_FAMILY)
+	#include <winapifamily.h>
+	#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+		#define CURL_WINDOWS_APP
+	#endif
+#endif
 /* for systems that don't detect this in configure, use a sensible default */
 #ifndef CURL_SA_FAMILY_T
 	#define CURL_SA_FAMILY_T ushort
@@ -719,5 +661,21 @@ int netware_init(void);
 #if defined(USE_NGTCP2) || defined(USE_QUICHE)
 	#define ENABLE_QUIC
 #endif
+
+#include "sendf.h"
+#include "timeval.h"
+#include "llist.h"
+#include "hash.h"
+#include "curl_addrinfo.h"
+#include "asyn.h"
+#ifdef HAVE_SETJMP_H
+	#include <setjmp.h>
+#endif
+#include "hostip.h"
+#include "transfer.h"
+#include "progress.h"
+#include "nonblock.h"
+#include "sockaddr.h"
+#include "connect.h"
 
 #endif /* HEADER_CURL_SETUP_H */

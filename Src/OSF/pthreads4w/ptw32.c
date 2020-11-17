@@ -693,7 +693,7 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 	int64_t tmpCurrNanoseconds;
 	struct timespec currSysTime;
 	FILETIME ft;
-# if defined(WINCE)
+#if defined(WINCE)
 	SYSTEMTIME st;
 #endif
 	/*
@@ -708,12 +708,12 @@ DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 	 */
 	tmpAbsNanoseconds = (int64_t)abstime->tv_nsec + ((int64_t)abstime->tv_sec * NANOSEC_PER_SEC);
 	// get current system time 
-# if defined(WINCE)
+#if defined(WINCE)
 	GetSystemTime(&st);
 	SystemTimeToFileTime(&st, &ft);
 # else
 	GetSystemTimeAsFileTime(&ft);
-# endif
+#endif
 	__ptw32_filetime_to_timespec(&ft, &currSysTime);
 	tmpCurrNanoseconds = (int64_t)currSysTime.tv_nsec + ((int64_t)currSysTime.tv_sec * NANOSEC_PER_SEC);
 	if(tmpAbsNanoseconds > tmpCurrNanoseconds) {

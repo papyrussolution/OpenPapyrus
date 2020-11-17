@@ -31,7 +31,7 @@
 
 struct fileinfo * Curl_fileinfo_alloc(void)
 {
-	return (struct fileinfo *)calloc(1, sizeof(struct fileinfo));
+	return (struct fileinfo *)SAlloc::C(1, sizeof(struct fileinfo));
 }
 
 void Curl_fileinfo_cleanup(struct fileinfo * finfo)
@@ -39,7 +39,7 @@ void Curl_fileinfo_cleanup(struct fileinfo * finfo)
 	if(!finfo)
 		return;
 	Curl_safefree(finfo->info.b_data);
-	free(finfo);
+	SAlloc::F(finfo);
 }
 
 #endif

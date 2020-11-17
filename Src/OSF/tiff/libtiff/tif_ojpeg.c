@@ -210,7 +210,7 @@ static const TIFFField ojpegFields[] = {
 #if defined(__WIN32__) && !defined(__MINGW32__)
 # ifndef __RPCNDR_H__            /* don't conflict if rpcndr.h already read */
 typedef uchar boolean;
-# endif
+#endif
 # define HAVE_BOOLEAN            /* prevent jmorecfg.h from redefining it */
 #endif
 

@@ -26,9 +26,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "select.h"
-#include "progress.h"
+//#include "progress.h"
 #include "speedcheck.h"
 #include "pingpong.h"
 #include "multiif.h"
@@ -303,7 +303,7 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd,
 			}
 			memcpy(ptr, pp->cache, pp->cache_size);
 			gotbytes = (ssize_t)pp->cache_size;
-			free(pp->cache); /* free the cache */
+			SAlloc::F(pp->cache); /* free the cache */
 			pp->cache = NULL; /* clear the pointer */
 			pp->cache_size = 0; /* zero the size just in case */
 		}
@@ -432,7 +432,7 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd,
 
 			if(clipamount) {
 				pp->cache_size = clipamount;
-				pp->cache = (char *)malloc(pp->cache_size);
+				pp->cache = (char *)SAlloc::M(pp->cache_size);
 				if(pp->cache)
 					memcpy(pp->cache, pp->linestart_resp, pp->cache_size);
 				else

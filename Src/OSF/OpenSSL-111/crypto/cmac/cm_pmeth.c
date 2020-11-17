@@ -109,7 +109,7 @@ static int pkey_cmac_ctrl_str(EVP_PKEY_CTX * ctx,
 		c = EVP_get_cipherbyname(value);
 		if(!c)
 			return 0;
-		return pkey_cmac_ctrl(ctx, EVP_PKEY_CTRL_CIPHER, -1, (void*)c);
+		return pkey_cmac_ctrl(ctx, EVP_PKEY_CTRL_CIPHER, -1, (void *)c);
 	}
 	if(sstreq(type, "key"))
 		return EVP_PKEY_CTX_str2ctrl(ctx, EVP_PKEY_CTRL_SET_MAC_KEY, value);

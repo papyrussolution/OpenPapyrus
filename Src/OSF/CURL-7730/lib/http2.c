@@ -27,13 +27,13 @@
 #include "urldata.h"
 #include "http2.h"
 #include "http.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "select.h"
 #include "curl_base64.h"
 #include "strcase.h"
 #include "multiif.h"
 #include "url.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strtoofft.h"
 #include "strdup.h"
 #include "dynbuf.h"
@@ -126,9 +126,9 @@ static void http2_stream_free(struct HTTP * http)
 	if(http) {
 		Curl_dyn_free(&http->header_recvbuf);
 		for(; http->push_headers_used > 0; --http->push_headers_used) {
-			free(http->push_headers[http->push_headers_used - 1]);
+			SAlloc::F(http->push_headers[http->push_headers_used - 1]);
 		}
-		free(http->push_headers);
+		SAlloc::F(http->push_headers);
 		http->push_headers = NULL;
 	}
 }
@@ -454,7 +454,7 @@ static struct Curl_easy * duphandle(struct Curl_easy * data){
 	struct Curl_easy * second = curl_easy_duphandle(data);
 	if(second) {
 		/* setup the request struct */
-		struct HTTP * http = calloc(1, sizeof(struct HTTP));
+		struct HTTP * http = SAlloc::C(1, sizeof(struct HTTP));
 		if(!http) {
 			(void)Curl_close(&second);
 		}
@@ -503,7 +503,7 @@ static int set_transfer_url(struct Curl_easy * data,
 	curl_url_cleanup(u);
 
 	if(data->change.url_alloc)
-		free(data->change.url);
+		SAlloc::F(data->change.url);
 	data->change.url_alloc = TRUE;
 	data->change.url = url;
 	return 0;
@@ -558,8 +558,8 @@ static int push_promise(struct Curl_easy * data,
 
 		/* free the headers again */
 		for(i = 0; i<stream->push_headers_used; i++)
-			free(stream->push_headers[i]);
-		free(stream->push_headers);
+			SAlloc::F(stream->push_headers[i]);
+		SAlloc::F(stream->push_headers);
 		stream->push_headers = NULL;
 		stream->push_headers_used = 0;
 
@@ -981,14 +981,14 @@ static int on_header(nghttp2_session * session, const nghttp2_frame * frame,
 				    stream_id, NGHTTP2_PROTOCOL_ERROR);
 				rc = NGHTTP2_ERR_CALLBACK_FAILURE;
 			}
-			free(check);
+			SAlloc::F(check);
 			if(rc)
 				return rc;
 		}
 
 		if(!stream->push_headers) {
 			stream->push_headers_alloc = 10;
-			stream->push_headers = malloc(stream->push_headers_alloc *
+			stream->push_headers = SAlloc::M(stream->push_headers_alloc *
 				sizeof(char *));
 			if(!stream->push_headers)
 				return NGHTTP2_ERR_TEMPORAL_CALLBACK_FAILURE;
@@ -1171,9 +1171,9 @@ void Curl_http2_done(struct Curl_easy * data, bool premature)
 	if(http->push_headers) {
 		/* if they weren't used and then freed before */
 		for(; http->push_headers_used > 0; --http->push_headers_used) {
-			free(http->push_headers[http->push_headers_used - 1]);
+			SAlloc::F(http->push_headers[http->push_headers_used - 1]);
 		}
-		free(http->push_headers);
+		SAlloc::F(http->push_headers);
 		http->push_headers = NULL;
 	}
 
@@ -1218,7 +1218,7 @@ static CURLcode http2_init(struct connectdata * conn)
 		int rc;
 		nghttp2_session_callbacks * callbacks;
 
-		conn->proto.httpc.inbuf = malloc(H2_BUFSIZE);
+		conn->proto.httpc.inbuf = SAlloc::M(H2_BUFSIZE);
 		if(conn->proto.httpc.inbuf == NULL)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -1300,7 +1300,7 @@ CURLcode Curl_http2_request_upgrade(struct dynbuf * req,
 		"Upgrade: %s\r\n"
 		"HTTP2-Settings: %s\r\n",
 		NGHTTP2_CLEARTEXT_PROTO_VERSION_ID, base64);
-	free(base64);
+	SAlloc::F(base64);
 
 	k->upgr101 = UPGR101_REQUESTED;
 
@@ -1921,7 +1921,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	   new headers: :method, :path and :scheme. Therefore we need one
 	   more space. */
 	nheader += 1;
-	nva = malloc(sizeof(nghttp2_nv) * nheader);
+	nva = SAlloc::M(sizeof(nghttp2_nv) * nheader);
 	if(nva == NULL) {
 		*err = CURLE_OUT_OF_MEMORY;
 		return -1;
@@ -2144,7 +2144,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	return len;
 
 fail:
-	free(nva);
+	SAlloc::F(nva);
 	*err = CURLE_SEND_ERROR;
 	return -1;
 }
@@ -2341,7 +2341,7 @@ CURLcode Curl_http2_add_child(struct Curl_easy * parent,
 {
 	if(parent) {
 		struct Curl_http2_dep ** tail;
-		struct Curl_http2_dep * dep = calloc(1, sizeof(struct Curl_http2_dep));
+		struct Curl_http2_dep * dep = SAlloc::C(1, sizeof(struct Curl_http2_dep));
 		if(!dep)
 			return CURLE_OUT_OF_MEMORY;
 		dep->data = child;
@@ -2397,7 +2397,7 @@ void Curl_http2_remove_child(struct Curl_easy * parent, struct Curl_easy * child
 		else {
 			parent->set.stream_dependents = data->next;
 		}
-		free(data);
+		SAlloc::F(data);
 	}
 
 	child->set.stream_depends_on = 0;

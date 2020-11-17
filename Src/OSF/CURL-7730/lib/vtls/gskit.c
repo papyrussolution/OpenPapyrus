@@ -65,10 +65,10 @@
 #include <limits.h>
 //#include <curl/curl.h>
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "gskit.h"
 #include "vtls.h"
-#include "connect.h" /* for the connect timeout */
+//#include "connect.h" /* for the connect timeout */
 #include "select.h"
 #include "strcase.h"
 #include "x509asn1.h"
@@ -320,10 +320,10 @@ static CURLcode set_ciphers(struct connectdata * conn,
 	l = strlen(cipherlist) + 1;
 	memzero((char *)ciphers, sizeof(ciphers));
 	for(i = 0; i < CURL_GSKPROTO_LAST; i++) {
-		ciphers[i].buf = malloc(l);
+		ciphers[i].buf = SAlloc::M(l);
 		if(!ciphers[i].buf) {
 			while(i--)
-				free(ciphers[i].buf);
+				SAlloc::F(ciphers[i].buf);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		ciphers[i].ptr = ciphers[i].buf;
@@ -417,7 +417,7 @@ static CURLcode set_ciphers(struct connectdata * conn,
 
 	/* Clean-up. */
 	for(i = 0; i < CURL_GSKPROTO_LAST; i++)
-		free(ciphers[i].buf);
+		SAlloc::F(ciphers[i].buf);
 
 	return result;
 }

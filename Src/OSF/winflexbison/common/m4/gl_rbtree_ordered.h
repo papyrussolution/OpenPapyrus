@@ -134,8 +134,7 @@ static void rebalance_after_add(CONTAINER_T container, NODE_T node, NODE_T paren
 			uncle = grandparent->left;
 		else
 			abort();
-
-		if(uncle != NULL && uncle->color == RED) {
+		if(uncle && uncle->color == RED) {
 			/* Change grandparent from BLACK to RED, and
 			   change parent and uncle from RED to BLACK.
 			   This makes it acceptable for node to be RED.  */
@@ -149,7 +148,6 @@ static void rebalance_after_add(CONTAINER_T container, NODE_T node, NODE_T paren
 			   In this case, recoloring is not sufficient.  Need to perform
 			   one or two rotations.  */
 			NODE_T * grandparentp;
-
 			if(grandparent->parent == NULL)
 				grandparentp = &container->root;
 			else if(grandparent->parent->left == grandparent)
@@ -158,7 +156,6 @@ static void rebalance_after_add(CONTAINER_T container, NODE_T node, NODE_T paren
 				grandparentp = &grandparent->parent->right;
 			else
 				abort();
-
 			if(grandparent->left == parent) {
 				if(parent->right == node) {
 					/* Rotation between node and parent.  */
@@ -232,7 +229,6 @@ static void rebalance_after_remove(CONTAINER_T container, NODE_T child, NODE_T p
 		   node, or try to reduce the black-height tree of CHILD's sibling
 		   subtree as well.  */
 		NODE_T * parentp;
-
 		if(parent->parent == NULL)
 			parentp = &container->root;
 		else if(parent->parent->left == parent)
@@ -241,7 +237,6 @@ static void rebalance_after_remove(CONTAINER_T container, NODE_T child, NODE_T p
 			parentp = &parent->parent->right;
 		else
 			abort();
-
 		if(parent->left == child) {
 			NODE_T sibling = parent->right;
 			/* sibling's black-height is >= 1.  In particular,
@@ -474,17 +469,13 @@ static void rebalance_after_remove(CONTAINER_T container, NODE_T child, NODE_T p
 		}
 		else
 			abort();
-
-		/* Start again with a new (child, parent) pair.  */
-		parent = child->parent;
-
+		parent = child->parent; /* Start again with a new (child, parent) pair.  */
 #if 0 /* Already handled.  */
 		if(child != NULL && child->color == RED) {
 			child->color = BLACK;
 			return;
 		}
 #endif
-
 		if(parent == NULL)
 			return;
 	}

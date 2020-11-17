@@ -98,7 +98,7 @@ int(*EVP_MD_meth_get_cleanup(const EVP_MD *md))(EVP_MD_CTX *ctx);
 int(*EVP_MD_meth_get_ctrl(const EVP_MD *md))(EVP_MD_CTX *ctx, int cmd, int p1, void * p2);
 
 /* digest can only handle a single block */
-#  define EVP_MD_FLAG_ONESHOT     0x0001
+#define EVP_MD_FLAG_ONESHOT     0x0001
 
 /* digest is extensible-output function, XOF */
 #define EVP_MD_FLAG_XOF         0x0002
@@ -415,8 +415,8 @@ void EVP_CIPHER_CTX_set_app_data(EVP_CIPHER_CTX * ctx, void * data);
 void * EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX * ctx);
 void * EVP_CIPHER_CTX_set_cipher_data(EVP_CIPHER_CTX * ctx, void * cipher_data);
 #define EVP_CIPHER_CTX_type(c)         EVP_CIPHER_type(EVP_CIPHER_CTX_cipher(c))
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define EVP_CIPHER_CTX_flags(c)       EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(c))
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define EVP_CIPHER_CTX_flags(c)       EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(c))
 #endif
 #define EVP_CIPHER_CTX_mode(c)         EVP_CIPHER_mode(EVP_CIPHER_CTX_cipher(c))
 
@@ -536,9 +536,9 @@ int EVP_DecodeFinal(EVP_ENCODE_CTX * ctx, unsigned
     char * out, int * outl);
 int EVP_DecodeBlock(uchar * t, const uchar * f, int n);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define EVP_CIPHER_CTX_init(c)      EVP_CIPHER_CTX_reset(c)
-#  define EVP_CIPHER_CTX_cleanup(c)   EVP_CIPHER_CTX_reset(c)
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define EVP_CIPHER_CTX_init(c)      EVP_CIPHER_CTX_reset(c)
+#define EVP_CIPHER_CTX_cleanup(c)   EVP_CIPHER_CTX_reset(c)
 #endif
 EVP_CIPHER_CTX * EVP_CIPHER_CTX_new(void);
 int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX * c);
@@ -603,13 +603,13 @@ const EVP_CIPHER * EVP_des_ede3(void);
 const EVP_CIPHER * EVP_des_ede_ecb(void);
 const EVP_CIPHER * EVP_des_ede3_ecb(void);
 const EVP_CIPHER * EVP_des_cfb64(void);
-#  define EVP_des_cfb EVP_des_cfb64
+#define EVP_des_cfb EVP_des_cfb64
 const EVP_CIPHER * EVP_des_cfb1(void);
 const EVP_CIPHER * EVP_des_cfb8(void);
 const EVP_CIPHER * EVP_des_ede_cfb64(void);
-#  define EVP_des_ede_cfb EVP_des_ede_cfb64
+#define EVP_des_ede_cfb EVP_des_ede_cfb64
 const EVP_CIPHER * EVP_des_ede3_cfb64(void);
-#  define EVP_des_ede3_cfb EVP_des_ede3_cfb64
+#define EVP_des_ede3_cfb EVP_des_ede3_cfb64
 const EVP_CIPHER * EVP_des_ede3_cfb1(void);
 const EVP_CIPHER * EVP_des_ede3_cfb8(void);
 const EVP_CIPHER * EVP_des_ofb(void);
@@ -629,14 +629,14 @@ const EVP_CIPHER * EVP_des_ede3_wrap(void);
 #ifndef OPENSSL_NO_RC4
 const EVP_CIPHER * EVP_rc4(void);
 const EVP_CIPHER * EVP_rc4_40(void);
-#  ifndef OPENSSL_NO_MD5
+#ifndef OPENSSL_NO_MD5
 const EVP_CIPHER * EVP_rc4_hmac_md5(void);
-#  endif
+#endif
 #endif
 #ifndef OPENSSL_NO_IDEA
 const EVP_CIPHER * EVP_idea_ecb(void);
 const EVP_CIPHER * EVP_idea_cfb64(void);
-#  define EVP_idea_cfb EVP_idea_cfb64
+#define EVP_idea_cfb EVP_idea_cfb64
 const EVP_CIPHER * EVP_idea_ofb(void);
 const EVP_CIPHER * EVP_idea_cbc(void);
 #endif
@@ -646,28 +646,28 @@ const EVP_CIPHER * EVP_rc2_cbc(void);
 const EVP_CIPHER * EVP_rc2_40_cbc(void);
 const EVP_CIPHER * EVP_rc2_64_cbc(void);
 const EVP_CIPHER * EVP_rc2_cfb64(void);
-#  define EVP_rc2_cfb EVP_rc2_cfb64
+#define EVP_rc2_cfb EVP_rc2_cfb64
 const EVP_CIPHER * EVP_rc2_ofb(void);
 #endif
 #ifndef OPENSSL_NO_BF
 const EVP_CIPHER * EVP_bf_ecb(void);
 const EVP_CIPHER * EVP_bf_cbc(void);
 const EVP_CIPHER * EVP_bf_cfb64(void);
-#  define EVP_bf_cfb EVP_bf_cfb64
+#define EVP_bf_cfb EVP_bf_cfb64
 const EVP_CIPHER * EVP_bf_ofb(void);
 #endif
 #ifndef OPENSSL_NO_CAST
 const EVP_CIPHER * EVP_cast5_ecb(void);
 const EVP_CIPHER * EVP_cast5_cbc(void);
 const EVP_CIPHER * EVP_cast5_cfb64(void);
-#  define EVP_cast5_cfb EVP_cast5_cfb64
+#define EVP_cast5_cfb EVP_cast5_cfb64
 const EVP_CIPHER * EVP_cast5_ofb(void);
 #endif
 #ifndef OPENSSL_NO_RC5
 const EVP_CIPHER * EVP_rc5_32_12_16_cbc(void);
 const EVP_CIPHER * EVP_rc5_32_12_16_ecb(void);
 const EVP_CIPHER * EVP_rc5_32_12_16_cfb64(void);
-#  define EVP_rc5_32_12_16_cfb EVP_rc5_32_12_16_cfb64
+#define EVP_rc5_32_12_16_cfb EVP_rc5_32_12_16_cfb64
 const EVP_CIPHER * EVP_rc5_32_12_16_ofb(void);
 #endif
 const EVP_CIPHER * EVP_aes_128_ecb(void);
@@ -737,7 +737,7 @@ const EVP_CIPHER * EVP_aria_192_cbc(void);
 const EVP_CIPHER * EVP_aria_192_cfb1(void);
 const EVP_CIPHER * EVP_aria_192_cfb8(void);
 const EVP_CIPHER * EVP_aria_192_cfb128(void);
-#  define EVP_aria_192_cfb EVP_aria_192_cfb128
+#define EVP_aria_192_cfb EVP_aria_192_cfb128
 const EVP_CIPHER * EVP_aria_192_ctr(void);
 const EVP_CIPHER * EVP_aria_192_ofb(void);
 const EVP_CIPHER * EVP_aria_192_gcm(void);
@@ -747,7 +747,7 @@ const EVP_CIPHER * EVP_aria_256_cbc(void);
 const EVP_CIPHER * EVP_aria_256_cfb1(void);
 const EVP_CIPHER * EVP_aria_256_cfb8(void);
 const EVP_CIPHER * EVP_aria_256_cfb128(void);
-#  define EVP_aria_256_cfb EVP_aria_256_cfb128
+#define EVP_aria_256_cfb EVP_aria_256_cfb128
 const EVP_CIPHER * EVP_aria_256_ctr(void);
 const EVP_CIPHER * EVP_aria_256_ofb(void);
 const EVP_CIPHER * EVP_aria_256_gcm(void);
@@ -759,7 +759,7 @@ const EVP_CIPHER * EVP_camellia_128_cbc(void);
 const EVP_CIPHER * EVP_camellia_128_cfb1(void);
 const EVP_CIPHER * EVP_camellia_128_cfb8(void);
 const EVP_CIPHER * EVP_camellia_128_cfb128(void);
-#  define EVP_camellia_128_cfb EVP_camellia_128_cfb128
+#define EVP_camellia_128_cfb EVP_camellia_128_cfb128
 const EVP_CIPHER * EVP_camellia_128_ofb(void);
 const EVP_CIPHER * EVP_camellia_128_ctr(void);
 const EVP_CIPHER * EVP_camellia_192_ecb(void);
@@ -767,7 +767,7 @@ const EVP_CIPHER * EVP_camellia_192_cbc(void);
 const EVP_CIPHER * EVP_camellia_192_cfb1(void);
 const EVP_CIPHER * EVP_camellia_192_cfb8(void);
 const EVP_CIPHER * EVP_camellia_192_cfb128(void);
-#  define EVP_camellia_192_cfb EVP_camellia_192_cfb128
+#define EVP_camellia_192_cfb EVP_camellia_192_cfb128
 const EVP_CIPHER * EVP_camellia_192_ofb(void);
 const EVP_CIPHER * EVP_camellia_192_ctr(void);
 const EVP_CIPHER * EVP_camellia_256_ecb(void);
@@ -775,22 +775,22 @@ const EVP_CIPHER * EVP_camellia_256_cbc(void);
 const EVP_CIPHER * EVP_camellia_256_cfb1(void);
 const EVP_CIPHER * EVP_camellia_256_cfb8(void);
 const EVP_CIPHER * EVP_camellia_256_cfb128(void);
-#  define EVP_camellia_256_cfb EVP_camellia_256_cfb128
+#define EVP_camellia_256_cfb EVP_camellia_256_cfb128
 const EVP_CIPHER * EVP_camellia_256_ofb(void);
 const EVP_CIPHER * EVP_camellia_256_ctr(void);
 #endif
 #ifndef OPENSSL_NO_CHACHA
 const EVP_CIPHER * EVP_chacha20(void);
-#  ifndef OPENSSL_NO_POLY1305
+#ifndef OPENSSL_NO_POLY1305
 const EVP_CIPHER * EVP_chacha20_poly1305(void);
-#  endif
+#endif
 #endif
 
 #ifndef OPENSSL_NO_SEED
 const EVP_CIPHER * EVP_seed_ecb(void);
 const EVP_CIPHER * EVP_seed_cbc(void);
 const EVP_CIPHER * EVP_seed_cfb128(void);
-#  define EVP_seed_cfb EVP_seed_cfb128
+#define EVP_seed_cfb EVP_seed_cfb128
 const EVP_CIPHER * EVP_seed_ofb(void);
 #endif
 
@@ -798,20 +798,20 @@ const EVP_CIPHER * EVP_seed_ofb(void);
 const EVP_CIPHER * EVP_sm4_ecb(void);
 const EVP_CIPHER * EVP_sm4_cbc(void);
 const EVP_CIPHER * EVP_sm4_cfb128(void);
-#  define EVP_sm4_cfb EVP_sm4_cfb128
+#define EVP_sm4_cfb EVP_sm4_cfb128
 const EVP_CIPHER * EVP_sm4_ofb(void);
 const EVP_CIPHER * EVP_sm4_ctr(void);
 #endif
 
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  define OPENSSL_add_all_algorithms_conf() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS|OPENSSL_INIT_ADD_ALL_DIGESTS|OPENSSL_INIT_LOAD_CONFIG, NULL)
-#  define OPENSSL_add_all_algorithms_noconf() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS|OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
+#if OPENSSL_API_COMPAT < 0x10100000L
+#define OPENSSL_add_all_algorithms_conf() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS|OPENSSL_INIT_ADD_ALL_DIGESTS|OPENSSL_INIT_LOAD_CONFIG, NULL)
+#define OPENSSL_add_all_algorithms_noconf() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS|OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
 
-#  ifdef OPENSSL_LOAD_CONF
+#ifdef OPENSSL_LOAD_CONF
 #   define OpenSSL_add_all_algorithms() OPENSSL_add_all_algorithms_conf()
-#  else
+#else
 #   define OpenSSL_add_all_algorithms() OPENSSL_add_all_algorithms_noconf()
-#  endif
+#endif
 
 #define OpenSSL_add_all_ciphers() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL)
 #define OpenSSL_add_all_digests() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
@@ -1100,15 +1100,15 @@ void EVP_PKEY_asn1_set_security_bits(EVP_PKEY_ASN1_METHOD * ameth,
 
 #define  EVP_PKEY_CTX_set_signature_md(ctx, md) \
 	EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG,  \
-	    EVP_PKEY_CTRL_MD, 0, (void*)(md))
+	    EVP_PKEY_CTRL_MD, 0, (void *)(md))
 
 #define  EVP_PKEY_CTX_get_signature_md(ctx, pmd)        \
 	EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG,  \
-	    EVP_PKEY_CTRL_GET_MD, 0, (void*)(pmd))
+	    EVP_PKEY_CTRL_GET_MD, 0, (void *)(pmd))
 
 #define  EVP_PKEY_CTX_set_mac_key(ctx, key, len)        \
 	EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_KEYGEN,  \
-	    EVP_PKEY_CTRL_SET_MAC_KEY, len, (void*)(key))
+	    EVP_PKEY_CTRL_SET_MAC_KEY, len, (void *)(key))
 
 #define EVP_PKEY_CTRL_MD                1
 #define EVP_PKEY_CTRL_PEER_KEY          2

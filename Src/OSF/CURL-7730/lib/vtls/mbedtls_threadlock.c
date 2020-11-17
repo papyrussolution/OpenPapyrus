@@ -23,35 +23,28 @@
 #include "curl_setup.h"
 #pragma hdrstop
 
-#if defined(USE_MBEDTLS) &&                                     \
-	((defined(USE_THREADS_POSIX) && defined(HAVE_PTHREAD_H)) ||   \
-	(defined(USE_THREADS_WIN32) && defined(HAVE_PROCESS_H)))
+#if defined(USE_MBEDTLS) && ((defined(USE_THREADS_POSIX) && defined(HAVE_PTHREAD_H)) || (defined(USE_THREADS_WIN32) && defined(HAVE_PROCESS_H)))
 
 #if defined(USE_THREADS_POSIX) && defined(HAVE_PTHREAD_H)
-#  include <pthread.h>
-#  define MBEDTLS_MUTEX_T pthread_mutex_t
+	#include <pthread.h>
+	#define MBEDTLS_MUTEX_T pthread_mutex_t
 #elif defined(USE_THREADS_WIN32) && defined(HAVE_PROCESS_H)
-#  include <process.h>
-#  define MBEDTLS_MUTEX_T HANDLE
+	#include <process.h>
+	#define MBEDTLS_MUTEX_T HANDLE
 #endif
-
 #include "mbedtls_threadlock.h"
 #include "curl_printf.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+#include "memdebug.h" /* The last #include file should be: */
 
-/* number of thread locks */
-#define NUMT                    2
+#define NUMT                    2 /* number of thread locks */
 
-/* This array will store all of the mutexes available to Mbedtls. */
-static MBEDTLS_MUTEX_T * mutex_buf = NULL;
+static MBEDTLS_MUTEX_T * mutex_buf = NULL; /* This array will store all of the mutexes available to Mbedtls. */
 
 int Curl_mbedtlsthreadlock_thread_setup(void)
 {
 	int i;
-
-	mutex_buf = calloc(NUMT * sizeof(MBEDTLS_MUTEX_T), 1);
+	mutex_buf = SAlloc::C(NUMT * sizeof(MBEDTLS_MUTEX_T), 1);
 	if(!mutex_buf)
 		return 0; /* error, no number of threads defined */
 
@@ -90,7 +83,7 @@ int Curl_mbedtlsthreadlock_thread_cleanup(void)
 			return 0; /* CloseHandle failed */
 #endif /* USE_THREADS_POSIX && HAVE_PTHREAD_H */
 	}
-	free(mutex_buf);
+	SAlloc::F(mutex_buf);
 	mutex_buf = NULL;
 
 	return 1; /* OK */

@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-# if defined(__linux) || defined(__sun) || defined(__hpux)
+#if defined(__linux) || defined(__sun) || defined(__hpux)
 /*
  * Following definition aliases fopen to fopen64 on above mentioned
  * platforms. This makes it possible to open and sequentially access files
@@ -22,9 +22,9 @@
  * of 32-bit platforms which allow for sequential access of large files
  * without extra "magic" comprise *BSD, Darwin, IRIX...
  */
-#  ifndef _FILE_OFFSET_BITS
+#ifndef _FILE_OFFSET_BITS
 #   define _FILE_OFFSET_BITS 64
-#  endif
+#endif
 #endif
 ////#include "e_os.h"
 #if !defined(OPENSSL_NO_STDIO)
@@ -35,7 +35,7 @@
 FILE * openssl_fopen(const char * filename, const char * mode)
 {
 	FILE * file = NULL;
-# if defined(_WIN32) && defined(CP_UTF8)
+#if defined(_WIN32) && defined(CP_UTF8)
 	int sz, len_0 = (int)strlen(filename) + 1;
 	DWORD flags;
 

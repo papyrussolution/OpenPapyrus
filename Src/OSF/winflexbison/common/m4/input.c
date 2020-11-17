@@ -246,10 +246,8 @@ const char * push_string_finish(void)
 
 void push_wrapup(const char * s)
 {
-	size_t len = strlen(s);
-	input_block * i;
-	i = (input_block*)obstack_alloc(wrapup_stack,
-		sizeof(struct input_block));
+	const size_t len = strlen(s);
+	input_block * i = (input_block*)obstack_alloc(wrapup_stack, sizeof(struct input_block));
 	i->prev = wsp;
 	i->type = INPUT_STRING;
 	i->file = current_file;
@@ -300,7 +298,6 @@ static void pop_input(void)
 	}
 	obstack_free(current_input, isp);
 	next = NULL; /* might be set in push_string_init () */
-
 	isp = tmp;
 	input_change = true;
 }
@@ -468,7 +465,6 @@ void skip_line(void)
 	int ch;
 	const char * file = current_file;
 	int line = current_line;
-
 	while((ch = next_char()) != CHAR_EOF && ch != '\n')
 		;
 	if(ch == CHAR_EOF)

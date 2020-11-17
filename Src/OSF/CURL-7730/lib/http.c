@@ -43,11 +43,11 @@
 #endif
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "formdata.h"
 #include "mime.h"
-#include "progress.h"
+//#include "progress.h"
 #include "curl_base64.h"
 #include "cookie.h"
 #include "vauth/vauth.h"
@@ -58,7 +58,7 @@
 #include "http_negotiate.h"
 #include "url.h"
 #include "share.h"
-#include "hostip.h"
+//#include "hostip.h"
 #include "http.h"
 #include "select.h"
 #include "parsedate.h" /* for the week day and month names */
@@ -70,7 +70,7 @@
 #include "warnless.h"
 #include "non-ascii.h"
 #include "http2.h"
-#include "connect.h"
+//#include "connect.h"
 #include "strdup.h"
 #include "altsvc.h"
 
@@ -162,7 +162,7 @@ static CURLcode http_setup_conn(struct connectdata * conn)
 	struct Curl_easy * data = conn->data;
 	DEBUGASSERT(data->req.protop == NULL);
 
-	http = (struct HTTP *)calloc(1, sizeof(struct HTTP));
+	http = (struct HTTP *)SAlloc::C(1, sizeof(struct HTTP));
 	if(!http)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -264,7 +264,7 @@ char * Curl_copy_header_value(const char * header)
 	/* get length of the type */
 	len = end - start + 1;
 
-	value = (char *)malloc(len + 1);
+	value = (char *)SAlloc::M(len + 1);
 	if(!value)
 		return NULL;
 
@@ -320,18 +320,18 @@ static CURLcode http_output_basic(struct connectdata * conn, bool proxy)
 		goto fail;
 	}
 
-	free(*userp);
+	SAlloc::F(*userp);
 	*userp = aprintf("%sAuthorization: Basic %s\r\n",
 		proxy ? "Proxy-" : "",
 		authorization);
-	free(authorization);
+	SAlloc::F(authorization);
 	if(!*userp) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
 	}
 
 fail:
-	free(out);
+	SAlloc::F(out);
 	return result;
 }
 
@@ -348,7 +348,7 @@ static CURLcode http_output_bearer(struct connectdata * conn)
 	struct Curl_easy * data = conn->data;
 
 	userp = &data->state.aptr.userpwd;
-	free(*userp);
+	SAlloc::F(*userp);
 	*userp = aprintf("Authorization: Bearer %s\r\n",
 		conn->data->set.str[STRING_BEARER]);
 
@@ -607,7 +607,7 @@ CURLcode Curl_http_auth_act(struct connectdata * conn)
 		   we must make sure to free it before allocating a new one. As figured
 		   out in bug #2284386 */
 		Curl_safefree(data->req.newurl);
-		data->req.newurl = strdup(data->change.url); /* clone URL */
+		data->req.newurl = sstrdup(data->change.url); /* clone URL */
 		if(!data->req.newurl)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -620,7 +620,7 @@ CURLcode Curl_http_auth_act(struct connectdata * conn)
 		   we didn't try HEAD or GET */
 		if((data->state.httpreq != HTTPREQ_GET) &&
 		    (data->state.httpreq != HTTPREQ_HEAD)) {
-			data->req.newurl = strdup(data->change.url); /* clone URL */
+			data->req.newurl = sstrdup(data->change.url); /* clone URL */
 			if(!data->req.newurl)
 				return CURLE_OUT_OF_MEMORY;
 			data->state.authhost.done = TRUE;
@@ -905,7 +905,7 @@ CURLcode Curl_http_input_auth(struct connectdata * conn, bool proxy,
 					CURLcode result = Curl_input_negotiate(conn, proxy, auth);
 					if(!result) {
 						DEBUGASSERT(!data->req.newurl);
-						data->req.newurl = strdup(data->change.url);
+						data->req.newurl = sstrdup(data->change.url);
 						if(!data->req.newurl)
 							return CURLE_OUT_OF_MEMORY;
 						data->state.authproblem = FALSE;
@@ -1731,7 +1731,7 @@ CURLcode Curl_add_custom_headers(struct connectdata * conn,
 					else {
 						if(*(--ptr) == ';') {
 							/* copy the source */
-							semicolonp = strdup(headers->data);
+							semicolonp = sstrdup(headers->data);
 							if(!semicolonp) {
 								Curl_dyn_free(req);
 								return CURLE_OUT_OF_MEMORY;
@@ -1797,7 +1797,7 @@ CURLcode Curl_add_custom_headers(struct connectdata * conn,
 						result = Curl_dyn_addf(req, "%s\r\n", compare);
 					}
 					if(semicolonp)
-						free(semicolonp);
+						SAlloc::F(semicolonp);
 					if(result)
 						return result;
 				}
@@ -1969,9 +1969,9 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 
 	if(!data->state.this_is_a_follow) {
 		/* Free to avoid leaking memory on multiple requests*/
-		free(data->state.first_host);
+		SAlloc::F(data->state.first_host);
 
-		data->state.first_host = strdup(conn->host.name);
+		data->state.first_host = sstrdup(conn->host.name);
 		if(!data->state.first_host)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -2016,7 +2016,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	   with the user-agent string specified, we erase the previously made string
 	   here. */
 	if(Curl_checkheaders(conn, "User-Agent")) {
-		free(data->state.aptr.uagent);
+		SAlloc::F(data->state.aptr.uagent);
 		data->state.aptr.uagent = NULL;
 	}
 
@@ -2029,7 +2029,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				return CURLE_OUT_OF_MEMORY;
 		}
 		result = Curl_http_output_auth(conn, request, (pq ? pq : path), FALSE);
-		free(pq);
+		SAlloc::F(pq);
 		if(result)
 			return result;
 	}
@@ -2097,7 +2097,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 		data->state.aptr.te = aprintf("Connection: %s%sTE\r\n" TE_HEADER,
 			cptr ? cptr : "", (cptr && *cptr) ? ", " : "");
 
-		free(cptr);
+		SAlloc::F(cptr);
 		if(!data->state.aptr.te)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -2197,7 +2197,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			return CURLE_OUT_OF_MEMORY;
 		if(!*cookiehost)
 			/* ignore empty data */
-			free(cookiehost);
+			SAlloc::F(cookiehost);
 		else {
 			/* If the host begins with '[', we start searching for the port after
 			   the bracket has been closed */
@@ -2297,7 +2297,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			}
 		}
 		/* Extract the URL to use in the request. Store in STRING_TEMP_URL for
-		   clean-up reasons if the function returns before the free() further
+		   clean-up reasons if the function returns before the SAlloc::F() further
 		   down. */
 		uc = curl_url_get(h, CURLUPART_URL, &data->set.str[STRING_TEMP_URL], 0);
 		if(uc) {
@@ -2422,14 +2422,14 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 		if(((httpreq == HTTPREQ_GET) || (httpreq == HTTPREQ_HEAD)) &&
 		    !Curl_checkheaders(conn, "Range")) {
 			/* if a line like this was already allocated, free the previous one */
-			free(data->state.aptr.rangeline);
+			SAlloc::F(data->state.aptr.rangeline);
 			data->state.aptr.rangeline = aprintf("Range: bytes=%s\r\n",
 				data->state.range);
 		}
 		else if((httpreq == HTTPREQ_POST || httpreq == HTTPREQ_PUT) &&
 		    !Curl_checkheaders(conn, "Content-Range")) {
 			/* if a line like this was already allocated, free the previous one */
-			free(data->state.aptr.rangeline);
+			SAlloc::F(data->state.aptr.rangeline);
 
 			if(data->set.set_resume_from < 0) {
 				/* Upload resume was asked for, but we don't know the size of the
@@ -2563,7 +2563,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	 * from re-used connections */
 	Curl_safefree(data->state.aptr.userpwd);
 	Curl_safefree(data->state.aptr.proxyuserpwd);
-	free(altused);
+	SAlloc::F(altused);
 
 	if(result)
 		return result;
@@ -2837,7 +2837,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 
 				       then append the post data to the HTTP request header. This limit
 				       is no magic limit but only set to prevent really huge POSTs to
-				       get the data duplicated with malloc() and family. */
+				       get the data duplicated with SAlloc::M() and family. */
 
 				    /* end of headers! */
 				    result = Curl_dyn_add(&req, "\r\n");
@@ -3003,14 +3003,14 @@ static statusline checkhttpprefix(struct Curl_easy * data, const char * s, size_
 	statusline onmatch = len >= 5 ? STATUS_DONE : STATUS_UNKNOWN;
 #ifdef CURL_DOES_CONVERSIONS
 	// convert from the network encoding using a scratch area 
-	char * scratch = strdup(s);
+	char * scratch = sstrdup(s);
 	if(NULL == scratch) {
 		failf(data, "Failed to allocate memory for conversion!");
 		return FALSE; /* can't return CURLE_OUT_OF_MEMORY so return FALSE */
 	}
 	if(CURLE_OK != Curl_convert_from_network(data, scratch, strlen(s) + 1)) {
 		/* Curl_convert_from_network calls failf if unsuccessful */
-		free(scratch);
+		SAlloc::F(scratch);
 		return FALSE; /* can't return CURLE_foobar so return FALSE */
 	}
 	s = scratch;
@@ -3025,7 +3025,7 @@ static statusline checkhttpprefix(struct Curl_easy * data, const char * s, size_
 	if((rc != STATUS_DONE) && (checkprefixmax("HTTP/", s, len)))
 		rc = onmatch;
 #ifdef CURL_DOES_CONVERSIONS
-	free(scratch);
+	SAlloc::F(scratch);
 #endif /* CURL_DOES_CONVERSIONS */
 	return rc;
 }
@@ -3037,7 +3037,7 @@ static statusline checkrtspprefix(struct Curl_easy * data, const char * s, size_
 	statusline onmatch = len >= 5 ? STATUS_DONE : STATUS_UNKNOWN;
 #ifdef CURL_DOES_CONVERSIONS
 	/* convert from the network encoding using a scratch area */
-	char * scratch = strdup(s);
+	char * scratch = sstrdup(s);
 	if(scratch == NULL) {
 		failf(data, "Failed to allocate memory for conversion!");
 		return FALSE; /* can't return CURLE_OUT_OF_MEMORY so return FALSE */
@@ -3048,7 +3048,7 @@ static statusline checkrtspprefix(struct Curl_easy * data, const char * s, size_
 	}
 	else if(checkprefixmax("RTSP/", scratch, len))
 		result = onmatch;
-	free(scratch);
+	SAlloc::F(scratch);
 #else
 	(void)data; /* unused */
 	if(checkprefixmax("RTSP/", s, len))
@@ -3371,7 +3371,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 								    infof(data, "Got 417 while waiting for a 100\n");
 								    data->state.disableexpect = TRUE;
 								    DEBUGASSERT(!data->req.newurl);
-								    data->req.newurl = strdup(conn->data->change.url);
+								    data->req.newurl = sstrdup(conn->data->change.url);
 								    Curl_done_sending(conn, k);
 							    }
 							    else if(data->set.http_keep_sending_on_error) {
@@ -3723,7 +3723,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 				return CURLE_OUT_OF_MEMORY;
 			if(!*contenttype)
 				/* ignore empty data */
-				free(contenttype);
+				SAlloc::F(contenttype);
 			else {
 				Curl_safefree(data->info.contenttype);
 				data->info.contenttype = contenttype;
@@ -3878,7 +3878,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 
 			result = Curl_http_input_auth(conn, proxy, auth);
 
-			free(auth);
+			SAlloc::F(auth);
 
 			if(result)
 				return result;
@@ -3896,7 +3896,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 				negdata->havenoauthpersist = TRUE;
 				infof(data, "Negotiate: noauthpersist -> %d, header part: %s",
 				    negdata->noauthpersist, persistentauth);
-				free(persistentauth);
+				SAlloc::F(persistentauth);
 			}
 		}
 #endif
@@ -3909,13 +3909,13 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 				return CURLE_OUT_OF_MEMORY;
 			if(!*location)
 				/* ignore empty data */
-				free(location);
+				SAlloc::F(location);
 			else {
 				data->req.location = location;
 
 				if(data->set.http_follow_location) {
 					DEBUGASSERT(!data->req.newurl);
-					data->req.newurl = strdup(data->req.location); /* clone */
+					data->req.newurl = sstrdup(data->req.location); /* clone */
 					if(!data->req.newurl)
 						return CURLE_OUT_OF_MEMORY;
 

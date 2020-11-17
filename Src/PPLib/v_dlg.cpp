@@ -723,9 +723,9 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 		};
 		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 		{
-			SRectLayout::Item li;
-			Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
-			Layout_Obsolete.Add(zoneCenter, li.SetCenter());
+			// @v10.9.3 SRectLayout::Item li;
+			// @v10.9.3 Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
+			// @v10.9.3 Layout_Obsolete.Add(zoneCenter, li.SetCenter());
 		}
 	};
 	int    ok = -1;

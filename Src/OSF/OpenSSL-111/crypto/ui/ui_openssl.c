@@ -20,35 +20,35 @@
  * sigaction and fileno included. -pedantic would be more appropriate for the
  * intended purposes, but we can't prevent users from adding -ansi.
  */
-# if defined(OPENSSL_SYS_VXWORKS)
+#if defined(OPENSSL_SYS_VXWORKS)
 #include <sys/types.h>
 #endif
 
-# if !defined(_POSIX_C_SOURCE) && defined(OPENSSL_SYS_VMS)
-#  ifndef _POSIX_C_SOURCE
+#if !defined(_POSIX_C_SOURCE) && defined(OPENSSL_SYS_VMS)
+#ifndef _POSIX_C_SOURCE
 #   define _POSIX_C_SOURCE 2
-#  endif
+#endif
 #endif
 #include <signal.h>
 
-# if !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
-#  ifdef OPENSSL_UNISTD
+#if !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
+#ifdef OPENSSL_UNISTD
 #   include OPENSSL_UNISTD
-#  else
+#else
 #   include <unistd.h>
-#  endif
+#endif
 /*
  * If unistd.h defines _POSIX_VERSION, we conclude that we are on a POSIX
  * system and have sigaction and termios.
  */
-#  if defined(_POSIX_VERSION) && _POSIX_VERSION>=199309L
+#if defined(_POSIX_VERSION) && _POSIX_VERSION>=199309L
 
 #   define SIGACTION
 #   if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
-#    define TERMIOS
+#define TERMIOS
 #   endif
 
-#  endif
+#endif
 #endif
 
 #include "ui_locl.h"
@@ -56,9 +56,9 @@
 
 #ifdef OPENSSL_SYS_VMS          /* prototypes for sys$whatever */
 #include <starlet.h>
-#  ifdef __DECC
+#ifdef __DECC
 #   pragma message disable DOLLARID
-#  endif
+#endif
 #endif
 #ifdef WIN_CONSOLE_BUG
 //#include <windows.h>
@@ -78,24 +78,24 @@
  * may eventually opt to remove its use entirely.
  */
 
-# if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
+#if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
 
-#  if defined(_LIBC)
+#if defined(_LIBC)
 #   undef  TERMIOS
 #   define TERMIO
 #   undef  SGTTY
 /*
  * We know that VMS, MSDOS, VXWORKS, use entirely other mechanisms.
  */
-#  elif !defined(OPENSSL_SYS_VMS) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VXWORKS)
+#elif !defined(OPENSSL_SYS_VMS) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VXWORKS)
 #   define TERMIOS
 #   undef  TERMIO
 #   undef  SGTTY
-#  endif
+#endif
 
 #endif
 
-# if defined(OPENSSL_SYS_VXWORKS)
+#if defined(OPENSSL_SYS_VXWORKS)
 #undef TERMIOS
 #undef TERMIO
 #undef SGTTY
@@ -125,7 +125,7 @@
 #define TTY_set(tty, data)      ioctl(tty, TIOCSETP, data)
 #endif
 
-# if !defined(_LIBC) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
+#if !defined(_LIBC) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
 #include <sys/ioctl.h>
 #endif
 
@@ -168,9 +168,9 @@ static ushort channel = 0;
 # elif defined(_WIN32) && !defined(_WIN32_WCE)
 static DWORD tty_orig, tty_new;
 #else
-#  if !defined(OPENSSL_SYS_MSDOS) || defined(__DJGPP__)
+#if !defined(OPENSSL_SYS_MSDOS) || defined(__DJGPP__)
 static TTY_STRUCT tty_orig, tty_new;
-#  endif
+#endif
 #endif
 static FILE * tty_in, * tty_out;
 static int is_a_tty;
@@ -252,7 +252,7 @@ static int read_string(UI * ui, UI_STRING * uis)
 	return 1;
 }
 
-# if !defined(OPENSSL_SYS_WINCE)
+#if !defined(OPENSSL_SYS_WINCE)
 /* Internal functions to read a string without echoing */
 static int read_till_nl(FILE * in)
 {
@@ -275,7 +275,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 	int ok;
 	char result[BUFSIZ];
 	int maxsize = BUFSIZ - 1;
-# if !defined(OPENSSL_SYS_WINCE)
+#if !defined(OPENSSL_SYS_WINCE)
 	char * p = NULL;
 	int echo_eol = !echo;
 
@@ -291,7 +291,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 	ps = 2;
 
 	result[0] = '\0';
-#  if defined(_WIN32)
+#if defined(_WIN32)
 	if(is_a_tty) {
 		DWORD numread;
 #   if defined(CP_UTF8)
@@ -328,13 +328,13 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 		}
 	}
 	else
-#  elif defined(OPENSSL_SYS_MSDOS)
+#elif defined(OPENSSL_SYS_MSDOS)
 	if(!echo) {
 		noecho_fgets(result, maxsize, tty_in);
 		p = result;     /* FIXME: noecho_fgets doesn't return errors */
 	}
 	else
-#  endif
+#endif
 		p = fgets(result, maxsize, tty_in);
 	if(p == NULL)
 		goto error;
@@ -473,7 +473,7 @@ static int noecho_console(UI * ui)
 	tty_new.TTY_FLAGS &= ~ECHO;
 #endif
 
-# if defined(TTY_set) && !defined(OPENSSL_SYS_VMS)
+#if defined(TTY_set) && !defined(OPENSSL_SYS_VMS)
 	if(is_a_tty && (TTY_set(fileno(tty_in), &tty_new) == -1))
 		return 0;
 #endif
@@ -498,7 +498,7 @@ static int noecho_console(UI * ui)
 		}
 	}
 #endif
-# if defined(_WIN32) && !defined(_WIN32_WCE)
+#if defined(_WIN32) && !defined(_WIN32_WCE)
 	if(is_a_tty) {
 		tty_new = tty_orig;
 		tty_new &= ~ENABLE_ECHO_INPUT;
@@ -510,7 +510,7 @@ static int noecho_console(UI * ui)
 
 static int echo_console(UI * ui)
 {
-# if defined(TTY_set) && !defined(OPENSSL_SYS_VMS)
+#if defined(TTY_set) && !defined(OPENSSL_SYS_VMS)
 	memcpy(&(tty_new), &(tty_orig), sizeof(tty_orig));
 	if(is_a_tty && (TTY_set(fileno(tty_in), &tty_new) == -1))
 		return 0;
@@ -536,7 +536,7 @@ static int echo_console(UI * ui)
 		}
 	}
 #endif
-# if defined(_WIN32) && !defined(_WIN32_WCE)
+#if defined(_WIN32) && !defined(_WIN32_WCE)
 	if(is_a_tty) {
 		tty_new = tty_orig;
 		SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), tty_new);
@@ -567,27 +567,27 @@ static int close_console(UI * ui)
 	return 1;
 }
 
-# if !defined(OPENSSL_SYS_WINCE)
+#if !defined(OPENSSL_SYS_WINCE)
 /* Internal functions to handle signals and act on them */
 static void pushsig(void)
 {
-#  ifndef OPENSSL_SYS_WIN32
+#ifndef OPENSSL_SYS_WIN32
 	int i;
-#  endif
-#  ifdef SIGACTION
+#endif
+#ifdef SIGACTION
 	struct sigaction sa;
 	memzero(&sa, sizeof(sa));
 	sa.sa_handler = recsig;
-#  endif
+#endif
 
-#  ifdef OPENSSL_SYS_WIN32
+#ifdef OPENSSL_SYS_WIN32
 	savsig[SIGABRT] = signal(SIGABRT, recsig);
 	savsig[SIGFPE] = signal(SIGFPE, recsig);
 	savsig[SIGILL] = signal(SIGILL, recsig);
 	savsig[SIGINT] = signal(SIGINT, recsig);
 	savsig[SIGSEGV] = signal(SIGSEGV, recsig);
 	savsig[SIGTERM] = signal(SIGTERM, recsig);
-#  else
+#else
 	for(i = 1; i < NX509_SIG; i++) {
 #   ifdef SIGUSR1
 		if(i == SIGUSR1)
@@ -607,23 +607,23 @@ static void pushsig(void)
 		savsig[i] = signal(i, recsig);
 #   endif
 	}
-#  endif
+#endif
 
-#  ifdef SIGWINCH
+#ifdef SIGWINCH
 	signal(SIGWINCH, SIG_DFL);
-#  endif
+#endif
 }
 
 static void popsig(void)
 {
-#  ifdef OPENSSL_SYS_WIN32
+#ifdef OPENSSL_SYS_WIN32
 	signal(SIGABRT, savsig[SIGABRT]);
 	signal(SIGFPE, savsig[SIGFPE]);
 	signal(SIGILL, savsig[SIGILL]);
 	signal(SIGINT, savsig[SIGINT]);
 	signal(SIGSEGV, savsig[SIGSEGV]);
 	signal(SIGTERM, savsig[SIGTERM]);
-#  else
+#else
 	int i;
 	for(i = 1; i < NX509_SIG; i++) {
 #   ifdef SIGUSR1
@@ -640,7 +640,7 @@ static void popsig(void)
 		signal(i, savsig[i]);
 #   endif
 	}
-#  endif
+#endif
 }
 
 static void recsig(int i)
@@ -651,7 +651,7 @@ static void recsig(int i)
 #endif
 
 /* Internal functions specific for Windows */
-# if defined(OPENSSL_SYS_MSDOS) && !defined(_WIN32)
+#if defined(OPENSSL_SYS_MSDOS) && !defined(_WIN32)
 static int noecho_fgets(char * buf, int size, FILE * tty)
 {
 	int i;
@@ -664,11 +664,11 @@ static int noecho_fgets(char * buf, int size, FILE * tty)
 			break;
 		}
 		size--;
-#  if defined(_WIN32)
+#if defined(_WIN32)
 		i = _getch();
-#  else
+#else
 		i = getch();
-#  endif
+#endif
 		if(i == '\r')
 			i = '\n';
 		*(p++) = i;
@@ -677,7 +677,7 @@ static int noecho_fgets(char * buf, int size, FILE * tty)
 			break;
 		}
 	}
-#  ifdef WIN_CONSOLE_BUG
+#ifdef WIN_CONSOLE_BUG
 	/*
 	 * Win95 has several evil console bugs: one of these is that the last
 	 * character read using getch() is passed to the next read: this is
@@ -689,7 +689,7 @@ static int noecho_fgets(char * buf, int size, FILE * tty)
 		inh = GetStdHandle(STD_INPUT_HANDLE);
 		FlushConsoleInputBuffer(inh);
 	}
-#  endif
+#endif
 	return strlen(buf);
 }
 

@@ -37,8 +37,8 @@
 #include "schannel.h"
 #include "vtls.h"
 #include "strcase.h"
-#include "sendf.h"
-#include "connect.h" /* for the connect timeout */
+//#include "sendf.h"
+//#include "connect.h" /* for the connect timeout */
 #include "strerror.h"
 #include "select.h" /* for the socket readiness */
 #include "inet_pton.h" /* for IP addr SNI check */
@@ -59,7 +59,7 @@
    https://technet.microsoft.com/en-us/library/hh831771%28v=ws.11%29.aspx
  */
 #if defined(_MSC_VER) && (_MSC_VER >= 1800) && !defined(_USING_V110_SDK71_)
-#  define HAS_ALPN 1
+#define HAS_ALPN 1
 #endif
 
 #ifndef UNISP_NAME_A
@@ -131,7 +131,7 @@
  */
 
 #ifndef CALG_SHA_256
-#  define CALG_SHA_256 0x0000800c
+#define CALG_SHA_256 0x0000800c
 #endif
 
 #define BACKEND connssl->backend
@@ -652,7 +652,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 					if(continue_reading)
 						continue_reading = fseek(fInCert, 0, SEEK_SET) == 0;
 					if(continue_reading)
-						certdata = malloc(certsize + 1);
+						certdata = SAlloc::M(certsize + 1);
 					if((!certdata) ||
 					    ((int)fread(certdata, certsize, 1, fInCert) != 1))
 						continue_reading = FALSE;
@@ -660,7 +660,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 					if(!continue_reading) {
 						failf(data, "schannel: Failed to read cert file %s",
 						    data->set.ssl.primary.clientcert);
-						free(certdata);
+						SAlloc::F(certdata);
 						return CURLE_SSL_CERTPROBLEM;
 					}
 				}
@@ -671,7 +671,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 				if(data->set.ssl.key_passwd != NULL)
 					pwd_len = strlen(data->set.ssl.key_passwd);
-				pszPassword = (WCHAR*)malloc(sizeof(WCHAR)*(pwd_len + 1));
+				pszPassword = (WCHAR*)SAlloc::M(sizeof(WCHAR)*(pwd_len + 1));
 				if(pszPassword) {
 					if(pwd_len > 0)
 						str_w_len = MultiByteToWideChar(CP_UTF8,
@@ -685,10 +685,10 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 						pszPassword[0] = 0;
 
 					cert_store = PFXImportCertStore(&datablob, pszPassword, 0);
-					free(pszPassword);
+					SAlloc::F(pszPassword);
 				}
 				if(!blob)
-					free(certdata);
+					SAlloc::F(certdata);
 				if(cert_store == NULL) {
 					DWORD errorcode = GetLastError();
 					if(errorcode == ERROR_INVALID_PASSWORD)
@@ -727,11 +727,11 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 					failf(data, "schannel: Failed to open cert store %x %s, "
 					    "last error is 0x%x",
 					    cert_store_name, cert_store_path, GetLastError());
-					free(cert_store_path);
+					SAlloc::F(cert_store_path);
 					curlx_unicodefree(cert_path);
 					return CURLE_SSL_CERTPROBLEM;
 				}
-				free(cert_store_path);
+				SAlloc::F(cert_store_path);
 
 				cert_thumbprint.pbData = cert_thumbprint_data;
 				cert_thumbprint.cbData = CERT_THUMBPRINT_DATA_LEN;
@@ -774,7 +774,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 		/* allocate memory for the re-usable credential handle */
 		BACKEND->cred = (struct Curl_schannel_cred *)
-		    calloc(1, sizeof(struct Curl_schannel_cred));
+		    SAlloc::C(1, sizeof(struct Curl_schannel_cred));
 		if(!BACKEND->cred) {
 			failf(data, "schannel: unable to allocate memory");
 
@@ -889,7 +889,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 	/* allocate memory for the security context handle */
 	BACKEND->ctxt = (struct Curl_schannel_ctxt *)
-	    calloc(1, sizeof(struct Curl_schannel_ctxt));
+	    SAlloc::C(1, sizeof(struct Curl_schannel_ctxt));
 	if(!BACKEND->ctxt) {
 		failf(data, "schannel: unable to allocate memory");
 		return CURLE_OUT_OF_MEMORY;
@@ -1006,7 +1006,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 	if(BACKEND->decdata_buffer == NULL) {
 		BACKEND->decdata_offset = 0;
 		BACKEND->decdata_length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-		BACKEND->decdata_buffer = malloc(BACKEND->decdata_length);
+		BACKEND->decdata_buffer = SAlloc::M(BACKEND->decdata_length);
 		if(BACKEND->decdata_buffer == NULL) {
 			failf(data, "schannel: unable to allocate memory");
 			return CURLE_OUT_OF_MEMORY;
@@ -1018,7 +1018,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		BACKEND->encdata_is_incomplete = false;
 		BACKEND->encdata_offset = 0;
 		BACKEND->encdata_length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-		BACKEND->encdata_buffer = malloc(BACKEND->encdata_length);
+		BACKEND->encdata_buffer = SAlloc::M(BACKEND->encdata_length);
 		if(BACKEND->encdata_buffer == NULL) {
 			failf(data, "schannel: unable to allocate memory");
 			return CURLE_OUT_OF_MEMORY;
@@ -1031,7 +1031,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		/* increase internal encrypted data buffer */
 		size_t reallocated_length = BACKEND->encdata_offset +
 		    CURL_SCHANNEL_BUFFER_FREE_SIZE;
-		reallocated_buffer = realloc(BACKEND->encdata_buffer,
+		reallocated_buffer = SAlloc::R(BACKEND->encdata_buffer,
 			reallocated_length);
 
 		if(reallocated_buffer == NULL) {
@@ -1078,7 +1078,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		    BACKEND->encdata_offset, BACKEND->encdata_length));
 
 		/* setup input buffers */
-		InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN, malloc(BACKEND->encdata_offset),
+		InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN, SAlloc::M(BACKEND->encdata_offset),
 		    curlx_uztoul(BACKEND->encdata_offset));
 		InitSecBuffer(&inbuf[1], SECBUFFER_EMPTY, NULL, 0);
 		InitSecBufferDesc(&inbuf_desc, inbuf, 2);
@@ -1608,7 +1608,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 	/* calculate the complete message length and allocate a buffer for it */
 	data_len = BACKEND->stream_sizes.cbHeader + len +
 	    BACKEND->stream_sizes.cbTrailer;
-	data = (uchar *)malloc(data_len);
+	data = (uchar *)SAlloc::M(data_len);
 	if(data == NULL) {
 		*err = CURLE_OUT_OF_MEMORY;
 		return -1;
@@ -1778,7 +1778,7 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 			if(reallocated_length < min_encdata_length) {
 				reallocated_length = min_encdata_length;
 			}
-			reallocated_buffer = realloc(BACKEND->encdata_buffer,
+			reallocated_buffer = SAlloc::R(BACKEND->encdata_buffer,
 				reallocated_length);
 			if(reallocated_buffer == NULL) {
 				*err = CURLE_OUT_OF_MEMORY;
@@ -1867,7 +1867,7 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 					if(reallocated_length < len) {
 						reallocated_length = len;
 					}
-					reallocated_buffer = realloc(BACKEND->decdata_buffer,
+					reallocated_buffer = SAlloc::R(BACKEND->decdata_buffer,
 						reallocated_length);
 					if(reallocated_buffer == NULL) {
 						*err = CURLE_OUT_OF_MEMORY;

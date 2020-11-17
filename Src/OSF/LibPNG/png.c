@@ -182,16 +182,16 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 	png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn)
 {
 	png_struct create_struct;
-#  ifdef PNG_SETJMP_SUPPORTED
+#ifdef PNG_SETJMP_SUPPORTED
 	jmp_buf create_jmp_buf;
-#  endif
+#endif
 	/* This temporary stack-allocated structure is used to provide a place to
 	 * build enough context to allow the user provided memory allocator (if any)
 	 * to be called.
 	 */
 	memzero(&create_struct, (sizeof create_struct));
 	/* Added at libpng-1.2.6 */
-#  ifdef PNG_USER_LIMITS_SUPPORTED
+#ifdef PNG_USER_LIMITS_SUPPORTED
 	create_struct.user_width_max = PNG_USER_WIDTH_MAX;
 	create_struct.user_height_max = PNG_USER_HEIGHT_MAX;
 
@@ -206,18 +206,18 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 	 */
 	create_struct.user_chunk_malloc_max = PNG_USER_CHUNK_MALLOC_MAX;
 #     endif
-#  endif
+#endif
 
 	/* The following two API calls simply set fields in png_struct, so it is safe
 	 * to do them now even though error handling is not yet set up.
 	 */
-#  ifdef PNG_USER_MEM_SUPPORTED
+#ifdef PNG_USER_MEM_SUPPORTED
 	png_set_mem_fn(&create_struct, mem_ptr, malloc_fn, free_fn);
-#  else
+#else
 	PNG_UNUSED(mem_ptr)
 	PNG_UNUSED(malloc_fn)
 	PNG_UNUSED(free_fn)
-#  endif
+#endif
 
 	/* (*error_fn) can return control to the caller after the error_ptr is set,
 	 * this will result in a memory leak unless the error_fn does something
@@ -226,11 +226,11 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 	 */
 	png_set_error_fn(&create_struct, error_ptr, error_fn, warn_fn);
 
-#  ifdef PNG_SETJMP_SUPPORTED
+#ifdef PNG_SETJMP_SUPPORTED
 	if(!setjmp(create_jmp_buf))
-#  endif
+#endif
 	{
-#  ifdef PNG_SETJMP_SUPPORTED
+#ifdef PNG_SETJMP_SUPPORTED
 		/* Temporarily fake out the longjmp information until we have
 		 * successfully completed this function.  This only works if we have
 		 * setjmp() support compiled in, but it is safe - this stuff should
@@ -239,7 +239,7 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 		create_struct.jmp_buf_ptr = &create_jmp_buf;
 		create_struct.jmp_buf_size = 0; /*stack allocation*/
 		create_struct.longjmp_fn = longjmp;
-#  endif
+#endif
 		/* Call the general version checker (shared with read and write code):
 		 */
 		if(png_user_version_check(&create_struct, user_png_ver) != 0) {
@@ -517,7 +517,7 @@ void * PNGAPI png_get_io_ptr(png_const_structrp png_ptr)
 }
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
-#  ifdef PNG_STDIO_SUPPORTED
+#ifdef PNG_STDIO_SUPPORTED
 /* Initialize the default input/output functions for the PNG file.  If you
  * use your own read or write routines, you can call either png_set_read_fn()
  * or png_set_write_fn() instead of png_init_io().  If you have defined
@@ -531,9 +531,9 @@ void PNGAPI png_init_io(png_structrp png_ptr, png_FILE_p fp)
 		png_ptr->io_ptr = (void *)fp;
 }
 
-#  endif
+#endif
 
-#  ifdef PNG_SAVE_INT_32_SUPPORTED
+#ifdef PNG_SAVE_INT_32_SUPPORTED
 /* PNG signed integers are saved in 32-bit 2's complement format.  ANSI C-90
  * defines a cast of a signed integer to an unsigned integer either to preserve
  * the value, if it is positive, or to calculate:
@@ -549,9 +549,9 @@ void PNGAPI png_save_int_32(png_bytep buf, png_int_32 i)
 	png_save_uint_32(buf, (uint32)i);
 }
 
-#  endif
+#endif
 
-#  ifdef PNG_TIME_RFC1123_SUPPORTED
+#ifdef PNG_TIME_RFC1123_SUPPORTED
 /* Convert the supplied time into an RFC 1123 string suitable for use in
  * a "Creation Time" or other text-based time string.
  */
@@ -594,7 +594,7 @@ int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 	return 1;
 }
 
-#    if PNG_LIBPNG_VER < 10700
+#if PNG_LIBPNG_VER < 10700
 /* To do: remove the following from libpng-1.7 */
 /* Original API that uses a private buffer in png_struct.
  * Deprecated because it causes png_struct to carry a spurious temporary
@@ -614,8 +614,8 @@ const char * PNGAPI png_convert_to_rfc1123(png_structrp png_ptr, png_const_timep
 	return NULL;
 }
 
-#    endif /* LIBPNG_VER < 10700 */
-#  endif /* TIME_RFC1123 */
+#endif /* LIBPNG_VER < 10700 */
+#endif /* TIME_RFC1123 */
 
 #endif /* READ || WRITE */
 
@@ -625,7 +625,7 @@ const char * PNGAPI png_get_copyright(png_const_structrp png_ptr)
 #ifdef PNG_STRING_COPYRIGHT
 	return PNG_STRING_COPYRIGHT
 #else
-#  ifdef __STDC__
+#ifdef __STDC__
 	return PNG_STRING_NEWLINE \
 	       "libpng version 1.6.23 - June 9, 2016" PNG_STRING_NEWLINE \
 	       "Copyright (c) 1998-2002,2004,2006-2016 Glenn Randers-Pehrson" \
@@ -633,13 +633,13 @@ const char * PNGAPI png_get_copyright(png_const_structrp png_ptr)
 	       "Copyright (c) 1996-1997 Andreas Dilger" PNG_STRING_NEWLINE \
 	       "Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc." \
 	       PNG_STRING_NEWLINE;
-#  else
+#else
 	return
 		"libpng version 1.6.23 - June 9, 2016\
       Copyright (c) 1998-2002,2004,2006-2016 Glenn Randers-Pehrson\
       Copyright (c) 1996-1997 Andreas Dilger\
       Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc."                                                                                                                                                                            ;
-#  endif
+#endif
 #endif
 }
 
@@ -670,9 +670,9 @@ const char * PNGAPI png_get_header_version(png_const_structrp png_ptr)
 	PNG_UNUSED(png_ptr) /* Silence compiler warning about unused png_ptr */
 #ifdef __STDC__
 	return PNG_HEADER_VERSION_STRING
-#  ifndef PNG_READ_SUPPORTED
+#ifndef PNG_READ_SUPPORTED
 	       " (NO READ SUPPORT)"
-#  endif
+#endif
 	       PNG_STRING_NEWLINE;
 #else
 	return PNG_HEADER_VERSION_STRING;
@@ -894,11 +894,11 @@ void /* PRIVATE */ png_colorspace_set_gamma(png_const_structrp png_ptr, png_colo
 	const char * errmsg;
 	if(gAMA < 16 || gAMA > 625000000)
 		errmsg = "gamma value out of range";
-#  ifdef PNG_READ_gAMA_SUPPORTED
+#ifdef PNG_READ_gAMA_SUPPORTED
 	/* Allow the application to set the gamma value more than once */
 	else if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0 && (colorspace->flags & PNG_COLORSPACE_FROM_gAMA) != 0)
 		errmsg = "duplicate";
-#  endif
+#endif
 
 	/* Do nothing if the colorspace is already invalid */
 	else if((colorspace->flags & PNG_COLORSPACE_INVALID) != 0)
@@ -1517,7 +1517,7 @@ static int png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp co
 		message[pos++] = ':';
 		message[pos++] = ' ';
 	}
-#  ifdef PNG_WARNINGS_SUPPORTED
+#ifdef PNG_WARNINGS_SUPPORTED
 	else {
 		char number[PNG_NUMBER_BUFFER_SIZE]; /* +24 = 114*/
 
@@ -1526,7 +1526,7 @@ static int png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp co
 			    PNG_NUMBER_FORMAT_x, value));
 		pos = png_safecat(message, (sizeof message), pos, "h: "); /*+2 = 116*/
 	}
-#  endif
+#endif
 	/* The 'reason' is an arbitrary message, allow +79 maximum 195 */
 	pos = png_safecat(message, (sizeof message), pos, reason);
 	PNG_UNUSED(pos)
@@ -1974,14 +1974,14 @@ static int png_compare_ICC_profile_with_sRGB(png_const_structrp png_ptr, png_con
 					}
 				}
 
-# if PNG_sRGB_PROFILE_CHECKS > 0
+#if PNG_sRGB_PROFILE_CHECKS > 0
 				/* The signature matched, but the profile had been changed in some
 				 * way.  This probably indicates a data error or uninformed hacking.
 				 * Fall through to "no match".
 				 */
 				png_chunk_report(png_ptr, "Not recognizing known sRGB profile that has been edited", PNG_CHUNK_WARNING);
 				break;
-# endif
+#endif
 			}
 		}
 	}
@@ -2352,7 +2352,7 @@ int png_check_fp_string(const char * string, size_t size)
 #endif /* pCAL || sCAL */
 
 #ifdef PNG_sCAL_SUPPORTED
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 /* Utility used below - a simple accurate power of ten from an integral
  * exponent.
  */

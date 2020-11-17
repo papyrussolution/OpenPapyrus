@@ -236,16 +236,16 @@ int BIO_fd_non_fatal_error(int err)
 {
 	switch(err) {
 #ifdef EWOULDBLOCK
-#  ifdef WSAEWOULDBLOCK
+#ifdef WSAEWOULDBLOCK
 #   if WSAEWOULDBLOCK != EWOULDBLOCK
 		case EWOULDBLOCK:
 #   endif
-#  else
+#else
 		case EWOULDBLOCK:
-#  endif
+#endif
 #endif
 
-# if defined(ENOTCONN)
+#if defined(ENOTCONN)
 		case ENOTCONN:
 #endif
 
@@ -254,9 +254,9 @@ int BIO_fd_non_fatal_error(int err)
 #endif
 
 #ifdef EAGAIN
-#  if EWOULDBLOCK != EAGAIN
+#if EWOULDBLOCK != EAGAIN
 		case EAGAIN:
-#  endif
+#endif
 #endif
 
 #ifdef EPROTO

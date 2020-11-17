@@ -128,16 +128,16 @@ int HASH_INIT(SHA_CTX * c)
 #define X(i)   XX[i]
 #endif
 
-# if !defined(SHA1_ASM)
+#if !defined(SHA1_ASM)
 static void HASH_BLOCK_DATA_ORDER(SHA_CTX * c, const void * p, size_t num)
 {
 	const uchar * data = static_cast<const uchar *>(p);
 	unsigned MD32_REG_T A, B, C, D, E, T, l;
-#  ifndef MD32_XARRAY
+#ifndef MD32_XARRAY
 	unsigned MD32_REG_T XX0, XX1, XX2, XX3, XX4, XX5, XX6, XX7, XX8, XX9, XX10, XX11, XX12, XX13, XX14, XX15;
-#  else
+#else
 	SHA_LONG XX[16];
-#  endif
+#endif
 
 	A = c->h0;
 	B = c->h1;
@@ -362,7 +362,7 @@ static void HASH_BLOCK_DATA_ORDER(SHA_CTX * c, const void * p, size_t num)
 		E = D, D = C, C = ROTATE(B, 30), B = A;  \
 		A = ROTATE(A, 5)+T+xa;         } while(0)
 
-# if !defined(SHA1_ASM)
+#if !defined(SHA1_ASM)
 static void HASH_BLOCK_DATA_ORDER(SHA_CTX * c, const void * p, size_t num)
 {
 	const uchar * data = p;

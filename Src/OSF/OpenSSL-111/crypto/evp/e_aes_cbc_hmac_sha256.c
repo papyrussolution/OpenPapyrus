@@ -66,7 +66,7 @@ static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX * ctx, const uchar * in
 
 #define STITCHED_CALL
 
-# if !defined(STITCHED_CALL)
+#if !defined(STITCHED_CALL)
 #define aes_off 0
 #endif
 
@@ -108,7 +108,7 @@ static void sha256_update(SHA256_CTX * c, const void * data, size_t len)
 #endif
 #define SHA256_Update sha256_update
 
-# if !defined(OPENSSL_NO_MULTIBLOCK)
+#if !defined(OPENSSL_NO_MULTIBLOCK)
 
 typedef struct {
 	uint A[8], B[8], C[8], D[8], E[8], F[8], G[8], H[8];
@@ -148,9 +148,9 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	    0;
 	size_t ret = 0;
 	u8 * IVs;
-#  if defined(BSWAP8)
+#if defined(BSWAP8)
 	u64 seqnum;
-#  endif
+#endif
 
 	/* ask for IVs in bulk */
 	if(RAND_bytes((IVs = blocks[0].c), 16 * x4) <= 0)
@@ -185,15 +185,15 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 		IVs += 16;
 	}
 
-#  if defined(BSWAP8)
+#if defined(BSWAP8)
 	memcpy(blocks[0].c, key->md.data, 8);
 	seqnum = BSWAP8(blocks[0].q[0]);
-#  endif
+#endif
 	for(i = 0; i < x4; i++) {
 		uint len = (i == (x4 - 1) ? last : frag);
-#  if !defined(BSWAP8)
+#if !defined(BSWAP8)
 		uint carry, j;
-#  endif
+#endif
 
 		ctx->A[i] = key->md.h[0];
 		ctx->B[i] = key->md.h[1];
@@ -205,14 +205,14 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 		ctx->H[i] = key->md.h[7];
 
 		/* fix seqnum */
-#  if defined(BSWAP8)
+#if defined(BSWAP8)
 		blocks[i].q[0] = BSWAP8(seqnum + i);
-#  else
+#else
 		for(carry = i, j = 8; j--;) {
 			blocks[i].c[j] = ((u8*)key->md.data)[j] + carry;
 			carry = (blocks[i].c[j] - carry) >> (sizeof(carry) * 8 - 1);
 		}
-#  endif
+#endif
 		blocks[i].c[8] = ((u8*)key->md.data)[8];
 		blocks[i].c[9] = ((u8*)key->md.data)[9];
 		blocks[i].c[10] = ((u8*)key->md.data)[10];
@@ -232,9 +232,9 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	sha256_multi_block(ctx, edges, n4x);
 	/* hash bulk inputs */
 #define MAXCHUNKSIZE    2048
-#  if     MAXCHUNKSIZE%64
+#if     MAXCHUNKSIZE%64
 #   error  "MAXCHUNKSIZE is not divisible by 64"
-#  elif   MAXCHUNKSIZE
+#elif   MAXCHUNKSIZE
 	/*
 	 * goal is to minimize pressure on L1 cache by moving in shorter steps,
 	 * so that hashed data is still in the cache by the time we encrypt it
@@ -263,7 +263,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 			minblocks -= MAXCHUNKSIZE / 64;
 		} while(minblocks > MAXCHUNKSIZE / 64);
 	}
-#  endif
+#endif
 #undef  MAXCHUNKSIZE
 	sha256_multi_block(ctx, hash_d, n4x);
 	memzero(blocks, sizeof(blocks));
@@ -276,19 +276,19 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 		len += 64 + 13; /* 64 is HMAC header */
 		len *= 8;       /* convert to bits */
 		if(off < (64 - 8)) {
-#  ifdef BSWAP4
+#ifdef BSWAP4
 			blocks[i].d[15] = BSWAP4(len);
-#  else
+#else
 			PUTU32(blocks[i].c + 60, len);
-#  endif
+#endif
 			edges[i].blocks = 1;
 		}
 		else {
-#  ifdef BSWAP4
+#ifdef BSWAP4
 			blocks[i].d[31] = BSWAP4(len);
-#  else
+#else
 			PUTU32(blocks[i].c + 124, len);
-#  endif
+#endif
 			edges[i].blocks = 2;
 		}
 		edges[i].ptr = blocks[i].c;
@@ -297,7 +297,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	sha256_multi_block(ctx, edges, n4x);
 	memzero(blocks, sizeof(blocks));
 	for(i = 0; i < x4; i++) {
-#  ifdef BSWAP4
+#ifdef BSWAP4
 		blocks[i].d[0] = BSWAP4(ctx->A[i]);
 		ctx->A[i] = key->tail.h[0];
 		blocks[i].d[1] = BSWAP4(ctx->B[i]);
@@ -316,7 +316,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 		ctx->H[i] = key->tail.h[7];
 		blocks[i].c[32] = 0x80;
 		blocks[i].d[15] = BSWAP4((64 + 32) * 8);
-#  else
+#else
 		PUTU32(blocks[i].c + 0, ctx->A[i]);
 		ctx->A[i] = key->tail.h[0];
 		PUTU32(blocks[i].c + 4, ctx->B[i]);
@@ -335,7 +335,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 		ctx->H[i] = key->tail.h[7];
 		blocks[i].c[32] = 0x80;
 		PUTU32(blocks[i].c + 60, (64 + 32) * 8);
-#  endif
+#endif
 		edges[i].ptr = blocks[i].c;
 		edges[i].blocks = 1;
 	}
@@ -403,7 +403,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 	size_t plen = key->payload_length, iv = 0, /* explicit IV in TLS 1.1 and
 	                                            * later */
 	    sha_off = 0;
-# if defined(STITCHED_CALL)
+#if defined(STITCHED_CALL)
 	size_t aes_off = 0, blocks;
 
 	sha_off = SHA256_CBLOCK - key->md.num;
@@ -424,7 +424,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 		else if(key->aux.tls_ver >= TLS1_1_VERSION)
 			iv = AES_BLOCK_SIZE;
 
-# if defined(STITCHED_CALL)
+#if defined(STITCHED_CALL)
 		/*
 		 * Assembly stitch handles AVX-capable processors, but its
 		 * performance is not optimal on AMD Jaguar, ~40% worse, for
@@ -491,7 +491,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 		} mac, * pmac;
 
 		/* arrange cache line alignment */
-		pmac = (void*)(((size_t)mac.c + 63) & ((size_t)0 - 64));
+		pmac = (void *)(((size_t)mac.c + 63) & ((size_t)0 - 64));
 
 		/* decrypt HMAC|padding at once */
 		aesni_cbc_encrypt(in, out, len, &key->ks,
@@ -504,7 +504,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			union {
 				uint u[SHA_LBLOCK];
 				uchar c[SHA256_CBLOCK];
-			} * data = (void*)key->md.data;
+			} * data = (void *)key->md.data;
 
 			if((key->aux.tls_aad[plen - 4] << 8 | key->aux.tls_aad[plen - 3])
 			    >= TLS1_1_VERSION)
@@ -542,7 +542,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			key->md = key->head;
 			SHA256_Update(&key->md, key->aux.tls_aad, plen);
 
-# if 1      /* see original reference version in #else */
+#if 1      /* see original reference version in #else */
 			len -= SHA256_DIGEST_LENGTH; /* amend mac */
 			if(len >= (256 + SHA256_CBLOCK)) {
 				j = (len - (256 + SHA256_CBLOCK)) & (0 - SHA256_CBLOCK);
@@ -555,15 +555,15 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 
 			/* but pretend as if we hashed padded payload */
 			bitlen = key->md.Nl + (inp_len << 3); /* at most 18 bits */
-#  ifdef BSWAP4
+#ifdef BSWAP4
 			bitlen = BSWAP4(bitlen);
-#  else
+#else
 			mac.c[0] = 0;
 			mac.c[1] = (uchar)(bitlen >> 16);
 			mac.c[2] = (uchar)(bitlen >> 8);
 			mac.c[3] = (uchar)bitlen;
 			bitlen = mac.u[0];
-#  endif
+#endif
 
 			pmac->u[0] = 0;
 			pmac->u[1] = 0;
@@ -632,7 +632,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			pmac->u[6] |= key->md.h[6] & mask;
 			pmac->u[7] |= key->md.h[7] & mask;
 
-#  ifdef BSWAP4
+#ifdef BSWAP4
 			pmac->u[0] = BSWAP4(pmac->u[0]);
 			pmac->u[1] = BSWAP4(pmac->u[1]);
 			pmac->u[2] = BSWAP4(pmac->u[2]);
@@ -641,7 +641,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			pmac->u[5] = BSWAP4(pmac->u[5]);
 			pmac->u[6] = BSWAP4(pmac->u[6]);
 			pmac->u[7] = BSWAP4(pmac->u[7]);
-#  else
+#else
 			for(i = 0; i < 8; i++) {
 				res = pmac->u[i];
 				pmac->c[4 * i + 0] = (uchar)(res >> 24);
@@ -649,7 +649,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 				pmac->c[4 * i + 2] = (uchar)(res >> 8);
 				pmac->c[4 * i + 3] = (uchar)res;
 			}
-#  endif
+#endif
 			len += SHA256_DIGEST_LENGTH;
 #else
 			SHA256_Update(&key->md, out, inp_len);
@@ -678,7 +678,7 @@ static int aesni_cbc_hmac_sha256_cipher(EVP_CIPHER_CTX * ctx,
 			/* verify HMAC */
 			out += inp_len;
 			len -= inp_len;
-# if 1      /* see original reference version in #else */
+#if 1      /* see original reference version in #else */
 			{
 				uchar * p =
 				    out + len - 1 - maxpad - SHA256_DIGEST_LENGTH;
@@ -795,7 +795,7 @@ static int aesni_cbc_hmac_sha256_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, v
 			    return SHA256_DIGEST_LENGTH;
 		    }
 	    }
-# if !defined(OPENSSL_NO_MULTIBLOCK)
+#if !defined(OPENSSL_NO_MULTIBLOCK)
 		case EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE:
 		    return (int)(5 + 16 + ((arg + 32 + 16) & -16));
 		case EVP_CTRL_TLS1_1_MULTIBLOCK_AAD:

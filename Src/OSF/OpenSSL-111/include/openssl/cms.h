@@ -197,8 +197,8 @@ int CMS_SharedInfo_encode(uchar **pder, X509_ALGOR *kekalg, ASN1_OCTET_STRING *u
 #define CMS_R_UNKNOWN_DIGEST_ALGORITM CMS_R_UNKNOWN_DIGEST_ALGORITHM
 #define CMS_R_UNSUPPORTED_RECPIENTINFO_TYPE CMS_R_UNSUPPORTED_RECIPIENTINFO_TYPE
 
-#  ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-#  endif
+#endif
 #endif
 #endif

@@ -30,7 +30,7 @@ void CRYPTO_cfb128_encrypt(const uchar * in, uchar * out,
 					--len;
 					n = (n + 1) % 16;
 				}
-# if defined(STRICT_ALIGNMENT)
+#if defined(STRICT_ALIGNMENT)
 				if(((size_t)in | (size_t)out | (size_t)ivec) %
 				    sizeof(size_t) != 0)
 					break;
@@ -80,7 +80,7 @@ void CRYPTO_cfb128_encrypt(const uchar * in, uchar * out,
 					--len;
 					n = (n + 1) % 16;
 				}
-# if defined(STRICT_ALIGNMENT)
+#if defined(STRICT_ALIGNMENT)
 				if(((size_t)in | (size_t)out | (size_t)ivec) %
 				    sizeof(size_t) != 0)
 					break;

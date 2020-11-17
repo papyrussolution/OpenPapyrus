@@ -34,7 +34,7 @@ int RAND_set_rand_engine(ENGINE *engine);
 
 RAND_METHOD *RAND_OpenSSL(void);
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 #   define RAND_cleanup() while(0) continue
 #endif
 int RAND_bytes(uchar *buf, int num);
@@ -44,7 +44,7 @@ DEPRECATEDIN_1_1_0(int RAND_pseudo_bytes(uchar *buf, int num))
 void RAND_seed(const void *buf, int num);
 void RAND_keep_random_devices_open(int keep);
 
-# if defined(__ANDROID__) && defined(__NDK_FPABI__)
+#if defined(__ANDROID__) && defined(__NDK_FPABI__)
 __NDK_FPABI__	/* __attribute__((pcs("aapcs"))) on ARM */
 #endif
 void RAND_add(const void *buf, int num, double randomness);
@@ -61,7 +61,7 @@ int RAND_egd_bytes(const char *path, int bytes);
 
 int RAND_poll(void);
 
-# if defined(_WIN32) && (defined(BASETYPES) || defined(_WINDEF_H))
+#if defined(_WIN32) && (defined(BASETYPES) || defined(_WINDEF_H))
 /* application has to include <windows.h> in order to use these */
 DEPRECATEDIN_1_1_0(void RAND_screen(void))
 DEPRECATEDIN_1_1_0(int RAND_event(UINT, WPARAM, LPARAM))

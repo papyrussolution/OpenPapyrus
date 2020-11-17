@@ -45,20 +45,20 @@
 
 /* Get a suitable 64-bit integer type. */
 #if !defined(__LA_INT64_T_DEFINED)
-# if ARCHIVE_VERSION_NUMBER < 4000000
+#if ARCHIVE_VERSION_NUMBER < 4000000
 #define __LA_INT64_T la_int64_t
-# endif
+#endif
 #define __LA_INT64_T_DEFINED
-# if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
 typedef __int64 la_int64_t;
 # else
 #include <unistd.h>
-#  if defined(_SCO_DS) || defined(__osf__)
+#if defined(_SCO_DS) || defined(__osf__)
 typedef long long la_int64_t;
-#  else
+#else
 typedef int64_t la_int64_t;
-#  endif
-# endif
+#endif
+#endif
 #endif
 // The la_ssize_t should match the type used in 'struct stat' 
 #if !defined(__LA_SSIZE_T_DEFINED)
@@ -99,18 +99,18 @@ typedef int64_t la_int64_t;
  */
 #if ((defined __WIN32__) || (defined _WIN32) || defined(__CYGWIN__)) && (!defined LIBARCHIVE_STATIC)
 # ifdef __LIBARCHIVE_BUILD
-#  ifdef __GNUC__
+#ifdef __GNUC__
 #   define __LA_DECL	__attribute__((dllexport)) extern
-#  else
+#else
 #   define __LA_DECL	__declspec(dllexport)
-#  endif
+#endif
 # else
-#  ifdef __GNUC__
+#ifdef __GNUC__
 #   define __LA_DECL
-#  else
+#else
 #   define __LA_DECL	__declspec(dllimport)
-#  endif
-# endif
+#endif
+#endif
 #else
 	#define __LA_DECL // Static libraries on all platforms and shared libraries on non-Windows. 
 #endif

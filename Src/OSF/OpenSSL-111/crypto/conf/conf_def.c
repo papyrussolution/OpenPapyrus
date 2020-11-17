@@ -111,7 +111,7 @@ static int def_init_default(CONF * conf)
 		return 0;
 
 	conf->meth = &default_method;
-	conf->meth_data = (void*)CONF_type_default;
+	conf->meth_data = (void *)CONF_type_default;
 	conf->data = NULL;
 
 	return 1;
@@ -123,7 +123,7 @@ static int def_init_WIN32(CONF * conf)
 		return 0;
 
 	conf->meth = &WIN32_method;
-	conf->meth_data = (void*)CONF_type_win32;
+	conf->meth_data = (void *)CONF_type_win32;
 	conf->data = NULL;
 
 	return 1;
@@ -184,7 +184,7 @@ static int def_load_bio(CONF * conf, BIO * in, long * line)
 	CONF_VALUE * sv = NULL;
 	char * section = NULL, * buf;
 	char * start, * psection, * pname;
-	void * h = (void*)(conf->data);
+	void * h = (void *)(conf->data);
 	STACK_OF(BIO) *biosk = NULL;
 #ifndef OPENSSL_NO_POSIX_IO
 	char * dirpath = NULL;
@@ -748,7 +748,7 @@ static int is_keytype(const CONF * conf, char c, ushort type)
 	uchar key = (uchar)c;
 
 #ifdef CHARSET_EBCDIC
-# if CHAR_BIT > 8
+#if CHAR_BIT > 8
 	if(key > 255) {
 		/* key is out of range for os_toascii table */
 		return 0;

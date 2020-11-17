@@ -377,7 +377,7 @@ static void fe51_tobytes(uint8_t * s, const fe51 h)
 	s[31] = (uint8_t)(h4 >> 44);
 }
 
-# if defined(X25519_ASM)
+#if defined(X25519_ASM)
 void x25519_fe51_mul(fe51 h, const fe51 f, const fe51 g);
 void x25519_fe51_sqr(fe51 h, const fe51 f);
 void x25519_fe51_mul121666(fe51 h, fe51 f);
@@ -448,9 +448,9 @@ static void fe51_mul(fe51 h, const fe51 f, const fe51 g)
 
 static void fe51_sq(fe51 h, const fe51 f)
 {
-#  if defined(OPENSSL_SMALL_FOOTPRINT)
+#if defined(OPENSSL_SMALL_FOOTPRINT)
 	fe51_mul(h, f, f);
-#  else
+#else
 	/* dedicated squaring gives 16-25% overall improvement */
 	uint64_t g0 = f[0];
 	uint64_t g1 = f[1];
@@ -497,7 +497,7 @@ static void fe51_sq(fe51 h, const fe51 f)
 	h[2] = g2;
 	h[3] = g3;
 	h[4] = g4;
-#  endif
+#endif
 }
 
 static void fe51_mul121666(fe51 h, fe51 f)

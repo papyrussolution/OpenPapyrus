@@ -372,7 +372,7 @@ void FASTCALL gumbo_vector_init(size_t initial_capacity, GumboVector* vector)
 	vector->length = 0;
 	vector->capacity = initial_capacity;
 	if(initial_capacity > 0)
-		vector->data = static_cast<void **>(SAlloc::M(sizeof(void*) * initial_capacity));
+		vector->data = static_cast<void **>(SAlloc::M(sizeof(void *) * initial_capacity));
 	else
 		vector->data = NULL;
 }
@@ -387,9 +387,9 @@ static void FASTCALL enlarge_vector_if_full(GumboVector* vector)
 {
 	if(vector->length >= vector->capacity) {
 		if(vector->capacity) {
-			size_t old_num_bytes = sizeof(void*) * vector->capacity;
+			size_t old_num_bytes = sizeof(void *) * vector->capacity;
 			vector->capacity *= 2;
-			size_t num_bytes = sizeof(void*) * vector->capacity;
+			size_t num_bytes = sizeof(void *) * vector->capacity;
 			void ** temp = static_cast<void **>(SAlloc::M(num_bytes));
 			memcpy(temp, vector->data, old_num_bytes);
 			SAlloc::F(vector->data);
@@ -398,7 +398,7 @@ static void FASTCALL enlarge_vector_if_full(GumboVector* vector)
 		else {
 			// 0-capacity vector; no previous array to deallocate.
 			vector->capacity = 2;
-			vector->data = static_cast<void **>(SAlloc::M(sizeof(void*) * vector->capacity));
+			vector->data = static_cast<void **>(SAlloc::M(sizeof(void *) * vector->capacity));
 		}
 	}
 }
@@ -431,7 +431,7 @@ void gumbo_vector_insert_at(void * element, uint index, GumboVector * vector)
 	assert(index <= vector->length);
 	enlarge_vector_if_full(vector);
 	++vector->length;
-	memmove(&vector->data[index + 1], &vector->data[index], sizeof(void*) * (vector->length - index - 1));
+	memmove(&vector->data[index + 1], &vector->data[index], sizeof(void *) * (vector->length - index - 1));
 	vector->data[index] = element;
 }
 
@@ -447,7 +447,7 @@ void * FASTCALL gumbo_vector_remove_at(uint index, GumboVector * vector)
 	assert(index >= 0);
 	assert(index < vector->length);
 	void* result = vector->data[index];
-	memmove(&vector->data[index], &vector->data[index + 1], sizeof(void*) * (vector->length - index - 1));
+	memmove(&vector->data[index], &vector->data[index + 1], sizeof(void *) * (vector->length - index - 1));
 	--vector->length;
 	return result;
 }
@@ -664,7 +664,7 @@ void FASTCALL gumbo_error_destroy(GumboError* error)
 		gumbo_vector_destroy(&error->v.parser.tag_stack);
 	}
 	else if(error->type == GUMBO_ERR_DUPLICATE_ATTR) {
-		SAlloc::F((void*)error->v.duplicate_attr.name);
+		SAlloc::F((void *)error->v.duplicate_attr.name);
 	}
 	SAlloc::F(error);
 }

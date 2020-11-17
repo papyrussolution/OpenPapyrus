@@ -124,10 +124,10 @@ static int parsenetrc(const char * host,
 						    }
 						    else if(!login || strcmp(login, tok)) {
 							    if(login_alloc) {
-								    free(login);
+								    SAlloc::F(login);
 								    login_alloc = FALSE;
 							    }
-							    login = strdup(tok);
+							    login = sstrdup(tok);
 							    if(!login) {
 								    retcode = NETRC_FAILED; /* allocation failed */
 								    goto out;
@@ -140,10 +140,10 @@ static int parsenetrc(const char * host,
 						    if((state_our_login || !specific_login)
 							&& (!password || strcmp(password, tok))) {
 							    if(password_alloc) {
-								    free(password);
+								    SAlloc::F(password);
 								    password_alloc = FALSE;
 							    }
-							    password = strdup(tok);
+							    password = sstrdup(tok);
 							    if(!password) {
 								    retcode = NETRC_FAILED; /* allocation failed */
 								    goto out;
@@ -175,22 +175,22 @@ out:
 			*password_changed = FALSE;
 			if(login_alloc) {
 				if(*loginp)
-					free(*loginp);
+					SAlloc::F(*loginp);
 				*loginp = login;
 				*login_changed = TRUE;
 			}
 			if(password_alloc) {
 				if(*passwordp)
-					free(*passwordp);
+					SAlloc::F(*passwordp);
 				*passwordp = password;
 				*password_changed = TRUE;
 			}
 		}
 		else {
 			if(login_alloc)
-				free(login);
+				SAlloc::F(login);
 			if(password_alloc)
-				free(password);
+				SAlloc::F(password);
 		}
 		fclose(file);
 	}
@@ -245,26 +245,26 @@ int Curl_parsenetrc(const char * host,
 
 		filealloc = curl_maprintf("%s%s.netrc", home, DIR_CHAR);
 		if(!filealloc) {
-			free(homea);
+			SAlloc::F(homea);
 			return -1;
 		}
 		retcode = parsenetrc(host, loginp, passwordp, login_changed,
 			password_changed, filealloc);
-		free(filealloc);
+		SAlloc::F(filealloc);
 #ifdef WIN32
 		if(retcode == NETRC_FILE_MISSING) {
 			/* fallback to the old-style "_netrc" file */
 			filealloc = curl_maprintf("%s%s_netrc", home, DIR_CHAR);
 			if(!filealloc) {
-				free(homea);
+				SAlloc::F(homea);
 				return -1;
 			}
 			retcode = parsenetrc(host, loginp, passwordp, login_changed,
 				password_changed, filealloc);
-			free(filealloc);
+			SAlloc::F(filealloc);
 		}
 #endif
-		free(homea);
+		SAlloc::F(homea);
 	}
 	else
 		retcode = parsenetrc(host, loginp, passwordp, login_changed,

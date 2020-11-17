@@ -24,15 +24,14 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 #if defined(USE_THREADS_POSIX)
-#  ifdef HAVE_PTHREAD_H
-#    include <pthread.h>
-#  endif
-#elif defined(USE_THREADS_WIN32)
-#  ifdef HAVE_PROCESS_H
-#    include <process.h>
-#  endif
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
 #endif
-
+#elif defined(USE_THREADS_WIN32)
+	//#ifdef HAVE_PROCESS_H
+		//#include <process.h>
+	//#endif
+#endif
 #include "curl_threads.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
@@ -51,7 +50,7 @@ static void * curl_thread_create_thunk(void * arg)
 	unsigned int (* func)(void *) = ac->func;
 	void * real_arg = ac->arg;
 
-	free(ac);
+	SAlloc::F(ac);
 
 	(*func)(real_arg);
 
@@ -60,8 +59,8 @@ static void * curl_thread_create_thunk(void * arg)
 
 curl_thread_t Curl_thread_create(unsigned int (*func)(void *), void * arg)
 {
-	curl_thread_t t = malloc(sizeof(pthread_t));
-	struct Curl_actual_call * ac = malloc(sizeof(struct Curl_actual_call));
+	curl_thread_t t = SAlloc::M(sizeof(pthread_t));
+	struct Curl_actual_call * ac = SAlloc::M(sizeof(struct Curl_actual_call));
 	if(!(ac && t))
 		goto err;
 
@@ -74,8 +73,8 @@ curl_thread_t Curl_thread_create(unsigned int (*func)(void *), void * arg)
 	return t;
 
 err:
-	free(t);
-	free(ac);
+	SAlloc::F(t);
+	SAlloc::F(ac);
 	return curl_thread_t_null;
 }
 
@@ -83,7 +82,7 @@ void Curl_thread_destroy(curl_thread_t hnd)
 {
 	if(hnd != curl_thread_t_null) {
 		pthread_detach(*hnd);
-		free(hnd);
+		SAlloc::F(hnd);
 	}
 }
 
@@ -91,7 +90,7 @@ int Curl_thread_join(curl_thread_t * hnd)
 {
 	int ret = (pthread_join(**hnd, NULL) == 0);
 
-	free(*hnd);
+	SAlloc::F(*hnd);
 	*hnd = curl_thread_t_null;
 
 	return ret;

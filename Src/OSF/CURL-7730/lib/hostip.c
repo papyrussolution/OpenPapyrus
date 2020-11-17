@@ -38,22 +38,19 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
 #ifdef HAVE_SETJMP_H
-#include <setjmp.h>
+	#include <setjmp.h>
 #endif
 #ifdef HAVE_SIGNAL_H
-#include <signal.h>
+	#include <signal.h>
 #endif
-
-#ifdef HAVE_PROCESS_H
-#include <process.h>
-#endif
-
+//#ifdef HAVE_PROCESS_H
+	//#include <process.h>
+//#endif
 #include "urldata.h"
-#include "sendf.h"
-#include "hostip.h"
-#include "hash.h"
+//#include "sendf.h"
+//#include "hostip.h"
+//#include "hash.h"
 #include "rand.h"
 #include "share.h"
 #include "strerror.h"
@@ -350,7 +347,7 @@ UNITTEST CURLcode Curl_shuffle_addr(struct Curl_easy * data,
 		struct Curl_addrinfo ** nodes;
 		infof(data, "Shuffling %i addresses", num_addrs);
 
-		nodes = (struct Curl_addrinfo **)malloc(num_addrs*sizeof(*nodes));
+		nodes = (struct Curl_addrinfo **)SAlloc::M(num_addrs*sizeof(*nodes));
 		if(nodes) {
 			int i;
 			unsigned int * rnd;
@@ -361,7 +358,7 @@ UNITTEST CURLcode Curl_shuffle_addr(struct Curl_easy * data,
 			for(i = 1; i < num_addrs; i++) {
 				nodes[i] = nodes[i-1]->ai_next;
 			}
-			rnd = (unsigned int *)malloc(rnd_size);
+			rnd = (unsigned int *)SAlloc::M(rnd_size);
 			if(rnd) {
 				/* Fisher-Yates shuffle */
 				if(Curl_rand(data, (uchar *)rnd, rnd_size) == CURLE_OK) {
@@ -380,11 +377,11 @@ UNITTEST CURLcode Curl_shuffle_addr(struct Curl_easy * data,
 					nodes[num_addrs-1]->ai_next = NULL;
 					*addr = nodes[0];
 				}
-				free(rnd);
+				SAlloc::F(rnd);
 			}
 			else
 				result = CURLE_OUT_OF_MEMORY;
-			free(nodes);
+			SAlloc::F(nodes);
 		}
 		else
 			result = CURLE_OUT_OF_MEMORY;
@@ -422,7 +419,7 @@ struct Curl_dns_entry * Curl_cache_addr(struct Curl_easy * data,
 #endif
 
 	/* Create a new cache entry */
-	dns = (struct Curl_dns_entry *)calloc(1, sizeof(struct Curl_dns_entry));
+	dns = (struct Curl_dns_entry *)SAlloc::C(1, sizeof(struct Curl_dns_entry));
 	if(!dns) {
 		return NULL;
 	}
@@ -441,7 +438,7 @@ struct Curl_dns_entry * Curl_cache_addr(struct Curl_easy * data,
 	dns2 = (struct Curl_dns_entry *)Curl_hash_add(data->dns.hostcache, entry_id, entry_len + 1,
 		(void*)dns);
 	if(!dns2) {
-		free(dns);
+		SAlloc::F(dns);
 		return NULL;
 	}
 
@@ -826,7 +823,7 @@ static void freednsentry(void * freethis)
 	dns->inuse--;
 	if(dns->inuse == 0) {
 		Curl_freeaddrinfo(dns->addr);
-		free(dns);
+		SAlloc::F(dns);
 	}
 }
 

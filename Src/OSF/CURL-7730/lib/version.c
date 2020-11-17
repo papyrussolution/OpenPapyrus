@@ -31,11 +31,11 @@
 #include "curl_printf.h"
 
 #ifdef USE_ARES
-#  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
+#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
 	defined(WIN32)
-#    define CARES_STATICLIB
-#  endif
-#  include <ares.h>
+#define CARES_STATICLIB
+#endif
+#include <ares.h>
 #endif
 
 #ifdef USE_LIBIDN2
@@ -320,9 +320,9 @@ static const char * const protocols[] = {
 #if !defined(CURL_DISABLE_SMB) && defined(USE_CURL_NTLM_CORE) && \
 	(CURL_SIZEOF_CURL_OFF_T > 4)
 	"smb",
-#  ifdef USE_SSL
+#ifdef USE_SSL
 	"smbs",
-#  endif
+#endif
 #endif
 #ifndef CURL_DISABLE_SMTP
 	"smtp",

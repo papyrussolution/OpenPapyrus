@@ -1346,7 +1346,7 @@ int ConvertRbcBnk(const char * pPath)
 
 		out_par.Direction = 0;
 		out_par.DataFormat = PPImpExpParam::dfDbf;
-		out_par.TdfParam.Flags |= TextDbFile::fOemText;
+		out_par.TdfParam.Flags |= TextDbFile::fCpOem;
 		THROW(LoadSdRecord(PPREC_RBCBNKREG, &out_par.OtrRec));
 		out_par.InrRec = out_par.OtrRec;
 		(out_par.FileName = path).SetLastSlash().Cat("reg.dbf");
@@ -1374,7 +1374,7 @@ int ConvertRbcBnk(const char * pPath)
 		(in_par.FileName = path).SetLastSlash().Cat("bnkseek.txt");
 		out_par.Direction = 0;
 		out_par.DataFormat = PPImpExpParam::dfDbf;
-		out_par.TdfParam.Flags |= TextDbFile::fOemText;
+		out_par.TdfParam.Flags |= TextDbFile::fCpOem;
 		THROW(LoadSdRecord(PPREC_RBCBNKSEEK, &out_par.OtrRec));
 		out_par.InrRec = out_par.OtrRec;
 		(out_par.FileName = path).SetLastSlash().Cat("bnkseek.dbf");

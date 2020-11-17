@@ -152,7 +152,7 @@ static int cipher_init(EVP_CIPHER_CTX * ctx, const uchar * key,
 
 	cipher_ctx->sess.cipher = cipher_d->devcryptoid;
 	cipher_ctx->sess.keylen = cipher_d->keylen;
-	cipher_ctx->sess.key = (void*)key;
+	cipher_ctx->sess.key = (void *)key;
 	cipher_ctx->op = enc ? COP_ENCRYPT : COP_DECRYPT;
 	cipher_ctx->mode = cipher_d->flags & EVP_CIPH_MODE;
 	cipher_ctx->blocksize = cipher_d->blocksize;
@@ -179,9 +179,9 @@ static int cipher_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	memzero(&cryp, sizeof(cryp));
 	cryp.ses = cipher_ctx->sess.ses;
 	cryp.len = inl;
-	cryp.src = (void*)in;
-	cryp.dst = (void*)out;
-	cryp.iv = (void*)iv;
+	cryp.src = (void *)in;
+	cryp.dst = (void *)out;
+	cryp.iv = (void *)iv;
 	cryp.op = cipher_ctx->op;
 #if !defined(COP_FLAG_WRITE_IV)
 	cryp.flags = 0;
@@ -337,7 +337,7 @@ static void prepare_cipher_methods(void)
 	struct session_op sess;
 	ulong cipher_mode;
 	memzero(&sess, sizeof(sess));
-	sess.key = (void*)"01234567890123456789012345678901234567890123456789";
+	sess.key = (void *)"01234567890123456789012345678901234567890123456789";
 
 	for(i = 0, known_cipher_nids_amount = 0;
 	    i < OSSL_NELEM(cipher_data); i++) {
@@ -463,9 +463,9 @@ static const struct digest_data_st {
 #endif
 	{ NID_sha1, SHA_CBLOCK, 20, CRYPTO_SHA1 },
 #ifndef OPENSSL_NO_RMD160
-# if !defined(CHECK_BSD_STYLE_MACROS) || defined(CRYPTO_RIPEMD160)
+#if !defined(CHECK_BSD_STYLE_MACROS) || defined(CRYPTO_RIPEMD160)
 	{ NID_ripemd160, /* RIPEMD160_CBLOCK */ 64, 20, CRYPTO_RIPEMD160 },
-# endif
+#endif
 #endif
 #if !defined(CHECK_BSD_STYLE_MACROS) || defined(CRYPTO_SHA2_224)
 	{ NID_sha224, SHA256_CBLOCK, 224 / 8, CRYPTO_SHA2_224 },
@@ -527,7 +527,7 @@ static int digest_op(struct digest_ctx * ctx, const void * src, size_t srclen, v
 	memzero(&cryp, sizeof(cryp));
 	cryp.ses = ctx->sess.ses;
 	cryp.len = srclen;
-	cryp.src = (void*)src;
+	cryp.src = (void *)src;
 	cryp.dst = NULL;
 	cryp.mac = res;
 	cryp.flags = flags;
@@ -764,16 +764,16 @@ void engine_load_devcrypto_int()
 #if 0
 # ifndef OPENSSL_NO_RSA
 	    || !ENGINE_set_RSA(e, devcrypto_rsa)
-# endif
+#endif
 # ifndef OPENSSL_NO_DSA
 	    || !ENGINE_set_DSA(e, devcrypto_dsa)
-# endif
+#endif
 # ifndef OPENSSL_NO_DH
 	    || !ENGINE_set_DH(e, devcrypto_dh)
-# endif
+#endif
 # ifndef OPENSSL_NO_EC
 	    || !ENGINE_set_EC(e, devcrypto_ec)
-# endif
+#endif
 #endif
 	    || !ENGINE_set_ciphers(e, devcrypto_ciphers)
 #ifdef IMPLEMENT_DIGEST

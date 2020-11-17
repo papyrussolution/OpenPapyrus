@@ -454,7 +454,7 @@ static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pForma
 						break;
 					case 'p': 
 						{
-							width = sizeof(void*) * 2U;
+							width = sizeof(void *) * 2U;
 							flags |= FLAGS_ZEROPAD | FLAGS_UPPERCASE;
 							if(sizeof(uintptr_t) == sizeof(int64))
 								_ntoa_long_long(rBuf, (uintptr_t)va_arg(va, void*), false, 16U, precision, width, flags);
@@ -1335,33 +1335,33 @@ SLTEST_R(slprintf)
 			}
 		}
 		{ // TEST_CASE("pointer", "[]" )
-			slprintf(sbuf.Z(), "%p", (void*)0x1234U);
-			if(sizeof(void*) == 4U) {
+			slprintf(sbuf.Z(), "%p", (void *)0x1234U);
+			if(sizeof(void *) == 4U) {
 				SLTEST_CHECK_EQ(sbuf, "00001234");
 			}
 			else {
 				SLTEST_CHECK_EQ(sbuf, "0000000000001234");
 			}
-			slprintf(sbuf.Z(), "%p", (void*)0x12345678U);
-			if(sizeof(void*) == 4U) {
+			slprintf(sbuf.Z(), "%p", (void *)0x12345678U);
+			if(sizeof(void *) == 4U) {
 				SLTEST_CHECK_EQ(sbuf, "12345678");
 			}
 			else {
 				SLTEST_CHECK_EQ(sbuf, "0000000012345678");
 			}
-			slprintf(sbuf.Z(), "%p-%p", (void*)0x12345678U, (void*)0x7EDCBA98U);
-			if(sizeof(void*) == 4U) {
+			slprintf(sbuf.Z(), "%p-%p", (void *)0x12345678U, (void *)0x7EDCBA98U);
+			if(sizeof(void *) == 4U) {
 				SLTEST_CHECK_EQ(sbuf, "12345678-7EDCBA98");
 			}
 			else {
 				SLTEST_CHECK_EQ(sbuf, "0000000012345678-000000007EDCBA98");
 			}
 			if(sizeof(uintptr_t) == sizeof(uint64_t)) {
-				slprintf(sbuf.Z(), "%p", (void*)(uintptr_t)0xFFFFFFFFU);
+				slprintf(sbuf.Z(), "%p", (void *)(uintptr_t)0xFFFFFFFFU);
 				SLTEST_CHECK_EQ(sbuf, "00000000FFFFFFFF");
 			}
 			else {
-				slprintf(sbuf.Z(), "%p", (void*)(uintptr_t)0xFFFFFFFFU);
+				slprintf(sbuf.Z(), "%p", (void *)(uintptr_t)0xFFFFFFFFU);
 				SLTEST_CHECK_EQ(sbuf, "FFFFFFFF");
 			}
 		}

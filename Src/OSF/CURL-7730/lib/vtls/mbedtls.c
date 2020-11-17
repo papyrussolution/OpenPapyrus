@@ -50,18 +50,18 @@
 #include <mbedtls/sha256.h>
 
 #if MBEDTLS_VERSION_MAJOR >= 2
-#  ifdef MBEDTLS_DEBUG
-#    include <mbedtls/debug.h>
-#  endif
+#ifdef MBEDTLS_DEBUG
+#include <mbedtls/debug.h>
+#endif
 #endif
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "mbedtls.h"
 #include "vtls.h"
 #include "parsedate.h"
-#include "connect.h" /* for the connect timeout */
+//#include "connect.h" /* for the connect timeout */
 #include "select.h"
 #include "multiif.h"
 #include "mbedtls_threadlock.h"
@@ -144,10 +144,10 @@ static void mbed_debug(void * context, int level, const char * f_name,
 
 /* ALPN for http2? */
 #ifdef USE_NGHTTP2
-#  undef HAS_ALPN
-#  ifdef MBEDTLS_SSL_ALPN
-#    define HAS_ALPN
-#  endif
+#undef HAS_ALPN
+#ifdef MBEDTLS_SSL_ALPN
+#define HAS_ALPN
+#endif
 #endif
 
 /*
@@ -614,7 +614,7 @@ static CURLcode mbed_connect_step2(struct connectdata * conn,
 
 	if(peercert && data->set.verbose) {
 		const size_t bufsize = 16384;
-		char * buffer = malloc(bufsize);
+		char * buffer = SAlloc::M(bufsize);
 
 		if(!buffer)
 			return CURLE_OUT_OF_MEMORY;
@@ -624,7 +624,7 @@ static CURLcode mbed_connect_step2(struct connectdata * conn,
 		else
 			infof(data, "Unable to dump certificate information.\n");
 
-		free(buffer);
+		SAlloc::F(buffer);
 	}
 
 	if(pinnedpubkey) {
@@ -638,7 +638,7 @@ static CURLcode mbed_connect_step2(struct connectdata * conn,
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
 
-		p = calloc(1, sizeof(*p));
+		p = SAlloc::C(1, sizeof(*p));
 
 		if(!p)
 			return CURLE_OUT_OF_MEMORY;
@@ -651,7 +651,7 @@ static CURLcode mbed_connect_step2(struct connectdata * conn,
 		if(mbedtls_x509_crt_parse_der(p, peercert->raw.p, peercert->raw.len)) {
 			failf(data, "Failed copying peer certificate");
 			mbedtls_x509_crt_free(p);
-			free(p);
+			SAlloc::F(p);
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
 
@@ -660,7 +660,7 @@ static CURLcode mbed_connect_step2(struct connectdata * conn,
 		if(size <= 0) {
 			failf(data, "Failed copying public key from peer certificate");
 			mbedtls_x509_crt_free(p);
-			free(p);
+			SAlloc::F(p);
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
 
@@ -670,12 +670,12 @@ static CURLcode mbed_connect_step2(struct connectdata * conn,
 			&pubkey[PUB_DER_MAX_BYTES - size], size);
 		if(result) {
 			mbedtls_x509_crt_free(p);
-			free(p);
+			SAlloc::F(p);
 			return result;
 		}
 
 		mbedtls_x509_crt_free(p);
-		free(p);
+		SAlloc::F(p);
 	}
 
 #ifdef HAS_ALPN
@@ -726,7 +726,7 @@ static CURLcode mbed_connect_step3(struct connectdata * conn,
 		mbedtls_ssl_session * our_ssl_sessionid;
 		void * old_ssl_sessionid = NULL;
 
-		our_ssl_sessionid = malloc(sizeof(mbedtls_ssl_session));
+		our_ssl_sessionid = SAlloc::M(sizeof(mbedtls_ssl_session));
 		if(!our_ssl_sessionid)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -736,7 +736,7 @@ static CURLcode mbed_connect_step3(struct connectdata * conn,
 		if(ret) {
 			if(ret != MBEDTLS_ERR_SSL_ALLOC_FAILED)
 				mbedtls_ssl_session_free(our_ssl_sessionid);
-			free(our_ssl_sessionid);
+			SAlloc::F(our_ssl_sessionid);
 			failf(data, "mbedtls_ssl_get_session returned -0x%x", -ret);
 			return CURLE_SSL_CONNECT_ERROR;
 		}
@@ -750,7 +750,7 @@ static CURLcode mbed_connect_step3(struct connectdata * conn,
 		Curl_ssl_sessionid_unlock(conn);
 		if(retcode) {
 			mbedtls_ssl_session_free(our_ssl_sessionid);
-			free(our_ssl_sessionid);
+			SAlloc::F(our_ssl_sessionid);
 			failf(data, "failed to store ssl session");
 			return retcode;
 		}
@@ -825,7 +825,7 @@ static ssize_t mbed_recv(struct connectdata * conn, int num,
 static void Curl_mbedtls_session_free(void * ptr)
 {
 	mbedtls_ssl_session_free(ptr);
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 static size_t Curl_mbedtls_version(char * buffer, size_t size)

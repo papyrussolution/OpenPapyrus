@@ -238,7 +238,6 @@ void expand_format(struct obstack * obs, int argc, token_data ** argv)
 				}
 			}
 		}
-
 		/* Length modifiers.  We don't yet recognize ll, j, t, or z.  */
 		if(*fmt == 'l') {
 			*p++ = 'l';
@@ -256,7 +255,6 @@ void expand_format(struct obstack * obs, int argc, token_data ** argv)
 			ok['a'] = ok['A'] = ok['c'] = ok['e'] = ok['E'] = ok['f'] = ok['F']
 							= ok['g'] = ok['G'] = ok['s'] = 0;
 		}
-
 		c = *fmt++;
 		if(sizeof ok <= c || !ok[c]) {
 			M4ERROR((warning_status, 0, "Warning: unrecognized specifier in `%s'", f));
@@ -264,7 +262,6 @@ void expand_format(struct obstack * obs, int argc, token_data ** argv)
 				fmt--;
 			continue;
 		}
-
 		/* Specifiers.  We don't yet recognize C, S, n, or p.  */
 		switch(c) {
 			case 'c':
@@ -282,7 +279,6 @@ void expand_format(struct obstack * obs, int argc, token_data ** argv)
 			case 'u':
 			    datatype = lflag ? LONG : INT;
 			    break;
-
 			case 'a':
 			case 'A':
 			case 'e':

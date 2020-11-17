@@ -1331,11 +1331,11 @@ void EC_KEY_METHOD_get_verify(const EC_KEY_METHOD * meth,
 #define ECParameters_dup(x) ASN1_dup_of(EC_KEY, i2d_ECParameters, d2i_ECParameters, x)
 
 #ifndef __cplusplus
-#  if defined(__SUNPRO_C)
+#if defined(__SUNPRO_C)
 #   if __SUNPRO_C >= 0x520
 #    pragma error_messages (default,E_ARRAY_OF_INCOMPLETE_NONAME,E_ARRAY_OF_INCOMPLETE)
 #   endif
-#  endif
+#endif
 #endif
 
 #define EVP_PKEY_CTX_set_ec_paramgen_curve_nid(ctx, nid) \
@@ -1371,12 +1371,12 @@ void EC_KEY_METHOD_get_verify(const EC_KEY_METHOD * meth,
 #define EVP_PKEY_CTX_set_ecdh_kdf_md(ctx, md) \
 	EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_EC, \
 	    EVP_PKEY_OP_DERIVE, \
-	    EVP_PKEY_CTRL_EC_KDF_MD, 0, (void*)(md))
+	    EVP_PKEY_CTRL_EC_KDF_MD, 0, (void *)(md))
 
 #define EVP_PKEY_CTX_get_ecdh_kdf_md(ctx, pmd) \
 	EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_EC, \
 	    EVP_PKEY_OP_DERIVE, \
-	    EVP_PKEY_CTRL_GET_EC_KDF_MD, 0, (void*)(pmd))
+	    EVP_PKEY_CTRL_GET_EC_KDF_MD, 0, (void *)(pmd))
 
 #define EVP_PKEY_CTX_set_ecdh_kdf_outlen(ctx, len) \
 	EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_EC, \
@@ -1387,30 +1387,30 @@ void EC_KEY_METHOD_get_verify(const EC_KEY_METHOD * meth,
 	EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_EC, \
 	    EVP_PKEY_OP_DERIVE, \
 	    EVP_PKEY_CTRL_GET_EC_KDF_OUTLEN, 0, \
-	    (void*)(plen))
+	    (void *)(plen))
 
 #define EVP_PKEY_CTX_set0_ecdh_kdf_ukm(ctx, p, plen) \
 	EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_EC, \
 	    EVP_PKEY_OP_DERIVE, \
-	    EVP_PKEY_CTRL_EC_KDF_UKM, plen, (void*)(p))
+	    EVP_PKEY_CTRL_EC_KDF_UKM, plen, (void *)(p))
 
 #define EVP_PKEY_CTX_get0_ecdh_kdf_ukm(ctx, p) \
 	EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_EC, \
 	    EVP_PKEY_OP_DERIVE, \
-	    EVP_PKEY_CTRL_GET_EC_KDF_UKM, 0, (void*)(p))
+	    EVP_PKEY_CTRL_GET_EC_KDF_UKM, 0, (void *)(p))
 
 /* SM2 will skip the operation check so no need to pass operation here */
 #define EVP_PKEY_CTX_set1_id(ctx, id, id_len) \
 	EVP_PKEY_CTX_ctrl(ctx, -1, -1, \
-	    EVP_PKEY_CTRL_SET1_ID, (int)id_len, (void*)(id))
+	    EVP_PKEY_CTRL_SET1_ID, (int)id_len, (void *)(id))
 
 #define EVP_PKEY_CTX_get1_id(ctx, id) \
 	EVP_PKEY_CTX_ctrl(ctx, -1, -1, \
-	    EVP_PKEY_CTRL_GET1_ID, 0, (void*)(id))
+	    EVP_PKEY_CTRL_GET1_ID, 0, (void *)(id))
 
 #define EVP_PKEY_CTX_get1_id_len(ctx, id_len) \
 	EVP_PKEY_CTX_ctrl(ctx, -1, -1, \
-	    EVP_PKEY_CTRL_GET1_ID_LEN, 0, (void*)(id_len))
+	    EVP_PKEY_CTRL_GET1_ID_LEN, 0, (void *)(id_len))
 
 #define EVP_PKEY_CTRL_EC_PARAMGEN_CURVE_NID             (EVP_PKEY_ALG_CTRL + 1)
 #define EVP_PKEY_CTRL_EC_PARAM_ENC                      (EVP_PKEY_ALG_CTRL + 2)
@@ -1435,8 +1435,8 @@ void EC_KEY_METHOD_get_verify(const EC_KEY_METHOD * meth,
  */
 #define EVP_PKEY_ECDH_KDF_X9_62   EVP_PKEY_ECDH_KDF_X9_63
 
-#  ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-#  endif
+#endif
 #endif
 #endif

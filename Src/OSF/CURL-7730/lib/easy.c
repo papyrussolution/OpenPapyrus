@@ -48,19 +48,19 @@
 #endif
 #include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
+//#include "transfer.h"
 #include "vtls/vtls.h"
 #include "url.h"
 #include "getinfo.h"
-#include "hostip.h"
+//#include "hostip.h"
 #include "share.h"
 #include "strdup.h"
-#include "progress.h"
+//#include "progress.h"
 #include "easyif.h"
 #include "multiif.h"
 #include "select.h"
-#include "sendf.h" /* for failf function prototype */
-#include "connect.h" /* for Curl_getconnectinfo */
+//#include "sendf.h" /* for failf function prototype */
+//#include "connect.h" /* for Curl_getconnectinfo */
 #include "slist.h"
 #include "mime.h"
 #include "amigaos.h"
@@ -99,9 +99,8 @@ static long init_flags;
 #endif
 
 #if defined(_MSC_VER) && defined(_DLL) && !defined(__POCC__)
-#  pragma warning(disable:4232) /* MSVC extension, dllimport identity */
+#pragma warning(disable:4232) /* MSVC extension, dllimport identity */
 #endif
-
 /*
  * If a memory-using function (like curl_getenv) is used before
  * curl_global_init() is called, we need to have these pointers set already.
@@ -136,43 +135,36 @@ static CURLcode global_init(long flags, bool memoryfuncs)
 		Curl_cwcsdup = (curl_wcsdup_callback)_wcsdup;
 #endif
 	}
-
 	if(!Curl_ssl_init()) {
 		DEBUGF(fprintf(stderr, "Error: Curl_ssl_init failed\n"));
 		goto fail;
 	}
-
 #ifdef WIN32
 	if(Curl_win32_init(flags)) {
 		DEBUGF(fprintf(stderr, "Error: win32_init failed\n"));
 		goto fail;
 	}
 #endif
-
 #ifdef __AMIGA__
 	if(!Curl_amiga_init()) {
 		DEBUGF(fprintf(stderr, "Error: Curl_amiga_init failed\n"));
 		goto fail;
 	}
 #endif
-
 #ifdef NETWARE
 	if(netware_init()) {
 		DEBUGF(fprintf(stderr, "Warning: LONG namespace not available\n"));
 	}
 #endif
-
 	if(Curl_resolver_global_init()) {
 		DEBUGF(fprintf(stderr, "Error: resolver_global_init failed\n"));
 		goto fail;
 	}
-
 #if defined(USE_SSH)
 	if(Curl_ssh_init()) {
 		goto fail;
 	}
 #endif
-
 #ifdef USE_WOLFSSH
 	if(WS_SUCCESS != wolfSSH_Init()) {
 		DEBUGF(fprintf(stderr, "Error: wolfSSH_Init failed\n"));
@@ -370,7 +362,7 @@ static int events_socket(struct Curl_easy * easy,      /* easy handle */
 					prev->next = nxt;
 				else
 					ev->list = nxt;
-				free(m);
+				SAlloc::F(m);
 				m = nxt;
 				infof(easy, "socket cb: socket %d REMOVED\n", s);
 			}
@@ -395,7 +387,7 @@ static int events_socket(struct Curl_easy * easy,      /* easy handle */
 			           __func__, s); */
 		}
 		else {
-			m = malloc(sizeof(struct socketmonitor));
+			m = SAlloc::M(sizeof(struct socketmonitor));
 			if(m) {
 				m->next = ev->list;
 				m->socket.fd = s;
@@ -759,7 +751,7 @@ static CURLcode dupset(struct Curl_easy * dst, struct Curl_easy * src)
  */
 struct Curl_easy * curl_easy_duphandle(struct Curl_easy * data)
 {
-	struct Curl_easy * outcurl = (struct Curl_easy *)calloc(1, sizeof(struct Curl_easy));
+	struct Curl_easy * outcurl = (struct Curl_easy *)SAlloc::C(1, sizeof(struct Curl_easy));
 	if(NULL == outcurl)
 		goto fail;
 	/*
@@ -793,14 +785,14 @@ struct Curl_easy * curl_easy_duphandle(struct Curl_easy * data)
 	}
 
 	if(data->change.url) {
-		outcurl->change.url = strdup(data->change.url);
+		outcurl->change.url = sstrdup(data->change.url);
 		if(!outcurl->change.url)
 			goto fail;
 		outcurl->change.url_alloc = TRUE;
 	}
 
 	if(data->change.referer) {
-		outcurl->change.referer = strdup(data->change.referer);
+		outcurl->change.referer = sstrdup(data->change.referer);
 		if(!outcurl->change.referer)
 			goto fail;
 		outcurl->change.referer_alloc = TRUE;
@@ -871,7 +863,7 @@ fail:
 		Curl_safefree(outcurl->change.referer);
 		Curl_altsvc_cleanup(&outcurl->asi);
 		Curl_freeset(outcurl);
-		free(outcurl);
+		SAlloc::F(outcurl);
 	}
 
 	return NULL;

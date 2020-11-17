@@ -187,7 +187,7 @@ void X509_STORE_CTX_set_depth(X509_STORE_CTX * ctx, int depth);
 
 /* Certificate verify flags */
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 #define X509_V_FLAG_CB_ISSUER_CHECK             0x0   /* Deprecated */
 #endif
 /* Use check time instead of current time */

@@ -56,18 +56,18 @@
 //#include <curl/curl.h>
 #include "netrc.h"
 #include "content_encoding.h"
-#include "hostip.h"
-#include "transfer.h"
-#include "sendf.h"
+//#include "hostip.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "speedcheck.h"
-#include "progress.h"
+//#include "progress.h"
 #include "http.h"
 #include "url.h"
 #include "getinfo.h"
 #include "vtls/vtls.h"
 #include "select.h"
 #include "multiif.h"
-#include "connect.h"
+//#include "connect.h"
 #include "non-ascii.h"
 #include "http2.h"
 #include "mime.h"
@@ -103,7 +103,7 @@ char * FASTCALL Curl_checkheaders(const struct connectdata * conn, const char * 
 CURLcode Curl_get_upload_buffer(struct Curl_easy * data)
 {
 	if(!data->state.ulbuf) {
-		data->state.ulbuf = (char *)malloc(data->set.upload_buffer_size);
+		data->state.ulbuf = (char *)SAlloc::M(data->set.upload_buffer_size);
 		if(!data->state.ulbuf)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -1071,7 +1071,7 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 				    (data->set.crlf))) {
 				/* Do we need to allocate a scratch buffer? */
 				if(!data->state.scratch) {
-					data->state.scratch = (char *)malloc(2 * data->set.upload_buffer_size);
+					data->state.scratch = (char *)SAlloc::M(2 * data->set.upload_buffer_size);
 					if(!data->state.scratch) {
 						failf(data, "Failed to alloc scratch buffer!");
 
@@ -1423,7 +1423,7 @@ CURLcode FASTCALL Curl_pretransfer(struct Curl_easy * data)
 	}
 	if(!data->change.url && data->set.uh) {
 		CURLUcode uc;
-		free(data->set.str[STRING_SET_URL]);
+		SAlloc::F(data->set.str[STRING_SET_URL]);
 		uc = curl_url_get(data->set.uh, CURLUPART_URL, &data->set.str[STRING_SET_URL], 0);
 		if(uc) {
 			failf(data, "No URL set!");
@@ -1563,7 +1563,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 					data->change.referer_alloc = FALSE;
 				}
 
-				data->change.referer = strdup(data->change.url);
+				data->change.referer = sstrdup(data->change.url);
 				if(!data->change.referer)
 					return CURLE_OUT_OF_MEMORY;
 				data->change.referer_alloc = TRUE; /* yes, free this later */
@@ -1585,7 +1585,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 
 		/* the URL could not be parsed for some reason, but since this is FAKE
 		   mode, just duplicate the field as-is */
-		newurl = strdup(newurl);
+		newurl = sstrdup(newurl);
 		if(!newurl)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -1730,7 +1730,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 
 /* Returns CURLE_OK *and* sets '*url' if a request retry is wanted.
 
-   NOTE: that the *url is malloc()ed. */
+   NOTE: that the *url is SAlloc::M()ed. */
 CURLcode Curl_retry_request(struct connectdata * conn,
     char ** url)
 {
@@ -1778,7 +1778,7 @@ CURLcode Curl_retry_request(struct connectdata * conn,
 		}
 		infof(conn->data, "Connection died, retrying a fresh connect\
 (retry count: %d)\n", data->state.retrycount);
-		*url = strdup(conn->data->change.url);
+		*url = sstrdup(conn->data->change.url);
 		if(!*url)
 			return CURLE_OUT_OF_MEMORY;
 

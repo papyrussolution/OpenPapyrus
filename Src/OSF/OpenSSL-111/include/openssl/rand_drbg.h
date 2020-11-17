@@ -24,9 +24,9 @@
 #define RAND_DRBG_FLAG_CTR_NO_DF            0x1
 
 
-# if OPENSSL_API_COMPAT < 0x10200000L
+#if OPENSSL_API_COMPAT < 0x10200000L
 /* This #define was replaced by an internal constant and should not be used. */
-#  define RAND_DRBG_USED_FLAGS  (RAND_DRBG_FLAG_CTR_NO_DF)
+#define RAND_DRBG_USED_FLAGS  (RAND_DRBG_FLAG_CTR_NO_DF)
 #endif
 
 /*

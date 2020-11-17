@@ -39,14 +39,14 @@ COMP_METHOD *COMP_zlib(void);
 #endif
 
 #ifdef HEADER_BIO_H
-#  ifdef ZLIB
+#ifdef ZLIB
 const BIO_METHOD *BIO_f_zlib(void);
-#  endif
+#endif
 #endif
 
 
-#  ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-#  endif
+#endif
 #endif
 #endif

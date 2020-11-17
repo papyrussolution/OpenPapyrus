@@ -1317,7 +1317,7 @@ PPERR_INVBIZSCTEMPL                "Не введен шаблон для биз
 PPERR_UNEQLOCINUNITEDPOSGROUP      "Склад одного из членов объединенной группы кассовых узлов (%s) отличается от группирующего склада"
 PPERR_SCARDISNTCREDIT              "Карта '%s' не является кредитной"
 PPERR_SCARDMUSTBECRDBNS            "Карта '%s' должна быть кредитной или бонусной"
-PPERR_SCARDRESTNOTENOUGH           "Недостаточен остаток на карте '%s'"
+PPERR_SCARDRESTNOTENOUGH           "Недостаточен остаток на карте: %s"
 PPERR_CCORDPREPAYREQSCARD          "Предоплата за заказ стола требует кредитной карты"
 PPERR_UNDEFSCCHGGOODS              "Не определен товар для начисления на кредитную карту"
 PPERR_CSESSNOPENED                 "Кассовая сессия по узлу '%s' не открыта"

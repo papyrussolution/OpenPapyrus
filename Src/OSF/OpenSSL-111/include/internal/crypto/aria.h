@@ -15,7 +15,7 @@
 #include <openssl/opensslconf.h>
 
 #ifdef OPENSSL_NO_ARIA
-#  error ARIA is disabled.
+#error ARIA is disabled.
 #endif
 
 #define ARIA_ENCRYPT     1

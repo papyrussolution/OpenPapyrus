@@ -26934,6 +26934,11 @@ public:
 	int    FinalizeProcessDeviceInput(ProcessDeviceInputBlock & rBlk);
 	int    Helper_ProcessDeviceInput(ProcessDeviceInputBlock & rBlk);
 private:
+	struct FrwdPsnEventItem { // @flat
+		LDATE  Dt;
+		long   OprNo;
+		PPID   ID;
+	};
 	virtual int HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
@@ -26942,8 +26947,8 @@ private:
 	virtual const char * GetNamePtr();
 	int    TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * pPok, const PoClause_ * pClause, int action, int use_ta);
 	int    TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const PPPsnEventPacket * pPack, const PoClause_ * pClause);
-	int    GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, SArray *);
-	int    GetFrwdList(PPID psnID, LDATE dt, long oprno, SArray *);
+	int    GetFrwdList(PPID psnID, int isPrmr, LDATE dt, long oprno, TSVector <FrwdPsnEventItem> *);
+	int    GetFrwdList(PPID psnID, LDATE dt, long oprno, TSVector <FrwdPsnEventItem> *);
 	int    Helper_PutPacket(PPID evID, int action, PPPsnEventPacket *, PPPsnOpKindPacket *);
 
 	void * ExtraPtr;
@@ -52956,6 +52961,207 @@ private:
 	State_ St;
 	TWhatmanToolArray Tools;
 	DdotInfoBlock Dib;
+};
+//
+//
+//
+class UdsGameInterface {
+public:
+	struct InitBlock {
+		InitBlock();
+		InitBlock & Z();
+		PPID   GuaID;
+		PPGlobalUserAccPacket GuaPack;
+		SString CliIdent;
+		SString CliAccsKey;
+		SString EndPoint; // URL для запросов
+	};
+	struct Error {
+		Error();
+		Error & Z();
+		int    Code; // -1 error but numeric code is undefined
+		SString ErrCode; // text code
+		SString Message; // text message
+	};
+	struct MembershipTier {
+		struct Conditions {
+			Conditions();
+			double TotalCashSpent;
+			double EffInvitedCount;
+		};
+		MembershipTier();
+		S_GUID Uid;
+		SString Name;
+		double Rate;
+		Conditions C;
+	};
+	struct Settings {
+		enum {
+			fPurchaseByPhone = 0x0001,
+			fWriteInvoice    = 0x0002,
+			fBurnPointsOnPurchase  = 0x0004,
+			fBurnPointsOnPricelist = 0x0008
+		};
+		Settings();
+		int64  ID;
+		uint   Flags;
+		double MaxScoresDiscount;
+		double CashierAward;
+		double ReferralReward;
+		double ReceiptLimit;
+		double DeferPointsForDays;
+		SString Name;
+		SString PromoCode;
+		SString Currency;
+		SString BaseDiscountPolicy;
+		SString Slug;
+		MembershipTier BaseMt;
+		TSCollection <MembershipTier> MtList;
+	};
+	struct Participant {
+		Participant();
+		int64 ID;
+		int64 InviterID;
+		double PointCount;
+		double DiscountRate;
+		double CashbackRate;
+		LDATE DOB;
+		LDATETIME DtmCreated;
+		LDATETIME DtmLastTransaction;
+		MembershipTier Mt;
+	};
+	struct Customer {
+		Customer();
+		int    Gender; // GENDER_XXX
+		LDATE  DOB;
+		S_GUID Uid;
+		SString Avatar;
+		SString DisplayName;
+		SString Phone;
+		Participant P;
+	};
+	struct Purchase {
+		double MaxPoints;
+		double Total;
+		double SkipLoyaltyTotal;
+		double DiscountAmount;
+		double DiscountPercent;
+		double Points;
+		double PointsPercent;
+		double NetDiscount;
+		double NetDiscountPercent;
+		double Cash;
+		double CashBack;
+	};
+	struct Ref {
+		Ref();
+		int64  ID;
+		SString Name;
+	};
+
+	enum {
+		tactUndef = 0,
+		tactPurchase = 1,
+	};
+	enum {
+		tstUndef = 0,
+		tstNormal,   // NORMAL
+		tstCanceled, // CANCELED
+		tstReversal  // REVERSAL
+	};
+	struct Transaction {
+		Transaction();
+		int64  ID;
+		LDATETIME Dtm;
+		int    Action; // tactXXX
+		int    State;  // tstXXX
+		SString Code;       // При создании транзакции: код, сканируемый с телефона 
+		SString BillNumber; // При создании транзакции: номер чека или документа
+		Customer Cust;
+		Ref    Cashier;
+		Ref    Branch;
+		double Points;
+		double Cash;
+		double Total;
+		double SkipLoyaltyTotal; // При создании транзакции: A part of the bill amount for which cashback is not credited and to which the discount does not apply (in currency units).
+	};
+	struct FindCustomerParam {
+		FindCustomerParam();
+		enum {
+			fExchangeCode = 0x0001 // Exchange existing payment promo code (if present in query) to a new long-term one. Old promo code will be deactivated.
+		};
+		S_GUID Uid;    // Customer UID
+		double Total;  // Total bill amount (in currency units).
+		double SkipLoyaltyTotal; // A part of the bill amount for which cashback is not credited and to which the discount does not apply (in currency units).
+		long   Flags;
+		SString Code;  // Payment code
+		SString Phone; // Phone number in E164 format, for example, +79876543210.
+	};
+	UdsGameInterface();
+	~UdsGameInterface();
+	int    Setup(PPID guaID);
+	//
+	// Descr: Возвращает !0 если последний метод обращения к серверу завершился ошибкой.
+	//   По ссылке rErr возвращает состояние последней ошибки.
+	//
+	int    IsError(Error & rErr) const;
+	int    GetSettings(Settings & rResult);        // GET https://api.uds.app/partner/v2/settings
+	int    GetTransactionList(); // GET  https://api.uds.app/partner/v2/operations
+	int    GetTransactionInformation(); // GET  https://api.uds.app/partner/v2/operations
+	int    GetTransactionInformation2(); // POST https://api.uds.app/partner/v2/operations/calc
+	int    CreateTransaction(const Transaction & rT, Transaction & pReplyT);  // POST https://api.uds.app/partner/v2/operations
+	int    RefundTransaction();  // POST https://api.uds.app/partner/v2/operations/<id>/refund
+	int    RewardingUsersWithPoints(); // POST https://api.uds.app/partner/v2/operations/reward
+	int    GetCustomerList(TSCollection <Customer> & rResult); // GET https://api.uds.app/partner/v2/customers
+	int    FindCustomer(const FindCustomerParam & rP, Customer & rC, SString & rCode, Purchase & rPurchase);  // GET https://api.uds.app/partner/v2/customers/find
+	int    GetCustomerInformation(int64 id, Customer & rC); // GET https://api.uds.app/partner/v2/customers/<id>
+
+	struct GoodsItem {
+		GoodsItem();
+		GoodsItem & Z();
+		enum {
+			typUndef = 0,
+			typCategory = 1,
+			typItem = 2,
+			typVaryingItem = 3
+		};
+		enum {
+			fHidden  = 0x0001,
+			fBlocked = 0x0002
+		};
+		int    Type;
+		uint   Flags;
+		int64  OuterId;  // Идентификатор в UDS
+		int64  ParentId; // Идентификатор родительской категории в UDS
+		LDATETIME DtmCreated;
+		double Price;
+		SString Ident;  // Собственный идентификатор
+		SString Name;
+		SString Sku;
+		SString Description;
+	};
+
+	int    CreatePriceItem(const GoodsItem & rItem, GoodsItem & rRetItem);  // POST https://api.uds.app/partner/v2/goods
+	int    UpdatePriceItem(const GoodsItem & rItem, GoodsItem & rRetItem);  // PUT https://api.uds.app/partner/v2/goods/<id>
+	int    DeletePriceItem(int64 outerId);  // DELETE -s https://api.uds.app/partner/v2/goods/<id>
+	struct GoodsItemFilt {
+		GoodsItemFilt();
+		int64   ParentId;
+		uint    Count;  // max=50, default=10
+		uint    Offset; // max=10000, default=9
+	};
+	int    GetPriceItemList(const GoodsItemFilt & rFilt, TSCollection <GoodsItem> & rList, uint * pFetchedCount, uint * pTotalCount); // GET -s https://api.uds.app/partner/v2/goods
+	int    GetPriceItemInformation(int64 outerId, GoodsItem & rItem); // GET -s https://api.uds.app/partner/v2/goods/<id>
+private:
+	void   PrepareHtmlFields(StrStrAssocArray & rHdrFlds);
+	int    ReadError(const json_t * pJs, Error & rErr) const;
+	int    ReadMembershipTier(const json_t * pJs, MembershipTier & rT) const;
+	int    ReadCustomer(const json_t * pJs, Customer & rC) const;
+	int    ReadParticipant(const json_t * pJs, Participant & rP) const;
+	int    ReadPurchase(const json_t * pJs, Purchase & rP) const;
+	int    ReadPriceItem(const json_t * pJs, GoodsItem & rI) const;
+	InitBlock Ib;
+	Error LastErr;
 };
 //
 // Standalone functions and supported structures

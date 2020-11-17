@@ -26684,7 +26684,8 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,215,150,50,13
 END
 
-DLG_TXTDBPARAM DIALOGEX 26, 8, 377, 166
+
+DLG_TXTDBPARAM DIALOGEX 26, 8, 375, 202
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@impexpparam_textdb"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -26696,20 +26697,23 @@ BEGIN
     CONTROL         "@impexpparam_textdb_recorien_horz",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,50,149,10
     CONTROL         "@impexpparam_textdb_recorien_vert",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,11,60,149,10
     GROUPBOX        "",CTL_TXTDBPARAM_FLAGS,5,75,165,65,WS_GROUP
-    CONTROL         "@impexpparam_textdb_ffldnamerec",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,85,151,10
-    CONTROL         "@impexpparam_textdb_ffixedfields",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,95,151,10
-    CONTROL         "@impexpparam_textdb_ffldeqval",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,105,151,10
-    CONTROL         "@impexpparam_textdb_foemtext",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,115,151,10
-    CONTROL         "@impexpparam_textdb_fquottext",21683,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,125,151,10
-    LTEXT           "@impexpparam_textdb_vertrecterm",4003,181,50,194,8
-    EDITTEXT        CTL_TXTDBPARAM_DIV,181,60,84,13,ES_AUTOHSCROLL
-    LTEXT           "@impexpparam_textdb_hdrlinescount",4004,181,80,172,8
-    EDITTEXT        CTL_TXTDBPARAM_HDRCOUNT,181,90,40,13,ES_AUTOHSCROLL
-    LTEXT           "@impexpparam_textdb_footerline",4005,181,105,174,8
-    EDITTEXT        CTL_TXTDBPARAM_FOOTER,181,115,175,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "@{impexpparam_textdb_headers}...",4006,5,145,85,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,245,145,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,305,145,50,13
+    CONTROL         "@impexpparam_textdb_ffldnamerec",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,85,151,10
+    CONTROL         "@impexpparam_textdb_ffixedfields",9395,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,95,151,10
+    CONTROL         "@impexpparam_textdb_ffldeqval",13491,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,105,151,10
+    CONTROL         "@impexpparam_textdb_fquottext",17587,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,115,151,10
+    GROUPBOX        "@{selectcodepage}",CTL_TXTDBPARAM_ENCODING,175,40,130,50,WS_GROUP
+    CONTROL         "ANSI",CTL_TXTDBPARAM_ENCODING + 4096,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,185,55,90,10
+    CONTROL         "OEM",CTL_TXTDBPARAM_ENCODING + 8192,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,185,65,85,10
+    CONTROL         "UTF-8",CTL_TXTDBPARAM_ENCODING + 12288,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,185,75,85,10
+    LTEXT           "@impexpparam_textdb_vertrecterm",4004,177,95,194,8
+    EDITTEXT        CTL_TXTDBPARAM_DIV,177,105,84,13,ES_AUTOHSCROLL
+    LTEXT           "@impexpparam_textdb_hdrlinescount",4005,177,125,172,8
+    EDITTEXT        CTL_TXTDBPARAM_HDRCOUNT,177,135,40,13,ES_AUTOHSCROLL
+    LTEXT           "@impexpparam_textdb_footerline",4006,177,150,174,8
+    EDITTEXT        CTL_TXTDBPARAM_FOOTER,175,160,175,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "@{impexpparam_textdb_headers}...",4007,5,160,85,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,225,180,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,300,180,50,13
 END
 
 DLG_UHTTEXPGOODS DIALOGEX 83, 24, 307, 201
@@ -34089,6 +34093,7 @@ BEGIN
 
     DLG_TXTDBPARAM, DIALOG
     BEGIN
+        BOTTOMMARGIN, 166
     END
 
     DLG_UHTTEXPGOODS, DIALOG

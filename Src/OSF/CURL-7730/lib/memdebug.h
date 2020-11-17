@@ -88,26 +88,26 @@ CURL_EXTERN int curl_dbg_fclose(FILE *file, int line, const char *source);
 
 /* Set this symbol on the command-line, recompile all lib-sources */
 #undef strdup
-#define strdup(ptr) curl_dbg_strdup(ptr, __LINE__, __FILE__)
-#define malloc(size) curl_dbg_malloc(size, __LINE__, __FILE__)
-#define calloc(nbelem,size) curl_dbg_calloc(nbelem, size, __LINE__, __FILE__)
-#define realloc(ptr,size) curl_dbg_realloc(ptr, size, __LINE__, __FILE__)
-#define free(ptr) curl_dbg_free(ptr, __LINE__, __FILE__)
+#define sstrdup(ptr) curl_dbg_strdup(ptr, __LINE__, __FILE__)
+#define SAlloc::M(size) curl_dbg_malloc(size, __LINE__, __FILE__)
+#define SAlloc::C(nbelem,size) curl_dbg_calloc(nbelem, size, __LINE__, __FILE__)
+#define SAlloc::R(ptr,size) curl_dbg_realloc(ptr, size, __LINE__, __FILE__)
+#define SAlloc::F(ptr) curl_dbg_free(ptr, __LINE__, __FILE__)
 #define send(a,b,c,d) curl_dbg_send(a,b,c,d, __LINE__, __FILE__)
 #define recv(a,b,c,d) curl_dbg_recv(a,b,c,d, __LINE__, __FILE__)
 
 #ifdef WIN32
-#  ifdef UNICODE
-#    undef wcsdup
-#    define wcsdup(ptr) curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
-#    undef _wcsdup
-#    define _wcsdup(ptr) curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
-#    undef _tcsdup
-#    define _tcsdup(ptr) curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
-#  else
-#    undef _tcsdup
-#    define _tcsdup(ptr) curl_dbg_strdup(ptr, __LINE__, __FILE__)
-#  endif
+#ifdef UNICODE
+#undef wcsdup
+#define wcsdup(ptr) curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
+#undef _wcsdup
+#define _wcsdup(ptr) curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
+#undef _tcsdup
+#define _tcsdup(ptr) curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
+#else
+#undef _tcsdup
+#define _tcsdup(ptr) curl_dbg_strdup(ptr, __LINE__, __FILE__)
+#endif
 #endif
 
 #undef socket
@@ -167,10 +167,10 @@ CURL_EXTERN int curl_dbg_fclose(FILE *file, int line, const char *source);
 
 /*
  * Curl_safefree defined as a macro to allow MemoryTracking feature
- * to log free() calls at same location where Curl_safefree is used.
+ * to log SAlloc::F() calls at same location where Curl_safefree is used.
  * This macro also assigns NULL to given pointer when free'd.
  */
 
-#define Curl_safefree(ptr) do { free((ptr)); (ptr) = NULL;} while(0)
+#define Curl_safefree(ptr) do { SAlloc::F((ptr)); (ptr) = NULL;} while(0)
 
 #endif /* HEADER_CURL_MEMDEBUG_H */

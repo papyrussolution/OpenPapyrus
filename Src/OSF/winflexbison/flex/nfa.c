@@ -1,41 +1,29 @@
-/* nfa - NFA construction routines */
-
-/*  Copyright (c) 1990 The Regents of the University of California. */
-/*  All rights reserved. */
-
-/*  This code is derived from software contributed to Berkeley by */
-/*  Vern Paxson. */
-
-/*  The United States Government has rights in this work pursuant */
-/*  to contract no. DE-AC03-76SF00098 between the United States */
-/*  Department of Energy and the University of California. */
-
-/*  This file is part of flex. */
-
-/*  Redistribution and use in source and binary forms, with or without */
-/*  modification, are permitted provided that the following conditions */
-/*  are met: */
-
-/*  1. Redistributions of source code must retain the above copyright */
-/*     notice, this list of conditions and the following disclaimer. */
-/*  2. Redistributions in binary form must reproduce the above copyright */
-/*     notice, this list of conditions and the following disclaimer in the */
-/*     documentation and/or other materials provided with the distribution. */
-
-/*  Neither the name of the University nor the names of its contributors */
-/*  may be used to endorse or promote products derived from this software */
-/*  without specific prior written permission. */
-
-/*  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR */
-/*  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED */
-/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR */
-/*  PURPOSE. */
-
+// nfa - NFA construction routines 
+// Copyright (c) 1990 The Regents of the University of California. 
+// All rights reserved. 
+// This code is derived from software contributed to Berkeley by Vern Paxson. 
+// The United States Government has rights in this work pursuant 
+// to contract no. DE-AC03-76SF00098 between the United States 
+// Department of Energy and the University of California. 
+// This file is part of flex. 
+// Redistribution and use in source and binary forms, with or without 
+// modification, are permitted provided that the following conditions are met: 
+//   1. Redistributions of source code must retain the above copyright 
+//   notice, this list of conditions and the following disclaimer. 
+//   2. Redistributions in binary form must reproduce the above copyright 
+//   notice, this list of conditions and the following disclaimer in the 
+//   documentation and/or other materials provided with the distribution. 
+// Neither the name of the University nor the names of its contributors 
+// may be used to endorse or promote products derived from this software 
+// without specific prior written permission. 
+// THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR 
+// IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED 
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. 
+// 
 #include "flexdef.h"
 #pragma hdrstop
 
 /* declare functions that have forward references */
-
 int     dupmachine(int);
 void    mkxtion(int, int);
 
@@ -58,7 +46,6 @@ void    add_accept(int mach, int accepting_number)
 		link_machines(mach, astate);
 	}
 }
-
 /* copysingl - make a given number of copies of a singleton machine
  *
  * synopsis
@@ -69,7 +56,6 @@ void    add_accept(int mach, int accepting_number)
  *     singl  - a singleton machine
  *     num    - the number of copies of singl to be present in newsng
  */
-
 int     copysingl(int singl, int num)
 {
 	int copy = mkstate(SYM_EPSILON);
@@ -77,9 +63,9 @@ int     copysingl(int singl, int num)
 		copy = link_machines(copy, dupmachine(singl));
 	return copy;
 }
-
-/* dumpnfa - debugging routine to write out an nfa */
-
+// 
+// dumpnfa - debugging routine to write out an nfa 
+// 
 void    dumpnfa(int state1)
 {
 	fprintf(stderr, _("\n\n********** beginning dump of nfa with start state %d\n"), state1);
@@ -108,7 +94,6 @@ void    dumpnfa(int state1)
  * synopsis
  *
  *   copy = dupmachine( mach );
- *
  *     copy - holds duplicate of mach
  *     mach - machine to be duplicated
  *
@@ -167,7 +152,6 @@ void    finish_rule(int mach, int variable_trail_rule, int headcnt, int trailcnt
 	 */
 	if(continued_action)
 		--rule_linenum[num_rules];
-
 	/* If the previous rule was continued action, then we inherit the
 	 * previous newline flag, possibly overriding the current one.
 	 */
@@ -191,8 +175,8 @@ void    finish_rule(int mach, int variable_trail_rule, int headcnt, int trailcnt
 			/* Do trailing context magic to not match the trailing
 			 * characters.
 			 */
-			char   * scanner_cp = "YY_G(yy_c_buf_p) = yy_cp";
-			char   * scanner_bp = "yy_bp";
+			const char * scanner_cp = "YY_G(yy_c_buf_p) = yy_cp";
+			const char * scanner_bp = "yy_bp";
 			add_action("*yy_cp = YY_G(yy_hold_char); /* undo effects of setting up yytext */\n");
 			if(headcnt > 0) {
 				if(rule_has_nl[num_rules]) {
@@ -214,7 +198,6 @@ void    finish_rule(int mach, int variable_trail_rule, int headcnt, int trailcnt
 			add_action("YY_DO_BEFORE_ACTION; /* set up yytext again */\n");
 		}
 	}
-
 	/* Okay, in the action code at this point yytext and yyleng have
 	 * their proper final values for this rule, so here's the point
 	 * to do any user action.  But don't do it for continued actions,
@@ -222,7 +205,6 @@ void    finish_rule(int mach, int variable_trail_rule, int headcnt, int trailcnt
 	 */
 	if(!continued_action)
 		add_action("YY_RULE_SETUP\n");
-
 	line_directive_out(NULL, 1);
 	add_action("[[");
 }
@@ -230,9 +212,7 @@ void    finish_rule(int mach, int variable_trail_rule, int headcnt, int trailcnt
 /* link_machines - connect two machines together
  *
  * synopsis
- *
  *   new = link_machines( first, last );
- *
  *     new    - a machine constructed by connecting first to last
  *     first  - the machine whose successor is to be last
  *     last   - the machine whose predecessor is to be first
@@ -297,7 +277,6 @@ void mark_beginning_as_normal(int mach)
  * the resulting machine CANNOT be used with any other "mk" operation except
  * more mkbranch's.  Compare with mkor()
  */
-
 int     mkbranch(int first, int second)
 {
 	int eps;
@@ -310,7 +289,6 @@ int     mkbranch(int first, int second)
 	mkxtion(eps, second);
 	return eps;
 }
-
 /* mkclos - convert a machine into a closure
  *
  * synopsis
@@ -318,27 +296,18 @@ int     mkbranch(int first, int second)
  *
  * new - a new state which matches the closure of "state"
  */
-
-int     mkclos(int state)
-{
-	return mkopt(mkposcl(state));
-}
-
+int mkclos(int state) { return mkopt(mkposcl(state)); }
+//
 /* mkopt - make a machine optional
- *
  * synopsis
- *
  *   new = mkopt( mach );
- *
  *     new  - a machine which optionally matches whatever mach matched
  *     mach - the machine to make optional
- *
  * notes:
  *     1. mach must be the last machine created
  *     2. mach is destroyed by the call
  */
-
-int     mkopt(int mach)
+int mkopt(int mach)
 {
 	int eps;
 	if(!SUPER_FREE_EPSILON(finalst[mach])) {
@@ -368,49 +337,35 @@ int     mkopt(int mach)
  * the code is rather convoluted because an attempt is made to minimize
  * the number of epsilon states needed
  */
-
 int     mkor(int first, int second)
 {
 	int eps, orend;
-
 	if(first == NIL)
 		return second;
-
 	else if(second == NIL)
 		return first;
-
 	else {
 		/* See comment in mkopt() about why we can't use the first
 		 * state of "first" or "second" if they satisfy "FREE_EPSILON".
 		 */
 		eps = mkstate(SYM_EPSILON);
-
 		first = link_machines(eps, first);
-
 		mkxtion(first, second);
-
-		if(SUPER_FREE_EPSILON(finalst[first]) &&
-		    accptnum[finalst[first]] == NIL) {
+		if(SUPER_FREE_EPSILON(finalst[first]) && accptnum[finalst[first]] == NIL) {
 			orend = finalst[first];
 			mkxtion(finalst[second], orend);
 		}
-
-		else if(SUPER_FREE_EPSILON(finalst[second]) &&
-		    accptnum[finalst[second]] == NIL) {
+		else if(SUPER_FREE_EPSILON(finalst[second]) && accptnum[finalst[second]] == NIL) {
 			orend = finalst[second];
 			mkxtion(finalst[first], orend);
 		}
-
 		else {
 			eps = mkstate(SYM_EPSILON);
-
 			first = link_machines(first, eps);
 			orend = finalst[first];
-
 			mkxtion(finalst[second], orend);
 		}
 	}
-
 	finalst[first] = orend;
 	return first;
 }
@@ -426,19 +381,16 @@ int     mkor(int first, int second)
 int     mkposcl(int state)
 {
 	int eps;
-
 	if(SUPER_FREE_EPSILON(finalst[state])) {
 		mkxtion(finalst[state], state);
 		return state;
 	}
-
 	else {
 		eps = mkstate(SYM_EPSILON);
 		mkxtion(eps, state);
 		return link_machines(state, eps);
 	}
 }
-
 /* mkrep - make a replicated machine
  *
  * synopsis
@@ -453,33 +405,22 @@ int     mkposcl(int state)
 
 int     mkrep(int mach, int lb, int ub)
 {
-	int base_mach, tail, copy, i;
-
-	base_mach = copysingl(mach, lb - 1);
-
+	int tail, copy, i;
+	int base_mach = copysingl(mach, lb - 1);
 	if(ub == INFINITE_REPEAT) {
 		copy = dupmachine(mach);
-		mach = link_machines(mach,
-			link_machines(base_mach,
-			mkclos(copy)));
+		mach = link_machines(mach, link_machines(base_mach, mkclos(copy)));
 	}
-
 	else {
 		tail = mkstate(SYM_EPSILON);
-
 		for(i = lb; i < ub; ++i) {
 			copy = dupmachine(mach);
 			tail = mkopt(link_machines(copy, tail));
 		}
-
-		mach =
-		    link_machines(mach,
-			link_machines(base_mach, tail));
+		mach = link_machines(mach, link_machines(base_mach, tail));
 	}
-
 	return mach;
 }
-
 /* mkstate - create a state with a transition on a given symbol
  *
  * synopsis
@@ -536,19 +477,15 @@ int mkstate(int sym)
 		 * first time.
 		 */
 	}
-
 	else if(sym == SYM_EPSILON)
 		++numeps;
-
 	else {
 		check_char(sym);
 		if(useecs)
-			/* Map NUL's to csize. */
-			mkechar(sym ? sym : csize, nextecm, ecgroup);
+			mkechar(sym ? sym : csize, nextecm, ecgroup); /* Map NUL's to csize. */
 	}
 	return lastnfa;
 }
-
 /* mkxtion - make a transition from one state to another
  *
  * synopsis
@@ -558,24 +495,20 @@ int mkstate(int sym)
  *     statefrom - the state from which the transition is to be made
  *     stateto   - the state to which the transition is to be made
  */
-
-void    mkxtion(int statefrom, int stateto)
+void mkxtion(int statefrom, int stateto)
 {
 	if(trans1[statefrom] == NO_TRANSITION)
 		trans1[statefrom] = stateto;
-
-	else if((transchar[statefrom] != SYM_EPSILON) ||
-	    (trans2[statefrom] != NO_TRANSITION))
+	else if((transchar[statefrom] != SYM_EPSILON) || (trans2[statefrom] != NO_TRANSITION))
 		flexfatal(_("found too many transitions in mkxtion()"));
-
-	else {                  /* second out-transition for an epsilon state */
+	else { /* second out-transition for an epsilon state */
 		++eps2;
 		trans2[statefrom] = stateto;
 	}
 }
-
-/* new_rule - initialize for a new rule */
-
+// 
+// new_rule - initialize for a new rule 
+// 
 void    new_rule()
 {
 	if(++num_rules >= current_max_rules) {
@@ -588,7 +521,6 @@ void    new_rule()
 	}
 	if(num_rules > MAX_RULE)
 		lerr(_("too many rules (> %d)!"), MAX_RULE);
-
 	rule_linenum[num_rules] = linenum;
 	rule_useful[num_rules] = false;
 	rule_has_nl[num_rules] = false;

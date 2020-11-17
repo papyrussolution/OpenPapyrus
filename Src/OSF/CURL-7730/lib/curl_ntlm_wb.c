@@ -44,7 +44,7 @@
 #endif
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "select.h"
 #include "vauth/ntlm.h"
 #include "curl_ntlm_core.h"
@@ -68,11 +68,11 @@
 /* Portable 'sclose_nolog' used only in child process instead of 'sclose'
    to avoid fooling the socket leak detector */
 #if defined(HAVE_CLOSESOCKET)
-#  define sclose_nolog(x)  closesocket((x))
+#define sclose_nolog(x)  closesocket((x))
 #elif defined(HAVE_CLOSESOCKET_CAMEL)
-#  define sclose_nolog(x)  CloseSocket((x))
+#define sclose_nolog(x)  CloseSocket((x))
 #else
-#  define sclose_nolog(x)  close((x))
+#define sclose_nolog(x)  close((x))
 #endif
 
 static void ntlm_wb_cleanup(struct ntlmdata * ntlm)
@@ -162,7 +162,7 @@ static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
 	}
 	slash = strpbrk(username, "\\/");
 	if(slash) {
-		domain = strdup(username);
+		domain = sstrdup(username);
 		if(!domain)
 			return CURLE_OUT_OF_MEMORY;
 		slash = domain + (slash - username);
@@ -244,13 +244,13 @@ static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
 	sclose(sockfds[1]);
 	ntlm->ntlm_auth_hlpr_socket = sockfds[0];
 	ntlm->ntlm_auth_hlpr_pid = child_pid;
-	free(domain);
-	free(ntlm_auth_alloc);
+	SAlloc::F(domain);
+	SAlloc::F(ntlm_auth_alloc);
 	return CURLE_OK;
 
 done:
-	free(domain);
-	free(ntlm_auth_alloc);
+	SAlloc::F(domain);
+	SAlloc::F(ntlm_auth_alloc);
 	return CURLE_REMOTE_ACCESS_DENIED;
 }
 
@@ -318,7 +318,7 @@ static CURLcode ntlm_wb_response(struct Curl_easy * data, struct ntlmdata * ntlm
 	    (ptr[0]!='A' || ptr[1]!='F' || ptr[2]!=' '))
 		goto done;
 
-	ntlm->response = strdup(ptr + 3);
+	ntlm->response = sstrdup(ptr + 3);
 	Curl_dyn_free(&b);
 	if(!ntlm->response)
 		return CURLE_OUT_OF_MEMORY;
@@ -343,7 +343,7 @@ CURLcode Curl_input_ntlm_wb(struct connectdata * conn,
 		header++;
 
 	if(*header) {
-		ntlm->challenge = strdup(header);
+		ntlm->challenge = sstrdup(header);
 		if(!ntlm->challenge)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -439,7 +439,7 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 		    if(res)
 			    return res;
 
-		    free(*allocuserpwd);
+		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    ntlm->response);
@@ -454,11 +454,11 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 		    if(!input)
 			    return CURLE_OUT_OF_MEMORY;
 		    res = ntlm_wb_response(conn->data, ntlm, input, *state);
-		    free(input);
+		    SAlloc::F(input);
 		    if(res)
 			    return res;
 
-		    free(*allocuserpwd);
+		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    ntlm->response);

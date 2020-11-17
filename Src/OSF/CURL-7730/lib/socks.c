@@ -32,10 +32,10 @@
 #endif
 
 #include "urldata.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "select.h"
-#include "connect.h"
-#include "timeval.h"
+//#include "connect.h"
+//#include "timeval.h"
 #include "socks.h"
 #include "multiif.h" /* for getsock macros */
 
